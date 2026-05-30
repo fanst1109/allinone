@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Chiến tranh Lạnh (1947–1991)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette Chiến tranh Lạnh ── */
+  :root {
+    --accent:       #0f766e;
+    --accent-soft:  #ccfbf1;
+    --accent-dark:  #134e4a;
+    --usa:          #1d4ed8;
+    --usa-soft:     #dbeafe;
+    --ussr:         #b91c1c;
+    --ussr-soft:    #fee2e2;
+    --neutral:      #92400e;
+    --neutral-soft: #fef3c7;
+    --stone:        #57534e;
+    --stone-soft:   #f5f5f4;
+    --bg-card:      #ffffff;
+    --purple:       #7c3aed;
+    --purple-soft:  #ede9fe;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.65rem; margin-bottom: 6px; }
+  h2 {
+    color: var(--accent);
+    margin-top: 44px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-soft);
+    font-size: 1.2rem;
+  }
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 22px;
+    font-style: italic;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 6px rgba(15,118,110,.12);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .usa-box {
+    background: var(--usa-soft);
+    border-left: 4px solid var(--usa);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 8px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .ussr-box {
+    background: var(--ussr-soft);
+    border-left: 4px solid var(--ussr);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 8px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover:not(:disabled) { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 1 — Bản đồ hai khối thế giới
+     ══════════════════════════════════════════════ */
+  #world-map-wrap { width: 100%; overflow-x: auto; }
+  #world-map-svg { display: block; margin: 0 auto; }
+
+  .map-legend {
+    display: flex; gap: 20px; flex-wrap: wrap; margin: 12px 0;
+    font-size: 13px; align-items: center;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .legend-swatch {
+    width: 20px; height: 12px; border-radius: 3px; flex-shrink: 0;
+  }
+
+  .map-filter-row {
+    display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0;
+  }
+  .map-filter-btn {
+    padding: 5px 14px; border-radius: 20px; border: 2px solid #d1d5db;
+    background: #f9fafb; font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: all .15s;
+  }
+  .map-filter-btn.active-usa   { background: var(--usa);     color: white; border-color: var(--usa); }
+  .map-filter-btn.active-ussr  { background: var(--ussr);    color: white; border-color: var(--ussr); }
+  .map-filter-btn.active-nat   { background: var(--neutral); color: white; border-color: var(--neutral); }
+  .map-filter-btn.active-all   { background: var(--accent);  color: white; border-color: var(--accent); }
+
+  .map-info-panel {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 48px;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 2 — Timeline 1945–1991
+     ══════════════════════════════════════════════ */
+  .tl-container {
+    position: relative;
+    padding: 8px 0 8px 40px;
+  }
+  .tl-container::before {
+    content: '';
+    position: absolute;
+    left: 18px; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, #1d4ed8, #b91c1c, #0f766e, #7c3aed, #92400e, #15803d);
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative; margin-bottom: 20px; padding-left: 18px;
+  }
+  .tl-item::before {
+    content: ''; position: absolute;
+    left: -28px; top: 5px;
+    width: 13px; height: 13px; border-radius: 50%;
+    border: 2px solid white;
+    background: var(--stone);
+    box-shadow: 0 0 0 2px var(--stone);
+  }
+  .tl-item.usa::before     { background: var(--usa);     box-shadow: 0 0 0 2px var(--usa); }
+  .tl-item.ussr::before    { background: var(--ussr);    box-shadow: 0 0 0 2px var(--ussr); }
+  .tl-item.both::before    { background: var(--accent);  box-shadow: 0 0 0 2px var(--accent); }
+  .tl-item.crisis::before  {
+    width: 17px; height: 17px; left: -30px; top: 3px;
+    background: #dc2626;
+    box-shadow: 0 0 0 3px #dc2626, 0 0 0 6px rgba(220,38,38,.2);
+  }
+  .tl-item.end::before     {
+    width: 17px; height: 17px; left: -30px; top: 3px;
+    background: #15803d;
+    box-shadow: 0 0 0 3px #15803d, 0 0 0 6px rgba(21,128,61,.2);
+  }
+
+  .tl-year  { font-size: 12px; font-weight: 700; color: var(--stone); margin-bottom: 2px; }
+  .tl-item.usa .tl-year    { color: var(--usa); }
+  .tl-item.ussr .tl-year   { color: var(--ussr); }
+  .tl-item.both .tl-year   { color: var(--accent-dark); }
+  .tl-item.crisis .tl-year { color: #dc2626; font-size: 14px; }
+  .tl-item.end .tl-year    { color: #15803d; font-size: 14px; }
+
+  .tl-title  { font-weight: 700; font-size: 14px; color: #1f2937; line-height: 1.4; }
+  .tl-desc   { font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.5; }
+
+  .tl-badge {
+    display: inline-block; padding: 1px 8px; border-radius: 10px;
+    font-size: 10px; font-weight: 700; margin-left: 6px; vertical-align: middle;
+  }
+  .badge-usa     { background: var(--usa-soft);     color: #1e40af; }
+  .badge-ussr    { background: var(--ussr-soft);    color: #991b1b; }
+  .badge-crisis  { background: #fee2e2; color: #991b1b; }
+  .badge-both    { background: var(--accent-soft);  color: var(--accent-dark); }
+  .badge-space   { background: var(--purple-soft);  color: var(--purple); }
+  .badge-end     { background: #dcfce7; color: #15803d; }
+
+  .tl-era-sep {
+    margin: 18px 0 14px -40px;
+    padding: 5px 14px 5px 40px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    border-radius: 0 20px 20px 0;
+    display: inline-block;
+  }
+  .era-origin  { background: var(--usa-soft);      color: #1e40af; }
+  .era-peak    { background: var(--ussr-soft);      color: #991b1b; }
+  .era-detente { background: var(--accent-soft);    color: var(--accent-dark); }
+  .era-end     { background: #dcfce7;               color: #15803d; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 3 — Bản đồ điểm nóng
+     ══════════════════════════════════════════════ */
+  .hotspot-wrap { width: 100%; overflow-x: auto; }
+  #hotspot-svg  { display: block; margin: 0 auto; }
+
+  .hotspot-detail {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+  }
+  .hotspot-detail.show { display: block; }
+  .hotspot-title {
+    font-weight: 700; font-size: 15px;
+    margin-bottom: 8px;
+  }
+  .hotspot-title.usa-c  { color: var(--usa); }
+  .hotspot-title.ussr-c { color: var(--ussr); }
+  .hotspot-title.both-c { color: var(--accent-dark); }
+
+  /* Pulse animation cho điểm nóng */
+  @keyframes pulse-ring {
+    0%   { r: 8; opacity: .8; }
+    100% { r: 18; opacity: 0; }
+  }
+  .hotspot-pulse { animation: pulse-ring 1.8s ease-out infinite; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 4 — Quiz
+     ══════════════════════════════════════════════ */
+  .quiz-q { font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #1f2937; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .quiz-opt {
+    padding: 10px 14px; border-radius: 7px; border: 2px solid #e5e7eb;
+    background: #f9fafb; cursor: pointer; font-size: 14px; text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: #15803d; background: #dcfce7; color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--ussr); background: var(--ussr-soft); color: #991b1b; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.6;
+    margin-top: 8px; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: #dcfce7; color: #14532d; border: 1px solid #15803d; }
+  .quiz-feedback.err { background: var(--ussr-soft); color: #991b1b; border: 1px solid var(--ussr); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score    { font-weight: 700; color: #15803d; font-size: 15px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .tl-era-sep { font-size: 10px; padding-left: 32px; }
+    .map-legend { gap: 12px; }
+    .hotspot-detail { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử TG — Hiện đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-world-war-2/visualization.html">← L5: Thế chiến thứ hai</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Chiến tranh Lạnh</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-decolonization-globalization/visualization.html">L7: Phi thực dân hóa &amp; toàn cầu hóa →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Chiến tranh Lạnh (1947–1991)</h1>
+<p class="subtitle">Hai siêu cường, hai hệ thống — cuộc cạnh tranh định hình thế giới trong 44 năm</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ thế giới hai khối
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ thế giới hai khối (khoảng 1955–1985)</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Bấm các nút lọc để làm nổi bật từng nhóm nước. Bấm vào tên khu vực trên bản đồ để xem thông tin chi tiết. Màu xanh dương = khối NATO/phương Tây; đỏ = khối Xô Viết/Hiệp ước Warsaw; vàng = không liên kết; xám = ít gắn kết rõ ràng.
+  </div>
+
+  <div class="map-filter-row">
+    <button class="map-filter-btn active-all" id="filter-all" onclick="setFilter('all')">Tất cả</button>
+    <button class="map-filter-btn" id="filter-usa"  onclick="setFilter('usa')">Khối NATO / Phương Tây</button>
+    <button class="map-filter-btn" id="filter-ussr" onclick="setFilter('ussr')">Khối Xô Viết / Warsaw</button>
+    <button class="map-filter-btn" id="filter-nat"  onclick="setFilter('nat')">Không liên kết</button>
+  </div>
+
+  <div id="world-map-wrap">
+    <svg id="world-map-svg" width="720" height="420" viewBox="0 0 720 420">
+      <defs>
+        <pattern id="stripe-usa"  width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#1d4ed8" stroke-width="2.5"/>
+        </pattern>
+        <pattern id="stripe-ussr" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#b91c1c" stroke-width="2.5"/>
+        </pattern>
+      </defs>
+
+      <!-- ── Nền biển ── -->
+      <rect width="720" height="420" fill="#bfdbfe"/>
+
+      <!-- ══════ ĐẤT LIỀN (poly đơn giản hóa) ══════ -->
+
+      <!-- Bắc Mỹ -->
+      <polygon id="reg-nam" class="map-region usa"
+        points="30,30 180,28 220,35 235,55 240,80 230,110 215,130 200,155 185,180 170,200 155,220 138,238 115,245 90,250 68,245 48,235 32,215 20,190 15,160 18,120 22,75 30,30"
+        onclick="showRegion('nam')"/>
+      <text x="115" y="140" text-anchor="middle" font-size="10" font-weight="700" fill="#1e3a8a" font-family="sans-serif" pointer-events="none">BẮC MỸ</text>
+      <text x="115" y="153" text-anchor="middle" font-size="8" fill="#1e3a8a" font-family="sans-serif" pointer-events="none">(NATO)</text>
+
+      <!-- Trung Mỹ + Caribbean -->
+      <polygon id="reg-cam" class="map-region usa"
+        points="155,245 175,240 190,248 195,265 185,278 165,280 150,270 148,255"
+        onclick="showRegion('cam')"/>
+      <!-- Cuba — không liên kết (hướng Xô Viết) -->
+      <ellipse id="reg-cuba" class="map-region ussr" cx="200" cy="245" rx="18" ry="8" onclick="showRegion('cuba')"/>
+      <text x="200" y="248" text-anchor="middle" font-size="8" fill="white" font-family="sans-serif" pointer-events="none">Cuba</text>
+
+      <!-- Nam Mỹ -->
+      <polygon id="reg-sam" class="map-region nat"
+        points="138,280 175,275 200,278 225,280 240,300 248,330 245,365 230,390 205,405 175,408 150,400 128,385 115,360 112,330 118,305"
+        onclick="showRegion('sam')"/>
+      <text x="180" y="355" text-anchor="middle" font-size="10" font-weight="700" fill="#78350f" font-family="sans-serif" pointer-events="none">NAM MỸ</text>
+      <text x="180" y="367" text-anchor="middle" font-size="8" fill="#78350f" font-family="sans-serif" pointer-events="none">(đa phần)</text>
+
+      <!-- Tây Âu -->
+      <polygon id="reg-weu" class="map-region usa"
+        points="265,30 320,28 350,35 365,50 360,75 345,95 330,108 310,115 295,118 278,115 265,105 258,85 258,60"
+        onclick="showRegion('weu')"/>
+      <text x="312" y="75" text-anchor="middle" font-size="9" font-weight="700" fill="#1e3a8a" font-family="sans-serif" pointer-events="none">TÂY ÂU</text>
+      <text x="312" y="86" text-anchor="middle" font-size="8" fill="#1e3a8a" font-family="sans-serif" pointer-events="none">(NATO)</text>
+
+      <!-- Đông Âu -->
+      <polygon id="reg-eeu" class="map-region ussr"
+        points="350,35 415,30 445,40 455,60 450,85 438,100 420,112 400,118 380,115 365,108 355,95 348,72"
+        onclick="showRegion('eeu')"/>
+      <text x="402" y="72" text-anchor="middle" font-size="9" font-weight="700" fill="white" font-family="sans-serif" pointer-events="none">ĐÔNG ÂU</text>
+      <text x="402" y="82" text-anchor="middle" font-size="8" fill="#fca5a5" font-family="sans-serif" pointer-events="none">(Warsaw)</text>
+
+      <!-- Liên Xô -->
+      <polygon id="reg-ussr" class="map-region ussr"
+        points="415,30 550,20 640,25 700,40 715,70 710,105 690,130 660,145 620,155 575,160 530,158 490,150 455,135 440,115 438,85 445,60"
+        onclick="showRegion('ussr-reg')"/>
+      <text x="570" y="90" text-anchor="middle" font-size="11" font-weight="700" fill="white" font-family="sans-serif" pointer-events="none">LIÊN XÔ</text>
+      <text x="570" y="103" text-anchor="middle" font-size="8" fill="#fca5a5" font-family="sans-serif" pointer-events="none">(1922–1991)</text>
+
+      <!-- Bắc Phi -->
+      <polygon id="reg-naf" class="map-region nat"
+        points="255,165 310,160 360,162 400,165 440,168 475,170 505,168 520,175 515,205 500,225 475,235 440,240 400,242 360,240 318,235 280,228 255,215 248,192"
+        onclick="showRegion('naf')"/>
+      <text x="385" y="200" text-anchor="middle" font-size="10" font-weight="700" fill="#78350f" font-family="sans-serif" pointer-events="none">BẮC PHI</text>
+
+      <!-- Tây Phi + Trung Phi -->
+      <polygon id="reg-waf" class="map-region nat"
+        points="248,215 290,230 320,238 285,280 268,320 255,355 248,385 235,398 215,400 190,390 175,370 175,340 185,310 200,285 225,275 240,255"
+        onclick="showRegion('waf')"/>
+      <text x="250" y="305" text-anchor="middle" font-size="9" font-weight="700" fill="#78350f" font-family="sans-serif" pointer-events="none">TÂY-TRUNG</text>
+      <text x="250" y="316" text-anchor="middle" font-size="9" font-weight="700" fill="#78350f" font-family="sans-serif" pointer-events="none">PHI</text>
+
+      <!-- Đông Phi + Nam Phi -->
+      <polygon id="reg-eaf" class="map-region nat"
+        points="475,240 510,238 545,245 570,258 580,285 572,318 558,345 540,370 515,388 488,400 462,405 440,398 420,378 410,350 412,315 422,280 445,255"
+        onclick="showRegion('eaf')"/>
+      <text x="495" y="320" text-anchor="middle" font-size="9" font-weight="700" fill="#78350f" font-family="sans-serif" pointer-events="none">ĐÔNG-NAM</text>
+      <text x="495" y="331" text-anchor="middle" font-size="9" font-weight="700" fill="#78350f" font-family="sans-serif" pointer-events="none">PHI</text>
+
+      <!-- Trung Đông -->
+      <polygon id="reg-me" class="map-region nat"
+        points="505,168 545,165 580,168 615,172 640,180 650,200 645,225 630,245 608,255 580,258 555,252 530,240 512,225 506,205"
+        onclick="showRegion('me')"/>
+      <text x="575" y="210" text-anchor="middle" font-size="9" font-weight="700" fill="#78350f" font-family="sans-serif" pointer-events="none">TRUNG ĐÔNG</text>
+      <text x="575" y="221" text-anchor="middle" font-size="8" fill="#78350f" font-family="sans-serif" pointer-events="none">(phức tạp)</text>
+
+      <!-- Nam Á -->
+      <polygon id="reg-sa" class="map-region nat"
+        points="575,160 625,155 660,162 685,175 690,200 678,222 660,238 638,248 608,255 590,250 572,240 565,220 562,195 568,175"
+        onclick="showRegion('sa')"/>
+      <text x="630" y="200" text-anchor="middle" font-size="9" font-weight="700" fill="#78350f" font-family="sans-serif" pointer-events="none">NAM Á</text>
+      <text x="630" y="211" text-anchor="middle" font-size="8" fill="#78350f" font-family="sans-serif" pointer-events="none">(Ấn Độ NLK)</text>
+
+      <!-- Trung Quốc -->
+      <polygon id="reg-china" class="map-region ussr"
+        points="620,100 680,90 715,95 720,120 715,145 695,158 665,165 635,168 608,162 588,152 578,135 580,115 598,102"
+        onclick="showRegion('china')"/>
+      <text x="650" y="130" text-anchor="middle" font-size="9" font-weight="700" fill="white" font-family="sans-serif" pointer-events="none">TRUNG QUỐC</text>
+      <text x="650" y="141" text-anchor="middle" font-size="8" fill="#fca5a5" font-family="sans-serif" pointer-events="none">(đến ~1960)</text>
+
+      <!-- Đông Nam Á -->
+      <polygon id="reg-sea" class="map-region nat"
+        points="640,168 680,165 715,170 720,200 715,230 700,250 675,262 648,268 622,262 605,248 605,225 618,205 632,185"
+        onclick="showRegion('sea')"/>
+      <text x="662" y="218" text-anchor="middle" font-size="9" font-weight="700" fill="#78350f" font-family="sans-serif" pointer-events="none">ĐÔNG NAM Á</text>
+      <text x="662" y="229" text-anchor="middle" font-size="8" fill="#78350f" font-family="sans-serif" pointer-events="none">(chiến tranh VN...)</text>
+
+      <!-- Nhật Bản + Hàn Quốc (đảo — tượng trưng) -->
+      <ellipse id="reg-japan" class="map-region usa" cx="700" cy="100" rx="14" ry="22" onclick="showRegion('japan')"/>
+      <text x="700" y="99" text-anchor="middle" font-size="8" fill="white" font-family="sans-serif" pointer-events="none">NB</text>
+      <text x="700" y="109" text-anchor="middle" font-size="8" fill="white" font-family="sans-serif" pointer-events="none">HQ</text>
+
+      <!-- Bắc Triều Tiên — Xô Viết -->
+      <ellipse id="reg-dpkr" class="map-region ussr" cx="688" cy="78" rx="14" ry="8" onclick="showRegion('dpkr')"/>
+      <text x="688" y="81" text-anchor="middle" font-size="7" fill="white" font-family="sans-serif" pointer-events="none">BTT</text>
+
+      <!-- Việt Nam (điểm) -->
+      <ellipse id="reg-vn" class="map-region nat" cx="670" cy="238" rx="10" ry="14" onclick="showRegion('vn')"/>
+      <text x="670" y="243" text-anchor="middle" font-size="7" fill="#78350f" font-family="sans-serif" pointer-events="none">VN</text>
+
+      <!-- Australia + NZ -->
+      <polygon id="reg-aus" class="map-region usa"
+        points="635,300 690,292 720,298 720,345 710,372 685,390 655,395 628,385 610,365 608,335 618,310"
+        onclick="showRegion('aus')"/>
+      <text x="665" y="345" text-anchor="middle" font-size="9" font-weight="700" fill="#1e3a8a" font-family="sans-serif" pointer-events="none">ÚC / NZ</text>
+      <text x="665" y="356" text-anchor="middle" font-size="8" fill="#1e3a8a" font-family="sans-serif" pointer-events="none">(phương Tây)</text>
+
+      <!-- ── Đường xích đạo và chú thích ── -->
+      <line x1="0" y1="300" x2="720" y2="300" stroke="#94a3b8" stroke-width="0.5" stroke-dasharray="6,4"/>
+      <text x="4" y="296" font-size="9" fill="#94a3b8" font-family="sans-serif">xích đạo</text>
+
+      <!-- ── Nhãn biển ── -->
+      <text x="90" y="280" font-size="9" fill="#60a5fa" font-family="sans-serif" font-style="italic">Đại Tây Dương</text>
+      <text x="500" y="130" font-size="9" fill="#60a5fa" font-family="sans-serif" font-style="italic">Bắc Băng Dương</text>
+      <text x="60" y="350" font-size="9" fill="#60a5fa" font-family="sans-serif" font-style="italic" transform="rotate(-30,60,350)">TBD</text>
+
+    </svg>
+  </div>
+
+  <div class="map-legend">
+    <div class="legend-item"><div class="legend-swatch" style="background:#1d4ed8"></div><span>Khối NATO / phương Tây</span></div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#b91c1c"></div><span>Khối Xô Viết / Warsaw</span></div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#92400e"></div><span>Không liên kết / phức tạp</span></div>
+  </div>
+
+  <div class="map-info-panel" id="map-info">
+    Bấm vào tên khu vực trên bản đồ để xem thông tin chi tiết về từng khu vực trong thời kỳ Chiến tranh Lạnh.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Timeline 1945–1991
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Chuỗi thời gian: 1945–1991</h2>
+
+<div class="card">
+  <div class="usa-box" style="display:inline-block; margin-right:8px; padding:4px 12px; border-radius:4px; font-size:13px">
+    <strong style="color:#1d4ed8">Xanh dương</strong> = sự kiện nghiêng về phía Mỹ/NATO
+  </div>
+  <div class="ussr-box" style="display:inline-block; padding:4px 12px; border-radius:4px; font-size:13px">
+    <strong style="color:#b91c1c">Đỏ</strong> = sự kiện nghiêng về phía Liên Xô
+  </div>
+  <div style="font-size:13px; margin-top:6px; color:var(--stone)">
+    Xanh lá = sự kiện chung / kết thúc · Teal = sự kiện hai bên cùng liên quan.
+  </div>
+
+  <div class="tl-container" style="margin-top:16px">
+
+    <div class="tl-era-sep era-origin">Hình thành đối đầu (1945–1955)</div>
+
+    <div class="tl-item both">
+      <div class="tl-year">1945</div>
+      <div class="tl-title">Thế chiến thứ hai kết thúc — trật tự thế giới mới
+        <span class="tl-badge badge-both">Bước ngoặt</span>
+      </div>
+      <div class="tl-desc">Mỹ và Liên Xô là hai siêu cường còn lại. Hội nghị Yalta (2/1945) và Potsdam (7–8/1945) phân chia ảnh hưởng. Liên Hợp Quốc thành lập 10/1945.</div>
+    </div>
+
+    <div class="tl-item usa">
+      <div class="tl-year">1947</div>
+      <div class="tl-title">Học thuyết Truman và Kế hoạch Marshall
+        <span class="tl-badge badge-usa">Mỹ</span>
+      </div>
+      <div class="tl-desc">Tổng thống Truman tuyên bố Mỹ sẽ hỗ trợ các nước chống lại chủ nghĩa cộng sản (3/1947). Kế hoạch Marshall viện trợ 13 tỷ USD tái thiết Tây Âu (1948–1952).</div>
+    </div>
+
+    <div class="tl-item ussr">
+      <div class="tl-year">1948–1949</div>
+      <div class="tl-title">Phong tỏa Berlin và Cầu hàng không
+        <span class="tl-badge badge-ussr">Khủng hoảng</span>
+      </div>
+      <div class="tl-desc">Liên Xô phong tỏa đường bộ vào Tây Berlin tháng 6/1948. Phương Tây đáp lại bằng cầu hàng không 11 tháng, hơn 200.000 lượt bay, 2,3 triệu tấn hàng. Liên Xô dỡ phong tỏa 5/1949.</div>
+    </div>
+
+    <div class="tl-item usa">
+      <div class="tl-year">4/4/1949</div>
+      <div class="tl-title">NATO thành lập
+        <span class="tl-badge badge-usa">NATO</span>
+      </div>
+      <div class="tl-desc">12 quốc gia ký Hiệp ước Bắc Đại Tây Dương — nguyên tắc phòng thủ tập thể (Điều 5: tấn công một = tấn công tất cả).</div>
+    </div>
+
+    <div class="tl-item ussr">
+      <div class="tl-year">29/8/1949</div>
+      <div class="tl-title">Liên Xô thử nghiệm bom nguyên tử đầu tiên
+        <span class="tl-badge badge-ussr">Liên Xô</span>
+      </div>
+      <div class="tl-desc">Phá vỡ thế độc quyền hạt nhân của Mỹ chỉ sau 4 năm. Thế giới bước vào thời đại MAD — Hủy diệt lẫn nhau được đảm bảo.</div>
+    </div>
+
+    <div class="tl-item both">
+      <div class="tl-year">1950–1953</div>
+      <div class="tl-title">Chiến tranh Triều Tiên
+        <span class="tl-badge badge-crisis">Chiến tranh ủy nhiệm</span>
+      </div>
+      <div class="tl-desc">Bắc Triều Tiên (Liên Xô, Trung Quốc hỗ trợ) vs Nam Triều Tiên (Liên Hợp Quốc, Mỹ dẫn đầu). Đình chiến 7/1953 — ranh giới vĩ tuyến 38 gần như giữ nguyên.</div>
+    </div>
+
+    <div class="tl-item ussr">
+      <div class="tl-year">14/5/1955</div>
+      <div class="tl-title">Hiệp ước Warsaw thành lập
+        <span class="tl-badge badge-ussr">Warsaw</span>
+      </div>
+      <div class="tl-desc">8 quốc gia Đông Âu tham gia — phản ứng sau khi Tây Đức gia nhập NATO. Hai khối quân sự chính thức đối đầu nhau trên lãnh thổ châu Âu.</div>
+    </div>
+
+    <div class="tl-era-sep era-peak">Đỉnh điểm căng thẳng (1957–1968)</div>
+
+    <div class="tl-item ussr">
+      <div class="tl-year">4/10/1957</div>
+      <div class="tl-title">Sputnik 1 — Liên Xô phóng vệ tinh nhân tạo đầu tiên
+        <span class="tl-badge badge-space">Vũ trụ</span>
+      </div>
+      <div class="tl-desc">Gây sốc chiến lược: công nghệ tên lửa phóng vệ tinh cũng là công nghệ tên lửa mang đầu đạn hạt nhân. Mỹ khởi động NASA (1958) và tăng tốc chương trình không gian.</div>
+    </div>
+
+    <div class="tl-item ussr">
+      <div class="tl-year">13/8/1961</div>
+      <div class="tl-title">Bức tường Berlin bắt đầu xây dựng
+        <span class="tl-badge badge-ussr">Berlin</span>
+      </div>
+      <div class="tl-desc">Ngăn làn sóng 3,5 triệu người Đông Đức chạy trốn sang Tây Berlin. Bức tường dài 155 km, tồn tại 28 năm — biểu tượng vật chất của Chiến tranh Lạnh.</div>
+    </div>
+
+    <div class="tl-item crisis">
+      <div class="tl-year">Tháng 10/1962</div>
+      <div class="tl-title">Khủng hoảng tên lửa Cuba — thế giới gần chiến tranh hạt nhân nhất
+        <span class="tl-badge badge-crisis">Khủng hoảng hạt nhân</span>
+      </div>
+      <div class="tl-desc">13 ngày đối đầu. Liên Xô đặt tên lửa ở Cuba (145 km từ Florida). Mỹ phong tỏa hải quân. Ngày 27/10: tàu ngầm Liên Xô suýt phóng ngư lôi hạt nhân. Giải quyết bằng thỏa thuận hai bên nhượng bộ.</div>
+    </div>
+
+    <div class="tl-item usa">
+      <div class="tl-year">20/7/1969</div>
+      <div class="tl-title">Apollo 11 — người đầu tiên đặt chân lên Mặt Trăng
+        <span class="tl-badge badge-space">Vũ trụ</span>
+      </div>
+      <div class="tl-desc">Neil Armstrong và Buzz Aldrin (Mỹ) đặt chân lên Mặt Trăng — điểm kết thúc của cuộc đua không gian theo nghĩa biểu tượng nhất. Hơn 600 triệu người xem trực tiếp qua TV.</div>
+    </div>
+
+    <div class="tl-era-sep era-detente">Hòa hoãn và leo thang lại (1969–1985)</div>
+
+    <div class="tl-item both">
+      <div class="tl-year">1972</div>
+      <div class="tl-title">SALT I và Nixon thăm Trung Quốc
+        <span class="tl-badge badge-both">Hòa hoãn</span>
+      </div>
+      <div class="tl-desc">Hiệp ước SALT I giới hạn vũ khí chiến lược Mỹ–Xô. Nixon thăm Trung Quốc — bình thường hóa quan hệ, thay đổi địa chính trị toàn cầu.</div>
+    </div>
+
+    <div class="tl-item ussr">
+      <div class="tl-year">12/1979</div>
+      <div class="tl-title">Liên Xô xâm lược Afghanistan
+        <span class="tl-badge badge-ussr">Chiến tranh ủy nhiệm</span>
+      </div>
+      <div class="tl-desc">Cuộc chiến kéo dài 9 năm (đến 2/1989), gần 15.000 lính Liên Xô tử trận. Tiêu hao nguồn lực, giảm uy tín — thường được gọi là "Việt Nam của Liên Xô".</div>
+    </div>
+
+    <div class="tl-era-sep era-end">Tan rã và kết thúc (1985–1991)</div>
+
+    <div class="tl-item ussr">
+      <div class="tl-year">3/1985</div>
+      <div class="tl-title">Gorbachev — glasnost và perestroika
+        <span class="tl-badge badge-ussr">Cải tổ</span>
+      </div>
+      <div class="tl-desc">Mikhail Gorbachev lên nắm quyền, khởi động glasnost (công khai thông tin) và perestroika (tái cơ cấu kinh tế). Mục tiêu: cứu hệ thống Xô Viết. Kết quả: tạo lực ly tâm không kiểm soát được.</div>
+    </div>
+
+    <div class="tl-item end">
+      <div class="tl-year">9/11/1989</div>
+      <div class="tl-title">Bức tường Berlin sụp đổ
+        <span class="tl-badge badge-end">Bước ngoặt</span>
+      </div>
+      <div class="tl-desc">Chính quyền Đông Đức thông báo mở cửa biên giới. Người dân đổ ra đập phá bức tường. Biểu tượng mạnh nhất của Chiến tranh Lạnh sụp đổ trước ống kính toàn thế giới.</div>
+    </div>
+
+    <div class="tl-item end">
+      <div class="tl-year">25/12/1991</div>
+      <div class="tl-title">Liên Xô chính thức tan rã — Chiến tranh Lạnh kết thúc
+        <span class="tl-badge badge-end">Kết thúc</span>
+      </div>
+      <div class="tl-desc">Gorbachev từ chức. Cờ Liên Xô hạ xuống Điện Kremlin. 15 quốc gia độc lập ra đời. Sau 44 năm, Chiến tranh Lạnh kết thúc không bằng tiếng súng mà bằng sự tan rã nội bộ.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Bản đồ các điểm nóng
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Các điểm nóng tiêu biểu (bấm để xem chi tiết)</h2>
+
+<div class="card">
+  <div class="info-box">
+    Bấm vào biểu tượng điểm nóng trên bản đồ để xem chi tiết về từng cuộc khủng hoảng. Điểm nóng màu đỏ = có xung đột vũ trang; vàng = khủng hoảng chính trị–hạt nhân.
+  </div>
+
+  <div class="hotspot-wrap">
+    <svg id="hotspot-svg" width="720" height="400" viewBox="0 0 720 400">
+      <!-- Nền biển -->
+      <rect width="720" height="400" fill="#bfdbfe"/>
+
+      <!-- Đất liền (giản lược tương tự module 1) -->
+      <!-- Bắc Mỹ -->
+      <polygon points="30,28 180,26 235,55 235,110 200,155 155,220 90,250 32,215 15,160 22,75" fill="#d4d0cb"/>
+      <!-- Trung + Nam Mỹ -->
+      <polygon points="138,220 200,215 248,305 245,365 175,408 115,360 112,330 118,305 138,280 155,245 138,220" fill="#d4d0cb"/>
+      <!-- Tây Âu -->
+      <polygon points="265,28 360,75 310,118 258,60" fill="#d4d0cb"/>
+      <!-- Đông Âu -->
+      <polygon points="355,32 445,38 450,85 380,118 348,72" fill="#d4d0cb"/>
+      <!-- Liên Xô -->
+      <polygon points="415,28 715,38 715,135 455,135 445,85 450,60" fill="#d4d0cb"/>
+      <!-- Bắc Phi -->
+      <polygon points="255,160 520,168 515,235 255,228" fill="#d4d0cb"/>
+      <!-- Tây-Trung Phi -->
+      <polygon points="248,228 285,278 200,285 190,390 175,370 175,340 185,310" fill="#d4d0cb"/>
+      <!-- Đông-Nam Phi -->
+      <polygon points="475,235 580,285 515,388 410,350 412,315 422,275 445,255" fill="#d4d0cb"/>
+      <!-- Trung Đông -->
+      <polygon points="505,165 650,178 645,255 506,205" fill="#d4d0cb"/>
+      <!-- Nam Á + ĐNA -->
+      <polygon points="565,155 720,165 720,270 605,248 565,225" fill="#d4d0cb"/>
+      <!-- Trung Quốc -->
+      <polygon points="580,90 720,90 715,145 580,160 575,130" fill="#d4d0cb"/>
+      <!-- Úc -->
+      <polygon points="628,295 720,295 720,390 608,365 608,335" fill="#d4d0cb"/>
+
+      <!-- ── Điểm nóng ── -->
+
+      <!-- Berlin (Đức) ~ (310, 55) -->
+      <g id="hs-berlin" onclick="showHotspot('berlin')" style="cursor:pointer">
+        <circle class="hotspot-pulse" cx="310" cy="58" r="8" fill="none" stroke="#b91c1c" stroke-width="2"/>
+        <circle cx="310" cy="58" r="9" fill="#b91c1c" opacity=".85"/>
+        <text x="310" y="62" text-anchor="middle" font-size="10" fill="white" font-weight="700" font-family="sans-serif">B</text>
+        <text x="310" y="75" text-anchor="middle" font-size="9" fill="#1f2937" font-family="sans-serif">Berlin</text>
+      </g>
+
+      <!-- Cuba ~ (185, 240) -->
+      <g id="hs-cuba" onclick="showHotspot('cuba')" style="cursor:pointer">
+        <circle class="hotspot-pulse" cx="185" cy="240" r="8" fill="none" stroke="#f59e0b" stroke-width="2"/>
+        <circle cx="185" cy="240" r="9" fill="#f59e0b" opacity=".9"/>
+        <text x="185" y="244" text-anchor="middle" font-size="10" fill="white" font-weight="700" font-family="sans-serif">C</text>
+        <text x="185" y="258" text-anchor="middle" font-size="9" fill="#1f2937" font-family="sans-serif">Cuba</text>
+      </g>
+
+      <!-- Triều Tiên ~ (686, 88) -->
+      <g id="hs-korea" onclick="showHotspot('korea')" style="cursor:pointer">
+        <circle class="hotspot-pulse" cx="686" cy="105" r="8" fill="none" stroke="#b91c1c" stroke-width="2"/>
+        <circle cx="686" cy="105" r="9" fill="#b91c1c" opacity=".85"/>
+        <text x="686" y="109" text-anchor="middle" font-size="10" fill="white" font-weight="700" font-family="sans-serif">T</text>
+        <text x="686" y="120" text-anchor="middle" font-size="9" fill="#1f2937" font-family="sans-serif">Triều Tiên</text>
+      </g>
+
+      <!-- Việt Nam ~ (668, 218) -->
+      <g id="hs-vietnam" onclick="showHotspot('vietnam')" style="cursor:pointer">
+        <circle class="hotspot-pulse" cx="668" cy="218" r="8" fill="none" stroke="#b91c1c" stroke-width="2"/>
+        <circle cx="668" cy="218" r="9" fill="#b91c1c" opacity=".85"/>
+        <text x="668" y="222" text-anchor="middle" font-size="10" fill="white" font-weight="700" font-family="sans-serif">V</text>
+        <text x="668" y="233" text-anchor="middle" font-size="9" fill="#1f2937" font-family="sans-serif">Việt Nam</text>
+      </g>
+
+      <!-- Afghanistan ~ (610, 155) -->
+      <g id="hs-afghan" onclick="showHotspot('afghan')" style="cursor:pointer">
+        <circle class="hotspot-pulse" cx="610" cy="165" r="8" fill="none" stroke="#b91c1c" stroke-width="2"/>
+        <circle cx="610" cy="165" r="9" fill="#b91c1c" opacity=".85"/>
+        <text x="610" y="169" text-anchor="middle" font-size="10" fill="white" font-weight="700" font-family="sans-serif">A</text>
+        <text x="610" y="182" text-anchor="middle" font-size="9" fill="#1f2937" font-family="sans-serif">Afghanistan</text>
+      </g>
+
+      <!-- Tiệp Khắc 1968 ~ (380, 72) -->
+      <g id="hs-czech" onclick="showHotspot('czech')" style="cursor:pointer">
+        <circle cx="380" cy="72" r="7" fill="#7c3aed" opacity=".85"/>
+        <text x="380" y="76" text-anchor="middle" font-size="9" fill="white" font-weight="700" font-family="sans-serif">C</text>
+        <text x="380" y="88" text-anchor="middle" font-size="9" fill="#1f2937" font-family="sans-serif">Tiệp 1968</text>
+      </g>
+
+      <!-- Angola / Mozambique ~ (462, 325) -->
+      <g id="hs-angola" onclick="showHotspot('angola')" style="cursor:pointer">
+        <circle cx="462" cy="332" r="7" fill="#b91c1c" opacity=".75"/>
+        <text x="462" y="336" text-anchor="middle" font-size="9" fill="white" font-weight="700" font-family="sans-serif">A</text>
+        <text x="462" y="347" text-anchor="middle" font-size="9" fill="#1f2937" font-family="sans-serif">Angola</text>
+      </g>
+
+      <!-- Chú thích -->
+      <rect x="5" y="355" width="185" height="42" rx="5" fill="white" opacity=".85"/>
+      <circle cx="18" cy="366" r="6" fill="#b91c1c"/>
+      <text x="30" y="370" font-size="9" fill="#1f2937" font-family="sans-serif">Chiến tranh ủy nhiệm</text>
+      <circle cx="18" cy="384" r="6" fill="#f59e0b"/>
+      <text x="30" y="388" font-size="9" fill="#1f2937" font-family="sans-serif">Khủng hoảng hạt nhân</text>
+      <circle cx="18" cy="398" r="6" fill="#7c3aed"/>
+      <text x="30" y="402" font-size="0" fill="#1f2937" font-family="sans-serif" display="none"/>
+    </svg>
+  </div>
+
+  <div class="hotspot-detail" id="hotspot-detail">
+    <div class="hotspot-title" id="hs-title"></div>
+    <div id="hs-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q"   id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score"    id="quiz-score"></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════════════════ -->
+<script>
+/* ════════════════════════════════════════════════
+   MODULE 1 — Bản đồ thế giới hai khối
+   ════════════════════════════════════════════════ */
+
+const REGION_DATA = {
+  nam: {
+    label: 'Bắc Mỹ',
+    side: 'usa',
+    text: '<strong>Hoa Kỳ và Canada (NATO):</strong> Trung tâm của khối phương Tây. Mỹ là siêu cường hạt nhân, kinh tế chiếm ~50% sản lượng công nghiệp thế giới năm 1945. Canada ký Hiệp ước NATO năm 1949. Mỹ có hàng trăm căn cứ quân sự trên toàn thế giới trong suốt Chiến tranh Lạnh.'
+  },
+  weu: {
+    label: 'Tây Âu',
+    side: 'usa',
+    text: '<strong>Tây Âu (NATO):</strong> Anh, Pháp, Tây Đức, Ý, Bỉ, Hà Lan, Đan Mạch, Na Uy... Kế hoạch Marshall (1948–1952) tái thiết kinh tế. Tây Đức là tiền tuyến đối đầu — nơi hai bên triển khai lực lượng quân sự dày đặc nhất. Pháp rút khỏi cơ cấu quân sự NATO (1966) nhưng vẫn là thành viên chính trị.'
+  },
+  eeu: {
+    label: 'Đông Âu',
+    side: 'ussr',
+    text: '<strong>Đông Âu (Hiệp ước Warsaw):</strong> Ba Lan, Đông Đức, Tiệp Khắc, Hungary, Romania, Bulgaria, Albania (đến 1968). Các chính phủ cộng sản được thiết lập từ 1945–1948, nhiều qua bầu cử có kiểm soát hoặc áp lực từ quân đội Liên Xô. Liên Xô can thiệp quân sự để dập tắt cải cách: Hungary (1956), Tiệp Khắc (1968).'
+  },
+  'ussr-reg': {
+    label: 'Liên Xô',
+    side: 'ussr',
+    text: '<strong>Liên Xô (1922–1991):</strong> Liên bang gồm 15 nước cộng hòa. Siêu cường hạt nhân từ 1949. Kinh tế kế hoạch tập trung. Chi phí quân sự ước tính 15–25% GDP. Thắng trong nhiều mốc chạy đua không gian ban đầu (Sputnik, Gagarin) nhưng thua Mỹ ở đích đến Mặt Trăng. Tổng Bí thư Stalin qua đời 1953; Khrushchev, Brezhnev, Gorbachev kế tiếp.'
+  },
+  china: {
+    label: 'Trung Quốc',
+    side: 'ussr',
+    text: '<strong>Trung Quốc — đồng minh phức tạp:</strong> Từ 1949 đến khoảng 1960, Trung Quốc là đồng minh của Liên Xô — nhận viện trợ kỹ thuật và kinh tế. Sau 1960: Sino-Soviet Split — rạn nứt Trung–Xô vì khác biệt ý thức hệ và cạnh tranh quyền lực. Từ 1972 (Nixon thăm Bắc Kinh), Trung Quốc dần xích lại gần phương Tây — thay đổi địa chính trị quan trọng.'
+  },
+  cuba: {
+    label: 'Cuba',
+    side: 'ussr',
+    text: '<strong>Cuba — điểm nóng 145 km từ Florida:</strong> Fidel Castro lật đổ chế độ Batista 1/1959. Tháng 4/1961: Mỹ tổ chức đổ bộ vào Vịnh Con Lợn — thất bại. Cuba chính thức tuyên bố theo chủ nghĩa xã hội, xích lại gần Liên Xô. Tháng 10/1962: Khủng hoảng tên lửa Cuba — điểm nguy hiểm nhất của Chiến tranh Lạnh. Cuba vẫn là quốc gia cộng sản duy nhất ở Tây Bán Cầu sau khi Liên Xô tan rã.'
+  },
+  japan: {
+    label: 'Nhật Bản và Hàn Quốc',
+    side: 'usa',
+    text: '<strong>Nhật Bản và Hàn Quốc (phía Mỹ):</strong> Sau Thế chiến II, Nhật Bản bị chiếm đóng và tái thiết dưới mô hình kinh tế thị trường. Hiệp ước an ninh Nhật–Mỹ (1952) cho phép duy trì căn cứ quân sự Mỹ trên đất Nhật. Hàn Quốc được bảo vệ bởi quân đội Mỹ sau chiến tranh Triều Tiên. Cả hai trở thành nền kinh tế hàng đầu châu Á.'
+  },
+  dpkr: {
+    label: 'Bắc Triều Tiên',
+    side: 'ussr',
+    text: '<strong>Bắc Triều Tiên:</strong> Thiết lập chế độ cộng sản dưới Kim Nhật Thành (Kim Il-sung) với sự hỗ trợ của Liên Xô và Trung Quốc. Chiến tranh Triều Tiên (1950–1953) là cuộc chiến ủy nhiệm lớn đầu tiên. Đình chiến 7/1953 giữ nguyên ranh giới vĩ tuyến 38. Về mặt kỹ thuật, hai miền Triều Tiên vẫn trong tình trạng chiến tranh.'
+  },
+  vn: {
+    label: 'Việt Nam',
+    side: 'nat',
+    text: '<strong>Việt Nam — chiến tranh ủy nhiệm phức tạp nhất:</strong> Sau Hiệp định Geneva (1954), Việt Nam chia đôi tạm thời ở vĩ tuyến 17. Miền Bắc (Hà Nội) nhận viện trợ Liên Xô và Trung Quốc. Miền Nam (Sài Gòn) nhận viện trợ Mỹ. Chiến tranh leo thang đến 1975. Ngoài lăng kính Chiến tranh Lạnh, đây còn là cuộc chiến thống nhất dân tộc và giải phóng dân tộc với bản sắc riêng.'
+  },
+  sea: {
+    label: 'Đông Nam Á',
+    side: 'nat',
+    text: '<strong>Đông Nam Á — chiến địa của Chiến tranh Lạnh:</strong> Nhiều quốc gia vừa giành độc lập từ thực dân Âu châu, phải điều hướng giữa hai siêu cường. SEATO (1954) — tổ chức phòng thủ tập thể khu vực do Mỹ dẫn dắt. Nhiều quốc gia (Indonesia, Campuchia, Myanmar) chọn đường lối không liên kết. Philippines, Thái Lan liên kết với Mỹ.'
+  },
+  sam: {
+    label: 'Nam Mỹ',
+    side: 'nat',
+    text: '<strong>Nam Mỹ — sân sau tranh chấp:</strong> Phần lớn các nước Nam Mỹ nằm trong vùng ảnh hưởng của Mỹ theo Học thuyết Monroe. Mỹ can thiệp vào nhiều nước (Guatemala 1954, Chile 1973, Nicaragua 1980s) để ngăn chính phủ cánh tả. Tuy nhiên nhiều nước theo đường lối dân tộc chủ nghĩa không hoàn toàn phụ thuộc một bên.'
+  },
+  naf: {
+    label: 'Bắc Phi',
+    side: 'nat',
+    text: '<strong>Bắc Phi — khu vực tranh giành ảnh hưởng:</strong> Ai Cập là ví dụ điển hình: nhận viện trợ Liên Xô (xây đập Aswan) nhưng sau 1973 xoay sang Mỹ. Algeria độc lập 1962 sau chiến tranh chống Pháp, theo đường lối không liên kết. Libya dưới Gaddafi từ 1969 theo đường lối riêng, chống cả hai siêu cường.'
+  },
+  me: {
+    label: 'Trung Đông',
+    side: 'nat',
+    text: '<strong>Trung Đông — phức tạp và không ổn định:</strong> Israel nhận hỗ trợ từ Mỹ và phương Tây. Ai Cập, Syria nhận viện trợ Liên Xô trong giai đoạn 1950s–1970s. Chiến tranh Ả Rập–Israel (1967, 1973) là chiến trường ủy nhiệm. Cách mạng Iran (1979) tạo ra bên thứ ba — Iran Hồi giáo chống cả Mỹ lẫn "vô thần" Liên Xô.'
+  },
+  sa: {
+    label: 'Nam Á',
+    side: 'nat',
+    text: '<strong>Nam Á — Ấn Độ và không liên kết:</strong> Ấn Độ là đồng sáng lập Phong trào Không liên kết (NAM, 1961) — từ chối gia nhập cả hai khối. Thủ tướng Nehru, cùng với Tito (Nam Tư) và Nasser (Ai Cập) xây dựng con đường thứ ba. Tuy nhiên Ấn Độ nhiều lần nhận viện trợ từ Liên Xô. Pakistan liên kết với Mỹ.'
+  },
+  waf: {
+    label: 'Tây và Trung Phi',
+    side: 'nat',
+    text: '<strong>Tây và Trung Phi — phi thực dân hóa giữa hai khối:</strong> Hầu hết các nước giành độc lập từ thực dân Âu châu trong thập niên 1950–1960. Nhiều phong trào giải phóng dân tộc nhận hỗ trợ từ Liên Xô hoặc Trung Quốc. Mỹ và Pháp can thiệp để bảo vệ lợi ích phương Tây. Congo (Zaire) là ví dụ can thiệp điển hình: Mỹ ủng hộ Mobutu lật đổ Lumumba (1960–1961).'
+  },
+  eaf: {
+    label: 'Đông và Nam Phi',
+    side: 'nat',
+    text: '<strong>Đông và Nam Phi — chiến tranh ủy nhiệm cuối Chiến tranh Lạnh:</strong> Angola (1975–2002): sau độc lập, ba phong trào giải phóng tranh giành quyền lực — MPLA (Liên Xô, Cuba hỗ trợ) vs UNITA (Mỹ, Nam Phi hỗ trợ). Mozambique, Ethiopia cũng trải qua chiến tranh ủy nhiệm. Nam Phi dưới chế độ Apartheid được Mỹ dung túng vì chống cộng.'
+  },
+  aus: {
+    label: 'Úc và New Zealand',
+    side: 'usa',
+    text: '<strong>Úc và New Zealand (phương Tây):</strong> Đồng minh truyền thống của Anh–Mỹ. Tham gia Hiệp ước ANZUS (1951) với Mỹ. Gửi quân tham chiến ở Triều Tiên và Việt Nam. Cả hai đều trong vùng ảnh hưởng Mỹ nhưng duy trì chính sách đối ngoại độc lập một phần.'
+  },
+  cam: {
+    label: 'Trung Mỹ',
+    side: 'nat',
+    text: '<strong>Trung Mỹ — khu vực nhạy cảm của Mỹ:</strong> Guatemala 1954: CIA lật đổ tổng thống dân cử Árbenz vì quốc hữu hóa đất đai của công ty United Fruit (Mỹ). Nicaragua 1980s: Mỹ hỗ trợ phong trào Contras chống chính phủ Sandinista (Liên Xô, Cuba hỗ trợ). El Salvador: nội chiến được hai bên cấp vũ khí.'
+  },
+  afghan: {
+    label: 'Afghanistan',
+    side: 'nat',
+    text: '<strong>Afghanistan — điểm cuối của Liên Xô:</strong> Liên Xô xâm lược tháng 12/1979, hỗ trợ chính phủ cộng sản Kabul chống lại các nhóm Mujahideen. CIA và Pakistan hỗ trợ Mujahideen (trong đó có Osama bin Laden). 9 năm chiến tranh, gần 15.000 lính Liên Xô tử trận, 2 triệu dân Afghanistan chết, 6 triệu người tị nạn. Liên Xô rút quân 2/1989.'
+  }
+};
+
+let currentFilter = 'all';
+
+function setFilter(f) {
+  currentFilter = f;
+  ['all','usa','ussr','nat'].forEach(k => {
+    const btn = document.getElementById('filter-'+k);
+    if (btn) btn.className = 'map-filter-btn' + (k === f ? ' active-'+k : '');
+  });
+
+  document.querySelectorAll('.map-region').forEach(el => {
+    const side = el.classList[1]; // usa, ussr, nat
+    if (f === 'all') {
+      el.style.opacity = '1';
+    } else if (f === side) {
+      el.style.opacity = '1';
+    } else {
+      el.style.opacity = '0.18';
+    }
+  });
+}
+
+function showRegion(id) {
+  const d = REGION_DATA[id];
+  if (!d) return;
+  const panel = document.getElementById('map-info');
+  const colorClass = d.side === 'usa' ? 'color:#1d4ed8' : d.side === 'ussr' ? 'color:#b91c1c' : 'color:#92400e';
+  panel.innerHTML = `<strong style="${colorClass}">${d.label}</strong> — ${d.text}`;
+}
+
+// Khởi tạo màu sắc
+document.querySelectorAll('.map-region').forEach(el => {
+  const side = el.classList[1];
+  if (side === 'usa')  el.style.fill = '#1d4ed8';
+  else if (side === 'ussr') el.style.fill = '#b91c1c';
+  else el.style.fill = '#92400e';
+  el.style.opacity = '0.72';
+  el.style.cursor = 'pointer';
+  el.style.transition = 'opacity .2s';
+});
+
+/* ════════════════════════════════════════════════
+   MODULE 3 — Điểm nóng
+   ════════════════════════════════════════════════ */
+
+const HOTSPOT_DATA = {
+  berlin: {
+    label: 'Berlin (1948–1949; 1961–1989)',
+    cls: 'ussr-c',
+    body: `<strong>Phong tỏa Berlin (1948–1949):</strong> Tháng 6/1948, Liên Xô cắt tất cả đường bộ và đường sắt vào Tây Berlin, nơi 2 triệu người sinh sống giữa vùng Đông Đức. Phương Tây đáp lại bằng Cầu hàng không lịch sử: hơn 200.000 lượt bay trong 11 tháng, chuyên chở 2,3 triệu tấn thực phẩm và than. Tháng 5/1949, Liên Xô dỡ phong tỏa — phương Tây không nhượng bộ.<br><br>
+<strong>Bức tường Berlin (1961–1989):</strong> Đêm 12–13/8/1961, Đông Đức bắt đầu xây tường bê tông dài 155 km ngăn Đông và Tây Berlin. Lý do: từ 1949–1961, khoảng 3,5 triệu người chạy sang Tây Berlin — chảy máu dân số và chất xám. Bức tường tồn tại 28 năm, ước tính 140 người chết khi cố vượt qua. Ngày 9/11/1989, chính quyền Đông Đức thông báo mở cửa — người dân đổ ra đập phá. Biểu tượng mạnh nhất và trực quan nhất của Chiến tranh Lạnh.`
+  },
+  cuba: {
+    label: 'Khủng hoảng tên lửa Cuba (tháng 10/1962)',
+    cls: 'both-c',
+    body: `<strong>13 ngày trên bờ vực chiến tranh hạt nhân:</strong><br><br>
+<strong>Bối cảnh:</strong> Mỹ đặt tên lửa Jupiter ở Thổ Nhĩ Kỳ (gần biên giới Liên Xô, 1961). Mỹ tổ chức đổ bộ thất bại vào Vịnh Con Lợn (4/1961). Liên Xô quyết định đặt tên lửa ở Cuba để tạo cân bằng và bảo vệ Cuba.<br><br>
+<strong>14/10/1962:</strong> Máy bay trinh sát U-2 chụp ảnh bệ phóng tên lửa ở Cuba. Tên lửa Liên Xô có thể tấn công hầu hết thành phố lớn của Mỹ trong vài phút.<br><br>
+<strong>22/10:</strong> Kennedy thông báo công khai và tuyên bố phong tỏa hải quân quanh Cuba.<br><br>
+<strong>24/10:</strong> Tàu Liên Xô chở tên lửa tiếp tục tiến về Cuba — căng thẳng tột độ.<br><br>
+<strong>27/10 — "Thứ Bảy Đen":</strong> Nhiều sự cố cùng lúc: U-2 bị bắn hạ; tàu ngầm B-59 (Liên Xô) mất liên lạc, bị tưởng là chiến tranh đã bắt đầu — sĩ quan Vasili Arkhipov từ chối phê duyệt phóng ngư lôi hạt nhân.<br><br>
+<strong>28/10 — Giải quyết:</strong> Liên Xô rút tên lửa Cuba; Mỹ cam kết không xâm lược Cuba và (bí mật) rút tên lửa Jupiter khỏi Thổ Nhĩ Kỳ. Hệ quả: đường dây đỏ Mỹ–Xô (1963), Hiệp ước cấm thử hạt nhân trong khí quyển (1963).`
+  },
+  korea: {
+    label: 'Chiến tranh Triều Tiên (1950–1953)',
+    cls: 'ussr-c',
+    body: `<strong>Cuộc chiến ủy nhiệm đầu tiên quy mô lớn:</strong><br><br>
+<strong>25/6/1950:</strong> Bắc Triều Tiên (Kim Nhật Thành, được Liên Xô và Trung Quốc hỗ trợ) tấn công vượt vĩ tuyến 38 vào Nam Triều Tiên.<br><br>
+<strong>Liên Hợp Quốc can thiệp:</strong> Tại thời điểm Liên Xô đang tẩy chay Hội đồng Bảo an (vì phản đối ghế Trung Quốc thuộc Đài Loan), LHQ thông qua nghị quyết cho phép can thiệp quân sự do Mỹ dẫn đầu.<br><br>
+<strong>Tháng 10/1950:</strong> Khi quân LHQ tiến gần biên giới Trung–Triều, Trung Quốc đưa hàng trăm ngàn quân vào tham chiến ("Tình nguyện quân nhân dân").<br><br>
+<strong>27/7/1953:</strong> Hiệp định đình chiến tại Bàn Môn Điếm — không phải hiệp ước hòa bình. Ranh giới chia đôi gần như giữ nguyên vĩ tuyến 38. Thương vong: ~36.500 lính Mỹ; hàng chục vạn lính Hàn, Bắc Triều Tiên, Trung Quốc; hàng triệu dân thường (số liệu còn khác nhau).`
+  },
+  vietnam: {
+    label: 'Chiến tranh Việt Nam (1955–1975)',
+    cls: 'both-c',
+    body: `<strong>Chiến tranh ủy nhiệm lớn nhất và tốn kém nhất:</strong><br><br>
+<strong>Bối cảnh Chiến tranh Lạnh:</strong> Sau Hiệp định Geneva (1954) chia Việt Nam tại vĩ tuyến 17, Mỹ lo ngại "thuyết domino" — nếu một nước cộng sản, các nước lân cận sẽ theo. Mỹ hỗ trợ chính phủ Sài Gòn; Hà Nội nhận viện trợ Liên Xô và Trung Quốc.<br><br>
+<strong>Leo thang Mỹ:</strong> Từ cố vấn quân sự (1955), đến triển khai trực tiếp sau Sự kiện Vịnh Bắc Bộ (8/1964), đến đỉnh điểm 543.000 quân (1969).<br><br>
+<strong>Kết thúc:</strong> Hiệp định Paris (1/1973) — Mỹ rút quân. Tháng 4/1975 — thống nhất đất nước.<br><br>
+<strong>Không chỉ là Chiến tranh Lạnh:</strong> Cuộc chiến có nhiều chiều: đấu tranh thống nhất dân tộc, giải phóng dân tộc, nội chiến. Quan hệ Hà Nội–Bắc Kinh–Moscow phức tạp, không phải chỉ một khối thuần nhất. Hơn 58.000 lính Mỹ tử trận; thương vong phía Việt Nam ước tính hàng triệu (số liệu còn khác nhau).`
+  },
+  afghan: {
+    label: 'Afghanistan (1979–1989)',
+    cls: 'ussr-c',
+    body: `<strong>Afghanistan — "Việt Nam của Liên Xô":</strong><br><br>
+<strong>Tháng 12/1979:</strong> Liên Xô đưa quân vào Afghanistan hỗ trợ chính phủ cộng sản Kabul chống lại các nhóm Mujahideen (chiến binh Hồi giáo) nổi dậy.<br><br>
+<strong>Phản ứng của Mỹ:</strong> CIA và Pakistan tài trợ, huấn luyện và cấp vũ khí cho Mujahideen (Chiến dịch Cyclone — một trong những chiến dịch bí mật lớn nhất của CIA). Ả Rập Xê Út cũng đóng góp tài chính.<br><br>
+<strong>9 năm chiến tranh:</strong> Gần 15.000 lính Liên Xô tử trận; ước tính 2 triệu dân Afghanistan chết; 6 triệu người tị nạn.<br><br>
+<strong>Tháng 2/1989:</strong> Liên Xô rút quân hoàn toàn — một trong những nhân tố góp phần vào tan rã của Liên Xô.<br><br>
+<strong>Hệ quả lâu dài:</strong> Hỗ trợ Mujahideen để chống Liên Xô tạo cơ sở hạ tầng cho các nhóm vũ trang Hồi giáo cực đoan — bao gồm Al-Qaeda của Osama bin Laden — ảnh hưởng đến an ninh thế giới sau Chiến tranh Lạnh.`
+  },
+  czech: {
+    label: 'Tiệp Khắc 1968 — "Mùa xuân Praha"',
+    cls: 'ussr-c',
+    body: `<strong>Mùa xuân Praha và học thuyết Brezhnev:</strong><br><br>
+<strong>1/1968:</strong> Alexander Dubcek lên nắm quyền tại Tiệp Khắc, khởi động cải cách "chủ nghĩa xã hội với bộ mặt người" — nới lỏng kiểm soát báo chí, đa nguyên hóa đảng.<br><br>
+<strong>20–21/8/1968:</strong> 500.000 quân Liên Xô và Hiệp ước Warsaw xâm lược Tiệp Khắc. Dubcek bị bắt giữ và đưa về Moscow. Cải cách bị dập tắt.<br><br>
+<strong>Học thuyết Brezhnev:</strong> Liên Xô tuyên bố có quyền can thiệp vào bất kỳ nước xã hội chủ nghĩa nào bị đe dọa bởi "lực lượng phản cách mạng". Học thuyết này bị Gorbachev từ bỏ năm 1988 — tạo điều kiện cho làn sóng 1989.`
+  },
+  angola: {
+    label: 'Angola và chiến tranh ủy nhiệm châu Phi',
+    cls: 'ussr-c',
+    body: `<strong>Angola (1975–2002) — chiến tranh ủy nhiệm cuối Chiến tranh Lạnh:</strong><br><br>
+Sau khi Bồ Đào Nha trao độc lập cho Angola (1975), ba phong trào giải phóng tranh giành quyền lực:<br>
+- <strong>MPLA</strong> (nhận viện trợ Liên Xô và Cuba — 50.000 quân Cuba đóng tại Angola).<br>
+- <strong>UNITA</strong> (nhận viện trợ Mỹ và Nam Phi).<br>
+- <strong>FNLA</strong> (nhận hỗ trợ hạn chế từ Trung Quốc và Mỹ).<br><br>
+Nội chiến kéo dài đến 2002 sau khi Chiến tranh Lạnh đã kết thúc — ví dụ điển hình về hệ quả lâu dài của chiến tranh ủy nhiệm: khi hai siêu cường rút đi, xung đột có động lực riêng không dừng lại ngay.`
+  }
+};
+
+function showHotspot(id) {
+  const d = HOTSPOT_DATA[id];
+  if (!d) return;
+  const detail = document.getElementById('hotspot-detail');
+  document.getElementById('hs-title').className = 'hotspot-title ' + d.cls;
+  document.getElementById('hs-title').textContent = d.label;
+  document.getElementById('hs-body').innerHTML = d.body;
+  detail.className = 'hotspot-detail show';
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 4 — Quiz ôn tập
+   ════════════════════════════════════════════════ */
+
+const QUIZ = [
+  {
+    q: 'Tại sao cuộc đối đầu Mỹ–Liên Xô từ 1947–1991 được gọi là "Chiến tranh Lạnh"?',
+    opts: [
+      'Vì phần lớn chiến sự diễn ra ở vùng khí hậu lạnh như Bắc Cực',
+      'Vì hai siêu cường không bao giờ chiến đấu trực tiếp với nhau — đối đầu không có tiếng súng giữa hai bên',
+      'Vì quan hệ ngoại giao giữa hai bên hoàn toàn bị đóng băng, không có tiếp xúc nào',
+      'Vì chiến tranh diễn ra chủ yếu vào mùa đông',
+    ],
+    correct: 1,
+    explain: '"Lạnh" đối lập với "nóng" (hot war — chiến tranh có giao chiến trực tiếp). Suốt 44 năm, không có trận đánh nào trực tiếp giữa quân Mỹ và quân Liên Xô. Họ cạnh tranh qua vũ khí hạt nhân (không dùng), tuyên truyền, chạy đua không gian, viện trợ cho các bên thứ ba — nhưng tránh đối đầu trực tiếp vì sợ leo thang hạt nhân. Thuật ngữ được nhà văn George Orwell (1945) và nhà báo Walter Lippmann (1947) phổ biến.'
+  },
+  {
+    q: 'Học thuyết MAD (Mutually Assured Destruction) hoạt động theo cơ chế nào?',
+    opts: [
+      'Mỗi bên tích lũy đủ vũ khí để chắc chắn bên kia không tấn công trước vì sẽ bị hủy diệt hoàn toàn trong đòn phản công',
+      'Cả hai bên đồng ý không bao giờ phát triển vũ khí hạt nhân mới',
+      'Mỹ và Liên Xô thỏa thuận chia sẻ công nghệ hạt nhân để không bên nào có ưu thế',
+      'Liên Hợp Quốc giám sát và tiêu hủy vũ khí hạt nhân của cả hai bên',
+    ],
+    correct: 0,
+    explain: 'MAD hoạt động theo logic đe dọa đáp trả (second-strike capability): dù bị tấn công trước, bên bị tấn công vẫn còn đủ vũ khí để hủy diệt bên tấn công. Vì cả hai đều biết tấn công trước = bị hủy diệt hoàn toàn trong đòn phản công, không bên nào dám khai hỏa. Đây là "sự ổn định qua sức mạnh đe dọa" — khác với hòa bình qua tin tưởng. Tuy nhiên, MAD phụ thuộc vào sự lý trí hoàn hảo của tất cả các bên trong mọi tình huống — một giả định có thể sai.'
+  },
+  {
+    q: 'Trong Khủng hoảng tên lửa Cuba (1962), giải pháp cuối cùng là gì?',
+    opts: [
+      'Mỹ đổ bộ vào Cuba và tiêu diệt các bệ phóng tên lửa Liên Xô',
+      'Liên Xô đơn phương rút toàn bộ tên lửa để thể hiện thiện chí hòa bình',
+      'Liên Xô rút tên lửa Cuba; đổi lại Mỹ cam kết không xâm lược Cuba và (bí mật) rút tên lửa khỏi Thổ Nhĩ Kỳ',
+      'Liên Hợp Quốc triển khai lực lượng gìn giữ hòa bình đến Cuba để giám sát',
+    ],
+    correct: 2,
+    explain: 'Thỏa thuận là hai chiều: Liên Xô rút tên lửa hạt nhân khỏi Cuba; Mỹ công khai cam kết không tấn công Cuba và (bí mật, chỉ được công bố nhiều năm sau) đồng ý rút tên lửa Jupiter khỏi Thổ Nhĩ Kỳ trong vài tháng. Cả hai bên đều nhượng bộ và đều tránh được thảm họa. Phần bí mật rất quan trọng: nếu chỉ nhìn bề ngoài (Liên Xô rút, Mỹ "thắng"), ta hiểu sai về bản chất đàm phán — thực chất là trao đổi song phương.'
+  },
+  {
+    q: 'Bức tường Berlin (1961) được xây dựng vì lý do chính nào?',
+    opts: [
+      'Để bảo vệ Tây Berlin khỏi tấn công từ Đông Đức',
+      'Ngăn chặn làn sóng người Đông Đức chạy trốn sang Tây Berlin — khoảng 3,5 triệu người đã chạy từ 1949–1961',
+      'Để chia đôi thành phố theo yêu cầu của bốn cường quốc chiếm đóng',
+      'Vì lý do an ninh quân sự để ngăn NATO tiếp cận gần Berlin',
+    ],
+    correct: 1,
+    explain: 'Từ 1949 đến 1961, khoảng 3,5 triệu người — nhiều người trong số họ là bác sĩ, kỹ sư, giáo viên và chuyên gia — chạy khỏi Đông Đức sang Tây Berlin. Đây là "cuộc bỏ phiếu bằng chân" quy mô lớn, gây chảy máu dân số và chất xám nghiêm trọng cho nền kinh tế Đông Đức. Bức tường được xây để ngăn chặn điều này. Bức tường tồn tại 28 năm, ước tính 140 người chết khi cố vượt qua, và trở thành biểu tượng vật chất của sự chia đôi châu Âu.'
+  },
+  {
+    q: 'Glasnost và perestroika của Gorbachev nhằm mục đích gì, và tại sao lại dẫn đến kết quả không mong đợi?',
+    opts: [
+      'Nhằm phá hủy Liên Xô và chuyển sang kinh tế thị trường tư bản — thành công hoàn toàn',
+      'Nhằm cải cách và cứu hệ thống Xô Viết, nhưng tạo ra lực ly tâm (dân tộc, chính trị) vượt khỏi tầm kiểm soát',
+      'Nhằm gia nhập NATO và khối phương Tây — thất bại do phe bảo thủ phản đối',
+      'Nhằm hiện đại hóa quân đội — không ảnh hưởng gì đến kinh tế và chính trị dân sự',
+    ],
+    correct: 1,
+    explain: 'Gorbachev muốn cải tổ để CỨU Liên Xô, không phải phá hủy nó. Glasnost (công khai thông tin) cho phép phê bình — nhưng khi người dân được nói, họ đặt câu hỏi về tính chính đáng của cả hệ thống. Perestroika (tái cơ cấu kinh tế) phá vỡ cơ chế cũ nhưng chưa tạo được cơ chế mới hiệu quả. Hai cải cách song song kích thích phong trào dân tộc ở các nước cộng hòa và làm suy yếu quyền kiểm soát của đảng — tạo ra lực ly tâm dẫn đến tan rã. Đây là một ví dụ kinh điển về hậu quả không lường trước của cải cách.'
+  },
+  {
+    q: 'Phong trào Không liên kết (Non-Aligned Movement) ra đời với mục đích gì?',
+    opts: [
+      'Để liên kết các nước nhỏ chống lại cả Mỹ lẫn Liên Xô trong một liên minh quân sự thứ ba',
+      'Để các nước mới độc lập không bị buộc phải chọn một trong hai siêu cường — duy trì độc lập đối ngoại',
+      'Để thành lập một tổ chức kinh tế cạnh tranh với cả NATO và Warsaw',
+      'Để các nước châu Á tẩy chay thương mại với cả Mỹ và Liên Xô',
+    ],
+    correct: 1,
+    explain: 'Phong trào Không liên kết (NAM) thành lập 1961 tại Hội nghị Belgrade do Tito (Nam Tư), Nehru (Ấn Độ) và Nasser (Ai Cập) dẫn đầu. Nhiều nước mới giành độc lập từ thực dân Âu châu không muốn bị kéo vào cuộc tranh giành của hai siêu cường — họ muốn tự quyết định chính sách đối ngoại. NAM không phải liên minh quân sự mà là diễn đàn ngoại giao. Tuy nhiên trong thực tế, nhiều nước "không liên kết" vẫn nhận viện trợ từ một hoặc cả hai bên tùy theo tình huống.'
+  },
+  {
+    q: 'Tại sao Liên Xô tan rã năm 1991, không phải bị đánh bại trong chiến tranh?',
+    opts: [
+      'Gorbachev bị CIA mua chuộc để cố tình phá hủy Liên Xô từ bên trong',
+      'Liên Xô tự nguyện giải tán vì nhận ra chủ nghĩa tư bản ưu việt hơn',
+      'Sự kết hợp của suy thoái kinh tế, chi phí quân sự quá lớn, tham nhũng, thất bại ở Afghanistan, và phong trào dân tộc được khuếch đại bởi glasnost — sụp đổ từ bên trong',
+      'Liên Hợp Quốc áp đặt lệnh trừng phạt kinh tế buộc Liên Xô phải giải thể',
+    ],
+    correct: 2,
+    explain: 'Liên Xô không bị đánh bại từ bên ngoài mà sụp đổ từ bên trong qua nhiều nhân tố đan xen: kinh tế trì trệ và chi phí quân sự (~15–25% GDP) không bền vững; thất bại nhục nhã ở Afghanistan (1979–1989); giá dầu sụp đổ giữa thập niên 1980 cắt nguồn thu chính; tham nhũng và thiếu tính chính danh; glasnost khuếch đại các phong trào dân tộc ở 15 nước cộng hòa. Cuộc đảo chính thất bại tháng 8/1991 chỉ đẩy nhanh quá trình vốn đã không thể đảo ngược. Sự tan rã diễn ra bằng tuyên bố độc lập, không phải tiếng súng.'
+  }
+];
+
+let quizIdx = 0, quizScore = 0, quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = `Câu ${quizIdx+1}/${QUIZ.length}: ${q.q}`;
+  document.getElementById('quiz-prog').textContent = `${quizIdx+1} / ${QUIZ.length}`;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? `Điểm: ${quizScore}/${quizIdx}` : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = function() { quizAnswer(i); };
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ[quizIdx];
+  document.querySelectorAll('.quiz-opt').forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+
+  document.getElementById('quiz-score').textContent = `Điểm: ${quizScore}/${quizIdx+1}`;
+
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent = `Kết quả: ${quizScore}/${QUIZ.length} (${pct}%)`;
+    document.getElementById('quiz-prog').textContent =
+      pct >= 86 ? 'Xuất sắc!' : pct >= 70 ? 'Tốt — ôn lại câu sai.' : 'Cần ôn tập thêm.';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

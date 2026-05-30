@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Thế chiến thứ hai (1939–1945)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette WorldHistory / Thế chiến thứ hai ── */
+  :root {
+    --accent:       #0f766e;
+    --accent-soft:  #ccfbf1;
+    --accent-dark:  #134e4a;
+    --red-war:      #b91c1c;
+    --red-soft:     #fee2e2;
+    --gold:         #b45309;
+    --gold-soft:    #fef3c7;
+    --blue:         #1d4ed8;
+    --blue-soft:    #dbeafe;
+    --stone:        #57534e;
+    --stone-soft:   #f5f5f4;
+    --bg-card:      #ffffff;
+    --axis-color:   #7f1d1d;
+    --allies-color: #1e3a5f;
+    --neutral-color:#6b7280;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.65rem; margin-bottom: 6px; }
+  h2 {
+    color: var(--accent);
+    margin-top: 44px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-soft);
+    font-size: 1.2rem;
+  }
+
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 22px;
+    font-style: italic;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 6px rgba(15,118,110,.12);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .war-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-war);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .gold-box {
+    background: var(--gold-soft);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-war { background: var(--red-war); color: white; }
+  .btn-war:hover { background: #991b1b; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 1 — Bản đồ phe Trục vs Đồng Minh
+     ══════════════════════════════════════════════ */
+  #map-wrap { width: 100%; overflow-x: auto; }
+  #ww2-map  { display: block; margin: 0 auto; border-radius: 8px; border: 2px solid #cbd5e1; }
+
+  .map-legend {
+    display: flex; gap: 18px; flex-wrap: wrap;
+    margin: 12px 0; align-items: center;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 600;
+  }
+  .legend-dot {
+    width: 18px; height: 18px; border-radius: 4px;
+    display: inline-block; flex-shrink: 0;
+  }
+  .ld-axis    { background: rgba(127,29,29,0.75); }
+  .ld-allies  { background: rgba(30,58,95,0.75); }
+  .ld-ussr    { background: rgba(185,28,28,0.60); }
+  .ld-neutral { background: rgba(180,180,180,0.6); }
+  .ld-front   { background: #f59e0b; }
+
+  .map-step-panel {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    min-height: 72px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .step-dots { display: flex; gap: 8px; margin: 10px 0; flex-wrap: wrap; }
+  .step-dot {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 2px solid #d1d5db; background: #f9fafb;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #9ca3af;
+    cursor: pointer; transition: all .2s;
+  }
+  .step-dot.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .step-dot.done   { background: #0d9488; border-color: #0d9488; color: white; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 2 — Sơ đồ nhân–quả
+     ══════════════════════════════════════════════ */
+  .causal-wrap { width: 100%; overflow-x: auto; }
+  .causal-svg  { display: block; margin: 0 auto; }
+
+  .cause-detail {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+  }
+  .cause-detail.show { display: block; }
+  .cause-detail-title {
+    font-weight: 700; font-size: 15px;
+    color: var(--accent-dark); margin-bottom: 6px;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 3 — Timeline 1939–1945
+     ══════════════════════════════════════════════ */
+  .timeline {
+    position: relative;
+    padding: 12px 0 12px 36px;
+    margin: 8px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 14px; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, #1e3a5f, var(--red-war), var(--gold), #0f766e, #7f1d1d);
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative; margin-bottom: 22px; padding-left: 20px;
+  }
+  .tl-item::before {
+    content: ''; position: absolute;
+    left: -28px; top: 6px;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 3px solid white;
+    background: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  .tl-item.axis::before       { background: var(--red-war); box-shadow: 0 0 0 2px var(--red-war); }
+  .tl-item.allies::before     { background: var(--blue); box-shadow: 0 0 0 2px var(--blue); }
+  .tl-item.turn::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: var(--gold);
+    box-shadow: 0 0 0 3px var(--gold), 0 0 0 6px rgba(180,83,9,.2);
+  }
+  .tl-item.end::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent), 0 0 0 6px rgba(15,118,110,.2);
+  }
+  .tl-year  { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .tl-item.axis .tl-year   { color: var(--red-war); }
+  .tl-item.allies .tl-year { color: var(--blue); }
+  .tl-item.turn .tl-year   { color: var(--gold); font-size: 15px; }
+  .tl-item.end .tl-year    { color: var(--accent); font-size: 15px; }
+  .tl-title { font-weight: 700; font-size: 14px; color: #1f2937; line-height: 1.4; }
+  .tl-desc  { font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.5; }
+  .tl-badge {
+    display: inline-block; padding: 1px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; margin-left: 6px; vertical-align: middle;
+  }
+  .badge-axis    { background: var(--red-soft); color: #7f1d1d; }
+  .badge-allies  { background: var(--blue-soft); color: #1e3a5f; }
+  .badge-turn    { background: var(--gold-soft); color: var(--gold); }
+  .badge-end     { background: var(--accent-soft); color: var(--accent-dark); }
+  .badge-key     { background: #fce7f3; color: #9d174d; }
+
+  .tl-era-sep {
+    margin: 20px 0 16px -36px;
+    padding: 6px 14px 6px 36px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    border-radius: 0 20px 20px 0; display: inline-block;
+  }
+  .era-sep-axis    { background: var(--red-soft); color: #7f1d1d; }
+  .era-sep-allies  { background: var(--blue-soft); color: #1e3a5f; }
+  .era-sep-turn    { background: var(--gold-soft); color: var(--gold); }
+  .era-sep-end     { background: var(--accent-soft); color: var(--accent-dark); }
+
+  /* ══════════════════════════════════════════════
+     MODULE 4 — Quiz
+     ══════════════════════════════════════════════ */
+  .quiz-q { font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #1f2937; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .quiz-opt {
+    padding: 10px 14px; border-radius: 7px; border: 2px solid #e5e7eb;
+    background: #f9fafb; cursor: pointer; font-size: 14px; text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: #15803d; background: #dcfce7; color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--red-war); background: var(--red-soft); color: #7f1d1d; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.6;
+    margin-top: 8px; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: #dcfce7; color: #14532d; border: 1px solid #15803d; }
+  .quiz-feedback.err { background: var(--red-soft); color: #7f1d1d; border: 1px solid var(--red-war); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score { font-weight: 700; color: #15803d; font-size: 15px; }
+
+  @media (max-width: 600px) {
+    .tl-era-sep { font-size: 11px; padding-left: 30px; }
+    .map-step-panel { font-size: 13px; }
+    .map-legend { gap: 10px; }
+    .cause-detail { font-size: 13px; }
+    .step-dot { width: 26px; height: 26px; font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử TG — Hiện đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-world-war-1/visualization.html">← L4: Thế chiến thứ nhất</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Thế chiến thứ hai</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-cold-war/visualization.html">L6: Chiến tranh Lạnh →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Thế chiến thứ hai (1939–1945)</h1>
+<p class="subtitle">Cuộc xung đột đẫm máu nhất lịch sử — nguyên nhân, bước ngoặt, hậu quả và ký ức</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ phe Trục vs Đồng Minh
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ: phe Trục và phe Đồng Minh</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Nhấn <strong>Bước tiếp theo</strong> để xem bản đồ thay đổi theo từng giai đoạn chiến tranh — từ đỉnh cao của phe Trục (1942) đến thoái lui và thất bại (1945). Bấm vào số để nhảy thẳng.
+  </div>
+
+  <div class="map-legend">
+    <div class="legend-item"><span class="legend-dot ld-axis"></span>Phe Trục (Đức–Ý–Nhật &amp; đồng minh)</div>
+    <div class="legend-item"><span class="legend-dot ld-allies"></span>Phe Đồng Minh (Anh–Mỹ–Pháp tự do &amp; đồng minh)</div>
+    <div class="legend-item"><span class="legend-dot ld-ussr"></span>Liên Xô</div>
+    <div class="legend-item"><span class="legend-dot ld-neutral"></span>Trung lập</div>
+    <div class="legend-item"><span class="legend-dot ld-front" style="border-radius:2px;height:4px;width:24px;"></span>Mặt trận / Hướng tấn công</div>
+  </div>
+
+  <div class="step-dots" id="map-dots"></div>
+
+  <div id="map-wrap">
+    <canvas id="ww2-map" width="720" height="420"></canvas>
+  </div>
+
+  <div class="map-step-panel" id="map-panel">
+    <strong id="map-panel-title">Nhấn "Bắt đầu" để xem bản đồ theo từng giai đoạn.</strong>
+    <span id="map-panel-body"></span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="btn-map-prev" onclick="mapPrev()">← Trước</button>
+    <button class="btn btn-primary"   id="btn-map-next" onclick="mapNext()">Bắt đầu →</button>
+    <button class="btn btn-secondary" onclick="mapReset()">Khởi động lại</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Sơ đồ nhân–quả
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Sơ đồ nhân–quả: Versailles → Thế chiến thứ hai</h2>
+
+<div class="card">
+  <div class="info-box">
+    Bấm vào từng ô để xem giải thích về nhân tố đó và cách nó dẫn đến chiến tranh.
+  </div>
+
+  <div class="causal-wrap">
+    <svg class="causal-svg" width="700" height="440" viewBox="0 0 700 440">
+      <defs>
+        <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#b91c1c"/>
+        </marker>
+        <marker id="arr-gold" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#b45309"/>
+        </marker>
+        <marker id="arr-teal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0f766e"/>
+        </marker>
+        <marker id="arr-dark" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#374151"/>
+        </marker>
+      </defs>
+
+      <!-- ── Tầng 1: Nguyên nhân gốc ── -->
+      <rect x="5" y="8" width="690" height="68" rx="8" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
+      <text x="16" y="26" font-size="10" fill="#7f1d1d" font-weight="700" font-family="sans-serif">Tầng 1 — Hậu quả Thế chiến thứ nhất &amp; Versailles (1919)</text>
+
+      <!-- Box 1.1: Versailles -->
+      <g id="c-versailles" onclick="showCause('versailles')" style="cursor:pointer">
+        <rect x="20" y="32" width="195" height="36" rx="6" fill="#b91c1c" stroke="#7f1d1d" stroke-width="1.5"/>
+        <text x="117" y="51" font-size="12" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Hòa ước Versailles</text>
+        <text x="117" y="63" font-size="10" fill="#fca5a5" text-anchor="middle" font-family="sans-serif">Điều khoản bồi thường &amp; lãnh thổ</text>
+      </g>
+
+      <!-- Box 1.2: Dolchstoss / Oán giận -->
+      <g id="c-resentment" onclick="showCause('resentment')" style="cursor:pointer">
+        <rect x="252" y="32" width="195" height="36" rx="6" fill="#b91c1c" stroke="#7f1d1d" stroke-width="1.5"/>
+        <text x="349" y="51" font-size="12" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Phẫn nộ dân tộc Đức</text>
+        <text x="349" y="63" font-size="10" fill="#fca5a5" text-anchor="middle" font-family="sans-serif">Huyền thoại "dao đâm sau lưng"</text>
+      </g>
+
+      <!-- Box 1.3: Hội Quốc Liên yếu -->
+      <g id="c-league" onclick="showCause('league')" style="cursor:pointer">
+        <rect x="484" y="32" width="200" height="36" rx="6" fill="#9ca3af" stroke="#6b7280" stroke-width="1.5"/>
+        <text x="584" y="51" font-size="12" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Hội Quốc Liên bất lực</text>
+        <text x="584" y="63" font-size="10" fill="#f3f4f6" text-anchor="middle" font-family="sans-serif">Mỹ không gia nhập; không có quân đội</text>
+      </g>
+
+      <!-- ── Tầng 2: Đại suy thoái ── -->
+      <rect x="5" y="120" width="690" height="68" rx="8" fill="#fffbeb" stroke="#fde68a" stroke-width="1.5"/>
+      <text x="16" y="138" font-size="10" fill="#78350f" font-weight="700" font-family="sans-serif">Tầng 2 — Đại suy thoái kinh tế (1929–1933)</text>
+
+      <g id="c-depression" onclick="showCause('depression')" style="cursor:pointer">
+        <rect x="20" y="144" width="200" height="36" rx="6" fill="#b45309" stroke="#92400e" stroke-width="1.5"/>
+        <text x="120" y="163" font-size="12" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Wall Street 1929</text>
+        <text x="120" y="175" font-size="10" fill="#fed7aa" text-anchor="middle" font-family="sans-serif">Chuỗi đổ vỡ ngân hàng toàn cầu</text>
+      </g>
+
+      <g id="c-unemployment" onclick="showCause('unemployment')" style="cursor:pointer">
+        <rect x="252" y="144" width="195" height="36" rx="6" fill="#b45309" stroke="#92400e" stroke-width="1.5"/>
+        <text x="349" y="163" font-size="12" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Thất nghiệp 30% (Đức)</text>
+        <text x="349" y="175" font-size="10" fill="#fed7aa" text-anchor="middle" font-family="sans-serif">Mầm mống cực đoan hóa chính trị</text>
+      </g>
+
+      <g id="c-weimar" onclick="showCause('weimar')" style="cursor:pointer">
+        <rect x="484" y="144" width="200" height="36" rx="6" fill="#b45309" stroke="#92400e" stroke-width="1.5"/>
+        <text x="584" y="163" font-size="12" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Cộng hòa Weimar sụp đổ</text>
+        <text x="584" y="175" font-size="10" fill="#fed7aa" text-anchor="middle" font-family="sans-serif">Nền dân chủ non trẻ không chịu nổi</text>
+      </g>
+
+      <!-- ── Mũi tên tầng 1 → tầng 2 ── -->
+      <line x1="117" y1="68" x2="117" y2="142" stroke="#b91c1c" stroke-width="1.5" marker-end="url(#arr-red)"/>
+      <line x1="349" y1="68" x2="349" y2="142" stroke="#b91c1c" stroke-width="1.5" marker-end="url(#arr-red)"/>
+      <line x1="584" y1="68" x2="584" y2="142" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-dark)"/>
+
+      <!-- ── Tầng 3: Phát xít trỗi dậy ── -->
+      <rect x="5" y="232" width="690" height="68" rx="8" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
+      <text x="16" y="250" font-size="10" fill="#7f1d1d" font-weight="700" font-family="sans-serif">Tầng 3 — Sự trỗi dậy của chủ nghĩa phát xít &amp; quân phiệt (1933–1938)</text>
+
+      <g id="c-hitler" onclick="showCause('hitler')" style="cursor:pointer">
+        <rect x="20" y="256" width="188" height="36" rx="6" fill="#7f1d1d" stroke="#450a0a" stroke-width="1.5"/>
+        <text x="114" y="275" font-size="12" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Hitler nắm quyền (1933)</text>
+        <text x="114" y="287" font-size="10" fill="#fca5a5" text-anchor="middle" font-family="sans-serif">Tái vũ trang &amp; bành trướng</text>
+      </g>
+
+      <g id="c-italy" onclick="showCause('italy')" style="cursor:pointer">
+        <rect x="232" y="256" width="160" height="36" rx="6" fill="#7f1d1d" stroke="#450a0a" stroke-width="1.5"/>
+        <text x="312" y="275" font-size="12" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Mussolini &amp; Ý (1922)</text>
+        <text x="312" y="287" font-size="10" fill="#fca5a5" text-anchor="middle" font-family="sans-serif">Ethiopia, Albania (1935–39)</text>
+      </g>
+
+      <g id="c-japan" onclick="showCause('japan')" style="cursor:pointer">
+        <rect x="416" y="256" width="160" height="36" rx="6" fill="#7f1d1d" stroke="#450a0a" stroke-width="1.5"/>
+        <text x="496" y="275" font-size="12" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Nhật quân phiệt</text>
+        <text x="496" y="287" font-size="10" fill="#fca5a5" text-anchor="middle" font-family="sans-serif">Manchuria 1931, TQ 1937</text>
+      </g>
+
+      <g id="c-appease" onclick="showCause('appease')" style="cursor:pointer">
+        <rect x="599" y="256" width="92" height="36" rx="6" fill="#6b7280" stroke="#4b5563" stroke-width="1.5"/>
+        <text x="645" y="275" font-size="11" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Xoa dịu</text>
+        <text x="645" y="287" font-size="10" fill="#e5e7eb" text-anchor="middle" font-family="sans-serif">Munich 1938</text>
+      </g>
+
+      <!-- ── Mũi tên tầng 2 → tầng 3 ── -->
+      <line x1="120" y1="180" x2="114" y2="254" stroke="#b45309" stroke-width="1.5" marker-end="url(#arr-gold)"/>
+      <line x1="349" y1="180" x2="312" y2="254" stroke="#b45309" stroke-width="1.5" marker-end="url(#arr-gold)"/>
+      <line x1="584" y1="180" x2="496" y2="254" stroke="#b45309" stroke-width="1.5" marker-end="url(#arr-gold)"/>
+
+      <!-- ── Tầng 4: Chiến tranh ── -->
+      <g id="c-war" onclick="showCause('war')" style="cursor:pointer">
+        <rect x="200" y="348" width="300" height="80" rx="10" fill="#0f766e" stroke="#134e4a" stroke-width="2.5"/>
+        <text x="350" y="380" font-size="15" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">THOI CHIEN THU HAI</text>
+        <text x="350" y="398" font-size="12" fill="#ccfbf1" text-anchor="middle" font-family="sans-serif">Thế chiến thứ hai</text>
+        <text x="350" y="414" font-size="11" fill="#99f6e4" text-anchor="middle" font-family="sans-serif">1/9/1939 — 2/9/1945</text>
+      </g>
+
+      <!-- ── Mũi tên tầng 3 → chiến tranh ── -->
+      <line x1="114" y1="292" x2="265" y2="346" stroke="#b91c1c" stroke-width="2" marker-end="url(#arr-red)"/>
+      <line x1="312" y1="292" x2="320" y2="346" stroke="#b91c1c" stroke-width="2" marker-end="url(#arr-red)"/>
+      <line x1="496" y1="292" x2="420" y2="346" stroke="#b91c1c" stroke-width="2" marker-end="url(#arr-red)"/>
+      <line x1="645" y1="292" x2="470" y2="346" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-dark)"/>
+    </svg>
+  </div>
+
+  <div class="cause-detail" id="cause-detail">
+    <div class="cause-detail-title" id="cause-detail-title"></div>
+    <div id="cause-detail-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Timeline 1939–1945
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Chuỗi thời gian: 1939–1945</h2>
+
+<div class="card">
+  <div class="timeline">
+
+    <!-- Giai đoạn 1: Phe Trục tấn công -->
+    <div class="tl-era-sep era-sep-axis">Phe Trục tấn công &amp; bành trướng (1939–1941)</div>
+
+    <div class="tl-item axis">
+      <div class="tl-year">1/9/1939</div>
+      <div class="tl-title">Đức xâm lược Ba Lan — Thế chiến thứ hai bắt đầu
+        <span class="tl-badge badge-axis">Mở màn</span>
+      </div>
+      <div class="tl-desc">Đức tấn công từ phía Tây bằng chiến thuật Blitzkrieg; Liên Xô tấn công từ phía Đông (17/9) theo Hiệp ước Molotov–Ribbentrop. Ba Lan thất thủ sau 5 tuần. Anh và Pháp tuyên chiến với Đức ngày 3/9.</div>
+    </div>
+
+    <div class="tl-item axis">
+      <div class="tl-year">5–6/1940</div>
+      <div class="tl-title">Pháp thất thủ — Châu Âu lục địa gần như thuộc Đức
+        <span class="tl-badge badge-axis">Sốc chiến lược</span>
+      </div>
+      <div class="tl-desc">Đức tấn công qua Bỉ và rừng Ardennes, vòng sau lưng quân Đồng Minh. 338.000 quân được cứu ở Dunkirk nhưng hầu hết vũ khí bị bỏ lại. Pháp đầu hàng 22/6/1940 — chỉ 6 tuần.</div>
+    </div>
+
+    <div class="tl-item axis">
+      <div class="tl-year">7/1940–5/1941</div>
+      <div class="tl-title">Trận chiến nước Anh (Battle of Britain)
+        <span class="tl-badge badge-allies">Kháng cự thành công</span>
+      </div>
+      <div class="tl-desc">Luftwaffe ném bom liên tục vào Anh nhằm phá hủy RAF và buộc Anh đầu hàng. RAF kháng cự, Đức không thể chiếm được ưu thế trên không. Hitler bỏ kế hoạch đổ bộ Anh. Churchill: "Never in the field of human conflict was so much owed by so many to so few."</div>
+    </div>
+
+    <div class="tl-item axis">
+      <div class="tl-year">22/6/1941</div>
+      <div class="tl-title">Chiến dịch Barbarossa — Đức tấn công Liên Xô
+        <span class="tl-badge badge-axis">Mặt trận lớn nhất</span>
+      </div>
+      <div class="tl-desc">3 triệu quân Đức cùng đồng minh tấn công Liên Xô trên mặt trận dài 2.900 km — lớn nhất lịch sử quân sự. Đức tiến nhanh ban đầu, bao vây và bắt hàng triệu tù binh. Nhưng mùa đông Nga và kháng cự quyết liệt dừng cuộc tấn công trước Moscow (12/1941).</div>
+    </div>
+
+    <div class="tl-item axis">
+      <div class="tl-year">7/12/1941</div>
+      <div class="tl-title">Nhật tấn công Trân Châu Cảng — Mỹ tham chiến
+        <span class="tl-badge badge-axis">Toàn cầu hóa</span>
+      </div>
+      <div class="tl-desc">Nhật tấn công căn cứ hải quân Mỹ ở Hawaii, phá hủy hoặc làm hư hại 8 thiết giáp hạm, giết hơn 2.400 quân nhân Mỹ. Ngày hôm sau, Roosevelt tuyên chiến với Nhật. Đức và Ý tuyên chiến Mỹ ngày 11/12. Chiến tranh thực sự trở thành toàn cầu.</div>
+    </div>
+
+    <!-- Giai đoạn 2: Bước ngoặt -->
+    <div class="tl-era-sep era-sep-turn">Bước ngoặt — Phe Đồng Minh phản công (1942–1943)</div>
+
+    <div class="tl-item turn">
+      <div class="tl-year">4–7/6/1942</div>
+      <div class="tl-title">Trận Midway — Nhật mất 4 tàu sân bay chiến lược
+        <span class="tl-badge badge-turn">Bước ngoặt Thái Bình Dương</span>
+      </div>
+      <div class="tl-desc">Mỹ giải mã mật mã Nhật, biết trước hướng tấn công. Nhật mất Akagi, Kaga, Soryu, Hiryu (4 tàu sân bay hạng nặng) — lực lượng tấn công chủ yếu không thể thay thế trong thời gian ngắn. Mỹ mất 1 tàu sân bay (Yorktown). Từ đây Nhật chuyển sang phòng thủ.</div>
+    </div>
+
+    <div class="tl-item turn">
+      <div class="tl-year">8/1942–2/2/1943</div>
+      <div class="tl-title">Trận Stalingrad — Liên Xô bao vây Tập đoàn quân số 6 Đức
+        <span class="tl-badge badge-turn">Bước ngoặt châu Âu</span>
+      </div>
+      <div class="tl-desc">Sau 6 tháng giao tranh đường phố ác liệt, Liên Xô phản công (Chiến dịch Uranus, 19/11/1942) bao vây 300.000 quân Đức. Ngày 2/2/1943, Thống chế Paulus đầu hàng cùng ~91.000 binh sĩ. Lần đầu tiên một Tập đoàn quân Đức bị bắt toàn bộ. Cán cân chiến lược ở Đông Âu đảo chiều vĩnh viễn.</div>
+    </div>
+
+    <div class="tl-item allies">
+      <div class="tl-year">5/1943</div>
+      <div class="tl-title">Quân Đức–Ý đầu hàng ở Bắc Phi — Mặt trận thứ ba mở ra
+        <span class="tl-badge badge-allies">Đồng Minh tiến công</span>
+      </div>
+      <div class="tl-desc">250.000 quân Đức–Ý đầu hàng ở Tunisia. Đồng Minh kiểm soát Bắc Phi, chuẩn bị tấn công lên Italy. Tháng 9/1943 Ý ký đình chiến và sau đó tuyên chiến với Đức — Mussolini bị lật đổ.</div>
+    </div>
+
+    <!-- Giai đoạn 3: Đồng Minh thắng lợi -->
+    <div class="tl-era-sep era-sep-allies">Đồng Minh tổng tấn công &amp; kết thúc (1944–1945)</div>
+
+    <div class="tl-item allies">
+      <div class="tl-year">6/6/1944</div>
+      <div class="tl-title">D-Day — Đổ bộ Normandy, mặt trận phía Tây mở hoàn toàn
+        <span class="tl-badge badge-allies">Quyết định</span>
+      </div>
+      <div class="tl-desc">Chiến dịch Overlord: 156.000 quân Đồng Minh đổ bộ lên 5 bãi biển Normandy với 7.000 tàu và 11.000 máy bay. Đây là cuộc đổ bộ đường biển lớn nhất lịch sử. Đức phải đối mặt hai gọng kìm: Hồng quân từ Đông, Đồng Minh từ Tây và Ý.</div>
+    </div>
+
+    <div class="tl-item end">
+      <div class="tl-year">8/5/1945</div>
+      <div class="tl-title">Đức đầu hàng vô điều kiện — V-E Day
+        <span class="tl-badge badge-end">Chiến thắng châu Âu</span>
+      </div>
+      <div class="tl-desc">Hồng quân tiến vào Berlin (4/1945). Hitler tự sát ngày 30/4/1945. Ngày 8/5/1945, Đức ký văn kiện đầu hàng. Chiến tranh ở châu Âu kết thúc sau gần 6 năm.</div>
+    </div>
+
+    <div class="tl-item end">
+      <div class="tl-year">6/8 &amp; 9/8/1945</div>
+      <div class="tl-title">Mỹ ném bom nguyên tử xuống Hiroshima và Nagasaki
+        <span class="tl-badge badge-key">Vũ khí hạt nhân lần đầu</span>
+      </div>
+      <div class="tl-desc">6/8: "Little Boy" xuống Hiroshima — ước tính 70.000–80.000 người chết ngay lập tức. 9/8: "Fat Man" xuống Nagasaki — ước tính 40.000 người chết ngay. Tổng thiệt hại đến cuối 1945 (bao gồm phóng xạ) ước tính 150.000–200.000 người. Đây là lần duy nhất vũ khí hạt nhân được dùng trong chiến tranh thực địa.</div>
+    </div>
+
+    <div class="tl-item end">
+      <div class="tl-year">2/9/1945</div>
+      <div class="tl-title">Nhật Bản ký văn kiện đầu hàng — V-J Day. Thế chiến kết thúc
+        <span class="tl-badge badge-end">Kết thúc</span>
+      </div>
+      <div class="tl-desc">Thiên hoàng Hirohito tuyên bố đầu hàng 15/8/1945. Ngày 2/9, trên thiết giáp hạm USS Missouri tại vịnh Tokyo, Nhật ký văn kiện chính thức. Thế chiến thứ hai kết thúc sau 2.194 ngày. Ước tính 70–85 triệu người thiệt mạng — đẫm máu nhất lịch sử nhân loại.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q"    id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <button class="btn btn-secondary" id="btn-quiz-restart" onclick="quizRestart()" style="display:none">Làm lại từ đầu</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score"    id="quiz-score"></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════════════════ -->
+<script>
+/* ════════════════════════════════════════════════
+   MODULE 1 — Bản đồ phe Trục vs Đồng Minh
+   ════════════════════════════════════════════════ */
+
+const mapEl = document.getElementById('ww2-map');
+const ctx   = mapEl.getContext('2d');
+const MW = mapEl.width, MH = mapEl.height;
+
+/* ── Hàm vẽ nền biển ── */
+function drawSea() {
+  const g = ctx.createLinearGradient(0, 0, 0, MH);
+  g.addColorStop(0, '#bfdbfe');
+  g.addColorStop(1, '#93c5fd');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, MW, MH);
+}
+
+/* ── Hàm vẽ polygon ── */
+function drawPoly(pts, color) {
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  ctx.closePath();
+  if (color) { ctx.fillStyle = color; ctx.fill(); }
+  else ctx.fill();
+}
+
+/* ── Dữ liệu đa giác địa lý (tọa độ canvas 720×420)
+   Hệ trục: Tây (Đại Tây Dương) ≈ x=20, Đông (Ural/Trung Á) ≈ x=700
+             Bắc (Norway) ≈ y=20,  Nam (Sahara/Ấn Độ) ≈ y=400
+   Điểm tham chiếu: London ≈ (175,80), Berlin ≈ (300,100), Moscow ≈ (465,90)
+                    Paris ≈ (200,115), Rome ≈ (285,175), Warsaw ≈ (350,100)
+                    Tokyo ≈ tách riêng, đảo Nhật không vẽ (không gian)
+   ── */
+
+const LAND = {
+  britain:    [[140,35],[175,28],[200,32],[210,55],[205,75],[195,85],[175,90],[155,80],[140,60],[135,48],[140,35]],
+  ireland:    [[110,55],[125,48],[130,60],[125,75],[112,78],[105,65],[110,55]],
+  norway:     [[280,18],[310,16],[335,22],[350,35],[340,55],[320,65],[305,70],[288,60],[278,42],[280,18]],
+  sweden:     [[310,16],[340,14],[360,20],[375,35],[370,55],[355,70],[340,65],[320,65],[335,40],[310,16]],
+  finland:    [[360,14],[390,12],[415,20],[420,40],[410,60],[395,70],[375,65],[360,55],[360,35],[360,14]],
+  france:     [[155,100],[200,95],[240,92],[270,98],[285,112],[280,130],[265,145],[245,155],[220,160],[195,155],[170,145],[155,130],[148,115],[155,100]],
+  spain:      [[55,130],[100,118],[140,112],[158,118],[160,140],[150,165],[130,180],[100,188],[70,182],[48,168],[40,150],[45,135],[55,130]],
+  portugal:   [[40,140],[55,130],[60,155],[58,175],[45,180],[35,168],[38,148],[40,140]],
+  italy:      [[270,145],[300,135],[318,140],[325,158],[318,180],[308,205],[295,230],[280,255],[265,270],[255,278],[248,265],[252,245],[255,215],[260,188],[265,165],[270,145]],
+  germany:    [[240,92],[280,88],[310,90],[335,95],[350,102],[345,115],[330,122],[305,125],[280,130],[265,125],[250,118],[240,102],[240,92]],
+  poland:     [[350,98],[390,94],[420,96],[430,105],[425,118],[408,125],[385,128],[360,125],[345,115],[348,105],[350,98]],
+  czech:      [[300,118],[335,112],[360,115],[365,125],[350,130],[325,132],[305,128],[300,118]],
+  austria:    [[280,128],[305,122],[330,122],[338,132],[318,138],[298,138],[278,136],[280,128]],
+  hungary:    [[330,128],[368,125],[388,130],[392,145],[375,155],[348,155],[330,148],[328,135],[330,128]],
+  romania:    [[385,118],[420,112],[450,115],[460,130],[455,150],[440,162],[415,165],[390,158],[378,145],[380,130],[385,118]],
+  bulgaria:   [[378,158],[415,155],[440,162],[442,175],[425,182],[398,180],[378,172],[375,162],[378,158]],
+  greece:     [[350,178],[378,170],[400,175],[402,192],[392,208],[375,220],[355,222],[342,210],[340,195],[345,182],[350,178]],
+  turkey:     [[402,162],[445,158],[490,155],[520,160],[535,175],[528,192],[505,200],[480,205],[455,200],[430,195],[410,190],[400,178],[402,162]],
+  yugoslavia: [[295,145],[330,140],[360,148],[378,158],[375,175],[355,185],[330,182],[308,175],[295,162],[292,150],[295,145]],
+  belgium:    [[200,100],[220,96],[235,98],[238,108],[220,112],[200,110],[200,100]],
+  netherlands:[[200,88],[218,86],[232,90],[235,98],[218,100],[200,100],[198,92],[200,88]],
+  denmark:    [[255,72],[275,68],[285,75],[282,88],[268,90],[255,84],[250,76],[255,72]],
+  // Liên Xô phần châu Âu (giữa Vistula và Ural)
+  ussr_west:  [[420,96],[462,90],[500,85],[535,82],[570,80],[600,82],[628,88],[640,100],[635,120],[620,140],[600,160],[575,180],[548,195],[520,205],[490,200],[460,195],[438,185],[420,168],[415,148],[418,128],[420,110],[420,96]],
+  // Liên Xô phần Kavkaz / Caucasus
+  ussr_cauc:  [[490,200],[530,198],[560,195],[580,200],[590,215],[580,228],[558,232],[530,228],[505,220],[490,210],[490,200]],
+  // Bắc Phi (Libya–Ai Cập–Tunisia)
+  north_africa:[[60,255],[120,248],[180,244],[240,242],[300,240],[360,242],[410,245],[450,248],[490,250],[530,252],[565,255],[595,260],[620,268],[630,285],[620,300],[600,308],[570,312],[540,315],[510,318],[480,320],[450,318],[410,315],[370,310],[330,305],[290,300],[250,298],[210,300],[170,305],[130,310],[95,315],[65,310],[50,295],[52,275],[60,255]],
+  // Ai Cập
+  egypt:      [[565,255],[600,250],[630,255],[640,270],[635,295],[620,310],[600,318],[580,320],[560,318],[545,310],[535,295],[538,272],[545,260],[555,255],[565,255]],
+};
+
+/* ── Màu theo phe ── */
+const C_AXIS    = 'rgba(127,29,29,0.72)';
+const C_ALLIES  = 'rgba(30,58,95,0.72)';
+const C_USSR    = 'rgba(155,20,20,0.55)';
+const C_NEUTRAL = 'rgba(200,200,200,0.55)';
+const C_LAND    = '#e7e5e4';
+
+/* ── Định nghĩa màu cho từng vùng trong từng bước ── */
+const MAP_STEPS = [
+  {
+    title: '1939 — Phe Trục tấn công Ba Lan & Bắc Âu',
+    body: '<strong>9/1939:</strong> Đức xâm lược Ba Lan từ phía Tây; Liên Xô từ phía Đông. Ba Lan thất thủ trong 5 tuần. Anh–Pháp tuyên chiến nhưng chưa đủ mạnh để can thiệp hiệu quả ngay. "Chiến tranh kỳ lạ" (Phony War) ở mặt trận Tây — gần như không có giao tranh. <strong>4/1940:</strong> Đức chiếm Đan Mạch và Na Uy.',
+    zones: {
+      germany: C_AXIS, poland: C_AXIS, czech: C_AXIS, austria: C_AXIS,
+      norway: C_AXIS, denmark: C_AXIS,
+      britain: C_ALLIES, france: C_ALLIES, belgium: C_ALLIES, netherlands: C_ALLIES,
+      ussr_west: C_USSR,
+      spain: C_NEUTRAL, sweden: C_NEUTRAL, finland: C_NEUTRAL, turkey: C_NEUTRAL,
+      hungary: C_AXIS, romania: C_NEUTRAL,
+    },
+    arrows: [
+      { x1: 335, y1: 112, x2: 373, y2: 108, color: C_AXIS, label: 'Đức → Ba Lan' },
+      { x1: 460, y1: 125, x2: 415, y2: 115, color: C_USSR, label: 'Liên Xô → Ba Lan' },
+    ]
+  },
+  {
+    title: '1940–1941 — Phe Trục đỉnh cao châu Âu',
+    body: '<strong>5–6/1940:</strong> Đức tấn công Pháp qua Bỉ và rừng Ardennes — Pháp thất thủ trong 6 tuần. Chính phủ Vichy hợp tác. Đức kiểm soát gần toàn bộ Tây Âu lục địa. <strong>22/6/1941:</strong> Chiến dịch Barbarossa — Đức tấn công Liên Xô trên toàn tuyến từ Baltic đến Biển Đen.',
+    zones: {
+      germany: C_AXIS, poland: C_AXIS, czech: C_AXIS, austria: C_AXIS,
+      norway: C_AXIS, denmark: C_AXIS, france: C_AXIS, belgium: C_AXIS,
+      netherlands: C_AXIS, yugoslavia: C_AXIS, greece: C_AXIS,
+      hungary: C_AXIS, romania: C_AXIS, bulgaria: C_AXIS,
+      italy: C_AXIS,
+      britain: C_ALLIES,
+      ussr_west: C_USSR, ussr_cauc: C_USSR,
+      spain: C_NEUTRAL, sweden: C_NEUTRAL, turkey: C_NEUTRAL,
+    },
+    arrows: [
+      { x1: 290, y1: 128, x2: 420, y2: 108, color: '#f59e0b', label: '→ Liên Xô' },
+      { x1: 388, y1: 145, x2: 445, y2: 162, color: '#f59e0b', label: '→ Ukraine' },
+    ]
+  },
+  {
+    title: '1942 — Đỉnh cao phe Trục toàn cầu',
+    body: '<strong>Đây là đỉnh cao lãnh thổ của phe Trục.</strong> Đức kiểm soát hoặc đồng minh với hầu hết châu Âu lục địa, tiến sâu vào Liên Xô (đến sông Volga). Rommel và Afrikakorps tiến đến El Alamein (Ai Cập), uy hiếp kênh đào Suez. Nhật Bản kiểm soát Đông Nam Á, nhiều đảo Thái Bình Dương và một phần Trung Quốc. Đây là thời điểm bi quan nhất của phe Đồng Minh.',
+    zones: {
+      germany: C_AXIS, poland: C_AXIS, czech: C_AXIS, austria: C_AXIS,
+      norway: C_AXIS, denmark: C_AXIS, france: C_AXIS, belgium: C_AXIS,
+      netherlands: C_AXIS, yugoslavia: C_AXIS, greece: C_AXIS,
+      hungary: C_AXIS, romania: C_AXIS, bulgaria: C_AXIS,
+      italy: C_AXIS,
+      north_africa: C_AXIS,
+      britain: C_ALLIES,
+      ussr_west: 'rgba(155,20,20,0.35)', // một phần bị chiếm
+      ussr_cauc: C_USSR,
+      spain: C_NEUTRAL, sweden: C_NEUTRAL, turkey: C_NEUTRAL,
+    },
+    arrows: [
+      { x1: 415, y1: 125, x2: 475, y2: 108, color: '#f59e0b', label: '→ Stalingrad' },
+      { x1: 350, y1: 248, x2: 570, y2: 258, color: '#f59e0b', label: '→ El Alamein' },
+    ]
+  },
+  {
+    title: '1943–1944 — Đồng Minh phản công',
+    body: '<strong>Bước ngoặt:</strong> Liên Xô thắng Stalingrad (2/1943) và Kursk (7/1943) — chuyển từ phòng thủ sang tổng phản công. Đồng Minh chiếm Bắc Phi (5/1943), đổ bộ Sicily và Ý (9/1943). D-Day Normandy (6/6/1944) mở mặt trận phía Tây. Đức bị hai gọng kìm siết chặt. Nhật thua Midway (6/1942) và bắt đầu thua dần ở Thái Bình Dương.',
+    zones: {
+      germany: C_AXIS, czech: C_AXIS, austria: C_AXIS,
+      norway: C_AXIS, denmark: C_AXIS, france: 'rgba(127,29,29,0.40)',
+      netherlands: C_AXIS, yugoslavia: C_AXIS,
+      hungary: C_AXIS, romania: C_AXIS, bulgaria: C_AXIS,
+      italy: 'rgba(30,58,95,0.50)', // một phần giải phóng
+      north_africa: C_ALLIES,
+      britain: C_ALLIES, belgium: C_ALLIES,
+      ussr_west: C_USSR,
+      ussr_cauc: C_USSR,
+      poland: 'rgba(155,20,20,0.45)',
+      spain: C_NEUTRAL, sweden: C_NEUTRAL, turkey: C_NEUTRAL,
+    },
+    arrows: [
+      { x1: 230, y1: 110, x2: 280, y2: 100, color: C_ALLIES, label: 'D-Day →' },
+      { x1: 460, y1: 120, x2: 400, y2: 110, color: C_USSR, label: '← Hồng quân' },
+    ]
+  },
+  {
+    title: '1945 — Đồng Minh thắng lợi — Chiến tranh kết thúc',
+    body: '<strong>5/1945:</strong> Đức đầu hàng vô điều kiện. Berlin bị Hồng quân chiếm, Hitler tự sát. Châu Âu giải phóng. <strong>8/1945:</strong> Mỹ ném bom nguyên tử xuống Hiroshima (6/8) và Nagasaki (9/8). Liên Xô tuyên chiến với Nhật (8/8). Nhật đầu hàng 2/9/1945. Thế chiến thứ hai kết thúc. Ước tính 70–85 triệu người thiệt mạng trong toàn cuộc chiến.',
+    zones: {
+      germany: C_ALLIES, poland: C_ALLIES, czech: C_ALLIES, austria: C_ALLIES,
+      norway: C_ALLIES, denmark: C_ALLIES, france: C_ALLIES,
+      netherlands: C_ALLIES, belgium: C_ALLIES,
+      yugoslavia: C_ALLIES, greece: C_ALLIES,
+      hungary: C_USSR, romania: C_USSR, bulgaria: C_USSR,
+      italy: C_ALLIES,
+      north_africa: C_ALLIES, egypt: C_ALLIES,
+      britain: C_ALLIES,
+      ussr_west: C_USSR, ussr_cauc: C_USSR,
+      spain: C_NEUTRAL, sweden: C_NEUTRAL, turkey: C_NEUTRAL,
+    },
+    arrows: []
+  }
+];
+
+let mapStep = -1;
+
+function drawMapBase() {
+  ctx.clearRect(0, 0, MW, MH);
+  drawSea();
+  // Vẽ tất cả vùng đất nền (màu đất trung tính)
+  Object.values(LAND).forEach(pts => {
+    ctx.fillStyle = C_LAND;
+    drawPoly(pts, null);
+  });
+  ctx.strokeStyle = '#a8a29e';
+  ctx.lineWidth = 0.6;
+}
+
+function drawMapStep(si) {
+  drawMapBase();
+  if (si < 0) return;
+  const step = MAP_STEPS[si];
+  // Tô màu từng vùng theo phe
+  Object.entries(step.zones).forEach(([name, color]) => {
+    if (LAND[name]) {
+      ctx.fillStyle = color;
+      drawPoly(LAND[name], null);
+    }
+  });
+
+  // Vẽ nhãn địa danh chính
+  const labels = [
+    { x: 288, y: 106, text: 'ĐỨC', color: 'white', size: 10, bold: true },
+    { x: 375, y: 108, text: 'BẮC Á', color: '#ddd', size: 9, bold: false },
+    { x: 215, y: 125, text: 'PHÁP', color: 'white', size: 10, bold: false },
+    { x: 175, y: 68, text: 'ANH', color: 'white', size: 10, bold: false },
+    { x: 100, y: 155, text: 'TÂY BAN NHA', color: '#555', size: 8, bold: false },
+    { x: 280, y: 200, text: 'Ý', color: 'white', size: 10, bold: false },
+    { x: 540, y: 135, text: 'LIÊN XÔ', color: 'white', size: 11, bold: true },
+    { x: 330, y: 280, text: 'BẮC PHI', color: 'white', size: 9, bold: false },
+    { x: 600, y: 280, text: 'AI CẬP', color: 'white', size: 9, bold: false },
+    { x: 385, y: 198, text: 'BIỂN ĐỊA TRUNG HẢI', color: '#1d4ed8', size: 9, bold: false },
+    { x: 140, y: 230, text: 'ĐẠI TÂY DƯƠNG', color: '#1d4ed8', size: 10, bold: false },
+  ];
+  labels.forEach(lb => {
+    ctx.font = `${lb.bold ? '700' : '500'} ${lb.size}px sans-serif`;
+    ctx.fillStyle = lb.color;
+    ctx.textAlign = 'center';
+    ctx.fillText(lb.text, lb.x, lb.y);
+  });
+  ctx.textAlign = 'left';
+
+  // Dấu thành phố quan trọng
+  const cities = [
+    { x: 300, y: 102, name: 'Berlin', color: '#fff' },
+    { x: 205, y: 118, name: 'Paris', color: '#fff' },
+    { x: 180, y: 82, name: 'London', color: '#fff' },
+    { x: 462, y: 95, name: 'Moscow', color: '#fff' },
+    { x: 476, y: 118, name: 'Stalingrad', color: '#fbbf24' },
+    { x: 286, y: 170, name: 'Rome', color: '#fff' },
+  ];
+  cities.forEach(c => {
+    ctx.fillStyle = c.color;
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+    ctx.font = '500 9px sans-serif';
+    ctx.fillStyle = c.color;
+    ctx.fillText(c.name, c.x + 5, c.y + 3);
+  });
+
+  // Mũi tên tấn công
+  if (step.arrows) {
+    step.arrows.forEach(a => {
+      ctx.strokeStyle = a.color;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 3]);
+      ctx.beginPath();
+      ctx.moveTo(a.x1, a.y1);
+      ctx.lineTo(a.x2, a.y2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Đầu mũi tên đơn giản
+      const angle = Math.atan2(a.y2 - a.y1, a.x2 - a.x1);
+      ctx.fillStyle = a.color;
+      ctx.beginPath();
+      ctx.moveTo(a.x2, a.y2);
+      ctx.lineTo(a.x2 - 10 * Math.cos(angle - 0.4), a.y2 - 10 * Math.sin(angle - 0.4));
+      ctx.lineTo(a.x2 - 10 * Math.cos(angle + 0.4), a.y2 - 10 * Math.sin(angle + 0.4));
+      ctx.closePath();
+      ctx.fill();
+    });
+  }
+
+  // Chú thích bước
+  ctx.fillStyle = 'rgba(0,0,0,0.72)';
+  ctx.fillRect(0, MH - 28, MW, 28);
+  ctx.font = 'bold 12px sans-serif';
+  ctx.fillStyle = 'white';
+  ctx.textAlign = 'center';
+  ctx.fillText(`Giai đoạn ${si + 1}/5: ${step.title}`, MW / 2, MH - 10);
+  ctx.textAlign = 'left';
+}
+
+function mapUpdateUI() {
+  const step = mapStep;
+  const data = step >= 0 ? MAP_STEPS[step] : null;
+  const panel = document.getElementById('map-panel');
+  if (data) {
+    document.getElementById('map-panel-title').textContent = data.title;
+    document.getElementById('map-panel-body').innerHTML = ' — ' + data.body;
+  } else {
+    document.getElementById('map-panel-title').textContent = 'Nhấn "Bắt đầu" để xem bản đồ thay đổi qua từng giai đoạn chiến tranh.';
+    document.getElementById('map-panel-body').textContent = '';
+  }
+  document.getElementById('btn-map-prev').disabled = step <= 0;
+  const btnNext = document.getElementById('btn-map-next');
+  btnNext.textContent = step < 0 ? 'Bắt đầu →' : step >= MAP_STEPS.length - 1 ? 'Hoàn thành' : 'Bước tiếp →';
+  btnNext.disabled = step >= MAP_STEPS.length - 1;
+
+  // Dots
+  const dots = document.getElementById('map-dots');
+  dots.innerHTML = '';
+  for (let i = 0; i < MAP_STEPS.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (i === step ? ' active' : i < step ? ' done' : '');
+    d.textContent = i + 1;
+    const si = i;
+    d.onclick = () => { mapStep = si; mapUpdateUI(); };
+    dots.appendChild(d);
+  }
+
+  drawMapStep(step);
+}
+
+function mapNext()  { if (mapStep < MAP_STEPS.length - 1) { mapStep++; mapUpdateUI(); } }
+function mapPrev()  { if (mapStep > 0) { mapStep--; mapUpdateUI(); } }
+function mapReset() { mapStep = -1; mapUpdateUI(); }
+
+drawMapStep(-1);
+mapUpdateUI();
+
+/* ════════════════════════════════════════════════
+   MODULE 2 — Sơ đồ nhân–quả
+   ════════════════════════════════════════════════ */
+
+const CAUSE_DATA = {
+  versailles: {
+    title: 'Hòa ước Versailles (1919) — Hạt giống bất mãn',
+    body: `<strong>Nội dung chính:</strong> Đức mất 13% lãnh thổ, 10% dân số, toàn bộ thuộc địa hải ngoại, bị phi quân sự hóa và phải trả bồi thường chiến phí khổng lồ. "Điều khoản tội lỗi chiến tranh" (Điều 231) quy kết mọi trách nhiệm về Đức.<br><br>
+<strong>Tại sao quan trọng:</strong> Tạo ra vết thương tâm lý sâu trong dư luận Đức — cảm giác bị áp đặt bất công, bị sỉ nhục. Nhưng đây là điều kiện cần, không phải đủ. Nếu không có đại suy thoái, Weimar có thể đã tiêu hóa được Versailles.<br><br>
+<strong>Ví dụ cụ thể:</strong> "Hành lang Ba Lan" chia cắt Đức, cô lập Đông Prussia — điều mà người Đức coi là vô lý địa lý. Hitler dùng điều này để kích động cảm xúc dân tộc.`
+  },
+  resentment: {
+    title: 'Phẫn nộ dân tộc &amp; "Huyền thoại dao đâm sau lưng"',
+    body: `<strong>Dolchstoßlegende (Huyền thoại đao đâm sau lưng):</strong> Quan điểm sai lầm nhưng phổ biến rằng quân đội Đức không hề bị đánh bại trên chiến trường — mà bị "dao đâm sau lưng" bởi phong trào cách mạng trong nước (những người cộng sản, người Do Thái, v.v.).<br><br>
+<strong>Thực tế:</strong> Quân đội Đức thực sự đã kiệt sức về nguồn lực và nhân lực vào 1918; sự thất bại là quân sự thực chất. Nhưng huyền thoại này cung cấp cho phe cánh hữu một câu chuyện đổ lỗi, và Hitler khai thác nó thành công.<br><br>
+<strong>Hệ quả:</strong> Tạo ra đối tượng thù địch (người Do Thái, cộng sản) và biện minh cho chính sách bạo lực của Đức Quốc xã.`
+  },
+  league: {
+    title: 'Hội Quốc Liên (League of Nations) — Bất lực',
+    body: `<strong>Thành lập 1920</strong> với mục tiêu ngăn ngừa chiến tranh qua đàm phán quốc tế. Nhưng ngay từ đầu đã có điểm yếu chết người: Mỹ — quốc gia đề xuất thành lập — không gia nhập (Thượng viện Mỹ từ chối phê chuẩn). Liên Xô và Đức cũng không được nhận vào ban đầu.<br><br>
+<strong>Không có quân đội riêng:</strong> Khi Nhật xâm lược Manchuria (1931) hay Ý xâm lược Ethiopia (1935), Hội Quốc Liên chỉ có thể lên án — không thể hành động quân sự.<br><br>
+<strong>Bài học:</strong> Điều này dẫn đến thiết kế Hội đồng Bảo an LHQ sau 1945 với quyền lực thực tế hơn.`
+  },
+  depression: {
+    title: 'Đại suy thoái 1929 — Đòn quyết định',
+    body: `<strong>"Thứ Năm Đen tối" (24/10/1929):</strong> Thị trường chứng khoán Wall Street sụp đổ, kéo theo chuỗi đổ vỡ ngân hàng toàn cầu. Các khoản vay ngắn hạn Mỹ cho Đức theo Kế hoạch Dawes bị triệu hồi đột ngột — làm sụp đổ hàng loạt ngân hàng Đức.<br><br>
+<strong>Ảnh hưởng lên Đức:</strong> Sản lượng công nghiệp giảm 50% so với 1929; hơn 6 triệu người thất nghiệp (1932). Tiết kiệm của tầng lớp trung lưu — vốn đã bị lạm phát 1923 phá tan — lại bị xóa sổ lần nữa.<br><br>
+<strong>Liên hệ với Thế chiến:</strong> Chính cuộc suy thoái này biến NSDAP từ đảng ngoại vi 2,6% (1928) thành đảng lớn nhất 37,4% (7/1932). Không có suy thoái, không có Hitler nắm quyền.`
+  },
+  unemployment: {
+    title: 'Thất nghiệp &amp; khủng hoảng xã hội — Mầm cực đoan hóa',
+    body: `<strong>Con số:</strong> Đức 1932: hơn 6 triệu người thất nghiệp chính thức; thực tế (bao gồm bán thất nghiệp) có thể gấp đôi. Anh, Pháp, Mỹ cũng chịu tỷ lệ thất nghiệp 20–25%.<br><br>
+<strong>Phân hóa chính trị:</strong> Khủng hoảng đẩy dư luận về hai cực: Đảng Cộng sản Đức (KPD) tăng mạnh ở tầng lớp công nhân; NSDAP hấp dẫn tầng lớp trung lưu sợ bị "vô sản hóa", cựu chiến binh thất nghiệp, và giới kinh doanh sợ chủ nghĩa cộng sản. Giữa hai cực này, nền dân chủ Weimar bị bóp nghẹt.<br><br>
+<strong>Tâm lý quần chúng:</strong> Tuyệt vọng kinh tế khiến người ta dễ chấp nhận những giải pháp cực đoan và những kẻ hứa hẹn phục hồi "vĩ đại".`
+  },
+  weimar: {
+    title: 'Cộng hòa Weimar sụp đổ — Dân chủ không chịu nổi khủng hoảng',
+    body: `<strong>Điểm yếu cơ cấu:</strong> Hệ thống bầu cử tỷ lệ phân bổ ghế cực kỳ (proportional representation) tạo ra Quốc hội phân mảnh với nhiều đảng nhỏ — chính phủ liên minh không ổn định, thường xuyên sụp đổ (14 chính phủ trong 14 năm).<br><br>
+<strong>"Nền cộng hòa không được yêu thích":</strong> Bị nhiều người Đức coi là được áp đặt bởi thất bại 1918. Quân đội, tòa án, công chức cấp cao vẫn có tư tưởng bảo hoàng, không trung thành với nền cộng hòa.<br><br>
+<strong>Lỗi quyết định:</strong> Tổng thống già Hindenburg bổ nhiệm Hitler làm Thủ tướng (1/1933), tin rằng có thể "kiểm soát" ông ta qua nội các bảo thủ. Nhận định sai nghiêm trọng — Hitler nhanh chóng triệt tiêu mọi đối thủ.`
+  },
+  hitler: {
+    title: 'Hitler nắm quyền (1933) — Nước Đức Quốc xã tái vũ trang',
+    body: `<strong>Con đường đến quyền lực:</strong> Hitler được bổ nhiệm Thủ tướng 30/1/1933. Đạo luật Trao quyền (Enabling Act, 3/1933) trao cho ông toàn quyền lập pháp — về danh nghĩa thông qua bỏ phiếu quốc hội trong bối cảnh đàn áp. Năm 1934 sau khi Hindenburg mất, Hitler thâu tóm chức Tổng thống, trở thành "Führer".<br><br>
+<strong>Leo thang xâm lược:</strong> 1935: tái vũ trang (vi phạm Versailles). 1936: tái quân sự hóa Rhineland. 1938: sáp nhập Áo (Anschluss) rồi Sudetenland (Munich). 3/1939: thôn tính toàn bộ Tiệp Khắc. Phe Đồng Minh không phản ứng mạnh → Hitler tin Anh–Pháp sẽ không chiến đấu.<br><br>
+<strong>Hệ tư tưởng:</strong> Lebensraum (không gian sinh tồn) ở phía Đông Âu; bài Do Thái cực đoan; chống cộng sản; chủ nghĩa dân tộc Đức cực đoan.`
+  },
+  italy: {
+    title: 'Mussolini &amp; Nước Ý phát xít',
+    body: `<strong>Mussolini (1883–1945):</strong> Lên nắm quyền 1922 sau "March on Rome" — thực ra cuộc đảo chính ít bạo lực, Vua Victor Emmanuel III ngại nội chiến và mời Mussolini lập chính phủ. Xây dựng nhà nước độc đảng nhưng giữ chế độ quân chủ và thỏa hiệp với Vatican.<br><br>
+<strong>Chính sách đối ngoại hung hăng:</strong> Xâm lược Ethiopia (1935–36) — dùng vũ khí hóa học, bị Hội Quốc Liên lên án nhưng không bị ngăn chặn. Xâm lược Albania (4/1939). Ký Hiệp ước Thép với Đức (5/1939).<br><br>
+<strong>Điểm khác biệt với Hitler:</strong> Chủ nghĩa phát xít Ý không có nền tảng bài Do Thái ban đầu (Mussolini áp dụng luật bài Do Thái 1938 chủ yếu để chiều lòng Đức). Ý cũng không có mức độ cuồng tín tư tưởng như Đức Quốc xã.`
+  },
+  japan: {
+    title: 'Nhật Bản quân phiệt — Bành trướng ở châu Á',
+    body: `<strong>Đặc thù:</strong> Nhật không phải nhà nước phát xít theo nghĩa đầy đủ mà là nhà nước bị chi phối bởi phe quân sự trong khuôn khổ chế độ quân chủ (Thiên hoàng). Bộ máy dân sự ngày càng mất quyền kiểm soát trước áp lực và ám sát của các tướng lĩnh cực đoan.<br><br>
+<strong>Học thuyết "Đại Đông Á Cộng Thịnh Quyển":</strong> Nhật lãnh đạo châu Á thoát chủ nghĩa thực dân phương Tây — thực chất che đậy sự chiếm đóng và bóc lột tàn bạo.<br><br>
+<strong>Mốc bành trướng:</strong> Manchuria (1931), Trung Quốc (1937, bao gồm thảm sát Nam Kinh), Đông Dương (1940–41), Malaysia và Singapore (2/1942 — bắt 85.000 quân Anh), Philippines, Indonesia, Burma.`
+  },
+  appease: {
+    title: 'Chính sách xoa dịu (Appeasement) — Munich 1938',
+    body: `<strong>Thủ tướng Anh Neville Chamberlain</strong> tin rằng có thể thỏa mãn Hitler bằng cách nhượng bộ những yêu cầu "hợp lý". Đỉnh điểm là Hiệp ước Munich (29/9/1938): Anh, Pháp, Đức, Ý đồng ý cho Đức sáp nhập vùng Sudetenland của Tiệp Khắc — mà không có Tiệp Khắc ngồi tại bàn đàm phán.<br><br>
+<strong>Chamberlain trở về London</strong> tuyên bố "hòa bình trong thời đại chúng ta". Chỉ 6 tháng sau, 3/1939, Đức thôn tính toàn bộ Tiệp Khắc — không có người Đức nào ở đó để "bảo vệ".<br><br>
+<strong>Vì sao Anh–Pháp xoa dịu?</strong> Ký ức chiến tranh 1914–18 quá đau — không ai muốn chiến tranh; thiếu chuẩn bị quân sự; hy vọng Hitler chỉ muốn thống nhất người Đức; và một số người coi Đức như "bức tường chống cộng sản".`
+  },
+  war: {
+    title: 'Thế chiến thứ hai (1/9/1939 – 2/9/1945)',
+    body: `<strong>Quy mô:</strong> Cuộc xung đột lớn nhất lịch sử nhân loại — lôi cuốn hơn 30 quốc gia, trải rộng khắp châu Âu, châu Á, châu Phi, đại dương Thái Bình Dương và Đại Tây Dương, một phần Bắc Mỹ (Alaska).<br><br>
+<strong>Hậu quả:</strong> Ước tính 70–85 triệu người thiệt mạng (khoảng 3% dân số thế giới 1940). Holocaust giết ~6 triệu người Do Thái và hàng triệu người thuộc các nhóm khác. Nhiều thành phố lớn bị phá hủy. Bom nguyên tử lần đầu được dùng.<br><br>
+<strong>Trật tự mới:</strong> Liên Hợp Quốc thành lập (10/1945). Thế giới hai cực Mỹ–Xô. Chiến tranh Lạnh bắt đầu. Phi thực dân hóa lan rộng. Kỷ nguyên hạt nhân mở ra.`
+  }
+};
+
+function showCause(id) {
+  const data = CAUSE_DATA[id];
+  if (!data) return;
+  const el = document.getElementById('cause-detail');
+  document.getElementById('cause-detail-title').innerHTML = data.title;
+  document.getElementById('cause-detail-body').innerHTML = data.body;
+  el.className = 'cause-detail show';
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 4 — Quiz ôn tập
+   ════════════════════════════════════════════════ */
+
+const QUIZ = [
+  {
+    q: 'Tại sao Hiệp ước Molotov–Ribbentrop (8/1939) có ý nghĩa chiến lược sống còn với Hitler trước khi tấn công Ba Lan?',
+    opts: [
+      'Vì nó đảm bảo Nhật Bản ủng hộ Đức ở mặt trận châu Á',
+      'Vì nó cho phép Đức tấn công Ba Lan mà không lo Liên Xô tấn công từ phía Đông đồng thời, tránh chiến tranh hai mặt trận ngay lập tức',
+      'Vì nó giúp Đức nhận được dầu mỏ và lương thực từ Liên Xô đủ cho 10 năm chiến tranh',
+      'Vì nó buộc Anh và Pháp không dám tuyên chiến với Đức',
+    ],
+    correct: 1,
+    explain: 'Bài học lớn nhất của Thế chiến thứ nhất với Đức là thất bại vì phải chiến đấu trên hai mặt trận đồng thời (Tây: Pháp–Anh, Đông: Nga). Hitler cần bảo đảm Liên Xô đứng ngoài khi ông ta tấn công Tây Âu trước. Hiệp ước bí mật còn phân chia Đông Âu vào "phạm vi ảnh hưởng": Liên Xô được Ba Lan phía Đông, các nước Baltic, Finland và Bessarabia.'
+  },
+  {
+    q: 'Điều gì đã giúp Mỹ giành chiến thắng quyết định tại trận Midway (6/1942)?',
+    opts: [
+      'Mỹ có số tàu sân bay nhiều hơn Nhật gấp 3 lần',
+      'Không quân Mỹ ưu thế tuyệt đối về số lượng máy bay',
+      'Mỹ giải mã được mật mã hải quân Nhật, biết trước thời gian và địa điểm tấn công',
+      'Nhật Bản mắc sai lầm chiến thuật khi chia hạm đội thành quá nhiều nhóm',
+    ],
+    correct: 2,
+    explain: 'Thành tố quyết định là tình báo: nhóm giải mã mật mã của Hải quân Mỹ (đặc biệt là công trình của Joseph Rochefort) giải mã được JN-25 — mật mã hải quân Nhật — và xác định được địa điểm tấn công là "AF" (Midway) cùng thời gian dự kiến. Mỹ đặt phục kích, triển khai tàu sân bay đúng vị trí. Đây là ví dụ kinh điển về tình báo định hình cục diện chiến trường.'
+  },
+  {
+    q: 'Tại sao trận Stalingrad (8/1942–2/2/1943) được coi là bước ngoặt lớn nhất của Thế chiến thứ hai ở châu Âu?',
+    opts: [
+      'Vì đây là trận đánh có nhiều xe tăng nhất lịch sử',
+      'Vì lần đầu tiên toàn bộ một Tập đoàn quân Đức bị bao vây và buộc đầu hàng, chứng minh Đức có thể bị đánh bại',
+      'Vì Liên Xô chiếm được toàn bộ dầu mỏ Caucasus của Đức',
+      'Vì sau Stalingrad, Mỹ mới quyết định tham gia Thế chiến ở châu Âu',
+    ],
+    correct: 1,
+    explain: 'Tập đoàn quân số 6 (Field Army) là một trong những đơn vị tinh nhuệ và danh tiếng nhất của Wehrmacht. Khi bị bao vây và đầu hàng (kể cả Thống chế Paulus — cấp bậc cao nhất từng bị bắt), ảnh hưởng tâm lý trong nước Đức rất lớn: lần đầu tiên người Đức phải đối mặt với khả năng thua. Về quân sự, Đức mất các đơn vị kinh nghiệm không thể thay thế, và Liên Xô từ đây liên tục tiến công.'
+  },
+  {
+    q: 'Holocaust là gì, và tại sao nó được coi là một tội ác riêng biệt, không phải "hậu quả chiến tranh thông thường"?',
+    opts: [
+      'Holocaust là tên gọi của cuộc ném bom vào các thành phố Đức — được coi là tội ác vì nhắm vào dân thường',
+      'Holocaust là chính sách diệt chủng có hệ thống do nhà nước Đức Quốc xã lập kế hoạch và thực thi, nhằm tiêu diệt toàn bộ người Do Thái và các nhóm khác — không phải hậu quả ngẫu nhiên của chiến tranh',
+      'Holocaust là tên gọi của nạn đói ở châu Âu do chiến tranh gây ra',
+      'Holocaust là cuộc bạo loạn tự phát của binh lính Đức, không phải chính sách nhà nước',
+    ],
+    correct: 1,
+    explain: 'Holocaust (từ tiếng Hy Lạp: toàn thiêu) là cuộc diệt chủng có kế hoạch, được nhà nước Đức Quốc xã hoạch định và thực thi một cách hệ thống. Hội nghị Wannsee (1/1942) là ví dụ điển hình: các quan chức cấp cao họp bàn "điều phối" việc giết người. Hệ thống trại hủy diệt, tuyến đường xe lửa, bộ máy hành chính đều được huy động. Đây là tội ác chống nhân loại (crime against humanity) theo luật pháp quốc tế — khác căn bản với thiệt hại dân thường trong chiến tranh thông thường.'
+  },
+  {
+    q: 'Tại sao Thế chiến thứ hai lại dẫn trực tiếp đến sự ra đời của Liên Hợp Quốc (1945) thay vì củng cố Hội Quốc Liên?',
+    opts: [
+      'Vì Hội Quốc Liên đã tự giải thể trước khi chiến tranh kết thúc',
+      'Vì Mỹ muốn đặt trụ sở ở New York, trong khi Hội Quốc Liên có trụ sở ở Geneva',
+      'Vì Hội Quốc Liên chứng minh sự bất lực khi không ngăn chặn được các hành động xâm lược dẫn đến Thế chiến thứ hai; LHQ được thiết kế với Hội đồng Bảo an có cơ chế hành động mạnh hơn',
+      'Vì Liên Xô và Mỹ đều muốn một tổ chức mới mà họ kiểm soát được',
+    ],
+    correct: 2,
+    explain: 'Hội Quốc Liên thất bại vì thiếu Mỹ, thiếu cơ chế cưỡng chế thực thi, và nguyên tắc đồng thuận làm tê liệt quyết định. LHQ được thiết kế khắc phục: Mỹ gia nhập ngay từ đầu; Hội đồng Bảo an 5 ủy viên thường trực có quyền phủ quyết nhưng cũng có quyền ủy nhiệm lực lượng gìn giữ hòa bình; quyền biểu quyết đơn giản hơn ở Đại hội đồng. Tuy nhiên, quyền phủ quyết của 5 ủy viên thường trực tạo ra điểm yếu mới — Chiến tranh Lạnh thường xuyên làm Hội đồng Bảo an tê liệt.'
+  },
+  {
+    q: 'Cơ chế nào giải thích tại sao Cách mạng Tháng Tám (8/1945) tại Việt Nam có thể thành công nhanh chóng?',
+    opts: [
+      'Việt Minh đã đánh bại quân Nhật trong trận đánh lớn trước đó',
+      'Pháp đã chủ động trao quyền độc lập cho Việt Nam trước khi Nhật đầu hàng',
+      'Nhật đầu hàng đột ngột tạo khoảng trống quyền lực, trong khi Việt Minh đã chuẩn bị và kịp thời hành động trước khi Đồng Minh đến tiếp nhận đầu hàng',
+      'Mỹ ủng hộ Việt Minh lên nắm quyền để ngăn Pháp quay lại Đông Dương',
+    ],
+    correct: 2,
+    explain: 'Cách mạng Tháng Tám phụ thuộc vào khoảng trống quyền lực cực ngắn: Nhật đầu hàng (15/8/1945) nhưng Đồng Minh chưa đến (quân Trung Hoa Dân Quốc vào miền Bắc từ cuối 9/1945; Anh vào miền Nam từ 9/1945). Trong khoảng thời gian đó, Việt Minh — đã chuẩn bị chiến khu, lực lượng và mạng lưới chính trị — nhanh chóng nổi dậy khắp nơi. Nếu Nhật đầu hàng chậm hơn hoặc Đồng Minh đến sớm hơn, cơ hội này sẽ không có.'
+  }
+];
+
+let quizIdx = 0, quizScore = 0, quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = `Câu ${quizIdx + 1}/${QUIZ.length}: ${q.q}`;
+  document.getElementById('quiz-prog').textContent = `${quizIdx + 1} / ${QUIZ.length}`;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? `Điểm: ${quizScore}/${quizIdx}` : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = () => quizAnswer(i);
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  document.getElementById('btn-quiz-restart').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ[quizIdx];
+  document.querySelectorAll('.quiz-opt').forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em><br>' + q.explain;
+  }
+
+  document.getElementById('quiz-score').textContent = `Điểm: ${quizScore}/${quizIdx + 1}`;
+
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent = `Kết quả cuối: ${quizScore}/${QUIZ.length} (${pct}%)`;
+    document.getElementById('quiz-prog').textContent =
+      pct >= 83 ? 'Xuất sắc — nắm vững bài học!' :
+      pct >= 66 ? 'Tốt — ôn lại các câu sai.' : 'Cần ôn tập thêm.';
+    document.getElementById('btn-quiz-restart').style.display = 'inline-block';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+function quizRestart() {
+  quizIdx = 0; quizScore = 0; quizAnswered = false;
+  quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

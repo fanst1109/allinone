@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Phi thực dân hóa &amp; Toàn cầu hóa</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent:       #0f766e;
+    --accent-soft:  #ccfbf1;
+    --accent-dark:  #134e4a;
+    --blue-trade:   #1d4ed8;
+    --blue-soft:    #dbeafe;
+    --red-war:      #b91c1c;
+    --red-soft:     #fee2e2;
+    --gold:         #b45309;
+    --gold-soft:    #fef3c7;
+    --stone:        #57534e;
+    --stone-soft:   #f5f5f4;
+    --purple:       #7c3aed;
+    --purple-soft:  #ede9fe;
+    --green:        #15803d;
+    --green-soft:   #dcfce7;
+    --bg-card:      #ffffff;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.65rem; margin-bottom: 6px; }
+  h2 {
+    color: var(--accent);
+    margin-top: 44px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-soft);
+    font-size: 1.2rem;
+  }
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 22px;
+    font-style: italic;
+  }
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 6px rgba(15,118,110,.12);
+    margin: 16px 0;
+  }
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 10px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .war-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-war);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 10px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .blue-box {
+    background: var(--blue-soft);
+    border-left: 4px solid var(--blue-trade);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 10px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ── Step dots ── */
+  .step-dots { display: flex; gap: 8px; margin: 10px 0; flex-wrap: wrap; }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid #d1d5db; background: #f9fafb;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #9ca3af;
+    cursor: pointer; transition: all .2s;
+  }
+  .step-dot.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .step-dot.done   { background: #0d9488; border-color: #0d9488; color: white; }
+
+  /* ── Map stage ── */
+  #map-stage { width: 100%; overflow-x: auto; }
+  #map-canvas {
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+    border: 2px solid #cbd5e1;
+    max-width: 100%;
+  }
+  .step-panel {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    min-height: 72px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .era-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .tag-colonial  { background: #f1f5f9; color: #475569; }
+  .tag-asia      { background: var(--accent-soft); color: var(--accent-dark); }
+  .tag-africa    { background: var(--gold-soft); color: var(--gold); }
+  .tag-late      { background: var(--purple-soft); color: var(--purple); }
+  .tag-global    { background: var(--blue-soft); color: var(--blue-trade); }
+
+  /* ── Timeline ── */
+  .timeline {
+    position: relative;
+    padding: 12px 0 12px 36px;
+    margin: 8px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 14px; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, #475569, var(--accent), var(--gold), var(--purple), var(--blue-trade));
+    border-radius: 2px;
+  }
+  .tl-item { position: relative; margin-bottom: 22px; padding-left: 20px; }
+  .tl-item::before {
+    content: ''; position: absolute;
+    left: -28px; top: 6px;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+  }
+  .tl-item.war::before    { background: var(--red-war); box-shadow: 0 0 0 2px var(--red-war); }
+  .tl-item.africa::before { background: var(--gold);    box-shadow: 0 0 0 2px var(--gold); }
+  .tl-item.global::before { background: var(--blue-trade); box-shadow: 0 0 0 2px var(--blue-trade); }
+  .tl-item.key::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: var(--red-war);
+    box-shadow: 0 0 0 3px var(--red-war), 0 0 0 6px rgba(185,28,28,.2);
+  }
+  .tl-item.keyg::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent), 0 0 0 6px rgba(15,118,110,.2);
+  }
+  .tl-year  { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .tl-item.war .tl-year    { color: var(--red-war); }
+  .tl-item.key .tl-year    { color: var(--red-war); font-size: 15px; }
+  .tl-item.africa .tl-year { color: var(--gold); }
+  .tl-item.global .tl-year { color: var(--blue-trade); }
+  .tl-item.keyg .tl-year   { color: var(--accent); font-size: 15px; }
+  .tl-title { font-weight: 700; font-size: 14px; color: #1f2937; line-height: 1.4; }
+  .tl-desc  { font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.5; }
+  .tl-badge {
+    display: inline-block; padding: 1px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; margin-left: 6px; vertical-align: middle;
+  }
+  .badge-ind    { background: var(--accent-soft); color: var(--accent-dark); }
+  .badge-war    { background: var(--red-soft); color: #991b1b; }
+  .badge-africa { background: var(--gold-soft); color: var(--gold); }
+  .badge-global { background: var(--blue-soft); color: var(--blue-trade); }
+  .badge-key    { background: #fee2e2; color: #991b1b; }
+
+  .tl-era-sep {
+    margin: 20px 0 16px -36px;
+    padding: 6px 14px 6px 36px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    border-radius: 0 20px 20px 0;
+    display: inline-block;
+  }
+  .era-sep-ind    { background: var(--accent-soft); color: var(--accent-dark); }
+  .era-sep-africa { background: var(--gold-soft); color: var(--gold); }
+  .era-sep-global { background: var(--blue-soft); color: var(--blue-trade); }
+  .era-sep-late   { background: var(--purple-soft); color: var(--purple); }
+
+  /* ── Globalization diagram ── */
+  .glob-wrap { width: 100%; overflow-x: auto; }
+  .glob-svg  { display: block; margin: 0 auto; }
+
+  .glob-detail {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+  }
+  .glob-detail.show { display: block; }
+  .glob-detail-title {
+    font-weight: 700; font-size: 15px;
+    color: var(--accent-dark); margin-bottom: 6px;
+  }
+
+  /* ── Quiz ── */
+  .quiz-q    { font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #1f2937; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .quiz-opt {
+    padding: 10px 14px; border-radius: 7px; border: 2px solid #e5e7eb;
+    background: #f9fafb; cursor: pointer; font-size: 14px; text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: #15803d; background: #dcfce7; color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.6;
+    margin-top: 8px; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: #dcfce7; color: #14532d; border: 1px solid #15803d; }
+  .quiz-feedback.err { background: var(--red-soft); color: #991b1b; border: 1px solid var(--red-war); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score    { font-weight: 700; color: #15803d; font-size: 15px; }
+
+  @media (max-width: 600px) {
+    .tl-era-sep { font-size: 11px; padding-left: 28px; }
+    .step-panel { font-size: 13px; }
+    .glob-detail { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử TG — Hiện đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-cold-war/visualization.html">← L6: Chiến tranh Lạnh</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Phi thực dân hóa &amp; toàn cầu hóa</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-contemporary-world/visualization.html">L8: Thế giới đương đại →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Phi thực dân hóa &amp; Toàn cầu hóa</h1>
+<p class="subtitle">Làn sóng giành độc lập 1945–1975 · Định chế quốc tế · Thế giới được kết nối</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ động: làn sóng giành độc lập
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ động: làn sóng giành độc lập theo thời gian</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Nhấn <strong>Bước tiếp theo</strong> (hoặc bấm số thứ tự) để xem từng làn sóng độc lập theo thời kỳ. Các vùng đổi màu khi giành độc lập.
+  </div>
+
+  <div class="step-dots" id="map-dots"></div>
+
+  <div id="map-stage">
+    <canvas id="map-canvas" width="720" height="400"></canvas>
+  </div>
+
+  <div class="step-panel" id="map-panel">
+    <span class="era-tag tag-colonial" id="map-era-tag">Trước 1945</span><br>
+    <span id="map-text">Nhấn <strong>Bắt đầu</strong> để xem làn sóng phi thực dân hóa theo từng giai đoạn.</span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="btn-map-prev" onclick="mapPrev()">← Trước</button>
+    <button class="btn btn-primary"   id="btn-map-next" onclick="mapNext()">Bắt đầu →</button>
+    <button class="btn btn-secondary" onclick="mapReset()">Khởi động lại</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Timeline 1945 đến nay
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Chuỗi thời gian: 1945 đến nay</h2>
+
+<div class="card">
+  <div class="timeline">
+
+    <div class="tl-era-sep era-sep-ind">Giai đoạn 1 — Châu Á giành độc lập (1945–1955)</div>
+
+    <div class="tl-item keyg">
+      <div class="tl-year">2/9/1945</div>
+      <div class="tl-title">Tuyên ngôn Độc lập Việt Nam
+        <span class="tl-badge badge-ind">Đông Nam Á</span>
+      </div>
+      <div class="tl-desc">Hồ Chí Minh đọc Tuyên ngôn tại Quảng trường Ba Đình, Hà Nội — trích dẫn Tuyên ngôn Độc lập Mỹ (1776) và Tuyên ngôn Nhân quyền Pháp (1789). Nhật Bản vừa đầu hàng (15/8/1945); khoảng trống quyền lực tạo thời cơ.</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">1946</div>
+      <div class="tl-title">Philippines độc lập từ Mỹ
+        <span class="tl-badge badge-ind">Châu Á</span>
+      </div>
+      <div class="tl-desc">Mỹ trao trả độc lập cho Philippines theo cam kết từ 1934. Một trong số ít trường hợp phi thực dân hóa hòa bình và có kế hoạch từ trước.</div>
+    </div>
+
+    <div class="tl-item keyg">
+      <div class="tl-year">14–15/8/1947</div>
+      <div class="tl-title">Ấn Độ và Pakistan độc lập
+        <span class="tl-badge badge-ind">Lịch sử</span>
+      </div>
+      <div class="tl-desc">Sau nhiều thập kỷ đấu tranh — đặc biệt qua phong trào bất bạo động của Gandhi — Anh trao trả độc lập cho tiểu lục địa Ấn Độ. Tuy nhiên phân chia lãnh thổ (Partition) gây thảm kịch: 14–17 triệu người di dời, ước tính 200.000–2.000.000 người thiệt mạng trong bạo lực cộng đồng (số liệu còn khác nhau).</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">1948</div>
+      <div class="tl-title">Myanmar (Miến Điện) độc lập từ Anh</div>
+      <div class="tl-desc">Không giống Ấn Độ, Myanmar không ở lại Khối Thịnh vượng chung (Commonwealth) — lựa chọn độc lập hoàn toàn. Hậu độc lập chứng kiến nhiều thập kỷ bất ổn chính trị và nội chiến sắc tộc.</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">1949</div>
+      <div class="tl-title">Indonesia độc lập từ Hà Lan
+        <span class="tl-badge badge-ind">Đông Nam Á</span>
+      </div>
+      <div class="tl-desc">Indonesia tuyên bố độc lập tháng 8/1945 (Sukarno và Hatta). Hà Lan không công nhận, tiến hành "chiến dịch cảnh sát" (thực chất là chiến tranh). Áp lực quốc tế — đặc biệt từ Mỹ đe dọa cắt viện trợ Marshall — buộc Hà Lan nhượng bộ năm 1949.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">7/5/1954</div>
+      <div class="tl-title">Điện Biên Phủ — Pháp thất bại ở Đông Dương
+        <span class="tl-badge badge-war">Bước ngoặt</span>
+      </div>
+      <div class="tl-desc">Việt Minh (chỉ huy: Đại tướng Võ Nguyên Giáp) bao vây và tiêu diệt 16.000 quân Pháp tại Điện Biên Phủ sau 57 ngày chiến đấu. Thất bại quân sự lớn nhất của một cường quốc châu Âu trước lực lượng giải phóng dân tộc trong lịch sử phi thực dân hóa. Dẫn đến Hiệp định Geneva (7/1954).</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">4/1955</div>
+      <div class="tl-title">Hội nghị Bandung — 29 quốc gia châu Á – châu Phi
+        <span class="tl-badge badge-ind">Ngoại giao</span>
+      </div>
+      <div class="tl-desc">Indonesia (Sukarno), Ấn Độ (Nehru), Ai Cập (Nasser), Trung Quốc (Zhou Enlai) cùng 25 nước khác — đại diện 1,5 tỷ người. Thông qua 10 nguyên tắc Bandung: chủ quyền, không gây hấn, chung sống hòa bình. Tiền thân của Phong trào Không liên kết.</div>
+    </div>
+
+    <div class="tl-era-sep era-sep-africa">Giai đoạn 2 — "Năm châu Phi" và làn sóng châu Phi (1956–1968)</div>
+
+    <div class="tl-item africa">
+      <div class="tl-year">1956–1958</div>
+      <div class="tl-title">Sudan, Morocco, Tunisia, Ghana độc lập
+        <span class="tl-badge badge-africa">Châu Phi</span>
+      </div>
+      <div class="tl-desc">Ghana (1957) — đầu tiên ở Châu Phi cận Sahara — dưới sự lãnh đạo của Kwame Nkrumah, trở thành biểu tượng của phong trào Pan-African. Nkrumah tuyên bố: "Độc lập của Ghana vô nghĩa trừ khi gắn liền với giải phóng hoàn toàn châu Phi."</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">1960</div>
+      <div class="tl-title">"Năm châu Phi" — 17 quốc gia độc lập
+        <span class="tl-badge badge-key">Bước ngoặt</span>
+      </div>
+      <div class="tl-desc">Trong 12 tháng: Cameroon, Togo, Madagascar, Benin, Niger, Burkina Faso, Bờ Biển Ngà, Chad, Cộng hòa Trung Phi, Congo (cả hai), Gabon, Senegal, Mali, Nigeria, Mauritanie — và nhiều nước khác. Nghị quyết LHQ 1514 về phi thực dân hóa cũng được thông qua tháng 12/1960.</div>
+    </div>
+
+    <div class="tl-item africa">
+      <div class="tl-year">1961</div>
+      <div class="tl-title">Phong trào Không liên kết (NAM) — Hội nghị Belgrade
+        <span class="tl-badge badge-ind">Ngoại giao</span>
+      </div>
+      <div class="tl-desc">25 nước sáng lập tại Belgrade (Nam Tư). Tito (Nam Tư), Nehru (Ấn Độ), Nasser (Ai Cập), Sukarno (Indonesia), Nkrumah (Ghana) khẳng định "con đường thứ ba" — không theo Mỹ, không theo Liên Xô.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">1954–1962</div>
+      <div class="tl-title">Chiến tranh Algeria — phi thực dân hóa đẫm máu
+        <span class="tl-badge badge-war">Chiến tranh</span>
+      </div>
+      <div class="tl-desc">Algeria (thuộc địa Pháp từ 1830, có hơn 1 triệu định cư người Pháp) đấu tranh vũ trang giành độc lập qua FLN (Mặt trận Giải phóng Quốc gia). Cuộc chiến chia rẽ xã hội Pháp, gây khủng hoảng chính trị dẫn đến De Gaulle lên nắm quyền (1958). Ước tính 150.000–1.500.000 người thiệt mạng.</div>
+    </div>
+
+    <div class="tl-item africa">
+      <div class="tl-year">1963–1968</div>
+      <div class="tl-title">Kenya, Tanzania, Zambia, các nước Đông – Nam Phi độc lập</div>
+      <div class="tl-desc">Làn sóng tiếp theo: Kenya (1963), Tanzania (1964), Zambia (1964), Malawi (1964), Lesotho và Botswana (1966), Swaziland (1968). Anh thực hiện "phi thực dân hóa có trật tự" — bàn giao quyền lực trong khi cố giữ quan hệ kinh tế và Commonwealth.</div>
+    </div>
+
+    <div class="tl-era-sep era-sep-late">Giai đoạn 3 — Đông Nam Á và các trường hợp muộn (1965–1980)</div>
+
+    <div class="tl-item war">
+      <div class="tl-year">1965–1975</div>
+      <div class="tl-title">Chiến tranh Việt Nam — Chiến tranh Lạnh trên đất Việt Nam
+        <span class="tl-badge badge-war">Xung đột</span>
+      </div>
+      <div class="tl-desc">Mỹ leo thang can thiệp quân sự hỗ trợ miền Nam (VNCH); Liên Xô và Trung Quốc hỗ trợ miền Bắc (VNDCCH). Điển hình nhất của phi thực dân hóa bị quốc tế hóa thành Chiến tranh Lạnh. Kết thúc 30/4/1975 — Việt Nam thống nhất (1976).</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">1975</div>
+      <div class="tl-title">Angola, Mozambique, Cape Verde độc lập từ Bồ Đào Nha</div>
+      <div class="tl-desc">Bồ Đào Nha — dưới chế độ độc tài Salazar và kế nhiệm — duy trì thuộc địa lâu nhất châu Âu. Sau Cách mạng Cẩm chương (4/1974) lật đổ chế độ độc tài tại Lisboa, Bồ Đào Nha rút khỏi toàn bộ thuộc địa. Angola ngay lập tức rơi vào nội chiến (1975–2002) — Mỹ và Liên Xô/Cuba can thiệp.</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">1980</div>
+      <div class="tl-title">Zimbabwe độc lập — một trong những nước cuối châu Phi</div>
+      <div class="tl-desc">Rhodesia (do thiểu số da trắng cai trị từ 1965) trở thành Zimbabwe sau cuộc bầu cử đa sắc tộc đầu tiên. Nam Phi — chế độ Apartheid — tồn tại đến 1994 khi Nelson Mandela trở thành tổng thống.</div>
+    </div>
+
+    <div class="tl-era-sep era-sep-global">Giai đoạn 4 — Toàn cầu hóa (1944 đến nay)</div>
+
+    <div class="tl-item global">
+      <div class="tl-year">1944</div>
+      <div class="tl-title">Hội nghị Bretton Woods — nền tảng kinh tế thế giới
+        <span class="tl-badge badge-global">Kinh tế</span>
+      </div>
+      <div class="tl-desc">44 nước đồng minh họp tại New Hampshire: thành lập IMF (ổn định tỷ giá), Ngân hàng Thế giới (cho vay phát triển), và GATT (thương mại tự do). Đặt nền tảng cho trật tự kinh tế quốc tế hậu chiến — đồng đô la Mỹ gắn với vàng ($35/ounce) làm chuẩn trao đổi.</div>
+    </div>
+
+    <div class="tl-item global">
+      <div class="tl-year">1957–1993</div>
+      <div class="tl-title">Hội nhập châu Âu: EEC → EU
+        <span class="tl-badge badge-global">Khu vực</span>
+      </div>
+      <div class="tl-desc">Hiệp ước Rome (1957): 6 nước lập Cộng đồng Kinh tế châu Âu (EEC). Mở rộng dần; Hiệp ước Maastricht (1993) lập EU. Đồng euro ra đời 1999. Thực nghiệm hội nhập khu vực sâu nhất lịch sử: thị trường chung, tự do đi lại, chủ quyền tiền tệ chia sẻ.</div>
+    </div>
+
+    <div class="tl-item global">
+      <div class="tl-year">1967</div>
+      <div class="tl-title">ASEAN thành lập
+        <span class="tl-badge badge-global">Khu vực</span>
+      </div>
+      <div class="tl-desc">5 nước sáng lập: Indonesia, Malaysia, Philippines, Singapore, Thái Lan. Mục tiêu ban đầu: ổn định khu vực trong bối cảnh Chiến tranh Lạnh và Chiến tranh Việt Nam. Nay 10 thành viên — Việt Nam gia nhập 1995. AFTA (Khu vực thương mại tự do ASEAN) từ 1993.</div>
+    </div>
+
+    <div class="tl-item global">
+      <div class="tl-year">1971</div>
+      <div class="tl-title">Nixon chấm dứt Bretton Woods — đô la thả nổi
+        <span class="tl-badge badge-global">Tài chính</span>
+      </div>
+      <div class="tl-desc">Tổng thống Nixon tuyên bố đồng đô la Mỹ không còn đổi được ra vàng ("Nixon Shock"). Mở ra kỷ nguyên tỷ giá thả nổi và tự do hóa tài chính toàn cầu — tăng tốc toàn cầu hóa tài chính nhưng cũng tăng nguy cơ khủng hoảng tiền tệ.</div>
+    </div>
+
+    <div class="tl-item keyg">
+      <div class="tl-year">1991</div>
+      <div class="tl-title">World Wide Web ra đời — internet đại chúng
+        <span class="tl-badge badge-global">Công nghệ</span>
+      </div>
+      <div class="tl-desc">Tim Berners-Lee (CERN) công bố World Wide Web. Kết hợp với trình duyệt phổ thông (Mosaic 1993, Netscape 1994), internet chuyển từ công cụ quân sự/học thuật thành nền tảng kết nối toàn cầu. Xúc tác mạnh mẽ nhất cho làn sóng toàn cầu hóa từ thập niên 1990.</div>
+    </div>
+
+    <div class="tl-item global">
+      <div class="tl-year">1995</div>
+      <div class="tl-title">WTO thành lập; Việt Nam gia nhập ASEAN</div>
+      <div class="tl-desc">GATT được thay bằng WTO (Tổ chức Thương mại Thế giới) với cơ chế giải quyết tranh chấp chặt chẽ hơn. Cùng năm, Việt Nam bình thường hóa quan hệ với Mỹ và gia nhập ASEAN — bước ngoặt hội nhập của Việt Nam.</div>
+    </div>
+
+    <div class="tl-item global">
+      <div class="tl-year">2007–2008</div>
+      <div class="tl-title">iPhone &amp; Khủng hoảng tài chính toàn cầu
+        <span class="tl-badge badge-global">Kỷ nguyên mới</span>
+      </div>
+      <div class="tl-desc">Apple ra mắt iPhone (2007) — điện thoại thông minh phổ cập mobile internet tới hàng tỷ người. Cùng lúc, khủng hoảng tài chính 2008 (bắt đầu từ bất động sản Mỹ) lan nhanh toàn cầu — minh chứng cho mức độ kết nối và rủi ro hệ thống của toàn cầu hóa tài chính.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Sơ đồ toàn cầu hóa
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Sơ đồ: Các định chế và dòng chảy của toàn cầu hóa</h2>
+
+<div class="card">
+  <div class="blue-box">
+    Bấm vào từng ô để xem chi tiết về định chế hoặc dòng chảy toàn cầu hóa tương ứng.
+  </div>
+
+  <div class="glob-wrap">
+    <svg class="glob-svg" width="700" height="480" viewBox="0 0 700 480">
+      <defs>
+        <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#1d4ed8"/>
+        </marker>
+        <marker id="arr-teal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0f766e"/>
+        </marker>
+        <marker id="arr-gold" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#b45309"/>
+        </marker>
+        <marker id="arr-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/>
+        </marker>
+      </defs>
+
+      <!-- ── Nền ── -->
+      <rect x="0" y="0" width="700" height="480" fill="#f8fafc" rx="8"/>
+
+      <!-- Tiêu đề -->
+      <text x="350" y="30" font-size="14" font-weight="700" fill="#134e4a" text-anchor="middle" font-family="sans-serif">Hệ sinh thái toàn cầu hóa hiện đại</text>
+
+      <!-- ── Trung tâm: Kinh tế toàn cầu ── -->
+      <ellipse cx="350" cy="240" rx="68" ry="40" fill="#0f766e" stroke="#134e4a" stroke-width="2"/>
+      <text x="350" y="234" font-size="13" font-weight="700" fill="white" text-anchor="middle" font-family="sans-serif">Kinh tế</text>
+      <text x="350" y="250" font-size="11" fill="#ccfbf1" text-anchor="middle" font-family="sans-serif">toàn cầu</text>
+
+      <!-- ── Nhóm 1: Định chế tài chính ── -->
+      <!-- IMF -->
+      <g id="gb-imf" onclick="globShow('imf')" style="cursor:pointer">
+        <rect x="30" y="60" width="130" height="70" rx="8" fill="#1d4ed8" stroke="#1e40af" stroke-width="1.5"/>
+        <text x="95" y="90" font-size="13" font-weight="700" fill="white" text-anchor="middle" font-family="sans-serif">IMF</text>
+        <text x="95" y="107" font-size="10" fill="#bfdbfe" text-anchor="middle" font-family="sans-serif">Quỹ Tiền tệ Quốc tế</text>
+        <text x="95" y="120" font-size="9" fill="#bfdbfe" text-anchor="middle" font-family="sans-serif">1945 · 190 thành viên</text>
+      </g>
+
+      <!-- WB -->
+      <g id="gb-wb" onclick="globShow('wb')" style="cursor:pointer">
+        <rect x="30" y="155" width="130" height="70" rx="8" fill="#1d4ed8" stroke="#1e40af" stroke-width="1.5"/>
+        <text x="95" y="183" font-size="13" font-weight="700" fill="white" text-anchor="middle" font-family="sans-serif">Ngân hàng TG</text>
+        <text x="95" y="200" font-size="10" fill="#bfdbfe" text-anchor="middle" font-family="sans-serif">World Bank</text>
+        <text x="95" y="213" font-size="9" fill="#bfdbfe" text-anchor="middle" font-family="sans-serif">1945 · Cho vay phát triển</text>
+      </g>
+
+      <!-- WTO -->
+      <g id="gb-wto" onclick="globShow('wto')" style="cursor:pointer">
+        <rect x="30" y="250" width="130" height="70" rx="8" fill="#1d4ed8" stroke="#1e40af" stroke-width="1.5"/>
+        <text x="95" y="278" font-size="13" font-weight="700" fill="white" text-anchor="middle" font-family="sans-serif">WTO</text>
+        <text x="95" y="295" font-size="10" fill="#bfdbfe" text-anchor="middle" font-family="sans-serif">Thương mại TG</text>
+        <text x="95" y="308" font-size="9" fill="#bfdbfe" text-anchor="middle" font-family="sans-serif">1995 · 164 thành viên</text>
+      </g>
+
+      <!-- ── Nhóm 2: Hội nhập khu vực ── -->
+      <!-- EU -->
+      <g id="gb-eu" onclick="globShow('eu')" style="cursor:pointer">
+        <rect x="540" y="60" width="130" height="70" rx="8" fill="#0f766e" stroke="#134e4a" stroke-width="1.5"/>
+        <text x="605" y="90" font-size="13" font-weight="700" fill="white" text-anchor="middle" font-family="sans-serif">EU</text>
+        <text x="605" y="107" font-size="10" fill="#ccfbf1" text-anchor="middle" font-family="sans-serif">Liên minh châu Âu</text>
+        <text x="605" y="120" font-size="9" fill="#99f6e4" text-anchor="middle" font-family="sans-serif">27 nước · Euro · Schengen</text>
+      </g>
+
+      <!-- ASEAN -->
+      <g id="gb-asean" onclick="globShow('asean')" style="cursor:pointer">
+        <rect x="540" y="155" width="130" height="70" rx="8" fill="#0f766e" stroke="#134e4a" stroke-width="1.5"/>
+        <text x="605" y="183" font-size="13" font-weight="700" fill="white" text-anchor="middle" font-family="sans-serif">ASEAN</text>
+        <text x="605" y="200" font-size="10" fill="#ccfbf1" text-anchor="middle" font-family="sans-serif">Đông Nam Á</text>
+        <text x="605" y="213" font-size="9" fill="#99f6e4" text-anchor="middle" font-family="sans-serif">10 nước · VN gia nhập 1995</text>
+      </g>
+
+      <!-- MNCs -->
+      <g id="gb-mnc" onclick="globShow('mnc')" style="cursor:pointer">
+        <rect x="540" y="250" width="130" height="70" rx="8" fill="#b45309" stroke="#92400e" stroke-width="1.5"/>
+        <text x="605" y="278" font-size="13" font-weight="700" fill="white" text-anchor="middle" font-family="sans-serif">Công ty đa QG</text>
+        <text x="605" y="295" font-size="10" fill="#fed7aa" text-anchor="middle" font-family="sans-serif">MNCs</text>
+        <text x="605" y="308" font-size="9" fill="#fcd34d" text-anchor="middle" font-family="sans-serif">Apple, Samsung, Toyota...</text>
+      </g>
+
+      <!-- ── Nhóm 3: Công nghệ & Thông tin ── -->
+      <!-- Internet -->
+      <g id="gb-internet" onclick="globShow('internet')" style="cursor:pointer">
+        <rect x="220" y="60" width="260" height="55" rx="8" fill="#7c3aed" stroke="#5b21b6" stroke-width="1.5"/>
+        <text x="350" y="84" font-size="13" font-weight="700" fill="white" text-anchor="middle" font-family="sans-serif">Internet &amp; Công nghệ thông tin</text>
+        <text x="350" y="102" font-size="10" fill="#ddd6fe" text-anchor="middle" font-family="sans-serif">WWW 1991 · Mạng xã hội · AI · Thương mại điện tử</text>
+      </g>
+
+      <!-- Trade flows -->
+      <g id="gb-trade" onclick="globShow('trade')" style="cursor:pointer">
+        <rect x="220" y="390" width="260" height="60" rx="8" fill="#b45309" stroke="#92400e" stroke-width="1.5"/>
+        <text x="350" y="415" font-size="13" font-weight="700" fill="white" text-anchor="middle" font-family="sans-serif">Chuỗi cung ứng toàn cầu</text>
+        <text x="350" y="433" font-size="10" fill="#fed7aa" text-anchor="middle" font-family="sans-serif">Hàng hóa · Dịch vụ · Lao động · Vốn</text>
+        <text x="350" y="446" font-size="9" fill="#fcd34d" text-anchor="middle" font-family="sans-serif">Thương mại = ~60% GDP toàn cầu (đỉnh 2008)</text>
+      </g>
+
+      <!-- ── Mũi tên kết nối ── -->
+      <!-- IMF → Trung tâm -->
+      <line x1="160" y1="95" x2="280" y2="220" stroke="#1d4ed8" stroke-width="1.8" stroke-dasharray="6,3" marker-end="url(#arr-blue)"/>
+      <!-- WB → Trung tâm -->
+      <line x1="160" y1="190" x2="280" y2="240" stroke="#1d4ed8" stroke-width="1.8" stroke-dasharray="6,3" marker-end="url(#arr-blue)"/>
+      <!-- WTO → Trung tâm -->
+      <line x1="160" y1="285" x2="280" y2="250" stroke="#1d4ed8" stroke-width="1.8" stroke-dasharray="6,3" marker-end="url(#arr-blue)"/>
+      <!-- EU → Trung tâm -->
+      <line x1="540" y1="95" x2="420" y2="220" stroke="#0f766e" stroke-width="1.8" stroke-dasharray="6,3" marker-end="url(#arr-teal)"/>
+      <!-- ASEAN → Trung tâm -->
+      <line x1="540" y1="190" x2="420" y2="240" stroke="#0f766e" stroke-width="1.8" stroke-dasharray="6,3" marker-end="url(#arr-teal)"/>
+      <!-- MNCs → Trung tâm -->
+      <line x1="540" y1="285" x2="420" y2="255" stroke="#b45309" stroke-width="1.8" stroke-dasharray="6,3" marker-end="url(#arr-gold)"/>
+      <!-- Internet → Trung tâm (từ trên) -->
+      <line x1="350" y1="115" x2="350" y2="198" stroke="#7c3aed" stroke-width="1.8" stroke-dasharray="6,3" marker-end="url(#arr-purple)"/>
+      <!-- Trade flows → Trung tâm (từ dưới) -->
+      <line x1="350" y1="390" x2="350" y2="282" stroke="#b45309" stroke-width="1.8" stroke-dasharray="6,3" marker-end="url(#arr-gold)"/>
+
+      <!-- Nhãn Bretton Woods -->
+      <text x="95" y="345" font-size="10" fill="#475569" text-anchor="middle" font-family="sans-serif" font-style="italic">Hệ thống</text>
+      <text x="95" y="358" font-size="10" fill="#475569" text-anchor="middle" font-family="sans-serif" font-style="italic">Bretton Woods</text>
+      <text x="95" y="371" font-size="10" fill="#475569" text-anchor="middle" font-family="sans-serif" font-style="italic">(1944)</text>
+
+      <!-- Nhãn Hội nhập khu vực -->
+      <text x="605" y="345" font-size="10" fill="#475569" text-anchor="middle" font-family="sans-serif" font-style="italic">Hội nhập</text>
+      <text x="605" y="358" font-size="10" fill="#475569" text-anchor="middle" font-family="sans-serif" font-style="italic">khu vực</text>
+
+      <!-- Nhãn: Lực kéo & Lực cản -->
+      <rect x="220" y="300" width="120" height="55" rx="6" fill="#fee2e2" stroke="#b91c1c" stroke-width="1"/>
+      <text x="280" y="320" font-size="11" font-weight="700" fill="#991b1b" text-anchor="middle" font-family="sans-serif">Thách thức</text>
+      <text x="280" y="336" font-size="9" fill="#991b1b" text-anchor="middle" font-family="sans-serif">Bất bình đẳng</text>
+      <text x="280" y="349" font-size="9" fill="#991b1b" text-anchor="middle" font-family="sans-serif">Môi trường · Bản sắc</text>
+
+      <rect x="360" y="300" width="120" height="55" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+      <text x="420" y="320" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle" font-family="sans-serif">Cơ hội</text>
+      <text x="420" y="336" font-size="9" fill="#14532d" text-anchor="middle" font-family="sans-serif">Giảm nghèo</text>
+      <text x="420" y="349" font-size="9" fill="#14532d" text-anchor="middle" font-family="sans-serif">Chuyển giao CN · FDI</text>
+    </svg>
+  </div>
+
+  <div class="glob-detail" id="glob-detail">
+    <div class="glob-detail-title" id="glob-detail-title"></div>
+    <div id="glob-detail-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q"    id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score"    id="quiz-score"></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════════════════ -->
+<script>
+/* ════════════════════════════════════════════════
+   MODULE 1 — Bản đồ động phi thực dân hóa
+   ════════════════════════════════════════════════ */
+
+const mapCanvas = document.getElementById('map-canvas');
+const mCtx = mapCanvas.getContext('2d');
+const MW = mapCanvas.width, MH = mapCanvas.height;
+
+/* Màu các giai đoạn độc lập */
+const COLOR_COLONIAL   = 'rgba(71,85,105,0.65)';   // xám đậm = vẫn thuộc địa
+const COLOR_IND_ASIA   = 'rgba(15,118,110,0.75)';  // teal = châu Á độc lập
+const COLOR_IND_AFRICA = 'rgba(180,83,9,0.75)';    // gold = châu Phi độc lập
+const COLOR_IND_LATE   = 'rgba(124,58,237,0.70)';  // purple = muộn/tiếp tục
+const COLOR_FREE_BASE  = 'rgba(21,128,61,0.30)';   // xanh nhạt = đã độc lập từ trước
+
+/* Tọa độ bản đồ thế giới đơn giản hóa.
+   Canvas 720×400. Kinh tuyến 0° ≈ x=200, mỗi 15° ≈ 30px.
+   Vĩ tuyến 60°N≈y=60, 0°≈y=220, 40°S≈y=340.
+   Điểm tham chiếu: London≈(200,90), Hà Nội≈(560,185), Lagos≈(240,245), Delhi≈(500,180). */
+
+function drawPoly(pts, color) {
+  if (!pts || pts.length < 2) return;
+  mCtx.beginPath();
+  mCtx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) mCtx.lineTo(pts[i][0], pts[i][1]);
+  mCtx.closePath();
+  mCtx.fillStyle = color;
+  mCtx.fill();
+  mCtx.strokeStyle = 'rgba(255,255,255,0.5)';
+  mCtx.lineWidth = 0.5;
+  mCtx.stroke();
+}
+
+// ── Vùng đất đơn giản hóa (polygon thô đủ để nhận biết) ──
+const REGIONS = {
+  // Châu Âu Tây
+  europe_w: [[100,50],[220,45],[230,65],[225,90],[215,110],[190,120],[170,125],[150,115],[120,115],[100,105],[90,80],[100,50]],
+  // Anh
+  britain: [[170,40],[185,38],[192,48],[188,62],[176,68],[164,60],[162,50],[170,40]],
+  // Châu Âu Đông (Liên Xô)
+  ussr: [[220,45],[350,35],[420,40],[450,60],[460,85],[440,110],[400,125],[360,130],[310,135],[265,130],[235,120],[225,100],[230,65],[220,45]],
+
+  /* ── CHÂU Á ── */
+  // Ấn Độ
+  india: [[476,155],[510,150],[530,155],[540,170],[535,200],[520,230],[505,255],[488,265],[472,255],[462,235],[460,205],[470,180],[476,155]],
+  // Pakistan (phần lớn)
+  pakistan: [[450,150],[476,155],[470,180],[455,190],[435,185],[420,175],[415,160],[430,152],[450,150]],
+  // Đông Nam Á lục địa (Myanmar, Thái, Lào, VN, Campuchia)
+  sea_mainland: [[520,180],[545,175],[565,172],[585,178],[600,195],[595,215],[580,235],[565,248],[550,252],[535,248],[520,240],[510,220],[505,200],[510,185],[520,180]],
+  // Indonesia (đơn giản hóa)
+  indonesia: [[555,260],[590,255],[620,252],[640,255],[650,268],[640,278],[620,280],[595,278],[568,275],[552,270],[555,260]],
+  indonesia2: [[540,262],[552,258],[558,270],[545,276],[535,272],[540,262]],
+  // Philippines
+  philippines: [[610,190],[625,185],[635,195],[630,215],[618,222],[608,212],[607,198],[610,190]],
+  // Trung Quốc
+  china: [[520,95],[570,85],[615,90],[645,100],[660,120],[655,145],[640,160],[620,168],[595,172],[565,172],[545,175],[520,180],[510,165],[505,145],[505,120],[510,105],[520,95]],
+  // Nhật Bản
+  japan: [[635,110],[648,105],[658,112],[655,128],[644,135],[634,130],[630,118],[635,110]],
+  // Hàn Quốc
+  korea: [[612,120],[628,115],[634,130],[625,140],[612,138],[608,128],[612,120]],
+  // Trung Đông
+  mideast: [[310,135],[360,130],[390,130],[415,135],[430,145],[430,165],[415,175],[395,180],[370,182],[345,178],[320,168],[305,155],[310,135]],
+
+  /* ── CHÂU PHI ── */
+  // Bắc Phi (Ai Cập, Libya, Tunisia, Algeria, Morocco)
+  north_africa: [[150,170],[210,165],[250,162],[290,160],[325,162],[360,165],[385,170],[400,180],[400,195],[385,205],[360,208],[320,210],[280,210],[240,208],[210,205],[180,200],[155,195],[145,185],[150,170]],
+  // Tây Phi
+  west_africa: [[145,195],[180,200],[210,205],[240,208],[265,215],[280,235],[270,260],[250,275],[220,278],[195,270],[170,258],[152,242],[145,225],[148,210],[145,195]],
+  // Trung Phi (Congo, Cameroon...)
+  central_africa: [[265,215],[280,210],[320,210],[360,208],[385,205],[395,220],[395,248],[380,265],[360,275],[335,280],[310,278],[285,270],[270,260],[280,235],[265,215]],
+  // Đông Phi (Kenya, Tanzania, Ethiopia...)
+  east_africa: [[385,170],[415,175],[430,185],[445,200],[448,225],[440,248],[425,268],[405,280],[385,285],[365,278],[345,268],[335,255],[338,235],[345,215],[360,208],[385,205],[400,195],[400,180],[385,170]],
+  // Nam Phi (Nam Phi, Zimbabwe, Zambia...)
+  south_africa: [[285,270],[310,278],[335,280],[360,275],[380,265],[395,248],[405,268],[405,290],[395,315],[375,330],[350,338],[320,340],[295,335],[275,320],[268,300],[278,285],[285,270]],
+
+  /* ── CHÂU MỸ ── */
+  // Mỹ (đơn giản)
+  usa: [[20,80],[90,75],[110,80],[120,100],[115,130],[100,148],[80,150],[55,145],[30,140],[18,120],[20,80]],
+  // Canada
+  canada: [[20,50],[110,42],[140,45],[145,65],[120,72],[90,75],[20,80],[15,70],[20,50]],
+  // Mỹ Latinh
+  latin_am: [[55,145],[80,150],[105,150],[115,162],[118,190],[110,220],[100,250],[88,275],[75,295],[60,310],[45,315],[32,305],[25,285],[22,258],[28,230],[35,205],[42,182],[50,165],[55,145]],
+
+  /* ── CHÂU ĐẠI DƯƠNG ── */
+  australia: [[600,285],[640,280],[665,285],[675,305],[668,330],[645,345],[618,345],[600,330],[595,308],[600,285]],
+};
+
+// Trạng thái màu của mỗi vùng qua các bước
+// Mỗi bước: object {regionKey: color}
+const MAP_STEPS = [
+  {
+    era: 'Trước 1945 — Cao điểm đế quốc', tag: 'tag-colonial',
+    year: '~1939',
+    title: 'Cao điểm của các đế quốc thực dân',
+    text: '<strong>~1939 — Trước Thế chiến II:</strong> Các đế quốc châu Âu kiểm soát phần lớn châu Á, châu Phi và các vùng khác. Anh, Pháp, Hà Lan, Bỉ, Bồ Đào Nha cùng nhau cai quản khoảng 1/3 diện tích đất liền thế giới và hàng trăm triệu người dân. Màu xám đậm = còn là thuộc địa hoặc bán thuộc địa. Màu xanh nhạt = đã độc lập (Mỹ Latinh, Trung Quốc, Nhật Bản, Thái Lan...).',
+    colors: {
+      europe_w: COLOR_FREE_BASE, britain: COLOR_FREE_BASE, ussr: COLOR_FREE_BASE,
+      usa: COLOR_FREE_BASE, canada: COLOR_FREE_BASE, latin_am: COLOR_FREE_BASE,
+      china: COLOR_FREE_BASE, japan: COLOR_FREE_BASE, korea: 'rgba(71,85,105,0.55)',
+      india: COLOR_COLONIAL, pakistan: COLOR_COLONIAL,
+      sea_mainland: COLOR_COLONIAL, indonesia: COLOR_COLONIAL, indonesia2: COLOR_COLONIAL,
+      philippines: COLOR_FREE_BASE,
+      mideast: COLOR_COLONIAL,
+      north_africa: COLOR_COLONIAL, west_africa: COLOR_COLONIAL, central_africa: COLOR_COLONIAL,
+      east_africa: COLOR_COLONIAL, south_africa: COLOR_COLONIAL,
+      australia: COLOR_FREE_BASE,
+    }
+  },
+  {
+    era: 'Giai đoạn 1 — Châu Á (1945–1955)', tag: 'tag-asia',
+    year: '1945–1955',
+    title: 'Châu Á: Làn sóng độc lập đầu tiên',
+    text: '<strong>1945–1955 — Châu Á giành độc lập:</strong> Màu xanh teal = vừa giành độc lập giai đoạn này. <br>• Việt Nam tuyên bố độc lập 2/9/1945 (mặc dù chiến tranh với Pháp tiếp diễn đến 1954).<br>• Philippines (1946), Ấn Độ &amp; Pakistan (1947), Myanmar (1948), Indonesia (1949), Lào &amp; Campuchia (1953–54) giành độc lập.<br>• Trận Điện Biên Phủ (1954): thất bại lịch sử của Pháp — dấu chấm hết cho đế quốc Pháp ở châu Á.',
+    colors: {
+      europe_w: COLOR_FREE_BASE, britain: COLOR_FREE_BASE, ussr: COLOR_FREE_BASE,
+      usa: COLOR_FREE_BASE, canada: COLOR_FREE_BASE, latin_am: COLOR_FREE_BASE,
+      china: COLOR_FREE_BASE, japan: COLOR_FREE_BASE, korea: COLOR_FREE_BASE,
+      india: COLOR_IND_ASIA, pakistan: COLOR_IND_ASIA,
+      sea_mainland: COLOR_IND_ASIA, indonesia: COLOR_IND_ASIA, indonesia2: COLOR_IND_ASIA,
+      philippines: COLOR_FREE_BASE,
+      mideast: COLOR_IND_ASIA,
+      north_africa: COLOR_COLONIAL, west_africa: COLOR_COLONIAL, central_africa: COLOR_COLONIAL,
+      east_africa: COLOR_COLONIAL, south_africa: COLOR_COLONIAL,
+      australia: COLOR_FREE_BASE,
+    }
+  },
+  {
+    era: 'Giai đoạn 2 — "Năm châu Phi" (1956–1965)', tag: 'tag-africa',
+    year: '1956–1965',
+    title: 'Châu Phi: Làn sóng bùng nổ — 17 nước chỉ riêng năm 1960',
+    text: '<strong>1956–1965 — Châu Phi:</strong> Màu cam vàng = vừa giành độc lập. <br>• Sudan, Morocco, Tunisia (1956); Ghana (1957) — biểu tượng Pan-African đầu tiên Cận Sahara.<br>• <strong>"Năm châu Phi" 1960:</strong> 17 quốc gia độc lập trong 12 tháng — tốc độ phi thực dân hóa chưa từng có trong lịch sử.<br>• Nigeria (1960) — nước đông dân nhất châu Phi; Congo Bỉ (1960) ngay lập tức rơi vào khủng hoảng và can thiệp ngoại quốc.<br>• Kenya (1963), Tanzania (1964), Zambia (1964).',
+    colors: {
+      europe_w: COLOR_FREE_BASE, britain: COLOR_FREE_BASE, ussr: COLOR_FREE_BASE,
+      usa: COLOR_FREE_BASE, canada: COLOR_FREE_BASE, latin_am: COLOR_FREE_BASE,
+      china: COLOR_FREE_BASE, japan: COLOR_FREE_BASE, korea: COLOR_FREE_BASE,
+      india: COLOR_IND_ASIA, pakistan: COLOR_IND_ASIA,
+      sea_mainland: COLOR_IND_ASIA, indonesia: COLOR_IND_ASIA, indonesia2: COLOR_IND_ASIA,
+      philippines: COLOR_FREE_BASE,
+      mideast: COLOR_IND_ASIA,
+      north_africa: COLOR_IND_AFRICA, west_africa: COLOR_IND_AFRICA, central_africa: COLOR_IND_AFRICA,
+      east_africa: COLOR_IND_AFRICA, south_africa: COLOR_COLONIAL,
+      australia: COLOR_FREE_BASE,
+    }
+  },
+  {
+    era: 'Giai đoạn 3 — Hoàn tất (1965–1994)', tag: 'tag-late',
+    year: '1965–1994',
+    title: 'Hoàn tất: Nam Phi, Angola, Mozambique — và Apartheid sụp đổ',
+    text: '<strong>1965–1994 — Các trường hợp cuối cùng:</strong> Màu tím = vừa hoàn tất phi thực dân hóa hoặc kết thúc Apartheid.<br>• Bồ Đào Nha rút khỏi Angola, Mozambique (1975) sau Cách mạng Cẩm chương.<br>• Zimbabwe (Rhodesia) — thiểu số da trắng từ bỏ quyền kiểm soát năm 1980.<br>• <strong>Nam Phi:</strong> Apartheid sụp đổ chính thức năm 1994 — Nelson Mandela trở thành tổng thống đầu tiên được bầu phổ thông. Khép lại chương lịch sử phi thực dân hóa sau 50 năm.',
+    colors: {
+      europe_w: COLOR_FREE_BASE, britain: COLOR_FREE_BASE, ussr: COLOR_FREE_BASE,
+      usa: COLOR_FREE_BASE, canada: COLOR_FREE_BASE, latin_am: COLOR_FREE_BASE,
+      china: COLOR_FREE_BASE, japan: COLOR_FREE_BASE, korea: COLOR_FREE_BASE,
+      india: COLOR_IND_ASIA, pakistan: COLOR_IND_ASIA,
+      sea_mainland: COLOR_IND_ASIA, indonesia: COLOR_IND_ASIA, indonesia2: COLOR_IND_ASIA,
+      philippines: COLOR_FREE_BASE,
+      mideast: COLOR_IND_ASIA,
+      north_africa: COLOR_IND_AFRICA, west_africa: COLOR_IND_AFRICA, central_africa: COLOR_IND_AFRICA,
+      east_africa: COLOR_IND_AFRICA, south_africa: COLOR_IND_LATE,
+      australia: COLOR_FREE_BASE,
+    }
+  },
+  {
+    era: 'Toàn cầu hóa — Thế giới kết nối', tag: 'tag-global',
+    year: '1990–nay',
+    title: 'Thế giới hậu Chiến tranh Lạnh: toàn cầu hóa và hội nhập',
+    text: '<strong>1990–nay — Toàn cầu hóa:</strong> Sau khi Liên Xô tan rã (1991), thế giới bước vào kỷ nguyên toàn cầu hóa tăng tốc. Thương mại quốc tế, FDI, internet, và di dân lao động kết nối mọi vùng lãnh thổ. <br>• Màu xanh teal: các khu vực hưởng lợi nhiều nhất từ chuỗi cung ứng toàn cầu (Đông Á, Đông Nam Á).<br>• Châu Phi: hội nhập chậm hơn, vẫn còn nhiều thách thức từ di sản thực dân và quản trị.<br>• Câu hỏi của thế kỷ XXI: làm sao toàn cầu hóa đi kèm bình đẳng và bền vững môi trường?',
+    colors: {
+      europe_w: COLOR_FREE_BASE, britain: COLOR_FREE_BASE, ussr: COLOR_FREE_BASE,
+      usa: COLOR_FREE_BASE, canada: COLOR_FREE_BASE, latin_am: COLOR_FREE_BASE,
+      china: COLOR_IND_ASIA, japan: COLOR_FREE_BASE, korea: COLOR_IND_ASIA,
+      india: COLOR_IND_ASIA, pakistan: COLOR_IND_ASIA,
+      sea_mainland: COLOR_IND_ASIA, indonesia: COLOR_IND_ASIA, indonesia2: COLOR_IND_ASIA,
+      philippines: COLOR_IND_ASIA,
+      mideast: COLOR_IND_AFRICA,
+      north_africa: COLOR_IND_AFRICA, west_africa: COLOR_IND_AFRICA, central_africa: COLOR_IND_AFRICA,
+      east_africa: COLOR_IND_AFRICA, south_africa: COLOR_IND_LATE,
+      australia: COLOR_FREE_BASE,
+    }
+  },
+];
+
+let mapStep = -1;
+
+function drawMap(stepIdx) {
+  mCtx.clearRect(0, 0, MW, MH);
+
+  // Nền đại dương
+  const oceanGrad = mCtx.createLinearGradient(0, 0, 0, MH);
+  oceanGrad.addColorStop(0, '#bfdbfe');
+  oceanGrad.addColorStop(1, '#93c5fd');
+  mCtx.fillStyle = oceanGrad;
+  mCtx.fillRect(0, 0, MW, MH);
+
+  // Vẽ tất cả vùng đất với màu mặc định (đất trống)
+  const defaultLandColor = '#e7e5e4';
+  Object.keys(REGIONS).forEach(key => {
+    drawPolyBase(REGIONS[key], defaultLandColor);
+  });
+
+  // Overlay màu theo bước
+  if (stepIdx >= 0) {
+    const colors = MAP_STEPS[stepIdx].colors;
+    Object.keys(colors).forEach(key => {
+      if (REGIONS[key]) drawPolyBase(REGIONS[key], colors[key]);
+    });
+  }
+
+  // Nhãn địa danh
+  const labels = [
+    { x:165, y:75, text:'CHÂU ÂU', size:9, color:'#374151', bold:false },
+    { x:330, y:75, text:'LIÊN XÔ / NGA', size:9, color:'#374151', bold:false },
+    { x:490, y:210, text:'ẤN ĐỘ', size:9, color:'#374151', bold:false },
+    { x:565, y:215, text:'ĐNÁ', size:9, color:'#374151', bold:false },
+    { x:595, y:115, text:'TRUNG QUỐC', size:9, color:'#374151', bold:false },
+    { x:220, y:195, text:'BẮC PHI', size:9, color:'#374151', bold:false },
+    { x:195, y:248, text:'TÂY PHI', size:9, color:'#374151', bold:false },
+    { x:335, y:248, text:'TRUNG PHI', size:9, color:'#374151', bold:false },
+    { x:405, y:225, text:'ĐÔNG PHI', size:9, color:'#374151', bold:false },
+    { x:330, y:310, text:'NAM PHI', size:9, color:'#374151', bold:false },
+    { x:60,  y:112, text:'MỸ', size:9, color:'#374151', bold:false },
+    { x:65,  y:230, text:'MỸ LATINH', size:8, color:'#374151', bold:false },
+    { x:635, y:315, text:'ÚC', size:9, color:'#374151', bold:false },
+    { x:370, y:200, text:'TRUNG ĐÔNG', size:8, color:'#374151', bold:false },
+    // Điểm Hà Nội
+    { x:573, y:205, text:'HN', size:8, color:'#b91c1c', bold:true },
+    { x:350,  y:370, text:'ĐẠI DƯƠNG', size:9, color:'#1d4ed8', bold:false },
+  ];
+
+  labels.forEach(lb => {
+    mCtx.font = `${lb.bold ? '700' : '500'} ${lb.size}px sans-serif`;
+    mCtx.fillStyle = lb.color;
+    mCtx.textAlign = 'center';
+    mCtx.fillText(lb.text, lb.x, lb.y);
+  });
+
+  // Dấu chấm Hà Nội
+  mCtx.fillStyle = '#b91c1c';
+  mCtx.beginPath(); mCtx.arc(570, 196, 4, 0, Math.PI * 2); mCtx.fill();
+  mCtx.strokeStyle = 'white'; mCtx.lineWidth = 1.2; mCtx.stroke();
+
+  // Dấu chấm Delhi
+  mCtx.fillStyle = '#0f766e';
+  mCtx.beginPath(); mCtx.arc(495, 183, 3, 0, Math.PI * 2); mCtx.fill();
+  mCtx.strokeStyle = 'white'; mCtx.lineWidth = 1; mCtx.stroke();
+
+  mCtx.textAlign = 'left';
+}
+
+function drawPolyBase(pts, color) {
+  if (!pts || pts.length < 2) return;
+  mCtx.beginPath();
+  mCtx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) mCtx.lineTo(pts[i][0], pts[i][1]);
+  mCtx.closePath();
+  mCtx.fillStyle = color;
+  mCtx.fill();
+  mCtx.strokeStyle = 'rgba(255,255,255,0.4)';
+  mCtx.lineWidth = 0.5;
+  mCtx.stroke();
+}
+
+// Chú thích màu
+function drawLegend(stepIdx) {
+  if (stepIdx < 0) return;
+  const items = [
+    { color: COLOR_FREE_BASE,  label: 'Đã độc lập / Không phải thuộc địa' },
+    { color: COLOR_COLONIAL,   label: 'Còn là thuộc địa' },
+    { color: COLOR_IND_ASIA,   label: 'Châu Á — vừa giành độc lập' },
+    { color: COLOR_IND_AFRICA, label: 'Châu Phi — vừa giành độc lập' },
+    { color: COLOR_IND_LATE,   label: 'Giai đoạn cuối / Apartheid kết thúc' },
+  ];
+  let y = MH - 12 - items.length * 18;
+  items.forEach(item => {
+    mCtx.fillStyle = item.color;
+    mCtx.fillRect(12, y - 10, 14, 12);
+    mCtx.strokeStyle = '#94a3b8';
+    mCtx.lineWidth = 0.5;
+    mCtx.strokeRect(12, y - 10, 14, 12);
+    mCtx.fillStyle = '#1f2937';
+    mCtx.font = '10px sans-serif';
+    mCtx.textAlign = 'left';
+    mCtx.fillText(item.label, 30, y);
+    y += 18;
+  });
+}
+
+function mapUpdateUI() {
+  const step = mapStep;
+  const data = step >= 0 ? MAP_STEPS[step] : null;
+
+  const tag  = document.getElementById('map-era-tag');
+  const text = document.getElementById('map-text');
+  if (data) {
+    tag.className = 'era-tag ' + data.tag;
+    tag.textContent = data.era + ' · ' + data.year;
+    text.innerHTML = data.text;
+  } else {
+    tag.className = 'era-tag tag-colonial';
+    tag.textContent = 'Trước 1945';
+    text.innerHTML = 'Nhấn <strong>Bắt đầu</strong> để xem làn sóng phi thực dân hóa theo từng giai đoạn.';
+  }
+
+  document.getElementById('btn-map-prev').disabled = step <= 0;
+  document.getElementById('btn-map-next').textContent =
+    step < 0 ? 'Bắt đầu →' :
+    step >= MAP_STEPS.length - 1 ? 'Hoàn thành' : 'Bước tiếp theo →';
+  document.getElementById('btn-map-next').disabled = step >= MAP_STEPS.length - 1;
+
+  const dots = document.getElementById('map-dots');
+  dots.innerHTML = '';
+  for (let i = 0; i < MAP_STEPS.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (i === step ? ' active' : i < step ? ' done' : '');
+    d.textContent = i + 1;
+    const si = i;
+    d.onclick = function() { mapGoTo(si); };
+    dots.appendChild(d);
+  }
+
+  drawMap(step);
+  drawLegend(step);
+}
+
+function mapNext()  { if (mapStep < MAP_STEPS.length - 1) { mapStep++; mapUpdateUI(); } }
+function mapPrev()  { if (mapStep > 0) { mapStep--; mapUpdateUI(); } }
+function mapGoTo(i) { mapStep = i; mapUpdateUI(); }
+function mapReset() { mapStep = -1; mapUpdateUI(); }
+
+drawMap(-1);
+mapUpdateUI();
+
+/* ════════════════════════════════════════════════
+   MODULE 3 — Sơ đồ toàn cầu hóa
+   ════════════════════════════════════════════════ */
+const GLOB_DATA = {
+  imf: {
+    title: 'Quỹ Tiền tệ Quốc tế (IMF)',
+    body: `<strong>Thành lập:</strong> 1945, từ Hội nghị Bretton Woods (1944). Trụ sở: Washington D.C., Mỹ. Hiện có 190 thành viên.<br><br>
+<strong>Chức năng chính:</strong><br>
+• Ổn định hệ thống tiền tệ quốc tế — theo dõi tỷ giá và cán cân thanh toán các nước.<br>
+• Cho vay khẩn cấp khi các nước gặp khủng hoảng cán cân thanh toán (với điều kiện cải cách kinh tế — gọi là "structural adjustment programs").<br>
+• Tư vấn chính sách kinh tế vĩ mô.<br><br>
+<strong>Tranh luận:</strong> Các điều kiện cho vay của IMF (thường bao gồm cắt giảm chi tiêu công, tư nhân hóa, tự do hóa thị trường) gây tranh cãi — một số nhà kinh tế cho rằng chúng gây thiệt hại cho người nghèo và làm sâu thêm khủng hoảng thay vì giải quyết.`
+  },
+  wb: {
+    title: 'Ngân hàng Thế giới (World Bank)',
+    body: `<strong>Thành lập:</strong> 1945, cùng thời với IMF. Gồm 5 tổ chức, nổi tiếng nhất là IBRD (International Bank for Reconstruction and Development) và IDA (International Development Association — cho vay ưu đãi cho nước nghèo nhất).<br><br>
+<strong>Chức năng:</strong> Cung cấp vốn vay và hỗ trợ kỹ thuật dài hạn cho các nước đang phát triển — xây dựng hạ tầng, y tế, giáo dục, giảm nghèo.<br><br>
+<strong>Quy mô:</strong> Mỗi năm giải ngân khoảng $50–70 tỷ USD cho hàng chục nước.<br><br>
+<strong>Tranh luận:</strong> Tương tự IMF, WB bị chỉ trích về các dự án gây hại môi trường và điều kiện chính sách đi kèm. Tuy nhiên WB cũng đóng vai trò quan trọng trong việc xây dựng hạ tầng và cung cấp dữ liệu phát triển toàn cầu.`
+  },
+  wto: {
+    title: 'Tổ chức Thương mại Thế giới (WTO)',
+    body: `<strong>Lịch sử:</strong> GATT (General Agreement on Tariffs and Trade) — 1947; WTO thay thế GATT năm 1995 với cơ chế pháp lý chặt chẽ hơn. 164 thành viên (2024). Việt Nam gia nhập WTO năm 2007.<br><br>
+<strong>Chức năng:</strong><br>
+• Đàm phán và duy trì các quy tắc thương mại quốc tế.<br>
+• Giải quyết tranh chấp thương mại giữa các nước theo cơ chế tư pháp.<br>
+• Mục tiêu dài hạn: giảm và xóa bỏ rào cản thương mại toàn cầu.<br><br>
+<strong>Thành tựu:</strong> Thuế quan trung bình thế giới giảm từ ~40% (1947) xuống ~5% (2020). Thương mại toàn cầu tăng trưởng mạnh song song.<br><br>
+<strong>Hạn chế:</strong> Các vòng đàm phán gần đây (Doha Round từ 2001) bị bế tắc do bất đồng giữa nước phát triển và đang phát triển về nông nghiệp và sở hữu trí tuệ.`
+  },
+  eu: {
+    title: 'Liên minh châu Âu (EU)',
+    body: `<strong>Lịch sử hình thành:</strong><br>
+• 1951: Cộng đồng Than Thép châu Âu (6 nước: Pháp, Đức, Ý, Bỉ, Hà Lan, Luxembourg).<br>
+• 1957: Hiệp ước Rome — EEC (Cộng đồng Kinh tế châu Âu) và Euratom.<br>
+• 1993: Hiệp ước Maastricht — chính thức thành lập EU.<br>
+• 1999: Đồng euro ra đời (19 nước hiện dùng).<br>
+• 2004–2007: Mở rộng lớn nhất — 10 nước Đông Âu gia nhập.<br>
+• 2020: Brexit — Anh rời EU.<br><br>
+<strong>Đặc điểm độc đáo:</strong> Thị trường chung (tự do lưu thông hàng hóa, dịch vụ, vốn, người), Khu vực Schengen (tự do đi lại), Đồng tiền chung, Nghị viện châu Âu được bầu trực tiếp — mức độ hội nhập sâu chưa từng có trong lịch sử quan hệ quốc tế.`
+  },
+  asean: {
+    title: 'ASEAN — Hiệp hội các Quốc gia Đông Nam Á',
+    body: `<strong>Thành lập:</strong> 8/8/1967, Bangkok. 5 nước sáng lập: Indonesia, Malaysia, Philippines, Singapore, Thái Lan.<br><br>
+<strong>Mở rộng:</strong> Brunei (1984), Việt Nam (1995), Lào &amp; Myanmar (1997), Campuchia (1999). Nay 10 thành viên.<br><br>
+<strong>Mục tiêu ban đầu:</strong> Ổn định khu vực, ngăn ngừa xung đột trong bối cảnh Chiến tranh Lạnh và Chiến tranh Việt Nam.<br><br>
+<strong>Kinh tế:</strong> AFTA (Khu vực thương mại tự do ASEAN) từ 1993. GDP tổng cộng ~3,6 nghìn tỷ USD (2023) — nền kinh tế thứ 5 thế giới nếu tính như một khối.<br><br>
+<strong>ASEAN và Việt Nam:</strong> Gia nhập 1995 — cùng năm bình thường hóa quan hệ với Mỹ — là bước ngoặt hội nhập kinh tế quốc tế của Việt Nam sau Đổi Mới (1986). FDI và thương mại tăng mạnh sau đó.`
+  },
+  mnc: {
+    title: 'Công ty đa quốc gia (Multinational Corporations — MNCs)',
+    body: `<strong>Định nghĩa:</strong> Doanh nghiệp hoạt động tại từ hai quốc gia trở lên — có trụ sở ở một nước và sản xuất/kinh doanh tại nhiều nước khác.<br><br>
+<strong>Quy mô:</strong> Doanh thu top MNCs lớn hơn GDP của hầu hết quốc gia. Apple (~$383 tỷ/năm) lớn hơn GDP của hơn 150 nước. Walmart (~$650 tỷ) lớn hơn hầu hết nền kinh tế trên thế giới.<br><br>
+<strong>Vai trò trong toàn cầu hóa:</strong><br>
+• Xây dựng chuỗi cung ứng toàn cầu — linh kiện từ hàng chục nước, lắp ráp ở nơi lao động rẻ nhất.<br>
+• Tạo việc làm và chuyển giao công nghệ tại nước đang phát triển.<br>
+• Nhưng cũng bị chỉ trích: chuyển lợi nhuận sang thiên đường thuế, ảnh hưởng đến chính sách nước sở tại, điều kiện lao động ở nhà máy gia công.<br><br>
+<strong>Ví dụ với Việt Nam:</strong> Samsung (Hàn Quốc) là nhà xuất khẩu lớn nhất Việt Nam, tạo ~200.000 việc làm trực tiếp.`
+  },
+  internet: {
+    title: 'Internet &amp; Cách mạng công nghệ thông tin',
+    body: `<strong>Các mốc quan trọng:</strong><br>
+• 1969: ARPANET — mạng máy tính quân sự đầu tiên của Mỹ.<br>
+• 1991: Tim Berners-Lee (CERN) ra mắt World Wide Web.<br>
+• 1993–1995: Trình duyệt phổ thông (Mosaic, Netscape) — internet đại chúng.<br>
+• 2004: Facebook; 2005: YouTube; 2006: Twitter.<br>
+• 2007: iPhone — mobile internet phổ cập.<br>
+• 2010s: Big data, điện toán đám mây, AI thương mại.<br><br>
+<strong>Tác động lên toàn cầu hóa:</strong><br>
+• Giảm chi phí giao tiếp và thông tin gần về 0 — cho phép điều phối chuỗi cung ứng phức tạp.<br>
+• Thương mại điện tử xuyên biên giới.<br>
+• Gia công dịch vụ (BPO) — lập trình, kế toán, thiết kế từ nước đang phát triển cho khách ở phương Tây.<br>
+• Nền kinh tế nền tảng: Uber, Airbnb, TikTok — giá trị tạo ra không cần sở hữu tài sản vật lý.`
+  },
+  trade: {
+    title: 'Chuỗi cung ứng &amp; Dòng chảy thương mại toàn cầu',
+    body: `<strong>Quy mô:</strong> Thương mại hàng hóa và dịch vụ toàn cầu đạt ~$32 nghìn tỷ/năm (2022). Thương mại hàng hóa chiếm khoảng 60% GDP toàn cầu ở đỉnh điểm 2008.<br><br>
+<strong>Chuỗi cung ứng toàn cầu (Global Value Chains — GVCs):</strong> Thay vì mỗi nước sản xuất sản phẩm hoàn chỉnh, các công đoạn được phân chia theo lợi thế so sánh — thiết kế ở Mỹ, chip ở Đài Loan &amp; Hàn Quốc, lắp ráp ở Trung Quốc/Việt Nam, phân phối toàn cầu.<br><br>
+<strong>FDI (Đầu tư trực tiếp nước ngoài):</strong> Dòng vốn FDI toàn cầu đạt đỉnh ~$1,5–2 nghìn tỷ USD/năm trước COVID. Các nước đang phát triển nhận ngày càng nhiều FDI.<br><br>
+<strong>Rủi ro hệ thống:</strong> COVID-19 (2020) làm đứt gãy chuỗi cung ứng toàn cầu — thiếu chip bán dẫn, container, thuốc men — cho thấy mặt dễ tổn thương của sự phụ thuộc lẫn nhau.`
+  },
+};
+
+function globShow(id) {
+  const data = GLOB_DATA[id];
+  if (!data) return;
+  const detail = document.getElementById('glob-detail');
+  document.getElementById('glob-detail-title').textContent = data.title;
+  document.getElementById('glob-detail-body').innerHTML = data.body;
+  detail.className = 'glob-detail show';
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 4 — Quiz ôn tập
+   ════════════════════════════════════════════════ */
+const QUIZ = [
+  {
+    q: 'Nguyên nhân nào KHÔNG phải là lý do chính khiến làn sóng phi thực dân hóa bùng nổ sau 1945?',
+    opts: [
+      'Các đế quốc châu Âu kiệt sức về kinh tế và quân sự sau Thế chiến II',
+      'Ý thức dân tộc và phong trào giải phóng đã tích tụ nhiều thập kỷ',
+      'Mỹ và Liên Xô đều ủng hộ việc duy trì các đế quốc thực dân để ổn định khu vực',
+      'Thất bại của châu Âu trước Nhật Bản phá vỡ huyền thoại về sự bất khả chiến bại của thực dân',
+    ],
+    correct: 2,
+    explain: 'Mỹ và Liên Xô thực ra KHÔNG ủng hộ chủ nghĩa thực dân cổ điển — vì lý do khác nhau. Mỹ có truyền thống chống thực dân, lo ngại Liên Xô khai thác mâu thuẫn thuộc địa, và cạnh tranh thị trường với các đế quốc châu Âu. Liên Xô coi phi thực dân hóa là công cụ địa chính trị để lôi kéo các nước mới độc lập. Áp lực từ hai siêu cường là một trong những nguyên nhân thúc đẩy phi thực dân hóa.'
+  },
+  {
+    q: 'Cuộc tuần hành Muối (Salt March) năm 1930 của Gandhi có ý nghĩa gì?',
+    opts: [
+      'Là cuộc nổi dậy vũ trang lớn đầu tiên chống lại người Anh ở Ấn Độ',
+      'Gandhi dẫn đoàn đi bộ 388 km đến biển Dandi để tự lấy muối, phá thuế muối của Anh — biểu tượng của kháng cự bất bạo động',
+      'Đây là lần đầu Gandhi kêu gọi độc lập hoàn toàn khỏi Anh',
+      'Cuộc tuần hành thất bại và Gandhi bị bắt trước khi đến đích',
+    ],
+    correct: 1,
+    explain: 'Cuộc tuần hành Muối (12/3–6/4/1930) là một trong những chiến dịch biểu tượng nhất của phong trào bất bạo động. Gandhi dẫn 78 người đi bộ 388 km trong 24 ngày. Tại Dandi, ông tự tay lấy muối từ nước biển — hành động vi phạm luật thuế muối của Anh có chủ ý. Hàng nghìn người bị bắt sau đó khi bắt chước hành động này. Hình ảnh lan truyền khắp thế giới, tạo áp lực quốc tế lớn lên Anh.'
+  },
+  {
+    q: '"Năm châu Phi" 1960 đặc biệt ở điểm nào?',
+    opts: [
+      'Đây là năm đầu tiên có quốc gia châu Phi giành độc lập',
+      '17 quốc gia châu Phi giành độc lập trong một năm — tốc độ phi thực dân hóa chưa từng có',
+      'Tất cả nước giành độc lập năm 1960 đều đã độc lập qua con đường đàm phán hòa bình',
+      'Liên Hợp Quốc thành lập năm 1960 để điều phối phi thực dân hóa châu Phi',
+    ],
+    correct: 1,
+    explain: '"Năm châu Phi" (Africa Year) 1960 nổi bật vì số lượng: 17 quốc gia giành độc lập trong 12 tháng — tốc độ biến đổi địa chính trị hiếm có. Cùng năm, Nghị quyết LHQ 1514 về phi thực dân hóa được thông qua (tháng 12/1960). Trước 1960, chỉ có Ghana (1957) độc lập ở châu Phi cận Sahara. LHQ được thành lập năm 1945, không phải 1960.'
+  },
+  {
+    q: 'IMF, Ngân hàng Thế giới và GATT (tiền thân WTO) cùng được thiết lập tại hội nghị nào?',
+    opts: [
+      'Hội nghị Versailles (1919)',
+      'Hội nghị Potsdam (1945)',
+      'Hội nghị Bretton Woods (1944)',
+      'Hội nghị Bandung (1955)',
+    ],
+    correct: 2,
+    explain: 'Hội nghị Bretton Woods (tháng 7/1944, New Hampshire, Mỹ) — với 44 nước đồng minh tham dự — thiết lập nền tảng kinh tế quốc tế thời hậu chiến: IMF (ổn định tỷ giá), Ngân hàng Thế giới (cho vay phát triển), và đặt nền móng cho GATT (1947, sau là WTO 1995). Hệ thống này đặt đồng đô la Mỹ làm đồng tiền dự trữ quốc tế gắn với vàng — cho đến khi Nixon chấm dứt liên kết vàng năm 1971.'
+  },
+  {
+    q: 'Điền vào chỗ trống: Việt Nam gia nhập ASEAN vào năm ___, cùng năm bình thường hóa quan hệ với ___.',
+    opts: [
+      '1986 — Liên Xô',
+      '1991 — Trung Quốc',
+      '1995 — Mỹ',
+      '2007 — WTO',
+    ],
+    correct: 2,
+    explain: 'Năm 1995 là bước ngoặt hội nhập quốc tế của Việt Nam: tháng 7/1995 bình thường hóa quan hệ ngoại giao với Mỹ (sau 20 năm từ khi chiến tranh kết thúc); tháng 7/1995 gia nhập ASEAN (10 nước hiện nay). Việt Nam gia nhập WTO vào năm 2007. Đổi Mới kinh tế bắt đầu từ 1986 — tạo nền tảng cho hội nhập các năm tiếp theo.'
+  },
+  {
+    q: 'Phong trào Không liên kết (NAM) bị chỉ trích về điểm gì?',
+    opts: [
+      'NAM chỉ gồm 5 quốc gia nên không có tiếng nói quốc tế',
+      'Nhiều thành viên trên thực tế nghiêng về phía Liên Xô hoặc Mỹ — "không liên kết" chỉ là danh nghĩa với một số nước',
+      'NAM hoàn toàn thất bại vì bị Mỹ giải thể sau Chiến tranh Lạnh',
+      'NAM ủng hộ chủ nghĩa thực dân của Pháp ở Algeria',
+    ],
+    correct: 1,
+    explain: 'NAM bị chỉ trích có cơ sở: Cuba, Việt Nam, Angola — thành viên NAM — nhận hỗ trợ quân sự và kinh tế lớn từ Liên Xô. Ai Cập nhận vũ khí từ cả hai siêu cường. "Không liên kết" trong thực tế thường có nghĩa là tự do thương lượng với cả hai bên, không phải trung lập tuyệt đối. Tuy nhiên NAM vẫn có vai trò thực sự là diễn đàn, tăng tiếng nói tập thể và ngăn một số nước bị cuốn hoàn toàn vào cuộc cạnh tranh hai cực.'
+  },
+  {
+    q: 'Hệ quả phức tạp nào xảy ra khi Ấn Độ giành độc lập năm 1947?',
+    opts: [
+      'Ấn Độ và Pakistan thống nhất thành một nhà nước liên bang hòa bình',
+      'Phân chia lãnh thổ (Partition) dẫn đến 14–17 triệu người di dời và bạo lực cộng đồng khủng khiếp',
+      'Gandhi trở thành thủ tướng đầu tiên của Ấn Độ',
+      'Anh tiếp tục kiểm soát quân sự Ấn Độ thêm 5 năm sau độc lập',
+    ],
+    correct: 1,
+    explain: 'Độc lập Ấn Độ đi kèm với bi kịch: phân chia lãnh thổ thành Ấn Độ (đa số Hindu) và Pakistan (đa số Hồi giáo) dẫn đến làn sóng di dời lớn nhất lịch sử — 14–17 triệu người, trong vài tháng. Bạo lực cộng đồng giữa Hindu, Hồi giáo và Sikh khiến ước tính 200.000–2.000.000 người thiệt mạng (số liệu còn khác nhau). Gandhi — người phản đối phân chia — bị ám sát tháng 1/1948. Nehru, không phải Gandhi, là thủ tướng đầu tiên.'
+  },
+];
+
+let quizIdx = 0, quizScore = 0, quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = `Câu ${quizIdx + 1}/${QUIZ.length}: ${q.q}`;
+  document.getElementById('quiz-prog').textContent = `${quizIdx + 1} / ${QUIZ.length}`;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? `Điểm: ${quizScore}/${quizIdx}` : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = function() { quizAnswer(i); };
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const q = QUIZ[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+  document.getElementById('quiz-score').textContent = `Điểm: ${quizScore}/${quizIdx + 1}`;
+
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent = `Kết quả: ${quizScore}/${QUIZ.length} (${pct}%)`;
+    document.getElementById('quiz-prog').textContent =
+      pct >= 80 ? 'Xuất sắc!' : pct >= 60 ? 'Tốt — ôn lại câu sai.' : 'Cần ôn tập thêm.';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

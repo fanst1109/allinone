@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Thế chiến thứ nhất (1914–1918)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette WorldHistory / WW1 ── */
+  :root {
+    --accent:       #0f766e;
+    --accent-soft:  #ccfbf1;
+    --accent-dark:  #134e4a;
+    --red-war:      #b91c1c;
+    --red-soft:     #fee2e2;
+    --gold:         #b45309;
+    --gold-soft:    #fef3c7;
+    --blue-info:    #1d4ed8;
+    --blue-soft:    #dbeafe;
+    --stone:        #57534e;
+    --stone-soft:   #f5f5f4;
+    --bg-card:      #ffffff;
+    --neutral:      #6b7280;
+    --neutral-soft: #f3f4f6;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.65rem; margin-bottom: 6px; }
+  h2 {
+    color: var(--accent);
+    margin-top: 44px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-soft);
+    font-size: 1.2rem;
+  }
+
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 22px;
+    font-style: italic;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 6px rgba(15,118,110,.12);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .war-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-war);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .gold-box {
+    background: var(--gold-soft);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .blue-box {
+    background: var(--blue-soft);
+    border-left: 4px solid var(--blue-info);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary   { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 1 — Bản đồ SVG hai phe
+     ══════════════════════════════════════════════ */
+  .map-wrap { width: 100%; overflow-x: auto; }
+
+  .map-legend {
+    display: flex; gap: 18px; flex-wrap: wrap;
+    margin: 12px 0; font-size: 13px; align-items: center;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot {
+    width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;
+  }
+  .ld-entente  { background: #1d4ed8; }
+  .ld-central  { background: #b91c1c; }
+  .ld-neutral  { background: #9ca3af; }
+  .ld-ottoman  { background: #b45309; }
+
+  /* tooltip trên bản đồ */
+  #map-tooltip {
+    position: fixed;
+    background: rgba(15,23,42,.92);
+    color: white;
+    padding: 8px 13px;
+    border-radius: 7px;
+    font-size: 13px;
+    pointer-events: none;
+    z-index: 9999;
+    display: none;
+    max-width: 220px;
+    line-height: 1.5;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 2 — Sơ đồ MAIN
+     ══════════════════════════════════════════════ */
+  .main-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+  @media (max-width: 600px) {
+    .main-grid { grid-template-columns: 1fr; }
+  }
+  .main-card {
+    border: 2px solid transparent;
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .main-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+  .main-card.active { box-shadow: 0 0 0 3px rgba(15,118,110,.4); }
+  .main-m { background: #fef3c7; border-color: #b45309; }
+  .main-a { background: #dbeafe; border-color: #1d4ed8; }
+  .main-i { background: #f0fdf4; border-color: #15803d; }
+  .main-n { background: #fee2e2; border-color: #b91c1c; }
+  .main-letter {
+    font-size: 2.8rem; font-weight: 900; line-height: 1;
+    margin-bottom: 4px;
+  }
+  .main-m .main-letter { color: #b45309; }
+  .main-a .main-letter { color: #1d4ed8; }
+  .main-i .main-letter { color: #15803d; }
+  .main-n .main-letter { color: #b91c1c; }
+  .main-title { font-weight: 700; font-size: 14px; color: #1f2937; }
+  .main-sub   { font-size: 12px; color: #6b7280; margin-top: 2px; }
+  .main-detail {
+    margin-top: 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+  }
+  .main-detail.show { display: block; }
+  .main-detail-title {
+    font-weight: 700; font-size: 15px; color: var(--accent-dark);
+    margin-bottom: 8px;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 3 — Timeline
+     ══════════════════════════════════════════════ */
+  .timeline {
+    position: relative;
+    padding: 12px 0 12px 36px;
+    margin: 8px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 14px; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, #15803d, var(--accent), var(--blue-info), var(--red-war), #b45309, #1f2937);
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative; margin-bottom: 22px; padding-left: 20px;
+  }
+  .tl-item::before {
+    content: ''; position: absolute;
+    left: -28px; top: 6px;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 3px solid white; box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+  }
+  .tl-item.war::before     { background: var(--red-war); box-shadow: 0 0 0 2px var(--red-war); }
+  .tl-item.turn::before    { background: var(--blue-info); box-shadow: 0 0 0 2px var(--blue-info); }
+  .tl-item.peace::before   { background: #b45309; box-shadow: 0 0 0 2px #b45309; }
+  .tl-item.key::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: var(--red-war);
+    box-shadow: 0 0 0 3px var(--red-war), 0 0 0 6px rgba(185,28,28,.2);
+  }
+  .tl-item.keyturn::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: var(--blue-info);
+    box-shadow: 0 0 0 3px var(--blue-info), 0 0 0 6px rgba(29,78,216,.2);
+  }
+  .tl-year  { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .tl-item.war .tl-year    { color: var(--red-war); }
+  .tl-item.key .tl-year    { color: var(--red-war); font-size: 15px; }
+  .tl-item.turn .tl-year   { color: var(--blue-info); }
+  .tl-item.keyturn .tl-year{ color: var(--blue-info); font-size: 15px; }
+  .tl-item.peace .tl-year  { color: #b45309; }
+  .tl-title { font-weight: 700; font-size: 14px; color: #1f2937; line-height: 1.4; }
+  .tl-desc  { font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.5; }
+  .tl-badge {
+    display: inline-block; padding: 1px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; margin-left: 6px; vertical-align: middle;
+  }
+  .badge-start   { background: #dcfce7; color: #15803d; }
+  .badge-war     { background: var(--red-soft); color: #991b1b; }
+  .badge-turn    { background: var(--blue-soft); color: #1e40af; }
+  .badge-peace   { background: var(--gold-soft); color: var(--gold); }
+  .badge-key     { background: #fee2e2; color: #991b1b; }
+  .badge-end     { background: #f3f4f6; color: #374151; }
+
+  .tl-era-sep {
+    margin: 20px 0 16px -36px;
+    padding: 6px 14px 6px 36px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    border-radius: 0 20px 20px 0;
+    display: inline-block;
+  }
+  .era-start  { background: #dcfce7; color: #15803d; }
+  .era-front  { background: var(--red-soft); color: #991b1b; }
+  .era-turn   { background: var(--blue-soft); color: #1e40af; }
+  .era-end    { background: var(--gold-soft); color: var(--gold); }
+
+  /* ══════════════════════════════════════════════
+     MODULE 4 — Quiz
+     ══════════════════════════════════════════════ */
+  .quiz-q { font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #1f2937; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .quiz-opt {
+    padding: 10px 14px; border-radius: 7px; border: 2px solid #e5e7eb;
+    background: #f9fafb; cursor: pointer; font-size: 14px; text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: #15803d; background: #dcfce7; color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.6;
+    margin-top: 8px; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: #dcfce7; color: #14532d; border: 1px solid #15803d; }
+  .quiz-feedback.err { background: var(--red-soft); color: #991b1b; border: 1px solid var(--red-war); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score { font-weight: 700; color: #15803d; font-size: 15px; }
+
+  @media (max-width: 600px) {
+    .tl-era-sep { font-size: 11px; padding-left: 30px; }
+    .main-letter { font-size: 2.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử TG — Hiện đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-imperialism-nationalism/visualization.html">← L3: Đế quốc &amp; dân tộc</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Thế chiến thứ nhất</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-world-war-2/visualization.html">L5: Thế chiến thứ hai →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Thế chiến thứ nhất (1914–1918)</h1>
+<p class="subtitle">Nguyên nhân MAIN · Bản đồ hai phe · Chiến tranh chiến hào · Bước ngoặt 1917 · Hòa ước Versailles</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ hai phe tại châu Âu
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ hai phe tại châu Âu (khoảng 1915–1916)</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Di chuột qua (hoặc chạm) vào từng quốc gia để xem tên và phe tham chiến. Màu xanh dương = phe Hiệp ước (Entente), đỏ = phe Trung tâm (Central Powers), vàng = Ottoman, xám = trung lập. Bản đồ phản ánh giai đoạn khoảng 1915–1916.
+  </div>
+
+  <div class="map-legend">
+    <div class="legend-item"><div class="legend-dot ld-entente"></div> Phe Hiệp ước / Entente</div>
+    <div class="legend-item"><div class="legend-dot ld-central"></div> Phe Trung tâm / Central Powers</div>
+    <div class="legend-item"><div class="legend-dot ld-ottoman"></div> Đế chế Ottoman (Trung tâm)</div>
+    <div class="legend-item"><div class="legend-dot ld-neutral"></div> Trung lập</div>
+  </div>
+
+  <div class="map-wrap">
+    <svg id="ww1-map" width="700" height="440" viewBox="0 0 700 440"
+         style="display:block;margin:0 auto;border-radius:8px;border:2px solid #cbd5e1;">
+
+      <defs>
+        <!-- Nền biển -->
+        <linearGradient id="sea-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#bfdbfe"/>
+          <stop offset="100%" stop-color="#93c5fd"/>
+        </linearGradient>
+        <!-- Pattern chiến hào mặt trận phía Tây -->
+        <pattern id="trench-pattern" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
+          <rect width="6" height="6" fill="none"/>
+          <line x1="0" y1="6" x2="6" y2="0" stroke="#b91c1c" stroke-width="0.6" opacity="0.35"/>
+        </pattern>
+      </defs>
+
+      <!-- Nền biển -->
+      <rect width="700" height="440" fill="url(#sea-grad)"/>
+
+      <!-- ══════════════ PHÁP (Entente) ══════════════ -->
+      <polygon id="fr" class="country entente"
+        points="155,68 200,60 245,55 280,58 300,65 310,85 305,105 295,115 285,120 265,128 248,145 235,155 215,158 200,165 186,175 174,188 158,192 135,192 116,186 88,180 65,172 46,158 32,142 28,118 38,90 70,72"
+        fill="#1d4ed8" fill-opacity="0.65" stroke="#1e40af" stroke-width="1.2"
+        data-name="Pháp" data-side="Phe Hiệp ước (Entente)" data-note="Tham chiến từ tháng 8/1914. Mặt trận phía Tây nằm trên đất Pháp."/>
+
+      <!-- ══════════════ ANH / Britain ══════════════ -->
+      <polygon id="gb" class="country entente"
+        points="148,30 183,27 205,34 215,52 210,68 196,74 175,72 158,60 148,44"
+        fill="#1d4ed8" fill-opacity="0.65" stroke="#1e40af" stroke-width="1.2"
+        data-name="Vương quốc Anh" data-side="Phe Hiệp ước (Entente)" data-note="Tham chiến 4/8/1914 khi Đức xâm lược Bỉ. Đế quốc Anh huy động quân từ toàn bộ thuộc địa."/>
+
+      <!-- ══════════════ BỈ (Entente) ══════════════ -->
+      <polygon id="be" class="country entente"
+        points="245,55 285,52 295,65 290,80 274,82 258,78 245,68"
+        fill="#1d4ed8" fill-opacity="0.75" stroke="#1e40af" stroke-width="1.2"
+        data-name="Bỉ" data-side="Phe Hiệp ước (Entente)" data-note="Bị Đức xâm lược 4/8/1914 qua Kế hoạch Schlieffen. Sự kiện này kéo Anh vào chiến tranh."/>
+
+      <!-- ══════════════ ĐỨC (Central Powers) ══════════════ -->
+      <polygon id="de" class="country central"
+        points="290,58 340,45 390,42 440,45 470,60 480,80 468,100 450,110 430,118 408,122 388,126 364,128 345,118 322,108 300,65"
+        fill="#b91c1c" fill-opacity="0.65" stroke="#991b1b" stroke-width="1.2"
+        data-name="Đức (Đế chế)" data-side="Phe Trung tâm (Central Powers)" data-note="Đồng minh chính của Áo–Hung. Thực hiện Kế hoạch Schlieffen tháng 8/1914 xâm lược Bỉ và Pháp."/>
+
+      <!-- ══════════════ ÁO-HUNG (Central Powers) ══════════════ -->
+      <polygon id="ah" class="country central"
+        points="388,126 430,118 468,100 505,95 535,98 558,110 565,130 555,148 535,158 510,165 488,168 462,165 440,158 420,148 405,138"
+        fill="#b91c1c" fill-opacity="0.60" stroke="#991b1b" stroke-width="1.2"
+        data-name="Áo–Hung (Đế chế)" data-side="Phe Trung tâm (Central Powers)" data-note="Tuyên chiến với Serbia 28/7/1914 — sự kiện khởi đầu chuỗi dây chuyền chiến tranh."/>
+
+      <!-- ══════════════ NGA (Entente) ══════════════ -->
+      <polygon id="ru" class="country entente"
+        points="470,30 560,22 650,28 700,40 700,170 680,200 660,210 635,215 610,208 588,200 560,192 540,175 520,160 510,165 488,168 462,165 440,158 420,148 408,135 408,118 430,118 468,100 480,80 470,60 460,42"
+        fill="#1d4ed8" fill-opacity="0.55" stroke="#1e40af" stroke-width="1.2"
+        data-name="Đế chế Nga" data-side="Phe Hiệp ước (Entente)" data-note="Tham chiến bảo vệ Serbia tháng 8/1914. Rút khỏi chiến tranh sau Cách mạng Bolshevik tháng 10/1917."/>
+
+      <!-- ══════════════ SERBIA (Entente) ══════════════ -->
+      <polygon id="sr" class="country entente"
+        points="455,155 485,148 510,155 520,170 510,185 490,190 468,185 455,172"
+        fill="#1d4ed8" fill-opacity="0.80" stroke="#1e40af" stroke-width="1.2"
+        data-name="Serbia" data-side="Phe Hiệp ước (Entente)" data-note="Mục tiêu tấn công của Áo–Hung. Vụ ám sát Franz Ferdinand tại Sarajevo là ngòi nổ chiến tranh."/>
+
+      <!-- ══════════════ BULGARIA (Central Powers) ══════════════ -->
+      <polygon id="bg" class="country central"
+        points="490,190 520,182 548,185 560,202 552,220 530,228 508,222 492,208"
+        fill="#b91c1c" fill-opacity="0.55" stroke="#991b1b" stroke-width="1.2"
+        data-name="Bulgaria" data-side="Phe Trung tâm (Central Powers)" data-note="Gia nhập phe Trung tâm tháng 10/1915, được hứa lãnh thổ Macedonia và Serbia."/>
+
+      <!-- ══════════════ ROMANIA (Entente) ══════════════ -->
+      <polygon id="ro" class="country entente"
+        points="510,120 555,110 590,115 608,130 605,155 588,168 565,172 545,160 525,148 512,135"
+        fill="#1d4ed8" fill-opacity="0.60" stroke="#1e40af" stroke-width="1.2"
+        data-name="Romania" data-side="Phe Hiệp ước (Entente)" data-note="Gia nhập phe Entente tháng 8/1916, được hứa Transylvania từ Áo–Hung."/>
+
+      <!-- ══════════════ HY LẠP (Entente) ══════════════ -->
+      <polygon id="gr" class="country entente"
+        points="460,210 490,208 508,222 508,238 495,252 478,258 462,250 452,235 452,218"
+        fill="#1d4ed8" fill-opacity="0.60" stroke="#1e40af" stroke-width="1.2"
+        data-name="Hy Lạp" data-side="Phe Hiệp ước (Entente)" data-note="Gia nhập phe Entente tháng 6/1917 sau áp lực của Đồng minh."/>
+
+      <!-- ══════════════ OTTOMAN (Central Powers — vàng) ══════════════ -->
+      <polygon id="ot" class="country ottoman"
+        points="560,192 610,185 650,180 690,185 700,210 700,280 680,295 655,300 630,295 610,282 595,265 580,248 565,232 555,215 555,198"
+        fill="#b45309" fill-opacity="0.62" stroke="#92400e" stroke-width="1.2"
+        data-name="Đế chế Ottoman" data-side="Phe Trung tâm (Central Powers)" data-note="Ký hiệp ước bí mật với Đức tháng 8/1914. Tham chiến tháng 10/1914. Kiểm soát eo biển Bosphorus — khóa đường tiếp tế tới Nga."/>
+
+      <!-- ══════════════ Ý (Entente từ 5/1915) ══════════════ -->
+      <polygon id="it" class="country entente"
+        points="284,128 322,108 345,118 364,128 370,155 360,180 355,210 344,240 330,265 318,285 308,300 296,315 284,330 275,315 272,285 268,255 264,220 262,190 264,165 270,148"
+        fill="#1d4ed8" fill-opacity="0.55" stroke="#1e40af" stroke-width="1.2"
+        data-name="Ý" data-side="Phe Hiệp ước (Entente) — từ tháng 5/1915" data-note="Ban đầu trong Liên minh Ba nước với Đức và Áo–Hung, nhưng bội ước và gia nhập Entente 5/1915 sau Hiệp ước London bí mật."/>
+
+      <!-- ══════════════ TÂY BAN NHA (trung lập) ══════════════ -->
+      <polygon id="es" class="country neutral"
+        points="28,118 65,112 88,108 116,106 140,108 158,112 158,135 158,162 135,192 116,186 88,180 65,172 46,158 32,142"
+        fill="#9ca3af" fill-opacity="0.55" stroke="#6b7280" stroke-width="1.2"
+        data-name="Tây Ban Nha" data-side="Trung lập" data-note="Duy trì trung lập trong suốt Thế chiến I."/>
+
+      <!-- ══════════════ THỤY SĨ (trung lập) ══════════════ -->
+      <polygon id="ch" class="country neutral"
+        points="258,132 284,128 295,140 290,155 270,158 255,148"
+        fill="#9ca3af" fill-opacity="0.65" stroke="#6b7280" stroke-width="1.2"
+        data-name="Thụy Sĩ" data-side="Trung lập" data-note="Trung lập vũ trang — biên giới phía Nam của chiến tuyến phía Tây."/>
+
+      <!-- ══════════════ HÀ LAN (trung lập) ══════════════ -->
+      <polygon id="nl" class="country neutral"
+        points="245,55 258,50 278,50 290,58 280,68 265,74 248,68"
+        fill="#9ca3af" fill-opacity="0.65" stroke="#6b7280" stroke-width="1.2"
+        data-name="Hà Lan" data-side="Trung lập" data-note="Trung lập trong Thế chiến I."/>
+
+      <!-- ══════════════ ĐAN MẠCH (trung lập) ══════════════ -->
+      <polygon id="dk" class="country neutral"
+        points="300,30 325,25 340,30 342,44 325,48 308,44"
+        fill="#9ca3af" fill-opacity="0.65" stroke="#6b7280" stroke-width="1.2"
+        data-name="Đan Mạch" data-side="Trung lập" data-note="Trung lập trong Thế chiến I."/>
+
+      <!-- ══════════════ PHẦN LAN / SCANDINAVIA (trung lập) ══════════════ -->
+      <polygon id="sc" class="country neutral"
+        points="310,22 360,10 420,8 460,15 470,30 460,42 430,40 400,38 370,36 340,30 325,25"
+        fill="#9ca3af" fill-opacity="0.50" stroke="#6b7280" stroke-width="1"
+        data-name="Scandinavia (Na Uy, Thụy Điển, Phần Lan)" data-side="Trung lập" data-note="Các nước Bắc Âu duy trì trung lập trong suốt Thế chiến I."/>
+
+      <!-- ══════════════ BA LAN (vùng chiến tranh, nằm trong Đức/Nga/Áo) ══════════════ -->
+      <polygon id="pl" class="country"
+        points="388,62 430,55 460,58 470,75 462,95 440,108 418,112 395,108 380,95 375,78"
+        fill="#6b7280" fill-opacity="0.40" stroke="#4b5563" stroke-width="1" stroke-dasharray="4,3"
+        data-name="Ba Lan (phân chia)" data-side="Vùng tranh chấp" data-note="Ba Lan bị chia giữa Nga, Đức và Áo–Hung. Trở thành quốc gia độc lập sau Thế chiến I (1918)."/>
+
+      <!-- ══════════════ BẮC PHI / thuộc địa (minh họa) ══════════════ -->
+      <polygon id="af"
+        points="100,345 160,335 220,332 280,334 340,338 400,342 450,348 490,355 520,365 510,400 480,418 440,428 400,434 360,435 320,432 280,428 240,422 200,416 160,410 120,400 95,388 90,368"
+        fill="#e7e5e4" stroke="#d1d5db" stroke-width="1"
+        data-name="Bắc Phi" data-side="Thuộc địa các cường quốc" data-note="Bắc Phi là thuộc địa của Pháp (Algeria, Morocco, Tunisia), Anh (Ai Cập) và Ý (Libya). Các cường quốc huy động quân từ thuộc địa."/>
+
+      <!-- ══════════════ ĐƯỜNG CHIẾN TUYẾN PHÍA TÂY ══════════════ -->
+      <!-- Đường chiến hào từ Eo biển Manche đến biên giới Thụy Sĩ -->
+      <polyline
+        points="240,52 252,70 258,88 258,110 260,132 258,148 255,158"
+        fill="none" stroke="#b91c1c" stroke-width="3" stroke-dasharray="6,3" opacity="0.85"/>
+      <!-- Nhãn -->
+      <text x="218" y="100" font-size="9" fill="#b91c1c" font-weight="700" font-family="sans-serif" transform="rotate(-80,218,100)">MẶT TRẬN PHÍA TÂY</text>
+
+      <!-- ══════════════ NHÃN ĐỊA DANH ══════════════ -->
+      <text x="115" y="135" font-size="10" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif" pointer-events="none">PHÁP</text>
+      <text x="178" y="50"  font-size="9"  fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif" pointer-events="none">ANH</text>
+      <text x="268" y="67"  font-size="8"  fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif" pointer-events="none">BỈ</text>
+      <text x="388" y="82"  font-size="10" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif" pointer-events="none">ĐỨC</text>
+      <text x="478" y="145" font-size="10" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif" pointer-events="none">ÁO–HUNG</text>
+      <text x="575" y="90"  font-size="10" fill="white" font-weight="600" text-anchor="middle" font-family="sans-serif" pointer-events="none">NGA</text>
+      <text x="486" y="170" font-size="8"  fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif" pointer-events="none">SERBIA</text>
+      <text x="525" y="207" font-size="8"  fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif" pointer-events="none">BULGARIA</text>
+      <text x="555" y="140" font-size="8"  fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif" pointer-events="none">ROMANIA</text>
+      <text x="479" y="235" font-size="8"  fill="white" font-weight="600" text-anchor="middle" font-family="sans-serif" pointer-events="none">HY LẠP</text>
+      <text x="625" y="238" font-size="9"  fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif" pointer-events="none">OTTOMAN</text>
+      <text x="315" y="225" font-size="9"  fill="white" font-weight="600" text-anchor="middle" font-family="sans-serif" pointer-events="none">Ý</text>
+      <text x="88"  y="145" font-size="8"  fill="#4b5563" font-weight="600" text-anchor="middle" font-family="sans-serif" pointer-events="none">TBN</text>
+      <text x="270" y="148" font-size="7"  fill="#4b5563" font-weight="600" text-anchor="middle" font-family="sans-serif" pointer-events="none">CH</text>
+      <!-- Sarajevo dot -->
+      <circle cx="462" cy="175" r="4" fill="#fbbf24" stroke="white" stroke-width="1.5"/>
+      <text x="468" y="172" font-size="8" fill="#b45309" font-weight="700" font-family="sans-serif">Sarajevo</text>
+
+      <!-- Nhãn biển -->
+      <text x="160" y="250" font-size="10" fill="#1d4ed8" font-weight="700" font-family="sans-serif" text-anchor="middle" opacity="0.7">ĐẠI TÂY DƯƠNG</text>
+      <text x="380" y="295" font-size="10" fill="#1d4ed8" font-weight="600" font-family="sans-serif" text-anchor="middle" opacity="0.7">ĐỊA TRUNG HẢI</text>
+    </svg>
+  </div>
+
+  <!-- Tooltip -->
+  <div id="map-tooltip"></div>
+
+  <div class="war-box" style="margin-top:14px">
+    <strong>Mặt trận phía Tây</strong> (đường đỏ đứt nét): Chiến tuyến chạy từ Eo biển Manche (Bắc) xuống biên giới Thụy Sĩ (Nam) — khoảng 700 km chiến hào bế tắc từ cuối 1914 đến 1918.
+  </div>
+
+  <div class="gold-box">
+    <strong>Điểm Sarajevo</strong> (chấm vàng): Nơi xảy ra vụ ám sát Thái tử Franz Ferdinand ngày 28/6/1914 — ngòi nổ kích hoạt Thế chiến I.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Sơ đồ MAIN (click từng yếu tố)
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Mô hình MAIN — Bốn nguyên nhân sâu xa</h2>
+
+<div class="card">
+  <div class="info-box">
+    Bấm vào từng ô M–A–I–N để xem chi tiết nguyên nhân và ví dụ cụ thể.
+  </div>
+
+  <div class="main-grid">
+    <div class="main-card main-m" onclick="mainShow('M')">
+      <div class="main-letter">M</div>
+      <div class="main-title">Militarism</div>
+      <div class="main-sub">Chủ nghĩa quân phiệt</div>
+    </div>
+    <div class="main-card main-a" onclick="mainShow('A')">
+      <div class="main-letter">A</div>
+      <div class="main-title">Alliances</div>
+      <div class="main-sub">Hệ thống liên minh</div>
+    </div>
+    <div class="main-card main-i" onclick="mainShow('I')">
+      <div class="main-letter">I</div>
+      <div class="main-title">Imperialism</div>
+      <div class="main-sub">Chủ nghĩa đế quốc</div>
+    </div>
+    <div class="main-card main-n" onclick="mainShow('N')">
+      <div class="main-letter">N</div>
+      <div class="main-title">Nationalism</div>
+      <div class="main-sub">Chủ nghĩa dân tộc</div>
+    </div>
+  </div>
+
+  <div class="main-detail" id="main-detail">
+    <div class="main-detail-title" id="main-detail-title"></div>
+    <div id="main-detail-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Timeline 1914–1919
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Chuỗi thời gian: 1914–1919</h2>
+
+<div class="card">
+  <div class="timeline">
+
+    <!-- ── Giai đoạn 1: Bùng nổ ── -->
+    <div class="tl-era-sep era-start">Bùng nổ chiến tranh (1914)</div>
+
+    <div class="tl-item">
+      <div class="tl-year">28/6/1914</div>
+      <div class="tl-title">Vụ ám sát tại Sarajevo
+        <span class="tl-badge badge-start">Ngòi nổ</span>
+      </div>
+      <div class="tl-desc">Thái tử Áo–Hung Franz Ferdinand và phu nhân bị Gavrilo Princip ám sát. Áo–Hung đổ lỗi cho Serbia và yêu cầu điều tra chung.</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">5–6/7/1914</div>
+      <div class="tl-title">"Tấm séc trắng" — Đức đảm bảo ủng hộ Áo–Hung</div>
+      <div class="tl-desc">Đức hứa ủng hộ "vô điều kiện" Áo–Hung — quyết định leo thang quan trọng nhất trong cuộc khủng hoảng tháng 7.</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">28/7/1914</div>
+      <div class="tl-title">Áo–Hung tuyên chiến với Serbia
+        <span class="tl-badge badge-war">Bắt đầu</span>
+      </div>
+      <div class="tl-desc">Pháo kích Belgrade bắt đầu. Cơ chế dây chuyền liên minh kích hoạt: Nga động viên quân đội bảo vệ Serbia.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">1–4/8/1914</div>
+      <div class="tl-title">Chiến tranh lan toàn châu Âu
+        <span class="tl-badge badge-key">Toàn diện</span>
+      </div>
+      <div class="tl-desc">1/8: Đức tuyên chiến Nga. 3/8: Đức tuyên chiến Pháp. 4/8: Đức xâm lược Bỉ — Anh tuyên chiến với Đức. Chỉ trong 1 tuần, toàn bộ châu Âu bị kéo vào chiến tranh.</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">Tháng 8/1914</div>
+      <div class="tl-title">Trận Tannenberg — Đức đánh bại Nga ở phía Đông
+        <span class="tl-badge badge-war">Phía Đông</span>
+      </div>
+      <div class="tl-desc">Theo ước tính, Nga mất khoảng 170.000 người (thương vong và bị bắt). Mặt trận phía Đông lưu động hơn phía Tây nhưng tổn thất rất lớn.</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">Tháng 9/1914</div>
+      <div class="tl-title">Trận sông Marne — Kế hoạch Schlieffen thất bại
+        <span class="tl-badge badge-war">Phía Tây</span>
+      </div>
+      <div class="tl-desc">Pháp và Anh chặn đứng bước tiến của Đức. Đức không thể đánh nhanh tiêu diệt Pháp trong 6 tuần. Cả hai bên bắt đầu đào chiến hào.</div>
+    </div>
+
+    <!-- ── Giai đoạn 2: Bế tắc ── -->
+    <div class="tl-era-sep era-front">Bế tắc chiến hào (1914–1916)</div>
+
+    <div class="tl-item war">
+      <div class="tl-year">Cuối 1914</div>
+      <div class="tl-title">Mặt trận phía Tây hình thành — 700 km chiến hào</div>
+      <div class="tl-desc">Từ Eo biển Manche đến biên giới Thụy Sĩ, cả hai bên đào chiến hào liên tục. Chiến tranh vận động biến thành chiến tranh vị trí.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">22/4/1915</div>
+      <div class="tl-title">Ypres — Đức dùng hơi độc chlorine lần đầu tiên
+        <span class="tl-badge badge-war">Vũ khí mới</span>
+      </div>
+      <div class="tl-desc">Đức thả 150 tấn khí chlorine dọc mặt trận 6km. Gây thương vong lớn và kinh hoàng tâm lý. Sau đó cả hai bên đều phát triển và sử dụng hóa học vũ khí.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">2–12/1916</div>
+      <div class="tl-title">Trận Verdun — Biểu tượng tổn thất khổng lồ
+        <span class="tl-badge badge-key">Quyết định</span>
+      </div>
+      <div class="tl-desc">Theo ước tính, khoảng 700.000 thương vong hai phía sau 10 tháng giao tranh. Đức không đạt mục tiêu chiến lược. Verdun trở thành biểu tượng thế hệ bị thiêu rụi bởi chiến tranh.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">1/7/1916</div>
+      <div class="tl-title">Ngày đầu Trận Somme — ~57.000 thương vong quân Anh
+        <span class="tl-badge badge-war">Bi thảm nhất</span>
+      </div>
+      <div class="tl-desc">Ngày 1/7/1916 là một trong những ngày tổn thất lớn nhất trong lịch sử quân đội Anh (số liệu theo ước tính). Tuy nhiên xe tăng được thử nghiệm lần đầu tháng 9/1916 — bước đầu phá bế tắc.</div>
+    </div>
+
+    <!-- ── Giai đoạn 3: Bước ngoặt ── -->
+    <div class="tl-era-sep era-turn">Bước ngoặt (1917)</div>
+
+    <div class="tl-item turn">
+      <div class="tl-year">1/2/1917</div>
+      <div class="tl-title">Đức tái khởi động chiến tranh tàu ngầm không hạn chế</div>
+      <div class="tl-desc">Đánh chìm mọi tàu tiến vào vùng biển Anh — kể cả tàu trung lập. Mục tiêu: cô lập Anh trước khi Đồng minh có thêm tiếp viện.</div>
+    </div>
+
+    <div class="tl-item turn">
+      <div class="tl-year">2–3/1917</div>
+      <div class="tl-title">Cách mạng Tháng Hai — Sa hoàng Nicholas II thoái vị</div>
+      <div class="tl-desc">Quân đội Nga kiệt sức, nạn đói tại Petrograd. Chính phủ lâm thời thay thế nhưng tiếp tục chiến tranh — quyết định tai hại, bị Bolshevik khai thác.</div>
+    </div>
+
+    <div class="tl-item turn">
+      <div class="tl-year">3/1917</div>
+      <div class="tl-title">Điện Zimmermann bị tiết lộ</div>
+      <div class="tl-desc">Tình báo Anh giải mã điện của Đức đề nghị Mexico tấn công Mỹ để đổi lấy Texas, New Mexico, Arizona. Dư luận Mỹ đảo chiều mạnh.</div>
+    </div>
+
+    <div class="tl-item keyturn">
+      <div class="tl-year">6/4/1917</div>
+      <div class="tl-title">Mỹ tuyên chiến với Đức
+        <span class="tl-badge badge-turn">Bước ngoặt</span>
+      </div>
+      <div class="tl-desc">Sau tàu ngầm Đức và Điện Zimmermann, Tổng thống Wilson xin Quốc hội tuyên chiến. Hơn 2 triệu binh sĩ Mỹ sẽ đến châu Âu — nguồn lực tươi mới quyết định.</div>
+    </div>
+
+    <div class="tl-item keyturn">
+      <div class="tl-year">7/11/1917</div>
+      <div class="tl-title">Cách mạng Tháng Mười — Bolshevik lên nắm quyền
+        <span class="tl-badge badge-turn">Bước ngoặt</span>
+      </div>
+      <div class="tl-desc">Lenin lật đổ Chính phủ lâm thời. Khẩu hiệu: "Hòa bình, Ruộng đất, Bánh mì." Nga bắt đầu đàm phán hòa bình với Đức.</div>
+    </div>
+
+    <!-- ── Giai đoạn 4: Kết thúc ── -->
+    <div class="tl-era-sep era-end">Kết thúc &amp; Hậu chiến (1918–1919)</div>
+
+    <div class="tl-item peace">
+      <div class="tl-year">3/3/1918</div>
+      <div class="tl-title">Hòa ước Brest-Litovsk
+        <span class="tl-badge badge-peace">Nga rút</span>
+      </div>
+      <div class="tl-desc">Nga nhượng lãnh thổ rộng lớn (Ba Lan, Phần Lan, Ukraine, các nước Baltic) và trả bồi thường. Đức chuyển gần 1 triệu quân sang phía Tây.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">3–7/1918</div>
+      <div class="tl-title">Cuộc tấn công mùa xuân của Đức thất bại
+        <span class="tl-badge badge-war">Phía Tây</span>
+      </div>
+      <div class="tl-desc">Kaiserschlacht — "Trận chiến của Hoàng đế": đột phá ban đầu nhưng không thể khai thác. Lực lượng Đức kiệt sức; quân Mỹ đến ngày càng nhiều.</div>
+    </div>
+
+    <div class="tl-item turn">
+      <div class="tl-year">8/1918</div>
+      <div class="tl-title">"Ngày đen tối của quân đội Đức" — Amiens</div>
+      <div class="tl-desc">Đồng minh phản công tại Amiens với xe tăng và bộ binh phối hợp — mô hình chiến thuật mới phá vỡ phòng tuyến Đức. Bộ Tổng tham mưu Đức thừa nhận không thể thắng.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">9–11/11/1918</div>
+      <div class="tl-title">Sụp đổ phe Trung tâm và đình chiến
+        <span class="tl-badge badge-end">Kết thúc</span>
+      </div>
+      <div class="tl-desc">Bulgaria (9/9), Ottoman (10/30), Áo–Hung (11/3) lần lượt đình chiến. 9/11: Kaiser Wilhelm II thoái vị. <strong>11/11/1918, 11 giờ sáng:</strong> Đình chiến có hiệu lực. Thế chiến I chính thức kết thúc.</div>
+    </div>
+
+    <div class="tl-item peace">
+      <div class="tl-year">28/6/1919</div>
+      <div class="tl-title">Hòa ước Versailles
+        <span class="tl-badge badge-peace">Hòa ước</span>
+      </div>
+      <div class="tl-desc">Ký tại Cung điện Versailles — đúng 5 năm sau vụ ám sát Sarajevo. Áp đặt lên Đức: điều khoản lỗi chiến tranh, 132 tỷ Mark vàng bồi thường, mất 13% lãnh thổ, giải giáp.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q"    id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score"    id="quiz-score"></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════════════════ -->
+<script>
+/* ════════════════════════════════════════════════
+   MODULE 1 — Tooltip bản đồ
+   ════════════════════════════════════════════════ */
+const tooltip = document.getElementById('map-tooltip');
+const countries = document.querySelectorAll('.country');
+
+countries.forEach(el => {
+  el.style.cursor = 'pointer';
+
+  function showTip(e) {
+    const name = el.getAttribute('data-name') || '';
+    const side = el.getAttribute('data-side') || '';
+    const note = el.getAttribute('data-note') || '';
+    tooltip.innerHTML = `<strong>${name}</strong><br><em>${side}</em>${note ? '<br><small>' + note + '</small>' : ''}`;
+    tooltip.style.display = 'block';
+    moveTip(e);
+  }
+  function moveTip(e) {
+    const x = e.clientX + 14, y = e.clientY - 10;
+    tooltip.style.left = Math.min(x, window.innerWidth - 240) + 'px';
+    tooltip.style.top  = Math.max(y, 8) + 'px';
+  }
+  function hideTip() { tooltip.style.display = 'none'; }
+
+  el.addEventListener('mouseenter', showTip);
+  el.addEventListener('mousemove',  moveTip);
+  el.addEventListener('mouseleave', hideTip);
+
+  // Touch support
+  el.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const t = e.touches[0];
+    showTip({ clientX: t.clientX, clientY: t.clientY });
+  }, { passive: false });
+  el.addEventListener('touchend', e => {
+    setTimeout(hideTip, 1800);
+  });
+});
+
+document.addEventListener('scroll', () => { tooltip.style.display = 'none'; });
+
+/* ════════════════════════════════════════════════
+   MODULE 2 — MAIN detail
+   ════════════════════════════════════════════════ */
+const MAIN_DATA = {
+  M: {
+    title: 'M — Militarism (Chủ nghĩa quân phiệt)',
+    body: `<strong>Là gì?</strong> Xu hướng các cường quốc châu Âu đẩy mạnh xây dựng quân đội và xem sức mạnh quân sự như biểu tượng uy tín quốc gia và công cụ chính sách đối ngoại.<br><br>
+<strong>Ví dụ cụ thể — Chạy đua hải quân Anh–Đức (1906–1914):</strong> Năm 1906, Anh hạ thủy <em>HMS Dreadnought</em> — thiết giáp hạm thế hệ mới làm lỗi thời toàn bộ hạm đội cũ. Đức phản ứng bằng chương trình đóng tàu quy mô lớn. Anh tiếp tục đóng thêm. Kết quả: chi phí quân sự tăng vọt và căng thẳng leo thang liên tục.<br><br>
+<strong>Tại sao nguy hiểm?</strong> Kế hoạch chiến tranh chi tiết (như Kế hoạch Schlieffen) được chuẩn bị từ trước; khi khủng hoảng xảy ra, quân đội vận hành theo lịch trình cứng nhắc — khó dừng lại. Các tướng lĩnh có tiếng nói lớn trong chính sách.`
+  },
+  A: {
+    title: 'A — Alliances (Hệ thống liên minh)',
+    body: `<strong>Là gì?</strong> Hai khối liên minh đối lập hình thành đến năm 1914:<br>
+• <strong>Phe Hiệp ước (Entente):</strong> Anh–Pháp–Nga (Triple Entente 1907)<br>
+• <strong>Phe Trung tâm (Central Powers):</strong> Đức–Áo–Hung–Ý (Triple Alliance 1882)<br><br>
+<strong>Vì sao nguy hiểm?</strong> Biến xung đột cục bộ thành chiến tranh toàn châu Âu theo cơ chế "dây chuyền":<br>
+Áo–Hung → Serbia → Nga → Đức → Pháp → Bỉ → Anh<br>
+Chỉ trong 5 tuần (28/6 → 4/8/1914), toàn bộ châu Âu đã vào chiến tranh.<br><br>
+<strong>Ví dụ minh họa:</strong> Ý ban đầu trong phe Trung tâm nhưng năm 1915 chuyển sang phe Entente khi được hứa lãnh thổ Áo–Hung tốt hơn — cho thấy liên minh không bất biến, mà phụ thuộc vào lợi ích thực tế.`
+  },
+  I: {
+    title: 'I — Imperialism (Chủ nghĩa đế quốc)',
+    body: `<strong>Là gì?</strong> Sự cạnh tranh quyết liệt giữa các cường quốc châu Âu trong việc kiểm soát thuộc địa ở châu Phi, châu Á và Trung Đông.<br><br>
+<strong>Ví dụ cụ thể:</strong><br>
+• <strong>Khủng hoảng Morocco lần 1 (1905–1906):</strong> Đức phản đối ảnh hưởng Pháp ở Morocco. Hội nghị Algeciras: Đức thất bại về ngoại giao, Anh ủng hộ Pháp.<br>
+• <strong>Khủng hoảng Morocco lần 2 (1911, "Agadir Crisis"):</strong> Đức gửi tàu chiến <em>Panther</em>. Lại thất bại. Đức ngày càng cảm thấy bị "bao vây" bởi Anh–Pháp.<br>
+• <strong>Khủng hoảng Bosnia (1908):</strong> Áo–Hung sáp nhập Bosnia. Nga phải nhượng bộ — sự sỉ nhục thúc đẩy Nga tái vũ trang.<br><br>
+<strong>Tại sao nguy hiểm?</strong> Tạo ra thù địch tích lũy và tâm lý "zero-sum" (lợi ích của nước này = tổn thất của nước kia) giữa các cường quốc.`
+  },
+  N: {
+    title: 'N — Nationalism (Chủ nghĩa dân tộc)',
+    body: `<strong>Là gì?</strong> Ý thức hệ đề cao sự gắn kết và lợi ích của dân tộc — có thể dẫn đến căng thẳng với các dân tộc khác và tham vọng lãnh thổ.<br><br>
+<strong>Ví dụ cụ thể — Balkan:</strong><br>
+• Serbia muốn thống nhất người Slav Nam (Nam Tư) — đe dọa trực tiếp Áo–Hung có đông dân Slav thiểu số.<br>
+• Phong trào <em>Pan-Slavism</em> (Nga hậu thuẫn) vs. <em>Pan-Germanism</em> (Đức/Áo–Hung).<br>
+• Chiến tranh Balkan lần 1 (1912) và lần 2 (1913) làm Serbia lớn mạnh và đầy tham vọng.<br>
+• Nhóm "Bàn tay đen" — tổ chức dân tộc chủ nghĩa Serbia — đứng sau vụ ám sát Franz Ferdinand.<br><br>
+<strong>Tại sao nguy hiểm?</strong> Biến chiến tranh từ "tranh chấp của chính phủ" thành "nghĩa vụ thiêng liêng của quốc dân" — làm cho chiến tranh được dân chúng ủng hộ ban đầu và khó kết thúc hơn.`
+  }
+};
+
+let mainCurrent = null;
+function mainShow(key) {
+  const data = MAIN_DATA[key];
+  if (!data) return;
+
+  // Xóa active cũ
+  document.querySelectorAll('.main-card').forEach(c => c.classList.remove('active'));
+
+  const detail = document.getElementById('main-detail');
+  if (mainCurrent === key && detail.classList.contains('show')) {
+    // Toggle off
+    detail.classList.remove('show');
+    mainCurrent = null;
+    return;
+  }
+
+  // Highlight card được chọn
+  const cards = document.querySelectorAll('.main-card');
+  const mapping = { M: 0, A: 1, I: 2, N: 3 };
+  if (mapping[key] !== undefined) {
+    cards[mapping[key]].classList.add('active');
+  }
+
+  document.getElementById('main-detail-title').textContent = data.title;
+  document.getElementById('main-detail-body').innerHTML = data.body;
+  detail.classList.add('show');
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  mainCurrent = key;
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 4 — Quiz ôn tập
+   ════════════════════════════════════════════════ */
+const QUIZ = [
+  {
+    q: 'Mô hình MAIN dùng để phân tích điều gì trong Thế chiến I?',
+    opts: [
+      'Bốn trận chiến lớn nhất trong Thế chiến I',
+      'Bốn nguyên nhân sâu xa dẫn đến Thế chiến I: Militarism, Alliances, Imperialism, Nationalism',
+      'Bốn giai đoạn chính của cuộc chiến từ 1914 đến 1918',
+      'Bốn quốc gia quan trọng nhất trong Thế chiến I'
+    ],
+    correct: 1,
+    explain: 'MAIN là khung phân tích bốn nguyên nhân sâu xa: M=Militarism (chủ nghĩa quân phiệt), A=Alliances (hệ thống liên minh), I=Imperialism (chủ nghĩa đế quốc), N=Nationalism (chủ nghĩa dân tộc). Vụ ám sát Sarajevo là ngòi nổ, còn MAIN là "nguyên liệu" đã tích tụ từ nhiều thập kỷ.'
+  },
+  {
+    q: 'Tại sao mặt trận phía Tây rơi vào bế tắc chiến hào từ cuối 1914?',
+    opts: [
+      'Vì cả hai bên hết đạn dược và phải dừng tấn công',
+      'Vì Đức và Pháp ký hiệp định ngừng bắn tạm thời vào cuối 1914',
+      'Vì súng máy, dây thép gai và thiếu phương tiện cơ động làm tấn công trực diện gần như tự sát',
+      'Vì thời tiết mùa đông quá lạnh, không thể chiến đấu'
+    ],
+    correct: 2,
+    explain: 'Bế tắc do sự kết hợp: súng máy kiểm soát hàng trăm mét chiến tuyến, dây thép gai làm chậm bộ binh xung phong, pháo kích chuẩn bị tấn công không diệt hết quân địch trong hầm sâu, và chưa có phương tiện cơ động hiệu quả (xe tăng còn thô sơ). Công nghệ phòng thủ vượt trội công nghệ tấn công trong giai đoạn 1914–1917.'
+  },
+  {
+    q: 'Điện Zimmermann (1917) có nội dung gì và tại sao nó quan trọng với lịch sử Thế chiến I?',
+    opts: [
+      'Đức đề nghị Nhật Bản tấn công Mỹ để đổi lấy thuộc địa ở châu Á',
+      'Đức đề nghị Mexico tấn công Mỹ để đổi lấy Texas, New Mexico, Arizona — được tiết lộ bởi tình báo Anh, thúc đẩy dư luận Mỹ ủng hộ tham chiến',
+      'Đức thông báo cho Áo–Hung về kế hoạch tấn công mùa xuân 1918',
+      'Đức đề nghị Nga đàm phán hòa bình riêng để tách khỏi phe Entente'
+    ],
+    correct: 1,
+    explain: 'Bộ trưởng Ngoại giao Đức Arthur Zimmermann gửi điện mật (1/1917) cho Mexico đề nghị liên minh tấn công Mỹ để đổi lấy Texas, New Mexico, Arizona. Tình báo Anh (Room 40) giải mã và công bố cho Mỹ. Cùng với tàu ngầm Đức đánh chìm tàu dân sự Mỹ, điện Zimmermann đẩy dư luận Mỹ đảo chiều mạnh và là một trong các lý do Mỹ tuyên chiến với Đức tháng 4/1917.'
+  },
+  {
+    q: 'Cách mạng Nga 1917 ảnh hưởng đến Thế chiến I như thế nào?',
+    opts: [
+      'Nga tăng cường tấn công mặt trận phía Đông, giúp Đồng minh chiến thắng nhanh hơn',
+      'Nga rút khỏi chiến tranh (Hòa ước Brest-Litovsk 3/1918), trao cho Đức ưu thế tạm thời ở phía Đông nhưng không đủ để thắng trước khi quân Mỹ đến đủ số',
+      'Nga chuyển sang phe Trung tâm và tấn công Pháp từ phía Đông',
+      'Nga ký hòa ước với Đức ngay tháng 2/1917 và cách mạng không ảnh hưởng đến diễn biến chiến trường'
+    ],
+    correct: 1,
+    explain: 'Cách mạng Tháng Mười (11/1917) đưa Bolshevik lên nắm quyền. Hòa ước Brest-Litovsk (3/3/1918) chính thức đưa Nga ra khỏi chiến tranh — Nga nhượng lãnh thổ rộng lớn. Đức chuyển gần 1 triệu quân sang phía Tây, mở Cuộc tấn công mùa xuân 1918. Tuy nhiên tấn công thất bại, và khi quân Mỹ đến đủ số, cán cân nghiêng hẳn về phía Đồng minh.'
+  },
+  {
+    q: 'Điều khoản "lỗi chiến tranh" (War Guilt Clause, Điều 231) trong Hòa ước Versailles có nội dung và hệ quả gì?',
+    opts: [
+      'Yêu cầu Đức giải tán quân đội hoàn toàn — hệ quả là Đức không thể tự bảo vệ',
+      'Buộc Đức nhận hoàn toàn trách nhiệm về chiến tranh — cơ sở đòi bồi thường và là nguồn cơn phẫn uất dẫn đến chủ nghĩa Quốc xã',
+      'Cấm Đức gia nhập Hội Quốc Liên — cô lập Đức khỏi cộng đồng quốc tế',
+      'Chia Đức thành nhiều quốc gia nhỏ để ngăn nước này mạnh trở lại'
+    ],
+    correct: 1,
+    explain: 'Điều 231 buộc Đức và các đồng minh nhận "trách nhiệm hoàn toàn" về chiến tranh — cơ sở pháp lý cho khoản bồi thường khổng lồ (132 tỷ Mark vàng). Người Đức phần lớn không tự nhận là kẻ xâm lược (quân Đức vẫn đứng vững ngoài lãnh thổ Đức khi đình chiến). Sự bất công này — cộng với kinh tế suy sụp — là mảnh đất Hitler khai thác để lên nắm quyền. Nhà kinh tế Keynes cảnh báo từ 1919 rằng Versailles sẽ gây bất ổn lâu dài.'
+  },
+  {
+    q: 'Hội Quốc Liên (League of Nations) ra đời sau Thế chiến I với mục đích gì, và điểm yếu lớn nhất của nó là gì?',
+    opts: [
+      'Mục đích: chia lãnh thổ các nước bại trận. Điểm yếu: không đủ ngân sách',
+      'Mục đích: duy trì hòa bình qua thương lượng tập thể. Điểm yếu: Mỹ — nước đề xuất ý tưởng — không gia nhập vì Thượng viện bác bỏ; và thiếu cơ chế cưỡng chế',
+      'Mục đích: kiểm soát vũ khí hóa học. Điểm yếu: không có thanh sát viên',
+      'Mục đích: tái thiết kinh tế châu Âu. Điểm yếu: Đức không được tham gia'
+    ],
+    correct: 1,
+    explain: 'Hội Quốc Liên là ý tưởng của Tổng thống Wilson (trong "14 Điểm"), mục đích duy trì hòa bình qua thương lượng và phán quyết tập thể. Trớ trêu thay, Thượng viện Mỹ bác bỏ việc gia nhập (lo ngại mất chủ quyền). Không có Mỹ, Hội Quốc Liên thiếu sức mạnh; không có lực lượng quân sự riêng, phụ thuộc sự tuân thủ tự nguyện. Khi Nhật Bản xâm lược Mãn Châu (1931), Ý xâm lược Ethiopia (1935), tổ chức này hoàn toàn bất lực.'
+  },
+  {
+    q: 'Ý gia nhập phe Hiệp ước (Entente) năm 1915, dù ban đầu trong Liên minh Ba nước với Đức và Áo–Hung. Điều gì giải thích sự bội ước này?',
+    opts: [
+      'Ý bị Đức tấn công trước nên phải tự vệ bằng cách gia nhập Entente',
+      'Ý được phe Entente hứa trao lãnh thổ hấp dẫn từ Áo–Hung (Trentino, Trieste, Istria...) qua Hiệp ước London bí mật — lợi ích quốc gia thực dụng hơn nghĩa vụ liên minh',
+      'Ý theo đuổi chủ nghĩa dân chủ và muốn chống lại các đế chế quân chủ Đức và Áo–Hung',
+      'Ý sợ Pháp tấn công nếu không gia nhập Entente'
+    ],
+    correct: 1,
+    explain: 'Hiệp ước London bí mật (26/4/1915): Anh, Pháp và Nga hứa trao cho Ý Trentino, Trieste, Istria, một phần Dalmatia và một số thuộc địa Đức tại châu Phi sau chiến thắng. Ý cũng lập luận pháp lý: Liên minh Ba nước là phòng thủ, còn Áo–Hung là người khởi chiến với Serbia — Ý không có nghĩa vụ tham chiến bên Áo–Hung. Đây là ví dụ điển hình về realpolitik: lợi ích quốc gia cụ thể quyết định hành động, không phải nghĩa vụ văn bản.'
+  }
+];
+
+let quizIdx = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = `Câu ${quizIdx + 1}/${QUIZ.length}: ${q.q}`;
+  document.getElementById('quiz-prog').textContent = `${quizIdx + 1} / ${QUIZ.length}`;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? `Điểm: ${quizScore}/${quizIdx}` : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = function() { quizAnswer(i); };
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+
+  document.getElementById('quiz-score').textContent = `Điểm: ${quizScore}/${quizIdx + 1}`;
+
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent = `Kết quả: ${quizScore}/${QUIZ.length} (${pct}%)`;
+    document.getElementById('quiz-prog').textContent =
+      pct >= 80 ? 'Xuất sắc!' : pct >= 60 ? 'Tốt — ôn lại các câu sai.' : 'Cần ôn tập thêm.';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

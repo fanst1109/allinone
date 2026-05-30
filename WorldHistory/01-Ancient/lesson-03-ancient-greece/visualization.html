@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Hy Lạp cổ đại</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette Hy Lạp ── */
+  :root {
+    --accent:      #0f766e;
+    --accent-soft: #ccfbf1;
+    --accent-dark: #115e59;
+    --red-war:     #b91c1c;
+    --red-soft:    #fee2e2;
+    --blue-sea:    #1d4ed8;
+    --blue-soft:   #dbeafe;
+    --stone:       #57534e;
+    --stone-soft:  #f5f5f4;
+    --athens-bg:   #eff6ff;
+    --athens-bd:   #3b82f6;
+    --sparta-bg:   #fff1f2;
+    --sparta-bd:   #f43f5e;
+    --bg-card:     #ffffff;
+    --bg-section:  #f0fdfa;
+  }
+
+  main { max-width: 1080px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.6rem; margin-bottom: 6px; }
+  h2 { color: var(--accent); margin-top: 40px; padding-bottom: 8px;
+       border-bottom: 2px solid var(--accent-soft); font-size: 1.2rem; }
+
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 5px rgba(15,118,110,.10);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .war-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-war);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .sea-box {
+    background: var(--blue-soft);
+    border-left: 4px solid var(--blue-sea);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-athens { background: var(--athens-bd); color: white; }
+  .btn-athens:hover { background: #2563eb; }
+  .btn-sparta { background: #e11d48; color: white; }
+  .btn-sparta:hover { background: #be123c; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 1 — Bản đồ SVG thành bang Hy Lạp
+     ══════════════════════════════════════════════ */
+  #map-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .polis-dot {
+    cursor: pointer;
+    transition: r .15s;
+  }
+  .polis-dot:hover { filter: brightness(1.2); }
+
+  .map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  #map-info {
+    background: var(--bg-section);
+    border: 1px solid #99f6e4;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    min-height: 64px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  #map-info .polis-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--accent-dark);
+    margin-bottom: 4px;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 2 — Athens vs Sparta
+     ══════════════════════════════════════════════ */
+  .compare-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 0;
+    border-bottom: 2px solid #e5e7eb;
+  }
+  .ctab {
+    padding: 9px 20px;
+    border: none;
+    background: #f1f5f9;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+    transition: background .15s, color .15s;
+    border: 1px solid #e5e7eb;
+    border-bottom: none;
+    margin-right: 4px;
+  }
+  .ctab.active-athens {
+    background: var(--athens-bg);
+    color: var(--blue-sea);
+    border-color: var(--athens-bd);
+    border-bottom-color: var(--athens-bg);
+  }
+  .ctab.active-sparta {
+    background: var(--sparta-bg);
+    color: #be123c;
+    border-color: var(--sparta-bd);
+    border-bottom-color: var(--sparta-bg);
+  }
+  .ctab.active-compare {
+    background: var(--accent-soft);
+    color: var(--accent-dark);
+    border-color: var(--accent);
+    border-bottom-color: var(--accent-soft);
+  }
+
+  .ctab-panel { display: none; }
+  .ctab-panel.active { display: block; }
+
+  .city-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 0 12px;
+  }
+  .city-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .icon-athens { background: var(--athens-bg); border: 2px solid var(--athens-bd); }
+  .icon-sparta { background: var(--sparta-bg); border: 2px solid var(--sparta-bd); }
+  .city-title { font-size: 18px; font-weight: 700; }
+  .city-sub { font-size: 13px; color: var(--stone); margin-top: 2px; }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 14px 0;
+  }
+  .detail-card {
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 12px 14px;
+    border: 1px solid #f3f4f6;
+  }
+  .detail-card h4 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--stone);
+    margin: 0 0 6px;
+  }
+  .detail-card p { font-size: 13px; line-height: 1.6; color: #374151; margin: 0; }
+
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 4px 0;
+  }
+  .compare-table th {
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 700;
+    border-bottom: 2px solid #e5e7eb;
+  }
+  .compare-table th:nth-child(2) { color: var(--blue-sea); background: var(--athens-bg); }
+  .compare-table th:nth-child(3) { color: #be123c; background: var(--sparta-bg); }
+  .compare-table th:first-child { color: var(--stone); font-size: 12px; }
+  .compare-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: top;
+    line-height: 1.5;
+    font-size: 13px;
+    color: #374151;
+  }
+  .compare-table tr:hover td { background: #f9fafb; }
+  .compare-table td:first-child { font-weight: 700; color: #1f2937; font-size: 12px; }
+  .compare-table td:nth-child(2) { background: #f8faff; }
+  .compare-table td:nth-child(3) { background: #fff8f9; }
+
+  @media (max-width: 600px) {
+    .detail-grid { grid-template-columns: 1fr; }
+    .compare-table { font-size: 12px; }
+    .compare-table th, .compare-table td { padding: 7px 8px; }
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 3 — Sơ đồ dân chủ Athens
+     ══════════════════════════════════════════════ */
+  .demo-wrap {
+    position: relative;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .demo-body-box {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: center;
+    padding: 16px 0;
+  }
+
+  .demo-tier {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 680px;
+  }
+
+  .demo-node {
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: box-shadow .15s, transform .1s;
+    min-width: 140px;
+    max-width: 200px;
+    flex: 1 1 140px;
+    border: 2px solid transparent;
+  }
+  .demo-node:hover { box-shadow: 0 4px 12px rgba(0,0,0,.12); transform: translateY(-2px); }
+  .demo-node .node-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .demo-node .node-sub { font-size: 11px; opacity: .8; }
+
+  .node-ekklesia { background: #eff6ff; border-color: var(--athens-bd); color: #1e3a5f; }
+  .node-boule    { background: #f0fdf4; border-color: #16a34a; color: #14532d; }
+  .node-heliaia  { background: #fff7ed; border-color: #ea580c; color: #7c2d12; }
+  .node-strat    { background: #fdf4ff; border-color: #9333ea; color: #581c87; }
+  .node-excluded { background: #fef2f2; border-color: #ef4444; color: #7f1d1d; }
+
+  .demo-arrow {
+    font-size: 22px;
+    color: var(--stone);
+    text-align: center;
+    line-height: 1;
+  }
+
+  #demo-info {
+    background: var(--bg-section);
+    border: 1px solid #99f6e4;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    min-height: 72px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  #demo-info .di-title { font-weight: 700; font-size: 15px; color: var(--accent-dark); margin-bottom: 4px; }
+  #demo-info .di-method { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px;
+    font-weight: 700; margin-left: 8px; vertical-align: middle; }
+  .method-lot   { background: #d1fae5; color: #065f46; }
+  .method-vote  { background: #dbeafe; color: #1e40af; }
+  .method-excl  { background: var(--red-soft); color: var(--red-war); }
+  .demo-pct-bar {
+    height: 10px; border-radius: 5px; background: #e5e7eb; margin: 6px 0; overflow: hidden;
+  }
+  .demo-pct-fill { height: 100%; border-radius: 5px; transition: width .5s; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 4 — Timeline thế kỉ VIII–IV TCN
+     ══════════════════════════════════════════════ */
+  .tl-filter-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 10px 0 16px;
+  }
+  .tl-filter {
+    padding: 5px 13px;
+    border-radius: 20px;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #6b7280;
+    transition: all .15s;
+  }
+  .tl-filter.active { border-color: var(--accent); background: var(--accent); color: white; }
+  .tl-filter.cat-war.active    { border-color: var(--red-war); background: var(--red-war); }
+  .tl-filter.cat-culture.active { border-color: #9333ea; background: #9333ea; }
+  .tl-filter.cat-politics.active { border-color: var(--blue-sea); background: var(--blue-sea); }
+  .tl-filter.cat-all.active { border-color: var(--accent); background: var(--accent); }
+
+  .timeline-vert {
+    position: relative;
+    padding: 8px 0 8px 36px;
+  }
+  .timeline-vert::before {
+    content: '';
+    position: absolute;
+    left: 14px; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--accent-soft), var(--accent), var(--red-war), #9333ea);
+    border-radius: 2px;
+  }
+
+  .tl-item {
+    position: relative;
+    margin-bottom: 22px;
+    padding-left: 16px;
+    transition: opacity .25s;
+  }
+  .tl-item.hidden { display: none; }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -28px; top: 5px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+  }
+  .tl-item.cat-war::before    { background: var(--red-war);  box-shadow: 0 0 0 2px var(--red-war); }
+  .tl-item.cat-culture::before { background: #9333ea; box-shadow: 0 0 0 2px #9333ea; }
+  .tl-item.cat-politics::before { background: var(--blue-sea); box-shadow: 0 0 0 2px var(--blue-sea); }
+  .tl-item.key::before {
+    width: 18px; height: 18px;
+    left: -30px; top: 3px;
+    box-shadow: 0 0 0 3px var(--red-war), 0 0 0 6px rgba(185,28,28,.18);
+    background: var(--red-war);
+  }
+
+  .tl-year { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .tl-item.cat-war .tl-year     { color: var(--red-war); }
+  .tl-item.cat-culture .tl-year { color: #9333ea; }
+  .tl-item.cat-politics .tl-year{ color: var(--blue-sea); }
+  .tl-item.key .tl-year { font-size: 14px; }
+
+  .tl-title { font-weight: 700; font-size: 14px; color: #1f2937; line-height: 1.4; }
+  .tl-desc  { font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.5; }
+  .tl-badge {
+    display: inline-block; padding: 1px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; margin-left: 6px; vertical-align: middle;
+  }
+  .badge-war     { background: var(--red-soft); color: #991b1b; }
+  .badge-culture { background: #f3e8ff; color: #6b21a8; }
+  .badge-politics{ background: var(--blue-soft); color: #1e40af; }
+  .badge-key     { background: var(--red-soft); color: #991b1b; font-size: 11px; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 5 — Quiz
+     ══════════════════════════════════════════════ */
+  .quiz-q {
+    font-weight: 700; font-size: 15px; margin-bottom: 12px;
+    color: #1f2937; line-height: 1.5;
+  }
+  .quiz-opts {
+    display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;
+  }
+  .quiz-opt {
+    padding: 10px 14px; border-radius: 7px; border: 2px solid #e5e7eb;
+    background: #f9fafb; cursor: pointer; font-size: 14px; text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover  { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct{ border-color: #16a34a; background: #f0fdf4; color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong  { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled{ cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.6;
+    margin-top: 8px; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok   { background: #f0fdf4; color: #14532d; border: 1px solid #16a34a; }
+  .quiz-feedback.err  { background: var(--red-soft); color: #991b1b; border: 1px solid var(--red-war); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score { font-weight: 700; color: var(--accent); font-size: 15px; }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 1.3rem; }
+    .card { padding: 14px 14px; }
+    .demo-node { min-width: 110px; font-size: 12px; padding: 10px 10px; }
+    .city-icon { width: 38px; height: 38px; font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử TG — Cổ đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-india-china-ancient/visualization.html">← L2: Ấn Độ &amp; Trung Hoa cổ</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Hy Lạp cổ đại</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-persia-alexander/visualization.html">L4: Ba Tư &amp; Alexander →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Hy Lạp cổ đại (Ancient Greece)</h1>
+<p class="subtitle">Bản đồ thành bang · Athens vs Sparta · Nền dân chủ trực tiếp · Timeline VIII–IV TCN · Quiz</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ SVG thành bang Hy Lạp
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ các thành bang Hy Lạp</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Nhấn vào một thành bang (chấm tròn) để xem thông tin chi tiết bên dưới.
+    Màu sắc phân biệt nhóm địa lý và vai trò lịch sử.
+  </div>
+
+  <div class="map-legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#1d4ed8"></span> Thành bang Athens / Attica</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#e11d48"></span> Thành bang Sparta / Peloponnese</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#0f766e"></span> Thành bang khác (đất liền)</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#9333ea"></span> Thành bang đảo &amp; Ionia</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#ea580c"></span> Macedonia (phía Bắc)</span>
+  </div>
+
+  <div id="map-wrap">
+    <svg id="greece-map" width="720" height="480" viewBox="0 0 720 480"
+         style="display:block; margin:0 auto; border-radius:8px; border:1px solid #d1fae5;">
+
+      <!-- Nền biển -->
+      <rect width="720" height="480" fill="#bfdbfe" rx="8"/>
+
+      <!-- ── Đất liền Hy Lạp (bán đảo Balkan đơn giản hóa) ── -->
+      <!-- Macedonia / Thrace phía Bắc -->
+      <polygon points="0,0 720,0 720,120 580,140 520,130 440,145 360,135 300,150 200,140 100,145 0,130"
+               fill="#d6d3d1" opacity="0.9"/>
+      <!-- Bán đảo chính (Thessaly + Attica + Boeotia) -->
+      <polygon points="120,130 350,130 430,140 500,135 560,140 580,170 550,200 490,220 430,230 380,250
+                       340,260 300,270 260,280 220,270 190,250 160,220 130,190 110,160"
+               fill="#e7e5e4" opacity="0.95"/>
+      <!-- Peloponnese -->
+      <polygon points="200,268 245,262 285,268 330,265 360,270 390,275 400,300 390,330 370,355
+                       345,370 310,380 280,375 255,360 235,340 215,315 205,295"
+               fill="#d6d3d1" opacity="0.95"/>
+      <!-- Eo đất Corinth (isthmus — hẹp nối bán đảo chính với Peloponnese) -->
+      <rect x="280" y="260" width="30" height="12" fill="#d6d3d1" opacity="0.95"/>
+      <!-- Đảo Euboea -->
+      <polygon points="430,150 460,145 490,160 500,185 490,210 470,225 450,215 435,195 430,170"
+               fill="#e7e5e4" opacity="0.9"/>
+      <!-- Đảo Crete (phía nam) -->
+      <polygon points="280,440 380,430 450,435 470,450 420,460 320,458 280,450"
+               fill="#e7e5e4" opacity="0.9"/>
+      <!-- Đảo Lesbos -->
+      <ellipse cx="570" cy="175" rx="20" ry="12" fill="#e7e5e4" opacity="0.9"/>
+      <!-- Đảo Chios -->
+      <ellipse cx="555" cy="220" rx="10" ry="16" fill="#e7e5e4" opacity="0.9"/>
+      <!-- Đảo Samos -->
+      <ellipse cx="570" cy="258" rx="14" ry="8" fill="#e7e5e4" opacity="0.9"/>
+      <!-- Đảo Rhodes -->
+      <ellipse cx="610" cy="370" rx="12" ry="18" fill="#e7e5e4" opacity="0.9"/>
+      <!-- Đảo Naxos / Aegean islands group -->
+      <ellipse cx="470" cy="330" rx="8" ry="10" fill="#e7e5e4" opacity="0.85"/>
+      <ellipse cx="500" cy="310" rx="6" ry="8" fill="#e7e5e4" opacity="0.85"/>
+      <ellipse cx="440" cy="350" rx="7" ry="9" fill="#e7e5e4" opacity="0.85"/>
+      <ellipse cx="510" cy="350" rx="9" ry="7" fill="#e7e5e4" opacity="0.85"/>
+      <!-- Bờ Tiểu Á (Ionia) -->
+      <polygon points="590,130 720,120 720,350 600,350 580,310 590,260 600,210 595,170 590,140"
+               fill="#fde68a" opacity="0.55"/>
+
+      <!-- ── Nhãn vùng biển ── -->
+      <text x="48"  y="340" font-size="11" fill="#1d4ed8" opacity="0.7" font-style="italic">Biển Ionia</text>
+      <text x="530" y="120" font-size="11" fill="#1d4ed8" opacity="0.7" font-style="italic">Biển Aegea</text>
+      <text x="300" y="420" font-size="11" fill="#1d4ed8" opacity="0.7" font-style="italic">Biển Địa Trung Hải</text>
+      <text x="618" y="200" font-size="11" fill="#78716c" opacity="0.8" font-style="italic">Ionia</text>
+      <text x="618" y="212" font-size="10" fill="#78716c" opacity="0.7" font-style="italic">(Tiểu Á)</text>
+
+      <!-- ── Nhãn khu vực đất liền ── -->
+      <text x="290" y="100" font-size="12" fill="#57534e" font-weight="bold" opacity="0.85">Macedonia</text>
+      <text x="185" y="185" font-size="11" fill="#57534e" opacity="0.8">Thessaly</text>
+      <text x="270" y="220" font-size="11" fill="#57534e" opacity="0.8">Boeotia</text>
+      <text x="235" y="320" font-size="11" fill="#57534e" opacity="0.8">Peloponnese</text>
+      <text x="340" y="450" font-size="11" fill="#57534e" opacity="0.8">Crete</text>
+
+      <!-- ═══════════════════
+           THÀNH BANG — dots
+           ═══════════════════ -->
+
+      <!-- Athens (Attica) -->
+      <circle class="polis-dot" cx="363" cy="248" r="10" fill="#1d4ed8"
+        onclick="showPolis('athens')" title="Athens"/>
+      <text x="375" y="252" font-size="12" font-weight="bold" fill="#1e3a5f" pointer-events="none">Athens</text>
+
+      <!-- Sparta -->
+      <circle class="polis-dot" cx="280" cy="340" r="9" fill="#e11d48"
+        onclick="showPolis('sparta')" title="Sparta"/>
+      <text x="293" y="344" font-size="12" font-weight="bold" fill="#9f1239" pointer-events="none">Sparta</text>
+
+      <!-- Corinth -->
+      <circle class="polis-dot" cx="297" cy="272" r="7" fill="#0f766e"
+        onclick="showPolis('corinth')" title="Corinth"/>
+      <text x="307" y="271" font-size="11" fill="#134e4a" pointer-events="none">Corinth</text>
+
+      <!-- Thebes -->
+      <circle class="polis-dot" cx="315" cy="225" r="7" fill="#0f766e"
+        onclick="showPolis('thebes')" title="Thebes"/>
+      <text x="325" y="224" font-size="11" fill="#134e4a" pointer-events="none">Thebes</text>
+
+      <!-- Argos -->
+      <circle class="polis-dot" cx="287" cy="305" r="6" fill="#e11d48"
+        onclick="showPolis('argos')" title="Argos"/>
+      <text x="297" y="309" font-size="10" fill="#9f1239" pointer-events="none">Argos</text>
+
+      <!-- Olympia -->
+      <circle class="polis-dot" cx="225" cy="316" r="6" fill="#0f766e"
+        onclick="showPolis('olympia')" title="Olympia"/>
+      <text x="235" y="315" font-size="10" fill="#134e4a" pointer-events="none">Olympia</text>
+
+      <!-- Delphi -->
+      <circle class="polis-dot" cx="270" cy="205" r="6" fill="#0f766e"
+        onclick="showPolis('delphi')" title="Delphi"/>
+      <text x="280" y="204" font-size="10" fill="#134e4a" pointer-events="none">Delphi</text>
+
+      <!-- Thermopylae (chiến địa) -->
+      <circle class="polis-dot" cx="315" cy="175" r="6" fill="#b91c1c"
+        onclick="showPolis('thermopylae')" title="Thermopylae"/>
+      <text x="325" y="174" font-size="10" fill="#991b1b" pointer-events="none">Thermopylae</text>
+
+      <!-- Marathon (chiến địa) -->
+      <circle class="polis-dot" cx="403" cy="220" r="6" fill="#b91c1c"
+        onclick="showPolis('marathon')" title="Marathon"/>
+      <text x="413" y="219" font-size="10" fill="#991b1b" pointer-events="none">Marathon</text>
+
+      <!-- Salamis (eo biển) -->
+      <ellipse cx="340" cy="250" rx="11" ry="6" fill="#b91c1c" opacity="0.7"
+        class="polis-dot" onclick="showPolis('salamis')" title="Salamis"/>
+      <text x="347" y="264" font-size="10" fill="#991b1b" pointer-events="none">Salamis</text>
+
+      <!-- Pella (Macedonia) -->
+      <circle class="polis-dot" cx="305" cy="100" r="7" fill="#ea580c"
+        onclick="showPolis('pella')" title="Pella"/>
+      <text x="315" y="104" font-size="11" fill="#9a3412" pointer-events="none">Pella (Macedonia)</text>
+
+      <!-- Miletus (Ionia) -->
+      <circle class="polis-dot" cx="598" cy="283" r="6" fill="#9333ea"
+        onclick="showPolis('miletus')" title="Miletus"/>
+      <text x="606" y="287" font-size="10" fill="#6b21a8" pointer-events="none">Miletus</text>
+
+      <!-- Ephesus (Ionia) -->
+      <circle class="polis-dot" cx="588" cy="248" r="6" fill="#9333ea"
+        onclick="showPolis('ephesus')" title="Ephesus"/>
+      <text x="596" y="252" font-size="10" fill="#6b21a8" pointer-events="none">Ephesus</text>
+
+      <!-- Lesbos island -->
+      <circle class="polis-dot" cx="570" cy="175" r="5" fill="#9333ea"
+        onclick="showPolis('lesbos')" title="Lesbos"/>
+      <text x="538" y="173" font-size="10" fill="#6b21a8" pointer-events="none">Lesbos</text>
+
+      <!-- Rhodes -->
+      <circle class="polis-dot" cx="610" cy="370" r="6" fill="#9333ea"
+        onclick="showPolis('rhodes')" title="Rhodes"/>
+      <text x="618" y="374" font-size="10" fill="#6b21a8" pointer-events="none">Rhodes</text>
+
+      <!-- Knossos (Crete) -->
+      <circle class="polis-dot" cx="375" cy="445" r="5" fill="#9333ea"
+        onclick="showPolis('knossos')" title="Knossos (Crete)"/>
+      <text x="345" y="473" font-size="10" fill="#6b21a8" pointer-events="none">Knossos (Crete)</text>
+
+      <!-- ── Chú thích chiến địa ── -->
+      <text x="5" y="472" font-size="11" fill="#b91c1c" opacity="0.85">Chấm đỏ đậm = chiến địa quan trọng</text>
+    </svg>
+  </div>
+
+  <div id="map-info">
+    <div style="color:var(--stone); font-size:14px;">Nhấn vào một thành bang trên bản đồ để xem thông tin.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Athens vs Sparta
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Athens và Sparta — Hai mô hình đối lập</h2>
+
+<div class="card">
+  <div class="info-box">
+    Nhấn vào tab để xem hồ sơ từng thành bang, hoặc tab <strong>So sánh</strong> để xem bảng đối chiếu trực tiếp.
+  </div>
+
+  <div class="compare-tabs">
+    <button class="ctab active-athens" id="tab-athens" onclick="switchTab('athens')">Athens</button>
+    <button class="ctab" id="tab-sparta" onclick="switchTab('sparta')">Sparta</button>
+    <button class="ctab" id="tab-compare" onclick="switchTab('compare')">So sánh</button>
+  </div>
+
+  <!-- Athens panel -->
+  <div class="ctab-panel active" id="panel-athens">
+    <div class="city-header">
+      <div class="city-icon icon-athens">A</div>
+      <div>
+        <div class="city-title" style="color:var(--blue-sea)">Athens — Athinai</div>
+        <div class="city-sub">Thế kỉ VI–IV TCN · Vùng Attica · Dân số ~250.000–300.000 (thế kỉ V TCN)</div>
+      </div>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-card" style="border-color:var(--athens-bd)">
+        <h4>Thể chế</h4>
+        <p>Dân chủ trực tiếp (demokratia) từ cải cách Cleisthenes 508–507 TCN. Ekklesia (hội đồng nhân dân) họp ~40 lần/năm trên đồi Pnyx; Boule 500 người (bốc thăm); Heliaia (tòa án 201–2.501 người, bốc thăm); 10 Strategoi (bầu cử).</p>
+      </div>
+      <div class="detail-card" style="border-color:var(--athens-bd)">
+        <h4>Kinh tế</h4>
+        <p>Thương mại biển, cảng Piraeus, thủ công mỹ nghệ. Mỏ bạc Laurion (do nô lệ khai thác) tài trợ cho hải quân. Nô lệ chiếm ~30–40% dân số, làm nền kinh tế.</p>
+      </div>
+      <div class="detail-card" style="border-color:var(--athens-bd)">
+        <h4>Giáo dục</h4>
+        <p>Tư nhân, đa dạng — triết học, hùng biện, âm nhạc, thể dục. Trẻ em trai ~7 tuổi bắt đầu học. Phụ nữ ít được giáo dục chính thức. Plato lập Academy (~387 TCN), Aristotle lập Lyceum.</p>
+      </div>
+      <div class="detail-card" style="border-color:var(--athens-bd)">
+        <h4>Di sản lớn</h4>
+        <p>Triết học (Socrates–Plato–Aristotle), sử học (Herodotus, Thucydides), bi kịch (Aeschylus, Sophocles), kiến trúc Parthenon (447–432 TCN), khái niệm dân chủ.</p>
+      </div>
+    </div>
+    <div class="war-box">
+      <strong>Giới hạn của "nền dân chủ đầu tiên":</strong> Trong ~250.000–300.000 người, chỉ ~30.000–50.000
+      công dân nam tự do có quyền bỏ phiếu — khoảng 10–15% dân số. Phụ nữ, nô lệ (~30–40% dân số),
+      và metoikoi (người nước ngoài thường trú) bị loại trừ hoàn toàn.
+    </div>
+  </div>
+
+  <!-- Sparta panel -->
+  <div class="ctab-panel" id="panel-sparta">
+    <div class="city-header">
+      <div class="city-icon icon-sparta" style="font-weight:900">S</div>
+      <div>
+        <div class="city-title" style="color:#be123c">Sparta — Lakedaimon</div>
+        <div class="city-sub">Thế kỉ IX–IV TCN · Vùng Laconia, Peloponnese · Hoplite tinh nhuệ nhất Hy Lạp</div>
+      </div>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-card" style="border-color:var(--sparta-bd)">
+        <h4>Thể chế</h4>
+        <p>Quân chủ kép: 2 vua từ 2 dòng họ (Agiad &amp; Eurypontid) cùng trị vì. Gerousia (hội đồng 28 trưởng lão ≥60 tuổi + 2 vua) soạn luật. Apella (hội đồng công dân nam) biểu quyết có/không. 5 Ephors (giám sát, kiểm soát cả vua).</p>
+      </div>
+      <div class="detail-card" style="border-color:var(--sparta-bd)">
+        <h4>Helot — nền kinh tế</h4>
+        <p>Helot: người Messenia bị chinh phục (724–668 TCN), biến thành nô lệ nhà nước. Canh tác đất cho Spartiates (công dân Sparta). Số lượng helot : Spartiates ≈ 7:1 — mối lo nổi loạn thường trực, lý do chính duy trì quân sự.</p>
+      </div>
+      <div class="detail-card" style="border-color:var(--sparta-bd)">
+        <h4>Agoge — giáo dục nhà nước</h4>
+        <p>Trẻ em trai 7 tuổi rời gia đình, vào hệ thống agoge bắt buộc. Huấn luyện chịu đói, lạnh, đau đớn; kỉ luật tập thể tuyệt đối. Tuổi 20: nhập ngũ, sống doanh trại. Tuổi 30: được cấp kleros (đất) do helot canh tác.</p>
+      </div>
+      <div class="detail-card" style="border-color:var(--sparta-bd)">
+        <h4>Địa vị phụ nữ</h4>
+        <p>Tương đối tự do hơn Athens: được tập thể dục, đua ngựa, quản lý tài sản khi chồng đi lính. Lý do thực dụng: phụ nữ Sparta cần đủ khỏe để sinh con khỏe mạnh cho quân đội.</p>
+      </div>
+    </div>
+    <div class="war-box">
+      <strong>Thermopylae 480 TCN:</strong> 300 lính Sparta do vua Leonidas cầm chân đại quân Ba Tư (ước tính
+      100.000–250.000) trong 3 ngày tại hẻm núi hẹp. Khi bị chỉ đường vòng, Leonidas cho đại quân rút,
+      ở lại chiến đấu đến người cuối cùng — trở thành biểu tượng lòng dũng cảm và hi sinh tập thể trong lịch sử phương Tây.
+    </div>
+  </div>
+
+  <!-- Compare panel -->
+  <div class="ctab-panel" id="panel-compare">
+    <div style="overflow-x:auto; margin-top:12px;">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Tiêu chí</th>
+            <th>Athens</th>
+            <th>Sparta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Thể chế</td>
+            <td>Dân chủ trực tiếp (Ekklesia, Boule 500, Heliaia)</td>
+            <td>Quân chủ kép + Gerousia + Ephors</td>
+          </tr>
+          <tr>
+            <td>Giáo dục</td>
+            <td>Tư nhân, triết học, nghệ thuật, hùng biện</td>
+            <td>Agoge nhà nước bắt buộc từ 7 tuổi; chiến đấu, kỉ luật</td>
+          </tr>
+          <tr>
+            <td>Kinh tế</td>
+            <td>Thương mại biển, thủ công, cảng Piraeus</td>
+            <td>Nông nghiệp (helot canh tác); ít thương mại</td>
+          </tr>
+          <tr>
+            <td>Quân sự</td>
+            <td>Bộ binh hoplite + hải quân mạnh (trireme)</td>
+            <td>Bộ binh hoplite đỉnh cao; hải quân yếu</td>
+          </tr>
+          <tr>
+            <td>Phụ nữ</td>
+            <td>Ở nhà (oikos), không tham gia công vụ, ít giáo dục</td>
+            <td>Tự do hơn: thể dục, quản lý tài sản, giáo dục thể chất</td>
+          </tr>
+          <tr>
+            <td>Nô lệ</td>
+            <td>Nô lệ cá nhân (~30–40% dân số); mỏ bạc, nhà ở</td>
+            <td>Helot nhà nước — chiếm ~7 lần Spartiates; nông nghiệp</td>
+          </tr>
+          <tr>
+            <td>Điểm mạnh</td>
+            <td>Văn hóa, triết học, thương mại, hải quân</td>
+            <td>Quân sự bộ binh, kỉ luật, lòng dũng cảm</td>
+          </tr>
+          <tr>
+            <td>Điểm yếu</td>
+            <td>Dễ bị demagogue thao túng; phụ thuộc hải quân</td>
+            <td>Helot nổi loạn; dân số hoplite giảm dần</td>
+          </tr>
+          <tr>
+            <td>Suy yếu</td>
+            <td>Chiến tranh Peloponnese + dịch bệnh 429 TCN</td>
+            <td>Thất bại Leuctra trước Thebes (371 TCN)</td>
+          </tr>
+          <tr>
+            <td>Di sản</td>
+            <td>Triết học, dân chủ, kịch, kiến trúc, sử học</td>
+            <td>Hình mẫu kỉ luật, hi sinh tập thể; Thermopylae</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="sea-box" style="margin-top:14px;">
+      <strong>Không có hệ thống nào là "lý tưởng":</strong> Athens xây dân chủ trên sự loại trừ ~85–90% dân số.
+      Sparta tạo xã hội quân sự cực đoan dựa trên nô lệ hóa dân tộc khác.
+      Cả hai đều là sản phẩm của hoàn cảnh lịch sử và địa lý — không phải lựa chọn triết học thuần túy.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Sơ đồ dân chủ trực tiếp Athens
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Vận hành nền dân chủ trực tiếp Athens</h2>
+
+<div class="card">
+  <div class="info-box">
+    Nhấn vào từng thành phần để xem chi tiết về phương thức chọn lựa và quyền hạn.
+    Thanh màu cho biết <span style="color:#16a34a;font-weight:700">% dân số Athens</span> được tham gia.
+  </div>
+
+  <div class="demo-body-box">
+
+    <!-- Tier 1: Ekklesia -->
+    <div class="demo-tier">
+      <div class="demo-node node-ekklesia" onclick="showDemo('ekklesia')">
+        <div class="node-title">Ekklesia</div>
+        <div>Hội đồng nhân dân</div>
+        <div class="node-sub">~30.000–50.000 người tham gia</div>
+      </div>
+    </div>
+
+    <div class="demo-arrow">↓</div>
+
+    <!-- Tier 2: Boule + Heliaia + Strategoi -->
+    <div class="demo-tier">
+      <div class="demo-node node-boule" onclick="showDemo('boule')">
+        <div class="node-title">Boule 500</div>
+        <div>Hội đồng 500</div>
+        <div class="node-sub">Bốc thăm ngẫu nhiên</div>
+      </div>
+      <div class="demo-node node-heliaia" onclick="showDemo('heliaia')">
+        <div class="node-title">Heliaia</div>
+        <div>Tòa án nhân dân</div>
+        <div class="node-sub">201–2.501 bồi thẩm viên</div>
+      </div>
+      <div class="demo-node node-strat" onclick="showDemo('strategoi')">
+        <div class="node-title">10 Strategoi</div>
+        <div>Tướng lĩnh</div>
+        <div class="node-sub">Bầu cử (không bốc thăm)</div>
+      </div>
+    </div>
+
+    <div class="demo-arrow">↑</div>
+
+    <!-- Tier 3: Ai được tham gia -->
+    <div class="demo-tier">
+      <div class="demo-node node-ekklesia" onclick="showDemo('citizen')">
+        <div class="node-title">Công dân nam tự do</div>
+        <div>~30.000–50.000 người</div>
+        <div class="node-sub">~10–15% dân số · Có quyền bỏ phiếu</div>
+      </div>
+    </div>
+
+    <div class="demo-arrow">✗ loại trừ</div>
+
+    <!-- Tier 4: Bị loại trừ -->
+    <div class="demo-tier">
+      <div class="demo-node node-excluded" onclick="showDemo('women')">
+        <div class="node-title">Phụ nữ</div>
+        <div>~50% dân số tự do</div>
+        <div class="node-sub">Không có quyền bầu phiếu</div>
+      </div>
+      <div class="demo-node node-excluded" onclick="showDemo('slaves')">
+        <div class="node-title">Nô lệ</div>
+        <div>~30–40% tổng dân số</div>
+        <div class="node-sub">Không có quyền &amp; tự do</div>
+      </div>
+      <div class="demo-node node-excluded" onclick="showDemo('metoikoi')">
+        <div class="node-title">Metoikoi</div>
+        <div>Người nước ngoài thường trú</div>
+        <div class="node-sub">Đóng thuế, không có quyền</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="demo-info">
+    <div style="color:var(--stone);">Nhấn vào thành phần bên trên để xem chi tiết.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Timeline thế kỉ VIII–IV TCN
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Timeline Hy Lạp cổ đại — thế kỉ VIII–IV TCN</h2>
+
+<div class="card">
+  <div class="info-box">
+    Lọc theo danh mục để tập trung vào một chủ đề. Mốc màu đỏ = sự kiện quân sự; xanh tím = văn hóa / triết học; xanh biển = chính trị.
+  </div>
+
+  <div class="tl-filter-row">
+    <button class="tl-filter cat-all active" onclick="filterTL('all')">Tất cả</button>
+    <button class="tl-filter cat-war" onclick="filterTL('cat-war')">Chiến tranh</button>
+    <button class="tl-filter cat-culture" onclick="filterTL('cat-culture')">Văn hóa / Triết học</button>
+    <button class="tl-filter cat-politics" onclick="filterTL('cat-politics')">Chính trị</button>
+  </div>
+
+  <div class="timeline-vert" id="timeline-vert">
+
+    <div class="tl-item cat-culture" data-cat="cat-culture">
+      <div class="tl-year">776 TCN</div>
+      <div class="tl-title">Thế vận hội Olympic đầu tiên tại Olympia
+        <span class="tl-badge badge-culture">Văn hóa</span>
+      </div>
+      <div class="tl-desc">Tổ chức tại Olympia, kính thần Zeus. 4 năm một lần; đình chiến toàn vùng (ekecheiria). Môn đầu tiên: chạy tốc độ. Phụ nữ không được tham dự và xem. Thế vận hội hiện đại phục hồi 1896 tại Athens.</div>
+    </div>
+
+    <div class="tl-item cat-culture" data-cat="cat-culture">
+      <div class="tl-year">Thế kỉ VIII TCN</div>
+      <div class="tl-title">Homer sáng tác Iliad và Odyssey
+        <span class="tl-badge badge-culture">Văn học</span>
+      </div>
+      <div class="tl-desc">Hai sử thi lớn của văn học Hy Lạp — kể chuyện Chiến tranh Troia và hành trình của Odysseus. Là nền tảng văn học và giáo dục Hy Lạp trong nhiều thế kỉ.</div>
+    </div>
+
+    <div class="tl-item cat-politics" data-cat="cat-politics">
+      <div class="tl-year">594 TCN</div>
+      <div class="tl-title">Solon cải cách Athens
+        <span class="tl-badge badge-politics">Chính trị</span>
+      </div>
+      <div class="tl-desc">Xóa nợ nô lệ do nợ (seisachtheia), lập hội đồng 400 người (Boule), chia dân theo thu nhập (4 tầng lớp) thay vì dòng dõi quý tộc. Mở đường cho dân chủ sau này.</div>
+    </div>
+
+    <div class="tl-item cat-politics" data-cat="cat-politics">
+      <div class="tl-year">508–507 TCN</div>
+      <div class="tl-title">Cleisthenes cải cách — nền tảng dân chủ Athens
+        <span class="tl-badge badge-politics">Dân chủ</span>
+      </div>
+      <div class="tl-desc">Thành lập Boule 500 người (bốc thăm từ 10 bộ lạc mới — không theo quý tộc cũ). Mọi công dân nam tự do tham gia Ekklesia. Đây là "ngày sinh" thực sự của dân chủ Athens.</div>
+    </div>
+
+    <div class="tl-item cat-war key" data-cat="cat-war">
+      <div class="tl-year">490 TCN</div>
+      <div class="tl-title">Trận Marathon
+        <span class="tl-badge badge-key">Quyết định</span>
+      </div>
+      <div class="tl-desc">~10.000 hoplite Athens đánh bại ~25.000 quân Ba Tư đổ bộ tại vịnh Marathon (40 km bắc Athens). Tướng Miltiades dùng chiến thuật hai cánh bao vây. Athens mất ~192 người, Ba Tư ~6.400. Nguồn gốc môn marathon hiện đại.</div>
+    </div>
+
+    <div class="tl-item cat-war" data-cat="cat-war">
+      <div class="tl-year">480 TCN</div>
+      <div class="tl-title">Trận Thermopylae — 300 lính Sparta
+        <span class="tl-badge badge-war">Chiến tranh Ba Tư</span>
+      </div>
+      <div class="tl-desc">Vua Xerxes I Ba Tư mang quân xâm lược (ước tính 100.000–250.000 quân). Vua Leonidas với ~7.000 quân liên minh (300 Sparta) cầm chân 3 ngày tại hẻm Thermopylae. Khi bị chỉ đường vòng, Leonidas ở lại hi sinh cùng 300 lính Sparta.</div>
+    </div>
+
+    <div class="tl-item cat-war key" data-cat="cat-war">
+      <div class="tl-year">480 TCN</div>
+      <div class="tl-title">Trận Salamis — Hải quân Hy Lạp đánh tan Ba Tư
+        <span class="tl-badge badge-key">Bước ngoặt</span>
+      </div>
+      <div class="tl-desc">Themistocles nhử hạm đội Ba Tư vào eo biển hẹp Salamis — tàu nhỏ linh hoạt của Hy Lạp (trireme) áp đảo tàu lớn Ba Tư. Hạm đội Ba Tư tan vỡ. Xerxes rút quân về; Ba Tư không thể tiếp tục xâm lược.</div>
+    </div>
+
+    <div class="tl-item cat-war" data-cat="cat-war">
+      <div class="tl-year">479 TCN</div>
+      <div class="tl-title">Trận Plataea — Chiến thắng cuối của Hy Lạp trước Ba Tư</div>
+      <div class="tl-desc">Liên quân bộ binh Hy Lạp (Sparta chỉ huy) đánh bại đạo quân Ba Tư còn lại trên đất Hy Lạp. Kết thúc cuộc xâm lược Ba Tư lần 2.</div>
+    </div>
+
+    <div class="tl-item cat-politics" data-cat="cat-politics">
+      <div class="tl-year">478 TCN</div>
+      <div class="tl-title">Athens lập Liên minh Delos
+        <span class="tl-badge badge-politics">Chính trị</span>
+      </div>
+      <div class="tl-desc">Ban đầu: liên minh các polis chống Ba Tư, kho quỹ đặt tại đảo Delos. Dần dần Athens chuyển kho về Athens (454 TCN), dùng tiền xây Parthenon — biến liên minh thành bá quyền Athens, gây lo ngại cho Sparta.</div>
+    </div>
+
+    <div class="tl-item cat-politics" data-cat="cat-politics">
+      <div class="tl-year">461–429 TCN</div>
+      <div class="tl-title">Thời kỳ Pericles — Đỉnh cao dân chủ Athens
+        <span class="tl-badge badge-politics">Thời đại vàng</span>
+      </div>
+      <div class="tl-desc">Pericles (495–429 TCN) giữ quyền lực thực tế qua bầu cử Strategoi. Mở rộng quyền dân chủ (trả thù lao cho công dân tham gia Boule), xây Parthenon (447–432 TCN), biến Athens thành trung tâm triết học và nghệ thuật thế giới.</div>
+    </div>
+
+    <div class="tl-item cat-culture" data-cat="cat-culture">
+      <div class="tl-year">470–399 TCN</div>
+      <div class="tl-title">Socrates — Triết học phương pháp đặt câu hỏi
+        <span class="tl-badge badge-culture">Triết học</span>
+      </div>
+      <div class="tl-desc">Không để lại tác phẩm viết. Phương pháp Socrates: đặt câu hỏi liên tục bộc lộ mâu thuẫn trong lập luận. 399 TCN: bị Athens kết tội "làm hỏng tư tưởng thanh niên" và xử tử bằng độc dược (hemlock). Nghịch lý dân chủ: bỏ phiếu đa số giết một triết gia tự do.</div>
+    </div>
+
+    <div class="tl-item cat-war key" data-cat="cat-war">
+      <div class="tl-year">431–404 TCN</div>
+      <div class="tl-title">Chiến tranh Peloponnese — Athens vs Sparta
+        <span class="tl-badge badge-key">Nội chiến lớn</span>
+      </div>
+      <div class="tl-desc">27 năm chiến tranh. Ba cú đánh Athens: dịch bệnh (429 TCN, Pericles qua đời), Viễn chinh Sicily thất bại (415–413 TCN), trận Aegospotami (405 TCN). Athens đầu hàng 404 TCN. Nguyên nhân sâu xa theo Thucydides: "Athens mạnh quá, Sparta sợ hãi."</div>
+    </div>
+
+    <div class="tl-item cat-war" data-cat="cat-war">
+      <div class="tl-year">415–413 TCN</div>
+      <div class="tl-title">Viễn chinh Sicily — Thảm họa của Athens</div>
+      <div class="tl-desc">Athens tấn công Syracuse (Sicily) khi chiến tranh Peloponnese chưa kết thúc. Sai lầm chiến lược: chia cắt lực lượng, đánh giá thấp đối thủ. Hạm đội ~200 thuyền và hàng chục nghìn quân bị tiêu diệt hoàn toàn. Athens không bao giờ phục hồi hoàn toàn sau đó.</div>
+    </div>
+
+    <div class="tl-item cat-culture" data-cat="cat-culture">
+      <div class="tl-year">428–348 TCN</div>
+      <div class="tl-title">Plato — Academy và triết học lý tưởng
+        <span class="tl-badge badge-culture">Triết học</span>
+      </div>
+      <div class="tl-desc">Đệ tử Socrates, để lại hàng chục Dialogue. Lập Academy ~387 TCN — có thể coi là đại học đầu tiên phương Tây (hoạt động ~900 năm). Tác phẩm nổi bật: Nước Cộng hòa (Republic) — xã hội lý tưởng do "triết gia-vua" trị vì.</div>
+    </div>
+
+    <div class="tl-item cat-war" data-cat="cat-war">
+      <div class="tl-year">371 TCN</div>
+      <div class="tl-title">Trận Leuctra — Thebes đánh bại Sparta</div>
+      <div class="tl-desc">Tướng Thebes Epaminondas dùng đội hình "đội hình xiên" (oblique order) đánh bại hoplite Sparta. Chấm dứt bá quyền quân sự Sparta (~30 năm sau khi Athens thất bại). Thebes nổi lên tạm thời (371–362 TCN).</div>
+    </div>
+
+    <div class="tl-item cat-culture" data-cat="cat-culture">
+      <div class="tl-year">384–322 TCN</div>
+      <div class="tl-title">Aristotle — Hệ thống hóa tri thức nhân loại
+        <span class="tl-badge badge-culture">Triết học</span>
+      </div>
+      <div class="tl-desc">Học trò Plato; thầy dạy Alexander Đại đế (~343 TCN). Lập Lyceum. Viết về logic, vật lý, sinh học, chính trị, đạo đức, thi pháp — người đầu tiên cố hệ thống hóa tri thức. Nicomachean Ethics và Politics ảnh hưởng triết học Trung Cổ và Renaissance.</div>
+    </div>
+
+    <div class="tl-item cat-war key" data-cat="cat-war">
+      <div class="tl-year">338 TCN</div>
+      <div class="tl-title">Trận Chaeronea — Macedonia thống trị Hy Lạp
+        <span class="tl-badge badge-key">Kết thúc kỷ nguyên polis</span>
+      </div>
+      <div class="tl-desc">Philip II Macedonia (cha Alexander) đánh bại liên quân Athens–Thebes. Toàn bộ Hy Lạp (trừ Sparta) thuộc quyền kiểm soát Macedonia. Kỷ nguyên polis độc lập kết thúc. Hai năm sau, Alexander Đại đế (336 TCN) tiếp quản và chinh phục Ba Tư — xem Lesson 04.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 5 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>5. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q" id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <button class="btn btn-secondary" id="btn-quiz-restart" onclick="quizRestart()" style="display:none">Làm lại</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score" id="quiz-score"></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════ -->
+<script>
+/* ════════════════════════════════════════════════════
+   MODULE 1 — Bản đồ thành bang
+   ════════════════════════════════════════════════════ */
+
+const POLIS_DATA = {
+  athens: {
+    name: 'Athens (Athinai)',
+    sub: 'Attica · ~250.000–300.000 dân (thế kỉ V TCN)',
+    text: 'Thành bang lớn nhất và có ảnh hưởng văn hóa lớn nhất Hy Lạp. Quê hương nền dân chủ trực tiếp (từ Cleisthenes 508 TCN), triết học (Socrates, Plato, Aristotle), sử học (Herodotus, Thucydides), bi kịch (Sophocles, Euripides), và kiến trúc Parthenon. Cảng Piraeus là trung tâm thương mại Địa Trung Hải. Thất bại trong Chiến tranh Peloponnese (404 TCN), rồi bị Macedonia kiểm soát (338 TCN).'
+  },
+  sparta: {
+    name: 'Sparta (Lakedaimon)',
+    sub: 'Laconia, Peloponnese · ~40.000 Spartiates + ~280.000 helot',
+    text: 'Thành bang quân sự mạnh nhất Hy Lạp. Hệ thống giáo dục agoge bắt buộc từ 7 tuổi, helot (nô lệ nhà nước người Messenia) chiếm ~7 lần dân số Spartiates. Thermopylae 480 TCN (vua Leonidas và 300 lính) là biểu tượng dũng cảm. Thắng Athens trong Chiến tranh Peloponnese (404 TCN), nhưng bị Thebes đánh bại tại Leuctra (371 TCN).'
+  },
+  corinth: {
+    name: 'Corinth',
+    sub: 'Eo đất Corinth · Thành bang giàu có nhờ thương mại',
+    text: 'Nằm ngay tại eo đất nối bán đảo Peloponnese với đất liền — vị trí chiến lược cho thương mại Đông-Tây. Cảng Corinth kiểm soát giao thương biển Aegea và Ionia. Corinth có vai trò quan trọng trong Chiến tranh Peloponnese — xung đột Corinth–Corcyra là một trong những ngòi nổ trực tiếp của chiến tranh (435–433 TCN).'
+  },
+  thebes: {
+    name: 'Thebes',
+    sub: 'Boeotia · Thành bang lớn thứ ba Hy Lạp',
+    text: 'Thành bang chính của vùng Boeotia. Đã đầu hàng Ba Tư năm 480 TCN (medismos — đi theo Ba Tư) — nguồn xấu hổ lâu dài. Sau này lấy lại danh dự: tướng Epaminondas đánh bại Sparta tại Leuctra (371 TCN) bằng chiến thuật "đội hình xiên" sáng tạo. Thebes nổi lên ngắn ngủi (371–362 TCN) trước khi bị Macedonia kiểm soát.'
+  },
+  argos: {
+    name: 'Argos',
+    sub: 'Đông Bắc Peloponnese · Thành bang cổ xưa',
+    text: 'Một trong những thành bang lâu đời nhất Hy Lạp, có lịch sử gắn với thần thoại Heracles và Perseus. Đối thủ truyền thống của Sparta trong vùng Peloponnese, thường giữ trung lập hoặc chống lại Sparta trong các cuộc chiến. Argos không theo Sparta trong Chiến tranh Peloponnese.'
+  },
+  olympia: {
+    name: 'Olympia',
+    sub: 'Tây Peloponnese · Khu thánh địa liên-Hy Lạp',
+    text: 'Không phải thành bang theo nghĩa chính trị, mà là khu thánh địa kính thần Zeus. Nơi tổ chức Thế vận hội Olympic (từ 776 TCN) — sự kiện 4 năm một lần với đình chiến toàn vùng (ekecheiria). Cùng với Delphi, là một trong hai trung tâm tôn giáo liên kết mọi polis Hy Lạp bất chấp xung đột chính trị.'
+  },
+  delphi: {
+    name: 'Delphi',
+    sub: 'Sườn núi Parnassos · Đền Apollo, lời tiên tri',
+    text: 'Khu thánh địa của thần Apollo, được coi là "rốn của thế giới" (omphalos) theo người Hy Lạp. Nhà tiên tri Pythia (linh mục nữ) đưa ra những lời tiên tri bí ẩn được các vua và thành bang tham khảo trước mọi quyết định lớn (chiến tranh, thành lập thuộc địa, v.v.). Đây là một trong những liên kết văn hóa hiếm hoi vượt ranh giới polis.'
+  },
+  thermopylae: {
+    name: 'Thermopylae — Chiến địa 480 TCN',
+    sub: 'Hẻm núi hẹp giữa núi Oeta và biển',
+    text: 'Hẻm núi hẹp chỉ vài chục mét giữa núi và biển — vị trí chiến thuật lý tưởng để quân nhỏ cầm chân quân đông. Năm 480 TCN: vua Sparta Leonidas và 7.000 quân liên minh (300 Spartiates) cầm chân đại quân Ba Tư Xerxes I trong 3 ngày. Khi một người Hy Lạp chỉ đường vòng cho Ba Tư, Leonidas giữ lại 300 lính Sparta chiến đấu đến người cuối cùng.'
+  },
+  marathon: {
+    name: 'Trận Marathon — Chiến địa 490 TCN',
+    sub: 'Vịnh Marathon, ~40 km bắc Athens',
+    text: 'Năm 490 TCN: ~25.000 quân Ba Tư (Darius I) đổ bộ tại vịnh Marathon. Tướng Athens Miltiades dùng chiến thuật "hai cánh bao vây" đánh bại quân Ba Tư với lực lượng ~10.000 hoplite. Athens mất ~192 người, Ba Tư mất ~6.400. Theo truyền thuyết, một người chạy 40 km về Athens báo tin rồi ngã xuống — nguồn gốc môn marathon Olympic hiện đại.'
+  },
+  salamis: {
+    name: 'Trận Salamis — Eo biển 480 TCN',
+    sub: 'Eo biển giữa đảo Salamis và bờ Attica',
+    text: 'Năm 480 TCN: tướng Athens Themistocles gửi tin giả cho Xerxes, nhử hạm đội Ba Tư vào eo biển hẹp Salamis. Tàu trireme nhỏ của Hy Lạp có lợi thế cơ động áp đảo tàu lớn Ba Tư không triển khai được đội hình. Hạm đội Ba Tư tan vỡ. Mất hải quân, Xerxes buộc rút quân; đây là trận hải chiến quyết định nhất lịch sử Hy Lạp cổ đại.'
+  },
+  pella: {
+    name: 'Pella — Kinh đô Macedonia',
+    sub: 'Macedonia, phía Bắc Hy Lạp · Từ thế kỉ IV TCN',
+    text: 'Kinh đô vương quốc Macedonia dưới thời Philip II (từ 359 TCN) và Alexander Đại đế. Macedonia được các polis Hy Lạp coi là "bán khai" — nói tiếng Hy Lạp nhưng không có văn hóa polis. Philip II hiện đại hóa quân đội (phalanx dài hơn), thống trị Hy Lạp sau Chaeronea (338 TCN). Con trai Alexander (học trò Aristotle) chinh phục toàn Ba Tư — xem Lesson 04.'
+  },
+  miletus: {
+    name: 'Miletus — Thành bang Ionia',
+    sub: 'Bờ Tây Tiểu Á (nay là Thổ Nhĩ Kỳ)',
+    text: 'Một trong những thành bang Hy Lạp quan trọng nhất ở Ionia (bờ Tây Tiểu Á). Trung tâm triết học tự nhiên sớm nhất: Thales, Anaximander, Anaximenes. Bị Ba Tư kiểm soát từ ~546 TCN. Năm 499–494 TCN: dẫn đầu Cuộc nổi loạn Ionia chống Ba Tư (được Athens hỗ trợ) — đây là nguyên nhân trực tiếp khiến Ba Tư xâm lược Hy Lạp.'
+  },
+  ephesus: {
+    name: 'Ephesus — Thành bang Ionia',
+    sub: 'Bờ Tây Tiểu Á · Nơi có Đền Artemis',
+    text: 'Thành bang thương mại lớn ở Ionia. Nơi tọa lạc Đền Artemis — một trong Bảy Kỳ quan Thế giới cổ đại. Triết gia Heraclitus (khoảng 535–475 TCN) quê hương ở đây — nổi tiếng với câu "Không ai bước xuống cùng một dòng sông hai lần." Bị Ba Tư kiểm soát; tham gia nổi loạn Ionia 499 TCN.'
+  },
+  lesbos: {
+    name: 'Lesbos — Đảo Aegea',
+    sub: 'Đảo lớn ngoài khơi bờ Ionia',
+    text: 'Đảo lớn, nơi sinh của nhà thơ Sappho (khoảng 610–570 TCN) — nhà thơ nữ nổi tiếng nhất Hy Lạp cổ đại. Alcaeus, nhà thơ trữ tình, cũng từ Lesbos. Thành bang Mytilene là trung tâm chính. Bị Ba Tư kiểm soát trong một thời gian; tham gia Liên minh Delos của Athens.'
+  },
+  rhodes: {
+    name: 'Rhodes — Đảo phía Nam',
+    sub: 'Đảo lớn phía Nam biển Aegea',
+    text: 'Thành bang thương mại giàu có với vị trí chiến lược giữa Aegea và Đông Địa Trung Hải. Sau khi Alexander Đại đế qua đời, Rhodes trở thành trung tâm thương mại độc lập quan trọng. Thế kỉ III TCN: Tượng Rhodes (Colossus of Rhodes) — một trong Bảy Kỳ quan Thế giới cổ đại. Hiện nay là đảo du lịch nổi tiếng Hy Lạp.'
+  },
+  knossos: {
+    name: 'Knossos — Văn minh Minoan (Crete)',
+    sub: 'Đảo Crete · Văn minh trước Hy Lạp cổ điển',
+    text: 'Crete là trung tâm văn minh Minoan (khoảng 3000–1450 TCN) — văn minh đô thị lâu đời nhất châu Âu. Knossos là cung điện-thành phố lớn nhất, nơi truyền thuyết Labyrinth (mê cung và quái vật Minotaur) bắt nguồn. Văn minh Minoan sụp đổ khoảng 1450 TCN, có thể do núi lửa Thera (Santorini). Người Hy Lạp Mycenae tiếp quản Crete sau đó.'
+  },
+};
+
+function showPolis(key) {
+  const d = POLIS_DATA[key];
+  if (!d) return;
+  const el = document.getElementById('map-info');
+  el.innerHTML = `
+    <div class="polis-name">${d.name}</div>
+    <div style="font-size:12px;color:var(--stone);margin-bottom:6px;">${d.sub}</div>
+    <div>${d.text}</div>
+  `;
+}
+
+/* ════════════════════════════════════════════════════
+   MODULE 2 — Tabs Athens/Sparta
+   ════════════════════════════════════════════════════ */
+
+function switchTab(tab) {
+  ['athens','sparta','compare'].forEach(t => {
+    document.getElementById('panel-' + t).classList.remove('active');
+    document.getElementById('tab-' + t).classList.remove('active-athens','active-sparta','active-compare');
+  });
+  document.getElementById('panel-' + tab).classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active-' + tab);
+}
+
+/* ════════════════════════════════════════════════════
+   MODULE 3 — Sơ đồ dân chủ Athens
+   ════════════════════════════════════════════════════ */
+
+const DEMO_DATA = {
+  ekklesia: {
+    title: 'Ekklesia — Hội đồng nhân dân',
+    method: 'Tham gia tự do', methodClass: 'method-vote',
+    pct: 15,
+    text: 'Tất cả công dân nam tự do Athens có quyền tham dự và bỏ phiếu. Họp khoảng 40 lần/năm trên đồi Pnyx, Athens. Quyết định mọi vấn đề lớn: chiến tranh, hòa bình, luật pháp, ngân sách, trục xuất (ostracism). Trong thực tế, chỉ khoảng 5.000–6.000 người thường xuyên tham dự — số đông hơn ở ngoài thành phố hoặc không có thời gian.'
+  },
+  boule: {
+    title: 'Boule 500 — Hội đồng soạn thảo luật',
+    method: 'Bốc thăm ngẫu nhiên', methodClass: 'method-lot',
+    pct: 15,
+    text: '500 công dân được bốc thăm ngẫu nhiên (không bầu cử) từ 10 bộ lạc địa lý (50 người/bộ lạc). Nhiệm kỳ 1 năm, mỗi người chỉ được phục vụ tối đa 2 lần trong đời. Phụ trách soạn thảo dự luật trình Ekklesia và điều hành hành chính hàng ngày. Bốc thăm thay vì bầu cử để tránh ảnh hưởng của giàu có và quan hệ.'
+  },
+  heliaia: {
+    title: 'Heliaia — Tòa án nhân dân',
+    method: 'Bốc thăm ngẫu nhiên', methodClass: 'method-lot',
+    pct: 15,
+    text: 'Bồi thẩm đoàn từ 201 đến 2.501 người (số lẻ để tránh hòa), bốc thăm từ danh sách ~6.000 công dân tự nguyện. Xét xử mọi vụ án dân sự và hình sự. Năm 399 TCN: bồi thẩm đoàn 501 người kết tội Socrates tử hình với tỉ lệ 280:221 — ví dụ điển hình về khả năng dân chủ phán xét sai.'
+  },
+  strategoi: {
+    title: '10 Strategoi — Tướng lĩnh',
+    method: 'Bầu cử (không bốc thăm)', methodClass: 'method-vote',
+    pct: 15,
+    text: '10 tướng lĩnh được bầu cử hàng năm — là lĩnh vực hiếm hoi không dùng bốc thăm vì cần năng lực quân sự chuyên môn. Mỗi bộ lạc địa lý bầu 1 tướng. Pericles giữ quyền lãnh đạo thực tế Athens nhiều năm bằng cách liên tục được tái bầu làm Strategos — cho thấy ngay cả trong dân chủ trực tiếp, cá nhân tài năng vẫn có thể tích lũy ảnh hưởng.'
+  },
+  citizen: {
+    title: 'Công dân nam tự do (polites)',
+    method: 'Được tham gia đầy đủ', methodClass: 'method-vote',
+    pct: 12,
+    text: 'Tiêu chí: sinh ra từ cha và mẹ đều là công dân Athens (từ luật Pericles 451 TCN). Phải hoàn thành huấn luyện quân sự 2 năm (ephebeia). Ước tính: ~30.000–50.000 người trên tổng dân số 250.000–300.000 — khoảng 10–15%. Đây là nhóm duy nhất có đủ quyền tham gia Ekklesia, Boule, Heliaia và trở thành Strategos.'
+  },
+  women: {
+    title: 'Phụ nữ Athens',
+    method: 'Bị loại trừ hoàn toàn', methodClass: 'method-excl',
+    pct: 0,
+    text: 'Phụ nữ Athens không có quyền bầu phiếu, không tham gia chính trị, không được ra tòa tự đại diện (phải có giám hộ nam). Cuộc sống chủ yếu trong không gian riêng của gia đình (oikos). Phụ nữ Sparta có nhiều quyền hơn trong thực tế cuộc sống (thể dục, quản lý tài sản) vì lý do thực dụng quân sự. Irony: Athens — thành bang dân chủ — đối xử với phụ nữ hạn chế hơn Sparta — chế độ quân chủ quân sự.'
+  },
+  slaves: {
+    title: 'Nô lệ (douloi)',
+    method: 'Không có quyền gì', methodClass: 'method-excl',
+    pct: 0,
+    text: 'Ước tính chiếm 30–40% tổng dân số Athens thế kỉ V TCN. Nô lệ cá nhân (không phải nô lệ nhà nước như helot Sparta). Nguồn: chiến tranh, mua bán, sinh ra từ nô lệ. Làm việc trong nhà, mỏ bạc Laurion (điều kiện cực kỳ khắc nghiệt), thủ công, nông trại. Nghịch lý sâu sắc: nô lệ giải phóng thời gian cho công dân Athens tham gia chính trị và triết học — nền dân chủ phương Tây sơ khai được xây trên lao động nô lệ.'
+  },
+  metoikoi: {
+    title: 'Metoikoi — Người nước ngoài thường trú',
+    method: 'Đóng thuế, không có quyền', methodClass: 'method-excl',
+    pct: 0,
+    text: 'Người nước ngoài sống lâu dài ở Athens (không sinh ra ở đây). Phải nộp thuế metoikion, có thể phục vụ quân sự (đặc biệt hải quân), có một số quyền dân sự (kiện tụng qua giám hộ). Không bao giờ được quyền công dân. Nhiều metoikoi là thương nhân và thợ thủ công giàu có — đóng góp lớn cho kinh tế Athens nhưng hoàn toàn bị loại khỏi chính trị. Aristotle, dù sống và dạy ở Athens, là metoikos từ Macedonia.'
+  },
+};
+
+function showDemo(key) {
+  const d = DEMO_DATA[key];
+  if (!d) return;
+  const el = document.getElementById('demo-info');
+  const pctBar = d.pct > 0
+    ? `<div style="margin:6px 0 2px;font-size:12px;color:var(--stone);">% dân số được tham gia: ~${d.pct}%</div>
+       <div class="demo-pct-bar"><div class="demo-pct-fill" style="width:${d.pct}%;background:${d.pct>0?'#16a34a':'#ef4444'}"></div></div>`
+    : `<div style="margin:6px 0 2px;font-size:12px;color:var(--red-war);">Không được tham gia chính trị</div>
+       <div class="demo-pct-bar"><div class="demo-pct-fill" style="width:100%;background:#ef4444;opacity:0.3"></div></div>`;
+  el.innerHTML = `
+    <div class="di-title">${d.title} <span class="di-method ${d.methodClass}">${d.method}</span></div>
+    ${pctBar}
+    <div style="margin-top:8px;font-size:14px;line-height:1.7;">${d.text}</div>
+  `;
+}
+
+/* ════════════════════════════════════════════════════
+   MODULE 4 — Timeline filter
+   ════════════════════════════════════════════════════ */
+
+function filterTL(cat) {
+  // Update buttons
+  document.querySelectorAll('.tl-filter').forEach(btn => btn.classList.remove('active'));
+  const clickedBtn = Array.from(document.querySelectorAll('.tl-filter')).find(b => b.getAttribute('onclick').includes(cat));
+  if (clickedBtn) clickedBtn.classList.add('active');
+
+  // Show/hide items
+  document.querySelectorAll('.tl-item').forEach(item => {
+    if (cat === 'all') {
+      item.classList.remove('hidden');
+    } else {
+      if (item.dataset.cat === cat) {
+        item.classList.remove('hidden');
+      } else {
+        item.classList.add('hidden');
+      }
+    }
+  });
+}
+
+/* ════════════════════════════════════════════════════
+   MODULE 5 — Quiz
+   ════════════════════════════════════════════════════ */
+
+const QUIZ = [
+  {
+    q: 'Tại sao Hy Lạp hình thành nhiều polis (thành bang) độc lập thay vì một đế chế thống nhất như Ai Cập hay Lưỡng Hà?',
+    opts: [
+      'Người Hy Lạp không đủ dân số để xây đế chế',
+      'Địa hình núi non chia cắt + thiếu sông lớn, không có cơ sở hạ tầng thủy lợi tập trung',
+      'Người Hy Lạp bị chia rẽ vì tôn giáo khác nhau hoàn toàn',
+      'Các thành bang ký hiệp ước không sáp nhập lẫn nhau',
+    ],
+    correct: 1,
+    explain: 'Hy Lạp không có con sông lớn như Nile hay Euphrates — cơ sở để xây thủy lợi tập trung và biện minh cho nhà nước tập quyền. Địa hình núi chiếm ~75–80% chia cắt thung lũng → mỗi cộng đồng tự quản → polis độc lập.'
+  },
+  {
+    q: 'Trong nền dân chủ trực tiếp Athens thế kỉ V TCN, Boule 500 (Hội đồng 500) được chọn bằng cách nào?',
+    opts: [
+      'Bầu cử phổ thông bởi toàn dân',
+      'Được vua chỉ định từ tầng lớp quý tộc',
+      'Bốc thăm ngẫu nhiên từ công dân (không phân biệt giàu nghèo)',
+      'Kế thừa cha truyền con nối',
+    ],
+    correct: 2,
+    explain: 'Boule 500 được bốc thăm ngẫu nhiên từ 10 bộ lạc địa lý (50 người/bộ lạc), mỗi người tối đa 2 lần trong đời. Bốc thăm thay vì bầu cử để đảm bảo mọi công dân đều có cơ hội tham gia, không bị ưu tiên do giàu có hoặc quan hệ. Chỉ các Strategoi (tướng lĩnh) mới được bầu cử vì cần năng lực chuyên môn.'
+  },
+  {
+    q: 'Vì sao Sparta không thể học theo mô hình Athens — mở cửa thương mại và phát triển văn hóa?',
+    opts: [
+      'Sparta không có cảng biển tốt để giao thương',
+      'Sparta sợ bị Athens tấn công nếu suy yếu quân sự',
+      'Helot (nô lệ nhà nước) đông ~7:1 so với Spartiates — phải duy trì quân sự để kiểm soát',
+      'Hiến pháp Sparta cấm thương mại với người ngoài',
+    ],
+    correct: 2,
+    explain: 'Helot chiếm ~7 lần dân số Spartiates, đã nhiều lần nổi loạn (đặc biệt sau các trận động đất). Sparta phải duy trì đội quân chuyên nghiệp mạnh liên tục để kiểm soát nội địa — không thể chuyển nguồn lực sang thương mại hay văn hóa. Nếu Sparta lỏng tay, helot sẽ nổi dậy.'
+  },
+  {
+    q: 'Tại sao eo biển hẹp Salamis có lợi cho hải quân Hy Lạp trong trận chiến 480 TCN?',
+    opts: [
+      'Tàu Hy Lạp có thêm gió thuận từ phía đông',
+      'Ba Tư không quen với thời tiết mùa đông ở Hy Lạp',
+      'Tàu nhỏ linh hoạt Hy Lạp (trireme) áp đảo tàu lớn Ba Tư không triển khai được đội hình trong eo biển hẹp',
+      'Ba Tư đã kiệt sức sau trận Thermopylae',
+    ],
+    correct: 2,
+    explain: 'Tàu chiến Ba Tư lớn, nặng, thiết kế cho biển khơi. Tàu trireme Hy Lạp nhỏ, nhanh, chiến thuật đâm vào thân tàu địch. Ở eo biển hẹp, tàu lớn Ba Tư không thể triển khai đội hình và cơ động — trong khi tàu nhỏ Hy Lạp dễ đâm và rút. Themistocles chủ động chọn Salamis và thậm chí gửi tin giả nhử Ba Tư vào.'
+  },
+  {
+    q: 'Thucydides nhận định nguyên nhân thật sự của Chiến tranh Peloponnese là gì?',
+    opts: [
+      'Ba Tư khuyến khích Sparta tấn công Athens',
+      'Corinth và các thành bang bị Athens bức hại muốn trả thù',
+      'Athens trở nên quá mạnh, làm Sparta sợ hãi',
+      'Pericles cố ý kích động chiến tranh để giữ quyền lực',
+    ],
+    correct: 2,
+    explain: 'Thucydides — sử gia người Athens — viết trong cuốn Chiến tranh Peloponnese: "Nguyên nhân thật sự — dù ít được thừa nhận nhất — là Athens trở nên quá mạnh, làm Sparta sợ hãi." Athens dùng quỹ Liên minh Delos như bá quyền, mở rộng ảnh hưởng ở Aegea — Sparta lo ngại cán cân quyền lực thay đổi.'
+  },
+  {
+    q: 'Sự kiện nào dẫn đến việc Macedonia thống trị toàn Hy Lạp năm 338 TCN?',
+    opts: [
+      'Thần dịch bệnh phá hủy quân đội Athens và Sparta cùng lúc',
+      'Philip II Macedonia khai thác tình trạng kiệt sức của các polis sau 27 năm Chiến tranh Peloponnese',
+      'Liên quân Athens–Sparta chủ động mời Macedonia làm bảo hộ',
+      'Ba Tư tài trợ Macedonia để trả thù Hy Lạp',
+    ],
+    correct: 1,
+    explain: 'Chiến tranh Peloponnese (431–404 TCN) làm Athens và Sparta đều kiệt sức; Thebes nổi lên ngắn (371–362 TCN) rồi cũng suy. Tất cả polis đều suy yếu sau hàng chục năm nội chiến. Philip II Macedonia (từ 359 TCN) hiện đại hóa quân đội (phalanx sarissa), khai thác sự phân mảnh và kiệt sức của Hy Lạp, đánh bại liên quân Athens–Thebes tại Chaeronea (338 TCN).'
+  },
+  {
+    q: 'Ai là người duy nhất trong tam giác Socrates–Plato–Aristotle không để lại tác phẩm viết trực tiếp?',
+    opts: [
+      'Aristotle — vì chỉ giảng miệng ở Lyceum',
+      'Plato — vì chỉ viết lời Socrates trong các Dialogue',
+      'Socrates — mọi điều ta biết về ông đến từ đệ tử (chủ yếu Plato)',
+      'Tất cả ba người đều để lại tác phẩm viết',
+    ],
+    correct: 2,
+    explain: 'Socrates không viết gì cả. Mọi điều ta biết về ông đến từ đệ tử (Plato viết Dialogue, Xenophon viết Memorabilia). Điều thú vị là Socrates — triết gia vĩ đại nhất Athens — không để lại dấu vết văn bản trực tiếp; chúng ta đọc ông qua "lăng kính" của người khác. Plato để lại hàng chục Dialogue; Aristotle để lại hàng chục luận văn hệ thống.'
+  },
+];
+
+let quizIdx = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = `Câu ${quizIdx + 1}/${QUIZ.length}: ${q.q}`;
+  document.getElementById('quiz-prog').textContent = `${quizIdx + 1} / ${QUIZ.length}`;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? `Điểm: ${quizScore}/${quizIdx}` : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = function() { quizAnswer(i); };
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  document.getElementById('btn-quiz-restart').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+
+  opts.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+
+  document.getElementById('quiz-score').textContent = `Điểm: ${quizScore}/${quizIdx + 1}`;
+
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent = `Kết quả: ${quizScore}/${QUIZ.length} (${pct}%)`;
+    document.getElementById('quiz-prog').textContent =
+      pct >= 86 ? 'Xuất sắc!' : pct >= 57 ? 'Tốt — ôn lại các câu sai.' : 'Cần ôn tập thêm.';
+    document.getElementById('btn-quiz-restart').style.display = 'inline-block';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+function quizRestart() {
+  quizIdx = 0;
+  quizScore = 0;
+  quizAnswered = false;
+  quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

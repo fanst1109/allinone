@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — La Mã: từ Cộng hòa tới Đế chế</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette WorldHistory / La Mã ── */
+  :root {
+    --accent:       #0f766e;
+    --accent-soft:  #ccfbf1;
+    --accent-dark:  #134e4a;
+    --red-war:      #b91c1c;
+    --red-soft:     #fee2e2;
+    --gold:         #b45309;
+    --gold-soft:    #fef3c7;
+    --blue-trade:   #1d4ed8;
+    --blue-soft:    #dbeafe;
+    --stone:        #57534e;
+    --stone-soft:   #f5f5f4;
+    --bg-card:      #ffffff;
+    --purple:       #7c3aed;
+    --purple-soft:  #ede9fe;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.65rem; margin-bottom: 6px; }
+  h2 {
+    color: var(--accent);
+    margin-top: 44px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-soft);
+    font-size: 1.2rem;
+  }
+
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 22px;
+    font-style: italic;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 6px rgba(15,118,110,.12);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .war-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-war);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .gold-box {
+    background: var(--gold-soft);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-war { background: var(--red-war); color: white; }
+  .btn-war:hover { background: #991b1b; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 1 — Bản đồ động bành trướng La Mã
+     ══════════════════════════════════════════════ */
+  #map-stage { width: 100%; overflow-x: auto; }
+  #map-canvas {
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+    border: 2px solid #cbd5e1;
+  }
+
+  .step-panel {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    min-height: 68px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .era-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .tag-early    { background: #dcfce7; color: #15803d; }
+  .tag-republic { background: var(--accent-soft); color: var(--accent-dark); }
+  .tag-crisis   { background: var(--gold-soft);  color: var(--gold); }
+  .tag-empire   { background: var(--red-soft);   color: var(--red-war); }
+  .tag-pax      { background: var(--purple-soft); color: var(--purple); }
+
+  .step-dots {
+    display: flex; gap: 8px; margin: 10px 0; flex-wrap: wrap;
+  }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid #d1d5db; background: #f9fafb;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #9ca3af;
+    cursor: pointer; transition: all .2s;
+  }
+  .step-dot.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .step-dot.done   { background: #0d9488; border-color: #0d9488; color: white; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 2 — Sơ đồ thể chế Cộng hòa
+     ══════════════════════════════════════════════ */
+  .inst-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+  .inst-svg {
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* Detail panel cho sơ đồ thể chế */
+  .inst-detail {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+  }
+  .inst-detail.show { display: block; }
+  .inst-detail-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--accent-dark);
+    margin-bottom: 6px;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 3 — Timeline
+     ══════════════════════════════════════════════ */
+  .timeline {
+    position: relative;
+    padding: 12px 0 12px 36px;
+    margin: 8px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 14px; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, #15803d, var(--accent), var(--gold), var(--red-war), var(--purple));
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative; margin-bottom: 22px; padding-left: 20px;
+  }
+  .tl-item::before {
+    content: ''; position: absolute;
+    left: -28px; top: 6px;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 3px solid white; box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+  }
+  .tl-item.republic::before { background: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+  .tl-item.war::before      { background: var(--red-war); box-shadow: 0 0 0 2px var(--red-war); }
+  .tl-item.crisis::before   { background: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+  .tl-item.empire::before   { background: var(--purple); box-shadow: 0 0 0 2px var(--purple); }
+  .tl-item.key::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: var(--red-war);
+    box-shadow: 0 0 0 3px var(--red-war), 0 0 0 6px rgba(185,28,28,.2);
+  }
+  .tl-item.keyp::before {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: var(--purple);
+    box-shadow: 0 0 0 3px var(--purple), 0 0 0 6px rgba(124,58,237,.2);
+  }
+  .tl-year  { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .tl-item.war .tl-year    { color: var(--red-war); }
+  .tl-item.key .tl-year    { color: var(--red-war); font-size: 15px; }
+  .tl-item.crisis .tl-year { color: var(--gold); }
+  .tl-item.empire .tl-year { color: var(--purple); }
+  .tl-item.keyp .tl-year   { color: var(--purple); font-size: 15px; }
+  .tl-title {
+    font-weight: 700; font-size: 14px; color: #1f2937; line-height: 1.4;
+  }
+  .tl-desc {
+    font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.5;
+  }
+  .tl-badge {
+    display: inline-block; padding: 1px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; margin-left: 6px; vertical-align: middle;
+  }
+  .badge-republic { background: var(--accent-soft); color: var(--accent-dark); }
+  .badge-war      { background: var(--red-soft); color: #991b1b; }
+  .badge-crisis   { background: var(--gold-soft); color: var(--gold); }
+  .badge-empire   { background: var(--purple-soft); color: var(--purple); }
+  .badge-key      { background: #fee2e2; color: #991b1b; }
+
+  /* Era separators */
+  .tl-era-sep {
+    margin: 20px 0 16px -36px;
+    padding: 6px 14px 6px 36px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    border-radius: 0 20px 20px 0;
+    display: inline-block;
+  }
+  .era-sep-republic { background: var(--accent-soft); color: var(--accent-dark); }
+  .era-sep-war      { background: var(--red-soft); color: #991b1b; }
+  .era-sep-crisis   { background: var(--gold-soft); color: var(--gold); }
+  .era-sep-empire   { background: var(--purple-soft); color: var(--purple); }
+
+  /* ══════════════════════════════════════════════
+     MODULE 4 — Quiz
+     ══════════════════════════════════════════════ */
+  .quiz-q { font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #1f2937; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .quiz-opt {
+    padding: 10px 14px; border-radius: 7px; border: 2px solid #e5e7eb;
+    background: #f9fafb; cursor: pointer; font-size: 14px; text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: #15803d; background: #dcfce7; color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.6;
+    margin-top: 8px; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: #dcfce7; color: #14532d; border: 1px solid #15803d; }
+  .quiz-feedback.err { background: var(--red-soft); color: #991b1b; border: 1px solid var(--red-war); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score { font-weight: 700; color: #15803d; font-size: 15px; }
+
+  @media (max-width: 600px) {
+    .tl-era-sep { font-size: 11px; padding-left: 30px; }
+    .step-panel { font-size: 13px; }
+    .inst-detail { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử TG — Cổ đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-persia-alexander/visualization.html">← L4: Ba Tư &amp; Alexander</a>
+  <span class="sep">·</span>
+  <span class="current">L5: La Mã</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-world-religions/visualization.html">L6: Các tôn giáo lớn →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — La Mã: từ Cộng hòa tới Đế chế</h1>
+<p class="subtitle">Từ thành Rome nhỏ bé (509 TCN) đến đế chế làm chủ Địa Trung Hải — thể chế, chiến tranh và di sản</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ động bành trướng La Mã
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ động: bành trướng của La Mã</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Nhấn <strong>Bước tiếp theo</strong> để xem từng giai đoạn bành trướng, hoặc bấm thẳng vào số thứ tự. Mỗi bước làm sáng vùng lãnh thổ mới La Mã kiểm soát.
+  </div>
+
+  <div class="step-dots" id="map-dots"></div>
+
+  <div id="map-stage">
+    <canvas id="map-canvas" width="700" height="400"></canvas>
+  </div>
+
+  <div class="step-panel" id="map-panel">
+    <span class="era-tag tag-early" id="map-era-tag">Khởi đầu</span><br>
+    <span id="map-text">Nhấn <strong>Bắt đầu</strong> để xem La Mã bành trướng theo từng giai đoạn lịch sử.</span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="btn-map-prev" onclick="mapPrev()">← Trước</button>
+    <button class="btn btn-primary"   id="btn-map-next" onclick="mapNext()">Bắt đầu →</button>
+    <button class="btn btn-secondary" onclick="mapReset()">Khởi động lại</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Sơ đồ thể chế Cộng hòa La Mã
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Sơ đồ thể chế Cộng hòa La Mã</h2>
+
+<div class="card">
+  <div class="info-box">
+    Bấm vào từng cơ quan để xem vai trò, quyền hạn và mối quan hệ kiểm soát lẫn nhau.
+  </div>
+
+  <div class="inst-wrap">
+    <svg class="inst-svg" width="680" height="420" viewBox="0 0 680 420">
+      <defs>
+        <marker id="arrow-teal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0f766e"/>
+        </marker>
+        <marker id="arrow-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#b91c1c"/>
+        </marker>
+        <marker id="arrow-gray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#78716c"/>
+        </marker>
+      </defs>
+
+      <!-- ── Nền phân tầng ── -->
+      <!-- Tầng quý tộc -->
+      <rect x="10" y="10"  width="660" height="130" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+      <text x="22" y="30" font-size="11" fill="#15803d" font-weight="700" font-family="sans-serif">Tầng quý tộc / Patrician</text>
+
+      <!-- Tầng hành pháp dùng chung -->
+      <rect x="10" y="155" width="660" height="120" rx="10" fill="#fefce8" stroke="#fde047" stroke-width="1.5"/>
+      <text x="22" y="175" font-size="11" fill="#854d0e" font-weight="700" font-family="sans-serif">Hành pháp — bầu hàng năm</text>
+
+      <!-- Tầng bình dân -->
+      <rect x="10" y="290" width="660" height="120" rx="10" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1.5"/>
+      <text x="22" y="310" font-size="11" fill="#5b21b6" font-weight="700" font-family="sans-serif">Tầng bình dân / Plebeian</text>
+
+      <!-- ── Viện Nguyên lão ── -->
+      <g id="inst-senate" onclick="instShow('senate')" style="cursor:pointer">
+        <rect x="30" y="40" width="180" height="80" rx="8" fill="#0f766e" stroke="#134e4a" stroke-width="2"/>
+        <text x="120" y="70" font-size="13" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Viện Nguyên lão</text>
+        <text x="120" y="88" font-size="11" fill="#ccfbf1" text-anchor="middle" font-family="sans-serif">(Senate)</text>
+        <text x="120" y="108" font-size="10" fill="#99f6e4" text-anchor="middle" font-family="sans-serif">~300–900 thành viên · suốt đời</text>
+      </g>
+
+      <!-- ── Censors ── -->
+      <g id="inst-censors" onclick="instShow('censors')" style="cursor:pointer">
+        <rect x="245" y="40" width="150" height="80" rx="8" fill="#0d9488" stroke="#134e4a" stroke-width="2"/>
+        <text x="320" y="68" font-size="13" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Censors</text>
+        <text x="320" y="86" font-size="11" fill="#ccfbf1" text-anchor="middle" font-family="sans-serif">(Kiểm tra quan)</text>
+        <text x="320" y="104" font-size="10" fill="#99f6e4" text-anchor="middle" font-family="sans-serif">2 người · 18 tháng</text>
+      </g>
+
+      <!-- ── Pontifex / Religion ── -->
+      <g id="inst-pontifex" onclick="instShow('pontifex')" style="cursor:pointer">
+        <rect x="430" y="40" width="230" height="80" rx="8" fill="#0f766e" stroke="#134e4a" stroke-width="1.5" stroke-dasharray="6,3"/>
+        <text x="545" y="68" font-size="13" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Pontifex Maximus</text>
+        <text x="545" y="86" font-size="11" fill="#ccfbf1" text-anchor="middle" font-family="sans-serif">(Đại tư tế)</text>
+        <text x="545" y="104" font-size="10" fill="#99f6e4" text-anchor="middle" font-family="sans-serif">Tôn giáo nhà nước</text>
+      </g>
+
+      <!-- ── Consul ── -->
+      <g id="inst-consul" onclick="instShow('consul')" style="cursor:pointer">
+        <rect x="60" y="168" width="200" height="90" rx="8" fill="#b91c1c" stroke="#991b1b" stroke-width="2"/>
+        <text x="160" y="198" font-size="14" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Chấp chính quan</text>
+        <text x="160" y="216" font-size="11" fill="#fecaca" text-anchor="middle" font-family="sans-serif">(Consul)</text>
+        <text x="160" y="235" font-size="10" fill="#fecaca" text-anchor="middle" font-family="sans-serif">2 người · 1 năm · quyền VETO</text>
+        <text x="160" y="249" font-size="10" fill="#fca5a5" text-anchor="middle" font-family="sans-serif">Imperium tối cao</text>
+      </g>
+
+      <!-- ── Praetors ── -->
+      <g id="inst-praetors" onclick="instShow('praetors')" style="cursor:pointer">
+        <rect x="290" y="168" width="170" height="90" rx="8" fill="#b45309" stroke="#92400e" stroke-width="2"/>
+        <text x="375" y="200" font-size="13" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Pháp quan</text>
+        <text x="375" y="218" font-size="11" fill="#fed7aa" text-anchor="middle" font-family="sans-serif">(Praetors)</text>
+        <text x="375" y="236" font-size="10" fill="#fed7aa" text-anchor="middle" font-family="sans-serif">Xét xử tư pháp</text>
+        <text x="375" y="250" font-size="10" fill="#fbbf24" text-anchor="middle" font-family="sans-serif">Kho bạc quan · Quan đô thị</text>
+      </g>
+
+      <!-- ── Dictator (khẩn cấp) ── -->
+      <g id="inst-dictator" onclick="instShow('dictator')" style="cursor:pointer">
+        <rect x="487" y="168" width="175" height="90" rx="8" fill="#6b7280" stroke="#57534e" stroke-width="1.5" stroke-dasharray="6,3"/>
+        <text x="574" y="198" font-size="13" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Độc tài</text>
+        <text x="574" y="216" font-size="11" fill="#e5e7eb" text-anchor="middle" font-family="sans-serif">(Dictator)</text>
+        <text x="574" y="235" font-size="10" fill="#d1d5db" text-anchor="middle" font-family="sans-serif">Chỉ khi khủng hoảng</text>
+        <text x="574" y="250" font-size="10" fill="#d1d5db" text-anchor="middle" font-family="sans-serif">Tối đa 6 tháng</text>
+      </g>
+
+      <!-- ── Tribune ── -->
+      <g id="inst-tribune" onclick="instShow('tribune')" style="cursor:pointer">
+        <rect x="60" y="305" width="200" height="90" rx="8" fill="#7c3aed" stroke="#5b21b6" stroke-width="2"/>
+        <text x="160" y="337" font-size="13" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Hộ dân quan</text>
+        <text x="160" y="355" font-size="11" fill="#ddd6fe" text-anchor="middle" font-family="sans-serif">(Tribune of Plebs)</text>
+        <text x="160" y="374" font-size="10" fill="#c4b5fd" text-anchor="middle" font-family="sans-serif">10 người · VETO mọi quan chức</text>
+        <text x="160" y="388" font-size="10" fill="#c4b5fd" text-anchor="middle" font-family="sans-serif">Bất khả xâm phạm</text>
+      </g>
+
+      <!-- ── Tribal Assembly ── -->
+      <g id="inst-assembly" onclick="instShow('assembly')" style="cursor:pointer">
+        <rect x="290" y="305" width="370" height="90" rx="8" fill="#5b21b6" stroke="#4c1d95" stroke-width="1.5"/>
+        <text x="475" y="337" font-size="13" fill="white" font-weight="700" text-anchor="middle" font-family="sans-serif">Hội đồng bình dân</text>
+        <text x="475" y="355" font-size="11" fill="#ddd6fe" text-anchor="middle" font-family="sans-serif">(Plebeian Council / Tribal Assembly)</text>
+        <text x="475" y="374" font-size="10" fill="#c4b5fd" text-anchor="middle" font-family="sans-serif">Bầu Tribune · thông qua luật (Leges)</text>
+        <text x="475" y="388" font-size="10" fill="#c4b5fd" text-anchor="middle" font-family="sans-serif">Sau 287 TCN: quyết định có giá trị như luật quốc gia</text>
+      </g>
+
+      <!-- ── Mũi tên kiểm soát quyền lực ── -->
+      <!-- Senate → Consul (tư vấn / ngân sách) -->
+      <line x1="160" y1="120" x2="160" y2="165" stroke="#0f766e" stroke-width="2" marker-end="url(#arrow-teal)"/>
+      <!-- Consul VETO lẫn nhau -->
+      <path d="M 160,213 C 200,213 200,233 160,233" fill="none" stroke="#b91c1c" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow-red)"/>
+      <text x="210" y="222" font-size="10" fill="#b91c1c" font-family="sans-serif" font-weight="700">VETO</text>
+      <!-- Tribune VETO Consul -->
+      <line x1="160" y1="305" x2="160" y2="260" stroke="#b91c1c" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow-red)"/>
+      <text x="165" y="285" font-size="10" fill="#b91c1c" font-family="sans-serif" font-weight="700">VETO</text>
+      <!-- Assembly bầu Tribune -->
+      <line x1="290" y1="350" x2="263" y2="350" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+      <!-- Senate → Censors -->
+      <line x1="320" y1="120" x2="320" y2="155" stroke="#0f766e" stroke-width="1.5" marker-end="url(#arrow-teal)"/>
+    </svg>
+  </div>
+
+  <div class="inst-detail" id="inst-detail">
+    <div class="inst-detail-title" id="inst-detail-title"></div>
+    <div id="inst-detail-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Timeline 509 TCN → TK II SCN
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Chuỗi thời gian: 509 TCN → thế kỉ II SCN</h2>
+
+<div class="card">
+  <div class="timeline">
+
+    <!-- ── Giai đoạn 1: Cộng hòa sơ kỳ ── -->
+    <div class="tl-era-sep era-sep-republic">Cộng hòa sơ kỳ</div>
+
+    <div class="tl-item republic">
+      <div class="tl-year">509 TCN</div>
+      <div class="tl-title">Lật đổ vương quyền — nền Cộng hòa ra đời
+        <span class="tl-badge badge-republic">Thành lập</span>
+      </div>
+      <div class="tl-desc">Vua Tarquinius Superbus bị trục xuất. Roma lập hệ thống Cộng hòa: hai chấp chính quan, Viện Nguyên lão, phân quyền để tránh độc tài.</div>
+    </div>
+
+    <div class="tl-item republic">
+      <div class="tl-year">494 TCN</div>
+      <div class="tl-title">Bình dân rút lui lên Mons Sacer</div>
+      <div class="tl-desc">Cuộc "đình công chính trị" đầu tiên trong lịch sử — bình dân đòi quyền đại diện, mở ra giai đoạn Conflict of the Orders kéo dài hơn 200 năm.</div>
+    </div>
+
+    <div class="tl-item republic">
+      <div class="tl-year">451–450 TCN</div>
+      <div class="tl-title">Luật 12 Bảng (Twelve Tables)
+        <span class="tl-badge badge-republic">Pháp lý</span>
+      </div>
+      <div class="tl-desc">Luật được viết thành văn lần đầu tiên — bình dân có thể biết và viện dẫn. Nền tảng pháp lý La Mã và di sản luật dân sự hiện đại.</div>
+    </div>
+
+    <div class="tl-item republic">
+      <div class="tl-year">287 TCN</div>
+      <div class="tl-title">Luật Hortensia — kết thúc Conflict of the Orders</div>
+      <div class="tl-desc">Quyết định của Hội đồng bình dân có giá trị như luật đối với mọi công dân. Bình dân đạt đỉnh quyền lực về mặt hình thức.</div>
+    </div>
+
+    <!-- ── Giai đoạn 2: Chiến tranh Punic ── -->
+    <div class="tl-era-sep era-sep-war">Chiến tranh Punic &amp; bành trướng Địa Trung Hải</div>
+
+    <div class="tl-item republic">
+      <div class="tl-year">264 TCN</div>
+      <div class="tl-title">Thống nhất bán đảo Ý — bắt đầu Chiến tranh Punic I</div>
+      <div class="tl-desc">La Mã hoàn thành kiểm soát Ý, rồi can thiệp vào Sicily, lần đầu đụng độ với Carthage — cường quốc hải quân Địa Trung Hải.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">218 TCN</div>
+      <div class="tl-title">Hannibal vượt dãy Alps — Chiến tranh Punic II bắt đầu
+        <span class="tl-badge badge-war">Chiến lược</span>
+      </div>
+      <div class="tl-desc">38.000 quân, 8.000 kỵ binh, 37 voi chiến vượt Alps trong mùa đông. Hannibal mang chiến tranh vào nội địa Ý thay vì chờ bị tấn công ở Bắc Phi.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">216 TCN</div>
+      <div class="tl-title">Trận Cannae — thất bại nặng nề nhất La Mã
+        <span class="tl-badge badge-key">Quyết định</span>
+      </div>
+      <div class="tl-desc">Hannibal bao vây và tiêu diệt 60.000–70.000 quân La Mã trong một ngày bằng chiến thuật "bao vây kép" (double envelopment). Kiệt tác chiến thuật — vẫn được nghiên cứu đến nay.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">202 TCN</div>
+      <div class="tl-title">Trận Zama — Scipio Africanus đánh bại Hannibal</div>
+      <div class="tl-desc">Scipio tấn công Bắc Phi, buộc Hannibal rút khỏi Ý. Tại Zama, Scipio dùng chính chiến thuật của Hannibal và thắng. Chiến tranh Punic II kết thúc.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">146 TCN</div>
+      <div class="tl-title">Carthage bị phá hủy — La Mã làm chủ Địa Trung Hải</div>
+      <div class="tl-desc">Chiến tranh Punic III kết thúc: Carthage bị san phẳng. Cùng năm La Mã cũng tiêu diệt Corinth. Mare Nostrum — "Biển của chúng ta" — không còn là ẩn dụ.</div>
+    </div>
+
+    <!-- ── Giai đoạn 3: Khủng hoảng Cộng hòa ── -->
+    <div class="tl-era-sep era-sep-crisis">Khủng hoảng và sụp đổ Cộng hòa</div>
+
+    <div class="tl-item crisis">
+      <div class="tl-year">133–121 TCN</div>
+      <div class="tl-title">Anh em Gracchus bị giết — bạo lực chính trị lần đầu
+        <span class="tl-badge badge-crisis">Khủng hoảng</span>
+      </div>
+      <div class="tl-desc">Tiberius (133 TCN) và Gaius (121 TCN) Gracchus đề xuất cải cách đất đai, bị phe bảo thủ ám sát. Lần đầu trong lịch sử Cộng hòa, bạo lực chính trị được dùng để giải quyết tranh chấp — một tiền lệ nguy hiểm.</div>
+    </div>
+
+    <div class="tl-item crisis">
+      <div class="tl-year">107 TCN</div>
+      <div class="tl-title">Cải cách quân đội Marius</div>
+      <div class="tl-desc">Xóa yêu cầu tài sản khi nhập ngũ, hứa đất cho binh sĩ sau xuất ngũ. Hệ quả không chủ ý: quân đội trung thành với tướng hơn là nhà nước — mầm mống chế độ quân phiệt.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">88 TCN</div>
+      <div class="tl-title">Sulla dẫn quân chiếm Rome — vượt ngưỡng Rubicon đầu tiên
+        <span class="tl-badge badge-key">Tiền lệ</span>
+      </div>
+      <div class="tl-desc">Sulla là người đầu tiên trong lịch sử dẫn quân La Mã vào chiếm thành Roma. Hộp Pandora mở ra: từ nay ai có quân mạnh đủ có thể làm điều tương tự.</div>
+    </div>
+
+    <div class="tl-item crisis">
+      <div class="tl-year">60 TCN</div>
+      <div class="tl-title">Tam hùng thứ nhất: Caesar – Pompey – Crassus</div>
+      <div class="tl-desc">Liên minh bí mật giữa ba người quyền lực nhất La Mã để kiểm soát chính trị. Không chính thức nhưng thực tế chi phối mọi quyết định của Cộng hòa.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">Tháng 1/49 TCN</div>
+      <div class="tl-title">Caesar vượt sông Rubicon — "Alea iacta est"
+        <span class="tl-badge badge-key">Không thể quay lại</span>
+      </div>
+      <div class="tl-desc">"Con xúc xắc đã được tung." Caesar dẫn Quân đoàn XIII vượt ranh giới pháp lý vào nước Ý — hành động phản quốc theo luật La Mã. Nội chiến Caesar–Pompey bùng nổ.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">15/3/44 TCN</div>
+      <div class="tl-title">Ides of March — Caesar bị ám sát
+        <span class="tl-badge badge-key">Bước ngoặt</span>
+      </div>
+      <div class="tl-desc">Nhóm Liberatores do Brutus và Cassius lãnh đạo đâm Caesar 23 nhát dao ngay tại Viện Nguyên lão. Cộng hòa không được cứu — 14 năm nội chiến nữa tiếp theo.</div>
+    </div>
+
+    <!-- ── Giai đoạn 4: Đế chế ── -->
+    <div class="tl-era-sep era-sep-empire">Đế chế La Mã &amp; Pax Romana</div>
+
+    <div class="tl-item war">
+      <div class="tl-year">31 TCN</div>
+      <div class="tl-title">Trận Actium — Octavian thắng Mark Antony &amp; Cleopatra</div>
+      <div class="tl-desc">Hải quân Octavian đánh bại liên quân. Mark Antony và Cleopatra tự tử. Ai Cập — vương quốc Ptolemaic cuối cùng — trở thành tỉnh La Mã.</div>
+    </div>
+
+    <div class="tl-item keyp">
+      <div class="tl-year">27 TCN</div>
+      <div class="tl-title">Augustus — Đế chế La Mã chính thức khai sinh
+        <span class="tl-badge badge-empire">Kỷ nguyên mới</span>
+      </div>
+      <div class="tl-desc">Viện Nguyên lão trao Octavian danh hiệu "Augustus". Nền nguyên thủ (Principate): thực quyền tuyệt đối trong hình thức Cộng hòa. Pax Romana bắt đầu.</div>
+    </div>
+
+    <div class="tl-item empire">
+      <div class="tl-year">117 SCN</div>
+      <div class="tl-title">Đế chế cực đại — thời Trajan</div>
+      <div class="tl-desc">Lãnh thổ đạt đỉnh: khoảng 5 triệu km², từ Britain đến Mesopotamia. Dân số ước tính 50–70 triệu người. Mare Nostrum hoàn toàn trong tay La Mã.</div>
+    </div>
+
+    <div class="tl-item empire">
+      <div class="tl-year">161–180 SCN</div>
+      <div class="tl-title">Marcus Aurelius — hoàng đế cuối của Pax Romana</div>
+      <div class="tl-desc">Hoàng đế-triết gia Stoic. Sau ông, Khủng hoảng thế kỉ III (235–284 SCN) và cuối cùng là sự sụp đổ của Tây La Mã năm 476 SCN.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q"   id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score"    id="quiz-score"></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════════════════ -->
+<script>
+/* ════════════════════════════════════════════════
+   MODULE 1 — Bản đồ động bành trướng La Mã
+   ════════════════════════════════════════════════ */
+
+const mapCanvas = document.getElementById('map-canvas');
+const mCtx = mapCanvas.getContext('2d');
+const MW = mapCanvas.width, MH = mapCanvas.height;
+
+/* Màu sắc vùng lãnh thổ theo giai đoạn */
+const ERA_COLORS = [
+  'rgba(21,128,61,0.75)',   // Ý ban đầu — xanh lá
+  'rgba(15,118,110,0.70)',  // Sicily/Sardinia/Corsica — teal
+  'rgba(15,118,110,0.65)',  // Tây Ban Nha — teal nhạt hơn
+  'rgba(15,118,110,0.60)',  // Bắc Phi & Hy Lạp
+  'rgba(15,118,110,0.55)',  // Tiểu Á & Syria
+  'rgba(124,58,237,0.55)',  // Đế chế cực đại Trajan
+];
+
+/*
+  Bản đồ SVG-path đơn giản hóa khu vực Địa Trung Hải.
+  Tọa độ theo canvas 700×400.
+  Trục: tây ≈ x=30 (đại tây dương), đông ≈ x=670 (mesopotamia)
+        bắc ≈ y=30 (britain), nam ≈ y=380 (bắc phi)
+  Điểm gốc chiếu tham khảo: Rome ≈ (290, 195)
+*/
+
+// Hàm vẽ vùng nước (biển, hồ)
+function drawSea() {
+  // Nền biển
+  const seaGrad = mCtx.createLinearGradient(0, 0, 0, MH);
+  seaGrad.addColorStop(0, '#bfdbfe');
+  seaGrad.addColorStop(1, '#93c5fd');
+  mCtx.fillStyle = seaGrad;
+  mCtx.fillRect(0, 0, MW, MH);
+}
+
+// Hàm vẽ đất liền nền (châu Âu, Bắc Phi, Tiểu Á)
+function drawLandBase() {
+  mCtx.fillStyle = '#e7e5e4'; // đất trống
+
+  // ── Bán đảo Ý ──
+  drawPoly([
+    [260,120],[300,110],[320,105],[340,115],[360,125],
+    [370,155],[360,180],[355,210],[350,250],[340,280],
+    [330,300],[315,320],[310,340],[300,355],[290,360],
+    [280,345],[275,320],[270,295],[265,265],[260,235],
+    [258,205],[255,175],[252,150],[250,130],[260,120]
+  ]);
+
+  // ── Bán đảo Iberia (Tây Ban Nha / Bồ Đào Nha) ──
+  drawPoly([
+    [30,80],[80,70],[120,65],[155,68],[180,75],[200,90],
+    [210,110],[205,140],[195,165],[180,185],[160,195],
+    [135,195],[110,190],[85,185],[65,175],[45,160],
+    [30,145],[25,120],[30,80]
+  ]);
+
+  // ── Gaul / Pháp ──
+  drawPoly([
+    [155,68],[200,60],[245,55],[280,58],[300,65],
+    [310,85],[305,105],[295,115],[280,120],[260,120],
+    [240,125],[220,130],[205,140],[200,90],[180,75],[155,68]
+  ]);
+
+  // ── Britain (một phần) ──
+  drawPoly([
+    [150,30],[185,28],[205,35],[215,55],[210,70],[195,75],
+    [175,72],[158,60],[148,45],[150,30]
+  ]);
+
+  // ── Germania / Trung Âu ──
+  drawPoly([
+    [280,58],[340,45],[390,42],[440,45],[470,60],
+    [480,80],[470,100],[455,110],[435,115],[410,120],
+    [385,125],[360,125],[340,115],[320,105],[300,65],[280,58]
+  ]);
+
+  // ── Dacia / Romania ──
+  drawPoly([
+    [440,45],[490,40],[530,42],[555,55],[560,75],
+    [545,90],[520,95],[495,90],[470,80],[455,65],[440,45]
+  ]);
+
+  // ── Balkan / Hy Lạp ──
+  drawPoly([
+    [360,125],[410,120],[455,110],[480,125],
+    [490,155],[480,175],[465,195],[455,215],
+    [440,235],[425,245],[410,240],[395,225],
+    [380,205],[370,185],[365,165],[360,145],[360,125]
+  ]);
+
+  // ── Hy Lạp (bán đảo phần dưới) ──
+  drawPoly([
+    [395,225],[415,235],[425,255],[420,275],[408,285],
+    [395,280],[382,270],[375,255],[378,235],[395,225]
+  ]);
+
+  // ── Tiểu Á (Anatolia) ──
+  drawPoly([
+    [480,125],[540,115],[590,110],[630,115],[660,130],
+    [665,155],[655,175],[635,190],[610,200],[585,205],
+    [555,200],[530,195],[505,190],[485,175],[480,155],[480,125]
+  ]);
+
+  // ── Syria / Levant ──
+  drawPoly([
+    [610,200],[640,190],[660,200],[670,225],[665,250],
+    [650,265],[630,270],[615,260],[605,240],[605,215],[610,200]
+  ]);
+
+  // ── Bắc Phi (Tunisia / Algeria) ──
+  drawPoly([
+    [100,290],[160,280],[220,275],[270,278],[320,280],
+    [370,285],[420,290],[460,295],[500,300],[520,310],
+    [510,340],[480,355],[440,365],[400,370],[360,368],
+    [320,360],[280,350],[240,340],[200,335],[160,335],
+    [120,330],[90,318],[80,305],[100,290]
+  ]);
+
+  // ── Ai Cập ──
+  drawPoly([
+    [560,290],[610,285],[650,290],[665,310],[660,340],
+    [645,360],[620,370],[595,372],[575,365],[555,350],
+    [548,325],[550,305],[560,290]
+  ]);
+
+  // ── Mesopotamia (Iraq) ──
+  drawPoly([
+    [640,190],[665,200],[680,225],[680,260],[670,280],
+    [650,290],[620,285],[610,270],[610,250],[620,225],
+    [630,210],[640,190]
+  ]);
+}
+
+function drawPoly(pts) {
+  mCtx.beginPath();
+  mCtx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) mCtx.lineTo(pts[i][0], pts[i][1]);
+  mCtx.closePath();
+  mCtx.fill();
+}
+
+function fillPoly(pts, color) {
+  mCtx.fillStyle = color;
+  mCtx.beginPath();
+  mCtx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) mCtx.lineTo(pts[i][0], pts[i][1]);
+  mCtx.closePath();
+  mCtx.fill();
+}
+
+// Dữ liệu từng bước bành trướng
+const MAP_STEPS = [
+  {
+    era: 'Khởi đầu', tag: 'tag-early',
+    year: 'Khoảng 509–264 TCN',
+    title: 'La Mã kiểm soát bán đảo Ý',
+    text: '<strong>509–264 TCN — Bán đảo Ý:</strong> Từ thành Rome nhỏ bé trên 7 ngọn đồi ven sông Tiber, La Mã từng bước chinh phục toàn bộ bán đảo Ý qua ba cuộc Chiến tranh Samnite và đánh lui vua Pyrrhus (280–275 TCN). Mô hình liên minh linh hoạt là chìa khóa: không nô dịch toàn bộ kẻ thù mà tích hợp họ vào cấu trúc quân sự–chính trị La Mã.',
+    regions: [
+      // Bán đảo Ý
+      [[260,120],[300,110],[320,105],[340,115],[360,125],[370,155],[360,180],[355,210],[350,250],[340,280],[330,300],[315,320],[310,340],[300,355],[290,360],[280,345],[275,320],[270,295],[265,265],[260,235],[258,205],[255,175],[252,150],[250,130],[260,120]]
+    ]
+  },
+  {
+    era: 'Cộng hòa giữa', tag: 'tag-republic',
+    year: '264–206 TCN',
+    title: 'Sicily, Sardinia, Corsica và Tây Ban Nha',
+    text: '<strong>264–206 TCN — Tây Địa Trung Hải:</strong> Chiến tranh Punic I (264–241 TCN) mang lại Sicily và Sardinia. Sau đó Corsica. Chiến tranh Punic II kết thúc (201 TCN): Tây Ban Nha (Hispania) hoàn toàn thuộc La Mã — nguồn bạc và quân lính quan trọng. La Mã trở thành cường quốc hải quân từ gần như không có hải quân chỉ trong vài thập kỷ.',
+    regions: [
+      // Ý
+      [[260,120],[300,110],[320,105],[340,115],[360,125],[370,155],[360,180],[355,210],[350,250],[340,280],[330,300],[315,320],[310,340],[300,355],[290,360],[280,345],[275,320],[270,295],[265,265],[260,235],[258,205],[255,175],[252,150],[250,130],[260,120]],
+      // Tây Ban Nha
+      [[30,80],[80,70],[120,65],[155,68],[180,75],[200,90],[210,110],[205,140],[195,165],[180,185],[160,195],[135,195],[110,190],[85,185],[65,175],[45,160],[30,145],[25,120],[30,80]],
+      // Sicily (đảo — đơn giản hóa)
+      [[285,355],[310,355],[335,360],[345,375],[335,385],[300,388],[278,380],[275,368],[285,355]],
+      // Sardinia
+      [[220,215],[240,210],[250,222],[248,250],[235,262],[220,258],[210,242],[212,225],[220,215]],
+      // Corsica
+      [[230,165],[246,160],[255,170],[252,192],[238,198],[225,188],[222,172],[230,165]]
+    ]
+  },
+  {
+    era: 'Cộng hòa cuối', tag: 'tag-republic',
+    year: '201–133 TCN',
+    title: 'Bắc Phi và Hy Lạp',
+    text: '<strong>201–133 TCN — Đông và Nam Địa Trung Hải:</strong> Chiến tranh Punic III (149–146 TCN): Carthage (Tunisia) bị phá hủy hoàn toàn. Cùng năm 146 TCN, La Mã tiêu diệt Corinth, Hy Lạp trở thành tỉnh Macedonia. Tiểu Á (Anatolia) bắt đầu sáp nhập từ 133 TCN khi vua Pergamon hiến tặng vương quốc cho La Mã.',
+    regions: [
+      [[260,120],[300,110],[320,105],[340,115],[360,125],[370,155],[360,180],[355,210],[350,250],[340,280],[330,300],[315,320],[310,340],[300,355],[290,360],[280,345],[275,320],[270,295],[265,265],[260,235],[258,205],[255,175],[252,150],[250,130],[260,120]],
+      [[30,80],[80,70],[120,65],[155,68],[180,75],[200,90],[210,110],[205,140],[195,165],[180,185],[160,195],[135,195],[110,190],[85,185],[65,175],[45,160],[30,145],[25,120],[30,80]],
+      [[285,355],[310,355],[335,360],[345,375],[335,385],[300,388],[278,380],[275,368],[285,355]],
+      [[220,215],[240,210],[250,222],[248,250],[235,262],[220,258],[210,242],[212,225],[220,215]],
+      [[230,165],[246,160],[255,170],[252,192],[238,198],[225,188],[222,172],[230,165]],
+      // Bắc Phi (Tunisia)
+      [[100,290],[160,280],[220,275],[270,278],[320,280],[370,285],[420,290],[460,295],[500,300],[520,310],[510,340],[480,355],[440,365],[400,370],[360,368],[320,360],[280,350],[240,340],[200,335],[160,335],[120,330],[90,318],[80,305],[100,290]],
+      // Hy Lạp
+      [[360,125],[410,120],[455,110],[480,125],[490,155],[480,175],[465,195],[455,215],[440,235],[425,245],[410,240],[395,225],[380,205],[370,185],[365,165],[360,145],[360,125]],
+      [[395,225],[415,235],[425,255],[420,275],[408,285],[395,280],[382,270],[375,255],[378,235],[395,225]]
+    ]
+  },
+  {
+    era: 'Cộng hòa cuối / Đế chế sơ kỳ', tag: 'tag-crisis',
+    year: '133 TCN – 27 TCN',
+    title: 'Tiểu Á, Syria và Ai Cập',
+    text: '<strong>133 TCN – 27 TCN — Phương Đông:</strong> Pompey chinh phục Pontus, Armenia, Syria và Judea (63 TCN). Julius Caesar chinh phục Gaul (58–50 TCN) — đưa khu vực Pháp, Bỉ, Switzerland vào La Mã. Sau Actium (31 TCN), Octavian sáp nhập Ai Cập. La Mã kiểm soát toàn bộ vùng bờ Địa Trung Hải.',
+    regions: [
+      [[260,120],[300,110],[320,105],[340,115],[360,125],[370,155],[360,180],[355,210],[350,250],[340,280],[330,300],[315,320],[310,340],[300,355],[290,360],[280,345],[275,320],[270,295],[265,265],[260,235],[258,205],[255,175],[252,150],[250,130],[260,120]],
+      [[30,80],[80,70],[120,65],[155,68],[180,75],[200,90],[210,110],[205,140],[195,165],[180,185],[160,195],[135,195],[110,190],[85,185],[65,175],[45,160],[30,145],[25,120],[30,80]],
+      [[285,355],[310,355],[335,360],[345,375],[335,385],[300,388],[278,380],[275,368],[285,355]],
+      [[220,215],[240,210],[250,222],[248,250],[235,262],[220,258],[210,242],[212,225],[220,215]],
+      [[230,165],[246,160],[255,170],[252,192],[238,198],[225,188],[222,172],[230,165]],
+      [[100,290],[160,280],[220,275],[270,278],[320,280],[370,285],[420,290],[460,295],[500,300],[520,310],[510,340],[480,355],[440,365],[400,370],[360,368],[320,360],[280,350],[240,340],[200,335],[160,335],[120,330],[90,318],[80,305],[100,290]],
+      [[360,125],[410,120],[455,110],[480,125],[490,155],[480,175],[465,195],[455,215],[440,235],[425,245],[410,240],[395,225],[380,205],[370,185],[365,165],[360,145],[360,125]],
+      [[395,225],[415,235],[425,255],[420,275],[408,285],[395,280],[382,270],[375,255],[378,235],[395,225]],
+      // Tiểu Á
+      [[480,125],[540,115],[590,110],[630,115],[660,130],[665,155],[655,175],[635,190],[610,200],[585,205],[555,200],[530,195],[505,190],[485,175],[480,155],[480,125]],
+      // Syria / Levant
+      [[610,200],[640,190],[660,200],[670,225],[665,250],[650,265],[630,270],[615,260],[605,240],[605,215],[610,200]],
+      // Ai Cập
+      [[560,290],[610,285],[650,290],[665,310],[660,340],[645,360],[620,370],[595,372],[575,365],[555,350],[548,325],[550,305],[560,290]],
+      // Gaul (Pháp)
+      [[155,68],[200,60],[245,55],[280,58],[300,65],[310,85],[305,105],[295,115],[280,120],[260,120],[240,125],[220,130],[205,140],[200,90],[180,75],[155,68]]
+    ]
+  },
+  {
+    era: 'Đế chế cực đại', tag: 'tag-pax',
+    year: '117 SCN — thời Trajan',
+    title: 'Đế chế cực đại: ~5 triệu km²',
+    text: '<strong>117 SCN — Đỉnh cao dưới Trajan:</strong> Đế chế La Mã đạt lãnh thổ lớn nhất trong lịch sử: từ Britain (Scotland) ở phía Bắc, sông Rhine–Danube ở châu Âu, Mesopotamia (Iraq) ở phía Đông, sa mạc Sahara ở phía Nam. Dân số ước tính 50–70 triệu người. Mare Nostrum — Địa Trung Hải — là "hồ nội địa" của đế chế. Đây là giai đoạn Pax Romana (27 TCN–180 SCN) — khoảng 200 năm tương đối hòa bình và thịnh vượng.',
+    regions: [
+      [[260,120],[300,110],[320,105],[340,115],[360,125],[370,155],[360,180],[355,210],[350,250],[340,280],[330,300],[315,320],[310,340],[300,355],[290,360],[280,345],[275,320],[270,295],[265,265],[260,235],[258,205],[255,175],[252,150],[250,130],[260,120]],
+      [[30,80],[80,70],[120,65],[155,68],[180,75],[200,90],[210,110],[205,140],[195,165],[180,185],[160,195],[135,195],[110,190],[85,185],[65,175],[45,160],[30,145],[25,120],[30,80]],
+      [[285,355],[310,355],[335,360],[345,375],[335,385],[300,388],[278,380],[275,368],[285,355]],
+      [[220,215],[240,210],[250,222],[248,250],[235,262],[220,258],[210,242],[212,225],[220,215]],
+      [[230,165],[246,160],[255,170],[252,192],[238,198],[225,188],[222,172],[230,165]],
+      [[100,290],[160,280],[220,275],[270,278],[320,280],[370,285],[420,290],[460,295],[500,300],[520,310],[510,340],[480,355],[440,365],[400,370],[360,368],[320,360],[280,350],[240,340],[200,335],[160,335],[120,330],[90,318],[80,305],[100,290]],
+      [[360,125],[410,120],[455,110],[480,125],[490,155],[480,175],[465,195],[455,215],[440,235],[425,245],[410,240],[395,225],[380,205],[370,185],[365,165],[360,145],[360,125]],
+      [[395,225],[415,235],[425,255],[420,275],[408,285],[395,280],[382,270],[375,255],[378,235],[395,225]],
+      [[480,125],[540,115],[590,110],[630,115],[660,130],[665,155],[655,175],[635,190],[610,200],[585,205],[555,200],[530,195],[505,190],[485,175],[480,155],[480,125]],
+      [[610,200],[640,190],[660,200],[670,225],[665,250],[650,265],[630,270],[615,260],[605,240],[605,215],[610,200]],
+      [[560,290],[610,285],[650,290],[665,310],[660,340],[645,360],[620,370],[595,372],[575,365],[555,350],[548,325],[550,305],[560,290]],
+      [[155,68],[200,60],[245,55],[280,58],[300,65],[310,85],[305,105],[295,115],[280,120],[260,120],[240,125],[220,130],[205,140],[200,90],[180,75],[155,68]],
+      // Britain (phần lớn)
+      [[150,30],[185,28],[205,35],[215,55],[210,70],[195,75],[175,72],[158,60],[148,45],[150,30]],
+      // Dacia / Romania
+      [[440,45],[490,40],[530,42],[555,55],[560,75],[545,90],[520,95],[495,90],[470,80],[455,65],[440,45]],
+      // Mesopotamia
+      [[640,190],[665,200],[680,225],[680,260],[670,280],[650,290],[620,285],[610,270],[610,250],[620,225],[630,210],[640,190]]
+    ]
+  }
+];
+
+let mapStep = -1;
+
+function drawMap(stepIdx) {
+  mCtx.clearRect(0, 0, MW, MH);
+  drawSea();
+  drawLandBase();
+
+  // Vẽ các vùng lãnh thổ La Mã
+  if (stepIdx >= 0) {
+    const step = MAP_STEPS[stepIdx];
+    step.regions.forEach((region, ri) => {
+      // Màu dần đậm hơn theo bước
+      const alpha = 0.55 + Math.min(stepIdx, 4) * 0.04;
+      const colors = [
+        `rgba(21,128,61,${alpha})`,
+        `rgba(15,118,110,${alpha})`,
+        `rgba(15,118,110,${alpha - 0.05})`,
+        `rgba(15,118,110,${alpha - 0.08})`,
+        `rgba(124,58,237,${alpha})`
+      ];
+      fillPoly(region, colors[Math.min(stepIdx, 4)]);
+    });
+  }
+
+  // Viền đất liền
+  mCtx.strokeStyle = '#a8a29e';
+  mCtx.lineWidth = 0.8;
+
+  // Các nhãn địa danh quan trọng
+  const labels = [
+    { x: 278, y: 190, text: 'ROMA', bold: true, color: '#b91c1c', size: 13 },
+    { x: 118, y: 130, text: 'HISPANIA', bold: false, color: '#374151', size: 10 },
+    { x: 248, y: 80,  text: 'GALLIA', bold: false, color: '#374151', size: 10 },
+    { x: 170, y: 52,  text: 'BRITANNIA', bold: false, color: '#374151', size: 9 },
+    { x: 310, y: 310, text: 'SICILIA', bold: false, color: '#374151', size: 9 },
+    { x: 310, y: 320, text: '', bold: false, color: '#374151', size: 9 },
+    { x: 410, y: 160, text: 'GRAECIA', bold: false, color: '#374151', size: 9 },
+    { x: 565, y: 158, text: 'ASIA MINOR', bold: false, color: '#374151', size: 9 },
+    { x: 295, y: 320, text: 'AFRICA', bold: false, color: '#374151', size: 10 },
+    { x: 616, y: 328, text: 'AEGYPTUS', bold: false, color: '#374151', size: 9 },
+    { x: 638, y: 240, text: 'MESOPOTAMIA', bold: false, color: '#374151', size: 9 },
+    { x: 490, y: 66,  text: 'DACIA', bold: false, color: '#374151', size: 9 },
+    { x: 390, y: 90,  text: 'GERMANIA', bold: false, color: '#374151', size: 9 },
+    { x: 365, y: 205, text: 'MARE NOSTRUM', bold: true, color: '#1d4ed8', size: 11 },
+    { x: 365, y: 218, text: '(Địa Trung Hải)', bold: false, color: '#1d4ed8', size: 9 },
+  ];
+
+  labels.forEach(lb => {
+    mCtx.font = `${lb.bold ? '700' : '500'} ${lb.size}px sans-serif`;
+    mCtx.fillStyle = lb.color;
+    mCtx.textAlign = 'center';
+    mCtx.fillText(lb.text, lb.x, lb.y);
+  });
+  mCtx.textAlign = 'left';
+
+  // Dấu chấm thành Rome
+  mCtx.fillStyle = '#b91c1c';
+  mCtx.beginPath();
+  mCtx.arc(280, 176, 5, 0, Math.PI * 2);
+  mCtx.fill();
+  mCtx.strokeStyle = 'white';
+  mCtx.lineWidth = 1.5;
+  mCtx.stroke();
+
+  // Mũi tên bành trướng nếu có bước
+  if (stepIdx === 0) {
+    drawArrow(320, 190, 345, 255, '#15803d', 'Ý');
+  } else if (stepIdx === 1) {
+    drawArrowLabel(262, 300, 300, 370, '#0d9488', 'Sicily');
+    drawArrowLabel(280, 180, 120, 130, '#0d9488', 'Hispania');
+  } else if (stepIdx === 2) {
+    drawArrowLabel(320, 180, 390, 200, '#0f766e', 'Graecia');
+    drawArrowLabel(300, 270, 260, 315, '#0f766e', 'Africa');
+  } else if (stepIdx === 3) {
+    drawArrowLabel(350, 160, 490, 150, '#b45309', 'Asia Minor');
+    drawArrowLabel(280, 180, 235, 88, '#b45309', 'Gallia');
+  } else if (stepIdx === 4) {
+    // đế chế cực đại — không cần mũi tên riêng
+    mCtx.fillStyle = 'rgba(124,58,237,0.9)';
+    mCtx.font = 'bold 11px sans-serif';
+    mCtx.textAlign = 'center';
+    mCtx.fillText('~5 triệu km²', MW/2, 40);
+    mCtx.fillText('~50–70 triệu dân (ước tính)', MW/2, 55);
+    mCtx.textAlign = 'left';
+  }
+}
+
+function drawArrow(x1, y1, x2, y2, color, label) {
+  mCtx.strokeStyle = color;
+  mCtx.lineWidth = 2;
+  mCtx.setLineDash([5, 3]);
+  mCtx.beginPath();
+  mCtx.moveTo(x1, y1);
+  mCtx.lineTo(x2, y2);
+  mCtx.stroke();
+  mCtx.setLineDash([]);
+}
+
+function drawArrowLabel(x1, y1, x2, y2, color, label) {
+  mCtx.strokeStyle = color;
+  mCtx.lineWidth = 1.5;
+  mCtx.setLineDash([4, 3]);
+  mCtx.beginPath();
+  mCtx.moveTo(x1, y1);
+  mCtx.lineTo(x2, y2);
+  mCtx.stroke();
+  mCtx.setLineDash([]);
+}
+
+function mapUpdateUI() {
+  const step = mapStep;
+  const data = step >= 0 ? MAP_STEPS[step] : null;
+
+  // Panel
+  const tag = document.getElementById('map-era-tag');
+  const text = document.getElementById('map-text');
+  if (data) {
+    tag.className = 'era-tag ' + data.tag;
+    tag.textContent = data.era + ' · ' + data.year;
+    text.innerHTML = data.text;
+  } else {
+    tag.className = 'era-tag tag-early';
+    tag.textContent = 'Khởi đầu';
+    text.innerHTML = 'Nhấn <strong>Bắt đầu</strong> để xem La Mã bành trướng theo từng giai đoạn lịch sử.';
+  }
+
+  // Nút
+  document.getElementById('btn-map-prev').disabled = step <= 0;
+  document.getElementById('btn-map-next').textContent =
+    step < 0 ? 'Bắt đầu →' :
+    step >= MAP_STEPS.length - 1 ? 'Hoàn thành' :
+    'Bước tiếp theo →';
+  document.getElementById('btn-map-next').disabled = step >= MAP_STEPS.length - 1;
+
+  // Dots
+  const dots = document.getElementById('map-dots');
+  dots.innerHTML = '';
+  for (let i = 0; i < MAP_STEPS.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (i === step ? ' active' : i < step ? ' done' : '');
+    d.textContent = i + 1;
+    const si = i;
+    d.onclick = function() { mapGoTo(si); };
+    dots.appendChild(d);
+  }
+
+  drawMap(step);
+}
+
+function mapNext()  { if (mapStep < MAP_STEPS.length - 1) { mapStep++; mapUpdateUI(); } }
+function mapPrev()  { if (mapStep > 0) { mapStep--; mapUpdateUI(); } }
+function mapGoTo(i) { mapStep = i; mapUpdateUI(); }
+function mapReset() { mapStep = -1; mapUpdateUI(); }
+
+drawMap(-1);
+mapUpdateUI();
+
+/* ════════════════════════════════════════════════
+   MODULE 2 — Sơ đồ thể chế
+   ════════════════════════════════════════════════ */
+
+const INST_DATA = {
+  senate: {
+    title: 'Viện Nguyên lão (Senate)',
+    body: `<strong>Thành phần:</strong> Khoảng 300 thành viên ban đầu (tăng lên 600 rồi 900 qua các thời kỳ), hầu hết là quý tộc (patrician) và những người từng giữ chức vụ cao. Nhiệm kỳ: suốt đời.<br><br>
+<strong>Quyền hạn thực tế:</strong> Tuy không thể tự ban hành luật, nhưng <em>senatus consultum</em> (nghị quyết Nguyên lão) có trọng lượng rất lớn về chính sách đối ngoại, tài chính nhà nước, tôn giáo, và điều hành các tỉnh thành. Kiểm soát ngân sách và việc điều quân — ai không có sự đồng thuận của Nguyên lão rất khó hành động.<br><br>
+<strong>Điểm yếu:</strong> Khi xung đột với Hộ dân quan (Tribune), Nguyên lão có thể bị phủ quyết. Cuối Cộng hòa, các tướng có quân riêng bỏ qua Nguyên lão hoàn toàn.`
+  },
+  censors: {
+    title: 'Censors (Kiểm tra quan)',
+    body: `<strong>Thành phần:</strong> Hai người, nhiệm kỳ 18 tháng, chỉ bầu 5 năm một lần.<br><br>
+<strong>Quyền hạn:</strong> Lập và duy trì danh sách công dân (census) — quyết định ai được bỏ phiếu, ai đủ điều kiện nhập ngũ, ai nộp bao nhiêu thuế. Quản lý ngân sách nhà nước. Bổ nhiệm và khai trừ thành viên Viện Nguyên lão (quyền <em>lectio senatus</em>). Giám sát đạo đức công cộng (<em>regimen morum</em>).<br><br>
+<strong>Tầm quan trọng:</strong> Mặc dù không có imperium (quyền chỉ huy quân sự), Censors có ảnh hưởng sâu đến cơ cấu xã hội và ngân sách — ai muốn làm Censor thường đã là cựu Consul.`
+  },
+  pontifex: {
+    title: 'Pontifex Maximus (Đại tư tế)',
+    body: `<strong>Vai trò:</strong> Đứng đầu tôn giáo nhà nước La Mã — phụ trách lịch tôn giáo, các nghi lễ, đền thờ, và tuyển chọn các tư tế (pontiffs, flamens, Vestal Virgins).<br><br>
+<strong>Chính trị hóa:</strong> Từ thời Cộng hòa muộn, chức này trở thành công cụ chính trị. Julius Caesar nắm Pontifex Maximus từ 63 TCN. Augustus tích hợp chức này vào bộ sưu tập quyền lực hoàng đế (từ 12 TCN), biến tôn giáo thành một trụ cột quyền lực nhà nước.<br><br>
+<strong>Di sản:</strong> Danh hiệu <em>Pontifex Maximus</em> sau này được các Giáo hoàng Công giáo tiếp nhận — còn dùng đến ngày nay.`
+  },
+  consul: {
+    title: 'Chấp chính quan (Consul)',
+    body: `<strong>Thành phần:</strong> Hai người, bầu hàng năm, ban đầu chỉ từ patrician; từ 367 TCN (Luật Licinia-Sextia) bắt buộc một người phải là plebeian.<br><br>
+<strong>Imperium:</strong> Quyền tối cao trong cả dân sự lẫn quân sự — có thể triệu tập Nguyên lão, chỉ huy quân đội, xét xử. Khi ra trận, mỗi Consul chỉ huy một cánh quân riêng.<br><br>
+<strong>Cơ chế kiểm soát cốt lõi — VETO:</strong> Mỗi Consul có quyền <em>intercessio</em> (phủ quyết) đối với người kia và đối với mọi quan chức cấp thấp hơn. Đây là cơ chế <em>checks and balances</em> sơ khai.<br><br>
+<strong>Điểm yếu:</strong> Khi khủng hoảng quân sự lớn, hai Consul có thể tranh chấp nhau — điển hình là thất bại Cannae (216 TCN) khi hai Consul cầm quân theo phong cách khác nhau.`
+  },
+  praetors: {
+    title: 'Pháp quan và các quan chức hành chính (Praetors, Quaestors, Aediles)',
+    body: `<strong>Praetors (Pháp quan):</strong> Ban đầu 2, sau tăng đến 8 người. Phụ trách xét xử tư pháp — cả dân sự lẫn hình sự. Khi Consul vắng mặt (đi chinh phạt), Praetor có thể thay thế lãnh đạo thành Rome. Cũng có thể chỉ huy quân đội khi cần.<br><br>
+<strong>Quaestors (Kho bạc quan):</strong> Quản lý tài chính nhà nước và của các quan chức cấp cao. Đây là bước đầu trong con đường sự nghiệp chính trị La Mã (<em>cursus honorum</em>).<br><br>
+<strong>Aediles (Quan phụ trách đô thị):</strong> Quản lý hạ tầng đô thị, lương thực (chợ), các lễ hội và trò chơi công cộng. Cung cấp trò chơi miễn phí — một kênh xây dựng ủng hộ dân chúng quan trọng.`
+  },
+  dictator: {
+    title: 'Độc tài (Dictator) — chức khẩn cấp',
+    body: `<strong>Điều kiện bổ nhiệm:</strong> Chỉ khi Cộng hòa đối mặt khủng hoảng cấp bách (giặc xâm lược, nội loạn nghiêm trọng). Một trong hai Consul đề nghị, Viện Nguyên lão phê duyệt.<br><br>
+<strong>Quyền hạn:</strong> Gần như tuyệt đối — không có Consul song song, không bị Tribune phủ quyết. Nắm toàn bộ quyền dân sự và quân sự.<br><br>
+<strong>Giới hạn thiết kế:</strong> Tối đa 6 tháng — sau đó phải từ chức. Tướng Cincinnatus (458 TCN) nổi tiếng vì hoàn thành nhiệm vụ trong 15 ngày rồi trở về cày ruộng — hình mẫu đạo đức công dân La Mã.<br><br>
+<strong>Bị lạm dụng:</strong> Sulla (82–79 TCN) và Caesar (từ 49 TCN) đều dùng danh hiệu Dictator vượt quá 6 tháng và không theo truyền thống — đây là vi phạm tinh thần Cộng hòa dẫn đến sụp đổ.`
+  },
+  tribune: {
+    title: 'Hộ dân quan (Tribune of the Plebs)',
+    body: `<strong>Nguồn gốc:</strong> Ra đời sau cuộc "đình công" của bình dân tại Mons Sacer (494 TCN). Được bầu riêng bởi và chỉ đại diện cho bình dân (plebeian).<br><br>
+<strong>Quyền lực đặc trưng — VETO:</strong> Quyền <em>intercessio</em> (phủ quyết) rộng nhất trong hệ thống — có thể phủ quyết quyết định của bất kỳ quan chức nào kể cả Consul, và quyết định của Viện Nguyên lão. Không ai được cản trở thể chất Tribune đang thi hành nhiệm vụ — tính mạng được bảo vệ bởi <em>sacrosanctitas</em> (bất khả xâm phạm).<br><br>
+<strong>10 người:</strong> Số lượng đảm bảo luôn có Tribune sẵn sàng phủ quyết — khó vô hiệu hóa cả 10 cùng lúc.<br><br>
+<strong>Bị lạm dụng:</strong> Tiberius Gracchus (133 TCN) dùng Tribune để loại bỏ đồng nghiệp phủ quyết cải cách đất đai — vi phạm tinh thần chức vụ, bị giết. Caesar sau này nắm quyền Tribune trọn đời (<em>tribunicia potestas</em>) như Augustus — biến công cụ bảo vệ bình dân thành trụ cột quyền lực hoàng đế.`
+  },
+  assembly: {
+    title: 'Hội đồng bình dân (Plebeian Council / Tribal Assembly)',
+    body: `<strong>Cơ cấu:</strong> Tập hợp toàn bộ công dân La Mã được tổ chức theo đơn vị địa lý (tribes). Bình dân chiếm đa số tuyệt đối.<br><br>
+<strong>Quyền hạn:</strong> Bầu Hộ dân quan (Tribune) và Quan phụ trách đô thị (Aedile) bình dân. Thông qua <em>plebiscita</em> (quyết nghị bình dân). Sau Luật Hortensia (287 TCN): quyết nghị có hiệu lực pháp lý đối với <strong>mọi công dân La Mã</strong>, không riêng bình dân.<br><br>
+<strong>Giới hạn thực tế:</strong> Bỏ phiếu diễn ra ở Rome — nông dân xa thành phố khó tham gia. Cuối Cộng hòa, Hội đồng dễ bị các nhà chính trị giàu có (như Caesar) thao túng qua phân phát tiền, lúa mì và trò chơi.`
+  }
+};
+
+function instShow(id) {
+  const data = INST_DATA[id];
+  if (!data) return;
+  const detail = document.getElementById('inst-detail');
+  document.getElementById('inst-detail-title').textContent = data.title;
+  document.getElementById('inst-detail-body').innerHTML = data.body;
+  detail.className = 'inst-detail show';
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 4 — Quiz ôn tập
+   ════════════════════════════════════════════════ */
+
+const QUIZ = [
+  {
+    q: 'Vì sao nền Cộng hòa La Mã có hai chấp chính quan (Consul) thay vì một?',
+    opts: [
+      'Để một người lo dân sự, một người lo quân sự',
+      'Để mỗi người có quyền phủ quyết (veto) lẫn nhau, ngăn tập quyền',
+      'Vì La Mã có hai bộ lạc sáng lập và mỗi bộ lạc được một đại diện',
+      'Đó là yêu cầu của Viện Nguyên lão để dễ kiểm soát',
+    ],
+    correct: 1,
+    explain: 'Cơ chế cốt lõi là quyền phủ quyết (veto — tiếng Latin: "tôi cấm"): mỗi Consul có thể chặn quyết định của người kia. Người La Mã rút ra bài học từ thời Vương quyền: quyền lực tập trung lâu dài dễ trở thành bạo chúa. Bộ đôi Consul là checks and balances sơ khai — tuy nhiên trong khủng hoảng quân sự lớn (như Cannae 216 TCN), hai Consul bất đồng nhau gây thiệt hại nghiêm trọng.'
+  },
+  {
+    q: 'Hannibal thắng liên tiếp từ Trebia (218 TCN) đến Cannae (216 TCN) nhưng cuối cùng thua La Mã. Nguyên nhân chính nào KHÔNG đúng?',
+    opts: [
+      'Carthage không gửi đủ tiếp viện và hậu cần cho Hannibal',
+      'Phần lớn đồng minh của La Mã không nổi dậy theo Hannibal sau Cannae',
+      'Hannibal không có đủ máy công thành để tấn công thành Rome',
+      'Scipio Africanus phong tỏa Alps, chặn đường rút của Hannibal',
+    ],
+    correct: 3,
+    explain: 'Ba nguyên nhân đúng là: thiếu tiếp viện từ Carthage, đồng minh La Mã trung thành hơn dự tính, và thiếu phương tiện công thành. Scipio KHÔNG phong tỏa Alps mà làm ngược lại: ông tấn công thẳng Bắc Phi (Carthage), buộc Hannibal phải rút khỏi Ý để bảo vệ quê nhà. Đây là nước cờ chiến lược đối xứng — không truy đuổi Hannibal ở Ý mà tấn công mục tiêu sống còn của đối phương.'
+  },
+  {
+    q: 'Cải cách quân đội của Marius (107 TCN) dẫn đến hệ quả không chủ ý nào nguy hiểm nhất cho nền Cộng hòa?',
+    opts: [
+      'Quân đội yếu hơn vì tuyển cả người nghèo không có kinh nghiệm',
+      'Ngân sách quốc phòng tăng vọt, phá sản nhà nước',
+      'Binh sĩ trung thành với tướng chỉ huy hơn là nhà nước, vì tướng hứa đất sau xuất ngũ',
+      'Viện Nguyên lão mất quyền kiểm soát quân đội ngay lập tức',
+    ],
+    correct: 2,
+    explain: 'Marius xóa yêu cầu tài sản khi nhập ngũ — người nghèo cũng được tuyển. Nhà nước cấp trang bị, lương, và quan trọng nhất: hứa phân chia đất sau xuất ngũ. Vì nhà nước thường không giữ lời hứa này, binh sĩ trông cậy vào tướng chỉ huy để vận động đất cho họ. Kết quả: quân đội trung thành với tướng hơn với Cộng hòa — tiền đề cho Sulla dẫn quân vào Rome (88 TCN), và sau đó Caesar vượt Rubicon (49 TCN).'
+  },
+  {
+    q: '"Augustus không phải hoàng đế thực sự vì ông không tự xưng vua." Đánh giá này đúng hay sai?',
+    opts: [
+      'Đúng — ông chỉ là "công dân thứ nhất", quyền lực còn giới hạn',
+      'Sai — ông kiểm soát quân đội, ngân sách, tỉnh thành và tôn giáo; nền nguyên thủ là quân chủ trong vỏ bọc Cộng hòa',
+      'Đúng một nửa — ông có quyền lực lớn nhưng phải chia sẻ với Viện Nguyên lão',
+      'Sai — ông đã tự xưng hoàng đế công khai từ 27 TCN',
+    ],
+    correct: 1,
+    explain: 'Augustus không dùng danh hiệu vua hay hoàng đế — ông học bài học từ Caesar: người La Mã ghét hình thức vương quyền. Nhưng ông nắm: quyền Tribune trọn đời (veto và miễn tố), danh nghĩa Imperator (tổng tư lệnh quân đội), kiểm soát trực tiếp các tỉnh biên giới có quân đội, và Pontifex Maximus (đứng đầu tôn giáo). Không ai có thể thách thức ông. Đây là chế độ quân chủ thực chất trong hình thức Cộng hòa — gọi là "Principate" (Nguyên thủ chế).'
+  },
+  {
+    q: 'Di sản nào của La Mã ảnh hưởng trực tiếp đến tiếng Việt ngày nay?',
+    opts: [
+      'Hệ thống vòm cuốn trong kiến trúc',
+      'Bảng chữ cái Latin — tiếng Việt dùng chữ Quốc ngữ gốc Latin từ thế kỉ XVII',
+      'Hệ thống cầu máng nước (aqueduct)',
+      'Đồng tiền denarius — nền tảng cho đồng Việt Nam',
+    ],
+    correct: 1,
+    explain: 'Bảng chữ cái Latin (26 chữ) là di sản La Mã ảnh hưởng trực tiếp đến tiếng Việt: chữ Quốc ngữ — hệ thống chữ viết tiếng Việt hiện đại — được các giáo sĩ Công giáo (trong đó có Alexandre de Rhodes) phát triển từ thế kỉ XVII, dựa trên bảng chữ cái Latin. Trước đó tiếng Việt dùng chữ Nôm (gốc Hán). Mỗi lần bạn đọc hoặc gõ tiếng Việt, bạn đang dùng di sản trực tiếp từ La Mã cổ đại.'
+  },
+  {
+    q: 'Trong hệ thống Cộng hòa La Mã, ai có quyền phủ quyết (veto) rộng nhất?',
+    opts: [
+      'Chấp chính quan (Consul) — vì có Imperium tối cao',
+      'Viện Nguyên lão — vì kiểm soát ngân sách',
+      'Hộ dân quan (Tribune of the Plebs) — có thể veto mọi quan chức kể cả Consul',
+      'Censors — vì quản lý danh sách công dân',
+    ],
+    correct: 2,
+    explain: 'Hộ dân quan (Tribune) có quyền intercessio (phủ quyết) rộng nhất hệ thống: có thể chặn quyết định của bất kỳ quan chức nào kể cả Consul và quyết định của Viện Nguyên lão. Tính mạng Tribune được bảo vệ bởi sacrosanctitas (bất khả xâm phạm) — không ai được cản trở thể chất. Đây là vũ khí chính trị mạnh nhất của tầng lớp bình dân, mặc dù chức Tribune chỉ có thể là người bình dân (plebeian) và không có Imperium (quyền chỉ huy quân sự).'
+  },
+  {
+    q: 'Pax Romana kéo dài bao lâu và kết thúc vào thời điểm nào?',
+    opts: [
+      'Khoảng 100 năm, kết thúc khi Julius Caesar bị ám sát năm 44 TCN',
+      'Khoảng 200 năm (27 TCN–180 SCN), kết thúc khi Marcus Aurelius qua đời',
+      'Khoảng 500 năm, kết thúc khi Tây La Mã sụp đổ năm 476 SCN',
+      'Khoảng 50 năm (27 TCN–14 SCN), kết thúc khi Augustus qua đời',
+    ],
+    correct: 1,
+    explain: 'Pax Romana ("Hòa bình La Mã") là thuật ngữ chỉ khoảng ~200 năm từ Augustus (27 TCN) đến cái chết của Marcus Aurelius (180 SCN) — giai đoạn đế chế tương đối ổn định, thịnh vượng, ít nội chiến lớn. Sau Marcus Aurelius, Khủng hoảng thế kỉ III (235–284 SCN) bắt đầu với hàng chục hoàng đế tranh giành quyền lực, kinh tế sụp đổ, dịch bệnh và biên giới bị tấn công liên tục.'
+  }
+];
+
+let quizIdx = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = `Câu ${quizIdx + 1}/${QUIZ.length}: ${q.q}`;
+  document.getElementById('quiz-prog').textContent = `${quizIdx + 1} / ${QUIZ.length}`;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? `Điểm: ${quizScore}/${quizIdx}` : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = function() { quizAnswer(i); };
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+
+  document.getElementById('quiz-score').textContent = `Điểm: ${quizScore}/${quizIdx + 1}`;
+
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent = `Kết quả: ${quizScore}/${QUIZ.length} (${pct}%)`;
+    document.getElementById('quiz-prog').textContent =
+      pct >= 80 ? 'Xuất sắc!' : pct >= 60 ? 'Tốt — ôn lại các câu sai.' : 'Cần ôn tập thêm.';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

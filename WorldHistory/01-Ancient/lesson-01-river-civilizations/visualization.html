@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Cách mạng nông nghiệp &amp; Các nền văn minh sông</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette WorldHistory — Cổ đại ── */
+  :root {
+    --accent:       #0f766e;
+    --accent-soft:  #ccfbf1;
+    --accent-dark:  #134e4a;
+    --red-war:      #b91c1c;
+    --red-soft:     #fee2e2;
+    --blue-trade:   #1d4ed8;
+    --blue-soft:    #dbeafe;
+    --sand:         #92400e;
+    --sand-soft:    #fef3c7;
+    --stone:        #57534e;
+    --stone-soft:   #f5f5f4;
+    --nile-blue:    #0369a1;
+    --mesopo-brown: #b45309;
+    --indus-purple: #7c3aed;
+    --huang-orange: #c2410c;
+    --bg-card:      #ffffff;
+    --bg-section:   #f0fdfa;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.6rem; margin-bottom: 6px; }
+  h2 { color: var(--accent); margin-top: 40px; padding-bottom: 8px;
+       border-bottom: 2px solid var(--accent-soft); font-size: 1.2rem; }
+
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 5px rgba(15,118,110,.10);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .sand-box {
+    background: var(--sand-soft);
+    border-left: 4px solid var(--mesopo-brown);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary   { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 1 — Bản đồ SVG các nền văn minh sông
+     ══════════════════════════════════════════════ */
+  #map-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .civ-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 12px 0 4px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    transition: border-color .15s, background .15s;
+  }
+  .legend-item:hover { border-color: currentColor; }
+  .legend-item.active { border-color: currentColor; font-weight: 700; }
+  .legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .civ-info-panel {
+    background: var(--bg-section);
+    border: 1px solid var(--accent-soft);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 64px;
+  }
+  .civ-info-panel h4 {
+    margin: 0 0 6px;
+    font-size: 15px;
+  }
+  .civ-info-panel .civ-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .civ-meta-badge {
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--accent-soft);
+    color: var(--accent-dark);
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 2 — Timeline tương tác
+     ══════════════════════════════════════════════ */
+  .tl-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .tl-filter {
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 2px solid #d1d5db;
+    background: #f9fafb;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s;
+    font-weight: 600;
+    color: #374151;
+  }
+  .tl-filter.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); }
+
+  .timeline-h {
+    position: relative;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  .tl-track {
+    position: relative;
+    min-width: 700px;
+    height: 120px;
+    margin: 8px 0;
+  }
+  .tl-axis {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-soft), var(--accent), var(--accent-soft));
+    border-radius: 2px;
+  }
+  .tl-tick {
+    position: absolute;
+    top: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .tl-tick-line {
+    width: 2px;
+    height: 12px;
+    background: var(--accent);
+    margin-top: -6px;
+  }
+  .tl-tick-label {
+    font-size: 11px;
+    color: var(--stone);
+    margin-top: 2px;
+    white-space: nowrap;
+  }
+
+  .tl-event {
+    position: absolute;
+    top: 50%;
+    transform: translateX(-50%);
+    cursor: pointer;
+    z-index: 2;
+  }
+  .tl-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px currentColor;
+    margin: -7px auto 0;
+    transition: transform .15s;
+  }
+  .tl-event:hover .tl-dot { transform: scale(1.4); }
+  .tl-event.above .tl-label {
+    bottom: calc(100% + 14px);
+    top: auto;
+  }
+  .tl-label {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: calc(100% + 8px);
+    white-space: nowrap;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 6px;
+    pointer-events: none;
+    color: white;
+    max-width: 130px;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .tl-detail {
+    background: var(--bg-section);
+    border: 1px solid var(--accent-soft);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 56px;
+  }
+  .tl-detail h4 { margin: 0 0 4px; font-size: 14px; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 3 — Chữ viết tương tác
+     ══════════════════════════════════════════════ */
+  .script-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--accent-soft);
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .script-tab {
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--stone);
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color .15s, border-color .15s;
+  }
+  .script-tab.active { color: var(--accent-dark); border-bottom-color: var(--accent); }
+  .script-tab:hover { color: var(--accent); }
+
+  .script-panel { display: none; }
+  .script-panel.active { display: block; }
+
+  .script-intro {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+
+  .glyph-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .glyph-card {
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: border-color .15s, background .15s, transform .1s;
+    background: #fafafa;
+    min-width: 80px;
+    flex: 0 0 auto;
+  }
+  .glyph-card:hover { border-color: var(--accent); background: var(--accent-soft); transform: scale(1.04); }
+  .glyph-card.selected { border-color: var(--accent); background: var(--accent-soft); }
+
+  .glyph-symbol {
+    font-size: 28px;
+    line-height: 1.2;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .glyph-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--stone);
+    white-space: nowrap;
+  }
+
+  .glyph-detail {
+    background: var(--sand-soft);
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+  }
+  .glyph-detail.show { display: block; }
+  .glyph-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .glyph-detail-big { font-size: 42px; line-height: 1; }
+  .glyph-detail-title { font-size: 16px; font-weight: 700; color: var(--accent-dark); }
+  .glyph-detail-sub { font-size: 13px; color: var(--stone); }
+
+  /* ══════════════════════════════════════════════
+     MODULE 4 — So sánh hai văn minh
+     ══════════════════════════════════════════════ */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 12px 0;
+  }
+  .compare-table th {
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 700;
+    color: white;
+  }
+  .compare-table th:first-child { background: var(--stone); border-radius: 8px 0 0 0; }
+  .compare-table th.th-mesopo   { background: var(--mesopo-brown); }
+  .compare-table th.th-egypt    { background: var(--nile-blue); border-radius: 0 8px 0 0; }
+  .compare-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: top;
+    line-height: 1.5;
+    color: #374151;
+    font-size: 13px;
+  }
+  .compare-table tr:nth-child(even) td { background: #fafafa; }
+  .compare-table td:first-child { font-weight: 700; color: #1f2937; font-size: 13px; }
+  .compare-table .highlight-row td { background: #f0fdfa; font-weight: 600; color: var(--accent-dark); }
+
+  /* ══════════════════════════════════════════════
+     MODULE 5 — Quiz ôn tập
+     ══════════════════════════════════════════════ */
+  .quiz-q {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 12px;
+    color: #1f2937;
+    line-height: 1.5;
+  }
+  .quiz-opts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .quiz-opt {
+    padding: 10px 14px;
+    border-radius: 7px;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: #15803d; background: #dcfce7; color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-top: 8px;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: #dcfce7; color: #14532d; border: 1px solid #15803d; }
+  .quiz-feedback.err { background: var(--red-soft); color: #991b1b; border: 1px solid var(--red-war); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score { font-weight: 700; color: var(--accent); font-size: 15px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .compare-table { font-size: 12px; }
+    .compare-table th, .compare-table td { padding: 8px 7px; }
+    .glyph-grid { gap: 7px; }
+    .glyph-card { min-width: 66px; padding: 8px 9px; }
+    .glyph-symbol { font-size: 22px; }
+    .civ-legend { gap: 7px; }
+    .legend-item { font-size: 12px; padding: 4px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử TG — Cổ đại</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Văn minh sông</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-india-china-ancient/visualization.html">L2: Ấn Độ &amp; Trung Hoa cổ →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — Cách mạng nông nghiệp &amp; Các nền văn minh sông</h1>
+<p class="subtitle">Bản đồ các nền văn minh sông · Timeline 10000–500 TCN · Chữ viết cổ đại tương tác · Quiz</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ SVG các nền văn minh sông
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ — Bốn nền văn minh sông đầu tiên</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Nhấn vào tên nền văn minh trong chú thích, hoặc trực tiếp vào ký hiệu trên bản đồ, để xem thông tin chi tiết.
+  </div>
+
+  <div class="civ-legend" id="civ-legend">
+    <div class="legend-item" style="color: var(--mesopo-brown);" onclick="civSelect('mesopo')" id="leg-mesopo">
+      <div class="legend-dot" style="background: var(--mesopo-brown);"></div>
+      Lưỡng Hà (Mesopotamia)
+    </div>
+    <div class="legend-item" style="color: var(--nile-blue);" onclick="civSelect('egypt')" id="leg-egypt">
+      <div class="legend-dot" style="background: var(--nile-blue);"></div>
+      Ai Cập (Egypt)
+    </div>
+    <div class="legend-item" style="color: var(--indus-purple);" onclick="civSelect('indus')" id="leg-indus">
+      <div class="legend-dot" style="background: var(--indus-purple);"></div>
+      Sông Ấn (Indus Valley)
+    </div>
+    <div class="legend-item" style="color: var(--huang-orange);" onclick="civSelect('huang')" id="leg-huang">
+      <div class="legend-dot" style="background: var(--huang-orange);"></div>
+      Hoàng Hà (Yellow River)
+    </div>
+  </div>
+
+  <div id="map-wrap">
+    <!-- SVG bản đồ giản lược Á-Âu-Phi — không cần GPS chính xác -->
+    <svg width="760" height="420" viewBox="0 0 760 420" style="display:block;margin:0 auto;border-radius:8px;">
+      <!-- Nền biển -->
+      <rect width="760" height="420" fill="#bfdbfe" rx="8"/>
+
+      <!-- ── Lục địa (giản lược) ── -->
+      <!-- Châu Phi (phía dưới-trái) -->
+      <path d="M 60 160  Q 80 155 100 165  L 130 180  Q 140 200 135 230
+               Q 130 260 120 280  Q 100 310 80 330  Q 60 350 55 360
+               Q 50 350 55 320  Q 55 290 60 270  Q 65 240 60 210
+               Q 55 185 60 160 Z"
+            fill="#d4a76a" stroke="#c08040" stroke-width="1.5"/>
+      <!-- Lưỡng Hà / Trung Đông -->
+      <path d="M 155 90  L 230 80  L 280 85  L 300 105
+               L 280 125  L 255 135  L 230 140  L 200 135
+               L 175 130  L 155 115 Z"
+            fill="#e5c88b" stroke="#c08040" stroke-width="1.2"/>
+      <!-- Anatolia / bán đảo Ả Rập rough -->
+      <path d="M 150 105  L 165 95  L 175 85  L 190 80
+               L 165 75  L 145 80  L 138 95 Z"
+            fill="#dbb87a" stroke="#c08040" stroke-width="1"/>
+      <path d="M 195 140  L 230 145  L 245 175  L 225 200
+               L 200 190  L 185 165 Z"
+            fill="#e0c080" stroke="#c08040" stroke-width="1"/>
+      <!-- Ai Cập / Bắc Phi -->
+      <path d="M 90 130  L 155 115  L 165 130  L 160 160
+               L 140 175  L 110 170  L 85 155 Z"
+            fill="#e8d090" stroke="#c08040" stroke-width="1.2"/>
+      <!-- Vùng Ấn Độ và Pakistan -->
+      <path d="M 330 80  L 430 75  L 455 90  L 450 130
+               L 435 155  L 415 175  L 390 180  L 360 165
+               L 340 145  L 325 120 Z"
+            fill="#c8d8a0" stroke="#7c9850" stroke-width="1.2"/>
+      <!-- Vùng Đông Nam Á / Trung Quốc -->
+      <path d="M 470 60  L 600 55  L 650 70  L 660 110
+               L 640 145  L 610 155  L 580 145  L 540 130
+               L 500 120  L 475 100 Z"
+            fill="#b8d898" stroke="#7c9850" stroke-width="1.2"/>
+      <!-- Châu Âu (góc trên trái) -->
+      <path d="M 60 40  L 160 40  L 200 60  L 175 75
+               L 145 75  L 115 65  L 80 60 Z"
+            fill="#c8d8b0" stroke="#7c9850" stroke-width="1"/>
+      <!-- Bán đảo Ấn Độ (mũi nhọn xuống) -->
+      <path d="M 390 175  L 415 175  L 430 200  L 415 225
+               L 395 230  L 378 210 Z"
+            fill="#c0d098" stroke="#7c9850" stroke-width="1"/>
+
+      <!-- ── Sông Nile (dọc qua Ai Cập) ── -->
+      <path d="M 115 165  Q 118 145 120 125  Q 122 110 128 100"
+            fill="none" stroke="#0369a1" stroke-width="3" stroke-linecap="round"/>
+
+      <!-- ── Sông Tigris & Euphrates (Lưỡng Hà) ── -->
+      <path d="M 200 95  Q 215 105 225 120  Q 235 135 238 148"
+            fill="none" stroke="#92400e" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M 220 88  Q 232 102 240 118  Q 248 134 248 148"
+            fill="none" stroke="#92400e" stroke-width="2" stroke-linecap="round" stroke-dasharray="4,2"/>
+
+      <!-- ── Sông Ấn (Indus) ── -->
+      <path d="M 370 85  Q 365 105 362 125  Q 360 145 358 165"
+            fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round"/>
+
+      <!-- ── Hoàng Hà ── -->
+      <path d="M 520 90  Q 540 95 560 100  Q 580 105 590 118"
+            fill="none" stroke="#c2410c" stroke-width="2.5" stroke-linecap="round"/>
+
+      <!-- ── Dấu hiệu thương mại (đường nét đứt) ── -->
+      <path d="M 238 145  Q 295 150 345 155  Q 360 158 362 162"
+            fill="none" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.7"/>
+      <text x="290" y="168" font-size="10" fill="#64748b" text-anchor="middle" opacity="0.8">thương mại</text>
+
+      <!-- ── Điểm văn minh ── -->
+      <!-- Lưỡng Hà: Uruk ~ (228, 130) -->
+      <g id="dot-mesopo" style="cursor:pointer" onclick="civSelect('mesopo')">
+        <circle cx="228" cy="130" r="13" fill="var(--mesopo-brown)" opacity="0.25"/>
+        <circle cx="228" cy="130" r="8" fill="var(--mesopo-brown)" stroke="white" stroke-width="2.5"/>
+        <text x="228" y="134" text-anchor="middle" font-size="9" font-weight="bold" fill="white">M</text>
+      </g>
+      <!-- Ai Cập: Memphis ~ (118, 148) -->
+      <g id="dot-egypt" style="cursor:pointer" onclick="civSelect('egypt')">
+        <circle cx="118" cy="148" r="13" fill="var(--nile-blue)" opacity="0.25"/>
+        <circle cx="118" cy="148" r="8" fill="var(--nile-blue)" stroke="white" stroke-width="2.5"/>
+        <text x="118" y="152" text-anchor="middle" font-size="9" font-weight="bold" fill="white">E</text>
+      </g>
+      <!-- Sông Ấn: Mohenjo-daro ~ (362, 142) -->
+      <g id="dot-indus" style="cursor:pointer" onclick="civSelect('indus')">
+        <circle cx="362" cy="142" r="13" fill="var(--indus-purple)" opacity="0.20"/>
+        <circle cx="362" cy="142" r="8" fill="var(--indus-purple)" stroke="white" stroke-width="2.5"/>
+        <text x="362" y="146" text-anchor="middle" font-size="9" font-weight="bold" fill="white">I</text>
+      </g>
+      <!-- Hoàng Hà: Anyang ~ (570, 102) -->
+      <g id="dot-huang" style="cursor:pointer" onclick="civSelect('huang')">
+        <circle cx="570" cy="102" r="13" fill="var(--huang-orange)" opacity="0.20"/>
+        <circle cx="570" cy="102" r="8" fill="var(--huang-orange)" stroke="white" stroke-width="2.5"/>
+        <text x="570" y="106" text-anchor="middle" font-size="9" font-weight="bold" fill="white">H</text>
+      </g>
+
+      <!-- Nhãn địa danh -->
+      <text x="228" y="110" text-anchor="middle" font-size="11" font-weight="bold" fill="var(--mesopo-brown)">Lưỡng Hà</text>
+      <text x="104" y="158" text-anchor="middle" font-size="11" font-weight="bold" fill="var(--nile-blue)">Ai Cập</text>
+      <text x="362" y="122" text-anchor="middle" font-size="11" font-weight="bold" fill="var(--indus-purple)">Sông Ấn</text>
+      <text x="570" y="82" text-anchor="middle" font-size="11" font-weight="bold" fill="var(--huang-orange)">Hoàng Hà</text>
+
+      <!-- Nhãn biển -->
+      <text x="383" y="280" text-anchor="middle" font-size="13" fill="#93c5fd" font-style="italic">Ấn Độ Dương</text>
+      <text x="600" y="250" text-anchor="middle" font-size="13" fill="#93c5fd" font-style="italic">Biển Đông</text>
+      <text x="180" y="340" text-anchor="middle" font-size="11" fill="#93c5fd" font-style="italic">Châu Phi</text>
+      <text x="380" y="68" text-anchor="middle" font-size="11" fill="#93c5fd" font-style="italic">Biển Ả Rập</text>
+
+      <!-- Chú thích "Lưỡi liềm màu mỡ" -->
+      <path d="M 170 90  Q 210 75 250 90  Q 265 100 268 115"
+            fill="none" stroke="#15803d" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>
+      <text x="215" y="72" text-anchor="middle" font-size="9" fill="#15803d" font-style="italic">"Lưỡi liềm màu mỡ"</text>
+
+      <!-- Mũi tên bắc nam -->
+      <text x="728" y="20" font-size="11" fill="#475569">Bắc</text>
+      <line x1="735" y1="22" x2="735" y2="38" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <defs>
+        <marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L6,3 Z" fill="#475569"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <div class="civ-info-panel" id="civ-info-panel">
+    <em style="color:var(--stone);">Nhấn vào tên nền văn minh hoặc ký hiệu trên bản đồ để xem thông tin chi tiết.</em>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Timeline tương tác 10000–500 TCN
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Timeline — Từ nông nghiệp đến văn minh (10000–500 TCN)</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Lọc theo chủ đề bằng các nút bên dưới. Nhấn vào từng điểm trên trục thời gian để xem chi tiết.
+  </div>
+
+  <div class="tl-filter-row" id="tl-filters">
+    <button class="tl-filter active" onclick="tlFilter('all')" id="flt-all">Tất cả</button>
+    <button class="tl-filter" onclick="tlFilter('agri')" id="flt-agri" style="color: var(--accent);">Nông nghiệp</button>
+    <button class="tl-filter" onclick="tlFilter('mesopo')" id="flt-mesopo" style="color: var(--mesopo-brown);">Lưỡng Hà</button>
+    <button class="tl-filter" onclick="tlFilter('egypt')" id="flt-egypt" style="color: var(--nile-blue);">Ai Cập</button>
+  </div>
+
+  <div class="timeline-h">
+    <div class="tl-track" id="tl-track">
+      <div class="tl-axis"></div>
+      <!-- Các sự kiện được render bởi JS -->
+    </div>
+  </div>
+
+  <div class="tl-detail" id="tl-detail">
+    <em style="color:var(--stone);">Nhấn vào một điểm trên timeline để xem thông tin.</em>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Chữ viết cổ đại tương tác
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Chữ viết cổ đại — Cuneiform &amp; Hieroglyphics</h2>
+
+<div class="card">
+  <div class="sand-box">
+    Chữ viết là một trong những đặc trưng quan trọng nhất của văn minh — xuất hiện khoảng 3200 TCN, độc lập ở hai nơi: Uruk (Lưỡng Hà) và Ai Cập. Nhấn vào từng ký hiệu bên dưới để khám phá nghĩa và cách đọc.
+  </div>
+
+  <div class="script-tabs">
+    <div class="script-tab active" onclick="scriptTab('cuneiform')">Chữ hình nêm (Cuneiform)</div>
+    <div class="script-tab" onclick="scriptTab('hieroglyph')">Chữ tượng hình (Hieroglyphics)</div>
+  </div>
+
+  <!-- Cuneiform panel -->
+  <div class="script-panel active" id="panel-cuneiform">
+    <div class="script-intro">
+      <strong>Chữ hình nêm (Cuneiform)</strong> — xuất hiện khoảng 3200 TCN tại Uruk (Lưỡng Hà). Được khắc bằng que nhọn (stylus) ấn vào đất sét ướt, tạo ra các vết hình nêm. Ban đầu là ký hiệu đếm hàng hóa, dần phát triển thành chữ ghi ngôn ngữ đầy đủ. Sử dụng trong khoảng 3000 năm (3200 TCN – khoảng 100 SCN).
+    </div>
+    <div class="glyph-grid" id="grid-cuneiform"></div>
+    <div class="glyph-detail" id="detail-cuneiform"></div>
+  </div>
+
+  <!-- Hieroglyph panel -->
+  <div class="script-panel" id="panel-hieroglyph">
+    <div class="script-intro">
+      <strong>Chữ tượng hình (Hieroglyphics)</strong> — xuất hiện khoảng 3200–3100 TCN tại Ai Cập, gần như song song với cuneiform. Kết hợp ký hiệu hình vẽ (logogram) và ký hiệu âm tiết. Dùng chủ yếu trong văn bản tôn giáo và lăng mộ. Phong trào dịch được mở ra bởi phiến đá Rosetta (196 TCN, dịch năm 1822 bởi Jean-François Champollion).
+    </div>
+    <div class="glyph-grid" id="grid-hieroglyph"></div>
+    <div class="glyph-detail" id="detail-hieroglyph"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Bảng so sánh Lưỡng Hà và Ai Cập
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. So sánh — Lưỡng Hà và Ai Cập</h2>
+
+<div class="card">
+  <div class="info-box">
+    Hai nền văn minh sông đầu tiên và hoàn chỉnh nhất — cùng thời kỳ, cùng bối cảnh sông lớn, nhưng có nhiều điểm khác biệt đáng kể.
+  </div>
+
+  <div style="overflow-x: auto;">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Tiêu chí</th>
+          <th class="th-mesopo">Lưỡng Hà (Mesopotamia)</th>
+          <th class="th-egypt">Ai Cập (Egypt)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Thời gian xuất hiện</td>
+          <td>Khoảng 3500 TCN (Uruk)</td>
+          <td>Khoảng 3100 TCN (thống nhất)</td>
+        </tr>
+        <tr>
+          <td>Địa lý</td>
+          <td>Đồng bằng thấp, phẳng giữa 2 sông. Không có đá, gỗ.</td>
+          <td>Dải hẹp ven sông Nile, xung quanh sa mạc. Có đá granit.</td>
+        </tr>
+        <tr>
+          <td>Tính chất lũ</td>
+          <td>Lũ không đều, khó đoán, đôi khi hung dữ</td>
+          <td>Lũ đều đặn, có thể dự đoán theo chu kỳ năm</td>
+        </tr>
+        <tr class="highlight-row">
+          <td>Hệ thống chính trị</td>
+          <td>Các thành bang độc lập (city-states) cạnh tranh, thỉnh thoảng bị thống nhất dưới đế chế</td>
+          <td>Nhà nước thống nhất từ sớm dưới pharaoh — vua được xem là thần thánh</td>
+        </tr>
+        <tr>
+          <td>Thế giới quan tôn giáo</td>
+          <td>Đa thần; thần hung dữ, thế giới hỗn loạn. Con người phục vụ thần.</td>
+          <td>Đa thần; thần có trật tự và chu kỳ. Maat = hài hòa vũ trụ. Pharaoh là hóa thân của Horus.</td>
+        </tr>
+        <tr>
+          <td>Chữ viết</td>
+          <td>Chữ hình nêm (cuneiform) — khắc bằng que nhọn vào đất sét</td>
+          <td>Chữ tượng hình (hieroglyphics) — khắc đá hoặc viết trên papyrus</td>
+        </tr>
+        <tr>
+          <td>Vật liệu viết</td>
+          <td>Bảng đất sét (clay tablets) — nặng, bền lâu nếu nung</td>
+          <td>Giấy papyrus — nhẹ, dễ vận chuyển, xuất khẩu khắp Địa Trung Hải</td>
+        </tr>
+        <tr>
+          <td>Công trình tiêu biểu</td>
+          <td>Ziggurat (tháp đền nhiều bậc), tường thành, kênh đào. Vật liệu: gạch bùn.</td>
+          <td>Kim tự tháp, đền thờ đá, tượng Nhân Sư. Vật liệu: đá (bền vượt thời gian).</td>
+        </tr>
+        <tr class="highlight-row">
+          <td>Bộ luật nổi bật</td>
+          <td>Bộ luật Hammurabi (~1750 TCN) — 282 điều khoản, khắc lên đá bazan</td>
+          <td>Không có bộ luật thành văn nổi tiếng tương đương — quyền lực pharaoh mang tính tuyệt đối, không cần thành văn</td>
+        </tr>
+        <tr>
+          <td>Số phận cuối cùng</td>
+          <td>Babylon bị Persia chinh phục 539 TCN; văn hóa được hấp thụ dần</td>
+          <td>Ai Cập bị Alexander Đại đế chinh phục 332 TCN; văn hóa được bảo tồn lâu hơn</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 5 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>5. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q" id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <button class="btn btn-secondary" id="btn-quiz-restart" onclick="quizRestart()" style="display:none">Làm lại</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score" id="quiz-score"></span>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   MODULE 1 — Bản đồ: dữ liệu và tương tác
+   ════════════════════════════════════════════════ */
+
+const CIV_DATA = {
+  mesopo: {
+    name: 'Văn minh Lưỡng Hà (Mesopotamia)',
+    color: '#b45309',
+    sông: 'Tigris & Euphrates',
+    vùng: 'Iraq, Syria, đông nam Thổ Nhĩ Kỳ ngày nay',
+    xuatHien: 'Khoảng 3500 TCN (thành phố Uruk)',
+    thanhPho: 'Uruk (~40.000–80.000 dân), Ur, Babylon',
+    chuViet: 'Chữ hình nêm (cuneiform) — khoảng 3200 TCN',
+    congTrinh: 'Ziggurat (tháp đền nhiều bậc), kênh đào, tường thành',
+    noiBat: 'Chữ viết đầu tiên, bánh xe, Bộ luật Hammurabi, Sử thi Gilgamesh',
+    preview: 'Nền văn minh thành bang đầu tiên — trung tâm là các thành bang Sumer với ziggurat. Lũ sông không đều thúc đẩy tổ chức nhà nước sớm.',
+  },
+  egypt: {
+    name: 'Văn minh Ai Cập (Egypt)',
+    color: '#0369a1',
+    sông: 'Sông Nile',
+    vùng: 'Ai Cập và Sudan ngày nay',
+    xuatHien: 'Khoảng 3100 TCN (thống nhất bởi Menes/Narmer)',
+    thanhPho: 'Memphis, Thebes',
+    chuViet: 'Chữ tượng hình (hieroglyphics) — khoảng 3200–3100 TCN',
+    congTrinh: 'Kim tự tháp (Khufu ~2560 TCN), đền thờ đá, tượng Nhân Sư',
+    noiBat: 'Pharaoh–thần (hóa thân Horus), lịch 365 ngày, giấy papyrus, toán học đo đạc',
+    preview: 'Nhà nước thống nhất sớm với pharaoh thần thánh. Sông Nile lũ đều đặn → thế giới quan trật tự và hài hòa (Maat).',
+  },
+  indus: {
+    name: 'Văn minh Thung lũng sông Ấn (Indus Valley)',
+    color: '#7c3aed',
+    sông: 'Sông Ấn (Indus) & Ghaggar-Hakra',
+    vùng: 'Pakistan và tây bắc Ấn Độ ngày nay',
+    xuatHien: 'Khoảng 2600 TCN (đỉnh cao: Harappa, Mohenjo-daro)',
+    thanhPho: 'Harappa, Mohenjo-daro (mỗi thành phố ~40.000 dân)',
+    chuViet: 'Chữ viết Indus (~2600 TCN) — chưa được giải mã hoàn toàn',
+    congTrinh: 'Hệ thống thoát nước đô thị, nhà gạch tiêu chuẩn hóa, kho thóc lớn',
+    noiBat: 'Quy hoạch đô thị tiên tiến nhất thế giới cổ đại. Ít bằng chứng về vũ khí và chiến tranh. Biến mất bí ẩn ~1900 TCN.',
+    preview: '(Bài tiếp theo — Lesson 02) Nền văn minh có quy hoạch đô thị tiên tiến với hệ thống thoát nước và tiêu chuẩn hóa xây dựng đáng kinh ngạc.',
+  },
+  huang: {
+    name: 'Văn minh Trung Hoa sơ kỳ (Hoàng Hà)',
+    color: '#c2410c',
+    sông: 'Hoàng Hà (Yellow River)',
+    vùng: 'Bắc Trung Quốc (tỉnh Hà Nam, Sơn Đông ngày nay)',
+    xuatHien: 'Khoảng 1600 TCN (nhà Thương — Shang Dynasty)',
+    thanhPho: 'Anyang (kinh đô nhà Thương)',
+    chuViet: 'Chữ giáp cốt (Oracle bone script) — khoảng 1250 TCN',
+    congTrinh: 'Cung điện, đồ đồng tinh xảo, xe ngựa chiến',
+    noiBat: 'Chữ Hán cổ nhất, thuật luyện đồng tiên tiến, bói toán xương giáp cốt. Tổ tiên của chữ viết Trung Hoa hiện đại.',
+    preview: '(Bài tiếp theo — Lesson 02) Văn minh xuất hiện muộn hơn nhưng phát triển liên tục đến ngày nay. Chữ giáp cốt là tổ tiên của chữ Hán hiện đại.',
+  },
+};
+
+let activeCiv = null;
+
+function civSelect(id) {
+  activeCiv = id;
+
+  // Legend: cập nhật active
+  ['mesopo','egypt','indus','huang'].forEach(k => {
+    const el = document.getElementById('leg-' + k);
+    if (el) el.classList.toggle('active', k === id);
+  });
+
+  // Cập nhật panel
+  const d = CIV_DATA[id];
+  const panel = document.getElementById('civ-info-panel');
+  panel.innerHTML = `
+    <h4 style="color:${d.color}; margin:0 0 6px;">${d.name}</h4>
+    <div class="civ-meta">
+      <span class="civ-meta-badge" style="background:${d.color}20; color:${d.color};">Sông: ${d.sông}</span>
+      <span class="civ-meta-badge" style="background:${d.color}20; color:${d.color};">Xuất hiện: ${d.xuatHien}</span>
+    </div>
+    <p style="margin:0 0 6px;"><strong>Vùng địa lý:</strong> ${d.vùng}</p>
+    <p style="margin:0 0 6px;"><strong>Thành phố tiêu biểu:</strong> ${d.thanhPho}</p>
+    <p style="margin:0 0 6px;"><strong>Chữ viết:</strong> ${d.chuViet}</p>
+    <p style="margin:0 0 6px;"><strong>Công trình nổi bật:</strong> ${d.congTrinh}</p>
+    <p style="margin:0 0 6px;"><strong>Đóng góp nổi bật:</strong> ${d.noiBat}</p>
+    <p style="margin:0; color:var(--stone); font-style:italic; font-size:13px;">${d.preview}</p>
+  `;
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 2 — Timeline tương tác
+   ════════════════════════════════════════════════ */
+
+// Năm: dùng số âm cho TCN (−10000 = 10000 TCN)
+const TL_EVENTS = [
+  {
+    year: -10000, label: '~10000 TCN', title: 'Nông nghiệp đầu tiên ở Lưỡi liềm màu mỡ',
+    cat: 'agri', color: '#059669',
+    detail: 'Khoảng 10.000 TCN, sau kỷ Băng hà cuối, con người bắt đầu trồng lúa mì và đại mạch hoang dại tại vùng "Lưỡi liềm màu mỡ" (Fertile Crescent) — từ Tigris-Euphrates lên bắc rồi vòng xuống Địa Trung Hải. Đây là điểm khởi đầu của quá trình định cư và hình thành văn minh.',
+    above: false,
+  },
+  {
+    year: -8000, label: '~8000 TCN', title: 'Thuần hóa cừu, dê và bò',
+    cat: 'agri', color: '#059669',
+    detail: 'Khoảng 8000–7000 TCN, người ở Trung Đông thuần hóa cừu và dê; tiếp theo là bò khoảng 8000–6000 TCN. Chăn nuôi cung cấp thêm nguồn thực phẩm ổn định và sức kéo cho nông nghiệp.',
+    above: true,
+  },
+  {
+    year: -5000, label: '~5000 TCN', title: 'Làng nông nghiệp ở nam Lưỡng Hà',
+    cat: 'mesopo', color: '#b45309',
+    detail: 'Khoảng 5000–4000 TCN, các làng nông nghiệp nhỏ ở đồng bằng nam Lưỡng Hà bắt đầu phát triển thành thị trấn lớn. Nhu cầu tưới tiêu tập thể thúc đẩy tổ chức nhà nước sơ khai.',
+    above: false,
+  },
+  {
+    year: -3500, label: '~3500 TCN', title: 'Uruk — Thành phố đầu tiên thế giới',
+    cat: 'mesopo', color: '#b45309',
+    detail: 'Khoảng 3500 TCN, Uruk (nam Iraq ngày nay) trở thành thành phố đầu tiên trên thế giới với dân số ước tính 40.000–80.000 người. Cùng thời điểm này, bánh xe xuất hiện lần đầu tại Lưỡng Hà — trước tiên là bàn xoay gốm.',
+    above: true,
+  },
+  {
+    year: -3200, label: '~3200 TCN', title: 'Chữ viết đầu tiên tại Uruk',
+    cat: 'mesopo', color: '#b45309',
+    detail: 'Khoảng 3200 TCN, những ký hiệu viết đầu tiên xuất hiện trên bảng đất sét tại Uruk — ban đầu là ký hiệu đếm hàng hóa (pictograph). Đây là khởi đầu của chữ hình nêm (cuneiform). Chữ viết Ai Cập cũng xuất hiện gần như cùng thời điểm — độc lập.',
+    above: false,
+  },
+  {
+    year: -3100, label: '~3100 TCN', title: 'Menes/Narmer thống nhất Ai Cập',
+    cat: 'egypt', color: '#0369a1',
+    detail: 'Khoảng 3100 TCN, Vua Menes (hay Narmer — học giả còn tranh luận) thống nhất Thượng và Hạ Ai Cập thành một nhà nước thống nhất. Đây là mốc truyền thống đánh dấu khởi đầu Ai Cập cổ đại. Khác với Lưỡng Hà (thành bang cạnh tranh), Ai Cập thống nhất từ rất sớm.',
+    above: true,
+  },
+  {
+    year: -2650, label: '~2650 TCN', title: 'Kim tự tháp bậc thang đầu tiên (Djoser)',
+    cat: 'egypt', color: '#0369a1',
+    detail: 'Khoảng 2650 TCN, Kim tự tháp bậc thang của Pharaoh Djoser tại Saqqara được xây dựng — thiết kế bởi kiến trúc sư Imhotep. Đây là công trình đá lớn đầu tiên trong lịch sử nhân loại.',
+    above: false,
+  },
+  {
+    year: -2560, label: '~2560 TCN', title: 'Kim tự tháp Khufu (Giza)',
+    cat: 'egypt', color: '#0369a1',
+    detail: 'Khoảng 2560 TCN, Kim tự tháp Khufu tại Giza hoàn thành — cao 146,5m, gồm khoảng 2,3 triệu khối đá trung bình 2,5 tấn/khối. Là kỳ quan thế giới cổ đại duy nhất còn tồn tại đến ngày nay. Công nhân là người Ai Cập được trả lương — không phải nô lệ.',
+    above: true,
+  },
+  {
+    year: -2350, label: '~2350 TCN', title: 'Đế chế Akkad — đế chế đa dân tộc đầu tiên',
+    cat: 'mesopo', color: '#b45309',
+    detail: 'Khoảng 2350–2150 TCN, Sargon of Akkad chinh phục và hợp nhất các thành bang Sumer thành Đế chế Akkad — đế chế đa dân tộc đầu tiên trong lịch sử. Người Akkad nói tiếng Semit (tổ tiên tiếng Ả Rập và Hebrew). Đây là tiền thân của khái niệm "đế chế" trong lịch sử.',
+    above: false,
+  },
+  {
+    year: -2100, label: '~2100 TCN', title: 'Sử thi Gilgamesh — văn học đầu tiên',
+    cat: 'mesopo', color: '#b45309',
+    detail: 'Khoảng 2100 TCN, bản thảo đầu tiên của Sử thi Gilgamesh (Epic of Gilgamesh) được ghi chép bằng chữ hình nêm — một trong những tác phẩm văn học đầu tiên còn lại của nhân loại. Kể về Vua Gilgamesh của Uruk và cuộc tìm kiếm sự bất tử.',
+    above: true,
+  },
+  {
+    year: -1750, label: '~1750 TCN', title: 'Bộ luật Hammurabi',
+    cat: 'mesopo', color: '#b45309',
+    detail: 'Khoảng 1754 TCN, Vua Hammurabi của Babylon cho khắc bộ luật 282 điều khoản lên tấm đá bazan cao 2,25m. Đây là bộ luật thành văn hoàn chỉnh nhất được bảo tồn từ thế giới cổ đại. Nguyên bản hiện trưng bày tại Bảo tàng Louvre, Paris.',
+    above: false,
+  },
+  {
+    year: -1550, label: '~1550 TCN', title: 'Vương quốc Mới Ai Cập — đỉnh cao quyền lực',
+    cat: 'egypt', color: '#0369a1',
+    detail: 'Khoảng 1550–1070 TCN, Vương quốc Mới là giai đoạn đỉnh cao của Ai Cập cổ đại — bành trướng quân sự vào vùng Canaan và Nubia. Pharaoh Thutmose III, Ramesses II là những nhân vật nổi bật. Thời kỳ xây dựng nhiều đền thờ đá lớn nhất.',
+    above: true,
+  },
+  {
+    year: -539, label: '539 TCN', title: 'Persia chinh phục Babylon',
+    cat: 'mesopo', color: '#b45309',
+    detail: 'Năm 539 TCN, Vua Cyrus Đại đế của Ba Tư (Persia/Achaemenid) chiếm Babylon mà không cần chiến trận lớn. Đây là dấu chấm hết cho nền độc lập chính trị của Lưỡng Hà cổ đại — dù văn hóa và ngôn ngữ tiếp tục tồn tại vài thế kỷ thêm.',
+    above: false,
+  },
+];
+
+let tlCurrentFilter = 'all';
+let tlActiveEvent = null;
+
+function tlFilter(cat) {
+  tlCurrentFilter = cat;
+  ['all','agri','mesopo','egypt'].forEach(c => {
+    document.getElementById('flt-' + c).classList.toggle('active', c === cat);
+  });
+  renderTimeline();
+}
+
+function renderTimeline() {
+  const track = document.getElementById('tl-track');
+  // Giữ lại axis
+  track.innerHTML = '<div class="tl-axis"></div>';
+
+  const events = tlCurrentFilter === 'all'
+    ? TL_EVENTS
+    : TL_EVENTS.filter(e => e.cat === tlCurrentFilter || e.cat === 'agri' && tlCurrentFilter === 'all');
+
+  // Phạm vi năm
+  const yearMin = -10000;
+  const yearMax = -400;
+  const range = yearMax - yearMin;
+  const pad = 4; // % từ mép
+
+  // Ticks trục
+  const ticks = [-10000, -8000, -6000, -5000, -4000, -3500, -3000, -2500, -2000, -1500, -1000, -500];
+  ticks.forEach(y => {
+    const pct = pad + (y - yearMin) / range * (100 - 2 * pad);
+    const tick = document.createElement('div');
+    tick.className = 'tl-tick';
+    tick.style.left = pct + '%';
+    tick.style.top = '50%';
+    const label = y === -10000 ? '10000 TCN' :
+                  y === -500  ? '500 TCN'  :
+                  Math.abs(y) + ' TCN';
+    tick.innerHTML = `<div class="tl-tick-line"></div><div class="tl-tick-label">${Math.abs(y) >= 1000 ? label : label}</div>`;
+    track.appendChild(tick);
+  });
+
+  // Lọc sự kiện theo filter
+  const filtered = tlCurrentFilter === 'all'
+    ? TL_EVENTS
+    : TL_EVENTS.filter(e => e.cat === tlCurrentFilter);
+
+  filtered.forEach((ev, i) => {
+    const pct = pad + (ev.year - yearMin) / range * (100 - 2 * pad);
+    const dot = document.createElement('div');
+    dot.className = 'tl-event' + (ev.above ? ' above' : '');
+    dot.style.left = pct + '%';
+    // Alternating above/below để tránh overlap
+    const isAbove = ev.above;
+    dot.style.top = isAbove ? 'calc(50% - 60px)' : '50%';
+
+    dot.innerHTML = `
+      <div class="tl-dot" style="color:${ev.color}; background:${ev.color};"></div>
+      <div class="tl-label" style="background:${ev.color};">${ev.label}<br>${ev.title}</div>
+    `;
+    dot.title = ev.title;
+    dot.onclick = (function(e){ return function(){ tlShowEvent(e); }; })(ev);
+    track.appendChild(dot);
+  });
+}
+
+function tlShowEvent(ev) {
+  const detail = document.getElementById('tl-detail');
+  detail.innerHTML = `
+    <h4 style="color:${ev.color}; margin:0 0 4px;">${ev.label} — ${ev.title}</h4>
+    <p style="margin:0; line-height:1.6; color:#374151;">${ev.detail}</p>
+  `;
+}
+
+// Render ban đầu
+renderTimeline();
+
+/* ════════════════════════════════════════════════
+   MODULE 3 — Chữ viết cổ đại
+   ════════════════════════════════════════════════ */
+
+const CUNEIFORM_GLYPHS = [
+  { sym: '𒀭', name: 'DINGIR', reading: 'Thần (AN/DINGIR)', detail: 'Ký hiệu "An" (trời/thần) — một trong những ký hiệu cổ nhất. Gốc là hình ngôi sao 8 cánh. Đặt trước tên thần để chỉ thần thánh. Ví dụ: Thần Anu (thần bầu trời của người Sumer).' },
+  { sym: '𒌆', name: 'KI', reading: 'Đất (KI)', detail: 'Ký hiệu "Ki" nghĩa là "đất" hoặc "nơi chốn". Ghép với DINGIR (thần) để tạo DINGIR.KI = thế giới. Được khắc lên bảng đất sét từ khoảng 3000 TCN.' },
+  { sym: '𒀭𒂗𒍪', name: 'INANNA', reading: 'Inanna (nữ thần)', detail: 'Tên nữ thần Inanna — nữ thần tình yêu và chiến tranh của người Sumer. Là nhân vật trung tâm trong nhiều sử thi cổ đại, bao gồm "Cuộc hạ xuống địa ngục của Inanna".' },
+  { sym: '𒀭𒂗𒍪', name: 'GIPAR', reading: 'Kho lương thực', detail: 'Ký hiệu liên quan đến kho lương thực — một trong những ký hiệu được dùng sớm nhất vì mục đích kế toán. Các bảng đất sét đầu tiên tại Uruk (~3200 TCN) chủ yếu ghi chép xuất nhập kho.' },
+  { sym: '𒆳', name: 'KUR', reading: 'Núi / Vùng đất', detail: 'Ký hiệu "Kur" nghĩa là núi hoặc vùng đất xa lạ. Người Sumer xem núi là nơi ở của thần linh và thế giới người chết. Ziggurat (tháp đền) được xây để mô phỏng "núi nhân tạo" nối đất với trời.' },
+  { sym: '𒌓', name: 'UTU', reading: 'Mặt trời / Thần mặt trời', detail: 'Ký hiệu Utu — thần mặt trời, thần công lý của người Sumer. Gốc là hình mặt trời tỏa tia. Hammurabi đặt bộ luật dưới sự bảo hộ của Shamash (tên Akkad của Utu).' },
+  { sym: '𒇽', name: 'LÚ', reading: 'Người / Đàn ông', detail: 'Ký hiệu "Lú" (tiếng Sumer) nghĩa là người/đàn ông. Là một trong những logogram phổ biến nhất. Ghép với các ký hiệu khác để tạo nghề nghiệp: LÚ.GAL = vua (người lớn).' },
+  { sym: '𒀭𒂗', name: 'EN', reading: 'Chúa tể / Lãnh chúa', detail: 'Ký hiệu "En" nghĩa là lãnh chúa hoặc thầy tế tối cao. Các thành bang Sumer ban đầu được lãnh đạo bởi "En" — thầy tế kiêm vua. Sau đó danh hiệu "Lugal" (vua-chiến binh) trở nên phổ biến hơn.' },
+];
+
+const HIEROGLYPH_GLYPHS = [
+  { sym: '𓂀', name: 'Mắt', reading: 'Mắt (Ir)', detail: 'Hieroglyph hình mắt — ký hiệu "Ir" (làm/mắt). Cũng được dùng trong biểu tượng "Mắt của Horus" (Wedjat) — biểu tượng bảo hộ phổ biến nhất Ai Cập cổ đại, đại diện cho sự chữa lành và bảo vệ.' },
+  { sym: '𓂋', name: 'Miệng', reading: 'Miệng (R)', detail: 'Hieroglyph hình miệng — ký hiệu phụ âm "R". Là ký hiệu âm tiết, đọc là âm "r". Kết hợp với các ký hiệu khác để tạo từ. Ví dụ: "Ra" (thần mặt trời) dùng ký hiệu miệng + cánh tay.' },
+  { sym: '𓁿', name: 'Mặt trời + Pharaoh', reading: 'Ra (thần mặt trời)', detail: 'Biểu tượng thần Ra — thần mặt trời tối cao của Ai Cập. Pharaoh được xem là con của Ra và hóa thân của Horus. Trong Vương quốc Cổ (Old Kingdom), tên pharaoh thường kết thúc bằng "-ra" (ví dụ: Khufu-Ra, Khafre-Ra).' },
+  { sym: '𓊹', name: 'Neter', reading: 'Thần (Neter)', detail: 'Ký hiệu "Neter" — nghĩa là thần thánh hay thiêng liêng. Đặt sau tên các vị thần Ai Cập. Hình dạng gốc tranh luận: cờ cắm trên cột, hay cuộn vải thiêng? Đây là một trong những hieroglyph được dùng sớm nhất (khoảng 3100 TCN).' },
+  { sym: '𓂝', name: 'Cánh tay', reading: 'Cánh tay (A)', detail: 'Hieroglyph hình cánh tay giơ lên — ký hiệu âm "A" (giọt). Là ký hiệu phụ âm phổ biến. Cũng dùng độc lập để chỉ "ban cho" hay "dâng hiến". Xuất hiện nhiều trong văn bản hiến tế.' },
+  { sym: '𓅀', name: 'Chim cút', reading: 'Chim (W/U)', detail: 'Hieroglyph hình chim cút mẹ — ký hiệu âm "W" hoặc nguyên âm "U". Là một trong nhiều ký hiệu chim trong hệ thống hieroglyph (người Ai Cập dùng tới 23+ ký hiệu hình chim). Phân biệt chim bằng tư thế và chi tiết chân, mỏ.' },
+  { sym: '𓊪', name: 'Miệng mở', reading: 'Miệng mở (P)', detail: 'Hieroglyph hình tấm chiếu hình chữ nhật (không phải miệng) — ký hiệu âm "P". Hình dạng là tấm đệm ngồi. Ký hiệu âm tiết trong hệ thống bảng chữ hieroglyph (alphabet hieroglyph — 24 ký hiệu một phụ âm).' },
+  { sym: '𓎛', name: 'Bình nước', reading: 'Nước (N)', detail: 'Hieroglyph hình gợn nước — ký hiệu âm "N". Là biểu tượng nước và sông Nile. Cũng xuất hiện trong tên thần Nun (đại dương nguyên thủy trong thần thoại Ai Cập). Sông Nile (Hapi) có hieroglyph riêng — thường vẽ người đàn ông bụng phệ cầm cây dương liễu.' },
+];
+
+function renderGlyphs(type, data) {
+  const grid = document.getElementById('grid-' + type);
+  grid.innerHTML = '';
+  data.forEach((g, i) => {
+    const card = document.createElement('div');
+    card.className = 'glyph-card';
+    card.id = 'glyph-' + type + '-' + i;
+    card.innerHTML = `<span class="glyph-symbol">${g.sym}</span><div class="glyph-name">${g.name}</div>`;
+    card.onclick = (function(gi, idx){ return function(){ glyphShow(type, idx, gi); }; })(g, i);
+    grid.appendChild(card);
+  });
+}
+
+function glyphShow(type, idx, g) {
+  // Deselect all
+  const grid = document.getElementById('grid-' + type);
+  grid.querySelectorAll('.glyph-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('glyph-' + type + '-' + idx).classList.add('selected');
+
+  const detail = document.getElementById('detail-' + type);
+  detail.className = 'glyph-detail show';
+  detail.innerHTML = `
+    <div class="glyph-detail-header">
+      <div class="glyph-detail-big">${g.sym}</div>
+      <div>
+        <div class="glyph-detail-title">${g.name}</div>
+        <div class="glyph-detail-sub">${g.reading}</div>
+      </div>
+    </div>
+    <p style="margin:0; color:#374151; line-height:1.7; font-size:14px;">${g.detail}</p>
+  `;
+}
+
+function scriptTab(tab) {
+  document.querySelectorAll('.script-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.script-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+renderGlyphs('cuneiform', CUNEIFORM_GLYPHS);
+renderGlyphs('hieroglyph', HIEROGLYPH_GLYPHS);
+
+/* ════════════════════════════════════════════════
+   MODULE 5 — Quiz ôn tập
+   ════════════════════════════════════════════════ */
+
+const QUIZ = [
+  {
+    q: 'Vì sao các nền văn minh đầu tiên xuất hiện gắn với các con sông lớn ở vùng khí hậu ôn đới và bán khô hạn, chứ không phải các con sông lớn ở vùng nhiệt đới (như sông Amazon)?',
+    opts: [
+      'Vì người cổ đại sợ rừng rậm nhiệt đới',
+      'Vì vùng bán khô hạn: sông là nguồn nước độc tôn, phù sa màu mỡ, đất trống dễ canh tác khi có nước — không cần phá rừng',
+      'Vì vùng nhiệt đới không có sông đủ lớn',
+      'Vì người vùng nhiệt đới chưa biết trồng trọt',
+    ],
+    correct: 1,
+    explain: 'Ở vùng bán khô hạn (như Trung Đông, Bắc Phi), sông là nguồn nước gần như DUY NHẤT cho nông nghiệp — tạo ra sự phụ thuộc và cần tổ chức tưới tiêu tập thể. Đất ven sông không bị che phủ bởi rừng rậm → dễ canh tác ngay. Ngược lại, vùng nhiệt đới có mưa đủ cho nông nghiệp tự nhiên — ít phụ thuộc vào sông, ít áp lực tổ chức tập thể.',
+  },
+  {
+    q: 'Chữ hình nêm (cuneiform) được "phát minh" vì nhu cầu gì ban đầu?',
+    opts: [
+      'Ghi chép thơ ca và tôn giáo',
+      'Kế toán kinh tế — ghi chép xuất nhập kho hàng hóa',
+      'Truyền lệnh quân sự giữa các thành bang',
+      'Ghi lại lịch sử của vua chúa',
+    ],
+    correct: 1,
+    explain: 'Những bảng đất sét đầu tiên tại Uruk (~3200 TCN) là các hóa đơn kế toán: "X đơn vị lúa vào kho", "Y đơn vị dầu olive ra kho". Chữ viết xuất hiện vì trí nhớ không đủ để quản lý hàng nghìn giao dịch mỗi ngày của thành phố 40.000–80.000 dân. Chỉ vài thế kỷ sau mới được dùng để ghi văn học và tôn giáo.',
+  },
+  {
+    q: 'Bộ luật Hammurabi (~1750 TCN) không phải là bộ luật thành văn đầu tiên của Lưỡng Hà. Bộ luật nào cổ hơn?',
+    opts: [
+      'Bộ luật Menes (Ai Cập)',
+      'Bộ luật Ur-Nammu của Sumer (~2100 TCN)',
+      'Bộ luật Sargon của Akkad (~2350 TCN)',
+      'Không có bộ luật nào cổ hơn — Hammurabi là đầu tiên',
+    ],
+    correct: 1,
+    explain: 'Bộ luật Ur-Nammu của vua Ur-Nammu (nhà Ur III, ~2100 TCN) là bộ luật thành văn CÒN TỒN TẠI cổ hơn Hammurabi. Hammurabi nổi tiếng hơn vì bộ luật của ông hoàn chỉnh nhất và được bảo tồn tốt nhất — khắc trên tấm đá bazan nguyên vẹn, hiện ở Louvre.',
+  },
+  {
+    q: 'Kim tự tháp Khufu (Giza, ~2560 TCN) được xây bởi ai?',
+    opts: [
+      'Nô lệ Do Thái bị ép buộc',
+      'Người Ai Cập tự do được trả lương bằng lương thực và hưởng phúc lợi',
+      'Tù binh chiến tranh từ vùng Canaan',
+      'Binh lính Ai Cập như một hình phạt',
+    ],
+    correct: 1,
+    explain: 'Bằng chứng khảo cổ học (đặc biệt là nhật ký khai quật năm 2013 tại Wadi al-Jarf) cho thấy công nhân là người Ai Cập tự do. Họ được trả lương bằng lương thực và bia, có chăm sóc y tế (bộ xương tìm thấy có dấu hiệu phẫu thuật sau chấn thương). Câu chuyện nô lệ Do Thái là từ Kinh Thánh — không có bằng chứng khảo cổ.',
+  },
+  {
+    q: 'Tại sao thế giới quan tôn giáo của người Lưỡng Hà có xu hướng BI QUAN hơn người Ai Cập?',
+    opts: [
+      'Vì người Lưỡng Hà ít thông minh hơn',
+      'Vì sông Tigris-Euphrates lũ không đều, khó đoán; sông Nile lũ đều đặn, có thể dự đoán',
+      'Vì người Lưỡng Hà không có đủ lương thực',
+      'Vì Ai Cập gần biển hơn',
+    ],
+    correct: 1,
+    explain: 'Đây là ví dụ kinh điển về địa lý ảnh hưởng thế giới quan. Sông Nile lũ đều đặn theo chu kỳ hàng năm → người Ai Cập thấy thế giới có trật tự, tuần hoàn → Maat (hài hòa vũ trụ). Sông Tigris-Euphrates lũ bất thường, có thể hung dữ → người Lưỡng Hà thấy thần linh khó đoán, thế giới hỗn loạn → thần hay trừng phạt con người. Thế giới quan này phản ánh môi trường sống.',
+  },
+  {
+    q: '"Cách mạng nông nghiệp" xuất hiện ở bao nhiêu nơi trên thế giới?',
+    opts: [
+      'Chỉ 1 nơi — Lưỡi liềm màu mỡ Trung Đông, rồi lan rộng ra',
+      'Khoảng 2 nơi — Trung Đông và Trung Quốc',
+      'Ít nhất 6–8 khu vực khác nhau — độc lập với nhau',
+      'Chưa ai biết chắc — không có bằng chứng',
+    ],
+    correct: 2,
+    explain: 'Nông nghiệp xuất hiện độc lập ở ít nhất 6–8 khu vực: Lưỡi liềm màu mỡ (~10.000 TCN), vùng sông Dương Tử/Hoàng Hà (~7.000–5.000 TCN), New Guinea (~7.000 TCN), Trung Mỹ (~7.000–5.000 TCN), vùng Sahel (châu Phi), đông bắc Mỹ, v.v. Đây là hiện tượng hội tụ độc lập — nhiều cộng đồng tự phát hiện ra giải pháp nông nghiệp khi điều kiện tương tự nhau.',
+  },
+  {
+    q: 'Hệ quả đầu tiên và quan trọng nhất của việc xuất hiện thặng dư lương thực là gì?',
+    opts: [
+      'Người ta ăn ngon hơn và khỏe hơn',
+      'Cho phép một bộ phận dân số không làm nông — tạo ra chuyên môn hóa lao động',
+      'Giá lương thực giảm xuống',
+      'Các làng bắt đầu chiến tranh với nhau để giành kho thóc',
+    ],
+    correct: 1,
+    explain: 'Thặng dư lương thực nghĩa là: nông dân A có thể nuôi nhiều người hơn gia đình mình. Do đó nông dân B không cần làm ruộng nữa — B có thể chuyên làm gốm, rèn, thầy tế, chiến binh, quan lại. Chuyên môn hóa này tạo ra sự phức tạp xã hội (social complexity) — nền tảng của nhà nước, chữ viết, pháp luật và văn minh.',
+  },
+  {
+    q: 'Đặc điểm nào làm KHÁC BIỆT hệ thống chính trị của Ai Cập so với Lưỡng Hà sơ kỳ?',
+    opts: [
+      'Ai Cập có dân chủ; Lưỡng Hà có độc tài',
+      'Ai Cập thống nhất sớm dưới pharaoh-thần; Lưỡng Hà là hệ thống nhiều thành bang cạnh tranh',
+      'Ai Cập không có quân đội; Lưỡng Hà có quân đội lớn',
+      'Ai Cập do phụ nữ lãnh đạo; Lưỡng Hà do đàn ông',
+    ],
+    correct: 1,
+    explain: 'Ai Cập thống nhất thành một nhà nước duy nhất từ ~3100 TCN dưới pharaoh được xem là thần thánh — không có đối thủ chính trị ngang hàng. Ngược lại, Lưỡng Hà sơ kỳ là hệ thống thành bang (city-states) độc lập: Uruk, Ur, Lagash, Nippur — cạnh tranh và chiến tranh với nhau, thỉnh thoảng mới bị thống nhất dưới một đế chế. Đây là sự khác biệt cơ bản về cấu trúc chính trị.',
+  },
+];
+
+let quizIdx = 0, quizScore = 0, quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = `Câu ${quizIdx + 1}/${QUIZ.length}: ${q.q}`;
+  document.getElementById('quiz-prog').textContent = `${quizIdx + 1} / ${QUIZ.length}`;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? `Điểm: ${quizScore}/${quizIdx}` : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = function() { quizAnswer(i); };
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  document.getElementById('btn-quiz-restart').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+
+  document.getElementById('quiz-score').textContent = `Điểm: ${quizScore}/${quizIdx + 1}`;
+
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent = `Kết quả: ${quizScore}/${QUIZ.length} (${pct}%)`;
+    document.getElementById('quiz-prog').textContent = pct >= 80 ? 'Xuất sắc!' : pct >= 60 ? 'Tốt — ôn lại các câu sai.' : 'Cần ôn tập thêm.';
+    document.getElementById('btn-quiz-restart').style.display = 'inline-block';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+function quizRestart() {
+  quizIdx = 0;
+  quizScore = 0;
+  quizAnswered = false;
+  quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

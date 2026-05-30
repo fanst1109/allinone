@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Đế chế Ba Tư &amp; Alexander Đại đế</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette WorldHistory / Cổ đại ── */
+  :root {
+    --accent:      #0f766e;
+    --accent-soft: #ccfbf1;
+    --accent-dark: #134e4a;
+    --red-war:     #b91c1c;
+    --red-soft:    #fee2e2;
+    --blue-trade:  #1d4ed8;
+    --blue-soft:   #dbeafe;
+    --gold:        #b45309;
+    --gold-soft:   #fef3c7;
+    --stone:       #57534e;
+    --stone-soft:  #f5f5f4;
+    --bg-card:     #ffffff;
+    --bg-section:  #f0fdfa;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.55rem; margin-bottom: 6px; }
+  h2 {
+    color: var(--accent);
+    margin-top: 40px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-soft);
+    font-size: 1.15rem;
+  }
+
+  .subtitle {
+    color: var(--stone);
+    font-size: 14px;
+    margin-bottom: 22px;
+    font-style: italic;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 6px rgba(15,118,110,.10);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 11px 15px;
+    margin: 10px 0;
+    font-size: 13.5px;
+    line-height: 1.65;
+  }
+  .war-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-war);
+    border-radius: 0 8px 8px 0;
+    padding: 11px 15px;
+    margin: 10px 0;
+    font-size: 13.5px;
+    line-height: 1.65;
+  }
+  .gold-box {
+    background: var(--gold-soft);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 11px 15px;
+    margin: 10px 0;
+    font-size: 13.5px;
+    line-height: 1.65;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-war { background: var(--red-war); color: white; }
+  .btn-war:hover { background: #991b1b; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 1 — Bản đồ động bành trướng đế chế
+     ══════════════════════════════════════════════ */
+  .map-wrap { width: 100%; overflow-x: auto; }
+  #empire-svg {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .step-panel {
+    background: var(--bg-section);
+    border: 1px solid var(--accent-soft);
+    border-radius: 8px;
+    padding: 13px 17px;
+    margin-top: 14px;
+    min-height: 72px;
+    font-size: 13.5px;
+    line-height: 1.7;
+  }
+  .step-panel .era-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .tag-persia   { background: var(--gold-soft); color: var(--gold); }
+  .tag-war      { background: var(--red-soft); color: var(--red-war); }
+  .tag-alex     { background: var(--blue-soft); color: var(--blue-trade); }
+  .tag-hellen   { background: var(--accent-soft); color: var(--accent-dark); }
+
+  .step-dots {
+    display: flex; gap: 7px; margin: 10px 0; flex-wrap: wrap;
+  }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid #d1d5db; background: #f9fafb;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11.5px; font-weight: 700; color: #9ca3af;
+    cursor: pointer; transition: all .2s;
+  }
+  .step-dot.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .step-dot.done   { background: var(--stone); border-color: var(--stone); color: white; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 2 — Timeline
+     ══════════════════════════════════════════════ */
+  .timeline {
+    position: relative;
+    padding: 12px 0 12px 32px;
+    margin: 8px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 12px; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--gold), var(--red-war), var(--blue-trade), var(--accent));
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 18px;
+    padding-left: 20px;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -26px; top: 6px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+  }
+  .tl-item.persia::before { background: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+  .tl-item.war::before    { background: var(--red-war); box-shadow: 0 0 0 2px var(--red-war); }
+  .tl-item.alex::before   { background: var(--blue-trade); box-shadow: 0 0 0 2px var(--blue-trade); }
+  .tl-item.key::before {
+    width: 18px; height: 18px; left: -28px; top: 4px;
+    background: var(--red-war);
+    box-shadow: 0 0 0 3px var(--red-war), 0 0 0 6px rgba(185,28,28,.2);
+  }
+  .tl-year  { font-size: 12.5px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .tl-item.persia .tl-year { color: var(--gold); }
+  .tl-item.war .tl-year    { color: var(--red-war); }
+  .tl-item.alex .tl-year   { color: var(--blue-trade); }
+  .tl-item.key .tl-year    { color: var(--red-war); font-size: 14px; }
+  .tl-title { font-weight: 700; font-size: 13.5px; color: #1f2937; line-height: 1.4; }
+  .tl-desc  { font-size: 12.5px; color: #6b7280; margin-top: 3px; line-height: 1.5; }
+  .tl-badge {
+    display: inline-block; padding: 1px 7px; border-radius: 10px;
+    font-size: 10.5px; font-weight: 700; margin-left: 6px; vertical-align: middle;
+  }
+  .badge-persia { background: var(--gold-soft); color: var(--gold); }
+  .badge-war    { background: var(--red-soft); color: #991b1b; }
+  .badge-alex   { background: var(--blue-soft); color: var(--blue-trade); }
+  .badge-hellen { background: var(--accent-soft); color: var(--accent-dark); }
+
+  /* ══════════════════════════════════════════════
+     MODULE 3 — Sơ đồ cơ cấu satrap
+     ══════════════════════════════════════════════ */
+  .org-chart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin: 14px 0;
+  }
+  .org-node {
+    border-radius: 8px;
+    padding: 11px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    border: 2px solid;
+    min-width: 160px;
+    max-width: 100%;
+    cursor: pointer;
+    transition: box-shadow .15s, transform .1s;
+  }
+  .org-node:hover { box-shadow: 0 3px 10px rgba(0,0,0,.13); transform: translateY(-2px); }
+  .org-node.king    { background: var(--gold-soft); border-color: var(--gold); color: var(--gold); font-size: 14.5px; }
+  .org-node.control { background: #fef9c3; border-color: #ca8a04; color: #92400e; }
+  .org-node.satrap  { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-dark); }
+  .org-node.local   { background: var(--stone-soft); border-color: #a8a29e; color: var(--stone); font-size: 12.5px; }
+
+  .org-connector {
+    display: flex; justify-content: center;
+    padding: 3px 0; color: var(--stone); font-size: 17px;
+  }
+  .org-row {
+    display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  }
+
+  .org-detail {
+    background: var(--bg-section);
+    border: 1px solid var(--accent-soft);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-size: 13.5px;
+    line-height: 1.65;
+    display: none;
+  }
+  .org-detail.show { display: block; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 4 — So sánh đế chế
+     ══════════════════════════════════════════════ */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 12px 0;
+  }
+  .compare-table th {
+    background: var(--accent);
+    color: white;
+    padding: 10px 11px;
+    text-align: left;
+    font-weight: 700;
+  }
+  .compare-table th:first-child { border-radius: 8px 0 0 0; }
+  .compare-table th:last-child  { border-radius: 0 8px 0 0; }
+  .compare-table td {
+    padding: 9px 11px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: top;
+    line-height: 1.5;
+    color: #374151;
+  }
+  .compare-table tr:nth-child(even) td { background: #fafafa; }
+  .compare-table .highlight-row td { background: var(--gold-soft); font-weight: 600; color: var(--gold); }
+  .compare-table td:first-child { font-weight: 700; color: #1f2937; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 5 — Quiz
+     ══════════════════════════════════════════════ */
+  .quiz-q {
+    font-weight: 700; font-size: 14.5px; margin-bottom: 12px;
+    color: #1f2937; line-height: 1.5;
+  }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .quiz-opt {
+    padding: 10px 13px; border-radius: 7px;
+    border: 2px solid #e5e7eb; background: #f9fafb;
+    cursor: pointer; font-size: 13.5px; text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: #15803d; background: #dcfce7; color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 15px; border-radius: 8px;
+    font-size: 13.5px; line-height: 1.6;
+    margin-top: 8px; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: #dcfce7; color: #14532d; border: 1px solid #15803d; }
+  .quiz-feedback.err { background: var(--red-soft); color: #991b1b; border: 1px solid var(--red-war); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score    { font-weight: 700; color: var(--accent-dark); font-size: 14.5px; }
+
+  /* Legend chung */
+  .legend {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    margin: 10px 0; font-size: 12.5px;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 5px;
+  }
+  .legend-dot {
+    width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;
+  }
+
+  @media (max-width: 600px) {
+    .compare-table { font-size: 12px; }
+    .compare-table th, .compare-table td { padding: 8px 8px; }
+    .org-node { font-size: 12px; padding: 9px 12px; min-width: 120px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử TG — Cổ đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-ancient-greece/visualization.html">← L3: Hy Lạp cổ đại</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Ba Tư &amp; Alexander</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-roman-republic-empire/visualization.html">L5: La Mã →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Đế chế Ba Tư &amp; Alexander Đại đế</h1>
+<p class="subtitle">Bản đồ động bành trướng đế chế · Timeline thế kỉ VI–III TCN · Cơ cấu satrap · So sánh đế chế · Quiz ôn tập</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ động
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ động: Bành trướng Ba Tư &amp; cuộc chinh phục của Alexander</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Nhấn <strong>Giai đoạn tiếp</strong> để xem lãnh thổ mở rộng từng bước — từ Ba Tư Achaemenid đến đế chế Alexander. Mũi tên đỏ thể hiện đường tiến quân của Alexander.
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#d97706;opacity:.55;border:1px solid #d97706;"></div> Đế chế Ba Tư (Achaemenid)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#1d4ed8;opacity:.45;border:1px solid #1d4ed8;"></div> Chinh phục của Alexander</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#b91c1c;opacity:.8;border:1px solid #b91c1c;"></div> Trận đánh quyết định</div>
+  </div>
+
+  <div class="step-dots" id="map-dots"></div>
+
+  <div class="map-wrap">
+    <svg id="empire-svg" width="740" height="400" viewBox="0 0 740 400">
+      <defs>
+        <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#b91c1c"/>
+        </marker>
+        <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#1d4ed8"/>
+        </marker>
+      </defs>
+
+      <!-- Nền biển/đất đơn giản hoá -->
+      <!-- Biển Địa Trung Hải -->
+      <rect x="0" y="0" width="740" height="400" fill="#bfdbfe" rx="4"/>
+
+      <!-- Đất liền: đơn giản hoá vùng Trung Đông – Trung Á -->
+      <!-- Châu Phi (Bắc Phi) -->
+      <ellipse cx="180" cy="330" rx="200" ry="80" fill="#e7e5e4"/>
+      <!-- Bán đảo Ả Rập -->
+      <ellipse cx="420" cy="360" rx="100" ry="55" fill="#e7e5e4"/>
+      <!-- Tiểu Á -->
+      <ellipse cx="260" cy="145" rx="120" ry="55" fill="#e7e5e4"/>
+      <!-- Hy Lạp / Bán đảo Balkan -->
+      <ellipse cx="145" cy="145" rx="60" ry="55" fill="#e7e5e4"/>
+      <!-- Ba Tư / Iran -->
+      <ellipse cx="490" cy="220" rx="120" ry="75" fill="#e7e5e4"/>
+      <!-- Mesopotamia -->
+      <ellipse cx="370" cy="250" rx="80" ry="55" fill="#e7e5e4"/>
+      <!-- Levant / Canaan -->
+      <ellipse cx="290" cy="240" rx="40" ry="60" fill="#e7e5e4"/>
+      <!-- Trung Á (Bactria) -->
+      <ellipse cx="590" cy="165" rx="110" ry="60" fill="#e7e5e4"/>
+      <!-- Ấn Độ tây bắc -->
+      <ellipse cx="670" cy="230" rx="70" ry="55" fill="#e7e5e4"/>
+      <!-- Ai Cập -->
+      <rect x="240" y="270" width="100" height="90" rx="8" fill="#e7e5e4"/>
+      <!-- Đất đai liên kết: tổng thể Trung Đông -->
+      <ellipse cx="430" cy="270" rx="180" ry="90" fill="#e7e5e4" opacity=".6"/>
+
+      <!-- Nhãn vùng biển -->
+      <text x="90" y="220" font-size="10" fill="#1d4ed8" font-style="italic" opacity=".8">Biển Địa Trung Hải</text>
+      <text x="340" y="168" font-size="9.5" fill="#1d4ed8" font-style="italic" opacity=".8">Biển Aegea</text>
+
+      <!-- Nhãn địa danh (cố định) -->
+      <text x="115" y="158" font-size="9" fill="#374151" font-weight="bold">Hy Lạp</text>
+      <text x="230" y="135" font-size="9" fill="#374151" font-weight="bold">Tiểu Á</text>
+      <text x="255" y="245" font-size="9" fill="#374151" font-weight="bold">Levant</text>
+      <text x="250" y="310" font-size="9" fill="#374151" font-weight="bold">Ai Cập</text>
+      <text x="345" y="255" font-size="9" fill="#374151" font-weight="bold">Lưỡng Hà</text>
+      <text x="460" y="210" font-size="9" fill="#374151" font-weight="bold">Ba Tư</text>
+      <text x="558" y="158" font-size="9" fill="#374151" font-weight="bold">Trung Á (Bactria)</text>
+      <text x="648" y="228" font-size="9" fill="#374151" font-weight="bold">Ấn Độ</text>
+      <text x="365" y="365" font-size="9" fill="#374151" font-weight="bold">Ả Rập</text>
+
+      <!-- Thành phố quan trọng -->
+      <circle cx="151" cy="160" r="3.5" fill="#374151"/>
+      <text x="153" y="155" font-size="8" fill="#374151">Athens</text>
+      <circle cx="285" cy="197" r="3.5" fill="#374151"/>
+      <text x="287" y="193" font-size="8" fill="#374151">Sardis</text>
+      <circle cx="376" cy="240" r="3.5" fill="#374151"/>
+      <text x="352" y="236" font-size="8" fill="#374151">Babylon</text>
+      <circle cx="480" cy="240" r="3.5" fill="#374151"/>
+      <text x="482" y="235" font-size="8" fill="#374151">Susa</text>
+      <circle cx="520" cy="252" r="3.5" fill="#374151"/>
+      <text x="522" y="248" font-size="8" fill="#374151">Persepolis</text>
+      <circle cx="265" cy="302" r="3.5" fill="#374151"/>
+      <text x="250" y="298" font-size="8" fill="#374151">Alexandria</text>
+      <circle cx="285" cy="228" r="3" fill="#374151"/>
+      <text x="271" y="223" font-size="8" fill="#374151">Issus</text>
+      <circle cx="415" cy="232" r="3" fill="#374151"/>
+      <text x="417" y="228" font-size="8" fill="#374151">Gaugamela</text>
+
+      <!-- ── Lớp đế chế Ba Tư (hiển thị dần theo bước) ── -->
+      <!-- Bước 0: Cyrus lập quốc ~550 TCN (hạt nhân Ba Tư) -->
+      <ellipse id="persia-core" cx="490" cy="225" rx="85" ry="55"
+               fill="#d97706" opacity="0" style="transition: opacity .7s"/>
+
+      <!-- Bước 1: mở rộng Tiểu Á + Lưỡng Hà (Cyrus ~547–539 TCN) -->
+      <ellipse id="persia-expand1" cx="400" cy="215" rx="175" ry="85"
+               fill="#d97706" opacity="0" style="transition: opacity .7s"/>
+
+      <!-- Bước 2: Ai Cập, Libya, Thrace (Cambyses/Darius I, ~525–500 TCN) -->
+      <ellipse id="persia-expand2" cx="370" cy="250" rx="220" ry="100"
+               fill="#d97706" opacity="0" style="transition: opacity .7s"/>
+      <ellipse id="persia-egypt" cx="270" cy="295" rx="75" ry="60"
+               fill="#d97706" opacity="0" style="transition: opacity .7s"/>
+      <ellipse id="persia-thrace" cx="145" cy="135" rx="55" ry="45"
+               fill="#d97706" opacity="0" style="transition: opacity .7s"/>
+      <ellipse id="persia-centrasia" cx="600" cy="170" rx="100" ry="55"
+               fill="#d97706" opacity="0" style="transition: opacity .7s"/>
+
+      <!-- ── Trận Marathon & Salamis labels (bước 3) ── -->
+      <text id="label-marathon" x="108" y="195" font-size="9" fill="#b91c1c"
+            font-weight="bold" opacity="0" style="transition: opacity .5s">Marathon 490 TCN</text>
+      <text id="label-salamis" x="116" y="210" font-size="9" fill="#b91c1c"
+            font-weight="bold" opacity="0" style="transition: opacity .5s">Salamis 480 TCN</text>
+
+      <!-- ── Đường tiến quân Alexander (bước 4+) ── -->
+      <!-- Hy Lạp → Granicus (bờ tây Tiểu Á) -->
+      <path id="alex-path1"
+            d="M 155 168 Q 195 150 230 165 Q 255 175 278 190"
+            stroke="#1d4ed8" stroke-width="2.5" fill="none"
+            stroke-dasharray="6 3" opacity="0"
+            marker-end="url(#arrowBlue)"
+            style="transition: opacity .6s"/>
+      <!-- Issus → Syria → Levant -->
+      <path id="alex-path2"
+            d="M 285 197 Q 290 215 285 228"
+            stroke="#1d4ed8" stroke-width="2.5" fill="none"
+            stroke-dasharray="6 3" opacity="0"
+            marker-end="url(#arrowBlue)"
+            style="transition: opacity .6s"/>
+      <!-- → Ai Cập (Alexandria) -->
+      <path id="alex-path3"
+            d="M 285 240 Q 275 270 265 295"
+            stroke="#1d4ed8" stroke-width="2.5" fill="none"
+            stroke-dasharray="6 3" opacity="0"
+            marker-end="url(#arrowBlue)"
+            style="transition: opacity .6s"/>
+      <!-- → Gaugamela (Lưỡng Hà) → Persepolis -->
+      <path id="alex-path4"
+            d="M 265 295 Q 330 270 376 240 Q 440 238 480 248 Q 500 250 520 252"
+            stroke="#1d4ed8" stroke-width="2.5" fill="none"
+            stroke-dasharray="6 3" opacity="0"
+            marker-end="url(#arrowBlue)"
+            style="transition: opacity .6s"/>
+      <!-- → Trung Á (Bactria) -->
+      <path id="alex-path5"
+            d="M 520 252 Q 555 215 595 168"
+            stroke="#1d4ed8" stroke-width="2.5" fill="none"
+            stroke-dasharray="6 3" opacity="0"
+            marker-end="url(#arrowBlue)"
+            style="transition: opacity .6s"/>
+      <!-- → Ấn Độ (Hydaspes) -->
+      <path id="alex-path6"
+            d="M 595 168 Q 635 195 660 228"
+            stroke="#1d4ed8" stroke-width="2.5" fill="none"
+            stroke-dasharray="6 3" opacity="0"
+            marker-end="url(#arrowBlue)"
+            style="transition: opacity .6s"/>
+
+      <!-- ── Lớp vùng chinh phục Alexander ── -->
+      <ellipse id="alex-asia" cx="260" cy="158" rx="125" ry="60"
+               fill="#1d4ed8" opacity="0" style="transition: opacity .7s"/>
+      <ellipse id="alex-egypt" cx="265" cy="295" rx="72" ry="55"
+               fill="#1d4ed8" opacity="0" style="transition: opacity .7s"/>
+      <ellipse id="alex-persia" cx="440" cy="235" rx="155" ry="85"
+               fill="#1d4ed8" opacity="0" style="transition: opacity .7s"/>
+      <ellipse id="alex-centrasia" cx="600" cy="168" rx="102" ry="57"
+               fill="#1d4ed8" opacity="0" style="transition: opacity .7s"/>
+      <ellipse id="alex-india" cx="663" cy="228" rx="60" ry="48"
+               fill="#1d4ed8" opacity="0" style="transition: opacity .7s"/>
+
+      <!-- ── Các ngôi sao trận đánh ── -->
+      <!-- Issus -->
+      <polygon id="star-issus" points="285,222 288,232 298,232 290,238 293,248 285,242 277,248 280,238 272,232 282,232"
+               fill="#b91c1c" opacity="0" style="transition: opacity .4s"/>
+      <!-- Gaugamela -->
+      <polygon id="star-gaugamela" points="415,226 418,236 428,236 420,242 423,252 415,246 407,252 410,242 402,236 412,236"
+               fill="#b91c1c" opacity="0" style="transition: opacity .4s"/>
+      <!-- Granicus -->
+      <polygon id="star-granicus" points="255,178 258,186 266,186 260,191 262,199 255,194 248,199 250,191 244,186 252,186"
+               fill="#b91c1c" opacity="0" style="transition: opacity .4s"/>
+      <!-- Hydaspes -->
+      <polygon id="star-hydaspes" points="655,225 658,233 666,233 660,238 662,246 655,241 648,246 650,238 644,233 652,233"
+               fill="#b91c1c" opacity="0" style="transition: opacity .4s"/>
+
+      <!-- ── Ký hiệu Thư viện Alexandria ── -->
+      <text id="label-alex" x="248" y="312" font-size="8.5" fill="#1d4ed8"
+            font-weight="bold" opacity="0" style="transition: opacity .5s">Thư viện</text>
+
+      <!-- ── Nhãn đế chế ── -->
+      <text id="label-empire-persia" x="460" y="242" font-size="11" fill="#92400e"
+            font-weight="bold" opacity="0" text-anchor="middle"
+            style="transition: opacity .7s">Đế chế Ba Tư</text>
+      <text id="label-empire-alex" x="370" y="200" font-size="11" fill="#1e3a8a"
+            font-weight="bold" opacity="0" text-anchor="middle"
+            style="transition: opacity .7s">Đế chế Alexander</text>
+    </svg>
+  </div>
+
+  <div class="step-panel" id="map-panel">
+    <div class="era-tag tag-persia" id="map-tag">Ba Tư Achaemenid</div><br>
+    <span id="map-text">Nhấn <strong>Giai đoạn tiếp</strong> để bắt đầu khám phá sự bành trướng của các đế chế lớn thế kỉ VI–III TCN.</span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="btn-map-prev" onclick="mapPrev()">← Trước</button>
+    <button class="btn btn-primary" id="btn-map-next" onclick="mapNext()">Giai đoạn tiếp →</button>
+    <button class="btn btn-secondary" onclick="mapReset()">Khởi động lại</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Timeline
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Chuỗi thời gian: Thế kỉ VI – III TCN</h2>
+
+<div class="card">
+  <div class="timeline">
+
+    <div class="tl-item persia">
+      <div class="tl-year">~550 TCN</div>
+      <div class="tl-title">Cyrus Đại đế lập Đế chế Achaemenid
+        <span class="tl-badge badge-persia">Khai lập</span>
+      </div>
+      <div class="tl-desc">Lật đổ vương quốc Media, nhanh chóng bành trướng. Áp dụng mô hình khoan dung tôn giáo — khác biệt với Assyria và Babylon trước đó.</div>
+    </div>
+
+    <div class="tl-item persia">
+      <div class="tl-year">539 TCN</div>
+      <div class="tl-title">Cyrus chiếm Babylon
+        <span class="tl-badge badge-persia">Ba Tư</span>
+      </div>
+      <div class="tl-desc">Tiếp nhận Babylon không đổ máu lớn. Cho người Do Thái bị lưu đày trở về Jerusalem — ghi trên "Trụ Cyrus" (Cyrus Cylinder).</div>
+    </div>
+
+    <div class="tl-item persia">
+      <div class="tl-year">525 TCN</div>
+      <div class="tl-title">Cambyses II chinh phục Ai Cập
+        <span class="tl-badge badge-persia">Ba Tư</span>
+      </div>
+      <div class="tl-desc">Đế chế mở rộng đến tận châu Phi.</div>
+    </div>
+
+    <div class="tl-item persia">
+      <div class="tl-year">522–486 TCN</div>
+      <div class="tl-title">Darius I — Đế chế đạt đỉnh cao tổ chức</div>
+      <div class="tl-desc">Thiết lập hệ thống satrap, đường hoàng gia 2.700 km, hệ thống trạm. Đế chế trải rộng khoảng 5,5 triệu km² với khoảng 44% dân số thế giới (ước tính, số liệu còn tranh luận).</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">490 TCN</div>
+      <div class="tl-title">Trận Marathon — Ba Tư thất bại lần đầu
+        <span class="tl-badge badge-war">Chiến tranh</span>
+      </div>
+      <div class="tl-desc">Darius I gửi quân trừng phạt Athens. Chiến thắng bất ngờ của Athens — không làm sụp đổ đế chế Ba Tư.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">480–479 TCN</div>
+      <div class="tl-title">Xerxes I xâm lược Hy Lạp lần 2 — Salamis, Plataea
+        <span class="tl-badge badge-war">Chiến tranh</span>
+      </div>
+      <div class="tl-desc">Hải quân Ba Tư đại bại tại Salamis; bộ binh thua tại Plataea. Ba Tư từ bỏ mục tiêu chinh phục Hy Lạp lục địa nhưng vẫn giữ nguyên phần còn lại của đế chế.</div>
+    </div>
+
+    <div class="tl-item persia">
+      <div class="tl-year">431–404 TCN</div>
+      <div class="tl-title">Ba Tư tài trợ cho Sparta — Chiến tranh Peloponnese
+        <span class="tl-badge badge-persia">Ngoại giao</span>
+      </div>
+      <div class="tl-desc">Ba Tư can thiệp gián tiếp: tài trợ cho Sparta làm suy yếu Athens — chiến lược hiệu quả mà không tốn một quân.</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">359–338 TCN</div>
+      <div class="tl-title">Philip II thống nhất Hy Lạp
+        <span class="tl-badge badge-alex">Macedonia</span>
+      </div>
+      <div class="tl-desc">Cải cách phalanx Macedonia (sarissa 5–7 m), kỵ binh Hetairoi. Trận Chaeronea (338 TCN) — làm chủ Hy Lạp lục địa. Thành lập Liên minh Corinth.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">336 TCN</div>
+      <div class="tl-title">Philip II bị ám sát — Alexander 20 tuổi kế vị
+        <span class="tl-badge badge-war">Chuyển giao</span>
+      </div>
+      <div class="tl-desc">Philip bị ám sát tại một đám cưới. Alexander dẹp nổi dậy trong nước rồi mang quân sang châu Á.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">334–323 TCN</div>
+      <div class="tl-title">Cuộc chinh phục của Alexander Đại đế
+        <span class="tl-badge badge-alex">Alexander</span>
+      </div>
+      <div class="tl-desc">334: Granicus (Tiểu Á) · 333: Issus (Darius tháo chạy) · 332: Tyre, Ai Cập, Alexandria · 331: Gaugamela (Darius bại lần cuối) · 330: Persepolis · 329–327: Trung Á · 326: Ấn Độ, Hydaspes · 323: Mất ở Babylon, 32 tuổi.</div>
+    </div>
+
+    <div class="tl-item alex">
+      <div class="tl-year">323–281 TCN</div>
+      <div class="tl-title">Chiến tranh Diadochi — Đế chế phân rã
+        <span class="tl-badge badge-alex">Hậu Alexander</span>
+      </div>
+      <div class="tl-desc">Các tướng lĩnh tranh nhau quyền lực. Hình thành ba vương quốc lớn: Ptolemaeid (Ai Cập), Seleucid (Ba Tư–Syria), Antigonus (Macedonia–Hy Lạp).</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">285–246 TCN</div>
+      <div class="tl-title">Thư viện Alexandria và bản dịch Septuagint
+        <span class="tl-badge badge-hellen">Hy Lạp hóa</span>
+      </div>
+      <div class="tl-desc">Thư viện Alexandria là trung tâm tri thức lớn nhất thế giới cổ đại. Kinh Cựu Ước được dịch sang tiếng Hy Lạp — ví dụ điển hình của giao thoa văn hóa không đồng hóa cưỡng bức.</div>
+    </div>
+
+    <div class="tl-item alex">
+      <div class="tl-year">31 TCN</div>
+      <div class="tl-title">La Mã thôn tính Ai Cập — Kết thúc thời Hy Lạp hóa
+        <span class="tl-badge badge-hellen">Kết thúc</span>
+      </div>
+      <div class="tl-desc">Cleopatra VII (người cuối dòng Ptolemy) tự vẫn. La Mã sáp nhập Ai Cập — vương quốc Hy Lạp hóa cuối cùng. Ảnh hưởng văn hóa Hy Lạp tiếp tục qua đế chế La Mã.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Sơ đồ cơ cấu satrap
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Cơ cấu cai trị Đế chế Achaemenid: Hệ thống Satrap</h2>
+
+<div class="card">
+  <div class="info-box">
+    Bấm vào từng ô để xem chi tiết chức năng. Hệ thống này là "phát minh quản trị" cho phép cai trị 20–30 tỉnh (satrap) rộng lớn, đa dân tộc mà không cần đồng hóa cưỡng bức.
+  </div>
+
+  <div class="org-chart" id="org-chart">
+
+    <div class="org-node king" onclick="orgShow('king')">
+      Vua Ba Tư (Shahanshah)
+    </div>
+
+    <div class="org-connector">↓</div>
+
+    <div class="org-row">
+      <div class="org-node control" onclick="orgShow('secretary')">
+        Thư ký hoàng gia<br><small>(Royal Secretary)</small>
+      </div>
+      <div class="org-node control" onclick="orgShow('eyes')">
+        "Mắt &amp; Tai của Vua"<br><small>(King's Eyes &amp; Ears)</small>
+      </div>
+    </div>
+
+    <div class="org-connector">↓ ↓</div>
+
+    <div class="org-row">
+      <div class="org-node satrap" onclick="orgShow('satrap')">
+        Thống đốc tỉnh<br><small>(Satrap) × 20–30</small>
+      </div>
+    </div>
+
+    <div class="org-connector">↓</div>
+
+    <div class="org-row">
+      <div class="org-node local" onclick="orgShow('local-admin')">
+        Chính quyền địa phương<br><small>(Luật, ngôn ngữ, tôn giáo riêng)</small>
+      </div>
+      <div class="org-node local" onclick="orgShow('tax')">
+        Nộp thuế về trung ương<br><small>(Hạn ngạch cố định)</small>
+      </div>
+      <div class="org-node local" onclick="orgShow('army')">
+        Cung cấp quân đội<br><small>(Khi vua triệu tập)</small>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="org-detail" id="org-detail">
+    <strong id="org-title"></strong><br>
+    <span id="org-body"></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — So sánh Ba Tư vs Alexander
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. So sánh: Đế chế Ba Tư vs. Đế chế Alexander</h2>
+
+<div class="card">
+  <div class="info-box">
+    Cả hai là đế chế lớn nhất thời bấy giờ — nhưng một tồn tại gần 200 năm, một tan rã ngay sau khi người sáng lập mất. Vì sao?
+  </div>
+
+  <div style="overflow-x: auto;">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Yếu tố</th>
+          <th>Đế chế Achaemenid (Ba Tư)</th>
+          <th>Đế chế Alexander</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Thời gian tồn tại</td>
+          <td>~220 năm (550–330 TCN)</td>
+          <td>~13 năm thực chiến (334–323 TCN); tan rã sau 40 năm tranh nhau</td>
+        </tr>
+        <tr>
+          <td>Hệ thống hành chính</td>
+          <td>Satrap + Thư ký hoàng gia + Mắt &amp; Tai — tự vận hành khi vua thay</td>
+          <td>Phụ thuộc vào tài năng cá nhân Alexander; thiếu bộ máy kế thừa</td>
+        </tr>
+        <tr>
+          <td>Chính sách với dân bị trị</td>
+          <td>Khoan dung tôn giáo + giữ nguyên văn hóa địa phương → ít kháng cự</td>
+          <td>Chinh phục nhanh nhưng chưa kịp thiết lập mô hình quản trị ổn định</td>
+        </tr>
+        <tr>
+          <td>Kế vị</td>
+          <td>Quy trình kế vị tương đối rõ (dù có tranh giành); đế chế tiếp tục</td>
+          <td>Alexander không có người kế vị hợp pháp đủ mạnh; các tướng tranh nhau</td>
+        </tr>
+        <tr>
+          <td>Diện tích cực đại</td>
+          <td>~5,5 triệu km² (Darius I)</td>
+          <td>~5,0–5,2 triệu km² (323 TCN)</td>
+        </tr>
+        <tr>
+          <td>Di sản dài hạn</td>
+          <td>Mô hình cai trị đa dân tộc; ảnh hưởng đến đế chế Parthia, Sassanid</td>
+          <td>Thời kỳ Hy Lạp hóa; Alexandria; truyền bá triết học, khoa học Hy Lạp; tiền đề La Mã</td>
+        </tr>
+        <tr class="highlight-row">
+          <td>Nguyên nhân tan rã</td>
+          <td>Chinh phục bởi Alexander (không tự sụp đổ từ bên trong)</td>
+          <td>Thiếu thể chế: không có người kế vị + không có bộ máy hành chính tự vận hành</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="gold-box" style="margin-top:14px;">
+    <strong>Bài học so sánh:</strong> Đế chế Ba Tư đầu tư vào <em>hệ thống</em> (satrap, đường sá, kiểm soát kép) — đế chế tự vận hành dù vua thay. Đế chế Alexander đầu tư vào <em>tốc độ chinh phục</em> — không còn thời gian để xây dựng hệ thống trước khi người sáng lập mất.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 5 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>5. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q" id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score" id="quiz-score"></span>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   MODULE 1 — Bản đồ động
+   ════════════════════════════════════════════════ */
+
+const MAP_STEPS = [
+  {
+    tag: 'tag-persia', tagText: 'Ba Tư Achaemenid — Khai lập',
+    text: '<strong>~550 TCN — Cyrus Đại đế lập Đế chế Achaemenid:</strong> Từ vùng núi Persis (nay là tỉnh Fars, Iran), Cyrus lật đổ đế quốc Media và nhanh chóng bành trướng. Mô hình quản trị mới: chấp nhận đa dạng văn hóa thay vì cưỡng bức đồng hóa.',
+    show: ['persia-core'],
+    hide: [],
+    showLabels: ['label-empire-persia'],
+  },
+  {
+    tag: 'tag-persia', tagText: 'Ba Tư — Mở rộng Tiểu Á & Lưỡng Hà (547–539 TCN)',
+    text: '<strong>547–539 TCN — Cyrus chinh phục Lydia và Babylon:</strong> Lydia (Tiểu Á) bị chinh phục năm 547 TCN; vua Croesus nổi tiếng giàu có bị bắt. Năm 539 TCN, Babylon đầu hàng không đổ máu lớn. Đế chế đã kiểm soát toàn bộ vùng Cận Đông — từ Tiểu Á đến Mesopotamia.',
+    show: ['persia-core','persia-expand1'],
+    hide: [],
+    showLabels: ['label-empire-persia'],
+  },
+  {
+    tag: 'tag-persia', tagText: 'Ba Tư đỉnh cao: Darius I (~522–486 TCN)',
+    text: '<strong>525–500 TCN — Cambyses chinh phục Ai Cập; Darius I tổ chức đế chế:</strong> Đế chế mở rộng thêm Ai Cập (525 TCN), Trung Á (Bactria), và một phần Thrace (phía bắc Hy Lạp). Darius I thiết lập hệ thống satrap, đường hoàng gia 2.700 km. Đây là đế chế lớn nhất thời bấy giờ: khoảng 5,5 triệu km².',
+    show: ['persia-core','persia-expand1','persia-expand2','persia-egypt','persia-thrace','persia-centrasia'],
+    hide: [],
+    showLabels: ['label-empire-persia'],
+  },
+  {
+    tag: 'tag-war', tagText: 'Chiến tranh Hy Lạp – Ba Tư (490–479 TCN)',
+    text: '<strong>490–479 TCN — Trận Marathon, Salamis, Plataea:</strong> Ba Tư hai lần tấn công Hy Lạp lục địa. Marathon (490 TCN): Darius I thất bại bất ngờ. Salamis (480 TCN): hải quân Ba Tư đại bại trong eo biển hẹp. Plataea (479 TCN): bộ binh Ba Tư rút lui. Ba Tư từ bỏ Hy Lạp lục địa nhưng <strong>giữ nguyên toàn bộ đế chế</strong> — thất bại chiến dịch, không phải thất bại đế chế.',
+    show: ['persia-core','persia-expand1','persia-expand2','persia-egypt','persia-thrace','persia-centrasia'],
+    hide: [],
+    showLabels: ['label-empire-persia','label-marathon','label-salamis'],
+  },
+  {
+    tag: 'tag-alex', tagText: 'Alexander: Tiểu Á → Issus → Ai Cập (334–332 TCN)',
+    text: '<strong>334–332 TCN — Alexander vượt sang châu Á:</strong> Từ Macedonia (Hy Lạp), Alexander vượt eo Hellespont với ~40.000 quân. Granicus (334 TCN) — thắng đầu tiên. Issus (333 TCN) — đánh bại Darius III lần đầu; Darius bỏ lại cả gia đình. Rồi Alexander tiến dọc bờ Đông Địa Trung Hải, vây hãm Tyre 7 tháng, tiếp nhận Ai Cập. Thành lập Alexandria.',
+    show: ['persia-core','persia-expand1','persia-expand2','persia-egypt','persia-centrasia',
+           'alex-asia','alex-egypt','alex-path1','alex-path2','alex-path3',
+           'star-granicus','star-issus'],
+    hide: ['persia-thrace','label-marathon','label-salamis'],
+    showLabels: ['label-empire-alex','label-alex'],
+  },
+  {
+    tag: 'tag-alex', tagText: 'Alexander: Gaugamela → Persepolis (331–330 TCN)',
+    text: '<strong>331–330 TCN — Đế chế Ba Tư sụp đổ:</strong> Trận Gaugamela (331 TCN) gần Babylon — Darius III đại bại lần cuối, tháo chạy và bị tướng riêng ám sát. Alexander chiếm Babylon, Susa, Persepolis (đốt cung điện hoàng gia). Đế chế Achaemenid 220 năm chính thức kết thúc. Darius III — vị vua cuối cùng của Ba Tư Achaemenid — bị giết năm 330 TCN.',
+    show: ['alex-asia','alex-egypt','alex-persia',
+           'alex-path1','alex-path2','alex-path3','alex-path4',
+           'star-granicus','star-issus','star-gaugamela'],
+    hide: ['persia-core','persia-expand1','persia-expand2','persia-egypt','persia-centrasia','label-empire-persia'],
+    showLabels: ['label-empire-alex','label-alex'],
+  },
+  {
+    tag: 'tag-alex', tagText: 'Alexander: Trung Á → Ấn Độ (329–323 TCN)',
+    text: '<strong>329–323 TCN — Từ Trung Á đến Ấn Độ rồi quay về:</strong> Alexander tiến vào Bactria (Afghanistan), kết hôn với Roxana. Vượt Hindu Kush, thắng trận Hydaspes ở tây bắc Ấn Độ (326 TCN). Quân sĩ từ chối đi tiếp — lần đầu Alexander phải nhượng bộ. Quay về Babylon. Mất đột ngột năm 323 TCN, 32 tuổi, chưa chỉ định người kế vị.',
+    show: ['alex-asia','alex-egypt','alex-persia','alex-centrasia','alex-india',
+           'alex-path1','alex-path2','alex-path3','alex-path4','alex-path5','alex-path6',
+           'star-granicus','star-issus','star-gaugamela','star-hydaspes'],
+    hide: [],
+    showLabels: ['label-empire-alex','label-alex'],
+  },
+];
+
+// Tất cả IDs có thể hiển thị/ẩn
+const ALL_MAP_IDS = [
+  'persia-core','persia-expand1','persia-expand2','persia-egypt','persia-thrace','persia-centrasia',
+  'alex-asia','alex-egypt','alex-persia','alex-centrasia','alex-india',
+  'alex-path1','alex-path2','alex-path3','alex-path4','alex-path5','alex-path6',
+  'star-issus','star-gaugamela','star-granicus','star-hydaspes',
+  'label-empire-persia','label-empire-alex','label-alex',
+  'label-marathon','label-salamis',
+];
+
+let mapStep = -1;
+
+function mapApplyStep(stepIdx) {
+  const step = MAP_STEPS[stepIdx];
+  // ẩn tất cả
+  ALL_MAP_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('opacity', '0');
+  });
+  if (!step) return;
+
+  // Hiện phần lãnh thổ với opacity phù hợp
+  const opacityMap = {
+    'persia-core': .45, 'persia-expand1': .38, 'persia-expand2': .32,
+    'persia-egypt': .42, 'persia-thrace': .35, 'persia-centrasia': .40,
+    'alex-asia': .40, 'alex-egypt': .40, 'alex-persia': .35,
+    'alex-centrasia': .38, 'alex-india': .38,
+    'alex-path1': 1, 'alex-path2': 1, 'alex-path3': 1,
+    'alex-path4': 1, 'alex-path5': 1, 'alex-path6': 1,
+    'star-issus': .9, 'star-gaugamela': .9, 'star-granicus': .9, 'star-hydaspes': .9,
+    'label-empire-persia': .85, 'label-empire-alex': .85,
+    'label-alex': .85, 'label-marathon': .85, 'label-salamis': .85,
+  };
+
+  step.show.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('opacity', opacityMap[id] !== undefined ? opacityMap[id] : '0.5');
+  });
+  if (step.showLabels) {
+    step.showLabels.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.setAttribute('opacity', opacityMap[id] !== undefined ? opacityMap[id] : '0.85');
+    });
+  }
+}
+
+function mapUpdateUI() {
+  const step = mapStep >= 0 ? MAP_STEPS[mapStep] : null;
+
+  const tag = document.getElementById('map-tag');
+  const text = document.getElementById('map-text');
+  if (step) {
+    tag.className = 'era-tag ' + step.tag;
+    tag.textContent = step.tagText;
+    text.innerHTML = step.text;
+  } else {
+    tag.className = 'era-tag tag-persia';
+    tag.textContent = 'Ba Tư Achaemenid';
+    text.innerHTML = 'Nhấn <strong>Giai đoạn tiếp</strong> để bắt đầu khám phá sự bành trướng của các đế chế lớn thế kỉ VI–III TCN.';
+  }
+
+  document.getElementById('btn-map-prev').disabled = mapStep <= 0;
+  document.getElementById('btn-map-next').textContent =
+    mapStep < 0 ? 'Giai đoạn tiếp →' :
+    mapStep >= MAP_STEPS.length - 1 ? 'Hoàn thành' : 'Giai đoạn tiếp →';
+  document.getElementById('btn-map-next').disabled = mapStep >= MAP_STEPS.length - 1;
+
+  // Dots
+  const dots = document.getElementById('map-dots');
+  dots.innerHTML = '';
+  for (let i = 0; i < MAP_STEPS.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (i === mapStep ? ' active' : i < mapStep ? ' done' : '');
+    d.textContent = i + 1;
+    d.title = MAP_STEPS[i].tagText;
+    d.onclick = (function(si){ return function(){ mapGoTo(si); }; })(i);
+    dots.appendChild(d);
+  }
+
+  mapApplyStep(mapStep);
+}
+
+function mapNext() {
+  if (mapStep < MAP_STEPS.length - 1) { mapStep++; mapUpdateUI(); }
+}
+function mapPrev() {
+  if (mapStep > 0) { mapStep--; mapUpdateUI(); }
+}
+function mapGoTo(i) { mapStep = i; mapUpdateUI(); }
+function mapReset() { mapStep = -1; mapUpdateUI(); }
+
+mapUpdateUI();
+
+/* ════════════════════════════════════════════════
+   MODULE 3 — Org chart satrap
+   ════════════════════════════════════════════════ */
+
+const ORG_DATA = {
+  king: {
+    title: 'Vua Ba Tư — Shahanshah ("Vua của các vua")',
+    body:  'Vua là người có quyền lực tuyệt đối — quyết định chiến tranh, hòa bình, thu thuế, phong chức. Nhưng điểm khác biệt của Achaemenid so với đế chế trước là vua ủy quyền rộng rãi cho bộ máy bên dưới, thay vì tự mình quản lý mọi chi tiết. Điều này cho phép đế chế vận hành ngay cả khi vua đang xa kinh đô hoặc vừa thay đổi.'
+  },
+  secretary: {
+    title: 'Thư ký hoàng gia (Royal Secretary)',
+    body:  'Mỗi satrap (tỉnh) có một thư ký hoàng gia được vua bổ nhiệm và trực tiếp báo cáo lên vua — không qua thống đốc. Thư ký ghi chép mọi quyết định của thống đốc, theo dõi thu chi thuế, và báo cáo bất kỳ dấu hiệu bất thường. Đây là "tai mắt chính thức" thường trú tại mỗi tỉnh. Thống đốc biết điều này và phải hành xử đúng mực.'
+  },
+  eyes: {
+    title: '"Mắt và Tai của Vua" (King\'s Eyes and Ears)',
+    body:  'Đây là lực lượng thanh tra lưu động bí mật, khác với thư ký hoàng gia cố định. Họ được ủy quyền trực tiếp từ vua, có thể xuất hiện bất ngờ ở bất kỳ tỉnh nào mà không báo trước. Khi đến, họ có quyền kiểm tra sổ sách, phỏng vấn dân và quan lại địa phương, thậm chí xét xử cả thống đốc nếu phát hiện sai phạm. Sự bất ngờ là cốt lõi hiệu quả — không ai biết bao giờ bị kiểm tra.'
+  },
+  satrap: {
+    title: 'Thống đốc tỉnh (Satrap)',
+    body:  'Khoảng 20–30 satrap trên toàn đế chế — mỗi satrap cai quản một tỉnh lớn. Họ thường là thành viên hoàng gia hoặc quý tộc Ba Tư, nhưng đôi khi là người bản địa được tin dùng. Nhiệm vụ chính: thu thuế theo hạn ngạch, duy trì trật tự, cung cấp quân đội khi vua triệu tập, xét xử các vụ án lớn. Họ không được phép tự ý thay đổi mức thuế hoặc chính sách tôn giáo địa phương.'
+  },
+  'local-admin': {
+    title: 'Chính quyền và văn hóa địa phương',
+    body:  'Đây là điểm tạo ra sự khác biệt căn bản của đế chế Achaemenid: luật tục, ngôn ngữ, tôn giáo địa phương được giữ nguyên hoàn toàn. Người Babylon vẫn thờ thần Marduk, người Do Thái vẫn giữ Shabbat, người Ai Cập vẫn tôn pharaoh theo nghi lễ riêng của họ — chỉ là phải công nhận vua Ba Tư là người cai trị tối cao và nộp thuế. Điều này giảm chi phí cai trị rất lớn so với đồng hóa cưỡng bức.'
+  },
+  tax: {
+    title: 'Hệ thống thuế theo hạn ngạch cố định',
+    body:  'Mỗi satrap phải nộp một lượng thuế cố định được thỏa thuận với trung ương (không phải tỉ lệ thay đổi). Điều này cho phép lập kế hoạch ngân sách đế chế và giảm nguy cơ thống đốc chiếm đoạt. Các nguồn thu chính: thuế đất nông nghiệp, thuế thương mại qua các trục đường lớn, và "cống vật" đặc sản từ mỗi vùng (vải lanh Ai Cập, ngựa Median, gỗ Lebanon, v.v.).'
+  },
+  army: {
+    title: 'Nghĩa vụ cung cấp quân đội',
+    body:  'Mỗi satrap phải cung cấp một số lượng quân đội nhất định khi vua triệu tập cho chiến tranh lớn (như cuộc xâm lược Hy Lạp của Xerxes I). Quân đội đế chế là sự tổng hợp từ nhiều dân tộc — người Ba Tư, Median, Bactrian, Ai Cập, v.v. — mỗi nhóm chiến đấu với vũ khí và chiến thuật riêng. Đây là điểm yếu so với quân đội chuyên nghiệp đồng nhất của Macedonia sau này.'
+  },
+};
+
+let orgShown = null;
+function orgShow(key) {
+  const data = ORG_DATA[key];
+  if (!data) return;
+  const panel = document.getElementById('org-detail');
+  document.getElementById('org-title').textContent = data.title;
+  document.getElementById('org-body').textContent = data.body;
+  panel.classList.add('show');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  orgShown = key;
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 5 — Quiz ôn tập
+   ════════════════════════════════════════════════ */
+
+const QUIZ = [
+  {
+    q: 'Hệ thống satrap của Đế chế Achaemenid có đặc điểm nổi bật nào so với đế chế Babylon và Assyria trước đó?',
+    opts: [
+      'Bắt tất cả dân tộc nói tiếng Ba Tư và theo tôn giáo Ba Tư (Zoroastrianism)',
+      'Cho phép giữ nguyên luật tục, ngôn ngữ và tôn giáo địa phương; chỉ kiểm soát thuế và quân sự',
+      'Tất cả thống đốc phải là người Ba Tư gốc từ vùng Persis',
+      'Mỗi tỉnh được thu thuế tự do, không nộp về trung ương',
+    ],
+    correct: 1,
+    explain: 'Khoan dung tôn giáo và tự quản văn hóa là đặc điểm căn bản của Achaemenid — trái ngược với Assyria (phá đền thờ, bắt dân đi đày) và Babylon (đồng hóa một phần). Trung ương chỉ yêu cầu nộp thuế theo hạn ngạch và cung cấp quân khi cần. Người Babylon thờ Marduk, người Do Thái giữ Shabbat — tất cả đều được tiếp tục dưới ách Ba Tư.',
+  },
+  {
+    q: '"Mắt và Tai của Vua" trong đế chế Ba Tư là ai?',
+    opts: [
+      'Vệ sĩ cá nhân của vua trong cung điện',
+      'Các tướng lĩnh cấp cao chỉ huy quân đội đế chế',
+      'Thanh tra lưu động bí mật, ủy quyền trực tiếp từ vua, kiểm tra satrap bất ngờ',
+      'Các nhà tiên tri tôn giáo Zoroastrian',
+    ],
+    correct: 2,
+    explain: '"Mắt và Tai của Vua" là thanh tra lưu động bí mật — họ có thể xuất hiện bất ngờ ở bất kỳ tỉnh nào, kiểm tra sổ sách và hành vi của thống đốc satrap, thậm chí xét xử trực tiếp nếu phát hiện sai phạm. Cơ chế này kết hợp với Thư ký hoàng gia cố định tạo ra hệ thống kiểm soát kép, ngăn ngừa tham nhũng và ly khai mà không cần trực tiếp can thiệp hàng ngày.',
+  },
+  {
+    q: 'Tại trận Issus (333 TCN), Darius III thất bại mặc dù có quân đông hơn vì lý do gì chủ yếu?',
+    opts: [
+      'Quân Ba Tư hết lương thực trước trận',
+      'Alexander chọn địa hình hẹp ven biển, vô hiệu hóa ưu thế quân số; kỵ binh Hetairoi tấn công thẳng vào vị trí chỉ huy của Darius',
+      'Darius III bị bắn trọng thương ngay đầu trận',
+      'Hy Lạp có tên lửa đốt thuyền chiến Ba Tư từ xa',
+    ],
+    correct: 1,
+    explain: 'Chiến thuật của Alexander tại Issus: chọn địa hình hẹp ven biển Cilicia (Thổ Nhĩ Kỳ ngày nay) để quân số đông hơn của Ba Tư không phát huy được ưu thế trên mặt trận rộng. Phalanx cầm chân toàn tuyến trong khi kỵ binh Hetairoi phá vỡ phòng tuyến phải và đột thẳng vào trung tâm — nơi Darius đứng. Áp lực trực tiếp khiến Darius hoảng loạn bỏ chạy, dẫn đến sụp đổ toàn bộ đội hình Ba Tư.',
+  },
+  {
+    q: 'Tại sao đế chế Alexander tan rã ngay sau khi ông mất (323 TCN), trong khi đế chế Ba Tư tồn tại ~220 năm?',
+    opts: [
+      'Vì đế chế Alexander nhỏ hơn nhiều so với đế chế Ba Tư',
+      'Vì Alexander bị ám sát, không mất vì bệnh',
+      'Vì Alexander phụ thuộc vào tài năng cá nhân, không xây dựng hệ thống hành chính tự vận hành và không có người kế vị hợp pháp đủ mạnh',
+      'Vì các vương quốc bị chinh phục ghét Alexander hơn ghét Ba Tư',
+    ],
+    correct: 2,
+    explain: 'Đế chế Ba Tư đầu tư vào hệ thống (satrap, đường sá, kiểm soát kép) — tự vận hành khi vua thay. Đế chế Alexander dựa vào thiên tài cá nhân của ông và chinh phục liên tục, không có thời gian xây dựng bộ máy hành chính bền vững hay chuẩn bị người kế vị. Khi Alexander mất đột ngột ở tuổi 32 mà không chỉ định ai, các tướng Diadochi không có lý do để phục tùng nhau — mỗi người có quân đội riêng và tự thấy mình có quyền cai trị phần đế chế họ đang giữ.',
+  },
+  {
+    q: 'Thời kỳ "Hy Lạp hóa" (Hellenistic period) là gì?',
+    opts: [
+      'Giai đoạn Alexander đồng hóa cưỡng bức tất cả dân tộc bị chinh phục phải nói tiếng Hy Lạp',
+      'Giai đoạn văn hóa Hy Lạp lan rộng và giao thoa với văn hóa phương Đông (323–31 TCN), tạo ra sự dung hợp không đồng hóa hoàn toàn',
+      'Thời kỳ Hy Lạp cổ đại trước khi Alexander lên ngôi',
+      'Chính sách của Ptolemy bắt buộc người Ai Cập học tiếng Hy Lạp',
+    ],
+    correct: 1,
+    explain: '"Hy Lạp hóa" mô tả giai đoạn 323–31 TCN khi tiếng Hy Lạp trở thành lingua franca thương mại và học thuật, nghệ thuật và triết học Hy Lạp lan sang Trung Đông, Ai Cập, Trung Á. Nhưng đây là giao thoa, không đồng hóa: dân địa phương giữ ngôn ngữ, tôn giáo, tập tục của mình; tầng lớp cai trị và học giả dùng tiếng Hy Lạp. Cleopatra VII — người cuối dòng Ptolemy sau 275 năm — là người đầu tiên trong triều đại học tiếng Ai Cập.',
+  },
+  {
+    q: 'Trận Gaugamela (331 TCN) có ý nghĩa lịch sử gì quan trọng nhất?',
+    opts: [
+      'Đây là trận duy nhất Alexander thắng không cần đánh vì Ba Tư tự đầu hàng',
+      'Darius III bị bắt sống và đế chế Ba Tư ngay lập tức đầu hàng',
+      'Darius III đại bại lần cuối, sau đó bị tướng riêng ám sát; đế chế Achaemenid 220 năm kết thúc',
+      'Alexander lần đầu sử dụng voi chiến trong trận này',
+    ],
+    correct: 2,
+    explain: 'Gaugamela (gần Mosul, Iraq ngày nay) là trận quyết định cuối cùng. Darius III xây dựng lại quân đội sau Issus và chọn địa hình bằng phẳng để phát huy ưu thế quân số và xe chiến mã. Nhưng chiến thuật "oblique advance" của Alexander lại phá vỡ trung tâm. Darius bỏ chạy lần thứ hai; sau đó bị tướng Bessus ám sát (330 TCN). Với cái chết của Darius III, triều đại Achaemenid chính thức kết thúc. Đây không phải đầu hàng — Ba Tư đã chiến đấu đến người lãnh đạo cuối cùng.',
+  },
+  {
+    q: 'Alexandria (Ai Cập) nổi tiếng về điều gì trong thời kỳ Hy Lạp hóa?',
+    opts: [
+      'Là cảng thương mại lớn nhất thế giới, chỉ buôn bán không có học thuật',
+      'Trung tâm tri thức với Thư viện Alexandria và Museion — nơi hội tụ học giả khắp thế giới Hy Lạp',
+      'Thành phố duy nhất giữ nguyên văn hóa Ai Cập cổ đại, không bị ảnh hưởng Hy Lạp',
+      'Nơi Alexander Đại đế chọn làm thủ đô đế chế suốt đời cai trị',
+    ],
+    correct: 1,
+    explain: 'Dưới vương triều Ptolemy, Alexandria trở thành trung tâm tri thức lớn nhất thế giới cổ đại: Thư viện Alexandria (truyền thống chứa hàng trăm nghìn cuộn giấy papyrus) và Museion (viện nghiên cứu). Tại đây làm việc Euclid (Những yếu tố, nền tảng hình học), Eratosthenes (đo chu vi Trái Đất), Aristarchus (mô hình nhật tâm đầu tiên). Đây là ví dụ điển hình: tiếng Hy Lạp là phương tiện, nhưng học giả đến từ nhiều nền văn hóa, và nhiều tác phẩm được dịch từ ngôn ngữ khác.',
+  },
+];
+
+let quizIdx = 0, quizScore = 0, quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = `Câu ${quizIdx + 1}/${QUIZ.length}: ${q.q}`;
+  document.getElementById('quiz-prog').textContent = `${quizIdx + 1} / ${QUIZ.length}`;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? `Điểm: ${quizScore}/${quizIdx}` : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = function() { quizAnswer(i); };
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const q = QUIZ[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+  document.getElementById('quiz-score').textContent = `Điểm: ${quizScore}/${quizIdx + 1}`;
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent = `Kết quả: ${quizScore}/${QUIZ.length} (${pct}%)`;
+    document.getElementById('quiz-prog').textContent =
+      pct >= 85 ? 'Xuất sắc!' : pct >= 65 ? 'Tốt — ôn lại các câu sai.' : 'Cần ôn tập thêm.';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

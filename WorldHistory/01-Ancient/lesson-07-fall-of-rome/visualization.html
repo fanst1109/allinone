@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Suy vong của Đế quốc La Mã</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette WorldHistory teal ── */
+  :root {
+    --accent:      #0f766e;
+    --accent-soft: #ccfbf1;
+    --accent-dark: #134e4a;
+    --red-war:     #b91c1c;
+    --red-soft:    #fee2e2;
+    --blue-exp:    #1d4ed8;
+    --blue-soft:   #dbeafe;
+    --stone:       #57534e;
+    --stone-soft:  #f5f5f4;
+    --gold:        #b45309;
+    --gold-soft:   #fef3c7;
+    --bg-card:     #ffffff;
+    --bg-section:  #f0fdfa;
+  }
+
+  main { max-width: 1080px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.6rem; margin-bottom: 6px; }
+  h2 { color: var(--accent); margin-top: 40px; padding-bottom: 8px;
+       border-bottom: 2px solid var(--accent-soft); font-size: 1.2rem; }
+
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 5px rgba(15,118,110,.12);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .war-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-war);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .gold-box {
+    background: var(--gold-soft);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 1 — Bản đồ SVG Đông / Tây
+     ══════════════════════════════════════════════ */
+  #map-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  #map-legend {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin: 10px 0 14px;
+    font-size: 13px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-dot {
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .map-ctrl {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    align-items: center;
+  }
+  .map-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--accent);
+    background: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--accent);
+    transition: all .15s;
+  }
+  .map-btn.active { background: var(--accent); color: white; }
+  .map-btn:hover:not(.active) { background: var(--accent-soft); }
+
+  .map-label-box {
+    background: var(--bg-section);
+    border: 1px solid var(--accent-soft);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 52px;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 2 — Sơ đồ nhân–quả đa yếu tố
+     ══════════════════════════════════════════════ */
+  .factors-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 14px 0;
+  }
+  .factor-card {
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color .2s, box-shadow .2s, transform .15s;
+    font-size: 14px;
+    position: relative;
+  }
+  .factor-card:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+  .factor-card.selected { box-shadow: 0 0 0 3px var(--accent); }
+  .factor-card .fcard-title {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+  .factor-card .fcard-sub {
+    font-size: 12px;
+    opacity: .8;
+    line-height: 1.4;
+  }
+  .fc-military  { background: #fee2e2; border-color: #fca5a5; color: #7f1d1d; }
+  .fc-economic  { background: #fef3c7; border-color: #fcd34d; color: #78350f; }
+  .fc-political { background: #ede9fe; border-color: #c4b5fd; color: #4c1d95; }
+  .fc-social    { background: #e0f2fe; border-color: #7dd3fc; color: #0c4a6e; }
+
+  .factor-detail {
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+    border: 2px solid var(--accent-soft);
+    background: var(--bg-section);
+  }
+  .factor-detail.show { display: block; }
+  .factor-detail h4 {
+    margin: 0 0 8px;
+    font-size: 15px;
+    color: var(--accent-dark);
+  }
+  .factor-detail ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+  .factor-detail li { margin-bottom: 5px; }
+  .spiral-note {
+    background: var(--red-soft);
+    border-left: 3px solid var(--red-war);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-top: 10px;
+    line-height: 1.6;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 3 — Timeline thế kỉ III – 476
+     ══════════════════════════════════════════════ */
+  .timeline {
+    position: relative;
+    padding: 12px 0 12px 36px;
+    margin: 8px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #fca5a5, var(--accent), var(--accent-soft));
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 22px;
+    padding-left: 20px;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    top: 6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+  }
+  .tl-item.crisis::before  { background: var(--red-war); box-shadow: 0 0 0 2px var(--red-war); }
+  .tl-item.reform::before  { background: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+  .tl-item.split::before   { background: var(--blue-exp); box-shadow: 0 0 0 2px var(--blue-exp); }
+  .tl-item.fall::before    {
+    width: 18px; height: 18px; left: -30px; top: 4px;
+    background: var(--red-war);
+    box-shadow: 0 0 0 3px var(--red-war), 0 0 0 7px rgba(185,28,28,.2);
+  }
+  .tl-year  { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .tl-item.crisis .tl-year  { color: var(--red-war); }
+  .tl-item.reform .tl-year  { color: var(--gold); }
+  .tl-item.split  .tl-year  { color: var(--blue-exp); }
+  .tl-item.fall   .tl-year  { color: var(--red-war); font-size: 15px; }
+  .tl-title { font-weight: 700; font-size: 14px; color: #1f2937; line-height: 1.4; }
+  .tl-desc  { font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.5; }
+  .tl-badge {
+    display: inline-block; padding: 1px 8px;
+    border-radius: 10px; font-size: 11px; font-weight: 700;
+    margin-left: 6px; vertical-align: middle;
+  }
+  .badge-crisis  { background: #fee2e2; color: #991b1b; }
+  .badge-reform  { background: var(--gold-soft); color: var(--gold); }
+  .badge-split   { background: var(--blue-soft); color: var(--blue-exp); }
+  .badge-fall    { background: #fee2e2; color: #991b1b; font-weight: 900; }
+  .badge-east    { background: var(--accent-soft); color: var(--accent-dark); }
+
+  /* ══════════════════════════════════════════════
+     MODULE 4 — So sánh Đông – Tây Byzantine
+     ══════════════════════════════════════════════ */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 12px 0;
+  }
+  .compare-table th {
+    background: var(--accent);
+    color: white;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 700;
+  }
+  .compare-table th:first-child { border-radius: 8px 0 0 0; }
+  .compare-table th:last-child  { border-radius: 0 8px 0 0; }
+  .compare-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: top;
+    line-height: 1.5;
+    color: #374151;
+  }
+  .compare-table tr:nth-child(even) td { background: #fafafa; }
+  .compare-table .west-row td { background: #fff1f2; color: #7f1d1d; }
+  .compare-table .east-row td { background: #f0fdfa; color: #134e4a; }
+  .compare-table td:first-child { font-weight: 700; color: #1f2937; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 5 — Quiz
+     ══════════════════════════════════════════════ */
+  .quiz-q {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 12px;
+    color: #1f2937;
+    line-height: 1.5;
+  }
+  .quiz-opts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .quiz-opt {
+    padding: 10px 14px;
+    border-radius: 7px;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: #15803d; background: #dcfce7; color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-top: 8px;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: #dcfce7; color: #14532d; border: 1px solid #15803d; }
+  .quiz-feedback.err { background: var(--red-soft); color: #991b1b; border: 1px solid var(--red-war); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score { font-weight: 700; color: var(--accent-dark); font-size: 15px; }
+
+  /* ── Step dots ── */
+  .step-dots { display: flex; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
+  .step-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid #d1d5db;
+    background: #f9fafb;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #9ca3af;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .step-dot.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .step-dot.done   { background: #15803d; border-color: #15803d; color: white; }
+
+  .step-panel {
+    background: var(--bg-section);
+    border: 1px solid var(--accent-soft);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    min-height: 72px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .phase-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .tag-crisis { background: var(--red-soft); color: var(--red-war); }
+  .tag-reform { background: var(--gold-soft); color: var(--gold); }
+  .tag-fall   { background: #f1f5f9; color: #475569; }
+  .tag-split  { background: var(--blue-soft); color: var(--blue-exp); }
+
+  @media (max-width: 600px) {
+    .factors-grid { grid-template-columns: 1fr; }
+    .compare-table { font-size: 12px; }
+    .compare-table th, .compare-table td { padding: 8px 8px; }
+    h1 { font-size: 1.3rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử TG — Cổ đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-world-religions/visualization.html">← L6: Các tôn giáo lớn</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Suy vong La Mã</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-tong-ket-co-dai/visualization.html">L8: Tổng kết Tầng 1 →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Suy vong của Đế quốc La Mã</h1>
+<p class="subtitle">Bản đồ chia Đông–Tây, sơ đồ đa nguyên nhân, timeline 235–476 và quiz tương tác</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ đế quốc và hướng di cư
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ đế quốc: chia Đông – Tây và hướng di cư (395)</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Nhấn các nút bên dưới để chuyển giữa ba chế độ hiển thị — đế quốc trước chia tách, sau chia tách năm 395, và các hướng di cư / xâm lấn của các tộc người.
+  </div>
+
+  <div class="map-ctrl">
+    <button class="map-btn active" id="mbtn-0" onclick="mapShow(0)">Toàn đế quốc (395)</button>
+    <button class="map-btn" id="mbtn-1" onclick="mapShow(1)">Chia Đông – Tây</button>
+    <button class="map-btn" id="mbtn-2" onclick="mapShow(2)">Hướng di cư / xâm lấn</button>
+  </div>
+
+  <div id="map-wrap">
+    <svg id="rome-map" width="720" height="380" viewBox="0 0 720 380"
+         style="display:block; margin:0 auto; border-radius:8px; border:1px solid #e2e8f0;">
+
+      <!-- ── Nền biển / đất ── -->
+      <!-- Địa Trung Hải và Black Sea -->
+      <rect width="720" height="380" fill="#93c5fd" rx="8"/>
+
+      <!-- Đất liền đơn giản hóa — châu Âu, Tiểu Á, Bắc Phi -->
+      <!-- Bắc Phi -->
+      <path d="M 0 280 Q 60 270 120 275 Q 200 268 280 265 Q 360 260 440 255 Q 520 250 600 248 Q 660 246 720 244 L 720 380 L 0 380 Z"
+            fill="#d4b896" />
+      <!-- Bán đảo Ý -->
+      <path d="M 300 140 Q 310 155 305 175 Q 300 190 295 210 Q 292 230 288 248 Q 285 260 280 265 L 310 262 Q 315 248 318 230 Q 322 210 328 195 Q 335 178 335 160 Q 330 148 320 140 Z"
+            fill="#c8a87a" />
+      <!-- Châu Âu / Gaul / Hispania -->
+      <path d="M 0 0 L 720 0 L 720 180 Q 660 170 600 165 Q 540 160 480 158 Q 440 156 400 152 Q 380 148 360 142 Q 340 136 320 134 Q 300 133 285 138 Q 270 143 260 150 Q 240 162 220 168 Q 200 172 180 170 Q 140 165 100 158 Q 60 150 20 148 Q 10 148 0 150 Z"
+            fill="#a3c98a" />
+      <!-- Balkans -->
+      <path d="M 400 152 Q 420 158 440 165 Q 460 172 480 175 Q 500 177 520 180 Q 540 182 560 180 Q 580 178 600 175 Q 620 170 640 165 Q 680 158 720 150 L 720 240 Q 680 238 640 234 Q 600 230 560 226 Q 540 224 520 220 Q 500 218 480 216 Q 460 215 440 215 Q 420 216 410 220 Q 400 225 390 232 Q 375 240 360 242 Q 340 244 320 244 Q 310 244 305 248 Q 302 256 300 262 L 280 265 Q 280 250 285 240 Q 290 228 295 214 Q 300 200 302 186 Q 304 172 305 158 Q 310 152 320 148 Q 335 144 355 145 Q 375 147 400 152 Z"
+            fill="#b8cfa0" />
+      <!-- Tiểu Á / Syria -->
+      <path d="M 560 150 Q 600 145 640 148 Q 680 150 720 150 L 720 240 Q 700 235 680 228 Q 660 222 640 218 Q 620 214 600 212 Q 580 210 560 210 Q 540 210 520 214 Q 510 216 500 220 Q 490 224 490 230 Q 492 238 500 244 Q 510 250 520 254 Q 540 258 560 258 Q 580 258 600 255 Q 620 252 640 248 Q 680 244 720 244 L 720 270 Q 680 272 640 270 Q 600 268 560 264 Q 540 262 520 258 Q 500 254 480 250 Q 460 246 460 238 Q 460 228 470 218 L 480 216 Q 500 212 520 208 Q 540 206 560 206 Q 580 206 600 208 Q 620 210 640 214 Q 660 218 680 224 Q 700 230 720 236 L 720 180 Q 680 172 640 166 Q 610 162 585 158 Q 570 155 560 150 Z"
+            fill="#c8d8b0" />
+      <!-- Ai Cập -->
+      <path d="M 540 258 Q 560 258 580 255 Q 600 252 620 248 Q 640 244 660 244 Q 680 244 700 244 L 720 244 L 720 290 Q 680 286 640 280 Q 600 274 560 270 Q 545 268 540 265 Z"
+            fill="#e8d8a0" />
+
+      <!-- ── Sông Rhine & Danube (biên giới) ── -->
+      <path id="border-line" d="M 240 0 Q 235 30 228 60 Q 222 90 220 115 Q 218 130 215 145 Q 218 155 225 165 Q 250 175 280 178 Q 320 180 360 180 Q 400 180 440 182 Q 480 184 520 185 Q 560 185 600 183 Q 640 180 680 175 Q 700 172 720 170"
+            fill="none" stroke="#475569" stroke-width="2.5" stroke-dasharray="6,4" opacity="0.7"/>
+      <text x="222" y="55" fill="#475569" font-size="10" font-weight="700" transform="rotate(-80,222,55)">Rhine</text>
+      <text x="380" y="172" fill="#475569" font-size="10" font-weight="700">Danube</text>
+
+      <!-- ── Biên giới Đông–Tây (sau 395) — ẩn mặc định ── -->
+      <line id="split-line" x1="395" y1="130" x2="385" y2="265"
+            stroke="#b91c1c" stroke-width="3" stroke-dasharray="8,4"
+            opacity="0" />
+      <text id="split-label-w" x="180" y="200" fill="#b91c1c" font-size="13" font-weight="700" opacity="0">TÂY LA MÃ</text>
+      <text id="split-label-e" x="490" y="200" fill="#1d4ed8" font-size="13" font-weight="700" opacity="0">ĐÔNG LA MÃ</text>
+
+      <!-- ── Tô màu phần Tây / Đông ── -->
+      <rect id="west-overlay" x="0" y="0" width="400" height="380" fill="#fca5a5" opacity="0" rx="8"/>
+      <rect id="east-overlay" x="395" y="0" width="325" height="380" fill="#7dd3fc" opacity="0"/>
+
+      <!-- ── Các mũi tên di cư (ẩn mặc định) ── -->
+      <!-- Visigoths từ Đông Bắc vào Balkans và Ý -->
+      <path id="arr-visigoths" d="M 520 60 Q 480 100 440 140 Q 400 170 350 195 Q 320 210 300 230"
+            fill="none" stroke="#b91c1c" stroke-width="2.5" marker-end="url(#arrow-red)" opacity="0"/>
+      <!-- Vandals qua Gaul và Bắc Phi -->
+      <path id="arr-vandals" d="M 200 80 Q 180 120 170 160 Q 160 190 160 210 Q 162 230 165 250 Q 170 265 190 268"
+            fill="none" stroke="#b91c1c" stroke-width="2.5" marker-end="url(#arrow-red)" opacity="0"/>
+      <!-- Franks vào Gaul -->
+      <path id="arr-franks" d="M 260 20 Q 255 55 250 80 Q 244 105 240 130"
+            fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow-red)" opacity="0"/>
+      <!-- Huns từ phía Đông -->
+      <path id="arr-huns" d="M 720 90 Q 680 105 640 115 Q 600 125 560 132 Q 530 138 500 145 Q 470 150 445 155"
+            fill="none" stroke="#78350f" stroke-width="3" marker-end="url(#arrow-brown)" opacity="0"/>
+      <!-- Ostrogoths / Goths vào Ý -->
+      <path id="arr-ostrogoths" d="M 560 120 Q 520 135 480 148 Q 450 158 430 168 Q 410 178 390 190 Q 370 200 355 215"
+            fill="none" stroke="#9a3412" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow-orange)" opacity="0"/>
+      <!-- Sassanid từ Đông -->
+      <path id="arr-sassanid" d="M 720 200 Q 690 205 660 210 Q 635 215 615 218"
+            fill="none" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arrow-purple)" opacity="0"/>
+
+      <!-- Arrow markers -->
+      <defs>
+        <marker id="arrow-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#b91c1c"/>
+        </marker>
+        <marker id="arrow-brown" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#78350f"/>
+        </marker>
+        <marker id="arrow-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#9a3412"/>
+        </marker>
+        <marker id="arrow-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/>
+        </marker>
+      </defs>
+
+      <!-- ── Thành phố chính ── -->
+      <circle cx="302" cy="198" r="6" fill="#b91c1c" stroke="white" stroke-width="1.5"/>
+      <text x="307" y="195" fill="#1f2937" font-size="11" font-weight="700">Rome</text>
+
+      <circle cx="545" cy="162" r="7" fill="#1d4ed8" stroke="white" stroke-width="1.5"/>
+      <text x="552" y="158" fill="#1f2937" font-size="11" font-weight="700">Constantinople</text>
+
+      <circle cx="295" cy="185" r="4" fill="#b45309" stroke="white" stroke-width="1.5"/>
+      <text x="300" y="181" fill="#374151" font-size="10">Ravenna</text>
+
+      <circle cx="480" cy="230" r="4" fill="#0f766e" stroke="white" stroke-width="1.5"/>
+      <text x="486" y="226" fill="#374151" font-size="10">Antioch</text>
+
+      <circle cx="530" cy="252" r="4" fill="#0f766e" stroke="white" stroke-width="1.5"/>
+      <text x="536" y="248" fill="#374151" font-size="10">Alexandria</text>
+
+      <!-- Hải danh Địa Trung Hải -->
+      <text x="290" y="240" fill="#1e40af" font-size="12" font-style="italic" opacity="0.7">Địa Trung Hải</text>
+      <text x="500" y="192" fill="#1e40af" font-size="10" font-style="italic" opacity="0.6">Biển Đen</text>
+
+      <!-- Label di cư (ẩn) -->
+      <text id="lbl-visigoths" x="460" y="125" fill="#b91c1c" font-size="11" font-weight="700" opacity="0">Visigoths</text>
+      <text id="lbl-vandals"   x="130" y="175" fill="#b91c1c" font-size="11" font-weight="700" opacity="0">Vandals</text>
+      <text id="lbl-franks"    x="254" y="45"  fill="#dc2626" font-size="11" font-weight="700" opacity="0">Franks</text>
+      <text id="lbl-huns"      x="620" y="88"  fill="#78350f" font-size="11" font-weight="700" opacity="0">Huns</text>
+      <text id="lbl-ostro"     x="545" y="110" fill="#9a3412" font-size="11" font-weight="700" opacity="0">Ostrogoths</text>
+      <text id="lbl-sassanid"  x="668" y="196" fill="#7c3aed" font-size="11" font-weight="700" opacity="0">Sassanid</text>
+    </svg>
+  </div>
+
+  <div id="map-legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#a3c98a"></div> Châu Âu / Gaul</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#d4b896"></div> Bắc Phi</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#c8d8b0"></div> Tiểu Á / Syria</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#e8d8a0"></div> Ai Cập</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#93c5fd"></div> Biển</div>
+  </div>
+
+  <div class="map-label-box" id="map-desc">
+    <strong>Đế quốc La Mã năm 395</strong> — Kéo dài từ Britannia (Anh) ở phía Tây Bắc đến Mesopotamia ở phía Đông Nam, từ sông Rhine và Danube ở phía Bắc đến sa mạc Sahara ở phía Nam. Đường đứt nét là biên giới tự nhiên sông Rhine – Danube.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Sơ đồ nhân–quả đa yếu tố
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Sơ đồ đa nguyên nhân: Vì sao Tây La Mã sụp đổ?</h2>
+
+<div class="card">
+  <div class="info-box">
+    Không có một nguyên nhân duy nhất. Hãy nhấn vào từng nhóm nguyên nhân để xem chi tiết và cách chúng củng cố lẫn nhau.
+  </div>
+
+  <div class="factors-grid">
+    <div class="factor-card fc-military" onclick="showFactor('military')">
+      <div class="fcard-title">Quân sự</div>
+      <div class="fcard-sub">Di cư tộc German, người Hung, chi phí biên giới, foederati kém trung thành</div>
+    </div>
+    <div class="factor-card fc-economic" onclick="showFactor('economic')">
+      <div class="fcard-title">Kinh tế</div>
+      <div class="fcard-sub">Lạm phát, lao động nô lệ, thuế nặng, sụt giảm thương mại, latifundia</div>
+    </div>
+    <div class="factor-card fc-political" onclick="showFactor('political')">
+      <div class="fcard-title">Chính trị</div>
+      <div class="fcard-sub">26 hoàng đế trong 50 năm, tham nhũng, thiếu cơ chế kế vị ổn định</div>
+    </div>
+    <div class="factor-card fc-social" onclick="showFactor('social')">
+      <div class="fcard-title">Xã hội &amp; Văn hóa</div>
+      <div class="fcard-sub">Dân số giảm, dịch bệnh, "barbarization", biến đổi tôn giáo</div>
+    </div>
+  </div>
+
+  <div class="factor-detail" id="fd-military">
+    <h4>Yếu tố quân sự</h4>
+    <ul>
+      <li><strong>Di cư tộc German:</strong> Visigoths, Ostrogoths, Vandals, Franks ban đầu xin định cư hòa bình do áp lực từ người Hung; khi số lượng quá lớn, La Mã không còn khả năng hòa nhập.</li>
+      <li><strong>Người Hung (Huns):</strong> Attila (khoảng 406–453) mở rộng từ thảo nguyên Trung Á, đẩy làn sóng di cư của tộc Germani về phía Tây vào lãnh thổ La Mã.</li>
+      <li><strong>Foederati:</strong> Quân đội La Mã ngày càng phụ thuộc vào binh lính German (foederati — lính thuê ngoại tộc). Câu hỏi lòng trung thành trở nên nghiêm trọng khi họ có chỉ huy riêng và ít gắn bó với Rome.</li>
+      <li><strong>Chi phí biên giới:</strong> Duy trì biên giới Rhine – Danube dài hàng nghìn km là gánh nặng tài chính không bền vững, đặc biệt khi đế quốc không còn mở rộng để thu lợi từ chiến tranh.</li>
+    </ul>
+    <div class="spiral-note">
+      <strong>Vòng xoáy:</strong> Chi phí quân sự tăng → thuế nặng hơn → nông dân bần cùng → bỏ đất → ít thuế hơn → phụ thuộc thêm vào foederati → kiểm soát biên giới kém hơn.
+    </div>
+  </div>
+
+  <div class="factor-detail" id="fd-economic">
+    <h4>Yếu tố kinh tế</h4>
+    <ul>
+      <li><strong>Lạm phát do "in tiền":</strong> Đồng Denarius từ ~70–80% bạc (thời Augustus) xuống dưới 5% bạc (giữa thế kỉ III) → giá cả tăng vọt → lương thực tế của binh sĩ giảm → bất mãn.</li>
+      <li><strong>Lao động nô lệ:</strong> Khi chiến tranh mở rộng ngừng (cuối thế kỉ I–II), nguồn nô lệ từ chiến tranh cạn dần. Hệ thống kinh tế lệ thuộc vào nô lệ không có cơ chế thích nghi — năng suất không tăng được.</li>
+      <li><strong>Thuế nặng và tham nhũng thu thuế:</strong> Nhà nước cần tiền → tăng thuế → quan lại địa phương tham nhũng → tiền không về trung ương → lại tăng thuế...</li>
+      <li><strong>Thương mại sụt giảm:</strong> Mất an ninh trên tuyến đường bộ và biển → nhiều vùng quay về kinh tế tự cung tự cấp → không còn hội nhập vào hệ thống kinh tế đế quốc.</li>
+    </ul>
+    <div class="spiral-note">
+      <strong>Vòng xoáy:</strong> Ít tiền thuế → giảm hàm lượng bạc ("in tiền") → lạm phát → mất lòng tin vào đồng tiền → quay về hiện vật → ít tiền thuế hơn.
+    </div>
+  </div>
+
+  <div class="factor-detail" id="fd-political">
+    <h4>Yếu tố chính trị</h4>
+    <ul>
+      <li><strong>26 hoàng đế trong 50 năm (235–284):</strong> Không có cơ chế kế vị ổn định → tranh giành quyền lực liên tục → các quân đoàn tự ý đưa chỉ huy của mình lên ngôi → nội chiến triền miên.</li>
+      <li><strong>Tham nhũng và kém hiệu quả:</strong> Bộ máy quan liêu phình to dưới thời Diocletianus (tăng tỉnh từ ~50 lên >100, biên chế tăng mạnh) nhưng kém hiệu quả; quan lại địa phương ưu tiên lợi ích cá nhân.</li>
+      <li><strong>Chia đôi đế quốc (395):</strong> Dù cần thiết về quản lý, hai nửa đôi khi cạnh tranh hơn hợp tác. Tây La Mã yếu hơn không nhận được đủ hỗ trợ từ Đông.</li>
+      <li><strong>Thiếu lòng trung thành với nhà nước:</strong> Khi hoàng đế thay đổi liên tục và quyền lực trung ương suy yếu, cả quân đội lẫn dân thường mất động cơ bảo vệ "đế quốc" như một thể chế.</li>
+    </ul>
+  </div>
+
+  <div class="factor-detail" id="fd-social">
+    <h4>Yếu tố xã hội &amp; Văn hóa</h4>
+    <ul>
+      <li><strong>Dịch bệnh:</strong> Dịch Antoninus (165–180, ~5–10 triệu người chết) và dịch Cyprian (249–262) làm giảm dân số lao động và binh sĩ, đẩy kinh tế vào vòng xoáy.</li>
+      <li><strong>"Barbarization":</strong> Văn hóa La Mã dần pha trộn với văn hóa của các tộc nhập cư. Sự gắn kết văn hóa vốn là sức mạnh đế quốc bị mờ dần.</li>
+      <li><strong>Vai trò của Cơ Đốc giáo:</strong> Chủ đề tranh luận lâu dài trong sử học. Gibbon (thế kỉ XVIII) cho rằng Cơ Đốc giáo chuyển năng lượng xã hội khỏi phục vụ nhà nước; các sử gia khác phản bác rằng Cơ Đốc giáo tạo ra gắn kết xã hội mới. Quan điểm trung lập: là một yếu tố trong bức tranh phức tạp, không phải nguyên nhân đơn độc.</li>
+      <li><strong>Dân số đô thị giảm:</strong> Rome từ hơn 1 triệu người (thế kỉ II) xuống vài trăm nghìn vào cuối thế kỉ IV, rồi vài chục nghìn sau 476.</li>
+    </ul>
+  </div>
+
+  <div class="gold-box" style="margin-top:16px;">
+    <strong>Tương tác giữa các nhóm:</strong> Bốn nhóm nguyên nhân không hoạt động độc lập — chúng củng cố lẫn nhau theo kiểu vòng xoáy. Ví dụ: thuế nặng (kinh tế) → nông dân bần cùng (xã hội) → ít lính tình nguyện hơn (quân sự) → phụ thuộc foederati → quyền kiểm soát trung ương yếu hơn (chính trị) → ít thuế thu được hơn (kinh tế).
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Timeline thế kỉ III – 476
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Chuỗi thời gian: thế kỉ III – 476</h2>
+
+<div class="card">
+  <div class="info-box" style="margin-bottom:16px;">
+    Từ đỉnh khủng hoảng đến sụp đổ hoàn toàn kéo dài hơn 240 năm — minh chứng rằng đây là quá trình chuyển đổi dài, không phải sự kiện đột ngột.
+  </div>
+
+  <div class="timeline">
+
+    <div class="tl-item crisis">
+      <div class="tl-year">235 – 284</div>
+      <div class="tl-title">Khủng hoảng thế kỉ III
+        <span class="tl-badge badge-crisis">Khủng hoảng</span>
+      </div>
+      <div class="tl-desc">Khoảng 26 hoàng đế trong 50 năm, đa số bị ám sát hoặc lật đổ. Lạm phát (đồng Denarius mất ~95% hàm lượng bạc), dịch Cyprian, đế quốc thực tế vỡ thành 3 mảnh (260–274).</div>
+    </div>
+
+    <div class="tl-item reform">
+      <div class="tl-year">284 – 293</div>
+      <div class="tl-title">Diocletianus lên ngôi — cải tổ hành chính
+        <span class="tl-badge badge-reform">Cải tổ</span>
+      </div>
+      <div class="tl-desc">Chấm dứt khủng hoảng. Chia đế quốc thành Tứ đế (Tetrarchy) năm 293 — bốn người cùng cai trị để dễ quản lý. Tăng số tỉnh từ ~50 lên >100. Phân quân đội thành limitanei (biên giới) và comitatenses (cơ động).</div>
+    </div>
+
+    <div class="tl-item reform">
+      <div class="tl-year">306 – 337</div>
+      <div class="tl-title">Constantinus — Sắc lệnh Milan &amp; dời đô Constantinople
+        <span class="tl-badge badge-reform">Cải tổ</span>
+      </div>
+      <div class="tl-desc">313: Sắc lệnh Milan hợp pháp hóa Cơ Đốc giáo. 325: Công đồng Nicaea. 330: Dời đô về Byzantium — đổi tên thành Constantinople. Hai cải tổ đặt nền móng cho sự phân kỳ Đông – Tây.</div>
+    </div>
+
+    <div class="tl-item crisis">
+      <div class="tl-year">378</div>
+      <div class="tl-title">Trận Adrianople — Hoàng đế Valens tử trận
+        <span class="tl-badge badge-crisis">Thảm bại</span>
+      </div>
+      <div class="tl-desc">Người Visigoths đánh bại và giết Hoàng đế Valens — thất bại quân sự lớn nhất của La Mã kể từ thế kỉ II. Lần đầu tiên một hoàng đế La Mã bị giết trong chiến trận kể từ năm 251.</div>
+    </div>
+
+    <div class="tl-item split">
+      <div class="tl-year">395</div>
+      <div class="tl-title">Theodosius I mất — Đế quốc chia Đông – Tây vĩnh viễn
+        <span class="tl-badge badge-split">Chia tách</span>
+      </div>
+      <div class="tl-desc">Con trai Honorius (11 tuổi) nhận Tây La Mã (đóng đô Ravenna); con trai Arcadius nhận Đông La Mã (Constantinople). Đây là lần chia đầu tiên không thể đảo ngược.</div>
+    </div>
+
+    <div class="tl-item crisis">
+      <div class="tl-year">410</div>
+      <div class="tl-title">Alaric và người Visigoths cướp phá Rome</div>
+      <div class="tl-desc">Lần đầu tiên sau 800 năm thành phố Rome bị ngoại xâm chiếm. Sự kiện gây chấn động tâm lý khổng lồ toàn thế giới Địa Trung Hải dù đế quốc vẫn còn tồn tại về mặt thể chế.</div>
+    </div>
+
+    <div class="tl-item crisis">
+      <div class="tl-year">430s – 450s</div>
+      <div class="tl-title">Attila và người Hung tàn phá Đông Âu và Tây La Mã</div>
+      <div class="tl-desc">Người Hung mở chiến dịch lớn vào lãnh thổ Tây La Mã. Attila được gọi là "Roi của Trời" (Scourge of God) trong sử sách châu Âu trung đại.</div>
+    </div>
+
+    <div class="tl-item crisis">
+      <div class="tl-year">455</div>
+      <div class="tl-title">Người Vandals cướp phá Rome lần thứ hai</div>
+      <div class="tl-desc">Hạm đội Vandals từ Bắc Phi vượt biển. Thuật ngữ "vandalism" (phá hoại) xuất phát từ sự kiện này trong ngôn ngữ châu Âu.</div>
+    </div>
+
+    <div class="tl-item fall">
+      <div class="tl-year">476</div>
+      <div class="tl-title">Odoacer phế truất Romulus Augustulus — Mốc kết thúc Tây La Mã
+        <span class="tl-badge badge-fall">Kết thúc</span>
+      </div>
+      <div class="tl-desc">Thủ lĩnh German Odoacer — vốn là tướng trong quân đội La Mã — phế truất hoàng đế Tây La Mã cuối cùng (16 tuổi, trị vì chưa đến 1 năm). Odoacer tự xưng "Vua Ý," không đặt ai kế vị. Lần đầu tiên không có hoàng đế La Mã nào ở phương Tây.</div>
+    </div>
+
+    <div class="tl-item" style="">
+      <div class="tl-year">1453</div>
+      <div class="tl-title">Constantinople thất thủ trước quân Ottoman
+        <span class="tl-badge badge-east">Đông La Mã kết thúc</span>
+      </div>
+      <div class="tl-desc">Đông La Mã (Byzantine) tồn tại thêm gần 1.000 năm sau năm 476. "Sụp đổ La Mã" hoàn toàn chỉ xảy ra vào năm 1453 — khi Sultan Mehmed II chiếm Constantinople.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — So sánh Tây La Mã và Đông La Mã
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Vì sao Đông La Mã (Byzantine) trụ được lâu hơn?</h2>
+
+<div class="card">
+  <div class="info-box">
+    Cùng xuất phát từ một đế quốc, nhưng Đông La Mã tồn tại thêm gần 1.000 năm sau khi Tây La Mã sụp đổ (476). Bảng so sánh dưới đây phân tích bốn lợi thế cấu trúc.
+  </div>
+
+  <div style="overflow-x: auto;">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Tiêu chí</th>
+          <th>Tây La Mã (sụp đổ 476)</th>
+          <th>Đông La Mã / Byzantine (kết thúc 1453)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Thủ đô &amp; địa lý</td>
+          <td class="west-row">Rome / Ravenna — nằm giữa đất liền, nhiều hướng tấn công; biên giới Rhine–Danube dài và bằng phẳng</td>
+          <td class="east-row">Constantinople — bán đảo 3 mặt biển, Tường Theodosius bảo vệ hướng đất liền duy nhất; gần như không thể chiếm từ đất liền</td>
+        </tr>
+        <tr>
+          <td>Kinh tế</td>
+          <td class="west-row">Nông nghiệp là chủ đạo; kinh tế tiền tệ yếu hơn; thương mại nội bộ bị gián đoạn khi mất an ninh</td>
+          <td class="east-row">Các trung tâm thương mại lớn (Constantinople, Antioch, Alexandria) trên tuyến giao thương châu Âu–Ấn Độ; kinh tế tiền tệ mạnh, thuế ổn định hơn</td>
+        </tr>
+        <tr>
+          <td>Biên giới</td>
+          <td class="west-row">Dài dọc Rhine và Danube — đắt tiền duy trì, khó phòng thủ, nhiều tộc German áp lực liên tục</td>
+          <td class="east-row">Ngắn hơn; phía Bắc có địa hình núi non Balkans; đối thủ chính (Sassanid Ba Tư) mạnh nhưng không đe dọa hiện sinh tức thì</td>
+        </tr>
+        <tr>
+          <td>Thể chế hành chính</td>
+          <td class="west-row">Mất dần tầng lớp quan lại có học vấn; hệ thống pháp luật suy yếu; nội chiến và ngoại xâm làm gián đoạn liên tục</td>
+          <td class="east-row">Duy trì bộ máy nhà nước chuyên nghiệp; Corpus Juris Civilis (Justinianus, 529–534) gìn giữ hệ thống pháp luật La Mã; quan lại được đào tạo bài bản</td>
+        </tr>
+        <tr>
+          <td>Ngôn ngữ &amp; văn hóa</td>
+          <td class="west-row">Latin; bị "barbarization" mạnh khi số lượng dân German trong lãnh thổ lớn</td>
+          <td class="east-row">Ban đầu song ngữ Latin–Hy Lạp; chuyển hoàn toàn sang tiếng Hy Lạp vào thế kỉ VII; Cơ Đốc giáo Chính Thống tạo bản sắc mạnh</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="gold-box" style="margin-top:14px;">
+    <strong>Lưu ý:</strong> Đông La Mã không phải không có khủng hoảng — họ đối mặt với dịch hạch Justinianus (541–549, ước tính giết 25–50 triệu người), xâm lược của người Avar, Sassanid, Ả Rập, Turk... Nhưng bốn lợi thế cấu trúc giúp họ phục hồi được sau mỗi cú sốc. "Sụp đổ" hoàn toàn chỉ xảy ra năm 1453 khi pháo thần công Ottoman phá được Tường Theodosius.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 5 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>5. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q" id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score" id="quiz-score"></span>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   MODULE 1 — Bản đồ tương tác
+   ════════════════════════════════════════════════ */
+
+const MAP_MODES = [
+  {
+    id: 0,
+    desc: '<strong>Đế quốc La Mã năm 395</strong> — Kéo dài từ Britannia (Anh) ở phía Tây Bắc đến Mesopotamia ở phía Đông Nam, từ sông Rhine và Danube ở phía Bắc đến sa mạc Sahara ở phía Nam. Đường đứt nét là biên giới tự nhiên sông Rhine – Danube. Lãnh thổ rộng gần 5 triệu km², dân số ước tính 50–65 triệu người.'
+  },
+  {
+    id: 1,
+    desc: '<strong>Chia Đông – Tây năm 395 (vĩnh viễn)</strong> — Theodosius I mất, để lại đế quốc cho hai con trai: Honorius (Tây, đóng đô Ravenna, nền đỏ) và Arcadius (Đông, đóng đô Constantinople, nền xanh). Đường đỏ đứt nét là biên giới phân chia. Tây La Mã sụp đổ năm 476; Đông La Mã (Byzantine) tồn tại đến 1453.'
+  },
+  {
+    id: 2,
+    desc: '<strong>Hướng di cư và xâm lấn (thế kỉ III – V)</strong> — Các mũi tên chỉ hướng di chuyển của các tộc chính: <span style="color:#b91c1c"><strong>Visigoths</strong></span> (từ Đông Bắc vào Balkans và Ý, cướp Rome 410), <span style="color:#b91c1c"><strong>Vandals</strong></span> (qua Gaul và Bắc Phi, cướp Rome 455), <span style="color:#dc2626"><strong>Franks</strong></span> (vào Gaul), <span style="color:#78350f"><strong>Huns</strong></span> (từ thảo nguyên Trung Á về phía Tây dưới Attila), <span style="color:#9a3412"><strong>Ostrogoths</strong></span> (vào Ý), <span style="color:#7c3aed"><strong>Sassanid Ba Tư</strong></span> (áp lực biên giới Đông).'
+  }
+];
+
+let mapMode = 0;
+
+function mapShow(mode) {
+  mapMode = mode;
+
+  // Cập nhật nút
+  for (let i = 0; i < 3; i++) {
+    const btn = document.getElementById('mbtn-' + i);
+    if (btn) btn.className = 'map-btn' + (i === mode ? ' active' : '');
+  }
+
+  // Cập nhật mô tả
+  document.getElementById('map-desc').innerHTML = MAP_MODES[mode].desc;
+
+  // Ẩn/hiện overlay Đông–Tây
+  const showSplit = (mode === 1);
+  ['west-overlay','east-overlay','split-line','split-label-w','split-label-e'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('opacity', showSplit ? (id === 'west-overlay' || id === 'east-overlay' ? '0.18' : '1') : '0');
+  });
+
+  // Ẩn/hiện mũi tên di cư
+  const showMigration = (mode === 2);
+  const arrows = ['arr-visigoths','arr-vandals','arr-franks','arr-huns','arr-ostrogoths','arr-sassanid',
+                  'lbl-visigoths','lbl-vandals','lbl-franks','lbl-huns','lbl-ostro','lbl-sassanid'];
+  arrows.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('opacity', showMigration ? '1' : '0');
+  });
+}
+
+// Khởi tạo
+mapShow(0);
+
+/* ════════════════════════════════════════════════
+   MODULE 2 — Sơ đồ nhân–quả
+   ════════════════════════════════════════════════ */
+
+let lastFactor = null;
+
+function showFactor(name) {
+  // Ẩn tất cả
+  ['military','economic','political','social'].forEach(n => {
+    document.getElementById('fd-' + n).classList.remove('show');
+  });
+
+  // Bỏ selected trên tất cả cards
+  document.querySelectorAll('.factor-card').forEach(c => c.classList.remove('selected'));
+
+  if (lastFactor === name) {
+    // Toggle off
+    lastFactor = null;
+    return;
+  }
+
+  document.getElementById('fd-' + name).classList.add('show');
+  document.getElementById('fd-' + name).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  lastFactor = name;
+
+  // Thêm selected vào card tương ứng
+  const nameMap = { military: 0, economic: 1, political: 2, social: 3 };
+  document.querySelectorAll('.factor-card')[nameMap[name]].classList.add('selected');
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 5 — Quiz ôn tập
+   ════════════════════════════════════════════════ */
+
+const QUIZ = [
+  {
+    q: 'Giai đoạn "Khủng hoảng thế kỉ III" (235–284) được đặc trưng bởi điều gì?',
+    opts: [
+      'Đế quốc mở rộng lãnh thổ tối đa và kinh tế phát triển rực rỡ',
+      'Khoảng 26 hoàng đế trong 50 năm, lạm phát nặng, dịch bệnh và áp lực biên giới đồng thời',
+      'Cơ Đốc giáo trở thành quốc giáo và đế quốc chia Đông – Tây',
+      'Người Hung xâm lược và phá hủy thành phố Rome',
+    ],
+    correct: 1,
+    explain: 'Khủng hoảng thế kỉ III (235–284) được đặc trưng bởi: ~26 hoàng đế trong 50 năm (đa số bị ám sát hoặc lật đổ), lạm phát do giảm hàm lượng bạc trong đồng Denarius, dịch Cyprian (249–262), và áp lực biên giới từ người Germani và Sassanid. Đế quốc thực tế vỡ thành 3 mảnh năm 260–274.'
+  },
+  {
+    q: 'Hệ thống "Tứ đế" (Tetrarchy) do Diocletianus thiết lập năm 293 nhằm giải quyết vấn đề gì?',
+    opts: [
+      'Thống nhất tôn giáo trong đế quốc',
+      'Giảm lạm phát bằng cách kiểm soát giá cả',
+      'Một người không thể quản lý hiệu quả cả hai mặt trận Đông và Tây cùng lúc',
+      'Tăng thu thuế bằng cách bổ nhiệm thêm quan lại địa phương',
+    ],
+    correct: 2,
+    explain: 'Diocletianus nhận ra rằng đế quốc quá rộng lớn — kéo dài từ Anh đến Mesopotamia — để một người quản lý hiệu quả, đặc biệt khi có cùng lúc nhiều mặt trận bùng nổ. Tứ đế chia quyền thành 4: 2 Augustus (cấp cao) và 2 Caesar (cấp thấp, đồng thời là người kế vị). Hệ thống hoạt động tốt dưới Diocletianus nhưng sụp đổ sau khi ông thoái vị năm 305.'
+  },
+  {
+    q: 'Sắc lệnh Milan năm 313 của Constantinus có nội dung gì?',
+    opts: [
+      'Tuyên bố Cơ Đốc giáo là quốc giáo duy nhất bắt buộc',
+      'Dời đô từ Rome về Constantinople',
+      'Hợp pháp hóa Cơ Đốc giáo và mọi tôn giáo khác, chấm dứt các cuộc đàn áp',
+      'Chia đế quốc thành Đông và Tây cho hai con trai',
+    ],
+    correct: 2,
+    explain: 'Sắc lệnh Milan 313 hợp pháp hóa Cơ Đốc giáo và mọi tôn giáo khác — không phải biến Cơ Đốc giáo thành quốc giáo độc quyền. Đến năm 380 (dưới Theodosius I), Cơ Đốc giáo Nicene mới trở thành quốc giáo bắt buộc. Sắc lệnh 313 chấm dứt hơn hai thế kỉ đàn áp và là cột mốc quan trọng nhất trong lịch sử Cơ Đốc giáo thời kỳ đầu.'
+  },
+  {
+    q: 'Tại sao năm 476 — không phải 410 hay 455 — được chọn là mốc kết thúc Tây La Mã?',
+    opts: [
+      'Vì năm 476 là lần đầu Rome bị kẻ thù tấn công',
+      'Vì năm 476, Odoacer không đặt ai lên ngôi kế vị — lần đầu tiên không có hoàng đế La Mã nào ở phương Tây',
+      'Vì năm 476, Constantinople cũng sụp đổ cùng lúc',
+      'Vì năm 476, toàn bộ quân đội La Mã bị tiêu diệt',
+    ],
+    correct: 1,
+    explain: 'Năm 410 (Visigoths cướp Rome) và 455 (Vandals cướp Rome), đế quốc Tây La Mã vẫn còn tồn tại về mặt thể chế với hoàng đế. Năm 476, Odoacer phế truất Romulus Augustulus và không đặt ai kế vị — đây là lần đầu tiên không có hoàng đế La Mã nào ở phương Tây. Nhiều sử gia hiện đại cũng tranh luận về mốc này, cho rằng đây là điểm cuối của một quá trình chuyển đổi dài.'
+  },
+  {
+    q: 'Lợi thế địa lý nào giúp Constantinople và Đông La Mã chống đỡ được lâu hơn Tây La Mã?',
+    opts: [
+      'Constantinople nằm trên đỉnh núi cao, khó leo lên',
+      'Constantinople có ba mặt biển và một bức tường đất liền duy nhất (Tường Theodosius) — gần như không thể chiếm từ đất liền',
+      'Constantinople ở trung tâm sa mạc, địch không thể tiếp tế',
+      'Constantinople có hải quân mạnh nhất thế giới cổ đại',
+    ],
+    correct: 1,
+    explain: 'Constantinople được xây trên một bán đảo nhỏ với ba mặt là biển (Bosphorus, Biển Marmara, Sừng Vàng). Chỉ cần một bức tường đất liền duy nhất — Tường Theodosius (xây thế kỉ V) — để bảo vệ. Thành phố gần như không thể chiếm từ hướng đất liền bằng phương thức chiến tranh truyền thống. Tường Theodosius chỉ bị phá năm 1453 nhờ pháo thần công của Ottoman.'
+  },
+  {
+    q: 'Đâu là mô tả chính xác về vai trò của Odoacer trong sự kiện năm 476?',
+    opts: [
+      'Odoacer là vua ngoại bang xâm lược từ bên ngoài biên giới La Mã',
+      'Odoacer là tướng trong quân đội La Mã, thực hiện một cuộc đảo chính nội bộ hơn là cuộc xâm lăng từ bên ngoài',
+      'Odoacer là hoàng tử nhà Sassanid Ba Tư',
+      'Odoacer là thủ lĩnh của người Hung dưới quyền Attila',
+    ],
+    correct: 1,
+    explain: 'Odoacer là một thủ lĩnh German nhưng ông phục vụ trong quân đội La Mã trước khi làm đảo chính. Sự kiện năm 476 giống một cuộc đảo chính nội bộ hơn là xâm lăng từ bên ngoài — đây là điểm mấu chốt chứng minh rằng "sụp đổ La Mã" không phải là sự chinh phục đột ngột bởi kẻ thù ngoại xâm, mà là kết quả của quá trình mục ruỗng từ bên trong qua nhiều thế kỉ.'
+  },
+];
+
+let quizIdx = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = 'Câu ' + (quizIdx + 1) + '/' + QUIZ.length + ': ' + q.q;
+  document.getElementById('quiz-prog').textContent = (quizIdx + 1) + ' / ' + QUIZ.length;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? 'Điểm: ' + quizScore + '/' + quizIdx : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach(function(opt, i) {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = function() { quizAnswer(i); };
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+
+  opts.forEach(function(btn, i) {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+
+  document.getElementById('quiz-score').textContent = 'Điểm: ' + quizScore + '/' + (quizIdx + 1);
+
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent = 'Kết quả: ' + quizScore + '/' + QUIZ.length + ' (' + pct + '%)';
+    document.getElementById('quiz-prog').textContent = pct >= 80 ? 'Xuất sắc!' : pct >= 60 ? 'Tốt — ôn lại các câu sai.' : 'Cần ôn tập thêm.';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

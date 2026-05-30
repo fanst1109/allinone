@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — ARP, ICMP, DHCP, NAT</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Color palette (Networking: xanh dương) ── */
+  :root {
+    --accent: #0369a1;
+    --accent-soft: #e0f2fe;
+    --accent-hover: #0284c7;
+    --pkt: #2563eb;
+    --ok: #16a34a;
+    --warn: #dc2626;
+    --neutral: #374151;
+    --muted: #6b7280;
+  }
+
+  h1 { color: #1e3a5f; }
+  h2 { color: #0369a1; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #bae6fd; }
+
+  /* ── Tab system ── */
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 0;
+    border-bottom: 2px solid #bae6fd;
+  }
+  .tab-bar button {
+    padding: 9px 18px;
+    border-radius: 6px 6px 0 0;
+    border: 2px solid #bae6fd;
+    border-bottom: none;
+    background: #f0f9ff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.15s;
+  }
+  .tab-bar button.active {
+    background: white;
+    border-color: #0369a1;
+    color: #0369a1;
+    border-bottom: 2px solid white;
+    margin-bottom: -2px;
+  }
+  .tab-bar button:hover:not(.active) { background: #e0f2fe; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Card ── */
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: 2px solid var(--accent);
+    background: var(--accent);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin: 4px 2px;
+  }
+  .btn:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn.secondary {
+    background: white;
+    color: var(--accent);
+  }
+  .btn.secondary:hover { background: var(--accent-soft); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── Log box ── */
+  .log-box {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    min-height: 90px;
+    max-height: 220px;
+    overflow-y: auto;
+    margin-top: 12px;
+  }
+  .log-box .log-ok    { color: #4ade80; }
+  .log-box .log-warn  { color: #fbbf24; }
+  .log-box .log-info  { color: #93c5fd; }
+  .log-box .log-err   { color: #f87171; }
+  .log-box .log-pkt   { color: #a5f3fc; }
+  .log-box .log-dim   { color: #64748b; }
+
+  /* ── ARP Viz ── */
+  .arp-network {
+    display: flex;
+    justify-content: center;
+    margin: 12px 0;
+    overflow-x: auto;
+  }
+
+  /* ── Cache table ── */
+  .cache-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 8px;
+  }
+  .cache-table th {
+    background: #0369a1;
+    color: white;
+    padding: 7px 10px;
+    text-align: left;
+    font-size: 13px;
+  }
+  .cache-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    font-family: monospace;
+  }
+  .cache-table tr:nth-child(even) td { background: #f0f9ff; }
+  .cache-table .new-entry td { background: #dcfce7 !important; animation: fadeIn 0.5s; }
+  @keyframes fadeIn { from { opacity: 0; background: #bbf7d0; } to { opacity: 1; } }
+
+  /* ── DHCP ── */
+  .dora-steps {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .dora-step {
+    flex: 1;
+    min-width: 100px;
+    max-width: 160px;
+    background: #f8fafc;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    font-size: 13px;
+    transition: all 0.4s;
+  }
+  .dora-step .letter {
+    font-size: 28px;
+    font-weight: 900;
+    color: #94a3b8;
+    line-height: 1;
+  }
+  .dora-step .name {
+    font-weight: 700;
+    font-size: 12px;
+    margin: 4px 0 2px;
+    color: #374151;
+  }
+  .dora-step .desc {
+    font-size: 11px;
+    color: #6b7280;
+    line-height: 1.3;
+  }
+  .dora-step.active {
+    border-color: #0369a1;
+    background: #e0f2fe;
+  }
+  .dora-step.active .letter { color: #0369a1; }
+  .dora-step.done {
+    border-color: #16a34a;
+    background: #f0fdf4;
+  }
+  .dora-step.done .letter { color: #16a34a; }
+
+  .dhcp-info-box {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    margin-top: 12px;
+    min-height: 60px;
+  }
+  .dhcp-info-box.hidden { background: #f8fafc; border-color: #e5e7eb; color: #94a3b8; }
+
+  /* ── NAT ── */
+  .nat-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 8px;
+    align-items: start;
+    margin: 12px 0;
+  }
+  .nat-col {
+    background: #f8fafc;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .nat-col h4 {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: var(--accent);
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 6px;
+  }
+  .nat-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: var(--accent);
+    font-weight: 900;
+    padding-top: 28px;
+  }
+  .nat-arrow .arrow-label {
+    font-size: 11px;
+    color: #6b7280;
+    font-weight: 400;
+    font-family: monospace;
+    margin-top: 4px;
+    text-align: center;
+  }
+
+  .nat-table-wrap { overflow-x: auto; }
+  table.nat-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 8px;
+    font-family: monospace;
+  }
+  table.nat-table th {
+    background: #0369a1;
+    color: white;
+    padding: 6px 8px;
+    text-align: left;
+  }
+  table.nat-table td {
+    padding: 5px 8px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  table.nat-table tr.highlight td {
+    background: #fef9c3;
+    font-weight: 700;
+    animation: fadeIn 0.4s;
+  }
+  table.nat-table tr.new-pkt td {
+    background: #dcfce7;
+    animation: fadeIn 0.4s;
+  }
+
+  .pkt-display {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    min-height: 80px;
+  }
+  .pkt-display .src { color: #4ade80; }
+  .pkt-display .dst { color: #93c5fd; }
+  .pkt-display .changed { color: #fbbf24; }
+  .pkt-display .dim { color: #475569; }
+
+  /* ── ICMP ping ── */
+  .ping-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .ping-box {
+    background: #f8fafc;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .ping-box h4 { margin: 0 0 8px; font-size: 13px; color: var(--accent); }
+  .ping-result {
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.9;
+  }
+  .ping-result .ok { color: #16a34a; font-weight: 600; }
+  .ping-result .err { color: #dc2626; font-weight: 600; }
+  .ping-result .info { color: #0369a1; }
+
+  .rtt-bar-wrap { margin-top: 10px; }
+  .rtt-bar-label { font-size: 12px; color: #374151; margin-bottom: 3px; }
+  .rtt-bar-bg {
+    background: #e5e7eb;
+    border-radius: 4px;
+    height: 10px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .rtt-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+
+  /* ── Input controls ── */
+  .control-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+  .control-row label { font-size: 13px; color: #374151; font-weight: 600; }
+  .control-row input[type="text"],
+  .control-row select {
+    padding: 7px 10px;
+    border: 2px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: monospace;
+    width: 180px;
+    max-width: 100%;
+  }
+  .control-row input[type="text"]:focus,
+  .control-row select:focus {
+    outline: none;
+    border-color: #0369a1;
+  }
+
+  /* ── Stats / badge ── */
+  .stat-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+  .stat-badge {
+    background: #e0f2fe;
+    color: #0369a1;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: monospace;
+  }
+  .stat-badge.ok { background: #dcfce7; color: #16a34a; }
+  .stat-badge.warn { background: #fee2e2; color: #dc2626; }
+
+  /* ── Responsive ── */
+  @media (max-width: 650px) {
+    .nat-grid { grid-template-columns: 1fr; }
+    .nat-arrow { flex-direction: row; justify-content: center; padding-top: 0; padding: 4px 0; }
+    .ping-grid { grid-template-columns: 1fr; }
+    .dora-steps { gap: 4px; }
+    .dora-step { min-width: 70px; padding: 7px 5px; }
+    .dora-step .letter { font-size: 22px; }
+  }
+  @media (max-width: 400px) {
+    .tab-bar button { padding: 7px 10px; font-size: 12px; }
+    .dora-step .name { font-size: 10px; }
+    .dora-step .desc { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Foundations</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-routing/visualization.html">← L4: Định tuyến</a>
+  <span class="sep">·</span>
+  <span class="current">L5: ARP, ICMP, DHCP, NAT</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-ipv6/visualization.html">L6: IPv6 →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — ARP, ICMP, DHCP, NAT</h1>
+<p>Bốn giao thức "keo dán" làm mạng thật hoạt động. Chọn tab bên dưới để mô phỏng từng giao thức.</p>
+
+<!-- ════════════════════════════════════════════════════════
+     TAB BAR
+     ════════════════════════════════════════════════════════ -->
+<div class="tab-bar">
+  <button class="active" onclick="switchTab('arp', this)">ARP</button>
+  <button onclick="switchTab('dhcp', this)">DHCP DORA</button>
+  <button onclick="switchTab('nat', this)">NAT/PAT</button>
+  <button onclick="switchTab('icmp', this)">ICMP / ping</button>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     TAB 1: ARP
+     ════════════════════════════════════════════════════════ -->
+<div class="tab-panel active" id="tab-arp">
+
+<h2>ARP — Tìm địa chỉ MAC từ IP trong LAN</h2>
+
+<div class="card">
+  <p>Chọn máy nguồn và IP đích, rồi nhấn <strong>Gửi ARP Request</strong> để xem quá trình broadcast, reply, và điền vào ARP cache.</p>
+
+  <div class="control-row">
+    <label>Máy nguồn:</label>
+    <select id="arp-src" onchange="arpReset()">
+      <option value="A">A — 192.168.1.10</option>
+      <option value="B">B — 192.168.1.20</option>
+      <option value="C">C — 192.168.1.30</option>
+    </select>
+    <label>IP đích:</label>
+    <select id="arp-dst-ip" onchange="arpReset()">
+      <option value="B">192.168.1.20 (B)</option>
+      <option value="C">192.168.1.30 (C)</option>
+      <option value="GW">192.168.1.1 (Gateway)</option>
+      <option value="OUT">8.8.8.8 (ngoài LAN)</option>
+    </select>
+  </div>
+
+  <div class="arp-network">
+    <svg id="arp-svg" width="620" height="200" viewBox="0 0 620 200">
+      <!-- LAN box -->
+      <rect x="10" y="20" width="590" height="160" rx="10" fill="#f0f9ff" stroke="#bae6fd" stroke-width="2"/>
+      <text x="20" y="38" fill="#0369a1" font-size="12" font-weight="700">LAN  192.168.1.0/24</text>
+
+      <!-- Switch in center -->
+      <rect x="271" y="82" width="78" height="36" rx="6" fill="#334155" stroke="#64748b" stroke-width="1.5"/>
+      <text x="310" y="96" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">Switch</text>
+      <text x="310" y="109" text-anchor="middle" fill="#94a3b8" font-size="9">LAN bridge</text>
+
+      <!-- Host A -->
+      <rect x="30" y="78" width="90" height="44" rx="6" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" id="node-A"/>
+      <text x="75" y="97" text-anchor="middle" fill="#1e40af" font-size="11" font-weight="700">Host A</text>
+      <text x="75" y="111" text-anchor="middle" fill="#1e40af" font-size="10" font-family="monospace">192.168.1.10</text>
+      <text x="75" y="123" text-anchor="middle" fill="#64748b" font-size="9" font-family="monospace">AA:11:22:33:44:55</text>
+
+      <!-- Host B -->
+      <rect x="200" y="140" width="90" height="44" rx="6" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" id="node-B"/>
+      <text x="245" y="159" text-anchor="middle" fill="#1e40af" font-size="11" font-weight="700">Host B</text>
+      <text x="245" y="173" text-anchor="middle" fill="#1e40af" font-size="10" font-family="monospace">192.168.1.20</text>
+      <text x="245" y="184" text-anchor="middle" fill="#64748b" font-size="9" font-family="monospace">BB:22:33:44:55:66</text>
+
+      <!-- Host C -->
+      <rect x="200" y="30" width="90" height="44" rx="6" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" id="node-C"/>
+      <text x="245" y="49" text-anchor="middle" fill="#1e40af" font-size="11" font-weight="700">Host C</text>
+      <text x="245" y="63" text-anchor="middle" fill="#1e40af" font-size="10" font-family="monospace">192.168.1.30</text>
+      <text x="245" y="74" text-anchor="middle" fill="#64748b" font-size="9" font-family="monospace">CC:33:44:55:66:77</text>
+
+      <!-- Gateway / Router -->
+      <rect x="490" y="78" width="100" height="44" rx="6" fill="#f3e8ff" stroke="#9333ea" stroke-width="2" id="node-GW"/>
+      <text x="540" y="97" text-anchor="middle" fill="#7e22ce" font-size="11" font-weight="700">Router/GW</text>
+      <text x="540" y="111" text-anchor="middle" fill="#7e22ce" font-size="10" font-family="monospace">192.168.1.1</text>
+      <text x="540" y="123" text-anchor="middle" fill="#9333ea" font-size="9" font-family="monospace">DD:44:55:66:77:88</text>
+
+      <!-- Wires (A→Switch, B→Switch, C→Switch, GW→Switch) -->
+      <line x1="120" y1="100" x2="271" y2="100" stroke="#94a3b8" stroke-width="1.5" id="wire-AS"/>
+      <line x1="245" y1="140" x2="310" y2="118" stroke="#94a3b8" stroke-width="1.5" id="wire-BS"/>
+      <line x1="245" y1="74"  x2="310" y2="82"  stroke="#94a3b8" stroke-width="1.5" id="wire-CS"/>
+      <line x1="349" y1="100" x2="490" y2="100" stroke="#94a3b8" stroke-width="1.5" id="wire-GS"/>
+
+      <!-- Packet animation element -->
+      <circle id="arp-pkt" cx="-50" cy="-50" r="8" fill="#f59e0b" stroke="#d97706" stroke-width="1.5" opacity="0"/>
+      <text id="arp-pkt-label" x="-50" y="-60" text-anchor="middle" fill="#92400e" font-size="9" font-weight="700" opacity="0">ARP</text>
+
+      <!-- Reply packet (green) -->
+      <circle id="arp-reply" cx="-50" cy="-50" r="8" fill="#4ade80" stroke="#16a34a" stroke-width="1.5" opacity="0"/>
+      <text id="arp-reply-label" x="-50" y="-60" text-anchor="middle" fill="#14532d" font-size="9" font-weight="700" opacity="0">Reply</text>
+    </svg>
+  </div>
+
+  <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+    <button class="btn" id="arp-btn-send" onclick="arpSend()">Gửi ARP Request</button>
+    <button class="btn secondary" onclick="arpReset()">Reset</button>
+    <div class="stat-row" style="margin:0;">
+      <span class="stat-badge" id="arp-mode-badge">Sẵn sàng</span>
+    </div>
+  </div>
+
+  <div class="log-box" id="arp-log">Nhấn "Gửi ARP Request" để bắt đầu mô phỏng...</div>
+
+  <h4 style="margin:14px 0 6px; color:#374151;">ARP Cache của máy nguồn</h4>
+  <table class="cache-table" id="arp-cache-table">
+    <thead>
+      <tr><th>IP</th><th>MAC</th><th>TTL (phút)</th><th>Nguồn</th></tr>
+    </thead>
+    <tbody id="arp-cache-body">
+      <tr><td colspan="4" style="color:#94a3b8; text-align:center; font-size:12px;">Cache trống — chưa có ánh xạ nào</td></tr>
+    </tbody>
+  </table>
+</div>
+
+</div><!-- end tab-arp -->
+
+<!-- ════════════════════════════════════════════════════════
+     TAB 2: DHCP DORA
+     ════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-dhcp">
+
+<h2>DHCP DORA — Tự động cấp IP cho thiết bị mới</h2>
+
+<div class="card">
+  <p>Nhấn <strong>Bắt đầu DORA</strong> để mô phỏng từng bước. Hoặc nhấn từng bước riêng để tiến thủ công.</p>
+
+  <div class="dora-steps">
+    <div class="dora-step" id="dora-D">
+      <div class="letter">D</div>
+      <div class="name">Discover</div>
+      <div class="desc">Client broadcast tìm server</div>
+    </div>
+    <div class="dora-step" id="dora-O">
+      <div class="letter">O</div>
+      <div class="name">Offer</div>
+      <div class="desc">Server đề nghị IP</div>
+    </div>
+    <div class="dora-step" id="dora-R">
+      <div class="letter">R</div>
+      <div class="name">Request</div>
+      <div class="desc">Client xác nhận chọn</div>
+    </div>
+    <div class="dora-step" id="dora-A">
+      <div class="letter">A</div>
+      <div class="name">Ack</div>
+      <div class="desc">Server xác nhận binding</div>
+    </div>
+  </div>
+
+  <!-- Network diagram for DHCP -->
+  <div class="arp-network">
+    <svg id="dhcp-svg" width="560" height="160" viewBox="0 0 560 160">
+      <rect x="10" y="10" width="530" height="140" rx="10" fill="#fafafa" stroke="#e2e8f0" stroke-width="1.5"/>
+
+      <!-- Client (new device) -->
+      <rect x="30" y="50" width="100" height="60" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" id="dhcp-client-box"/>
+      <text x="80" y="73" text-anchor="middle" fill="#92400e" font-size="11" font-weight="700">Client</text>
+      <text x="80" y="87" text-anchor="middle" fill="#92400e" font-size="10" font-family="monospace" id="dhcp-client-ip">IP: ???</text>
+      <text x="80" y="100" text-anchor="middle" fill="#b45309" font-size="9" font-family="monospace">MAC: CC:DD:EE:FF:00:11</text>
+
+      <!-- DHCP Server -->
+      <rect x="420" y="50" width="100" height="60" rx="6" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+      <text x="470" y="73" text-anchor="middle" fill="#1e40af" font-size="11" font-weight="700">DHCP Server</text>
+      <text x="470" y="87" text-anchor="middle" fill="#1e40af" font-size="10" font-family="monospace">192.168.1.1</text>
+      <text x="470" y="100" text-anchor="middle" fill="#1e40af" font-size="9">Pool: .100 – .200</text>
+
+      <!-- Broadcast cloud in middle -->
+      <ellipse id="dhcp-cloud" cx="280" cy="80" rx="70" ry="40" fill="#fff7ed" stroke="#fb923c" stroke-width="1.5" stroke-dasharray="5,3" opacity="0"/>
+      <text id="dhcp-cloud-label" x="280" y="78" text-anchor="middle" fill="#ea580c" font-size="10" font-weight="700" opacity="0">broadcast</text>
+      <text id="dhcp-cloud-label2" x="280" y="93" text-anchor="middle" fill="#ea580c" font-size="10" opacity="0">255.255.255.255</text>
+
+      <!-- Arrow: client → server (drawn in JS) -->
+      <defs>
+        <marker id="arr-blue" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#2563eb"/>
+        </marker>
+        <marker id="arr-green" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#16a34a"/>
+        </marker>
+        <marker id="arr-orange" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#ea580c"/>
+        </marker>
+      </defs>
+      <line id="dhcp-arrow" x1="0" y1="0" x2="0" y2="0" stroke="#2563eb" stroke-width="2.5"
+            marker-end="url(#arr-blue)" opacity="0"/>
+      <text id="dhcp-arrow-label" x="280" y="55" text-anchor="middle" fill="#1e40af"
+            font-size="11" font-weight="700" opacity="0"/>
+    </svg>
+  </div>
+
+  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+    <button class="btn" id="dhcp-btn-auto" onclick="dhcpAuto()">Tự động DORA</button>
+    <button class="btn secondary" id="dhcp-btn-step" onclick="dhcpStep()">Bước tiếp theo</button>
+    <button class="btn secondary" onclick="dhcpReset()">Reset</button>
+  </div>
+
+  <div class="dhcp-info-box hidden" id="dhcp-info">Bắt đầu để xem chi tiết từng bước...</div>
+  <div class="log-box" id="dhcp-log">Nhấn "Tự động DORA" hoặc "Bước tiếp theo" để bắt đầu...</div>
+</div>
+
+</div><!-- end tab-dhcp -->
+
+<!-- ════════════════════════════════════════════════════════
+     TAB 3: NAT / PAT
+     ════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-nat">
+
+<h2>NAT / PAT — Bảng dịch địa chỉ IP:Port</h2>
+
+<div class="card">
+  <p>Tạo kết nối mới từ máy nội bộ ra Internet. Quan sát bảng NAT được cập nhật và xem gói thay đổi header như thế nào.</p>
+
+  <div class="nat-grid">
+    <div class="nat-col">
+      <h4>Mạng nội bộ (LAN)</h4>
+      <div class="control-row" style="flex-direction:column; align-items:flex-start; gap:6px;">
+        <label>Máy nguồn:</label>
+        <select id="nat-src-host" style="width:100%; max-width:200px; padding:6px; border:2px solid #cbd5e1; border-radius:6px; font-size:13px; font-family:monospace;">
+          <option value="10_5">192.168.1.10 (PC-1)</option>
+          <option value="11_6">192.168.1.11 (PC-2)</option>
+          <option value="12_7">192.168.1.12 (Laptop)</option>
+        </select>
+        <label>Cổng nguồn (ngẫu nhiên):</label>
+        <select id="nat-src-port" style="width:100%; max-width:200px; padding:6px; border:2px solid #cbd5e1; border-radius:6px; font-size:13px; font-family:monospace;">
+          <option value="45000">45000</option>
+          <option value="54321">54321</option>
+          <option value="60001">60001</option>
+          <option value="33445">33445</option>
+        </select>
+      </div>
+      <div id="nat-pkt-before" class="pkt-display" style="margin-top:10px;">
+<span class="dim">-- Gói chưa vào NAT --</span>
+      </div>
+    </div>
+
+    <div class="nat-arrow">
+      ⇄
+      <div class="arrow-label">Router<br>NAT</div>
+    </div>
+
+    <div class="nat-col">
+      <h4>Internet (public)</h4>
+      <div class="control-row" style="flex-direction:column; align-items:flex-start; gap:6px;">
+        <label>IP đích (server):</label>
+        <select id="nat-dst-ip" style="width:100%; max-width:200px; padding:6px; border:2px solid #cbd5e1; border-radius:6px; font-size:13px; font-family:monospace;">
+          <option value="93.184.216.34">93.184.216.34 (example.com)</option>
+          <option value="8.8.8.8">8.8.8.8 (Google DNS)</option>
+          <option value="1.1.1.1">1.1.1.1 (Cloudflare)</option>
+        </select>
+        <label>Cổng đích:</label>
+        <select id="nat-dst-port" style="width:100%; max-width:200px; padding:6px; border:2px solid #cbd5e1; border-radius:6px; font-size:13px; font-family:monospace;">
+          <option value="80">80 (HTTP)</option>
+          <option value="443">443 (HTTPS)</option>
+          <option value="53">53 (DNS)</option>
+        </select>
+      </div>
+      <div id="nat-pkt-after" class="pkt-display" style="margin-top:10px;">
+<span class="dim">-- Sau khi qua NAT --</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;">
+    <button class="btn" onclick="natSend()">Gửi gói ra Internet</button>
+    <button class="btn secondary" onclick="natReturn()">Nhận gói phản hồi</button>
+    <button class="btn secondary" onclick="natReset()">Reset bảng NAT</button>
+  </div>
+
+  <h4 style="margin:14px 0 6px; color:#374151;">Bảng NAT Translation (IP công khai: <code>203.113.5.100</code>)</h4>
+  <div class="nat-table-wrap">
+    <table class="nat-table" id="nat-table">
+      <thead>
+        <tr>
+          <th>Nội bộ (Inside Local)</th>
+          <th>Public (Inside Global)</th>
+          <th>Đích</th>
+          <th>Giao thức</th>
+          <th>Trạng thái</th>
+        </tr>
+      </thead>
+      <tbody id="nat-tbody">
+        <tr><td colspan="5" style="color:#94a3b8; text-align:center; font-size:12px;">Bảng trống</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="log-box" id="nat-log" style="margin-top:10px;">Chọn cấu hình và nhấn "Gửi gói ra Internet"...</div>
+</div>
+
+</div><!-- end tab-nat -->
+
+<!-- ════════════════════════════════════════════════════════
+     TAB 4: ICMP / ping
+     ════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-icmp">
+
+<h2>ICMP — Ping và Traceroute</h2>
+
+<div class="card">
+  <p>Mô phỏng lệnh <code>ping</code> (ICMP Echo) và <code>traceroute</code> (ICMP Time Exceeded). Chọn host đích và quan sát TTL, RTT, phản hồi từng hop.</p>
+
+  <div class="ping-grid">
+    <div class="ping-box">
+      <h4>Ping — Echo Request / Reply</h4>
+      <div class="control-row" style="flex-direction:column; align-items:flex-start; gap:6px;">
+        <label>Host đích:</label>
+        <select id="ping-dst" style="width:100%; max-width:220px; padding:6px; border:2px solid #cbd5e1; border-radius:6px; font-size:13px; font-family:monospace;">
+          <option value="gw">192.168.1.1 (Gateway — LAN)</option>
+          <option value="cf">1.1.1.1 (Cloudflare — Internet)</option>
+          <option value="gg">8.8.8.8 (Google DNS)</option>
+          <option value="vn">14.237.22.120 (Máy chủ VN)</option>
+          <option value="us">104.26.10.0 (Server Mỹ)</option>
+          <option value="block">10.10.10.10 (Host chặn ICMP)</option>
+        </select>
+        <label>Số lần ping:</label>
+        <select id="ping-count" style="width:100%; max-width:220px; padding:6px; border:2px solid #cbd5e1; border-radius:6px; font-size:13px;">
+          <option value="4">4 lần</option>
+          <option value="6">6 lần</option>
+        </select>
+      </div>
+      <button class="btn" id="ping-btn" onclick="runPing()" style="margin-top:8px;">ping</button>
+      <div class="ping-result" id="ping-result" style="margin-top:10px; min-height:80px; font-size:12px;">
+        <span style="color:#94a3b8;">Chọn host và nhấn ping...</span>
+      </div>
+    </div>
+
+    <div class="ping-box">
+      <h4>Traceroute — TTL tăng dần</h4>
+      <div class="control-row" style="flex-direction:column; align-items:flex-start; gap:6px;">
+        <label>Đích traceroute:</label>
+        <select id="tr-dst" style="width:100%; max-width:220px; padding:6px; border:2px solid #cbd5e1; border-radius:6px; font-size:13px; font-family:monospace;">
+          <option value="cf">1.1.1.1 (Cloudflare)</option>
+          <option value="gg">8.8.8.8 (Google)</option>
+          <option value="vn">14.237.22.120 (VN server)</option>
+        </select>
+      </div>
+      <button class="btn" id="tr-btn" onclick="runTraceroute()" style="margin-top:8px;">traceroute</button>
+      <div class="ping-result" id="tr-result" style="margin-top:10px; min-height:80px; font-size:12px;">
+        <span style="color:#94a3b8;">Chọn đích và nhấn traceroute...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RTT chart -->
+  <div class="card" style="margin-top:0;">
+    <h4 style="margin:0 0 10px; color:#374151; font-size:14px;">RTT theo đích đến (ms) — tham chiếu thực tế</h4>
+    <div id="rtt-chart">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <!-- ICMP Type reference -->
+  <div class="card" style="margin-top:0; background:#fafafa;">
+    <h4 style="margin:0 0 8px; color:#374151; font-size:13px;">Bảng tra nhanh — ICMP Type / Code phổ biến</h4>
+    <div style="overflow-x:auto;">
+      <table style="width:100%; border-collapse:collapse; font-size:12px; font-family:monospace;">
+        <thead>
+          <tr style="background:#0369a1; color:white;">
+            <th style="padding:6px 8px; text-align:left;">Type</th>
+            <th style="padding:6px 8px; text-align:left;">Code</th>
+            <th style="padding:6px 8px; text-align:left;">Tên</th>
+            <th style="padding:6px 8px; text-align:left;">Dùng bởi</th>
+          </tr>
+        </thead>
+        <tbody id="icmp-ref-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- end card -->
+</div><!-- end tab-icmp -->
+
+</main>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   UTILITY
+   ════════════════════════════════════════════════════════════ */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+function log(boxId, msg, cls) {
+  const box = document.getElementById(boxId);
+  const span = document.createElement('span');
+  span.className = cls || '';
+  span.innerHTML = msg;
+  const line = document.createElement('div');
+  line.appendChild(span);
+  // Clear placeholder
+  if (box.textContent.includes('Nhấn') || box.textContent.includes('Chọn')) box.innerHTML = '';
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/* ════════════════════════════════════════════════════════════
+   TAB 1: ARP
+   ════════════════════════════════════════════════════════════ */
+const ARP_HOSTS = {
+  A:  { ip: '192.168.1.10', mac: 'AA:11:22:33:44:55', label: 'A', cx: 75,  cy: 100 },
+  B:  { ip: '192.168.1.20', mac: 'BB:22:33:44:55:66', label: 'B', cx: 245, cy: 162 },
+  C:  { ip: '192.168.1.30', mac: 'CC:33:44:55:66:77', label: 'C', cx: 245, cy: 52  },
+  GW: { ip: '192.168.1.1',  mac: 'DD:44:55:66:77:88', label: 'GW', cx: 540, cy: 100 },
+};
+const SWITCH_CX = 310, SWITCH_CY = 100;
+
+let arpCache = {}; // ip → {mac, ttl, src}
+let arpRunning = false;
+
+function arpReset() {
+  arpCache = {};
+  renderArpCache();
+  document.getElementById('arp-log').innerHTML = 'Nhấn "Gửi ARP Request" để bắt đầu mô phỏng...';
+  document.getElementById('arp-mode-badge').textContent = 'Sẵn sàng';
+  document.getElementById('arp-mode-badge').className = 'stat-badge';
+  // hide animated elements
+  const svg = document.getElementById('arp-svg');
+  ['arp-pkt','arp-pkt-label','arp-reply','arp-reply-label'].forEach(id => {
+    const el = svg.getElementById ? svg.getElementById(id) : document.getElementById(id);
+    if (el) { el.setAttribute('opacity','0'); }
+  });
+  arpRunning = false;
+  document.getElementById('arp-btn-send').disabled = false;
+}
+
+function renderArpCache() {
+  const tbody = document.getElementById('arp-cache-body');
+  if (Object.keys(arpCache).length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="color:#94a3b8; text-align:center; font-size:12px;">Cache trống</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  for (const [ip, entry] of Object.entries(arpCache)) {
+    const tr = document.createElement('tr');
+    if (entry.fresh) { tr.className = 'new-entry'; entry.fresh = false; }
+    tr.innerHTML = `<td>${ip}</td><td>${entry.mac}</td><td>${entry.ttl}</td><td>${entry.src}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+function movePkt(el, labelEl, labelText, x1, y1, x2, y2, color, labelColor, durationMs) {
+  return new Promise(resolve => {
+    el.setAttribute('cx', x1); el.setAttribute('cy', y1);
+    el.setAttribute('fill', color); el.setAttribute('opacity', '1');
+    labelEl.setAttribute('x', x1); labelEl.setAttribute('y', y1 - 12);
+    labelEl.textContent = labelText; labelEl.setAttribute('fill', labelColor);
+    labelEl.setAttribute('opacity', '1');
+
+    const steps = 40;
+    const dx = (x2 - x1) / steps, dy = (y2 - y1) / steps;
+    let step = 0;
+    const interval = setInterval(() => {
+      step++;
+      const cx = x1 + dx * step, cy = y1 + dy * step;
+      el.setAttribute('cx', cx); el.setAttribute('cy', cy);
+      labelEl.setAttribute('x', cx); labelEl.setAttribute('y', cy - 12);
+      if (step >= steps) {
+        clearInterval(interval);
+        el.setAttribute('opacity', '0'); labelEl.setAttribute('opacity', '0');
+        resolve();
+      }
+    }, durationMs / steps);
+  });
+}
+
+async function arpSend() {
+  if (arpRunning) return;
+  arpRunning = true;
+  document.getElementById('arp-btn-send').disabled = true;
+
+  const srcKey = document.getElementById('arp-src').value;
+  const dstKey = document.getElementById('arp-dst-ip').value;
+  const src = ARP_HOSTS[srcKey];
+  const logId = 'arp-log';
+  document.getElementById(logId).innerHTML = '';
+
+  const badge = document.getElementById('arp-mode-badge');
+
+  // Check same subnet
+  if (dstKey === 'OUT') {
+    badge.textContent = 'Ngoài LAN — tìm MAC gateway'; badge.className = 'stat-badge warn';
+    log(logId, `[Phân tích] IP đích 8.8.8.8 nằm NGOÀI subnet 192.168.1.0/24`, 'log-warn');
+    log(logId, `[Hành động] Gửi ARP tìm MAC của GATEWAY (192.168.1.1), không tìm 8.8.8.8`, 'log-info');
+    await sleep(600);
+    // Redirect: actually resolve gateway
+    await doArpResolve(srcKey, 'GW', logId, badge, '(để gửi tới 8.8.8.8)');
+    return;
+  }
+
+  if (srcKey === dstKey) {
+    log(logId, `[Lỗi] Không thể ARP chính mình!`, 'log-err');
+    arpRunning = false;
+    document.getElementById('arp-btn-send').disabled = false;
+    return;
+  }
+
+  // Check cache
+  const dst = ARP_HOSTS[dstKey];
+  if (arpCache[dst.ip]) {
+    badge.textContent = 'Cache hit!'; badge.className = 'stat-badge ok';
+    log(logId, `[Cache] Đã có ${dst.ip} → ${arpCache[dst.ip].mac} trong ARP cache`, 'log-ok');
+    log(logId, `[Kết quả] Dùng MAC từ cache — không cần broadcast ARP`, 'log-ok');
+    arpRunning = false;
+    document.getElementById('arp-btn-send').disabled = false;
+    return;
+  }
+
+  await doArpResolve(srcKey, dstKey, logId, badge, '');
+}
+
+async function doArpResolve(srcKey, dstKey, logId, badge, extra) {
+  const src = ARP_HOSTS[srcKey];
+  const dst = ARP_HOSTS[dstKey];
+  const pkt = document.getElementById('arp-pkt');
+  const pktLbl = document.getElementById('arp-pkt-label');
+  const rep = document.getElementById('arp-reply');
+  const repLbl = document.getElementById('arp-reply-label');
+
+  badge.textContent = 'ARP Request...'; badge.className = 'stat-badge';
+
+  log(logId, `[Bước 1] ${src.label} (${src.ip}) broadcast ARP Request ${extra}`, 'log-info');
+  log(logId, `         Frame: Dst=FF:FF:FF:FF:FF:FF (broadcast)`, 'log-dim');
+  log(logId, `         ARP: Target IP=${dst.ip}, Target MAC=00:00:00:00:00:00`, 'log-pkt');
+
+  // src → switch (broadcast)
+  await movePkt(pkt, pktLbl, 'ARP Req', src.cx, src.cy, SWITCH_CX, SWITCH_CY, '#f59e0b','#92400e', 500);
+  await sleep(150);
+
+  // switch → all nodes (flood)
+  log(logId, `[Bước 2] Switch flood frame tới tất cả cổng...`, 'log-dim');
+  const others = Object.keys(ARP_HOSTS).filter(k => k !== srcKey);
+  const promises = others.map(k => {
+    const h = ARP_HOSTS[k];
+    const color = k === dstKey ? '#f59e0b' : '#94a3b8';
+    const lc = k === dstKey ? '#92400e' : '#475569';
+    return movePkt(
+      k === dstKey ? pkt : { setAttribute: () => {} },
+      k === dstKey ? pktLbl : { setAttribute: () => {}, textContent: '' },
+      'ARP', SWITCH_CX, SWITCH_CY, h.cx, h.cy, color, lc, 450
+    );
+  });
+  await Promise.all(promises);
+  await sleep(200);
+
+  // non-dst hosts ignore
+  const ignoredHosts = others.filter(k => k !== dstKey).map(k => ARP_HOSTS[k].label);
+  if (ignoredHosts.length) {
+    log(logId, `[Bước 3] Các máy ${ignoredHosts.join(', ')} nhận nhưng bỏ qua (Target IP ≠ IP của mình)`, 'log-dim');
+  }
+  log(logId, `[Bước 3] ${dst.label} (${dst.ip}) nhận, Target IP khớp → gửi ARP Reply`, 'log-ok');
+  await sleep(300);
+
+  badge.textContent = 'ARP Reply...'; badge.className = 'stat-badge ok';
+  log(logId, `[Bước 4] ARP Reply (unicast): ${dst.label} → ${src.label}`, 'log-ok');
+  log(logId, `         Frame: Dst=${src.mac}`, 'log-pkt');
+  log(logId, `         ARP: Sender MAC=${dst.mac}, Sender IP=${dst.ip}`, 'log-pkt');
+
+  // dst → switch
+  await movePkt(rep, repLbl, 'Reply', dst.cx, dst.cy, SWITCH_CX, SWITCH_CY, '#4ade80','#14532d', 450);
+  await sleep(100);
+  // switch → src
+  await movePkt(rep, repLbl, 'Reply', SWITCH_CX, SWITCH_CY, src.cx, src.cy, '#4ade80','#14532d', 400);
+  await sleep(200);
+
+  // Update cache
+  arpCache[dst.ip] = { mac: dst.mac, ttl: 20, src: 'Dynamic (ARP Reply)', fresh: true };
+  // Also learn sender's MAC (src already knows its own)
+  renderArpCache();
+
+  badge.textContent = 'Cache cập nhật!'; badge.className = 'stat-badge ok';
+  log(logId, `[Bước 5] ${src.label} cập nhật ARP cache: ${dst.ip} → ${dst.mac} (TTL 20 phút)`, 'log-ok');
+  log(logId, `[Kết quả] Có thể gửi frame Ethernet trực tiếp tới ${dst.mac}`, 'log-ok');
+
+  arpRunning = false;
+  document.getElementById('arp-btn-send').disabled = false;
+}
+
+arpReset();
+
+/* ════════════════════════════════════════════════════════════
+   TAB 2: DHCP DORA
+   ════════════════════════════════════════════════════════════ */
+const DORA_STEPS_DATA = [
+  {
+    id: 'D',
+    name: 'DISCOVER',
+    dir: 'client→broadcast',
+    color: '#ea580c',
+    arrowColor: '#ea580c',
+    markerUrl: 'url(#arr-orange)',
+    x1: 130, y1: 80, x2: 420, y2: 80,
+    labelY: 62,
+    info: `<strong>DHCP Discover</strong> (UDP: Src=0.0.0.0:68 → Dst=255.255.255.255:67)\n` +
+          `Ethernet: Src=CC:DD:EE:FF:00:11  Dst=FF:FF:FF:FF:FF:FF (broadcast)\n` +
+          `Nội dung: "Tôi mới vào mạng, ai là DHCP server? Cho tôi xin IP!"\n` +
+          `Client ID: CC:DD:EE:FF:00:11  Tham số cần: IP, mask, GW, DNS`,
+    log: 'Discover broadcast gửi — tìm DHCP server trong LAN'
+  },
+  {
+    id: 'O',
+    name: 'OFFER',
+    dir: 'server→client',
+    color: '#2563eb',
+    arrowColor: '#2563eb',
+    markerUrl: 'url(#arr-blue)',
+    x1: 420, y1: 80, x2: 130, y2: 80,
+    labelY: 62,
+    info: `<strong>DHCP Offer</strong> (UDP: Src=192.168.1.1:67 → Dst=255.255.255.255:68)\n` +
+          `IP đề nghị : 192.168.1.105\n` +
+          `Subnet mask: 255.255.255.0  (/24)\n` +
+          `Gateway    : 192.168.1.1\n` +
+          `DNS        : 8.8.8.8, 8.8.4.4\n` +
+          `Lease time : 86400 giây (24 giờ)`,
+    log: 'Server đề nghị IP 192.168.1.105, lease 24h, GW 192.168.1.1, DNS 8.8.8.8'
+  },
+  {
+    id: 'R',
+    name: 'REQUEST',
+    dir: 'client→broadcast',
+    color: '#ea580c',
+    arrowColor: '#ea580c',
+    markerUrl: 'url(#arr-orange)',
+    x1: 130, y1: 80, x2: 420, y2: 80,
+    labelY: 62,
+    info: `<strong>DHCP Request</strong> (UDP: Src=0.0.0.0:68 → Dst=255.255.255.255:67)\n` +
+          `Ethernet: vẫn broadcast — thông báo cho TẤT CẢ server biết đã chọn ai\n` +
+          `Server ID: 192.168.1.1  (server được chọn)\n` +
+          `IP xin cấp: 192.168.1.105`,
+    log: 'Client broadcast Request — chọn server 192.168.1.1, xin IP 192.168.1.105'
+  },
+  {
+    id: 'A',
+    name: 'ACK',
+    dir: 'server→client',
+    color: '#16a34a',
+    arrowColor: '#16a34a',
+    markerUrl: 'url(#arr-green)',
+    x1: 420, y1: 80, x2: 130, y2: 80,
+    labelY: 62,
+    info: `<strong>DHCP Acknowledge</strong> (UDP: Src=192.168.1.1:67 → Dst=192.168.1.105:68)\n` +
+          `Xác nhận:\n` +
+          `  IP        : 192.168.1.105\n` +
+          `  Mask      : 255.255.255.0\n` +
+          `  Gateway   : 192.168.1.1\n` +
+          `  DNS       : 8.8.8.8\n` +
+          `  Lease end : hiện tại + 24h\n` +
+          `Client cài IP vào card mạng — sẵn sàng giao tiếp!`,
+    log: 'ACK xác nhận — Client cài IP 192.168.1.105, sẵn sàng hoạt động!'
+  }
+];
+
+let doraStep = 0;
+let doraRunning = false;
+
+function dhcpReset() {
+  doraStep = 0;
+  doraRunning = false;
+  ['D','O','R','A'].forEach(l => {
+    const el = document.getElementById('dora-'+l);
+    el.classList.remove('active','done');
+  });
+  document.getElementById('dhcp-client-ip').textContent = 'IP: ???';
+  document.getElementById('dhcp-log').innerHTML = 'Nhấn "Tự động DORA" hoặc "Bước tiếp theo" để bắt đầu...';
+  const infoEl = document.getElementById('dhcp-info');
+  infoEl.className = 'dhcp-info-box hidden';
+  infoEl.textContent = 'Bắt đầu để xem chi tiết từng bước...';
+  // hide arrow
+  document.getElementById('dhcp-arrow').setAttribute('opacity','0');
+  document.getElementById('dhcp-arrow-label').setAttribute('opacity','0');
+  document.getElementById('dhcp-cloud').setAttribute('opacity','0');
+  document.getElementById('dhcp-cloud-label').setAttribute('opacity','0');
+  document.getElementById('dhcp-cloud-label2').setAttribute('opacity','0');
+  document.getElementById('dhcp-btn-step').disabled = false;
+  document.getElementById('dhcp-btn-auto').disabled = false;
+}
+
+async function dhcpRunStep() {
+  if (doraStep >= 4) return;
+  const s = DORA_STEPS_DATA[doraStep];
+  const stepId = ['D','O','R','A'][doraStep];
+
+  // Mark active
+  document.getElementById('dora-'+stepId).classList.add('active');
+
+  // Show cloud for broadcast steps
+  const isBroadcast = s.dir.includes('broadcast');
+  const cloud = document.getElementById('dhcp-cloud');
+  const cl1 = document.getElementById('dhcp-cloud-label');
+  const cl2 = document.getElementById('dhcp-cloud-label2');
+  if (isBroadcast) {
+    cloud.setAttribute('opacity','1');
+    cl1.setAttribute('opacity','1'); cl2.setAttribute('opacity','1');
+  } else {
+    cloud.setAttribute('opacity','0');
+    cl1.setAttribute('opacity','0'); cl2.setAttribute('opacity','0');
+  }
+
+  // Animate arrow
+  const arrow = document.getElementById('dhcp-arrow');
+  const arrowLbl = document.getElementById('dhcp-arrow-label');
+  arrow.setAttribute('x1', s.x1); arrow.setAttribute('y1', s.y1);
+  arrow.setAttribute('x2', s.x1); arrow.setAttribute('y2', s.y1); // start collapsed
+  arrow.setAttribute('stroke', s.arrowColor);
+  arrow.setAttribute('marker-end', s.markerUrl);
+  arrow.setAttribute('opacity','1');
+  arrowLbl.setAttribute('x', (s.x1+s.x2)/2);
+  arrowLbl.setAttribute('y', s.labelY);
+  arrowLbl.setAttribute('fill', s.arrowColor);
+  arrowLbl.setAttribute('opacity','1');
+  arrowLbl.textContent = s.name;
+
+  // Extend arrow over 500ms
+  const steps = 25;
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps;
+    arrow.setAttribute('x2', s.x1 + (s.x2 - s.x1)*t);
+    arrow.setAttribute('y2', s.y1 + (s.y2 - s.y1)*t);
+    await sleep(20);
+  }
+
+  // Show info
+  const infoEl = document.getElementById('dhcp-info');
+  infoEl.className = 'dhcp-info-box';
+  infoEl.innerHTML = '<pre style="margin:0; white-space:pre-wrap; font-family:monospace; font-size:12px; line-height:1.7;">' + s.info + '</pre>';
+
+  // Log
+  const logBox = document.getElementById('dhcp-log');
+  if (logBox.textContent.includes('Nhấn')) logBox.innerHTML = '';
+  const cls = doraStep === 3 ? 'log-ok' : doraStep % 2 === 0 ? 'log-warn' : 'log-info';
+  log('dhcp-log', `[${stepId}] ${s.log}`, cls);
+
+  // Mark done
+  document.getElementById('dora-'+stepId).classList.remove('active');
+  document.getElementById('dora-'+stepId).classList.add('done');
+
+  // After ACK, update client IP
+  if (doraStep === 3) {
+    document.getElementById('dhcp-client-ip').textContent = 'IP: 192.168.1.105';
+    document.getElementById('dhcp-client-box').setAttribute('stroke', '#16a34a');
+    document.getElementById('dhcp-client-box').setAttribute('fill', '#f0fdf4');
+    log('dhcp-log', `[Xong] Client cài IP 192.168.1.105/24, GW 192.168.1.1, DNS 8.8.8.8`, 'log-ok');
+    document.getElementById('dhcp-btn-step').disabled = true;
+  }
+
+  doraStep++;
+}
+
+async function dhcpStep() {
+  if (doraRunning || doraStep >= 4) return;
+  doraRunning = true;
+  await dhcpRunStep();
+  doraRunning = false;
+}
+
+async function dhcpAuto() {
+  if (doraRunning) return;
+  dhcpReset();
+  doraRunning = true;
+  document.getElementById('dhcp-btn-auto').disabled = true;
+  document.getElementById('dhcp-btn-step').disabled = true;
+  for (let i = 0; i < 4; i++) {
+    await dhcpRunStep();
+    await sleep(800);
+  }
+  doraRunning = false;
+}
+
+dhcpReset();
+
+/* ════════════════════════════════════════════════════════════
+   TAB 3: NAT
+   ════════════════════════════════════════════════════════════ */
+const PUBLIC_IP = '203.113.5.100';
+let natTable = []; // {priv_ip, priv_port, pub_port, dst_ip, dst_port, proto, state}
+let natNextPort = 10000;
+let lastNatEntry = null;
+
+const NAT_HOSTS = {
+  '10_5':  { ip: '192.168.1.10', name: 'PC-1' },
+  '11_6':  { ip: '192.168.1.11', name: 'PC-2' },
+  '12_7':  { ip: '192.168.1.12', name: 'Laptop' },
+};
+
+function natProto(dstPort) {
+  return dstPort === '53' ? 'UDP' : 'TCP';
+}
+
+function renderNatTable(highlightIdx) {
+  const tbody = document.getElementById('nat-tbody');
+  if (natTable.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="color:#94a3b8; text-align:center; font-size:12px;">Bảng trống</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  natTable.forEach((e, i) => {
+    const tr = document.createElement('tr');
+    if (i === highlightIdx) tr.className = 'new-pkt';
+    tr.innerHTML = `
+      <td>${e.priv_ip}:${e.priv_port}</td>
+      <td>${PUBLIC_IP}:${e.pub_port}</td>
+      <td>${e.dst_ip}:${e.dst_port}</td>
+      <td>${e.proto}</td>
+      <td style="color:${e.state==='ESTABLISHED'?'#16a34a':'#6b7280'}">${e.state}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function natSend() {
+  const hostKey = document.getElementById('nat-src-host').value;
+  const srcPort = document.getElementById('nat-src-port').value;
+  const dstIp   = document.getElementById('nat-dst-ip').value;
+  const dstPort = document.getElementById('nat-dst-port').value;
+  const host = NAT_HOSTS[hostKey];
+  const proto = natProto(dstPort);
+
+  // Check duplicate (same priv_ip:priv_port)
+  const dup = natTable.find(e => e.priv_ip === host.ip && e.priv_port === srcPort);
+  if (dup) {
+    document.getElementById('nat-log').innerHTML = '';
+    log('nat-log', `[Lỗi] ${host.ip}:${srcPort} đã có entry trong bảng NAT (port đang dùng). Chọn port khác.`, 'log-err');
+    return;
+  }
+
+  const pubPort = natNextPort++;
+  const entry = { priv_ip: host.ip, priv_port: srcPort, pub_port: pubPort, dst_ip: dstIp, dst_port: dstPort, proto, state: 'ESTABLISHED' };
+  natTable.push(entry);
+  lastNatEntry = entry;
+  renderNatTable(natTable.length - 1);
+
+  // Pkt before NAT
+  document.getElementById('nat-pkt-before').innerHTML =
+    `<span class="dim">--- Gói đi ra (trước NAT) ---</span>\n` +
+    `Ethernet Dst: DD:44:55:66:77:88 (MAC router)\n` +
+    `<span class="src">Src IP  : ${host.ip}</span>\n` +
+    `<span class="src">Src Port: ${srcPort}</span>\n` +
+    `<span class="dst">Dst IP  : ${dstIp}</span>\n` +
+    `<span class="dst">Dst Port: ${dstPort} (${proto})</span>\n` +
+    `TTL: 64  Proto: ${proto}`;
+
+  // Pkt after NAT
+  document.getElementById('nat-pkt-after').innerHTML =
+    `<span class="dim">--- Gói đi ra (sau NAT) ---</span>\n` +
+    `Ethernet Dst: [router upstream MAC]\n` +
+    `<span class="changed">Src IP  : ${PUBLIC_IP}  ← đổi</span>\n` +
+    `<span class="changed">Src Port: ${pubPort}    ← đổi</span>\n` +
+    `<span class="dst">Dst IP  : ${dstIp}</span>\n` +
+    `<span class="dst">Dst Port: ${dstPort} (${proto})</span>\n` +
+    `TTL: 63  Checksum recalculated`;
+
+  document.getElementById('nat-log').innerHTML = '';
+  log('nat-log', `[OUT] ${host.ip}:${srcPort} → NAT → ${PUBLIC_IP}:${pubPort} → ${dstIp}:${dstPort}`, 'log-ok');
+  log('nat-log', `      Bảng NAT: +1 entry (public port ${pubPort})`, 'log-info');
+}
+
+function natReturn() {
+  if (!lastNatEntry) {
+    document.getElementById('nat-log').innerHTML = '';
+    log('nat-log', '[Lỗi] Chưa có gói gửi đi. Nhấn "Gửi gói ra Internet" trước.', 'log-err');
+    return;
+  }
+  const e = lastNatEntry;
+
+  document.getElementById('nat-pkt-before').innerHTML =
+    `<span class="dim">--- Gói về (từ Internet) ---</span>\n` +
+    `<span class="dst">Src IP  : ${e.dst_ip}</span>\n` +
+    `<span class="dst">Src Port: ${e.dst_port}</span>\n` +
+    `<span class="src">Dst IP  : ${PUBLIC_IP}</span>\n` +
+    `<span class="src">Dst Port: ${e.pub_port}  ← tra bảng NAT</span>`;
+
+  document.getElementById('nat-pkt-after').innerHTML =
+    `<span class="dim">--- Gói về (sau NAT, vào LAN) ---</span>\n` +
+    `<span class="dst">Src IP  : ${e.dst_ip}</span>\n` +
+    `<span class="dst">Src Port: ${e.dst_port}</span>\n` +
+    `<span class="changed">Dst IP  : ${e.priv_ip}  ← khôi phục</span>\n` +
+    `<span class="changed">Dst Port: ${e.priv_port}  ← khôi phục</span>\n` +
+    `Forward vào LAN → đúng socket`;
+
+  // Highlight entry
+  const idx = natTable.findIndex(x => x === lastNatEntry);
+  const rows = document.querySelectorAll('#nat-tbody tr');
+  rows.forEach((r, i) => r.className = i === idx ? 'highlight' : '');
+
+  document.getElementById('nat-log').innerHTML = '';
+  log('nat-log', `[IN ] ${e.dst_ip}:${e.dst_port} → ${PUBLIC_IP}:${e.pub_port}`, 'log-info');
+  log('nat-log', `      Tra bảng: pub:${e.pub_port} → ${e.priv_ip}:${e.priv_port}`, 'log-ok');
+  log('nat-log', `      Forward tới ${e.priv_ip}:${e.priv_port} trong LAN`, 'log-ok');
+}
+
+function natReset() {
+  natTable = [];
+  lastNatEntry = null;
+  natNextPort = 10000;
+  renderNatTable(-1);
+  document.getElementById('nat-pkt-before').innerHTML = '<span class="dim">-- Gói chưa vào NAT --</span>';
+  document.getElementById('nat-pkt-after').innerHTML = '<span class="dim">-- Sau khi qua NAT --</span>';
+  document.getElementById('nat-log').innerHTML = 'Chọn cấu hình và nhấn "Gửi gói ra Internet"...';
+}
+
+/* ════════════════════════════════════════════════════════════
+   TAB 4: ICMP / ping
+   ════════════════════════════════════════════════════════════ */
+const PING_HOSTS = {
+  gw:    { ip: '192.168.1.1',     name: 'Gateway',        rtt: [0.5, 0.7, 0.6, 0.8],  ttl: 64, zone: 'LAN' },
+  cf:    { ip: '1.1.1.1',         name: 'Cloudflare',     rtt: [12.1,11.8,12.5,12.0], ttl: 57, zone: 'Internet (gần)' },
+  gg:    { ip: '8.8.8.8',         name: 'Google DNS',     rtt: [18.3,17.9,18.7,19.1], ttl: 55, zone: 'Internet (gần)' },
+  vn:    { ip: '14.237.22.120',   name: 'VN server',      rtt: [8.2, 7.9, 8.5, 8.1],  ttl: 58, zone: 'Việt Nam nội địa' },
+  us:    { ip: '104.26.10.0',     name: 'Server Mỹ',      rtt: [210,218,215,212],     ttl: 48, zone: 'Mỹ (cross-Pacific)' },
+  block: { ip: '10.10.10.10',     name: 'Host chặn ICMP', rtt: null,                   ttl: 0,  zone: 'Firewall block' },
+};
+
+const TRACEROUTE_DATA = {
+  cf: [
+    { hop: 1, ip: '192.168.1.1',   rtt: 0.7,  label: 'Gateway nhà' },
+    { hop: 2, ip: '203.162.4.1',   rtt: 8.4,  label: 'Router ISP' },
+    { hop: 3, ip: '203.162.96.5',  rtt: 10.1, label: 'Backbone ISP' },
+    { hop: 4, ip: '1.1.1.1',       rtt: 12.3, label: 'Cloudflare' },
+  ],
+  gg: [
+    { hop: 1, ip: '192.168.1.1',     rtt: 0.7,  label: 'Gateway nhà' },
+    { hop: 2, ip: '203.162.4.1',     rtt: 8.4,  label: 'Router ISP' },
+    { hop: 3, ip: '203.162.96.5',    rtt: 10.1, label: 'Backbone ISP' },
+    { hop: 4, ip: null,              rtt: null,  label: 'Router ẩn (no ICMP)' },
+    { hop: 5, ip: '72.14.194.130',   rtt: 16.2, label: 'Google peering' },
+    { hop: 6, ip: '8.8.8.8',         rtt: 18.5, label: 'Google DNS' },
+  ],
+  vn: [
+    { hop: 1, ip: '192.168.1.1',     rtt: 0.6,  label: 'Gateway nhà' },
+    { hop: 2, ip: '203.162.4.1',     rtt: 7.2,  label: 'Router ISP' },
+    { hop: 3, ip: '14.237.22.120',   rtt: 8.3,  label: 'VN server' },
+  ],
+};
+
+let pingRunning = false;
+
+async function runPing() {
+  if (pingRunning) return;
+  pingRunning = true;
+  document.getElementById('ping-btn').disabled = true;
+
+  const key = document.getElementById('ping-dst').value;
+  const count = parseInt(document.getElementById('ping-count').value);
+  const h = PING_HOSTS[key];
+  const result = document.getElementById('ping-result');
+  result.innerHTML = `<span class="info">PING ${h.ip} (${h.name}) — ${h.zone}</span>\n`;
+
+  if (!h.rtt) {
+    // blocked
+    await sleep(400);
+    for (let i = 1; i <= count; i++) {
+      result.innerHTML += `Request timeout for icmp_seq ${i}\n`;
+      await sleep(600);
+    }
+    result.innerHTML += `\n<span class="err">--- ${h.ip}: 0 received, 100% packet loss ---</span>\n`;
+    result.innerHTML += `<span class="err">Host chặn ICMP (firewall rule) — không có nghĩa host đang down</span>`;
+  } else {
+    let totalRtt = 0, count_ok = 0;
+    for (let i = 1; i <= count; i++) {
+      await sleep(500);
+      const rtt = h.rtt[i % h.rtt.length] + (Math.random() - 0.5) * 0.5;
+      totalRtt += rtt;
+      count_ok++;
+      result.innerHTML += `<span class="ok">64 bytes from ${h.ip}: icmp_seq=${i} ttl=${h.ttl} time=${rtt.toFixed(1)} ms</span>\n`;
+    }
+    const avg = (totalRtt / count_ok).toFixed(1);
+    result.innerHTML += `\n<span class="info">--- ${h.ip} ping statistics ---</span>\n`;
+    result.innerHTML += `<span class="ok">${count} packets transmitted, ${count_ok} received, 0% packet loss</span>\n`;
+    result.innerHTML += `<span class="info">rtt min/avg/max = ${(parseFloat(avg)-0.8).toFixed(1)}/${avg}/${(parseFloat(avg)+1.1).toFixed(1)} ms</span>`;
+  }
+
+  pingRunning = false;
+  document.getElementById('ping-btn').disabled = false;
+}
+
+let trRunning = false;
+
+async function runTraceroute() {
+  if (trRunning) return;
+  trRunning = true;
+  document.getElementById('tr-btn').disabled = true;
+
+  const key = document.getElementById('tr-dst').value;
+  const hops = TRACEROUTE_DATA[key];
+  const result = document.getElementById('tr-result');
+  result.innerHTML = `<span class="info">traceroute to ${hops[hops.length-1].ip}, max 30 hops</span>\n`;
+
+  for (const hop of hops) {
+    await sleep(600);
+    if (!hop.ip) {
+      result.innerHTML += `<span style="color:#64748b;"> ${String(hop.hop).padStart(2)}  * * *  &lt;${hop.label}&gt;</span>\n`;
+    } else {
+      const r = hop.rtt + (Math.random()-0.5)*0.3;
+      const cls = hop.hop === hops.length ? 'ok' : 'info';
+      result.innerHTML += `<span class="${cls}"> ${String(hop.hop).padStart(2)}  ${hop.ip.padEnd(18)} ${r.toFixed(1).padStart(6)} ms  ${hop.label}</span>\n`;
+    }
+  }
+  result.innerHTML += `\n<span class="ok">Trace complete.</span>`;
+
+  trRunning = false;
+  document.getElementById('tr-btn').disabled = false;
+}
+
+/* ── RTT reference chart ── */
+(function buildRttChart() {
+  const refs = [
+    { label: 'Loopback (127.0.0.1)', rtt: 0.05, color: '#16a34a' },
+    { label: 'Gateway LAN', rtt: 0.7, color: '#16a34a' },
+    { label: 'VN nội địa', rtt: 8, color: '#0369a1' },
+    { label: 'Cloudflare 1.1.1.1', rtt: 12, color: '#0369a1' },
+    { label: 'Google 8.8.8.8', rtt: 18, color: '#2563eb' },
+    { label: 'Server Mỹ (Pacific)', rtt: 215, color: '#dc2626' },
+  ];
+  const maxRtt = 250;
+  const container = document.getElementById('rtt-chart');
+  container.innerHTML = '';
+  refs.forEach(r => {
+    const pct = Math.max(1, (r.rtt / maxRtt) * 100);
+    container.innerHTML +=
+      `<div class="rtt-bar-label">${r.label}: <strong>${r.rtt < 1 ? r.rtt + ' ms' : r.rtt + ' ms'}</strong></div>` +
+      `<div class="rtt-bar-bg"><div class="rtt-bar-fill" style="width:${pct.toFixed(1)}%; background:${r.color};"></div></div>`;
+  });
+})();
+
+/* ── ICMP type reference table ── */
+(function buildIcmpRef() {
+  const rows = [
+    [8, 0, 'Echo Request', 'ping gửi đi'],
+    [0, 0, 'Echo Reply', 'ping phản hồi'],
+    [11, 0, 'Time Exceeded: TTL expired in transit', 'traceroute khai thác'],
+    [11, 1, 'Time Exceeded: Fragment reassembly', 'lắp ghép mảnh timeout'],
+    [3, 0, 'Destination Unreachable: Network', 'không tới được mạng đích'],
+    [3, 1, 'Destination Unreachable: Host', 'không tới được máy đích'],
+    [3, 3, 'Destination Unreachable: Port', 'cổng đích không có dịch vụ'],
+    [3, 4, 'Destination Unreachable: Fragmentation needed', 'gói cần phân mảnh nhưng DF=1'],
+    [5, 0, 'Redirect: Network', 'router chỉ đường đúng hơn'],
+  ];
+  const tbody = document.getElementById('icmp-ref-table');
+  rows.forEach(([type, code, name, use], i) => {
+    const bg = i % 2 === 0 ? '' : 'style="background:#f0f9ff;"';
+    tbody.innerHTML +=
+      `<tr ${bg}>
+        <td style="padding:5px 8px; color:#0369a1; font-weight:700;">${type}</td>
+        <td style="padding:5px 8px;">${code}</td>
+        <td style="padding:5px 8px;">${name}</td>
+        <td style="padding:5px 8px; color:#6b7280;">${use}</td>
+      </tr>`;
+  });
+})();
+
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

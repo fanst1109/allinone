@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — IPv6</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #0369a1; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #7dd3fc; }
+
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  /* ── Shared button styles ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: 2px solid #0369a1;
+    background: white;
+    color: #0369a1;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:hover, .btn.active {
+    background: #0369a1;
+    color: white;
+  }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+
+  /* ── Result / info boxes ── */
+  .result-box {
+    background: #f0f9ff;
+    border: 2px solid #7dd3fc;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.9;
+  }
+  .result-box .hi { color: #0369a1; font-weight: 700; font-size: 16px; }
+  .result-box .err { color: #dc2626; font-weight: 600; }
+  .result-box .ok { color: #16a34a; font-weight: 600; }
+  .result-box .warn { color: #d97706; font-weight: 600; }
+
+  /* ── Address input ── */
+  .addr-input {
+    width: 100%;
+    max-width: 560px;
+    padding: 10px 14px;
+    font-size: 16px;
+    font-family: monospace;
+    border: 2px solid #93c5fd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    letter-spacing: 0.5px;
+  }
+  .addr-input:focus { outline: none; border-color: #0369a1; }
+  .addr-input.has-error { border-color: #dc2626; }
+
+  /* ── IPv6 group display ── */
+  .group-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 14px 0;
+    align-items: center;
+  }
+  .group-box {
+    padding: 8px 10px;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 15px;
+    font-weight: 700;
+    min-width: 52px;
+    text-align: center;
+    border: 2px solid #bae6fd;
+    background: #f0f9ff;
+    color: #0369a1;
+    transition: all 0.25s;
+  }
+  .group-box.compressed {
+    background: #fef9c3;
+    border-color: #facc15;
+    color: #854d0e;
+  }
+  .group-box.zero-run {
+    background: #fef3c7;
+    border-color: #f59e0b;
+    color: #92400e;
+  }
+  .group-sep {
+    font-size: 20px;
+    color: #94a3b8;
+    font-weight: 700;
+    line-height: 1;
+    user-select: none;
+  }
+  .group-sep.dbl { color: #dc2626; font-size: 22px; }
+
+  /* ── Address type badge ── */
+  .type-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-left: 8px;
+  }
+  .type-global   { background: #dcfce7; color: #15803d; }
+  .type-linklocal { background: #e0f2fe; color: #0369a1; }
+  .type-loopback { background: #f3e8ff; color: #7c3aed; }
+  .type-multicast { background: #fce7f3; color: #be185d; }
+  .type-ula      { background: #fef9c3; color: #854d0e; }
+  .type-doc      { background: #f1f5f9; color: #475569; }
+  .type-unspec   { background: #fee2e2; color: #dc2626; }
+  .type-unknown  { background: #f5f5f5; color: #6b7280; }
+
+  /* ── Scale comparison ── */
+  .scale-wrap { margin: 16px 0; }
+  .scale-bar-outer {
+    width: 100%;
+    background: #e2e8f0;
+    border-radius: 6px;
+    height: 32px;
+    position: relative;
+    overflow: hidden;
+    margin: 6px 0;
+  }
+  .scale-bar-inner {
+    height: 100%;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: width 0.5s;
+  }
+  .bar-ipv4 { background: #f59e0b; }
+  .bar-ipv6 { background: #0369a1; }
+  .scale-label {
+    font-size: 13px;
+    color: #374151;
+    margin-bottom: 2px;
+  }
+
+  /* ── Comparison table ── */
+  table.cmp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin: 14px 0;
+  }
+  table.cmp-table th {
+    padding: 9px 12px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  table.cmp-table th:first-child { background: #374151; color: white; }
+  table.cmp-table th.ipv4-h { background: #f59e0b; color: white; }
+  table.cmp-table th.ipv6-h { background: #0369a1; color: white; }
+  table.cmp-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: top;
+  }
+  table.cmp-table tr:nth-child(even) td { background: #f8fafc; }
+  table.cmp-table td:first-child { font-weight: 600; color: #374151; }
+  table.cmp-table td.ipv4-c { color: #92400e; }
+  table.cmp-table td.ipv6-c { color: #0369a1; font-weight: 600; }
+
+  /* ── Tabs ── */
+  .tab-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; }
+  .tab-bar .tab-btn {
+    padding: 7px 16px;
+    border-radius: 6px 6px 0 0;
+    border: 2px solid transparent;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #64748b;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+  .tab-bar .tab-btn.active {
+    border-color: #7dd3fc;
+    border-bottom-color: white;
+    background: white;
+    color: #0369a1;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Prefix bits display ── */
+  .prefix-vis {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+  .prefix-bit {
+    width: 20px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: monospace;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 3px;
+  }
+  .bit-net { background: #bfdbfe; color: #1e3a8a; }
+  .bit-host { background: #dcfce7; color: #14532d; }
+  .bit-label {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
+  }
+
+  /* ── Step-by-step panel ── */
+  .step-list { list-style: none; padding: 0; margin: 0; }
+  .step-list li {
+    padding: 8px 12px;
+    margin: 5px 0;
+    border-left: 4px solid #7dd3fc;
+    background: #f0f9ff;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+    line-height: 1.6;
+    font-family: monospace;
+  }
+  .step-list li .lbl {
+    display: inline-block;
+    background: #0369a1;
+    color: white;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 8px;
+    font-family: sans-serif;
+    vertical-align: middle;
+  }
+
+  /* ── Quiz ── */
+  .quiz-card { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; margin: 12px 0; }
+  .quiz-card p { margin: 0 0 10px; font-weight: 600; }
+  .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 2px solid #cbd5e1;
+    background: white;
+    font-size: 14px;
+    font-family: monospace;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+  }
+  .quiz-opt:hover { border-color: #0369a1; }
+  .quiz-opt.correct { background: #dcfce7; border-color: #16a34a; color: #14532d; font-weight: 700; }
+  .quiz-opt.wrong { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+  .quiz-feedback { margin-top: 10px; font-size: 14px; min-height: 20px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .group-box { min-width: 42px; font-size: 13px; padding: 6px 6px; }
+    .group-sep { font-size: 16px; }
+    .addr-input { font-size: 14px; }
+    table.cmp-table { font-size: 12px; }
+    table.cmp-table th, table.cmp-table td { padding: 6px 8px; }
+    .prefix-bit { width: 16px; height: 18px; font-size: 10px; }
+  }
+  @media (max-width: 420px) {
+    .group-box { min-width: 36px; font-size: 12px; padding: 5px 4px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Foundations</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-arp-icmp-dhcp-nat/visualization.html">← L5: ARP, ICMP, DHCP, NAT</a>
+  <span class="sep">·</span>
+  <span class="current">L6: IPv6</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-udp/visualization.html">L7: Tầng giao vận — UDP →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — IPv6</h1>
+<p>Công cụ tương tác: Rút gọn/khôi phục địa chỉ IPv6, nhận diện loại địa chỉ, so sánh quy mô địa chỉ IPv4 vs IPv6, đối chiếu header.</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — IPv6 Address Tool (rút gọn / khôi phục)
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Công cụ rút gọn &amp; khôi phục địa chỉ IPv6</h2>
+<div class="card">
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('shorten')">Rút gọn (Full → Short)</button>
+    <button class="tab-btn" onclick="switchTab('expand')">Khôi phục (Short → Full)</button>
+  </div>
+
+  <!-- TAB: SHORTEN -->
+  <div class="tab-panel active" id="tab-shorten">
+    <p>Nhập địa chỉ IPv6 dạng <strong>đầy đủ</strong> (8 nhóm hex, có thể có 0 đứng đầu). Công cụ rút gọn theo chuẩn RFC 5952 và highlight phần bị nén.</p>
+    <input type="text" class="addr-input" id="inp-full"
+           placeholder="2001:0db8:0000:0000:0000:ff00:0042:8329"
+           oninput="doShorten()" value="2001:0db8:0000:0000:0000:ff00:0042:8329">
+
+    <div id="shorten-groups" class="group-display"></div>
+    <div id="shorten-steps" class="result-box" style="display:none"></div>
+    <div id="shorten-result" class="result-box"></div>
+
+    <div class="btn-row" style="margin-top:12px;">
+      <button class="btn" onclick="loadExample('2001:0db8:0000:0000:0000:ff00:0042:8329')">Ví dụ 1</button>
+      <button class="btn" onclick="loadExample('fe80:0000:0000:0000:0202:b3ff:fe1e:8329')">Ví dụ 2 (link-local)</button>
+      <button class="btn" onclick="loadExample('0000:0000:0000:0000:0000:0000:0000:0001')">Ví dụ 3 (::1)</button>
+      <button class="btn" onclick="loadExample('2001:0000:0000:0001:0000:0000:0000:0001')">Ví dụ 4 (chuỗi kép)</button>
+    </div>
+  </div>
+
+  <!-- TAB: EXPAND -->
+  <div class="tab-panel" id="tab-expand">
+    <p>Nhập địa chỉ IPv6 dạng <strong>rút gọn</strong> (có thể có `::` và/hoặc bỏ 0 đầu nhóm). Công cụ khôi phục về 8 nhóm đầy đủ.</p>
+    <input type="text" class="addr-input" id="inp-short"
+           placeholder="2001:db8::ff00:42:8329"
+           oninput="doExpand()" value="2001:db8::ff00:42:8329">
+
+    <div id="expand-groups" class="group-display"></div>
+    <div id="expand-result" class="result-box"></div>
+
+    <div class="btn-row" style="margin-top:12px;">
+      <button class="btn" onclick="loadExpandExample('::1')">Loopback ::1</button>
+      <button class="btn" onclick="loadExpandExample('fe80::202:b3ff:fe1e:8329')">Link-local</button>
+      <button class="btn" onclick="loadExpandExample('ff02::1:ff42:8329')">Solicited-Node</button>
+      <button class="btn" onclick="loadExpandExample('2001:db8:0:1::1')">Global unicast</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Address Type Identifier
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Nhận diện loại địa chỉ IPv6</h2>
+<div class="card">
+  <p>Nhập địa chỉ IPv6 bất kỳ (rút gọn hoặc đầy đủ). Công cụ xác định loại địa chỉ, giải thích prefix và phạm vi sử dụng.</p>
+  <input type="text" class="addr-input" id="inp-type"
+         placeholder="Nhập địa chỉ IPv6..."
+         oninput="doIdentify()" value="fe80::1">
+
+  <div id="type-result" class="result-box"></div>
+
+  <div style="margin-top:14px;">
+    <strong style="font-size:14px; color:#374151;">Thử nhanh:</strong>
+    <div class="btn-row" style="margin-top:8px;">
+      <button class="btn" onclick="tryType('::1')">Loopback ::1</button>
+      <button class="btn" onclick="tryType('fe80::1')">Link-Local</button>
+      <button class="btn" onclick="tryType('2001:db8::1')">Documentation</button>
+      <button class="btn" onclick="tryType('ff02::1')">Multicast AllNodes</button>
+      <button class="btn" onclick="tryType('fd12:3456::1')">ULA</button>
+      <button class="btn" onclick="tryType('::')">Unspecified</button>
+    </div>
+  </div>
+
+  <!-- Prefix bits visualizer -->
+  <div id="prefix-vis-wrap" style="margin-top:14px; display:none;">
+    <div class="bit-label">128 bit địa chỉ (hiển thị 16 bit đầu):</div>
+    <div class="prefix-vis" id="prefix-bits"></div>
+    <div class="bit-label">
+      <span style="display:inline-block; width:14px; height:14px; background:#bfdbfe; border-radius:2px; vertical-align:middle;"></span> Phần prefix (network)
+      &nbsp;
+      <span style="display:inline-block; width:14px; height:14px; background:#dcfce7; border-radius:2px; vertical-align:middle;"></span> Phần còn lại (interface/scope/group)
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Address Space Comparison
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Quy mô không gian địa chỉ IPv4 vs IPv6</h2>
+<div class="card">
+  <p>Bởi vì không gian IPv6 lớn đến mức không thể vẽ tuyến tính, sơ đồ dưới dùng <strong>thang logarithm</strong> (mỗi vạch = lũy thừa của 10). Chú ý: 2^128 ≈ 3,4 × 10<sup>38</sup>, trong khi 2^32 ≈ 4,3 × 10<sup>9</sup> — cách nhau 10<sup>29</sup> bậc!</p>
+
+  <div class="scale-wrap">
+    <div class="scale-label">IPv4 — 2<sup>32</sup> ≈ 4,3 tỉ địa chỉ (10<sup>9,6</sup>)</div>
+    <div class="scale-bar-outer">
+      <div class="scale-bar-inner bar-ipv4" style="width: 25%">4,3 tỉ (4,294,967,296)</div>
+    </div>
+
+    <div class="scale-label" style="margin-top:12px;">IPv6 — 2<sup>128</sup> ≈ 3,4 × 10<sup>38</sup> địa chỉ (thang log: 100%)</div>
+    <div class="scale-bar-outer">
+      <div class="scale-bar-inner bar-ipv6" style="width: 100%">340 tỉ tỉ tỉ tỉ địa chỉ</div>
+    </div>
+  </div>
+
+  <!-- SVG visualization -->
+  <div style="overflow-x:auto; margin-top:16px;">
+    <svg width="680" height="220" viewBox="0 0 680 220" style="display:block; max-width:100%;">
+      <!-- Background -->
+      <rect width="680" height="220" fill="#f8fafc" rx="10"/>
+
+      <!-- Log axis -->
+      <!-- axis line -->
+      <line x1="40" y1="100" x2="640" y2="100" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <text x="40" y="118" font-size="10" fill="#94a3b8" text-anchor="middle">10⁰</text>
+      <text x="196" y="118" font-size="10" fill="#94a3b8" text-anchor="middle">10¹⁰</text>
+      <text x="352" y="118" font-size="10" fill="#94a3b8" text-anchor="middle">10²⁰</text>
+      <text x="508" y="118" font-size="10" fill="#94a3b8" text-anchor="middle">10³⁰</text>
+      <text x="640" y="118" font-size="10" fill="#94a3b8" text-anchor="middle">10³⁸·⁵</text>
+
+      <!-- Tick marks -->
+      <line x1="40"  y1="96" x2="40"  y2="104" stroke="#94a3b8" stroke-width="1.5"/>
+      <line x1="196" y1="96" x2="196" y2="104" stroke="#94a3b8" stroke-width="1.5"/>
+      <line x1="352" y1="96" x2="352" y2="104" stroke="#94a3b8" stroke-width="1.5"/>
+      <line x1="508" y1="96" x2="508" y2="104" stroke="#94a3b8" stroke-width="1.5"/>
+      <line x1="640" y1="96" x2="640" y2="104" stroke="#94a3b8" stroke-width="1.5"/>
+
+      <!-- IPv4 marker at 10^9.6 ~ x=189 -->
+      <!-- 10^9.6 / 10^38.5 → position = 9.6/38.5 * 600 + 40 = ~190 -->
+      <line x1="190" y1="40" x2="190" y2="100" stroke="#f59e0b" stroke-width="3" stroke-dasharray="5,3"/>
+      <circle cx="190" cy="100" r="7" fill="#f59e0b"/>
+      <rect x="120" y="20" width="140" height="30" rx="5" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="190" y="33" text-anchor="middle" fill="#854d0e" font-size="11" font-weight="700">IPv4: 2³² ≈ 4,3 × 10⁹</text>
+      <text x="190" y="44" text-anchor="middle" fill="#854d0e" font-size="10">~4,3 tỉ địa chỉ</text>
+
+      <!-- IPv6 marker at 10^38.5 → x=640 -->
+      <line x1="636" y1="40" x2="636" y2="100" stroke="#0369a1" stroke-width="3" stroke-dasharray="5,3"/>
+      <circle cx="636" cy="100" r="7" fill="#0369a1"/>
+      <rect x="532" y="20" width="148" height="30" rx="5" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.5"/>
+      <text x="606" y="33" text-anchor="middle" fill="#0c4a6e" font-size="11" font-weight="700">IPv6: 2¹²⁸ ≈ 3,4×10³⁸</text>
+      <text x="606" y="44" text-anchor="middle" fill="#0c4a6e" font-size="10">~340 tỉ tỉ tỉ tỉ địa chỉ</text>
+
+      <!-- Gap arrow -->
+      <defs>
+        <marker id="arr-gap" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#374151"/>
+        </marker>
+      </defs>
+      <line x1="200" y1="100" x2="625" y2="100" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-gap)"/>
+      <text x="413" y="95" text-anchor="middle" fill="#374151" font-size="11" font-weight="700">× 10²⁹ (29 bậc lũy thừa)</text>
+
+      <!-- Analogy box below axis -->
+      <rect x="40" y="130" width="600" height="72" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+      <text x="340" y="148" text-anchor="middle" fill="#374151" font-size="12" font-weight="700">Trực giác về quy mô:</text>
+      <text x="340" y="164" text-anchor="middle" fill="#374151" font-size="11">Nếu cấp mỗi người trên Trái Đất (8 tỉ người) một subnet /64,</text>
+      <text x="340" y="178" text-anchor="middle" fill="#374151" font-size="11">mỗi người có 2⁶⁴ ≈ 18,4 tỉ tỉ địa chỉ riêng — vẫn còn thừa cho hàng trăm tỉ hành tinh.</text>
+      <text x="340" y="195" text-anchor="middle" fill="#0369a1" font-size="11" font-weight="700">IPv6 thực sự vô hạn trong phạm vi thực tiễn của nhân loại.</text>
+    </svg>
+  </div>
+
+  <!-- Interactive counter -->
+  <div style="margin-top:16px; display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start;">
+    <div class="card" style="flex:1; min-width:200px; background:#fef9c3; border:1px solid #facc15; padding:14px 18px;">
+      <div style="font-size:12px; font-weight:700; color:#854d0e; margin-bottom:4px;">IPv4 — Tổng địa chỉ</div>
+      <div style="font-family:monospace; font-size:17px; color:#854d0e; font-weight:700;">4.294.967.296</div>
+      <div style="font-size:12px; color:#a16207; margin-top:4px;">= 2<sup>32</sup></div>
+    </div>
+    <div class="card" style="flex:1; min-width:200px; background:#e0f2fe; border:1px solid #7dd3fc; padding:14px 18px;">
+      <div style="font-size:12px; font-weight:700; color:#0c4a6e; margin-bottom:4px;">IPv6 — Tổng địa chỉ</div>
+      <div style="font-family:monospace; font-size:12px; color:#0c4a6e; font-weight:700; word-break:break-all;">340.282.366.920.938.463.463.374.607.431.768.211.456</div>
+      <div style="font-size:12px; color:#0369a1; margin-top:4px;">= 2<sup>128</sup> ≈ 3,4 × 10<sup>38</sup></div>
+    </div>
+    <div class="card" style="flex:1; min-width:200px; background:#f0fdf4; border:1px solid #86efac; padding:14px 18px;">
+      <div style="font-size:12px; font-weight:700; color:#14532d; margin-bottom:4px;">Một subnet /64 của IPv6</div>
+      <div style="font-family:monospace; font-size:15px; color:#14532d; font-weight:700;">18.446.744.073.709.551.616</div>
+      <div style="font-size:12px; color:#16a34a; margin-top:4px;">= 2<sup>64</sup> ≈ 18,4 tỉ tỉ địa chỉ</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — IPv4 vs IPv6 Header Comparison
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. So sánh Header IPv4 vs IPv6</h2>
+<div class="card">
+  <p>Click vào từng trường để xem giải thích. Các trường <span style="background:#fee2e2; color:#dc2626; padding:1px 6px; border-radius:3px; font-size:13px; font-weight:700;">bỏ</span> trong IPv6 được tô đỏ ở cột IPv4.</p>
+
+  <div style="overflow-x:auto;">
+    <table class="cmp-table" id="header-table">
+      <thead>
+        <tr>
+          <th>Trường</th>
+          <th class="ipv4-h">IPv4 (20+ byte)</th>
+          <th class="ipv6-h">IPv6 (40 byte cố định)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="hrow" data-key="version">
+          <td>Version</td>
+          <td class="ipv4-c">4 (4-bit)</td>
+          <td class="ipv6-c">6 (4-bit)</td>
+        </tr>
+        <tr class="hrow" data-key="ihl">
+          <td>IHL / — </td>
+          <td class="ipv4-c" style="background:#fee2e2;">IHL: độ dài header (4-bit) — cần vì header variable</td>
+          <td class="ipv6-c">Không có (header cố định 40B)</td>
+        </tr>
+        <tr class="hrow" data-key="tos">
+          <td>ToS / Traffic Class</td>
+          <td class="ipv4-c">Type of Service (8-bit)</td>
+          <td class="ipv6-c">Traffic Class (8-bit) — tương tự, hỗ trợ DSCP/ECN</td>
+        </tr>
+        <tr class="hrow" data-key="flow">
+          <td>— / Flow Label</td>
+          <td class="ipv4-c" style="background:#fee2e2;">Không có</td>
+          <td class="ipv6-c">Flow Label (20-bit) — đánh dấu luồng cho QoS</td>
+        </tr>
+        <tr class="hrow" data-key="len">
+          <td>Total Length / Payload Length</td>
+          <td class="ipv4-c">Total Length (16-bit): độ dài toàn bộ IP packet</td>
+          <td class="ipv6-c">Payload Length (16-bit): chỉ phần payload (không tính header 40B)</td>
+        </tr>
+        <tr class="hrow" data-key="frag">
+          <td>Identification / Flags / Fragment Offset</td>
+          <td class="ipv4-c" style="background:#fee2e2;">32-bit cho fragmentation tại router — phức tạp</td>
+          <td class="ipv6-c">Không có (fragment chỉ ở host nguồn, qua Extension Header)</td>
+        </tr>
+        <tr class="hrow" data-key="ttl">
+          <td>TTL / Hop Limit</td>
+          <td class="ipv4-c">TTL (8-bit): giảm 1 mỗi hop, drop khi = 0</td>
+          <td class="ipv6-c">Hop Limit (8-bit): tương tự, tên rõ ràng hơn</td>
+        </tr>
+        <tr class="hrow" data-key="proto">
+          <td>Protocol / Next Header</td>
+          <td class="ipv4-c">Protocol (8-bit): TCP=6, UDP=17, ICMP=1</td>
+          <td class="ipv6-c">Next Header (8-bit): TCP=6, UDP=17, ICMPv6=58, hoặc Extension Header</td>
+        </tr>
+        <tr class="hrow" data-key="cksum">
+          <td>Header Checksum</td>
+          <td class="ipv4-c" style="background:#fee2e2;">16-bit — router phải tính lại mỗi hop (TTL giảm)</td>
+          <td class="ipv6-c">Không có — tầng 2 &amp; 4 đã cover; giảm tải router</td>
+        </tr>
+        <tr class="hrow" data-key="src">
+          <td>Source Address</td>
+          <td class="ipv4-c">32-bit (4 byte)</td>
+          <td class="ipv6-c">128-bit (16 byte)</td>
+        </tr>
+        <tr class="hrow" data-key="dst">
+          <td>Destination Address</td>
+          <td class="ipv4-c">32-bit (4 byte)</td>
+          <td class="ipv6-c">128-bit (16 byte)</td>
+        </tr>
+        <tr class="hrow" data-key="opt">
+          <td>Options</td>
+          <td class="ipv4-c" style="background:#fee2e2;">0–40 byte variable — làm header không cố định</td>
+          <td class="ipv6-c">Extension Headers riêng biệt (Routing, Fragment, Auth, ESP...) — không làm chậm forwarding thông thường</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="header-detail" class="result-box" style="display:none; margin-top:10px;"></div>
+
+  <div style="margin-top:16px; padding:12px 16px; background:#f0fdf4; border-radius:6px; font-size:14px; line-height:1.7;">
+    <strong>Tổng kết kích thước:</strong><br>
+    IPv4 header: tối thiểu 20 byte, tối đa 60 byte (với options).<br>
+    IPv6 header: luôn <strong>40 byte</strong> — router không cần đọc IHL hay parse options phức tạp.<br>
+    Kết quả: router IPv6 forward gói tin nhanh hơn, đặc biệt ở backbone tốc độ cao.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 5 — Quiz
+     ═══════════════════════════════════════════════════════ -->
+<h2>5. Luyện tập nhanh</h2>
+<div class="card">
+  <div id="quiz-container"></div>
+  <div class="btn-row" style="margin-top:14px;">
+    <button class="btn" onclick="nextQuiz()">Câu tiếp theo →</button>
+    <button class="btn" onclick="resetQuiz()">Làm lại từ đầu</button>
+  </div>
+  <div id="quiz-progress" style="font-size:13px; color:#64748b; margin-top:8px;"></div>
+</div>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   UTILS: IPv6 parse, expand, shorten
+   ═══════════════════════════════════════════════════════════ */
+
+// Expand IPv6 to 8 full groups (each 4-digit hex)
+// Returns array of 8 strings, or null on error
+function expandIPv6(s) {
+  s = s.trim().toLowerCase();
+  if (!s) return null;
+
+  // Handle ::
+  const dblColon = s.indexOf('::');
+  let left, right;
+  if (dblColon === -1) {
+    left = s.split(':');
+    right = [];
+  } else {
+    left = s.slice(0, dblColon).split(':').filter(x => x !== '');
+    right = s.slice(dblColon + 2).split(':').filter(x => x !== '');
+  }
+
+  const fill = 8 - left.length - right.length;
+  if (fill < 0) return null;
+  if (dblColon === -1 && left.length !== 8) return null;
+
+  const groups = [...left, ...Array(fill).fill('0'), ...right];
+  if (groups.length !== 8) return null;
+
+  // Validate each group
+  for (const g of groups) {
+    if (!/^[0-9a-f]{1,4}$/.test(g)) return null;
+  }
+
+  return groups.map(g => g.padStart(4, '0'));
+}
+
+// Shorten IPv6: input is array of 8 full groups (4-char hex)
+// Returns { short: string, zeroRun: [start, end] }
+function shortenGroups(groups) {
+  // Step 1: find longest run of '0000'
+  let bestStart = -1, bestLen = 0, cur = -1, curLen = 0;
+  for (let i = 0; i < 8; i++) {
+    if (groups[i] === '0000') {
+      if (cur === -1) { cur = i; curLen = 1; }
+      else curLen++;
+    } else {
+      if (curLen > bestLen) { bestLen = curLen; bestStart = cur; }
+      cur = -1; curLen = 0;
+    }
+  }
+  if (curLen > bestLen) { bestLen = curLen; bestStart = cur; }
+
+  // RFC 5952: only compress if run >= 2
+  const zeroRun = (bestLen >= 2) ? [bestStart, bestStart + bestLen - 1] : [-1, -1];
+
+  // Step 2: build short string
+  const parts = [];
+  for (let i = 0; i < 8; i++) {
+    if (zeroRun[0] !== -1 && i >= zeroRun[0] && i <= zeroRun[1]) {
+      if (i === zeroRun[0]) parts.push('::PLACEHOLDER::');
+      continue;
+    }
+    parts.push(groups[i].replace(/^0+/, '') || '0');
+  }
+
+  let short = parts.join(':');
+  if (zeroRun[0] !== -1) {
+    if (zeroRun[0] === 0 && zeroRun[1] === 7) {
+      short = '::';
+    } else if (zeroRun[0] === 0) {
+      short = short.replace('::', '::').replace(':::PLACEHOLDER::', '::');
+      short = '::' + parts.filter(p => p !== '::PLACEHOLDER::').join(':');
+    } else if (zeroRun[1] === 7) {
+      short = parts.filter(p => p !== '::PLACEHOLDER::').join(':') + '::';
+    } else {
+      const before = parts.slice(0, parts.indexOf('::PLACEHOLDER::')).filter(p => p !== '::PLACEHOLDER::');
+      const after  = parts.slice(parts.indexOf('::PLACEHOLDER::') + 1).filter(p => p !== '::PLACEHOLDER::');
+      short = before.join(':') + '::' + after.join(':');
+    }
+  }
+
+  return { short, zeroRun };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODULE 1: Shorten tab
+   ═══════════════════════════════════════════════════════════ */
+
+function doShorten() {
+  const raw = document.getElementById('inp-full').value.trim();
+  const inp = document.getElementById('inp-full');
+  const groupsEl = document.getElementById('shorten-groups');
+  const resultEl = document.getElementById('shorten-result');
+  const stepsEl  = document.getElementById('shorten-steps');
+
+  inp.classList.remove('has-error');
+  groupsEl.innerHTML = '';
+  stepsEl.style.display = 'none';
+
+  // Try to expand
+  const groups = expandIPv6(raw);
+  if (!groups) {
+    inp.classList.add('has-error');
+    resultEl.innerHTML = '<span class="err">Địa chỉ không hợp lệ. Nhập đúng 8 nhóm hex (VD: 2001:0db8:0000:0000:0000:ff00:0042:8329).</span>';
+    return;
+  }
+
+  const { short, zeroRun } = shortenGroups(groups);
+
+  // Render groups
+  for (let i = 0; i < 8; i++) {
+    if (i > 0) {
+      const sep = document.createElement('span');
+      sep.className = 'group-sep';
+      sep.textContent = ':';
+      groupsEl.appendChild(sep);
+    }
+    const box = document.createElement('div');
+    box.className = 'group-box';
+    if (zeroRun[0] !== -1 && i >= zeroRun[0] && i <= zeroRun[1]) {
+      box.classList.add('zero-run');
+      box.title = 'Nhóm bị nén bởi ::';
+    }
+    box.textContent = groups[i];
+    groupsEl.appendChild(box);
+  }
+
+  // Steps
+  const step1 = groups.map(g => g.replace(/^0+/, '') || '0').join(':');
+  const steps = [
+    `Bước 1 — Bỏ số 0 đứng đầu mỗi nhóm:<br><code style="font-size:13px;">${step1}</code>`,
+  ];
+  if (zeroRun[0] !== -1) {
+    steps.push(`Bước 2 — Nhóm ${zeroRun[0]+1}–${zeroRun[1]+1} đều là 0000 (${zeroRun[1]-zeroRun[0]+1} nhóm liên tiếp) → thay bằng <code>::</code>`);
+  } else {
+    steps.push('Bước 2 — Không có chuỗi 2+ nhóm 0000 liên tiếp → không dùng ::');
+  }
+
+  stepsEl.innerHTML = steps.map((s, i) => `<li><span class="lbl">Bước ${i+1}</span>${s}</li>`).join('');
+  stepsEl.innerHTML = `<ul class="step-list">${stepsEl.innerHTML}</ul>`;
+  stepsEl.style.display = 'block';
+
+  // Result
+  const zeroInfo = zeroRun[0] !== -1
+    ? `<span class="warn"> (nhóm ${zeroRun[0]+1}–${zeroRun[1]+1} bị nén)</span>`
+    : '';
+  resultEl.innerHTML = `Kết quả rút gọn: <span class="hi">${short}</span>${zeroInfo}`;
+}
+
+function loadExample(val) {
+  document.getElementById('inp-full').value = val;
+  doShorten();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODULE 1: Expand tab
+   ═══════════════════════════════════════════════════════════ */
+
+function doExpand() {
+  const raw = document.getElementById('inp-short').value.trim();
+  const inp = document.getElementById('inp-short');
+  const groupsEl = document.getElementById('expand-groups');
+  const resultEl = document.getElementById('expand-result');
+
+  inp.classList.remove('has-error');
+  groupsEl.innerHTML = '';
+
+  const groups = expandIPv6(raw);
+  if (!groups) {
+    inp.classList.add('has-error');
+    resultEl.innerHTML = '<span class="err">Địa chỉ không hợp lệ. Kiểm tra lại cú pháp (VD: 2001:db8::1, ::1, fe80::202:b3ff:fe1e:8329).</span>';
+    return;
+  }
+
+  // Count groups in short form
+  const dblColon = raw.indexOf('::');
+  let existingGroups = 0;
+  if (dblColon === -1) {
+    existingGroups = raw.split(':').length;
+  } else {
+    const L = raw.slice(0, dblColon).split(':').filter(x => x !== '').length;
+    const R = raw.slice(dblColon + 2).split(':').filter(x => x !== '').length;
+    existingGroups = L + R;
+  }
+  const filledGroups = 8 - existingGroups;
+
+  // Render groups
+  for (let i = 0; i < 8; i++) {
+    if (i > 0) {
+      const sep = document.createElement('span');
+      sep.className = 'group-sep';
+      sep.textContent = ':';
+      groupsEl.appendChild(sep);
+    }
+    const box = document.createElement('div');
+    box.className = 'group-box';
+    box.textContent = groups[i];
+    groupsEl.appendChild(box);
+  }
+
+  const full = groups.join(':');
+  let stepsHtml = '';
+  if (dblColon !== -1) {
+    stepsHtml = `
+      <ul class="step-list">
+        <li><span class="lbl">Đếm</span>Nhóm có mặt: ${existingGroups} → <code>::</code> bổ sung ${filledGroups} nhóm <code>0000</code></li>
+        <li><span class="lbl">Khai triển</span>Thêm 0 đứng đầu mỗi nhóm về 4 chữ số</li>
+        <li><span class="lbl">Kết quả</span><code>${full}</code></li>
+      </ul>`;
+  } else {
+    stepsHtml = `<ul class="step-list"><li><span class="lbl">Khai triển</span>Thêm 0 đứng đầu mỗi nhóm về 4 chữ số</li><li><span class="lbl">Kết quả</span><code>${full}</code></li></ul>`;
+  }
+
+  resultEl.innerHTML = stepsHtml + `<div style="margin-top:8px;">Địa chỉ đầy đủ: <span class="hi">${full}</span></div>`;
+}
+
+function loadExpandExample(val) {
+  document.getElementById('inp-short').value = val;
+  doExpand();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODULE 1: Tab switching
+   ═══════════════════════════════════════════════════════════ */
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODULE 2: Address type identifier
+   ═══════════════════════════════════════════════════════════ */
+
+const ADDRESS_TYPES = [
+  {
+    name: 'Loopback',
+    badge: 'type-loopback',
+    match: g => g.join('') === '000000000000000000000000000000000001',
+    prefix: '::1',
+    prefixLen: 128,
+    scope: 'Node-local',
+    desc: 'Tương đương 127.0.0.1 trong IPv4. Gói tin gửi tới ::1 không rời máy. Dùng để kiểm tra IPv6 stack nội bộ.',
+    ipv4: '127.0.0.1',
+  },
+  {
+    name: 'Unspecified',
+    badge: 'type-unspec',
+    match: g => g.join('') === '0000000000000000000000000000000000000000',
+    prefix: '::',
+    prefixLen: 128,
+    scope: 'N/A',
+    desc: 'Địa chỉ "chưa xác định". Dùng khi thiết bị chưa có địa chỉ (ví dụ: trong quá trình SLAAC/DAD). Tương đương 0.0.0.0 IPv4.',
+    ipv4: '0.0.0.0',
+  },
+  {
+    name: 'Link-Local Unicast',
+    badge: 'type-linklocal',
+    match: g => {
+      const b0 = parseInt(g[0], 16);
+      // fe80::/10 → first 10 bits = 1111 1110 10 → first byte = 0xfe, second byte upper 2 bits = 10 → 0x80
+      return (b0 >> 6) === 0x3fa >> 6 && (b0 & 0xfc) === 0xfe && ((parseInt(g[0].slice(2), 16) & 0xc0) === 0x80);
+    },
+    matchSimple: g => g[0] === 'fe80',
+    prefix: 'fe80::/10',
+    prefixLen: 10,
+    scope: 'Link-local',
+    desc: 'Tự động tạo trên mọi interface IPv6. Không thể route ra ngoài link. Dùng cho NDP, SLAAC. Tương đương 169.254.0.0/16 (APIPA) trong IPv4.',
+    ipv4: '169.254.0.0/16 (APIPA)',
+  },
+  {
+    name: 'Multicast',
+    badge: 'type-multicast',
+    match: g => g[0].startsWith('ff'),
+    prefix: 'ff00::/8',
+    prefixLen: 8,
+    scope: 'Xem scope byte',
+    desc: 'Gửi tới một nhóm thiết bị. Byte thứ 2 mã hóa flags và scope: ff02:: = link-local scope. Thay thế broadcast trong IPv4. Ví dụ: ff02::1 (All Nodes), ff02::2 (All Routers).',
+    ipv4: '224.0.0.0/4 (IPv4 multicast)',
+  },
+  {
+    name: 'Unique Local Address (ULA)',
+    badge: 'type-ula',
+    match: g => {
+      const b = parseInt(g[0].slice(0, 2), 16);
+      return b === 0xfc || b === 0xfd;
+    },
+    prefix: 'fc00::/7 (thực tế: fd00::/8)',
+    prefixLen: 7,
+    scope: 'Organization-local',
+    desc: 'Tương đương địa chỉ private (10.x.x.x, 192.168.x.x) trong IPv4. Dùng trong mạng nội bộ, không route trên Internet công cộng. fd00::/8 phổ biến hơn fc00::/8.',
+    ipv4: '10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16',
+  },
+  {
+    name: 'Documentation / Example (không route)',
+    badge: 'type-doc',
+    match: g => g[0] === '2001' && g[1] === '0db8',
+    prefix: '2001:db8::/32',
+    prefixLen: 32,
+    scope: 'Không route (chỉ tài liệu)',
+    desc: 'Dải địa chỉ dành riêng cho ví dụ trong tài liệu và RFC (RFC 3849). Không bao giờ xuất hiện trên Internet thật. Tương đương 192.0.2.0/24 (TEST-NET-1) trong IPv4.',
+    ipv4: '192.0.2.0/24 (TEST-NET-1)',
+  },
+  {
+    name: 'Global Unicast (GUA)',
+    badge: 'type-global',
+    match: g => {
+      const b = parseInt(g[0][0], 16);
+      // 2000::/3 → first 3 bits = 001 → first nibble in {2,3}
+      return b === 2 || b === 3;
+    },
+    prefix: '2000::/3',
+    prefixLen: 3,
+    scope: 'Global (Internet)',
+    desc: 'Địa chỉ toàn cầu, tương đương IP public trong IPv4. Router có thể forward ra Internet. IANA cấp phát chủ yếu trong dải 2001::/16 trở đi.',
+    ipv4: 'IP public (không private)',
+  },
+];
+
+function identifyAddress(groups) {
+  if (!groups) return null;
+  for (const t of ADDRESS_TYPES) {
+    if (t.matchSimple && t.matchSimple(groups)) return t;
+    if (t.match(groups)) return t;
+  }
+  return null;
+}
+
+function getMulticastScope(groups) {
+  if (!groups[0].startsWith('ff')) return '';
+  const scopeByte = parseInt(groups[0][3], 16);
+  const scopes = {
+    1: 'Interface-local (node scope)',
+    2: 'Link-local',
+    4: 'Admin-local',
+    5: 'Site-local',
+    8: 'Organization-local',
+    14: 'Global',
+  };
+  return scopes[scopeByte] || `Scope 0x${scopeByte.toString(16)}`;
+}
+
+function renderPrefixBits(groups, prefixLen) {
+  const el = document.getElementById('prefix-bits');
+  const wrapEl = document.getElementById('prefix-vis-wrap');
+  el.innerHTML = '';
+
+  // Show first 16 bits (groups[0]) as individual bits
+  const val = parseInt(groups[0], 16);
+  const show = Math.min(16, 128);
+  for (let i = 15; i >= 0; i--) {
+    const bitPos = 15 - i; // position from MSB of first group = bit 0..15 of 128-bit addr
+    const bit = (val >> i) & 1;
+    const span = document.createElement('span');
+    span.className = 'prefix-bit ' + (bitPos < prefixLen ? 'bit-net' : 'bit-host');
+    span.textContent = bit;
+    el.appendChild(span);
+  }
+  if (prefixLen > 16) {
+    const ellipsis = document.createElement('span');
+    ellipsis.style.cssText = 'font-size:13px; color:#94a3b8; align-self:center; padding-left:4px;';
+    ellipsis.textContent = `... (prefix /${prefixLen})`;
+    el.appendChild(ellipsis);
+  }
+  wrapEl.style.display = 'block';
+}
+
+function doIdentify() {
+  const raw = document.getElementById('inp-type').value.trim();
+  const inp = document.getElementById('inp-type');
+  const resultEl = document.getElementById('type-result');
+
+  inp.classList.remove('has-error');
+  document.getElementById('prefix-vis-wrap').style.display = 'none';
+
+  const groups = expandIPv6(raw);
+  if (!groups) {
+    inp.classList.add('has-error');
+    resultEl.innerHTML = '<span class="err">Địa chỉ không hợp lệ.</span>';
+    return;
+  }
+
+  const { short } = shortenGroups(groups);
+  const type = identifyAddress(groups);
+
+  let html = `<div style="margin-bottom:8px;">Địa chỉ rút gọn: <span class="hi">${short}</span></div>`;
+
+  if (!type) {
+    html += '<span class="warn">Không xác định được loại địa chỉ.</span>';
+    resultEl.innerHTML = html;
+    return;
+  }
+
+  let scopeExtra = '';
+  if (type.name === 'Multicast') {
+    scopeExtra = ` (${getMulticastScope(groups)})`;
+  }
+
+  html += `<div style="margin-bottom:6px;">
+    Loại: <strong>${type.name}</strong>
+    <span class="type-badge ${type.badge}">${type.name.split(' ')[0]}</span>
+  </div>`;
+  html += `<div style="margin-bottom:4px;">Prefix: <code>${type.prefix}</code> · Phạm vi: ${type.scope}${scopeExtra}</div>`;
+  html += `<div style="margin-bottom:4px; line-height:1.7;">${type.desc}</div>`;
+  if (type.ipv4) {
+    html += `<div style="margin-top:6px; font-size:13px; color:#6b7280;">Tương đương IPv4: <code>${type.ipv4}</code></div>`;
+  }
+
+  resultEl.innerHTML = html;
+  renderPrefixBits(groups, type.prefixLen);
+}
+
+function tryType(addr) {
+  document.getElementById('inp-type').value = addr;
+  doIdentify();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODULE 4: Header table interaction
+   ═══════════════════════════════════════════════════════════ */
+
+const HEADER_DETAILS = {
+  version: 'Version (4-bit): phân biệt IPv4 (=4) và IPv6 (=6). Trường này giống nhau ở cả hai giao thức và là trường đầu tiên router đọc để quyết định cách parse phần còn lại.',
+  ihl: 'IHL (Internet Header Length, 4-bit) trong IPv4: số đơn vị 32-bit trong header, tối thiểu 5 (=20 byte). Cần thiết vì IPv4 header có độ dài thay đổi. IPv6 bỏ trường này vì header luôn cố định 40 byte — router không phải đọc IHL trước khi parse.',
+  tos: 'Type of Service / Traffic Class (8-bit): hỗ trợ QoS — phân biệt traffic ưu tiên cao (VoIP, video) và thường (download). IPv6 đổi tên thành "Traffic Class" nhưng chức năng tương tự. 6 bit cao = DSCP (Differentiated Services Code Point), 2 bit thấp = ECN (Explicit Congestion Notification).',
+  flow: 'Flow Label (20-bit) — chỉ có trong IPv6: đánh dấu các gói tin thuộc cùng một "flow" (luồng), cho phép router xử lý chúng giống nhau mà không cần đọc đến tầng 4 (TCP/UDP). Hữu ích cho load balancing và QoS. IPv4 không có khái niệm này.',
+  len: 'Total Length (IPv4, 16-bit): độ dài toàn bộ packet (header + payload), tối đa 65535 byte. Payload Length (IPv6, 16-bit): chỉ tính payload sau header 40B cố định. Lưu ý: IPv6 hỗ trợ "jumbogram" (payload > 65535 byte) qua Hop-by-Hop Extension Header.',
+  frag: 'Fragmentation trong IPv4: router có thể chia nhỏ gói tin khi gặp link có MTU nhỏ hơn. Cần các trường Identification (16-bit), Flags (3-bit), Fragment Offset (13-bit). IPv6 không cho phép router fragment — chỉ host nguồn mới được fragment (qua Fragment Extension Header). Cơ chế Path MTU Discovery (PMTUD) giúp tìm MTU nhỏ nhất trên đường đi trước khi gửi.',
+  ttl: 'TTL (Time To Live, IPv4): số lần tối đa packet được forward. Mỗi router giảm 1; khi = 0 thì drop và gửi ICMP "Time Exceeded". IPv6 đổi tên thành "Hop Limit" — tên này rõ ràng hơn về ý nghĩa thực sự.',
+  proto: 'Protocol / Next Header (8-bit): xác định giao thức lớp trên. TCP=6, UDP=17, ICMPv4=1, ICMPv6=58. Trong IPv6, "Next Header" còn chỉ Extension Header tiếp theo trong chuỗi (Routing=43, Fragment=44, AH=51, ESP=50, Hop-by-Hop=0...) — cho phép chuỗi header linh hoạt.',
+  cksum: 'Header Checksum (IPv4, 16-bit): kiểm tra lỗi header. Tính bằng one\'s complement sum. Mỗi router phải tính lại sau khi giảm TTL — tốn CPU. IPv6 bỏ trường này vì: (1) Ethernet/Wi-Fi tầng 2 đã có CRC, (2) TCP/UDP tầng 4 đã có checksum. Kết quả: router IPv6 forward nhanh hơn, đặc biệt quan trọng ở backbone xử lý hàng triệu packet/giây.',
+  src: 'Source Address: địa chỉ IP nguồn. IPv4 = 32-bit (4 byte), IPv6 = 128-bit (16 byte). Router dùng để kiểm tra ACL, NAT (IPv4), và lọc bogon.',
+  dst: 'Destination Address: địa chỉ IP đích. IPv4 = 32-bit, IPv6 = 128-bit. Router dùng để tra bảng routing và quyết định forward packet ra interface nào.',
+  opt: 'Options (IPv4, 0–40 byte): các tùy chọn như Loose/Strict Source Routing, Record Route, Timestamp. Hiếm dùng nhưng làm header variable-length — router phải parse trước mới biết độ dài. IPv6 thay bằng Extension Headers riêng biệt, nối nhau qua Next Header: khi không có extension, router chỉ đọc 40 byte cố định và forward ngay.',
+};
+
+document.getElementById('header-table').addEventListener('click', function(e) {
+  const row = e.target.closest('.hrow');
+  if (!row) return;
+  const key = row.dataset.key;
+  const detail = document.getElementById('header-detail');
+  if (HEADER_DETAILS[key]) {
+    detail.innerHTML = HEADER_DETAILS[key];
+    detail.style.display = 'block';
+    // Highlight clicked row
+    document.querySelectorAll('.hrow').forEach(r => r.style.background = '');
+    row.style.background = '#fef9c3';
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════
+   MODULE 5: Quiz
+   ═══════════════════════════════════════════════════════════ */
+
+const QUIZ_QUESTIONS = [
+  {
+    q: 'Địa chỉ `fe80::1` thuộc loại nào?',
+    opts: ['Global Unicast', 'Link-Local Unicast', 'Multicast', 'Loopback'],
+    ans: 1,
+    explain: 'fe80::/10 là prefix Link-Local Unicast. Địa chỉ này được tự tạo trên mọi interface IPv6 và không route ra ngoài link.',
+  },
+  {
+    q: 'Rút gọn đúng chuẩn của `2001:0db8:0000:0000:0001:0000:0000:0001` là gì?',
+    opts: ['2001:db8::1:0:0:1', '2001:db8:0:0:1::1', '2001:db8::0:1:0:0:1', '2001:0db8::1:1'],
+    ans: 1,
+    explain: 'Nhóm 3-4 là "0:0" (2 nhóm), nhóm 6-7 là "0:0" (2 nhóm). Cả hai chuỗi bằng nhau → áp dụng :: cho chuỗi đầu tiên (nhóm 6-7). Bỏ 0 đầu: 2001:db8:0:0:1::1. Nhóm 3-4 "0:0" viết nguyên vì không dùng :: nữa.',
+  },
+  {
+    q: 'IPv6 loại bỏ header checksum so với IPv4 vì lý do chính nào?',
+    opts: [
+      'IPv6 không cần kiểm tra lỗi',
+      'Tầng 2 và tầng 4 đã có cơ chế kiểm tra lỗi, bỏ giúp router forward nhanh hơn',
+      'Checksum IPv4 bị lỗi nên IPv6 bỏ',
+      'IPv6 header quá dài không đủ chỗ',
+    ],
+    ans: 1,
+    explain: 'Ethernet/Wi-Fi (tầng 2) đã có CRC, TCP/UDP (tầng 4) đã có checksum bao phủ pseudo-header IP. Bỏ checksum ở IPv6 giúp router không phải tính lại sau mỗi hop (khi TTL/Hop Limit giảm), tăng tốc forwarding đáng kể.',
+  },
+  {
+    q: 'IPv6 = 2^128 địa chỉ. 2^128 xấp xỉ bao nhiêu?',
+    opts: ['4,3 tỉ', '340 tỉ', '3,4 × 10^38', '1,8 × 10^19'],
+    ans: 2,
+    explain: '2^128 = 2^32 × 2^96 ≈ 4,3 × 10^9 × 7,9 × 10^28 ≈ 3,4 × 10^38. Đây là con số khổng lồ — lớn hơn tổng IPv4 khoảng 10^29 bậc.',
+  },
+  {
+    q: 'Địa chỉ `ff02::1` là gì?',
+    opts: [
+      'Địa chỉ loopback',
+      'All Nodes multicast (tất cả thiết bị IPv6 trên link)',
+      'Địa chỉ broadcast',
+      'Link-local router gateway',
+    ],
+    ans: 1,
+    explain: 'ff02::1 = All-Nodes link-local multicast. ff00::/8 là multicast, scope 02 = link-local, group 1 = All Nodes. IPv6 không có broadcast; ff02::1 là cách gần nhất để "gửi tới mọi người trên link".',
+  },
+  {
+    q: 'SLAAC (Stateless Address Autoconfiguration) trong IPv6 nghĩa là gì?',
+    opts: [
+      'Cần DHCP server để cấp địa chỉ',
+      'Router tự gán địa chỉ cho từng thiết bị theo bảng tĩnh',
+      'Thiết bị tự tạo địa chỉ toàn cục mà không cần DHCP server, dựa vào Router Advertisement',
+      'Chỉ hoạt động khi có IPv4 dual-stack',
+    ],
+    ans: 2,
+    explain: 'SLAAC: thiết bị tự tạo link-local address → gửi Router Solicitation → nhận Router Advertisement (có prefix /64) → kết hợp prefix + interface ID → địa chỉ global unicast. Không cần DHCP server. Đây là tính năng tự cấu hình quan trọng của IPv6.',
+  },
+  {
+    q: 'Khôi phục đầy đủ địa chỉ `::1` có kết quả là gì?',
+    opts: [
+      '0001:0000:0000:0000:0000:0000:0000:0000',
+      '0000:0000:0000:0000:0000:0000:0000:0001',
+      '0000:0000:0001:0000:0000:0000:0000:0001',
+      '0000:0001:0000:0000:0000:0000:0000:0001',
+    ],
+    ans: 1,
+    explain: '::1 có 1 nhóm hiện diện (0001), :: = 7 nhóm 0000. Kết quả: 0000:0000:0000:0000:0000:0000:0000:0001. Đây là địa chỉ loopback của IPv6.',
+  },
+  {
+    q: 'Cơ chế chuyển tiếp nào phổ biến nhất hiện nay giúp thiết bị dùng cả IPv4 lẫn IPv6?',
+    opts: ['NAT64', 'Tunneling 6in4', 'Dual-Stack', 'Translation'],
+    ans: 2,
+    explain: 'Dual-stack: thiết bị và router chạy đồng thời IPv4 và IPv6. Đây là cơ chế phổ biến nhất, ít overhead nhất. Google, Facebook, hầu hết CDN lớn đều dual-stack. Khi kết nối, ưu tiên IPv6 (RFC 6724 "Happy Eyeballs").',
+  },
+];
+
+let quizIdx = 0;
+let quizAnswered = false;
+
+function renderQuiz() {
+  const q = QUIZ_QUESTIONS[quizIdx];
+  const container = document.getElementById('quiz-container');
+  const progress = document.getElementById('quiz-progress');
+
+  let html = `<div class="quiz-card">
+    <p>Câu ${quizIdx + 1}/${QUIZ_QUESTIONS.length}: ${q.q}</p>
+    <div class="quiz-options">`;
+  q.opts.forEach((opt, i) => {
+    html += `<button class="quiz-opt" onclick="answerQuiz(${i})">${opt}</button>`;
+  });
+  html += `</div><div class="quiz-feedback" id="quiz-fb"></div></div>`;
+  container.innerHTML = html;
+  progress.textContent = `Câu ${quizIdx + 1} / ${QUIZ_QUESTIONS.length}`;
+  quizAnswered = false;
+}
+
+function answerQuiz(idx) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const q = QUIZ_QUESTIONS[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.ans) btn.classList.add('correct');
+    if (i === idx && i !== q.ans) btn.classList.add('wrong');
+  });
+  const fb = document.getElementById('quiz-fb');
+  const isCorrect = idx === q.ans;
+  fb.innerHTML = `<span style="color:${isCorrect ? '#16a34a' : '#dc2626'}; font-weight:700;">${isCorrect ? 'Đúng!' : 'Chưa đúng.'}</span> ${q.explain}`;
+}
+
+function nextQuiz() {
+  quizIdx = (quizIdx + 1) % QUIZ_QUESTIONS.length;
+  renderQuiz();
+}
+
+function resetQuiz() {
+  quizIdx = 0;
+  renderQuiz();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════ */
+doShorten();
+doExpand();
+doIdentify();
+renderQuiz();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Tầng liên kết &amp; Ethernet</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h2 { color: #0c4a6e; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #0369a1; }
+
+  .card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  /* ── Frame dissector ── */
+  .frame-strip {
+    display: flex;
+    gap: 3px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 8px 4px;
+    margin: 12px 0;
+    align-items: stretch;
+  }
+  .frame-field {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    border: 2px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 8px 6px;
+    cursor: pointer;
+    transition: all 0.18s;
+    background: #f8fafc;
+    min-width: 0;
+    flex-shrink: 0;
+  }
+  .frame-field:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(3,105,161,0.18); }
+  .frame-field.active {
+    border-color: #0369a1;
+    background: #e0f2fe;
+    transform: translateY(-5px);
+    box-shadow: 0 6px 18px rgba(3,105,161,0.25);
+  }
+  .frame-field .ff-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: #374151;
+    text-align: center;
+    line-height: 1.3;
+    word-break: break-all;
+  }
+  .frame-field .ff-bytes {
+    font-size: 10px;
+    color: #6b7280;
+    margin-top: 4px;
+    white-space: nowrap;
+  }
+  .frame-field .ff-hex {
+    font-family: monospace;
+    font-size: 10px;
+    margin-top: 6px;
+    background: #1e293b;
+    color: #a5f3fc;
+    padding: 3px 5px;
+    border-radius: 4px;
+    text-align: center;
+    line-height: 1.4;
+    word-break: break-all;
+  }
+
+  /* field color accents */
+  .ff-preamble { border-color: #94a3b8; }
+  .ff-sfd     { border-color: #94a3b8; background: #f1f5f9; }
+  .ff-dst     { border-color: #dc2626; }
+  .ff-src     { border-color: #ea580c; }
+  .ff-type    { border-color: #7c3aed; }
+  .ff-payload { border-color: #0369a1; }
+  .ff-fcs     { border-color: #16a34a; }
+
+  .ff-preamble.active { background: #f1f5f9; border-color: #64748b; }
+  .ff-sfd.active      { background: #f1f5f9; border-color: #64748b; }
+  .ff-dst.active      { background: #fee2e2; border-color: #dc2626; }
+  .ff-src.active      { background: #ffedd5; border-color: #ea580c; }
+  .ff-type.active     { background: #ede9fe; border-color: #7c3aed; }
+  .ff-payload.active  { background: #e0f2fe; border-color: #0369a1; }
+  .ff-fcs.active      { background: #dcfce7; border-color: #16a34a; }
+
+  .field-info {
+    background: #f0f9ff;
+    border: 2px solid #0369a1;
+    border-radius: 8px;
+    padding: 14px 18px;
+    min-height: 80px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 12px;
+    transition: opacity 0.2s;
+  }
+  .field-info strong { color: #0369a1; }
+  .field-info code { background: #1e293b; color: #a5f3fc; padding: 1px 6px; border-radius: 4px; font-size: 13px; }
+  .field-info .fi-title { font-size: 16px; font-weight: 800; color: #0c4a6e; margin-bottom: 6px; }
+
+  /* ── MAC Analyzer ── */
+  .mac-input-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 12px 0;
+  }
+  .mac-input-row input[type="text"] {
+    font-family: monospace;
+    font-size: 17px;
+    padding: 9px 14px;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 280px;
+    box-sizing: border-box;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .mac-input-row input:focus { outline: none; border-color: #0369a1; }
+  .mac-btn {
+    padding: 9px 18px;
+    background: #0369a1;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .mac-btn:hover { background: #0284c7; }
+
+  .mac-result {
+    background: #f0f9ff;
+    border: 2px solid #0369a1;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.9;
+    margin-top: 10px;
+  }
+  .mac-result.error { background: #fef2f2; border-color: #dc2626; }
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-left: 6px;
+  }
+  .badge-unicast   { background: #dcfce7; color: #166534; }
+  .badge-multicast { background: #ede9fe; color: #6b21a8; }
+  .badge-broadcast { background: #fee2e2; color: #991b1b; }
+  .badge-global    { background: #e0f2fe; color: #0c4a6e; }
+  .badge-local     { background: #fef9c3; color: #854d0e; }
+
+  /* MAC example buttons */
+  .mac-examples { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .mac-ex-btn {
+    padding: 5px 12px;
+    border: 2px solid #0369a1;
+    background: white;
+    color: #0369a1;
+    border-radius: 20px;
+    font-size: 12px;
+    font-family: monospace;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+  .mac-ex-btn:hover { background: #0369a1; color: white; }
+
+  /* ── Switch Simulator ── */
+  .sim-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .sim-network { position: relative; }
+  .sim-controls { display: flex; flex-direction: column; gap: 10px; }
+
+  .sim-btn {
+    padding: 9px 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+  }
+  .sim-btn.primary { background: #0369a1; color: white; }
+  .sim-btn.primary:hover { background: #0284c7; }
+  .sim-btn.secondary { background: #f1f5f9; color: #374151; border: 2px solid #cbd5e1; }
+  .sim-btn.secondary:hover { background: #e2e8f0; }
+  .sim-btn.reset { background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; }
+  .sim-btn.reset:hover { background: #fecaca; }
+
+  .mac-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .mac-table th {
+    background: #0369a1;
+    color: white;
+    padding: 7px 10px;
+    text-align: left;
+    font-size: 12px;
+  }
+  .mac-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    font-family: monospace;
+    font-size: 12px;
+  }
+  .mac-table tr.new-entry td { background: #dcfce7; animation: fadeGreen 1.5s; }
+  @keyframes fadeGreen {
+    0%   { background: #86efac; }
+    100% { background: #dcfce7; }
+  }
+  .mac-table .empty-row td { color: #9ca3af; font-style: italic; font-family: sans-serif; }
+
+  .sim-log {
+    background: #0f172a;
+    color: #94a3b8;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 8px;
+  }
+  .sim-log .log-learn  { color: #34d399; }
+  .sim-log .log-flood  { color: #fbbf24; }
+  .sim-log .log-fwd    { color: #60a5fa; }
+  .sim-log .log-drop   { color: #f87171; }
+  .sim-log .log-header { color: #e2e8f0; font-weight: bold; border-bottom: 1px solid #334155; margin-bottom: 4px; }
+
+  /* ── Hub vs Switch ── */
+  .vs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 12px 0;
+  }
+  .vs-box {
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .vs-box .vs-header {
+    padding: 10px 16px;
+    font-weight: 800;
+    font-size: 15px;
+    text-align: center;
+  }
+  .vs-box.hub .vs-header  { background: #fef2f2; color: #991b1b; border-bottom: 2px solid #fca5a5; }
+  .vs-box.sw  .vs-header  { background: #f0f9ff; color: #0c4a6e; border-bottom: 2px solid #7dd3fc; }
+  .vs-box .vs-body { padding: 12px 16px; }
+
+  .vs-btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .vs-send-btn {
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 2px solid #0369a1;
+    background: white;
+    color: #0369a1;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .vs-send-btn:hover { background: #0369a1; color: white; }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .sim-layout { grid-template-columns: 1fr; }
+    .vs-grid { grid-template-columns: 1fr; }
+    .frame-field { min-width: 60px; }
+    .frame-strip { padding: 4px 0; }
+  }
+  @media (max-width: 480px) {
+    .frame-field .ff-name { font-size: 9px; }
+    .frame-field .ff-hex  { font-size: 9px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Foundations</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-layered-models/visualization.html">← L1: Mô hình phân tầng</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Tầng liên kết &amp; Ethernet</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-ip-subnetting/visualization.html">L3: Địa chỉ IP &amp; Subnetting →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Tầng liên kết &amp; Ethernet</h1>
+<p>Bộ công cụ tương tác: Bóc tách khung Ethernet, Phân tích địa chỉ MAC, Mô phỏng switch học bảng MAC, So sánh Hub vs Switch.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — Ethernet Frame Dissector
+     ══════════════════════════════════════════════════════════ -->
+<h2>1. Bóc tách khung Ethernet</h2>
+<div class="card">
+  <p>Click vào từng trường để xem mô tả, kích thước và giá trị ví dụ. Frame mẫu: ARP Request từ <code>AA:BB:CC:DD:EE:FF</code> đến broadcast.</p>
+
+  <div class="frame-strip" id="frameStrip">
+    <!-- fields injected by JS -->
+  </div>
+
+  <div class="field-info" id="fieldInfo">
+    <div class="fi-title">Chọn một trường bên trên</div>
+    <div>Click vào từng ô để xem giải thích chi tiết về trường đó trong khung Ethernet.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — MAC Address Analyzer
+     ══════════════════════════════════════════════════════════ -->
+<h2>2. Phân tích địa chỉ MAC</h2>
+<div class="card">
+  <p>Nhập địa chỉ MAC (định dạng <code>XX:XX:XX:XX:XX:XX</code>) để phân tích loại (unicast/multicast/broadcast), tính toàn cục/cục bộ, và đọc OUI.</p>
+
+  <div class="mac-examples">
+    <button class="mac-ex-btn" onclick="analyzeMac('00:1A:2B:3C:4D:5E')">00:1A:2B:3C:4D:5E</button>
+    <button class="mac-ex-btn" onclick="analyzeMac('FF:FF:FF:FF:FF:FF')">FF:FF:FF:FF:FF:FF</button>
+    <button class="mac-ex-btn" onclick="analyzeMac('01:00:5E:7F:00:01')">01:00:5E:7F:00:01</button>
+    <button class="mac-ex-btn" onclick="analyzeMac('02:42:AC:11:00:05')">02:42:AC:11:00:05</button>
+    <button class="mac-ex-btn" onclick="analyzeMac('DC:A6:32:AB:CD:EF')">DC:A6:32:AB:CD:EF</button>
+    <button class="mac-ex-btn" onclick="analyzeMac('33:33:00:00:00:01')">33:33:00:00:00:01</button>
+  </div>
+
+  <div class="mac-input-row">
+    <input type="text" id="macInput" maxlength="17" placeholder="AA:BB:CC:DD:EE:FF"
+           oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter') doAnalyzeMac()">
+    <button class="mac-btn" onclick="doAnalyzeMac()">Phân tích</button>
+  </div>
+
+  <div class="mac-result" id="macResult">
+    Nhập địa chỉ MAC bên trên hoặc chọn ví dụ có sẵn...
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — Switch MAC Learning Simulator
+     ══════════════════════════════════════════════════════════ -->
+<h2>3. Mô phỏng Switch học bảng MAC</h2>
+<div class="card">
+  <p>Mạng gồm 4 host nối vào switch 4 cổng. Gửi frame giữa các host để quan sát switch học địa chỉ MAC và quyết định chuyển frame đến đúng cổng.</p>
+
+  <div class="sim-layout">
+    <!-- SVG network diagram -->
+    <div class="sim-network">
+      <svg width="520" height="320" viewBox="0 0 520 320" id="switchSvg">
+        <rect width="520" height="320" fill="#f8fafc" rx="10"/>
+
+        <!-- Switch box center -->
+        <rect x="170" y="120" width="180" height="80" rx="8" fill="#0369a1" stroke="#0c4a6e" stroke-width="2"/>
+        <text x="260" y="152" text-anchor="middle" fill="white" font-size="15" font-weight="800">SWITCH</text>
+        <text x="260" y="172" text-anchor="middle" fill="#bae6fd" font-size="11">4 cổng · Bảng MAC</text>
+        <!-- Port labels on switch -->
+        <text x="185" y="143" text-anchor="middle" fill="#7dd3fc" font-size="10" font-weight="700">P1</text>
+        <text x="335" y="143" text-anchor="middle" fill="#7dd3fc" font-size="10" font-weight="700">P2</text>
+        <text x="260" y="127" text-anchor="middle" fill="#7dd3fc" font-size="10" font-weight="700">P3</text>
+        <text x="260" y="198" text-anchor="middle" fill="#7dd3fc" font-size="10" font-weight="700">P4</text>
+
+        <!-- Cables -->
+        <!-- P1 → Host A (left) -->
+        <line x1="170" y1="160" x2="80" y2="160" stroke="#475569" stroke-width="2.5" id="cable-p1"/>
+        <!-- P2 → Host B (right) -->
+        <line x1="350" y1="160" x2="440" y2="160" stroke="#475569" stroke-width="2.5" id="cable-p2"/>
+        <!-- P3 → Host C (top) -->
+        <line x1="260" y1="120" x2="260" y2="50" stroke="#475569" stroke-width="2.5" id="cable-p3"/>
+        <!-- P4 → Host D (bottom) -->
+        <line x1="260" y1="200" x2="260" y2="270" stroke="#475569" stroke-width="2.5" id="cable-p4"/>
+
+        <!-- Host A (left) -->
+        <rect x="20" y="130" width="60" height="60" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="2" id="host-A-box"/>
+        <text x="50" y="155" text-anchor="middle" fill="#1e40af" font-size="13" font-weight="800">Host A</text>
+        <text x="50" y="170" text-anchor="middle" fill="#1e40af" font-size="9">AA:AA:AA</text>
+        <text x="50" y="181" text-anchor="middle" fill="#1e40af" font-size="9">:AA:AA:AA</text>
+        <text x="50" y="193" text-anchor="middle" fill="#475569" font-size="9">Port 1</text>
+
+        <!-- Host B (right) -->
+        <rect x="440" y="130" width="60" height="60" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="2" id="host-B-box"/>
+        <text x="470" y="155" text-anchor="middle" fill="#166534" font-size="13" font-weight="800">Host B</text>
+        <text x="470" y="170" text-anchor="middle" fill="#166534" font-size="9">BB:BB:BB</text>
+        <text x="470" y="181" text-anchor="middle" fill="#166534" font-size="9">:BB:BB:BB</text>
+        <text x="470" y="193" text-anchor="middle" fill="#475569" font-size="9">Port 2</text>
+
+        <!-- Host C (top) -->
+        <rect x="220" y="10" width="80" height="40" rx="6" fill="#fef9c3" stroke="#ca8a04" stroke-width="2" id="host-C-box"/>
+        <text x="260" y="28" text-anchor="middle" fill="#78350f" font-size="13" font-weight="800">Host C</text>
+        <text x="260" y="43" text-anchor="middle" fill="#78350f" font-size="9">CC:CC:CC:CC:CC:CC — Port 3</text>
+
+        <!-- Host D (bottom) -->
+        <rect x="220" y="275" width="80" height="40" rx="6" fill="#fce7f3" stroke="#db2777" stroke-width="2" id="host-D-box"/>
+        <text x="260" y="293" text-anchor="middle" fill="#9d174d" font-size="13" font-weight="800">Host D</text>
+        <text x="260" y="308" text-anchor="middle" fill="#9d174d" font-size="9">DD:DD:DD:DD:DD:DD — Port 4</text>
+
+        <!-- Packet animation element -->
+        <circle id="pkt-dot" cx="-50" cy="-50" r="8" fill="#f97316" stroke="white" stroke-width="2" opacity="0"/>
+        <text id="pkt-label" x="-50" y="-60" text-anchor="middle" fill="#f97316" font-size="10" font-weight="700" opacity="0">frame</text>
+      </svg>
+    </div>
+
+    <!-- Controls -->
+    <div class="sim-controls">
+      <div style="font-weight: 700; font-size: 13px; color: #374151; margin-bottom: 4px;">Gửi frame:</div>
+      <button class="sim-btn primary" onclick="simSend('A','B')">A → B (unicast)</button>
+      <button class="sim-btn primary" onclick="simSend('B','A')">B → A (unicast)</button>
+      <button class="sim-btn primary" onclick="simSend('C','D')">C → D (unicast)</button>
+      <button class="sim-btn primary" onclick="simSend('D','B')">D → B (unicast)</button>
+      <button class="sim-btn secondary" onclick="simSend('A','BROADCAST')">A → Broadcast</button>
+      <button class="sim-btn secondary" onclick="simSend('C','A')">C → A (unicast)</button>
+      <button class="sim-btn reset" onclick="simReset()">Reset bảng MAC</button>
+
+      <div style="font-weight: 700; font-size: 12px; color: #374151; margin-top: 6px;">Bảng MAC (CAM table):</div>
+      <table class="mac-table" id="macTableEl">
+        <thead><tr><th>MAC Address</th><th>Port</th></tr></thead>
+        <tbody id="macTableBody">
+          <tr class="empty-row"><td colspan="2">(trống — chưa học)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sim-log" id="simLog">
+    <div class="log-header">— Nhật ký sự kiện switch —</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — Hub vs Switch Comparison
+     ══════════════════════════════════════════════════════════ -->
+<h2>4. So sánh Hub vs Switch</h2>
+<div class="card">
+  <div class="vs-btn-row">
+    <button class="vs-send-btn" onclick="vsDemo('hub', 'A', 'B')">Hub: A gửi cho B</button>
+    <button class="vs-send-btn" onclick="vsDemo('sw',  'A', 'B')">Switch: A gửi cho B</button>
+    <button class="vs-send-btn" onclick="vsDemo('hub', 'A', 'BROADCAST')">Hub: A broadcast</button>
+    <button class="vs-send-btn" onclick="vsDemo('sw',  'A', 'BROADCAST')">Switch: A broadcast</button>
+  </div>
+
+  <div class="vs-grid">
+    <!-- HUB side -->
+    <div class="vs-box hub">
+      <div class="vs-header">Hub (thiết bị cũ)</div>
+      <div class="vs-body">
+        <svg width="100%" height="220" viewBox="0 0 260 220">
+          <rect width="260" height="220" fill="#fef2f2" rx="8"/>
+          <!-- Hub box -->
+          <rect x="90" y="88" width="80" height="44" rx="6" fill="#dc2626" stroke="#991b1b" stroke-width="2"/>
+          <text x="130" y="106" text-anchor="middle" fill="white" font-size="12" font-weight="800">HUB</text>
+          <text x="130" y="122" text-anchor="middle" fill="#fecaca" font-size="9">Tầng 1</text>
+          <!-- Cables -->
+          <line x1="90" y1="110" x2="30" y2="110" stroke="#64748b" stroke-width="2"/>
+          <line x1="170" y1="110" x2="230" y2="110" stroke="#64748b" stroke-width="2"/>
+          <line x1="130" y1="88" x2="130" y2="30" stroke="#64748b" stroke-width="2"/>
+          <line x1="130" y1="132" x2="130" y2="190" stroke="#64748b" stroke-width="2"/>
+          <!-- Hosts -->
+          <rect x="5"   y="90"  width="25" height="40" rx="4" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+          <text x="17"  y="108" text-anchor="middle" fill="#1e40af" font-size="9" font-weight="700">A</text>
+          <text x="17"  y="122" text-anchor="middle" fill="#475569" font-size="8">P1</text>
+          <rect x="230" y="90"  width="25" height="40" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="243" y="108" text-anchor="middle" fill="#166534" font-size="9" font-weight="700">B</text>
+          <text x="243" y="122" text-anchor="middle" fill="#475569" font-size="8">P2</text>
+          <rect x="115" y="5"   width="30" height="25" rx="4" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+          <text x="130" y="20"  text-anchor="middle" fill="#78350f" font-size="9" font-weight="700">C</text>
+          <text x="130" y="29"  text-anchor="middle" fill="#475569" font-size="8">P3</text>
+          <rect x="115" y="192" width="30" height="25" rx="4" fill="#fce7f3" stroke="#db2777" stroke-width="1.5"/>
+          <text x="130" y="207" text-anchor="middle" fill="#9d174d" font-size="9" font-weight="700">D</text>
+          <text x="130" y="216" text-anchor="middle" fill="#475569" font-size="8">P4</text>
+          <!-- Flood indicators (hidden initially, shown by JS) -->
+          <line id="hub-cable-p1" x1="90"  y1="110" x2="30"  y2="110" stroke="#dc2626" stroke-width="3" opacity="0"/>
+          <line id="hub-cable-p2" x1="170" y1="110" x2="230" y2="110" stroke="#dc2626" stroke-width="3" opacity="0"/>
+          <line id="hub-cable-p3" x1="130" y1="88"  x2="130" y2="30"  stroke="#dc2626" stroke-width="3" opacity="0"/>
+          <line id="hub-cable-p4" x1="130" y1="132" x2="130" y2="190" stroke="#dc2626" stroke-width="3" opacity="0"/>
+          <!-- Sender indicator -->
+          <line id="hub-cable-src" x1="90" y1="110" x2="30" y2="110" stroke="#2563eb" stroke-width="3" opacity="0" stroke-dasharray="4,3"/>
+        </svg>
+        <div id="hub-status" style="font-size:13px; color:#6b7280; margin-top:8px; min-height:40px; line-height:1.6;">
+          Chọn một kịch bản bên trên...
+        </div>
+      </div>
+    </div>
+
+    <!-- SWITCH side -->
+    <div class="vs-box sw">
+      <div class="vs-header">Switch (thiết bị hiện đại)</div>
+      <div class="vs-body">
+        <svg width="100%" height="220" viewBox="0 0 260 220">
+          <rect width="260" height="220" fill="#f0f9ff" rx="8"/>
+          <!-- Switch box -->
+          <rect x="90" y="88" width="80" height="44" rx="6" fill="#0369a1" stroke="#0c4a6e" stroke-width="2"/>
+          <text x="130" y="106" text-anchor="middle" fill="white" font-size="12" font-weight="800">SWITCH</text>
+          <text x="130" y="122" text-anchor="middle" fill="#bae6fd" font-size="9">Tầng 2 · MAC table</text>
+          <!-- Cables -->
+          <line x1="90"  y1="110" x2="30"  y2="110" stroke="#64748b" stroke-width="2"/>
+          <line x1="170" y1="110" x2="230" y2="110" stroke="#64748b" stroke-width="2"/>
+          <line x1="130" y1="88"  x2="130" y2="30"  stroke="#64748b" stroke-width="2"/>
+          <line x1="130" y1="132" x2="130" y2="190" stroke="#64748b" stroke-width="2"/>
+          <!-- Hosts -->
+          <rect x="5"   y="90"  width="25" height="40" rx="4" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+          <text x="17"  y="108" text-anchor="middle" fill="#1e40af" font-size="9" font-weight="700">A</text>
+          <text x="17"  y="122" text-anchor="middle" fill="#475569" font-size="8">P1</text>
+          <rect x="230" y="90"  width="25" height="40" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="243" y="108" text-anchor="middle" fill="#166534" font-size="9" font-weight="700">B</text>
+          <text x="243" y="122" text-anchor="middle" fill="#475569" font-size="8">P2</text>
+          <rect x="115" y="5"   width="30" height="25" rx="4" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+          <text x="130" y="20"  text-anchor="middle" fill="#78350f" font-size="9" font-weight="700">C</text>
+          <text x="130" y="29"  text-anchor="middle" fill="#475569" font-size="8">P3</text>
+          <rect x="115" y="192" width="30" height="25" rx="4" fill="#fce7f3" stroke="#db2777" stroke-width="1.5"/>
+          <text x="130" y="207" text-anchor="middle" fill="#9d174d" font-size="9" font-weight="700">D</text>
+          <text x="130" y="216" text-anchor="middle" fill="#475569" font-size="8">P4</text>
+          <!-- Selective forward indicators (hidden initially) -->
+          <line id="sw-cable-p1" x1="90"  y1="110" x2="30"  y2="110" stroke="#16a34a" stroke-width="3" opacity="0"/>
+          <line id="sw-cable-p2" x1="170" y1="110" x2="230" y2="110" stroke="#16a34a" stroke-width="3" opacity="0"/>
+          <line id="sw-cable-p3" x1="130" y1="88"  x2="130" y2="30"  stroke="#16a34a" stroke-width="3" opacity="0"/>
+          <line id="sw-cable-p4" x1="130" y1="132" x2="130" y2="190" stroke="#16a34a" stroke-width="3" opacity="0"/>
+          <!-- Sender indicator -->
+          <line id="sw-cable-src" x1="90" y1="110" x2="30" y2="110" stroke="#2563eb" stroke-width="3" opacity="0" stroke-dasharray="4,3"/>
+          <!-- Drop indicators -->
+          <text id="sw-drop-p1" x="17"  y="80"  text-anchor="middle" fill="#dc2626" font-size="16" opacity="0" font-weight="900">✕</text>
+          <text id="sw-drop-p2" x="243" y="80"  text-anchor="middle" fill="#dc2626" font-size="16" opacity="0" font-weight="900">✕</text>
+          <text id="sw-drop-p3" x="130" y="75"  text-anchor="middle" fill="#dc2626" font-size="16" opacity="0" font-weight="900">✕</text>
+          <text id="sw-drop-p4" x="130" y="210" text-anchor="middle" fill="#dc2626" font-size="16" opacity="0" font-weight="900">✕</text>
+        </svg>
+        <div id="sw-status" style="font-size:13px; color:#6b7280; margin-top:8px; min-height:40px; line-height:1.6;">
+          Chọn một kịch bản bên trên...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison table -->
+  <div style="overflow-x:auto; margin-top:16px;">
+    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+      <thead>
+        <tr style="background:#1e293b; color:white;">
+          <th style="padding:8px 12px; text-align:left;">Tiêu chí</th>
+          <th style="padding:8px 12px; text-align:center; color:#fca5a5;">Hub</th>
+          <th style="padding:8px 12px; text-align:center; color:#7dd3fc;">Switch</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background:#fef2f2;">
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0;">Tầng OSI</td>
+          <td style="padding:7px 12px; text-align:center; border-bottom:1px solid #e2e8f0;">Tầng 1 (Vật lý)</td>
+          <td style="padding:7px 12px; text-align:center; border-bottom:1px solid #e2e8f0; color:#0369a1; font-weight:700;">Tầng 2 (Liên kết)</td>
+        </tr>
+        <tr>
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0;">Xử lý frame?</td>
+          <td style="padding:7px 12px; text-align:center; border-bottom:1px solid #e2e8f0; color:#dc2626;">Không — chỉ khuếch đại tín hiệu</td>
+          <td style="padding:7px 12px; text-align:center; border-bottom:1px solid #e2e8f0; color:#16a34a; font-weight:700;">Có — đọc MAC đích/nguồn</td>
+        </tr>
+        <tr style="background:#f8fafc;">
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0;">Collision Domain</td>
+          <td style="padding:7px 12px; text-align:center; border-bottom:1px solid #e2e8f0; color:#dc2626;">1 domain chung (mọi cổng)</td>
+          <td style="padding:7px 12px; text-align:center; border-bottom:1px solid #e2e8f0; color:#16a34a; font-weight:700;">Mỗi cổng = 1 domain riêng</td>
+        </tr>
+        <tr>
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0;">Broadcast Domain</td>
+          <td style="padding:7px 12px; text-align:center; border-bottom:1px solid #e2e8f0;">1 domain (mọi cổng)</td>
+          <td style="padding:7px 12px; text-align:center; border-bottom:1px solid #e2e8f0;">1 domain (mặc định, trừ VLAN)</td>
+        </tr>
+        <tr style="background:#f8fafc;">
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0;">Bảo mật</td>
+          <td style="padding:7px 12px; text-align:center; border-bottom:1px solid #e2e8f0; color:#dc2626;">Kém — mọi host đều nhận</td>
+          <td style="padding:7px 12px; text-align:center; border-bottom:1px solid #e2e8f0; color:#16a34a; font-weight:700;">Tốt hơn — unicast chỉ đến đích</td>
+        </tr>
+        <tr>
+          <td style="padding:7px 12px;">Trạng thái hiện tại</td>
+          <td style="padding:7px 12px; text-align:center; color:#dc2626; font-weight:700;">Lỗi thời (không còn dùng)</td>
+          <td style="padding:7px 12px; text-align:center; color:#16a34a; font-weight:700;">Tiêu chuẩn — 100% LAN hiện đại</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// MODULE 1: Ethernet Frame Dissector
+// ═══════════════════════════════════════════════════════════
+
+const FRAME_FIELDS = [
+  {
+    id: 'preamble',
+    cls: 'ff-preamble',
+    name: 'Preamble',
+    bytes: '7 byte',
+    hex: 'AA AA AA\nAA AA AA AA',
+    title: 'Preamble — Đồng bộ nhịp đồng hồ',
+    desc: `7 byte với giá trị <code>0xAA</code> (= <code>1010 1010</code> lặp lại). Mục đích: giúp bên nhận <strong>đồng bộ clock</strong> — nhận chuỗi xen kẽ 1-0 đều đặn để PLL (Phase-Locked Loop) của NIC khóa đúng tần số. Sau khi đồng bộ xong, bên nhận sẵn sàng nhận dữ liệu thực sự.
+    <br><br><strong>Lưu ý</strong>: Preamble được xử lý ở <em>tầng vật lý</em> và thường không tính vào "kích thước frame". Wireshark và các công cụ capture thường không hiển thị Preamble.`,
+  },
+  {
+    id: 'sfd',
+    cls: 'ff-sfd',
+    name: 'SFD',
+    bytes: '1 byte',
+    hex: 'AB',
+    title: 'SFD — Start Frame Delimiter',
+    desc: `1 byte với giá trị cố định <code>0xAB</code> (= <code>1010 1011</code>). Báo hiệu: "byte kế tiếp là byte đầu tiên của MAC đích — frame thực sự bắt đầu từ đây". Chuỗi Preamble kết thúc bằng 2 bit "11" thay vì "10" thông thường — đó chính là SFD.`,
+  },
+  {
+    id: 'dst',
+    cls: 'ff-dst',
+    name: 'MAC Đích',
+    bytes: '6 byte',
+    hex: 'FF FF FF\nFF FF FF',
+    title: 'Destination MAC — Địa chỉ MAC đích',
+    desc: `6 byte (48 bit) xác định thiết bị nhận. Ví dụ broadcast: <code>FF:FF:FF:FF:FF:FF</code>.
+    <br><br>Switch đọc trường này để <strong>tra cứu bảng MAC</strong> và quyết định gửi frame ra cổng nào. Nếu là <code>FF:FF:FF:FF:FF:FF</code> → flood tất cả cổng (trừ cổng nhận). Nếu là multicast (bit 0 byte đầu = 1) → forward theo multicast group. Nếu là unicast → tra bảng MAC.`,
+  },
+  {
+    id: 'src',
+    cls: 'ff-src',
+    name: 'MAC Nguồn',
+    bytes: '6 byte',
+    hex: 'AA BB CC\nDD EE FF',
+    title: 'Source MAC — Địa chỉ MAC nguồn',
+    desc: `6 byte xác định thiết bị gửi. Ví dụ: <code>AA:BB:CC:DD:EE:FF</code>.
+    <br><br>Switch đọc trường này để <strong>học bảng MAC</strong>: "cổng X vừa nhận frame từ MAC này → ghi vào bảng MAC". MAC nguồn <em>phải là unicast</em> (bit 0 byte đầu = 0) — nếu không, switch bỏ qua entry học này.`,
+  },
+  {
+    id: 'type',
+    cls: 'ff-type',
+    name: 'EtherType',
+    bytes: '2 byte',
+    hex: '08 06',
+    title: 'EtherType — Loại giao thức tầng trên',
+    desc: `2 byte xác định giao thức nào đang được đóng gói trong Payload. Ví dụ: <code>0x0806</code> = ARP.
+    <br><br>Bảng EtherType phổ biến:
+    <ul style="margin:6px 0; padding-left:18px;">
+      <li><code>0x0800</code> — IPv4</li>
+      <li><code>0x0806</code> — ARP</li>
+      <li><code>0x86DD</code> — IPv6</li>
+      <li><code>0x8100</code> — IEEE 802.1Q (VLAN tag)</li>
+    </ul>
+    Nếu giá trị ≤ 1500: đây là trường <em>Length</em> (Ethernet II cũ — IEEE 802.3), cho biết độ dài payload. Nếu ≥ 0x0800: đây là EtherType (Ethernet II mới — phổ biến hơn).`,
+  },
+  {
+    id: 'payload',
+    cls: 'ff-payload',
+    name: 'Payload',
+    bytes: '46–1500 byte',
+    hex: '...ARP\ndata...',
+    title: 'Payload — Dữ liệu từ tầng trên',
+    desc: `Nội dung thực sự của frame — gói IP, gói ARP, hoặc dữ liệu bất kỳ từ tầng trên. Kích thước: <strong>46–1500 byte</strong>.
+    <br><br><strong>MTU = 1500 byte</strong>: nếu gói IP lớn hơn, tầng IP phải phân mảnh (fragmentation) trước khi đưa xuống Ethernet.
+    <br><strong>Tối thiểu 46 byte</strong>: nếu dữ liệu ngắn hơn, thêm padding (byte <code>0x00</code>) để đạt đúng 46 byte. Tầng trên nhận payload gốc nhờ trường Length/EtherType.`,
+  },
+  {
+    id: 'fcs',
+    cls: 'ff-fcs',
+    name: 'FCS',
+    bytes: '4 byte',
+    hex: 'A1 B2\nC3 D4',
+    title: 'FCS — Frame Check Sequence (CRC-32)',
+    desc: `4 byte chứa giá trị kiểm tra toàn vẹn tính bằng thuật toán <strong>CRC-32</strong> (Cyclic Redundancy Check). FCS được tính trên toàn bộ frame (từ MAC đích đến cuối Payload).
+    <br><br>Bên nhận tính lại CRC-32, nếu không khớp → frame bị lỗi bit trong quá trình truyền → <strong>bỏ frame (discard)</strong>. Ethernet chỉ <em>phát hiện</em> lỗi, không <em>sửa</em> lỗi. Việc yêu cầu gửi lại là trách nhiệm của TCP (tầng trên).`,
+  },
+];
+
+function buildFrameStrip() {
+  const strip = document.getElementById('frameStrip');
+  strip.innerHTML = '';
+  FRAME_FIELDS.forEach((f, idx) => {
+    const div = document.createElement('div');
+    div.className = `frame-field ${f.cls}`;
+    div.id = `ff-${f.id}`;
+    // Width based on content type
+    const w = f.id === 'payload' ? '160px' : f.id === 'preamble' ? '80px' : '72px';
+    div.style.width = w;
+    div.innerHTML = `
+      <div class="ff-name">${f.name}</div>
+      <div class="ff-bytes">${f.bytes}</div>
+      <div class="ff-hex">${f.hex}</div>
+    `;
+    div.addEventListener('click', () => selectField(idx));
+    strip.appendChild(div);
+  });
+}
+
+function selectField(idx) {
+  document.querySelectorAll('.frame-field').forEach(el => el.classList.remove('active'));
+  const f = FRAME_FIELDS[idx];
+  document.getElementById(`ff-${f.id}`).classList.add('active');
+  document.getElementById('fieldInfo').innerHTML = `
+    <div class="fi-title">${f.title}</div>
+    <div>${f.desc}</div>
+  `;
+}
+
+buildFrameStrip();
+// Auto-select first field
+selectField(0);
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 2: MAC Address Analyzer
+// ═══════════════════════════════════════════════════════════
+
+const OUI_DB = {
+  '00:50:56': 'VMware, Inc.',
+  'DC:A6:32': 'Raspberry Pi Trading Ltd.',
+  '3C:22:FB': 'Apple, Inc.',
+  '00:1A:2B': 'Moxa Technologies',
+  'AA:BB:CC': '(OUI không xác định)',
+  'B8:27:EB': 'Raspberry Pi Foundation',
+  '00:0C:29': 'VMware, Inc.',
+  '00:1C:42': 'Parallels, Inc.',
+  '08:00:27': 'PCS Systemtechnik (VirtualBox)',
+  '02:42:AC': '(Locally Administered — Docker/Container)',
+  '00:16:3E': 'Xen Virtual Platform',
+};
+
+function normalizeMac(mac) {
+  // Accept XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX or XXXXXXXXXXXX
+  const clean = mac.replace(/[-:.\s]/g, '').toUpperCase();
+  if (clean.length !== 12) return null;
+  if (!/^[0-9A-F]{12}$/.test(clean)) return null;
+  return [0,2,4,6,8,10].map(i => clean.slice(i, i+2)).join(':');
+}
+
+function analyzeMac(mac) {
+  document.getElementById('macInput').value = mac;
+  doAnalyzeMac();
+}
+
+function doAnalyzeMac() {
+  const raw = document.getElementById('macInput').value.trim();
+  const mac = normalizeMac(raw);
+  const res = document.getElementById('macResult');
+
+  if (!mac) {
+    res.className = 'mac-result error';
+    res.innerHTML = `<strong>Lỗi:</strong> Định dạng không hợp lệ. Nhập dạng <code>XX:XX:XX:XX:XX:XX</code> (hex).`;
+    return;
+  }
+
+  const bytes = mac.split(':').map(b => parseInt(b, 16));
+  const byte1 = bytes[0];
+  const igBit = byte1 & 0x01;   // bit 0: I/G (1=multicast/broadcast)
+  const ulBit = (byte1 >> 1) & 0x01; // bit 1: U/L (1=locally administered)
+  const isBroadcast = mac === 'FF:FF:FF:FF:FF:FF';
+  const isMulticast = !isBroadcast && igBit === 1;
+  const isUnicast   = igBit === 0;
+  const isGlobal    = ulBit === 0;
+
+  let typeLabel, typeBadge, typeDesc;
+  if (isBroadcast) {
+    typeLabel = 'BROADCAST';
+    typeBadge = '<span class="badge badge-broadcast">Broadcast</span>';
+    typeDesc  = 'Tất cả 48 bit đều là 1. Mọi thiết bị trong cùng broadcast domain đều nhận và xử lý frame này.';
+  } else if (isMulticast) {
+    typeLabel = 'MULTICAST';
+    typeBadge = '<span class="badge badge-multicast">Multicast</span>';
+    const isIpv4MC  = mac.startsWith('01:00:5E');
+    const isIpv6MC  = mac.startsWith('33:33');
+    const isStp     = mac === '01:80:C2:00:00:00';
+    typeDesc = `Bit 0 của byte đầu (I/G bit) = 1 → multicast. `;
+    if (isIpv4MC) typeDesc += 'Prefix <code>01:00:5E</code> → <strong>IPv4 Multicast</strong> (IANA quy định). ';
+    else if (isIpv6MC) typeDesc += 'Prefix <code>33:33</code> → <strong>IPv6 Multicast</strong>. ';
+    else if (isStp) typeDesc += 'Địa chỉ dành cho <strong>Spanning Tree Protocol (STP)</strong>. ';
+    else typeDesc += 'Multicast nhóm xác định bởi tổ chức/giao thức cụ thể.';
+  } else {
+    typeLabel = 'UNICAST';
+    typeBadge = '<span class="badge badge-unicast">Unicast</span>';
+    typeDesc  = `Bit 0 của byte đầu (I/G bit) = 0 → unicast. Frame chỉ đến một thiết bị cụ thể.`;
+  }
+
+  const scopeBadge = isGlobal
+    ? '<span class="badge badge-global">Globally Unique (IEEE)</span>'
+    : '<span class="badge badge-local">Locally Administered</span>';
+  const scopeDesc = isGlobal
+    ? 'Bit 1 byte đầu (U/L bit) = 0 → OUI được IEEE cấp cho nhà sản xuất.'
+    : 'Bit 1 byte đầu (U/L bit) = 1 → địa chỉ tự đặt (không phải OUI IEEE). Thường thấy trong máy ảo, Docker container, MAC spoofing.';
+
+  // OUI lookup
+  const oui = mac.slice(0,8).toUpperCase();
+  const oui3 = oui;
+  let ouiInfo = OUI_DB[oui3];
+  let ouiDisplay = ouiInfo
+    ? `<code>${oui3}</code> → <strong>${ouiInfo}</strong>`
+    : `<code>${oui3}</code> → (không có trong cơ sở dữ liệu mẫu — tra thêm tại <em>maclookup.app</em>)`;
+  if (!isGlobal) ouiDisplay = `(Locally Administered — OUI không áp dụng)`;
+  if (isBroadcast) ouiDisplay = '(Địa chỉ broadcast đặc biệt — không có OUI)';
+
+  // Binary representation of first byte
+  const b1bin = byte1.toString(2).padStart(8, '0');
+
+  res.className = 'mac-result';
+  res.innerHTML = `
+    <div style="font-size:19px; font-family:monospace; font-weight:800; color:#0c4a6e; margin-bottom:10px; letter-spacing:2px;">${mac}</div>
+    <div><strong>Phân loại:</strong> ${typeBadge} ${scopeBadge}</div>
+    <div style="margin-top:6px; color:#374151;">${typeDesc}</div>
+    <div style="margin-top:4px; color:#374151;">${scopeDesc}</div>
+    <div style="margin-top:8px;"><strong>OUI (3 byte đầu):</strong> ${ouiDisplay}</div>
+    <div style="margin-top:8px; background:#1e293b; color:#a5f3fc; padding:8px 12px; border-radius:6px; font-family:monospace; font-size:13px; line-height:1.8;">
+      Byte đầu: <strong>${mac.slice(0,2)}</strong> = <strong>${b1bin}</strong>
+      <span style="color:#94a3b8; margin-left:4px;">(bit 7→0)</span><br>
+      Bit 0 (I/G): <strong>${igBit}</strong> → ${igBit === 0 ? '<span style="color:#4ade80">Unicast</span>' : '<span style="color:#f97316">Multicast/Broadcast</span>'}<br>
+      Bit 1 (U/L): <strong>${ulBit}</strong> → ${ulBit === 0 ? '<span style="color:#4ade80">Globally Unique</span>' : '<span style="color:#fbbf24">Locally Administered</span>'}
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 3: Switch MAC Learning Simulator
+// ═══════════════════════════════════════════════════════════
+
+const HOSTS = {
+  'A': { mac: 'AA:AA:AA:AA:AA:AA', port: 1, color: '#2563eb' },
+  'B': { mac: 'BB:BB:BB:BB:BB:BB', port: 2, color: '#16a34a' },
+  'C': { mac: 'CC:CC:CC:CC:CC:CC', port: 3, color: '#ca8a04' },
+  'D': { mac: 'DD:DD:DD:DD:DD:DD', port: 4, color: '#db2777' },
+};
+
+// Port → cable SVG element id and animation path
+const PORT_CABLES = {
+  1: { id: 'cable-p1', srcX: 170, srcY: 160, dstX: 80,  dstY: 160 },
+  2: { id: 'cable-p2', srcX: 350, srcY: 160, dstX: 440, dstY: 160 },
+  3: { id: 'cable-p3', srcX: 260, srcY: 120, dstX: 260, dstY: 50  },
+  4: { id: 'cable-p4', srcX: 260, srcY: 200, dstX: 260, dstY: 270 },
+};
+
+let macTable = {}; // mac → port
+let simRunning = false;
+
+function simLog(html, cls = '') {
+  const log = document.getElementById('simLog');
+  const div = document.createElement('div');
+  div.className = cls;
+  div.innerHTML = html;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+function updateMacTableUI() {
+  const body = document.getElementById('macTableBody');
+  const entries = Object.entries(macTable);
+  if (entries.length === 0) {
+    body.innerHTML = '<tr class="empty-row"><td colspan="2">(trống — chưa học)</td></tr>';
+    return;
+  }
+  body.innerHTML = entries.map(([mac, port]) =>
+    `<tr><td>${mac}</td><td>P${port}</td></tr>`
+  ).join('');
+}
+
+// Animate a packet dot from switch to host
+function animatePacket(fromX, fromY, toX, toY, color, label, cb) {
+  const dot  = document.getElementById('pkt-dot');
+  const lbl  = document.getElementById('pkt-label');
+  dot.setAttribute('cx', fromX);
+  dot.setAttribute('cy', fromY);
+  dot.setAttribute('fill', color);
+  dot.setAttribute('opacity', 1);
+  lbl.setAttribute('x', fromX);
+  lbl.setAttribute('y', fromY - 12);
+  lbl.textContent = label;
+  lbl.setAttribute('fill', color);
+  lbl.setAttribute('opacity', 1);
+
+  const steps = 25;
+  let step = 0;
+  const dx = (toX - fromX) / steps;
+  const dy = (toY - fromY) / steps;
+  const timer = setInterval(() => {
+    step++;
+    const x = fromX + dx * step;
+    const y = fromY + dy * step;
+    dot.setAttribute('cx', x);
+    dot.setAttribute('cy', y);
+    lbl.setAttribute('x', x);
+    lbl.setAttribute('y', y - 12);
+    if (step >= steps) {
+      clearInterval(timer);
+      dot.setAttribute('opacity', 0);
+      lbl.setAttribute('opacity', 0);
+      if (cb) cb();
+    }
+  }, 22);
+}
+
+// Highlight cable during send
+function highlightCable(portNum, color, duration, cb) {
+  const cable = document.getElementById(PORT_CABLES[portNum].id);
+  if (!cable) { if (cb) cb(); return; }
+  const orig = cable.getAttribute('stroke');
+  const origW = cable.getAttribute('stroke-width');
+  cable.setAttribute('stroke', color);
+  cable.setAttribute('stroke-width', '4');
+  setTimeout(() => {
+    cable.setAttribute('stroke', '#475569');
+    cable.setAttribute('stroke-width', '2.5');
+    if (cb) cb();
+  }, duration);
+}
+
+function simSend(srcHost, dstHost) {
+  if (simRunning) return;
+  simRunning = true;
+
+  const src = HOSTS[srcHost];
+  const srcPort = src.port;
+  const isBroadcast = dstHost === 'BROADCAST';
+  const dst = isBroadcast ? null : HOSTS[dstHost];
+
+  // Learn source
+  const srcPortCable = PORT_CABLES[srcPort];
+  // Animate packet from host to switch
+  animatePacket(srcPortCable.dstX, srcPortCable.dstY, srcPortCable.srcX, srcPortCable.srcY, src.color, 'frame', () => {
+    // Step 1: Learn
+    const wasKnown = macTable[src.mac] === srcPort;
+    if (!wasKnown) {
+      macTable[src.mac] = srcPort;
+      updateMacTableUI();
+      // Highlight new row
+      const rows = document.querySelectorAll('#macTableBody tr');
+      rows[rows.length - 1].classList.add('new-entry');
+      simLog(`<span class="log-learn">[Học] MAC ${src.mac} → Port ${srcPort}</span>`);
+    }
+
+    const dstMac = isBroadcast ? 'FF:FF:FF:FF:FF:FF' : dst.mac;
+    simLog(`<span style="color:#cbd5e1;">[Frame] Src=${src.mac} Dst=${dstMac}</span>`);
+
+    // Step 2: Lookup & forward
+    if (isBroadcast) {
+      simLog(`<span class="log-flood">[Flood] Đích là Broadcast → gửi ra tất cả cổng trừ Port ${srcPort}</span>`);
+      // Animate to all other ports
+      const otherPorts = Object.values(HOSTS).filter(h => h.port !== srcPort);
+      let done = 0;
+      otherPorts.forEach(h => {
+        const c = PORT_CABLES[h.port];
+        setTimeout(() => {
+          highlightCable(h.port, '#f97316', 700, () => {
+            animatePacket(c.srcX, c.srcY, c.dstX, c.dstY, '#f97316', 'frame', () => {
+              done++;
+              if (done === otherPorts.length) { simRunning = false; }
+            });
+          });
+        }, 100 * (h.port - 1));
+      });
+    } else {
+      const knownPort = macTable[dst.mac];
+      if (knownPort !== undefined) {
+        simLog(`<span class="log-fwd">[Forward] MAC ${dstMac} → Port ${knownPort} (unicast)</span>`);
+        const c = PORT_CABLES[knownPort];
+        highlightCable(knownPort, '#16a34a', 700, () => {
+          animatePacket(c.srcX, c.srcY, c.dstX, c.dstY, '#16a34a', 'frame', () => {
+            simRunning = false;
+          });
+        });
+      } else {
+        simLog(`<span class="log-flood">[Flood] MAC ${dstMac} chưa biết → gửi ra tất cả cổng trừ Port ${srcPort}</span>`);
+        const otherPorts = Object.values(HOSTS).filter(h => h.port !== srcPort);
+        let done = 0;
+        otherPorts.forEach(h => {
+          const c = PORT_CABLES[h.port];
+          setTimeout(() => {
+            highlightCable(h.port, '#fbbf24', 700, () => {
+              animatePacket(c.srcX, c.srcY, c.dstX, c.dstY, '#fbbf24', 'frame', () => {
+                done++;
+                if (done === otherPorts.length) { simRunning = false; }
+              });
+            });
+          }, 100 * (h.port - 1));
+        });
+      }
+    }
+  });
+}
+
+function simReset() {
+  macTable = {};
+  updateMacTableUI();
+  document.getElementById('simLog').innerHTML = '<div class="log-header">— Nhật ký sự kiện switch —</div>';
+  simRunning = false;
+  simLog('<span style="color:#94a3b8;">[Reset] Bảng MAC đã xóa.</span>');
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 4: Hub vs Switch Comparison
+// ═══════════════════════════════════════════════════════════
+
+// Port → cable IDs for hub and switch comparison SVGs
+const VS_PORTS = {
+  'A': { hubCable: 'hub-cable-p1', swCable: 'sw-cable-p1', swDrop: 'sw-drop-p1', label: 'P1' },
+  'B': { hubCable: 'hub-cable-p2', swCable: 'sw-cable-p2', swDrop: 'sw-drop-p2', label: 'P2' },
+  'C': { hubCable: 'hub-cable-p3', swCable: 'sw-cable-p3', swDrop: 'sw-drop-p3', label: 'P3' },
+  'D': { hubCable: 'hub-cable-p4', swCable: 'sw-cable-p4', swDrop: 'sw-drop-p4', label: 'P4' },
+};
+
+// Remember switch MAC table for vs demo
+const vsMacTable = {};
+
+function clearVsHighlights() {
+  ['p1','p2','p3','p4'].forEach(p => {
+    ['hub-cable-','sw-cable-','hub-cable-src','sw-cable-src'].forEach(prefix => {
+      // handled below
+    });
+    const hc = document.getElementById('hub-cable-' + p);
+    const sc = document.getElementById('sw-cable-' + p);
+    if (hc) hc.setAttribute('opacity', 0);
+    if (sc) sc.setAttribute('opacity', 0);
+  });
+  ['hub-cable-src','sw-cable-src'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('opacity', 0);
+  });
+  ['p1','p2','p3','p4'].forEach(p => {
+    const el = document.getElementById('sw-drop-' + p);
+    if (el) el.setAttribute('opacity', 0);
+  });
+}
+
+// Map host letter to port id
+const HOST_TO_PORT = { 'A': 'p1', 'B': 'p2', 'C': 'p3', 'D': 'p4' };
+
+function vsDemo(device, src, dst) {
+  clearVsHighlights();
+  const isBroadcast = dst === 'BROADCAST';
+  const srcPort = HOST_TO_PORT[src];
+  const dstPort = isBroadcast ? null : HOST_TO_PORT[dst];
+
+  // Hub always floods everything except source
+  const allPorts = ['p1','p2','p3','p4'];
+  const otherPorts = allPorts.filter(p => p !== srcPort);
+
+  if (device === 'hub') {
+    // Show source as dashed blue
+    const srcCable = document.getElementById('hub-cable-src');
+    if (srcCable) {
+      srcCable.setAttribute('x1', srcPort === 'p1' ? 90  : srcPort === 'p2' ? 170 : 130);
+      srcCable.setAttribute('y1', srcPort === 'p1' ? 110 : srcPort === 'p2' ? 110 : srcPort === 'p3' ? 88 : 132);
+      srcCable.setAttribute('x2', srcPort === 'p1' ? 30  : srcPort === 'p2' ? 230 : 130);
+      srcCable.setAttribute('y2', srcPort === 'p1' ? 110 : srcPort === 'p2' ? 110 : srcPort === 'p3' ? 30 : 190);
+      srcCable.setAttribute('opacity', 1);
+    }
+    // Flood to all others (red)
+    otherPorts.forEach(p => {
+      const el = document.getElementById('hub-cable-' + p);
+      if (el) el.setAttribute('opacity', 1);
+    });
+    const dstLabel = isBroadcast ? 'BROADCAST' : dst;
+    document.getElementById('hub-status').innerHTML =
+      `<strong>Hub: A → ${dstLabel}</strong><br>` +
+      (isBroadcast
+        ? `Hub <strong>flood toàn bộ</strong> frame ra tất cả 3 cổng còn lại (P2, P3, P4). Không phân biệt đích.`
+        : `Hub <strong>flood toàn bộ</strong> frame ra tất cả cổng trừ nguồn (P1). Kể cả C, D dù không phải đích.`);
+  } else {
+    // Switch: learn src, forward to dst only (or flood if unknown)
+    const srcMac = HOSTS[src].mac;
+    vsMacTable[srcMac] = src;
+
+    // Show source dashed blue
+    const srcCable = document.getElementById('sw-cable-src');
+    if (srcCable) {
+      srcCable.setAttribute('x1', srcPort === 'p1' ? 90  : srcPort === 'p2' ? 170 : 130);
+      srcCable.setAttribute('y1', srcPort === 'p1' ? 110 : srcPort === 'p2' ? 110 : srcPort === 'p3' ? 88 : 132);
+      srcCable.setAttribute('x2', srcPort === 'p1' ? 30  : srcPort === 'p2' ? 230 : 130);
+      srcCable.setAttribute('y2', srcPort === 'p1' ? 110 : srcPort === 'p2' ? 110 : srcPort === 'p3' ? 30 : 190);
+      srcCable.setAttribute('opacity', 1);
+    }
+
+    if (isBroadcast) {
+      otherPorts.forEach(p => {
+        const el = document.getElementById('sw-cable-' + p);
+        if (el) el.setAttribute('opacity', 1);
+      });
+      document.getElementById('sw-status').innerHTML =
+        `<strong>Switch: A → BROADCAST</strong><br>Switch học MAC A → P1. Đích là broadcast → <strong>flood tất cả trừ P1</strong>. (Broadcast không thể tránh flood.)`;
+    } else {
+      const dstMac = HOSTS[dst].mac;
+      const knownPort = vsMacTable[dstMac];
+      if (knownPort !== undefined) {
+        // Unicast forward — only to dst, show X on others
+        const dstCable = document.getElementById('sw-cable-' + dstPort);
+        if (dstCable) dstCable.setAttribute('opacity', 1);
+        otherPorts.filter(p => p !== dstPort).forEach(p => {
+          const el = document.getElementById('sw-drop-' + p);
+          if (el) el.setAttribute('opacity', 1);
+        });
+        document.getElementById('sw-status').innerHTML =
+          `<strong>Switch: ${src} → ${dst}</strong><br>Switch biết MAC ${dst} ở cổng ${VS_PORTS[dst].label}. <strong>Unicast forward — chỉ gửi ra ${VS_PORTS[dst].label}.</strong> Các cổng khác bị chặn (✕).`;
+      } else {
+        // Flood (unknown dst)
+        otherPorts.forEach(p => {
+          const el = document.getElementById('sw-cable-' + p);
+          if (el) el.setAttribute('opacity', 1);
+        });
+        // Learn
+        vsMacTable[srcMac] = src;
+        document.getElementById('sw-status').innerHTML =
+          `<strong>Switch: ${src} → ${dst}</strong><br>Switch học MAC ${src} → ${VS_PORTS[src].label}. MAC đích chưa biết → <strong>flood tất cả trừ ${VS_PORTS[src].label}</strong>. (Lần sau khi ${dst} trả lời, switch sẽ học và forward đúng cổng.)`;
+      }
+    }
+  }
+}
+
+// Pre-learn some entries for vs demo so switch demo can show selective forwarding
+vsMacTable[HOSTS['A'].mac] = 'A';
+vsMacTable[HOSTS['B'].mac] = 'B';
+
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

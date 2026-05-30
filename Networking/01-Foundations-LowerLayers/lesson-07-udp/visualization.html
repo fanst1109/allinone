@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Tầng giao vận: UDP</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Global override ── */
+  main { max-width: 1100px; }
+  h2 { color: #0369a1; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #bae6fd; }
+
+  /* ── Card ── */
+  .card {
+    background: white;
+    border-radius: 10px;
+    padding: 22px 26px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  /* ── UDP Header Inspector ── */
+  .udp-header-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 20px 0;
+    font-family: monospace;
+    user-select: none;
+  }
+  .udp-bit-ruler {
+    display: flex;
+    margin-bottom: 4px;
+  }
+  .udp-bit-ruler span {
+    font-size: 11px;
+    color: #94a3b8;
+    width: calc(100% / 32);
+    text-align: center;
+  }
+  .udp-header-row {
+    display: flex;
+    border: 2px solid #0369a1;
+    border-radius: 0;
+    overflow: hidden;
+  }
+  .udp-header-row:first-of-type { border-radius: 8px 8px 0 0; }
+  .udp-header-row:last-of-type  { border-radius: 0 0 8px 8px; }
+  .udp-header-row + .udp-header-row { border-top: none; }
+  .udp-field {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 10px 6px;
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s;
+    border-right: 1px solid #bae6fd;
+    position: relative;
+    gap: 4px;
+  }
+  .udp-field:last-child { border-right: none; }
+  .udp-field .field-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0c4a6e;
+  }
+  .udp-field .field-bits {
+    font-size: 11px;
+    color: #64748b;
+  }
+  .udp-field .field-val {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0369a1;
+    font-family: monospace;
+  }
+  .udp-field:hover, .udp-field.active {
+    background: #e0f2fe;
+    box-shadow: inset 0 0 0 2px #0369a1;
+  }
+  .udp-payload-row {
+    background: #f8fafc;
+    border: 2px solid #cbd5e1;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding: 12px;
+    text-align: center;
+    color: #475569;
+    font-size: 14px;
+    font-style: italic;
+  }
+
+  /* Field detail panel */
+  .field-detail {
+    background: #e0f2fe;
+    border: 2px solid #0369a1;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    min-height: 80px;
+    transition: all 0.2s;
+  }
+  .field-detail h4 { margin: 0 0 6px; color: #0c4a6e; font-size: 15px; }
+  .field-detail p  { margin: 0; color: #1e3a5f; font-size: 14px; line-height: 1.6; }
+  .field-detail .hex-val { font-family: monospace; background: white; padding: 2px 6px; border-radius: 4px; color: #0369a1; font-weight: 700; }
+
+  /* Input row for hex editor */
+  .hex-input-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 14px 0;
+    align-items: center;
+  }
+  .hex-input-row label { font-size: 13px; font-weight: 700; color: #374151; }
+  .hex-input-row input[type="text"] {
+    font-family: monospace;
+    font-size: 15px;
+    width: 80px;
+    padding: 6px 10px;
+    border: 2px solid #bae6fd;
+    border-radius: 6px;
+    text-transform: uppercase;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .hex-input-row input[type="text"]:focus { outline: none; border-color: #0369a1; }
+  .btn-parse {
+    padding: 7px 18px;
+    background: #0369a1;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-parse:hover { background: #0284c7; }
+
+  /* ── Simulation (Module 2) ── */
+  .sim-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 14px 0;
+    align-items: center;
+  }
+  .sim-controls button {
+    padding: 7px 16px;
+    border-radius: 6px;
+    border: 2px solid #0369a1;
+    background: white;
+    color: #0369a1;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .sim-controls button.primary {
+    background: #0369a1;
+    color: white;
+  }
+  .sim-controls button:hover { background: #0369a1; color: white; }
+  .sim-controls label { font-size: 14px; color: #374151; display: flex; align-items: center; gap: 6px; }
+  .sim-controls input[type="range"] { width: 100px; accent-color: #0369a1; }
+
+  .sim-canvas-wrap {
+    position: relative;
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+
+  /* Log area */
+  .sim-log {
+    background: #0f172a;
+    color: #94a3b8;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: monospace;
+    font-size: 13px;
+    height: 120px;
+    overflow-y: auto;
+    margin-top: 10px;
+  }
+  .sim-log .ok  { color: #4ade80; }
+  .sim-log .lost { color: #f87171; }
+  .sim-log .reorder { color: #fbbf24; }
+  .sim-log .tcp-ok { color: #60a5fa; }
+
+  /* ── Port table (Module 3) ── */
+  .port-filter-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .port-filter-row button {
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 2px solid #d1d5db;
+    background: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.15s;
+  }
+  .port-filter-row button.active {
+    background: #0369a1;
+    border-color: #0369a1;
+    color: white;
+  }
+  .port-search {
+    padding: 6px 12px;
+    border: 2px solid #bae6fd;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 200px;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .port-search:focus { outline: none; border-color: #0369a1; }
+
+  table.port-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  table.port-table th {
+    background: #0369a1;
+    color: white;
+    padding: 8px 12px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+  }
+  table.port-table td {
+    padding: 7px 12px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  table.port-table tr:nth-child(even) td { background: #f0f9ff; }
+  table.port-table tr:hover td { background: #e0f2fe; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .badge-udp  { background: #dbeafe; color: #1e40af; }
+  .badge-tcp  { background: #dcfce7; color: #14532d; }
+  .badge-both { background: #fef3c7; color: #78350f; }
+  .badge-wk   { background: #ede9fe; color: #5b21b6; }
+  .badge-reg  { background: #fce7f3; color: #9d174d; }
+  .badge-eph  { background: #f1f5f9; color: #475569; }
+
+  .port-table-wrap { max-height: 340px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
+
+  /* ── Multi-process demux (Module 4) ── */
+  .demux-canvas-wrap { overflow-x: auto; }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .udp-field .field-name { font-size: 11px; }
+    .udp-field .field-val  { font-size: 12px; }
+    .sim-controls { flex-direction: column; align-items: flex-start; }
+    .hex-input-row { flex-direction: column; align-items: flex-start; }
+    .hex-input-row input[type="text"] { width: 100%; max-width: 180px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Foundations</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-ipv6/visualization.html">← L6: IPv6</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Tầng giao vận — UDP</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-tcp/visualization.html">L8: Tầng giao vận — TCP →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Tầng giao vận: UDP</h1>
+<p>Công cụ tương tác: Bóc tách UDP header (click từng trường), mô phỏng gửi datagram (mất gói / đảo thứ tự), bảng tra cổng phổ biến, minh họa demultiplexing nhiều tiến trình.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — UDP Header Inspector
+     ══════════════════════════════════════════════════════════ -->
+<h2>1. Bóc tách UDP Header</h2>
+<div class="card">
+  <p>Click vào từng trường trong sơ đồ để xem giải thích chi tiết. Hoặc nhập 8 byte hex phía dưới để phân tích gói thực tế.</p>
+
+  <!-- Bit ruler -->
+  <div class="udp-bit-ruler" id="bitRuler"></div>
+
+  <!-- Header diagram -->
+  <div class="udp-header-diagram">
+    <div class="udp-header-row">
+      <div class="udp-field" style="flex:1" id="fld-src" onclick="selectField('src')">
+        <span class="field-name">Source Port</span>
+        <span class="field-bits">16 bit</span>
+        <span class="field-val" id="fv-src">5000</span>
+      </div>
+      <div class="udp-field" style="flex:1" id="fld-dst" onclick="selectField('dst')">
+        <span class="field-name">Destination Port</span>
+        <span class="field-bits">16 bit</span>
+        <span class="field-val" id="fv-dst">53</span>
+      </div>
+    </div>
+    <div class="udp-header-row">
+      <div class="udp-field" style="flex:1" id="fld-len" onclick="selectField('len')">
+        <span class="field-name">Length</span>
+        <span class="field-bits">16 bit</span>
+        <span class="field-val" id="fv-len">28</span>
+      </div>
+      <div class="udp-field" style="flex:1" id="fld-ck" onclick="selectField('ck')">
+        <span class="field-name">Checksum</span>
+        <span class="field-bits">16 bit</span>
+        <span class="field-val" id="fv-ck">0xB24A</span>
+      </div>
+    </div>
+    <div class="udp-payload-row" id="fld-pay" onclick="selectField('pay')" style="cursor:pointer">
+      <span style="font-weight:700; color:#475569;">Payload (Data)</span> — <span id="fv-pay">20 byte DNS query</span>
+    </div>
+  </div>
+
+  <div class="field-detail" id="field-detail">
+    <h4>Chọn một trường ở trên để xem giải thích</h4>
+    <p>Nhấp vào Source Port, Destination Port, Length, Checksum, hoặc Payload.</p>
+  </div>
+
+  <!-- Hex editor -->
+  <p style="margin-top:18px; font-weight:700; color:#374151;">Nhập 8 byte hex của UDP header (ví dụ: <code>13 88 00 35 00 1C B2 4A</code>):</p>
+  <div class="hex-input-row">
+    <label>Byte 0–1 (src): <input type="text" id="h-src" value="13 88" maxlength="5"></label>
+    <label>Byte 2–3 (dst): <input type="text" id="h-dst" value="00 35" maxlength="5"></label>
+    <label>Byte 4–5 (len): <input type="text" id="h-len" value="00 1C" maxlength="5"></label>
+    <label>Byte 6–7 (ck):  <input type="text" id="h-ck"  value="B2 4A" maxlength="5"></label>
+    <button class="btn-parse" onclick="parseHex()">Phân tích</button>
+  </div>
+  <div id="parse-result" style="font-size:14px; color:#0369a1; font-family:monospace; margin-top:6px;"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — UDP Send Simulation
+     ══════════════════════════════════════════════════════════ -->
+<h2>2. Mô phỏng gửi UDP Datagram</h2>
+<div class="card">
+  <p>Nhấn "Gửi datagram" để gửi nhiều gói UDP từ Client đến Server. Quan sát: mất gói, đảo thứ tự, và so sánh với TCP (xem trước Lesson 08).</p>
+
+  <div class="sim-controls">
+    <button class="primary" onclick="sendUDP()">Gửi UDP (5 gói)</button>
+    <button onclick="sendTCP()">So sánh TCP →</button>
+    <button onclick="resetSim()">Đặt lại</button>
+    <label>Tỷ lệ mất gói:
+      <input type="range" id="lossRate" min="0" max="60" value="20" oninput="updateLossLabel()">
+      <span id="lossLabel" style="font-family:monospace; font-weight:700; color:#dc2626;">20%</span>
+    </label>
+    <label>
+      <input type="checkbox" id="reorderCheck"> Đảo thứ tự ngẫu nhiên
+    </label>
+  </div>
+
+  <div class="sim-canvas-wrap">
+    <svg id="simSvg" width="720" height="260" viewBox="0 0 720 260">
+      <!-- Background -->
+      <rect width="720" height="260" fill="#f8fafc" rx="10"/>
+
+      <!-- Client box -->
+      <rect x="20" y="70" width="110" height="120" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+      <text x="75" y="105" text-anchor="middle" fill="#1e40af" font-size="13" font-weight="700">Client</text>
+      <text x="75" y="122" text-anchor="middle" fill="#1e40af" font-size="11">10.0.0.5</text>
+      <text x="75" y="140" text-anchor="middle" fill="#1e40af" font-size="11">port: eph.</text>
+
+      <!-- Server box -->
+      <rect x="590" y="70" width="110" height="120" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+      <text x="645" y="105" text-anchor="middle" fill="#14532d" font-size="13" font-weight="700">Server</text>
+      <text x="645" y="122" text-anchor="middle" fill="#14532d" font-size="11">1.2.3.4</text>
+      <text x="645" y="140" text-anchor="middle" fill="#14532d" font-size="11">port: 53</text>
+
+      <!-- Network cloud -->
+      <ellipse cx="360" cy="130" rx="80" ry="40" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="360" y="127" text-anchor="middle" fill="#64748b" font-size="12" font-weight="700">Internet</text>
+      <text x="360" y="142" text-anchor="middle" fill="#64748b" font-size="11">(có thể mất/đảo)</text>
+
+      <!-- Lines from client to cloud and cloud to server -->
+      <line x1="130" y1="130" x2="280" y2="130" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="440" y1="130" x2="590" y2="130" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+      <!-- Packet slots (drawn by JS) -->
+      <g id="simPackets"></g>
+
+      <!-- Stats -->
+      <text x="360" y="230" text-anchor="middle" fill="#374151" font-size="13" id="simStats">Nhấn "Gửi UDP" để bắt đầu</text>
+    </svg>
+  </div>
+
+  <div class="sim-log" id="simLog">
+    <span style="color:#64748b;">// Log mô phỏng sẽ xuất hiện ở đây...</span>
+  </div>
+
+  <!-- TCP vs UDP summary table -->
+  <div style="margin-top:16px; overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+      <thead>
+        <tr>
+          <th style="background:#0369a1; color:white; padding:8px 12px; text-align:left;">Đặc tính</th>
+          <th style="background:#0369a1; color:white; padding:8px 12px;">UDP</th>
+          <th style="background:#0369a1; color:white; padding:8px 12px;">TCP (preview L8)</th>
+        </tr>
+      </thead>
+      <tbody id="cmpTbody">
+        <tr>
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0;">Thiết lập kết nối</td>
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0; text-align:center; color:#16a34a; font-weight:700;">Không (gửi ngay)</td>
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0; text-align:center; color:#2563eb; font-weight:700;">Bắt tay 3 bước</td>
+        </tr>
+        <tr style="background:#f0f9ff;">
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0;">Đảm bảo giao hàng</td>
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0; text-align:center; color:#dc2626; font-weight:700;">Không</td>
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0; text-align:center; color:#16a34a; font-weight:700;">Có (ACK + retransmit)</td>
+        </tr>
+        <tr>
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0;">Đảm bảo thứ tự</td>
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0; text-align:center; color:#dc2626; font-weight:700;">Không</td>
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0; text-align:center; color:#16a34a; font-weight:700;">Có (SEQ number)</td>
+        </tr>
+        <tr style="background:#f0f9ff;">
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0;">Header size</td>
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0; text-align:center; color:#16a34a; font-weight:700;">8 byte</td>
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0; text-align:center; color:#dc2626; font-weight:700;">≥ 20 byte</td>
+        </tr>
+        <tr>
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0;">Kiểm soát tắc nghẽn</td>
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0; text-align:center; color:#dc2626; font-weight:700;">Không</td>
+          <td style="padding:7px 12px; border-bottom:1px solid #e2e8f0; text-align:center; color:#16a34a; font-weight:700;">Có (AIMD, BBR...)</td>
+        </tr>
+        <tr style="background:#f0f9ff;">
+          <td style="padding:7px 12px;">Latency</td>
+          <td style="padding:7px 12px; text-align:center; color:#16a34a; font-weight:700;">Thấp (1 RTT)</td>
+          <td style="padding:7px 12px; text-align:center; color:#dc2626; font-weight:700;">Cao hơn (≥ 2 RTT)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — Port Table
+     ══════════════════════════════════════════════════════════ -->
+<h2>3. Bảng Tra Cổng Phổ Biến</h2>
+<div class="card">
+  <p>Lọc theo nhóm (UDP / TCP / cả hai) hoặc tìm kiếm theo tên dịch vụ / số port.</p>
+
+  <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:10px;">
+    <div class="port-filter-row">
+      <button class="active" onclick="filterPorts('all', this)">Tất cả</button>
+      <button onclick="filterPorts('udp', this)">UDP</button>
+      <button onclick="filterPorts('tcp', this)">TCP</button>
+      <button onclick="filterPorts('both', this)">UDP + TCP</button>
+      <button onclick="filterPorts('wk', this)">Well-known</button>
+      <button onclick="filterPorts('reg', this)">Registered</button>
+    </div>
+    <input class="port-search" type="text" placeholder="Tìm cổng hoặc tên dịch vụ..." id="portSearch" oninput="filterPorts('', null)">
+  </div>
+
+  <div class="port-table-wrap">
+    <table class="port-table">
+      <thead>
+        <tr>
+          <th>Port</th>
+          <th>Giao thức</th>
+          <th>Nhóm</th>
+          <th>Dịch vụ</th>
+          <th>Ghi chú</th>
+        </tr>
+      </thead>
+      <tbody id="portTbody"></tbody>
+    </table>
+  </div>
+  <p id="portCount" style="font-size:13px; color:#64748b; margin-top:8px;"></p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — Multi-process Demultiplexing
+     ══════════════════════════════════════════════════════════ -->
+<h2>4. Nhiều Tiến Trình — Demultiplexing theo Port</h2>
+<div class="card">
+  <p>Nhấn một tiến trình để gửi gói đến đó. Quan sát cách hệ điều hành dùng <strong>dst port</strong> để phân luồng dữ liệu đến đúng tiến trình — trong khi mọi gói đều đi qua cùng 1 địa chỉ IP.</p>
+
+  <div class="sim-controls" style="margin-bottom:4px;">
+    <button class="primary" onclick="demuxSend('game')">Gói đến game (55001)</button>
+    <button onclick="demuxSend('discord')">Gói đến Discord (3478)</button>
+    <button onclick="demuxSend('dns')">Gói DNS về (52000)</button>
+    <button onclick="demuxReset()">Đặt lại</button>
+  </div>
+
+  <div class="demux-canvas-wrap">
+    <svg id="demuxSvg" width="720" height="300" viewBox="0 0 720 300">
+      <rect width="720" height="300" fill="#f8fafc" rx="10"/>
+
+      <!-- Host box -->
+      <rect x="360" y="20" width="340" height="260" rx="10" fill="#f0f9ff" stroke="#0369a1" stroke-width="2"/>
+      <text x="530" y="46" text-anchor="middle" fill="#0c4a6e" font-size="13" font-weight="700">Host: 192.168.1.5</text>
+
+      <!-- OS kernel layer -->
+      <rect x="370" y="56" width="320" height="36" rx="6" fill="#bae6fd" stroke="#0369a1" stroke-width="1.5"/>
+      <text x="530" y="79" text-anchor="middle" fill="#0c4a6e" font-size="12" font-weight="700">Hệ điều hành (tầng giao vận) — đọc dst port → phân luồng</text>
+
+      <!-- Process boxes -->
+      <rect x="380" y="106" width="90" height="70" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5" id="proc-game-box"/>
+      <text x="425" y="130" text-anchor="middle" fill="#1e40af" font-size="12" font-weight="700">game.exe</text>
+      <text x="425" y="146" text-anchor="middle" fill="#1e40af" font-size="11">port 55001</text>
+      <circle cx="425" cy="163" r="8" fill="#e2e8f0" id="proc-game-dot"/>
+
+      <rect x="485" y="106" width="90" height="70" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" id="proc-discord-box"/>
+      <text x="530" y="130" text-anchor="middle" fill="#5b21b6" font-size="12" font-weight="700">discord.exe</text>
+      <text x="530" y="146" text-anchor="middle" fill="#5b21b6" font-size="11">port 3478</text>
+      <circle cx="530" cy="163" r="8" fill="#e2e8f0" id="proc-discord-dot"/>
+
+      <rect x="590" y="106" width="60" height="70" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" id="proc-dns-box"/>
+      <text x="620" y="130" text-anchor="middle" fill="#14532d" font-size="11" font-weight="700">browser</text>
+      <text x="620" y="146" text-anchor="middle" fill="#14532d" font-size="10">port 52000</text>
+      <circle cx="620" cy="163" r="8" fill="#e2e8f0" id="proc-dns-dot"/>
+
+      <!-- Vertical line from OS to processes -->
+      <line x1="425" y1="92" x2="425" y2="106" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <line x1="530" y1="92" x2="530" y2="106" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <line x1="620" y1="92" x2="620" y2="106" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="3,2"/>
+
+      <!-- IP interface (NIC) -->
+      <rect x="370" y="220" width="320" height="40" rx="6" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.5"/>
+      <text x="530" y="245" text-anchor="middle" fill="#0c4a6e" font-size="12" font-weight="700">NIC / IP Layer — Nhận mọi gói đến IP 192.168.1.5</text>
+
+      <!-- Arrow from NIC to OS -->
+      <line x1="530" y1="220" x2="530" y2="92" stroke="#0369a1" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arr-blue)"/>
+
+      <!-- Internet / source -->
+      <rect x="20" y="110" width="110" height="80" rx="8" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+      <text x="75" y="142" text-anchor="middle" fill="#475569" font-size="12" font-weight="700">Internet /</text>
+      <text x="75" y="158" text-anchor="middle" fill="#475569" font-size="12" font-weight="700">Server</text>
+
+      <line x1="130" y1="150" x2="370" y2="240" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+      <!-- Animated packet (drawn by JS) -->
+      <g id="demuxPacket"></g>
+
+      <!-- Message -->
+      <text x="360" y="292" text-anchor="middle" fill="#0369a1" font-size="13" font-weight="700" id="demuxMsg">Chọn tiến trình để gửi gói</text>
+
+      <defs>
+        <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#0369a1"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 5 — Socket 4-tuple Explorer
+     ══════════════════════════════════════════════════════════ -->
+<h2>5. Socket &amp; 4-tuple Explorer</h2>
+<div class="card">
+  <p>Nhập thông tin kết nối để xem 4-tuple đầy đủ và phân tích loại port.</p>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:14px 0;">
+    <div>
+      <p style="font-weight:700; color:#374151; margin:0 0 8px;">Nguồn (Client)</p>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <label style="font-size:13px;">IP nguồn: <input type="text" id="src-ip" value="10.0.0.5" style="width:160px; padding:5px 8px; border:2px solid #bae6fd; border-radius:6px; font-family:monospace; font-size:13px; max-width:100%; box-sizing:border-box;"></label>
+        <label style="font-size:13px;">Port nguồn: <input type="number" id="src-port" value="54321" min="0" max="65535" style="width:100px; padding:5px 8px; border:2px solid #bae6fd; border-radius:6px; font-family:monospace; font-size:13px; max-width:100%; box-sizing:border-box;"></label>
+      </div>
+    </div>
+    <div>
+      <p style="font-weight:700; color:#374151; margin:0 0 8px;">Đích (Server)</p>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <label style="font-size:13px;">IP đích: <input type="text" id="dst-ip" value="8.8.8.8" style="width:160px; padding:5px 8px; border:2px solid #bae6fd; border-radius:6px; font-family:monospace; font-size:13px; max-width:100%; box-sizing:border-box;"></label>
+        <label style="font-size:13px;">Port đích: <input type="number" id="dst-port" value="53" min="0" max="65535" style="width:100px; padding:5px 8px; border:2px solid #bae6fd; border-radius:6px; font-family:monospace; font-size:13px; max-width:100%; box-sizing:border-box;"></label>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-parse" onclick="analyzeSocket()">Phân tích Socket</button>
+
+  <div id="socket-result" style="margin-top:14px; display:none;">
+    <div style="background:#e0f2fe; border:2px solid #0369a1; border-radius:8px; padding:14px 18px; font-family:monospace; font-size:14px; line-height:2;">
+      <div id="socket-tuple"></div>
+      <div id="socket-analysis" style="margin-top:8px; font-family:sans-serif; font-size:13px; color:#374151; line-height:1.6;"></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// MODULE 1: UDP Header Inspector
+// ═══════════════════════════════════════════════════════════
+
+// Build bit ruler
+(function() {
+  const ruler = document.getElementById('bitRuler');
+  const positions = [0, 4, 8, 12, 16, 20, 24, 28, 31];
+  for (let i = 0; i < 32; i++) {
+    const sp = document.createElement('span');
+    sp.textContent = positions.includes(i) ? i : '';
+    ruler.appendChild(sp);
+  }
+})();
+
+const FIELD_INFO = {
+  src: {
+    name: 'Source Port (Cổng nguồn)',
+    desc: 'Số cổng của bên gửi — thường là <strong>ephemeral port</strong> do hệ điều hành tự cấp (49152–65535). Bên nhận dùng trường này để gửi response về đúng tiến trình nguồn. Có thể là 0 nếu không cần reply (ví dụ DHCP Discover).',
+    bits: '16 bit (byte 0–1)'
+  },
+  dst: {
+    name: 'Destination Port (Cổng đích)',
+    desc: 'Trường <strong>quan trọng nhất</strong> — hệ điều hành đọc giá trị này để chuyển gói đến đúng tiến trình đang lắng nghe port đó. Ví dụ: 53 → DNS, 67 → DHCP server, 5353 → mDNS. Nếu không có tiến trình nào đang lắng nghe, OS gửi ICMP "Port Unreachable" về bên gửi.',
+    bits: '16 bit (byte 2–3)'
+  },
+  len: {
+    name: 'Length (Độ dài)',
+    desc: 'Tổng kích thước của UDP datagram = <strong>header (8 byte) + payload</strong>, tính bằng byte. Giá trị tối thiểu là 8 (datagram chỉ có header, không có payload). Giá trị tối đa lý thuyết là 65535 byte, nhưng thực tế bị giới hạn bởi MTU của IP layer (~1472 byte payload trên Ethernet 1500B MTU).',
+    bits: '16 bit (byte 4–5)'
+  },
+  ck: {
+    name: 'Checksum',
+    desc: 'Kiểm tra lỗi bit cho header + payload + <strong>pseudo-header IP</strong> (gồm: src IP, dst IP, protocol=17, UDP length). Trong <strong>IPv4</strong>: tùy chọn — giá trị 0x0000 nghĩa là checksum bị tắt, OS vẫn nhận gói. Trong <strong>IPv6</strong>: bắt buộc (không có giá trị 0). Khi phát hiện lỗi, UDP drop gói và không báo — không retransmit.',
+    bits: '16 bit (byte 6–7)'
+  },
+  pay: {
+    name: 'Payload (Dữ liệu ứng dụng)',
+    desc: 'Dữ liệu thực sự của ứng dụng — không có định dạng cố định, UDP không quan tâm nội dung. Ví dụ: DNS query/response, DHCP message, game state update, RTP audio frame, mDNS announcement. Kích thước = Length − 8 byte.',
+    bits: 'N byte (Length − 8)'
+  }
+};
+
+let activeField = null;
+
+function selectField(f) {
+  if (activeField) {
+    const prev = document.getElementById('fld-' + activeField);
+    if (prev) prev.classList.remove('active');
+  }
+  activeField = f;
+  const el = document.getElementById('fld-' + f);
+  if (el) el.classList.add('active');
+
+  const info = FIELD_INFO[f];
+  const detail = document.getElementById('field-detail');
+  detail.innerHTML = `<h4>${info.name} <span style="font-size:12px; color:#64748b; font-weight:400;">(${info.bits})</span></h4><p>${info.desc}</p>`;
+}
+
+function parseHex() {
+  const fields = ['src','dst','len','ck'];
+  const ids = ['h-src','h-dst','h-len','h-ck'];
+  const vals = [];
+  for (let i = 0; i < 4; i++) {
+    const raw = document.getElementById(ids[i]).value.replace(/\s+/g,'');
+    if (!/^[0-9A-Fa-f]{4}$/.test(raw)) {
+      document.getElementById('parse-result').textContent = `Lỗi: "${raw}" không hợp lệ — cần đúng 4 ký tự hex (2 byte).`;
+      return;
+    }
+    vals.push(parseInt(raw, 16));
+  }
+  const [src, dst, len, ck] = vals;
+  const payload = len >= 8 ? len - 8 : 0;
+
+  // Update display
+  document.getElementById('fv-src').textContent = src;
+  document.getElementById('fv-dst').textContent = dst;
+  document.getElementById('fv-len').textContent = len + ' (payload=' + payload + 'B)';
+  document.getElementById('fv-ck').textContent = ck === 0 ? '0x0000 (disabled)' : '0x' + ck.toString(16).toUpperCase().padStart(4,'0');
+
+  const dstName = guessService(dst);
+  document.getElementById('fv-pay').textContent = payload + ' byte' + (dstName ? ' — có thể là ' + dstName : '');
+
+  const result = document.getElementById('parse-result');
+  result.innerHTML = `Src Port: <span style="color:#0369a1; font-weight:700;">${src}</span> · Dst Port: <span style="color:#0369a1; font-weight:700;">${dst}${dstName?' ('+dstName+')':''}</span> · Length: <span style="color:#0369a1; font-weight:700;">${len}B</span> (payload ${payload}B) · Checksum: <span style="color:#0369a1; font-weight:700;">${ck===0?'disabled':'0x'+ck.toString(16).toUpperCase()}</span>`;
+}
+
+function guessService(port) {
+  const map = {53:'DNS',67:'DHCP server',68:'DHCP client',80:'HTTP',443:'HTTPS/QUIC',22:'SSH',123:'NTP',161:'SNMP',5353:'mDNS',1900:'SSDP/UPnP',3478:'STUN/TURN',5004:'RTP audio',5060:'SIP VoIP'};
+  return map[port] || '';
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 2: UDP Simulation
+// ═══════════════════════════════════════════════════════════
+
+let simPacketCount = 0;
+let simRunning = false;
+
+function updateLossLabel() {
+  document.getElementById('lossLabel').textContent = document.getElementById('lossRate').value + '%';
+}
+
+function logSim(msg, cls) {
+  const log = document.getElementById('simLog');
+  const line = document.createElement('div');
+  line.className = cls || '';
+  line.textContent = '> ' + msg;
+  log.appendChild(line);
+  log.scrollTop = log.scrollHeight;
+}
+
+function resetSim() {
+  document.getElementById('simPackets').innerHTML = '';
+  document.getElementById('simStats').textContent = 'Nhấn "Gửi UDP" để bắt đầu';
+  document.getElementById('simLog').innerHTML = '<span style="color:#64748b;">// Log mô phỏng sẽ xuất hiện ở đây...</span>';
+  simPacketCount = 0;
+  simRunning = false;
+}
+
+async function sendUDP() {
+  if (simRunning) return;
+  simRunning = true;
+  const lossRate = parseInt(document.getElementById('lossRate').value) / 100;
+  const reorder = document.getElementById('reorderCheck').checked;
+  const N = 5;
+  const g = document.getElementById('simPackets');
+
+  logSim(`UDP: gửi ${N} datagram (loss=${Math.round(lossRate*100)}%, reorder=${reorder})`, 'ok');
+
+  // Create packets array
+  const packets = Array.from({length: N}, (_, i) => ({ seq: i+1, lost: Math.random() < lossRate }));
+
+  // Apply reordering
+  const toSend = [...packets];
+  if (reorder) {
+    // Swap 2 random adjacent packets
+    const idx = Math.floor(Math.random() * (N-1));
+    [toSend[idx], toSend[idx+1]] = [toSend[idx+1], toSend[idx]];
+  }
+
+  let arrived = 0;
+  let lost = 0;
+  let outOfOrder = 0;
+  let lastSeq = 0;
+
+  for (let i = 0; i < toSend.length; i++) {
+    const pkt = toSend[i];
+    simPacketCount++;
+    await animatePacket(g, pkt.seq, pkt.lost, i * 280);
+
+    if (pkt.lost) {
+      lost++;
+      logSim(`Gói #${pkt.seq} — MẤT GÓI (dropped bởi router)`, 'lost');
+    } else {
+      arrived++;
+      if (pkt.seq <= lastSeq) outOfOrder++;
+      lastSeq = pkt.seq;
+      if (reorder && i > 0 && pkt.seq !== toSend[i-1].seq + 1) {
+        logSim(`Gói #${pkt.seq} đến — ĐẢO THỨ TỰ (đến không đúng SEQ)`, 'reorder');
+      } else {
+        logSim(`Gói #${pkt.seq} đến server OK`, 'ok');
+      }
+    }
+    await sleep(350);
+  }
+
+  const msg = `UDP: ${arrived}/${N} gói đến, ${lost} mất, ${outOfOrder} đảo thứ tự. UDP không sửa!`;
+  document.getElementById('simStats').textContent = msg;
+  logSim('--- Kết thúc: ' + msg, lost > 0 ? 'lost' : 'ok');
+  simRunning = false;
+}
+
+async function sendTCP() {
+  if (simRunning) return;
+  simRunning = true;
+  const N = 5;
+  const g = document.getElementById('simPackets');
+
+  logSim('TCP: bắt tay 3 bước SYN → SYN-ACK → ACK...', 'tcp-ok');
+  await sleep(600);
+  logSim('TCP: kết nối thiết lập xong (tốn 1 RTT)', 'tcp-ok');
+
+  for (let i = 0; i < N; i++) {
+    // TCP guarantees delivery - simulate with ACK
+    await animatePacket(g, i+1, false, i * 280);
+    logSim(`TCP: Gói #${i+1} gửi → ACK nhận về (đảm bảo)`, 'tcp-ok');
+    await sleep(400);
+  }
+
+  logSim('TCP: mọi gói đến đủ, đúng thứ tự (nhưng tốn thêm RTT/ACK)', 'tcp-ok');
+  document.getElementById('simStats').textContent = `TCP: ${N}/${N} gói đến, đúng thứ tự, đảm bảo — nhưng overhead và latency cao hơn.`;
+  simRunning = false;
+}
+
+function animatePacket(g, seq, lost, yOffset) {
+  return new Promise(resolve => {
+    const y = 100 + (yOffset % 40);
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+
+    rect.setAttribute('x','140'); rect.setAttribute('y', y);
+    rect.setAttribute('width','52'); rect.setAttribute('height','22');
+    rect.setAttribute('rx','5');
+    rect.setAttribute('fill', lost ? '#fca5a5' : '#bfdbfe');
+    rect.setAttribute('stroke', lost ? '#dc2626' : '#2563eb');
+    rect.setAttribute('stroke-width','1.5');
+    rect.style.transition = 'all 0.4s ease';
+
+    label.setAttribute('x','166'); label.setAttribute('y', y + 15);
+    label.setAttribute('text-anchor','middle');
+    label.setAttribute('fill', lost ? '#991b1b' : '#1e40af');
+    label.setAttribute('font-size','11');
+    label.setAttribute('font-weight','700');
+    label.textContent = 'UDP#' + seq;
+
+    g.appendChild(rect);
+    g.appendChild(label);
+
+    // Animate across screen
+    let pos = 140;
+    const lostAt = lost ? (280 + Math.random() * 200) : Infinity;
+    const intervalId = setInterval(() => {
+      pos += 4;
+      const x = pos;
+      rect.setAttribute('x', x);
+      label.setAttribute('x', x + 26);
+
+      if (x >= lostAt && lost) {
+        // Show X mark
+        rect.setAttribute('fill','#fecaca');
+        label.textContent = '✗ #' + seq;
+        clearInterval(intervalId);
+        setTimeout(() => {
+          g.removeChild(rect);
+          g.removeChild(label);
+          resolve();
+        }, 500);
+        return;
+      }
+
+      if (x >= 570) {
+        clearInterval(intervalId);
+        setTimeout(() => {
+          g.removeChild(rect);
+          g.removeChild(label);
+          resolve();
+        }, 300);
+      }
+    }, 16);
+  });
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 3: Port Table
+// ═══════════════════════════════════════════════════════════
+
+const PORT_DATA = [
+  { port:20,   proto:'TCP',     group:'wk',  svc:'FTP Data',        note:'Truyền dữ liệu FTP' },
+  { port:21,   proto:'TCP',     group:'wk',  svc:'FTP Control',     note:'Điều khiển FTP' },
+  { port:22,   proto:'TCP',     group:'wk',  svc:'SSH',             note:'Shell từ xa bảo mật' },
+  { port:23,   proto:'TCP',     group:'wk',  svc:'Telnet',          note:'Shell từ xa (không mã hóa — tránh dùng)' },
+  { port:25,   proto:'TCP',     group:'wk',  svc:'SMTP',            note:'Gửi email' },
+  { port:53,   proto:'UDP/TCP', group:'wk',  svc:'DNS',             note:'UDP cho query thông thường; TCP khi response > 512B' },
+  { port:67,   proto:'UDP',     group:'wk',  svc:'DHCP Server',     note:'Server cấp IP tự động' },
+  { port:68,   proto:'UDP',     group:'wk',  svc:'DHCP Client',     note:'Client nhận IP; broadcast khi chưa có IP' },
+  { port:69,   proto:'UDP',     group:'wk',  svc:'TFTP',            note:'Truyền file đơn giản (không xác thực)' },
+  { port:80,   proto:'TCP',     group:'wk',  svc:'HTTP',            note:'Web không mã hóa' },
+  { port:110,  proto:'TCP',     group:'wk',  svc:'POP3',            note:'Nhận email (cũ)' },
+  { port:119,  proto:'TCP',     group:'wk',  svc:'NNTP',            note:'Usenet newsgroup' },
+  { port:123,  proto:'UDP',     group:'wk',  svc:'NTP',             note:'Đồng bộ thời gian mạng' },
+  { port:143,  proto:'TCP',     group:'wk',  svc:'IMAP',            note:'Nhận email (hiện đại)' },
+  { port:161,  proto:'UDP',     group:'wk',  svc:'SNMP',            note:'Quản trị thiết bị mạng' },
+  { port:162,  proto:'UDP',     group:'wk',  svc:'SNMP Trap',       note:'Cảnh báo từ thiết bị mạng' },
+  { port:179,  proto:'TCP',     group:'wk',  svc:'BGP',             note:'Border Gateway Protocol — định tuyến Internet' },
+  { port:194,  proto:'UDP/TCP', group:'wk',  svc:'IRC',             note:'Internet Relay Chat' },
+  { port:389,  proto:'TCP',     group:'wk',  svc:'LDAP',            note:'Thư mục người dùng (Active Directory)' },
+  { port:443,  proto:'TCP',     group:'wk',  svc:'HTTPS / QUIC',    note:'HTTPS (TLS); QUIC/HTTP3 dùng UDP port 443' },
+  { port:445,  proto:'TCP',     group:'wk',  svc:'SMB',             note:'Chia sẻ file Windows' },
+  { port:465,  proto:'TCP',     group:'wk',  svc:'SMTPS',           note:'SMTP qua TLS' },
+  { port:514,  proto:'UDP',     group:'wk',  svc:'Syslog',          note:'Log hệ thống' },
+  { port:587,  proto:'TCP',     group:'wk',  svc:'SMTP (submit)',    note:'Gửi email từ client (yêu cầu auth)' },
+  { port:636,  proto:'TCP',     group:'wk',  svc:'LDAPS',           note:'LDAP qua TLS' },
+  { port:989,  proto:'TCP',     group:'wk',  svc:'FTPS Data',       note:'FTP bảo mật' },
+  { port:990,  proto:'TCP',     group:'wk',  svc:'FTPS Control',    note:'FTP bảo mật control' },
+  { port:993,  proto:'TCP',     group:'wk',  svc:'IMAPS',           note:'IMAP qua TLS' },
+  { port:995,  proto:'TCP',     group:'wk',  svc:'POP3S',           note:'POP3 qua TLS' },
+  { port:1194, proto:'UDP',     group:'reg', svc:'OpenVPN',         note:'VPN phổ biến' },
+  { port:1433, proto:'TCP',     group:'reg', svc:'MSSQL',           note:'Microsoft SQL Server' },
+  { port:1521, proto:'TCP',     group:'reg', svc:'Oracle DB',       note:'Oracle Database' },
+  { port:1900, proto:'UDP',     group:'reg', svc:'SSDP/UPnP',       note:'Tự động phát hiện thiết bị LAN' },
+  { port:3306, proto:'TCP',     group:'reg', svc:'MySQL / MariaDB', note:'Cơ sở dữ liệu phổ biến nhất' },
+  { port:3478, proto:'UDP',     group:'reg', svc:'STUN/TURN',       note:'WebRTC, game online NAT traversal' },
+  { port:3389, proto:'TCP',     group:'reg', svc:'RDP',             note:'Remote Desktop Windows' },
+  { port:5004, proto:'UDP',     group:'reg', svc:'RTP Audio/Video',  note:'Real-time audio/video (VoIP, video conference)' },
+  { port:5060, proto:'UDP/TCP', group:'reg', svc:'SIP',             note:'VoIP signaling (Skype, Zoom setup)' },
+  { port:5353, proto:'UDP',     group:'reg', svc:'mDNS',            note:'Multicast DNS (Bonjour/Avahi — tìm thiết bị LAN)' },
+  { port:5432, proto:'TCP',     group:'reg', svc:'PostgreSQL',      note:'Cơ sở dữ liệu PostgreSQL' },
+  { port:6379, proto:'TCP',     group:'reg', svc:'Redis',           note:'In-memory data store' },
+  { port:8080, proto:'TCP',     group:'reg', svc:'HTTP alt / Dev',  note:'HTTP thay thế, dev server, proxy' },
+  { port:8443, proto:'TCP',     group:'reg', svc:'HTTPS alt',       note:'HTTPS thay thế' },
+  { port:9200, proto:'TCP',     group:'reg', svc:'Elasticsearch',   note:'Search engine REST API' },
+  { port:10000,proto:'UDP',     group:'reg', svc:'NDMP',            note:'Network Data Management Protocol' },
+  { port:19132,proto:'UDP',     group:'reg', svc:'Minecraft PE',    note:'Minecraft Bedrock Edition' },
+  { port:25565,proto:'TCP',     group:'reg', svc:'Minecraft Java',  note:'Minecraft Java Edition' },
+  { port:27015,proto:'UDP',     group:'reg', svc:'Steam/Source',    note:'Counter-Strike, Team Fortress 2, game Valve' },
+  { port:27017,proto:'TCP',     group:'reg', svc:'MongoDB',         note:'NoSQL database' },
+];
+
+let currentFilter = 'all';
+
+function filterPorts(type, btn) {
+  if (btn) {
+    document.querySelectorAll('.port-filter-row button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = type;
+  }
+
+  const search = document.getElementById('portSearch').value.toLowerCase();
+  const tbody = document.getElementById('portTbody');
+  tbody.innerHTML = '';
+
+  let shown = 0;
+  PORT_DATA.forEach(p => {
+    const matchFilter = currentFilter === 'all' ||
+      (currentFilter === 'udp'  && p.proto.includes('UDP') && !p.proto.includes('TCP')) ||
+      (currentFilter === 'tcp'  && p.proto.includes('TCP') && !p.proto.includes('UDP')) ||
+      (currentFilter === 'both' && p.proto.includes('UDP') && p.proto.includes('TCP')) ||
+      (currentFilter === 'wk'   && p.group === 'wk') ||
+      (currentFilter === 'reg'  && p.group === 'reg');
+
+    const matchSearch = !search ||
+      String(p.port).includes(search) ||
+      p.svc.toLowerCase().includes(search) ||
+      p.proto.toLowerCase().includes(search) ||
+      p.note.toLowerCase().includes(search);
+
+    if (!matchFilter || !matchSearch) return;
+    shown++;
+
+    const proto = p.proto.includes('/') ? 'both' : p.proto.toLowerCase();
+    const protoBadge = `<span class="badge badge-${proto === 'both' ? 'both' : proto}">${p.proto}</span>`;
+    const groupBadge = `<span class="badge badge-${p.group}">${p.group === 'wk' ? 'Well-known' : 'Registered'}</span>`;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><strong>${p.port}</strong></td><td>${protoBadge}</td><td>${groupBadge}</td><td>${p.svc}</td><td style="color:#64748b; font-size:13px;">${p.note}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('portCount').textContent = `Hiển thị ${shown} / ${PORT_DATA.length} cổng.`;
+}
+
+// Init port table
+filterPorts('all', null);
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 4: Demultiplexing animation
+// ═══════════════════════════════════════════════════════════
+
+let demuxAnim = null;
+
+function demuxReset() {
+  if (demuxAnim) clearTimeout(demuxAnim);
+  document.getElementById('demuxPacket').innerHTML = '';
+  document.getElementById('demuxMsg').textContent = 'Chọn tiến trình để gửi gói';
+  ['game','discord','dns'].forEach(p => {
+    const dot = document.getElementById('proc-'+p+'-dot');
+    if (dot) dot.setAttribute('fill','#e2e8f0');
+  });
+}
+
+const PROC_CONFIG = {
+  game:    { port:55001, dstX:425, dstY:106, color:'#2563eb', name:'game.exe:55001' },
+  discord: { port:3478,  dstX:530, dstY:106, color:'#7c3aed', name:'discord.exe:3478' },
+  dns:     { port:52000, dstX:620, dstY:106, color:'#16a34a', name:'browser:52000' }
+};
+
+function demuxSend(target) {
+  demuxReset();
+  const cfg = PROC_CONFIG[target];
+  const g = document.getElementById('demuxPacket');
+  document.getElementById('demuxMsg').textContent = `Gói đến port ${cfg.port} → ${cfg.name}`;
+
+  // Start point (from internet line endpoint at ~230, 208)
+  const startX = 230, startY = 208;
+  // First go to NIC (530, 230)
+  // Then go up to OS (530, 74)
+  // Then go to process X
+  const path = [
+    { x: startX, y: startY },
+    { x: 530, y: 236 },
+    { x: 530, y: 86 },
+    { x: cfg.dstX, y: cfg.dstY }
+  ];
+
+  const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  const txt  = document.createElementNS('http://www.w3.org/2000/svg','text');
+
+  rect.setAttribute('x', startX - 28); rect.setAttribute('y', startY - 12);
+  rect.setAttribute('width','56'); rect.setAttribute('height','20');
+  rect.setAttribute('rx','4');
+  rect.setAttribute('fill', cfg.color + '33');
+  rect.setAttribute('stroke', cfg.color);
+  rect.setAttribute('stroke-width','1.5');
+
+  txt.setAttribute('x', startX); txt.setAttribute('y', startY + 3);
+  txt.setAttribute('text-anchor','middle');
+  txt.setAttribute('fill', cfg.color);
+  txt.setAttribute('font-size','10');
+  txt.setAttribute('font-weight','700');
+  txt.textContent = 'dst:' + cfg.port;
+
+  g.appendChild(rect);
+  g.appendChild(txt);
+
+  let step = 0;
+  function moveStep() {
+    if (step >= path.length - 1) {
+      // Arrived — highlight process
+      const dot = document.getElementById('proc-'+target+'-dot');
+      if (dot) dot.setAttribute('fill', cfg.color);
+      return;
+    }
+    const from = path[step], to = path[step+1];
+    const dist = Math.sqrt((to.x-from.x)**2 + (to.y-from.y)**2);
+    const steps = Math.max(1, Math.round(dist / 4));
+    let s = 0;
+    const intervalId = setInterval(() => {
+      s++;
+      const t = s / steps;
+      const x = from.x + (to.x - from.x) * t;
+      const y = from.y + (to.y - from.y) * t;
+      rect.setAttribute('x', x - 28); rect.setAttribute('y', y - 12);
+      txt.setAttribute('x', x); txt.setAttribute('y', y + 3);
+      if (s >= steps) {
+        clearInterval(intervalId);
+        step++;
+        demuxAnim = setTimeout(moveStep, 40);
+      }
+    }, 16);
+  }
+  moveStep();
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 5: Socket Analyzer
+// ═══════════════════════════════════════════════════════════
+
+function analyzeSocket() {
+  const srcIP   = document.getElementById('src-ip').value.trim();
+  const srcPort = parseInt(document.getElementById('src-port').value);
+  const dstIP   = document.getElementById('dst-ip').value.trim();
+  const dstPort = parseInt(document.getElementById('dst-port').value);
+
+  if (!srcIP || !dstIP || isNaN(srcPort) || isNaN(dstPort)) {
+    alert('Vui lòng nhập đầy đủ thông tin.'); return;
+  }
+
+  function classifyPort(p) {
+    if (p <= 1023) return `Well-known (0–1023) — cần quyền root để bind`;
+    if (p <= 49151) return `Registered (1024–49151)`;
+    return `Ephemeral (49152–65535) — cấp tạm thời bởi OS`;
+  }
+
+  function guessRole(p) {
+    return guessService(p) || (p >= 49152 ? 'ephemeral (client tạm thời)' : 'không rõ dịch vụ');
+  }
+
+  const tupleHTML = `<div style="font-size:15px;">
+    4-tuple: <span style="color:#0369a1; font-weight:700;">(${srcIP}, ${srcPort})</span>
+    &nbsp;↔&nbsp;
+    <span style="color:#16a34a; font-weight:700;">(${dstIP}, ${dstPort})</span>
+  </div>`;
+
+  const analysisHTML = `
+    <strong>Nguồn:</strong> Socket (${srcIP}, ${srcPort}) — Port ${srcPort}: ${classifyPort(srcPort)}. Vai trò: ${guessRole(srcPort)}.<br>
+    <strong>Đích:</strong> Socket (${dstIP}, ${dstPort}) — Port ${dstPort}: ${classifyPort(dstPort)}. Vai trò: ${guessRole(dstPort)}.<br>
+    <strong>Response</strong> sẽ có src=(${dstIP},${dstPort}), dst=(${srcIP},${srcPort}).
+  `;
+
+  document.getElementById('socket-tuple').innerHTML = tupleHTML;
+  document.getElementById('socket-analysis').innerHTML = analysisHTML;
+  document.getElementById('socket-result').style.display = 'block';
+}
+
+// ─── Init ───
+selectField('dst');
+updateLossLabel();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

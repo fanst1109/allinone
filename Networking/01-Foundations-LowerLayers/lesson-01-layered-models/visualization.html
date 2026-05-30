@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Mô hình phân tầng (Layered Models)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #0c4a6e; }
+  h2 { color: #0369a1; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #7dd3fc; }
+
+  .card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+  .card p { margin: 0 0 10px; color: #374151; line-height: 1.6; }
+
+  /* ─── Layer palette ─── */
+  :root {
+    --l7: #7c3aed; --l7s: #ede9fe;
+    --l6: #0891b2; --l6s: #cffafe;
+    --l5: #059669; --l5s: #d1fae5;
+    --l4: #d97706; --l4s: #fef3c7;
+    --l3: #dc2626; --l3s: #fee2e2;
+    --l2: #2563eb; --l2s: #dbeafe;
+    --l1: #374151; --l1s: #f3f4f6;
+  }
+
+  /* ─── OSI/TCP comparison table ─── */
+  .model-wrap {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+  .model-col {
+    flex: 1 1 260px;
+  }
+  .model-title {
+    text-align: center;
+    font-weight: 800;
+    font-size: 14px;
+    padding: 8px;
+    border-radius: 6px 6px 0 0;
+    color: white;
+    letter-spacing: .5px;
+  }
+  .model-title.osi { background: #0369a1; }
+  .model-title.tcpip { background: #7c3aed; }
+  .layer-row {
+    display: flex;
+    align-items: center;
+    border-left: 3px solid transparent;
+    padding: 9px 12px;
+    cursor: pointer;
+    transition: background .15s;
+    user-select: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .layer-row:last-child { border-bottom: none; border-radius: 0 0 6px 6px; }
+  .layer-row:hover { filter: brightness(0.94); }
+  .layer-row.active { box-shadow: inset 0 0 0 2px rgba(0,0,0,0.25); }
+
+  .layer-num {
+    font-weight: 800;
+    font-size: 13px;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+    margin-right: 8px;
+  }
+  .layer-name {
+    font-weight: 700;
+    font-size: 13px;
+    flex: 1;
+  }
+  .layer-pdu {
+    font-size: 11px;
+    font-family: monospace;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.07);
+    flex-shrink: 0;
+  }
+
+  /* TCP/IP layers span multiple OSI rows */
+  .tcpip-row {
+    display: flex;
+    align-items: center;
+    padding: 9px 12px;
+    cursor: pointer;
+    transition: background .15s;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 6px;
+    margin-bottom: 4px;
+  }
+  .tcpip-row:last-child { margin-bottom: 0; }
+  .tcpip-row:hover { filter: brightness(0.94); }
+
+  /* detail panel */
+  .detail-panel {
+    background: #f0f9ff;
+    border: 2px solid #7dd3fc;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 80px;
+  }
+  .detail-panel strong { color: #0369a1; }
+  .detail-panel .protos { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .proto-tag {
+    background: #0369a1;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: monospace;
+  }
+  .proto-tag.device {
+    background: #7c3aed;
+  }
+
+  /* ─── Encapsulation animation ─── */
+  #enc-input {
+    padding: 8px 12px;
+    border: 2px solid #7dd3fc;
+    border-radius: 6px;
+    font-size: 15px;
+    width: 100%;
+    max-width: 320px;
+    box-sizing: border-box;
+    font-family: monospace;
+    margin-right: 10px;
+  }
+  .enc-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .btn-primary { background: #0369a1; color: white; }
+  .btn-primary:hover { background: #0284c7; }
+  .btn-secondary { background: #7c3aed; color: white; }
+  .btn-secondary:hover { background: #6d28d9; }
+  .btn-outline { background: white; color: #374151; border: 2px solid #d1d5db; }
+  .btn-outline:hover { background: #f9fafb; }
+
+  #enc-canvas-wrap {
+    overflow-x: auto;
+  }
+
+  .enc-stack {
+    width: 100%;
+    min-width: 360px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .enc-layer {
+    display: flex;
+    align-items: stretch;
+    margin-bottom: 3px;
+    opacity: 0;
+    transform: translateY(-12px);
+    transition: opacity .4s ease, transform .4s ease;
+    border-radius: 6px;
+    overflow: hidden;
+    min-height: 44px;
+  }
+  .enc-layer.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .enc-hdr {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 12px;
+    color: white;
+    padding: 4px 8px;
+    text-align: center;
+    line-height: 1.3;
+    white-space: nowrap;
+    min-width: 70px;
+  }
+  .enc-data {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    word-break: break-all;
+    white-space: pre-wrap;
+  }
+  .enc-size {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 8px;
+    white-space: nowrap;
+    min-width: 52px;
+    text-align: center;
+  }
+
+  #enc-status {
+    margin-top: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #0369a1;
+    min-height: 22px;
+  }
+  #enc-bits {
+    font-family: monospace;
+    font-size: 12px;
+    color: #374151;
+    background: #f1f5f9;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    word-break: break-all;
+    line-height: 1.8;
+    display: none;
+  }
+
+  /* ─── PDU/Address reference table ─── */
+  table.ref-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  table.ref-table th {
+    background: #0369a1;
+    color: white;
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 13px;
+  }
+  table.ref-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: top;
+  }
+  table.ref-table tr:nth-child(even) td { background: #f0f9ff; }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 600px) {
+    .model-wrap { flex-direction: column; }
+    .model-col { flex: 1 1 100%; }
+    .enc-hdr { font-size: 10px; min-width: 54px; }
+    .enc-data { font-size: 11px; }
+  }
+  @media (max-width: 400px) {
+    .enc-hdr { min-width: 44px; padding: 2px 4px; }
+    .enc-size { min-width: 38px; padding: 2px 4px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Foundations</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Mô hình phân tầng</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-link-ethernet/visualization.html">L2: Tầng liên kết &amp; Ethernet →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — Mô hình phân tầng (Layered Models)</h1>
+<p>Công cụ tương tác: So sánh OSI &amp; TCP/IP click-to-explore, Mô phỏng đóng gói (encapsulation) animation theo từng tầng, Bảng tham chiếu PDU &amp; địa chỉ.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — OSI vs TCP/IP
+     ══════════════════════════════════════════════════════════ -->
+<h2>1. Mô hình OSI (7 tầng) &amp; TCP/IP (4 tầng) — Click để xem chi tiết</h2>
+<div class="card">
+  <p>Bấm vào bất kỳ tầng nào để xem chức năng, giao thức đặc trưng và thiết bị liên quan.</p>
+
+  <div class="model-wrap">
+    <!-- OSI column -->
+    <div class="model-col">
+      <div class="model-title osi">Mô hình OSI (7 tầng)</div>
+      <div id="osi-layers"></div>
+    </div>
+
+    <!-- TCP/IP column -->
+    <div class="model-col">
+      <div class="model-title tcpip">Mô hình TCP/IP (4 tầng)</div>
+      <div id="tcpip-layers"></div>
+    </div>
+  </div>
+
+  <div class="detail-panel" id="detail-panel">
+    Bấm vào một tầng bên trên để xem chi tiết...
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — Encapsulation animation
+     ══════════════════════════════════════════════════════════ -->
+<h2>2. Mô phỏng Đóng gói (Encapsulation)</h2>
+<div class="card">
+  <p>Nhập một thông điệp ngắn, bấm <strong>Gửi</strong> để xem quá trình đóng gói từng tầng từ Application xuống Physical. Bấm <strong>Nhận (chiều ngược)</strong> để xem gỡ gói.</p>
+
+  <div class="enc-controls">
+    <input type="text" id="enc-input" maxlength="40" value="Hello, World!" placeholder="Nhập thông điệp...">
+    <button class="btn btn-primary" onclick="startEncap()">Gửi (Encap)</button>
+    <button class="btn btn-secondary" onclick="startDecap()">Nhận (Decap)</button>
+    <button class="btn btn-outline" onclick="resetEnc()">Đặt lại</button>
+  </div>
+
+  <div id="enc-canvas-wrap">
+    <div class="enc-stack" id="enc-stack"></div>
+  </div>
+  <div id="enc-status"></div>
+  <div id="enc-bits"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — PDU / Address reference
+     ══════════════════════════════════════════════════════════ -->
+<h2>3. Bảng tham chiếu PDU &amp; Địa chỉ</h2>
+<div class="card">
+  <p>Tổng hợp đơn vị dữ liệu (PDU) và loại địa chỉ tương ứng ở mỗi tầng.</p>
+  <div style="overflow-x:auto;">
+    <table class="ref-table">
+      <thead>
+        <tr>
+          <th>TCP/IP</th>
+          <th>OSI</th>
+          <th>PDU</th>
+          <th>Địa chỉ</th>
+          <th>Ví dụ giao thức / Header size</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td rowspan="3" style="background:#ede9fe; font-weight:700; color:#7c3aed; vertical-align:middle;">Application</td>
+          <td style="background:#f5f3ff;">7 — Application</td>
+          <td>Message / Data</td>
+          <td>URL, tên miền</td>
+          <td>HTTP, DNS, SMTP, FTP, SSH (~biến)</td>
+        </tr>
+        <tr>
+          <td style="background:#f5f3ff;">6 — Presentation</td>
+          <td>Data</td>
+          <td>—</td>
+          <td>TLS/SSL, JPEG, UTF-8, gzip</td>
+        </tr>
+        <tr>
+          <td style="background:#f5f3ff;">5 — Session</td>
+          <td>Data</td>
+          <td>Session ID</td>
+          <td>NetBIOS, RPC</td>
+        </tr>
+        <tr>
+          <td style="background:#fef3c7; font-weight:700; color:#d97706; vertical-align:middle;">Transport</td>
+          <td>4 — Transport</td>
+          <td>Segment / Datagram</td>
+          <td>Port (16 bit, 0–65535)</td>
+          <td>TCP (+20B), UDP (+8B)</td>
+        </tr>
+        <tr>
+          <td style="background:#fee2e2; font-weight:700; color:#dc2626; vertical-align:middle;">Internet</td>
+          <td>3 — Network</td>
+          <td>Packet (gói tin)</td>
+          <td>IP (IPv4: 32 bit; IPv6: 128 bit)</td>
+          <td>IP (+20B), ICMP, OSPF, BGP · Router</td>
+        </tr>
+        <tr>
+          <td rowspan="2" style="background:#dbeafe; font-weight:700; color:#2563eb; vertical-align:middle;">Link</td>
+          <td style="background:#eff6ff;">2 — Data Link</td>
+          <td>Frame (khung)</td>
+          <td>MAC (48 bit = 6 byte)</td>
+          <td>Ethernet (+14B hdr +4B FCS), Wi-Fi · Switch</td>
+        </tr>
+        <tr>
+          <td style="background:#eff6ff;">1 — Physical</td>
+          <td>Bit</td>
+          <td>—</td>
+          <td>Cáp, Hub, NIC, Repeater</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:16px; background:#f0f9ff; border-radius:6px; padding:12px 16px; font-size:13px; line-height:1.8;">
+    <strong>Cổng (Port) quan trọng cần nhớ:</strong>
+    22=SSH &nbsp;·&nbsp; 25=SMTP &nbsp;·&nbsp; 53=DNS &nbsp;·&nbsp; 67/68=DHCP &nbsp;·&nbsp; 80=HTTP &nbsp;·&nbsp; 110=POP3 &nbsp;·&nbsp; 143=IMAP &nbsp;·&nbsp; 443=HTTPS &nbsp;·&nbsp; 3306=MySQL &nbsp;·&nbsp; 5432=PostgreSQL<br>
+    <strong>Header size tích lũy (ví dụ 38B HTTP payload):</strong>
+    +20B TCP = 58B &nbsp;·&nbsp; +20B IP = 78B &nbsp;·&nbsp; +14B+4B Ethernet = 96B trên dây (768 bit).
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   DATA: OSI layers
+   ══════════════════════════════════════════════════════════ */
+const OSI = [
+  {
+    num: 7, name: 'Application (Ứng dụng)', pdu: 'Data',
+    color: '#7c3aed', soft: '#ede9fe', addr: 'URL, tên miền',
+    desc: 'Giao thức trực tiếp phục vụ ứng dụng người dùng. Định nghĩa ngôn ngữ (giao thức) để các ứng dụng giao tiếp với nhau.',
+    example: 'HTTP request: "GET /index.html HTTP/1.1\\r\\nHost: example.com" (~40 byte plaintext)',
+    protos: ['HTTP', 'HTTPS', 'DNS', 'SMTP', 'FTP', 'SSH', 'DHCP', 'SNMP'],
+    devices: []
+  },
+  {
+    num: 6, name: 'Presentation (Trình bày)', pdu: 'Data',
+    color: '#0891b2', soft: '#cffafe', addr: '—',
+    desc: 'Chuyển đổi định dạng dữ liệu: mã hóa/giải mã (TLS), nén (gzip), chuyển đổi bộ ký tự (UTF-8). Đảm bảo hai máy "nói cùng ngôn ngữ dữ liệu".',
+    example: 'Nén gzip file HTML 100KB → 28KB (giảm 72%). TLS mã hóa AES-256.',
+    protos: ['TLS/SSL', 'JPEG', 'PNG', 'MP3', 'UTF-8', 'gzip', 'ASCII'],
+    devices: []
+  },
+  {
+    num: 5, name: 'Session (Phiên)', pdu: 'Data',
+    color: '#059669', soft: '#d1fae5', addr: 'Session ID',
+    desc: 'Thiết lập, duy trì và kết thúc phiên giao tiếp giữa hai ứng dụng. Xử lý checkpoint để phục hồi khi gián đoạn.',
+    example: 'RPC: gọi hàm từ xa với session ID riêng biệt. NetBIOS session management.',
+    protos: ['NetBIOS', 'RPC', 'PPTP (session)', 'SQL session'],
+    devices: []
+  },
+  {
+    num: 4, name: 'Transport (Vận chuyển)', pdu: 'Segment / Datagram',
+    color: '#d97706', soft: '#fef3c7', addr: 'Port (0–65535)',
+    desc: 'Giao tiếp end-to-end giữa hai tiến trình. TCP: tin cậy, có xác nhận, kiểm soát luồng. UDP: nhanh, không đảm bảo. Port phân biệt ứng dụng trên cùng máy.',
+    example: 'TCP header 20 byte: Src Port, Dst Port, Seq#, Ack#, Flags, Window. Port 443 = HTTPS.',
+    protos: ['TCP (+20B)', 'UDP (+8B)'],
+    devices: []
+  },
+  {
+    num: 3, name: 'Network (Mạng)', pdu: 'Packet (gói tin)',
+    color: '#dc2626', soft: '#fee2e2', addr: 'IP Address (32/128 bit)',
+    desc: 'Định tuyến (routing) gói tin qua nhiều mạng từ nguồn đến đích. Địa chỉ IP có cấu trúc phân cấp cho phép router tìm đường theo từng bước.',
+    example: 'IP header 20 byte (IPv4): Src IP, Dst IP, TTL=64, Protocol=6(TCP). TTL giảm 1 tại mỗi router.',
+    protos: ['IPv4 (+20B)', 'IPv6 (+40B)', 'ICMP', 'OSPF', 'BGP'],
+    devices: ['Router']
+  },
+  {
+    num: 2, name: 'Data Link (Liên kết dữ liệu)', pdu: 'Frame (khung)',
+    color: '#2563eb', soft: '#dbeafe', addr: 'MAC Address (48 bit)',
+    desc: 'Đóng gói packet thành frame, thêm địa chỉ MAC để xác định thiết bị trong LAN. Phát hiện lỗi bit (CRC-32). Kiểm soát truy cập đường truyền.',
+    example: 'Ethernet frame: [MAC dst 6B][MAC src 6B][Type 2B][Data 46–1500B][FCS/CRC 4B]. Tổng: 64–1518B.',
+    protos: ['Ethernet (+14B hdr +4B FCS)', 'Wi-Fi (802.11)', 'PPP'],
+    devices: ['Switch', 'Bridge']
+  },
+  {
+    num: 1, name: 'Physical (Vật lý)', pdu: 'Bit',
+    color: '#374151', soft: '#f3f4f6', addr: '—',
+    desc: 'Chuyển đổi bit 0/1 thành tín hiệu vật lý (điện áp, ánh sáng, sóng vô tuyến) và ngược lại. Quy định loại cáp, đầu nối, điện áp, tần số.',
+    example: 'Ethernet Cat6: +2.5V = 1, −2.5V = 0 ở 1 Gbps = 10⁹ bit/s. Cáp quang: xung ánh sáng laser.',
+    protos: ['IEEE 802.3 (Ethernet)', 'IEEE 802.11 (Wi-Fi)', 'USB', 'RS-232'],
+    devices: ['Hub', 'Repeater', 'Cáp', 'NIC']
+  }
+];
+
+const TCPIP = [
+  {
+    name: 'Application', color: '#7c3aed', soft: '#ede9fe',
+    osiNums: [7, 6, 5],
+    desc: 'Gộp OSI 5+6+7. Phục vụ ứng dụng người dùng, định nghĩa giao thức giao tiếp, mã hóa, quản lý phiên.',
+    protos: ['HTTP', 'HTTPS', 'DNS', 'SMTP', 'FTP', 'SSH', 'TLS/SSL'], devices: []
+  },
+  {
+    name: 'Transport', color: '#d97706', soft: '#fef3c7',
+    osiNums: [4],
+    desc: 'Tương ứng trực tiếp với OSI tầng 4. TCP (tin cậy) và UDP (nhanh). Phân biệt ứng dụng bằng Port.',
+    protos: ['TCP (+20B)', 'UDP (+8B)'], devices: []
+  },
+  {
+    name: 'Internet', color: '#dc2626', soft: '#fee2e2',
+    osiNums: [3],
+    desc: 'Tương ứng trực tiếp với OSI tầng 3. Địa chỉ IP và định tuyến gói tin qua nhiều mạng.',
+    protos: ['IPv4 (+20B)', 'IPv6 (+40B)', 'ICMP', 'OSPF', 'BGP'], devices: ['Router']
+  },
+  {
+    name: 'Link (Network Access)', color: '#2563eb', soft: '#dbeafe',
+    osiNums: [2, 1],
+    desc: 'Gộp OSI 1+2. Xử lý tất cả chi tiết phần cứng: đóng frame, địa chỉ MAC, tín hiệu vật lý.',
+    protos: ['Ethernet', 'Wi-Fi (802.11)', 'PPP'], devices: ['Switch', 'Hub', 'NIC']
+  }
+];
+
+/* ═══════════════════════════════════════════════════════════
+   MODULE 1: Render layer lists & detail panel
+   ══════════════════════════════════════════════════════════ */
+
+let activeDetail = null;
+
+function renderOSI() {
+  const container = document.getElementById('osi-layers');
+  container.style.border = '1px solid #e5e7eb';
+  container.style.borderRadius = '0 0 6px 6px';
+  OSI.forEach(layer => {
+    const row = document.createElement('div');
+    row.className = 'layer-row';
+    row.style.background = layer.soft;
+    row.style.borderLeftColor = layer.color;
+    row.dataset.key = 'osi-' + layer.num;
+    row.innerHTML = `
+      <span class="layer-num" style="color:${layer.color}">${layer.num}</span>
+      <span class="layer-name" style="color:${layer.color}">${layer.name}</span>
+      <span class="layer-pdu">${layer.pdu}</span>
+    `;
+    row.addEventListener('click', () => showDetail('osi', layer.num));
+    container.appendChild(row);
+  });
+}
+
+function renderTCPIP() {
+  const container = document.getElementById('tcpip-layers');
+  TCPIP.forEach(layer => {
+    const row = document.createElement('div');
+    row.className = 'tcpip-row';
+    row.style.background = layer.soft;
+    row.style.borderLeft = `4px solid ${layer.color}`;
+    row.dataset.key = 'tcpip-' + layer.name;
+    // height proportional to number of OSI layers it covers
+    const span = layer.osiNums.length;
+    row.style.minHeight = (span * 47) + 'px';
+    row.innerHTML = `
+      <span class="layer-name" style="color:${layer.color}; font-size:14px;">${layer.name}</span>
+      <span style="font-size:11px; color:#6b7280; margin-left:8px;">(OSI ${layer.osiNums.join('+')})</span>
+    `;
+    row.addEventListener('click', () => showDetailTCPIP(layer));
+    container.appendChild(row);
+  });
+}
+
+function showDetail(type, num) {
+  clearActive();
+  const layer = OSI.find(l => l.num === num);
+  const key = 'osi-' + num;
+  const row = document.querySelector(`[data-key="${key}"]`);
+  if (row) row.classList.add('active');
+  activeDetail = key;
+  renderDetailPanel(layer.name, layer.color, layer.desc, layer.example, layer.protos, layer.devices, layer.addr, 'OSI Tầng ' + num);
+}
+
+function showDetailTCPIP(layer) {
+  clearActive();
+  const key = 'tcpip-' + layer.name;
+  const row = document.querySelector(`[data-key="${key}"]`);
+  if (row) row.classList.add('active');
+  activeDetail = key;
+  renderDetailPanel(layer.name, layer.color, layer.desc, '', layer.protos, layer.devices, '', 'TCP/IP');
+}
+
+function clearActive() {
+  document.querySelectorAll('.layer-row, .tcpip-row').forEach(r => r.classList.remove('active'));
+}
+
+function renderDetailPanel(name, color, desc, example, protos, devices, addr, model) {
+  const panel = document.getElementById('detail-panel');
+  let html = `<strong style="color:${color}; font-size:16px;">${model} — ${name}</strong><br>${desc}`;
+  if (addr && addr !== '—') html += `<br><strong>Địa chỉ:</strong> ${addr}`;
+  if (example) html += `<br><strong>Ví dụ:</strong> <span style="font-family:monospace; font-size:13px;">${example}</span>`;
+  html += '<div class="protos">';
+  protos.forEach(p => { html += `<span class="proto-tag">${p}</span>`; });
+  devices.forEach(d => { html += `<span class="proto-tag device">${d}</span>`; });
+  html += '</div>';
+  panel.innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODULE 2: Encapsulation animation
+   ══════════════════════════════════════════════════════════ */
+
+// Layers definition (bottom to top = Physical to Application)
+// We render Application first (top), then add downward
+const ENC_LAYERS = [
+  // index 0 = Application (top)
+  {
+    name: 'App\nData', hdrLabel: '', isHeader: false,
+    color: '#7c3aed', soft: '#ede9fe', textColor: 'white',
+    sizeExtra: 0, pdu: 'Data (Message)'
+  },
+  {
+    name: 'TCP\nHeader', hdrLabel: 'TCP hdr (+20B)', isHeader: true,
+    color: '#d97706', soft: '#fef3c7', textColor: 'white',
+    sizeExtra: 20, pdu: 'Segment'
+  },
+  {
+    name: 'IP\nHeader', hdrLabel: 'IP hdr (+20B)', isHeader: true,
+    color: '#dc2626', soft: '#fee2e2', textColor: 'white',
+    sizeExtra: 20, pdu: 'Packet'
+  },
+  {
+    name: 'Eth hdr\n+FCS', hdrLabel: 'Ethernet (+18B)', isHeader: true,
+    color: '#2563eb', soft: '#dbeafe', textColor: 'white',
+    sizeExtra: 18, pdu: 'Frame'
+  },
+  {
+    name: 'Physical\nBits', hdrLabel: '', isHeader: false,
+    color: '#374151', soft: '#f3f4f6', textColor: 'white',
+    sizeExtra: 0, pdu: 'Bit stream'
+  }
+];
+
+let encState = 'idle'; // 'idle' | 'encap' | 'decap'
+let encStep = 0;
+let encTimer = null;
+
+function resetEnc() {
+  clearTimeout(encTimer);
+  encState = 'idle';
+  encStep = 0;
+  document.getElementById('enc-stack').innerHTML = '';
+  document.getElementById('enc-status').textContent = '';
+  document.getElementById('enc-bits').style.display = 'none';
+  document.getElementById('enc-bits').textContent = '';
+}
+
+function startEncap() {
+  resetEnc();
+  encState = 'encap';
+  const msg = document.getElementById('enc-input').value || 'Hello';
+  encStep = 0;
+  runEncapStep(msg);
+}
+
+function startDecap() {
+  // First build the full encapsulated stack (instant), then animate removal
+  resetEnc();
+  encState = 'decap';
+  const msg = document.getElementById('enc-input').value || 'Hello';
+  // Build all layers instantly
+  buildAllInstant(msg);
+  encStep = ENC_LAYERS.length - 1;
+  document.getElementById('enc-status').textContent = 'Bắt đầu gỡ gói (Decapsulation)...';
+  encTimer = setTimeout(() => runDecapStep(msg), 600);
+}
+
+function buildAllInstant(msg) {
+  const stack = document.getElementById('enc-stack');
+  stack.innerHTML = '';
+  const msgLen = new TextEncoder().encode(msg).length;
+  let cumSize = msgLen;
+  ENC_LAYERS.forEach((layer, i) => {
+    if (i > 0) cumSize += layer.sizeExtra;
+    const row = buildLayerRow(layer, i, msg, cumSize);
+    row.classList.add('visible');
+    stack.appendChild(row);
+  });
+  // Show bits for Physical
+  showBits(msg);
+}
+
+function buildLayerRow(layer, idx, msg, cumSize) {
+  const msgLen = new TextEncoder().encode(msg).length;
+  const row = document.createElement('div');
+  row.className = 'enc-layer';
+  row.id = 'enc-layer-' + idx;
+
+  let hdrHtml = '';
+  let dataHtml = '';
+  let sizeHtml = '';
+
+  if (idx === 0) {
+    // Application data
+    hdrHtml = `<div class="enc-hdr" style="background:${layer.color}">${layer.name}</div>`;
+    dataHtml = `<div class="enc-data" style="background:${layer.soft}; color:#374151;">"${escHtml(msg)}"<br><span style="color:#6b7280;font-size:11px;">${msgLen} byte</span></div>`;
+    sizeHtml = `<div class="enc-size" style="background:${layer.soft}; color:${layer.color}">${msgLen}B</div>`;
+  } else if (idx === ENC_LAYERS.length - 1) {
+    // Physical — show bit count
+    const bits = cumSize * 8;
+    hdrHtml = `<div class="enc-hdr" style="background:${layer.color}">${layer.name}</div>`;
+    dataHtml = `<div class="enc-data" style="background:${layer.soft}; color:#374151;">01110100 10101100 ... (${bits} bit)<br><span style="color:#6b7280;font-size:11px;">Tín hiệu điện / ánh sáng trên dây</span></div>`;
+    sizeHtml = `<div class="enc-size" style="background:${layer.soft}; color:${layer.color}">${bits}b</div>`;
+  } else {
+    // Header layers
+    hdrHtml = `<div class="enc-hdr" style="background:${layer.color}">${layer.name}</div>`;
+    // Show previous content abbreviated
+    const prevLabel = idx === 1 ? `"${escHtml(msg.length > 12 ? msg.slice(0,12)+'…' : msg)}"` :
+                      idx === 2 ? '[TCP hdr][data]' : '[IP][TCP][data]';
+    dataHtml = `<div class="enc-data" style="background:${layer.soft}; color:#374151;">${prevLabel}<br><span style="color:#6b7280;font-size:11px;">${layer.hdrLabel} · PDU: ${layer.pdu}</span></div>`;
+    sizeHtml = `<div class="enc-size" style="background:${layer.soft}; color:${layer.color}">${cumSize}B</div>`;
+  }
+
+  row.innerHTML = hdrHtml + dataHtml + sizeHtml;
+  return row;
+}
+
+function runEncapStep(msg) {
+  if (encStep >= ENC_LAYERS.length) {
+    document.getElementById('enc-status').textContent = 'Xong! Frame Ethernet sẵn sàng truyền trên dây.';
+    showBits(msg);
+    return;
+  }
+
+  const stack = document.getElementById('enc-stack');
+  const msgLen = new TextEncoder().encode(msg).length;
+  let cumSize = msgLen;
+  for (let i = 1; i <= encStep; i++) cumSize += ENC_LAYERS[i].sizeExtra;
+
+  const layer = ENC_LAYERS[encStep];
+  const row = buildLayerRow(layer, encStep, msg, cumSize);
+  stack.appendChild(row);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { row.classList.add('visible'); });
+  });
+
+  const statusMap = [
+    `Tầng 7 Application: tạo thông điệp "${msg}" (${msgLen} byte)`,
+    `Tầng 4 Transport: thêm TCP header 20 byte → Segment ${cumSize} byte`,
+    `Tầng 3 Network: thêm IP header 20 byte → Packet ${cumSize} byte`,
+    `Tầng 2 Data Link: thêm Ethernet header+FCS 18 byte → Frame ${cumSize} byte`,
+    `Tầng 1 Physical: chuyển ${cumSize} byte = ${cumSize*8} bit thành tín hiệu điện`
+  ];
+  document.getElementById('enc-status').textContent = statusMap[encStep] || '';
+
+  encStep++;
+  encTimer = setTimeout(() => runEncapStep(msg), 750);
+}
+
+function runDecapStep(msg) {
+  if (encStep < 0) {
+    document.getElementById('enc-status').textContent = 'Gỡ gói hoàn tất — dữ liệu gốc đã khôi phục.';
+    document.getElementById('enc-bits').style.display = 'none';
+    return;
+  }
+
+  const statusMap = [
+    `Tầng 7 Application: nhận dữ liệu sạch "${msg}"`,
+    `Tầng 4 Transport: bóc TCP header → chuyển lên Application`,
+    `Tầng 3 Network: bóc IP header → chuyển lên Transport`,
+    `Tầng 2 Data Link: bóc Ethernet header → đọc IP packet`,
+    `Tầng 1 Physical: phục hồi bit từ tín hiệu điện`
+  ];
+  document.getElementById('enc-status').textContent = statusMap[encStep] || '';
+
+  const row = document.getElementById('enc-layer-' + encStep);
+  if (row) {
+    row.classList.remove('visible');
+    setTimeout(() => { row.remove(); }, 420);
+  }
+
+  if (encStep === ENC_LAYERS.length - 1) {
+    document.getElementById('enc-bits').style.display = 'none';
+  }
+
+  encStep--;
+  encTimer = setTimeout(() => runDecapStep(msg), 750);
+}
+
+function showBits(msg) {
+  const msgLen = new TextEncoder().encode(msg).length;
+  const frameSize = msgLen + 20 + 20 + 18; // TCP + IP + Eth
+  const bits = frameSize * 8;
+  const bitStr = toBitString(msg);
+  const bitsDiv = document.getElementById('enc-bits');
+  bitsDiv.style.display = 'block';
+  bitsDiv.innerHTML = `<strong>${bits} bit trên dây</strong> (${frameSize} byte × 8):<br>${bitStr}<span style="color:#9ca3af"> ... (${frameSize - msg.length} byte header/trailer không hiển thị)</span>`;
+}
+
+function toBitString(str) {
+  let result = '';
+  const bytes = new TextEncoder().encode(str);
+  for (let i = 0; i < Math.min(bytes.length, 6); i++) {
+    result += bytes[i].toString(2).padStart(8, '0') + ' ';
+  }
+  if (bytes.length > 6) result += '...';
+  return result;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════════════════ */
+renderOSI();
+renderTCPIP();
+// Default detail view
+showDetail('osi', 7);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

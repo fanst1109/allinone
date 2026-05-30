@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Tầng giao vận: TCP</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette TCP (xanh dương) ── */
+  :root {
+    --tcp-blue:  #0369a1;
+    --tcp-soft:  #e0f2fe;
+    --tcp-mid:   #38bdf8;
+    --tcp-dark:  #0c4a6e;
+    --pkt-ok:    #16a34a;
+    --pkt-lost:  #dc2626;
+    --pkt-dup:   #d97706;
+    --ack-col:   #7c3aed;
+    --bg-card:   #ffffff;
+    --bg-section:#f0f9ff;
+  }
+
+  h1 { color: var(--tcp-dark); }
+  h2 { color: var(--tcp-blue); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--tcp-mid); }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(3,105,161,.10);
+    margin: 16px 0;
+  }
+  .info-box {
+    background: var(--tcp-soft);
+    border-left: 4px solid var(--tcp-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .3px;
+  }
+  .tag-syn  { background:#dbeafe; color:#1d4ed8; }
+  .tag-ack  { background:#ede9fe; color:#6d28d9; }
+  .tag-fin  { background:#fef3c7; color:#92400e; }
+  .tag-data { background:#dcfce7; color:#166534; }
+  .tag-lost { background:#fee2e2; color:#991b1b; }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--tcp-blue); color: white; }
+  .btn-primary:hover { background: var(--tcp-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 1 — Handshake Animation
+     ═══════════════════════════════════════════════════════ */
+  #hs-stage {
+    width: 100%;
+    overflow-x: auto;
+  }
+  #hs-svg {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .hs-step-box {
+    background: var(--bg-section);
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    min-height: 48px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .hs-step-box strong { color: var(--tcp-blue); }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 2 — Retransmission Simulation
+     ═══════════════════════════════════════════════════════ */
+  #rt-stage { width: 100%; overflow-x: auto; }
+  #rt-svg { display: block; margin: 0 auto; }
+  #rt-log {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    min-height: 80px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 12px;
+    white-space: pre-wrap;
+  }
+  #rt-log .ok   { color: #4ade80; }
+  #rt-log .lost { color: #f87171; }
+  #rt-log .dup  { color: #fbbf24; }
+  #rt-log .ret  { color: #a78bfa; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 3 — Sliding Window
+     ═══════════════════════════════════════════════════════ */
+  .sw-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 12px 0;
+  }
+  .sw-group { display: flex; flex-direction: column; gap: 6px; }
+  .sw-group label { font-weight: 700; font-size: 14px; color: #374151; }
+  .sw-group input[type="range"] { width: 100%; accent-color: var(--tcp-blue); }
+  .sw-val { font-family: monospace; font-size: 15px; color: var(--tcp-blue); font-weight: 700; }
+  #sw-svg { display: block; width: 100%; }
+  #sw-result {
+    background: var(--bg-section);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-family: monospace;
+    font-size: 15px;
+    line-height: 2;
+    margin-top: 12px;
+  }
+  #sw-result .highlight { color: var(--tcp-dark); font-weight: 700; font-size: 17px; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 4 — Header Dissector
+     ═══════════════════════════════════════════════════════ */
+  .hdr-grid {
+    display: grid;
+    grid-template-columns: repeat(32, 1fr);
+    gap: 0;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    overflow: hidden;
+    font-size: 9px;
+    font-family: monospace;
+    margin: 12px 0;
+    min-width: 480px;
+  }
+  .hdr-cell {
+    border-right: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+    padding: 4px 0;
+    text-align: center;
+    cursor: pointer;
+    transition: background .15s;
+    user-select: none;
+    line-height: 1.3;
+  }
+  .hdr-cell:last-child { border-right: none; }
+  .hdr-cell.active { outline: 2px solid var(--tcp-blue); outline-offset: -1px; }
+
+  .hdr-src    { background: #dbeafe; }
+  .hdr-dst    { background: #e0f2fe; }
+  .hdr-seq    { background: #dcfce7; }
+  .hdr-ack    { background: #fef3c7; }
+  .hdr-ctrl   { background: #ede9fe; }
+  .hdr-win    { background: #fce7f3; }
+  .hdr-chk    { background: #fee2e2; }
+  .hdr-urg    { background: #fff7ed; }
+
+  .hdr-info {
+    background: var(--bg-section);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 10px;
+    min-height: 60px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .hdr-info strong { color: var(--tcp-blue); }
+
+  .hdr-input-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+    align-items: flex-end;
+  }
+  .hdr-field { display: flex; flex-direction: column; gap: 4px; }
+  .hdr-field label { font-size: 12px; font-weight: 700; color: #374151; }
+  .hdr-field input, .hdr-field select {
+    padding: 6px 10px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: monospace;
+    width: 100px;
+    box-sizing: border-box;
+  }
+  .hdr-field input:focus, .hdr-field select:focus {
+    outline: none; border-color: var(--tcp-blue);
+  }
+  #flag-checkboxes { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+  #flag-checkboxes label {
+    display: flex; align-items: center; gap: 3px;
+    font-size: 13px; cursor: pointer;
+    background: #f1f5f9; padding: 3px 8px; border-radius: 12px;
+    border: 1px solid #d1d5db;
+  }
+  #flag-checkboxes input[type="checkbox"] { accent-color: var(--tcp-blue); }
+
+  /* ═══════════════════════════════════════════════════════
+     Responsive
+     ═══════════════════════════════════════════════════════ */
+  @media (max-width: 600px) {
+    .sw-controls { grid-template-columns: 1fr; }
+    .hdr-input-row { gap: 8px; }
+    .hdr-field input, .hdr-field select { width: 80px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Foundations</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-udp/visualization.html">← L7: UDP</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Tầng giao vận — TCP</span>
+  <span class="sep">·</span>
+  <a href="../../02-Application-Services/lesson-01-client-server-sockets/visualization.html">Tầng 2 → Client-server &amp; Socket</a>
+</nav>
+
+<main>
+<h1>Lesson 08 — Tầng giao vận: TCP</h1>
+<p>Bốn module tương tác: bắt tay 3 bước từng bước, mô phỏng mất gói &amp; phát lại, cửa sổ trượt, bóc tách header TCP.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — 3-Way Handshake
+     ═══════════════════════════════════════════════════════════ -->
+<h2>1. Bắt tay 3 bước (3-way handshake)</h2>
+<div class="card">
+  <p>Nhập ISN của Client và Server, sau đó bấm từng bước để xem SYN / SYN-ACK / ACK với số SEQ/ACK cụ thể.</p>
+
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;">
+    <div class="hdr-field">
+      <label>ISN Client</label>
+      <input type="number" id="hs-isn-c" value="100" min="0" max="4294967295">
+    </div>
+    <div class="hdr-field">
+      <label>ISN Server</label>
+      <input type="number" id="hs-isn-s" value="300" min="0" max="4294967295">
+    </div>
+    <div style="align-self:flex-end;">
+      <button class="btn btn-secondary" onclick="hsReset()">Đặt lại</button>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="hs-btn-step" onclick="hsStep()">Bước tiếp theo →</button>
+    <button class="btn btn-secondary" onclick="hsReset()">Bắt đầu lại</button>
+  </div>
+
+  <div id="hs-stage">
+    <svg id="hs-svg" width="560" height="280" viewBox="0 0 560 280">
+      <!-- Actors -->
+      <rect x="20" y="10" width="100" height="40" rx="6" fill="#0369a1"/>
+      <text x="70" y="35" text-anchor="middle" font-size="14" font-weight="700" fill="white">CLIENT</text>
+      <rect x="440" y="10" width="100" height="40" rx="6" fill="#0369a1"/>
+      <text x="490" y="35" text-anchor="middle" font-size="14" font-weight="700" fill="white">SERVER</text>
+
+      <!-- Timelines -->
+      <line x1="70" y1="50" x2="70" y2="275" stroke="#0369a1" stroke-width="2" stroke-dasharray="4,3"/>
+      <line x1="490" y1="50" x2="490" y2="275" stroke="#0369a1" stroke-width="2" stroke-dasharray="4,3"/>
+
+      <!-- Time labels -->
+      <text x="10" y="90" font-size="11" fill="#94a3b8">t₀</text>
+      <text x="10" y="150" font-size="11" fill="#94a3b8">t₁</text>
+      <text x="10" y="210" font-size="11" fill="#94a3b8">t₂</text>
+      <text x="10" y="260" font-size="11" fill="#94a3b8">t₃</text>
+
+      <!-- State boxes -->
+      <rect id="hs-state-c" x="0" y="55" width="140" height="26" rx="4" fill="#f0f9ff" stroke="#bae6fd" stroke-width="1"/>
+      <text id="hs-state-c-txt" x="70" y="72" text-anchor="middle" font-size="11" fill="#475569">CLOSED</text>
+      <rect id="hs-state-s" x="420" y="55" width="140" height="26" rx="4" fill="#f0f9ff" stroke="#bae6fd" stroke-width="1"/>
+      <text id="hs-state-s-txt" x="490" y="72" text-anchor="middle" font-size="11" fill="#475569">LISTEN</text>
+
+      <!-- Arrows (hidden initially) -->
+      <!-- Step 1: SYN (client → server) -->
+      <g id="hs-arrow-1" opacity="0">
+        <line x1="70" y1="110" x2="490" y2="145" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+        <rect x="180" y="108" width="180" height="22" rx="4" fill="white" stroke="#bfdbfe" stroke-width="1"/>
+        <text id="hs-lbl-1" x="270" y="123" text-anchor="middle" font-size="12" font-weight="700" fill="#1d4ed8">SYN  SEQ=? ACK=0</text>
+      </g>
+      <!-- Step 2: SYN-ACK (server → client) -->
+      <g id="hs-arrow-2" opacity="0">
+        <line x1="490" y1="168" x2="70" y2="203" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arrow-purple)"/>
+        <rect x="165" y="166" width="210" height="22" rx="4" fill="white" stroke="#ddd6fe" stroke-width="1"/>
+        <text id="hs-lbl-2" x="270" y="181" text-anchor="middle" font-size="12" font-weight="700" fill="#7c3aed">SYN-ACK  SEQ=? ACK=?</text>
+      </g>
+      <!-- Step 3: ACK (client → server) -->
+      <g id="hs-arrow-3" opacity="0">
+        <line x1="70" y1="228" x2="490" y2="263" stroke="#0369a1" stroke-width="2.5" marker-end="url(#arrow-teal)"/>
+        <rect x="185" y="226" width="175" height="22" rx="4" fill="white" stroke="#bae6fd" stroke-width="1"/>
+        <text id="hs-lbl-3" x="272" y="241" text-anchor="middle" font-size="12" font-weight="700" fill="#0369a1">ACK  SEQ=? ACK=?</text>
+      </g>
+
+      <!-- Connection established marker -->
+      <g id="hs-done" opacity="0">
+        <line x1="70" y1="268" x2="490" y2="268" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <text x="280" y="280" text-anchor="middle" font-size="11" font-weight="700" fill="#16a34a">KET NOI DUOC THIET LAP</text>
+      </g>
+
+      <!-- Arrow markers -->
+      <defs>
+        <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#1d4ed8"/>
+        </marker>
+        <marker id="arrow-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/>
+        </marker>
+        <marker id="arrow-teal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0369a1"/>
+        </marker>
+        <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+        </marker>
+        <marker id="arrow-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <div class="hs-step-box" id="hs-desc">
+    Nhấn <strong>"Bước tiếp theo"</strong> để bắt đầu mô phỏng bắt tay 3 bước TCP.
+    ISN (Initial Sequence Number) được chọn ngẫu nhiên trong thực tế — ở đây bạn tự nhập để dễ theo dõi.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — Retransmission (mất gói & phát lại)
+     ═══════════════════════════════════════════════════════════ -->
+<h2>2. Truyền tin cậy — mất gói &amp; phát lại</h2>
+<div class="card">
+  <p>Mô phỏng gửi 5 segment, chọn segment nào bị mất. TCP phát hiện qua <strong>3 duplicate ACK</strong> và phát lại ngay (fast retransmit).</p>
+
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;align-items:flex-end;">
+    <div class="hdr-field">
+      <label>Segment bị mất (1–5)</label>
+      <select id="rt-lost-seg">
+        <option value="2">Segment 2</option>
+        <option value="3" selected>Segment 3</option>
+        <option value="4">Segment 4</option>
+      </select>
+    </div>
+    <div class="hdr-field">
+      <label>SEQ bắt đầu</label>
+      <input type="number" id="rt-seq-start" value="1001" min="1" step="1000">
+    </div>
+    <div class="hdr-field">
+      <label>Kích thước segment (byte)</label>
+      <input type="number" id="rt-seg-size" value="1000" min="100" max="1460">
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="rt-btn-step" onclick="rtStep()">Bước tiếp →</button>
+    <button class="btn btn-secondary" onclick="rtReset()">Bắt đầu lại</button>
+    <button class="btn btn-secondary" onclick="rtAuto()">Tự động</button>
+  </div>
+
+  <div id="rt-stage">
+    <svg id="rt-svg" width="560" height="320" viewBox="0 0 560 320">
+      <!-- Actors -->
+      <rect x="20" y="10" width="90" height="36" rx="5" fill="#0369a1"/>
+      <text x="65" y="32" text-anchor="middle" font-size="13" font-weight="700" fill="white">SENDER</text>
+      <rect x="450" y="10" width="90" height="36" rx="5" fill="#7c3aed"/>
+      <text x="495" y="32" text-anchor="middle" font-size="13" font-weight="700" fill="white">RECEIVER</text>
+      <!-- Timelines -->
+      <line x1="65" y1="46" x2="65" y2="315" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="495" y1="46" x2="495" y2="315" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <!-- Dynamic arrows injected by JS -->
+      <g id="rt-arrows"></g>
+    </svg>
+  </div>
+
+  <div id="rt-log">Log sự kiện xuất hiện ở đây khi bạn bấm "Bước tiếp"...</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — Sliding Window
+     ═══════════════════════════════════════════════════════════ -->
+<h2>3. Cửa sổ trượt &amp; Throughput</h2>
+<div class="card">
+  <p>Kéo slider để thay đổi <strong>window size</strong> và <strong>RTT</strong>. Xem cách throughput thay đổi — và tại sao RTT cao (vệ tinh) làm tắc nghẽn throughput dù đường truyền rộng.</p>
+
+  <div class="sw-controls">
+    <div class="sw-group">
+      <label>Window Size: <span class="sw-val" id="sw-win-val">65536</span> byte (<span id="sw-win-kb">64.0</span> KB)</label>
+      <input type="range" id="sw-win" min="1024" max="1048576" step="1024" value="65536" oninput="swUpdate()">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;">
+        <span>1 KB</span><span>512 KB</span><span>1 MB</span>
+      </div>
+    </div>
+    <div class="sw-group">
+      <label>RTT: <span class="sw-val" id="sw-rtt-val">50</span> ms</label>
+      <input type="range" id="sw-rtt" min="1" max="800" step="1" value="50" oninput="swUpdate()">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;">
+        <span>1 ms</span><span>400 ms</span><span>800 ms</span>
+      </div>
+    </div>
+  </div>
+
+  <svg id="sw-svg" height="120" viewBox="0 0 560 120">
+    <!-- Background bar -->
+    <rect x="20" y="40" width="520" height="30" rx="6" fill="#e2e8f0"/>
+    <!-- Sent + unACKed (window) bar -->
+    <rect id="sw-bar-sent" x="20" y="40" width="100" height="30" rx="6" fill="#38bdf8"/>
+    <!-- ACKed bar -->
+    <rect id="sw-bar-acked" x="20" y="40" width="60" height="30" rx="0" fill="#0369a1"/>
+    <rect x="20" y="40" width="6" height="30" rx="3" fill="#0369a1"/>
+    <!-- Window boundary marker -->
+    <line id="sw-win-line" x1="200" y1="32" x2="200" y2="78" stroke="#dc2626" stroke-width="2" stroke-dasharray="4,3"/>
+    <text id="sw-win-label" x="200" y="25" text-anchor="middle" font-size="11" fill="#dc2626" font-weight="700">Window</text>
+    <!-- Labels -->
+    <text x="20" y="95" font-size="11" fill="#475569">SEQ start</text>
+    <text id="sw-seq-end" x="200" y="95" text-anchor="middle" font-size="11" fill="#0369a1">SEQ+W</text>
+    <text x="545" y="95" text-anchor="end" font-size="11" fill="#475569">Không giới hạn</text>
+    <!-- Legend -->
+    <rect x="20" y="108" width="14" height="10" rx="2" fill="#0369a1"/>
+    <text x="38" y="118" font-size="11" fill="#374151">Đã ACK</text>
+    <rect x="100" y="108" width="14" height="10" rx="2" fill="#38bdf8"/>
+    <text x="118" y="118" font-size="11" fill="#374151">Gửi chưa ACK (window)</text>
+    <rect x="250" y="108" width="14" height="10" rx="2" fill="#e2e8f0"/>
+    <text x="268" y="118" font-size="11" fill="#374151">Chưa gửi</text>
+  </svg>
+
+  <div id="sw-result">
+    Đang tính...
+  </div>
+
+  <div class="info-box" style="margin-top:12px;">
+    <strong>Lý do RTT ảnh hưởng throughput</strong>: Sender gửi tối đa W byte, rồi <em>phải đợi ACK</em> trước khi gửi tiếp. Thời gian chờ = RTT. Trong 1 RTT chỉ gửi được W byte → Throughput = W/RTT. Đường vệ tinh RTT=600ms, W=64KB → chỉ 0.85 Mbps dù đường truyền có thể là hàng Gbps.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — Header TCP Dissector
+     ═══════════════════════════════════════════════════════════ -->
+<h2>4. Bóc tách header TCP</h2>
+<div class="card">
+  <p>Nhập các trường header, chọn flags, rồi click vào từng vùng màu trong sơ đồ header để xem giải thích chi tiết.</p>
+
+  <div class="hdr-input-row">
+    <div class="hdr-field">
+      <label>Src Port</label>
+      <input type="number" id="h-sport" value="54321" min="0" max="65535" oninput="hdrRender()">
+    </div>
+    <div class="hdr-field">
+      <label>Dst Port</label>
+      <input type="number" id="h-dport" value="80" min="0" max="65535" oninput="hdrRender()">
+    </div>
+    <div class="hdr-field">
+      <label>SEQ Number</label>
+      <input type="number" id="h-seq" value="100" min="0" max="4294967295" oninput="hdrRender()">
+    </div>
+    <div class="hdr-field">
+      <label>ACK Number</label>
+      <input type="number" id="h-ack" value="0" min="0" max="4294967295" oninput="hdrRender()">
+    </div>
+    <div class="hdr-field">
+      <label>Window Size</label>
+      <input type="number" id="h-win" value="65535" min="0" max="65535" oninput="hdrRender()">
+    </div>
+  </div>
+
+  <div>
+    <strong style="font-size:13px;color:#374151;">Flags:</strong>
+    <div id="flag-checkboxes">
+      <label><input type="checkbox" id="f-syn" onchange="hdrRender()"> SYN</label>
+      <label><input type="checkbox" id="f-ack" onchange="hdrRender()"> ACK</label>
+      <label><input type="checkbox" id="f-fin" onchange="hdrRender()"> FIN</label>
+      <label><input type="checkbox" id="f-rst" onchange="hdrRender()"> RST</label>
+      <label><input type="checkbox" id="f-psh" onchange="hdrRender()"> PSH</label>
+      <label><input type="checkbox" id="f-urg" onchange="hdrRender()"> URG</label>
+    </div>
+  </div>
+
+  <div style="overflow-x:auto;margin:12px 0;">
+    <div id="hdr-grid" class="hdr-grid"></div>
+  </div>
+
+  <div class="hdr-info" id="hdr-info">
+    Click vào vùng màu trong header để xem giải thích chi tiết trường đó.
+  </div>
+
+  <div class="info-box" style="margin-top:12px;">
+    <strong>Ví dụ handshake SYN</strong>: bật flag SYN, SEQ=100, ACK=0, DST Port=80 (HTTP) → đây là gói SYN mở kết nối tới web server.
+    Thử: bật SYN+ACK, SEQ=300, ACK=101 → đây là SYN-ACK phản hồi từ server.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+// ─────────────────────────────────────────────
+// MODULE 1: 3-WAY HANDSHAKE
+// ─────────────────────────────────────────────
+let hsCurrentStep = 0;
+
+function hsGetISN() {
+  return {
+    c: parseInt(document.getElementById('hs-isn-c').value) || 100,
+    s: parseInt(document.getElementById('hs-isn-s').value) || 300
+  };
+}
+
+function svgShow(id, show) {
+  document.getElementById(id).style.opacity = show ? '1' : '0';
+  document.getElementById(id).style.transition = 'opacity 0.4s';
+}
+
+function svgText(id, text) {
+  document.getElementById(id).textContent = text;
+}
+
+function svgFill(id, fill) {
+  document.getElementById(id).setAttribute('fill', fill);
+}
+
+const hsStepDescriptions = [
+  // step 0: ready
+  'Nhấn <strong>"Bước tiếp theo"</strong> để bắt đầu. Client muốn kết nối đến server. Server đang ở trạng thái <strong>LISTEN</strong> — chờ kết nối đến.',
+
+  // step 1: SYN
+  `<span class="tag tag-syn">SYN</span> <strong>Bước 1 — Client → Server</strong><br>
+  Client chọn ISN = <span id="hs-d-isn-c">?</span>, gửi gói SYN:<br>
+  &emsp;SEQ = <span id="hs-d-seq1">?</span> (ISN client)<br>
+  &emsp;ACK = 0 (chưa nhận gì từ server, flag ACK = 0)<br>
+  Client chuyển sang trạng thái <strong>SYN_SENT</strong>. Server nhận SYN, chuyển sang <strong>SYN_RECEIVED</strong>.`,
+
+  // step 2: SYN-ACK
+  `<span class="tag tag-syn">SYN</span> <span class="tag tag-ack">ACK</span> <strong>Bước 2 — Server → Client</strong><br>
+  Server chọn ISN = <span id="hs-d-isn-s">?</span>, gửi SYN-ACK:<br>
+  &emsp;SEQ = <span id="hs-d-seq2">?</span> (ISN server)<br>
+  &emsp;ACK = <span id="hs-d-ack2">?</span> (= client ISN + 1, xác nhận đã nhận SYN client)<br>
+  Server bây giờ biết: <em>client → server</em> hoạt động. Nhưng chưa biết <em>server → client</em> có đến không.`,
+
+  // step 3: ACK
+  `<span class="tag tag-ack">ACK</span> <strong>Bước 3 — Client → Server</strong><br>
+  Client xác nhận SYN-ACK của server:<br>
+  &emsp;SEQ = <span id="hs-d-seq3">?</span> (= client ISN + 1; SYN "tiêu thụ" 1 số thứ tự)<br>
+  &emsp;ACK = <span id="hs-d-ack3">?</span> (= server ISN + 1, xác nhận SYN server)<br>
+  <strong>Kết nối được thiết lập!</strong> Cả 2 bên biết cả 2 chiều hoạt động. Client và Server đều ở trạng thái <strong>ESTABLISHED</strong>.`,
+];
+
+function hsReset() {
+  hsCurrentStep = 0;
+  ['hs-arrow-1','hs-arrow-2','hs-arrow-3','hs-done'].forEach(id => svgShow(id, false));
+  svgText('hs-state-c-txt', 'CLOSED');
+  svgText('hs-state-s-txt', 'LISTEN');
+  svgFill('hs-state-c', '#f0f9ff');
+  svgFill('hs-state-s', '#f0f9ff');
+  document.getElementById('hs-desc').innerHTML = hsStepDescriptions[0];
+  document.getElementById('hs-btn-step').disabled = false;
+  document.getElementById('hs-btn-step').textContent = 'Bước tiếp theo →';
+}
+
+function hsStep() {
+  const { c, s } = hsGetISN();
+  hsCurrentStep++;
+  if (hsCurrentStep === 1) {
+    svgShow('hs-arrow-1', true);
+    svgText('hs-lbl-1', `SYN  SEQ=${c}  ACK=0`);
+    svgText('hs-state-c-txt', 'SYN_SENT');
+    svgText('hs-state-s-txt', 'SYN_RECEIVED');
+    let desc = hsStepDescriptions[1];
+    desc = desc.replace('<span id="hs-d-isn-c">?</span>', `<strong>${c}</strong>`)
+               .replace('<span id="hs-d-seq1">?</span>', `<strong>${c}</strong>`);
+    document.getElementById('hs-desc').innerHTML = desc;
+  } else if (hsCurrentStep === 2) {
+    svgShow('hs-arrow-2', true);
+    svgText('hs-lbl-2', `SYN-ACK  SEQ=${s}  ACK=${c+1}`);
+    svgText('hs-state-c-txt', 'SYN_SENT');
+    svgText('hs-state-s-txt', 'SYN_RECEIVED');
+    let desc = hsStepDescriptions[2];
+    desc = desc.replace('<span id="hs-d-isn-s">?</span>', `<strong>${s}</strong>`)
+               .replace('<span id="hs-d-seq2">?</span>', `<strong>${s}</strong>`)
+               .replace('<span id="hs-d-ack2">?</span>', `<strong>${c+1}</strong>`);
+    document.getElementById('hs-desc').innerHTML = desc;
+  } else if (hsCurrentStep === 3) {
+    svgShow('hs-arrow-3', true);
+    svgShow('hs-done', true);
+    svgText('hs-lbl-3', `ACK  SEQ=${c+1}  ACK=${s+1}`);
+    svgText('hs-state-c-txt', 'ESTABLISHED');
+    svgText('hs-state-s-txt', 'ESTABLISHED');
+    svgFill('hs-state-c', '#dcfce7');
+    svgFill('hs-state-s', '#dcfce7');
+    let desc = hsStepDescriptions[3];
+    desc = desc.replace('<span id="hs-d-seq3">?</span>', `<strong>${c+1}</strong>`)
+               .replace('<span id="hs-d-ack3">?</span>', `<strong>${s+1}</strong>`);
+    document.getElementById('hs-desc').innerHTML = desc;
+    document.getElementById('hs-btn-step').textContent = 'Xong — Đặt lại';
+    document.getElementById('hs-btn-step').onclick = hsReset;
+  }
+}
+
+// ─────────────────────────────────────────────
+// MODULE 2: RETRANSMISSION
+// ─────────────────────────────────────────────
+let rtState = { step: 0, events: [], segSent: 0, dupAcks: 0, retransmitted: false, done: false };
+let rtAutoTimer = null;
+
+function rtGetParams() {
+  const lostSeg = parseInt(document.getElementById('rt-lost-seg').value);
+  const seqStart = parseInt(document.getElementById('rt-seq-start').value) || 1001;
+  const segSize = parseInt(document.getElementById('rt-seg-size').value) || 1000;
+  return { lostSeg, seqStart, segSize, totalSegs: 5 };
+}
+
+function rtReset() {
+  clearInterval(rtAutoTimer);
+  rtAutoTimer = null;
+  rtState = { step: 0, events: [], segSent: 0, dupAcks: 0, retransmitted: false, done: false };
+  document.getElementById('rt-arrows').innerHTML = '';
+  document.getElementById('rt-log').innerHTML = 'Log sự kiện xuất hiện ở đây khi bạn bấm "Bước tiếp"...';
+  document.getElementById('rt-btn-step').disabled = false;
+  document.getElementById('rt-btn-step').textContent = 'Bước tiếp →';
+}
+
+function rtLog(msg, cls) {
+  const el = document.getElementById('rt-log');
+  if (el.innerHTML === 'Log sự kiện xuất hiện ở đây khi bạn bấm "Bước tiếp"...') el.innerHTML = '';
+  el.innerHTML += `<span class="${cls||''}">${msg}</span>\n`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function rtDrawArrow(x1, y1, x2, y2, color, label, labelY, dashed) {
+  const g = document.getElementById('rt-arrows');
+  const markId = `mk-${color.replace('#','')}-${Date.now()}-${Math.random().toString(36).substr(2,4)}`;
+  const defs = document.getElementById('rt-svg').querySelector('defs') || (() => {
+    const d = document.createElementNS('http://www.w3.org/2000/svg','defs');
+    document.getElementById('rt-svg').prepend(d);
+    return d;
+  })();
+  const marker = document.createElementNS('http://www.w3.org/2000/svg','marker');
+  marker.setAttribute('id', markId);
+  marker.setAttribute('markerWidth','8');
+  marker.setAttribute('markerHeight','8');
+  marker.setAttribute('refX','6');
+  marker.setAttribute('refY','3');
+  marker.setAttribute('orient','auto');
+  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d','M0,0 L0,6 L8,3 z');
+  path.setAttribute('fill', color);
+  marker.appendChild(path);
+  defs.appendChild(marker);
+
+  const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+  line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+  line.setAttribute('stroke', color); line.setAttribute('stroke-width','2');
+  if (dashed) line.setAttribute('stroke-dasharray','5,3');
+  line.setAttribute('marker-end', `url(#${markId})`);
+
+  const midX = (parseFloat(x1)+parseFloat(x2))/2;
+  const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  const textW = Math.min(label.length * 6.5 + 12, 240);
+  bg.setAttribute('x', midX - textW/2); bg.setAttribute('y', labelY - 12);
+  bg.setAttribute('width', textW); bg.setAttribute('height', 16);
+  bg.setAttribute('rx','3'); bg.setAttribute('fill','white');
+  bg.setAttribute('fill-opacity','0.9');
+
+  const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+  txt.setAttribute('x', midX); txt.setAttribute('y', labelY);
+  txt.setAttribute('text-anchor','middle');
+  txt.setAttribute('font-size','11');
+  txt.setAttribute('font-weight','700');
+  txt.setAttribute('fill', color);
+  txt.textContent = label;
+
+  const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
+  grp.style.opacity = '0';
+  grp.style.transition = 'opacity 0.3s';
+  grp.appendChild(line);
+  grp.appendChild(bg);
+  grp.appendChild(txt);
+  g.appendChild(grp);
+  requestAnimationFrame(() => { grp.style.opacity = '1'; });
+}
+
+function rtStep() {
+  if (rtState.done) { rtReset(); return; }
+  const { lostSeg, seqStart, segSize, totalSegs } = rtGetParams();
+
+  // Build event list on first call
+  if (rtState.step === 0) {
+    rtState.events = [];
+    // Sender sends totalSegs segments
+    for (let i = 1; i <= totalSegs; i++) {
+      rtState.events.push({ type: 'send', seg: i });
+      if (i !== lostSeg) {
+        rtState.events.push({ type: 'recv', seg: i });
+      } else {
+        rtState.events.push({ type: 'lost', seg: i });
+      }
+    }
+    // Duplicate ACKs (3 needed for fast retransmit)
+    rtState.events.push({ type: 'dupACK', n: 1 });
+    rtState.events.push({ type: 'dupACK', n: 2 });
+    rtState.events.push({ type: 'dupACK', n: 3 }); // triggers fast retransmit
+    rtState.events.push({ type: 'retransmit' });
+    rtState.events.push({ type: 'cumACK' });
+  }
+
+  if (rtState.step >= rtState.events.length) {
+    rtState.done = true;
+    document.getElementById('rt-btn-step').textContent = 'Bắt đầu lại';
+    return;
+  }
+
+  const ev = rtState.events[rtState.step];
+  const yBase = 55;
+  const ySpacing = 38;
+  const xSender = 65, xReceiver = 495;
+
+  // y for this step
+  const yIdx = rtState.step;
+  const y1 = yBase + yIdx * ySpacing * 0.6;
+  const y2 = y1 + 14;
+
+  if (ev.type === 'send') {
+    const seq = seqStart + (ev.seg - 1) * segSize;
+    const seqEnd = seq + segSize - 1;
+    const yRow = yBase + (ev.seg - 1) * ySpacing;
+    rtDrawArrow(xSender, yRow, xReceiver - 10, yRow + 12,
+      '#0369a1', `SEG ${ev.seg}: SEQ=${seq} (${segSize}B)`, yRow + 6, false);
+    rtLog(`[Sender] Gửi Segment ${ev.seg}: SEQ=${seq}, byte ${seq}–${seqEnd}`, 'ok');
+  } else if (ev.type === 'recv') {
+    const seq = seqStart + (ev.seg - 1) * segSize;
+    const ackNum = seq + segSize;
+    const yRow = yBase + (ev.seg - 1) * ySpacing + 18;
+    rtDrawArrow(xReceiver, yRow, xSender + 10, yRow + 12,
+      '#7c3aed', `ACK=${ackNum}`, yRow + 6, false);
+    rtLog(`[Receiver] Nhận Seg ${ev.seg} OK → ACK=${ackNum}`, 'ok');
+  } else if (ev.type === 'lost') {
+    const seq = seqStart + (ev.seg - 1) * segSize;
+    const yRow = yBase + (ev.seg - 1) * ySpacing + 6;
+    const midX = (xSender + xReceiver) / 2;
+    // Draw partial arrow with X
+    const g = document.getElementById('rt-arrows');
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', xSender); line.setAttribute('y1', yRow);
+    line.setAttribute('x2', midX); line.setAttribute('y2', yRow + 6);
+    line.setAttribute('stroke','#dc2626'); line.setAttribute('stroke-width','2');
+    line.setAttribute('stroke-dasharray','6,3');
+    const xMark = document.createElementNS('http://www.w3.org/2000/svg','text');
+    xMark.setAttribute('x', midX + 10); xMark.setAttribute('y', yRow + 10);
+    xMark.setAttribute('font-size','16'); xMark.setAttribute('fill','#dc2626'); xMark.setAttribute('font-weight','700');
+    xMark.textContent = '✗ MẤT';
+    const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
+    grp.style.opacity='0'; grp.style.transition='opacity 0.3s';
+    grp.appendChild(line); grp.appendChild(xMark);
+    g.appendChild(grp);
+    requestAnimationFrame(() => { grp.style.opacity='1'; });
+    rtLog(`[Mạng] Segment ${ev.seg} (SEQ=${seq}) bị MẤT trên đường truyền!`, 'lost');
+  } else if (ev.type === 'dupACK') {
+    const lostSeq = seqStart + (lostSeg - 1) * segSize;
+    const dupAckNum = lostSeq; // last good ack
+    const prevSeg = lostSeg - 1;
+    const prevAck = seqStart + (prevSeg) * segSize;
+    const yRow = yBase + (totalSegs - 1) * ySpacing + ev.n * 22;
+    rtDrawArrow(xReceiver, yRow - 5, xSender + 10, yRow + 8,
+      '#d97706', `dup ACK #${ev.n}: ACK=${prevAck}`, yRow + 2, true);
+    rtLog(`[Receiver] Out-of-order → dup ACK #${ev.n}: ACK=${prevAck} (mong nhận SEQ=${prevAck})`, 'dup');
+    if (ev.n === 3) {
+      rtLog(`[Sender] Nhận 3 dup ACK → FAST RETRANSMIT ngay, không đợi timeout!`, 'ret');
+    }
+  } else if (ev.type === 'retransmit') {
+    const lostSeq = seqStart + (lostSeg - 1) * segSize;
+    const yRow = yBase + (totalSegs - 1) * ySpacing + 4 * 22 + 10;
+    rtDrawArrow(xSender, yRow, xReceiver - 10, yRow + 12,
+      '#7c3aed', `PHÁT LẠI: SEQ=${lostSeq} (${segSize}B)`, yRow + 6, false);
+    rtLog(`[Sender] Phát lại Segment ${lostSeg}: SEQ=${lostSeq}`, 'ret');
+  } else if (ev.type === 'cumACK') {
+    const lastSeq = seqStart + totalSegs * segSize;
+    const yRow = yBase + (totalSegs - 1) * ySpacing + 5 * 22 + 20;
+    rtDrawArrow(xReceiver, yRow, xSender + 10, yRow + 12,
+      '#16a34a', `Cumulative ACK=${lastSeq}`, yRow + 6, false);
+    rtLog(`[Receiver] Đã nhận đủ tất cả → ACK dồn (cumulative) = ${lastSeq}`, 'ok');
+    rtLog(`[Hoàn thành] Tất cả ${totalSegs} segment đã đến receiver!`, 'ok');
+    rtState.done = true;
+    document.getElementById('rt-btn-step').textContent = 'Bắt đầu lại';
+  }
+
+  rtState.step++;
+}
+
+function rtAuto() {
+  if (rtAutoTimer) { clearInterval(rtAutoTimer); rtAutoTimer = null; return; }
+  rtReset();
+  rtAutoTimer = setInterval(() => {
+    if (rtState.done) { clearInterval(rtAutoTimer); rtAutoTimer = null; return; }
+    rtStep();
+  }, 900);
+}
+
+// ─────────────────────────────────────────────
+// MODULE 3: SLIDING WINDOW
+// ─────────────────────────────────────────────
+function swUpdate() {
+  const win = parseInt(document.getElementById('sw-win').value);
+  const rtt = parseInt(document.getElementById('sw-rtt').value);
+
+  document.getElementById('sw-win-val').textContent = win.toLocaleString();
+  document.getElementById('sw-win-kb').textContent = (win/1024).toFixed(1);
+  document.getElementById('sw-rtt-val').textContent = rtt;
+
+  // Throughput
+  const throughputBps = win / (rtt / 1000);
+  let throughputStr = '';
+  if (throughputBps >= 1e9/8) throughputStr = `${(throughputBps*8/1e9).toFixed(2)} Gbps`;
+  else if (throughputBps >= 1e6/8) throughputStr = `${(throughputBps*8/1e6).toFixed(2)} Mbps`;
+  else if (throughputBps >= 1e3/8) throughputStr = `${(throughputBps*8/1e3).toFixed(2)} Kbps`;
+  else throughputStr = `${(throughputBps*8).toFixed(0)} bps`;
+
+  const throughputMbps = throughputBps * 8 / 1e6;
+
+  // Window for 1Gbps
+  const winFor1G = (1e9/8) * (rtt/1000);
+  const winFor100M = (100e6/8) * (rtt/1000);
+
+  let remark = '';
+  if (rtt >= 400) remark = `<br><span style="color:#dc2626;">Lưu ý: RTT=${rtt}ms rất cao (vệ tinh địa tĩnh). Dù tăng window lên 1MB throughput vẫn chỉ ${((1048576/(rtt/1000))*8/1e6).toFixed(1)} Mbps.</span>`;
+  else if (throughputMbps > 900) remark = `<br><span style="color:#16a34a;">Tuyệt vời: gần bão hòa đường 1 Gbps.</span>`;
+  else if (throughputMbps < 1) remark = `<br><span style="color:#d97706;">Throughput rất thấp. Cần tăng window hoặc giảm RTT.</span>`;
+
+  document.getElementById('sw-result').innerHTML = `
+    <strong>Tính toán:</strong><br>
+    Window = ${win.toLocaleString()} byte = ${(win/1024).toFixed(1)} KB<br>
+    RTT = ${rtt} ms = ${(rtt/1000).toFixed(3)} s<br>
+    <span class="highlight">Throughput = ${win.toLocaleString()} / ${(rtt/1000).toFixed(3)} = ${(throughputBps/1000).toFixed(0)} KB/s ≈ <strong>${throughputStr}</strong></span><br>
+    Để đạt 100 Mbps với RTT=${rtt}ms → cần window ≥ ${(winFor100M/1024).toFixed(0)} KB${winFor100M > 65536 ? ' (cần TCP window scaling)' : ''}
+    ${remark}
+  `;
+
+  // Update SVG bar
+  const maxW = 1048576;
+  const barW = 520;
+  const frac = Math.min(win / maxW, 1);
+  const ackedFrac = Math.min(frac * 0.4, 1); // simulate 40% acked
+  document.getElementById('sw-bar-sent').setAttribute('width', Math.max(frac * barW, 8));
+  document.getElementById('sw-bar-acked').setAttribute('width', Math.max(ackedFrac * barW, 6));
+  const winX = 20 + frac * barW;
+  document.getElementById('sw-win-line').setAttribute('x1', winX);
+  document.getElementById('sw-win-line').setAttribute('x2', winX);
+  document.getElementById('sw-win-label').setAttribute('x', Math.min(winX, 530));
+  document.getElementById('sw-seq-end').setAttribute('x', Math.min(winX, 530));
+  document.getElementById('sw-seq-end').textContent = `SEQ+${(win/1024).toFixed(0)}K`;
+}
+
+// ─────────────────────────────────────────────
+// MODULE 4: HEADER DISSECTOR
+// ─────────────────────────────────────────────
+const HDR_FIELDS = [
+  { name:'src', label:'Source Port', bits:16, cls:'hdr-src',
+    info: (v) => `<strong>Source Port: ${v}</strong><br>Cổng nguồn (2 byte, 0–65535). Cổng tạm (ephemeral port) do hệ điều hành tự cấp cho ứng dụng. Thường trong dải 49152–65535 (RFC 6335). Ví dụ: trình duyệt mở tab → OS cấp cổng 54321 cho kết nối này.` },
+  { name:'dst', label:'Dst Port', bits:16, cls:'hdr-dst',
+    info: (v) => `<strong>Destination Port: ${v}</strong><br>Cổng đích (2 byte). Xác định dịch vụ trên server: 80=HTTP, 443=HTTPS, 22=SSH, 25=SMTP, 53=DNS (TCP), 3306=MySQL. Kết hợp với địa chỉ IP tạo thành "socket" duy nhất.` },
+  { name:'seq', label:'Sequence Number', bits:32, cls:'hdr-seq',
+    info: (v) => `<strong>Sequence Number: ${v}</strong><br>Số thứ tự byte đầu tiên trong segment này (4 byte, 0–4294967295). Nếu đây là SYN, đây là ISN (Initial Sequence Number). TCP đánh số từng BYTE (không phải gói tin). Ví dụ: SEQ=1001, segment 500 byte → chứa byte 1001–1500.` },
+  { name:'ack', label:'Acknowledgment Number', bits:32, cls:'hdr-ack',
+    info: (v) => `<strong>ACK Number: ${v}</strong><br>Số byte TIẾP THEO receiver mong nhận (4 byte). Có hiệu lực khi flag ACK = 1. Ví dụ: ACK=1501 nghĩa là "đã nhận đến byte 1500, gửi tiếp từ 1501". KHÔNG phải tổng số byte đã nhận.` },
+  { name:'ctrl', label:'Data Offset + Reserved + Flags', bits:16, cls:'hdr-ctrl',
+    info: (v, flags) => `<strong>Control (Data Offset + Flags): ${v}</strong><br>4 bit Data Offset (độ dài header, tối thiểu 5 = 20 byte) + 6 bit Reserved + 6 bit Flags:<br>
+    SYN=${flags.syn?1:0} ACK=${flags.ack?1:0} FIN=${flags.fin?1:0} RST=${flags.rst?1:0} PSH=${flags.psh?1:0} URG=${flags.urg?1:0}<br>
+    <em>SYN</em>=mở kết nối; <em>ACK</em>=trường ACK number hợp lệ; <em>FIN</em>=đóng chiều gửi; <em>RST</em>=hủy khẩn; <em>PSH</em>=đẩy data lên app ngay; <em>URG</em>=có dữ liệu khẩn.` },
+  { name:'win', label:'Window Size', bits:16, cls:'hdr-win',
+    info: (v) => `<strong>Window Size: ${v} byte</strong><br>Kích thước cửa sổ nhận (2 byte, 0–65535 byte; có thể lớn hơn với window scaling option). Receiver quảng bá dung lượng buffer còn trống. Sender không được gửi quá Window Size byte chưa được ACK. Throughput = Window / RTT.` },
+  { name:'chk', label:'Checksum', bits:16, cls:'hdr-chk',
+    info: () => `<strong>Checksum (2 byte)</strong><br>Kiểm tra tính toàn vẹn của header + data TCP + pseudo-header IP. Khác với IP checksum (chỉ bảo vệ header IP). Nếu checksum sai, receiver ném bỏ segment im lặng (không gửi NACK — TCP tự phát lại qua timeout/dup ACK).` },
+  { name:'urg', label:'Urgent Pointer', bits:16, cls:'hdr-urg',
+    info: () => `<strong>Urgent Pointer (2 byte)</strong><br>Chỉ có hiệu lực khi flag URG = 1. Trỏ đến cuối vùng dữ liệu khẩn cần xử lý trước. Ứng dụng điển hình: lệnh Ctrl+C trong SSH (cần hủy tiến trình ngay). Ít được dùng trong ứng dụng hiện đại.` },
+];
+
+let hdrActiveField = null;
+
+function toBinStr(val, bits) {
+  return (val >>> 0).toString(2).padStart(bits, '0').slice(-bits);
+}
+
+function hdrRender() {
+  const sport = parseInt(document.getElementById('h-sport').value)||0;
+  const dport = parseInt(document.getElementById('h-dport').value)||0;
+  const seq   = parseInt(document.getElementById('h-seq').value)||0;
+  const ack   = parseInt(document.getElementById('h-ack').value)||0;
+  const win   = parseInt(document.getElementById('h-win').value)||0;
+  const flags = {
+    syn: document.getElementById('f-syn').checked,
+    ack: document.getElementById('f-ack').checked,
+    fin: document.getElementById('f-fin').checked,
+    rst: document.getElementById('f-rst').checked,
+    psh: document.getElementById('f-psh').checked,
+    urg: document.getElementById('f-urg').checked,
+  };
+
+  // Compute control word: DataOffset=5 (0101), Reserved=000000, Flags 6 bits
+  const flagBits = (flags.urg?32:0)|(flags.ack?16:0)|(flags.psh?8:0)|(flags.rst?4:0)|(flags.syn?2:0)|(flags.fin?1:0);
+  const ctrlWord = (5 << 12) | flagBits; // 0101 000000 FLAGS
+
+  const fieldBits = [
+    { bits: toBinStr(sport,16), cls:'hdr-src', field:'src', display: sport },
+    { bits: toBinStr(dport,16), cls:'hdr-dst', field:'dst', display: dport },
+    { bits: toBinStr(seq,32),   cls:'hdr-seq', field:'seq', display: seq },
+    { bits: toBinStr(ack,32),   cls:'hdr-ack', field:'ack', display: ack },
+    { bits: toBinStr(ctrlWord,16), cls:'hdr-ctrl', field:'ctrl', display: `0x${ctrlWord.toString(16).toUpperCase().padStart(4,'0')}` },
+    { bits: toBinStr(win,16),   cls:'hdr-win', field:'win', display: win },
+    { bits: toBinStr(0,16),     cls:'hdr-chk', field:'chk', display: '(auto)' },
+    { bits: toBinStr(0,16),     cls:'hdr-urg', field:'urg', display: 0 },
+  ];
+
+  const grid = document.getElementById('hdr-grid');
+  grid.innerHTML = '';
+
+  // Row 0: bit numbers 0-31
+  for (let i = 0; i < 32; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'hdr-cell';
+    cell.style.background = '#f8fafc';
+    cell.style.color = '#94a3b8';
+    cell.style.fontSize = '8px';
+    cell.textContent = i;
+    cell.style.cursor = 'default';
+    grid.appendChild(cell);
+  }
+
+  // Data rows
+  fieldBits.forEach(f => {
+    const bitsArr = f.bits.split('');
+    bitsArr.forEach((b, i) => {
+      const cell = document.createElement('div');
+      cell.className = `hdr-cell ${f.cls}`;
+      if (hdrActiveField === f.field) cell.classList.add('active');
+      cell.textContent = b;
+
+      // Label on first and middle cells
+      if (i === 0) {
+        cell.title = HDR_FIELDS.find(x=>x.name===f.field)?.label || f.field;
+      }
+      cell.onclick = () => {
+        hdrActiveField = f.field;
+        const fieldDef = HDR_FIELDS.find(x=>x.name===f.field);
+        if (fieldDef) {
+          document.getElementById('hdr-info').innerHTML = fieldDef.info(f.display, flags);
+        }
+        hdrRender();
+      };
+      grid.appendChild(cell);
+    });
+
+    // If field doesn't end at 32-bit boundary, pad to next row
+    const bitsInRow = bitsArr.length % 32;
+    if (bitsInRow !== 0) {
+      for (let p = bitsInRow; p < 32; p++) {
+        const pad = document.createElement('div');
+        pad.className = `hdr-cell ${f.cls}`;
+        pad.style.color = '#cbd5e1';
+        pad.textContent = '-';
+        grid.appendChild(pad);
+      }
+    }
+  });
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+hsReset();
+swUpdate();
+hdrRender();
+// Auto-check SYN for demonstration
+document.getElementById('f-syn').checked = true;
+hdrRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

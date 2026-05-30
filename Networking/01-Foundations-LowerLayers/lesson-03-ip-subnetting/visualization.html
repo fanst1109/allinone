@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Địa chỉ IP &amp; Subnetting</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette Networking ── */
+  :root {
+    --net-accent:  #0369a1;
+    --net-soft:    #e0f2fe;
+    --net-host:    #16a34a;
+    --net-host-bg: #dcfce7;
+    --net-net:     #7c3aed;
+    --net-net-bg:  #ede9fe;
+    --net-broad:   #dc2626;
+    --net-broad-bg:#fee2e2;
+    --net-border:  #0284c7;
+  }
+
+  h2 { color: #1e3a5f; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid var(--net-accent); }
+
+  .card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  /* ── Tabs ── */
+  .tab-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 0; }
+  .tab-bar button {
+    padding: 8px 16px;
+    border-radius: 8px 8px 0 0;
+    border: 2px solid #d1d5db;
+    border-bottom: none;
+    background: #f1f5f9;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer; color: #475569;
+    transition: all 0.15s;
+  }
+  .tab-bar button.active {
+    background: white;
+    border-color: var(--net-accent);
+    color: var(--net-accent);
+    border-bottom: 2px solid white;
+    margin-bottom: -2px;
+  }
+  .tab-panel { display: none; background: white; border: 2px solid var(--net-accent); border-radius: 0 8px 8px 8px; padding: 20px; }
+  .tab-panel.active { display: block; }
+
+  /* ── Input row ── */
+  .input-row {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;
+  }
+  .input-row label { font-weight: 700; font-size: 14px; color: #374151; }
+  .input-row input[type="text"] {
+    padding: 8px 12px; border: 2px solid #d1d5db; border-radius: 6px;
+    font-size: 15px; font-family: monospace; width: 180px; max-width: 100%; box-sizing: border-box;
+    transition: border-color 0.15s;
+  }
+  .input-row input[type="text"]:focus { outline: none; border-color: var(--net-accent); }
+  .input-row input[type="range"] { width: 180px; max-width: 100%; accent-color: var(--net-accent); }
+  .input-row .prefix-display {
+    font-family: monospace; font-size: 17px; font-weight: 700;
+    color: var(--net-accent); min-width: 40px;
+  }
+  .calc-btn {
+    padding: 8px 20px; background: var(--net-accent); color: white;
+    border: none; border-radius: 6px; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .calc-btn:hover { background: #075985; }
+  .error-msg { color: #dc2626; font-size: 13px; margin-top: 4px; font-weight: 600; }
+
+  /* ── Binary display ── */
+  .binary-display {
+    font-family: monospace; font-size: 14px;
+    display: flex; gap: 4px; flex-wrap: nowrap; align-items: center;
+    overflow-x: auto; padding: 10px 0;
+  }
+  .octet-group {
+    display: flex; gap: 0; border: 2px solid #e2e8f0; border-radius: 6px; overflow: hidden;
+  }
+  .bit-cell {
+    width: 28px; min-width: 28px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700;
+    border-right: 1px solid rgba(0,0,0,0.08);
+    transition: background 0.2s;
+  }
+  .bit-cell:last-child { border-right: none; }
+  .bit-cell.net { background: var(--net-net-bg); color: var(--net-net); }
+  .bit-cell.host { background: var(--net-host-bg); color: #14532d; }
+  .bit-cell.zero { opacity: 0.55; }
+  .sep-dot { font-size: 20px; color: #94a3b8; font-weight: 900; padding: 0 2px; }
+  .octet-label {
+    font-size: 11px; color: #64748b; text-align: center;
+    margin-top: 2px; font-family: monospace;
+  }
+  .octet-wrap { display: flex; flex-direction: column; align-items: center; }
+
+  .bit-legend {
+    display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px; font-size: 13px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-box { width: 16px; height: 16px; border-radius: 3px; }
+
+  /* ── Result table ── */
+  .result-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px;
+  }
+  .result-item {
+    padding: 10px 14px; border-radius: 8px; font-family: monospace;
+  }
+  .result-item .label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 4px; }
+  .result-item .value { font-size: 16px; font-weight: 700; }
+  .result-net   { background: var(--net-net-bg); }
+  .result-net   .value { color: var(--net-net); }
+  .result-broad { background: var(--net-broad-bg); }
+  .result-broad .value { color: var(--net-broad); }
+  .result-first { background: var(--net-host-bg); }
+  .result-first .value { color: var(--net-host); }
+  .result-last  { background: var(--net-host-bg); }
+  .result-last  .value { color: var(--net-host); }
+  .result-count { background: #fef9c3; grid-column: 1 / -1; }
+  .result-count .value { color: #854d0e; font-size: 18px; }
+
+  /* ── Subnet list ── */
+  .subnet-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+  .subnet-table th {
+    background: var(--net-accent); color: white; padding: 7px 10px; text-align: left;
+  }
+  .subnet-table td { padding: 6px 10px; border-bottom: 1px solid #e2e8f0; font-family: monospace; }
+  .subnet-table tr:nth-child(even) td { background: #f8fafc; }
+  .subnet-table td.net-addr { color: var(--net-net); font-weight: 700; }
+  .subnet-table td.broad-addr { color: var(--net-broad); font-weight: 700; }
+  .subnet-table .hosts-ok { color: var(--net-host); font-weight: 700; }
+
+  /* ── Same-subnet checker ── */
+  .checker-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+  .checker-row label { font-weight: 700; font-size: 14px; color: #374151; min-width: 50px; }
+  .checker-row input[type="text"] {
+    padding: 7px 10px; border: 2px solid #d1d5db; border-radius: 6px;
+    font-size: 14px; font-family: monospace; width: 160px; max-width: 100%; box-sizing: border-box;
+  }
+  .result-verdict {
+    margin-top: 16px; padding: 16px 20px; border-radius: 8px;
+    font-size: 16px; font-weight: 700; display: none;
+  }
+  .result-verdict.same { background: var(--net-host-bg); color: #14532d; display: block; }
+  .result-verdict.diff { background: var(--net-broad-bg); color: #991b1b; display: block; }
+
+  /* ── Binary walk ── */
+  .walk-step {
+    background: #f8fafc; border-left: 4px solid var(--net-accent);
+    padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 8px 0;
+    font-family: monospace; font-size: 13px; line-height: 1.7;
+  }
+  .walk-step strong { color: var(--net-accent); }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .result-grid { grid-template-columns: 1fr; }
+    .bit-cell { width: 22px; min-width: 22px; height: 30px; font-size: 13px; }
+    .input-row { flex-direction: column; align-items: flex-start; }
+    .input-row input[type="text"], .input-row input[type="range"] { width: 100%; }
+    .checker-row input[type="text"] { width: 100%; }
+  }
+  @media (max-width: 480px) {
+    .tab-bar button { padding: 6px 10px; font-size: 13px; }
+    .bit-cell { width: 18px; min-width: 18px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Foundations</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-link-ethernet/visualization.html">← L2: Tầng liên kết &amp; Ethernet</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Địa chỉ IP &amp; Subnetting</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-routing/visualization.html">L4: Định tuyến →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Địa chỉ IP &amp; Subnetting</h1>
+<p>Công cụ tương tác: Máy tính subnet (nhị phân + kết quả), Chia mạng con tự động, Kiểm tra cùng subnet.</p>
+
+<!-- ════════════════════════════════════════════════════════════
+     MODULE TABS
+     ════════════════════════════════════════════════════════════ -->
+<div class="tab-bar">
+  <button class="active" onclick="switchTab('calc')">Máy tính Subnet</button>
+  <button onclick="switchTab('split')">Chia mạng con</button>
+  <button onclick="switchTab('check')">Kiểm tra cùng subnet</button>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────────
+     TAB 1 — Subnet Calculator
+     ───────────────────────────────────────────────────────────── -->
+<div id="tab-calc" class="tab-panel active">
+
+  <h2>1. Máy tính Subnet</h2>
+  <p>Nhập địa chỉ IP và kéo slider chọn prefix. Công cụ sẽ tô màu 32 bit nhị phân (tím = network, xanh lá = host) và tính đầy đủ các thông số subnet.</p>
+
+  <div class="card">
+    <div class="input-row">
+      <label>Địa chỉ IP:</label>
+      <input type="text" id="ip-input" value="192.168.1.130" placeholder="vd 192.168.1.130">
+      <label style="margin-left:8px">Prefix:</label>
+      <input type="range" id="prefix-slider" min="8" max="30" value="26"
+             oninput="onSliderChange()">
+      <span class="prefix-display" id="prefix-val">/26</span>
+      <button class="calc-btn" onclick="calcSubnet()">Tính</button>
+    </div>
+    <div class="error-msg" id="ip-error"></div>
+
+    <!-- Binary visualization -->
+    <h3 style="margin:12px 0 4px;font-size:15px;color:#374151">Biểu diễn nhị phân 32-bit:</h3>
+    <div class="binary-display" id="bin-display">
+      <!-- injected by JS -->
+    </div>
+    <div class="bit-legend">
+      <div class="legend-item">
+        <div class="legend-box" style="background:var(--net-net-bg);border:1px solid var(--net-net)"></div>
+        <span style="color:var(--net-net);font-weight:700">Phần Network</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-box" style="background:var(--net-host-bg);border:1px solid var(--net-host)"></div>
+        <span style="color:var(--net-host);font-weight:700">Phần Host</span>
+      </div>
+    </div>
+
+    <!-- Mask binary -->
+    <h3 style="margin:14px 0 4px;font-size:15px;color:#374151">Subnet mask nhị phân:</h3>
+    <div class="binary-display" id="mask-display"></div>
+
+    <!-- Results -->
+    <div class="result-grid" id="result-grid" style="margin-top:18px">
+      <div class="result-item result-net">
+        <div class="label">Network Address</div>
+        <div class="value" id="r-net">—</div>
+      </div>
+      <div class="result-item result-broad">
+        <div class="label">Broadcast Address</div>
+        <div class="value" id="r-broad">—</div>
+      </div>
+      <div class="result-item result-first">
+        <div class="label">First Host</div>
+        <div class="value" id="r-first">—</div>
+      </div>
+      <div class="result-item result-last">
+        <div class="label">Last Host</div>
+        <div class="value" id="r-last">—</div>
+      </div>
+      <div class="result-item result-count">
+        <div class="label">Số host khả dụng (= 2<sup id="r-h">?</sup> − 2)</div>
+        <div class="value" id="r-count">—</div>
+      </div>
+    </div>
+
+    <!-- Step-by-step walkthrough -->
+    <div id="walk-panel" style="margin-top:18px;display:none">
+      <h3 style="font-size:15px;color:#374151;margin-bottom:8px">Walk-through từng bước:</h3>
+      <div id="walk-steps"></div>
+    </div>
+  </div>
+
+  <h2>2. Bảng prefix nhanh</h2>
+  <div style="overflow-x:auto">
+  <table class="subnet-table">
+    <thead>
+      <tr>
+        <th>Prefix</th><th>Subnet Mask</th><th>Octet 4 mask</th>
+        <th>Tổng địa chỉ</th><th>Host khả dụng</th><th>Dùng cho</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>/8</td><td>255.0.0.0</td><td>0</td><td>16.777.216</td><td>16.777.214</td><td>Lớp A, large enterprise</td></tr>
+      <tr><td>/16</td><td>255.255.0.0</td><td>0</td><td>65.536</td><td>65.534</td><td>Lớp B, campus network</td></tr>
+      <tr><td>/24</td><td>255.255.255.0</td><td>0</td><td>256</td><td>254</td><td>Lớp C, SOHO, phổ biến nhất</td></tr>
+      <tr><td>/25</td><td>255.255.255.128</td><td>128 = 10000000</td><td>128</td><td>126</td><td>Chia /24 thành 2</td></tr>
+      <tr><td>/26</td><td>255.255.255.192</td><td>192 = 11000000</td><td>64</td><td>62</td><td>Chia /24 thành 4</td></tr>
+      <tr><td>/27</td><td>255.255.255.224</td><td>224 = 11100000</td><td>32</td><td>30</td><td>Chia /24 thành 8</td></tr>
+      <tr><td>/28</td><td>255.255.255.240</td><td>240 = 11110000</td><td>16</td><td>14</td><td>Mạng nhỏ, IoT cluster</td></tr>
+      <tr><td>/29</td><td>255.255.255.248</td><td>248 = 11111000</td><td>8</td><td>6</td><td>Rất nhỏ</td></tr>
+      <tr><td>/30</td><td>255.255.255.252</td><td>252 = 11111100</td><td>4</td><td>2</td><td>P2P link giữa 2 router</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div><!-- /tab-calc -->
+
+<!-- ─────────────────────────────────────────────────────────────
+     TAB 2 — Subnet Splitter
+     ───────────────────────────────────────────────────────────── -->
+<div id="tab-split" class="tab-panel">
+
+  <h2>3. Chia mạng con (Subnetting)</h2>
+  <p>Nhập mạng gốc (dạng <code>192.168.1.0/24</code>) và số subnet cần chia. Công cụ tự mượn bit và liệt kê mọi subnet con.</p>
+
+  <div class="card">
+    <div class="input-row">
+      <label>Mạng gốc:</label>
+      <input type="text" id="split-net" value="192.168.1.0/24" placeholder="vd 192.168.1.0/24">
+      <label style="margin-left:8px">Số subnet:</label>
+      <input type="text" id="split-count" value="4" style="width:70px;font-family:monospace"
+             placeholder="vd 4">
+      <button class="calc-btn" onclick="calcSplit()">Chia</button>
+    </div>
+    <div class="error-msg" id="split-error"></div>
+
+    <div id="split-info" style="display:none;margin-bottom:10px" class="walk-step">
+      <span id="split-info-text"></span>
+    </div>
+
+    <div style="overflow-x:auto">
+      <table class="subnet-table" id="split-table" style="display:none">
+        <thead>
+          <tr>
+            <th>#</th><th>Network Address</th><th>First Host</th>
+            <th>Last Host</th><th>Broadcast</th><th>Host/subnet</th>
+          </tr>
+        </thead>
+        <tbody id="split-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div><!-- /tab-split -->
+
+<!-- ─────────────────────────────────────────────────────────────
+     TAB 3 — Same-Subnet Checker
+     ───────────────────────────────────────────────────────────── -->
+<div id="tab-check" class="tab-panel">
+
+  <h2>4. Kiểm tra cùng subnet</h2>
+  <p>Nhập 2 địa chỉ IP và subnet mask (hoặc prefix). Công cụ tính AND bit và kết luận cùng hay khác subnet.</p>
+
+  <div class="card">
+    <div class="checker-row">
+      <label>IP 1:</label>
+      <input type="text" id="chk-ip1" value="192.168.1.10" placeholder="192.168.1.10">
+    </div>
+    <div class="checker-row">
+      <label>IP 2:</label>
+      <input type="text" id="chk-ip2" value="192.168.1.200" placeholder="192.168.1.200">
+    </div>
+    <div class="checker-row">
+      <label>Prefix:</label>
+      <input type="range" id="chk-prefix" min="8" max="30" value="26"
+             oninput="onChkSlider()">
+      <span class="prefix-display" id="chk-prefix-val">/26</span>
+      <button class="calc-btn" onclick="calcCheck()">Kiểm tra</button>
+    </div>
+
+    <div class="result-verdict" id="chk-verdict"></div>
+
+    <div id="chk-walk" style="margin-top:14px;display:none">
+      <h3 style="font-size:14px;color:#374151;margin-bottom:6px">Walk-through AND bit (chỉ octet quyết định):</h3>
+      <div id="chk-walk-steps"></div>
+    </div>
+  </div>
+</div><!-- /tab-check -->
+
+</main>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   UTILITIES
+   ═══════════════════════════════════════════════════════════════ */
+
+function parseIP(str) {
+  const parts = str.trim().split('.');
+  if (parts.length !== 4) return null;
+  const nums = parts.map(p => parseInt(p, 10));
+  if (nums.some(n => isNaN(n) || n < 0 || n > 255)) return null;
+  return nums; // [a, b, c, d]
+}
+
+function ipToInt(octets) {
+  return ((octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3]) >>> 0;
+}
+
+function intToIP(n) {
+  return [
+    (n >>> 24) & 0xFF,
+    (n >>> 16) & 0xFF,
+    (n >>>  8) & 0xFF,
+     n         & 0xFF
+  ].join('.');
+}
+
+function toBin8(n) {
+  return ('00000000' + (n & 0xFF).toString(2)).slice(-8);
+}
+
+function toBin32(octets) {
+  return octets.map(o => toBin8(o)).join('');
+}
+
+function maskFromPrefix(prefix) {
+  if (prefix === 0) return 0;
+  return (0xFFFFFFFF << (32 - prefix)) >>> 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TAB SWITCHING
+   ═══════════════════════════════════════════════════════════════ */
+function switchTab(id) {
+  document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  // Highlight the right button
+  const btns = document.querySelectorAll('.tab-bar button');
+  const map = { calc: 0, split: 1, check: 2 };
+  btns[map[id]].classList.add('active');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TAB 1 — SUBNET CALCULATOR
+   ═══════════════════════════════════════════════════════════════ */
+
+function onSliderChange() {
+  const v = document.getElementById('prefix-slider').value;
+  document.getElementById('prefix-val').textContent = '/' + v;
+}
+
+/* Render 32-bit binary with coloring */
+function renderBin32(container, binStr, prefix, isIp) {
+  container.innerHTML = '';
+  for (let oct = 0; oct < 4; oct++) {
+    if (oct > 0) {
+      const dot = document.createElement('span');
+      dot.className = 'sep-dot'; dot.textContent = '.';
+      container.appendChild(dot);
+    }
+    const wrap = document.createElement('div');
+    wrap.className = 'octet-wrap';
+    const group = document.createElement('div');
+    group.className = 'octet-group';
+
+    for (let b = 0; b < 8; b++) {
+      const globalBit = oct * 8 + b;
+      const bit = binStr[globalBit];
+      const cell = document.createElement('div');
+      cell.className = 'bit-cell';
+      if (isIp) {
+        cell.classList.add(globalBit < prefix ? 'net' : 'host');
+      } else {
+        // mask: 1 = net, 0 = host
+        cell.classList.add(bit === '1' ? 'net' : 'host');
+      }
+      if (bit === '0') cell.classList.add('zero');
+      cell.textContent = bit;
+      group.appendChild(cell);
+    }
+
+    wrap.appendChild(group);
+    const lbl = document.createElement('div');
+    lbl.className = 'octet-label';
+    // Decimal of this octet
+    const decVal = parseInt(binStr.slice(oct*8, oct*8+8), 2);
+    lbl.textContent = decVal;
+    wrap.appendChild(lbl);
+    container.appendChild(wrap);
+  }
+}
+
+function calcSubnet() {
+  const ipStr = document.getElementById('ip-input').value;
+  const prefix = parseInt(document.getElementById('prefix-slider').value, 10);
+  const errEl = document.getElementById('ip-error');
+  errEl.textContent = '';
+
+  const octets = parseIP(ipStr);
+  if (!octets) {
+    errEl.textContent = 'Địa chỉ IP không hợp lệ. Ví dụ: 192.168.1.130';
+    return;
+  }
+
+  const H = 32 - prefix;
+  const ipInt = ipToInt(octets);
+  const mask  = maskFromPrefix(prefix);
+  const networkInt = (ipInt & mask) >>> 0;
+  const broadcastInt = (networkInt | (~mask >>> 0)) >>> 0;
+  const firstInt = (networkInt + 1) >>> 0;
+  const lastInt  = (broadcastInt - 1) >>> 0;
+  const hostCount = Math.pow(2, H) - 2;
+
+  // Binary displays
+  const ipBin  = toBin32(octets);
+  const maskBin = toBin32([
+    (mask >>> 24) & 0xFF,
+    (mask >>> 16) & 0xFF,
+    (mask >>>  8) & 0xFF,
+     mask         & 0xFF
+  ]);
+
+  renderBin32(document.getElementById('bin-display'),  ipBin,   prefix, true);
+  renderBin32(document.getElementById('mask-display'), maskBin, prefix, false);
+
+  // Results
+  document.getElementById('r-net').textContent   = intToIP(networkInt);
+  document.getElementById('r-broad').textContent = intToIP(broadcastInt);
+  document.getElementById('r-first').textContent = intToIP(firstInt);
+  document.getElementById('r-last').textContent  = intToIP(lastInt);
+  document.getElementById('r-h').textContent     = H;
+  document.getElementById('r-count').textContent = H > 1
+    ? hostCount.toLocaleString() + ' host'
+    : (H === 1 ? '0 host (prefix /31 chỉ dùng đặc biệt)' : '0 host');
+
+  // Walk-through
+  buildWalkthrough(octets, prefix, mask, networkInt, broadcastInt, H, hostCount);
+}
+
+function buildWalkthrough(octets, prefix, mask, networkInt, broadcastInt, H, hostCount) {
+  const panel = document.getElementById('walk-panel');
+  const stepsEl = document.getElementById('walk-steps');
+  panel.style.display = 'block';
+
+  const netOctets = [
+    (networkInt >>> 24) & 0xFF,
+    (networkInt >>> 16) & 0xFF,
+    (networkInt >>>  8) & 0xFF,
+     networkInt         & 0xFF
+  ];
+  const broOctets = [
+    (broadcastInt >>> 24) & 0xFF,
+    (broadcastInt >>> 16) & 0xFF,
+    (broadcastInt >>>  8) & 0xFF,
+     broadcastInt         & 0xFF
+  ];
+  const maskOctets = [
+    (mask >>> 24) & 0xFF,
+    (mask >>> 16) & 0xFF,
+    (mask >>>  8) & 0xFF,
+     mask         & 0xFF
+  ];
+
+  // Find which octets differ (for compact walk)
+  let steps = [];
+
+  steps.push(`<strong>Bước 1 — Thông tin cơ bản:</strong><br>
+  Prefix /${prefix} → <strong>${prefix} bit network</strong>, <strong>${H} bit host</strong><br>
+  Số địa chỉ tổng = 2<sup>${H}</sup> = ${Math.pow(2,H).toLocaleString()}`);
+
+  // Full AND for all 4 octets
+  let andLines = [];
+  for (let i = 0; i < 4; i++) {
+    const ipB   = toBin8(octets[i]);
+    const maskB = toBin8(maskOctets[i]);
+    const andB  = toBin8(netOctets[i]);
+    andLines.push(`Octet ${i+1}:  IP ${ipB} (${octets[i]})  AND  mask ${maskB} (${maskOctets[i]})  =  ${andB} (<strong>${netOctets[i]}</strong>)`);
+  }
+  steps.push(`<strong>Bước 2 — Network Address = IP AND mask:</strong><br>${andLines.join('<br>')}<br>→ Network = <strong>${netOctets.join('.')}</strong>`);
+
+  // Broadcast: set all host bits to 1
+  let broLines = [];
+  for (let i = 0; i < 4; i++) {
+    const netB = toBin8(netOctets[i]);
+    const broB = toBin8(broOctets[i]);
+    broLines.push(`Octet ${i+1}: ${netB} (${netOctets[i]}) → bit host = 1 → ${broB} (<strong>${broOctets[i]}</strong>)`);
+  }
+  steps.push(`<strong>Bước 3 — Broadcast = đặt tất cả ${H} bit host = 1:</strong><br>${broLines.join('<br>')}<br>→ Broadcast = <strong>${broOctets.join('.')}</strong>`);
+
+  steps.push(`<strong>Bước 4 — First host</strong> = Network + 1 = <strong>${intToIP((networkInt+1)>>>0)}</strong><br>
+<strong>Last host</strong> = Broadcast − 1 = <strong>${intToIP((broadcastInt-1)>>>0)}</strong>`);
+
+  steps.push(`<strong>Bước 5 — Số host khả dụng</strong> = 2<sup>${H}</sup> − 2 = <strong>${hostCount.toLocaleString()} host</strong><br>
+(Trừ 2: network address + broadcast không dùng được)`);
+
+  stepsEl.innerHTML = steps.map(s => `<div class="walk-step">${s}</div>`).join('');
+}
+
+// Init on load
+window.addEventListener('DOMContentLoaded', calcSubnet);
+
+/* ═══════════════════════════════════════════════════════════════
+   TAB 2 — SUBNET SPLITTER
+   ═══════════════════════════════════════════════════════════════ */
+function calcSplit() {
+  const errEl = document.getElementById('split-error');
+  errEl.textContent = '';
+
+  const raw = document.getElementById('split-net').value.trim();
+  const countStr = document.getElementById('split-count').value.trim();
+  const count = parseInt(countStr, 10);
+
+  if (isNaN(count) || count < 2 || count > 1024) {
+    errEl.textContent = 'Số subnet phải từ 2 đến 1024.';
+    return;
+  }
+
+  // Parse "A.B.C.D/n"
+  const slash = raw.indexOf('/');
+  if (slash < 0) { errEl.textContent = 'Định dạng: 192.168.1.0/24'; return; }
+  const ipStr = raw.slice(0, slash);
+  const origPrefix = parseInt(raw.slice(slash + 1), 10);
+
+  const octets = parseIP(ipStr);
+  if (!octets) { errEl.textContent = 'Địa chỉ IP không hợp lệ.'; return; }
+  if (isNaN(origPrefix) || origPrefix < 8 || origPrefix > 30) {
+    errEl.textContent = 'Prefix gốc phải từ /8 đến /30.'; return;
+  }
+
+  // Bits to borrow
+  const bitsNeeded = Math.ceil(Math.log2(count));
+  if (bitsNeeded === 0) { errEl.textContent = 'Cần ít nhất 2 subnet.'; return; }
+
+  const newPrefix = origPrefix + bitsNeeded;
+  if (newPrefix > 30) {
+    errEl.textContent = `Cần mượn ${bitsNeeded} bit → /prefix ${newPrefix} > /30. Mạng gốc quá nhỏ cho ${count} subnet.`;
+    return;
+  }
+
+  const H = 32 - newPrefix;
+  const subnetSize = Math.pow(2, H); // địa chỉ mỗi subnet
+  const actualSubnets = Math.pow(2, bitsNeeded);
+  const hostsPerSubnet = subnetSize - 2;
+
+  const origMask = maskFromPrefix(origPrefix);
+  const origNet  = (ipToInt(octets) & origMask) >>> 0;
+
+  // Info text
+  document.getElementById('split-info').style.display = 'block';
+  document.getElementById('split-info-text').innerHTML =
+    `Mượn <strong>${bitsNeeded} bit</strong> → prefix mới <strong>/${newPrefix}</strong> &nbsp;|&nbsp; ` +
+    `Tạo <strong>${actualSubnets} subnet</strong> (${count} được dùng, ${actualSubnets - count} dự phòng nếu khác 0) &nbsp;|&nbsp; ` +
+    `Mỗi subnet: <strong>${subnetSize} địa chỉ</strong>, <strong>${hostsPerSubnet} host khả dụng</strong>`;
+
+  const tbody = document.getElementById('split-tbody');
+  tbody.innerHTML = '';
+
+  for (let i = 0; i < actualSubnets; i++) {
+    const netInt  = (origNet + i * subnetSize) >>> 0;
+    const broInt  = (netInt + subnetSize - 1) >>> 0;
+    const firstInt = (netInt + 1) >>> 0;
+    const lastInt  = (broInt - 1) >>> 0;
+
+    const tr = document.createElement('tr');
+    if (i >= count) tr.style.opacity = '0.45'; // dự phòng
+    tr.innerHTML = `
+      <td>${i}</td>
+      <td class="net-addr">${intToIP(netInt)}/${newPrefix}</td>
+      <td>${intToIP(firstInt)}</td>
+      <td>${intToIP(lastInt)}</td>
+      <td class="broad-addr">${intToIP(broInt)}</td>
+      <td class="hosts-ok">${hostsPerSubnet}</td>`;
+    tbody.appendChild(tr);
+  }
+
+  document.getElementById('split-table').style.display = 'table';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TAB 3 — SAME-SUBNET CHECKER
+   ═══════════════════════════════════════════════════════════════ */
+function onChkSlider() {
+  const v = document.getElementById('chk-prefix').value;
+  document.getElementById('chk-prefix-val').textContent = '/' + v;
+}
+
+function calcCheck() {
+  const ip1Str = document.getElementById('chk-ip1').value.trim();
+  const ip2Str = document.getElementById('chk-ip2').value.trim();
+  const prefix = parseInt(document.getElementById('chk-prefix').value, 10);
+
+  const oct1 = parseIP(ip1Str);
+  const oct2 = parseIP(ip2Str);
+
+  const verdict = document.getElementById('chk-verdict');
+  const walkDiv = document.getElementById('chk-walk');
+  const stepsEl = document.getElementById('chk-walk-steps');
+
+  if (!oct1 || !oct2) {
+    verdict.className = 'result-verdict diff';
+    verdict.textContent = 'Địa chỉ IP không hợp lệ.';
+    walkDiv.style.display = 'none';
+    return;
+  }
+
+  const mask = maskFromPrefix(prefix);
+  const maskOctets = [
+    (mask >>> 24) & 0xFF, (mask >>> 16) & 0xFF,
+    (mask >>>  8) & 0xFF,  mask         & 0xFF
+  ];
+
+  const net1 = (ipToInt(oct1) & mask) >>> 0;
+  const net2 = (ipToInt(oct2) & mask) >>> 0;
+
+  const same = net1 === net2;
+
+  verdict.className = 'result-verdict ' + (same ? 'same' : 'diff');
+  verdict.innerHTML = same
+    ? `Cùng subnet! Cả hai đều thuộc <strong>${intToIP(net1)}/${prefix}</strong>. Giao tiếp trực tiếp (không qua router).`
+    : `Khác subnet! IP1 thuộc <strong>${intToIP(net1)}/${prefix}</strong>, IP2 thuộc <strong>${intToIP(net2)}/${prefix}</strong>. Cần router để giao tiếp.`;
+
+  // Walk-through: show octet(s) that differ or decide
+  let steps = [];
+
+  // Find first differing octet
+  for (let i = 0; i < 4; i++) {
+    const and1 = oct1[i] & maskOctets[i];
+    const and2 = oct2[i] & maskOctets[i];
+    if (maskOctets[i] === 0) continue; // host octet, skip if mask=0
+
+    const ip1b  = toBin8(oct1[i]);
+    const ip2b  = toBin8(oct2[i]);
+    const maskb = toBin8(maskOctets[i]);
+    const and1b = toBin8(and1);
+    const and2b = toBin8(and2);
+
+    const marker = and1 === and2 ? '✓ khớp' : '✗ khác';
+    steps.push(
+      `Octet ${i+1}:<br>` +
+      `&nbsp;&nbsp;IP1: ${ip1b} (${oct1[i]}) AND ${maskb} (${maskOctets[i]}) = ${and1b} (<strong>${and1}</strong>)<br>` +
+      `&nbsp;&nbsp;IP2: ${ip2b} (${oct2[i]}) AND ${maskb} (${maskOctets[i]}) = ${and2b} (<strong>${and2}</strong>)<br>` +
+      `&nbsp;&nbsp;→ ${marker}`
+    );
+  }
+
+  stepsEl.innerHTML = steps.map(s => `<div class="walk-step">${s}</div>`).join('');
+  walkDiv.style.display = 'block';
+}
+
+// Init sliders display
+document.getElementById('prefix-slider').addEventListener('input', onSliderChange);
+document.getElementById('chk-prefix').addEventListener('input', onChkSlider);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

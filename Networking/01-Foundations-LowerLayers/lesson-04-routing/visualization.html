@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Định tuyến (Routing)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #0c4a6e; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #0369a1; }
+
+  .card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  /* ── Topology SVG ── */
+  .topo-wrap {
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+
+  /* ── Controls ── */
+  .ctrl-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin: 12px 0;
+  }
+  .ctrl-row label {
+    font-weight: 700;
+    font-size: 14px;
+    color: #374151;
+  }
+  .ctrl-row input[type="text"] {
+    padding: 8px 12px;
+    border: 2px solid #bae6fd;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: monospace;
+    width: 160px;
+    box-sizing: border-box;
+  }
+  .ctrl-row input[type="text"]:focus {
+    outline: none;
+    border-color: #0369a1;
+  }
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-primary {
+    background: #0369a1;
+    color: white;
+  }
+  .btn-primary:hover { background: #0284c7; }
+  .btn-primary:disabled { background: #93c5fd; cursor: not-allowed; }
+  .btn-secondary {
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 2px solid #bae6fd;
+  }
+  .btn-secondary:hover { background: #bae6fd; }
+
+  /* ── Log / Steps panel ── */
+  .step-panel {
+    background: #f0f9ff;
+    border: 2px solid #bae6fd;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    min-height: 80px;
+    font-family: monospace;
+    font-size: 13.5px;
+    line-height: 1.75;
+  }
+  .step-panel .step-entry { margin-bottom: 4px; }
+  .step-panel .step-hop {
+    color: #0369a1;
+    font-weight: 700;
+  }
+  .step-panel .step-match {
+    color: #16a34a;
+  }
+  .step-panel .step-drop {
+    color: #dc2626;
+    font-weight: 700;
+  }
+  .step-panel .step-arrive {
+    color: #7c3aed;
+    font-weight: 700;
+  }
+  .step-panel .step-info {
+    color: #6b7280;
+  }
+
+  /* ── Routing Table viewer ── */
+  .rt-tabs {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 0;
+  }
+  .rt-tabs button {
+    padding: 7px 14px;
+    border-radius: 6px 6px 0 0;
+    border: 2px solid #d1d5db;
+    border-bottom: none;
+    background: #f1f5f9;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.15s;
+  }
+  .rt-tabs button.active {
+    background: white;
+    border-color: #0369a1;
+    border-bottom: 2px solid white;
+    color: #0369a1;
+    margin-bottom: -2px;
+    position: relative;
+    z-index: 1;
+  }
+  .rt-body {
+    border: 2px solid #0369a1;
+    border-radius: 0 8px 8px 8px;
+    overflow: hidden;
+  }
+  .rt-body table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  .rt-body th {
+    background: #0369a1;
+    color: white;
+    padding: 8px 12px;
+    text-align: left;
+  }
+  .rt-body td {
+    padding: 7px 12px;
+    border-bottom: 1px solid #e0f2fe;
+    font-family: monospace;
+  }
+  .rt-body tr:nth-child(even) td { background: #f0f9ff; }
+  .rt-body tr.highlight-row td {
+    background: #fef3c7 !important;
+    font-weight: 700;
+    color: #92400e;
+  }
+
+  /* ── LPM Demo ── */
+  .lpm-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 14px 0;
+  }
+  .lpm-cell {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .lpm-cell h3 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #374151;
+  }
+  .lpm-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: monospace;
+    font-size: 13px;
+    padding: 4px 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .lpm-row:last-child { border-bottom: none; }
+  .lpm-row .badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+  }
+  .badge-match { background: #dcfce7; color: #15803d; }
+  .badge-no { background: #fee2e2; color: #dc2626; }
+  .badge-best { background: #fef3c7; color: #92400e; border: 2px solid #f59e0b; }
+
+  .result-box {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 10px;
+    font-size: 14px;
+    font-family: monospace;
+  }
+  .result-box.error {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #dc2626;
+  }
+
+  /* ── Packet animation state ── */
+  .pkt-info-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  .pkt-chip {
+    padding: 5px 12px;
+    border-radius: 16px;
+    font-family: monospace;
+    font-weight: 600;
+    background: #f1f5f9;
+    border: 1.5px solid #cbd5e1;
+  }
+  .pkt-chip.active-ip { background: #dbeafe; border-color: #93c5fd; color: #1d4ed8; }
+  .pkt-chip.active-ttl { background: #fef9c3; border-color: #fde047; color: #854d0e; }
+  .pkt-chip.active-mac { background: #f3e8ff; border-color: #d8b4fe; color: #7e22ce; }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .lpm-grid { grid-template-columns: 1fr; }
+    .ctrl-row input[type="text"] { width: 130px; }
+  }
+  @media (max-width: 480px) {
+    .rt-body td, .rt-body th { padding: 6px 8px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Foundations</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-ip-subnetting/visualization.html">← L3: Địa chỉ IP &amp; Subnetting</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Định tuyến</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-arp-icmp-dhcp-nat/visualization.html">L5: ARP, ICMP, DHCP, NAT →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Định tuyến (Routing)</h1>
+<p style="color:#374151;margin-bottom:8px;">
+  Mô phỏng gói tin di chuyển qua đồ thị router, tra cứu bảng định tuyến và thuật toán <strong>longest-prefix match</strong>.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>1. Mô phỏng Định tuyến — Topology Mạng</h2>
+
+<div class="card">
+  <p style="font-size:14px;color:#374151;margin:0 0 10px 0;">
+    Topology gồm 2 host (A, B) và 3 router (R1, R2, R3). Nhập IP đích và nhấn <strong>Gửi gói</strong> để xem gói tin nhảy qua từng router theo bảng định tuyến.
+  </p>
+
+  <!-- Topology SVG -->
+  <div class="topo-wrap">
+    <svg id="topoSvg" width="700" height="320" viewBox="0 0 700 320">
+      <!-- Background -->
+      <rect width="700" height="320" fill="#f8fafc" rx="10"/>
+
+      <!-- Subnet labels -->
+      <text x="60" y="22" font-size="11" fill="#64748b" font-family="monospace">LAN-A: 192.168.1.0/24</text>
+      <text x="230" y="22" font-size="11" fill="#64748b" font-family="monospace">Transit: 10.0.12.0/30</text>
+      <text x="420" y="22" font-size="11" fill="#64748b" font-family="monospace">Transit: 10.0.23.0/30</text>
+      <text x="570" y="22" font-size="11" fill="#64748b" font-family="monospace">LAN-B: 192.168.2.0/24</text>
+
+      <!-- Links -->
+      <!-- Host A to R1 -->
+      <line id="link-a-r1" x1="100" y1="160" x2="220" y2="160" stroke="#94a3b8" stroke-width="3"/>
+      <!-- R1 to R2 -->
+      <line id="link-r1-r2" x1="260" y1="160" x2="370" y2="160" stroke="#94a3b8" stroke-width="3"/>
+      <!-- R2 to R3 -->
+      <line id="link-r2-r3" x1="410" y1="160" x2="520" y2="160" stroke="#94a3b8" stroke-width="3"/>
+      <!-- R3 to Host B -->
+      <line id="link-r3-b" x1="560" y1="160" x2="655" y2="160" stroke="#94a3b8" stroke-width="3"/>
+      <!-- R1 to R3 shortcut (upper path) -->
+      <path id="link-r1-r3" d="M 240 145 Q 385 60 535 145" fill="none" stroke="#94a3b8" stroke-width="3" stroke-dasharray="6,4"/>
+      <text x="340" y="80" font-size="10" fill="#94a3b8" font-family="monospace">backup link</text>
+
+      <!-- IP labels on links -->
+      <text x="108" y="152" font-size="10" fill="#475569" font-family="monospace">.10</text>
+      <text x="188" y="152" font-size="10" fill="#475569" font-family="monospace">.1</text>
+      <text x="264" y="152" font-size="10" fill="#475569" font-family="monospace">.1</text>
+      <text x="335" y="152" font-size="10" fill="#475569" font-family="monospace">.2</text>
+      <text x="414" y="152" font-size="10" fill="#475569" font-family="monospace">.1</text>
+      <text x="482" y="152" font-size="10" fill="#475569" font-family="monospace">.2</text>
+      <text x="562" y="152" font-size="10" fill="#475569" font-family="monospace">.1</text>
+      <text x="628" y="152" font-size="10" fill="#475569" font-family="monospace">.20</text>
+
+      <!-- Node: Host A -->
+      <circle id="node-a" cx="80" cy="160" r="26" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+      <text x="80" y="155" text-anchor="middle" font-size="12" font-weight="700" fill="#1d4ed8">Host</text>
+      <text x="80" y="169" text-anchor="middle" font-size="12" font-weight="700" fill="#1d4ed8">A</text>
+      <text x="80" y="198" text-anchor="middle" font-size="10" fill="#374151" font-family="monospace">192.168.1.10</text>
+
+      <!-- Node: R1 -->
+      <rect id="node-r1" x="218" y="136" width="44" height="44" rx="6" fill="#e0f2fe" stroke="#0369a1" stroke-width="2.5"/>
+      <text x="240" y="158" text-anchor="middle" font-size="13" font-weight="700" fill="#0c4a6e">R1</text>
+      <text x="240" y="172" text-anchor="middle" font-size="10" fill="#374151" font-family="monospace">192.168.1.1</text>
+      <text x="240" y="200" text-anchor="middle" font-size="10" fill="#374151" font-family="monospace">10.0.12.1</text>
+
+      <!-- Node: R2 -->
+      <rect id="node-r2" x="368" y="136" width="44" height="44" rx="6" fill="#e0f2fe" stroke="#0369a1" stroke-width="2.5"/>
+      <text x="390" y="158" text-anchor="middle" font-size="13" font-weight="700" fill="#0c4a6e">R2</text>
+      <text x="390" y="172" text-anchor="middle" font-size="10" fill="#374151" font-family="monospace">10.0.12.2</text>
+      <text x="390" y="200" text-anchor="middle" font-size="10" fill="#374151" font-family="monospace">10.0.23.1</text>
+
+      <!-- Node: R3 -->
+      <rect id="node-r3" x="518" y="136" width="44" height="44" rx="6" fill="#e0f2fe" stroke="#0369a1" stroke-width="2.5"/>
+      <text x="540" y="158" text-anchor="middle" font-size="13" font-weight="700" fill="#0c4a6e">R3</text>
+      <text x="540" y="172" text-anchor="middle" font-size="10" fill="#374151" font-family="monospace">10.0.23.2</text>
+      <text x="540" y="200" text-anchor="middle" font-size="10" fill="#374151" font-family="monospace">192.168.2.1</text>
+
+      <!-- Node: Host B -->
+      <circle id="node-b" cx="665" cy="160" r="26" fill="#dcfce7" stroke="#16a34a" stroke-width="2.5"/>
+      <text x="665" y="155" text-anchor="middle" font-size="12" font-weight="700" fill="#15803d">Host</text>
+      <text x="665" y="169" text-anchor="middle" font-size="12" font-weight="700" fill="#15803d">B</text>
+      <text x="665" y="198" text-anchor="middle" font-size="10" fill="#374151" font-family="monospace">192.168.2.20</text>
+
+      <!-- Packet bullet (hidden initially) -->
+      <circle id="pkt-bullet" cx="80" cy="160" r="10" fill="#f59e0b" stroke="#d97706" stroke-width="2" opacity="0"/>
+      <text id="pkt-label" x="80" y="164" text-anchor="middle" font-size="10" font-weight="700" fill="white" opacity="0">P</text>
+
+      <!-- Legend -->
+      <rect x="20" y="255" width="14" height="14" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.5" rx="2"/>
+      <text x="38" y="266" font-size="11" fill="#374151">Router</text>
+      <circle cx="110" cy="262" r="7" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+      <text x="122" y="266" font-size="11" fill="#374151">Host</text>
+      <line x1="180" y1="262" x2="210" y2="262" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,3"/>
+      <text x="215" y="266" font-size="11" fill="#374151">Backup link</text>
+      <circle cx="320" cy="262" r="8" fill="#f59e0b" stroke="#d97706" stroke-width="1.5"/>
+      <text x="333" y="266" font-size="11" fill="#374151">Gói tin</text>
+    </svg>
+  </div>
+
+  <!-- Controls -->
+  <div class="ctrl-row">
+    <label>IP đích:</label>
+    <input type="text" id="destIp" value="192.168.2.20" placeholder="vd: 192.168.2.20"/>
+    <button class="btn btn-primary" id="btnSend" onclick="startAnimation()">Gửi gói</button>
+    <button class="btn btn-secondary" onclick="resetAnim()">Đặt lại</button>
+  </div>
+
+  <!-- Quick presets -->
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 4px 0;font-size:13px;">
+    <span style="color:#6b7280;font-weight:600;">Thử nhanh:</span>
+    <button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" onclick="setDest('192.168.2.20')">192.168.2.20 (Host B)</button>
+    <button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" onclick="setDest('10.0.23.1')">10.0.23.1 (R2-eth1)</button>
+    <button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" onclick="setDest('8.8.8.8')">8.8.8.8 (Internet)</button>
+    <button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" onclick="setDest('10.99.0.1')">10.99.0.1 (không tới được)</button>
+  </div>
+
+  <!-- Packet state chips -->
+  <div class="pkt-info-bar" id="pktBar" style="display:none;">
+    <div class="pkt-chip active-ip" id="chipSrc">SRC: 192.168.1.10</div>
+    <div class="pkt-chip active-ip" id="chipDst">DST: —</div>
+    <div class="pkt-chip active-ttl" id="chipTtl">TTL: 64</div>
+    <div class="pkt-chip active-mac" id="chipMac">MAC src: MAC-A → MAC dst: —</div>
+  </div>
+
+  <!-- Step log -->
+  <div class="step-panel" id="stepLog">
+    <span style="color:#6b7280;">Nhập IP đích và nhấn "Gửi gói" để bắt đầu mô phỏng...</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>2. Bảng Định tuyến (Routing Table)</h2>
+
+<div class="card">
+  <p style="font-size:14px;color:#374151;margin:0 0 12px 0;">
+    Xem bảng định tuyến của từng thiết bị trong topology. Khi chạy mô phỏng, dòng được chọn sẽ được highlight màu vàng.
+  </p>
+
+  <div class="rt-tabs" id="rtTabs">
+    <button class="active" onclick="showRT('r1',this)">Router R1</button>
+    <button onclick="showRT('r2',this)">Router R2</button>
+    <button onclick="showRT('r3',this)">Router R3</button>
+  </div>
+  <div class="rt-body" id="rtBody">
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>3. Longest-Prefix Match — Thực hành</h2>
+
+<div class="card">
+  <p style="font-size:14px;color:#374151;margin:0 0 12px 0;">
+    Nhập một địa chỉ IP bất kỳ — công cụ sẽ kiểm tra từng dòng trong bảng định tuyến của R1 và chỉ ra dòng thắng cuộc theo quy tắc longest-prefix match.
+  </p>
+
+  <div class="ctrl-row">
+    <label>IP đích (kiểm tra):</label>
+    <input type="text" id="lpmIp" value="10.10.10.5" placeholder="vd: 10.10.10.5"/>
+    <button class="btn btn-primary" onclick="runLPM()">Kiểm tra LPM</button>
+  </div>
+
+  <!-- LPM quick presets -->
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 4px 0;font-size:13px;">
+    <span style="color:#6b7280;font-weight:600;">Ví dụ:</span>
+    <button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" onclick="setLPM('10.10.10.5')">10.10.10.5</button>
+    <button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" onclick="setLPM('10.10.50.1')">10.10.50.1</button>
+    <button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" onclick="setLPM('172.20.5.100')">172.20.5.100</button>
+    <button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" onclick="setLPM('8.8.8.8')">8.8.8.8</button>
+  </div>
+
+  <div id="lpmResult" style="margin-top:12px;"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>4. So sánh RIP vs OSPF — Chọn Đường</h2>
+
+<div class="card">
+  <p style="font-size:14px;color:#374151;margin:0 0 12px 0;">
+    Cùng topology 3 router nhưng thêm <strong>đường tắt R1→R3</strong> (backup link, băng thông thấp). RIP chọn đường theo hop count; OSPF chọn theo cost (bandwidth). Chọn giao thức để xem đường được chọn.
+  </p>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0;">
+    <button class="btn btn-secondary" id="btnRip" onclick="showProtocol('rip')" style="font-weight:700;">RIP (hop count)</button>
+    <button class="btn btn-secondary" id="btnOspf" onclick="showProtocol('ospf')">OSPF (cost)</button>
+  </div>
+
+  <div class="lpm-grid">
+    <div class="lpm-cell">
+      <h3>Đường 1: A → R1 → R2 → R3 → B</h3>
+      <div class="lpm-row"><span>Số hop:</span><span id="path1-hop" style="font-weight:700;">3</span></div>
+      <div class="lpm-row"><span>Băng thông mỗi link:</span><span>1 Gbps</span></div>
+      <div class="lpm-row"><span>OSPF cost mỗi link:</span><span>1</span></div>
+      <div class="lpm-row"><span>Tổng OSPF cost:</span><span id="path1-cost" style="font-weight:700;">3</span></div>
+      <div style="margin-top:10px;" id="path1-verdict"></div>
+    </div>
+    <div class="lpm-cell">
+      <h3>Đường 2: A → R1 → R3 → B (backup)</h3>
+      <div class="lpm-row"><span>Số hop:</span><span id="path2-hop" style="font-weight:700;">2</span></div>
+      <div class="lpm-row"><span>Băng thông mỗi link:</span><span>10 Mbps</span></div>
+      <div class="lpm-row"><span>OSPF cost mỗi link:</span><span>10</span></div>
+      <div class="lpm-row"><span>Tổng OSPF cost:</span><span id="path2-cost" style="font-weight:700;">20</span></div>
+      <div style="margin-top:10px;" id="path2-verdict"></div>
+    </div>
+  </div>
+
+  <div class="result-box" id="protocolResult">
+    Chọn một giao thức để xem kết quả phân tích.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>5. Hành trình Gói tin — MAC &amp; IP theo Hop</h2>
+
+<div class="card">
+  <p style="font-size:14px;color:#374151;margin:0 0 12px 0;">
+    Bảng này tóm tắt trực quan sự thay đổi của MAC nguồn/đích và IP nguồn/đích khi gói tin đi qua các router. IP đích luôn cố định; MAC thay đổi tại mỗi link.
+  </p>
+
+  <div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:13.5px;">
+      <thead>
+        <tr style="background:#0369a1;color:white;">
+          <th style="padding:9px 12px;text-align:left;">Chặng</th>
+          <th style="padding:9px 12px;text-align:left;">MAC nguồn</th>
+          <th style="padding:9px 12px;text-align:left;">MAC đích</th>
+          <th style="padding:9px 12px;text-align:left;">IP nguồn</th>
+          <th style="padding:9px 12px;text-align:left;">IP đích</th>
+          <th style="padding:9px 12px;text-align:left;">TTL</th>
+        </tr>
+      </thead>
+      <tbody id="hopTableBody">
+        <!-- filled by JS or static -->
+        <tr style="background:#f0f9ff;">
+          <td style="padding:8px 12px;">A → R1</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#7e22ce;">AA:AA:AA:AA</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#7e22ce;">BB:BB:BB:BB (R1-LAN)</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#1d4ed8;">192.168.1.10</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#1d4ed8;">192.168.2.20</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#854d0e;font-weight:700;">64</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 12px;">R1 → R2</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#7e22ce;">CC:CC:CC:CC (R1-WAN)</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#7e22ce;">DD:DD:DD:DD (R2-WAN)</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#1d4ed8;">192.168.1.10</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#1d4ed8;">192.168.2.20</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#854d0e;font-weight:700;">63</td>
+        </tr>
+        <tr style="background:#f0f9ff;">
+          <td style="padding:8px 12px;">R2 → R3</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#7e22ce;">EE:EE:EE:EE (R2-WAN2)</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#7e22ce;">FF:FF:FF:FF (R3-WAN)</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#1d4ed8;">192.168.1.10</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#1d4ed8;">192.168.2.20</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#854d0e;font-weight:700;">62</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 12px;">R3 → B</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#7e22ce;">11:11:11:11 (R3-LAN)</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#7e22ce;">22:22:22:22 (MAC-B)</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#1d4ed8;">192.168.1.10</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#1d4ed8;">192.168.2.20</td>
+          <td style="padding:8px 12px;font-family:monospace;color:#854d0e;font-weight:700;">61</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:13px;color:#6b7280;margin:10px 0 0 0;">
+    IP nguồn/đích (màu xanh dương) <strong>bất biến</strong> suốt hành trình.
+    MAC (màu tím) <strong>thay đổi tại mỗi link</strong> — chỉ có ý nghĩa trong đoạn kết nối đó.
+    TTL giảm 1 tại mỗi router.
+  </p>
+</div>
+
+</main>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// DATA — Routing Tables
+// ══════════════════════════════════════════════════════════════
+const routingTables = {
+  r1: [
+    { dest: '192.168.1.0/24', nextHop: 'direct',      iface: 'eth0', metric: 0, note: 'LAN-A' },
+    { dest: '10.0.12.0/30',   nextHop: 'direct',      iface: 'eth1', metric: 0, note: 'Link R1-R2' },
+    { dest: '10.0.23.0/30',   nextHop: '10.0.12.2',   iface: 'eth1', metric: 1, note: 'qua R2' },
+    { dest: '192.168.2.0/24', nextHop: '10.0.12.2',   iface: 'eth1', metric: 2, note: 'LAN-B qua R2→R3' },
+    { dest: '0.0.0.0/0',      nextHop: '203.0.113.1', iface: 'eth2', metric: 10, note: 'default / Internet' },
+  ],
+  r2: [
+    { dest: '10.0.12.0/30',   nextHop: 'direct',    iface: 'eth0', metric: 0, note: 'Link R1-R2' },
+    { dest: '10.0.23.0/30',   nextHop: 'direct',    iface: 'eth1', metric: 0, note: 'Link R2-R3' },
+    { dest: '192.168.1.0/24', nextHop: '10.0.12.1', iface: 'eth0', metric: 1, note: 'LAN-A qua R1' },
+    { dest: '192.168.2.0/24', nextHop: '10.0.23.2', iface: 'eth1', metric: 1, note: 'LAN-B qua R3' },
+    { dest: '0.0.0.0/0',      nextHop: '10.0.12.1', iface: 'eth0', metric: 10, note: 'default' },
+  ],
+  r3: [
+    { dest: '192.168.2.0/24', nextHop: 'direct',    iface: 'eth1', metric: 0, note: 'LAN-B' },
+    { dest: '10.0.23.0/30',   nextHop: 'direct',    iface: 'eth0', metric: 0, note: 'Link R2-R3' },
+    { dest: '10.0.12.0/30',   nextHop: '10.0.23.1', iface: 'eth0', metric: 1, note: 'Link R1-R2 qua R2' },
+    { dest: '192.168.1.0/24', nextHop: '10.0.23.1', iface: 'eth0', metric: 2, note: 'LAN-A qua R2→R1' },
+    { dest: '0.0.0.0/0',      nextHop: '10.0.23.1', iface: 'eth0', metric: 10, note: 'default' },
+  ],
+};
+
+// LPM table (extended, for section 3)
+const lpmTable = [
+  { dest: '10.0.0.0/8',       nextHop: '192.168.0.2', iface: 'eth0' },
+  { dest: '10.10.0.0/16',     nextHop: '192.168.0.3', iface: 'eth0' },
+  { dest: '10.10.10.0/24',    nextHop: '192.168.0.4', iface: 'eth1' },
+  { dest: '172.16.0.0/12',    nextHop: '192.168.0.5', iface: 'eth0' },
+  { dest: '192.168.1.0/24',   nextHop: 'direct',       iface: 'eth2' },
+  { dest: '0.0.0.0/0',        nextHop: '203.0.113.1',  iface: 'eth3' },
+];
+
+// ══════════════════════════════════════════════════════════════
+// UTILITY — IP matching
+// ══════════════════════════════════════════════════════════════
+function ipToInt(ip) {
+  const parts = ip.split('.').map(Number);
+  if (parts.length !== 4 || parts.some(p => isNaN(p) || p < 0 || p > 255)) return null;
+  return (parts[0] << 24 | parts[1] << 16 | parts[2] << 8 | parts[3]) >>> 0;
+}
+
+function prefixMatch(ip, prefix) {
+  const [net, lenStr] = prefix.split('/');
+  const len = parseInt(lenStr);
+  const mask = len === 0 ? 0 : (0xFFFFFFFF << (32 - len)) >>> 0;
+  const ipInt = ipToInt(ip);
+  const netInt = ipToInt(net);
+  if (ipInt === null || netInt === null) return false;
+  return (ipInt & mask) === (netInt & mask);
+}
+
+function prefixLen(prefix) {
+  return parseInt(prefix.split('/')[1]);
+}
+
+function lpmLookup(ip, table) {
+  let best = null;
+  let bestLen = -1;
+  for (const row of table) {
+    if (prefixMatch(ip, row.dest)) {
+      const len = prefixLen(row.dest);
+      if (len > bestLen) {
+        bestLen = len;
+        best = row;
+      }
+    }
+  }
+  return best;
+}
+
+// ══════════════════════════════════════════════════════════════
+// SECTION 2 — Routing Table Viewer
+// ══════════════════════════════════════════════════════════════
+let currentRT = 'r1';
+
+function showRT(id, btn) {
+  currentRT = id;
+  document.querySelectorAll('.rt-tabs button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderRT(id);
+}
+
+function renderRT(id, highlightDest) {
+  const rows = routingTables[id];
+  let html = '<table><thead><tr><th>Destination</th><th>Next Hop</th><th>Interface</th><th>Metric</th><th>Ghi chú</th></tr></thead><tbody>';
+  rows.forEach(row => {
+    const isHL = highlightDest && row.dest === highlightDest;
+    html += `<tr class="${isHL ? 'highlight-row' : ''}">
+      <td>${row.dest}</td>
+      <td>${row.nextHop}</td>
+      <td>${row.iface}</td>
+      <td>${row.metric}</td>
+      <td style="color:#6b7280;font-size:12px;">${row.note}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('rtBody').innerHTML = html;
+}
+
+renderRT('r1');
+
+// ══════════════════════════════════════════════════════════════
+// SECTION 3 — LPM Demo
+// ══════════════════════════════════════════════════════════════
+function setLPM(ip) {
+  document.getElementById('lpmIp').value = ip;
+  runLPM();
+}
+
+function runLPM() {
+  const ip = document.getElementById('lpmIp').value.trim();
+  if (!ipToInt(ip)) {
+    document.getElementById('lpmResult').innerHTML = '<div class="result-box error">IP không hợp lệ. Vui lòng nhập đúng định dạng (vd: 10.10.10.5).</div>';
+    return;
+  }
+
+  let bestLen = -1;
+  let bestRow = null;
+  for (const row of lpmTable) {
+    if (prefixMatch(ip, row.dest)) {
+      const len = prefixLen(row.dest);
+      if (len > bestLen) { bestLen = len; bestRow = row; }
+    }
+  }
+
+  let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:10px;">';
+  for (const row of lpmTable) {
+    const matched = prefixMatch(ip, row.dest);
+    const len = prefixLen(row.dest);
+    const isBest = matched && bestRow && row.dest === bestRow.dest;
+    html += `<div style="padding:9px 12px;border-radius:6px;border:1.5px solid ${isBest ? '#f59e0b' : matched ? '#86efac' : '#e5e7eb'};background:${isBest ? '#fef3c7' : matched ? '#f0fdf4' : '#f9fafb'};">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-family:monospace;font-weight:700;font-size:13px;">${row.dest}</span>
+        <span class="badge ${isBest ? 'badge-best' : matched ? 'badge-match' : 'badge-no'}">${isBest ? 'WINNER /' + len : matched ? 'Khớp /' + len : 'Không khớp'}</span>
+      </div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px;">next-hop: ${row.nextHop} / ${row.iface}</div>
+    </div>`;
+  }
+  html += '</div>';
+
+  if (bestRow) {
+    html += `<div class="result-box">
+      <strong>Ket qua LPM cho ${ip}:</strong><br>
+      Chon dong <strong>${bestRow.dest}</strong> (prefix dai nhat: /${bestLen})<br>
+      Next hop: <strong>${bestRow.nextHop}</strong> — Interface: <strong>${bestRow.iface}</strong>
+    </div>`;
+  } else {
+    html += `<div class="result-box error">Khong co dong nao khop (khong co default route). Goi tin bi huy.</div>`;
+  }
+
+  document.getElementById('lpmResult').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════════
+// SECTION 4 — Protocol Comparison
+// ══════════════════════════════════════════════════════════════
+function showProtocol(proto) {
+  document.getElementById('btnRip').classList.remove('btn-primary');
+  document.getElementById('btnOspf').classList.remove('btn-primary');
+  document.getElementById('btnRip').classList.add('btn-secondary');
+  document.getElementById('btnOspf').classList.add('btn-secondary');
+
+  let result = '';
+  if (proto === 'rip') {
+    document.getElementById('btnRip').classList.remove('btn-secondary');
+    document.getElementById('btnRip').classList.add('btn-primary');
+    document.getElementById('path1-verdict').innerHTML = '<span class="badge badge-no">Thua (3 hop)</span>';
+    document.getElementById('path2-verdict').innerHTML = '<span class="badge badge-best">RIP CHON (2 hop)</span>';
+    result = `<strong>RIP chon Duong 2</strong> (A → R1 → R3 → B, 2 hop) vi hop count thap hon.<br><br>
+      <span style="color:#dc2626;">Van de:</span> Duong 2 dung link 10 Mbps — cham hon nhieu so voi Duong 1 (1 Gbps). RIP khong biet dieu nay vi no chi dem hop, khong do bang thong.<br><br>
+      <span style="color:#16a34a;">Ket luan:</span> RIP don gian nhung co the chon duong kem hieu nang trong thuc te.`;
+  } else {
+    document.getElementById('btnOspf').classList.remove('btn-secondary');
+    document.getElementById('btnOspf').classList.add('btn-primary');
+    document.getElementById('path1-verdict').innerHTML = '<span class="badge badge-best">OSPF CHON (cost 3)</span>';
+    document.getElementById('path2-verdict').innerHTML = '<span class="badge badge-no">Thua (cost 20)</span>';
+    result = `<strong>OSPF chon Duong 1</strong> (A → R1 → R2 → R3 → B) vi tong cost thap hon.<br><br>
+      Tinh cost: 10^8 / bandwidth_bps.<br>
+      • Duong 1: link 1 Gbps → cost = 10^8 / 10^9 = 0.1 (lam tron = 1) × 3 link = <strong>3</strong>.<br>
+      • Duong 2: link 10 Mbps → cost = 10^8 / 10^7 = 10 × 2 link = <strong>20</strong>.<br><br>
+      <span style="color:#16a34a;">Ket luan:</span> OSPF phan anh dung kha nang thuc te cua duong truyen — chon duong bang thong cao du nhieu hop hon.`;
+  }
+  document.getElementById('protocolResult').innerHTML = result;
+}
+
+// ══════════════════════════════════════════════════════════════
+// SECTION 1 — Animation Engine
+// ══════════════════════════════════════════════════════════════
+
+// Node positions (center x, center y)
+const nodes = {
+  a:  { x: 80,  y: 160, label: 'Host A',  mac: 'AA:AA:AA:AA', ip: '192.168.1.10' },
+  r1: { x: 240, y: 160, label: 'R1',      mac: 'BB:BB:BB:BB', ip: 'R1', rtId: 'r1' },
+  r2: { x: 390, y: 160, label: 'R2',      mac: 'DD:DD:DD:DD', ip: 'R2', rtId: 'r2' },
+  r3: { x: 540, y: 160, label: 'R3',      mac: 'FF:FF:FF:FF', ip: 'R3', rtId: 'r3' },
+  b:  { x: 665, y: 160, label: 'Host B',  mac: '22:22:22:22', ip: '192.168.2.20' },
+};
+
+// MAC addresses per egress interface
+const egMac = {
+  'r1-eth0': 'BB:BB:BB:BB',
+  'r1-eth1': 'CC:CC:CC:CC',
+  'r1-eth2': '00:00:WAN:R1',
+  'r2-eth0': 'DD:DD:DD:DD',
+  'r2-eth1': 'EE:EE:EE:EE',
+  'r3-eth0': 'FF:FF:FF:FF',
+  'r3-eth1': '11:11:11:11',
+};
+
+// Hop sequences based on routing logic for this topology
+function resolveHops(destIp) {
+  // Returns array of hop objects: { from, to, rtId, matchedDest }
+  // Simulate A sending to destIp via R1→... according to routing tables
+  const sequence = [];
+  let current = 'a';
+  let ttl = 64;
+  const visited = new Set();
+  visited.add('a');
+
+  // First hop: A determines if dest is local or sends to default gateway R1
+  const destInt = ipToInt(destIp);
+  if (!destInt) return null;
+
+  // Is dest in 192.168.1.0/24 (Host A's LAN)?
+  if (prefixMatch(destIp, '192.168.1.0/24')) {
+    // Direct delivery on LAN (switch, no router needed) — special case
+    return [{ from: 'a', to: 'b_local', local: true, note: 'Giao hang truc tiep tren LAN (switch)' }];
+  }
+
+  // A → R1 (default gateway)
+  sequence.push({ from: 'a', to: 'r1', note: 'Gui den default gateway R1', matchedDest: null, ttlBefore: ttl });
+  ttl--;
+  current = 'r1';
+  visited.add('r1');
+
+  // Now follow routing tables through routers
+  const routerOrder = ['r1', 'r2', 'r3'];
+  for (let i = 0; i < 10; i++) {
+    if (!['r1', 'r2', 'r3'].includes(current)) break;
+    const table = routingTables[current];
+    const match = lpmLookup(destIp, table);
+    if (!match) {
+      sequence.push({ from: current, to: null, drop: true, note: `${current.toUpperCase()} khong co route den ${destIp} — huy goi` });
+      break;
+    }
+    // Check if destination is directly connected
+    if (match.nextHop === 'direct') {
+      // Deliver to destination on directly connected network
+      if (prefixMatch(destIp, match.dest)) {
+        // Find target node
+        let targetNode = null;
+        if (match.dest === '192.168.2.0/24') targetNode = 'b';
+        else if (match.dest === '10.0.12.0/30') targetNode = current === 'r1' ? 'r2' : 'r1';
+        else if (match.dest === '10.0.23.0/30') targetNode = current === 'r2' ? 'r3' : 'r2';
+        else targetNode = 'internet';
+
+        sequence.push({ from: current, to: targetNode || 'internet', matchedDest: match.dest, note: `${current.toUpperCase()} phat hien mang ket noi truc tiep: ${match.dest}`, ttlBefore: ttl });
+        break;
+      }
+    } else {
+      // Forward to next hop
+      let nextNode = null;
+      if (match.nextHop === '10.0.12.2') nextNode = 'r2';
+      else if (match.nextHop === '10.0.23.2') nextNode = 'r3';
+      else if (match.nextHop === '10.0.12.1') nextNode = 'r1';
+      else if (match.nextHop === '10.0.23.1') nextNode = 'r2';
+      else nextNode = 'internet'; // default/ISP
+
+      if (nextNode === 'internet' || nextNode === null) {
+        sequence.push({ from: current, to: 'internet', matchedDest: match.dest, note: `${current.toUpperCase()} gui ra Internet (${match.nextHop})`, ttlBefore: ttl });
+        break;
+      }
+
+      if (visited.has(nextNode)) {
+        sequence.push({ from: current, to: null, drop: true, note: `Phat hien vong lap dinh tuyen! Huy goi.` });
+        break;
+      }
+
+      sequence.push({ from: current, to: nextNode, matchedDest: match.dest, note: `${current.toUpperCase()} chuyen den next-hop ${match.nextHop} (${nextNode.toUpperCase()})`, ttlBefore: ttl });
+      ttl--;
+      if (ttl <= 0) {
+        sequence.push({ from: nextNode, to: null, drop: true, note: `TTL = 0 tai ${nextNode.toUpperCase()}. Goi bi huy (ICMP Time Exceeded gui ve nguon).` });
+        break;
+      }
+      visited.add(nextNode);
+      current = nextNode;
+    }
+  }
+  return sequence;
+}
+
+let animQueue = [];
+let animRunning = false;
+let animTimeout = null;
+
+function setDest(ip) {
+  document.getElementById('destIp').value = ip;
+}
+
+function resetAnim() {
+  if (animTimeout) clearTimeout(animTimeout);
+  animRunning = false;
+  animQueue = [];
+
+  // Reset SVG
+  const svg = document.getElementById('topoSvg');
+  // Reset link colors
+  ['link-a-r1','link-r1-r2','link-r2-r3','link-r3-b','link-r1-r3'].forEach(id => {
+    const el = svg.getElementById(id);
+    if (el) { el.setAttribute('stroke', '#94a3b8'); el.setAttribute('stroke-width', '3'); }
+  });
+  // Reset node colors
+  ['node-r1','node-r2','node-r3'].forEach(id => {
+    const el = svg.getElementById(id);
+    if (el) { el.setAttribute('fill', '#e0f2fe'); el.setAttribute('stroke', '#0369a1'); }
+  });
+  ['node-a','node-b'].forEach(id => {
+    const el = svg.getElementById(id);
+    if (el) {
+      if (id === 'node-a') { el.setAttribute('fill', '#dbeafe'); el.setAttribute('stroke', '#2563eb'); }
+      else { el.setAttribute('fill', '#dcfce7'); el.setAttribute('stroke', '#16a34a'); }
+    }
+  });
+
+  // Hide packet
+  document.getElementById('pkt-bullet').setAttribute('opacity', '0');
+  document.getElementById('pkt-label').setAttribute('opacity', '0');
+
+  document.getElementById('stepLog').innerHTML = '<span style="color:#6b7280;">Nhap IP dich va nhan "Gui goi" de bat dau mo phong...</span>';
+  document.getElementById('pktBar').style.display = 'none';
+  document.getElementById('btnSend').disabled = false;
+
+  // Reset routing table
+  renderRT(currentRT);
+}
+
+function highlightNode(nodeId, color, strokeColor) {
+  const svg = document.getElementById('topoSvg');
+  const el = svg.getElementById('node-' + nodeId);
+  if (!el) return;
+  el.setAttribute('fill', color);
+  el.setAttribute('stroke', strokeColor);
+}
+
+function highlightLink(from, to, color) {
+  const svg = document.getElementById('topoSvg');
+  const linkId = 'link-' + from + '-' + to;
+  const el = svg.getElementById(linkId);
+  if (el) {
+    el.setAttribute('stroke', color);
+    el.setAttribute('stroke-width', '5');
+  }
+}
+
+// Animate packet bullet moving from (x1,y1) to (x2,y2)
+function animateBullet(x1, y1, x2, y2, duration, callback) {
+  const bullet = document.getElementById('pkt-bullet');
+  const label = document.getElementById('pkt-label');
+  bullet.setAttribute('opacity', '1');
+  label.setAttribute('opacity', '1');
+
+  const steps = 40;
+  const dx = (x2 - x1) / steps;
+  const dy = (y2 - y1) / steps;
+  const dt = duration / steps;
+  let step = 0;
+
+  function tick() {
+    step++;
+    const cx = x1 + dx * step;
+    const cy = y1 + dy * step;
+    bullet.setAttribute('cx', cx);
+    bullet.setAttribute('cy', cy);
+    label.setAttribute('x', cx);
+    label.setAttribute('y', cy + 4);
+    if (step < steps) {
+      animTimeout = setTimeout(tick, dt);
+    } else {
+      if (callback) callback();
+    }
+  }
+  tick();
+}
+
+function appendLog(html) {
+  const log = document.getElementById('stepLog');
+  if (log.querySelector('span[style]')) log.innerHTML = '';
+  log.innerHTML += html;
+  log.scrollTop = log.scrollHeight;
+}
+
+function updateChips(src, dst, ttl, macSrc, macDst) {
+  document.getElementById('pktBar').style.display = 'flex';
+  document.getElementById('chipSrc').textContent = 'SRC: ' + src;
+  document.getElementById('chipDst').textContent = 'DST: ' + dst;
+  document.getElementById('chipTtl').textContent = 'TTL: ' + ttl;
+  document.getElementById('chipMac').textContent = 'MAC: ' + macSrc + ' → ' + macDst;
+}
+
+function startAnimation() {
+  const destIp = document.getElementById('destIp').value.trim();
+  if (!ipToInt(destIp)) {
+    alert('IP khong hop le. Vui long nhap dung dinh dang (vd: 192.168.2.20)');
+    return;
+  }
+  resetAnim();
+  animRunning = true;
+  document.getElementById('btnSend').disabled = true;
+
+  const hops = resolveHops(destIp);
+  if (!hops) {
+    appendLog('<div class="step-entry step-drop">IP dau vao khong hop le.</div>');
+    document.getElementById('btnSend').disabled = false;
+    return;
+  }
+
+  document.getElementById('stepLog').innerHTML = '';
+  let ttl = 64;
+  let hopIndex = 0;
+
+  function runNextHop() {
+    if (hopIndex >= hops.length) {
+      document.getElementById('btnSend').disabled = false;
+      return;
+    }
+    const hop = hops[hopIndex++];
+
+    // Highlight routing table for the router we're at
+    if (hop.from && routingTables[hop.from]) {
+      showRTWithHighlight(hop.from, hop.matchedDest);
+    }
+
+    if (hop.drop) {
+      appendLog(`<div class="step-entry step-drop">Canh bao: ${hop.note}</div>`);
+      highlightNode(hop.from, '#fef2f2', '#dc2626');
+      document.getElementById('btnSend').disabled = false;
+      return;
+    }
+
+    const fromNode = nodes[hop.from];
+    const toNode = nodes[hop.to] || { x: 700, y: 80, label: 'Internet' };
+
+    // Determine MAC addresses for this hop
+    let macSrc = fromNode.mac;
+    let macDst = '';
+    if (hop.to && nodes[hop.to]) macDst = nodes[hop.to].mac;
+    else macDst = '<ISP>';
+
+    // Adjust TTL
+    const ttlBefore = hop.ttlBefore !== undefined ? hop.ttlBefore : ttl;
+    if (hop.from !== 'a') {
+      // TTL already decremented in resolve logic, just display
+    }
+
+    appendLog(`<div class="step-entry"><span class="step-hop">[Hop ${hopIndex}] ${(fromNode || {label:hop.from}).label} → ${(nodes[hop.to] || {label: hop.to || '?'}).label}</span></div>`);
+    if (hop.matchedDest) appendLog(`<div class="step-entry step-match">&nbsp;&nbsp;LPM: khop voi ${hop.matchedDest}</div>`);
+    appendLog(`<div class="step-entry step-info">&nbsp;&nbsp;TTL: ${ttlBefore} | MAC: ${macSrc} → ${macDst}</div>`);
+    appendLog(`<div class="step-entry step-info">&nbsp;&nbsp;${hop.note}</div>`);
+
+    updateChips('192.168.1.10', destIp, ttlBefore, macSrc, macDst);
+
+    // Highlight link
+    if (hop.from && hop.to) {
+      const fromId = hop.from;
+      const toId = hop.to;
+      // Try both directions for link ID
+      highlightLink(fromId, toId, '#2563eb');
+      highlightLink(toId, fromId, '#2563eb');
+    }
+
+    // Animate packet bullet
+    if (fromNode && toNode) {
+      highlightNode(hop.from, '#fef3c7', '#f59e0b');
+      animateBullet(fromNode.x, fromNode.y, toNode.x, toNode.y, 700, () => {
+        if (hop.to && nodes[hop.to]) {
+          highlightNode(hop.to, '#dcfce7', '#16a34a');
+        }
+        if (hop.to === 'b') {
+          appendLog(`<div class="step-entry step-arrive">Goi tin da den dich: Host B (${destIp}). Thanh cong!</div>`);
+          document.getElementById('btnSend').disabled = false;
+          return;
+        } else if (hop.to === 'internet') {
+          appendLog(`<div class="step-entry step-arrive">Goi tin da duoc chuyen len ISP / Internet.</div>`);
+          document.getElementById('btnSend').disabled = false;
+          return;
+        }
+        animTimeout = setTimeout(runNextHop, 400);
+      });
+    } else {
+      animTimeout = setTimeout(runNextHop, 600);
+    }
+  }
+
+  runNextHop();
+}
+
+function showRTWithHighlight(routerId, matchedDest) {
+  // Switch tab to the router
+  const tabLabels = { r1: 'Router R1', r2: 'Router R2', r3: 'Router R3' };
+  document.querySelectorAll('.rt-tabs button').forEach((btn, i) => {
+    const ids = ['r1', 'r2', 'r3'];
+    if (ids[i] === routerId) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+  currentRT = routerId;
+  renderRT(routerId, matchedDest);
+}
+
+// Init LPM on load
+runLPM();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

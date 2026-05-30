@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Văn Lang – Âu Lạc</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette VietnameseHistory ── */
+  :root {
+    --accent:      #b45309;
+    --accent-soft: #fef3c7;
+    --accent-dark: #78350f;
+    --accent-mid:  #d97706;
+    --war-red:     #b91c1c;
+    --peace-green: #15803d;
+    --neutral-gray:#78716c;
+    --card-bg:     #ffffff;
+    --section-bg:  #fffbeb;
+    --border:      #fde68a;
+  }
+
+  main { max-width: 1060px; }
+
+  h1 { color: var(--accent-dark); }
+  h2 {
+    color: var(--accent);
+    margin-top: 36px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--accent-mid);
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 5px rgba(180,83,9,.12);
+    margin: 16px 0;
+    border: 1px solid var(--border);
+  }
+
+  .info-box {
+    background: var(--section-bg);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f5f5f4; color: #374151; border: 1px solid #d6d3d1; }
+  .btn-secondary:hover { background: #e7e5e4; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ════════════════════════════════════════════
+     MODULE 1 — Sơ đồ tổ chức nhà nước Văn Lang
+     ════════════════════════════════════════════ */
+  #org-svg { display: block; width: 100%; }
+  .org-box { cursor: pointer; transition: filter .2s; }
+  .org-box:hover { filter: brightness(0.92); }
+  #org-detail {
+    background: var(--section-bg);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    min-height: 60px;
+    font-size: 14px;
+    line-height: 1.7;
+    border: 1px solid var(--border);
+  }
+  #org-detail strong { color: var(--accent); }
+
+  /* ════════════════════════════════════════════
+     MODULE 2 — Thành Cổ Loa xoáy ốc
+     ════════════════════════════════════════════ */
+  #coloa-wrap { width: 100%; overflow-x: auto; }
+  #coloa-svg { display: block; margin: 0 auto; }
+  #coloa-info {
+    background: var(--section-bg);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+    border: 1px solid var(--border);
+    min-height: 60px;
+  }
+  #coloa-info strong { color: var(--accent); }
+  .coloa-legend {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  .coloa-legend-item {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .coloa-legend-swatch {
+    width: 18px; height: 12px;
+    border-radius: 3px;
+    border: 1px solid #92400e;
+  }
+
+  /* ════════════════════════════════════════════
+     MODULE 3 — Timeline
+     ════════════════════════════════════════════ */
+  .timeline-wrap { position: relative; margin: 20px 0; }
+  .timeline-axis {
+    position: absolute;
+    left: 120px;
+    top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--peace-green), var(--accent), var(--war-red));
+    border-radius: 2px;
+  }
+  .tl-event {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 22px;
+    cursor: pointer;
+    transition: opacity .2s;
+  }
+  .tl-event:hover .tl-card { box-shadow: 0 2px 10px rgba(180,83,9,.25); }
+  .tl-year {
+    width: 110px;
+    text-align: right;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent-dark);
+    padding-top: 8px;
+    flex-shrink: 0;
+  }
+  .tl-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    margin-top: 8px;
+    flex-shrink: 0;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px currentColor;
+    position: relative;
+    z-index: 1;
+  }
+  .tl-card {
+    background: white;
+    border-radius: 8px;
+    padding: 10px 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.12);
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.6;
+    border-left: 3px solid currentColor;
+    transition: box-shadow .2s;
+  }
+  .tl-card .tl-title { font-weight: 700; margin-bottom: 4px; }
+  .tl-card .tl-desc { color: #57534e; font-size: 13px; }
+  .era-green { color: var(--peace-green); }
+  .era-amber  { color: var(--accent); }
+  .era-red    { color: var(--war-red); }
+
+  /* ════════════════════════════════════════════
+     MODULE 4 — Quiz
+     ════════════════════════════════════════════ */
+  .quiz-q {
+    margin-bottom: 20px;
+    background: white;
+    border-radius: 8px;
+    padding: 16px 20px;
+    border: 1px solid var(--border);
+  }
+  .quiz-q p { font-weight: 700; margin: 0 0 10px; color: var(--accent-dark); }
+  .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1.5px solid #d6d3d1;
+    background: #fafaf9;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background .15s, border-color .15s;
+    text-align: left;
+  }
+  .quiz-opt:hover:not(.locked) { background: var(--accent-soft); border-color: var(--accent-mid); }
+  .quiz-opt.correct { background: #dcfce7; border-color: var(--peace-green); color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { background: #fee2e2; border-color: var(--war-red); color: #7f1d1d; }
+  .quiz-explain {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: var(--section-bg);
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #44403c;
+    display: none;
+  }
+  .quiz-score {
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+    padding: 16px;
+    background: var(--section-bg);
+    border-radius: 8px;
+    margin-top: 12px;
+    display: none;
+    color: var(--accent-dark);
+  }
+
+  /* ════════════════════════════════════════════
+     Responsive
+     ════════════════════════════════════════════ */
+  @media (max-width: 600px) {
+    .timeline-axis { left: 80px; }
+    .tl-year { width: 70px; font-size: 11px; }
+    .tl-card { font-size: 13px; }
+    .coloa-legend { gap: 10px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử VN — Nguồn gốc</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-tien-su-nguon-goc/visualization.html">← L1: Tiền sử &amp; nguồn gốc</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Văn Lang – Âu Lạc</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-bac-thuoc-hai-ba-trung/visualization.html">L3: Bắc thuộc &amp; Hai Bà Trưng →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Văn Lang – Âu Lạc</h1>
+<p>Bốn module tương tác: sơ đồ tổ chức nhà nước Văn Lang, mô phỏng thành Cổ Loa ba vòng xoáy ốc, timeline từ Văn Lang đến Bắc thuộc, và quiz ôn tập.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — Sơ đồ tổ chức nhà nước Văn Lang
+     ═══════════════════════════════════════════════════════════ -->
+<h2>1. Tổ chức nhà nước Văn Lang</h2>
+<div class="card">
+  <p>Click vào từng ô trong sơ đồ để xem giải thích chi tiết về vai trò của từng cấp bậc.</p>
+
+  <div style="overflow-x:auto;">
+    <svg id="org-svg" width="700" height="380" viewBox="0 0 700 380">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#b45309"/>
+        </marker>
+      </defs>
+
+      <!-- Level 0: Hùng Vương -->
+      <g class="org-box" onclick="orgClick('hung-vuong')">
+        <rect x="250" y="20" width="200" height="54" rx="8" fill="#b45309"/>
+        <text x="350" y="43" text-anchor="middle" font-size="15" font-weight="700" fill="white">Hùng Vương</text>
+        <text x="350" y="62" text-anchor="middle" font-size="12" fill="#fde68a">(Vua tối cao)</text>
+      </g>
+
+      <!-- Connector from Hùng Vương down -->
+      <line x1="350" y1="74" x2="350" y2="100" stroke="#b45309" stroke-width="2" marker-end="url(#arr)"/>
+
+      <!-- Level 1: Lạc hầu (left) and Lạc tướng (right) -->
+      <!-- Horizontal bar -->
+      <line x1="175" y1="106" x2="525" y2="106" stroke="#b45309" stroke-width="2"/>
+      <line x1="175" y1="106" x2="175" y2="118" stroke="#b45309" stroke-width="2" marker-end="url(#arr)"/>
+      <line x1="525" y1="106" x2="525" y2="118" stroke="#b45309" stroke-width="2" marker-end="url(#arr)"/>
+
+      <g class="org-box" onclick="orgClick('lac-hau')">
+        <rect x="80" y="118" width="190" height="54" rx="8" fill="#d97706"/>
+        <text x="175" y="141" text-anchor="middle" font-size="14" font-weight="700" fill="white">Lạc hầu</text>
+        <text x="175" y="160" text-anchor="middle" font-size="12" fill="#fef3c7">(Quan văn)</text>
+      </g>
+
+      <g class="org-box" onclick="orgClick('lac-tuong')">
+        <rect x="430" y="118" width="190" height="54" rx="8" fill="#d97706"/>
+        <text x="525" y="141" text-anchor="middle" font-size="14" font-weight="700" fill="white">Lạc tướng</text>
+        <text x="525" y="160" text-anchor="middle" font-size="12" fill="#fef3c7">(Quan võ / cai quản bộ)</text>
+      </g>
+
+      <!-- Connector Level 1 → Level 2 (15 bộ) -->
+      <line x1="525" y1="172" x2="525" y2="200" stroke="#b45309" stroke-width="2" marker-end="url(#arr)"/>
+
+      <!-- Level 2: 15 Bộ -->
+      <g class="org-box" onclick="orgClick('bo')">
+        <rect x="370" y="200" width="310" height="54" rx="8" fill="#92400e"/>
+        <text x="525" y="223" text-anchor="middle" font-size="14" font-weight="700" fill="white">15 Bộ</text>
+        <text x="525" y="242" text-anchor="middle" font-size="12" fill="#fde68a">(Đơn vị hành chính cấp vùng)</text>
+      </g>
+
+      <!-- Connector Level 2 → Level 3 -->
+      <line x1="525" y1="254" x2="525" y2="282" stroke="#b45309" stroke-width="2" marker-end="url(#arr)"/>
+
+      <!-- Level 3: Bồ chính (làng/chiềng) -->
+      <g class="org-box" onclick="orgClick('bo-chinh')">
+        <rect x="370" y="282" width="310" height="54" rx="8" fill="#78350f"/>
+        <text x="525" y="305" text-anchor="middle" font-size="14" font-weight="700" fill="white">Bồ chính (làng / chiềng)</text>
+        <text x="525" y="324" text-anchor="middle" font-size="12" fill="#fde68a">(Thủ lĩnh cộng đồng cơ sở)</text>
+      </g>
+
+      <!-- Left side: Kinh đô -->
+      <g class="org-box" onclick="orgClick('phong-chau')">
+        <rect x="10" y="200" width="190" height="54" rx="8" fill="#15803d" stroke="#bbf7d0" stroke-width="1"/>
+        <text x="105" y="223" text-anchor="middle" font-size="13" font-weight="700" fill="white">Kinh đô: Phong Châu</text>
+        <text x="105" y="242" text-anchor="middle" font-size="11" fill="#bbf7d0">(Phú Thọ ngày nay)</text>
+      </g>
+      <line x1="80" y1="172" x2="105" y2="200" stroke="#15803d" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+      <!-- Note: tính huyền sử -->
+      <g class="org-box" onclick="orgClick('huyen-su')">
+        <rect x="10" y="282" width="190" height="54" rx="8" fill="#78716c"/>
+        <text x="105" y="300" text-anchor="middle" font-size="12" font-weight="700" fill="white">Lưu ý: Huyền sử</text>
+        <text x="105" y="318" text-anchor="middle" font-size="11" fill="#e7e5e4">18 đời Hùng Vương</text>
+        <text x="105" y="330" text-anchor="middle" font-size="11" fill="#e7e5e4">~TK VII TCN</text>
+      </g>
+
+      <!-- Label arrows -->
+      <text x="350" y="98" text-anchor="middle" font-size="11" fill="#92400e">phân quyền</text>
+    </svg>
+  </div>
+
+  <div id="org-detail" class="info-box">
+    Click vào bất kỳ ô nào trong sơ đồ để xem giải thích chi tiết.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — Thành Cổ Loa
+     ═══════════════════════════════════════════════════════════ -->
+<h2>2. Thành Cổ Loa — Ba vòng thành xoáy ốc</h2>
+<div class="card">
+  <p>Mô hình thành Cổ Loa (sơ đồ minh họa, không theo tỉ lệ chính xác). Click vào từng vòng thành để xem thông tin.</p>
+
+  <div class="coloa-legend">
+    <div class="coloa-legend-item">
+      <div class="coloa-legend-swatch" style="background:#7f1d1d;"></div>
+      <span>Thành nội — Hoàng cung</span>
+    </div>
+    <div class="coloa-legend-item">
+      <div class="coloa-legend-swatch" style="background:#b45309;"></div>
+      <span>Thành trung — Quân sự</span>
+    </div>
+    <div class="coloa-legend-item">
+      <div class="coloa-legend-swatch" style="background:#d97706;"></div>
+      <span>Thành ngoại — Dân cư / kho lương</span>
+    </div>
+    <div class="coloa-legend-item">
+      <div class="coloa-legend-swatch" style="background:#1d4ed8; border-color:#1d4ed8;"></div>
+      <span>Hào nước</span>
+    </div>
+  </div>
+
+  <div id="coloa-wrap">
+    <svg id="coloa-svg" width="500" height="420" viewBox="0 0 500 420">
+      <defs>
+        <radialGradient id="grad-ngoai" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="#fef9c3"/>
+          <stop offset="100%" stop-color="#fef3c7"/>
+        </radialGradient>
+      </defs>
+
+      <!-- Background -->
+      <rect x="0" y="0" width="500" height="420" fill="#f0fdf4" rx="8"/>
+
+      <!-- River / surrounding water (schematic) -->
+      <ellipse cx="250" cy="220" rx="230" ry="185" fill="#bfdbfe" opacity="0.35"/>
+
+      <!-- Thành ngoại (outer wall) -->
+      <ellipse id="cl-ngoai" cx="250" cy="220" rx="195" ry="160"
+        fill="#fef3c7" stroke="#d97706" stroke-width="8" cursor="pointer"
+        onclick="coloaClick('ngoai')"/>
+
+      <!-- Hào ngoài (outer moat) -->
+      <ellipse cx="250" cy="218" rx="157" ry="128"
+        fill="#93c5fd" opacity="0.55" stroke="#3b82f6" stroke-width="2"/>
+
+      <!-- Thành trung (middle wall) -->
+      <ellipse id="cl-trung" cx="250" cy="216" rx="145" ry="116"
+        fill="#fef3c7" stroke="#b45309" stroke-width="8" cursor="pointer"
+        onclick="coloaClick('trung')"/>
+
+      <!-- Hào giữa (middle moat) -->
+      <ellipse cx="250" cy="214" rx="110" ry="86"
+        fill="#93c5fd" opacity="0.55" stroke="#3b82f6" stroke-width="2"/>
+
+      <!-- Thành nội (inner citadel) -->
+      <ellipse id="cl-noi" cx="250" cy="212" rx="98" ry="74"
+        fill="#fde68a" stroke="#7f1d1d" stroke-width="8" cursor="pointer"
+        onclick="coloaClick('noi')"/>
+
+      <!-- Hoàng cung (palace) -->
+      <rect x="215" y="187" width="70" height="50" rx="5" fill="#92400e" cursor="pointer"
+        onclick="coloaClick('noi')"/>
+      <text x="250" y="208" text-anchor="middle" font-size="11" font-weight="700" fill="white">Hoàng</text>
+      <text x="250" y="223" text-anchor="middle" font-size="11" font-weight="700" fill="white">cung</text>
+
+      <!-- Dimension labels -->
+      <!-- Outer wall circumference label -->
+      <text x="250" y="396" text-anchor="middle" font-size="12" fill="#78350f" font-weight="600">
+        Chu vi thành ngoại ~8 km
+      </text>
+      <line x1="55" y1="380" x2="250" y2="380" stroke="#d97706" stroke-width="1.5"/>
+      <line x1="250" y1="380" x2="445" y2="380" stroke="#d97706" stroke-width="1.5"/>
+      <line x1="55" y1="375" x2="55" y2="385" stroke="#d97706" stroke-width="1.5"/>
+      <line x1="445" y1="375" x2="445" y2="385" stroke="#d97706" stroke-width="1.5"/>
+
+      <!-- Middle wall label (right side) -->
+      <line x1="395" y1="216" x2="420" y2="216" stroke="#b45309" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <text x="422" y="213" font-size="11" fill="#92400e">~6.5 km</text>
+
+      <!-- Inner wall label (right side) -->
+      <line x1="348" y1="212" x2="380" y2="212" stroke="#7f1d1d" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <text x="382" y="209" font-size="11" fill="#7f1d1d">~1.6 km</text>
+
+      <!-- North indicator -->
+      <text x="250" y="28" text-anchor="middle" font-size="13" fill="#44403c" font-weight="700">BẮC</text>
+      <text x="250" y="46" text-anchor="middle" font-size="11" fill="#78716c">(hướng Hà Nội)</text>
+      <line x1="250" y1="50" x2="250" y2="62" stroke="#44403c" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- River label -->
+      <text x="32" y="220" text-anchor="middle" font-size="11" fill="#1d4ed8" transform="rotate(-45 32 220)">sông Hoàng Giang</text>
+
+      <!-- Interactive hint -->
+      <text x="250" y="360" text-anchor="middle" font-size="12" fill="#78716c" font-style="italic">
+        (Click vào vòng thành để xem thông tin)
+      </text>
+    </svg>
+  </div>
+
+  <div id="coloa-info" class="info-box">
+    Click vào từng vòng thành để xem chi tiết kiến trúc và chức năng.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — Timeline
+     ═══════════════════════════════════════════════════════════ -->
+<h2>3. Timeline: Từ Văn Lang đến Bắc thuộc</h2>
+<div class="card">
+  <p>Các mốc chính từ thời Hùng Vương đến khi Âu Lạc mất độc lập. Click từng sự kiện để xem chi tiết.</p>
+
+  <div id="tl-detail" class="info-box" style="margin-bottom:16px; display:none;"></div>
+
+  <div class="timeline-wrap" id="timeline-wrap">
+    <div class="timeline-axis"></div>
+    <!-- Events rendered by JS -->
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — Quiz
+     ═══════════════════════════════════════════════════════════ -->
+<h2>4. Quiz ôn tập</h2>
+<div class="card">
+  <p>Kiểm tra kiến thức của bạn. Mỗi câu chỉ chọn một đáp án.</p>
+  <div id="quiz-container"></div>
+  <div class="btn-row" style="margin-top:12px;">
+    <button class="btn btn-primary" onclick="quizSubmit()">Nộp bài</button>
+    <button class="btn btn-secondary" onclick="quizReset()">Làm lại</button>
+  </div>
+  <div class="quiz-score" id="quiz-score"></div>
+</div>
+
+<!-- ─────────────────────────────────────────────────────────── -->
+<script>
+// ════════════════════════════════════════════
+// MODULE 1: Sơ đồ tổ chức nhà nước
+// ════════════════════════════════════════════
+const ORG_DATA = {
+  'hung-vuong': {
+    title: 'Hùng Vương — Vua tối cao',
+    body: `"Hùng Vương" là danh hiệu (title), không phải tên riêng — có 18 đời Hùng Vương theo truyền thuyết. Vua Hùng nắm quyền lực tối cao: chính trị, quân sự, tế tự (cúng tế trời đất). Cha truyền con nối trong dòng họ Hùng. Theo Đại Việt sử ký toàn thư, kinh đô đặt tại Phong Châu (Phú Thọ).`
+  },
+  'lac-hau': {
+    title: 'Lạc hầu — Quan văn',
+    body: `Lạc hầu là các quan văn phụ tá Hùng Vương về chính sự: quản lý hành chính, thuế, lễ nghi. Tương đương thừa tướng hay tể tướng ở các triều đại sau. Từ "Lạc" (駱) có thể liên quan đến tên gọi nhóm cư dân Lạc Việt, từ nguyên vẫn còn tranh luận trong giới sử học.`
+  },
+  'lac-tuong': {
+    title: 'Lạc tướng — Quan võ / cai quản bộ',
+    body: `Lạc tướng vừa là tướng lĩnh quân sự vừa là người cai quản các bộ (đơn vị hành chính cấp vùng). Mỗi bộ có một Lạc tướng. Vai trò này kết hợp quyền dân sự và quân sự — đặc trưng của nhà nước sơ khai chưa phân tách rõ hành pháp và quân đội.`
+  },
+  'bo': {
+    title: '15 Bộ — Đơn vị hành chính cấp vùng',
+    body: `Văn Lang chia thành 15 bộ, mỗi bộ do một Lạc tướng cai quản. Theo Đại Việt sử ký toàn thư, 15 bộ gồm: Văn Lang, Châu Diên, Phúc Lộc, Tân Hưng, Vũ Định, Vũ Ninh, Lục Hải, Ninh Hải, Dương Tuyền, Giao Chỉ, Chu Diên, Hoài Hoan, Cửu Chân, Bình Văn, Tân Dạ. Lưu ý: các địa danh này có thể được ghi lại theo tên thời sau, cần đọc với tinh thần phê phán sử liệu.`
+  },
+  'bo-chinh': {
+    title: 'Bồ chính — Thủ lĩnh làng / chiềng',
+    body: `Bồ chính (còn gọi là chạ, chiềng) là người đứng đầu cộng đồng cơ sở — tương đương trưởng làng ngày nay. Họ quản lý đất đai, giải quyết tranh chấp nội bộ, tổ chức lao động sản xuất. Đây là cấp bậc gần dân nhất trong hệ thống nhà nước Văn Lang.`
+  },
+  'phong-chau': {
+    title: 'Kinh đô Phong Châu',
+    body: `Phong Châu nằm ở vùng Bạch Hạc, tỉnh Phú Thọ ngày nay — ngã ba sông Lô, sông Đà và sông Hồng. Vị trí chiến lược: kiểm soát giao thông thủy từ thượng nguồn xuống đồng bằng, dễ thu thuế và huy động lực lượng. Đền Hùng (trên núi Nghĩa Lĩnh, Phú Thọ) được coi là địa điểm thờ tự Hùng Vương đến ngày nay.`
+  },
+  'huyen-su': {
+    title: 'Lưu ý về tính huyền sử',
+    body: `Con số "18 đời Hùng Vương" mang tính tượng trưng. Niên đại "2879 TCN" trong một số truyền thuyết không có cơ sở khảo cổ học. Bằng chứng vật chất đáng tin cậy nhất gắn với thời Hùng Vương là văn hóa Đông Sơn (~thế kỉ VII TCN – đầu CN): trống đồng, vũ khí đồng, gốm sứ đặc trưng. Phương pháp đúng: đọc truyền thuyết cùng với bằng chứng khảo cổ, không lấy truyền thuyết làm sử liệu tuyệt đối.`
+  }
+};
+
+function orgClick(key) {
+  const d = ORG_DATA[key];
+  if (!d) return;
+  document.getElementById('org-detail').innerHTML =
+    `<strong>${d.title}</strong><br>${d.body}`;
+}
+
+// ════════════════════════════════════════════
+// MODULE 2: Thành Cổ Loa
+// ════════════════════════════════════════════
+const COLOA_DATA = {
+  noi: {
+    title: 'Thành nội — Hoàng cung An Dương Vương',
+    body: `<strong>Chu vi:</strong> khoảng 1,6 km. Hình dạng bầu dục không đều, tường thành đắp bằng đất. Đây là trung tâm quyền lực của Âu Lạc: nơi ở và làm việc của An Dương Vương, kho báu, và theo truyền thuyết là nơi cất giữ nỏ thần. Hào nước bao quanh tạo thêm lớp phòng thủ ngay sát tường trong.`
+  },
+  trung: {
+    title: 'Thành trung — Khu vực quân sự',
+    body: `<strong>Chu vi:</strong> khoảng 6,5 km. Vòng thành giữa là nơi đóng quân, kho vũ khí, và khu vực phòng thủ trực tiếp bảo vệ thành nội. Hàng ngàn mũi tên đồng được khai quật tại khu vực này — bằng chứng vật chất về sản xuất vũ khí quy mô lớn. Hào nước giữa thành nội và thành trung tăng cường cô lập tầng phòng thủ.`
+  },
+  ngoai: {
+    title: 'Thành ngoại — Khu dân cư và kho lương',
+    body: `<strong>Chu vi:</strong> khoảng 8 km — vòng thành lớn nhất. Bảo vệ khu vực dân cư, kho lương thực và các công xưởng sản xuất. Là tuyến phòng thủ đầu tiên kẻ thù phải vượt qua. Ngày nay phần lớn thành ngoại đã bị lấp bởi khu dân cư — chỉ còn dấu tích ở một số đoạn.`
+  }
+};
+
+function coloaClick(key) {
+  const d = COLOA_DATA[key];
+  if (!d) return;
+  // Reset highlight
+  ['cl-noi','cl-trung','cl-ngoai'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('opacity','1');
+  });
+  // Highlight selected
+  const idMap = { noi:'cl-noi', trung:'cl-trung', ngoai:'cl-ngoai' };
+  const target = document.getElementById(idMap[key]);
+  if (target) {
+    target.setAttribute('stroke-width','12');
+    setTimeout(() => target.setAttribute('stroke-width','8'), 1200);
+  }
+  document.getElementById('coloa-info').innerHTML =
+    `<strong>${d.title}</strong><br>${d.body}`;
+}
+
+// ════════════════════════════════════════════
+// MODULE 3: Timeline
+// ════════════════════════════════════════════
+const TL_EVENTS = [
+  {
+    year: '~TK VII TCN',
+    era: 'green',
+    title: 'Văn Lang lập quốc',
+    desc: 'Hùng Vương thứ nhất lập nước Văn Lang theo truyền thuyết, kinh đô Phong Châu (Phú Thọ). Gắn với văn hóa Đông Sơn về mặt khảo cổ.',
+    detail: 'Đây là mốc huyền sử, không có niên đại chính xác xác nhận bằng khảo cổ học. Văn hóa Đông Sơn — cơ sở vật chất của thời Hùng Vương — bắt đầu từ khoảng thế kỉ VII TCN với đặc trưng: trống đồng, kỹ thuật lúa nước, tổ chức làng xã trên đồng bằng sông Hồng.'
+  },
+  {
+    year: '~500–300 TCN',
+    era: 'green',
+    title: 'Đỉnh cao Văn hóa Đông Sơn',
+    desc: 'Trống đồng Ngọc Lũ và hàng trăm hiện vật đồng thau cho thấy kỹ thuật luyện kim tiên tiến và tổ chức xã hội phát triển.',
+    detail: 'Trống đồng Đông Sơn được tìm thấy khắp Đông Nam Á — bằng chứng về quan hệ thương mại và văn hóa rộng lớn. Hoa văn trên trống đồng mô tả sinh hoạt: giao chiến, cúng lễ, thuyền bè — nguồn tư liệu hình ảnh quý về đời sống Lạc Việt.'
+  },
+  {
+    year: '257 TCN',
+    era: 'amber',
+    title: 'Thục Phán lập Âu Lạc',
+    desc: 'An Dương Vương Thục Phán đánh bại Hùng Vương cuối cùng, hợp nhất Âu Việt – Lạc Việt, dời kinh đô về Cổ Loa.',
+    detail: 'Đây là mốc có cơ sở sử liệu đáng tin cậy hơn, ghi chép trong Đại Việt sử ký toàn thư và một số tài liệu Trung Quốc. Việc dời đô về Cổ Loa và xây thành phòng thủ cho thấy ý thức rõ ràng về mối đe dọa từ phương bắc (nhà Tần).'
+  },
+  {
+    year: '~250–230 TCN',
+    era: 'amber',
+    title: 'Xây thành Cổ Loa',
+    desc: 'Xây dựng thành Cổ Loa với ba vòng thành xoáy ốc — công trình phòng thủ lớn nhất Đông Nam Á thời đó.',
+    detail: 'Theo ước tính của các nhà khảo cổ, tổng khối lượng đất đắp thành lên đến vài triệu mét khối. Truyền thuyết ghi Cao Lỗ giúp xây thành và chế nỏ thần. Hàng ngàn mũi tên đồng khai quật tại đây là bằng chứng vật chất về kho vũ khí quy mô lớn.'
+  },
+  {
+    year: '214 TCN',
+    era: 'amber',
+    title: 'Kháng cự quân Tần',
+    desc: 'Tần Thủy Hoàng sai Đồ Thư đem 50 vạn quân đánh các nước Bách Việt. Người Âu Lạc và Bách Việt kháng cự, Đồ Thư bị giết.',
+    detail: 'Cuộc kháng cự này — kéo dài nhiều năm — cho thấy năng lực quân sự đáng kể của người Âu Lạc và các tộc Bách Việt. Đây là một trong những bằng chứng sớm nhất về sức chiến đấu của cư dân bản địa trước sức mạnh đế chế Trung Hoa. Ghi chép trong Sử ký của Tư Mã Thiên.'
+  },
+  {
+    year: '207 TCN',
+    era: 'amber',
+    title: 'Triệu Đà lập Nam Việt',
+    desc: 'Nhà Tần sụp đổ. Tướng Triệu Đà lập nước Nam Việt, kinh đô Phiên Ngung (Quảng Châu). Bắt đầu nhắm vào Âu Lạc.',
+    detail: 'Triệu Đà (khoảng 240–137 TCN) là người gốc Hán nhưng áp dụng chính sách địa phương hóa. Nam Việt kiểm soát vùng Quảng Đông, Quảng Tây và mở rộng ảnh hưởng xuống phía nam. Triệu Đà dùng cả lực lượng quân sự lẫn ngoại giao để mở rộng lãnh thổ.'
+  },
+  {
+    year: '~200–180 TCN',
+    era: 'red',
+    title: 'Triệu Đà cầu hòa, tình báo',
+    desc: 'Triệu Đà dùng hôn nhân và ngoại giao xâm nhập nội bộ Âu Lạc (cơ sở thực tế của truyền thuyết Mỵ Châu – Trọng Thủy).',
+    detail: 'Chiến thuật "hôn nhân chính trị và tình báo" là phổ biến trong thế giới cổ đại. Triệu Đà lợi dụng thiện chí của An Dương Vương để thu thập thông tin quân sự và địa hình Âu Lạc, đồng thời làm yếu đi tinh thần cảnh giác. Giai đoạn này kéo dài vài năm trước khi tấn công chính thức.'
+  },
+  {
+    year: '179 TCN',
+    era: 'red',
+    title: 'Âu Lạc thôn tính — Bắc thuộc bắt đầu',
+    desc: 'Triệu Đà đem quân đánh, An Dương Vương bại trận và bỏ chạy. Âu Lạc bị sáp nhập vào Nam Việt, chia thành quận Giao Chỉ và Cửu Chân.',
+    detail: 'Đây là mốc lịch sử có cơ sở vững chắc, ghi trong Sử ký của Tư Mã Thiên. Sau 179 TCN, vùng đất Âu Lạc trở thành quận Giao Chỉ (đồng bằng sông Hồng) và Cửu Chân (sông Mã – Nghệ An). Bắt đầu hơn 1.000 năm Bắc thuộc, kết thúc năm 938 khi Ngô Quyền đánh tan quân Nam Hán trên sông Bạch Đằng.'
+  }
+];
+
+function buildTimeline() {
+  const wrap = document.getElementById('timeline-wrap');
+  TL_EVENTS.forEach((ev, i) => {
+    const div = document.createElement('div');
+    div.className = `tl-event era-${ev.era}`;
+    div.style.paddingLeft = '138px';
+    div.innerHTML = `
+      <div class="tl-year" style="position:absolute;left:0;">${ev.year}</div>
+      <div class="tl-dot" style="position:absolute;left:112px;"></div>
+      <div class="tl-card">
+        <div class="tl-title">${ev.title}</div>
+        <div class="tl-desc">${ev.desc}</div>
+      </div>`;
+    div.style.position = 'relative';
+    div.addEventListener('click', () => tlClick(i));
+    wrap.appendChild(div);
+  });
+}
+
+function tlClick(i) {
+  const ev = TL_EVENTS[i];
+  const box = document.getElementById('tl-detail');
+  box.style.display = 'block';
+  box.innerHTML = `<strong>${ev.year} — ${ev.title}</strong><br>${ev.detail}`;
+  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ════════════════════════════════════════════
+// MODULE 4: Quiz
+// ════════════════════════════════════════════
+const QUIZ = [
+  {
+    q: 'Nhà nước Văn Lang chia thành bao nhiêu bộ?',
+    opts: ['10 bộ', '12 bộ', '15 bộ', '18 bộ'],
+    ans: 2,
+    explain: 'Văn Lang chia thành 15 bộ theo Đại Việt sử ký toàn thư. Con số 18 là số đời Hùng Vương, không phải số bộ.'
+  },
+  {
+    q: 'Kinh đô của Âu Lạc đặt tại đâu?',
+    opts: ['Phong Châu', 'Cổ Loa', 'Thăng Long', 'Luy Lâu'],
+    ans: 1,
+    explain: 'An Dương Vương dời kinh đô từ Phong Châu (Văn Lang) về Cổ Loa (nay thuộc huyện Đông Anh, Hà Nội) vì địa thế thuận lợi phòng thủ và gần đồng bằng.'
+  },
+  {
+    q: 'Bằng chứng khảo cổ nào quan trọng nhất xác nhận năng lực quân sự của Âu Lạc tại Cổ Loa?',
+    opts: [
+      'Trống đồng Ngọc Lũ',
+      'Bia đá khắc chữ Hán',
+      'Hàng ngàn mũi tên đồng khai quật',
+      'Đồng tiền xu nhà Hán'
+    ],
+    ans: 2,
+    explain: 'Hàng ngàn mũi tên đồng khai quật tại Cổ Loa là bằng chứng vật chất trực tiếp về sản xuất vũ khí quy mô lớn. Trống đồng Ngọc Lũ gắn với văn hóa Đông Sơn nói chung, không phải đặc thù Cổ Loa.'
+  },
+  {
+    q: 'Năm 179 TCN xảy ra sự kiện gì?',
+    opts: [
+      'Thục Phán lập nước Âu Lạc',
+      'Nhà Tần thôn tính Âu Lạc',
+      'Triệu Đà thôn tính Âu Lạc, bắt đầu Bắc thuộc',
+      'Hai Bà Trưng khởi nghĩa'
+    ],
+    ans: 2,
+    explain: 'Năm 179 TCN, Triệu Đà thôn tính Âu Lạc, sáp nhập vào Nam Việt. Đây là mốc khởi đầu hơn 1.000 năm Bắc thuộc (đến 938 CN). Thục Phán lập Âu Lạc khoảng 257 TCN. Hai Bà Trưng khởi nghĩa năm 40 CN.'
+  },
+  {
+    q: 'Bài học lịch sử thực sự của truyền thuyết Mỵ Châu – Trọng Thủy là gì?',
+    opts: [
+      'Tình yêu đôi lứa có thể vượt qua mọi ranh giới quốc gia',
+      'Vũ khí tốt là yếu tố quyết định mọi trận đánh',
+      'Mất cảnh giác trước kẻ thù ngụy trang thành thân hữu dẫn đến mất nước',
+      'Thần linh có thể giúp bảo vệ đất nước nếu ta thành tâm cầu khấn'
+    ],
+    ans: 2,
+    explain: 'Mỵ Châu – Trọng Thủy huyền thoại hóa bài học về mất cảnh giác quốc gia. Triệu Đà thực sự dùng chính sách hôn nhân – tình báo để xâm nhập nội bộ trước khi tấn công. Đây không phải bài học về tình yêu hay vũ khí, mà là bài học về chiến lược an ninh quốc gia.'
+  },
+  {
+    q: 'Thành Cổ Loa có đặc điểm kiến trúc đặc biệt nào?',
+    opts: [
+      'Một vòng thành hình chữ nhật hoàn hảo',
+      'Hai vòng thành song song theo hướng đông-tây',
+      'Ba vòng thành đồng tâm hình xoáy ốc với hào nước',
+      'Năm tầng thành cao từ 10 đến 20 mét'
+    ],
+    ans: 2,
+    explain: 'Thành Cổ Loa có ba vòng thành (nội, trung, ngoại) xếp theo hình xoáy ốc không đều, mỗi vòng có hào nước bao quanh. Đây là kiến trúc phòng thủ theo chiều sâu — kẻ tấn công phải xuyên phá ba lớp độc lập.'
+  }
+];
+
+let quizAnswers = new Array(QUIZ.length).fill(null);
+let quizSubmitted = false;
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  QUIZ.forEach((q, qi) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-q';
+    const opts = q.opts.map((opt, oi) =>
+      `<button class="quiz-opt" id="qopt-${qi}-${oi}" onclick="quizSelect(${qi},${oi})">${String.fromCharCode(65+oi)}. ${opt}</button>`
+    ).join('');
+    div.innerHTML = `<p>${qi+1}. ${q.q}</p><div class="quiz-options">${opts}</div>
+      <div class="quiz-explain" id="qex-${qi}">${q.explain}</div>`;
+    container.appendChild(div);
+  });
+}
+
+function quizSelect(qi, oi) {
+  if (quizSubmitted) return;
+  quizAnswers[qi] = oi;
+  // Clear selection for this question
+  for (let k = 0; k < QUIZ[qi].opts.length; k++) {
+    const el = document.getElementById(`qopt-${qi}-${k}`);
+    el.classList.remove('correct', 'wrong');
+    el.style.background = '';
+    el.style.borderColor = '';
+    el.style.fontWeight = '';
+  }
+  // Highlight selected
+  const sel = document.getElementById(`qopt-${qi}-${oi}`);
+  sel.style.background = '#fef3c7';
+  sel.style.borderColor = '#d97706';
+  sel.style.fontWeight = '600';
+}
+
+function quizSubmit() {
+  if (quizSubmitted) return;
+  quizSubmitted = true;
+  let correct = 0;
+  QUIZ.forEach((q, qi) => {
+    const chosen = quizAnswers[qi];
+    for (let k = 0; k < q.opts.length; k++) {
+      const el = document.getElementById(`qopt-${qi}-${k}`);
+      el.classList.add('locked');
+      el.style.background = '';
+      el.style.borderColor = '';
+      el.style.fontWeight = '';
+      if (k === q.ans) {
+        el.classList.add('correct');
+      } else if (k === chosen && k !== q.ans) {
+        el.classList.add('wrong');
+      }
+    }
+    if (chosen === q.ans) correct++;
+    // Show explanation
+    document.getElementById(`qex-${qi}`).style.display = 'block';
+  });
+  const score = document.getElementById('quiz-score');
+  score.style.display = 'block';
+  const pct = Math.round(correct / QUIZ.length * 100);
+  let remark = pct === 100 ? 'Xuất sắc!' : pct >= 67 ? 'Khá tốt — xem lại các câu sai.' : 'Cần ôn thêm — đọc lại README.';
+  score.innerHTML = `Kết quả: <span style="color:var(--accent)">${correct} / ${QUIZ.length}</span> câu đúng (${pct}%) — ${remark}`;
+}
+
+function quizReset() {
+  quizSubmitted = false;
+  quizAnswers = new Array(QUIZ.length).fill(null);
+  document.getElementById('quiz-score').style.display = 'none';
+  buildQuiz();
+}
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+buildTimeline();
+buildQuiz();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Ngô Quyền &amp; Chiến thắng Bạch Đằng 938</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette lịch sử Việt ── */
+  :root {
+    --accent:      #b45309;
+    --accent-soft: #fef3c7;
+    --accent-dark: #78350f;
+    --red-war:     #b91c1c;
+    --red-soft:    #fee2e2;
+    --green-peace: #15803d;
+    --green-soft:  #dcfce7;
+    --stone:       #78716c;
+    --stone-soft:  #f5f5f4;
+    --blue-water:  #1d4ed8;
+    --blue-mid:    #3b82f6;
+    --blue-soft:   #dbeafe;
+    --bg-card:     #ffffff;
+    --bg-section:  #fffbeb;
+  }
+
+  main { max-width: 1080px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.6rem; margin-bottom: 6px; }
+  h2 { color: var(--accent); margin-top: 40px; padding-bottom: 8px;
+       border-bottom: 2px solid var(--accent-soft); font-size: 1.2rem; }
+
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 5px rgba(180,83,9,.12);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .war-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-war);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .water-box {
+    background: var(--blue-soft);
+    border-left: 4px solid var(--blue-water);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-war { background: var(--red-war); color: white; }
+  .btn-war:hover { background: #991b1b; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 1 — Mô phỏng trận Bạch Đằng
+     ══════════════════════════════════════════════ */
+  #battle-stage {
+    width: 100%;
+    overflow-x: auto;
+  }
+  #battle-canvas {
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+    border: 2px solid #cbd5e1;
+  }
+
+  .step-panel {
+    background: var(--bg-section);
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    min-height: 72px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .step-panel .phase-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .tag-prep   { background: var(--stone-soft); color: var(--stone); }
+  .tag-lure   { background: var(--blue-soft);  color: var(--blue-water); }
+  .tag-trap   { background: var(--red-soft);   color: var(--red-war); }
+  .tag-attack { background: #fee2e2;            color: #991b1b; font-weight: 900; }
+  .tag-result { background: var(--green-soft);  color: var(--green-peace); }
+
+  .tide-meter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0;
+  }
+  .tide-label { font-size: 13px; font-weight: 700; color: var(--blue-water); min-width: 80px; }
+  .tide-bar-wrap {
+    flex: 1;
+    height: 16px;
+    background: #e0f2fe;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #bae6fd;
+  }
+  .tide-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #1d4ed8, #3b82f6);
+    border-radius: 8px;
+    transition: width .6s ease;
+  }
+  .tide-val { font-size: 13px; color: var(--blue-water); font-weight: 700; min-width: 50px; }
+
+  .step-dots {
+    display: flex;
+    gap: 8px;
+    margin: 8px 0;
+    flex-wrap: wrap;
+  }
+  .step-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid #d1d5db;
+    background: #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .step-dot.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .step-dot.done {
+    background: var(--green-peace);
+    border-color: var(--green-peace);
+    color: white;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 2 — Timeline 937–939
+     ══════════════════════════════════════════════ */
+  .timeline {
+    position: relative;
+    padding: 12px 0 12px 32px;
+    margin: 8px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--accent-soft), var(--accent), var(--green-peace));
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-left: 20px;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -26px;
+    top: 6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+  }
+  .tl-item.war::before   { background: var(--red-war);    box-shadow: 0 0 0 2px var(--red-war); }
+  .tl-item.peace::before { background: var(--green-peace); box-shadow: 0 0 0 2px var(--green-peace); }
+  .tl-item.key::before   {
+    width: 18px; height: 18px;
+    left: -28px; top: 4px;
+    background: var(--red-war);
+    box-shadow: 0 0 0 3px var(--red-war), 0 0 0 6px rgba(185,28,28,.2);
+  }
+  .tl-year {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 2px;
+  }
+  .tl-item.war .tl-year  { color: var(--red-war); }
+  .tl-item.key .tl-year  { color: var(--red-war); font-size: 15px; }
+  .tl-item.peace .tl-year { color: var(--green-peace); }
+  .tl-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: #1f2937;
+    line-height: 1.4;
+  }
+  .tl-desc {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 3px;
+    line-height: 1.5;
+  }
+  .tl-badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .badge-key    { background: #fee2e2; color: #991b1b; }
+  .badge-normal { background: var(--accent-soft); color: var(--accent-dark); }
+  .badge-peace  { background: var(--green-soft); color: var(--green-peace); }
+
+  /* ══════════════════════════════════════════════
+     MODULE 3 — Sơ đồ nhân–quả
+     ══════════════════════════════════════════════ */
+  .cause-effect {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 12px 0;
+  }
+  .ce-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+  .ce-node {
+    flex: 1;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: center;
+    font-weight: 600;
+  }
+  .ce-node.cause  { background: #fef3c7; color: #78350f; border: 2px solid #fbbf24; }
+  .ce-node.event  { background: var(--red-soft); color: var(--red-war); border: 2px solid var(--red-war); }
+  .ce-node.result { background: var(--green-soft); color: #14532d; border: 2px solid var(--green-peace); }
+  .ce-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--stone);
+    padding: 0 8px;
+    font-weight: 300;
+  }
+  .ce-connector {
+    display: flex;
+    justify-content: center;
+    padding: 4px 0;
+    color: var(--stone);
+    font-size: 18px;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 4 — Quiz
+     ══════════════════════════════════════════════ */
+  .quiz-q {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 12px;
+    color: #1f2937;
+    line-height: 1.5;
+  }
+  .quiz-opts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .quiz-opt {
+    padding: 10px 14px;
+    border-radius: 7px;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: var(--green-peace); background: var(--green-soft); color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-top: 8px;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: var(--green-soft); color: #14532d; border: 1px solid var(--green-peace); }
+  .quiz-feedback.err { background: var(--red-soft); color: #991b1b; border: 1px solid var(--red-war); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score { font-weight: 700; color: var(--green-peace); font-size: 15px; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 5 — Bảng so sánh
+     ══════════════════════════════════════════════ */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 12px 0;
+  }
+  .compare-table th {
+    background: var(--accent);
+    color: white;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 700;
+  }
+  .compare-table th:first-child { border-radius: 8px 0 0 0; }
+  .compare-table th:last-child  { border-radius: 0 8px 0 0; }
+  .compare-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: top;
+    line-height: 1.5;
+    color: #374151;
+  }
+  .compare-table tr:nth-child(even) td { background: #fafafa; }
+  .compare-table .highlight-row td {
+    background: #fef3c7;
+    font-weight: 600;
+    color: var(--accent-dark);
+  }
+  .compare-table td:first-child { font-weight: 700; color: #1f2937; }
+
+  @media (max-width: 600px) {
+    .compare-table { font-size: 12px; }
+    .compare-table th, .compare-table td { padding: 8px 8px; }
+    .ce-node { font-size: 12px; padding: 9px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử VN — Nguồn gốc</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-tu-chu-ho-khuc/visualization.html">← L5: Bước ngoặt tự chủ</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Ngô Quyền &amp; Bạch Đằng 938</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-dinh-tien-le/visualization.html">L7: Đinh – Tiền Lê →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Ngô Quyền &amp; Chiến thắng Bạch Đằng 938</h1>
+<p class="subtitle">Mô phỏng trận quyết chiến kết thúc hơn 1000 năm Bắc thuộc — kế sách bãi cọc &amp; thủy triều</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Mô phỏng trận Bạch Đằng
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Mô phỏng Trận Bạch Đằng (938)</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Nhấn <strong>Bước tiếp theo</strong> để xem từng giai đoạn của trận đánh,
+    hoặc nhấn thẳng vào số thứ tự bước. Quan sát mực nước thủy triều và vị trí thuyền địch.
+  </div>
+
+  <div class="tide-meter">
+    <span class="tide-label">Thủy triều:</span>
+    <div class="tide-bar-wrap"><div class="tide-bar" id="tide-bar" style="width:50%"></div></div>
+    <span class="tide-val" id="tide-val">Trung bình</span>
+  </div>
+
+  <div class="step-dots" id="step-dots"></div>
+
+  <div id="battle-stage">
+    <canvas id="battle-canvas" width="700" height="340"></canvas>
+  </div>
+
+  <div class="step-panel" id="step-panel">
+    <div class="phase-tag tag-prep" id="phase-tag">Chuẩn bị</div><br>
+    <span id="step-text">Nhấn <strong>Bắt đầu mô phỏng</strong> để xem trận Bạch Đằng diễn ra từng bước.</span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="btn-prev" onclick="battlePrev()">← Bước trước</button>
+    <button class="btn btn-primary" id="btn-next" onclick="battleNext()">Bắt đầu mô phỏng →</button>
+    <button class="btn btn-secondary" onclick="battleReset()">Khởi động lại</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Timeline 937–939
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Chuỗi thời gian 937 – 939</h2>
+
+<div class="card">
+  <div class="timeline">
+
+    <div class="tl-item">
+      <div class="tl-year">Năm 931</div>
+      <div class="tl-title">Dương Đình Nghệ đánh đuổi Nam Hán
+        <span class="tl-badge badge-normal">Tiền đề</span>
+      </div>
+      <div class="tl-desc">Hào trưởng Ái Châu khởi binh, đuổi quân Nam Hán, tự xưng Tiết độ sứ — duy trì tự chủ.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">Năm 937</div>
+      <div class="tl-title">Kiều Công Tiễn ám sát Dương Đình Nghệ
+        <span class="tl-badge badge-key">Nguyên nhân trực tiếp</span>
+      </div>
+      <div class="tl-desc">Nha tướng phản bội, đoạt quyền, sai sứ cầu viện Nam Hán để bảo vệ địa vị mới chiếm.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">Năm 937 – đầu 938</div>
+      <div class="tl-title">Ngô Quyền khởi binh từ Ái Châu</div>
+      <div class="tl-desc">Con rể Dương Đình Nghệ mang quân ra Bắc, tiêu diệt Kiều Công Tiễn trước khi quân Nam Hán đến kịp.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">Năm 938 (chuẩn bị)</div>
+      <div class="tl-title">Bố trí bãi cọc trên sông Bạch Đằng</div>
+      <div class="tl-desc">Cọc gỗ lớn bịt sắt nhọn đóng tại vùng nước nông, tính toán để ngập khi triều lên, lộ ra khi triều xuống.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">Năm 938</div>
+      <div class="tl-title">Trận Bạch Đằng — Lưu Hoằng Tháo tử trận
+        <span class="tl-badge badge-key">Quyết định</span>
+      </div>
+      <div class="tl-desc">Hạm đội Nam Hán bị nhử vào bãi cọc khi triều lên; khi triều xuống, cọc nhô lên, thuyền địch mắc kẹt. Phản công toàn diện — Lưu Hoằng Tháo (con vua Nam Hán) tử trận.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">Năm 938 (sau trận)</div>
+      <div class="tl-title">Vua Nam Hán Lưu Cung thu quân về</div>
+      <div class="tl-desc">Hay tin con trai tử trận, vua Nam Hán từ bỏ kế hoạch chiếm lại Giao Châu.</div>
+    </div>
+
+    <div class="tl-item peace">
+      <div class="tl-year">Năm 939</div>
+      <div class="tl-title">Ngô Quyền xưng Vương — đóng đô Cổ Loa
+        <span class="tl-badge badge-peace">Độc lập</span>
+      </div>
+      <div class="tl-desc">Bỏ chức Tiết độ sứ (chức quan Trung Hoa). Xưng Vương. Đóng đô Cổ Loa — kế thừa biểu tượng Âu Lạc. Chính thức chấm dứt hơn 1000 năm Bắc thuộc.</div>
+    </div>
+
+    <div class="tl-item peace">
+      <div class="tl-year">Năm 944</div>
+      <div class="tl-title">Ngô Quyền qua đời</div>
+      <div class="tl-desc">Sau 5 năm trị vì, Ngô Quyền mất. Tiếp theo là giai đoạn Loạn 12 sứ quân (945–968) — nội chiến người Việt, không mất độc lập vào tay ngoại xâm.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Sơ đồ nhân–quả
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Sơ đồ nhân – quả</h2>
+
+<div class="card">
+  <div class="info-box" style="margin-bottom:16px;">
+    Chiến thắng Bạch Đằng 938 là kết quả của một chuỗi nhân – quả chặt chẽ. Bấm vào từng ô để xem chi tiết.
+  </div>
+
+  <div class="cause-effect" id="ce-diagram">
+
+    <div class="ce-row">
+      <div class="ce-node cause" onclick="ceShow(0)" style="cursor:pointer" title="Bấm để xem chi tiết">
+        Dương Đình Nghệ bị ám sát (937)
+      </div>
+      <div class="ce-arrow">→</div>
+      <div class="ce-node cause" onclick="ceShow(1)" style="cursor:pointer" title="Bấm để xem chi tiết">
+        Kiều Công Tiễn cầu viện Nam Hán
+      </div>
+    </div>
+
+    <div class="ce-connector">↓</div>
+
+    <div class="ce-row">
+      <div class="ce-node event" onclick="ceShow(2)" style="cursor:pointer" title="Bấm để xem chi tiết">
+        Ngô Quyền khởi binh<br>diệt Kiều Công Tiễn
+      </div>
+      <div class="ce-arrow">→</div>
+      <div class="ce-node event" onclick="ceShow(3)" style="cursor:pointer" title="Bấm để xem chi tiết">
+        Bố trí bãi cọc<br>sông Bạch Đằng
+      </div>
+    </div>
+
+    <div class="ce-connector">↓</div>
+
+    <div class="ce-row">
+      <div class="ce-node event" onclick="ceShow(4)" style="cursor:pointer" title="Bấm để xem chi tiết" style="flex:2">
+        Trận Bạch Đằng 938<br>Lưu Hoằng Tháo tử trận
+      </div>
+      <div class="ce-arrow">→</div>
+      <div class="ce-node result" onclick="ceShow(5)" style="cursor:pointer" title="Bấm để xem chi tiết">
+        Ngô Quyền xưng Vương (939)<br>Kết thúc Bắc thuộc
+      </div>
+    </div>
+
+  </div>
+
+  <div class="step-panel" id="ce-detail" style="margin-top:12px; display:none;">
+    <strong id="ce-title"></strong><br>
+    <span id="ce-body"></span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Bảng so sánh các cuộc khởi nghĩa
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. So sánh với các giai đoạn tự chủ trước</h2>
+
+<div class="card">
+  <div class="info-box">
+    Nhiều lần trước đây người Việt giành được độc lập — nhưng đều mất lại. Vì sao 938 khác?
+  </div>
+
+  <div style="overflow-x: auto;">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Sự kiện</th>
+          <th>Năm</th>
+          <th>Phương thức</th>
+          <th>Kết quả quân sự</th>
+          <th>Bền vững</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Hai Bà Trưng</td>
+          <td>40 SCN</td>
+          <td>Khởi nghĩa vũ trang</td>
+          <td>Đuổi quan lại Hán, chưa tiêu diệt lực lượng</td>
+          <td>~3 năm — bị Mã Viện tái chiếm (43)</td>
+        </tr>
+        <tr>
+          <td>Lý Nam Đế / Vạn Xuân</td>
+          <td>544</td>
+          <td>Khởi nghĩa, lập nhà nước</td>
+          <td>Cầm cự hàng chục năm với nhà Lương rồi Tùy</td>
+          <td>~58 năm — bị nhà Tùy diệt (602)</td>
+        </tr>
+        <tr>
+          <td>Họ Khúc (Khúc Thừa Dụ)</td>
+          <td>905</td>
+          <td>Tiếp quản hành chính</td>
+          <td>Không đối đầu trực tiếp quân sự lớn</td>
+          <td>~25 năm — Nam Hán chiếm lại (930)</td>
+        </tr>
+        <tr>
+          <td>Dương Đình Nghệ</td>
+          <td>931</td>
+          <td>Khởi binh đánh đuổi</td>
+          <td>Đánh lui quân Nam Hán</td>
+          <td>7 năm — bị ám sát (937)</td>
+        </tr>
+        <tr class="highlight-row">
+          <td>Ngô Quyền — Bạch Đằng</td>
+          <td>938</td>
+          <td>Tiêu diệt hoàn toàn hạm đội địch</td>
+          <td>Lưu Hoằng Tháo tử trận, hạm đội tan vỡ</td>
+          <td>Từ 939 — không mất lãnh thổ vào Bắc thuộc nữa</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="water-box" style="margin-top:14px;">
+    <strong>Điểm mấu chốt:</strong> 938 kết hợp được cả ba yếu tố mà các lần trước thiếu ít nhất một:
+    (1) <strong>tiêu diệt</strong> lực lượng địch (không chỉ đuổi đi),
+    (2) <strong>đối thủ</strong> không còn khả năng tái tấn công ngay (Nam Hán mất con trai và hạm đội),
+    (3) <strong>thiết lập chính thể</strong> với tuyên bố chính trị rõ ràng (bỏ Tiết độ sứ, xưng Vương).
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 5 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>5. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q" id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score" id="quiz-score"></span>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   MODULE 1 — Mô phỏng trận Bạch Đằng trên Canvas
+   ════════════════════════════════════════════════ */
+
+const canvas  = document.getElementById('battle-canvas');
+const ctx     = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+// ── Các bước mô phỏng ──
+const STEPS = [
+  {
+    phase: 'Chuẩn bị', tag: 'tag-prep', tide: 0.3,
+    text: '<strong>Bước 1 — Đóng cọc bãi cạn:</strong> Ngô Quyền cho đóng cọc gỗ lớn bịt sắt nhọn tại vùng nước nông ven bờ sông Bạch Đằng. Chiều dài cọc tính toán để khi thủy triều lên, đầu cọc chìm sâu dưới mặt nước — thuyền địch không thể nhìn thấy.'
+  },
+  {
+    phase: 'Thủy triều lên', tag: 'tag-lure', tide: 0.9,
+    text: '<strong>Bước 2 — Triều lên, nhử địch:</strong> Thủy triều dâng cao — mực nước che khuất toàn bộ bãi cọc. Thuyền nhỏ của quân ta ra khiêu chiến rồi giả thua rút lui. Hạm đội Nam Hán do Lưu Hoằng Tháo chỉ huy tự tin tiến sâu vào sông — mặt nước thoáng rộng, không thấy bẫy.'
+  },
+  {
+    phase: 'Địch tiến vào bẫy', tag: 'tag-lure', tide: 0.75,
+    text: '<strong>Bước 3 — Hạm đội Nam Hán vượt qua bãi cọc:</strong> Thuyền chiến lớn của Nam Hán (mớn nước sâu) vượt qua vùng cọc khi triều vẫn cao. Đây là thời điểm quyết định — địch đã vào sâu, không dễ rút lui khi cần.'
+  },
+  {
+    phase: 'Thủy triều xuống — BẪY', tag: 'tag-trap', tide: 0.15,
+    text: '<strong>Bước 4 — Triều xuống, cọc nhô lên:</strong> Thủy triều rút xuống nhanh. Đầu cọc nhô lên khỏi mặt nước. Thuyền chiến lớn của Nam Hán — mớn nước sâu, thân nặng — bắt đầu mắc vào cọc. Cọc sắt đâm thủng bên dưới thuyền, thuyền không tiến không lui được. Toàn đội hình địch hỗn loạn.'
+  },
+  {
+    phase: 'Phản công toàn diện', tag: 'tag-attack', tide: 0.1,
+    text: '<strong>Bước 5 — Quân ta phản công:</strong> Từ hai bờ sông và từ phía thượng nguồn, quân Ngô Quyền tổng phản công. Thuyền địch mắc cọc không thể cơ động. <strong>Lưu Hoằng Tháo — con trai vua Nam Hán Lưu Cung — tử trận.</strong> Hạm đội Nam Hán bị tiêu diệt hoàn toàn.'
+  },
+  {
+    phase: 'Kết quả — Độc lập', tag: 'tag-result', tide: 0.05,
+    text: '<strong>Kết quả (938–939):</strong> Vua Nam Hán Lưu Cung hay tin con trai tử trận, thu quân về, không còn khả năng tái xâm lược ngay. Năm 939, Ngô Quyền xưng Vương, đóng đô Cổ Loa, chấm dứt hơn 1000 năm Bắc thuộc. Đây là lần đầu tiên người Việt giành và duy trì được nền độc lập hoàn toàn.'
+  },
+];
+
+let battleStep = -1; // -1 = chưa bắt đầu
+
+// ── Trạng thái animation ──
+let anim = null;
+
+// ── Vẽ cảnh trận ──
+function drawBattle(stepIdx) {
+  ctx.clearRect(0, 0, W, H);
+
+  const step = stepIdx >= 0 ? STEPS[stepIdx] : null;
+  const tideLevel = step ? step.tide : 0.5;
+
+  // Bầu trời
+  const skyGrad = ctx.createLinearGradient(0,0,0,H*0.35);
+  skyGrad.addColorStop(0, '#e0f2fe');
+  skyGrad.addColorStop(1, '#bae6fd');
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(0, 0, W, H*0.35);
+
+  // Núi / bờ xa
+  ctx.fillStyle = '#a3a3a3';
+  ctx.beginPath();
+  ctx.moveTo(0, H*0.38);
+  ctx.lineTo(60, H*0.22);
+  ctx.lineTo(130, H*0.32);
+  ctx.lineTo(200, H*0.18);
+  ctx.lineTo(280, H*0.28);
+  ctx.lineTo(360, H*0.16);
+  ctx.lineTo(440, H*0.25);
+  ctx.lineTo(520, H*0.20);
+  ctx.lineTo(600, H*0.30);
+  ctx.lineTo(W, H*0.38);
+  ctx.lineTo(W, 0);
+  ctx.lineTo(0, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  // Bờ đất phía bắc (trên)
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(0, H*0.35, W, H*0.06);
+
+  // Bờ đất phía nam (dưới)
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(0, H*0.82, W, H*0.18);
+
+  // Mực nước (thay đổi theo thủy triều)
+  const waterTop = H * 0.41 + (1 - tideLevel) * H * 0.1;
+  const waterBot = H * 0.82;
+
+  const waterGrad = ctx.createLinearGradient(0, waterTop, 0, waterBot);
+  if (stepIdx >= 3) {
+    // Khi triều xuống — nước đục hơn
+    waterGrad.addColorStop(0, 'rgba(30,64,175,0.85)');
+    waterGrad.addColorStop(1, 'rgba(30,64,175,0.60)');
+  } else {
+    waterGrad.addColorStop(0, 'rgba(59,130,246,0.80)');
+    waterGrad.addColorStop(1, 'rgba(59,130,246,0.55)');
+  }
+  ctx.fillStyle = waterGrad;
+  ctx.fillRect(0, waterTop, W, waterBot - waterTop);
+
+  // Sóng nhỏ
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+  ctx.lineWidth = 1.2;
+  for (let wx = 20; wx < W; wx += 55) {
+    ctx.beginPath();
+    ctx.moveTo(wx, waterTop + 8);
+    ctx.bezierCurveTo(wx+12, waterTop+3, wx+24, waterTop+13, wx+36, waterTop+8);
+    ctx.stroke();
+  }
+
+  // ── Bãi cọc ──
+  const stakes = [
+    {x: 220}, {x: 255}, {x: 290}, {x: 325}, {x: 360},
+    {x: 395}, {x: 430}, {x: 465}, {x: 185},
+  ];
+
+  stakes.forEach(s => {
+    const stakeH = 55;
+    const stakeBottom = waterBot - 8;
+    let stakeTop = stakeBottom - stakeH;
+
+    // Khi triều lên, cọc ngập dưới nước; khi xuống, cọc nhô lên
+    const visibleFraction = 1 - tideLevel; // 0 = hoàn toàn ngập, 1 = lộ hẳn
+    const showLen = stakeH * Math.max(0, visibleFraction - 0.2) * 1.8;
+
+    if (stepIdx === 0) {
+      // Bước chuẩn bị: vẽ cọc trong đất / nước nông
+      ctx.strokeStyle = '#78350f';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(s.x, stakeBottom);
+      ctx.lineTo(s.x, stakeBottom - 30);
+      ctx.stroke();
+      // Đầu cọc sắt
+      ctx.fillStyle = '#9ca3af';
+      ctx.beginPath();
+      ctx.moveTo(s.x - 4, stakeBottom - 30);
+      ctx.lineTo(s.x + 4, stakeBottom - 30);
+      ctx.lineTo(s.x, stakeBottom - 40);
+      ctx.closePath();
+      ctx.fill();
+    } else if (showLen > 4) {
+      // Cọc nhô lên khi triều xuống
+      const cTop = stakeBottom - showLen;
+      ctx.strokeStyle = '#78350f';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(s.x, stakeBottom);
+      ctx.lineTo(s.x, cTop);
+      ctx.stroke();
+      // Đầu sắt
+      ctx.fillStyle = '#6b7280';
+      ctx.beginPath();
+      ctx.moveTo(s.x - 4, cTop + 4);
+      ctx.lineTo(s.x + 4, cTop + 4);
+      ctx.lineTo(s.x, cTop - 6);
+      ctx.closePath();
+      ctx.fill();
+    }
+  });
+
+  // ── Thuyền nhỏ ta (xanh lá) ──
+  const ourBoats = stepIdx >= 0 ? drawOurBoats(stepIdx, waterTop) : null;
+
+  // ── Thuyền địch Nam Hán (đỏ) ──
+  if (stepIdx >= 1) {
+    drawEnemyFleet(stepIdx, waterTop, waterBot);
+  }
+
+  // ── Label địa danh ──
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.font = 'bold 12px sans-serif';
+  ctx.fillText('↑ Phía thượng nguồn (nội địa)', 10, H*0.55);
+  ctx.fillText('↓ Phía biển (cửa sông Bạch Đằng)', 10, waterBot - 6);
+
+  // ── Label triều ──
+  const tidePercent = Math.round(tideLevel * 100);
+  ctx.fillStyle = tideLevel > 0.5 ? '#1d4ed8' : '#b91c1c';
+  ctx.font = 'bold 13px sans-serif';
+  ctx.fillText(`Triều: ${tidePercent}%`, W - 90, waterTop + 18);
+}
+
+function drawOurBoats(stepIdx, waterTop) {
+  // Thuyền nhỏ của ta — rút về phía thượng nguồn khi địch tiến vào
+  const positions = [
+    [{x:80, y:0},{x:140,y:0}],   // bước 0
+    [{x:80, y:0},{x:140,y:0}],   // bước 1: đang tiến ra
+    [{x:520,y:0},{x:560,y:0}],   // bước 2: đang rút lui nhử địch
+    [{x:560,y:0},{x:600,y:0}],   // bước 3: đã rút vào
+    [{x:500,y:0},{x:560,y:0},{x:620,y:0}], // bước 4: chuẩn bị phản công
+    [{x:430,y:0},{x:490,y:0},{x:550,y:0}], // bước 5: phản công mạnh
+  ];
+
+  const boats = positions[Math.min(stepIdx, positions.length-1)];
+  const yBase = waterTop + 12;
+
+  boats.forEach(b => {
+    drawBoat(b.x, yBase, '#15803d', '#bbf7d0', 44, 16, '⚑');
+  });
+}
+
+function drawEnemyFleet(stepIdx, waterTop, waterBot) {
+  // Vị trí thuyền địch theo bước
+  const fleetPos = [
+    null,                  // bước 0
+    [{x:60},{x:90},{x:120}],   // bước 1: đang ở cửa
+    [{x:180},{x:230},{x:270},{x:310}], // bước 2: tiến vào bãi cọc
+    [{x:270},{x:310},{x:350},{x:390}], // bước 3: đã vào sâu
+    [{x:260},{x:300},{x:340},{x:390}], // bước 4: mắc cọc
+    [{x:250},{x:285},{x:325},{x:365}], // bước 5: chìm/vỡ
+  ];
+
+  const fleet = fleetPos[stepIdx];
+  if (!fleet) return;
+
+  fleet.forEach((b, i) => {
+    const yBase = waterTop + 14;
+    const sinking = stepIdx >= 4;
+    const angle = sinking ? (i % 2 === 0 ? -0.18 : 0.22) : 0;
+
+    ctx.save();
+    ctx.translate(b.x, yBase);
+    ctx.rotate(angle);
+    drawBoatShape(0, 0, '#b91c1c', '#fee2e2', 55, 20, stepIdx >= 5);
+    ctx.restore();
+
+    // Hiệu ứng mắc cọc
+    if (stepIdx >= 4 && i < 3) {
+      ctx.fillStyle = '#dc2626';
+      ctx.font = 'bold 16px sans-serif';
+      ctx.fillText('✗', b.x - 8, yBase - 8);
+    }
+  });
+}
+
+function drawBoat(cx, cy, hullColor, deckColor, bw, bh, flagChar) {
+  // Thân
+  ctx.fillStyle = hullColor;
+  ctx.beginPath();
+  ctx.moveTo(cx - bw/2 + 4, cy);
+  ctx.lineTo(cx - bw/2, cy + bh);
+  ctx.lineTo(cx + bw/2, cy + bh);
+  ctx.lineTo(cx + bw/2 - 4, cy);
+  ctx.closePath();
+  ctx.fill();
+  // Boong
+  ctx.fillStyle = deckColor;
+  ctx.fillRect(cx - bw/2 + 2, cy - 4, bw - 4, 6);
+  // Cột buồm & cờ
+  ctx.strokeStyle = '#374151';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 4);
+  ctx.lineTo(cx, cy - 22);
+  ctx.stroke();
+  ctx.fillStyle = hullColor;
+  ctx.font = '10px sans-serif';
+  ctx.fillText(flagChar, cx + 2, cy - 20);
+}
+
+function drawBoatShape(cx, cy, hullColor, deckColor, bw, bh, sunk) {
+  const alpha = sunk ? 0.5 : 1.0;
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = hullColor;
+  ctx.beginPath();
+  ctx.moveTo(cx - bw/2 + 5, cy);
+  ctx.lineTo(cx - bw/2, cy + bh);
+  ctx.lineTo(cx + bw/2, cy + bh);
+  ctx.lineTo(cx + bw/2 - 5, cy);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = deckColor;
+  ctx.fillRect(cx - bw/2 + 2, cy - 4, bw - 4, 7);
+  ctx.globalAlpha = 1.0;
+}
+
+// ── Cập nhật UI ──
+function battleUpdateUI() {
+  const step = battleStep;
+  const stepData = step >= 0 ? STEPS[step] : null;
+
+  // Panel chú thích
+  const phaseTag = document.getElementById('phase-tag');
+  const stepText = document.getElementById('step-text');
+  if (stepData) {
+    phaseTag.className = 'phase-tag ' + stepData.tag;
+    phaseTag.textContent = stepData.phase;
+    stepText.innerHTML = stepData.text;
+  } else {
+    phaseTag.className = 'phase-tag tag-prep';
+    phaseTag.textContent = 'Chuẩn bị';
+    stepText.innerHTML = 'Nhấn <strong>Bắt đầu mô phỏng</strong> để xem trận Bạch Đằng diễn ra từng bước.';
+  }
+
+  // Thanh thủy triều
+  const tide = stepData ? stepData.tide : 0.5;
+  document.getElementById('tide-bar').style.width = (tide * 100) + '%';
+  let tideLabel = 'Đang lên';
+  if (tide > 0.7) tideLabel = 'Cao (ngập cọc)';
+  else if (tide < 0.2) tideLabel = 'Thấp (cọc lộ)';
+  else if (tide < 0.4) tideLabel = 'Đang xuống';
+  document.getElementById('tide-val').textContent = tideLabel;
+
+  // Nút điều hướng
+  document.getElementById('btn-prev').disabled = step <= 0;
+  document.getElementById('btn-next').textContent =
+    step < 0 ? 'Bắt đầu mô phỏng →' :
+    step >= STEPS.length - 1 ? 'Hoàn thành' :
+    'Bước tiếp theo →';
+  document.getElementById('btn-next').disabled = step >= STEPS.length - 1;
+
+  // Dots
+  const dots = document.getElementById('step-dots');
+  dots.innerHTML = '';
+  for (let i = 0; i < STEPS.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (i === step ? ' active' : i < step ? ' done' : '');
+    d.textContent = i + 1;
+    d.onclick = (function(si){ return function(){ battleGoTo(si); }; })(i);
+    dots.appendChild(d);
+  }
+
+  // Vẽ canvas
+  drawBattle(step);
+}
+
+function battleNext() {
+  if (battleStep < STEPS.length - 1) {
+    battleStep++;
+    battleUpdateUI();
+  }
+}
+
+function battlePrev() {
+  if (battleStep > 0) {
+    battleStep--;
+    battleUpdateUI();
+  }
+}
+
+function battleGoTo(i) {
+  battleStep = i;
+  battleUpdateUI();
+}
+
+function battleReset() {
+  battleStep = -1;
+  battleUpdateUI();
+}
+
+// Vẽ lần đầu
+drawBattle(-1);
+battleUpdateUI();
+
+/* ════════════════════════════════════════════════
+   MODULE 3 — Sơ đồ nhân–quả (click để xem)
+   ════════════════════════════════════════════════ */
+
+const CE_DATA = [
+  {
+    title: 'Dương Đình Nghệ bị ám sát (937)',
+    body:  'Kiều Công Tiễn — nha tướng thân tín — âm mưu giết chủ tướng để đoạt chức Tiết độ sứ. Hành động này phá vỡ nền tự chủ mà họ Dương gây dựng từ năm 931, đồng thời tạo ra lý do và cơ sở chính danh cho Ngô Quyền hành động.',
+  },
+  {
+    title: 'Kiều Công Tiễn cầu viện Nam Hán',
+    body:  'Biết Ngô Quyền sẽ trả thù, Kiều Công Tiễn sai sứ sang cầu viện Nam Hán — đổi chủ quyền Giao Châu lấy sự bảo hộ quân sự. Đây là sai lầm chiến lược: vừa mất lòng người trong nước, vừa mời ngoại xâm vào.',
+  },
+  {
+    title: 'Ngô Quyền khởi binh, diệt Kiều Công Tiễn',
+    body:  'Ngô Quyền mang quân từ Ái Châu (Thanh Hóa) ra Bắc với tốc độ nhanh, tiêu diệt Kiều Công Tiễn TRƯỚC khi quân Nam Hán kịp đến. Đây là quyết định chiến lược đúng đắn: loại trừ "giặc trong" trước, tập trung vào "giặc ngoài" sau.',
+  },
+  {
+    title: 'Bố trí bãi cọc sông Bạch Đằng',
+    body:  'Cọc gỗ lớn bịt sắt nhọn được đóng tại vùng nước nông ven bờ. Chiều dài tính toán để khi triều lên, cọc ngập dưới mặt nước; khi triều xuống, cọc nhô lên đủ để đâm thủng hoặc kẹt thuyền chiến lớn. Đây là vũ khí địa hình — khai thác quy luật tự nhiên thay cho số lượng quân.',
+  },
+  {
+    title: 'Trận Bạch Đằng 938 — Lưu Hoằng Tháo tử trận',
+    body:  'Hạm đội Nam Hán bị nhử vào bãi cọc khi triều lên, mắc kẹt khi triều xuống, bị phản công từ hai bờ và thượng nguồn. Lưu Hoằng Tháo (con trai vua Nam Hán Lưu Cung) tử trận. Đây là lần đầu trong lịch sử Việt Nam, một đạo hải quân ngoại xâm bị tiêu diệt hoàn toàn trên sông.',
+  },
+  {
+    title: 'Ngô Quyền xưng Vương (939) — Kết thúc Bắc thuộc',
+    body:  'Bỏ chức Tiết độ sứ (chức quan phong từ thiên tử Trung Hoa), tự xưng Vương, đóng đô Cổ Loa. Đây là tuyên bố chính trị rõ ràng về nền độc lập. Từ 939 trở đi, vùng đất người Việt không còn là đơn vị hành chính của nhà nước Trung Hoa nữa — dù phải đối mặt nhiều lần xâm lăng sau đó.',
+  },
+];
+
+function ceShow(idx) {
+  const data = CE_DATA[idx];
+  document.getElementById('ce-title').textContent = data.title;
+  document.getElementById('ce-body').textContent = data.body;
+  const panel = document.getElementById('ce-detail');
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 5 — Quiz ôn tập
+   ════════════════════════════════════════════════ */
+
+const QUIZ = [
+  {
+    q: 'Ai ám sát Dương Đình Nghệ năm 937, trực tiếp dẫn đến trận Bạch Đằng?',
+    opts: ['Lưu Hoằng Tháo', 'Kiều Công Tiễn', 'Dương Tam Kha', 'Lưu Cung'],
+    correct: 1,
+    explain: 'Kiều Công Tiễn — nha tướng thân tín — ám sát Dương Đình Nghệ để đoạt quyền Tiết độ sứ. Hành động này khiến Ngô Quyền (con rể) mang quân ra Bắc, và Kiều Công Tiễn cầu viện Nam Hán, tạo ra điều kiện cho trận Bạch Đằng.'
+  },
+  {
+    q: 'Tại sao thuyền chiến lớn của Nam Hán không thể thoát ra khi thủy triều xuống?',
+    opts: [
+      'Thuyền bị dây xích giam giữ',
+      'Mớn nước sâu của thuyền lớn khiến nó mắc vào cọc khi nước rút',
+      'Quân ta đã dùng lửa đốt thuyền trước đó',
+      'Gió ngược chiều khiến thuyền không rời được',
+    ],
+    correct: 1,
+    explain: 'Đây là cơ chế cốt lõi: thuyền chiến lớn có mớn nước sâu (phần thân chìm dưới nước nhiều). Khi triều cao, thuyền vượt qua cọc dễ dàng. Khi triều rút, đầu cọc nhô lên, mớn nước sâu của thuyền lớn khiến nó bị cọc cắm vào bên dưới — không thể rút lui.'
+  },
+  {
+    q: 'Ngô Quyền chọn đóng đô ở đâu sau chiến thắng Bạch Đằng?',
+    opts: ['Thăng Long (Hà Nội)', 'Hoa Lư (Ninh Bình)', 'Cổ Loa (Đông Anh)', 'Ái Châu (Thanh Hóa)'],
+    correct: 2,
+    explain: 'Cổ Loa (huyện Đông Anh, Hà Nội ngày nay) — kinh đô cũ của An Dương Vương thời Âu Lạc. Lựa chọn này mang ý nghĩa biểu tượng: kế thừa truyền thống nhà nước độc lập của người Việt từ thời tiền sử, không phụ thuộc vào bất kỳ mô hình chính trị nào từ phương Bắc.'
+  },
+  {
+    q: 'Lưu Hoằng Tháo là ai và ông ta kết thúc ra sao?',
+    opts: [
+      'Vua Nam Hán — bị bắt sống trong trận',
+      'Tướng Nam Hán — thoát ra sau trận',
+      'Con trai vua Nam Hán — tử trận trên sông Bạch Đằng',
+      'Thủ tướng Nam Hán — chạy về nước an toàn',
+    ],
+    correct: 2,
+    explain: 'Lưu Hoằng Tháo là con trai vua Nam Hán Lưu Cung, được cử chỉ huy hạm đội xâm lược. Ông ta tử trận (chết trong trận chiến) trên sông Bạch Đằng năm 938 khi hạm đội bị đánh tan. Vua cha Lưu Cung hay tin con tử trận, khóc và thu quân về.'
+  },
+  {
+    q: 'Điểm gì làm cho chiến thắng 938 khác với các lần tự chủ trước (Hai Bà Trưng, Lý Nam Đế)?',
+    opts: [
+      'Quân số của ta đông hơn địch gấp nhiều lần',
+      'Tiêu diệt lực lượng địch + đối thủ không còn khả năng tái tấn công ngay + thiết lập chính thể',
+      'Có sự giúp đỡ từ nhà Tống phương Bắc',
+      'Trận đánh diễn ra ngắn hơn các trận trước',
+    ],
+    correct: 1,
+    explain: 'Ba yếu tố kết hợp: (1) Tiêu diệt hoàn toàn hạm đội địch (không chỉ đuổi đi); (2) Nam Hán mất con trai và hạm đội, không còn khả năng tái xâm lược ngay; (3) Ngô Quyền thiết lập chính thể bằng tuyên bố rõ ràng (bỏ Tiết độ sứ, xưng Vương, đóng đô). Các lần trước thiếu ít nhất một trong ba yếu tố này.'
+  },
+  {
+    q: 'Cơ chế bãi cọc phụ thuộc vào yếu tố tự nhiên nào là quyết định nhất?',
+    opts: ['Gió mùa đông bắc mạnh', 'Thủy triều lên – xuống theo quy luật', 'Mưa lũ mùa hè', 'Sương mù che khuất tầm nhìn'],
+    correct: 1,
+    explain: 'Thủy triều lên – xuống theo quy luật đều đặn là yếu tố quyết định: triều lên → cọc ngập → nhử địch vào → triều xuống → cọc nhô → địch mắc bẫy. Không có quy luật thủy triều đều đặn và biên độ lớn, kế sách này không thực hiện được. Ngô Quyền chọn sông Bạch Đằng chính vì vùng Đông Bắc có biên độ thủy triều lớn.'
+  },
+];
+
+let quizIdx = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = `Câu ${quizIdx + 1}/${QUIZ.length}: ${q.q}`;
+  document.getElementById('quiz-prog').textContent = `${quizIdx + 1} / ${QUIZ.length}`;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? `Điểm: ${quizScore}/${quizIdx}` : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = function() { quizAnswer(i); };
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+
+  opts.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+
+  document.getElementById('quiz-score').textContent = `Điểm: ${quizScore}/${quizIdx + 1}`;
+
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const finalScore = document.getElementById('quiz-score');
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    finalScore.textContent = `Kết quả: ${quizScore}/${QUIZ.length} (${pct}%)`;
+    const prog = document.getElementById('quiz-prog');
+    prog.textContent = pct >= 80 ? 'Xuất sắc!' : pct >= 60 ? 'Tốt — ôn lại các câu sai.' : 'Cần ôn tập thêm.';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Tổng kết Tầng 1: Di sản & Ý nghĩa nền độc lập</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette VietnameseHistory Tầng 1 ── */
+  :root {
+    --accent:       #b45309;
+    --accent-soft:  #fef3c7;
+    --accent-hover: #92400e;
+    --red-war:      #b91c1c;
+    --green-peace:  #15803d;
+    --grey-minor:   #78716c;
+    --blue-self:    #1d4ed8;
+    --bg-card:      #ffffff;
+    --bg-section:   #fdfaf5;
+    --border:       #e7d9b8;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-hover); font-size: 1.6rem; }
+  h2 { color: var(--accent); margin-top: 40px; padding-bottom: 6px;
+       border-bottom: 2px solid var(--accent-soft); }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(180,83,9,.10);
+    margin: 16px 0;
+    border: 1px solid var(--border);
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 1 — Timeline tổng hợp
+     ═══════════════════════════════════════════════════════ */
+  #tl-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: var(--bg-section);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 16px 0 8px;
+  }
+  #tl-svg { display: block; margin: 0 auto; }
+
+  .tl-dot { cursor: pointer; transition: r .15s; }
+  .tl-dot:hover { r: 12; }
+
+  #tl-detail {
+    min-height: 90px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.75;
+    transition: background .2s;
+  }
+  #tl-detail .ev-title { font-weight: 700; font-size: 16px; color: var(--accent-hover); margin-bottom: 4px; }
+  #tl-detail .ev-link a { color: var(--blue-self); font-size: 13px; }
+  #tl-detail .ev-tag {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 6px;
+  }
+  .tag-war  { background:#fee2e2; color:#991b1b; }
+  .tag-found{ background:#dcfce7; color:#166534; }
+  .tag-self { background:#dbeafe; color:#1d4ed8; }
+  .tag-culture { background:#fef3c7; color:#92400e; }
+
+  /* Legend strip */
+  .tl-legend {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    align-items: center;
+    margin: 8px 12px 0;
+    font-size: 12px; color: #555;
+  }
+  .tl-legend-item { display: flex; align-items: center; gap: 5px; }
+  .tl-legend-dot {
+    width: 12px; height: 12px; border-radius: 50%; display: inline-block;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 2 — Bảng so sánh khởi nghĩa / triều đại
+     ═══════════════════════════════════════════════════════ */
+  .cmp-wrap { overflow-x: auto; }
+  table.cmp-table {
+    width: 100%;
+    min-width: 620px;
+    border-collapse: collapse;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  table.cmp-table thead th {
+    background: var(--accent);
+    color: white;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 700;
+  }
+  table.cmp-table thead th:first-child { border-radius: 8px 0 0 0; }
+  table.cmp-table thead th:last-child  { border-radius: 0 8px 0 0; }
+  table.cmp-table tbody tr:nth-child(odd) { background: #fff; }
+  table.cmp-table tbody tr:nth-child(even) { background: var(--accent-soft); }
+  table.cmp-table tbody td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  table.cmp-table tbody td:first-child { font-weight: 700; color: var(--accent-hover); }
+  table.cmp-table .result-win { color: var(--green-peace); font-weight: 700; }
+  table.cmp-table .result-fail { color: var(--red-war); }
+  table.cmp-table .result-short { color: var(--grey-minor); }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 3 — Bản sắc dân tộc: cơ chế tương tác
+     ═══════════════════════════════════════════════════════ */
+  .identity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .identity-card {
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color .2s, box-shadow .2s;
+    user-select: none;
+  }
+  .identity-card:hover, .identity-card.active {
+    border-color: var(--accent);
+    box-shadow: 0 2px 8px rgba(180,83,9,.18);
+  }
+  .identity-card .ic-icon { font-size: 2rem; margin-bottom: 6px; }
+  .identity-card .ic-title { font-weight: 700; font-size: 15px; color: var(--accent-hover); margin-bottom: 4px; }
+  .identity-card .ic-summary { font-size: 13px; color: #555; line-height: 1.5; }
+
+  #identity-detail {
+    background: var(--bg-section);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 22px;
+    min-height: 80px;
+    font-size: 14px;
+    line-height: 1.8;
+    margin-top: 12px;
+    display: none;
+  }
+  #identity-detail.visible { display: block; }
+  #identity-detail h3 { color: var(--accent-hover); margin: 0 0 8px; font-size: 16px; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 4 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ */
+  .quiz-progress {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px; font-size: 14px; color: #555;
+  }
+  .quiz-bar-wrap {
+    flex: 1; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden;
+  }
+  .quiz-bar { height: 100%; background: var(--accent); border-radius: 4px; transition: width .3s; }
+
+  .quiz-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 26px;
+    margin: 8px 0;
+  }
+  .quiz-q { font-weight: 700; font-size: 16px; color: #1f2937; margin-bottom: 16px; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-opt {
+    padding: 10px 16px;
+    border-radius: 7px;
+    border: 2px solid #d1d5db;
+    background: white;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+    transition: border-color .15s, background .15s;
+    line-height: 1.5;
+  }
+  .quiz-opt:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: #16a34a; background: #dcfce7; color: #166534; font-weight: 700; }
+  .quiz-opt.wrong   { border-color: #dc2626; background: #fee2e2; color: #991b1b; }
+  .quiz-opt:disabled { cursor: default; opacity: .85; }
+
+  .quiz-feedback {
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: 7px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+  }
+  .quiz-feedback.visible { display: block; }
+  .quiz-feedback.ok  { background: #dcfce7; border: 1px solid #86efac; color: #166534; }
+  .quiz-feedback.err { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
+
+  .quiz-nav { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+
+  .quiz-result {
+    text-align: center;
+    padding: 32px 16px;
+    background: var(--bg-section);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    display: none;
+  }
+  .quiz-result.visible { display: block; }
+  .quiz-result .score { font-size: 2.5rem; font-weight: 900; color: var(--accent); }
+  .quiz-result .score-label { font-size: 1rem; color: #555; margin-top: 4px; }
+  .quiz-result .result-msg { margin-top: 12px; font-size: 15px; font-weight: 600; }
+
+  /* score star */
+  .star { font-size: 1.4rem; }
+
+  /* ── responsive ── */
+  @media (max-width: 600px) {
+    .identity-grid { grid-template-columns: 1fr 1fr; }
+    table.cmp-table { font-size: 12px; }
+    .quiz-card { padding: 16px 14px; }
+    .quiz-q { font-size: 14px; }
+    .quiz-opt { font-size: 13px; }
+  }
+  @media (max-width: 420px) {
+    .identity-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử VN — Nguồn gốc</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-dinh-tien-le/visualization.html">← L7: Đinh – Tiền Lê</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Tổng kết Tầng 1</span>
+  <span class="sep">·</span>
+  <a href="../../02-Monarchical-Dynasties/lesson-01-nha-ly/visualization.html">Tầng 2 → Nhà Lý</a>
+</nav>
+
+<main>
+  <h1>Tổng kết Tầng 1 — Di sản &amp; Ý nghĩa nền độc lập</h1>
+  <p style="color:#555; font-size:15px; margin-top:-6px;">
+    Từ tiền sử Đông Sơn đến kháng Tống 981 — toàn bộ Tầng 1 trong một trang.
+    Tương tác với timeline, bảng so sánh và quiz để ôn lại kiến thức các bài 01–07.
+  </p>
+
+  <!-- ───────────────────────────────────────────────
+       MODULE 1 — Timeline tổng hợp
+  ─────────────────────────────────────────────────── -->
+  <h2>1. Timeline tổng hợp Tầng 1 (từ Đông Sơn đến 981)</h2>
+  <p style="font-size:14px; color:#555;">
+    Nhấp vào mỗi điểm mốc để xem tóm tắt sự kiện và liên kết bài học tương ứng.
+  </p>
+
+  <div id="tl-wrap">
+    <svg id="tl-svg" width="900" height="260" viewBox="0 0 900 260">
+      <!-- Trục thời gian -->
+      <line x1="40" y1="130" x2="870" y2="130" stroke="#d1d5db" stroke-width="3"/>
+      <!-- Nhãn đầu cuối -->
+      <text x="40" y="155" font-size="11" fill="#78716c" text-anchor="middle">~3000 TCN</text>
+      <text x="870" y="155" font-size="11" fill="#78716c" text-anchor="middle">981</text>
+    </svg>
+  </div>
+
+  <div class="tl-legend">
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#b45309"></span> Văn hóa / Nhà nước</span>
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#b91c1c"></span> Xâm lược / Sụp đổ</span>
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#1d4ed8"></span> Khởi nghĩa / Kháng cự</span>
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#15803d"></span> Độc lập / Thống nhất</span>
+  </div>
+
+  <div id="tl-detail">
+    <div style="color:#78716c; font-size:14px;">← Nhấp vào một mốc trên timeline để xem chi tiết.</div>
+  </div>
+
+  <!-- ───────────────────────────────────────────────
+       MODULE 2 — Bảng so sánh
+  ─────────────────────────────────────────────────── -->
+  <h2>2. Bảng so sánh các cuộc khởi nghĩa &amp; giai đoạn tự chủ</h2>
+  <div class="card">
+    <p style="font-size:14px; color:#555; margin-top:0;">
+      Tổng hợp toàn bộ các cuộc nổi dậy và giai đoạn tự chủ trong hơn 1.000 năm Bắc thuộc.
+      Các triều đại / giai đoạn xếp theo thứ tự thời gian.
+    </p>
+    <div class="cmp-wrap">
+      <table class="cmp-table">
+        <thead>
+          <tr>
+            <th>Giai đoạn</th>
+            <th>Năm</th>
+            <th>Lãnh tụ</th>
+            <th>Địa bàn chính</th>
+            <th>Thời gian tồn tại</th>
+            <th>Kết quả</th>
+            <th>Đặc điểm nổi bật</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Âu Lạc – An Dương Vương</td>
+            <td>258–179 TCN</td>
+            <td>An Dương Vương</td>
+            <td>Phong Khê (vùng Hà Nội)</td>
+            <td>~79 năm</td>
+            <td class="result-fail">Bị Triệu Đà thôn tính</td>
+            <td>Xây thành Cổ Loa; nỏ thần (huyền thoại)</td>
+          </tr>
+          <tr>
+            <td>Khởi nghĩa Hai Bà Trưng</td>
+            <td>40–43</td>
+            <td>Trưng Trắc, Trưng Nhị</td>
+            <td>Mê Linh → toàn Giao Châu</td>
+            <td>~3 năm</td>
+            <td class="result-fail">Mã Viện dẹp; Hai Bà tuẫn tiết</td>
+            <td>Nữ lãnh tụ đầu tiên; huy động lực lượng rộng rãi</td>
+          </tr>
+          <tr>
+            <td>Khởi nghĩa Bà Triệu</td>
+            <td>248</td>
+            <td>Triệu Thị Trinh</td>
+            <td>Cửu Chân (Thanh Hóa)</td>
+            <td>Vài tháng</td>
+            <td class="result-fail">Nhà Ngô dẹp; Bà Triệu mất</td>
+            <td>Kháng cự lan xuống miền Trung; biểu tượng tinh thần</td>
+          </tr>
+          <tr>
+            <td>Vạn Xuân – Lý Bí</td>
+            <td>544–602</td>
+            <td>Lý Bí, Triệu Quang Phục</td>
+            <td>Giao Châu, vùng Đồng Bằng</td>
+            <td>~58 năm (nhiều biến động)</td>
+            <td class="result-short">Tồn tại lâu nhất; cuối cùng Tùy diệt</td>
+            <td>Quốc hiệu riêng (Vạn Xuân); Triệu Quang Phục chiến thuật đầm lầy</td>
+          </tr>
+          <tr>
+            <td>Khởi nghĩa Mai Thúc Loan</td>
+            <td>722–723</td>
+            <td>Mai Thúc Loan</td>
+            <td>Hoan Châu (Nghệ An)</td>
+            <td>~1 năm</td>
+            <td class="result-fail">Nhà Đường dẹp</td>
+            <td>Tự xưng đế; mở rộng phạm vi kháng cự xuống miền Nam</td>
+          </tr>
+          <tr>
+            <td>Phùng Hưng – Bố Cái Đại Vương</td>
+            <td>776–791</td>
+            <td>Phùng Hưng</td>
+            <td>Phong Châu (Phú Thọ – Vĩnh Phúc)</td>
+            <td>~15 năm tự trị; con mất quyền sau đó</td>
+            <td class="result-short">Duy trì tự trị một thời gian; không thành nhà nước</td>
+            <td>Được nhân dân tôn thờ sau khi mất; hiệu "Bố Cái Đại Vương"</td>
+          </tr>
+          <tr>
+            <td>Họ Khúc – tự chủ thực tế</td>
+            <td>905–923</td>
+            <td>Khúc Thừa Dụ, Khúc Hạo, Khúc Thừa Mỹ</td>
+            <td>Giao Châu</td>
+            <td>~18 năm (3 đời)</td>
+            <td class="result-short">Nam Hán thôn tính 930; Dương Đình Nghệ khôi phục 931</td>
+            <td>Chiến lược thực dụng: tiếp quản bộ máy Đường, không đối đầu quân sự</td>
+          </tr>
+          <tr>
+            <td>Dương Đình Nghệ – tự chủ</td>
+            <td>931–937</td>
+            <td>Dương Đình Nghệ</td>
+            <td>Giao Châu</td>
+            <td>~6 năm</td>
+            <td class="result-fail">Kiều Công Tiễn phản bội, ám sát (937)</td>
+            <td>Cha vợ Ngô Quyền; đặt nền cho chiến thắng 938</td>
+          </tr>
+          <tr>
+            <td>Ngô Quyền – Bạch Đằng</td>
+            <td>938</td>
+            <td>Ngô Quyền</td>
+            <td>Sông Bạch Đằng</td>
+            <td>Kháng chiến thắng lợi; nhà Ngô 939–944</td>
+            <td class="result-win">Kết thúc Bắc thuộc</td>
+            <td>Bẫy cọc sắt + thủy triều; bước ngoặt lịch sử</td>
+          </tr>
+          <tr>
+            <td>Đinh Bộ Lĩnh – Đại Cồ Việt</td>
+            <td>968–979</td>
+            <td>Đinh Bộ Lĩnh (Đinh Tiên Hoàng)</td>
+            <td>Hoa Lư (Ninh Bình)</td>
+            <td>~11 năm (rồi bị ám sát)</td>
+            <td class="result-win">Thống nhất sứ quân; lập nhà nước độc lập</td>
+            <td>Dẹp loạn 12 sứ quân; đặt kinh đô Hoa Lư</td>
+          </tr>
+          <tr>
+            <td>Lê Hoàn – kháng Tống</td>
+            <td>981</td>
+            <td>Lê Hoàn (Lê Đại Hành)</td>
+            <td>Sông Bạch Đằng &amp; Chi Lăng</td>
+            <td>Chiến thắng quyết định</td>
+            <td class="result-win">Đánh bại quân Tống; bảo vệ độc lập</td>
+            <td>Bạch Đằng lần 2; kết thúc Tầng 1</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ───────────────────────────────────────────────
+       MODULE 3 — Bản sắc dân tộc
+  ─────────────────────────────────────────────────── -->
+  <h2>3. Vì sao giữ được bản sắc qua hơn 1.000 năm Bắc thuộc?</h2>
+  <p style="font-size:14px; color:#555;">
+    Nhấp vào từng cơ chế để đọc phân tích chi tiết.
+  </p>
+
+  <div class="identity-grid">
+    <div class="identity-card" onclick="showIdentity('lang-xa')">
+      <div class="ic-icon">🏡</div>
+      <div class="ic-title">Làng xã tự trị</div>
+      <div class="ic-summary">Đơn vị cơ sở của xã hội — thoát khỏi tầm kiểm soát trực tiếp của bộ máy đô hộ.</div>
+    </div>
+    <div class="identity-card" onclick="showIdentity('tieng-viet')">
+      <div class="ic-icon">🗣</div>
+      <div class="ic-title">Tiếng Việt</div>
+      <div class="ic-summary">Ngôn ngữ miệng của đại đa số — không thể "cấm" bằng sắc lệnh hành chính.</div>
+    </div>
+    <div class="identity-card" onclick="showIdentity('to-tien')">
+      <div class="ic-icon">🏮</div>
+      <div class="ic-title">Thờ cúng tổ tiên</div>
+      <div class="ic-summary">Duy trì ký ức cộng đồng qua nghi lễ — không cần chữ viết, không cần trường học.</div>
+    </div>
+    <div class="identity-card" onclick="showIdentity('y-thuc')">
+      <div class="ic-icon">⚔</div>
+      <div class="ic-title">Ý thức cộng đồng</div>
+      <div class="ic-summary">Ranh giới "chúng ta – họ" được duy trì bởi chính sách phân biệt của kẻ đô hộ.</div>
+    </div>
+    <div class="identity-card" onclick="showIdentity('tiep-nhan')">
+      <div class="ic-icon">⚖</div>
+      <div class="ic-title">Tiếp nhận có chọn lọc</div>
+      <div class="ic-summary">Người Việt hấp thụ kỹ thuật, chữ viết từ Hán nhưng không bị đồng hóa toàn diện.</div>
+    </div>
+    <div class="identity-card" onclick="showIdentity('ky-uc')">
+      <div class="ic-icon">📖</div>
+      <div class="ic-title">Ký ức kháng cự</div>
+      <div class="ic-summary">Mỗi cuộc khởi nghĩa dù thất bại cũng để lại ký ức: "đã từng tự cai quản được".</div>
+    </div>
+  </div>
+
+  <div id="identity-detail"></div>
+
+  <!-- ───────────────────────────────────────────────
+       MODULE 4 — Quiz ôn tập
+  ─────────────────────────────────────────────────── -->
+  <h2>4. Quiz ôn tập toàn Tầng 1</h2>
+  <p style="font-size:14px; color:#555;">
+    10 câu hỏi xuyên suốt các bài 01–07. Chọn đáp án và nhận phản hồi ngay.
+  </p>
+
+  <div class="card">
+    <div class="quiz-progress">
+      <span id="quiz-counter">Câu 1 / 10</span>
+      <div class="quiz-bar-wrap"><div class="quiz-bar" id="quiz-bar" style="width:10%"></div></div>
+      <span id="quiz-score-live">0 đúng</span>
+    </div>
+
+    <div id="quiz-area"></div>
+    <div id="quiz-result" class="quiz-result"></div>
+  </div>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   DATA — Timeline events
+   ═══════════════════════════════════════════════════════ */
+const EVENTS = [
+  {
+    year: -3000, label: "~3000 TCN", title: "Văn hóa tiền sử – Hòa Bình",
+    color: "#b45309", type: "culture",
+    detail: "Con người định cư, trồng lúa, hình thành xã hội nông nghiệp đầu tiên ở lưu vực sông Hồng và sông Mã. Văn hóa Hòa Bình – Bắc Sơn đặt nền tảng vật chất cho các nền văn minh về sau.",
+    lesson: { text: "Xem Lesson 01", href: "../lesson-01-tien-su-nguon-goc/visualization.html" },
+    tags: ["culture"]
+  },
+  {
+    year: -700, label: "~700 TCN", title: "Văn hóa Đông Sơn cực thịnh",
+    color: "#b45309", type: "culture",
+    detail: "Trống đồng Đông Sơn — biểu tượng văn minh riêng biệt của người Việt cổ. Kỹ thuật đúc đồng tinh xảo, nông nghiệp lúa nước phát triển. Theo Đại Việt sử ký toàn thư, đây là thời kỳ Văn Lang của các đời Hùng Vương.",
+    lesson: { text: "Xem Lesson 01", href: "../lesson-01-tien-su-nguon-goc/visualization.html" },
+    tags: ["culture"]
+  },
+  {
+    year: -258, label: "258 TCN", title: "Nhà nước Âu Lạc – An Dương Vương",
+    color: "#b45309", type: "found",
+    detail: "An Dương Vương lập nước Âu Lạc (hợp nhất Văn Lang và Âu Việt), xây thành Cổ Loa – công trình phòng thủ lớn nhất thời cổ đại ở Việt Nam. Nỏ thần là biểu tượng trong truyền thuyết về sức mạnh quân sự.",
+    lesson: { text: "Xem Lesson 02", href: "../lesson-02-van-lang-au-lac/visualization.html" },
+    tags: ["found"]
+  },
+  {
+    year: -179, label: "179 TCN", title: "Triệu Đà thôn tính Âu Lạc",
+    color: "#b91c1c", type: "war",
+    detail: "Triệu Đà dùng kế giả hôn (Trọng Thủy – Mỵ Châu theo truyền thuyết) để đánh bại An Dương Vương. Âu Lạc bị sáp nhập vào Nam Việt. Đây là mốc bắt đầu thời kỳ phụ thuộc phương Bắc kéo dài hơn 1.000 năm.",
+    lesson: { text: "Xem Lesson 02", href: "../lesson-02-van-lang-au-lac/visualization.html" },
+    tags: ["war"]
+  },
+  {
+    year: -111, label: "111 TCN", title: "Nhà Hán diệt Nam Việt — Bắc thuộc chính thức",
+    color: "#b91c1c", type: "war",
+    detail: "Nhà Hán sáp nhập Nam Việt, thiết lập ách đô hộ trực tiếp lên vùng Giao Chỉ – Cửu Chân – Nhật Nam. Đây là mốc Bắc thuộc lần 1 chính thức: quan lại Hán cai trị, thu thuế, áp đặt chính sách đồng hóa.",
+    lesson: { text: "Xem Lesson 03", href: "../lesson-03-bac-thuoc-hai-ba-trung/visualization.html" },
+    tags: ["war"]
+  },
+  {
+    year: 40, label: "Năm 40", title: "Khởi nghĩa Hai Bà Trưng",
+    color: "#1d4ed8", type: "self",
+    detail: "Trưng Trắc và Trưng Nhị khởi nghĩa tại Mê Linh, giải phóng toàn bộ 65 thành Giao Chỉ trong vài tháng. Trưng Trắc xưng vương, đóng đô tại Mê Linh. Đây là lần đầu người Việt lập chính quyền tự chủ sau khi mất nước. Năm 43, Mã Viện dẫn quân Hán dẹp; Hai Bà tuẫn tiết.",
+    lesson: { text: "Xem Lesson 03", href: "../lesson-03-bac-thuoc-hai-ba-trung/visualization.html" },
+    tags: ["self"]
+  },
+  {
+    year: 248, label: "Năm 248", title: "Khởi nghĩa Bà Triệu",
+    color: "#1d4ed8", type: "self",
+    detail: "Triệu Thị Trinh (Bà Triệu) khởi nghĩa ở Cửu Chân (Thanh Hóa), kháng lại nhà Ngô. Dù thất bại sau vài tháng, cuộc khởi nghĩa có ý nghĩa lan rộng phạm vi kháng cự xuống miền Trung và là biểu tượng tinh thần bất khuất.",
+    lesson: { text: "Xem Lesson 04", href: "../lesson-04-khoi-nghia-van-xuan/visualization.html" },
+    tags: ["self"]
+  },
+  {
+    year: 544, label: "Năm 544", title: "Lý Bí lập nước Vạn Xuân",
+    color: "#15803d", type: "found",
+    detail: "Lý Bí (Lý Nam Đế) lật đổ chính quyền Lương, lập nhà nước Vạn Xuân — tên quốc gia Việt đầu tiên có quốc hiệu riêng. Kinh đô đặt ở Long Biên. Sau khi Lý Bí mất, Triệu Quang Phục tiếp tục kháng chiến bằng chiến thuật đầm lầy (Dạ Trạch). Đến năm 602, nhà Tùy mới dẹp được.",
+    lesson: { text: "Xem Lesson 04", href: "../lesson-04-khoi-nghia-van-xuan/visualization.html" },
+    tags: ["found"]
+  },
+  {
+    year: 722, label: "Năm 722", title: "Khởi nghĩa Mai Thúc Loan",
+    color: "#1d4ed8", type: "self",
+    detail: "Mai Thúc Loan khởi nghĩa ở Hoan Châu (Nghệ An), tự xưng hoàng đế (Mai Hắc Đế), thu hút lực lượng từ nhiều vùng. Cuộc khởi nghĩa bị nhà Đường dẹp năm 723, nhưng chứng tỏ phong trào kháng cự có quy mô địa lý rộng hơn.",
+    lesson: { text: "Xem Lesson 04", href: "../lesson-04-khoi-nghia-van-xuan/visualization.html" },
+    tags: ["self"]
+  },
+  {
+    year: 791, label: "Năm 791", title: "Phùng Hưng – Bố Cái Đại Vương",
+    color: "#1d4ed8", type: "self",
+    detail: "Phùng Hưng chiếm lại Phong Châu, giữ tự trị khoảng 9 năm cho đến khi mất. Con ông — Phùng An — tôn cha là 'Bố Cái Đại Vương' (vua cha/mẹ của dân). Nhà Đường sau đó tái lập quyền cai trị. Giai đoạn này đánh dấu sự tự trị tạm thời cuối cùng trước khi Họ Khúc xuất hiện.",
+    lesson: { text: "Xem Lesson 04", href: "../lesson-04-khoi-nghia-van-xuan/visualization.html" },
+    tags: ["self"]
+  },
+  {
+    year: 905, label: "Năm 905", title: "Khúc Thừa Dụ — tự chủ thực tế",
+    color: "#15803d", type: "found",
+    detail: "Nhân cơ hội nhà Đường suy vong và loạn lạc, Khúc Thừa Dụ chiếm giữ phủ thành Tống Bình (Hà Nội), được triều đình nhà Đường đang suy yếu phong làm tiết độ sứ. Họ Khúc không chống lại trực tiếp mà tiếp quản bộ máy hành chính — chiến lược thực dụng khác hẳn các cuộc khởi nghĩa vũ trang trước đó.",
+    lesson: { text: "Xem Lesson 05", href: "../lesson-05-tu-chu-ho-khuc/visualization.html" },
+    tags: ["found"]
+  },
+  {
+    year: 938, label: "Năm 938", title: "Ngô Quyền — Bạch Đằng, kết thúc Bắc thuộc",
+    color: "#15803d", type: "found",
+    detail: "Ngô Quyền đánh tan quân Nam Hán trên sông Bạch Đằng bằng chiến thuật bẫy cọc sắt + thủy triều. Hoàng tử Lưu Hoằng Tháo — người chỉ huy quân Nam Hán — tử trận. Đây là mốc kết thúc hơn 1.000 năm Bắc thuộc (111 TCN – 938). Năm 939, Ngô Quyền xưng vương, đặt triều đình tại Cổ Loa.",
+    lesson: { text: "Xem Lesson 06", href: "../lesson-06-ngo-quyen-bach-dang/visualization.html" },
+    tags: ["found"]
+  },
+  {
+    year: 968, label: "Năm 968", title: "Đinh Bộ Lĩnh lập Đại Cồ Việt",
+    color: "#15803d", type: "found",
+    detail: "Đinh Bộ Lĩnh dẹp loạn 12 sứ quân (944–968), thống nhất đất nước, lên ngôi Hoàng đế (Đinh Tiên Hoàng), đặt quốc hiệu Đại Cồ Việt, đóng đô tại Hoa Lư (Ninh Bình). Lần đầu tiên Việt Nam có nhà nước phong kiến tập quyền hoàn chỉnh sau độc lập.",
+    lesson: { text: "Xem Lesson 07", href: "../lesson-07-dinh-tien-le/visualization.html" },
+    tags: ["found"]
+  },
+  {
+    year: 981, label: "Năm 981", title: "Lê Hoàn kháng Tống — kết thúc Tầng 1",
+    color: "#15803d", type: "found",
+    detail: "Lê Hoàn (Lê Đại Hành) đánh bại quân Tống trên sông Bạch Đằng và ải Chi Lăng, bảo vệ vững chắc nền độc lập mới giành được. Đây là mốc kết thúc Tầng 1: Đại Cồ Việt không chỉ giành độc lập mà còn đủ mạnh để kháng cự cường quốc lớn nhất Đông Á thời bấy giờ.",
+    lesson: { text: "Xem Lesson 07", href: "../lesson-07-dinh-tien-le/visualization.html" },
+    tags: ["found"]
+  }
+];
+
+/* ── Vẽ timeline ── */
+(function drawTimeline() {
+  const svg = document.getElementById('tl-svg');
+  const W = 900, H = 260;
+  const X0 = 40, X1 = 870, Y = 130;
+  const minY = -3000, maxY = 981;
+  const range = maxY - minY;
+
+  function xOf(year) {
+    return X0 + (year - minY) / range * (X1 - X0);
+  }
+
+  // Era bands
+  const bands = [
+    { from: -3000, to: -111, label: "Tiền sử – Nhà nước", fill: "#fef3c7", opacity: 0.5 },
+    { from: -111, to: 905, label: "Bắc thuộc", fill: "#fee2e2", opacity: 0.4 },
+    { from: 905, to: 981, label: "Độc lập", fill: "#dcfce7", opacity: 0.5 }
+  ];
+  bands.forEach(b => {
+    const x = xOf(b.from), w = xOf(b.to) - xOf(b.from);
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("x", x); rect.setAttribute("y", 10);
+    rect.setAttribute("width", w); rect.setAttribute("height", H - 20);
+    rect.setAttribute("fill", b.fill); rect.setAttribute("opacity", b.opacity);
+    svg.appendChild(rect);
+
+    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    txt.setAttribute("x", x + w / 2); txt.setAttribute("y", 24);
+    txt.setAttribute("text-anchor", "middle");
+    txt.setAttribute("font-size", "10"); txt.setAttribute("fill", "#6b7280");
+    txt.setAttribute("font-style", "italic");
+    txt.textContent = b.label;
+    svg.appendChild(txt);
+  });
+
+  // Axis line
+  const axis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  axis.setAttribute("x1", X0); axis.setAttribute("y1", Y);
+  axis.setAttribute("x2", X1); axis.setAttribute("y2", Y);
+  axis.setAttribute("stroke", "#9ca3af"); axis.setAttribute("stroke-width", "3");
+  svg.appendChild(axis);
+
+  // Events
+  EVENTS.forEach((ev, i) => {
+    const x = xOf(ev.year);
+    const above = i % 2 === 0;
+    const labelY = above ? Y - 38 : Y + 55;
+    const lineY2  = above ? Y - 8  : Y + 8;
+
+    // Tick line
+    const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    tick.setAttribute("x1", x); tick.setAttribute("y1", Y);
+    tick.setAttribute("x2", x); tick.setAttribute("y2", lineY2);
+    tick.setAttribute("stroke", ev.color); tick.setAttribute("stroke-width", "2");
+    tick.setAttribute("stroke-dasharray", "3,2");
+    svg.appendChild(tick);
+
+    // Label
+    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    txt.setAttribute("x", x); txt.setAttribute("y", labelY);
+    txt.setAttribute("text-anchor", "middle");
+    txt.setAttribute("font-size", "9.5"); txt.setAttribute("fill", ev.color);
+    txt.setAttribute("font-weight", "600");
+    txt.textContent = ev.label;
+    svg.appendChild(txt);
+
+    // Dot
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", x); circle.setAttribute("cy", Y);
+    circle.setAttribute("r", "8");
+    circle.setAttribute("fill", ev.color);
+    circle.setAttribute("stroke", "white"); circle.setAttribute("stroke-width", "2");
+    circle.classList.add("tl-dot");
+    circle.setAttribute("aria-label", ev.title);
+
+    circle.addEventListener("click", () => showEvent(ev));
+    svg.appendChild(circle);
+  });
+})();
+
+function showEvent(ev) {
+  const det = document.getElementById('tl-detail');
+  const tagHtml = ev.tags.map(t => {
+    const cls = t === 'war' ? 'tag-war' : t === 'found' ? 'tag-found' : t === 'self' ? 'tag-self' : 'tag-culture';
+    const lbl = t === 'war' ? 'Xâm lược/Sụp đổ' : t === 'found' ? 'Dựng nước/Độc lập' : t === 'self' ? 'Khởi nghĩa' : 'Văn hóa';
+    return `<span class="ev-tag ${cls}">${lbl}</span>`;
+  }).join('');
+
+  det.innerHTML = `
+    <div class="ev-title">${ev.title} — <span style="font-weight:400;font-size:14px;color:#78716c">${ev.label}</span></div>
+    <div style="margin-bottom:8px;">${tagHtml}</div>
+    <div style="margin-bottom:10px;">${ev.detail}</div>
+    <div class="ev-link">
+      <a href="${ev.lesson.href}">${ev.lesson.text} →</a>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════
+   MODULE 3 — Bản sắc dân tộc
+   ═══════════════════════════════════════════════════════ */
+const IDENTITY_DATA = {
+  'lang-xa': {
+    title: 'Làng xã tự trị — đơn vị sống còn của bản sắc',
+    content: `<p>Bộ máy cai trị nhà Hán, nhà Đường áp đặt chủ yếu ở cấp quận, huyện — tức cấp thành thị và quan lại. Đơn vị <strong>làng xã</strong> (xóm, thôn) vẫn do người Việt địa phương tự quản lý theo hương ước riêng.</p>
+    <p>Hệ quả cụ thể: Hôn nhân, tang ma, phân chia ruộng đất, giải quyết tranh chấp nội bộ — tất cả vẫn theo phong tục Việt. Trẻ em học chữ Hán ở trường quan nhưng nói tiếng Việt ở nhà và ngoài đồng. Sự tách biệt giữa "không gian công" (chịu ảnh hưởng Hán hóa) và "không gian tư" (giữ văn hóa Việt) là cơ chế sống còn quan trọng nhất.</p>
+    <p><strong>Tại sao chính quyền không phá vỡ?</strong> Phá vỡ cấu trúc làng xã đòi hỏi nguồn lực rất lớn — quan lại, binh lính, chi phí — mà mức thuế thu được không đủ bù đắp. Mục tiêu thực tế của đô hộ là thu thuế và kiểm soát chiến lược, không phải đồng hóa toàn diện theo nghĩa hiện đại.</p>`
+  },
+  'tieng-viet': {
+    title: 'Tiếng Việt — sức bền của ngôn ngữ miệng',
+    content: `<p>Chính quyền đô hộ dùng <strong>chữ Hán</strong> trong văn bản hành chính, nhà trường và tầng lớp trí thức. Nhưng chữ viết không đồng nghĩa với ngôn ngữ nói.</p>
+    <p>Tiếng Việt — thuộc ngữ hệ Môn-Khmer, khác biệt cơ bản với tiếng Hán về cấu trúc âm vị và ngữ pháp — tiếp tục là ngôn ngữ giao tiếp hàng ngày của tuyệt đại đa số dân chúng. Người nông dân làm ruộng (hơn 90% dân số) không cần chữ Hán để sống.</p>
+    <p>Bằng chứng rõ nhất: đến thế kỷ 13, người Việt còn sáng tạo ra <strong>chữ Nôm</strong> để ghi tiếng Việt bằng hệ thống riêng — chứng tỏ tiếng Việt vẫn tồn tại và phát triển, cần được ghi lại theo cách riêng, không phụ thuộc hoàn toàn vào hệ chữ Hán.</p>`
+  },
+  'to-tien': {
+    title: 'Thờ cúng tổ tiên — thiết chế xã hội duy trì ký ức',
+    content: `<p><strong>Thờ cúng tổ tiên</strong> (giỗ chạp, thờ thành hoàng làng, lễ tế ông bà) là một thiết chế xã hội, không chỉ là tín ngưỡng. Nó buộc cộng đồng duy trì ký ức chung: ai là tổ tiên, từ đâu đến, đã làm gì — cơ chế truyền thụ bản sắc không cần chữ viết, không cần trường học, chỉ cần nghi lễ định kỳ.</p>
+    <p>Người Hán du nhập Phật giáo, Đạo giáo, Khổng giáo — được người Việt tiếp nhận nhưng không thay thế hoàn toàn tín ngưỡng bản địa. Kết quả: chùa Phật làng Việt vẫn thờ thành hoàng, thần nông, mẫu thần. Nền tảng bản địa không bị xóa mà <em>bổ sung thêm lớp văn hóa mới</em>.</p>
+    <p>Chính quyền đô hộ không cấm thờ cúng tổ tiên — đây không phải tôn giáo có tổ chức tập trung, nên khó kiểm soát. Vô hình chung, nghi lễ định kỳ trở thành không gian cộng đồng nói tiếng Việt, ôn lại lịch sử gia đình và làng xã.</p>`
+  },
+  'y-thuc': {
+    title: 'Ý thức cộng đồng — ranh giới "chúng ta – họ"',
+    content: `<p>Ý thức phân biệt "người Việt" và "người Hán" được củng cố bởi chính sách của bản thân kẻ đô hộ: quan Hán ngồi trên, lạc tướng Việt ngồi dưới — sự phân cấp rõ ràng này <em>vô tình duy trì ranh giới</em> "chúng ta – họ".</p>
+    <p><strong>Các biểu tượng văn hóa riêng</strong> là yếu tố quan trọng: trống đồng Đông Sơn, huyền thoại Lạc Long Quân – Âu Cơ (trăm trứng nở trăm con), câu chuyện nỏ thần thành Cổ Loa — những biểu tượng này không phải của người Hán, rõ ràng là của người Việt. Chúng được kể truyền khẩu qua nhiều thế hệ.</p>
+    <p><strong>Ký ức về các giai đoạn tự chủ</strong>: dù ngắn hạn, mỗi cuộc khởi nghĩa (Hai Bà Trưng, Lý Bí...) để lại ký ức rằng "đã từng tự cai quản, có thể tự cai quản lại". Ký ức này là nhiên liệu tinh thần cho cuộc đấu tranh tiếp theo.</p>`
+  },
+  'tiep-nhan': {
+    title: 'Tiếp nhận có chọn lọc — hấp thụ mà không bị nuốt',
+    content: `<p>Nhiều người nhầm tưởng Bắc thuộc hoàn toàn tiêu cực và người Việt chỉ "chịu đựng". Thực ra, tiếp xúc kéo dài hơn 1.000 năm cũng mang lại những tiến bộ kỹ thuật đáng kể: <strong>kỹ thuật làm sắt</strong> tinh xảo hơn, <strong>kỹ thuật xây thành lũy</strong>, <strong>kỹ thuật thủy lợi</strong> mở rộng diện tích canh tác, và đặc biệt là <strong>chữ Hán</strong> — tầng lớp trí thức Việt dùng chữ Hán để sau này sáng tạo ra chữ Nôm và ghi chép lịch sử.</p>
+    <p>Sự khác biệt so với các dân tộc bị đồng hóa hoàn toàn: người Việt <em>tiếp nhận kỹ thuật nhưng không để mất ngôn ngữ và tổ chức xã hội bản địa</em>. Đây không phải ngẫu nhiên — đây là kết quả của cơ cấu làng xã tự trị và tín ngưỡng bản địa bền vững.</p>`
+  },
+  'ky-uc': {
+    title: 'Ký ức kháng cự — nhiên liệu tinh thần xuyên thế kỷ',
+    content: `<p>Mỗi cuộc khởi nghĩa dù thất bại cũng để lại ký ức quan trọng: <em>kháng cự là có thể, tự cai quản là có thể</em>. Hai Bà Trưng (40–43) mất nước sau 3 năm, nhưng tên tuổi và hành động của các bà được truyền tụng qua hàng chục thế kỷ — đến ngày nay vẫn còn đình thờ và lễ hội tưởng niệm.</p>
+    <p>Đặc biệt, giai đoạn Vạn Xuân (544–602) của Lý Bí có ý nghĩa biểu tượng lớn: lần đầu tiên có <strong>quốc hiệu riêng</strong>, có <strong>triều đình riêng</strong>, tồn tại 58 năm. Dù nhà Tùy cuối cùng dẹp được, ký ức về Vạn Xuân cho các thế hệ sau biết rằng người Việt hoàn toàn có khả năng tổ chức nhà nước độc lập.</p>
+    <p>Họ Khúc (905) đã kế thừa toàn bộ ký ức và kinh nghiệm đó để chọn con đường thực dụng hơn. Ngô Quyền (938) thì đẩy lên một tầm mới: không chỉ giành tự chủ mà đánh bại quân xâm lược trực tiếp trên chiến trường.</p>`
+  }
+};
+
+function showIdentity(key) {
+  const data = IDENTITY_DATA[key];
+  if (!data) return;
+
+  document.querySelectorAll('.identity-card').forEach(c => c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  const det = document.getElementById('identity-detail');
+  det.innerHTML = `<h3>${data.title}</h3>${data.content}`;
+  det.classList.add('visible');
+  det.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ═══════════════════════════════════════════════════════
+   MODULE 4 — Quiz
+   ═══════════════════════════════════════════════════════ */
+const QUIZ = [
+  {
+    q: "Trận Bạch Đằng năm 938 do ai chỉ huy về phía người Việt?",
+    opts: ["Đinh Bộ Lĩnh", "Ngô Quyền", "Lê Hoàn", "Khúc Thừa Dụ"],
+    ans: 1,
+    exp: "Ngô Quyền — con rể của Dương Đình Nghệ — là người chỉ huy trận Bạch Đằng năm 938, đánh tan quân Nam Hán, kết thúc hơn 1.000 năm Bắc thuộc. Lê Hoàn chỉ huy trận Bạch Đằng lần 2 năm 981 (kháng Tống)."
+  },
+  {
+    q: "Vì sao chiến thuật bẫy cọc sắt trên sông Bạch Đằng lại hiệu quả?",
+    opts: [
+      "Vì quân Nam Hán không có thuyền",
+      "Vì cọc sắt nổi trên mặt nước, cản đường thuyền địch",
+      "Vì cọc được đóng ngập dưới nước khi triều lên, lộ ra khi triều rút — thuyền địch bị đâm khi cạn nước",
+      "Vì cọc sắt phát lửa khi chạm nước"
+    ],
+    ans: 2,
+    exp: "Cọc gỗ bịt mũi sắt được đóng xuống lòng sông, ngập kín khi thủy triều lên (không lộ ra). Ngô Quyền dùng thuyền nhỏ nhử quân Nam Hán tiến vào khi triều lên. Khi triều rút nhanh, thuyền lớn của địch mắc cọc, bị bao vây tiêu diệt."
+  },
+  {
+    q: "Nước Vạn Xuân do ai thành lập và tồn tại trong khoảng thời gian nào?",
+    opts: [
+      "Khúc Thừa Dụ — 905 đến 923",
+      "Lý Bí — 544 đến 602",
+      "Phùng Hưng — 776 đến 791",
+      "Dương Đình Nghệ — 931 đến 937"
+    ],
+    ans: 1,
+    exp: "Lý Bí (Lý Nam Đế) lập nước Vạn Xuân năm 544, sau khi đánh đuổi quan lại nhà Lương. Nhà nước này tồn tại khoảng 58 năm (544–602), với nhiều biến động nội bộ, cho đến khi nhà Tùy đến dẹp. Đây là nhà nước Việt đầu tiên có quốc hiệu riêng."
+  },
+  {
+    q: "Đinh Bộ Lĩnh dẹp loạn 12 sứ quân và lập nước Đại Cồ Việt năm nào?",
+    opts: ["938", "944", "968", "981"],
+    ans: 2,
+    exp: "Năm 968, Đinh Bộ Lĩnh hoàn thành việc dẹp loạn 12 sứ quân (kéo dài từ 944), lên ngôi Hoàng đế với hiệu Đinh Tiên Hoàng, đặt quốc hiệu Đại Cồ Việt, kinh đô Hoa Lư (Ninh Bình)."
+  },
+  {
+    q: "Cơ chế nào giúp người Việt duy trì tiếng Việt suốt thời Bắc thuộc dù chữ viết chính thức là chữ Hán?",
+    opts: [
+      "Nhà Hán không thể cấm người dân nói tiếng Việt bằng sắc lệnh vì họ không đủ quan lại",
+      "Tiếng Việt là ngôn ngữ miệng của đại đa số dân chúng (trên 90%) — không thể thay thế bằng mệnh lệnh hành chính",
+      "Người Việt tự học tiếng Việt từ sách giáo khoa riêng",
+      "Triều đình Hán cho phép dùng tiếng Việt trong làng xã"
+    ],
+    ans: 1,
+    exp: "Tiếng Việt là ngôn ngữ nói hàng ngày của tuyệt đại đa số nông dân — tức hơn 90% dân số. Chữ Hán chỉ cần thiết với thiểu số nhỏ (quan lại, thầy đồ, thương nhân). Không có cơ chế nào có thể buộc cả triệu người đổi ngôn ngữ nói chỉ qua mệnh lệnh từ trên xuống."
+  },
+  {
+    q: "Khúc Thừa Dụ chọn cách nào để giành tự chủ năm 905?",
+    opts: [
+      "Nổi dậy vũ trang, đánh đuổi quan Hán",
+      "Nhân cơ hội nhà Đường suy vong, tiếp quản chức tiết độ sứ mà không đối đầu quân sự trực tiếp",
+      "Ký hiệp ước với nhà Đường xin tự cai quản",
+      "Liên minh với nhà Nam Hán để đánh đuổi nhà Đường"
+    ],
+    ans: 1,
+    exp: "Họ Khúc chọn chiến lược thực dụng: nhân lúc nhà Đường tan rã vì loạn (Vương Kiến và Chu Ôn nổi dậy ở Trung Hoa), Khúc Thừa Dụ chiếm giữ phủ thành, được nhà Đường đang suy yếu phong làm tiết độ sứ. Đây là cách tiếp quản bộ máy cũ thay vì đối đầu quân sự — khác hẳn các cuộc khởi nghĩa trước."
+  },
+  {
+    q: "Bà Triệu (Triệu Thị Trinh) khởi nghĩa vào khoảng thời gian nào và ở vùng nào?",
+    opts: [
+      "Năm 40, ở Mê Linh (Hà Nội)",
+      "Năm 248, ở Cửu Chân (Thanh Hóa)",
+      "Năm 248, ở Giao Chỉ (Hà Nội)",
+      "Năm 722, ở Hoan Châu (Nghệ An)"
+    ],
+    ans: 1,
+    exp: "Bà Triệu khởi nghĩa năm 248 ở vùng Cửu Chân (tương đương Thanh Hóa ngày nay), kháng lại nhà Ngô. Cuộc khởi nghĩa thất bại sau vài tháng nhưng có ý nghĩa lan rộng phạm vi kháng cự xuống miền Trung."
+  },
+  {
+    q: "Sau chiến thắng Bạch Đằng 938, Ngô Quyền làm gì để duy trì độc lập?",
+    opts: [
+      "Tiếp tục đánh quân Nam Hán ở đất Trung Hoa",
+      "Xưng vương và đặt triều đình tại Cổ Loa, xây dựng bộ máy nhà nước",
+      "Nhờ Trung Hoa phong làm tiết độ sứ",
+      "Chia đất cho 12 tướng cai quản"
+    ],
+    ans: 1,
+    exp: "Năm 939, Ngô Quyền xưng vương (không xưng đế — mức khiêm tốn hơn), đặt triều đình tại Cổ Loa (kinh đô cũ của An Dương Vương), thiết lập hệ thống quan lại. Ông hiểu rằng thắng trận chỉ là bước đầu; cần có bộ máy nhà nước để độc lập bền vững. Ngô Quyền mất năm 944, sau đó mới xảy ra loạn 12 sứ quân."
+  },
+  {
+    q: "Loạn 12 sứ quân (944–968) có ý nghĩa tích cực gì trong lịch sử?",
+    opts: [
+      "Không có ý nghĩa tích cực gì — chỉ là giai đoạn hỗn loạn",
+      "Chứng minh người Việt cần phương Bắc cai trị mới ổn định",
+      "Thử thách và lọc ra lãnh tụ có năng lực (Đinh Bộ Lĩnh), chứng minh đất nước tự cai quản mà không có can thiệp phương Bắc",
+      "Giúp quân Tống dễ dàng xâm lược"
+    ],
+    ans: 2,
+    exp: "Dù hỗn loạn, loạn 12 sứ quân quan trọng vì: (1) Quá trình đó lọc ra người lãnh đạo có khả năng thực sự là Đinh Bộ Lĩnh — thống nhất dưới ông có cơ sở thực tế. (2) Trong giai đoạn loạn, không có can thiệp từ phương Bắc để 'ổn định' — ngầm thừa nhận Giao Châu là thực thể riêng biệt. (3) Tạo ra nhà nước tập quyền mạnh hơn sau khi thống nhất."
+  },
+  {
+    q: "Trận kháng Tống năm 981 do ai chỉ huy và kết quả thế nào?",
+    opts: [
+      "Đinh Bộ Lĩnh chỉ huy — đánh bại Tống trên sông Bạch Đằng",
+      "Lê Hoàn (Lê Đại Hành) chỉ huy — đánh bại quân Tống trên Bạch Đằng và Chi Lăng",
+      "Ngô Quyền chỉ huy — đây là trận Bạch Đằng lần thứ 2",
+      "Lý Công Uẩn chỉ huy — sau khi lên ngôi nhà Lý"
+    ],
+    ans: 1,
+    exp: "Lê Hoàn (Lê Đại Hành) — lên nắm quyền sau khi Đinh Tiên Hoàng bị ám sát (979) — chỉ huy kháng chiến chống Tống năm 981. Quân Việt đánh bại quân Tống trên sông Bạch Đằng (thủy quân) và ải Chi Lăng (bộ binh). Đây là mốc kết thúc Tầng 1 và bảo vệ vững chắc nền độc lập mới giành được."
+  }
+];
+
+let qIdx = 0, score = 0, answered = false;
+
+function renderQuiz() {
+  if (qIdx >= QUIZ.length) {
+    showResult();
+    return;
+  }
+  const q = QUIZ[qIdx];
+  answered = false;
+  document.getElementById('quiz-counter').textContent = `Câu ${qIdx + 1} / ${QUIZ.length}`;
+  document.getElementById('quiz-bar').style.width = `${(qIdx / QUIZ.length) * 100}%`;
+
+  const optsHtml = q.opts.map((o, i) =>
+    `<button class="quiz-opt" onclick="selectOpt(${i})">${o}</button>`
+  ).join('');
+
+  document.getElementById('quiz-area').innerHTML = `
+    <div class="quiz-card">
+      <div class="quiz-q">${q.q}</div>
+      <div class="quiz-opts">${optsHtml}</div>
+      <div id="qfb" class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="btn btn-primary" id="next-btn" onclick="nextQ()" disabled>Câu tiếp theo →</button>
+    </div>`;
+}
+
+function selectOpt(i) {
+  if (answered) return;
+  answered = true;
+  const q = QUIZ[qIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((o, idx) => {
+    o.disabled = true;
+    if (idx === q.ans) o.classList.add('correct');
+    if (idx === i && i !== q.ans) o.classList.add('wrong');
+  });
+  const ok = i === q.ans;
+  if (ok) score++;
+  document.getElementById('quiz-score-live').textContent = `${score} đúng`;
+  const fb = document.getElementById('qfb');
+  fb.classList.add('visible', ok ? 'ok' : 'err');
+  fb.innerHTML = `<strong>${ok ? 'Đúng!' : 'Chưa đúng.'}</strong> ${q.exp}`;
+  document.getElementById('next-btn').disabled = false;
+}
+
+function nextQ() {
+  qIdx++;
+  renderQuiz();
+}
+
+function showResult() {
+  document.getElementById('quiz-area').innerHTML = '';
+  document.getElementById('quiz-bar').style.width = '100%';
+  document.getElementById('quiz-counter').textContent = `Hoàn thành!`;
+
+  const pct = Math.round((score / QUIZ.length) * 100);
+  let stars = '', msg = '';
+  if (pct >= 90) { stars = '⭐⭐⭐'; msg = 'Xuất sắc! Bạn nắm vững toàn bộ Tầng 1.'; }
+  else if (pct >= 70) { stars = '⭐⭐'; msg = 'Tốt! Ôn lại một số bài để hoàn thiện hơn.'; }
+  else { stars = '⭐'; msg = 'Cần ôn thêm — hãy xem lại các bài lesson 01–07 và quiz lại.'; }
+
+  const res = document.getElementById('quiz-result');
+  res.classList.add('visible');
+  res.innerHTML = `
+    <div class="score">${score} / ${QUIZ.length}</div>
+    <div class="score-label">(${pct}%) ${stars}</div>
+    <div class="result-msg">${msg}</div>
+    <div style="margin-top:20px;">
+      <button class="btn btn-primary" onclick="restartQuiz()">Làm lại từ đầu</button>
+    </div>`;
+}
+
+function restartQuiz() {
+  qIdx = 0; score = 0; answered = false;
+  document.getElementById('quiz-score-live').textContent = '0 đúng';
+  document.getElementById('quiz-result').classList.remove('visible');
+  renderQuiz();
+}
+
+// Khởi động
+renderQuiz();
+</script>
+
+</body>
+</html>

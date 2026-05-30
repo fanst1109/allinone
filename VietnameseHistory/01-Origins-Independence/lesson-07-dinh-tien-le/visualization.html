@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Nhà Đinh &amp; Nhà Tiền Lê</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette Đinh – Tiền Lê ── */
+  :root {
+    --accent:      #b45309;
+    --accent-soft: #fef3c7;
+    --accent-dark: #78350f;
+    --red:         #b91c1c;
+    --red-soft:    #fee2e2;
+    --green:       #15803d;
+    --green-soft:  #dcfce7;
+    --gray:        #78716c;
+    --gray-soft:   #f5f5f4;
+    --card-bg:     #ffffff;
+    --border:      #e7e5e4;
+  }
+
+  main { max-width: 1060px; }
+
+  h1 { color: var(--accent-dark); }
+  h2 {
+    color: var(--accent);
+    margin-top: 40px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--accent-soft);
+  }
+  h3 { color: var(--accent-dark); margin-top: 24px; }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    box-shadow: 0 1px 4px rgba(180,83,9,.08);
+  }
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .info-box.red  { background: var(--red-soft);   border-color: var(--red); }
+  .info-box.green{ background: var(--green-soft);  border-color: var(--green); }
+  .info-box.gray { background: var(--gray-soft);   border-color: var(--gray); }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f5f5f4; color: #374151; border: 1px solid var(--border); }
+  .btn-secondary:hover { background: #e7e5e4; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 1 — BẢN ĐỒ 12 SỨ QUÂN (SVG)
+     ═══════════════════════════════════════════════════════ */
+  #map-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+  #map-svg {
+    display: block;
+    margin: 0 auto;
+  }
+  #map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 13px;
+  }
+  .legend-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .legend-dot span {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  #map-info {
+    background: var(--accent-soft);
+    border-radius: 8px;
+    padding: 12px 16px;
+    min-height: 48px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-top: 10px;
+    transition: background .2s;
+  }
+  #map-info strong { color: var(--accent-dark); }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 2 — TIMELINE
+     ═══════════════════════════════════════════════════════ */
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+    margin: 20px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 9px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--accent), var(--red), var(--green));
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .tl-dot {
+    position: absolute;
+    left: -24px;
+    top: 4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+    transition: transform .15s;
+  }
+  .tl-dot.red   { background: var(--red);   box-shadow: 0 0 0 2px var(--red); }
+  .tl-dot.green { background: var(--green); box-shadow: 0 0 0 2px var(--green); }
+  .tl-dot.gray  { background: var(--gray);  box-shadow: 0 0 0 2px var(--gray); }
+  .tl-item:hover .tl-dot { transform: scale(1.3); }
+
+  .tl-year {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--accent-dark);
+    display: inline;
+  }
+  .tl-year.red   { color: var(--red); }
+  .tl-year.green { color: var(--green); }
+  .tl-year.gray  { color: var(--gray); }
+
+  .tl-title {
+    font-weight: 600;
+    font-size: 15px;
+    margin-left: 8px;
+    display: inline;
+  }
+  .tl-detail {
+    margin-top: 6px;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: #44403c;
+    padding: 8px 12px;
+    background: var(--gray-soft);
+    border-radius: 6px;
+    display: none;
+  }
+  .tl-item.open .tl-detail { display: block; }
+  .tl-item.open .tl-dot { transform: scale(1.3); }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 3 — SƠ ĐỒ HỌ ĐINH → LÊ → (LÝ)
+     ═══════════════════════════════════════════════════════ */
+  .dynasty-tree {
+    display: flex;
+    gap: 0;
+    align-items: flex-start;
+    overflow-x: auto;
+    padding: 8px 0 12px;
+  }
+  .dynasty-col {
+    min-width: 180px;
+    flex: 0 0 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+  .dynasty-col:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -16px;
+    top: 32px;
+    font-size: 22px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .dynasty-header {
+    background: var(--accent);
+    color: #fff;
+    border-radius: 8px 8px 0 0;
+    padding: 10px 16px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .dynasty-header.green { background: var(--green); }
+  .dynasty-header.gray  { background: var(--gray); }
+
+  .dynasty-body {
+    border: 2px solid var(--accent);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    background: #fff;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .dynasty-body.green { border-color: var(--green); }
+  .dynasty-body.gray  { border-color: var(--gray); border-style: dashed; background: var(--gray-soft); }
+
+  .king-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin: 4px 0;
+  }
+  .king-badge {
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--accent-soft);
+    color: var(--accent-dark);
+    border-radius: 4px;
+    padding: 1px 5px;
+    white-space: nowrap;
+  }
+  .king-badge.green { background: var(--green-soft); color: var(--green); }
+  .king-badge.gray  { background: var(--gray-soft);  color: var(--gray); }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 4 — HOA LƯ KINH ĐÔ (SVG)
+     ═══════════════════════════════════════════════════════ */
+  #hualư-wrap { width: 100%; overflow-x: auto; }
+  #hualư-svg  { display: block; margin: 0 auto; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 5 — QUIZ
+     ═══════════════════════════════════════════════════════ */
+  .quiz-q {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--accent-dark);
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .quiz-opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: border-color .15s, background .15s;
+    user-select: none;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: var(--green); background: var(--green-soft); }
+  .quiz-opt.wrong   { border-color: var(--red);   background: var(--red-soft); }
+  .quiz-opt input[type="radio"] { accent-color: var(--accent); }
+  .quiz-feedback {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+    margin-bottom: 10px;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: var(--green-soft); color: #166534; }
+  .quiz-feedback.wrong   { background: var(--red-soft);   color: #991b1b; }
+
+  .quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+  .quiz-progress { font-size: 13px; color: var(--gray); }
+
+  /* ═══════════════════════════════════════════════════════
+     Responsive
+     ═══════════════════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .dynasty-tree { flex-direction: column; }
+    .dynasty-col  { flex: 0 0 auto; width: 100%; min-width: 0; }
+    .dynasty-col:not(:last-child)::after {
+      content: '↓';
+      position: static;
+      display: block;
+      text-align: center;
+      font-size: 22px;
+      margin: 4px 0;
+    }
+    .card { padding: 14px 16px; }
+  }
+  @media (max-width: 480px) {
+    #map-legend { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử VN — Nguồn gốc</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-ngo-quyen-bach-dang/visualization.html">← L6: Ngô Quyền &amp; Bạch Đằng</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Đinh – Tiền Lê</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-tong-ket-co-trung-dai/visualization.html">L8: Tổng kết Tầng 1 →</a>
+</nav>
+
+<main>
+<h1>Nhà Đinh &amp; Nhà Tiền Lê (968–1009)</h1>
+<p style="color:#57534e;font-size:15px;margin-bottom:8px;">
+  Từ loạn 12 sứ quân đến thống nhất đất nước và chiến thắng chống Tống 981 —
+  nền móng của nền độc lập bền vững.
+</p>
+
+<!-- ═══ MODULE 1: BẢN ĐỒ 12 SỨ QUÂN ═══ -->
+<h2>1. Bản đồ 12 Sứ Quân (944–968)</h2>
+<div class="card">
+  <p style="font-size:14px;color:#57534e;margin-top:0;">
+    Click vào từng vùng cát cứ để xem thông tin sứ quân. Màu sắc biểu thị trạng thái:
+    <strong style="color:var(--red)">đỏ</strong> = còn cát cứ ·
+    <strong style="color:var(--green)">xanh</strong> = đã귀hàng / bị dẹp bởi Đinh Bộ Lĩnh.
+  </p>
+  <div id="map-wrap">
+    <!-- SVG bản đồ đơn giản hoá vùng đồng bằng sông Hồng và phụ cận -->
+    <svg id="map-svg" width="520" height="480" viewBox="0 0 520 480">
+      <!-- Nền địa hình -->
+      <defs>
+        <radialGradient id="seaGrad" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="#bfdbfe"/>
+          <stop offset="100%" stop-color="#93c5fd"/>
+        </radialGradient>
+        <linearGradient id="landGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#d9f0b8"/>
+          <stop offset="100%" stop-color="#bbf7d0"/>
+        </linearGradient>
+        <linearGradient id="mountainGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#d6d3d1"/>
+          <stop offset="100%" stop-color="#a8a29e"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Biển Đông (phần đông) -->
+      <rect x="380" y="100" width="140" height="380" fill="url(#seaGrad)" opacity=".6"/>
+      <text x="440" y="300" fill="#1d4ed8" font-size="12" text-anchor="middle" font-weight="700">Biển Đông</text>
+
+      <!-- Vùng núi phía Bắc / Tây Bắc -->
+      <polygon points="0,0 200,0 180,80 0,100" fill="url(#mountainGrad)" opacity=".7"/>
+      <text x="80" y="45" fill="#57534e" font-size="11" text-anchor="middle">Vùng núi Bắc</text>
+
+      <!-- Sông Hồng (đường màu đỏ/hồng) -->
+      <path d="M 60,90 Q 120,120 160,150 Q 220,190 270,220 Q 320,240 370,270"
+            fill="none" stroke="#f87171" stroke-width="4" stroke-linecap="round" opacity=".85"/>
+      <text x="260" y="210" fill="#dc2626" font-size="10" font-weight="700">Sông Hồng</text>
+
+      <!-- Sông Thái Bình -->
+      <path d="M 200,160 Q 280,180 350,200 Q 390,210 410,220"
+            fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>
+      <text x="310" y="195" fill="#1d4ed8" font-size="9">Sông Thái Bình</text>
+
+      <!-- Sông Đáy -->
+      <path d="M 120,180 Q 150,230 170,290 Q 180,330 190,370"
+            fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>
+      <text x="148" y="270" fill="#1d4ed8" font-size="9" transform="rotate(-75,148,270)">Sông Đáy</text>
+
+      <!-- Sông Bạch Đằng -->
+      <path d="M 310,120 Q 340,130 370,145 Q 395,155 415,168"
+            fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>
+      <text x="355" y="130" fill="#1d4ed8" font-size="9">Bạch Đằng</text>
+
+      <!-- ── 12 vùng sứ quân (hình tròn/polygon đơn giản) ── -->
+      <!-- 1: Ngô Xương Xí — Bình Kiều (Thanh Hóa, phía Nam) -->
+      <circle id="sq-1" cx="180" cy="420" r="28" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"
+              style="cursor:pointer" class="sq-circle"/>
+      <text x="180" y="416" fill="#7f1d1d" font-size="9" text-anchor="middle" pointer-events="none">Ngô Xương Xí</text>
+      <text x="180" y="427" fill="#7f1d1d" font-size="8" text-anchor="middle" pointer-events="none">Bình Kiều</text>
+
+      <!-- 2: Đinh Bộ Lĩnh — Hoa Lư (Ninh Bình) — màu vàng/accent = người thắng -->
+      <circle id="sq-2" cx="200" cy="350" r="28" fill="#fde68a" stroke="#b45309" stroke-width="3"
+              style="cursor:pointer" class="sq-circle"/>
+      <text x="200" y="346" fill="#78350f" font-size="9" text-anchor="middle" font-weight="700" pointer-events="none">Đinh Bộ Lĩnh</text>
+      <text x="200" y="357" fill="#78350f" font-size="8" text-anchor="middle" pointer-events="none">Hoa Lư ★</text>
+
+      <!-- 3: Trần Lãm — Bố Hải Khẩu (Thái Bình) -->
+      <circle id="sq-3" cx="330" cy="220" r="26" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"
+              style="cursor:pointer" class="sq-circle"/>
+      <text x="330" y="216" fill="#7f1d1d" font-size="9" text-anchor="middle" pointer-events="none">Trần Lãm</text>
+      <text x="330" y="227" fill="#7f1d1d" font-size="8" text-anchor="middle" pointer-events="none">Bố Hải Khẩu</text>
+
+      <!-- 4: Kiều Công Hãn — Phong Châu (Phú Thọ) -->
+      <circle id="sq-4" cx="120" cy="175" r="26" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"
+              style="cursor:pointer" class="sq-circle"/>
+      <text x="120" y="171" fill="#7f1d1d" font-size="9" text-anchor="middle" pointer-events="none">Kiều Công Hãn</text>
+      <text x="120" y="182" fill="#7f1d1d" font-size="8" text-anchor="middle" pointer-events="none">Phong Châu</text>
+
+      <!-- 5: Nguyễn Khoan — Tam Đái (Vĩnh Phúc) -->
+      <circle id="sq-5" cx="175" cy="195" r="24" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"
+              style="cursor:pointer" class="sq-circle"/>
+      <text x="175" y="191" fill="#7f1d1d" font-size="9" text-anchor="middle" pointer-events="none">Nguyễn Khoan</text>
+      <text x="175" y="202" fill="#7f1d1d" font-size="8" text-anchor="middle" pointer-events="none">Tam Đái</text>
+
+      <!-- 6: Ngô Nhật Khánh — Đường Lâm -->
+      <circle id="sq-6" cx="230" cy="220" r="24" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"
+              style="cursor:pointer" class="sq-circle"/>
+      <text x="230" y="216" fill="#7f1d1d" font-size="9" text-anchor="middle" pointer-events="none">Ngô Nhật Khánh</text>
+      <text x="230" y="227" fill="#7f1d1d" font-size="8" text-anchor="middle" pointer-events="none">Đường Lâm</text>
+
+      <!-- 7: Đỗ Cảnh Thạc — Đỗ Động Giang -->
+      <circle id="sq-7" cx="240" cy="280" r="24" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"
+              style="cursor:pointer" class="sq-circle"/>
+      <text x="240" y="276" fill="#7f1d1d" font-size="9" text-anchor="middle" pointer-events="none">Đỗ Cảnh Thạc</text>
+      <text x="240" y="287" fill="#7f1d1d" font-size="8" text-anchor="middle" pointer-events="none">Đỗ Động Giang</text>
+
+      <!-- 8: Phạm Bạch Hổ — Đằng Châu (Hưng Yên) -->
+      <circle id="sq-8" cx="305" cy="270" r="24" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"
+              style="cursor:pointer" class="sq-circle"/>
+      <text x="305" y="266" fill="#7f1d1d" font-size="9" text-anchor="middle" pointer-events="none">Phạm Bạch Hổ</text>
+      <text x="305" y="277" fill="#7f1d1d" font-size="8" text-anchor="middle" pointer-events="none">Đằng Châu</text>
+
+      <!-- 9: Nguyễn Siêu — Tây Phù Liệt -->
+      <circle id="sq-9" cx="270" cy="240" r="22" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"
+              style="cursor:pointer" class="sq-circle"/>
+      <text x="270" y="236" fill="#7f1d1d" font-size="9" text-anchor="middle" pointer-events="none">Nguyễn Siêu</text>
+      <text x="270" y="247" fill="#7f1d1d" font-size="8" text-anchor="middle" pointer-events="none">Tây Phù Liệt</text>
+
+      <!-- 10: Kiều Thuận — Hồi Hồ (Phú Thọ) -->
+      <circle id="sq-10" cx="100" cy="140" r="22" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"
+              style="cursor:pointer" class="sq-circle"/>
+      <text x="100" y="136" fill="#7f1d1d" font-size="9" text-anchor="middle" pointer-events="none">Kiều Thuận</text>
+      <text x="100" y="147" fill="#7f1d1d" font-size="8" text-anchor="middle" pointer-events="none">Hồi Hồ</text>
+
+      <!-- 11: Lý Khuê — Siêu Loại (Bắc Ninh) -->
+      <circle id="sq-11" cx="305" cy="165" r="24" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"
+              style="cursor:pointer" class="sq-circle"/>
+      <text x="305" y="161" fill="#7f1d1d" font-size="9" text-anchor="middle" pointer-events="none">Lý Khuê</text>
+      <text x="305" y="172" fill="#7f1d1d" font-size="8" text-anchor="middle" pointer-events="none">Siêu Loại</text>
+
+      <!-- 12: Lã Đường — Tế Giang (Hưng Yên) -->
+      <circle id="sq-12" cx="345" cy="300" r="22" fill="#fca5a5" stroke="#b91c1c" stroke-width="2"
+              style="cursor:pointer" class="sq-circle"/>
+      <text x="345" y="296" fill="#7f1d1d" font-size="9" text-anchor="middle" pointer-events="none">Lã Đường</text>
+      <text x="345" y="307" fill="#7f1d1d" font-size="8" text-anchor="middle" pointer-events="none">Tế Giang</text>
+
+      <!-- La bàn đơn giản -->
+      <g transform="translate(470,40)">
+        <circle cx="0" cy="0" r="18" fill="white" stroke="#d6d3d1" stroke-width="1.5"/>
+        <text x="0" y="-6" fill="#374151" font-size="9" text-anchor="middle" font-weight="700">B</text>
+        <text x="0" y="13" fill="#374151" font-size="9" text-anchor="middle">N</text>
+        <text x="-12" y="4" fill="#374151" font-size="9" text-anchor="middle">T</text>
+        <text x="12" y="4" fill="#374151" font-size="9" text-anchor="middle">Đ</text>
+      </g>
+
+      <!-- Chú thích bản đồ -->
+      <rect x="2" y="440" width="370" height="38" fill="white" opacity=".85" rx="4"/>
+      <circle cx="16" cy="453" r="7" fill="#fca5a5" stroke="#b91c1c" stroke-width="1.5"/>
+      <text x="26" y="457" fill="#374151" font-size="10">Sứ quân</text>
+      <circle cx="100" cy="453" r="7" fill="#fde68a" stroke="#b45309" stroke-width="2"/>
+      <text x="110" y="457" fill="#374151" font-size="10">Đinh Bộ Lĩnh (người thống nhất)</text>
+
+      <line x1="10" y1="468" x2="30" y2="468" stroke="#f87171" stroke-width="3"/>
+      <text x="36" y="472" fill="#374151" font-size="10">Sông Hồng</text>
+      <line x1="100" y1="468" x2="120" y2="468" stroke="#60a5fa" stroke-width="2"/>
+      <text x="126" y="472" fill="#374151" font-size="10">Sông khác</text>
+    </svg>
+  </div>
+  <div id="map-info">Click vào vùng của một sứ quân trên bản đồ để xem thông tin chi tiết.</div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="showUnified()">Xem sau khi Đinh Bộ Lĩnh thống nhất (968)</button>
+    <button class="btn btn-secondary" onclick="resetMap()">Đặt lại bản đồ</button>
+  </div>
+</div>
+
+<!-- ═══ MODULE 2: TIMELINE ═══ -->
+<h2>2. Dòng Thời Gian 944 → 981</h2>
+<div class="card">
+  <p style="font-size:14px;color:#57534e;margin-top:0;">Click vào từng mốc để xem chi tiết sự kiện.</p>
+  <div class="timeline" id="timeline">
+
+    <div class="tl-item" onclick="toggleTL(this)">
+      <div class="tl-dot gray"></div>
+      <span class="tl-year gray">944</span>
+      <span class="tl-title">Ngô Quyền mất — Loạn sứ quân bắt đầu</span>
+      <div class="tl-detail">
+        Ngô Quyền (người đánh thắng Nam Hán năm 938) mất năm 944, không kịp xây dựng thể chế kế vị vững chắc.
+        Hai con trai tranh quyền; các hào trưởng địa phương nhân cơ hội cát cứ. Đất nước bước vào giai đoạn
+        phân liệt kéo dài ~24 năm với 12 thế lực song song.
+      </div>
+    </div>
+
+    <div class="tl-item" onclick="toggleTL(this)">
+      <div class="tl-dot gray"></div>
+      <span class="tl-year gray">965</span>
+      <span class="tl-title">Triều Ngô tan rã — 12 sứ quân đỉnh điểm</span>
+      <div class="tl-detail">
+        Ngô Xương Văn (vị vua cuối của triều Ngô) mất. Triều Ngô chính thức kết thúc.
+        12 sứ quân lớn nắm toàn bộ lãnh thổ. Đinh Bộ Lĩnh — từ căn cứ Hoa Lư (Ninh Bình) — bắt đầu
+        các chiến dịch thống nhất. Chiến lược: vừa đánh, vừa chiêu hàng; ưu tiên liên minh trước, đánh sau.
+      </div>
+    </div>
+
+    <div class="tl-item" onclick="toggleTL(this)">
+      <div class="tl-dot"></div>
+      <span class="tl-year">968</span>
+      <span class="tl-title">Đại Cồ Việt ra đời — Đinh Tiên Hoàng lên ngôi</span>
+      <div class="tl-detail">
+        Đinh Bộ Lĩnh dẹp xong 12 sứ quân, lên ngôi hoàng đế với miếu hiệu <strong>Đinh Tiên Hoàng</strong>.
+        Quốc hiệu: <strong>Đại Cồ Việt</strong> (Đất nước lớn của người Việt).
+        Kinh đô: <strong>Hoa Lư</strong> (Ninh Bình — địa hình phòng thủ tự nhiên).
+        Niên hiệu: <strong>Thái Bình</strong> — lần đầu tiên vua Việt dùng niên hiệu riêng, không dùng của nhà Tống.
+      </div>
+    </div>
+
+    <div class="tl-item" onclick="toggleTL(this)">
+      <div class="tl-dot"></div>
+      <span class="tl-year">970–973</span>
+      <span class="tl-title">Ngoại giao với nhà Tống</span>
+      <div class="tl-detail">
+        <strong>970</strong>: Đinh Tiên Hoàng sai sứ sang nhà Tống triều cống.
+        <br>
+        <strong>973</strong>: Nhà Tống phong ông làm "Giao Chỉ Quận Vương" — danh hiệu hình thức.
+        Trong thực tế, Đinh Tiên Hoàng tự xưng <em>hoàng đế</em> trong nội bộ và hoàn toàn độc lập
+        về chính sách. Đây là sách lược "hai mặt": danh nghĩa thần phục, thực chất độc lập.
+      </div>
+    </div>
+
+    <div class="tl-item" onclick="toggleTL(this)">
+      <div class="tl-dot red"></div>
+      <span class="tl-year red">979</span>
+      <span class="tl-title">Đinh Tiên Hoàng bị ám sát — Khủng hoảng kế vị</span>
+      <div class="tl-detail">
+        Đỗ Thích — quan trong triều — ám sát Đinh Tiên Hoàng và con trai lớn Đinh Liễn vào ban đêm.
+        Đỗ Thích bị bắt và xử tử ngay sau đó.
+        Con trai thứ <strong>Đinh Toàn</strong> (6 tuổi) lên ngôi; Thái hậu Dương Thị nhiếp chính;
+        Lê Hoàn nắm quân quyền ("Thập Đạo Tướng Quân").
+        Khủng hoảng kép: vua nhỏ + nhà Tống chuẩn bị xâm lược.
+      </div>
+    </div>
+
+    <div class="tl-item" onclick="toggleTL(this)">
+      <div class="tl-dot red"></div>
+      <span class="tl-year red">980</span>
+      <span class="tl-title">Lê Hoàn lên ngôi — Nhà Tiền Lê ra đời</span>
+      <div class="tl-detail">
+        Trước nguy cơ quân Tống áp sát biên giới, các tướng lĩnh và triều thần suy tôn
+        <strong>Lê Hoàn</strong> (Thập Đạo Tướng Quân) lên ngôi hoàng đế.
+        Thái hậu Dương Thị khoác long bào lên người Lê Hoàn trong buổi lễ.
+        Đinh Toàn nhường ngôi, lui về làm Vệ Vương.
+        Lê Hoàn đặt niên hiệu <strong>Thiên Phúc</strong>, lập nhà <strong>Tiền Lê</strong>.
+      </div>
+    </div>
+
+    <div class="tl-item" onclick="toggleTL(this)">
+      <div class="tl-dot green"></div>
+      <span class="tl-year green">981</span>
+      <span class="tl-title">Chiến thắng chống Tống — Bạch Đằng &amp; Chi Lăng</span>
+      <div class="tl-detail">
+        Nhà Tống phái đại quân hai đường:
+        <ul style="margin:6px 0 6px 18px;padding:0;">
+          <li><strong>Thủy quân</strong>: theo đường biển tiến vào sông Bạch Đằng — bị đánh lui.</li>
+          <li><strong>Bộ binh</strong>: theo đường bộ từ phía Bắc qua Chi Lăng — chủ tướng Hầu Nhân Bảo tử trận.</li>
+        </ul>
+        Lê Hoàn đích thân chỉ huy kháng chiến. Quân Tống đại bại, rút lui hoàn toàn.
+        Đây là lần đầu tiên nhà nước Đại Cồ Việt độc lập đánh thắng nhà Tống.
+        Nền độc lập được củng cố vững chắc; nhà Tống không còn thử xâm lược trực tiếp trong nhiều thế kỷ sau.
+      </div>
+    </div>
+
+    <div class="tl-item" onclick="toggleTL(this)">
+      <div class="tl-dot gray"></div>
+      <span class="tl-year gray">1005–1009</span>
+      <span class="tl-title">Cuối nhà Tiền Lê — Nội loạn &amp; Chuyển giao sang nhà Lý</span>
+      <div class="tl-detail">
+        <strong>1005</strong>: Lê Hoàn mất. Con trai Lê Long Đĩnh kế vị nhưng nổi tiếng tàn bạo.
+        <strong>1009</strong>: Lê Long Đĩnh mất. Các tướng lĩnh và tăng ni suy tôn
+        <strong>Lý Công Uẩn</strong> (con nuôi thiền sư Lý Khánh Văn) lên ngôi,
+        lập nhà Lý — mở ra giai đoạn phát triển rực rỡ nhất của Việt Nam thời trung đại.
+        Năm 1010, Lý Công Uẩn dời đô từ Hoa Lư ra <strong>Thăng Long</strong>.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ MODULE 3: SƠ ĐỒ TRIỀU ĐẠI ═══ -->
+<h2>3. Chuỗi Triều Đại: Đinh → Tiền Lê → Lý</h2>
+<div class="card">
+  <p style="font-size:14px;color:#57534e;margin-top:0;">
+    Ba triều đại kế tiếp từ thống nhất (968) đến hưng thịnh (1009+). Nhà Đinh và Tiền Lê là "bản lề" ngắn ngủi nhưng thiết yếu.
+  </p>
+  <div class="dynasty-tree">
+
+    <!-- Nhà Đinh -->
+    <div class="dynasty-col">
+      <div class="dynasty-header">Nhà Đinh (968–980)</div>
+      <div class="dynasty-body">
+        <div class="king-row">
+          <span class="king-badge">968–979</span>
+          <span><strong>Đinh Tiên Hoàng</strong> (Đinh Bộ Lĩnh)</span>
+        </div>
+        <hr style="border:none;border-top:1px solid #e7e5e4;margin:8px 0">
+        <div style="font-size:12px;color:#57534e;">
+          Quốc hiệu: <strong>Đại Cồ Việt</strong><br>
+          Kinh đô: <strong>Hoa Lư</strong><br>
+          Niên hiệu: <strong>Thái Bình</strong><br>
+          Dẹp 12 sứ quân; lập nhà nước quân chủ sơ khai; ngoại giao thực dụng với Tống.
+        </div>
+        <div class="king-row" style="margin-top:8px;">
+          <span class="king-badge">979</span>
+          <span><strong>Đinh Toàn</strong> (6 tuổi, bị Đỗ Thích ám sát phụ hoàng)</span>
+        </div>
+        <div style="font-size:12px;color:var(--red);margin-top:4px;">
+          979: Đinh Tiên Hoàng và Đinh Liễn bị ám sát → khủng hoảng kế vị.
+        </div>
+      </div>
+    </div>
+
+    <!-- Nhà Tiền Lê -->
+    <div class="dynasty-col">
+      <div class="dynasty-header green">Nhà Tiền Lê (980–1009)</div>
+      <div class="dynasty-body green">
+        <div class="king-row">
+          <span class="king-badge green">980–1005</span>
+          <span><strong>Lê Đại Hành</strong> (Lê Hoàn)</span>
+        </div>
+        <hr style="border:none;border-top:1px solid #d1fae5;margin:8px 0">
+        <div style="font-size:12px;color:#57534e;">
+          Niên hiệu: <strong>Thiên Phúc</strong> → Hưng Thống → Ứng Thiên<br>
+          <strong>981</strong>: Đánh bại quân Tống tại Bạch Đằng &amp; Chi Lăng.<br>
+          Tiếp tục xây dựng nhà nước, quan hệ ngoại giao, phát triển kinh tế.
+        </div>
+        <div class="king-row" style="margin-top:8px;">
+          <span class="king-badge green">1005–1009</span>
+          <span><strong>Lê Long Đĩnh</strong> (nổi tiếng tàn bạo)</span>
+        </div>
+        <div style="font-size:12px;color:var(--red);margin-top:4px;">
+          1009: Lê Long Đĩnh mất → tướng lĩnh suy tôn Lý Công Uẩn.
+        </div>
+      </div>
+    </div>
+
+    <!-- Nhà Lý (preview) -->
+    <div class="dynasty-col">
+      <div class="dynasty-header gray">Nhà Lý (1009–1225) →</div>
+      <div class="dynasty-body gray">
+        <div class="king-row">
+          <span class="king-badge gray">1009–1028</span>
+          <span><strong>Lý Thái Tổ</strong> (Lý Công Uẩn)</span>
+        </div>
+        <hr style="border:none;border-top:1px solid #e7e5e4;margin:8px 0">
+        <div style="font-size:12px;color:#57534e;">
+          <strong>1010</strong>: Dời đô từ Hoa Lư ra <strong>Thăng Long</strong>.<br>
+          Đổi quốc hiệu thành <strong>Đại Việt</strong> (1054).<br>
+          Bắt đầu thời kỳ phát triển rực rỡ nhất của Việt Nam thời trung đại.
+        </div>
+        <div style="font-size:11px;color:var(--gray);margin-top:8px;font-style:italic;">
+          (Nội dung chi tiết ở Tầng 2 — Lesson 01)
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ MODULE 4: HOA LƯ KINH ĐÔ ═══ -->
+<h2>4. Kinh Đô Hoa Lư — Địa Hình &amp; Ý Nghĩa</h2>
+<div class="card">
+  <p style="font-size:14px;color:#57534e;margin-top:0;">
+    Hoa Lư được chọn vì địa hình núi đá karst tạo thành tường thành và hào nước tự nhiên — phòng thủ tối ưu cho buổi đầu dựng nước.
+  </p>
+  <div id="hualư-wrap">
+    <svg id="hualư-svg" width="560" height="320" viewBox="0 0 560 320">
+      <defs>
+        <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#bfdbfe"/>
+          <stop offset="100%" stop-color="#dbeafe"/>
+        </linearGradient>
+        <radialGradient id="mountainGrad2" cx="50%" cy="100%">
+          <stop offset="0%" stop-color="#a8a29e"/>
+          <stop offset="100%" stop-color="#78716c"/>
+        </radialGradient>
+      </defs>
+
+      <!-- Nền trời -->
+      <rect width="560" height="320" fill="url(#skyGrad)"/>
+
+      <!-- Núi đá vôi phía Tây Bắc -->
+      <polygon points="0,320 0,160 40,100 80,140 100,80 140,120 160,60 200,100 220,80 260,140 260,320"
+               fill="url(#mountainGrad2)"/>
+      <!-- Núi đá vôi phía Đông Bắc -->
+      <polygon points="340,320 340,140 360,80 400,120 420,60 460,100 480,80 520,120 540,140 560,160 560,320"
+               fill="url(#mountainGrad2)"/>
+
+      <!-- Mặt nước / hồ / sông bao quanh thành -->
+      <ellipse cx="280" cy="250" rx="180" ry="50" fill="#7dd3fc" opacity=".7"/>
+      <ellipse cx="130" cy="220" rx="80" ry="30" fill="#7dd3fc" opacity=".6"/>
+      <ellipse cx="430" cy="215" rx="80" ry="30" fill="#7dd3fc" opacity=".6"/>
+      <text x="280" y="258" fill="#1d4ed8" font-size="11" text-anchor="middle" font-weight="700">Sông Hoàng Long &amp; hào nước tự nhiên</text>
+
+      <!-- Vùng đất kinh thành (trung tâm) -->
+      <rect x="195" y="160" width="170" height="95" fill="#fef9c3" stroke="#b45309" stroke-width="2" rx="4"/>
+      <!-- Tường thành -->
+      <rect x="200" y="165" width="160" height="85" fill="none" stroke="#b45309" stroke-width="1.5" rx="2"
+            stroke-dasharray="6,3"/>
+
+      <!-- Các công trình trong thành -->
+      <!-- Cung điện trung tâm -->
+      <rect x="240" y="175" width="80" height="50" fill="#fde68a" stroke="#92400e" stroke-width="1.5" rx="3"/>
+      <polygon points="240,175 280,155 320,175" fill="#b45309"/>
+      <text x="280" y="205" fill="#78350f" font-size="11" text-anchor="middle" font-weight="700">Hoàng cung</text>
+      <text x="280" y="218" fill="#78350f" font-size="10" text-anchor="middle">Đinh Tiên Hoàng</text>
+
+      <!-- Cổng thành Bắc -->
+      <rect x="262" y="160" width="36" height="10" fill="#92400e" rx="2"/>
+      <text x="280" y="150" fill="#92400e" font-size="9" text-anchor="middle">Cổng Bắc</text>
+
+      <!-- Chú thích -->
+      <text x="280" y="278" fill="#374151" font-size="11" text-anchor="middle" font-weight="700">
+        Núi đá vôi (karst) hai bên = tường thành tự nhiên
+      </text>
+      <text x="280" y="293" fill="#57534e" font-size="10" text-anchor="middle">
+        Sông + hồ bao quanh = hào nước tự nhiên — phòng thủ gần như bất khả xâm phạm
+      </text>
+
+      <!-- Mũi tên chỉ núi -->
+      <line x1="195" y1="200" x2="160" y2="190" stroke="#78716c" stroke-width="1.5"/>
+      <text x="152" y="186" fill="#78716c" font-size="9" text-anchor="end">Núi đá karst</text>
+      <line x1="365" y1="200" x2="400" y2="185" stroke="#78716c" stroke-width="1.5"/>
+      <text x="408" y="182" fill="#78716c" font-size="9">Núi đá karst</text>
+
+      <!-- Label Hoa Lư -->
+      <text x="280" y="136" fill="#b45309" font-size="14" text-anchor="middle" font-weight="700">KINH ĐÔ HOA LƯ</text>
+      <text x="280" y="150" fill="#92400e" font-size="10" text-anchor="middle">(Nay là tỉnh Ninh Bình)</text>
+    </svg>
+  </div>
+  <div class="info-box" style="margin-top:12px;">
+    <strong>Vì sao chọn Hoa Lư?</strong> Địa hình núi đá karst tạo thành "bức tường" tự nhiên cao hàng chục mét,
+    sông Hoàng Long và hệ thống hồ đầm bao quanh như hào nước rộng lớn. Kẻ tấn công không thể triển khai
+    kỵ binh hoặc bộ binh số đông. Nhược điểm: đất chật, không phù hợp cho phát triển kinh tế —
+    lý do nhà Lý dời đô ra Thăng Long năm 1010.
+  </div>
+</div>
+
+<!-- ═══ MODULE 5: QUIZ ═══ -->
+<h2>5. Ôn Tập Nhanh</h2>
+<div class="card" id="quiz-card">
+  <div id="quiz-container">
+    <div class="quiz-progress" id="quiz-progress">Câu 1/5</div>
+    <div class="quiz-q" id="quiz-q"></div>
+    <div class="quiz-options" id="quiz-opts"></div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+    <div class="quiz-nav">
+      <button class="btn btn-secondary" id="quiz-prev" onclick="quizPrev()">← Trước</button>
+      <button class="btn btn-primary"   id="quiz-next" onclick="quizNext()">Tiếp theo →</button>
+    </div>
+  </div>
+  <div id="quiz-result" style="display:none;text-align:center;padding:20px 0;">
+    <div style="font-size:32px;margin-bottom:8px;" id="quiz-emoji">🏆</div>
+    <div style="font-size:20px;font-weight:700;color:var(--accent-dark);" id="quiz-score-text"></div>
+    <div style="font-size:14px;color:#57534e;margin:8px 0 16px;" id="quiz-comment"></div>
+    <button class="btn btn-primary" onclick="quizRestart()">Làm lại</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ══════════════════════════════════════════════════
+   MODULE 1 — BẢN ĐỒ SỨ QUÂN
+   ══════════════════════════════════════════════════ */
+const SQ_DATA = {
+  'sq-1':  { name: 'Ngô Xương Xí', region: 'Bình Kiều (Thanh Hóa)', note: 'Con của Ngô Quyền. Giữ vùng Thanh Hóa — một trong những sứ quân cuối cùng chịu귀hàng Đinh Bộ Lĩnh.' },
+  'sq-2':  { name: 'Đinh Bộ Lĩnh', region: 'Hoa Lư (Ninh Bình)', note: '★ NGƯỜI THỐNG NHẤT. Từ Hoa Lư phát triển lực lượng, lần lượt dẹp 11 sứ quân còn lại. Năm 968 lên ngôi Đinh Tiên Hoàng.' },
+  'sq-3':  { name: 'Trần Lãm', region: 'Bố Hải Khẩu (Thái Bình)', note: 'Sứ quân kiểm soát vùng cửa biển Thái Bình. Chính Trần Lãm đã đón nhận và truyền quân cho Đinh Bộ Lĩnh — người thầy/ân nhân của Đinh Tiên Hoàng trước này.' },
+  'sq-4':  { name: 'Kiều Công Hãn', region: 'Phong Châu (Phú Thọ)', note: 'Kiểm soát vùng Phú Thọ, vùng núi phía Tây Bắc đồng bằng. Một trong các sứ quân bị Đinh Bộ Lĩnh đánh dẹp trong chiến dịch thống nhất 965–968.' },
+  'sq-5':  { name: 'Nguyễn Khoan', region: 'Tam Đái (Vĩnh Phúc)', note: 'Kiểm soát vùng Vĩnh Phúc, gần hợp lưu sông Hồng - sông Lô. Nằm ở vị trí trung tâm địa lý quan trọng giữa các sứ quân phía Bắc.' },
+  'sq-6':  { name: 'Ngô Nhật Khánh', region: 'Đường Lâm (Hà Nội)', note: 'Đường Lâm là quê hương của cả Phùng Hưng và Ngô Quyền. Ngô Nhật Khánh — cũng họ Ngô — kiểm soát vùng này. Sau귀hàng, một thời làm con rể của Đinh Tiên Hoàng.' },
+  'sq-7':  { name: 'Đỗ Cảnh Thạc', region: 'Đỗ Động Giang (Hà Tây cũ)', note: 'Một trong những sứ quân mạnh nhất, kiểm soát vùng Hà Tây. Theo sử liệu, Đỗ Cảnh Thạc là người cuối cùng bị Đinh Bộ Lĩnh dẹp (khoảng 967–968), chiến đấu kịch liệt nhất trong các cuộc giao tranh.' },
+  'sq-8':  { name: 'Phạm Bạch Hổ', region: 'Đằng Châu (Hưng Yên)', note: 'Kiểm soát vùng Hưng Yên. Tên "Bạch Hổ" (Hổ Trắng) phản ánh danh tiếng dũng mãnh. Một trong các sứ quân귀hàng sớm hơn trước sức mạnh của Đinh Bộ Lĩnh.' },
+  'sq-9':  { name: 'Nguyễn Siêu', region: 'Tây Phù Liệt (Hà Nội)', note: 'Kiểm soát một phần Hà Nội ngày nay (phía Tây Hồ Tây). Nằm ở vị trí trọng yếu, gần trung tâm đồng bằng.' },
+  'sq-10': { name: 'Kiều Thuận', region: 'Hồi Hồ (Phú Thọ)', note: 'Anh của Kiều Công Hãn, cùng kiểm soát vùng Phú Thọ. Hai anh em Kiều là đối thủ đáng kể ở vùng Tây Bắc đồng bằng sông Hồng.' },
+  'sq-11': { name: 'Lý Khuê', region: 'Siêu Loại (Bắc Ninh)', note: 'Kiểm soát vùng Bắc Ninh — vùng đất có truyền thống văn hóa lâu đời (trung tâm văn hóa Đại Việt sau này). Bị Đinh Bộ Lĩnh dẹp trong chiến dịch thống nhất.' },
+  'sq-12': { name: 'Lã Đường', region: 'Tế Giang (Hưng Yên)', note: 'Kiểm soát vùng sông Hưng Yên. Cùng với Phạm Bạch Hổ kiểm soát vùng hạ lưu sông Thái Bình — địa bàn quan trọng về giao thương và nông nghiệp.' },
+};
+
+const mapInfo = document.getElementById('map-info');
+document.querySelectorAll('.sq-circle').forEach(el => {
+  el.addEventListener('click', () => {
+    const d = SQ_DATA[el.id];
+    if (!d) return;
+    const isDBL = el.id === 'sq-2';
+    mapInfo.innerHTML = `<strong style="color:var(--accent-dark)">${d.name}</strong> — ${d.region}<br>${d.note}`;
+    mapInfo.style.background = isDBL ? 'var(--accent-soft)' : 'var(--red-soft)';
+  });
+});
+
+function showUnified() {
+  document.querySelectorAll('.sq-circle').forEach(el => {
+    if (el.id === 'sq-2') return;
+    el.setAttribute('fill', '#86efac');
+    el.setAttribute('stroke', '#15803d');
+  });
+  mapInfo.innerHTML = '<strong style="color:var(--green)">Năm 968:</strong> Đinh Bộ Lĩnh (Hoa Lư) đã dẹp xong toàn bộ 11 sứ quân còn lại. Tất cả các vùng được thống nhất dưới triều đình trung ương của Đại Cồ Việt. Mỗi cựu sứ quân hoặc귀hàng và nhận chức quan, hoặc bị tiêu diệt.';
+  mapInfo.style.background = 'var(--green-soft)';
+}
+
+function resetMap() {
+  document.querySelectorAll('.sq-circle').forEach(el => {
+    if (el.id === 'sq-2') return;
+    el.setAttribute('fill', '#fca5a5');
+    el.setAttribute('stroke', '#b91c1c');
+  });
+  mapInfo.innerHTML = 'Click vào vùng của một sứ quân trên bản đồ để xem thông tin chi tiết.';
+  mapInfo.style.background = 'var(--accent-soft)';
+}
+
+/* ══════════════════════════════════════════════════
+   MODULE 2 — TIMELINE TOGGLE
+   ══════════════════════════════════════════════════ */
+function toggleTL(item) {
+  const wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.tl-item').forEach(i => i.classList.remove('open'));
+  if (!wasOpen) item.classList.add('open');
+}
+
+/* ══════════════════════════════════════════════════
+   MODULE 5 — QUIZ
+   ══════════════════════════════════════════════════ */
+const QUESTIONS = [
+  {
+    q: 'Đinh Bộ Lĩnh đặt quốc hiệu gì khi lên ngôi năm 968?',
+    opts: ['Đại Việt', 'Đại Cồ Việt', 'Vạn Xuân', 'Nam Việt'],
+    ans: 1,
+    explain: '<strong>Đại Cồ Việt</strong> là quốc hiệu đầu tiên của nhà nước độc lập sau Bắc thuộc. "Đại Việt" là quốc hiệu do nhà Lý đặt năm 1054. "Vạn Xuân" là quốc hiệu của Lý Nam Đế thế kỷ 6. "Nam Việt" là tên cổ đại từ thời Triệu Đà.'
+  },
+  {
+    q: 'Đinh Tiên Hoàng chọn Hoa Lư làm kinh đô vì lý do gì?',
+    opts: [
+      'Là quê hương của ông và có địa hình núi đá phòng thủ tự nhiên',
+      'Gần biển, thuận tiện cho giao thương quốc tế',
+      'Là trung tâm kinh tế lớn nhất thời bấy giờ',
+      'Được nhà Tống gợi ý chọn làm kinh đô'
+    ],
+    ans: 0,
+    explain: 'Hoa Lư là quê hương của Đinh Bộ Lĩnh (Ninh Bình). Quan trọng hơn, địa hình núi đá karst và sông ngòi bao quanh tạo thành tường thành và hào nước tự nhiên — phòng thủ tối ưu cho buổi đầu dựng nước còn nhiều bất ổn.'
+  },
+  {
+    q: 'Lê Hoàn được suy tôn lên ngôi năm 980 trong bối cảnh nào?',
+    opts: [
+      'Đinh Tiên Hoàng nhường ngôi cho ông',
+      'Vua Đinh Toàn (6 tuổi) không có khả năng lãnh đạo; quân Tống đang chuẩn bị xâm lược',
+      'Ông thắng một cuộc thi tuyển chọn hoàng đế',
+      'Nhà Tống phong ông làm hoàng đế Đại Cồ Việt'
+    ],
+    ans: 1,
+    explain: 'Sau khi Đinh Tiên Hoàng bị ám sát (979), vua nhỏ Đinh Toàn (6 tuổi) không thể chỉ huy kháng chiến. Đồng thời nhà Tống đang tập hợp đại quân. Các tướng lĩnh suy tôn Lê Hoàn — người đang nắm toàn bộ quân quyền — để có lãnh đạo đủ năng lực ứng phó.'
+  },
+  {
+    q: 'Chiến thắng chống Tống năm 981 diễn ra ở đâu?',
+    opts: [
+      'Sông Lô và ải Nam Quan',
+      'Sông Bạch Đằng và ải Chi Lăng',
+      'Sông Hồng và thành Đại La',
+      'Sông Mã và thành Hoa Lư'
+    ],
+    ans: 1,
+    explain: '<strong>Sông Bạch Đằng</strong>: Thủy quân Tống bị đánh lui ở cửa sông — địa điểm nổi tiếng từ chiến thắng 938 của Ngô Quyền. <strong>Chi Lăng (Lạng Sơn)</strong>: Bộ binh Tống bị đánh ở hẻm núi hiểm trở; chủ tướng Hầu Nhân Bảo tử trận.'
+  },
+  {
+    q: 'Quốc hiệu "Đại Cồ Việt" tồn tại đến khi nào?',
+    opts: [
+      'Đến khi nhà Tiền Lê diệt vong (1009)',
+      'Đến khi Lý Công Uẩn lên ngôi (1009) và đổi thành Đại Việt ngay',
+      'Đến năm 1054, khi nhà Lý đổi thành Đại Việt',
+      'Đến năm 1010, khi dời đô ra Thăng Long'
+    ],
+    ans: 2,
+    explain: 'Quốc hiệu <strong>Đại Cồ Việt</strong> được giữ nguyên qua cả nhà Đinh lẫn nhà Tiền Lê, và tiếp tục trong buổi đầu nhà Lý. Đến năm <strong>1054</strong>, vua Lý Thánh Tông mới đổi thành <strong>Đại Việt</strong> — tên này tồn tại qua nhiều triều đại sau đó.'
+  }
+];
+
+let qIdx = 0;
+let answers = new Array(QUESTIONS.length).fill(null);
+let submitted = new Array(QUESTIONS.length).fill(false);
+
+function renderQuiz() {
+  const q = QUESTIONS[qIdx];
+  document.getElementById('quiz-progress').textContent = `Câu ${qIdx+1}/${QUESTIONS.length}`;
+  document.getElementById('quiz-q').textContent = q.q;
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-opt';
+    div.innerHTML = `<input type="radio" name="qopt" value="${i}"> ${opt}`;
+    if (submitted[qIdx]) {
+      if (i === q.ans) div.classList.add('correct');
+      else if (i === answers[qIdx] && answers[qIdx] !== q.ans) div.classList.add('wrong');
+      div.style.pointerEvents = 'none';
+    }
+    if (!submitted[qIdx]) {
+      div.addEventListener('click', () => {
+        document.querySelectorAll('.quiz-opt').forEach(d => d.querySelector('input').checked = false);
+        div.querySelector('input').checked = true;
+        answers[qIdx] = i;
+      });
+    }
+    optsEl.appendChild(div);
+  });
+
+  const fb = document.getElementById('quiz-feedback');
+  if (submitted[qIdx]) {
+    fb.innerHTML = (answers[qIdx] === q.ans
+      ? `<strong>Chính xác!</strong> ` : `<strong>Chưa đúng.</strong> `) + q.explain;
+    fb.className = 'quiz-feedback show ' + (answers[qIdx] === q.ans ? 'correct' : 'wrong');
+  } else {
+    fb.className = 'quiz-feedback';
+  }
+
+  document.getElementById('quiz-prev').disabled = qIdx === 0;
+  const nextBtn = document.getElementById('quiz-next');
+  nextBtn.textContent = submitted[qIdx]
+    ? (qIdx === QUESTIONS.length - 1 ? 'Xem kết quả' : 'Câu tiếp →')
+    : 'Kiểm tra';
+}
+
+function quizNext() {
+  if (!submitted[qIdx]) {
+    if (answers[qIdx] === null) {
+      document.getElementById('quiz-feedback').innerHTML = '⚠ Vui lòng chọn một đáp án trước khi kiểm tra.';
+      document.getElementById('quiz-feedback').className = 'quiz-feedback show wrong';
+      return;
+    }
+    submitted[qIdx] = true;
+    renderQuiz();
+    return;
+  }
+  if (qIdx < QUESTIONS.length - 1) {
+    qIdx++;
+    renderQuiz();
+  } else {
+    showResult();
+  }
+}
+
+function quizPrev() {
+  if (qIdx > 0) { qIdx--; renderQuiz(); }
+}
+
+function showResult() {
+  document.getElementById('quiz-container').style.display = 'none';
+  const score = answers.reduce((acc, a, i) => acc + (a === QUESTIONS[i].ans ? 1 : 0), 0);
+  const total = QUESTIONS.length;
+  document.getElementById('quiz-result').style.display = 'block';
+  document.getElementById('quiz-emoji').textContent = score >= 4 ? '🏆' : score >= 3 ? '👍' : '📚';
+  document.getElementById('quiz-score-text').textContent = `${score}/${total} câu đúng`;
+  document.getElementById('quiz-comment').textContent = score === total
+    ? 'Xuất sắc! Bạn nắm vững lịch sử nhà Đinh và Tiền Lê.'
+    : score >= 3
+    ? 'Tốt! Ôn lại các mốc thời gian và sự kiện chi tiết để hoàn thiện.'
+    : 'Hãy đọc lại README và thử lại nhé!';
+}
+
+function quizRestart() {
+  qIdx = 0;
+  answers = new Array(QUESTIONS.length).fill(null);
+  submitted = new Array(QUESTIONS.length).fill(false);
+  document.getElementById('quiz-container').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  renderQuiz();
+}
+
+renderQuiz();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

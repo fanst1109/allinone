@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Bước ngoặt tự chủ: Họ Khúc &amp; Dương Đình Nghệ</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette VietnameseHistory ── */
+  :root {
+    --accent:       #b45309;
+    --accent-soft:  #fef3c7;
+    --accent-hover: #92400e;
+    --color-war:    #b91c1c;
+    --color-peace:  #15803d;
+    --color-minor:  #78716c;
+    --color-hq:     #1d4ed8;
+    --bg-card:      #ffffff;
+    --bg-section:   #fffbeb;
+    --border-warm:  #fde68a;
+  }
+
+  h1 { color: var(--accent-hover); }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-soft); }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 5px rgba(180,83,9,.10);
+    margin: 16px 0;
+    border: 1px solid var(--border-warm);
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: #f5f5f4; color: #374151; border: 1px solid #d6d3d1; }
+  .btn-secondary:hover { background: #e7e5e4; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 1 — Timeline tương tác
+     ═══════════════════════════════════════════════════════ */
+  .timeline-wrap {
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  #timeline-svg {
+    display: block;
+    margin: 0 auto;
+  }
+  .event-detail {
+    background: var(--bg-section);
+    border: 1px solid var(--border-warm);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    min-height: 70px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .event-detail h4 { margin: 0 0 6px; color: var(--accent-hover); }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 2 — Sơ đồ cải cách hành chính Khúc Hạo
+     ═══════════════════════════════════════════════════════ */
+  .reform-wrap { overflow-x: auto; }
+  #reform-svg { display: block; margin: 0 auto; }
+  .reform-detail {
+    background: var(--bg-section);
+    border: 1px solid var(--border-warm);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    min-height: 64px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .reform-detail h4 { margin: 0 0 6px; color: var(--color-peace); }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 3 — Sơ đồ nhân–quả
+     ═══════════════════════════════════════════════════════ */
+  .causal-wrap { overflow-x: auto; }
+  #causal-svg { display: block; margin: 0 auto; }
+  .causal-highlight {
+    background: #fee2e2;
+    border-left: 4px solid var(--color-war);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    margin-top: 12px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 4 — Quiz
+     ═══════════════════════════════════════════════════════ */
+  .quiz-q {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1c1917;
+    margin: 0 0 14px;
+    line-height: 1.5;
+  }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .quiz-opt {
+    background: #fafaf9;
+    border: 1.5px solid #d6d3d1;
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1.5;
+    transition: border-color .15s, background .15s;
+    text-align: left;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: var(--color-peace); background: #dcfce7; color: #14532d; }
+  .quiz-opt.wrong   { border-color: var(--color-war);   background: #fee2e2; color: #7f1d1d; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 44px;
+  }
+  .quiz-feedback.ok  { background: #dcfce7; color: #14532d; border: 1px solid #86efac; }
+  .quiz-feedback.err { background: #fee2e2; color: #7f1d1d; border: 1px solid #fca5a5; }
+  .quiz-nav { display: flex; gap: 10px; margin-top: 14px; align-items: center; }
+  .quiz-progress { font-size: 13px; color: #78716c; margin-left: auto; }
+  .quiz-score-box {
+    background: var(--accent-soft);
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 20px 24px;
+    text-align: center;
+  }
+  .quiz-score-box h3 { margin: 0 0 8px; color: var(--accent-hover); font-size: 20px; }
+  .quiz-score-num { font-size: 48px; font-weight: 800; color: var(--accent); line-height: 1; margin: 8px 0; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .card { padding: 14px 14px; }
+    h2 { font-size: 17px; }
+    .btn { padding: 7px 13px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử VN — Nguồn gốc</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-khoi-nghia-van-xuan/visualization.html">← L4: Khởi nghĩa &amp; Vạn Xuân</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Bước ngoặt tự chủ</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-ngo-quyen-bach-dang/visualization.html">L6: Ngô Quyền &amp; Bạch Đằng →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Bước ngoặt tự chủ: Họ Khúc &amp; Dương Đình Nghệ</h1>
+<p>Ba module tương tác: timeline 905–939, sơ đồ cải cách hành chính Khúc Hạo, sơ đồ nhân–quả dẫn đến Bạch Đằng, và quiz ôn tập.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — Timeline tương tác
+     ═══════════════════════════════════════════════════════════ -->
+<h2>1. Timeline: 905 → 939</h2>
+<div class="card">
+  <p>Click vào từng mốc sự kiện trên trục thời gian để xem chi tiết. Màu sắc: <span style="color:var(--color-peace);font-weight:700;">xanh = tự chủ / dựng nước</span> · <span style="color:var(--color-war);font-weight:700;">đỏ = chiến tranh / mất tự chủ</span> · <span style="color:var(--color-minor);font-weight:700;">xám = mốc phụ</span>.</p>
+
+  <div class="timeline-wrap">
+    <svg id="timeline-svg" width="680" height="200" viewBox="0 0 680 200">
+      <defs>
+        <marker id="arr-main" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#78716c"/>
+        </marker>
+      </defs>
+
+      <!-- Trục chính -->
+      <line x1="30" y1="100" x2="655" y2="100" stroke="#d6d3d1" stroke-width="2" marker-end="url(#arr-main)"/>
+
+      <!-- Nhãn trục năm -->
+      <text x="30" y="120" text-anchor="middle" font-size="10" fill="#a8a29e">874</text>
+      <text x="655" y="120" text-anchor="middle" font-size="10" fill="#a8a29e">942</text>
+
+      <!-- ── Mốc sự kiện (định nghĩa trong JS, render bằng JS) ── -->
+      <g id="tl-nodes"></g>
+    </svg>
+  </div>
+
+  <div class="event-detail" id="tl-detail">
+    <em>Click vào một mốc sự kiện để xem chi tiết.</em>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — Sơ đồ cải cách hành chính Khúc Hạo
+     ═══════════════════════════════════════════════════════════ -->
+<h2>2. Cải cách hành chính Khúc Hạo</h2>
+<div class="card">
+  <p>Sơ đồ cây đơn vị hành chính mà Khúc Hạo thiết lập (~907–917). Click vào từng cấp để xem ý nghĩa và so sánh với hệ thống Đường trước đó.</p>
+
+  <div class="reform-wrap">
+    <svg id="reform-svg" width="640" height="340" viewBox="0 0 640 340">
+      <defs>
+        <marker id="arr-tree" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L6,3 z" fill="#78716c"/>
+        </marker>
+      </defs>
+      <!-- Được render bởi JS -->
+      <g id="reform-nodes"></g>
+    </svg>
+  </div>
+
+  <div class="reform-detail" id="reform-detail">
+    <em>Click vào một cấp hành chính để xem giải thích.</em>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — Sơ đồ nhân–quả
+     ═══════════════════════════════════════════════════════════ -->
+<h2>3. Chuỗi nhân–quả: Tự chủ → Phản bội → Bạch Đằng</h2>
+<div class="card">
+  <p>Mỗi sự kiện là hệ quả của sự kiện trước. Nhấn <strong>"Bước tiếp →"</strong> để lần lượt hiện từng mắt xích nhân–quả. Quan sát cách một hành động sai lầm của Kiều Công Tiễn tạo ra điều kiện cho chiến thắng lịch sử của Ngô Quyền.</p>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="causal-btn-step" onclick="causalStep()">Bước tiếp →</button>
+    <button class="btn btn-secondary" onclick="causalReset()">Bắt đầu lại</button>
+  </div>
+
+  <div class="causal-wrap">
+    <svg id="causal-svg" width="640" height="460" viewBox="0 0 640 460">
+      <defs>
+        <marker id="arr-causal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#b45309"/>
+        </marker>
+        <marker id="arr-causal-war" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#b91c1c"/>
+        </marker>
+        <marker id="arr-causal-peace" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#15803d"/>
+        </marker>
+      </defs>
+      <g id="causal-nodes"></g>
+    </svg>
+  </div>
+
+  <div class="causal-highlight" id="causal-note" style="display:none;"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════════ -->
+<h2>4. Quiz ôn tập</h2>
+<div class="card" id="quiz-card">
+  <div id="quiz-body">
+    <div class="quiz-q" id="quiz-q"></div>
+    <div class="quiz-opts" id="quiz-opts"></div>
+    <div class="quiz-feedback" id="quiz-feedback" style="display:none;"></div>
+    <div class="quiz-nav">
+      <button class="btn btn-primary" id="quiz-next-btn" onclick="quizNext()" style="display:none;">Câu tiếp →</button>
+      <span class="quiz-progress" id="quiz-progress"></span>
+    </div>
+  </div>
+  <div id="quiz-score" style="display:none;"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+// ─────────────────────────────────────────────────────────
+// MODULE 1: TIMELINE
+// ─────────────────────────────────────────────────────────
+
+const TL_YEAR_MIN = 874;
+const TL_YEAR_MAX = 942;
+const TL_X_START  = 30;
+const TL_X_END    = 645;
+const TL_Y        = 100;
+
+function tlYearToX(year) {
+  return TL_X_START + (year - TL_YEAR_MIN) / (TL_YEAR_MAX - TL_YEAR_MIN) * (TL_X_END - TL_X_START);
+}
+
+const TL_EVENTS = [
+  {
+    year: 880,
+    label: '874–884\nHoàng Sào',
+    color: '#b91c1c',
+    above: true,
+    detail: {
+      title: '874–884 — Khởi nghĩa Hoàng Sào',
+      body: 'Nông dân nổi dậy trên quy mô toàn quốc tại Trung Hoa. Năm 881, Hoàng Sào chiếm kinh đô Trường An, Hoàng đế Hy Tông phải bỏ chạy. Đây là vết thương không lành được của nhà Đường, khiến triều đình mất dần uy tín và kiểm soát lãnh thổ xa — trong đó có An Nam.'
+    }
+  },
+  {
+    year: 905,
+    label: '905\nKhúc Thừa Dụ',
+    color: '#15803d',
+    above: false,
+    detail: {
+      title: '905 — Khúc Thừa Dụ nắm quyền Tiết độ sứ',
+      body: 'Tiết độ sứ nhà Đường bị triệu về Trung Hoa do loạn lạc. Khúc Thừa Dụ — hào trưởng người Việt ở Hồng Châu — nhân cơ hội kiểm soát phủ thành Đại La. Sau đó xin nhà Đường công nhận và được phong Đồng bình chương sự rồi Tiết độ sứ. Đây là lần đầu tiên người Việt thực sự nắm quyền cai trị trên đất mình sau hơn 1.000 năm đô hộ — tuy vẫn là tự chủ trên thực tế, chưa phải độc lập.'
+    }
+  },
+  {
+    year: 907,
+    label: '907\nKhúc Hạo\nkế vị',
+    color: '#15803d',
+    above: true,
+    detail: {
+      title: '907 — Khúc Hạo kế vị, bắt đầu cải cách',
+      body: 'Khúc Thừa Dụ mất (~907). Con là Khúc Hạo kế vị Tiết độ sứ, được nhà Hậu Lương (kế nhà Đường) công nhận. Khúc Hạo tiến hành cải cách hành chính toàn diện: chia lại đơn vị (lộ–phủ–châu–giáp–xã), định thuế khóa, lập sổ hộ khẩu. Đây là nền móng quản lý nhà nước đầu tiên của người Việt tự xây dựng.'
+    }
+  },
+  {
+    year: 917,
+    label: '~917\nKhúc Thừa Mỹ\nkế vị',
+    color: '#78716c',
+    above: false,
+    detail: {
+      title: '~917 — Khúc Thừa Mỹ kế vị',
+      body: 'Khúc Hạo mất khoảng 917. Con là Khúc Thừa Mỹ kế vị. Khúc Thừa Mỹ được nhà Hậu Lương công nhận, nhưng không có nhiều tài liệu về hoạt động của ông. Triều họ Khúc tiếp tục duy trì tự chủ trong khoảng thời gian này.'
+    }
+  },
+  {
+    year: 923,
+    label: '923\nNam Hán\nchiếm lại',
+    color: '#b91c1c',
+    above: true,
+    detail: {
+      title: '923 — Nam Hán chiếm Đại La, bắt Khúc Thừa Mỹ',
+      body: 'Nam Hán — một vương quốc do người Hán lập ở vùng Quảng Đông, Quảng Tây, một trong Mười Quốc thời Ngũ Đại Thập Quốc — đem quân đánh chiếm Đại La. Khúc Thừa Mỹ bị bắt và đưa về Quảng Châu. Thời kỳ tự chủ họ Khúc chính thức kết thúc. Tuy nhiên, nền hành chính mà Khúc Hạo đặt nền không bị xóa hoàn toàn trong ký ức và thực tiễn xã hội người Việt.'
+    }
+  },
+  {
+    year: 931,
+    label: '931\nDương Đình Nghệ\nđánh đuổi Nam Hán',
+    color: '#15803d',
+    above: false,
+    detail: {
+      title: '931 — Dương Đình Nghệ phục hồi tự chủ',
+      body: 'Dương Đình Nghệ — hào trưởng người Việt, quê Ái Châu (Thanh Hóa ngày nay) — sau nhiều năm chuẩn bị lực lượng, dấy binh tiến ra Bắc đánh đuổi quân Nam Hán. Chiếm lại Đại La, tự xưng Tiết độ sứ. Đây là bước phục hồi tự chủ bằng lực lượng vũ trang — khác với cách họ Khúc giành quyền bằng ngoại giao chính trị.'
+    }
+  },
+  {
+    year: 937,
+    label: '937\nKiều Công Tiễn\nphản bội',
+    color: '#b91c1c',
+    above: true,
+    detail: {
+      title: '937 — Kiều Công Tiễn giết Dương Đình Nghệ',
+      body: 'Kiều Công Tiễn — tướng cũ dưới quyền Dương Đình Nghệ — giết chủ tướng, tự chiếm quyền Tiết độ sứ. Sợ bị tấn công trả thù, ông ta cầu viện quân Nam Hán. Hành động này khiến toàn bộ tướng lĩnh và dân chúng phẫn nộ, đặc biệt là Ngô Quyền — con rể Dương Đình Nghệ đang trấn thủ Ái Châu.'
+    }
+  },
+  {
+    year: 938,
+    label: '938\nBạch Đằng',
+    color: '#b91c1c',
+    above: false,
+    detail: {
+      title: '938 — Trận Bạch Đằng: Ngô Quyền đánh tan quân Nam Hán',
+      body: 'Ngô Quyền tiến quân ra Bắc, giết Kiều Công Tiễn trước khi quân Nam Hán kịp đến. Lợi dụng thủy triều sông Bạch Đằng, cắm cọc nhọn bịt sắt dưới lòng sông. Khi thủy triều xuống, thuyền chiến Nam Hán bị mắc cọc, vỡ hàng loạt. Hoàng tử Nam Hán chỉ huy đoàn quân là Lưu Hoằng Tháo bị giết trận. Đây là trận chiến kết thúc hơn 1.000 năm Bắc thuộc. Xem chi tiết tại <a href="../lesson-06-ngo-quyen-bach-dang/visualization.html" style="color:var(--accent);">Lesson 06</a>.'
+    }
+  },
+  {
+    year: 939,
+    label: '939\nNgô Quyền\nxưng vương',
+    color: '#15803d',
+    above: true,
+    detail: {
+      title: '939 — Ngô Quyền xưng vương, độc lập hoàn toàn',
+      body: 'Sau trận Bạch Đằng, Ngô Quyền xưng vương, đặt triều đình tại Cổ Loa (Đông Anh, Hà Nội ngày nay). Không còn xin phê chuẩn từ bất kỳ triều đại phương Bắc nào — đây là bước chuyển từ tự chủ (de facto) sang độc lập hoàn toàn (de jure). Kỷ nguyên độc lập của Việt Nam bắt đầu từ đây.'
+    }
+  }
+];
+
+let tlSelected = null;
+
+function renderTimeline() {
+  const svg = document.getElementById('tl-nodes');
+  svg.innerHTML = '';
+
+  TL_EVENTS.forEach((ev, idx) => {
+    const x = tlYearToX(ev.year);
+    const yNode = TL_Y;
+
+    // Tick mark
+    const tick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    tick.setAttribute('x1', x); tick.setAttribute('y1', yNode - 6);
+    tick.setAttribute('x2', x); tick.setAttribute('y2', yNode + 6);
+    tick.setAttribute('stroke', ev.color); tick.setAttribute('stroke-width', '2');
+    svg.appendChild(tick);
+
+    // Circle
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', x); circle.setAttribute('cy', yNode);
+    circle.setAttribute('r', idx === tlSelected ? 10 : 8);
+    circle.setAttribute('fill', tlSelected === idx ? ev.color : '#fff');
+    circle.setAttribute('stroke', ev.color); circle.setAttribute('stroke-width', '2.5');
+    circle.style.cursor = 'pointer';
+    circle.setAttribute('tabindex', '0');
+    circle.addEventListener('click', () => tlSelect(idx));
+    circle.addEventListener('keypress', (e) => { if (e.key === 'Enter') tlSelect(idx); });
+    svg.appendChild(circle);
+
+    // Label (multi-line, above or below)
+    const lines = ev.label.split('\n');
+    const yLabelBase = ev.above ? yNode - 18 - (lines.length - 1) * 13 : yNode + 20;
+    lines.forEach((line, li) => {
+      const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      txt.setAttribute('x', x);
+      txt.setAttribute('y', yLabelBase + li * 13);
+      txt.setAttribute('text-anchor', 'middle');
+      txt.setAttribute('font-size', '10');
+      txt.setAttribute('font-weight', li === 0 ? '700' : '400');
+      txt.setAttribute('fill', ev.color);
+      txt.style.cursor = 'pointer';
+      txt.addEventListener('click', () => tlSelect(idx));
+      txt.textContent = line;
+      svg.appendChild(txt);
+    });
+  });
+}
+
+function tlSelect(idx) {
+  tlSelected = idx;
+  const ev = TL_EVENTS[idx];
+  document.getElementById('tl-detail').innerHTML =
+    `<h4>${ev.detail.title}</h4><p>${ev.detail.body}</p>`;
+  renderTimeline();
+}
+
+renderTimeline();
+
+// ─────────────────────────────────────────────────────────
+// MODULE 2: SƠ ĐỒ CẢI CÁCH HÀNH CHÍNH KHÚC HẠO
+// ─────────────────────────────────────────────────────────
+
+const REFORM_NODES = [
+  {
+    id: 'root',
+    label: 'Toàn lãnh thổ',
+    sublabel: 'An Nam',
+    x: 320, y: 30,
+    w: 160, h: 46,
+    fill: '#b45309', textColor: '#fff',
+    detail: {
+      title: 'Toàn lãnh thổ An Nam',
+      body: 'Dưới thời Khúc Hạo (~907–917), toàn bộ lãnh thổ An Nam (miền Bắc Việt Nam ngày nay) nằm dưới quyền điều hành của Tiết độ sứ người Việt. Đây là lần đầu tiên người Việt tự tổ chức bộ máy hành chính từ trên xuống theo logic của mình, không theo khuôn mẫu đô hộ Hán.'
+    }
+  },
+  {
+    id: 'lo',
+    label: 'Lộ (路)',
+    sublabel: 'Đơn vị lớn nhất',
+    x: 320, y: 120,
+    w: 150, h: 46,
+    fill: '#92400e', textColor: '#fff',
+    detail: {
+      title: 'Lộ (路) — Đơn vị hành chính lớn nhất',
+      body: 'Tương đương cấp tỉnh ngày nay. Hệ thống nhà Đường có các Châu lớn trực thuộc An Nam Đô hộ phủ. Khúc Hạo tổ chức lại thành các Lộ — rõ ràng hơn và do người Việt trực tiếp quản lý, không phụ thuộc quan lại người Hán được điều từ Trung Hoa.'
+    }
+  },
+  {
+    id: 'phu',
+    label: 'Phủ (府)',
+    sublabel: 'Hoặc Châu (州)',
+    x: 170, y: 210,
+    w: 150, h: 46,
+    fill: '#b45309', textColor: '#fff',
+    detail: {
+      title: 'Phủ (府) / Châu (州) — Đơn vị trung gian',
+      body: 'Cấp trung gian giữa Lộ và cấp cơ sở. Tương đương huyện lớn hoặc thị xã ngày nay. Hệ thống hai cấp (Phủ và Châu) cho phép linh hoạt hơn trong quản lý các vùng có đặc điểm địa lý, dân số khác nhau. Cấp này do quan lại người Việt thay thế dần quan lại người Hán.'
+    }
+  },
+  {
+    id: 'chau',
+    label: 'Châu (州)',
+    sublabel: '',
+    x: 470, y: 210,
+    w: 150, h: 46,
+    fill: '#b45309', textColor: '#fff',
+    detail: {
+      title: 'Châu (州) — Đơn vị hành chính vùng',
+      body: 'Cùng cấp với Phủ nhưng thường dùng cho các vùng xa hơn hoặc có đặc điểm riêng. Dưới thời đô hộ Đường, Châu do quan nhà Đường cai quản. Khúc Hạo dần thay thế quan người Hán bằng hào trưởng người Việt có uy tín địa phương.'
+    }
+  },
+  {
+    id: 'giap',
+    label: 'Giáp (甲)',
+    sublabel: 'Nhóm làng',
+    x: 320, y: 295,
+    w: 150, h: 46,
+    fill: '#d97706', textColor: '#fff',
+    detail: {
+      title: 'Giáp (甲) — Nhóm xã cơ sở',
+      body: 'Giáp là đơn vị trung gian giữa Châu/Phủ và Xã — tập hợp một nhóm xã trong cùng vùng địa lý. Khái niệm Giáp vừa có nguồn gốc từ hành chính Hán vừa phù hợp với cách người Việt nhóm các làng lân cận thành cộng đồng liên kết. Cấp này giúp quản lý linh hoạt hơn khi số xã quá nhiều.'
+    }
+  },
+  {
+    id: 'xa',
+    label: 'Xã (社)',
+    sublabel: 'Làng — đơn vị gốc',
+    x: 320, y: 380,
+    w: 160, h: 52,
+    fill: '#15803d', textColor: '#fff',
+    detail: {
+      title: 'Xã (社) — Làng, đơn vị cơ sở quan trọng nhất',
+      body: 'Đây là đóng góp quan trọng nhất của cải cách Khúc Hạo. Xã (làng) là đơn vị cộng đồng tự nhiên của người Việt — có ruộng công, lệ làng, cơ cấu tự quản từ lâu đời. Khúc Hạo chính thức hóa xã thành đơn vị hành chính cơ sở — thay vì dùng Hương (鄉) của hệ thống Hán. Điều này tạo ra hệ thống hành chính khớp với thực tế xã hội Việt. Mô hình xã làm gốc tồn tại suốt lịch sử phong kiến Việt Nam và ảnh hưởng đến tận ngày nay.'
+    }
+  }
+];
+
+// Các kết nối (parent → child)
+const REFORM_EDGES = [
+  ['root','lo'],
+  ['lo','phu'], ['lo','chau'],
+  ['phu','giap'], ['chau','giap'],
+  ['giap','xa']
+];
+
+let reformSelected = null;
+
+function renderReform() {
+  const svg = document.getElementById('reform-nodes');
+  svg.innerHTML = '';
+
+  // Vẽ cạnh trước
+  REFORM_EDGES.forEach(([fromId, toId]) => {
+    const from = REFORM_NODES.find(n => n.id === fromId);
+    const to   = REFORM_NODES.find(n => n.id === toId);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', from.x);
+    line.setAttribute('y1', from.y + from.h);
+    line.setAttribute('x2', to.x);
+    line.setAttribute('y2', to.y);
+    line.setAttribute('stroke','#d6d3d1');
+    line.setAttribute('stroke-width','1.5');
+    line.setAttribute('marker-end','url(#arr-tree)');
+    svg.appendChild(line);
+  });
+
+  // Vẽ nút
+  REFORM_NODES.forEach((node, idx) => {
+    const isSelected = reformSelected === idx;
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.style.cursor = 'pointer';
+    g.addEventListener('click', () => reformSelect(idx));
+
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x', node.x - node.w/2);
+    rect.setAttribute('y', node.y);
+    rect.setAttribute('width', node.w);
+    rect.setAttribute('height', node.h);
+    rect.setAttribute('rx','8');
+    rect.setAttribute('fill', node.fill);
+    rect.setAttribute('opacity', isSelected ? '1' : '0.82');
+    if (isSelected) {
+      rect.setAttribute('stroke','#fff');
+      rect.setAttribute('stroke-width','2.5');
+    }
+    g.appendChild(rect);
+
+    const txt1 = document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt1.setAttribute('x', node.x);
+    txt1.setAttribute('y', node.y + (node.sublabel ? 22 : 28));
+    txt1.setAttribute('text-anchor','middle');
+    txt1.setAttribute('font-size','14');
+    txt1.setAttribute('font-weight','700');
+    txt1.setAttribute('fill', node.textColor);
+    txt1.textContent = node.label;
+    g.appendChild(txt1);
+
+    if (node.sublabel) {
+      const txt2 = document.createElementNS('http://www.w3.org/2000/svg','text');
+      txt2.setAttribute('x', node.x);
+      txt2.setAttribute('y', node.y + 38);
+      txt2.setAttribute('text-anchor','middle');
+      txt2.setAttribute('font-size','11');
+      txt2.setAttribute('fill', node.textColor);
+      txt2.setAttribute('opacity','0.9');
+      txt2.textContent = node.sublabel;
+      g.appendChild(txt2);
+    }
+
+    svg.appendChild(g);
+  });
+}
+
+function reformSelect(idx) {
+  reformSelected = idx;
+  const node = REFORM_NODES[idx];
+  document.getElementById('reform-detail').innerHTML =
+    `<h4 style="color:var(--color-peace);">${node.detail.title}</h4><p>${node.detail.body}</p>`;
+  renderReform();
+}
+
+renderReform();
+
+// ─────────────────────────────────────────────────────────
+// MODULE 3: SƠ ĐỒ NHÂN–QUẢ
+// ─────────────────────────────────────────────────────────
+
+const CAUSAL_STEPS = [
+  {
+    id: 'c1',
+    text: '905–931\nKhúc Thừa Dụ → Dương Đình Nghệ\nTự chủ được duy trì gần 3 thập kỷ',
+    x: 320, y: 30, w: 340, h: 52,
+    fill: '#15803d', textColor: '#fff',
+    arrowTo: null, arrowColor: 'var(--accent)'
+  },
+  {
+    id: 'c2',
+    text: '937\nKiều Công Tiễn giết Dương Đình Nghệ\n→ Chiếm quyền Tiết độ sứ',
+    x: 320, y: 118, w: 340, h: 52,
+    fill: '#b91c1c', textColor: '#fff',
+    arrowTo: 'c1', arrowColor: '#b91c1c'
+  },
+  {
+    id: 'c3',
+    text: '937\nKiều Công Tiễn sợ bị trả thù\n→ Cầu viện quân Nam Hán',
+    x: 320, y: 206, w: 340, h: 52,
+    fill: '#b91c1c', textColor: '#fff',
+    arrowTo: 'c2', arrowColor: '#b91c1c'
+  },
+  {
+    id: 'c4',
+    text: '937\nNgô Quyền (con rể Dương Đình Nghệ)\n→ Dấy binh từ Ái Châu tiến ra Bắc',
+    x: 320, y: 294, w: 340, h: 52,
+    fill: '#b45309', textColor: '#fff',
+    arrowTo: 'c3', arrowColor: '#b45309'
+  },
+  {
+    id: 'c5',
+    text: '938\nNgô Quyền giết Kiều Công Tiễn\n→ Chuẩn bị đón quân Nam Hán trên Bạch Đằng',
+    x: 320, y: 382, w: 340, h: 52,
+    fill: '#b45309', textColor: '#fff',
+    arrowTo: 'c4', arrowColor: '#b45309'
+  },
+  {
+    id: 'c6',
+    text: '938 — Trận Bạch Đằng\nNgô Quyền cắm cọc, phục kích\n→ Quân Nam Hán tan tác, kết thúc Bắc thuộc',
+    x: 320, y: 470, w: 340, h: 52,
+    fill: '#15803d', textColor: '#fff',
+    arrowTo: 'c5', arrowColor: '#15803d'
+  }
+];
+
+// Cập nhật chiều cao SVG theo số bước
+document.getElementById('causal-svg').setAttribute('viewBox', '0 0 640 560');
+document.getElementById('causal-svg').setAttribute('height', '560');
+
+let causalCurrent = 0;
+
+function causalReset() {
+  causalCurrent = 0;
+  document.getElementById('causal-nodes').innerHTML = '';
+  document.getElementById('causal-note').style.display = 'none';
+  document.getElementById('causal-btn-step').disabled = false;
+  document.getElementById('causal-btn-step').textContent = 'Bước tiếp →';
+}
+
+function causalStep() {
+  if (causalCurrent >= CAUSAL_STEPS.length) {
+    causalReset();
+    return;
+  }
+
+  const step = CAUSAL_STEPS[causalCurrent];
+  const svg = document.getElementById('causal-nodes');
+  const defs = document.getElementById('causal-svg').querySelector('defs');
+
+  // Vẽ mũi tên từ bước trước (nếu có)
+  if (causalCurrent > 0) {
+    const prev = CAUSAL_STEPS[causalCurrent - 1];
+    const arrColor = step.arrowColor || '#b45309';
+    const markId = `arr-dyn-${causalCurrent}`;
+
+    // Tạo marker động
+    const marker = document.createElementNS('http://www.w3.org/2000/svg','marker');
+    marker.setAttribute('id', markId);
+    marker.setAttribute('markerWidth','8'); marker.setAttribute('markerHeight','8');
+    marker.setAttribute('refX','6'); marker.setAttribute('refY','3');
+    marker.setAttribute('orient','auto');
+    const mp = document.createElementNS('http://www.w3.org/2000/svg','path');
+    mp.setAttribute('d','M0,0 L0,6 L8,3 z');
+    mp.setAttribute('fill', arrColor);
+    marker.appendChild(mp);
+    defs.appendChild(marker);
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', prev.x);
+    line.setAttribute('y1', prev.y + prev.h);
+    line.setAttribute('x2', step.x);
+    line.setAttribute('y2', step.y);
+    line.setAttribute('stroke', arrColor);
+    line.setAttribute('stroke-width','2');
+    line.setAttribute('marker-end', `url(#${markId})`);
+    line.style.opacity = '0'; line.style.transition = 'opacity 0.3s';
+    svg.appendChild(line);
+    requestAnimationFrame(() => { line.style.opacity = '1'; });
+  }
+
+  // Vẽ nút mới
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.style.opacity = '0'; g.style.transition = 'opacity 0.35s';
+
+  const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  rect.setAttribute('x', step.x - step.w/2);
+  rect.setAttribute('y', step.y);
+  rect.setAttribute('width', step.w);
+  rect.setAttribute('height', step.h);
+  rect.setAttribute('rx','8');
+  rect.setAttribute('fill', step.fill);
+  g.appendChild(rect);
+
+  const lines = step.text.split('\n');
+  const yBase = step.y + (step.h - lines.length * 15) / 2 + 12;
+  lines.forEach((line, li) => {
+    const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x', step.x);
+    txt.setAttribute('y', yBase + li * 15);
+    txt.setAttribute('text-anchor','middle');
+    txt.setAttribute('font-size', li === 0 ? '12' : '11');
+    txt.setAttribute('font-weight', li === 0 ? '700' : '400');
+    txt.setAttribute('fill', step.textColor);
+    txt.textContent = line;
+    g.appendChild(txt);
+  });
+
+  svg.appendChild(g);
+  requestAnimationFrame(() => { g.style.opacity = '1'; });
+
+  causalCurrent++;
+
+  // Hiện ghi chú sau bước cuối
+  if (causalCurrent === CAUSAL_STEPS.length) {
+    document.getElementById('causal-note').style.display = 'block';
+    document.getElementById('causal-note').innerHTML =
+      '<strong>Nhân–quả đáng suy ngẫm:</strong> Kiều Công Tiễn cầu viện Nam Hán vì lo sợ bị trả thù — nhưng chính hành động đó tạo ra cuộc chiến có tầm vóc lịch sử. Ngô Quyền không chỉ trả thù cho cha vợ mà còn đánh đuổi ngoại xâm, được lòng người toàn quốc, và lập nên nền độc lập hoàn toàn. Đây là bài học về cách một sai lầm của "phản diện" vô tình tạo ra điều kiện cho chiến thắng của lịch sử.';
+    document.getElementById('causal-btn-step').textContent = 'Bắt đầu lại';
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// MODULE 4: QUIZ
+// ─────────────────────────────────────────────────────────
+
+const QUIZ_QUESTIONS = [
+  {
+    q: 'Khúc Thừa Dụ nắm quyền Tiết độ sứ vào năm nào?',
+    opts: ['874', '905', '917', '931'],
+    ans: 1,
+    explain: 'Năm 905, Khúc Thừa Dụ nhân cơ hội Tiết độ sứ nhà Đường bị triệu đi mà nắm quyền kiểm soát phủ thành Đại La, sau đó xin và được nhà Đường công nhận.'
+  },
+  {
+    q: 'Điều gì khiến Khúc Thừa Dụ có thể giành quyền kiểm soát An Nam mà không cần chiến tranh quy mô lớn?',
+    opts: [
+      'Nhà Đường đã sụp đổ hoàn toàn trước đó',
+      'Khúc Thừa Dụ có đội quân lớn nhất trong vùng',
+      'Khoảng trống quyền lực khi Tiết độ sứ cũ bị triệu đi, kết hợp chiến lược xin công nhận từ nhà Đường',
+      'Nhân dân An Nam đã đồng loạt nổi dậy ủng hộ'
+    ],
+    ans: 2,
+    explain: 'Ba yếu tố cộng hưởng: khoảng trống quyền lực thực sự, lực lượng hào trưởng sẵn có của họ Khúc, và chiến lược "danh chính ngôn thuận" — xin nhà Đường phê chuẩn để hợp thức hóa quyền kiểm soát.'
+  },
+  {
+    q: 'Trong hệ thống hành chính Khúc Hạo thiết lập, đơn vị nào là cơ sở (nhỏ nhất)?',
+    opts: ['Lộ', 'Phủ', 'Giáp', 'Xã'],
+    ans: 3,
+    explain: 'Xã (làng) là đơn vị cơ sở — phù hợp với cấu trúc xã hội thực tế của người Việt. Đây là điểm mấu chốt của cải cách Khúc Hạo: lấy làng làm gốc thay vì dùng đơn vị Hương của hành chính Hán.'
+  },
+  {
+    q: 'Ai đã đánh đuổi quân Nam Hán và phục hồi quyền tự chủ cho người Việt năm 931?',
+    opts: ['Khúc Hạo', 'Khúc Thừa Mỹ', 'Dương Đình Nghệ', 'Ngô Quyền'],
+    ans: 2,
+    explain: 'Dương Đình Nghệ — hào trưởng người Việt ở Ái Châu (Thanh Hóa) — dấy binh năm 931, đánh đuổi quân Nam Hán, chiếm lại Đại La và tự xưng Tiết độ sứ.'
+  },
+  {
+    q: 'Vì sao hành động cầu viện Nam Hán của Kiều Công Tiễn (937) lại có kết quả ngược lại với mong đợi của ông ta?',
+    opts: [
+      'Quân Nam Hán đến quá muộn và Ngô Quyền đã giết Kiều Công Tiễn trước',
+      'Nam Hán không đủ quân để can thiệp',
+      'Ngô Quyền đã đầu hàng Nam Hán trước',
+      'Kiều Công Tiễn hối hận và rút lại lời cầu viện'
+    ],
+    ans: 0,
+    explain: 'Ngô Quyền tiến quân rất nhanh, giết Kiều Công Tiễn trước khi quân Nam Hán kịp đến cứu. Hơn nữa, việc cầu viện khiến cuộc nội chiến trở thành cuộc chiến chống ngoại xâm — Ngô Quyền có thêm danh nghĩa chính đáng và sự ủng hộ rộng rãi, tạo tiền đề cho chiến thắng Bạch Đằng lịch sử.'
+  },
+  {
+    q: 'Sự kiện nào đánh dấu bước chuyển từ "tự chủ" (de facto) sang "độc lập hoàn toàn" (de jure) của Việt Nam?',
+    opts: [
+      'Khúc Thừa Dụ nắm quyền Tiết độ sứ (905)',
+      'Khúc Hạo cải cách hành chính (907–917)',
+      'Dương Đình Nghệ đánh đuổi Nam Hán (931)',
+      'Ngô Quyền xưng vương sau trận Bạch Đằng (939)'
+    ],
+    ans: 3,
+    explain: 'Ngô Quyền xưng vương năm 939 là bước chuyển quyết định: không còn xin phê chuẩn từ bất kỳ triều đại phương Bắc nào, đặt triều đình tại Cổ Loa. Các sự kiện trước đó là tự chủ — kiểm soát thực tế nhưng vẫn giữ hình thức phụ thuộc danh nghĩa.'
+  }
+];
+
+let quizIdx = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ_QUESTIONS[quizIdx];
+  document.getElementById('quiz-q').textContent = `Câu ${quizIdx + 1}: ${q.q}`;
+  document.getElementById('quiz-progress').textContent = `${quizIdx + 1} / ${QUIZ_QUESTIONS.length}`;
+  document.getElementById('quiz-feedback').style.display = 'none';
+  document.getElementById('quiz-next-btn').style.display = 'none';
+  quizAnswered = false;
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = `${String.fromCharCode(65 + i)}. ${opt}`;
+    btn.addEventListener('click', () => quizAnswer(i));
+    optsEl.appendChild(btn);
+  });
+}
+
+function quizAnswer(i) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const q = QUIZ_QUESTIONS[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((btn, idx) => {
+    btn.classList.add('disabled');
+    if (idx === q.ans) btn.classList.add('correct');
+    else if (idx === i && i !== q.ans) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-feedback');
+  fb.style.display = 'block';
+  if (i === q.ans) {
+    quizScore++;
+    fb.className = 'quiz-feedback ok';
+    fb.innerHTML = `Chính xác! ${q.explain}`;
+  } else {
+    fb.className = 'quiz-feedback err';
+    fb.innerHTML = `Chưa đúng. Đáp án đúng là <strong>${String.fromCharCode(65 + q.ans)}. ${q.opts[q.ans]}</strong>. ${q.explain}`;
+  }
+
+  const nextBtn = document.getElementById('quiz-next-btn');
+  nextBtn.style.display = 'inline-block';
+  nextBtn.textContent = quizIdx + 1 < QUIZ_QUESTIONS.length ? 'Câu tiếp →' : 'Xem kết quả';
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx >= QUIZ_QUESTIONS.length) {
+    quizShowScore();
+  } else {
+    quizRender();
+  }
+}
+
+function quizShowScore() {
+  document.getElementById('quiz-body').style.display = 'none';
+  const pct = Math.round(quizScore / QUIZ_QUESTIONS.length * 100);
+  let remark = pct === 100 ? 'Xuất sắc! Bạn nắm vững toàn bộ nội dung bài học.' :
+               pct >= 67  ? 'Khá tốt! Ôn lại những câu chưa đúng trong README.' :
+                            'Hãy đọc lại README và thử lại nhé.';
+  document.getElementById('quiz-score').style.display = 'block';
+  document.getElementById('quiz-score').innerHTML = `
+    <div class="quiz-score-box">
+      <h3>Kết quả</h3>
+      <div class="quiz-score-num">${quizScore}/${QUIZ_QUESTIONS.length}</div>
+      <p style="margin:8px 0 16px;color:#78350f;">${remark}</p>
+      <button class="btn btn-primary" onclick="quizRestart()">Làm lại từ đầu</button>
+    </div>
+  `;
+}
+
+function quizRestart() {
+  quizIdx = 0; quizScore = 0; quizAnswered = false;
+  document.getElementById('quiz-body').style.display = 'block';
+  document.getElementById('quiz-score').style.display = 'none';
+  quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

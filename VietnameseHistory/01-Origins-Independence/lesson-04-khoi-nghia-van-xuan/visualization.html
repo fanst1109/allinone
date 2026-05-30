@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Khởi nghĩa thời Bắc thuộc &amp; Nhà nước Vạn Xuân</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette Lịch sử Việt Nam ── */
+  :root {
+    --accent:      #b45309;
+    --accent-soft: #fef3c7;
+    --accent-mid:  #d97706;
+    --accent-dark: #78350f;
+    --red-war:     #b91c1c;
+    --green-peace: #15803d;
+    --gray-minor:  #78716c;
+    --card-bg:     #ffffff;
+    --section-bg:  #fffbeb;
+  }
+
+  h1 { color: var(--accent-dark); }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 6px;
+       border-bottom: 2px solid var(--accent-mid); }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(180,83,9,.12);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f5f5f4; color: #374151; border: 1px solid #d6d3d1; }
+  .btn-secondary:hover { background: #e7e5e4; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 1 — TIMELINE TƯƠNG TÁC
+     ══════════════════════════════════════════════ */
+  #timeline-wrap {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  #timeline-svg {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .tl-detail {
+    background: var(--section-bg);
+    border: 1.5px solid var(--accent-mid);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 14px;
+    min-height: 80px;
+    line-height: 1.8;
+    font-size: 14px;
+    transition: opacity .25s;
+  }
+  .tl-detail h3 { margin: 0 0 8px; color: var(--accent-dark); font-size: 16px; }
+  .tl-detail .year-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  .tl-detail .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-right: 4px;
+  }
+  .tag-war   { background: #fee2e2; color: #991b1b; }
+  .tag-state { background: #dcfce7; color: #166534; }
+  .tag-fail  { background: #f3f4f6; color: #374151; }
+  .tag-ok    { background: #fef3c7; color: #92400e; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 2 — BẢNG SO SÁNH
+     ══════════════════════════════════════════════ */
+  .compare-table-wrap { overflow-x: auto; margin: 12px 0; }
+  .compare-table {
+    width: 100%;
+    min-width: 560px;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .compare-table th {
+    background: var(--accent);
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+  }
+  .compare-table th:first-child { border-radius: 6px 0 0 0; }
+  .compare-table th:last-child  { border-radius: 0 6px 0 0; }
+  .compare-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #e7e5e4;
+    vertical-align: top;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .compare-table tr:hover td { background: var(--accent-soft); }
+  .compare-table tr.selected td { background: #fef9c3; }
+  .compare-table td.result-win  { color: var(--green-peace); font-weight: 700; }
+  .compare-table td.result-fail { color: var(--red-war); }
+  .compare-table td.result-short{ color: var(--accent); }
+
+  .compare-detail {
+    background: var(--section-bg);
+    border: 1.5px solid var(--accent-mid);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.8;
+    min-height: 60px;
+  }
+  .compare-detail h4 { margin: 0 0 8px; color: var(--accent-dark); }
+
+  /* ══════════════════════════════════════════════
+     MODULE 3 — BẢN ĐỒ SVG ĐƠN GIẢN
+     ══════════════════════════════════════════════ */
+  #map-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+  #map-svg { display: block; margin: 0 auto; }
+
+  .map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  .map-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .map-legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .map-detail {
+    background: var(--section-bg);
+    border: 1.5px solid var(--accent-mid);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 50px;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 4 — QUIZ
+     ══════════════════════════════════════════════ */
+  .quiz-q {
+    background: var(--section-bg);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 12px 0 8px;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 14px; }
+  .quiz-opt {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1.5px solid #d6d3d1;
+    background: white;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+    transition: background .12s, border-color .12s;
+  }
+  .quiz-opt:hover { background: var(--accent-soft); border-color: var(--accent-mid); }
+  .quiz-opt.correct { background: #dcfce7; border-color: #16a34a; color: #166534; font-weight: 700; }
+  .quiz-opt.wrong   { background: #fee2e2; border-color: #dc2626; color: #991b1b; }
+  .quiz-opt:disabled { cursor: default; }
+
+  .quiz-feedback {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 4px 0 14px;
+    min-height: 36px;
+  }
+  .quiz-feedback.ok   { background: #dcfce7; color: #166534; }
+  .quiz-feedback.fail { background: #fee2e2; color: #991b1b; }
+
+  .quiz-progress {
+    font-size: 13px;
+    color: var(--gray-minor);
+    margin-bottom: 8px;
+  }
+  .quiz-score {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent-dark);
+    text-align: center;
+    padding: 20px;
+  }
+
+  /* ══════════════════════════════════════════════
+     Responsive
+     ══════════════════════════════════════════════ */
+  @media (max-width: 600px) {
+    .compare-table { font-size: 13px; }
+    .compare-table td, .compare-table th { padding: 8px 10px; }
+    .map-legend { gap: 8px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử VN — Nguồn gốc</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-bac-thuoc-hai-ba-trung/visualization.html">← L3: Bắc thuộc &amp; Hai Bà Trưng</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Khởi nghĩa &amp; Vạn Xuân</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-tu-chu-ho-khuc/visualization.html">L5: Bước ngoặt tự chủ →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Các cuộc khởi nghĩa thời Bắc thuộc &amp; Nhà nước Vạn Xuân</h1>
+<p>Bốn module tương tác: timeline các cuộc khởi nghĩa (248–791), bảng so sánh chi tiết, bản đồ địa điểm minh hoạ, và quiz ôn tập.</p>
+
+<!-- ══════════════════════════════════════════════════════
+     MODULE 1 — TIMELINE
+     ══════════════════════════════════════════════════════ -->
+<h2>1. Timeline các cuộc khởi nghĩa (248–791)</h2>
+<div class="card">
+  <p>Click vào từng mốc trên trục thời gian để xem chi tiết. Màu sắc: <span style="color:var(--red-war);font-weight:700;">đỏ</span> = khởi nghĩa vũ trang; <span style="color:var(--green-peace);font-weight:700;">xanh</span> = lập nhà nước/tự chủ; <span style="color:var(--gray-minor);">xám</span> = mốc phụ.</p>
+
+  <div id="timeline-wrap">
+    <svg id="timeline-svg" width="700" height="220" viewBox="0 0 700 220">
+      <defs>
+        <marker id="tl-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#78716c"/>
+        </marker>
+      </defs>
+
+      <!-- Trục thời gian chính -->
+      <line x1="40" y1="110" x2="660" y2="110" stroke="#a8a29e" stroke-width="2.5" marker-end="url(#tl-arrow)"/>
+
+      <!-- Nhãn trục -->
+      <text x="40" y="130" font-size="11" fill="#a8a29e" text-anchor="middle">40</text>
+      <text x="660" y="130" font-size="11" fill="#a8a29e" text-anchor="end">905</text>
+
+      <!-- Mốc phụ: 40 (Hai Bà Trưng) -->
+      <line x1="40" y1="104" x2="40" y2="116" stroke="#a8a29e" stroke-width="1.5"/>
+
+      <!-- ── Mốc 1: Bà Triệu 248 ── -->
+      <!-- x = 40 + (248-40)/(905-40) * 620 ≈ 40 + 208/865*620 ≈ 40 + 149 = 189 -->
+      <g id="tl-node-0" class="tl-node" onclick="tlSelect(0)" style="cursor:pointer">
+        <circle cx="189" cy="110" r="14" fill="#b91c1c" stroke="white" stroke-width="2.5"/>
+        <text x="189" y="115" text-anchor="middle" font-size="11" font-weight="700" fill="white">248</text>
+        <text x="189" y="95" text-anchor="middle" font-size="12" font-weight="700" fill="#b91c1c">Bà Triệu</text>
+        <line x1="189" y1="100" x2="189" y2="110" stroke="#b91c1c" stroke-width="1.5"/>
+      </g>
+
+      <!-- ── Mốc 2: Lý Bí khởi nghĩa 542 ── -->
+      <!-- x = 40 + (542-40)/865*620 ≈ 40 + 360 = 400 -->
+      <g id="tl-node-1" class="tl-node" onclick="tlSelect(1)" style="cursor:pointer">
+        <circle cx="400" cy="110" r="14" fill="#b91c1c" stroke="white" stroke-width="2.5"/>
+        <text x="400" y="115" text-anchor="middle" font-size="11" font-weight="700" fill="white">542</text>
+        <text x="400" y="95" text-anchor="middle" font-size="12" font-weight="700" fill="#b91c1c">Lý Bí</text>
+        <line x1="400" y1="100" x2="400" y2="110" stroke="#b91c1c" stroke-width="1.5"/>
+      </g>
+
+      <!-- ── Mốc 2b: Vạn Xuân 544 ── -->
+      <!-- x ≈ 40 + (544-40)/865*620 ≈ 40 + 361 = 401 → shift right to 420 for label room -->
+      <g id="tl-node-2" class="tl-node" onclick="tlSelect(2)" style="cursor:pointer">
+        <circle cx="420" cy="155" r="13" fill="#15803d" stroke="white" stroke-width="2.5"/>
+        <text x="420" y="160" text-anchor="middle" font-size="10" font-weight="700" fill="white">544</text>
+        <text x="420" y="188" text-anchor="middle" font-size="11" font-weight="700" fill="#15803d">Vạn Xuân</text>
+        <line x1="420" y1="155" x2="420" y2="168" stroke="#15803d" stroke-width="1.5" stroke-dasharray="3,2"/>
+        <!-- Kết thúc Vạn Xuân 602 -->
+        <!-- x ≈ 40 + (602-40)/865*620 ≈ 40 + 402 = 442 -->
+        <line x1="420" y1="168" x2="450" y2="168" stroke="#15803d" stroke-width="2" stroke-dasharray="4,2"/>
+        <circle cx="450" cy="168" r="5" fill="#15803d" stroke="white" stroke-width="1.5"/>
+        <text x="450" y="184" text-anchor="middle" font-size="9" fill="#78716c">602</text>
+      </g>
+
+      <!-- ── Mốc 3: Mai Thúc Loan 722 ── -->
+      <!-- x = 40 + (722-40)/865*620 ≈ 40 + 489 = 529 -->
+      <g id="tl-node-3" class="tl-node" onclick="tlSelect(3)" style="cursor:pointer">
+        <circle cx="529" cy="110" r="14" fill="#b91c1c" stroke="white" stroke-width="2.5"/>
+        <text x="529" y="115" text-anchor="middle" font-size="10" font-weight="700" fill="white">722</text>
+        <text x="529" y="92" text-anchor="middle" font-size="11" font-weight="700" fill="#b91c1c">Mai Thúc</text>
+        <text x="529" y="80" text-anchor="middle" font-size="11" font-weight="700" fill="#b91c1c">Loan</text>
+        <line x1="529" y1="97" x2="529" y2="110" stroke="#b91c1c" stroke-width="1.5"/>
+      </g>
+
+      <!-- ── Mốc 4: Phùng Hưng ~791 ── -->
+      <!-- x = 40 + (791-40)/865*620 ≈ 40 + 538 = 578 -->
+      <g id="tl-node-4" class="tl-node" onclick="tlSelect(4)" style="cursor:pointer">
+        <circle cx="602" cy="110" r="14" fill="#b91c1c" stroke="white" stroke-width="2.5"/>
+        <text x="602" y="115" text-anchor="middle" font-size="10" font-weight="700" fill="white">791</text>
+        <text x="602" y="95" text-anchor="middle" font-size="11" font-weight="700" fill="#b91c1c">Phùng</text>
+        <text x="602" y="83" text-anchor="middle" font-size="11" font-weight="700" fill="#b91c1c">Hưng</text>
+        <line x1="602" y1="99" x2="602" y2="110" stroke="#b91c1c" stroke-width="1.5"/>
+      </g>
+
+      <!-- ── Mốc cuối phụ: họ Khúc 905 (preview) ── -->
+      <g style="cursor:default">
+        <circle cx="650" cy="110" r="10" fill="#78716c" stroke="white" stroke-width="2" stroke-dasharray="3,2"/>
+        <text x="650" y="128" text-anchor="middle" font-size="10" fill="#78716c">905</text>
+        <text x="650" y="140" text-anchor="middle" font-size="10" fill="#78716c">Họ Khúc</text>
+        <text x="650" y="150" text-anchor="middle" font-size="10" fill="#78716c">(preview)</text>
+      </g>
+
+      <!-- Nhãn "SCN" -->
+      <text x="665" y="115" font-size="10" fill="#a8a29e">SCN</text>
+
+      <!-- Nhãn trục dưới -->
+      <text x="189" y="140" text-anchor="middle" font-size="10" fill="#a8a29e">248</text>
+      <text x="400" y="140" text-anchor="middle" font-size="10" fill="#a8a29e">542</text>
+      <text x="529" y="140" text-anchor="middle" font-size="10" fill="#a8a29e">722</text>
+      <text x="602" y="140" text-anchor="middle" font-size="10" fill="#a8a29e">791</text>
+    </svg>
+  </div>
+
+  <div class="tl-detail" id="tl-detail">
+    <em>Nhấp vào một mốc trên trục thời gian để xem chi tiết.</em>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MODULE 2 — BẢNG SO SÁNH
+     ══════════════════════════════════════════════════════ -->
+<h2>2. Bảng so sánh các cuộc khởi nghĩa</h2>
+<div class="card">
+  <p>Click vào bất kỳ hàng nào để xem phân tích chi tiết và ý nghĩa lịch sử.</p>
+
+  <div class="compare-table-wrap">
+    <table class="compare-table" id="compare-table">
+      <thead>
+        <tr>
+          <th>Lãnh đạo</th>
+          <th>Năm</th>
+          <th>Chống triều đại</th>
+          <th>Địa bàn chính</th>
+          <th>Kết quả</th>
+        </tr>
+      </thead>
+      <tbody id="compare-tbody">
+        <tr data-idx="0" onclick="compareSelect(0)">
+          <td><strong>Bà Triệu</strong><br><em>(Triệu Thị Trinh)</em></td>
+          <td>248</td>
+          <td>Nhà Đông Ngô</td>
+          <td>Cửu Chân (Thanh Hóa)</td>
+          <td class="result-fail">Thất bại (cùng năm)</td>
+        </tr>
+        <tr data-idx="1" onclick="compareSelect(1)">
+          <td><strong>Lý Bí</strong><br><em>(Lý Nam Đế)</em></td>
+          <td>542–548</td>
+          <td>Nhà Lương</td>
+          <td>Đồng bằng sông Hồng</td>
+          <td class="result-win">Lập Vạn Xuân (544); tồn tại 58 năm</td>
+        </tr>
+        <tr data-idx="2" onclick="compareSelect(2)">
+          <td><strong>Triệu Quang Phục</strong><br><em>(Triệu Việt Vương)</em></td>
+          <td>548–571</td>
+          <td>Nhà Lương (tàn quân)</td>
+          <td>Đầm Dạ Trạch (Hưng Yên)</td>
+          <td class="result-short">Cầm cự 23 năm; thất bại vì nội bộ</td>
+        </tr>
+        <tr data-idx="3" onclick="compareSelect(3)">
+          <td><strong>Mai Thúc Loan</strong><br><em>(Mai Hắc Đế)</em></td>
+          <td>722</td>
+          <td>Nhà Đường</td>
+          <td>Hoan Châu (Nghệ An)</td>
+          <td class="result-fail">Thất bại (cùng năm)</td>
+        </tr>
+        <tr data-idx="4" onclick="compareSelect(4)">
+          <td><strong>Phùng Hưng</strong><br><em>(Bố Cái Đại Vương)</em></td>
+          <td>~791–802</td>
+          <td>Nhà Đường</td>
+          <td>Đường Lâm → Tống Bình</td>
+          <td class="result-short">Chiếm Tống Bình; con đầu hàng sau (~802)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="compare-detail" id="compare-detail">
+    <em>Chọn một hàng trong bảng để xem phân tích chi tiết.</em>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MODULE 3 — BẢN ĐỒ ĐƠN GIẢN HOÁ
+     ══════════════════════════════════════════════════════ -->
+<h2>3. Bản đồ địa điểm khởi nghĩa (minh hoạ)</h2>
+<div class="card">
+  <div class="info-box">
+    Bản đồ SVG đơn giản hoá — chỉ mang tính minh hoạ vị trí tương đối, không phải bản đồ địa lý chính xác. Click vào ký hiệu để xem mô tả.
+  </div>
+
+  <div class="map-legend">
+    <div class="map-legend-item">
+      <div class="map-legend-dot" style="background:#b91c1c;"></div>
+      <span>Trung tâm khởi nghĩa</span>
+    </div>
+    <div class="map-legend-item">
+      <div class="map-legend-dot" style="background:#15803d;"></div>
+      <span>Kinh đô Vạn Xuân / trung tâm tự chủ</span>
+    </div>
+    <div class="map-legend-item">
+      <div class="map-legend-dot" style="background:#78716c; border-radius:2px; width:14px; height:10px;"></div>
+      <span>Vùng hành chính (An Nam đô hộ phủ)</span>
+    </div>
+  </div>
+
+  <div id="map-wrap">
+    <svg id="map-svg" width="440" height="540" viewBox="0 0 440 540">
+      <!-- Đường bờ biển (phác hoạ) -->
+      <path d="M200,20 C210,30 220,50 215,80 C210,110 220,130 215,160
+               C210,190 225,220 220,255 C215,285 230,320 225,355
+               C220,380 235,420 230,460 C225,490 220,515 215,535"
+            fill="none" stroke="#93c5fd" stroke-width="2.5" stroke-dasharray="6,3"/>
+
+      <!-- Nhãn biển -->
+      <text x="290" y="280" font-size="12" fill="#93c5fd" font-weight="600">Biển Đông</text>
+
+      <!-- Đường biên giới phía Bắc (phác hoạ) -->
+      <path d="M50,30 C90,20 140,15 180,20 C200,20 200,20 200,20"
+            fill="none" stroke="#a8a29e" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <text x="90" y="15" font-size="11" fill="#a8a29e">Phương Bắc</text>
+
+      <!-- Đường bờ Tây (phác hoạ dải đất) -->
+      <path d="M50,30 C60,80 55,130 60,180 C65,230 60,280 70,330
+               C75,370 70,420 75,460 C78,490 80,515 85,535"
+            fill="none" stroke="#d6d3d1" stroke-width="1.5"/>
+
+      <!-- Tô màu dải đất Giao Châu/Việt Nam -->
+      <path d="M50,30 C90,20 140,15 180,20 C200,20 215,35 215,80
+               C218,115 215,155 218,185 C222,220 218,255 220,290
+               C222,320 228,355 225,390 C222,420 230,455 228,485
+               C225,508 220,525 215,535
+               L85,535 C80,515 78,490 75,460 C70,420 75,370 70,330
+               C60,280 65,230 60,180 C55,130 60,80 50,30Z"
+            fill="#fef9f0" stroke="#d6d3d1" stroke-width="1"/>
+
+      <!-- ── Vùng Tống Bình / Hà Nội (Long Biên) ── -->
+      <rect x="85" y="95" width="80" height="30" rx="5"
+            fill="#fef3c7" stroke="#d97706" stroke-width="1.5" opacity=".85"/>
+      <text x="125" y="113" font-size="11" fill="#92400e" text-anchor="middle" font-weight="600">Tống Bình</text>
+      <text x="125" y="125" font-size="9" fill="#78716c" text-anchor="middle">(Long Biên / Hà Nội)</text>
+
+      <!-- ── Kinh đô Vạn Xuân (sông Tô Lịch) ── -->
+      <g id="map-node-vanxuan" onclick="mapSelect('vanxuan')" style="cursor:pointer">
+        <circle cx="118" cy="108" r="10" fill="#15803d" stroke="white" stroke-width="2.5"/>
+        <text x="118" y="112" text-anchor="middle" font-size="10" font-weight="700" fill="white">VX</text>
+      </g>
+
+      <!-- ── Đầm Dạ Trạch (Hưng Yên) ── -->
+      <!-- Phía đông nam Hà Nội một chút -->
+      <g id="map-node-datrach" onclick="mapSelect('datrach')" style="cursor:pointer">
+        <ellipse cx="160" cy="145" rx="18" ry="11" fill="#bae6fd" stroke="#0369a1" stroke-width="1.5" opacity=".8"/>
+        <text x="160" y="148" text-anchor="middle" font-size="10" fill="#075985" font-weight="700">DT</text>
+        <text x="186" y="142" font-size="10" fill="#0369a1">Dạ Trạch</text>
+      </g>
+
+      <!-- ── Vùng Cửu Chân / Thanh Hóa ── -->
+      <g id="map-node-cuuchan" onclick="mapSelect('cuuchan')" style="cursor:pointer">
+        <circle cx="130" cy="240" r="12" fill="#b91c1c" stroke="white" stroke-width="2.5"/>
+        <text x="130" y="244" text-anchor="middle" font-size="10" font-weight="700" fill="white">CC</text>
+        <text x="148" y="237" font-size="11" fill="#b91c1c" font-weight="600">Cửu Chân</text>
+        <text x="148" y="249" font-size="10" fill="#78716c">(Thanh Hóa)</text>
+      </g>
+
+      <!-- ── Vùng Hoan Châu / Nghệ An ── -->
+      <g id="map-node-hoanchau" onclick="mapSelect('hoanchau')" style="cursor:pointer">
+        <circle cx="130" cy="330" r="12" fill="#b91c1c" stroke="white" stroke-width="2.5"/>
+        <text x="130" y="334" text-anchor="middle" font-size="10" font-weight="700" fill="white">HC</text>
+        <text x="148" y="327" font-size="11" fill="#b91c1c" font-weight="600">Hoan Châu</text>
+        <text x="148" y="339" font-size="10" fill="#78716c">(Nghệ An)</text>
+      </g>
+
+      <!-- ── Vùng Đường Lâm ── -->
+      <g id="map-node-duonglam" onclick="mapSelect('duonglam')" style="cursor:pointer">
+        <circle cx="92" cy="115" r="9" fill="#b91c1c" stroke="white" stroke-width="2.5" opacity=".85"/>
+        <text x="92" y="119" text-anchor="middle" font-size="9" font-weight="700" fill="white">DL</text>
+        <text x="54" y="112" font-size="10" fill="#b91c1c" font-weight="600">Đường Lâm</text>
+      </g>
+
+      <!-- Chú thích ký hiệu -->
+      <text x="20" y="490" font-size="11" fill="#78716c">VX = Kinh đô Vạn Xuân</text>
+      <text x="20" y="505" font-size="11" fill="#78716c">DT = Đầm Dạ Trạch</text>
+      <text x="20" y="520" font-size="11" fill="#78716c">CC = Cửu Chân &nbsp;HC = Hoan Châu</text>
+      <text x="20" y="535" font-size="11" fill="#78716c">DL = Đường Lâm</text>
+    </svg>
+  </div>
+
+  <div class="map-detail" id="map-detail">
+    <em>Click vào ký hiệu trên bản đồ để xem mô tả vùng đất.</em>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MODULE 4 — QUIZ
+     ══════════════════════════════════════════════════════ -->
+<h2>4. Quiz ôn tập</h2>
+<div class="card">
+  <div id="quiz-container"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     JAVASCRIPT
+     ══════════════════════════════════════════════════════ -->
+<script>
+// ─────────────────────────────────────────────────────
+// MODULE 1: TIMELINE
+// ─────────────────────────────────────────────────────
+const TL_DATA = [
+  {
+    id: 0,
+    year: '248 SCN',
+    title: 'Khởi nghĩa Bà Triệu',
+    tags: ['<span class="tag tag-war">Vũ trang</span>', '<span class="tag tag-fail">Thất bại ngay</span>'],
+    html: `
+      <strong>Lãnh đạo:</strong> Triệu Thị Trinh (Bà Triệu, còn gọi Triệu Ẩu trong sử Trung Hoa).<br>
+      <strong>Địa bàn:</strong> Cửu Chân — tương đương vùng Thanh Hóa–Nghệ An ngày nay. Căn cứ ban đầu ở núi Nưa (Triệu Sơn, Thanh Hóa).<br>
+      <strong>Chống lại:</strong> Nhà Đông Ngô (một trong ba nước Tam Quốc, 220–280).<br>
+      <strong>Diễn biến:</strong> Nổ ra năm 248, đánh nhiều trận ở vùng Cửu Chân. Nhà Đông Ngô phái thứ sử Lục Dận đem quân lớn đàn áp. Khởi nghĩa thất bại trong cùng năm; Bà Triệu hy sinh.<br>
+      <strong>Câu nói lưu truyền:</strong> <em>"Tôi muốn cưỡi cơn gió mạnh, đạp luồng sóng dữ, chém cá kình ở biển Đông, đánh đuổi quân Ngô, cởi ách nô lệ, chứ không chịu khom lưng làm tì thiếp người ta."</em><br>
+      <strong>Ý nghĩa:</strong> Thể hiện tinh thần bất khuất, tiếp nối mạch đấu tranh sau Hai Bà Trưng (40 SCN). Bà Triệu được thờ phụng tại nhiều nơi ở Thanh Hóa đến tận ngày nay.`
+  },
+  {
+    id: 1,
+    year: '542 SCN',
+    title: 'Lý Bí khởi nghĩa',
+    tags: ['<span class="tag tag-war">Vũ trang</span>', '<span class="tag tag-ok">Tiền đề Vạn Xuân</span>'],
+    html: `
+      <strong>Lãnh đạo:</strong> Lý Bí (Lý Bôn), hào trưởng người Việt, từng làm quan trong bộ máy nhà Lương.<br>
+      <strong>Địa bàn:</strong> Long Biên (đồng bằng sông Hồng); nhanh chóng chiếm thành Luy Lâu — trung tâm hành chính của Giao Châu.<br>
+      <strong>Chống lại:</strong> Nhà Lương (502–557), một trong các triều đại Nam Bắc Triều — đang suy yếu vì nội loạn.<br>
+      <strong>Diễn biến:</strong> Năm 542 nổi dậy, đánh bại thứ sử Tiêu Tư; năm 543 đẩy lui quân phản công của nhà Lương. Đây là tiền đề trực tiếp dẫn đến việc lập nước Vạn Xuân (544).<br>
+      <strong>Ý nghĩa:</strong> Khởi nghĩa thành công nhờ kết hợp: (1) nhà Lương suy yếu; (2) Lý Bí hiểu địch; (3) liên minh rộng. Đây là lần đầu tiên một cuộc khởi nghĩa đạt đến bước tiếp theo — xây dựng nhà nước.`
+  },
+  {
+    id: 2,
+    year: '544 SCN',
+    title: 'Lập Nhà nước Vạn Xuân',
+    tags: ['<span class="tag tag-state">Lập nhà nước</span>', '<span class="tag tag-ok">Tồn tại 58 năm</span>'],
+    html: `
+      <strong>Sự kiện:</strong> Năm 544, Lý Bí chính thức xưng đế (hiệu: <strong>Lý Nam Đế</strong>), đặt quốc hiệu <strong>Vạn Xuân</strong>, dựng kinh đô ở vùng cửa sông Tô Lịch (khu vực Hà Nội ngày nay). Lập triều đình hai ban văn võ.<br>
+      <strong>Ý nghĩa quốc hiệu "Vạn Xuân":</strong> "Mười nghìn mùa xuân" — tuyên ngôn về sự trường tồn vĩnh cửu. Đây là nhà nước tự đặt quốc hiệu (không nhận tước từ phương Bắc), khẳng định chủ quyền hoàn toàn.<br>
+      <strong>Kết cục:</strong>
+      <ul style="margin:6px 0; padding-left:18px;">
+        <li>Năm 545–546: nhà Lương phái Trần Bá Tiên đem đại quân tái chiếm; Lý Nam Đế rút vào vùng núi, mất khoảng năm 548.</li>
+        <li>Năm 548–571: Triệu Quang Phục kháng chiến ở Đầm Dạ Trạch.</li>
+        <li>Năm 571–602: Lý Phật Tử giữ Vạn Xuân; bị nhà Tùy diệt năm 602.</li>
+      </ul>
+      <strong>Di sản:</strong> Vạn Xuân là mô hình nhà nước đầu tiên của người Việt — có quốc hiệu, có vua, có triều đình. Tiền lệ quan trọng về ý thức hệ cho các thế kỉ sau.`
+  },
+  {
+    id: 3,
+    year: '722 SCN',
+    title: 'Khởi nghĩa Mai Thúc Loan (Mai Hắc Đế)',
+    tags: ['<span class="tag tag-war">Vũ trang</span>', '<span class="tag tag-fail">Thất bại ngay</span>'],
+    html: `
+      <strong>Lãnh đạo:</strong> Mai Thúc Loan — xuất thân bình dân, vùng Hoan Châu (Nghệ An). Sử gọi là <strong>Mai Hắc Đế</strong> ("Hắc" = đen, ghi lại đặc điểm ngoại hình theo truyền thuyết).<br>
+      <strong>Địa bàn:</strong> Vùng Hoan Châu (Nghệ An–Hà Tĩnh ngày nay); căn cứ núi Vệ Sơn ở Sa Nam (huyện Nam Đàn, Nghệ An).<br>
+      <strong>Chống lại:</strong> Nhà Đường — cụ thể là <strong>An Nam đô hộ phủ</strong> (tên gọi từ năm 679).<br>
+      <strong>Diễn biến:</strong> Năm 722, khởi nghĩa quy mô lớn, xưng đế. Có thể liên kết với Champa và Chân Lạp. Nhà Đường phái đại quân (Tân Đường thư ghi ~100.000 — con số cần thận trọng) sang đàn áp; thất bại trong cùng năm.<br>
+      <strong>Ý nghĩa:</strong> Phong trào kháng Đường lan ra miền Trung — không chỉ tập trung ở đồng bằng sông Hồng. Thể hiện chính sách thuế má, lao dịch của nhà Đường tiếp tục thúc đẩy bất mãn khắp nơi.`
+  },
+  {
+    id: 4,
+    year: '~791 SCN',
+    title: 'Phùng Hưng — Bố Cái Đại Vương',
+    tags: ['<span class="tag tag-war">Vũ trang</span>', '<span class="tag tag-ok">Cai quản ngắn</span>'],
+    html: `
+      <strong>Lãnh đạo:</strong> Phùng Hưng — hào trưởng vùng Đường Lâm (Sơn Tây, Hà Nội ngày nay). Anh em Phùng Hưng, Phùng Hải, Phùng Dĩnh cùng khởi nghĩa.<br>
+      <strong>Chống lại:</strong> Nhà Đường — trong bối cảnh nhà Đường suy yếu sau loạn An Lộc Sơn (755–763).<br>
+      <strong>Diễn biến:</strong> Quá trình chuẩn bị từ khoảng 776. Khoảng 791, chiếm thành Tống Bình (Hà Nội), đuổi viên đô hộ Cao Chính Bình. Phùng Hưng cai quản An Nam cho đến khi qua đời; con là Phùng An đầu hàng khi quân Đường trở lại (khoảng 802).<br>
+      <strong>Tước hiệu:</strong> Nhân dân tôn xưng <strong>"Bố Cái Đại Vương"</strong> sau khi ông mất — "Bố Cái" = Cha Mẹ (tiếng Việt cổ). Đây là tước hiệu tình nghĩa, không phải tự xưng chính trị.<br>
+      <strong>Ý nghĩa:</strong> Đường Lâm sau này cũng là nơi sinh của Ngô Quyền (người chiến thắng trên sông Bạch Đằng năm 938). Phùng Hưng là bước trung gian giữa các cuộc khởi nghĩa và nền tự chủ thực sự của họ Khúc (905).`
+  }
+];
+
+let tlSelected = null;
+
+function tlSelect(idx) {
+  // Highlight node
+  document.querySelectorAll('.tl-node circle').forEach((c, i) => {
+    c.setAttribute('stroke-width', '2.5');
+    c.setAttribute('stroke', 'white');
+  });
+  // Highlight selected
+  const nodes = document.querySelectorAll('.tl-node');
+  if (nodes[idx]) {
+    const circle = nodes[idx].querySelector('circle');
+    if (circle) { circle.setAttribute('stroke', 'var(--accent-dark)'); circle.setAttribute('stroke-width', '4'); }
+  }
+
+  const d = TL_DATA[idx];
+  const tagsHtml = (d.tags || []).join(' ');
+  document.getElementById('tl-detail').innerHTML =
+    `<h3><span class="year-badge">${d.year}</span>${d.title} ${tagsHtml}</h3>${d.html}`;
+  tlSelected = idx;
+}
+
+// ─────────────────────────────────────────────────────
+// MODULE 2: BẢNG SO SÁNH
+// ─────────────────────────────────────────────────────
+const COMPARE_DETAIL = [
+  {
+    title: 'Bà Triệu (248)',
+    html: `<strong>Hoàn cảnh:</strong> Nhà Đông Ngô cai trị Giao Châu — chính sách đồng hóa và thuế nặng. Đây là gần 200 năm sau Hai Bà Trưng.<br>
+    <strong>Chiến lược:</strong> Tập hợp lực lượng ở núi Nưa, chiến đấu trực tiếp. Không đủ thời gian xây dựng lực lượng đủ lớn.<br>
+    <strong>Tại sao thất bại:</strong> Đông Ngô có quân đội chính quy lớn hơn và sử dụng kế ly gián. Quy mô khởi nghĩa chưa đủ để đối đầu với cả một triều đại.<br>
+    <strong>Di sản:</strong> Hình tượng người anh hùng phụ nữ trong lịch sử Việt — tiếp nối Hai Bà Trưng, thể hiện vai trò của phụ nữ trong các phong trào kháng chiến thời cổ trung đại.`
+  },
+  {
+    title: 'Lý Bí / Nhà nước Vạn Xuân (542–602)',
+    html: `<strong>Hoàn cảnh:</strong> Nhà Lương suy yếu do nội loạn; Lý Bí có kinh nghiệm quan lại, hiểu điểm yếu của đối phương.<br>
+    <strong>Chiến lược:</strong> Xây dựng liên minh rộng (bao gồm tù trưởng Lâm Ấp–Champa), đánh nhanh chiếm trung tâm hành chính.<br>
+    <strong>Thành tựu quan trọng:</strong>
+    <ul style="margin:4px 0; padding-left:16px;">
+      <li>Lần đầu xưng đế (không nhận tước từ phương Bắc).</li>
+      <li>Đặt quốc hiệu riêng — Vạn Xuân.</li>
+      <li>Lập triều đình hai ban văn võ.</li>
+    </ul>
+    <strong>Tại sao cuối cùng mất:</strong> Nhà Tùy thống nhất Trung Hoa (589), mạnh hơn nhiều nhà Lương; lực lượng người Việt chưa đủ lớn để đương đầu.<br>
+    <strong>Di sản:</strong> Mô hình tham chiếu cho các nhà nước sau này của người Việt (Ngô, Đinh, Lý, Trần...).`
+  },
+  {
+    title: 'Triệu Quang Phục / Triệu Việt Vương (548–571)',
+    html: `<strong>Hoàn cảnh:</strong> Tiếp nối sau khi Lý Nam Đế buộc phải rút lui. Triệu Quang Phục là tướng và đồng minh của Lý Bí.<br>
+    <strong>Chiến lược nổi bật:</strong> Dùng Đầm Dạ Trạch làm căn cứ du kích — địa hình đầm lầy làm vô hiệu hóa ưu thế số lượng của quân Lương.<br>
+    <strong>Bước ngoặt:</strong> Nhà Lương xảy ra loạn Hầu Cảnh (548–552) → quân Lương ở Giao Châu mất sự hỗ trợ → Triệu Quang Phục phản công chiếm Long Biên (~550).<br>
+    <strong>Tại sao thất bại:</strong> Không phải do quân sự mà do nội bộ — Lý Phật Tử (cháu Lý Nam Đế) dùng mưu kế (kể cả hôn nhân chính trị) để đoạt quyền (571).<br>
+    <strong>Bài học:</strong> Chiến tranh du kích trong địa hình đặc thù là vũ khí của người yếu trước kẻ mạnh — chiến thuật này tiếp tục xuất hiện trong lịch sử quân sự Việt Nam.`
+  },
+  {
+    title: 'Mai Thúc Loan / Mai Hắc Đế (722)',
+    html: `<strong>Hoàn cảnh:</strong> Nhà Đường (618–907) ở đỉnh thịnh; An Nam đô hộ phủ cai trị nặng nề — thuế muối, cống nạp trái cây lạ (vải thiều) phải vận chuyển ngàn dặm.<br>
+    <strong>Điểm đặc biệt:</strong> Xuất thân bình dân — không phải hào trưởng cha truyền con nối. Thể hiện phong trào đấu tranh lan xuống tầng lớp dân thường.<br>
+    <strong>Liên kết khu vực:</strong> Có thể liên minh với Champa và Chân Lạp — cho thấy ý thức phối hợp khu vực trong chống Đường.<br>
+    <strong>Tại sao thất bại:</strong> Nhà Đường vẫn còn rất mạnh (đây là trước loạn An Lộc Sơn 33 năm). Quy mô dù lớn vẫn chưa đủ sức đương đầu.<br>
+    <strong>Di sản:</strong> Mở rộng địa lý của phong trào kháng Bắc thuộc xuống miền Trung.`
+  },
+  {
+    title: 'Phùng Hưng / Bố Cái Đại Vương (~791–802)',
+    html: `<strong>Hoàn cảnh:</strong> Sau loạn An Lộc Sơn (755–763), nhà Đường suy yếu rõ rệt. Kiểm soát ở An Nam đô hộ phủ lỏng hơn — cơ hội tốt hơn so với thế kỉ trước.<br>
+    <strong>Đặc điểm:</strong> Phùng Hưng không chỉ đấu tranh quân sự mà còn giữ An Nam trong một giai đoạn — dù chưa xây dựng cơ cấu nhà nước hoàn chỉnh như Lý Bí.<br>
+    <strong>Tước hiệu "Bố Cái":</strong> Phản ánh mối liên hệ tình nghĩa — ông được nhớ đến vì lo cho dân hơn là vì chiến công quân sự. Đây là hình thức lãnh tụ khác biệt với kiểu "đế" của Lý Bí.<br>
+    <strong>Tại sao không bền:</strong> Phùng Hưng qua đời trong khi đang nắm quyền; con là Phùng An không đủ thực lực giữ thành quả.<br>
+    <strong>Preview:</strong> Đây là "bước cuối" trước họ Khúc (905) — những người sẽ dùng cách khác để giành tự chủ: lấp vào khoảng trống quyền lực của nhà Đường suy tàn.`
+  }
+];
+
+let compareSelected = null;
+
+function compareSelect(idx) {
+  // Clear previous selection
+  document.querySelectorAll('#compare-tbody tr').forEach(r => r.classList.remove('selected'));
+  // Mark selected
+  const rows = document.querySelectorAll('#compare-tbody tr');
+  if (rows[idx]) rows[idx].classList.add('selected');
+
+  const d = COMPARE_DETAIL[idx];
+  document.getElementById('compare-detail').innerHTML =
+    `<h4>${d.title}</h4>${d.html}`;
+  compareSelected = idx;
+}
+
+// ─────────────────────────────────────────────────────
+// MODULE 3: BẢN ĐỒ
+// ─────────────────────────────────────────────────────
+const MAP_DATA = {
+  vanxuan: {
+    title: 'Kinh đô Vạn Xuân — vùng cửa sông Tô Lịch',
+    html: `Năm 544, Lý Bí đặt kinh đô tại vùng cửa sông Tô Lịch — khu vực phía tây nam hồ Tây, Hà Nội ngày nay. Vùng này đã là trung tâm hành chính của Giao Châu từ thời Đông Hán (thành Luy Lâu rồi chuyển về đây). Việc giữ trung tâm cũ cho thấy Lý Bí muốn kế thừa và thay thế bộ máy cai trị, không chỉ đơn thuần là khởi nghĩa.`
+  },
+  datrach: {
+    title: 'Đầm Dạ Trạch (Hưng Yên)',
+    html: `Đầm lầy rộng lớn ở tả ngạn sông Hồng, nay thuộc huyện Khoái Châu, tỉnh Hưng Yên. Triệu Quang Phục chọn nơi đây (548–550) vì: địa hình mạng lưới sông rạch phức tạp, thuyền nhỏ cơ động hơn thuyền lớn của quân Lương, ban đêm tập kích rồi rút vào đầm — quân địch không đuổi được. Đây là căn cứ du kích điển hình, khai thác tối đa địa lợi tự nhiên.`
+  },
+  cuuchan: {
+    title: 'Cửu Chân (Thanh Hóa – Nghệ An ngày nay)',
+    html: `Một trong ba quận lớn của Giao Châu thời Bắc thuộc (bên cạnh Giao Chỉ và Nhật Nam). Bà Triệu (248) nổi dậy ở đây — vùng núi Nưa thuộc huyện Triệu Sơn. Cửu Chân cách trung tâm quyền lực của đô hộ phủ (Long Biên) khá xa về phía nam, tạo điều kiện để tập hợp lực lượng trước khi bị phát hiện.`
+  },
+  hoanchau: {
+    title: 'Hoan Châu (Nghệ An – Hà Tĩnh ngày nay)',
+    html: `Vùng đất nằm ở trung bộ Việt Nam, trung tâm khởi nghĩa của Mai Thúc Loan (722). Căn cứ chính ở núi Vệ Sơn, huyện Nam Đàn, Nghệ An — nơi nay còn có đền thờ Mai Hắc Đế. Vùng này giàu tài nguyên rừng núi, thuận lợi cho xây dựng căn cứ kháng chiến. Việc khởi nghĩa nổ ra ở đây cho thấy phong trào kháng Đường không chỉ giới hạn ở đồng bằng sông Hồng.`
+  },
+  duonglam: {
+    title: 'Đường Lâm (Sơn Tây, Hà Nội ngày nay)',
+    html: `Vùng trung du phía tây đồng bằng sông Hồng, hiện là thị xã Sơn Tây. Quê hương của Phùng Hưng (~791) và cũng là nơi sinh của Ngô Quyền (898–944) — người đánh tan quân Nam Hán trên sông Bạch Đằng năm 938. Đường Lâm được gọi là "đất hai vua" (Phùng Hưng và Ngô Quyền). Địa thế trung du giúp tập hợp lực lượng và dễ kiểm soát các tuyến đường vào vùng đồng bằng.`
+  }
+};
+
+function mapSelect(key) {
+  const d = MAP_DATA[key];
+  if (!d) return;
+  document.getElementById('map-detail').innerHTML =
+    `<strong>${d.title}</strong><br>${d.html}`;
+}
+
+// ─────────────────────────────────────────────────────
+// MODULE 4: QUIZ
+// ─────────────────────────────────────────────────────
+const QUIZ_DATA = [
+  {
+    q: 'Khởi nghĩa Bà Triệu (năm 248) chống lại triều đại nào ở phương Bắc?',
+    opts: ['Nhà Hán', 'Nhà Đông Ngô', 'Nhà Lương', 'Nhà Đường'],
+    ans: 1,
+    explain: 'Bà Triệu khởi nghĩa năm 248, chống nhà Đông Ngô — một trong ba nước thời Tam Quốc (220–280). Đây không phải nhà Hán (đã suy từ đầu thế kỉ III) hay nhà Lương hay nhà Đường.'
+  },
+  {
+    q: 'Lý Bí xưng đế và đặt quốc hiệu là gì vào năm 544?',
+    opts: ['Lý Đại Đế — Đại Việt', 'Lý Nam Đế — Vạn Xuân', 'Lý Việt Vương — An Nam', 'Lý Hưng Đế — Nam Việt'],
+    ans: 1,
+    explain: 'Lý Bí xưng hiệu Lý Nam Đế ("vua phương Nam"), đặt tên nước là Vạn Xuân ("mười nghìn mùa xuân"). Kinh đô ở vùng cửa sông Tô Lịch (Hà Nội). Tên nước "Đại Việt" xuất hiện muộn hơn (thế kỉ XI).'
+  },
+  {
+    q: 'Triệu Quang Phục chọn Đầm Dạ Trạch làm căn cứ vì lý do gì?',
+    opts: [
+      'Đây là nơi có nhiều lương thực dự trữ',
+      'Địa hình đầm lầy giúp vô hiệu hóa ưu thế quân số của địch',
+      'Đây là quê hương của ông',
+      'Đầm Dạ Trạch nằm gần biên giới, dễ liên lạc với đồng minh'
+    ],
+    ans: 1,
+    explain: 'Đầm Dạ Trạch có mạng lưới sông rạch phức tạp, quân Lương không thể triển khai đội hình lớn và không biết đường đi. Triệu Quang Phục dùng thuyền nhỏ tập kích ban đêm rồi rút vào đầm — chiến thuật du kích hiệu quả trước đối thủ đông hơn nhiều.'
+  },
+  {
+    q: 'Mai Thúc Loan khởi nghĩa năm 722 ở vùng nào?',
+    opts: ['Cửu Chân (Thanh Hóa)', 'Long Biên (Hà Nội)', 'Hoan Châu (Nghệ An)', 'Đường Lâm (Sơn Tây)'],
+    ans: 2,
+    explain: 'Mai Thúc Loan (Mai Hắc Đế) khởi nghĩa ở vùng Hoan Châu (tương đương Nghệ An–Hà Tĩnh ngày nay), căn cứ chính ở núi Vệ Sơn, huyện Nam Đàn. Cửu Chân là địa bàn của Bà Triệu; Long Biên là trung tâm của Lý Bí; Đường Lâm là quê Phùng Hưng.'
+  },
+  {
+    q: 'Tước hiệu "Bố Cái Đại Vương" của Phùng Hưng có ý nghĩa gì?',
+    opts: [
+      'Ông tự xưng khi chiếm được thành Tống Bình',
+      'Nhà Đường phong tước sau khi ông đầu hàng',
+      'Nhân dân tôn xưng sau khi ông mất — "Bố Cái" nghĩa là Cha Mẹ',
+      'Con ông đặt tên để tưởng niệm'
+    ],
+    ans: 2,
+    explain: '"Bố Cái" trong tiếng Việt cổ nghĩa là Cha Mẹ. Đây là tước hiệu do nhân dân tôn xưng sau khi Phùng Hưng mất — thể hiện ông được yêu mến như người che chở, nuôi dưỡng dân. Ông không tự xưng danh hiệu này khi còn sống.'
+  },
+  {
+    q: 'Nhà nước Vạn Xuân tồn tại trong bao lâu (từ khi lập đến khi bị diệt)?',
+    opts: ['Khoảng 20 năm (544–564)', 'Khoảng 40 năm (542–582)', 'Khoảng 58 năm (544–602)', 'Khoảng 100 năm (502–602)'],
+    ans: 2,
+    explain: 'Vạn Xuân được lập năm 544 (khi Lý Bí xưng đế) và bị nhà Tùy tiêu diệt năm 602 — tổng cộng 58 năm. Đây là nền tự lập dài nhất của người Việt trước thế kỉ X.'
+  },
+  {
+    q: 'Điểm chung của Bà Triệu, Lý Bí, Mai Thúc Loan và Phùng Hưng là gì?',
+    opts: [
+      'Tất cả đều xuất thân từ gia đình quý tộc phương Bắc',
+      'Tất cả đều thành công giành độc lập hoàn toàn',
+      'Tất cả đều là hào trưởng địa phương và nổi dậy khi triều đại phương Bắc suy yếu',
+      'Tất cả đều có liên minh với Champa'
+    ],
+    ans: 2,
+    explain: 'Điểm chung: (1) đều là hào trưởng/thủ lĩnh địa phương — không phải quý tộc nhập cư; (2) đều nắm đúng thời điểm triều đại phương Bắc có vấn đề nội bộ (Đông Ngô loạn, Lương nội chiến, Đường suy sau An Lộc Sơn). Không phải tất cả đều liên minh Champa; không ai giành được độc lập hoàn toàn bền vững.'
+  }
+];
+
+let quizCurrent = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+function quizRender() {
+  const container = document.getElementById('quiz-container');
+  if (quizCurrent >= QUIZ_DATA.length) {
+    container.innerHTML = `
+      <div class="quiz-score">
+        Hoàn thành! Bạn trả lời đúng <strong>${quizScore}/${QUIZ_DATA.length}</strong> câu.
+        ${quizScore >= 6 ? '<br><span style="color:var(--green-peace)">Xuất sắc!</span>' :
+          quizScore >= 4 ? '<br><span style="color:var(--accent)">Khá tốt — ôn thêm một chút nhé!</span>' :
+          '<br><span style="color:var(--red-war)">Hãy đọc lại README và thử lại!</span>'}
+      </div>
+      <div class="btn-row" style="justify-content:center">
+        <button class="btn btn-primary" onclick="quizRestart()">Làm lại từ đầu</button>
+      </div>`;
+    return;
+  }
+
+  const q = QUIZ_DATA[quizCurrent];
+  quizAnswered = false;
+
+  const optsHtml = q.opts.map((o, i) =>
+    `<button class="quiz-opt" id="qopt-${i}" onclick="quizAnswer(${i})">${String.fromCharCode(65+i)}. ${o}</button>`
+  ).join('');
+
+  container.innerHTML = `
+    <div class="quiz-progress">Câu ${quizCurrent + 1} / ${QUIZ_DATA.length} &nbsp;|&nbsp; Điểm hiện tại: ${quizScore}</div>
+    <div class="quiz-q">${q.q}</div>
+    <div class="quiz-options">${optsHtml}</div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>`;
+}
+
+function quizAnswer(idx) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ_DATA[quizCurrent];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.disabled = true);
+
+  if (idx === q.ans) {
+    quizScore++;
+    opts[idx].classList.add('correct');
+    document.getElementById('quiz-feedback').className = 'quiz-feedback ok';
+    document.getElementById('quiz-feedback').innerHTML =
+      `Chính xác! ${q.explain}`;
+  } else {
+    opts[idx].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    document.getElementById('quiz-feedback').className = 'quiz-feedback fail';
+    document.getElementById('quiz-feedback').innerHTML =
+      `Chưa đúng. Đáp án là <strong>${String.fromCharCode(65+q.ans)}</strong>. ${q.explain}`;
+  }
+
+  setTimeout(() => {
+    quizCurrent++;
+    quizRender();
+  }, 2200);
+}
+
+function quizRestart() {
+  quizCurrent = 0;
+  quizScore = 0;
+  quizAnswered = false;
+  quizRender();
+}
+
+// ─────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────
+quizRender();
+// Tự động chọn mốc đầu để có nội dung khi tải trang
+tlSelect(2); // Mốc Vạn Xuân 544 — nổi bật nhất
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

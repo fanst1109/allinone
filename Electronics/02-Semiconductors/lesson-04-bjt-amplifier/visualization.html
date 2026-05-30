@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Transistor BJT (Khuếch đại)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #a3e635; }
+
+  /* ── Card ── */
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  /* ── Sliders ── */
+  .ctrl-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 14px 0;
+  }
+  .ctrl-group { display: flex; flex-direction: column; gap: 6px; }
+  .ctrl-group label { font-weight: 700; font-size: 14px; color: #374151; }
+  .ctrl-group input[type="range"] { width: 100%; accent-color: #4d7c0f; }
+  .ctrl-val { font-family: monospace; font-size: 16px; color: #4d7c0f; font-weight: 700; }
+
+  /* ── Result box ── */
+  .result-box {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.9;
+  }
+  .result-box .hi  { color: #14532d; font-weight: 700; font-size: 16px; }
+  .result-box .warn { color: #dc2626; font-weight: 700; }
+  .result-box .ok   { color: #047857; font-weight: 700; }
+  .result-box .dim  { color: #6b7280; }
+
+  /* ── Region badge ── */
+  .region-badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 15px;
+    margin-left: 8px;
+  }
+  .region-cutoff    { background: #e5e7eb; color: #374151; }
+  .region-active    { background: #d1fae5; color: #065f46; }
+  .region-saturation { background: #fee2e2; color: #991b1b; }
+
+  /* ── BJT SVG ── */
+  .bjt-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 12px 0;
+    overflow-x: auto;
+  }
+
+  /* ── Chart area ── */
+  .chart-wrap {
+    position: relative;
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+
+  /* ── Signal sim ── */
+  .signal-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 12px 0;
+  }
+  .signal-panel {
+    background: #f8fafc;
+    border-radius: 6px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .signal-panel h3 {
+    margin: 0 0 6px 0;
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 600;
+  }
+
+  /* ── Tabs ── */
+  .tab-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab-bar button {
+    padding: 7px 14px;
+    border-radius: 6px 6px 0 0;
+    border: 2px solid #d1d5db;
+    border-bottom: none;
+    background: #f9fafb;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+  }
+  .tab-bar button.active {
+    background: white;
+    border-color: #4d7c0f;
+    color: #4d7c0f;
+    border-bottom: 2px solid white;
+    margin-bottom: -2px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Biasing fields ── */
+  .bias-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .bias-field { display: flex; flex-direction: column; gap: 4px; }
+  .bias-field label { font-weight: 700; font-size: 13px; color: #374151; }
+  .bias-field input[type="number"] {
+    padding: 6px 8px;
+    border: 2px solid #d1fae5;
+    border-radius: 5px;
+    font-size: 14px;
+    font-family: monospace;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .bias-field input:focus { outline: none; border-color: #4d7c0f; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .ctrl-grid   { grid-template-columns: 1fr; }
+    .signal-wrap { grid-template-columns: 1fr; }
+    .bias-grid   { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 400px) {
+    .bias-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Semiconductors</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-dc-power-supply/visualization.html">← L3: Mạch nguồn DC</a>
+  <span class="sep">·</span>
+  <span class="current">L4: BJT — khuếch đại</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-bjt-switch/visualization.html">L5: BJT làm khóa →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Transistor BJT (Khuếch đại)</h1>
+<p>Mô phỏng tương tác: thay đổi I_B và beta, xem I_C / vùng làm việc; đồ thị đặc tuyến ra với đường tải; mạch common-emitter với điểm Q; mô phỏng khuếch đại và clipping.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — BJT Interactive: IB slider + beta → IC, region
+     ══════════════════════════════════════════════════════════ -->
+<h2>1. Mô phỏng BJT — dòng và vùng làm việc</h2>
+<div class="card">
+  <p>Kéo thanh trượt để thay đổi <strong>I_B</strong> (dòng base) và <strong>beta</strong>. Kết quả cập nhật ngay lập tức và sơ đồ BJT đổi màu theo vùng làm việc.</p>
+
+  <div class="ctrl-grid">
+    <div class="ctrl-group">
+      <label>Dòng base I_B: <span class="ctrl-val" id="sl-ib-val">50 µA</span></label>
+      <input type="range" id="sl-ib" min="0" max="300" step="5" value="50" oninput="updateBJT()">
+      <small style="color:#6b7280">0 µA (cutoff) → 300 µA</small>
+    </div>
+    <div class="ctrl-group">
+      <label>Beta (hFE): <span class="ctrl-val" id="sl-beta-val">100</span></label>
+      <input type="range" id="sl-beta" min="20" max="400" step="10" value="100" oninput="updateBJT()">
+      <small style="color:#6b7280">20 (ít) → 400 (nhiều)</small>
+    </div>
+  </div>
+  <div class="ctrl-group" style="margin: 8px 0 14px 0;">
+    <label>V_CC (nguồn): <span class="ctrl-val" id="sl-vcc-val">12 V</span> &nbsp;|&nbsp; R_C: <span class="ctrl-val" id="sl-rc-val">3.3 kΩ</span></label>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:6px;">
+      <input type="range" id="sl-vcc" min="3" max="20" step="0.5" value="12" oninput="updateBJT()">
+      <input type="range" id="sl-rc"  min="100" max="10000" step="100" value="3300" oninput="updateBJT()">
+    </div>
+  </div>
+
+  <!-- BJT SVG schematic -->
+  <div class="bjt-wrap">
+    <svg id="bjtSvg" width="460" height="300" viewBox="0 0 460 300">
+      <rect width="460" height="300" fill="#f8fafc" rx="10"/>
+
+      <!-- ── Transistor body ── -->
+      <!-- Base lead (horizontal) -->
+      <line x1="60" y1="150" x2="160" y2="150" stroke="#374151" stroke-width="2.5" id="wire-base"/>
+      <!-- Vertical bar of transistor -->
+      <rect x="158" y="105" width="8" height="90" fill="#374151" rx="2" id="bjt-bar"/>
+      <!-- Collector lead (diagonal up) -->
+      <line x1="166" y1="115" x2="230" y2="60" stroke="#374151" stroke-width="2.5" id="wire-col-inner"/>
+      <!-- Emitter lead (diagonal down) -->
+      <line x1="166" y1="185" x2="230" y2="240" stroke="#374151" stroke-width="2.5" id="wire-emit-inner"/>
+      <!-- Arrow on Emitter (NPN: pointing out) -->
+      <polygon id="emit-arrow" points="219,228 230,240 214,238" fill="#374151"/>
+
+      <!-- Collector wire up to V_CC -->
+      <line x1="230" y1="60" x2="230" y2="20" stroke="#374151" stroke-width="2" id="wire-col-top"/>
+      <!-- R_C box -->
+      <rect x="210" y="20" width="40" height="18" fill="white" stroke="#4d7c0f" stroke-width="2" rx="3" id="rc-box"/>
+      <text x="230" y="33" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700">R_C</text>
+      <!-- V_CC label -->
+      <line x1="230" y1="38" x2="230" y2="55" stroke="#374151" stroke-width="2"/>
+      <text x="230" y="16" text-anchor="middle" fill="#dc2626" font-size="12" font-weight="700" id="lbl-vcc">+12V</text>
+
+      <!-- Emitter wire down to GND -->
+      <line x1="230" y1="240" x2="230" y2="278" stroke="#374151" stroke-width="2" id="wire-emit-bot"/>
+      <!-- GND symbol -->
+      <line x1="216" y1="278" x2="244" y2="278" stroke="#374151" stroke-width="2"/>
+      <line x1="220" y1="283" x2="240" y2="283" stroke="#374151" stroke-width="1.5"/>
+      <line x1="225" y1="288" x2="235" y2="288" stroke="#374151" stroke-width="1"/>
+
+      <!-- Base wire from left, with R_B -->
+      <line x1="60" y1="150" x2="100" y2="150" stroke="#374151" stroke-width="2"/>
+      <rect x="100" y="139" width="38" height="22" fill="white" stroke="#1d4ed8" stroke-width="2" rx="3"/>
+      <text x="119" y="153" text-anchor="middle" fill="#1d4ed8" font-size="10" font-weight="700">R_B</text>
+      <line x1="138" y1="150" x2="158" y2="150" stroke="#374151" stroke-width="2"/>
+      <!-- Base terminal label -->
+      <text x="48" y="154" text-anchor="middle" fill="#374151" font-size="12" font-weight="700">B</text>
+      <circle cx="60" cy="150" r="3" fill="#374151"/>
+
+      <!-- Terminal labels -->
+      <text x="230" y="60" text-anchor="middle" fill="#374151" font-size="11" id="lbl-c" dy="0">C</text>
+      <text x="250" y="245" text-anchor="middle" fill="#374151" font-size="11">E</text>
+
+      <!-- Current labels -->
+      <text x="258" y="100" text-anchor="start" fill="#dc2626" font-size="13" font-weight="700" id="lbl-ic">I_C = ?</text>
+      <text x="258" y="118" text-anchor="start" fill="#4d7c0f" font-size="13" font-weight="700" id="lbl-ib-disp">I_B = ?</text>
+      <text x="258" y="136" text-anchor="start" fill="#1d4ed8" font-size="13" font-weight="700" id="lbl-ie">I_E = ?</text>
+      <text x="258" y="154" text-anchor="start" fill="#9333ea" font-size="13" font-weight="700" id="lbl-vce">V_CE = ?</text>
+      <text x="258" y="172" text-anchor="start" fill="#374151" font-size="13" font-weight="700" id="lbl-region">Vùng: ?</text>
+
+      <!-- Region color fill on BJT body -->
+      <rect x="157" y="104" width="10" height="92" fill="#d1fae5" rx="2" id="bjt-region-fill" opacity="0.7"/>
+    </svg>
+  </div>
+
+  <div class="result-box" id="bjt-result">Kéo thanh trượt để xem kết quả...</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — Output Characteristics + Load Line
+     ══════════════════════════════════════════════════════════ -->
+<h2>2. Đồ thị đặc tuyến ra và đường tải</h2>
+<div class="card">
+  <p>Đồ thị I_C theo V_CE với các đường I_B khác nhau (đặc tuyến ra của BJT). Đường tải (load line) xác định các trạng thái mạch có thể đạt được. Điểm Q là giao điểm đường tải với đường I_B đang chọn.</p>
+
+  <div class="chart-wrap">
+    <canvas id="chartCanvas" width="560" height="340" style="max-width:100%; height:auto; display:block; margin:0 auto;"></canvas>
+  </div>
+
+  <div class="result-box" id="chart-result" style="margin-top:8px;">
+    Kéo thanh trượt ở Module 1 để xem điểm Q di chuyển trên đồ thị.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — Common-Emitter Biasing Calculator + Q-point
+     ══════════════════════════════════════════════════════════ -->
+<h2>3. Mạch Common-Emitter — Phân cực và điểm Q</h2>
+<div class="card">
+  <div class="tab-bar">
+    <button class="active" onclick="showTab(event,'tab-bias')">Tính phân cực</button>
+    <button onclick="showTab(event,'tab-ce')">Sơ đồ CE</button>
+  </div>
+
+  <!-- Tab: biasing calculator -->
+  <div class="tab-panel active" id="tab-bias">
+    <p>Nhập thông số mạch, chương trình tính điểm Q và độ lợi áp A_v theo quy trình 4 bước.</p>
+    <div class="bias-grid">
+      <div class="bias-field">
+        <label>V_CC (V)</label>
+        <input type="number" id="b-vcc" value="12" min="1" max="30" step="0.5" oninput="calcBias()">
+      </div>
+      <div class="bias-field">
+        <label>R1 (kΩ)</label>
+        <input type="number" id="b-r1" value="47" min="1" max="1000" step="1" oninput="calcBias()">
+      </div>
+      <div class="bias-field">
+        <label>R2 (kΩ)</label>
+        <input type="number" id="b-r2" value="10" min="0.5" max="500" step="0.5" oninput="calcBias()">
+      </div>
+      <div class="bias-field">
+        <label>R_C (kΩ)</label>
+        <input type="number" id="b-rc" value="3.3" min="0.1" max="50" step="0.1" oninput="calcBias()">
+      </div>
+      <div class="bias-field">
+        <label>R_E (kΩ)</label>
+        <input type="number" id="b-re" value="1.0" min="0.1" max="20" step="0.1" oninput="calcBias()">
+      </div>
+      <div class="bias-field">
+        <label>Beta</label>
+        <input type="number" id="b-beta" value="100" min="10" max="500" step="10" oninput="calcBias()">
+      </div>
+    </div>
+
+    <div class="result-box" id="bias-result">Nhập giá trị để tính...</div>
+
+    <!-- Q-point visual on load line (mini canvas) -->
+    <canvas id="qCanvas" width="480" height="200" style="max-width:100%; height:auto; display:block; margin:12px auto 0; border-radius:6px;"></canvas>
+  </div>
+
+  <!-- Tab: CE schematic SVG -->
+  <div class="tab-panel" id="tab-ce">
+    <p>Sơ đồ mạch khuếch đại common-emitter đầy đủ với phân cực cầu phân áp.</p>
+    <div class="bjt-wrap">
+      <svg width="520" height="380" viewBox="0 0 520 380">
+        <rect width="520" height="380" fill="#f8fafc" rx="10"/>
+
+        <!-- V_CC bus (top) -->
+        <line x1="80" y1="30" x2="440" y2="30" stroke="#dc2626" stroke-width="2" stroke-dasharray="6,3"/>
+        <text x="460" y="34" fill="#dc2626" font-size="12" font-weight="700">V_CC</text>
+
+        <!-- R1 (top divider) -->
+        <line x1="120" y1="30" x2="120" y2="65" stroke="#374151" stroke-width="2"/>
+        <rect x="102" y="65" width="36" height="55" fill="white" stroke="#1d4ed8" stroke-width="2" rx="3"/>
+        <text x="120" y="97" text-anchor="middle" fill="#1d4ed8" font-size="11" font-weight="700">R1</text>
+        <line x1="120" y1="120" x2="120" y2="150" stroke="#374151" stroke-width="2"/>
+
+        <!-- R2 (bottom divider) -->
+        <rect x="102" y="150" width="36" height="55" fill="white" stroke="#1d4ed8" stroke-width="2" rx="3"/>
+        <text x="120" y="182" text-anchor="middle" fill="#1d4ed8" font-size="11" font-weight="700">R2</text>
+        <line x1="120" y1="205" x2="120" y2="235" stroke="#374151" stroke-width="2"/>
+        <!-- GND under R2 -->
+        <line x1="106" y1="235" x2="134" y2="235" stroke="#374151" stroke-width="2"/>
+        <line x1="110" y1="240" x2="130" y2="240" stroke="#374151" stroke-width="1.5"/>
+        <line x1="114" y1="245" x2="126" y2="245" stroke="#374151" stroke-width="1"/>
+
+        <!-- Junction node (V_B) -->
+        <circle cx="120" cy="150" r="4" fill="#1d4ed8"/>
+        <text x="90" y="154" text-anchor="end" fill="#1d4ed8" font-size="11" font-weight="700">V_B</text>
+
+        <!-- C_in (input coupling cap) -->
+        <line x1="40" y1="150" x2="82" y2="150" stroke="#374151" stroke-width="2"/>
+        <line x1="82" y1="138" x2="82" y2="162" stroke="#374151" stroke-width="3"/>
+        <line x1="88" y1="138" x2="88" y2="162" stroke="#374151" stroke-width="3"/>
+        <line x1="88" y1="150" x2="120" y2="150" stroke="#374151" stroke-width="2"/>
+        <text x="60" y="144" text-anchor="middle" fill="#374151" font-size="10">C_in</text>
+        <!-- Input signal label -->
+        <text x="30" y="154" text-anchor="end" fill="#374151" font-size="11">v_in~</text>
+        <text x="30" y="164" text-anchor="end" fill="#6b7280" font-size="10">(AC)</text>
+
+        <!-- Base wire to transistor -->
+        <line x1="120" y1="150" x2="200" y2="150" stroke="#374151" stroke-width="2"/>
+
+        <!-- Transistor body -->
+        <rect x="198" y="105" width="8" height="90" fill="#374151" rx="2"/>
+        <!-- Collector diagonal -->
+        <line x1="206" y1="117" x2="280" y2="65" stroke="#374151" stroke-width="2.5"/>
+        <!-- Emitter diagonal -->
+        <line x1="206" y1="183" x2="280" y2="235" stroke="#374151" stroke-width="2.5"/>
+        <!-- Emitter arrow (NPN) -->
+        <polygon points="268,224 280,235 264,233" fill="#374151"/>
+        <!-- Labels -->
+        <text x="192" y="103" fill="#374151" font-size="11" font-weight="700">B</text>
+        <text x="284" y="65" fill="#374151" font-size="11">C</text>
+        <text x="284" y="238" fill="#374151" font-size="11">E</text>
+
+        <!-- R_C (collector resistor) -->
+        <line x1="280" y1="65" x2="280" y2="30" stroke="#374151" stroke-width="2"/>
+        <rect x="262" y="30" width="36" height="55" fill="white" stroke="#4d7c0f" stroke-width="2" rx="3"/>
+        <text x="280" y="62" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700">R_C</text>
+        <line x1="280" y1="30" x2="280" y2="28" stroke="#374151" stroke-width="2"/>
+
+        <!-- C_out (output coupling cap) -->
+        <line x1="280" y1="65" x2="340" y2="65" stroke="#374151" stroke-width="2"/>
+        <line x1="340" y1="53" x2="340" y2="77" stroke="#374151" stroke-width="3"/>
+        <line x1="346" y1="53" x2="346" y2="77" stroke="#374151" stroke-width="3"/>
+        <line x1="346" y1="65" x2="400" y2="65" stroke="#374151" stroke-width="2"/>
+        <text x="343" y="48" text-anchor="middle" fill="#374151" font-size="10">C_out</text>
+        <!-- Output label -->
+        <text x="410" y="68" fill="#374151" font-size="11">v_out~</text>
+        <text x="410" y="78" fill="#6b7280" font-size="10">(AC, đảo pha)</text>
+
+        <!-- R_E (emitter resistor) -->
+        <line x1="280" y1="235" x2="280" y2="255" stroke="#374151" stroke-width="2"/>
+        <rect x="262" y="255" width="36" height="50" fill="white" stroke="#9333ea" stroke-width="2" rx="3"/>
+        <text x="280" y="285" text-anchor="middle" fill="#9333ea" font-size="11" font-weight="700">R_E</text>
+        <line x1="280" y1="305" x2="280" y2="330" stroke="#374151" stroke-width="2"/>
+
+        <!-- C_E (bypass cap) parallel to R_E -->
+        <line x1="316" y1="255" x2="316" y2="243" stroke="#374151" stroke-width="1.5"/>
+        <line x1="316" y1="305" x2="316" y2="330" stroke="#374151" stroke-width="1.5"/>
+        <line x1="280" y1="255" x2="316" y2="255" stroke="#374151" stroke-width="1.5"/>
+        <line x1="280" y1="305" x2="316" y2="305" stroke="#374151" stroke-width="1.5"/>
+        <line x1="306" y1="243" x2="326" y2="243" stroke="#374151" stroke-width="3"/>
+        <line x1="306" y1="248" x2="326" y2="248" stroke="#374151" stroke-width="3"/>
+        <text x="336" y="270" fill="#374151" font-size="10">C_E</text>
+        <text x="336" y="280" fill="#6b7280" font-size="9">(bypass)</text>
+
+        <!-- GND bus -->
+        <line x1="80" y1="330" x2="440" y2="330" stroke="#374151" stroke-width="2" stroke-dasharray="6,3"/>
+        <text x="460" y="334" fill="#374151" font-size="12" font-weight="700">GND</text>
+        <line x1="280" y1="330" x2="280" y2="330" stroke="#374151" stroke-width="2"/>
+
+        <!-- Connect R2 bottom to GND -->
+        <line x1="120" y1="245" x2="120" y2="330" stroke="#374151" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+        <!-- Phase inversion annotation -->
+        <text x="430" y="100" text-anchor="middle" fill="#dc2626" font-size="11" font-weight="700">180°</text>
+        <text x="430" y="112" text-anchor="middle" fill="#dc2626" font-size="10">đảo pha</text>
+
+        <!-- Current flow annotations -->
+        <text x="310" y="150" fill="#dc2626" font-size="11" font-weight="700">I_C ↑</text>
+        <text x="245" y="160" fill="#4d7c0f" font-size="11" font-weight="700">I_B →</text>
+        <text x="310" y="230" fill="#1d4ed8" font-size="11" font-weight="700">I_E ↓</text>
+      </svg>
+    </div>
+    <p style="font-size:13px; color:#6b7280; margin-top:8px;">Mũi tên I_C, I_B, I_E theo chiều dòng điện quy ước (dương → âm). Tụ C_in / C_out ngăn thành phần DC, chỉ cho AC qua. C_E ngắn mạch R_E tại tần số tín hiệu → tăng độ lợi AC.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — Signal Amplification + Clipping Simulator
+     ══════════════════════════════════════════════════════════ -->
+<h2>4. Mô phỏng khuếch đại và clipping</h2>
+<div class="card">
+  <p>Kéo thanh trượt biên độ tín hiệu vào. Xem tín hiệu ra được khuếch đại và hiện tượng <strong>clipping</strong> khi vượt biên.</p>
+
+  <div class="ctrl-grid">
+    <div class="ctrl-group">
+      <label>Biên độ tín hiệu vào (mV_peak): <span class="ctrl-val" id="sl-amp-val">20 mV</span></label>
+      <input type="range" id="sl-amp" min="1" max="120" step="1" value="20" oninput="updateSignal()">
+    </div>
+    <div class="ctrl-group">
+      <label>Độ lợi A_v (tính từ phân cực): <span class="ctrl-val" id="sl-av-display">178</span></label>
+      <input type="range" id="sl-av" min="10" max="300" step="5" value="178" oninput="updateSignal()">
+      <small style="color:#6b7280">Dịch chỉnh để thấy tác động A_v khác nhau</small>
+    </div>
+  </div>
+
+  <div class="signal-wrap">
+    <div class="signal-panel">
+      <h3>Tín hiệu VÀO (v_in)</h3>
+      <canvas id="sigIn" width="240" height="120" style="max-width:100%; height:auto;"></canvas>
+    </div>
+    <div class="signal-panel">
+      <h3>Tín hiệu RA (v_out)</h3>
+      <canvas id="sigOut" width="240" height="120" style="max-width:100%; height:auto;"></canvas>
+    </div>
+  </div>
+
+  <div class="result-box" id="signal-result">Kéo thanh trượt để xem...</div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS & HELPERS
+// ═══════════════════════════════════════════════════════════
+const VBE_ON  = 0.7;   // forward voltage B-E junction (V)
+const VCE_SAT = 0.2;   // V_CE at saturation (V)
+
+function fmtNum(n, d=2) {
+  return n.toFixed(d);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 1: BJT Interactive
+// ═══════════════════════════════════════════════════════════
+
+function updateBJT() {
+  const IB_uA  = parseFloat(document.getElementById('sl-ib').value);
+  const beta   = parseFloat(document.getElementById('sl-beta').value);
+  const VCC    = parseFloat(document.getElementById('sl-vcc').value);
+  const RC_ohm = parseFloat(document.getElementById('sl-rc').value);
+
+  document.getElementById('sl-ib-val').textContent   = IB_uA + ' µA';
+  document.getElementById('sl-beta-val').textContent  = beta;
+  document.getElementById('sl-vcc-val').textContent   = VCC + ' V';
+  document.getElementById('sl-rc-val').textContent    = RC_ohm >= 1000 ? (RC_ohm/1000).toFixed(1) + ' kΩ' : RC_ohm + ' Ω';
+
+  const IB_A = IB_uA * 1e-6;
+  let region, IC_A, VCE;
+
+  if (IB_uA < 1) {
+    // Cutoff
+    region = 'cutoff';
+    IC_A = 0;
+    VCE  = VCC;
+  } else {
+    const IC_active = beta * IB_A;                        // I_C if in active
+    const IC_sat    = (VCC - VCE_SAT) / RC_ohm;           // max I_C before sat
+    if (IC_active < IC_sat) {
+      region = 'active';
+      IC_A   = IC_active;
+      VCE    = VCC - IC_A * RC_ohm;
+    } else {
+      region = 'saturation';
+      IC_A   = IC_sat;
+      VCE    = VCE_SAT;
+    }
+  }
+
+  const IE_A   = IB_A + IC_A;
+  const IC_mA  = IC_A * 1000;
+  const IE_mA  = IE_A * 1000;
+
+  // Update SVG labels
+  document.getElementById('lbl-vcc').textContent  = '+' + VCC + 'V';
+  document.getElementById('lbl-ic').textContent   = 'I_C = ' + fmtNum(IC_mA, 3) + ' mA';
+  document.getElementById('lbl-ib-disp').textContent = 'I_B = ' + IB_uA + ' µA';
+  document.getElementById('lbl-ie').textContent   = 'I_E = ' + fmtNum(IE_mA, 3) + ' mA';
+  document.getElementById('lbl-vce').textContent  = 'V_CE = ' + fmtNum(VCE, 3) + ' V';
+
+  const regionNames = { cutoff: 'Cutoff (Ngắt)', active: 'Active (Tích cực)', saturation: 'Saturation (Bão hòa)' };
+  const regionColors = { cutoff: '#9ca3af', active: '#22c55e', saturation: '#ef4444' };
+
+  document.getElementById('lbl-region').textContent = 'Vùng: ' + regionNames[region];
+  document.getElementById('bjt-region-fill').setAttribute('fill', regionColors[region]);
+  // Also color the BJT bar
+  document.getElementById('bjt-bar').setAttribute('fill', regionColors[region]);
+
+  // Result text
+  const rDiv = document.getElementById('bjt-result');
+  let html = '';
+  if (region === 'cutoff') {
+    html = `<span class="dim">I_B = ${IB_uA} µA → V_BE < 0.7 V → transistor <strong>NGẮT</strong></span><br>` +
+           `I_C ≈ 0 (chỉ dòng rò nhỏ µA)   ·   V_CE = V_CC = ${fmtNum(VCE,2)} V<br>` +
+           `<span class="region-badge region-cutoff">Cutoff — khóa mở</span>`;
+  } else if (region === 'active') {
+    const re = 0.026 / IC_A;   // r_e = 26mV/I_C
+    const Av = -(RC_ohm / re);
+    html = `V_BE ≈ 0.7 V → transistor ở <strong>vùng TÍCH CỰC (Active)</strong><br>` +
+           `I_C = β × I_B = ${beta} × ${IB_uA} µA = <span class="hi">${fmtNum(IC_mA,3)} mA</span><br>` +
+           `I_E = I_B + I_C = ${IB_uA} µA + ${fmtNum(IC_mA,3)} mA ≈ <span class="hi">${fmtNum(IE_mA,3)} mA</span><br>` +
+           `V_CE = V_CC − I_C·R_C = ${VCC} − ${fmtNum(IC_mA,3)}·${RC_ohm>=1000?(RC_ohm/1000).toFixed(1)+'k':RC_ohm} = <span class="hi">${fmtNum(VCE,3)} V</span><br>` +
+           `r_e = 26 mV / I_C = 26 / ${fmtNum(IC_mA,3)} = ${fmtNum(re*1000,1)} mΩ → r_e = ${fmtNum(re,1)} Ω<br>` +
+           `Độ lợi áp A_v ≈ −R_C/r_e = −${RC_ohm>=1000?(RC_ohm/1000).toFixed(1)+'k':RC_ohm}/${fmtNum(re,1)} = <span class="hi">${fmtNum(Av,1)}</span><br>` +
+           `<span class="region-badge region-active">Active — khuếch đại tuyến tính</span>`;
+  } else {
+    html = `I_B quá lớn → transistor <strong>BÃO HÒA (Saturation)</strong><br>` +
+           `I_C bị kẹp = (V_CC − V_CE_sat)/R_C = (${VCC} − ${VCE_SAT})/${RC_ohm>=1000?(RC_ohm/1000).toFixed(1)+'k':RC_ohm} = <span class="hi">${fmtNum(IC_mA,3)} mA</span><br>` +
+           `V_CE ≈ V_CE(sat) = <span class="hi">${VCE_SAT} V</span>   ·   I_C < β·I_B (không còn tuyến tính)<br>` +
+           `Hệ số bão hòa: I_B / I_B_threshold = ${fmtNum(IB_A / (IC_A / beta), 1)}×<br>` +
+           `<span class="region-badge region-saturation">Saturation — khóa đóng</span>`;
+  }
+  rDiv.innerHTML = html;
+
+  // Update output characteristics chart
+  drawChart(IB_uA, beta, VCC, RC_ohm);
+  updateSignal();  // keep signal sim in sync
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 2: Output Characteristics Chart + Load Line
+// ═══════════════════════════════════════════════════════════
+
+function drawChart(IB_sel_uA, beta, VCC, RC_ohm) {
+  const canvas = document.getElementById('chartCanvas');
+  const ctx    = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Margins
+  const ml = 60, mt = 20, mr = 30, mb = 50;
+  const pw = W - ml - mr;
+  const ph = H - mt - mb;
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(0, 0, W, H);
+
+  // Axis limits
+  const VCE_MAX = VCC * 1.1;
+  const IC_max_sat = VCC / RC_ohm * 1000; // mA
+  const IC_MAX = IC_max_sat * 1.3;
+
+  function toX(vce) { return ml + (vce / VCE_MAX) * pw; }
+  function toY(ic_mA) { return mt + ph - (ic_mA / IC_MAX) * ph; }
+
+  // Grid
+  ctx.strokeStyle = '#e5e7eb';
+  ctx.lineWidth = 1;
+  for (let v = 0; v <= VCE_MAX; v += VCE_MAX / 5) {
+    ctx.beginPath();
+    ctx.moveTo(toX(v), mt);
+    ctx.lineTo(toX(v), mt + ph);
+    ctx.stroke();
+  }
+  for (let i = 0; i <= IC_MAX; i += IC_MAX / 5) {
+    ctx.beginPath();
+    ctx.moveTo(ml, toY(i));
+    ctx.lineTo(ml + pw, toY(i));
+    ctx.stroke();
+  }
+
+  // IB curves (characteristic lines)
+  const IB_levels_uA = [20, 40, 60, 80, 100, 140, 180, 240];
+  const curveColors  = ['#93c5fd','#60a5fa','#3b82f6','#2563eb','#1d4ed8','#1e40af','#1e3a8a','#172554'];
+
+  IB_levels_uA.forEach((ib_uA, idx) => {
+    const IC_flat_mA = beta * ib_uA * 1e-3;  // I_C in mA for this I_B (flat region)
+    ctx.strokeStyle = curveColors[idx] || '#1d4ed8';
+    ctx.lineWidth   = (ib_uA === IB_sel_uA) ? 3 : 1.5;
+    ctx.setLineDash([]);
+    ctx.beginPath();
+
+    // Knee region: rapid rise from V_CE = 0 to ~0.3V, then flat
+    const pts = [];
+    for (let v = 0; v <= VCE_MAX; v += VCE_MAX / 300) {
+      let ic;
+      if (v < VCE_SAT) {
+        ic = IC_flat_mA * (v / VCE_SAT);
+      } else {
+        // Early effect: slight upward slope (realistic)
+        ic = IC_flat_mA * (1 + (v - VCE_SAT) * 0.005);
+      }
+      pts.push([toX(v), toY(ic)]);
+    }
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    pts.forEach(p => ctx.lineTo(p[0], p[1]));
+    ctx.stroke();
+
+    // Label at right edge
+    const ic_end = IC_flat_mA * (1 + (VCE_MAX - VCE_SAT) * 0.005);
+    if (toY(ic_end) > mt + 8 && toY(ic_end) < mt + ph - 4) {
+      ctx.fillStyle = curveColors[idx] || '#1d4ed8';
+      ctx.font = '10px monospace';
+      ctx.fillText(`${ib_uA}µA`, ml + pw + 2, toY(ic_end) + 3);
+    }
+  });
+
+  // Load line
+  const IC_sat_mA = (VCC - VCE_SAT) / RC_ohm * 1000;
+  ctx.strokeStyle = '#dc2626';
+  ctx.lineWidth   = 2.5;
+  ctx.setLineDash([8, 4]);
+  ctx.beginPath();
+  ctx.moveTo(toX(VCE_SAT), toY(IC_sat_mA));  // saturation end
+  ctx.lineTo(toX(VCC), toY(0));               // cutoff end
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Load line labels
+  ctx.fillStyle = '#dc2626';
+  ctx.font = 'bold 11px sans-serif';
+  ctx.fillText('Đường tải', toX(VCC * 0.55), toY(IC_sat_mA * 0.4));
+
+  // Q-point
+  const IB_A = IB_sel_uA * 1e-6;
+  const IC_active_mA = beta * IB_A * 1000;
+  const IC_sat_kink_mA = (VCC - VCE_SAT) / RC_ohm * 1000;
+  let IC_Q_mA, VCE_Q;
+  if (IB_sel_uA < 1) {
+    IC_Q_mA = 0; VCE_Q = VCC;
+  } else if (IC_active_mA < IC_sat_kink_mA) {
+    IC_Q_mA = IC_active_mA;
+    VCE_Q   = VCC - (IC_Q_mA / 1000) * RC_ohm;
+  } else {
+    IC_Q_mA = IC_sat_kink_mA;
+    VCE_Q   = VCE_SAT;
+  }
+
+  // Draw Q dot
+  ctx.fillStyle = '#f59e0b';
+  ctx.strokeStyle = '#92400e';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(toX(VCE_Q), toY(IC_Q_mA), 7, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#92400e';
+  ctx.font = 'bold 13px sans-serif';
+  ctx.fillText('Q', toX(VCE_Q) + 9, toY(IC_Q_mA) - 6);
+
+  // Axes
+  ctx.strokeStyle = '#374151';
+  ctx.lineWidth   = 2;
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.moveTo(ml, mt);
+  ctx.lineTo(ml, mt + ph);
+  ctx.lineTo(ml + pw, mt + ph);
+  ctx.stroke();
+
+  // Axis labels
+  ctx.fillStyle = '#374151';
+  ctx.font = '12px sans-serif';
+  // X axis ticks
+  for (let v = 0; v <= VCE_MAX; v += VCE_MAX / 5) {
+    const x = toX(v);
+    ctx.beginPath();
+    ctx.moveTo(x, mt + ph);
+    ctx.lineTo(x, mt + ph + 5);
+    ctx.stroke();
+    ctx.fillText(fmtNum(v, 1), x - 12, mt + ph + 18);
+  }
+  // Y axis ticks
+  for (let i = 0; i <= IC_MAX; i += IC_MAX / 5) {
+    const y = toY(i);
+    ctx.beginPath();
+    ctx.moveTo(ml - 5, y);
+    ctx.lineTo(ml, y);
+    ctx.stroke();
+    ctx.fillText(fmtNum(i, 1), 4, y + 4);
+  }
+
+  // Axis title
+  ctx.font = '13px sans-serif';
+  ctx.fillText('V_CE (V)', ml + pw / 2 - 20, H - 6);
+  ctx.save();
+  ctx.translate(14, mt + ph / 2 + 30);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('I_C (mA)', 0, 0);
+  ctx.restore();
+
+  // Chart info box
+  const chartRes = document.getElementById('chart-result');
+  chartRes.innerHTML = `Điểm Q: V_CE = <span class="hi">${fmtNum(VCE_Q, 2)} V</span>  ·  I_C = <span class="hi">${fmtNum(IC_Q_mA, 3)} mA</span>  ·  I_B chọn = ${IB_sel_uA} µA<br>` +
+    `Đường tải: từ (${fmtNum(VCE_SAT,1)} V, ${fmtNum(IC_sat_mA,2)} mA) → (${fmtNum(VCC,1)} V, 0 mA)`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 3: Biasing Calculator + Q canvas
+// ═══════════════════════════════════════════════════════════
+
+function calcBias() {
+  const VCC  = parseFloat(document.getElementById('b-vcc').value)  || 12;
+  const R1   = parseFloat(document.getElementById('b-r1').value)   * 1000 || 47000;
+  const R2   = parseFloat(document.getElementById('b-r2').value)   * 1000 || 10000;
+  const RC   = parseFloat(document.getElementById('b-rc').value)   * 1000 || 3300;
+  const RE   = parseFloat(document.getElementById('b-re').value)   * 1000 || 1000;
+  const beta = parseFloat(document.getElementById('b-beta').value) || 100;
+
+  // Step 1: V_B
+  const VB = VCC * R2 / (R1 + R2);
+  // Step 2: V_E
+  const VE = VB - VBE_ON;
+  if (VE <= 0) {
+    document.getElementById('bias-result').innerHTML =
+      '<span class="warn">V_B = ' + fmtNum(VB,3) + ' V quá thấp (< 0.7 V) — transistor ở Cutoff. Giảm R1 hoặc tăng R2.</span>';
+    return;
+  }
+  // Step 3: I_C ≈ I_E = V_E / R_E
+  const IC = VE / RE;         // A
+  const IB = IC / beta;       // A
+  const IE = IB + IC;
+
+  // Step 4: V_CE
+  const VCE = VCC - IC * (RC + RE);
+
+  // Stiff bias check
+  const I_R2 = VB / R2;
+  const stiff = I_R2 > 10 * IB;
+
+  // r_e and A_v
+  const re = 0.026 / IC;   // Ω (26mV / I_C)
+  const Av = -(RC / re);   // with C_E bypass
+
+  // Load line points
+  const IC_sat_mA = VCC / (RC + RE) * 1000;   // mA, V_CE=0 approx
+
+  // Q position check
+  const mid = VCC / 2;
+  let qNote = '';
+  if (VCE < VCE_SAT + 0.5) {
+    qNote = '<span class="warn">Q quá gần Saturation — tín hiệu ra bị clipping ở nửa dương. Tăng R1 hoặc giảm R2.</span>';
+  } else if (VCE > VCC * 0.85) {
+    qNote = '<span class="warn">Q quá gần Cutoff — tín hiệu ra bị clipping ở nửa âm. Giảm R1 hoặc tăng R2.</span>';
+  } else if (Math.abs(VCE - mid) < VCC * 0.15) {
+    qNote = '<span class="ok">Điểm Q nằm gần giữa — thiết kế tốt cho khuếch đại.</span>';
+  } else {
+    qNote = '<span style="color:#d97706">Q hơi lệch khỏi giữa — vẫn dùng được nhưng biên độ tối đa giảm.</span>';
+  }
+
+  const IC_mA = IC * 1000;
+  const IB_uA = IB * 1e6;
+  const IE_mA = IE * 1000;
+
+  document.getElementById('bias-result').innerHTML =
+    `<strong>Bước 1</strong>: V_B = V_CC × R2/(R1+R2) = ${VCC} × ${fmtNum(R2/1000,1)}k/(${fmtNum(R1/1000,1)}k+${fmtNum(R2/1000,1)}k) = <span class="hi">${fmtNum(VB,3)} V</span><br>` +
+    `<strong>Bước 2</strong>: V_E = V_B − 0.7 = ${fmtNum(VB,3)} − 0.7 = <span class="hi">${fmtNum(VE,3)} V</span><br>` +
+    `<strong>Bước 3</strong>: I_C ≈ I_E = V_E/R_E = ${fmtNum(VE,3)}/${fmtNum(RE/1000,1)}k = <span class="hi">${fmtNum(IC_mA,3)} mA</span>   ·   I_B = I_C/β = ${fmtNum(IC_mA,3)}/${beta} = ${fmtNum(IB_uA,2)} µA<br>` +
+    (stiff ? '<span class="ok">Stiff bias: I_R2 = ' + fmtNum(I_R2*1e6,1) + ' µA >> I_B → giả thiết hợp lệ.</span>' :
+             '<span class="warn">Cảnh báo: I_R2 không >> I_B → cầu phân áp yếu, V_B thực thấp hơn tính. Giảm R1, R2 hoặc tăng beta.</span>') + '<br>' +
+    `<strong>Bước 4</strong>: V_CE = V_CC − I_C(R_C+R_E) = ${VCC} − ${fmtNum(IC_mA,3)}×${fmtNum((RC+RE)/1000,1)}k = <span class="hi">${fmtNum(VCE,3)} V</span><br>` +
+    `r_e = 26 mV / I_C = 26 / ${fmtNum(IC_mA,3)} = <span class="hi">${fmtNum(re,2)} Ω</span>   ·   A_v = −R_C/r_e = −${fmtNum(RC/1000,1)}k/${fmtNum(re,2)} = <span class="hi">${fmtNum(Av,1)}</span><br>` +
+    `I_C_sat = V_CC/(R_C+R_E) = ${VCC}/${fmtNum((RC+RE)/1000,2)}k = ${fmtNum(IC_sat_mA,2)} mA   ·   Điểm Q: (${fmtNum(VCE,2)} V, ${fmtNum(IC_mA,3)} mA)<br>` +
+    qNote;
+
+  drawQCanvas(VCC, RC, RE, IC_mA, VCE);
+}
+
+function drawQCanvas(VCC, RC, RE, IC_Q_mA, VCE_Q) {
+  const canvas = document.getElementById('qCanvas');
+  const ctx    = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const ml = 55, mt = 15, mr = 20, mb = 40;
+  const pw = W - ml - mr;
+  const ph = H - mt - mb;
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#fafafa';
+  ctx.fillRect(0, 0, W, H);
+
+  const IC_sat_mA = VCC / (RC + RE) * 1000;
+  const VCE_MAX = VCC + 1;
+  const IC_MAX  = IC_sat_mA * 1.2;
+
+  function toX(v) { return ml + (v / VCE_MAX) * pw; }
+  function toY(i) { return mt + ph - (i / IC_MAX) * ph; }
+
+  // Grid lines (light)
+  ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
+  [0, VCC/4, VCC/2, 3*VCC/4, VCC].forEach(v => {
+    ctx.beginPath(); ctx.moveTo(toX(v), mt); ctx.lineTo(toX(v), mt+ph); ctx.stroke();
+  });
+  [0, IC_sat_mA/4, IC_sat_mA/2, IC_sat_mA].forEach(i => {
+    ctx.beginPath(); ctx.moveTo(ml, toY(i)); ctx.lineTo(ml+pw, toY(i)); ctx.stroke();
+  });
+
+  // Load line
+  ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 2.5;
+  ctx.setLineDash([7,3]);
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(IC_sat_mA));
+  ctx.lineTo(toX(VCC), toY(0));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Saturation and cutoff labels
+  ctx.fillStyle = '#dc2626'; ctx.font = '11px monospace';
+  ctx.fillText('Sat', toX(0.5), toY(IC_sat_mA) - 4);
+  ctx.fillText('Cut', toX(VCC) - 20, toY(0.2) + 14);
+
+  // V_CC/2 marker
+  ctx.strokeStyle = '#9ca3af'; ctx.lineWidth = 1; ctx.setLineDash([4,3]);
+  ctx.beginPath();
+  ctx.moveTo(toX(VCC/2), mt);
+  ctx.lineTo(toX(VCC/2), mt+ph);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#9ca3af'; ctx.font = '10px sans-serif';
+  ctx.fillText('V_CC/2', toX(VCC/2)-12, mt+10);
+
+  // Q point
+  ctx.fillStyle   = '#f59e0b';
+  ctx.strokeStyle = '#92400e';
+  ctx.lineWidth   = 2;
+  ctx.beginPath();
+  ctx.arc(toX(VCE_Q), toY(IC_Q_mA), 7, 0, Math.PI*2);
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#92400e';
+  ctx.font = 'bold 13px sans-serif';
+  ctx.fillText('Q', toX(VCE_Q)+9, toY(IC_Q_mA)-4);
+
+  // Dashed lines to axes from Q
+  ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 1.5; ctx.setLineDash([4,3]);
+  ctx.beginPath();
+  ctx.moveTo(toX(VCE_Q), toY(IC_Q_mA));
+  ctx.lineTo(toX(VCE_Q), mt+ph);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(toX(VCE_Q), toY(IC_Q_mA));
+  ctx.lineTo(ml, toY(IC_Q_mA));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Axes
+  ctx.strokeStyle = '#374151'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(ml, mt); ctx.lineTo(ml, mt+ph); ctx.lineTo(ml+pw, mt+ph); ctx.stroke();
+
+  // Axis ticks and numbers
+  ctx.fillStyle = '#374151'; ctx.font = '11px monospace';
+  [0, VCC/4, VCC/2, 3*VCC/4, VCC].forEach(v => {
+    ctx.beginPath(); ctx.moveTo(toX(v), mt+ph); ctx.lineTo(toX(v), mt+ph+4); ctx.stroke();
+    ctx.fillText(fmtNum(v,1), toX(v)-12, mt+ph+16);
+  });
+  [0, IC_sat_mA/2, IC_sat_mA].forEach(i => {
+    ctx.beginPath(); ctx.moveTo(ml-4, toY(i)); ctx.lineTo(ml, toY(i)); ctx.stroke();
+    ctx.fillText(fmtNum(i,1), 2, toY(i)+4);
+  });
+
+  ctx.fillStyle = '#374151'; ctx.font = '12px sans-serif';
+  ctx.fillText('V_CE (V)', ml + pw/2 - 20, H - 5);
+  ctx.save();
+  ctx.translate(12, mt + ph/2 + 20);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText('I_C (mA)', 0, 0);
+  ctx.restore();
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 4: Signal Amplification + Clipping
+// ═══════════════════════════════════════════════════════════
+
+function drawSignal(canvasId, amplitude_mV, Av, VCC_supply, IC_Q_mA, isOutput) {
+  const canvas = document.getElementById(canvasId);
+  const ctx    = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(0, 0, W, H);
+
+  const midY = H / 2;
+  const POINTS = 200;
+
+  // For output, apply gain and check clipping
+  // I_C swings: max positive swing = V_CE_Q / R_C * 1000 mA... simplified:
+  // V_out_peak = |Av| * V_in_peak; clipped at ± V_CE_Q (approximation)
+  const RC_kΩ = parseFloat(document.getElementById('sl-rc').value) / 1000;
+  const VCC_mod = parseFloat(document.getElementById('sl-vcc').value);
+  const IB_uA  = parseFloat(document.getElementById('sl-ib').value);
+  const beta_m  = parseFloat(document.getElementById('sl-beta').value);
+
+  // Compute V_CE_Q from current BJT module state
+  const IB_A  = IB_uA * 1e-6;
+  const RC_ohm = parseFloat(document.getElementById('sl-rc').value);
+  const IC_sat = (VCC_mod - VCE_SAT) / RC_ohm;
+  const IC_active = beta_m * IB_A;
+  const IC_Q = (IB_uA < 1) ? 0 : Math.min(IC_active, IC_sat);
+  const VCE_Q_val = (IB_uA < 1) ? VCC_mod : Math.max(VCE_SAT, VCC_mod - IC_Q * RC_ohm);
+
+  // Positive clip (output rises → I_C falls → V_CE rises towards V_CC)
+  const clip_pos_mV = (VCC_mod - VCE_Q_val) * 1000;   // V_CE can rise by this much
+  // Negative clip (output falls → I_C rises → V_CE falls towards VCE_SAT)
+  const clip_neg_mV = (VCE_Q_val - VCE_SAT) * 1000;
+
+  if (!isOutput) {
+    // Input: clean sine, scale to ±amplitude_mV visual
+    const scaleY = (H * 0.38) / Math.max(amplitude_mV, 1);
+    ctx.strokeStyle = '#1d4ed8';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i <= POINTS; i++) {
+      const t   = i / POINTS;
+      const val = amplitude_mV * Math.sin(2 * Math.PI * t);
+      const x   = (i / POINTS) * W;
+      const y   = midY - val * scaleY;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  } else {
+    // Output: amplified + clipped + inverted
+    const outAmp_mV = Math.abs(Av) * amplitude_mV;
+    const displayMax = Math.max(outAmp_mV, clip_pos_mV + 50, clip_neg_mV + 50, 200);
+    const scaleY = (H * 0.38) / displayMax;
+
+    // Draw clip zone indicators
+    const clipPosY = midY - clip_pos_mV * scaleY;
+    const clipNegY = midY + clip_neg_mV * scaleY;
+    ctx.fillStyle = 'rgba(254,226,226,0.5)';
+    ctx.fillRect(0, 0, W, clipPosY);
+    ctx.fillRect(0, clipNegY, W, H - clipNegY);
+    ctx.strokeStyle = '#fca5a5';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(0, clipPosY); ctx.lineTo(W, clipPosY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, clipNegY); ctx.lineTo(W, clipNegY); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Signal (inverted due to CE config, clipped)
+    ctx.strokeStyle = '#dc2626';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    let clipped = false;
+    for (let i = 0; i <= POINTS; i++) {
+      const t      = i / POINTS;
+      // CE inverts: positive input → negative output (V_CE rises)
+      let rawVal   = -outAmp_mV * Math.sin(2 * Math.PI * t);  // inverted
+      // Apply clipping
+      if (rawVal > clip_pos_mV)  { rawVal = clip_pos_mV;  clipped = true; }
+      if (rawVal < -clip_neg_mV) { rawVal = -clip_neg_mV; clipped = true; }
+      const x = (i / POINTS) * W;
+      const y = midY - rawVal * scaleY;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    if (clipped) {
+      ctx.fillStyle = '#dc2626';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillText('CLIPPING!', 8, 16);
+    }
+  }
+
+  // Zero line
+  ctx.strokeStyle = '#9ca3af';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(W, midY); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function updateSignal() {
+  const amp_mV = parseFloat(document.getElementById('sl-amp').value);
+  const Av     = parseFloat(document.getElementById('sl-av').value);
+
+  document.getElementById('sl-amp-val').textContent    = amp_mV + ' mV';
+  document.getElementById('sl-av-display').textContent = Av;
+
+  const VCC_mod = parseFloat(document.getElementById('sl-vcc').value);
+  const IB_uA   = parseFloat(document.getElementById('sl-ib').value);
+  const beta_m  = parseFloat(document.getElementById('sl-beta').value);
+  const RC_ohm  = parseFloat(document.getElementById('sl-rc').value);
+
+  const IC_active_mA = beta_m * IB_uA * 1e-3;   // mA
+  const IC_sat_mA    = (VCC_mod - VCE_SAT) / RC_ohm * 1000;
+  const IC_Q_mA      = IB_uA < 1 ? 0 : Math.min(IC_active_mA, IC_sat_mA);
+
+  drawSignal('sigIn',  amp_mV, Av, VCC_mod, IC_Q_mA, false);
+  drawSignal('sigOut', amp_mV, Av, VCC_mod, IC_Q_mA, true);
+
+  const outAmp_mV = Av * amp_mV;
+  const IC_A = IC_Q_mA / 1000;
+  const re = IC_A > 0 ? 0.026 / IC_A : Infinity;
+  const AV_actual = IC_A > 0 ? -(RC_ohm / re) : 0;
+
+  // VCE_Q for swing check
+  const VCE_Q_val = IB_uA < 1 ? VCC_mod : Math.max(VCE_SAT, VCC_mod - IC_Q_mA/1000 * RC_ohm);
+  const maxSwingPos_mV = (VCC_mod - VCE_Q_val) * 1000;
+  const maxSwingNeg_mV = (VCE_Q_val - VCE_SAT) * 1000;
+  const maxSwing_mV = Math.min(maxSwingPos_mV, maxSwingNeg_mV);
+
+  let clipNote = '';
+  if (IB_uA < 1) {
+    clipNote = '<span class="warn">Transistor ở Cutoff — không có khuếch đại.</span>';
+  } else if (IC_Q_mA >= IC_sat_mA * 0.95) {
+    clipNote = '<span class="warn">Transistor bão hòa — không còn tuyến tính, không khuếch đại được.</span>';
+  } else if (outAmp_mV > maxSwing_mV) {
+    clipNote = `<span class="warn">Clipping! Tín hiệu ra (${fmtNum(outAmp_mV,0)} mV) vượt biên độ tối đa (${fmtNum(maxSwing_mV,0)} mV). Giảm biên độ vào hoặc điều chỉnh điểm Q.</span>`;
+  } else {
+    clipNote = `<span class="ok">Tuyến tính. Biên độ vào an toàn (tối đa ~${fmtNum(maxSwing_mV/Av,0)} mV trước khi clip).</span>`;
+  }
+
+  document.getElementById('signal-result').innerHTML =
+    `v_in = ${amp_mV} mV_peak   ·   A_v = ${Av}   ·   v_out = A_v × v_in = ${Av} × ${amp_mV} = <span class="hi">${fmtNum(outAmp_mV,1)} mV_peak</span> (đảo pha)<br>` +
+    `Swing tối đa: +${fmtNum(maxSwingPos_mV,0)} mV / −${fmtNum(maxSwingNeg_mV,0)} mV quanh điểm Q (V_CE_Q = ${fmtNum(VCE_Q_val,2)} V)<br>` +
+    clipNote;
+}
+
+// ═══════════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════════
+
+function showTab(evt, tabId) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  evt.target.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+updateBJT();
+calcBias();
+updateSignal();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

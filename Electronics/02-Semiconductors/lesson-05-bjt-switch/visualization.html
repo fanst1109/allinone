@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — BJT làm khóa (Switch)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #a3e635; }
+
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  /* ── Slider controls ── */
+  .ctrl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .ctrl-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .ctrl-group label {
+    font-weight: 700;
+    font-size: 14px;
+    color: #374151;
+  }
+  .ctrl-group input[type="range"] {
+    width: 100%;
+    accent-color: #4d7c0f;
+  }
+  .ctrl-val {
+    font-family: monospace;
+    font-size: 14px;
+    color: #4d7c0f;
+    font-weight: 700;
+  }
+
+  /* ── Status badge ── */
+  .status-badge {
+    display: inline-block;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    margin: 8px 0 12px;
+  }
+  .badge-off    { background: #f1f5f9; color: #475569; border: 2px solid #cbd5e1; }
+  .badge-active { background: #fef3c7; color: #92400e; border: 2px solid #fbbf24; }
+  .badge-sat    { background: #dcfce7; color: #14532d; border: 2px solid #4ade80; }
+
+  /* ── Result table ── */
+  .res-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin: 8px 0;
+  }
+  .res-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: top;
+  }
+  .res-table td:first-child {
+    font-weight: 700;
+    color: #374151;
+    width: 48%;
+    white-space: nowrap;
+  }
+  .res-table td:last-child {
+    font-family: monospace;
+    color: #1a202c;
+  }
+  .res-table .val-hi { color: #14532d; font-weight: 700; }
+  .res-table .val-warn { color: #b45309; font-weight: 700; }
+  .res-table .val-bad { color: #dc2626; font-weight: 700; }
+
+  /* ── Circuit SVG container ── */
+  .circuit-wrap {
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+
+  /* ── Compare bar ── */
+  .compare-bar-wrap {
+    margin: 8px 0 4px;
+  }
+  .compare-bar-label {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 4px;
+  }
+  .bar-track {
+    height: 20px;
+    background: #f1f5f9;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid #e2e8f0;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.25s ease;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    min-width: 4px;
+  }
+  .bar-ib  { background: #1d4ed8; }
+  .bar-ic  { background: #dc2626; }
+  .bar-sat-line {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: #4d7c0f;
+    opacity: 0.7;
+  }
+
+  /* ── Tabs ── */
+  .tab-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab-bar button {
+    padding: 7px 14px;
+    border-radius: 6px 6px 0 0;
+    border: 2px solid #d1d5db;
+    border-bottom: none;
+    background: #f9fafb;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.12s;
+  }
+  .tab-bar button.active {
+    background: white;
+    border-color: #4d7c0f;
+    color: #4d7c0f;
+    border-bottom: 2px solid white;
+    margin-bottom: -2px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── R_B calculator ── */
+  .calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .calc-field { display: flex; flex-direction: column; gap: 5px; }
+  .calc-field label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+  }
+  .calc-field input[type="number"] {
+    padding: 7px 10px;
+    border: 2px solid #d1fae5;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: monospace;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .calc-field input:focus { outline: none; border-color: #4d7c0f; }
+  .calc-result {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.9;
+    margin-top: 10px;
+  }
+  .calc-result .hi { color: #14532d; font-weight: 700; font-size: 16px; }
+  .calc-result .warn { color: #b45309; font-weight: 700; }
+  .calc-result .ok { color: #14532d; font-weight: 700; }
+  .calc-result .bad { color: #dc2626; font-weight: 700; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .ctrl-grid { grid-template-columns: 1fr 1fr; }
+    .calc-grid  { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 380px) {
+    .ctrl-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Semiconductors</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-bjt-amplifier/visualization.html">← L4: BJT khuếch đại</a>
+  <span class="sep">·</span>
+  <span class="current">L5: BJT làm khóa</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-mosfet/visualization.html">L6: MOSFET →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — BJT làm khóa (Switch)</h1>
+<p>Mô phỏng tương tác: điều chỉnh các thông số mạch và quan sát trạng thái transistor (ngắt / tích cực / bão hòa), dòng điện, điện áp, và sơ đồ mạch LED/Relay trực quan.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — BJT Switch Simulator
+     ══════════════════════════════════════════════════════════ -->
+<h2>1. Mô phỏng khóa BJT NPN</h2>
+<div class="card">
+  <p>Kéo các thanh trượt để thay đổi thông số mạch. Trạng thái transistor (ngắt / tích cực / bão hòa) được tính và hiển thị theo thời gian thực.</p>
+
+  <div class="ctrl-grid">
+    <div class="ctrl-group">
+      <label>V điều khiển (GPIO): <span class="ctrl-val" id="val-vctrl">3.3 V</span></label>
+      <input type="range" id="sl-vctrl" min="0" max="5" step="0.1" value="3.3" oninput="simulate()">
+      <small style="color:#6b7280;font-size:12px;">0 V = LOW, 3.3 V hoặc 5 V = HIGH</small>
+    </div>
+    <div class="ctrl-group">
+      <label>R_B (kΩ): <span class="ctrl-val" id="val-rb">1.0 kΩ</span></label>
+      <input type="range" id="sl-rb" min="0.1" max="100" step="0.1" value="1.0" oninput="simulate()">
+    </div>
+    <div class="ctrl-group">
+      <label>β (hFE): <span class="ctrl-val" id="val-beta">100</span></label>
+      <input type="range" id="sl-beta" min="20" max="400" step="5" value="100" oninput="simulate()">
+    </div>
+    <div class="ctrl-group">
+      <label>I_tải mục tiêu (mA): <span class="ctrl-val" id="val-iload">50 mA</span></label>
+      <input type="range" id="sl-iload" min="1" max="500" step="1" value="50" oninput="simulate()">
+    </div>
+  </div>
+
+  <div id="status-badge" class="status-badge badge-off">NGẮT (Cutoff)</div>
+
+  <table class="res-table" id="res-table">
+    <tbody>
+      <tr><td>I_B (dòng base)</td><td id="r-ib">—</td></tr>
+      <tr><td>β × I_B (khả năng cấp dòng)</td><td id="r-bib">—</td></tr>
+      <tr><td>I_C tải yêu cầu</td><td id="r-ic">—</td></tr>
+      <tr><td>So sánh β·I_B vs I_C</td><td id="r-cmp">—</td></tr>
+      <tr><td>Trạng thái</td><td id="r-state">—</td></tr>
+      <tr><td>V_CE</td><td id="r-vce">—</td></tr>
+      <tr><td>Công suất trên transistor</td><td id="r-pwr">—</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Thanh so sánh β·I_B vs I_C -->
+  <div class="compare-bar-wrap">
+    <div class="compare-bar-label">So sánh β·I_B (xanh dương) so với I_C cần (đỏ):</div>
+    <div class="bar-track" id="bar-bib-track">
+      <div class="bar-fill bar-ib" id="bar-bib" style="width:0%"></div>
+      <div class="bar-sat-line" id="bar-sat-line" style="left:50%"></div>
+    </div>
+    <div style="display:flex; justify-content:space-between; font-size:11px; color:#6b7280; margin-top:2px;">
+      <span>0</span>
+      <span id="bar-max-label">100 mA</span>
+    </div>
+    <div style="margin-top:6px;">
+      <div class="bar-track">
+        <div class="bar-fill bar-ic" id="bar-ic" style="width:50%"></div>
+      </div>
+      <div style="font-size:11px;color:#6b7280;margin-top:2px;">I_C yêu cầu</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — Circuit Diagram (SVG)
+     ══════════════════════════════════════════════════════════ -->
+<h2>2. Sơ đồ mạch</h2>
+<div class="card">
+  <div class="tab-bar">
+    <button class="active" id="tab-btn-led" onclick="switchCircuit('led', this)">Tải: LED công suất</button>
+    <button id="tab-btn-relay" onclick="switchCircuit('relay', this)">Tải: Relay + Flyback</button>
+  </div>
+
+  <div class="circuit-wrap">
+    <svg id="bjt-svg" width="560" height="360" viewBox="0 0 560 360">
+      <!-- Background -->
+      <rect width="560" height="360" fill="#f8fafc" rx="10"/>
+
+      <!-- ── Power rail top ── -->
+      <line x1="280" y1="20" x2="280" y2="50" stroke="#dc2626" stroke-width="2.5"/>
+      <!-- V_CC label -->
+      <text x="280" y="15" text-anchor="middle" fill="#dc2626" font-size="13" font-weight="700">V_CC</text>
+
+      <!-- ── Load (changes per tab) ── -->
+      <!-- Flyback diode (hidden by default) -->
+      <g id="flyback-g" opacity="0">
+        <!-- Diode symbol: triangle + bar from collector up to V_CC side -->
+        <!-- Flyback diode: anode at collector-side node, cathode at V_CC rail -->
+        <!-- drawn as vertical diode on right side of load -->
+        <line x1="370" y1="50" x2="370" y2="165" stroke="#9333ea" stroke-width="2" stroke-dasharray="4,2"/>
+        <!-- diode triangle -->
+        <polygon points="370,120 362,110 378,110" fill="#9333ea"/>
+        <line x1="362" y1="120" x2="378" y2="120" stroke="#9333ea" stroke-width="2.5"/>
+        <text x="388" y="115" fill="#9333ea" font-size="11" font-weight="700">1N4007</text>
+        <text x="388" y="127" fill="#9333ea" font-size="11">(flyback)</text>
+      </g>
+
+      <!-- Load body (rect, changes label) -->
+      <!-- Load: from V_CC (y=50) down to collector top (y=165) -->
+      <line x1="280" y1="50" x2="280" y2="80" stroke="#dc2626" stroke-width="2.5"/>
+      <!-- Load resistor / relay coil box -->
+      <rect id="load-rect" x="245" y="80" width="70" height="36" fill="white" stroke="#4d7c0f" stroke-width="2.5" rx="5"/>
+      <text id="load-lbl1" x="280" y="97" text-anchor="middle" fill="#4d7c0f" font-size="12" font-weight="700">LED 1W</text>
+      <text id="load-lbl2" x="280" y="109" text-anchor="middle" fill="#4d7c0f" font-size="11">R_s=33Ω</text>
+      <!-- Load glow (LED lit indicator) -->
+      <circle id="led-glow" cx="280" cy="62" r="10" fill="none" stroke="#fbbf24" stroke-width="3" opacity="0"/>
+      <circle id="led-dot"  cx="280" cy="62" r="5"  fill="#fbbf24" opacity="0"/>
+
+      <!-- Wire from load to collector -->
+      <line x1="280" y1="116" x2="280" y2="165" stroke="#dc2626" stroke-width="2.5" id="wire-c-load"/>
+
+      <!-- ── BJT NPN symbol ── -->
+      <!-- Collector terminal (top) at (280, 165) -->
+      <!-- Emitter terminal (bottom) at (280, 255) -->
+      <!-- Base terminal (left) at (230, 210) -->
+
+      <!-- BJT body circle -->
+      <circle cx="280" cy="210" r="45" fill="white" stroke="#374151" stroke-width="2.5"/>
+      <!-- Vertical bar (base boundary) -->
+      <line x1="260" y1="180" x2="260" y2="240" stroke="#374151" stroke-width="3"/>
+      <!-- Collector line (upper) -->
+      <line x1="260" y1="188" x2="280" y2="165" stroke="#374151" stroke-width="2.5"/>
+      <!-- Emitter line (lower) with arrow -->
+      <line x1="260" y1="232" x2="280" y2="255" stroke="#374151" stroke-width="2.5"/>
+      <!-- Emitter arrow -->
+      <polygon points="280,255 271,247 274,258" fill="#374151"/>
+      <!-- Base line to left -->
+      <line x1="230" y1="210" x2="260" y2="210" stroke="#374151" stroke-width="2.5"/>
+
+      <!-- BJT label -->
+      <text x="305" y="207" fill="#374151" font-size="12" font-weight="700">NPN</text>
+      <text x="305" y="221" fill="#374151" font-size="11" id="bjt-type-lbl">2N2222</text>
+
+      <!-- ── Emitter to GND ── -->
+      <line x1="280" y1="255" x2="280" y2="300" stroke="#1a202c" stroke-width="2.5"/>
+      <!-- GND symbol -->
+      <line x1="260" y1="300" x2="300" y2="300" stroke="#374151" stroke-width="2.5"/>
+      <line x1="266" y1="307" x2="294" y2="307" stroke="#374151" stroke-width="2"/>
+      <line x1="272" y1="314" x2="288" y2="314" stroke="#374151" stroke-width="1.5"/>
+      <text x="280" y="330" text-anchor="middle" fill="#374151" font-size="12">GND</text>
+
+      <!-- ── Base circuit ── -->
+      <!-- R_B from left -->
+      <line x1="110" y1="210" x2="160" y2="210" stroke="#1d4ed8" stroke-width="2.5"/>
+      <!-- R_B body -->
+      <rect x="160" y="197" width="70" height="26" fill="white" stroke="#1d4ed8" stroke-width="2" rx="4"/>
+      <text x="195" y="210" text-anchor="middle" fill="#1d4ed8" font-size="12" font-weight="700" id="rb-lbl">R_B</text>
+      <text x="195" y="221" text-anchor="middle" fill="#1d4ed8" font-size="10" id="rb-val-lbl">1.0 kΩ</text>
+      <!-- R_B right to base -->
+      <line x1="230" y1="210" x2="230" y2="210" stroke="#1d4ed8" stroke-width="2.5"/>
+      <!-- GPIO source -->
+      <rect x="50" y="193" width="60" height="34" fill="#e0f2fe" stroke="#0284c7" stroke-width="2" rx="5"/>
+      <text x="80" y="207" text-anchor="middle" fill="#0284c7" font-size="11" font-weight="700">GPIO</text>
+      <text x="80" y="220" text-anchor="middle" fill="#0284c7" font-size="12" font-weight="700" id="gpio-lbl">3.3 V</text>
+      <line x1="110" y1="210" x2="110" y2="210"/>
+
+      <!-- ── Animated current dots ── -->
+      <g id="flow-dots-base"></g>
+      <g id="flow-dots-col"></g>
+      <g id="flow-dots-emit"></g>
+
+      <!-- ── Labels: I_B, I_C, V_CE ── -->
+      <text x="148" y="200" text-anchor="middle" fill="#1d4ed8" font-size="12" font-weight="700" id="lbl-ib-svg">I_B=?</text>
+      <text x="430" y="170" fill="#dc2626" font-size="12" font-weight="700" id="lbl-ic-svg">I_C=?</text>
+      <text x="430" y="230" fill="#4d7c0f" font-size="12" font-weight="700" id="lbl-vce-svg">V_CE=?</text>
+
+      <!-- V_CE brace (right side of transistor) -->
+      <line x1="330" y1="165" x2="345" y2="165" stroke="#4d7c0f" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <line x1="330" y1="255" x2="345" y2="255" stroke="#4d7c0f" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <line x1="345" y1="165" x2="345" y2="255" stroke="#4d7c0f" stroke-width="1.5"/>
+      <text x="350" y="215" fill="#4d7c0f" font-size="11">{</text>
+
+      <!-- V_BE note -->
+      <text x="210" y="246" text-anchor="middle" fill="#374151" font-size="11" id="lbl-vbe-svg">V_BE≈0.7V</text>
+
+      <!-- Saturation indicator bar (V_CE) -->
+      <rect id="vce-bar-bg" x="395" y="170" width="16" height="85" fill="#f1f5f9" rx="3" stroke="#e2e8f0" stroke-width="1"/>
+      <rect id="vce-bar-fill" x="396" y="171" width="14" height="83" fill="#4ade80" rx="2"/>
+      <text x="403" y="165" text-anchor="middle" fill="#4d7c0f" font-size="10">V_CE</text>
+
+    </svg>
+  </div>
+
+  <div id="circuit-note" style="font-size:13px;color:#6b7280;margin-top:4px;line-height:1.6;">
+    Sơ đồ minh họa mạch khóa NPN low-side. Chỉnh thông số ở mục 1 để cập nhật trạng thái.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — R_B Calculator
+     ══════════════════════════════════════════════════════════ -->
+<h2>3. Máy tính R_B</h2>
+<div class="card">
+  <p>Nhập các thông số thiết kế để tính R_B tối ưu, kiểm tra bão hòa, và lựa chọn giá trị điện trở chuẩn E24.</p>
+  <div class="calc-grid">
+    <div class="calc-field">
+      <label>V_GPIO (V)</label>
+      <input type="number" id="c-vgpio" value="3.3" min="1" max="5" step="0.1" oninput="calcRB()">
+    </div>
+    <div class="calc-field">
+      <label>I_C tải (mA)</label>
+      <input type="number" id="c-ic" value="80" min="1" max="5000" step="1" oninput="calcRB()">
+    </div>
+    <div class="calc-field">
+      <label>β_min (datasheet)</label>
+      <input type="number" id="c-beta" value="100" min="10" max="500" step="5" oninput="calcRB()">
+    </div>
+    <div class="calc-field">
+      <label>Overdrive (OD) — thường 5</label>
+      <input type="number" id="c-od" value="5" min="1" max="20" step="0.5" oninput="calcRB()">
+    </div>
+  </div>
+  <div class="calc-result" id="calc-result">Nhập thông số để tính R_B...</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — BJT Transistor Quick-Reference
+     ══════════════════════════════════════════════════════════ -->
+<h2>4. Tra cứu nhanh: Transistor NPN thông dụng</h2>
+<div class="card">
+  <p>Click vào một transistor để xem thông số và nạp vào máy tính R_B.</p>
+  <div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead>
+        <tr style="background:#4d7c0f;color:white;">
+          <th style="padding:8px 10px;text-align:left;">Transistor</th>
+          <th style="padding:8px 10px;">I_C(max)</th>
+          <th style="padding:8px 10px;">V_CEO</th>
+          <th style="padding:8px 10px;">β_min</th>
+          <th style="padding:8px 10px;">Gói</th>
+          <th style="padding:8px 10px;text-align:left;">Dùng cho</th>
+        </tr>
+      </thead>
+      <tbody id="transistor-table"></tbody>
+    </table>
+  </div>
+  <p style="font-size:12px;color:#6b7280;margin-top:8px;">Click hàng để nạp β_min vào máy tính R_B.</p>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════════
+const VBE_SAT = 0.7;   // V_BE khi dẫn
+const VCE_SAT = 0.2;   // V_CE khi bão hòa
+const VBE_THRESH = 0.5; // ngưỡng bắt đầu dẫn
+
+// E24 resistor series
+const E24 = [1.0,1.1,1.2,1.3,1.5,1.6,1.8,2.0,2.2,2.4,2.7,3.0,
+             3.3,3.6,3.9,4.3,4.7,5.1,5.6,6.2,6.8,7.5,8.2,9.1];
+function nearestE24(ohms) {
+  if (ohms <= 0) return 0;
+  const decades = [1,10,100,1000,10000,100000,1000000];
+  let best = E24[0] * decades[0];
+  let bestDiff = Infinity;
+  for (const d of decades) {
+    for (const v of E24) {
+      const candidate = v * d;
+      const diff = Math.abs(candidate - ohms);
+      if (diff < bestDiff) { bestDiff = diff; best = candidate; }
+    }
+  }
+  return best;
+}
+function fmtR(ohms) {
+  if (ohms >= 1e6) return (ohms/1e6).toFixed(2) + ' MΩ';
+  if (ohms >= 1e3) return (ohms/1e3).toFixed(1) + ' kΩ';
+  return ohms.toFixed(0) + ' Ω';
+}
+function fmtI(mA) {
+  if (mA >= 1000) return (mA/1000).toFixed(2) + ' A';
+  return mA.toFixed(2) + ' mA';
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 1: Simulator
+// ═══════════════════════════════════════════════════════════
+let currentState = 'off'; // 'off' | 'active' | 'sat'
+
+function simulate() {
+  const Vctrl  = parseFloat(document.getElementById('sl-vctrl').value);
+  const RB_kΩ  = parseFloat(document.getElementById('sl-rb').value);
+  const beta   = parseFloat(document.getElementById('sl-beta').value);
+  const IC_need = parseFloat(document.getElementById('sl-iload').value); // mA
+
+  // Update display values
+  document.getElementById('val-vctrl').textContent = Vctrl.toFixed(1) + ' V';
+  document.getElementById('val-rb').textContent = RB_kΩ >= 1 ? RB_kΩ.toFixed(1) + ' kΩ' : (RB_kΩ * 1000).toFixed(0) + ' Ω';
+  document.getElementById('val-beta').textContent = beta;
+  document.getElementById('val-iload').textContent = IC_need.toFixed(0) + ' mA';
+
+  // Compute I_B
+  const IB_mA = (Vctrl <= VBE_THRESH)
+    ? 0
+    : Math.max(0, (Vctrl - VBE_SAT) / (RB_kΩ * 1000)) * 1000; // mA
+
+  const betaIB_mA = beta * IB_mA;
+
+  // Determine state
+  let state, VCE, IC_actual;
+  if (Vctrl <= VBE_THRESH || IB_mA < 0.001) {
+    state = 'off';
+    VCE = 12; // approximate V_CC
+    IC_actual = 0;
+  } else if (betaIB_mA >= IC_need) {
+    state = 'sat';
+    VCE = VCE_SAT;
+    IC_actual = IC_need;
+  } else {
+    state = 'active';
+    IC_actual = betaIB_mA;
+    // VCE depends on load; assuming resistive load with V_CC = 12V
+    // V_CE = V_CC - I_C * R_load; R_load = (V_CC - 0.2) / IC_need * 1000 (from IC_need at sat)
+    const Rload = (12 - VCE_SAT) / (IC_need / 1000);
+    VCE = 12 - IC_actual / 1000 * Rload;
+    VCE = Math.max(0.1, VCE);
+  }
+
+  currentState = state;
+
+  // Update badge
+  const badge = document.getElementById('status-badge');
+  if (state === 'off') {
+    badge.textContent = 'NGẮT (Cutoff)';
+    badge.className = 'status-badge badge-off';
+  } else if (state === 'active') {
+    badge.textContent = 'TÍCH CỰC — Chưa bão hòa!';
+    badge.className = 'status-badge badge-active';
+  } else {
+    badge.textContent = 'BÃO HÒA (Saturation) — ON';
+    badge.className = 'status-badge badge-sat';
+  }
+
+  // Power dissipation on transistor
+  const Ptrans_mW = VCE * (IC_actual / 1000) * 1000;
+
+  // Results table
+  const cmpTxt = betaIB_mA >= IC_need
+    ? `<span class="val-hi">${betaIB_mA.toFixed(1)} mA ≥ ${IC_need.toFixed(0)} mA ✓ Bão hòa</span>`
+    : `<span class="${betaIB_mA > 0 ? 'val-warn' : 'val-bad'}">${betaIB_mA.toFixed(1)} mA < ${IC_need.toFixed(0)} mA ✗ Chưa bão hòa</span>`;
+
+  const stateDesc = {
+    off:    '<span class="val-bad">NGẮT — I_C ≈ 0, tải tắt</span>',
+    active: '<span class="val-warn">TÍCH CỰC — transistor tiêu thụ nhiệt!</span>',
+    sat:    '<span class="val-hi">BÃO HÒA — khóa đóng, tải nhận đủ điện</span>',
+  }[state];
+
+  const vceClass = state === 'sat' ? 'val-hi' : state === 'active' ? 'val-warn' : '';
+  const pwrClass = Ptrans_mW > 500 ? 'val-bad' : Ptrans_mW > 100 ? 'val-warn' : 'val-hi';
+
+  document.getElementById('r-ib').textContent   = IB_mA < 0.001 ? '≈ 0 mA' : IB_mA.toFixed(3) + ' mA';
+  document.getElementById('r-bib').innerHTML    = `${betaIB_mA.toFixed(1)} mA`;
+  document.getElementById('r-ic').textContent   = IC_need.toFixed(0) + ' mA';
+  document.getElementById('r-cmp').innerHTML    = cmpTxt;
+  document.getElementById('r-state').innerHTML  = stateDesc;
+  document.getElementById('r-vce').innerHTML    = `<span class="${vceClass}">${VCE.toFixed(2)} V</span>`;
+  document.getElementById('r-pwr').innerHTML    = `<span class="${pwrClass}">${Ptrans_mW.toFixed(1)} mW</span>`;
+
+  // Bars
+  const maxVal = Math.max(betaIB_mA, IC_need) * 1.2 || 1;
+  const bibPct = Math.min(100, betaIB_mA / maxVal * 100);
+  const icPct  = Math.min(100, IC_need / maxVal * 100);
+  const satPct = Math.min(100, IC_need / maxVal * 100);
+
+  document.getElementById('bar-bib').style.width = bibPct.toFixed(1) + '%';
+  document.getElementById('bar-ic').style.width  = icPct.toFixed(1) + '%';
+  document.getElementById('bar-sat-line').style.left = satPct.toFixed(1) + '%';
+  document.getElementById('bar-max-label').textContent = maxVal.toFixed(0) + ' mA (max)';
+  if (bibPct > 8) document.getElementById('bar-bib').textContent = betaIB_mA.toFixed(0) + ' mA';
+  else document.getElementById('bar-bib').textContent = '';
+
+  // SVG labels
+  document.getElementById('lbl-ib-svg').textContent  = 'I_B=' + (IB_mA < 0.001 ? '0' : IB_mA.toFixed(2)) + 'mA';
+  document.getElementById('lbl-ic-svg').textContent  = 'I_C=' + IC_actual.toFixed(1) + 'mA';
+  document.getElementById('lbl-vce-svg').textContent = 'V_CE=' + VCE.toFixed(2) + 'V';
+  document.getElementById('rb-val-lbl').textContent  = fmtR(RB_kΩ * 1000);
+  document.getElementById('gpio-lbl').textContent    = Vctrl.toFixed(1) + ' V';
+
+  // V_CE bar in SVG (85px height represents 12V)
+  const vceBarH = Math.min(83, VCE / 12 * 83);
+  const vceBarFill = document.getElementById('vce-bar-fill');
+  vceBarFill.setAttribute('height', vceBarH.toFixed(0));
+  vceBarFill.setAttribute('y', (171 + 83 - vceBarH).toFixed(0));
+  vceBarFill.setAttribute('fill', state === 'sat' ? '#4ade80' : state === 'active' ? '#fbbf24' : '#f87171');
+
+  // LED glow
+  const glow = document.getElementById('led-glow');
+  const dot  = document.getElementById('led-dot');
+  const glowOp = state === 'sat' ? '0.9' : state === 'active' ? '0.4' : '0';
+  glow.setAttribute('opacity', glowOp);
+  dot.setAttribute('opacity', state === 'off' ? '0' : '0.8');
+
+  // Animate flow dots
+  updateFlowDots(state, IB_mA, IC_actual);
+}
+
+// ═══════════════════════════════════════════════════════════
+// Flow dot animation
+// ═══════════════════════════════════════════════════════════
+// Base path: GPIO (80, 210) → R_B (110→230) → Base junction (260, 210) → GND (280,300)
+// Collector path: V_CC (280,50) → Load (280,116) → Collector (280,165) → Emitter (280,255)
+// Emitter path: (280,255) → GND (280,300)
+
+const PATH_BASE = [[110,210],[230,210],[260,210],[260,232],[280,255],[280,300]];
+const PATH_COL  = [[280,50],[280,116],[280,165],[260,188],[260,232],[280,255],[280,300]];
+
+let dotAnimHandle = null;
+let baseDots = [], colDots = [];
+
+function makeDot(svgGroupId, color, r=4) {
+  const g = document.getElementById(svgGroupId);
+  const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  c.setAttribute('r', r);
+  c.setAttribute('fill', color);
+  c.setAttribute('opacity','0.8');
+  g.appendChild(c);
+  return c;
+}
+
+function pathLen(pts) {
+  let l = 0;
+  for (let i=1;i<pts.length;i++) {
+    const dx=pts[i][0]-pts[i-1][0], dy=pts[i][1]-pts[i-1][1];
+    l+=Math.sqrt(dx*dx+dy*dy);
+  }
+  return l;
+}
+
+function posOnPath(pts, dist) {
+  const total = pathLen(pts);
+  dist = ((dist % total) + total) % total;
+  let rem = dist;
+  for (let i=1;i<pts.length;i++) {
+    const dx=pts[i][0]-pts[i-1][0], dy=pts[i][1]-pts[i-1][1];
+    const seg=Math.sqrt(dx*dx+dy*dy);
+    if (rem <= seg) {
+      const t=rem/seg;
+      return [pts[i-1][0]+t*dx, pts[i-1][1]+t*dy];
+    }
+    rem-=seg;
+  }
+  return pts[pts.length-1];
+}
+
+let baseOffsets=[], colOffsets=[];
+const N_BASE=3, N_COL=5;
+
+function initDots() {
+  document.getElementById('flow-dots-base').innerHTML = '';
+  document.getElementById('flow-dots-col').innerHTML  = '';
+  baseDots=[]; colDots=[];
+  const baseTotal = pathLen(PATH_BASE);
+  const colTotal  = pathLen(PATH_COL);
+  for(let i=0;i<N_BASE;i++){
+    baseOffsets[i] = baseTotal * i / N_BASE;
+    baseDots[i] = makeDot('flow-dots-base','#1d4ed8',3.5);
+  }
+  for(let i=0;i<N_COL;i++){
+    colOffsets[i] = colTotal * i / N_COL;
+    colDots[i] = makeDot('flow-dots-col','#dc2626',4);
+  }
+}
+
+let speedBase=0, speedCol=0;
+
+function animDots() {
+  const baseTotal=pathLen(PATH_BASE), colTotal=pathLen(PATH_COL);
+  for(let i=0;i<N_BASE;i++){
+    if(speedBase>0){
+      baseOffsets[i]=(baseOffsets[i]+speedBase)%baseTotal;
+      const [x,y]=posOnPath(PATH_BASE,baseOffsets[i]);
+      baseDots[i].setAttribute('cx',x.toFixed(1));
+      baseDots[i].setAttribute('cy',y.toFixed(1));
+      baseDots[i].setAttribute('opacity','0.8');
+    } else {
+      baseDots[i].setAttribute('opacity','0');
+    }
+  }
+  for(let i=0;i<N_COL;i++){
+    if(speedCol>0){
+      colOffsets[i]=(colOffsets[i]+speedCol)%colTotal;
+      const [x,y]=posOnPath(PATH_COL,colOffsets[i]);
+      colDots[i].setAttribute('cx',x.toFixed(1));
+      colDots[i].setAttribute('cy',y.toFixed(1));
+      colDots[i].setAttribute('opacity','0.8');
+    } else {
+      colDots[i].setAttribute('opacity','0');
+    }
+  }
+  dotAnimHandle = requestAnimationFrame(animDots);
+}
+
+function updateFlowDots(state, IB_mA, IC_mA) {
+  if (state === 'off') {
+    speedBase = 0; speedCol = 0;
+  } else if (state === 'active') {
+    speedBase = Math.max(0.4, Math.min(2, IB_mA * 2));
+    speedCol  = Math.max(0.4, Math.min(2, IC_mA / 50));
+  } else { // sat
+    speedBase = Math.max(0.5, Math.min(2.5, IB_mA * 2));
+    speedCol  = Math.max(1.5, Math.min(4, IC_mA / 40));
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 2: Circuit tab switch (LED / Relay)
+// ═══════════════════════════════════════════════════════════
+let circuitMode = 'led';
+
+function switchCircuit(mode, btn) {
+  circuitMode = mode;
+  document.querySelectorAll('.tab-bar button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const flyback = document.getElementById('flyback-g');
+  const lbl1 = document.getElementById('load-lbl1');
+  const lbl2 = document.getElementById('load-lbl2');
+  const note  = document.getElementById('circuit-note');
+  const loadRect = document.getElementById('load-rect');
+
+  if (mode === 'led') {
+    flyback.setAttribute('opacity','0');
+    lbl1.textContent = 'LED 1W';
+    lbl2.textContent = 'R_s=33Ω';
+    loadRect.setAttribute('stroke','#4d7c0f');
+    note.innerHTML = 'Tải thuần trở (LED + R giới hạn dòng). Khi transistor bão hòa: V_CE ≈ 0.2 V → LED nhận đủ điện, sáng đầy đủ.';
+  } else {
+    flyback.setAttribute('opacity','1');
+    lbl1.textContent = 'Relay';
+    lbl2.textContent = '5V / 80mA';
+    loadRect.setAttribute('stroke','#9333ea');
+    note.innerHTML = '<strong>Tải cảm (relay):</strong> Khi transistor ngắt, cuộn relay tạo spike điện áp ngược. Diode 1N4007 (màu tím) cho dòng tuần hoàn, triệt tiêu spike. Không có diode → transistor có thể bị phá hủy!';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 3: R_B Calculator
+// ═══════════════════════════════════════════════════════════
+function calcRB() {
+  const Vgpio = parseFloat(document.getElementById('c-vgpio').value);
+  const IC_mA = parseFloat(document.getElementById('c-ic').value);
+  const betaMin = parseFloat(document.getElementById('c-beta').value);
+  const OD    = parseFloat(document.getElementById('c-od').value);
+
+  if (isNaN(Vgpio)||isNaN(IC_mA)||isNaN(betaMin)||isNaN(OD)) return;
+  if (Vgpio <= VBE_SAT) {
+    document.getElementById('calc-result').innerHTML =
+      '<span class="bad">V_GPIO phải > 0.7 V để transistor dẫn.</span>';
+    return;
+  }
+
+  const IB_min_mA  = IC_mA / betaMin;
+  const IB_des_mA  = OD * IB_min_mA;
+  const RB_ideal   = (Vgpio - VBE_SAT) / (IB_des_mA / 1000); // Ω
+  const RB_e24     = nearestE24(RB_ideal);
+  const IB_actual_mA = (Vgpio - VBE_SAT) / RB_e24 * 1000;
+  const betaIB_mA  = betaMin * IB_actual_mA;
+  const ok         = betaIB_mA >= IC_mA;
+
+  // GPIO current check
+  const gpioOk = IB_actual_mA <= 20;
+  const gpioWarn = IB_actual_mA > 20 && IB_actual_mA <= 40;
+
+  const gpioNote = gpioOk
+    ? `<span class="ok">I_B = ${IB_actual_mA.toFixed(2)} mA — GPIO cấp được (≤ 20 mA, an toàn).</span>`
+    : gpioWarn
+    ? `<span class="warn">I_B = ${IB_actual_mA.toFixed(2)} mA — gần giới hạn GPIO (20–40 mA). Nên kiểm tra datasheet MCU.</span>`
+    : `<span class="bad">I_B = ${IB_actual_mA.toFixed(2)} mA — QUÁ LỚN cho GPIO (> 40 mA). Cần tầng driver.</span>`;
+
+  document.getElementById('calc-result').innerHTML = `
+    <div>I_B(min) = I_C / β = ${IC_mA} / ${betaMin} = <strong>${IB_min_mA.toFixed(3)} mA</strong></div>
+    <div>I_B(thiết kế) = OD × I_B(min) = ${OD} × ${IB_min_mA.toFixed(3)} = <strong>${IB_des_mA.toFixed(3)} mA</strong></div>
+    <div>R_B(lý tưởng) = (${Vgpio} − 0.7) / ${IB_des_mA.toFixed(3)} mA = <span class="hi">${fmtR(RB_ideal)}</span></div>
+    <div>R_B(chuẩn E24): <span class="hi">${fmtR(RB_e24)}</span></div>
+    <hr style="border:none;border-top:1px solid #d1fae5;margin:8px 0;">
+    <div>Kiểm tra với R_B = ${fmtR(RB_e24)}:</div>
+    <div>  I_B thực = (${Vgpio} − 0.7) / ${fmtR(RB_e24)} = <strong>${IB_actual_mA.toFixed(3)} mA</strong></div>
+    <div>  β × I_B = ${betaMin} × ${IB_actual_mA.toFixed(3)} = <strong>${betaIB_mA.toFixed(1)} mA</strong></div>
+    <div>  I_C cần = <strong>${IC_mA} mA</strong></div>
+    <div>  Kết quả: ${ok
+      ? `<span class="ok">${betaIB_mA.toFixed(1)} ≥ ${IC_mA} → Bão hòa ✓</span>`
+      : `<span class="bad">${betaIB_mA.toFixed(1)} < ${IC_mA} → CHƯA bão hòa! Tăng OD hoặc chọn transistor β lớn hơn.</span>`
+    }</div>
+    <div style="margin-top:6px">${gpioNote}</div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 4: Transistor table
+// ═══════════════════════════════════════════════════════════
+const TRANSISTORS = [
+  { name:'BC547',   imax:100, vceo:45,  beta:110, pkg:'TO-92',  note:'Tải nhỏ (≤100mA), phổ biến nhất' },
+  { name:'BC337',   imax:800, vceo:45,  beta:100, pkg:'TO-92',  note:'Tải trung bình (≤800mA)' },
+  { name:'2N2222',  imax:600, vceo:30,  beta:75,  pkg:'TO-18',  note:'Kinh điển, tốc độ cao, PWM' },
+  { name:'2N2222A', imax:600, vceo:40,  beta:75,  pkg:'TO-92',  note:'Phiên bản nhựa của 2N2222' },
+  { name:'BD139',   imax:1500,vceo:80,  beta:40,  pkg:'TO-126', note:'Relay/motor trung bình ≤1.5A' },
+  { name:'TIP31C',  imax:3000,vceo:100, beta:10,  pkg:'TO-220', note:'Tải lớn, cần tản nhiệt' },
+  { name:'2N3055',  imax:15000,vceo:60, beta:20,  pkg:'TO-3',   note:'Tải rất lớn, classic power' },
+];
+
+(function buildTransistorTable() {
+  const tbody = document.getElementById('transistor-table');
+  TRANSISTORS.forEach((t, idx) => {
+    const tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    tr.style.transition = 'background 0.1s';
+    tr.innerHTML = `
+      <td style="padding:7px 10px;font-weight:700;color:#1a202c;">${t.name}</td>
+      <td style="padding:7px 10px;text-align:center;">${t.imax>=1000?(t.imax/1000).toFixed(1)+' A':t.imax+' mA'}</td>
+      <td style="padding:7px 10px;text-align:center;">${t.vceo} V</td>
+      <td style="padding:7px 10px;text-align:center;">${t.beta}</td>
+      <td style="padding:7px 10px;text-align:center;">${t.pkg}</td>
+      <td style="padding:7px 10px;color:#6b7280;">${t.note}</td>
+    `;
+    tr.addEventListener('mouseenter', () => tr.style.background = '#f0fdf4');
+    tr.addEventListener('mouseleave', () => tr.style.background = '');
+    tr.addEventListener('click', () => {
+      document.getElementById('c-beta').value = t.beta;
+      // Also update simulator beta slider (clamp to slider range)
+      const betaSlider = document.getElementById('sl-beta');
+      betaSlider.value = Math.min(400, Math.max(20, t.beta));
+      calcRB();
+      simulate();
+      // Scroll to calculator
+      document.getElementById('calc-result').scrollIntoView({behavior:'smooth', block:'nearest'});
+    });
+    tbody.appendChild(tr);
+  });
+})();
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+initDots();
+animDots();
+simulate();
+calcRB();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Mạch nguồn DC</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #14532d; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #86efac; }
+
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  .row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 8px 0;
+  }
+
+  label { font-weight: 600; min-width: 90px; font-size: 14px; }
+
+  input[type="range"] {
+    width: 130px;
+    accent-color: #4d7c0f;
+  }
+
+  .val-display {
+    font-family: monospace;
+    font-size: 14px;
+    background: #f0fdf4;
+    padding: 3px 8px;
+    border-radius: 4px;
+    min-width: 80px;
+    display: inline-block;
+    text-align: right;
+    border: 1px solid #bbf7d0;
+  }
+
+  button {
+    background: #4d7c0f;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.15s;
+  }
+  button:hover { background: #3f6212; }
+  button.secondary {
+    background: #64748b;
+  }
+  button.secondary:hover { background: #475569; }
+
+  .tab-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tab-btn {
+    background: #e2e8f0;
+    color: #475569;
+    border: none;
+    padding: 7px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.15s;
+  }
+  .tab-btn.active { background: #4d7c0f; color: white; }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .stat-box {
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-family: monospace;
+    font-size: 13px;
+  }
+  .stat-box .lbl { color: #166534; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .stat-box .num { font-size: 16px; font-weight: 700; color: #14532d; margin-top: 2px; }
+
+  /* Wave canvas */
+  canvas.wave {
+    display: block;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    border-radius: 6px;
+    background: #0f172a;
+    border: 1px solid #334155;
+  }
+
+  .formula-box {
+    background: #f0fdf4;
+    border-left: 4px solid #4d7c0f;
+    padding: 10px 16px;
+    border-radius: 0 6px 6px 0;
+    font-family: monospace;
+    font-size: 14px;
+    margin: 12px 0;
+    overflow-x: auto;
+    white-space: pre-line;
+  }
+
+  .wave-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin: 8px 0;
+    font-size: 13px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Block diagram SVG */
+  svg.block-diag {
+    display: block;
+    margin: 12px auto;
+    max-width: 660px;
+    width: 100%;
+  }
+
+  /* Bridge rectifier SVG */
+  svg.bridge-svg {
+    display: block;
+    margin: 8px auto;
+    max-width: 420px;
+    width: 100%;
+  }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 12px 0; }
+  th { background: #4d7c0f; color: white; padding: 8px 10px; text-align: left; }
+  td { padding: 7px 10px; border-bottom: 1px solid #e2e8f0; }
+  tr:nth-child(even) td { background: #f0fdf4; }
+  td.hl { font-weight: 700; color: #4d7c0f; }
+
+  .toggle-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin: 10px 0;
+  }
+  .toggle-label {
+    font-weight: 600;
+    font-size: 14px;
+    min-width: 110px;
+  }
+  .toggle-wrap {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .toggle-switch {
+    position: relative;
+    width: 46px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #cbd5e0;
+    border-radius: 24px;
+    transition: 0.2s;
+  }
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.2s;
+  }
+  input:checked + .toggle-slider { background: #4d7c0f; }
+  input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+  .stage-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    text-align: center;
+    margin-top: 2px;
+  }
+
+  @media (max-width: 480px) {
+    label { min-width: 70px; }
+    input[type="range"] { width: 100px; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    table { font-size: 12px; }
+    th, td { padding: 5px 7px; }
+    .wave-legend { gap: 8px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Semiconductors</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-diode/visualization.html">← L2: Diode</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Mạch nguồn DC</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-bjt-amplifier/visualization.html">L4: BJT khuếch đại →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Mạch nguồn DC</h1>
+<p>Mô phỏng quá trình biến đổi AC 220 V lưới điện thành DC ổn định: biến áp → chỉnh lưu → lọc → ổn áp. Điều chỉnh tham số và quan sát dạng sóng ở từng giai đoạn.</p>
+
+<!-- ═══════════════════════════════════════════
+     MODULE 1: Block Diagram
+     ═══════════════════════════════════════ -->
+<h2>1. Sơ đồ khối mạch nguồn DC</h2>
+
+<div class="card">
+  <p>Bốn giai đoạn của mạch nguồn DC — mỗi khối giải một vấn đề cụ thể:</p>
+
+  <svg class="block-diag" viewBox="0 0 660 130">
+    <defs>
+      <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <polygon points="0 0, 7 3.5, 0 7" fill="#4d7c0f"/>
+      </marker>
+    </defs>
+
+    <!-- Block 0: AC grid -->
+    <rect x="4" y="35" width="90" height="52" rx="6" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="49" y="58" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">Lưới AC</text>
+    <text x="49" y="72" text-anchor="middle" font-size="10" fill="#1d4ed8">220 V / 50 Hz</text>
+    <text x="49" y="84" text-anchor="middle" font-size="9" fill="#475569">V_peak=311V</text>
+
+    <!-- Arrow 0→1 -->
+    <line x1="94" y1="61" x2="118" y2="61" stroke="#4d7c0f" stroke-width="2" marker-end="url(#arr)"/>
+    <text x="106" y="56" text-anchor="middle" font-size="9" fill="#64748b">AC~</text>
+
+    <!-- Block 1: Transformer -->
+    <rect id="blk1" x="120" y="35" width="100" height="52" rx="6" fill="#dcfce7" stroke="#4d7c0f" stroke-width="1.5"/>
+    <text x="170" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#14532d">Biến áp</text>
+    <text x="170" y="69" text-anchor="middle" font-size="10" fill="#166534">N1/N2 = V1/V2</text>
+    <text x="170" y="82" text-anchor="middle" font-size="9" fill="#475569" id="blkTx">220→12 V rms</text>
+
+    <!-- Arrow 1→2 -->
+    <line x1="220" y1="61" x2="244" y2="61" stroke="#4d7c0f" stroke-width="2" marker-end="url(#arr)"/>
+    <text x="232" y="56" text-anchor="middle" font-size="9" fill="#64748b">AC~</text>
+
+    <!-- Block 2: Rectifier -->
+    <rect id="blk2" x="246" y="35" width="100" height="52" rx="6" fill="#dcfce7" stroke="#4d7c0f" stroke-width="1.5"/>
+    <text x="296" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#14532d">Chỉnh lưu</text>
+    <text x="296" y="69" text-anchor="middle" font-size="10" fill="#166534" id="blkRect">Cầu 4 diode</text>
+    <text x="296" y="82" text-anchor="middle" font-size="9" fill="#475569" id="blkRectV">f_gợn=100Hz</text>
+
+    <!-- Arrow 2→3 -->
+    <line x1="346" y1="61" x2="370" y2="61" stroke="#4d7c0f" stroke-width="2" marker-end="url(#arr)"/>
+    <text x="358" y="56" text-anchor="middle" font-size="9" fill="#64748b">DC pulse</text>
+
+    <!-- Block 3: Filter -->
+    <rect id="blk3" x="372" y="35" width="100" height="52" rx="6" fill="#dcfce7" stroke="#4d7c0f" stroke-width="1.5"/>
+    <text x="422" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#14532d">Tụ lọc</text>
+    <text x="422" y="69" text-anchor="middle" font-size="10" fill="#166534" id="blkCap">C = 2200 µF</text>
+    <text x="422" y="82" text-anchor="middle" font-size="9" fill="#475569" id="blkRipple">Ripple ≈ 0.91V</text>
+
+    <!-- Arrow 3→4 -->
+    <line x1="472" y1="61" x2="496" y2="61" stroke="#4d7c0f" stroke-width="2" marker-end="url(#arr)"/>
+    <text x="484" y="56" text-anchor="middle" font-size="9" fill="#64748b">DC±</text>
+
+    <!-- Block 4: Regulator -->
+    <rect id="blk4" x="498" y="35" width="100" height="52" rx="6" fill="#dcfce7" stroke="#4d7c0f" stroke-width="1.5"/>
+    <text x="548" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#14532d">Ổn áp</text>
+    <text x="548" y="69" text-anchor="middle" font-size="10" fill="#166534" id="blkReg">7805 / 5V</text>
+    <text x="548" y="82" text-anchor="middle" font-size="9" fill="#475569" id="blkRegV">V_out = 5 V</text>
+
+    <!-- Arrow out -->
+    <line x1="598" y1="61" x2="654" y2="61" stroke="#4d7c0f" stroke-width="2" marker-end="url(#arr)"/>
+    <text x="642" y="56" text-anchor="middle" font-size="9" fill="#64748b">DC</text>
+    <text x="646" y="70" text-anchor="middle" font-size="10" font-weight="700" fill="#14532d" id="blkOut">5V</text>
+
+    <!-- Ground -->
+    <line x1="4" y1="100" x2="656" y2="100" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3"/>
+    <text x="330" y="116" text-anchor="middle" font-size="10" fill="#94a3b8">GND chung</text>
+  </svg>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODULE 2: Waveform Simulator
+     ═══════════════════════════════════════ -->
+<h2>2. Mô phỏng dạng sóng từng giai đoạn</h2>
+
+<div class="card">
+  <!-- Rectifier mode tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tabHalf" onclick="setRectMode('half')">Nửa kỳ (1 diode)</button>
+    <button class="tab-btn" id="tabBridge" onclick="setRectMode('bridge')">Toàn kỳ cầu (4 diode)</button>
+  </div>
+
+  <!-- Controls -->
+  <div class="row">
+    <label>V biến áp (rms)</label>
+    <input type="range" id="slTx" min="6" max="18" value="12" step="0.5" oninput="update()">
+    <span class="val-display" id="dspTx">12 V</span>
+  </div>
+  <div class="row">
+    <label>I tải (mA)</label>
+    <input type="range" id="slIload" min="10" max="1000" value="200" step="10" oninput="update()">
+    <span class="val-display" id="dspIload">200 mA</span>
+  </div>
+  <div class="row">
+    <label>C lọc (µF)</label>
+    <input type="range" id="slC" min="0" max="10000" value="2200" step="100" oninput="update()">
+    <span class="val-display" id="dspC">2200 µF</span>
+  </div>
+
+  <!-- Toggles -->
+  <div class="toggle-row">
+    <span class="toggle-label">Bật tụ lọc:</span>
+    <div class="toggle-wrap">
+      <label class="toggle-switch">
+        <input type="checkbox" id="togCap" checked onchange="update()">
+        <span class="toggle-slider"></span>
+      </label>
+      <span id="togCapLabel" style="font-size:13px; color:#4d7c0f;">BẬT</span>
+    </div>
+    <span class="toggle-label">Bật ổn áp:</span>
+    <div class="toggle-wrap">
+      <label class="toggle-switch">
+        <input type="checkbox" id="togReg" checked onchange="update()">
+        <span class="toggle-slider"></span>
+      </label>
+      <span id="togRegLabel" style="font-size:13px; color:#4d7c0f;">BẬT</span>
+    </div>
+    <div class="row" style="margin:0; gap: 8px;">
+      <label style="min-width:0; font-size:13px;">V_out ổn áp:</label>
+      <select id="selRegV" onchange="update()" style="padding:4px 8px; border:1px solid #bbf7d0; border-radius:4px; background:#f0fdf4; font-size:13px;">
+        <option value="5">5 V (7805)</option>
+        <option value="9">9 V (7809)</option>
+        <option value="12">12 V (7812)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Wave legend -->
+  <div class="wave-legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#3b82f6;"></div><span>AC đầu vào biến áp</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;"></div><span>Sau chỉnh lưu</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#22c55e;"></div><span>Sau tụ lọc</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#dc2626;"></div><span>Sau ổn áp (DC ra)</span></div>
+  </div>
+
+  <!-- Canvas -->
+  <canvas class="wave" id="cvWave" width="700" height="340"></canvas>
+  <div style="font-size:12px; color:#94a3b8; text-align:center; margin-top:4px;">Trục X: 2 chu kỳ AC (40 ms). Trục Y: điện áp (V). Gợn sóng được phóng đại để dễ thấy.</div>
+
+  <!-- Stats -->
+  <div class="stat-grid" id="statsGrid" style="margin-top:14px;"></div>
+
+  <!-- Formula box -->
+  <div class="formula-box" id="formulaBox"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODULE 3: Bridge Rectifier Diagram
+     ═══════════════════════════════════════ -->
+<h2>3. Sơ đồ cầu diode — phân tích từng bán kỳ</h2>
+
+<div class="card">
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tabBridgePos" onclick="setBridgePhase('pos')">Bán kỳ dương (AC1 > AC2)</button>
+    <button class="tab-btn" id="tabBridgeNeg" onclick="setBridgePhase('neg')">Bán kỳ âm (AC1 &lt; AC2)</button>
+  </div>
+
+  <svg class="bridge-svg" viewBox="0 0 420 280">
+    <defs>
+      <marker id="arrFlow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+        <polygon points="0 0, 6 3, 0 6" id="arrFlowPoly" fill="#4d7c0f"/>
+      </marker>
+      <marker id="arrFlowRed" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+        <polygon points="0 0, 6 3, 0 6" fill="#dc2626"/>
+      </marker>
+      <marker id="arrFlowGray" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+        <polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/>
+      </marker>
+    </defs>
+
+    <!-- AC source left -->
+    <circle cx="40" cy="140" r="22" fill="none" stroke="#3b82f6" stroke-width="2"/>
+    <text x="40" y="136" text-anchor="middle" font-size="13" fill="#3b82f6" font-weight="700">~</text>
+    <text x="40" y="150" text-anchor="middle" font-size="10" fill="#3b82f6">AC</text>
+
+    <!-- AC nodes -->
+    <circle cx="90" cy="100" r="4" id="nodeAC1" fill="#3b82f6"/>
+    <circle cx="90" cy="180" r="4" id="nodeAC2" fill="#3b82f6"/>
+    <text x="76" y="97" text-anchor="end" font-size="11" fill="#3b82f6" id="lblAC1">AC1 (+)</text>
+    <text x="76" y="183" text-anchor="end" font-size="11" fill="#3b82f6" id="lblAC2">AC2 (−)</text>
+
+    <!-- Wires from AC source -->
+    <line x1="62" y1="120" x2="90" y2="100" stroke="#3b82f6" stroke-width="1.5"/>
+    <line x1="62" y1="160" x2="90" y2="180" stroke="#3b82f6" stroke-width="1.5"/>
+
+    <!-- Bridge nodes: top(+), bottom(-), left(ac1), right(ac2) -->
+    <!-- top = 210,50; bottom = 210,230; left = 90,140; right = 330,140 -->
+
+    <!-- Top rail (+) -->
+    <circle cx="210" cy="50" r="5" fill="#dc2626"/>
+    <text x="210" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="#dc2626">+DC</text>
+
+    <!-- Bottom rail (−) -->
+    <circle cx="210" cy="230" r="5" fill="#1a202c"/>
+    <text x="210" y="255" text-anchor="middle" font-size="12" font-weight="700" fill="#1a202c">−DC (GND)</text>
+
+    <!-- Diode helper: draw diamond shape for diode symbol -->
+    <!-- D1: AC1(90,100) → top(210,50): upper-left path -->
+    <!-- Triangle pointing toward top (anode at AC1 side) -->
+    <g id="d1g">
+      <line x1="90" y1="100" x2="135" y2="75" stroke="#1a202c" stroke-width="2" id="d1w1"/>
+      <line x1="165" y1="57" x2="210" y2="50" stroke="#1a202c" stroke-width="2" id="d1w2"/>
+      <!-- diode symbol at midpoint 150,67 -->
+      <polygon points="135,80 165,65 135,50" fill="#f59e0b" stroke="#b45309" stroke-width="1" id="d1tri"/>
+      <line x1="165" y1="80" x2="165" y2="50" stroke="#b45309" stroke-width="2" id="d1bar"/>
+      <text x="155" y="46" font-size="11" font-weight="700" fill="#b45309" id="d1lbl">D1</text>
+    </g>
+
+    <!-- D2: bottom(210,230) → AC2(330 side): lower-right -->
+    <!-- D2: AC2(330,180) → bottom(210,230) direction: anode at AC2, cathode at bottom -->
+    <g id="d2g">
+      <line x1="330" y1="180" x2="285" y2="205" stroke="#1a202c" stroke-width="2" id="d2w1"/>
+      <line x1="255" y1="222" x2="210" y2="230" stroke="#1a202c" stroke-width="2" id="d2w2"/>
+      <polygon points="285,200 255,215 285,230" fill="#f59e0b" stroke="#b45309" stroke-width="1" id="d2tri"/>
+      <line x1="255" y1="200" x2="255" y2="230" stroke="#b45309" stroke-width="2" id="d2bar"/>
+      <text x="240" y="197" font-size="11" font-weight="700" fill="#b45309" id="d2lbl">D2</text>
+    </g>
+
+    <!-- D3: AC1(90,180) → bottom(210,230) -->
+    <g id="d3g">
+      <line x1="90" y1="180" x2="135" y2="205" stroke="#1a202c" stroke-width="2" id="d3w1"/>
+      <line x1="165" y1="222" x2="210" y2="230" stroke="#1a202c" stroke-width="2" id="d3w2"/>
+      <polygon points="135,200 165,215 135,230" fill="#f59e0b" stroke="#b45309" stroke-width="1" id="d3tri"/>
+      <line x1="165" y1="200" x2="165" y2="230" stroke="#b45309" stroke-width="2" id="d3bar"/>
+      <text x="125" y="196" font-size="11" font-weight="700" fill="#b45309" id="d3lbl">D3</text>
+    </g>
+
+    <!-- D4: top(210,50) → AC2(330,100) -->
+    <g id="d4g">
+      <line x1="210" y1="50" x2="255" y2="75" stroke="#1a202c" stroke-width="2" id="d4w1"/>
+      <line x1="285" y1="92" x2="330" y2="100" stroke="#1a202c" stroke-width="2" id="d4w2"/>
+      <polygon points="255,70 285,85 255,100" fill="#f59e0b" stroke="#b45309" stroke-width="1" id="d4tri"/>
+      <line x1="285" y1="70" x2="285" y2="100" stroke="#b45309" stroke-width="2" id="d4bar"/>
+      <text x="280" y="65" font-size="11" font-weight="700" fill="#b45309" id="d4lbl">D4</text>
+    </g>
+
+    <!-- AC2 node right side -->
+    <circle cx="330" cy="100" r="4" fill="#3b82f6"/>
+    <circle cx="330" cy="180" r="4" fill="#3b82f6"/>
+    <!-- connect right AC nodes to source -->
+    <line x1="330" y1="100" x2="380" y2="100" stroke="#3b82f6" stroke-width="1.5"/>
+    <line x1="330" y1="180" x2="380" y2="180" stroke="#3b82f6" stroke-width="1.5"/>
+    <line x1="380" y1="100" x2="380" y2="180" stroke="#3b82f6" stroke-width="1.5"/>
+
+    <!-- Load resistor symbol (right side) -->
+    <rect x="385" y="125" width="30" height="30" rx="3" fill="none" stroke="#64748b" stroke-width="1.5"/>
+    <text x="400" y="143" text-anchor="middle" font-size="10" fill="#64748b">R</text>
+    <text x="400" y="154" text-anchor="middle" font-size="9" fill="#64748b">tải</text>
+    <line x1="210" y1="50" x2="400" y2="50" stroke="#dc2626" stroke-width="1.5"/>
+    <line x1="400" y1="50" x2="400" y2="125" stroke="#dc2626" stroke-width="1.5"/>
+    <line x1="400" y1="155" x2="400" y2="230" stroke="#1a202c" stroke-width="1.5"/>
+    <line x1="210" y1="230" x2="400" y2="230" stroke="#1a202c" stroke-width="1.5"/>
+
+    <!-- Active flow overlay (updated by JS) -->
+    <g id="flowOverlay"></g>
+
+    <!-- Phase label -->
+    <text x="210" y="145" text-anchor="middle" font-size="12" font-weight="700" id="bridgePhaseLabel" fill="#14532d">Bán kỳ dương: D1, D2 dẫn</text>
+    <text x="210" y="160" text-anchor="middle" font-size="11" id="bridgeDropLabel" fill="#475569">Sụt: 2 × 0.7 = 1.4 V</text>
+  </svg>
+
+  <p id="bridgeExplain" style="font-size:14px; color:#1a202c; margin-top:8px; line-height:1.6;"></p>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODULE 4: Ripple Calculator
+     ═══════════════════════════════════════ -->
+<h2>4. Máy tính tụ lọc & gợn sóng</h2>
+
+<div class="card">
+  <p>Tính C cần thiết để đạt mức gợn yêu cầu, hoặc tính gợn khi có sẵn C.</p>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tabRipC" onclick="setRipMode('findC')">Tìm C theo ripple</button>
+    <button class="tab-btn" id="tabRipV" onclick="setRipMode('findV')">Tính ripple theo C</button>
+  </div>
+
+  <div class="row">
+    <label>I tải (mA)</label>
+    <input type="range" id="ripI" min="10" max="2000" value="300" step="10" oninput="calcRipple()">
+    <span class="val-display" id="ripDspI">300 mA</span>
+  </div>
+  <div class="row">
+    <label>Kiểu chỉnh lưu</label>
+    <select id="ripRectType" onchange="calcRipple()" style="padding:4px 8px; border:1px solid #bbf7d0; border-radius:4px; background:#f0fdf4; font-size:13px;">
+      <option value="100">Toàn kỳ (f = 100 Hz)</option>
+      <option value="50">Nửa kỳ (f = 50 Hz)</option>
+    </select>
+  </div>
+
+  <div id="ripFindC">
+    <div class="row">
+      <label>Ripple max (V)</label>
+      <input type="range" id="ripVr" min="0.1" max="5" value="1" step="0.1" oninput="calcRipple()">
+      <span class="val-display" id="ripDspVr">1.0 V</span>
+    </div>
+  </div>
+  <div id="ripFindV" style="display:none">
+    <div class="row">
+      <label>C có sẵn (µF)</label>
+      <input type="range" id="ripCval" min="100" max="22000" value="2200" step="100" oninput="calcRipple()">
+      <span class="val-display" id="ripDspC">2200 µF</span>
+    </div>
+  </div>
+
+  <div class="formula-box" id="ripResult"></div>
+
+  <table id="ripTable">
+    <thead>
+      <tr>
+        <th>I tải</th>
+        <th>Ripple cho phép</th>
+        <th>C tối thiểu</th>
+        <th>Chọn (E12)</th>
+        <th>V tụ (V_peak=16V)</th>
+      </tr>
+    </thead>
+    <tbody id="ripTbody"></tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODULE 5: Regulator Design
+     ═══════════════════════════════════════ -->
+<h2>5. Ổn áp tuyến tính — nhiệt & điều kiện hoạt động</h2>
+
+<div class="card">
+  <div class="row">
+    <label>V vào ổn áp (V)</label>
+    <input type="range" id="regVin" min="4" max="30" value="12" step="0.5" oninput="calcReg()">
+    <span class="val-display" id="regDspVin">12 V</span>
+  </div>
+  <div class="row">
+    <label>V ra ổn áp (V)</label>
+    <select id="regVout" onchange="calcReg()" style="padding:4px 8px; border:1px solid #bbf7d0; border-radius:4px; background:#f0fdf4; font-size:13px;">
+      <option value="5">5 V — IC 7805</option>
+      <option value="9">9 V — IC 7809</option>
+      <option value="12">12 V — IC 7812</option>
+      <option value="15">15 V — IC 7815</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>I tải (mA)</label>
+    <input type="range" id="regIload" min="10" max="1500" value="500" step="10" oninput="calcReg()">
+    <span class="val-display" id="regDspI">500 mA</span>
+  </div>
+
+  <div class="stat-grid" id="regStats"></div>
+
+  <!-- Heat bar -->
+  <div style="font-size:13px; color:#475569; margin-top:10px; font-weight:600;">Công suất nhiệt trên IC:</div>
+  <div style="background:#e2e8f0; border-radius:999px; height:24px; overflow:hidden; margin:6px 0;">
+    <div id="heatBar" style="height:100%; border-radius:999px; display:flex; align-items:center; justify-content:flex-end; padding-right:10px; font-size:12px; font-weight:700; color:white; min-width:36px; transition:width 0.2s; width:0%;">0W</div>
+  </div>
+  <div style="display:flex; justify-content:space-between; font-size:11px; color:#94a3b8; margin-bottom:8px;">
+    <span>0 W</span><span>0.5 W (không tản nhiệt)</span><span>5 W (cần tản nhiệt lớn)</span>
+  </div>
+
+  <div class="formula-box" id="regResult"></div>
+</div>
+
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  GLOBALS
+// ════════════════════════════════════════════════════════
+let rectMode = 'bridge'; // 'half' | 'bridge'
+let bridgePhase = 'pos'; // 'pos' | 'neg'
+let ripMode = 'findC';
+
+const DIODE_DROP = 0.7;
+const FREQ_AC = 50; // Hz
+const PI = Math.PI;
+
+// ── SI formatter ──
+function fmt(val, unit, dec = 2) {
+  const a = Math.abs(val);
+  if (a >= 1e6) return (val/1e6).toFixed(dec) + ' M' + unit;
+  if (a >= 1e3) return (val/1e3).toFixed(dec) + ' k' + unit;
+  if (a >= 1)   return val.toFixed(dec) + ' ' + unit;
+  if (a >= 1e-3) return (val*1e3).toFixed(dec) + ' m' + unit;
+  if (a >= 1e-6) return (val*1e6).toFixed(dec) + ' µ' + unit;
+  return val.toFixed(dec) + ' ' + unit;
+}
+
+function roundE12(c_F) {
+  // Return nearest E12 value ≥ c_F, in µF
+  const e12 = [1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2];
+  const c_uF = c_F * 1e6;
+  let power = Math.floor(Math.log10(c_uF));
+  let base = c_uF / Math.pow(10, power);
+  // find first e12 value >= base
+  for (let i = 0; i < e12.length; i++) {
+    if (e12[i] * Math.pow(10, power) >= c_uF * 0.999) {
+      return (e12[i] * Math.pow(10, power)).toFixed(0);
+    }
+  }
+  // round up to next decade
+  power++;
+  return (e12[0] * Math.pow(10, power)).toFixed(0);
+}
+
+// ════════════════════════════════════════════════════════
+//  MODULE 2 — Waveform Simulation
+// ════════════════════════════════════════════════════════
+function setRectMode(m) {
+  rectMode = m;
+  document.getElementById('tabHalf').classList.toggle('active', m === 'half');
+  document.getElementById('tabBridge').classList.toggle('active', m === 'bridge');
+  update();
+}
+
+function update() {
+  const V_rms = parseFloat(document.getElementById('slTx').value);
+  const I_load = parseFloat(document.getElementById('slIload').value) / 1000;
+  const C_uF   = parseFloat(document.getElementById('slC').value);
+  const C = C_uF * 1e-6;
+  const capOn = document.getElementById('togCap').checked;
+  const regOn = document.getElementById('togReg').checked;
+  const V_reg = parseFloat(document.getElementById('selRegV').value);
+
+  document.getElementById('dspTx').textContent = V_rms.toFixed(1) + ' V';
+  document.getElementById('dspIload').textContent = (I_load * 1000).toFixed(0) + ' mA';
+  document.getElementById('dspC').textContent = C_uF + ' µF';
+  document.getElementById('togCapLabel').textContent = capOn ? 'BẬT' : 'TẮT';
+  document.getElementById('togCapLabel').style.color = capOn ? '#4d7c0f' : '#64748b';
+  document.getElementById('togRegLabel').textContent = regOn ? 'BẬT' : 'TẮT';
+  document.getElementById('togRegLabel').style.color = regOn ? '#4d7c0f' : '#64748b';
+
+  const V_peak_tx = V_rms * Math.SQRT2;
+  const diodeDrop = (rectMode === 'bridge') ? 2 * DIODE_DROP : DIODE_DROP;
+  const V_peak_rect = V_peak_tx - diodeDrop;
+  const f_ripple = (rectMode === 'bridge') ? 100 : 50;
+  const T_ripple = 1 / f_ripple;
+
+  // V_dc (no cap) = 2/pi * V_peak for bridge, 1/pi for half
+  const V_dc_no_cap = (rectMode === 'bridge')
+    ? 2 * V_peak_rect / PI
+    : V_peak_rect / PI;
+
+  // V_ripple approximation
+  let V_ripple = 0;
+  if (capOn && C > 0) {
+    V_ripple = I_load / (f_ripple * C);
+  } else {
+    V_ripple = V_peak_rect; // essentially full ripple
+  }
+
+  const V_dc_after_cap = capOn ? (V_peak_rect - V_ripple / 2) : V_dc_no_cap;
+  const V_out_reg = (regOn && V_dc_after_cap >= V_reg + 2) ? V_reg : null;
+
+  // Draw waveform
+  drawWaveform(V_peak_tx, V_rms, V_peak_rect, V_ripple, capOn, V_dc_after_cap, regOn, V_reg, f_ripple, I_load, C);
+
+  // Stats
+  const statsHtml = `
+    <div class="stat-box"><div class="lbl">V biến áp peak</div><div class="num">${V_peak_tx.toFixed(2)} V</div></div>
+    <div class="stat-box"><div class="lbl">V sau chỉnh lưu peak</div><div class="num">${V_peak_rect.toFixed(2)} V</div></div>
+    <div class="stat-box"><div class="lbl">V_dc (${capOn ? 'có tụ' : 'không tụ'})</div><div class="num">${capOn ? V_dc_after_cap.toFixed(2) : V_dc_no_cap.toFixed(2)} V</div></div>
+    <div class="stat-box"><div class="lbl">Gợn sóng V_ripple</div><div class="num">${capOn ? V_ripple.toFixed(3) : '— V'} V</div></div>
+    <div class="stat-box"><div class="lbl">f gợn</div><div class="num">${f_ripple} Hz</div></div>
+    <div class="stat-box"><div class="lbl">V_out (ổn áp)</div><div class="num">${V_out_reg !== null ? V_out_reg.toFixed(1) + ' V' : '—'}</div></div>
+  `;
+  document.getElementById('statsGrid').innerHTML = statsHtml;
+
+  // Formula
+  let f = '';
+  f += `Biến áp: V_peak = ${V_rms.toFixed(1)} × √2 = ${V_peak_tx.toFixed(2)} V\n`;
+  if (rectMode === 'bridge') {
+    f += `Cầu diode: V_peak_out = ${V_peak_tx.toFixed(2)} − 1.4 = ${V_peak_rect.toFixed(2)} V\n`;
+    f += `V_dc trung bình = 2 × ${V_peak_rect.toFixed(2)} / π = ${V_dc_no_cap.toFixed(2)} V (không tụ)\n`;
+  } else {
+    f += `Nửa kỳ: V_peak_out = ${V_peak_tx.toFixed(2)} − 0.7 = ${V_peak_rect.toFixed(2)} V\n`;
+    f += `V_dc trung bình = ${V_peak_rect.toFixed(2)} / π = ${V_dc_no_cap.toFixed(2)} V (không tụ)\n`;
+  }
+  if (capOn && C > 0) {
+    f += `Tụ lọc (${C_uF} µF): V_ripple = ${(I_load*1000).toFixed(0)}mA / (${f_ripple}Hz × ${C_uF}µF) = ${V_ripple.toFixed(3)} V\n`;
+    f += `V_dc sau lọc ≈ ${V_dc_after_cap.toFixed(2)} V`;
+  }
+  if (regOn) {
+    if (V_out_reg !== null) {
+      const P_heat = (V_dc_after_cap - V_reg) * I_load;
+      f += `\nỔn áp ${V_reg}V: P_nhiệt = (${V_dc_after_cap.toFixed(2)} − ${V_reg}) × ${(I_load*1000).toFixed(0)}mA = ${P_heat.toFixed(2)} W`;
+    } else {
+      f += `\nOstabp: V_in (${V_dc_after_cap.toFixed(2)} V) < V_out + dropout (${V_reg + 2} V) — KHÔNG ổn áp được!`;
+    }
+  }
+  document.getElementById('formulaBox').textContent = f;
+
+  // Update block diagram labels
+  document.getElementById('blkTx').textContent = `220→${V_rms} V rms`;
+  document.getElementById('blkRect').textContent = rectMode === 'bridge' ? 'Cầu 4 diode' : 'Nửa kỳ 1 diode';
+  document.getElementById('blkRectV').textContent = `f_gợn=${f_ripple}Hz`;
+  document.getElementById('blkCap').textContent = capOn ? `C = ${C_uF} µF` : 'TẮT';
+  document.getElementById('blkRipple').textContent = capOn ? `Ripple≈${V_ripple.toFixed(2)}V` : '—';
+  document.getElementById('blkReg').textContent = regOn ? (V_out_reg !== null ? `7${(V_reg*10).toString().padStart(2,'0')} / ${V_reg}V` : '7805 FAIL') : 'TẮT';
+  document.getElementById('blkRegV').textContent = regOn && V_out_reg !== null ? `V_out=${V_reg}V` : '—';
+  document.getElementById('blkOut').textContent = V_out_reg !== null ? V_reg + 'V' : (capOn ? V_dc_after_cap.toFixed(1)+'V' : V_dc_no_cap.toFixed(1)+'V');
+}
+
+function drawWaveform(V_peak_tx, V_rms, V_peak_rect, V_ripple, capOn, V_dc_cap, regOn, V_reg, f_ripple, I_load, C) {
+  const canvas = document.getElementById('cvWave');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // 4 rows stacked vertically
+  const rows = [
+    { label: 'AC vào biến áp', color: '#3b82f6' },
+    { label: 'Sau chỉnh lưu', color: '#f59e0b' },
+    { label: 'Sau tụ lọc', color: '#22c55e' },
+    { label: 'Sau ổn áp (DC ra)', color: '#dc2626' },
+  ];
+  const N = rows.length;
+  const rowH = H / N;
+  const PAD = { l: 80, r: 16, t: 6, b: 8 };
+  const T_total = 2 / FREQ_AC; // 2 cycles = 40 ms
+  const STEPS = 400;
+
+  // Background
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid lines (horizontal at 0 for each row)
+  ctx.strokeStyle = '#1e3a5f';
+  ctx.lineWidth = 1;
+  for (let r = 0; r < N; r++) {
+    const midY = rowH * r + rowH / 2;
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath(); ctx.moveTo(PAD.l, midY); ctx.lineTo(W - PAD.r, midY); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  function mapY(v, vMax, rowIdx) {
+    const mid = rowH * rowIdx + rowH / 2;
+    const amp = (rowH / 2) - PAD.t;
+    return mid - (v / vMax) * amp;
+  }
+
+  // Compute waveforms
+  const T_period_ripple = 1 / f_ripple;
+  let V_cap = V_peak_rect; // initial cap voltage
+
+  const waveAC = [], waveRect = [], waveFilter = [], waveReg = [];
+
+  for (let i = 0; i <= STEPS; i++) {
+    const t = (i / STEPS) * T_total;
+    const phase = 2 * PI * FREQ_AC * t;
+
+    // Row 0: AC input to transformer secondary
+    const v_ac = V_peak_tx * Math.sin(phase);
+    waveAC.push(v_ac);
+
+    // Row 1: After rectifier
+    let v_rect;
+    if (rectMode === 'bridge') {
+      v_rect = Math.max(0, Math.abs(V_peak_rect * Math.sin(phase)));
+    } else {
+      v_rect = Math.max(0, V_peak_rect * Math.sin(phase));
+    }
+    waveRect.push(v_rect);
+
+    // Row 2: After filter cap
+    let v_filt;
+    if (!capOn || C === 0) {
+      v_filt = v_rect;
+    } else {
+      // Simple RC discharge model between peaks
+      const dt = T_total / STEPS;
+      const tau_discharge = (V_cap > 0 && I_load > 0) ? V_cap / (I_load / C) : 1e9;
+      if (v_rect > V_cap) {
+        V_cap = v_rect; // cap charges up quickly
+      } else {
+        V_cap = Math.max(0, V_cap - (I_load / C) * dt);
+      }
+      v_filt = V_cap;
+    }
+    waveFilter.push(v_filt);
+
+    // Row 3: After regulator
+    let v_out;
+    if (!regOn) {
+      v_out = v_filt;
+    } else {
+      // Regulator: clamp to V_reg if V_in >= V_reg + dropout, else follow V_in
+      const dropout = 2.0;
+      v_out = (v_filt >= V_reg + dropout) ? V_reg : Math.max(0, v_filt - dropout);
+    }
+    waveReg.push(v_out);
+  }
+
+  const allV = [...waveAC, ...waveRect, ...waveFilter, ...waveReg];
+  const vMax = Math.max(...allV.map(Math.abs), V_peak_tx * 1.05);
+
+  // Draw row separators
+  for (let r = 1; r < N; r++) {
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(0, rowH * r); ctx.lineTo(W, rowH * r); ctx.stroke();
+  }
+
+  // Draw each wave
+  const waves = [waveAC, waveRect, waveFilter, waveReg];
+  waves.forEach((wave, ri) => {
+    const col = rows[ri].color;
+    ctx.strokeStyle = col;
+    ctx.lineWidth = ri === 3 ? 2.5 : 1.8;
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    for (let i = 0; i <= STEPS; i++) {
+      const x = PAD.l + (i / STEPS) * (W - PAD.l - PAD.r);
+      const y = mapY(wave[i], vMax, ri);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Row label (left)
+    ctx.fillStyle = col;
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    const labelX = PAD.l / 2;
+    const labelY = rowH * ri + rowH / 2 - 8;
+    // Draw label rotated
+    ctx.save();
+    ctx.translate(labelX, rowH * ri + rowH / 2);
+    ctx.rotate(-PI / 2);
+    ctx.textAlign = 'center';
+    ctx.fillText(rows[ri].label, 0, 0);
+    ctx.restore();
+
+    // Zero line label (V)
+    ctx.fillStyle = '#475569';
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('0V', PAD.l - 2, mapY(0, vMax, ri) + 4);
+
+    // Peak label
+    const peakV = Math.max(...wave.map(Math.abs));
+    ctx.fillStyle = col;
+    ctx.textAlign = 'right';
+    ctx.fillText(peakV.toFixed(1) + 'V', PAD.l - 2, mapY(peakV, vMax, ri) + 4);
+  });
+
+  // X axis ticks: mark each 5 ms
+  ctx.fillStyle = '#64748b';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  for (let ms = 0; ms <= 40; ms += 10) {
+    const x = PAD.l + (ms / 40) * (W - PAD.l - PAD.r);
+    ctx.fillText(ms + 'ms', x, H - 2);
+    ctx.strokeStyle = '#1e3a5f';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([2, 3]);
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H - 12); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  MODULE 3 — Bridge Rectifier Diagram
+// ════════════════════════════════════════════════════════
+function setBridgePhase(phase) {
+  bridgePhase = phase;
+  document.getElementById('tabBridgePos').classList.toggle('active', phase === 'pos');
+  document.getElementById('tabBridgeNeg').classList.toggle('active', phase === 'neg');
+  updateBridgeDiagram();
+}
+
+function updateBridgeDiagram() {
+  const overlay = document.getElementById('flowOverlay');
+  overlay.innerHTML = '';
+
+  // Active diodes: pos → D1(AC1→top), D2(bottom←AC2); neg → D3(AC1→bottom), D4(top←AC2)
+  // Highlight active path with thick colored arrows
+  const label = document.getElementById('bridgePhaseLabel');
+  const dropLabel = document.getElementById('bridgeDropLabel');
+  const explain = document.getElementById('bridgeExplain');
+
+  // Color active/inactive diodes
+  const activeColor = '#4d7c0f';
+  const inactiveColor = '#94a3b8';
+  const activeFill = '#86efac';
+  const inactiveFill = '#cbd5e0';
+
+  if (bridgePhase === 'pos') {
+    // D1 active (AC1 → top), D2 active (bottom → AC2)
+    // D3 inactive, D4 inactive
+    setDiodeStyle('d1', activeColor, activeFill);
+    setDiodeStyle('d2', activeColor, activeFill);
+    setDiodeStyle('d3', inactiveColor, inactiveFill);
+    setDiodeStyle('d4', inactiveColor, inactiveFill);
+
+    label.textContent = 'Bán kỳ dương: D1 và D2 dẫn';
+    label.style.fill = '#14532d';
+    dropLabel.textContent = 'Dòng: AC1 → D1 → Tải(+) → Tải(−) → D2 → AC2';
+    explain.innerHTML = '<strong>Bán kỳ dương</strong> (AC1 > AC2): Dòng chạy từ AC1 → qua D1 → ra cực (+) DC → qua tải → vào cực (−) DC → qua D2 → về AC2. D3, D4 bị phân cực ngược, không dẫn. Điện áp sụt: 2 × 0.7 V = 1.4 V (qua D1 + D2 nối tiếp).';
+  } else {
+    // D3 active (AC1 → bottom), D4 active (top → AC2)
+    setDiodeStyle('d1', inactiveColor, inactiveFill);
+    setDiodeStyle('d2', inactiveColor, inactiveFill);
+    setDiodeStyle('d3', activeColor, activeFill);
+    setDiodeStyle('d4', activeColor, activeFill);
+
+    label.textContent = 'Bán kỳ âm: D3 và D4 dẫn';
+    label.style.fill = '#b45309';
+    dropLabel.textContent = 'Dòng: AC2 → D4 → Tải(+) → Tải(−) → D3 → AC1';
+    explain.innerHTML = '<strong>Bán kỳ âm</strong> (AC2 > AC1): Bây giờ AC2 có điện áp cao hơn. Dòng chạy AC2 → qua D4 → cực (+) DC → qua tải → cực (−) DC → qua D3 → về AC1. D1, D2 tắt. <strong>Quan trọng: dòng qua tải vẫn cùng chiều như bán kỳ dương</strong> → V_DC luôn dương. Sụt: D3 + D4 = 1.4 V.';
+  }
+}
+
+function setDiodeStyle(id, lineColor, fillColor) {
+  const g = document.getElementById(id + 'g');
+  if (!g) return;
+  ['w1','w2'].forEach(w => {
+    const el = document.getElementById(id + w);
+    if (el) el.setAttribute('stroke', lineColor);
+  });
+  const tri = document.getElementById(id + 'tri');
+  if (tri) { tri.setAttribute('fill', fillColor); tri.setAttribute('stroke', lineColor); }
+  const bar = document.getElementById(id + 'bar');
+  if (bar) bar.setAttribute('stroke', lineColor);
+  const lbl = document.getElementById(id + 'lbl');
+  if (lbl) lbl.setAttribute('fill', lineColor);
+}
+
+// ════════════════════════════════════════════════════════
+//  MODULE 4 — Ripple Calculator
+// ════════════════════════════════════════════════════════
+function setRipMode(m) {
+  ripMode = m;
+  document.getElementById('tabRipC').classList.toggle('active', m === 'findC');
+  document.getElementById('tabRipV').classList.toggle('active', m === 'findV');
+  document.getElementById('ripFindC').style.display = (m === 'findC') ? '' : 'none';
+  document.getElementById('ripFindV').style.display = (m === 'findV') ? '' : 'none';
+  calcRipple();
+}
+
+function calcRipple() {
+  const I_mA = parseFloat(document.getElementById('ripI').value);
+  const I = I_mA / 1000;
+  const f = parseFloat(document.getElementById('ripRectType').value);
+  document.getElementById('ripDspI').textContent = I_mA + ' mA';
+
+  let result = '';
+
+  if (ripMode === 'findC') {
+    const Vr = parseFloat(document.getElementById('ripVr').value);
+    document.getElementById('ripDspVr').textContent = Vr.toFixed(1) + ' V';
+    const C_min = I / (f * Vr);
+    const C_min_uF = C_min * 1e6;
+    const C_e12 = roundE12(C_min);
+
+    result  = `Tìm C theo: V_ripple_max = ${Vr.toFixed(1)} V, I_tải = ${I_mA} mA, f = ${f} Hz\n`;
+    result += `\nCông thức: C ≥ I / (f × V_ripple) = ${I_mA}mA / (${f}Hz × ${Vr.toFixed(1)}V)\n`;
+    result += `        = ${I*1000}e-3 / ${(f*Vr).toFixed(1)} = ${C_min_uF.toFixed(1)} µF\n`;
+    result += `\nChọn E12 ≥ ${C_min_uF.toFixed(0)} µF: ${C_e12} µF`;
+    result += `\nĐiện áp danh định tụ ≥ 1.5 × V_peak_out`;
+  } else {
+    const C_uF = parseFloat(document.getElementById('ripCval').value);
+    const C = C_uF * 1e-6;
+    document.getElementById('ripDspC').textContent = C_uF + ' µF';
+    const Vr = I / (f * C);
+
+    result  = `Tính ripple: C = ${C_uF} µF, I_tải = ${I_mA} mA, f = ${f} Hz\n`;
+    result += `\nV_ripple = I / (f × C) = ${I_mA}mA / (${f}Hz × ${C_uF}µF)\n`;
+    result += `        = ${I*1000}e-3 / ${(f * C_uF * 1e-6).toExponential(2)} = ${Vr.toFixed(3)} V`;
+    if (Vr > 2) result += `\n⚠ Gợn sóng lớn (${Vr.toFixed(2)} V) — cần tụ lớn hơn!`;
+  }
+
+  document.getElementById('ripResult').textContent = result;
+
+  // Reference table
+  const combos = [
+    { I_mA: 100, Vr: 0.5 },
+    { I_mA: 200, Vr: 1.0 },
+    { I_mA: 300, Vr: 1.0 },
+    { I_mA: 500, Vr: 1.5 },
+    { I_mA: 1000, Vr: 2.0 },
+  ];
+  const tbody = document.getElementById('ripTbody');
+  const f_tbl = parseFloat(document.getElementById('ripRectType').value);
+  tbody.innerHTML = combos.map(row => {
+    const C_min_uF = (row.I_mA / 1000) / (f_tbl * row.Vr) * 1e6;
+    const C_e12 = roundE12(C_min_uF * 1e-6);
+    const V_rated = '25 V';
+    return `<tr>
+      <td>${row.I_mA} mA</td>
+      <td>${row.Vr.toFixed(1)} V</td>
+      <td>${C_min_uF.toFixed(0)} µF</td>
+      <td class="hl">${C_e12} µF</td>
+      <td>${V_rated}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════
+//  MODULE 5 — Regulator
+// ════════════════════════════════════════════════════════
+function calcReg() {
+  const V_in = parseFloat(document.getElementById('regVin').value);
+  const V_out = parseFloat(document.getElementById('regVout').value);
+  const I_mA = parseFloat(document.getElementById('regIload').value);
+  const I = I_mA / 1000;
+
+  document.getElementById('regDspVin').textContent = V_in.toFixed(1) + ' V';
+  document.getElementById('regDspI').textContent   = I_mA + ' mA';
+
+  const V_drop = V_in - V_out;
+  const P_heat = V_drop * I;
+  const V_dropout_min = 2.0;
+  const ok = V_in >= V_out + V_dropout_min;
+
+  // Stats
+  const statsHtml = `
+    <div class="stat-box"><div class="lbl">V_in − V_out</div><div class="num">${V_drop.toFixed(2)} V</div></div>
+    <div class="stat-box"><div class="lbl">P nhiệt IC</div><div class="num" style="color:${P_heat > 3 ? '#dc2626' : P_heat > 1 ? '#f59e0b' : '#14532d'}">${P_heat.toFixed(2)} W</div></div>
+    <div class="stat-box"><div class="lbl">Điều kiện V_dropout</div><div class="num" style="color:${ok ? '#14532d' : '#dc2626'}">${ok ? 'OK ✓' : 'FAIL ✗'}</div></div>
+    <div class="stat-box"><div class="lbl">Hiệu suất</div><div class="num">${((V_out / V_in) * 100).toFixed(1)}%</div></div>
+  `;
+  document.getElementById('regStats').innerHTML = statsHtml;
+
+  // Heat bar
+  const P_max_bar = 8; // W
+  const pct = Math.min(P_heat / P_max_bar * 100, 100);
+  const bar = document.getElementById('heatBar');
+  bar.style.width = pct.toFixed(1) + '%';
+  bar.textContent = P_heat.toFixed(2) + ' W';
+  if (P_heat > 3) { bar.style.background = '#dc2626'; }
+  else if (P_heat > 1) { bar.style.background = '#f59e0b'; }
+  else { bar.style.background = '#4d7c0f'; }
+
+  let f = '';
+  const ICname = 'IC 78' + String(V_out * 10).padStart(2, '0');
+  f += `${ICname}: V_out = ${V_out} V, V_dropout = ${V_dropout_min} V\n`;
+  f += `Điều kiện: V_in ≥ ${V_out} + ${V_dropout_min} = ${V_out + V_dropout_min} V\n`;
+  f += `V_in = ${V_in.toFixed(1)} V → ${ok ? 'THOẢ MÃN ✓' : 'KHÔNG THOẢ MÃN ✗'}\n\n`;
+  f += `Công suất nhiệt:\n`;
+  f += `P = (V_in − V_out) × I_tải\n`;
+  f += `  = (${V_in.toFixed(1)} − ${V_out}) × ${I_mA}mA\n`;
+  f += `  = ${V_drop.toFixed(2)} V × ${I.toFixed(3)} A = ${P_heat.toFixed(2)} W\n\n`;
+  if (P_heat > 1.5) {
+    f += `⚠ P = ${P_heat.toFixed(2)} W > 1.5 W — cần gắn tản nhiệt (heatsink)!\n`;
+    const R_theta_max = 50 / P_heat; // °C/W (target Tj < 80°C at 30°C ambient)
+    f += `Tản nhiệt cần: R_θ ≤ ${R_theta_max.toFixed(1)} °C/W`;
+  } else {
+    f += `P = ${P_heat.toFixed(2)} W — có thể không cần tản nhiệt (≤ 1.5 W).`;
+  }
+
+  if (!ok) {
+    f += `\n\n⚠ V_in (${V_in.toFixed(1)} V) < ${V_out + V_dropout_min} V → IC không ổn áp được!\n`;
+    f += `V_out thực tế ≈ V_in − V_dropout ≈ ${Math.max(0, V_in - V_dropout_min).toFixed(1)} V`;
+  }
+
+  document.getElementById('regResult').textContent = f;
+}
+
+// ════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════
+update();
+updateBridgeDiagram();
+calcRipple();
+calcReg();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

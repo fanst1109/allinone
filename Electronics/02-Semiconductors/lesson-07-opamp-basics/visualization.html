@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Op-amp cơ bản</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #a3e635; }
+
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  /* ── Accent palette (Electronics green) ── */
+  :root {
+    --acc: #4d7c0f;
+    --acc-soft: #ecfccb;
+    --pos: #dc2626;
+    --neg: #1d4ed8;
+    --gnd: #374151;
+    --warn: #b45309;
+    --sat: #dc2626;
+  }
+
+  /* ── Config buttons ── */
+  .cfg-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .cfg-row button {
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: 2px solid #d1d5db;
+    background: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.15s;
+  }
+  .cfg-row button.active {
+    background: var(--acc);
+    border-color: var(--acc);
+    color: white;
+  }
+
+  /* ── Sliders ── */
+  .slider-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 14px 0;
+  }
+  .sg { display: flex; flex-direction: column; gap: 5px; }
+  .sg label { font-weight: 700; font-size: 13px; color: #374151; }
+  .sg input[type="range"] { width: 100%; accent-color: var(--acc); }
+  .sg .sv {
+    font-family: monospace;
+    font-size: 14px;
+    color: var(--acc);
+    font-weight: 700;
+  }
+
+  /* ── Result box ── */
+  .result-box {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 2;
+  }
+  .result-box .hl { color: #14532d; font-weight: 700; font-size: 16px; }
+  .result-box .sat { color: var(--sat); font-weight: 700; }
+  .result-box .ok { color: #047857; font-weight: 600; }
+
+  /* ── Circuit SVG wrapper ── */
+  .circ-wrap {
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+
+  /* ── Golden rules display ── */
+  .gr-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+  .gr-badge {
+    background: #fefce8;
+    border: 2px solid #fde047;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #713f12;
+    text-align: center;
+    flex: 1 1 160px;
+  }
+  .gr-badge .val {
+    display: block;
+    margin-top: 4px;
+    font-size: 17px;
+    color: var(--acc);
+  }
+
+  /* ── Canvas signal ── */
+  .canvas-wrap {
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+  canvas {
+    display: block;
+    background: #1a202c;
+    border-radius: 8px;
+    max-width: 100%;
+  }
+
+  /* ── Tabs ── */
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 0;
+  }
+  .tab-bar button {
+    padding: 7px 14px;
+    border-radius: 6px 6px 0 0;
+    border: 2px solid #d1d5db;
+    border-bottom: none;
+    background: #f9fafb;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+  }
+  .tab-bar button.active {
+    background: white;
+    border-color: var(--acc);
+    color: var(--acc);
+    border-bottom: 2px solid white;
+    margin-bottom: -2px;
+  }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* ── Info note ── */
+  .info {
+    background: var(--acc-soft);
+    border-left: 4px solid var(--acc);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 10px 0;
+  }
+  .warn-note {
+    background: #fff7ed;
+    border-left: 4px solid #f59e0b;
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 10px 0;
+    color: #78350f;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .slider-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .gr-badge { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">&#127968; Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Semiconductors</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-mosfet/visualization.html">&#8592; L6: MOSFET</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Op-amp cơ bản</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-opamp-applications/visualization.html">L8: Op-amp ứng dụng &#8594;</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Op-amp cơ bản</h1>
+<p>Mô phỏng tương tác: chọn cấu hình, điều chỉnh R_in, R_f, V_in — xem A_v, V_out, sơ đồ mạch, 2 quy tắc vàng và tín hiệu sin khuếch đại / bão hòa theo thời gian thực.</p>
+
+<!-- ═══════════════════════════════════════════
+     MODULE 1 — Bộ mô phỏng cấu hình op-amp
+     ══════════════════════════════════════════ -->
+<h2>1. Bộ mô phỏng cấu hình</h2>
+<div class="card">
+
+  <!-- Config selector -->
+  <div class="cfg-row">
+    <button class="active" id="btn-noninv" onclick="setCfg('noninv')">Khuếch đại không đảo</button>
+    <button id="btn-inv" onclick="setCfg('inv')">Khuếch đại đảo</button>
+    <button id="btn-buf" onclick="setCfg('buf')">Buffer / Follower</button>
+  </div>
+
+  <!-- Sliders -->
+  <div id="slider-area">
+    <div class="slider-grid">
+      <div class="sg">
+        <label>V_in: <span class="sv" id="sv-vin">1.00 V</span></label>
+        <input type="range" id="sl-vin" min="-10" max="10" step="0.1" value="1" oninput="recalc()">
+      </div>
+      <div class="sg">
+        <label>Nguồn ±Vcc: <span class="sv" id="sv-vcc">15 V</span></label>
+        <input type="range" id="sl-vcc" min="5" max="18" step="1" value="15" oninput="recalc()">
+      </div>
+      <div class="sg" id="sg-rf">
+        <label>R_f: <span class="sv" id="sv-rf">40 kΩ</span></label>
+        <input type="range" id="sl-rf" min="1" max="200" step="1" value="40" oninput="recalc()">
+      </div>
+      <div class="sg" id="sg-rin">
+        <label>R_in: <span class="sv" id="sv-rin">10 kΩ</span></label>
+        <input type="range" id="sl-rin" min="1" max="100" step="1" value="10" oninput="recalc()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Golden Rules badges -->
+  <div class="gr-row">
+    <div class="gr-badge">
+      Quy tắc 1 — Virtual Short<br>
+      V+ = V−
+      <span class="val" id="gr-vplus-vminus">V+ = V− = 1.00 V</span>
+    </div>
+    <div class="gr-badge">
+      Quy tắc 2 — Zero Input Current<br>
+      I+ = I− = 0
+      <span class="val" id="gr-current">I+ = I− = 0 A</span>
+    </div>
+    <div class="gr-badge">
+      Hệ số khuếch đại<br>
+      A_v
+      <span class="val" id="gr-av">A_v = 5.00</span>
+    </div>
+  </div>
+
+  <!-- Result box -->
+  <div class="result-box" id="result-main">Kéo thanh trượt để xem kết quả...</div>
+
+  <!-- Circuit SVG (dynamic) -->
+  <div class="circ-wrap">
+    <svg id="circ-svg" width="600" height="340" viewBox="0 0 600 340">
+      <!-- rendered by JS -->
+    </svg>
+  </div>
+
+  <div class="info" id="cfg-info">
+    Mạch khuếch đại không đảo: V_in nối vào V+; hồi tiếp R_f từ V_out về V−; R_in từ V− xuống GND. A_v = 1 + R_f/R_in.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODULE 2 — Canvas tín hiệu sin
+     ══════════════════════════════════════════ -->
+<h2>2. Tín hiệu vào / ra (sin)</h2>
+<div class="card">
+  <p>Tín hiệu sin V_in (xanh) và V_out (cam). Khi V_out vượt rail (±Vcc) sẽ bị kẹp — clipping (bão hòa). Hệ số khuếch đại và cấu hình lấy từ Module 1.</p>
+  <div class="canvas-wrap">
+    <canvas id="sig-canvas" width="580" height="200"></canvas>
+  </div>
+  <div class="info" id="sig-info">V_in biên độ = 1.00 V · V_out biên độ lý tưởng = 5.00 V · Rail ±15 V — không bão hòa.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODULE 3 — Phân tích đất ảo / virtual short
+     ══════════════════════════════════════════ -->
+<h2>3. Minh họa đất ảo và đoản mạch ảo</h2>
+<div class="card">
+  <div class="tab-bar">
+    <button class="active" onclick="showTab(event,'vtab-vs')">Đoản mạch ảo (Virtual Short)</button>
+    <button onclick="showTab(event,'vtab-vg')">Đất ảo (Virtual Ground)</button>
+    <button onclick="showTab(event,'vtab-buf')">Buffer &amp; Loading Effect</button>
+  </div>
+
+  <!-- Tab: Virtual Short -->
+  <div class="tab-pane active" id="vtab-vs">
+    <div class="info">
+      <strong>Đoản mạch ảo (Virtual Short):</strong> Khi có hồi tiếp âm và A_OL = ∞, op-amp tự điều chỉnh V_out cho đến khi V+ = V−. Hai ngõ vào không nối dây nhưng điện áp bằng nhau — gọi là "ảo" vì không thật.
+    </div>
+
+    <div class="circ-wrap">
+      <svg width="500" height="260" viewBox="0 0 500 260">
+        <rect width="500" height="260" fill="#f8fafc" rx="10"/>
+
+        <!-- Op-amp triangle -->
+        <polygon points="200,80 200,200 320,140" fill="#ecfccb" stroke="#4d7c0f" stroke-width="2.5"/>
+        <text x="265" y="143" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700">Op-amp</text>
+        <text x="261" y="158" text-anchor="middle" fill="#4d7c0f" font-size="10">A_OL = ∞</text>
+
+        <!-- V+ input (non-inverting) -->
+        <line x1="80" y1="105" x2="200" y2="105" stroke="#dc2626" stroke-width="2.5"/>
+        <circle cx="80" cy="105" r="5" fill="#dc2626"/>
+        <text x="75" y="100" text-anchor="end" fill="#dc2626" font-size="13" font-weight="700">V+</text>
+        <text x="75" y="115" text-anchor="end" fill="#dc2626" font-size="11">(V_in)</text>
+        <text x="205" y="100" fill="#dc2626" font-size="11">+</text>
+
+        <!-- V− input (inverting) -->
+        <line x1="80" y1="175" x2="200" y2="175" stroke="#1d4ed8" stroke-width="2.5"/>
+        <circle cx="80" cy="175" r="5" fill="#1d4ed8"/>
+        <text x="75" y="178" text-anchor="end" fill="#1d4ed8" font-size="13" font-weight="700">V−</text>
+        <text x="205" y="183" fill="#1d4ed8" font-size="11">−</text>
+
+        <!-- Output line -->
+        <line x1="320" y1="140" x2="440" y2="140" stroke="#4d7c0f" stroke-width="2.5"/>
+        <circle cx="440" cy="140" r="5" fill="#4d7c0f"/>
+        <text x="445" y="144" fill="#4d7c0f" font-size="13" font-weight="700">V_out</text>
+
+        <!-- Feedback path: V_out → R_f → V− -->
+        <line x1="390" y1="140" x2="390" y2="220" stroke="#374151" stroke-width="2"/>
+        <line x1="390" y1="220" x2="130" y2="220" stroke="#374151" stroke-width="2"/>
+        <line x1="130" y1="220" x2="130" y2="175" stroke="#374151" stroke-width="2"/>
+        <!-- R_f label on feedback -->
+        <rect x="330" y="213" width="50" height="18" fill="white" stroke="#374151" stroke-width="1.5" rx="3"/>
+        <text x="355" y="225" text-anchor="middle" fill="#374151" font-size="11" font-weight="700">R_f</text>
+        <line x1="130" y1="175" x2="200" y2="175" stroke="#374151" stroke-width="2"/>
+        <!-- Node at V− junction -->
+        <circle cx="130" cy="175" r="4" fill="#374151"/>
+
+        <!-- R_in: V− to GND -->
+        <line x1="130" y1="175" x2="130" y2="250" stroke="#374151" stroke-width="2"/>
+        <rect x="110" y="195" width="40" height="18" fill="white" stroke="#374151" stroke-width="1.5" rx="3"/>
+        <text x="130" y="207" text-anchor="middle" fill="#374151" font-size="11" font-weight="700">R_in</text>
+        <!-- GND symbol -->
+        <line x1="116" y1="250" x2="144" y2="250" stroke="#374151" stroke-width="2"/>
+        <line x1="120" y1="254" x2="140" y2="254" stroke="#374151" stroke-width="1.5"/>
+        <line x1="124" y1="258" x2="136" y2="258" stroke="#374151" stroke-width="1"/>
+
+        <!-- Virtual Short annotation -->
+        <line x1="80" y1="105" x2="80" y2="175" stroke="#fbbf24" stroke-width="2" stroke-dasharray="6,4"/>
+        <rect x="10" y="130" width="60" height="22" fill="#fefce8" stroke="#fde047" stroke-width="1.5" rx="4"/>
+        <text x="40" y="143" text-anchor="middle" fill="#713f12" font-size="10" font-weight="700">V+ = V−</text>
+        <text x="40" y="160" text-anchor="middle" fill="#713f12" font-size="9">(virtual short)</text>
+
+        <!-- No actual wire indicator -->
+        <text x="253" y="145" text-anchor="middle" fill="#9ca3af" font-size="10">Không nối dây!</text>
+        <line x1="200" y1="105" x2="200" y2="140" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="200" y1="140" x2="200" y2="175" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4,3"/>
+      </svg>
+    </div>
+    <div class="warn-note">
+      V+ = V− là kết quả của hồi tiếp âm — KHÔNG phải nối dây. Nếu hồi tiếp bị đứt, V+ ≠ V− và op-amp sẽ bão hòa ngay lập tức.
+    </div>
+  </div>
+
+  <!-- Tab: Virtual Ground -->
+  <div class="tab-pane" id="vtab-vg">
+    <div class="info">
+      <strong>Đất ảo (Virtual Ground):</strong> Trong mạch đảo, V+ = GND = 0 V. Quy tắc vàng 1 → V− = V+ = 0 V. Điểm V− luôn ở 0 V nhờ hồi tiếp âm, dù V_in thay đổi. Dòng không thể thoát ra GND qua điểm này — đó là "ảo".
+    </div>
+
+    <div class="circ-wrap">
+      <svg width="520" height="280" viewBox="0 0 520 280">
+        <rect width="520" height="280" fill="#f8fafc" rx="10"/>
+
+        <!-- Op-amp -->
+        <polygon points="220,80 220,200 340,140" fill="#ecfccb" stroke="#4d7c0f" stroke-width="2.5"/>
+        <text x="285" y="143" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700">Op-amp</text>
+
+        <!-- V_in → R_in → V− -->
+        <line x1="30" y1="155" x2="100" y2="155" stroke="#dc2626" stroke-width="2.5"/>
+        <circle cx="30" cy="155" r="5" fill="#dc2626"/>
+        <text x="25" y="150" text-anchor="end" fill="#dc2626" font-size="12" font-weight="700">V_in</text>
+        <!-- R_in box -->
+        <rect x="100" y="145" width="60" height="20" fill="white" stroke="#4d7c0f" stroke-width="2" rx="3"/>
+        <text x="130" y="158" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700">R_in</text>
+        <line x1="160" y1="155" x2="220" y2="155" stroke="#374151" stroke-width="2.5"/>
+        <!-- Current arrow on R_in -->
+        <text x="140" y="142" text-anchor="middle" fill="#1d4ed8" font-size="10">I →</text>
+
+        <!-- V− node -->
+        <circle cx="190" cy="155" r="5" fill="#1d4ed8"/>
+        <text x="185" y="148" text-anchor="end" fill="#1d4ed8" font-size="12" font-weight="700">V−</text>
+        <text x="220" y="180" fill="#1d4ed8" font-size="11">−</text>
+
+        <!-- V+ = GND -->
+        <line x1="100" y1="175" x2="220" y2="175" stroke="#374151" stroke-width="2"/>
+        <text x="95" y="178" text-anchor="end" fill="#374151" font-size="12" font-weight="700">V+ = 0V</text>
+        <text x="222" y="173" fill="#374151" font-size="11">+</text>
+        <!-- GND symbol at V+ -->
+        <line x1="60" y1="175" x2="60" y2="260" stroke="#374151" stroke-width="2"/>
+        <line x1="100" y1="175" x2="60" y2="175" stroke="#374151" stroke-width="2"/>
+        <line x1="46" y1="260" x2="74" y2="260" stroke="#374151" stroke-width="2"/>
+        <line x1="50" y1="265" x2="70" y2="265" stroke="#374151" stroke-width="1.5"/>
+        <line x1="54" y1="270" x2="66" y2="270" stroke="#374151" stroke-width="1"/>
+        <text x="60" y="253" text-anchor="middle" fill="#374151" font-size="10" font-weight="700">GND</text>
+
+        <!-- Output line -->
+        <line x1="340" y1="140" x2="460" y2="140" stroke="#4d7c0f" stroke-width="2.5"/>
+        <circle cx="460" cy="140" r="5" fill="#4d7c0f"/>
+        <text x="465" y="144" fill="#4d7c0f" font-size="13" font-weight="700">V_out</text>
+
+        <!-- Feedback: V_out → R_f → V− -->
+        <line x1="410" y1="140" x2="410" y2="230" stroke="#374151" stroke-width="2"/>
+        <line x1="410" y1="230" x2="190" y2="230" stroke="#374151" stroke-width="2"/>
+        <line x1="190" y1="230" x2="190" y2="155" stroke="#374151" stroke-width="2"/>
+        <!-- R_f on feedback -->
+        <rect x="350" y="222" width="50" height="18" fill="white" stroke="#374151" stroke-width="1.5" rx="3"/>
+        <text x="375" y="234" text-anchor="middle" fill="#374151" font-size="11" font-weight="700">R_f</text>
+        <!-- Current arrow on feedback -->
+        <text x="300" y="222" text-anchor="middle" fill="#1d4ed8" font-size="10">← I</text>
+
+        <!-- Virtual ground annotation -->
+        <rect x="155" y="100" width="80" height="26" fill="#fefce8" stroke="#fde047" stroke-width="2" rx="5"/>
+        <text x="195" y="115" text-anchor="middle" fill="#713f12" font-size="11" font-weight="700">V− = 0 V</text>
+        <text x="195" y="128" text-anchor="middle" fill="#713f12" font-size="9">Đất ảo!</text>
+        <line x1="190" y1="130" x2="190" y2="148" stroke="#fbbf24" stroke-width="2" stroke-dasharray="4,3"/>
+
+        <!-- No current to real GND label -->
+        <text x="100" y="205" text-anchor="middle" fill="#9ca3af" font-size="9">Dòng KHÔNG thoát</text>
+        <text x="100" y="215" text-anchor="middle" fill="#9ca3af" font-size="9">ra GND thật qua V−</text>
+      </svg>
+    </div>
+    <div class="warn-note">
+      Đất ảo: V− = 0 V nhờ hồi tiếp âm. Toàn bộ dòng I_in từ R_in phải chạy qua R_f. KHÔNG có dòng nào chảy vào đất qua điểm V− này.
+    </div>
+  </div>
+
+  <!-- Tab: Buffer & Loading Effect -->
+  <div class="tab-pane" id="vtab-buf">
+    <div class="info">
+      <strong>Buffer giải quyết loading effect:</strong> Mạch phân áp bị kéo lệch khi tải nhỏ. Buffer op-amp cách ly tải, duy trì điện áp phân áp đúng.
+    </div>
+
+    <!-- Loading effect calculator -->
+    <div class="slider-grid" style="margin-bottom:12px;">
+      <div class="sg">
+        <label>V_nguồn: <span class="sv" id="buf-vcc-lbl">10 V</span></label>
+        <input type="range" id="buf-vcc" min="3" max="20" step="1" value="10" oninput="calcBuffer()">
+      </div>
+      <div class="sg">
+        <label>R_1 = R_2: <span class="sv" id="buf-r-lbl">10 kΩ</span></label>
+        <input type="range" id="buf-r" min="1" max="100" step="1" value="10" oninput="calcBuffer()">
+      </div>
+      <div class="sg">
+        <label>Tải R_L: <span class="sv" id="buf-rl-lbl">1 kΩ</span></label>
+        <input type="range" id="buf-rl" min="0.1" max="100" step="0.1" value="1" oninput="calcBuffer()">
+      </div>
+    </div>
+    <div class="result-box" id="buf-result">Kéo thanh trượt...</div>
+
+    <div class="circ-wrap">
+      <svg width="520" height="220" viewBox="0 0 520 220">
+        <rect width="520" height="220" fill="#f8fafc" rx="10"/>
+
+        <!-- Left side: divider without buffer -->
+        <text x="90" y="20" text-anchor="middle" fill="#374151" font-size="12" font-weight="700">Không có Buffer</text>
+        <!-- V source -->
+        <circle cx="30" cy="60" r="16" fill="white" stroke="#dc2626" stroke-width="2"/>
+        <text x="30" y="64" text-anchor="middle" fill="#dc2626" font-size="11" font-weight="700">V</text>
+        <line x1="30" y1="44" x2="30" y2="30" stroke="#dc2626" stroke-width="2"/>
+        <line x1="30" y1="76" x2="30" y2="190" stroke="#374151" stroke-width="2"/>
+        <line x1="30" y1="30" x2="80" y2="30" stroke="#dc2626" stroke-width="2"/>
+        <!-- R1 -->
+        <rect x="80" y="22" width="40" height="16" fill="white" stroke="#374151" stroke-width="1.5" rx="2"/>
+        <text x="100" y="33" text-anchor="middle" fill="#374151" font-size="10" font-weight="700">R1</text>
+        <line x1="120" y1="30" x2="150" y2="30" stroke="#374151" stroke-width="2"/>
+        <!-- Node -->
+        <circle cx="150" cy="30" r="4" fill="#374151"/>
+        <!-- R2 down -->
+        <line x1="150" y1="30" x2="150" y2="60" stroke="#374151" stroke-width="2"/>
+        <rect x="132" y="60" width="36" height="16" fill="white" stroke="#374151" stroke-width="1.5" rx="2"/>
+        <text x="150" y="71" text-anchor="middle" fill="#374151" font-size="10" font-weight="700">R2</text>
+        <line x1="150" y1="76" x2="150" y2="190" stroke="#374151" stroke-width="2"/>
+        <line x1="30" y1="190" x2="150" y2="190" stroke="#374151" stroke-width="2"/>
+        <!-- Load RL (parallel to R2) -->
+        <line x1="150" y1="30" x2="170" y2="30" stroke="#374151" stroke-width="2"/>
+        <line x1="170" y1="30" x2="170" y2="60" stroke="#374151" stroke-width="2"/>
+        <rect x="152" y="60" width="36" height="16" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" rx="2"/>
+        <text x="170" y="71" text-anchor="middle" fill="#dc2626" font-size="10" font-weight="700">R_L</text>
+        <line x1="170" y1="76" x2="170" y2="190" stroke="#dc2626" stroke-width="2"/>
+        <!-- Output label -->
+        <text x="155" y="45" fill="#dc2626" font-size="10" id="no-buf-lbl">V_out↓</text>
+
+        <!-- Right side: with buffer -->
+        <text x="380" y="20" text-anchor="middle" fill="#374151" font-size="12" font-weight="700">Có Buffer</text>
+        <!-- V source -->
+        <circle cx="240" cy="60" r="16" fill="white" stroke="#dc2626" stroke-width="2"/>
+        <text x="240" y="64" text-anchor="middle" fill="#dc2626" font-size="11" font-weight="700">V</text>
+        <line x1="240" y1="44" x2="240" y2="30" stroke="#dc2626" stroke-width="2"/>
+        <line x1="240" y1="76" x2="240" y2="190" stroke="#374151" stroke-width="2"/>
+        <line x1="240" y1="30" x2="290" y2="30" stroke="#dc2626" stroke-width="2"/>
+        <!-- R1 -->
+        <rect x="290" y="22" width="40" height="16" fill="white" stroke="#374151" stroke-width="1.5" rx="2"/>
+        <text x="310" y="33" text-anchor="middle" fill="#374151" font-size="10" font-weight="700">R1</text>
+        <line x1="330" y1="30" x2="360" y2="30" stroke="#374151" stroke-width="2"/>
+        <!-- Node -->
+        <circle cx="360" cy="30" r="4" fill="#374151"/>
+        <!-- R2 down -->
+        <line x1="360" y1="30" x2="360" y2="60" stroke="#374151" stroke-width="2"/>
+        <rect x="342" y="60" width="36" height="16" fill="white" stroke="#374151" stroke-width="1.5" rx="2"/>
+        <text x="360" y="71" text-anchor="middle" fill="#374151" font-size="10" font-weight="700">R2</text>
+        <line x1="360" y1="76" x2="360" y2="190" stroke="#374151" stroke-width="2"/>
+        <line x1="240" y1="190" x2="500" y2="190" stroke="#374151" stroke-width="2"/>
+        <!-- Buffer op-amp (small) -->
+        <polygon points="375,22 375,40 395,31" fill="#ecfccb" stroke="#4d7c0f" stroke-width="1.5"/>
+        <text x="382" y="34" text-anchor="middle" fill="#4d7c0f" font-size="8">BUF</text>
+        <line x1="360" y1="30" x2="375" y2="30" stroke="#374151" stroke-width="2"/>
+        <!-- Feedback -->
+        <line x1="395" y1="31" x2="410" y2="31" stroke="#4d7c0f" stroke-width="1.5"/>
+        <line x1="408" y1="31" x2="408" y2="42" stroke="#4d7c0f" stroke-width="1.5"/>
+        <line x1="375" y1="42" x2="408" y2="42" stroke="#4d7c0f" stroke-width="1.5"/>
+        <!-- Load RL after buffer -->
+        <line x1="410" y1="31" x2="440" y2="31" stroke="#4d7c0f" stroke-width="2"/>
+        <line x1="440" y1="31" x2="440" y2="60" stroke="#4d7c0f" stroke-width="2"/>
+        <rect x="422" y="60" width="36" height="16" fill="#dcfce7" stroke="#4d7c0f" stroke-width="1.5" rx="2"/>
+        <text x="440" y="71" text-anchor="middle" fill="#047857" font-size="10" font-weight="700">R_L</text>
+        <line x1="440" y1="76" x2="440" y2="190" stroke="#4d7c0f" stroke-width="2"/>
+        <!-- Output label ok -->
+        <text x="450" y="45" fill="#047857" font-size="10" id="buf-lbl">V_out = V/2</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODULE 4 — Bảng so sánh 3 cấu hình
+     ══════════════════════════════════════════ -->
+<h2>4. So sánh 3 cấu hình</h2>
+<div class="card">
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse; font-size:14px;">
+      <thead>
+        <tr style="background:#4d7c0f; color:white;">
+          <th style="padding:10px; text-align:left;">Thông số</th>
+          <th style="padding:10px; text-align:center;">Không đảo</th>
+          <th style="padding:10px; text-align:center;">Đảo</th>
+          <th style="padding:10px; text-align:center;">Buffer</th>
+        </tr>
+      </thead>
+      <tbody id="compare-tbody">
+        <tr>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; font-weight:600;">Công thức A_v</td>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; text-align:center; font-family:monospace;">1 + R_f/R_in</td>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; text-align:center; font-family:monospace;">−R_f/R_in</td>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; text-align:center; font-family:monospace;">1</td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; font-weight:600;">Pha V_out</td>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; text-align:center;">Cùng pha</td>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; text-align:center;">Ngược pha (180°)</td>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; text-align:center;">Cùng pha</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; font-weight:600;">|A_v| min</td>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; text-align:center;">1 (khi R_f=0)</td>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; text-align:center;">0 → ∞</td>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; text-align:center;">1 (cố định)</td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; font-weight:600;">Trở kháng vào Z_in</td>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; text-align:center;">~2 MΩ (rất cao)</td>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; text-align:center;">= R_in</td>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; text-align:center;">~2 MΩ (rất cao)</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; font-weight:600;">Ngõ vào V_in nối tới</td>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; text-align:center;">V+ (không đảo)</td>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; text-align:center;">V− qua R_in</td>
+          <td style="padding:8px 10px; border-bottom:1px solid #e5e7eb; text-align:center;">V+ (không đảo)</td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td style="padding:8px 10px; font-weight:600;">Ứng dụng tiêu biểu</td>
+          <td style="padding:8px 10px; text-align:center;">Mic pre-amp, sensor amp</td>
+          <td style="padding:8px 10px; text-align:center;">Mạch tổng, bộ lọc</td>
+          <td style="padding:8px 10px; text-align:center;">Cách ly tải, ADC driver</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+let currentCfg = 'noninv'; // 'noninv' | 'inv' | 'buf'
+
+// ══════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════
+function fmt(v, digits) {
+  if (Math.abs(v) >= 1000) return (v/1000).toFixed(2) + ' kΩ';
+  return v.toFixed(digits !== undefined ? digits : 2);
+}
+function fmtV(v) {
+  return v.toFixed(2) + ' V';
+}
+function fmtR(r) {
+  return r >= 1000 ? (r/1000).toFixed(1) + ' kΩ' : r.toFixed(0) + ' Ω';
+}
+
+// ══════════════════════════════════════════════════
+// CONFIGURATION SWITCH
+// ══════════════════════════════════════════════════
+function setCfg(cfg) {
+  currentCfg = cfg;
+  document.querySelectorAll('.cfg-row button').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + cfg).classList.add('active');
+
+  const sg_rf  = document.getElementById('sg-rf');
+  const sg_rin = document.getElementById('sg-rin');
+
+  if (cfg === 'buf') {
+    sg_rf.style.opacity = '0.35';
+    sg_rin.style.opacity = '0.35';
+    sg_rf.querySelector('input').disabled = true;
+    sg_rin.querySelector('input').disabled = true;
+    document.getElementById('cfg-info').textContent =
+      'Buffer/Voltage Follower: V_in nối thẳng vào V+; ngõ ra nối thẳng về V−. A_v = 1 (cố định). Không cần R_f hay R_in.';
+  } else {
+    sg_rf.style.opacity = '1';
+    sg_rin.style.opacity = '1';
+    sg_rf.querySelector('input').disabled = false;
+    sg_rin.querySelector('input').disabled = false;
+    if (cfg === 'noninv') {
+      document.getElementById('cfg-info').textContent =
+        'Mạch khuếch đại không đảo: V_in nối vào V+; hồi tiếp R_f từ V_out về V−; R_in từ V− xuống GND. A_v = 1 + R_f/R_in.';
+    } else {
+      document.getElementById('cfg-info').textContent =
+        'Mạch khuếch đại đảo: V_in qua R_in vào V−; V+ = GND; R_f từ V_out về V−. A_v = −R_f/R_in. V− = 0 V (đất ảo).';
+    }
+  }
+  recalc();
+}
+
+// ══════════════════════════════════════════════════
+// MAIN RECALCULATION
+// ══════════════════════════════════════════════════
+function recalc() {
+  const vin  = parseFloat(document.getElementById('sl-vin').value);
+  const vcc  = parseFloat(document.getElementById('sl-vcc').value);
+  const rf   = parseFloat(document.getElementById('sl-rf').value);   // kΩ
+  const rin  = parseFloat(document.getElementById('sl-rin').value);  // kΩ
+
+  document.getElementById('sv-vin').textContent = vin.toFixed(2) + ' V';
+  document.getElementById('sv-vcc').textContent = vcc.toFixed(0) + ' V';
+  document.getElementById('sv-rf').textContent  = rf.toFixed(0) + ' kΩ';
+  document.getElementById('sv-rin').textContent = rin.toFixed(0) + ' kΩ';
+
+  // Rail estimate: 1.5 V below Vcc (741/LM358 typical)
+  const rail = vcc - 1.5;
+
+  let av, vout_ideal, vout, satMsg, vplus, vminus;
+
+  if (currentCfg === 'noninv') {
+    av = 1 + rf / rin;
+    vout_ideal = av * vin;
+    vplus  = vin;
+    vminus = vin; // virtual short
+  } else if (currentCfg === 'inv') {
+    av = -(rf / rin);
+    vout_ideal = av * vin;
+    vplus  = 0;
+    vminus = 0; // virtual ground
+  } else { // buf
+    av = 1;
+    vout_ideal = vin;
+    vplus  = vin;
+    vminus = vin;
+  }
+
+  // Clamp to rail
+  let saturated = false;
+  let satDir = '';
+  if (vout_ideal > rail) {
+    vout = rail;
+    saturated = true;
+    satDir = 'dương';
+  } else if (vout_ideal < -rail) {
+    vout = -rail;
+    saturated = true;
+    satDir = 'âm';
+  } else {
+    vout = vout_ideal;
+  }
+
+  // Current through R_in (for inv / noninv)
+  let i_rin_uA = 0;
+  if (currentCfg === 'noninv' && !saturated) {
+    i_rin_uA = vminus / (rin * 1000) * 1e6; // μA
+  } else if (currentCfg === 'inv') {
+    i_rin_uA = vin / (rin * 1000) * 1e6;
+  }
+
+  // Update golden rules badges
+  let vpvmText;
+  if (currentCfg === 'noninv' || currentCfg === 'buf') {
+    vpvmText = 'V+ = V− = ' + fmtV(vin);
+  } else {
+    vpvmText = 'V+ = V− = 0 V (đất ảo)';
+  }
+  document.getElementById('gr-vplus-vminus').textContent = vpvmText;
+  document.getElementById('gr-current').textContent = 'I+ = I− = 0 A';
+  document.getElementById('gr-av').textContent = 'A_v = ' + av.toFixed(2);
+
+  // Result box
+  let html = '';
+  if (currentCfg === 'noninv') {
+    html += `A_v = 1 + R_f/R_in = 1 + ${rf.toFixed(0)}/${rin.toFixed(0)} = <span class="hl">${av.toFixed(2)}</span><br>`;
+    html += `V_out lý tưởng = A_v × V_in = ${av.toFixed(2)} × ${fmtV(vin)} = <span class="hl">${fmtV(vout_ideal)}</span><br>`;
+  } else if (currentCfg === 'inv') {
+    html += `A_v = −R_f/R_in = −${rf.toFixed(0)}/${rin.toFixed(0)} = <span class="hl">${av.toFixed(2)}</span><br>`;
+    html += `V_out lý tưởng = ${av.toFixed(2)} × ${fmtV(vin)} = <span class="hl">${fmtV(vout_ideal)}</span><br>`;
+    html += `Đất ảo: V− = 0 V · I_rin = V_in/R_in = ${fmtV(vin)} / ${rin.toFixed(0)} kΩ = <span class="hl">${i_rin_uA.toFixed(1)} μA</span><br>`;
+  } else {
+    html += `Buffer: A_v = 1 (cố định). V_out = V_in = <span class="hl">${fmtV(vin)}</span><br>`;
+    html += `Trở kháng vào: ~2 MΩ (rất cao). Trở kháng ra: ~75 Ω (thấp).<br>`;
+  }
+
+  if (saturated) {
+    html += `<span class="sat">BAO HOA (${satDir})! V_out bị kẹp ≈ ${fmtV(vout)} (rail ±${vcc.toFixed(0)} V, giới hạn thực ≈ ±${rail.toFixed(1)} V)</span>`;
+  } else {
+    html += `<span class="ok">V_out = ${fmtV(vout)} · Rail ±${vcc.toFixed(0)} V — không bão hòa. Biên an toàn = ${(rail - Math.abs(vout)).toFixed(2)} V</span>`;
+  }
+  document.getElementById('result-main').innerHTML = html;
+
+  // Draw SVG circuit
+  drawCircuit(currentCfg, vin, vcc, rf, rin, vout, saturated);
+
+  // Draw signal canvas
+  drawSignal(av, vin, vcc);
+}
+
+// ══════════════════════════════════════════════════
+// CIRCUIT SVG DRAWING
+// ══════════════════════════════════════════════════
+function drawCircuit(cfg, vin, vcc, rf, rin, vout, sat) {
+  const svg = document.getElementById('circ-svg');
+  const W = 600, H = 340;
+
+  const col = {
+    bg: '#f8fafc',
+    wire: '#374151',
+    pos: '#dc2626',
+    neg: '#1d4ed8',
+    amp: '#4d7c0f',
+    ampFill: '#ecfccb',
+    out: '#4d7c0f',
+    satColor: '#dc2626',
+    fb: '#374151',
+  };
+
+  let markup = `<rect width="${W}" height="${H}" fill="${col.bg}" rx="10"/>`;
+
+  // Op-amp triangle (centered)
+  const ax = 260, ay = 120, aw = 100, ah = 100;
+  // Points: left-top, left-bottom, right-apex
+  const p1x = ax, p1y = ay;
+  const p2x = ax, p2y = ay + ah;
+  const p3x = ax + aw, p3y = ay + ah/2;
+  markup += `<polygon points="${p1x},${p1y} ${p2x},${p2y} ${p3x},${p3y}" fill="${col.ampFill}" stroke="${col.amp}" stroke-width="2.5"/>`;
+  markup += `<text x="${ax+38}" y="${ay+46}" text-anchor="middle" fill="${col.amp}" font-size="11" font-weight="700">Op-amp</text>`;
+  markup += `<text x="${p1x+8}" y="${ay+32}" fill="${col.amp}" font-size="13" font-weight="700">+</text>`;
+  markup += `<text x="${p1x+8}" y="${ay+78}" fill="${col.amp}" font-size="13" font-weight="700">−</text>`;
+
+  // Power supply indicators (small)
+  markup += `<text x="${ax+45}" y="${ay-8}" text-anchor="middle" fill="#9333ea" font-size="10">+${vcc.toFixed(0)}V</text>`;
+  markup += `<text x="${ax+45}" y="${ay+ah+18}" text-anchor="middle" fill="#9333ea" font-size="10">−${vcc.toFixed(0)}V</text>`;
+
+  // V+ pin position
+  const vpx = ax, vpy = ay + 30;
+  // V− pin position
+  const vmx = ax, vmy = ay + 70;
+  // Output position
+  const outx = p3x, outy = p3y;
+
+  if (cfg === 'noninv') {
+    // V_in → V+ (direct)
+    markup += `<circle cx="60" cy="${vpy}" r="7" fill="${col.pos}" stroke="white" stroke-width="1.5"/>`;
+    markup += `<text x="60" y="${vpy-12}" text-anchor="middle" fill="${col.pos}" font-size="12" font-weight="700">V_in=${vin.toFixed(1)}V</text>`;
+    markup += `<line x1="67" y1="${vpy}" x2="${vpx}" y2="${vpy}" stroke="${col.pos}" stroke-width="2.5"/>`;
+
+    // R_in: V− to GND
+    markup += `<line x1="${vmx}" y1="${vmy}" x2="160" y2="${vmy}" stroke="${col.wire}" stroke-width="2.5"/>`;
+    markup += `<circle cx="160" cy="${vmy}" r="4" fill="${col.wire}"/>`;
+    markup += `<rect x="135" y="${vmy+5}" width="50" height="20" fill="white" stroke="${col.amp}" stroke-width="1.5" rx="3"/>`;
+    markup += `<text x="160" y="${vmy+19}" text-anchor="middle" fill="${col.amp}" font-size="11" font-weight="700">R_in=${rin.toFixed(0)}k</text>`;
+    markup += `<line x1="160" y1="${vmy+25}" x2="160" y2="${H-30}" stroke="${col.wire}" stroke-width="2"/>`;
+    // GND
+    markup += gndSym(160, H-30);
+
+    // Output wire
+    const oWireX = outx + 100;
+    markup += `<line x1="${outx}" y1="${outy}" x2="${oWireX}" y2="${outy}" stroke="${sat?col.satColor:col.out}" stroke-width="2.5"/>`;
+    markup += `<circle cx="${oWireX}" cy="${outy}" r="6" fill="${sat?col.satColor:col.out}"/>`;
+    markup += `<text x="${oWireX+10}" y="${outy+5}" fill="${sat?col.satColor:col.out}" font-size="13" font-weight="700">V_out=${vout.toFixed(2)}V${sat?' (SAT!)':''}</text>`;
+
+    // Feedback: V_out node → R_f → node at V− on wire
+    const fbNodeX = oWireX;
+    markup += `<line x1="${fbNodeX}" y1="${outy}" x2="${fbNodeX}" y2="${vmy-30}" stroke="${col.fb}" stroke-width="2"/>`;
+    markup += `<line x1="${fbNodeX}" y1="${vmy-30}" x2="160" y2="${vmy-30}" stroke="${col.fb}" stroke-width="2"/>`;
+    // R_f on top feedback line
+    const rfCx = (fbNodeX + 160) / 2;
+    markup += `<rect x="${rfCx-28}" y="${vmy-40}" width="56" height="20" fill="white" stroke="${col.wire}" stroke-width="1.5" rx="3"/>`;
+    markup += `<text x="${rfCx}" y="${vmy-26}" text-anchor="middle" fill="${col.wire}" font-size="11" font-weight="700">R_f=${rf.toFixed(0)}k</text>`;
+    markup += `<line x1="160" y1="${vmy-30}" x2="160" y2="${vmy}" stroke="${col.fb}" stroke-width="2"/>`;
+
+  } else if (cfg === 'inv') {
+    // V+ = GND
+    markup += `<line x1="${vpx}" y1="${vpy}" x2="60" y2="${vpy}" stroke="${col.wire}" stroke-width="2"/>`;
+    markup += `<line x1="60" y1="${vpy}" x2="60" y2="${H-30}" stroke="${col.wire}" stroke-width="2"/>`;
+    markup += gndSym(60, H-30);
+    markup += `<text x="65" y="${vpy-8}" fill="${col.wire}" font-size="10" font-weight="700">V+=0V</text>`;
+
+    // V_in → R_in → V−
+    markup += `<circle cx="40" cy="${vmy}" r="7" fill="${col.pos}" stroke="white" stroke-width="1.5"/>`;
+    markup += `<text x="40" y="${vmy-12}" text-anchor="middle" fill="${col.pos}" font-size="12" font-weight="700">V_in=${vin.toFixed(1)}V</text>`;
+    markup += `<line x1="47" y1="${vmy}" x2="120" y2="${vmy}" stroke="${col.pos}" stroke-width="2.5"/>`;
+    // R_in box
+    markup += `<rect x="120" y="${vmy-10}" width="56" height="20" fill="white" stroke="${col.amp}" stroke-width="1.5" rx="3"/>`;
+    markup += `<text x="148" y="${vmy+4}" text-anchor="middle" fill="${col.amp}" font-size="11" font-weight="700">R_in=${rin.toFixed(0)}k</text>`;
+    markup += `<line x1="176" y1="${vmy}" x2="${vmx}" y2="${vmy}" stroke="${col.pos}" stroke-width="2.5"/>`;
+
+    // Virtual ground annotation at V−
+    markup += `<circle cx="${vmx-10}" cy="${vmy}" r="5" fill="#fbbf24"/>`;
+    markup += `<text x="${vmx-15}" y="${vmy-12}" text-anchor="end" fill="#713f12" font-size="10" font-weight="700">V−=0V</text>`;
+    markup += `<text x="${vmx-15}" y="${vmy+20}" text-anchor="end" fill="#713f12" font-size="9">(đất ảo)</text>`;
+
+    // Output wire
+    const oWireX = outx + 100;
+    markup += `<line x1="${outx}" y1="${outy}" x2="${oWireX}" y2="${outy}" stroke="${sat?col.satColor:col.out}" stroke-width="2.5"/>`;
+    markup += `<circle cx="${oWireX}" cy="${outy}" r="6" fill="${sat?col.satColor:col.out}"/>`;
+    markup += `<text x="${oWireX+10}" y="${outy+5}" fill="${sat?col.satColor:col.out}" font-size="13" font-weight="700">V_out=${vout.toFixed(2)}V${sat?' (SAT!)':''}</text>`;
+
+    // Feedback: V_out → R_f → V− node
+    const fbNodeX = oWireX;
+    markup += `<line x1="${fbNodeX}" y1="${outy}" x2="${fbNodeX}" y2="${vmy-30}" stroke="${col.fb}" stroke-width="2"/>`;
+    markup += `<line x1="${fbNodeX}" y1="${vmy-30}" x2="${vmx}" y2="${vmy-30}" stroke="${col.fb}" stroke-width="2"/>`;
+    const rfCx2 = (fbNodeX + vmx) / 2;
+    markup += `<rect x="${rfCx2-28}" y="${vmy-42}" width="56" height="20" fill="white" stroke="${col.wire}" stroke-width="1.5" rx="3"/>`;
+    markup += `<text x="${rfCx2}" y="${vmy-28}" text-anchor="middle" fill="${col.wire}" font-size="11" font-weight="700">R_f=${rf.toFixed(0)}k</text>`;
+    markup += `<line x1="${vmx}" y1="${vmy-30}" x2="${vmx}" y2="${vmy}" stroke="${col.fb}" stroke-width="2"/>`;
+    markup += `<circle cx="${vmx}" cy="${vmy}" r="4" fill="${col.wire}"/>`;
+
+  } else {
+    // Buffer
+    // V_in → V+
+    markup += `<circle cx="60" cy="${vpy}" r="7" fill="${col.pos}" stroke="white" stroke-width="1.5"/>`;
+    markup += `<text x="60" y="${vpy-12}" text-anchor="middle" fill="${col.pos}" font-size="12" font-weight="700">V_in=${vin.toFixed(1)}V</text>`;
+    markup += `<line x1="67" y1="${vpy}" x2="${vpx}" y2="${vpy}" stroke="${col.pos}" stroke-width="2.5"/>`;
+
+    // Output wire
+    const oWireX = outx + 100;
+    markup += `<line x1="${outx}" y1="${outy}" x2="${oWireX}" y2="${outy}" stroke="${col.out}" stroke-width="2.5"/>`;
+    markup += `<circle cx="${oWireX}" cy="${outy}" r="6" fill="${col.out}"/>`;
+    markup += `<text x="${oWireX+10}" y="${outy+5}" fill="${col.out}" font-size="13" font-weight="700">V_out=${vout.toFixed(2)}V (=V_in)</text>`;
+
+    // Direct feedback: output → V−
+    const fbNodeX = oWireX;
+    markup += `<line x1="${fbNodeX}" y1="${outy}" x2="${fbNodeX}" y2="${vmy-15}" stroke="${col.fb}" stroke-width="2"/>`;
+    markup += `<line x1="${fbNodeX}" y1="${vmy-15}" x2="${vmx}" y2="${vmy-15}" stroke="${col.fb}" stroke-width="2"/>`;
+    markup += `<line x1="${vmx}" y1="${vmy-15}" x2="${vmx}" y2="${vmy}" stroke="${col.fb}" stroke-width="2"/>`;
+    markup += `<text x="${(fbNodeX+vmx)/2}" y="${vmy-20}" text-anchor="middle" fill="${col.fb}" font-size="10">Hồi tiếp trực tiếp (A_v=1)</text>`;
+
+    // A_v = 1 badge
+    markup += `<rect x="${ax+10}" y="${ay+ah+30}" width="80" height="22" fill="#fefce8" stroke="#fde047" stroke-width="2" rx="5"/>`;
+    markup += `<text x="${ax+50}" y="${ay+ah+44}" text-anchor="middle" fill="#713f12" font-size="12" font-weight="700">A_v = 1</text>`;
+  }
+
+  svg.innerHTML = markup;
+}
+
+function gndSym(cx, cy) {
+  return `<line x1="${cx-14}" y1="${cy}" x2="${cx+14}" y2="${cy}" stroke="#374151" stroke-width="2"/>` +
+         `<line x1="${cx-10}" y1="${cy+5}" x2="${cx+10}" y2="${cy+5}" stroke="#374151" stroke-width="1.5"/>` +
+         `<line x1="${cx-6}"  y1="${cy+10}" x2="${cx+6}" y2="${cy+10}" stroke="#374151" stroke-width="1"/>`;
+}
+
+// ══════════════════════════════════════════════════
+// SIGNAL CANVAS DRAWING
+// ══════════════════════════════════════════════════
+function drawSignal(av, amp_in, vcc) {
+  const canvas = document.getElementById('sig-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const rail = vcc - 1.5;
+  const cycles = 2;
+  const pts = 500;
+  const cy = H / 2;
+  const scale = (H/2 - 20) / (vcc); // pixels per volt, fit full vcc range
+
+  // Grid lines
+  ctx.strokeStyle = '#374151';
+  ctx.lineWidth = 1;
+  // Zero line
+  ctx.beginPath();
+  ctx.moveTo(0, cy);
+  ctx.lineTo(W, cy);
+  ctx.stroke();
+
+  // Rail lines (dashed)
+  ctx.strokeStyle = '#dc262650';
+  ctx.setLineDash([6, 4]);
+  ctx.beginPath();
+  ctx.moveTo(0, cy - rail * scale);
+  ctx.lineTo(W, cy - rail * scale);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0, cy + rail * scale);
+  ctx.lineTo(W, cy + rail * scale);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Rail labels
+  ctx.fillStyle = '#dc2626';
+  ctx.font = '10px monospace';
+  ctx.fillText('+' + rail.toFixed(1) + 'V (rail)', 4, cy - rail * scale - 4);
+  ctx.fillText('-' + rail.toFixed(1) + 'V (rail)', 4, cy + rail * scale + 12);
+
+  // Draw V_in (blue)
+  ctx.strokeStyle = '#60a5fa';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i <= pts; i++) {
+    const t = i / pts;
+    const x = t * W;
+    const v_in = amp_in * Math.sin(2 * Math.PI * cycles * t);
+    const y = cy - v_in * scale;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Draw V_out (orange, with clipping)
+  ctx.strokeStyle = '#fb923c';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let i = 0; i <= pts; i++) {
+    const t = i / pts;
+    const x = t * W;
+    const v_in_t = amp_in * Math.sin(2 * Math.PI * cycles * t);
+    let v_out = av * v_in_t;
+    // Clamp
+    if (v_out > rail)  v_out = rail;
+    if (v_out < -rail) v_out = -rail;
+    const y = cy - v_out * scale;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Legend
+  ctx.fillStyle = '#60a5fa';
+  ctx.fillRect(10, 8, 20, 3);
+  ctx.fillStyle = '#e5e7eb';
+  ctx.font = '11px sans-serif';
+  ctx.fillText('V_in (amp=' + amp_in.toFixed(2) + 'V)', 36, 14);
+
+  ctx.fillStyle = '#fb923c';
+  ctx.fillRect(10, 20, 20, 3);
+  ctx.fillStyle = '#e5e7eb';
+  const vOutAmp = Math.min(Math.abs(av * amp_in), rail);
+  const satFlag = Math.abs(av * amp_in) > rail;
+  ctx.fillText('V_out (amp=' + vOutAmp.toFixed(2) + 'V)' + (satFlag ? ' — BAO HOA' : ''), 36, 28);
+
+  // Update signal info
+  const infoEl = document.getElementById('sig-info');
+  if (satFlag) {
+    infoEl.innerHTML = `V_in biên độ = ${amp_in.toFixed(2)} V · V_out lý tưởng = ${Math.abs(av*amp_in).toFixed(2)} V · <strong style="color:#dc2626">BAO HOA — bị kẹp tại ±${rail.toFixed(1)} V (rail ±${vcc.toFixed(0)} V)</strong>`;
+  } else {
+    infoEl.innerHTML = `V_in biên độ = ${amp_in.toFixed(2)} V · V_out biên độ = ${Math.abs(av*amp_in).toFixed(2)} V · Rail ±${vcc.toFixed(0)} V — không bão hòa.`;
+  }
+}
+
+// ══════════════════════════════════════════════════
+// BUFFER LOADING EFFECT CALC
+// ══════════════════════════════════════════════════
+function calcBuffer() {
+  const v   = parseFloat(document.getElementById('buf-vcc').value);
+  const r   = parseFloat(document.getElementById('buf-r').value) * 1000; // Ω
+  const rl  = parseFloat(document.getElementById('buf-rl').value) * 1000; // Ω
+
+  document.getElementById('buf-vcc-lbl').textContent = v.toFixed(0) + ' V';
+  document.getElementById('buf-r-lbl').textContent   = (r/1000).toFixed(1) + ' kΩ';
+  document.getElementById('buf-rl-lbl').textContent  = rl < 1000 ? rl.toFixed(0) + ' Ω' : (rl/1000).toFixed(1) + ' kΩ';
+
+  // Without buffer
+  const r2_parallel = (r * rl) / (r + rl);
+  const v_without = v * r2_parallel / (r + r2_parallel);
+
+  // With buffer (ideal)
+  const v_divider_ideal = v * r / (r + r);   // = v/2 since R1=R2
+  const v_with = v_divider_ideal;
+
+  const drop_pct = ((v_divider_ideal - v_without) / v_divider_ideal * 100);
+
+  document.getElementById('buf-result').innerHTML =
+    `<strong>Không có buffer:</strong><br>` +
+    `R_2 // R_L = ${(r/1000).toFixed(1)}kΩ // ${rl<1000?rl.toFixed(0)+'Ω':(rl/1000).toFixed(1)+'kΩ'} = ${(r2_parallel/1000).toFixed(2)} kΩ<br>` +
+    `V_out = ${v.toFixed(0)} × ${(r2_parallel/1000).toFixed(2)}k / (${(r/1000).toFixed(1)}k + ${(r2_parallel/1000).toFixed(2)}k) = <span class="sat">${v_without.toFixed(2)} V</span> (kéo xuống từ ${v_divider_ideal.toFixed(2)} V, mất ${drop_pct.toFixed(0)}%)<br><br>` +
+    `<strong>Có buffer (op-amp lý tưởng):</strong><br>` +
+    `V_divider = ${v.toFixed(0)} × ${(r/1000).toFixed(1)}k / (${(r/1000).toFixed(1)}k + ${(r/1000).toFixed(1)}k) = <span class="hl">${v_divider_ideal.toFixed(2)} V</span><br>` +
+    `Buffer Z_in = ∞ → không lấy dòng → V_out = <span class="hl">${v_with.toFixed(2)} V</span> (ổn định, không bị loading)`;
+}
+
+// ══════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════
+function showTab(event, id) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  event.target.closest('.card').querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+setCfg('noninv');
+calcBuffer();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

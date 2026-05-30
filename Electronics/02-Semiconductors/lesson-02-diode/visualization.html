@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Diode</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #a3e635; }
+
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  /* ── Radio button row ── */
+  .radio-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .radio-row button {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 2px solid #d1d5db;
+    background: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.15s;
+  }
+  .radio-row button.active {
+    background: #4d7c0f;
+    border-color: #4d7c0f;
+    color: white;
+  }
+
+  /* ── Result box ── */
+  .result-box {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.9;
+  }
+  .result-box .highlight { color: #14532d; font-weight: 700; font-size: 16px; }
+  .result-box .warn     { color: #dc2626; font-weight: 600; }
+  .result-box .ok       { color: #047857; font-weight: 600; }
+
+  /* ── Slider ── */
+  .slider-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .slider-group label { font-weight: 700; font-size: 14px; color: #374151; }
+  .slider-group input[type="range"] { width: 100%; max-width: 420px; accent-color: #4d7c0f; }
+  .slider-val { font-family: monospace; font-size: 15px; color: #4d7c0f; font-weight: 700; }
+
+  /* ── Input row ── */
+  .inp-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 14px 0;
+  }
+  .inp-field { display: flex; flex-direction: column; gap: 5px; }
+  .inp-field label { font-weight: 700; font-size: 14px; color: #374151; }
+  .inp-field input[type="number"] {
+    padding: 8px 10px;
+    border: 2px solid #d1fae5;
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: monospace;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .inp-field input[type="number"]:focus { outline: none; border-color: #4d7c0f; }
+
+  /* ── Circuit SVG wrapper ── */
+  .circuit-wrap { display: flex; justify-content: center; margin: 16px 0; overflow-x: auto; }
+
+  /* ── IV Curve canvas wrapper ── */
+  .iv-wrap { display: flex; justify-content: center; margin: 10px 0; overflow-x: auto; }
+
+  /* ── E12 chip ── */
+  .e12-chip {
+    display: inline-block;
+    background: #dcfce7;
+    border: 1.5px solid #4d7c0f;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-family: monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: #14532d;
+    margin: 0 2px;
+  }
+
+  /* ── Tabs ── */
+  .tab-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab-bar button {
+    padding: 7px 14px;
+    border-radius: 6px 6px 0 0;
+    border: 2px solid #d1d5db;
+    border-bottom: none;
+    background: #f9fafb;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+  }
+  .tab-bar button.active {
+    background: white;
+    border-color: #4d7c0f;
+    color: #4d7c0f;
+    border-bottom: 2px solid white;
+    margin-bottom: -2px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Zener bar / gauge ── */
+  .gauge-wrap { margin: 10px 0; }
+  .gauge-track {
+    height: 20px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    position: relative;
+    overflow: visible;
+  }
+  .gauge-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: #4d7c0f;
+    transition: width 0.2s ease;
+    position: relative;
+  }
+  .gauge-label { font-size: 12px; color: #6b7280; margin-top: 4px; }
+
+  /* ── Color swatches for LED ── */
+  .led-swatch {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(0,0,0,0.15);
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .inp-row { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 380px) {
+    .inp-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Semiconductors</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-semiconductor-pn/visualization.html">← L1: Bán dẫn &amp; P-N</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Diode</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-dc-power-supply/visualization.html">L3: Mạch nguồn DC →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Diode</h1>
+<p>Ba công cụ tương tác: Máy tính điện trở hạn dòng LED, Đặc tuyến I-V diode tương tác, Mô phỏng mạch ổn áp Zener.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — LED Current-Limiting Resistor Calculator
+     ══════════════════════════════════════════════════════════ -->
+<h2>1. Máy tính điện trở hạn dòng LED</h2>
+<div class="card">
+  <p>Chọn màu LED → V_LED tự điền. Nhập điện áp nguồn và dòng mong muốn → R cần, công suất, R chuẩn E12 gần nhất.</p>
+
+  <div style="margin-bottom:12px;">
+    <label style="font-weight:700; font-size:14px; color:#374151; display:block; margin-bottom:8px;">Màu LED:</label>
+    <div class="radio-row" id="led-color-row">
+      <button class="active" onclick="setLedColor(this,'Đỏ',1.8,'#ef4444')" data-vled="1.8" data-color="#ef4444">Đỏ</button>
+      <button onclick="setLedColor(this,'Vàng/Cam',2.0,'#f59e0b')" data-vled="2.0" data-color="#f59e0b">Vàng/Cam</button>
+      <button onclick="setLedColor(this,'Xanh lá',2.1,'#22c55e')" data-vled="2.1" data-color="#22c55e">Xanh lá</button>
+      <button onclick="setLedColor(this,'Xanh dương',3.2,'#3b82f6')" data-vled="3.2" data-color="#3b82f6">Xanh dương</button>
+      <button onclick="setLedColor(this,'Trắng',3.2,'#e5e7eb')" data-vled="3.2" data-color="#e5e7eb">Trắng</button>
+    </div>
+  </div>
+
+  <div class="inp-row">
+    <div class="inp-field">
+      <label>V_nguồn (V)</label>
+      <input type="number" id="led-vs" value="5" min="0.1" max="30" step="0.1" oninput="calcLED()">
+    </div>
+    <div class="inp-field">
+      <label>V_LED (V) <span style="font-size:11px;color:#6b7280;">tự điền theo màu</span></label>
+      <input type="number" id="led-vd" value="1.8" min="0.5" max="5" step="0.1" oninput="calcLED()">
+    </div>
+    <div class="inp-field">
+      <label>I mong muốn (mA)</label>
+      <input type="number" id="led-i" value="20" min="1" max="100" step="1" oninput="calcLED()">
+    </div>
+    <div class="inp-field">
+      <label>Số LED nối tiếp</label>
+      <input type="number" id="led-n" value="1" min="1" max="10" step="1" oninput="calcLED()">
+    </div>
+  </div>
+
+  <!-- LED + Resistor SVG diagram -->
+  <div class="circuit-wrap">
+    <svg id="led-svg" width="480" height="140" viewBox="0 0 480 140">
+      <rect width="480" height="140" fill="#f8fafc" rx="8"/>
+      <!-- Top wire: source+ → R → LED → corner -->
+      <line x1="30" y1="40" x2="100" y2="40" stroke="#dc2626" stroke-width="2.5"/>
+      <!-- Resistor body -->
+      <rect x="100" y="28" width="80" height="24" fill="white" stroke="#4d7c0f" stroke-width="2" rx="3"/>
+      <text id="led-r-lbl" x="140" y="44" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700">R = ?</text>
+      <!-- Wire R → LED -->
+      <line x1="180" y1="40" x2="220" y2="40" stroke="#dc2626" stroke-width="2.5"/>
+      <!-- LED symbol: triangle + bar -->
+      <polygon points="220,28 220,52 248,40" fill="#ef4444" stroke="#374151" stroke-width="1.5" id="led-tri"/>
+      <line x1="248" y1="27" x2="248" y2="53" stroke="#374151" stroke-width="2.5"/>
+      <!-- LED light rays -->
+      <line id="led-ray1" x1="252" y1="28" x2="264" y2="18" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.7"/>
+      <line id="led-ray2" x1="255" y1="35" x2="270" y2="28" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.7"/>
+      <!-- Wire LED → corner right -->
+      <line x1="248" y1="40" x2="440" y2="40" stroke="#dc2626" stroke-width="2.5"/>
+      <!-- Right wire down -->
+      <line x1="440" y1="40" x2="440" y2="110" stroke="#374151" stroke-width="2.5"/>
+      <!-- Bottom wire back to source -->
+      <line x1="440" y1="110" x2="30" y2="110" stroke="#374151" stroke-width="2.5"/>
+      <!-- Left wire up to source -->
+      <line x1="30" y1="110" x2="30" y2="40" stroke="#374151" stroke-width="2.5"/>
+      <!-- Battery symbol -->
+      <rect x="8" y="55" width="44" height="30" fill="white" stroke="#374151" stroke-width="1.5" rx="3"/>
+      <line x1="16" y1="63" x2="44" y2="63" stroke="#dc2626" stroke-width="2.5"/>
+      <line x1="20" y1="72" x2="40" y2="72" stroke="#374151" stroke-width="2.5"/>
+      <text id="led-vs-lbl" x="30" y="98" text-anchor="middle" fill="#374151" font-size="10" font-weight="700">5V</text>
+      <!-- V_R label below R -->
+      <text id="led-vr-lbl" x="140" y="22" text-anchor="middle" fill="#1d4ed8" font-size="10">V_R = ?</text>
+      <!-- V_D label below LED -->
+      <text id="led-vd-lbl" x="234" y="68" text-anchor="middle" fill="#9333ea" font-size="10">V_D = ?</text>
+      <!-- A/K labels -->
+      <text x="216" y="58" text-anchor="middle" fill="#6b7280" font-size="9">A</text>
+      <text x="252" y="58" text-anchor="middle" fill="#6b7280" font-size="9">K</text>
+      <!-- Corner dots -->
+      <circle cx="440" cy="40" r="3" fill="#dc2626"/>
+      <circle cx="440" cy="110" r="3" fill="#374151"/>
+      <circle cx="30" cy="110" r="3" fill="#374151"/>
+    </svg>
+  </div>
+
+  <div class="result-box" id="led-result">Nhập thông số ở trên...</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — I-V Characteristic + 0.7V model slider
+     ══════════════════════════════════════════════════════════ -->
+<h2>2. Đặc tuyến I-V diode tương tác</h2>
+<div class="card">
+  <div class="tab-bar">
+    <button class="active" onclick="showTab('tab-iv','tab-bar-2')">Đặc tuyến I-V</button>
+    <button onclick="showTab('tab-model','tab-bar-2')">Mô hình 0.7 V</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-iv">
+    <p>Đặc tuyến I-V diode Si theo phương trình Shockley. Di chuyển slider điện áp để xem dòng tương ứng (thang log và tuyến tính).</p>
+    <div class="slider-group">
+      <label>Điện áp V_D: <span class="slider-val" id="iv-vd-val">0.50 V</span></label>
+      <input type="range" id="iv-vd" min="-1.0" max="0.80" step="0.01" value="0.50" oninput="updateIV()">
+    </div>
+    <div class="iv-wrap">
+      <canvas id="iv-canvas" width="500" height="300"></canvas>
+    </div>
+    <div class="result-box" id="iv-result">Di chuyển slider...</div>
+  </div>
+
+  <div class="tab-panel" id="tab-model">
+    <p>Mạch diode + điện trở: V_s thay đổi, mô hình 0.7 V tính I và V trên từng phần tử.</p>
+    <div class="slider-group">
+      <label>V_nguồn: <span class="slider-val" id="model-vs-val">5.0 V</span></label>
+      <input type="range" id="model-vs" min="0" max="15" step="0.1" value="5.0" oninput="updateModel()">
+    </div>
+    <div class="slider-group">
+      <label>Điện trở R: <span class="slider-val" id="model-r-val">220 Ω</span></label>
+      <input type="range" id="model-r" min="10" max="2000" step="10" value="220" oninput="updateModel()">
+    </div>
+
+    <!-- Simple circuit diagram for model tab -->
+    <div class="circuit-wrap">
+      <svg width="460" height="130" viewBox="0 0 460 130">
+        <rect width="460" height="130" fill="#f8fafc" rx="8"/>
+        <line x1="30" y1="35" x2="90" y2="35" stroke="#dc2626" stroke-width="2.5"/>
+        <!-- Resistor -->
+        <rect x="90" y="23" width="90" height="24" fill="white" stroke="#4d7c0f" stroke-width="2" rx="3"/>
+        <text id="mod-r-lbl" x="135" y="39" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700">R = 220 Ω</text>
+        <text id="mod-vr-lbl" x="135" y="18" text-anchor="middle" fill="#1d4ed8" font-size="10">V_R = ?</text>
+        <!-- Wire R→D -->
+        <line x1="180" y1="35" x2="220" y2="35" stroke="#dc2626" stroke-width="2.5"/>
+        <!-- Diode symbol -->
+        <polygon points="220,23 220,47 248,35" fill="#f0fdf4" stroke="#374151" stroke-width="1.5"/>
+        <line x1="248" y1="22" x2="248" y2="48" stroke="#374151" stroke-width="2.5"/>
+        <text x="234" y="62" text-anchor="middle" fill="#9333ea" font-size="10" id="mod-vd-lbl">V_D = 0.7V</text>
+        <text x="215" y="53" text-anchor="middle" fill="#6b7280" font-size="9">A</text>
+        <text x="253" y="53" text-anchor="middle" fill="#6b7280" font-size="9">K</text>
+        <!-- Wire D→corner -->
+        <line x1="248" y1="35" x2="420" y2="35" stroke="#dc2626" stroke-width="2.5"/>
+        <line x1="420" y1="35" x2="420" y2="100" stroke="#374151" stroke-width="2.5"/>
+        <line x1="420" y1="100" x2="30" y2="100" stroke="#374151" stroke-width="2.5"/>
+        <line x1="30" y1="100" x2="30" y2="35" stroke="#374151" stroke-width="2.5"/>
+        <!-- Battery -->
+        <rect x="10" y="50" width="40" height="28" fill="white" stroke="#374151" stroke-width="1.5" rx="3"/>
+        <line x1="17" y1="57" x2="43" y2="57" stroke="#dc2626" stroke-width="2.5"/>
+        <line x1="20" y1="66" x2="40" y2="66" stroke="#374151" stroke-width="2.5"/>
+        <text id="mod-vs-lbl" x="30" y="90" text-anchor="middle" fill="#374151" font-size="10" font-weight="700">5.0V</text>
+        <!-- I arrow on right wire -->
+        <text x="428" y="68" text-anchor="start" fill="#1d4ed8" font-size="12" font-weight="700" id="mod-i-lbl">I=?</text>
+        <circle cx="420" cy="35" r="3" fill="#dc2626"/>
+        <circle cx="420" cy="100" r="3" fill="#374151"/>
+      </svg>
+    </div>
+
+    <div class="result-box" id="model-result">Kéo slider...</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — Zener Regulator Simulator
+     ══════════════════════════════════════════════════════════ -->
+<h2>3. Mô phỏng mạch ổn áp Zener</h2>
+<div class="card">
+  <p>Điều chỉnh V_in và dòng tải I_L — xem V_out và dòng Zener I_Z thay đổi như thế nào. Cảnh báo khi Zener quá tải.</p>
+
+  <div class="inp-row">
+    <div class="inp-field">
+      <label>V_Z (Zener voltage, V)</label>
+      <input type="number" id="z-vz" value="5.1" min="1.5" max="30" step="0.1" oninput="calcZener()">
+    </div>
+    <div class="inp-field">
+      <label>R_s (điện trở hạn dòng, Ω)</label>
+      <input type="number" id="z-rs" value="120" min="1" max="10000" step="1" oninput="calcZener()">
+    </div>
+    <div class="inp-field">
+      <label>P_Z_max (công suất Zener, mW)</label>
+      <input type="number" id="z-pmax" value="500" min="100" max="5000" step="50" oninput="calcZener()">
+    </div>
+  </div>
+
+  <div class="slider-group">
+    <label>V_in: <span class="slider-val" id="z-vin-val">9.0 V</span></label>
+    <input type="range" id="z-vin" min="0" max="30" step="0.1" value="9.0" oninput="calcZener()">
+  </div>
+  <div class="slider-group">
+    <label>I_L (dòng tải): <span class="slider-val" id="z-il-val">20 mA</span></label>
+    <input type="range" id="z-il" min="0" max="200" step="1" value="20" oninput="calcZener()">
+  </div>
+
+  <!-- Zener circuit diagram -->
+  <div class="circuit-wrap">
+    <svg id="zener-svg" width="480" height="160" viewBox="0 0 480 160">
+      <rect width="480" height="160" fill="#f8fafc" rx="8"/>
+      <!-- Top wire: Vin → Rs → node A -->
+      <line x1="30" y1="40" x2="100" y2="40" stroke="#dc2626" stroke-width="2.5"/>
+      <!-- Rs body -->
+      <rect x="100" y="28" width="80" height="24" fill="white" stroke="#4d7c0f" stroke-width="2" rx="3"/>
+      <text id="z-rs-lbl" x="140" y="44" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700">Rs = 120Ω</text>
+      <text id="z-irs-lbl" x="140" y="22" text-anchor="middle" fill="#1d4ed8" font-size="10">I_R = ?</text>
+      <!-- Wire Rs → node -->
+      <line x1="180" y1="40" x2="260" y2="40" stroke="#dc2626" stroke-width="2.5"/>
+      <!-- Node A dot -->
+      <circle id="z-node-dot" cx="260" cy="40" r="4" fill="#dc2626"/>
+      <!-- V_out label -->
+      <text x="260" y="22" text-anchor="middle" fill="#9333ea" font-size="11" font-weight="700" id="z-vout-lbl">V_out = ?</text>
+      <!-- Wire node → Zener (down) -->
+      <line x1="260" y1="40" x2="260" y2="70" stroke="#dc2626" stroke-width="2.5"/>
+      <!-- Zener symbol (cathode up = top) -->
+      <!-- cathode bar at top (y=70) with wings -->
+      <line x1="248" y1="70" x2="272" y2="70" stroke="#374151" stroke-width="2.5"/>
+      <!-- wings on cathode -->
+      <line x1="248" y1="70" x2="242" y2="64" stroke="#374151" stroke-width="2"/>
+      <line x1="272" y1="70" x2="278" y2="64" stroke="#374151" stroke-width="2"/>
+      <!-- Zener triangle (anode at bottom y=94, pointing up) -->
+      <polygon points="260,94 248,70 272,70" fill="#fef9c3" stroke="#374151" stroke-width="1.5"/>
+      <!-- Wire Zener anode → GND -->
+      <line x1="260" y1="94" x2="260" y2="120" stroke="#374151" stroke-width="2.5"/>
+      <!-- GND symbol -->
+      <line x1="246" y1="122" x2="274" y2="122" stroke="#374151" stroke-width="2"/>
+      <line x1="250" y1="127" x2="270" y2="127" stroke="#374151" stroke-width="1.5"/>
+      <line x1="254" y1="132" x2="266" y2="132" stroke="#374151" stroke-width="1"/>
+      <!-- Iz label -->
+      <text x="280" y="82" text-anchor="start" fill="#dc2626" font-size="11" font-weight="700" id="z-iz-lbl">I_Z = ?</text>
+      <!-- Wire node → load (right) -->
+      <line x1="260" y1="40" x2="380" y2="40" stroke="#dc2626" stroke-width="2.5"/>
+      <!-- Load R_L -->
+      <rect x="380" y="28" width="70" height="24" fill="white" stroke="#9333ea" stroke-width="2" rx="3"/>
+      <text x="415" y="44" text-anchor="middle" fill="#9333ea" font-size="11" font-weight="700" id="z-rl-lbl">R_L</text>
+      <!-- Wire R_L → GND -->
+      <line x1="415" y1="52" x2="415" y2="120" stroke="#374151" stroke-width="2.5"/>
+      <line x1="415" y1="120" x2="260" y2="120" stroke="#374151" stroke-width="2"/>
+      <!-- GND wire left side -->
+      <line x1="260" y1="120" x2="30" y2="120" stroke="#374151" stroke-width="2.5"/>
+      <line x1="30" y1="120" x2="30" y2="40" stroke="#374151" stroke-width="2.5"/>
+      <!-- IL label -->
+      <text x="430" y="82" text-anchor="start" fill="#9333ea" font-size="11" font-weight="700" id="z-il-lbl">I_L = ?</text>
+      <!-- Battery -->
+      <rect x="8" y="60" width="44" height="28" fill="white" stroke="#374151" stroke-width="1.5" rx="3"/>
+      <line x1="15" y1="68" x2="43" y2="68" stroke="#dc2626" stroke-width="2.5"/>
+      <line x1="18" y1="77" x2="40" y2="77" stroke="#374151" stroke-width="2.5"/>
+      <text id="z-vin-lbl" x="30" y="108" text-anchor="middle" fill="#374151" font-size="10" font-weight="700">9.0V</text>
+      <!-- Vin corner dot -->
+      <circle cx="30" cy="40" r="3" fill="#dc2626"/>
+    </svg>
+  </div>
+
+  <!-- Dòng Zener gauge -->
+  <div class="gauge-wrap">
+    <label style="font-size:13px; font-weight:700; color:#374151;">Dòng Zener I_Z (so với P_Z_max):</label>
+    <div class="gauge-track" style="margin-top:6px;">
+      <div class="gauge-fill" id="z-gauge" style="width:0%;"></div>
+    </div>
+    <div class="gauge-label" id="z-gauge-lbl">0 mA</div>
+  </div>
+
+  <div class="result-box" id="zener-result">Nhập thông số...</div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// E12 Series helper
+// ═══════════════════════════════════════════════════════════
+const E12_BASE = [10,12,15,18,22,27,33,39,47,56,68,82];
+function nearestE12(r) {
+  if (r <= 0) return 10;
+  const exp = Math.floor(Math.log10(r));
+  const mult = Math.pow(10, exp);
+  let best = null, bestDiff = Infinity;
+  // Check decade below, at, and above
+  for (let d = -1; d <= 1; d++) {
+    const m = Math.pow(10, exp + d);
+    for (const b of E12_BASE) {
+      const val = b * m;
+      const diff = Math.abs(val - r);
+      if (diff < bestDiff) { bestDiff = diff; best = val; }
+    }
+  }
+  return best;
+}
+function fmtR(r) {
+  if (r >= 1e6) return (r/1e6).toFixed(2) + ' MΩ';
+  if (r >= 1000) return (r/1000).toFixed(r >= 10000 ? 1 : 2) + ' kΩ';
+  return r.toFixed(0) + ' Ω';
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 1: LED Calculator
+// ═══════════════════════════════════════════════════════════
+let ledColorName = 'Đỏ';
+let ledColorHex = '#ef4444';
+
+function setLedColor(btn, name, vled, hex) {
+  document.querySelectorAll('#led-color-row button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ledColorName = name;
+  ledColorHex = hex;
+  document.getElementById('led-vd').value = vled;
+  calcLED();
+}
+
+function calcLED() {
+  const Vs   = parseFloat(document.getElementById('led-vs').value);
+  const Vled = parseFloat(document.getElementById('led-vd').value);
+  const Ides = parseFloat(document.getElementById('led-i').value) / 1000; // A
+  const N    = parseInt(document.getElementById('led-n').value);
+
+  const svgLedTri = document.getElementById('led-tri');
+  const svgRay1   = document.getElementById('led-ray1');
+  const svgRay2   = document.getElementById('led-ray2');
+  svgLedTri.setAttribute('fill', ledColorHex);
+  svgRay1.setAttribute('stroke', ledColorHex);
+  svgRay2.setAttribute('stroke', ledColorHex);
+
+  document.getElementById('led-vs-lbl').textContent = Vs + 'V';
+
+  const Vtotal = N * Vled;
+  const Vdrop  = Vs - Vtotal;
+
+  if (isNaN(Vs) || isNaN(Vled) || isNaN(Ides) || isNaN(N) || N < 1) {
+    document.getElementById('led-result').innerHTML = '<span class="warn">Nhập giá trị hợp lệ.</span>';
+    return;
+  }
+  if (Vdrop <= 0) {
+    document.getElementById('led-result').innerHTML =
+      `<span class="warn">V_nguồn (${Vs} V) không đủ lớn hơn tổng V_LED (${N}×${Vled} = ${Vtotal} V). Tăng V_nguồn hoặc giảm số LED.</span>`;
+    document.getElementById('led-r-lbl').textContent = 'R = —';
+    document.getElementById('led-vr-lbl').textContent = 'V_R = —';
+    document.getElementById('led-vd-lbl').textContent = 'V_LED = ' + Vtotal.toFixed(1) + 'V';
+    return;
+  }
+
+  const Rexact  = Vdrop / Ides;
+  const Re12    = nearestE12(Rexact);
+  const Iactual = Vdrop / Re12;
+  const Pr      = Iactual * Iactual * Re12;
+  const Pr_mW   = Pr * 1000;
+
+  // Power rating recommendation
+  const ratings = [0.063, 0.125, 0.25, 0.5, 1, 2];
+  const recW    = ratings.find(r => r > Pr * 1.5) || 2;
+  const recStr  = recW >= 1 ? recW + ' W' : (recW * 1000) + ' mW';
+
+  let pwrWarn = '';
+  if (Pr > 0.5)       pwrWarn = `<span class="warn">Công suất ${Pr_mW.toFixed(0)} mW cao — dùng điện trở 1 W trở lên.</span>`;
+  else if (Pr > 0.25) pwrWarn = `<span class="warn">Công suất ${Pr_mW.toFixed(0)} mW — chọn điện trở 1/2 W (500 mW).</span>`;
+  else                pwrWarn = `<span class="ok">Công suất ${Pr_mW.toFixed(0)} mW — điện trở ${recStr} đủ dùng.</span>`;
+
+  // Update SVG labels
+  document.getElementById('led-r-lbl').textContent  = 'R≈' + fmtR(Re12);
+  document.getElementById('led-vr-lbl').textContent = 'V_R = ' + Vdrop.toFixed(2) + 'V';
+  document.getElementById('led-vd-lbl').textContent = 'V_LED = ' + Vtotal.toFixed(1) + 'V';
+
+  const ledCountStr = N > 1 ? `${N} LED nối tiếp` : '1 LED';
+  document.getElementById('led-result').innerHTML = `
+    <strong>Màu:</strong> ${ledColorName} · V_LED = ${Vled} V/chiếc · ${ledCountStr} · V_LED_tổng = ${Vtotal.toFixed(1)} V<br>
+    <strong>Điện áp trên R:</strong> V_R = V_nguồn − V_LED_tổng = ${Vs} − ${Vtotal.toFixed(1)} = <span class="highlight">${Vdrop.toFixed(2)} V</span><br>
+    <strong>R lý thuyết:</strong> R = V_R / I = ${Vdrop.toFixed(2)} / ${(Ides*1000).toFixed(0)} mA = <span class="highlight">${Rexact.toFixed(1)} Ω</span><br>
+    <strong>R chuẩn E12 gần nhất:</strong> <span class="e12-chip">${fmtR(Re12)}</span>
+    → I_thực = ${Vdrop.toFixed(2)} / ${Re12.toFixed(0)} = <span class="highlight">${(Iactual*1000).toFixed(1)} mA</span><br>
+    <strong>Công suất điện trở:</strong> P_R = I² × R = (${(Iactual*1000).toFixed(1)} mA)² × ${fmtR(Re12)} = <span class="highlight">${Pr_mW.toFixed(1)} mW</span><br>
+    ${pwrWarn}
+  `;
+}
+
+// Init LED calc
+calcLED();
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 2a: I-V Characteristic (Shockley) on canvas
+// ═══════════════════════════════════════════════════════════
+const IV_IS  = 1e-12;  // A  (saturation current)
+const IV_N   = 1.8;    // ideality factor
+const IV_VT  = 0.0259; // V  thermal voltage at 25°C
+
+function shockleyI(v) {
+  // Returns current in Amperes
+  if (v < -1.0) v = -1.0;
+  return IV_IS * (Math.exp(v / (IV_N * IV_VT)) - 1);
+}
+
+function drawIVCurve(highlightV) {
+  const canvas = document.getElementById('iv-canvas');
+  const ctx    = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Layout
+  const ML = 60, MR = 20, MT = 20, MB = 50;
+  const pw = W - ML - MR, ph = H - MT - MB;
+
+  // Axes range
+  const Vmin = -1.0, Vmax = 0.85;
+  const Imax_mA = 80;  // mA  — linear scale cap
+  const Imin_mA = -0.01;
+
+  function mapV(v)  { return ML + (v - Vmin) / (Vmax - Vmin) * pw; }
+  function mapI(i)  {
+    const i_mA = i * 1000;
+    const clamped = Math.max(Imin_mA, Math.min(Imax_mA, i_mA));
+    return MT + ph - (clamped - Imin_mA) / (Imax_mA - Imin_mA) * ph;
+  }
+
+  // Background
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = 'white';
+  ctx.fillRect(ML, MT, pw, ph);
+
+  // Grid lines
+  ctx.strokeStyle = '#e5e7eb';
+  ctx.lineWidth = 1;
+  // Vertical grid every 0.2 V
+  for (let v = Vmin; v <= Vmax + 0.01; v += 0.2) {
+    const x = mapV(v);
+    ctx.beginPath(); ctx.moveTo(x, MT); ctx.lineTo(x, MT + ph); ctx.stroke();
+  }
+  // Horizontal grid every 10 mA
+  for (let i_mA = 0; i_mA <= Imax_mA; i_mA += 10) {
+    const y = mapI(i_mA / 1000);
+    ctx.beginPath(); ctx.moveTo(ML, y); ctx.lineTo(ML + pw, y); ctx.stroke();
+  }
+
+  // Axes
+  ctx.strokeStyle = '#374151';
+  ctx.lineWidth = 2;
+  const x0 = mapV(0), y0 = mapI(0);
+  ctx.beginPath(); ctx.moveTo(ML, y0); ctx.lineTo(ML + pw, y0); ctx.stroke(); // x-axis
+  ctx.beginPath(); ctx.moveTo(x0, MT); ctx.lineTo(x0, MT + ph); ctx.stroke(); // y-axis
+
+  // Axis labels
+  ctx.fillStyle = '#374151';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'center';
+  // X axis ticks
+  for (let v = -1.0; v <= 0.85; v += 0.2) {
+    const x = mapV(v);
+    ctx.fillText(v.toFixed(1) + 'V', x, MT + ph + 16);
+  }
+  // Y axis ticks
+  ctx.textAlign = 'right';
+  for (let i_mA = 0; i_mA <= Imax_mA; i_mA += 10) {
+    const y = mapI(i_mA / 1000);
+    ctx.fillText(i_mA + ' mA', ML - 4, y + 4);
+  }
+  // Axis labels
+  ctx.fillStyle = '#374151';
+  ctx.font = 'bold 13px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('V_D (V)', ML + pw / 2, H - 4);
+  ctx.save(); ctx.translate(14, MT + ph / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('I_D (mA)', 0, 0);
+  ctx.restore();
+
+  // 0.7 V threshold line
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([5, 4]);
+  const x07 = mapV(0.7);
+  ctx.beginPath(); ctx.moveTo(x07, MT); ctx.lineTo(x07, MT + ph); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#f59e0b';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('0.7 V', x07 + 3, MT + 14);
+
+  // Shockley curve
+  ctx.strokeStyle = '#4d7c0f';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  let first = true;
+  for (let v = Vmin; v <= Vmax; v += 0.005) {
+    const i = shockleyI(v);
+    const x = mapV(v), y = mapI(i);
+    if (y < MT) { first = true; continue; }  // clip top
+    if (first) { ctx.moveTo(x, y); first = false; }
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Highlight current point
+  const hV = highlightV;
+  const hI = shockleyI(hV);
+  const hI_mA = hI * 1000;
+  const hx = mapV(hV), hy = mapI(hI);
+  if (hy >= MT && hy <= MT + ph) {
+    // Vertical dashed line to x-axis
+    ctx.strokeStyle = '#dc2626';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(hx, y0); ctx.lineTo(hx, hy); ctx.stroke();
+    // Horizontal dashed line to y-axis
+    ctx.beginPath(); ctx.moveTo(ML, hy); ctx.lineTo(hx, hy); ctx.stroke();
+    ctx.setLineDash([]);
+    // Dot
+    ctx.fillStyle = '#dc2626';
+    ctx.beginPath(); ctx.arc(hx, hy, 6, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'white';
+    ctx.beginPath(); ctx.arc(hx, hy, 3, 0, Math.PI*2); ctx.fill();
+  }
+}
+
+function updateIV() {
+  const V = parseFloat(document.getElementById('iv-vd').value);
+  document.getElementById('iv-vd-val').textContent = V.toFixed(2) + ' V';
+  drawIVCurve(V);
+
+  const I = shockleyI(V);
+  const I_mA = I * 1000;
+  const I_uA = I * 1e6;
+
+  let region = '', regionColor = '#374151';
+  if (V < -0.01) {
+    region = 'Vùng phân cực ngược — diode hở mạch gần đúng, I ≈ −I_s';
+    regionColor = '#dc2626';
+  } else if (V < 0.5) {
+    region = 'Vùng chuyển tiếp — dòng rất nhỏ (micro-ampe), diode chưa thực sự dẫn';
+    regionColor = '#f59e0b';
+  } else if (V < 0.65) {
+    region = 'Bắt đầu dẫn — dòng tăng nhanh theo hàm mũ';
+    regionColor = '#4d7c0f';
+  } else {
+    region = 'Vùng dẫn điện thuận — diode ON. Mô hình 0.7 V dùng được';
+    regionColor = '#047857';
+  }
+
+  const I_str = Math.abs(I_mA) < 0.001
+    ? (I_uA).toFixed(4) + ' µA'
+    : Math.abs(I_mA) < 1
+      ? (I_mA * 1000).toFixed(2) + ' µA'
+      : I_mA.toFixed(3) + ' mA';
+
+  document.getElementById('iv-result').innerHTML =
+    `V_D = <span class="highlight">${V.toFixed(2)} V</span> → I_D (Shockley, n=${IV_N}) = <span class="highlight">${I_str}</span><br>
+     <span style="color:${regionColor}; font-weight:600;">${region}</span><br>
+     <span style="font-size:12px;color:#6b7280;">Ghi nhớ: cứ tăng 60 mV → dòng tăng ~10×. Mô hình 0.7 V: I = (V_s − 0.7) / R.</span>`;
+}
+
+updateIV();
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 2b: 0.7V Model Slider
+// ═══════════════════════════════════════════════════════════
+function updateModel() {
+  const Vs = parseFloat(document.getElementById('model-vs').value);
+  const R  = parseFloat(document.getElementById('model-r').value);
+  document.getElementById('model-vs-val').textContent = Vs.toFixed(1) + ' V';
+  document.getElementById('model-r-val').textContent  = fmtR(R);
+
+  const VD = 0.7;
+
+  document.getElementById('mod-vs-lbl').textContent = Vs.toFixed(1) + 'V';
+  document.getElementById('mod-r-lbl').textContent  = 'R = ' + fmtR(R);
+
+  if (Vs <= VD) {
+    document.getElementById('mod-i-lbl').textContent  = 'I=0';
+    document.getElementById('mod-vr-lbl').textContent = 'V_R = 0V';
+    document.getElementById('mod-vd-lbl').textContent = 'V_D = ' + Vs.toFixed(2) + 'V';
+    document.getElementById('model-result').innerHTML =
+      `<span class="warn">V_nguồn (${Vs.toFixed(1)} V) ≤ 0.7 V → diode không dẫn → I = 0 mA, V_R = 0 V</span>`;
+    return;
+  }
+
+  const VR   = Vs - VD;
+  const I    = VR / R;
+  const I_mA = I * 1000;
+  const P_mW = I * I * R * 1000;
+
+  document.getElementById('mod-i-lbl').textContent  = 'I=' + I_mA.toFixed(1) + 'mA';
+  document.getElementById('mod-vr-lbl').textContent = 'V_R=' + VR.toFixed(2) + 'V';
+  document.getElementById('mod-vd-lbl').textContent = 'V_D=0.7V';
+
+  document.getElementById('model-result').innerHTML =
+    `KVL: V_s = V_R + V_D = I·R + 0.7<br>
+     I = (${Vs.toFixed(1)} − 0.7) / ${fmtR(R)} = ${VR.toFixed(2)} / ${R.toFixed(0)} = <span class="highlight">${I_mA.toFixed(2)} mA</span><br>
+     V_R = <span class="highlight">${VR.toFixed(2)} V</span> · V_D = <span class="highlight">0.70 V</span> · Kiểm tra: ${VR.toFixed(2)} + 0.70 = ${(VR + 0.7).toFixed(2)} V ✓<br>
+     P_R = I²·R = ${P_mW.toFixed(1)} mW`;
+}
+
+updateModel();
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 3: Zener Regulator
+// ═══════════════════════════════════════════════════════════
+function calcZener() {
+  const Vz    = parseFloat(document.getElementById('z-vz').value);
+  const Rs    = parseFloat(document.getElementById('z-rs').value);
+  const Pmax  = parseFloat(document.getElementById('z-pmax').value) / 1000; // W
+  const Vin   = parseFloat(document.getElementById('z-vin').value);
+  const IL_mA = parseFloat(document.getElementById('z-il').value);
+  const IL    = IL_mA / 1000; // A
+
+  document.getElementById('z-vin-val').textContent = Vin.toFixed(1) + ' V';
+  document.getElementById('z-il-val').textContent  = IL_mA.toFixed(0) + ' mA';
+  document.getElementById('z-vin-lbl').textContent = Vin.toFixed(1) + 'V';
+  document.getElementById('z-rs-lbl').textContent  = 'Rs=' + fmtR(Rs);
+
+  if (isNaN(Vz) || isNaN(Rs) || isNaN(Pmax) || Rs <= 0) {
+    document.getElementById('zener-result').innerHTML = '<span class="warn">Nhập giá trị hợp lệ.</span>';
+    return;
+  }
+
+  // Case 1: Vin < Vz → Zener không dẫn → V_out = Vin (no regulation)
+  if (Vin <= Vz) {
+    const Vout = Vin; // no current through Zener
+    document.getElementById('z-vout-lbl').textContent = 'V_out='+Vout.toFixed(2)+'V';
+    document.getElementById('z-iz-lbl').textContent   = 'I_Z=0';
+    document.getElementById('z-il-lbl').textContent   = 'I_L=0';
+    document.getElementById('z-irs-lbl').textContent  = 'I_R=0';
+    document.getElementById('z-gauge').style.width = '0%';
+    document.getElementById('z-gauge').style.background = '#4d7c0f';
+    document.getElementById('z-gauge-lbl').textContent = '0 mA';
+    document.getElementById('zener-result').innerHTML =
+      `<span class="warn">V_in (${Vin.toFixed(1)} V) ≤ V_Z (${Vz.toFixed(1)} V) → Zener không dẫn → mạch không ổn áp. V_out ≈ V_in = ${Vin.toFixed(2)} V.</span>`;
+    return;
+  }
+
+  // Zener conducting: V_out = V_Z (ideal)
+  const Vout  = Vz;
+  const IR    = (Vin - Vz) / Rs;   // dòng qua Rs
+  const IZ    = IR - IL;            // dòng qua Zener
+  const IR_mA = IR * 1000;
+  const IZ_mA = IZ * 1000;
+
+  // Compute R_L equivalent
+  const RL = IL > 0 ? Vz / IL : Infinity;
+
+  // Update SVG
+  document.getElementById('z-vout-lbl').textContent = 'V_out=' + Vout.toFixed(1) + 'V';
+  document.getElementById('z-iz-lbl').textContent   = 'I_Z=' + IZ_mA.toFixed(1) + 'mA';
+  document.getElementById('z-il-lbl').textContent   = 'I_L=' + IL_mA.toFixed(0) + 'mA';
+  document.getElementById('z-irs-lbl').textContent  = 'I_R=' + IR_mA.toFixed(1) + 'mA';
+  document.getElementById('z-rl-lbl').textContent   = RL === Infinity ? 'R_L=∞' : 'R_L=' + fmtR(RL);
+
+  // Gauge
+  const Iz_max_from_Pmax = Pmax / Vz; // A
+  const gaugePercent = Math.min(100, Math.max(0, IZ / Iz_max_from_Pmax * 100));
+  const gaugeEl = document.getElementById('z-gauge');
+  gaugeEl.style.width = gaugePercent.toFixed(1) + '%';
+  gaugeEl.style.background = gaugePercent > 90 ? '#dc2626' : gaugePercent > 70 ? '#f59e0b' : '#4d7c0f';
+  document.getElementById('z-gauge-lbl').textContent =
+    `I_Z = ${IZ_mA.toFixed(1)} mA / I_Z_max = ${(Iz_max_from_Pmax*1000).toFixed(0)} mA (từ P_Z_max = ${Pmax*1000} mW / V_Z = ${Vz} V)`;
+
+  // Power
+  const PZ   = IZ * Vz;
+  const PR   = IR * IR * Rs;
+  const PZ_mW = PZ * 1000;
+
+  let warn = '';
+  let detail = '';
+
+  if (IZ < 0) {
+    warn = `<span class="warn">I_Z = ${IZ_mA.toFixed(1)} mA < 0 — dòng tải vượt quá khả năng cung cấp của mạch! Zener không ổn áp được. Giảm I_L hoặc tăng V_in.</span>`;
+  } else if (PZ > Pmax) {
+    warn = `<span class="warn">Công suất Zener P_Z = ${PZ_mW.toFixed(0)} mW > P_Z_max = ${Pmax*1000} mW → Zener có thể hỏng! Tăng R_s hoặc chọn Zener công suất lớn hơn.</span>`;
+  } else if (PZ > Pmax * 0.8) {
+    warn = `<span class="warn">P_Z = ${PZ_mW.toFixed(0)} mW gần giới hạn (${Pmax*1000} mW) — nên chọn Zener công suất lớn hơn để an toàn.</span>`;
+  } else {
+    warn = `<span class="ok">Zener hoạt động an toàn. P_Z = ${PZ_mW.toFixed(0)} mW / P_Z_max = ${Pmax*1000} mW (${(PZ/Pmax*100).toFixed(0)}%).</span>`;
+  }
+
+  document.getElementById('zener-result').innerHTML =
+    `<strong>I_R</strong> = (V_in − V_Z) / R_s = (${Vin.toFixed(1)} − ${Vz.toFixed(1)}) / ${fmtR(Rs)} = <span class="highlight">${IR_mA.toFixed(2)} mA</span><br>
+     <strong>V_out</strong> = V_Z = <span class="highlight">${Vout.toFixed(1)} V</span> (ổn định khi Zener dẫn)<br>
+     <strong>I_Z</strong> = I_R − I_L = ${IR_mA.toFixed(2)} − ${IL_mA.toFixed(0)} = <span class="${IZ < 0 ? 'warn' : 'highlight'}">${IZ_mA.toFixed(2)} mA</span><br>
+     <strong>P_Zener</strong> = V_Z × I_Z = ${Vz.toFixed(1)} × ${IZ_mA.toFixed(2)} mA = <span class="highlight">${PZ_mW.toFixed(1)} mW</span><br>
+     <strong>P_Rs</strong> = I_R² × R_s = (${IR_mA.toFixed(2)} mA)² × ${fmtR(Rs)} = <span class="highlight">${(PR*1000).toFixed(1)} mW</span><br>
+     ${warn}`;
+}
+
+calcZener();
+
+// ═══════════════════════════════════════════════════════════
+// Tab switcher (shared utility, keyed by tab-bar class)
+// ═══════════════════════════════════════════════════════════
+function showTab(id, barId) {
+  const bar = document.querySelector(barId ? `#${id}`?.closest?.('.card')?.querySelector?.('.tab-bar') || document : document);
+  // Find parent card
+  const targetPanel = document.getElementById(id);
+  if (!targetPanel) return;
+  const card = targetPanel.closest('.card');
+  card.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  card.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+  targetPanel.classList.add('active');
+  if (event && event.target) event.target.classList.add('active');
+  // Redraw IV if switching to it
+  if (id === 'tab-iv') updateIV();
+}
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

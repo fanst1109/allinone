@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Op-amp ứng dụng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #a3e635; }
+
+  /* ── Card ── */
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  /* ── Circuit type selector ── */
+  .circuit-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .circuit-tabs button {
+    padding: 8px 16px;
+    border-radius: 6px 6px 0 0;
+    border: 2px solid #d1d5db;
+    border-bottom: none;
+    background: #f9fafb;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.15s;
+  }
+  .circuit-tabs button.active {
+    background: white;
+    border-color: #4d7c0f;
+    color: #4d7c0f;
+    border-bottom: 2px solid white;
+    margin-bottom: -2px;
+  }
+  .circuit-panel { display: none; }
+  .circuit-panel.active { display: block; }
+
+  /* ── Sliders ── */
+  .slider-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .slider-group { display: flex; flex-direction: column; gap: 5px; }
+  .slider-group label { font-weight: 700; font-size: 14px; color: #374151; }
+  .slider-group input[type="range"] { width: 100%; accent-color: #4d7c0f; }
+  .slider-val { font-family: monospace; font-size: 15px; color: #4d7c0f; font-weight: 700; }
+
+  /* ── Result box ── */
+  .result-box {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.9;
+  }
+  .result-box .hi { color: #14532d; font-weight: 700; font-size: 16px; }
+  .result-box .warn { color: #dc2626; font-weight: 700; }
+  .result-box .ok { color: #047857; font-weight: 700; }
+  .result-box .note { color: #6b7280; font-size: 13px; }
+
+  /* ── SVG circuit ── */
+  .svg-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 16px 0;
+    overflow-x: auto;
+  }
+  svg.ckt { display: block; max-width: 100%; }
+
+  /* ── Canvas for waveforms ── */
+  .wave-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .wave-box { background: #f8fafc; border-radius: 6px; padding: 10px; }
+  .wave-box h4 { margin: 0 0 6px 0; font-size: 13px; color: #374151; }
+  canvas.wave { width: 100%; border-radius: 4px; display: block; }
+
+  /* ── Comparator / Schmitt signal canvas ── */
+  .sig-canvas-wrap {
+    margin: 12px 0;
+    overflow-x: auto;
+  }
+  canvas.signal { max-width: 100%; border-radius: 6px; display: block; }
+
+  /* ── Info table ── */
+  table.info-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  table.info-tbl th {
+    background: #4d7c0f;
+    color: white;
+    padding: 7px 10px;
+    text-align: left;
+  }
+  table.info-tbl td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  table.info-tbl tr:nth-child(even) td { background: #f0fdf4; }
+  table.info-tbl td.hi { color: #14532d; font-weight: 700; }
+  table.info-tbl td.warn { color: #dc2626; font-weight: 700; }
+
+  /* ── Schmitt threshold indicator ── */
+  .threshold-bar {
+    position: relative;
+    height: 60px;
+    background: #f8fafc;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    margin: 12px 0;
+    overflow: hidden;
+  }
+  .threshold-zone {
+    position: absolute;
+    top: 0; bottom: 0;
+    background: rgba(74,222,128,0.25);
+    transition: left 0.2s, right 0.2s;
+  }
+  .threshold-line {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: #4d7c0f;
+  }
+  .threshold-label {
+    position: absolute;
+    top: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #4d7c0f;
+    white-space: nowrap;
+  }
+  .input-indicator {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 3px;
+    background: #dc2626;
+    transition: left 0.15s;
+  }
+  .input-label {
+    position: absolute;
+    bottom: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #dc2626;
+    white-space: nowrap;
+    transform: translateX(-50%);
+    transition: left 0.15s;
+  }
+
+  /* ── Formula display ── */
+  .formula-box {
+    background: #fefce8;
+    border: 1.5px solid #fde047;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #713f12;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .slider-grid { grid-template-columns: 1fr 1fr; }
+    .wave-row { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 400px) {
+    .slider-grid { grid-template-columns: 1fr; }
+    .circuit-tabs button { font-size: 12px; padding: 6px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Semiconductors</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-opamp-basics/visualization.html">← L7: Op-amp cơ bản</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Op-amp ứng dụng</span>
+  <span class="sep">·</span>
+  <a href="../../03-Digital-MCU/lesson-01-boolean-logic-gates/visualization.html">Tầng 3 → Cổng logic</a>
+</nav>
+
+<main>
+<h1>Lesson 08 — Op-amp ứng dụng</h1>
+<p>Chọn loại mạch để khám phá: mạch cộng (summing), mạch trừ (difference), mạch tích phân + comparator, Schmitt trigger. Mỗi mạch có sơ đồ SVG, thanh trượt tương tác và tính toán thời gian thực.</p>
+
+<!-- ═══════════════════════════════════════
+     CIRCUIT TYPE SELECTOR
+════════════════════════════════════════ -->
+<div class="circuit-tabs">
+  <button class="active" onclick="switchCircuit('summing')">Mạch cộng</button>
+  <button onclick="switchCircuit('difference')">Mạch trừ</button>
+  <button onclick="switchCircuit('integrator')">Tích phân</button>
+  <button onclick="switchCircuit('comparator')">Comparator</button>
+  <button onclick="switchCircuit('schmitt')">Schmitt trigger</button>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PANEL 1: SUMMING AMPLIFIER
+════════════════════════════════════════ -->
+<div class="circuit-panel active" id="panel-summing">
+
+<h2>1. Mạch cộng (Summing Amplifier)</h2>
+
+<div class="formula-box">
+  V_out = −R_f × (V1/R1 + V2/R2 + V3/R3)<br>
+  Dấu âm: đầu vào vào chân đảo (−). Virtual ground tại nút summing.
+</div>
+
+<div class="card">
+  <p>Kéo thanh trượt để thay đổi V_in và điện trở. Sơ đồ mạch cập nhật nhãn; kết quả tính ngay bên dưới.</p>
+
+  <div class="slider-grid">
+    <div class="slider-group">
+      <label>V1: <span class="slider-val" id="sv1-val">1.0 V</span></label>
+      <input type="range" id="sv1" min="-5" max="5" step="0.1" value="1.0" oninput="calcSumming()">
+    </div>
+    <div class="slider-group">
+      <label>V2: <span class="slider-val" id="sv2-val">2.0 V</span></label>
+      <input type="range" id="sv2" min="-5" max="5" step="0.1" value="2.0" oninput="calcSumming()">
+    </div>
+    <div class="slider-group">
+      <label>V3: <span class="slider-val" id="sv3-val">0.0 V</span></label>
+      <input type="range" id="sv3" min="-5" max="5" step="0.1" value="0.0" oninput="calcSumming()">
+    </div>
+    <div class="slider-group">
+      <label>R1 (kΩ): <span class="slider-val" id="sr1-val">10</span></label>
+      <input type="range" id="sr1" min="1" max="100" step="1" value="10" oninput="calcSumming()">
+    </div>
+    <div class="slider-group">
+      <label>R2 (kΩ): <span class="slider-val" id="sr2-val">10</span></label>
+      <input type="range" id="sr2" min="1" max="100" step="1" value="10" oninput="calcSumming()">
+    </div>
+    <div class="slider-group">
+      <label>R3 (kΩ): <span class="slider-val" id="sr3-val">10</span></label>
+      <input type="range" id="sr3" min="1" max="100" step="1" value="10" oninput="calcSumming()">
+    </div>
+    <div class="slider-group">
+      <label>R_f (kΩ): <span class="slider-val" id="srf-val">10</span></label>
+      <input type="range" id="srf" min="1" max="200" step="1" value="10" oninput="calcSumming()">
+    </div>
+    <div class="slider-group">
+      <label>V_supply (V): <span class="slider-val" id="svcc-val">±15</span></label>
+      <input type="range" id="svcc" min="5" max="15" step="1" value="15" oninput="calcSumming()">
+    </div>
+  </div>
+
+  <!-- SVG Summing Amplifier -->
+  <div class="svg-wrap">
+    <svg class="ckt" id="svg-sum" width="560" height="300" viewBox="0 0 560 300">
+      <rect width="560" height="300" fill="#f8fafc" rx="10"/>
+
+      <!-- Op-amp triangle -->
+      <polygon points="280,80 280,220 420,150" fill="#f0fdf4" stroke="#4d7c0f" stroke-width="2.5"/>
+      <text x="335" y="155" text-anchor="middle" fill="#4d7c0f" font-size="13" font-weight="700">Op-amp</text>
+
+      <!-- Input resistors and wires -->
+      <!-- V1 line -->
+      <line x1="40" y1="110" x2="110" y2="110" stroke="#1d4ed8" stroke-width="2"/>
+      <rect x="110" y="102" width="60" height="16" fill="white" stroke="#4d7c0f" stroke-width="2" rx="3"/>
+      <text x="140" y="113" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700" id="lbl-r1">R1=10k</text>
+      <line x1="170" y1="110" x2="230" y2="110" stroke="#1d4ed8" stroke-width="2"/>
+      <text x="30" y="113" text-anchor="end" fill="#1d4ed8" font-size="12" font-weight="700" id="lbl-v1">V1=1V</text>
+      <!-- V1 source dot -->
+      <circle cx="40" cy="110" r="4" fill="#1d4ed8"/>
+
+      <!-- V2 line -->
+      <line x1="40" y1="150" x2="110" y2="150" stroke="#7c3aed" stroke-width="2"/>
+      <rect x="110" y="142" width="60" height="16" fill="white" stroke="#4d7c0f" stroke-width="2" rx="3"/>
+      <text x="140" y="153" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700" id="lbl-r2">R2=10k</text>
+      <line x1="170" y1="150" x2="230" y2="150" stroke="#7c3aed" stroke-width="2"/>
+      <text x="30" y="153" text-anchor="end" fill="#7c3aed" font-size="12" font-weight="700" id="lbl-v2">V2=2V</text>
+      <circle cx="40" cy="150" r="4" fill="#7c3aed"/>
+
+      <!-- V3 line -->
+      <line x1="40" y1="190" x2="110" y2="190" stroke="#dc2626" stroke-width="2"/>
+      <rect x="110" y="182" width="60" height="16" fill="white" stroke="#4d7c0f" stroke-width="2" rx="3"/>
+      <text x="140" y="193" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700" id="lbl-r3">R3=10k</text>
+      <line x1="170" y1="190" x2="230" y2="190" stroke="#dc2626" stroke-width="2"/>
+      <text x="30" y="193" text-anchor="end" fill="#dc2626" font-size="12" font-weight="700" id="lbl-v3">V3=0V</text>
+      <circle cx="40" cy="190" r="4" fill="#dc2626"/>
+
+      <!-- Summing node -->
+      <circle cx="230" cy="150" r="5" fill="#374151"/>
+
+      <!-- Wires from summing node to op-amp − input -->
+      <line x1="230" y1="110" x2="230" y2="190" stroke="#374151" stroke-width="2"/>
+      <line x1="230" y1="150" x2="280" y2="150" stroke="#374151" stroke-width="2"/>
+
+      <!-- + input of op-amp (to GND) -->
+      <line x1="280" y1="190" x2="245" y2="190" stroke="#374151" stroke-width="2"/>
+      <line x1="245" y1="190" x2="245" y2="240" stroke="#374151" stroke-width="2"/>
+      <!-- GND symbol -->
+      <line x1="233" y1="240" x2="257" y2="240" stroke="#374151" stroke-width="2"/>
+      <line x1="237" y1="245" x2="253" y2="245" stroke="#374151" stroke-width="1.5"/>
+      <line x1="241" y1="250" x2="249" y2="250" stroke="#374151" stroke-width="1"/>
+
+      <!-- Feedback resistor Rf (arc over top) -->
+      <path d="M 230 130 Q 295 50 420 150" fill="none" stroke="#374151" stroke-width="2" stroke-dasharray="5,3"/>
+      <!-- Rf body -->
+      <rect x="278" y="44" width="60" height="16" fill="white" stroke="#4d7c0f" stroke-width="2" rx="3"/>
+      <text x="308" y="55" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700" id="lbl-rf">Rf=10k</text>
+
+      <!-- Output wire -->
+      <line x1="420" y1="150" x2="520" y2="150" stroke="#dc2626" stroke-width="2.5"/>
+      <circle cx="420" cy="150" r="4" fill="#dc2626"/>
+      <text x="530" y="154" text-anchor="start" fill="#14532d" font-size="14" font-weight="900" id="lbl-vout-sum">V_out=?</text>
+
+      <!-- − + labels on op-amp -->
+      <text x="287" y="148" fill="#374151" font-size="12" font-weight="700">−</text>
+      <text x="287" y="198" fill="#374151" font-size="12" font-weight="700">+</text>
+    </svg>
+  </div>
+
+  <div class="result-box" id="res-summing">Kéo thanh trượt để xem kết quả...</div>
+</div>
+
+</div><!-- end panel-summing -->
+
+<!-- ═══════════════════════════════════════
+     PANEL 2: DIFFERENCE AMPLIFIER
+════════════════════════════════════════ -->
+<div class="circuit-panel" id="panel-difference">
+
+<h2>2. Mạch trừ / Khuếch đại vi sai (Difference Amplifier)</h2>
+
+<div class="formula-box">
+  V_out = (R_f / R_in) × (V2 − V1)<br>
+  Khi R_in = R_f: V_out = V2 − V1<br>
+  Nhiễu chung V_cm (giống nhau trên cả 2 đầu vào) bị triệt tiêu hoàn toàn.
+</div>
+
+<div class="card">
+  <div class="slider-grid">
+    <div class="slider-group">
+      <label>V1 (V): <span class="slider-val" id="dv1-val">1.00</span></label>
+      <input type="range" id="dv1" min="-5" max="5" step="0.01" value="1.00" oninput="calcDiff()">
+    </div>
+    <div class="slider-group">
+      <label>V2 (V): <span class="slider-val" id="dv2-val">1.50</span></label>
+      <input type="range" id="dv2" min="-5" max="5" step="0.01" value="1.50" oninput="calcDiff()">
+    </div>
+    <div class="slider-group">
+      <label>Nhiễu chung V_cm (V): <span class="slider-val" id="dvcm-val">0.00</span></label>
+      <input type="range" id="dvcm" min="-3" max="3" step="0.1" value="0.0" oninput="calcDiff()">
+    </div>
+    <div class="slider-group">
+      <label>R_in (kΩ): <span class="slider-val" id="drin-val">10</span></label>
+      <input type="range" id="drin" min="1" max="100" step="1" value="10" oninput="calcDiff()">
+    </div>
+    <div class="slider-group">
+      <label>R_f (kΩ): <span class="slider-val" id="drf-val">10</span></label>
+      <input type="range" id="drf" min="1" max="200" step="1" value="10" oninput="calcDiff()">
+    </div>
+    <div class="slider-group">
+      <label>V_supply (V): <span class="slider-val" id="dvcc-val">±15</span></label>
+      <input type="range" id="dvcc" min="5" max="15" step="1" value="15" oninput="calcDiff()">
+    </div>
+  </div>
+
+  <!-- SVG Difference Amplifier -->
+  <div class="svg-wrap">
+    <svg class="ckt" id="svg-diff" width="560" height="280" viewBox="0 0 560 280">
+      <rect width="560" height="280" fill="#f8fafc" rx="10"/>
+
+      <!-- Op-amp triangle -->
+      <polygon points="270,80 270,200 400,140" fill="#f0fdf4" stroke="#4d7c0f" stroke-width="2.5"/>
+      <text x="320" y="145" text-anchor="middle" fill="#4d7c0f" font-size="13" font-weight="700">Op-amp</text>
+
+      <!-- V1 upper path → R_in → − input -->
+      <text x="25" y="104" text-anchor="start" fill="#1d4ed8" font-size="12" font-weight="700" id="dlbl-v1">V1=1.00V</text>
+      <line x1="25" y1="110" x2="90" y2="110" stroke="#1d4ed8" stroke-width="2"/>
+      <rect x="90" y="102" width="55" height="16" fill="white" stroke="#4d7c0f" stroke-width="2" rx="3"/>
+      <text x="117" y="113" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700" id="dlbl-rin1">Rin=10k</text>
+      <line x1="145" y1="110" x2="215" y2="110" stroke="#1d4ed8" stroke-width="2"/>
+      <!-- node at − -->
+      <circle cx="215" cy="110" r="4" fill="#374151"/>
+      <line x1="215" y1="110" x2="270" y2="110" stroke="#374151" stroke-width="2"/>
+
+      <!-- Feedback Rf from output to − node -->
+      <path d="M 215 95 Q 310 30 400 140" fill="none" stroke="#374151" stroke-width="2" stroke-dasharray="5,3"/>
+      <rect x="264" y="36" width="55" height="16" fill="white" stroke="#4d7c0f" stroke-width="2" rx="3"/>
+      <text x="291" y="47" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700" id="dlbl-rf">Rf=10k</text>
+
+      <!-- V2 lower path → R_in → + input -->
+      <text x="25" y="174" text-anchor="start" fill="#dc2626" font-size="12" font-weight="700" id="dlbl-v2">V2=1.50V</text>
+      <line x1="25" y1="180" x2="90" y2="180" stroke="#dc2626" stroke-width="2"/>
+      <rect x="90" y="172" width="55" height="16" fill="white" stroke="#4d7c0f" stroke-width="2" rx="3"/>
+      <text x="117" y="183" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700" id="dlbl-rin2">Rin=10k</text>
+      <line x1="145" y1="180" x2="200" y2="180" stroke="#dc2626" stroke-width="2"/>
+      <circle cx="200" cy="180" r="4" fill="#374151"/>
+      <line x1="200" y1="180" x2="270" y2="170" stroke="#374151" stroke-width="2"/>
+
+      <!-- Rf2 from + node to GND -->
+      <line x1="200" y1="180" x2="200" y2="240" stroke="#374151" stroke-width="2"/>
+      <rect x="183" y="182" width="34" height="16" fill="white" stroke="#4d7c0f" stroke-width="1.5" rx="2"/>
+      <text x="200" y="193" text-anchor="middle" fill="#4d7c0f" font-size="10" font-weight="700" id="dlbl-rf2">Rf=10k</text>
+      <!-- GND -->
+      <line x1="188" y1="240" x2="212" y2="240" stroke="#374151" stroke-width="2"/>
+      <line x1="192" y1="245" x2="208" y2="245" stroke="#374151" stroke-width="1.5"/>
+      <line x1="196" y1="250" x2="204" y2="250" stroke="#374151" stroke-width="1"/>
+
+      <!-- Output -->
+      <line x1="400" y1="140" x2="510" y2="140" stroke="#dc2626" stroke-width="2.5"/>
+      <circle cx="400" cy="140" r="4" fill="#dc2626"/>
+      <text x="516" y="144" text-anchor="start" fill="#14532d" font-size="13" font-weight="900" id="dlbl-vout">V_out=?</text>
+
+      <!-- − + labels -->
+      <text x="277" y="114" fill="#374151" font-size="12" font-weight="700">−</text>
+      <text x="277" y="178" fill="#374151" font-size="12" font-weight="700">+</text>
+    </svg>
+  </div>
+
+  <div class="result-box" id="res-diff">Kéo thanh trượt để xem kết quả...</div>
+</div>
+
+</div><!-- end panel-difference -->
+
+<!-- ═══════════════════════════════════════
+     PANEL 3: INTEGRATOR
+════════════════════════════════════════ -->
+<div class="circuit-panel" id="panel-integrator">
+
+<h2>3. Mạch tích phân (Integrator)</h2>
+
+<div class="formula-box">
+  V_out(t) = −(1/RC) × ∫V_in dt<br>
+  Sóng vuông vào → sóng tam giác ra (tích phân từng đoạn tuyến tính)<br>
+  Biên độ tam giác = V_in × (T/2) / (R×C)
+</div>
+
+<div class="card">
+  <div class="slider-grid">
+    <div class="slider-group">
+      <label>V_in biên độ (V): <span class="slider-val" id="iv-val">3.0</span></label>
+      <input type="range" id="iv" min="0.5" max="10" step="0.5" value="3.0" oninput="calcIntegrator()">
+    </div>
+    <div class="slider-group">
+      <label>Tần số f (Hz): <span class="slider-val" id="ifreq-val">500</span></label>
+      <input type="range" id="ifreq" min="50" max="5000" step="50" value="500" oninput="calcIntegrator()">
+    </div>
+    <div class="slider-group">
+      <label>R (kΩ): <span class="slider-val" id="ir-val">47</span></label>
+      <input type="range" id="ir" min="1" max="200" step="1" value="47" oninput="calcIntegrator()">
+    </div>
+    <div class="slider-group">
+      <label>C (nF): <span class="slider-val" id="ic-val">100</span></label>
+      <input type="range" id="ic" min="1" max="1000" step="1" value="100" oninput="calcIntegrator()">
+    </div>
+    <div class="slider-group">
+      <label>V_supply (V): <span class="slider-val" id="ivcc-val">±12</span></label>
+      <input type="range" id="ivcc" min="5" max="15" step="1" value="12" oninput="calcIntegrator()">
+    </div>
+  </div>
+
+  <div class="wave-row">
+    <div class="wave-box">
+      <h4>V_in — Sóng vuông</h4>
+      <canvas class="wave" id="canvas-sqwave" width="300" height="120"></canvas>
+    </div>
+    <div class="wave-box">
+      <h4>V_out — Sóng tam giác (tích phân)</h4>
+      <canvas class="wave" id="canvas-triwave" width="300" height="120"></canvas>
+    </div>
+  </div>
+
+  <div class="result-box" id="res-integrator">Kéo thanh trượt để xem kết quả...</div>
+</div>
+
+</div><!-- end panel-integrator -->
+
+<!-- ═══════════════════════════════════════
+     PANEL 4: COMPARATOR
+════════════════════════════════════════ -->
+<div class="circuit-panel" id="panel-comparator">
+
+<h2>4. Comparator (Mạch so sánh)</h2>
+
+<div class="formula-box">
+  V_in &gt; V_ref → V_out = +V_sat<br>
+  V_in &lt; V_ref → V_out = −V_sat<br>
+  Không hồi tiếp → 1 ngưỡng → có thể rung khi V_in ≈ V_ref
+</div>
+
+<div class="card">
+  <div class="slider-grid">
+    <div class="slider-group">
+      <label>V_ref (V): <span class="slider-val" id="cref-val">2.50</span></label>
+      <input type="range" id="cref" min="-5" max="5" step="0.05" value="2.50" oninput="calcComparator()">
+    </div>
+    <div class="slider-group">
+      <label>V_in DC (V): <span class="slider-val" id="cin-val">1.50</span></label>
+      <input type="range" id="cin" min="-5" max="5" step="0.05" value="1.50" oninput="calcComparator()">
+    </div>
+    <div class="slider-group">
+      <label>Biên độ nhiễu (V): <span class="slider-val" id="cnoise-val">0.0</span></label>
+      <input type="range" id="cnoise" min="0" max="2" step="0.05" value="0.0" oninput="calcComparator()">
+    </div>
+    <div class="slider-group">
+      <label>V_supply (V): <span class="slider-val" id="cvcc-val">±12</span></label>
+      <input type="range" id="cvcc" min="5" max="15" step="1" value="12" oninput="calcComparator()">
+    </div>
+  </div>
+
+  <!-- SVG Comparator -->
+  <div class="svg-wrap">
+    <svg class="ckt" id="svg-comp" width="520" height="200" viewBox="0 0 520 200">
+      <rect width="520" height="200" fill="#f8fafc" rx="10"/>
+      <!-- Op-amp (no feedback) -->
+      <polygon points="200,60 200,160 360,110" fill="#f0fdf4" stroke="#4d7c0f" stroke-width="2.5"/>
+      <text x="265" y="108" text-anchor="middle" fill="#4d7c0f" font-size="13" font-weight="700">Comp.</text>
+      <!-- V_in → − -->
+      <line x1="30" y1="85" x2="200" y2="85" stroke="#1d4ed8" stroke-width="2"/>
+      <text x="20" y="89" text-anchor="end" fill="#1d4ed8" font-size="12" font-weight="700" id="clbl-vin">V_in=1.5V</text>
+      <circle cx="30" cy="85" r="4" fill="#1d4ed8"/>
+      <!-- V_ref → + -->
+      <line x1="30" y1="135" x2="200" y2="135" stroke="#dc2626" stroke-width="2"/>
+      <text x="20" y="139" text-anchor="end" fill="#dc2626" font-size="12" font-weight="700" id="clbl-vref">V_ref=2.5V</text>
+      <circle cx="30" cy="135" r="4" fill="#dc2626"/>
+      <!-- Output -->
+      <line x1="360" y1="110" x2="490" y2="110" stroke="#374151" stroke-width="2.5"/>
+      <text x="496" y="114" text-anchor="start" fill="#14532d" font-size="13" font-weight="900" id="clbl-vout">V_out=?</text>
+      <!-- − + labels -->
+      <text x="207" y="88" fill="#374151" font-size="13" font-weight="700">−</text>
+      <text x="207" y="142" fill="#374151" font-size="13" font-weight="700">+</text>
+      <!-- No feedback indicator -->
+      <text x="265" y="30" text-anchor="middle" fill="#6b7280" font-size="11" font-style="italic">Không hồi tiếp</text>
+    </svg>
+  </div>
+
+  <!-- Signal canvas -->
+  <div class="sig-canvas-wrap">
+    <canvas class="signal" id="canvas-comp" width="520" height="160"></canvas>
+  </div>
+
+  <div class="result-box" id="res-comp">Kéo thanh trượt để xem kết quả...</div>
+</div>
+
+</div><!-- end panel-comparator -->
+
+<!-- ═══════════════════════════════════════
+     PANEL 5: SCHMITT TRIGGER
+════════════════════════════════════════ -->
+<div class="circuit-panel" id="panel-schmitt">
+
+<h2>5. Schmitt Trigger (Comparator có hồi tiếp dương)</h2>
+
+<div class="formula-box">
+  V_TH = +V_sat × R2 / (R1 + R2)  &nbsp; (ngưỡng trên)<br>
+  V_TL = −V_sat × R2 / (R1 + R2)  &nbsp; (ngưỡng dưới)<br>
+  Hysteresis = V_TH − V_TL = 2 × V_sat × R2/(R1+R2)
+</div>
+
+<div class="card">
+  <div class="slider-grid">
+    <div class="slider-group">
+      <label>R1 (kΩ): <span class="slider-val" id="shr1-val">90</span></label>
+      <input type="range" id="shr1" min="1" max="200" step="1" value="90" oninput="calcSchmitt()">
+    </div>
+    <div class="slider-group">
+      <label>R2 (kΩ): <span class="slider-val" id="shr2-val">10</span></label>
+      <input type="range" id="shr2" min="1" max="100" step="1" value="10" oninput="calcSchmitt()">
+    </div>
+    <div class="slider-group">
+      <label>V_supply (V): <span class="slider-val" id="shvcc-val">±12</span></label>
+      <input type="range" id="shvcc" min="5" max="15" step="1" value="12" oninput="calcSchmitt()">
+    </div>
+    <div class="slider-group">
+      <label>V_in tín hiệu (V): <span class="slider-val" id="shin-val">0.0</span></label>
+      <input type="range" id="shin" min="-5" max="5" step="0.05" value="0.0" oninput="calcSchmitt()">
+    </div>
+    <div class="slider-group">
+      <label>Biên độ nhiễu (V): <span class="slider-val" id="shnoise-val">0.5</span></label>
+      <input type="range" id="shnoise" min="0" max="3" step="0.05" value="0.5" oninput="calcSchmitt()">
+    </div>
+  </div>
+
+  <!-- SVG Schmitt trigger -->
+  <div class="svg-wrap">
+    <svg class="ckt" id="svg-schmitt" width="540" height="220" viewBox="0 0 540 220">
+      <rect width="540" height="220" fill="#f8fafc" rx="10"/>
+      <!-- Op-amp -->
+      <polygon points="220,60 220,180 380,120" fill="#f0fdf4" stroke="#4d7c0f" stroke-width="2.5"/>
+      <text x="285" y="118" text-anchor="middle" fill="#4d7c0f" font-size="12" font-weight="700">Op-amp</text>
+      <!-- V_in → − -->
+      <line x1="30" y1="90" x2="220" y2="90" stroke="#1d4ed8" stroke-width="2"/>
+      <text x="20" y="94" text-anchor="end" fill="#1d4ed8" font-size="12" font-weight="700" id="shlbl-vin">V_in=0V</text>
+      <circle cx="30" cy="90" r="4" fill="#1d4ed8"/>
+      <!-- Positive feedback path: output → R1 → + node, + node → R2 → GND -->
+      <!-- + node -->
+      <circle cx="190" cy="150" r="4" fill="#374151"/>
+      <line x1="190" y1="150" x2="220" y2="150" stroke="#374151" stroke-width="2"/>
+      <!-- R2 to GND -->
+      <line x1="190" y1="150" x2="190" y2="200" stroke="#374151" stroke-width="2"/>
+      <rect x="174" y="155" width="32" height="14" fill="white" stroke="#4d7c0f" stroke-width="1.5" rx="2"/>
+      <text x="190" y="165" text-anchor="middle" fill="#4d7c0f" font-size="10" font-weight="700" id="shlbl-r2">R2=10k</text>
+      <line x1="178" y1="200" x2="202" y2="200" stroke="#374151" stroke-width="2"/>
+      <line x1="182" y1="205" x2="198" y2="205" stroke="#374151" stroke-width="1.5"/>
+      <line x1="186" y1="210" x2="194" y2="210" stroke="#374151" stroke-width="1"/>
+      <!-- R1 feedback arc from output to + node -->
+      <path d="M 380 120 Q 440 60 190 145" fill="none" stroke="#374151" stroke-width="2" stroke-dasharray="5,3"/>
+      <rect x="380" y="52" width="54" height="14" fill="white" stroke="#4d7c0f" stroke-width="1.5" rx="2"/>
+      <text x="407" y="62" text-anchor="middle" fill="#4d7c0f" font-size="10" font-weight="700" id="shlbl-r1">R1=90k</text>
+      <!-- Output -->
+      <line x1="380" y1="120" x2="510" y2="120" stroke="#374151" stroke-width="2.5"/>
+      <circle cx="380" cy="120" r="4" fill="#dc2626"/>
+      <text x="516" y="124" text-anchor="start" fill="#14532d" font-size="13" font-weight="900" id="shlbl-vout">V_out=?</text>
+      <!-- − + labels -->
+      <text x="227" y="94" fill="#374151" font-size="13" font-weight="700">−</text>
+      <text x="227" y="158" fill="#374151" font-size="13" font-weight="700">+</text>
+      <!-- Positive feedback label -->
+      <text x="440" y="88" text-anchor="middle" fill="#9333ea" font-size="11" font-style="italic">Hồi tiếp dương (+)</text>
+    </svg>
+  </div>
+
+  <!-- Threshold bar visualization -->
+  <p style="font-size:13px; color:#374151; margin:10px 0 4px 0;"><strong>Vùng trễ (hysteresis window):</strong> thanh ngang 0V ở giữa, vùng xanh = window an toàn, vạch đỏ = V_in hiện tại.</p>
+  <div class="threshold-bar" id="sh-bar">
+    <div class="threshold-zone" id="sh-zone"></div>
+    <div class="threshold-line" id="sh-line-th" style="left:55%"></div>
+    <div class="threshold-line" id="sh-line-tl" style="left:45%; background:#dc2626;"></div>
+    <div class="threshold-label" id="sh-label-th" style="left:56%">V_TH</div>
+    <div class="threshold-label" id="sh-label-tl" style="left:34%; color:#dc2626;">V_TL</div>
+    <div class="input-indicator" id="sh-input-ind" style="left:50%"></div>
+    <div class="input-label" id="sh-input-lbl" style="left:50%">V_in</div>
+  </div>
+
+  <!-- Signal canvas for Schmitt -->
+  <div class="sig-canvas-wrap">
+    <canvas class="signal" id="canvas-schmitt" width="520" height="180"></canvas>
+  </div>
+
+  <div class="result-box" id="res-schmitt">Kéo thanh trượt để xem kết quả...</div>
+</div>
+
+</div><!-- end panel-schmitt -->
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// UTILITY
+// ═══════════════════════════════════════════════════════════
+
+function switchCircuit(name) {
+  document.querySelectorAll('.circuit-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.circuit-tabs button').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  const idx = ['summing','difference','integrator','comparator','schmitt'].indexOf(name);
+  document.querySelectorAll('.circuit-tabs button')[idx].classList.add('active');
+  // Trigger redraw
+  if (name === 'integrator') { calcIntegrator(); }
+  if (name === 'comparator') { calcComparator(); }
+  if (name === 'schmitt') { calcSchmitt(); }
+}
+
+function fmt(v, decimals=2) {
+  return parseFloat(v).toFixed(decimals);
+}
+
+function fmtV(v) {
+  const a = Math.abs(v);
+  if (a >= 1000) return fmt(v/1000, 1) + ' kV';
+  if (a < 0.001 && v !== 0) return fmt(v*1000, 2) + ' mV';
+  return fmt(v, 3) + ' V';
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 1: SUMMING AMPLIFIER
+// ═══════════════════════════════════════════════════════════
+
+function calcSumming() {
+  const v1 = parseFloat(document.getElementById('sv1').value);
+  const v2 = parseFloat(document.getElementById('sv2').value);
+  const v3 = parseFloat(document.getElementById('sv3').value);
+  const r1 = parseFloat(document.getElementById('sr1').value);
+  const r2 = parseFloat(document.getElementById('sr2').value);
+  const r3 = parseFloat(document.getElementById('sr3').value);
+  const rf = parseFloat(document.getElementById('srf').value);
+  const vcc = parseFloat(document.getElementById('svcc').value);
+
+  document.getElementById('sv1-val').textContent = fmt(v1, 1) + ' V';
+  document.getElementById('sv2-val').textContent = fmt(v2, 1) + ' V';
+  document.getElementById('sv3-val').textContent = fmt(v3, 1) + ' V';
+  document.getElementById('sr1-val').textContent = r1;
+  document.getElementById('sr2-val').textContent = r2;
+  document.getElementById('sr3-val').textContent = r3;
+  document.getElementById('srf-val').textContent = rf;
+  document.getElementById('svcc-val').textContent = '±' + vcc;
+
+  // Update SVG labels
+  document.getElementById('lbl-v1').textContent = 'V1=' + fmt(v1,1) + 'V';
+  document.getElementById('lbl-v2').textContent = 'V2=' + fmt(v2,1) + 'V';
+  document.getElementById('lbl-v3').textContent = 'V3=' + fmt(v3,1) + 'V';
+  document.getElementById('lbl-r1').textContent = 'R1=' + r1 + 'k';
+  document.getElementById('lbl-r2').textContent = 'R2=' + r2 + 'k';
+  document.getElementById('lbl-r3').textContent = 'R3=' + r3 + 'k';
+  document.getElementById('lbl-rf').textContent = 'Rf=' + rf + 'k';
+
+  const i1 = v1 / r1;  // mA (kΩ units cancel for ratio)
+  const i2 = v2 / r2;
+  const i3 = v3 / r3;
+  const i_total = i1 + i2 + i3;
+  const v_out_ideal = -rf * (v1/r1 + v2/r2 + v3/r3);  // same units
+  const v_sat = vcc - 1.5;
+  const v_out_actual = Math.max(-v_sat, Math.min(v_sat, v_out_ideal));
+  const saturated = Math.abs(v_out_ideal) > v_sat;
+
+  document.getElementById('lbl-vout-sum').textContent = 'V_out=' + fmt(v_out_actual, 2) + 'V';
+
+  const satClass = saturated ? 'warn' : 'ok';
+  const satMsg = saturated
+    ? `<span class="warn">BÃO HÒA! V_out lý tưởng ${fmt(v_out_ideal,2)} V vượt V_sat = ±${fmt(v_sat,1)} V → thực tế ${fmt(v_out_actual,2)} V</span>`
+    : `<span class="ok">Không bão hòa. |V_out| = ${fmt(Math.abs(v_out_actual),2)} V &lt; V_sat = ${fmt(v_sat,1)} V</span>`;
+
+  document.getElementById('res-summing').innerHTML = `
+    <strong>Công thức:</strong> V_out = −R_f × (V1/R1 + V2/R2 + V3/R3)<br>
+    Dòng qua R1: i1 = ${fmt(v1,2)}/${r1}k = <strong>${fmt(i1*1000, 2)} µA</strong><br>
+    Dòng qua R2: i2 = ${fmt(v2,2)}/${r2}k = <strong>${fmt(i2*1000, 2)} µA</strong><br>
+    Dòng qua R3: i3 = ${fmt(v3,2)}/${r3}k = <strong>${fmt(i3*1000, 2)} µA</strong><br>
+    Tổng dòng i_f = ${fmt((i1+i2+i3)*1000, 2)} µA<br>
+    V_out = −${rf}k × ${fmt(i1+i2+i3, 6)} = <span class="hi">${fmt(v_out_ideal, 3)} V (lý tưởng)</span><br>
+    Nguồn ±${vcc} V → V_sat ≈ ±${fmt(v_sat,1)} V &nbsp; ${satMsg}<br>
+    <span class="note">Hệ số V1: ${fmt(rf/r1,2)}× &nbsp; V2: ${fmt(rf/r2,2)}× &nbsp; V3: ${fmt(rf/r3,2)}×</span>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 2: DIFFERENCE AMPLIFIER
+// ═══════════════════════════════════════════════════════════
+
+function calcDiff() {
+  const v1 = parseFloat(document.getElementById('dv1').value);
+  const v2 = parseFloat(document.getElementById('dv2').value);
+  const vcm = parseFloat(document.getElementById('dvcm').value);
+  const rin = parseFloat(document.getElementById('drin').value);
+  const rf = parseFloat(document.getElementById('drf').value);
+  const vcc = parseFloat(document.getElementById('dvcc').value);
+
+  document.getElementById('dv1-val').textContent = fmt(v1, 2);
+  document.getElementById('dv2-val').textContent = fmt(v2, 2);
+  document.getElementById('dvcm-val').textContent = fmt(vcm, 2);
+  document.getElementById('drin-val').textContent = rin;
+  document.getElementById('drf-val').textContent = rf;
+  document.getElementById('dvcc-val').textContent = '±' + vcc;
+
+  const v1_actual = v1 + vcm;
+  const v2_actual = v2 + vcm;
+  const gain = rf / rin;
+  const v_diff_ideal = v2 - v1;
+  const v_out_ideal = gain * (v2_actual - v1_actual);
+  const v_sat = vcc - 1.5;
+  const v_out_actual = Math.max(-v_sat, Math.min(v_sat, v_out_ideal));
+  const saturated = Math.abs(v_out_ideal) > v_sat;
+
+  // Update SVG
+  document.getElementById('dlbl-v1').textContent = 'V1=' + fmt(v1_actual, 2) + 'V';
+  document.getElementById('dlbl-v2').textContent = 'V2=' + fmt(v2_actual, 2) + 'V';
+  document.getElementById('dlbl-rin1').textContent = 'Rin=' + rin + 'k';
+  document.getElementById('dlbl-rin2').textContent = 'Rin=' + rin + 'k';
+  document.getElementById('dlbl-rf').textContent = 'Rf=' + rf + 'k';
+  document.getElementById('dlbl-rf2').textContent = 'Rf=' + rf + 'k';
+  document.getElementById('dlbl-vout').textContent = 'V_out=' + fmt(v_out_actual, 2) + 'V';
+
+  const cmRejectionNote = Math.abs(vcm) > 0.001
+    ? `<br>V_cm = ${fmt(vcm,2)} V trên cả 2 đầu vào → V2−V1 = (${fmt(v2,2)}+${fmt(vcm,2)}) − (${fmt(v1,2)}+${fmt(vcm,2)}) = <span class="ok">${fmt(v_diff_ideal,3)} V (V_cm bị triệt tiêu!)</span>`
+    : '';
+
+  const satMsg = saturated
+    ? `<br><span class="warn">BÃO HÒA! V_out lý tưởng ${fmt(v_out_ideal,2)} V > V_sat ${fmt(v_sat,1)} V</span>`
+    : '';
+
+  document.getElementById('res-diff').innerHTML = `
+    <strong>Hệ số khuếch đại:</strong> A = R_f/R_in = ${rf}k/${rin}k = <strong>${fmt(gain, 2)}×</strong><br>
+    V_diff = V2 − V1 = ${fmt(v2,2)} − ${fmt(v1,2)} = <strong>${fmt(v_diff_ideal, 3)} V</strong>${cmRejectionNote}<br>
+    V_out = ${fmt(gain,2)} × ${fmt(v_diff_ideal,3)} = <span class="hi">${fmt(v_out_ideal, 3)} V (lý tưởng)</span>${satMsg}<br>
+    <span class="note">V_sat = ±${fmt(v_sat,1)} V &nbsp;|&nbsp; Ứng dụng: cầu Wheatstone, ECG, loại nhiễu 50 Hz</span>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 3: INTEGRATOR — WAVEFORM CANVAS
+// ═══════════════════════════════════════════════════════════
+
+function calcIntegrator() {
+  const vAmp = parseFloat(document.getElementById('iv').value);
+  const freq = parseFloat(document.getElementById('ifreq').value);
+  const rk = parseFloat(document.getElementById('ir').value);
+  const cn = parseFloat(document.getElementById('ic').value);
+  const vcc = parseFloat(document.getElementById('ivcc').value);
+
+  document.getElementById('iv-val').textContent = fmt(vAmp, 1);
+  document.getElementById('ifreq-val').textContent = freq;
+  document.getElementById('ir-val').textContent = rk;
+  document.getElementById('ic-val').textContent = cn;
+  document.getElementById('ivcc-val').textContent = '±' + vcc;
+
+  const R = rk * 1e3;   // Ohm
+  const C = cn * 1e-9;  // Farad
+  const RC = R * C;
+  const T = 1 / freq;
+  const halfT = T / 2;
+  const triAmp = vAmp * halfT / RC;
+  const vSat = vcc - 1.5;
+  const actualAmp = Math.min(triAmp, vSat);
+  const saturated = triAmp > vSat;
+
+  // Draw square wave
+  const cSq = document.getElementById('canvas-sqwave');
+  const ctxSq = cSq.getContext('2d');
+  const W = cSq.width, H = cSq.height;
+  ctxSq.clearRect(0, 0, W, H);
+  ctxSq.fillStyle = '#f8fafc';
+  ctxSq.fillRect(0, 0, W, H);
+
+  // Grid
+  ctxSq.strokeStyle = '#e5e7eb';
+  ctxSq.lineWidth = 0.5;
+  ctxSq.beginPath();
+  ctxSq.moveTo(0, H/2); ctxSq.lineTo(W, H/2);
+  ctxSq.stroke();
+
+  // Square wave: 3 full cycles
+  const numCycles = 3;
+  const pxPerCycle = W / numCycles;
+  const scale = (H/2 - 12) / vAmp;
+
+  ctxSq.strokeStyle = '#1d4ed8';
+  ctxSq.lineWidth = 2;
+  ctxSq.beginPath();
+  for (let c = 0; c < numCycles; c++) {
+    const x0 = c * pxPerCycle;
+    const x1 = (c + 0.5) * pxPerCycle;
+    const x2 = (c + 1) * pxPerCycle;
+    const yHi = H/2 - vAmp * scale;
+    const yLo = H/2 + vAmp * scale;
+    if (c === 0) ctxSq.moveTo(x0, yHi);
+    ctxSq.lineTo(x1, yHi);
+    ctxSq.lineTo(x1, yLo);
+    ctxSq.lineTo(x2, yLo);
+    ctxSq.lineTo(x2, yHi);
+  }
+  ctxSq.stroke();
+
+  // Labels
+  ctxSq.fillStyle = '#1d4ed8';
+  ctxSq.font = '11px monospace';
+  ctxSq.fillText('+' + fmt(vAmp,1) + 'V', 4, H/2 - vAmp*scale + 11);
+  ctxSq.fillText('-' + fmt(vAmp,1) + 'V', 4, H/2 + vAmp*scale + 11);
+
+  // Draw triangle wave
+  const cTri = document.getElementById('canvas-triwave');
+  const ctxTri = cTri.getContext('2d');
+  const WT = cTri.width, HT = cTri.height;
+  ctxTri.clearRect(0, 0, WT, HT);
+  ctxTri.fillStyle = '#f8fafc';
+  ctxTri.fillRect(0, 0, WT, HT);
+
+  ctxTri.strokeStyle = '#e5e7eb';
+  ctxTri.lineWidth = 0.5;
+  ctxTri.beginPath();
+  ctxTri.moveTo(0, HT/2); ctxTri.lineTo(WT, HT/2);
+  ctxTri.stroke();
+
+  const triScale = (HT/2 - 12) / Math.max(actualAmp, 0.1);
+  const color = saturated ? '#dc2626' : '#4d7c0f';
+  ctxTri.strokeStyle = color;
+  ctxTri.lineWidth = 2;
+  ctxTri.beginPath();
+  // Triangle wave: starts at bottom, rises to top, alternates
+  let yPrev = HT/2 + actualAmp * triScale;
+  ctxTri.moveTo(0, yPrev);
+  for (let c = 0; c < numCycles; c++) {
+    const xMid = (c + 0.5) * (WT / numCycles);
+    const xEnd = (c + 1) * (WT / numCycles);
+    const yTop = HT/2 - actualAmp * triScale;
+    const yBot = HT/2 + actualAmp * triScale;
+    ctxTri.lineTo(xMid, (c % 2 === 0) ? yTop : yBot);
+    ctxTri.lineTo(xEnd, (c % 2 === 0) ? yBot : yTop);
+  }
+  ctxTri.stroke();
+
+  ctxTri.fillStyle = color;
+  ctxTri.font = '11px monospace';
+  ctxTri.fillText('+' + fmt(actualAmp, 2) + 'V', 4, HT/2 - actualAmp*triScale + 11);
+  ctxTri.fillText('-' + fmt(actualAmp, 2) + 'V', 4, HT/2 + actualAmp*triScale + 11);
+
+  const satMsg = saturated
+    ? `<span class="warn">BÃO HÒA! Biên độ lý tưởng = ${fmt(triAmp,2)} V > V_sat = ${fmt(vSat,1)} V → thực tế ${fmt(actualAmp,2)} V (méo sóng tam giác!)</span>`
+    : `<span class="ok">Không bão hòa. Biên độ tam giác = ${fmt(actualAmp,2)} V &lt; V_sat = ${fmt(vSat,1)} V</span>`;
+
+  document.getElementById('res-integrator').innerHTML = `
+    <strong>Hằng số tích phân:</strong> RC = ${rk}kΩ × ${cn}nF = ${fmt(RC*1e6, 2)} µs = ${fmt(RC*1e3, 3)} ms<br>
+    Chu kỳ T = 1/${freq} Hz = ${fmt(T*1e6, 1)} µs → T/2 = ${fmt(halfT*1e6, 1)} µs<br>
+    Biên độ tam giác = V_in × (T/2)/RC = ${vAmp} × ${fmt(halfT*1e6, 1)} / ${fmt(RC*1e6, 2)} = <span class="hi">${fmt(triAmp, 3)} V</span><br>
+    ${satMsg}<br>
+    <span class="note">Dốc sóng tam giác = V_in/RC = ${vAmp}/${fmt(RC,6)} = ${fmt(vAmp/RC, 0)} V/s</span>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 4: COMPARATOR — SIGNAL CANVAS
+// ═══════════════════════════════════════════════════════════
+
+function calcComparator() {
+  const vRef = parseFloat(document.getElementById('cref').value);
+  const vIn = parseFloat(document.getElementById('cin').value);
+  const noise = parseFloat(document.getElementById('cnoise').value);
+  const vcc = parseFloat(document.getElementById('cvcc').value);
+
+  document.getElementById('cref-val').textContent = fmt(vRef, 2);
+  document.getElementById('cin-val').textContent = fmt(vIn, 2);
+  document.getElementById('cnoise-val').textContent = fmt(noise, 2);
+  document.getElementById('cvcc-val').textContent = '±' + vcc;
+
+  const vSat = vcc - 1.5;
+  document.getElementById('clbl-vin').textContent = 'V_in=' + fmt(vIn, 2) + 'V';
+  document.getElementById('clbl-vref').textContent = 'V_ref=' + fmt(vRef, 2) + 'V';
+
+  // Draw comparator input/output signals
+  const canvas = document.getElementById('canvas-comp');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(0, 0, W, H);
+
+  // Draw a sweeping V_in signal (DC + noise sine wave) and resulting V_out
+  const N = W;
+  const tMax = 4 * Math.PI;  // 2 full cycles of noise
+  const signalY0 = H * 0.25;  // center of top half
+  const signalH = H * 0.4 / 2;   // half-height of signal display
+  const outputY0 = H * 0.75;  // center of bottom half
+  const outputH = H * 0.2 / 2;  // half-height of output
+
+  // Horizontal axes
+  ctx.strokeStyle = '#d1d5db';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(0, signalY0); ctx.lineTo(W, signalY0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, outputY0); ctx.lineTo(W, outputY0); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Vref line in signal area
+  const vSpan = Math.max(Math.abs(vIn) + noise + 1, Math.abs(vRef) + 1, 3);
+  const sig2px = signalH / vSpan;
+  const vRefY = signalY0 - vRef * sig2px;
+  ctx.strokeStyle = '#dc2626';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 2]);
+  ctx.beginPath(); ctx.moveTo(0, vRefY); ctx.lineTo(W, vRefY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#dc2626'; ctx.font = '11px monospace';
+  ctx.fillText('V_ref=' + fmt(vRef, 2) + 'V', W - 90, vRefY - 3);
+
+  // Labels
+  ctx.fillStyle = '#374151'; ctx.font = '11px monospace';
+  ctx.fillText('V_in (với nhiễu)', 4, 12);
+  ctx.fillText('V_out', 4, H/2 + 12);
+
+  // Draw V_in + noise
+  ctx.strokeStyle = '#1d4ed8';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let px = 0; px < N; px++) {
+    const t = (px / N) * tMax;
+    const vin_t = vIn + noise * Math.sin(t * 3);  // DC + noise
+    const y = signalY0 - vin_t * sig2px;
+    if (px === 0) ctx.moveTo(px, y);
+    else ctx.lineTo(px, y);
+  }
+  ctx.stroke();
+
+  // Draw V_out (comparator output)
+  const outSpan = vSat * 1.1;
+  const out2px = outputH / outSpan;
+  ctx.strokeStyle = '#4d7c0f';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  let prevOut = null;
+  for (let px = 0; px < N; px++) {
+    const t = (px / N) * tMax;
+    const vin_t = vIn + noise * Math.sin(t * 3);
+    const vout_t = vin_t > vRef ? vSat : -vSat;  // simple threshold
+    const y = outputY0 - vout_t * out2px;
+    if (prevOut !== null && prevOut !== vout_t) {
+      // Vertical transition
+      ctx.lineTo(px, outputY0 - prevOut * out2px);
+      ctx.lineTo(px, y);
+    }
+    if (px === 0) ctx.moveTo(px, y);
+    else ctx.lineTo(px, y);
+    prevOut = vout_t;
+  }
+  ctx.stroke();
+
+  // Output labels
+  ctx.fillStyle = '#4d7c0f'; ctx.font = '10px monospace';
+  ctx.fillText('+V_sat=' + fmt(vSat,1) + 'V', 4, outputY0 - vSat * out2px + 10);
+  ctx.fillText('-V_sat=' + fmt(-vSat,1) + 'V', 4, outputY0 + vSat * out2px - 3);
+
+  const vInActual = vIn; // DC component only for result message
+  const currentOut = vInActual > vRef ? vSat : -vSat;
+  const atEdge = Math.abs(vInActual - vRef) < noise * 1.1 && noise > 0;
+
+  document.getElementById('clbl-vout').textContent = 'V_out≈' + fmt(currentOut, 1) + 'V';
+
+  const stateMsg = currentOut > 0
+    ? `<span class="ok">V_in (${fmt(vIn,2)} V) &lt; V_ref (${fmt(vRef,2)} V) → V_out = <strong>+${fmt(vSat,1)} V</strong> (cao)</span>`
+    : `<span class="ok">V_in (${fmt(vIn,2)} V) &gt; V_ref (${fmt(vRef,2)} V) → V_out = <strong>−${fmt(vSat,1)} V</strong> (thấp)</span>`;
+
+  const chatMsg = atEdge
+    ? `<br><span class="warn">V_in ~ V_ref: nhiễu ${fmt(noise,2)} V làm V_out RUNG! Dùng Schmitt trigger để khắc phục.</span>`
+    : (noise > 0.01 ? `<br><span class="note">Nhiễu ${fmt(noise,2)} V nhưng V_in đủ xa V_ref — chưa gây rung. Tăng nhiễu gần V_ref để thấy rung.</span>` : '');
+
+  document.getElementById('res-comp').innerHTML = `
+    V_ref = ${fmt(vRef,2)} V &nbsp;|&nbsp; V_in DC = ${fmt(vIn,2)} V<br>
+    ${stateMsg}${chatMsg}<br>
+    <span class="note">V_sat = ±${fmt(vSat,1)} V (nguồn ±${vcc}V − 1.5V)</span>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 5: SCHMITT TRIGGER
+// ═══════════════════════════════════════════════════════════
+
+let schmittState = 1; // +1 = V_out high, -1 = V_out low
+
+function calcSchmitt() {
+  const r1k = parseFloat(document.getElementById('shr1').value);
+  const r2k = parseFloat(document.getElementById('shr2').value);
+  const vcc = parseFloat(document.getElementById('shvcc').value);
+  const vIn = parseFloat(document.getElementById('shin').value);
+  const noise = parseFloat(document.getElementById('shnoise').value);
+
+  document.getElementById('shr1-val').textContent = r1k;
+  document.getElementById('shr2-val').textContent = r2k;
+  document.getElementById('shvcc-val').textContent = '±' + vcc;
+  document.getElementById('shin-val').textContent = fmt(vIn, 2);
+  document.getElementById('shnoise-val').textContent = fmt(noise, 2);
+
+  const vSat = vcc - 1.5;
+  const ratio = r2k / (r1k + r2k);
+  const vTH = vSat * ratio;
+  const vTL = -vSat * ratio;
+  const window_v = vTH - vTL;
+
+  // Update Schmitt state based on V_in
+  if (vIn > vTH) schmittState = -1; // inverting: V_in > V_TH → V_out flips to -V_sat
+  if (vIn < vTL) schmittState = 1;
+
+  const vOut = schmittState * vSat;
+
+  document.getElementById('shlbl-vin').textContent = 'V_in=' + fmt(vIn, 2) + 'V';
+  document.getElementById('shlbl-r1').textContent = 'R1=' + r1k + 'k';
+  document.getElementById('shlbl-r2').textContent = 'R2=' + r2k + 'k';
+  document.getElementById('shlbl-vout').textContent = 'V_out=' + fmt(vOut, 1) + 'V';
+
+  // Threshold bar visualization
+  const barW = document.getElementById('sh-bar').offsetWidth || 400;
+  const vRange = vSat * 1.3;  // display range: ±vRange
+  function v2pct(v) {
+    return 50 + (v / vRange) * 50;  // center = 50%, scale to bar
+  }
+
+  const thPct = v2pct(vTH);
+  const tlPct = v2pct(vTL);
+  const inPct = v2pct(Math.max(-vRange, Math.min(vRange, vIn)));
+
+  document.getElementById('sh-line-th').style.left = thPct + '%';
+  document.getElementById('sh-line-tl').style.left = tlPct + '%';
+  document.getElementById('sh-label-th').style.left = (thPct + 1) + '%';
+  document.getElementById('sh-label-tl').style.left = (tlPct - 8) + '%';
+  document.getElementById('sh-label-th').textContent = 'V_TH=' + fmt(vTH,2) + 'V';
+  document.getElementById('sh-label-tl').textContent = 'V_TL=' + fmt(vTL,2) + 'V';
+
+  const zoneLeft = Math.min(tlPct, thPct);
+  const zoneWidth = Math.abs(thPct - tlPct);
+  document.getElementById('sh-zone').style.left = zoneLeft + '%';
+  document.getElementById('sh-zone').style.width = zoneWidth + '%';
+
+  document.getElementById('sh-input-ind').style.left = inPct + '%';
+  document.getElementById('sh-input-lbl').style.left = inPct + '%';
+  document.getElementById('sh-input-lbl').textContent = fmt(vIn,2) + 'V';
+
+  // Draw Schmitt signal canvas: sweeping V_in with noise + V_out comparison
+  const canvas = document.getElementById('canvas-schmitt');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(0, 0, W, H);
+
+  const N = W;
+  const tMax = 6 * Math.PI;
+  const sigY0 = H * 0.3;
+  const sigH = H * 0.22;
+  const outY0 = H * 0.75;
+  const outH = H * 0.18;
+  const vSpan = Math.max(vSat, Math.abs(vIn) + noise + 1);
+  const sig2px = sigH / vSpan;
+  const out2px = outH / vSat;
+
+  // Labels
+  ctx.fillStyle = '#374151'; ctx.font = '11px monospace';
+  ctx.fillText('V_in + nhiễu', 4, 12);
+  ctx.fillText('V_out (Schmitt)', 4, H/2 + 12);
+
+  // Axes
+  ctx.strokeStyle = '#d1d5db';
+  ctx.lineWidth = 0.5;
+  ctx.setLineDash([2, 2]);
+  ctx.beginPath(); ctx.moveTo(0, sigY0); ctx.lineTo(W, sigY0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, outY0); ctx.lineTo(W, outY0); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // V_TH and V_TL lines in signal area
+  ctx.setLineDash([3, 3]);
+  ctx.strokeStyle = '#4d7c0f'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, sigY0 - vTH * sig2px); ctx.lineTo(W, sigY0 - vTH * sig2px); ctx.stroke();
+  ctx.strokeStyle = '#dc2626';
+  ctx.beginPath(); ctx.moveTo(0, sigY0 - vTL * sig2px); ctx.lineTo(W, sigY0 - vTL * sig2px); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#4d7c0f'; ctx.font = '10px monospace';
+  ctx.fillText('V_TH', W - 34, sigY0 - vTH * sig2px - 2);
+  ctx.fillStyle = '#dc2626';
+  ctx.fillText('V_TL', W - 34, sigY0 - vTL * sig2px - 2);
+
+  // Draw V_in + noise (slow sweep + noise oscillation)
+  ctx.strokeStyle = '#1d4ed8';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  const vInMin = vIn - Math.abs(vIn) * 0.5 - 1;
+  const vInMax = vIn + Math.abs(vIn) * 0.5 + 1;
+  for (let px = 0; px < N; px++) {
+    const t = (px / N) * tMax;
+    // Slow sine sweep + fast noise
+    const sweep = (vIn) * Math.sin(t / 3);
+    const noiseComp = noise * Math.sin(t * 5);
+    const vin_t = sweep + noiseComp;
+    const y = sigY0 - vin_t * sig2px;
+    if (px === 0) ctx.moveTo(px, y);
+    else ctx.lineTo(px, y);
+  }
+  ctx.stroke();
+
+  // Compute Schmitt output over sweep
+  ctx.strokeStyle = '#4d7c0f';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  let simState = 1;
+  let prevY = null;
+  let prevVout = null;
+  for (let px = 0; px < N; px++) {
+    const t = (px / N) * tMax;
+    const sweep = vIn * Math.sin(t / 3);
+    const noiseComp = noise * Math.sin(t * 5);
+    const vin_t = sweep + noiseComp;
+    if (vin_t > vTH) simState = -1;
+    if (vin_t < vTL) simState = 1;
+    const vout_t = simState * vSat;
+    const y = outY0 - vout_t * out2px;
+    if (prevVout !== null && prevVout !== vout_t) {
+      ctx.lineTo(px, outY0 - prevVout * out2px);
+      ctx.lineTo(px, y);
+    }
+    if (px === 0) ctx.moveTo(px, y);
+    else ctx.lineTo(px, y);
+    prevVout = vout_t;
+  }
+  ctx.stroke();
+
+  // Comparator (no hysteresis) for comparison — dashed orange
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  let prevVoutComp = null;
+  const vRefComp = (vTH + vTL) / 2; // midpoint as single threshold
+  for (let px = 0; px < N; px++) {
+    const t = (px / N) * tMax;
+    const sweep = vIn * Math.sin(t / 3);
+    const noiseComp = noise * Math.sin(t * 5);
+    const vin_t = sweep + noiseComp;
+    const vout_t = vin_t > vRefComp ? vSat : -vSat;
+    const y = outY0 - vout_t * out2px;
+    if (prevVoutComp !== null && prevVoutComp !== vout_t) {
+      ctx.lineTo(px, outY0 - prevVoutComp * out2px);
+      ctx.lineTo(px, y);
+    }
+    if (px === 0) ctx.moveTo(px, y);
+    else ctx.lineTo(px, y);
+    prevVoutComp = vout_t;
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = '#f59e0b'; ctx.font = '10px monospace';
+  ctx.fillText('─── Schmitt', 4, H - 24);
+  ctx.fillStyle = '#4d7c0f';
+  ctx.fillText('--- Comparator thường (so sánh)', 4 + 100, H - 24);
+
+  // Analyze noise rejection
+  const noiseInWindow = noise * 2 <= window_v;
+  const noiseMsg = noiseInWindow
+    ? `<span class="ok">Nhiễu ±${fmt(noise,2)} V (biên độ ${fmt(noise*2,2)} V) &lt; Window ${fmt(window_v,2)} V → Schmitt trigger CHẶN nhiễu thành công</span>`
+    : `<span class="warn">Nhiễu ±${fmt(noise,2)} V (biên độ ${fmt(noise*2,2)} V) &gt; Window ${fmt(window_v,2)} V → Nhiễu vượt ngưỡng! Cần tăng R2 hoặc giảm R1</span>`;
+
+  const stateStr = vOut > 0 ? `+${fmt(vSat,1)} V (cao)` : `-${fmt(vSat,1)} V (thấp)`;
+  const regionStr = vIn > vTH ? 'V_in > V_TH → đang ở vùng chuyển sang thấp'
+    : vIn < vTL ? 'V_in < V_TL → đang ở vùng chuyển sang cao'
+    : 'V_TL < V_in < V_TH → vùng trễ, giữ nguyên trạng thái';
+
+  document.getElementById('res-schmitt').innerHTML = `
+    <strong>Ngưỡng:</strong> V_TH = V_sat × R2/(R1+R2) = ${fmt(vSat,1)} × ${r2k}/(${r1k}+${r2k}) = <span class="hi">+${fmt(vTH,3)} V</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V_TL = −V_sat × R2/(R1+R2) = <span class="hi">${fmt(vTL,3)} V</span><br>
+    Hysteresis window = ${fmt(vTH,3)} − (${fmt(vTL,3)}) = <span class="hi">${fmt(window_v,3)} V</span><br>
+    V_in = ${fmt(vIn,2)} V → ${regionStr}<br>
+    V_out hiện tại = <strong>${stateStr}</strong><br>
+    ${noiseMsg}<br>
+    <span class="note">Đường cam đứt = comparator thường (1 ngưỡng). Đường xanh lá = Schmitt (2 ngưỡng). Schmitt sạch hơn khi có nhiễu.</span>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════
+// INITIALIZATION
+// ═══════════════════════════════════════════════════════════
+calcSumming();
+calcDiff();
+calcIntegrator();
+calcComparator();
+calcSchmitt();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

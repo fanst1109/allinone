@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — MOSFET</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #a3e635; }
+
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  /* ── Slider controls ── */
+  .ctrl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .ctrl-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .ctrl-group label {
+    font-weight: 700;
+    font-size: 13px;
+    color: #374151;
+  }
+  .ctrl-group input[type="range"] {
+    width: 100%;
+    accent-color: #4d7c0f;
+  }
+  .ctrl-val {
+    font-family: monospace;
+    font-size: 14px;
+    color: #4d7c0f;
+    font-weight: 700;
+  }
+
+  /* ── Result boxes ── */
+  .result-box {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.9;
+  }
+  .result-box .highlight { color: #14532d; font-weight: 700; font-size: 15px; }
+  .result-box .warn     { color: #dc2626; font-weight: 700; }
+  .result-box .ok       { color: #047857; font-weight: 700; }
+  .result-box .info     { color: #1d4ed8; font-weight: 600; }
+
+  /* ── State badge ── */
+  .state-badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .state-off      { background: #fee2e2; color: #991b1b; }
+  .state-ohmic    { background: #d1fae5; color: #065f46; }
+  .state-sat      { background: #fef3c7; color: #92400e; }
+
+  /* ── Circuit SVG wrapper ── */
+  .circuit-wrap {
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+
+  /* ── PWM canvas ── */
+  .pwm-canvas-wrap {
+    width: 100%;
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+  canvas.pwm-wave {
+    display: block;
+    background: #1a202c;
+    border-radius: 6px;
+    max-width: 100%;
+  }
+
+  /* ── Comparison table ── */
+  table.cmp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 12px;
+  }
+  table.cmp-table th {
+    background: #4d7c0f;
+    color: white;
+    padding: 9px 12px;
+    text-align: left;
+  }
+  table.cmp-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: top;
+  }
+  table.cmp-table tr:nth-child(even) td { background: #f0fdf4; }
+  table.cmp-table td.better { color: #047857; font-weight: 700; }
+  table.cmp-table td.worse  { color: #dc2626; }
+
+  /* ── Tab bar ── */
+  .tab-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab-bar button {
+    padding: 7px 14px;
+    border-radius: 6px 6px 0 0;
+    border: 2px solid #d1d5db;
+    border-bottom: none;
+    background: #f9fafb;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.12s;
+  }
+  .tab-bar button.active {
+    background: white;
+    border-color: #4d7c0f;
+    color: #4d7c0f;
+    border-bottom: 2px solid white;
+    margin-bottom: -2px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Operating point chart ── */
+  .op-chart-wrap {
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    margin: 10px 0;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .ctrl-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Semiconductors</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-bjt-switch/visualization.html">← L5: BJT làm khóa</a>
+  <span class="sep">·</span>
+  <span class="current">L6: MOSFET</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-opamp-basics/visualization.html">L7: Op-amp cơ bản →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — MOSFET</h1>
+<p>Mô phỏng tương tác: khóa MOSFET, tổn hao công suất, mạch điều khiển, dạng sóng PWM và so sánh với BJT.</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — MOSFET Switch Simulator
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Mô phỏng khóa MOSFET</h2>
+<div class="card">
+  <p>Kéo thanh trượt để thay đổi V_GS, V_th và thông số mạch. Kết quả tính ngay theo thời gian thực.</p>
+
+  <div class="ctrl-grid">
+    <div class="ctrl-group">
+      <label>V_GS: <span class="ctrl-val" id="vgs-val">5.0 V</span></label>
+      <input type="range" id="sl-vgs" min="0" max="15" step="0.1" value="5" oninput="updateSwitch()">
+    </div>
+    <div class="ctrl-group">
+      <label>V_th (ngưỡng): <span class="ctrl-val" id="vth-val">2.5 V</span></label>
+      <input type="range" id="sl-vth" min="0.5" max="5" step="0.1" value="2.5" oninput="updateSwitch()">
+    </div>
+    <div class="ctrl-group">
+      <label>R_DS(on): <span class="ctrl-val" id="rds-val">44 mΩ</span></label>
+      <input type="range" id="sl-rds" min="5" max="500" step="5" value="44" oninput="updateSwitch()">
+    </div>
+    <div class="ctrl-group">
+      <label>I_tải: <span class="ctrl-val" id="iload-val">5.0 A</span></label>
+      <input type="range" id="sl-iload" min="0.1" max="30" step="0.1" value="5" oninput="updateSwitch()">
+    </div>
+  </div>
+
+  <div class="circuit-wrap">
+    <svg id="mosfet-svg" width="580" height="320" viewBox="0 0 580 320">
+      <rect width="580" height="320" fill="#f8fafc" rx="10"/>
+
+      <!-- V_supply label -->
+      <text x="80" y="28" text-anchor="middle" fill="#dc2626" font-size="13" font-weight="700">V_supply = 12 V</text>
+
+      <!-- Top wire (supply → load) -->
+      <line x1="80" y1="40" x2="320" y2="40" stroke="#dc2626" stroke-width="2.5"/>
+      <!-- Load (resistor symbol) -->
+      <rect x="190" y="28" width="80" height="26" fill="white" stroke="#374151" stroke-width="2" rx="4" id="load-body"/>
+      <text x="230" y="16" text-anchor="middle" fill="#374151" font-size="12" font-weight="700" id="lbl-load">Tải (motor/LED)</text>
+      <!-- zigzag inside load -->
+      <polyline points="196,41 205,33 214,49 223,33 232,49 241,33 250,49 259,33 264,41"
+        fill="none" stroke="#374151" stroke-width="1.8" stroke-linejoin="round"/>
+
+      <!-- Wire from load to Drain -->
+      <line x1="320" y1="40" x2="320" y2="110" stroke="#dc2626" stroke-width="2.5" id="wire-drain"/>
+      <!-- Drain label -->
+      <text x="340" y="100" fill="#374151" font-size="12" font-weight="600">D</text>
+
+      <!-- MOSFET body (N-channel symbol) -->
+      <!-- Gate line -->
+      <line x1="220" y1="175" x2="280" y2="175" stroke="#374151" stroke-width="2.5" id="wire-gate"/>
+      <text x="210" y="180" text-anchor="end" fill="#374151" font-size="12" font-weight="600">G</text>
+      <!-- Gate oxide gap -->
+      <line x1="285" y1="145" x2="285" y2="210" stroke="#4d7c0f" stroke-width="4"/>
+      <!-- Channel body -->
+      <line x1="295" y1="145" x2="295" y2="165" stroke="#1a202c" stroke-width="2.5"/>
+      <line x1="295" y1="185" x2="295" y2="210" stroke="#1a202c" stroke-width="2.5"/>
+      <!-- N-channel dots -->
+      <line x1="285" y1="165" x2="295" y2="165" stroke="#1a202c" stroke-width="2"/>
+      <line x1="285" y1="185" x2="295" y2="185" stroke="#1a202c" stroke-width="2"/>
+      <!-- Arrow (N-channel points inward) -->
+      <polygon points="305,175 295,170 295,180" fill="#1a202c"/>
+
+      <!-- Drain wire (from D node to MOSFET) -->
+      <line x1="320" y1="110" x2="295" y2="145" stroke="#dc2626" stroke-width="2.5" id="wire-d2"/>
+      <!-- Source wire down to GND -->
+      <line x1="295" y1="210" x2="295" y2="265" stroke="#1a202c" stroke-width="2.5" id="wire-src"/>
+      <text x="315" y="220" fill="#374151" font-size="12" font-weight="600">S</text>
+
+      <!-- GND symbol -->
+      <line x1="275" y1="265" x2="315" y2="265" stroke="#374151" stroke-width="2.5"/>
+      <line x1="280" y1="272" x2="310" y2="272" stroke="#374151" stroke-width="2"/>
+      <line x1="286" y1="279" x2="304" y2="279" stroke="#374151" stroke-width="1.5"/>
+      <text x="295" y="296" text-anchor="middle" fill="#374151" font-size="11">GND</text>
+
+      <!-- Supply GND return wire -->
+      <line x1="80" y1="265" x2="295" y2="265" stroke="#1a202c" stroke-width="2" stroke-dasharray="5,4"/>
+      <line x1="80" y1="40" x2="80" y2="265" stroke="#1a202c" stroke-width="2" stroke-dasharray="5,4"/>
+
+      <!-- Gate driver / MCU side -->
+      <rect x="100" y="155" width="90" height="42" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" rx="5"/>
+      <text x="145" y="172" text-anchor="middle" fill="#7c3aed" font-size="11" font-weight="700">MCU / Driver</text>
+      <text x="145" y="187" text-anchor="middle" fill="#7c3aed" font-size="11" id="lbl-vgs-box">V_GS = 5.0 V</text>
+
+      <!-- R_G resistor on gate wire -->
+      <rect x="200" y="168" width="30" height="14" fill="white" stroke="#374151" stroke-width="1.5" rx="2"/>
+      <text x="215" y="162" text-anchor="middle" fill="#374151" font-size="10">R_G</text>
+
+      <!-- ON/OFF indicator box -->
+      <rect x="380" y="120" width="170" height="150" fill="white" stroke="#d1d5db" stroke-width="1.5" rx="6"/>
+      <text x="465" y="140" text-anchor="middle" fill="#374151" font-size="12" font-weight="700">Trạng thái MOSFET</text>
+      <text x="465" y="162" text-anchor="middle" font-size="14" font-weight="800" id="state-lbl">---</text>
+      <text x="465" y="184" text-anchor="middle" fill="#374151" font-size="12" id="lbl-ids">I_D = ?</text>
+      <text x="465" y="202" text-anchor="middle" fill="#374151" font-size="12" id="lbl-vds">V_DS = ?</text>
+      <text x="465" y="220" text-anchor="middle" fill="#1d4ed8" font-size="12" font-weight="700" id="lbl-ploss">P_loss = ?</text>
+      <text x="465" y="240" text-anchor="middle" fill="#dc2626" font-size="12" font-weight="700" id="lbl-thermal">Nhiệt = ?</text>
+      <text x="465" y="258" text-anchor="middle" fill="#374151" font-size="11" id="lbl-vgsmarg">Margin V_GS = ?</text>
+
+      <!-- Heat visualization bar -->
+      <rect x="395" y="268" width="140" height="10" fill="#e5e7eb" rx="5"/>
+      <rect x="395" y="268" width="0" height="10" fill="#dc2626" rx="5" id="heat-bar"/>
+
+      <!-- Animated current dots -->
+      <g id="mos-dots"></g>
+    </svg>
+  </div>
+
+  <div class="result-box" id="switch-result">Kéo thanh trượt để thấy kết quả...</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — PWM Simulator + Waveform
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Mô phỏng PWM — Điều khiển tải</h2>
+<div class="card">
+  <div class="tab-bar">
+    <button class="active" onclick="showTab('tab-pwm', this)">Mô phỏng PWM</button>
+    <button onclick="showTab('tab-motor', this)">Ứng dụng Motor/LED</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-pwm">
+    <div class="ctrl-grid">
+      <div class="ctrl-group">
+        <label>Duty cycle D: <span class="ctrl-val" id="duty-val">60 %</span></label>
+        <input type="range" id="sl-duty" min="0" max="100" step="1" value="60" oninput="updatePWM()">
+      </div>
+      <div class="ctrl-group">
+        <label>V_supply: <span class="ctrl-val" id="pwm-vsup-val">12.0 V</span></label>
+        <input type="range" id="sl-pwm-vsup" min="3" max="48" step="0.5" value="12" oninput="updatePWM()">
+      </div>
+      <div class="ctrl-group">
+        <label>I_tải đầy tải: <span class="ctrl-val" id="pwm-iload-val">3.0 A</span></label>
+        <input type="range" id="sl-pwm-iload" min="0.1" max="20" step="0.1" value="3" oninput="updatePWM()">
+      </div>
+      <div class="ctrl-group">
+        <label>R_DS(on): <span class="ctrl-val" id="pwm-rds-val">44 mΩ</span></label>
+        <input type="range" id="sl-pwm-rds" min="5" max="500" step="5" value="44" oninput="updatePWM()">
+      </div>
+    </div>
+
+    <div class="pwm-canvas-wrap">
+      <canvas class="pwm-wave" id="pwm-canvas" width="700" height="200"></canvas>
+    </div>
+
+    <div class="result-box" id="pwm-result">Kéo thanh trượt để xem kết quả...</div>
+  </div>
+
+  <div class="tab-panel" id="tab-motor">
+    <p>Chọn tải và xem phân tích công suất cụ thể:</p>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
+      <button onclick="setPreset('motor')"   style="padding:7px 14px; border-radius:6px; border:2px solid #4d7c0f; background:white; font-weight:700; cursor:pointer; color:#4d7c0f;">Motor DC 12V/3A</button>
+      <button onclick="setPreset('led')"     style="padding:7px 14px; border-radius:6px; border:2px solid #1d4ed8; background:white; font-weight:700; cursor:pointer; color:#1d4ed8;">LED strip 12V/1A</button>
+      <button onclick="setPreset('pump')"    style="padding:7px 14px; border-radius:6px; border:2px solid #dc2626; background:white; font-weight:700; cursor:pointer; color:#dc2626;">Bơm nước 12V/6A</button>
+      <button onclick="setPreset('servo')"   style="padding:7px 14px; border-radius:6px; border:2px solid #7c3aed; background:white; font-weight:700; cursor:pointer; color:#7c3aed;">Tải lớn 24V/10A</button>
+    </div>
+    <div class="result-box" id="motor-result" style="font-size:13px;">Chọn tải ở trên để xem phân tích...</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — BJT vs MOSFET Comparison
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. So sánh BJT vs MOSFET</h2>
+<div class="card">
+  <p>Nhập thông số tải — tính và so sánh tổn hao của BJT và MOSFET.</p>
+
+  <div class="ctrl-grid">
+    <div class="ctrl-group">
+      <label>Dòng tải I: <span class="ctrl-val" id="cmp-i-val">5 A</span></label>
+      <input type="range" id="sl-cmp-i" min="0.1" max="30" step="0.1" value="5" oninput="updateCmp()">
+    </div>
+    <div class="ctrl-group">
+      <label>V_CE(sat) BJT: <span class="ctrl-val" id="cmp-vce-val">1.5 V</span></label>
+      <input type="range" id="sl-cmp-vce" min="0.1" max="3" step="0.05" value="1.5" oninput="updateCmp()">
+    </div>
+    <div class="ctrl-group">
+      <label>R_DS(on) MOSFET: <span class="ctrl-val" id="cmp-rds-val">44 mΩ</span></label>
+      <input type="range" id="sl-cmp-rds" min="5" max="500" step="5" value="44" oninput="updateCmp()">
+    </div>
+    <div class="ctrl-group">
+      <label>I_B cần (BJT, β=100): <span class="ctrl-val" id="cmp-ib-val">50 mA</span></label>
+      <input type="range" id="sl-cmp-beta" min="20" max="500" step="10" value="100" oninput="updateCmp()" style="accent-color:#dc2626;">
+    </div>
+  </div>
+
+  <div style="overflow-x:auto;">
+    <table class="cmp-table">
+      <thead>
+        <tr>
+          <th>Tiêu chí</th>
+          <th>BJT (NPN)</th>
+          <th>N-ch MOSFET</th>
+          <th>Nhận xét</th>
+        </tr>
+      </thead>
+      <tbody id="cmp-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="result-box" id="cmp-result" style="margin-top:14px;">Kéo thanh trượt để so sánh...</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Operating Regions Chart
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Đồ thị vùng làm việc MOSFET (I_D vs V_DS)</h2>
+<div class="card">
+  <p>Đồ thị I_D — V_DS với các đường V_GS khác nhau. Vùng triode (ohmic) bên trái, vùng saturation bên phải. Kéo thanh trượt để di chuyển điểm làm việc.</p>
+
+  <div class="ctrl-grid" style="margin-bottom:8px;">
+    <div class="ctrl-group">
+      <label>V_GS: <span class="ctrl-val" id="op-vgs-val">8 V</span></label>
+      <input type="range" id="sl-op-vgs" min="0" max="12" step="0.5" value="8" oninput="drawOpChart()">
+    </div>
+    <div class="ctrl-group">
+      <label>V_DS (điểm làm việc): <span class="ctrl-val" id="op-vds-val">1 V</span></label>
+      <input type="range" id="sl-op-vds" min="0" max="20" step="0.5" value="1" oninput="drawOpChart()">
+    </div>
+  </div>
+
+  <div class="op-chart-wrap">
+    <canvas id="op-chart" width="600" height="300"></canvas>
+  </div>
+  <div class="result-box" id="op-result" style="font-size:13px;"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 5 — MOSFET Circuit SVG (Motor Driver)
+     ═══════════════════════════════════════════════════════ -->
+<h2>5. Sơ đồ mạch — MOSFET điều khiển Motor/LED</h2>
+<div class="card">
+  <div class="tab-bar">
+    <button class="active" onclick="showTab('tab-ckt-motor', this)">Motor DC</button>
+    <button onclick="showTab('tab-ckt-led', this)">LED Dimming</button>
+    <button onclick="showTab('tab-ckt-hbridge', this)">H-Bridge (2 hướng)</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-ckt-motor">
+    <div class="circuit-wrap">
+      <svg width="560" height="340" viewBox="0 0 560 340">
+        <rect width="560" height="340" fill="#f8fafc" rx="10"/>
+
+        <!-- V_supply rail -->
+        <line x1="60" y1="40" x2="440" y2="40" stroke="#dc2626" stroke-width="2.5"/>
+        <text x="30" y="45" fill="#dc2626" font-size="13" font-weight="700">+12V</text>
+        <!-- GND rail -->
+        <line x1="60" y1="300" x2="440" y2="300" stroke="#1a202c" stroke-width="2.5"/>
+        <text x="30" y="305" fill="#1a202c" font-size="13" font-weight="700">GND</text>
+
+        <!-- Flyback diode -->
+        <line x1="390" y1="40" x2="390" y2="90" stroke="#dc2626" stroke-width="2"/>
+        <polygon points="380,90 400,90 390,105" fill="#1d4ed8"/>
+        <line x1="380" y1="105" x2="400" y2="105" stroke="#1d4ed8" stroke-width="2.5"/>
+        <line x1="390" y1="105" x2="390" y2="165" stroke="#dc2626" stroke-width="2"/>
+        <text x="412" y="98" fill="#1d4ed8" font-size="11" font-weight="700">D_flyback</text>
+        <text x="412" y="110" fill="#1d4ed8" font-size="10">(chống BEMF)</text>
+
+        <!-- Motor symbol -->
+        <circle cx="295" cy="110" r="35" fill="white" stroke="#374151" stroke-width="2.5"/>
+        <text x="295" y="108" text-anchor="middle" fill="#374151" font-size="18" font-weight="900">M</text>
+        <text x="295" y="124" text-anchor="middle" fill="#374151" font-size="10">DC Motor</text>
+        <!-- Wires motor -->
+        <line x1="295" y1="40" x2="295" y2="75" stroke="#dc2626" stroke-width="2"/>
+        <line x1="295" y1="145" x2="295" y2="190" stroke="#1a202c" stroke-width="2"/>
+        <line x1="390" y1="165" x2="295" y2="165" stroke="#1a202c" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+        <!-- MOSFET symbol -->
+        <!-- Gate line -->
+        <line x1="160" y1="215" x2="235" y2="215" stroke="#374151" stroke-width="2"/>
+        <text x="145" y="220" text-anchor="end" fill="#4d7c0f" font-size="12" font-weight="700">G</text>
+        <!-- oxide -->
+        <line x1="240" y1="192" x2="240" y2="242" stroke="#4d7c0f" stroke-width="4"/>
+        <!-- body -->
+        <line x1="250" y1="192" x2="250" y2="208" stroke="#1a202c" stroke-width="2.5"/>
+        <line x1="250" y1="222" x2="250" y2="242" stroke="#1a202c" stroke-width="2.5"/>
+        <line x1="240" y1="208" x2="250" y2="208" stroke="#1a202c" stroke-width="2"/>
+        <line x1="240" y1="222" x2="250" y2="222" stroke="#1a202c" stroke-width="2"/>
+        <polygon points="260,215 250,210 250,220" fill="#1a202c"/>
+        <!-- D S labels -->
+        <text x="265" y="196" fill="#374151" font-size="11" font-weight="600">D</text>
+        <text x="265" y="248" fill="#374151" font-size="11" font-weight="600">S</text>
+        <!-- Wire D to motor wire -->
+        <line x1="295" y1="190" x2="250" y2="192" stroke="#1a202c" stroke-width="2"/>
+        <!-- Wire S to GND -->
+        <line x1="250" y1="242" x2="250" y2="300" stroke="#1a202c" stroke-width="2"/>
+
+        <!-- R_G resistor -->
+        <rect x="158" y="208" width="28" height="14" fill="white" stroke="#374151" stroke-width="1.5" rx="2"/>
+        <text x="172" y="203" text-anchor="middle" fill="#374151" font-size="10">R_G 100Ω</text>
+
+        <!-- Pull-down resistor -->
+        <line x1="240" y1="215" x2="230" y2="215" stroke="#374151" stroke-width="1.5"/>
+        <line x1="230" y1="215" x2="230" y2="255" stroke="#374151" stroke-width="1.5"/>
+        <rect x="223" y="255" width="14" height="28" fill="white" stroke="#374151" stroke-width="1.5" rx="2"/>
+        <text x="248" y="272" fill="#374151" font-size="10">10kΩ</text>
+        <text x="248" y="283" fill="#374151" font-size="10">(pull-down)</text>
+        <line x1="230" y1="283" x2="230" y2="300" stroke="#374151" stroke-width="1.5"/>
+
+        <!-- MCU box -->
+        <rect x="60" y="198" width="80" height="38" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" rx="5"/>
+        <text x="100" y="213" text-anchor="middle" fill="#7c3aed" font-size="11" font-weight="700">MCU GPIO</text>
+        <text x="100" y="228" text-anchor="middle" fill="#7c3aed" font-size="10">PWM Signal</text>
+        <line x1="140" y1="217" x2="158" y2="215" stroke="#7c3aed" stroke-width="1.5"/>
+
+        <!-- Body diode note -->
+        <text x="295" y="320" text-anchor="middle" fill="#6b7280" font-size="11">Body diode của MOSFET cũng giúp clamping BEMF</text>
+      </svg>
+    </div>
+    <div style="background:#f0fdf4; border-radius:6px; padding:10px 14px; font-size:13px; margin-top:6px; line-height:1.7;">
+      <strong>Giải thích sơ đồ:</strong> MCU xuất xung PWM → R_G (100 Ω) giới hạn dòng nạp tụ Gate → MOSFET đóng/ngắt → Motor nhận công suất trung bình theo duty cycle.
+      Pull-down 10 kΩ đảm bảo Gate = 0 V khi MCU reset hoặc floating.
+      Diode flyback ngăn sức phản điện (BEMF) của motor khi MOSFET ngắt phá hỏng linh kiện.
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-ckt-led">
+    <div class="circuit-wrap">
+      <svg width="520" height="300" viewBox="0 0 520 300">
+        <rect width="520" height="300" fill="#f8fafc" rx="10"/>
+
+        <!-- Supply -->
+        <line x1="60" y1="40" x2="420" y2="40" stroke="#dc2626" stroke-width="2.5"/>
+        <text x="30" y="45" fill="#dc2626" font-size="13" font-weight="700">+12V</text>
+        <!-- GND -->
+        <line x1="60" y1="270" x2="420" y2="270" stroke="#1a202c" stroke-width="2.5"/>
+        <text x="30" y="275" fill="#1a202c" font-size="13" font-weight="700">GND</text>
+
+        <!-- R_limit resistor -->
+        <line x1="240" y1="40" x2="240" y2="70" stroke="#dc2626" stroke-width="2"/>
+        <rect x="225" y="70" width="30" height="50" fill="white" stroke="#374151" stroke-width="2" rx="3"/>
+        <text x="265" y="88" fill="#374151" font-size="10" font-weight="700">R_limit</text>
+        <text x="265" y="100" fill="#374151" font-size="10">giới hạn dòng</text>
+        <text x="265" y="112" fill="#374151" font-size="10">LED strip</text>
+        <line x1="240" y1="120" x2="240" y2="145" stroke="#dc2626" stroke-width="2"/>
+
+        <!-- LED strip (3 LEDs) -->
+        <g transform="translate(210,145)">
+          <!-- LED 1 -->
+          <polygon points="0,0 20,10 0,20" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/>
+          <line x1="20" y1="0" x2="20" y2="20" stroke="#d97706" stroke-width="2"/>
+          <line x1="24" y1="4" x2="30" y2="-2" stroke="#fbbf24" stroke-width="1.2"/>
+          <line x1="24" y1="10" x2="32" y2="4" stroke="#fbbf24" stroke-width="1.2"/>
+          <!-- LED 2 -->
+          <polygon points="40,0 60,10 40,20" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/>
+          <line x1="60" y1="0" x2="60" y2="20" stroke="#d97706" stroke-width="2"/>
+          <line x1="64" y1="4" x2="70" y2="-2" stroke="#fbbf24" stroke-width="1.2"/>
+          <!-- LED 3 -->
+          <polygon points="80,0 100,10 80,20" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/>
+          <line x1="100" y1="0" x2="100" y2="20" stroke="#d97706" stroke-width="2"/>
+          <!-- Wire between LEDs -->
+          <line x1="20" y1="10" x2="40" y2="10" stroke="#d97706" stroke-width="1.5"/>
+          <line x1="60" y1="10" x2="80" y2="10" stroke="#d97706" stroke-width="1.5"/>
+          <text x="50" y="-8" text-anchor="middle" fill="#d97706" font-size="11" font-weight="700">LED Strip</text>
+        </g>
+        <!-- Wire from LED to MOSFET D -->
+        <line x1="210" y1="155" x2="190" y2="155" stroke="#dc2626" stroke-width="2"/>
+        <line x1="190" y1="155" x2="190" y2="200" stroke="#dc2626" stroke-width="2"/>
+        <line x1="320" y1="155" x2="340" y2="155" stroke="#dc2626" stroke-width="2"/>
+        <line x1="240" y1="145" x2="240" y2="155" stroke="#dc2626" stroke-width="2"/>
+        <line x1="210" y1="155" x2="240" y2="155" stroke="#dc2626" stroke-width="2"/>
+
+        <!-- MOSFET (simplified box) -->
+        <rect x="170" y="200" width="50" height="40" fill="white" stroke="#4d7c0f" stroke-width="2" rx="4"/>
+        <text x="195" y="216" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700">MOS</text>
+        <text x="195" y="230" text-anchor="middle" fill="#4d7c0f" font-size="10">FET</text>
+        <!-- D wire -->
+        <line x1="195" y1="200" x2="195" y2="192" stroke="#dc2626" stroke-width="2"/>
+        <line x1="190" y1="192" x2="195" y2="192" stroke="#dc2626" stroke-width="2"/>
+        <!-- S wire to GND -->
+        <line x1="195" y1="240" x2="195" y2="270" stroke="#1a202c" stroke-width="2"/>
+        <!-- G wire -->
+        <line x1="170" y1="217" x2="130" y2="217" stroke="#374151" stroke-width="2"/>
+        <!-- MCU -->
+        <rect x="50" y="200" width="70" height="38" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" rx="5"/>
+        <text x="85" y="215" text-anchor="middle" fill="#7c3aed" font-size="10" font-weight="700">MCU PWM</text>
+        <text x="85" y="228" text-anchor="middle" fill="#7c3aed" font-size="9">1 kHz+</text>
+        <line x1="120" y1="219" x2="130" y2="217" stroke="#7c3aed" stroke-width="1.5"/>
+
+        <text x="260" y="290" text-anchor="middle" fill="#6b7280" font-size="11">PWM ≥ 1 kHz tránh nhấp nháy nhìn thấy được (persistence of vision)</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-ckt-hbridge">
+    <div class="circuit-wrap">
+      <svg width="520" height="320" viewBox="0 0 520 320">
+        <rect width="520" height="320" fill="#f8fafc" rx="10"/>
+
+        <!-- Supply -->
+        <line x1="60" y1="40" x2="460" y2="40" stroke="#dc2626" stroke-width="2.5"/>
+        <text x="20" y="45" fill="#dc2626" font-size="12" font-weight="700">+V</text>
+        <!-- GND -->
+        <line x1="60" y1="280" x2="460" y2="280" stroke="#1a202c" stroke-width="2.5"/>
+        <text x="20" y="285" fill="#1a202c" font-size="12" font-weight="700">GND</text>
+
+        <!-- Q1 top-left -->
+        <rect x="80" y="70" width="60" height="80" fill="white" stroke="#4d7c0f" stroke-width="2" rx="5"/>
+        <text x="110" y="107" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700">Q1</text>
+        <text x="110" y="120" text-anchor="middle" fill="#4d7c0f" font-size="10">N-ch</text>
+        <line x1="110" y1="40" x2="110" y2="70" stroke="#dc2626" stroke-width="2"/>
+        <line x1="110" y1="150" x2="110" y2="180" stroke="#1a202c" stroke-width="2"/>
+
+        <!-- Q2 top-right -->
+        <rect x="380" y="70" width="60" height="80" fill="white" stroke="#4d7c0f" stroke-width="2" rx="5"/>
+        <text x="410" y="107" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700">Q2</text>
+        <text x="410" y="120" text-anchor="middle" fill="#4d7c0f" font-size="10">N-ch</text>
+        <line x1="410" y1="40" x2="410" y2="70" stroke="#dc2626" stroke-width="2"/>
+        <line x1="410" y1="150" x2="410" y2="180" stroke="#1a202c" stroke-width="2"/>
+
+        <!-- Q3 bottom-left -->
+        <rect x="80" y="190" width="60" height="70" fill="white" stroke="#dc2626" stroke-width="2" rx="5"/>
+        <text x="110" y="222" text-anchor="middle" fill="#dc2626" font-size="11" font-weight="700">Q3</text>
+        <text x="110" y="234" text-anchor="middle" fill="#dc2626" font-size="10">N-ch</text>
+        <line x1="110" y1="190" x2="110" y2="180" stroke="#1a202c" stroke-width="1.5"/>
+        <line x1="110" y1="260" x2="110" y2="280" stroke="#1a202c" stroke-width="2"/>
+
+        <!-- Q4 bottom-right -->
+        <rect x="380" y="190" width="60" height="70" fill="white" stroke="#dc2626" stroke-width="2" rx="5"/>
+        <text x="410" y="222" text-anchor="middle" fill="#dc2626" font-size="11" font-weight="700">Q4</text>
+        <text x="410" y="234" text-anchor="middle" fill="#dc2626" font-size="10">N-ch</text>
+        <line x1="410" y1="190" x2="410" y2="180" stroke="#1a202c" stroke-width="1.5"/>
+        <line x1="410" y1="260" x2="410" y2="280" stroke="#1a202c" stroke-width="2"/>
+
+        <!-- Motor in center -->
+        <circle cx="260" cy="175" r="42" fill="white" stroke="#374151" stroke-width="2.5"/>
+        <text x="260" y="172" text-anchor="middle" fill="#374151" font-size="18" font-weight="900">M</text>
+        <text x="260" y="188" text-anchor="middle" fill="#374151" font-size="10">H-Bridge</text>
+        <!-- Wires to motor -->
+        <line x1="140" y1="175" x2="218" y2="175" stroke="#1a202c" stroke-width="2"/>
+        <line x1="302" y1="175" x2="380" y2="175" stroke="#1a202c" stroke-width="2"/>
+
+        <!-- Left mid node -->
+        <circle cx="140" cy="175" r="4" fill="#374151"/>
+        <line x1="110" y1="150" x2="110" y2="175" stroke="#1a202c" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <line x1="110" y1="175" x2="140" y2="175" stroke="#1a202c" stroke-width="1.5"/>
+        <line x1="110" y1="190" x2="110" y2="175" stroke="#1a202c" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+        <!-- Right mid node -->
+        <circle cx="380" cy="175" r="4" fill="#374151"/>
+        <line x1="410" y1="150" x2="410" y2="175" stroke="#1a202c" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <line x1="410" y1="175" x2="380" y2="175" stroke="#1a202c" stroke-width="1.5"/>
+        <line x1="410" y1="190" x2="410" y2="175" stroke="#1a202c" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+        <!-- Labels -->
+        <text x="260" y="295" text-anchor="middle" fill="#374151" font-size="11">Q1+Q4 ON = quay thuận · Q2+Q3 ON = quay ngược · Tất cả OFF = dừng</text>
+        <text x="260" y="308" text-anchor="middle" fill="#dc2626" font-size="10">Không bao giờ bật Q1+Q3 hoặc Q2+Q4 cùng lúc (shoot-through!)</text>
+      </svg>
+    </div>
+    <div style="background:#fef3c7; border:1px solid #f59e0b; border-radius:6px; padding:10px 14px; font-size:13px; margin-top:6px; line-height:1.7;">
+      <strong>H-Bridge:</strong> 4 MOSFET tạo thành cầu H cho phép đảo chiều motor.
+      Q1+Q4 ON → dòng chạy trái-qua-motor-phải (quay thuận).
+      Q2+Q3 ON → dòng chạy phải-qua-motor-trái (quay ngược).
+      Body diode của mỗi MOSFET tự nhiên làm freewheeling diode — bảo vệ khỏi BEMF.
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// Utility
+// ═══════════════════════════════════════════════════════
+function fmt(v, d=2) { return v.toFixed(d); }
+function fmtW(w) {
+  if (w < 0.001) return fmt(w*1e6,1)+' µW';
+  if (w < 1)     return fmt(w*1000,1)+' mW';
+  return fmt(w,2)+' W';
+}
+function fmtV(v) {
+  if (Math.abs(v) < 0.001) return fmt(v*1000,2)+' mV';
+  if (Math.abs(v) < 1)     return fmt(v*1000,1)+' mV';
+  return fmt(v,3)+' V';
+}
+
+function showTab(id, btn) {
+  const parent = document.getElementById(id).closest('.card');
+  parent.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  parent.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 1 — MOSFET Switch Simulator
+// ═══════════════════════════════════════════════════════
+let dotAnim = null;
+let dotOff = 0;
+
+function updateSwitch() {
+  const vgs   = parseFloat(document.getElementById('sl-vgs').value);
+  const vth   = parseFloat(document.getElementById('sl-vth').value);
+  const rds   = parseFloat(document.getElementById('sl-rds').value) / 1000; // Ω
+  const iload = parseFloat(document.getElementById('sl-iload').value);
+
+  document.getElementById('vgs-val').textContent   = fmt(vgs,1)+' V';
+  document.getElementById('vth-val').textContent   = fmt(vth,1)+' V';
+  document.getElementById('rds-val').textContent   = fmt(rds*1000,0)+' mΩ';
+  document.getElementById('iload-val').textContent = fmt(iload,1)+' A';
+  document.getElementById('lbl-vgs-box').textContent = 'V_GS = '+fmt(vgs,1)+' V';
+
+  const margin = vgs - vth;
+  let stateText, stateClass, ids, vds, ploss;
+
+  if (vgs < vth) {
+    stateText = 'CUTOFF (TẮT)';
+    stateClass = 'state-off';
+    ids = 0;
+    vds = 12; // full supply across MOSFET
+    ploss = 0; // ideally 0 (small leakage ignored)
+  } else if (margin >= 2.0) {
+    // fully in ohmic — triode
+    stateText = 'TRIODE / OHMIC (DẪN)';
+    stateClass = 'state-ohmic';
+    ids = iload;
+    vds = iload * rds;
+    ploss = iload * iload * rds;
+  } else {
+    // partial — near threshold, use linear approximation
+    stateText = 'GẦN NGƯỠNG (dẫn yếu)';
+    stateClass = 'state-sat';
+    const k = margin / 2.0; // 0..1
+    ids = iload * k;
+    vds = 12 - ids * 1.0; // simplified
+    ploss = ids * vds;
+  }
+
+  // Update SVG labels
+  document.getElementById('state-lbl').textContent = stateText;
+  document.getElementById('state-lbl').setAttribute('fill',
+    stateClass === 'state-off' ? '#991b1b' :
+    stateClass === 'state-ohmic' ? '#065f46' : '#92400e');
+  document.getElementById('lbl-ids').textContent    = 'I_D = '+fmt(ids,2)+' A';
+  document.getElementById('lbl-vds').textContent    = 'V_DS = '+fmtV(vds);
+  document.getElementById('lbl-ploss').textContent  = 'P_loss = '+fmtW(ploss);
+  document.getElementById('lbl-vgsmarg').textContent = 'V_GS - V_th = '+fmt(margin,1)+' V';
+
+  // Thermal text
+  const heatFrac = Math.min(1, ploss / 20); // normalized to 20 W max
+  const barW = Math.round(heatFrac * 140);
+  document.getElementById('heat-bar').setAttribute('width', barW);
+  const tempRise = ploss * 5; // rough: 5°C/W without heatsink
+  document.getElementById('lbl-thermal').textContent =
+    'Nhiệt độ tăng (không tản nhiệt) ≈ +'+ fmt(tempRise,1) +'°C';
+
+  // Wire color
+  const onColor = vgs >= vth ? '#4d7c0f' : '#9ca3af';
+  document.getElementById('wire-drain').setAttribute('stroke', onColor);
+  document.getElementById('wire-d2').setAttribute('stroke', onColor);
+  document.getElementById('wire-src').setAttribute('stroke', onColor);
+
+  // Result box
+  const html = `
+    <span class="${stateClass.replace('state-','').replace('-','')}"
+      style="display:inline-block;padding:3px 12px;border-radius:12px;font-weight:800;background:${
+        stateClass==='state-off'?'#fee2e2':stateClass==='state-ohmic'?'#d1fae5':'#fef3c7'
+      };color:${
+        stateClass==='state-off'?'#991b1b':stateClass==='state-ohmic'?'#065f46':'#92400e'
+      };font-size:14px;">${stateText}</span><br>
+    V_GS = <strong>${fmt(vgs,1)} V</strong> · V_th = <strong>${fmt(vth,1)} V</strong> · Margin = <strong>${fmt(margin,1)} V</strong><br>
+    I_D = <span class="highlight">${fmt(ids,3)} A</span> · V_DS = <span class="highlight">${fmtV(vds)}</span><br>
+    <span class="info">P_loss = I²·R_DS(on) = (${fmt(ids,2)})² × ${fmt(rds*1000,0)} mΩ = <strong>${fmtW(ploss)}</strong></span><br>
+    ${ploss > 5 ? '<span class="warn">Cần tản nhiệt! P > 5 W</span>' :
+      ploss > 1 ? '<span class="warn">Nên dùng tản nhiệt nhỏ.</span>' :
+      ploss > 0 ? '<span class="ok">Tổn hao thấp — không cần tản nhiệt lớn.</span>' :
+      '<span class="ok">MOSFET tắt hoàn toàn — không tổn hao.</span>'}
+  `;
+  document.getElementById('switch-result').innerHTML = html;
+
+  // Dot speed
+  switchDotSpeed = vgs >= vth ? Math.max(0.5, Math.min(5, ids)) : 0;
+  drawSwitchDots();
+}
+
+// Animated flow dots for switch module
+let switchDotSpeed = 0;
+const SWITCH_PATH = [
+  [80,40],[295,40],[295,190],[250,192],[250,242],[250,300],[80,300],[80,40]
+];
+function switchPathLen() {
+  let t=0;
+  for(let i=1;i<SWITCH_PATH.length;i++){
+    const dx=SWITCH_PATH[i][0]-SWITCH_PATH[i-1][0];
+    const dy=SWITCH_PATH[i][1]-SWITCH_PATH[i-1][1];
+    t+=Math.sqrt(dx*dx+dy*dy);
+  }
+  return t;
+}
+function switchPosAt(d) {
+  const total=switchPathLen();
+  d=((d%total)+total)%total;
+  let rem=d;
+  for(let i=1;i<SWITCH_PATH.length;i++){
+    const dx=SWITCH_PATH[i][0]-SWITCH_PATH[i-1][0];
+    const dy=SWITCH_PATH[i][1]-SWITCH_PATH[i-1][1];
+    const seg=Math.sqrt(dx*dx+dy*dy);
+    if(rem<=seg){
+      const t=rem/seg;
+      return [SWITCH_PATH[i-1][0]+t*dx, SWITCH_PATH[i-1][1]+t*dy];
+    }
+    rem-=seg;
+  }
+  return SWITCH_PATH[0];
+}
+const N_DOTS=7;
+let swDotPos=[];
+let swDotRaf=null;
+function initSwitchDots(){
+  const g=document.getElementById('mos-dots');
+  g.innerHTML='';
+  swDotPos=[];
+  const total=switchPathLen();
+  for(let i=0;i<N_DOTS;i++){
+    swDotPos.push((total/N_DOTS)*i);
+    const c=document.createElementNS("http://www.w3.org/2000/svg","circle");
+    c.setAttribute('r','5');
+    c.setAttribute('fill','#dc2626');
+    c.setAttribute('opacity','0.8');
+    c.id='swdot_'+i;
+    g.appendChild(c);
+  }
+}
+function drawSwitchDots(){
+  if(swDotRaf) cancelAnimationFrame(swDotRaf);
+  if(switchDotSpeed === 0){
+    for(let i=0;i<N_DOTS;i++){
+      const c=document.getElementById('swdot_'+i);
+      if(c) c.setAttribute('opacity','0');
+    }
+    return;
+  }
+  function step(){
+    const total=switchPathLen();
+    for(let i=0;i<N_DOTS;i++){
+      swDotPos[i]=(swDotPos[i]+switchDotSpeed*0.6)%total;
+      const pos=switchPosAt(swDotPos[i]);
+      const c=document.getElementById('swdot_'+i);
+      if(c){
+        c.setAttribute('cx',pos[0]);
+        c.setAttribute('cy',pos[1]);
+        c.setAttribute('opacity','0.8');
+      }
+    }
+    swDotRaf=requestAnimationFrame(step);
+  }
+  step();
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 2 — PWM Simulator
+// ═══════════════════════════════════════════════════════
+function updatePWM() {
+  const D     = parseFloat(document.getElementById('sl-duty').value) / 100;
+  const Vsup  = parseFloat(document.getElementById('sl-pwm-vsup').value);
+  const Iload = parseFloat(document.getElementById('sl-pwm-iload').value);
+  const Rds   = parseFloat(document.getElementById('sl-pwm-rds').value) / 1000;
+
+  document.getElementById('duty-val').textContent     = fmt(D*100,0)+' %';
+  document.getElementById('pwm-vsup-val').textContent = fmt(Vsup,1)+' V';
+  document.getElementById('pwm-iload-val').textContent = fmt(Iload,1)+' A';
+  document.getElementById('pwm-rds-val').textContent  = fmt(Rds*1000,0)+' mΩ';
+
+  const P_full   = Vsup * Iload;
+  const P_avg    = D * P_full;
+  const P_loss   = D * Iload*Iload*Rds;
+  const P_total  = P_avg + P_loss;
+  const eta      = P_total > 0 ? (P_avg/P_total*100) : 100;
+  const V_avg    = D * Vsup;
+
+  // Draw waveform
+  const canvas = document.getElementById('pwm-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#1a202c'; ctx.fillRect(0,0,W,H);
+
+  // Grid lines
+  ctx.strokeStyle='#2d3748'; ctx.lineWidth=1;
+  for(let y=20;y<H;y+=40){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  for(let x=0;x<W;x+=70){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+
+  const cycles = 5;
+  const cycleW = (W-30) / cycles;
+  const top = 20, bot = H-30, amp = bot-top;
+
+  // Draw gate signal (PWM) — green
+  ctx.strokeStyle='#4ade80'; ctx.lineWidth=2.5;
+  ctx.beginPath();
+  let gx=20;
+  ctx.moveTo(gx, bot);
+  for(let c=0;c<cycles;c++){
+    const onW = cycleW*D;
+    const offW = cycleW*(1-D);
+    // Rising edge
+    ctx.lineTo(gx, bot);
+    ctx.lineTo(gx, top);
+    ctx.lineTo(gx+onW, top);
+    ctx.lineTo(gx+onW, bot);
+    ctx.lineTo(gx+cycleW, bot);
+    gx+=cycleW;
+  }
+  ctx.stroke();
+
+  // Draw load voltage (average) — yellow dashed
+  const avgY = top + (1-D)*amp;
+  ctx.strokeStyle='#fbbf24'; ctx.lineWidth=1.5; ctx.setLineDash([8,4]);
+  ctx.beginPath(); ctx.moveTo(20,avgY); ctx.lineTo(W-10,avgY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Labels
+  ctx.fillStyle='#4ade80'; ctx.font='bold 12px monospace';
+  ctx.fillText('V_gate (PWM signal)', 25, 15);
+  ctx.fillStyle='#fbbf24';
+  ctx.fillText('V_avg = '+fmt(V_avg,1)+'V', 25, avgY-6);
+  ctx.fillStyle='#9ca3af'; ctx.font='11px monospace';
+  ctx.fillText('0V', 4, bot+12);
+  ctx.fillText(fmt(Vsup,0)+'V', 4, top+8);
+  ctx.fillStyle='#6b7280';
+  ctx.fillText('← 1 chu kỳ PWM →', W/2-60, H-8);
+
+  // Result
+  document.getElementById('pwm-result').innerHTML = `
+    Duty cycle D = <strong>${fmt(D*100,0)}%</strong> · V_supply = <strong>${fmt(Vsup,1)} V</strong> · I_tải (đầy tải) = <strong>${fmt(Iload,1)} A</strong><br>
+    <span class="highlight">P_trung_bình (tải) = D × V × I = ${fmt(D,2)} × ${fmt(Vsup,1)} × ${fmt(Iload,1)} = ${fmtW(P_avg)}</span><br>
+    P_loss MOSFET = D × I²×R_DS(on) = ${fmt(D,2)} × (${fmt(Iload,1)})² × ${fmt(Rds*1000,0)} mΩ = <span class="info">${fmtW(P_loss)}</span><br>
+    V_trung_bình trên tải = D × V_supply = <strong>${fmtV(V_avg)}</strong><br>
+    <span class="ok">Hiệu suất η = P_tải / (P_tải + P_loss) = ${fmt(eta,1)}%</span>
+    ${D===0 ? ' · <span class="warn">D = 0% → tải tắt hoàn toàn.</span>' :
+      D===1 ? ' · <span class="ok">D = 100% → tải nhận công suất đầy đủ.</span>' : ''}
+  `;
+}
+
+function setPreset(type) {
+  const presets = {
+    motor: { vsup:12, iload:3,  rds:44,  desc:'Motor DC 12V/3A',  app:'Điều khiển tốc độ motor: duty 75% = tốc độ 75% tối đa.' },
+    led:   { vsup:12, iload:1,  rds:35,  desc:'LED strip 12V/1A', app:'Dimming đèn LED: PWM ≥ 1 kHz để không nhấp nháy. Duty 30% = độ sáng 30%.' },
+    pump:  { vsup:12, iload:6,  rds:35,  desc:'Bơm nước 12V/6A',  app:'Bơm nước/tưới tiêu tự động: ON/OFF đơn giản (duty 0% hoặc 100%).' },
+    servo: { vsup:24, iload:10, rds:20,  desc:'Tải lớn 24V/10A',  app:'Tải công suất lớn: cần gate driver, tản nhiệt tốt.' },
+  };
+  const p = presets[type];
+  if(!p) return;
+  document.getElementById('sl-pwm-vsup').value = p.vsup;
+  document.getElementById('sl-pwm-iload').value = p.iload;
+  document.getElementById('sl-pwm-rds').value = p.rds;
+  document.getElementById('sl-duty').value = 75;
+  updatePWM();
+  const D=0.75, Vsup=p.vsup, I=p.iload, Rds=p.rds/1000;
+  const Pa=D*Vsup*I, Pl=D*I*I*Rds, eta=(Pa/(Pa+Pl)*100);
+  document.getElementById('motor-result').innerHTML = `
+    <strong>${p.desc}</strong> — duty 75%<br>
+    P_tải trung bình = ${fmtW(Pa)} · P_loss MOSFET = ${fmtW(Pl)}<br>
+    η = ${fmt(eta,1)}%<br>
+    <em>${p.app}</em>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 3 — BJT vs MOSFET Comparison
+// ═══════════════════════════════════════════════════════
+function updateCmp() {
+  const I    = parseFloat(document.getElementById('sl-cmp-i').value);
+  const Vce  = parseFloat(document.getElementById('sl-cmp-vce').value);
+  const Rds  = parseFloat(document.getElementById('sl-cmp-rds').value)/1000;
+  const beta = parseFloat(document.getElementById('sl-cmp-beta').value);
+
+  const Ib = I / beta;
+  document.getElementById('cmp-i-val').textContent   = fmt(I,1)+' A';
+  document.getElementById('cmp-vce-val').textContent  = fmt(Vce,2)+' V';
+  document.getElementById('cmp-rds-val').textContent  = fmt(Rds*1000,0)+' mΩ';
+  document.getElementById('cmp-ib-val').textContent   = fmt(Ib*1000,1)+' mA';
+  document.getElementById('sl-cmp-beta').labels && (document.getElementById('sl-cmp-beta').labels[0] ?
+    null : null);
+
+  const P_bjt  = Vce * I;
+  const P_mos  = I*I*Rds;
+  const ratio  = P_bjt / (P_mos||0.001);
+  const VDS_on = I*Rds;
+
+  const rows = [
+    ['Dòng điều khiển', `I_B = I/β = ${fmt(I,1)}/${beta} = <b>${fmt(Ib*1000,1)} mA</b>`, '<b>≈ 0 mA</b> (DC)', 'MOSFET'],
+    ['Tổn hao khi ON', `V_CE(sat)×I = ${fmt(Vce,2)}×${fmt(I,1)} = <b class="worse">${fmtW(P_bjt)}</b>`,
+     `I²×R_DS(on) = (${fmt(I,1)})²×${fmt(Rds*1000,0)}m = <b class="better">${fmtW(P_mos)}</b>`, 'MOSFET'],
+    ['V rơi khi ON',   `V_CE(sat) = <b>${fmt(Vce,2)} V</b>`, `V_DS = ${fmtV(VDS_on)} = <b>${fmtV(VDS_on)}</b>`, 'MOSFET'],
+    ['Tốc độ chuyển mạch', 'Chậm hơn (µs)', '<b>Nhanh hơn</b> (ns–µs)', 'MOSFET'],
+    ['Độ bền ESD', '<b>Tốt hơn</b>', 'Nhạy hơn — cần đề phòng', 'BJT'],
+    ['Phù hợp MCU 3.3V', 'Cần tính R_B cẩn thận', '<b>Dễ hơn</b> (logic-level)', 'MOSFET'],
+  ];
+
+  const tbody = document.getElementById('cmp-tbody');
+  tbody.innerHTML = '';
+  rows.forEach(([crit, bjt, mos, winner]) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><strong>${crit}</strong></td><td>${bjt}</td><td>${mos}</td>
+      <td style="color:${winner==='MOSFET'?'#047857':'#1d4ed8'};font-weight:700;">${winner}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('cmp-result').innerHTML = `
+    Tải <strong>${fmt(I,1)} A</strong>:<br>
+    BJT tổn hao <span class="warn">${fmtW(P_bjt)}</span> · MOSFET tổn hao <span class="ok">${fmtW(P_mos)}</span><br>
+    <span class="highlight">MOSFET ít tổn hao hơn <strong>${fmt(ratio,1)}×</strong> so với BJT</span><br>
+    BJT cần dòng Base <strong>${fmt(Ib*1000,1)} mA</strong> liên tục để duy trì trạng thái ON.
+    MOSFET chỉ cần giữ điện áp — không tiêu thụ dòng điều khiển.
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 4 — Operating Region Chart
+// ═══════════════════════════════════════════════════════
+function drawOpChart() {
+  const vgs_op = parseFloat(document.getElementById('sl-op-vgs').value);
+  const vds_op = parseFloat(document.getElementById('sl-op-vds').value);
+
+  document.getElementById('op-vgs-val').textContent = fmt(vgs_op,1)+' V';
+  document.getElementById('op-vds-val').textContent = fmt(vds_op,1)+' V';
+
+  const canvas = document.getElementById('op-chart');
+  const ctx    = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const pad={l:55,r:20,t:20,b:45};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+  const Vds_max=20, Id_max=20;
+  const Vth=2.5;
+  const kn=0.5; // process transconductance factor (simplified)
+
+  function tx(v){ return pad.l + (v/Vds_max)*cw; }
+  function ty(i){ return pad.t + ch - (i/Id_max)*ch; }
+
+  // Background
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,W,H);
+
+  // Shade regions
+  // Triode/ohmic region (left of boundary line)
+  ctx.fillStyle='rgba(209,250,229,0.5)';
+  ctx.beginPath();
+  ctx.moveTo(tx(0),ty(0));
+  // boundary: Vds = Vgs - Vth (for VGS lines we'll use 12V as max)
+  const Vgs_max=12;
+  const bdX = tx(Vgs_max - Vth);
+  ctx.lineTo(tx(0), ty(Id_max));
+  ctx.lineTo(bdX, ty(Id_max));
+  ctx.lineTo(bdX, ty(0));
+  ctx.closePath();
+  ctx.fill();
+
+  // Saturation region
+  ctx.fillStyle='rgba(254,243,199,0.5)';
+  ctx.beginPath();
+  ctx.moveTo(bdX, ty(0));
+  ctx.lineTo(bdX, ty(Id_max));
+  ctx.lineTo(tx(Vds_max), ty(Id_max));
+  ctx.lineTo(tx(Vds_max), ty(0));
+  ctx.closePath();
+  ctx.fill();
+
+  // Region labels
+  ctx.fillStyle='#065f46'; ctx.font='bold 13px sans-serif';
+  ctx.fillText('Triode / Ohmic', tx(0.5), ty(Id_max)+16);
+  ctx.fillStyle='#92400e';
+  ctx.fillText('Saturation', tx(Vgs_max-Vth)+8, ty(Id_max)+16);
+
+  // Boundary line Vds = Vgs - Vth
+  ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1.5; ctx.setLineDash([6,4]);
+  ctx.beginPath();
+  for(let vg=Vth;vg<=Vgs_max;vg+=0.5){
+    const vds_bd=vg-Vth;
+    const id_bd=0.5*kn*(vg-Vth)*(vg-Vth);
+    ctx.lineTo(tx(vds_bd), ty(Math.min(id_bd, Id_max)));
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#b45309'; ctx.font='11px sans-serif';
+  ctx.fillText('V_DS = V_GS − V_th', tx(4.5), ty(12.5));
+
+  // I_D vs V_DS curves for different V_GS values
+  const vgs_curves = [3, 4, 5, 6, 8, 10, 12];
+  const colors = ['#94a3b8','#64748b','#22c55e','#16a34a','#4d7c0f','#1d4ed8','#7c3aed'];
+  vgs_curves.forEach((vgs,idx)=>{
+    if(vgs <= Vth) return;
+    const Vov = vgs - Vth;
+    const Id_sat = 0.5*kn*Vov*Vov;
+    ctx.strokeStyle = colors[idx]; ctx.lineWidth = vgs===Math.round(vgs_op)||Math.abs(vgs-vgs_op)<0.5 ? 3 : 1.5;
+    ctx.beginPath();
+    for(let vds=0;vds<=Vds_max;vds+=0.1){
+      let id;
+      if(vds < Vov){
+        // triode: Id = kn*[(Vgs-Vth)*Vds - Vds²/2]
+        id = kn*(Vov*vds - vds*vds/2);
+      } else {
+        id = Id_sat;
+      }
+      id = Math.min(id, Id_max);
+      if(vds===0) ctx.moveTo(tx(vds), ty(id));
+      else ctx.lineTo(tx(vds), ty(id));
+    }
+    ctx.stroke();
+    // Label at right
+    ctx.fillStyle=colors[idx]; ctx.font='11px monospace';
+    ctx.fillText('V_GS='+vgs, tx(Vds_max)+2, ty(Math.min(Id_sat, Id_max-0.5))+4);
+  });
+
+  // Operating point
+  const vov_op = vgs_op - Vth;
+  let id_op;
+  if(vgs_op <= Vth){
+    id_op = 0;
+  } else {
+    const Id_sat = 0.5*kn*vov_op*vov_op;
+    if(vds_op < vov_op){
+      id_op = kn*(vov_op*vds_op - vds_op*vds_op/2);
+    } else {
+      id_op = Id_sat;
+    }
+  }
+  id_op = Math.min(Math.max(id_op,0), Id_max);
+
+  // Draw crosshairs
+  ctx.strokeStyle='#dc2626'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(tx(vds_op),ty(0)); ctx.lineTo(tx(vds_op),ty(id_op)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(tx(0),ty(id_op)); ctx.lineTo(tx(vds_op),ty(id_op)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Operating point dot
+  ctx.fillStyle='#dc2626';
+  ctx.beginPath(); ctx.arc(tx(vds_op), ty(id_op), 6, 0, 2*Math.PI); ctx.fill();
+  ctx.strokeStyle='white'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(tx(vds_op), ty(id_op), 6, 0, 2*Math.PI); ctx.stroke();
+
+  // Axes
+  ctx.strokeStyle='#374151'; ctx.lineWidth=2; ctx.setLineDash([]);
+  // X axis
+  ctx.beginPath(); ctx.moveTo(tx(0),ty(0)); ctx.lineTo(tx(Vds_max),ty(0)); ctx.stroke();
+  // Y axis
+  ctx.beginPath(); ctx.moveTo(tx(0),ty(0)); ctx.lineTo(tx(0),ty(Id_max)); ctx.stroke();
+
+  // Axis labels
+  ctx.fillStyle='#374151'; ctx.font='12px sans-serif';
+  ctx.fillText('V_DS (V)', tx(Vds_max/2)-30, H-8);
+  ctx.save(); ctx.translate(15, ty(Id_max/2)+30); ctx.rotate(-Math.PI/2);
+  ctx.fillText('I_D (A)', 0, 0); ctx.restore();
+  for(let v=0;v<=Vds_max;v+=5){
+    ctx.fillText(v, tx(v)-6, ty(0)+14);
+  }
+  for(let i=0;i<=Id_max;i+=5){
+    ctx.fillText(i, tx(0)-28, ty(i)+4);
+  }
+
+  // Region of operating point
+  const opRegion = vgs_op <= Vth ? 'CUTOFF' :
+    vds_op < vov_op ? 'TRIODE/OHMIC' : 'SATURATION';
+  const opColor = opRegion==='CUTOFF'?'#991b1b':opRegion==='TRIODE/OHMIC'?'#065f46':'#92400e';
+  ctx.fillStyle=opColor; ctx.font='bold 13px sans-serif';
+  ctx.fillText('→ '+opRegion, tx(vds_op)+10, ty(id_op)-8);
+
+  document.getElementById('op-result').innerHTML =
+    `Điểm làm việc: V_GS = ${fmt(vgs_op,1)} V, V_DS = ${fmt(vds_op,1)} V<br>
+    I_D ≈ <strong>${fmt(id_op,2)} A</strong> · Vùng: <strong style="color:${opColor}">${opRegion}</strong><br>
+    ${opRegion==='TRIODE/OHMIC' ? `R_DS(on) hiệu dụng ≈ ${fmt(vds_op/(id_op||0.001)*1000,1)} mΩ — MOSFET hoạt động như điện trở nhỏ.` :
+      opRegion==='CUTOFF' ? 'V_GS < V_th — MOSFET tắt, I_D ≈ 0.' :
+      'Vùng saturation — dòng gần như không đổi dù V_DS tăng. Dùng cho khuếch đại, không cho khóa.'}`;
+}
+
+// ═══════════════════════════════════════════════════════
+// Initialize all modules
+// ═══════════════════════════════════════════════════════
+initSwitchDots();
+updateSwitch();
+updatePWM();
+updateCmp();
+drawOpChart();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

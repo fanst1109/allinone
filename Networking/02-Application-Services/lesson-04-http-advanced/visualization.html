@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — HTTP nâng cao</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette HTTP Advanced ── */
+  :root {
+    --http-blue:  #0369a1;
+    --http-soft:  #e0f2fe;
+    --http-mid:   #38bdf8;
+    --http-dark:  #0c4a6e;
+    --ok-green:   #16a34a;
+    --warn-red:   #dc2626;
+    --warn-orange:#d97706;
+    --purple:     #7c3aed;
+    --bg-card:    #ffffff;
+    --bg-section: #f0f9ff;
+  }
+
+  h1 { color: var(--http-dark); }
+  h2 {
+    color: var(--http-blue);
+    margin-top: 36px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--http-mid);
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(3,105,161,.10);
+    margin: 16px 0;
+  }
+  .info-box {
+    background: var(--http-soft);
+    border-left: 4px solid var(--http-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--http-blue); color: white; }
+  .btn-primary:hover { background: var(--http-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .3px;
+  }
+  .tag-req   { background: #dbeafe; color: #1d4ed8; }
+  .tag-res   { background: #dcfce7; color: #166534; }
+  .tag-304   { background: #fef3c7; color: #92400e; }
+  .tag-200   { background: #dcfce7; color: #166534; }
+  .tag-401   { background: #fee2e2; color: #991b1b; }
+  .tag-cookie{ background: #ede9fe; color: #6d28d9; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 1 — Cookie/Session Simulation
+     ═══════════════════════════════════════════════════════ */
+  #cookie-stage { width: 100%; overflow-x: auto; }
+  #cookie-svg { display: block; margin: 0 auto; }
+  .cookie-step-box {
+    background: var(--bg-section);
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    min-height: 52px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .cookie-step-box strong { color: var(--http-blue); }
+
+  /* ── Session state display ── */
+  .session-state {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin: 14px 0;
+  }
+  .ss-box {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .ss-box .ss-title {
+    font-weight: 700;
+    color: var(--http-blue);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 6px;
+  }
+  .ss-box code {
+    background: #f1f5f9;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 12px;
+    font-family: monospace;
+    color: #1e293b;
+    display: block;
+    margin: 2px 0;
+    word-break: break-all;
+  }
+  .ss-box.active { border-color: var(--http-blue); background: var(--http-soft); }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 2 — Caching Simulation
+     ═══════════════════════════════════════════════════════ */
+  #cache-stage { width: 100%; overflow-x: auto; }
+  #cache-svg { display: block; margin: 0 auto; }
+  .cache-meter {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 14px 0;
+  }
+  .meter-box {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+  .meter-box .meter-label { font-size: 12px; color: #64748b; margin-bottom: 4px; }
+  .meter-box .meter-val {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--http-blue);
+    font-family: monospace;
+  }
+  .meter-box .meter-unit { font-size: 11px; color: #94a3b8; }
+  .meter-box.saved .meter-val { color: var(--ok-green); }
+  .cache-log {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    min-height: 70px;
+    max-height: 180px;
+    overflow-y: auto;
+    margin-top: 10px;
+    white-space: pre-wrap;
+  }
+  .cache-log .ok   { color: #4ade80; }
+  .cache-log .miss { color: #f87171; }
+  .cache-log .hit  { color: #38bdf8; }
+  .cache-log .save { color: #fbbf24; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 3 — HTTP/1.1 vs HTTP/2 Timeline
+     ═══════════════════════════════════════════════════════ */
+  .mux-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 12px 0;
+  }
+  .mux-group { display: flex; flex-direction: column; gap: 6px; }
+  .mux-group label { font-weight: 700; font-size: 14px; color: #374151; }
+  .mux-group input[type="range"] { width: 100%; accent-color: var(--http-blue); }
+  .mux-val { font-family: monospace; font-size: 15px; color: var(--http-blue); font-weight: 700; }
+  #mux-stage { width: 100%; overflow-x: auto; }
+  #mux-canvas { display: block; max-width: 100%; }
+  .mux-result {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .mux-proto-box {
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .mux-proto-box.h1 { background: #fef3c7; border: 2px solid #d97706; }
+  .mux-proto-box.h2 { background: #dcfce7; border: 2px solid #16a34a; }
+  .mux-proto-box.h3 { background: var(--http-soft); border: 2px solid var(--http-blue); }
+  .mux-proto-box .proto-title { font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+  .mux-proto-box.h1 .proto-title { color: #92400e; }
+  .mux-proto-box.h2 .proto-title { color: #166534; }
+  .mux-proto-box.h3 .proto-title { color: var(--http-dark); }
+
+  /* ═══════════════════════════════════════════════════════
+     Responsive
+     ═══════════════════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .session-state { grid-template-columns: 1fr; }
+    .cache-meter { grid-template-columns: 1fr 1fr; }
+    .mux-controls { grid-template-columns: 1fr; }
+    .mux-result { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .cache-meter { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Application</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-http-basics/visualization.html">← L3: HTTP/HTTPS cơ bản</a>
+  <span class="sep">·</span>
+  <span class="current">L4: HTTP nâng cao</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-email-filetransfer/visualization.html">L5: Email &amp; truyền file →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — HTTP nâng cao</h1>
+<p>Ba module tương tác: mô phỏng Cookie/Session, cơ chế Caching &amp; ETag, so sánh HTTP/1.1 vs HTTP/2 multiplexing.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — Cookie & Session
+     ═══════════════════════════════════════════════════════════ -->
+<h2>1. Mô phỏng Cookie &amp; Session</h2>
+<div class="card">
+  <p>Nhập tên đăng nhập và bấm từng bước để xem cách server phát <code>Set-Cookie</code>, trình duyệt lưu cookie và gửi lại trong các request tiếp theo.</p>
+
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;align-items:flex-end;">
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <label style="font-size:12px;font-weight:700;color:#374151;">Tên đăng nhập</label>
+      <input type="text" id="ck-username" value="nguyen_van_a" maxlength="20"
+        style="padding:6px 10px;border:1.5px solid #d1d5db;border-radius:6px;font-size:13px;width:160px;box-sizing:border-box;">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <label style="font-size:12px;font-weight:700;color:#374151;">Password</label>
+      <input type="password" id="ck-password" value="securepass123" maxlength="20"
+        style="padding:6px 10px;border:1.5px solid #d1d5db;border-radius:6px;font-size:13px;width:160px;box-sizing:border-box;">
+    </div>
+    <button class="btn btn-secondary" onclick="ckReset()">Bắt đầu lại</button>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="ck-btn-step" onclick="ckStep()">Bước tiếp theo →</button>
+    <button class="btn btn-secondary" onclick="ckAuto()">Tự động</button>
+  </div>
+
+  <!-- SVG sequence diagram -->
+  <div id="cookie-stage">
+    <svg id="cookie-svg" width="600" height="310" viewBox="0 0 600 310">
+      <defs>
+        <marker id="ck-arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0369a1"/>
+        </marker>
+        <marker id="ck-arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+        </marker>
+        <marker id="ck-arr-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/>
+        </marker>
+        <marker id="ck-arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/>
+        </marker>
+      </defs>
+
+      <!-- Actor: Browser -->
+      <rect x="10" y="8" width="110" height="36" rx="6" fill="#0369a1"/>
+      <text x="65" y="31" text-anchor="middle" font-size="13" font-weight="700" fill="white">BROWSER</text>
+
+      <!-- Actor: Server -->
+      <rect x="240" y="8" width="110" height="36" rx="6" fill="#7c3aed"/>
+      <text x="295" y="31" text-anchor="middle" font-size="13" font-weight="700" fill="white">SERVER</text>
+
+      <!-- Actor: DB/Redis -->
+      <rect x="470" y="8" width="110" height="36" rx="6" fill="#0c4a6e"/>
+      <text x="525" y="31" text-anchor="middle" font-size="13" font-weight="700" fill="white">DB/Redis</text>
+
+      <!-- Timelines -->
+      <line x1="65"  y1="44" x2="65"  y2="305" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="295" y1="44" x2="295" y2="305" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="525" y1="44" x2="525" y2="305" stroke="#0c4a6e" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+      <!-- Time labels -->
+      <text x="3" y="75"  font-size="10" fill="#94a3b8">t₀</text>
+      <text x="3" y="120" font-size="10" fill="#94a3b8">t₁</text>
+      <text x="3" y="165" font-size="10" fill="#94a3b8">t₂</text>
+      <text x="3" y="210" font-size="10" fill="#94a3b8">t₃</text>
+      <text x="3" y="255" font-size="10" fill="#94a3b8">t₄</text>
+      <text x="3" y="295" font-size="10" fill="#94a3b8">t₅</text>
+
+      <!-- Arrows — shown via JS -->
+      <g id="ck-arrows"></g>
+    </svg>
+  </div>
+
+  <!-- State panels -->
+  <div class="session-state">
+    <div class="ss-box" id="ck-browser-state">
+      <div class="ss-title">Browser Cookie Jar</div>
+      <span style="color:#94a3b8;font-size:13px;">(trống)</span>
+    </div>
+    <div class="ss-box" id="ck-server-state">
+      <div class="ss-title">Server Session Store</div>
+      <span style="color:#94a3b8;font-size:13px;">(trống)</span>
+    </div>
+    <div class="ss-box" id="ck-request-state">
+      <div class="ss-title">Request hien tai</div>
+      <span style="color:#94a3b8;font-size:13px;">(chua co)</span>
+    </div>
+  </div>
+
+  <div class="cookie-step-box" id="ck-desc">
+    Nhấn <strong>"Bước tiếp theo"</strong> để bắt đầu mô phỏng đăng nhập và duy trì phiên bằng Cookie.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — HTTP Caching & ETag
+     ═══════════════════════════════════════════════════════════ -->
+<h2>2. Mô phỏng Caching &amp; ETag</h2>
+<div class="card">
+  <p>Cấu hình endpoint và bấm từng request để thấy cache miss, cache hit, ETag revalidation (304) và tính byte tiết kiệm được.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;">
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <label style="font-size:12px;font-weight:700;color:#374151;">Response size (KB)</label>
+      <input type="number" id="ca-size-kb" value="48" min="1" max="5000"
+        style="padding:6px 10px;border:1.5px solid #d1d5db;border-radius:6px;font-size:13px;width:100%;max-width:140px;box-sizing:border-box;">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <label style="font-size:12px;font-weight:700;color:#374151;">max-age (giây)</label>
+      <input type="number" id="ca-maxage" value="300" min="10" max="86400"
+        style="padding:6px 10px;border:1.5px solid #d1d5db;border-radius:6px;font-size:13px;width:100%;max-width:140px;box-sizing:border-box;">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <label style="font-size:12px;font-weight:700;color:#374151;">Noi dung thay doi?</label>
+      <select id="ca-changed"
+        style="padding:6px 10px;border:1.5px solid #d1d5db;border-radius:6px;font-size:13px;width:100%;max-width:140px;box-sizing:border-box;">
+        <option value="no">Chua thay doi (304)</option>
+        <option value="yes">Da thay doi (200)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="ca-btn-step" onclick="caStep()">Gui request tiep theo →</button>
+    <button class="btn btn-secondary" onclick="caReset()">Bat dau lai</button>
+  </div>
+
+  <!-- Sequence diagram SVG -->
+  <div id="cache-stage">
+    <svg id="cache-svg" width="560" height="270" viewBox="0 0 560 270">
+      <defs>
+        <marker id="ca-arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0369a1"/>
+        </marker>
+        <marker id="ca-arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+        </marker>
+        <marker id="ca-arr-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#d97706"/>
+        </marker>
+        <marker id="ca-arr-teal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0891b2"/>
+        </marker>
+      </defs>
+
+      <!-- Actors -->
+      <rect x="15" y="8" width="100" height="34" rx="6" fill="#0369a1"/>
+      <text x="65" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="white">BROWSER</text>
+      <rect x="230" y="8" width="100" height="34" rx="6" fill="#7c3aed"/>
+      <text x="280" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="white">SERVER</text>
+
+      <!-- Cache indicator inside browser -->
+      <rect x="15" y="48" width="100" height="20" rx="4" fill="#f0f9ff" stroke="#bae6fd"/>
+      <text id="ca-cache-label" x="65" y="62" text-anchor="middle" font-size="10" fill="#475569">Cache: trong</text>
+
+      <!-- Timelines -->
+      <line x1="65"  y1="68" x2="65"  y2="265" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="280" y1="42" x2="280" y2="265" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+      <g id="ca-arrows"></g>
+    </svg>
+  </div>
+
+  <!-- Metrics -->
+  <div class="cache-meter">
+    <div class="meter-box">
+      <div class="meter-label">Tong request</div>
+      <div class="meter-val" id="ca-m-total">0</div>
+      <div class="meter-unit">request</div>
+    </div>
+    <div class="meter-box">
+      <div class="meter-label">Byte truyen qua mang</div>
+      <div class="meter-val" id="ca-m-bytes">0</div>
+      <div class="meter-unit">KB</div>
+    </div>
+    <div class="meter-box saved">
+      <div class="meter-label">Byte tiet kiem</div>
+      <div class="meter-val" id="ca-m-saved">0</div>
+      <div class="meter-unit">KB (so voi khong cache)</div>
+    </div>
+  </div>
+
+  <div class="cache-log" id="ca-log">Log xuat hien o day khi ban gui request...</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — HTTP/1.1 vs HTTP/2 Multiplexing
+     ═══════════════════════════════════════════════════════════ -->
+<h2>3. HTTP/1.1 vs HTTP/2 — Multiplexing</h2>
+<div class="card">
+  <p>Điều chỉnh số tài nguyên và độ trễ mỗi request. So sánh trực quan thời gian tải của HTTP/1.1 (tuần tự, head-of-line blocking) và HTTP/2 (song song trên 1 kết nối).</p>
+
+  <div class="mux-controls">
+    <div class="mux-group">
+      <label>So tai nguyen: <span class="mux-val" id="mux-n-val">6</span></label>
+      <input type="range" id="mux-n" min="2" max="12" step="1" value="6" oninput="muxUpdate()">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;">
+        <span>2</span><span>7</span><span>12</span>
+      </div>
+    </div>
+    <div class="mux-group">
+      <label>Do tre moi request: <span class="mux-val" id="mux-rtt-val">80</span> ms</label>
+      <input type="range" id="mux-rtt" min="10" max="500" step="10" value="80" oninput="muxUpdate()">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;">
+        <span>10 ms</span><span>255 ms</span><span>500 ms</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Canvas for timeline -->
+  <div id="mux-stage">
+    <canvas id="mux-canvas" width="700" height="300"></canvas>
+  </div>
+
+  <div class="mux-result">
+    <div class="mux-proto-box h1">
+      <div class="proto-title">HTTP/1.1</div>
+      <div id="mux-h1-info">Dang tinh...</div>
+    </div>
+    <div class="mux-proto-box h2">
+      <div class="proto-title">HTTP/2</div>
+      <div id="mux-h2-info">Dang tinh...</div>
+    </div>
+  </div>
+
+  <div class="mux-proto-box h3" style="margin-top:10px;">
+    <div class="proto-title">HTTP/3 (QUIC/UDP) — ghi chu</div>
+    <div id="mux-h3-info" style="font-size:13px;line-height:1.7;">
+      HTTP/3 dùng QUIC trên UDP. Mỗi stream hoàn toàn độc lập — mất gói ở stream 1 không ảnh hưởng stream 2. Kết nối mới: 1-RTT; lần sau: 0-RTT. Đặc biệt hiệu quả khi packet loss cao (mạng di động, vùng nông thôn). Tính đến 2025: Google, Facebook, Cloudflare đã dùng HTTP/3 cho ~30% traffic internet.
+    </div>
+  </div>
+
+  <div class="info-box" style="margin-top:14px;">
+    <strong>Tại sao HTTP/1.1 mở 6 kết nối song song?</strong>
+    Trình duyệt giới hạn 6 kết nối TCP/domain để tránh chiếm băng thông server. Dù vậy, mỗi kết nối vẫn là tuần tự — 1 request xong mới gửi tiếp. HTTP/2 loại bỏ giới hạn này: 1 kết nối TCP, nhiều stream song song.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+// ═══════════════════════════════════════════════════════
+// MODULE 1: COOKIE & SESSION SIMULATION
+// ═══════════════════════════════════════════════════════
+let ckStep_n = 0;
+let ckAutoTimer = null;
+let ckSessionId = '';
+let ckUserId = 42;
+
+// SVG helper: create element
+function svgEl(tag, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
+  return el;
+}
+
+// Draw arrow in cookie SVG
+function ckDrawArrow(x1, y1, x2, y2, color, markerId, label, labelY) {
+  const g = document.getElementById('ck-arrows');
+  const line = svgEl('line', {x1,y1,x2,y2,stroke:color,'stroke-width':'2','marker-end':`url(#${markerId})`});
+  const midX = (parseFloat(x1)+parseFloat(x2))/2;
+  const textW = Math.min(label.length * 6.5 + 16, 260);
+  const bg = svgEl('rect', {x:midX-textW/2, y:labelY-13, width:textW, height:16, rx:'3', fill:'white','fill-opacity':'0.92'});
+  const txt = svgEl('text', {x:midX, y:labelY, 'text-anchor':'middle', 'font-size':'11', 'font-weight':'700', fill:color});
+  txt.textContent = label;
+  const grp = svgEl('g', {});
+  grp.style.opacity = '0';
+  grp.style.transition = 'opacity 0.35s';
+  grp.appendChild(line); grp.appendChild(bg); grp.appendChild(txt);
+  g.appendChild(grp);
+  requestAnimationFrame(() => { grp.style.opacity = '1'; });
+}
+
+function ckGenSessionId() {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  return Array.from({length:12}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+}
+
+function ckSetDesc(html) {
+  document.getElementById('ck-desc').innerHTML = html;
+}
+
+function ckSetBrowserState(html, active) {
+  const el = document.getElementById('ck-browser-state');
+  el.querySelector('.ss-title').textContent = 'Browser Cookie Jar';
+  const existing = el.querySelector('.ss-title');
+  el.innerHTML = '';
+  el.appendChild(existing);
+  const content = document.createElement('div');
+  content.innerHTML = html;
+  el.appendChild(content);
+  el.className = 'ss-box' + (active ? ' active' : '');
+}
+
+function ckSetServerState(html, active) {
+  const el = document.getElementById('ck-server-state');
+  const existing = el.querySelector('.ss-title');
+  el.innerHTML = '';
+  el.appendChild(existing);
+  const content = document.createElement('div');
+  content.innerHTML = html;
+  el.appendChild(content);
+  el.className = 'ss-box' + (active ? ' active' : '');
+}
+
+function ckSetRequestState(html, active) {
+  const el = document.getElementById('ck-request-state');
+  const existing = el.querySelector('.ss-title');
+  el.innerHTML = '';
+  el.appendChild(existing);
+  const content = document.createElement('div');
+  content.innerHTML = html;
+  el.appendChild(content);
+  el.className = 'ss-box' + (active ? ' active' : '');
+}
+
+const CK_STEPS = 6; // 0=init, 1..5 = steps
+function ckStep() {
+  if (ckStep_n >= CK_STEPS) { ckReset(); return; }
+  ckStep_n++;
+  const user = document.getElementById('ck-username').value || 'nguyen_van_a';
+
+  if (ckStep_n === 1) {
+    // Step 1: Browser sends GET /dashboard — no cookie, redirect to login
+    ckDrawArrow(65, 80, 290, 98, '#0369a1', 'ck-arr-blue', 'GET /dashboard (chua co Cookie)', 88);
+    ckDrawArrow(290, 112, 70, 128, '#dc2626', 'ck-arr-red', '302 Redirect → /login', 119);
+    ckSetRequestState('<code>GET /dashboard</code><code>Cookie: (khong co)</code>', true);
+    ckSetBrowserState('<span style="color:#94a3b8;font-size:13px;">(chua co cookie)</span>', false);
+    ckSetServerState('<span style="color:#94a3b8;font-size:13px;">(chua co phien)</span>', false);
+    ckSetDesc(`<span class="tag tag-req">REQUEST</span> <strong>Buoc 1 — Browser → Server</strong><br>
+      Browser gui <code>GET /dashboard</code> — <em>khong co</em> cookie. Server kiem tra: chua co phien → tra 302 Redirect den <code>/login</code>.`);
+  } else if (ckStep_n === 2) {
+    // Step 2: POST /login with credentials
+    ckDrawArrow(65, 142, 290, 158, '#0369a1', 'ck-arr-blue', `POST /login (${user} / *****)`, 150);
+    ckDrawArrow(290, 158, 525, 170, '#7c3aed', 'ck-arr-purple', 'Xac minh user trong DB', 163);
+    ckSetRequestState(`<code>POST /login</code><code>username=${user}</code><code>password=*****</code>`, true);
+    ckSetDesc(`<span class="tag tag-req">REQUEST</span> <strong>Buoc 2 — Dang nhap</strong><br>
+      Browser gui <code>POST /login</code> voi thong tin dang nhap. Server tra DB xac minh mat khau.`);
+  } else if (ckStep_n === 3) {
+    // Step 3: Server creates session, sends Set-Cookie
+    ckSessionId = ckGenSessionId();
+    ckDrawArrow(525, 180, 295, 192, '#16a34a', 'ck-arr-green', `DB xac nhan: user_id=${ckUserId}`, 186);
+    ckDrawArrow(290, 205, 70, 220, '#16a34a', 'ck-arr-green', `200 OK + Set-Cookie: session_id=${ckSessionId}`, 212);
+    ckSetServerState(`<code>Session: ${ckSessionId}</code><code>→ {user_id:${ckUserId}}</code><code>→ {name:"${user}"}</code><code>expires: +3600s</code>`, true);
+    ckSetDesc(`<span class="tag tag-res">RESPONSE</span> <strong>Buoc 3 — Server phat cookie</strong><br>
+      Server tao session: <code>session_id=${ckSessionId.slice(0,8)}...</code> → luu vao Redis voi <code>user_id=${ckUserId}</code>.<br>
+      Tra <code>Set-Cookie: session_id=${ckSessionId}; HttpOnly; Secure; SameSite=Strict; Max-Age=3600</code>`);
+  } else if (ckStep_n === 4) {
+    // Step 4: Browser stores cookie
+    ckSetBrowserState(`<code>session_id=${ckSessionId.slice(0,8)}...</code><code>HttpOnly: co</code><code>Secure: co</code><code>Max-Age: 3600s</code>`, true);
+    ckSetDesc(`<span class="tag tag-cookie">COOKIE</span> <strong>Buoc 4 — Browser luu cookie</strong><br>
+      Trinh duyet luu <code>session_id</code> vao Cookie Jar noi bo. <code>HttpOnly</code> = JS khong doc duoc (chong XSS). <code>Secure</code> = chi gui qua HTTPS.`);
+  } else if (ckStep_n === 5) {
+    // Step 5: Browser sends GET /dashboard WITH cookie
+    ckDrawArrow(65, 238, 290, 252, '#0369a1', 'ck-arr-blue', `GET /dashboard — Cookie: session_id=${ckSessionId.slice(0,8)}...`, 244);
+    ckSetRequestState(`<code>GET /dashboard</code><code>Cookie: session_id=</code><code>${ckSessionId.slice(0,8)}...</code>`, true);
+    ckSetDesc(`<span class="tag tag-req">REQUEST</span> <strong>Buoc 5 — Request voi cookie</strong><br>
+      Lan nay trinh duyet <em>tu dong</em> dinh kem cookie. Server nhan <code>session_id</code>, tra Redis → tim duoc phien → xac nhan dang nhap.`);
+  } else if (ckStep_n === 6) {
+    ckDrawArrow(290, 265, 70, 278, '#16a34a', 'ck-arr-green', `200 OK — Dashboard cua ${user}`, 271);
+    ckSetDesc(`<span class="tag tag-res">RESPONSE</span> <strong>Hoan thanh — Phien duoc duy tri!</strong><br>
+      Server tra ve trang Dashboard duoc ca nhan hoa cho <strong>${user}</strong> (user_id=${ckUserId}).<br>
+      Moi request tiep theo trong 3600 giay deu tu dong gui cookie — server nhan ra ban ma khong can dang nhap lai.`);
+    document.getElementById('ck-btn-step').textContent = 'Bat dau lai';
+  }
+}
+
+function ckReset() {
+  clearTimeout(ckAutoTimer);
+  ckAutoTimer = null;
+  ckStep_n = 0;
+  ckSessionId = '';
+  document.getElementById('ck-arrows').innerHTML = '';
+  document.getElementById('ck-btn-step').textContent = 'Buoc tiep theo →';
+  document.getElementById('ck-browser-state').innerHTML =
+    '<div class="ss-title">Browser Cookie Jar</div><span style="color:#94a3b8;font-size:13px;">(trong)</span>';
+  document.getElementById('ck-server-state').innerHTML =
+    '<div class="ss-title">Server Session Store</div><span style="color:#94a3b8;font-size:13px;">(trong)</span>';
+  document.getElementById('ck-request-state').innerHTML =
+    '<div class="ss-title">Request hien tai</div><span style="color:#94a3b8;font-size:13px;">(chua co)</span>';
+  ['ck-browser-state','ck-server-state','ck-request-state'].forEach(id => {
+    document.getElementById(id).className = 'ss-box';
+  });
+  ckSetDesc('Nhan <strong>"Buoc tiep theo"</strong> de bat dau mo phong dang nhap va duy tri phien bang Cookie.');
+}
+
+function ckAuto() {
+  if (ckAutoTimer) return;
+  ckReset();
+  function runNext() {
+    if (ckStep_n >= CK_STEPS) return;
+    ckStep();
+    ckAutoTimer = setTimeout(runNext, 1400);
+  }
+  ckAutoTimer = setTimeout(runNext, 400);
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 2: CACHING & ETAG
+// ═══════════════════════════════════════════════════════
+let caState = {
+  step: 0,       // which request number (1-indexed)
+  etag: '',
+  cacheValid: false,
+  cacheExpiry: 0,  // simulated time
+  totalBytesSent: 0,
+  totalBytesWithoutCache: 0,
+  requestCount: 0,
+  done: false,
+};
+const CA_HEADER_BYTES = 0.35; // ~350 bytes for small 304 response headers, in KB
+
+function caLog(msg, cls) {
+  const el = document.getElementById('ca-log');
+  if (el.innerHTML.includes('Log xuat') || el.innerHTML.includes('xuat hien')) el.innerHTML = '';
+  el.innerHTML += `<span class="${cls||''}">${msg}</span>\n`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function caDrawArrow(container, x1, y1, x2, y2, color, label, labelY) {
+  const markId = `ca-m-${color.replace('#','')}-${Math.random().toString(36).substr(2,5)}`;
+  const svg = document.getElementById('cache-svg');
+  let defs = svg.querySelector('defs');
+  const marker = document.createElementNS('http://www.w3.org/2000/svg','marker');
+  marker.setAttribute('id', markId);
+  marker.setAttribute('markerWidth','8');
+  marker.setAttribute('markerHeight','8');
+  marker.setAttribute('refX','6');
+  marker.setAttribute('refY','3');
+  marker.setAttribute('orient','auto');
+  const mp = document.createElementNS('http://www.w3.org/2000/svg','path');
+  mp.setAttribute('d','M0,0 L0,6 L8,3 z');
+  mp.setAttribute('fill', color);
+  marker.appendChild(mp);
+  defs.appendChild(marker);
+
+  const line = svgEl('line', {x1,y1,x2,y2,stroke:color,'stroke-width':'2','marker-end':`url(#${markId})`});
+  const midX = (parseFloat(x1)+parseFloat(x2))/2;
+  const textW = Math.min(label.length * 6 + 16, 280);
+  const bg = svgEl('rect', {x:midX-textW/2, y:labelY-13, width:textW, height:16, rx:'3', fill:'white','fill-opacity':'0.9'});
+  const txt = svgEl('text', {x:midX, y:labelY,'text-anchor':'middle','font-size':'11','font-weight':'700',fill:color});
+  txt.textContent = label;
+  const grp = svgEl('g', {});
+  grp.style.opacity = '0';
+  grp.style.transition = 'opacity 0.3s';
+  grp.appendChild(line); grp.appendChild(bg); grp.appendChild(txt);
+  container.appendChild(grp);
+  requestAnimationFrame(() => { grp.style.opacity = '1'; });
+}
+
+function caUpdateMetrics() {
+  document.getElementById('ca-m-total').textContent = caState.requestCount;
+  document.getElementById('ca-m-bytes').textContent = caState.totalBytesSent.toFixed(1);
+  document.getElementById('ca-m-saved').textContent = Math.max(0, caState.totalBytesWithoutCache - caState.totalBytesSent).toFixed(1);
+}
+
+function caStep() {
+  const sizeKB = parseFloat(document.getElementById('ca-size-kb').value) || 48;
+  const maxAge = parseInt(document.getElementById('ca-maxage').value) || 300;
+  const changed = document.getElementById('ca-changed').value === 'yes';
+
+  caState.requestCount++;
+  caState.totalBytesWithoutCache += sizeKB;
+
+  const g = document.getElementById('ca-arrows');
+  // Position rows: each request cycle = 3 rows of 40px each, starting at y=78
+  const rowH = 38;
+  const yBase = 78 + (caState.requestCount - 1) * rowH * 2.5;
+  const xBr = 65, xSrv = 280;
+
+  if (caState.step === 0) {
+    // Request 1: Cache MISS — full response
+    caState.etag = `"v${Date.now().toString(36)}"`;
+    caState.cacheValid = true;
+    caState.totalBytesSent += sizeKB;
+
+    const yReq = Math.min(yBase, 78);
+    const yRes = Math.min(yBase + rowH, 120);
+    caDrawArrow(g, xBr, yReq, xSrv-5, yReq+10, '#0369a1', `GET /api/data (lan dau, khong co cache)`, yReq+5);
+    caDrawArrow(g, xSrv, yRes, xBr+5, yRes+10, '#16a34a', `200 OK — ${sizeKB}KB + ETag:${caState.etag.slice(0,10)}... + max-age=${maxAge}s`, yRes+5);
+
+    document.getElementById('ca-cache-label').textContent = `Cache: ${sizeKB}KB, ETag`;
+    caLog(`[Request 1] Cache MISS — chua co cache`, 'miss');
+    caLog(`[Server] Tra 200 OK: ${sizeKB} KB body`, 'ok');
+    caLog(`  ETag: ${caState.etag}  |  Cache-Control: max-age=${maxAge}, public`, 'ok');
+    caLog(`[Browser] Luu cache: ${sizeKB} KB + ETag + thoi gian nhan`, 'ok');
+    caLog(`  → Byte truyen: ${sizeKB} KB`, 'save');
+
+    document.getElementById('ca-btn-step').textContent = `Request 2 (trong ${maxAge}s) →`;
+    caState.step = 1;
+  } else if (caState.step === 1) {
+    // Request 2: CACHE HIT (within max-age)
+    const yReq = Math.min(yBase, 160);
+    // Draw local hit indicator (no arrow to server)
+    const g2 = svgEl('g', {});
+    g2.style.opacity = '0'; g2.style.transition = 'opacity 0.3s';
+    const hitBox = svgEl('rect', {x:15, y:yReq, width:200, height:20, rx:'4', fill:'#dcfce7', stroke:'#16a34a','stroke-width':'1.5'});
+    const hitTxt = svgEl('text', {x:115, y:yReq+14,'text-anchor':'middle','font-size':'11','font-weight':'700',fill:'#166534'});
+    hitTxt.textContent = `Cache HIT! Lay ngay tu bo nho — 0 byte mang`;
+    g2.appendChild(hitBox); g2.appendChild(hitTxt);
+    g.appendChild(g2);
+    requestAnimationFrame(() => { g2.style.opacity='1'; });
+
+    // No bytes sent to network
+    caLog(`[Request 2] Cache HIT — con trong han (max-age=${maxAge}s)`, 'hit');
+    caLog(`  Lay tu bo nho cuc bo: 0 byte qua mang, < 1ms`, 'hit');
+    caLog(`  Tiet kiem: ${sizeKB} KB`, 'save');
+
+    document.getElementById('ca-btn-step').textContent = `Request 3 (sau ${maxAge}s, revalidate) →`;
+    caState.step = 2;
+  } else if (caState.step === 2) {
+    // Request 3: Cache STALE — revalidation with ETag
+    const yReq = Math.min(yBase, 195);
+    const yRes = Math.min(yBase + rowH, 235);
+    caDrawArrow(g, xBr, yReq, xSrv-5, yReq+10, '#d97706', `GET /api/data + If-None-Match: ${caState.etag.slice(0,10)}...`, yReq+5);
+
+    if (!changed) {
+      // 304 Not Modified
+      caState.totalBytesSent += CA_HEADER_BYTES;
+      caDrawArrow(g, xSrv, yRes, xBr+5, yRes+10, '#d97706', `304 Not Modified (khong co body!) — ${CA_HEADER_BYTES*1000} byte header`, yRes+5);
+
+      caLog(`[Request 3] Cache het han (sau ${maxAge}s) — gui revalidation`, 'miss');
+      caLog(`  Header: If-None-Match: ${caState.etag}`, 'ok');
+      caLog(`[Server] ETag khop — noi dung CHUA THAY DOI`, 'ok');
+      caLog(`  Tra 304 Not Modified: KHONG co body`, 'ok');
+      caLog(`  Byte truyen: chi ~${CA_HEADER_BYTES*1000} byte header (tiet kiem ${(sizeKB-CA_HEADER_BYTES).toFixed(1)} KB!)`, 'save');
+    } else {
+      // 200 with new content
+      caState.etag = `"v${Date.now().toString(36)}-new"`;
+      caState.totalBytesSent += sizeKB;
+      caDrawArrow(g, xSrv, yRes, xBr+5, yRes+10, '#16a34a', `200 OK — ${sizeKB}KB moi + ETag moi: ${caState.etag.slice(0,10)}...`, yRes+5);
+
+      caLog(`[Request 3] Cache het han (sau ${maxAge}s) — gui revalidation`, 'miss');
+      caLog(`[Server] ETag KHAC — noi dung DA THAY DOI`, 'miss');
+      caLog(`  Tra 200 OK: ${sizeKB} KB body moi + ETag moi: ${caState.etag}`, 'ok');
+      caLog(`  Byte truyen: ${sizeKB} KB (phai tai lai day du)`, 'save');
+      document.getElementById('ca-cache-label').textContent = `Cache cap nhat: ${sizeKB}KB`;
+    }
+
+    document.getElementById('ca-btn-step').textContent = 'Bat dau lai';
+    caState.step = 3;
+  } else {
+    caReset();
+    return;
+  }
+
+  caUpdateMetrics();
+}
+
+function caReset() {
+  caState = { step:0, etag:'', cacheValid:false, cacheExpiry:0, totalBytesSent:0, totalBytesWithoutCache:0, requestCount:0, done:false };
+  document.getElementById('ca-arrows').innerHTML = '';
+  document.getElementById('ca-log').innerHTML = 'Log xuat hien o day khi ban gui request...';
+  document.getElementById('ca-cache-label').textContent = 'Cache: trong';
+  document.getElementById('ca-btn-step').textContent = 'Gui request tiep theo →';
+  ['ca-m-total','ca-m-bytes','ca-m-saved'].forEach(id => { document.getElementById(id).textContent = '0'; });
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 3: HTTP/1.1 vs HTTP/2 MULTIPLEXING
+// ═══════════════════════════════════════════════════════
+function muxUpdate() {
+  const n = parseInt(document.getElementById('mux-n').value);
+  const rtt = parseInt(document.getElementById('mux-rtt').value);
+  document.getElementById('mux-n-val').textContent = n;
+  document.getElementById('mux-rtt-val').textContent = rtt;
+
+  const canvas = document.getElementById('mux-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Colors
+  const COLORS = [
+    '#0369a1','#7c3aed','#16a34a','#d97706','#dc2626','#0891b2',
+    '#9333ea','#059669','#b45309','#be123c','#0369a1','#6d28d9'
+  ];
+
+  // HTTP/1.1: max 6 parallel connections, each sequential
+  const maxConn = 6;
+  const connCount = Math.min(n, maxConn);
+  // Assign requests to connections (round-robin)
+  const h1Conns = Array.from({length:connCount}, () => []); // requests per connection
+  for (let i = 0; i < n; i++) h1Conns[i % connCount].push(i);
+
+  // Calculate H1 timeline
+  const scale = (W - 180) / Math.max(n * rtt * 1.5, 500);
+
+  // Layout
+  const leftPad = 100;
+  const topH1 = 30;
+  const topH2 = H / 2 + 10;
+  const rowH = 22;
+  const barH = 14;
+
+  // ── Draw H1.1 section ──
+  ctx.fillStyle = '#374151';
+  ctx.font = 'bold 13px sans-serif';
+  ctx.fillText('HTTP/1.1', 4, topH1 + 10);
+  ctx.font = '11px sans-serif';
+  ctx.fillStyle = '#92400e';
+  ctx.fillText(`${connCount} ket noi TCP song song`, 4, topH1 + 24);
+
+  let h1MaxTime = 0;
+  h1Conns.forEach((reqs, ci) => {
+    let t = 0;
+    reqs.forEach((ri) => {
+      const x = leftPad + t * scale;
+      const w = Math.max(rtt * scale, 6);
+      const y = topH1 + ci * rowH + 35;
+
+      // Bar
+      ctx.fillStyle = COLORS[ri % COLORS.length];
+      ctx.globalAlpha = 0.85;
+      const bw = Math.min(w, W - x - 4);
+      if (bw > 0) ctx.fillRect(x, y, bw, barH);
+      ctx.globalAlpha = 1;
+
+      // Label inside bar
+      if (bw > 20) {
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.fillText(`R${ri+1}`, x + 3, y + barH - 3);
+      }
+
+      t += rtt;
+      h1MaxTime = Math.max(h1MaxTime, t);
+    });
+  });
+
+  // H1 total time marker
+  const h1TotalX = leftPad + h1MaxTime * scale;
+  if (h1TotalX < W - 10) {
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(h1TotalX, topH1 + 30); ctx.lineTo(h1TotalX, topH1 + (connCount+1)*rowH + 30); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#d97706';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText(`${h1MaxTime}ms`, h1TotalX + 3, topH1 + 28);
+  }
+
+  // ── Draw H2 section ──
+  ctx.fillStyle = '#374151';
+  ctx.font = 'bold 13px sans-serif';
+  ctx.fillText('HTTP/2', 4, topH2 + 10);
+  ctx.font = '11px sans-serif';
+  ctx.fillStyle = '#166534';
+  ctx.fillText('1 ket noi TCP, nhieu stream', 4, topH2 + 24);
+
+  const h2TotalTime = rtt; // all in parallel → only limited by slowest = all same = 1 rtt
+  for (let i = 0; i < n; i++) {
+    const x = leftPad;
+    const y = topH2 + i * rowH + 35;
+    const w = Math.max(rtt * scale, 6);
+    ctx.fillStyle = COLORS[i % COLORS.length];
+    ctx.globalAlpha = 0.85;
+    const bw = Math.min(w, W - x - 4);
+    if (bw > 0) ctx.fillRect(x, y, bw, barH);
+    ctx.globalAlpha = 1;
+    if (bw > 20) {
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillText(`R${i+1}`, x + 3, y + barH - 3);
+    }
+  }
+
+  // H2 total time marker
+  const h2TotalX = leftPad + h2TotalTime * scale;
+  if (h2TotalX < W - 10) {
+    ctx.strokeStyle = '#16a34a';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(h2TotalX, topH2 + 30); ctx.lineTo(h2TotalX, topH2 + (n+1)*rowH + 30); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#16a34a';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText(`${h2TotalTime}ms`, h2TotalX + 3, topH2 + 28);
+  }
+
+  // ── Info text ──
+  const speedup = (h1MaxTime / h2TotalTime).toFixed(1);
+  document.getElementById('mux-h1-info').innerHTML =
+    `<strong>Thoi gian tai:</strong> ${h1MaxTime} ms<br>` +
+    `${connCount} ket noi TCP mo song song, moi ket noi xu ly ${Math.ceil(n/connCount)} request tuan tu.<br>` +
+    `${n > maxConn ? `⚠ ${n - maxConn} request phai xep hang cho — vuot qua gioi han ${maxConn} ket noi/domain.` : 'Du ket noi cho tat ca request.'}`;
+
+  document.getElementById('mux-h2-info').innerHTML =
+    `<strong>Thoi gian tai:</strong> ${h2TotalTime} ms<br>` +
+    `1 ket noi TCP duy nhat, ${n} stream song song.<br>` +
+    `Nhanh hon HTTP/1.1 <strong>${speedup}x</strong>. Cang nhieu tai nguyen, khoang cach cang lon.`;
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+ckReset();
+caReset();
+muxUpdate();
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

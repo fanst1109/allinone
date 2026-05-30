@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — TLS/SSL: Bảo mật lớp truyền tải</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette TLS ── */
+  :root {
+    --tls-blue:   #0369a1;
+    --tls-soft:   #e0f2fe;
+    --tls-mid:    #38bdf8;
+    --tls-dark:   #0c4a6e;
+    --ok-green:   #16a34a;
+    --err-red:    #dc2626;
+    --warn-amber: #d97706;
+    --sym-purple: #7c3aed;
+    --asym-teal:  #0891b2;
+    --bg-card:    #ffffff;
+    --bg-section: #f0f9ff;
+  }
+
+  h1 { color: var(--tls-dark); }
+  h2 { color: var(--tls-blue); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--tls-mid); }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(3,105,161,.10);
+    margin: 16px 0;
+  }
+  .info-box {
+    background: var(--tls-soft);
+    border-left: 4px solid var(--tls-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .warn-box {
+    background: #fffbeb;
+    border-left: 4px solid var(--warn-amber);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .err-box {
+    background: #fef2f2;
+    border-left: 4px solid var(--err-red);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .3px;
+  }
+  .tag-client  { background: #dbeafe; color: #1d4ed8; }
+  .tag-server  { background: #dcfce7; color: #166534; }
+  .tag-both    { background: #ede9fe; color: #6d28d9; }
+  .tag-enc     { background: #fef3c7; color: #92400e; }
+  .tag-cert    { background: #fee2e2; color: #991b1b; }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary   { background: var(--tls-blue); color: white; }
+  .btn-primary:hover { background: var(--tls-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ─────────────────────────────────────────────
+     MODULE 1 — TLS Handshake Animation
+     ───────────────────────────────────────────── */
+  .hs-version-tabs {
+    display: flex; gap: 0; margin-bottom: 14px;
+    border: 1.5px solid var(--tls-blue); border-radius: 8px; overflow: hidden;
+    width: max-content; max-width: 100%;
+  }
+  .hs-version-tabs button {
+    padding: 7px 20px; border: none; font-size: 14px; font-weight: 600;
+    cursor: pointer; background: white; color: var(--tls-blue);
+    transition: background .15s;
+  }
+  .hs-version-tabs button.active {
+    background: var(--tls-blue); color: white;
+  }
+  .hs-version-tabs button:not(:last-child) {
+    border-right: 1.5px solid var(--tls-blue);
+  }
+
+  #hs-stage { width: 100%; overflow-x: auto; }
+  #hs-svg   { display: block; margin: 0 auto; }
+
+  .hs-step-box {
+    background: var(--bg-section);
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    min-height: 52px;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .hs-step-box strong { color: var(--tls-blue); }
+
+  .rtt-counter {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--tls-dark); color: white;
+    border-radius: 20px; padding: 5px 14px;
+    font-size: 13px; font-weight: 700;
+    margin-left: 8px;
+  }
+  .rtt-badge {
+    background: var(--tls-mid); color: var(--tls-dark);
+    border-radius: 10px; padding: 1px 7px; font-size: 12px;
+  }
+
+  /* ─────────────────────────────────────────────
+     MODULE 2 — Hybrid Encryption
+     ───────────────────────────────────────────── */
+  .hybrid-stage {
+    display: flex; gap: 16px; align-items: flex-start;
+    flex-wrap: wrap; margin: 14px 0;
+  }
+  .hybrid-panel {
+    flex: 1 1 280px;
+    border-radius: 10px;
+    padding: 16px 18px;
+    min-height: 200px;
+  }
+  .hybrid-panel.asym {
+    background: #ecfeff; border: 1.5px solid #67e8f9;
+  }
+  .hybrid-panel.sym {
+    background: #f5f3ff; border: 1.5px solid #c4b5fd;
+  }
+  .hybrid-panel h3 {
+    margin: 0 0 10px; font-size: 15px;
+    color: var(--asym-teal);
+  }
+  .hybrid-panel.sym h3 { color: var(--sym-purple); }
+
+  .speed-meter {
+    display: flex; align-items: center; gap: 10px; margin: 10px 0;
+  }
+  .speed-bar-bg {
+    flex: 1; height: 14px; background: #e2e8f0; border-radius: 7px; overflow: hidden;
+  }
+  .speed-bar-fill {
+    height: 100%; border-radius: 7px;
+    transition: width .5s ease;
+  }
+  .speed-label { font-size: 13px; font-weight: 700; min-width: 64px; text-align: right; }
+
+  .hybrid-demo {
+    background: #1e293b; color: #e2e8f0;
+    border-radius: 8px; padding: 14px 16px;
+    font-family: monospace; font-size: 13px;
+    line-height: 1.9; margin: 12px 0;
+    white-space: pre-wrap; min-height: 60px;
+  }
+  .hybrid-demo .kw   { color: #38bdf8; }
+  .hybrid-demo .val  { color: #4ade80; }
+  .hybrid-demo .enc  { color: #fbbf24; }
+  .hybrid-demo .note { color: #94a3b8; }
+
+  /* ─────────────────────────────────────────────
+     MODULE 3 — Certificate Chain & Trust
+     ───────────────────────────────────────────── */
+  .cert-chain {
+    display: flex; flex-direction: column; gap: 0; margin: 16px 0;
+    max-width: 480px;
+  }
+  .cert-node {
+    position: relative;
+    background: white;
+    border: 2px solid #bae6fd;
+    border-radius: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .cert-node:hover { border-color: var(--tls-blue); box-shadow: 0 2px 10px rgba(3,105,161,.15); }
+  .cert-node.active { border-color: var(--tls-blue); background: var(--tls-soft); }
+  .cert-node .cert-title {
+    font-weight: 700; font-size: 14px; color: var(--tls-dark);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .cert-node .cert-badge {
+    font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+  }
+  .badge-root  { background: #dcfce7; color: #166534; }
+  .badge-inter { background: #fef3c7; color: #92400e; }
+  .badge-leaf  { background: #dbeafe; color: #1d4ed8; }
+  .cert-node .cert-sub {
+    font-size: 12px; color: #64748b; margin-top: 4px; font-family: monospace;
+  }
+  .cert-connector {
+    display: flex; align-items: center; justify-content: flex-start;
+    padding-left: 20px; height: 28px; color: var(--tls-blue);
+    font-size: 12px; font-weight: 700;
+    border-left: 2px dashed #bae6fd; margin-left: 24px;
+  }
+
+  .cert-detail {
+    background: var(--bg-section);
+    border-radius: 8px; padding: 14px 18px;
+    font-size: 14px; line-height: 1.75;
+    margin-top: 12px; min-height: 60px;
+  }
+  .cert-detail strong { color: var(--tls-blue); }
+
+  .cert-verify-steps {
+    counter-reset: vstep;
+    margin: 12px 0; padding: 0; list-style: none;
+  }
+  .cert-verify-steps li {
+    counter-increment: vstep;
+    display: flex; gap: 10px; align-items: flex-start;
+    margin-bottom: 8px; font-size: 14px;
+  }
+  .cert-verify-steps li::before {
+    content: counter(vstep);
+    min-width: 24px; height: 24px; border-radius: 50%;
+    background: var(--tls-blue); color: white;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .cert-verify-steps li.pass::before { background: var(--ok-green); }
+  .cert-verify-steps li.fail::before { background: var(--err-red); }
+
+  /* Error scenarios */
+  .error-tabs {
+    display: flex; gap: 0; flex-wrap: wrap;
+    border: 1.5px solid #d1d5db; border-radius: 8px; overflow: hidden;
+    margin-bottom: 12px; width: max-content; max-width: 100%;
+  }
+  .error-tabs button {
+    padding: 6px 14px; border: none; font-size: 13px;
+    cursor: pointer; background: white; color: #374151;
+    transition: background .15s; border-right: 1px solid #d1d5db;
+  }
+  .error-tabs button:last-child { border-right: none; }
+  .error-tabs button.active { background: var(--err-red); color: white; }
+
+  .browser-mockup {
+    background: #1e293b; border-radius: 10px; overflow: hidden; margin: 12px 0;
+  }
+  .browser-bar {
+    background: #334155; padding: 8px 12px;
+    display: flex; align-items: center; gap: 8px; font-size: 13px;
+  }
+  .browser-traffic { display: flex; gap: 5px; }
+  .browser-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .browser-url {
+    flex: 1; background: white; border-radius: 20px;
+    padding: 3px 12px; font-size: 13px; color: #374151;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .lock-icon { font-size: 13px; }
+  .browser-content {
+    padding: 18px 20px; min-height: 100px;
+  }
+
+  /* ─────────────────────────────────────────────
+     MODULE 4 — HTTP vs HTTPS Comparison
+     ───────────────────────────────────────────── */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 14px 0;
+  }
+  .compare-col {
+    border-radius: 10px; overflow: hidden;
+  }
+  .compare-col .col-header {
+    padding: 10px 16px; font-weight: 700; font-size: 15px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .compare-col.http .col-header  { background: #fee2e2; color: #991b1b; }
+  .compare-col.https .col-header { background: #dcfce7; color: #166534; }
+  .compare-col .col-body { background: #1e293b; padding: 14px 16px; }
+
+  .packet-display {
+    font-family: monospace; font-size: 12px; line-height: 1.8;
+    color: #e2e8f0; white-space: pre-wrap; word-break: break-all;
+  }
+  .packet-display .readable { color: #f87171; }
+  .packet-display .encrypted { color: #4ade80; }
+  .packet-display .header-field { color: #38bdf8; }
+  .packet-display .comment { color: #94a3b8; }
+
+  .http-input-row {
+    display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; align-items: flex-end;
+  }
+  .http-field { display: flex; flex-direction: column; gap: 4px; }
+  .http-field label { font-size: 12px; font-weight: 700; color: #374151; }
+  .http-field input {
+    padding: 6px 10px; border: 1.5px solid #d1d5db; border-radius: 6px;
+    font-size: 13px; font-family: monospace;
+    box-sizing: border-box; width: 100%; max-width: 220px;
+  }
+  .http-field input:focus { outline: none; border-color: var(--tls-blue); }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .compare-grid { grid-template-columns: 1fr; }
+    .hybrid-stage { flex-direction: column; }
+    .cert-chain { max-width: 100%; }
+    .hs-version-tabs button { padding: 7px 12px; font-size: 13px; }
+  }
+  @media (max-width: 480px) {
+    .error-tabs button { padding: 6px 9px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Application</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-email-filetransfer/visualization.html">← L5: Email &amp; truyền file</a>
+  <span class="sep">·</span>
+  <span class="current">L6: TLS/SSL</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-realtime-websocket/visualization.html">L7: Real-time &amp; WebSocket →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — TLS/SSL: Bảo mật lớp truyền tải</h1>
+<p>Bốn module tương tác: bắt tay TLS từng bước (1.2 vs 1.3), mô hình hybrid mã hóa, chuỗi chứng chỉ &amp; xác thực CA, so sánh HTTP plaintext vs HTTPS mã hóa.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — TLS Handshake Animation
+     ═══════════════════════════════════════════════════════════ -->
+<h2>1. Bắt tay TLS từng bước</h2>
+<div class="card">
+  <p>Chọn phiên bản TLS rồi nhấn từng bước để xem luồng bản tin Client ↔ Server. Chú ý sự khác biệt về số Round-Trip.</p>
+
+  <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px;">
+    <div class="hs-version-tabs">
+      <button id="tab-12" onclick="hsSetVersion('1.2')">TLS 1.2 (2-RTT)</button>
+      <button id="tab-13" class="active" onclick="hsSetVersion('1.3')">TLS 1.3 (1-RTT)</button>
+    </div>
+    <span id="hs-rtt-badge" class="rtt-counter">RTT hoàn thành: <span class="rtt-badge" id="hs-rtt-count">0</span></span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="hs-btn-step" onclick="hsStep()">Bước tiếp theo →</button>
+    <button class="btn btn-secondary" onclick="hsReset()">Bắt đầu lại</button>
+    <button class="btn btn-secondary" onclick="hsAuto()">Tự động</button>
+  </div>
+
+  <div id="hs-stage">
+    <svg id="hs-svg" width="580" height="500" viewBox="0 0 580 500">
+      <defs>
+        <marker id="mk-blue"   markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#1d4ed8"/></marker>
+        <marker id="mk-green"  markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#166534"/></marker>
+        <marker id="mk-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/></marker>
+        <marker id="mk-teal"   markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0891b2"/></marker>
+        <marker id="mk-amber"  markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d97706"/></marker>
+        <marker id="mk-ok"     markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/></marker>
+      </defs>
+
+      <!-- Actors -->
+      <rect x="20"  y="12" width="110" height="40" rx="7" fill="#0369a1"/>
+      <text x="75"  y="37" text-anchor="middle" font-size="14" font-weight="700" fill="white">CLIENT</text>
+      <rect x="450" y="12" width="110" height="40" rx="7" fill="#166534"/>
+      <text x="505" y="37" text-anchor="middle" font-size="14" font-weight="700" fill="white">SERVER</text>
+
+      <!-- Timelines -->
+      <line x1="75"  y1="52" x2="75"  y2="490" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="505" y1="52" x2="505" y2="490" stroke="#166534" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+      <!-- TCP established label -->
+      <rect x="140" y="55" width="300" height="22" rx="4" fill="#f8fafc" stroke="#e2e8f0"/>
+      <text x="290" y="70" text-anchor="middle" font-size="11" fill="#64748b">TCP kết nối đã thiết lập (SYN/SYN-ACK/ACK — xem Lesson 08 Tier 1)</text>
+
+      <!-- Dynamic arrows group -->
+      <g id="hs-arrows"></g>
+
+      <!-- State boxes (always visible) -->
+      <rect id="hs-sc" x="0"   y="460" width="150" height="26" rx="4" fill="#f0f9ff" stroke="#bae6fd"/>
+      <text id="hs-sc-t" x="75"  y="477" text-anchor="middle" font-size="11" fill="#475569">IDLE</text>
+      <rect id="hs-ss" x="430" y="460" width="150" height="26" rx="4" fill="#f0f9ff" stroke="#bae6fd"/>
+      <text id="hs-ss-t" x="505" y="477" text-anchor="middle" font-size="11" fill="#475569">IDLE</text>
+    </svg>
+  </div>
+
+  <div class="hs-step-box" id="hs-desc">
+    Chọn phiên bản TLS bên trên rồi nhấn <strong>"Bước tiếp theo"</strong> để bắt đầu.
+  </div>
+
+  <div class="info-box" style="margin-top:14px;">
+    <strong>Tóm tắt so sánh:</strong>
+    TLS 1.2 cần 2 round-trip (client gửi rồi đợi, server phản hồi, client gửi tiếp mới xong).
+    TLS 1.3 gửi key share ngay trong ClientHello → server trả lời Finished trong cùng 1 trip → tiết kiệm ~30–100ms tùy RTT.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — Hybrid Encryption Model
+     ═══════════════════════════════════════════════════════════ -->
+<h2>2. Mô hình hybrid: bất đối xứng + đối xứng</h2>
+<div class="card">
+  <p>TLS kết hợp 2 loại mã hóa: bất đối xứng (để trao khóa an toàn) và đối xứng (để mã hóa dữ liệu thực tế tốc độ cao). Nhấn từng giai đoạn để xem điều gì xảy ra.</p>
+
+  <div class="hybrid-stage">
+    <!-- Asymmetric panel -->
+    <div class="hybrid-panel asym">
+      <h3>Giai đoạn 1 — Bất đối xứng (ECDHE)</h3>
+      <p style="font-size:13px;color:#374151;margin:0 0 10px;">Dùng trong handshake để trao session key an toàn. Chậm nhưng không cần gặp trước.</p>
+      <div class="speed-meter">
+        <span style="font-size:13px;font-weight:700;color:var(--asym-teal);min-width:80px;">Tốc độ:</span>
+        <div class="speed-bar-bg">
+          <div class="speed-bar-fill" id="asym-bar" style="width:6%;background:var(--asym-teal);"></div>
+        </div>
+        <span class="speed-label" style="color:var(--asym-teal);">~kB/s</span>
+      </div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:12px;">RSA-2048 mã hóa khối lớn: vài kB/s. ECDH key agreement: vài nghìn ops/s.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-secondary" style="font-size:12px;padding:5px 12px;" onclick="hybridDemo('ecdh')">Xem ECDHE</button>
+        <button class="btn btn-secondary" style="font-size:12px;padding:5px 12px;" onclick="hybridDemo('cert')">Xem xác thực cert</button>
+      </div>
+    </div>
+    <!-- Symmetric panel -->
+    <div class="hybrid-panel sym">
+      <h3>Giai đoạn 2 — Đối xứng (AES-GCM)</h3>
+      <p style="font-size:13px;color:#374151;margin:0 0 10px;">Dùng cho dữ liệu HTTP thực tế. Nhanh và có xác thực toàn vẹn (AEAD).</p>
+      <div class="speed-meter">
+        <span style="font-size:13px;font-weight:700;color:var(--sym-purple);min-width:80px;">Tốc độ:</span>
+        <div class="speed-bar-bg">
+          <div class="speed-bar-fill" id="sym-bar" style="width:90%;background:var(--sym-purple);"></div>
+        </div>
+        <span class="speed-label" style="color:var(--sym-purple);">~1–10 GB/s</span>
+      </div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:12px;">AES-GCM với AES-NI: 1–10 GB/s trên phần cứng hiện đại. Overhead &lt;1% so với HTTP.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-secondary" style="font-size:12px;padding:5px 12px;" onclick="hybridDemo('encrypt')">Xem mã hóa AES</button>
+        <button class="btn btn-secondary" style="font-size:12px;padding:5px 12px;" onclick="hybridDemo('decrypt')">Xem giải mã</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hybrid-demo" id="hybrid-output">
+<span class="note">-- Nhấn một trong các nút bên trên để xem demo --</span>
+  </div>
+
+  <div class="info-box">
+    <strong>Vì sao kết hợp?</strong>
+    Bất đối xứng giải quyết vấn đề "trao khóa qua kênh công khai" — 2 bên tính ra cùng một session key mà không cần gặp nhau.
+    Đối xứng mã hóa dữ liệu tốc độ cao bằng session key đó.
+    Nếu chỉ dùng bất đối xứng: mã hóa 1 MB dữ liệu sẽ mất hàng giây. Nếu chỉ dùng đối xứng: không thể trao khóa an toàn.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — Certificate Chain & Trust
+     ═══════════════════════════════════════════════════════════ -->
+<h2>3. Chuỗi chứng chỉ &amp; xác thực CA</h2>
+<div class="card">
+  <p>Click vào từng node trong chuỗi để xem thông tin. Sau đó chọn một kịch bản lỗi để xem trình duyệt phản ứng thế nào.</p>
+
+  <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;">
+    <!-- Chain visualization -->
+    <div style="flex:0 0 auto;">
+      <div class="cert-chain" id="cert-chain">
+        <div class="cert-node" id="cn-root" onclick="certSelect('root')">
+          <div class="cert-title">
+            <span>DigiCert Global Root CA</span>
+            <span class="cert-badge badge-root">Root CA</span>
+          </div>
+          <div class="cert-sub">Serial: 083B…E47  |  RSA-2048  |  Exp: 2031-11-10</div>
+        </div>
+        <div class="cert-connector">ký bởi Root CA &darr;</div>
+        <div class="cert-node" id="cn-inter" onclick="certSelect('inter')">
+          <div class="cert-title">
+            <span>DigiCert SHA2 HA Server CA</span>
+            <span class="cert-badge badge-inter">Intermediate</span>
+          </div>
+          <div class="cert-sub">Serial: 04E2…1A3  |  RSA-2048  |  Exp: 2028-03-22</div>
+        </div>
+        <div class="cert-connector">ký bởi Intermediate CA &darr;</div>
+        <div class="cert-node" id="cn-leaf" onclick="certSelect('leaf')">
+          <div class="cert-title">
+            <span>github.com</span>
+            <span class="cert-badge badge-leaf">Leaf</span>
+          </div>
+          <div class="cert-sub">SAN: github.com, *.github.com  |  ECDSA P-256  |  Exp: 2025-06-12</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail panel -->
+    <div style="flex:1 1 220px;">
+      <div class="cert-detail" id="cert-detail">
+        <strong>Cách đọc chuỗi tin cậy:</strong><br>
+        Click vào một node để xem giải thích chi tiết về vai trò và cách trình duyệt xác minh từng bước.
+        Root CA được trình duyệt/hệ điều hành tin sẵn. Leaf là chứng chỉ mà server gửi cho client.
+      </div>
+
+      <div style="margin-top:14px;">
+        <strong style="font-size:13px;color:#374151;">Quá trình xác minh (github.com):</strong>
+        <ol class="cert-verify-steps" id="verify-steps">
+          <li>Nhận leaf certificate của github.com</li>
+          <li>Xác minh chữ ký của leaf (bởi Intermediate CA)</li>
+          <li>Xác minh chữ ký của Intermediate (bởi Root CA)</li>
+          <li>Root CA có trong danh sách tin cậy của trình duyệt</li>
+          <li>Kiểm tra tên miền: SAN khớp github.com</li>
+          <li>Kiểm tra thời hạn: Not After chưa qua</li>
+          <li>Kiểm tra thu hồi (OCSP): không bị revoke</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error scenarios -->
+  <div style="margin-top:20px;">
+    <strong style="font-size:14px;color:#374151;">Kịch bản lỗi — trình duyệt phản ứng thế nào:</strong>
+    <div class="error-tabs" style="margin-top:10px;">
+      <button id="err-none"    class="active" onclick="showError('none')">Bình thường</button>
+      <button id="err-selfsign"          onclick="showError('selfsign')">Self-signed</button>
+      <button id="err-expired"           onclick="showError('expired')">Hết hạn</button>
+      <button id="err-mismatch"          onclick="showError('mismatch')">Sai tên miền</button>
+      <button id="err-revoked"           onclick="showError('revoked')">Bị thu hồi</button>
+    </div>
+    <div id="browser-demo"><!-- filled by JS --></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — HTTP vs HTTPS Comparison
+     ═══════════════════════════════════════════════════════════ -->
+<h2>4. HTTP plaintext vs HTTPS mã hóa</h2>
+<div class="card">
+  <p>Nhập thông tin giả lập rồi xem Wireshark sẽ "bắt" được gì khi dùng HTTP và khi dùng HTTPS. Đây chính xác là lý do không nên dùng HTTP trên mạng công cộng.</p>
+
+  <div class="http-input-row">
+    <div class="http-field">
+      <label>Tên đăng nhập</label>
+      <input type="text" id="inp-user" value="alice" oninput="compareUpdate()">
+    </div>
+    <div class="http-field">
+      <label>Mật khẩu</label>
+      <input type="text" id="inp-pass" value="SecretPass123" oninput="compareUpdate()">
+    </div>
+    <div class="http-field">
+      <label>Domain</label>
+      <input type="text" id="inp-domain" value="shop.example.com" oninput="compareUpdate()">
+    </div>
+  </div>
+
+  <div class="compare-grid">
+    <!-- HTTP -->
+    <div class="compare-col http">
+      <div class="col-header">
+        <span style="font-size:20px;">🔓</span>
+        HTTP — bắt được (Wireshark)
+      </div>
+      <div class="col-body">
+        <div class="packet-display" id="http-packet"></div>
+      </div>
+    </div>
+    <!-- HTTPS -->
+    <div class="compare-col https">
+      <div class="col-header">
+        <span style="font-size:20px;">🔒</span>
+        HTTPS — bắt được (Wireshark)
+      </div>
+      <div class="col-body">
+        <div class="packet-display" id="https-packet"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn-box">
+    <strong>Điều kẻ tấn công thấy trên Wi-Fi công cộng:</strong>
+    Với HTTP: toàn bộ username, password, cookie phiên đăng nhập — đọc được như đọc văn bản thường.
+    Với HTTPS: chỉ thấy địa chỉ IP đích và tên domain (qua SNI trong ClientHello) — nội dung hoàn toàn không đọc được.
+  </div>
+
+  <div class="info-box" style="margin-top:12px;">
+    <strong>HSTS — HTTP Strict Transport Security:</strong>
+    Sau khi kết nối HTTPS lần đầu, server gửi header
+    <code>Strict-Transport-Security: max-age=31536000</code>.
+    Trong 1 năm sau, trình duyệt tự dùng HTTPS ngay cả khi bạn gõ <code>http://</code> —
+    ngăn downgrade attack trên các lần kết nối tiếp theo.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+// ─────────────────────────────────────────────────────────
+// Utility
+// ─────────────────────────────────────────────────────────
+function svgElem(tag, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+  return el;
+}
+function svgText(id, txt) { document.getElementById(id).textContent = txt; }
+function svgFill(id, fill) { document.getElementById(id).setAttribute('fill', fill); }
+function svgShow(id, show) {
+  const el = document.getElementById(id);
+  el.style.opacity = show ? '1' : '0';
+  el.style.transition = 'opacity 0.35s';
+}
+
+// ─────────────────────────────────────────────────────────
+// MODULE 1 — TLS Handshake
+// ─────────────────────────────────────────────────────────
+let hsVersion = '1.3';
+let hsStep_   = 0;
+let hsAutoTimer = null;
+
+const xC = 75, xS = 505;
+const yBase = 90;
+
+// Steps for TLS 1.3 (1-RTT)
+const STEPS_13 = [
+  {
+    from: 'C', color: '#1d4ed8', mk: 'mk-blue', y1: yBase, y2: yBase + 14,
+    label: 'ClientHello + KeyShare',
+    rtt: 0,
+    desc: `<span class="tag tag-client">CLIENT → SERVER</span> <strong>ClientHello + KeyShare (TLS 1.3)</strong><br>
+Client gửi: phiên bản TLS hỗ trợ, danh sách cipher suite, <em>client random</em> (32 byte ngẫu nhiên), SNI (tên domain), và <strong>KeyShare</strong> (ECDHE public key của client = a·G).
+TLS 1.3 cải tiến: gửi KeyShare ngay từ đầu — server có thể tính shared secret ngay mà không cần round-trip thêm.`
+  },
+  {
+    from: 'S', color: '#166534', mk: 'mk-green', y1: yBase + 60, y2: yBase + 74,
+    label: 'ServerHello + KeyShare + Cert + Finished',
+    rtt: 1,
+    desc: `<span class="tag tag-server">SERVER → CLIENT</span> <strong>ServerHello + KeyShare + Certificate + CertificateVerify + Finished</strong><br>
+Server phản hồi tất cả trong 1 tin: chọn cipher suite, gửi <em>server random</em>, gửi <strong>KeyShare</strong> server (= b·G), gửi chứng chỉ X.509, ký transcript bằng private key (CertificateVerify), và gửi luôn <strong>Finished</strong> (MAC của toàn bộ handshake).
+Tất cả từ Certificate trở xuống đã được <strong>mã hóa</strong> bằng handshake key (tính từ shared secret a·b·G).
+<br><span style="color:#d97706;">→ RTT 1 hoàn thành!</span>`
+  },
+  {
+    from: 'C', color: '#0891b2', mk: 'mk-teal', y1: yBase + 130, y2: yBase + 144,
+    label: 'Finished (client)',
+    rtt: 1,
+    desc: `<span class="tag tag-client">CLIENT → SERVER</span> <strong>Finished</strong><br>
+Client xác minh chứng chỉ (kiểm tra CA, tên miền, thời hạn, revocation), tính session key từ shared secret + random nonces (qua HKDF), rồi gửi Finished của mình.
+<br><strong style="color:#16a34a;">Kết nối TLS thiết lập! Dữ liệu HTTP bắt đầu ngay sau.</strong>
+<br>Tổng: <strong>1 RTT</strong> (chỉ cần 1 vòng khứ hồi client ↔ server).`
+  },
+  {
+    special: 'data', y: yBase + 185,
+    desc: `<span class="tag tag-enc">MÃ HÓA</span> <strong>Dữ liệu HTTP (Record Layer)</strong><br>
+Mọi gói tin HTTP sau đây đều được mã hóa bằng <strong>session key</strong> (AES-256-GCM hoặc ChaCha20-Poly1305).
+Session key sinh ra từ: shared secret (a·b·G) + client random + server random → HKDF.
+<br>Kẻ nghe lén chỉ thấy các khối mã hóa ngẫu nhiên — không đọc được nội dung.`
+  },
+];
+
+// Steps for TLS 1.2 (2-RTT)
+const STEPS_12 = [
+  {
+    from: 'C', color: '#1d4ed8', mk: 'mk-blue', y1: yBase, y2: yBase + 14,
+    label: 'ClientHello',
+    rtt: 0,
+    desc: `<span class="tag tag-client">CLIENT → SERVER</span> <strong>ClientHello (TLS 1.2)</strong><br>
+Client gửi: phiên bản TLS, <em>client random</em> (32 byte), danh sách cipher suite (có thể dài hàng chục), SNI, extensions.
+<strong>Khác TLS 1.3:</strong> không gửi KeyShare — client chưa biết server chọn cipher suite nào nên không thể tính trước ECDHE key.`
+  },
+  {
+    from: 'S', color: '#166534', mk: 'mk-green', y1: yBase + 60, y2: yBase + 74,
+    label: 'ServerHello + Certificate + ServerHelloDone',
+    rtt: 1,
+    desc: `<span class="tag tag-server">SERVER → CLIENT</span> <strong>ServerHello + Certificate + ServerHelloDone</strong><br>
+Server chọn cipher suite, gửi server random, gửi chứng chỉ X.509.
+Nếu dùng ECDHE: server gửi thêm <em>ServerKeyExchange</em> (ECDHE public key b·G + chữ ký).
+<br><span style="color:#d97706;">→ RTT 1 hoàn thành — nhưng kết nối chưa xong!</span>`
+  },
+  {
+    from: 'C', color: '#0891b2', mk: 'mk-teal', y1: yBase + 130, y2: yBase + 144,
+    label: 'ClientKeyExchange + ChangeCipherSpec + Finished',
+    rtt: 1,
+    desc: `<span class="tag tag-client">CLIENT → SERVER</span> <strong>ClientKeyExchange + ChangeCipherSpec + Finished</strong><br>
+Client xác minh cert, gửi ECDHE public key của mình (a·G).
+Cả 2 bên tính shared secret → session key.
+Client gửi ChangeCipherSpec (báo "chuyển sang mã hóa") rồi Finished (MAC handshake).`
+  },
+  {
+    from: 'S', color: '#7c3aed', mk: 'mk-purple', y1: yBase + 190, y2: yBase + 204,
+    label: 'ChangeCipherSpec + Finished',
+    rtt: 2,
+    desc: `<span class="tag tag-server">SERVER → CLIENT</span> <strong>ChangeCipherSpec + Finished</strong><br>
+Server gửi ChangeCipherSpec + Finished.
+<br><strong style="color:#16a34a;">Kết nối TLS thiết lập!</strong>
+<br>Tổng: <strong>2 RTT</strong> — chậm hơn TLS 1.3 một round-trip (~30–100ms). Dữ liệu HTTP bắt đầu sau đây.`
+  },
+  {
+    special: 'data', y: yBase + 250,
+    desc: `<span class="tag tag-enc">MÃ HÓA</span> <strong>Dữ liệu HTTP (Record Layer)</strong><br>
+Dữ liệu HTTP được mã hóa bằng session key (AES-128-GCM hoặc cipher suite đã chọn).
+<br>Khác TLS 1.3: nếu cipher suite không dùng ECDHE (mà dùng RSA key exchange cũ), thì không có forward secrecy.
+TLS 1.3 đã loại bỏ hoàn toàn RSA key exchange.`
+  },
+];
+
+function hsGetSteps() {
+  return hsVersion === '1.3' ? STEPS_13 : STEPS_12;
+}
+
+function hsSvgHeight() {
+  return hsVersion === '1.3' ? 420 : 500;
+}
+
+function hsReset() {
+  clearInterval(hsAutoTimer); hsAutoTimer = null;
+  hsStep_ = 0;
+  document.getElementById('hs-arrows').innerHTML = '';
+  svgText('hs-sc-t', 'IDLE'); svgText('hs-ss-t', 'IDLE');
+  svgFill('hs-sc', '#f0f9ff'); svgFill('hs-ss', '#f0f9ff');
+  document.getElementById('hs-rtt-count').textContent = '0';
+  document.getElementById('hs-desc').innerHTML = 'Chọn phiên bản TLS bên trên rồi nhấn <strong>"Bước tiếp theo"</strong> để bắt đầu.';
+  const btn = document.getElementById('hs-btn-step');
+  btn.textContent = 'Bước tiếp theo →';
+  btn.onclick = hsStep;
+  btn.disabled = false;
+  // Resize SVG
+  const h = hsSvgHeight();
+  const svg = document.getElementById('hs-svg');
+  svg.setAttribute('height', h);
+  svg.setAttribute('viewBox', `0 0 580 ${h}`);
+  // Reposition state boxes
+  document.getElementById('hs-sc').setAttribute('y', h - 40);
+  document.getElementById('hs-sc-t').setAttribute('y', h - 23);
+  document.getElementById('hs-ss').setAttribute('y', h - 40);
+  document.getElementById('hs-ss-t').setAttribute('y', h - 23);
+  // Update timelines
+  const lines = document.getElementById('hs-svg').querySelectorAll('line[x1="75"]');
+  lines.forEach(l => l.setAttribute('y2', h - 10));
+  const lines2 = document.getElementById('hs-svg').querySelectorAll('line[x1="505"]');
+  lines2.forEach(l => l.setAttribute('y2', h - 10));
+}
+
+function hsSetVersion(v) {
+  hsVersion = v;
+  document.getElementById('tab-12').classList.toggle('active', v === '1.2');
+  document.getElementById('tab-13').classList.toggle('active', v === '1.3');
+  hsReset();
+}
+
+function hsDrawArrow(step) {
+  const g = document.getElementById('hs-arrows');
+  const svg = document.getElementById('hs-svg');
+
+  if (step.special === 'data') {
+    // Bidirectional data flow
+    const y = step.y;
+    const grp = svgElem('g', { opacity: '0', style: 'transition:opacity 0.35s' });
+    const rect = svgElem('rect', { x: 90, y: y - 16, width: 400, height: 34, rx: '6', fill: '#ecfdf5', stroke: '#86efac', 'stroke-width': '1.5' });
+    const line1 = svgElem('line', { x1: xC + 10, y1: y, x2: xS - 10, y2: y, stroke: '#16a34a', 'stroke-width': '2', 'marker-end': 'url(#mk-ok)' });
+    const line2 = svgElem('line', { x1: xS - 10, y1: y + 8, x2: xC + 10, y2: y + 8, stroke: '#16a34a', 'stroke-width': '2', 'marker-end': 'url(#mk-ok)' });
+    const txt = svgElem('text', { x: 290, y: y + 4, 'text-anchor': 'middle', 'font-size': '12', 'font-weight': '700', fill: '#166534' });
+    txt.textContent = 'Dữ liệu HTTP mã hóa (AES-GCM / ChaCha20-Poly1305)';
+    [rect, line1, line2, txt].forEach(el => grp.appendChild(el));
+    g.appendChild(grp);
+    requestAnimationFrame(() => grp.style.opacity = '1');
+
+    svgText('hs-sc-t', 'ESTABLISHED');
+    svgText('hs-ss-t', 'ESTABLISHED');
+    svgFill('hs-sc', '#dcfce7');
+    svgFill('hs-ss', '#dcfce7');
+    return;
+  }
+
+  const isClientToServer = step.from === 'C';
+  const x1 = isClientToServer ? xC + 10 : xS - 10;
+  const x2 = isClientToServer ? xS - 10 : xC + 10;
+  const y1 = step.y1, y2 = step.y2;
+
+  const maxLabelWidth = Math.min(step.label.length * 7 + 16, 320);
+
+  const grp = svgElem('g', { opacity: '0', style: 'transition:opacity 0.35s' });
+  const line = svgElem('line', { x1, y1, x2, y2: y1 + (y2 - y1), stroke: step.color, 'stroke-width': '2.5', 'marker-end': `url(#${step.mk})` });
+  const midX = (x1 + x2) / 2;
+  const midY = (y1 + y2) / 2;
+  const bg = svgElem('rect', { x: midX - maxLabelWidth / 2, y: midY - 11, width: maxLabelWidth, height: 18, rx: '4', fill: 'white', 'fill-opacity': '0.92', stroke: step.color, 'stroke-width': '0.8' });
+  const txt = svgElem('text', { x: midX, y: midY + 3, 'text-anchor': 'middle', 'font-size': '11', 'font-weight': '700', fill: step.color });
+  txt.textContent = step.label;
+  [line, bg, txt].forEach(el => grp.appendChild(el));
+  g.appendChild(grp);
+  requestAnimationFrame(() => grp.style.opacity = '1');
+
+  // RTT marker
+  if (step.rtt > 0 && step.rtt !== (hsVersion === '1.3' ? 99 : 99)) {
+    const steps = hsGetSteps();
+    const prevRttStep = steps.slice(0, hsStep_).filter(s => s.rtt === step.rtt - 1 && !s.special).pop();
+    if (prevRttStep) {
+      // draw RTT brace later — for now just update counter
+    }
+  }
+
+  // Update states
+  if (step.from === 'C') {
+    svgText('hs-sc-t', hsStep_ === 1 ? 'ClientHello sent' : 'Finished sent');
+    svgText('hs-ss-t', hsStep_ >= 2 ? 'Processing...' : 'LISTEN');
+  } else {
+    svgText('hs-ss-t', hsStep_ === 2 ? 'ServerHello sent' : 'Finished sent');
+    svgText('hs-sc-t', 'Processing...');
+  }
+
+  if (step.rtt > 0) {
+    document.getElementById('hs-rtt-count').textContent = step.rtt;
+  }
+}
+
+function hsStep() {
+  const steps = hsGetSteps();
+  if (hsStep_ >= steps.length) {
+    hsReset(); return;
+  }
+  const step = steps[hsStep_];
+  hsDrawArrow(step);
+  document.getElementById('hs-desc').innerHTML = step.desc;
+  hsStep_++;
+
+  if (hsStep_ >= steps.length) {
+    const btn = document.getElementById('hs-btn-step');
+    btn.textContent = 'Xem lại →';
+    btn.onclick = hsReset;
+  }
+}
+
+function hsAuto() {
+  if (hsAutoTimer) { clearInterval(hsAutoTimer); hsAutoTimer = null; return; }
+  hsReset();
+  hsAutoTimer = setInterval(() => {
+    const steps = hsGetSteps();
+    if (hsStep_ >= steps.length) { clearInterval(hsAutoTimer); hsAutoTimer = null; return; }
+    hsStep();
+  }, 1400);
+}
+
+// ─────────────────────────────────────────────────────────
+// MODULE 2 — Hybrid Encryption Demo
+// ─────────────────────────────────────────────────────────
+function fakeHex(n) {
+  let s = '';
+  for (let i = 0; i < n; i++) s += Math.floor(Math.random() * 256).toString(16).padStart(2, '0');
+  return s.toUpperCase();
+}
+
+function hybridDemo(type) {
+  const out = document.getElementById('hybrid-output');
+  let html = '';
+  if (type === 'ecdh') {
+    html = `<span class="kw">// ECDHE — Elliptic Curve Diffie-Hellman Ephemeral</span>
+<span class="note">// Đường cong: X25519 (TLS 1.3 mặc định)</span>
+
+<span class="kw">client_private</span> = <span class="val">a</span>   <span class="note">// 32 byte ngẫu nhiên, chỉ client biết</span>
+<span class="kw">server_private</span> = <span class="val">b</span>   <span class="note">// 32 byte ngẫu nhiên, chỉ server biết</span>
+
+<span class="kw">G</span> = điểm cơ sở trên đường cong X25519 (công khai)
+
+<span class="note">// Client gửi trong ClientHello:</span>
+<span class="kw">client_pub</span> = a · G = <span class="val">${fakeHex(32)}</span>
+
+<span class="note">// Server gửi trong ServerHello:</span>
+<span class="kw">server_pub</span> = b · G = <span class="val">${fakeHex(32)}</span>
+
+<span class="note">// Cả hai đều tính ra cùng shared secret:</span>
+<span class="kw">client tính:</span> a · (b·G) = a·b·G
+<span class="kw">server tính:</span> b · (a·G) = a·b·G
+<span class="enc">shared_secret</span> = <span class="val">${fakeHex(32)}</span>
+
+<span class="note">// Kẻ nghe lén chỉ thấy a·G và b·G — không tính được a·b·G</span>
+<span class="note">// (bài toán discrete log trên đường cong elliptic)</span>`;
+  } else if (type === 'cert') {
+    html = `<span class="kw">// Xác thực server — CertificateVerify</span>
+
+<span class="note">// Server có:</span>
+<span class="kw">server_private_key</span> = <span class="val">[ECDSA P-256 private key — bí mật]</span>
+<span class="kw">transcript</span> = hash của tất cả bản tin handshake đến giờ
+
+<span class="note">// Server ký transcript:</span>
+<span class="enc">signature</span> = ECDSA_sign(server_private_key, transcript)
+           = <span class="val">${fakeHex(64)}</span>
+
+<span class="note">// Client xác minh (dùng public key trong certificate):</span>
+<span class="kw">ok</span> = ECDSA_verify(<span class="enc">certificate.public_key</span>, transcript, signature)
+<span class="val">→ true</span> → server thật sự giữ private key khớp certificate
+
+<span class="note">// Điều này chứng minh: server không phải kẻ mạo danh</span>
+<span class="note">// vì kẻ mạo danh không có private key của server thật</span>`;
+  } else if (type === 'encrypt') {
+    const key = fakeHex(32);
+    const iv  = fakeHex(12);
+    const ct  = fakeHex(48);
+    const tag = fakeHex(16);
+    html = `<span class="kw">// Mã hóa AES-256-GCM (AEAD) — dữ liệu HTTP thực tế</span>
+
+<span class="kw">session_key</span> = <span class="val">${key}</span>  <span class="note">// 32 byte = 256 bit</span>
+<span class="kw">nonce</span> (IV)  = <span class="val">${iv}</span>          <span class="note">// 12 byte, tăng dần mỗi record</span>
+
+<span class="note">// Plaintext (HTTP request):</span>
+<span class="kw">plaintext</span>   = <span class="val">"POST /login HTTP/1.1\\r\\npassword=Secret123"</span>
+
+<span class="note">// Sau mã hóa AES-256-GCM:</span>
+<span class="enc">ciphertext</span>  = <span class="val">${ct}</span>
+<span class="enc">auth_tag</span>    = <span class="val">${tag}</span>  <span class="note">// 16 byte — xác thực toàn vẹn</span>
+
+<span class="note">// Kẻ nghe lén chỉ thấy ciphertext — không thể đọc hay sửa</span>
+<span class="note">// Nếu sửa 1 bit ciphertext → auth_tag sai → receiver từ chối</span>`;
+  } else if (type === 'decrypt') {
+    const key = fakeHex(32);
+    const iv  = fakeHex(12);
+    html = `<span class="kw">// Giải mã AES-256-GCM — chỉ receiver có session_key mới làm được</span>
+
+<span class="kw">session_key</span> = <span class="val">${key}</span>
+<span class="kw">nonce</span>       = <span class="val">${iv}</span>
+
+<span class="note">// Receiver nhận ciphertext + auth_tag:</span>
+<span class="enc">step 1</span>: kiểm tra auth_tag (GHASH) → xác nhận không bị sửa
+<span class="enc">step 2</span>: AES-CTR decrypt ciphertext → plaintext
+
+<span class="note">// Kết quả (chỉ receiver có session_key mới đọc được):</span>
+<span class="val">plaintext</span> = <span class="val">"POST /login HTTP/1.1\\r\\npassword=Secret123"</span>
+
+<span class="note">// Ephemeral key: a và b bị xóa ngay sau handshake</span>
+<span class="note">// → dù sau này lấy được private key server vẫn không tái tạo session_key</span>
+<span class="note">// → đây là forward secrecy (bí mật tiến về phía trước)</span>`;
+  }
+  out.innerHTML = html;
+}
+
+// ─────────────────────────────────────────────────────────
+// MODULE 3 — Certificate Chain
+// ─────────────────────────────────────────────────────────
+const CERT_INFO = {
+  root: {
+    html: `<strong>Root CA — DigiCert Global Root CA</strong><br>
+Đây là "gốc tin cậy" — được tích hợp sẵn vào hệ điều hành/trình duyệt (~150 root CA được tin trên toàn cầu).
+Private key của root CA cất <em>offline</em> trong thiết bị HSM (Hardware Security Module) cực kỳ bảo mật — không bao giờ kết nối internet.
+Root CA <strong>tự ký</strong> chứng chỉ của mình (self-signed) — trình duyệt tin vì đã được cài sẵn từ nhà sản xuất.
+<br><br><em>Vai trò</em>: ký chứng chỉ của Intermediate CA. Không ký trực tiếp leaf certificate hàng ngày để bảo vệ private key.`,
+  },
+  inter: {
+    html: `<strong>Intermediate CA — DigiCert SHA2 HA Server CA</strong><br>
+Cầu nối giữa root và leaf. Intermediate CA online và ký hàng nghìn leaf certificate mỗi ngày.
+Được ký bởi Root CA → nếu intermediate bị xâm phạm, chỉ cần thu hồi intermediate, root CA vẫn an toàn.
+<br><br>Khi server gửi chứng chỉ cho client, thường gửi cả intermediate cert để client có thể xây chuỗi tin cậy.
+Nếu server quên gửi intermediate → lỗi <code>ERR_CERT_AUTHORITY_INVALID</code> dù cert hợp lệ.`,
+  },
+  leaf: {
+    html: `<strong>Leaf Certificate — github.com</strong><br>
+Chứng chỉ thực sự của server. Chứa: <br>
+• <strong>Subject Alternative Names (SAN)</strong>: <code>github.com</code>, <code>*.github.com</code><br>
+• <strong>Public key</strong> (ECDSA P-256): dùng để xác minh CertificateVerify<br>
+• <strong>Thời hạn</strong>: thường 90 ngày (Let's Encrypt) đến 1 năm<br>
+• <strong>Chữ ký của Intermediate CA</strong> trên toàn bộ nội dung trên<br>
+<br>Trình duyệt khớp SAN với tên domain bạn đang truy cập.
+<code>*.github.com</code> bao phủ <code>api.github.com</code> nhưng không bao phủ <code>sub.api.github.com</code>.`,
+  },
+};
+
+function certSelect(id) {
+  ['root','inter','leaf'].forEach(k => {
+    document.getElementById('cn-' + k).classList.toggle('active', k === id);
+  });
+  document.getElementById('cert-detail').innerHTML = CERT_INFO[id].html;
+}
+
+const ERROR_SCENARIOS = {
+  none: {
+    lock: '🔒',
+    lockColor: '#16a34a',
+    urlColor: '#166534',
+    url: 'https://github.com',
+    content: `<div style="color:#4ade80;font-size:14px;font-weight:700;margin-bottom:8px;">Kết nối an toàn</div>
+<div style="color:#94a3b8;font-size:12px;line-height:1.7;">
+Chứng chỉ hợp lệ: DigiCert SHA2 HA Server CA<br>
+Tên miền khớp: github.com<br>
+Hết hạn: 2025-06-12<br>
+Phiên bản TLS: TLS 1.3 (AES_256_GCM_SHA384)<br>
+Forward Secrecy: Có (ECDHE)</div>`,
+    steps: [true, true, true, true, true, true, true],
+    info: null,
+  },
+  selfsign: {
+    lock: '⚠',
+    lockColor: '#dc2626',
+    urlColor: '#991b1b',
+    url: 'https://api.startup.io',
+    content: `<div style="color:#f87171;font-size:22px;font-weight:700;margin-bottom:8px;">Kết nối không riêng tư</div>
+<div style="color:#f87171;font-size:13px;font-weight:700;margin-bottom:8px;">NET::ERR_CERT_AUTHORITY_INVALID</div>
+<div style="color:#94a3b8;font-size:12px;line-height:1.7;">
+Kẻ tấn công có thể đang cố ăn cắp thông tin của bạn từ api.startup.io.<br>
+<br>
+Máy chủ trình bày chứng chỉ không được ký bởi CA đáng tin cậy.<br>
+Đây có thể là chứng chỉ self-signed hoặc CA nội bộ chưa được cài vào trình duyệt.</div>
+<div style="margin-top:12px;">
+  <span style="background:#dc2626;color:white;padding:5px 12px;border-radius:4px;font-size:12px;font-weight:700;">Quay lại an toàn</span>
+  <span style="color:#94a3b8;font-size:11px;margin-left:10px;">Tiếp tục (không an toàn)</span>
+</div>`,
+    steps: [true, false, false, false, null, null, null],
+    info: 'Nguyên nhân: CA cấp chứng chỉ không có trong danh sách tin cậy. Có thể là self-signed, CA nội bộ chưa cài, hoặc thiếu intermediate certificate.',
+  },
+  expired: {
+    lock: '⚠',
+    lockColor: '#dc2626',
+    urlColor: '#991b1b',
+    url: 'https://old.example.com',
+    content: `<div style="color:#f87171;font-size:22px;font-weight:700;margin-bottom:8px;">Kết nối không riêng tư</div>
+<div style="color:#f87171;font-size:13px;font-weight:700;margin-bottom:8px;">NET::ERR_CERT_DATE_INVALID</div>
+<div style="color:#94a3b8;font-size:12px;line-height:1.7;">
+Chứng chỉ của old.example.com đã hết hạn vào ngày 01/01/2024.<br>
+Đồng hồ của bạn hiện tại: ${new Date().toLocaleDateString('vi-VN')}.<br>
+<br>Nguyên nhân phổ biến: admin quên gia hạn cert (Let's Encrypt hết hạn sau 90 ngày),
+hoặc đồng hồ máy tính sai.</div>`,
+    steps: [true, true, true, true, true, false, null],
+    info: 'Nguyên nhân: trường "Not After" trong chứng chỉ đã qua ngày hiện tại. Giải pháp: gia hạn chứng chỉ (certbot renew với Let\'s Encrypt). Không bao giờ bỏ qua lỗi này trên trang ngân hàng/tài chính.',
+  },
+  mismatch: {
+    lock: '⚠',
+    lockColor: '#dc2626',
+    urlColor: '#991b1b',
+    url: 'https://banc.com',
+    content: `<div style="color:#f87171;font-size:22px;font-weight:700;margin-bottom:8px;">Kết nối không riêng tư</div>
+<div style="color:#f87171;font-size:13px;font-weight:700;margin-bottom:8px;">NET::ERR_CERT_COMMON_NAME_INVALID</div>
+<div style="color:#94a3b8;font-size:12px;line-height:1.7;">
+Chứng chỉ được cấp cho <strong style="color:#fbbf24;">bank.com</strong>, nhưng bạn đang truy cập <strong style="color:#f87171;">banc.com</strong>.<br>
+<br>Nguyên nhân có thể: typosquatting (domain giả giống tên thật), MITM attack,
+hoặc server misconfiguration.</div>`,
+    steps: [true, true, true, true, false, null, null],
+    info: 'Nguy hiểm! Đây là dấu hiệu điển hình của MITM. Kẻ tấn công dùng chứng chỉ hợp lệ cho bank.com nhưng domain bạn đang truy cập là banc.com (typo hoặc DNS poisoning).',
+  },
+  revoked: {
+    lock: '⚠',
+    lockColor: '#dc2626',
+    urlColor: '#991b1b',
+    url: 'https://compromised-site.com',
+    content: `<div style="color:#f87171;font-size:22px;font-weight:700;margin-bottom:8px;">Kết nối không riêng tư</div>
+<div style="color:#f87171;font-size:13px;font-weight:700;margin-bottom:8px;">NET::ERR_CERT_REVOKED</div>
+<div style="color:#94a3b8;font-size:12px;line-height:1.7;">
+Chứng chỉ của compromised-site.com đã bị thu hồi.<br>
+<br>CA thu hồi chứng chỉ khi nghi ngờ private key bị lộ.
+Trình duyệt kiểm tra qua OCSP (Online Certificate Status Protocol) hoặc CRL.</div>`,
+    steps: [true, true, true, true, true, true, false],
+    info: 'CA thu hồi chứng chỉ qua CRL (Certificate Revocation List) hoặc OCSP stapling. Khi private key server bị lộ (vd server bị hack), CA cần thu hồi ngay để ngăn kẻ tấn công dùng key đó.',
+  },
+};
+
+function showError(type) {
+  Object.keys(ERROR_SCENARIOS).forEach(k => {
+    document.getElementById('err-' + k).classList.toggle('active', k === type);
+  });
+
+  const sc = ERROR_SCENARIOS[type];
+  // Update verify steps
+  const stepEls = document.querySelectorAll('#verify-steps li');
+  stepEls.forEach((li, i) => {
+    li.classList.remove('pass', 'fail');
+    if (sc.steps[i] === true) li.classList.add('pass');
+    else if (sc.steps[i] === false) li.classList.add('fail');
+  });
+
+  // Build browser mockup
+  const demo = document.getElementById('browser-demo');
+  demo.innerHTML = `
+<div class="browser-mockup">
+  <div class="browser-bar">
+    <div class="browser-traffic">
+      <div class="browser-dot" style="background:#ff5f57;"></div>
+      <div class="browser-dot" style="background:#febc2e;"></div>
+      <div class="browser-dot" style="background:#28c840;"></div>
+    </div>
+    <div class="browser-url">
+      <span class="lock-icon" style="color:${sc.lockColor};">${sc.lock}</span>
+      <span style="color:${sc.urlColor};font-weight:700;">${sc.url}</span>
+    </div>
+  </div>
+  <div class="browser-content">${sc.content}</div>
+</div>
+${sc.info ? `<div class="warn-box" style="margin-top:8px;"><strong>Phân tích:</strong> ${sc.info}</div>` : ''}`;
+}
+
+// ─────────────────────────────────────────────────────────
+// MODULE 4 — HTTP vs HTTPS comparison
+// ─────────────────────────────────────────────────────────
+function fakeEncBlock(len) {
+  let s = '';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+  for (let i = 0; i < len; i++) {
+    if (i > 0 && i % 32 === 0) s += '\n';
+    s += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return s;
+}
+
+function compareUpdate() {
+  const user   = (document.getElementById('inp-user').value   || 'alice').replace(/</g,'&lt;');
+  const pass   = (document.getElementById('inp-pass').value   || 'secret').replace(/</g,'&lt;');
+  const domain = (document.getElementById('inp-domain').value || 'shop.example.com').replace(/</g,'&lt;');
+
+  const httpPkt = `<span class="header-field">POST /login HTTP/1.1</span>
+<span class="header-field">Host: ${domain}</span>
+<span class="header-field">Content-Type: application/x-www-form-urlencoded</span>
+<span class="header-field">Content-Length: ${(user + pass + 20).length + 9}</span>
+<span class="header-field">Cookie: session=eyJhbGc...</span>
+<span class="header-field">Connection: keep-alive</span>
+
+<span class="readable">username=${user}&password=${pass}</span>
+
+<span class="comment">-- Bất kỳ ai trên đường mạng đều đọc được! --</span>
+<span class="comment">-- Wireshark bắt được ngay (HTTP port 80, không mã hóa) --</span>`;
+
+  const httpsPkt = `<span class="comment">-- TLS Record Layer --</span>
+<span class="header-field">Content Type:</span> 23 (Application Data)
+<span class="header-field">Version:</span>       03 03 (TLS 1.2 compat)
+<span class="header-field">Length:</span>        00 D8
+
+<span class="comment">-- Encrypted Payload (AES-256-GCM) --</span>
+<span class="encrypted">${fakeEncBlock(144)}</span>
+
+<span class="comment">-- Auth Tag (16 byte) --</span>
+<span class="encrypted">${fakeEncBlock(32)}</span>
+
+<span class="comment">-- Kẻ nghe lén chỉ thấy điều này --</span>
+<span class="comment">-- Không thể đọc username/password/cookie --</span>`;
+
+  document.getElementById('http-packet').innerHTML  = httpPkt;
+  document.getElementById('https-packet').innerHTML = httpsPkt;
+}
+
+// ─────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────
+hsReset();
+showError('none');
+compareUpdate();
+certSelect('leaf');
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Client-server &amp; Socket</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette Networking – Application layer ── */
+  :root {
+    --net-blue:   #0369a1;
+    --net-soft:   #e0f2fe;
+    --net-mid:    #38bdf8;
+    --net-dark:   #0c4a6e;
+    --srv-green:  #16a34a;
+    --cli-indigo: #4f46e5;
+    --err-red:    #dc2626;
+    --warn-amber: #d97706;
+    --bg-card:    #ffffff;
+    --bg-section: #f0f9ff;
+  }
+
+  h1 { color: var(--net-dark); }
+  h2 {
+    color: var(--net-blue);
+    margin-top: 36px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--net-mid);
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(3,105,161,.10);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--net-soft);
+    border-left: 4px solid var(--net-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Tags ── */
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .3px;
+  }
+  .tag-srv  { background: #dcfce7; color: #166534; }
+  .tag-cli  { background: #ede9fe; color: #4338ca; }
+  .tag-ok   { background: #dcfce7; color: #166534; }
+  .tag-wait { background: #fef3c7; color: #92400e; }
+  .tag-err  { background: #fee2e2; color: #991b1b; }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn-primary   { background: var(--net-blue); color: white; }
+  .btn-primary:hover:not(:disabled) { background: var(--net-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover:not(:disabled) { background: #e2e8f0; }
+  .btn-green { background: var(--srv-green); color: white; }
+  .btn-green:hover:not(:disabled) { background: #15803d; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ── Step description box ── */
+  .step-box {
+    background: var(--bg-section);
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    min-height: 52px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .step-box strong { color: var(--net-blue); }
+
+  /* ═════════════════════════════════════════════
+     MODULE 1 — Socket Lifecycle Animation
+     ═════════════════════════════════════════════ */
+  #lc-stage { width: 100%; overflow-x: auto; }
+  #lc-svg   { display: block; margin: 0 auto; }
+
+  .lc-state-srv { fill: #dcfce7; }
+  .lc-state-cli { fill: #ede9fe; }
+  .lc-state-done { fill: #fef9c3; }
+
+  /* ═════════════════════════════════════════════
+     MODULE 2 — 4-Tuple Connection Table
+     ═════════════════════════════════════════════ */
+  .conn-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 12px;
+  }
+  .conn-table th {
+    background: var(--net-blue);
+    color: white;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .conn-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    font-family: monospace;
+    font-size: 13px;
+  }
+  .conn-table tr:nth-child(even) td { background: #f8fafc; }
+  .conn-table tr.highlight td {
+    background: #fef3c7;
+    font-weight: 700;
+  }
+  .conn-table tr.new-row td {
+    animation: fadeIn 0.4s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; background: #bfdbfe; }
+    to   { opacity: 1; }
+  }
+
+  .tuple-badge {
+    display: inline-block;
+    font-family: monospace;
+    font-size: 12px;
+    background: #e0f2fe;
+    border: 1px solid #7dd3fc;
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin: 2px;
+  }
+
+  /* SVG for module 2 */
+  #m2-stage { width: 100%; overflow-x: auto; }
+  #m2-svg   { display: block; margin: 0 auto; }
+
+  /* ═════════════════════════════════════════════
+     MODULE 3 — Socket State Machine
+     ═════════════════════════════════════════════ */
+  .state-machine-wrap { width: 100%; overflow-x: auto; }
+  #sm-svg { display: block; margin: 0 auto; }
+
+  .state-label {
+    font-size: 13px;
+    font-weight: 700;
+    margin: 8px 4px 4px;
+    color: #374151;
+  }
+  .state-info {
+    background: var(--bg-section);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 10px;
+    min-height: 50px;
+  }
+  .state-info strong { color: var(--net-blue); }
+
+  /* ═════════════════════════════════════════════
+     MODULE 4 — Port Explorer
+     ═════════════════════════════════════════════ */
+  .port-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .port-field { display: flex; flex-direction: column; gap: 4px; }
+  .port-field label { font-size: 12px; font-weight: 700; color: #374151; }
+  .port-field input {
+    padding: 7px 10px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: monospace;
+    width: 120px;
+    box-sizing: border-box;
+  }
+  .port-field input:focus { outline: none; border-color: var(--net-blue); }
+
+  .port-result {
+    background: var(--bg-section);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.9;
+    margin-top: 10px;
+  }
+  .port-result .highlight { color: var(--net-dark); font-weight: 700; font-size: 16px; }
+  .port-result .range-bar {
+    height: 18px;
+    border-radius: 6px;
+    margin: 6px 0 2px;
+    transition: width .3s;
+  }
+  .port-bar-wrap {
+    background: #e2e8f0;
+    border-radius: 6px;
+    height: 18px;
+    margin: 6px 0 2px;
+    position: relative;
+    overflow: hidden;
+  }
+  .port-bar-fill {
+    position: absolute;
+    top: 0; left: 0; height: 100%;
+    border-radius: 6px;
+    transition: width .3s, background .3s;
+  }
+
+  /* ═════════════════════════════════════════════
+     Responsive
+     ═════════════════════════════════════════════ */
+  @media (max-width: 600px) {
+    .port-field input { width: 90px; }
+    .conn-table { font-size: 11px; }
+    .conn-table td, .conn-table th { padding: 5px 6px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Application</a>
+  <span class="sep">·</span>
+  <a href="../../01-Foundations-LowerLayers/lesson-08-tcp/visualization.html">← T1·L8: TCP</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Client-server &amp; Socket</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-dns/visualization.html">L2: DNS →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — Client-server &amp; Socket</h1>
+<p>Bốn module tương tác: vòng đời socket TCP từng bước, bảng 4-tuple nhiều client, máy trạng thái socket, tra cứu phân loại cổng.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — Socket Lifecycle (Server + Client walk-through)
+     ═══════════════════════════════════════════════════════════ -->
+<h2>1. Vòng đời socket TCP — từng bước</h2>
+<div class="card">
+  <p>Nhấn <strong>"Bước tiếp theo"</strong> để đi từng bước qua vòng đời socket: phía server (xanh lá) và phía client (tím). Quan sát lệnh gọi hệ thống và trạng thái thay đổi.</p>
+
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px;align-items:flex-end;">
+    <div class="port-field">
+      <label>Server port</label>
+      <input type="number" id="lc-sport" value="9000" min="1" max="65535">
+    </div>
+    <div class="port-field">
+      <label>Client ephemeral port</label>
+      <input type="number" id="lc-cport" value="54321" min="49152" max="65535">
+    </div>
+    <button class="btn btn-secondary" onclick="lcReset()">Đặt lại</button>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="lc-btn-step" onclick="lcStep()">Bước tiếp theo →</button>
+    <button class="btn btn-secondary" onclick="lcAuto()">Tự động</button>
+    <button class="btn btn-secondary" onclick="lcReset()">Bắt đầu lại</button>
+  </div>
+
+  <div id="lc-stage">
+    <svg id="lc-svg" width="600" height="360" viewBox="0 0 600 360">
+      <defs>
+        <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+        </marker>
+        <marker id="arr-indigo" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#4f46e5"/>
+        </marker>
+        <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0369a1"/>
+        </marker>
+        <marker id="arr-gray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/>
+        </marker>
+      </defs>
+
+      <!-- Column headers -->
+      <rect x="10" y="8" width="120" height="36" rx="6" fill="#16a34a"/>
+      <text x="70" y="31" text-anchor="middle" font-size="13" font-weight="700" fill="white">SERVER</text>
+      <rect x="470" y="8" width="120" height="36" rx="6" fill="#4f46e5"/>
+      <text x="530" y="31" text-anchor="middle" font-size="13" font-weight="700" fill="white">CLIENT</text>
+
+      <!-- Vertical timelines -->
+      <line x1="70"  y1="44" x2="70"  y2="355" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="530" y1="44" x2="530" y2="355" stroke="#4f46e5" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+      <!-- Server state boxes (y = 50, 100, 150, 200) -->
+      <rect id="s-box-0" x="0"   y="48" width="140" height="28" rx="4" fill="#f0f9ff" stroke="#bae6fd"/>
+      <text id="s-txt-0" x="70" y="67" text-anchor="middle" font-size="11" fill="#64748b">—</text>
+
+      <rect id="s-box-1" x="0"   y="96" width="140" height="28" rx="4" fill="#f0f9ff" stroke="#bae6fd"/>
+      <text id="s-txt-1" x="70" y="115" text-anchor="middle" font-size="11" fill="#64748b">—</text>
+
+      <rect id="s-box-2" x="0"   y="144" width="140" height="28" rx="4" fill="#f0f9ff" stroke="#bae6fd"/>
+      <text id="s-txt-2" x="70" y="163" text-anchor="middle" font-size="11" fill="#64748b">—</text>
+
+      <rect id="s-box-3" x="0"   y="192" width="140" height="28" rx="4" fill="#f0f9ff" stroke="#bae6fd"/>
+      <text id="s-txt-3" x="70" y="211" text-anchor="middle" font-size="11" fill="#64748b">—</text>
+
+      <rect id="s-box-4" x="0"   y="240" width="140" height="28" rx="4" fill="#f0f9ff" stroke="#bae6fd"/>
+      <text id="s-txt-4" x="70" y="259" text-anchor="middle" font-size="11" fill="#64748b">—</text>
+
+      <rect id="s-box-5" x="0"   y="288" width="140" height="28" rx="4" fill="#f0f9ff" stroke="#bae6fd"/>
+      <text id="s-txt-5" x="70" y="307" text-anchor="middle" font-size="11" fill="#64748b">—</text>
+
+      <!-- Client state boxes -->
+      <rect id="c-box-0" x="460" y="48" width="140" height="28" rx="4" fill="#f5f3ff" stroke="#ddd6fe"/>
+      <text id="c-txt-0" x="530" y="67" text-anchor="middle" font-size="11" fill="#64748b">—</text>
+
+      <rect id="c-box-1" x="460" y="96" width="140" height="28" rx="4" fill="#f5f3ff" stroke="#ddd6fe"/>
+      <text id="c-txt-1" x="530" y="115" text-anchor="middle" font-size="11" fill="#64748b">—</text>
+
+      <rect id="c-box-2" x="460" y="144" width="140" height="28" rx="4" fill="#f5f3ff" stroke="#ddd6fe"/>
+      <text id="c-txt-2" x="530" y="163" text-anchor="middle" font-size="11" fill="#64748b">—</text>
+
+      <rect id="c-box-3" x="460" y="192" width="140" height="28" rx="4" fill="#f5f3ff" stroke="#ddd6fe"/>
+      <text id="c-txt-3" x="530" y="211" text-anchor="middle" font-size="11" fill="#64748b">—</text>
+
+      <rect id="c-box-4" x="460" y="240" width="140" height="28" rx="4" fill="#f5f3ff" stroke="#ddd6fe"/>
+      <text id="c-txt-4" x="530" y="259" text-anchor="middle" font-size="11" fill="#64748b">—</text>
+
+      <rect id="c-box-5" x="460" y="288" width="140" height="28" rx="4" fill="#f5f3ff" stroke="#ddd6fe"/>
+      <text id="c-txt-5" x="530" y="307" text-anchor="middle" font-size="11" fill="#64748b">—</text>
+
+      <!-- Syscall labels in center column -->
+      <g id="lc-calls"></g>
+
+      <!-- Connection arrows (hidden initially) -->
+      <g id="lc-arrows" opacity="0" style="transition:opacity .4s">
+        <!-- connect() SYN/SYN-ACK/ACK arrows -->
+        <!-- Data exchange arrow -->
+        <line x1="530" y1="260" x2="80" y2="270" stroke="#0369a1" stroke-width="2" marker-end="url(#arr-blue)" stroke-dasharray="5,3"/>
+        <rect x="210" y="252" width="180" height="18" rx="3" fill="white" fill-opacity=".9" stroke="#bae6fd"/>
+        <text x="300" y="264" text-anchor="middle" font-size="11" font-weight="700" fill="#0369a1">send() / recv() data</text>
+        <!-- Echo reply -->
+        <line x1="80" y1="275" x2="520" y2="283" stroke="#16a34a" stroke-width="2" marker-end="url(#arr-green)" stroke-dasharray="5,3"/>
+        <rect x="220" y="276" width="150" height="18" rx="3" fill="white" fill-opacity=".9" stroke="#bbf7d0"/>
+        <text x="295" y="288" text-anchor="middle" font-size="11" font-weight="700" fill="#16a34a">echo response</text>
+      </g>
+
+      <!-- connect arrow (hidden, shown at step 5) -->
+      <g id="lc-connect" opacity="0" style="transition:opacity .4s">
+        <line x1="530" y1="206" x2="80" y2="215" stroke="#4f46e5" stroke-width="2.5" marker-end="url(#arr-indigo)"/>
+        <rect x="175" y="196" width="250" height="22" rx="4" fill="white" fill-opacity=".92" stroke="#ddd6fe"/>
+        <text x="300" y="211" text-anchor="middle" font-size="12" font-weight="700" fill="#4f46e5">connect() → SYN/SYN-ACK/ACK</text>
+      </g>
+
+      <!-- ESTABLISHED banner (hidden) -->
+      <g id="lc-estab" opacity="0" style="transition:opacity .4s">
+        <rect x="145" y="230" width="310" height="24" rx="6" fill="#dcfce7" stroke="#86efac"/>
+        <text x="300" y="246" text-anchor="middle" font-size="12" font-weight="700" fill="#15803d">KET NOI DUOC THIET LAP (ESTABLISHED)</text>
+      </g>
+
+      <!-- close markers (hidden) -->
+      <g id="lc-close" opacity="0" style="transition:opacity .4s">
+        <line x1="80" y1="315" x2="520" y2="325" stroke="#dc2626" stroke-width="2" stroke-dasharray="4,2" marker-end="url(#arr-gray)"/>
+        <rect x="215" y="308" width="175" height="18" rx="3" fill="white" fill-opacity=".9" stroke="#fecaca"/>
+        <text x="302" y="320" text-anchor="middle" font-size="11" font-weight="700" fill="#dc2626">FIN / FIN-ACK / close()</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="step-box" id="lc-desc">
+    Nhấn <strong>"Bước tiếp theo"</strong> để bắt đầu. Hai cột biểu diễn Server (xanh lá) và Client (tím). Mỗi bước hiển thị lời gọi hệ thống và trạng thái socket tương ứng.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — Many Clients to Same Server:Port (4-tuple)
+     ═══════════════════════════════════════════════════════════ -->
+<h2>2. Nhiều client — một server:port — phân biệt bằng 4-tuple</h2>
+<div class="card">
+  <p>Thêm client mới để xem server phân biệt các kết nối bằng <strong>4-tuple</strong> (Src IP, Src Port, Dst IP, Dst Port). Server port luôn cố định — chỉ src port thay đổi.</p>
+
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px;align-items:flex-end;">
+    <div class="port-field">
+      <label>Server IP</label>
+      <input type="text" id="m2-srv-ip" value="203.0.113.10" style="width:150px;">
+    </div>
+    <div class="port-field">
+      <label>Server Port</label>
+      <input type="number" id="m2-srv-port" value="80" min="1" max="65535" style="width:80px;">
+    </div>
+    <div class="port-field">
+      <label>Client IP mới</label>
+      <input type="text" id="m2-cli-ip" value="192.168.1.5" style="width:140px;">
+    </div>
+    <button class="btn btn-green" onclick="m2AddClient()">+ Thêm client</button>
+    <button class="btn btn-secondary" onclick="m2Reset()">Xóa tất cả</button>
+  </div>
+
+  <div id="m2-stage">
+    <svg id="m2-svg" width="580" height="200" viewBox="0 0 580 200">
+      <defs>
+        <marker id="m2-arr" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L7,3 z" fill="#0369a1"/>
+        </marker>
+      </defs>
+      <!-- Server box (right) -->
+      <rect x="440" y="60" width="130" height="80" rx="8" fill="#dcfce7" stroke="#86efac" stroke-width="2"/>
+      <text x="505" y="88" text-anchor="middle" font-size="12" font-weight="700" fill="#15803d">SERVER</text>
+      <text id="m2-srv-label" x="505" y="106" text-anchor="middle" font-size="11" font-family="monospace" fill="#374151">203.0.113.10:80</text>
+      <text x="505" y="124" text-anchor="middle" font-size="10" fill="#64748b">LISTEN</text>
+      <!-- Dynamic client boxes + lines drawn by JS -->
+      <g id="m2-clients"></g>
+    </svg>
+  </div>
+
+  <!-- Connection table -->
+  <div style="overflow-x:auto;">
+    <table class="conn-table" id="m2-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Src IP (Client)</th>
+          <th>Src Port</th>
+          <th>Dst IP (Server)</th>
+          <th>Dst Port</th>
+          <th>Trạng thái</th>
+        </tr>
+      </thead>
+      <tbody id="m2-tbody"></tbody>
+    </table>
+  </div>
+  <div class="info-box" style="margin-top:12px;" id="m2-note">
+    Chưa có client. Nhấn "+ Thêm client" để bắt đầu.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — TCP Socket State Machine
+     ═══════════════════════════════════════════════════════════ -->
+<h2>3. Máy trạng thái socket TCP</h2>
+<div class="card">
+  <p>Click vào trạng thái để xem ý nghĩa và lời gọi hệ thống dẫn vào/ra trạng thái đó. Các mũi tên biểu diễn chuyển trạng thái (state transition).</p>
+
+  <div class="state-machine-wrap">
+    <svg id="sm-svg" width="580" height="340" viewBox="0 0 580 340">
+      <defs>
+        <marker id="sm-arr" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L7,3 z" fill="#64748b"/>
+        </marker>
+        <marker id="sm-arr-blue" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L7,3 z" fill="#0369a1"/>
+        </marker>
+        <marker id="sm-arr-green" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L7,3 z" fill="#16a34a"/>
+        </marker>
+        <marker id="sm-arr-red" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L7,3 z" fill="#dc2626"/>
+        </marker>
+      </defs>
+
+      <!-- State nodes (click to highlight) -->
+      <!-- CLOSED -->
+      <g class="sm-node" data-state="CLOSED" onclick="smSelect('CLOSED')" style="cursor:pointer">
+        <rect id="sm-CLOSED" x="230" y="8" width="120" height="34" rx="8" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+        <text x="290" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#374151">CLOSED</text>
+      </g>
+
+      <!-- LISTEN (server only) -->
+      <g class="sm-node" data-state="LISTEN" onclick="smSelect('LISTEN')" style="cursor:pointer">
+        <rect id="sm-LISTEN" x="50" y="80" width="120" height="34" rx="8" fill="#dcfce7" stroke="#86efac" stroke-width="2"/>
+        <text x="110" y="102" text-anchor="middle" font-size="12" font-weight="700" fill="#15803d">LISTEN</text>
+      </g>
+
+      <!-- SYN_SENT (client only) -->
+      <g class="sm-node" data-state="SYN_SENT" onclick="smSelect('SYN_SENT')" style="cursor:pointer">
+        <rect id="sm-SYN_SENT" x="410" y="80" width="130" height="34" rx="8" fill="#ede9fe" stroke="#a5b4fc" stroke-width="2"/>
+        <text x="475" y="102" text-anchor="middle" font-size="12" font-weight="700" fill="#4338ca">SYN_SENT</text>
+      </g>
+
+      <!-- SYN_RECEIVED (server) -->
+      <g class="sm-node" data-state="SYN_RECEIVED" onclick="smSelect('SYN_RECEIVED')" style="cursor:pointer">
+        <rect id="sm-SYN_RECEIVED" x="50" y="158" width="140" height="34" rx="8" fill="#fef3c7" stroke="#fcd34d" stroke-width="2"/>
+        <text x="120" y="180" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">SYN_RECEIVED</text>
+      </g>
+
+      <!-- ESTABLISHED -->
+      <g class="sm-node" data-state="ESTABLISHED" onclick="smSelect('ESTABLISHED')" style="cursor:pointer">
+        <rect id="sm-ESTABLISHED" x="210" y="158" width="160" height="34" rx="8" fill="#dcfce7" stroke="#4ade80" stroke-width="2.5"/>
+        <text x="290" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#15803d">ESTABLISHED</text>
+      </g>
+
+      <!-- FIN_WAIT_1 (active close) -->
+      <g class="sm-node" data-state="FIN_WAIT_1" onclick="smSelect('FIN_WAIT_1')" style="cursor:pointer">
+        <rect id="sm-FIN_WAIT_1" x="50" y="236" width="130" height="30" rx="6" fill="#fee2e2" stroke="#fca5a5" stroke-width="1.5"/>
+        <text x="115" y="255" text-anchor="middle" font-size="11" font-weight="700" fill="#991b1b">FIN_WAIT_1</text>
+      </g>
+
+      <!-- CLOSE_WAIT (passive close) -->
+      <g class="sm-node" data-state="CLOSE_WAIT" onclick="smSelect('CLOSE_WAIT')" style="cursor:pointer">
+        <rect id="sm-CLOSE_WAIT" x="400" y="236" width="130" height="30" rx="6" fill="#fef3c7" stroke="#fcd34d" stroke-width="1.5"/>
+        <text x="465" y="255" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">CLOSE_WAIT</text>
+      </g>
+
+      <!-- TIME_WAIT -->
+      <g class="sm-node" data-state="TIME_WAIT" onclick="smSelect('TIME_WAIT')" style="cursor:pointer">
+        <rect id="sm-TIME_WAIT" x="50" y="300" width="130" height="30" rx="6" fill="#e0e7ff" stroke="#a5b4fc" stroke-width="1.5"/>
+        <text x="115" y="319" text-anchor="middle" font-size="11" font-weight="700" fill="#3730a3">TIME_WAIT</text>
+      </g>
+
+      <!-- LAST_ACK -->
+      <g class="sm-node" data-state="LAST_ACK" onclick="smSelect('LAST_ACK')" style="cursor:pointer">
+        <rect id="sm-LAST_ACK" x="400" y="300" width="130" height="30" rx="6" fill="#fce7f3" stroke="#f9a8d4" stroke-width="1.5"/>
+        <text x="465" y="319" text-anchor="middle" font-size="11" font-weight="700" fill="#9d174d">LAST_ACK</text>
+      </g>
+
+      <!-- Transition arrows -->
+      <!-- CLOSED → LISTEN (server: listen()) -->
+      <line x1="250" y1="42" x2="130" y2="80" stroke="#16a34a" stroke-width="1.5" marker-end="url(#sm-arr-green)"/>
+      <text x="162" y="60" font-size="10" fill="#16a34a" font-weight="600">listen()</text>
+
+      <!-- CLOSED → SYN_SENT (client: connect()) -->
+      <line x1="330" y1="42" x2="460" y2="80" stroke="#4f46e5" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="380" y="60" font-size="10" fill="#4f46e5" font-weight="600">connect()</text>
+
+      <!-- LISTEN → SYN_RECEIVED -->
+      <line x1="110" y1="114" x2="110" y2="158" stroke="#16a34a" stroke-width="1.5" marker-end="url(#sm-arr-green)"/>
+      <text x="60" y="140" font-size="10" fill="#16a34a" font-weight="600">SYN recv</text>
+
+      <!-- SYN_SENT → ESTABLISHED -->
+      <line x1="460" y1="114" x2="380" y2="158" stroke="#0369a1" stroke-width="1.5" marker-end="url(#sm-arr-blue)"/>
+      <text x="415" y="138" font-size="10" fill="#0369a1" font-weight="600">SYN-ACK</text>
+
+      <!-- SYN_RECEIVED → ESTABLISHED -->
+      <line x1="190" y1="175" x2="210" y2="175" stroke="#0369a1" stroke-width="1.5" marker-end="url(#sm-arr-blue)"/>
+      <text x="140" y="215" font-size="10" fill="#0369a1" font-weight="600">ACK recv</text>
+
+      <!-- ESTABLISHED → FIN_WAIT_1 (active close) -->
+      <line x1="240" y1="192" x2="150" y2="236" stroke="#dc2626" stroke-width="1.5" marker-end="url(#sm-arr-red)"/>
+      <text x="140" y="222" font-size="10" fill="#dc2626" font-weight="600">close()</text>
+
+      <!-- ESTABLISHED → CLOSE_WAIT (passive close) -->
+      <line x1="370" y1="192" x2="445" y2="236" stroke="#d97706" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="400" y="218" font-size="10" fill="#d97706" font-weight="600">FIN recv</text>
+
+      <!-- FIN_WAIT_1 → TIME_WAIT -->
+      <line x1="115" y1="266" x2="115" y2="300" stroke="#dc2626" stroke-width="1.5" marker-end="url(#sm-arr-red)"/>
+      <text x="45" y="286" font-size="10" fill="#dc2626" font-weight="600">FIN-ACK</text>
+
+      <!-- CLOSE_WAIT → LAST_ACK -->
+      <line x1="465" y1="266" x2="465" y2="300" stroke="#d97706" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="480" y="286" font-size="10" fill="#d97706" font-weight="600">close()</text>
+
+      <!-- TIME_WAIT → CLOSED (2MSL timeout) -->
+      <line x1="50" y1="315" x2="30" y2="25" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#sm-arr)"/>
+      <text x="2" y="175" font-size="9" fill="#94a3b8" transform="rotate(-90,8,175)">2MSL →</text>
+
+      <!-- LAST_ACK → CLOSED -->
+      <line x1="530" y1="300" x2="550" y2="25" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#sm-arr)"/>
+      <text x="545" y="175" font-size="9" fill="#94a3b8" transform="rotate(90,555,175)">ACK →</text>
+
+      <!-- Legend -->
+      <rect x="200" y="300" width="220" height="36" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+      <rect x="208" y="310" width="12" height="10" rx="2" fill="#dcfce7" stroke="#86efac"/>
+      <text x="224" y="320" font-size="10" fill="#374151">Server states</text>
+      <rect x="308" y="310" width="12" height="10" rx="2" fill="#ede9fe" stroke="#a5b4fc"/>
+      <text x="324" y="320" font-size="10" fill="#374151">Client states</text>
+      <text x="290" y="332" text-anchor="middle" font-size="10" fill="#64748b">Click trạng thái để xem chi tiết</text>
+    </svg>
+  </div>
+
+  <div class="state-info" id="sm-info">
+    Click vào một trạng thái trong sơ đồ để xem ý nghĩa và lời gọi hệ thống liên quan.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — Port Range Explorer
+     ═══════════════════════════════════════════════════════════ -->
+<h2>4. Tra cứu phân loại cổng (Port)</h2>
+<div class="card">
+  <p>Nhập số cổng để xem nó thuộc dải nào, dịch vụ nào thường dùng, và khi nào cần quyền root.</p>
+
+  <div class="port-input-row">
+    <div class="port-field">
+      <label>Số cổng (0–65535)</label>
+      <input type="number" id="pe-port" value="80" min="0" max="65535" oninput="peUpdate()">
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-self:flex-end;">
+      <button class="btn btn-secondary" onclick="peSet(80)">HTTP:80</button>
+      <button class="btn btn-secondary" onclick="peSet(443)">HTTPS:443</button>
+      <button class="btn btn-secondary" onclick="peSet(22)">SSH:22</button>
+      <button class="btn btn-secondary" onclick="peSet(3306)">MySQL:3306</button>
+      <button class="btn btn-secondary" onclick="peSet(54321)">Ephemeral</button>
+    </div>
+  </div>
+
+  <div class="port-result" id="pe-result">Đang tải...</div>
+
+  <div class="info-box" style="margin-top:12px;">
+    <strong>Thanh trực quan dải port:</strong>
+    <div style="margin-top:8px;">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#64748b;margin-bottom:4px;">
+        <span>0</span><span>1024</span><span>49152</span><span>65535</span>
+      </div>
+      <div style="position:relative;height:20px;border-radius:6px;overflow:hidden;display:flex;">
+        <div style="flex:1024;background:#fee2e2;position:relative;">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#991b1b;">Well-known</div>
+        </div>
+        <div style="flex:48128;background:#fef3c7;position:relative;">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#92400e;">Registered</div>
+        </div>
+        <div style="flex:16384;background:#dcfce7;position:relative;">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#166534;">Ephemeral</div>
+        </div>
+      </div>
+      <div id="pe-marker-wrap" style="position:relative;height:14px;">
+        <div id="pe-marker" style="position:absolute;top:2px;width:2px;height:10px;background:#dc2626;transition:left .3s;border-radius:1px;">
+          <div style="position:absolute;top:-14px;left:-12px;font-size:10px;font-weight:700;color:#dc2626;white-space:nowrap" id="pe-marker-label">80</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Known ports quick table -->
+  <div style="overflow-x:auto;margin-top:12px;">
+    <table class="conn-table">
+      <thead>
+        <tr><th>Cổng</th><th>Giao thức</th><th>Dịch vụ</th><th>Dải</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>20, 21</td><td>TCP</td><td>FTP (data, control)</td><td class="tag tag-err">Well-known</td></tr>
+        <tr><td>22</td><td>TCP</td><td>SSH</td><td class="tag tag-err">Well-known</td></tr>
+        <tr><td>25</td><td>TCP</td><td>SMTP (email gửi)</td><td class="tag tag-err">Well-known</td></tr>
+        <tr><td>53</td><td>UDP/TCP</td><td>DNS</td><td class="tag tag-err">Well-known</td></tr>
+        <tr><td>80</td><td>TCP</td><td>HTTP</td><td class="tag tag-err">Well-known</td></tr>
+        <tr><td>443</td><td>TCP</td><td>HTTPS (HTTP + TLS)</td><td class="tag tag-err">Well-known</td></tr>
+        <tr><td>3306</td><td>TCP</td><td>MySQL</td><td class="tag tag-wait">Registered</td></tr>
+        <tr><td>5432</td><td>TCP</td><td>PostgreSQL</td><td class="tag tag-wait">Registered</td></tr>
+        <tr><td>6379</td><td>TCP</td><td>Redis</td><td class="tag tag-wait">Registered</td></tr>
+        <tr><td>27017</td><td>TCP</td><td>MongoDB</td><td class="tag tag-wait">Registered</td></tr>
+        <tr><td>49152–65535</td><td>TCP/UDP</td><td>Dynamic/Ephemeral (OS tự cấp)</td><td class="tag tag-ok">Ephemeral</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+// ─────────────────────────────────────────────────────────────
+// MODULE 1: SOCKET LIFECYCLE ANIMATION
+// ─────────────────────────────────────────────────────────────
+let lcStep = 0;
+let lcAutoTimer = null;
+
+// Each step: { sLabel (server state label), cLabel (client state label),
+//              callLabel (center syscall text), callY (y position),
+//              sBox (index 0-5), cBox (index 0-5),
+//              sColor, cColor, showArrow, desc }
+const LC_STEPS = [
+  // Step 0: initial state
+  null,
+  // Step 1: SERVER socket()
+  {
+    sIdx: 0, sLabel: 'socket()', sColor: '#dcfce7',
+    cIdx: -1, cLabel: '', cColor: '',
+    callSide: 'server', callText: 'socket(AF_INET, SOCK_STREAM)', callY: 62,
+    showConnect: false, showArrows: false, showEstab: false, showClose: false,
+    desc: '<span class="tag tag-srv">SERVER</span> <strong>Bước 1 — socket()</strong><br>Server gọi <code>socket()</code> để tạo socket TCP. Hàm trả về một <em>file descriptor</em> (số nguyên) đại diện cho socket. Lúc này socket chưa gán địa chỉ nào — chỉ là một "ổ cắm trống" trong kernel.'
+  },
+  // Step 2: SERVER bind()
+  {
+    sIdx: 1, sLabel: 'bind(0.0.0.0:PORT)', sColor: '#dcfce7',
+    cIdx: -1, cLabel: '', cColor: '',
+    callSide: 'server', callText: 'bind(fd, 0.0.0.0:PORT)', callY: 110,
+    showConnect: false, showArrows: false, showEstab: false, showClose: false,
+    desc: '<span class="tag tag-srv">SERVER</span> <strong>Bước 2 — bind()</strong><br>Server gọi <code>bind()</code> để gán địa chỉ <code>(0.0.0.0, PORT)</code> cho socket. <code>0.0.0.0</code> = lắng nghe trên mọi interface. Sau bước này kernel biết "socket này sở hữu port PORT".'
+  },
+  // Step 3: SERVER listen()
+  {
+    sIdx: 2, sLabel: 'listen(backlog=128)', sColor: '#a7f3d0',
+    cIdx: -1, cLabel: '', cColor: '',
+    callSide: 'server', callText: 'listen(fd, 128)', callY: 158,
+    showConnect: false, showArrows: false, showEstab: false, showClose: false,
+    desc: '<span class="tag tag-srv">SERVER</span> <strong>Bước 3 — listen()</strong><br>Server chuyển socket sang chế độ lắng nghe. Tham số <code>backlog=128</code>: kernel xếp tối đa 128 kết nối đang chờ <code>accept()</code>. Server chưa chặn — tiếp tục chạy đến <code>accept()</code>.'
+  },
+  // Step 4: CLIENT socket() + connect()
+  {
+    sIdx: 2, sLabel: 'listen(backlog=128)', sColor: '#a7f3d0',
+    cIdx: 0, cLabel: 'socket()', cColor: '#ede9fe',
+    callSide: 'client', callText: 'socket() + connect(srv:PORT)', callY: 206,
+    showConnect: true, showArrows: false, showEstab: false, showClose: false,
+    desc: '<span class="tag tag-cli">CLIENT</span> <strong>Bước 4 — socket() + connect()</strong><br>Client tạo socket và gọi <code>connect(server_ip, PORT)</code>. Kernel tự cấp ephemeral port (vd: 54321) rồi khởi động bắt tay 3 bước TCP (SYN → SYN-ACK → ACK). Hàm <code>connect()</code> blocking — chờ đến khi bắt tay hoàn tất.'
+  },
+  // Step 5: SERVER accept() → ESTABLISHED
+  {
+    sIdx: 3, sLabel: 'accept() → conn_fd', sColor: '#6ee7b7',
+    cIdx: 1, cLabel: 'ESTABLISHED', cColor: '#c4b5fd',
+    callSide: 'both', callText: '← accept() | ESTABLISHED →', callY: 206,
+    showConnect: true, showArrows: false, showEstab: true, showClose: false,
+    desc: '<span class="tag tag-srv">SERVER</span> <strong>Bước 5 — accept()</strong><br>Server gọi <code>accept()</code> — blocking tại đây. Khi client kết nối đến, <code>accept()</code> trả về <strong>connected socket mới</strong> (<code>conn_fd</code>) riêng cho client này. Listening socket vẫn tiếp tục chờ client tiếp theo. Cả hai bên ở trạng thái <strong>ESTABLISHED</strong>.'
+  },
+  // Step 6: send/recv
+  {
+    sIdx: 4, sLabel: 'send() / recv()', sColor: '#6ee7b7',
+    cIdx: 2, cLabel: 'send() / recv()', cColor: '#c4b5fd',
+    callSide: 'both', callText: '', callY: 0,
+    showConnect: true, showArrows: true, showEstab: true, showClose: false,
+    desc: '<span class="tag tag-srv">SERVER</span> + <span class="tag tag-cli">CLIENT</span> <strong>Bước 6 — Trao đổi dữ liệu</strong><br>Hai bên gửi/nhận dữ liệu qua <code>send()</code> và <code>recv()</code>. Dữ liệu di chuyển qua TCP — đảm bảo thứ tự, không mất. Server echo đọc dữ liệu từ client rồi gửi lại y nguyên.'
+  },
+  // Step 7: close
+  {
+    sIdx: 5, sLabel: 'close(conn_fd)', sColor: '#fecaca',
+    cIdx: 3, cLabel: 'close()', cColor: '#fde68a',
+    callSide: 'both', callText: '', callY: 0,
+    showConnect: true, showArrows: false, showEstab: false, showClose: true,
+    desc: '<span class="tag tag-srv">SERVER</span> + <span class="tag tag-cli">CLIENT</span> <strong>Bước 7 — close()</strong><br>Client hoặc server gọi <code>close()</code> → TCP gửi FIN, tiến hành đóng 4 bước. Kết nối chuyển qua TIME_WAIT trước khi về CLOSED. File descriptor được giải phóng. Listening socket của server vẫn còn và tiếp tục phục vụ client khác.'
+  },
+];
+
+function lcSetText(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+function lcSetFill(id, fill) {
+  const el = document.getElementById(id);
+  if (el) el.setAttribute('fill', fill);
+}
+function lcShowEl(id, show) {
+  const el = document.getElementById(id);
+  if (el) el.style.opacity = show ? '1' : '0';
+}
+
+function lcRender() {
+  const sp = parseInt(document.getElementById('lc-sport').value) || 9000;
+  const cp = parseInt(document.getElementById('lc-cport').value) || 54321;
+
+  // Reset all server state boxes
+  for (let i = 0; i <= 5; i++) {
+    lcSetText(`s-txt-${i}`, '—');
+    lcSetFill(`s-box-${i}`, '#f0f9ff');
+    lcSetFill(`s-box-${i}`, '#f0f9ff');
+    lcSetText(`c-txt-${i}`, '—');
+    lcSetFill(`c-box-${i}`, '#f5f3ff');
+  }
+
+  // Remove old call labels
+  document.getElementById('lc-calls').innerHTML = '';
+
+  // Hide arrows/estab/close
+  lcShowEl('lc-arrows', false);
+  lcShowEl('lc-connect', false);
+  lcShowEl('lc-estab', false);
+  lcShowEl('lc-close', false);
+
+  if (lcStep === 0) return;
+
+  // Apply each step up to current
+  for (let s = 1; s <= lcStep; s++) {
+    const step = LC_STEPS[s];
+    if (!step) continue;
+
+    // Server box
+    if (step.sIdx >= 0) {
+      let label = step.sLabel.replace('PORT', sp);
+      lcSetText(`s-txt-${step.sIdx}`, label);
+      lcSetFill(`s-box-${step.sIdx}`, step.sColor);
+    }
+    // Client box
+    if (step.cIdx >= 0) {
+      lcSetText(`c-txt-${step.cIdx}`, step.cLabel.replace('PORT', cp));
+      lcSetFill(`c-box-${step.cIdx}`, step.cColor);
+    }
+  }
+
+  // Show syscall label for current step
+  const cur = LC_STEPS[lcStep];
+  if (cur && cur.callText && cur.callY > 0) {
+    const g = document.getElementById('lc-calls');
+    const svg = document.getElementById('lc-svg');
+    const ns = 'http://www.w3.org/2000/svg';
+    const text = cur.callText.replace('PORT', sp);
+    const tw = Math.max(text.length * 7 + 20, 180);
+    const cx = 300;
+
+    const bg = document.createElementNS(ns, 'rect');
+    bg.setAttribute('x', cx - tw/2); bg.setAttribute('y', cur.callY - 13);
+    bg.setAttribute('width', tw); bg.setAttribute('height', 18);
+    bg.setAttribute('rx', '4'); bg.setAttribute('fill', '#fef9c3');
+    bg.setAttribute('stroke', '#fcd34d'); bg.setAttribute('stroke-width', '1');
+    g.appendChild(bg);
+
+    const txt = document.createElementNS(ns, 'text');
+    txt.setAttribute('x', cx); txt.setAttribute('y', cur.callY);
+    txt.setAttribute('text-anchor', 'middle');
+    txt.setAttribute('font-size', '11');
+    txt.setAttribute('font-weight', '700');
+    txt.setAttribute('font-family', 'monospace');
+    txt.setAttribute('fill', '#92400e');
+    txt.textContent = text;
+    g.appendChild(txt);
+  }
+
+  // Arrows
+  if (cur) {
+    lcShowEl('lc-connect', cur.showConnect);
+    lcShowEl('lc-arrows', cur.showArrows);
+    lcShowEl('lc-estab', cur.showEstab);
+    lcShowEl('lc-close', cur.showClose);
+  }
+}
+
+function lcStep_fn() {
+  const maxStep = LC_STEPS.length - 1;
+  if (lcStep >= maxStep) {
+    // Reset if at end
+    lcReset();
+    return;
+  }
+  lcStep++;
+  lcRender();
+  // Update description
+  const cur = LC_STEPS[lcStep];
+  if (cur) document.getElementById('lc-desc').innerHTML = cur.desc;
+
+  const btn = document.getElementById('lc-btn-step');
+  if (lcStep >= maxStep) {
+    btn.textContent = 'Bắt đầu lại';
+  } else {
+    btn.textContent = 'Bước tiếp theo →';
+  }
+}
+
+function lcReset() {
+  clearInterval(lcAutoTimer);
+  lcAutoTimer = null;
+  lcStep = 0;
+  lcRender();
+  document.getElementById('lc-desc').innerHTML = 'Nhấn <strong>"Bước tiếp theo"</strong> để bắt đầu. Hai cột biểu diễn Server (xanh lá) và Client (tím). Mỗi bước hiển thị lời gọi hệ thống và trạng thái socket tương ứng.';
+  document.getElementById('lc-btn-step').textContent = 'Bước tiếp theo →';
+}
+
+function lcStep() { lcStep_fn(); }
+
+function lcAuto() {
+  if (lcAutoTimer) { clearInterval(lcAutoTimer); lcAutoTimer = null; return; }
+  lcAutoTimer = setInterval(() => {
+    if (lcStep >= LC_STEPS.length - 1) {
+      clearInterval(lcAutoTimer); lcAutoTimer = null; return;
+    }
+    lcStep_fn();
+  }, 1400);
+}
+
+// ─────────────────────────────────────────────────────────────
+// MODULE 2: MANY CLIENTS — 4-TUPLE TABLE
+// ─────────────────────────────────────────────────────────────
+let m2Connections = [];
+let m2EphemeralBase = 50000;
+
+const M2_COLORS = [
+  '#4f46e5', '#0369a1', '#16a34a', '#d97706', '#dc2626',
+  '#7c3aed', '#0e7490', '#65a30d', '#b45309', '#b91c1c'
+];
+
+// IP pools for auto-rotation
+const M2_IP_POOL = [
+  '192.168.1.5', '192.168.1.6', '10.0.0.5', '10.0.0.6',
+  '172.16.0.10', '172.16.0.11', '192.168.2.3', '10.1.0.5'
+];
+
+function m2GetSrvInfo() {
+  const ip = document.getElementById('m2-srv-ip').value || '203.0.113.10';
+  const port = parseInt(document.getElementById('m2-srv-port').value) || 80;
+  return { ip, port };
+}
+
+function m2AddClient() {
+  const { ip: srvIp, port: srvPort } = m2GetSrvInfo();
+  const cliIp = document.getElementById('m2-cli-ip').value || '192.168.1.5';
+
+  // Find next ephemeral port for this client IP
+  const existingPorts = m2Connections
+    .filter(c => c.cliIp === cliIp)
+    .map(c => c.cliPort);
+  let nextPort = m2EphemeralBase;
+  while (existingPorts.includes(nextPort)) nextPort++;
+  m2EphemeralBase = nextPort + 1;
+
+  const conn = {
+    id: m2Connections.length + 1,
+    cliIp,
+    cliPort: nextPort,
+    srvIp,
+    srvPort,
+    color: M2_COLORS[m2Connections.length % M2_COLORS.length]
+  };
+  m2Connections.push(conn);
+
+  // Rotate suggested client IP
+  const currentIdx = M2_IP_POOL.indexOf(document.getElementById('m2-cli-ip').value);
+  const nextIdx = (currentIdx + 1) % M2_IP_POOL.length;
+  document.getElementById('m2-cli-ip').value = M2_IP_POOL[nextIdx];
+
+  m2Render();
+}
+
+function m2Reset() {
+  m2Connections = [];
+  m2EphemeralBase = 50000;
+  document.getElementById('m2-cli-ip').value = '192.168.1.5';
+  m2Render();
+}
+
+function m2Render() {
+  const { ip: srvIp, port: srvPort } = m2GetSrvInfo();
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.getElementById('m2-svg');
+
+  // Update server label
+  document.getElementById('m2-srv-label').textContent = `${srvIp}:${srvPort}`;
+
+  // Clear dynamic clients
+  document.getElementById('m2-clients').innerHTML = '';
+
+  // Adjust SVG height based on count
+  const n = m2Connections.length;
+  const svgH = Math.max(200, 60 + n * 42 + 20);
+  svg.setAttribute('height', svgH);
+  svg.setAttribute('viewBox', `0 0 580 ${svgH}`);
+
+  // Reposition server box vertically centered
+  const srvY = Math.max(40, Math.floor(svgH / 2) - 40);
+
+  const g = document.getElementById('m2-clients');
+
+  m2Connections.forEach((conn, idx) => {
+    const cliY = 40 + idx * 42;
+    const color = conn.color;
+
+    // Client box
+    const rect = document.createElementNS(ns, 'rect');
+    rect.setAttribute('x', '5'); rect.setAttribute('y', cliY);
+    rect.setAttribute('width', '185'); rect.setAttribute('height', '30');
+    rect.setAttribute('rx', '6');
+    rect.setAttribute('fill', '#f5f3ff');
+    rect.setAttribute('stroke', color); rect.setAttribute('stroke-width', '1.5');
+    g.appendChild(rect);
+
+    const cliLabel = document.createElementNS(ns, 'text');
+    cliLabel.setAttribute('x', '97'); cliLabel.setAttribute('y', cliY + 12);
+    cliLabel.setAttribute('text-anchor', 'middle');
+    cliLabel.setAttribute('font-size', '10'); cliLabel.setAttribute('font-weight', '700');
+    cliLabel.setAttribute('fill', color);
+    cliLabel.textContent = `Client ${conn.id}`;
+    g.appendChild(cliLabel);
+
+    const cliAddr = document.createElementNS(ns, 'text');
+    cliAddr.setAttribute('x', '97'); cliAddr.setAttribute('y', cliY + 24);
+    cliAddr.setAttribute('text-anchor', 'middle');
+    cliAddr.setAttribute('font-size', '9.5'); cliAddr.setAttribute('font-family', 'monospace');
+    cliAddr.setAttribute('fill', '#374151');
+    cliAddr.textContent = `${conn.cliIp}:${conn.cliPort}`;
+    g.appendChild(cliAddr);
+
+    // Arrow to server
+    const srvCenterX = 440;
+    const srvCenterY = Math.min(Math.max(cliY + 15, 90), svgH - 30);
+
+    const markId = `m2-mk-${idx}`;
+    const defs = svg.querySelector('defs') || (() => {
+      const d = document.createElementNS(ns, 'defs'); svg.prepend(d); return d;
+    })();
+    const mk = document.createElementNS(ns, 'marker');
+    mk.setAttribute('id', markId); mk.setAttribute('markerWidth', '7');
+    mk.setAttribute('markerHeight', '7'); mk.setAttribute('refX', '5');
+    mk.setAttribute('refY', '3'); mk.setAttribute('orient', 'auto');
+    const mkPath = document.createElementNS(ns, 'path');
+    mkPath.setAttribute('d', 'M0,0 L0,6 L7,3 z'); mkPath.setAttribute('fill', color);
+    mk.appendChild(mkPath); defs.appendChild(mk);
+
+    const line = document.createElementNS(ns, 'line');
+    line.setAttribute('x1', '190'); line.setAttribute('y1', cliY + 15);
+    line.setAttribute('x2', String(srvCenterX)); line.setAttribute('y2', String(srvCenterY));
+    line.setAttribute('stroke', color); line.setAttribute('stroke-width', '1.5');
+    line.setAttribute('marker-end', `url(#${markId})`);
+    g.appendChild(line);
+
+    // Port label on arrow
+    const midX = (190 + srvCenterX) / 2;
+    const midY = (cliY + 15 + srvCenterY) / 2;
+    const portBg = document.createElementNS(ns, 'rect');
+    portBg.setAttribute('x', String(midX - 36)); portBg.setAttribute('y', String(midY - 10));
+    portBg.setAttribute('width', '72'); portBg.setAttribute('height', '14');
+    portBg.setAttribute('rx', '3'); portBg.setAttribute('fill', 'white');
+    portBg.setAttribute('fill-opacity', '0.85');
+    g.appendChild(portBg);
+
+    const portTxt = document.createElementNS(ns, 'text');
+    portTxt.setAttribute('x', String(midX)); portTxt.setAttribute('y', String(midY));
+    portTxt.setAttribute('text-anchor', 'middle');
+    portTxt.setAttribute('font-size', '9'); portTxt.setAttribute('font-weight', '700');
+    portTxt.setAttribute('font-family', 'monospace'); portTxt.setAttribute('fill', color);
+    portTxt.textContent = `:${conn.cliPort} → :${conn.srvPort}`;
+    g.appendChild(portTxt);
+  });
+
+  // Update table
+  const tbody = document.getElementById('m2-tbody');
+  tbody.innerHTML = '';
+  m2Connections.forEach((conn, idx) => {
+    const tr = document.createElement('tr');
+    if (idx === m2Connections.length - 1) tr.className = 'new-row';
+    tr.innerHTML = `
+      <td>${conn.id}</td>
+      <td style="font-family:monospace;color:${conn.color}">${conn.cliIp}</td>
+      <td style="font-family:monospace;color:${conn.color}">${conn.cliPort}</td>
+      <td style="font-family:monospace">${conn.srvIp}</td>
+      <td style="font-family:monospace">${conn.srvPort}</td>
+      <td><span class="tag tag-ok">ESTABLISHED</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Info note
+  const note = document.getElementById('m2-note');
+  if (m2Connections.length === 0) {
+    note.innerHTML = 'Chưa có client. Nhấn "+ Thêm client" để bắt đầu.';
+  } else {
+    const sameIp = m2Connections.filter(c => c.cliIp === m2Connections[0].cliIp);
+    note.innerHTML = `<strong>${m2Connections.length} kết nối đồng thời</strong> đến <code>${srvIp}:${srvPort}</code>.<br>
+    Server dùng port cố định <strong>:${srvPort}</strong> — kernel phân biệt bằng <strong>4-tuple</strong>: mỗi kết nối có src port khác nhau.
+    ${m2Connections.length >= 2
+      ? `<br>Ví dụ: <span class="tuple-badge">(${m2Connections[0].cliIp}, ${m2Connections[0].cliPort}, ${srvIp}, ${srvPort})</span> ≠ <span class="tuple-badge">(${m2Connections[1].cliIp}, ${m2Connections[1].cliPort}, ${srvIp}, ${srvPort})</span>`
+      : ''}`;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// MODULE 3: TCP STATE MACHINE
+// ─────────────────────────────────────────────────────────────
+const SM_INFO = {
+  CLOSED: {
+    title: 'CLOSED',
+    color: '#e2e8f0',
+    desc: '<strong>CLOSED</strong>: Trạng thái ban đầu và kết thúc. Không có kết nối nào tồn tại.<br><strong>Vào từ</strong>: TIME_WAIT (hết 2MSL) hoặc LAST_ACK (nhận ACK cuối).<br><strong>Ra bằng</strong>: Server gọi <code>listen()</code> → LISTEN; Client gọi <code>connect()</code> → SYN_SENT.'
+  },
+  LISTEN: {
+    title: 'LISTEN (chỉ server)',
+    color: '#dcfce7',
+    desc: '<strong>LISTEN</strong>: Server đã gọi <code>listen()</code> và đang chờ kết nối đến.<br><strong>Vào từ</strong>: CLOSED — server gọi <code>listen()</code>.<br><strong>Ra bằng</strong>: Nhận SYN từ client → SYN_RECEIVED.<br><em>Đây là trạng thái server "mở cửa hàng" — sẵn sàng phục vụ.</em>'
+  },
+  SYN_SENT: {
+    title: 'SYN_SENT (chỉ client)',
+    color: '#ede9fe',
+    desc: '<strong>SYN_SENT</strong>: Client đã gửi SYN, đang chờ SYN-ACK từ server.<br><strong>Vào từ</strong>: CLOSED — client gọi <code>connect()</code> → kernel gửi SYN.<br><strong>Ra bằng</strong>: Nhận SYN-ACK → gửi ACK → ESTABLISHED.<br><em>Tình trạng "đã gõ cửa, chờ phản hồi".</em>'
+  },
+  SYN_RECEIVED: {
+    title: 'SYN_RECEIVED (server)',
+    color: '#fef3c7',
+    desc: '<strong>SYN_RECEIVED</strong>: Server đã nhận SYN, gửi SYN-ACK, chờ ACK từ client.<br><strong>Vào từ</strong>: LISTEN — nhận SYN.<br><strong>Ra bằng</strong>: Nhận ACK từ client → ESTABLISHED.<br><em>Bắt tay 3 bước đang ở bước 2: server xác nhận nhưng chưa hoàn thành.</em>'
+  },
+  ESTABLISHED: {
+    title: 'ESTABLISHED',
+    color: '#dcfce7',
+    desc: '<strong>ESTABLISHED</strong>: Kết nối đã thiết lập, dữ liệu có thể trao đổi hai chiều.<br><strong>Vào từ</strong>: Client nhận SYN-ACK / Server nhận ACK.<br><strong>Ra bằng</strong>: Gọi <code>close()</code> → FIN_WAIT_1; Nhận FIN → CLOSE_WAIT.<br><em>Đây là trạng thái "đang làm việc" — phần lớn thời gian kết nối ở đây.</em>'
+  },
+  FIN_WAIT_1: {
+    title: 'FIN_WAIT_1 (chủ động đóng)',
+    color: '#fee2e2',
+    desc: '<strong>FIN_WAIT_1</strong>: Bên chủ động đóng đã gửi FIN, chờ phản hồi.<br><strong>Vào từ</strong>: ESTABLISHED — gọi <code>close()</code>.<br><strong>Ra bằng</strong>: Nhận FIN-ACK → TIME_WAIT.<br><em>Đã "thông báo muốn nghỉ" nhưng vẫn chờ xác nhận.</em>'
+  },
+  CLOSE_WAIT: {
+    title: 'CLOSE_WAIT (bị động đóng)',
+    color: '#fef3c7',
+    desc: '<strong>CLOSE_WAIT</strong>: Bên bị động nhận FIN từ peer, cần gọi <code>close()</code>.<br><strong>Vào từ</strong>: ESTABLISHED — nhận FIN.<br><strong>Ra bằng</strong>: Gọi <code>close()</code> → LAST_ACK.<br><em>Ứng dụng cần xử lý nốt dữ liệu rồi gọi close() — nếu quên sẽ bị "mắc kẹt" ở đây, gây lỗi resource leak.</em>'
+  },
+  TIME_WAIT: {
+    title: 'TIME_WAIT',
+    color: '#e0e7ff',
+    desc: '<strong>TIME_WAIT</strong>: Đã đóng xong, chờ 2×MSL (Maximum Segment Lifetime, thường 60-120s) trước khi dùng lại 4-tuple.<br><strong>Vào từ</strong>: FIN_WAIT_1 — nhận FIN-ACK.<br><strong>Ra bằng</strong>: Hết 2MSL timeout → CLOSED.<br><em>Tại sao cần? Để đảm bảo ACK cuối đến đích và không bị nhầm với kết nối mới cùng 4-tuple. Server với nhiều kết nối đóng nhanh có thể kẹt ở TIME_WAIT — cần SO_REUSEADDR.</em>'
+  },
+  LAST_ACK: {
+    title: 'LAST_ACK',
+    color: '#fce7f3',
+    desc: '<strong>LAST_ACK</strong>: Bên bị động đã gửi FIN, chờ ACK cuối cùng.<br><strong>Vào từ</strong>: CLOSE_WAIT — gọi <code>close()</code>.<br><strong>Ra bằng</strong>: Nhận ACK → CLOSED.<br><em>Gần xong — chỉ còn chờ xác nhận rằng FIN đã đến đích.</em>'
+  }
+};
+
+let smSelected = null;
+
+function smSelect(state) {
+  // Reset all boxes
+  Object.keys(SM_INFO).forEach(s => {
+    const el = document.getElementById('sm-' + s);
+    if (el) {
+      el.setAttribute('stroke-width', s === state ? '3' : '2');
+      el.setAttribute('stroke', s === state ? '#0369a1' : (el.getAttribute('stroke').startsWith('#') ? el.getAttribute('stroke') : '#94a3b8'));
+    }
+  });
+
+  smSelected = state;
+  const info = SM_INFO[state];
+  document.getElementById('sm-info').innerHTML = `<strong style="color:var(--net-blue)">${info.title}</strong><br><br>${info.desc}`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// MODULE 4: PORT EXPLORER
+// ─────────────────────────────────────────────────────────────
+const WELL_KNOWN_PORTS = {
+  20: 'FTP Data', 21: 'FTP Control', 22: 'SSH', 23: 'Telnet',
+  25: 'SMTP', 53: 'DNS', 67: 'DHCP Server', 68: 'DHCP Client',
+  80: 'HTTP', 110: 'POP3', 119: 'NNTP', 123: 'NTP', 143: 'IMAP',
+  161: 'SNMP', 194: 'IRC', 443: 'HTTPS', 445: 'SMB',
+  465: 'SMTPS', 587: 'SMTP Submission', 636: 'LDAPS',
+  993: 'IMAPS', 995: 'POP3S'
+};
+
+const REGISTERED_PORTS = {
+  1080: 'SOCKS proxy', 1433: 'Microsoft SQL Server',
+  1521: 'Oracle DB', 2181: 'ZooKeeper',
+  2375: 'Docker daemon', 2376: 'Docker TLS',
+  3000: 'Dev servers (Node/Rails)', 3306: 'MySQL',
+  4369: 'Erlang Port Mapper', 5000: 'Flask/Dev',
+  5432: 'PostgreSQL', 5672: 'RabbitMQ AMQP',
+  6379: 'Redis', 6443: 'Kubernetes API',
+  8080: 'HTTP alt / Tomcat', 8443: 'HTTPS alt',
+  9092: 'Apache Kafka', 9200: 'Elasticsearch',
+  15672: 'RabbitMQ Management', 27017: 'MongoDB',
+  50051: 'gRPC'
+};
+
+function peSet(port) {
+  document.getElementById('pe-port').value = port;
+  peUpdate();
+}
+
+function peUpdate() {
+  const port = parseInt(document.getElementById('pe-port').value);
+  const res = document.getElementById('pe-result');
+  const marker = document.getElementById('pe-marker');
+  const markerLabel = document.getElementById('pe-marker-label');
+
+  if (isNaN(port) || port < 0 || port > 65535) {
+    res.innerHTML = '<span style="color:#dc2626">Số cổng phải trong khoảng 0–65535.</span>';
+    return;
+  }
+
+  // Marker position (proportional on 65535 range)
+  const pct = (port / 65535) * 100;
+  marker.style.left = `calc(${pct}% - 1px)`;
+  markerLabel.textContent = port;
+
+  let category, catColor, catDesc, rootNeeded, service;
+
+  if (port <= 1023) {
+    category = 'Well-known';
+    catColor = '#dc2626';
+    catDesc = 'Dải 0–1023: dành cho dịch vụ hệ thống. Cần quyền root/admin để lắng nghe (Linux).';
+    rootNeeded = true;
+    service = WELL_KNOWN_PORTS[port] || 'Chưa có dịch vụ nổi tiếng (kiểm tra IANA để biết chính xác)';
+  } else if (port <= 49151) {
+    category = 'Registered';
+    catColor = '#d97706';
+    catDesc = 'Dải 1024–49151: đăng ký với IANA cho ứng dụng cụ thể. Không cần root để lắng nghe.';
+    rootNeeded = false;
+    service = REGISTERED_PORTS[port] || 'Không có trong danh sách nổi tiếng — có thể là cổng tùy chỉnh hoặc dịch vụ ít phổ biến.';
+  } else {
+    category = 'Ephemeral (Dynamic)';
+    catColor = '#16a34a';
+    catDesc = 'Dải 49152–65535: OS tự động cấp cho client khi mở kết nối ra ngoài. Không nên lắng nghe cố định trên dải này.';
+    rootNeeded = false;
+    service = 'Cổng tạm thời — hệ điều hành cấp tự động, thường không cần gán thủ công.';
+  }
+
+  res.innerHTML = `
+    <strong>Port ${port}</strong> — <span class="highlight" style="color:${catColor}">${category}</span><br>
+    Dịch vụ phổ biến: <strong>${service}</strong><br>
+    ${catDesc}<br>
+    Cần quyền root để <code>bind()</code>: <strong style="color:${rootNeeded ? '#dc2626' : '#16a34a'}">${rootNeeded ? 'CÓ (Linux, port < 1024)' : 'KHÔNG'}</strong><br>
+    <br>
+    Ví dụ socket: <code>bind(fd, (0.0.0.0, ${port}))</code> — server lắng nghe mọi interface tại port ${port}.
+  `;
+}
+
+// ─────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────
+lcReset();
+m2Render();
+peUpdate();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

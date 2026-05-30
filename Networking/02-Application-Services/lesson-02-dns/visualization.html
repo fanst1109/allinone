@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — DNS (Domain Name System)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette DNS (xanh dương networking) ── */
+  :root {
+    --dns-blue:   #0369a1;
+    --dns-soft:   #e0f2fe;
+    --dns-mid:    #38bdf8;
+    --dns-dark:   #0c4a6e;
+    --dns-green:  #16a34a;
+    --dns-red:    #dc2626;
+    --dns-amber:  #d97706;
+    --dns-purple: #7c3aed;
+    --bg-card:    #ffffff;
+    --bg-section: #f0f9ff;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--dns-dark); }
+  h2 { color: var(--dns-blue); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--dns-mid); }
+  h3 { color: var(--dns-dark); margin-top: 20px; }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(3,105,161,.10);
+    margin: 16px 0;
+  }
+  .info-box {
+    background: var(--dns-soft);
+    border-left: 4px solid var(--dns-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--dns-blue); color: #fff; }
+  .btn-primary:hover { background: var(--dns-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ── Tag badges ── */
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .3px;
+  }
+  .tag-rec  { background: #dbeafe; color: #1d4ed8; }
+  .tag-iter { background: #dcfce7; color: #166534; }
+  .tag-cache{ background: #ede9fe; color: #6d28d9; }
+  .tag-hit  { background: #dcfce7; color: #166534; }
+  .tag-miss { background: #fee2e2; color: #991b1b; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 1 — DNS Resolution Simulator
+     ═══════════════════════════════════════════════════════ */
+  #sim-input-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-bottom: 14px;
+  }
+  #sim-input-row input[type="text"] {
+    padding: 8px 12px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: monospace;
+    width: 100%;
+    max-width: 260px;
+    box-sizing: border-box;
+  }
+  #sim-input-row input:focus { outline: none; border-color: var(--dns-blue); }
+
+  #sim-stage { width: 100%; overflow-x: auto; }
+  #sim-svg   { display: block; margin: 0 auto; }
+
+  #sim-log {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    min-height: 90px;
+    max-height: 260px;
+    overflow-y: auto;
+    margin-top: 12px;
+    white-space: pre-wrap;
+  }
+  #sim-log .rec    { color: #38bdf8; }
+  #sim-log .iter   { color: #4ade80; }
+  #sim-log .cache  { color: #c084fc; }
+  #sim-log .answer { color: #fbbf24; font-weight: bold; }
+  #sim-log .note   { color: #94a3b8; }
+
+  .sim-step-box {
+    background: var(--bg-section);
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 10px;
+    min-height: 52px;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .sim-step-box strong { color: var(--dns-blue); }
+
+  /* ── Cache panel ── */
+  #cache-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  #cache-table th {
+    background: var(--dns-blue);
+    color: #fff;
+    padding: 6px 10px;
+    text-align: left;
+    font-weight: 700;
+  }
+  #cache-table td {
+    padding: 5px 10px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  #cache-table tr:last-child td { border-bottom: none; }
+  #cache-table .hit { background: #f0fdf4; }
+  #cache-table .expired { color: #94a3b8; text-decoration: line-through; }
+  #cache-empty { color: #94a3b8; font-size: 13px; padding: 10px; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 2 — DNS Hierarchy SVG Tree
+     ═══════════════════════════════════════════════════════ */
+  #tree-svg { display: block; margin: 0 auto; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 3 — Record Types Explorer
+     ═══════════════════════════════════════════════════════ */
+  .record-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .rtab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1.5px solid #d1d5db;
+    background: #f8fafc;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: monospace;
+    cursor: pointer;
+    transition: all .15s;
+    color: #374151;
+  }
+  .rtab:hover   { border-color: var(--dns-blue); color: var(--dns-blue); }
+  .rtab.active  { background: var(--dns-blue); color: #fff; border-color: var(--dns-blue); }
+
+  #record-detail {
+    background: var(--bg-section);
+    border-radius: 10px;
+    padding: 18px 22px;
+    min-height: 180px;
+    transition: opacity .2s;
+  }
+  #record-detail h3 { margin-top: 0; color: var(--dns-dark); }
+  #record-detail pre {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 13px;
+    overflow-x: auto;
+    margin: 10px 0;
+  }
+  #record-detail table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 10px 0;
+  }
+  #record-detail table th { background: #dbeafe; color: #1e3a5f; padding: 6px 10px; text-align: left; }
+  #record-detail table td { padding: 5px 10px; border-bottom: 1px solid #e2e8f0; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 4 — dig Output Simulator
+     ═══════════════════════════════════════════════════════ */
+  .dig-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-bottom: 14px;
+  }
+  .dig-field { display: flex; flex-direction: column; gap: 4px; }
+  .dig-field label { font-size: 12px; font-weight: 700; color: #374151; }
+  .dig-field input, .dig-field select {
+    padding: 7px 10px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: monospace;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 200px;
+  }
+  .dig-field input:focus, .dig-field select:focus { outline: none; border-color: var(--dns-blue); }
+
+  #dig-output {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 18px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 2;
+    min-height: 120px;
+    white-space: pre;
+    overflow-x: auto;
+    margin-top: 12px;
+  }
+  #dig-output .header-line { color: #94a3b8; }
+  #dig-output .section-line{ color: #38bdf8; font-weight: bold; }
+  #dig-output .answer-line  { color: #4ade80; }
+  #dig-output .meta-line    { color: #64748b; }
+  #dig-output .comment-line { color: #fbbf24; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 5 — TTL Propagation Demo
+     ═══════════════════════════════════════════════════════ */
+  .ttl-sliders {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 12px 0;
+  }
+  .ttl-group { display: flex; flex-direction: column; gap: 6px; }
+  .ttl-group label { font-weight: 700; font-size: 14px; color: #374151; }
+  .ttl-group input[type="range"] { width: 100%; accent-color: var(--dns-blue); }
+  .ttl-val { font-family: monospace; font-size: 15px; color: var(--dns-blue); font-weight: 700; }
+
+  #ttl-viz { width: 100%; overflow-x: auto; }
+  #ttl-svg { display: block; margin: 0 auto; }
+
+  #ttl-result {
+    background: var(--bg-section);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.8;
+    margin-top: 12px;
+  }
+  #ttl-result .highlight { color: var(--dns-dark); font-weight: 700; font-size: 16px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .ttl-sliders { grid-template-columns: 1fr; }
+    .dig-controls { flex-direction: column; align-items: stretch; }
+    .dig-field input, .dig-field select { max-width: 100%; }
+    #sim-input-row input[type="text"] { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Application</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-client-server-sockets/visualization.html">← L1: Client-server &amp; Socket</a>
+  <span class="sep">·</span>
+  <span class="current">L2: DNS</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-http-basics/visualization.html">L3: HTTP/HTTPS cơ bản →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — DNS (Domain Name System)</h1>
+<p>Năm module tương tác: mô phỏng phân giải DNS từng bước, cây phân cấp tên miền, khám phá bản ghi DNS, giả lập lệnh <code>dig</code>, và demo ảnh hưởng TTL.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — DNS Resolution Simulator
+     ═══════════════════════════════════════════════════════════ -->
+<h2>1. Mô phỏng phân giải DNS</h2>
+<div class="card">
+  <p>Nhập tên miền, chọn chế độ, rồi bấm từng bước để xem resolver đi hỏi Root → TLD → Authoritative.</p>
+
+  <div id="sim-input-row">
+    <div class="dig-field">
+      <label>Tên miền</label>
+      <input type="text" id="sim-domain" value="www.example.com" placeholder="vd: mail.github.com">
+    </div>
+    <div class="dig-field">
+      <label>Chế độ</label>
+      <select id="sim-mode" style="padding:7px 10px;border:1.5px solid #d1d5db;border-radius:6px;font-size:13px;max-width:180px;">
+        <option value="full">Phân giải đầy đủ (cache trống)</option>
+        <option value="cache">Cache HIT (resolver đã có)</option>
+      </select>
+    </div>
+    <div style="align-self:flex-end;">
+      <button class="btn btn-secondary" onclick="simReset()">Đặt lại</button>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="sim-btn-step" onclick="simStep()">Bước tiếp theo →</button>
+    <button class="btn btn-secondary" onclick="simRunAll()">Chạy tất cả</button>
+    <button class="btn btn-secondary" onclick="simReset()">Bắt đầu lại</button>
+  </div>
+
+  <div id="sim-stage">
+    <svg id="sim-svg" width="680" height="300" viewBox="0 0 680 300"></svg>
+  </div>
+
+  <div class="sim-step-box" id="sim-step-desc">Nhập tên miền và bấm "Bước tiếp theo" để bắt đầu.</div>
+
+  <pre id="sim-log"><span class="note">-- Log phân giải DNS sẽ hiện ở đây --</span></pre>
+
+  <!-- Cache panel -->
+  <h3 style="margin-top:20px;">Bộ nhớ đệm (Cache) của Resolver</h3>
+  <div id="cache-panel">
+    <div id="cache-empty">Cache trống — chưa có truy vấn nào.</div>
+    <table id="cache-table" style="display:none;">
+      <thead>
+        <tr><th>Tên miền</th><th>Loại</th><th>Kết quả</th><th>TTL (giây)</th><th>Trạng thái</th></tr>
+      </thead>
+      <tbody id="cache-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — DNS Hierarchy Tree
+     ═══════════════════════════════════════════════════════════ -->
+<h2>2. Cây phân cấp tên miền DNS</h2>
+<div class="card">
+  <p>Cây phân cấp của hệ thống tên miền — gốc (root) ở trên, nhánh lá ở dưới. Click vào nút để xem chi tiết.</p>
+  <div style="width:100%;overflow-x:auto;">
+    <svg id="tree-svg" width="700" height="340" viewBox="0 0 700 340"></svg>
+  </div>
+  <div class="info-box" id="tree-info">Click vào một nút trong cây để xem thông tin chi tiết.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — Record Types Explorer
+     ═══════════════════════════════════════════════════════════ -->
+<h2>3. Các loại bản ghi DNS</h2>
+<div class="card">
+  <p>Click vào loại bản ghi để xem định nghĩa, cú pháp và ví dụ thực tế.</p>
+
+  <div class="record-tabs" id="record-tabs"></div>
+  <div id="record-detail"><p style="color:#94a3b8;">Chọn một loại bản ghi ở trên.</p></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — dig Output Simulator
+     ═══════════════════════════════════════════════════════════ -->
+<h2>4. Mô phỏng lệnh dig</h2>
+<div class="card">
+  <p>Chọn domain, loại bản ghi và resolver để xem output mẫu của lệnh <code>dig</code>.</p>
+
+  <div class="dig-controls">
+    <div class="dig-field">
+      <label>Domain</label>
+      <input type="text" id="dig-domain" value="example.com" placeholder="example.com">
+    </div>
+    <div class="dig-field">
+      <label>Loại bản ghi</label>
+      <select id="dig-type">
+        <option>A</option>
+        <option>AAAA</option>
+        <option>MX</option>
+        <option>NS</option>
+        <option>TXT</option>
+        <option>CNAME</option>
+        <option>PTR</option>
+      </select>
+    </div>
+    <div class="dig-field">
+      <label>Resolver (@)</label>
+      <select id="dig-resolver">
+        <option value="8.8.8.8">8.8.8.8 (Google)</option>
+        <option value="1.1.1.1">1.1.1.1 (Cloudflare)</option>
+        <option value="208.67.222.222">208.67.222.222 (OpenDNS)</option>
+      </select>
+    </div>
+    <div style="align-self:flex-end;">
+      <button class="btn btn-primary" onclick="runDig()">Chạy dig</button>
+    </div>
+  </div>
+
+  <div class="info-box" style="font-size:13px;margin-bottom:6px;">
+    Lệnh tương đương: <code id="dig-cmd" style="font-weight:700;color:var(--dns-dark);">dig @8.8.8.8 example.com A</code>
+  </div>
+
+  <div id="dig-output"><span style="color:#64748b;">-- Bấm "Chạy dig" để xem output mô phỏng --</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 5 — TTL Propagation Demo
+     ═══════════════════════════════════════════════════════════ -->
+<h2>5. Demo ảnh hưởng TTL — đổi IP domain</h2>
+<div class="card">
+  <p>Kéo thanh để xem: với TTL hiện tại, nếu đổi IP ngay bây giờ thì bao lâu sau người dùng mới nhận IP mới?</p>
+
+  <div class="ttl-sliders">
+    <div class="ttl-group">
+      <label>TTL hiện tại (giây)</label>
+      <input type="range" id="ttl-current" min="60" max="86400" step="60" value="3600" oninput="updateTTL()">
+      <span class="ttl-val" id="ttl-current-val">3600 s (1 giờ)</span>
+    </div>
+    <div class="ttl-group">
+      <label>Thời điểm đổi IP (giờ kể từ lúc TTL được cache lần cuối)</label>
+      <input type="range" id="ttl-elapsed" min="0" max="86400" step="60" value="0" oninput="updateTTL()">
+      <span class="ttl-val" id="ttl-elapsed-val">0 s (vừa cache xong)</span>
+    </div>
+  </div>
+
+  <div id="ttl-viz">
+    <svg id="ttl-svg" width="620" height="130" viewBox="0 0 620 130"></svg>
+  </div>
+
+  <div id="ttl-result">Kéo thanh để xem phân tích.</div>
+</div>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   MODULE 1 — DNS Resolution Simulator
+   ═══════════════════════════════════════════════════════ */
+
+const ACTORS = [
+  { id: 'client', label: 'Client\n(Browser)', x: 40,  color: '#0369a1', desc: 'Trình duyệt / máy tính của bạn — gửi truy vấn đệ quy tới Resolver.' },
+  { id: 'res',    label: 'Resolver\n8.8.8.8',  x: 190, color: '#7c3aed', desc: 'Recursive Resolver của Google — đi hỏi thay Client, lưu cache kết quả.' },
+  { id: 'root',   label: 'Root\nServer',        x: 350, color: '#d97706', desc: 'Root Name Server (198.41.0.4) — biết TLD nào do server nào quản lý.' },
+  { id: 'tld',    label: 'TLD Server\n(.com)',   x: 505, color: '#16a34a', desc: 'TLD Name Server của .com (192.5.6.30) — biết authoritative của domain.' },
+  { id: 'auth',   label: 'Auth\nServer',         x: 640, color: '#dc2626', desc: 'Authoritative Name Server — giữ bản ghi DNS thực sự của domain.' },
+];
+
+const SIM_SVG_W = 680, SIM_SVG_H = 300;
+const ACTOR_Y = 30, LINE_TOP = 60, LINE_H = 230;
+const BOX_W = 80, BOX_H = 44;
+
+let simState = 0; // current step index
+let simSteps = [];
+let simCache = {}; // { domain: { type, value, ttl, ts } }
+let simAnimFrame = null;
+
+function parseDomain(domain) {
+  const d = domain.trim().toLowerCase().replace(/\.$/, '');
+  const parts = d.split('.');
+  if (parts.length < 2) return { tld: d, sld: '', sub: '', full: d };
+  const tld = parts[parts.length - 1];
+  const sld = parts[parts.length - 2];
+  const sub = parts.slice(0, parts.length - 2).join('.');
+  return { tld, sld, sub, full: d };
+}
+
+function makeIp(seed) {
+  const h = (s) => { let v=0; for(let c of s) v=(v*31+c.charCodeAt(0))&0xffff; return v; };
+  const n = h(seed);
+  return `${(n>>8)&0x7f|64}.${(n*7)&0xff}.${(n*13)&0xff}.${(n*23)&0xff}`;
+}
+
+function buildStepsFull(domain) {
+  const d = parseDomain(domain);
+  const ip = makeIp(d.full);
+  const authNs = `ns1.${d.sld}-dns.com`;
+  const authIp = makeIp(authNs);
+  return [
+    {
+      from: 0, to: 1, dir: 'right', type: 'rec',
+      label: `"${d.full} A?"`,
+      desc: `<strong>Bước 1 — Recursive query</strong>: Client gửi truy vấn A record cho <code>${d.full}</code> tới Resolver 8.8.8.8. Flag <code>RD=1</code> (Recursion Desired). Giao thức: <strong>UDP port 53</strong>.`,
+      log: `[REC] Client → Resolver: A ${d.full}? (RD=1, UDP/53)`,
+    },
+    {
+      from: 1, to: 2, dir: 'right', type: 'iter',
+      label: `"${d.full} A?"`,
+      desc: `<strong>Bước 2 — Iterative: Resolver hỏi Root</strong>: Resolver không có cache → hỏi root server (198.41.0.4). <code>RD=0</code> — iterative. Root trả lời referral: "TLD <code>.${d.tld}</code> do <em>a.gtld-servers.net</em> quản lý".`,
+      log: `[ITER] Resolver → Root (198.41.0.4): A ${d.full}?\n       ← Root referral: .${d.tld} NS → a.gtld-servers.net (192.5.6.30)`,
+    },
+    {
+      from: 1, to: 3, dir: 'right', type: 'iter',
+      label: `"${d.full} A?"`,
+      desc: `<strong>Bước 3 — Iterative: Resolver hỏi TLD .${d.tld}</strong>: Resolver hỏi a.gtld-servers.net (192.5.6.30). TLD biết <code>${d.sld}.${d.tld}</code> do ai quản lý — trả về referral NS: <em>${authNs}</em> (${authIp}).`,
+      log: `[ITER] Resolver → TLD .${d.tld} (192.5.6.30): A ${d.full}?\n       ← TLD referral: ${d.sld}.${d.tld} NS → ${authNs} (${authIp})`,
+    },
+    {
+      from: 1, to: 4, dir: 'right', type: 'iter',
+      label: `"${d.full} A?"`,
+      desc: `<strong>Bước 4 — Iterative: Resolver hỏi Authoritative</strong>: Resolver hỏi ${authNs}. Đây là server có thẩm quyền — trả lời chính xác: <code>${d.full}  3600  IN  A  ${ip}</code>. Flag <code>AA=1</code> (Authoritative Answer).`,
+      log: `[ITER] Resolver → Auth ${authNs} (${authIp}): A ${d.full}?\n       ← Auth ANSWER (AA=1): ${d.full} 3600 IN A ${ip}`,
+    },
+    {
+      from: 1, to: 0, dir: 'left', type: 'rec',
+      label: `"${ip}"`,
+      desc: `<strong>Bước 5 — Trả kết quả + Cache</strong>: Resolver lưu vào cache <code>${d.full} → ${ip}</code> (TTL 3600s). Rồi trả về Client. Client kết nối TCP/80 (hoặc 443) tới <strong>${ip}</strong>.`,
+      log: `[CACHE] Resolver lưu: ${d.full} A ${ip} TTL=3600\n[REC]  Resolver → Client: ${d.full} = ${ip} ✓`,
+      cacheEntry: { domain: d.full, type: 'A', value: ip, ttl: 3600 },
+    },
+  ];
+}
+
+function buildStepsCache(domain) {
+  const d = parseDomain(domain);
+  const ip = makeIp(d.full);
+  return [
+    {
+      from: 0, to: 1, dir: 'right', type: 'rec',
+      label: `"${d.full} A?"`,
+      desc: `<strong>Bước 1 — Client hỏi Resolver (đệ quy)</strong>: Client gửi truy vấn A record cho <code>${d.full}</code> tới Resolver 8.8.8.8. UDP port 53, RD=1.`,
+      log: `[REC] Client → Resolver: A ${d.full}? (RD=1)`,
+    },
+    {
+      from: 1, to: 0, dir: 'left', type: 'cache',
+      label: `"${ip}" (cache)`,
+      desc: `<strong>Bước 2 — Cache HIT!</strong>: Resolver tìm thấy <code>${d.full} → ${ip}</code> trong cache (còn TTL). Trả lời ngay mà không hỏi Root/TLD/Authoritative. Thời gian: ~1ms thay vì ~100-300ms cho full resolution. Flag <code>RA=1, AA=0</code> (không authoritative — từ cache).`,
+      log: `[CACHE HIT] ${d.full} → ${ip} (TTL còn 2847s)\n[REC]  Resolver → Client: ${d.full} = ${ip} ✓ (từ cache)`,
+    },
+  ];
+}
+
+function simInit() {
+  const svg = document.getElementById('sim-svg');
+  svg.innerHTML = '';
+  // timelines
+  ACTORS.forEach(a => {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', a.x); line.setAttribute('y1', LINE_TOP);
+    line.setAttribute('x2', a.x); line.setAttribute('y2', LINE_TOP + LINE_H);
+    line.setAttribute('stroke', a.color); line.setAttribute('stroke-width', '2');
+    line.setAttribute('stroke-dasharray', '4,3'); line.setAttribute('opacity', '0.5');
+    svg.appendChild(line);
+    // box
+    const rx = a.x - BOX_W/2, ry = ACTOR_Y;
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', rx); rect.setAttribute('y', ry);
+    rect.setAttribute('width', BOX_W); rect.setAttribute('height', BOX_H);
+    rect.setAttribute('rx', '6'); rect.setAttribute('fill', a.color);
+    rect.setAttribute('class', 'actor-box'); rect.setAttribute('data-id', a.id);
+    rect.style.cursor = 'pointer';
+    rect.addEventListener('click', () => showActorInfo(a));
+    svg.appendChild(rect);
+    // labels
+    const lines = a.label.split('\n');
+    lines.forEach((ln, i) => {
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', a.x); t.setAttribute('y', ry + 14 + i * 15);
+      t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', '11');
+      t.setAttribute('font-weight', '700'); t.setAttribute('fill', 'white');
+      t.setAttribute('pointer-events', 'none');
+      t.textContent = ln;
+      svg.appendChild(t);
+    });
+  });
+}
+
+function showActorInfo(a) {
+  const box = document.getElementById('sim-step-desc');
+  box.innerHTML = `<strong>${a.label.replace('\n', ' ')}:</strong> ${a.desc}`;
+}
+
+function simDrawArrow(step, yPos, opacity) {
+  const svg = document.getElementById('sim-svg');
+  const fromA = ACTORS[step.from], toA = ACTORS[step.to];
+  const x1 = fromA.x + (step.dir === 'right' ? 2 : -2);
+  const x2 = toA.x + (step.dir === 'right' ? -2 : 2);
+  const colors = { rec: '#2563eb', iter: '#16a34a', cache: '#7c3aed' };
+  const col = colors[step.type] || '#0369a1';
+
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  g.setAttribute('opacity', opacity);
+
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', x1); line.setAttribute('y1', yPos);
+  line.setAttribute('x2', x2); line.setAttribute('y2', yPos);
+  line.setAttribute('stroke', col); line.setAttribute('stroke-width', '2.5');
+  if (step.type === 'cache') line.setAttribute('stroke-dasharray', '6,3');
+  g.appendChild(line);
+
+  // arrowhead
+  const dx = step.dir === 'right' ? -1 : 1;
+  const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  const ax = x2, ay = yPos;
+  poly.setAttribute('points', `${ax},${ay} ${ax+dx*10},${ay-5} ${ax+dx*10},${ay+5}`);
+  poly.setAttribute('fill', col);
+  g.appendChild(poly);
+
+  // label
+  const lx = (x1 + x2) / 2;
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  const textNode = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  textNode.setAttribute('x', lx); textNode.setAttribute('y', yPos - 5);
+  textNode.setAttribute('text-anchor', 'middle'); textNode.setAttribute('font-size', '10');
+  textNode.setAttribute('fill', col); textNode.setAttribute('font-weight', '700');
+  textNode.setAttribute('pointer-events', 'none');
+  textNode.textContent = step.label.length > 22 ? step.label.slice(0, 20) + '…' : step.label;
+  g.appendChild(textNode);
+
+  // type badge
+  const badge = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  badge.setAttribute('x', lx); badge.setAttribute('y', yPos + 14);
+  badge.setAttribute('text-anchor', 'middle'); badge.setAttribute('font-size', '9');
+  badge.setAttribute('fill', col); badge.setAttribute('opacity', '0.8');
+  badge.textContent = step.type === 'rec' ? '[đệ quy]' : step.type === 'iter' ? '[lặp]' : '[cache]';
+  g.appendChild(badge);
+
+  svg.appendChild(g);
+}
+
+function simReset() {
+  simState = 0; simSteps = [];
+  simInit();
+  document.getElementById('sim-log').innerHTML = '<span class="note">-- Log phân giải DNS sẽ hiện ở đây --</span>';
+  document.getElementById('sim-step-desc').innerHTML = 'Nhập tên miền và bấm "Bước tiếp theo" để bắt đầu.';
+  document.getElementById('sim-btn-step').disabled = false;
+  document.getElementById('sim-btn-step').textContent = 'Bước tiếp theo →';
+}
+
+function simStep() {
+  const domain = document.getElementById('sim-domain').value.trim() || 'www.example.com';
+  const mode = document.getElementById('sim-mode').value;
+
+  if (simState === 0) {
+    simSteps = mode === 'cache' ? buildStepsCache(domain) : buildStepsFull(domain);
+    simInit();
+    document.getElementById('sim-log').innerHTML = '';
+  }
+
+  if (simState >= simSteps.length) return;
+
+  const step = simSteps[simState];
+  const yPos = LINE_TOP + 30 + simState * 45;
+  simDrawArrow(step, yPos, 1);
+
+  // log
+  const log = document.getElementById('sim-log');
+  const cls = step.type === 'rec' ? 'rec' : step.type === 'cache' ? 'cache' : 'iter';
+  const isAnswer = step.cacheEntry || simState === simSteps.length - 1;
+  log.innerHTML += `<span class="${isAnswer ? 'answer' : cls}">${step.log}</span>\n`;
+  log.scrollTop = log.scrollHeight;
+
+  // desc
+  document.getElementById('sim-step-desc').innerHTML = step.desc;
+
+  // cache
+  if (step.cacheEntry) {
+    simCache[step.cacheEntry.domain] = { ...step.cacheEntry, ts: Date.now() };
+    renderCache();
+  }
+
+  simState++;
+  if (simState >= simSteps.length) {
+    document.getElementById('sim-btn-step').disabled = true;
+    document.getElementById('sim-btn-step').textContent = 'Hoàn tất';
+    const log2 = document.getElementById('sim-log');
+    const modeLabel = mode === 'cache' ? 'cache HIT' : 'full resolution';
+    log2.innerHTML += `<span class="note">\n✓ Phân giải ${modeLabel} hoàn tất.</span>`;
+  }
+}
+
+function simRunAll() {
+  simReset();
+  const count = document.getElementById('sim-mode').value === 'cache' ? 2 : 5;
+  let i = 0;
+  const run = () => { if (i++ < count) { simStep(); setTimeout(run, 600); } };
+  run();
+}
+
+function renderCache() {
+  const tbody = document.getElementById('cache-tbody');
+  const empty = document.getElementById('cache-empty');
+  const tbl = document.getElementById('cache-table');
+  const entries = Object.values(simCache);
+  if (entries.length === 0) { empty.style.display = ''; tbl.style.display = 'none'; return; }
+  empty.style.display = 'none'; tbl.style.display = '';
+  tbody.innerHTML = '';
+  entries.forEach(e => {
+    const elapsed = Math.floor((Date.now() - e.ts) / 1000);
+    const remaining = Math.max(0, e.ttl - elapsed);
+    const expired = remaining === 0;
+    const tr = document.createElement('tr');
+    if (!expired) tr.className = 'hit';
+    tr.innerHTML = `<td class="${expired?'expired':''}">${e.domain}</td>
+      <td>${e.type}</td>
+      <td>${e.value}</td>
+      <td>${e.ttl}</td>
+      <td><span class="tag ${expired?'tag-miss':'tag-hit'}">${expired?'Hết hạn':'Hợp lệ (~'+remaining+'s)'}</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   MODULE 2 — DNS Hierarchy Tree
+   ═══════════════════════════════════════════════════════ */
+
+const TREE_NODES = [
+  { id: 'root',  label: 'Root (.)',      x: 350, y: 30,  color: '#0c4a6e', info: '<strong>Root Zone (.)</strong><br>Điểm bắt đầu của mọi truy vấn DNS. Có 13 nhóm root server (A–M), với >1,700 node anycast toàn cầu. Root chỉ biết "TLD nào do server nào quản lý" — không biết IP của website cụ thể.<br><br>Ví dụ: a.root-servers.net → 198.41.0.4' },
+  { id: 'com',   label: '.com',          x: 140, y: 120, color: '#d97706', info: '<strong>TLD .com</strong><br>Quản lý bởi VeriSign theo hợp đồng với ICANN. Chứa thông tin NS của tất cả ~170 triệu domain .com.<br><br>Authoritative server: a.gtld-servers.net (192.5.6.30), b.gtld-servers.net...' },
+  { id: 'vn',    label: '.vn',           x: 280, y: 120, color: '#d97706', info: '<strong>TLD .vn (ccTLD)</strong><br>Quản lý bởi VNNIC (Trung tâm Internet Việt Nam). Có các second-level TLD phụ: .com.vn, .net.vn, .edu.vn, .gov.vn, .org.vn, .co.vn...<br><br>Authoritative: ns1.dns.vn, ns2.dns.vn' },
+  { id: 'org',   label: '.org',          x: 420, y: 120, color: '#d97706', info: '<strong>TLD .org</strong><br>Quản lý bởi Public Interest Registry (PIR). Ban đầu dành cho tổ chức phi lợi nhuận, nay không hạn chế. Wikipedia, Linux Foundation... đều dùng .org.' },
+  { id: 'io',    label: '.io',           x: 560, y: 120, color: '#d97706', info: '<strong>TLD .io (ccTLD Anh-Ấn)</strong><br>Country code TLD của British Indian Ocean Territory, nhưng rất phổ biến với startup tech vì liên tưởng tới "input/output". Quản lý bởi Internet Computer Bureau.<br><br>Nhiều startup như GitHub (github.io), Cloudflare (pages.dev là khác) dùng .io.' },
+  { id: 'google',label: 'google.com',    x: 80,  y: 220, color: '#16a34a', info: '<strong>google.com</strong><br>SLD (Second-Level Domain) thuộc TLD .com. Chủ sở hữu: Google LLC.<br>Authoritative NS: ns1.google.com, ns2.google.com, ns3.google.com, ns4.google.com.<br><br>Subdomain đáng chú ý: www, mail, maps, drive, docs, cloud, api...' },
+  { id: 'github',label: 'github.com',    x: 200, y: 220, color: '#16a34a', info: '<strong>github.com</strong><br>Chủ sở hữu: Microsoft (mua lại 2018). Authoritative NS: ns1.p16.dynect.net...<br><br>Subdomain: api.github.com, raw.githubusercontent.com (static files), gist.github.com.' },
+  { id: 'vnex',  label: 'vnexpress.net', x: 420, y: 220, color: '#16a34a', info: '<strong>vnexpress.net</strong><br>Trang báo điện tử lớn nhất Việt Nam. Dùng TLD .net thay vì .vn vì lịch sử đăng ký sớm.<br>Authoritative NS: ns1.vnexpress.net, ns2.vnexpress.net.' },
+  { id: 'wiki',  label: 'wikipedia.org', x: 560, y: 220, color: '#16a34a', info: '<strong>wikipedia.org</strong><br>Chủ sở hữu: Wikimedia Foundation. NS: ns0.wikimedia.org, ns1.wikimedia.org...<br><br>Subdomain: vi.wikipedia.org (tiếng Việt), en.wikipedia.org, commons.wikimedia.org.' },
+  { id: 'www_g', label: 'www.google.com',x: 55,  y: 310, color: '#dc2626', info: '<strong>www.google.com</strong><br>Subdomain www của google.com. A record: nhiều IP (load balancing anycast). Ví dụ: 142.250.185.46, 142.250.185.78...<br><br>AAAA: 2607:f8b0:4004:c09::64' },
+  { id: 'maps',  label: 'maps.google.com',x:170, y: 310, color: '#dc2626', info: '<strong>maps.google.com</strong><br>Subdomain của google.com phục vụ Google Maps. Có thể trỏ về IP riêng khác với www.google.com — đó là sức mạnh của DNS: mỗi subdomain độc lập.' },
+  { id: 'api_gh',label: 'api.github.com',x:280, y: 310, color: '#dc2626', info: '<strong>api.github.com</strong><br>REST API endpoint của GitHub. A record: 140.82.112.6. Subdomain này có thể có TTL ngắn hơn để cập nhật nhanh khi cần.<br><br>Dùng lệnh: <code>dig api.github.com A</code>' },
+];
+
+const TREE_EDGES = [
+  ['root','com'],['root','vn'],['root','org'],['root','io'],
+  ['com','google'],['com','github'],['org','wiki'],
+  ['google','www_g'],['google','maps'],['github','api_gh'],
+];
+
+function drawTree() {
+  const svg = document.getElementById('tree-svg');
+  svg.innerHTML = '';
+
+  // edges
+  TREE_EDGES.forEach(([a, b]) => {
+    const na = TREE_NODES.find(n=>n.id===a), nb = TREE_NODES.find(n=>n.id===b);
+    if (!na || !nb) return;
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', na.x); line.setAttribute('y1', na.y + 14);
+    line.setAttribute('x2', nb.x); line.setAttribute('y2', nb.y - 14);
+    line.setAttribute('stroke', '#94a3b8'); line.setAttribute('stroke-width','1.5');
+    line.setAttribute('stroke-dasharray','4,2');
+    svg.appendChild(line);
+  });
+
+  // nodes
+  TREE_NODES.forEach(n => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.style.cursor = 'pointer';
+    g.addEventListener('click', () => {
+      document.getElementById('tree-info').innerHTML = n.info;
+    });
+
+    const tw = n.label.length * 6.5 + 16;
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x', n.x - tw/2); rect.setAttribute('y', n.y - 14);
+    rect.setAttribute('width', tw); rect.setAttribute('height', 28);
+    rect.setAttribute('rx', '7'); rect.setAttribute('fill', n.color);
+    g.appendChild(rect);
+
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', n.x); t.setAttribute('y', n.y + 4);
+    t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', '11');
+    t.setAttribute('font-weight', '700'); t.setAttribute('fill', 'white');
+    t.setAttribute('pointer-events', 'none');
+    t.textContent = n.label;
+    g.appendChild(t);
+
+    svg.appendChild(g);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   MODULE 3 — Record Types Explorer
+   ═══════════════════════════════════════════════════════ */
+
+const RECORD_TYPES = [
+  {
+    type: 'A',
+    title: 'A — Address (IPv4)',
+    desc: 'Ánh xạ tên miền sang địa chỉ IPv4. Loại bản ghi phổ biến nhất — "trái tim" của DNS.',
+    why: 'Là bước cuối cùng để máy tính biết kết nối tới IP nào. Không có A record, tên miền không thể dùng được.',
+    syntax: 'www.example.com.    3600  IN  A  93.184.216.34\napi.example.com.    300   IN  A  104.21.45.30\nmail.example.com.   3600  IN  A  198.51.100.10\n\n# Nhiều A record = load balancing (round-robin)\nblog.example.com.  60  IN  A  1.2.3.4\nblog.example.com.  60  IN  A  1.2.3.5',
+    notes: [
+      ['TTL', '300–86400s. Ngắn nếu IP hay thay đổi; dài nếu ổn định.'],
+      ['Nhiều A record', 'DNS sẽ xoay vòng (round-robin) để phân tải.'],
+      ['Class IN', '"Internet" — class duy nhất còn dùng trong thực tế.'],
+    ]
+  },
+  {
+    type: 'AAAA',
+    title: 'AAAA — IPv6 Address',
+    desc: 'Ánh xạ tên miền sang địa chỉ IPv6 (128-bit). Tên "AAAA" vì địa chỉ IPv6 dài gấp 4 lần IPv4 (32-bit).',
+    why: 'IPv4 chỉ có ~4.3 tỉ địa chỉ — đã gần cạn. IPv6 có 2¹²⁸ ≈ 3.4×10³⁸ địa chỉ. Hệ điều hành ưu tiên IPv6 khi có (Happy Eyeballs).',
+    syntax: 'www.example.com.  3600  IN  AAAA  2606:2800:220:1:248:1893:25c8:1946\ngoogle.com.       300   IN  AAAA  2607:f8b0:4004:c09::64\n\n# Thường có cả A và AAAA cho cùng subdomain\nwww.example.com.  3600  IN  A     93.184.216.34\nwww.example.com.  3600  IN  AAAA  2606:2800:220:1:248:1893:25c8:1946',
+    notes: [
+      ['Format', '8 nhóm hex 16-bit, phân cách bằng :. :: = nhóm 0 liên tiếp.'],
+      ['Happy Eyeballs', 'Browser thử kết nối IPv6 và IPv4 song song, dùng cái nào nhanh hơn.'],
+      ['dig +short AAAA', 'Lệnh tra AAAA: dig www.google.com AAAA +short'],
+    ]
+  },
+  {
+    type: 'CNAME',
+    title: 'CNAME — Canonical Name (Alias)',
+    desc: 'Tạo alias: ánh xạ tên → tên khác (không trực tiếp ra IP). Resolver tiếp tục phân giải tên đích.',
+    why: 'Khi nhiều subdomain cần trỏ về cùng nơi. Chỉ cần cập nhật A record ở canonical name — tất cả CNAME tự cập nhật theo.',
+    syntax: '# www trỏ về apex\nwww.example.com.   3600  IN  CNAME  example.com.\n\n# Subdomain trỏ về dịch vụ bên ngoài\nblog.example.com.  3600  IN  CNAME  myblog.wordpress.com.\nshop.example.com.  300   IN  CNAME  myshop.myshopify.com.\n\n# Chain CNAME (resolver tự theo đến A)\nftp.example.com.   3600  IN  CNAME  www.example.com.\n                                  ↓ CNAME\nwww.example.com.   3600  IN  CNAME  example.com.\n                                  ↓ A\nexample.com.       3600  IN  A      93.184.216.34',
+    notes: [
+      ['Giới hạn', 'CNAME KHÔNG được đặt tại apex domain cùng bản ghi khác (MX, NS, TXT).'],
+      ['ALIAS/ANAME', 'Một số provider DNS hỗ trợ "flat CNAME" cho apex — không chuẩn RFC.'],
+      ['Chain', 'Nhiều CNAME chain nhau được phép (tối đa 8 bước theo BIND), nhưng không nên lạm dụng.'],
+    ]
+  },
+  {
+    type: 'MX',
+    title: 'MX — Mail Exchange',
+    desc: 'Chỉ định mail server nhận email cho domain. Có thêm priority (số): số NHỎ hơn = ưu tiên CAO hơn.',
+    why: 'Cho phép một domain nhận email mà server nhận thư có thể khác IP của web server. Hỗ trợ failover: server chính down thì dùng server dự phòng (priority cao hơn).',
+    syntax: '# Google Workspace\nexample.com.  3600  IN  MX  1   aspmx.l.google.com.\nexample.com.  3600  IN  MX  5   alt1.aspmx.l.google.com.\nexample.com.  3600  IN  MX  5   alt2.aspmx.l.google.com.\nexample.com.  3600  IN  MX  10  alt3.aspmx.l.google.com.\n\n# Server tự host\nexample.com.  3600  IN  MX  10  mail1.example.com.\nexample.com.  3600  IN  MX  20  mail2.example.com.  # failover\n\n# MX phải trỏ tới hostname, KHÔNG phải IP:\n# SAI: MX 10 198.51.100.10\n# ĐÚNG: MX 10 mail.example.com. (rồi thêm A record cho mail.example.com)',
+    notes: [
+      ['Priority', 'Số nhỏ = ưu tiên cao. Server gửi thư thử priority thấp nhất trước.'],
+      ['Bằng nhau', 'Hai MX cùng priority → thử ngẫu nhiên một trong hai.'],
+      ['Không dùng IP', 'RFC 2821 yêu cầu MX target phải là FQDN, không phải IP.'],
+    ]
+  },
+  {
+    type: 'NS',
+    title: 'NS — Name Server',
+    desc: 'Chỉ định authoritative name server nào quản lý domain. Đây là bản ghi TLD server lưu để "delegate" domain.',
+    why: 'Tạo cơ chế delegation: ICANN → VeriSign → chủ domain. Mỗi level có thể delegate nhánh xuống cho layer tiếp theo.',
+    syntax: '# Domain dùng Cloudflare\nexample.com.  86400  IN  NS  ns1.cloudflare.com.\nexample.com.  86400  IN  NS  ns2.cloudflare.com.\n\n# Domain tự host nameserver\ncompany.vn.   86400  IN  NS  ns1.company.vn.\ncompany.vn.   86400  IN  NS  ns2.company.vn.\n\n# Glue records (khi NS là subdomain của chính domain đó)\nns1.company.vn.  86400  IN  A  203.0.113.1\nns2.company.vn.  86400  IN  A  203.0.113.2',
+    notes: [
+      ['TTL cao', '86400s (1 ngày) vì NS rất hiếm thay đổi.'],
+      ['Ít nhất 2 NS', 'RFC khuyến nghị ≥2 NS để tránh single point of failure.'],
+      ['Glue record', 'Khi NS subdomain của domain cần phân giải — phải có A record ở parent zone.'],
+    ]
+  },
+  {
+    type: 'TXT',
+    title: 'TXT — Text Record',
+    desc: 'Văn bản tự do — ban đầu để ghi chú, nay dùng rộng rãi cho xác thực và bảo mật email.',
+    why: 'Tiêu chuẩn xác thực domain (Google, Facebook...) và chống spam email (SPF, DKIM, DMARC) đều dựa vào TXT.',
+    syntax: '# Xác minh sở hữu domain\nexample.com.  3600  IN  TXT  "google-site-verification=abc123xyz"\n\n# SPF — ai được phép gửi email từ @example.com\nexample.com.  3600  IN  TXT  "v=spf1 include:_spf.google.com ip4:203.0.113.5 -all"\n\n# DKIM — public key để xác thực chữ ký email\nmail._domainkey.example.com.  3600  IN  TXT  "v=DKIM1; k=rsa; p=MIIBIjAN..."\n\n# DMARC — chính sách xử lý email không qua SPF/DKIM\n_dmarc.example.com.  3600  IN  TXT  "v=DMARC1; p=reject; rua=mailto:dmarc@example.com"',
+    notes: [
+      ['SPF -all vs ~all', '-all: từ chối cứng; ~all: softfail (có thể spam folder). Dùng -all khi chắc chắn.'],
+      ['DMARC p=', 'none (giám sát), quarantine (spam folder), reject (từ chối). Bắt đầu với none.'],
+      ['Nhiều TXT', 'Một domain có thể có nhiều TXT record (SPF, DKIM, DMARC, xác minh... đều cùng tồn tại).'],
+    ]
+  },
+  {
+    type: 'PTR',
+    title: 'PTR — Pointer (Reverse DNS)',
+    desc: 'Ngược với A record: ánh xạ địa chỉ IP → tên miền. Dùng cho "reverse DNS lookup".',
+    why: 'Mail server kiểm tra PTR của IP gửi thư — IP không có PTR hoặc PTR không khớp A record → email bị spam. Sysadmin dùng để xem "IP này của ai?"',
+    syntax: '# IP 93.184.216.34 → viết ngược → 34.216.184.93 + .in-addr.arpa.\n34.216.184.93.in-addr.arpa.  3600  IN  PTR  example.com.\n\n# IP Google 8.8.8.8 → 8.8.8.8.in-addr.arpa.\n8.8.8.8.in-addr.arpa.  300  IN  PTR  dns.google.\n\n# IPv6 reverse: 2606:2800:220::1\n# Viết ngược từng nibble hex:\n1.0.0.0.0.0.0.0.0.2.2.0.0.0.8.2.6.0.6.2.ip6.arpa.  IN  PTR  example.com.\n\n# Tra cứu:\ndig -x 8.8.8.8\n# → dns.google.',
+    notes: [
+      ['in-addr.arpa', 'Zone đặc biệt của DNS cho reverse lookup IPv4.'],
+      ['ip6.arpa', 'Tương tự cho IPv6 — phức tạp hơn nhiều do nibble notation.'],
+      ['Quản lý bởi ISP', 'PTR của IP public thường do ISP/hosting quản lý, không phải chủ domain.'],
+    ]
+  },
+];
+
+function renderRecordTabs() {
+  const tabs = document.getElementById('record-tabs');
+  RECORD_TYPES.forEach((r, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'rtab' + (i === 0 ? ' active' : '');
+    btn.textContent = r.type;
+    btn.onclick = () => {
+      document.querySelectorAll('.rtab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      showRecord(r);
+    };
+    tabs.appendChild(btn);
+  });
+  showRecord(RECORD_TYPES[0]);
+}
+
+function showRecord(r) {
+  const div = document.getElementById('record-detail');
+  let notesHtml = '';
+  if (r.notes && r.notes.length) {
+    notesHtml = '<table><thead><tr><th>Điểm lưu ý</th><th>Chi tiết</th></tr></thead><tbody>';
+    r.notes.forEach(([k,v]) => { notesHtml += `<tr><td><strong>${k}</strong></td><td>${v}</td></tr>`; });
+    notesHtml += '</tbody></table>';
+  }
+  div.innerHTML = `
+    <h3>${r.title}</h3>
+    <p><strong>Là gì:</strong> ${r.desc}</p>
+    <p><strong>Vì sao cần:</strong> ${r.why}</p>
+    <p><strong>Cú pháp &amp; Ví dụ:</strong></p>
+    <pre>${r.syntax}</pre>
+    ${notesHtml}
+  `;
+}
+
+/* ═══════════════════════════════════════════════════════
+   MODULE 4 — dig Output Simulator
+   ═══════════════════════════════════════════════════════ */
+
+const DIG_DATA = {
+  'example.com': {
+    A:    [{ ttl: 3600, value: '93.184.216.34' }],
+    AAAA: [{ ttl: 3600, value: '2606:2800:220:1:248:1893:25c8:1946' }],
+    MX:   [{ ttl: 3600, value: '0 .', extra: '(null MX — no mail)' }],
+    NS:   [{ ttl: 86400, value: 'a.iana-servers.net.' }, { ttl: 86400, value: 'b.iana-servers.net.' }],
+    TXT:  [{ ttl: 3600, value: '"v=spf1 -all"' }, { ttl: 3600, value: '"wgyf8z8cgvm2qmxpnbnldrcltvk4xqfn"' }],
+    CNAME:[],
+    PTR:  [],
+  },
+  'google.com': {
+    A:    [{ ttl: 300, value: '142.250.185.46' }],
+    AAAA: [{ ttl: 300, value: '2607:f8b0:4004:c09::64' }],
+    MX:   [{ ttl: 600, value: '10 smtp.google.com.' }],
+    NS:   [{ ttl: 21600, value: 'ns1.google.com.' }, { ttl: 21600, value: 'ns2.google.com.' }, { ttl: 21600, value: 'ns3.google.com.' }, { ttl: 21600, value: 'ns4.google.com.' }],
+    TXT:  [{ ttl: 3600, value: '"v=spf1 include:_spf.google.com ~all"' }, { ttl: 3600, value: '"google-site-verification=wD8N7i..."' }],
+    CNAME:[],
+    PTR:  [],
+  },
+  'github.com': {
+    A:    [{ ttl: 60, value: '140.82.112.3' }, { ttl: 60, value: '140.82.112.4' }],
+    AAAA: [],
+    MX:   [{ ttl: 3600, value: '1 aspmx.l.google.com.' }, { ttl: 3600, value: '5 alt1.aspmx.l.google.com.' }],
+    NS:   [{ ttl: 3600, value: 'ns1.p16.dynect.net.' }, { ttl: 3600, value: 'ns2.p16.dynect.net.' }, { ttl: 3600, value: 'ns3.p16.dynect.net.' }, { ttl: 3600, value: 'ns4.p16.dynect.net.' }],
+    TXT:  [{ ttl: 3600, value: '"v=spf1 ip4:192.30.252.0/22 include:_netblocks.google.com ~all"' }],
+    CNAME:[],
+    PTR:  [],
+  },
+};
+
+function updateDigCmd() {
+  const d = document.getElementById('dig-domain').value.trim() || 'example.com';
+  const t = document.getElementById('dig-type').value;
+  const r = document.getElementById('dig-resolver').value;
+  document.getElementById('dig-cmd').textContent = `dig @${r} ${d} ${t}`;
+}
+
+document.getElementById('dig-domain').addEventListener('input', updateDigCmd);
+document.getElementById('dig-type').addEventListener('change', updateDigCmd);
+document.getElementById('dig-resolver').addEventListener('change', updateDigCmd);
+
+function runDig() {
+  const raw = document.getElementById('dig-domain').value.trim() || 'example.com';
+  const d = raw.replace(/\.$/, '').toLowerCase();
+  const t = document.getElementById('dig-type').value;
+  const resolver = document.getElementById('dig-resolver').value;
+  const resolverName = { '8.8.8.8': '8.8.8.8 (Google)', '1.1.1.1': '1.1.1.1 (Cloudflare)', '208.67.222.222': '208.67.222.222 (OpenDNS)' }[resolver] || resolver;
+
+  // Find dataset
+  const dataKey = Object.keys(DIG_DATA).find(k => d.endsWith(k) || d === k) || null;
+  const records = dataKey ? (DIG_DATA[dataKey][t] || []) : null;
+
+  const now = new Date().toUTCString();
+  const id = Math.floor(Math.random() * 65535);
+
+  let answerCount = records ? records.length : (Math.floor(Math.random()*3)+1);
+  if (records && records.length === 0) answerCount = 0;
+
+  let out = '';
+  out += `<span class="comment-line">; &lt;&lt;&gt;&gt; DiG 9.18 &lt;&lt;&gt;&gt; @${resolver} ${d} ${t}</span>\n`;
+  out += `<span class="comment-line">; (1 server found)</span>\n`;
+  out += `<span class="header-line">;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: ${answerCount === 0 ? 'NXDOMAIN' : 'NOERROR'}, id: ${id}</span>\n`;
+  out += `<span class="header-line">;; flags: qr rd ra; QUERY: 1, ANSWER: ${answerCount}, AUTHORITY: 0, ADDITIONAL: 1</span>\n\n`;
+  out += `<span class="section-line">;; QUESTION SECTION:</span>\n`;
+  out += `<span class="header-line">;${d}.                IN  ${t}</span>\n\n`;
+
+  if (answerCount > 0) {
+    out += `<span class="section-line">;; ANSWER SECTION:</span>\n`;
+    if (records) {
+      records.forEach(r => {
+        const val = r.extra ? `${r.value}  ; ${r.extra}` : r.value;
+        out += `<span class="answer-line">${d}.    ${r.ttl}    IN  ${t}    ${val}</span>\n`;
+      });
+    } else {
+      // synthesize
+      const fakeIp = makeIp(d + t);
+      out += `<span class="answer-line">${d}.    3600    IN  ${t}    ${fakeIp}</span>\n`;
+    }
+  } else {
+    out += `<span class="section-line">;; AUTHORITY SECTION:</span>\n`;
+    out += `<span class="header-line">${d}.    3600    IN  SOA  ns1.example.com. admin.example.com. 2024053001 3600 900 604800 300</span>\n`;
+  }
+
+  const qtime = Math.floor(Math.random() * 80) + 15;
+  out += `\n<span class="meta-line">;; Query time: ${qtime} msec</span>\n`;
+  out += `<span class="meta-line">;; SERVER: ${resolver}#53(${resolver}) (${resolverName})</span>\n`;
+  out += `<span class="meta-line">;; WHEN: ${now}</span>\n`;
+  out += `<span class="meta-line">;; MSG SIZE  rcvd: ${56 + answerCount * 28}</span>\n`;
+
+  document.getElementById('dig-output').innerHTML = out;
+}
+
+/* ═══════════════════════════════════════════════════════
+   MODULE 5 — TTL Demo
+   ═══════════════════════════════════════════════════════ */
+
+function fmtTime(s) {
+  if (s < 60) return `${s}s`;
+  if (s < 3600) return `${Math.round(s/60)}m`;
+  if (s < 86400) return `${(s/3600).toFixed(1)}h`;
+  return `${(s/86400).toFixed(1)}d`;
+}
+
+function updateTTL() {
+  const ttl = parseInt(document.getElementById('ttl-current').value);
+  const elapsed = parseInt(document.getElementById('ttl-elapsed').value);
+  document.getElementById('ttl-current-val').textContent = `${ttl}s (${fmtTime(ttl)})`;
+  document.getElementById('ttl-elapsed-val').textContent = `${elapsed}s kể từ lần cache cuối (${fmtTime(elapsed)})`;
+  drawTTLViz(ttl, elapsed);
+  renderTTLResult(ttl, elapsed);
+}
+
+function drawTTLViz(ttl, elapsed) {
+  const svg = document.getElementById('ttl-svg');
+  svg.innerHTML = '';
+  const W = 620, H = 130, PL = 90, PR = 20, BAR_Y = 55, BAR_H = 28;
+  const bw = W - PL - PR;
+
+  // background bar
+  const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  bg.setAttribute('x', PL); bg.setAttribute('y', BAR_Y);
+  bg.setAttribute('width', bw); bg.setAttribute('height', BAR_H);
+  bg.setAttribute('rx','4'); bg.setAttribute('fill','#e2e8f0');
+  svg.appendChild(bg);
+
+  // remaining fill
+  const remaining = Math.max(0, ttl - elapsed);
+  const fillW = Math.min(1, remaining / ttl) * bw;
+  if (fillW > 0) {
+    const fill = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    fill.setAttribute('x', PL); fill.setAttribute('y', BAR_Y);
+    fill.setAttribute('width', fillW); fill.setAttribute('height', BAR_H);
+    fill.setAttribute('rx','4');
+    fill.setAttribute('fill', remaining > 0 ? '#16a34a' : '#dc2626');
+    svg.appendChild(fill);
+  }
+
+  // elapsed fill (overlay, transparent)
+  if (elapsed > 0 && elapsed <= ttl) {
+    const elpW = Math.min(1, elapsed / ttl) * bw;
+    const elpRect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    elpRect.setAttribute('x', PL); elpRect.setAttribute('y', BAR_Y);
+    elpRect.setAttribute('width', elpW); elpRect.setAttribute('height', BAR_H);
+    elpRect.setAttribute('fill','#fbbf24'); elpRect.setAttribute('opacity','0.35');
+    svg.appendChild(elpRect);
+  }
+
+  // change IP marker
+  const changeX = PL + Math.min(1, elapsed / ttl) * bw;
+  const ml = document.createElementNS('http://www.w3.org/2000/svg','line');
+  ml.setAttribute('x1', changeX); ml.setAttribute('y1', BAR_Y - 12);
+  ml.setAttribute('x2', changeX); ml.setAttribute('y2', BAR_Y + BAR_H + 12);
+  ml.setAttribute('stroke', '#dc2626'); ml.setAttribute('stroke-width', '2.5');
+  ml.setAttribute('stroke-dasharray', '5,3');
+  svg.appendChild(ml);
+
+  const mt = document.createElementNS('http://www.w3.org/2000/svg','text');
+  mt.setAttribute('x', changeX); mt.setAttribute('y', BAR_Y - 16);
+  mt.setAttribute('text-anchor', 'middle'); mt.setAttribute('font-size', '11');
+  mt.setAttribute('fill', '#dc2626'); mt.setAttribute('font-weight', '700');
+  mt.textContent = '← Đổi IP ngay đây';
+  svg.appendChild(mt);
+
+  // labels
+  const labels = [
+    [PL, 'Cache: t=0', '#16a34a'],
+    [PL + bw, `TTL: ${fmtTime(ttl)}`, '#94a3b8'],
+    [PL, 'Resolver cache bản ghi cũ →', '#0369a1'],
+  ];
+
+  const lt = document.createElementNS('http://www.w3.org/2000/svg','text');
+  lt.setAttribute('x', PL - 8); lt.setAttribute('y', BAR_Y + BAR_H/2 + 5);
+  lt.setAttribute('text-anchor','end'); lt.setAttribute('font-size','12');
+  lt.setAttribute('font-weight','700'); lt.setAttribute('fill','#374151');
+  lt.textContent = 'Cache TTL';
+  svg.appendChild(lt);
+
+  const rt = document.createElementNS('http://www.w3.org/2000/svg','text');
+  rt.setAttribute('x', PL + bw + 4); rt.setAttribute('y', BAR_Y + BAR_H/2 + 5);
+  rt.setAttribute('text-anchor','start'); rt.setAttribute('font-size','11');
+  rt.setAttribute('fill','#94a3b8');
+  rt.textContent = fmtTime(ttl);
+  svg.appendChild(rt);
+
+  // timeline tick
+  const tick = document.createElementNS('http://www.w3.org/2000/svg','text');
+  tick.setAttribute('x', PL); tick.setAttribute('y', BAR_Y + BAR_H + 22);
+  tick.setAttribute('font-size','11'); tick.setAttribute('fill','#16a34a');
+  tick.textContent = 't=0';
+  svg.appendChild(tick);
+
+  if (elapsed > 0 && elapsed <= ttl) {
+    const tx2 = document.createElementNS('http://www.w3.org/2000/svg','text');
+    tx2.setAttribute('x', changeX); tx2.setAttribute('y', BAR_Y + BAR_H + 22);
+    tx2.setAttribute('text-anchor','middle'); tx2.setAttribute('font-size','11');
+    tx2.setAttribute('fill','#dc2626');
+    tx2.textContent = fmtTime(elapsed);
+    svg.appendChild(tx2);
+  }
+
+  // remaining annotation
+  const remText = document.createElementNS('http://www.w3.org/2000/svg','text');
+  remText.setAttribute('x', PL + fillW / 2 + (elapsed > 0 ? Math.min(1,elapsed/ttl)*bw : 0));
+  const rx2 = changeX + (PL + bw - changeX) / 2;
+  remText.setAttribute('x', rx2 > changeX ? rx2 : PL + bw/2);
+  remText.setAttribute('y', BAR_Y + BAR_H/2 + 5);
+  remText.setAttribute('text-anchor','middle'); remText.setAttribute('font-size','11');
+  remText.setAttribute('fill','white'); remText.setAttribute('font-weight','700');
+  remText.setAttribute('pointer-events','none');
+  if (remaining > 0 && fillW > 40) {
+    remText.textContent = `Còn ${fmtTime(remaining)} cache`;
+    svg.appendChild(remText);
+  }
+}
+
+function renderTTLResult(ttl, elapsed) {
+  const remaining = Math.max(0, ttl - elapsed);
+  let html = '';
+
+  if (remaining === 0) {
+    html = `<span class="highlight">Resolver đã hết cache</span> — họ sẽ hỏi lại DNS ngay khi có truy vấn tiếp theo và nhận IP mới. Thay đổi có hiệu lực <strong>gần như tức thì</strong> (trong vòng ~1-2 phút sau khi đổi IP).`;
+  } else {
+    html = `Resolver đang cache bản ghi cũ. Sau khi đổi IP, họ phải chờ hết TTL hiện tại mới hỏi lại.<br>
+    — Thời gian cache còn lại tối đa: <span class="highlight">${fmtTime(remaining)}</span><br>
+    — Người dùng có resolver vừa cache: tiếp tục nhận IP cũ trong <span class="highlight">${fmtTime(remaining)}</span><br>
+    — Người dùng có resolver đã cache lâu hơn: có thể nhận IP mới sớm hơn.<br><br>
+    <strong>Giải pháp trước khi đổi IP:</strong> Giảm TTL xuống 300s ít nhất ${fmtTime(ttl)} trước, rồi mới đổi IP.`;
+  }
+
+  if (ttl >= 86400) {
+    html += `<br><br><strong>Cảnh báo:</strong> TTL = ${fmtTime(ttl)} rất cao. Nếu cần đổi IP khẩn cấp, có thể mất đến <span class="highlight">24 giờ</span> cho tất cả resolver cập nhật.`;
+  }
+
+  document.getElementById('ttl-result').innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Init
+   ═══════════════════════════════════════════════════════ */
+simInit();
+drawTree();
+renderRecordTabs();
+updateDigCmd();
+updateTTL();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

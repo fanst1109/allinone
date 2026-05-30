@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Real-time &amp; WebSocket</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette WebSocket (xanh dương đậm) ── */
+  :root {
+    --ws-blue:   #0369a1;
+    --ws-soft:   #e0f2fe;
+    --ws-mid:    #38bdf8;
+    --ws-dark:   #0c4a6e;
+    --ws-green:  #16a34a;
+    --ws-red:    #dc2626;
+    --ws-orange: #d97706;
+    --ws-purple: #7c3aed;
+    --bg-card:   #ffffff;
+    --bg-section:#f0f9ff;
+  }
+
+  h1 { color: var(--ws-dark); }
+  h2 {
+    color: var(--ws-blue);
+    margin-top: 36px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--ws-mid);
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(3,105,161,.10);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--ws-soft);
+    border-left: 4px solid var(--ws-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--ws-blue); color: white; }
+  .btn-primary:hover { background: var(--ws-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ─────────────────────────────────────────
+     MODULE 1 — So sánh kỹ thuật polling
+     ───────────────────────────────────────── */
+  .comp-stage { width: 100%; overflow-x: auto; }
+  #comp-svg { display: block; margin: 0 auto; }
+
+  .tech-selector {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .tech-btn {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+    background: #f1f5f9;
+    color: #374151;
+  }
+  .tech-btn.active {
+    background: var(--ws-blue);
+    color: white;
+    border-color: var(--ws-dark);
+  }
+  .tech-btn:hover:not(.active) { background: var(--ws-soft); }
+
+  #comp-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .stat-box {
+    background: var(--bg-section);
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+  }
+  .stat-val {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ws-blue);
+    display: block;
+    margin-bottom: 4px;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  #comp-step-box {
+    background: var(--bg-section);
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    min-height: 48px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  #comp-step-box strong { color: var(--ws-blue); }
+
+  /* ─────────────────────────────────────────
+     MODULE 2 — Upgrade Handshake
+     ───────────────────────────────────────── */
+  #upg-stage { width: 100%; overflow-x: auto; }
+  #upg-svg { display: block; margin: 0 auto; }
+
+  .upg-step-box {
+    background: var(--bg-section);
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    min-height: 60px;
+    font-size: 13px;
+    line-height: 1.7;
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .upg-step-box .lbl { color: var(--ws-blue); font-weight: 700; font-family: sans-serif; font-size: 14px; }
+  .upg-step-box .hdr-key { color: #0369a1; }
+  .upg-step-box .hdr-val { color: #16a34a; }
+  .upg-step-box .hdr-status { color: #7c3aed; font-weight: 700; }
+
+  /* ─────────────────────────────────────────
+     MODULE 3 — Chat demo
+     ───────────────────────────────────────── */
+  .chat-container {
+    display: grid;
+    grid-template-columns: 1fr 260px 1fr;
+    gap: 12px;
+    align-items: stretch;
+  }
+  .chat-panel {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .chat-panel.client-a { border-color: #0369a1; }
+  .chat-panel.client-b { border-color: #7c3aed; }
+  .chat-header {
+    padding: 10px 14px;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .chat-header.a { background: #0369a1; color: white; }
+  .chat-header.b { background: #7c3aed; color: white; }
+  .chat-status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #fbbf24;
+    flex-shrink: 0;
+  }
+  .chat-status-dot.connected { background: #4ade80; }
+  .chat-messages {
+    flex: 1;
+    min-height: 200px;
+    max-height: 260px;
+    overflow-y: auto;
+    padding: 10px;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .msg-bubble {
+    max-width: 85%;
+    padding: 7px 11px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+  .msg-bubble.sent {
+    align-self: flex-end;
+    background: #0369a1;
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+  .msg-bubble.recv {
+    align-self: flex-start;
+    background: #e2e8f0;
+    color: #1e293b;
+    border-bottom-left-radius: 4px;
+  }
+  .msg-bubble.recv.b-color {
+    background: #ede9fe;
+  }
+  .msg-time {
+    font-size: 10px;
+    opacity: .7;
+    margin-top: 2px;
+    display: block;
+    text-align: right;
+  }
+  .chat-input-row {
+    display: flex;
+    padding: 8px;
+    gap: 6px;
+    border-top: 1px solid #e2e8f0;
+    background: white;
+  }
+  .chat-input-row input {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  .chat-input-row input:focus {
+    outline: none;
+    border-color: var(--ws-blue);
+  }
+  .chat-input-row button {
+    padding: 6px 12px;
+    background: var(--ws-blue);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .chat-input-row button.b-btn { background: var(--ws-purple); }
+  .chat-input-row button:hover { opacity: .85; }
+
+  /* Server column */
+  .server-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .server-box {
+    background: #1e293b;
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: #e2e8f0;
+    font-family: monospace;
+    font-size: 12px;
+    flex: 1;
+    min-height: 200px;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+  .server-box .srv-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #38bdf8;
+    margin-bottom: 8px;
+    font-family: sans-serif;
+  }
+  .srv-log-line { line-height: 1.6; }
+  .srv-log-line.connect  { color: #4ade80; }
+  .srv-log-line.message  { color: #fbbf24; }
+  .srv-log-line.broadcast{ color: #a78bfa; }
+  .srv-log-line.close    { color: #f87171; }
+  .srv-log-line.ping     { color: #38bdf8; }
+
+  #chat-ctrl-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 6px;
+  }
+
+  /* ─────────────────────────────────────────
+     Frame decoder module (bonus)
+     ───────────────────────────────────────── */
+  .frame-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 8px;
+    align-items: center;
+    margin: 6px 0;
+    font-size: 13px;
+  }
+  .frame-label { font-weight: 700; color: var(--ws-blue); }
+  .frame-bits {
+    font-family: monospace;
+    background: var(--bg-section);
+    border-radius: 4px;
+    padding: 4px 8px;
+    letter-spacing: .5px;
+    word-break: break-all;
+    font-size: 12px;
+  }
+  .bit-highlight { background: #fef3c7; border-radius: 2px; padding: 0 2px; }
+  .bit-green { background: #dcfce7; border-radius: 2px; padding: 0 2px; }
+  .bit-red   { background: #fee2e2; border-radius: 2px; padding: 0 2px; }
+  .bit-blue  { background: #dbeafe; border-radius: 2px; padding: 0 2px; }
+  .bit-purple{ background: #ede9fe; border-radius: 2px; padding: 0 2px; }
+
+  #frame-result {
+    background: var(--bg-section);
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.8;
+    margin-top: 12px;
+  }
+  #frame-result .fld { font-weight: 700; color: var(--ws-dark); }
+
+  .hdr-field { display: flex; flex-direction: column; gap: 4px; }
+  .hdr-field label { font-size: 12px; font-weight: 700; color: #374151; }
+  .hdr-field input, .hdr-field select {
+    padding: 6px 10px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 200px;
+  }
+  .hdr-field input:focus, .hdr-field select:focus {
+    outline: none; border-color: var(--ws-blue);
+  }
+  .input-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+
+  /* ─────────────────────────────────────────
+     Responsive
+     ───────────────────────────────────────── */
+  @media (max-width: 700px) {
+    .chat-container {
+      grid-template-columns: 1fr;
+    }
+    #comp-stats {
+      grid-template-columns: 1fr 1fr;
+    }
+    .stat-val { font-size: 18px; }
+    .server-col { order: -1; }
+    .server-box { min-height: 120px; max-height: 180px; }
+    .chat-messages { min-height: 140px; max-height: 180px; }
+  }
+  @media (max-width: 480px) {
+    #comp-stats { grid-template-columns: 1fr; }
+    .tech-selector { gap: 6px; }
+    .tech-btn { font-size: 12px; padding: 6px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Application</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-tls/visualization.html">← L6: TLS/SSL</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Real-time &amp; WebSocket</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-web-infrastructure/visualization.html">L8: Hạ tầng web quy mô →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Real-time &amp; WebSocket</h1>
+<p>Ba module tương tác: so sánh polling / long polling / WebSocket, mô phỏng nâng cấp HTTP → WebSocket (handshake từng bước), và demo chat song công 2 client.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — So sánh kỹ thuật real-time
+     ═══════════════════════════════════════════════════════════ -->
+<h2>1. So sánh kỹ thuật real-time</h2>
+<div class="card">
+  <p>Chọn một kỹ thuật, sau đó bấm <strong>"Bước tiếp"</strong> để xem timeline request, số lần kết nối và overhead thực tế với 5.000 client gửi 20 byte/tin.</p>
+
+  <div class="tech-selector">
+    <button class="tech-btn active" id="tbtn-short" onclick="compSelect('short')">Short Polling</button>
+    <button class="tech-btn" id="tbtn-long"  onclick="compSelect('long')">Long Polling</button>
+    <button class="tech-btn" id="tbtn-sse"   onclick="compSelect('sse')">SSE</button>
+    <button class="tech-btn" id="tbtn-ws"    onclick="compSelect('ws')">WebSocket</button>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="comp-btn-step" onclick="compStep()">Bước tiếp →</button>
+    <button class="btn btn-secondary" onclick="compReset()">Bắt đầu lại</button>
+    <button class="btn btn-secondary" onclick="compAuto()">Tự động</button>
+  </div>
+
+  <div class="comp-stage">
+    <svg id="comp-svg" width="560" height="300" viewBox="0 0 560 300">
+      <defs>
+        <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0369a1"/>
+        </marker>
+        <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+        </marker>
+        <marker id="arr-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#d97706"/>
+        </marker>
+        <marker id="arr-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/>
+        </marker>
+        <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/>
+        </marker>
+      </defs>
+
+      <!-- Client block -->
+      <rect x="20" y="10" width="90" height="36" rx="6" fill="#0369a1"/>
+      <text x="65" y="32" text-anchor="middle" font-size="13" font-weight="700" fill="white">CLIENT</text>
+      <!-- Server block -->
+      <rect x="450" y="10" width="90" height="36" rx="6" fill="#0c4a6e"/>
+      <text x="495" y="32" text-anchor="middle" font-size="13" font-weight="700" fill="white">SERVER</text>
+
+      <!-- Timeline lines -->
+      <line x1="65"  y1="46" x2="65"  y2="295" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="495" y1="46" x2="495" y2="295" stroke="#0c4a6e" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+      <!-- Time axis labels (left) -->
+      <text x="8" y="80"  font-size="10" fill="#94a3b8">t₀</text>
+      <text x="8" y="128" font-size="10" fill="#94a3b8">t₁</text>
+      <text x="8" y="176" font-size="10" fill="#94a3b8">t₂</text>
+      <text x="8" y="224" font-size="10" fill="#94a3b8">t₃</text>
+      <text x="8" y="272" font-size="10" fill="#94a3b8">t₄</text>
+
+      <!-- Tech label top-right -->
+      <text id="comp-tech-lbl" x="400" y="60" text-anchor="middle" font-size="14" font-weight="700" fill="#0369a1">Short Polling</text>
+
+      <!-- Dynamic arrows group -->
+      <g id="comp-arrows"></g>
+    </svg>
+  </div>
+
+  <div id="comp-step-box">
+    Chọn kỹ thuật rồi nhấn <strong>"Bước tiếp"</strong> để xem mô phỏng timeline.
+  </div>
+
+  <div id="comp-stats">
+    <div class="stat-box">
+      <span class="stat-val" id="s-requests">–</span>
+      <span class="stat-label">Số request / 4 giây</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-val" id="s-latency">–</span>
+      <span class="stat-label">Độ trễ nhận tin (điển hình)</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-val" id="s-bandwidth">–</span>
+      <span class="stat-label">Băng thông 5.000 client (upload)</span>
+    </div>
+  </div>
+
+  <div class="info-box" style="margin-top:12px;">
+    <strong>Kịch bản tính toán</strong>: 5.000 client, mỗi tin nhắn thực 20 byte, header HTTP = 650 byte (HTTP/1.1 không nén). WebSocket frame overhead = 2 byte/tin. Short polling chu kỳ 2 giây; long polling timeout 30 giây.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — HTTP → WebSocket Upgrade
+     ═══════════════════════════════════════════════════════════ -->
+<h2>2. Nâng cấp HTTP → WebSocket (Handshake)</h2>
+<div class="card">
+  <p>Mô phỏng từng bước bắt tay nâng cấp: từ TCP connect, HTTP Upgrade request, 101 Switching Protocols, đến kênh song công mở và tin nhắn hai chiều.</p>
+
+  <div class="input-row">
+    <div class="hdr-field">
+      <label>Host</label>
+      <input type="text" id="upg-host" value="chat.example.com" style="max-width:200px;">
+    </div>
+    <div class="hdr-field">
+      <label>Path</label>
+      <input type="text" id="upg-path" value="/ws/room/42" style="max-width:160px;">
+    </div>
+    <div style="align-self:flex-end;">
+      <button class="btn btn-secondary" onclick="upgReset()">Đặt lại</button>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="upg-btn-step" onclick="upgStep()">Bước tiếp →</button>
+    <button class="btn btn-secondary" onclick="upgReset()">Bắt đầu lại</button>
+    <button class="btn btn-secondary" onclick="upgAuto()">Tự động</button>
+  </div>
+
+  <div id="upg-stage">
+    <svg id="upg-svg" width="560" height="340" viewBox="0 0 560 340">
+      <defs>
+        <marker id="upg-arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0369a1"/>
+        </marker>
+        <marker id="upg-arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+        </marker>
+        <marker id="upg-arr-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/>
+        </marker>
+        <marker id="upg-arr-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#d97706"/>
+        </marker>
+      </defs>
+
+      <!-- Actors -->
+      <rect x="20" y="10" width="90" height="36" rx="6" fill="#0369a1"/>
+      <text x="65" y="32" text-anchor="middle" font-size="13" font-weight="700" fill="white">CLIENT</text>
+      <rect x="450" y="10" width="90" height="36" rx="6" fill="#0c4a6e"/>
+      <text x="495" y="32" text-anchor="middle" font-size="13" font-weight="700" fill="white">SERVER</text>
+
+      <!-- Timeline -->
+      <line x1="65"  y1="46" x2="65"  y2="335" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="495" y1="46" x2="495" y2="335" stroke="#0c4a6e" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+      <!-- Time markers -->
+      <text x="8" y="75"  font-size="10" fill="#94a3b8">t₀</text>
+      <text x="8" y="120" font-size="10" fill="#94a3b8">t₁</text>
+      <text x="8" y="165" font-size="10" fill="#94a3b8">t₂</text>
+      <text x="8" y="210" font-size="10" fill="#94a3b8">t₃</text>
+      <text x="8" y="255" font-size="10" fill="#94a3b8">t₄</text>
+      <text x="8" y="300" font-size="10" fill="#94a3b8">t₅</text>
+
+      <!-- State labels (updated by JS) -->
+      <rect id="upg-state-c-bg" x="2" y="50" width="126" height="22" rx="4" fill="#f0f9ff" stroke="#bae6fd" stroke-width="1"/>
+      <text id="upg-state-c" x="65" y="65" text-anchor="middle" font-size="11" fill="#64748b">CLOSED</text>
+      <rect id="upg-state-s-bg" x="432" y="50" width="126" height="22" rx="4" fill="#f0f9ff" stroke="#bae6fd" stroke-width="1"/>
+      <text id="upg-state-s" x="495" y="65" text-anchor="middle" font-size="11" fill="#64748b">LISTEN</text>
+
+      <!-- Dynamic arrows -->
+      <g id="upg-arrows"></g>
+
+      <!-- WebSocket channel (shown at step 4+) -->
+      <g id="upg-channel" opacity="0">
+        <rect x="65" y="238" width="430" height="28" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+        <text x="280" y="256" text-anchor="middle" font-size="12" font-weight="700" fill="#16a34a">KENH WEBSOCKET SONG CONG (ws://)</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="upg-step-box" id="upg-desc">
+    <span class="lbl">Sẵn sàng —</span> Nhấn "Bước tiếp" để bắt đầu mô phỏng bắt tay nâng cấp HTTP → WebSocket.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — Chat demo song công
+     ═══════════════════════════════════════════════════════════ -->
+<h2>3. Demo chat WebSocket song công</h2>
+<div class="card">
+  <p>Mô phỏng hai client kết nối qua "server" ảo trong trình duyệt. Tin nhắn từ A lập tức xuất hiện ở B và ngược lại — không polling, không reload, không thêm request.</p>
+
+  <div id="chat-ctrl-row">
+    <button class="btn btn-secondary" id="chat-connect-btn" onclick="chatConnect()">Kết nối WebSocket</button>
+    <button class="btn btn-secondary" id="chat-disconnect-btn" onclick="chatDisconnect()" style="display:none;">Ngắt kết nối</button>
+    <button class="btn btn-secondary" onclick="chatClear()">Xoá lịch sử</button>
+    <button class="btn btn-secondary" onclick="chatSimPing()">Gửi Ping/Pong</button>
+  </div>
+
+  <div class="chat-container" style="margin-top:14px;">
+    <!-- Client A -->
+    <div class="chat-panel client-a">
+      <div class="chat-header a">
+        <div class="chat-status-dot" id="dot-a"></div>
+        Client A (Alice)
+      </div>
+      <div class="chat-messages" id="msgs-a"></div>
+      <div class="chat-input-row">
+        <input type="text" id="input-a" placeholder="Alice nhập..." maxlength="120" onkeydown="if(event.key==='Enter')chatSend('a')">
+        <button onclick="chatSend('a')">Gửi</button>
+      </div>
+    </div>
+
+    <!-- Server log -->
+    <div class="server-col">
+      <div class="server-box" id="srv-log">
+        <div class="srv-title">Server Log</div>
+      </div>
+    </div>
+
+    <!-- Client B -->
+    <div class="chat-panel client-b">
+      <div class="chat-header b">
+        <div class="chat-status-dot" id="dot-b"></div>
+        Client B (Bob)
+      </div>
+      <div class="chat-messages" id="msgs-b"></div>
+      <div class="chat-input-row">
+        <input type="text" id="input-b" placeholder="Bob nhập..." maxlength="120" onkeydown="if(event.key==='Enter')chatSend('b')">
+        <button class="b-btn" onclick="chatSend('b')">Gửi</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box" style="margin-top:14px;">
+    <strong>Ghi chú</strong>: Đây là mô phỏng trong trình duyệt (không có server thật). "Server" ảo được implement bằng JavaScript thuần — hoạt động như WebSocket thật: nhận tin từ client, broadcast ngay đến tất cả client khác, ghi log. Tin nhắn đến <strong>ngay lập tức</strong> (0 ms delay mô phỏng), không qua polling.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — Giải mã WebSocket Frame
+     ═══════════════════════════════════════════════════════════ -->
+<h2>4. Giải mã khung (frame) WebSocket</h2>
+<div class="card">
+  <p>Nhập nội dung tin nhắn và chọn hướng gửi. Viz sẽ sinh ra khung WebSocket thực tế (hex + binary) và giải thích từng trường.</p>
+
+  <div class="input-row">
+    <div class="hdr-field">
+      <label>Nội dung tin nhắn</label>
+      <input type="text" id="frame-msg" value="Hello" style="max-width:220px;" oninput="frameRender()">
+    </div>
+    <div class="hdr-field">
+      <label>Hướng gửi</label>
+      <select id="frame-dir" oninput="frameRender()" style="max-width:180px;">
+        <option value="client">Client → Server (có mask)</option>
+        <option value="server">Server → Client (không mask)</option>
+      </select>
+    </div>
+    <div class="hdr-field">
+      <label>Loại frame</label>
+      <select id="frame-type" oninput="frameRender()" style="max-width:160px;">
+        <option value="1">Text (0x1)</option>
+        <option value="2">Binary (0x2)</option>
+        <option value="9">Ping (0x9)</option>
+        <option value="10">Pong (0xA)</option>
+        <option value="8">Close (0x8)</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="frame-result">
+    Đang tính...
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+// ═══════════════════════════════════════════════════════════
+// MODULE 1 — So sánh kỹ thuật real-time
+// ═══════════════════════════════════════════════════════════
+const TECH_CONFIGS = {
+  short: {
+    label: 'Short Polling',
+    color: '#0369a1',
+    marker: 'arr-blue',
+    requests: 4,   // per 4 seconds (1 req/s each direction ×2)
+    latency: '1 s (trung bình)',
+    bandwidth: '3.25 MB/s',
+    steps: [
+      { from:'c', dir:'→', y1:75, y2:90, label:'GET /updates', color:'#0369a1', marker:'arr-blue' },
+      { from:'s', dir:'←', y1:90, y2:105, label:'200 OK (rỗng, 650+20B header+body)', color:'#16a34a', marker:'arr-green' },
+      { from:'note', text:'[Client chờ 2 giây...]', y:115 },
+      { from:'c', dir:'→', y1:130, y2:145, label:'GET /updates', color:'#0369a1', marker:'arr-blue' },
+      { from:'s', dir:'←', y1:145, y2:160, label:'200 OK (rỗng, 650+20B)', color:'#16a34a', marker:'arr-green' },
+      { from:'note', text:'[Client chờ 2 giây...]', y:170 },
+      { from:'c', dir:'→', y1:185, y2:200, label:'GET /updates', color:'#0369a1', marker:'arr-blue' },
+      { from:'s', dir:'←', y1:200, y2:215, label:'200 OK (TIN NHẮN MỚI! 650+20B)', color:'#d97706', marker:'arr-orange' },
+      { from:'result', text:'Độ trễ: 0→2000ms (trung bình 1s). 5.000 client = 2.500 req/s', y:240, color:'#dc2626' },
+    ]
+  },
+  long: {
+    label: 'Long Polling',
+    color: '#d97706',
+    marker: 'arr-orange',
+    requests: 2,
+    latency: '~0 ms (khi có sự kiện)',
+    bandwidth: '1.3 MB/s',
+    steps: [
+      { from:'c', dir:'→', y1:75, y2:90, label:'GET /updates (kết nối mở...)', color:'#0369a1', marker:'arr-blue' },
+      { from:'note', text:'[Server giữ kết nối mở — không trả lời ngay...]', y:112 },
+      { from:'note', text:'[28 giây sau, có tin nhắn mới...]', y:130 },
+      { from:'s', dir:'←', y1:145, y2:160, label:'200 OK (TIN NHẮN! — sau 28s)', color:'#d97706', marker:'arr-orange' },
+      { from:'c', dir:'→', y1:168, y2:183, label:'GET /updates (kết nối mới ngay)', color:'#0369a1', marker:'arr-blue' },
+      { from:'note', text:'[Server giữ kết nối mở tiếp...]', y:200 },
+      { from:'result', text:'Độ trễ: ~0ms. Nhưng server giữ hàng nghìn kết nối "treo" cùng lúc', y:230, color:'#d97706' },
+    ]
+  },
+  sse: {
+    label: 'SSE',
+    color: '#16a34a',
+    marker: 'arr-green',
+    requests: 1,
+    latency: '~0 ms',
+    bandwidth: '0.11 MB/s',
+    steps: [
+      { from:'c', dir:'→', y1:75, y2:90, label:'GET /events (một lần duy nhất)', color:'#0369a1', marker:'arr-blue' },
+      { from:'s', dir:'←', y1:90, y2:105, label:'200 OK (text/event-stream) — kênh mở', color:'#16a34a', marker:'arr-green' },
+      { from:'s', dir:'←', y1:120, y2:135, label:'data: {"price":123.45}\\n\\n', color:'#16a34a', marker:'arr-green' },
+      { from:'s', dir:'←', y1:155, y2:170, label:'data: {"price":124.10}\\n\\n', color:'#16a34a', marker:'arr-green' },
+      { from:'s', dir:'←', y1:190, y2:205, label:'data: {"price":122.80}\\n\\n', color:'#16a34a', marker:'arr-green' },
+      { from:'note', text:'[Server tiếp tục stream không giới hạn — client chỉ lắng nghe]', y:225 },
+      { from:'note', text:'[Client không thể gửi ngược qua cùng kênh]', y:243 },
+      { from:'result', text:'Một kết nối, tự reconnect, overhead thấp — nhưng chỉ một chiều', y:270, color:'#16a34a' },
+    ]
+  },
+  ws: {
+    label: 'WebSocket',
+    color: '#7c3aed',
+    marker: 'arr-purple',
+    requests: 1,
+    latency: '<5 ms',
+    bandwidth: '0.11 MB/s',
+    steps: [
+      { from:'c', dir:'→', y1:68, y2:80, label:'HTTP GET + Upgrade: websocket', color:'#0369a1', marker:'arr-blue' },
+      { from:'s', dir:'←', y1:80, y2:92, label:'101 Switching Protocols', color:'#7c3aed', marker:'arr-purple' },
+      { from:'channel', y:98 },
+      { from:'c', dir:'→', y1:110, y2:122, label:'[frame] "Xin chào!" (2B overhead)', color:'#7c3aed', marker:'arr-purple' },
+      { from:'s', dir:'←', y1:135, y2:147, label:'[frame] "Chào bạn!" (2B overhead)', color:'#7c3aed', marker:'arr-purple' },
+      { from:'c', dir:'→', y1:160, y2:172, label:'[frame] "Giá BTC?" (2B overhead)', color:'#7c3aed', marker:'arr-purple' },
+      { from:'s', dir:'←', y1:185, y2:197, label:'[frame] "$67,230" (2B overhead)', color:'#7c3aed', marker:'arr-purple' },
+      { from:'ping', y1:215, y2:225 },
+      { from:'result', text:'Song công, 2B overhead/frame — tiết kiệm 97% bandwidth so với short polling', y:260, color:'#7c3aed' },
+    ]
+  }
+};
+
+let compCurrentTech = 'short';
+let compStep = 0;
+let compAutoTimer = null;
+
+function compSelect(tech) {
+  compCurrentTech = tech;
+  ['short','long','sse','ws'].forEach(t => {
+    document.getElementById('tbtn-'+t).classList.toggle('active', t===tech);
+  });
+  compReset();
+}
+
+function compReset() {
+  clearInterval(compAutoTimer);
+  compAutoTimer = null;
+  compStep = 0;
+  document.getElementById('comp-arrows').innerHTML = '';
+  const cfg = TECH_CONFIGS[compCurrentTech];
+  document.getElementById('comp-tech-lbl').textContent = cfg.label;
+  document.getElementById('comp-tech-lbl').setAttribute('fill', cfg.color);
+  document.getElementById('comp-step-box').innerHTML =
+    `Kỹ thuật: <strong>${cfg.label}</strong>. Nhấn "Bước tiếp" để xem timeline.`;
+  document.getElementById('s-requests').textContent = '–';
+  document.getElementById('s-latency').textContent = '–';
+  document.getElementById('s-bandwidth').textContent = '–';
+  document.getElementById('comp-btn-step').textContent = 'Bước tiếp →';
+  document.getElementById('comp-btn-step').disabled = false;
+}
+
+function compStepFn() {
+  const cfg = TECH_CONFIGS[compCurrentTech];
+  const steps = cfg.steps;
+  if (compStep >= steps.length) {
+    // Show stats
+    document.getElementById('s-requests').textContent = cfg.requests;
+    document.getElementById('s-latency').textContent = cfg.latency;
+    document.getElementById('s-bandwidth').textContent = cfg.bandwidth;
+    document.getElementById('comp-step-box').innerHTML =
+      `<strong>Hoàn thành!</strong> ${cfg.label}: ${steps[steps.length-1]?.text || ''}`;
+    document.getElementById('comp-btn-step').textContent = 'Bắt đầu lại';
+    document.getElementById('comp-btn-step').onclick = () => { compReset(); document.getElementById('comp-btn-step').onclick = compStepFn; };
+    return;
+  }
+
+  const ev = steps[compStep++];
+  const g = document.getElementById('comp-arrows');
+  const xC = 65, xS = 495;
+
+  function makeArrow(x1, y1, x2, y2, color, markerId) {
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',x1); line.setAttribute('y1',y1);
+    line.setAttribute('x2',x2); line.setAttribute('y2',y2);
+    line.setAttribute('stroke',color); line.setAttribute('stroke-width','2');
+    line.setAttribute('marker-end',`url(#${markerId})`);
+    return line;
+  }
+  function makeLabel(text, midX, y, color) {
+    const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    const tw = Math.min(text.length * 6.2 + 10, 300);
+    bg.setAttribute('x', midX - tw/2); bg.setAttribute('y', y-11);
+    bg.setAttribute('width', tw); bg.setAttribute('height', 14);
+    bg.setAttribute('rx','3'); bg.setAttribute('fill','white'); bg.setAttribute('fill-opacity','0.9');
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', midX); t.setAttribute('y', y);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','11');
+    t.setAttribute('font-weight','700'); t.setAttribute('fill', color);
+    t.textContent = text;
+    return [bg, t];
+  }
+  function fade(el) {
+    el.style.opacity='0'; el.style.transition='opacity .3s';
+    requestAnimationFrame(()=>{ el.style.opacity='1'; });
+  }
+
+  if (ev.from === 'c' || ev.from === 's') {
+    const x1 = ev.from==='c' ? xC : xS;
+    const x2 = ev.from==='c' ? xS-6 : xC+6;
+    const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
+    grp.appendChild(makeArrow(x1, ev.y1, x2, ev.y2, ev.color, ev.marker));
+    const midX = (xC + xS) / 2;
+    const midY = (ev.y1 + ev.y2) / 2 - 2;
+    makeLabel(ev.label, midX, midY, ev.color).forEach(el => grp.appendChild(el));
+    g.appendChild(grp); fade(grp);
+    document.getElementById('comp-step-box').innerHTML =
+      `<strong>${ev.from==='c'?'Client → Server':'Server → Client'}</strong>: ${ev.label}`;
+  } else if (ev.from === 'note') {
+    const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x','280'); t.setAttribute('y', ev.y);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','11');
+    t.setAttribute('fill','#94a3b8'); t.setAttribute('font-style','italic');
+    t.textContent = ev.text;
+    grp.appendChild(t); g.appendChild(grp); fade(grp);
+    document.getElementById('comp-step-box').innerHTML = ev.text;
+  } else if (ev.from === 'channel') {
+    const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x','65'); rect.setAttribute('y', ev.y || 94);
+    rect.setAttribute('width','430'); rect.setAttribute('height','12');
+    rect.setAttribute('rx','3'); rect.setAttribute('fill','#dcfce7');
+    rect.setAttribute('stroke','#16a34a'); rect.setAttribute('stroke-width','1');
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x','280'); t.setAttribute('y', (ev.y||94)+9);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','9');
+    t.setAttribute('font-weight','700'); t.setAttribute('fill','#16a34a');
+    t.textContent = 'KENH WEBSOCKET SONG CONG';
+    grp.appendChild(rect); grp.appendChild(t); g.appendChild(grp); fade(grp);
+    document.getElementById('comp-step-box').innerHTML =
+      '<strong>Kênh WebSocket mở</strong>: Sau 101, kết nối TCP không còn chạy HTTP. Cả 2 bên gửi bất kỳ lúc nào.';
+  } else if (ev.from === 'ping') {
+    const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
+    grp.appendChild(makeArrow(xS, ev.y1, xC+6, ev.y2, '#38bdf8', 'arr-blue'));
+    makeLabel('Ping (0x9) — heartbeat 30s', (xC+xS)/2, (ev.y1+ev.y2)/2-2, '#38bdf8').forEach(e=>grp.appendChild(e));
+    grp.appendChild(makeArrow(xC, ev.y2+6, xS-6, ev.y2+18, '#38bdf8', 'arr-blue'));
+    makeLabel('Pong (0xA) — echo', (xC+xS)/2, ev.y2+13, '#38bdf8').forEach(e=>grp.appendChild(e));
+    g.appendChild(grp); fade(grp);
+    document.getElementById('comp-step-box').innerHTML =
+      '<strong>Heartbeat Ping/Pong</strong>: Server gửi Ping mỗi 30s để giữ kết nối sống qua firewall/NAT. Client phải trả Pong.';
+  } else if (ev.from === 'result') {
+    document.getElementById('s-requests').textContent = cfg.requests;
+    document.getElementById('s-latency').textContent = cfg.latency;
+    document.getElementById('s-bandwidth').textContent = cfg.bandwidth;
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x','280'); t.setAttribute('y', ev.y);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','11');
+    t.setAttribute('fill', ev.color); t.setAttribute('font-weight','700');
+    t.textContent = ev.text;
+    const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
+    grp.appendChild(t); g.appendChild(grp); fade(grp);
+    document.getElementById('comp-step-box').innerHTML =
+      `<strong>Tóm tắt ${cfg.label}</strong>: ${ev.text}`;
+  }
+}
+
+document.getElementById('comp-btn-step').onclick = compStepFn;
+
+function compStep() { compStepFn(); }
+
+function compAuto() {
+  if (compAutoTimer) { clearInterval(compAutoTimer); compAutoTimer = null; return; }
+  compReset();
+  compAutoTimer = setInterval(() => {
+    const cfg = TECH_CONFIGS[compCurrentTech];
+    if (compStep > cfg.steps.length) { clearInterval(compAutoTimer); compAutoTimer = null; return; }
+    compStepFn();
+  }, 900);
+}
+
+// Fix comp-btn-step onclick after reset
+function compReset() {
+  clearInterval(compAutoTimer);
+  compAutoTimer = null;
+  compStep = 0;
+  document.getElementById('comp-arrows').innerHTML = '';
+  const cfg = TECH_CONFIGS[compCurrentTech];
+  document.getElementById('comp-tech-lbl').textContent = cfg.label;
+  document.getElementById('comp-tech-lbl').setAttribute('fill', cfg.color);
+  document.getElementById('comp-step-box').innerHTML =
+    `Kỹ thuật: <strong>${cfg.label}</strong>. Nhấn "Bước tiếp" để xem timeline.`;
+  document.getElementById('s-requests').textContent = '–';
+  document.getElementById('s-latency').textContent = '–';
+  document.getElementById('s-bandwidth').textContent = '–';
+  document.getElementById('comp-btn-step').textContent = 'Bước tiếp →';
+  document.getElementById('comp-btn-step').disabled = false;
+  document.getElementById('comp-btn-step').onclick = compStepFn;
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 2 — WebSocket Upgrade Handshake
+// ═══════════════════════════════════════════════════════════
+let upgCurrentStep = 0;
+let upgAutoTimer = null;
+
+// Generate a random Base64 key (simulated)
+function genWsKey() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return btoa(String.fromCharCode(...bytes));
+}
+
+let WS_KEY = genWsKey();
+
+// Simulate Sec-WebSocket-Accept computation
+// In real: SHA1(key + GUID) then base64. We just show the formula.
+function computeAccept(key) {
+  // We show the formula; actual SHA1 not needed for illustration
+  return '(SHA1("' + key.slice(0,8) + '...+" + GUID) → base64)';
+}
+
+const UPG_STEPS = [
+  {
+    desc: () => {
+      const host = document.getElementById('upg-host').value || 'chat.example.com';
+      return `<span class="lbl">Bước 1 — TCP Three-way Handshake</span>
+<span class="hdr-key">Client → Server:</span> <span class="hdr-val">SYN</span>
+<span class="hdr-key">Server → Client:</span> <span class="hdr-val">SYN-ACK</span>
+<span class="hdr-key">Client → Server:</span> <span class="hdr-val">ACK</span>
+
+Kết nối TCP đến <span class="hdr-val">${host}:443</span> đã thiết lập.
+Trước khi WebSocket có thể hoạt động, TCP phải sẵn sàng (~1.5 RTT).`;
+    },
+    draw: (g) => {
+      addUpgArrow(g, 65, 78, 489, 90, '#64748b', 'upg-arr-blue', 'SYN', 84);
+      addUpgArrow(g, 495, 92, 71, 104, '#64748b', 'upg-arr-blue', 'SYN-ACK', 98);
+      addUpgArrow(g, 65, 106, 489, 116, '#64748b', 'upg-arr-blue', 'ACK', 112);
+    },
+    stateC: 'TCP ESTAB.', stateS: 'TCP ESTAB.', stateColor: '#f0fdf4', strokeColor: '#86efac'
+  },
+  {
+    desc: () => {
+      const host = document.getElementById('upg-host').value || 'chat.example.com';
+      const path = document.getElementById('upg-path').value || '/ws/room/42';
+      WS_KEY = genWsKey();
+      return `<span class="lbl">Bước 2 — Client gửi HTTP Upgrade Request</span>
+<span class="hdr-key">GET</span> <span class="hdr-val">${path} HTTP/1.1</span>
+<span class="hdr-key">Host:</span> <span class="hdr-val">${host}</span>
+<span class="hdr-key">Upgrade:</span> <span class="hdr-val">websocket</span>
+<span class="hdr-key">Connection:</span> <span class="hdr-val">Upgrade</span>
+<span class="hdr-key">Sec-WebSocket-Key:</span> <span class="hdr-val">${WS_KEY}</span>
+<span class="hdr-key">Sec-WebSocket-Version:</span> <span class="hdr-val">13</span>
+
+Đây vẫn là HTTP/1.1. <span class="hdr-key">Sec-WebSocket-Key</span> là 16 byte ngẫu nhiên (Base64).
+Nó không phải mật mã — chỉ để xác minh server thực sự hiểu WebSocket.`;
+    },
+    draw: (g) => {
+      addUpgArrow(g, 65, 125, 489, 140, '#0369a1', 'upg-arr-blue', 'HTTP GET + Upgrade: websocket', 133);
+    },
+    stateC: 'UPGRADING', stateS: 'UPGRADING', stateColor: '#fef3c7', strokeColor: '#fde68a'
+  },
+  {
+    desc: () => {
+      return `<span class="lbl">Bước 3 — Server phản hồi 101 Switching Protocols</span>
+<span class="hdr-status">HTTP/1.1 101 Switching Protocols</span>
+<span class="hdr-key">Upgrade:</span> <span class="hdr-val">websocket</span>
+<span class="hdr-key">Connection:</span> <span class="hdr-val">Upgrade</span>
+<span class="hdr-key">Sec-WebSocket-Accept:</span> <span class="hdr-val">${computeAccept(WS_KEY)}</span>
+
+<span class="hdr-key">101</span> — không phải 200. Nghĩa là: "chấp thuận, kết nối đang chuyển giao thức".
+Accept = Base64(SHA1(Key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"))
+Client kiểm tra Accept để xác nhận server hợp lệ (ngăn proxy giả mạo).`;
+    },
+    draw: (g) => {
+      addUpgArrow(g, 495, 155, 71, 168, '#7c3aed', 'upg-arr-purple', '101 Switching Protocols', 162);
+    },
+    stateC: 'WS OPEN', stateS: 'WS OPEN', stateColor: '#dcfce7', strokeColor: '#86efac'
+  },
+  {
+    desc: () => {
+      return `<span class="lbl">Bước 4 — Kênh WebSocket mở, HTTP không còn dùng nữa</span>
+
+Sau 101, kết nối TCP <em>không chạy HTTP</em> nữa.
+Cả hai bên giao tiếp bằng <strong>khung (frame) WebSocket</strong>.
+Không có request/response — bất kỳ bên nào gửi bất kỳ lúc nào.
+
+Chi phí thiết lập: ~2.5 RTT (TCP 1.5 RTT + WS upgrade 1 RTT).
+Sau đó: mỗi tin nhắn = <strong>0 RTT overhead</strong> — gửi ngay.`;
+    },
+    draw: (g) => {
+      // Channel bar
+      const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      rect.setAttribute('x','65'); rect.setAttribute('y','178');
+      rect.setAttribute('width','430'); rect.setAttribute('height','16');
+      rect.setAttribute('rx','4'); rect.setAttribute('fill','#dcfce7');
+      rect.setAttribute('stroke','#16a34a'); rect.setAttribute('stroke-width','1.5');
+      const tl = document.createElementNS('http://www.w3.org/2000/svg','text');
+      tl.setAttribute('x','280'); tl.setAttribute('y','190');
+      tl.setAttribute('text-anchor','middle'); tl.setAttribute('font-size','10');
+      tl.setAttribute('font-weight','700'); tl.setAttribute('fill','#16a34a');
+      tl.textContent = 'KENH WEBSOCKET SONG CONG (ws:// hoac wss://)';
+      g.appendChild(rect); g.appendChild(tl);
+      // Show upg-channel
+      const ch = document.getElementById('upg-channel');
+      ch.style.transition = 'opacity .5s'; ch.style.opacity = '1';
+    },
+    stateC: 'ESTABLISHED', stateS: 'ESTABLISHED', stateColor: '#dcfce7', strokeColor: '#4ade80'
+  },
+  {
+    desc: () => {
+      return `<span class="lbl">Bước 5 — Giao tiếp song công: tin nhắn hai chiều</span>
+
+<span class="hdr-key">Client → Server:</span> <span class="hdr-val">[frame text] "Xin chào!"</span>  <em>(có mask, 2B overhead)</em>
+<span class="hdr-key">Server → Client:</span> <span class="hdr-val">[frame text] "Chào bạn!"</span>   <em>(không mask, 2B overhead)</em>
+<span class="hdr-key">Client → Server:</span> <span class="hdr-val">[frame text] "Giá BTC?"</span>    <em>(có mask, 2B overhead)</em>
+<span class="hdr-key">Server → Client:</span> <span class="hdr-val">[frame text] "$67,230"</span>    <em>(không mask, 2B overhead)</em>
+
+Mỗi tin = <strong>2 byte header</strong> (FIN + opcode + mask + length).
+So sánh: HTTP polling = 650+ byte header mỗi lần.`;
+    },
+    draw: (g) => {
+      addUpgArrow(g, 65, 205, 489, 216, '#7c3aed', 'upg-arr-purple', '[frame] "Xin chào!" (mask=1, 2B overhead)', 211);
+      addUpgArrow(g, 495, 226, 71, 237, '#16a34a', 'upg-arr-green', '[frame] "Chào bạn!" (mask=0, 2B overhead)', 232);
+      addUpgArrow(g, 65, 248, 489, 257, '#7c3aed', 'upg-arr-purple', '[frame] "Giá BTC?" (mask=1)', 253);
+      addUpgArrow(g, 495, 266, 71, 275, '#16a34a', 'upg-arr-green', '[frame] "$67,230" (mask=0)', 271);
+    },
+    stateC: 'ESTABLISHED', stateS: 'ESTABLISHED', stateColor: '#dcfce7', strokeColor: '#4ade80'
+  },
+  {
+    desc: () => {
+      return `<span class="lbl">Bước 6 — Đóng kết nối sạch (Graceful Close)</span>
+
+<span class="hdr-key">Client → Server:</span> <span class="hdr-val">[frame close] opcode=0x8, code=1000 (Normal)</span>
+<span class="hdr-key">Server → Client:</span> <span class="hdr-val">[frame close] echo opcode=0x8</span>
+<span class="hdr-key">TCP FIN/ACK</span> được trao đổi, kết nối đóng.
+
+Mã đóng phổ biến:
+  <span class="hdr-val">1000</span> = Normal Closure
+  <span class="hdr-val">1001</span> = Going Away (trang bị đóng)
+  <span class="hdr-val">1011</span> = Server Error
+
+Graceful close đảm bảo dữ liệu cuối cùng đã được nhận trước khi đóng.`;
+    },
+    draw: (g) => {
+      addUpgArrow(g, 65, 295, 489, 305, '#dc2626', 'upg-arr-orange', '[close] 1000 Normal Closure', 300);
+      addUpgArrow(g, 495, 308, 71, 318, '#dc2626', 'upg-arr-orange', '[close] echo — kết nối đóng', 313);
+    },
+    stateC: 'CLOSED', stateS: 'CLOSED', stateColor: '#fee2e2', strokeColor: '#fca5a5'
+  }
+];
+
+function addUpgArrow(g, x1, y1, x2, y2, color, markerId, label, labelY) {
+  const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1',x1); line.setAttribute('y1',y1);
+  line.setAttribute('x2',x2); line.setAttribute('y2',y2);
+  line.setAttribute('stroke',color); line.setAttribute('stroke-width','2');
+  line.setAttribute('marker-end',`url(#${markerId})`);
+
+  const midX = (x1+x2)/2;
+  const tw = Math.min(label.length * 6.1 + 10, 340);
+  const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  bg.setAttribute('x', midX-tw/2); bg.setAttribute('y', labelY-11);
+  bg.setAttribute('width',tw); bg.setAttribute('height',13);
+  bg.setAttribute('rx','3'); bg.setAttribute('fill','white'); bg.setAttribute('fill-opacity','0.92');
+  const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+  t.setAttribute('x', midX); t.setAttribute('y', labelY);
+  t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','11');
+  t.setAttribute('font-weight','700'); t.setAttribute('fill', color);
+  t.textContent = label;
+
+  const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
+  grp.style.opacity='0'; grp.style.transition='opacity .3s';
+  grp.appendChild(line); grp.appendChild(bg); grp.appendChild(t);
+  g.appendChild(grp);
+  requestAnimationFrame(() => { grp.style.opacity='1'; });
+}
+
+function upgReset() {
+  clearInterval(upgAutoTimer); upgAutoTimer = null;
+  upgCurrentStep = 0;
+  document.getElementById('upg-arrows').innerHTML = '';
+  document.getElementById('upg-channel').style.opacity = '0';
+  document.getElementById('upg-state-c').textContent = 'CLOSED';
+  document.getElementById('upg-state-s').textContent = 'LISTEN';
+  document.getElementById('upg-state-c-bg').setAttribute('fill','#f0f9ff');
+  document.getElementById('upg-state-c-bg').setAttribute('stroke','#bae6fd');
+  document.getElementById('upg-state-s-bg').setAttribute('fill','#f0f9ff');
+  document.getElementById('upg-state-s-bg').setAttribute('stroke','#bae6fd');
+  document.getElementById('upg-desc').innerHTML =
+    '<span class="lbl">Sẵn sàng —</span> Nhấn "Bước tiếp" để bắt đầu mô phỏng bắt tay nâng cấp HTTP → WebSocket.';
+  document.getElementById('upg-btn-step').textContent = 'Bước tiếp →';
+  document.getElementById('upg-btn-step').disabled = false;
+}
+
+function upgStep() {
+  if (upgCurrentStep >= UPG_STEPS.length) {
+    upgReset(); return;
+  }
+  const st = UPG_STEPS[upgCurrentStep];
+  const g = document.getElementById('upg-arrows');
+  st.draw(g);
+  document.getElementById('upg-desc').innerHTML = st.desc();
+  document.getElementById('upg-state-c').textContent = st.stateC;
+  document.getElementById('upg-state-s').textContent = st.stateS;
+  document.getElementById('upg-state-c-bg').setAttribute('fill', st.stateColor);
+  document.getElementById('upg-state-c-bg').setAttribute('stroke', st.strokeColor);
+  document.getElementById('upg-state-s-bg').setAttribute('fill', st.stateColor);
+  document.getElementById('upg-state-s-bg').setAttribute('stroke', st.strokeColor);
+  upgCurrentStep++;
+  if (upgCurrentStep >= UPG_STEPS.length) {
+    document.getElementById('upg-btn-step').textContent = 'Bắt đầu lại';
+  }
+}
+
+function upgAuto() {
+  if (upgAutoTimer) { clearInterval(upgAutoTimer); upgAutoTimer = null; return; }
+  upgReset();
+  upgAutoTimer = setInterval(() => {
+    if (upgCurrentStep >= UPG_STEPS.length) {
+      clearInterval(upgAutoTimer); upgAutoTimer = null; return;
+    }
+    upgStep();
+  }, 1500);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 3 — Chat WebSocket simulation
+// ═══════════════════════════════════════════════════════════
+let chatConnected = false;
+let chatMsgCount = 0;
+
+function srvLog(msg, cls) {
+  const log = document.getElementById('srv-log');
+  const now = new Date();
+  const ts = now.toTimeString().slice(0,8);
+  const div = document.createElement('div');
+  div.className = 'srv-log-line ' + (cls||'');
+  div.textContent = `[${ts}] ${msg}`;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+function chatConnect() {
+  if (chatConnected) return;
+  chatConnected = true;
+  document.getElementById('dot-a').classList.add('connected');
+  document.getElementById('dot-b').classList.add('connected');
+  document.getElementById('chat-connect-btn').style.display = 'none';
+  document.getElementById('chat-disconnect-btn').style.display = '';
+  srvLog('Server WebSocket lắng nghe ws://localhost:8080/chat', 'connect');
+  setTimeout(() => srvLog('Client "Alice" kết nối — WebSocket handshake hoàn tất', 'connect'), 200);
+  setTimeout(() => srvLog('Client "Bob" kết nối — WebSocket handshake hoàn tất', 'connect'), 400);
+  setTimeout(() => {
+    addMsg('a', 'recv', '(Server) Chào mừng đến phòng chat! Hiện có 2 người dùng.', true);
+    addMsg('b', 'recv', '(Server) Chào mừng đến phòng chat! Hiện có 2 người dùng.', true);
+  }, 600);
+}
+
+function chatDisconnect() {
+  if (!chatConnected) return;
+  chatConnected = false;
+  document.getElementById('dot-a').classList.remove('connected');
+  document.getElementById('dot-b').classList.remove('connected');
+  document.getElementById('chat-connect-btn').style.display = '';
+  document.getElementById('chat-disconnect-btn').style.display = 'none';
+  srvLog('Client "Alice" ngắt kết nối (code 1001 Going Away)', 'close');
+  srvLog('Client "Bob" ngắt kết nối (code 1001 Going Away)', 'close');
+}
+
+function addMsg(client, type, text, isSystem) {
+  const container = document.getElementById('msgs-' + client);
+  const div = document.createElement('div');
+  div.className = 'msg-bubble ' + type + (client === 'b' && type === 'recv' ? ' b-color' : '');
+  const now = new Date();
+  const ts = now.toTimeString().slice(0,5);
+  div.innerHTML = (isSystem ? '<em style="opacity:.8;">' + text + '</em>' : text) +
+    `<span class="msg-time">${ts}</span>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function chatSend(client) {
+  if (!chatConnected) {
+    alert('Hãy bấm "Kết nối WebSocket" trước!');
+    return;
+  }
+  const input = document.getElementById('input-' + client);
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  chatMsgCount++;
+
+  const name = client === 'a' ? 'Alice' : 'Bob';
+  const other = client === 'a' ? 'b' : 'a';
+  const frameBytes = 2 + text.length + (client === 'a' ? 4 : 0); // mask=4bytes for client→server
+
+  // Show as sent on sender side
+  addMsg(client, 'sent', text);
+
+  // Server log
+  srvLog(`[frame] ${name} → Server: opcode=0x1 len=${text.length}B mask=${client==='a'?1:0} → "${text.slice(0,30)}${text.length>30?'...':''}"`, 'message');
+  srvLog(`[broadcast] Server → ${client==='a'?'Bob':'Alice'}: opcode=0x1 len=${text.length}B mask=0`, 'broadcast');
+
+  // Instant delivery to other client (simulating 0 RTT)
+  addMsg(other, 'recv', `${name}: ${text}`);
+}
+
+function chatClear() {
+  ['msgs-a','msgs-b'].forEach(id => {
+    document.getElementById(id).innerHTML = '';
+  });
+  const log = document.getElementById('srv-log');
+  log.innerHTML = '<div class="srv-title">Server Log</div>';
+  chatMsgCount = 0;
+}
+
+function chatSimPing() {
+  if (!chatConnected) { alert('Hãy kết nối trước!'); return; }
+  srvLog('[ping] Server → Alice: opcode=0x9 payload="srv-heartbeat"', 'ping');
+  setTimeout(() => srvLog('[pong] Alice → Server: opcode=0xA payload="srv-heartbeat"', 'ping'), 50);
+  setTimeout(() => srvLog('[ping] Server → Bob: opcode=0x9 payload="srv-heartbeat"', 'ping'), 100);
+  setTimeout(() => srvLog('[pong] Bob → Server: opcode=0xA payload="srv-heartbeat"', 'ping'), 150);
+  setTimeout(() => {
+    addMsg('a', 'recv', '(Server) Ping/Pong: kết nối vẫn sống!', true);
+    addMsg('b', 'recv', '(Server) Ping/Pong: kết nối vẫn sống!', true);
+  }, 200);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 4 — Frame decoder
+// ═══════════════════════════════════════════════════════════
+const MASK_KEY = [0x37, 0xFA, 0x21, 0x3D]; // fixed demo mask key
+
+function frameRender() {
+  const msg = document.getElementById('frame-msg').value || '';
+  const isClient = document.getElementById('frame-dir').value === 'client';
+  const opcode = parseInt(document.getElementById('frame-type').value);
+
+  const payload = new TextEncoder().encode(msg);
+  const payLen = payload.length;
+  const fin = 1;
+  const byte0 = (fin << 7) | (opcode & 0x0F);
+  const masked = isClient ? 1 : 0;
+  let byte1, extraLenBytes = 0;
+  if (payLen <= 125) {
+    byte1 = (masked << 7) | payLen;
+  } else if (payLen <= 65535) {
+    byte1 = (masked << 7) | 126;
+    extraLenBytes = 2;
+  } else {
+    byte1 = (masked << 7) | 127;
+    extraLenBytes = 8;
+  }
+
+  // Build frame bytes for display
+  let frameBytes = [byte0, byte1];
+  if (extraLenBytes === 2) {
+    frameBytes.push((payLen >> 8) & 0xFF, payLen & 0xFF);
+  } else if (extraLenBytes === 8) {
+    frameBytes.push(0,0,0,0,(payLen>>24)&0xFF,(payLen>>16)&0xFF,(payLen>>8)&0xFF,payLen&0xFF);
+  }
+
+  let maskKey = [];
+  if (masked) {
+    maskKey = MASK_KEY;
+    frameBytes.push(...maskKey);
+  }
+
+  // Masked/unmasked payload (show first 8 bytes)
+  const maskedPayload = [];
+  for (let i = 0; i < Math.min(payLen, 8); i++) {
+    maskedPayload.push(masked ? (payload[i] ^ maskKey[i % 4]) : payload[i]);
+  }
+
+  const toHex = b => b.toString(16).toUpperCase().padStart(2,'0');
+  const toBin8 = b => b.toString(2).padStart(8,'0');
+
+  const totalBytes = frameBytes.length + payLen;
+
+  const opcodeNames = {1:'Text (UTF-8)',2:'Binary',8:'Close',9:'Ping',10:'Pong'};
+  const opName = opcodeNames[opcode] || `0x${opcode.toString(16)}`;
+
+  let decodedPayload = '';
+  try { decodedPayload = new TextDecoder().decode(payload); } catch(e) { decodedPayload = msg; }
+
+  document.getElementById('frame-result').innerHTML = `
+<div class="frame-row">
+  <span class="frame-label">Byte 0</span>
+  <span class="frame-bits">
+    <span class="bit-green">${fin}</span><span class="bit-highlight">000</span><span class="bit-blue">${toBin8(opcode).slice(4)}</span>
+    = 0x${toHex(byte0)}
+  </span>
+</div>
+<div style="font-size:12px;color:#64748b;margin:-4px 0 8px 128px;">
+  <span class="bit-green" style="padding:1px 4px;border-radius:2px;">FIN=1</span> (khung cuối)&nbsp;
+  <span class="bit-highlight" style="padding:1px 4px;border-radius:2px;">RSV=000</span>&nbsp;
+  <span class="bit-blue" style="padding:1px 4px;border-radius:2px;">Opcode=${opcode} — ${opName}</span>
+</div>
+<div class="frame-row">
+  <span class="frame-label">Byte 1</span>
+  <span class="frame-bits">
+    <span class="bit-red">${masked}</span>${payLen <= 125 ? toBin8(payLen).slice(1) : (payLen<=65535?'1111110':'1111111')}
+    = 0x${toHex(byte1)}
+  </span>
+</div>
+<div style="font-size:12px;color:#64748b;margin:-4px 0 8px 128px;">
+  <span class="bit-red" style="padding:1px 4px;border-radius:2px;">MASK=${masked}</span> (${masked?'client→server, có mask':'server→client, không mask'})&nbsp;
+  Payload length = ${payLen}${extraLenBytes > 0 ? ` (mã ${payLen<=65535?'126':'127'} + ${extraLenBytes} byte tiếp)` : ' byte'}
+</div>
+${masked ? `<div class="frame-row">
+  <span class="frame-label">Mask Key</span>
+  <span class="frame-bits">${maskKey.map(toHex).join(' ')} (4 byte ngẫu nhiên)</span>
+</div>` : ''}
+<div class="frame-row">
+  <span class="frame-label">Payload (hex)</span>
+  <span class="frame-bits">${maskedPayload.map(toHex).join(' ')}${payLen > 8 ? ' ...' : ''}
+${masked ? `<span style="color:#94a3b8;"> (đã XOR mask key)</span>` : ''}</span>
+</div>
+${masked ? `<div class="frame-row">
+  <span class="frame-label">Giải mã</span>
+  <span class="frame-bits">${Array.from(payload).slice(0,8).map(b=>toHex(b)).join(' ')}${payLen>8?' ...':''}
+<span style="color:#94a3b8;"> = "${decodedPayload.slice(0,40)}${decodedPayload.length>40?'...':''}"</span></span>
+</div>` : ''}
+<div style="background:#1e293b;color:#e2e8f0;border-radius:8px;padding:12px 14px;font-family:monospace;font-size:12px;margin-top:10px;line-height:1.8;">
+  <span style="color:#38bdf8;font-weight:700;">Tóm tắt frame:</span><br>
+  Tổng kích thước: <span style="color:#4ade80;font-weight:700;">${totalBytes} byte</span> (${frameBytes.length} B header${masked?' + 4 B mask key':''} + ${payLen} B payload)<br>
+  Overhead: <span style="color:#fbbf24;font-weight:700;">${((frameBytes.length/totalBytes)*100).toFixed(1)}%</span>
+  (so sánh: HTTP polling = ~97% overhead cho tin nhắn ngắn)<br>
+  Hướng: <span style="color:#a78bfa;">${isClient ? 'Client → Server (MASK=1 bắt buộc)' : 'Server → Client (MASK=0)'}</span>
+</div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+compReset();
+upgReset();
+frameRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

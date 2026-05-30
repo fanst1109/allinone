@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Email &amp; Truyền file</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette Email / File Transfer ── */
+  :root {
+    --accent:    #0369a1;
+    --soft:      #e0f2fe;
+    --mid:       #38bdf8;
+    --dark:      #0c4a6e;
+    --green:     #16a34a;
+    --green-soft:#dcfce7;
+    --red:       #dc2626;
+    --red-soft:  #fee2e2;
+    --orange:    #d97706;
+    --orange-soft:#fef3c7;
+    --purple:    #7c3aed;
+    --purple-soft:#ede9fe;
+    --bg-card:   #ffffff;
+    --bg-section:#f0f9ff;
+  }
+
+  h1 { color: var(--dark); }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--mid); }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(3,105,161,.10);
+    margin: 16px 0;
+  }
+  .info-box {
+    background: var(--soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ── Tab system ── */
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    border-bottom: 2px solid var(--mid);
+    margin-bottom: 20px;
+  }
+  .tab-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px 6px 0 0;
+    background: #e2e8f0;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+    position: relative;
+    bottom: -2px;
+  }
+  .tab-btn.active {
+    background: var(--accent);
+    color: white;
+    border-bottom: 2px solid var(--accent);
+  }
+  .tab-btn:not(.active):hover { background: var(--soft); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 1 — SMTP Session Simulator
+     ═══════════════════════════════════════════════════════ */
+  #smtp-stage {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  #smtp-left {
+    flex: 1 1 200px;
+    min-width: 180px;
+  }
+  #smtp-right {
+    flex: 2 1 300px;
+    min-width: 260px;
+  }
+  .smtp-cmd-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 10px 0;
+  }
+  .smtp-cmd-btn {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1.5px solid #cbd5e1;
+    background: white;
+    font-family: monospace;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    transition: background .12s, border-color .12s;
+  }
+  .smtp-cmd-btn:hover:not(:disabled) { background: var(--soft); border-color: var(--accent); }
+  .smtp-cmd-btn:disabled { opacity: .4; cursor: not-allowed; }
+  .smtp-cmd-btn.done { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+  .smtp-cmd-btn.active-cmd { background: var(--soft); border-color: var(--accent); }
+
+  #smtp-terminal {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    min-height: 260px;
+    max-height: 360px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  #smtp-terminal .srv  { color: #4ade80; }
+  #smtp-terminal .cli  { color: #93c5fd; }
+  #smtp-terminal .tls  { color: #fbbf24; }
+  #smtp-terminal .info { color: #94a3b8; font-style: italic; }
+  #smtp-terminal .err  { color: #f87171; }
+  #smtp-terminal .done-line { color: #a78bfa; }
+
+  #smtp-explain {
+    background: var(--bg-section);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 10px;
+    min-height: 48px;
+  }
+  #smtp-explain strong { color: var(--accent); }
+  #smtp-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    margin: 8px 0;
+  }
+  .status-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #94a3b8;
+    flex-shrink: 0;
+  }
+  .status-dot.connected { background: var(--green); }
+  .status-dot.done-status { background: var(--purple); }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 2 — Email Journey Animation
+     ═══════════════════════════════════════════════════════ */
+  #journey-wrap { width: 100%; overflow-x: auto; }
+  #journey-svg { display: block; margin: 0 auto; }
+  #journey-log {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    min-height: 72px;
+    max-height: 160px;
+    overflow-y: auto;
+    margin-top: 10px;
+    white-space: pre-wrap;
+  }
+  #journey-log .step-ok   { color: #4ade80; }
+  #journey-log .step-info { color: #93c5fd; }
+  #journey-log .step-done { color: #a78bfa; }
+
+  #journey-step-label {
+    background: var(--bg-section);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 10px;
+    min-height: 52px;
+  }
+  #journey-step-label strong { color: var(--accent); }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 3 — IMAP vs POP3
+     ═══════════════════════════════════════════════════════ */
+  .imap-pop3-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 12px 0;
+  }
+  @media (max-width: 600px) {
+    .imap-pop3-wrap { grid-template-columns: 1fr; }
+  }
+  .proto-box {
+    border-radius: 10px;
+    padding: 14px 16px;
+    border: 2px solid #cbd5e1;
+    transition: border-color .2s;
+  }
+  .proto-box.imap-box { border-color: var(--accent); background: #f0f9ff; }
+  .proto-box.pop3-box { border-color: var(--orange); background: #fffbeb; }
+  .proto-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .proto-box.imap-box .proto-title { color: var(--accent); }
+  .proto-box.pop3-box .proto-title { color: var(--orange); }
+
+  /* Device grid for IMAP/POP3 demo */
+  .device-grid {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 8px 0;
+    justify-content: center;
+  }
+  .device-card {
+    border-radius: 8px;
+    border: 1.5px solid #cbd5e1;
+    padding: 8px 10px;
+    min-width: 80px;
+    max-width: 100px;
+    text-align: center;
+    font-size: 12px;
+    background: white;
+    transition: border-color .2s, background .2s;
+  }
+  .device-card .device-icon { font-size: 22px; margin-bottom: 4px; }
+  .device-card .mail-count {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--accent);
+  }
+  .device-card.synced { border-color: var(--green); background: var(--green-soft); }
+  .device-card.unsynced { border-color: var(--red); background: var(--red-soft); }
+  .server-box {
+    border-radius: 8px;
+    border: 2px solid var(--accent);
+    padding: 10px 14px;
+    background: var(--soft);
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--dark);
+    margin: 8px auto;
+    max-width: 200px;
+  }
+  .server-box .srv-count {
+    font-size: 18px;
+    color: var(--accent);
+    display: block;
+    margin-top: 4px;
+  }
+  .scenario-log {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 1.8;
+    min-height: 60px;
+    margin-top: 8px;
+  }
+
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+  .compare-table th {
+    background: var(--soft);
+    color: var(--dark);
+    padding: 8px 10px;
+    text-align: left;
+    border: 1px solid #bae6fd;
+  }
+  .compare-table td {
+    padding: 8px 10px;
+    border: 1px solid #e2e8f0;
+    vertical-align: top;
+  }
+  .compare-table tr:nth-child(even) td { background: #f8fafc; }
+  .compare-table .imap-val { color: var(--accent); font-weight: 700; }
+  .compare-table .pop3-val { color: var(--orange); font-weight: 700; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 4 — FTP Active vs Passive
+     ═══════════════════════════════════════════════════════ */
+  .ftp-mode-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .ftp-mode-btn {
+    padding: 8px 20px;
+    border-radius: 20px;
+    border: 2px solid #cbd5e1;
+    background: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .ftp-mode-btn.active-mode { background: var(--accent); color: white; border-color: var(--accent); }
+  .ftp-mode-btn:not(.active-mode):hover { border-color: var(--accent); background: var(--soft); }
+
+  #ftp-wrap { width: 100%; overflow-x: auto; }
+  #ftp-svg  { display: block; margin: 0 auto; }
+  #ftp-log {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    min-height: 72px;
+    max-height: 180px;
+    overflow-y: auto;
+    margin-top: 10px;
+    white-space: pre-wrap;
+  }
+  #ftp-log .ctrl  { color: #93c5fd; }
+  #ftp-log .data  { color: #4ade80; }
+  #ftp-log .warn  { color: #fbbf24; }
+  #ftp-log .block { color: #f87171; }
+  #ftp-explain {
+    background: var(--bg-section);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 10px;
+  }
+  #ftp-explain strong { color: var(--accent); }
+
+  /* ── Comparison table bottom ── */
+  .sec-compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+  .sec-compare-table th {
+    padding: 8px 10px; border: 1px solid #e2e8f0;
+    background: var(--soft); color: var(--dark); text-align: left;
+  }
+  .sec-compare-table td {
+    padding: 8px 10px; border: 1px solid #e2e8f0;
+    vertical-align: top; line-height: 1.6;
+  }
+  .sec-compare-table tr:nth-child(even) td { background: #f8fafc; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .badge-ok   { background: var(--green-soft); color: var(--green); }
+  .badge-warn { background: var(--orange-soft); color: var(--orange); }
+  .badge-err  { background: var(--red-soft); color: var(--red); }
+
+  /* Responsive fix for header grid */
+  .hdr-overflow { overflow-x: auto; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Application</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-http-advanced/visualization.html">← L4: HTTP nâng cao</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Email &amp; truyền file</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-tls/visualization.html">L6: TLS/SSL →</a>
+</nav>
+
+<main>
+  <h1>Lesson 05 — Email &amp; Truyền file</h1>
+  <p style="color:#475569;font-size:15px;margin-top:-8px;">SMTP · IMAP · POP3 · MIME · SPF/DKIM/DMARC · FTP Active/Passive · SFTP</p>
+
+  <!-- ────────────────────────────── TAB BAR ────────────────────────────── -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('smtp')">1. Mô phỏng SMTP</button>
+    <button class="tab-btn" onclick="switchTab('journey')">2. Hành trình email</button>
+    <button class="tab-btn" onclick="switchTab('imap')">3. IMAP vs POP3</button>
+    <button class="tab-btn" onclick="switchTab('ftp')">4. FTP Active/Passive</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       MODULE 1: SMTP Session Simulator
+       ══════════════════════════════════════════════════════════════════════ -->
+  <div id="tab-smtp" class="tab-panel active">
+    <h2>Mô phỏng phiên SMTP — gửi email từng lệnh</h2>
+    <div class="info-box">
+      Bấm lần lượt từng lệnh (theo thứ tự từ trên xuống). Server phản hồi mã trạng thái sau mỗi lệnh.
+      Thứ tự chuẩn: <strong>EHLO → STARTTLS → EHLO → MAIL FROM → RCPT TO → DATA → [nội dung] → . → QUIT</strong>
+    </div>
+
+    <div id="smtp-stage">
+      <div id="smtp-left">
+        <div id="smtp-status">
+          <div class="status-dot" id="smtp-dot"></div>
+          <span id="smtp-status-text">Chưa kết nối</span>
+        </div>
+        <div class="smtp-cmd-list" id="smtp-cmds">
+          <!-- injected by JS -->
+        </div>
+        <div class="btn-row" style="margin-top:14px;">
+          <button class="btn btn-secondary" onclick="smtpReset()">Bắt đầu lại</button>
+        </div>
+      </div>
+      <div id="smtp-right">
+        <div id="smtp-terminal"></div>
+        <div id="smtp-explain">Bấm lệnh đầu tiên để bắt đầu phiên kết nối TCP.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       MODULE 2: Email Journey Animation
+       ══════════════════════════════════════════════════════════════════════ -->
+  <div id="tab-journey" class="tab-panel">
+    <h2>Hành trình email A → B qua mạng</h2>
+    <div class="info-box">
+      Bấm <strong>Tiếp theo</strong> để xem từng chặng email đi từ MUA của Alice đến MUA của Bob.
+      Mỗi bước mô tả giao thức, cổng và vai trò của từng thành phần.
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="journey-next-btn" onclick="journeyNext()">Tiếp theo ▶</button>
+      <button class="btn btn-secondary" onclick="journeyReset()">Bắt đầu lại</button>
+    </div>
+    <div id="journey-wrap">
+      <svg id="journey-svg" width="700" height="220" viewBox="0 0 700 220"></svg>
+    </div>
+    <div id="journey-step-label">Bấm <strong>Tiếp theo</strong> để bắt đầu hành trình email.</div>
+    <div id="journey-log"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       MODULE 3: IMAP vs POP3
+       ══════════════════════════════════════════════════════════════════════ -->
+  <div id="tab-imap" class="tab-panel">
+    <h2>IMAP vs POP3 — đa thiết bị</h2>
+    <div class="info-box">
+      Chọn kịch bản để xem cách hai giao thức xử lý việc đọc thư trên nhiều thiết bị.
+      Sau đó xem bảng so sánh đầy đủ phía dưới.
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="imapScenario('read')">Bob đọc thư trên điện thoại</button>
+      <button class="btn btn-primary" onclick="imapScenario('delete')">Bob xóa 1 thư</button>
+      <button class="btn btn-secondary" onclick="imapScenario('reset')">Đặt lại</button>
+    </div>
+
+    <div class="imap-pop3-wrap">
+      <!-- IMAP side -->
+      <div class="proto-box imap-box">
+        <div class="proto-title">IMAP (port 143/993)</div>
+        <div class="server-box">
+          Server mail.company.vn
+          <span class="srv-count" id="imap-server-count">3 thư</span>
+        </div>
+        <div class="device-grid">
+          <div class="device-card synced" id="imap-phone">
+            <div class="device-icon">📱</div>
+            <div>Điện thoại</div>
+            <div class="mail-count" id="imap-phone-count">3 thư</div>
+          </div>
+          <div class="device-card synced" id="imap-laptop">
+            <div class="device-icon">💻</div>
+            <div>Laptop</div>
+            <div class="mail-count" id="imap-laptop-count">3 thư</div>
+          </div>
+          <div class="device-card synced" id="imap-tablet">
+            <div class="device-icon">📟</div>
+            <div>Máy tính bảng</div>
+            <div class="mail-count" id="imap-tablet-count">3 thư</div>
+          </div>
+        </div>
+        <div class="scenario-log" id="imap-log">Trạng thái ban đầu: 3 thư chưa đọc trên server.<br>Mọi thiết bị đồng bộ với server.</div>
+      </div>
+
+      <!-- POP3 side -->
+      <div class="proto-box pop3-box">
+        <div class="proto-title">POP3 (port 110/995)</div>
+        <div class="server-box" style="border-color:var(--orange);background:var(--orange-soft);">
+          Server mail.company.vn
+          <span class="srv-count" style="color:var(--orange);" id="pop3-server-count">3 thư</span>
+        </div>
+        <div class="device-grid">
+          <div class="device-card" id="pop3-phone">
+            <div class="device-icon">📱</div>
+            <div>Điện thoại</div>
+            <div class="mail-count" style="color:var(--orange);" id="pop3-phone-count">0 thư</div>
+          </div>
+          <div class="device-card" id="pop3-laptop">
+            <div class="device-icon">💻</div>
+            <div>Laptop</div>
+            <div class="mail-count" style="color:var(--orange);" id="pop3-laptop-count">0 thư</div>
+          </div>
+          <div class="device-card" id="pop3-tablet">
+            <div class="device-icon">📟</div>
+            <div>Máy tính bảng</div>
+            <div class="mail-count" style="color:var(--orange);" id="pop3-tablet-count">0 thư</div>
+          </div>
+        </div>
+        <div class="scenario-log" id="pop3-log">Trạng thái ban đầu: 3 thư trên server chưa tải về.<br>Mỗi thiết bị tải riêng, xóa server sau khi tải.</div>
+      </div>
+    </div>
+
+    <!-- Bảng so sánh -->
+    <h3 style="margin-top:24px;color:var(--dark);">Bảng so sánh đầy đủ</h3>
+    <div class="hdr-overflow">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Tiêu chí</th>
+          <th>IMAP</th>
+          <th>POP3</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Thư lưu ở đâu</td><td class="imap-val">Server (luôn luôn)</td><td class="pop3-val">Client (sau khi tải)</td></tr>
+        <tr><td>Đồng bộ đa thiết bị</td><td class="imap-val">Có — mọi thiết bị thấy cùng trạng thái</td><td class="pop3-val">Không — mỗi thiết bị thấy khác nhau</td></tr>
+        <tr><td>Trạng thái đã đọc</td><td class="imap-val">Đồng bộ trên server (flags)</td><td class="pop3-val">Chỉ lưu cục bộ trên client</td></tr>
+        <tr><td>Folder server</td><td class="imap-val">Có (Inbox, Sent, Spam...)</td><td class="pop3-val">Không</td></tr>
+        <tr><td>Tìm kiếm</td><td class="imap-val">Tìm trực tiếp trên server</td><td class="pop3-val">Phải tải hết về mới tìm được</td></tr>
+        <tr><td>Offline access</td><td class="imap-val">Hạn chế (cần cấu hình cache)</td><td class="pop3-val">Tốt (thư đã tải về local)</td></tr>
+        <tr><td>Dung lượng server</td><td class="imap-val">Nhiều (thư ở mãi trên server)</td><td class="pop3-val">Ít (thư tải về, xóa server)</td></tr>
+        <tr><td>Port mặc định</td><td class="imap-val">143 (thuần) / 993 (TLS)</td><td class="pop3-val">110 (thuần) / 995 (TLS)</td></tr>
+        <tr><td>Phù hợp cho</td><td class="imap-val">Dùng nhiều thiết bị, email công việc</td><td class="pop3-val">Một thiết bị, backup local</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       MODULE 4: FTP Active vs Passive
+       ══════════════════════════════════════════════════════════════════════ -->
+  <div id="tab-ftp" class="tab-panel">
+    <h2>FTP — Kênh điều khiển &amp; kênh dữ liệu</h2>
+    <div class="info-box">
+      FTP dùng <strong>hai kênh TCP riêng biệt</strong>: kênh điều khiển (port 21) để ra lệnh và kênh dữ liệu
+      (port động) để truyền file thực sự. Chọn chế độ để xem sự khác biệt khi có NAT/firewall.
+    </div>
+
+    <div class="ftp-mode-tabs">
+      <button class="ftp-mode-btn active-mode" id="ftp-active-btn" onclick="ftpSetMode('active')">Active Mode</button>
+      <button class="ftp-mode-btn" id="ftp-passive-btn" onclick="ftpSetMode('passive')">Passive Mode</button>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="ftp-next-btn" onclick="ftpNext()">Tiếp theo ▶</button>
+      <button class="btn btn-secondary" onclick="ftpReset()">Bắt đầu lại</button>
+    </div>
+
+    <div id="ftp-wrap">
+      <svg id="ftp-svg" width="640" height="240" viewBox="0 0 640 240"></svg>
+    </div>
+    <div id="ftp-explain">Chọn chế độ rồi bấm <strong>Tiếp theo</strong> để xem từng bước.</div>
+    <div id="ftp-log"></div>
+
+    <!-- So sánh FTP/SFTP/FTPS -->
+    <h3 style="margin-top:28px;color:var(--dark);">So sánh FTP, SFTP, FTPS</h3>
+    <div class="hdr-overflow">
+    <table class="sec-compare-table">
+      <thead>
+        <tr>
+          <th>Tiêu chí</th>
+          <th>FTP</th>
+          <th>SFTP</th>
+          <th>FTPS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Mã hóa</td>
+          <td><span class="badge badge-err">Không</span></td>
+          <td><span class="badge badge-ok">SSH (mạnh)</span></td>
+          <td><span class="badge badge-ok">TLS/SSL (mạnh)</span></td>
+        </tr>
+        <tr>
+          <td>Số kênh TCP</td>
+          <td>2 (control + data)</td>
+          <td><span class="badge badge-ok">1 kênh duy nhất</span></td>
+          <td>2 (cả hai mã hóa)</td>
+        </tr>
+        <tr>
+          <td>Port</td>
+          <td>21 + động</td>
+          <td>22</td>
+          <td>21 + động (hoặc 990)</td>
+        </tr>
+        <tr>
+          <td>Xác thực server</td>
+          <td><span class="badge badge-err">Không</span></td>
+          <td><span class="badge badge-ok">Có (host key)</span></td>
+          <td><span class="badge badge-ok">Có (TLS cert)</span></td>
+        </tr>
+        <tr>
+          <td>Vấn đề NAT/firewall</td>
+          <td><span class="badge badge-warn">Có (passive giảm bớt)</span></td>
+          <td><span class="badge badge-ok">Không</span></td>
+          <td><span class="badge badge-warn">Có (giống FTP)</span></td>
+        </tr>
+        <tr>
+          <td>Mật khẩu trên mạng</td>
+          <td><span class="badge badge-err">Plaintext</span></td>
+          <td><span class="badge badge-ok">Mã hóa / SSH key</span></td>
+          <td><span class="badge badge-ok">Mã hóa qua TLS</span></td>
+        </tr>
+        <tr>
+          <td>Phổ biến hiện nay</td>
+          <td><span class="badge badge-warn">Giảm dần</span></td>
+          <td><span class="badge badge-ok">Rất phổ biến</span></td>
+          <td>Dùng khi cần tương thích</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+</main>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   TAB SYSTEM
+   ══════════════════════════════════════════════════════════════════════════ */
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  const btns = document.querySelectorAll('.tab-btn');
+  const map = {smtp:0, journey:1, imap:2, ftp:3};
+  btns[map[id]].classList.add('active');
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MODULE 1: SMTP SIMULATOR
+   ══════════════════════════════════════════════════════════════════════════ */
+const SMTP_STEPS = [
+  {
+    label: 'EHLO mail.google.com',
+    className: 'cli',
+    terminal: [
+      {cls:'info', text:'# TCP kết nối đến mail.company.vn:25'},
+      {cls:'srv',  text:'S: 220 mail.company.vn ESMTP Postfix ready'},
+      {cls:'cli',  text:'C: EHLO mail.google.com'},
+      {cls:'srv',  text:'S: 250-mail.company.vn Hello mail.google.com'},
+      {cls:'srv',  text:'S: 250-SIZE 52428800'},
+      {cls:'srv',  text:'S: 250-STARTTLS'},
+      {cls:'srv',  text:'S: 250 HELP'},
+    ],
+    explain: '<strong>EHLO</strong> (Extended HELLO): client giới thiệu tên máy với server. Server phản hồi <strong>250</strong> và liệt kê các tính năng hỗ trợ (SIZE, STARTTLS...). Server nói trước (220) — client không gửi gì trước khi nhận 220.',
+    statusText: 'Đã kết nối TCP',
+    dotClass: 'connected'
+  },
+  {
+    label: 'STARTTLS',
+    className: 'cli',
+    terminal: [
+      {cls:'cli',  text:'C: STARTTLS'},
+      {cls:'srv',  text:'S: 220 Ready to start TLS'},
+      {cls:'tls',  text:'# [Bắt tay TLS diễn ra — kết nối được mã hóa từ đây]'},
+      {cls:'cli',  text:'C: EHLO mail.google.com  (lần 2, sau TLS)'},
+      {cls:'srv',  text:'S: 250-mail.company.vn Hello mail.google.com'},
+      {cls:'srv',  text:'S: 250 SIZE 52428800'},
+    ],
+    explain: '<strong>STARTTLS</strong>: nâng cấp kết nối plaintext lên TLS mã hóa. Sau TLS, client phải gửi lại EHLO một lần nữa để server liệt kê tính năng trong ngữ cảnh mã hóa. Đây là bước <em>quan trọng nhất về bảo mật</em> — không có STARTTLS, toàn bộ nội dung thư đi dạng plaintext.',
+    statusText: 'Kết nối TLS (mã hóa)',
+    dotClass: 'connected'
+  },
+  {
+    label: 'MAIL FROM:<alice@gmail.com>',
+    className: 'cli',
+    terminal: [
+      {cls:'cli',  text:'C: MAIL FROM:<alice@gmail.com>'},
+      {cls:'srv',  text:'S: 250 Ok'},
+    ],
+    explain: '<strong>MAIL FROM</strong>: khai báo <em>envelope sender</em> — địa chỉ dùng để định tuyến và báo lỗi bounce. Lưu ý: địa chỉ này có thể KHÁC với trường <code>From:</code> trong header email mà người nhận nhìn thấy — đây là nguồn gốc của kỹ thuật giả mạo email.',
+    statusText: 'Đang nhập envelope',
+    dotClass: 'connected'
+  },
+  {
+    label: 'RCPT TO:<bob@company.vn>',
+    className: 'cli',
+    terminal: [
+      {cls:'cli',  text:'C: RCPT TO:<bob@company.vn>'},
+      {cls:'srv',  text:'S: 250 Ok'},
+    ],
+    explain: '<strong>RCPT TO</strong>: khai báo người nhận. Có thể gọi nhiều lần để gửi cho nhiều người. Nếu địa chỉ không tồn tại, server trả <strong>550 No such user</strong>. Phải khai báo đầy đủ envelope (FROM + TO) trước khi gửi DATA.',
+    statusText: 'Envelope hoàn chỉnh',
+    dotClass: 'connected'
+  },
+  {
+    label: 'DATA',
+    className: 'cli',
+    terminal: [
+      {cls:'cli',  text:'C: DATA'},
+      {cls:'srv',  text:'S: 354 End data with <CR><LF>.<CR><LF>'},
+      {cls:'cli',  text:'C: From: Alice <alice@gmail.com>'},
+      {cls:'cli',  text:'C: To: Bob <bob@company.vn>'},
+      {cls:'cli',  text:'C: Subject: Chào Bob!'},
+      {cls:'cli',  text:'C: Date: Fri, 30 May 2026 08:00:00 +0700'},
+      {cls:'cli',  text:'C: Message-ID: <abc123@mail.google.com>'},
+      {cls:'cli',  text:'C: MIME-Version: 1.0'},
+      {cls:'cli',  text:'C: Content-Type: text/plain; charset=UTF-8'},
+      {cls:'cli',  text:'C: '},
+      {cls:'cli',  text:'C: Xin chào Bob, đây là email thử nghiệm.'},
+      {cls:'cli',  text:'C: -- Alice'},
+    ],
+    explain: '<strong>DATA</strong>: server trả <strong>354</strong>, client bắt đầu gửi toàn bộ nội dung email (header + dòng trống + body). Header <code>From:</code> và <code>To:</code> ở đây là những gì <em>người dùng nhìn thấy</em> trong email client — có thể khác với envelope address đã khai báo ở trên.',
+    statusText: 'Đang gửi nội dung',
+    dotClass: 'connected'
+  },
+  {
+    label: '.',
+    className: 'cli',
+    terminal: [
+      {cls:'cli',  text:'C: .'},
+      {cls:'srv',  text:'S: 250 Ok: queued as 7AB3F1234'},
+    ],
+    explain: 'Dòng <strong>chỉ gồm dấu chấm</strong> (<code>\\r\\n.\\r\\n</code>) báo hiệu kết thúc nội dung DATA. Server trả <strong>250 Ok</strong> và xếp thư vào hàng chờ giao nhận. Lưu ý: nếu nội dung thư thực sự có một dòng chỉ gồm dấu chấm, phải escape thành <code>..</code> (hai chấm).',
+    statusText: 'Thư đã được chấp nhận',
+    dotClass: 'connected'
+  },
+  {
+    label: 'QUIT',
+    className: 'cli',
+    terminal: [
+      {cls:'cli',       text:'C: QUIT'},
+      {cls:'srv',       text:'S: 221 Bye'},
+      {cls:'done-line', text:'# Kết nối TCP đóng — phiên SMTP hoàn tất'},
+    ],
+    explain: '<strong>QUIT</strong>: kết thúc phiên, server trả <strong>221</strong> và đóng kết nối TCP. Toàn bộ quá trình (EHLO → STARTTLS → MAIL FROM → RCPT TO → DATA → . → QUIT) là một phiên SMTP hoàn chỉnh. Thư đang ở hàng chờ của MTA nhận và sẽ được giao vào hộp thư Bob.',
+    statusText: 'Phiên hoàn tất',
+    dotClass: 'done-status'
+  }
+];
+
+let smtpIdx = 0;
+
+function smtpBuildCmds() {
+  const container = document.getElementById('smtp-cmds');
+  container.innerHTML = '';
+  SMTP_STEPS.forEach((step, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'smtp-cmd-btn';
+    btn.id = 'smtp-cmd-' + i;
+    btn.textContent = (i+1) + '. ' + step.label;
+    btn.onclick = () => smtpExecStep(i);
+    if (i > 0) btn.disabled = true;
+    container.appendChild(btn);
+  });
+}
+
+function smtpExecStep(idx) {
+  if (idx !== smtpIdx) return;
+  const step = SMTP_STEPS[idx];
+  const term = document.getElementById('smtp-terminal');
+
+  // Append terminal lines
+  step.terminal.forEach(line => {
+    const span = document.createElement('span');
+    span.className = line.cls;
+    span.textContent = line.text + '\n';
+    term.appendChild(span);
+  });
+  term.scrollTop = term.scrollHeight;
+
+  // Update explain
+  document.getElementById('smtp-explain').innerHTML = step.explain;
+
+  // Update status
+  const dot = document.getElementById('smtp-dot');
+  dot.className = 'status-dot ' + step.dotClass;
+  document.getElementById('smtp-status-text').textContent = step.statusText;
+
+  // Mark current btn done, enable next
+  const curBtn = document.getElementById('smtp-cmd-' + idx);
+  curBtn.className = 'smtp-cmd-btn done';
+  curBtn.disabled = true;
+
+  smtpIdx++;
+  if (smtpIdx < SMTP_STEPS.length) {
+    const nextBtn = document.getElementById('smtp-cmd-' + smtpIdx);
+    if (nextBtn) {
+      nextBtn.disabled = false;
+      nextBtn.className = 'smtp-cmd-btn active-cmd';
+    }
+  }
+}
+
+function smtpReset() {
+  smtpIdx = 0;
+  document.getElementById('smtp-terminal').innerHTML = '';
+  document.getElementById('smtp-explain').innerHTML = 'Bấm lệnh đầu tiên để bắt đầu phiên kết nối TCP.';
+  document.getElementById('smtp-dot').className = 'status-dot';
+  document.getElementById('smtp-status-text').textContent = 'Chưa kết nối';
+  smtpBuildCmds();
+}
+
+smtpBuildCmds();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MODULE 2: EMAIL JOURNEY ANIMATION
+   ══════════════════════════════════════════════════════════════════════════ */
+const JOURNEY_NODES = [
+  { id:'mua_a',  x: 50,  y:110, label:'MUA Alice\n(Gmail web)', color:'#0369a1' },
+  { id:'mta_s',  x:190,  y:110, label:'MTA gửi\ngmail.com:587', color:'#0369a1' },
+  { id:'dns',    x:320,  y: 45, label:'DNS MX\nlookup', color:'#7c3aed' },
+  { id:'mta_r',  x:450,  y:110, label:'MTA nhận\ncompany.vn:25', color:'#16a34a' },
+  { id:'mda',    x:570,  y:110, label:'MDA\n(Dovecot)', color:'#16a34a' },
+  { id:'mua_b',  x:635,  y:170, label:'MUA Bob\n(Outlook)', color:'#d97706' },
+];
+
+const JOURNEY_STEPS = [
+  {
+    from:null, to:'mua_a',
+    label: '<strong>Bước 0</strong>: Alice nhấn "Gửi" trong Gmail web (MUA). Email được tạo với header <code>From</code>, <code>To</code>, <code>Subject</code>, <code>Message-ID</code>.',
+    log: 'Alice nhấn Gửi → MUA tạo email với đầy đủ header MIME...',
+    logCls:'step-info'
+  },
+  {
+    from:'mua_a', to:'mta_s',
+    label: '<strong>Bước 1</strong>: MUA gửi thư qua SMTP đến <code>smtp.gmail.com:587</code> (submission port). Cần xác thực tài khoản trước khi gửi.',
+    log: 'MUA → MTA gửi (SMTP port 587, yêu cầu AUTH LOGIN)...',
+    logCls:'step-ok'
+  },
+  {
+    from:'mta_s', to:'dns',
+    label: '<strong>Bước 2</strong>: MTA của Gmail tra DNS record <strong>MX (Mail Exchange)</strong> của domain <code>company.vn</code> để tìm địa chỉ mail server của người nhận.',
+    log: 'DNS query: company.vn MX ? → mail.company.vn (priority 10, IP 203.0.113.5)',
+    logCls:'step-info'
+  },
+  {
+    from:'mta_s', to:'mta_r',
+    label: '<strong>Bước 3</strong>: Gmail MTA kết nối TCP tới <code>mail.company.vn:25</code> và giao thư qua SMTP (server-to-server relay). Thường dùng STARTTLS để mã hóa.',
+    log: 'MTA gửi → MTA nhận (SMTP port 25, STARTTLS, SPF/DKIM check)...',
+    logCls:'step-ok'
+  },
+  {
+    from:'mta_r', to:'mda',
+    label: '<strong>Bước 4</strong>: MTA nhận xác minh SPF, DKIM, DMARC. Nếu qua kiểm tra, thư được giao cho <strong>MDA (Dovecot)</strong>. MDA đặt thư vào hộp thư (<code>INBOX</code>) của Bob. Header <code>Received:</code> được thêm vào.',
+    log: 'SPF check: PASS | DKIM check: PASS | DMARC: PASS → giao MDA...',
+    logCls:'step-ok'
+  },
+  {
+    from:'mda', to:'mua_b',
+    label: '<strong>Bước 5</strong>: Bob mở Outlook (MUA) — Outlook kết nối tới <code>mail.company.vn:993</code> qua <strong>IMAP</strong> để đồng bộ thư mới. Bob thấy thư ngay trên điện thoại và laptop cùng lúc.',
+    log: 'MDA → MUA Bob (IMAP port 993 / IMAPS). Thư hiện trong INBOX của mọi thiết bị.',
+    logCls:'step-ok'
+  },
+  {
+    from:null, to:null,
+    label: '<strong>Hành trình hoàn tất!</strong> Email đã đi qua: MUA → MTA (587) → DNS MX → MTA (25) → MDA → IMAP (993) → MUA. Tổng thời gian thường < 30 giây. Mỗi MTA thêm một dòng <code>Received:</code> vào header.',
+    log: '✓ Email giao thành công. Bob nhận được thư.',
+    logCls:'step-done'
+  }
+];
+
+let journeyStep = -1;
+let journeyAnims = [];
+
+function journeyInitSVG() {
+  const svg = document.getElementById('journey-svg');
+  svg.innerHTML = '';
+
+  // Draw node circles (dimmed initially)
+  JOURNEY_NODES.forEach(n => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('id','jn-'+n.id);
+    g.setAttribute('opacity','0.3');
+
+    const circ = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circ.setAttribute('cx', n.x); circ.setAttribute('cy', n.y);
+    circ.setAttribute('r','22');
+    circ.setAttribute('fill', n.color); circ.setAttribute('stroke','white');
+    circ.setAttribute('stroke-width','2');
+    g.appendChild(circ);
+
+    // Label (multi-line)
+    const lines = n.label.split('\n');
+    lines.forEach((line, li) => {
+      const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x', n.x); t.setAttribute('y', n.y + 34 + li*14);
+      t.setAttribute('text-anchor','middle');
+      t.setAttribute('font-size','10');
+      t.setAttribute('fill','#374151');
+      t.textContent = line;
+      g.appendChild(t);
+    });
+    svg.appendChild(g);
+  });
+
+  // Arrow defs
+  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+  const marker = document.createElementNS('http://www.w3.org/2000/svg','marker');
+  marker.setAttribute('id','arrowJ'); marker.setAttribute('markerWidth','8');
+  marker.setAttribute('markerHeight','8'); marker.setAttribute('refX','6');
+  marker.setAttribute('refY','3'); marker.setAttribute('orient','auto');
+  const mpath = document.createElementNS('http://www.w3.org/2000/svg','path');
+  mpath.setAttribute('d','M0,0 L0,6 L8,3 z');
+  mpath.setAttribute('fill','#0369a1');
+  marker.appendChild(mpath); defs.appendChild(marker); svg.appendChild(defs);
+}
+
+function journeyActivateNode(nodeId, active) {
+  const g = document.getElementById('jn-'+nodeId);
+  if (g) g.setAttribute('opacity', active ? '1' : '0.3');
+}
+
+function journeyDrawArrow(svg, fromId, toId) {
+  const from = JOURNEY_NODES.find(n=>n.id===fromId);
+  const to   = JOURNEY_NODES.find(n=>n.id===toId);
+  if (!from||!to) return;
+
+  // Compute edge points on circle radius
+  const dx = to.x-from.x, dy = to.y-from.y;
+  const dist = Math.sqrt(dx*dx+dy*dy);
+  const r = 22;
+  const x1 = from.x + dx/dist*r, y1 = from.y + dy/dist*r;
+  const x2 = to.x - dx/dist*r,   y2 = to.y - dy/dist*r;
+
+  const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1',x1); line.setAttribute('y1',y1);
+  line.setAttribute('x2',x2); line.setAttribute('y2',y2);
+  line.setAttribute('stroke','#0369a1'); line.setAttribute('stroke-width','2.5');
+  line.setAttribute('marker-end','url(#arrowJ)');
+  line.setAttribute('class','journey-arrow');
+  document.getElementById('journey-svg').appendChild(line);
+
+  // Moving dot
+  const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  dot.setAttribute('r','5'); dot.setAttribute('fill','#38bdf8');
+  dot.setAttribute('class','journey-dot');
+
+  const anim = document.createElementNS('http://www.w3.org/2000/svg','animateMotion');
+  anim.setAttribute('dur','1s'); anim.setAttribute('repeatCount','indefinite');
+  const path = document.createElementNS('http://www.w3.org/2000/svg','mpath');
+  // Use path for motion
+  const pathEl = document.createElementNS('http://www.w3.org/2000/svg','path');
+  const pid = 'jp-'+fromId+'-'+toId;
+  pathEl.setAttribute('id', pid);
+  pathEl.setAttribute('d','M '+x1+' '+y1+' L '+x2+' '+y2);
+  pathEl.setAttribute('fill','none');
+  document.getElementById('journey-svg').appendChild(pathEl);
+
+  anim.setAttribute('path','M '+x1+' '+y1+' L '+x2+' '+y2);
+  dot.appendChild(anim);
+  document.getElementById('journey-svg').appendChild(dot);
+}
+
+function journeyAppendLog(text, cls) {
+  const log = document.getElementById('journey-log');
+  const span = document.createElement('span');
+  span.className = cls;
+  span.textContent = text + '\n';
+  log.appendChild(span);
+  log.scrollTop = log.scrollHeight;
+}
+
+function journeyNext() {
+  journeyStep++;
+  if (journeyStep === 0) {
+    journeyInitSVG();
+    document.getElementById('journey-log').innerHTML = '';
+  }
+  if (journeyStep >= JOURNEY_STEPS.length) {
+    journeyStep = JOURNEY_STEPS.length - 1;
+    return;
+  }
+  const s = JOURNEY_STEPS[journeyStep];
+  if (s.to) journeyActivateNode(s.to, true);
+  if (s.from && s.to) journeyDrawArrow(document.getElementById('journey-svg'), s.from, s.to);
+  document.getElementById('journey-step-label').innerHTML = s.label;
+  journeyAppendLog(s.log, s.logCls);
+
+  const btn = document.getElementById('journey-next-btn');
+  if (journeyStep === JOURNEY_STEPS.length - 1) {
+    btn.disabled = true;
+    btn.textContent = 'Hoàn tất';
+  }
+}
+
+function journeyReset() {
+  journeyStep = -1;
+  journeyInitSVG();
+  document.getElementById('journey-log').innerHTML = '';
+  document.getElementById('journey-step-label').innerHTML = 'Bấm <strong>Tiếp theo</strong> để bắt đầu hành trình email.';
+  const btn = document.getElementById('journey-next-btn');
+  btn.disabled = false; btn.textContent = 'Tiếp theo ▶';
+}
+
+journeyInitSVG();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MODULE 3: IMAP vs POP3 DEMO
+   ══════════════════════════════════════════════════════════════════════════ */
+let imapState = {server:3, phone:3, laptop:3, tablet:3};
+let pop3State  = {server:3, phone:0, laptop:0, tablet:0};
+
+function imapUpdateUI() {
+  document.getElementById('imap-server-count').textContent  = imapState.server + ' thư';
+  document.getElementById('imap-phone-count').textContent   = imapState.phone  + ' thư';
+  document.getElementById('imap-laptop-count').textContent  = imapState.laptop + ' thư';
+  document.getElementById('imap-tablet-count').textContent  = imapState.tablet + ' thư';
+  // All synced = green
+  const all = imapState.phone === imapState.server && imapState.laptop === imapState.server && imapState.tablet === imapState.server;
+  ['imap-phone','imap-laptop','imap-tablet'].forEach(id => {
+    document.getElementById(id).className = 'device-card ' + (all ? 'synced' : '');
+  });
+}
+
+function pop3UpdateUI() {
+  document.getElementById('pop3-server-count').textContent  = pop3State.server + ' thư';
+  document.getElementById('pop3-phone-count').textContent   = pop3State.phone  + ' thư';
+  document.getElementById('pop3-laptop-count').textContent  = pop3State.laptop + ' thư';
+  document.getElementById('pop3-tablet-count').textContent  = pop3State.tablet + ' thư';
+  document.getElementById('pop3-phone').className = 'device-card ' + (pop3State.phone > 0 ? '' : '');
+  document.getElementById('pop3-laptop').className = 'device-card ' + (pop3State.laptop > 0 ? '' : '');
+  document.getElementById('pop3-tablet').className = 'device-card ' + (pop3State.tablet > 0 ? '' : '');
+}
+
+function imapScenario(type) {
+  if (type === 'reset') {
+    imapState = {server:3, phone:3, laptop:3, tablet:3};
+    pop3State  = {server:3, phone:0, laptop:0, tablet:0};
+    imapUpdateUI(); pop3UpdateUI();
+    document.getElementById('imap-log').innerHTML = 'Trạng thái ban đầu: 3 thư chưa đọc trên server.<br>Mọi thiết bị đồng bộ với server.';
+    document.getElementById('pop3-log').innerHTML = 'Trạng thái ban đầu: 3 thư trên server chưa tải về.<br>Mỗi thiết bị tải riêng, xóa server sau khi tải.';
+    return;
+  }
+
+  if (type === 'read') {
+    // IMAP: Bob đọc trên điện thoại → tất cả thiết bị thấy "đã đọc" (cờ \Seen đồng bộ server)
+    document.getElementById('imap-log').innerHTML =
+      '<strong>Bob mở email trên điện thoại.</strong><br>' +
+      'IMAP gửi lệnh: <code>STORE 1 +FLAGS (\\Seen)</code> lên server.<br>' +
+      'Server cập nhật flag \\Seen cho thư #1.<br>' +
+      'Laptop và máy tính bảng kết nối lại → đều thấy thư #1 đã đọc.<br>' +
+      '<span style="color:var(--green);font-weight:700;">✓ Trạng thái đồng bộ hoàn toàn trên mọi thiết bị.</span>';
+
+    // POP3: điện thoại tải thư về → xóa server → laptop và tablet không thấy nữa
+    pop3State.phone = 3; pop3State.server = 0; pop3State.laptop = 0; pop3State.tablet = 0;
+    pop3UpdateUI();
+    document.getElementById('pop3-log').innerHTML =
+      '<strong>Điện thoại tải thư về qua POP3 (RETR 1,2,3).</strong><br>' +
+      'Server xóa 3 thư sau khi tải (DELE 1, DELE 2, DELE 3).<br>' +
+      'Laptop và máy tính bảng kết nối vào: <strong>0 thư trên server</strong>.<br>' +
+      '<span style="color:var(--red);font-weight:700;">✗ Thư chỉ còn trên điện thoại. Laptop/tablet không thấy.</span>';
+  }
+
+  if (type === 'delete') {
+    // IMAP: xóa 1 thư → tất cả thiết bị đều thấy còn 2
+    imapState.server = 2; imapState.phone = 2; imapState.laptop = 2; imapState.tablet = 2;
+    imapUpdateUI();
+    document.getElementById('imap-log').innerHTML =
+      '<strong>Bob xóa thư #1 trên điện thoại.</strong><br>' +
+      'IMAP: <code>STORE 1 +FLAGS (\\Deleted)</code> → <code>EXPUNGE</code>.<br>' +
+      'Server xóa thư. Mọi thiết bị đồng bộ lại → còn 2 thư.<br>' +
+      '<span style="color:var(--green);font-weight:700;">✓ Xóa đồng bộ: laptop và máy tính bảng đều thấy 2 thư.</span>';
+
+    // POP3: nếu thư đã ở phone, laptop/tablet đã không thấy rồi
+    pop3State.phone = Math.max(0, pop3State.phone - 1);
+    pop3UpdateUI();
+    document.getElementById('pop3-log').innerHTML =
+      '<strong>Điện thoại xóa 1 thư khỏi bản sao local.</strong><br>' +
+      'POP3: server đã xóa thư từ bước trước, không thể đồng bộ.<br>' +
+      'Laptop và máy tính bảng vẫn không có thư (đã tải hết về phone).<br>' +
+      '<span style="color:var(--orange);font-weight:700;">⚠ Không đồng bộ được — mỗi thiết bị có bản sao riêng.</span>';
+  }
+}
+
+imapUpdateUI(); pop3UpdateUI();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MODULE 4: FTP ACTIVE vs PASSIVE
+   ══════════════════════════════════════════════════════════════════════════ */
+let ftpMode = 'active';
+let ftpStep = -1;
+
+const FTP_STEPS = {
+  active: [
+    {
+      label: 'Kết nối kênh điều khiển',
+      cmd: null,
+      draw: 'ctrl_connect',
+      explain: '<strong>Bước 1 — Control channel</strong>: Client (192.168.1.50) kết nối TCP đến server port 21. Đây là kênh điều khiển (control channel) — dùng để gửi lệnh FTP suốt phiên làm việc. Kênh này luôn giữ mở.',
+      log: 'Client → Server:21  [TCP SYN, bắt đầu control channel]',
+      logCls: 'ctrl'
+    },
+    {
+      label: 'Xác thực USER/PASS',
+      cmd: 'USER ftpuser\nPASS secret123',
+      draw: null,
+      explain: '<strong>Bước 2 — Xác thực</strong>: Client gửi <code>USER</code> và <code>PASS</code> trên kênh điều khiển. <strong>Cảnh báo bảo mật</strong>: mật khẩu truyền dưới dạng plaintext — bất kỳ ai nghe lén trên mạng đều đọc được. Đây là lý do không nên dùng FTP trên mạng công cộng.',
+      log: 'C: USER ftpuser | S: 331 Password required\nC: PASS secret123 | S: 230 User logged in',
+      logCls: 'warn'
+    },
+    {
+      label: 'PORT — khai báo data port',
+      cmd: 'PORT 192,168,1,50,4,2',
+      draw: 'active_port',
+      explain: '<strong>Bước 3 — Lệnh PORT</strong>: Client báo server "hãy kết nối ngược lại tôi tại IP 192.168.1.50, port 1026" (4×256+2=1026). Đây là đặc trưng của <strong>Active Mode</strong> — client thông báo cho server biết nơi nhận kết nối dữ liệu.',
+      log: 'C: PORT 192,168,1,50,4,2\nS: 200 PORT command successful',
+      logCls: 'ctrl'
+    },
+    {
+      label: 'Server mở data channel',
+      cmd: null,
+      draw: 'active_data',
+      explain: '<strong>Bước 4 — Data channel (Active)</strong>: Server chủ động mở kết nối TCP từ port 20 của server đến client port 1026. <strong>Vấn đề NAT/Firewall</strong>: Client thường ở sau NAT (IP private 192.168.1.50 không thể reach từ internet). Firewall công ty thường chặn kết nối inbound → <span style="color:var(--red);font-weight:700;">kết nối dữ liệu thất bại!</span>',
+      log: 'Server:20 → Client:1026  [kết nối inbound — bị firewall/NAT chặn!]',
+      logCls: 'block'
+    },
+    {
+      label: 'LIST / RETR (nếu qua được)',
+      cmd: 'LIST\nRETR report.pdf',
+      draw: null,
+      explain: '<strong>Bước 5 — Truyền dữ liệu</strong>: Nếu data channel mở được (thường không qua NAT), file được truyền. Nếu bị chặn, lệnh <code>LIST</code> hay <code>RETR</code> trả lỗi <code>425 Can\'t open data connection</code>. <strong>Giải pháp: dùng Passive Mode!</strong>',
+      log: 'C: LIST\nS: 425 Can\'t open data connection (NAT/firewall chặn port inbound)',
+      logCls: 'block'
+    }
+  ],
+  passive: [
+    {
+      label: 'Kết nối kênh điều khiển',
+      cmd: null,
+      draw: 'ctrl_connect',
+      explain: '<strong>Bước 1 — Control channel</strong>: Giống Active Mode, client kết nối TCP đến server port 21. Kênh điều khiển luôn do client mở (outbound) → không bị firewall phía client chặn.',
+      log: 'Client → Server:21  [TCP SYN, bắt đầu control channel]',
+      logCls: 'ctrl'
+    },
+    {
+      label: 'Xác thực USER/PASS',
+      cmd: 'USER ftpuser\nPASS secret123',
+      draw: null,
+      explain: '<strong>Bước 2 — Xác thực</strong>: Giống Active Mode. Cùng cảnh báo bảo mật: mật khẩu plaintext. Dùng FTPS hoặc SFTP để mã hóa.',
+      log: 'C: USER ftpuser | S: 331 Password required\nC: PASS secret123 | S: 230 User logged in',
+      logCls: 'warn'
+    },
+    {
+      label: 'PASV — yêu cầu passive mode',
+      cmd: 'PASV',
+      draw: 'pasv_cmd',
+      explain: '<strong>Bước 3 — Lệnh PASV</strong>: Client gửi <code>PASV</code>. Server phản hồi <code>227 Entering Passive Mode (192,168,1,100,8,7)</code> — server đang chờ tại port 2055 (8×256+7). Server mở port ngẫu nhiên và <em>đợi</em> client kết nối vào.',
+      log: 'C: PASV\nS: 227 Entering Passive Mode (192,168,1,100,8,7)  [port=8×256+7=2055]',
+      logCls: 'ctrl'
+    },
+    {
+      label: 'Client mở data channel',
+      cmd: null,
+      draw: 'passive_data',
+      explain: '<strong>Bước 4 — Data channel (Passive)</strong>: Client chủ động mở kết nối TCP đến server port 2055. <strong>Không có vấn đề NAT</strong>: client luôn mở kết nối ra ngoài (outbound) — firewall phía client cho phép. Server chỉ cần mở port ngẫu nhiên trong range được cấu hình.',
+      log: 'Client:1026 → Server:2055  [client chủ động, outbound — qua NAT OK]',
+      logCls: 'data'
+    },
+    {
+      label: 'LIST / RETR — truyền dữ liệu',
+      cmd: 'LIST\nRETR report.pdf',
+      draw: null,
+      explain: '<strong>Bước 5 — Truyền dữ liệu</strong>: Data channel thành công. Client gửi lệnh <code>LIST</code> (nhận danh sách file) hoặc <code>RETR report.pdf</code> (tải file). File được truyền qua data channel. Server trả <strong>226 Transfer complete</strong> sau khi xong.',
+      log: 'C: LIST → S: 150 OK → [dữ liệu qua data channel] → S: 226 Transfer complete\nC: RETR report.pdf → [file truyền qua data channel] → S: 226 Transfer complete',
+      logCls: 'data'
+    }
+  ]
+};
+
+function ftpSetMode(mode) {
+  ftpMode = mode;
+  document.getElementById('ftp-active-btn').className  = 'ftp-mode-btn' + (mode==='active'  ? ' active-mode' : '');
+  document.getElementById('ftp-passive-btn').className = 'ftp-mode-btn' + (mode==='passive' ? ' active-mode' : '');
+  ftpReset();
+}
+
+function ftpInitSVG() {
+  const svg = document.getElementById('ftp-svg');
+  svg.innerHTML = '';
+  const W=640, H=240;
+
+  // Background boxes
+  // Client box (with NAT label)
+  const clientBg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  clientBg.setAttribute('x','10'); clientBg.setAttribute('y','40');
+  clientBg.setAttribute('width','200'); clientBg.setAttribute('height','160');
+  clientBg.setAttribute('rx','8'); clientBg.setAttribute('fill','#f0f9ff');
+  clientBg.setAttribute('stroke','#bae6fd'); clientBg.setAttribute('stroke-width','1.5');
+  svg.appendChild(clientBg);
+
+  const clientLabel = document.createElementNS('http://www.w3.org/2000/svg','text');
+  clientLabel.setAttribute('x','110'); clientLabel.setAttribute('y','30');
+  clientLabel.setAttribute('text-anchor','middle'); clientLabel.setAttribute('font-size','11');
+  clientLabel.setAttribute('fill','#0369a1'); clientLabel.setAttribute('font-weight','700');
+  clientLabel.textContent = 'Phía CLIENT (sau NAT/Firewall)';
+  svg.appendChild(clientLabel);
+
+  // Server box
+  const srvBg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  srvBg.setAttribute('x','430'); srvBg.setAttribute('y','40');
+  srvBg.setAttribute('width','200'); srvBg.setAttribute('height','160');
+  srvBg.setAttribute('rx','8'); srvBg.setAttribute('fill','#f0fdf4');
+  srvBg.setAttribute('stroke','#bbf7d0'); srvBg.setAttribute('stroke-width','1.5');
+  svg.appendChild(srvBg);
+
+  const srvLabel = document.createElementNS('http://www.w3.org/2000/svg','text');
+  srvLabel.setAttribute('x','530'); srvLabel.setAttribute('y','30');
+  srvLabel.setAttribute('text-anchor','middle'); srvLabel.setAttribute('font-size','11');
+  srvLabel.setAttribute('fill','#16a34a'); srvLabel.setAttribute('font-weight','700');
+  srvLabel.textContent = 'Phía SERVER (internet)';
+  svg.appendChild(srvLabel);
+
+  // Firewall wall
+  const fwRect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  fwRect.setAttribute('x','258'); fwRect.setAttribute('y','50');
+  fwRect.setAttribute('width','24'); fwRect.setAttribute('height','140');
+  fwRect.setAttribute('rx','4'); fwRect.setAttribute('fill','#fbbf24');
+  fwRect.setAttribute('opacity','0.7');
+  fwRect.setAttribute('id','ftp-firewall');
+  svg.appendChild(fwRect);
+
+  const fwLabel = document.createElementNS('http://www.w3.org/2000/svg','text');
+  fwLabel.setAttribute('x','270'); fwLabel.setAttribute('y','48');
+  fwLabel.setAttribute('text-anchor','middle'); fwLabel.setAttribute('font-size','9');
+  fwLabel.setAttribute('fill','#92400e'); fwLabel.setAttribute('font-weight','700');
+  fwLabel.textContent = 'Firewall';
+  svg.appendChild(fwLabel);
+
+  // Client elements
+  drawFTPNode(svg, 90, 90, 'ftp-client-node', '#0369a1', 'FTP Client\n192.168.1.50');
+  drawFTPNode(svg, 90, 165, 'ftp-nat-node', '#7c3aed', 'NAT Router\n203.0.113.10');
+
+  // Server elements
+  drawFTPNode(svg, 530, 90, 'ftp-ctrl-node', '#16a34a', 'FTP Server:21\n(Control)');
+  drawFTPNode(svg, 530, 165, 'ftp-data-node', '#d97706', 'FTP Server\n(Data channel)');
+
+  // Arrow defs
+  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+  ['arrowFok','arrowFerr'].forEach((id,i) => {
+    const marker = document.createElementNS('http://www.w3.org/2000/svg','marker');
+    marker.setAttribute('id',id); marker.setAttribute('markerWidth','8');
+    marker.setAttribute('markerHeight','8'); marker.setAttribute('refX','6');
+    marker.setAttribute('refY','3'); marker.setAttribute('orient','auto');
+    const mp = document.createElementNS('http://www.w3.org/2000/svg','path');
+    mp.setAttribute('d','M0,0 L0,6 L8,3 z');
+    mp.setAttribute('fill', i===0 ? '#16a34a' : '#dc2626');
+    marker.appendChild(mp); defs.appendChild(marker);
+  });
+  svg.appendChild(defs);
+}
+
+function drawFTPNode(svg, cx, cy, id, color, label) {
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('id', id);
+  const circ = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  circ.setAttribute('cx',cx); circ.setAttribute('cy',cy);
+  circ.setAttribute('r','20'); circ.setAttribute('fill',color);
+  circ.setAttribute('stroke','white'); circ.setAttribute('stroke-width','2');
+  g.appendChild(circ);
+  const lines = label.split('\n');
+  lines.forEach((line,li) => {
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',cx); t.setAttribute('y',cy+32+li*13);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','9');
+    t.setAttribute('fill','#374151');
+    t.textContent = line;
+    g.appendChild(t);
+  });
+  svg.appendChild(g);
+}
+
+function ftpDrawArrow(svg, x1, y1, x2, y2, ok, id) {
+  const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1',x1); line.setAttribute('y1',y1);
+  line.setAttribute('x2',x2); line.setAttribute('y2',y2);
+  line.setAttribute('stroke', ok ? '#16a34a' : '#dc2626');
+  line.setAttribute('stroke-width','2.5');
+  line.setAttribute('stroke-dasharray', ok ? 'none' : '6,4');
+  line.setAttribute('marker-end','url(#' + (ok?'arrowFok':'arrowFerr') + ')');
+  if (id) line.setAttribute('id', id);
+  svg.appendChild(line);
+}
+
+function ftpAddLabel(svg, x, y, text, color) {
+  const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+  t.setAttribute('x',x); t.setAttribute('y',y);
+  t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','10');
+  t.setAttribute('fill', color||'#374151'); t.setAttribute('font-weight','700');
+  t.textContent = text;
+  svg.appendChild(t);
+}
+
+function ftpApplyDraw(draw) {
+  const svg = document.getElementById('ftp-svg');
+  if (!draw) return;
+  if (draw === 'ctrl_connect') {
+    // Arrow from client through NAT to server:21
+    ftpDrawArrow(svg, 110,90, 258,90, true);
+    ftpDrawArrow(svg, 282,90, 530,90, true);
+    ftpAddLabel(svg, 320, 82, 'TCP → port 21 (control)', '#0369a1');
+  }
+  if (draw === 'active_port') {
+    // PORT command on control channel (already drawn)
+    ftpAddLabel(svg, 320, 108, 'PORT 192,168,1,50,4,2', '#7c3aed');
+  }
+  if (draw === 'active_data') {
+    // Server tries to connect back to client — blocked by firewall
+    ftpDrawArrow(svg, 530,165, 282,165, false);
+    ftpAddLabel(svg, 400,185, 'Server:20 → Client:1026', '#dc2626');
+    ftpAddLabel(svg, 265,185, 'BLCK', '#dc2626');
+    // Firewall highlight
+    const fw = document.getElementById('ftp-firewall');
+    if (fw) { fw.setAttribute('fill','#dc2626'); fw.setAttribute('opacity','0.85'); }
+  }
+  if (draw === 'pasv_cmd') {
+    ftpAddLabel(svg, 320, 108, 'PASV → S: 227 port=2055', '#7c3aed');
+  }
+  if (draw === 'passive_data') {
+    // Client connects to server data port — outbound, OK through firewall
+    ftpDrawArrow(svg, 110,165, 258,165, true);
+    ftpDrawArrow(svg, 282,165, 530,165, true);
+    ftpAddLabel(svg, 320, 185, 'Client → Server:2055 (data)', '#16a34a');
+    // Firewall stays yellow (open for outbound)
+  }
+}
+
+function ftpAppendLog(text, cls) {
+  const log = document.getElementById('ftp-log');
+  const span = document.createElement('span');
+  span.className = cls;
+  span.textContent = text + '\n';
+  log.appendChild(span);
+  log.scrollTop = log.scrollHeight;
+}
+
+function ftpNext() {
+  ftpStep++;
+  const steps = FTP_STEPS[ftpMode];
+  if (ftpStep === 0) {
+    ftpInitSVG();
+    document.getElementById('ftp-log').innerHTML = '';
+  }
+  if (ftpStep >= steps.length) {
+    ftpStep = steps.length - 1;
+    return;
+  }
+  const s = steps[ftpStep];
+  ftpApplyDraw(s.draw);
+  document.getElementById('ftp-explain').innerHTML = s.explain;
+  ftpAppendLog(s.log, s.logCls);
+
+  const btn = document.getElementById('ftp-next-btn');
+  if (ftpStep === steps.length - 1) {
+    btn.disabled = true; btn.textContent = 'Hoàn tất';
+  }
+}
+
+function ftpReset() {
+  ftpStep = -1;
+  ftpInitSVG();
+  document.getElementById('ftp-log').innerHTML = '';
+  document.getElementById('ftp-explain').innerHTML = 'Chọn chế độ rồi bấm <strong>Tiếp theo</strong> để xem từng bước.';
+  const btn = document.getElementById('ftp-next-btn');
+  btn.disabled = false; btn.textContent = 'Tiếp theo ▶';
+}
+
+ftpInitSVG();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

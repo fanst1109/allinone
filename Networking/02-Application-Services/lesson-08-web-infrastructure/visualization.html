@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Hạ tầng web quy mô lớn</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette ── */
+  :root {
+    --net-blue:  #0369a1;
+    --net-soft:  #e0f2fe;
+    --net-mid:   #38bdf8;
+    --net-dark:  #0c4a6e;
+    --ok-green:  #16a34a;
+    --warn-red:  #dc2626;
+    --warn-amber:#d97706;
+    --purple:    #7c3aed;
+    --bg-card:   #ffffff;
+    --bg-section:#f0f9ff;
+  }
+
+  h1 { color: var(--net-dark); }
+  h2 {
+    color: var(--net-blue);
+    margin-top: 36px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--net-mid);
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(3,105,161,.10);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--net-soft);
+    border-left: 4px solid var(--net-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--net-blue); color: white; }
+  .btn-primary:hover { background: var(--net-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ── Select & inputs ── */
+  .field-group { display: flex; flex-direction: column; gap: 4px; }
+  .field-group label { font-size: 12px; font-weight: 700; color: #374151; }
+  .field-group select, .field-group input {
+    padding: 6px 10px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    box-sizing: border-box;
+  }
+  .field-group select:focus, .field-group input:focus {
+    outline: none; border-color: var(--net-blue);
+  }
+  .controls-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    align-items: flex-end;
+  }
+
+  /* ── Tags ── */
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .tag-hit  { background: #dcfce7; color: #166534; }
+  .tag-miss { background: #fee2e2; color: #991b1b; }
+  .tag-down { background: #fee2e2; color: #991b1b; }
+  .tag-up   { background: #dcfce7; color: #166534; }
+  .tag-rr   { background: #dbeafe; color: #1d4ed8; }
+  .tag-lc   { background: #ede9fe; color: #6d28d9; }
+  .tag-ih   { background: #fef3c7; color: #92400e; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 1 — Load Balancer
+     ═══════════════════════════════════════════════════════ */
+  #lb-stage { width: 100%; overflow-x: auto; }
+  #lb-svg   { display: block; margin: 0 auto; }
+
+  #lb-log {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    min-height: 72px;
+    max-height: 180px;
+    overflow-y: auto;
+    margin-top: 12px;
+    white-space: pre-wrap;
+  }
+  #lb-log .ok   { color: #4ade80; }
+  #lb-log .dead { color: #f87171; }
+  #lb-log .warn { color: #fbbf24; }
+  #lb-log .info { color: #93c5fd; }
+
+  /* server status badges */
+  .srv-status {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-left: 6px;
+  }
+  .srv-up   { background: #dcfce7; color: #166534; }
+  .srv-down { background: #fee2e2; color: #991b1b; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 2 — CDN
+     ═══════════════════════════════════════════════════════ */
+  #cdn-stage { width: 100%; overflow-x: auto; }
+  #cdn-svg   { display: block; margin: 0 auto; }
+
+  .cdn-result {
+    background: var(--bg-section);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.9;
+    margin-top: 12px;
+  }
+  .cdn-result .hl { color: var(--net-dark); font-weight: 700; font-size: 16px; }
+  .cdn-result .good { color: var(--ok-green); font-weight: 700; }
+  .cdn-result .bad  { color: var(--warn-red);  font-weight: 700; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 3 — Architecture
+     ═══════════════════════════════════════════════════════ */
+  #arch-stage { width: 100%; overflow-x: auto; }
+  #arch-svg   { display: block; margin: 0 auto; }
+
+  #arch-desc {
+    background: var(--bg-section);
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    min-height: 44px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  #arch-desc strong { color: var(--net-blue); }
+
+  #arch-progress {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+  .arch-step-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    background: #e2e8f0; color: #94a3b8;
+    transition: background .25s, color .25s;
+  }
+  .arch-step-dot.done  { background: var(--ok-green); color: white; }
+  .arch-step-dot.active { background: var(--net-blue); color: white; }
+
+  /* ═══════════════════════════════════════════════════════
+     Responsive
+     ═══════════════════════════════════════════════════════ */
+  @media (max-width: 600px) {
+    .controls-row { gap: 10px; }
+    .field-group select, .field-group input { font-size: 12px; }
+    #lb-log { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Application</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-realtime-websocket/visualization.html">← L7: Real-time &amp; WebSocket</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Hạ tầng web quy mô</span>
+  <span class="sep">·</span>
+  <a href="../../03-Advanced-Operations/lesson-01-network-security/visualization.html">Tầng 3 → An ninh mạng</a>
+</nav>
+
+<main>
+<h1>Lesson 08 — Hạ tầng web quy mô lớn</h1>
+<p>Ba module tương tác: mô phỏng load balancer với nhiều thuật toán, mô phỏng CDN cache hit/miss, và sơ đồ kiến trúc end-to-end với animation request đi qua từng tầng.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — Load Balancer Simulation
+     ═══════════════════════════════════════════════════════════ -->
+<h2>1. Mô phỏng cân bằng tải (Load Balancer)</h2>
+<div class="card">
+  <p>Chọn thuật toán và số backend, gửi từng request hoặc tự động. Đánh dấu 1 backend "chết" để xem health check loại ra.</p>
+
+  <div class="controls-row">
+    <div class="field-group">
+      <label>Thuật toán</label>
+      <select id="lb-algo" onchange="lbAlgoChange()">
+        <option value="rr">Round-Robin</option>
+        <option value="lc">Least-Connections</option>
+        <option value="ih">IP Hash</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>Số backend</label>
+      <select id="lb-count" onchange="lbReset()">
+        <option value="3" selected>3 server</option>
+        <option value="4">4 server</option>
+        <option value="5">5 server</option>
+      </select>
+    </div>
+    <div class="field-group" id="lb-ip-row" style="display:none;">
+      <label>Client IP cuối (cho IP Hash)</label>
+      <input type="text" id="lb-client-ip" value="203.0.113.45" style="width:140px;">
+    </div>
+  </div>
+
+  <div id="lb-stage">
+    <svg id="lb-svg" width="600" height="320" viewBox="0 0 600 320">
+      <defs>
+        <marker id="lb-arrow-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0369a1"/>
+        </marker>
+        <marker id="lb-arrow-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+        </marker>
+        <marker id="lb-arrow-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/>
+        </marker>
+      </defs>
+
+      <!-- Client box -->
+      <rect x="10" y="130" width="90" height="44" rx="7" fill="#0369a1"/>
+      <text x="55" y="148" text-anchor="middle" font-size="13" font-weight="700" fill="white">CLIENT</text>
+      <text x="55" y="163" text-anchor="middle" font-size="10" fill="#bae6fd" id="lb-client-label">—</text>
+
+      <!-- Arrow client → LB -->
+      <line x1="100" y1="152" x2="170" y2="152" stroke="#0369a1" stroke-width="2" marker-end="url(#lb-arrow-blue)"/>
+
+      <!-- Load Balancer box -->
+      <rect x="174" y="116" width="110" height="72" rx="7" fill="#0c4a6e"/>
+      <text x="229" y="144" text-anchor="middle" font-size="12" font-weight="700" fill="white">LOAD</text>
+      <text x="229" y="160" text-anchor="middle" font-size="12" font-weight="700" fill="white">BALANCER</text>
+      <text x="229" y="176" text-anchor="middle" font-size="10" fill="#7dd3fc" id="lb-algo-label">Round-Robin</text>
+
+      <!-- Backend arrows + servers drawn dynamically -->
+      <g id="lb-backends"></g>
+
+      <!-- Animated request ball -->
+      <circle id="lb-ball" cx="-20" cy="152" r="8" fill="#38bdf8" opacity="0"/>
+    </svg>
+  </div>
+
+  <!-- Server status row -->
+  <div id="lb-status-row" style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;font-size:13px;"></div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="lbSendRequest()">Gửi request</button>
+    <button class="btn btn-secondary" onclick="lbAutoStart()">Tự động (×10)</button>
+    <button class="btn btn-secondary" onclick="lbReset()">Đặt lại</button>
+  </div>
+
+  <div id="lb-log">Nhấn "Gửi request" để bắt đầu...</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — CDN Cache Simulation
+     ═══════════════════════════════════════════════════════════ -->
+<h2>2. Mô phỏng CDN — cache hit / miss &amp; độ trễ</h2>
+<div class="card">
+  <p>Chọn vùng người dùng và nội dung. CDN dùng cache hit/miss để quyết định phục vụ từ edge hay về origin. So sánh độ trễ trực quan.</p>
+
+  <div class="controls-row">
+    <div class="field-group">
+      <label>Vùng người dùng</label>
+      <select id="cdn-region" onchange="cdnUpdate()">
+        <option value="hanoi">Hà Nội, Việt Nam</option>
+        <option value="hcm">TP. Hồ Chí Minh</option>
+        <option value="tokyo">Tokyo, Nhật Bản</option>
+        <option value="sydney">Sydney, Úc</option>
+        <option value="london">London, Anh</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>Nội dung yêu cầu</label>
+      <select id="cdn-asset" onchange="cdnUpdate()">
+        <option value="logo">logo.png (ảnh, 80 KB)</option>
+        <option value="banner">new-banner.png (ảnh, 400 KB)</option>
+        <option value="css">styles.css (CSS, 120 KB)</option>
+        <option value="video">intro.mp4 (video, 8 MB)</option>
+        <option value="api">GET /api/profile (API động)</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>Trạng thái cache</label>
+      <select id="cdn-cache-state" onchange="cdnUpdate()">
+        <option value="hit">Cache HIT (đã có tại edge)</option>
+        <option value="miss">Cache MISS (lần đầu / hết hạn)</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="cdn-stage">
+    <svg id="cdn-svg" width="620" height="260" viewBox="0 0 620 260">
+      <defs>
+        <marker id="cdn-arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0369a1"/>
+        </marker>
+        <marker id="cdn-arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+        </marker>
+        <marker id="cdn-arr-amber" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#d97706"/>
+        </marker>
+        <marker id="cdn-arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/>
+        </marker>
+      </defs>
+
+      <!-- User -->
+      <rect x="10" y="100" width="90" height="60" rx="8" fill="#0369a1"/>
+      <text x="55" y="126" text-anchor="middle" font-size="12" font-weight="700" fill="white">NGƯỜI</text>
+      <text x="55" y="142" text-anchor="middle" font-size="12" font-weight="700" fill="white">DÙNG</text>
+      <text x="55" y="156" text-anchor="middle" font-size="10" fill="#bae6fd" id="cdn-user-label">Hà Nội</text>
+
+      <!-- Edge server -->
+      <rect x="210" y="90" width="110" height="80" rx="8" fill="#0c4a6e"/>
+      <text x="265" y="116" text-anchor="middle" font-size="12" font-weight="700" fill="white">CDN EDGE</text>
+      <text x="265" y="132" text-anchor="middle" font-size="11" fill="#7dd3fc" id="cdn-edge-label">Singapore</text>
+      <rect x="222" y="140" width="86" height="20" rx="4" fill="#1e40af" id="cdn-cache-box"/>
+      <text x="265" y="154" text-anchor="middle" font-size="10" font-weight="700" fill="white" id="cdn-cache-text">Cache</text>
+
+      <!-- Origin server -->
+      <rect x="440" y="100" width="110" height="60" rx="8" fill="#7c3aed"/>
+      <text x="495" y="125" text-anchor="middle" font-size="12" font-weight="700" fill="white">ORIGIN</text>
+      <text x="495" y="141" text-anchor="middle" font-size="12" font-weight="700" fill="white">SERVER</text>
+      <text x="495" y="155" text-anchor="middle" font-size="10" fill="#ddd6fe" id="cdn-origin-label">Los Angeles</text>
+
+      <!-- Static arrows / lines -->
+      <!-- User <-> Edge -->
+      <line x1="100" y1="130" x2="208" y2="130" stroke="#0369a1" stroke-width="2" marker-end="url(#cdn-arr-blue)"/>
+
+      <!-- Dynamic part: edge <-> origin (drawn by JS) -->
+      <g id="cdn-origin-path"></g>
+
+      <!-- Response arrow back to user (drawn by JS) -->
+      <g id="cdn-response-path"></g>
+
+      <!-- Latency bar chart (drawn by JS) -->
+      <g id="cdn-bars" transform="translate(0,195)"></g>
+    </svg>
+  </div>
+
+  <div class="cdn-result" id="cdn-result">Chọn vùng người dùng và nội dung để xem phân tích...</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — Full Architecture Walkthrough
+     ═══════════════════════════════════════════════════════════ -->
+<h2>3. Kiến trúc web quy mô đầy đủ — request đi qua từng tầng</h2>
+<div class="card">
+  <p>Nhấn từng bước để xem request của người dùng đi qua CDN → Load Balancer → Web Server → Cache → Database, kèm giải thích tại mỗi tầng.</p>
+
+  <div id="arch-progress" aria-label="Tiến trình các bước"></div>
+
+  <div id="arch-stage">
+    <svg id="arch-svg" width="620" height="330" viewBox="0 0 620 330">
+      <defs>
+        <marker id="arch-arr-main" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0369a1"/>
+        </marker>
+        <marker id="arch-arr-active" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+        </marker>
+      </defs>
+
+      <!-- ── Layer labels ── -->
+      <text x="6" y="16" font-size="10" fill="#94a3b8" font-weight="700">INTERNET</text>
+      <text x="6" y="116" font-size="10" fill="#94a3b8" font-weight="700">EDGE</text>
+      <text x="6" y="186" font-size="10" fill="#94a3b8" font-weight="700">LB</text>
+      <text x="6" y="236" font-size="10" fill="#94a3b8" font-weight="700">APP</text>
+      <text x="6" y="296" font-size="10" fill="#94a3b8" font-weight="700">DATA</text>
+
+      <!-- ── Horizontal dividers ── -->
+      <line x1="60" y1="20"  x2="615" y2="20"  stroke="#e2e8f0" stroke-width="1"/>
+      <line x1="60" y1="120" x2="615" y2="120" stroke="#e2e8f0" stroke-width="1"/>
+      <line x1="60" y1="195" x2="615" y2="195" stroke="#e2e8f0" stroke-width="1"/>
+      <line x1="60" y1="245" x2="615" y2="245" stroke="#e2e8f0" stroke-width="1"/>
+      <line x1="60" y1="305" x2="615" y2="305" stroke="#e2e8f0" stroke-width="1"/>
+
+      <!-- ── Static nodes ── -->
+      <!-- Client -->
+      <rect x="65" y="30" width="80" height="44" rx="7" fill="#0369a1" id="arch-n-client"/>
+      <text x="105" y="53" text-anchor="middle" font-size="11" font-weight="700" fill="white">CLIENT</text>
+      <text x="105" y="66" text-anchor="middle" font-size="9"  fill="#bae6fd">Browser</text>
+
+      <!-- CDN Edge -->
+      <rect x="220" y="125" width="90" height="44" rx="7" fill="#0c4a6e" id="arch-n-cdn"/>
+      <text x="265" y="148" text-anchor="middle" font-size="11" font-weight="700" fill="white">CDN EDGE</text>
+      <text x="265" y="161" text-anchor="middle" font-size="9"  fill="#7dd3fc">cache hit → đây</text>
+
+      <!-- Load Balancer -->
+      <rect x="220" y="200" width="90" height="38" rx="7" fill="#1d4ed8" id="arch-n-lb"/>
+      <text x="265" y="219" text-anchor="middle" font-size="11" font-weight="700" fill="white">LOAD</text>
+      <text x="265" y="232" text-anchor="middle" font-size="11" font-weight="700" fill="white">BALANCER</text>
+
+      <!-- Web Server A -->
+      <rect x="370" y="248" width="80" height="38" rx="7" fill="#0369a1" id="arch-n-ws1"/>
+      <text x="410" y="267" text-anchor="middle" font-size="10" font-weight="700" fill="white">WEB</text>
+      <text x="410" y="279" text-anchor="middle" font-size="10" font-weight="700" fill="white">SERVER A</text>
+
+      <!-- Web Server B -->
+      <rect x="460" y="248" width="80" height="38" rx="7" fill="#0369a1" id="arch-n-ws2"/>
+      <text x="500" y="267" text-anchor="middle" font-size="10" font-weight="700" fill="white">WEB</text>
+      <text x="500" y="279" text-anchor="middle" font-size="10" font-weight="700" fill="white">SERVER B</text>
+
+      <!-- Redis Cache -->
+      <rect x="380" y="310" width="72" height="34" rx="7" fill="#d97706" id="arch-n-cache"/>
+      <text x="416" y="329" text-anchor="middle" font-size="10" font-weight="700" fill="white">REDIS</text>
+      <text x="416" y="340" text-anchor="middle" font-size="9"  fill="#fff7ed">Cache</text>
+
+      <!-- Database -->
+      <rect x="465" y="310" width="72" height="34" rx="7" fill="#7c3aed" id="arch-n-db"/>
+      <text x="501" y="329" text-anchor="middle" font-size="10" font-weight="700" fill="white">DATABASE</text>
+      <text x="501" y="340" text-anchor="middle" font-size="9"  fill="#ddd6fe">PostgreSQL</text>
+
+      <!-- ── Static background edges ── -->
+      <!-- Client → CDN -->
+      <line x1="145" y1="52" x2="219" y2="147" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <!-- CDN miss → LB -->
+      <line x1="265" y1="169" x2="265" y2="199" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <!-- LB → WS A -->
+      <line x1="310" y1="219" x2="369" y2="267" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <!-- LB → WS B -->
+      <line x1="310" y1="219" x2="460" y2="267" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <!-- WS A → Cache -->
+      <line x1="410" y1="286" x2="416" y2="309" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <!-- WS A → DB -->
+      <line x1="440" y1="267" x2="480" y2="309" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+      <!-- ── Active animation path (drawn by JS) ── -->
+      <g id="arch-active-path"></g>
+
+      <!-- ── Request ball ── -->
+      <circle id="arch-ball" cx="-20" cy="52" r="9" fill="#38bdf8" opacity="0"/>
+    </svg>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="arch-btn-step" onclick="archStep()">Bước tiếp theo →</button>
+    <button class="btn btn-secondary" onclick="archReset()">Bắt đầu lại</button>
+    <button class="btn btn-secondary" onclick="archAuto()">Tự động</button>
+  </div>
+
+  <div id="arch-desc">
+    Nhấn <strong>"Bước tiếp theo"</strong> để theo dõi hành trình của một request HTTPS từ trình duyệt tới database và ngược lại.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+// ════════════════════════════════════════════════════════════
+// MODULE 1 — LOAD BALANCER
+// ════════════════════════════════════════════════════════════
+let lbReqCount = 0;
+let lbRRPointer = 0;   // round-robin pointer
+let lbServerConns = [];// connection counts (for least-conn)
+let lbServerDown  = [];// boolean: server is down
+let lbHealthFail  = [];// consecutive health-check failures
+let lbAutoTimer   = null;
+
+function lbGetCount() { return parseInt(document.getElementById('lb-count').value); }
+function lbGetAlgo()  { return document.getElementById('lb-algo').value; }
+
+function lbAlgoChange() {
+  const algo = lbGetAlgo();
+  document.getElementById('lb-ip-row').style.display = (algo === 'ih') ? '' : 'none';
+  const labels = { rr: 'Round-Robin', lc: 'Least-Connections', ih: 'IP Hash' };
+  document.getElementById('lb-algo-label').textContent = labels[algo] || algo;
+  lbReset();
+}
+
+function lbReset() {
+  clearInterval(lbAutoTimer); lbAutoTimer = null;
+  lbReqCount  = 0;
+  lbRRPointer = 0;
+  const n = lbGetCount();
+  lbServerConns = Array(n).fill(0);
+  lbServerDown  = Array(n).fill(false);
+  lbHealthFail  = Array(n).fill(0);
+  document.getElementById('lb-log').innerHTML = 'Nhấn "Gửi request" để bắt đầu...';
+  document.getElementById('lb-client-label').textContent = '—';
+  const algo = lbGetAlgo();
+  const labels = { rr: 'Round-Robin', lc: 'Least-Connections', ih: 'IP Hash' };
+  document.getElementById('lb-algo-label').textContent = labels[algo] || algo;
+  lbDrawBackends();
+  lbRenderStatus();
+}
+
+function lbDrawBackends() {
+  const n = lbGetCount();
+  const svg = document.getElementById('lb-backends');
+  svg.innerHTML = '';
+  // server positions: spread vertically around center y=152
+  const spacing = Math.min(260 / Math.max(n - 1, 1), 72);
+  const startY = 152 - (n - 1) * spacing / 2;
+  // store positions globally for animation
+  lbServerPositions = [];
+  for (let i = 0; i < n; i++) {
+    const sy = startY + i * spacing;
+    lbServerPositions.push({ x: 480, y: sy });
+    // arrow LB → server
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', 284); line.setAttribute('y1', sy > 152 ? 176 : sy < 152 ? 116 : 152);
+    line.setAttribute('x2', 479); line.setAttribute('y2', sy);
+    line.setAttribute('stroke', lbServerDown[i] ? '#dc2626' : '#cbd5e1');
+    line.setAttribute('stroke-width', '1.5');
+    line.setAttribute('stroke-dasharray', '4,3');
+    line.setAttribute('id', `lb-line-${i}`);
+    svg.appendChild(line);
+
+    // server box
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x', 480); rect.setAttribute('y', sy - 18);
+    rect.setAttribute('width', 100); rect.setAttribute('height', 36);
+    rect.setAttribute('rx', 6);
+    rect.setAttribute('fill', lbServerDown[i] ? '#dc2626' : '#0369a1');
+    rect.setAttribute('id', `lb-srv-rect-${i}`);
+    rect.setAttribute('style', 'cursor:pointer;');
+    rect.setAttribute('title', `Click để toggle DOWN/UP cho Server ${i+1}`);
+    rect.addEventListener('click', () => lbToggleDown(i));
+    svg.appendChild(rect);
+
+    // server label
+    const t1 = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t1.setAttribute('x', 530); t1.setAttribute('y', sy - 3);
+    t1.setAttribute('text-anchor','middle'); t1.setAttribute('font-size','11');
+    t1.setAttribute('font-weight','700'); t1.setAttribute('fill','white');
+    t1.textContent = `S${i+1}`;
+    t1.setAttribute('pointer-events','none');
+    svg.appendChild(t1);
+
+    // conn count
+    const t2 = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t2.setAttribute('x', 530); t2.setAttribute('y', sy + 11);
+    t2.setAttribute('text-anchor','middle'); t2.setAttribute('font-size','10');
+    t2.setAttribute('fill', lbServerDown[i] ? '#fecaca' : '#bae6fd');
+    t2.setAttribute('id', `lb-srv-conn-${i}`);
+    t2.textContent = lbServerDown[i] ? 'DOWN' : `${lbServerConns[i]} conn`;
+    t2.setAttribute('pointer-events','none');
+    svg.appendChild(t2);
+  }
+}
+
+let lbServerPositions = [];
+
+function lbToggleDown(i) {
+  lbServerDown[i] = !lbServerDown[i];
+  if (!lbServerDown[i]) lbHealthFail[i] = 0;
+  lbDrawBackends();
+  lbRenderStatus();
+  const msg = lbServerDown[i]
+    ? `<span class="dead">[Health Check] Server S${i+1} — marcado como DOWN (3 falhas consecutivas simuladas)</span>`
+    : `<span class="ok">[Health Check] Server S${i+1} — recovered, voltando ao pool</span>`;
+  lbAppendLog(msg);
+}
+
+function lbRenderStatus() {
+  const n = lbGetCount();
+  const row = document.getElementById('lb-status-row');
+  row.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const span = document.createElement('span');
+    const cls  = lbServerDown[i] ? 'srv-down' : 'srv-up';
+    const txt  = lbServerDown[i] ? 'DOWN' : 'UP';
+    span.innerHTML = `<strong>S${i+1}</strong> <span class="srv-status ${cls}">${txt}</span>`;
+    span.style.fontSize = '13px';
+    row.appendChild(span);
+  }
+}
+
+function lbAppendLog(html) {
+  const el = document.getElementById('lb-log');
+  if (el.innerHTML === 'Nhấn "Gửi request" để bắt đầu...') el.innerHTML = '';
+  el.innerHTML += html + '\n';
+  el.scrollTop = el.scrollHeight;
+}
+
+function lbChooseServer() {
+  const n     = lbGetCount();
+  const algo  = lbGetAlgo();
+  const alive = [];
+  for (let i = 0; i < n; i++) if (!lbServerDown[i]) alive.push(i);
+  if (alive.length === 0) return -1;
+
+  if (algo === 'rr') {
+    // find next alive from lbRRPointer
+    let attempts = 0;
+    while (attempts < n) {
+      const idx = lbRRPointer % n;
+      lbRRPointer++;
+      if (!lbServerDown[idx]) return idx;
+      attempts++;
+    }
+    return -1;
+  } else if (algo === 'lc') {
+    let best = -1, bestConn = Infinity;
+    for (const i of alive) {
+      if (lbServerConns[i] < bestConn) { bestConn = lbServerConns[i]; best = i; }
+    }
+    return best;
+  } else if (algo === 'ih') {
+    const ip = document.getElementById('lb-client-ip').value.trim() || '203.0.113.45';
+    let hash = 0;
+    for (let ci = 0; ci < ip.length; ci++) hash = (hash * 31 + ip.charCodeAt(ci)) >>> 0;
+    // map to alive servers to handle down servers
+    return alive[hash % alive.length];
+  }
+  return alive[0];
+}
+
+function lbSendRequest() {
+  if (lbAutoTimer) return;
+  lbReqCount++;
+  const n    = lbGetCount();
+  const algo = lbGetAlgo();
+  const chosen = lbChooseServer();
+
+  if (chosen === -1) {
+    lbAppendLog(`<span class="dead">[Request #${lbReqCount}] TODOS OS SERVIDORES DOWN — erro 503!</span>`);
+    return;
+  }
+
+  lbServerConns[chosen]++;
+  // update SVG conn label
+  document.getElementById(`lb-srv-conn-${chosen}`).textContent = `${lbServerConns[chosen]} conn`;
+
+  // Animate ball: client (55,152) → lb (229,152) → server
+  const sp = lbServerPositions[chosen];
+  if (!sp) return;
+
+  let algoNote = '';
+  if (algo === 'rr') {
+    algoNote = `(vị trí vòng ${(lbReqCount - 1) % n} trong ${n} server)`;
+  } else if (algo === 'lc') {
+    const connList = lbServerConns.map((c,i) => `S${i+1}=${lbServerDown[i]?'DOWN':c}`).join(', ');
+    algoNote = `(chọn ít kết nối nhất: [${connList}])`;
+  } else if (algo === 'ih') {
+    const ip = document.getElementById('lb-client-ip').value.trim();
+    let h = 0;
+    for (let ci = 0; ci < ip.length; ci++) h = (h * 31 + ip.charCodeAt(ci)) >>> 0;
+    const alive = [];
+    for (let i = 0; i < n; i++) if (!lbServerDown[i]) alive.push(i);
+    algoNote = `(hash("${ip}") = ${h} % ${alive.length} alive = index ${h % alive.length} → S${chosen+1})`;
+  }
+
+  lbAppendLog(`<span class="ok">[Request #${lbReqCount}] → S${chosen+1} ${algoNote}</span>`);
+  document.getElementById('lb-client-label').textContent = `#${lbReqCount}`;
+
+  // Animate
+  const ball = document.getElementById('lb-ball');
+  ball.style.opacity = '1';
+  lbAnimBall(ball, 55, 152, 229, 152, 300, () => {
+    lbAnimBall(ball, 229, 152, sp.x + 50, sp.y, 400, () => {
+      setTimeout(() => {
+        lbServerConns[chosen] = Math.max(0, lbServerConns[chosen] - 1);
+        const el = document.getElementById(`lb-srv-conn-${chosen}`);
+        if (el) el.textContent = `${lbServerConns[chosen]} conn`;
+        ball.style.opacity = '0';
+      }, 600);
+    });
+  });
+}
+
+function lbAnimBall(el, x1, y1, x2, y2, dur, cb) {
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min((now - start) / dur, 1);
+    const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+    el.setAttribute('cx', x1 + (x2-x1)*ease);
+    el.setAttribute('cy', y1 + (y2-y1)*ease);
+    if (t < 1) requestAnimationFrame(tick);
+    else if (cb) cb();
+  }
+  requestAnimationFrame(tick);
+}
+
+function lbAutoStart() {
+  if (lbAutoTimer) { clearInterval(lbAutoTimer); lbAutoTimer = null; return; }
+  let sent = 0;
+  lbAutoTimer = setInterval(() => {
+    if (sent >= 10) { clearInterval(lbAutoTimer); lbAutoTimer = null; return; }
+    lbSendRequest(); sent++;
+  }, 700);
+}
+
+// ════════════════════════════════════════════════════════════
+// MODULE 2 — CDN
+// ════════════════════════════════════════════════════════════
+const CDN_REGIONS = {
+  hanoi:  { name: 'Hà Nội, VN',       edge: 'Singapore',    rttEdge: 35,  rttOrigin: 200 },
+  hcm:    { name: 'TP. HCM, VN',      edge: 'Singapore',    rttEdge: 25,  rttOrigin: 195 },
+  tokyo:  { name: 'Tokyo, JP',         edge: 'Tokyo',        rttEdge: 5,   rttOrigin: 155 },
+  sydney: { name: 'Sydney, AU',        edge: 'Sydney',       rttEdge: 8,   rttOrigin: 170 },
+  london: { name: 'London, UK',        edge: 'London',       rttEdge: 4,   rttOrigin: 80  },
+};
+
+const CDN_ASSETS = {
+  logo:   { name: 'logo.png',        size: 80,    cacheable: true,  ttl: '86400s (1 ngày)' },
+  banner: { name: 'new-banner.png',  size: 400,   cacheable: true,  ttl: '604800s (7 ngày)' },
+  css:    { name: 'styles.css',      size: 120,   cacheable: true,  ttl: '2592000s (30 ngày)' },
+  video:  { name: 'intro.mp4',       size: 8192,  cacheable: true,  ttl: '2592000s (30 ngày)' },
+  api:    { name: '/api/profile',    size: 2,     cacheable: false, ttl: 'no-cache (API động)' },
+};
+
+function cdnUpdate() {
+  const region     = CDN_REGIONS[document.getElementById('cdn-region').value];
+  const asset      = CDN_ASSETS [document.getElementById('cdn-asset').value];
+  const cacheState = document.getElementById('cdn-cache-state').value;
+
+  document.getElementById('cdn-user-label').textContent  = region.name;
+  document.getElementById('cdn-edge-label').textContent  = region.edge;
+
+  const isCacheable = asset.cacheable;
+  const isHit       = (cacheState === 'hit') && isCacheable;
+
+  // Update cache box colour
+  const cacheBox  = document.getElementById('cdn-cache-box');
+  const cacheTxt  = document.getElementById('cdn-cache-text');
+  if (!isCacheable) {
+    cacheBox.setAttribute('fill','#991b1b');
+    cacheTxt.textContent = 'No-Cache';
+  } else if (isHit) {
+    cacheBox.setAttribute('fill','#166534');
+    cacheTxt.textContent = 'HIT';
+  } else {
+    cacheBox.setAttribute('fill','#dc2626');
+    cacheTxt.textContent = 'MISS';
+  }
+
+  // Draw origin path
+  const originPath = document.getElementById('cdn-origin-path');
+  const responsePath = document.getElementById('cdn-response-path');
+  originPath.innerHTML = '';
+  responsePath.innerHTML = '';
+
+  if (!isCacheable || !isHit) {
+    // Draw edge → origin arrow
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1','320'); line.setAttribute('y1','130');
+    line.setAttribute('x2','439'); line.setAttribute('y2','130');
+    line.setAttribute('stroke','#d97706'); line.setAttribute('stroke-width','2');
+    line.setAttribute('marker-end','url(#cdn-arr-amber)');
+    originPath.appendChild(line);
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x','380'); lbl.setAttribute('y','120');
+    lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('font-size','10');
+    lbl.setAttribute('fill','#d97706'); lbl.setAttribute('font-weight','700');
+    lbl.textContent = isCacheable ? 'cache miss → origin' : 'bypass CDN';
+    originPath.appendChild(lbl);
+  }
+
+  // Response arrow back to user
+  const rLine = document.createElementNS('http://www.w3.org/2000/svg','line');
+  rLine.setAttribute('x1','208'); rLine.setAttribute('y1','145');
+  rLine.setAttribute('x2','100'); rLine.setAttribute('y2','145');
+  rLine.setAttribute('stroke',isHit ? '#16a34a' : '#0369a1');
+  rLine.setAttribute('stroke-width','2');
+  rLine.setAttribute('marker-end', isHit ? 'url(#cdn-arr-green)' : 'url(#cdn-arr-blue)');
+  responsePath.appendChild(rLine);
+  const rLbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+  rLbl.setAttribute('x','154'); rLbl.setAttribute('y','138');
+  rLbl.setAttribute('text-anchor','middle'); rLbl.setAttribute('font-size','10');
+  rLbl.setAttribute('fill', isHit ? '#16a34a' : '#0369a1'); rLbl.setAttribute('font-weight','700');
+  rLbl.textContent = isHit ? 'trả từ cache' : 'trả từ origin';
+  responsePath.appendChild(rLbl);
+
+  // Latency calculation
+  let userToEdge = region.rttEdge;
+  let totalLatency, savingMs;
+
+  if (!isCacheable) {
+    // API: goes to origin directly via edge (no caching)
+    totalLatency = userToEdge + region.rttOrigin;
+    savingMs = 0;
+  } else if (isHit) {
+    totalLatency = userToEdge * 2; // request + response RTT
+    savingMs = (region.rttOrigin * 2) - totalLatency;
+  } else {
+    // Cache miss: edge + origin round trip
+    totalLatency = userToEdge + region.rttOrigin + region.rttEdge;
+    savingMs = 0; // first-time penalty
+  }
+
+  const nocdnLatency = region.rttOrigin * 2;
+  const savingPct = nocdnLatency > 0 ? Math.round((nocdnLatency - totalLatency) / nocdnLatency * 100) : 0;
+
+  // Bar chart
+  const bars = document.getElementById('cdn-bars');
+  bars.innerHTML = '';
+  const maxBar = 300;
+  const maxMs  = Math.max(nocdnLatency, totalLatency, 10);
+
+  function drawBar(x, w, color, label, ms) {
+    const bw = Math.max((ms / maxMs) * maxBar, 4);
+    const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    bg.setAttribute('x', x); bg.setAttribute('y', 0);
+    bg.setAttribute('width', bw); bg.setAttribute('height', 22);
+    bg.setAttribute('rx','4'); bg.setAttribute('fill', color);
+    bars.appendChild(bg);
+    const tl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    tl.setAttribute('x', x - 4); tl.setAttribute('y', 15);
+    tl.setAttribute('text-anchor','end'); tl.setAttribute('font-size','10');
+    tl.setAttribute('fill','#475569'); tl.setAttribute('font-weight','700');
+    tl.textContent = label;
+    bars.appendChild(tl);
+    const tv = document.createElementNS('http://www.w3.org/2000/svg','text');
+    tv.setAttribute('x', x + bw + 4); tv.setAttribute('y', 15);
+    tv.setAttribute('text-anchor','start'); tv.setAttribute('font-size','11');
+    tv.setAttribute('fill', color); tv.setAttribute('font-weight','700');
+    tv.textContent = `${ms} ms`;
+    bars.appendChild(tv);
+  }
+
+  // line 1: no CDN
+  drawBar(90, maxBar, '#dc2626', 'Không CDN:', nocdnLatency);
+  // line 2: with CDN (shifted down)
+  const bars2 = document.createElementNS('http://www.w3.org/2000/svg','g');
+  bars2.setAttribute('transform','translate(0,28)');
+  bars.appendChild(bars2);
+  function drawBar2(x, w, color, label, ms) {
+    const bw = Math.max((ms / maxMs) * maxBar, 4);
+    const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    bg.setAttribute('x', x); bg.setAttribute('y', 0);
+    bg.setAttribute('width', bw); bg.setAttribute('height', 22);
+    bg.setAttribute('rx','4'); bg.setAttribute('fill', color);
+    bars2.appendChild(bg);
+    const tl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    tl.setAttribute('x', x - 4); tl.setAttribute('y', 15);
+    tl.setAttribute('text-anchor','end'); tl.setAttribute('font-size','10');
+    tl.setAttribute('fill','#475569'); tl.setAttribute('font-weight','700');
+    tl.textContent = label;
+    bars2.appendChild(tl);
+    const tv = document.createElementNS('http://www.w3.org/2000/svg','text');
+    tv.setAttribute('x', x + bw + 4); tv.setAttribute('y', 15);
+    tv.setAttribute('text-anchor','start'); tv.setAttribute('font-size','11');
+    tv.setAttribute('fill', color); tv.setAttribute('font-weight','700');
+    tv.textContent = `${totalLatency} ms`;
+    bars2.appendChild(tv);
+  }
+  drawBar2(90, maxBar, isHit ? '#16a34a' : (isCacheable ? '#d97706' : '#dc2626'),
+    isHit ? 'Có CDN (HIT):' : (isCacheable ? 'CDN (MISS):' : 'Qua CDN (API):'), totalLatency);
+
+  // Text result
+  let resultHtml = '';
+  if (!isCacheable) {
+    resultHtml = `
+<span class="bad">API động — CDN không cache</span><br>
+Mọi request đều phải về origin server.<br>
+Độ trễ: user → edge (${userToEdge} ms) + edge → origin (${region.rttOrigin} ms) = <span class="hl">${totalLatency} ms</span><br>
+Edge: ${region.edge} | Origin: Los Angeles<br>
+<span style="color:#d97706;">Cache-Control: ${asset.ttl}</span>
+    `;
+  } else if (isHit) {
+    resultHtml = `
+<span class="tag tag-hit">CACHE HIT</span>  Phục vụ từ edge ${region.edge}<br>
+Độ trễ: ${userToEdge} ms (user→edge) × 2 = <span class="hl">${totalLatency} ms</span><br>
+So với không CDN: <span class="good">tiết kiệm ${savingMs} ms (${savingPct}%)</span><br>
+Cache-Control: ${asset.ttl} | Kích thước: ${asset.size < 1024 ? asset.size + ' KB' : (asset.size/1024).toFixed(1) + ' MB'}<br>
+Origin server không bị đụng đến.
+    `;
+  } else {
+    resultHtml = `
+<span class="tag tag-miss">CACHE MISS</span>  Edge ${region.edge} chưa có cache<br>
+Độ trễ lần đầu: edge→origin (${region.rttOrigin} ms) + user→edge (${userToEdge} ms) = <span class="hl">${totalLatency} ms</span><br>
+Edge sẽ lưu cache: ${asset.ttl}<br>
+Request tiếp theo từ cùng vùng → <span class="good">sẽ là HIT: ~${userToEdge * 2} ms</span><br>
+Cache Hit Rate thực tế CDN lớn: 90–98%.
+    `;
+  }
+  document.getElementById('cdn-result').innerHTML = resultHtml;
+}
+
+// ════════════════════════════════════════════════════════════
+// MODULE 3 — ARCHITECTURE WALKTHROUGH
+// ════════════════════════════════════════════════════════════
+const ARCH_STEPS = [
+  {
+    label: 'HTTPS Request',
+    desc: `<strong>Bước 1 — Client gửi HTTPS request</strong><br>
+Trình duyệt (Chrome, Safari...) tạo kết nối HTTPS (TCP + TLS) tới tên miền <code>example.com</code>.<br>
+DNS phân giải <code>example.com</code> → IP của CDN Edge gần nhất (Singapore: <code>203.1.20.5</code>).<br>
+TLS handshake: ~1–2 RTT (~70 ms từ Hà Nội) trước khi gửi được dữ liệu HTTP.`,
+    from: 'arch-n-client', to: 'arch-n-cdn',
+    fx: 105, fy: 52, tx: 265, ty: 147,
+    color: '#0369a1'
+  },
+  {
+    label: 'CDN Check',
+    desc: `<strong>Bước 2 — CDN Edge kiểm tra cache</strong><br>
+Edge server tại Singapore nhận request. Kiểm tra cache local:<br>
+&bull; <em>Cache HIT</em>: phục vụ ngay từ đây, trả về client → <strong>không cần về origin</strong>.<br>
+&bull; <em>Cache MISS</em>: chuyển tiếp request xuống Load Balancer (origin) để lấy nội dung mới.<br>
+Tình huống demo: <em>cache miss</em> → tiếp tục xuống LB.`,
+    from: 'arch-n-cdn', to: 'arch-n-lb',
+    fx: 265, fy: 169, tx: 265, ty: 199,
+    color: '#0c4a6e'
+  },
+  {
+    label: 'Load Balancer',
+    desc: `<strong>Bước 3 — Load Balancer phân phối request</strong><br>
+L7 Load Balancer (Nginx/ALB) nhận request từ CDN:<br>
+&bull; <strong>TLS termination</strong>: giải mã TLS, gửi cleartext HTTP đến backend nội bộ.<br>
+&bull; <strong>Routing</strong>: kiểm tra URL path → <code>/api/</code> đến API servers; <code>/static/</code> đến static servers.<br>
+&bull; <strong>Health check</strong>: đảm bảo chỉ gửi đến server đang hoạt động.<br>
+Demo: gửi đến Web Server A (ít kết nối hơn).`,
+    from: 'arch-n-lb', to: 'arch-n-ws1',
+    fx: 310, fy: 219, tx: 370, ty: 267,
+    color: '#1d4ed8'
+  },
+  {
+    label: 'Redis Cache',
+    desc: `<strong>Bước 4 — Web Server kiểm tra Redis Cache</strong><br>
+Web Server A xử lý business logic:<br>
+&bull; Trước tiên: kiểm tra <strong>Redis</strong> xem kết quả query đã được cache chưa.<br>
+&bull; Cache HIT → trả về ngay (micro-giây) mà không truy vấn DB.<br>
+&bull; Cache MISS → tiếp tục truy vấn database.<br>
+Redis thường đặt trong VPC cùng mạng nội bộ → RTT ~0.1–1 ms.`,
+    from: 'arch-n-ws1', to: 'arch-n-cache',
+    fx: 410, fy: 286, tx: 416, ty: 309,
+    color: '#d97706'
+  },
+  {
+    label: 'Database',
+    desc: `<strong>Bước 5 — Truy vấn Database (cache miss)</strong><br>
+Redis không có cache → Web Server truy vấn PostgreSQL:<br>
+&bull; <code>SELECT * FROM users WHERE id = $1</code><br>
+&bull; Kết quả nhận về → lưu vào Redis (TTL 60s) để request tiếp theo cache hit.<br>
+&bull; Read replica: query đọc có thể đến replica để giảm tải primary.<br>
+Thời gian query: 1–50 ms tùy độ phức tạp + index.`,
+    from: 'arch-n-ws1', to: 'arch-n-db',
+    fx: 440, fy: 267, tx: 480, ty: 309,
+    color: '#7c3aed'
+  },
+  {
+    label: 'Response',
+    desc: `<strong>Bước 6 — Response trở về client</strong><br>
+Dữ liệu từ DB → Redis → Web Server → Load Balancer → CDN Edge → Client.<br>
+CDN lưu response vào cache (nếu <code>Cache-Control: public, max-age=60</code>).<br>
+<strong>Thời gian tổng (ví dụ Hà Nội):</strong><br>
+&bull; DNS + TLS: ~70 ms<br>
+&bull; CDN check + LB: ~5 ms nội bộ<br>
+&bull; App xử lý: ~10 ms<br>
+&bull; DB query: ~5 ms<br>
+&bull; Response truyền về: ~35 ms<br>
+= <strong>~125 ms TTFB</strong> (time to first byte) — mục tiêu tốt < 200 ms.`,
+    from: 'arch-n-cdn', to: 'arch-n-client',
+    fx: 220, fy: 147, tx: 145, ty: 52,
+    color: '#16a34a'
+  },
+];
+
+let archStep = 0;
+let archAutoTimer = null;
+
+function archReset() {
+  clearInterval(archAutoTimer); archAutoTimer = null;
+  archStep = 0;
+  document.getElementById('arch-active-path').innerHTML = '';
+  document.getElementById('arch-ball').style.opacity = '0';
+  document.getElementById('arch-desc').innerHTML =
+    'Nhấn <strong>"Bước tiếp theo"</strong> để theo dõi hành trình của một request HTTPS từ trình duyệt tới database và ngược lại.';
+  document.getElementById('arch-btn-step').textContent  = 'Bước tiếp theo →';
+  document.getElementById('arch-btn-step').onclick      = archStepFn;
+  renderArchProgress();
+}
+
+function renderArchProgress() {
+  const container = document.getElementById('arch-progress');
+  container.innerHTML = '';
+  ARCH_STEPS.forEach((s, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'arch-step-dot' + (i < archStep ? ' done' : i === archStep ? ' active' : '');
+    dot.title     = s.label;
+    dot.textContent = i + 1;
+    container.appendChild(dot);
+  });
+}
+
+function archStepFn() {
+  if (archStep >= ARCH_STEPS.length) { archReset(); return; }
+  const s = ARCH_STEPS[archStep];
+
+  // Highlight active node
+  const fromEl = document.getElementById(s.from);
+  const toEl   = document.getElementById(s.to);
+  if (fromEl) fromEl.setAttribute('fill', s.color);
+  if (toEl)   toEl.setAttribute('fill', s.color);
+
+  // Draw animated line
+  const path = document.getElementById('arch-active-path');
+  const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1', s.fx); line.setAttribute('y1', s.fy);
+  line.setAttribute('x2', s.tx); line.setAttribute('y2', s.ty);
+  line.setAttribute('stroke', s.color); line.setAttribute('stroke-width','2.5');
+  line.setAttribute('marker-end','url(#arch-arr-active)');
+  path.appendChild(line);
+
+  // Animate ball
+  const ball = document.getElementById('arch-ball');
+  ball.setAttribute('fill', s.color);
+  ball.style.opacity = '1';
+  lbAnimBall(ball, s.fx, s.fy, s.tx, s.ty, 500, () => {
+    setTimeout(() => { ball.style.opacity = '0'; }, 200);
+  });
+
+  document.getElementById('arch-desc').innerHTML = s.desc;
+  archStep++;
+  renderArchProgress();
+
+  if (archStep >= ARCH_STEPS.length) {
+    document.getElementById('arch-btn-step').textContent = 'Xem lại →';
+    document.getElementById('arch-btn-step').onclick     = archReset;
+  }
+}
+
+// expose as global for onclick
+window.archStep = archStepFn;
+
+function archAuto() {
+  if (archAutoTimer) { clearInterval(archAutoTimer); archAutoTimer = null; return; }
+  archReset();
+  archAutoTimer = setInterval(() => {
+    if (archStep >= ARCH_STEPS.length) { clearInterval(archAutoTimer); archAutoTimer = null; return; }
+    archStepFn();
+  }, 1800);
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+lbReset();
+cdnUpdate();
+archReset();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — HTTP/HTTPS cơ bản</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette HTTP (xanh dương đậm) ── */
+  :root {
+    --http-blue:   #0369a1;
+    --http-soft:   #e0f2fe;
+    --http-mid:    #38bdf8;
+    --http-dark:   #0c4a6e;
+    --http-green:  #16a34a;
+    --http-red:    #dc2626;
+    --http-orange: #d97706;
+    --http-purple: #7c3aed;
+    --bg-card:     #ffffff;
+    --bg-section:  #f0f9ff;
+  }
+
+  h1 { color: var(--http-dark); }
+  h2 {
+    color: var(--http-blue);
+    margin-top: 36px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--http-mid);
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(3,105,161,.10);
+    margin: 16px 0;
+  }
+  .info-box {
+    background: var(--bg-section);
+    border-left: 4px solid var(--http-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--http-blue); color: white; }
+  .btn-primary:hover { background: var(--http-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ── Form fields ── */
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; font-weight: 700; color: #374151; }
+  .field input, .field select, .field textarea {
+    padding: 7px 10px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: monospace;
+    box-sizing: border-box;
+    background: white;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none; border-color: var(--http-blue);
+  }
+  .field-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin: 10px 0;
+  }
+
+  /* ── Raw HTTP display ── */
+  .raw-http {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    white-space: pre-wrap;
+    word-break: break-all;
+    min-height: 80px;
+  }
+  .raw-http .req-line  { color: #38bdf8; font-weight: 700; }
+  .raw-http .hdr-key   { color: #86efac; }
+  .raw-http .hdr-val   { color: #fde68a; }
+  .raw-http .empty-ln  { color: #475569; }
+  .raw-http .body-txt  { color: #f9a8d4; }
+
+  /* ── MODULE 2: Scenario simulator ── */
+  .scenario-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .sc-card {
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    font-size: 13px;
+  }
+  .sc-card:hover { border-color: var(--http-blue); background: var(--http-soft); }
+  .sc-card.active { border-color: var(--http-blue); background: var(--http-soft); }
+  .sc-card .sc-title { font-weight: 700; margin-bottom: 4px; color: #1e293b; }
+  .sc-card .sc-desc { color: #64748b; font-size: 12px; }
+
+  .sim-stage {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 14px 0;
+  }
+  .sim-box {
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .sim-box-title {
+    padding: 8px 14px;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: .3px;
+  }
+  .sim-box-title.req { background: #0369a1; color: white; }
+  .sim-box-title.res { background: var(--http-dark); color: white; }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: monospace;
+    margin: 6px 0;
+  }
+  .s2xx { background: #dcfce7; color: #166534; }
+  .s3xx { background: #fef3c7; color: #92400e; }
+  .s4xx { background: #fee2e2; color: #991b1b; }
+  .s5xx { background: #f3e8ff; color: #6b21a8; }
+  .s1xx { background: #f1f5f9; color: #374151; }
+
+  /* ── MODULE 3: Status code table ── */
+  .status-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .status-table th {
+    background: var(--http-blue);
+    color: white;
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 700;
+  }
+  .status-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+  }
+  .status-table tr:hover td { background: var(--http-soft); }
+  .status-table tr.group-header td {
+    background: #f8fafc;
+    font-weight: 700;
+    color: var(--http-blue);
+    font-size: 12px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+  }
+  .code-cell {
+    font-family: monospace;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .code-cell:hover { text-decoration: underline; }
+
+  .detail-panel {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    min-height: 60px;
+    font-size: 13px;
+    line-height: 1.7;
+    display: none;
+  }
+  .detail-panel.visible { display: block; }
+  .detail-panel strong { color: var(--http-blue); }
+
+  /* ── MODULE 4: TCP Timeline ── */
+  #tl-stage { width: 100%; overflow-x: auto; }
+  #tl-svg { display: block; margin: 0 auto; }
+
+  /* ── Filter bar (module 3) ── */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+  .filter-btn {
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1.5px solid #d1d5db;
+    background: white;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .filter-btn.active { border-color: var(--http-blue); background: var(--http-blue); color: white; }
+  .filter-btn:hover:not(.active) { border-color: var(--http-blue); background: var(--http-soft); }
+
+  /* ── Responsive ── */
+  @media (max-width: 680px) {
+    .sim-stage { grid-template-columns: 1fr; }
+    .scenario-grid { grid-template-columns: 1fr; }
+    .field-row { gap: 8px; }
+  }
+  @media (max-width: 480px) {
+    .raw-http { font-size: 11px; }
+    .status-table { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Application</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-dns/visualization.html">← L2: DNS</a>
+  <span class="sep">·</span>
+  <span class="current">L3: HTTP/HTTPS cơ bản</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-http-advanced/visualization.html">L4: HTTP nâng cao →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — HTTP/HTTPS cơ bản</h1>
+<p>Bốn module tương tác: dựng HTTP request thật, mô phỏng request/response theo tình huống, bảng tra status code, minh họa timeline TCP+HTTP.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — Request Builder
+     ═══════════════════════════════════════════════════════════ -->
+<h2>1. Dựng HTTP Request tương tác</h2>
+<div class="card">
+  <p>Chọn method, nhập path và headers — xem raw request được tạo ra ngay lập tức.</p>
+
+  <div class="field-row">
+    <div class="field">
+      <label>Method</label>
+      <select id="rb-method" onchange="rbUpdate()">
+        <option value="GET">GET</option>
+        <option value="POST" selected>POST</option>
+        <option value="PUT">PUT</option>
+        <option value="PATCH">PATCH</option>
+        <option value="DELETE">DELETE</option>
+        <option value="HEAD">HEAD</option>
+        <option value="OPTIONS">OPTIONS</option>
+      </select>
+    </div>
+    <div class="field" style="flex:1; min-width:160px; max-width:100%;">
+      <label>Path</label>
+      <input type="text" id="rb-path" value="/api/users" oninput="rbUpdate()">
+    </div>
+    <div class="field" style="min-width:140px;">
+      <label>Host</label>
+      <input type="text" id="rb-host" value="api.example.com" oninput="rbUpdate()">
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field" style="flex:1; min-width:140px;">
+      <label>Content-Type</label>
+      <select id="rb-ctype" onchange="rbUpdate()">
+        <option value="">-- (không có) --</option>
+        <option value="application/json" selected>application/json</option>
+        <option value="application/x-www-form-urlencoded">application/x-www-form-urlencoded</option>
+        <option value="multipart/form-data">multipart/form-data</option>
+        <option value="text/plain">text/plain</option>
+      </select>
+    </div>
+    <div class="field" style="flex:1; min-width:140px;">
+      <label>Accept</label>
+      <select id="rb-accept" onchange="rbUpdate()">
+        <option value="">-- (không có) --</option>
+        <option value="application/json" selected>application/json</option>
+        <option value="text/html,application/xhtml+xml">text/html</option>
+        <option value="*/*">*/* (bất kỳ)</option>
+      </select>
+    </div>
+    <div class="field" style="flex:1; min-width:140px;">
+      <label>Authorization</label>
+      <select id="rb-auth" onchange="rbUpdate()">
+        <option value="">-- (không có) --</option>
+        <option value="Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMTIzIn0.abc">Bearer JWT</option>
+        <option value="Basic dXNlcjpwYXNzd29yZA==">Basic (base64)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field" style="margin:8px 0;">
+    <label>Body (JSON / text — bỏ trống nếu không có body)</label>
+    <textarea id="rb-body" rows="3" style="width:100%; resize:vertical;" oninput="rbUpdate()">{"name": "Alice", "email": "alice@example.com"}</textarea>
+  </div>
+
+  <div class="field-row" style="align-items:center;">
+    <div class="field" style="min-width:140px;">
+      <label>User-Agent</label>
+      <select id="rb-ua" onchange="rbUpdate()">
+        <option value="curl/8.1.0">curl/8.1.0</option>
+        <option value="Mozilla/5.0 (Windows NT 10.0) Chrome/124.0">Chrome (Desktop)</option>
+        <option value="Mozilla/5.0 (iPhone; CPU iPhone OS 17_0)">Safari (iOS)</option>
+        <option value="MyApp/2.3.1 (Go; linux/amd64)">Custom App</option>
+      </select>
+    </div>
+    <div class="field" style="min-width:120px;">
+      <label>Connection</label>
+      <select id="rb-conn" onchange="rbUpdate()">
+        <option value="keep-alive" selected>keep-alive</option>
+        <option value="close">close</option>
+      </select>
+    </div>
+    <div style="align-self:flex-end;">
+      <button class="btn btn-secondary" onclick="rbPreset('get')">Mẫu: GET list</button>
+      <button class="btn btn-secondary" onclick="rbPreset('post')">Mẫu: POST create</button>
+      <button class="btn btn-secondary" onclick="rbPreset('delete')">Mẫu: DELETE</button>
+    </div>
+  </div>
+
+  <div class="raw-http" id="rb-output">Đang tạo...</div>
+
+  <div class="info-box" id="rb-info" style="margin-top:12px;"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — Request/Response Simulator
+     ═══════════════════════════════════════════════════════════ -->
+<h2>2. Mô phỏng Request / Response theo tình huống</h2>
+<div class="card">
+  <p>Chọn một tình huống — xem request gửi lên và response server trả về với status code phù hợp.</p>
+
+  <div class="scenario-grid" id="sc-grid"></div>
+
+  <div class="sim-stage" id="sim-stage" style="display:none;">
+    <div class="sim-box">
+      <div class="sim-box-title req">→ REQUEST (Client gửi)</div>
+      <div class="raw-http" id="sim-req" style="border-radius:0 0 8px 8px; min-height:100px;"></div>
+    </div>
+    <div class="sim-box">
+      <div class="sim-box-title res">← RESPONSE (Server trả)</div>
+      <div class="raw-http" id="sim-res" style="border-radius:0 0 8px 8px; min-height:100px;"></div>
+    </div>
+  </div>
+
+  <div class="info-box" id="sim-explain" style="display:none; margin-top:0;"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — Status Code Table
+     ═══════════════════════════════════════════════════════════ -->
+<h2>3. Bảng Status Code tra cứu</h2>
+<div class="card">
+  <p>Click vào mã code để xem giải thích chi tiết và ví dụ tình huống.</p>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="scFilter('all', this)">Tất cả</button>
+    <button class="filter-btn" onclick="scFilter('1xx', this)">1xx — Thông tin</button>
+    <button class="filter-btn" onclick="scFilter('2xx', this)">2xx — Thành công</button>
+    <button class="filter-btn" onclick="scFilter('3xx', this)">3xx — Redirect</button>
+    <button class="filter-btn" onclick="scFilter('4xx', this)">4xx — Lỗi client</button>
+    <button class="filter-btn" onclick="scFilter('5xx', this)">5xx — Lỗi server</button>
+  </div>
+
+  <div style="overflow-x:auto;">
+    <table class="status-table" id="sc-table">
+      <thead>
+        <tr>
+          <th style="width:80px;">Mã</th>
+          <th style="width:160px;">Tên</th>
+          <th>Ý nghĩa &amp; Ví dụ</th>
+        </tr>
+      </thead>
+      <tbody id="sc-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="detail-panel" id="sc-detail"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — TCP + HTTP Timeline
+     ═══════════════════════════════════════════════════════════ -->
+<h2>4. Timeline: TCP Handshake → HTTP → Response</h2>
+<div class="card">
+  <p>Minh họa trình tự từ kết nối TCP đến request HTTP rồi nhận response. Chọn kịch bản để xem sự khác nhau.</p>
+
+  <div class="field-row" style="margin-bottom:12px;">
+    <div class="field">
+      <label>Kịch bản</label>
+      <select id="tl-scenario" onchange="tlDraw()">
+        <option value="http11">HTTP/1.1 — Request đơn (keep-alive)</option>
+        <option value="http11-2req">HTTP/1.1 — 2 Request liên tiếp (persistent)</option>
+        <option value="https">HTTPS — HTTP/1.1 + TLS 1.3</option>
+        <option value="redirect">HTTP → Redirect 301 → HTTPS</option>
+      </select>
+    </div>
+    <div style="align-self:flex-end;">
+      <button class="btn btn-secondary" onclick="tlDraw()">Vẽ lại</button>
+    </div>
+  </div>
+
+  <div id="tl-stage">
+    <svg id="tl-svg" width="640" height="420" viewBox="0 0 640 420"></svg>
+  </div>
+
+  <div class="info-box" id="tl-explain" style="margin-top:12px;"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+// ════════════════════════════════════════════════════════════
+// MODULE 1 — REQUEST BUILDER
+// ════════════════════════════════════════════════════════════
+
+const METHOD_INFO = {
+  GET:     { safe: true,  idempotent: true,  body: false, desc: 'Lấy tài nguyên — safe & idempotent. Không có body. Có thể cache.' },
+  HEAD:    { safe: true,  idempotent: true,  body: false, desc: 'Như GET nhưng response không có body. Dùng kiểm tra file tồn tại / lấy metadata.' },
+  POST:    { safe: false, idempotent: false, body: true,  desc: 'Tạo tài nguyên mới / thực hiện hành động. Không safe, không idempotent — mỗi lần gọi có thể tạo mới.' },
+  PUT:     { safe: false, idempotent: true,  body: true,  desc: 'Thay toàn bộ tài nguyên. Idempotent — gọi lại với cùng body cho cùng kết quả.' },
+  PATCH:   { safe: false, idempotent: false, body: true,  desc: 'Cập nhật một phần tài nguyên. Chỉ gửi những field cần thay đổi.' },
+  DELETE:  { safe: false, idempotent: true,  body: false, desc: 'Xóa tài nguyên. Idempotent — xóa lần 2 vẫn "không còn tài nguyên đó".' },
+  OPTIONS: { safe: true,  idempotent: true,  body: false, desc: 'Hỏi server hỗ trợ method nào. Dùng trong CORS preflight của trình duyệt.' },
+};
+
+function rbHighlight(raw) {
+  // Escape HTML first
+  const e = raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const lines = e.split('\n');
+  let inBody = false;
+  let emptyFound = false;
+  return lines.map((line, i) => {
+    if (i === 0) return `<span class="req-line">${line}</span>`;
+    if (!emptyFound && line === '') {
+      emptyFound = true;
+      return `<span class="empty-ln">&lt;dòng trống CRLF&gt;</span>`;
+    }
+    if (emptyFound) return `<span class="body-txt">${line}</span>`;
+    // Header line
+    const colon = line.indexOf(':');
+    if (colon > 0) {
+      const k = line.slice(0, colon + 1);
+      const v = line.slice(colon + 1);
+      return `<span class="hdr-key">${k}</span><span class="hdr-val">${v}</span>`;
+    }
+    return line;
+  }).join('\n');
+}
+
+function rbUpdate() {
+  const method  = document.getElementById('rb-method').value;
+  const path    = document.getElementById('rb-path').value.trim() || '/';
+  const host    = document.getElementById('rb-host').value.trim() || 'example.com';
+  const ctype   = document.getElementById('rb-ctype').value;
+  const accept  = document.getElementById('rb-accept').value;
+  const auth    = document.getElementById('rb-auth').value;
+  const ua      = document.getElementById('rb-ua').value;
+  const conn    = document.getElementById('rb-conn').value;
+  const bodyRaw = document.getElementById('rb-body').value;
+  const info    = METHOD_INFO[method];
+
+  // Build body: ignore if method normally has no body
+  const body = (info.body && bodyRaw.trim()) ? bodyRaw.trim() : '';
+  const bodyBytes = new TextEncoder().encode(body).length;
+
+  let raw = `${method} ${path} HTTP/1.1\n`;
+  raw += `Host: ${host}\n`;
+  if (accept) raw += `Accept: ${accept}\n`;
+  if (auth)   raw += `Authorization: ${auth}\n`;
+  if (ua)     raw += `User-Agent: ${ua}\n`;
+  if (conn)   raw += `Connection: ${conn}\n`;
+  if (body && ctype) raw += `Content-Type: ${ctype}\n`;
+  if (body)          raw += `Content-Length: ${bodyBytes}\n`;
+  raw += '\n';
+  if (body) raw += body;
+
+  document.getElementById('rb-output').innerHTML = rbHighlight(raw);
+
+  // Info box
+  const safeLabel = info.safe
+    ? '<span style="color:#16a34a;font-weight:700;">Safe</span> — không thay đổi server'
+    : '<span style="color:#dc2626;font-weight:700;">Không Safe</span> — có thể thay đổi server';
+  const idLabel = info.idempotent
+    ? '<span style="color:#0369a1;font-weight:700;">Idempotent</span> — gọi nhiều lần = gọi 1 lần'
+    : '<span style="color:#d97706;font-weight:700;">Không Idempotent</span> — mỗi lần gọi có thể khác';
+  document.getElementById('rb-info').innerHTML =
+    `<strong>${method}</strong>: ${info.desc}<br>
+     ${safeLabel} &nbsp;|&nbsp; ${idLabel}<br>
+     Body: ${info.body ? 'Có (gửi data)' : 'Không (thường bỏ qua)'}` +
+    (body ? `<br>Kích thước body: <strong>${bodyBytes} byte</strong>` : '');
+}
+
+function rbPreset(type) {
+  if (type === 'get') {
+    document.getElementById('rb-method').value = 'GET';
+    document.getElementById('rb-path').value = '/api/products?page=1&limit=20';
+    document.getElementById('rb-ctype').value = '';
+    document.getElementById('rb-accept').value = 'application/json';
+    document.getElementById('rb-body').value = '';
+  } else if (type === 'post') {
+    document.getElementById('rb-method').value = 'POST';
+    document.getElementById('rb-path').value = '/api/products';
+    document.getElementById('rb-ctype').value = 'application/json';
+    document.getElementById('rb-accept').value = 'application/json';
+    document.getElementById('rb-body').value = '{"name": "Bàn phím cơ", "price": 850000, "stock": 50}';
+  } else if (type === 'delete') {
+    document.getElementById('rb-method').value = 'DELETE';
+    document.getElementById('rb-path').value = '/api/products/42';
+    document.getElementById('rb-ctype').value = '';
+    document.getElementById('rb-accept').value = 'application/json';
+    document.getElementById('rb-auth').value = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMTIzIn0.abc';
+    document.getElementById('rb-body').value = '';
+  }
+  rbUpdate();
+}
+
+// ════════════════════════════════════════════════════════════
+// MODULE 2 — SCENARIO SIMULATOR
+// ════════════════════════════════════════════════════════════
+
+const SCENARIOS = [
+  {
+    id: 'ok',
+    title: 'GET thành công',
+    desc: 'Lấy danh sách sản phẩm',
+    req: `GET /api/products HTTP/1.1
+Host: shop.vn
+Accept: application/json
+User-Agent: Chrome/124.0
+Connection: keep-alive
+
+`,
+    res: `HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 98
+Cache-Control: max-age=60
+Connection: keep-alive
+
+[{"id":1,"name":"Chuột Logitech","price":350000},{"id":2,"name":"Bàn phím cơ","price":850000}]`,
+    explain: '<strong>200 OK</strong> — Request thành công. Body là JSON danh sách sản phẩm. <code>Cache-Control: max-age=60</code> → client có thể cache 60 giây trước khi hỏi lại.',
+    statusClass: 's2xx',
+  },
+  {
+    id: 'created',
+    title: 'POST → 201 Created',
+    desc: 'Tạo tài nguyên mới',
+    req: `POST /api/orders HTTP/1.1
+Host: shop.vn
+Content-Type: application/json
+Content-Length: 56
+Authorization: Bearer eyJ...token...
+
+{"product_id": 1, "quantity": 2, "address": "Hà Nội"}`,
+    res: `HTTP/1.1 201 Created
+Content-Type: application/json
+Location: /api/orders/789
+Content-Length: 48
+
+{"id": 789, "status": "pending", "total": 700000}`,
+    explain: '<strong>201 Created</strong> — Đơn hàng được tạo thành công. Header <code>Location: /api/orders/789</code> trỏ đến tài nguyên vừa tạo — client có thể dùng URL này để GET chi tiết.',
+    statusClass: 's2xx',
+  },
+  {
+    id: 'notmodified',
+    title: 'GET → 304 Not Modified',
+    desc: 'Cache còn hợp lệ',
+    req: `GET /assets/logo.png HTTP/1.1
+Host: shop.vn
+If-None-Match: "img-etag-v3"
+If-Modified-Since: Thu, 29 May 2026 00:00:00 GMT
+
+`,
+    res: `HTTP/1.1 304 Not Modified
+ETag: "img-etag-v3"
+Cache-Control: max-age=86400
+
+`,
+    explain: '<strong>304 Not Modified</strong> — Nội dung chưa thay đổi. Server không gửi body (tiết kiệm băng thông). Client dùng lại ảnh từ cache local. ETag khớp → cache vẫn còn hợp lệ thêm 86400 giây (1 ngày).',
+    statusClass: 's3xx',
+  },
+  {
+    id: 'redirect',
+    title: 'HTTP → 301 → HTTPS',
+    desc: 'Chuyển hướng vĩnh viễn',
+    req: `GET / HTTP/1.1
+Host: example.com
+User-Agent: Chrome/124.0
+
+`,
+    res: `HTTP/1.1 301 Moved Permanently
+Location: https://example.com/
+Content-Length: 0
+Connection: close
+
+`,
+    explain: '<strong>301 Moved Permanently</strong> — Domain HTTP đã chuyển vĩnh viễn sang HTTPS. Trình duyệt tự follow <code>Location</code> và gửi lại request sang <code>https://example.com/</code>. Trình duyệt nhớ redirect này → lần sau tự đi thẳng HTTPS mà không cần hỏi lại.',
+    statusClass: 's3xx',
+  },
+  {
+    id: 'badrequest',
+    title: 'POST → 400 Bad Request',
+    desc: 'Dữ liệu gửi lên sai',
+    req: `POST /api/users/register HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
+Content-Length: 28
+
+{"username": "", "age": -5}`,
+    res: `HTTP/1.1 400 Bad Request
+Content-Type: application/json
+Content-Length: 86
+
+{"errors": [{"field":"username","msg":"không được rỗng"},{"field":"age","msg":"phải >= 0"}]}`,
+    explain: '<strong>400 Bad Request</strong> — Request sai dữ liệu đầu vào. Server trả danh sách lỗi cụ thể theo từng field để client hiển thị thông báo cho người dùng. Khác với 422 (dữ liệu hợp lệ cú pháp nhưng sai logic nghiệp vụ).',
+    statusClass: 's4xx',
+  },
+  {
+    id: 'unauthorized',
+    title: 'GET → 401 Unauthorized',
+    desc: 'Chưa xác thực',
+    req: `GET /api/profile HTTP/1.1
+Host: api.example.com
+Accept: application/json
+
+`,
+    res: `HTTP/1.1 401 Unauthorized
+WWW-Authenticate: Bearer realm="api.example.com"
+Content-Type: application/json
+Content-Length: 38
+
+{"error": "authentication required"}`,
+    explain: '<strong>401 Unauthorized</strong> — Client chưa gửi token xác thực. Header <code>WWW-Authenticate</code> nói với client nên dùng scheme nào (Bearer JWT). Client cần đăng nhập để lấy token rồi gửi lại với <code>Authorization: Bearer &lt;token&gt;</code>.',
+    statusClass: 's4xx',
+  },
+  {
+    id: 'forbidden',
+    title: 'GET → 403 Forbidden',
+    desc: 'Không có quyền truy cập',
+    req: `GET /admin/users HTTP/1.1
+Host: api.example.com
+Authorization: Bearer eyJ...user-token...
+Accept: application/json
+
+`,
+    res: `HTTP/1.1 403 Forbidden
+Content-Type: application/json
+Content-Length: 47
+
+{"error": "admin role required", "code": 4030}`,
+    explain: '<strong>403 Forbidden</strong> — Server biết bạn là ai (token hợp lệ) nhưng bạn không có quyền admin. Khác 401 (chưa biết bạn là ai). Client không cần đăng nhập lại — cần được cấp quyền admin.',
+    statusClass: 's4xx',
+  },
+  {
+    id: 'notfound',
+    title: 'GET → 404 Not Found',
+    desc: 'Tài nguyên không tồn tại',
+    req: `GET /api/products/99999 HTTP/1.1
+Host: shop.vn
+Accept: application/json
+
+`,
+    res: `HTTP/1.1 404 Not Found
+Content-Type: application/json
+Content-Length: 47
+
+{"error": "product not found", "product_id": 99999}`,
+    explain: '<strong>404 Not Found</strong> — Sản phẩm ID 99999 không tồn tại trong database. Đây là lỗi phía client (sai ID). Response body cung cấp thêm context. Lưu ý: 404 không đồng nghĩa với "URL sai cú pháp" — URL đúng nhưng tài nguyên không tồn tại.',
+    statusClass: 's4xx',
+  },
+  {
+    id: 'servererror',
+    title: 'GET → 500 Internal Server Error',
+    desc: 'Lỗi server không xử lý được',
+    req: `GET /api/reports/monthly HTTP/1.1
+Host: api.example.com
+Authorization: Bearer eyJ...token...
+Accept: application/json
+
+`,
+    res: `HTTP/1.1 500 Internal Server Error
+Content-Type: application/json
+Content-Length: 65
+
+{"error": "database timeout after 30s", "request_id": "req-abc12"}`,
+    explain: '<strong>500 Internal Server Error</strong> — Lỗi phía server, không phải lỗi client. Server có thể đang gặp sự cố database, exception chưa xử lý, v.v. Client nên thử lại sau vài giây. <code>request_id</code> giúp dev tra log server.',
+    statusClass: 's5xx',
+  },
+  {
+    id: 'badgateway',
+    title: 'GET → 502 Bad Gateway',
+    desc: 'Nginx không kết nối được backend',
+    req: `GET /api/search?q=laptop HTTP/1.1
+Host: shop.vn
+Accept: application/json
+
+`,
+    res: `HTTP/1.1 502 Bad Gateway
+Content-Type: text/html
+Content-Length: 150
+
+<html><body><h1>502 Bad Gateway</h1>
+<p>nginx/1.24.0 — upstream connect error</p>
+</body></html>`,
+    explain: '<strong>502 Bad Gateway</strong> — Nginx (reverse proxy) nhận được response không hợp lệ từ Node.js backend (đang crash hoặc restart). Nginx vẫn hoạt động — chỉ backend bị lỗi. Khác 503 (service hoàn toàn không phản hồi).',
+    statusClass: 's5xx',
+  },
+];
+
+let currentScenario = null;
+
+function renderScenarios() {
+  const grid = document.getElementById('sc-grid');
+  grid.innerHTML = '';
+  SCENARIOS.forEach(sc => {
+    const card = document.createElement('div');
+    card.className = 'sc-card';
+    card.dataset.id = sc.id;
+    card.innerHTML = `<div class="sc-title">${sc.title}</div><div class="sc-desc">${sc.desc}</div>`;
+    card.onclick = () => selectScenario(sc.id);
+    grid.appendChild(card);
+  });
+}
+
+function formatRawHttp(raw) {
+  const e = raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const lines = e.split('\n');
+  let emptyFound = false;
+  return lines.map((line, i) => {
+    if (i === 0) return `<span class="req-line">${line}</span>`;
+    if (!emptyFound && line.trim() === '') {
+      emptyFound = true;
+      return `<span class="empty-ln">&lt;dòng trống&gt;</span>`;
+    }
+    if (emptyFound) return `<span class="body-txt">${line}</span>`;
+    const colon = line.indexOf(':');
+    if (colon > 0) {
+      return `<span class="hdr-key">${line.slice(0, colon+1)}</span><span class="hdr-val">${line.slice(colon+1)}</span>`;
+    }
+    return line;
+  }).join('\n');
+}
+
+function selectScenario(id) {
+  const sc = SCENARIOS.find(s => s.id === id);
+  if (!sc) return;
+  currentScenario = id;
+
+  document.querySelectorAll('.sc-card').forEach(c => {
+    c.classList.toggle('active', c.dataset.id === id);
+  });
+
+  document.getElementById('sim-req').innerHTML = formatRawHttp(sc.req);
+  document.getElementById('sim-res').innerHTML = formatRawHttp(sc.res);
+
+  const stage = document.getElementById('sim-stage');
+  const explain = document.getElementById('sim-explain');
+  stage.style.display = 'grid';
+  explain.style.display = 'block';
+  explain.innerHTML = `<span class="status-badge ${sc.statusClass}">${sc.res.split('\n')[0]}</span><br>${sc.explain}`;
+}
+
+// ════════════════════════════════════════════════════════════
+// MODULE 3 — STATUS CODE TABLE
+// ════════════════════════════════════════════════════════════
+
+const STATUS_CODES = [
+  // 1xx
+  { code: 100, name: 'Continue', group: '1xx', brief: 'Server đã nhận header, client tiếp tục gửi body', detail: 'Dùng với header <code>Expect: 100-continue</code>. Client gửi header trước (kể cả Content-Length), server xác nhận 100 nếu sẵn sàng nhận body lớn. Hữu ích khi upload file 100MB — tránh gửi rồi nhận 413 Request Too Large khi đã tốn băng thông.' },
+  { code: 101, name: 'Switching Protocols', group: '1xx', brief: 'Server đồng ý nâng cấp giao thức (WebSocket)', detail: 'Client gửi <code>Upgrade: websocket</code> trong header. Server đồng ý → trả 101 + <code>Upgrade: websocket</code>. Sau đó kết nối TCP được dùng làm WebSocket — không còn là HTTP nữa. Xem Lesson 07.' },
+  // 2xx
+  { code: 200, name: 'OK', group: '2xx', brief: 'Thành công — có body', detail: 'Phổ biến nhất. GET, PUT, PATCH thành công → 200 + body. Response body phụ thuộc method: GET trả tài nguyên, PUT/PATCH trả tài nguyên đã cập nhật.' },
+  { code: 201, name: 'Created', group: '2xx', brief: 'Đã tạo tài nguyên mới', detail: 'POST tạo resource thành công → 201 + <code>Location: /api/resource/123</code> trỏ đến resource vừa tạo. Đừng dùng 200 cho trường hợp này — semantics khác nhau.' },
+  { code: 204, name: 'No Content', group: '2xx', brief: 'Thành công — không có body', detail: 'DELETE thành công, PATCH không cần trả data, hoặc bất kỳ action thành công nhưng không có gì để trả. Body hoàn toàn rỗng — Content-Length không xuất hiện hoặc là 0.' },
+  { code: 206, name: 'Partial Content', group: '2xx', brief: 'Trả một phần file (range request)', detail: 'Client gửi <code>Range: bytes=0-1023</code> để tải từng phần (resume download, video streaming). Server trả phần được yêu cầu + <code>Content-Range: bytes 0-1023/50000</code>. Nếu server không hỗ trợ range → trả 200 + toàn bộ file.' },
+  // 3xx
+  { code: 301, name: 'Moved Permanently', group: '3xx', brief: 'Chuyển hướng vĩnh viễn — trình duyệt nhớ', detail: 'URL đã chuyển sang địa chỉ mới vĩnh viễn. Trình duyệt nhớ và tự redirect lần sau không hỏi server. SEO: "link juice" chuyển sang URL mới. Dùng cho: HTTP → HTTPS, domain thay đổi, URL tái cấu trúc vĩnh viễn.' },
+  { code: 302, name: 'Found (Moved Temporarily)', group: '3xx', brief: 'Chuyển hướng tạm thời', detail: 'URL tạm thời ở địa chỉ khác. Mỗi lần vẫn hỏi server. SEO: không chuyển link juice. Dùng cho: sau POST login → redirect về dashboard, A/B testing, maintenance page tạm.' },
+  { code: 304, name: 'Not Modified', group: '3xx', brief: 'Cache còn hợp lệ — không gửi body', detail: 'Client gửi <code>If-None-Match: "etag"</code> hoặc <code>If-Modified-Since: date</code>. Server so sánh: nếu nội dung chưa đổi → 304 body rỗng. Client dùng lại từ cache. Tiết kiệm hoàn toàn bandwidth (chỉ mất 1 RTT để xác nhận).' },
+  { code: 307, name: 'Temporary Redirect', group: '3xx', brief: 'Redirect tạm thời — giữ nguyên method', detail: '302 đôi khi bị trình duyệt chuyển POST → GET khi redirect. 307 đảm bảo giữ nguyên method POST sau redirect (RFC 7231). Dùng 307 khi cần redirect POST sang URL khác mà vẫn muốn POST.' },
+  // 4xx
+  { code: 400, name: 'Bad Request', group: '4xx', brief: 'Lỗi cú pháp / dữ liệu không hợp lệ', detail: 'Request sai cú pháp, JSON không hợp lệ, thiếu field bắt buộc, tham số sai kiểu. Server không thể parse/xử lý. Nên trả body giải thích lỗi cụ thể để client biết cần sửa gì.' },
+  { code: 401, name: 'Unauthorized', group: '4xx', brief: 'Chưa xác thực — cần đăng nhập', detail: 'Server không biết bạn là ai. Cần gửi credentials. Response nên có header <code>WWW-Authenticate</code> nói scheme nào. Ví dụ: gọi API không có Bearer token, Basic Auth sai.' },
+  { code: 403, name: 'Forbidden', group: '4xx', brief: 'Đã xác thực nhưng không có quyền', detail: 'Server biết bạn là ai (authentication OK) nhưng bạn không được phép (authorization fail). Ví dụ: user thường truy cập /admin. Khác 401: 403 không cần đăng nhập lại — cần được cấp quyền.' },
+  { code: 404, name: 'Not Found', group: '4xx', brief: 'Tài nguyên không tồn tại', detail: 'URL hợp lệ nhưng tài nguyên không có. Hoặc server cố tình trả 404 thay 403 để không lộ sự tồn tại của resource (security by obscurity). Phân biệt: 404 = không có; 410 Gone = có rồi nhưng đã xóa vĩnh viễn.' },
+  { code: 405, name: 'Method Not Allowed', group: '4xx', brief: 'Server không cho phép method này trên endpoint', detail: 'Ví dụ: endpoint /api/products chỉ hỗ trợ GET, client gửi DELETE → 405 + header <code>Allow: GET, POST</code> liệt kê method được phép. Hữu ích để debug API.' },
+  { code: 409, name: 'Conflict', group: '4xx', brief: 'Xung đột trạng thái tài nguyên', detail: 'Thường gặp: POST tạo user với email đã tồn tại, PUT cập nhật với version number cũ (optimistic locking), tạo thư mục đã có tên. Server không thể thực hiện vì sẽ gây conflict.' },
+  { code: 422, name: 'Unprocessable Entity', group: '4xx', brief: 'Dữ liệu đúng cú pháp nhưng sai logic', detail: 'JSON parse được nhưng nội dung vi phạm business rules: ngày sinh = tương lai, số lượng âm, trường required nhưng null. Khác 400 (sai cú pháp) và 409 (xung đột). Phổ biến trong REST API.' },
+  { code: 429, name: 'Too Many Requests', group: '4xx', brief: 'Gửi quá nhiều request (rate limiting)', detail: 'Server rate-limit client. Response nên có header <code>Retry-After: 60</code> (giây) hoặc timestamp để client biết khi nào được thử lại. Tránh brute-force, bảo vệ server khỏi quá tải.' },
+  // 5xx
+  { code: 500, name: 'Internal Server Error', group: '5xx', brief: 'Lỗi chung phía server — code bug', detail: 'Exception chưa xử lý, null pointer, database error. Lỗi do server, không phải client. Nên log chi tiết phía server (không lộ stack trace ra response). Trả request_id để dev tra log.' },
+  { code: 502, name: 'Bad Gateway', group: '5xx', brief: 'Proxy nhận response không hợp lệ từ upstream', detail: 'Nginx/load balancer nhận response sai format hoặc connection reset từ backend (Node.js, Python app đang crash). Nginx vẫn chạy; backend gặp sự cố. Khác 503 (upstream không phản hồi trong timeout).' },
+  { code: 503, name: 'Service Unavailable', group: '5xx', brief: 'Server quá tải hoặc đang bảo trì', detail: 'Server không thể xử lý: đang deploy phiên bản mới, quá tải, auto-scaling chưa kịp. Nên trả <code>Retry-After</code> header. Load balancer thường trả 503 khi tất cả backend instances down.' },
+  { code: 504, name: 'Gateway Timeout', group: '5xx', brief: 'Proxy timeout khi chờ upstream', detail: 'Nginx đợi backend quá lâu (ví dụ backend xử lý query phức tạp mất 60 giây, Nginx timeout 30 giây). Khác 502: 502 nhận response sai, 504 không nhận được response trong timeout.' },
+];
+
+let scCurrentFilter = 'all';
+let scActiveCode = null;
+
+function renderStatusTable(filter) {
+  const tbody = document.getElementById('sc-tbody');
+  tbody.innerHTML = '';
+  const groups = ['1xx','2xx','3xx','4xx','5xx'];
+  const groupNames = {
+    '1xx': '1xx — Thông tin (Informational)',
+    '2xx': '2xx — Thành công (Success)',
+    '3xx': '3xx — Chuyển hướng (Redirection)',
+    '4xx': '4xx — Lỗi phía Client (Client Error)',
+    '5xx': '5xx — Lỗi phía Server (Server Error)',
+  };
+  const groupColors = {
+    '1xx':'#64748b', '2xx':'#16a34a', '3xx':'#d97706', '4xx':'#dc2626', '5xx':'#7c3aed',
+  };
+
+  groups.forEach(g => {
+    if (filter !== 'all' && filter !== g) return;
+    const items = STATUS_CODES.filter(s => s.group === g);
+    if (!items.length) return;
+
+    const groupRow = document.createElement('tr');
+    groupRow.className = 'group-header';
+    groupRow.dataset.group = g;
+    groupRow.innerHTML = `<td colspan="3" style="color:${groupColors[g]}">${groupNames[g]}</td>`;
+    tbody.appendChild(groupRow);
+
+    items.forEach(s => {
+      const tr = document.createElement('tr');
+      tr.dataset.group = g;
+      tr.innerHTML = `
+        <td class="code-cell" style="color:${groupColors[g]}"
+            onclick="scShowDetail(${s.code})">${s.code}</td>
+        <td style="font-weight:600;">${s.name}</td>
+        <td>${s.brief}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  });
+}
+
+function scFilter(group, btn) {
+  scCurrentFilter = group;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  scActiveCode = null;
+  document.getElementById('sc-detail').classList.remove('visible');
+  renderStatusTable(group);
+}
+
+function scShowDetail(code) {
+  const s = STATUS_CODES.find(x => x.code === code);
+  if (!s) return;
+  scActiveCode = code;
+  const panel = document.getElementById('sc-detail');
+  panel.innerHTML = `<strong style="font-size:16px;color:var(--http-blue);">${s.code} ${s.name}</strong><br>${s.detail}`;
+  panel.classList.add('visible');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ════════════════════════════════════════════════════════════
+// MODULE 4 — TCP + HTTP TIMELINE
+// ════════════════════════════════════════════════════════════
+
+function tlDraw() {
+  const scenario = document.getElementById('tl-scenario').value;
+  const svg = document.getElementById('tl-svg');
+  svg.innerHTML = '';
+
+  const W = 640, H = 420;
+  const xC = 120, xS = 520; // client, server x
+  const yTop = 30;
+
+  // Arrow defs
+  const defs = svgEl('defs');
+  ['#0369a1','#7c3aed','#16a34a','#dc2626','#d97706','#374151'].forEach((color, i) => {
+    const mid = svgEl('marker', { id:`tm${i}`, markerWidth:'8', markerHeight:'8', refX:'6', refY:'3', orient:'auto' });
+    const p = svgEl('path', { d:'M0,0 L0,6 L8,3 z', fill: color });
+    mid.appendChild(p);
+    defs.appendChild(mid);
+  });
+  svg.appendChild(defs);
+
+  const COLORS = { tcp:'#0369a1', tls:'#7c3aed', http:'#16a34a', httpres:'#d97706', note:'#374151' };
+  const MARKS  = { tcp:0, tls:1, http:2, httpres:3, note:5 };
+
+  function arrow(x1,y1,x2,y2,color,markIdx) {
+    const line = svgEl('line',{x1,y1,x2,y2,stroke:color,'stroke-width':'2','marker-end':`url(#tm${markIdx})`});
+    svg.appendChild(line);
+  }
+  function arrowDash(x1,y1,x2,y2,color,markIdx) {
+    const line = svgEl('line',{x1,y1,x2,y2,stroke:color,'stroke-width':'2','stroke-dasharray':'5,3','marker-end':`url(#tm${markIdx})`});
+    svg.appendChild(line);
+  }
+  function label(x,y,text,color,bold,fontSize) {
+    const t = svgEl('text',{x,y,'text-anchor':'middle','font-size':fontSize||'12',fill:color||'#374151'});
+    if (bold) t.setAttribute('font-weight','700');
+    t.textContent = text;
+    svg.appendChild(t);
+  }
+  function labelLeft(x,y,text,color,fontSize) {
+    const t = svgEl('text',{x,y,'text-anchor':'start','font-size':fontSize||'11',fill:color||'#374151'});
+    t.textContent = text;
+    svg.appendChild(t);
+  }
+  function rect(x,y,w,h,fill,stroke) {
+    const r = svgEl('rect',{x,y,width:w,height:h,rx:'4',fill:fill||'white',stroke:stroke||'none'});
+    svg.appendChild(r);
+  }
+  function horzLine(y,color) {
+    const l = svgEl('line',{x1:xC,y1:y,x2:xS,y2:y,stroke:color,'stroke-width':'1','stroke-dasharray':'3,3'});
+    svg.appendChild(l);
+  }
+  function timeLine(x,color) {
+    const l = svgEl('line',{x1:x,y1:yTop+30,x2:x,y2:H-20,stroke:color,'stroke-width':'1.5','stroke-dasharray':'4,3'});
+    svg.appendChild(l);
+  }
+
+  // Actors
+  rect(xC-50,yTop,100,30,'#0369a1');
+  label(xC,yTop+19,'CLIENT','white',true,'13');
+  rect(xS-50,yTop,100,30,'#0c4a6e');
+  label(xS,yTop+19,'SERVER','white',true,'13');
+  timeLine(xC,'#0369a1');
+  timeLine(xS,'#0c4a6e');
+
+  // Y bracket helper
+  function midLabel(x,y1,y2,text,color) {
+    const ymid = (y1+y2)/2;
+    rect(x-55,ymid-9,110,18,'white','#e2e8f0');
+    label(x,ymid+5,text,color,true,'11');
+  }
+
+  if (scenario === 'http11') {
+    // TCP handshake
+    const y0 = 80, y1 = 105, y2 = 130;
+    label(W/2, y0-4,'TCP Handshake','#94a3b8',false,'11');
+    arrow(xC,y0,xS-8,y0,COLORS.tcp,MARKS.tcp);
+    labelLeft(xC+10,y0-4,'SYN','#0369a1','11');
+    arrow(xS,y1,xC+8,y1,COLORS.tcp,MARKS.tcp);
+    labelLeft(xS-90,y1-4,'SYN-ACK','#0369a1','11');
+    arrow(xC,y2,xS-8,y2,COLORS.tcp,MARKS.tcp);
+    labelLeft(xC+10,y2-4,'ACK','#0369a1','11');
+
+    horzLine(145,'#e2e8f0');
+    label(W/2,155,'Kết nối TCP được thiết lập','#16a34a',true,'11');
+    horzLine(165,'#e2e8f0');
+
+    // HTTP Request
+    const yReq = 185;
+    arrow(xC,yReq,xS-8,yReq,COLORS.http,MARKS.http);
+    labelLeft(xC+10,yReq-5,'GET /index.html HTTP/1.1','#166534','11');
+
+    // HTTP Response
+    const yRes = 240;
+    arrow(xS,yRes,xC+8,yRes,COLORS.httpres,MARKS.httpres);
+    labelLeft(xS-210,yRes-5,'HTTP/1.1 200 OK + HTML body','#d97706','11');
+
+    // Keep-alive note
+    horzLine(265,'#e2e8f0');
+    label(W/2,278,'Kết nối TCP vẫn mở (keep-alive)','#7c3aed',false,'11');
+    horzLine(288,'#e2e8f0');
+
+    // Second request (dashed = optional)
+    arrowDash(xC,310,xS-8,310,'#94a3b8',5);
+    labelLeft(xC+10,306,'Có thể gửi request tiếp theo ...','#94a3b8','11');
+
+    document.getElementById('tl-explain').innerHTML = '<strong>HTTP/1.1 — Persistent Connection:</strong> Sau TCP handshake (3 bước), client gửi HTTP request. Server trả response. Kết nối TCP giữ mở (<code>Connection: keep-alive</code>) — request tiếp theo không cần handshake lại. Mỗi request vẫn phải chờ response xong mới gửi tiếp (head-of-line blocking).';
+  }
+
+  else if (scenario === 'http11-2req') {
+    // TCP handshake
+    arrow(xC,80,xS-8,80,COLORS.tcp,MARKS.tcp); labelLeft(xC+10,76,'SYN','#0369a1','11');
+    arrow(xS,100,xC+8,100,COLORS.tcp,MARKS.tcp); labelLeft(xS-90,96,'SYN-ACK','#0369a1','11');
+    arrow(xC,120,xS-8,120,COLORS.tcp,MARKS.tcp); labelLeft(xC+10,116,'ACK','#0369a1','11');
+    horzLine(132,'#e2e8f0');
+    label(W/2,142,'Kết nối TCP ổn định','#16a34a',true,'11');
+    horzLine(152,'#e2e8f0');
+
+    // Request 1
+    arrow(xC,165,xS-8,165,COLORS.http,MARKS.http);
+    labelLeft(xC+10,161,'GET /index.html','#166534','11');
+    arrow(xS,200,xC+8,200,COLORS.httpres,MARKS.httpres);
+    labelLeft(xS-195,196,'200 OK + HTML (2.5 KB)','#d97706','11');
+
+    // Request 2 (same connection)
+    arrow(xC,230,xS-8,230,COLORS.http,MARKS.http);
+    labelLeft(xC+10,226,'GET /style.css','#166534','11');
+    arrow(xS,265,xC+8,265,COLORS.httpres,MARKS.httpres);
+    labelLeft(xS-185,261,'200 OK + CSS (8 KB)','#d97706','11');
+
+    // Request 3
+    arrow(xC,295,xS-8,295,COLORS.http,MARKS.http);
+    labelLeft(xC+10,291,'GET /logo.png','#166534','11');
+    arrow(xS,330,xC+8,330,COLORS.httpres,MARKS.httpres);
+    labelLeft(xS-185,326,'200 OK + PNG (15 KB)','#d97706','11');
+
+    // TCP close
+    horzLine(350,'#e2e8f0');
+    arrow(xC,365,xS-8,365,'#94a3b8',5); labelLeft(xC+10,361,'FIN (đóng kết nối)','#64748b','11');
+
+    document.getElementById('tl-explain').innerHTML = '<strong>HTTP/1.1 — 3 request trên 1 kết nối TCP:</strong> Chỉ cần handshake 1 lần. Các request tiếp theo gửi ngay trên kết nối hiện có. Tuy nhiên mỗi request phải đợi response trước xong mới gửi tiếp (serialized). HTTP/2 giải quyết bằng multiplexing — nhiều request cùng lúc.';
+  }
+
+  else if (scenario === 'https') {
+    // TCP
+    arrow(xC,70,xS-8,70,COLORS.tcp,MARKS.tcp); labelLeft(xC+10,66,'SYN (port 443)','#0369a1','11');
+    arrow(xS,88,xC+8,88,COLORS.tcp,MARKS.tcp); labelLeft(xS-95,84,'SYN-ACK','#0369a1','11');
+    arrow(xC,106,xS-8,106,COLORS.tcp,MARKS.tcp); labelLeft(xC+10,102,'ACK','#0369a1','11');
+    horzLine(116,'#e2e8f0');
+    label(W/2,126,'TCP OK','#0369a1',true,'11');
+    horzLine(134,'#e2e8f0');
+
+    // TLS 1.3
+    label(W/2,150,'TLS 1.3 Handshake','#7c3aed',false,'11');
+    arrow(xC,162,xS-8,162,COLORS.tls,MARKS.tls); labelLeft(xC+10,158,'ClientHello (cipher suites, random)','#7c3aed','10');
+    arrow(xS,182,xC+8,182,COLORS.tls,MARKS.tls); labelLeft(xS-285,178,'ServerHello + Certificate + Key Exchange','#7c3aed','10');
+    arrow(xC,202,xS-8,202,COLORS.tls,MARKS.tls); labelLeft(xC+10,198,'Finished (verify cert, session key)','#7c3aed','10');
+    arrow(xS,220,xC+8,220,COLORS.tls,MARKS.tls); labelLeft(xS-130,216,'Finished + ready','#7c3aed','10');
+    horzLine(232,'#e2e8f0');
+    label(W/2,244,'TLS OK — mọi dữ liệu sau đây đều mã hóa','#7c3aed',true,'11');
+    horzLine(254,'#e2e8f0');
+
+    // HTTP (mã hóa)
+    arrow(xC,270,xS-8,270,COLORS.http,MARKS.http);
+    labelLeft(xC+10,266,'[MÃ HÓA] HTTP GET /login','#166534','11');
+    arrow(xS,305,xC+8,305,COLORS.httpres,MARKS.httpres);
+    labelLeft(xS-230,301,'[MÃ HÓA] HTTP 200 OK + body','#d97706','11');
+
+    label(W/2,335,'Người nghe lén chỉ thấy TLS ciphertext','#dc2626',false,'11');
+    label(W/2,353,'Không đọc được headers, URL, body','#dc2626',false,'11');
+
+    document.getElementById('tl-explain').innerHTML = '<strong>HTTPS = HTTP + TLS 1.3:</strong> Sau TCP handshake (3 bước), cần thêm TLS handshake (~1 RTT với TLS 1.3). Sau đó mọi HTTP byte đều được mã hóa. Người nghe lén chỉ thấy dữ liệu mã hóa — không đọc được URL, headers, hay body. Certificate xác minh bạn đang nói chuyện với server thật.';
+  }
+
+  else if (scenario === 'redirect') {
+    // Request 1: HTTP
+    rect(xC-50,yTop,100,30,'#dc2626');
+    label(xC,yTop+19,'CLIENT','white',true,'13');
+    timeLine(xC,'#dc2626');
+
+    label(W/2,68,'Kết nối TCP port 80 (HTTP)','#94a3b8',false,'11');
+    arrow(xC,80,xS-8,80,'#dc2626',4); labelLeft(xC+10,76,'SYN (port 80)','#dc2626','11');
+    arrow(xS,96,xC+8,96,COLORS.tcp,MARKS.tcp); labelLeft(xS-95,92,'SYN-ACK','#0369a1','11');
+    arrow(xC,112,xS-8,112,COLORS.tcp,MARKS.tcp); labelLeft(xC+10,108,'ACK','#0369a1','11');
+
+    arrow(xC,130,xS-8,130,'#dc2626',4); labelLeft(xC+10,126,'GET / HTTP/1.1 (không có TLS!)','#dc2626','11');
+    arrow(xS,155,xC+8,155,COLORS.httpres,MARKS.httpres); labelLeft(xS-295,151,'301 Moved Permanently  Location: https://...','#d97706','11');
+
+    horzLine(170,'#e2e8f0');
+    label(W/2,182,'Trình duyệt tự follow redirect sang HTTPS','#7c3aed',false,'11');
+    horzLine(192,'#e2e8f0');
+
+    // Request 2: HTTPS
+    label(W/2,208,'Kết nối TCP port 443 (HTTPS) + TLS','#0369a1',false,'11');
+    arrow(xC,220,xS-8,220,COLORS.tcp,MARKS.tcp); labelLeft(xC+10,216,'SYN (port 443)','#0369a1','11');
+    arrow(xS,236,xC+8,236,COLORS.tcp,MARKS.tcp); labelLeft(xS-95,232,'SYN-ACK','#0369a1','11');
+    arrow(xC,252,xS-8,252,COLORS.tcp,MARKS.tcp); labelLeft(xC+10,248,'ACK','#0369a1','11');
+
+    label(W/2,275,'TLS Handshake ...','#7c3aed',false,'11');
+
+    arrow(xC,295,xS-8,295,COLORS.http,MARKS.http); labelLeft(xC+10,291,'[TLS] GET / HTTP/1.1','#166534','11');
+    arrow(xS,325,xC+8,325,COLORS.httpres,MARKS.httpres); labelLeft(xS-215,321,'[TLS] 200 OK + HTML','#d97706','11');
+
+    label(xC,355,'Tổng: 2 RTT TCP + 1 RTT TLS','#64748b',false,'11');
+    label(xC,373,'+ 1 RTT HTTP (lần đầu ~4 RTT)','#64748b',false,'11');
+
+    document.getElementById('tl-explain').innerHTML = '<strong>HTTP → 301 Redirect → HTTPS:</strong> Request đầu tiên đi qua HTTP (port 80) không mã hóa. Server trả 301 với <code>Location: https://...</code>. Trình duyệt mở kết nối mới sang port 443, thực hiện TCP + TLS handshake, rồi gửi lại request. Lần đầu mất ~4 RTT. Lần sau trình duyệt nhớ redirect (HSTS) và đi thẳng HTTPS.';
+  }
+}
+
+function svgEl(tag, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  if (attrs) Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
+  return el;
+}
+
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+rbUpdate();
+renderScenarios();
+renderStatusTable('all');
+tlDraw();
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

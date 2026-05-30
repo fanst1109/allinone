@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Pháp xâm lược &amp; Phong trào Cần Vương</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette lịch sử cận đại ── */
+  :root {
+    --accent:      #b45309;
+    --accent-soft: #fef3c7;
+    --accent-dark: #78350f;
+    --red-war:     #b91c1c;
+    --red-soft:    #fee2e2;
+    --green-peace: #15803d;
+    --green-soft:  #dcfce7;
+    --stone:       #78716c;
+    --stone-soft:  #f5f5f4;
+    --blue-water:  #1d4ed8;
+    --blue-soft:   #dbeafe;
+    --bg-card:     #ffffff;
+    --bg-section:  #fffbeb;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.6rem; margin-bottom: 6px; }
+  h2 { color: var(--accent); margin-top: 40px; padding-bottom: 8px;
+       border-bottom: 2px solid var(--accent-soft); font-size: 1.2rem; }
+
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 24px;
+    font-style: italic;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 5px rgba(180,83,9,.12);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .war-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-war);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Nút chung ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 1 — Bản đồ Pháp xâm lược từng bước
+     ══════════════════════════════════════════════ */
+  #map-stage {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .map-step-dots {
+    display: flex;
+    gap: 8px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+  }
+  .map-dot {
+    padding: 4px 12px;
+    border-radius: 14px;
+    border: 2px solid #d1d5db;
+    background: #f9fafb;
+    font-size: 12px;
+    font-weight: 700;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .map-dot.active {
+    background: var(--red-war);
+    border-color: var(--red-war);
+    color: white;
+  }
+  .map-dot.done {
+    background: #78350f;
+    border-color: #78350f;
+    color: white;
+  }
+
+  .event-panel {
+    background: var(--bg-section);
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    min-height: 80px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .event-year {
+    display: inline-block;
+    padding: 2px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--red-war);
+    color: white;
+    margin-bottom: 6px;
+  }
+  .event-treaty {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #7c3aed;
+    color: white;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 2 — Bản đồ trung tâm khởi nghĩa
+     ══════════════════════════════════════════════ */
+  .uprising-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 14px 0;
+  }
+  .uprising-card {
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    border: 2px solid transparent;
+  }
+  .uprising-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+  .uprising-card.selected { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .uc-ba-dinh    { background: #fee2e2; }
+  .uc-bai-say    { background: #dbeafe; }
+  .uc-huong-khe  { background: #dcfce7; }
+  .uc-yen-the    { background: #fef3c7; }
+  .uprising-name { font-size: 15px; font-weight: 700; color: #1f2937; margin-bottom: 4px; }
+  .uprising-tag  { display: inline-block; padding: 1px 8px; border-radius: 10px;
+                   font-size: 11px; font-weight: 700; margin-bottom: 6px; }
+  .tag-can-vuong { background: #fee2e2; color: #991b1b; }
+  .tag-nong-dan  { background: #fef3c7; color: #78350f; }
+  .uprising-detail-panel {
+    background: var(--stone-soft);
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+  }
+  .uprising-detail-panel.show { display: block; }
+  .ud-title { font-weight: 700; font-size: 15px; color: var(--accent-dark); margin-bottom: 8px; }
+  .ud-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .ud-label { font-weight: 600; color: var(--stone); min-width: 100px; }
+
+  @media (max-width: 540px) {
+    .uprising-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 3 — Timeline tương tác 1858–1913
+     ══════════════════════════════════════════════ */
+  .timeline-wrap {
+    position: relative;
+    padding: 8px 0 8px 36px;
+    margin: 8px 0;
+  }
+  .timeline-wrap::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #fbbf24, var(--red-war), #7c3aed, var(--accent), #15803d);
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 6px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: var(--bg-card);
+    border: 1px solid #f3f4f6;
+    cursor: pointer;
+    transition: box-shadow .15s, border-color .15s;
+  }
+  .tl-item:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(180,83,9,.12); }
+  .tl-item.expanded { border-color: var(--accent); background: var(--accent-soft); }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+  }
+  .tl-item.war::before    { background: var(--red-war); box-shadow: 0 0 0 2px var(--red-war); }
+  .tl-item.treaty::before { background: #7c3aed;        box-shadow: 0 0 0 2px #7c3aed; }
+  .tl-item.resist::before { background: var(--green-peace); box-shadow: 0 0 0 2px var(--green-peace); }
+  .tl-item.key::before {
+    width: 18px; height: 18px;
+    left: -30px;
+    background: var(--red-war);
+    box-shadow: 0 0 0 3px var(--red-war), 0 0 0 6px rgba(185,28,28,.2);
+  }
+  .tl-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .tl-year {
+    font-size: 13px; font-weight: 700;
+    color: var(--accent);
+    min-width: 40px;
+  }
+  .tl-item.war .tl-year    { color: var(--red-war); }
+  .tl-item.treaty .tl-year { color: #7c3aed; }
+  .tl-item.resist .tl-year { color: var(--green-peace); }
+  .tl-item.key .tl-year    { color: var(--red-war); font-size: 14px; }
+  .tl-title { font-weight: 700; font-size: 14px; color: #1f2937; flex: 1; min-width: 160px; }
+  .tl-badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .badge-war     { background: #fee2e2; color: #991b1b; }
+  .badge-treaty  { background: #ede9fe; color: #5b21b6; }
+  .badge-resist  { background: var(--green-soft); color: #14532d; }
+  .badge-key     { background: #fee2e2; color: #7f1d1d; }
+  .tl-body {
+    font-size: 13px; color: #4b5563;
+    margin-top: 8px; line-height: 1.6;
+    display: none;
+  }
+  .tl-item.expanded .tl-body { display: block; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 4 — Quiz
+     ══════════════════════════════════════════════ */
+  .quiz-q {
+    font-weight: 700; font-size: 15px;
+    margin-bottom: 12px; color: #1f2937; line-height: 1.5;
+  }
+  .quiz-opts {
+    display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;
+  }
+  .quiz-opt {
+    padding: 10px 14px;
+    border-radius: 7px;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover  { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: var(--green-peace); background: var(--green-soft); color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px; border-radius: 8px;
+    font-size: 14px; line-height: 1.6;
+    margin-top: 8px; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: var(--green-soft); color: #14532d; border: 1px solid var(--green-peace); }
+  .quiz-feedback.err { background: var(--red-soft);   color: #991b1b; border: 1px solid var(--red-war); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score    { font-weight: 700; color: var(--green-peace); font-size: 15px; }
+
+  @media (max-width: 600px) {
+    .card { padding: 14px 14px; }
+    h2 { font-size: 1.05rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử VN — Hiện đại</a>
+  <span class="sep">·</span>
+  <a href="../../02-Monarchical-Dynasties/lesson-08-tong-ket-quan-chu/visualization.html">← T2: Tổng kết</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Pháp xâm lược &amp; Cần Vương</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-phong-trao-yeu-nuoc-dau-xx/visualization.html">L2: Phong trào yêu nước đầu XX →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — Pháp xâm lược &amp; Phong trào Cần Vương</h1>
+<p class="subtitle">Bản đồ xâm lược từng bước 1858–1884 · Các trung tâm khởi nghĩa · Timeline 1858–1913 · Ôn tập</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ Pháp xâm lược từng bước (SVG động)
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ Pháp xâm lược từng bước (1858–1884)</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Nhấn <strong>Bước tiếp theo</strong> hoặc click vào từng mốc để xem quá trình Pháp chiếm dần lãnh thổ Việt Nam theo từng giai đoạn.
+  </div>
+
+  <div class="map-step-dots" id="map-dots"></div>
+
+  <div id="map-stage">
+    <svg id="invasion-map" width="680" height="480" viewBox="0 0 680 480"
+         style="display:block; margin:0 auto; border-radius:8px; background:#e0f2fe;">
+      <!-- Nền biển -->
+      <rect width="680" height="480" fill="#bae6fd"/>
+
+      <!-- === PHẦN ĐẤT LIỀN VIỆT NAM (đơn giản hóa) === -->
+      <!-- Toàn lãnh thổ — màu nền -->
+      <path id="vn-land" d="
+        M 260 30
+        C 290 28, 340 35, 370 50
+        C 400 65, 420 80, 430 100
+        C 445 125, 450 145, 448 165
+        C 446 185, 435 200, 420 215
+        C 405 230, 390 240, 375 255
+        C 360 270, 345 280, 335 295
+        C 320 315, 315 335, 315 355
+        C 315 375, 320 400, 330 420
+        C 340 438, 355 450, 365 460
+        C 345 465, 310 468, 290 465
+        C 270 462, 255 450, 245 435
+        C 232 415, 220 390, 218 365
+        C 216 340, 225 315, 228 295
+        C 232 270, 230 250, 218 235
+        C 206 220, 190 210, 180 200
+        C 165 185, 158 170, 160 155
+        C 162 140, 172 125, 180 112
+        C 192 94, 205 78, 218 62
+        C 232 45, 248 32, 260 30
+        Z
+      " fill="#d4a76a" stroke="#b45309" stroke-width="1.5"/>
+
+      <!-- Biên giới phân vùng (mờ) -->
+      <!-- Đường chia Bắc Kỳ / Trung Kỳ ~vĩ tuyến -->
+      <line x1="170" y1="200" x2="430" y2="200" stroke="#b45309" stroke-width="0.8" stroke-dasharray="4,3" opacity="0.5"/>
+      <!-- Đường chia Trung Kỳ / Nam Kỳ -->
+      <line x1="215" y1="340" x2="340" y2="340" stroke="#b45309" stroke-width="0.8" stroke-dasharray="4,3" opacity="0.5"/>
+
+      <!-- === LỚP MÀU VÙNG BỊ CHIẾM (ẩn, hiện dần) === -->
+      <!-- Nam Kỳ — 3 tỉnh miền Đông (1859–1862) -->
+      <path id="zone-dong" d="
+        M 285 345 C 295 340, 330 340, 345 345
+        C 355 355, 360 370, 358 385
+        C 355 400, 345 415, 335 425
+        C 325 435, 310 440, 298 438
+        C 285 435, 275 425, 272 410
+        C 268 395, 270 375, 278 360
+        C 282 352, 284 347, 285 345 Z
+      " fill="#b91c1c" opacity="0" class="zone-fill"/>
+
+      <!-- Nam Kỳ — 3 tỉnh miền Tây (1867) -->
+      <path id="zone-tay" d="
+        M 220 360 C 235 355, 270 355, 285 360
+        C 285 365, 278 375, 272 390
+        C 268 405, 270 420, 275 435
+        C 255 440, 235 440, 222 430
+        C 210 418, 205 400, 207 380
+        C 209 368, 216 362, 220 360 Z
+      " fill="#b91c1c" opacity="0" class="zone-fill"/>
+
+      <!-- Trung Kỳ — bảo hộ 1883 -->
+      <path id="zone-trung" d="
+        M 175 205 C 200 202, 380 202, 408 205
+        C 415 220, 420 240, 415 260
+        C 408 280, 395 298, 380 312
+        C 360 328, 340 338, 320 342
+        C 300 342, 278 340, 262 338
+        C 240 332, 222 320, 215 305
+        C 207 288, 207 265, 210 248
+        C 213 232, 218 212, 225 207
+        C 240 204, 162 207, 175 205 Z
+      " fill="#7c3aed" opacity="0" class="zone-fill"/>
+
+      <!-- Bắc Kỳ — bảo hộ 1882–1884 -->
+      <path id="zone-bac" d="
+        M 165 60 C 200 38, 265 32, 310 40
+        C 360 50, 415 72, 438 105
+        C 448 125, 450 148, 445 168
+        C 440 188, 428 200, 410 202
+        C 370 203, 260 202, 178 200
+        C 163 195, 158 178, 159 162
+        C 161 140, 163 90, 165 60 Z
+      " fill="#1d4ed8" opacity="0" class="zone-fill"/>
+
+      <!-- === NHÃN VÙNG === -->
+      <text x="200" y="125" font-size="13" font-weight="700" fill="#1e3a8a" opacity="0.7">BẮC KỲ</text>
+      <text x="260" y="270" font-size="13" font-weight="700" fill="#4c1d95" opacity="0.7">TRUNG KỲ</text>
+      <text x="260" y="390" font-size="13" font-weight="700" fill="#7f1d1d" opacity="0.7">NAM KỲ</text>
+
+      <!-- === ĐIỂM SỰ KIỆN (hiện dần) === -->
+      <!-- Đà Nẵng 1858 -->
+      <g id="evt-danang" opacity="0">
+        <circle cx="330" cy="252" r="9" fill="#b91c1c" stroke="white" stroke-width="2"/>
+        <text x="345" y="250" font-size="11" font-weight="700" fill="#7f1d1d">Đà Nẵng</text>
+        <text x="345" y="263" font-size="10" fill="#991b1b">1858</text>
+      </g>
+
+      <!-- Gia Định 1859 -->
+      <g id="evt-giadinh" opacity="0">
+        <circle cx="290" cy="395" r="9" fill="#b91c1c" stroke="white" stroke-width="2"/>
+        <text x="303" y="392" font-size="11" font-weight="700" fill="#7f1d1d">Gia Định</text>
+        <text x="303" y="405" font-size="10" fill="#991b1b">1859</text>
+      </g>
+
+      <!-- Hiệp ước Nhâm Tuất 1862 -->
+      <g id="evt-1862" opacity="0">
+        <rect x="380" y="355" width="120" height="36" rx="6" fill="#fdf4ff" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="440" y="370" text-anchor="middle" font-size="10" font-weight="700" fill="#5b21b6">HU Nhâm Tuất</text>
+        <text x="440" y="383" text-anchor="middle" font-size="10" fill="#6d28d9">1862 — mất 3 tỉnh Đông</text>
+      </g>
+
+      <!-- Mất 3 tỉnh Tây 1867 -->
+      <g id="evt-1867" opacity="0">
+        <circle cx="240" cy="405" r="8" fill="#991b1b" stroke="white" stroke-width="2"/>
+        <text x="253" y="402" font-size="11" font-weight="700" fill="#7f1d1d">3 tỉnh Tây</text>
+        <text x="253" y="415" font-size="10" fill="#991b1b">1867</text>
+      </g>
+
+      <!-- Bắc Kỳ lần 1 — Hà Nội 1873 -->
+      <g id="evt-hanoi1873" opacity="0">
+        <circle cx="248" cy="158" r="8" fill="#1d4ed8" stroke="white" stroke-width="2"/>
+        <text x="260" y="155" font-size="11" font-weight="700" fill="#1e3a8a">Hà Nội</text>
+        <text x="260" y="167" font-size="10" fill="#1d4ed8">1873, 1882</text>
+      </g>
+
+      <!-- Hiệp ước Harmand 1883 -->
+      <g id="evt-harmand" opacity="0">
+        <rect x="420" y="190" width="130" height="36" rx="6" fill="#fdf4ff" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="485" y="205" text-anchor="middle" font-size="10" font-weight="700" fill="#5b21b6">HU Harmand 1883</text>
+        <text x="485" y="218" text-anchor="middle" font-size="10" fill="#6d28d9">Bảo hộ Trung + Bắc Kỳ</text>
+      </g>
+
+      <!-- Hiệp ước Patenôtre 1884 -->
+      <g id="evt-patenotre" opacity="0">
+        <rect x="420" y="235" width="130" height="36" rx="6" fill="#fdf4ff" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="485" y="250" text-anchor="middle" font-size="10" font-weight="700" fill="#5b21b6">HU Patenôtre 1884</text>
+        <text x="485" y="263" text-anchor="middle" font-size="10" fill="#6d28d9">Bảo hộ toàn Việt Nam</text>
+      </g>
+
+      <!-- Huế (kinh đô) -->
+      <g id="evt-hue" opacity="0">
+        <circle cx="320" cy="225" r="7" fill="#b45309" stroke="white" stroke-width="2"/>
+        <text x="330" y="222" font-size="11" font-weight="700" fill="#78350f">Huế</text>
+        <text x="330" y="234" font-size="10" fill="#b45309">Kinh đô</text>
+      </g>
+
+      <!-- Mũi tên hướng tiến quân (xuất hiện từng bước) -->
+      <!-- Mũi tên từ biển vào Đà Nẵng -->
+      <g id="arrow-danang" opacity="0">
+        <defs>
+          <marker id="ah1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#b91c1c"/>
+          </marker>
+        </defs>
+        <line x1="480" y1="230" x2="342" y2="255" stroke="#b91c1c" stroke-width="2.5"
+              stroke-dasharray="6,3" marker-end="url(#ah1)"/>
+        <text x="490" y="228" font-size="10" fill="#991b1b">Từ biển</text>
+      </g>
+
+      <!-- Mũi tên từ biển vào Gia Định -->
+      <g id="arrow-giadinh" opacity="0">
+        <defs>
+          <marker id="ah2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#b91c1c"/>
+          </marker>
+        </defs>
+        <line x1="480" y1="385" x2="302" y2="395" stroke="#b91c1c" stroke-width="2.5"
+              stroke-dasharray="6,3" marker-end="url(#ah2)"/>
+      </g>
+
+      <!-- Mũi tên từ Nam lên Bắc Kỳ -->
+      <g id="arrow-bac" opacity="0">
+        <defs>
+          <marker id="ah3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#1d4ed8"/>
+          </marker>
+        </defs>
+        <line x1="295" y1="360" x2="252" y2="170" stroke="#1d4ed8" stroke-width="2"
+              stroke-dasharray="5,4" marker-end="url(#ah3)" opacity="0.7"/>
+        <text x="300" y="270" font-size="9" fill="#1e3a8a">Tiến ra Bắc</text>
+      </g>
+
+      <!-- Nhãn chú thích vùng màu -->
+      <g id="legend" opacity="0" transform="translate(10,390)">
+        <rect width="155" height="82" rx="6" fill="white" opacity="0.9" stroke="#d1d5db"/>
+        <rect x="8" y="10" width="12" height="10" rx="2" fill="#b91c1c" opacity="0.7"/>
+        <text x="24" y="20" font-size="10" fill="#374151">Nam Kỳ (thuộc địa)</text>
+        <rect x="8" y="28" width="12" height="10" rx="2" fill="#7c3aed" opacity="0.7"/>
+        <text x="24" y="38" font-size="10" fill="#374151">Trung Kỳ (bảo hộ)</text>
+        <rect x="8" y="46" width="12" height="10" rx="2" fill="#1d4ed8" opacity="0.7"/>
+        <text x="24" y="56" font-size="10" fill="#374151">Bắc Kỳ (bảo hộ)</text>
+        <rect x="8" y="64" width="12" height="10" rx="2" fill="#fdf4ff" stroke="#7c3aed"/>
+        <text x="24" y="74" font-size="10" fill="#374151">Hiệp ước (HU)</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="event-panel" id="event-panel">
+    <span id="event-content">Nhấn <strong>Bắt đầu</strong> để xem từng bước Pháp chiếm dần lãnh thổ Việt Nam.</span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="map-btn-prev" onclick="mapPrev()">← Bước trước</button>
+    <button class="btn btn-primary"   id="map-btn-next" onclick="mapNext()">Bắt đầu →</button>
+    <button class="btn btn-secondary" onclick="mapReset()">Bắt đầu lại</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Bản đồ các trung tâm khởi nghĩa
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Các trung tâm kháng chiến &amp; khởi nghĩa</h2>
+
+<div class="card">
+  <div class="info-box">
+    Nhấn vào từng khởi nghĩa để xem địa bàn, thủ lĩnh, chiến thuật và kết quả.
+  </div>
+
+  <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-start;">
+    <!-- Bản đồ SVG vị trí -->
+    <div style="flex:0 0 auto; overflow-x:auto;">
+      <svg width="260" height="400" viewBox="0 0 260 400"
+           style="border-radius:8px; border:1px solid #d1d5db;">
+        <!-- Nền biển -->
+        <rect width="260" height="400" fill="#bae6fd"/>
+        <!-- Đất liền Việt Nam (thu nhỏ) -->
+        <path d="
+          M 100 15 C 120 12, 145 18, 158 30
+          C 170 42, 172 58, 168 74
+          C 164 90, 152 103, 140 115
+          C 128 127, 115 136, 110 148
+          C 104 162, 104 177, 105 192
+          C 106 208, 110 222, 112 235
+          C 113 248, 112 260, 108 272
+          C 104 284, 97 294, 93 304
+          C 88 316, 87 328, 90 340
+          C 93 352, 99 362, 104 372
+          C 98 378, 88 382, 80 380
+          C 70 376, 62 366, 58 352
+          C 53 336, 52 318, 55 302
+          C 58 285, 64 272, 65 258
+          C 66 244, 62 232, 55 222
+          C 48 212, 38 205, 33 196
+          C 24 182, 23 166, 26 152
+          C 29 138, 38 126, 46 114
+          C 56 100, 66 88, 72 74
+          C 80 56, 84 38, 88 24
+          C 92 16, 96 15, 100 15 Z
+        " fill="#d4a76a" stroke="#b45309" stroke-width="1.2"/>
+
+        <!-- Đường chia vùng -->
+        <line x1="28" y1="148" x2="168" y2="148" stroke="#b45309" stroke-width="0.7" stroke-dasharray="3,2" opacity="0.5"/>
+        <line x1="56" y1="265" x2="120" y2="265" stroke="#b45309" stroke-width="0.7" stroke-dasharray="3,2" opacity="0.5"/>
+
+        <!-- Nhãn vùng -->
+        <text x="75" y="80"  font-size="9" font-weight="700" fill="#1e3a8a" opacity="0.7">BẮC KỲ</text>
+        <text x="70" y="205" font-size="9" font-weight="700" fill="#4c1d95" opacity="0.7">TRUNG KỲ</text>
+        <text x="65" y="320" font-size="9" font-weight="700" fill="#7f1d1d" opacity="0.7">NAM KỲ</text>
+
+        <!-- === Điểm khởi nghĩa === -->
+        <!-- Ba Đình — Nga Sơn, Thanh Hóa -->
+        <g id="pin-ba-dinh" style="cursor:pointer" onclick="showUprising('ba-dinh')">
+          <circle cx="108" cy="130" r="9" fill="#b91c1c" stroke="white" stroke-width="2"/>
+          <text x="120" y="127" font-size="9" font-weight="700" fill="#7f1d1d">Ba Đình</text>
+          <text x="120" y="138" font-size="8" fill="#b91c1c">Thanh Hóa</text>
+        </g>
+
+        <!-- Bãi Sậy — Hưng Yên (gần Hà Nội - Bắc Kỳ phía Nam) -->
+        <g id="pin-bai-say" style="cursor:pointer" onclick="showUprising('bai-say')">
+          <circle cx="88" cy="104" r="9" fill="#1d4ed8" stroke="white" stroke-width="2"/>
+          <text x="100" y="101" font-size="9" font-weight="700" fill="#1e3a8a">Bãi Sậy</text>
+          <text x="100" y="112" font-size="8" fill="#1d4ed8">Hưng Yên</text>
+        </g>
+
+        <!-- Hương Khê — Hà Tĩnh -->
+        <g id="pin-huong-khe" style="cursor:pointer" onclick="showUprising('huong-khe')">
+          <circle cx="100" cy="168" r="9" fill="#15803d" stroke="white" stroke-width="2"/>
+          <text x="112" y="165" font-size="9" font-weight="700" fill="#14532d">Hương Khê</text>
+          <text x="112" y="176" font-size="8" fill="#15803d">Hà Tĩnh</text>
+        </g>
+
+        <!-- Yên Thế — Bắc Giang -->
+        <g id="pin-yen-the" style="cursor:pointer" onclick="showUprising('yen-the')">
+          <circle cx="112" cy="78" r="9" fill="#b45309" stroke="white" stroke-width="2"/>
+          <text x="124" y="75" font-size="9" font-weight="700" fill="#78350f">Yên Thế</text>
+          <text x="124" y="86" font-size="8" fill="#b45309">Bắc Giang</text>
+        </g>
+
+        <!-- Gò Công — Trương Định -->
+        <g id="pin-go-cong" style="cursor:pointer" onclick="showUprising('go-cong')">
+          <circle cx="85" cy="330" r="7" fill="#991b1b" stroke="white" stroke-width="2"/>
+          <text x="95" y="328" font-size="9" font-weight="700" fill="#7f1d1d">Gò Công</text>
+          <text x="95" y="338" font-size="8" fill="#991b1b">Trương Định</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Danh sách thẻ khởi nghĩa -->
+    <div style="flex:1; min-width:200px;">
+      <div class="uprising-grid">
+        <div class="uprising-card uc-ba-dinh" onclick="showUprising('ba-dinh')">
+          <div class="uprising-name">Khởi nghĩa Ba Đình</div>
+          <span class="uprising-tag tag-can-vuong">Cần Vương</span>
+          <div style="font-size:12px; color:#6b7280;">Nga Sơn, Thanh Hóa · 1886–1887</div>
+        </div>
+        <div class="uprising-card uc-bai-say" onclick="showUprising('bai-say')">
+          <div class="uprising-name">Khởi nghĩa Bãi Sậy</div>
+          <span class="uprising-tag tag-can-vuong">Cần Vương</span>
+          <div style="font-size:12px; color:#6b7280;">Hưng Yên · 1885–1892</div>
+        </div>
+        <div class="uprising-card uc-huong-khe" onclick="showUprising('huong-khe')">
+          <div class="uprising-name">Khởi nghĩa Hương Khê</div>
+          <span class="uprising-tag tag-can-vuong">Cần Vương</span>
+          <div style="font-size:12px; color:#6b7280;">Hà Tĩnh · 1885–1896</div>
+        </div>
+        <div class="uprising-card uc-yen-the" onclick="showUprising('yen-the')">
+          <div class="uprising-name">Khởi nghĩa Yên Thế</div>
+          <span class="uprising-tag tag-nong-dan">Nông dân</span>
+          <div style="font-size:12px; color:#6b7280;">Bắc Giang · 1884–1913</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="uprising-detail-panel" id="uprising-detail">
+    <div class="ud-title" id="ud-name"></div>
+    <div class="ud-row"><span class="ud-label">Thời gian:</span><span id="ud-time"></span></div>
+    <div class="ud-row"><span class="ud-label">Địa bàn:</span><span id="ud-location"></span></div>
+    <div class="ud-row"><span class="ud-label">Thủ lĩnh:</span><span id="ud-leader"></span></div>
+    <div class="ud-row"><span class="ud-label">Chiến thuật:</span><span id="ud-tactic"></span></div>
+    <div class="ud-row"><span class="ud-label">Kết thúc:</span><span id="ud-end"></span></div>
+    <div id="ud-note" style="margin-top:8px; font-size:13px; color:#4b5563; line-height:1.6;"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Timeline tương tác 1858–1913
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Timeline 1858 – 1913 — Click để xem chi tiết</h2>
+
+<div class="card">
+  <div class="info-box">
+    Click vào từng mốc để đọc nội dung chi tiết. Màu sắc: <span style="color:#b91c1c;font-weight:700;">Đỏ</span> = chiến sự · <span style="color:#7c3aed;font-weight:700;">Tím</span> = hiệp ước · <span style="color:#15803d;font-weight:700;">Xanh lá</span> = kháng chiến.
+  </div>
+
+  <div class="timeline-wrap" id="timeline-container">
+    <!-- Nội dung sinh bởi JS -->
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q" id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score"    id="quiz-score"></span>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   MODULE 1 — Bản đồ xâm lược từng bước
+   ════════════════════════════════════════════════ */
+
+const MAP_STEPS = [
+  {
+    label: '1858',
+    show: ['evt-danang', 'arrow-danang'],
+    fill: [],
+    year: '1/9/1858',
+    badge: 'Chiến sự',
+    title: 'Liên quân Pháp – Tây Ban Nha tấn công Đà Nẵng',
+    text: 'Liên quân gồm 13 tàu chiến, ~2.500 quân đổ bộ tại cửa Hàn (Đà Nẵng). Mục tiêu: chiếm Đà Nẵng làm căn cứ tiến thẳng vào Huế (chỉ cách ~90km). <strong>Thất bại</strong> do quân nhà Nguyễn cầm cự và dịch bệnh hoành hành trong hàng ngũ Pháp. Pháp phải bỏ kế hoạch sau gần 5 tháng.',
+  },
+  {
+    label: '1859',
+    show: ['evt-giadinh', 'arrow-giadinh', 'evt-hue'],
+    fill: [],
+    year: '17/2/1859',
+    badge: 'Chiến sự',
+    title: 'Pháp chiếm thành Gia Định',
+    text: 'Không chiếm được Đà Nẵng, Pháp chuyển hướng vào Nam. Hạm đội vượt qua cửa Cần Giờ, tiến lên sông Sài Gòn, phá tan thành Gia Định chỉ trong một ngày. Gia Định là trung tâm kinh tế và hành chính toàn Nam Kỳ — mất Gia Định là mất thế kiểm soát cả miền Nam.',
+  },
+  {
+    label: '1862',
+    show: ['evt-1862', 'legend'],
+    fill: [{ id: 'zone-dong', opacity: 0.55 }],
+    year: '5/6/1862',
+    badge: 'Hiệp ước',
+    title: 'Hiệp ước Nhâm Tuất — Mất 3 tỉnh miền Đông',
+    text: '<strong>Hiệp ước Nhâm Tuất</strong> ký giữa triều đình Nguyễn và Pháp: nhường 3 tỉnh miền Đông Nam Kỳ (Gia Định, Định Tường, Biên Hòa) + đảo Côn Lôn cho Pháp; mở 3 cửa biển; bồi thường chiến phí 4 triệu đồng bạc piastre. Đây là mất mát lãnh thổ chính thức đầu tiên trong lịch sử Nhà Nguyễn.',
+  },
+  {
+    label: '1867',
+    show: ['evt-1867'],
+    fill: [{ id: 'zone-tay', opacity: 0.55 }],
+    year: '20–24/6/1867',
+    badge: 'Chiến sự',
+    title: 'Pháp chiếm 3 tỉnh miền Tây — không cần hiệp ước',
+    text: 'Pháp chiếm nốt Vĩnh Long, An Giang, Hà Tiên bằng vũ lực trực tiếp, <strong>không qua đàm phán hay hiệp ước mới</strong>. Toàn bộ 6 tỉnh Nam Kỳ rơi vào tay Pháp. Nam Kỳ trở thành thuộc địa trực trị (không phải xứ bảo hộ). <em>Lưu ý: Hiệp ước 1862 chỉ mất 3 tỉnh Đông — đây là sai lầm hay gặp khi ôn thi.</em>',
+  },
+  {
+    label: '1873–82',
+    show: ['evt-hanoi1873', 'arrow-bac'],
+    fill: [],
+    year: '1873 & 1882',
+    badge: 'Chiến sự',
+    title: 'Pháp đánh Bắc Kỳ hai lần',
+    text: '<strong>Lần 1 (1873):</strong> Francis Garnier chiếm thành Hà Nội (20/11/1873) nhưng tử trận (21/12/1873) do quân Cờ Đen của Lưu Vĩnh Phúc — Pháp tạm rút.<br><strong>Lần 2 (1882):</strong> Henri Rivière chiếm lại Hà Nội (25/4/1882). Rivière tử trận (19/5/1883) do quân Cờ Đen — nhưng Pháp <em>không rút</em>. <em>Quân Cờ Đen là tàn quân Thái Bình Thiên Quốc, không phải quân triều đình.</em>',
+  },
+  {
+    label: '1883',
+    show: ['evt-harmand'],
+    fill: [{ id: 'zone-trung', opacity: 0.45 }],
+    year: '25/8/1883',
+    badge: 'Hiệp ước',
+    title: 'Hiệp ước Harmand — Bảo hộ Trung & Bắc Kỳ',
+    text: '<strong>Hiệp ước Harmand</strong> (còn gọi Hiệp ước Quý Mùi): công nhận quyền bảo hộ của Pháp trên toàn Việt Nam. Bắc Kỳ và Trung Kỳ chính thức là xứ bảo hộ. Triều đình Huế mất quyền ngoại giao. Đây là bước đầu pháp lý hóa bảo hộ toàn quốc.',
+  },
+  {
+    label: '1884',
+    show: ['evt-patenotre'],
+    fill: [{ id: 'zone-bac', opacity: 0.45 }],
+    year: '6/6/1884',
+    badge: 'Hiệp ước',
+    title: 'Hiệp ước Patenôtre — Bảo hộ toàn Việt Nam',
+    text: '<strong>Hiệp ước Patenôtre</strong> (còn gọi Giáp Thân): chính thức hóa bảo hộ toàn Việt Nam, điều chỉnh một số điều khoản của Harmand. <em>Kết quả sau 26 năm (1858–1884):</em> Toàn Việt Nam đặt dưới sự kiểm soát của Pháp — Nam Kỳ là thuộc địa trực trị, Trung Kỳ và Bắc Kỳ là xứ bảo hộ về danh nghĩa nhưng thực tế cũng do Pháp điều hành.',
+  },
+];
+
+let mapStep = -1;
+
+function mapRenderDots() {
+  const el = document.getElementById('map-dots');
+  el.innerHTML = '';
+  MAP_STEPS.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'map-dot' + (i === mapStep ? ' active' : i < mapStep ? ' done' : '');
+    d.textContent = s.label;
+    d.onclick = (function(si){ return function(){ mapGoTo(si); }; })(i);
+    el.appendChild(d);
+  });
+}
+
+function mapApplyStep(idx) {
+  // Ẩn tất cả trước
+  const allIds = ['evt-danang','arrow-danang','evt-giadinh','arrow-giadinh','evt-hue',
+    'evt-1862','evt-1867','evt-harmand','evt-patenotre','evt-hanoi1873','arrow-bac','legend',
+    'zone-dong','zone-tay','zone-trung','zone-bac'];
+  allIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.setAttribute('opacity','0'); }
+  });
+  // Hiện tất cả bước từ 0 đến idx
+  for (let i = 0; i <= idx; i++) {
+    const s = MAP_STEPS[i];
+    s.show.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.setAttribute('opacity','1');
+    });
+    s.fill.forEach(f => {
+      const el = document.getElementById(f.id);
+      if (el) el.setAttribute('opacity', String(f.opacity));
+    });
+  }
+}
+
+function mapUpdateUI() {
+  mapRenderDots();
+
+  const s = mapStep >= 0 ? MAP_STEPS[mapStep] : null;
+  const panel = document.getElementById('event-panel');
+  if (!s) {
+    panel.innerHTML = 'Nhấn <strong>Bắt đầu</strong> để xem từng bước Pháp chiếm dần lãnh thổ Việt Nam.';
+  } else {
+    const badgeColor = s.badge === 'Hiệp ước' ? '#7c3aed' : '#b91c1c';
+    panel.innerHTML =
+      `<span class="event-year">${s.year}</span>` +
+      `<span class="event-treaty" style="background:${badgeColor}">${s.badge}</span>` +
+      `<strong style="display:block;margin:6px 0 4px;font-size:15px;">${s.title}</strong>` +
+      `<span>${s.text}</span>`;
+  }
+
+  if (mapStep >= 0) mapApplyStep(mapStep);
+  else {
+    // Reset bản đồ
+    const allIds = ['evt-danang','arrow-danang','evt-giadinh','arrow-giadinh','evt-hue',
+      'evt-1862','evt-1867','evt-harmand','evt-patenotre','evt-hanoi1873','arrow-bac','legend',
+      'zone-dong','zone-tay','zone-trung','zone-bac'];
+    allIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.setAttribute('opacity','0');
+    });
+  }
+
+  document.getElementById('map-btn-prev').disabled = mapStep <= 0;
+  const nextBtn = document.getElementById('map-btn-next');
+  nextBtn.textContent = mapStep < 0 ? 'Bắt đầu →' :
+    mapStep >= MAP_STEPS.length - 1 ? 'Hoàn thành' : 'Bước tiếp →';
+  nextBtn.disabled = mapStep >= MAP_STEPS.length - 1;
+}
+
+function mapNext() {
+  if (mapStep < MAP_STEPS.length - 1) { mapStep++; mapUpdateUI(); }
+}
+function mapPrev() {
+  if (mapStep > 0) { mapStep--; mapUpdateUI(); }
+}
+function mapGoTo(i) { mapStep = i; mapUpdateUI(); }
+function mapReset() { mapStep = -1; mapUpdateUI(); }
+
+mapUpdateUI();
+
+/* ════════════════════════════════════════════════
+   MODULE 2 — Chi tiết khởi nghĩa
+   ════════════════════════════════════════════════ */
+
+const UPRISINGS = {
+  'ba-dinh': {
+    name: 'Khởi nghĩa Ba Đình',
+    time: '1886–1887 (khoảng 1 năm)',
+    location: 'Làng Ba Đình, Nga Sơn, Thanh Hóa — tam giác 3 làng Thượng Thọ, Mậu Thịnh, Mỹ Khê',
+    leader: 'Phạm Bành (văn thân) & Đinh Công Tráng (thủ lĩnh quân sự)',
+    tactic: 'Xây dựng làng chiến đấu kiên cố: đắp lũy tre dày 8–9 lớp, đào hào sâu xung quanh, hệ thống giao thông hào nội bộ. Phòng thủ cố định.',
+    end: 'Pháp mang đại bác hạng nặng phá được lũy tre (1/1887). Đốt toàn bộ 3 làng. Đinh Công Tráng tử trận, Phạm Bành tự sát.',
+    note: 'Ba Đình là biểu tượng của ý chí phòng thủ đến cùng. Tuy nhiên chiến thuật cố định không phù hợp khi đối phương có đại bác — đây là bài học về hạn chế vũ khí, không phải sai lầm chiến thuật đơn thuần.',
+  },
+  'bai-say': {
+    name: 'Khởi nghĩa Bãi Sậy',
+    time: '1885–1892 (7 năm)',
+    location: 'Vùng đầm lầy sậy Hưng Yên (bãi sậy ven sông Hồng) — địa bàn lan rộng Hải Dương, Bắc Ninh',
+    leader: 'Nguyễn Thiện Thuật (cựu quan tỉnh Hải Dương, chạy sang Trung Quốc tị nạn năm 1892)',
+    tactic: 'Du kích cơ động triệt để — khai thác địa hình đầm lầy khó truy đuổi. Không cố thủ điểm nào, tập kích rồi rút nhanh.',
+    end: 'Bị Pháp và quân triều đình (hợp tác Pháp) bao vây. Nguyễn Thiện Thuật phải sang Trung Quốc 1892. Lực lượng tan rã dần đến 1895.',
+    note: 'Chiến thuật du kích đầm lầy của Bãi Sậy gần với phương pháp hiện đại hơn Ba Đình, nhưng thiếu hậu cần bền vững và nguồn tiếp tế từ bên ngoài.',
+  },
+  'huong-khe': {
+    name: 'Khởi nghĩa Hương Khê',
+    time: '1885–1896 (hơn 10 năm) — lớn nhất và dài nhất trong phong trào Cần Vương',
+    location: 'Rừng núi Hương Sơn, Hương Khê (Hà Tĩnh) — địa bàn lan rộng 4 tỉnh Nghệ An, Hà Tĩnh, Quảng Bình, Quảng Trị',
+    leader: 'Phan Đình Phùng (văn thân) + Cao Thắng (phó thủ lĩnh quân sự)',
+    tactic: 'Du kích rừng núi + tự cường vũ khí: Cao Thắng tự chế tạo súng trường theo mẫu Pháp (kiểu Gras 1874). Khai thác triệt để địa hình rừng núi Hương Sơn.',
+    end: 'Cao Thắng tử trận (1893). Phan Đình Phùng mất bệnh 28/12/1895. Đầu 1896 lực lượng tan rã.',
+    note: 'Việc Cao Thắng tự chế tạo súng là thành tựu kỹ thuật đáng chú ý — thể hiện khả năng sáng tạo dù bị phong tỏa. Tuy nhiên số lượng vẫn quá ít so với nhu cầu.',
+  },
+  'yen-the': {
+    name: 'Khởi nghĩa Yên Thế',
+    time: '1884–1913 (gần 30 năm) — dài nhất trong lịch sử kháng chiến chống Pháp thế kỷ XIX–XX',
+    location: 'Vùng trung du Yên Thế, Bắc Giang — rừng núi tiếp giáp Lạng Sơn',
+    leader: 'Hoàng Hoa Thám (Đề Thám, 1858–1913) — xuất thân nông dân, không phải sĩ phu',
+    tactic: 'Du kích triệt để + hòa hoãn chiến lược: ký thỏa thuận với Pháp 1897, 1898 — được tự quản vùng Yên Thế. Dùng thời gian hòa hoãn tích lũy lương thực, mua vũ khí, phát triển kinh tế (trồng chè). Tiếp xúc với Phan Bội Châu.',
+    end: '10/2/1913: Hoàng Hoa Thám bị sát hại — theo nhiều nguồn do phản bội nội bộ. Kết thúc phong trào.',
+    note: 'Tính chất của Yên Thế khác Cần Vương: đây là cuộc nổi dậy bảo vệ cuộc sống và quyền tự trị của nông dân, không phải "phò vua". Sự linh hoạt (dám hòa hoãn khi cần) là lý do tồn tại được gần 30 năm.',
+  },
+  'go-cong': {
+    name: 'Kháng chiến Nam Kỳ — Trương Định',
+    time: '1862–1864',
+    location: 'Căn cứ Gò Công (Tiền Giang) và vùng miền Đông – Tây Nam Kỳ',
+    leader: 'Trương Định (1820–1864) — cựu tướng triều đình được dân tôn làm "Bình Tây Đại Nguyên Soái"',
+    tactic: 'Chiến tranh du kích phân tán, khai thác vùng đồng bằng sông nước. Không chịu rút khỏi Nam Kỳ dù triều đình ra lệnh giải tán theo Hiệp ước Nhâm Tuất 1862.',
+    end: '20/8/1864: Bị phản bội bởi Huỳnh Công Tấn. Pháp vây đánh căn cứ Đám Lá Tối Trời. Trương Định bị thương nặng, tự sát để không bị bắt.',
+    note: 'Trương Định là biểu tượng đầu tiên của tinh thần không chịu tuân theo hiệp ước đầu hàng — đặt lợi ích đất nước lên trên mệnh lệnh của triều đình. Đây là mâu thuẫn điển hình giữa "trung quân" và "ái quốc" trong giai đoạn này.',
+  },
+};
+
+let currentUprising = null;
+
+function showUprising(key) {
+  const d = UPRISINGS[key];
+  if (!d) return;
+
+  // Bỏ selected cũ
+  document.querySelectorAll('.uprising-card').forEach(c => c.classList.remove('selected'));
+  // Chọn card mới
+  const cardMap = { 'ba-dinh':'uc-ba-dinh', 'bai-say':'uc-bai-say',
+                    'huong-khe':'uc-huong-khe', 'yen-the':'uc-yen-the' };
+  if (cardMap[key]) {
+    document.querySelector('.' + cardMap[key])?.classList.add('selected');
+  }
+
+  document.getElementById('ud-name').textContent     = d.name;
+  document.getElementById('ud-time').textContent     = d.time;
+  document.getElementById('ud-location').textContent = d.location;
+  document.getElementById('ud-leader').textContent   = d.leader;
+  document.getElementById('ud-tactic').textContent   = d.tactic;
+  document.getElementById('ud-end').textContent      = d.end;
+  document.getElementById('ud-note').textContent     = d.note;
+
+  const panel = document.getElementById('uprising-detail');
+  panel.classList.add('show');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  currentUprising = key;
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 3 — Timeline 1858–1913
+   ════════════════════════════════════════════════ */
+
+const TIMELINE = [
+  {
+    year: '1/9/1858', type: 'war', key: true,
+    title: 'Pháp – Tây Ban Nha nổ súng tại Đà Nẵng',
+    badge: 'Chiến sự',
+    body: 'Liên quân đổ bộ cửa Hàn (Đà Nẵng) với mục tiêu chiếm cảng rồi tiến thẳng vào Huế. Quân nhà Nguyễn dưới quyền Nguyễn Tri Phương cầm cự. Pháp không chiếm được, bị dịch bệnh nặng nề, phải bỏ kế hoạch sau gần 5 tháng.',
+  },
+  {
+    year: '17/2/1859', type: 'war',
+    title: 'Pháp chiếm thành Gia Định',
+    badge: 'Chiến sự',
+    body: 'Chuyển hướng về phía Nam, Pháp phá tan thành Gia Định chỉ trong một ngày. Đây là bàn đạp chiến lược để kiểm soát toàn Nam Kỳ.',
+  },
+  {
+    year: '10/12/1861', type: 'resist',
+    title: 'Nguyễn Trung Trực đốt tàu L\'Espérance trên sông Nhật Tảo',
+    badge: 'Kháng chiến',
+    body: 'Lần đầu tiên một tàu chiến Pháp bị tiêu diệt hoàn toàn trong cuộc kháng chiến Nam Kỳ. Nguyễn Trung Trực xuất thân ngư dân, không thuộc hệ thống triều đình. Sự kiện gây chấn động dư luận cả hai phía.',
+  },
+  {
+    year: '5/6/1862', type: 'treaty',
+    title: 'Hiệp ước Nhâm Tuất — mất 3 tỉnh miền Đông Nam Kỳ',
+    badge: 'Hiệp ước',
+    body: 'Nhường Gia Định, Định Tường, Biên Hòa + đảo Côn Lôn. Mở 3 cửa biển. Bồi thường 4 triệu đồng bạc. Triều đình ra lệnh Trương Định giải tán — ông từ chối.',
+  },
+  {
+    year: '20/8/1864', type: 'resist',
+    title: 'Trương Định hy sinh tại Gò Công',
+    badge: 'Kháng chiến',
+    body: 'Bị phản bội bởi Huỳnh Công Tấn, Pháp vây đánh căn cứ Đám Lá Tối Trời. Trương Định tự sát để không bị bắt. Ông là vị tướng triều đình duy nhất từ chối tuân lệnh giải tán để tiếp tục kháng chiến.',
+  },
+  {
+    year: '20–24/6/1867', type: 'war',
+    title: 'Pháp chiếm 3 tỉnh miền Tây Nam Kỳ bằng vũ lực',
+    badge: 'Chiến sự',
+    body: 'Vĩnh Long, An Giang, Hà Tiên bị chiếm không qua hiệp ước. Toàn bộ 6 tỉnh Nam Kỳ nằm dưới quyền Pháp. Nam Kỳ trở thành thuộc địa trực trị.',
+  },
+  {
+    year: '10/12/1861 – 1868', type: 'resist',
+    title: 'Nguyễn Trung Trực kháng chiến và hy sinh',
+    badge: 'Kháng chiến',
+    body: 'Sau khi đốt tàu L\'Espérance (1861), Nguyễn Trung Trực tiếp tục chiến đấu, chiếm đồn Rạch Giá (1867). Bị bắt tại Phú Quốc (1868), xử tử. Câu nói bất hủ: "Bao giờ người Tây nhổ hết cỏ nước Nam thì mới hết người Nam đánh Tây."',
+  },
+  {
+    year: '25/4/1882', type: 'war',
+    title: 'Rivière chiếm thành Hà Nội lần 2',
+    badge: 'Chiến sự',
+    body: 'Sau thất bại của Garnier 1873, Pháp quay lại. Henri Rivière chiếm Hà Nội lần 2. Rivière tử trận 19/5/1883 do quân Cờ Đen — nhưng lần này Pháp không rút lui.',
+  },
+  {
+    year: '25/8/1883', type: 'treaty',
+    title: 'Hiệp ước Harmand (Quý Mùi) — bảo hộ Trung & Bắc Kỳ',
+    badge: 'Hiệp ước',
+    body: 'Công nhận quyền bảo hộ Pháp trên toàn Việt Nam. Bắc Kỳ và Trung Kỳ là xứ bảo hộ. Triều đình mất quyền ngoại giao. Pháp chiểu theo hiệp ước này để đóng quân toàn lãnh thổ.',
+  },
+  {
+    year: '6/6/1884', type: 'treaty', key: true,
+    title: 'Hiệp ước Patenôtre (Giáp Thân) — bảo hộ toàn Việt Nam',
+    badge: 'Hiệp ước',
+    body: 'Chính thức hóa bảo hộ toàn Việt Nam, điều chỉnh Harmand. Đây là mốc chấm dứt giai đoạn đấu tranh ngoại giao — từ đây Việt Nam hoàn toàn dưới sự kiểm soát của Pháp về mặt pháp lý quốc tế.',
+  },
+  {
+    year: 'Đêm 4–5/7/1885', type: 'resist', key: true,
+    title: 'Biến cố kinh thành — Tôn Thất Thuyết tấn công quân Pháp',
+    badge: 'Kháng chiến',
+    body: 'Tôn Thất Thuyết chủ động tấn công bất ngờ hai đồn Pháp tại Huế. Thất bại sau vài giờ. Pháp chiếm và cướp phá kinh thành Huế. Tôn Thất Thuyết đưa vua Hàm Nghi (14 tuổi) rời Huế ra Bắc, đặt căn cứ tại Tân Sở (Quảng Trị).',
+  },
+  {
+    year: '13/7/1885', type: 'resist', key: true,
+    title: 'Chiếu Cần Vương ban hành',
+    badge: 'Kháng chiến',
+    body: 'Vua Hàm Nghi ban chiếu kêu gọi văn thân, sĩ phu, nhân dân cả nước "phò vua cứu nước" (Cần Vương = giúp vua). Đây là lần đầu triều đình chủ động ban chiếu kêu gọi kháng chiến toàn quốc dưới danh nghĩa vua, tạo chính danh cho các cuộc khởi nghĩa địa phương.',
+  },
+  {
+    year: '1885–1887', type: 'resist',
+    title: 'Khởi nghĩa Ba Đình — Nga Sơn, Thanh Hóa',
+    badge: 'Kháng chiến',
+    body: 'Phạm Bành & Đinh Công Tráng xây dựng làng chiến đấu kiên cố với lũy tre, giao thông hào. Pháp mang đại bác phá được (1/1887). Các thủ lĩnh hy sinh hoặc tản.',
+  },
+  {
+    year: '1885–1892', type: 'resist',
+    title: 'Khởi nghĩa Bãi Sậy — Hưng Yên',
+    badge: 'Kháng chiến',
+    body: 'Nguyễn Thiện Thuật khai thác địa hình đầm lầy sậy, chiến thuật du kích cơ động. Lan rộng nhiều tỉnh đồng bằng Bắc Kỳ. Nguyễn Thiện Thuật phải sang Trung Quốc tị nạn 1892.',
+  },
+  {
+    year: '1888', type: 'war',
+    title: 'Vua Hàm Nghi bị bắt, đày sang Algeria',
+    badge: 'Chiến sự',
+    body: 'Hàm Nghi bị bắt do phản bội nội bộ (theo sử liệu là do Trương Quang Ngọc). Bị đày sang Algeria — sống ở đó đến 1944. Mất chỗ dựa chính trị của phong trào Cần Vương, nhưng các cuộc khởi nghĩa vẫn tiếp diễn.',
+  },
+  {
+    year: '1885–1896', type: 'resist', key: true,
+    title: 'Khởi nghĩa Hương Khê — Hà Tĩnh (lớn và dài nhất)',
+    badge: 'Kháng chiến',
+    body: 'Phan Đình Phùng & Cao Thắng. Cao Thắng tự chế tạo súng theo mẫu Pháp — thành tựu kỹ thuật đáng chú ý. Cao Thắng tử trận 1893. Phan Đình Phùng mất bệnh 28/12/1895. Lực lượng tan rã đầu 1896 — mốc kết thúc phong trào Cần Vương.',
+  },
+  {
+    year: '1884–1913', type: 'resist', key: true,
+    title: 'Khởi nghĩa Yên Thế — Hoàng Hoa Thám',
+    badge: 'Kháng chiến',
+    body: 'Khởi nghĩa nông dân dài nhất (gần 30 năm), không phải phong trào sĩ phu. Đề Thám hòa hoãn chiến lược 1897–1908. 10/2/1913: Đề Thám bị sát hại — kết thúc giai đoạn đấu tranh vũ trang kiểu phong kiến–nông dân chống Pháp.',
+  },
+];
+
+function buildTimeline() {
+  const container = document.getElementById('timeline-container');
+  container.innerHTML = '';
+  TIMELINE.forEach((item, i) => {
+    const div = document.createElement('div');
+    const typeClass = item.type === 'war' ? 'war' : item.type === 'treaty' ? 'treaty' : 'resist';
+    const keyClass  = item.key ? ' key' : '';
+    div.className = `tl-item ${typeClass}${keyClass}`;
+    div.setAttribute('data-idx', String(i));
+    div.onclick = function() { toggleTl(this); };
+
+    const badgeClass = item.type === 'war' ? 'badge-war' : item.type === 'treaty' ? 'badge-treaty' : 'badge-resist';
+
+    div.innerHTML =
+      `<div class="tl-header">` +
+        `<span class="tl-year">${item.year}</span>` +
+        `<span class="tl-title">${item.title}</span>` +
+        `<span class="tl-badge ${badgeClass}">${item.badge}</span>` +
+      `</div>` +
+      `<div class="tl-body">${item.body}</div>`;
+
+    container.appendChild(div);
+  });
+}
+
+function toggleTl(el) {
+  const wasExpanded = el.classList.contains('expanded');
+  document.querySelectorAll('.tl-item.expanded').forEach(e => e.classList.remove('expanded'));
+  if (!wasExpanded) {
+    el.classList.add('expanded');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+buildTimeline();
+
+/* ════════════════════════════════════════════════
+   MODULE 4 — Quiz ôn tập
+   ════════════════════════════════════════════════ */
+
+const QUIZ = [
+  {
+    q: 'Liên quân Pháp – Tây Ban Nha tấn công địa điểm nào đầu tiên vào năm 1858?',
+    opts: ['Gia Định', 'Đà Nẵng', 'Huế', 'Hà Nội'],
+    correct: 1,
+    explain: 'Ngày 1/9/1858, liên quân tấn công cửa Hàn (Đà Nẵng), mục tiêu chiếm cảng làm căn cứ tiến vào Huế. Thất bại do quân nhà Nguyễn cầm cự và dịch bệnh. Pháp sau đó chuyển hướng vào Gia Định (1859).',
+  },
+  {
+    q: 'Hiệp ước nào ký năm 1862 nhường 3 tỉnh miền Đông Nam Kỳ cho Pháp?',
+    opts: ['Hiệp ước Harmand', 'Hiệp ước Patenôtre', 'Hiệp ước Nhâm Tuất', 'Hiệp ước Giáp Tuất'],
+    correct: 2,
+    explain: 'Hiệp ước Nhâm Tuất (5/6/1862) — tên lấy từ năm Nhâm Tuất theo lịch Can Chi. Nhường 3 tỉnh Đông (Gia Định, Định Tường, Biên Hòa) + đảo Côn Lôn. Hiệp ước Patenôtre là 1884 — bảo hộ toàn Việt Nam.',
+  },
+  {
+    q: 'Quân Cờ Đen — lực lượng giết cả Francis Garnier (1873) và Henri Rivière (1883) — là ai?',
+    opts: [
+      'Quân triều đình Nhà Nguyễn',
+      'Tàn quân Thái Bình Thiên Quốc người Hoa, do Lưu Vĩnh Phúc chỉ huy',
+      'Quân du kích của Hoàng Hoa Thám',
+      'Quân Tây Ban Nha rút lui từ Đà Nẵng',
+    ],
+    correct: 1,
+    explain: 'Quân Cờ Đen (Lưu Vĩnh Phúc — Liu Yongfu) là tàn quân Thái Bình Thiên Quốc chạy sang Bắc Kỳ sau khi thất bại ở Trung Quốc năm 1864. Họ hoạt động bán độc lập, đôi khi phối hợp với nhà Nguyễn. Không phải quân triều đình trực tiếp.',
+  },
+  {
+    q: 'Chiếu Cần Vương được ban hành vào ngày nào, sau sự kiện nào?',
+    opts: [
+      '13/7/1885, sau biến cố kinh thành Huế đêm 4–5/7/1885',
+      '5/6/1862, sau Hiệp ước Nhâm Tuất',
+      '1/9/1858, khi Pháp tấn công Đà Nẵng',
+      '6/6/1884, sau Hiệp ước Patenôtre',
+    ],
+    correct: 0,
+    explain: 'Đêm 4–5/7/1885: Tôn Thất Thuyết tấn công bất ngờ, thất bại, đưa vua Hàm Nghi rời Huế. Ngày 13/7/1885: Chiếu Cần Vương ban hành tại Tân Sở (Quảng Trị). Khoảng cách giữa biến cố và chiếu chỉ 8 ngày.',
+  },
+  {
+    q: 'Trong 3 khởi nghĩa Cần Vương, khởi nghĩa nào kéo dài nhất và thủ lĩnh chính là ai?',
+    opts: [
+      'Ba Đình — Phạm Bành',
+      'Bãi Sậy — Nguyễn Thiện Thuật',
+      'Hương Khê — Phan Đình Phùng',
+      'Ba Đình — Đinh Công Tráng',
+    ],
+    correct: 2,
+    explain: 'Hương Khê (1885–1896) kéo dài hơn 10 năm — lâu nhất. Thủ lĩnh chính là Phan Đình Phùng. Phó thủ lĩnh Cao Thắng tự chế tạo súng, tử trận 1893. Phan Đình Phùng mất bệnh 28/12/1895.',
+  },
+  {
+    q: 'Điểm khác biệt căn bản giữa khởi nghĩa Yên Thế và phong trào Cần Vương là gì?',
+    opts: [
+      'Yên Thế có vũ khí hiện đại hơn',
+      'Yên Thế là phong trào nông dân tự phát, không mang hệ tư tưởng "phò vua"',
+      'Yên Thế được sự hỗ trợ quân sự từ nước ngoài',
+      'Yên Thế hoạt động ở vùng đồng bằng, Cần Vương ở vùng rừng núi',
+    ],
+    correct: 1,
+    explain: 'Yên Thế là khởi nghĩa nông dân do Hoàng Hoa Thám (xuất thân bình dân) lãnh đạo, nhằm bảo vệ đất đai và quyền tự trị — không phải phong trào sĩ phu "phò vua". Cần Vương lấy chính danh từ vua Hàm Nghi; Yên Thế không phụ thuộc biểu tượng chính trị nào, nên khi Hàm Nghi bị bắt (1888), Yên Thế vẫn tiếp tục.',
+  },
+  {
+    q: 'Vì sao phong trào Cần Vương thất bại — nguyên nhân nào là mang tính cấu trúc (không chỉ tình huống)?',
+    opts: [
+      'Thiếu lương thực và nước uống',
+      'Các thủ lĩnh không dũng cảm đủ',
+      'Chênh lệch vũ khí + thiếu liên kết + hệ tư tưởng phong kiến không huy động toàn xã hội',
+      'Bị Trung Quốc phản bội vì đã ký hiệp ước với Pháp',
+    ],
+    correct: 2,
+    explain: 'Ba nguyên nhân cấu trúc: (1) Pháp có đại bác, súng bắn nhanh — chênh lệch công nghệ không bù được bằng số quân; (2) Ba Đình, Bãi Sậy, Hương Khê hoạt động riêng lẻ, không chi viện nhau; (3) "Phò vua" chỉ huy động được sĩ phu, không có chương trình cải cách xã hội để huy động nông dân toàn lực. Tất cả đều mang tính cấu trúc, không chỉ là lỗi lãnh đạo.',
+  },
+  {
+    q: 'Hoàng Hoa Thám (Đề Thám) kết thúc ra sao, và đây là mốc gì trong lịch sử kháng chiến?',
+    opts: [
+      'Tự sát 1910 để không bị bắt — mốc kết thúc Cần Vương',
+      'Bị sát hại 10/2/1913 (nhiều nguồn cho là do phản bội nội bộ) — mốc kết thúc giai đoạn đấu tranh vũ trang kiểu nông dân–phong kiến',
+      'Trốn sang Trung Quốc 1912 và mất ở đó',
+      'Bị Pháp bắt và đày sang Algeria như vua Hàm Nghi',
+    ],
+    correct: 1,
+    explain: '10/2/1913: Hoàng Hoa Thám bị sát hại — theo nhiều nguồn sử học, do phản bội nội bộ. Đây là mốc kết thúc cuộc kháng chiến vũ trang cuối cùng mang tính chất nông dân–phong kiến chống Pháp. Sau 1913, các phong trào yêu nước chuyển sang hướng mới (cách mạng tư sản, cộng sản).',
+  },
+];
+
+let quizIdx   = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = `Câu ${quizIdx+1}/${QUIZ.length}: ${q.q}`;
+  document.getElementById('quiz-prog').textContent = `${quizIdx+1} / ${QUIZ.length}`;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? `Điểm: ${quizScore}/${quizIdx}` : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = function() { quizAnswer(i); };
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+
+  document.getElementById('quiz-score').textContent = `Điểm: ${quizScore}/${quizIdx+1}`;
+
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent = `Kết quả: ${quizScore}/${QUIZ.length} (${pct}%)`;
+    document.getElementById('quiz-prog').textContent  =
+      pct >= 80 ? 'Xuất sắc!' : pct >= 60 ? 'Tốt — ôn lại các câu sai.' : 'Cần ôn tập thêm.';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

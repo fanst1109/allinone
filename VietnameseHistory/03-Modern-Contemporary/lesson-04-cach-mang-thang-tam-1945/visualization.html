@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Cách mạng Tháng Tám 1945</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette lịch sử Việt ── */
+  :root {
+    --accent:        #b45309;
+    --accent-soft:   #fef3c7;
+    --accent-dark:   #78350f;
+    --red-war:       #b91c1c;
+    --red-soft:      #fee2e2;
+    --green-peace:   #15803d;
+    --green-soft:    #dcfce7;
+    --stone:         #78716c;
+    --stone-soft:    #f5f5f4;
+    --blue-mid:      #1d4ed8;
+    --blue-soft:     #dbeafe;
+    --bg-card:       #ffffff;
+    --bg-section:    #fffbeb;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.55rem; margin-bottom: 6px; }
+  h2 { color: var(--accent); margin-top: 40px; padding-bottom: 8px;
+       border-bottom: 2px solid var(--accent-soft); font-size: 1.18rem; }
+
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 22px;
+    font-style: italic;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 5px rgba(180,83,9,.12);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .war-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-war);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .peace-box {
+    background: var(--green-soft);
+    border-left: 4px solid var(--green-peace);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 1 — Bản đồ SVG Tổng khởi nghĩa
+     ══════════════════════════════════════════════ */
+  .map-wrap {
+    overflow-x: auto;
+    text-align: center;
+  }
+  #uprising-map {
+    display: block;
+    margin: 0 auto;
+    cursor: default;
+  }
+
+  .map-legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 12px 0 4px;
+    font-size: 13px;
+    align-items: center;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,.15);
+    flex-shrink: 0;
+  }
+
+  /* Tỉnh thành — class theo ngày khởi nghĩa */
+  .city-dot {
+    cursor: pointer;
+    transition: r .2s;
+  }
+  .city-dot:hover { filter: brightness(1.15); }
+
+  .map-tooltip {
+    position: fixed;
+    background: #1f2937;
+    color: white;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 7px;
+    pointer-events: none;
+    z-index: 200;
+    max-width: 240px;
+    line-height: 1.5;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,.25);
+  }
+
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 8px 0 14px;
+    align-items: center;
+    font-size: 13px;
+  }
+  .filter-btn {
+    padding: 5px 13px;
+    border-radius: 20px;
+    border: 2px solid #d1d5db;
+    background: #f9fafb;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all .15s;
+  }
+  .filter-btn:hover { border-color: var(--accent); }
+  .filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* ══════════════════════════════════════════════
+     MODULE 2 — Timeline chi tiết
+     ══════════════════════════════════════════════ */
+  .timeline {
+    position: relative;
+    padding: 12px 0 12px 32px;
+    margin: 8px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #7c3aed, var(--accent), var(--red-war), var(--green-peace));
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-left: 20px;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -26px;
+    top: 6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+  }
+  .tl-item.war::before   { background: var(--red-war);    box-shadow: 0 0 0 2px var(--red-war); }
+  .tl-item.peace::before { background: var(--green-peace); box-shadow: 0 0 0 2px var(--green-peace); }
+  .tl-item.key::before {
+    width: 18px; height: 18px;
+    left: -28px; top: 4px;
+    background: var(--red-war);
+    box-shadow: 0 0 0 3px var(--red-war), 0 0 0 6px rgba(185,28,28,.2);
+  }
+  .tl-item.famine::before { background: #6b7280; box-shadow: 0 0 0 2px #6b7280; }
+  .tl-year {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 2px;
+  }
+  .tl-item.war .tl-year   { color: var(--red-war); }
+  .tl-item.key .tl-year   { color: var(--red-war); font-size: 15px; }
+  .tl-item.peace .tl-year { color: var(--green-peace); }
+  .tl-item.famine .tl-year { color: #6b7280; }
+  .tl-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: #1f2937;
+    line-height: 1.4;
+  }
+  .tl-desc {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 3px;
+    line-height: 1.5;
+  }
+  .tl-badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .badge-key    { background: #fee2e2; color: #991b1b; }
+  .badge-normal { background: var(--accent-soft); color: var(--accent-dark); }
+  .badge-peace  { background: var(--green-soft); color: var(--green-peace); }
+  .badge-famine { background: #f3f4f6; color: #374151; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 3 — Sơ đồ nhân–quả "Thời cơ"
+     ══════════════════════════════════════════════ */
+  .opportunity-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .opp-node {
+    border-radius: 10px;
+    padding: 14px 14px;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    position: relative;
+  }
+  .opp-node:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+  .opp-node.prep  { background: #ede9fe; color: #4c1d95; border: 2px solid #7c3aed; }
+  .opp-node.cause { background: var(--accent-soft); color: var(--accent-dark); border: 2px solid var(--accent); }
+  .opp-node.event { background: var(--red-soft); color: #991b1b; border: 2px solid var(--red-war); }
+  .opp-node.result { background: var(--green-soft); color: #14532d; border: 2px solid var(--green-peace); }
+  .opp-node .opp-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    margin-bottom: 6px;
+    opacity: .7;
+    text-transform: uppercase;
+  }
+
+  .opp-arrow-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    margin: 6px 0;
+    font-size: 22px;
+    color: var(--stone);
+  }
+  .opp-arrow-row span { flex: 1; text-align: center; }
+
+  .opp-center-row {
+    display: flex;
+    justify-content: center;
+    margin: 8px 0;
+    font-size: 22px;
+    color: var(--stone);
+  }
+
+  .opp-result-row {
+    display: flex;
+    justify-content: center;
+    margin: 8px 0;
+  }
+  .opp-result-big {
+    border-radius: 12px;
+    padding: 16px 28px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.6;
+    font-weight: 700;
+    background: var(--green-soft);
+    color: #14532d;
+    border: 2px solid var(--green-peace);
+    max-width: 480px;
+    width: 100%;
+  }
+
+  .opp-detail {
+    background: var(--bg-section);
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+  }
+  .opp-detail.show { display: block; }
+  .opp-detail-title { font-weight: 700; color: var(--accent-dark); margin-bottom: 6px; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 4 — Quiz ôn tập
+     ══════════════════════════════════════════════ */
+  .quiz-q {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 12px;
+    color: #1f2937;
+    line-height: 1.5;
+  }
+  .quiz-opts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .quiz-opt {
+    padding: 10px 14px;
+    border-radius: 7px;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: var(--green-peace); background: var(--green-soft); color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-top: 8px;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: var(--green-soft); color: #14532d; border: 1px solid var(--green-peace); }
+  .quiz-feedback.err { background: var(--red-soft); color: #991b1b; border: 1px solid var(--red-war); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score { font-weight: 700; color: var(--green-peace); font-size: 15px; }
+
+  /* ══════════════════════════════════════════════
+     RESPONSIVE
+     ══════════════════════════════════════════════ */
+  @media (max-width: 700px) {
+    .opportunity-grid { grid-template-columns: 1fr; }
+    .opp-arrow-row { display: none; }
+  }
+  @media (max-width: 480px) {
+    .map-legend { gap: 10px; font-size: 12px; }
+    .filter-btn { font-size: 12px; padding: 4px 10px; }
+    .tl-title { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử VN — Hiện đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-nguyen-ai-quoc-dang-1930/visualization.html">← L3: Nguyễn Ái Quốc &amp; thành lập Đảng</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Cách mạng Tháng Tám 1945</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-khang-chien-chong-phap/visualization.html">L5: Kháng chiến chống Pháp →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Cách mạng Tháng Tám 1945</h1>
+<p class="subtitle">Bản đồ Tổng khởi nghĩa · Timeline tháng 8 → 2/9/1945 · Sơ đồ "Thời cơ" · Quiz ôn tập</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ Tổng khởi nghĩa
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ Tổng khởi nghĩa tháng 8/1945</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Lọc theo ngày để thấy sức lan tỏa của Tổng khởi nghĩa. Click vào từng
+    thành phố để xem chi tiết sự kiện. Màu sắc biểu thị ngày giành chính quyền.
+  </div>
+
+  <div class="filter-row">
+    <strong style="font-size:13px; color:var(--stone);">Lọc:</strong>
+    <button class="filter-btn active" onclick="filterMap('all')">Tất cả</button>
+    <button class="filter-btn" onclick="filterMap('13-14')">13–14/8 (Tân Trào)</button>
+    <button class="filter-btn" onclick="filterMap('15-18')">15–18/8</button>
+    <button class="filter-btn" onclick="filterMap('19')">19/8 (Hà Nội)</button>
+    <button class="filter-btn" onclick="filterMap('20-22')">20–22/8</button>
+    <button class="filter-btn" onclick="filterMap('23-25')">23–25/8 (Huế, SG)</button>
+    <button class="filter-btn" onclick="filterMap('after')">Sau 25/8</button>
+  </div>
+
+  <div class="map-legend">
+    <div class="legend-item"><div class="legend-swatch" style="background:#7c3aed"></div> 13–14/8 (Tân Trào)</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#1d4ed8"></div> 15–18/8</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#b91c1c"></div> 19/8 (Hà Nội)</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#b45309"></div> 20–22/8</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#0891b2"></div> 23–25/8 (Huế, SG)</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#15803d"></div> Sau 25/8</div>
+  </div>
+
+  <div class="map-wrap">
+    <!-- SVG bản đồ phác thảo Việt Nam — minh họa, không chính xác GPS -->
+    <svg id="uprising-map" width="360" height="680" viewBox="0 0 360 680"
+         aria-label="Bản đồ Tổng khởi nghĩa tháng 8 năm 1945">
+
+      <!-- ── Đường bờ biển / hình Việt Nam phác thảo ── -->
+      <path d="
+        M 160,20
+        C 175,18 195,22 205,30
+        C 215,38 218,48 220,60
+        C 222,72 218,82 225,95
+        C 232,108 245,112 250,125
+        C 255,138 248,150 255,162
+        C 262,174 275,178 278,192
+        C 281,206 272,218 275,232
+        C 278,246 290,252 292,265
+        C 294,278 285,290 285,304
+        C 285,318 292,328 290,342
+        C 288,356 278,362 278,376
+        C 278,390 285,398 285,412
+        C 285,426 275,434 272,448
+        C 268,462 272,474 268,487
+        C 260,510 245,525 235,540
+        C 225,555 215,565 205,578
+        C 195,591 188,600 178,610
+        C 168,620 155,625 145,630
+        C 135,635 122,632 112,628
+        C 102,624 95,616 90,608
+        C 85,600 88,590 85,580
+        C 82,570 75,562 78,552
+        C 81,542 92,538 95,528
+        C 98,518 92,510 95,500
+        C 98,490 108,486 110,476
+        C 112,466 105,458 108,448
+        C 111,438 122,434 122,424
+        C 122,414 112,408 112,398
+        C 112,388 120,382 118,372
+        C 116,362 105,358 105,348
+        C 105,338 115,332 112,322
+        C 109,312 98,308 98,298
+        C 98,288 108,282 108,272
+        C 108,262 98,258 100,248
+        C 102,238 115,234 115,224
+        C 115,214 105,210 108,200
+        C 111,190 125,186 128,176
+        C 131,166 122,158 125,148
+        C 128,138 140,134 142,124
+        C 144,114 138,104 140,94
+        C 142,84 152,78 152,68
+        C 152,58 145,48 148,38
+        C 151,28 157,22 160,20
+        Z
+      " fill="#e8f4e8" stroke="#94a3b8" stroke-width="1.5"/>
+
+      <!-- Đường phân vùng Bắc–Trung–Nam (gợi ý) -->
+      <line x1="92" y1="360" x2="290" y2="360" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="100" y1="490" x2="275" y2="490" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4,3"/>
+
+      <!-- Nhãn vùng -->
+      <text x="195" y="195" font-size="11" fill="#94a3b8" font-weight="700" text-anchor="middle">BẮC KỲ</text>
+      <text x="195" y="425" font-size="11" fill="#94a3b8" font-weight="700" text-anchor="middle">TRUNG KỲ</text>
+      <text x="160" y="560" font-size="11" fill="#94a3b8" font-weight="700" text-anchor="middle">NAM KỲ</text>
+
+      <!-- ── Điểm thành phố – khởi nghĩa ── -->
+      <!-- Tân Trào (Tuyên Quang) — 14/8/1945 — Lệnh Tổng khởi nghĩa -->
+      <circle class="city-dot" cx="175" cy="115" r="9" fill="#7c3aed" opacity="0.9"
+        data-name="Tân Trào (Tuyên Quang)" data-date="14/8/1945" data-group="13-14"
+        data-desc="Hội nghị toàn quốc tại Tân Trào (13–14/8) nhất trí phát động Tổng khởi nghĩa. Ủy ban Khởi nghĩa toàn quốc ban lệnh từ 13/8. Đây là đầu não của cuộc cách mạng."/>
+
+      <!-- Cao Bằng — 17/8 -->
+      <circle class="city-dot" cx="210" cy="68" r="7" fill="#1d4ed8" opacity="0.9"
+        data-name="Cao Bằng" data-date="17/8/1945" data-group="15-18"
+        data-desc="Tỉnh lỵ giành chính quyền ngày 17/8/1945. Cao Bằng là tỉnh thuộc khu giải phóng Việt Bắc — Việt Minh đã kiểm soát thực tế từ trước, nên giành chính quyền thuận lợi."/>
+
+      <!-- Thái Nguyên — 20/8 -->
+      <circle class="city-dot" cx="188" cy="133" r="7" fill="#b45309" opacity="0.9"
+        data-name="Thái Nguyên" data-date="20/8/1945" data-group="20-22"
+        data-desc="Tỉnh lỵ Thái Nguyên giành chính quyền ngày 20/8/1945. Thái Nguyên nằm trong khu giải phóng Việt Bắc, là căn cứ địa quan trọng của Việt Minh."/>
+
+      <!-- Hà Nội — 19/8 -->
+      <circle class="city-dot" cx="172" cy="168" r="11" fill="#b91c1c" opacity="1"
+        data-name="Hà Nội" data-date="19/8/1945" data-group="19"
+        data-desc="NGÀY 19/8/1945 — Hà Nội giành chính quyền. Đây là sự kiện trung tâm của Tổng khởi nghĩa: quần chúng xuống đường, chiếm Phủ Khâm sai, Sở Mật thám, các công sở. Quân Nhật không can thiệp. Chính phủ Trần Trọng Kim tê liệt."/>
+      <text x="172" y="165" font-size="9" fill="white" font-weight="700" text-anchor="middle">HN</text>
+
+      <!-- Hải Phòng — 23/8 -->
+      <circle class="city-dot" cx="215" cy="178" r="7" fill="#0891b2" opacity="0.9"
+        data-name="Hải Phòng" data-date="23/8/1945" data-group="23-25"
+        data-desc="Hải Phòng giành chính quyền ngày 23/8/1945 — cảng biển lớn nhất miền Bắc, có đơn vị Nhật mạnh hơn, nên khởi nghĩa chậm hơn Hà Nội vài ngày."/>
+
+      <!-- Nam Định — 19/8 -->
+      <circle class="city-dot" cx="158" cy="208" r="6" fill="#b91c1c" opacity="0.85"
+        data-name="Nam Định" data-date="19/8/1945" data-group="19"
+        data-desc="Nam Định giành chính quyền ngày 19/8/1945, cùng ngày với Hà Nội. Tin tức từ Hà Nội lan nhanh ra các tỉnh lân cận và thúc đẩy hành động ở nhiều nơi."/>
+
+      <!-- Thanh Hóa — 19/8 -->
+      <circle class="city-dot" cx="145" cy="256" r="7" fill="#b91c1c" opacity="0.9"
+        data-name="Thanh Hóa" data-date="19/8/1945" data-group="19"
+        data-desc="Thanh Hóa giành chính quyền ngày 19/8/1945 — tỉnh có truyền thống yêu nước và là quê hương của nhiều nhà cách mạng. Lực lượng Việt Minh ở đây đã chuẩn bị khá kỹ."/>
+
+      <!-- Nghệ An — 21/8 -->
+      <circle class="city-dot" cx="125" cy="296" r="7" fill="#b45309" opacity="0.9"
+        data-name="Nghệ An" data-date="21/8/1945" data-group="20-22"
+        data-desc="Nghệ An (Vinh) giành chính quyền ngày 21/8/1945. Đây là vùng có phong trào yêu nước mạnh từ đầu thế kỉ XX (Xô viết Nghệ Tĩnh 1930–1931)."/>
+
+      <!-- Hà Tĩnh — 21/8 -->
+      <circle class="city-dot" cx="115" cy="325" r="6" fill="#b45309" opacity="0.9"
+        data-name="Hà Tĩnh" data-date="21/8/1945" data-group="20-22"
+        data-desc="Hà Tĩnh giành chính quyền ngày 21/8/1945, song song với các tỉnh miền Trung lân cận."/>
+
+      <!-- Quảng Bình — 23/8 -->
+      <circle class="city-dot" cx="118" cy="358" r="6" fill="#0891b2" opacity="0.9"
+        data-name="Quảng Bình" data-date="23/8/1945" data-group="23-25"
+        data-desc="Quảng Bình giành chính quyền ngày 23/8/1945."/>
+
+      <!-- Huế (Thừa Thiên) — 23/8 -->
+      <circle class="city-dot" cx="148" cy="395" r="10" fill="#0891b2" opacity="1"
+        data-name="Huế (Thừa Thiên)" data-date="23/8/1945" data-group="23-25"
+        data-desc="NGÀY 23/8/1945 — Huế (kinh đô) giành chính quyền. Vua Bảo Đại đồng ý thoái vị sau khi nhận được yêu cầu từ Chính phủ lâm thời. Ngày 25/8, ông tuyên bố thoái vị chính thức. Triều Nguyễn — triều đại cuối cùng của Việt Nam — chấm dứt."/>
+      <text x="148" y="392" font-size="9" fill="white" font-weight="700" text-anchor="middle">HUẾ</text>
+
+      <!-- Đà Nẵng — 23/8 -->
+      <circle class="city-dot" cx="175" cy="418" r="7" fill="#0891b2" opacity="0.9"
+        data-name="Đà Nẵng" data-date="23/8/1945" data-group="23-25"
+        data-desc="Đà Nẵng giành chính quyền ngày 23/8/1945 — cùng ngày với Huế. Đây là cảng biển lớn của Trung Kỳ."/>
+
+      <!-- Quảng Nam — 24/8 -->
+      <circle class="city-dot" cx="175" cy="438" r="6" fill="#0891b2" opacity="0.9"
+        data-name="Quảng Nam (Hội An)" data-date="24/8/1945" data-group="23-25"
+        data-desc="Quảng Nam giành chính quyền ngày 24/8/1945."/>
+
+      <!-- Quảng Ngãi — 21/8 -->
+      <circle class="city-dot" cx="192" cy="458" r="6" fill="#b45309" opacity="0.9"
+        data-name="Quảng Ngãi" data-date="21/8/1945" data-group="20-22"
+        data-desc="Quảng Ngãi giành chính quyền ngày 21/8/1945 — sớm hơn nhiều tỉnh Trung Kỳ khác do lực lượng Việt Minh mạnh."/>
+
+      <!-- Bình Định — 22/8 -->
+      <circle class="city-dot" cx="200" cy="478" r="6" fill="#b45309" opacity="0.9"
+        data-name="Bình Định (Quy Nhơn)" data-date="22/8/1945" data-group="20-22"
+        data-desc="Bình Định giành chính quyền ngày 22/8/1945."/>
+
+      <!-- Sài Gòn — 25/8 -->
+      <circle class="city-dot" cx="162" cy="553" r="11" fill="#0891b2" opacity="1"
+        data-name="Sài Gòn (Nam Kỳ)" data-date="25/8/1945" data-group="23-25"
+        data-desc="NGÀY 25/8/1945 — Sài Gòn và Nam Kỳ giành chính quyền. Tại Sài Gòn, quần chúng xuống đường đông đảo với hàng chục vạn người tham gia mít-tinh và biểu tình. Mặt trận Việt Minh Nam Kỳ lãnh đạo. Sự kiện này hoàn thành Tổng khởi nghĩa trên cả ba kỳ."/>
+      <text x="162" y="550" font-size="9" fill="white" font-weight="700" text-anchor="middle">SG</text>
+
+      <!-- Cần Thơ — 26/8 -->
+      <circle class="city-dot" cx="145" cy="590" r="6" fill="#15803d" opacity="0.9"
+        data-name="Cần Thơ" data-date="26/8/1945" data-group="after"
+        data-desc="Cần Thơ và đồng bằng Nam Kỳ giành chính quyền ngày 26/8/1945 và những ngày tiếp theo."/>
+
+      <!-- Ba Đình — chú thích 2/9 -->
+      <rect x="138" y="153" width="22" height="14" rx="3" fill="#dc2626" opacity="0.9"/>
+      <text x="149" y="163" font-size="8.5" fill="white" font-weight="900" text-anchor="middle">2/9</text>
+
+      <!-- ── Mũi tên hướng lan tỏa ── -->
+      <defs>
+        <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L6,3 Z" fill="#b45309" opacity="0.5"/>
+        </marker>
+      </defs>
+      <line x1="172" y1="182" x2="148" y2="250" stroke="#b45309" stroke-width="1.5"
+            stroke-dasharray="4,3" marker-end="url(#arr)" opacity="0.5"/>
+      <line x1="172" y1="182" x2="215" y2="190" stroke="#b45309" stroke-width="1.5"
+            stroke-dasharray="4,3" marker-end="url(#arr)" opacity="0.5"/>
+    </svg>
+  </div>
+
+  <div class="map-tooltip" id="map-tooltip"></div>
+
+  <div class="info-box" id="city-detail" style="margin-top:14px; display:none;">
+    <strong id="city-name" style="color:var(--accent-dark); font-size:15px;"></strong>
+    <span id="city-date" style="font-size:13px; color:var(--stone); margin-left:8px;"></span>
+    <div id="city-desc" style="margin-top:6px;"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Timeline chi tiết
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Chuỗi thời gian: 1940 – 2/9/1945</h2>
+
+<div class="card">
+  <div class="timeline">
+
+    <div class="tl-item">
+      <div class="tl-year">Tháng 9/1940</div>
+      <div class="tl-title">Nhật vào Đông Dương
+        <span class="tl-badge badge-normal">Khởi đầu "hai tròng"</span>
+      </div>
+      <div class="tl-desc">Pháp (Vichy) ký hiệp ước cho Nhật đóng quân tại Đông Dương. Hai tầng thống trị Pháp–Nhật bắt đầu, người dân chịu gánh nặng kép.</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">Tháng 5/1941</div>
+      <div class="tl-title">Thành lập Mặt trận Việt Minh tại Pác Bó
+        <span class="tl-badge badge-normal">Tổ chức</span>
+      </div>
+      <div class="tl-desc">Nguyễn Ái Quốc triệu tập Hội nghị Trung ương 8 tại hang Pác Bó (Cao Bằng). Mặt trận Việt Minh thành lập, mở rộng đoàn kết vượt giới hạn đảng phái.</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">22/12/1944</div>
+      <div class="tl-title">Thành lập Đội Việt Nam Tuyên truyền Giải phóng quân</div>
+      <div class="tl-desc">Đơn vị vũ trang cách mạng chính thức, sau phát triển thành Việt Nam Giải phóng quân. Đây là lực lượng quân sự nòng cốt cho Tổng khởi nghĩa.</div>
+    </div>
+
+    <div class="tl-item famine">
+      <div class="tl-year">Đầu 1945 (tháng 2–5)</div>
+      <div class="tl-title">Nạn đói Ất Dậu
+        <span class="tl-badge badge-famine">Thảm họa nhân đạo</span>
+      </div>
+      <div class="tl-desc">Ước tính khoảng 1,5–2 triệu người chết đói (số liệu giữa các nguồn còn khác nhau), chủ yếu ở Bắc Kỳ. Nguyên nhân đa tầng: trưng thu gạo của Nhật, thuế Pháp, mất mùa, giao thông gián đoạn. Nạn đói phá tan uy tín cả hai bên thống trị.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">9/3/1945</div>
+      <div class="tl-title">Nhật đảo chính Pháp
+        <span class="tl-badge badge-key">Ngoặt quan trọng</span>
+      </div>
+      <div class="tl-desc">Trong vài giờ đêm 9/3, quân Nhật tiêu diệt toàn bộ lực lượng Pháp trên khắp Đông Dương. Bộ máy thực dân Pháp gần 60 năm sụp đổ. Nhật dựng chính phủ Trần Trọng Kim (thành lập 17/4/1945).</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">Tháng 6/1945</div>
+      <div class="tl-title">Khu giải phóng Việt Bắc thành lập chính thức</div>
+      <div class="tl-desc">Gồm 6 tỉnh: Cao Bằng, Bắc Kạn, Lạng Sơn, Thái Nguyên, Tuyên Quang, Hà Giang. Đây là căn cứ địa — "vùng giải phóng" mà chính quyền cách mạng thực sự kiểm soát từ trước 8/1945.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">6/8/1945</div>
+      <div class="tl-title">Mỹ ném bom nguyên tử Hiroshima</div>
+      <div class="tl-desc">Quả bom nguyên tử đầu tiên trong lịch sử được dùng trong chiến tranh. Ngày 8/8, Liên Xô tuyên chiến với Nhật. Ngày 9/8, bom nguyên tử thứ hai xuống Nagasaki.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">13–14/8/1945</div>
+      <div class="tl-title">Hội nghị Tân Trào — Lệnh Tổng khởi nghĩa
+        <span class="tl-badge badge-key">Quyết định</span>
+      </div>
+      <div class="tl-desc">Ủy ban Khởi nghĩa toàn quốc ban lệnh 13/8. Hội nghị toàn quốc tại Tân Trào họp 14–15/8, nhất trí phát động Tổng khởi nghĩa trước khi Đồng Minh vào giải giáp.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">15/8/1945</div>
+      <div class="tl-title">Nhật Hoàng tuyên bố đầu hàng trên đài phát thanh</div>
+      <div class="tl-desc">Khoảng trống quyền lực mở ra: quân Nhật không còn chiến đấu, chính phủ Trần Trọng Kim tê liệt, Đồng Minh chưa vào kịp. Thời cơ "ngàn năm có một" xuất hiện.</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">19/8/1945</div>
+      <div class="tl-title">Hà Nội giành chính quyền
+        <span class="tl-badge badge-key">Đột phá</span>
+      </div>
+      <div class="tl-desc">Hàng chục vạn quần chúng xuống đường. Chiếm Phủ Khâm sai và các công sở. Quân Nhật không can thiệp. Đây là sự kiện có ý nghĩa biểu tượng cao nhất của Tổng khởi nghĩa.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">23/8/1945</div>
+      <div class="tl-title">Huế giành chính quyền — Bảo Đại đồng ý thoái vị</div>
+      <div class="tl-desc">Kinh đô của triều Nguyễn rơi vào tay chính quyền cách mạng. Vua Bảo Đại đồng ý thoái vị sau khi nhận yêu cầu từ Chính phủ lâm thời.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">25/8/1945</div>
+      <div class="tl-title">Sài Gòn giành chính quyền — Bảo Đại thoái vị chính thức</div>
+      <div class="tl-desc">Nam Kỳ hoàn thành khởi nghĩa. Cùng ngày, Bảo Đại tuyên bố thoái vị chính thức, bàn giao ấn kiếm. Triều Nguyễn — triều đại cuối cùng của Việt Nam — kết thúc.</div>
+    </div>
+
+    <div class="tl-item peace">
+      <div class="tl-year">2/9/1945</div>
+      <div class="tl-title">Chủ tịch Hồ Chí Minh đọc Tuyên ngôn Độc lập tại Ba Đình
+        <span class="tl-badge badge-peace">Khai sinh nước VNDCCH</span>
+      </div>
+      <div class="tl-desc">Trước đám đông tại quảng trường Ba Đình, Hà Nội, Chủ tịch Hồ Chí Minh đọc bản Tuyên ngôn Độc lập, tuyên bố thành lập nước Việt Nam Dân chủ Cộng hòa. Tuyên ngôn trích dẫn văn kiện độc lập Mỹ (1776) và Tuyên ngôn Nhân quyền Pháp (1789) như chiến lược lập luận quốc tế.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Sơ đồ nhân–quả "Thời cơ"
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Sơ đồ phân tích "Thời cơ" Cách mạng Tháng Tám</h2>
+
+<div class="card">
+  <div class="info-box">
+    Thành công của Cách mạng Tháng Tám thường được giải thích qua ba nhóm yếu tố hội tụ.
+    Bấm vào từng ô để xem phân tích chi tiết.
+  </div>
+
+  <!-- Hàng 1: Ba yếu tố đầu vào -->
+  <div class="opportunity-grid">
+    <div class="opp-node prep" onclick="showOpp(0)">
+      <div class="opp-label">Yếu tố 1</div>
+      Chuẩn bị lâu dài<br>(1941–1945)
+    </div>
+    <div class="opp-node cause" onclick="showOpp(1)">
+      <div class="opp-label">Yếu tố 2</div>
+      Khủng hoảng chính danh<br>của lực lượng cũ
+    </div>
+    <div class="opp-node event" onclick="showOpp(2)">
+      <div class="opp-label">Yếu tố 3</div>
+      Khoảng trống quyền lực<br>(Nhật đầu hàng 15/8)
+    </div>
+  </div>
+
+  <!-- Mũi tên xuống -->
+  <div class="opp-center-row">↓ hội tụ ↓</div>
+
+  <!-- Hàng 2: Tổng khởi nghĩa -->
+  <div class="opp-result-row">
+    <div class="opp-node event" onclick="showOpp(3)" style="max-width:360px; width:100%;">
+      <div class="opp-label">Kết quả trực tiếp</div>
+      Tổng khởi nghĩa tháng 8/1945<br>
+      <small style="font-weight:400;">(19/8 HN → 23/8 Huế → 25/8 SG)</small>
+    </div>
+  </div>
+
+  <div class="opp-center-row">↓</div>
+
+  <!-- Hàng 3: Kết quả -->
+  <div class="opp-result-row">
+    <div class="opp-result-big">
+      2/9/1945 — Tuyên ngôn Độc lập<br>
+      Khai sinh nước Việt Nam Dân chủ Cộng hòa
+    </div>
+  </div>
+
+  <div class="opp-detail" id="opp-detail">
+    <div class="opp-detail-title" id="opp-detail-title"></div>
+    <div id="opp-detail-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q" id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <button class="btn btn-secondary" id="btn-quiz-restart" onclick="quizRestart()" style="display:none">Làm lại</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score" id="quiz-score"></span>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   MODULE 1 — Bản đồ Tổng khởi nghĩa
+   ════════════════════════════════════════════════ */
+
+const GROUP_ORDER = ['13-14','15-18','19','20-22','23-25','after'];
+let activeFilter = 'all';
+
+function filterMap(group) {
+  activeFilter = group;
+
+  // Cập nhật nút lọc
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('onclick').includes("'" + group + "'"));
+  });
+
+  // Hiện / ẩn điểm
+  document.querySelectorAll('.city-dot').forEach(dot => {
+    const g = dot.dataset.group;
+    if (group === 'all') {
+      dot.style.opacity = parseFloat(dot.getAttribute('opacity')) || 0.9;
+      dot.style.display = '';
+    } else {
+      if (g === group) {
+        dot.style.opacity = '1';
+        dot.style.display = '';
+      } else {
+        dot.style.opacity = '0.18';
+      }
+    }
+  });
+}
+
+// Tooltip & click chi tiết
+const tooltip  = document.getElementById('map-tooltip');
+const cityDetail  = document.getElementById('city-detail');
+const cityName    = document.getElementById('city-name');
+const cityDate    = document.getElementById('city-date');
+const cityDesc    = document.getElementById('city-desc');
+
+document.querySelectorAll('.city-dot').forEach(dot => {
+  dot.addEventListener('mouseenter', function(e) {
+    tooltip.style.display = 'block';
+    tooltip.innerHTML = '<strong>' + this.dataset.name + '</strong><br>' + this.dataset.date;
+  });
+  dot.addEventListener('mousemove', function(e) {
+    tooltip.style.left = (e.clientX + 14) + 'px';
+    tooltip.style.top  = (e.clientY - 10) + 'px';
+  });
+  dot.addEventListener('mouseleave', function() {
+    tooltip.style.display = 'none';
+  });
+  dot.addEventListener('click', function() {
+    cityDetail.style.display = 'block';
+    cityName.textContent = this.dataset.name;
+    cityDate.textContent = this.dataset.date;
+    cityDesc.textContent = this.dataset.desc;
+    cityDetail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+});
+
+/* ════════════════════════════════════════════════
+   MODULE 3 — Sơ đồ nhân–quả "Thời cơ"
+   ════════════════════════════════════════════════ */
+
+const OPP_DATA = [
+  {
+    title: 'Yếu tố 1: Chuẩn bị lâu dài (1941–1945)',
+    body: 'Từ tháng 5/1941, Việt Minh xây dựng hệ thống cơ sở quần chúng, đào tạo cán bộ và duy trì lực lượng vũ trang tại căn cứ địa Việt Bắc trong 4 năm. Khi thời cơ đến tháng 8/1945, toàn bộ "hạ tầng" cách mạng — mạng lưới tổ chức, cán bộ có kinh nghiệm, lực lượng vũ trang, căn cứ địa — đã sẵn sàng để hành động ngay. Nếu thiếu giai đoạn chuẩn bị này, khoảng trống quyền lực vẫn mở ra nhưng không ai có thể lấp đầy trong vài ngày.'
+  },
+  {
+    title: 'Yếu tố 2: Khủng hoảng chính danh đồng thời của tất cả lực lượng cũ',
+    body: 'Trong vài tháng đầu 1945, uy tín của mọi lực lượng đang nắm quyền đều sụp đổ: (1) Pháp bị Nhật tiêu diệt ngày 9/3/1945 — mất hoàn toàn sức mạnh quân sự tại Đông Dương; (2) Nhật đầu hàng ngày 15/8 — mất cơ sở tồn tại; (3) Chính phủ Trần Trọng Kim không có lực lượng vũ trang thực sự, không thể hành động độc lập; (4) Vua Bảo Đại mất uy tín sau nhiều năm cộng tác với cả Pháp lẫn Nhật; (5) Nạn đói 1945 phá vỡ niềm tin vào toàn bộ trật tự cũ. Không còn ai đủ chính danh và thực lực để thách thức Việt Minh trong khoảng thời gian hẹp đó.'
+  },
+  {
+    title: 'Yếu tố 3: Khoảng trống quyền lực ngắn (sau 15/8/1945)',
+    body: 'Nhật Hoàng tuyên bố đầu hàng ngày 15/8/1945. Từ lúc đó đến khi Đồng Minh vào giải giáp (quân Trung Hoa Dân Quốc vào miền Bắc cuối tháng 8, quân Anh vào miền Nam đầu tháng 9) chỉ là vài tuần. Đây là "cửa sổ" thời gian hẹp nhưng quyết định: quân Nhật không còn ý chí chiến đấu, Pháp chưa trở lại, chính quyền cũ tê liệt. Hội nghị Tân Trào (13–14/8) xác định phải nắm ngay thời cơ này — trước khi Pháp hay các lực lượng khác kịp lấp đầy khoảng trống.'
+  },
+  {
+    title: 'Tổng khởi nghĩa tháng 8/1945 — Diễn biến chính',
+    body: 'Từ 13/8, Ủy ban Khởi nghĩa toàn quốc phát lệnh. Trong vòng 12 ngày (13–25/8), chính quyền cách mạng được thiết lập ở phần lớn các tỉnh thành trên cả nước: Hà Nội (19/8), Huế (23/8), Sài Gòn (25/8) là ba trung tâm quyết định. Vua Bảo Đại thoái vị ngày 25/8, chấm dứt triều Nguyễn. Tốc độ lan tỏa nhanh chóng phản ánh sự chuẩn bị kỹ lưỡng và khoảng trống quyền lực rộng mở.'
+  },
+];
+
+let currentOpp = -1;
+
+function showOpp(idx) {
+  const detail = document.getElementById('opp-detail');
+  if (currentOpp === idx) {
+    detail.classList.remove('show');
+    currentOpp = -1;
+    return;
+  }
+  currentOpp = idx;
+  document.getElementById('opp-detail-title').textContent = OPP_DATA[idx].title;
+  document.getElementById('opp-detail-body').textContent  = OPP_DATA[idx].body;
+  detail.classList.add('show');
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 4 — Quiz ôn tập
+   ════════════════════════════════════════════════ */
+
+const QUIZ = [
+  {
+    q: 'Mặt trận Việt Minh được thành lập vào tháng 5/1941 ở đâu?',
+    opts: ['Hà Nội', 'Tân Trào (Tuyên Quang)', 'Pác Bó (Cao Bằng)', 'Thái Nguyên'],
+    correct: 2,
+    explain: 'Hội nghị Trung ương 8 được tổ chức tại hang Pác Bó, Cao Bằng (5/1941). Nguyễn Ái Quốc vừa bí mật trở về nước sau 30 năm, chọn địa điểm gần biên giới Trung Quốc để thuận lợi cho liên lạc và an toàn.'
+  },
+  {
+    q: 'Sự kiện nào trực tiếp tạo ra "khoảng trống quyền lực" cho Tổng khởi nghĩa tháng 8/1945?',
+    opts: [
+      'Nhật đảo chính Pháp (9/3/1945)',
+      'Nạn đói Ất Dậu (đầu 1945)',
+      'Nhật Hoàng tuyên bố đầu hàng (15/8/1945)',
+      'Hội nghị Tân Trào (14/8/1945)',
+    ],
+    correct: 2,
+    explain: 'Khi Nhật đầu hàng ngày 15/8, quân Nhật tại Đông Dương không còn ý chí chiến đấu, chính phủ Trần Trọng Kim tê liệt, trong khi Đồng Minh chưa kịp vào giải giáp. Khoảng trống này kéo dài vài tuần — đủ để Việt Minh thiết lập chính quyền cách mạng trước khi ngoại lực can thiệp.'
+  },
+  {
+    q: 'Thứ tự đúng của ba trung tâm giành chính quyền trong Tổng khởi nghĩa là gì?',
+    opts: [
+      'Huế (19/8) → Hà Nội (23/8) → Sài Gòn (25/8)',
+      'Hà Nội (19/8) → Huế (23/8) → Sài Gòn (25/8)',
+      'Sài Gòn (19/8) → Hà Nội (23/8) → Huế (25/8)',
+      'Hà Nội (19/8) → Sài Gòn (22/8) → Huế (25/8)',
+    ],
+    correct: 1,
+    explain: 'Hà Nội (thủ đô của Bắc Kỳ) giành chính quyền sớm nhất: 19/8/1945. Tiếp theo là Huế (kinh đô Trung Kỳ): 23/8/1945 — cùng ngày Bảo Đại đồng ý thoái vị. Sau cùng là Sài Gòn (trung tâm Nam Kỳ): 25/8/1945 — cũng là ngày Bảo Đại tuyên bố thoái vị chính thức.'
+  },
+  {
+    q: 'Tuyên ngôn Độc lập 2/9/1945 trích dẫn văn kiện nào ở phần mở đầu?',
+    opts: [
+      'Hiến pháp Liên Xô (1936)',
+      'Tuyên ngôn Độc lập Mỹ (1776) và Tuyên ngôn Nhân quyền Pháp (1789)',
+      'Hiến chương Liên Hợp Quốc (1945)',
+      'Tuyên ngôn Độc lập Trung Hoa (1911)',
+    ],
+    correct: 1,
+    explain: 'Tuyên ngôn mở đầu bằng trích dẫn từ Tuyên ngôn Độc lập Mỹ 1776 ("Tất cả mọi người đều sinh ra có quyền bình đẳng...") và Tuyên ngôn Nhân quyền Pháp 1789. Đây là chiến lược lập luận: dùng chính ngôn ngữ của các đế quốc thực dân để lập luận cho quyền tự quyết của Việt Nam.'
+  },
+  {
+    q: 'Nạn đói Ất Dậu 1945 tập trung chủ yếu ở vùng nào của Việt Nam?',
+    opts: [
+      'Nam Kỳ và đồng bằng sông Cửu Long',
+      'Tây Nguyên và miền núi Trung Kỳ',
+      'Bắc Kỳ và Bắc Trung Kỳ',
+      'Trên đồng đều ở cả ba kỳ',
+    ],
+    correct: 2,
+    explain: 'Nạn đói tập trung ở các tỉnh đồng bằng và trung du Bắc Kỳ (Thái Bình, Nam Định, Hà Nam, Ninh Bình, Hưng Yên...) và một số tỉnh Bắc Trung Kỳ. Nguyên nhân một phần do giao thông đường sắt bị Đồng Minh đánh bom, không điều phối được gạo từ Nam ra Bắc.'
+  },
+  {
+    q: 'Vua Bảo Đại thoái vị vào ngày nào và tại đâu?',
+    opts: [
+      '19/8/1945 tại Hà Nội',
+      '23/8/1945 tại Huế',
+      '25/8/1945 tại Huế',
+      '2/9/1945 tại Ba Đình',
+    ],
+    correct: 2,
+    explain: 'Vua Bảo Đại tuyên bố thoái vị chính thức ngày 25/8/1945 tại Huế, bàn giao ấn kiếm cho đại diện Chính phủ lâm thời. (Ngày 23/8 ông mới đồng ý thoái vị; ngày 25/8 mới đọc chiếu thoái vị chính thức.) Đây là dấu chấm hết của triều Nguyễn và chế độ quân chủ Việt Nam.'
+  },
+  {
+    q: 'Khu giải phóng Việt Bắc thành lập chính thức tháng 6/1945 gồm bao nhiêu tỉnh?',
+    opts: ['3 tỉnh', '4 tỉnh', '6 tỉnh', '8 tỉnh'],
+    correct: 2,
+    explain: 'Khu giải phóng Việt Bắc gồm 6 tỉnh: Cao Bằng, Bắc Kạn, Lạng Sơn, Thái Nguyên, Tuyên Quang, Hà Giang. Đây là căn cứ địa chính của cách mạng, nơi Việt Minh kiểm soát thực tế từ trước 8/1945 và là nơi ban lệnh Tổng khởi nghĩa.'
+  },
+];
+
+let quizIdx   = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = 'Câu ' + (quizIdx + 1) + '/' + QUIZ.length + ': ' + q.q;
+  document.getElementById('quiz-prog').textContent = (quizIdx + 1) + ' / ' + QUIZ.length;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? 'Điểm: ' + quizScore + '/' + quizIdx : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach(function(opt, i) {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = function() { quizAnswer(i); };
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  document.getElementById('btn-quiz-restart').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+
+  opts.forEach(function(btn, i) {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+
+  document.getElementById('quiz-score').textContent = 'Điểm: ' + quizScore + '/' + (quizIdx + 1);
+
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent = 'Kết quả: ' + quizScore + '/' + QUIZ.length + ' (' + pct + '%)';
+    document.getElementById('quiz-prog').textContent =
+      pct >= 86 ? 'Xuất sắc!' : pct >= 57 ? 'Tốt — ôn lại các câu sai.' : 'Cần ôn tập thêm.';
+    document.getElementById('btn-quiz-restart').style.display = 'inline-block';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+function quizRestart() {
+  quizIdx   = 0;
+  quizScore = 0;
+  quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

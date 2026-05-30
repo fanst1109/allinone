@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Đổi mới & Hội nhập + Tổng kết Lịch sử Việt Nam</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette VietnameseHistory Tầng 3 ── */
+  :root {
+    --accent:       #b45309;
+    --accent-soft:  #fef3c7;
+    --accent-hover: #92400e;
+    --red-war:      #b91c1c;
+    --green-peace:  #15803d;
+    --grey-minor:   #78716c;
+    --blue-self:    #1d4ed8;
+    --teal-intl:    #0e7490;
+    --bg-card:      #ffffff;
+    --bg-section:   #fdfaf5;
+    --border:       #e7d9b8;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-hover); font-size: 1.6rem; margin-bottom: 4px; }
+  h2 { color: var(--accent); margin-top: 40px; padding-bottom: 6px;
+       border-bottom: 2px solid var(--accent-soft); }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(180,83,9,.10);
+    margin: 16px 0;
+    border: 1px solid var(--border);
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 1 — Biểu đồ thành tựu Đổi mới
+     ═══════════════════════════════════════════════════════ */
+  .chart-wrap {
+    overflow-x: auto;
+    background: var(--bg-section);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 16px 12px 8px;
+  }
+  #chart-svg { display: block; margin: 0 auto; }
+
+  .chart-tab-row {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;
+  }
+  .chart-tab {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    background: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+    transition: all .15s;
+  }
+  .chart-tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .chart-note {
+    font-size: 12px; color: #78716c; margin-top: 6px;
+    font-style: italic; text-align: center;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 2 — Timeline hội nhập
+     ═══════════════════════════════════════════════════════ */
+  .intl-timeline {
+    position: relative;
+    padding: 8px 0;
+  }
+  .intl-timeline::before {
+    content: '';
+    position: absolute;
+    left: 110px;
+    top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--accent-soft), var(--teal-intl), var(--green-peace));
+    border-radius: 2px;
+  }
+  .intl-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .intl-year {
+    width: 100px;
+    text-align: right;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--accent);
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+  .intl-dot {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--teal-intl);
+    background: var(--teal-intl);
+    margin: 0 14px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    cursor: pointer;
+    transition: transform .15s, background .15s;
+  }
+  .intl-dot:hover, .intl-dot.active { transform: scale(1.3); background: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+  .intl-content {
+    flex: 1;
+  }
+  .intl-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: #1f2937;
+    margin-bottom: 2px;
+  }
+  .intl-desc {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.6;
+    display: none;
+  }
+  .intl-desc.visible { display: block; }
+  .intl-badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .badge-bilateral { background: #dbeafe; color: #1d4ed8; }
+  .badge-multilateral { background: #dcfce7; color: #166534; }
+  .badge-fta { background: #fef3c7; color: #92400e; }
+  .badge-sanction { background: #fee2e2; color: #991b1b; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 3 — Timeline tổng hợp toàn lĩnh vực
+     ═══════════════════════════════════════════════════════ */
+  #tl-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: var(--bg-section);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 16px 0 8px;
+  }
+  #tl-svg { display: block; margin: 0 auto; }
+
+  .tl-dot { cursor: pointer; transition: r .15s; }
+  .tl-dot:hover { r: 11; }
+
+  #tl-detail {
+    min-height: 90px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.75;
+    transition: background .2s;
+  }
+  #tl-detail .ev-title { font-weight: 700; font-size: 16px; color: var(--accent-hover); margin-bottom: 4px; }
+  #tl-detail .ev-link a { color: var(--blue-self); font-size: 13px; }
+  #tl-detail .ev-tag {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 6px;
+    margin-bottom: 4px;
+  }
+  .tag-war     { background:#fee2e2; color:#991b1b; }
+  .tag-found   { background:#dcfce7; color:#166534; }
+  .tag-self    { background:#dbeafe; color:#1d4ed8; }
+  .tag-culture { background:#fef3c7; color:#92400e; }
+  .tag-reform  { background:#f0fdf4; color:#15803d; border:1px solid #86efac; }
+  .tag-intl    { background:#e0f2fe; color:#0e7490; }
+
+  /* Legend */
+  .tl-legend {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    align-items: center; margin: 8px 12px 0; font-size: 12px; color: #555;
+  }
+  .tl-legend-item { display: flex; align-items: center; gap: 5px; }
+  .tl-legend-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+
+  /* Filter buttons */
+  .tl-filter-row {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;
+  }
+  .tl-filter-btn {
+    padding: 5px 12px;
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    background: white;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer; color: #374151;
+    transition: all .15s;
+  }
+  .tl-filter-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 4 — Quiz tổng kết
+     ═══════════════════════════════════════════════════════ */
+  .quiz-progress {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px; font-size: 14px; color: #555;
+  }
+  .quiz-bar-wrap { flex: 1; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+  .quiz-bar { height: 100%; background: var(--accent); border-radius: 4px; transition: width .3s; }
+
+  .quiz-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 26px;
+    margin: 8px 0;
+  }
+  .quiz-q { font-weight: 700; font-size: 15px; color: #1f2937; margin-bottom: 16px; line-height: 1.55; }
+  .quiz-scope { font-size: 11px; font-weight: 700; color: var(--grey-minor); text-transform: uppercase;
+    letter-spacing: .04em; margin-bottom: 8px; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 9px; }
+  .quiz-opt {
+    padding: 10px 16px;
+    border-radius: 7px;
+    border: 2px solid #d1d5db;
+    background: white;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+    transition: border-color .15s, background .15s;
+    line-height: 1.5;
+  }
+  .quiz-opt:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: #16a34a; background: #dcfce7; color: #166534; font-weight: 700; }
+  .quiz-opt.wrong   { border-color: #dc2626; background: #fee2e2; color: #991b1b; }
+  .quiz-opt:disabled { cursor: default; opacity: .85; }
+
+  .quiz-feedback {
+    margin-top: 12px; padding: 12px 16px; border-radius: 7px;
+    font-size: 14px; line-height: 1.7; display: none;
+  }
+  .quiz-feedback.visible { display: block; }
+  .quiz-feedback.ok  { background: #dcfce7; border: 1px solid #86efac; color: #166534; }
+  .quiz-feedback.err { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
+
+  .quiz-nav { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+
+  .quiz-result {
+    text-align: center; padding: 32px 16px;
+    background: var(--bg-section);
+    border-radius: 12px; border: 1px solid var(--border); display: none;
+  }
+  .quiz-result.visible { display: block; }
+  .quiz-result .score { font-size: 2.5rem; font-weight: 900; color: var(--accent); }
+  .quiz-result .score-label { font-size: 1rem; color: #555; margin-top: 4px; }
+  .quiz-result .result-msg { margin-top: 12px; font-size: 15px; font-weight: 600; }
+
+  /* ── Bảng so sánh ── */
+  .cmp-wrap { overflow-x: auto; }
+  table.cmp-table {
+    width: 100%; min-width: 600px;
+    border-collapse: collapse; font-size: 13px; line-height: 1.55;
+  }
+  table.cmp-table thead th {
+    background: var(--accent); color: white;
+    padding: 10px 12px; text-align: left; font-weight: 700;
+  }
+  table.cmp-table thead th:first-child { border-radius: 8px 0 0 0; }
+  table.cmp-table thead th:last-child  { border-radius: 0 8px 0 0; }
+  table.cmp-table tbody tr:nth-child(odd) { background: #fff; }
+  table.cmp-table tbody tr:nth-child(even) { background: var(--accent-soft); }
+  table.cmp-table tbody td { padding: 9px 12px; border-bottom: 1px solid var(--border); }
+  table.cmp-table tbody td:first-child { font-weight: 700; color: var(--accent-hover); }
+
+  /* ── responsive ── */
+  @media (max-width: 600px) {
+    .intl-timeline::before { left: 70px; }
+    .intl-year { width: 60px; font-size: 12px; }
+    .intl-dot { margin: 0 10px; width: 16px; height: 16px; }
+    .quiz-card { padding: 14px 12px; }
+    .quiz-q { font-size: 14px; }
+    .quiz-opt { font-size: 13px; padding: 9px 12px; }
+  }
+  @media (max-width: 420px) {
+    .chart-tab { font-size: 12px; padding: 5px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử VN — Hiện đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-sau-1975-doi-moi/visualization.html">← L7: Sau 1975 → Đổi mới</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Đổi mới &amp; hội nhập</span>
+  <span class="sep">·</span>
+  <span>🎓 Hoàn tất Lịch sử Việt Nam</span>
+</nav>
+
+<main>
+  <h1>Đổi mới, Hội nhập &amp; Tổng kết Lịch sử Việt Nam</h1>
+  <p style="color:#555; font-size:15px; margin-top:-4px;">
+    Bài học cuối cùng của lĩnh vực Lịch sử Việt Nam: khám phá công cuộc Đổi mới từ 1986,
+    hội nhập quốc tế, và nhìn lại toàn bộ dòng chảy từ Văn Lang đến hiện đại.
+  </p>
+
+  <!-- ───────────────────────────────────────────────
+       MODULE 1 — Biểu đồ thành tựu Đổi mới
+  ─────────────────────────────────────────────────── -->
+  <h2>1. Thành tựu Đổi mới — minh họa định lượng</h2>
+  <p style="font-size:14px; color:#555;">
+    Chọn chỉ số để xem biểu đồ minh họa xu hướng thay đổi. Số liệu mang tính định hướng/minh họa, dựa
+    trên xu hướng được ghi nhận từ nhiều nguồn (GSO, World Bank, FAO); không phải số liệu chính thức từng năm.
+  </p>
+
+  <div class="chart-tab-row" id="chart-tabs">
+    <button class="chart-tab active" data-chart="rice">Xuất khẩu gạo (triệu tấn)</button>
+    <button class="chart-tab" data-chart="gdp">Tăng trưởng GDP (%/năm)</button>
+    <button class="chart-tab" data-chart="poverty">Tỷ lệ nghèo (% dân số)</button>
+  </div>
+
+  <div class="chart-wrap">
+    <canvas id="chart-canvas" width="880" height="340"></canvas>
+  </div>
+  <p class="chart-note" id="chart-note">
+    Số liệu minh họa xu hướng xuất khẩu gạo 1985–2015. Nguồn tham chiếu: FAO, Bộ Nông nghiệp VN.
+  </p>
+
+  <div class="info-box" style="margin-top:12px;">
+    <strong>Điểm chú ý quan trọng</strong>: Từ phải nhập khẩu gạo cuối thập kỷ 1980,
+    sau Khoán 10 (1988), Việt Nam xuất khẩu 1,4 triệu tấn gạo ngay năm 1989. Đầu thập kỷ 1990,
+    Việt Nam đã vào nhóm ba nước xuất khẩu gạo lớn nhất thế giới. Đây là kết quả trực tiếp
+    của Đổi mới trong nông nghiệp.
+  </div>
+
+  <!-- ───────────────────────────────────────────────
+       MODULE 2 — Timeline hội nhập
+  ─────────────────────────────────────────────────── -->
+  <h2>2. Hành trình hội nhập quốc tế (1989 – nay)</h2>
+  <p style="font-size:14px; color:#555;">
+    Nhấp vào từng mốc để xem giải thích. Màu nhãn phân loại:
+    <span class="intl-badge badge-bilateral">Song phương</span>
+    <span class="intl-badge badge-multilateral">Đa phương</span>
+    <span class="intl-badge badge-fta">FTA</span>
+    <span class="intl-badge badge-sanction">Dỡ cấm vận</span>
+  </p>
+
+  <div class="card">
+    <div class="intl-timeline" id="intl-tl"></div>
+  </div>
+
+  <!-- ───────────────────────────────────────────────
+       MODULE 3 — Timeline tổng hợp toàn lĩnh vực
+  ─────────────────────────────────────────────────── -->
+  <h2>3. Timeline tổng hợp toàn lĩnh vực — Từ Văn Lang đến hội nhập</h2>
+  <p style="font-size:14px; color:#555;">
+    Lọc theo loại sự kiện rồi nhấp vào mốc để xem chi tiết và liên kết bài học.
+  </p>
+
+  <div class="tl-filter-row" id="tl-filters">
+    <button class="tl-filter-btn active" data-filter="all">Tất cả</button>
+    <button class="tl-filter-btn" data-filter="culture">Văn hóa / Dựng nước</button>
+    <button class="tl-filter-btn" data-filter="war">Xâm lược / Chiến tranh</button>
+    <button class="tl-filter-btn" data-filter="self">Kháng cự / Khởi nghĩa</button>
+    <button class="tl-filter-btn" data-filter="reform">Cải cách / Đổi mới</button>
+    <button class="tl-filter-btn" data-filter="intl">Hội nhập</button>
+  </div>
+
+  <div id="tl-wrap">
+    <svg id="tl-svg" width="960" height="280" viewBox="0 0 960 280">
+      <text x="40" y="265" font-size="10" fill="#78716c" text-anchor="middle">~700 TCN</text>
+      <text x="930" y="265" font-size="10" fill="#78716c" text-anchor="middle">2023</text>
+    </svg>
+  </div>
+
+  <div class="tl-legend">
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#b45309"></span> Văn hóa / Dựng nước</span>
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#b91c1c"></span> Xâm lược / Chiến tranh</span>
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#1d4ed8"></span> Kháng cự / Khởi nghĩa</span>
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#15803d"></span> Độc lập / Thống nhất</span>
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#0e7490"></span> Hội nhập / Đổi mới</span>
+  </div>
+
+  <div id="tl-detail">
+    <div style="color:#78716c; font-size:14px;">← Nhấp vào một mốc trên timeline để xem chi tiết.</div>
+  </div>
+
+  <!-- ───────────────────────────────────────────────
+       MODULE 4 — Bảng đặc điểm xuyên suốt
+  ─────────────────────────────────────────────────── -->
+  <h2>4. Năm đặc điểm xuyên suốt lịch sử Việt Nam</h2>
+  <p style="font-size:14px; color:#555;">Mỗi đặc điểm được minh họa qua ví dụ từ cả ba giai đoạn lịch sử.</p>
+
+  <div class="cmp-wrap">
+    <table class="cmp-table">
+      <thead>
+        <tr>
+          <th>Đặc điểm</th>
+          <th>Giai đoạn 1 (Đến 1009)</th>
+          <th>Giai đoạn 2 (1009–1858)</th>
+          <th>Giai đoạn 3 (1858–nay)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Kháng cự bền bỉ</td>
+          <td>Hơn 1.000 năm Bắc thuộc, không bị đồng hóa; nhiều cuộc khởi nghĩa (Hai Bà Trưng, Lý Bí...)</td>
+          <td>Ba lần kháng Nguyên–Mông (1258, 1285, 1288); kháng Minh (Lam Sơn); kháng Thanh (1789)</td>
+          <td>Kháng chiến chống Pháp (1946–1954), chiến dịch Điện Biên Phủ; giai đoạn 1954–1975</td>
+        </tr>
+        <tr>
+          <td>Thực dụng đối ngoại</td>
+          <td>Họ Khúc (905): tiếp quản bộ máy nhà Đường thay vì nổi dậy; sau thắng 938 vẫn triều cống danh nghĩa</td>
+          <td>Trần hòa giải với Nguyên–Mông sau chiến thắng; các triều duy trì triều cống hình thức với Trung Quốc</td>
+          <td>Bình thường hóa với Trung Quốc (1991) và Hoa Kỳ (1995) sau các cuộc chiến; gia nhập WTO (2007)</td>
+        </tr>
+        <tr>
+          <td>Hấp thu có chọn lọc</td>
+          <td>Tiếp nhận chữ Hán, kỹ thuật sắt, Phật giáo — nhưng giữ tiếng Việt và tín ngưỡng bản địa</td>
+          <td>Chữ Nôm (thế kỷ 13); Bộ luật Hồng Đức theo mô hình Nho giáo nhưng thêm điều khoản bảo vệ phụ nữ</td>
+          <td>Đổi mới tiếp nhận kinh tế thị trường, FDI, hội nhập quốc tế trong khuôn khổ chính trị riêng</td>
+        </tr>
+        <tr>
+          <td>Nền tảng nông nghiệp lúa nước</td>
+          <td>Văn hóa Đông Sơn; nhà nước Văn Lang gắn với nông nghiệp lúa nước đồng bằng sông Hồng</td>
+          <td>Nam tiến song hành mở rộng đất canh tác; thủy lợi đại quy mô dưới các triều Lý, Trần, Lê</td>
+          <td>Khoán 10 (1988) giải phóng sức sản xuất nông dân → xuất khẩu gạo hàng đầu thế giới</td>
+        </tr>
+        <tr>
+          <td>Nhà nước mạnh làm trục</td>
+          <td>Đinh Bộ Lĩnh dẹp loạn 12 sứ quân → tập quyền; Đại Cồ Việt là nhà nước tập quyền đầu tiên</td>
+          <td>Nhà Lê sơ củng cố bộ máy Nho giáo; Bộ luật Hồng Đức hệ thống hóa pháp luật</td>
+          <td>Đổi mới do Đảng và nhà nước quyết định từ trên xuống (Đại hội VI) — không phải cách mạng tự phát</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ───────────────────────────────────────────────
+       MODULE 5 — Quiz tổng kết toàn lĩnh vực
+  ─────────────────────────────────────────────────── -->
+  <h2>5. Quiz tổng kết toàn lĩnh vực</h2>
+  <p style="font-size:14px; color:#555;">
+    15 câu hỏi xuyên suốt ba giai đoạn lịch sử — từ Văn Lang đến Đổi mới &amp; hội nhập.
+    Nhãn <em>[Tầng X]</em> cho biết câu hỏi thuộc giai đoạn nào.
+  </p>
+
+  <div class="card">
+    <div class="quiz-progress">
+      <span id="quiz-counter">Câu 1 / 15</span>
+      <div class="quiz-bar-wrap"><div class="quiz-bar" id="quiz-bar" style="width:6.67%"></div></div>
+      <span id="quiz-score-live">0 đúng</span>
+    </div>
+    <div id="quiz-area"></div>
+    <div id="quiz-result" class="quiz-result"></div>
+  </div>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+<script>
+/* ════════════════════════════════════════════════════
+   MODULE 1 — Canvas chart (thành tựu Đổi mới)
+   ════════════════════════════════════════════════════ */
+const CHART_DATA = {
+  rice: {
+    label: 'Xuất khẩu gạo (triệu tấn, minh họa xu hướng)',
+    years: [1985, 1987, 1989, 1991, 1993, 1995, 1997, 1999, 2001, 2003, 2005, 2007, 2009, 2011, 2013, 2015],
+    values: [-0.4, -0.2, 1.4, 1.5, 1.8, 2.0, 3.6, 4.5, 3.7, 3.8, 5.3, 4.6, 6.0, 7.1, 6.6, 6.5],
+    color: '#15803d',
+    note: 'Số liệu minh họa xu hướng xuất khẩu gạo 1985–2015. Giá trị âm = nhập khẩu. Nguồn tham chiếu: FAO, Bộ NN&PTNT.',
+    yLabel: 'Triệu tấn',
+    zeroLine: true
+  },
+  gdp: {
+    label: 'Tăng trưởng GDP (%/năm, minh họa xu hướng)',
+    years: [1986, 1988, 1990, 1992, 1994, 1996, 1998, 2000, 2002, 2004, 2006, 2008, 2010, 2012, 2014, 2016],
+    values: [2.8, 6.0, 5.1, 8.6, 8.8, 9.3, 5.8, 6.8, 7.1, 7.8, 8.2, 5.7, 6.4, 5.2, 6.0, 6.2],
+    color: '#b45309',
+    note: 'Số liệu minh họa xu hướng tăng trưởng GDP. Nguồn tham chiếu: World Bank, GSO Việt Nam.',
+    yLabel: '%/năm',
+    zeroLine: false
+  },
+  poverty: {
+    label: 'Tỷ lệ nghèo ước tính (%, minh họa xu hướng)',
+    years: [1988, 1990, 1993, 1996, 1998, 2000, 2002, 2004, 2006, 2008, 2010, 2012, 2014, 2016],
+    values: [65, 60, 58, 45, 40, 37, 30, 25, 20, 16, 14, 12, 10, 9],
+    color: '#0e7490',
+    note: 'Tỷ lệ nghèo minh họa xu hướng giảm (chuẩn gần với $1.9/ngày PPP). Số liệu còn khác nhau giữa các nguồn. Nguồn tham chiếu: World Bank, UNDP.',
+    yLabel: '%',
+    zeroLine: false
+  }
+};
+
+let currentChart = 'rice';
+const canvas = document.getElementById('chart-canvas');
+const ctx = canvas.getContext('2d');
+
+function drawChart(key) {
+  const data = CHART_DATA[key];
+  const W = canvas.width, H = canvas.height;
+  const PAD = { top: 40, right: 30, bottom: 50, left: 60 };
+  const plotW = W - PAD.left - PAD.right;
+  const plotH = H - PAD.top - PAD.bottom;
+
+  ctx.clearRect(0, 0, W, H);
+
+  const vals = data.values;
+  const minV = Math.min(...vals, 0) * 1.1;
+  const maxV = Math.max(...vals) * 1.15;
+  const range = maxV - minV || 1;
+
+  const xOf = (i) => PAD.left + (i / (data.years.length - 1)) * plotW;
+  const yOf = (v) => PAD.top + plotH - ((v - minV) / range) * plotH;
+
+  // Background
+  ctx.fillStyle = '#fdfaf5';
+  ctx.fillRect(0, 0, W, H);
+
+  // Zero line
+  if (data.zeroLine) {
+    const y0 = yOf(0);
+    ctx.strokeStyle = '#9ca3af'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(PAD.left, y0); ctx.lineTo(PAD.left + plotW, y0); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#78716c'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText('0', PAD.left - 6, y0 + 4);
+  }
+
+  // Grid lines
+  ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
+  for (let i = 1; i <= 4; i++) {
+    const y = PAD.top + (plotH / 4) * i;
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + plotW, y); ctx.stroke();
+  }
+
+  // Bars or fill area
+  if (key === 'rice') {
+    const barW = Math.max(plotW / data.years.length - 6, 10);
+    data.values.forEach((v, i) => {
+      const x = xOf(i) - barW / 2;
+      const y0 = yOf(0);
+      const yV = yOf(v);
+      ctx.fillStyle = v >= 0 ? 'rgba(21,128,61,0.75)' : 'rgba(185,28,28,0.7)';
+      if (v >= 0) {
+        ctx.fillRect(x, yV, barW, y0 - yV);
+      } else {
+        ctx.fillRect(x, y0, barW, yV - y0);
+      }
+    });
+  } else {
+    // Line + fill
+    ctx.beginPath();
+    data.values.forEach((v, i) => {
+      if (i === 0) ctx.moveTo(xOf(i), yOf(v)); else ctx.lineTo(xOf(i), yOf(v));
+    });
+    ctx.strokeStyle = data.color; ctx.lineWidth = 2.5; ctx.stroke();
+
+    // Fill under
+    ctx.beginPath();
+    data.values.forEach((v, i) => {
+      if (i === 0) ctx.moveTo(xOf(i), yOf(v)); else ctx.lineTo(xOf(i), yOf(v));
+    });
+    ctx.lineTo(xOf(data.values.length - 1), PAD.top + plotH);
+    ctx.lineTo(xOf(0), PAD.top + plotH);
+    ctx.closePath();
+    ctx.fillStyle = data.color + '25';
+    ctx.fill();
+
+    // Dots
+    data.values.forEach((v, i) => {
+      ctx.beginPath();
+      ctx.arc(xOf(i), yOf(v), 4, 0, Math.PI * 2);
+      ctx.fillStyle = data.color; ctx.fill();
+      ctx.strokeStyle = 'white'; ctx.lineWidth = 1.5; ctx.stroke();
+    });
+  }
+
+  // X axis labels
+  ctx.fillStyle = '#374151'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  data.years.forEach((yr, i) => {
+    ctx.fillText(yr, xOf(i), PAD.top + plotH + 18);
+  });
+
+  // Y axis label
+  ctx.save();
+  ctx.translate(15, PAD.top + plotH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillStyle = '#78716c'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(data.yLabel, 0, 0);
+  ctx.restore();
+
+  // Title
+  ctx.fillStyle = '#1f2937'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(data.label, W / 2, 22);
+
+  // Y axis ticks
+  ctx.fillStyle = '#78716c'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const v = minV + (range / 4) * (4 - i);
+    const y = PAD.top + (plotH / 4) * i;
+    ctx.fillText(v.toFixed(1), PAD.left - 6, y + 4);
+  }
+
+  // Highlight annotation for rice chart
+  if (key === 'rice') {
+    const x89 = xOf(2); // 1989
+    ctx.fillStyle = '#15803d'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Khoán 10 →', x89, yOf(1.4) - 14);
+    ctx.fillText('1,4 Mt XK', x89, yOf(1.4) - 3);
+  }
+
+  document.getElementById('chart-note').textContent = data.note;
+}
+
+// Tab switching
+document.getElementById('chart-tabs').addEventListener('click', (e) => {
+  const btn = e.target.closest('.chart-tab');
+  if (!btn) return;
+  document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentChart = btn.dataset.chart;
+  drawChart(currentChart);
+});
+
+drawChart('rice');
+
+/* ════════════════════════════════════════════════════
+   MODULE 2 — Timeline hội nhập
+   ════════════════════════════════════════════════════ */
+const INTL_EVENTS = [
+  {
+    year: '1989',
+    title: 'Rút quân khỏi Campuchia',
+    badge: 'bilateral', badgeText: 'Song phương',
+    desc: 'Việt Nam rút toàn bộ quân khỏi Campuchia (tháng 9/1989) — điều kiện tiên quyết mà cộng đồng quốc tế, đặc biệt ASEAN và Hoa Kỳ, đặt ra để cải thiện quan hệ. Chiến tranh Campuchia (1978–1989) là nguyên nhân chính khiến Việt Nam bị cô lập quốc tế trong suốt thập kỷ 1980.'
+  },
+  {
+    year: '1991',
+    title: 'Bình thường hóa quan hệ với Trung Quốc',
+    badge: 'bilateral', badgeText: 'Song phương',
+    desc: 'Tháng 11/1991, lãnh đạo hai nước gặp nhau tại Bắc Kinh, chính thức bình thường hóa quan hệ sau hơn 12 năm căng thẳng từ chiến tranh biên giới 1979. Mở lại thương mại biên giới — quan trọng với các tỉnh phía Bắc. Tuy nhiên, tranh chấp biển Đông vẫn là vấn đề phức tạp và liên tục trong quan hệ hai nước.'
+  },
+  {
+    year: '1994',
+    title: 'Hoa Kỳ dỡ bỏ cấm vận',
+    badge: 'sanction', badgeText: 'Dỡ cấm vận',
+    desc: 'Tháng 2/1994, Tổng thống Clinton tuyên bố dỡ bỏ lệnh cấm vận thương mại mà Hoa Kỳ áp đặt với Việt Nam từ 1975. Đây là bước quan trọng tiên quyết cho bình thường hóa ngoại giao năm 1995 và mở ra dòng chảy thương mại, đầu tư.'
+  },
+  {
+    year: '1995',
+    title: 'Bình thường hóa với Hoa Kỳ & Gia nhập ASEAN',
+    badge: 'multilateral', badgeText: 'Đa phương',
+    desc: 'Tháng 7/1995 là tháng "kép": (1) Tổng thống Clinton tuyên bố bình thường hóa quan hệ ngoại giao Việt–Mỹ — chính thức kết thúc di sản thù nghịch từ Chiến tranh Việt Nam; (2) Việt Nam gia nhập ASEAN — lần đầu hòa nhập vào khối khu vực từng là đối lập trong Chiến tranh Lạnh.'
+  },
+  {
+    year: '1998',
+    title: 'Gia nhập APEC',
+    badge: 'multilateral', badgeText: 'Đa phương',
+    desc: 'Tháng 11/1998, Việt Nam chính thức là thành viên của APEC (Diễn đàn Hợp tác Kinh tế châu Á–Thái Bình Dương), nhóm 21 nền kinh tế chiếm khoảng 60% GDP toàn cầu. Đây là bước tiếp theo trong hội nhập khu vực và toàn cầu.'
+  },
+  {
+    year: '2000',
+    title: 'Hiệp định Thương mại Song phương Việt Nam – Hoa Kỳ (BTA)',
+    badge: 'bilateral', badgeText: 'Song phương',
+    desc: 'Hiệp định BTA ký tháng 7/2000, có hiệu lực 12/2001: giảm thuế quan hai chiều, mở cửa thị trường dịch vụ và đầu tư. Hiệp định này khai thông mạnh mẽ thương mại Việt–Mỹ; kim ngạch tăng nhiều lần chỉ sau vài năm. Đây cũng là bước chuẩn bị cho gia nhập WTO sau này.'
+  },
+  {
+    year: '2007',
+    title: 'Gia nhập WTO',
+    badge: 'multilateral', badgeText: 'Đa phương',
+    desc: 'Tháng 1/2007, Việt Nam chính thức là thành viên thứ 150 của WTO (Tổ chức Thương mại Thế giới). Sau nhiều năm đàm phán từ 1994, gia nhập WTO buộc cải cách hệ thống pháp luật kinh doanh, hải quan, sở hữu trí tuệ. Hàng Việt Nam được tiếp cận thị trường toàn cầu theo cam kết MFN (tối huệ quốc).'
+  },
+  {
+    year: '2018',
+    title: 'CPTPP có hiệu lực',
+    badge: 'fta', badgeText: 'FTA',
+    desc: 'CPTPP (Hiệp định Đối tác Toàn diện và Tiến bộ xuyên Thái Bình Dương) — tiền thân là TPP, sau khi Hoa Kỳ rút lui (2017) được tái ký bởi 11 nước. Việt Nam phê chuẩn tháng 11/2018. Đây là FTA thế hệ mới: không chỉ thuế quan mà còn tiêu chuẩn lao động, môi trường, doanh nghiệp nhà nước.'
+  },
+  {
+    year: '2020',
+    title: 'EVFTA có hiệu lực',
+    badge: 'fta', badgeText: 'FTA',
+    desc: 'Hiệp định Thương mại Tự do Việt Nam – EU (EVFTA) ký tháng 6/2019, có hiệu lực tháng 8/2020. Gần 99% dòng thuế hàng Việt vào EU được xóa bỏ theo lộ trình. EVFTA đặt ra yêu cầu cao về tiêu chuẩn lao động, sở hữu trí tuệ, bền vững — đòi hỏi Việt Nam tiếp tục cải cách thể chế sâu hơn.'
+  }
+];
+
+(function buildIntlTimeline() {
+  const container = document.getElementById('intl-tl');
+  INTL_EVENTS.forEach((ev, idx) => {
+    const row = document.createElement('div');
+    row.className = 'intl-row';
+    row.innerHTML = `
+      <div class="intl-year">${ev.year}</div>
+      <div class="intl-dot" id="idot-${idx}" onclick="toggleIntl(${idx})"></div>
+      <div class="intl-content">
+        <div class="intl-title">${ev.title}
+          <span class="intl-badge badge-${ev.badge}">${ev.badgeText}</span>
+        </div>
+        <div class="intl-desc" id="idesc-${idx}">${ev.desc}</div>
+      </div>`;
+    container.appendChild(row);
+  });
+})();
+
+function toggleIntl(idx) {
+  const desc = document.getElementById(`idesc-${idx}`);
+  const dot  = document.getElementById(`idot-${idx}`);
+  const wasOpen = desc.classList.contains('visible');
+  document.querySelectorAll('.intl-desc').forEach(d => d.classList.remove('visible'));
+  document.querySelectorAll('.intl-dot').forEach(d => d.classList.remove('active'));
+  if (!wasOpen) { desc.classList.add('visible'); dot.classList.add('active'); }
+}
+
+/* ════════════════════════════════════════════════════
+   MODULE 3 — Timeline tổng hợp toàn lĩnh vực
+   ════════════════════════════════════════════════════ */
+const ALL_EVENTS = [
+  {
+    year: -700, label: "~700 TCN", title: "Văn hóa Đông Sơn cực thịnh",
+    color: "#b45309", types: ["culture"],
+    detail: "Trống đồng Đông Sơn — biểu tượng văn minh riêng biệt của người Việt cổ. Nông nghiệp lúa nước phát triển trên đồng bằng sông Hồng và sông Mã. Theo Đại Việt sử ký toàn thư, đây là thời kỳ các đời Hùng Vương của nước Văn Lang.",
+    lesson: { text: "Tầng 1, Lesson 01", href: "../../01-Origins-Independence/lesson-01-tien-su-nguon-goc/visualization.html" }
+  },
+  {
+    year: -111, label: "111 TCN", title: "Nhà Hán thiết lập Bắc thuộc",
+    color: "#b91c1c", types: ["war"],
+    detail: "Nhà Hán diệt Nam Việt, thiết lập ách đô hộ trực tiếp. Đây là mốc bắt đầu hơn 1.000 năm Bắc thuộc (111 TCN – 938).",
+    lesson: { text: "Tầng 1, Lesson 03", href: "../../01-Origins-Independence/lesson-03-bac-thuoc-hai-ba-trung/visualization.html" }
+  },
+  {
+    year: 40, label: "Năm 40", title: "Khởi nghĩa Hai Bà Trưng",
+    color: "#1d4ed8", types: ["self"],
+    detail: "Trưng Trắc, Trưng Nhị khởi nghĩa tại Mê Linh, giải phóng 65 thành Giao Chỉ. Lần đầu người Việt lập chính quyền tự chủ sau Bắc thuộc. Năm 43, Mã Viện dẹp; Hai Bà tuẫn tiết.",
+    lesson: { text: "Tầng 1, Lesson 03", href: "../../01-Origins-Independence/lesson-03-bac-thuoc-hai-ba-trung/visualization.html" }
+  },
+  {
+    year: 544, label: "Năm 544", title: "Lý Bí lập nước Vạn Xuân",
+    color: "#15803d", types: ["culture"],
+    detail: "Lý Bí lật đổ chính quyền Lương, lập nhà nước Vạn Xuân — tên quốc gia Việt đầu tiên có quốc hiệu riêng. Tồn tại khoảng 58 năm (544–602).",
+    lesson: { text: "Tầng 1, Lesson 04", href: "../../01-Origins-Independence/lesson-04-khoi-nghia-van-xuan/visualization.html" }
+  },
+  {
+    year: 938, label: "Năm 938", title: "Ngô Quyền — Bạch Đằng, kết thúc Bắc thuộc",
+    color: "#15803d", types: ["culture"],
+    detail: "Ngô Quyền đánh tan quân Nam Hán bằng bẫy cọc sắt + thủy triều trên sông Bạch Đằng. Kết thúc hơn 1.000 năm Bắc thuộc. Mốc son lớn nhất lịch sử dân tộc.",
+    lesson: { text: "Tầng 1, Lesson 06", href: "../../01-Origins-Independence/lesson-06-ngo-quyen-bach-dang/visualization.html" }
+  },
+  {
+    year: 1009, label: "1009", title: "Nhà Lý — mở đầu thời quân chủ độc lập",
+    color: "#b45309", types: ["culture"],
+    detail: "Lý Công Uẩn lên ngôi, dời đô từ Hoa Lư ra Thăng Long. Mở đầu giai đoạn quân chủ độc lập kéo dài hơn 800 năm (1009–1858).",
+    lesson: { text: "Tầng 2, Lesson 01", href: "../../02-Monarchical-Dynasties/lesson-01-nha-ly/visualization.html" }
+  },
+  {
+    year: 1258, label: "1258–1288", title: "Ba lần kháng Nguyên–Mông",
+    color: "#1d4ed8", types: ["self"],
+    detail: "Nhà Trần đánh tan quân Nguyên–Mông ba lần (1258, 1285, 1288). Chiến thắng Bạch Đằng 1288 (Trần Quốc Tuấn) là đỉnh cao nghệ thuật quân sự. Đây là lần duy nhất thế giới lúc bấy giờ có quốc gia đánh thắng quân Nguyên–Mông.",
+    lesson: { text: "Tầng 2, Lesson 02", href: "../../02-Monarchical-Dynasties/lesson-02-nha-tran-khang-nguyen-mong/visualization.html" }
+  },
+  {
+    year: 1427, label: "1418–1427", title: "Khởi nghĩa Lam Sơn — giải phóng khỏi nhà Minh",
+    color: "#1d4ed8", types: ["self"],
+    detail: "Lê Lợi và Nguyễn Trãi lãnh đạo 10 năm kháng chiến chống Minh thuộc. Chiến thắng 1427 giải phóng đất nước; nhà Lê sơ thành lập; Bình Ngô Đại Cáo được coi là bản tuyên ngôn độc lập trung đại.",
+    lesson: { text: "Tầng 2, Lesson 03", href: "../../02-Monarchical-Dynasties/lesson-03-ho-minh-thuoc-lam-son/visualization.html" }
+  },
+  {
+    year: 1789, label: "1789", title: "Quang Trung đại phá quân Thanh",
+    color: "#1d4ed8", types: ["self"],
+    detail: "Nguyễn Huệ lên ngôi Hoàng đế (Quang Trung), thần tốc Bắc tiến đánh tan 29 vạn quân Thanh trong 5 ngày Tết Kỷ Dậu. Chiến thắng này kết thúc giai đoạn Tây Sơn phân tranh và khẳng định ý chí bảo vệ độc lập.",
+    lesson: { text: "Tầng 2, Lesson 06", href: "../../02-Monarchical-Dynasties/lesson-06-tay-son-quang-trung/visualization.html" }
+  },
+  {
+    year: 1858, label: "1858", title: "Pháp xâm lược — chấm dứt quân chủ độc lập",
+    color: "#b91c1c", types: ["war"],
+    detail: "Liên quân Pháp–Tây Ban Nha tấn công Đà Nẵng (8/1858), mở đầu quá trình xâm chiếm. Hiệp ước Patenôtre 1884 chính thức đặt toàn Việt Nam dưới quyền bảo hộ Pháp. Chấm dứt Giai đoạn 2 (quân chủ độc lập).",
+    lesson: { text: "Tầng 3, Lesson 01", href: "../lesson-01-phap-xam-luoc-can-vuong/visualization.html" }
+  },
+  {
+    year: 1930, label: "1930", title: "Thành lập Đảng Cộng sản Việt Nam",
+    color: "#b91c1c", types: ["self"],
+    detail: "Tháng 2/1930, Nguyễn Ái Quốc chủ trì hợp nhất các tổ chức cộng sản thành Đảng Cộng sản Việt Nam (sau đổi tên thành Đảng Cộng sản Đông Dương). Đây là sự kiện quan trọng trong phong trào yêu nước theo khuynh hướng mới.",
+    lesson: { text: "Tầng 3, Lesson 03", href: "../lesson-03-nguyen-ai-quoc-dang-1930/visualization.html" }
+  },
+  {
+    year: 1945, label: "2/9/1945", title: "Tuyên ngôn Độc lập — Việt Nam DCCH ra đời",
+    color: "#15803d", types: ["culture"],
+    detail: "Sau Cách mạng Tháng Tám (8/1945), Hồ Chí Minh đọc Tuyên ngôn Độc lập ngày 2/9/1945 tại Quảng trường Ba Đình, khai sinh nước Việt Nam Dân chủ Cộng hòa. Đây là sự kiện kết thúc gần 80 năm ách đô hộ Pháp.",
+    lesson: { text: "Tầng 3, Lesson 04", href: "../lesson-04-cach-mang-thang-tam-1945/visualization.html" }
+  },
+  {
+    year: 1954, label: "7/5/1954", title: "Chiến thắng Điện Biên Phủ",
+    color: "#15803d", types: ["self"],
+    detail: "Sau 56 ngày đêm chiến đấu (13/3–7/5/1954), quân đội Việt Minh do Đại tướng Võ Nguyên Giáp chỉ huy tiêu diệt tập đoàn cứ điểm Điện Biên Phủ. Hiệp định Genève 7/1954 công nhận độc lập Việt Nam; đất nước tạm thời chia đôi ở vĩ tuyến 17.",
+    lesson: { text: "Tầng 3, Lesson 05", href: "../lesson-05-khang-chien-chong-phap/visualization.html" }
+  },
+  {
+    year: 1975, label: "30/4/1975", title: "Thống nhất đất nước",
+    color: "#15803d", types: ["culture"],
+    detail: "Chiến dịch Hồ Chí Minh kết thúc ngày 30/4/1975, thống nhất đất nước sau 20 năm chia cắt (1954–1975). Năm 1976, nước Cộng hòa Xã hội Chủ nghĩa Việt Nam chính thức thành lập.",
+    lesson: { text: "Tầng 3, Lesson 06", href: "../lesson-06-1954-1975-thong-nhat/visualization.html" }
+  },
+  {
+    year: 1986, label: "12/1986", title: "Đại hội VI — Đổi mới",
+    color: "#0e7490", types: ["reform"],
+    detail: "Đại hội Đảng lần thứ VI (tháng 12/1986) thông qua đường lối Đổi mới: từ kinh tế kế hoạch hóa tập trung sang kinh tế thị trường định hướng XHCN. Đây là bước ngoặt kinh tế lớn nhất Việt Nam kể từ 1975.",
+    lesson: { text: "Tầng 3, Lesson 08 (bài này)", href: "#" }
+  },
+  {
+    year: 1988, label: "4/1988", title: "Khoán 10 — trao quyền đất cho nông dân",
+    color: "#0e7490", types: ["reform"],
+    detail: "Nghị quyết 10 của Bộ Chính trị (4/1988): giao quyền sử dụng đất nông nghiệp cho hộ gia đình nông dân. Năm 1989, Việt Nam xuất khẩu 1,4 triệu tấn gạo — lần đầu sau hàng thập kỷ nhập khẩu.",
+    lesson: { text: "Tầng 3, Lesson 08 (bài này)", href: "#" }
+  },
+  {
+    year: 1995, label: "7/1995", title: "Bình thường hóa Mỹ & Gia nhập ASEAN",
+    color: "#0e7490", types: ["intl"],
+    detail: "Tháng 7/1995: bình thường hóa quan hệ ngoại giao Việt–Mỹ (kết thúc di sản thù nghịch từ Chiến tranh Việt Nam) và gia nhập ASEAN (hòa nhập vào cộng đồng Đông Nam Á). Hai mốc kép trong cùng một tháng.",
+    lesson: { text: "Tầng 3, Lesson 08 (bài này)", href: "#" }
+  },
+  {
+    year: 2007, label: "1/2007", title: "Gia nhập WTO",
+    color: "#0e7490", types: ["intl"],
+    detail: "Việt Nam chính thức là thành viên WTO từ tháng 1/2007, sau nhiều năm đàm phán. Mốc đánh dấu hội nhập kinh tế quốc tế sâu rộng và toàn diện nhất.",
+    lesson: { text: "Tầng 3, Lesson 08 (bài này)", href: "#" }
+  }
+];
+
+let activeFilter = 'all';
+let visibleEvents = [...ALL_EVENTS];
+
+(function buildTimeline() {
+  drawTimeline(ALL_EVENTS);
+  setupFilters();
+})();
+
+function setupFilters() {
+  document.querySelectorAll('.tl-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tl-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      if (activeFilter === 'all') {
+        visibleEvents = [...ALL_EVENTS];
+      } else {
+        visibleEvents = ALL_EVENTS.filter(ev => ev.types.includes(activeFilter));
+      }
+      drawTimeline(visibleEvents);
+      document.getElementById('tl-detail').innerHTML =
+        '<div style="color:#78716c; font-size:14px;">← Nhấp vào một mốc trên timeline để xem chi tiết.</div>';
+    });
+  });
+}
+
+function drawTimeline(events) {
+  const svg = document.getElementById('tl-svg');
+  // Clear dynamic elements
+  while (svg.children.length > 2) svg.removeChild(svg.lastChild);
+
+  const W = 960, H = 280;
+  const X0 = 40, X1 = 930, Y = 140;
+  const minY = -700, maxY = 2023;
+  const range = maxY - minY;
+
+  function xOf(year) { return X0 + (year - minY) / range * (X1 - X0); }
+
+  // Era bands
+  const bands = [
+    { from: -700, to: 938,  label: "Bắc thuộc & giành độc lập", fill: "#fee2e2", opacity: 0.35 },
+    { from: 938,  to: 1858, label: "Quân chủ độc lập", fill: "#fef3c7", opacity: 0.45 },
+    { from: 1858, to: 1975, label: "Cận–hiện đại", fill: "#e0f2fe", opacity: 0.35 },
+    { from: 1975, to: 2023, label: "Đổi mới & hội nhập", fill: "#dcfce7", opacity: 0.5 }
+  ];
+  bands.forEach(b => {
+    const x = xOf(b.from), w = xOf(b.to) - xOf(b.from);
+    const rect = document.createElementNS("http://www.w3.org/2000/svg","rect");
+    rect.setAttribute("x", x); rect.setAttribute("y", 10);
+    rect.setAttribute("width", w); rect.setAttribute("height", H - 20);
+    rect.setAttribute("fill", b.fill); rect.setAttribute("opacity", b.opacity);
+    svg.appendChild(rect);
+
+    const txt = document.createElementNS("http://www.w3.org/2000/svg","text");
+    txt.setAttribute("x", x + w / 2); txt.setAttribute("y", 24);
+    txt.setAttribute("text-anchor","middle");
+    txt.setAttribute("font-size","9.5"); txt.setAttribute("fill","#6b7280");
+    txt.setAttribute("font-style","italic");
+    txt.textContent = b.label;
+    svg.appendChild(txt);
+  });
+
+  // Axis
+  const axis = document.createElementNS("http://www.w3.org/2000/svg","line");
+  axis.setAttribute("x1", X0); axis.setAttribute("y1", Y);
+  axis.setAttribute("x2", X1); axis.setAttribute("y2", Y);
+  axis.setAttribute("stroke","#9ca3af"); axis.setAttribute("stroke-width","3");
+  svg.appendChild(axis);
+
+  // Events
+  events.forEach((ev, i) => {
+    const x = xOf(ev.year);
+    const above = i % 2 === 0;
+    const labelY = above ? Y - 42 : Y + 58;
+    const lineY2 = above ? Y - 10 : Y + 10;
+
+    const tick = document.createElementNS("http://www.w3.org/2000/svg","line");
+    tick.setAttribute("x1", x); tick.setAttribute("y1", Y);
+    tick.setAttribute("x2", x); tick.setAttribute("y2", lineY2);
+    tick.setAttribute("stroke", ev.color); tick.setAttribute("stroke-width","1.8");
+    tick.setAttribute("stroke-dasharray","3,2");
+    svg.appendChild(tick);
+
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg","text");
+    lbl.setAttribute("x", x); lbl.setAttribute("y", labelY);
+    lbl.setAttribute("text-anchor","middle");
+    lbl.setAttribute("font-size","9"); lbl.setAttribute("fill", ev.color);
+    lbl.setAttribute("font-weight","600");
+    lbl.textContent = ev.label;
+    svg.appendChild(lbl);
+
+    const circle = document.createElementNS("http://www.w3.org/2000/svg","circle");
+    circle.setAttribute("cx", x); circle.setAttribute("cy", Y);
+    circle.setAttribute("r","8");
+    circle.setAttribute("fill", ev.color);
+    circle.setAttribute("stroke","white"); circle.setAttribute("stroke-width","2");
+    circle.classList.add("tl-dot");
+    circle.addEventListener("click", () => showEvent(ev));
+    svg.appendChild(circle);
+  });
+}
+
+function showEvent(ev) {
+  const tagHtml = ev.types.map(t => {
+    const map = { war:'tag-war', culture:'tag-found', self:'tag-self', reform:'tag-reform', intl:'tag-intl' };
+    const lbl = { war:'Xâm lược/Chiến tranh', culture:'Dựng nước/Văn hóa', self:'Kháng cự/Khởi nghĩa', reform:'Cải cách/Đổi mới', intl:'Hội nhập' };
+    return `<span class="ev-tag ${map[t]||'tag-culture'}">${lbl[t]||t}</span>`;
+  }).join('');
+
+  const linkHtml = ev.lesson.href === '#' ? '' :
+    `<div class="ev-link" style="margin-top:8px;"><a href="${ev.lesson.href}">${ev.lesson.text} →</a></div>`;
+
+  document.getElementById('tl-detail').innerHTML = `
+    <div class="ev-title">${ev.title} — <span style="font-weight:400;font-size:14px;color:#78716c">${ev.label}</span></div>
+    <div style="margin-bottom:8px;">${tagHtml}</div>
+    <div style="margin-bottom:6px;">${ev.detail}</div>
+    ${linkHtml}`;
+}
+
+/* ════════════════════════════════════════════════════
+   MODULE 5 — Quiz tổng kết toàn lĩnh vực
+   ════════════════════════════════════════════════════ */
+const QUIZ = [
+  {
+    scope: "Tầng 1 — Nguồn gốc & Bắc thuộc",
+    q: "Trận Bạch Đằng năm 938 có ý nghĩa lịch sử gì?",
+    opts: [
+      "Đánh bại quân Tống, bảo vệ nhà Đinh",
+      "Kết thúc hơn 1.000 năm Bắc thuộc (111 TCN – 938), mở ra thời kỳ độc lập",
+      "Thống nhất 12 sứ quân dưới quyền Đinh Bộ Lĩnh",
+      "Lý Bí lập nước Vạn Xuân"
+    ],
+    ans: 1,
+    exp: "Trận Bạch Đằng 938 do Ngô Quyền chỉ huy, đánh tan quân Nam Hán bằng bẫy cọc sắt + thủy triều. Đây là mốc kết thúc hơn 1.000 năm Bắc thuộc (111 TCN – 938). Đinh Bộ Lĩnh dẹp 12 sứ quân và lập Đại Cồ Việt năm 968 — đó là sự kiện khác."
+  },
+  {
+    scope: "Tầng 1 — Nguồn gốc & Bắc thuộc",
+    q: "Vì sao người Việt duy trì được bản sắc sau hơn 1.000 năm Bắc thuộc?",
+    opts: [
+      "Vì người Hán không quan tâm đến văn hóa Việt",
+      "Vì chính quyền đô hộ cho phép dùng tiếng Việt",
+      "Vì cấu trúc làng xã tự trị, tiếng Việt là ngôn ngữ nói của đại đa số, và thờ cúng tổ tiên duy trì ký ức cộng đồng",
+      "Vì tiếng Việt được ghi bằng chữ Nôm từ thế kỷ 1"
+    ],
+    ans: 2,
+    exp: "Ba cơ chế chính: (1) Làng xã tự trị — chính quyền đô hộ chủ yếu ở cấp quận/huyện, không can thiệp được đến đời sống làng xã; (2) Tiếng Việt là ngôn ngữ nói của hơn 90% dân chúng, không thể xóa bằng mệnh lệnh; (3) Thờ cúng tổ tiên và nghi lễ cộng đồng duy trì ký ức bản sắc. Chữ Nôm ra đời khoảng thế kỷ 13, không phải thế kỷ 1."
+  },
+  {
+    scope: "Tầng 2 — Quân chủ độc lập",
+    q: "Nhà Trần đã đánh bại quân Nguyên–Mông mấy lần và trong khoảng thời gian nào?",
+    opts: [
+      "Hai lần: 1258 và 1285",
+      "Bốn lần: 1258, 1285, 1288, 1300",
+      "Ba lần: 1258, 1285, 1288",
+      "Một lần quyết định: 1288 (Bạch Đằng)"
+    ],
+    ans: 2,
+    exp: "Nhà Trần kháng Nguyên–Mông ba lần: lần 1 (1258), lần 2 (1285, chiến thắng Hàm Tử, Chương Dương), lần 3 (1287–1288, chiến thắng Bạch Đằng do Trần Quốc Tuấn chỉ huy). Đây là kỳ tích lịch sử: đây là lần duy nhất thế giới thời đó có quốc gia đánh thắng quân Nguyên–Mông trực tiếp ba lần liên tiếp."
+  },
+  {
+    scope: "Tầng 2 — Quân chủ độc lập",
+    q: "Quá trình 'Nam tiến' (mở rộng lãnh thổ xuống phía Nam) của Việt Nam kéo dài bao lâu và kết thúc khi nào?",
+    opts: [
+      "Khoảng 100 năm, kết thúc thế kỷ 16",
+      "Khoảng 300 năm, kết thúc giữa thế kỷ 18 khi vùng đồng bằng sông Cửu Long được sáp nhập",
+      "Khoảng 700 năm, từ nhà Lý (thế kỷ 11) đến đầu thế kỷ 18",
+      "Chỉ diễn ra dưới thời nhà Nguyễn (1802–1858)"
+    ],
+    ans: 1,
+    exp: "Nam tiến kéo dài từ thời nhà Lý (thế kỷ 11) đến khoảng đầu thế kỷ 18 — khoảng 700 năm. Mốc cuối là vùng đồng bằng sông Cửu Long (Hà Tiên, Gia Định) được sáp nhập vào thế kỷ 17–18, dưới thời chúa Nguyễn. Nhà Nguyễn (1802) thống nhất cả lãnh thổ này — không phải là giai đoạn Nam tiến mà là giai đoạn thống nhất và quản lý lãnh thổ đã có."
+  },
+  {
+    scope: "Tầng 3 — Cận–hiện đại",
+    q: "Hiệp định Genève (7/1954) có nội dung chính gì?",
+    opts: [
+      "Pháp trao trả toàn bộ lãnh thổ cho Việt Nam DCCH",
+      "Công nhận độc lập Việt Nam, tạm thời chia đôi đất nước ở vĩ tuyến 17, quy định tổng tuyển cử thống nhất năm 1956",
+      "Hoa Kỳ cam kết không can thiệp quân sự vào Việt Nam",
+      "Việt Nam chia thành bốn vùng kiểm soát cho các nước lớn"
+    ],
+    ans: 1,
+    exp: "Hiệp định Genève (20/7/1954) có ba nội dung chính: (1) Pháp rút quân, công nhận độc lập, chủ quyền của Việt Nam, Lào, Campuchia; (2) Tạm thời chia đôi Việt Nam ở vĩ tuyến 17 (sông Bến Hải) — phía Bắc thuộc Việt Nam DCCH, phía Nam dưới quyền kiểm soát của chính quyền Bảo Đại/Ngô Đình Diệm; (3) Quy định tổng tuyển cử thống nhất năm 1956 (nhưng cuối cùng không được tổ chức)."
+  },
+  {
+    scope: "Tầng 3 — Cận–hiện đại",
+    q: "Chiến dịch Hồ Chí Minh kết thúc ngày nào và có ý nghĩa gì?",
+    opts: [
+      "30/4/1975 — kết thúc giai đoạn 1954–1975, thống nhất đất nước",
+      "2/9/1975 — kỷ niệm 30 năm Tuyên ngôn Độc lập",
+      "27/1/1973 — ký Hiệp định Paris",
+      "21/7/1954 — ký Hiệp định Genève"
+    ],
+    ans: 0,
+    exp: "Chiến dịch Hồ Chí Minh (26/4–30/4/1975) kết thúc với sự kiện xe tăng quân giải phóng tiến vào Dinh Độc Lập ngày 30/4/1975. Đây là mốc chấm dứt giai đoạn 1954–1975 và thống nhất đất nước sau 20 năm chia cắt. Năm 1976, Quốc hội thống nhất họp và đặt tên nước là Cộng hòa Xã hội Chủ nghĩa Việt Nam."
+  },
+  {
+    scope: "Đổi mới — Tầng 3",
+    q: "Đại hội VI (tháng 12/1986) của Đảng Cộng sản Việt Nam có quyết định lịch sử gì?",
+    opts: [
+      "Quyết định thống nhất hai miền Nam–Bắc",
+      "Thông qua đường lối Đổi mới: chuyển từ kinh tế kế hoạch hóa tập trung sang kinh tế thị trường định hướng XHCN",
+      "Quyết định bình thường hóa quan hệ với Hoa Kỳ",
+      "Thông qua Hiến pháp 1992"
+    ],
+    ans: 1,
+    exp: "Đại hội VI (12/1986) thông qua đường lối Đổi mới: xóa bỏ cơ chế tập trung quan liêu bao cấp, thừa nhận kinh tế nhiều thành phần, trao quyền tự chủ kinh doanh. Đây là bước ngoặt kinh tế lớn nhất kể từ sau thống nhất. Bình thường hóa Mỹ (1995) và Hiến pháp 1992 là các mốc riêng về sau."
+  },
+  {
+    scope: "Đổi mới — Tầng 3",
+    q: "Khoán 10 (Nghị quyết 10/1988) thay đổi điều gì trong nông nghiệp?",
+    opts: [
+      "Tư nhân hóa đất đai — giao quyền sở hữu đất cho hộ nông dân",
+      "Giao quyền sử dụng đất (không phải sở hữu) cho hộ gia đình; hộ tự chủ sản xuất, giữ phần thặng dư",
+      "Hủy bỏ hoàn toàn hợp tác xã nông nghiệp",
+      "Cho phép nhập khẩu tự do nông sản nước ngoài"
+    ],
+    ans: 1,
+    exp: "Khoán 10 giao quyền sử dụng đất (không phải quyền sở hữu — đất vẫn thuộc sở hữu toàn dân) cho hộ gia đình. Hộ ký hợp đồng với HTX, nộp phần định sẵn, giữ lại phần thặng dư. Đây tạo ra động lực kinh tế trực tiếp cho nông dân. Kết quả: 1989 xuất khẩu 1,4 triệu tấn gạo lần đầu tiên sau nhiều năm nhập khẩu."
+  },
+  {
+    scope: "Hội nhập — Tầng 3",
+    q: "Việt Nam gia nhập ASEAN vào năm nào và là thành viên thứ mấy?",
+    opts: [
+      "1991, thành viên thứ sáu",
+      "1995, thành viên thứ bảy",
+      "1998, thành viên thứ tám",
+      "2000, thành viên thứ chín"
+    ],
+    ans: 1,
+    exp: "Việt Nam gia nhập ASEAN ngày 28/7/1995, trở thành thành viên thứ bảy của tổ chức (sau Indonesia, Malaysia, Philippines, Singapore, Thái Lan, và Brunei gia nhập 1984). Sự kiện này diễn ra cùng tháng với bình thường hóa quan hệ ngoại giao với Hoa Kỳ — tháng 7/1995 là tháng 'kép' quan trọng."
+  },
+  {
+    scope: "Hội nhập — Tầng 3",
+    q: "Ý nghĩa của việc Việt Nam gia nhập WTO năm 2007 là gì?",
+    opts: [
+      "Chỉ mang lại lợi ích thuế quan, không ảnh hưởng gì đến thể chế trong nước",
+      "Buộc Việt Nam cải cách hệ thống pháp luật kinh doanh theo chuẩn quốc tế; hàng Việt được tiếp cận thị trường toàn cầu theo cam kết MFN",
+      "Cho phép các nước WTO đầu tư tự do không hạn chế vào Việt Nam",
+      "Đặt Việt Nam dưới sự giám sát kinh tế của WTO tương tự như IMF"
+    ],
+    ans: 1,
+    exp: "Gia nhập WTO (1/2007) có hai tác động chính: (1) Cam kết cải cách thể chế — Việt Nam phải điều chỉnh hệ thống thuế quan, hải quan, quy định dịch vụ, sở hữu trí tuệ theo chuẩn WTO; (2) Thị trường mở rộng — hàng xuất khẩu Việt Nam được đối xử tối huệ quốc (MFN) tại 163 thành viên WTO, không bị phân biệt đối xử tùy tiện."
+  },
+  {
+    scope: "Xuyên suốt — Đặc điểm lịch sử",
+    q: "Đặc điểm 'thực dụng trong đối ngoại' của Việt Nam thể hiện rõ nhất ở sự kiện nào dưới đây?",
+    opts: [
+      "Trận Bạch Đằng 938 — chiến thắng quân sự quyết định",
+      "Họ Khúc (905) tiếp quản bộ máy hành chính nhà Đường thay vì nổi dậy vũ trang, khi nhà Đường đang suy yếu",
+      "Nhà Trần chuẩn bị kháng Nguyên–Mông lần thứ hai (1285)",
+      "Cách mạng Tháng Tám 1945 nổ ra nhân cơ hội Nhật đầu hàng"
+    ],
+    ans: 1,
+    exp: "Họ Khúc (905) là ví dụ điển hình nhất về thực dụng: không nổi dậy bằng vũ lực khi chưa cần (khác Hai Bà Trưng, Lý Bí...) mà nhân lúc nhà Đường suy vong, tiếp quản chức tiết độ sứ, được triều đình Đường đang suy yếu chấp nhận. Đạt mục tiêu tự chủ với chi phí thấp nhất. Cách mạng Tháng Tám cũng có yếu tố tận dụng thời cơ, nhưng là vũ trang khởi nghĩa, không thuần thực dụng đối ngoại."
+  },
+  {
+    scope: "Xuyên suốt — Đặc điểm lịch sử",
+    q: "Sự kiện nào đánh dấu kết thúc Giai đoạn 2 (quân chủ độc lập) và bắt đầu Giai đoạn 3 (cận–hiện đại)?",
+    opts: [
+      "Nhà Nguyễn thành lập năm 1802",
+      "Pháp tấn công Đà Nẵng năm 1858",
+      "Hiệp ước Patenôtre 1884 — Pháp đặt bảo hộ toàn Việt Nam",
+      "Cách mạng Tháng Tám 1945"
+    ],
+    ans: 2,
+    exp: "Pháp tấn công Đà Nẵng (1858) là mốc bắt đầu xâm lược. Nhưng mốc chính thức kết thúc Giai đoạn 2 là Hiệp ước Patenôtre (6/1884) — khi nhà Nguyễn chính thức thừa nhận quyền bảo hộ của Pháp trên toàn Việt Nam (Bắc Kỳ và Trung Kỳ, sau hiệp ước Harmand 1883; Nam Kỳ đã mất từ 1867). Từ đây quyền lực thực tế chuyển sang chính quyền thuộc địa Pháp, dù nhà nước quân chủ Nguyễn vẫn tồn tại hình thức đến 1945."
+  },
+  {
+    scope: "Xuyên suốt — Đặc điểm lịch sử",
+    q: "Nông nghiệp lúa nước xuất hiện như một nền tảng xuyên suốt lịch sử Việt Nam. Sự kiện nào trong thời Đổi mới thể hiện rõ điều này nhất?",
+    opts: [
+      "Gia nhập WTO 2007 — mở rộng thị trường xuất khẩu",
+      "Luật Đầu tư nước ngoài 1987 — thu hút FDI vào công nghiệp",
+      "Khoán 10 (1988) — giải phóng sức sản xuất nông dân → Việt Nam từ nhập khẩu thành xuất khẩu gạo hàng đầu",
+      "Bình thường hóa với Hoa Kỳ 1995 — mở cửa thị trường nông sản"
+    ],
+    ans: 2,
+    exp: "Khoán 10 (1988) là minh chứng rõ ràng nhất: khi điểm chốt của nền kinh tế Việt Nam (nông nghiệp lúa nước) được cải cách đúng hướng — trao quyền sử dụng đất cho hộ nông dân — kết quả đến nhanh và rõ rệt. Chỉ một năm sau (1989), Việt Nam xuất khẩu 1,4 triệu tấn gạo lần đầu tiên sau nhiều năm nhập khẩu. Nền tảng vật chất (đất, kỹ thuật, kinh nghiệm trồng lúa) đã có sẵn; điều cần thiết chỉ là cơ chế kinh tế đúng."
+  },
+  {
+    scope: "Tổng kết — Toàn lĩnh vực",
+    q: "Trong lịch sử Việt Nam, giai đoạn nào sau đây tương ứng với 'hơn 1.000 năm Bắc thuộc'?",
+    opts: [
+      "258 TCN – 938",
+      "111 TCN – 938",
+      "40 – 938",
+      "179 TCN – 1009"
+    ],
+    ans: 1,
+    exp: "Bắc thuộc chính thức bắt đầu từ 111 TCN khi nhà Hán diệt Nam Việt và thiết lập ách đô hộ trực tiếp lên Giao Chỉ, Cửu Chân, Nhật Nam. Kết thúc năm 938 khi Ngô Quyền đánh tan quân Nam Hán trên sông Bạch Đằng. Thời gian: 111 TCN – 938 = 1.049 năm. (258 TCN là mốc An Dương Vương lập Âu Lạc; 179 TCN là mốc Triệu Đà thôn tính Âu Lạc — nhưng Bắc thuộc chính thức là từ 111 TCN.)"
+  },
+  {
+    scope: "Tổng kết — Toàn lĩnh vực",
+    q: "Sắp xếp đúng thứ tự ba bài tổng kết của lĩnh vực Lịch sử Việt Nam:",
+    opts: [
+      "Tổng kết quân chủ → Tổng kết Tầng 1 → Tổng kết Đổi mới",
+      "Tổng kết Tầng 1 → Tổng kết quân chủ → Tổng kết Đổi mới & hội nhập (bài này)",
+      "Tổng kết Đổi mới → Tổng kết Tầng 1 → Tổng kết quân chủ",
+      "Không có thứ tự — các bài tổng kết độc lập với nhau"
+    ],
+    ans: 1,
+    exp: "Ba bài tổng kết theo thứ tự thời kỳ lịch sử: (1) Tổng kết Tầng 1 (lesson-08, Tầng 01-Origins) — từ tiền sử đến 981; (2) Tổng kết Tầng 2 (lesson-08, Tầng 02-Monarchical) — các triều đại 1009–1858; (3) Bài này (lesson-08, Tầng 03-Modern) — cận–hiện đại đến Đổi mới & hội nhập, bài cuối cùng của lĩnh vực. Ba bài tổng kết tạo thành một chuỗi liên tục xuyên suốt toàn bộ lịch sử Việt Nam."
+  }
+];
+
+let qIdx = 0, score = 0, answered = false;
+
+function renderQuiz() {
+  if (qIdx >= QUIZ.length) { showResult(); return; }
+  const q = QUIZ[qIdx];
+  answered = false;
+  document.getElementById('quiz-counter').textContent = `Câu ${qIdx + 1} / ${QUIZ.length}`;
+  document.getElementById('quiz-bar').style.width = `${((qIdx + 1) / QUIZ.length) * 100}%`;
+
+  const optsHtml = q.opts.map((o, i) =>
+    `<button class="quiz-opt" onclick="selectOpt(${i})">${o}</button>`
+  ).join('');
+
+  document.getElementById('quiz-area').innerHTML = `
+    <div class="quiz-card">
+      <div class="quiz-scope">[${q.scope}]</div>
+      <div class="quiz-q">${q.q}</div>
+      <div class="quiz-opts">${optsHtml}</div>
+      <div id="qfb" class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="btn btn-primary" id="next-btn" onclick="nextQ()" disabled>
+        ${qIdx < QUIZ.length - 1 ? 'Câu tiếp theo →' : 'Xem kết quả →'}
+      </button>
+    </div>`;
+}
+
+function selectOpt(i) {
+  if (answered) return;
+  answered = true;
+  const q = QUIZ[qIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((o, idx) => {
+    o.disabled = true;
+    if (idx === q.ans) o.classList.add('correct');
+    if (idx === i && i !== q.ans) o.classList.add('wrong');
+  });
+  const ok = i === q.ans;
+  if (ok) score++;
+  document.getElementById('quiz-score-live').textContent = `${score} đúng`;
+  const fb = document.getElementById('qfb');
+  fb.classList.add('visible', ok ? 'ok' : 'err');
+  fb.innerHTML = `<strong>${ok ? 'Đúng!' : 'Chưa đúng.'}</strong> ${q.exp}`;
+  document.getElementById('next-btn').disabled = false;
+}
+
+function nextQ() { qIdx++; renderQuiz(); }
+
+function showResult() {
+  document.getElementById('quiz-area').innerHTML = '';
+  document.getElementById('quiz-bar').style.width = '100%';
+  document.getElementById('quiz-counter').textContent = 'Hoàn thành!';
+  const pct = Math.round((score / QUIZ.length) * 100);
+  let stars = '', msg = '';
+  if (pct >= 90) { stars = '⭐⭐⭐'; msg = 'Xuất sắc! Bạn đã nắm vững toàn bộ lịch sử Việt Nam — từ Văn Lang đến Đổi mới & hội nhập.'; }
+  else if (pct >= 70) { stars = '⭐⭐'; msg = 'Tốt! Ôn lại một số bài để hoàn thiện hơn.'; }
+  else { stars = '⭐'; msg = 'Cần ôn thêm — hãy xem lại các lesson tương ứng và thử lại.'; }
+
+  const res = document.getElementById('quiz-result');
+  res.classList.add('visible');
+  res.innerHTML = `
+    <div class="score">${score} / ${QUIZ.length}</div>
+    <div class="score-label">(${pct}%) ${stars}</div>
+    <div class="result-msg">${msg}</div>
+    <p style="color:#555;font-size:14px;margin-top:12px;">
+      Cảm ơn bạn đã theo suốt hành trình Lịch sử Việt Nam — từ trống đồng Đông Sơn đến FTA thế hệ mới.
+    </p>
+    <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="restartQuiz()">Làm lại từ đầu</button>
+      <a href="../../01-Origins-Independence/lesson-08-tong-ket-co-trung-dai/visualization.html"
+         class="btn btn-secondary" style="text-decoration:none;">Ôn lại Tầng 1</a>
+      <a href="../../02-Monarchical-Dynasties/lesson-08-tong-ket-quan-chu/visualization.html"
+         class="btn btn-secondary" style="text-decoration:none;">Ôn lại Tầng 2</a>
+    </div>`;
+}
+
+function restartQuiz() {
+  qIdx = 0; score = 0; answered = false;
+  document.getElementById('quiz-score-live').textContent = '0 đúng';
+  document.getElementById('quiz-result').classList.remove('visible');
+  renderQuiz();
+}
+
+renderQuiz();
+</script>
+
+</body>
+</html>

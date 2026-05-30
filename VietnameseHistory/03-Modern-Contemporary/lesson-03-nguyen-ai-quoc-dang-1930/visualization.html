@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Nguyễn Ái Quốc &amp; Sự thành lập Đảng (1911–1930)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette lịch sử Việt ── */
+  :root {
+    --accent:      #b45309;
+    --accent-soft: #fef3c7;
+    --accent-dark: #78350f;
+    --red-war:     #b91c1c;
+    --red-soft:    #fee2e2;
+    --green-peace: #15803d;
+    --green-soft:  #dcfce7;
+    --stone:       #78716c;
+    --stone-soft:  #f5f5f4;
+    --blue-mid:    #1e40af;
+    --blue-soft:   #dbeafe;
+    --bg-card:     #ffffff;
+    --bg-section:  #fffbeb;
+  }
+
+  main { max-width: 1080px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.6rem; margin-bottom: 6px; }
+  h2 { color: var(--accent); margin-top: 40px; padding-bottom: 8px;
+       border-bottom: 2px solid var(--accent-soft); font-size: 1.2rem; }
+
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 5px rgba(180,83,9,.12);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .peace-box {
+    background: var(--green-soft);
+    border-left: 4px solid var(--green-peace);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 1 — Bản đồ hành trình SVG
+     ══════════════════════════════════════════════ */
+  #map-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  #map-svg {
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #d4e9f7;
+  }
+
+  .map-legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin: 10px 0 6px;
+    font-size: 13px;
+    color: #374151;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* ── Popup thông tin điểm dừng ── */
+  #map-popup {
+    background: white;
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  }
+  #map-popup.show { display: block; }
+  #map-popup strong { color: var(--accent-dark); font-size: 15px; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 2 — Timeline 1911–1931
+     ══════════════════════════════════════════════ */
+  .timeline {
+    position: relative;
+    padding: 12px 0 12px 32px;
+    margin: 8px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 12px; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--accent-soft), var(--accent), var(--green-peace));
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-left: 20px;
+    cursor: pointer;
+    border-radius: 6px;
+    padding-right: 8px;
+    transition: background .15s;
+  }
+  .tl-item:hover { background: var(--accent-soft); }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -26px; top: 6px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+    transition: transform .15s;
+  }
+  .tl-item:hover::before { transform: scale(1.2); }
+  .tl-item.idea::before  { background: var(--blue-mid);   box-shadow: 0 0 0 2px var(--blue-mid); }
+  .tl-item.org::before   { background: var(--green-peace); box-shadow: 0 0 0 2px var(--green-peace); }
+  .tl-item.key::before {
+    width: 18px; height: 18px; left: -28px; top: 4px;
+    background: var(--red-war);
+    box-shadow: 0 0 0 3px var(--red-war), 0 0 0 6px rgba(185,28,28,.2);
+  }
+  .tl-year  { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .tl-item.idea .tl-year { color: var(--blue-mid); }
+  .tl-item.org  .tl-year { color: var(--green-peace); }
+  .tl-item.key  .tl-year { color: var(--red-war); font-size: 15px; }
+  .tl-title { font-weight: 700; font-size: 14px; color: #1f2937; line-height: 1.4; }
+  .tl-desc  { font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.5; }
+  .tl-badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .badge-key    { background: #fee2e2; color: #991b1b; }
+  .badge-idea   { background: var(--blue-soft); color: var(--blue-mid); }
+  .badge-org    { background: var(--green-soft); color: var(--green-peace); }
+  .badge-normal { background: var(--accent-soft); color: var(--accent-dark); }
+
+  /* ══════════════════════════════════════════════
+     MODULE 3 — Sơ đồ hợp nhất 3 tổ chức
+     ══════════════════════════════════════════════ */
+  .merge-wrap {
+    overflow-x: auto;
+  }
+  #merge-svg {
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 4 — Quiz
+     ══════════════════════════════════════════════ */
+  .quiz-q {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 12px;
+    color: #1f2937;
+    line-height: 1.5;
+  }
+  .quiz-opts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .quiz-opt {
+    padding: 10px 14px;
+    border-radius: 7px;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: var(--green-peace); background: var(--green-soft); color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-top: 8px;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: var(--green-soft); color: #14532d; border: 1px solid var(--green-peace); }
+  .quiz-feedback.err { background: var(--red-soft); color: #991b1b; border: 1px solid var(--red-war); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score { font-weight: 700; color: var(--green-peace); font-size: 15px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .map-legend { gap: 12px; font-size: 12px; }
+    .tl-title { font-size: 13px; }
+    .tl-desc  { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử VN — Hiện đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-phong-trao-yeu-nuoc-dau-xx/visualization.html">← L2: Phong trào yêu nước đầu XX</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Nguyễn Ái Quốc &amp; thành lập Đảng</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-cach-mang-thang-tam-1945/visualization.html">L4: Cách mạng Tháng Tám 1945 →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Nguyễn Ái Quốc &amp; Sự thành lập Đảng (1911–1930)</h1>
+<p class="subtitle">Hành trình tìm đường cứu nước · Bước ngoặt tư tưởng 1919–1920 · Hội nghị hợp nhất Hồng Kông 3/2/1930</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ hành trình
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ hành trình tìm đường cứu nước (1911–1941)</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Bấm vào mỗi điểm trên bản đồ để xem thông tin về địa điểm và sự kiện quan trọng xảy ra ở đó. Mũi tên thể hiện hướng hành trình theo thời gian.
+  </div>
+
+  <div class="map-legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#b45309"></span> Điểm khởi hành / về nước</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#b91c1c"></span> Bước ngoặt tư tưởng</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#15803d"></span> Chuẩn bị tổ chức</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#1e40af"></span> Học tập / đào tạo</div>
+  </div>
+
+  <div id="map-wrap">
+    <!-- SVG bản đồ thế giới đơn giản hoá: tập trung vào châu Âu, châu Á, Đông Nam Á -->
+    <svg id="map-svg" width="760" height="420" viewBox="0 0 760 420">
+      <!-- Nền đại dương -->
+      <rect width="760" height="420" fill="#d4e9f7"/>
+
+      <!-- === Các lục địa đơn giản hoá === -->
+
+      <!-- Châu Âu (vị trí gần đúng) -->
+      <path d="M 255 60 L 270 45 L 310 40 L 340 50 L 360 60 L 355 80 L 330 90 L 305 100 L 280 95 L 260 80 Z"
+            fill="#c8d5b9" stroke="#9aab89" stroke-width="1"/>
+      <!-- Label Châu Âu -->
+      <text x="300" y="75" text-anchor="middle" font-size="11" fill="#374151" font-weight="600">Châu Âu</text>
+
+      <!-- Pháp (highlight) -->
+      <path d="M 268 72 L 280 62 L 298 62 L 306 72 L 298 85 L 278 85 Z"
+            fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.2"/>
+      <text x="287" y="76" text-anchor="middle" font-size="9" fill="#1e40af" font-weight="700">Pháp</text>
+
+      <!-- Anh -->
+      <path d="M 265 52 L 275 44 L 282 50 L 274 60 L 263 58 Z"
+            fill="#e0e7ff" stroke="#6366f1" stroke-width="1"/>
+      <text x="272" y="54" text-anchor="middle" font-size="8" fill="#4338ca">Anh</text>
+
+      <!-- Liên Xô / Nga (đơn giản) -->
+      <path d="M 340 40 L 500 30 L 510 80 L 480 95 L 440 90 L 400 85 L 360 80 L 340 65 Z"
+            fill="#d1fae5" stroke="#6ee7b7" stroke-width="1"/>
+      <text x="420" y="58" text-anchor="middle" font-size="11" fill="#374151" font-weight="600">Liên Xô / Nga</text>
+      <!-- Moscow -->
+      <text x="370" y="68" text-anchor="middle" font-size="9" fill="#065f46">Moscow</text>
+
+      <!-- Trung Quốc -->
+      <path d="M 500 80 L 570 70 L 595 90 L 600 120 L 575 140 L 540 145 L 515 130 L 500 110 Z"
+            fill="#fef9c3" stroke="#ca8a04" stroke-width="1"/>
+      <text x="548" y="108" text-anchor="middle" font-size="10" fill="#78350f" font-weight="600">Trung Quốc</text>
+      <!-- Quảng Châu -->
+      <text x="563" y="132" text-anchor="middle" font-size="8.5" fill="#92400e">Quảng Châu</text>
+      <!-- Hồng Kông -->
+      <text x="582" y="145" text-anchor="middle" font-size="8" fill="#92400e">Hồng Kông</text>
+
+      <!-- Đông Nam Á (bán đảo Đông Dương + quần đảo) -->
+      <path d="M 555 145 L 570 155 L 575 180 L 565 210 L 548 225 L 535 215 L 530 190 L 535 165 L 548 152 Z"
+            fill="#fce7f3" stroke="#ec4899" stroke-width="1"/>
+      <text x="552" y="188" text-anchor="middle" font-size="10" fill="#374151" font-weight="600">Đông Dương</text>
+
+      <!-- Thái Lan -->
+      <path d="M 528 168 L 540 162 L 548 170 L 544 188 L 532 192 L 523 182 Z"
+            fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+      <text x="534" y="178" text-anchor="middle" font-size="8" fill="#92400e">Xiêm</text>
+
+      <!-- Bắc Phi (gợi ý, không quan trọng) -->
+      <path d="M 255 110 L 310 105 L 340 115 L 345 145 L 320 160 L 280 160 L 255 145 Z"
+            fill="#e8d5b7" stroke="#c4a77d" stroke-width="1"/>
+      <text x="300" y="133" text-anchor="middle" font-size="9" fill="#5c4033">Châu Phi</text>
+
+      <!-- Bắc Mỹ (gợi ý) -->
+      <path d="M 60 50 L 130 40 L 175 55 L 185 95 L 160 110 L 120 115 L 80 100 L 55 78 Z"
+            fill="#c8d5b9" stroke="#9aab89" stroke-width="1"/>
+      <text x="118" y="80" text-anchor="middle" font-size="10" fill="#374151" font-weight="600">Bắc Mỹ</text>
+      <!-- New York -->
+      <text x="155" y="88" text-anchor="middle" font-size="8" fill="#374151">New York</text>
+
+      <!-- Nam Mỹ (gợi ý nhỏ) -->
+      <path d="M 120 130 L 160 125 L 175 155 L 165 195 L 140 210 L 115 195 L 108 165 Z"
+            fill="#c8d5b9" stroke="#9aab89" stroke-width="0.7"/>
+
+      <!-- Ấn Độ Dương -->
+      <text x="400" y="230" text-anchor="middle" font-size="11" fill="#7cb9e8" font-style="italic">Ấn Độ Dương</text>
+      <!-- Thái Bình Dương -->
+      <text x="660" y="200" text-anchor="middle" font-size="11" fill="#7cb9e8" font-style="italic">Thái Bình Dương</text>
+      <!-- Đại Tây Dương -->
+      <text x="188" y="155" text-anchor="middle" font-size="10" fill="#7cb9e8" font-style="italic">Đại Tây Dương</text>
+
+      <!-- === Đường hành trình (polyline) === -->
+      <!-- Sài Gòn → Marseille (qua eo biển, châu Phi) -->
+      <polyline points="553,196 500,250 400,260 300,200 285,120 287,95"
+                fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6,3" opacity="0.7"/>
+      <!-- Pháp → Anh (London) -->
+      <line x1="287" y1="80" x2="272" y2="58" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <!-- Anh → Mỹ (transatlantic) -->
+      <path d="M 270,55 Q 210,40 157,82" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <!-- Mỹ → Pháp -->
+      <path d="M 160,80 Q 220,60 287,78" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <!-- Paris → Moscow -->
+      <line x1="287" y1="76" x2="370" y2="68" stroke="#1e40af" stroke-width="1.8" stroke-dasharray="5,3"/>
+      <!-- Moscow → Quảng Châu -->
+      <path d="M 370,68 Q 450,70 560,133" fill="none" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5,3"/>
+      <!-- Quảng Châu → Thái Lan -->
+      <path d="M 558,133 Q 548,155 535,178" fill="none" stroke="#15803d" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <!-- Thái Lan → Hồng Kông -->
+      <path d="M 535,178 Q 555,160 582,148" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-dasharray="5,3"/>
+      <!-- Hồng Kông → về Việt Nam 1941 -->
+      <path d="M 582,148 Q 575,165 555,190" fill="none" stroke="#b91c1c" stroke-width="1.8" stroke-dasharray="5,3"/>
+
+      <!-- === Điểm dừng quan trọng (bấm được) === -->
+
+      <!-- Điểm 0: Sài Gòn / Bến Nhà Rồng -->
+      <g class="map-pin" onclick="mapShow(0)" style="cursor:pointer">
+        <circle cx="553" cy="196" r="9" fill="#b45309" stroke="white" stroke-width="2"/>
+        <text x="553" y="200" text-anchor="middle" font-size="9" fill="white" font-weight="700">1</text>
+        <text x="540" y="212" text-anchor="middle" font-size="9" fill="#78350f" font-weight="600">Sài Gòn</text>
+        <text x="540" y="221" text-anchor="middle" font-size="8" fill="#78350f">1911</text>
+      </g>
+
+      <!-- Điểm 1: Paris (bước ngoặt 1919–1920) -->
+      <g class="map-pin" onclick="mapShow(1)" style="cursor:pointer">
+        <circle cx="287" cy="77" r="9" fill="#b91c1c" stroke="white" stroke-width="2"/>
+        <text x="287" y="81" text-anchor="middle" font-size="9" fill="white" font-weight="700">2</text>
+        <text x="302" y="94" text-anchor="middle" font-size="9" fill="#991b1b" font-weight="600">Paris</text>
+        <text x="302" y="103" text-anchor="middle" font-size="8" fill="#991b1b">1917–1923</text>
+      </g>
+
+      <!-- Điểm 2: London -->
+      <g class="map-pin" onclick="mapShow(2)" style="cursor:pointer">
+        <circle cx="272" cy="55" r="7" fill="#6366f1" stroke="white" stroke-width="2"/>
+        <text x="272" y="59" text-anchor="middle" font-size="8" fill="white" font-weight="700">3</text>
+        <text x="258" y="44" text-anchor="middle" font-size="8" fill="#4338ca">London</text>
+      </g>
+
+      <!-- Điểm 3: New York / Mỹ -->
+      <g class="map-pin" onclick="mapShow(3)" style="cursor:pointer">
+        <circle cx="157" cy="83" r="7" fill="#b45309" stroke="white" stroke-width="2"/>
+        <text x="157" y="87" text-anchor="middle" font-size="8" fill="white" font-weight="700">4</text>
+        <text x="157" y="100" text-anchor="middle" font-size="8" fill="#78350f">New York</text>
+      </g>
+
+      <!-- Điểm 4: Moscow -->
+      <g class="map-pin" onclick="mapShow(4)" style="cursor:pointer">
+        <circle cx="370" cy="68" r="9" fill="#1e40af" stroke="white" stroke-width="2"/>
+        <text x="370" y="72" text-anchor="middle" font-size="9" fill="white" font-weight="700">5</text>
+        <text x="370" y="85" text-anchor="middle" font-size="9" fill="#1e40af" font-weight="600">Moscow</text>
+        <text x="370" y="94" text-anchor="middle" font-size="8" fill="#1e40af">1923–1924</text>
+      </g>
+
+      <!-- Điểm 5: Quảng Châu -->
+      <g class="map-pin" onclick="mapShow(5)" style="cursor:pointer">
+        <circle cx="560" cy="133" r="9" fill="#15803d" stroke="white" stroke-width="2"/>
+        <text x="560" y="137" text-anchor="middle" font-size="9" fill="white" font-weight="700">6</text>
+        <text x="578" y="133" text-anchor="start" font-size="9" fill="#14532d" font-weight="600">Quảng Châu</text>
+        <text x="578" y="142" text-anchor="start" font-size="8" fill="#14532d">1924–1927</text>
+      </g>
+
+      <!-- Điểm 6: Thái Lan / Xiêm -->
+      <g class="map-pin" onclick="mapShow(6)" style="cursor:pointer">
+        <circle cx="535" cy="178" r="7" fill="#15803d" stroke="white" stroke-width="2"/>
+        <text x="535" y="182" text-anchor="middle" font-size="8" fill="white" font-weight="700">7</text>
+        <text x="516" y="195" text-anchor="middle" font-size="8" fill="#14532d">Xiêm (TL)</text>
+      </g>
+
+      <!-- Điểm 7: Hồng Kông — Thành lập Đảng -->
+      <g class="map-pin" onclick="mapShow(7)" style="cursor:pointer">
+        <circle cx="582" cy="147" r="11" fill="#b91c1c" stroke="white" stroke-width="2.5"/>
+        <text x="582" y="151" text-anchor="middle" font-size="9" fill="white" font-weight="900">8</text>
+        <text x="598" y="148" text-anchor="start" font-size="9" fill="#991b1b" font-weight="700">Hồng Kông</text>
+        <text x="598" y="157" text-anchor="start" font-size="8" fill="#991b1b">3/2/1930</text>
+      </g>
+
+      <!-- Điểm 8: Về nước Cao Bằng 1941 -->
+      <g class="map-pin" onclick="mapShow(8)" style="cursor:pointer">
+        <circle cx="554" cy="190" r="7" fill="#b45309" stroke="#fbbf24" stroke-width="2"/>
+        <text x="554" y="194" text-anchor="middle" font-size="8" fill="white" font-weight="700">9</text>
+        <text x="536" y="205" text-anchor="middle" font-size="8" fill="#78350f">Về nước 1941</text>
+      </g>
+
+      <!-- Chú thích đường -->
+      <text x="10" y="380" font-size="10" fill="#6b7280">Chú thích: đường nét đứt = hành trình phỏng đoán theo chiều thời gian. Số = thứ tự điểm dừng chính.</text>
+    </svg>
+  </div>
+
+  <div id="map-popup">
+    <strong id="popup-title"></strong>
+    <div id="popup-body" style="margin-top:6px;"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Timeline 1911–1931
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Chuỗi thời gian 1911 – 1931</h2>
+
+<div class="card">
+  <div class="info-box" style="margin-bottom: 16px;">
+    Bấm vào mỗi mốc để xem chi tiết sự kiện.
+  </div>
+  <div class="timeline" id="tl-container">
+
+    <div class="tl-item" onclick="tlShow(0)">
+      <div class="tl-year">5/6/1911</div>
+      <div class="tl-title">Nguyễn Tất Thành rời bến Nhà Rồng
+        <span class="tl-badge badge-normal">Khởi đầu</span>
+      </div>
+      <div class="tl-desc">Làm phụ bếp trên tàu Amiral Latouche-Tréville, tên khai là Văn Ba. Khởi đầu hành trình 30 năm.</div>
+    </div>
+
+    <div class="tl-item" onclick="tlShow(1)">
+      <div class="tl-year">~1912–1917</div>
+      <div class="tl-title">Hành trình qua Anh, Mỹ, châu Phi</div>
+      <div class="tl-desc">Làm nhiều nghề (thợ ảnh, đầu bếp, thợ rèn). Tiếp xúc trực tiếp xã hội tư bản và phong trào lao động.</div>
+    </div>
+
+    <div class="tl-item" onclick="tlShow(2)">
+      <div class="tl-year">~1917–1919</div>
+      <div class="tl-title">Định cư tại Paris — viết báo, diễn thuyết</div>
+      <div class="tl-desc">Gia nhập Đảng Xã hội Pháp. Viết báo, tiếp cận tư tưởng xã hội chủ nghĩa và phong trào chống thực dân.</div>
+    </div>
+
+    <div class="tl-item idea" onclick="tlShow(3)">
+      <div class="tl-year">6/1919</div>
+      <div class="tl-title">Bản yêu sách của nhân dân An Nam
+        <span class="tl-badge badge-idea">Bước ngoặt</span>
+      </div>
+      <div class="tl-desc">Lần đầu ký tên "Nguyễn Ái Quốc". Gửi 8 điểm yêu cầu tới Hội nghị Versailles — không được xem xét, nhưng gây tiếng vang trong cộng đồng người Việt tại Pháp.</div>
+    </div>
+
+    <div class="tl-item idea" onclick="tlShow(4)">
+      <div class="tl-year">7/1920</div>
+      <div class="tl-title">Đọc Luận cương Lê-nin
+        <span class="tl-badge badge-idea">Bước ngoặt tư tưởng</span>
+      </div>
+      <div class="tl-desc">Đọc "Sơ thảo Luận cương về vấn đề dân tộc và thuộc địa" đăng trên L'Humanité. Xác định con đường cách mạng theo chủ nghĩa Mác–Lê-nin.</div>
+    </div>
+
+    <div class="tl-item key" onclick="tlShow(5)">
+      <div class="tl-year">12/1920</div>
+      <div class="tl-title">Đại hội Tours — Sáng lập Đảng Cộng sản Pháp
+        <span class="tl-badge badge-key">Mốc lớn</span>
+      </div>
+      <div class="tl-desc">Bỏ phiếu gia nhập Đệ tam Quốc tế, trở thành một trong những người sáng lập Đảng Cộng sản Pháp.</div>
+    </div>
+
+    <div class="tl-item" onclick="tlShow(6)">
+      <div class="tl-year">1921–1923</div>
+      <div class="tl-title">Hoạt động tại Paris — báo Le Paria, Hội Liên hiệp Thuộc địa</div>
+      <div class="tl-desc">Đồng sáng lập Hội Liên hiệp Thuộc địa (1921). Ra báo Le Paria ("Người cùng khổ") tiếng nói của nhân dân các thuộc địa Pháp.</div>
+    </div>
+
+    <div class="tl-item idea" onclick="tlShow(7)">
+      <div class="tl-year">6/1923 – 1924</div>
+      <div class="tl-title">Moscow — học tập và Đại hội V Comintern
+        <span class="tl-badge badge-idea">Đào tạo</span>
+      </div>
+      <div class="tl-desc">Sang Liên Xô tham dự Hội nghị Quốc tế Nông dân. Học tại Trường Đại học Phương Đông. Tham dự Đại hội V Quốc tế Cộng sản (1924).</div>
+    </div>
+
+    <div class="tl-item org" onclick="tlShow(8)">
+      <div class="tl-year">6/1925</div>
+      <div class="tl-title">Thành lập Hội Việt Nam Cách mạng Thanh niên
+        <span class="tl-badge badge-org">Tổ chức</span>
+      </div>
+      <div class="tl-desc">Tại Quảng Châu, Trung Quốc. Ra báo Thanh niên (21/6/1925). Tổ chức lớp huấn luyện chính trị cho thanh niên Việt Nam.</div>
+    </div>
+
+    <div class="tl-item org" onclick="tlShow(9)">
+      <div class="tl-year">1927</div>
+      <div class="tl-title">Xuất bản "Đường Kách mệnh"</div>
+      <div class="tl-desc">Tập hợp bài giảng tại Quảng Châu — văn bản lý luận đầu tiên về con đường cách mạng Việt Nam theo quan điểm Mác–Lê-nin.</div>
+    </div>
+
+    <div class="tl-item" onclick="tlShow(10)">
+      <div class="tl-year">1929</div>
+      <div class="tl-title">Ba tổ chức cộng sản ra đời song song
+        <span class="tl-badge badge-key">Phân hóa</span>
+      </div>
+      <div class="tl-desc">Đông Dương CSĐD (6/1929) · An Nam CSD (7/1929) · Đông Dương CS Liên đoàn (9/1929). Comintern chỉ thị hợp nhất.</div>
+    </div>
+
+    <div class="tl-item key" onclick="tlShow(11)">
+      <div class="tl-year">3/2/1930</div>
+      <div class="tl-title">Thành lập Đảng Cộng sản Việt Nam — Hồng Kông
+        <span class="tl-badge badge-key">Mốc lịch sử</span>
+      </div>
+      <div class="tl-desc">Hội nghị hợp nhất tại Cửu Long, Hồng Kông. Nguyễn Ái Quốc chủ trì. Thông qua Cương lĩnh chính trị đầu tiên.</div>
+    </div>
+
+    <div class="tl-item" onclick="tlShow(12)">
+      <div class="tl-year">1930–1931</div>
+      <div class="tl-title">Phong trào và Xô viết Nghệ – Tĩnh</div>
+      <div class="tl-desc">Làn sóng bãi công, biểu tình. Xô viết tự quản ở một số xã Nghệ An và Hà Tĩnh (9/1930–5/1931). Pháp đàn áp mạnh.</div>
+    </div>
+
+  </div>
+
+  <div id="tl-popup" class="info-box" style="display:none; margin-top:12px;">
+    <strong id="tl-popup-title" style="font-size:15px; color:var(--accent-dark);"></strong>
+    <div id="tl-popup-body" style="margin-top:6px;"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Sơ đồ hợp nhất 3 tổ chức → Đảng
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Sơ đồ hợp nhất: Ba tổ chức → Đảng Cộng sản Việt Nam (3/2/1930)</h2>
+
+<div class="card">
+  <div class="info-box" style="margin-bottom:16px;">
+    Bấm vào mỗi ô để xem thêm thông tin về từng tổ chức và quá trình hợp nhất.
+  </div>
+
+  <div class="merge-wrap">
+    <svg id="merge-svg" width="700" height="340" viewBox="0 0 700 340">
+      <!-- Nền nhạt -->
+      <rect width="700" height="340" fill="#fafafa" rx="8"/>
+
+      <!-- Tiêu đề -->
+      <text x="350" y="28" text-anchor="middle" font-size="14" font-weight="700" fill="#374151">
+        Quá trình hợp nhất các tổ chức cộng sản Việt Nam (1929–1930)
+      </text>
+
+      <!-- === Hội Việt Nam CMTN (nguồn gốc chung) === -->
+      <rect x="225" y="42" width="250" height="44" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+      <text x="350" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#92400e">Hội Việt Nam Cách mạng Thanh niên</text>
+      <text x="350" y="76" text-anchor="middle" font-size="11" fill="#78350f">(Nguyễn Ái Quốc, thành lập 6/1925 tại Quảng Châu)</text>
+
+      <!-- Mũi tên phân hóa -->
+      <line x1="200" y1="86" x2="120" y2="116" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="350" y1="86" x2="350" y2="116" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="500" y1="86" x2="580" y2="116" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+      <!-- Label phân hóa -->
+      <text x="350" y="105" text-anchor="middle" font-size="10" fill="#9ca3af" font-style="italic">Phân hóa nội bộ 1929</text>
+
+      <!-- === Ba tổ chức === -->
+
+      <!-- Đông Dương CSĐD (Bắc Kỳ) -->
+      <rect x="20" y="118" width="200" height="62" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="120" y="138" text-anchor="middle" font-size="11" font-weight="700" fill="#1e40af">Đông Dương</text>
+      <text x="120" y="151" text-anchor="middle" font-size="11" font-weight="700" fill="#1e40af">Cộng sản Đảng</text>
+      <text x="120" y="167" text-anchor="middle" font-size="10" fill="#374151">6/1929 · Bắc Kỳ</text>
+
+      <!-- An Nam CSD (Nam Kỳ) -->
+      <rect x="250" y="118" width="200" height="62" rx="8" fill="#fce7f3" stroke="#db2777" stroke-width="1.5"/>
+      <text x="350" y="138" text-anchor="middle" font-size="11" font-weight="700" fill="#9d174d">An Nam</text>
+      <text x="350" y="151" text-anchor="middle" font-size="11" font-weight="700" fill="#9d174d">Cộng sản Đảng</text>
+      <text x="350" y="167" text-anchor="middle" font-size="10" fill="#374151">7/1929 · Nam Kỳ</text>
+
+      <!-- Đông Dương CS Liên đoàn (Trung Kỳ) -->
+      <rect x="480" y="118" width="200" height="62" rx="8" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+      <text x="580" y="138" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">Đông Dương CS</text>
+      <text x="580" y="151" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">Liên đoàn</text>
+      <text x="580" y="167" text-anchor="middle" font-size="10" fill="#374151">9/1929 · Trung Kỳ</text>
+
+      <!-- Label vấn đề -->
+      <rect x="240" y="196" width="220" height="32" rx="6" fill="#fee2e2" stroke="#ef4444" stroke-width="1"/>
+      <text x="350" y="210" text-anchor="middle" font-size="10" fill="#991b1b" font-weight="600">Comintern: "Một nước — một đảng"</text>
+      <text x="350" y="222" text-anchor="middle" font-size="10" fill="#991b1b">→ Chỉ thị hợp nhất, giao Nguyễn Ái Quốc chủ trì</text>
+
+      <!-- Mũi tên hợp nhất -->
+      <!-- Mũi tên từ tổ chức 1 -->
+      <path d="M 120,180 Q 120,210 230,252" fill="none" stroke="#b45309" stroke-width="2.5"
+            marker-end="url(#arrowBrown)"/>
+      <!-- Mũi tên từ tổ chức 2 -->
+      <line x1="350" y1="180" x2="350" y2="250" stroke="#b45309" stroke-width="2.5"
+            marker-end="url(#arrowBrown)"/>
+      <!-- Mũi tên từ tổ chức 3 (hợp nhất muộn hơn, 24/2) -->
+      <path d="M 580,180 Q 580,225 470,252" fill="none" stroke="#b45309" stroke-width="2" stroke-dasharray="5,3"
+            marker-end="url(#arrowBrown)"/>
+
+      <!-- Chú thích tổ chức 3 hợp nhất muộn -->
+      <text x="568" y="225" text-anchor="middle" font-size="9" fill="#6b7280" font-style="italic">24/2/1930</text>
+
+      <!-- Hội nghị Hồng Kông -->
+      <rect x="215" y="255" width="270" height="30" rx="6" fill="#fef9c3" stroke="#d97706" stroke-width="1.2"/>
+      <text x="350" y="265" text-anchor="middle" font-size="10" fill="#78350f" font-weight="600">Hội nghị 3–7/2/1930</text>
+      <text x="350" y="278" text-anchor="middle" font-size="10" fill="#78350f">Cửu Long (Kowloon), Hồng Kông · Nguyễn Ái Quốc chủ trì</text>
+
+      <!-- Mũi tên cuối → Đảng -->
+      <line x1="350" y1="285" x2="350" y2="302" stroke="#b45309" stroke-width="3"
+            marker-end="url(#arrowBrown)"/>
+
+      <!-- Đảng Cộng sản Việt Nam -->
+      <rect x="170" y="305" width="360" height="30" rx="10" fill="#b45309" stroke="#78350f" stroke-width="2"/>
+      <text x="350" y="316" text-anchor="middle" font-size="13" font-weight="900" fill="white">ĐẢNG CỘNG SẢN VIỆT NAM</text>
+      <text x="350" y="329" text-anchor="middle" font-size="11" fill="#fef3c7">Thành lập 3/2/1930</text>
+
+      <!-- Marker mũi tên -->
+      <defs>
+        <marker id="arrowBrown" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M 0,0 L 0,6 L 8,3 z" fill="#b45309"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <div class="peace-box" style="margin-top:14px;">
+    <strong>Ý nghĩa của Đảng thống nhất:</strong> Từ 3/2/1930, phong trào cách mạng Việt Nam có một tổ chức thống nhất với đường lối nhất quán, kỷ luật chung và liên hệ với phong trào quốc tế — thay cho các nhóm phân tán hoạt động trước đó. Đây là nền tảng tổ chức cho các giai đoạn đấu tranh tiếp theo.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q" id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <button class="btn btn-secondary" id="btn-quiz-restart" onclick="quizRestart()" style="display:none">Làm lại</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score" id="quiz-score"></span>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   MODULE 1 — Bản đồ: dữ liệu điểm dừng
+   ════════════════════════════════════════════════ */
+const MAP_STOPS = [
+  {
+    title: '1. Sài Gòn — Bến Nhà Rồng (5/6/1911)',
+    body:  'Nguyễn Tất Thành (23 tuổi) rời bến Nhà Rồng trên tàu Amiral Latouche-Tréville, đăng ký làm phụ bếp với tên Văn Ba. Đây là khởi điểm của hành trình 30 năm tìm đường cứu nước qua nhiều châu lục. Sài Gòn khi đó là trung tâm thương mại lớn nhất Đông Dương, cảng xuất khẩu và điểm giao thương với thế giới — lý do các tuyến tàu biển quốc tế ghé lại.'
+  },
+  {
+    title: '2. Paris — Bước ngoặt 1919 & 1920',
+    body:  '<strong>Tháng 6/1919:</strong> Ký tên Nguyễn Ái Quốc, gửi Bản yêu sách 8 điểm tới Hội nghị Versailles — không được xem xét, nhưng lần đầu người Việt Nam đưa yêu sách ra trước công luận quốc tế.<br><br><strong>Tháng 7/1920:</strong> Đọc "Sơ thảo Luận cương về vấn đề dân tộc và thuộc địa" của Lê-nin đăng trên báo L\'Humanité — xác định con đường cách mạng theo chủ nghĩa Mác–Lê-nin.<br><br><strong>Tháng 12/1920:</strong> Bỏ phiếu gia nhập Đệ tam Quốc tế tại Đại hội Tours — trở thành một trong những người sáng lập Đảng Cộng sản Pháp.'
+  },
+  {
+    title: '3. London (~1913–1917)',
+    body:  'Trong những năm đầu hành trình, Nguyễn Tất Thành có thời gian ở London (Anh), làm nhiều nghề để kiếm sống. Ông tiếp xúc với phong trào công nhân Anh và cộng đồng người lao động nhập cư — những trải nghiệm giúp ông hiểu về mâu thuẫn giai cấp trong xã hội tư bản.'
+  },
+  {
+    title: '4. New York / Boston — Hoa Kỳ (~1912–1913)',
+    body:  'Trong hành trình qua Bắc Mỹ, Nguyễn Tất Thành có mặt tại một số thành phố lớn của Mỹ. Ông tiếp xúc với cộng đồng người Mỹ gốc Phi (Afro-Americans) — nhận ra mâu thuẫn giữa lý tưởng dân chủ mà nước Mỹ tuyên bố với thực trạng phân biệt chủng tộc — một trải nghiệm quan trọng trong việc phân tích mâu thuẫn của xã hội tư bản.'
+  },
+  {
+    title: '5. Moscow, Liên Xô (6/1923 – cuối 1924)',
+    body:  'Nguyễn Ái Quốc sang Liên Xô theo con đường tổ chức của Đảng Cộng sản Pháp và Comintern.<br><br>Tại đây ông: tham dự Hội nghị Quốc tế Nông dân (6/1923); học tập tại Trường Đại học Phương Đông — nơi đào tạo cán bộ cách mạng từ các nước thuộc địa và bán thuộc địa; tham dự Đại hội V Quốc tế Cộng sản (1924), phát biểu về vấn đề thuộc địa.<br><br>Giai đoạn này giúp ông hoàn thiện lý luận và xây dựng quan hệ với mạng lưới cộng sản quốc tế.'
+  },
+  {
+    title: '6. Quảng Châu, Trung Quốc (1924–1927)',
+    body:  'Quảng Châu (Guangzhou) là trung tâm cách mạng Trung Quốc những năm 1920s — nơi Quốc Dân Đảng và Đảng Cộng sản Trung Quốc hợp tác (Mặt trận thống nhất lần 1).<br><br>Nguyễn Ái Quốc đến Quảng Châu cuối 1924 với danh nghĩa phiên dịch cho phái đoàn cố vấn Liên Xô. Tại đây ông thực hiện các bước chuẩn bị tổ chức quan trọng nhất:<br>• Thành lập Hội Việt Nam Cách mạng Thanh niên (6/1925)<br>• Ra báo Thanh niên (21/6/1925)<br>• Tổ chức các lớp huấn luyện chính trị cho thanh niên Việt Nam<br>• Xuất bản "Đường Kách mệnh" (1927)<br><br>Năm 1927, Tưởng Giới Thạch đàn áp Đảng Cộng sản Trung Quốc — ông buộc phải rời Quảng Châu.'
+  },
+  {
+    title: '7. Xiêm (Thái Lan, 1928–1929)',
+    body:  'Sau khi rời Quảng Châu, Nguyễn Ái Quốc hoạt động bí mật tại Xiêm (Thái Lan ngày nay), trong cộng đồng người Việt kiều ở vùng Đông Bắc Thái Lan. Đây là giai đoạn ông tiếp tục duy trì liên hệ với phong trào trong nước và theo dõi sự phát triển của Hội Việt Nam Cách mạng Thanh niên.<br><br>Cuối 1929, nhận được chỉ thị của Comintern về việc hợp nhất các tổ chức cộng sản Việt Nam, ông di chuyển sang Hồng Kông để chuẩn bị.'
+  },
+  {
+    title: '8. Hồng Kông — Hội nghị thành lập Đảng (3–7/2/1930)',
+    body:  'Tại Cửu Long (Kowloon), Hồng Kông (thuộc địa Anh), Nguyễn Ái Quốc chủ trì Hội nghị hợp nhất từ 3 đến 7/2/1930.<br><br>Đại biểu của Đông Dương Cộng sản Đảng và An Nam Cộng sản Đảng tham dự. Đông Dương Cộng sản Liên đoàn tham gia hợp nhất sau (24/2/1930).<br><br>Hội nghị thông qua: tên Đảng là <strong>Đảng Cộng sản Việt Nam</strong>, Cương lĩnh chính trị đầu tiên, Điều lệ, Sách lược vắn tắt.<br><br>Tháng 6/1931, Nguyễn Ái Quốc bị cảnh sát Hồng Kông bắt (theo đề nghị của Pháp) — ông ở tù đến 1933 rồi trốn thoát, tiếp tục hoạt động ở Liên Xô và Trung Quốc.'
+  },
+  {
+    title: '9. Về nước — Cao Bằng (2/1941)',
+    body:  'Ngày 28/1/1941, sau 30 năm ra đi, Nguyễn Ái Quốc về nước qua cột mốc 108 tại Cao Bằng. Đây là lần đầu tiên ông đặt chân trở lại đất Việt Nam sau khi rời bến Nhà Rồng năm 1911.<br><br>Ngay sau khi về nước, ông chủ trì Hội nghị Trung ương 8 (5/1941), quyết định thành lập Mặt trận Việt Minh — bước chuẩn bị trực tiếp cho Cách mạng Tháng Tám 1945. (Xem thêm: Lesson 04)'
+  },
+];
+
+function mapShow(idx) {
+  const data = MAP_STOPS[idx];
+  document.getElementById('popup-title').textContent = data.title;
+  document.getElementById('popup-body').innerHTML = data.body;
+  const popup = document.getElementById('map-popup');
+  popup.classList.add('show');
+  popup.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 2 — Timeline: dữ liệu chi tiết
+   ════════════════════════════════════════════════ */
+const TL_DATA = [
+  {
+    title: '5/6/1911 — Rời bến Nhà Rồng',
+    body: 'Nguyễn Tất Thành, 23 tuổi, đăng ký làm phụ bếp trên tàu Amiral Latouche-Tréville với tên Văn Ba. Tàu khởi hành từ bến Nhà Rồng, Sài Gòn, hướng về Marseille (Pháp). Đây là khởi đầu của hành trình gần 30 năm qua nhiều châu lục trước khi ông trở về Việt Nam năm 1941.'
+  },
+  {
+    title: '~1912–1917 — Anh, Mỹ, châu Phi',
+    body: 'Những năm đầu hành trình, Nguyễn Tất Thành làm nhiều nghề để kiếm sống: phụ bếp, thợ ảnh, thợ rèn, người làm vườn... Ông đến nhiều nơi: London (Anh), New York và Boston (Mỹ), nhiều cảng châu Phi và châu Á. Trực tiếp quan sát xã hội tư bản, phong trào lao động, và mâu thuẫn sắc tộc — đặt nền tảng tư duy phân tích của ông.'
+  },
+  {
+    title: '~1917–1919 — Định cư tại Paris',
+    body: 'Nguyễn Tất Thành định cư ở Paris, gia nhập Đảng Xã hội Pháp, tham gia các cuộc họp và sinh hoạt chính trị. Ông học viết bào tiếng Pháp, tiếp cận tư tưởng xã hội chủ nghĩa và phong trào chống thực dân. Giai đoạn này ông viết bài cho nhiều tờ báo, dần được biết đến trong cộng đồng người Việt ở Pháp và giới hoạt động tả phái tại Paris.'
+  },
+  {
+    title: 'Tháng 6/1919 — Bản yêu sách của nhân dân An Nam',
+    body: 'Nhân danh "Nhóm người An Nam yêu nước", Nguyễn Tất Thành — lần đầu ký tên Nguyễn Ái Quốc ("người yêu nước") — cùng đồng chí gửi văn bản 8 điểm tới Hội nghị Versailles đang họp tại Paris. Yêu sách bao gồm: tự do báo chí, tự do hội họp, ân xá tù chính trị, đại biểu bầu cử trong Nghị viện Pháp...\n\nHội nghị không xem xét. Nhưng văn bản được phát hành, gây tiếng vang trong cộng đồng người Việt tại Pháp và là lần đầu một yêu sách chính thức của "nhân dân An Nam" xuất hiện trên trường quốc tế.'
+  },
+  {
+    title: 'Tháng 7/1920 — Đọc Luận cương Lê-nin',
+    body: 'Báo L\'Humanité đăng bản dịch tiếng Pháp "Sơ thảo lần thứ nhất Luận cương về vấn đề dân tộc và thuộc địa" của Lê-nin. Nguyễn Ái Quốc đọc và tìm thấy câu trả lời cho câu hỏi ông đang tìm kiếm.\n\nLuận cương chỉ ra: phong trào giải phóng dân tộc thuộc địa và cách mạng vô sản quốc tế không tách rời nhau; dân tộc bị áp bức cần liên kết với phong trào công nhân thế giới; cần có đảng cộng sản lãnh đạo.\n\nĐây là thời điểm ông xác định con đường cách mạng theo chủ nghĩa Mác–Lê-nin — khác về chất với cải cách (Phan Châu Trinh) hay bạo động đơn thuần (Phan Bội Châu).'
+  },
+  {
+    title: 'Tháng 12/1920 — Đại hội Tours, sáng lập ĐCSPHÁP',
+    body: 'Đại hội Tours của Đảng Xã hội Pháp họp tại thành phố Tours. Vấn đề trung tâm: gia nhập Quốc tế Cộng sản (Đệ tam) hay ở lại Quốc tế Xã hội (Đệ nhị)?\n\nNguyễn Ái Quốc phát biểu, lên án chính sách thuộc địa, ủng hộ Đệ tam Quốc tế và bỏ phiếu thuận. Ông trở thành một trong những người sáng lập Đảng Cộng sản Pháp — và là người đầu tiên mang danh hiệu đảng viên cộng sản trong lịch sử phong trào yêu nước Việt Nam.'
+  },
+  {
+    title: '1921–1923 — Hội Liên hiệp Thuộc địa, báo Le Paria',
+    body: 'Năm 1921, Nguyễn Ái Quốc tham gia sáng lập Hội Liên hiệp Thuộc địa — tập hợp những người từ các thuộc địa Pháp (Việt Nam, Algeria, Madagascar, Tunisia...) đang sống và hoạt động tại Pháp.\n\nNăm 1922, Hội ra báo Le Paria ("Người cùng khổ") — tiếng nói phê phán chế độ thực dân Pháp ở các thuộc địa. Nguyễn Ái Quốc viết bài và làm biên tập. Đây là giai đoạn ông tiếp tục hoàn thiện kỹ năng viết lách và tổ chức vận động.'
+  },
+  {
+    title: '6/1923–1924 — Moscow, học tập và Đại hội V Comintern',
+    body: 'Tháng 6/1923, Nguyễn Ái Quốc bí mật sang Liên Xô (qua Đức). Ông tham dự Hội nghị Quốc tế Nông dân, học tập tại Trường Đại học Phương Đông (nơi đào tạo cán bộ cách mạng từ các nước thuộc địa và bán thuộc địa).\n\nNăm 1924, ông tham dự Đại hội V Quốc tế Cộng sản, phát biểu về vai trò của vấn đề dân tộc và thuộc địa trong cách mạng thế giới. Giai đoạn Moscow giúp ông hoàn thiện lý luận và xây dựng quan hệ với Comintern — tổ chức sẽ cung cấp hậu thuẫn và kinh phí cho hoạt động tiếp theo.'
+  },
+  {
+    title: 'Tháng 6/1925 — Thành lập Hội Việt Nam Cách mạng Thanh niên',
+    body: 'Tại Quảng Châu (Trung Quốc), Nguyễn Ái Quốc thành lập Hội Việt Nam Cách mạng Thanh niên — tổ chức cách mạng Mác–Lê-nin đầu tiên của người Việt. Bên trong có Cộng sản Đoàn là hạt nhân lãnh đạo.\n\nNgày 21/6/1925: ra tuần báo Thanh niên.\n\nHội tổ chức các lớp huấn luyện chính trị tại Quảng Châu, đào tạo thanh niên Việt Nam về lý luận cách mạng rồi đưa về nước hoạt động. Thực hiện "vô sản hoá" — đưa hội viên vào nhà máy, xưởng thợ để vận động công nhân.'
+  },
+  {
+    title: '1927 — "Đường Kách mệnh"',
+    body: '"Đường Kách mệnh" là tập hợp các bài giảng của Nguyễn Ái Quốc tại Quảng Châu, được Bộ Tuyên truyền Hội Việt Nam Cách mạng Thanh niên xuất bản năm 1927.\n\nNội dung: tại sao phải làm cách mạng, ai là lực lượng cách mạng, phải làm cách mạng theo cách nào, vai trò của tổ chức và kỷ luật Đảng, ý nghĩa của liên minh quốc tế.\n\nĐây là văn bản lý luận cách mạng đầu tiên viết bằng tiếng Việt theo quan điểm Mác–Lê-nin, trở thành tài liệu học tập của hội viên Hội Thanh niên và sau này của cán bộ Đảng.'
+  },
+  {
+    title: '1929 — Ba tổ chức cộng sản ra đời song song',
+    body: 'Đại hội tháng 3/1929 của Hội Việt Nam Cách mạng Thanh niên (họp tại Hồng Kông) không thông qua đề nghị chuyển lên đảng cộng sản ngay. Bộ phận Bắc Kỳ tách ra:\n\n• Đông Dương Cộng sản Đảng: 6/1929, chủ yếu từ bộ phận Bắc Kỳ.\n• An Nam Cộng sản Đảng: 7/1929, từ bộ phận Nam Kỳ và một phần Trung Kỳ.\n• Đông Dương Cộng sản Liên đoàn: 9/1929, từ nhóm Tân Việt Cách mạng Đảng ở Trung Kỳ.\n\nTình trạng ba tổ chức song song gây phân tán lực lượng. Comintern đánh giá đây là vấn đề nghiêm trọng và giao Nguyễn Ái Quốc (khi đó đang ở Thái Lan) chủ trì hội nghị hợp nhất.'
+  },
+  {
+    title: '3/2/1930 — Thành lập Đảng Cộng sản Việt Nam',
+    body: 'Từ ngày 3 đến 7/2/1930, Nguyễn Ái Quốc chủ trì Hội nghị hợp nhất tại Cửu Long (Kowloon), Hồng Kông. Đại biểu của Đông Dương Cộng sản Đảng và An Nam Cộng sản Đảng tham dự. Đông Dương Cộng sản Liên đoàn tham gia sau (24/2/1930).\n\nHội nghị quyết định: hợp nhất thành Đảng Cộng sản Việt Nam; thông qua Cương lĩnh chính trị đầu tiên (do Nguyễn Ái Quốc soạn), Điều lệ, Sách lược vắn tắt.\n\n<strong>Ngày 3/2/1930 là ngày thành lập Đảng Cộng sản Việt Nam.</strong> (Sau 10/1930, Comintern chỉ thị đổi tên thành Đảng Cộng sản Đông Dương; tên Đảng Cộng sản Việt Nam được khôi phục năm 1976.)'
+  },
+  {
+    title: '1930–1931 — Phong trào và Xô viết Nghệ – Tĩnh',
+    body: 'Ngay sau khi Đảng thành lập, một làn sóng đấu tranh lớn nổ ra dịp 1/5/1930. Từ tháng 9/1930, phong trào bùng phát mạnh ở Nghệ An và Hà Tĩnh.\n\nTại một số huyện, xã, sau khi chính quyền thuộc địa tạm rút lui, các ban chấp hành nông dân do chi bộ Đảng lãnh đạo thực hiện một số chức năng tự quản (phân chia ruộng công, bãi bỏ thuế thân, tổ chức tự vệ) — được gọi là Xô viết Nghệ–Tĩnh.\n\nPháp tăng cường đàn áp từ cuối 1930, phong trào lắng xuống giữa 1931. Nhiều cán bộ bị bắt, tù đày, xử tử. Đây là thử thách lớn đầu tiên của Đảng — để lại kinh nghiệm tổ chức thực tiễn cho các giai đoạn sau.'
+  },
+];
+
+let tlOpen = -1;
+function tlShow(idx) {
+  const popup = document.getElementById('tl-popup');
+  if (tlOpen === idx) {
+    popup.style.display = 'none';
+    tlOpen = -1;
+    return;
+  }
+  tlOpen = idx;
+  document.getElementById('tl-popup-title').textContent = TL_DATA[idx].title;
+  document.getElementById('tl-popup-body').innerHTML = TL_DATA[idx].body.replace(/\n/g, '<br>');
+  popup.style.display = 'block';
+  popup.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 4 — Quiz
+   ════════════════════════════════════════════════ */
+const QUIZ = [
+  {
+    q: 'Nguyễn Tất Thành rời Việt Nam ngày nào, từ đâu?',
+    opts: [
+      '1/9/1910, từ bến cảng Hải Phòng',
+      '5/6/1911, từ bến Nhà Rồng (Sài Gòn)',
+      '15/3/1912, từ cảng Đà Nẵng',
+      '4/7/1913, từ cảng Hải Phòng',
+    ],
+    correct: 1,
+    explain: 'Ngày 5/6/1911, Nguyễn Tất Thành rời bến Nhà Rồng (Sài Gòn) trên tàu Amiral Latouche-Tréville, đăng ký làm phụ bếp với tên Văn Ba. Đây là mốc khởi đầu hành trình gần 30 năm tìm đường cứu nước của ông.'
+  },
+  {
+    q: 'Bản yêu sách của nhân dân An Nam (1919) được gửi tới sự kiện quốc tế nào?',
+    opts: [
+      'Đại hội Quốc tế Cộng sản lần thứ V tại Moscow',
+      'Đại hội Tours của Đảng Xã hội Pháp',
+      'Hội nghị Versailles sau Thế chiến I',
+      'Hội nghị Liên Hợp Quốc tại Genève',
+    ],
+    correct: 2,
+    explain: 'Bản yêu sách 8 điểm được gửi tới Hội nghị Versailles (Pháp, 1919) — nơi các cường quốc họp sau Thế chiến I để phân chia lại trật tự thế giới. Dù không được xem xét, đây là lần đầu tiên một yêu sách chính thức của "nhân dân An Nam" xuất hiện trên trường quốc tế.'
+  },
+  {
+    q: 'Sự kiện tháng 7/1920 nào có ý nghĩa bước ngoặt tư tưởng đối với Nguyễn Ái Quốc?',
+    opts: [
+      'Tham gia sáng lập Hội Liên hiệp Thuộc địa tại Paris',
+      'Bỏ phiếu gia nhập Đệ tam Quốc tế tại Đại hội Tours',
+      'Đọc "Sơ thảo Luận cương về vấn đề dân tộc và thuộc địa" của Lê-nin',
+      'Sang Liên Xô lần đầu tiên để học tập',
+    ],
+    correct: 2,
+    explain: 'Tháng 7/1920, báo L\'Humanité đăng bản dịch tiếng Pháp "Sơ thảo Luận cương về vấn đề dân tộc và thuộc địa" của Lê-nin. Nguyễn Ái Quốc đọc và xác định con đường cách mạng theo chủ nghĩa Mác–Lê-nin. Đây là thời điểm chuyển biến tư tưởng cốt lõi của ông — từ yêu nước đơn thuần sang cách mạng có lý luận và tổ chức.'
+  },
+  {
+    q: 'Hội Việt Nam Cách mạng Thanh niên được thành lập năm nào, tại đâu?',
+    opts: [
+      '1921, tại Paris (Pháp)',
+      '1923, tại Moscow (Liên Xô)',
+      '1925, tại Quảng Châu (Trung Quốc)',
+      '1927, tại Hà Nội (Việt Nam)',
+    ],
+    correct: 2,
+    explain: 'Tháng 6/1925, Nguyễn Ái Quốc thành lập Hội Việt Nam Cách mạng Thanh niên tại Quảng Châu (Trung Quốc). Đây là tổ chức cách mạng theo đường lối Mác–Lê-nin đầu tiên của người Việt, cũng ra báo Thanh niên từ 21/6/1925 và tổ chức các lớp huấn luyện chính trị.'
+  },
+  {
+    q: 'Trong năm 1929, có bao nhiêu tổ chức cộng sản Việt Nam ra đời song song?',
+    opts: ['Hai tổ chức', 'Ba tổ chức', 'Bốn tổ chức', 'Một tổ chức duy nhất'],
+    correct: 1,
+    explain: 'Năm 1929, ba tổ chức cộng sản ra đời song song: Đông Dương Cộng sản Đảng (6/1929, từ bộ phận Bắc Kỳ); An Nam Cộng sản Đảng (7/1929, từ bộ phận Nam Kỳ); Đông Dương Cộng sản Liên đoàn (9/1929, từ nhóm Tân Việt). Tình trạng phân tán này dẫn đến chỉ thị của Comintern hợp nhất thành một đảng thống nhất.'
+  },
+  {
+    q: 'Đảng Cộng sản Việt Nam được thành lập ngày nào và ở đâu?',
+    opts: [
+      '7/2/1930, tại Hà Nội, Việt Nam',
+      '3/2/1930, tại Cửu Long (Hồng Kông)',
+      '24/2/1930, tại Quảng Châu (Trung Quốc)',
+      '1/5/1930, tại Nghệ An, Việt Nam',
+    ],
+    correct: 1,
+    explain: 'Ngày 3/2/1930 (ngày khai mạc Hội nghị hợp nhất) là ngày thành lập Đảng Cộng sản Việt Nam. Hội nghị diễn ra tại Cửu Long (Kowloon), Hồng Kông — khi đó là thuộc địa Anh, không bị mật thám Pháp kiểm soát trực tiếp. Nguyễn Ái Quốc chủ trì hội nghị.'
+  },
+  {
+    q: 'Xô viết Nghệ–Tĩnh (1930–1931) là gì?',
+    opts: [
+      'Một nhà nước độc lập do Đảng Cộng sản thành lập, kiểm soát toàn tỉnh Nghệ An và Hà Tĩnh',
+      'Các ban tự quản cấp thôn/xã do chi bộ Đảng lãnh đạo, tồn tại trong vài tháng ở một số địa phương',
+      'Tên gọi của hội nghị Đảng họp tại Nghệ An năm 1930',
+      'Lực lượng vũ trang của Đảng hoạt động ở vùng núi',
+    ],
+    correct: 1,
+    explain: 'Xô viết Nghệ–Tĩnh là các ban chấp hành nông dân do chi bộ Đảng lãnh đạo, thực hiện một số chức năng tự quản cấp thôn/xã trong vài tháng (khoảng 9/1930–5/1931) ở một số huyện Nghệ An và Hà Tĩnh, sau khi chính quyền thuộc địa tạm rút lui dưới áp lực phong trào. Không phải là nhà nước độc lập hoàn chỉnh — Pháp sau đó đàn áp và khôi phục kiểm soát.'
+  },
+];
+
+let quizIdx = 0, quizScore = 0, quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = `Câu ${quizIdx + 1}/${QUIZ.length}: ${q.q}`;
+  document.getElementById('quiz-prog').textContent = `${quizIdx + 1} / ${QUIZ.length}`;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? `Điểm: ${quizScore}/${quizIdx}` : '';
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = function () { quizAnswer(i); };
+    optsEl.appendChild(btn);
+  });
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  document.getElementById('btn-quiz-restart').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const q = QUIZ[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+  document.getElementById('quiz-score').textContent = `Điểm: ${quizScore}/${quizIdx + 1}`;
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent =
+      `Kết quả: ${quizScore}/${QUIZ.length} (${pct}%) — ${pct >= 80 ? 'Xuất sắc!' : pct >= 60 ? 'Tốt!' : 'Cần ôn thêm.'}`;
+    document.getElementById('quiz-prog').textContent = '';
+    document.getElementById('btn-quiz-restart').style.display = 'inline-block';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+function quizRestart() {
+  quizIdx = 0; quizScore = 0;
+  quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

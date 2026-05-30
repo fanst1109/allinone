@@ -46,6 +46,7 @@
 | Statistics | Thống kê — 3 tầng × 15 bài: mô tả dữ liệu → suy luận → Bayesian, nhân quả, time series | [Statistics/](./Statistics/) |
 | Vectors | Lộ trình toán cho AI & ML — 5 tầng từ đại số phổ thông tới xác suất & cross-entropy | [Vectors/](./Vectors/) |
 | VietnameseHistory | Lịch sử Việt Nam — 3 tầng × 8 bài: dựng nước & Bắc thuộc → các triều đại quân chủ → cận-hiện đại & Đổi mới | [VietnameseHistory/](./VietnameseHistory/) |
+| WorldHistory | Lịch sử thế giới — 3 tầng × 8 bài: cổ đại (văn minh sông → La Mã) → trung-cận đại (Phục hưng, Khai sáng) → hiện đại (Thế chiến, Chiến tranh Lạnh, toàn cầu hóa) | [WorldHistory/](./WorldHistory/) |
 
 > Mở [`index.html`](./index.html) ở root để xem trang chính có liên kết tới mọi lĩnh vực.
 

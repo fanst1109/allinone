@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Công cụ chẩn đoán mạng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette Networking (xanh dương) ── */
+  :root {
+    --net-blue:  #0369a1;
+    --net-soft:  #e0f2fe;
+    --net-mid:   #38bdf8;
+    --net-dark:  #0c4a6e;
+    --ok-green:  #16a34a;
+    --ok-soft:   #dcfce7;
+    --err-red:   #dc2626;
+    --err-soft:  #fee2e2;
+    --warn-amber:#d97706;
+    --warn-soft: #fef3c7;
+    --bg-card:   #ffffff;
+    --bg-section:#f0f9ff;
+  }
+
+  h1 { color: var(--net-dark); }
+  h2 { color: var(--net-blue); margin-top: 36px; padding-bottom: 6px;
+       border-bottom: 2px solid var(--net-mid); }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(3,105,161,.10);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--net-soft);
+    border-left: 4px solid var(--net-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Terminal giả lập ── */
+  .terminal-wrap {
+    background: #0f172a;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 12px 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,.3);
+  }
+  .terminal-bar {
+    background: #1e293b;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dot { width:12px; height:12px; border-radius:50%; }
+  .dot-r{ background:#ef4444; }
+  .dot-y{ background:#eab308; }
+  .dot-g{ background:#22c55e; }
+  .terminal-title { color:#94a3b8; font-size:13px; margin-left:8px; font-family:monospace; }
+
+  .terminal-body {
+    padding: 16px 20px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    min-height: 120px;
+    max-height: 360px;
+    overflow-y: auto;
+    color: #e2e8f0;
+  }
+
+  .terminal-input-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 10px 20px 14px;
+    border-top: 1px solid #1e293b;
+  }
+  .terminal-prompt { color: #22c55e; font-family: monospace; font-size: 13px; white-space: nowrap; }
+  .terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #e2e8f0;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    caret-color: #22c55e;
+    min-width: 0;
+  }
+
+  /* Terminal output colors */
+  .t-green  { color: #4ade80; }
+  .t-red    { color: #f87171; }
+  .t-yellow { color: #fbbf24; }
+  .t-blue   { color: #60a5fa; }
+  .t-gray   { color: #94a3b8; }
+  .t-white  { color: #f1f5f9; }
+  .t-cyan   { color: #67e8f9; }
+
+  /* ── Command buttons ── */
+  .cmd-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .cmd-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1.5px solid var(--net-blue);
+    background: var(--net-soft);
+    color: var(--net-dark);
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .cmd-btn:hover { background: var(--net-blue); color: white; }
+  .cmd-btn:active { transform: scale(.97); }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--net-blue); color: white; }
+  .btn-primary:hover { background: var(--net-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ── Wireshark mini ── */
+  .ws-container { margin: 12px 0; }
+  .ws-toolbar {
+    background: #e2e8f0;
+    border-radius: 8px 8px 0 0;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .ws-filter-input {
+    flex: 1;
+    padding: 5px 10px;
+    border: 1.5px solid #94a3b8;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 13px;
+    background: white;
+    min-width: 160px;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .ws-filter-input:focus { outline: none; border-color: var(--net-blue); }
+  .ws-filter-input.valid { border-color: var(--ok-green); background: #f0fdf4; }
+  .ws-filter-input.invalid { border-color: var(--err-red); background: #fef2f2; }
+
+  .ws-table-wrap { overflow-x: auto; }
+  .ws-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: monospace;
+    font-size: 12px;
+    min-width: 560px;
+  }
+  .ws-table th {
+    background: #475569;
+    color: white;
+    padding: 6px 10px;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .ws-table td {
+    padding: 5px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background .1s;
+  }
+  .ws-table tr:hover td { background: #dbeafe; }
+  .ws-table tr.selected td { background: #bfdbfe !important; }
+
+  .ws-row-tcp  { color: #1d4ed8; }
+  .ws-row-http { color: #166534; }
+  .ws-row-dns  { color: #7c3aed; }
+  .ws-row-icmp { color: #92400e; }
+  .ws-row-hidden { display: none; }
+
+  .ws-detail {
+    background: #1e293b;
+    border-radius: 0 0 8px 8px;
+    padding: 14px 16px;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    min-height: 80px;
+    color: #e2e8f0;
+  }
+  .ws-detail-tree span { cursor: pointer; color: #38bdf8; }
+  .ws-detail-tree span:hover { color: #7dd3fc; }
+  .ws-detail-key  { color: #fbbf24; }
+  .ws-detail-val  { color: #4ade80; }
+
+  /* ── Decision tree ── */
+  .tree-container {
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+  #diag-svg {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .tree-node {
+    cursor: pointer;
+  }
+  .tree-node rect {
+    rx: 8;
+    ry: 8;
+  }
+  .tree-node.highlight rect {
+    stroke-width: 3;
+  }
+  .node-question rect { fill: #dbeafe; stroke: #3b82f6; }
+  .node-action   rect { fill: #dcfce7; stroke: #22c55e; }
+  .node-problem  rect { fill: #fee2e2; stroke: #ef4444; }
+  .node-start    rect { fill: #0369a1; stroke: #0c4a6e; }
+  .node-start text { fill: white; }
+
+  .diag-log {
+    background: #0f172a;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    min-height: 60px;
+    color: #e2e8f0;
+    margin-top: 12px;
+  }
+  .diag-step { margin: 2px 0; }
+  .diag-step.ok   { color: #4ade80; }
+  .diag-step.fail { color: #f87171; }
+  .diag-step.info { color: #60a5fa; }
+  .diag-step.warn { color: #fbbf24; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .cmd-btns { gap: 6px; }
+    .cmd-btn  { padding: 5px 10px; font-size: 12px; }
+    .ws-filter-input { min-width: 120px; }
+    .ws-table { font-size: 11px; }
+    .terminal-body { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Advanced</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-cloud-networking/visualization.html">← L6: Mạng đám mây</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Công cụ chẩn đoán</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-project/visualization.html">L8: Dự án tổng hợp →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Công cụ chẩn đoán mạng</h1>
+
+<div class="info-box">
+  Bài này mô phỏng 3 loại công cụ chính: <strong>Terminal giả lập</strong> (ping, traceroute, dig, netstat, curl),
+  <strong>Wireshark mini</strong> (phân tích gói bắt tay TCP + HTTP), và <strong>Cây quyết định chẩn đoán</strong>
+  "web không vào được". Nhấn vào lệnh hoặc nhập trực tiếp để tương tác.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Terminal giả lập
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Terminal giả lập — ping, traceroute, dig, netstat, curl</h2>
+
+<p>Chọn lệnh có sẵn hoặc nhập vào terminal. Lệnh hỗ trợ:
+   <code>ping</code>, <code>traceroute</code>, <code>dig</code>, <code>nslookup</code>,
+   <code>netstat</code>, <code>ss</code>, <code>curl</code>, <code>help</code>, <code>clear</code>.</p>
+
+<div class="cmd-btns" id="cmd-btns">
+  <button class="cmd-btn" onclick="runCmd('ping -c 4 google.com')">ping google.com</button>
+  <button class="cmd-btn" onclick="runCmd('ping -c 4 8.8.8.8')">ping 8.8.8.8</button>
+  <button class="cmd-btn" onclick="runCmd('ping -c 5 192.168.1.1')">ping gateway</button>
+  <button class="cmd-btn" onclick="runCmd('traceroute google.com')">traceroute google.com</button>
+  <button class="cmd-btn" onclick="runCmd('traceroute 8.8.8.8')">traceroute 8.8.8.8</button>
+  <button class="cmd-btn" onclick="runCmd('dig google.com')">dig google.com</button>
+  <button class="cmd-btn" onclick="runCmd('dig google.com MX')">dig MX</button>
+  <button class="cmd-btn" onclick="runCmd('dig @8.8.8.8 example.com')">dig @8.8.8.8</button>
+  <button class="cmd-btn" onclick="runCmd('nslookup google.com')">nslookup</button>
+  <button class="cmd-btn" onclick="runCmd('netstat -tuln')">netstat -tuln</button>
+  <button class="cmd-btn" onclick="runCmd('ss -tlnp')">ss -tlnp</button>
+  <button class="cmd-btn" onclick="runCmd('curl -I https://google.com')">curl -I</button>
+  <button class="cmd-btn" onclick="runCmd('curl -v https://example.com')">curl -v</button>
+</div>
+
+<div class="terminal-wrap">
+  <div class="terminal-bar">
+    <div class="dot dot-r"></div>
+    <div class="dot dot-y"></div>
+    <div class="dot dot-g"></div>
+    <span class="terminal-title">user@linux:~$</span>
+  </div>
+  <div class="terminal-body" id="term-body">
+    <span class="t-green">Chào mừng đến Terminal mô phỏng Networking Tools.</span><br>
+    <span class="t-gray">Nhập lệnh hoặc nhấn nút bên trên. Gõ <span class="t-cyan">help</span> để xem danh sách lệnh.</span><br>
+  </div>
+  <div class="terminal-input-row">
+    <span class="terminal-prompt">user@linux:~$&nbsp;</span>
+    <input type="text" class="terminal-input" id="term-input"
+           placeholder="nhập lệnh..."
+           onkeydown="handleTermKey(event)" autocomplete="off" spellcheck="false">
+  </div>
+</div>
+
+<div id="term-explain" class="info-box" style="display:none"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Wireshark mini
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Wireshark mini — Phân tích phiên TCP + HTTP</h2>
+
+<p>Bảng dưới mô phỏng output Wireshark khi bắt một phiên HTTP hoàn chỉnh (3-way handshake + GET/200 + 4-way close).
+   Nhấn vào một hàng để xem chi tiết tầng. Dùng bộ lọc để lọc gói.</p>
+
+<div class="ws-container">
+  <div class="ws-toolbar">
+    <label style="font-size:13px;font-weight:700;color:#374151;white-space:nowrap">Display filter:</label>
+    <input type="text" class="ws-filter-input" id="ws-filter"
+           placeholder="vd: tcp, http, dns, tcp.port==80..."
+           oninput="applyWsFilter()" onkeydown="if(event.key==='Enter') applyWsFilter()">
+    <button class="btn btn-secondary" onclick="document.getElementById('ws-filter').value='';applyWsFilter()" style="padding:5px 12px;font-size:13px">Xoá</button>
+    <div id="ws-filter-status" style="font-size:12px;color:#6b7280"></div>
+  </div>
+  <div class="ws-table-wrap">
+    <table class="ws-table" id="ws-table">
+      <thead>
+        <tr>
+          <th>No.</th><th>Time (s)</th><th>Source</th><th>Destination</th>
+          <th>Protocol</th><th>Len</th><th>Info</th>
+        </tr>
+      </thead>
+      <tbody id="ws-tbody"></tbody>
+    </table>
+  </div>
+  <div class="ws-detail" id="ws-detail">
+    <span class="t-gray">-- Nhấn vào một hàng để xem chi tiết tầng --</span>
+  </div>
+</div>
+
+<div class="info-box" id="ws-guide" style="display:none"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Cây quyết định chẩn đoán
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Cây quyết định: "Không vào được web"</h2>
+
+<p>Mô phỏng quy trình chẩn đoán từng bước khi không truy cập được website. Nhấn <strong>Bắt đầu</strong>
+   rồi chọn kết quả kiểm tra ở từng bước.</p>
+
+<div class="btn-row">
+  <button class="btn btn-primary" onclick="diagReset()">Bắt đầu / Đặt lại</button>
+</div>
+
+<div class="tree-container">
+  <svg id="diag-svg" viewBox="0 0 760 540" width="760" height="540">
+    <defs>
+      <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#64748b"/>
+      </marker>
+    </defs>
+    <!-- edges drawn by JS -->
+    <g id="diag-edges"></g>
+    <!-- nodes drawn by JS -->
+    <g id="diag-nodes"></g>
+  </svg>
+</div>
+
+<div class="diag-log" id="diag-log">
+  <span class="t-gray">-- Nhấn "Bắt đầu" để chạy quy trình chẩn đoán --</span>
+</div>
+
+<div class="btn-row" id="diag-choices" style="display:none"></div>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+<script>
+/* ════════════════════════════════════════════════════════
+   MODULE 1 — Terminal simulation
+   ════════════════════════════════════════════════════════ */
+
+// Simulated outputs for each command
+const CMD_OUTPUTS = {
+
+  'ping -c 4 google.com': {
+    lines: [
+      { cls:'t-white', text:'PING google.com (142.250.185.14) 56(84) bytes of data.' },
+      { cls:'t-green', text:'64 bytes from 142.250.185.14: icmp_seq=1 ttl=117 time=12.4 ms' },
+      { cls:'t-green', text:'64 bytes from 142.250.185.14: icmp_seq=2 ttl=117 time=11.8 ms' },
+      { cls:'t-green', text:'64 bytes from 142.250.185.14: icmp_seq=3 ttl=117 time=12.1 ms' },
+      { cls:'t-green', text:'64 bytes from 142.250.185.14: icmp_seq=4 ttl=117 time=13.2 ms' },
+      { cls:'t-white', text:'' },
+      { cls:'t-cyan',  text:'--- google.com ping statistics ---' },
+      { cls:'t-white', text:'4 packets transmitted, 4 received, 0% packet loss, time 3004ms' },
+      { cls:'t-green', text:'rtt min/avg/max/mdev = 11.800/12.375/13.200/0.544 ms' },
+    ],
+    explain: '<strong>Đọc output:</strong> <code>time=12.4 ms</code> = RTT của gói đó. '
+           + '<code>ttl=117</code> → TTL gốc 128 (Windows server) − 117 = <strong>11 hop</strong>. '
+           + '<code>0% packet loss</code> → kết nối tốt. <code>mdev=0.544</code> = độ ổn định cao.'
+  },
+
+  'ping -c 4 8.8.8.8': {
+    lines: [
+      { cls:'t-white', text:'PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.' },
+      { cls:'t-green', text:'64 bytes from 8.8.8.8: icmp_seq=1 ttl=55 time=9.3 ms' },
+      { cls:'t-green', text:'64 bytes from 8.8.8.8: icmp_seq=2 ttl=55 time=9.1 ms' },
+      { cls:'t-green', text:'64 bytes from 8.8.8.8: icmp_seq=3 ttl=55 time=9.5 ms' },
+      { cls:'t-green', text:'64 bytes from 8.8.8.8: icmp_seq=4 ttl=55 time=9.2 ms' },
+      { cls:'t-white', text:'' },
+      { cls:'t-cyan',  text:'--- 8.8.8.8 ping statistics ---' },
+      { cls:'t-white', text:'4 packets transmitted, 4 received, 0% packet loss, time 3003ms' },
+      { cls:'t-green', text:'rtt min/avg/max/mdev = 9.100/9.275/9.500/0.150 ms' },
+    ],
+    explain: '<strong>Suy luận TTL:</strong> <code>ttl=55</code>, TTL gốc Linux = 64. '
+           + '64 − 55 = <strong>9 hop</strong> từ máy tới 8.8.8.8. RTT ~9 ms rất ổn định (mdev nhỏ).'
+  },
+
+  'ping -c 5 192.168.1.1': {
+    lines: [
+      { cls:'t-white', text:'PING 192.168.1.1 (192.168.1.1) 56(84) bytes of data.' },
+      { cls:'t-green', text:'64 bytes from 192.168.1.1: icmp_seq=1 ttl=64 time=0.8 ms' },
+      { cls:'t-green', text:'64 bytes from 192.168.1.1: icmp_seq=2 ttl=64 time=0.7 ms' },
+      { cls:'t-yellow',text:'Request timeout for icmp_seq 3' },
+      { cls:'t-green', text:'64 bytes from 192.168.1.1: icmp_seq=4 ttl=64 time=1.1 ms' },
+      { cls:'t-green', text:'64 bytes from 192.168.1.1: icmp_seq=5 ttl=64 time=0.9 ms' },
+      { cls:'t-white', text:'' },
+      { cls:'t-cyan',  text:'--- 192.168.1.1 ping statistics ---' },
+      { cls:'t-white', text:'5 packets transmitted, 4 received, 20% packet loss, time 4006ms' },
+      { cls:'t-yellow',text:'rtt min/avg/max/mdev = 0.700/0.875/1.100/0.154 ms' },
+    ],
+    explain: '<strong>Cảnh báo:</strong> <code>20% packet loss</code> trong LAN là bất thường. '
+           + '<code>ttl=64</code> = TTL gốc Linux, không qua router nào → 0 hop. '
+           + 'Gói seq=3 bị mất → kiểm tra cable, NIC, driver.'
+  },
+
+  'traceroute google.com': {
+    lines: [
+      { cls:'t-white', text:'traceroute to google.com (142.250.185.14), 30 hops max, 60 byte packets' },
+      { cls:'t-green', text:' 1  192.168.1.1 (192.168.1.1)          1.2 ms   0.9 ms   1.1 ms' },
+      { cls:'t-green', text:' 2  10.10.20.1 (10.10.20.1)             3.4 ms   3.1 ms   3.5 ms' },
+      { cls:'t-green', text:' 3  203.162.4.1 (203.162.4.1)           8.7 ms   8.2 ms   8.9 ms' },
+      { cls:'t-yellow',text:' 4  * * *' },
+      { cls:'t-green', text:' 5  72.14.233.1 (72.14.233.1)          15.2 ms  14.8 ms  15.1 ms' },
+      { cls:'t-green', text:' 6  142.250.185.14 (142.250.185.14)    12.4 ms  11.8 ms  12.1 ms' },
+    ],
+    explain: '<strong>Phân tích:</strong> Hop 1 = gateway LAN (1ms). Hop 2 = router ISP (địa chỉ private 10.x). '
+           + 'Hop 3 = backbone ISP. Hop 4 = <code>* * *</code> → chặn ICMP, <em>không</em> phải lỗi (hop 5-6 vẫn trả lời). '
+           + 'Hop 6 = đích Google, RTT ~12ms.'
+  },
+
+  'traceroute 8.8.8.8': {
+    lines: [
+      { cls:'t-white', text:'traceroute to 8.8.8.8 (8.8.8.8), 30 hops max, 60 byte packets' },
+      { cls:'t-green', text:' 1  192.168.1.1 (192.168.1.1)    1.2 ms   1.1 ms   1.0 ms' },
+      { cls:'t-green', text:' 2  10.0.0.1 (10.0.0.1)          4.5 ms   4.3 ms   4.4 ms' },
+      { cls:'t-yellow',text:' 3  * * *' },
+      { cls:'t-yellow',text:' 4  * * *' },
+      { cls:'t-green', text:' 5  72.14.211.1 (72.14.211.1)   18.3 ms  17.9 ms  18.1 ms' },
+      { cls:'t-green', text:' 6  8.8.8.8 (dns.google)         19.2 ms  18.8 ms  19.0 ms' },
+    ],
+    explain: '<strong>Hop 3-4 đều là <code>* * *</code></strong> — vẫn không phải lỗi vì hop 5-6 trả lời. '
+           + 'Hop 6 = 8.8.8.8 (Google DNS), RTT ~19ms. '
+           + 'Hop 2 = <code>10.0.0.1</code> địa chỉ private → router ISP.'
+  },
+
+  'dig google.com': {
+    lines: [
+      { cls:'t-gray',  text:'; <<>> DiG 9.18.1 <<>> google.com' },
+      { cls:'t-gray',  text:';; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 12345' },
+      { cls:'t-gray',  text:';; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0' },
+      { cls:'t-white', text:'' },
+      { cls:'t-cyan',  text:';; QUESTION SECTION:' },
+      { cls:'t-white', text:';google.com.                    IN  A' },
+      { cls:'t-white', text:'' },
+      { cls:'t-cyan',  text:';; ANSWER SECTION:' },
+      { cls:'t-green', text:'google.com.             300     IN  A   142.250.185.14' },
+      { cls:'t-white', text:'' },
+      { cls:'t-gray',  text:';; Query time: 8 msec' },
+      { cls:'t-gray',  text:';; SERVER: 8.8.8.8#53(8.8.8.8)' },
+      { cls:'t-gray',  text:';; MSG SIZE  rcvd: 55' },
+    ],
+    explain: '<strong>Đọc output:</strong> <code>status: NOERROR</code> = thành công. '
+           + 'ANSWER SECTION: <code>google.com. → 300 IN A 142.250.185.14</code>. '
+           + 'TTL=<strong>300 giây</strong> = 5 phút còn trong cache. '
+           + '<code>SERVER: 8.8.8.8</code> = resolver đang dùng.'
+  },
+
+  'dig google.com MX': {
+    lines: [
+      { cls:'t-cyan',  text:';; ANSWER SECTION:' },
+      { cls:'t-green', text:'google.com.     3600    IN  MX  10  aspmx.l.google.com.' },
+      { cls:'t-green', text:'google.com.     3600    IN  MX  20  alt1.aspmx.l.google.com.' },
+      { cls:'t-green', text:'google.com.     3600    IN  MX  30  alt2.aspmx.l.google.com.' },
+      { cls:'t-green', text:'google.com.     3600    IN  MX  40  alt3.aspmx.l.google.com.' },
+      { cls:'t-gray',  text:'' },
+      { cls:'t-gray',  text:';; Query time: 12 msec | SERVER: 8.8.8.8#53' },
+    ],
+    explain: '<strong>Bản ghi MX:</strong> Priority nhỏ hơn = ưu tiên cao hơn. '
+           + 'Email sẽ thử <code>aspmx.l.google.com</code> (priority 10) trước. '
+           + 'Nếu thất bại → thử priority 20, 30, 40. TTL=3600 = cache 1 giờ.'
+  },
+
+  'dig @8.8.8.8 example.com': {
+    lines: [
+      { cls:'t-gray',  text:'; <<>> DiG 9.18.1 <<>> @8.8.8.8 example.com' },
+      { cls:'t-gray',  text:';; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 54321' },
+      { cls:'t-white', text:'' },
+      { cls:'t-cyan',  text:';; ANSWER SECTION:' },
+      { cls:'t-green', text:'example.com.    3600    IN  A   93.184.216.34' },
+      { cls:'t-white', text:'' },
+      { cls:'t-gray',  text:';; Query time: 6 msec' },
+      { cls:'t-gray',  text:';; SERVER: 8.8.8.8#53(8.8.8.8)' },
+    ],
+    explain: '<strong>Hỏi thẳng server 8.8.8.8:</strong> dùng <code>@8.8.8.8</code> để kiểm tra resolver cụ thể. '
+           + 'Hữu ích khi debug DNS — so sánh kết quả từ nhiều resolver khác nhau '
+           + '(8.8.8.8, 1.1.1.1, resolver mặc định của máy) để phát hiện cache sai hoặc DNS poisoning.'
+  },
+
+  'nslookup google.com': {
+    lines: [
+      { cls:'t-white', text:'Server:         8.8.8.8' },
+      { cls:'t-white', text:'Address:        8.8.8.8#53' },
+      { cls:'t-white', text:'' },
+      { cls:'t-cyan',  text:'Non-authoritative answer:' },
+      { cls:'t-green', text:'Name:    google.com' },
+      { cls:'t-green', text:'Address: 142.250.185.14' },
+      { cls:'t-green', text:'Address: 142.250.185.46' },
+    ],
+    explain: '<strong>Non-authoritative answer</strong> = trả lời từ cache của resolver, '
+           + 'không phải trực tiếp từ nameserver của Google. '
+           + 'Hai địa chỉ IP → Google dùng nhiều IP cho load balancing. '
+           + 'Dùng <code>nslookup -type=MX</code> để xem mail server.'
+  },
+
+  'netstat -tuln': {
+    lines: [
+      { cls:'t-cyan',  text:'Proto Recv-Q Send-Q  Local Address        Foreign Address   State' },
+      { cls:'t-green', text:'tcp        0      0  0.0.0.0:22           0.0.0.0:*         LISTEN' },
+      { cls:'t-green', text:'tcp        0      0  0.0.0.0:80           0.0.0.0:*         LISTEN' },
+      { cls:'t-yellow',text:'tcp        0      0  127.0.0.1:3306       0.0.0.0:*         LISTEN' },
+      { cls:'t-green', text:'tcp        0      0  0.0.0.0:443          0.0.0.0:*         LISTEN' },
+      { cls:'t-blue',  text:'tcp        0      0  192.168.1.5:57423    142.250.185.14:443  ESTABLISHED' },
+      { cls:'t-white', text:'tcp6       0      0  :::443               :::*              LISTEN' },
+    ],
+    explain: '<strong>Đọc output:</strong> <code>:22, :80, :443 LISTEN</code> trên <code>0.0.0.0</code> = SSH, HTTP, HTTPS mở từ ngoài. '
+           + '<code>127.0.0.1:3306 LISTEN</code> = MySQL chỉ local (an toàn hơn). '
+           + '<code>ESTABLISHED → :443</code> = đang kết nối HTTPS đến Google. '
+           + '<code>tcp6 :::443</code> = lắng nghe cả IPv6.'
+  },
+
+  'ss -tlnp': {
+    lines: [
+      { cls:'t-cyan',  text:'State    Recv-Q Send-Q  Local Address:Port  Peer Address:Port  Process' },
+      { cls:'t-green', text:'LISTEN   0      128     0.0.0.0:22          0.0.0.0:*          users:(("sshd",pid=1234))' },
+      { cls:'t-green', text:'LISTEN   0      511     0.0.0.0:80          0.0.0.0:*          users:(("nginx",pid=2345))' },
+      { cls:'t-yellow',text:'LISTEN   0      151     127.0.0.1:3306      0.0.0.0:*          users:(("mysqld",pid=3456))' },
+      { cls:'t-green', text:'LISTEN   0      511     0.0.0.0:443         0.0.0.0:*          users:(("nginx",pid=2345))' },
+    ],
+    explain: '<strong>ss hiển thị thêm tên tiến trình</strong> so với netstat. '
+           + '<code>nginx</code> lắng nghe :80 và :443. <code>sshd</code> lắng nghe :22. '
+           + '<code>mysqld</code> chỉ local. '
+           + 'ss nhanh hơn netstat vì đọc trực tiếp từ kernel socket table.'
+  },
+
+  'curl -I https://google.com': {
+    lines: [
+      { cls:'t-white', text:'  % Total    % Received % Xferd  Average Speed   Time' },
+      { cls:'t-white', text:'                                 Dload  Upload   Total' },
+      { cls:'t-green', text:'HTTP/2 301' },
+      { cls:'t-white', text:'location: https://www.google.com/' },
+      { cls:'t-white', text:'content-type: text/html; charset=UTF-8' },
+      { cls:'t-white', text:'date: Fri, 30 May 2026 03:00:00 GMT' },
+      { cls:'t-cyan',  text:'server: gws' },
+      { cls:'t-white', text:'x-xss-protection: 0' },
+      { cls:'t-white', text:'x-frame-options: SAMEORIGIN' },
+      { cls:'t-white', text:'cache-control: public, max-age=2592000' },
+    ],
+    explain: '<strong>Đọc header:</strong> <code>HTTP/2 301</code> = redirect vĩnh viễn đến <code>https://www.google.com/</code>. '
+           + '<code>server: gws</code> = Google Web Server. '
+           + '<code>cache-control: max-age=2592000</code> = cache 30 ngày. '
+           + 'Dùng <code>curl -L -I</code> để theo redirect tự động.'
+  },
+
+  'curl -v https://example.com': {
+    lines: [
+      { cls:'t-yellow',text:'*   Trying 93.184.216.34:443...' },
+      { cls:'t-yellow',text:'* Connected to example.com (93.184.216.34) port 443 (#0)' },
+      { cls:'t-yellow',text:'* TLSv1.3 (OUT), TLS handshake, Client hello...' },
+      { cls:'t-yellow',text:'* TLSv1.3 (IN),  TLS handshake, Server hello...' },
+      { cls:'t-yellow',text:'* SSL certificate verify ok.' },
+      { cls:'t-blue',  text:'> GET / HTTP/1.1' },
+      { cls:'t-blue',  text:'> Host: example.com' },
+      { cls:'t-blue',  text:'> User-Agent: curl/7.81.0' },
+      { cls:'t-green', text:'< HTTP/1.1 200 OK' },
+      { cls:'t-green', text:'< Content-Type: text/html; charset=UTF-8' },
+      { cls:'t-green', text:'< Content-Length: 1256' },
+    ],
+    explain: '<strong>curl -v cho thấy toàn bộ quá trình:</strong> kết nối TCP, TLS handshake, request (<code>></code>), response (<code><</code>). '
+           + 'TLS handshake thành công (<code>SSL certificate verify ok</code>). '
+           + 'Response <code>200 OK</code> = thành công. '
+           + 'Hữu ích để debug TLS/HTTPS.'
+  },
+
+  'help': {
+    lines: [
+      { cls:'t-cyan',  text:'Lệnh hỗ trợ:' },
+      { cls:'t-white', text:'' },
+      { cls:'t-green', text:'ping -c N HOST       — kiểm tra kết nối IP, đo RTT' },
+      { cls:'t-green', text:'traceroute HOST      — theo dõi đường đi từng hop' },
+      { cls:'t-green', text:'dig DOMAIN [TYPE]    — truy vấn DNS (A, MX, NS, TXT)' },
+      { cls:'t-green', text:'dig @SERVER DOMAIN   — hỏi thẳng DNS server cụ thể' },
+      { cls:'t-green', text:'nslookup DOMAIN      — truy vấn DNS đơn giản' },
+      { cls:'t-green', text:'netstat -tuln        — xem cổng TCP/UDP đang LISTEN' },
+      { cls:'t-green', text:'ss -tlnp             — xem cổng + tên tiến trình' },
+      { cls:'t-green', text:'curl -I URL          — xem HTTP header' },
+      { cls:'t-green', text:'curl -v URL          — xem chi tiết kết nối + TLS' },
+      { cls:'t-green', text:'clear                — xoá terminal' },
+      { cls:'t-green', text:'help                 — hiện danh sách lệnh này' },
+    ],
+    explain: null
+  }
+};
+
+// History and terminal DOM
+const termBody = document.getElementById('term-body');
+const termInput = document.getElementById('term-input');
+const termExplain = document.getElementById('term-explain');
+let cmdHistory = [];
+let histIdx = -1;
+
+function runCmd(cmd) {
+  termInput.value = '';
+  cmdHistory.unshift(cmd);
+  histIdx = -1;
+
+  // Echo command
+  appendTerm('t-green', 'user@linux:~$ ' + cmd);
+
+  // Look up output
+  const key = cmd.trim();
+  const data = CMD_OUTPUTS[key];
+  if (data) {
+    data.lines.forEach(l => appendTerm(l.cls, l.text));
+    if (data.explain) {
+      termExplain.innerHTML = '<strong>Giải thích output:</strong> ' + data.explain;
+      termExplain.style.display = 'block';
+    } else {
+      termExplain.style.display = 'none';
+    }
+  } else if (key === 'clear') {
+    termBody.innerHTML = '';
+    termExplain.style.display = 'none';
+    return;
+  } else {
+    // Fuzzy match
+    appendTerm('t-red', 'Lệnh không nhận dạng được trong mô phỏng này.');
+    appendTerm('t-gray', 'Gõ "help" để xem danh sách lệnh hỗ trợ.');
+    termExplain.style.display = 'none';
+  }
+
+  appendTerm('t-white', '');
+  termBody.scrollTop = termBody.scrollHeight;
+}
+
+function appendTerm(cls, text) {
+  const span = document.createElement('span');
+  span.className = cls;
+  span.textContent = text;
+  termBody.appendChild(span);
+  termBody.appendChild(document.createTextNode('\n'));
+}
+
+function handleTermKey(e) {
+  if (e.key === 'Enter') {
+    const val = termInput.value.trim();
+    if (val) runCmd(val);
+    else termInput.value = '';
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (histIdx < cmdHistory.length - 1) histIdx++;
+    termInput.value = cmdHistory[histIdx] || '';
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (histIdx > 0) histIdx--;
+    else { histIdx = -1; termInput.value = ''; return; }
+    termInput.value = cmdHistory[histIdx] || '';
+  }
+}
+
+/* ════════════════════════════════════════════════════════
+   MODULE 2 — Wireshark mini
+   ════════════════════════════════════════════════════════ */
+
+const WS_PACKETS = [
+  { no:1,  time:'0.000', src:'192.168.1.5',    dst:'142.250.185.14', proto:'TCP',  len:74,  info:'[SYN] Seq=0 Win=65535 MSS=1460',       type:'tcp',  detail: buildTcpDetail('SYN', 0, 0, 65535, {SYN:1}) },
+  { no:2,  time:'0.012', src:'142.250.185.14', dst:'192.168.1.5',    proto:'TCP',  len:74,  info:'[SYN, ACK] Seq=0 Ack=1 Win=65535',     type:'tcp',  detail: buildTcpDetail('SYN,ACK', 0, 1, 65535, {SYN:1,ACK:1}) },
+  { no:3,  time:'0.012', src:'192.168.1.5',    dst:'142.250.185.14', proto:'TCP',  len:66,  info:'[ACK] Seq=1 Ack=1 Win=65535',           type:'tcp',  detail: buildTcpDetail('ACK', 1, 1, 65535, {ACK:1}) },
+  { no:4,  time:'0.013', src:'192.168.1.5',    dst:'142.250.185.14', proto:'HTTP', len:154, info:'GET / HTTP/1.1 (Host: google.com)',      type:'http', detail: buildHttpReq() },
+  { no:5,  time:'0.025', src:'142.250.185.14', dst:'192.168.1.5',    proto:'TCP',  len:66,  info:'[ACK] Seq=1 Ack=89 Win=65535',          type:'tcp',  detail: buildTcpDetail('ACK', 1, 89, 65535, {ACK:1}) },
+  { no:6,  time:'0.026', src:'142.250.185.14', dst:'192.168.1.5',    proto:'HTTP', len:5186,info:'HTTP/1.1 200 OK (text/html, 5120 bytes)',type:'http', detail: buildHttpResp() },
+  { no:7,  time:'0.026', src:'192.168.1.5',    dst:'142.250.185.14', proto:'TCP',  len:66,  info:'[ACK] Seq=89 Ack=5121 Win=65535',       type:'tcp',  detail: buildTcpDetail('ACK', 89, 5121, 65535, {ACK:1}) },
+  { no:8,  time:'0.027', src:'192.168.1.5',    dst:'142.250.185.14', proto:'TCP',  len:66,  info:'[FIN, ACK] Seq=89 Ack=5121 Win=65535', type:'tcp',  detail: buildTcpDetail('FIN,ACK', 89, 5121, 65535, {FIN:1,ACK:1}) },
+  { no:9,  time:'0.039', src:'142.250.185.14', dst:'192.168.1.5',    proto:'TCP',  len:66,  info:'[FIN, ACK] Seq=5121 Ack=90 Win=65535', type:'tcp',  detail: buildTcpDetail('FIN,ACK', 5121, 90, 65535, {FIN:1,ACK:1}) },
+  { no:10, time:'0.039', src:'192.168.1.5',    dst:'142.250.185.14', proto:'TCP',  len:66,  info:'[ACK] Seq=90 Ack=5122 Win=65535',       type:'tcp',  detail: buildTcpDetail('ACK', 90, 5122, 65535, {ACK:1}) },
+];
+
+function buildTcpDetail(flags, seq, ack, win, flagBits) {
+  const flagStr = Object.keys(flagBits).join(', ');
+  return `<span class="ws-detail-key">Ethernet II</span>\n`
+    + `  <span class="ws-detail-key">Src MAC:</span> <span class="ws-detail-val">aa:bb:cc:11:22:33</span>   `
+    + `<span class="ws-detail-key">Dst MAC:</span> <span class="ws-detail-val">dd:ee:ff:44:55:66</span>\n`
+    + `<span class="ws-detail-key">Internet Protocol (IPv4)</span>\n`
+    + `  <span class="ws-detail-key">Src IP:</span> <span class="ws-detail-val">192.168.1.5</span>   `
+    + `<span class="ws-detail-key">Dst IP:</span> <span class="ws-detail-val">142.250.185.14</span>   `
+    + `<span class="ws-detail-key">TTL:</span> <span class="ws-detail-val">64</span>   `
+    + `<span class="ws-detail-key">Protocol:</span> <span class="ws-detail-val">TCP (6)</span>\n`
+    + `<span class="ws-detail-key">Transmission Control Protocol</span>\n`
+    + `  <span class="ws-detail-key">Src Port:</span> <span class="ws-detail-val">54321</span>   `
+    + `<span class="ws-detail-key">Dst Port:</span> <span class="ws-detail-val">80</span>\n`
+    + `  <span class="ws-detail-key">Seq:</span> <span class="ws-detail-val">${seq}</span>   `
+    + `<span class="ws-detail-key">Ack:</span> <span class="ws-detail-val">${ack}</span>   `
+    + `<span class="ws-detail-key">Flags:</span> <span class="ws-detail-val">${flagStr}</span>\n`
+    + `  <span class="ws-detail-key">Window:</span> <span class="ws-detail-val">${win}</span>   `
+    + `<span class="ws-detail-key">Checksum:</span> <span class="ws-detail-val">0x1a2b [valid]</span>`;
+}
+
+function buildHttpReq() {
+  return `<span class="ws-detail-key">Ethernet II / IPv4 / TCP</span> (xem chi tiết ở gói TCP)\n`
+    + `<span class="ws-detail-key">Hypertext Transfer Protocol</span>\n`
+    + `  <span class="ws-detail-key">Method:</span> <span class="ws-detail-val">GET</span>   `
+    + `<span class="ws-detail-key">URI:</span> <span class="ws-detail-val">/</span>   `
+    + `<span class="ws-detail-key">Version:</span> <span class="ws-detail-val">HTTP/1.1</span>\n`
+    + `  <span class="ws-detail-key">Host:</span> <span class="ws-detail-val">google.com</span>\n`
+    + `  <span class="ws-detail-key">User-Agent:</span> <span class="ws-detail-val">curl/7.81.0</span>\n`
+    + `  <span class="ws-detail-key">Accept:</span> <span class="ws-detail-val">*/*</span>\n`
+    + `  <span class="ws-detail-key">Connection:</span> <span class="ws-detail-val">keep-alive</span>`;
+}
+
+function buildHttpResp() {
+  return `<span class="ws-detail-key">Ethernet II / IPv4 / TCP</span> (xem chi tiết ở gói TCP)\n`
+    + `<span class="ws-detail-key">Hypertext Transfer Protocol</span>\n`
+    + `  <span class="ws-detail-key">Version:</span> <span class="ws-detail-val">HTTP/1.1</span>   `
+    + `<span class="ws-detail-key">Status Code:</span> <span class="ws-detail-val">200 OK</span>\n`
+    + `  <span class="ws-detail-key">Content-Type:</span> <span class="ws-detail-val">text/html; charset=UTF-8</span>\n`
+    + `  <span class="ws-detail-key">Content-Length:</span> <span class="ws-detail-val">5120</span>\n`
+    + `  <span class="ws-detail-key">Server:</span> <span class="ws-detail-val">gws</span>\n`
+    + `  <span class="ws-detail-key">Cache-Control:</span> <span class="ws-detail-val">max-age=3600</span>\n`
+    + `<span class="ws-detail-key">HTML Data:</span> <span class="ws-detail-val">&lt;!DOCTYPE html&gt;&lt;html&gt;... (5120 bytes)</span>`;
+}
+
+// Build table
+(function buildWsTable() {
+  const tbody = document.getElementById('ws-tbody');
+  WS_PACKETS.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.dataset.type = p.type;
+    tr.dataset.no = p.no;
+    tr.className = 'ws-row-' + p.type;
+    tr.innerHTML = `<td>${p.no}</td><td>${p.time}</td><td>${p.src}</td><td>${p.dst}</td>`
+      + `<td><strong>${p.proto}</strong></td><td>${p.len}</td><td>${p.info}</td>`;
+    tr.addEventListener('click', () => selectWsRow(p, tr));
+    tbody.appendChild(tr);
+  });
+})();
+
+let selectedWsRow = null;
+function selectWsRow(p, tr) {
+  if (selectedWsRow) selectedWsRow.classList.remove('selected');
+  selectedWsRow = tr;
+  tr.classList.add('selected');
+
+  const detail = document.getElementById('ws-detail');
+  detail.innerHTML = `<div style="color:#fbbf24;margin-bottom:6px">Gói ${p.no} — ${p.proto} — ${p.info}</div>`
+    + `<pre style="margin:0;white-space:pre-wrap">${p.detail}</pre>`;
+
+  // Guide
+  const guide = document.getElementById('ws-guide');
+  const guides = {
+    1: 'Gói 1 — <strong>[SYN]</strong>: Client bắt đầu 3-way handshake. Seq=0 (initial). Chỉ flag SYN=1.',
+    2: 'Gói 2 — <strong>[SYN,ACK]</strong>: Server đồng ý kết nối, Seq=0 của server, Ack=1 (Seq client + 1). RTT handshake = 0.012s = 12ms.',
+    3: 'Gói 3 — <strong>[ACK]</strong>: Client xác nhận. Kết nối ESTABLISHED. Handshake hoàn tất.',
+    4: 'Gói 4 — <strong>HTTP GET</strong>: Client gửi request. Header HTTP rõ ràng vì HTTP thuần (không TLS).',
+    5: 'Gói 5 — <strong>[ACK]</strong>: Server xác nhận nhận được request (89 byte). Đang xử lý.',
+    6: 'Gói 6 — <strong>HTTP 200 OK</strong>: Server trả response, 5120 byte HTML. Ack=5121 → client biết đã nhận đủ.',
+    7: 'Gói 7 — <strong>[ACK]</strong>: Client xác nhận nhận đủ response.',
+    8: 'Gói 8 — <strong>[FIN,ACK]</strong>: Client bắt đầu đóng kết nối (4-way close, bước 1).',
+    9: 'Gói 9 — <strong>[FIN,ACK]</strong>: Server xác nhận FIN và cũng gửi FIN của mình (bước 2+3 gộp).',
+    10:'Gói 10 — <strong>[ACK]</strong>: Client xác nhận FIN của server. Kết nối đóng hoàn toàn. Tổng thời gian: 39ms.',
+  };
+  guide.innerHTML = guides[p.no] || '';
+  guide.style.display = 'block';
+}
+
+// Wireshark filter
+const VALID_FILTERS = ['tcp', 'http', 'dns', 'icmp', 'tcp.port==80', 'tcp.port == 80',
+  'http.request.method == "GET"', 'tcp.flags.syn == 1', 'ip.addr == 192.168.1.5'];
+
+function applyWsFilter() {
+  const raw = document.getElementById('ws-filter').value.trim().toLowerCase();
+  const inp = document.getElementById('ws-filter');
+  const status = document.getElementById('ws-filter-status');
+
+  if (!raw) {
+    // show all
+    document.querySelectorAll('#ws-tbody tr').forEach(tr => tr.classList.remove('ws-row-hidden'));
+    inp.className = 'ws-filter-input';
+    status.textContent = 'Hiển thị tất cả ' + WS_PACKETS.length + ' gói';
+    return;
+  }
+
+  // Apply filter logic
+  let shown = 0;
+  document.querySelectorAll('#ws-tbody tr').forEach(tr => {
+    const type = tr.dataset.type;
+    let visible = false;
+    if (raw === 'tcp') visible = (type === 'tcp');
+    else if (raw === 'http') visible = (type === 'http');
+    else if (raw === 'dns') visible = (type === 'dns');
+    else if (raw === 'icmp') visible = (type === 'icmp');
+    else if (raw.includes('tcp.port==80') || raw.includes('tcp.port == 80')) visible = true; // all TCP/HTTP here
+    else if (raw.includes('tcp.flags.syn')) visible = (tr.querySelector('td:last-child').textContent.includes('SYN'));
+    else if (raw.includes('http.request.method')) visible = (type === 'http' && tr.querySelector('td:last-child').textContent.includes('GET'));
+    else if (raw.includes('ip.addr')) visible = true; // all match our capture IP
+    else if (raw === 'tcp or http' || raw === 'http or tcp') visible = (type === 'tcp' || type === 'http');
+    else visible = false;
+
+    if (visible) { tr.classList.remove('ws-row-hidden'); shown++; }
+    else tr.classList.add('ws-row-hidden');
+  });
+
+  const isKnown = raw === 'tcp' || raw === 'http' || raw === 'dns' || raw === 'icmp'
+    || raw.includes('tcp.port') || raw.includes('tcp.flags') || raw.includes('http.request')
+    || raw.includes('ip.addr') || raw.includes('http or tcp') || raw.includes('tcp or http');
+
+  inp.className = 'ws-filter-input ' + (isKnown ? 'valid' : 'invalid');
+  status.textContent = isKnown
+    ? `${shown} / ${WS_PACKETS.length} gói`
+    : 'Bộ lọc không nhận dạng được trong mô phỏng này';
+}
+
+
+/* ════════════════════════════════════════════════════════
+   MODULE 3 — Decision tree "web không vào được"
+   ════════════════════════════════════════════════════════ */
+
+// Node layout (x, y, w, h, label, type, id)
+const DIAG_NODES = [
+  { id:'start',   x:330, y:10,  w:160, h:40, label:'Bắt đầu: Web không mở được',  type:'start'    },
+  { id:'n1',      x:295, y:80,  w:230, h:44, label:'B1: Có địa chỉ IP không?\n(ip addr / ifconfig)', type:'question' },
+  { id:'n1n',     x:60,  y:150, w:140, h:40, label:'Lỗi: Mất IP\nKiểm tra DHCP / cable', type:'problem' },
+  { id:'n2',      x:255, y:160, w:260, h:44, label:'B2: ping gateway (192.168.1.1) được không?', type:'question' },
+  { id:'n2n',     x:60,  y:240, w:140, h:40, label:'Lỗi LAN\nCable/switch/WiFi', type:'problem' },
+  { id:'n3',      x:255, y:240, w:260, h:44, label:'B3: ping 8.8.8.8 được không?', type:'question' },
+  { id:'n3n',     x:60,  y:320, w:140, h:40, label:'Lỗi ISP/Router\nTraceroute → ISP', type:'problem' },
+  { id:'n4',      x:255, y:320, w:260, h:44, label:'B4: dig example.com OK không?', type:'question' },
+  { id:'n4n',     x:60,  y:400, w:140, h:40, label:'Lỗi DNS\nĐổi sang 8.8.8.8', type:'problem' },
+  { id:'n5',      x:255, y:400, w:260, h:44, label:'B5: telnet example.com 443 OK?', type:'question' },
+  { id:'n5n',     x:60,  y:480, w:140, h:40, label:'Firewall/Server\nPort 443 bị chặn', type:'problem' },
+  { id:'n6',      x:255, y:480, w:260, h:40, label:'B6: curl -v → TLS / App lỗi', type:'action' },
+];
+
+// Edges: from → to, label
+const DIAG_EDGES = [
+  { from:'start', to:'n1',  label:'' },
+  { from:'n1',    to:'n1n', label:'Không có IP' },
+  { from:'n1',    to:'n2',  label:'Có IP' },
+  { from:'n2',    to:'n2n', label:'Thất bại' },
+  { from:'n2',    to:'n3',  label:'Thành công' },
+  { from:'n3',    to:'n3n', label:'Thất bại' },
+  { from:'n3',    to:'n4',  label:'Thành công' },
+  { from:'n4',    to:'n4n', label:'Thất bại' },
+  { from:'n4',    to:'n5',  label:'Thành công' },
+  { from:'n5',    to:'n5n', label:'Thất bại' },
+  { from:'n5',    to:'n6',  label:'Thành công' },
+];
+
+const nodeMap = {};
+DIAG_NODES.forEach(n => nodeMap[n.id] = n);
+
+function drawDiagTree() {
+  const edgesG = document.getElementById('diag-edges');
+  const nodesG = document.getElementById('diag-nodes');
+  edgesG.innerHTML = '';
+  nodesG.innerHTML = '';
+
+  // Draw edges
+  DIAG_EDGES.forEach(e => {
+    const a = nodeMap[e.from], b = nodeMap[e.to];
+    const x1 = a.x + a.w/2, y1 = a.y + a.h;
+    const x2 = b.x + b.w/2, y2 = b.y;
+
+    const isLeft = b.x < a.x;
+    let d;
+    if (isLeft) {
+      const mx = a.x;
+      d = `M${x1},${y1} L${x1},${y1+10} L${mx-10},${y1+10} L${mx-10},${y2-10} L${x2},${y2-10} L${x2},${y2}`;
+    } else {
+      d = `M${x1},${y1} C${x1},${(y1+y2)/2} ${x2},${(y1+y2)/2} ${x2},${y2}`;
+    }
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', d);
+    path.setAttribute('stroke', '#64748b');
+    path.setAttribute('stroke-width', '1.5');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('marker-end', 'url(#arr)');
+    edgesG.appendChild(path);
+
+    if (e.label) {
+      const mx2 = (x1 + x2) / 2, my2 = (y1 + y2) / 2;
+      const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+      txt.setAttribute('x', mx2 + (isLeft ? -8 : 8));
+      txt.setAttribute('y', my2);
+      txt.setAttribute('text-anchor', isLeft ? 'end' : 'start');
+      txt.setAttribute('font-size', '10');
+      txt.setAttribute('fill', '#475569');
+      txt.textContent = e.label;
+      edgesG.appendChild(txt);
+    }
+  });
+
+  // Draw nodes
+  DIAG_NODES.forEach(n => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class', 'tree-node node-' + n.type);
+    g.dataset.id = n.id;
+
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x', n.x); rect.setAttribute('y', n.y);
+    rect.setAttribute('width', n.w); rect.setAttribute('height', n.h);
+    rect.setAttribute('rx', 8); rect.setAttribute('ry', 8);
+    g.appendChild(rect);
+
+    // Multi-line label
+    const lines = n.label.split('\n');
+    lines.forEach((line, i) => {
+      const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+      const lineH = 14;
+      const totalH = lines.length * lineH;
+      const startY = n.y + (n.h - totalH) / 2 + lineH + i * lineH - (lines.length > 1 ? lineH/2 : 0);
+      txt.setAttribute('x', n.x + n.w/2);
+      txt.setAttribute('y', startY);
+      txt.setAttribute('text-anchor', 'middle');
+      txt.setAttribute('font-size', '11');
+      txt.setAttribute('font-weight', i === 0 ? '600' : '400');
+      txt.setAttribute('fill', n.type === 'start' ? 'white' : '#1e293b');
+      txt.textContent = line;
+      g.appendChild(txt);
+    });
+
+    g.addEventListener('click', () => diagNodeClick(n.id));
+    nodesG.appendChild(g);
+  });
+}
+
+// Diagnosis walk state
+let diagState = 'idle';
+let diagPath = [];
+const diagLog = document.getElementById('diag-log');
+const diagChoices = document.getElementById('diag-choices');
+
+const DIAG_STEPS = {
+  n1: {
+    question: 'B1: Chạy <code>ip addr</code> hoặc <code>ifconfig</code>. Máy có địa chỉ IP không?',
+    yes: { next: 'n2', log: { cls:'ok', text:'[OK] Có địa chỉ IP → tầng vật lý/link hoạt động.' } },
+    no:  { next: 'n1n', log: { cls:'fail', text:'[FAIL] Không có IP → kiểm tra DHCP, cable, WiFi.' }, final: true },
+  },
+  n2: {
+    question: 'B2: Chạy <code>ping -c 4 192.168.1.1</code> (gateway). Thành công không?',
+    yes: { next: 'n3', log: { cls:'ok', text:'[OK] Ping gateway OK → kết nối LAN hoạt động.' } },
+    no:  { next: 'n2n', log: { cls:'fail', text:'[FAIL] Không ping được gateway → lỗi LAN. Kiểm tra cable, switch.' }, final: true },
+  },
+  n3: {
+    question: 'B3: Chạy <code>ping -c 4 8.8.8.8</code>. Thành công không?',
+    yes: { next: 'n4', log: { cls:'ok', text:'[OK] Ping internet OK → IP routing hoạt động.' } },
+    no:  { next: 'n3n', log: { cls:'fail', text:'[FAIL] Ping LAN được, internet không → Router/ISP/firewall. Chạy traceroute 8.8.8.8.' }, final: true },
+  },
+  n4: {
+    question: 'B4: Chạy <code>dig example.com</code>. DNS phân giải được không?',
+    yes: { next: 'n5', log: { cls:'ok', text:'[OK] DNS OK → có địa chỉ IP của server.' } },
+    no:  { next: 'n4n', log: { cls:'fail', text:'[FAIL] DNS thất bại → Đổi DNS server: nameserver 8.8.8.8 trong /etc/resolv.conf.' }, final: true },
+  },
+  n5: {
+    question: 'B5: Chạy <code>telnet example.com 443</code>. Kết nối TCP thành công không?',
+    yes: { next: 'n6', log: { cls:'ok', text:'[OK] Cổng 443 mở → TCP/IP OK. Vấn đề ở TLS hoặc ứng dụng.' } },
+    no:  { next: 'n5n', log: { cls:'fail', text:'[FAIL] Cổng 443 bị từ chối/timeout → Firewall chặn hoặc server down.' }, final: true },
+  },
+  n6: {
+    question: null,
+    final: true,
+    log: { cls:'info', text:'[B6] Chạy curl -v https://example.com để xem chi tiết TLS handshake và HTTP response.' }
+  },
+};
+
+function diagLogAdd(cls, html) {
+  const d = document.createElement('div');
+  d.className = 'diag-step ' + cls;
+  d.innerHTML = html;
+  diagLog.appendChild(d);
+  diagLog.scrollTop = diagLog.scrollHeight;
+}
+
+function highlightNode(id, active) {
+  const g = document.querySelector(`[data-id="${id}"]`);
+  if (g) {
+    if (active) g.classList.add('highlight');
+    else g.classList.remove('highlight');
+  }
+}
+
+function diagReset() {
+  diagState = 'n1';
+  diagPath = [];
+  diagLog.innerHTML = '';
+  diagChoices.innerHTML = '';
+  diagChoices.style.display = 'none';
+
+  // Reset highlights
+  document.querySelectorAll('.tree-node').forEach(g => g.classList.remove('highlight'));
+
+  diagLogAdd('info', 'Bắt đầu chẩn đoán: <strong>Không vào được web</strong>');
+  diagLogAdd('info', 'Triệu chứng: Chrome báo ERR_CONNECTION_TIMED_OUT');
+  diagLogAdd('', '');
+  promptDiagStep('n1');
+}
+
+function promptDiagStep(id) {
+  diagState = id;
+  highlightNode(id, true);
+
+  const step = DIAG_STEPS[id];
+  if (!step) return;
+
+  if (step.question) {
+    diagLogAdd('warn', step.question);
+    diagChoices.innerHTML = '';
+    diagChoices.style.display = 'flex';
+
+    const btnYes = document.createElement('button');
+    btnYes.className = 'btn btn-primary';
+    btnYes.textContent = 'Thành công / Có';
+    btnYes.onclick = () => diagAnswer(id, 'yes');
+
+    const btnNo = document.createElement('button');
+    btnNo.className = 'btn btn-secondary';
+    btnNo.textContent = 'Thất bại / Không';
+    btnNo.onclick = () => diagAnswer(id, 'no');
+
+    diagChoices.appendChild(btnYes);
+    diagChoices.appendChild(btnNo);
+  } else if (step.final) {
+    if (step.log) diagLogAdd(step.log.cls, step.log.text);
+    diagChoices.innerHTML = '<button class="btn btn-secondary" onclick="diagReset()">Bắt đầu lại</button>';
+    diagChoices.style.display = 'flex';
+    diagLogAdd('info', 'Chẩn đoán hoàn tất. Nhấn "Bắt đầu lại" để thử kịch bản khác.');
+  }
+}
+
+function diagAnswer(id, choice) {
+  highlightNode(id, false);
+  const step = DIAG_STEPS[id];
+  const result = step[choice];
+
+  if (result.log) diagLogAdd(result.log.cls, result.log.text);
+  diagChoices.innerHTML = '';
+  diagChoices.style.display = 'none';
+
+  if (result.final || DIAG_STEPS[result.next]?.final) {
+    setTimeout(() => {
+      highlightNode(result.next, true);
+      if (DIAG_STEPS[result.next]?.final) {
+        promptDiagStep(result.next);
+      } else {
+        const log = result.log;
+        if (log) {
+          diagChoices.innerHTML = '<button class="btn btn-secondary" onclick="diagReset()">Bắt đầu lại</button>';
+          diagChoices.style.display = 'flex';
+        }
+      }
+    }, 400);
+  } else {
+    setTimeout(() => promptDiagStep(result.next), 400);
+  }
+}
+
+function diagNodeClick(id) {
+  // Just highlight on click
+  document.querySelectorAll('.tree-node').forEach(g => g.classList.remove('highlight'));
+  highlightNode(id, true);
+}
+
+// Initialize tree
+drawDiagTree();
+</script>
+</body>
+</html>

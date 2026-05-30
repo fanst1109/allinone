@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Dự án tổng hợp: Hành trình một request HTTPS</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --net-blue:   #0369a1;
+    --net-soft:   #e0f2fe;
+    --net-mid:    #38bdf8;
+    --net-dark:   #0c4a6e;
+    --ok-green:   #16a34a;
+    --ok-soft:    #dcfce7;
+    --err-red:    #dc2626;
+    --err-soft:   #fee2e2;
+    --warn-amber: #d97706;
+    --warn-soft:  #fef3c7;
+    --purple:     #7c3aed;
+    --purple-soft:#ede9fe;
+  }
+
+  h1 { color: var(--net-dark); margin-bottom: 4px; }
+  h2 { color: var(--net-blue); margin-top: 36px; padding-bottom: 6px;
+       border-bottom: 2px solid var(--net-mid); }
+
+  .subtitle { color: #64748b; font-size: 15px; margin-bottom: 28px; }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 5px rgba(3,105,161,.10);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--net-soft);
+    border-left: 4px solid var(--net-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px; border-radius: 6px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--net-blue); color: #fff; }
+  .btn-primary:hover { background: var(--net-dark); }
+  .btn-success { background: var(--ok-green); color: #fff; }
+  .btn-success:hover { background: #166534; }
+  .btn-warn { background: var(--err-red); color: #fff; }
+  .btn-warn:hover { background: #991b1b; }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ════════════════════════════════════════
+     MODULE 0 — URL Input
+     ════════════════════════════════════════ */
+  #url-form {
+    display: flex; gap: 10px; align-items: center;
+    flex-wrap: wrap; margin: 16px 0;
+  }
+  #url-input {
+    flex: 1 1 260px; min-width: 0;
+    padding: 10px 14px; border: 2px solid var(--net-mid);
+    border-radius: 8px; font-size: 15px;
+    font-family: monospace; background: #f0f9ff;
+  }
+  #url-input:focus { outline: none; border-color: var(--net-blue); }
+
+  .speed-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+  .speed-row label { font-size: 13px; color: #64748b; }
+  #speed-slider { accent-color: var(--net-blue); width: 120px; }
+
+  /* ════════════════════════════════════════
+     MODULE 1 — Journey Map (SVG topology)
+     ════════════════════════════════════════ */
+  #journey-wrap { width: 100%; overflow-x: auto; }
+  #journey-svg {
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* ════════════════════════════════════════
+     MODULE 2 — Phase Cards (step-by-step)
+     ════════════════════════════════════════ */
+  .phase-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .phase-card {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: border-color .25s, box-shadow .25s, transform .2s;
+    cursor: default;
+    position: relative;
+  }
+  .phase-card.active {
+    border-color: var(--net-blue);
+    box-shadow: 0 0 0 3px rgba(3,105,161,.15);
+    transform: translateY(-2px);
+  }
+  .phase-card.done {
+    border-color: var(--ok-green);
+    background: #f0fdf4;
+  }
+  .phase-card.error {
+    border-color: var(--err-red);
+    background: var(--err-soft);
+    animation: shake .4s;
+  }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-4px)}
+    75%{transform:translateX(4px)}
+  }
+  .phase-num {
+    display: inline-block;
+    width: 28px; height: 28px; line-height: 28px;
+    border-radius: 50%; text-align: center;
+    font-weight: 700; font-size: 13px;
+    background: #e2e8f0; color: #64748b;
+    margin-bottom: 8px;
+  }
+  .phase-card.active .phase-num { background: var(--net-blue); color: #fff; }
+  .phase-card.done   .phase-num { background: var(--ok-green); color: #fff; }
+  .phase-card.error  .phase-num { background: var(--err-red);  color: #fff; }
+  .phase-title { font-weight: 700; font-size: 15px; margin: 0 0 4px; }
+  .phase-proto {
+    display: inline-block; font-size: 11px; padding: 2px 7px;
+    border-radius: 10px; font-weight: 700; font-family: monospace;
+    background: #dbeafe; color: #1d4ed8; margin-bottom: 6px;
+  }
+  .phase-detail { font-size: 13px; color: #475569; line-height: 1.6; }
+  .phase-time {
+    position: absolute; top: 12px; right: 14px;
+    font-size: 12px; font-weight: 700; color: var(--net-blue);
+    font-family: monospace;
+  }
+  .phase-card.done .phase-time { color: var(--ok-green); }
+  .phase-lesson {
+    font-size: 11px; margin-top: 6px;
+  }
+  .phase-lesson a { color: var(--net-blue); text-decoration: none; }
+  .phase-lesson a:hover { text-decoration: underline; }
+
+  /* progress bar */
+  #progress-bar-wrap {
+    background: #e2e8f0; border-radius: 8px;
+    height: 10px; margin: 12px 0; overflow: hidden;
+  }
+  #progress-bar {
+    height: 100%; width: 0%; background: var(--net-blue);
+    border-radius: 8px; transition: width .4s ease;
+  }
+  #progress-label {
+    font-size: 13px; color: #64748b; text-align: right;
+    font-family: monospace; margin-bottom: 4px;
+  }
+  #total-time {
+    font-size: 18px; font-weight: 700;
+    color: var(--net-dark); margin: 8px 0;
+  }
+
+  /* ════════════════════════════════════════
+     MODULE 3 — Log Panel
+     ════════════════════════════════════════ */
+  #log-panel {
+    background: #0f172a; color: #e2e8f0;
+    border-radius: 10px; padding: 14px 16px;
+    font-family: monospace; font-size: 13px;
+    line-height: 1.9; min-height: 80px; max-height: 280px;
+    overflow-y: auto; margin-top: 12px;
+    white-space: pre-wrap;
+  }
+  #log-panel .l-ok   { color: #4ade80; }
+  #log-panel .l-err  { color: #f87171; }
+  #log-panel .l-warn { color: #fbbf24; }
+  #log-panel .l-info { color: #7dd3fc; }
+  #log-panel .l-sec  { color: #c084fc; }
+  #log-panel .l-dim  { color: #64748b; }
+
+  /* ════════════════════════════════════════
+     MODULE 4 — Fault Injection
+     ════════════════════════════════════════ */
+  .fault-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .fault-btn {
+    padding: 10px 14px; border: 2px solid #e2e8f0;
+    border-radius: 8px; background: #fff;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    text-align: left; transition: border-color .15s, background .15s;
+    line-height: 1.5;
+  }
+  .fault-btn:hover { border-color: var(--err-red); background: #fff5f5; }
+  .fault-btn.selected { border-color: var(--err-red); background: var(--err-soft); }
+  .fault-btn .fault-step { font-size: 11px; color: #94a3b8; font-weight: 400; }
+
+  #fault-result {
+    background: #fff; border: 2px solid #e2e8f0;
+    border-radius: 10px; padding: 16px 18px; margin-top: 12px;
+    min-height: 60px;
+  }
+  #fault-result.show-err { border-color: var(--err-red); background: var(--err-soft); }
+  #fault-result.show-ok  { border-color: var(--ok-green); background: var(--ok-soft); }
+  .symptom-line { font-size: 14px; font-weight: 700; color: var(--err-red); margin-bottom: 6px; }
+  .diagnose-line { font-size: 13px; line-height: 1.7; color: #374151; }
+  .tool-tag {
+    display: inline-block; padding: 2px 8px; margin: 2px;
+    border-radius: 12px; background: #dbeafe; color: #1d4ed8;
+    font-size: 12px; font-family: monospace; font-weight: 700;
+  }
+
+  /* ════════════════════════════════════════
+     MODULE 5 — Layer Map
+     ════════════════════════════════════════ */
+  .layer-map-wrap { overflow-x: auto; }
+  .layer-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 13px; min-width: 560px;
+  }
+  .layer-table th {
+    background: var(--net-dark); color: #fff;
+    padding: 8px 12px; text-align: left;
+  }
+  .layer-table td {
+    padding: 8px 12px; border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+  }
+  .layer-table tr:hover td { background: #f0f9ff; }
+  .layer-l7 { background: #ede9fe; }
+  .layer-l6 { background: #fce7f3; }
+  .layer-l5 { background: #fef3c7; }
+  .layer-l4 { background: #dcfce7; }
+  .layer-l3 { background: #dbeafe; }
+  .layer-l2 { background: #fee2e2; }
+  .layer-l1 { background: #f1f5f9; }
+
+  /* packet animation dot */
+  @keyframes pkt-travel {
+    0%   { opacity: 0; transform: translateX(0) scale(.5); }
+    10%  { opacity: 1; transform: translateX(0) scale(1); }
+    90%  { opacity: 1; }
+    100% { opacity: 0; transform: translateX(var(--travel-x)) scale(.5); }
+  }
+  .pkt-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--net-blue);
+    position: absolute;
+    animation: pkt-travel var(--travel-dur, 1s) linear forwards;
+  }
+
+  @media (max-width: 600px) {
+    .phase-grid { grid-template-columns: 1fr; }
+    .fault-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Advanced</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-diagnostic-tools/visualization.html">← L7: Công cụ chẩn đoán</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Dự án tổng hợp</span>
+  <span class="sep">·</span>
+  <span>🎓 Hoàn tất Networking</span>
+</nav>
+
+<main>
+<h1>Dự án tổng hợp — Hành trình một request HTTPS</h1>
+<p class="subtitle">Nhập URL, nhấn Go, theo dõi từng bước từ DNS đến HTTP response — mỗi bước liên kết lesson tương ứng.</p>
+
+<!-- ═══════════════ MODULE 0 — URL Input ═══════════════ -->
+<section class="card">
+  <h2 style="margin-top:0">Bắt đầu hành trình</h2>
+  <div id="url-form">
+    <input id="url-input" type="text" value="https://www.example.com" spellcheck="false" />
+    <button class="btn btn-success" onclick="startJourney()">▶ Go</button>
+    <button class="btn btn-secondary" onclick="resetJourney()">↺ Reset</button>
+  </div>
+  <div class="speed-row">
+    <label>Tốc độ animation:</label>
+    <input type="range" id="speed-slider" min="1" max="5" value="2" />
+    <span id="speed-label" style="font-size:13px;font-family:monospace;color:var(--net-blue)">×2</span>
+  </div>
+  <div id="progress-label">Sẵn sàng</div>
+  <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+  <div id="total-time">—</div>
+</section>
+
+<!-- ═══════════════ MODULE 1 — Topology SVG ═══════════════ -->
+<section class="card">
+  <h2 style="margin-top:0">Bản đồ đường đi</h2>
+  <div id="journey-wrap">
+    <svg id="journey-svg" width="740" height="180" viewBox="0 0 740 180">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/>
+        </marker>
+        <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0369a1"/>
+        </marker>
+      </defs>
+
+      <!-- Connection lines (static) -->
+      <line x1="75" y1="90" x2="155" y2="90" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arr)"/>
+      <line x1="215" y1="90" x2="285" y2="90" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arr)"/>
+      <line x1="345" y1="90" x2="410" y2="90" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arr)"/>
+      <line x1="465" y1="90" x2="530" y2="90" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arr)"/>
+      <line x1="585" y1="90" x2="650" y2="90" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arr)"/>
+      <line x1="700" y1="90" x2="730" y2="90" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4,3"/>
+
+      <!-- DNS arrow (top arc) -->
+      <path d="M 40 70 Q 40 20 700 20 Q 740 20 720 70" stroke="#8b5cf6" stroke-width="1.5"
+            stroke-dasharray="5,3" fill="none" marker-end="url(#arr)"/>
+      <text x="370" y="14" text-anchor="middle" font-size="11" fill="#7c3aed">DNS</text>
+
+      <!-- Node: Your PC -->
+      <rect x="5" y="65" width="70" height="50" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" id="n-pc"/>
+      <text x="40" y="84" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">Máy bạn</text>
+      <text x="40" y="98" text-anchor="middle" font-size="9" fill="#3b82f6">192.168.1.100</text>
+      <text x="40" y="110" text-anchor="middle" font-size="9" fill="#64748b">Browser</text>
+
+      <!-- Node: Router/NAT -->
+      <rect x="160" y="65" width="55" height="50" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2" id="n-nat"/>
+      <text x="187" y="84" text-anchor="middle" font-size="11" font-weight="700" fill="#166534">Router</text>
+      <text x="187" y="97" text-anchor="middle" font-size="9" fill="#16a34a">NAT</text>
+      <text x="187" y="109" text-anchor="middle" font-size="9" fill="#64748b">203.1.2.3</text>
+
+      <!-- Node: ISP/Internet Cloud -->
+      <ellipse cx="315" cy="90" rx="30" ry="24" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" id="n-isp"/>
+      <text x="315" y="87" text-anchor="middle" font-size="10" font-weight="700" fill="#475569">ISP /</text>
+      <text x="315" y="99" text-anchor="middle" font-size="10" fill="#64748b">Internet</text>
+
+      <!-- Node: CDN Edge -->
+      <rect x="415" y="65" width="55" height="50" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2" id="n-cdn"/>
+      <text x="442" y="83" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">CDN</text>
+      <text x="442" y="96" text-anchor="middle" font-size="9" fill="#d97706">Edge SG</text>
+      <text x="442" y="108" text-anchor="middle" font-size="9" fill="#64748b">Anycast</text>
+
+      <!-- Node: LB -->
+      <rect x="535" y="65" width="50" height="50" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="2" id="n-lb"/>
+      <text x="560" y="84" text-anchor="middle" font-size="11" font-weight="700" fill="#6d28d9">Load</text>
+      <text x="560" y="97" text-anchor="middle" font-size="9" fill="#7c3aed">Balancer</text>
+
+      <!-- Node: App Server -->
+      <rect x="655" y="65" width="55" height="50" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="2" id="n-srv"/>
+      <text x="682" y="83" text-anchor="middle" font-size="11" font-weight="700" fill="#991b1b">App</text>
+      <text x="682" y="96" text-anchor="middle" font-size="9" fill="#dc2626">Server</text>
+      <text x="682" y="108" text-anchor="middle" font-size="9" fill="#64748b">:443</text>
+
+      <!-- DNS Server (top) -->
+      <rect x="330" y="135" width="80" height="35" rx="6" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1.5" id="n-dns"/>
+      <text x="370" y="151" text-anchor="middle" font-size="11" font-weight="700" fill="#6d28d9">DNS</text>
+      <text x="370" y="163" text-anchor="middle" font-size="9" fill="#7c3aed">Resolver</text>
+
+      <!-- Animated packet (will be repositioned via JS) -->
+      <circle id="pkt-anim" cx="-20" cy="90" r="7" fill="#0369a1" opacity="0"/>
+
+      <!-- Step labels on arrows -->
+      <text x="115" y="83" text-anchor="middle" font-size="9" fill="#16a34a" id="lbl-step2">ARP→NAT</text>
+      <text x="255" y="83" text-anchor="middle" font-size="9" fill="#64748b" id="lbl-step3">Routing</text>
+      <text x="387" y="83" text-anchor="middle" font-size="9" fill="#d97706" id="lbl-step4">CDN</text>
+      <text x="502" y="83" text-anchor="middle" font-size="9" fill="#7c3aed" id="lbl-step5">LB</text>
+      <text x="627" y="83" text-anchor="middle" font-size="9" fill="#991b1b" id="lbl-step6">HTTP</text>
+    </svg>
+  </div>
+  <div class="info-box" id="topo-info">
+    Nhập URL và nhấn <strong>Go</strong> để bắt đầu animation hành trình.
+  </div>
+</section>
+
+<!-- ═══════════════ MODULE 2 — Phase Cards ═══════════════ -->
+<section class="card">
+  <h2 style="margin-top:0">Các giai đoạn</h2>
+  <div class="phase-grid" id="phase-grid">
+    <!-- Rendered by JS -->
+  </div>
+</section>
+
+<!-- ═══════════════ MODULE 3 — Event Log ═══════════════ -->
+<section class="card">
+  <h2 style="margin-top:0">Nhật ký sự kiện</h2>
+  <div id="log-panel"></div>
+  <div class="btn-row" style="margin-top:10px">
+    <button class="btn btn-secondary" onclick="clearLog()">Xóa log</button>
+  </div>
+</section>
+
+<!-- ═══════════════ MODULE 4 — Fault Injection ═══════════════ -->
+<section class="card">
+  <h2 style="margin-top:0">Tiêm lỗi (Fault Injection)</h2>
+  <p style="font-size:14px;color:#475569;margin:0 0 12px">
+    Chọn bước bị hỏng, sau đó nhấn <strong>▶ Go</strong> để xem triệu chứng và công cụ chẩn đoán.
+  </p>
+  <div class="fault-grid" id="fault-grid">
+    <!-- Rendered by JS -->
+  </div>
+  <div id="fault-result">
+    <span style="color:#94a3b8;font-size:14px">Chưa chọn lỗi — chọn một kịch bản ở trên.</span>
+  </div>
+</section>
+
+<!-- ═══════════════ MODULE 5 — Layer Map ═══════════════ -->
+<section class="card">
+  <h2 style="margin-top:0">Bảng ánh xạ: Giai đoạn → Giao thức → Tầng OSI</h2>
+  <div class="layer-map-wrap">
+    <table class="layer-table">
+      <thead>
+        <tr>
+          <th>Giai đoạn</th>
+          <th>Giao thức</th>
+          <th>Tầng OSI</th>
+          <th>Tầng TCP-IP</th>
+          <th>Lesson</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Phân giải DNS</td>
+          <td class="layer-l7">DNS (UDP 53 / TCP 53)</td>
+          <td class="layer-l7">7 — Application</td>
+          <td>Application</td>
+          <td><a href="../../02-Application-Services/lesson-02-dns/visualization.html" style="color:var(--net-blue)">L02 DNS</a></td>
+        </tr>
+        <tr>
+          <td>ARP (tìm MAC gateway)</td>
+          <td class="layer-l2">ARP (Ethernet broadcast)</td>
+          <td class="layer-l2">2 — Data Link</td>
+          <td>Network Access</td>
+          <td><a href="../../01-Foundations-LowerLayers/lesson-05-arp-icmp-dhcp-nat/visualization.html" style="color:var(--net-blue)">L05 ARP/NAT</a></td>
+        </tr>
+        <tr>
+          <td>NAT tại router nhà</td>
+          <td class="layer-l3">NAT (IP/TCP rewrite)</td>
+          <td class="layer-l3">3 — Network + 4 — Transport</td>
+          <td>Internet</td>
+          <td><a href="../../01-Foundations-LowerLayers/lesson-05-arp-icmp-dhcp-nat/visualization.html" style="color:var(--net-blue)">L05 ARP/NAT</a></td>
+        </tr>
+        <tr>
+          <td>Định tuyến qua Internet</td>
+          <td class="layer-l3">IP, BGP (routing protocol)</td>
+          <td class="layer-l3">3 — Network</td>
+          <td>Internet</td>
+          <td><a href="../../01-Foundations-LowerLayers/lesson-04-routing/visualization.html" style="color:var(--net-blue)">L04 Routing</a></td>
+        </tr>
+        <tr>
+          <td>Bắt tay TCP 3 bước</td>
+          <td class="layer-l4">TCP (SYN/SYN-ACK/ACK)</td>
+          <td class="layer-l4">4 — Transport</td>
+          <td>Transport</td>
+          <td><a href="../../01-Foundations-LowerLayers/lesson-08-tcp/visualization.html" style="color:var(--net-blue)">L08 TCP</a></td>
+        </tr>
+        <tr>
+          <td>Bắt tay TLS 1.3</td>
+          <td class="layer-l5">TLS (Record, Handshake)</td>
+          <td class="layer-l5">5-6 — Session/Presentation</td>
+          <td>Application</td>
+          <td><a href="../../02-Application-Services/lesson-06-tls/visualization.html" style="color:var(--net-blue)">L06 TLS</a></td>
+        </tr>
+        <tr>
+          <td>HTTP Request qua CDN/LB</td>
+          <td class="layer-l7">HTTP/1.1 hoặc HTTP/2</td>
+          <td class="layer-l7">7 — Application</td>
+          <td>Application</td>
+          <td><a href="../../02-Application-Services/lesson-03-http-basics/visualization.html" style="color:var(--net-blue)">L03 HTTP</a> · <a href="../../02-Application-Services/lesson-08-web-infrastructure/visualization.html" style="color:var(--net-blue)">L08 Infra</a></td>
+        </tr>
+        <tr>
+          <td>Encapsulation mỗi hop</td>
+          <td class="layer-l2">Ethernet (L2 frame thay đổi)</td>
+          <td class="layer-l2">1-2 — Physical/Data Link</td>
+          <td>Network Access</td>
+          <td><a href="../../01-Foundations-LowerLayers/lesson-01-layered-models/visualization.html" style="color:var(--net-blue)">L01 Layers</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════ MODULE 6 — Timing Chart ═══════════════ -->
+<section class="card">
+  <h2 style="margin-top:0">Biểu đồ thời gian (Timeline)</h2>
+  <p style="font-size:13px;color:#475569">So sánh thời gian qua từng giai đoạn với CDN Singapore vs không có CDN (server New York).</p>
+  <div id="timing-wrap" style="overflow-x:auto">
+    <svg id="timing-svg" width="680" height="300" viewBox="0 0 680 300">
+      <!-- Rendered by JS -->
+    </svg>
+  </div>
+</section>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   DATA
+   ══════════════════════════════════════════════════════════ */
+const PHASES = [
+  {
+    id: 'dns',
+    num: 1,
+    title: 'Phân giải DNS',
+    proto: 'DNS / UDP 53',
+    timeCDN: 45,  timeNocdn: 60,
+    detail: 'Trình duyệt tra cache → OS cache → /etc/hosts → Resolver ISP → Root NS → TLD (.com) → Authoritative NS → trả về IP.',
+    topo: 'Mũi tên tím trên cùng: Browser → DNS Resolver → Root/TLD/Auth → IP nhận về.',
+    node: 'n-dns',
+    lesson: '../../02-Application-Services/lesson-02-dns/visualization.html',
+    lessonName: 'L02 — DNS',
+  },
+  {
+    id: 'arp',
+    num: 2,
+    title: 'ARP + NAT',
+    proto: 'ARP / Ethernet',
+    timeCDN: 1,  timeNocdn: 1,
+    detail: 'Máy bạn cần MAC của gateway (192.168.1.1). ARP broadcast → Gateway trả MAC. Router NAT đổi IP private → IP public khi gói ra ngoài.',
+    topo: 'Frame Ethernet: dst=MAC_gateway. NAT ghi lại mapping port.',
+    node: 'n-nat',
+    lesson: '../../01-Foundations-LowerLayers/lesson-05-arp-icmp-dhcp-nat/visualization.html',
+    lessonName: 'L05 — ARP/NAT',
+  },
+  {
+    id: 'routing',
+    num: 3,
+    title: 'Định tuyến qua Internet',
+    proto: 'IP / BGP/OSPF',
+    timeCDN: 18,  timeNocdn: 280,
+    detail: 'Gói IP đi qua 10–20 router. Mỗi router tra bảng định tuyến, chọn longest-prefix match, forward sang hop tiếp theo. MAC thay đổi ở mỗi hop, IP không đổi.',
+    topo: 'Gói đi: Router nhà → ISP → Internet backbone → CDN Edge Singapore.',
+    node: 'n-isp',
+    lesson: '../../01-Foundations-LowerLayers/lesson-04-routing/visualization.html',
+    lessonName: 'L04 — Định tuyến',
+  },
+  {
+    id: 'tcp',
+    num: 4,
+    title: 'Bắt tay TCP (3-way)',
+    proto: 'TCP / port 443',
+    timeCDN: 20,  timeNocdn: 280,
+    detail: 'SYN (SEQ=x) → SYN-ACK (SEQ=y, ACK=x+1) → ACK (ACK=y+1). Thiết lập kênh tin cậy 2 chiều. Chi phí = 1 RTT.',
+    topo: 'Client ↔ CDN Edge: 3 gói SYN/SYN-ACK/ACK. Sau đó CDN kết nối tới origin.',
+    node: 'n-cdn',
+    lesson: '../../01-Foundations-LowerLayers/lesson-08-tcp/visualization.html',
+    lessonName: 'L08 — TCP',
+  },
+  {
+    id: 'tls',
+    num: 5,
+    title: 'Bắt tay TLS 1.3',
+    proto: 'TLS 1.3',
+    timeCDN: 20,  timeNocdn: 280,
+    detail: 'ClientHello (cipher suites, KeyShare) → ServerHello + Certificate + Finished → Client Finished. Xác minh cert: domain khớp, còn hạn, CA tin cậy.',
+    topo: 'TLS nằm trên TCP, trước HTTP. Mã hóa toàn bộ nội dung HTTP.',
+    node: 'n-cdn',
+    lesson: '../../02-Application-Services/lesson-06-tls/visualization.html',
+    lessonName: 'L06 — TLS',
+  },
+  {
+    id: 'http',
+    num: 6,
+    title: 'HTTP GET qua CDN/LB',
+    proto: 'HTTP/1.1 hoặc HTTP/2',
+    timeCDN: 25,  timeNocdn: 50,
+    detail: 'Trình duyệt gửi GET /. CDN kiểm tra cache: hit → trả ngay; miss → forward về origin qua Load Balancer. App Server xử lý, trả 200 OK + HTML.',
+    topo: 'Request: Browser → CDN Edge → LB → App Server. Response: ngược lại.',
+    node: 'n-srv',
+    lesson: '../../02-Application-Services/lesson-03-http-basics/visualization.html',
+    lessonName: 'L03 — HTTP',
+  },
+  {
+    id: 'encap',
+    num: 7,
+    title: 'Encapsulation mỗi hop',
+    proto: 'Toàn bộ ngăn xếp',
+    timeCDN: 0,  timeNocdn: 0,
+    detail: 'Ở mỗi router: bóc Ethernet cũ, tra bảng routing IP, đóng Ethernet mới với MAC hop tiếp theo. L4-L7 opaque với router. Nguyên tắc: chỉ router cần tầng 3 để forward.',
+    topo: 'Mỗi hop thay header L2. IP header (L3) giữ nguyên suốt hành trình.',
+    node: 'n-isp',
+    lesson: '../../01-Foundations-LowerLayers/lesson-01-layered-models/visualization.html',
+    lessonName: 'L01 — Mô hình phân tầng',
+  },
+];
+
+const FAULTS = [
+  {
+    id: 'f-dns',
+    step: 'Bước 1 — DNS',
+    label: 'DNS không phân giải được',
+    symptom: 'ERR_NAME_NOT_RESOLVED / "Server not found"',
+    cause: 'Resolver không phản hồi, domain không tồn tại, hoặc DNS bị block bởi firewall/ISP.',
+    tools: ['dig www.example.com', 'dig @8.8.8.8 www.example.com', 'dig +trace www.example.com', 'nslookup'],
+    fix: 'Kiểm tra /etc/resolv.conf, thử resolver khác (8.8.8.8), xem TTL có bị 0 không.',
+  },
+  {
+    id: 'f-arp',
+    step: 'Bước 2 — ARP/LAN',
+    label: 'Không ping được gateway',
+    symptom: 'Network unreachable / Destination host unreachable',
+    cause: 'Cable LAN đứt, switch lỗi, IP bị cấu hình sai, hoặc gateway không phản hồi ARP.',
+    tools: ['ping 192.168.1.1', 'arp -n', 'ip route show', 'ethtool eth0'],
+    fix: 'Kiểm tra cable vật lý, IP tĩnh hay DHCP, arp cache có entry không.',
+  },
+  {
+    id: 'f-routing',
+    step: 'Bước 3 — Routing',
+    label: 'Gói IP không đến đích',
+    symptom: 'Request timeout, traceroute đứng ở 1 hop, gói bị drop giữa đường',
+    cause: 'Router mất kết nối, BGP route withdrawal, blackhole route, hoặc ICMP bị filter.',
+    tools: ['traceroute www.example.com', 'mtr www.example.com', 'ping -c5 93.184.216.34', 'ip route get 93.184.216.34'],
+    fix: 'Dùng mtr để tìm hop bị drop. Nếu đứng ở hop ISP → liên hệ ISP. Nếu đứng ở hop 1 → vấn đề router nhà.',
+  },
+  {
+    id: 'f-tcp',
+    step: 'Bước 4 — TCP',
+    label: 'TCP SYN bị từ chối',
+    symptom: 'Connection refused (ECONNREFUSED) hoặc Connection timed out (không nhận SYN-ACK)',
+    cause: 'Port 443 đóng ở server, firewall chặn, hoặc server quá tải (không accept connection mới).',
+    tools: ['nc -zv www.example.com 443', 'telnet www.example.com 443', 'nmap -p 443 93.184.216.34', 'curl -v https://...'],
+    fix: 'Connection refused = port đóng/firewall RST. Connection timeout = firewall drop (không RST). Kiểm tra iptables/ufw ở server.',
+  },
+  {
+    id: 'f-tls',
+    step: 'Bước 5 — TLS',
+    label: 'Lỗi chứng chỉ TLS',
+    symptom: 'NET::ERR_CERT_AUTHORITY_INVALID / SSL_ERROR_BAD_CERT_DOMAIN / cert hết hạn',
+    cause: 'Cert hết hạn, tên miền không khớp (CN/SAN), CA không trong danh sách tin cậy, hoặc MITM attack.',
+    tools: ['openssl s_client -connect www.example.com:443', 'curl -v https://...', 'curl --insecure -v https://... (test bypass)'],
+    fix: 'Xem thời hạn cert (openssl x_client | grep "Not After"). Xem SAN có bao gồm domain không. Nếu self-signed: thêm CA vào trust store.',
+  },
+  {
+    id: 'f-http',
+    step: 'Bước 6 — HTTP',
+    label: 'HTTP 5xx / 4xx',
+    symptom: '500 Internal Server Error / 502 Bad Gateway / 503 Service Unavailable / 404 Not Found',
+    cause: '5xx = lỗi server hoặc LB; 4xx = lỗi client (URL sai, xác thực thiếu). 502/503 thường từ LB không kết nối được app server.',
+    tools: ['curl -I https://www.example.com', 'curl -v https://www.example.com', 'curl -w "%{http_code}" ...'],
+    fix: '5xx: kiểm tra logs app server, health check LB. 404: kiểm tra URL. 403: kiểm tra auth header/cookie.',
+  },
+];
+
+/* ══════════════════════════════════════════════════════════
+   STATE
+   ══════════════════════════════════════════════════════════ */
+let journeyRunning = false;
+let selectedFault = null;
+let animTimer = null;
+
+/* ══════════════════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  renderPhaseCards();
+  renderFaultGrid();
+  renderTimingChart();
+  initSpeedSlider();
+  initUrlInput();
+});
+
+function initSpeedSlider() {
+  const sl = document.getElementById('speed-slider');
+  const lb = document.getElementById('speed-label');
+  sl.addEventListener('input', () => { lb.textContent = '×' + sl.value; });
+}
+
+function initUrlInput() {
+  const inp = document.getElementById('url-input');
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') startJourney();
+  });
+}
+
+/* ══════════════════════════════════════════════════════════
+   RENDER PHASE CARDS
+   ══════════════════════════════════════════════════════════ */
+function renderPhaseCards() {
+  const grid = document.getElementById('phase-grid');
+  grid.innerHTML = PHASES.map(p => `
+    <div class="phase-card" id="pc-${p.id}">
+      <div class="phase-num">${p.num}</div>
+      <div class="phase-title">${p.title}</div>
+      <span class="phase-proto">${p.proto}</span>
+      <div class="phase-time" id="pt-${p.id}">—</div>
+      <div class="phase-detail">${p.detail}</div>
+      <div class="phase-lesson">Lesson: <a href="${p.lesson}" target="_blank">${p.lessonName}</a></div>
+    </div>
+  `).join('');
+}
+
+/* ══════════════════════════════════════════════════════════
+   RENDER FAULT GRID
+   ══════════════════════════════════════════════════════════ */
+function renderFaultGrid() {
+  const grid = document.getElementById('fault-grid');
+  grid.innerHTML = FAULTS.map(f => `
+    <button class="fault-btn" id="fb-${f.id}" onclick="selectFault('${f.id}')">
+      <div class="fault-step">${f.step}</div>
+      <div>${f.label}</div>
+    </button>
+  `).join('');
+}
+
+function selectFault(fid) {
+  // Deselect all
+  FAULTS.forEach(f => {
+    document.getElementById('fb-' + f.id)?.classList.remove('selected');
+  });
+  if (selectedFault === fid) {
+    selectedFault = null;
+    document.getElementById('fault-result').className = '';
+    document.getElementById('fault-result').innerHTML =
+      '<span style="color:#94a3b8;font-size:14px">Chưa chọn lỗi — chọn một kịch bản ở trên.</span>';
+    return;
+  }
+  selectedFault = fid;
+  document.getElementById('fb-' + fid)?.classList.add('selected');
+  showFaultResult(fid);
+}
+
+function showFaultResult(fid) {
+  const f = FAULTS.find(x => x.id === fid);
+  if (!f) return;
+  const toolsHtml = f.tools.map(t => `<span class="tool-tag">${t}</span>`).join(' ');
+  const res = document.getElementById('fault-result');
+  res.className = 'show-err';
+  res.innerHTML = `
+    <div class="symptom-line">Triệu chứng: ${f.symptom}</div>
+    <div class="diagnose-line"><strong>Nguyên nhân:</strong> ${f.cause}</div>
+    <div class="diagnose-line" style="margin-top:6px"><strong>Công cụ chẩn đoán:</strong><br>${toolsHtml}</div>
+    <div class="diagnose-line" style="margin-top:6px"><strong>Hướng xử lý:</strong> ${f.fix}</div>
+  `;
+}
+
+/* ══════════════════════════════════════════════════════════
+   RENDER TIMING CHART (SVG)
+   ══════════════════════════════════════════════════════════ */
+function renderTimingChart() {
+  const svg = document.getElementById('timing-svg');
+  const W = 680, H = 300;
+  const marginL = 160, marginR = 20, marginT = 30, marginB = 30;
+  const plotW = W - marginL - marginR;
+  const plotH = H - marginT - marginB;
+
+  const phases = PHASES.filter(p => p.timeCDN > 0 || p.timeNocdn > 0);
+  const maxTime = Math.max(...phases.map(p => Math.max(p.timeCDN, p.timeNocdn)));
+  const barH = Math.floor((plotH / phases.length) * 0.35);
+  const rowH = Math.floor(plotH / phases.length);
+
+  let html = '';
+
+  // Grid lines
+  for (let t = 0; t <= maxTime; t += 50) {
+    const x = marginL + (t / maxTime) * plotW;
+    html += `<line x1="${x}" y1="${marginT}" x2="${x}" y2="${H - marginB}" stroke="#e2e8f0" stroke-width="1"/>`;
+    html += `<text x="${x}" y="${marginT - 6}" text-anchor="middle" font-size="10" fill="#94a3b8">${t}ms</text>`;
+  }
+
+  phases.forEach((p, i) => {
+    const y = marginT + i * rowH;
+    const wCDN = (p.timeCDN / maxTime) * plotW;
+    const wNocdn = (p.timeNocdn / maxTime) * plotW;
+
+    // Label
+    html += `<text x="${marginL - 6}" y="${y + barH + 2}" text-anchor="end" font-size="11" fill="#374151">${p.title}</text>`;
+
+    // CDN bar (top)
+    html += `<rect x="${marginL}" y="${y}" width="${wCDN}" height="${barH}" rx="3" fill="#0369a1" opacity=".85"/>`;
+    if (p.timeCDN > 0) {
+      html += `<text x="${marginL + wCDN + 4}" y="${y + barH - 2}" font-size="10" fill="#0369a1" font-weight="700">${p.timeCDN}ms</text>`;
+    }
+
+    // No-CDN bar (bottom)
+    const y2 = y + barH + 2;
+    html += `<rect x="${marginL}" y="${y2}" width="${wNocdn}" height="${barH}" rx="3" fill="#dc2626" opacity=".6"/>`;
+    if (p.timeNocdn > 0) {
+      html += `<text x="${marginL + wNocdn + 4}" y="${y2 + barH - 2}" font-size="10" fill="#dc2626" font-weight="700">${p.timeNocdn}ms</text>`;
+    }
+  });
+
+  // Legend
+  html += `<rect x="${marginL}" y="${H - marginB + 10}" width="14" height="10" rx="2" fill="#0369a1" opacity=".85"/>`;
+  html += `<text x="${marginL + 18}" y="${H - marginB + 19}" font-size="11" fill="#374151">CDN Singapore (RTT ~20ms)</text>`;
+  html += `<rect x="${marginL + 200}" y="${H - marginB + 10}" width="14" height="10" rx="2" fill="#dc2626" opacity=".6"/>`;
+  html += `<text x="${marginL + 218}" y="${H - marginB + 19}" font-size="11" fill="#374151">Không CDN / Server New York (RTT ~280ms)</text>`;
+
+  svg.innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════════════════
+   LOG HELPERS
+   ══════════════════════════════════════════════════════════ */
+function log(html) {
+  const panel = document.getElementById('log-panel');
+  panel.innerHTML += html + '\n';
+  panel.scrollTop = panel.scrollHeight;
+}
+
+function clearLog() {
+  document.getElementById('log-panel').innerHTML = '';
+}
+
+function ts() {
+  return new Date().toLocaleTimeString('vi-VN', { hour12: false }) + ' ';
+}
+
+/* ══════════════════════════════════════════════════════════
+   JOURNEY ANIMATION
+   ══════════════════════════════════════════════════════════ */
+function getSpeedMult() {
+  return parseInt(document.getElementById('speed-slider').value) || 2;
+}
+
+function parseUrl(raw) {
+  raw = raw.trim();
+  if (!raw.startsWith('http')) raw = 'https://' + raw;
+  try {
+    const u = new URL(raw);
+    return { host: u.hostname, protocol: u.protocol, path: u.pathname || '/' };
+  } catch(e) {
+    return { host: raw.replace(/^https?:\/\//, '').split('/')[0], protocol: 'https:', path: '/' };
+  }
+}
+
+function resetPhaseCards() {
+  PHASES.forEach(p => {
+    const card = document.getElementById('pc-' + p.id);
+    if (card) {
+      card.className = 'phase-card';
+    }
+    const pt = document.getElementById('pt-' + p.id);
+    if (pt) pt.textContent = '—';
+  });
+}
+
+function setProgress(pct, label) {
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = label;
+}
+
+function setTotalTime(ms) {
+  document.getElementById('total-time').textContent = ms > 0 ? `Tổng thời gian: ${ms} ms` : '—';
+}
+
+function resetJourney() {
+  if (animTimer) { clearTimeout(animTimer); animTimer = null; }
+  journeyRunning = false;
+  resetPhaseCards();
+  setProgress(0, 'Sẵn sàng');
+  setTotalTime(0);
+  document.getElementById('topo-info').innerHTML =
+    'Nhập URL và nhấn <strong>Go</strong> để bắt đầu animation hành trình.';
+  // Hide packet dot
+  const dot = document.getElementById('pkt-anim');
+  if (dot) { dot.setAttribute('opacity', '0'); dot.setAttribute('cx', '-20'); }
+}
+
+async function startJourney() {
+  if (journeyRunning) return;
+  journeyRunning = true;
+
+  clearLog();
+  resetPhaseCards();
+  setTotalTime(0);
+
+  const raw = document.getElementById('url-input').value || 'https://www.example.com';
+  const { host, protocol, path } = parseUrl(raw);
+  const isFault = selectedFault;
+  const speed = getSpeedMult();
+  const useCDN = true; // always show CDN scenario
+
+  log(`<span class="l-info">${ts()}[START] Người dùng gõ: ${raw}</span>`);
+  log(`<span class="l-dim">Host: ${host} | Protocol: ${protocol} | Path: ${path}</span>`);
+  if (isFault) {
+    const f = FAULTS.find(x => x.id === isFault);
+    log(`<span class="l-warn">${ts()}[FAULT INJECTED] ${f?.step}: ${f?.label}</span>`);
+  }
+
+  const baseDelay = Math.max(200, Math.round(800 / speed));
+
+  let totalMs = 0;
+  const faultMap = {
+    'f-dns': 'dns', 'f-arp': 'arp', 'f-routing': 'routing',
+    'f-tcp': 'tcp', 'f-tls': 'tls', 'f-http': 'http',
+  };
+  const faultPhaseId = isFault ? faultMap[isFault] : null;
+
+  for (let i = 0; i < PHASES.length; i++) {
+    const p = PHASES[i];
+    const progress = Math.round(((i + 1) / PHASES.length) * 100);
+    const card = document.getElementById('pc-' + p.id);
+    const timeEl = document.getElementById('pt-' + p.id);
+
+    card.classList.add('active');
+    setProgress(Math.round((i / PHASES.length) * 100), `Đang: ${p.title}...`);
+    document.getElementById('topo-info').innerHTML =
+      `<strong>Bước ${p.num} — ${p.title}</strong><br>${p.topo}`;
+
+    // Animate packet on topology
+    animatePacket(p.node, speed);
+
+    // Log
+    log(`<span class="l-info">${ts()}[STEP ${p.num}] ${p.title} (${p.proto})</span>`);
+
+    // Step-specific log details
+    await stepLog(p.id, host, speed, baseDelay);
+
+    // Check fault
+    if (isFault && p.id === faultPhaseId) {
+      const f = FAULTS.find(x => x.id === isFault);
+      await delay(baseDelay * 2);
+      card.classList.remove('active');
+      card.classList.add('error');
+      timeEl.textContent = 'LỖI';
+      log(`<span class="l-err">${ts()}[ERROR] ${f?.symptom}</span>`);
+      log(`<span class="l-warn">${ts()}[DIAGNOSE] Công cụ: ${f?.tools.join(', ')}</span>`);
+      log(`<span class="l-warn">${ts()}[FIX] ${f?.fix}</span>`);
+      setProgress(progress, `Hỏng tại: ${p.title}`);
+      // Show fault result panel
+      showFaultResult(isFault);
+      journeyRunning = false;
+      return;
+    }
+
+    // Normal completion
+    await delay(baseDelay * 1.5);
+    const pTime = useCDN ? p.timeCDN : p.timeNocdn;
+    totalMs += pTime;
+    card.classList.remove('active');
+    card.classList.add('done');
+    if (timeEl) timeEl.textContent = pTime > 0 ? pTime + ' ms' : '< 1ms';
+    log(`<span class="l-ok">${ts()}[OK] ${p.title} hoàn thành${pTime > 0 ? ' (' + pTime + ' ms)' : ''}</span>`);
+  }
+
+  setProgress(100, 'Hoàn thành!');
+  setTotalTime(totalMs);
+  log(`<span class="l-ok">${ts()}[DONE] Tổng thời gian: ${totalMs} ms. Trang đã hiển thị!</span>`);
+  log(`<span class="l-dim">Với CDN Singapore (RTT 20ms). Không CDN (server NY): ~${PHASES.reduce((a,p)=>a+p.timeNocdn,0)} ms.</span>`);
+  document.getElementById('topo-info').innerHTML =
+    `<span style="color:var(--ok-green);font-weight:700">Hoàn thành!</span> Tổng: <strong>${totalMs} ms</strong> — trang đã hiển thị trong trình duyệt.`;
+  journeyRunning = false;
+}
+
+/* ── Step-specific log details ── */
+async function stepLog(phaseId, host, speed, baseDelay) {
+  const d = Math.round(baseDelay * 0.6);
+  if (phaseId === 'dns') {
+    log(`<span class="l-dim">  Browser cache: miss</span>`);
+    await delay(d);
+    log(`<span class="l-dim">  Resolver query: ${host} A?</span>`);
+    await delay(d);
+    log(`<span class="l-dim">  Root NS → .com TLD NS</span>`);
+    await delay(d);
+    log(`<span class="l-dim">  Auth NS: ${host} → IP</span>`);
+  } else if (phaseId === 'arp') {
+    log(`<span class="l-dim">  ARP broadcast: "Who has 192.168.1.1?"</span>`);
+    await delay(d);
+    log(`<span class="l-dim">  ARP reply: MAC = AA:BB:CC:DD:EE:FF</span>`);
+    await delay(d);
+    log(`<span class="l-dim">  NAT: 192.168.1.100:54321 → 203.1.2.3:41234</span>`);
+  } else if (phaseId === 'routing') {
+    log(`<span class="l-dim">  Hop 1: Router nhà → ISP router</span>`);
+    await delay(d);
+    log(`<span class="l-dim">  Hop 5: ISP core → IX Singapore</span>`);
+    await delay(d);
+    log(`<span class="l-dim">  Hop 12: CDN Edge Singapore — arrived!</span>`);
+  } else if (phaseId === 'tcp') {
+    log(`<span class="l-dim">  → SYN SEQ=3215782400</span>`);
+    await delay(d);
+    log(`<span class="l-dim">  ← SYN-ACK SEQ=872341500 ACK=3215782401</span>`);
+    await delay(d);
+    log(`<span class="l-dim">  → ACK SEQ=3215782401 ACK=872341501</span>`);
+  } else if (phaseId === 'tls') {
+    log(`<span class="l-sec">  → ClientHello (TLS 1.3, cipher: AES-256-GCM-SHA384)</span>`);
+    await delay(d);
+    log(`<span class="l-sec">  ← ServerHello + Certificate (expires 2026-12-01)</span>`);
+    await delay(d);
+    log(`<span class="l-sec">  Cert check: domain OK, CA: DigiCert, valid ✓</span>`);
+    await delay(d);
+    log(`<span class="l-sec">  ← CertVerify + Finished | → Finished → ENCRYPTED</span>`);
+  } else if (phaseId === 'http') {
+    log(`<span class="l-dim">  → GET ${document.getElementById('url-input').value.replace(/^https?:\/\/[^/]+/, '') || '/'} HTTP/1.1</span>`);
+    await delay(d);
+    log(`<span class="l-dim">  CDN cache check: ${Math.random() < 0.5 ? 'MISS → forward origin' : 'HIT → serve từ edge'}</span>`);
+    await delay(d);
+    log(`<span class="l-ok">  ← HTTP/1.1 200 OK Content-Type: text/html</span>`);
+  } else if (phaseId === 'encap') {
+    log(`<span class="l-dim">  Mỗi router: bóc Ethernet cũ → forward IP → đóng Ethernet mới</span>`);
+    await delay(d);
+    log(`<span class="l-dim">  IP src/dst: không đổi | MAC header: thay đổi mỗi hop</span>`);
+  }
+}
+
+/* ── Packet animation on topology ── */
+function animatePacket(targetNodeId, speed) {
+  const nodeMap = {
+    'n-dns': { x: 370, y: 152 },
+    'n-nat': { x: 187, y: 90 },
+    'n-isp': { x: 315, y: 90 },
+    'n-cdn': { x: 442, y: 90 },
+    'n-lb':  { x: 560, y: 90 },
+    'n-srv': { x: 682, y: 90 },
+  };
+  const target = nodeMap[targetNodeId];
+  if (!target) return;
+  const dot = document.getElementById('pkt-anim');
+  if (!dot) return;
+  dot.setAttribute('cx', target.x);
+  dot.setAttribute('cy', target.y);
+  dot.setAttribute('opacity', '1');
+  dot.setAttribute('r', '8');
+  // Pulse
+  let step = 0;
+  const dur = Math.round(600 / speed);
+  const interval = setInterval(() => {
+    step++;
+    const r = step % 2 === 0 ? 8 : 12;
+    dot.setAttribute('r', r.toString());
+    if (step >= 4) {
+      clearInterval(interval);
+      dot.setAttribute('r', '8');
+    }
+  }, Math.round(dur / 4));
+}
+
+function delay(ms) {
+  return new Promise(resolve => { animTimer = setTimeout(resolve, ms); });
+}
+
+/* ══════════════════════════════════════════════════════════
+   URL input Enter key
+   ══════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  renderTimingChart();
+});
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — An ninh mạng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette an ninh mạng ── */
+  :root {
+    --sec-blue:   #0369a1;
+    --sec-soft:   #e0f2fe;
+    --sec-mid:    #38bdf8;
+    --sec-dark:   #0c4a6e;
+    --allow-col:  #16a34a;
+    --deny-col:   #dc2626;
+    --warn-col:   #d97706;
+    --vpn-col:    #7c3aed;
+    --dmz-col:    #d97706;
+    --bg-card:    #ffffff;
+    --bg-section: #f0f9ff;
+  }
+
+  h1 { color: var(--sec-dark); }
+  h2 { color: var(--sec-blue); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--sec-mid); }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(3,105,161,.10);
+    margin: 16px 0;
+  }
+  .info-box {
+    background: var(--sec-soft);
+    border-left: 4px solid var(--sec-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .info-box.allow { border-color: var(--allow-col); background: #f0fdf4; }
+  .info-box.deny  { border-color: var(--deny-col);  background: #fef2f2; }
+  .info-box.warn  { border-color: var(--warn-col);  background: #fffbeb; }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary   { background: var(--sec-blue);  color: white; }
+  .btn-primary:hover { background: var(--sec-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-allow  { background: var(--allow-col); color: white; }
+  .btn-allow:hover { background: #15803d; }
+  .btn-deny   { background: var(--deny-col);  color: white; }
+  .btn-deny:hover  { background: #b91c1c; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 1 — FIREWALL RULE ENGINE
+     ═══════════════════════════════════════════════════════ */
+  .rule-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-family: monospace;
+    margin: 12px 0;
+  }
+  .rule-table th {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 12px;
+    letter-spacing: .4px;
+  }
+  .rule-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+  }
+  .rule-table tr:last-child td { border-bottom: none; }
+  .rule-table tr.rule-highlight { background: #fef9c3 !important; }
+  .rule-table tr.rule-match    { background: #dcfce7 !important; }
+  .rule-table tr.rule-checked  { background: #f0f9ff; }
+  .rule-table tr.rule-deny-match { background: #fee2e2 !important; }
+
+  .rule-num  { font-weight: 700; color: var(--sec-blue); text-align: center; }
+  .badge-allow { display:inline-block; background:#dcfce7; color:#166534; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:700; }
+  .badge-deny  { display:inline-block; background:#fee2e2; color:#991b1b; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:700; }
+
+  .pkt-input {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .pkt-field { display: flex; flex-direction: column; gap: 4px; }
+  .pkt-field label { font-size: 12px; font-weight: 700; color: #374151; }
+  .pkt-field input, .pkt-field select {
+    padding: 7px 10px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: monospace;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  .pkt-field input:focus, .pkt-field select:focus { outline:none; border-color: var(--sec-blue); }
+
+  #fw-result {
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    display: none;
+    line-height: 1.8;
+  }
+  #fw-result.allow { background: #dcfce7; color: #166534; border: 2px solid var(--allow-col); }
+  #fw-result.deny  { background: #fee2e2; color: #991b1b; border: 2px solid var(--deny-col);  }
+
+  #fw-log {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    min-height: 60px;
+    max-height: 180px;
+    overflow-y: auto;
+    margin-top: 10px;
+    white-space: pre-wrap;
+    display: none;
+  }
+  #fw-log .check  { color: #94a3b8; }
+  #fw-log .match  { color: #4ade80; }
+  #fw-log .nomatch{ color: #94a3b8; }
+  #fw-log .blocked{ color: #f87171; }
+
+  /* ── Rule editor ── */
+  #rule-editor { margin-top: 14px; }
+  .rule-edit-row {
+    display: grid;
+    grid-template-columns: 36px 1fr 1fr 80px 80px 70px 70px;
+    gap: 6px;
+    align-items: center;
+    margin: 4px 0;
+    font-size: 12px;
+  }
+  .rule-edit-row input, .rule-edit-row select {
+    padding: 5px 7px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 5px;
+    font-size: 12px;
+    font-family: monospace;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .rule-edit-row .re-num { font-weight:700; color: var(--sec-blue); text-align: center; }
+  .rule-del-btn {
+    background: #fee2e2; color: #991b1b; border: none; border-radius: 4px;
+    padding: 4px 8px; cursor: pointer; font-size: 12px;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 2 — NETWORK DIAGRAM (DMZ)
+     ═══════════════════════════════════════════════════════ */
+  #net-stage { width: 100%; overflow-x: auto; }
+  #net-svg   { display: block; margin: 0 auto; }
+
+  .net-btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .net-btn {
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 1.5px solid;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .net-btn:hover { opacity: .85; }
+  .net-btn.active { box-shadow: 0 0 0 3px rgba(3,105,161,.4); }
+
+  #net-desc {
+    background: var(--sec-soft);
+    border-left: 4px solid var(--sec-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 10px;
+    min-height: 60px;
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     MODULE 3 — VPN TUNNEL
+     ═══════════════════════════════════════════════════════ */
+  #vpn-stage { width:100%; overflow-x:auto; }
+  #vpn-svg   { display:block; margin:0 auto; }
+  #vpn-desc {
+    background: #faf5ff;
+    border-left: 4px solid var(--vpn-col);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 10px;
+    min-height: 60px;
+  }
+  .vpn-controls { display:flex; gap:10px; flex-wrap:wrap; margin:10px 0; align-items:center; }
+  .vpn-mode-btn {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 2px solid var(--vpn-col);
+    background: white;
+    color: var(--vpn-col);
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .vpn-mode-btn.active { background: var(--vpn-col); color: white; }
+
+  /* ═══════════════════════════════════════════════════════
+     Responsive
+     ═══════════════════════════════════════════════════════ */
+  @media (max-width: 600px) {
+    .rule-edit-row {
+      grid-template-columns: 28px 1fr 1fr;
+      gap: 4px;
+    }
+    .rule-edit-row .re-port, .rule-edit-row .re-proto { grid-column: span 1; }
+    .pkt-input { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) {
+    .pkt-input { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Advanced</a>
+  <span class="sep">·</span>
+  <a href="../../02-Application-Services/lesson-08-web-infrastructure/visualization.html">← T2·L8: Hạ tầng web</a>
+  <span class="sep">·</span>
+  <span class="current">L1: An ninh mạng</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-attacks-defense/visualization.html">L2: Tấn công &amp; phòng thủ →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — An ninh mạng (Network Security)</h1>
+<p>Ba module tương tác: mô phỏng firewall rule engine, sơ đồ mạng với DMZ, và minh họa đường hầm VPN mã hóa.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — FIREWALL RULE ENGINE
+     ═══════════════════════════════════════════════════════════ -->
+<h2>1. Mô phỏng Firewall Rule Engine</h2>
+<div class="card">
+  <p>Định nghĩa ruleset (hoặc dùng bộ mặc định), nhập thông tin gói tin, rồi bấm <strong>Chạy Engine</strong> để xem quá trình duyệt rule từng bước.</p>
+
+  <!-- Rule table display -->
+  <div style="overflow-x:auto;">
+    <table class="rule-table" id="rule-display">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Src IP / Subnet</th>
+          <th>Dst IP / Subnet</th>
+          <th>Dst Port</th>
+          <th>Protocol</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="rule-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- Rule editor toggle -->
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="toggleEditor()">Chỉnh sửa ruleset</button>
+    <button class="btn btn-secondary" onclick="loadPreset('web')">Preset: Web Server</button>
+    <button class="btn btn-secondary" onclick="loadPreset('dmz')">Preset: DMZ</button>
+    <button class="btn btn-secondary" onclick="loadPreset('strict')">Preset: Chặt</button>
+  </div>
+
+  <div id="rule-editor" style="display:none;">
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:10px;">
+      <div style="display:grid;grid-template-columns:28px 1fr 1fr 80px 80px 70px 70px 36px;gap:6px;margin-bottom:6px;font-size:11px;font-weight:700;color:#475569;">
+        <span>#</span><span>Src IP/Subnet</span><span>Dst IP/Subnet</span>
+        <span>Dst Port</span><span>Protocol</span><span>Action</span><span></span><span></span>
+      </div>
+      <div id="editor-rows"></div>
+      <button class="btn btn-secondary" style="margin-top:8px;font-size:12px;" onclick="addRule()">+ Thêm rule</button>
+    </div>
+  </div>
+
+  <!-- Packet input -->
+  <h3 style="margin:16px 0 8px;font-size:15px;color:var(--sec-dark);">Nhập thông tin gói tin</h3>
+  <div class="pkt-input">
+    <div class="pkt-field">
+      <label>Source IP</label>
+      <input type="text" id="pkt-src" value="10.0.5.15" placeholder="vd: 10.0.1.50">
+    </div>
+    <div class="pkt-field">
+      <label>Destination IP</label>
+      <input type="text" id="pkt-dst" value="8.8.8.8" placeholder="vd: 8.8.8.8">
+    </div>
+    <div class="pkt-field">
+      <label>Dst Port</label>
+      <input type="number" id="pkt-dport" value="80" min="1" max="65535">
+    </div>
+    <div class="pkt-field">
+      <label>Protocol</label>
+      <select id="pkt-proto">
+        <option value="TCP">TCP</option>
+        <option value="UDP">UDP</option>
+        <option value="ICMP">ICMP</option>
+        <option value="any">any</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="runEngine()">Chạy Engine</button>
+    <button class="btn btn-secondary" onclick="resetHighlight()">Xóa kết quả</button>
+  </div>
+
+  <div id="fw-result"></div>
+  <div id="fw-log"></div>
+
+  <div class="info-box" style="margin-top:12px;">
+    <strong>Cách đọc kết quả:</strong> Engine duyệt rule từ #1 xuống. Gói khớp rule đầu tiên thì thực hiện action ngay, không kiểm tra rule tiếp theo. Rule cuối thường là <span class="badge-deny">DENY any</span> (implicit deny).
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — NETWORK DIAGRAM WITH DMZ
+     ═══════════════════════════════════════════════════════════ -->
+<h2>2. Sơ đồ mạng — DMZ và phân vùng</h2>
+<div class="card">
+  <p>Click vào các nút bấm để xem luồng traffic qua sơ đồ mạng — từ internet vào web server (DMZ), và từ DMZ vào database (internal).</p>
+
+  <div class="net-btn-row">
+    <button class="net-btn active" style="border-color:#0369a1;color:#0369a1;" onclick="netShow('internet-web')" id="nbtn-internet-web">Internet → Web (ALLOW)</button>
+    <button class="net-btn" style="border-color:#dc2626;color:#dc2626;" onclick="netShow('internet-db')" id="nbtn-internet-db">Internet → DB (DENY)</button>
+    <button class="net-btn" style="border-color:#7c3aed;color:#7c3aed;" onclick="netShow('web-db')" id="nbtn-web-db">Web → DB (ALLOW)</button>
+    <button class="net-btn" style="border-color:#d97706;color:#d97706;" onclick="netShow('attacker')" id="nbtn-attacker">Kẻ tấn công</button>
+  </div>
+
+  <div id="net-stage">
+    <svg id="net-svg" width="600" height="380" viewBox="0 0 600 380">
+      <defs>
+        <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0369a1"/>
+        </marker>
+        <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+        </marker>
+        <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/>
+        </marker>
+        <marker id="arr-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/>
+        </marker>
+        <marker id="arr-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#d97706"/>
+        </marker>
+      </defs>
+
+      <!-- ── Zones ── -->
+      <!-- Internet zone -->
+      <rect x="10" y="30" width="110" height="310" rx="10" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
+      <text x="65" y="50" text-anchor="middle" font-size="11" font-weight="700" fill="#991b1b">INTERNET</text>
+
+      <!-- Firewall ngoài -->
+      <rect x="138" y="100" width="44" height="140" rx="8" fill="#1e293b" stroke="#0369a1" stroke-width="2"/>
+      <text x="160" y="130" text-anchor="middle" font-size="9" fill="#94a3b8">FW</text>
+      <text x="160" y="144" text-anchor="middle" font-size="9" fill="#94a3b8">ngoài</text>
+      <!-- Rule labels on outer FW -->
+      <text x="160" y="168" text-anchor="middle" font-size="8" fill="#4ade80">80✓</text>
+      <text x="160" y="180" text-anchor="middle" font-size="8" fill="#4ade80">443✓</text>
+      <text x="160" y="192" text-anchor="middle" font-size="8" fill="#f87171">DB✗</text>
+      <text x="160" y="204" text-anchor="middle" font-size="8" fill="#f87171">INT✗</text>
+
+      <!-- DMZ zone -->
+      <rect x="198" y="30" width="120" height="310" rx="10" fill="#fffbeb" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="258" y="50" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">DMZ</text>
+      <!-- Web server -->
+      <rect x="213" y="70" width="90" height="50" rx="6" fill="#0369a1"/>
+      <text x="258" y="90" text-anchor="middle" font-size="11" font-weight="700" fill="white">Web Server</text>
+      <text x="258" y="106" text-anchor="middle" font-size="10" fill="#bae6fd">10.0.1.10</text>
+      <!-- Mail server -->
+      <rect x="213" y="145" width="90" height="50" rx="6" fill="#0369a1" fill-opacity=".75"/>
+      <text x="258" y="165" text-anchor="middle" font-size="11" font-weight="700" fill="white">Mail Server</text>
+      <text x="258" y="181" text-anchor="middle" font-size="10" fill="#bae6fd">10.0.1.20</text>
+      <!-- DNS server -->
+      <rect x="213" y="220" width="90" height="50" rx="6" fill="#0369a1" fill-opacity=".6"/>
+      <text x="258" y="240" text-anchor="middle" font-size="11" font-weight="700" fill="white">DNS Server</text>
+      <text x="258" y="256" text-anchor="middle" font-size="10" fill="#bae6fd">10.0.1.30</text>
+
+      <!-- Firewall trong -->
+      <rect x="334" y="100" width="44" height="140" rx="8" fill="#1e293b" stroke="#7c3aed" stroke-width="2"/>
+      <text x="356" y="130" text-anchor="middle" font-size="9" fill="#94a3b8">FW</text>
+      <text x="356" y="144" text-anchor="middle" font-size="9" fill="#94a3b8">trong</text>
+      <text x="356" y="168" text-anchor="middle" font-size="8" fill="#4ade80">5432✓</text>
+      <text x="356" y="180" text-anchor="middle" font-size="8" fill="#f87171">DEF✗</text>
+
+      <!-- Internal zone -->
+      <rect x="394" y="30" width="190" height="310" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+      <text x="489" y="50" text-anchor="middle" font-size="11" font-weight="700" fill="#166534">INTERNAL</text>
+      <!-- DB server -->
+      <rect x="410" y="70" width="158" height="50" rx="6" fill="#166534"/>
+      <text x="489" y="90" text-anchor="middle" font-size="11" font-weight="700" fill="white">Database Server</text>
+      <text x="489" y="106" text-anchor="middle" font-size="10" fill="#bbf7d0">10.0.2.10</text>
+      <!-- App server -->
+      <rect x="410" y="145" width="158" height="50" rx="6" fill="#15803d" fill-opacity=".8"/>
+      <text x="489" y="165" text-anchor="middle" font-size="11" font-weight="700" fill="white">App Server</text>
+      <text x="489" y="181" text-anchor="middle" font-size="10" fill="#bbf7d0">10.0.2.20</text>
+      <!-- Workstations -->
+      <rect x="410" y="220" width="158" height="50" rx="6" fill="#14532d" fill-opacity=".7"/>
+      <text x="489" y="240" text-anchor="middle" font-size="11" font-weight="700" fill="white">Workstations</text>
+      <text x="489" y="256" text-anchor="middle" font-size="10" fill="#bbf7d0">10.0.2.100-200</text>
+
+      <!-- ── Static connections ── -->
+      <line x1="120" y1="95" x2="138" y2="120" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="182" y1="170" x2="198" y2="170" stroke="#94a3b8" stroke-width="1.5"/>
+      <line x1="318" y1="170" x2="334" y2="170" stroke="#94a3b8" stroke-width="1.5"/>
+      <line x1="378" y1="170" x2="394" y2="170" stroke="#94a3b8" stroke-width="1.5"/>
+
+      <!-- Internet actors -->
+      <!-- User -->
+      <circle cx="55" cy="100" r="14" fill="#3b82f6"/>
+      <text x="55" y="104" text-anchor="middle" font-size="11" fill="white" font-weight="700">U</text>
+      <text x="55" y="122" text-anchor="middle" font-size="9" fill="#475569">User</text>
+      <!-- Attacker -->
+      <circle cx="55" cy="190" r="14" fill="#dc2626"/>
+      <text x="55" y="194" text-anchor="middle" font-size="11" fill="white" font-weight="700">A</text>
+      <text x="55" y="212" text-anchor="middle" font-size="9" fill="#475569">Attacker</text>
+      <!-- ISP/Router -->
+      <rect x="20" y="270" width="90" height="30" rx="5" fill="#475569"/>
+      <text x="65" y="290" text-anchor="middle" font-size="10" fill="white">ISP Router</text>
+
+      <!-- ── Dynamic traffic arrows (injected by JS) ── -->
+      <g id="traffic-layer"></g>
+
+      <!-- Labels zone boundaries -->
+      <text x="65" y="360" text-anchor="middle" font-size="9" fill="#94a3b8">Không tin cậy</text>
+      <text x="258" y="360" text-anchor="middle" font-size="9" fill="#92400e">Bán tin cậy</text>
+      <text x="489" y="360" text-anchor="middle" font-size="9" fill="#166534">Tin cậy cao</text>
+    </svg>
+  </div>
+
+  <div id="net-desc">
+    Click nút phía trên để xem luồng traffic và giải thích.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — VPN TUNNEL VISUALIZATION
+     ═══════════════════════════════════════════════════════════ -->
+<h2>3. Minh họa đường hầm VPN mã hóa</h2>
+<div class="card">
+  <p>Chọn chế độ VPN và bấm <strong>Gửi gói tin</strong> để xem quá trình đóng gói, mã hóa, và giải mã trong tunnel VPN.</p>
+
+  <div class="vpn-controls">
+    <button class="vpn-mode-btn active" id="vpn-btn-site" onclick="vpnSetMode('site-to-site')">Site-to-Site</button>
+    <button class="vpn-mode-btn" id="vpn-btn-remote" onclick="vpnSetMode('remote-access')">Remote Access</button>
+    <button class="btn btn-primary" onclick="vpnSendPacket()" style="margin-left:auto;">Gửi gói tin</button>
+    <button class="btn btn-secondary" onclick="vpnReset()">Đặt lại</button>
+  </div>
+
+  <div id="vpn-stage">
+    <svg id="vpn-svg" width="600" height="300" viewBox="0 0 600 300">
+      <defs>
+        <marker id="vpn-arr-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/>
+        </marker>
+        <marker id="vpn-arr-gray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/>
+        </marker>
+        <marker id="vpn-arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+        </marker>
+      </defs>
+
+      <!-- Static background -->
+      <!-- Left network -->
+      <rect x="10" y="60" width="140" height="180" rx="10" fill="#f0f9ff" stroke="#38bdf8" stroke-width="1.5"/>
+      <text id="vpn-left-label" x="80" y="82" text-anchor="middle" font-size="11" font-weight="700" fill="#0c4a6e">Văn phòng HN</text>
+      <text id="vpn-left-sub"   x="80" y="96" text-anchor="middle" font-size="9"  fill="#475569">10.1.0.0/16</text>
+
+      <!-- Left VPN gateway -->
+      <rect x="140" y="110" width="50" height="80" rx="8" fill="#1e293b" stroke="#7c3aed" stroke-width="2"/>
+      <text x="165" y="140" text-anchor="middle" font-size="9" fill="#c4b5fd">VPN</text>
+      <text x="165" y="154" text-anchor="middle" font-size="9" fill="#c4b5fd">GW</text>
+      <text x="165" y="170" text-anchor="middle" font-size="8" fill="#7c3aed">ENCRYPT</text>
+
+      <!-- Internet zone -->
+      <rect x="200" y="20" width="200" height="260" rx="10" fill="#1e293b" fill-opacity=".04" stroke="#94a3b8" stroke-width="1" stroke-dasharray="6,3"/>
+      <text x="300" y="44" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">INTERNET (Không tin cậy)</text>
+
+      <!-- Right VPN gateway -->
+      <rect x="410" y="110" width="50" height="80" rx="8" fill="#1e293b" stroke="#7c3aed" stroke-width="2"/>
+      <text x="435" y="140" text-anchor="middle" font-size="9" fill="#c4b5fd">VPN</text>
+      <text x="435" y="154" text-anchor="middle" font-size="9" fill="#c4b5fd">GW</text>
+      <text x="435" y="170" text-anchor="middle" font-size="8" fill="#7c3aed">DECRYPT</text>
+
+      <!-- Right network -->
+      <rect x="450" y="60" width="140" height="180" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+      <text id="vpn-right-label" x="520" y="82"  text-anchor="middle" font-size="11" font-weight="700" fill="#166534">Trụ sở HCM</text>
+      <text id="vpn-right-sub"   x="520" y="96"  text-anchor="middle" font-size="9"  fill="#475569">10.2.0.0/16</text>
+
+      <!-- Client/server inside networks -->
+      <!-- Left: host -->
+      <rect x="25" y="130" width="105" height="40" rx="6" fill="#0369a1"/>
+      <text id="vpn-left-host" x="77" y="148" text-anchor="middle" font-size="11" font-weight="700" fill="white">Host nội bộ</text>
+      <text id="vpn-left-hostip" x="77" y="162" text-anchor="middle" font-size="9" fill="#bae6fd">10.1.0.50</text>
+
+      <!-- Right: server -->
+      <rect x="465" y="130" width="115" height="40" rx="6" fill="#166534"/>
+      <text id="vpn-right-host" x="522" y="148" text-anchor="middle" font-size="11" font-weight="700" fill="white">Server nội bộ</text>
+      <text id="vpn-right-hostip" x="522" y="162" text-anchor="middle" font-size="9" fill="#bbf7d0">10.2.0.30</text>
+
+      <!-- Tunnel indicator (static dashed line) -->
+      <line x1="190" y1="150" x2="410" y2="150" stroke="#7c3aed" stroke-width="1" stroke-dasharray="6,4" opacity=".4"/>
+      <text x="300" y="145" text-anchor="middle" font-size="10" fill="#7c3aed" opacity=".6">Tunnel mã hóa</text>
+
+      <!-- Eavesdropper in internet -->
+      <circle cx="300" cy="200" r="22" fill="#dc2626" fill-opacity=".9"/>
+      <text x="300" y="197" text-anchor="middle" font-size="10" font-weight="700" fill="white">Nghe</text>
+      <text x="300" y="210" text-anchor="middle" font-size="10" fill="white">lén</text>
+      <text id="eav-label" x="300" y="240" text-anchor="middle" font-size="9" fill="#dc2626" font-weight="700"></text>
+
+      <!-- Packet animation layer -->
+      <g id="vpn-pkt-layer"></g>
+
+      <!-- Packet state boxes -->
+      <!-- Box left -->
+      <rect x="25" y="195" width="105" height="50" rx="5" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+      <text id="vpn-box-left-title" x="77" y="214" text-anchor="middle" font-size="9" font-weight="700" fill="#475569">Gói gốc (plaintext)</text>
+      <text id="vpn-box-left-1" x="77" y="226" text-anchor="middle" font-size="8" fill="#0369a1" font-family="monospace">src: 10.1.0.50</text>
+      <text id="vpn-box-left-2" x="77" y="238" text-anchor="middle" font-size="8" fill="#0369a1" font-family="monospace">dst: 10.2.0.30</text>
+
+      <!-- Box internet (encrypted) -->
+      <rect x="210" y="255" width="180" height="35" rx="5" fill="#1e293b" stroke="#7c3aed" stroke-width="1"/>
+      <text id="vpn-box-mid-1" x="300" y="270" text-anchor="middle" font-size="8" fill="#c4b5fd" font-family="monospace">██████████████████</text>
+      <text id="vpn-box-mid-2" x="300" y="282" text-anchor="middle" font-size="8" fill="#c4b5fd" font-family="monospace">Gói đã mã hóa (IPsec/WG)</text>
+
+      <!-- Box right -->
+      <rect x="465" y="195" width="115" height="50" rx="5" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+      <text id="vpn-box-right-title" x="522" y="214" text-anchor="middle" font-size="9" font-weight="700" fill="#166534">Sau giải mã (plaintext)</text>
+      <text id="vpn-box-right-1" x="522" y="226" text-anchor="middle" font-size="8" fill="#166534" font-family="monospace">src: 10.1.0.50</text>
+      <text id="vpn-box-right-2" x="522" y="238" text-anchor="middle" font-size="8" fill="#166534" font-family="monospace">dst: 10.2.0.30</text>
+    </svg>
+  </div>
+
+  <div id="vpn-desc">
+    Chọn chế độ VPN và bấm <strong>Gửi gói tin</strong> để bắt đầu mô phỏng.
+  </div>
+
+  <div class="info-box" style="margin-top:12px;">
+    <strong>Tại sao kẻ nghe lén không đọc được?</strong> Trong tunnel, gói IP gốc được mã hóa
+    (AES-256 với IPsec, ChaCha20 với WireGuard) — dữ liệu trở thành chuỗi byte ngẫu nhiên.
+    Kẻ nghe lén trên đường truyền chỉ thấy <em>outer IP header</em> (địa chỉ hai VPN gateway)
+    và chuỗi bytes không có nghĩa. Khóa giải mã chỉ tồn tại tại 2 đầu tunnel.
+  </div>
+</div>
+
+<!-- JAVASCRIPT -->
+<script>
+// ════════════════════════════════════════════════════════════
+// MODULE 1: FIREWALL RULE ENGINE
+// ════════════════════════════════════════════════════════════
+
+// Default ruleset
+let rules = [
+  { src: '10.0.0.0/8',    dst: 'any',          dport: '80',  proto: 'TCP',  action: 'ALLOW' },
+  { src: '10.0.0.0/8',    dst: 'any',          dport: '443', proto: 'TCP',  action: 'ALLOW' },
+  { src: '10.0.2.0/24',   dst: 'any',          dport: '22',  proto: 'TCP',  action: 'ALLOW' },
+  { src: '10.0.5.0/24',   dst: 'any',          dport: 'any', proto: 'any',  action: 'DENY'  },
+  { src: 'any',           dst: '10.0.1.100',   dport: '22',  proto: 'TCP',  action: 'ALLOW' },
+  { src: 'any',           dst: 'any',          dport: 'any', proto: 'any',  action: 'DENY'  },
+];
+
+const PRESETS = {
+  web: [
+    { src:'any',          dst:'10.0.1.10', dport:'80',  proto:'TCP', action:'ALLOW' },
+    { src:'any',          dst:'10.0.1.10', dport:'443', proto:'TCP', action:'ALLOW' },
+    { src:'10.0.2.0/24',  dst:'any',       dport:'22',  proto:'TCP', action:'ALLOW' },
+    { src:'any',          dst:'any',       dport:'any', proto:'any', action:'DENY'  },
+  ],
+  dmz: [
+    { src:'any',         dst:'10.0.1.10', dport:'80',   proto:'TCP', action:'ALLOW' },
+    { src:'any',         dst:'10.0.1.10', dport:'443',  proto:'TCP', action:'ALLOW' },
+    { src:'any',         dst:'10.0.1.20', dport:'25',   proto:'TCP', action:'ALLOW' },
+    { src:'any',         dst:'10.0.2.0/24', dport:'any',proto:'any', action:'DENY'  },
+    { src:'10.0.1.10',   dst:'10.0.2.10', dport:'5432', proto:'TCP', action:'ALLOW' },
+    { src:'10.0.1.0/24', dst:'any',       dport:'any',  proto:'any', action:'DENY'  },
+    { src:'any',         dst:'any',       dport:'any',  proto:'any', action:'DENY'  },
+  ],
+  strict: [
+    { src:'10.0.100.0/24', dst:'any',     dport:'22',  proto:'TCP', action:'ALLOW' },
+    { src:'10.0.0.0/8',   dst:'10.0.1.5', dport:'80',  proto:'TCP', action:'ALLOW' },
+    { src:'10.0.0.0/8',   dst:'10.0.1.5', dport:'443', proto:'TCP', action:'ALLOW' },
+    { src:'any',          dst:'any',      dport:'any', proto:'any', action:'DENY'  },
+  ],
+};
+
+function loadPreset(name) {
+  rules = PRESETS[name].map(r => ({...r}));
+  renderRules();
+  renderEditor();
+  resetHighlight();
+}
+
+function toggleEditor() {
+  const ed = document.getElementById('rule-editor');
+  const visible = ed.style.display !== 'none';
+  ed.style.display = visible ? 'none' : 'block';
+  if (!visible) renderEditor();
+}
+
+function renderEditor() {
+  const container = document.getElementById('editor-rows');
+  container.innerHTML = '';
+  rules.forEach((r, i) => {
+    const row = document.createElement('div');
+    row.className = 'rule-edit-row';
+    row.innerHTML = `
+      <span class="re-num">${i+1}</span>
+      <input value="${r.src}"    onchange="updateRule(${i},'src',this.value)"    placeholder="src">
+      <input value="${r.dst}"    onchange="updateRule(${i},'dst',this.value)"    placeholder="dst">
+      <input value="${r.dport}"  onchange="updateRule(${i},'dport',this.value)"  placeholder="port" class="re-port">
+      <select onchange="updateRule(${i},'proto',this.value)" class="re-proto">
+        ${['TCP','UDP','ICMP','any'].map(p=>`<option${r.proto===p?' selected':''}>${p}</option>`).join('')}
+      </select>
+      <select onchange="updateRule(${i},'action',this.value)">
+        <option${r.action==='ALLOW'?' selected':''}>ALLOW</option>
+        <option${r.action==='DENY'?' selected':''}>DENY</option>
+      </select>
+      <button class="rule-del-btn" onclick="deleteRule(${i})">Xóa</button>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function updateRule(i, field, val) {
+  rules[i][field] = val.trim();
+  renderRules();
+}
+
+function deleteRule(i) {
+  rules.splice(i, 1);
+  renderRules();
+  renderEditor();
+}
+
+function addRule() {
+  rules.push({ src:'any', dst:'any', dport:'any', proto:'any', action:'DENY' });
+  renderRules();
+  renderEditor();
+}
+
+function renderRules(highlightIdx, matchType) {
+  const tbody = document.getElementById('rule-tbody');
+  tbody.innerHTML = '';
+  rules.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    if (highlightIdx !== undefined) {
+      if (i === highlightIdx) {
+        tr.className = matchType === 'allow' ? 'rule-match' : 'rule-deny-match';
+      } else if (i < highlightIdx) {
+        tr.className = 'rule-checked';
+      }
+    }
+    tr.innerHTML = `
+      <td class="rule-num">${i+1}</td>
+      <td>${r.src}</td>
+      <td>${r.dst}</td>
+      <td>${r.dport}</td>
+      <td>${r.proto}</td>
+      <td><span class="badge-${r.action.toLowerCase()}">${r.action}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// IP matching helpers
+function ipToNum(ip) {
+  return ip.split('.').reduce((acc, b) => (acc << 8) | parseInt(b), 0) >>> 0;
+}
+
+function ipInSubnet(ip, subnet) {
+  if (subnet === 'any') return true;
+  if (!subnet.includes('/')) return ip === subnet;
+  const [net, bits] = subnet.split('/');
+  const mask = bits === '0' ? 0 : (~0 << (32 - parseInt(bits))) >>> 0;
+  return (ipToNum(ip) & mask) === (ipToNum(net) & mask);
+}
+
+function matchRule(rule, pkt) {
+  const srcOk   = ipInSubnet(pkt.src, rule.src);
+  const dstOk   = ipInSubnet(pkt.dst, rule.dst);
+  const portOk  = rule.dport === 'any' || String(pkt.dport) === String(rule.dport);
+  const protoOk = rule.proto === 'any' || rule.proto === pkt.proto;
+  return srcOk && dstOk && portOk && protoOk;
+}
+
+function runEngine() {
+  const pkt = {
+    src:   document.getElementById('pkt-src').value.trim(),
+    dst:   document.getElementById('pkt-dst').value.trim(),
+    dport: document.getElementById('pkt-dport').value.trim(),
+    proto: document.getElementById('pkt-proto').value,
+  };
+
+  const log = document.getElementById('fw-log');
+  const result = document.getElementById('fw-result');
+  log.style.display = 'block';
+  result.style.display = 'block';
+  log.innerHTML = '';
+
+  const logLine = (txt, cls) => {
+    log.innerHTML += `<span class="${cls||''}">${txt}</span>\n`;
+    log.scrollTop = log.scrollHeight;
+  };
+
+  logLine(`[Engine] Goi tin: src=${pkt.src}  dst=${pkt.dst}  dport=${pkt.dport}  proto=${pkt.proto}`, 'check');
+  logLine(`[Engine] Bat dau duyet ${rules.length} rules...`, 'check');
+
+  let matchIdx = -1;
+  let decision = 'DENY';
+  let matchAction = 'DENY';
+
+  for (let i = 0; i < rules.length; i++) {
+    const r = rules[i];
+    const matched = matchRule(r, pkt);
+    if (matched) {
+      logLine(`  Rule ${i+1}: src=${r.src} dst=${r.dst} dport=${r.dport} proto=${r.proto} → KHOP → ${r.action}`, r.action === 'ALLOW' ? 'match' : 'blocked');
+      matchIdx = i;
+      decision = r.action;
+      matchAction = r.action.toLowerCase();
+      break;
+    } else {
+      logLine(`  Rule ${i+1}: src=${r.src} dst=${r.dst} dport=${r.dport} proto=${r.proto} → khong khop`, 'nomatch');
+    }
+  }
+
+  if (matchIdx === -1) {
+    logLine(`[Engine] Khong co rule khop → Implicit DENY`, 'blocked');
+    decision = 'DENY';
+    matchAction = 'deny';
+  }
+
+  renderRules(matchIdx, matchAction);
+
+  if (decision === 'ALLOW') {
+    result.className = 'allow';
+    result.innerHTML = `ALLOW — Goi tin duoc phep qua. Khop voi Rule ${matchIdx+1}.`;
+  } else {
+    result.className = 'deny';
+    result.innerHTML = `DENY — Goi tin bi chan${matchIdx>=0 ? ` boi Rule ${matchIdx+1}` : ' (implicit deny)' }.`;
+  }
+}
+
+function resetHighlight() {
+  renderRules();
+  document.getElementById('fw-result').style.display = 'none';
+  document.getElementById('fw-log').style.display = 'none';
+}
+
+// Initialize
+renderRules();
+
+
+// ════════════════════════════════════════════════════════════
+// MODULE 2: NETWORK DIAGRAM
+// ════════════════════════════════════════════════════════════
+
+const NET_SCENARIOS = {
+  'internet-web': {
+    label: 'Internet → Web',
+    steps: [
+      { x1: 55, y1: 100, x2: 138, y2: 120, color: '#0369a1', label: 'HTTPS :443' },
+      { x1: 182, y1: 130, x2: 213, y2: 95, color: '#16a34a', label: 'ALLOW :443' },
+    ],
+    desc: `<strong>Internet → Web Server (ALLOW)</strong><br>
+    Gói HTTPS (TCP port 443) từ người dùng internet:<br>
+    1. Đến external firewall: rule "ALLOW src=any dst=10.0.1.10 dport=443 TCP" khớp → cho qua.<br>
+    2. Vào Web Server ở DMZ (10.0.1.10). Web server xử lý request, tra cứu database qua internal firewall.<br>
+    <em>Firewall ngoài không chặn vì đây là traffic hợp lệ theo ruleset.</em>`
+  },
+  'internet-db': {
+    label: 'Internet → DB (DENY)',
+    steps: [
+      { x1: 55, y1: 100, x2: 138, y2: 120, color: '#dc2626', label: ':5432 (DB)' },
+      { x1: 165, y1: 120, x2: 165, y2: 100, color: '#dc2626', label: 'DENY!', bounce: true },
+    ],
+    desc: `<strong>Internet → Database Server (DENY)</strong><br>
+    Kẻ tấn công cố truy cập thẳng vào PostgreSQL (TCP port 5432) trên DB server:<br>
+    1. Gói đến external firewall.<br>
+    2. Kiểm tra ruleset: không có rule ALLOW cho dport=5432 từ internet. Rule cuối "DENY any" khớp → <strong>DROP</strong>.<br>
+    3. Gói bị hủy, không đến được DMZ hay Internal.<br>
+    <em>Database không bao giờ được phép tiếp nhận kết nối trực tiếp từ internet — đây là nguyên tắc cơ bản.</em>`
+  },
+  'web-db': {
+    label: 'Web → DB (ALLOW)',
+    steps: [
+      { x1: 258, y1: 120, x2: 334, y2: 130, color: '#7c3aed', label: 'SQL :5432' },
+      { x1: 378, y1: 120, x2: 410, y2: 95, color: '#16a34a', label: 'ALLOW :5432' },
+    ],
+    desc: `<strong>Web Server → Database (ALLOW qua internal firewall)</strong><br>
+    Web server (10.0.1.10 ở DMZ) cần truy vấn dữ liệu từ DB server (10.0.2.10 ở Internal):<br>
+    1. Gói PostgreSQL (TCP port 5432) từ 10.0.1.10 đến internal firewall.<br>
+    2. Rule "ALLOW src=10.0.1.10 dst=10.0.2.10 dport=5432 TCP" khớp → cho qua.<br>
+    3. DB server nhận kết nối, trả về dữ liệu.<br>
+    <em>Đây là ví dụ Least Privilege: web server chỉ kết nối được đến đúng DB server trên đúng port, không hơn.</em>`
+  },
+  'attacker': {
+    label: 'Kẻ tấn công',
+    steps: [
+      { x1: 55, y1: 190, x2: 138, y2: 160, color: '#d97706', label: 'Probe many ports' },
+      { x1: 165, y1: 155, x2: 165, y2: 135, color: '#dc2626', label: 'DENY!', bounce: true },
+    ],
+    desc: `<strong>Kẻ tấn công từ internet — bị chặn bởi firewall</strong><br>
+    Kẻ tấn công (203.0.113.50) thử quét nhiều cổng (port scan) vào mạng:<br>
+    1. Thử kết nối port 22 (SSH), 3306 (MySQL), 5432 (PostgreSQL), 3389 (RDP)...<br>
+    2. External firewall kiểm tra: không có rule ALLOW nào cho các port này từ src đó.<br>
+    3. Rule implicit DENY khớp → tất cả bị DROP im lặng (không gửi TCP RST, tránh lộ thông tin).<br>
+    4. Kẻ tấn công nhận timeout, không biết server có tồn tại hay không.<br>
+    <em>Dropping im lặng (silently drop) tốt hơn gửi RST vì không lộ thông tin về cấu trúc mạng.</em>`
+  },
+};
+
+let netCurrentScenario = 'internet-web';
+let netAnimTimer = null;
+
+function netShow(scenario) {
+  netCurrentScenario = scenario;
+  // Update button states
+  document.querySelectorAll('.net-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('nbtn-' + scenario).classList.add('active');
+  // Update description
+  document.getElementById('net-desc').innerHTML = NET_SCENARIOS[scenario].desc;
+  // Draw traffic
+  drawNetTraffic(scenario);
+}
+
+function drawNetTraffic(scenario) {
+  if (netAnimTimer) clearTimeout(netAnimTimer);
+  const layer = document.getElementById('traffic-layer');
+  layer.innerHTML = '';
+  const s = NET_SCENARIOS[scenario];
+  s.steps.forEach((step, i) => {
+    netAnimTimer = setTimeout(() => {
+      drawArrowAnimated(layer, step, i);
+    }, i * 700);
+  });
+}
+
+function drawArrowAnimated(container, step, idx) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const markId = `net-mark-${idx}-${Date.now()}`;
+
+  const defs = document.getElementById('net-svg').querySelector('defs');
+  const marker = document.createElementNS(ns, 'marker');
+  marker.setAttribute('id', markId);
+  marker.setAttribute('markerWidth','8'); marker.setAttribute('markerHeight','8');
+  marker.setAttribute('refX','6'); marker.setAttribute('refY','3'); marker.setAttribute('orient','auto');
+  const mp = document.createElementNS(ns, 'path');
+  mp.setAttribute('d', 'M0,0 L0,6 L8,3 z'); mp.setAttribute('fill', step.color);
+  marker.appendChild(mp); defs.appendChild(marker);
+
+  const g = document.createElementNS(ns, 'g');
+  g.style.opacity = '0'; g.style.transition = 'opacity .3s';
+
+  // Arrow line
+  const line = document.createElementNS(ns, 'line');
+  line.setAttribute('x1', step.x1); line.setAttribute('y1', step.y1);
+  line.setAttribute('x2', step.x2); line.setAttribute('y2', step.y2);
+  line.setAttribute('stroke', step.color); line.setAttribute('stroke-width', '2.5');
+  line.setAttribute('marker-end', `url(#${markId})`);
+  if (step.bounce) {
+    line.setAttribute('stroke-dasharray', '5,3');
+  }
+  g.appendChild(line);
+
+  // Label
+  const midX = (step.x1 + step.x2) / 2;
+  const midY = (step.y1 + step.y2) / 2;
+  const txtW = step.label.length * 6.5 + 14;
+  const bg = document.createElementNS(ns, 'rect');
+  bg.setAttribute('x', midX - txtW/2); bg.setAttribute('y', midY - 13);
+  bg.setAttribute('width', txtW); bg.setAttribute('height', 16);
+  bg.setAttribute('rx', '4'); bg.setAttribute('fill', 'white'); bg.setAttribute('fill-opacity', '.92');
+  g.appendChild(bg);
+
+  const txt = document.createElementNS(ns, 'text');
+  txt.setAttribute('x', midX); txt.setAttribute('y', midY);
+  txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('font-size', '10');
+  txt.setAttribute('font-weight', '700'); txt.setAttribute('fill', step.color);
+  txt.textContent = step.label;
+  g.appendChild(txt);
+
+  container.appendChild(g);
+  requestAnimationFrame(() => { g.style.opacity = '1'; });
+}
+
+// Initial render
+netShow('internet-web');
+
+
+// ════════════════════════════════════════════════════════════
+// MODULE 3: VPN TUNNEL
+// ════════════════════════════════════════════════════════════
+
+let vpnMode = 'site-to-site';
+let vpnAnimRunning = false;
+let vpnTimers = [];
+
+function vpnSetMode(mode) {
+  vpnMode = mode;
+  document.getElementById('vpn-btn-site').classList.toggle('active', mode === 'site-to-site');
+  document.getElementById('vpn-btn-remote').classList.toggle('active', mode === 'remote-access');
+  vpnReset();
+
+  const isSite = mode === 'site-to-site';
+  document.getElementById('vpn-left-label').textContent  = isSite ? 'Văn phòng HN' : 'Laptop WFH';
+  document.getElementById('vpn-left-sub').textContent    = isSite ? '10.1.0.0/16' : '192.168.1.x';
+  document.getElementById('vpn-left-host').textContent   = isSite ? 'Host nội bộ' : 'Nhân viên';
+  document.getElementById('vpn-left-hostip').textContent = isSite ? '10.1.0.50' : '192.168.1.100';
+  document.getElementById('vpn-right-label').textContent = 'Mạng công ty';
+  document.getElementById('vpn-right-sub').textContent   = isSite ? '10.2.0.0/16' : '10.0.0.0/8';
+  document.getElementById('vpn-box-left-1').textContent  = `src: ${isSite ? '10.1.0.50' : '192.168.1.100'}`;
+  document.getElementById('vpn-box-right-1').textContent = `src: ${isSite ? '10.1.0.50' : '192.168.1.100'}`;
+
+  const desc = isSite
+    ? '<strong>Site-to-Site VPN</strong> — Hai VPN gateway tự động thiết lập tunnel. Toàn bộ traffic giữa 2 mạng đi qua tunnel mà nhân viên không cần làm gì. Dùng IPsec IKEv2 hoặc WireGuard.'
+    : '<strong>Remote Access VPN</strong> — Nhân viên từ xa chạy VPN client (WireGuard/OpenVPN). Sau khi xác thực, laptop được cấp IP thuộc mạng công ty và truy cập tài nguyên nội bộ như khi ở văn phòng.';
+  document.getElementById('vpn-desc').innerHTML = desc;
+}
+
+function vpnReset() {
+  vpnTimers.forEach(t => clearTimeout(t));
+  vpnTimers = [];
+  vpnAnimRunning = false;
+  document.getElementById('vpn-pkt-layer').innerHTML = '';
+  document.getElementById('eav-label').textContent = '';
+}
+
+function vpnSendPacket() {
+  if (vpnAnimRunning) return;
+  vpnReset();
+  vpnAnimRunning = true;
+
+  const ns = 'http://www.w3.org/2000/svg';
+  const layer = document.getElementById('vpn-pkt-layer');
+
+  // Create packet element
+  const isSite = vpnMode === 'site-to-site';
+  const srcLabel = isSite ? '10.1.0.50→10.2.0.30' : '192.168.1.100→10.0.1.50';
+
+  function mkPkt(x, y, color, label, opacity) {
+    const g = document.createElementNS(ns, 'g');
+    const r = document.createElementNS(ns, 'rect');
+    const w = 90, h = 22;
+    r.setAttribute('x', x - w/2); r.setAttribute('y', y - h/2);
+    r.setAttribute('width', w); r.setAttribute('height', h);
+    r.setAttribute('rx', '5'); r.setAttribute('fill', color); r.setAttribute('opacity', opacity || '1');
+    const t = document.createElementNS(ns, 'text');
+    t.setAttribute('x', x); t.setAttribute('y', y + 4);
+    t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', '9');
+    t.setAttribute('fill', 'white'); t.setAttribute('font-family', 'monospace');
+    t.textContent = label;
+    g.appendChild(r); g.appendChild(t);
+    g.style.opacity = '0'; g.style.transition = 'opacity .3s';
+    layer.appendChild(g);
+    return g;
+  }
+
+  // Phase 1: plaintext packet at source (t=0)
+  const pkt1 = mkPkt(77, 150, '#0369a1', srcLabel);
+  vpnTimers.push(setTimeout(() => { pkt1.style.opacity = '1'; }, 0));
+
+  // Phase 2: reaches left VPN GW, gets encrypted (t=800)
+  vpnTimers.push(setTimeout(() => {
+    pkt1.style.opacity = '0';
+    const pkt2 = mkPkt(165, 150, '#7c3aed', 'Mã hóa...');
+    pkt2.style.opacity = '1';
+    document.getElementById('vpn-desc').innerHTML =
+      '<strong>Bước 1 — Mã hóa tại VPN Gateway nguồn</strong><br>' +
+      `Gói IP gốc (${srcLabel}) được bọc trong outer IP header mới (src=VPN_GW_1, dst=VPN_GW_2) và mã hóa toàn bộ payload bằng ${isSite ? 'AES-256-GCM (IPsec)' : 'ChaCha20-Poly1305 (WireGuard)'}. Kẻ nghe lén trên đường không thể đọc nội dung.`;
+    vpnTimers.push(setTimeout(() => {
+      pkt2.style.opacity = '0';
+
+      // Phase 3: encrypted packet travels internet (t=1600)
+      const pkt3 = mkPkt(300, 150, '#1e293b', '████ ENCRYPTED ████');
+      pkt3.style.opacity = '1';
+      document.getElementById('eav-label').textContent = '??? (không đọc được)';
+      document.getElementById('vpn-desc').innerHTML =
+        '<strong>Bước 2 — Truyền qua internet (dạng mã hóa)</strong><br>' +
+        'Gói đã mã hóa đi qua các router internet. Kẻ nghe lén chỉ thấy outer IP header (địa chỉ 2 VPN gateway) và một chuỗi byte không có nghĩa. <span style="color:#dc2626;">Không thể giải mã nếu không có khóa bí mật.</span>';
+
+      vpnTimers.push(setTimeout(() => {
+        pkt3.style.opacity = '0';
+        document.getElementById('eav-label').textContent = '';
+
+        // Phase 4: reaches right VPN GW, decrypted
+        const pkt4 = mkPkt(435, 150, '#7c3aed', 'Giải mã...');
+        pkt4.style.opacity = '1';
+        document.getElementById('vpn-desc').innerHTML =
+          '<strong>Bước 3 — Giải mã tại VPN Gateway đích</strong><br>' +
+          'VPN Gateway đích dùng khóa chia sẻ (negotiated qua IKE/WireGuard handshake) để giải mã. Gói IP gốc được phục hồi hoàn toàn — đúng như khi rời nguồn.';
+
+        vpnTimers.push(setTimeout(() => {
+          pkt4.style.opacity = '0';
+
+          // Phase 5: plaintext at destination
+          const pkt5 = mkPkt(522, 150, '#166534', srcLabel);
+          pkt5.style.opacity = '1';
+          document.getElementById('vpn-desc').innerHTML =
+            '<strong>Bước 4 — Gói tin đến đích (plaintext)</strong><br>' +
+            'Server nhận được gói tin gốc — y hệt như khi được gửi đi. Từ góc nhìn của ứng dụng, 2 host trong cùng một mạng riêng, không quan tâm có tunnel VPN ở giữa. <span style="color:#16a34a;">CIA đảm bảo: C (mã hóa) + I (xác thực MAC) + A (tunnel luôn sẵn sàng).</span>';
+          vpnAnimRunning = false;
+        }, 1000));
+      }, 1200));
+    }, 800));
+  }, 800));
+}
+
+// Initialize VPN module
+vpnSetMode('site-to-site');
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

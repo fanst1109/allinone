@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Mạng đám mây (Cloud Networking)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --cloud-blue:   #0369a1;
+    --cloud-soft:   #e0f2fe;
+    --cloud-mid:    #38bdf8;
+    --cloud-dark:   #0c4a6e;
+    --green:        #16a34a;
+    --green-soft:   #dcfce7;
+    --red:          #dc2626;
+    --red-soft:     #fee2e2;
+    --orange:       #d97706;
+    --orange-soft:  #fef3c7;
+    --purple:       #7c3aed;
+    --purple-soft:  #ede9fe;
+    --gray-soft:    #f1f5f9;
+    --border:       #cbd5e1;
+    --text-main:    #1e293b;
+    --text-muted:   #64748b;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--cloud-dark); margin-bottom: 6px; }
+  h2 { color: var(--cloud-blue); margin-top: 36px; padding-bottom: 6px;
+       border-bottom: 2px solid var(--cloud-mid); }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(3,105,161,.10);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--cloud-soft);
+    border-left: 4px solid var(--cloud-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--cloud-blue); color: #fff; }
+  .btn-primary:hover { background: var(--cloud-dark); }
+  .btn-secondary { background: var(--gray-soft); color: #374151; border: 1px solid var(--border); }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-green:hover { background: #15803d; }
+  .btn-red { background: var(--red); color: #fff; }
+  .btn-red:hover { background: #b91c1c; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ─── Labels / Tags ─── */
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .tag-public  { background: #dbeafe; color: #1d4ed8; }
+  .tag-private { background: var(--purple-soft); color: var(--purple); }
+  .tag-igw     { background: #dcfce7; color: #166534; }
+  .tag-nat     { background: var(--orange-soft); color: #92400e; }
+  .tag-sg      { background: var(--red-soft); color: #991b1b; }
+  .tag-acl     { background: var(--cloud-soft); color: var(--cloud-dark); }
+
+  /* ─── VPC Designer (Module 1) ─── */
+  #vpc-designer {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    #vpc-designer { grid-template-columns: 1fr; }
+  }
+
+  #vpc-controls { display: flex; flex-direction: column; gap: 12px; }
+  #vpc-controls h3 { margin: 0 0 4px; font-size: 15px; color: var(--cloud-dark); }
+
+  .ctrl-group {
+    background: var(--gray-soft);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .ctrl-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 4px;
+  }
+  .ctrl-group select,
+  .ctrl-group input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    background: #fff;
+    color: var(--text-main);
+    max-width: 100%;
+  }
+  .ctrl-group .hint { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+  #vpc-canvas-wrap { overflow-x: auto; }
+  #vpc-svg { display: block; }
+
+  #trace-output {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    min-height: 60px;
+    max-height: 220px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    margin-top: 12px;
+  }
+  #trace-output .ok    { color: #4ade80; }
+  #trace-output .deny  { color: #f87171; }
+  #trace-output .warn  { color: #fbbf24; }
+  #trace-output .info  { color: #93c5fd; }
+  #trace-output .step  { color: #a78bfa; }
+  #trace-output .head  { color: #f8fafc; font-weight: bold; }
+
+  /* ─── CIDR Calculator (Module 2) ─── */
+  .cidr-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 600px) { .cidr-grid { grid-template-columns: 1fr; } }
+
+  .cidr-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .cidr-input-row input[type="text"] {
+    padding: 8px 12px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: monospace;
+    width: 180px;
+    max-width: 100%;
+    color: var(--text-main);
+  }
+  .cidr-input-row input:focus { border-color: var(--cloud-blue); outline: none; }
+
+  #cidr-result {
+    background: var(--gray-soft);
+    border-radius: 8px;
+    padding: 16px 18px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 2.1;
+    min-height: 80px;
+  }
+  #cidr-result .label { color: var(--text-muted); font-size: 12px; }
+  #cidr-result .val   { color: var(--cloud-dark); font-weight: 700; font-size: 15px; }
+  #cidr-result .bits  { color: var(--purple); font-size: 12px; }
+
+  #subnet-split-result {
+    margin-top: 12px;
+  }
+  .subnet-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-family: monospace;
+  }
+  .subnet-table th {
+    background: var(--cloud-blue);
+    color: #fff;
+    padding: 8px 10px;
+    text-align: left;
+  }
+  .subnet-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .subnet-table tr:nth-child(even) td { background: var(--gray-soft); }
+  .subnet-table .pub  { background: #eff6ff !important; }
+  .subnet-table .priv { background: #faf5ff !important; }
+
+  /* ─── SG Simulator (Module 3) ─── */
+  .sg-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 6px 0;
+  }
+  .sg-row select, .sg-row input {
+    padding: 5px 8px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 13px;
+    color: var(--text-main);
+    background: #fff;
+  }
+  .sg-row input[type="text"] { width: 120px; max-width: 100%; }
+  .sg-row input[type="number"] { width: 70px; }
+
+  #sg-rules-list {
+    background: var(--gray-soft);
+    border-radius: 8px;
+    padding: 12px 14px;
+    min-height: 60px;
+    margin: 12px 0;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  .sg-rule-item {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .sg-rule-item:last-child { border-bottom: none; }
+  .sg-rule-item .rm { cursor: pointer; color: var(--red); font-weight: 700; margin-left: auto; }
+
+  #sg-check-result {
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.8;
+    margin-top: 8px;
+    min-height: 50px;
+    font-family: monospace;
+  }
+  .res-allow { background: var(--green-soft); color: #14532d; border: 1px solid #86efac; }
+  .res-deny  { background: var(--red-soft);   color: #7f1d1d; border: 1px solid #fca5a5; }
+  .res-empty { background: var(--gray-soft);  color: var(--text-muted); }
+
+  /* ─── NACL Simulator (Module 4) ─── */
+  .nacl-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 8px 0;
+  }
+  .nacl-table th {
+    background: #334155;
+    color: #fff;
+    padding: 7px 10px;
+    text-align: left;
+    font-size: 12px;
+  }
+  .nacl-table td {
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .nacl-table .allow-row td { background: #f0fdf4; }
+  .nacl-table .deny-row  td { background: #fff1f2; }
+  .nacl-table input, .nacl-table select {
+    padding: 3px 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 12px;
+    width: 100%;
+    max-width: 120px;
+    color: var(--text-main);
+    background: #fff;
+  }
+  .nacl-del { cursor: pointer; color: var(--red); font-weight: 700; }
+
+  #nacl-result {
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    font-family: monospace;
+    line-height: 1.8;
+    margin-top: 10px;
+    min-height: 50px;
+  }
+
+  /* ─── Route Table Viewer (Module 5) ─── */
+  .rt-wrap { overflow-x: auto; }
+  .rt-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    font-family: monospace;
+    min-width: 420px;
+  }
+  .rt-table th { background: var(--cloud-blue); color: #fff; padding: 8px 12px; text-align: left; }
+  .rt-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  .rt-table tr.matched td { background: #fef9c3; font-weight: 700; }
+  .rt-table tr.local-row td { background: var(--cloud-soft); }
+
+  #rt-match-info {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    margin-top: 10px;
+    white-space: pre-wrap;
+    min-height: 50px;
+  }
+  #rt-match-info .ok   { color: #4ade80; }
+  #rt-match-info .info { color: #93c5fd; }
+  #rt-match-info .warn { color: #fbbf24; }
+
+  /* Responsive helpers */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Advanced</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-sdn-virtualization/visualization.html">← L5: SDN &amp; ảo hóa mạng</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Mạng đám mây</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-diagnostic-tools/visualization.html">L7: Công cụ chẩn đoán →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Mạng đám mây (Cloud Networking)</h1>
+<p style="color:var(--text-muted);margin-top:4px;">Trình thiết kế VPC tương tác — CIDR, subnet, gateway, Security Group, NACL, route table.</p>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODULE 1 — VPC Designer + Packet Trace
+     ═══════════════════════════════════════════════════════════════ -->
+<h2>1. Thiết kế VPC &amp; mô phỏng luồng gói tin</h2>
+
+<div class="card">
+  <div id="vpc-designer">
+    <!-- Controls panel -->
+    <div id="vpc-controls">
+      <h3>Cấu hình VPC</h3>
+
+      <div class="ctrl-group">
+        <label>CIDR VPC</label>
+        <select id="vpc-cidr">
+          <option value="10.0.0.0/16">10.0.0.0/16 (65 536 địa chỉ)</option>
+          <option value="172.16.0.0/16">172.16.0.0/16 (65 536 địa chỉ)</option>
+          <option value="192.168.0.0/16">192.168.0.0/16 (65 536 địa chỉ)</option>
+          <option value="10.0.0.0/20">10.0.0.0/20 (4 096 địa chỉ)</option>
+        </select>
+      </div>
+
+      <div class="ctrl-group">
+        <label>Gắn Internet Gateway?</label>
+        <select id="vpc-igw">
+          <option value="yes">Có — subnet public có thể ra internet</option>
+          <option value="no">Không — VPC hoàn toàn riêng tư</option>
+        </select>
+      </div>
+
+      <div class="ctrl-group">
+        <label>NAT Gateway (cho private subnet)?</label>
+        <select id="vpc-nat">
+          <option value="yes">Có — private subnet ra được internet</option>
+          <option value="no">Không — private subnet hoàn toàn cô lập</option>
+        </select>
+      </div>
+
+      <div class="ctrl-group">
+        <label>Gửi gói thử từ</label>
+        <select id="trace-src">
+          <option value="internet">Internet → Web server (public)</option>
+          <option value="private-out">Private instance → Internet (qua NAT)</option>
+          <option value="internal">Web server → DB server (nội bộ VPC)</option>
+          <option value="internet-db">Internet → DB server (tấn công)</option>
+        </select>
+        <div class="hint">Chọn kịch bản để mô phỏng luồng gói tin</div>
+      </div>
+
+      <button class="btn btn-primary" onclick="runTrace()">Gửi gói &amp; theo dõi</button>
+      <button class="btn btn-secondary" style="margin-top:6px" onclick="resetVpc()">Vẽ lại VPC</button>
+    </div>
+
+    <!-- SVG canvas -->
+    <div id="vpc-canvas-wrap">
+      <svg id="vpc-svg" width="620" height="480" viewBox="0 0 620 480"></svg>
+    </div>
+  </div>
+
+  <div id="trace-output" style="display:none"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODULE 2 — CIDR Calculator
+     ═══════════════════════════════════════════════════════════════ -->
+<h2>2. Máy tính CIDR &amp; chia subnet</h2>
+
+<div class="card">
+  <div class="cidr-input-row">
+    <input type="text" id="cidr-input" placeholder="vd: 10.0.0.0/16" value="10.0.0.0/16">
+    <button class="btn btn-primary" onclick="calcCIDR()">Tính</button>
+    <button class="btn btn-secondary" onclick="clearCIDR()">Xóa</button>
+  </div>
+
+  <div class="two-col">
+    <div id="cidr-result">
+      <div style="color:var(--text-muted);font-size:13px">Nhập CIDR rồi bấm Tính</div>
+    </div>
+    <div>
+      <div style="font-size:14px;font-weight:600;color:var(--cloud-dark);margin-bottom:8px">
+        Biểu diễn nhị phân
+      </div>
+      <div id="cidr-binary" style="font-family:monospace;font-size:12px;line-height:1.9;background:var(--gray-soft);border-radius:8px;padding:10px 12px;min-height:60px;word-break:break-all"></div>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;">
+    <div style="font-size:14px;font-weight:600;color:var(--cloud-dark);margin-bottom:8px">
+      Chia thành N subnet bằng nhau
+    </div>
+    <div class="cidr-input-row">
+      <label style="font-size:13px">Số subnet:</label>
+      <select id="split-n" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#fff;color:var(--text-main)">
+        <option value="2">2</option>
+        <option value="4" selected>4</option>
+        <option value="8">8</option>
+        <option value="16">16</option>
+      </select>
+      <button class="btn btn-primary" onclick="splitSubnet()">Chia</button>
+    </div>
+    <div id="subnet-split-result"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODULE 3 — Security Group Simulator
+     ═══════════════════════════════════════════════════════════════ -->
+<h2>3. Trình giả lập Security Group (Stateful)</h2>
+
+<div class="card">
+  <div class="info-box">
+    Security Group chỉ có rule <strong>ALLOW</strong>. Mặc định chặn tất cả inbound. Stateful: nếu inbound được phép, response outbound tự động qua.
+  </div>
+
+  <div style="font-weight:600;font-size:14px;margin:12px 0 6px">Thêm Inbound Rule:</div>
+  <div class="sg-row">
+    <select id="sg-proto">
+      <option value="TCP">TCP</option>
+      <option value="UDP">UDP</option>
+      <option value="ICMP">ICMP</option>
+      <option value="ALL">Tất cả</option>
+    </select>
+    <label style="font-size:13px">Port:</label>
+    <input type="number" id="sg-port-from" placeholder="Từ" min="0" max="65535" value="443">
+    <span style="font-size:13px">–</span>
+    <input type="number" id="sg-port-to" placeholder="Đến" min="0" max="65535" value="443">
+    <label style="font-size:13px">Source CIDR:</label>
+    <input type="text" id="sg-src" value="0.0.0.0/0">
+    <button class="btn btn-primary" onclick="addSGRule()">+ Thêm</button>
+  </div>
+
+  <div style="font-weight:600;font-size:13px;color:var(--text-muted);margin-top:4px">Rules hiện tại:</div>
+  <div id="sg-rules-list">
+    <div style="color:var(--text-muted);font-size:13px">Chưa có rule — tất cả inbound bị chặn.</div>
+  </div>
+
+  <div style="font-weight:600;font-size:14px;margin:16px 0 8px">Kiểm tra kết nối:</div>
+  <div class="sg-row">
+    <label style="font-size:13px">Nguồn IP:</label>
+    <input type="text" id="sg-test-src" value="203.0.113.5" style="width:140px;max-width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:13px;color:var(--text-main);background:#fff">
+    <label style="font-size:13px">Port đích:</label>
+    <input type="number" id="sg-test-port" value="443" min="0" max="65535" style="width:70px;padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:13px;color:var(--text-main);background:#fff">
+    <select id="sg-test-proto" style="padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:13px;background:#fff;color:var(--text-main)">
+      <option value="TCP">TCP</option>
+      <option value="UDP">UDP</option>
+      <option value="ICMP">ICMP</option>
+    </select>
+    <button class="btn btn-green" onclick="checkSG()">Kiểm tra</button>
+  </div>
+
+  <div id="sg-check-result" class="res-empty">Nhập thông tin kết nối rồi bấm Kiểm tra.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODULE 4 — Network ACL Simulator
+     ═══════════════════════════════════════════════════════════════ -->
+<h2>4. Trình giả lập Network ACL (Stateless)</h2>
+
+<div class="card">
+  <div class="info-box">
+    Network ACL có cả ALLOW và DENY, đánh số thứ tự — rule số nhỏ kiểm tra trước, rule đầu khớp thì dừng. <strong>Stateless</strong>: phải thêm rule cho cả 2 chiều (inbound + outbound) và ephemeral ports.
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div style="font-weight:600;font-size:14px;margin-bottom:8px">Inbound Rules</div>
+      <div class="rt-wrap">
+        <table class="nacl-table" id="nacl-in-table">
+          <thead>
+            <tr><th>#</th><th>Proto</th><th>Port</th><th>Nguồn</th><th>Action</th><th></th></tr>
+          </thead>
+          <tbody id="nacl-in-body"></tbody>
+        </table>
+      </div>
+      <button class="btn btn-secondary" style="margin-top:8px;font-size:12px" onclick="addNACLRule('in')">+ Thêm rule Inbound</button>
+    </div>
+    <div>
+      <div style="font-weight:600;font-size:14px;margin-bottom:8px">Outbound Rules</div>
+      <div class="rt-wrap">
+        <table class="nacl-table" id="nacl-out-table">
+          <thead>
+            <tr><th>#</th><th>Proto</th><th>Port</th><th>Đích</th><th>Action</th><th></th></tr>
+          </thead>
+          <tbody id="nacl-out-body"></tbody>
+        </table>
+      </div>
+      <button class="btn btn-secondary" style="margin-top:8px;font-size:12px" onclick="addNACLRule('out')">+ Thêm rule Outbound</button>
+    </div>
+  </div>
+
+  <div style="font-weight:600;font-size:14px;margin:18px 0 8px">Kiểm tra gói tin (kịch bản NACL):</div>
+  <div class="sg-row">
+    <label style="font-size:13px">Nguồn IP:Port</label>
+    <input type="text" id="nacl-src-ip" value="203.0.113.5" style="width:130px;max-width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:13px;color:var(--text-main);background:#fff">
+    <input type="number" id="nacl-src-port" value="52100" min="0" max="65535" style="width:70px;padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:13px;color:var(--text-main);background:#fff">
+    <label style="font-size:13px">Đích Port:</label>
+    <input type="number" id="nacl-dst-port" value="443" min="0" max="65535" style="width:70px;padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:13px;color:var(--text-main);background:#fff">
+    <select id="nacl-dir" style="padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:13px;background:#fff;color:var(--text-main)">
+      <option value="in">Inbound</option>
+      <option value="out">Outbound</option>
+    </select>
+    <button class="btn btn-green" onclick="checkNACL()">Kiểm tra</button>
+  </div>
+  <div id="nacl-result" class="res-empty">Nhập thông tin rồi bấm Kiểm tra.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODULE 5 — Route Table Viewer
+     ═══════════════════════════════════════════════════════════════ -->
+<h2>5. Bảng định tuyến &amp; Longest Prefix Match</h2>
+
+<div class="card">
+  <div class="info-box">
+    Route table dùng <strong>longest prefix match</strong>: quy tắc với prefix dài nhất (cụ thể nhất) được ưu tiên. Ví dụ: đích <code>10.0.2.5</code> khớp cả <code>10.0.0.0/16</code> và <code>0.0.0.0/0</code>, nhưng <code>/16</code> cụ thể hơn → dùng route nội bộ.
+  </div>
+
+  <div class="two-col">
+    <!-- Public subnet route table -->
+    <div>
+      <div style="font-weight:600;font-size:14px;margin-bottom:6px">
+        Route table — Public Subnet <span class="tag tag-public">public</span>
+      </div>
+      <div class="rt-wrap">
+        <table class="rt-table" id="rt-public-table">
+          <thead><tr><th>Destination</th><th>Target</th><th>Ghi chú</th></tr></thead>
+          <tbody>
+            <tr class="local-row"><td>10.0.0.0/16</td><td>local</td><td>Nội bộ VPC</td></tr>
+            <tr><td>0.0.0.0/0</td><td>igw-0a1b2c3d</td><td>Ra Internet</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Private subnet route table -->
+    <div>
+      <div style="font-weight:600;font-size:14px;margin-bottom:6px">
+        Route table — Private Subnet <span class="tag tag-private">private</span>
+      </div>
+      <div class="rt-wrap">
+        <table class="rt-table" id="rt-private-table">
+          <thead><tr><th>Destination</th><th>Target</th><th>Ghi chú</th></tr></thead>
+          <tbody>
+            <tr class="local-row"><td>10.0.0.0/16</td><td>local</td><td>Nội bộ VPC</td></tr>
+            <tr><td>0.0.0.0/0</td><td>nat-0x1y2z3w</td><td>Ra ngoài qua NAT GW</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-weight:600;font-size:14px;margin:18px 0 8px">Tìm route cho địa chỉ đích:</div>
+  <div class="sg-row">
+    <label style="font-size:13px">Địa chỉ đích:</label>
+    <input type="text" id="rt-dest-ip" value="8.8.8.8" style="width:150px;max-width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:13px;font-family:monospace;color:var(--text-main);background:#fff">
+    <select id="rt-subnet" style="padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:13px;background:#fff;color:var(--text-main)">
+      <option value="public">Từ Public Subnet</option>
+      <option value="private">Từ Private Subnet</option>
+    </select>
+    <button class="btn btn-primary" onclick="lookupRoute()">Tra cứu</button>
+  </div>
+  <div id="rt-match-info">Nhập địa chỉ đích và chọn subnet, rồi bấm Tra cứu.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODULE 6 — So sánh SG vs NACL
+     ═══════════════════════════════════════════════════════════════ -->
+<h2>6. So sánh Security Group vs Network ACL</h2>
+
+<div class="card">
+  <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:14px">
+      <thead>
+        <tr style="background:var(--cloud-blue);color:#fff">
+          <th style="padding:10px 14px;text-align:left">Tiêu chí</th>
+          <th style="padding:10px 14px;text-align:left">Security Group <span class="tag tag-sg" style="font-size:11px">SG</span></th>
+          <th style="padding:10px 14px;text-align:left">Network ACL <span class="tag tag-acl" style="font-size:11px">NACL</span></th>
+        </tr>
+      </thead>
+      <tbody id="compare-tbody">
+        <tr style="background:#f8fafc">
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border);font-weight:600">Gắn vào</td>
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border)">Instance (EC2, RDS...)</td>
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border)">Subnet</td>
+        </tr>
+        <tr>
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border);font-weight:600">Stateful/Stateless</td>
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border);color:var(--green);font-weight:700">Stateful — response tự động</td>
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border);color:var(--orange);font-weight:700">Stateless — phải thêm cả 2 chiều</td>
+        </tr>
+        <tr style="background:#f8fafc">
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border);font-weight:600">Loại rule</td>
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border)">Chỉ <strong>ALLOW</strong></td>
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border)"><strong>ALLOW</strong> + <strong>DENY</strong></td>
+        </tr>
+        <tr>
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border);font-weight:600">Thứ tự rule</td>
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border)">Tất cả rule đều đánh giá (union)</td>
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border)">Số nhỏ trước; khớp đầu tiên → dừng</td>
+        </tr>
+        <tr style="background:#f8fafc">
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border);font-weight:600">Mặc định (AWS)</td>
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border)">Chặn inbound, cho outbound</td>
+          <td style="padding:9px 14px;border-bottom:1px solid var(--border)">Cho tất cả (default NACL) hoặc chặn tất cả (custom NACL)</td>
+        </tr>
+        <tr>
+          <td style="padding:9px 14px;font-weight:600">Khi nào cần</td>
+          <td style="padding:9px 14px">Kiểm soát chi tiết từng instance</td>
+          <td style="padding:9px 14px">Chặn IP xấu ở cấp subnet; DENY nhanh trước khi SG xử lý</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-box" style="margin-top:16px">
+    <strong>Thứ tự kiểm tra gói tin vào instance:</strong>
+    Internet → IGW → <strong>NACL inbound</strong> (subnet) → <strong>Security Group inbound</strong> (instance) → instance xử lý →
+    <strong>Security Group outbound</strong> (stateful: response tự động qua nếu inbound ok) →
+    <strong>NACL outbound</strong> (stateless: phải có rule) → IGW → Internet.
+  </div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════════════
+function ipToInt(ip) {
+  const parts = ip.split('.').map(Number);
+  if (parts.length !== 4 || parts.some(p => isNaN(p) || p < 0 || p > 255)) return null;
+  return (parts[0] << 24 | parts[1] << 16 | parts[2] << 8 | parts[3]) >>> 0;
+}
+
+function intToIp(n) {
+  return [(n >>> 24), (n >>> 16 & 0xff), (n >>> 8 & 0xff), (n & 0xff)].join('.');
+}
+
+function parseCIDR(cidr) {
+  const [ipStr, prefixStr] = cidr.trim().split('/');
+  const prefix = parseInt(prefixStr, 10);
+  const ipInt = ipToInt(ipStr);
+  if (ipInt === null || isNaN(prefix) || prefix < 0 || prefix > 32) return null;
+  const mask = prefix === 0 ? 0 : (0xFFFFFFFF << (32 - prefix)) >>> 0;
+  const network = (ipInt & mask) >>> 0;
+  const broadcast = (network | (~mask >>> 0)) >>> 0;
+  const total = Math.pow(2, 32 - prefix);
+  return { ipStr, prefix, ipInt, mask, network, broadcast, total,
+           networkStr: intToIp(network), broadcastStr: intToIp(broadcast) };
+}
+
+function cidrContains(cidr, ip) {
+  const c = parseCIDR(cidr);
+  const i = ipToInt(ip);
+  if (!c || i === null) return false;
+  return (i & c.mask) >>> 0 === c.network;
+}
+
+function ipToBinary(ip) {
+  return ipToInt(ip).toString(2).padStart(32, '0');
+}
+
+function formatBinary32(bin32, prefix) {
+  let s = '';
+  for (let o = 0; o < 4; o++) {
+    const octet = bin32.slice(o * 8, o * 8 + 8);
+    for (let b = 0; b < 8; b++) {
+      const pos = o * 8 + b;
+      const isNet = pos < prefix;
+      s += `<span style="color:${isNet ? '#0369a1' : '#7c3aed'};font-weight:${isNet ? '700' : '400'}">${octet[b]}</span>`;
+    }
+    if (o < 3) s += '<span style="color:#94a3b8">.</span>';
+  }
+  return s;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MODULE 1 — VPC Designer
+// ═══════════════════════════════════════════════════════════════
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+function svgEl(tag, attrs = {}, text = '') {
+  const el = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  if (text) el.textContent = text;
+  return el;
+}
+
+function drawRect(svg, x, y, w, h, opts = {}) {
+  const r = svgEl('rect', {
+    x, y, width: w, height: h,
+    rx: opts.rx || 6,
+    fill: opts.fill || '#fff',
+    stroke: opts.stroke || '#94a3b8',
+    'stroke-width': opts.sw || 1.5,
+    'stroke-dasharray': opts.dash || 'none',
+    opacity: opts.opacity || 1
+  });
+  svg.appendChild(r);
+  return r;
+}
+
+function drawText(svg, x, y, txt, opts = {}) {
+  const t = svgEl('text', {
+    x, y,
+    'font-size': opts.fs || 11,
+    'font-family': 'monospace',
+    fill: opts.fill || '#1e293b',
+    'text-anchor': opts.anchor || 'middle',
+    'font-weight': opts.bold ? '700' : 'normal'
+  }, txt);
+  svg.appendChild(t);
+  return t;
+}
+
+function drawLine(svg, x1, y1, x2, y2, opts = {}) {
+  const l = svgEl('line', {
+    x1, y1, x2, y2,
+    stroke: opts.stroke || '#64748b',
+    'stroke-width': opts.sw || 1.5,
+    'stroke-dasharray': opts.dash || 'none',
+    'marker-end': opts.arrow ? 'url(#arrow)' : 'none'
+  });
+  svg.appendChild(l);
+  return l;
+}
+
+function initVPCDefs(svg) {
+  const defs = svgEl('defs');
+  // arrowhead
+  const marker = svgEl('marker', { id: 'arrow', markerWidth: '8', markerHeight: '8',
+    refX: '6', refY: '3', orient: 'auto' });
+  const path = svgEl('path', { d: 'M0,0 L0,6 L8,3 z', fill: '#0369a1' });
+  marker.appendChild(path);
+  defs.appendChild(marker);
+  // arrow-red
+  const marker2 = svgEl('marker', { id: 'arrow-red', markerWidth: '8', markerHeight: '8',
+    refX: '6', refY: '3', orient: 'auto' });
+  const path2 = svgEl('path', { d: 'M0,0 L0,6 L8,3 z', fill: '#dc2626' });
+  marker2.appendChild(path2);
+  defs.appendChild(marker2);
+  // arrow-green
+  const marker3 = svgEl('marker', { id: 'arrow-green', markerWidth: '8', markerHeight: '8',
+    refX: '6', refY: '3', orient: 'auto' });
+  const path3 = svgEl('path', { d: 'M0,0 L0,6 L8,3 z', fill: '#16a34a' });
+  marker3.appendChild(path3);
+  defs.appendChild(marker3);
+  svg.appendChild(defs);
+}
+
+function drawVPC() {
+  const svg = document.getElementById('vpc-svg');
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  initVPCDefs(svg);
+
+  const cidr = document.getElementById('vpc-cidr').value;
+  const hasIGW = document.getElementById('vpc-igw').value === 'yes';
+  const hasNAT = document.getElementById('vpc-nat').value === 'yes';
+
+  const parts = cidr.split('.');
+  const base = parts.slice(0, 2).join('.');
+
+  // Internet cloud
+  drawRect(svg, 10, 10, 120, 45, { fill:'#f0f9ff', stroke:'#7dd3fc', sw:1 });
+  drawText(svg, 70, 28, 'Internet', { fs:12, fill:'#0369a1', bold:true });
+  drawText(svg, 70, 45, '(Public)', { fs:10, fill:'#64748b' });
+
+  // IGW box
+  if (hasIGW) {
+    drawRect(svg, 180, 10, 100, 45, { fill:'#dcfce7', stroke:'#4ade80', sw:1.5 });
+    drawText(svg, 230, 28, 'Internet', { fs:11, fill:'#166534', bold:true });
+    drawText(svg, 230, 44, 'Gateway', { fs:10, fill:'#15803d' });
+    drawLine(svg, 130, 32, 178, 32, { stroke:'#0369a1', sw:2, arrow:true });
+  }
+
+  // VPC border
+  drawRect(svg, 10, 80, 600, 380, { fill:'#f0f9ff', stroke:'#0369a1', sw:2.5, dash:'6,3', rx:10, opacity:0.98 });
+  drawText(svg, 75, 97, `VPC: ${cidr}`, { fs:11, fill:'#0c4a6e', bold:true, anchor:'start' });
+
+  // AZ-1 (left)
+  drawRect(svg, 30, 110, 260, 330, { fill:'#eff6ff', stroke:'#93c5fd', sw:1.5, dash:'4,3', rx:8 });
+  drawText(svg, 160, 127, 'AZ: ap-southeast-1a', { fs:10, fill:'#1d4ed8' });
+
+  // AZ-2 (right)
+  drawRect(svg, 330, 110, 260, 330, { fill:'#f5f3ff', stroke:'#c4b5fd', sw:1.5, dash:'4,3', rx:8 });
+  drawText(svg, 460, 127, 'AZ: ap-southeast-1b', { fs:10, fill:'#6d28d9' });
+
+  // Public subnets
+  drawRect(svg, 50, 140, 220, 90, { fill:'#dbeafe', stroke:'#3b82f6', sw:1.5, rx:6 });
+  drawText(svg, 160, 157, `public-1a: ${base}.1.0/24`, { fs:10, fill:'#1d4ed8', bold:true });
+  drawText(svg, 160, 172, 'Route: 0.0.0.0/0 → IGW', { fs:9, fill:'#2563eb' });
+
+  // Web server (public)
+  drawRect(svg, 80, 185, 80, 32, { fill:'#eff6ff', stroke:'#3b82f6', rx:4 });
+  drawText(svg, 120, 200, 'Web server', { fs:9, fill:'#1e40af', bold:true });
+  drawText(svg, 120, 213, `${base}.1.10`, { fs:9, fill:'#1d4ed8' });
+
+  // LB (public)
+  drawRect(svg, 175, 185, 80, 32, { fill:'#e0f2fe', stroke:'#0369a1', rx:4 });
+  drawText(svg, 215, 200, 'Load Balancer', { fs:9, fill:'#0c4a6e', bold:true });
+  drawText(svg, 215, 213, `${base}.1.20`, { fs:9, fill:'#0369a1' });
+
+  // Public-1b
+  drawRect(svg, 350, 140, 220, 90, { fill:'#ede9fe', stroke:'#7c3aed', sw:1.5, rx:6 });
+  drawText(svg, 460, 157, `public-1b: ${base}.2.0/24`, { fs:10, fill:'#6d28d9', bold:true });
+  drawText(svg, 460, 172, 'Route: 0.0.0.0/0 → IGW', { fs:9, fill:'#7c3aed' });
+
+  // Bastion
+  drawRect(svg, 375, 185, 80, 32, { fill:'#faf5ff', stroke:'#7c3aed', rx:4 });
+  drawText(svg, 415, 200, 'Bastion Host', { fs:9, fill:'#5b21b6', bold:true });
+  drawText(svg, 415, 213, `${base}.2.5`, { fs:9, fill:'#7c3aed' });
+
+  // NAT Gateway (in public-1b)
+  if (hasNAT) {
+    drawRect(svg, 465, 185, 80, 32, { fill:'#fef3c7', stroke:'#f59e0b', rx:4 });
+    drawText(svg, 505, 200, 'NAT Gateway', { fs:9, fill:'#92400e', bold:true });
+    drawText(svg, 505, 213, `${base}.2.100`, { fs:9, fill:'#b45309' });
+  }
+
+  // Private subnets (web)
+  drawRect(svg, 50, 250, 220, 80, { fill:'#f0fdf4', stroke:'#22c55e', sw:1.5, rx:6 });
+  drawText(svg, 160, 267, `private-web-1a: ${base}.11.0/24`, { fs:9, fill:'#166534', bold:true });
+  drawText(svg, 160, 281, hasNAT ? 'Route: 0.0.0.0/0 → NAT GW' : 'Không có route internet', { fs:9, fill:hasNAT ? '#15803d' : '#94a3b8' });
+
+  drawRect(svg, 75, 290, 75, 28, { fill:'#fff', stroke:'#22c55e', rx:4 });
+  drawText(svg, 112, 303, 'App server', { fs:9, fill:'#166534', bold:true });
+  drawText(svg, 112, 316, `${base}.11.5`, { fs:9, fill:'#15803d' });
+
+  drawRect(svg, 165, 290, 75, 28, { fill:'#fff', stroke:'#22c55e', rx:4 });
+  drawText(svg, 202, 303, 'App server', { fs:9, fill:'#166534', bold:true });
+  drawText(svg, 202, 316, `${base}.11.6`, { fs:9, fill:'#15803d' });
+
+  // Private subnets (db)
+  drawRect(svg, 50, 345, 220, 80, { fill:'#fff7ed', stroke:'#f97316', sw:1.5, rx:6 });
+  drawText(svg, 160, 362, `private-db-1a: ${base}.31.0/24`, { fs:9, fill:'#9a3412', bold:true });
+  drawText(svg, 160, 376, 'Không có route internet', { fs:9, fill:'#94a3b8' });
+
+  drawRect(svg, 75, 385, 75, 28, { fill:'#fff', stroke:'#f97316', rx:4 });
+  drawText(svg, 112, 398, 'MySQL DB', { fs:9, fill:'#9a3412', bold:true });
+  drawText(svg, 112, 411, `${base}.31.10`, { fs:9, fill:'#c2410c' });
+
+  // Private right (app/db-b)
+  drawRect(svg, 350, 250, 220, 80, { fill:'#f0fdf4', stroke:'#22c55e', sw:1.5, rx:6 });
+  drawText(svg, 460, 267, `private-web-1b: ${base}.12.0/24`, { fs:9, fill:'#166534', bold:true });
+  drawText(svg, 460, 281, hasNAT ? 'Route: 0.0.0.0/0 → NAT GW' : 'Không có route internet', { fs:9, fill:hasNAT ? '#15803d' : '#94a3b8' });
+
+  drawRect(svg, 375, 290, 75, 28, { fill:'#fff', stroke:'#22c55e', rx:4 });
+  drawText(svg, 412, 303, 'App server', { fs:9, fill:'#166534', bold:true });
+  drawText(svg, 412, 316, `${base}.12.5`, { fs:9, fill:'#15803d' });
+
+  drawRect(svg, 350, 345, 220, 80, { fill:'#fff7ed', stroke:'#f97316', sw:1.5, rx:6 });
+  drawText(svg, 460, 362, `private-db-1b: ${base}.32.0/24`, { fs:9, fill:'#9a3412', bold:true });
+  drawText(svg, 460, 376, 'Không có route internet', { fs:9, fill:'#94a3b8' });
+
+  drawRect(svg, 375, 385, 75, 28, { fill:'#fff', stroke:'#f97316', rx:4 });
+  drawText(svg, 412, 398, 'Redis / DB', { fs:9, fill:'#9a3412', bold:true });
+  drawText(svg, 412, 411, `${base}.32.20`, { fs:9, fill:'#c2410c' });
+
+  // Security Group indicator around web server
+  const sg = svgEl('rect', { x:76, y:182, width:88, height:38, rx:4,
+    fill:'none', stroke:'#dc2626', 'stroke-width':1.5, 'stroke-dasharray':'3,2', opacity:0.7 });
+  svg.appendChild(sg);
+  drawText(svg, 120, 178, 'SG', { fs:9, fill:'#dc2626', bold:true });
+
+  // Internal connection line app → db
+  drawLine(svg, 112, 318, 112, 385, { stroke:'#22c55e', sw:1.5, dash:'4,2', arrow:true });
+}
+
+function resetVpc() {
+  drawVPC();
+  const to = document.getElementById('trace-output');
+  to.style.display = 'none';
+  to.innerHTML = '';
+}
+
+function runTrace() {
+  drawVPC();
+  const svg = document.getElementById('vpc-svg');
+  const to = document.getElementById('trace-output');
+  to.style.display = 'block';
+  to.innerHTML = '';
+
+  const scenario = document.getElementById('trace-src').value;
+  const hasIGW = document.getElementById('vpc-igw').value === 'yes';
+  const hasNAT = document.getElementById('vpc-nat').value === 'yes';
+  const cidr = document.getElementById('vpc-cidr').value;
+  const base = cidr.split('.').slice(0, 2).join('.');
+
+  function log(cls, msg) {
+    to.innerHTML += `<span class="${cls}">${msg}</span>\n`;
+  }
+
+  function drawArrow(x1, y1, x2, y2, color = '#0369a1', id='pa') {
+    const markId = color === '#dc2626' ? 'arrow-red' : color === '#16a34a' ? 'arrow-green' : 'arrow';
+    const l = svgEl('line', {
+      x1, y1, x2, y2,
+      id,
+      stroke: color,
+      'stroke-width': '3',
+      'marker-end': `url(#${markId})`,
+      opacity: '0.85'
+    });
+    svg.appendChild(l);
+  }
+
+  function drawBlock(cx, cy, color) {
+    const c = svgEl('circle', { cx, cy, r: '8', fill: color, opacity: '0.9', id: 'px' + Math.random() });
+    svg.appendChild(c);
+  }
+
+  if (scenario === 'internet') {
+    if (!hasIGW) {
+      log('deny', '✗ CHẶN: Không có Internet Gateway — VPC không kết nối internet.');
+      drawBlock(230, 32, '#dc2626');
+      return;
+    }
+    log('head', '=== Kịch bản: Internet → Web server (HTTPS) ===');
+    log('info', 'Nguồn: 203.0.113.5:52100 → Đích: ' + base + '.1.10:443');
+    log('step', '1. Gói SYN đến Internet Gateway (IGW)');
+    drawArrow(130, 32, 180, 32);
+    log('step', '2. IGW dịch Elastic IP → IP riêng ' + base + '.1.10');
+    log('step', '3. Kiểm tra NACL Inbound của public subnet ' + base + '.1.0/24:');
+    log('ok',   '   Rule 110: TCP 443, ALLOW → GÓI ĐI QUA');
+    drawArrow(230, 57, 120, 182, '#0369a1');
+    log('step', '4. Kiểm tra Security Group Inbound của web server:');
+    log('ok',   '   SG: TCP 443 từ 0.0.0.0/0 → ALLOW → GÓI VÀO INSTANCE');
+    drawBlock(120, 190, '#16a34a');
+    log('ok',   '5. Web server xử lý, gửi response về:');
+    log('step', '   SG stateful → response outbound tự động qua');
+    log('step', '   NACL Outbound: TCP ephemeral (1024–65535) cần có rule ALLOW');
+    log('ok',   '   IGW dịch IP riêng → Elastic IP → gửi ra internet');
+    log('ok',   '\n✓ KẾT NỐI THÀNH CÔNG');
+
+  } else if (scenario === 'private-out') {
+    log('head', '=== Kịch bản: Private instance → Internet (tải bản vá) ===');
+    log('info', 'Nguồn: ' + base + '.11.5 → Đích: 52.84.10.20:443');
+    if (!hasNAT) {
+      log('warn', 'Cảnh báo: Không có NAT Gateway!');
+      log('deny', '✗ CHẶN: Route table private không có đường ra internet.');
+      log('deny', '   Cần tạo NAT Gateway trong public subnet và thêm route');
+      log('deny', '   0.0.0.0/0 → nat-gw-xxx vào route table private.');
+      drawBlock(112, 303, '#dc2626');
+      return;
+    }
+    log('step', '1. App server gửi SYN: SRC=' + base + '.11.5:54321 DST=52.84.10.20:443');
+    log('step', '2. Route table private: 0.0.0.0/0 → NAT Gateway (' + base + '.2.100)');
+    drawArrow(112, 318, 505, 182, '#d97706');
+    log('step', '3. NAT GW thay SRC=' + base + '.11.5 → IP public của NAT GW');
+    log('step', '   Ghi mapping vào NAT table: (54321, ' + base + '.11.5) ↔ (54321-natted, NAT-pub-IP)');
+    log('step', '4. Route table public: 0.0.0.0/0 → IGW');
+    if (!hasIGW) {
+      log('deny', '✗ CHẶN: Không có IGW — NAT GW không ra được internet!');
+      return;
+    }
+    drawArrow(505, 182, 230, 57, '#d97706');
+    log('ok',   '5. IGW forward ra internet → đến 52.84.10.20');
+    log('step', '6. Response về: DST=NAT-pub-IP → NAT GW tra bảng → dịch → ' + base + '.11.5');
+    drawBlock(112, 303, '#16a34a');
+    log('ok',   '\n✓ KẾT NỐI THÀNH CÔNG (private instance ra được internet qua NAT)');
+
+  } else if (scenario === 'internal') {
+    log('head', '=== Kịch bản: Web server → DB server (nội bộ VPC) ===');
+    log('info', 'Nguồn: ' + base + '.1.10 → Đích: ' + base + '.31.10:3306 (MySQL)');
+    log('step', '1. Web server gửi gói tới router VPC (' + base + '.1.1)');
+    log('step', '2. Route table: ' + base + '.0.0/16 → local (khớp longest prefix)');
+    log('ok',   '   Gói tin đi trong VPC, không ra internet');
+    drawArrow(120, 218, 112, 385, '#16a34a');
+    log('step', '3. NACL inbound private-db subnet — kiểm tra:');
+    log('ok',   '   Nếu có rule ALLOW TCP 3306 từ ' + base + '.0.0/16 → GÓI ĐI QUA');
+    log('step', '4. Security Group của DB server:');
+    log('ok',   '   Rule: TCP 3306 source SG-web-server → ALLOW');
+    drawBlock(112, 398, '#16a34a');
+    log('ok',   '\n✓ KẾT NỐI THÀNH CÔNG (nội bộ VPC, không qua internet)');
+
+  } else if (scenario === 'internet-db') {
+    log('head', '=== Kịch bản: Internet → DB server (tấn công) ===');
+    log('info', 'Kẻ tấn công: 1.2.3.4 → Đích: ' + base + '.31.10:3306');
+    log('step', '1. Gói tấn công đến IGW...');
+    if (!hasIGW) {
+      log('deny', '✗ CHẶN ngay: Không có IGW, VPC không tiếp nhận kết nối từ internet.');
+      return;
+    }
+    log('step', '2. IGW nhận gói — tìm Elastic IP ánh xạ tới ' + base + '.31.10...');
+    log('deny', '✗ CHẶN: ' + base + '.31.10 là IP riêng, không có Elastic IP.');
+    log('deny', '   IGW không biết forward gói này về đâu → DROP.');
+    log('step', '3. Ngay cả nếu bằng cách nào đó gói vào đến subnet:');
+    log('deny', '   NACL private-db subnet: không có rule ALLOW từ internet → DENY.');
+    log('deny', '   Security Group DB: không có rule ALLOW TCP 3306 từ 0.0.0.0/0 → DENY.');
+    drawBlock(230, 57, '#dc2626');
+    log('deny', '\n✗ TẤN CÔNG THẤT BẠI — DB server không thể reach từ internet (thiết kế đúng!)');
+  }
+}
+
+// AUTO-DRAW on init and on control change
+document.addEventListener('DOMContentLoaded', () => {
+  drawVPC();
+  ['vpc-cidr','vpc-igw','vpc-nat'].forEach(id => {
+    document.getElementById(id).addEventListener('change', drawVPC);
+  });
+  initNACL();
+  document.getElementById('cidr-input').addEventListener('keyup', e => { if(e.key==='Enter') calcCIDR(); });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// MODULE 2 — CIDR Calculator
+// ═══════════════════════════════════════════════════════════════
+function calcCIDR() {
+  const input = document.getElementById('cidr-input').value.trim();
+  const r = parseCIDR(input);
+  const res = document.getElementById('cidr-result');
+  const bin = document.getElementById('cidr-binary');
+
+  if (!r) {
+    res.innerHTML = '<span style="color:var(--red)">CIDR không hợp lệ. VD: 10.0.0.0/16</span>';
+    bin.innerHTML = '';
+    return;
+  }
+
+  const hosts = r.total > 2 ? r.total - 2 : 0;
+  const awsHosts = r.total > 5 ? r.total - 5 : 0;
+
+  res.innerHTML = `
+<div><span class="label">Network address:</span> <span class="val">${r.networkStr}</span></div>
+<div><span class="label">Broadcast address:</span> <span class="val">${r.broadcastStr}</span></div>
+<div><span class="label">Subnet mask:</span> <span class="val">${intToIp(r.mask)}</span></div>
+<div><span class="label">Tổng địa chỉ:</span> <span class="val">${r.total.toLocaleString()}</span> <span class="bits">(2^${32-r.prefix})</span></div>
+<div><span class="label">Host khả dụng (chuẩn):</span> <span class="val">${hosts.toLocaleString()}</span></div>
+<div><span class="label">Host khả dụng (AWS):</span> <span class="val">${awsHosts.toLocaleString()}</span> <span class="bits">(trừ 5 địa chỉ AWS)</span></div>
+<div><span class="label">First host:</span> <span class="val">${intToIp(r.network + (r.prefix < 31 ? 4 : 0))}</span> <span class="bits">(AWS: +4 cho .0–.3 reserved)</span></div>
+<div><span class="label">Last host:</span> <span class="val">${intToIp(r.broadcast - 1)}</span></div>`;
+
+  const netBin = r.networkStr;
+  bin.innerHTML = `
+<div><span style="color:var(--text-muted);font-size:11px">Network (xanh=network bits, tím=host bits):</span></div>
+<div style="margin:4px 0">${formatBinary32(ipToBinary(netBin), r.prefix)}</div>
+<div style="margin-top:6px"><span style="color:var(--text-muted);font-size:11px">Mask:</span></div>
+<div style="margin:4px 0">${formatBinary32(ipToBinary(intToIp(r.mask)), r.prefix)}</div>`;
+}
+
+function clearCIDR() {
+  document.getElementById('cidr-input').value = '';
+  document.getElementById('cidr-result').innerHTML = '<div style="color:var(--text-muted);font-size:13px">Nhập CIDR rồi bấm Tính</div>';
+  document.getElementById('cidr-binary').innerHTML = '';
+  document.getElementById('subnet-split-result').innerHTML = '';
+}
+
+function splitSubnet() {
+  const input = document.getElementById('cidr-input').value.trim() || '10.0.0.0/16';
+  const r = parseCIDR(input);
+  const n = parseInt(document.getElementById('split-n').value, 10);
+  const out = document.getElementById('subnet-split-result');
+
+  if (!r) { out.innerHTML = '<span style="color:var(--red)">CIDR không hợp lệ</span>'; return; }
+  if (n > r.total / 2) { out.innerHTML = '<span style="color:var(--red)">Không thể chia — subnet quá nhỏ</span>'; return; }
+
+  const newPrefix = r.prefix + Math.log2(n);
+  if (!Number.isInteger(newPrefix) || newPrefix > 32) {
+    out.innerHTML = '<span style="color:var(--red)">Số subnet phải là lũy thừa của 2 và prefix kết quả ≤ 32</span>';
+    return;
+  }
+
+  const subSize = r.total / n;
+  const awsHosts = subSize > 5 ? subSize - 5 : 0;
+
+  let html = `<div style="font-size:13px;color:var(--text-muted);margin-bottom:6px">/${newPrefix}, mỗi subnet ${subSize.toLocaleString()} địa chỉ (AWS: ${awsHosts} host)</div>`;
+  html += `<div class="rt-wrap"><table class="subnet-table"><thead><tr><th>#</th><th>CIDR</th><th>Network</th><th>Broadcast</th><th>Host đầu</th><th>Host cuối</th></tr></thead><tbody>`;
+
+  for (let i = 0; i < n; i++) {
+    const netInt = (r.network + i * subSize) >>> 0;
+    const bcast = (netInt + subSize - 1) >>> 0;
+    const rowCls = i < n / 2 ? 'pub' : 'priv';
+    html += `<tr class="${rowCls}">
+      <td>${i + 1}</td>
+      <td><strong>${intToIp(netInt)}/${newPrefix}</strong></td>
+      <td>${intToIp(netInt)}</td>
+      <td>${intToIp(bcast)}</td>
+      <td>${intToIp(netInt + 4)}</td>
+      <td>${intToIp(bcast - 1)}</td>
+    </tr>`;
+  }
+  html += '</tbody></table></div>';
+  out.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MODULE 3 — Security Group Simulator
+// ═══════════════════════════════════════════════════════════════
+let sgRules = [];
+
+function addSGRule() {
+  const proto = document.getElementById('sg-proto').value;
+  const pFrom = parseInt(document.getElementById('sg-port-from').value, 10) || 0;
+  const pTo   = parseInt(document.getElementById('sg-port-to').value, 10) || pFrom;
+  const src   = document.getElementById('sg-src').value.trim() || '0.0.0.0/0';
+
+  sgRules.push({ proto, pFrom, pTo, src });
+  renderSGRules();
+}
+
+function renderSGRules() {
+  const el = document.getElementById('sg-rules-list');
+  if (sgRules.length === 0) {
+    el.innerHTML = '<div style="color:var(--text-muted);font-size:13px">Chưa có rule — tất cả inbound bị chặn.</div>';
+    return;
+  }
+  el.innerHTML = sgRules.map((r, i) => `
+    <div class="sg-rule-item">
+      <span class="tag tag-sg">ALLOW</span>
+      <span style="font-family:monospace;font-size:13px">${r.proto}</span>
+      <span style="font-family:monospace;font-size:13px">
+        Port: ${r.proto === 'ICMP' ? 'all' : r.pFrom === r.pTo ? r.pFrom : r.pFrom + '–' + r.pTo}
+      </span>
+      <span style="font-family:monospace;font-size:13px">Src: ${r.src}</span>
+      <span class="rm" onclick="removeSGRule(${i})">✕</span>
+    </div>`).join('');
+}
+
+function removeSGRule(i) {
+  sgRules.splice(i, 1);
+  renderSGRules();
+}
+
+function checkSG() {
+  const srcIP   = document.getElementById('sg-test-src').value.trim();
+  const dstPort = parseInt(document.getElementById('sg-test-port').value, 10);
+  const proto   = document.getElementById('sg-test-proto').value;
+  const el      = document.getElementById('sg-check-result');
+
+  if (!srcIP || isNaN(dstPort)) {
+    el.className = 'res-empty';
+    el.innerHTML = 'Nhập đầy đủ thông tin.';
+    return;
+  }
+
+  let matched = null;
+  for (const r of sgRules) {
+    if (r.proto !== 'ALL' && r.proto !== proto) continue;
+    if (r.proto !== 'ICMP' && r.proto !== 'ALL') {
+      if (dstPort < r.pFrom || dstPort > r.pTo) continue;
+    }
+    if (r.src !== '0.0.0.0/0' && !cidrContains(r.src, srcIP)) continue;
+    matched = r;
+    break;
+  }
+
+  if (matched) {
+    el.className = 'res-allow';
+    el.innerHTML = `✓ ALLOW\nNguồn: ${srcIP} → Port: ${dstPort} (${proto})\nKhớp rule: ${matched.proto} port ${matched.pFrom}–${matched.pTo} src ${matched.src}\n\nStateful: response (outbound) tự động được phép.`;
+  } else {
+    el.className = 'res-deny';
+    el.innerHTML = `✗ DENY (implicit)\nNguồn: ${srcIP} → Port: ${dstPort} (${proto})\nKhông khớp rule ALLOW nào → bị chặn ngầm định.`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MODULE 4 — Network ACL Simulator
+// ═══════════════════════════════════════════════════════════════
+let naclRules = { in: [], out: [] };
+
+function initNACL() {
+  // Default rules
+  naclRules.in = [
+    { num: 100, proto: 'TCP', portFrom: 80, portTo: 80, cidr: '0.0.0.0/0', action: 'ALLOW' },
+    { num: 110, proto: 'TCP', portFrom: 443, portTo: 443, cidr: '0.0.0.0/0', action: 'ALLOW' },
+    { num: 120, proto: 'TCP', portFrom: 1024, portTo: 65535, cidr: '0.0.0.0/0', action: 'ALLOW' },
+    { num: 32767, proto: 'ALL', portFrom: 0, portTo: 65535, cidr: '0.0.0.0/0', action: 'DENY' }
+  ];
+  naclRules.out = [
+    { num: 100, proto: 'TCP', portFrom: 80, portTo: 80, cidr: '0.0.0.0/0', action: 'ALLOW' },
+    { num: 110, proto: 'TCP', portFrom: 443, portTo: 443, cidr: '0.0.0.0/0', action: 'ALLOW' },
+    { num: 120, proto: 'TCP', portFrom: 1024, portTo: 65535, cidr: '0.0.0.0/0', action: 'ALLOW' },
+    { num: 32767, proto: 'ALL', portFrom: 0, portTo: 65535, cidr: '0.0.0.0/0', action: 'DENY' }
+  ];
+  renderNACL('in');
+  renderNACL('out');
+}
+
+function renderNACL(dir) {
+  const tbody = document.getElementById('nacl-' + dir + '-body');
+  const rules = naclRules[dir];
+  tbody.innerHTML = rules.map((r, i) => `
+    <tr class="${r.action === 'ALLOW' ? 'allow-row' : 'deny-row'}">
+      <td><input type="number" value="${r.num}" min="1" max="32767" style="width:55px"
+           onchange="naclRules['${dir}'][${i}].num=parseInt(this.value)||100;sortNACL('${dir}')"></td>
+      <td>
+        <select onchange="naclRules['${dir}'][${i}].proto=this.value" style="width:65px">
+          ${['TCP','UDP','ICMP','ALL'].map(p => `<option${p===r.proto?' selected':''}>${p}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <input type="number" value="${r.portFrom}" min="0" max="65535" style="width:50px"
+               onchange="naclRules['${dir}'][${i}].portFrom=parseInt(this.value)||0">
+        –
+        <input type="number" value="${r.portTo}" min="0" max="65535" style="width:50px"
+               onchange="naclRules['${dir}'][${i}].portTo=parseInt(this.value)||0">
+      </td>
+      <td><input type="text" value="${r.cidr}" style="max-width:110px"
+                 onchange="naclRules['${dir}'][${i}].cidr=this.value"></td>
+      <td>
+        <select onchange="naclRules['${dir}'][${i}].action=this.value;renderNACL('${dir}')">
+          <option${r.action==='ALLOW'?' selected':''}>ALLOW</option>
+          <option${r.action==='DENY'?' selected':''}>DENY</option>
+        </select>
+      </td>
+      <td><span class="nacl-del" onclick="deleteNACLRule('${dir}',${i})">✕</span></td>
+    </tr>`).join('');
+}
+
+function sortNACL(dir) {
+  naclRules[dir].sort((a, b) => a.num - b.num);
+  renderNACL(dir);
+}
+
+function addNACLRule(dir) {
+  const lastNum = naclRules[dir].length > 0 ? Math.max(...naclRules[dir].map(r => r.num)) : 0;
+  const newNum = lastNum < 32767 ? lastNum + 10 : 32766;
+  naclRules[dir].push({ num: newNum, proto: 'TCP', portFrom: 80, portTo: 80, cidr: '0.0.0.0/0', action: 'ALLOW' });
+  sortNACL(dir);
+}
+
+function deleteNACLRule(dir, i) {
+  naclRules[dir].splice(i, 1);
+  renderNACL(dir);
+}
+
+function checkNACL() {
+  const srcIP   = document.getElementById('nacl-src-ip').value.trim();
+  const srcPort = parseInt(document.getElementById('nacl-src-port').value, 10);
+  const dstPort = parseInt(document.getElementById('nacl-dst-port').value, 10);
+  const dir     = document.getElementById('nacl-dir').value;
+  const el      = document.getElementById('nacl-result');
+
+  // For inbound: check destination port against rules; cidr check against source IP
+  // For outbound: check destination port
+  const checkPort = dir === 'in' ? dstPort : dstPort;
+  const checkIP   = dir === 'in' ? srcIP : '0.0.0.0'; // simplified
+
+  const rules = [...naclRules[dir]].sort((a, b) => a.num - b.num);
+  let matchedRule = null;
+  let trace = `=== Kiểm tra NACL ${dir === 'in' ? 'Inbound' : 'Outbound'} ===\n`;
+  trace += `Gói tin: SRC=${srcIP}:${srcPort} → port đích ${dstPort}\n\n`;
+
+  for (const r of rules) {
+    const portOk = r.proto === 'ALL' || r.proto === 'ICMP' ||
+                   (checkPort >= r.portFrom && checkPort <= r.portTo);
+    let cidrOk = true;
+    if (r.cidr !== '0.0.0.0/0' && dir === 'in') {
+      cidrOk = cidrContains(r.cidr, srcIP);
+    }
+    const numLabel = r.num === 32767 ? '* (default)' : r.num;
+    if (portOk && cidrOk) {
+      trace += `Rule #${numLabel}: ${r.proto} port ${r.portFrom}–${r.portTo} ${r.cidr} → ${r.action} ← KHỚP, DỪNG\n`;
+      matchedRule = r;
+      break;
+    } else {
+      trace += `Rule #${numLabel}: ${r.proto} port ${r.portFrom}–${r.portTo} ${r.cidr} → không khớp\n`;
+    }
+  }
+
+  if (!matchedRule) {
+    trace += '\nKhông khớp rule nào → DENY ngầm định';
+    el.className = 'res-deny';
+  } else if (matchedRule.action === 'ALLOW') {
+    trace += '\n✓ KẾT QUẢ: ALLOW';
+    el.className = 'res-allow';
+  } else {
+    trace += '\n✗ KẾT QUẢ: DENY';
+    el.className = 'res-deny';
+  }
+
+  el.textContent = trace;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MODULE 5 — Route Table Lookup
+// ═══════════════════════════════════════════════════════════════
+function lookupRoute() {
+  const destIP  = document.getElementById('rt-dest-ip').value.trim();
+  const subnet  = document.getElementById('rt-subnet').value;
+  const el      = document.getElementById('rt-match-info');
+
+  // Clear highlighted rows
+  document.querySelectorAll('#rt-public-table tbody tr, #rt-private-table tbody tr').forEach(r => r.classList.remove('matched'));
+
+  const destInt = ipToInt(destIP);
+  if (destInt === null) {
+    el.textContent = 'Địa chỉ IP không hợp lệ.';
+    return;
+  }
+
+  // Route tables
+  const routes = {
+    public: [
+      { dest: '10.0.0.0/16', target: 'local',         note: 'Nội bộ VPC' },
+      { dest: '0.0.0.0/0',   target: 'igw-0a1b2c3d', note: 'Ra Internet' }
+    ],
+    private: [
+      { dest: '10.0.0.0/16', target: 'local',         note: 'Nội bộ VPC' },
+      { dest: '0.0.0.0/0',   target: 'nat-0x1y2z3w', note: 'Ra ngoài qua NAT GW' }
+    ]
+  };
+
+  const tblRoutes = routes[subnet];
+  let bestRoute = null;
+  let bestPrefix = -1;
+
+  for (const route of tblRoutes) {
+    const r = parseCIDR(route.dest);
+    if (!r) continue;
+    if ((destInt & r.mask) >>> 0 === r.network) {
+      if (r.prefix > bestPrefix) {
+        bestPrefix = r.prefix;
+        bestRoute = route;
+      }
+    }
+  }
+
+  // Highlight matching row
+  const tblId = subnet === 'public' ? 'rt-public-table' : 'rt-private-table';
+  const tbl = document.getElementById(tblId);
+  if (tbl && bestRoute) {
+    const rows = tbl.querySelectorAll('tbody tr');
+    rows.forEach((row, i) => {
+      if (tblRoutes[i] && tblRoutes[i].dest === bestRoute.dest) {
+        row.classList.add('matched');
+      }
+    });
+  }
+
+  let msg = '';
+  if (!bestRoute) {
+    msg = `Không tìm thấy route cho ${destIP} trong ${subnet} subnet → DROP gói tin.`;
+    el.className = 'rt-match-info';
+    el.innerHTML = msg;
+    return;
+  }
+
+  const isLocal = bestRoute.target === 'local';
+  const isIGW   = bestRoute.target.startsWith('igw');
+  const isNAT   = bestRoute.target.startsWith('nat');
+
+  msg = `<span class="info">Địa chỉ đích: ${destIP}</span>\n`;
+  msg += `<span class="info">Subnet: ${subnet === 'public' ? 'Public' : 'Private'}</span>\n\n`;
+  msg += `<span class="ok">Longest prefix match: ${bestRoute.dest} (/${bestPrefix})</span>\n`;
+  msg += `<span class="ok">Target: ${bestRoute.target}</span>\n\n`;
+
+  if (isLocal) {
+    msg += `<span class="ok">→ Traffic đi trong nội bộ VPC (không ra internet)</span>\n`;
+    msg += `<span class="ok">   Gói tin chuyển trực tiếp tới instance đích qua virtual switch</span>`;
+  } else if (isIGW) {
+    msg += `<span class="ok">→ Gói tin forward tới Internet Gateway</span>\n`;
+    msg += `<span class="ok">   IGW thực hiện NAT (IP riêng ↔ Elastic IP) rồi ra internet</span>`;
+  } else if (isNAT) {
+    msg += `<span class="warn">→ Gói tin forward tới NAT Gateway</span>\n`;
+    msg += `<span class="warn">   NAT GW thay đổi source IP → forward qua public subnet → IGW → internet</span>\n`;
+    msg += `<span class="warn">   Lưu ý: kết nối 1 chiều (private → internet), không nhận kết nối vào</span>`;
+  }
+
+  el.innerHTML = msg;
+}
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

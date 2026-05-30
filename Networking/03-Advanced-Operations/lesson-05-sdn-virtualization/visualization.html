@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — SDN &amp; Ảo hóa mạng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette Networking Advanced ── */
+  :root {
+    --net-blue:   #0369a1;
+    --net-soft:   #e0f2fe;
+    --net-mid:    #38bdf8;
+    --net-dark:   #0c4a6e;
+    --pkt-ok:     #16a34a;
+    --pkt-drop:   #dc2626;
+    --pkt-ctrl:   #7c3aed;
+    --vlan-a:     #0369a1;
+    --vlan-b:     #d97706;
+    --vxlan-col:  #059669;
+    --bg-card:    #ffffff;
+    --bg-section: #f0f9ff;
+  }
+
+  h1 { color: var(--net-dark); }
+  h2 { color: var(--net-blue); margin-top: 36px; padding-bottom: 6px;
+       border-bottom: 2px solid var(--net-mid); }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(3,105,161,.10);
+    margin: 16px 0;
+  }
+  .info-box {
+    background: var(--bg-section);
+    border-left: 4px solid var(--net-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px; border-radius: 6px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--net-blue); color: white; }
+  .btn-primary:hover { background: var(--net-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-danger { background: var(--pkt-drop); color: white; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ── Tag chips ── */
+  .tag {
+    display: inline-block; padding: 2px 8px; border-radius: 12px;
+    font-size: 12px; font-weight: 700; letter-spacing: .3px;
+  }
+  .tag-ctrl  { background: #ede9fe; color: #6d28d9; }
+  .tag-data  { background: #dcfce7; color: #166534; }
+  .tag-drop  { background: #fee2e2; color: #991b1b; }
+  .tag-vlan10 { background: #dbeafe; color: #1d4ed8; }
+  .tag-vlan20 { background: #fef3c7; color: #92400e; }
+
+  /* ── Log panel ── */
+  .log-panel {
+    background: #1e293b; color: #e2e8f0;
+    border-radius: 8px; padding: 14px 16px;
+    font-family: monospace; font-size: 13px;
+    line-height: 1.8; min-height: 80px; max-height: 220px;
+    overflow-y: auto; margin-top: 12px; white-space: pre-wrap;
+  }
+  .log-panel .ok   { color: #4ade80; }
+  .log-panel .drop { color: #f87171; }
+  .log-panel .ctrl { color: #a78bfa; }
+  .log-panel .info { color: #fbbf24; }
+
+  /* ── Step description box ── */
+  .step-box {
+    background: var(--bg-section); border: 1px solid #bae6fd;
+    border-radius: 8px; padding: 12px 16px; margin-top: 12px;
+    min-height: 48px; font-size: 14px; line-height: 1.6;
+  }
+  .step-box strong { color: var(--net-blue); }
+
+  /* ── SVG stage wrappers ── */
+  .svg-stage { width: 100%; overflow-x: auto; }
+  .svg-stage svg { display: block; margin: 0 auto; }
+
+  /* ═════════════════════════════════════════
+     MODULE 1 — SDN Simulator
+     ═════════════════════════════════════════ */
+  #sdn-flow-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+    margin: 12px 0;
+  }
+  #sdn-flow-table th {
+    background: var(--net-blue); color: white; padding: 7px 10px;
+    text-align: left;
+  }
+  #sdn-flow-table td {
+    padding: 6px 10px; border-bottom: 1px solid #e2e8f0;
+    font-family: monospace;
+  }
+  #sdn-flow-table tr:hover td { background: #f0f9ff; }
+  #sdn-flow-table tr.highlight td { background: #dcfce7; font-weight: 700; }
+  #sdn-flow-table tr.dropped td  { background: #fee2e2; }
+  #sdn-flow-table tr.ctrl-hit td { background: #ede9fe; }
+
+  .pkt-input-row {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin: 12px 0; align-items: flex-end;
+  }
+  .pkt-field { display: flex; flex-direction: column; gap: 4px; }
+  .pkt-field label { font-size: 12px; font-weight: 700; color: #374151; }
+  .pkt-field input, .pkt-field select {
+    padding: 6px 10px; border: 1.5px solid #d1d5db;
+    border-radius: 6px; font-size: 13px; font-family: monospace;
+    width: 130px; box-sizing: border-box;
+  }
+  .pkt-field input:focus, .pkt-field select:focus {
+    outline: none; border-color: var(--net-blue);
+  }
+
+  /* ═════════════════════════════════════════
+     MODULE 2 — VLAN Simulator
+     ═════════════════════════════════════════ */
+  .vlan-switch-wrap {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    justify-content: center; align-items: flex-start;
+    margin: 16px 0;
+  }
+  .vlan-port-config {
+    background: #f8fafc; border: 1px solid #e2e8f0;
+    border-radius: 8px; padding: 14px 18px; flex: 1 1 220px;
+    max-width: 280px;
+  }
+  .vlan-port-config h4 { margin: 0 0 10px; font-size: 14px; color: #374151; }
+  .port-row {
+    display: flex; align-items: center; gap: 8px;
+    margin: 6px 0; font-size: 13px;
+  }
+  .port-row label { min-width: 56px; font-weight: 600; }
+  .port-row select {
+    padding: 4px 8px; border: 1px solid #d1d5db;
+    border-radius: 5px; font-size: 12px; cursor: pointer;
+  }
+  .port-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    display: inline-block; flex-shrink: 0;
+  }
+  .dot-10  { background: var(--vlan-a); }
+  .dot-20  { background: var(--vlan-b); }
+  .dot-trk { background: #6b7280; }
+
+  .vlan-result-panel {
+    flex: 1 1 240px; max-width: 380px;
+  }
+
+  /* ═════════════════════════════════════════
+     MODULE 3 — VXLAN Encapsulation
+     ═════════════════════════════════════════ */
+  .vxlan-pkt {
+    display: flex; flex-wrap: nowrap; gap: 0;
+    margin: 14px 0; overflow-x: auto;
+    border-radius: 6px; overflow: hidden;
+  }
+  .vxlan-layer {
+    padding: 10px 12px; font-size: 12px; font-weight: 700;
+    text-align: center; border-right: 2px solid white;
+    cursor: pointer; transition: filter .15s; min-width: 60px;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 3px; position: relative;
+  }
+  .vxlan-layer:last-child { border-right: none; }
+  .vxlan-layer:hover { filter: brightness(.9); }
+  .vxlan-layer.active { outline: 3px solid #1e293b; outline-offset: -2px; }
+  .vxlan-layer .lsz { font-size: 10px; font-weight: 400; opacity: .8; }
+
+  .lyr-outer-eth { background: #bfdbfe; color: #1e3a5f; }
+  .lyr-outer-ip  { background: #a7f3d0; color: #064e3b; }
+  .lyr-udp       { background: #fde68a; color: #78350f; }
+  .lyr-vxlan-hdr { background: #ddd6fe; color: #4c1d95; }
+  .lyr-inner-eth { background: #fecaca; color: #7f1d1d; }
+  .lyr-inner-ip  { background: #fed7aa; color: #7c2d12; }
+  .lyr-payload   { background: #d1fae5; color: #064e3b; flex: 1 1 60px; }
+
+  .vxlan-detail {
+    background: var(--bg-section); border-radius: 8px;
+    padding: 14px 18px; font-size: 14px; line-height: 1.7;
+    min-height: 60px;
+  }
+  .vxlan-detail strong { color: var(--net-dark); }
+
+  @media (max-width: 600px) {
+    .pkt-input-row { gap: 8px; }
+    .pkt-field input, .pkt-field select { width: 100px; }
+    .vlan-port-config { max-width: 100%; }
+    .vxlan-layer { padding: 8px 8px; min-width: 46px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Advanced</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-qos/visualization.html">← L4: QoS &amp; quản lý lưu lượng</a>
+  <span class="sep">·</span>
+  <span class="current">L5: SDN &amp; ảo hóa mạng</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-cloud-networking/visualization.html">L6: Mạng đám mây →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — SDN &amp; Ảo hóa mạng</h1>
+<p>Ba module tương tác: mô phỏng SDN flow table lookup, minh họa VLAN broadcast domain, và bóc tách cấu trúc gói VXLAN.</p>
+
+<!-- ══════════════════════════════════════════════════════
+     MODULE 1 — SDN Flow Table Simulator
+     ══════════════════════════════════════════════════════ -->
+<h2>1. SDN — Mô phỏng flow table lookup</h2>
+<div class="card">
+  <p>Nhập thông tin gói tin, bấm <strong>"Tra bảng"</strong> để xem switch SDN tìm flow rule phù hợp theo thứ tự priority. Bạn cũng có thể thêm/xóa rule để thử nghiệm.</p>
+
+  <!-- Topology SVG -->
+  <div class="svg-stage">
+    <svg id="sdn-topo-svg" width="620" height="180" viewBox="0 0 620 180">
+      <defs>
+        <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#0369a1"/>
+        </marker>
+        <marker id="arr-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/>
+        </marker>
+        <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+        </marker>
+        <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/>
+        </marker>
+      </defs>
+
+      <!-- SDN Controller (top center) -->
+      <rect x="220" y="8" width="180" height="44" rx="8" fill="#7c3aed"/>
+      <text x="310" y="28" text-anchor="middle" font-size="13" font-weight="700" fill="white">SDN CONTROLLER</text>
+      <text x="310" y="44" text-anchor="middle" font-size="10" fill="#ddd6fe">OpenFlow / Northbound API</text>
+
+      <!-- Controller → Switch southbound -->
+      <line id="sdn-ctrl-link" x1="310" y1="52" x2="310" y2="94" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5,3"/>
+      <text id="sdn-ctrl-label" x="330" y="78" font-size="10" fill="#7c3aed" opacity="0">flow_mod</text>
+
+      <!-- Switch (center) -->
+      <rect x="240" y="94" width="140" height="44" rx="8" fill="#0369a1"/>
+      <text x="310" y="116" text-anchor="middle" font-size="13" font-weight="700" fill="white">SWITCH</text>
+      <text x="310" y="130" text-anchor="middle" font-size="10" fill="#bae6fd">tra flow table</text>
+
+      <!-- Left host (port 1) -->
+      <rect x="30" y="100" width="90" height="36" rx="6" fill="#374151"/>
+      <text x="75" y="118" text-anchor="middle" font-size="11" font-weight="700" fill="white">Host A</text>
+      <text x="75" y="130" text-anchor="middle" font-size="10" fill="#9ca3af">10.0.1.5:8080</text>
+
+      <!-- Right host (port 2) -->
+      <rect x="500" y="100" width="90" height="36" rx="6" fill="#374151"/>
+      <text x="545" y="118" text-anchor="middle" font-size="11" font-weight="700" fill="white">Host B</text>
+      <text x="545" y="130" text-anchor="middle" font-size="10" fill="#9ca3af">10.0.2.5:443</text>
+
+      <!-- Bottom host (port 3) -->
+      <rect x="240" y="158" width="140" height="18" rx="5" fill="#374151"/>
+      <text x="310" y="171" text-anchor="middle" font-size="10" fill="#9ca3af">Host C — 10.0.3.1 (port 3)</text>
+
+      <!-- Links: Host A → Switch -->
+      <line x1="120" y1="118" x2="240" y2="118" stroke="#94a3b8" stroke-width="2"/>
+      <text x="175" y="112" text-anchor="middle" font-size="10" fill="#64748b">port 1</text>
+      <!-- Links: Switch → Host B -->
+      <line x1="380" y1="118" x2="500" y2="118" stroke="#94a3b8" stroke-width="2"/>
+      <text x="435" y="112" text-anchor="middle" font-size="10" fill="#64748b">port 2</text>
+      <!-- Links: Switch → Host C -->
+      <line x1="310" y1="138" x2="310" y2="158" stroke="#94a3b8" stroke-width="2"/>
+      <text x="322" y="152" font-size="10" fill="#64748b">port 3</text>
+
+      <!-- Animated packet arrow (injected by JS) -->
+      <g id="sdn-pkt-anim"></g>
+    </svg>
+  </div>
+
+  <!-- Packet input -->
+  <div class="pkt-input-row">
+    <div class="pkt-field">
+      <label>src IP</label>
+      <input type="text" id="sdn-src-ip" value="10.0.1.5" placeholder="10.0.1.5">
+    </div>
+    <div class="pkt-field">
+      <label>dst IP</label>
+      <input type="text" id="sdn-dst-ip" value="10.0.2.5" placeholder="10.0.2.5">
+    </div>
+    <div class="pkt-field">
+      <label>dst port</label>
+      <input type="number" id="sdn-dst-port" value="443" min="1" max="65535">
+    </div>
+    <div style="align-self:flex-end;">
+      <button class="btn btn-primary" onclick="sdnLookup()">Tra bảng →</button>
+      <button class="btn btn-secondary" onclick="sdnReset()">Đặt lại</button>
+    </div>
+  </div>
+
+  <!-- Flow table -->
+  <p style="font-weight:700;margin:16px 0 4px;color:#374151;">Flow Table của Switch:</p>
+  <table id="sdn-flow-table">
+    <thead>
+      <tr>
+        <th>Priority</th>
+        <th>Match — src_ip</th>
+        <th>Match — dst_ip</th>
+        <th>Match — dst_port</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="sdn-ft-body">
+      <!-- rows injected by JS -->
+    </tbody>
+  </table>
+
+  <!-- Add rule UI -->
+  <details style="margin-top:10px;">
+    <summary style="cursor:pointer;font-weight:700;color:var(--net-blue);font-size:13px;">+ Thêm / xóa flow rule</summary>
+    <div class="pkt-input-row" style="margin-top:10px;">
+      <div class="pkt-field">
+        <label>Priority</label>
+        <input type="number" id="nr-prio" value="150" min="0" max="1000">
+      </div>
+      <div class="pkt-field">
+        <label>src_ip (bỏ trống = *)</label>
+        <input type="text" id="nr-src" placeholder="*">
+      </div>
+      <div class="pkt-field">
+        <label>dst_ip (bỏ trống = *)</label>
+        <input type="text" id="nr-dst" placeholder="*">
+      </div>
+      <div class="pkt-field">
+        <label>dst_port (0 = *)</label>
+        <input type="number" id="nr-port" value="0" min="0" max="65535">
+      </div>
+      <div class="pkt-field">
+        <label>Action</label>
+        <select id="nr-action">
+          <option value="forward port 2">forward port 2</option>
+          <option value="forward port 3">forward port 3</option>
+          <option value="drop">drop</option>
+          <option value="send_to_controller">send_to_controller</option>
+        </select>
+      </div>
+      <div style="align-self:flex-end;">
+        <button class="btn btn-secondary" onclick="sdnAddRule()">Thêm rule</button>
+      </div>
+    </div>
+  </details>
+
+  <div class="step-box" id="sdn-result">
+    Nhập thông tin gói tin và bấm <strong>"Tra bảng"</strong> để xem switch SDN lookup flow table theo thứ tự priority.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MODULE 2 — VLAN Simulator
+     ══════════════════════════════════════════════════════ -->
+<h2>2. VLAN — Broadcast domain và tag 802.1Q</h2>
+<div class="card">
+  <p>Gán VLAN cho từng cổng, chọn máy gửi và loại frame (unicast/broadcast), xem frame đến những cổng nào. Minh họa tag 802.1Q được thêm/bóc khi qua switch.</p>
+
+  <div class="vlan-switch-wrap">
+    <!-- Port configuration panel -->
+    <div class="vlan-port-config">
+      <h4>Cấu hình cổng switch</h4>
+      <div id="vlan-port-rows">
+        <!-- injected by JS -->
+      </div>
+    </div>
+
+    <!-- Switch topology SVG -->
+    <div style="flex:1 1 280px;">
+      <div class="svg-stage">
+        <svg id="vlan-svg" width="340" height="280" viewBox="0 0 340 280">
+          <defs>
+            <marker id="varr-b" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L7,3 z" fill="#0369a1"/>
+            </marker>
+            <marker id="varr-o" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L7,3 z" fill="#d97706"/>
+            </marker>
+            <marker id="varr-g" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L7,3 z" fill="#6b7280"/>
+            </marker>
+          </defs>
+
+          <!-- Switch body -->
+          <rect x="110" y="100" width="120" height="60" rx="8" fill="#0369a1"/>
+          <text x="170" y="126" text-anchor="middle" font-size="12" font-weight="700" fill="white">SWITCH</text>
+          <text x="170" y="142" text-anchor="middle" font-size="10" fill="#bae6fd">802.1Q</text>
+
+          <!-- Ports on switch (8 small squares) -->
+          <!-- Port 1 (top-left) -->
+          <rect id="vp1-box" x="115" y="95" width="16" height="10" rx="2" fill="#38bdf8"/>
+          <text x="123" y="104" text-anchor="middle" font-size="8" fill="white">1</text>
+          <!-- Port 2 (top) -->
+          <rect id="vp2-box" x="137" y="95" width="16" height="10" rx="2" fill="#38bdf8"/>
+          <text x="145" y="104" text-anchor="middle" font-size="8" fill="white">2</text>
+          <!-- Port 3 (top-right area) -->
+          <rect id="vp3-box" x="159" y="95" width="16" height="10" rx="2" fill="#38bdf8"/>
+          <text x="167" y="104" text-anchor="middle" font-size="8" fill="white">3</text>
+          <!-- Port 4 -->
+          <rect id="vp4-box" x="181" y="95" width="16" height="10" rx="2" fill="#38bdf8"/>
+          <text x="189" y="104" text-anchor="middle" font-size="8" fill="white">4</text>
+          <!-- Port 5 -->
+          <rect id="vp5-box" x="203" y="95" width="16" height="10" rx="2" fill="#38bdf8"/>
+          <text x="211" y="104" text-anchor="middle" font-size="8" fill="white">5</text>
+          <!-- Port 6 (bottom-left) -->
+          <rect id="vp6-box" x="115" y="155" width="16" height="10" rx="2" fill="#38bdf8"/>
+          <text x="123" y="164" text-anchor="middle" font-size="8" fill="white">6</text>
+          <!-- Port 7 -->
+          <rect id="vp7-box" x="159" y="155" width="16" height="10" rx="2" fill="#38bdf8"/>
+          <text x="167" y="164" text-anchor="middle" font-size="8" fill="white">7</text>
+          <!-- Port 8 (trunk) -->
+          <rect id="vp8-box" x="203" y="155" width="16" height="10" rx="2" fill="#6b7280"/>
+          <text x="211" y="164" text-anchor="middle" font-size="8" fill="white">8</text>
+
+          <!-- Hosts connected to switch (injected connections) -->
+          <!-- Top row hosts -->
+          <rect x="10"  y="30" width="60" height="30" rx="5" fill="#374151"/>
+          <text x="40"  y="46" text-anchor="middle" font-size="10" font-weight="700" fill="white">Host A</text>
+          <text x="40"  y="58" text-anchor="middle" font-size="9" fill="#9ca3af">port 1</text>
+          <line id="vl1" x1="40" y1="60" x2="123" y2="95" stroke="#94a3b8" stroke-width="1.5"/>
+
+          <rect x="80"  y="10" width="60" height="30" rx="5" fill="#374151"/>
+          <text x="110" y="26" text-anchor="middle" font-size="10" font-weight="700" fill="white">Host B</text>
+          <text x="110" y="38" text-anchor="middle" font-size="9" fill="#9ca3af">port 2</text>
+          <line id="vl2" x1="110" y1="40" x2="145" y2="95" stroke="#94a3b8" stroke-width="1.5"/>
+
+          <rect x="150" y="10" width="60" height="30" rx="5" fill="#374151"/>
+          <text x="180" y="26" text-anchor="middle" font-size="10" font-weight="700" fill="white">Host C</text>
+          <text x="180" y="38" text-anchor="middle" font-size="9" fill="#9ca3af">port 3</text>
+          <line id="vl3" x1="180" y1="40" x2="167" y2="95" stroke="#94a3b8" stroke-width="1.5"/>
+
+          <rect x="220" y="10" width="60" height="30" rx="5" fill="#374151"/>
+          <text x="250" y="26" text-anchor="middle" font-size="10" font-weight="700" fill="white">Host D</text>
+          <text x="250" y="38" text-anchor="middle" font-size="9" fill="#9ca3af">port 4</text>
+          <line id="vl4" x1="250" y1="40" x2="189" y2="95" stroke="#94a3b8" stroke-width="1.5"/>
+
+          <rect x="270" y="60" width="60" height="30" rx="5" fill="#374151"/>
+          <text x="300" y="76" text-anchor="middle" font-size="10" font-weight="700" fill="white">Host E</text>
+          <text x="300" y="88" text-anchor="middle" font-size="9" fill="#9ca3af">port 5</text>
+          <line id="vl5" x1="300" y1="90" x2="211" y2="100" stroke="#94a3b8" stroke-width="1.5"/>
+
+          <!-- Bottom row hosts -->
+          <rect x="10"  y="200" width="60" height="30" rx="5" fill="#374151"/>
+          <text x="40"  y="216" text-anchor="middle" font-size="10" font-weight="700" fill="white">Host F</text>
+          <text x="40"  y="228" text-anchor="middle" font-size="9" fill="#9ca3af">port 6</text>
+          <line id="vl6" x1="40" y1="200" x2="123" y2="165" stroke="#94a3b8" stroke-width="1.5"/>
+
+          <rect x="150" y="210" width="60" height="30" rx="5" fill="#374151"/>
+          <text x="180" y="226" text-anchor="middle" font-size="10" font-weight="700" fill="white">Host G</text>
+          <text x="180" y="238" text-anchor="middle" font-size="9" fill="#9ca3af">port 7</text>
+          <line id="vl7" x1="180" y1="210" x2="167" y2="165" stroke="#94a3b8" stroke-width="1.5"/>
+
+          <!-- Trunk port 8 → Router/uplink -->
+          <rect x="260" y="200" width="70" height="30" rx="5" fill="#475569"/>
+          <text x="295" y="216" text-anchor="middle" font-size="10" font-weight="700" fill="white">Router</text>
+          <text x="295" y="228" text-anchor="middle" font-size="9" fill="#9ca3af">trunk p8</text>
+          <line id="vl8" x1="295" y1="200" x2="211" y2="165" stroke="#6b7280" stroke-width="2" stroke-dasharray="4,3"/>
+
+          <!-- Dynamic frame animations -->
+          <g id="vlan-anim"></g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Result panel -->
+    <div class="vlan-result-panel">
+      <div class="step-box" id="vlan-result" style="min-height:100px;">
+        Cấu hình VLAN cho các cổng, rồi chọn máy gửi và nhấn <strong>"Gửi frame"</strong>.
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">
+        <div class="pkt-field">
+          <label>Máy gửi</label>
+          <select id="vlan-src">
+            <option value="1">Host A (port 1)</option>
+            <option value="2">Host B (port 2)</option>
+            <option value="3">Host C (port 3)</option>
+            <option value="4">Host D (port 4)</option>
+            <option value="5">Host E (port 5)</option>
+            <option value="6">Host F (port 6)</option>
+            <option value="7">Host G (port 7)</option>
+          </select>
+        </div>
+        <div class="pkt-field">
+          <label>Loại frame</label>
+          <select id="vlan-ftype">
+            <option value="broadcast">Broadcast (ARP)</option>
+            <option value="unicast">Unicast (cụ thể)</option>
+          </select>
+        </div>
+        <div class="pkt-field" id="vlan-dst-wrap">
+          <label>Máy đích (unicast)</label>
+          <select id="vlan-dst">
+            <option value="2">Host B (port 2)</option>
+            <option value="3">Host C (port 3)</option>
+            <option value="4">Host D (port 4)</option>
+            <option value="5">Host E (port 5)</option>
+            <option value="6">Host F (port 6)</option>
+            <option value="7">Host G (port 7)</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:8px;">
+        <button class="btn btn-primary" onclick="vlanSend()">Gửi frame</button>
+        <button class="btn btn-secondary" onclick="vlanReset()">Đặt lại</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 802.1Q tag anatomy -->
+  <div class="info-box" style="margin-top:8px;">
+    <strong>Cấu trúc VLAN tag 802.1Q (4 byte)</strong>:<br>
+    <code>[ 0x8100 (2B) ][ PCP 3bit | DEI 1bit | VID 12bit (2B) ]</code><br>
+    VID = VLAN ID (0–4095, dùng được 1–4094). VID 12 bit → tối đa 4094 VLAN trên 1 switch.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MODULE 3 — VXLAN Encapsulation Explorer
+     ══════════════════════════════════════════════════════ -->
+<h2>3. VXLAN — Bóc tách gói tin overlay</h2>
+<div class="card">
+  <p>Nhập thông tin VM nguồn và đích. Xem cấu trúc gói VXLAN được đóng gói từng lớp. Click vào từng lớp để xem chi tiết.</p>
+
+  <div class="pkt-input-row">
+    <div class="pkt-field">
+      <label>VM nguồn (IP ảo)</label>
+      <input type="text" id="vx-vm-src" value="192.168.100.5">
+    </div>
+    <div class="pkt-field">
+      <label>VM đích (IP ảo)</label>
+      <input type="text" id="vx-vm-dst" value="192.168.100.20">
+    </div>
+    <div class="pkt-field">
+      <label>VTEP nguồn (IP thật)</label>
+      <input type="text" id="vx-vtep-src" value="10.0.0.1">
+    </div>
+    <div class="pkt-field">
+      <label>VTEP đích (IP thật)</label>
+      <input type="text" id="vx-vtep-dst" value="10.0.0.2">
+    </div>
+    <div class="pkt-field">
+      <label>VNI</label>
+      <input type="number" id="vx-vni" value="5001" min="1" max="16777215">
+    </div>
+    <div style="align-self:flex-end;">
+      <button class="btn btn-primary" onclick="vxlanBuild()">Đóng gói →</button>
+    </div>
+  </div>
+
+  <!-- Packet layers visual -->
+  <p style="font-weight:700;margin:14px 0 6px;font-size:13px;color:#374151;">Cấu trúc gói VXLAN (click từng lớp để xem chi tiết):</p>
+  <div id="vxlan-pkt" class="vxlan-pkt">
+    <!-- injected by JS -->
+  </div>
+
+  <div class="vxlan-detail" id="vxlan-detail">
+    Nhấn <strong>"Đóng gói"</strong> để tạo gói VXLAN, sau đó click từng lớp màu để xem nội dung chi tiết.
+  </div>
+
+  <!-- Overhead calculation -->
+  <div id="vxlan-overhead" class="info-box" style="margin-top:12px;display:none;">
+    <!-- injected by JS -->
+  </div>
+
+  <!-- Underlay path visualization -->
+  <div class="svg-stage" style="margin-top:16px;">
+    <svg id="vxlan-path-svg" width="600" height="120" viewBox="0 0 600 120">
+      <defs>
+        <marker id="parr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#059669"/>
+        </marker>
+      </defs>
+
+      <!-- VM1 -->
+      <rect x="10" y="42" width="80" height="40" rx="6" fill="#374151"/>
+      <text x="50" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="white">VM nguồn</text>
+      <text id="vx-vm-src-lbl" x="50" y="74" text-anchor="middle" font-size="9" fill="#9ca3af">192.168.100.5</text>
+
+      <!-- VTEP1 -->
+      <rect x="120" y="36" width="90" height="52" rx="6" fill="#0369a1"/>
+      <text x="165" y="58" text-anchor="middle" font-size="11" font-weight="700" fill="white">VTEP</text>
+      <text x="165" y="72" text-anchor="middle" font-size="9" fill="#bae6fd">Encap VXLAN</text>
+      <text id="vx-vtep-src-lbl" x="165" y="83" text-anchor="middle" font-size="9" fill="#e0f2fe">10.0.0.1</text>
+
+      <!-- Underlay cloud -->
+      <ellipse cx="300" cy="62" rx="70" ry="32" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="300" y="58" text-anchor="middle" font-size="11" font-weight="700" fill="#0c4a6e">Mạng IP</text>
+      <text x="300" y="72" text-anchor="middle" font-size="10" fill="#0369a1">Underlay</text>
+
+      <!-- VTEP2 -->
+      <rect x="390" y="36" width="90" height="52" rx="6" fill="#059669"/>
+      <text x="435" y="58" text-anchor="middle" font-size="11" font-weight="700" fill="white">VTEP</text>
+      <text x="435" y="72" text-anchor="middle" font-size="9" fill="#d1fae5">Decap VXLAN</text>
+      <text id="vx-vtep-dst-lbl" x="435" y="83" text-anchor="middle" font-size="9" fill="#ecfdf5">10.0.0.2</text>
+
+      <!-- VM2 -->
+      <rect x="510" y="42" width="80" height="40" rx="6" fill="#374151"/>
+      <text x="550" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="white">VM đích</text>
+      <text id="vx-vm-dst-lbl" x="550" y="74" text-anchor="middle" font-size="9" fill="#9ca3af">192.168.100.20</text>
+
+      <!-- Arrows -->
+      <line x1="90" y1="62" x2="120" y2="62" stroke="#374151" stroke-width="1.5" marker-end="url(#parr)"/>
+      <line x1="210" y1="62" x2="230" y2="62" stroke="#059669" stroke-width="2" marker-end="url(#parr)"/>
+      <line x1="370" y1="62" x2="390" y2="62" stroke="#059669" stroke-width="2" marker-end="url(#parr)"/>
+      <line x1="480" y1="62" x2="510" y2="62" stroke="#374151" stroke-width="1.5" marker-end="url(#parr)"/>
+
+      <!-- Labels under arrows -->
+      <text x="105" y="90" text-anchor="middle" font-size="9" fill="#64748b">frame L2</text>
+      <text x="220" y="90" text-anchor="middle" font-size="9" fill="#059669">UDP+VXLAN</text>
+      <text x="380" y="90" text-anchor="middle" font-size="9" fill="#059669">UDP+VXLAN</text>
+      <text x="495" y="90" text-anchor="middle" font-size="9" fill="#64748b">frame L2</text>
+
+      <!-- VNI label -->
+      <text id="vx-vni-lbl" x="300" y="108" text-anchor="middle" font-size="10" fill="#0369a1" font-weight="700">VNI = 5001</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     JAVASCRIPT
+     ══════════════════════════════════════════════════════ -->
+<script>
+// ─────────────────────────────────────────────────────────
+// MODULE 1 — SDN FLOW TABLE
+// ─────────────────────────────────────────────────────────
+
+// Default flow rules
+let sdnRules = [
+  { prio: 300, src: '10.0.1.0/24', dst: '10.0.2.5', port: 0,   action: 'drop' },
+  { prio: 200, src: '*',           dst: '10.0.2.5',  port: 443, action: 'forward port 2' },
+  { prio: 100, src: '*',           dst: '10.0.2.0/24',port: 0,  action: 'forward port 3' },
+  { prio: 0,   src: '*',           dst: '*',          port: 0,   action: 'send_to_controller' },
+];
+
+function ipInSubnet(ip, cidr) {
+  if (!cidr || cidr === '*') return true;
+  if (!cidr.includes('/')) return ip === cidr;
+  const [network, bits] = cidr.split('/');
+  const mask = bits === '0' ? 0 : (~0 << (32 - parseInt(bits))) >>> 0;
+  const ipInt  = ip.split('.').reduce((acc, o) => (acc << 8) + parseInt(o), 0) >>> 0;
+  const netInt = network.split('.').reduce((acc, o) => (acc << 8) + parseInt(o), 0) >>> 0;
+  return (ipInt & mask) === (netInt & mask);
+}
+
+function sdnRenderTable(highlightIdx = -1, dropIdx = -1, ctrlIdx = -1) {
+  const tbody = document.getElementById('sdn-ft-body');
+  const sorted = [...sdnRules].sort((a, b) => b.prio - a.prio);
+  tbody.innerHTML = sorted.map((r, i) => {
+    let cls = '';
+    if (i === highlightIdx) cls = 'highlight';
+    else if (i === dropIdx)  cls = 'dropped';
+    else if (i === ctrlIdx)  cls = 'ctrl-hit';
+    return `<tr class="${cls}" data-idx="${i}">
+      <td>${r.prio}</td>
+      <td>${r.src}</td>
+      <td>${r.dst}</td>
+      <td>${r.port === 0 ? '*' : r.port}</td>
+      <td><strong>${r.action}</strong>
+        ${sorted.length > 1 ? `<button onclick="sdnDeleteRule(${i})" style="margin-left:8px;font-size:11px;padding:1px 6px;border-radius:4px;border:1px solid #e2e8f0;background:#f8fafc;cursor:pointer;color:#dc2626;">xóa</button>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function sdnLookup() {
+  const srcIp  = document.getElementById('sdn-src-ip').value.trim() || '0.0.0.0';
+  const dstIp  = document.getElementById('sdn-dst-ip').value.trim() || '0.0.0.0';
+  const dstPort = parseInt(document.getElementById('sdn-dst-port').value) || 0;
+
+  const sorted = [...sdnRules].sort((a, b) => b.prio - a.prio);
+  let matchIdx = -1;
+  let matchRule = null;
+
+  for (let i = 0; i < sorted.length; i++) {
+    const r = sorted[i];
+    const srcOk  = (r.src  === '*') || ipInSubnet(srcIp, r.src);
+    const dstOk  = (r.dst  === '*') || ipInSubnet(dstIp, r.dst);
+    const portOk = (r.port === 0 ) || (r.port === dstPort);
+    if (srcOk && dstOk && portOk) {
+      matchIdx = i; matchRule = r; break;
+    }
+  }
+
+  let highlightIdx = -1, dropIdx = -1, ctrlIdx = -1;
+  let resultHtml = '';
+
+  if (!matchRule) {
+    resultHtml = `Không có rule nào khớp gói <code>${srcIp} → ${dstIp}:${dstPort}</code>. Gói bị drop ngầm.`;
+  } else if (matchRule.action === 'drop') {
+    dropIdx = matchIdx;
+    resultHtml = `<span class="tag tag-drop">DROP</span> Gói <code>${srcIp} → ${dstIp}:${dstPort}</code> khớp rule priority <strong>${matchRule.prio}</strong> → bị <strong>DROP</strong>.`;
+    sdnAnimPacket('drop');
+  } else if (matchRule.action === 'send_to_controller') {
+    ctrlIdx = matchIdx;
+    resultHtml = `<span class="tag tag-ctrl">CONTROLLER</span> Gói <code>${srcIp} → ${dstIp}:${dstPort}</code> khớp rule priority <strong>${matchRule.prio}</strong> → gửi lên <strong>SDN Controller</strong> để xử lý. Controller sẽ cài flow rule mới cho gói tương tự sau này.`;
+    sdnAnimPacket('ctrl');
+  } else {
+    highlightIdx = matchIdx;
+    const port = matchRule.action.replace('forward ', '');
+    resultHtml = `<span class="tag tag-data">FORWARD</span> Gói <code>${srcIp} → ${dstIp}:${dstPort}</code> khớp rule priority <strong>${matchRule.prio}</strong> → chuyển ra <strong>${port}</strong>.`;
+    sdnAnimPacket('forward', port);
+  }
+
+  // Show which rules were checked
+  const checkedRules = [];
+  for (let i = 0; i < matchIdx; i++) {
+    checkedRules.push(`priority ${sorted[i].prio} — không khớp`);
+  }
+  if (checkedRules.length > 0) {
+    resultHtml += `<br><span style="font-size:12px;color:#64748b;">Đã kiểm tra lần lượt: ${checkedRules.join('; ')}.</span>`;
+  }
+
+  document.getElementById('sdn-result').innerHTML = resultHtml;
+  sdnRenderTable(highlightIdx, dropIdx, ctrlIdx);
+}
+
+function sdnAnimPacket(type, port) {
+  const svg = document.getElementById('sdn-pkt-anim');
+  svg.innerHTML = '';
+
+  const colors = { forward: '#16a34a', drop: '#dc2626', ctrl: '#7c3aed' };
+  const col = colors[type] || '#0369a1';
+
+  // Draw a moving packet indicator
+  const pkt = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  pkt.setAttribute('x', '120'); pkt.setAttribute('y', '110');
+  pkt.setAttribute('width', '30'); pkt.setAttribute('height', '16');
+  pkt.setAttribute('rx', '4'); pkt.setAttribute('fill', col);
+
+  const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  lbl.setAttribute('x', '135'); lbl.setAttribute('y', '122');
+  lbl.setAttribute('text-anchor', 'middle');
+  lbl.setAttribute('font-size', '9'); lbl.setAttribute('fill', 'white');
+  lbl.setAttribute('font-weight', '700');
+  lbl.textContent = type === 'drop' ? 'DROP' : type === 'ctrl' ? 'CTRL' : 'PKT';
+
+  svg.appendChild(pkt); svg.appendChild(lbl);
+
+  // Animate with requestAnimationFrame
+  let x = 120, dir = 1;
+  const targetX = type === 'forward' ? (port === 'port 2' ? 500 : 260)
+                : type === 'ctrl'    ? 310 : 200;
+  const targetY = type === 'ctrl'    ? 50  : 116;
+  let curX = 120, curY = 116;
+  const dx = (targetX - curX) / 30;
+  const dy = (targetY - curY) / 30;
+  let frame = 0;
+
+  function animate() {
+    if (frame >= 30) {
+      if (type === 'drop') {
+        // Flash red
+        pkt.setAttribute('fill', '#dc2626');
+        lbl.textContent = '✗';
+        setTimeout(() => svg.innerHTML = '', 800);
+      } else {
+        setTimeout(() => svg.innerHTML = '', 600);
+      }
+      return;
+    }
+    curX += dx; curY += dy;
+    pkt.setAttribute('x', curX); pkt.setAttribute('y', curY);
+    lbl.setAttribute('x', curX + 15); lbl.setAttribute('y', curY + 12);
+    frame++;
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+}
+
+function sdnAddRule() {
+  const prio   = parseInt(document.getElementById('nr-prio').value) || 0;
+  const src    = document.getElementById('nr-src').value.trim() || '*';
+  const dst    = document.getElementById('nr-dst').value.trim() || '*';
+  const port   = parseInt(document.getElementById('nr-port').value) || 0;
+  const action = document.getElementById('nr-action').value;
+  sdnRules.push({ prio, src, dst, port, action });
+  sdnRenderTable();
+  document.getElementById('sdn-result').innerHTML =
+    `<span class="tag tag-data">Đã thêm</span> Rule priority <strong>${prio}</strong>: match(src=${src}, dst=${dst}, port=${port||'*'}) → ${action}`;
+}
+
+function sdnDeleteRule(sortedIdx) {
+  const sorted = [...sdnRules].sort((a, b) => b.prio - a.prio);
+  const ruleToDelete = sorted[sortedIdx];
+  sdnRules = sdnRules.filter(r => r !== ruleToDelete);
+  sdnRenderTable();
+}
+
+function sdnReset() {
+  sdnRules = [
+    { prio: 300, src: '10.0.1.0/24', dst: '10.0.2.5',    port: 0,   action: 'drop' },
+    { prio: 200, src: '*',           dst: '10.0.2.5',     port: 443, action: 'forward port 2' },
+    { prio: 100, src: '*',           dst: '10.0.2.0/24',  port: 0,   action: 'forward port 3' },
+    { prio: 0,   src: '*',           dst: '*',             port: 0,   action: 'send_to_controller' },
+  ];
+  sdnRenderTable();
+  document.getElementById('sdn-result').innerHTML =
+    'Nhập thông tin gói tin và bấm <strong>"Tra bảng"</strong> để xem switch SDN lookup flow table theo thứ tự priority.';
+  document.getElementById('sdn-pkt-anim').innerHTML = '';
+  document.getElementById('sdn-src-ip').value   = '10.0.1.5';
+  document.getElementById('sdn-dst-ip').value   = '10.0.2.5';
+  document.getElementById('sdn-dst-port').value = '443';
+}
+
+// ─────────────────────────────────────────────────────────
+// MODULE 2 — VLAN SIMULATOR
+// ─────────────────────────────────────────────────────────
+
+// Port config: vlanId (10, 20, or 'trunk'), portName
+const hostNames = ['', 'Host A', 'Host B', 'Host C', 'Host D', 'Host E', 'Host F', 'Host G'];
+let vlanPortConfig = [
+  { port: 1, vlan: 10,      type: 'access' },
+  { port: 2, vlan: 20,      type: 'access' },
+  { port: 3, vlan: 10,      type: 'access' },
+  { port: 4, vlan: 20,      type: 'access' },
+  { port: 5, vlan: 10,      type: 'access' },
+  { port: 6, vlan: 20,      type: 'access' },
+  { port: 7, vlan: 10,      type: 'access' },
+  { port: 8, vlan: 'trunk', type: 'trunk'  },
+];
+
+function vlanRenderPortConfig() {
+  const container = document.getElementById('vlan-port-rows');
+  container.innerHTML = vlanPortConfig.slice(0, 7).map(p => {
+    const dot = p.vlan === 10 ? 'dot-10' : p.vlan === 20 ? 'dot-20' : 'dot-trk';
+    return `<div class="port-row">
+      <label>Port ${p.port}</label>
+      <span class="port-dot ${dot}"></span>
+      <select onchange="vlanSetPort(${p.port}, this.value)">
+        <option value="10"    ${p.vlan===10    ?'selected':''}>VLAN 10</option>
+        <option value="20"    ${p.vlan===20    ?'selected':''}>VLAN 20</option>
+        <option value="trunk" ${p.vlan==='trunk'?'selected':''}>Trunk</option>
+      </select>
+      <span style="font-size:11px;color:#64748b;">${hostNames[p.port]}</span>
+    </div>`;
+  }).join('') + `<div class="port-row">
+    <label>Port 8</label>
+    <span class="port-dot dot-trk"></span>
+    <span style="font-size:12px;color:#475569;">Trunk (Router)</span>
+  </div>`;
+}
+
+function vlanSetPort(portNum, val) {
+  const p = vlanPortConfig.find(p => p.port === portNum);
+  if (!p) return;
+  p.vlan = val === 'trunk' ? 'trunk' : parseInt(val);
+  p.type = val === 'trunk' ? 'trunk' : 'access';
+  vlanRenderPortConfig();
+  // Update port box colors in SVG
+  vlanUpdateSvgColors();
+}
+
+const VLAN_COLORS = { 10: '#0369a1', 20: '#d97706', trunk: '#6b7280' };
+
+function vlanUpdateSvgColors() {
+  vlanPortConfig.forEach(p => {
+    const box = document.getElementById(`vp${p.port}-box`);
+    if (box) box.setAttribute('fill', VLAN_COLORS[p.vlan] || '#38bdf8');
+  });
+}
+
+function vlanSend() {
+  const srcPort = parseInt(document.getElementById('vlan-src').value);
+  const ftype   = document.getElementById('vlan-ftype').value;
+  const dstPort = parseInt(document.getElementById('vlan-dst').value);
+
+  const srcConfig = vlanPortConfig.find(p => p.port === srcPort);
+  if (!srcConfig) return;
+
+  const srcVlan = srcConfig.vlan;
+  if (srcVlan === 'trunk') {
+    document.getElementById('vlan-result').innerHTML =
+      '⚠ Trunk port không gắn trực tiếp với host thông thường. Chọn cổng access để gửi.';
+    return;
+  }
+
+  const delivered = [];
+  const blocked   = [];
+
+  if (ftype === 'broadcast') {
+    // ARP broadcast: deliver to all ports in same VLAN (except src), plus trunk
+    vlanPortConfig.forEach(p => {
+      if (p.port === srcPort) return;
+      if (p.type === 'trunk') {
+        delivered.push({ port: p.port, note: 'trunk — frame giữ nguyên tag', host: 'Router (trunk)' });
+      } else if (p.vlan === srcVlan) {
+        delivered.push({ port: p.port, note: 'cùng VLAN ' + srcVlan + ' — bóc tag', host: hostNames[p.port] });
+      } else {
+        blocked.push({ port: p.port, note: 'VLAN ' + p.vlan + ' ≠ ' + srcVlan, host: hostNames[p.port] });
+      }
+    });
+  } else {
+    // Unicast: only to specific dst port
+    const dstConfig = vlanPortConfig.find(p => p.port === dstPort);
+    if (!dstConfig) return;
+    if (dstConfig.type === 'trunk' || dstConfig.vlan === srcVlan) {
+      delivered.push({ port: dstPort, note: dstConfig.type === 'trunk' ? 'trunk' : 'cùng VLAN ' + srcVlan, host: hostNames[dstPort] });
+    } else {
+      blocked.push({ port: dstPort, note: 'VLAN ' + dstConfig.vlan + ' ≠ ' + srcVlan, host: hostNames[dstPort] });
+    }
+    // All other ports not involved (no flood for unicast with known MAC)
+  }
+
+  // Build result HTML
+  const tagColor = srcVlan === 10 ? '#0369a1' : '#d97706';
+  let html = `<strong>Frame từ ${hostNames[srcPort]} (port ${srcPort}, VLAN ${srcVlan})</strong><br>`;
+  html += `Tag 802.1Q gắn: <span style="background:${tagColor};color:white;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:12px;">VID=${srcVlan}</span><br><br>`;
+
+  if (delivered.length > 0) {
+    html += `<span style="color:#16a34a;font-weight:700;">Chuyển đến (${delivered.length}):</span><br>`;
+    delivered.forEach(d => {
+      html += `&nbsp;&nbsp;✓ Port ${d.port} — <strong>${d.host}</strong> <span style="font-size:12px;color:#64748b;">(${d.note})</span><br>`;
+    });
+  }
+  if (blocked.length > 0) {
+    html += `<br><span style="color:#dc2626;font-weight:700;">Chặn lại (${blocked.length}):</span><br>`;
+    blocked.forEach(b => {
+      html += `&nbsp;&nbsp;✗ Port ${b.port} — <strong>${b.host}</strong> <span style="font-size:12px;color:#64748b;">(${b.note})</span><br>`;
+    });
+  }
+
+  document.getElementById('vlan-result').innerHTML = html;
+  vlanAnimFrames(srcPort, delivered, blocked, srcVlan);
+}
+
+function vlanAnimFrames(srcPort, delivered, blocked, vlan) {
+  const anim = document.getElementById('vlan-anim');
+  anim.innerHTML = '';
+
+  // Port center coords in SVG (approximate, matching host positions)
+  const portCoords = {
+    1: [40, 60], 2: [110, 40], 3: [180, 40], 4: [250, 40],
+    5: [300, 90], 6: [40, 200], 7: [180, 210], 8: [295, 200]
+  };
+  const switchCenter = [170, 130];
+  const col = vlan === 10 ? '#0369a1' : '#d97706';
+
+  // Draw lines from switch to delivered destinations
+  delivered.forEach(d => {
+    if (!portCoords[d.port]) return;
+    const [px, py] = portCoords[d.port];
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', switchCenter[0]); line.setAttribute('y1', switchCenter[1]);
+    line.setAttribute('x2', px); line.setAttribute('y2', py);
+    line.setAttribute('stroke', col); line.setAttribute('stroke-width', '2.5');
+    line.setAttribute('stroke-dasharray', '5,3');
+    line.setAttribute('opacity', '0.9');
+    anim.appendChild(line);
+  });
+
+  blocked.forEach(b => {
+    if (!portCoords[b.port]) return;
+    const [px, py] = portCoords[b.port];
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', switchCenter[0]); line.setAttribute('y1', switchCenter[1]);
+    line.setAttribute('x2', px); line.setAttribute('y2', py);
+    line.setAttribute('stroke', '#dc2626'); line.setAttribute('stroke-width', '1.5');
+    line.setAttribute('stroke-dasharray', '3,4');
+    line.setAttribute('opacity', '0.5');
+    anim.appendChild(line);
+  });
+
+  // Fade out after 3s
+  setTimeout(() => { anim.innerHTML = ''; }, 3000);
+}
+
+function vlanReset() {
+  vlanPortConfig = [
+    { port: 1, vlan: 10,      type: 'access' },
+    { port: 2, vlan: 20,      type: 'access' },
+    { port: 3, vlan: 10,      type: 'access' },
+    { port: 4, vlan: 20,      type: 'access' },
+    { port: 5, vlan: 10,      type: 'access' },
+    { port: 6, vlan: 20,      type: 'access' },
+    { port: 7, vlan: 10,      type: 'access' },
+    { port: 8, vlan: 'trunk', type: 'trunk'  },
+  ];
+  vlanRenderPortConfig();
+  vlanUpdateSvgColors();
+  document.getElementById('vlan-anim').innerHTML = '';
+  document.getElementById('vlan-result').innerHTML =
+    'Cấu hình VLAN cho các cổng, rồi chọn máy gửi và nhấn <strong>"Gửi frame"</strong>.';
+}
+
+// Show/hide unicast dst based on frame type
+document.addEventListener('DOMContentLoaded', () => {
+  const ftypeEl = document.getElementById('vlan-ftype');
+  const dstWrap = document.getElementById('vlan-dst-wrap');
+  if (ftypeEl) {
+    ftypeEl.addEventListener('change', () => {
+      dstWrap.style.display = ftypeEl.value === 'unicast' ? '' : 'none';
+    });
+    dstWrap.style.display = 'none'; // default broadcast
+  }
+});
+
+// ─────────────────────────────────────────────────────────
+// MODULE 3 — VXLAN ENCAPSULATION
+// ─────────────────────────────────────────────────────────
+
+const VXLAN_LAYERS = [
+  {
+    id: 'outer-eth', cls: 'lyr-outer-eth', label: 'Outer\nEth', size: '14B',
+    title: 'Outer Ethernet Header (14 byte)',
+    getDetail: (d) =>
+      `<strong>Outer Ethernet Header — 14 byte</strong><br>
+      Header Ethernet của <em>mạng vật lý (underlay)</em>.<br>
+      • Src MAC: địa chỉ MAC của VTEP nguồn (${d.vtepSrc}).<br>
+      • Dst MAC: địa chỉ MAC của next-hop router/switch underlay (không phải VTEP đích trực tiếp).<br>
+      • EtherType: 0x0800 (IPv4) — underlay router chỉ thấy gói IP thông thường.<br>
+      <em>Quan trọng</em>: router underlay không biết về VXLAN, chỉ thấy gói UDP/IP giữa ${d.vtepSrc} và ${d.vtepDst}.`
+  },
+  {
+    id: 'outer-ip', cls: 'lyr-outer-ip', label: 'Outer\nIP', size: '20B',
+    title: 'Outer IP Header (20 byte)',
+    getDetail: (d) =>
+      `<strong>Outer IP Header — 20 byte</strong><br>
+      IP header của mạng vật lý (underlay).<br>
+      • Src IP: <strong>${d.vtepSrc}</strong> (IP thật của VTEP nguồn).<br>
+      • Dst IP: <strong>${d.vtepDst}</strong> (IP thật của VTEP đích).<br>
+      • Protocol: 17 (UDP).<br>
+      • TTL: thường 64 hoặc 255.<br>
+      Gói này đi qua mạng IP bình thường — router chỉ định tuyến dựa trên ${d.vtepSrc} → ${d.vtepDst}.`
+  },
+  {
+    id: 'udp', cls: 'lyr-udp', label: 'UDP', size: '8B',
+    title: 'UDP Header (8 byte)',
+    getDetail: (d) =>
+      `<strong>UDP Header — 8 byte</strong><br>
+      • Src port: băm từ inner flow (giúp ECMP phân tải) — ví dụ: 12345.<br>
+      • <strong>Dst port: 4789</strong> — cổng chuẩn IANA của VXLAN (RFC 7348).<br>
+      • Length: kích thước payload.<br>
+      • Checksum: thường để 0 (outer IP đã có checksum).<br>
+      <em>Vì sao UDP?</em> UDP đi qua mọi router IP mà không cần cấu hình đặc biệt. Src port thay đổi theo flow → ECMP (equal-cost multipath) phân tải hiệu quả trong data center.`
+  },
+  {
+    id: 'vxlan-hdr', cls: 'lyr-vxlan-hdr', label: 'VXLAN\nHeader', size: '8B',
+    title: 'VXLAN Header (8 byte)',
+    getDetail: (d) =>
+      `<strong>VXLAN Header — 8 byte</strong><br>
+      • Flags (8 bit): bit I = 1 (VNI hợp lệ), còn lại reserved.<br>
+      • Reserved (24 bit): để 0.<br>
+      • <strong>VNI = ${d.vni}</strong> (24 bit) — VXLAN Network Identifier.<br>
+      • Reserved (8 bit): để 0.<br>
+      VNI 24 bit → 2²⁴ = <strong>16.777.216</strong> mạng ảo có thể có.<br>
+      So sánh: VLAN VID 12 bit → chỉ 4094 mạng.<br>
+      Tất cả VM có cùng VNI = ${d.vni} nằm trong cùng một mạng overlay ảo.`
+  },
+  {
+    id: 'inner-eth', cls: 'lyr-inner-eth', label: 'Inner\nEth', size: '14B',
+    title: 'Inner Ethernet Frame (14 byte)',
+    getDetail: (d) =>
+      `<strong>Inner Ethernet Frame — 14 byte</strong><br>
+      Frame Ethernet <em>gốc</em> của VM — đây là thứ VM "thấy".<br>
+      • Src MAC: MAC ảo của ${d.vmSrc}.<br>
+      • Dst MAC: MAC ảo của ${d.vmDst}.<br>
+      • EtherType: 0x0800 (IPv4).<br>
+      VM không biết gì về VXLAN — từ góc nhìn của VM, đây là frame L2 bình thường trên mạng LAN.`
+  },
+  {
+    id: 'inner-ip', cls: 'lyr-inner-ip', label: 'Inner\nIP', size: '20B',
+    title: 'Inner IP Header (20 byte)',
+    getDetail: (d) =>
+      `<strong>Inner IP Header — 20 byte</strong><br>
+      IP header của <em>overlay</em> (địa chỉ IP ảo của VM).<br>
+      • Src IP: <strong>${d.vmSrc}</strong> (IP ảo của VM nguồn).<br>
+      • Dst IP: <strong>${d.vmDst}</strong> (IP ảo của VM đích).<br>
+      Địa chỉ này thuộc không gian địa chỉ riêng của tenant VNI=${d.vni} — hoàn toàn độc lập với mạng vật lý.`
+  },
+  {
+    id: 'payload', cls: 'lyr-payload', label: 'Payload', size: 'N B',
+    title: 'Payload (dữ liệu ứng dụng)',
+    getDetail: (d) =>
+      `<strong>Payload — kích thước thay đổi</strong><br>
+      Dữ liệu thực sự của ứng dụng: TCP segment, UDP datagram, ICMP...<br>
+      Toàn bộ overhead VXLAN = 14 + 20 + 8 + 8 = <strong>50 byte</strong>.<br>
+      Để tránh phân mảnh (fragmentation), cần MTU vật lý ≥ 1550B.<br>
+      Trong data center thường dùng <strong>Jumbo Frame (MTU 9000B)</strong> → overhead 50B không đáng kể.`
+  },
+];
+
+let vxlanData = {
+  vmSrc: '192.168.100.5', vmDst: '192.168.100.20',
+  vtepSrc: '10.0.0.1',   vtepDst: '10.0.0.2',
+  vni: 5001
+};
+
+function vxlanBuild() {
+  vxlanData = {
+    vmSrc:   document.getElementById('vx-vm-src').value.trim()   || '192.168.100.5',
+    vmDst:   document.getElementById('vx-vm-dst').value.trim()   || '192.168.100.20',
+    vtepSrc: document.getElementById('vx-vtep-src').value.trim() || '10.0.0.1',
+    vtepDst: document.getElementById('vx-vtep-dst').value.trim() || '10.0.0.2',
+    vni:     parseInt(document.getElementById('vx-vni').value)   || 5001,
+  };
+
+  // Update path labels
+  document.getElementById('vx-vm-src-lbl').textContent   = vxlanData.vmSrc;
+  document.getElementById('vx-vm-dst-lbl').textContent   = vxlanData.vmDst;
+  document.getElementById('vx-vtep-src-lbl').textContent = vxlanData.vtepSrc;
+  document.getElementById('vx-vtep-dst-lbl').textContent = vxlanData.vtepDst;
+  document.getElementById('vx-vni-lbl').textContent      = 'VNI = ' + vxlanData.vni;
+
+  // Render packet layers
+  const pktDiv = document.getElementById('vxlan-pkt');
+  pktDiv.innerHTML = VXLAN_LAYERS.map(l =>
+    `<div class="vxlan-layer ${l.cls}" id="vxl-${l.id}" onclick="vxlanShowDetail('${l.id}')">
+      ${l.label.replace('\n', '<br>')}
+      <span class="lsz">${l.size}</span>
+    </div>`
+  ).join('');
+
+  // Show overhead
+  const overhead = document.getElementById('vxlan-overhead');
+  overhead.style.display = '';
+  overhead.innerHTML =
+    `<strong>Overhead VXLAN</strong>: Outer Eth (14B) + Outer IP (20B) + UDP (8B) + VXLAN Header (8B) = <strong>50 byte</strong> thêm vào mỗi gói.<br>
+    MTU thông thường = 1500B → payload tối đa = 1500 − 50 = <strong>1450B</strong> trước khi cần fragmentation.<br>
+    Giải pháp: cấu hình <strong>Jumbo Frame (MTU 9000B)</strong> trên underlay — overhead 50B chỉ ~0.5% của 9000B.`;
+
+  document.getElementById('vxlan-detail').innerHTML =
+    'Click vào từng lớp màu ở trên để xem nội dung chi tiết của lớp đó.';
+}
+
+function vxlanShowDetail(layerId) {
+  const layer = VXLAN_LAYERS.find(l => l.id === layerId);
+  if (!layer) return;
+
+  // Remove active from all
+  VXLAN_LAYERS.forEach(l => {
+    const el = document.getElementById('vxl-' + l.id);
+    if (el) el.classList.remove('active');
+  });
+  // Add active to clicked
+  const el = document.getElementById('vxl-' + layerId);
+  if (el) el.classList.add('active');
+
+  document.getElementById('vxlan-detail').innerHTML = layer.getDetail(vxlanData);
+}
+
+// ─────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────
+sdnRenderTable();
+vlanRenderPortConfig();
+vlanUpdateSvgColors();
+vxlanBuild();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

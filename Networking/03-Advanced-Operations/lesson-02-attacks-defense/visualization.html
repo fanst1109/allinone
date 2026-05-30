@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Tấn công &amp; Phòng thủ Mạng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette Networking / Security ── */
+  :root {
+    --sec-blue:    #0369a1;
+    --sec-soft:    #e0f2fe;
+    --sec-mid:     #38bdf8;
+    --sec-dark:    #0c4a6e;
+    --atk-red:     #dc2626;
+    --atk-soft:    #fee2e2;
+    --def-green:   #16a34a;
+    --def-soft:    #dcfce7;
+    --warn-amber:  #d97706;
+    --warn-soft:   #fef3c7;
+    --normal-blue: #2563eb;
+    --bg-card:     #ffffff;
+    --bg-section:  #f0f9ff;
+  }
+
+  h1 { color: var(--sec-dark); }
+  h2 { color: var(--sec-blue); margin-top: 36px; padding-bottom: 6px;
+       border-bottom: 2px solid var(--sec-mid); }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(3,105,161,.10);
+    margin: 16px 0;
+  }
+  .info-box {
+    background: var(--sec-soft);
+    border-left: 4px solid var(--sec-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .warn-box {
+    background: var(--warn-soft);
+    border-left: 4px solid var(--warn-amber);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .def-box {
+    background: var(--def-soft);
+    border-left: 4px solid var(--def-green);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .atk-box {
+    background: var(--atk-soft);
+    border-left: 4px solid var(--atk-red);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Tags ── */
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .4px;
+  }
+  .tag-c  { background:#dbeafe; color:#1d4ed8; }
+  .tag-i  { background:#fce7f3; color:#9d174d; }
+  .tag-a  { background:#fee2e2; color:#991b1b; }
+  .tag-ok { background:#dcfce7; color:#166534; }
+  .tag-atk{ background:#fee2e2; color:#7f1d1d; }
+  .tag-def{ background:#dcfce7; color:#14532d; }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--sec-blue); color: white; }
+  .btn-primary:hover { background: var(--sec-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-danger { background: var(--atk-red); color: white; }
+  .btn-danger:hover { background: #991b1b; }
+  .btn-success { background: var(--def-green); color: white; }
+  .btn-success:hover { background: #15803d; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ── Log pane ── */
+  .log-pane {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    min-height: 80px;
+    max-height: 220px;
+    overflow-y: auto;
+    margin-top: 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .log-pane .ok   { color: #4ade80; }
+  .log-pane .err  { color: #f87171; }
+  .log-pane .warn { color: #fbbf24; }
+  .log-pane .def  { color: #67e8f9; }
+  .log-pane .info { color: #a78bfa; }
+
+  /* ── SVG stage ── */
+  .svg-stage { width: 100%; overflow-x: auto; }
+  .svg-stage svg { display: block; margin: 0 auto; }
+
+  /* ── Stat counter ── */
+  .stat-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .stat-box {
+    flex: 1 1 120px;
+    background: var(--bg-section);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+    border: 2px solid #bae6fd;
+    min-width: 100px;
+  }
+  .stat-box.danger { border-color: var(--atk-red); background: var(--atk-soft); }
+  .stat-box.safe   { border-color: var(--def-green); background: var(--def-soft); }
+  .stat-box .label { font-size: 12px; color: #64748b; margin-bottom: 4px; }
+  .stat-box .value { font-size: 22px; font-weight: 700; color: var(--sec-dark); font-family: monospace; }
+  .stat-box.danger .value { color: var(--atk-red); }
+  .stat-box.safe   .value { color: var(--def-green); }
+
+  /* ── Toggle switch ── */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .toggle {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+  }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #cbd5e1;
+    border-radius: 28px;
+    transition: .3s;
+  }
+  .toggle-slider:before {
+    content: "";
+    position: absolute;
+    height: 20px; width: 20px;
+    left: 4px; bottom: 4px;
+    background: white;
+    border-radius: 50%;
+    transition: .3s;
+  }
+  input:checked + .toggle-slider { background: var(--def-green); }
+  input:checked + .toggle-slider:before { transform: translateX(24px); }
+
+  /* ── Progress bar ── */
+  .progress-wrap {
+    background: #e2e8f0;
+    border-radius: 8px;
+    height: 18px;
+    overflow: hidden;
+    margin: 6px 0;
+  }
+  .progress-bar {
+    height: 100%;
+    border-radius: 8px;
+    transition: width .3s, background .3s;
+    font-size: 11px;
+    line-height: 18px;
+    color: white;
+    padding-left: 8px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  /* ─────────────────────────────────────────────────────
+     MODULE 1 — SYN Flood
+     ───────────────────────────────────────────────────── */
+  #syn-svg { display: block; margin: 0 auto; }
+
+  /* ─────────────────────────────────────────────────────
+     MODULE 2 — ARP Spoofing
+     ───────────────────────────────────────────────────── */
+  #arp-svg { display: block; margin: 0 auto; }
+
+  /* ─────────────────────────────────────────────────────
+     MODULE 3 — Traffic Comparison (Normal vs DDoS)
+     ───────────────────────────────────────────────────── */
+  #traffic-canvas { display: block; width: 100%; max-width: 760px; margin: 0 auto; }
+
+  /* ─────────────────────────────────────────────────────
+     MODULE 4 — CIA Attack Classifier
+     ───────────────────────────────────────────────────── */
+  .quiz-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .quiz-card {
+    background: var(--bg-section);
+    border: 2px solid #bae6fd;
+    border-radius: 8px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    user-select: none;
+  }
+  .quiz-card:hover { border-color: var(--sec-blue); background: #e0f2fe; }
+  .quiz-card.selected-c { border-color: #2563eb; background: #dbeafe; }
+  .quiz-card.selected-i { border-color: #9d174d; background: #fce7f3; }
+  .quiz-card.selected-a { border-color: var(--atk-red); background: var(--atk-soft); }
+  .quiz-card .scenario  { font-size: 13px; line-height: 1.5; }
+  .quiz-card .cia-badge { margin-top: 8px; font-size: 12px; font-weight: 700; }
+  #quiz-result {
+    background: var(--sec-soft);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 10px;
+    min-height: 40px;
+  }
+
+  /* ─────────────────────────────────────────────────────
+     Responsive
+     ───────────────────────────────────────────────────── */
+  @media (max-width: 640px) {
+    .quiz-grid { grid-template-columns: 1fr; }
+    .stat-row  { gap: 8px; }
+    .stat-box .value { font-size: 18px; }
+    .stat-box { padding: 8px 10px; }
+  }
+  @media (max-width: 480px) {
+    .log-pane { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Networking — Advanced</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-network-security/visualization.html">← L1: An ninh mạng</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Tấn công &amp; phòng thủ</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-wireless/visualization.html">L3: Mạng không dây →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Tấn công &amp; Phòng thủ Mạng</h1>
+<p>Bốn module tương tác: mô phỏng SYN flood (có/không SYN cookies), ARP spoofing (có/không DAI), so sánh lưu lượng bình thường vs DDoS với rate limit, và bộ phân loại tấn công theo CIA.</p>
+
+<!-- ═════════════════════════════════════════════════════════════
+     MODULE 1 — SYN Flood Simulation
+     ═════════════════════════════════════════════════════════════ -->
+<h2>1. SYN Flood — Mô phỏng SYN backlog</h2>
+<div class="card">
+  <p>Mỗi lần nhấn <strong>Gửi SYN flood</strong>, kẻ tấn công gửi 80 SYN giả (IP ngẫu nhiên). Server cố phản hồi SYN-ACK nhưng không nhận ACK nào. Theo dõi SYN backlog có đầy hay không.</p>
+
+  <div class="toggle-row">
+    <label class="toggle">
+      <input type="checkbox" id="syn-cookies-toggle" onchange="synToggleChanged()">
+      <span class="toggle-slider"></span>
+    </label>
+    <span id="syn-cookies-label" style="color:#dc2626">SYN cookies: TẮT</span>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-box" id="stat-backlog">
+      <div class="label">SYN backlog</div>
+      <div class="value" id="val-backlog">0 / 1024</div>
+    </div>
+    <div class="stat-box" id="stat-legit">
+      <div class="label">Kết nối hợp lệ</div>
+      <div class="value ok" id="val-legit" style="color:var(--def-green)">0</div>
+    </div>
+    <div class="stat-box" id="stat-drop">
+      <div class="label">Từ chối (DROP)</div>
+      <div class="value" id="val-drop" style="color:var(--atk-red)">0</div>
+    </div>
+  </div>
+
+  <div style="margin: 4px 0 8px; font-size: 12px; color: #64748b;">SYN backlog</div>
+  <div class="progress-wrap">
+    <div class="progress-bar" id="backlog-bar" style="width:0%;background:var(--def-green)">0%</div>
+  </div>
+
+  <div class="svg-stage" style="margin:16px 0">
+    <svg id="syn-svg" width="600" height="200" viewBox="0 0 600 200">
+      <!-- Attacker -->
+      <rect x="10" y="70" width="90" height="60" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+      <text x="55" y="94" text-anchor="middle" font-size="12" font-weight="700" fill="#991b1b">Attacker</text>
+      <text x="55" y="110" text-anchor="middle" font-size="10" fill="#dc2626">(IP giả)</text>
+      <text x="55" y="124" text-anchor="middle" font-size="10" fill="#dc2626">SYN flood</text>
+
+      <!-- Legitimate user -->
+      <rect x="10" y="150" width="90" height="45" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+      <text x="55" y="171" text-anchor="middle" font-size="12" font-weight="700" fill="#14532d">Người dùng</text>
+      <text x="55" y="187" text-anchor="middle" font-size="10" fill="#16a34a">hợp lệ</text>
+
+      <!-- Server -->
+      <rect x="490" y="50" width="100" height="100" rx="8" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"/>
+      <text x="540" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="#0c4a6e">Server</text>
+      <text x="540" y="96" text-anchor="middle" font-size="10" fill="#0369a1">Port 80</text>
+      <text x="540" y="116" text-anchor="middle" font-size="10" fill="#0369a1" id="server-status">Backlog:</text>
+      <text x="540" y="132" text-anchor="middle" font-size="13" font-weight="700" fill="#0c4a6e" id="server-backlog-text">0/1024</text>
+
+      <!-- Arrows group — SYN packets (animated) -->
+      <g id="syn-arrows"></g>
+
+      <!-- Legitimate connection arrow -->
+      <g id="legit-arrow"></g>
+
+      <!-- SYN Cookies badge -->
+      <rect id="cookies-badge" x="220" y="10" width="160" height="30" rx="6"
+            fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" opacity="0"/>
+      <text id="cookies-badge-text" x="300" y="30" text-anchor="middle"
+            font-size="12" font-weight="700" fill="#14532d" opacity="0">SYN Cookies ACTIVE</text>
+    </svg>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-danger" onclick="synFlood()">Gửi SYN flood (80 SYN)</button>
+    <button class="btn btn-success" onclick="legitConnect()">Kết nối hợp lệ</button>
+    <button class="btn btn-secondary" onclick="synReset()">Reset</button>
+  </div>
+
+  <div class="log-pane" id="syn-log">Nhấn nút để bắt đầu mô phỏng...</div>
+</div>
+
+<div class="info-box">
+  <strong>SYN cookies hoạt động như thế nào?</strong> Khi bật, server mã hóa thông tin kết nối vào ISN (Initial Sequence Number) của SYN-ACK:
+  <code>ISN = hash(src_ip, src_port, dst_ip, dst_port, timestamp, secret)</code>.
+  Không cấp phát entry half-open → backlog không tăng → SYN flood vô hiệu. Khi nhận ACK hợp lệ (ACK = ISN+1), server tái tạo trạng thái kết nối từ cookie.
+</div>
+
+<!-- ═════════════════════════════════════════════════════════════
+     MODULE 2 — ARP Spoofing
+     ═════════════════════════════════════════════════════════════ -->
+<h2>2. ARP Spoofing — Kẻ giả gateway</h2>
+<div class="card">
+  <p>Mô phỏng LAN 3 máy: Host A, Gateway thật (10.0.0.1), và Attacker (10.0.0.99). Bật tấn công để xem ARP poisoning, bật DAI (Dynamic ARP Inspection) để chặn.</p>
+
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px;">
+    <div class="toggle-row">
+      <label class="toggle">
+        <input type="checkbox" id="arp-atk-toggle" onchange="arpToggleAtk()">
+        <span class="toggle-slider"></span>
+      </label>
+      <span id="arp-atk-label" style="color:#64748b">ARP Attack: TẮT</span>
+    </div>
+    <div class="toggle-row">
+      <label class="toggle">
+        <input type="checkbox" id="dai-toggle" onchange="daiToggle()">
+        <span class="toggle-slider"></span>
+      </label>
+      <span id="dai-label" style="color:#64748b">DAI (DHCP Snooping): TẮT</span>
+    </div>
+  </div>
+
+  <div class="svg-stage">
+    <svg id="arp-svg" width="620" height="260" viewBox="0 0 620 260">
+      <!-- Switch -->
+      <rect x="240" y="100" width="140" height="50" rx="8"
+            fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+      <text x="310" y="121" text-anchor="middle" font-size="12" font-weight="700" fill="#374151">Switch L2</text>
+      <text x="310" y="139" text-anchor="middle" font-size="10" fill="#94a3b8" id="dai-badge">DAI: OFF</text>
+
+      <!-- Host A -->
+      <rect x="20" y="80" width="100" height="70" rx="8"
+            fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+      <text x="70" y="104" text-anchor="middle" font-size="12" font-weight="700" fill="#1d4ed8">Host A</text>
+      <text x="70" y="120" text-anchor="middle" font-size="10" fill="#1d4ed8">10.0.0.10</text>
+      <text x="70" y="138" text-anchor="middle" font-size="9" fill="#64748b" id="host-a-mac">GW MAC: aa:bb:cc</text>
+
+      <!-- Gateway -->
+      <rect x="500" y="20" width="110" height="60" rx="8"
+            fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+      <text x="555" y="45" text-anchor="middle" font-size="12" font-weight="700" fill="#14532d">Gateway</text>
+      <text x="555" y="61" text-anchor="middle" font-size="10" fill="#16a34a">10.0.0.1</text>
+      <text x="555" y="74" text-anchor="middle" font-size="9" fill="#16a34a">aa:bb:cc:dd:ee:ff</text>
+
+      <!-- Attacker -->
+      <rect x="500" y="170" width="110" height="70" rx="8"
+            fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+      <text x="555" y="195" text-anchor="middle" font-size="12" font-weight="700" fill="#991b1b">Attacker</text>
+      <text x="555" y="211" text-anchor="middle" font-size="10" fill="#dc2626">10.0.0.99</text>
+      <text x="555" y="227" text-anchor="middle" font-size="9" fill="#dc2626">11:22:33:44:55:66</text>
+
+      <!-- Normal connection lines (static) -->
+      <line x1="120" y1="115" x2="240" y2="120" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="380" y1="115" x2="500" y2="50"  stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="380" y1="120" x2="500" y2="195" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+      <!-- Traffic flow arrow (dynamic) -->
+      <g id="arp-traffic-flow">
+        <path id="traffic-path" d="M 120,115 Q 200,60 500,50" fill="none"
+              stroke="var(--def-green)" stroke-width="3" stroke-dasharray="8,4" opacity="0"/>
+        <polygon id="traffic-arrow" points="0,0 -8,-5 -8,5" fill="var(--def-green)" opacity="0"
+                 transform="translate(500,50) rotate(0)"/>
+        <text id="traffic-label" x="300" y="55" text-anchor="middle" font-size="11"
+              font-weight="700" fill="var(--def-green)" opacity="0">Traffic → Gateway thật</text>
+      </g>
+
+      <!-- MITM flow (dynamic) -->
+      <g id="arp-mitm-flow">
+        <path id="mitm-path1" d="M 120,130 Q 200,200 500,200" fill="none"
+              stroke="#dc2626" stroke-width="3" stroke-dasharray="8,4" opacity="0"/>
+        <text id="mitm-label" x="300" y="215" text-anchor="middle" font-size="11"
+              font-weight="700" fill="#dc2626" opacity="0">Traffic → Attacker (MITM!)</text>
+      </g>
+
+      <!-- ARP reply packet (animated) -->
+      <rect id="arp-pkt" x="0" y="0" width="80" height="28" rx="4"
+            fill="#fef3c7" stroke="#d97706" stroke-width="1.5" opacity="0"/>
+      <text id="arp-pkt-text" x="0" y="0" text-anchor="middle" font-size="9"
+            fill="#92400e" opacity="0">ARP: 10.0.0.1 → 11:22:33</text>
+
+      <!-- DAI block badge -->
+      <rect id="dai-block" x="380" y="130" width="80" height="26" rx="4"
+            fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" opacity="0"/>
+      <text id="dai-block-text" x="420" y="148" text-anchor="middle" font-size="11"
+            font-weight="700" fill="#14532d" opacity="0">DAI: BLOCK</text>
+    </svg>
+  </div>
+
+  <div class="log-pane" id="arp-log">Bật "ARP Attack" để xem tấn công...</div>
+</div>
+
+<div class="def-box">
+  <strong>DHCP Snooping + DAI hoạt động thế nào?</strong><br>
+  Switch xây <em>binding table</em>: <code>{port → (IP, MAC)}</code> từ quá trình DHCP. Khi nhận ARP reply, switch kiểm tra: "IP này có được cấp cho MAC này không?" Nếu không khớp → DROP ngay tại switch. Attacker không thể đầu độc ARP cache của Host A dù gửi bao nhiêu ARP reply.
+</div>
+
+<!-- ═════════════════════════════════════════════════════════════
+     MODULE 3 — Traffic: Normal vs DDoS + Rate Limiting
+     ═════════════════════════════════════════════════════════════ -->
+<h2>3. Lưu lượng bình thường vs DDoS — Rate Limiting</h2>
+<div class="card">
+  <p>Đồ thị thời gian thực: so sánh lưu lượng bình thường (xanh), lưu lượng tấn công (đỏ), và lưu lượng sau rate limiting (cam). Điều chỉnh cường độ tấn công và ngưỡng rate limit.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0;max-width:500px;">
+    <div>
+      <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:4px;">
+        Cường độ DDoS: <span id="ddos-val" style="color:var(--atk-red)">500</span> req/s
+      </label>
+      <input type="range" id="ddos-slider" min="50" max="2000" value="500" step="50"
+             oninput="document.getElementById('ddos-val').textContent=this.value;redrawTraffic()"
+             style="width:100%;accent-color:var(--atk-red)">
+    </div>
+    <div>
+      <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:4px;">
+        Rate limit: <span id="rl-val" style="color:var(--warn-amber)">200</span> req/s
+      </label>
+      <input type="range" id="rl-slider" min="50" max="500" value="200" step="50"
+             oninput="document.getElementById('rl-val').textContent=this.value;redrawTraffic()"
+             style="width:100%;accent-color:var(--warn-amber)">
+    </div>
+  </div>
+
+  <canvas id="traffic-canvas" width="760" height="200"></canvas>
+
+  <div class="stat-row" style="margin-top:12px;">
+    <div class="stat-box">
+      <div class="label">Lưu lượng bình thường</div>
+      <div class="value" id="normal-stat" style="color:var(--normal-blue)">50 req/s</div>
+    </div>
+    <div class="stat-box danger">
+      <div class="label">Tổng tấn công</div>
+      <div class="value" id="attack-stat">500 req/s</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Sau rate limit</div>
+      <div class="value" id="rl-stat" style="color:var(--warn-amber)">200 req/s</div>
+    </div>
+    <div class="stat-box" id="server-load-stat">
+      <div class="label">Server nhận</div>
+      <div class="value" id="server-load-val">250 req/s</div>
+    </div>
+  </div>
+
+  <div id="traffic-verdict" class="info-box" style="margin-top:10px;">
+    Điều chỉnh slider để thay đổi kịch bản.
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════════════
+     MODULE 4 — CIA Attack Classifier
+     ═════════════════════════════════════════════════════════════ -->
+<h2>4. Phân loại tấn công theo CIA</h2>
+<div class="card">
+  <p>Nhấn vào mỗi kịch bản tấn công để xem mục tiêu CIA bị tổn hại và biện pháp phòng thủ tương ứng.</p>
+
+  <div class="quiz-grid" id="cia-grid">
+    <!-- Cards generated by JS -->
+  </div>
+  <div id="quiz-result">Chọn một kịch bản để xem phân tích...</div>
+</div>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   MODULE 1 — SYN Flood Logic
+   ═══════════════════════════════════════════════════════════ */
+const SYN_BACKLOG_MAX = 1024;
+let synState = {
+  backlog: 0,
+  legit: 0,
+  drop: 0,
+  cookiesOn: false,
+  running: false
+};
+
+function synLog(msg, cls='') {
+  const el = document.getElementById('syn-log');
+  const line = document.createElement('span');
+  if (cls) line.className = cls;
+  line.textContent = msg + '\n';
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function synUpdateStats() {
+  const s = synState;
+  const pct = Math.min(100, Math.round(s.backlog / SYN_BACKLOG_MAX * 100));
+
+  // backlog stat box
+  const backlogVal = document.getElementById('val-backlog');
+  backlogVal.textContent = s.backlog + ' / ' + SYN_BACKLOG_MAX;
+  const backlogBox = document.getElementById('stat-backlog');
+  if (pct >= 100) backlogBox.className = 'stat-box danger';
+  else if (pct >= 80) { backlogBox.className = 'stat-box'; backlogBox.style.borderColor = '#d97706'; }
+  else backlogBox.className = 'stat-box';
+
+  document.getElementById('val-legit').textContent = s.legit;
+  document.getElementById('val-drop').textContent = s.drop;
+
+  const bar = document.getElementById('backlog-bar');
+  bar.style.width = pct + '%';
+  bar.textContent = pct + '%';
+  if (pct >= 100) bar.style.background = '#dc2626';
+  else if (pct >= 80) bar.style.background = '#d97706';
+  else bar.style.background = 'var(--def-green)';
+
+  document.getElementById('server-backlog-text').textContent = s.backlog + '/' + SYN_BACKLOG_MAX;
+  const sstatus = document.getElementById('server-status');
+  if (s.backlog >= SYN_BACKLOG_MAX) {
+    sstatus.textContent = 'FULL — DROP!';
+    sstatus.setAttribute('fill', '#dc2626');
+  } else {
+    sstatus.textContent = 'Backlog:';
+    sstatus.setAttribute('fill', '#0369a1');
+  }
+}
+
+function synDrawArrow(svg, x1, y1, x2, y2, color, label, duration) {
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+  line.setAttribute('x2', x1); line.setAttribute('y2', y1);
+  line.setAttribute('stroke', color); line.setAttribute('stroke-width', '2');
+  line.setAttribute('stroke-dasharray', '5,3'); line.setAttribute('opacity', '0.7');
+  svg.appendChild(line);
+
+  const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  t.setAttribute('x', (x1+x2)/2); t.setAttribute('y', (y1+y2)/2 - 6);
+  t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', '9');
+  t.setAttribute('fill', color);
+  t.textContent = label;
+  svg.appendChild(t);
+
+  const start = performance.now();
+  function step(now) {
+    const p = Math.min(1, (now - start) / duration);
+    line.setAttribute('x2', x1 + (x2-x1)*p);
+    line.setAttribute('y2', y1 + (y2-y1)*p);
+    if (p < 1) requestAnimationFrame(step);
+    else {
+      setTimeout(() => {
+        try { svg.removeChild(line); svg.removeChild(t); } catch(e){}
+      }, 600);
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+function synFlood() {
+  const s = synState;
+  const svg = document.getElementById('syn-arrows');
+  const before = s.backlog;
+
+  for (let i = 0; i < 80; i++) {
+    setTimeout(() => {
+      if (s.cookiesOn) {
+        // With SYN cookies — no backlog allocation
+        synDrawArrow(svg, 100, 97+Math.random()*20, 490, 97+Math.random()*10, '#dc2626', 'SYN', 400);
+      } else {
+        // Without SYN cookies — backlog grows
+        if (s.backlog < SYN_BACKLOG_MAX) {
+          s.backlog++;
+        } else {
+          s.drop++;
+        }
+        synDrawArrow(svg, 100, 97+Math.random()*20, 490, 97+Math.random()*10, '#dc2626', 'SYN', 400);
+      }
+      synUpdateStats();
+    }, i * 25 + Math.random() * 10);
+  }
+
+  setTimeout(() => {
+    const added = s.backlog - before;
+    if (s.cookiesOn) {
+      synLog('[SYN Cookies] 80 SYN nhận được — KHÔNG cấp phát half-open entry. Backlog: ' + s.backlog + '/1024', 'def');
+    } else if (s.backlog >= SYN_BACKLOG_MAX) {
+      synLog('[FULL] SYN backlog đầy (' + s.backlog + '/1024). DROP ' + s.drop + ' kết nối mới!', 'err');
+    } else {
+      synLog('[+' + added + '] SYN flood: backlog tăng lên ' + s.backlog + '/1024', 'warn');
+    }
+  }, 80*25 + 200);
+}
+
+function legitConnect() {
+  const s = synState;
+  const svg = document.getElementById('legit-arrow');
+  // Clear previous
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  if (!s.cookiesOn && s.backlog >= SYN_BACKLOG_MAX) {
+    synLog('[TỪCHỐI] Kết nối hợp lệ bị DROP vì backlog đầy!', 'err');
+    s.drop++;
+    synUpdateStats();
+    // Draw rejected arrow
+    const cross = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    cross.setAttribute('x', '300'); cross.setAttribute('y', '180');
+    cross.setAttribute('text-anchor', 'middle'); cross.setAttribute('font-size', '14');
+    cross.setAttribute('fill', '#dc2626'); cross.setAttribute('font-weight', '700');
+    cross.textContent = '✗ KẾT NỐI BỊ TỪ CHỐI';
+    svg.appendChild(cross);
+    setTimeout(() => { try { svg.removeChild(cross); } catch(e){} }, 2000);
+    return;
+  }
+
+  s.legit++;
+  synUpdateStats();
+  synLog('[OK] Kết nối hợp lệ thiết lập thành công (SYN → SYN-ACK → ACK)', 'ok');
+
+  // Draw arrow: user (55, 172) → server (490, 100)
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', '120'); line.setAttribute('y1', '172');
+  line.setAttribute('x2', '120'); line.setAttribute('y2', '172');
+  line.setAttribute('stroke', 'var(--def-green)'); line.setAttribute('stroke-width', '2.5');
+  svg.appendChild(line);
+
+  const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  lbl.setAttribute('x', '300'); lbl.setAttribute('y', '165');
+  lbl.setAttribute('text-anchor', 'middle'); lbl.setAttribute('font-size', '11');
+  lbl.setAttribute('font-weight', '700'); lbl.setAttribute('fill', 'var(--def-green)');
+  lbl.textContent = 'ESTABLISHED';
+  svg.appendChild(lbl);
+
+  const start = performance.now();
+  const tx = 490, ty = 100;
+  function step(now) {
+    const p = Math.min(1, (now-start)/600);
+    line.setAttribute('x2', 120 + (tx-120)*p);
+    line.setAttribute('y2', 172 + (ty-172)*p);
+    if (p < 1) requestAnimationFrame(step);
+    else {
+      setTimeout(() => { try { svg.removeChild(line); svg.removeChild(lbl); } catch(e){} }, 1500);
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+function synToggleChanged() {
+  const on = document.getElementById('syn-cookies-toggle').checked;
+  synState.cookiesOn = on;
+  const label = document.getElementById('syn-cookies-label');
+  const badge = document.getElementById('cookies-badge');
+  const badgeText = document.getElementById('cookies-badge-text');
+
+  if (on) {
+    label.textContent = 'SYN cookies: BẬT';
+    label.style.color = 'var(--def-green)';
+    badge.setAttribute('opacity', '1');
+    badgeText.setAttribute('opacity', '1');
+    synState.backlog = 0; // cookies reset half-open
+    synUpdateStats();
+    synLog('[SYN Cookies BẬT] Server không còn lưu trạng thái half-open. SYN flood không ảnh hưởng backlog.', 'def');
+  } else {
+    label.textContent = 'SYN cookies: TẮT';
+    label.style.color = '#dc2626';
+    badge.setAttribute('opacity', '0');
+    badgeText.setAttribute('opacity', '0');
+    synLog('[SYN Cookies TẮT] Server lưu half-open entry cho mỗi SYN nhận được.', 'warn');
+  }
+}
+
+function synReset() {
+  synState.backlog = 0; synState.legit = 0; synState.drop = 0;
+  synUpdateStats();
+  document.getElementById('syn-log').innerHTML = 'Đã reset. Nhấn nút để mô phỏng...\n';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODULE 2 — ARP Spoofing Logic
+   ═══════════════════════════════════════════════════════════ */
+let arpState = { attacking: false, daiOn: false, poisoned: false, interval: null };
+
+function arpLog(msg, cls='') {
+  const el = document.getElementById('arp-log');
+  const sp = document.createElement('span');
+  if (cls) sp.className = cls;
+  sp.textContent = msg + '\n';
+  el.appendChild(sp);
+  el.scrollTop = el.scrollHeight;
+}
+
+function arpUpdateFlow() {
+  const poisoned = arpState.poisoned;
+  const daiOn = arpState.daiOn;
+
+  // Traffic flow
+  const tPath = document.getElementById('traffic-path');
+  const tArr  = document.getElementById('traffic-arrow');
+  const tLbl  = document.getElementById('traffic-label');
+  const mPath = document.getElementById('mitm-path1');
+  const mLbl  = document.getElementById('mitm-label');
+
+  if (poisoned && !daiOn) {
+    // MITM active
+    tPath.setAttribute('opacity', '0'); tArr.setAttribute('opacity', '0'); tLbl.setAttribute('opacity', '0');
+    mPath.setAttribute('opacity', '1'); mLbl.setAttribute('opacity', '1');
+    document.getElementById('host-a-mac').textContent = 'GW MAC: 11:22:33 ←FAKE';
+    document.getElementById('host-a-mac').setAttribute('fill', '#dc2626');
+  } else {
+    // Normal or DAI blocked
+    tPath.setAttribute('opacity', '1'); tArr.setAttribute('opacity', '1'); tLbl.setAttribute('opacity', '1');
+    mPath.setAttribute('opacity', '0'); mLbl.setAttribute('opacity', '0');
+    document.getElementById('host-a-mac').textContent = 'GW MAC: aa:bb:cc';
+    document.getElementById('host-a-mac').setAttribute('fill', '#64748b');
+  }
+}
+
+function arpSendFakeReply() {
+  const pkt = document.getElementById('arp-pkt');
+  const pktTxt = document.getElementById('arp-pkt-text');
+  const daiBlock = document.getElementById('dai-block');
+  const daiBlockTxt = document.getElementById('dai-block-text');
+
+  // Animate packet from attacker (555, 205) toward switch (310, 125)
+  pkt.setAttribute('x', '515'); pkt.setAttribute('y', '191');
+  pktTxt.setAttribute('x', '555'); pktTxt.setAttribute('y', '205');
+  pkt.setAttribute('opacity', '1'); pktTxt.setAttribute('opacity', '1');
+
+  const startX = 515, startY = 191;
+  const endX = 270, endY = 110;
+  const start = performance.now();
+
+  function step(now) {
+    const p = Math.min(1, (now-start)/700);
+    const cx = startX + (endX - startX)*p;
+    const cy = startY + (endY - startY)*p;
+    pkt.setAttribute('x', cx); pkt.setAttribute('y', cy);
+    pktTxt.setAttribute('x', cx+40); pktTxt.setAttribute('y', cy+14);
+
+    if (p < 1) { requestAnimationFrame(step); return; }
+
+    // Arrived at switch
+    if (arpState.daiOn) {
+      // DAI blocks it
+      daiBlock.setAttribute('opacity', '1'); daiBlockTxt.setAttribute('opacity', '1');
+      pkt.setAttribute('opacity', '0'); pktTxt.setAttribute('opacity', '0');
+      arpLog('[DAI] ARP reply giả từ 11:22:33 cho IP 10.0.0.1 → BLOCK. Binding table: 10.0.0.1 = aa:bb:cc.', 'def');
+      setTimeout(() => {
+        daiBlock.setAttribute('opacity', '0'); daiBlockTxt.setAttribute('opacity', '0');
+      }, 1500);
+    } else {
+      // Packet forwarded to Host A — ARP cache poisoned
+      arpState.poisoned = true;
+      pkt.setAttribute('opacity', '0'); pktTxt.setAttribute('opacity', '0');
+      arpLog('[POISONED] Host A cập nhật ARP cache: 10.0.0.1 → 11:22:33:44:55:66. Traffic bây giờ đi qua Attacker!', 'err');
+      arpUpdateFlow();
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+function arpToggleAtk() {
+  const on = document.getElementById('arp-atk-toggle').checked;
+  arpState.attacking = on;
+  const label = document.getElementById('arp-atk-label');
+
+  if (on) {
+    label.textContent = 'ARP Attack: BẬT';
+    label.style.color = 'var(--atk-red)';
+    arpLog('[ATTACK] Attacker bắt đầu gửi ARP reply giả: "10.0.0.1 có MAC = 11:22:33:44:55:66"', 'err');
+    // Send fake ARP replies every 2s
+    arpSendFakeReply();
+    arpState.interval = setInterval(() => {
+      if (arpState.attacking) arpSendFakeReply();
+    }, 2500);
+  } else {
+    label.textContent = 'ARP Attack: TẮT';
+    label.style.color = '#64748b';
+    clearInterval(arpState.interval);
+    arpState.poisoned = false;
+    arpUpdateFlow();
+    arpLog('[STOP] Tấn công dừng. ARP cache phục hồi theo TTL.', 'info');
+  }
+}
+
+function daiToggle() {
+  const on = document.getElementById('dai-toggle').checked;
+  arpState.daiOn = on;
+  const label = document.getElementById('dai-label');
+  const badge = document.getElementById('dai-badge');
+
+  if (on) {
+    label.textContent = 'DAI (DHCP Snooping): BẬT';
+    label.style.color = 'var(--def-green)';
+    badge.textContent = 'DAI: ON';
+    badge.setAttribute('fill', '#16a34a');
+    // If already poisoned, recover
+    if (arpState.poisoned) {
+      arpState.poisoned = false;
+      arpUpdateFlow();
+    }
+    arpLog('[DAI ON] Switch kiểm tra ARP với binding table DHCP. Mọi ARP reply giả sẽ bị DROP.', 'def');
+  } else {
+    label.textContent = 'DAI (DHCP Snooping): TẮT';
+    label.style.color = '#64748b';
+    badge.textContent = 'DAI: OFF';
+    badge.setAttribute('fill', '#94a3b8');
+    arpLog('[DAI OFF] Switch không kiểm tra ARP. Attacker có thể đầu độc cache.', 'warn');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODULE 3 — Traffic Chart
+   ═══════════════════════════════════════════════════════════ */
+const TRAFFIC_TICKS = 30;
+let trafficData = { normal: [], attack: [], afterRL: [] };
+
+function initTrafficData() {
+  for (let i = 0; i < TRAFFIC_TICKS; i++) {
+    trafficData.normal.push(40 + Math.random()*20);
+    trafficData.attack.push(0);
+    trafficData.afterRL.push(0);
+  }
+}
+
+function redrawTraffic() {
+  const canvas = document.getElementById('traffic-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const PAD = { top: 20, right: 20, bottom: 40, left: 50 };
+  const cW = W - PAD.left - PAD.right;
+  const cH = H - PAD.top - PAD.bottom;
+
+  const ddosAmt = parseInt(document.getElementById('ddos-slider').value);
+  const rlAmt   = parseInt(document.getElementById('rl-slider').value);
+  const normalAmt = 50;
+
+  // Update last data point
+  for (let i = 0; i < TRAFFIC_TICKS; i++) {
+    trafficData.normal[i] = 40 + Math.random()*20;
+    trafficData.attack[i] = ddosAmt * (0.85 + Math.random()*0.3);
+    const total = trafficData.normal[i] + trafficData.attack[i];
+    // After rate limit: limit attack portion but preserve normal
+    const attackLimited = Math.min(trafficData.attack[i], Math.max(0, rlAmt - trafficData.normal[i]));
+    trafficData.afterRL[i] = trafficData.normal[i] + attackLimited;
+  }
+
+  const maxVal = Math.max(ddosAmt * 1.3, normalAmt * 2, rlAmt * 1.2, 100);
+
+  // Clear
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 1;
+  for (let g = 0; g <= 4; g++) {
+    const y = PAD.top + cH * (1 - g/4);
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left+cW, y); ctx.stroke();
+    ctx.fillStyle = '#94a3b8'; ctx.font = '11px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(maxVal * g/4), PAD.left - 4, y + 4);
+  }
+
+  function drawLine(data, color, dash=[]) {
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash(dash);
+    for (let i = 0; i < data.length; i++) {
+      const x = PAD.left + i * (cW / (TRAFFIC_TICKS-1));
+      const y = PAD.top + cH * (1 - Math.min(data[i], maxVal) / maxVal);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Attack (red, behind)
+  ctx.globalAlpha = 0.4;
+  ctx.fillStyle = '#dc2626';
+  ctx.beginPath();
+  for (let i = 0; i < trafficData.attack.length; i++) {
+    const x = PAD.left + i * (cW / (TRAFFIC_TICKS-1));
+    const y = PAD.top + cH * (1 - Math.min(trafficData.attack[i], maxVal) / maxVal);
+    if (i===0) ctx.moveTo(x, PAD.top+cH); else ctx.lineTo(x,y);
+  }
+  ctx.lineTo(PAD.left + (TRAFFIC_TICKS-1)*(cW/(TRAFFIC_TICKS-1)), PAD.top+cH);
+  ctx.closePath(); ctx.fill();
+  ctx.globalAlpha = 1;
+
+  drawLine(trafficData.attack, '#dc2626');
+  drawLine(trafficData.afterRL, '#d97706', [8,4]);
+  drawLine(trafficData.normal, '#2563eb');
+
+  // Legend
+  const legends = [
+    { color: '#2563eb', label: 'Bình thường (~50 req/s)', dash: [] },
+    { color: '#dc2626', label: 'DDoS (' + ddosAmt + ' req/s)', dash: [] },
+    { color: '#d97706', label: 'Sau rate limit (<' + rlAmt + ' req/s)', dash: [8,4] },
+  ];
+  legends.forEach((l, idx) => {
+    const lx = PAD.left + idx * (cW/3);
+    const ly = H - PAD.bottom + 16;
+    ctx.setLineDash(l.dash);
+    ctx.beginPath(); ctx.strokeStyle = l.color; ctx.lineWidth = 2.5;
+    ctx.moveTo(lx, ly); ctx.lineTo(lx+20, ly); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#374151'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(l.label, lx+24, ly+4);
+  });
+
+  // Stats
+  document.getElementById('normal-stat').textContent = '50 req/s';
+  document.getElementById('attack-stat').textContent = ddosAmt + ' req/s';
+  document.getElementById('rl-stat').textContent = rlAmt + ' req/s';
+
+  const serverLoad = normalAmt + Math.min(ddosAmt, Math.max(0, rlAmt - normalAmt));
+  document.getElementById('server-load-val').textContent = serverLoad + ' req/s';
+  const slStat = document.getElementById('server-load-stat');
+  if (serverLoad > rlAmt * 0.9) { slStat.className = 'stat-box danger'; }
+  else { slStat.className = 'stat-box safe'; }
+
+  // Verdict
+  const verdict = document.getElementById('traffic-verdict');
+  if (ddosAmt <= rlAmt) {
+    verdict.className = 'def-box';
+    verdict.innerHTML = '<strong>Rate limit hiệu quả:</strong> Cường độ DDoS (' + ddosAmt + ' req/s) &le; ngưỡng rate limit (' + rlAmt + ' req/s). Server nhận ' + serverLoad + ' req/s — tổng bao gồm traffic bình thường, vẫn hoạt động được.';
+  } else if (normalAmt + (rlAmt - normalAmt) < normalAmt * 2) {
+    verdict.className = 'warn-box';
+    verdict.innerHTML = '<strong>Rate limit giảm nhẹ tải:</strong> DDoS ' + ddosAmt + ' req/s vượt ngưỡng ' + rlAmt + ' req/s. Traffic DDoS bị cắt còn ' + Math.max(0, rlAmt - normalAmt) + ' req/s qua rate limit. Server nhận ~' + serverLoad + ' req/s — có thể chịu được.';
+  } else {
+    verdict.className = 'atk-box';
+    verdict.innerHTML = '<strong>Rate limit không đủ:</strong> DDoS ' + ddosAmt + ' req/s quá mạnh so với ngưỡng ' + rlAmt + ' req/s. Cần tăng ngưỡng rate limit, dùng scrubbing center hoặc anycast CDN để phân tán tải.';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODULE 4 — CIA Classifier
+   ═══════════════════════════════════════════════════════════ */
+const CIA_SCENARIOS = [
+  {
+    title: 'SYN Flood',
+    desc: 'Server nhận 100.000 SYN/giây từ 50.000 IP khác nhau. Người dùng hợp lệ không kết nối được.',
+    cia: 'A',
+    reason: 'Tổn hại <strong>Availability</strong>: server bị làm cạn SYN backlog, từ chối kết nối hợp lệ. Không đọc/sửa dữ liệu (C và I không bị ảnh hưởng trực tiếp).',
+    defense: 'SYN cookies, rate limiting, scrubbing center / anycast CDN.'
+  },
+  {
+    title: 'MITM passive (nghe lén HTTP)',
+    desc: 'Attacker dùng ARP spoofing để chèn vào giữa client và server. Đọc toàn bộ traffic HTTP nhưng không sửa nội dung.',
+    cia: 'C',
+    reason: 'Tổn hại <strong>Confidentiality</strong>: attacker đọc được nội dung (mật khẩu, cookie phiên). Không sửa dữ liệu nên I còn nguyên. Dịch vụ vẫn hoạt động nên A còn nguyên.',
+    defense: 'TLS (HTTPS): mã hóa traffic, attacker không đọc được dù chèn vào giữa. Thêm HSTS để tránh downgrade.'
+  },
+  {
+    title: 'DNS Cache Poisoning',
+    desc: 'Attacker đầu độc cache resolver, trỏ bank.example.com đến IP của máy attacker. Người dùng nhập thông tin vào trang giả.',
+    cia: 'C + I',
+    reason: 'Tổn hại <strong>Integrity</strong>: bản ghi DNS bị làm sai (trỏ sai địa chỉ). Tổn hại <strong>Confidentiality</strong>: người dùng nhập thông tin vào trang giả — thông tin bị thu thập. Dịch vụ bank thật vẫn online nên A của bank thật không bị ảnh hưởng.',
+    defense: 'DNSSEC: ký chữ ký số lên record DNS, resolver từ chối record không có chữ ký hợp lệ. DoH/DoT: mã hóa transport DNS.'
+  },
+  {
+    title: 'ARP Spoofing → MITM active',
+    desc: 'Attacker gửi ARP reply giả, trở thành "gateway" trên LAN. Đọc VÀ sửa nội dung HTTP đang truyền (chèn quảng cáo/mã độc).',
+    cia: 'C + I',
+    reason: 'Tổn hại <strong>Confidentiality</strong>: đọc được toàn bộ traffic rõ (C mất). Tổn hại <strong>Integrity</strong>: sửa nội dung gói tin đang truyền (I mất). Dịch vụ vẫn đến nơi (qua attacker) nên A kỹ thuật không mất — nhưng tính toàn vẹn phiên hoàn toàn mất.',
+    defense: 'DHCP Snooping + DAI tại switch chặn ARP reply giả. TLS chống sửa nội dung (integrity bởi MAC/AEAD).'
+  },
+  {
+    title: 'DNS Amplification DDoS',
+    desc: 'Attacker gửi DNS ANY query (60B) với IP nguồn giả = IP nạn nhân, resolver mở trả 3000B. 10.000 resolver × nhiều lần/giây.',
+    cia: 'A',
+    reason: 'Tổn hại <strong>Availability</strong>: nạn nhân bị ngập bởi lượng traffic khuếch đại (hệ số ~50×) mà họ không yêu cầu. Không đọc/sửa dữ liệu của nạn nhân.',
+    defense: 'BCP38 tại ISP (chặn IP spoofing). Tắt ANY query trên resolver mở. Rate limiting phản hồi DNS (RRL).'
+  },
+  {
+    title: 'Port Scan (Nmap -sS)',
+    desc: 'Một IP bên ngoài gửi SYN đến lần lượt 65.535 port trong 5 phút. Không có kết nối thật được thiết lập.',
+    cia: 'Tiền trinh sát',
+    reason: '<strong>Không trực tiếp tổn hại CIA</strong> — nhưng thu thập thông tin bề mặt tấn công: port nào mở, dịch vụ gì đang chạy, OS fingerprint. Đây là bước chuẩn bị cho tấn công thật. Một số tổ chức phân loại là tổn hại A nhẹ (tạo tải) và tiết lộ thông tin cấu trúc (C một phần).',
+    defense: 'Đóng port thừa. Firewall default-deny. IDS/IPS phát hiện scan pattern. Honeypot port. Rate limiting SYN mới.'
+  }
+];
+
+function buildCIAGrid() {
+  const grid = document.getElementById('cia-grid');
+  grid.innerHTML = '';
+  CIA_SCENARIOS.forEach((s, idx) => {
+    const card = document.createElement('div');
+    card.className = 'quiz-card';
+    card.dataset.idx = idx;
+
+    const ciaColors = { 'C': 'tag-c', 'I': 'tag-i', 'A': 'tag-a',
+                        'C + I': 'tag-i', 'Tiền trinh sát': 'tag-ok' };
+    card.innerHTML = `
+      <div class="scenario"><strong>${s.title}</strong><br><span style="font-size:12px;color:#64748b">${s.desc}</span></div>
+      <div class="cia-badge"><span class="tag ${ciaColors[s.cia] || 'tag-ok'}">${s.cia}</span></div>
+    `;
+    card.addEventListener('click', () => showCIADetail(idx));
+    grid.appendChild(card);
+  });
+}
+
+function showCIADetail(idx) {
+  const s = CIA_SCENARIOS[idx];
+  const result = document.getElementById('quiz-result');
+
+  // Deselect all
+  document.querySelectorAll('.quiz-card').forEach(c => {
+    c.className = 'quiz-card';
+  });
+
+  // Highlight selected
+  const selectedCard = document.querySelector(`.quiz-card[data-idx="${idx}"]`);
+  const cls = { 'C': 'selected-c', 'I': 'selected-i', 'A': 'selected-a', 'C + I': 'selected-i', 'Tiền trinh sát': '' }[s.cia] || '';
+  if (cls) selectedCard.classList.add(cls);
+
+  result.innerHTML = `
+    <strong>${s.title}</strong> — CIA bị tổn hại: <strong>${s.cia}</strong><br>
+    <span style="color:#374151">${s.reason}</span><br><br>
+    <strong style="color:var(--def-green)">Phòng thủ:</strong> ${s.defense}
+  `;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════ */
+initTrafficData();
+redrawTraffic();
+buildCIAGrid();
+synUpdateStats();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

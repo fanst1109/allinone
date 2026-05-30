@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Nhà Trần &amp; Ba lần kháng chiến chống Nguyên – Mông</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette lịch sử Việt ── */
+  :root {
+    --accent:       #b45309;
+    --accent-soft:  #fef3c7;
+    --accent-dark:  #78350f;
+    --red-war:      #b91c1c;
+    --red-soft:     #fee2e2;
+    --green-peace:  #15803d;
+    --green-soft:   #dcfce7;
+    --stone:        #78716c;
+    --stone-soft:   #f5f5f4;
+    --blue-water:   #1d4ed8;
+    --blue-mid:     #3b82f6;
+    --blue-soft:    #dbeafe;
+    --bg-card:      #ffffff;
+    --bg-section:   #fffbeb;
+    --mongol-red:   #991b1b;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.5rem; margin-bottom: 6px; }
+  h2 { color: var(--accent); margin-top: 40px; padding-bottom: 8px;
+       border-bottom: 2px solid var(--accent-soft); font-size: 1.2rem; }
+
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 5px rgba(180,83,9,.12);
+    margin: 16px 0;
+  }
+
+  /* ── Info boxes ── */
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .war-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-war);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .water-box {
+    background: var(--blue-soft);
+    border-left: 4px solid var(--blue-water);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .green-box {
+    background: var(--green-soft);
+    border-left: 4px solid var(--green-peace);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary   { background: var(--accent);    color: white; }
+  .btn-primary:hover   { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-war       { background: var(--red-war);  color: white; }
+  .btn-war:hover { background: #991b1b; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ══════════════════════════════════════════════════
+     MODULE 1 — Chọn lần kháng chiến + Bản đồ SVG
+     ══════════════════════════════════════════════════ */
+  .war-tabs {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+  .war-tab {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 2px solid #d1d5db;
+    background: #f9fafb;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all .2s;
+    color: #374151;
+  }
+  .war-tab.active {
+    border-color: var(--red-war);
+    background: var(--red-soft);
+    color: var(--red-war);
+  }
+  .war-tab:hover:not(.active) {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  #map-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+  #campaign-map {
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+    border: 2px solid #cbd5e1;
+    max-width: 100%;
+  }
+
+  .map-legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-line {
+    width: 28px; height: 4px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .war-desc {
+    background: var(--bg-section);
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .war-desc strong { color: var(--accent-dark); }
+  .war-desc .phase-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-right: 6px;
+    margin-bottom: 6px;
+  }
+  .tag-year { background: var(--red-soft); color: var(--red-war); }
+  .tag-result { background: var(--green-soft); color: var(--green-peace); }
+  .tag-strategy { background: var(--accent-soft); color: var(--accent-dark); }
+
+  /* ══════════════════════════════════════════════════
+     MODULE 2 — Mô phỏng Bạch Đằng 1288 (Canvas)
+     ══════════════════════════════════════════════════ */
+  #bd1288-canvas {
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+    border: 2px solid #cbd5e1;
+    max-width: 100%;
+  }
+  #bd1288-wrap { width: 100%; overflow-x: auto; }
+
+  .step-panel {
+    background: var(--bg-section);
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    min-height: 70px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .step-panel .phase-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .tag-prep    { background: var(--stone-soft); color: var(--stone); }
+  .tag-lure    { background: var(--blue-soft); color: var(--blue-water); }
+  .tag-trap    { background: var(--red-soft); color: var(--red-war); }
+  .tag-attack  { background: #fee2e2; color: #991b1b; font-weight: 900; }
+  .tag-victory { background: var(--green-soft); color: var(--green-peace); }
+
+  .tide-meter {
+    display: flex; align-items: center; gap: 12px; margin: 10px 0;
+  }
+  .tide-label { font-size: 13px; font-weight: 700; color: var(--blue-water); min-width: 80px; }
+  .tide-bar-wrap {
+    flex: 1; height: 16px; background: #e0f2fe;
+    border-radius: 8px; overflow: hidden; border: 1px solid #bae6fd;
+  }
+  .tide-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #1d4ed8, #3b82f6);
+    border-radius: 8px;
+    transition: width .6s ease;
+  }
+  .tide-val { font-size: 13px; color: var(--blue-water); font-weight: 700; min-width: 60px; }
+
+  .step-dots {
+    display: flex; gap: 8px; margin: 8px 0; flex-wrap: wrap;
+  }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid #d1d5db; background: #f9fafb;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #9ca3af;
+    cursor: pointer; transition: all .2s;
+  }
+  .step-dot.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .step-dot.done   { background: var(--green-peace); border-color: var(--green-peace); color: white; }
+
+  /* ══════════════════════════════════════════════════
+     MODULE 3 — Timeline 1225–1400
+     ══════════════════════════════════════════════════ */
+  .tl-filter {
+    display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0;
+  }
+  .tl-filter-btn {
+    padding: 5px 14px; border-radius: 14px;
+    border: 2px solid #d1d5db; background: #f9fafb;
+    cursor: pointer; font-size: 12px; font-weight: 600;
+    transition: all .2s;
+  }
+  .tl-filter-btn.on-all    { border-color: #6b7280; background: #6b7280; color: white; }
+  .tl-filter-btn.on-war    { border-color: var(--red-war); background: var(--red-war); color: white; }
+  .tl-filter-btn.on-peace  { border-color: var(--green-peace); background: var(--green-peace); color: white; }
+  .tl-filter-btn.on-culture{ border-color: var(--accent); background: var(--accent); color: white; }
+
+  .timeline {
+    position: relative; padding: 12px 0 12px 32px; margin: 8px 0;
+  }
+  .timeline::before {
+    content: ''; position: absolute; left: 12px; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--accent-soft), var(--accent), var(--red-war), var(--green-peace));
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative; margin-bottom: 18px; padding-left: 20px;
+    transition: opacity .25s;
+  }
+  .tl-item.hidden { display: none; }
+  .tl-item::before {
+    content: ''; position: absolute; left: -26px; top: 6px;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 3px solid white; box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+  }
+  .tl-item.war::before     { background: var(--red-war);    box-shadow: 0 0 0 2px var(--red-war); }
+  .tl-item.peace::before   { background: var(--green-peace); box-shadow: 0 0 0 2px var(--green-peace); }
+  .tl-item.key::before {
+    width: 18px; height: 18px; left: -28px; top: 4px;
+    background: var(--red-war);
+    box-shadow: 0 0 0 3px var(--red-war), 0 0 0 6px rgba(185,28,28,.2);
+  }
+  .tl-year  { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .tl-item.war .tl-year   { color: var(--red-war); }
+  .tl-item.key .tl-year   { color: var(--red-war); font-size: 15px; }
+  .tl-item.peace .tl-year { color: var(--green-peace); }
+  .tl-title { font-weight: 700; font-size: 14px; color: #1f2937; line-height: 1.4; }
+  .tl-desc  { font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.5; }
+  .tl-badge {
+    display: inline-block; padding: 1px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; margin-left: 6px; vertical-align: middle;
+  }
+  .badge-key    { background: #fee2e2; color: #991b1b; }
+  .badge-normal { background: var(--accent-soft); color: var(--accent-dark); }
+  .badge-peace  { background: var(--green-soft); color: var(--green-peace); }
+  .badge-culture{ background: #ede9fe; color: #5b21b6; }
+
+  /* ══════════════════════════════════════════════════
+     MODULE 4 — So sánh Bạch Đằng 938 vs 1288
+     ══════════════════════════════════════════════════ */
+  .compare-table {
+    width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0;
+  }
+  .compare-table th {
+    background: var(--accent); color: white; padding: 10px 12px;
+    text-align: left; font-weight: 700;
+  }
+  .compare-table th:first-child { border-radius: 8px 0 0 0; }
+  .compare-table th:last-child  { border-radius: 0 8px 0 0; }
+  .compare-table td {
+    padding: 9px 12px; border-bottom: 1px solid #f3f4f6;
+    vertical-align: top; line-height: 1.5; color: #374151;
+  }
+  .compare-table tr:nth-child(even) td { background: #fafafa; }
+  .compare-table .highlight-row td {
+    background: #fef3c7; font-weight: 600; color: var(--accent-dark);
+  }
+  .compare-table td:first-child { font-weight: 700; color: #1f2937; }
+
+  /* ══════════════════════════════════════════════════
+     MODULE 5 — Quiz
+     ══════════════════════════════════════════════════ */
+  .quiz-q {
+    font-weight: 700; font-size: 15px;
+    margin-bottom: 12px; color: #1f2937; line-height: 1.5;
+  }
+  .quiz-opts {
+    display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;
+  }
+  .quiz-opt {
+    padding: 10px 14px; border-radius: 7px; border: 2px solid #e5e7eb;
+    background: #f9fafb; cursor: pointer; font-size: 14px; text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: var(--green-peace); background: var(--green-soft); color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px; border-radius: 8px; font-size: 14px;
+    line-height: 1.6; margin-top: 8px; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: var(--green-soft); color: #14532d; border: 1px solid var(--green-peace); }
+  .quiz-feedback.err { background: var(--red-soft); color: #991b1b; border: 1px solid var(--red-war); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score { font-weight: 700; color: var(--green-peace); font-size: 15px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .compare-table { font-size: 12px; }
+    .compare-table th, .compare-table td { padding: 8px 8px; }
+    .map-legend { gap: 10px; }
+    .war-tabs { gap: 6px; }
+  }
+  @media (max-width: 480px) {
+    .war-tab { padding: 6px 12px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử VN — Triều đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-nha-ly/visualization.html">← L1: Nhà Lý</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Nhà Trần &amp; kháng Nguyên – Mông</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-ho-minh-thuoc-lam-son/visualization.html">L3: Hồ, Minh thuộc &amp; Lam Sơn →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Nhà Trần &amp; Ba lần kháng chiến chống Nguyên – Mông (1225–1400)</h1>
+<p class="subtitle">Ba lần đánh bại đế quốc Mông Cổ — đỉnh cao nghệ thuật quân sự Việt Nam — mô phỏng bản đồ chiến dịch &amp; trận Bạch Đằng 1288</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ chiến dịch ba lần kháng chiến
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ chiến dịch — chọn lần kháng chiến</h2>
+
+<div class="card">
+  <div class="info-box">
+    Chọn lần kháng chiến để xem hướng tiến quân của Nguyên – Mông và diễn biến chính. Bản đồ mô phỏng địa lý giản lược, tập trung vào hướng di chuyển và các trận đánh then chốt.
+  </div>
+
+  <div class="war-tabs">
+    <button class="war-tab active" onclick="showCampaign(0)">Lần 1 — 1258</button>
+    <button class="war-tab" onclick="showCampaign(1)">Lần 2 — 1285</button>
+    <button class="war-tab" onclick="showCampaign(2)">Lần 3 — 1287–1288</button>
+  </div>
+
+  <div id="map-wrap">
+    <svg id="campaign-map" width="680" height="480" viewBox="0 0 680 480">
+      <!-- Nền biển -->
+      <rect width="680" height="480" fill="#bfdbfe"/>
+
+      <!-- Lãnh thổ Đại Việt (phác thảo đơn giản) -->
+      <!-- Phần bắc: Thăng Long + vùng núi phía bắc -->
+      <polygon points="120,40 380,40 420,80 440,140 400,200 340,240 280,260 200,280 160,260 100,220 80,160 90,100" fill="#d4a96a" stroke="#78350f" stroke-width="1.5"/>
+      <!-- Phần trung (Thanh Hóa-Nghệ An) -->
+      <polygon points="160,260 200,280 220,340 200,420 140,440 110,380 100,300" fill="#c8965a" stroke="#78350f" stroke-width="1.5"/>
+      <!-- Trung phần hơn nam (thêm) -->
+      <polygon points="200,280 280,260 300,320 260,400 220,420 200,420 220,340" fill="#c8965a" stroke="#78350f" stroke-width="1.5"/>
+
+      <!-- Phần đất Chiêm Thành phía Nam -->
+      <polygon points="140,440 200,420 260,400 280,440 240,470 160,470" fill="#b8a88a" stroke="#7c6a50" stroke-width="1" stroke-dasharray="4,3"/>
+
+      <!-- Vùng núi phía Bắc / Vân Nam -->
+      <polygon points="0,0 680,0 680,60 420,80 380,40 120,40 80,20" fill="#a3c4a3" stroke="#4a7c59" stroke-width="1"/>
+
+      <!-- Biển Đông (nhãn) -->
+      <text x="560" y="200" fill="#1d4ed8" font-size="13" font-weight="bold" opacity="0.7">Biển Đông</text>
+
+      <!-- Vịnh Bắc Bộ -->
+      <text x="440" y="310" fill="#1d4ed8" font-size="11" opacity="0.6">Vịnh Bắc Bộ</text>
+
+      <!-- Sông Hồng (đơn giản) -->
+      <path d="M 170,60 Q 220,100 260,130 Q 300,160 330,190 Q 360,220 380,250" stroke="#3b82f6" stroke-width="3" fill="none" opacity="0.8"/>
+      <text x="345" y="245" fill="#1d4ed8" font-size="10" font-style="italic">sông Hồng</text>
+
+      <!-- Sông Bạch Đằng -->
+      <path d="M 390,120 Q 420,140 450,170 Q 470,190 480,220" stroke="#3b82f6" stroke-width="2.5" fill="none" opacity="0.7"/>
+      <text x="490" y="215" fill="#1d4ed8" font-size="10" font-style="italic">Bạch Đằng</text>
+
+      <!-- Các địa danh cố định -->
+      <!-- Thăng Long -->
+      <circle cx="285" cy="165" r="9" fill="#f59e0b" stroke="#78350f" stroke-width="2"/>
+      <text x="295" y="163" fill="#78350f" font-size="12" font-weight="bold">Thăng Long</text>
+
+      <!-- Vân Đồn -->
+      <circle cx="465" cy="130" r="6" fill="#6366f1" stroke="#3730a3" stroke-width="1.5"/>
+      <text x="472" y="128" fill="#3730a3" font-size="11">Vân Đồn</text>
+
+      <!-- Bình Than -->
+      <circle cx="355" cy="210" r="5" fill="#d97706" stroke="#78350f" stroke-width="1.5"/>
+      <text x="363" y="213" fill="#78350f" font-size="11">Bình Than</text>
+
+      <!-- Bạch Đằng (điểm trận) -->
+      <circle id="bd-dot" cx="445" cy="178" r="7" fill="#b91c1c" stroke="#7f1d1d" stroke-width="2"/>
+      <text x="453" y="183" fill="#7f1d1d" font-size="11" font-weight="bold">Bạch Đằng</text>
+
+      <!-- Nhãn vùng phía Bắc -->
+      <text x="200" y="28" fill="#14532d" font-size="12" font-weight="bold">Đế quốc Nguyên (Vân Nam)</text>
+
+      <!-- Nhãn Chiêm Thành -->
+      <text x="148" y="460" fill="#7c6a50" font-size="11">Chiêm Thành</text>
+
+      <!-- Lớp các mũi tên & nhãn chiến dịch — được JS vẽ -->
+      <g id="campaign-layer"></g>
+    </svg>
+  </div>
+
+  <div class="map-legend" id="map-legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#b91c1c"></div>
+      <span>Hướng tiến quân Nguyên – Mông</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#15803d"></div>
+      <span>Quân Trần phản công / phòng thủ</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#f59e0b"></div>
+      <span>Kinh đô Thăng Long</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#6366f1"></div>
+      <span>Địa danh quan trọng</span>
+    </div>
+  </div>
+
+  <div class="war-desc" id="war-desc">
+    <span class="phase-tag tag-year">Năm 1258</span>
+    <span class="phase-tag tag-strategy">Chiến lược: Vườn không nhà trống</span>
+    <span class="phase-tag tag-result">Kết quả: Thắng lợi</span>
+    <br>
+    <strong>Lần kháng chiến thứ nhất (tháng 1–2/1258)</strong>: Khoảng 3 vạn quân Mông Cổ do Ngột Lương Hợp Thai chỉ huy từ Vân Nam tràn xuống. Vua Trần Thái Tông thực hiện kế "vườn không nhà trống" — rút lui chiến lược, bỏ Thăng Long trống. Quân Mông vào thành không tìm được lương thực. Ngày 29/1/1258, quân Trần phản công tại Đông Bộ Đầu (bờ sông Hồng), quân Mông thua và rút về. Cuộc kháng chiến kết thúc sau chưa đầy 1 tháng.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Mô phỏng Bạch Đằng 1288
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Mô phỏng Trận Bạch Đằng 1288</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Kế thừa Ngô Quyền 938:</strong> Trần Hưng Đạo áp dụng lại kế đóng cọc &amp; thủy triều của Ngô Quyền từ 350 năm trước. Nhấn <strong>Bước tiếp theo</strong> để xem từng giai đoạn, hoặc bấm số thứ tự bước.
+  </div>
+
+  <div class="tide-meter">
+    <span class="tide-label">Thủy triều:</span>
+    <div class="tide-bar-wrap"><div class="tide-bar" id="tide-bar1288" style="width:50%"></div></div>
+    <span class="tide-val" id="tide-val1288">Trung bình</span>
+  </div>
+
+  <div class="step-dots" id="step-dots-1288"></div>
+
+  <div id="bd1288-wrap">
+    <canvas id="bd1288-canvas" width="680" height="340"></canvas>
+  </div>
+
+  <div class="step-panel" id="step-panel-1288">
+    <div class="phase-tag tag-prep" id="phase-tag-1288">Bối cảnh</div><br>
+    <span id="step-text-1288">Nhấn <strong>Bắt đầu mô phỏng</strong> để xem trận Bạch Đằng 1288 diễn ra từng bước.</span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="btn1288-prev" onclick="bd1288Prev()">← Bước trước</button>
+    <button class="btn btn-primary" id="btn1288-next" onclick="bd1288Next()">Bắt đầu mô phỏng →</button>
+    <button class="btn btn-secondary" onclick="bd1288Reset()">Khởi động lại</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Timeline 1225–1400
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Chuỗi thời gian 1225 – 1400</h2>
+
+<div class="card">
+  <div class="tl-filter">
+    <button class="tl-filter-btn on-all" data-filter="all" onclick="tlFilter('all',this)">Tất cả</button>
+    <button class="tl-filter-btn" data-filter="war" onclick="tlFilter('war',this)">Chiến tranh</button>
+    <button class="tl-filter-btn" data-filter="peace" onclick="tlFilter('peace',this)">Chính trị</button>
+    <button class="tl-filter-btn" data-filter="culture" onclick="tlFilter('culture',this)">Văn hóa</button>
+  </div>
+
+  <div class="timeline">
+
+    <div class="tl-item" data-cat="peace">
+      <div class="tl-year">1225</div>
+      <div class="tl-title">Nhà Trần thành lập <span class="tl-badge badge-normal">Chuyển giao</span></div>
+      <div class="tl-desc">Lý Chiêu Hoàng nhường ngôi cho Trần Cảnh (Trần Thái Tông, 8 tuổi). Trần Thủ Độ — Quốc thượng phụ — điều hành thực quyền.</div>
+    </div>
+
+    <div class="tl-item" data-cat="peace">
+      <div class="tl-year">1232</div>
+      <div class="tl-title">Truy sát tôn thất nhà Lý</div>
+      <div class="tl-desc">Trần Thủ Độ ép cựu hoàng Lý Huệ Tông thắt cổ, triệt hạ các tôn thất nhà Lý để ổn định quyền lực.</div>
+    </div>
+
+    <div class="tl-item war" data-cat="war">
+      <div class="tl-year">1/1258</div>
+      <div class="tl-title">Kháng chiến lần 1 bắt đầu <span class="tl-badge badge-key">Chiến tranh</span></div>
+      <div class="tl-desc">Ngột Lương Hợp Thai (~3 vạn quân) từ Vân Nam tràn xuống. Trần Thái Tông thực hiện kế "vườn không nhà trống".</div>
+    </div>
+
+    <div class="tl-item key" data-cat="war">
+      <div class="tl-year">29/1/1258</div>
+      <div class="tl-title">Trận Đông Bộ Đầu — Kháng chiến lần 1 thắng lợi <span class="tl-badge badge-key">Quyết định</span></div>
+      <div class="tl-desc">Quân Trần phản công bên bờ sông Hồng, đánh tan quân Mông. Cuộc kháng chiến kết thúc sau chưa đầy 1 tháng.</div>
+    </div>
+
+    <div class="tl-item" data-cat="culture">
+      <div class="tl-year">1272</div>
+      <div class="tl-title">Đại Việt sử ký ra đời <span class="tl-badge badge-culture">Văn hóa</span></div>
+      <div class="tl-desc">Lê Văn Hưu biên soạn bộ quốc sử đầu tiên được ghi chép chính thức — bộ sử thành văn đầu tiên của Việt Nam.</div>
+    </div>
+
+    <div class="tl-item" data-cat="peace">
+      <div class="tl-year">1282</div>
+      <div class="tl-title">Hội nghị Bình Than <span class="tl-badge badge-normal">Chuẩn bị</span></div>
+      <div class="tl-desc">Vương hầu, tướng lĩnh họp bàn kế sách chống giặc Nguyên chuẩn bị xâm lược lần 2. Trần Quốc Toản "bóp nát quả cam" vì không được vào dự.</div>
+    </div>
+
+    <div class="tl-item" data-cat="peace">
+      <div class="tl-year">1284</div>
+      <div class="tl-title">Hội nghị Diên Hồng — "Đánh!" <span class="tl-badge badge-key">Toàn dân</span></div>
+      <div class="tl-desc">Thái thượng hoàng Trần Thánh Tông hỏi bô lão toàn quốc: nên hàng hay nên đánh? Toàn bộ đồng thanh: "Đánh!" Ý chí toàn dân được xác lập.</div>
+    </div>
+
+    <div class="tl-item" data-cat="culture">
+      <div class="tl-year">1284</div>
+      <div class="tl-title">Trần Hưng Đạo viết Hịch tướng sĩ <span class="tl-badge badge-culture">Văn học</span></div>
+      <div class="tl-desc">Bài hịch khích lệ tinh thần chiến đấu trước lần xâm lược thứ 2 — tác phẩm văn học yêu nước tiêu biểu nhất thời Trần.</div>
+    </div>
+
+    <div class="tl-item war" data-cat="war">
+      <div class="tl-year">1/1285</div>
+      <div class="tl-title">Kháng chiến lần 2 bắt đầu <span class="tl-badge badge-key">Chiến tranh</span></div>
+      <div class="tl-desc">Thoát Hoan (con Hốt Tất Liệt) từ phía bắc, Toa Đô từ Chiêm Thành lên phía bắc. Quy mô lớn nhất: ước tính 10–30 vạn quân.</div>
+    </div>
+
+    <div class="tl-item war" data-cat="war">
+      <div class="tl-year">5/1285</div>
+      <div class="tl-title">Toa Đô tử trận — Thoát Hoan tháo chạy</div>
+      <div class="tl-desc">Trận Tây Kết: Toa Đô bị tiêu diệt. Thoát Hoan bỏ chạy nhục nhã về nước. Kháng chiến lần 2 thắng lợi.</div>
+    </div>
+
+    <div class="tl-item war" data-cat="war">
+      <div class="tl-year">Cuối 1287</div>
+      <div class="tl-title">Kháng chiến lần 3 bắt đầu <span class="tl-badge badge-key">Chiến tranh</span></div>
+      <div class="tl-desc">Lần này Nguyên bổ sung đoàn thuyền lương 600 chiếc để giải quyết vấn đề tiếp tế — điểm yếu của hai lần trước.</div>
+    </div>
+
+    <div class="tl-item war" data-cat="war">
+      <div class="tl-year">1/1288</div>
+      <div class="tl-title">Trần Khánh Dư tiêu diệt thuyền lương tại Vân Đồn</div>
+      <div class="tl-desc">Đoàn 600 thuyền lương của Ô Mã Nhi bị tập kích tại Vân Đồn (Quảng Ninh) — quân Nguyên mất nguồn tiếp tế, buộc phải rút lui.</div>
+    </div>
+
+    <div class="tl-item key" data-cat="war">
+      <div class="tl-year">4/1288</div>
+      <div class="tl-title">Trận Bạch Đằng 1288 — Ô Mã Nhi bị bắt <span class="tl-badge badge-key">Quyết định</span></div>
+      <div class="tl-desc">Trần Hưng Đạo tái dụng kế cọc của Ngô Quyền (938). Thủy quân Nguyên mắc bẫy cọc khi triều rút, bị tiêu diệt. Ô Mã Nhi bị bắt sống. Kháng chiến lần 3 thắng lợi hoàn toàn.</div>
+    </div>
+
+    <div class="tl-item peace" data-cat="culture">
+      <div class="tl-year">1299–1308</div>
+      <div class="tl-title">Trần Nhân Tông sáng lập Thiền phái Trúc Lâm <span class="tl-badge badge-culture">Phật giáo</span></div>
+      <div class="tl-desc">Vua Trần Nhân Tông — người trực tiếp lãnh đạo lần kháng chiến 2 và 3 — xuất gia tại Yên Tử, lập dòng Thiền thuần Việt không phụ thuộc Trung Hoa.</div>
+    </div>
+
+    <div class="tl-item" data-cat="peace">
+      <div class="tl-year">1400</div>
+      <div class="tl-title">Hồ Quý Ly phế truất nhà Trần <span class="tl-badge badge-normal">Kết thúc</span></div>
+      <div class="tl-desc">Sau hơn 50 năm suy thoái, Hồ Quý Ly buộc Trần Thiếu Đế nhường ngôi, lập nhà Hồ. Nhà Trần tồn tại 175 năm (1225–1400).</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — So sánh Bạch Đằng 938 và 1288
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. So sánh Bạch Đằng 938 &amp; Bạch Đằng 1288</h2>
+
+<div class="card">
+  <div class="info-box">
+    Cùng địa điểm, cùng chiến thuật — nhưng bối cảnh và tầm vóc khác nhau. Trần Hưng Đạo có thể đã nghiên cứu trận 938 và có ý thức áp dụng lại.
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Tiêu chí</th>
+          <th>Bạch Đằng 938 (Ngô Quyền)</th>
+          <th>Bạch Đằng 1288 (Trần Hưng Đạo)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Kẻ thù</td>
+          <td>Nam Hán — vương quốc khu vực</td>
+          <td>Nhà Nguyên (Mông Cổ) — đế quốc lớn nhất thế giới</td>
+        </tr>
+        <tr>
+          <td>Chỉ huy địch</td>
+          <td>Lưu Hoằng Tháo (con vua Nam Hán)</td>
+          <td>Ô Mã Nhi (đại tướng kỳ cựu của nhà Nguyên)</td>
+        </tr>
+        <tr>
+          <td>Chiến thuật cốt lõi</td>
+          <td>Cọc gỗ bịt sắt + thủy triều + nhử địch vào</td>
+          <td>Cọc gỗ bịt sắt + thủy triều + nhử địch vào (giống hệt)</td>
+        </tr>
+        <tr>
+          <td>Bối cảnh rút lui</td>
+          <td>Chủ động bố trí trước trận</td>
+          <td>Địch buộc phải rút lui sau khi mất thuyền lương ở Vân Đồn</td>
+        </tr>
+        <tr>
+          <td>Kết quả với tướng địch</td>
+          <td>Lưu Hoằng Tháo tử trận</td>
+          <td>Ô Mã Nhi bị bắt sống</td>
+        </tr>
+        <tr class="highlight-row">
+          <td>Ý nghĩa</td>
+          <td>Kết thúc hơn 1000 năm Bắc thuộc — mở kỷ nguyên độc lập dài hạn</td>
+          <td>Chấm dứt 3 lần xâm lược của đế quốc hùng mạnh nhất thế giới</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="water-box" style="margin-top:14px;">
+    <strong>Điểm mấu chốt về địa lý:</strong> Sông Bạch Đằng (vùng Quảng Ninh–Hải Phòng ngày nay) có biên độ thủy triều đặc biệt lớn (2–3 m), khác biệt với phần lớn vùng biển Việt Nam. Đây là yếu tố tự nhiên cốt lõi cho phép cả hai kế sách đóng cọc hoạt động: triều lên → cọc ngập → địch không thấy; triều xuống → cọc nhô → địch mắc bẫy.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 5 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>5. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q" id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score" id="quiz-score"></span>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════
+   MODULE 1 — Bản đồ chiến dịch (SVG vẽ động)
+   ════════════════════════════════════════════════════════ */
+
+const CAMPAIGNS = [
+  {
+    // Lần 1 — 1258
+    arrows: [
+      // Hướng tiến quân từ Vân Nam xuống
+      { type: 'enemy', points: '200,50 220,90 250,130 280,160', label: 'Quân Mông (~3v)\nNgột Lương Hợp Thai', lx: 140, ly: 110 },
+    ],
+    battles: [
+      { x: 305, y: 175, label: 'Bình Lệ\nNguyên', color: '#b91c1c' },
+      { x: 310, y: 195, label: 'Đông Bộ\nĐầu (thắng)', color: '#15803d' },
+    ],
+    retreat: { points: '285,165 300,150 330,130 370,100', label: 'Quân Trần rút\n(Vườn không nhà trống)' },
+    counterPoints: '350,110 320,140 300,175',
+    desc: '<span class="phase-tag tag-year">Tháng 1–2/1258</span><span class="phase-tag tag-strategy">Chiến lược: Vườn không nhà trống</span><span class="phase-tag tag-result">Kết quả: Thắng lợi sau &lt;1 tháng</span><br><strong>Lần kháng chiến thứ nhất:</strong> Ngột Lương Hợp Thai (~3 vạn quân) từ Vân Nam tràn xuống. Quân Trần thực hiện "vườn không nhà trống", bỏ Thăng Long trống. Quân Mông thiếu lương thực. Ngày 29/1/1258, phản công tại Đông Bộ Đầu — quân Mông đại bại và rút về Vân Nam. Chiến thắng nhanh nhất trong ba lần.'
+  },
+  {
+    // Lần 2 — 1285
+    arrows: [
+      { type: 'enemy', points: '220,50 240,90 260,130 285,165', label: 'Thoát Hoan\n(phía bắc)', lx: 130, ly: 100 },
+      { type: 'enemy', points: '180,455 190,420 200,380 220,330 240,280 265,240 280,200', label: 'Toa Đô\n(từ Chiêm Thành)', lx: 60, ly: 390 },
+    ],
+    battles: [
+      { x: 285, y: 165, label: 'Thăng Long\n(tạm thất)', color: '#b91c1c' },
+      { x: 265, y: 245, label: 'Tây Kết\n(Toa Đô tử trận)', color: '#15803d' },
+    ],
+    retreat: { points: '285,165 320,200 360,240 390,280', label: 'Quân Trần rút\nvề phía nam' },
+    counterPoints: '280,240 280,200 285,170',
+    desc: '<span class="phase-tag tag-year">Tháng 1–6/1285</span><span class="phase-tag tag-strategy">Chiến lược: Vườn không nhà trống + Phản công quyết định</span><span class="phase-tag tag-result">Kết quả: Thắng lợi — gian nan nhất</span><br><strong>Lần kháng chiến thứ hai:</strong> Thoát Hoan (con Hốt Tất Liệt) từ phía bắc, Toa Đô từ Chiêm Thành. Ước tính 10–30 vạn quân — quy mô lớn nhất. Hội nghị Diên Hồng (1284): toàn dân đồng lòng "Đánh!". Hịch tướng sĩ của Trần Hưng Đạo khích lệ tướng sĩ. Phản công: Toa Đô tử trận tại Tây Kết (Hưng Yên). Thoát Hoan bỏ chạy về nước trong ống đồng.'
+  },
+  {
+    // Lần 3 — 1287–1288
+    arrows: [
+      { type: 'enemy', points: '220,50 240,90 260,130 285,165', label: 'Thoát Hoan\n(bộ binh)', lx: 130, ly: 100 },
+      { type: 'enemy-sea', points: '620,200 560,190 510,175 465,170 445,178', label: 'Ô Mã Nhi\n(thủy binh + thuyền lương)', lx: 535, ly: 155 },
+    ],
+    battles: [
+      { x: 465, y: 130, label: 'Vân Đồn\n(Trần Khánh Dư thắng)', color: '#15803d' },
+      { x: 445, y: 178, label: 'Bạch Đằng\n(Ô Mã Nhi bị bắt)', color: '#15803d' },
+    ],
+    retreat: { points: '285,165 320,145 360,120 400,110 440,120 445,178', label: 'Quân Nguyên rút qua\nBạch Đằng → bị bẫy' },
+    counterPoints: '465,130 455,150 445,178',
+    desc: '<span class="phase-tag tag-year">Cuối 1287 – 4/1288</span><span class="phase-tag tag-strategy">Chiến lược: Vườn không nhà trống + Tiêu diệt thuyền lương + Bạch Đằng</span><span class="phase-tag tag-result">Kết quả: Thắng lợi hoàn toàn — bắt sống Ô Mã Nhi</span><br><strong>Lần kháng chiến thứ ba:</strong> Nguyên bổ sung đoàn thuyền lương 600 chiếc để khắc phục điểm yếu tiếp tế. Trần Khánh Dư tập kích tiêu diệt toàn bộ thuyền lương tại Vân Đồn (1/1288). Quân Nguyên thiếu lương, buộc rút qua sông Bạch Đằng. Trần Hưng Đạo đã bố trí sẵn bãi cọc — lặp lại kế Ngô Quyền năm 938. Ô Mã Nhi bị bắt sống. Thoát Hoan tháo chạy qua đường bộ. Nhà Nguyên từ bỏ ý định chinh phục Đại Việt.'
+  }
+];
+
+let activeCampaign = 0;
+
+function arrowMarker(id, color) {
+  return `<defs><marker id="${id}" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="${color}"/></marker></defs>`;
+}
+
+function polylineToPath(points) {
+  const pts = points.split(' ');
+  return 'M ' + pts.join(' L ');
+}
+
+function showCampaign(idx) {
+  activeCampaign = idx;
+  const tabs = document.querySelectorAll('.war-tab');
+  tabs.forEach((t, i) => t.classList.toggle('active', i === idx));
+
+  const c = CAMPAIGNS[idx];
+  const layer = document.getElementById('campaign-layer');
+
+  let html = '';
+  html += arrowMarker('arr-enemy', '#b91c1c');
+  html += arrowMarker('arr-enemysea', '#7c3aed');
+  html += arrowMarker('arr-retreat', '#f97316');
+  html += arrowMarker('arr-counter', '#15803d');
+
+  // Hướng tiến quân địch
+  c.arrows.forEach((a, i) => {
+    const color = a.type === 'enemy-sea' ? '#7c3aed' : '#b91c1c';
+    const markerId = a.type === 'enemy-sea' ? 'arr-enemysea' : 'arr-enemy';
+    const dashArr = a.type === 'enemy-sea' ? '8,4' : 'none';
+    const d = polylineToPath(a.points);
+    html += `<path d="${d}" stroke="${color}" stroke-width="3" fill="none" stroke-dasharray="${dashArr}" marker-end="url(#${markerId})" opacity="0.9"/>`;
+    const lines = a.label.split('\n');
+    html += `<text x="${a.lx}" y="${a.ly}" fill="${color}" font-size="11" font-weight="bold">${lines[0]}</text>`;
+    if (lines[1]) html += `<text x="${a.lx}" y="${a.ly + 14}" fill="${color}" font-size="10">${lines[1]}</text>`;
+  });
+
+  // Đường rút lui của quân Trần (cam)
+  if (c.retreat) {
+    const d = polylineToPath(c.retreat.points);
+    html += `<path d="${d}" stroke="#f97316" stroke-width="2.5" fill="none" stroke-dasharray="6,3" marker-end="url(#arr-retreat)" opacity="0.85"/>`;
+  }
+
+  // Phản công (xanh)
+  if (c.counterPoints) {
+    const d = polylineToPath(c.counterPoints);
+    html += `<path d="${d}" stroke="#15803d" stroke-width="3" fill="none" marker-end="url(#arr-counter)" opacity="0.9"/>`;
+  }
+
+  // Các trận đánh (điểm)
+  c.battles.forEach(b => {
+    html += `<circle cx="${b.x}" cy="${b.y}" r="7" fill="${b.color}" stroke="white" stroke-width="2"/>`;
+    const lines = b.label.split('\n');
+    const tx = b.x + 10;
+    const ty = b.y + 4;
+    html += `<text x="${tx}" y="${ty}" fill="${b.color}" font-size="11" font-weight="bold">${lines[0]}</text>`;
+    if (lines[1]) html += `<text x="${tx}" y="${ty + 13}" fill="${b.color}" font-size="10">${lines[1]}</text>`;
+  });
+
+  layer.innerHTML = html;
+
+  // Mô tả
+  document.getElementById('war-desc').innerHTML = c.desc;
+}
+
+// Khởi tạo lần đầu
+showCampaign(0);
+
+/* ════════════════════════════════════════════════════════
+   MODULE 2 — Mô phỏng Bạch Đằng 1288 (Canvas)
+   ════════════════════════════════════════════════════════ */
+
+const bdCanvas = document.getElementById('bd1288-canvas');
+const bdCtx = bdCanvas.getContext('2d');
+const BW = bdCanvas.width, BH = bdCanvas.height;
+
+const BD_STEPS = [
+  {
+    phase: 'Bối cảnh', tag: 'tag-prep', tide: 0.45,
+    text: '<strong>Bối cảnh tháng 1/1288:</strong> Trần Khánh Dư vừa tiêu diệt đoàn thuyền lương 600 chiếc của Nguyên tại Vân Đồn. Quân Nguyên trên bộ do Thoát Hoan chỉ huy mất nguồn tiếp tế, buộc phải rút lui. Thủy quân Nguyên do Ô Mã Nhi chỉ huy rút theo đường sông Bạch Đằng về biển. Trần Hưng Đạo đã biết trước hướng rút lui này và chuẩn bị sẵn bẫy.'
+  },
+  {
+    phase: 'Đóng cọc', tag: 'tag-prep', tide: 0.3,
+    text: '<strong>Bước 1 — Chuẩn bị bãi cọc:</strong> Trần Hưng Đạo cho đóng cọc gỗ lớn bịt đầu sắt nhọn tại vùng nước nông của sông Bạch Đằng. Giống hệt kế của Ngô Quyền năm 938: chiều dài cọc tính toán để khi triều lên, đầu cọc chìm dưới nước; khi triều xuống, cọc nhô lên. Thuyền chiến lớn mớn nước sâu sẽ bị đâm thủng khi triều rút.'
+  },
+  {
+    phase: 'Triều lên — Nhử địch', tag: 'tag-lure', tide: 0.92,
+    text: '<strong>Bước 2 — Thủy triều lên cao:</strong> Mực nước dâng, đầu cọc chìm hoàn toàn — mặt sông thông thoáng, không thấy bẫy. Thuyền nhỏ của quân Trần ra khiêu chiến, giả thua và rút lui vào phía thượng nguồn. Thủy quân Nguyên của Ô Mã Nhi — vốn muốn rút về biển — thấy đường thông thoáng, tự tin tiến theo.'
+  },
+  {
+    phase: 'Địch vượt bãi cọc', tag: 'tag-lure', tide: 0.78,
+    text: '<strong>Bước 3 — Hạm đội Nguyên vượt qua bãi cọc:</strong> Thuyền chiến lớn của Ô Mã Nhi (mớn nước sâu) vượt qua vùng cọc khi triều vẫn cao. Đây là thời điểm quyết định: địch đã vào sâu, không dễ rút lui khi cần. Quân Nguyên không biết mình đã vượt qua bẫy — từ trên mặt nước không thể thấy cọc đang ẩn bên dưới.'
+  },
+  {
+    phase: 'Triều xuống — BẪY!', tag: 'tag-trap', tide: 0.15,
+    text: '<strong>Bước 4 — Thủy triều rút nhanh:</strong> Nước rút, đầu cọc nhô lên khỏi mặt nước. Thuyền chiến lớn mớn nước sâu bắt đầu bị cọc đâm vào đáy thuyền. Không thể tiến, không thể lui. Toàn đội hình thủy quân Nguyên rơi vào hỗn loạn. Đây là cơ chế then chốt — chính xác như Ngô Quyền đã dùng 350 năm trước tại cùng dòng sông này.'
+  },
+  {
+    phase: 'Phản công — Ô Mã Nhi bị bắt', tag: 'tag-attack', tide: 0.08,
+    text: '<strong>Bước 5 — Tổng phản công:</strong> Quân Trần từ hai bờ và từ thượng nguồn đổ ra tấn công. Thuyền địch mắc cọc không thể cơ động. Phần lớn thủy quân Nguyên bị tiêu diệt. <strong>Ô Mã Nhi — đại tướng kỳ cựu của nhà Nguyên — bị bắt sống.</strong> Đây là khác biệt với 938: Lưu Hoằng Tháo tử trận, còn Ô Mã Nhi bị bắt sống — thể hiện sự kiểm soát hoàn toàn của quân Trần.'
+  },
+  {
+    phase: 'Kết quả — Nguyên từ bỏ', tag: 'tag-victory', tide: 0.05,
+    text: '<strong>Kết quả (4/1288):</strong> Thủy quân Nguyên bị tiêu diệt. Ô Mã Nhi bị bắt sống và đưa về Thăng Long. Thoát Hoan tháo chạy về nước qua đường bộ. Nhà Nguyên tổ chức thêm một lần chuẩn bị xâm lược nữa nhưng cuối cùng từ bỏ. Đây là lần cuối cùng đế quốc Mông Cổ cố chinh phục Đại Việt — và thất bại. Một trong những trang sử quân sự vẻ vang nhất của Việt Nam.'
+  }
+];
+
+let bdStep = -1;
+
+function bdDrawScene(stepIdx) {
+  bdCtx.clearRect(0, 0, BW, BH);
+
+  const step = stepIdx >= 0 ? BD_STEPS[stepIdx] : null;
+  const tideLevel = step ? step.tide : 0.5;
+
+  // Bầu trời
+  const skyG = bdCtx.createLinearGradient(0, 0, 0, BH * 0.35);
+  skyG.addColorStop(0, '#e0f2fe');
+  skyG.addColorStop(1, '#bae6fd');
+  bdCtx.fillStyle = skyG;
+  bdCtx.fillRect(0, 0, BW, BH * 0.35);
+
+  // Núi / bờ xa
+  bdCtx.fillStyle = '#94a3b8';
+  bdCtx.beginPath();
+  bdCtx.moveTo(0, BH * 0.38);
+  for (const [x, y] of [[60,0.22],[140,0.30],[220,0.18],[310,0.26],[400,0.16],[490,0.24],[570,0.19],[BW,0.36]]) {
+    bdCtx.lineTo(x, BH * y);
+  }
+  bdCtx.lineTo(BW, 0); bdCtx.lineTo(0, 0);
+  bdCtx.closePath(); bdCtx.fill();
+
+  // Bờ đất phía bắc
+  bdCtx.fillStyle = '#92400e';
+  bdCtx.fillRect(0, BH * 0.35, BW, BH * 0.06);
+
+  // Bờ đất phía nam
+  bdCtx.fillStyle = '#92400e';
+  bdCtx.fillRect(0, BH * 0.83, BW, BH * 0.17);
+
+  // Nước sông
+  const waterTop = BH * 0.41 + (1 - tideLevel) * BH * 0.09;
+  const waterBot = BH * 0.83;
+
+  const wG = bdCtx.createLinearGradient(0, waterTop, 0, waterBot);
+  if (stepIdx >= 4) {
+    wG.addColorStop(0, 'rgba(29,78,216,0.88)');
+    wG.addColorStop(1, 'rgba(29,78,216,0.62)');
+  } else {
+    wG.addColorStop(0, 'rgba(59,130,246,0.82)');
+    wG.addColorStop(1, 'rgba(59,130,246,0.58)');
+  }
+  bdCtx.fillStyle = wG;
+  bdCtx.fillRect(0, waterTop, BW, waterBot - waterTop);
+
+  // Sóng
+  bdCtx.strokeStyle = 'rgba(255,255,255,0.38)';
+  bdCtx.lineWidth = 1.2;
+  for (let wx = 20; wx < BW; wx += 60) {
+    bdCtx.beginPath();
+    bdCtx.moveTo(wx, waterTop + 7);
+    bdCtx.bezierCurveTo(wx + 12, waterTop + 2, wx + 26, waterTop + 12, wx + 38, waterTop + 7);
+    bdCtx.stroke();
+  }
+
+  // Cọc
+  const STAKES = [210, 248, 285, 322, 358, 395, 430, 465, 175];
+  STAKES.forEach(sx => {
+    const stakeH = 55;
+    const stakeBot = waterBot - 6;
+    const visibleFraction = 1 - tideLevel;
+    const showLen = stakeH * Math.max(0, visibleFraction - 0.18) * 1.8;
+
+    if (stepIdx === 1) {
+      // Bước đóng cọc — vẽ trong nước nông
+      bdCtx.strokeStyle = '#78350f'; bdCtx.lineWidth = 5;
+      bdCtx.beginPath(); bdCtx.moveTo(sx, stakeBot); bdCtx.lineTo(sx, stakeBot - 28); bdCtx.stroke();
+      bdCtx.fillStyle = '#9ca3af';
+      bdCtx.beginPath(); bdCtx.moveTo(sx - 4, stakeBot - 28); bdCtx.lineTo(sx + 4, stakeBot - 28); bdCtx.lineTo(sx, stakeBot - 38); bdCtx.closePath(); bdCtx.fill();
+    } else if (showLen > 4) {
+      const cTop = stakeBot - showLen;
+      bdCtx.strokeStyle = '#78350f'; bdCtx.lineWidth = 5;
+      bdCtx.beginPath(); bdCtx.moveTo(sx, stakeBot); bdCtx.lineTo(sx, cTop); bdCtx.stroke();
+      bdCtx.fillStyle = '#6b7280';
+      bdCtx.beginPath(); bdCtx.moveTo(sx - 4, cTop + 4); bdCtx.lineTo(sx + 4, cTop + 4); bdCtx.lineTo(sx, cTop - 6); bdCtx.closePath(); bdCtx.fill();
+    }
+  });
+
+  // Thuyền quân Trần (xanh)
+  const ourPos = [
+    [],                                       // step -1
+    [],                                       // step 0
+    [],                                       // step 1
+    [{ x: 80 }, { x: 120 }],                // step 2: đang nhử địch
+    [{ x: 540 }, { x: 590 }],               // step 3: đã rút vào
+    [{ x: 560 }, { x: 610 }],               // step 4: chuẩn bị
+    [{ x: 490 }, { x: 545 }, { x: 600 }],   // step 5: phản công
+    [{ x: 450 }, { x: 510 }, { x: 570 }],   // step 6: đã thắng
+  ];
+  const ourBoats = ourPos[stepIdx + 1] || [];
+  const yBase = waterTop + 12;
+  ourBoats.forEach(b => bdDrawBoat(b.x, yBase, '#15803d', '#bbf7d0', 44, 16));
+
+  // Thuyền địch (đỏ)
+  const enemyPos = [
+    null,
+    null,
+    [{ x: 55 }, { x: 90 }, { x: 125 }],
+    [{ x: 170 }, { x: 218 }, { x: 260 }, { x: 305 }],
+    [{ x: 260 }, { x: 300 }, { x: 340 }, { x: 380 }],
+    [{ x: 255 }, { x: 295 }, { x: 335 }, { x: 375 }],
+    [{ x: 245 }, { x: 280 }, { x: 318 }, { x: 355 }],
+    [{ x: 235 }, { x: 270 }, { x: 305 }],
+  ];
+  const enemyBoats = enemyPos[stepIdx + 1];
+  if (enemyBoats) {
+    const sinking = stepIdx >= 4;
+    enemyBoats.forEach((b, i) => {
+      const angle = sinking ? (i % 2 === 0 ? -0.2 : 0.25) : 0;
+      bdCtx.save();
+      bdCtx.translate(b.x, waterTop + 14);
+      bdCtx.rotate(angle);
+      bdDrawBoatShape(0, 0, '#b91c1c', '#fee2e2', 56, 20, stepIdx >= 6);
+      bdCtx.restore();
+      if (stepIdx >= 5 && i < 3) {
+        bdCtx.fillStyle = '#dc2626'; bdCtx.font = 'bold 16px sans-serif';
+        bdCtx.fillText('✗', b.x - 8, waterTop + 5);
+      }
+    });
+  }
+
+  // Nhãn địa danh
+  bdCtx.fillStyle = 'rgba(0,0,0,0.5)'; bdCtx.font = '12px sans-serif';
+  bdCtx.fillText('← Thượng nguồn (nội địa)', 10, BH * 0.60);
+  bdCtx.fillText('Biển (hướng rút của địch) →', BW - 200, waterBot - 6);
+
+  // Nhãn triều
+  const tideP = Math.round(tideLevel * 100);
+  bdCtx.fillStyle = tideLevel > 0.5 ? '#1d4ed8' : '#b91c1c';
+  bdCtx.font = 'bold 13px sans-serif';
+  bdCtx.fillText(`Triều: ${tideP}%`, BW - 100, waterTop + 18);
+}
+
+function bdDrawBoat(cx, cy, hullC, deckC, bw, bh) {
+  bdCtx.fillStyle = hullC;
+  bdCtx.beginPath();
+  bdCtx.moveTo(cx - bw/2 + 4, cy); bdCtx.lineTo(cx - bw/2, cy + bh);
+  bdCtx.lineTo(cx + bw/2, cy + bh); bdCtx.lineTo(cx + bw/2 - 4, cy);
+  bdCtx.closePath(); bdCtx.fill();
+  bdCtx.fillStyle = deckC;
+  bdCtx.fillRect(cx - bw/2 + 2, cy - 4, bw - 4, 6);
+  bdCtx.strokeStyle = '#374151'; bdCtx.lineWidth = 1.5;
+  bdCtx.beginPath(); bdCtx.moveTo(cx, cy - 4); bdCtx.lineTo(cx, cy - 22); bdCtx.stroke();
+}
+
+function bdDrawBoatShape(cx, cy, hullC, deckC, bw, bh, sunk) {
+  bdCtx.globalAlpha = sunk ? 0.45 : 1.0;
+  bdCtx.fillStyle = hullC;
+  bdCtx.beginPath();
+  bdCtx.moveTo(cx - bw/2 + 5, cy); bdCtx.lineTo(cx - bw/2, cy + bh);
+  bdCtx.lineTo(cx + bw/2, cy + bh); bdCtx.lineTo(cx + bw/2 - 5, cy);
+  bdCtx.closePath(); bdCtx.fill();
+  bdCtx.fillStyle = deckC;
+  bdCtx.fillRect(cx - bw/2 + 2, cy - 4, bw - 4, 7);
+  bdCtx.globalAlpha = 1.0;
+}
+
+function bd1288UpdateUI() {
+  const s = bdStep;
+  const sd = s >= 0 ? BD_STEPS[s] : null;
+
+  const phTag = document.getElementById('phase-tag-1288');
+  const stTxt = document.getElementById('step-text-1288');
+  if (sd) {
+    phTag.className = 'phase-tag ' + sd.tag;
+    phTag.textContent = sd.phase;
+    stTxt.innerHTML = sd.text;
+  } else {
+    phTag.className = 'phase-tag tag-prep';
+    phTag.textContent = 'Bối cảnh';
+    stTxt.innerHTML = 'Nhấn <strong>Bắt đầu mô phỏng</strong> để xem trận Bạch Đằng 1288 diễn ra từng bước.';
+  }
+
+  const tide = sd ? sd.tide : 0.5;
+  document.getElementById('tide-bar1288').style.width = (tide * 100) + '%';
+  let tideLabel = 'Đang lên';
+  if (tide > 0.75) tideLabel = 'Cao (cọc ngập)';
+  else if (tide < 0.15) tideLabel = 'Thấp (cọc lộ)';
+  else if (tide < 0.4)  tideLabel = 'Đang xuống';
+  document.getElementById('tide-val1288').textContent = tideLabel;
+
+  document.getElementById('btn1288-prev').disabled = s <= 0;
+  document.getElementById('btn1288-next').textContent =
+    s < 0 ? 'Bắt đầu mô phỏng →' :
+    s >= BD_STEPS.length - 1 ? 'Hoàn thành' :
+    'Bước tiếp theo →';
+  document.getElementById('btn1288-next').disabled = s >= BD_STEPS.length - 1;
+
+  const dots = document.getElementById('step-dots-1288');
+  dots.innerHTML = '';
+  for (let i = 0; i < BD_STEPS.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (i === s ? ' active' : i < s ? ' done' : '');
+    d.textContent = i + 1;
+    d.onclick = (function(si){ return function(){ bd1288GoTo(si); }; })(i);
+    dots.appendChild(d);
+  }
+  bdDrawScene(s);
+}
+
+function bd1288Next()  { if (bdStep < BD_STEPS.length - 1) { bdStep++; bd1288UpdateUI(); } }
+function bd1288Prev()  { if (bdStep > 0) { bdStep--; bd1288UpdateUI(); } }
+function bd1288GoTo(i) { bdStep = i; bd1288UpdateUI(); }
+function bd1288Reset() { bdStep = -1; bd1288UpdateUI(); }
+
+bdDrawScene(-1);
+bd1288UpdateUI();
+
+/* ════════════════════════════════════════════════════════
+   MODULE 3 — Timeline lọc theo danh mục
+   ════════════════════════════════════════════════════════ */
+
+function tlFilter(cat, btn) {
+  const allBtns = document.querySelectorAll('.tl-filter-btn');
+  allBtns.forEach(b => {
+    b.classList.remove('on-all', 'on-war', 'on-peace', 'on-culture');
+  });
+  btn.classList.add('on-' + cat);
+
+  const items = document.querySelectorAll('.tl-item[data-cat]');
+  items.forEach(item => {
+    if (cat === 'all' || item.dataset.cat === cat) {
+      item.classList.remove('hidden');
+    } else {
+      item.classList.add('hidden');
+    }
+  });
+}
+
+/* ════════════════════════════════════════════════════════
+   MODULE 5 — Quiz ôn tập
+   ════════════════════════════════════════════════════════ */
+
+const QUIZ = [
+  {
+    q: 'Kế "vườn không nhà trống" được nhà Trần áp dụng mấy lần trong ba cuộc kháng chiến chống Nguyên – Mông?',
+    opts: ['Chỉ một lần — lần 1 (1258)', 'Hai lần — lần 1 và lần 2', 'Cả ba lần', 'Chỉ lần 3 (1288)'],
+    correct: 2,
+    explain: 'Kế "vườn không nhà trống" được nhà Trần áp dụng nhất quán cả ba lần kháng chiến: rút lui, bỏ Thăng Long trống, di dân và phá hủy lương thực để cắt đứt nguồn tiếp tế của quân Nguyên. Đây là chiến lược xuyên suốt — từ chối đối đầu trực tiếp khi địch mạnh nhất, kiệt sức địch, rồi phản công quyết định.'
+  },
+  {
+    q: 'Điều gì phân biệt kết quả cá nhân của tướng địch giữa Bạch Đằng 938 và Bạch Đằng 1288?',
+    opts: [
+      'Cả hai lần đều tướng địch tử trận',
+      'Lần 938: Lưu Hoằng Tháo tử trận; Lần 1288: Ô Mã Nhi bị bắt sống',
+      'Lần 938: Ô Mã Nhi tử trận; Lần 1288: Lưu Hoằng Tháo bị bắt',
+      'Cả hai lần tướng địch đều thoát được'
+    ],
+    correct: 1,
+    explain: 'Năm 938, Lưu Hoằng Tháo — con trai vua Nam Hán — tử trận trên sông Bạch Đằng. Năm 1288, Ô Mã Nhi — đại tướng kỳ cựu của nhà Nguyên — bị bắt sống và đưa về Thăng Long. Việc bắt sống Ô Mã Nhi thể hiện mức độ kiểm soát hoàn toàn của quân Trần và là bằng chứng chiến thắng quan trọng về ngoại giao.'
+  },
+  {
+    q: 'Vì sao lần xâm lược thứ 3 (1287–1288) của quân Nguyên bổ sung thêm đoàn thuyền lương 600 chiếc?',
+    opts: [
+      'Để thể hiện sức mạnh hải quân',
+      'Để đổ bộ quân ở nhiều điểm khác nhau',
+      'Để khắc phục điểm yếu thiếu lương thực — vốn gây thất bại cho hai lần trước',
+      'Vì đường bộ qua núi bị phong tỏa'
+    ],
+    correct: 2,
+    explain: 'Hai lần xâm lược trước, quân Nguyên đều bị kế "vườn không nhà trống" khiến thiếu lương thực nghiêm trọng. Lần 3, Hốt Tất Liệt cố giải quyết điểm yếu này bằng đoàn thuyền lương 600 chiếc tiếp tế theo đường biển. Nhưng Trần Khánh Dư đã tập kích tiêu diệt toàn bộ đoàn thuyền này tại Vân Đồn — khiến chiến lược bổ sung tiếp tế hoàn toàn thất bại.'
+  },
+  {
+    q: 'Hội nghị Diên Hồng (1284) diễn ra trong bối cảnh nào và ai triệu tập?',
+    opts: [
+      'Sau khi thắng lần 2, vua Trần Nhân Tông họp để ăn mừng',
+      'Trước lần xâm lược thứ 2, Thái thượng hoàng Trần Thánh Tông hỏi ý bô lão',
+      'Sau khi thắng lần 3, triều đình họp phân chia chiến lợi phẩm',
+      'Trước lần xâm lược thứ nhất, vua Trần Thái Tông hỏi ý kiến tướng lĩnh'
+    ],
+    correct: 1,
+    explain: 'Hội nghị Diên Hồng năm 1284 — trước lần xâm lược thứ 2 (1285). Thái thượng hoàng Trần Thánh Tông triệu tập các bô lão (đại diện dân chúng) từ khắp nơi về Thăng Long hỏi: "Nên hàng hay nên đánh?" Toàn bộ đồng thanh đáp: "Đánh!" Đây là sự kiện đặc biệt trong lịch sử phong kiến — nhà vua tham khảo ý chí nhân dân trước khi quyết định chiến lược quốc gia.'
+  },
+  {
+    q: 'Trần Quốc Toản "bóp nát quả cam" trong sự kiện nào và ý nghĩa biểu tượng của hình ảnh này là gì?',
+    opts: [
+      'Trong trận Bạch Đằng 1288 — biểu tượng chiến thắng',
+      'Tại hội nghị Bình Than (1282) — vì bị từ chối vào dự, ông nắm chặt cam vì quá xúc động',
+      'Trong hội nghị Diên Hồng — ông bóp cam khi nghe bô lão hô "Đánh!"',
+      'Khi Trần Hưng Đạo đọc Hịch tướng sĩ — biểu tượng quyết tâm'
+    ],
+    correct: 1,
+    explain: 'Trần Quốc Toản — thiếu niên quý tộc — không được vào dự hội nghị Bình Than (1282) vì tuổi nhỏ. Phẫn nộ và xúc động vì không được tham gia quyết định việc nước, ông vô tình bóp nát quả cam trong tay. Hình ảnh này trở thành biểu tượng của lòng ái quốc cuồng nhiệt ở tuổi trẻ — sau đó ông tự chiêu mộ gia binh, ra trận và tử trận năm 1285.'
+  },
+  {
+    q: 'Phật giáo Trúc Lâm do ai sáng lập và có điểm gì đặc biệt so với các dòng Phật giáo từ Trung Hoa?',
+    opts: [
+      'Trần Hưng Đạo sáng lập — nhấn mạnh tinh thần chiến đấu',
+      'Trần Nhân Tông sáng lập tại Yên Tử — dòng thiền thuần Việt không phụ thuộc Trung Hoa',
+      'Trần Thái Tông sáng lập — kết hợp Nho–Phật–Lão',
+      'Được du nhập từ nhà Tống, không phải sáng tạo của người Việt'
+    ],
+    correct: 1,
+    explain: 'Trần Nhân Tông (1258–1308) — vua Trần trực tiếp lãnh đạo lần kháng chiến 2 và 3 — sau khi nhường ngôi, xuất gia tại núi Yên Tử (Quảng Ninh), trở thành Điều Ngự Giác Hoàng và sáng lập Thiền phái Trúc Lâm. Điểm đặc biệt: đây là dòng thiền thuần Việt, không phụ thuộc vào bất kỳ tông phái Phật giáo nào từ Trung Hoa — biểu hiện của ý thức độc lập văn hóa thời Trần.'
+  }
+];
+
+let quizIdx = 0, quizScore = 0, quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = `Câu ${quizIdx + 1}/${QUIZ.length}: ${q.q}`;
+  document.getElementById('quiz-prog').textContent = `${quizIdx + 1} / ${QUIZ.length}`;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? `Điểm: ${quizScore}/${quizIdx}` : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = function() { quizAnswer(i); };
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+
+  document.getElementById('quiz-score').textContent = `Điểm: ${quizScore}/${quizIdx + 1}`;
+
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent = `Kết quả: ${quizScore}/${QUIZ.length} (${pct}%)`;
+    document.getElementById('quiz-prog').textContent =
+      pct >= 83 ? 'Xuất sắc!' : pct >= 67 ? 'Tốt — ôn lại các câu sai.' : 'Cần ôn tập thêm.';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

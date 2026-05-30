@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Tổng kết Tầng 2: Thiết chế quân chủ & Mở cõi</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent:       #b45309;
+    --accent-soft:  #fef3c7;
+    --accent-hover: #92400e;
+    --red-war:      #b91c1c;
+    --green-peace:  #15803d;
+    --grey-minor:   #78716c;
+    --blue-link:    #1d4ed8;
+    --bg-card:      #ffffff;
+    --bg-section:   #fdfaf5;
+    --border:       #e7d9b8;
+  }
+
+  main { max-width: 1100px; }
+
+  h1 { color: var(--accent-hover); font-size: 1.55rem; margin-bottom: 4px; }
+  h2 { color: var(--accent); margin-top: 44px; padding-bottom: 6px;
+       border-bottom: 2px solid var(--accent-soft); }
+
+  .intro-sub {
+    color: #555; font-size: 15px; margin-top: 0; margin-bottom: 24px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 18px 22px;
+    box-shadow: 0 1px 4px rgba(180,83,9,.10);
+    margin: 14px 0;
+    border: 1px solid var(--border);
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 11px 15px;
+    margin: 10px 0;
+    font-size: 13.5px;
+    line-height: 1.7;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+
+  /* ═══ MODULE 1 — Timeline ═══ */
+  #tl-wrap {
+    width: 100%; overflow-x: auto;
+    background: var(--bg-section);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 14px 0 6px;
+  }
+  #tl-svg { display: block; margin: 0 auto; }
+  .tl-dot { cursor: pointer; transition: r .15s; }
+  .tl-dot:hover { r: 11; }
+
+  #tl-detail {
+    min-height: 90px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.75;
+  }
+  #tl-detail .ev-title { font-weight: 700; font-size: 15px; color: var(--accent-hover); margin-bottom: 4px; }
+  #tl-detail .ev-link a { color: var(--blue-link); font-size: 13px; }
+  .ev-tag {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; margin-right: 5px;
+  }
+  .tag-war     { background:#fee2e2; color:#991b1b; }
+  .tag-found   { background:#dcfce7; color:#166534; }
+  .tag-expand  { background:#dbeafe; color:#1e40af; }
+  .tag-split   { background:#fce7f3; color:#9d174d; }
+
+  .tl-legend {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    align-items: center; margin: 8px 10px 0;
+    font-size: 12px; color: #555;
+  }
+  .tl-legend-item { display: flex; align-items: center; gap: 4px; }
+  .tl-legend-dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+
+  /* ═══ MODULE 2 — Bảng triều đại ═══ */
+  .cmp-wrap { overflow-x: auto; }
+  table.dyn-table {
+    width: 100%; min-width: 680px;
+    border-collapse: collapse; font-size: 13.5px; line-height: 1.5;
+  }
+  table.dyn-table thead th {
+    background: var(--accent); color: white;
+    padding: 9px 11px; text-align: left; font-weight: 700;
+  }
+  table.dyn-table thead th:first-child { border-radius: 8px 0 0 0; }
+  table.dyn-table thead th:last-child  { border-radius: 0 8px 0 0; }
+  table.dyn-table tbody tr { cursor: pointer; transition: background .12s; }
+  table.dyn-table tbody tr:nth-child(odd)  { background: #fff; }
+  table.dyn-table tbody tr:nth-child(even) { background: var(--accent-soft); }
+  table.dyn-table tbody tr:hover { background: #fde68a; }
+  table.dyn-table tbody td { padding: 8px 11px; border-bottom: 1px solid var(--border); }
+  table.dyn-table tbody td:first-child { font-weight: 700; color: var(--accent-hover); }
+
+  #dyn-detail {
+    display: none;
+    background: var(--bg-section);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  #dyn-detail.visible { display: block; }
+  #dyn-detail h3 { color: var(--accent-hover); margin: 0 0 8px; font-size: 15px; }
+
+  /* ═══ MODULE 3 — Bản đồ Nam tiến ═══ */
+  #map-wrap {
+    display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;
+  }
+  #map-svg-wrap {
+    flex: 0 0 auto;
+    background: var(--bg-section);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+  }
+  #map-info {
+    flex: 1 1 280px;
+    min-width: 240px;
+  }
+  .map-step-btn {
+    display: block; width: 100%;
+    text-align: left; padding: 9px 14px; margin: 5px 0;
+    border-radius: 7px; border: 2px solid var(--border);
+    background: white; cursor: pointer; font-size: 13px;
+    font-weight: 600; transition: border-color .15s, background .15s;
+    line-height: 1.4;
+  }
+  .map-step-btn:hover    { border-color: var(--accent); background: var(--accent-soft); }
+  .map-step-btn.active   { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-hover); }
+  .map-step-btn .btn-year { font-size: 11px; font-weight: 400; color: var(--grey-minor); display: block; }
+  #map-desc {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 13px 16px;
+    font-size: 13.5px; line-height: 1.75; margin-top: 10px;
+    min-height: 70px;
+  }
+
+  /* ═══ MODULE 4 — Quiz ═══ */
+  .quiz-progress {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 14px; font-size: 14px; color: #555;
+  }
+  .quiz-bar-wrap { flex: 1; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+  .quiz-bar { height: 100%; background: var(--accent); border-radius: 4px; transition: width .3s; }
+
+  .quiz-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin: 8px 0; }
+  .quiz-q { font-weight: 700; font-size: 15px; color: #1f2937; margin-bottom: 14px; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 9px; }
+  .quiz-opt {
+    padding: 9px 14px; border-radius: 7px; border: 2px solid #d1d5db;
+    background: white; cursor: pointer; font-size: 13.5px; text-align: left;
+    transition: border-color .15s, background .15s; line-height: 1.5;
+  }
+  .quiz-opt:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: #16a34a; background: #dcfce7; color: #166534; font-weight: 700; }
+  .quiz-opt.wrong   { border-color: #dc2626; background: #fee2e2; color: #991b1b; }
+  .quiz-opt:disabled { cursor: default; opacity: .85; }
+
+  .quiz-feedback { margin-top: 11px; padding: 11px 14px; border-radius: 7px; font-size: 13.5px; line-height: 1.7; display: none; }
+  .quiz-feedback.visible { display: block; }
+  .quiz-feedback.ok  { background: #dcfce7; border: 1px solid #86efac; color: #166534; }
+  .quiz-feedback.err { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
+
+  .quiz-nav { display: flex; gap: 10px; margin-top: 14px; justify-content: flex-end; }
+
+  .quiz-result { text-align: center; padding: 28px 16px; background: var(--bg-section); border-radius: 12px; border: 1px solid var(--border); display: none; }
+  .quiz-result.visible { display: block; }
+  .quiz-result .score { font-size: 2.4rem; font-weight: 900; color: var(--accent); }
+  .quiz-result .score-label { font-size: 1rem; color: #555; margin-top: 4px; }
+  .quiz-result .result-msg { margin-top: 10px; font-size: 15px; font-weight: 600; }
+
+  /* ── responsive ── */
+  @media (max-width: 640px) {
+    #map-wrap { flex-direction: column; }
+    #map-svg-wrap { width: 100%; }
+    table.dyn-table { font-size: 12px; }
+    .quiz-card { padding: 14px 12px; }
+    .quiz-q { font-size: 14px; }
+    .quiz-opt { font-size: 12.5px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử VN — Triều đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-nha-nguyen/visualization.html">← L7: Nhà Nguyễn</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Tổng kết Tầng 2</span>
+  <span class="sep">·</span>
+  <a href="../../03-Modern-Contemporary/lesson-01-phap-xam-luoc-can-vuong/visualization.html">Tầng 3 → Pháp xâm lược</a>
+</nav>
+
+<main>
+  <h1>Tổng kết Tầng 2 — Thiết chế quân chủ &amp; Mở cõi</h1>
+  <p class="intro-sub">
+    Từ nhà Lý (1009) đến nửa đầu nhà Nguyễn (1858) — toàn bộ Tầng 2 trong một trang.
+    Tương tác với timeline, bảng triều đại, bản đồ Nam tiến và quiz để ôn lại kiến thức các bài 01–07.
+  </p>
+
+  <!-- ══════════════════════════════════════════
+       MODULE 1 — Timeline tổng hợp
+  ══════════════════════════════════════════════ -->
+  <h2>1. Timeline tổng hợp (1009–1858)</h2>
+  <p style="font-size:14px;color:#555;margin-top:-4px;">
+    Nhấp vào mỗi mốc trên trục thời gian để xem tóm tắt sự kiện và liên kết bài học.
+  </p>
+
+  <div id="tl-wrap">
+    <svg id="tl-svg" width="980" height="250" viewBox="0 0 980 250"></svg>
+  </div>
+
+  <div class="tl-legend">
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#b45309"></span> Lập triều / Dựng nước</span>
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#b91c1c"></span> Kháng chiến thắng lợi</span>
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#1d4ed8"></span> Mở cõi / Nam tiến</span>
+    <span class="tl-legend-item"><span class="tl-legend-dot" style="background:#9d174d"></span> Phân liệt / Nội chiến</span>
+  </div>
+
+  <div id="tl-detail">
+    <div style="color:#78716c;font-size:14px;">← Nhấp vào một mốc trên timeline để xem chi tiết.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       MODULE 2 — Bảng triều đại
+  ══════════════════════════════════════════════ -->
+  <h2>2. Bảng các triều đại — nhấp để xem chi tiết</h2>
+  <div class="card">
+    <p style="font-size:13.5px;color:#555;margin-top:0;">
+      Nhấp vào một hàng để đọc phân tích chi tiết về triều đại đó — thành tựu, điểm nổi bật và liên kết bài học.
+    </p>
+    <div class="cmp-wrap">
+      <table class="dyn-table" id="dyn-table">
+        <thead>
+          <tr>
+            <th>Triều đại</th>
+            <th>Năm</th>
+            <th>Vua / Nhân vật tiêu biểu</th>
+            <th>Hệ tư tưởng</th>
+            <th>Thành tựu cốt lõi</th>
+          </tr>
+        </thead>
+        <tbody id="dyn-tbody"></tbody>
+      </table>
+    </div>
+    <div id="dyn-detail"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       MODULE 3 — Bản đồ Nam tiến
+  ══════════════════════════════════════════════ -->
+  <h2>3. Quá trình mở cõi và Nam tiến (1009–1802)</h2>
+  <p style="font-size:14px;color:#555;margin-top:-4px;">
+    Nhấp vào từng mốc bên phải để xem lãnh thổ Đại Việt mở rộng dần về phía Nam qua các thế kỷ.
+  </p>
+
+  <div class="card">
+    <div id="map-wrap">
+      <div id="map-svg-wrap">
+        <svg id="map-svg" width="260" height="480" viewBox="0 0 260 480"></svg>
+      </div>
+      <div id="map-info">
+        <div style="font-size:13px;color:#555;margin-bottom:8px;font-weight:600;">Chọn mốc thời gian:</div>
+        <div id="map-btn-list"></div>
+        <div id="map-desc">Chọn một mốc để xem mô tả.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       MODULE 4 — Quiz ôn tập
+  ══════════════════════════════════════════════ -->
+  <h2>4. Quiz ôn tập toàn Tầng 2</h2>
+  <p style="font-size:14px;color:#555;margin-top:-4px;">
+    12 câu hỏi xuyên suốt các bài 01–07. Chọn đáp án và nhận phản hồi ngay.
+  </p>
+
+  <div class="card">
+    <div class="quiz-progress">
+      <span id="quiz-counter">Câu 1 / 12</span>
+      <div class="quiz-bar-wrap"><div class="quiz-bar" id="quiz-bar" style="width:8%"></div></div>
+      <span id="quiz-score-live">0 đúng</span>
+    </div>
+    <div id="quiz-area"></div>
+    <div id="quiz-result" class="quiz-result"></div>
+  </div>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   DATA
+════════════════════════════════════════════════════════════ */
+
+const TL_EVENTS = [
+  {
+    year: 1010, label: "1010", title: "Lý Thái Tổ dời đô về Thăng Long",
+    color: "#b45309", type: "found",
+    detail: "Lý Thái Tổ (Lý Công Uẩn) rời kinh đô từ Hoa Lư (Ninh Bình) về thành Đại La, đổi tên thành Thăng Long. Chiếu dời đô nêu rõ lợi thế địa lý: vùng trung tâm, đất rộng bằng phẳng. Đây là mốc mở đầu triều Lý và bắt đầu 8 thế kỷ Thăng Long là trung tâm quyền lực.",
+    lesson: { text: "Xem L01 — Nhà Lý", href: "../lesson-01-nha-ly/visualization.html" },
+    tags: ["found"]
+  },
+  {
+    year: 1042, label: "1042", title: "Lý Thái Tông ban Hình thư",
+    color: "#b45309", type: "found",
+    detail: "Bộ luật thành văn đầu tiên của Việt Nam — Hình thư — được ban hành dưới thời Lý Thái Tông. Đây là bước tiến quan trọng trong xây dựng nhà nước pháp quyền so với tập quán truyền khẩu trước đó. Nội dung kết hợp luật tục địa phương với luật mẫu từ nhà Đường và Tống.",
+    lesson: { text: "Xem L01 — Nhà Lý", href: "../lesson-01-nha-ly/visualization.html" },
+    tags: ["found"]
+  },
+  {
+    year: 1069, label: "1069", title: "Lý Thánh Tông Nam tiến — nhận 3 châu",
+    color: "#1d4ed8", type: "expand",
+    detail: "Lý Thánh Tông dẫn quân đánh Chăm Pa, bắt vua Chế Củ. Chế Củ dâng 3 châu — Bố Chính, Địa Lý, Ma Linh (vùng Quảng Bình, bắc Quảng Trị ngày nay) — để chuộc thân. Đây là bước mở cõi có tổ chức đầu tiên của Đại Việt về phía Nam.",
+    lesson: { text: "Xem L01 — Nhà Lý", href: "../lesson-01-nha-ly/visualization.html" },
+    tags: ["expand"]
+  },
+  {
+    year: 1075, label: "1075", title: "Kỳ thi Minh kinh bác học đầu tiên",
+    color: "#b45309", type: "found",
+    detail: "Nhà Lý tổ chức kỳ thi khoa cử đầu tiên: Minh kinh bác học. Đây là mốc khai sinh hệ thống khoa cử Nho học ở Việt Nam. Cũng trong năm 1075, Lý Thường Kiệt chủ động tấn công phủ Khâm, Liêm, Ung của nhà Tống trước khi Tống kịp xâm lược.",
+    lesson: { text: "Xem L01 — Nhà Lý", href: "../lesson-01-nha-ly/visualization.html" },
+    tags: ["found"]
+  },
+  {
+    year: 1077, label: "1077", title: "Kháng Tống — trận Như Nguyệt",
+    color: "#b91c1c", type: "war",
+    detail: "Lý Thường Kiệt chặn đứng 10 vạn quân Tống tại phòng tuyến sông Cầu (Như Nguyệt). Bài thơ 'Nam quốc sơn hà Nam đế cư' vang lên trong đêm — được xem là bản tuyên ngôn độc lập đầu tiên. Quân Tống kiệt sức, chấp nhận rút lui và nhà Lý hoàn thành đàm phán giải quyết biên giới.",
+    lesson: { text: "Xem L01 — Nhà Lý", href: "../lesson-01-nha-ly/visualization.html" },
+    tags: ["war"]
+  },
+  {
+    year: 1225, label: "1225", title: "Nhà Trần thay thế nhà Lý",
+    color: "#b45309", type: "found",
+    detail: "Lý Chiêu Hoàng (vua cuối nhà Lý) nhường ngôi cho chồng là Trần Cảnh — bắt đầu triều Trần. Quá trình chuyển giao được sắp đặt bởi Trần Thủ Độ, người nắm quyền thực sự. Triều Trần tiếp tục củng cố nhà nước Nho giáo nhưng duy trì ảnh hưởng Phật giáo đáng kể.",
+    lesson: { text: "Xem L02 — Nhà Trần", href: "../lesson-02-nha-tran-khang-nguyen-mong/visualization.html" },
+    tags: ["found"]
+  },
+  {
+    year: 1258, label: "1258", title: "Kháng Nguyên–Mông lần 1",
+    color: "#b91c1c", type: "war",
+    detail: "Quân Nguyên–Mông lần đầu tràn vào Đại Việt. Nhà Trần chủ động rút khỏi Thăng Long ('vườn không nhà trống'), kéo dài chiến tranh. Quân Mông Cổ chiếm Thăng Long nhưng thiếu lương thực và chịu nắng nóng nhiệt đới, phải rút lui. Trần Thái Tông đích thân chỉ huy.",
+    lesson: { text: "Xem L02 — Nhà Trần", href: "../lesson-02-nha-tran-khang-nguyen-mong/visualization.html" },
+    tags: ["war"]
+  },
+  {
+    year: 1285, label: "1285", title: "Kháng Nguyên–Mông lần 2 — Đại thắng",
+    color: "#b91c1c", type: "war",
+    detail: "50 vạn quân Nguyên–Mông do Thoát Hoan chỉ huy xâm lược. Trần Hưng Đạo tổng chỉ huy — lại áp dụng 'vườn không nhà trống'. Sau khi địch kiệt sức, phản công tại Tây Kết, Hàm Tử, Chương Dương — đẩy toàn bộ quân Nguyên ra khỏi lãnh thổ. 'Hịch tướng sĩ' ra đời trong giai đoạn này.",
+    lesson: { text: "Xem L02 — Nhà Trần", href: "../lesson-02-nha-tran-khang-nguyen-mong/visualization.html" },
+    tags: ["war"]
+  },
+  {
+    year: 1288, label: "1288", title: "Kháng Nguyên–Mông lần 3 — Bạch Đằng",
+    color: "#b91c1c", type: "war",
+    detail: "Lần thứ ba quân Nguyên xâm lược. Trần Hưng Đạo dùng lại chiến thuật cọc — cọc được đóng xuống sông Bạch Đằng ngập trong thủy triều. Thuyền Nguyên tiến vào khi triều lên, khi triều rút bị mắc cọc và bị bao vây tiêu diệt. Tướng Nguyên Ô Mã Nhi bị bắt sống.",
+    lesson: { text: "Xem L02 — Nhà Trần", href: "../lesson-02-nha-tran-khang-nguyen-mong/visualization.html" },
+    tags: ["war"]
+  },
+  {
+    year: 1306, label: "1306", title: "Công chúa Huyền Trân — nhận 2 châu Ô, Lý",
+    color: "#1d4ed8", type: "expand",
+    detail: "Vua Chăm Pa Chế Mân cưới công chúa Huyền Trân của nhà Trần, dâng 2 châu Ô và Lý làm sính lễ. Đây tương đương vùng Thừa Thiên–Huế ngày nay. Nhà Trần đổi tên thành châu Thuận và châu Hóa. Đây là bước mở cõi quan trọng thứ hai sau 1069.",
+    lesson: { text: "Xem L02 — Nhà Trần", href: "../lesson-02-nha-tran-khang-nguyen-mong/visualization.html" },
+    tags: ["expand"]
+  },
+  {
+    year: 1400, label: "1400", title: "Hồ Quý Ly phế Trần, lập nhà Hồ",
+    color: "#9d174d", type: "split",
+    detail: "Hồ Quý Ly ép vua Trần Thiếu Đế nhường ngôi, lập nhà Hồ với quốc hiệu Đại Ngu, dời đô về Tây Đô (Thanh Hóa). Hồ Quý Ly thực hiện nhiều cải cách táo bạo: phát hành tiền giấy, hạn điền, cải cách khoa cử — nhưng thiếu sự ủng hộ của dân và quý tộc Trần.",
+    lesson: { text: "Xem L03 — Nhà Hồ & Lam Sơn", href: "../lesson-03-ho-minh-thuoc-lam-son/visualization.html" },
+    tags: ["split"]
+  },
+  {
+    year: 1418, label: "1418", title: "Lê Lợi dựng cờ khởi nghĩa Lam Sơn",
+    color: "#b91c1c", type: "war",
+    detail: "Lê Lợi (người Lam Sơn, Thanh Hóa) dựng cờ khởi nghĩa chống ách đô hộ nhà Minh. Giai đoạn đầu (1418–1423) rất gian khó — quân Minh áp đảo. Từ 1424, Nguyễn Trãi hiến kế 'đánh vào lòng người': tuyên truyền địch vận, chiêu hàng thay vì tiêu diệt.",
+    lesson: { text: "Xem L03 — Nhà Hồ & Lam Sơn", href: "../lesson-03-ho-minh-thuoc-lam-son/visualization.html" },
+    tags: ["war"]
+  },
+  {
+    year: 1427, label: "1427", title: "Chi Lăng–Xương Giang — Đuổi quân Minh",
+    color: "#b91c1c", type: "war",
+    detail: "Năm 1427, viện binh 10 vạn quân Minh do Liễu Thăng chỉ huy bị tiêu diệt tại Chi Lăng (Lạng Sơn) — Liễu Thăng tử trận. Quân Minh còn lại ở thành Đông Quan (Hà Nội) xin hàng. Nguyễn Trãi soạn 'Bình Ngô đại cáo' tuyên bố độc lập. Lê Lợi lên ngôi, lập nhà Lê sơ.",
+    lesson: { text: "Xem L03 — Nhà Hồ & Lam Sơn", href: "../lesson-03-ho-minh-thuoc-lam-son/visualization.html" },
+    tags: ["war"]
+  },
+  {
+    year: 1471, label: "1471", title: "Lê Thánh Tông đánh Chăm Pa — mở đến Bình Định",
+    color: "#1d4ed8", type: "expand",
+    detail: "Lê Thánh Tông dẫn 20 vạn quân đánh Chăm Pa, chiếm kinh đô Vijaya (Bình Định). Lãnh thổ Đại Việt mở đến Phú Yên ngày nay. Chăm Pa suy yếu không phục hồi — chỉ còn là vùng tiểu quốc ở cực Nam. Cùng thời gian này (1483), Lê Thánh Tông ban hành Luật Hồng Đức.",
+    lesson: { text: "Xem L04 — Lê sơ & Hồng Đức", href: "../lesson-04-le-so-hong-duc/visualization.html" },
+    tags: ["expand"]
+  },
+  {
+    year: 1483, label: "1483", title: "Luật Hồng Đức — đỉnh cao lập pháp Lê sơ",
+    color: "#b45309", type: "found",
+    detail: "Lê Thánh Tông hoàn thiện bộ 'Quốc triều hình luật' (Luật Hồng Đức) gồm 722 điều. Đây là bộ luật toàn diện nhất của Đại Việt thời trung đại. Điểm nổi bật so với luật Trung Hoa cùng thời: bảo vệ quyền thừa kế tài sản của phụ nữ, quyền ly hôn có điều kiện, bảo vệ người yếu thế.",
+    lesson: { text: "Xem L04 — Lê sơ & Hồng Đức", href: "../lesson-04-le-so-hong-duc/visualization.html" },
+    tags: ["found"]
+  },
+  {
+    year: 1527, label: "1527", title: "Mạc Đăng Dung cướp ngôi — Nam–Bắc triều",
+    color: "#9d174d", type: "split",
+    detail: "Mạc Đăng Dung ép vua Lê nhường ngôi, lập nhà Mạc, đóng đô ở Thăng Long. Cựu thần nhà Lê (Nguyễn Kim) lập con vua Lê tị nạn ở Thanh Hóa, gây ra cục diện Nam–Bắc triều (Mạc ở Bắc, Lê ở Nam). Cuộc phân liệt kéo dài đến 1592 khi Trịnh Tùng diệt Mạc.",
+    lesson: { text: "Xem L05 — Nam–Bắc triều", href: "../lesson-05-nam-bac-trieu-trinh-nguyen/visualization.html" },
+    tags: ["split"]
+  },
+  {
+    year: 1600, label: "1600", title: "Trịnh–Nguyễn phân tranh bắt đầu",
+    color: "#9d174d", type: "split",
+    detail: "Nguyễn Hoàng — con Nguyễn Kim — sau nhiều năm trấn thủ Thuận Hóa, chính thức cắt đứt với chúa Trịnh ở Thăng Long. Bắt đầu giai đoạn Đàng Trong (chúa Nguyễn) và Đàng Ngoài (chúa Trịnh – vua Lê hư vị). Ranh giới: sông Gianh (Quảng Bình). Kéo dài đến 1771.",
+    lesson: { text: "Xem L05 — Nam–Bắc triều", href: "../lesson-05-nam-bac-trieu-trinh-nguyen/visualization.html" },
+    tags: ["split"]
+  },
+  {
+    year: 1698, label: "1698", title: "Nguyễn Hữu Cảnh lập hành chính Gia Định",
+    color: "#1d4ed8", type: "expand",
+    detail: "Chúa Nguyễn cử Nguyễn Hữu Cảnh vào Nam thiết lập bộ máy hành chính cho vùng Đồng Nai–Sài Gòn–Biên Hòa. Đây là mốc chính thức người Việt hành chính hóa vùng Nam Bộ — trước đó chủ yếu là lưu dân tự phát. Vùng đất trở thành phủ Gia Định.",
+    lesson: { text: "Xem L05 — Nam–Bắc triều", href: "../lesson-05-nam-bac-trieu-trinh-nguyen/visualization.html" },
+    tags: ["expand"]
+  },
+  {
+    year: 1771, label: "1771", title: "Tây Sơn nổi dậy",
+    color: "#b91c1c", type: "war",
+    detail: "Ba anh em Nguyễn Nhạc, Nguyễn Huệ, Nguyễn Lữ khởi nghĩa từ vùng Tây Sơn (Bình Định). Lực lượng ban đầu là dân nghèo, thợ thủ công và một số dân tộc thiểu số. Trong vài năm, Tây Sơn lật đổ cả chúa Nguyễn ở Đàng Trong (1777) và chúa Trịnh ở Đàng Ngoài (1786).",
+    lesson: { text: "Xem L06 — Tây Sơn", href: "../lesson-06-tay-son-quang-trung/visualization.html" },
+    tags: ["war"]
+  },
+  {
+    year: 1785, label: "1785", title: "Rạch Gầm–Xoài Mút — Đại thắng quân Xiêm",
+    color: "#b91c1c", type: "war",
+    detail: "Nguyễn Huệ dẫn quân phục kích trên hệ thống sông Tiền (Tiền Giang). Khoảng 2 vạn quân Xiêm (Thái) hỗ trợ Nguyễn Ánh bị tiêu diệt gần như hoàn toàn. Nguyễn Ánh phải chạy sang Xiêm tị nạn. Đây là một trong những trận thủy chiến lớn nhất lịch sử Việt Nam.",
+    lesson: { text: "Xem L06 — Tây Sơn", href: "../lesson-06-tay-son-quang-trung/visualization.html" },
+    tags: ["war"]
+  },
+  {
+    year: 1789, label: "1789", title: "Ngọc Hồi–Đống Đa — Đại thắng quân Thanh",
+    color: "#b91c1c", type: "war",
+    detail: "Quang Trung (Nguyễn Huệ) hành quân thần tốc từ Phú Xuân, đánh bại 29 vạn quân Thanh trong 5 ngày. Trận Đống Đa (mùng 5 Tết Kỷ Dậu 1789): đánh thẳng vào sở chỉ huy, Tôn Sĩ Nghị bỏ chạy, Sầm Nghi Đống tự tử. Ngày mùng 5 Tết là ngày chiến thắng.",
+    lesson: { text: "Xem L06 — Tây Sơn", href: "../lesson-06-tay-son-quang-trung/visualization.html" },
+    tags: ["war"]
+  },
+  {
+    year: 1802, label: "1802", title: "Gia Long thống nhất — lập nhà Nguyễn",
+    color: "#b45309", type: "found",
+    detail: "Nguyễn Ánh đánh bại Tây Sơn, lên ngôi hoàng đế lấy hiệu Gia Long, đặt quốc hiệu Việt Nam, đóng đô tại Phú Xuân (Huế). Lần đầu tiên trong lịch sử, toàn bộ lãnh thổ từ Lạng Sơn đến Hà Tiên nằm dưới một chính quyền thống nhất.",
+    lesson: { text: "Xem L07 — Nhà Nguyễn", href: "../lesson-07-nha-nguyen/visualization.html" },
+    tags: ["found"]
+  },
+  {
+    year: 1858, label: "1858", title: "Pháp nổ súng tại Đà Nẵng — Tầng 3",
+    color: "#b91c1c", type: "war",
+    detail: "Liên quân Pháp–Tây Ban Nha tấn công cảng Đà Nẵng ngày 1/9/1858. Đây là mốc mở đầu quá trình thực dân hóa Việt Nam — và kết thúc Tầng 2. Tầng 3 bắt đầu từ đây: xem Lesson 01 Tầng 3.",
+    lesson: { text: "Xem Tầng 3 — Pháp xâm lược", href: "../../03-Modern-Contemporary/lesson-01-phap-xam-luoc-can-vuong/visualization.html" },
+    tags: ["war"]
+  }
+];
+
+const DYNASTIES = [
+  {
+    name: "Nhà Lý", years: "1009–1225", vua: "Lý Thái Tổ, Lý Thường Kiệt, Lý Nhân Tông",
+    ideo: "Phật giáo",
+    core: "Dời đô Thăng Long; Hình thư 1042; khoa cử 1075; kháng Tống 1077",
+    detail: `<h3>Nhà Lý (1009–1225) — 216 năm</h3>
+    <p><strong>Lập triều:</strong> Lý Công Uẩn lên ngôi năm 1009, dời đô về Thăng Long năm 1010. Đây là quyết định chiến lược quan trọng — Thăng Long trở thành trung tâm quyền lực Đại Việt suốt 8 thế kỷ.</p>
+    <p><strong>Thành tựu lớn:</strong> Ban hành Hình thư (bộ luật thành văn đầu tiên, 1042); khai sinh khoa cử (1075); xây Văn Miếu–Quốc Tử Giám; mở rộng lãnh thổ xuống phía Nam (1069, nhận 3 châu của Chăm Pa).</p>
+    <p><strong>Kháng Tống 1075–1077:</strong> Lý Thường Kiệt chủ động tấn công trước, sau đó chặn quân Tống tại phòng tuyến sông Cầu (Như Nguyệt). Bài thơ "Nam quốc sơn hà" vang lên là tuyên ngôn độc lập đầu tiên.</p>
+    <p><strong>Đặc trưng:</strong> Phật giáo giữ vai trò trung tâm — sư sãi tham gia triều chính, chùa tháp được xây khắp nơi. Hội đồng quý tộc họ Lý có quyền lực đáng kể bên cạnh vua.</p>
+    <p><a href="../lesson-01-nha-ly/visualization.html" style="color:#1d4ed8">Xem bài L01 — Nhà Lý →</a></p>`,
+    lesson: "../lesson-01-nha-ly/visualization.html"
+  },
+  {
+    name: "Nhà Trần", years: "1225–1400", vua: "Trần Thái Tông, Trần Hưng Đạo, Trần Nhân Tông",
+    ideo: "Phật giáo + Nho giáo",
+    core: "Ba lần kháng Nguyên–Mông; Hịch tướng sĩ; Trúc Lâm Thiền phái; nhận châu Ô–Lý 1306",
+    detail: `<h3>Nhà Trần (1225–1400) — 175 năm</h3>
+    <p><strong>Lập triều:</strong> Trần Cảnh lên ngôi qua hôn nhân với Lý Chiêu Hoàng — được sắp đặt bởi Trần Thủ Độ. Thể chế "Thượng hoàng – Vua" đặc trưng của nhà Trần: vua trẻ trị vì, thượng hoàng cố vấn — giảm tranh giành quyền lực.</p>
+    <p><strong>Ba lần kháng Nguyên–Mông (1258, 1285, 1288):</strong> Chiến lược "vườn không nhà trống" ba lần bỏ Thăng Long, kéo địch vào sâu, cắt hậu cần rồi phản công. Trần Hưng Đạo tổng chỉ huy lần 2 và 3. Trận Bạch Đằng 1288 — cọc sắt, tướng Ô Mã Nhi bị bắt sống.</p>
+    <p><strong>Văn hóa:</strong> Trần Nhân Tông sáng lập Trúc Lâm Thiền phái — phái Phật giáo thuần Việt đầu tiên.</p>
+    <p><strong>Suy thoái:</strong> Cuối Trần, nội bộ phân hóa; đất công mất vào tay quý tộc; nông dân bần cùng — tạo điều kiện cho Hồ Quý Ly nổi lên.</p>
+    <p><a href="../lesson-02-nha-tran-khang-nguyen-mong/visualization.html" style="color:#1d4ed8">Xem bài L02 — Nhà Trần →</a></p>`,
+    lesson: "../lesson-02-nha-tran-khang-nguyen-mong/visualization.html"
+  },
+  {
+    name: "Nhà Hồ", years: "1400–1407", vua: "Hồ Quý Ly, Hồ Hán Thương",
+    ideo: "Nho giáo cải cách",
+    core: "Cải cách tiền giấy, hạn điền; quốc hiệu Đại Ngu; thất bại trước nhà Minh (1407)",
+    detail: `<h3>Nhà Hồ (1400–1407) — 7 năm</h3>
+    <p><strong>Lập triều:</strong> Hồ Quý Ly ép vua Trần Thiếu Đế nhường ngôi, đặt quốc hiệu Đại Ngu, dời đô về Tây Đô (thành nhà Hồ ở Thanh Hóa — Di sản UNESCO ngày nay).</p>
+    <p><strong>Cải cách táo bạo:</strong> Phát hành tiền giấy (thay tiền đồng); hạn điền (giới hạn ruộng đất quý tộc); cải cách thi cử; phiên dịch sách chữ Nôm. Đây là những cải cách có tầm nhìn xa nhưng thiếu sự đồng thuận của giới quý tộc và nhân dân.</p>
+    <p><strong>Thất bại 1407:</strong> Nhà Minh lấy danh nghĩa "phù Trần diệt Hồ" đưa quân vào. Cha con Hồ Quý Ly bị bắt sống ở Hà Tĩnh. Đại Việt bắt đầu 20 năm Minh thuộc (1407–1427).</p>
+    <p><a href="../lesson-03-ho-minh-thuoc-lam-son/visualization.html" style="color:#1d4ed8">Xem bài L03 — Nhà Hồ & Lam Sơn →</a></p>`,
+    lesson: "../lesson-03-ho-minh-thuoc-lam-son/visualization.html"
+  },
+  {
+    name: "Lê sơ", years: "1428–1527", vua: "Lê Lợi, Lê Thánh Tông, Nguyễn Trãi (khai quốc)",
+    ideo: "Nho giáo tập quyền",
+    core: "Bình Ngô đại cáo; Luật Hồng Đức 1483; 13 đạo thừa tuyên; đánh Chăm Pa 1471",
+    detail: `<h3>Lê sơ (1428–1527) — 99 năm</h3>
+    <p><strong>Lập triều:</strong> Lê Lợi lên ngôi sau khi đuổi quân Minh. Nguyễn Trãi soạn "Bình Ngô đại cáo" (1428) — tuyên ngôn độc lập thứ hai của Việt Nam, cũng là tác phẩm văn học–chính trị lớn nhất thời trung đại.</p>
+    <p><strong>Cải cách Lê Thánh Tông:</strong> Xóa chức thừa tướng; quyền hành trực tiếp qua 6 Bộ; chia 13 đạo thừa tuyên; tăng kiểm soát địa phương. Luật Hồng Đức (1483) — 722 điều, bộ luật toàn diện nhất thời trung đại.</p>
+    <p><strong>Mở cõi:</strong> 1471, đánh Chăm Pa chiếm Vijaya (Bình Định) — lãnh thổ mở đến Phú Yên. Chăm Pa suy yếu không phục hồi.</p>
+    <p><strong>Suy thoái:</strong> Sau Lê Thánh Tông, nội bộ hoàng tộc tranh giành. 1527, Mạc Đăng Dung cướp ngôi.</p>
+    <p><a href="../lesson-04-le-so-hong-duc/visualization.html" style="color:#1d4ed8">Xem bài L04 — Lê sơ & Hồng Đức →</a></p>`,
+    lesson: "../lesson-04-le-so-hong-duc/visualization.html"
+  },
+  {
+    name: "Mạc & Nam–Bắc triều", years: "1527–1592", vua: "Mạc Đăng Dung / Lê Trang Tông (Lê Trung hưng)",
+    ideo: "Phân liệt",
+    core: "Cục diện hai chính quyền song song; Nguyễn Kim dựng lại nhà Lê ở Thanh Hóa",
+    detail: `<h3>Mạc & Nam–Bắc triều (1527–1592) — 65 năm phân liệt</h3>
+    <p><strong>Nhà Mạc (Bắc triều):</strong> Mạc Đăng Dung đóng đô Thăng Long, cai trị vùng Đàng Ngoài (Bắc Bộ). Tiếp tục thi cử, tương đối ổn định về kinh tế.</p>
+    <p><strong>Nam triều:</strong> Nguyễn Kim (cựu thần Lê) dựng lại con vua Lê ở Thanh Hóa — "phù Lê diệt Mạc". Con rể Nguyễn Kim là Trịnh Kiểm nắm quyền sau khi Nguyễn Kim mất, đặt nền cho dòng họ Trịnh.</p>
+    <p><strong>Kết thúc:</strong> 1592, Trịnh Tùng (con Trịnh Kiểm) tiêu diệt nhà Mạc, Lê Thế Tông vào Thăng Long. Tuy nhiên quyền lực thực tế nằm trong tay họ Trịnh — vua Lê chỉ còn danh nghĩa.</p>
+    <p><a href="../lesson-05-nam-bac-trieu-trinh-nguyen/visualization.html" style="color:#1d4ed8">Xem bài L05 — Nam–Bắc triều →</a></p>`,
+    lesson: "../lesson-05-nam-bac-trieu-trinh-nguyen/visualization.html"
+  },
+  {
+    name: "Trịnh–Nguyễn phân tranh", years: "1600–1771", vua: "Chúa Trịnh (Đàng Ngoài) / Chúa Nguyễn (Đàng Trong)",
+    ideo: "Lưỡng cực — vua Lê hư vị",
+    core: "Ranh giới sông Gianh; Đàng Trong mở cõi xuống Nam Bộ (1698, 1757); 7 lần giao chiến",
+    detail: `<h3>Trịnh–Nguyễn phân tranh (1600–1771) — 171 năm</h3>
+    <p><strong>Cục diện:</strong> Đàng Ngoài (từ Nghệ An–Thanh Hóa trở ra) — chúa Trịnh nắm quyền, vua Lê hư vị. Đàng Trong (từ sông Gianh trở vào) — chúa Nguyễn độc lập thực tế. Ranh giới: sông Gianh (Quảng Bình).</p>
+    <p><strong>7 lần giao chiến (1627–1672):</strong> Cả hai bên đều không thắng quyết định, cuối cùng đình chiến giữ nguyên biên giới.</p>
+    <p><strong>Đàng Trong mở cõi:</strong> Chúa Nguyễn khuyến khích di dân xuống Nam Bộ. 1698: Nguyễn Hữu Cảnh lập hành chính Gia Định. 1757: Nhận vùng Tầm Phong Long (An Giang, Đồng Tháp) từ Chân Lạp. Nam Bộ dần được hành chính hóa.</p>
+    <p><strong>Kết thúc:</strong> 1771, Tây Sơn nổi dậy từ Đàng Trong, lần lượt lật đổ cả hai bên.</p>
+    <p><a href="../lesson-05-nam-bac-trieu-trinh-nguyen/visualization.html" style="color:#1d4ed8">Xem bài L05 — Trịnh–Nguyễn →</a></p>`,
+    lesson: "../lesson-05-nam-bac-trieu-trinh-nguyen/visualization.html"
+  },
+  {
+    name: "Tây Sơn", years: "1771–1802", vua: "Nguyễn Nhạc, Nguyễn Huệ (Quang Trung), Nguyễn Lữ",
+    ideo: "Dân binh — ít hệ tư tưởng chính thống",
+    core: "Thống nhất tạm thời; đại thắng Xiêm (1785) và Thanh (1789); Quang Trung cải cách",
+    detail: `<h3>Tây Sơn (1771–1802) — 31 năm</h3>
+    <p><strong>Xuất thân:</strong> Ba anh em Nguyễn Nhạc, Nguyễn Huệ, Nguyễn Lữ khởi nghĩa từ Tây Sơn Thượng Đạo (Bình Định). Lực lượng ban đầu: thương nhân nghèo, thợ thủ công, dân tộc thiểu số Ba Na.</p>
+    <p><strong>Hai chiến thắng vĩ đại:</strong> Rạch Gầm–Xoài Mút (1785) tiêu diệt 2 vạn quân Xiêm. Ngọc Hồi–Đống Đa (1789) đánh tan 29 vạn quân Thanh trong 5 ngày thần tốc.</p>
+    <p><strong>Cải cách Quang Trung:</strong> Dùng chữ Nôm thay chữ Hán trong văn bản nhà nước; cải cách thuế; chiếu khuyến nông. Nhưng Quang Trung mất sớm (1792, 40 tuổi) — kế vị Cảnh Thịnh thiếu năng lực.</p>
+    <p><strong>Sụp đổ:</strong> Nguyễn Ánh tái chiếm dần từ Nam ra Bắc, diệt Tây Sơn năm 1802.</p>
+    <p><a href="../lesson-06-tay-son-quang-trung/visualization.html" style="color:#1d4ed8">Xem bài L06 — Tây Sơn →</a></p>`,
+    lesson: "../lesson-06-tay-son-quang-trung/visualization.html"
+  },
+  {
+    name: "Nhà Nguyễn (1802–1858)", years: "1802–1858", vua: "Gia Long, Minh Mạng, Thiệu Trị, Tự Đức",
+    ideo: "Nho giáo bảo thủ",
+    core: "Thống nhất lãnh thổ; Luật Gia Long 1815; 31 tỉnh (Minh Mạng); bế quan tỏa cảng",
+    detail: `<h3>Nhà Nguyễn giai đoạn 1 (1802–1858) — 56 năm</h3>
+    <p><strong>Gia Long (1802–1820):</strong> Thống nhất đất nước, đặt quốc hiệu Việt Nam, đóng đô Huế. Ban hành Hoàng Việt luật lệ (Luật Gia Long, 1815) — gần với luật Mãn Thanh hơn so với Hồng Đức. Dùng cố vấn Pháp (Bá Đa Lộc, Chaigneau...) xây kinh thành Huế theo kiểu Vauban.</p>
+    <p><strong>Minh Mạng (1820–1841):</strong> Chia 31 tỉnh — bản đồ hành chính gần nhất với Việt Nam hiện đại. Độc tôn Nho giáo, đàn áp Thiên Chúa giáo, hạn chế giao thương phương Tây (bế quan tỏa cảng thực chất).</p>
+    <p><strong>Thiệu Trị (1841–1847), Tự Đức (1847–1883):</strong> Tiếp tục chính sách bảo thủ. Nội bộ chia rẽ chủ chiến–chủ hòa. Khoảng cách công nghệ quân sự với phương Tây ngày càng rộng.</p>
+    <p><strong>1858:</strong> Pháp–Tây Ban Nha tấn công Đà Nẵng — mở đầu Tầng 3.</p>
+    <p><a href="../lesson-07-nha-nguyen/visualization.html" style="color:#1d4ed8">Xem bài L07 — Nhà Nguyễn →</a></p>`,
+    lesson: "../lesson-07-nha-nguyen/visualization.html"
+  }
+];
+
+// Nam tien steps: each has a southern boundary y-coordinate in SVG space
+// SVG height 480, represents roughly Lạng Sơn (y=20) to Hà Tiên (y=460)
+const MAP_STEPS = [
+  {
+    label: "Trước 1009 — Lãnh thổ ban đầu",
+    year: "trước 1009",
+    southY: 165, // ~Nghệ An
+    color: "#b45309",
+    desc: "Đại Cồ Việt (sau là Đại Việt) ban đầu chỉ bao gồm vùng Bắc Bộ và bắc Trung Bộ — tương đương từ Lạng Sơn đến khoảng Hà Tĩnh ngày nay. Phía Nam tiếp giáp Vương quốc Chăm Pa."
+  },
+  {
+    label: "1069 — Nhận 3 châu của Chăm Pa",
+    year: "1069",
+    southY: 195,
+    color: "#b45309",
+    desc: "Lý Thánh Tông đánh Chăm Pa, vua Chế Củ nộp 3 châu: Bố Chính, Địa Lý, Ma Linh. Lãnh thổ mở đến vùng Quảng Bình, bắc Quảng Trị ngày nay."
+  },
+  {
+    label: "1306 — Châu Ô, Lý (Thừa Thiên–Huế)",
+    year: "1306",
+    southY: 220,
+    color: "#15803d",
+    desc: "Vua Chăm Pa Chế Mân dâng 2 châu Ô và Lý làm sính lễ cưới công chúa Huyền Trân. Đây tương đương vùng Thừa Thiên–Huế ngày nay — thủ đô tương lai của nhà Nguyễn."
+  },
+  {
+    label: "1471 — Chiếm Vijaya, mở đến Bình Định",
+    year: "1471",
+    southY: 268,
+    color: "#b45309",
+    desc: "Lê Thánh Tông dẫn 20 vạn quân đánh Chăm Pa, chiếm kinh đô Vijaya (Bình Định). Lãnh thổ mở đến Phú Yên. Chăm Pa suy yếu không phục hồi."
+  },
+  {
+    label: "1611–1653 — Phú Yên, Khánh Hòa",
+    year: "1611–1653",
+    southY: 308,
+    color: "#1d4ed8",
+    desc: "Chúa Nguyễn tiếp tục mở rộng: Phú Yên (1611), Khánh Hòa (1653). Lưu dân người Việt khai khẩn đất mới dưới sự bảo trợ của chúa Nguyễn."
+  },
+  {
+    label: "1693–1697 — Ninh Thuận (Panduranga)",
+    year: "1693–1697",
+    southY: 338,
+    color: "#1d4ed8",
+    desc: "Chúa Nguyễn chiếm Panduranga — phần cuối cùng còn lại của Chăm Pa (vùng Ninh Thuận, Bình Thuận). Chăm Pa chính thức chấm dứt tồn tại như vương quốc độc lập."
+  },
+  {
+    label: "1698 — Hành chính hóa Gia Định",
+    year: "1698",
+    southY: 390,
+    color: "#1d4ed8",
+    desc: "Nguyễn Hữu Cảnh thiết lập bộ máy hành chính cho vùng Gia Định (Sài Gòn–Biên Hòa). Người Việt đã di cư vào đây từ trước — đây là mốc chính thức hành chính hóa."
+  },
+  {
+    label: "1757 — Nhận vùng Tầm Phong Long từ Chân Lạp",
+    year: "1757",
+    southY: 435,
+    color: "#1d4ed8",
+    desc: "Chúa Nguyễn nhận vùng Tầm Phong Long (An Giang, Đồng Tháp, Vĩnh Long) từ vua Chân Lạp đang suy yếu. Đây là bước cuối cùng hình thành vùng Nam Bộ dưới quyền người Việt."
+  },
+  {
+    label: "1802 — Thống nhất hoàn toàn (Gia Long)",
+    year: "1802",
+    southY: 458,
+    color: "#b45309",
+    desc: "Nguyễn Ánh lên ngôi Gia Long, thống nhất toàn bộ lãnh thổ từ Lạng Sơn đến Hà Tiên. Quốc hiệu: Việt Nam. Đây là lãnh thổ Việt Nam thống nhất lần đầu tiên trong lịch sử."
+  }
+];
+
+const QUIZ = [
+  {
+    q: "Lý Thái Tổ dời đô về Thăng Long năm nào?",
+    opts: ["1009", "1010", "1042", "1075"],
+    ans: 1,
+    exp: "Lý Thái Tổ lên ngôi năm 1009, nhưng dời đô về thành Đại La (đổi tên thành Thăng Long) năm 1010. Hai mốc này hay bị nhầm. 1042 là năm ban Hình thư; 1075 là kỳ thi khoa cử đầu tiên."
+  },
+  {
+    q: "Trận Như Nguyệt (sông Cầu) năm 1077 do ai chỉ huy phía Đại Việt?",
+    opts: ["Trần Hưng Đạo", "Lý Thường Kiệt", "Lê Lợi", "Ngô Quyền"],
+    ans: 1,
+    exp: "Lý Thường Kiệt chỉ huy phòng tuyến sông Cầu (Như Nguyệt), chặn 10 vạn quân Tống năm 1077. Trần Hưng Đạo là tướng kháng Nguyên–Mông (1285, 1288); Ngô Quyền đánh Bạch Đằng 938; Lê Lợi lãnh đạo Lam Sơn."
+  },
+  {
+    q: "Nhà Trần đối phó quân Nguyên–Mông bằng chiến lược gì?",
+    opts: [
+      "Xây thành kiên cố, cố thủ Thăng Long",
+      "'Vườn không nhà trống' — bỏ Thăng Long, kéo địch vào sâu, đánh tiêu hao",
+      "Liên minh với nhà Tống để kháng Mông Cổ",
+      "Chỉ dùng thủy binh trên sông Hồng"
+    ],
+    ans: 1,
+    exp: "Nhà Trần ba lần chủ động bỏ Thăng Long ('vườn không nhà trống'), kéo quân Nguyên vào sâu lãnh thổ, cắt hậu cần địch, chờ địch kiệt sức rồi phản công. Trần Hưng Đạo là kiến trúc sư chiến lược này."
+  },
+  {
+    q: "Tại trận Bạch Đằng 1288, tướng Nguyên nào bị bắt sống?",
+    opts: ["Thoát Hoan", "Ô Mã Nhi", "Trương Phụ", "Liễu Thăng"],
+    ans: 1,
+    exp: "Ô Mã Nhi — tướng chỉ huy thủy quân Nguyên — bị bắt sống tại trận Bạch Đằng 1288. Thoát Hoan là thống lĩnh chung, chạy thoát. Trương Phụ và Liễu Thăng là tướng nhà Minh (thế kỷ 15, không liên quan Nguyên–Mông)."
+  },
+  {
+    q: "Luật Hồng Đức (1483) đặc biệt ở điểm nào so với luật Trung Hoa cùng thời?",
+    opts: [
+      "Nặng hơn, hình phạt khắc nghiệt hơn",
+      "Bảo vệ quyền thừa kế tài sản của phụ nữ, có điều khoản ly hôn có điều kiện",
+      "Cấm hoàn toàn chế độ nô lệ",
+      "Không có hình phạt tử hình"
+    ],
+    ans: 1,
+    exp: "So với luật nhà Minh–Thanh cùng thời, Luật Hồng Đức có điểm nổi bật: bảo vệ quyền thừa kế tài sản của phụ nữ và một số điều khoản về ly hôn có điều kiện. Tuy nhiên vẫn có hình phạt thể xác và tử hình theo chuẩn trung đại."
+  },
+  {
+    q: "Mạc Đăng Dung cướp ngôi nhà Lê năm nào, gây ra cục diện Nam–Bắc triều?",
+    opts: ["1471", "1483", "1527", "1600"],
+    ans: 2,
+    exp: "Năm 1527, Mạc Đăng Dung ép vua Lê Cung Hoàng nhường ngôi. Các cựu thần nhà Lê (Nguyễn Kim) dựng lại nhà Lê ở Thanh Hóa — tạo ra cục diện Nam–Bắc triều kéo dài đến 1592."
+  },
+  {
+    q: "Ai thiết lập bộ máy hành chính chính thức cho vùng Gia Định (Sài Gòn) năm 1698?",
+    opts: ["Nguyễn Hoàng", "Nguyễn Hữu Cảnh", "Gia Long", "Minh Mạng"],
+    ans: 1,
+    exp: "Chúa Nguyễn Phúc Chu cử Nguyễn Hữu Cảnh vào Nam năm 1698 thiết lập bộ máy hành chính cho vùng Đồng Nai–Gia Định. Nguyễn Hoàng là chúa Nguyễn đầu tiên (trấn thủ Thuận Hóa từ 1558). Gia Long và Minh Mạng là vua nhà Nguyễn sau 1802."
+  },
+  {
+    q: "Trận Rạch Gầm–Xoài Mút (1785) tiêu diệt quân xâm lược của nước nào?",
+    opts: ["Nhà Thanh (Trung Hoa)", "Nhà Minh (Trung Hoa)", "Chân Lạp (Khmer)", "Xiêm (Thái Lan)"],
+    ans: 3,
+    exp: "Nguyễn Huệ đánh tan 2 vạn quân Xiêm (Thái Lan) tại Rạch Gầm–Xoài Mút (Tiền Giang) năm 1785 — quân Xiêm hỗ trợ Nguyễn Ánh. Trận đánh quân Thanh là Ngọc Hồi–Đống Đa (1789)."
+  },
+  {
+    q: "Nguyễn Huệ đại phá quân Thanh trong bao nhiêu ngày?",
+    opts: ["3 ngày", "5 ngày", "10 ngày", "1 tháng"],
+    ans: 1,
+    exp: "Quang Trung (Nguyễn Huệ) hành quân từ Phú Xuân và đánh tan quân Thanh trong đúng 5 ngày (29 tháng 11 đến mùng 5 Tết Kỷ Dậu, tức 25–30/1/1789). Tốc độ này là một trong những chiến dịch hành quân nhanh nhất lịch sử quân sự thế giới thời đó."
+  },
+  {
+    q: "Vì sao chính sách bế quan tỏa cảng của Minh Mạng làm suy yếu khả năng kháng Pháp?",
+    opts: [
+      "Vì nó cắt giảm nguồn thu thuế, gây thiếu tiền quân sự",
+      "Vì nó ngăn Việt Nam tiếp cận vũ khí và kỹ thuật quân sự hiện đại của phương Tây",
+      "Vì nó làm giảm dân số, thiếu lính",
+      "Vì nó gây xung đột với Trung Hoa"
+    ],
+    ans: 1,
+    exp: "Hạn chế giao thương với phương Tây đồng nghĩa với cô lập Việt Nam khỏi cách mạng công nghiệp — đặc biệt là pháo hiện đại, thuyền hơi nước và vũ khí bộ binh tân tiến mà Pháp sử dụng để xâm lược. Khoảng cách công nghệ quân sự là nguyên nhân trực tiếp khiến nhà Nguyễn thất thủ nhanh."
+  },
+  {
+    q: "Triều đại nào ban hành bộ luật toàn diện nhất thời trung đại Việt Nam?",
+    opts: ["Nhà Lý (Hình thư 1042)", "Nhà Trần", "Lê sơ (Luật Hồng Đức 1483)", "Nhà Nguyễn (Luật Gia Long 1815)"],
+    ans: 2,
+    exp: "Lê sơ dưới thời Lê Thánh Tông ban hành Quốc triều hình luật (Luật Hồng Đức, 1483) gồm 722 điều — bộ luật toàn diện nhất thời trung đại Đại Việt. Hình thư (1042) là bộ luật đầu tiên nhưng nhỏ hơn. Luật Gia Long (1815) là bộ luật lớn nhưng bảo thủ hơn."
+  },
+  {
+    q: "Quang Trung (Nguyễn Huệ) mất năm nào và ở tuổi bao nhiêu?",
+    opts: ["1789, 36 tuổi", "1792, 40 tuổi", "1802, 49 tuổi", "1800, 48 tuổi"],
+    ans: 1,
+    exp: "Quang Trung (Nguyễn Huệ) mất năm 1792, ở tuổi 40 — cái chết sớm của ông được nhiều sử gia xem là nguyên nhân quan trọng khiến Tây Sơn sụp đổ nhanh. Người kế vị Cảnh Thịnh (Nguyễn Quang Toản) thiếu năng lực và bị nội bộ chia rẽ."
+  }
+];
+
+/* ════════════════════════════════════════════════════════════
+   MODULE 1 — Vẽ Timeline
+════════════════════════════════════════════════════════════ */
+(function drawTimeline() {
+  const svg = document.getElementById('tl-svg');
+  const W = 980, H = 250;
+  const X0 = 30, X1 = 950, Y = 130;
+  const minY = 1009, maxY = 1858;
+  const range = maxY - minY;
+
+  function xOf(y) { return X0 + (y - minY) / range * (X1 - X0); }
+
+  // Era bands
+  const bands = [
+    { from: 1009, to: 1400,  label: "Lý – Trần – Hồ",   fill: "#fef3c7", op: 0.55 },
+    { from: 1400, to: 1428,  label: "Minh thuộc",        fill: "#fee2e2", op: 0.5  },
+    { from: 1428, to: 1527,  label: "Lê sơ",             fill: "#dcfce7", op: 0.5  },
+    { from: 1527, to: 1771,  label: "Phân liệt",         fill: "#fce7f3", op: 0.45 },
+    { from: 1771, to: 1858,  label: "Tây Sơn – Nguyễn", fill: "#dbeafe", op: 0.45 }
+  ];
+  bands.forEach(b => {
+    const x = xOf(b.from), w = xOf(b.to) - xOf(b.from);
+    const rect = document.createElementNS("http://www.w3.org/2000/svg","rect");
+    Object.assign(rect, {});
+    rect.setAttribute("x", x); rect.setAttribute("y", 14);
+    rect.setAttribute("width", w); rect.setAttribute("height", H-28);
+    rect.setAttribute("fill", b.fill); rect.setAttribute("opacity", b.op);
+    svg.appendChild(rect);
+    const txt = document.createElementNS("http://www.w3.org/2000/svg","text");
+    txt.setAttribute("x", x + w/2); txt.setAttribute("y", 27);
+    txt.setAttribute("text-anchor","middle"); txt.setAttribute("font-size","9.5");
+    txt.setAttribute("fill","#6b7280"); txt.setAttribute("font-style","italic");
+    txt.textContent = b.label;
+    svg.appendChild(txt);
+  });
+
+  // Axis
+  const axis = document.createElementNS("http://www.w3.org/2000/svg","line");
+  axis.setAttribute("x1",X0); axis.setAttribute("y1",Y);
+  axis.setAttribute("x2",X1); axis.setAttribute("y2",Y);
+  axis.setAttribute("stroke","#9ca3af"); axis.setAttribute("stroke-width","2.5");
+  svg.appendChild(axis);
+
+  // Decade ticks
+  for(let yr=1050; yr<=1858; yr+=50){
+    const x = xOf(yr);
+    const tick = document.createElementNS("http://www.w3.org/2000/svg","line");
+    tick.setAttribute("x1",x); tick.setAttribute("y1",Y-4);
+    tick.setAttribute("x2",x); tick.setAttribute("y2",Y+4);
+    tick.setAttribute("stroke","#d1d5db"); tick.setAttribute("stroke-width","1");
+    svg.appendChild(tick);
+    if(yr % 100 === 0){
+      const t = document.createElementNS("http://www.w3.org/2000/svg","text");
+      t.setAttribute("x",x); t.setAttribute("y",Y+16);
+      t.setAttribute("text-anchor","middle"); t.setAttribute("font-size","8.5");
+      t.setAttribute("fill","#9ca3af");
+      t.textContent = yr;
+      svg.appendChild(t);
+    }
+  }
+
+  // Events
+  TL_EVENTS.forEach((ev, i) => {
+    const x = xOf(ev.year);
+    const above = i % 2 === 0;
+    const labelY = above ? Y - 36 : Y + 52;
+    const lineY2  = above ? Y - 8  : Y + 8;
+
+    const tick = document.createElementNS("http://www.w3.org/2000/svg","line");
+    tick.setAttribute("x1",x); tick.setAttribute("y1",Y);
+    tick.setAttribute("x2",x); tick.setAttribute("y2",lineY2);
+    tick.setAttribute("stroke",ev.color); tick.setAttribute("stroke-width","1.8");
+    tick.setAttribute("stroke-dasharray","3,2");
+    svg.appendChild(tick);
+
+    const txt = document.createElementNS("http://www.w3.org/2000/svg","text");
+    txt.setAttribute("x",x); txt.setAttribute("y",labelY);
+    txt.setAttribute("text-anchor","middle"); txt.setAttribute("font-size","8.5");
+    txt.setAttribute("fill",ev.color); txt.setAttribute("font-weight","600");
+    txt.textContent = ev.label;
+    svg.appendChild(txt);
+
+    const dot = document.createElementNS("http://www.w3.org/2000/svg","circle");
+    dot.setAttribute("cx",x); dot.setAttribute("cy",Y); dot.setAttribute("r","7");
+    dot.setAttribute("fill",ev.color); dot.setAttribute("stroke","white"); dot.setAttribute("stroke-width","2");
+    dot.classList.add("tl-dot"); dot.setAttribute("aria-label",ev.title);
+    dot.addEventListener("click", () => showTLEvent(ev));
+    svg.appendChild(dot);
+  });
+
+  // End labels
+  const mkEndLabel = (x, lbl) => {
+    const t = document.createElementNS("http://www.w3.org/2000/svg","text");
+    t.setAttribute("x",x); t.setAttribute("y",Y+28);
+    t.setAttribute("text-anchor","middle"); t.setAttribute("font-size","9"); t.setAttribute("fill","#78716c");
+    t.textContent = lbl; svg.appendChild(t);
+  };
+  mkEndLabel(X0, "1009"); mkEndLabel(X1, "1858");
+})();
+
+function showTLEvent(ev) {
+  const tagMap = { found:"Dựng nước", war:"Kháng chiến", expand:"Mở cõi", split:"Phân liệt" };
+  const clsMap = { found:"tag-found", war:"tag-war", expand:"tag-expand", split:"tag-split" };
+  const tagsHtml = ev.tags.map(t => `<span class="ev-tag ${clsMap[t]||''}">${tagMap[t]||t}</span>`).join('');
+  document.getElementById('tl-detail').innerHTML = `
+    <div class="ev-title">${ev.title} <span style="font-weight:400;font-size:13px;color:#78716c">— ${ev.label}</span></div>
+    <div style="margin-bottom:8px;">${tagsHtml}</div>
+    <div style="margin-bottom:10px;font-size:14px;line-height:1.75;">${ev.detail}</div>
+    <div class="ev-link"><a href="${ev.lesson.href}">${ev.lesson.text} →</a></div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   MODULE 2 — Bảng triều đại
+════════════════════════════════════════════════════════════ */
+(function buildTable() {
+  const tbody = document.getElementById('dyn-tbody');
+  DYNASTIES.forEach((d, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${d.name}</td><td>${d.years}</td><td>${d.vua}</td><td>${d.ideo}</td><td>${d.core}</td>`;
+    tr.addEventListener('click', () => showDynDetail(d, tr));
+    tbody.appendChild(tr);
+  });
+})();
+
+function showDynDetail(d, tr) {
+  document.querySelectorAll('#dyn-tbody tr').forEach(r => r.style.background = '');
+  tr.style.background = '#fde68a';
+  const det = document.getElementById('dyn-detail');
+  det.innerHTML = d.detail;
+  det.classList.add('visible');
+  det.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ════════════════════════════════════════════════════════════
+   MODULE 3 — Bản đồ Nam tiến
+════════════════════════════════════════════════════════════ */
+(function buildMap() {
+  // Build SVG background — stylized Vietnam outline (simplified)
+  const svg = document.getElementById('map-svg');
+
+  // Country silhouette (simplified path — not GPS-accurate, illustrative)
+  const body = document.createElementNS("http://www.w3.org/2000/svg","path");
+  // Rough S-curve shape of Vietnam
+  body.setAttribute("d",
+    "M120,20 C140,18 155,22 160,35 L165,60 C170,75 175,85 172,100 " +
+    "C168,115 180,125 185,140 C190,158 185,175 178,190 " +
+    "C170,205 165,218 160,235 C158,248 162,260 168,272 " +
+    "C175,285 178,298 175,312 C172,326 165,338 158,350 " +
+    "C152,360 148,370 145,382 C142,392 140,402 138,414 " +
+    "C136,425 133,438 128,450 C124,460 118,465 110,462 " +
+    "C100,458 90,450 82,440 C74,430 68,418 65,405 " +
+    "C62,392 64,378 68,365 C72,352 76,340 78,328 " +
+    "C80,315 78,302 74,290 C70,278 65,266 64,253 " +
+    "C63,240 66,228 70,215 C74,202 76,190 74,178 " +
+    "C72,165 65,154 60,142 C55,130 53,118 56,106 " +
+    "C59,94 66,84 72,72 C78,60 82,48 90,38 C98,28 110,22 120,20 Z"
+  );
+  body.setAttribute("fill","#e5e7eb"); body.setAttribute("stroke","#9ca3af"); body.setAttribute("stroke-width","1.5");
+  svg.appendChild(body);
+
+  // Label: Bắc
+  const lblN = document.createElementNS("http://www.w3.org/2000/svg","text");
+  lblN.setAttribute("x","115"); lblN.setAttribute("y","55");
+  lblN.setAttribute("text-anchor","middle"); lblN.setAttribute("font-size","10"); lblN.setAttribute("fill","#6b7280");
+  lblN.textContent = "Bắc Bộ"; svg.appendChild(lblN);
+
+  // Build step buttons
+  const btnList = document.getElementById('map-btn-list');
+  MAP_STEPS.forEach((s,i) => {
+    const btn = document.createElement('button');
+    btn.className = 'map-step-btn';
+    btn.innerHTML = `${s.label}<span class="btn-year">${s.year}</span>`;
+    btn.addEventListener('click', () => selectMapStep(i));
+    btnList.appendChild(btn);
+  });
+
+  // Draw current overlay — starts empty
+  selectMapStep(0);
+})();
+
+let _mapCurrentOverlay = null;
+let _mapCurrentLabel = null;
+
+function selectMapStep(idx) {
+  const step = MAP_STEPS[idx];
+
+  // Update buttons
+  document.querySelectorAll('.map-step-btn').forEach((b,i) => {
+    b.classList.toggle('active', i === idx);
+  });
+
+  // Remove old overlay
+  const svg = document.getElementById('map-svg');
+  if(_mapCurrentOverlay) { svg.removeChild(_mapCurrentOverlay); _mapCurrentOverlay = null; }
+  if(_mapCurrentLabel)   { svg.removeChild(_mapCurrentLabel);   _mapCurrentLabel = null; }
+
+  // Draw filled territory from top to southY
+  const rect = document.createElementNS("http://www.w3.org/2000/svg","rect");
+  rect.setAttribute("x","55"); rect.setAttribute("y","15");
+  rect.setAttribute("width","140"); rect.setAttribute("height", step.southY - 15);
+  rect.setAttribute("fill", step.color); rect.setAttribute("opacity","0.35");
+  // clip to body silhouette via paint-order trick — just overlay on top, looks fine at this scale
+  svg.appendChild(rect);
+  _mapCurrentOverlay = rect;
+
+  // Southern boundary label
+  const lbl = document.createElementNS("http://www.w3.org/2000/svg","line");
+  lbl.setAttribute("x1","52"); lbl.setAttribute("y1", step.southY);
+  lbl.setAttribute("x2","200"); lbl.setAttribute("y2", step.southY);
+  lbl.setAttribute("stroke", step.color); lbl.setAttribute("stroke-width","2");
+  lbl.setAttribute("stroke-dasharray","4,3");
+  svg.appendChild(lbl);
+  _mapCurrentLabel = lbl;
+
+  document.getElementById('map-desc').innerHTML = `<strong>${step.label}</strong><br>${step.desc}`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   MODULE 4 — Quiz
+════════════════════════════════════════════════════════════ */
+let qIdx = 0, score = 0, answered = false;
+const TOTAL = QUIZ.length;
+
+function renderQuiz() {
+  if(qIdx >= TOTAL){ showResult(); return; }
+  const q = QUIZ[qIdx];
+  answered = false;
+  document.getElementById('quiz-counter').textContent = `Câu ${qIdx+1} / ${TOTAL}`;
+  document.getElementById('quiz-bar').style.width = `${(qIdx/TOTAL)*100}%`;
+
+  const optsHtml = q.opts.map((o,i) =>
+    `<button class="quiz-opt" onclick="selectOpt(${i})">${o}</button>`
+  ).join('');
+
+  document.getElementById('quiz-area').innerHTML = `
+    <div class="quiz-card">
+      <div class="quiz-q">${q.q}</div>
+      <div class="quiz-opts">${optsHtml}</div>
+      <div id="qfb" class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="btn btn-primary" id="next-btn" onclick="nextQ()" disabled>Câu tiếp →</button>
+    </div>`;
+}
+
+function selectOpt(i) {
+  if(answered) return;
+  answered = true;
+  const q = QUIZ[qIdx];
+  document.querySelectorAll('.quiz-opt').forEach((o,idx) => {
+    o.disabled = true;
+    if(idx === q.ans) o.classList.add('correct');
+    if(idx === i && i !== q.ans) o.classList.add('wrong');
+  });
+  const ok = i === q.ans;
+  if(ok) score++;
+  document.getElementById('quiz-score-live').textContent = `${score} đúng`;
+  const fb = document.getElementById('qfb');
+  fb.classList.add('visible', ok ? 'ok' : 'err');
+  fb.innerHTML = `<strong>${ok ? 'Đúng!' : 'Chưa đúng.'}</strong> ${q.exp}`;
+  document.getElementById('next-btn').disabled = false;
+}
+
+function nextQ() { qIdx++; renderQuiz(); }
+
+function showResult() {
+  document.getElementById('quiz-area').innerHTML = '';
+  document.getElementById('quiz-bar').style.width = '100%';
+  document.getElementById('quiz-counter').textContent = 'Hoàn thành!';
+  const pct = Math.round((score/TOTAL)*100);
+  let stars, msg;
+  if(pct>=90){ stars='⭐⭐⭐'; msg='Xuất sắc! Bạn nắm vững toàn bộ Tầng 2.'; }
+  else if(pct>=70){ stars='⭐⭐'; msg='Tốt! Ôn lại một số bài để hoàn thiện hơn.'; }
+  else { stars='⭐'; msg='Cần ôn thêm — hãy xem lại các bài L01–L07 và quiz lại.'; }
+  const res = document.getElementById('quiz-result');
+  res.classList.add('visible');
+  res.innerHTML = `
+    <div class="score">${score} / ${TOTAL}</div>
+    <div class="score-label">(${pct}%) ${stars}</div>
+    <div class="result-msg">${msg}</div>
+    <div style="margin-top:18px;">
+      <button class="btn btn-primary" onclick="restartQuiz()">Làm lại từ đầu</button>
+    </div>`;
+}
+
+function restartQuiz() {
+  qIdx=0; score=0; answered=false;
+  document.getElementById('quiz-score-live').textContent='0 đúng';
+  document.getElementById('quiz-result').classList.remove('visible');
+  renderQuiz();
+}
+
+renderQuiz();
+</script>
+
+</body>
+</html>

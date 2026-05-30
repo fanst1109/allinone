@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Nhà Hồ, Minh thuộc &amp; Khởi nghĩa Lam Sơn</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette lịch sử Việt ── */
+  :root {
+    --accent:       #b45309;
+    --accent-soft:  #fef3c7;
+    --accent-dark:  #78350f;
+    --accent-hover: #92400e;
+    --red-war:      #b91c1c;
+    --red-soft:     #fee2e2;
+    --green-peace:  #15803d;
+    --green-soft:   #dcfce7;
+    --stone:        #78716c;
+    --stone-soft:   #f5f5f4;
+    --blue:         #1d4ed8;
+    --blue-soft:    #dbeafe;
+    --bg-card:      #ffffff;
+    --bg-section:   #fffbeb;
+  }
+
+  main { max-width: 1080px; }
+
+  h1  { color: var(--accent-dark); font-size: 1.55rem; margin-bottom: 6px; }
+  h2  { color: var(--accent); margin-top: 40px; padding-bottom: 8px;
+        border-bottom: 2px solid var(--accent-soft); font-size: 1.15rem; }
+
+  .subtitle {
+    color: var(--stone);
+    font-size: 14px;
+    margin-bottom: 24px;
+    font-style: italic;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 6px rgba(180,83,9,.12);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .war-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-war);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary   { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-war       { background: var(--red-war); color: white; }
+  .btn-war:hover { background: #991b1b; }
+  .btn-row {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin: 14px 0; align-items: center;
+  }
+
+  /* ════════════════════════════════════════════════
+     MODULE 1 — Bản đồ tiến quân Lam Sơn (SVG động)
+     ════════════════════════════════════════════════ */
+  #map-wrap {
+    width: 100%;
+    overflow-x: auto;
+    text-align: center;
+  }
+
+  .map-step-panel {
+    background: var(--bg-section);
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    min-height: 68px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .map-step-panel .phase-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .tag-start  { background: var(--stone-soft); color: var(--stone); }
+  .tag-expand { background: var(--accent-soft); color: var(--accent-dark); }
+  .tag-north  { background: var(--red-soft);   color: var(--red-war); }
+  .tag-win    { background: var(--green-soft);  color: var(--green-peace); }
+
+  .step-dots {
+    display: flex; gap: 8px; margin: 10px 0; flex-wrap: wrap;
+  }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid #d1d5db; background: #f9fafb;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #9ca3af;
+    cursor: pointer; transition: all .2s;
+  }
+  .step-dot.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .step-dot.done   { background: var(--green-peace); border-color: var(--green-peace); color: white; }
+
+  /* ════════════════════════════════════════════════
+     MODULE 2 — Timeline 1400–1428
+     ════════════════════════════════════════════════ */
+  .tl-wrap {
+    position: relative;
+    padding: 12px 0 12px 32px;
+    margin: 8px 0;
+  }
+  .tl-wrap::before {
+    content: '';
+    position: absolute;
+    left: 12px; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, var(--red-war), var(--accent), var(--green-peace));
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-left: 20px;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -26px; top: 6px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+  }
+  .tl-item.war::before   { background: var(--red-war);    box-shadow: 0 0 0 2px var(--red-war); }
+  .tl-item.peace::before { background: var(--green-peace); box-shadow: 0 0 0 2px var(--green-peace); }
+  .tl-item.key::before   {
+    width: 18px; height: 18px;
+    left: -28px; top: 4px;
+    background: var(--red-war);
+    box-shadow: 0 0 0 3px var(--red-war), 0 0 0 6px rgba(185,28,28,.2);
+  }
+  .tl-year  { font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .tl-item.war .tl-year  { color: var(--red-war); }
+  .tl-item.key .tl-year  { color: var(--red-war); font-size: 14px; }
+  .tl-item.peace .tl-year { color: var(--green-peace); }
+  .tl-title { font-weight: 700; font-size: 14px; color: #1f2937; line-height: 1.4; }
+  .tl-desc  { font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.5; }
+  .tl-badge {
+    display: inline-block; padding: 1px 8px;
+    border-radius: 10px; font-size: 11px; font-weight: 700;
+    margin-left: 6px; vertical-align: middle;
+  }
+  .badge-war   { background: #fee2e2; color: #991b1b; }
+  .badge-norm  { background: var(--accent-soft); color: var(--accent-dark); }
+  .badge-peace { background: var(--green-soft); color: var(--green-peace); }
+
+  /* ════════════════════════════════════════════════
+     MODULE 3 — Sơ đồ cải cách Hồ Quý Ly
+     ════════════════════════════════════════════════ */
+  .reform-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin: 14px 0;
+  }
+  .reform-card {
+    background: var(--accent-soft);
+    border: 2px solid #fbbf24;
+    border-radius: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: box-shadow .15s, border-color .15s;
+  }
+  .reform-card:hover { box-shadow: 0 3px 10px rgba(180,83,9,.2); border-color: var(--accent); }
+  .reform-card.active { background: var(--accent); color: white; border-color: var(--accent-dark); }
+  .reform-icon { font-size: 24px; margin-bottom: 6px; }
+  .reform-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .reform-card.active .reform-title { color: white; }
+  .reform-sub { font-size: 12px; color: #78716c; }
+  .reform-card.active .reform-sub { color: #fef3c7; }
+
+  .reform-detail {
+    background: white;
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+  }
+  .reform-detail.show { display: block; }
+  .reform-detail-title { font-weight: 700; font-size: 15px; color: var(--accent-dark); margin-bottom: 8px; }
+  .reform-verdict {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .verdict-ok  { background: var(--green-soft); color: #14532d; }
+  .verdict-bad { background: var(--red-soft);   color: #991b1b; }
+  .verdict-mix { background: var(--accent-soft); color: var(--accent-dark); }
+
+  /* ════════════════════════════════════════════════
+     MODULE 4 — Sơ đồ nhân–quả
+     ════════════════════════════════════════════════ */
+  .ce-section { margin: 16px 0; }
+  .ce-title-row {
+    display: flex; gap: 12px; align-items: center;
+    margin-bottom: 8px; flex-wrap: wrap;
+  }
+  .ce-tab {
+    padding: 7px 16px; border-radius: 20px;
+    border: 2px solid #e5e7eb; background: #f9fafb;
+    font-size: 13px; font-weight: 700; color: #6b7280;
+    cursor: pointer; transition: all .15s;
+  }
+  .ce-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .ce-diagram { display: none; }
+  .ce-diagram.show { display: block; }
+
+  .ce-flow {
+    display: flex; flex-direction: column; gap: 0; margin: 12px 0;
+  }
+  .ce-row {
+    display: flex; align-items: stretch; gap: 0;
+  }
+  .ce-node {
+    flex: 1; border-radius: 8px;
+    padding: 12px 14px; font-size: 13px;
+    line-height: 1.5; text-align: center; font-weight: 600;
+  }
+  .ce-node.cause  { background: #fef3c7; color: #78350f; border: 2px solid #fbbf24; }
+  .ce-node.event  { background: var(--red-soft); color: var(--red-war); border: 2px solid var(--red-war); }
+  .ce-node.result { background: var(--green-soft); color: #14532d; border: 2px solid var(--green-peace); }
+  .ce-node.neutral{ background: var(--stone-soft); color: #44403c; border: 2px solid #a8a29e; }
+  .ce-arrow  { display: flex; align-items: center; justify-content: center;
+               font-size: 20px; color: var(--stone); padding: 0 8px; }
+  .ce-connect{ display: flex; justify-content: center; padding: 4px 0;
+               color: var(--stone); font-size: 18px; }
+  .ce-note {
+    background: var(--stone-soft);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #44403c;
+    margin-top: 10px;
+    line-height: 1.6;
+  }
+
+  /* ════════════════════════════════════════════════
+     MODULE 5 — Quiz
+     ════════════════════════════════════════════════ */
+  .quiz-q { font-weight: 700; font-size: 15px; margin-bottom: 12px;
+            color: #1f2937; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .quiz-opt {
+    padding: 10px 14px; border-radius: 7px;
+    border: 2px solid #e5e7eb; background: #f9fafb;
+    cursor: pointer; font-size: 14px; text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover  { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct{ border-color: var(--green-peace); background: var(--green-soft);
+                     color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong  { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled{ cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px; border-radius: 8px;
+    font-size: 14px; line-height: 1.6; margin-top: 8px; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: var(--green-soft); color: #14532d;
+                        border: 1px solid var(--green-peace); }
+  .quiz-feedback.err { background: var(--red-soft); color: #991b1b;
+                        border: 1px solid var(--red-war); }
+  .quiz-nav  { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-prog { font-size: 13px; color: var(--stone); }
+  .quiz-score{ font-weight: 700; color: var(--green-peace); font-size: 15px; }
+
+  /* ── Compare table ── */
+  .compare-wrap { overflow-x: auto; }
+  .compare-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 13px; margin: 12px 0;
+  }
+  .compare-table th {
+    background: var(--accent); color: white;
+    padding: 10px 12px; text-align: left; font-weight: 700;
+  }
+  .compare-table th:first-child { border-radius: 8px 0 0 0; }
+  .compare-table th:last-child  { border-radius: 0 8px 0 0; }
+  .compare-table td {
+    padding: 9px 12px; border-bottom: 1px solid #f3f4f6;
+    vertical-align: top; line-height: 1.5; color: #374151;
+  }
+  .compare-table tr:nth-child(even) td { background: #fafafa; }
+  .compare-table .hl td { background: #fef3c7; font-weight: 600; color: var(--accent-dark); }
+  .compare-table td:first-child { font-weight: 700; color: #1f2937; }
+
+  @media (max-width: 600px) {
+    .compare-table { font-size: 12px; }
+    .compare-table th, .compare-table td { padding: 8px 8px; }
+    .ce-node { font-size: 12px; padding: 9px 10px; }
+    .reform-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 420px) {
+    .reform-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử VN — Triều đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-nha-tran-khang-nguyen-mong/visualization.html">← L2: Nhà Trần</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Hồ, Minh thuộc &amp; Lam Sơn</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-le-so-hong-duc/visualization.html">L4: Lê sơ &amp; Hồng Đức →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Nhà Hồ, Minh thuộc &amp; Khởi nghĩa Lam Sơn</h1>
+<p class="subtitle">Từ cải cách táo bạo (1400) đến 20 năm Minh thuộc và chiến thắng Lam Sơn — "đại nghĩa thắng hung tàn" (1427)</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ tiến quân Lam Sơn (SVG động)
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ tiến quân Lam Sơn (1418–1427)</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Nhấn <strong>Bước tiếp theo</strong> để xem từng giai đoạn mở rộng địa bàn
+    của nghĩa quân Lam Sơn từ Thanh Hóa ra Bắc. Các mũi tên và vùng tô màu thay đổi theo từng giai đoạn.
+  </div>
+
+  <div class="step-dots" id="map-dots"></div>
+
+  <div id="map-wrap">
+    <svg id="map-svg" width="560" height="500" viewBox="0 0 560 500"
+         style="display:block; margin:0 auto; border-radius:8px; background:#e0f2fe;">
+
+      <!-- ── Nền biển phía Đông ── -->
+      <rect x="420" y="0" width="140" height="500" fill="#bae6fd" opacity="0.6"/>
+      <text x="465" y="30" font-size="11" fill="#0369a1" font-style="italic">Biển Đông</text>
+
+      <!-- ── Nền đất liền ── -->
+      <rect x="0" y="0" width="420" height="500" fill="#d4d4aa" opacity="0.5"/>
+
+      <!-- ── Đường biên giới phía Bắc (Minh) ── -->
+      <line x1="0" y1="60" x2="420" y2="60" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="6,4"/>
+      <text x="8" y="54" font-size="11" fill="#6b7280" font-weight="700">Biên giới phía Bắc</text>
+
+      <!-- ── Thành Đông Quan (Thăng Long) ── -->
+      <rect x="170" y="68" width="56" height="28" rx="5" fill="#fbbf24" stroke="#92400e" stroke-width="2"/>
+      <text x="198" y="83" font-size="12" fill="#78350f" font-weight="700" text-anchor="middle">Đông Quan</text>
+      <text x="198" y="93" font-size="10" fill="#78350f" text-anchor="middle">(Thăng Long)</text>
+
+      <!-- ── Nhãn vùng phía Bắc ── -->
+      <text x="100" y="110" font-size="12" fill="#374151" font-style="italic">Bắc Bộ</text>
+
+      <!-- ── Vùng Chi Lăng ── -->
+      <circle id="chi-lang-dot" cx="270" cy="105" r="8" fill="#b91c1c" opacity="0"/>
+      <text id="chi-lang-lbl" x="282" y="109" font-size="11" fill="#991b1b" font-weight="700" opacity="0">Chi Lăng</text>
+
+      <!-- ── Vùng Tốt Động – Chúc Động ── -->
+      <circle id="tot-dong-dot" cx="175" cy="115" r="7" fill="#b91c1c" opacity="0"/>
+      <text id="tot-dong-lbl" x="145" y="112" font-size="10" fill="#991b1b" font-weight="700" opacity="0">Tốt Động</text>
+
+      <!-- ── Phân cách Nghệ An ── -->
+      <line x1="0" y1="240" x2="420" y2="240" stroke="#a8a29e" stroke-width="1" stroke-dasharray="4,4"/>
+      <text x="8" y="232" font-size="11" fill="#78716c">Nghệ An</text>
+
+      <!-- ── Phân cách Tân Bình – Thuận Hóa ── -->
+      <line x1="0" y1="320" x2="420" y2="320" stroke="#a8a29e" stroke-width="1" stroke-dasharray="4,4"/>
+      <text x="8" y="313" font-size="11" fill="#78716c">Tân Bình – Thuận Hóa</text>
+
+      <!-- ── Thanh Hóa (vùng khởi nghĩa) ── -->
+      <rect id="thanhhoa-rect" x="60" y="340" width="160" height="80" rx="8"
+            fill="#fef3c7" stroke="#b45309" stroke-width="2" opacity="0"/>
+      <text id="thanhhoa-lbl" x="140" y="378" font-size="13" fill="#78350f" font-weight="700"
+            text-anchor="middle" opacity="0">Thanh Hóa</text>
+      <text id="thanhhoa-sub" x="140" y="393" font-size="11" fill="#92400e"
+            text-anchor="middle" opacity="0">(Lam Sơn, 1418)</text>
+
+      <!-- ── Vùng Nghệ An ── -->
+      <rect id="nghean-rect" x="60" y="250" width="200" height="80" rx="8"
+            fill="#fef3c7" stroke="#b45309" stroke-width="2" opacity="0"/>
+      <text id="nghean-lbl" x="160" y="292" font-size="13" fill="#78350f" font-weight="700"
+            text-anchor="middle" opacity="0">Nghệ An (1424)</text>
+
+      <!-- ── Vùng Tân Bình – Thuận Hóa ── -->
+      <rect id="tanbinhth-rect" x="60" y="328" width="200" height="80" rx="8"
+            fill="#fef3c7" stroke="#b45309" stroke-width="2" opacity="0"/>
+      <text id="tanbinhth-lbl" x="160" y="365" font-size="12" fill="#78350f" font-weight="700"
+            text-anchor="middle" opacity="0">Tân Bình – Thuận Hóa</text>
+      <text id="tanbinhth-sub" x="160" y="380" font-size="11" fill="#92400e"
+            text-anchor="middle" opacity="0">(1425)</text>
+
+      <!-- ── Vùng Bắc Bộ ── -->
+      <rect id="bacbo-rect" x="60" y="68" width="300" height="165" rx="8"
+            fill="#fef3c7" stroke="#b45309" stroke-width="2" opacity="0"/>
+      <text id="bacbo-lbl" x="210" y="148" font-size="13" fill="#78350f" font-weight="700"
+            text-anchor="middle" opacity="0">Tiến ra Bắc (1426)</text>
+
+      <!-- ── Mũi tên Lam Sơn → Nghệ An ── -->
+      <defs>
+        <marker id="arrow-acc" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#b45309"/>
+        </marker>
+        <marker id="arrow-war" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#b91c1c"/>
+        </marker>
+      </defs>
+
+      <path id="arrow-lamsonnghean"
+            d="M 140 340 Q 140 310 160 260"
+            fill="none" stroke="#b45309" stroke-width="3"
+            stroke-dasharray="8,5" marker-end="url(#arrow-acc)" opacity="0"/>
+
+      <path id="arrow-nghean-tb"
+            d="M 160 250 Q 155 340 155 320"
+            fill="none" stroke="#b45309" stroke-width="3"
+            stroke-dasharray="8,5" marker-end="url(#arrow-acc)" opacity="0"/>
+
+      <!-- Mũi tên tiến lên Bắc từ Thanh Hóa -->
+      <path id="arrow-north"
+            d="M 180 340 Q 200 240 200 160"
+            fill="none" stroke="#b91c1c" stroke-width="3.5"
+            marker-end="url(#arrow-war)" opacity="0"/>
+
+      <!-- Mũi tên vây Đông Quan -->
+      <path id="arrow-siege"
+            d="M 200 155 Q 200 120 195 100"
+            fill="none" stroke="#b91c1c" stroke-width="3.5"
+            marker-end="url(#arrow-war)" opacity="0"/>
+
+      <!-- ── Vùng Lam Sơn (điểm xuất phát cố định) ── -->
+      <circle cx="140" cy="375" r="12" fill="#b45309" opacity="0.85"/>
+      <text x="140" y="379" font-size="10" fill="white" font-weight="700" text-anchor="middle">LS</text>
+      <text x="158" y="395" font-size="11" fill="#78350f" font-weight="700">Lam Sơn</text>
+      <text x="158" y="407" font-size="10" fill="#92400e">(Thanh Hóa)</text>
+
+      <!-- ── Xương Giang ── -->
+      <circle id="xuong-giang-dot" cx="310" cy="112" r="7" fill="#b91c1c" opacity="0"/>
+      <text id="xuong-giang-lbl" x="320" y="116" font-size="10" fill="#991b1b" font-weight="700" opacity="0">Xương Giang</text>
+
+      <!-- ── Nhãn năm trên map (giai đoạn) ── -->
+      <rect id="year-badge" x="370" y="440" width="120" height="50" rx="8"
+            fill="white" stroke="#fbbf24" stroke-width="2" opacity="0"/>
+      <text id="year-text" x="430" y="460" font-size="13" fill="#78350f" font-weight="700"
+            text-anchor="middle" opacity="0"></text>
+      <text id="year-sub"  x="430" y="477" font-size="11" fill="#b45309"
+            text-anchor="middle" opacity="0"></text>
+
+      <!-- ── Nhãn 4 góc ── -->
+      <text x="8" y="490" font-size="11" fill="#78716c" font-style="italic">Phía Nam (Chiêm Thành)</text>
+      <text x="8" y="440" font-size="11" fill="#78716c">Quảng Nam</text>
+    </svg>
+  </div>
+
+  <div class="map-step-panel" id="map-step-panel">
+    <div class="phase-tag tag-start" id="map-phase-tag">Chuẩn bị</div><br>
+    <span id="map-step-text">Nhấn <strong>Bước tiếp theo</strong> để xem hành trình tiến quân của khởi nghĩa Lam Sơn từ Thanh Hóa đến toàn thắng.</span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="map-btn-prev" onclick="mapPrev()">← Bước trước</button>
+    <button class="btn btn-primary"   id="map-btn-next" onclick="mapNext()">Bước tiếp theo →</button>
+    <button class="btn btn-secondary" onclick="mapReset()">Khởi động lại</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Timeline 1400–1428
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Chuỗi thời gian 1400 – 1428</h2>
+
+<div class="card">
+  <div class="tl-wrap">
+
+    <div class="tl-item">
+      <div class="tl-year">Năm 1400 <span class="tl-badge badge-norm">Nhà Hồ</span></div>
+      <div class="tl-title">Hồ Quý Ly phế nhà Trần, lập nhà Hồ — quốc hiệu Đại Ngu</div>
+      <div class="tl-desc">Phế Trần Thiếu Đế (3 tuổi), tự lên ngôi. Đây là lần đầu tiên người ngoài dòng máu Trần nắm ngôi vị kể từ khi nhà Trần thành lập (1226).</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">1396–1400 <span class="tl-badge badge-norm">Cải cách</span></div>
+      <div class="tl-title">Hàng loạt cải cách táo bạo: tiền giấy, hạn điền, hạn nô, thi cử</div>
+      <div class="tl-desc">Tiến bộ về nội dung nhưng vội vã và thiếu cơ sở xã hội. Đụng chạm lợi ích quý tộc Trần cũ, gây xáo trộn kinh tế.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">Tháng 11/1406 <span class="tl-badge badge-war">Xâm lược</span></div>
+      <div class="tl-title">Quân Minh xâm lược — danh nghĩa "phù Trần diệt Hồ"</div>
+      <div class="tl-desc">Hai đạo quân Minh do Trương Phụ và Mộc Thạnh chỉ huy tiến vào Đại Ngu. Quân số rất lớn (theo các nguồn khác nhau: 200.000–800.000, số liệu cụ thể còn tranh luận).</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">Tháng 5/1407 <span class="tl-badge badge-war">Sụp đổ</span></div>
+      <div class="tl-title">Hồ Quý Ly và Hồ Hán Thương bị bắt — nhà Hồ diệt vong</div>
+      <div class="tl-desc">Chỉ 6 tháng kháng cự. Quân Minh lập Giao Chỉ đô chỉ huy sứ ti — sáp nhập toàn bộ lãnh thổ làm quận của Minh.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">1407–1413</div>
+      <div class="tl-title">Giai đoạn khủng bố: Trương Phụ cai trị hà khắc</div>
+      <div class="tl-desc">Tịch thu sách vở chữ Nôm, tịch thu thợ thủ công, áp đặt y phục Hán, vơ vét khoáng sản. Các cuộc nổi dậy nhỏ lẻ (Trần Quý Khoách…) đều bị dập tắt.</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">Tháng 2/1418 <span class="tl-badge badge-norm">Lam Sơn</span></div>
+      <div class="tl-title">Lê Lợi dựng cờ khởi nghĩa tại Lam Sơn, tự xưng Bình Định Vương</div>
+      <div class="tl-desc">Hào trưởng Thanh Hóa, từ chối ra làm quan cho Minh. Nguyễn Trãi gia nhập khoảng 1420 — đưa tư tưởng "đại nghĩa thắng hung tàn" vào cuộc kháng chiến.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">1418–1423</div>
+      <div class="tl-title">Giai đoạn gian khổ — ba lần rút lên Chí Linh</div>
+      <div class="tl-desc">Quân Minh nhiều lần bao vây. Lê Lợi phải rút lên núi Chí Linh (3 lần), một lần giả hàng tạm thời để bảo toàn lực lượng.</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">Tháng 10/1424</div>
+      <div class="tl-title">Giải phóng Nghệ An — bước đột phá chiến lược</div>
+      <div class="tl-desc">Theo kế hoạch của tướng Nguyễn Chích, Lam Sơn mở rộng vào Nghệ An — có hậu phương rộng hơn và ổn định hơn Thanh Hóa.</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-year">Năm 1425</div>
+      <div class="tl-title">Kiểm soát Tân Bình và Thuận Hóa</div>
+      <div class="tl-desc">Phần lớn từ Thanh Hóa vào đến Thuận Hóa (Thừa Thiên–Huế) thuộc quyền kiểm soát của Lam Sơn. Lực lượng ngày càng đông và mạnh.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">Tháng 11/1426 <span class="tl-badge badge-war">Quyết định</span></div>
+      <div class="tl-title">Trận Tốt Động – Chúc Động: tiêu diệt lớn quân Minh</div>
+      <div class="tl-desc">Quân Lam Sơn phục kích đánh tan đạo quân Minh do Vương Thông chỉ huy. Quân Minh co cụm trong thành Đông Quan (Thăng Long).</div>
+    </div>
+
+    <div class="tl-item key">
+      <div class="tl-year">Tháng 10/1427 <span class="tl-badge badge-war">Toàn thắng</span></div>
+      <div class="tl-title">Chi Lăng – Xương Giang: Liễu Thăng bị giết, viện binh bị tiêu diệt</div>
+      <div class="tl-desc">Quân viện binh Minh do Liễu Thăng chỉ huy bị phục kích tại ải Chi Lăng — Liễu Thăng tử trận. Phần còn lại bị tiêu diệt ở Xương Giang. Mộc Thạnh (đạo thứ hai) hay tin, rút lui.</div>
+    </div>
+
+    <div class="tl-item war">
+      <div class="tl-year">Tháng 12/1427</div>
+      <div class="tl-title">Vương Thông ký hòa ước, quân Minh rút về nước</div>
+      <div class="tl-desc">Mất viện binh, không còn hy vọng, Vương Thông buộc phải đàm phán. Quân Minh rút khỏi Đông Quan và toàn bộ lãnh thổ. Kết thúc 20 năm Minh thuộc.</div>
+    </div>
+
+    <div class="tl-item peace">
+      <div class="tl-year">Năm 1428 <span class="tl-badge badge-peace">Độc lập</span></div>
+      <div class="tl-title">Lê Lợi lên ngôi — Bình Ngô đại cáo ra đời</div>
+      <div class="tl-desc">Nguyễn Trãi thay mặt vua viết Bình Ngô đại cáo — bản tuyên ngôn độc lập và chủ quyền dân tộc toàn diện nhất từ trước đến thời điểm đó. Mở ra nhà Lê sơ.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Sơ đồ cải cách Hồ Quý Ly
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Cải cách Hồ Quý Ly — tiến bộ hay vội vã?</h2>
+
+<div class="card">
+  <div class="info-box">
+    Bấm vào từng cải cách để xem chi tiết: nội dung, mức độ tiến bộ, và lý do thất bại.
+  </div>
+
+  <div class="reform-grid" id="reform-grid">
+    <div class="reform-card" onclick="reformShow(0)">
+      <div class="reform-icon">💴</div>
+      <div class="reform-title">Tiền giấy</div>
+      <div class="reform-sub">Thông bảo hội sao (1396)</div>
+    </div>
+    <div class="reform-card" onclick="reformShow(1)">
+      <div class="reform-icon">🌾</div>
+      <div class="reform-title">Hạn điền</div>
+      <div class="reform-sub">Giới hạn ruộng quý tộc</div>
+    </div>
+    <div class="reform-card" onclick="reformShow(2)">
+      <div class="reform-icon">⛓</div>
+      <div class="reform-title">Hạn nô</div>
+      <div class="reform-sub">Giới hạn nô tỳ</div>
+    </div>
+    <div class="reform-card" onclick="reformShow(3)">
+      <div class="reform-icon">📚</div>
+      <div class="reform-title">Thi cử &amp; Giáo dục</div>
+      <div class="reform-sub">Thêm Toán, dịch chữ Nôm</div>
+    </div>
+    <div class="reform-card" onclick="reformShow(4)">
+      <div class="reform-icon">⚔</div>
+      <div class="reform-title">Quân sự</div>
+      <div class="reform-sub">Cải tổ quân đội, thuyền chiến</div>
+    </div>
+    <div class="reform-card" onclick="reformShow(5)">
+      <div class="reform-icon">🏥</div>
+      <div class="reform-title">Y tế công cộng</div>
+      <div class="reform-sub">Cơ quan y tế, cấp thuốc miễn phí</div>
+    </div>
+  </div>
+
+  <div class="reform-detail" id="reform-detail">
+    <div class="reform-detail-title" id="reform-dtitle"></div>
+    <div id="reform-dbody"></div>
+    <div class="reform-verdict" id="reform-verdict"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Sơ đồ nhân–quả
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Sơ đồ nhân – quả</h2>
+
+<div class="card">
+  <div class="info-box">
+    Chọn một trong hai luồng nhân–quả để xem: (A) Vì sao nhà Hồ thất bại, (B) Vì sao Lam Sơn thắng lợi.
+  </div>
+
+  <div class="ce-title-row">
+    <button class="ce-tab active" onclick="ceSwitch('A')">A: Nhà Hồ thất bại</button>
+    <button class="ce-tab"        onclick="ceSwitch('B')">B: Lam Sơn thắng lợi</button>
+  </div>
+
+  <!-- Luồng A: Nhà Hồ thất bại -->
+  <div class="ce-diagram show" id="ce-A">
+    <div class="ce-flow">
+      <div class="ce-row">
+        <div class="ce-node cause">Hồ Quý Ly cướp ngôi nhà Trần (1400)</div>
+        <div class="ce-arrow">→</div>
+        <div class="ce-node cause">Mất tính chính danh trong mắt dân</div>
+      </div>
+      <div class="ce-connect">↓</div>
+      <div class="ce-row">
+        <div class="ce-node cause">Cải cách vội vã, đụng chạm quý tộc Trần cũ</div>
+        <div class="ce-arrow">→</div>
+        <div class="ce-node cause">Thêm kẻ thù, không có đồng minh mạnh</div>
+      </div>
+      <div class="ce-connect">↓</div>
+      <div class="ce-row">
+        <div class="ce-node event" style="flex:2">Quân Minh xâm lược (1406) — dân không nổi dậy kháng cự toàn dân</div>
+      </div>
+      <div class="ce-connect">↓</div>
+      <div class="ce-row">
+        <div class="ce-node event">Thiếu nghĩa binh tự phát (khác thời chống Mông–Nguyên)</div>
+        <div class="ce-arrow">→</div>
+        <div class="ce-node event">Phòng thủ thụ động, liên tiếp thất bại</div>
+      </div>
+      <div class="ce-connect">↓</div>
+      <div class="ce-row">
+        <div class="ce-node result" style="flex:2">Nhà Hồ sụp đổ trong 6 tháng (5/1407) — 20 năm Minh thuộc bắt đầu</div>
+      </div>
+    </div>
+    <div class="ce-note">
+      <strong>Bài học:</strong> Sức mạnh quân sự đơn thuần không thay thế được lòng dân.
+      Nhà Hồ có quân đội được cải tổ, có thành Tây Đô kiên cố — nhưng thiếu sự ủng hộ
+      của người dân và quý tộc địa phương, không thể kháng cự lâu dài.
+    </div>
+  </div>
+
+  <!-- Luồng B: Lam Sơn thắng lợi -->
+  <div class="ce-diagram" id="ce-B">
+    <div class="ce-flow">
+      <div class="ce-row">
+        <div class="ce-node cause">20 năm Minh thuộc hà khắc → mâu thuẫn dân tộc sâu sắc</div>
+        <div class="ce-arrow">→</div>
+        <div class="ce-node cause">Mọi tầng lớp xã hội đều có động cơ kháng cự</div>
+      </div>
+      <div class="ce-connect">↓</div>
+      <div class="ce-row">
+        <div class="ce-node neutral">Lê Lợi: hào trưởng địa phương, uy tín trong vùng, từ chối ra làm quan Minh</div>
+        <div class="ce-arrow">→</div>
+        <div class="ce-node neutral">Tính chính danh của người Việt, vì người Việt</div>
+      </div>
+      <div class="ce-connect">↓</div>
+      <div class="ce-row">
+        <div class="ce-node neutral">Nguyễn Trãi: "đại nghĩa thắng hung tàn" + chiến lược "tâm công"</div>
+        <div class="ce-arrow">→</div>
+        <div class="ce-node neutral">Huy động được toàn dân; nhiều thành Minh đầu hàng không cần đánh</div>
+      </div>
+      <div class="ce-connect">↓</div>
+      <div class="ce-row">
+        <div class="ce-node event">Nghệ An (1424) → Tân Bình–Thuận Hóa (1425) → vây Đông Quan (1426)</div>
+      </div>
+      <div class="ce-connect">↓</div>
+      <div class="ce-row">
+        <div class="ce-node event">Tốt Động–Chúc Động (1426) + Chi Lăng–Xương Giang (1427)</div>
+        <div class="ce-arrow">→</div>
+        <div class="ce-node event">Tiêu diệt quân chủ lực và viện binh Minh</div>
+      </div>
+      <div class="ce-connect">↓</div>
+      <div class="ce-row">
+        <div class="ce-node result" style="flex:2">Độc lập (12/1427) — Nhà Lê sơ + Bình Ngô đại cáo (1428)</div>
+      </div>
+    </div>
+    <div class="ce-note">
+      <strong>Bài học:</strong> Kháng chiến có chính nghĩa (bảo vệ dân, đại diện cho toàn dân tộc)
+      kết hợp với chiến lược linh hoạt (du kích → phản công → tâm công) thắng được kẻ xâm lược
+      dù mạnh hơn về vũ khí và quân số.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 5 — So sánh: Nhà Hồ vs Lam Sơn
+     ═══════════════════════════════════════════════════════ -->
+<h2>5. So sánh: Nhà Hồ và Lam Sơn về khả năng huy động dân</h2>
+
+<div class="card">
+  <div class="compare-wrap">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Tiêu chí</th>
+          <th>Nhà Hồ (1400–1407)</th>
+          <th>Khởi nghĩa Lam Sơn (1418–1427)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Tính chính danh</td>
+          <td>Cướp ngôi nhà Trần — nhiều người xem là bất nghĩa</td>
+          <td>Lê Lợi là người Việt, vì độc lập dân tộc — chính nghĩa rõ ràng</td>
+        </tr>
+        <tr>
+          <td>Thái độ dân chúng</td>
+          <td>Thờ ơ, một số đầu hàng hoặc dẫn đường cho Minh</td>
+          <td>Nhiều tầng lớp tham gia; dân cung cấp lương thực, thông tin</td>
+        </tr>
+        <tr>
+          <td>Nghĩa binh tự phát</td>
+          <td>Hầu như không có quy mô lớn</td>
+          <td>Có — tương tự kháng chiến chống Mông–Nguyên</td>
+        </tr>
+        <tr>
+          <td>Vai trò quý tộc địa phương</td>
+          <td>Quý tộc Trần cũ bị đụng chạm, không ủng hộ</td>
+          <td>Nhiều hào trưởng địa phương chủ động tham gia</td>
+        </tr>
+        <tr>
+          <td>Chiến lược</td>
+          <td>Phòng thủ thụ động tại thành lũy</td>
+          <td>Du kích → mở rộng hậu phương → phản công → tâm công</td>
+        </tr>
+        <tr class="hl">
+          <td>Kết quả</td>
+          <td>Sụp đổ trong 6 tháng (11/1406 – 5/1407)</td>
+          <td>Giành độc lập sau 10 năm kháng chiến (1418–1427)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="info-box" style="margin-top:14px;">
+    <strong>Nhận xét:</strong> Hai trường hợp cho thấy vai trò quyết định của tính chính danh và lòng dân.
+    Quân đội và thành lũy không thể bù đắp cho việc thiếu sự ủng hộ của nhân dân trong cuộc chiến
+    chống ngoại xâm kéo dài.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 6 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>6. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q"   id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <button class="btn btn-secondary" id="btn-quiz-restart" onclick="quizRestart()" style="display:none">Làm lại</button>
+    <span class="quiz-prog"  id="quiz-prog"></span>
+    <span class="quiz-score" id="quiz-score"></span>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   MODULE 1 — Bản đồ tiến quân Lam Sơn
+   ════════════════════════════════════════════════ */
+
+const MAP_STEPS = [
+  {
+    phase: '1418 — Dựng cờ', tag: 'tag-start',
+    show: ['thanhhoa-rect','thanhhoa-lbl','thanhhoa-sub'],
+    hide: ['nghean-rect','nghean-lbl','tanbinhth-rect','tanbinhth-lbl','tanbinhth-sub',
+           'bacbo-rect','bacbo-lbl','arrow-lamsonnghean','arrow-nghean-tb',
+           'arrow-north','arrow-siege','chi-lang-dot','chi-lang-lbl',
+           'tot-dong-dot','tot-dong-lbl','xuong-giang-dot','xuong-giang-lbl',
+           'year-badge','year-text','year-sub'],
+    year: '1418', yearSub: 'Lam Sơn — Thanh Hóa',
+    text: '<strong>1418 — Lê Lợi dựng cờ tại Lam Sơn (Thanh Hóa):</strong> Hào trưởng Lê Lợi tự xưng Bình Định Vương, tập hợp những người đồng chí. Giai đoạn 1418–1423 là gian khổ nhất: quân Minh nhiều lần bao vây, Lê Lợi phải ba lần rút lên núi Chí Linh, một lần giả hàng để bảo toàn lực lượng.',
+  },
+  {
+    phase: '1424 — Nghệ An', tag: 'tag-expand',
+    show: ['nghean-rect','nghean-lbl','arrow-lamsonnghean'],
+    hide: ['tanbinhth-rect','tanbinhth-lbl','tanbinhth-sub',
+           'bacbo-rect','bacbo-lbl','arrow-nghean-tb',
+           'arrow-north','arrow-siege','chi-lang-dot','chi-lang-lbl',
+           'tot-dong-dot','tot-dong-lbl','xuong-giang-dot','xuong-giang-lbl'],
+    year: '10/1424', yearSub: 'Giải phóng Nghệ An',
+    text: '<strong>1424 — Giải phóng Nghệ An:</strong> Theo kế hoạch của tướng Nguyễn Chích, Lam Sơn mở rộng địa bàn vào Nghệ An — đây là bước đột phá chiến lược quan trọng. Nghệ An rộng hơn và giàu hơn Thanh Hóa, cho phép duy trì lực lượng lớn hơn.',
+  },
+  {
+    phase: '1425 — Miền Trung', tag: 'tag-expand',
+    show: ['tanbinhth-rect','tanbinhth-lbl','tanbinhth-sub','arrow-nghean-tb'],
+    hide: ['bacbo-rect','bacbo-lbl','arrow-north','arrow-siege',
+           'chi-lang-dot','chi-lang-lbl','tot-dong-dot','tot-dong-lbl',
+           'xuong-giang-dot','xuong-giang-lbl'],
+    year: '1425', yearSub: 'Tân Bình – Thuận Hóa',
+    text: '<strong>1425 — Kiểm soát Tân Bình và Thuận Hóa:</strong> Lam Sơn tiếp tục mở rộng vào Tân Bình (Quảng Bình) và Thuận Hóa (Thừa Thiên–Huế). Phần lớn từ Thanh Hóa vào đến Thuận Hóa đã thuộc quyền kiểm soát. Lực lượng ngày càng đông đảo và mạnh hơn.',
+  },
+  {
+    phase: '1426 — Tiến ra Bắc', tag: 'tag-north',
+    show: ['bacbo-rect','bacbo-lbl','arrow-north','arrow-siege'],
+    hide: ['chi-lang-dot','chi-lang-lbl','tot-dong-dot','tot-dong-lbl',
+           'xuong-giang-dot','xuong-giang-lbl'],
+    year: '9/1426', yearSub: 'Vây Đông Quan',
+    text: '<strong>1426 — Tiến ra Bắc, bao vây Đông Quan:</strong> Lam Sơn tiến quân ra Bắc Bộ, vây hãm Đông Quan (Thăng Long — Hà Nội ngày nay). Quân Minh do Vương Thông chỉ huy co cụm trong thành, không dám ra đánh. <strong>Tháng 11/1426:</strong> Trận Tốt Động–Chúc Động — tiêu diệt đạo quân Minh ra ứng cứu.',
+  },
+  {
+    phase: '11/1426 — Tốt Động', tag: 'tag-north',
+    show: ['tot-dong-dot','tot-dong-lbl'],
+    hide: ['chi-lang-dot','chi-lang-lbl','xuong-giang-dot','xuong-giang-lbl'],
+    year: '11/1426', yearSub: 'Tốt Động – Chúc Động',
+    text: '<strong>11/1426 — Trận Tốt Động–Chúc Động:</strong> Phục kích và tiêu diệt đạo quân Minh ra cứu Đông Quan. Đây là trận thắng lớn nhất đến thời điểm đó — theo Đại Việt sử ký toàn thư, hàng vạn quân Minh bị tiêu diệt. Quân Minh trong Đông Quan càng thêm tuyệt vọng.',
+  },
+  {
+    phase: '10/1427 — Chi Lăng', tag: 'tag-war',
+    show: ['chi-lang-dot','chi-lang-lbl','xuong-giang-dot','xuong-giang-lbl'],
+    hide: [],
+    year: '10/1427', yearSub: 'Chi Lăng – Xương Giang',
+    text: '<strong>10/1427 — Trận Chi Lăng–Xương Giang:</strong> Quân viện binh Minh (100.000 quân do Liễu Thăng chỉ huy từ Quảng Tây) bị phục kích tại ải Chi Lăng — <strong>Liễu Thăng tử trận</strong>. Phần còn lại bị tiêu diệt ở Xương Giang. Đạo viện binh thứ hai (Mộc Thạnh) hay tin, rút lui. Vương Thông mất hy vọng cứu viện.',
+  },
+  {
+    phase: '12/1427 — Toàn thắng', tag: 'tag-win',
+    show: [],
+    hide: [],
+    year: '12/1427 – 1428', yearSub: 'Toàn thắng & Nhà Lê sơ',
+    text: '<strong>12/1427 — Quân Minh rút lui hoàn toàn:</strong> Vương Thông ký hòa ước, toàn bộ quân Minh rút về. Kết thúc 20 năm Minh thuộc. <strong>1428:</strong> Lê Lợi chính thức lên ngôi, Nguyễn Trãi viết Bình Ngô đại cáo — bản tuyên ngôn độc lập và chủ quyền dân tộc toàn diện nhất đến thời điểm đó. Mở ra nhà Lê sơ.',
+  },
+];
+
+let mapStep = -1;
+
+function svgShow(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.setAttribute('opacity', val ? '1' : '0');
+}
+
+function mapApplyStep(step) {
+  if (step < 0) {
+    // Trạng thái khởi đầu
+    const allIds = ['thanhhoa-rect','thanhhoa-lbl','thanhhoa-sub',
+      'nghean-rect','nghean-lbl','tanbinhth-rect','tanbinhth-lbl','tanbinhth-sub',
+      'bacbo-rect','bacbo-lbl','arrow-lamsonnghean','arrow-nghean-tb',
+      'arrow-north','arrow-siege','chi-lang-dot','chi-lang-lbl',
+      'tot-dong-dot','tot-dong-lbl','xuong-giang-dot','xuong-giang-lbl',
+      'year-badge','year-text','year-sub'];
+    allIds.forEach(id => svgShow(id, false));
+    return;
+  }
+
+  // Tích lũy: hiện tất cả các bước từ 0 → step
+  // Trước hết ẩn tất cả dynamic elements
+  const allDynamic = ['thanhhoa-rect','thanhhoa-lbl','thanhhoa-sub',
+    'nghean-rect','nghean-lbl','tanbinhth-rect','tanbinhth-lbl','tanbinhth-sub',
+    'bacbo-rect','bacbo-lbl','arrow-lamsonnghean','arrow-nghean-tb',
+    'arrow-north','arrow-siege','chi-lang-dot','chi-lang-lbl',
+    'tot-dong-dot','tot-dong-lbl','xuong-giang-dot','xuong-giang-lbl',
+    'year-badge','year-text','year-sub'];
+  allDynamic.forEach(id => svgShow(id, false));
+
+  // Hiện tích lũy các bước
+  for (let i = 0; i <= step; i++) {
+    const s = MAP_STEPS[i];
+    if (s.show) s.show.forEach(id => svgShow(id, true));
+  }
+
+  // Cập nhật year badge
+  const s = MAP_STEPS[step];
+  const ytEl = document.getElementById('year-text');
+  const ysEl = document.getElementById('year-sub');
+  if (ytEl) ytEl.textContent = s.year;
+  if (ysEl) ysEl.textContent = s.yearSub;
+  svgShow('year-badge', true);
+  svgShow('year-text', true);
+  svgShow('year-sub', true);
+}
+
+function mapUpdateUI() {
+  const step = mapStep;
+  const stepData = step >= 0 ? MAP_STEPS[step] : null;
+
+  const phaseTag = document.getElementById('map-phase-tag');
+  const stepText = document.getElementById('map-step-text');
+  if (stepData) {
+    phaseTag.className = 'phase-tag ' + stepData.tag;
+    phaseTag.textContent = stepData.phase;
+    stepText.innerHTML = stepData.text;
+  } else {
+    phaseTag.className = 'phase-tag tag-start';
+    phaseTag.textContent = 'Chuẩn bị';
+    stepText.innerHTML = 'Nhấn <strong>Bước tiếp theo</strong> để xem hành trình tiến quân của khởi nghĩa Lam Sơn từ Thanh Hóa đến toàn thắng.';
+  }
+
+  document.getElementById('map-btn-prev').disabled = step <= 0;
+  const nextBtn = document.getElementById('map-btn-next');
+  nextBtn.disabled = step >= MAP_STEPS.length - 1;
+  nextBtn.textContent = step < 0 ? 'Bắt đầu →' :
+    step >= MAP_STEPS.length - 1 ? 'Hoàn thành' : 'Bước tiếp theo →';
+
+  const dotsEl = document.getElementById('map-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < MAP_STEPS.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (i === step ? ' active' : i < step ? ' done' : '');
+    d.textContent = i + 1;
+    d.onclick = (function(si){ return function(){ mapGoTo(si); }; })(i);
+    dotsEl.appendChild(d);
+  }
+
+  mapApplyStep(step);
+}
+
+function mapNext()  { if (mapStep < MAP_STEPS.length - 1) { mapStep++; mapUpdateUI(); } }
+function mapPrev()  { if (mapStep > 0) { mapStep--; mapUpdateUI(); } }
+function mapGoTo(i) { mapStep = i; mapUpdateUI(); }
+function mapReset() { mapStep = -1; mapUpdateUI(); }
+
+mapUpdateUI();
+
+/* ════════════════════════════════════════════════
+   MODULE 3 — Cải cách Hồ Quý Ly
+   ════════════════════════════════════════════════ */
+const REFORMS = [
+  {
+    title: 'Tiền giấy (Thông bảo hội sao, 1396)',
+    body: 'Lần đầu tiên Đại Việt phát hành tiền giấy thay thế tiền đồng. Về lý thuyết, tiền giấy linh hoạt hơn và dễ quản lý hơn. Tuy nhiên triều Hồ thiếu vàng bạc đảm bảo, người dân không tin tưởng vào giá trị của tiền giấy, dẫn đến lạm phát và xáo trộn thị trường. Các thương nhân và dân thường tìm cách tích trữ tiền đồng hoặc trao đổi hàng hóa trực tiếp để tránh dùng tiền giấy.',
+    verdict: '⚠ Tiến bộ về ý tưởng — thất bại trong thực thi vì thiếu hạ tầng kinh tế và niềm tin của dân.',
+    vClass: 'verdict-mix',
+  },
+  {
+    title: 'Hạn điền (giới hạn ruộng đất quý tộc)',
+    body: 'Quy định quý tộc chỉ được sở hữu tối đa một lượng ruộng nhất định (tùy phẩm cấp); phần dôi ra sung công phân cho nông dân hoặc binh lính. Đây là cải cách tiến bộ nhất về mặt xã hội vì nhắm thẳng vào bất bình đẳng ruộng đất — vấn đề trung tâm của xã hội nông nghiệp. Tuy nhiên, nó đụng chạm thẳng vào lợi ích của tầng lớp quý tộc nhà Trần cũ — những người có thể trở thành đồng minh kháng Minh nếu không bị đụng chạm.',
+    verdict: '✓ Tiến bộ nhất về xã hội — nhưng tạo thêm kẻ thù ngay trước khi đối mặt ngoại xâm.',
+    vClass: 'verdict-bad',
+  },
+  {
+    title: 'Hạn nô (giới hạn nô tỳ)',
+    body: 'Giới hạn số nô tỳ mà mỗi gia đình quý tộc được giữ. Số nô tỳ dôi ra phải thả ra hoặc chuyển cho nhà nước. Tương tự hạn điền, cải cách này nhằm giải phóng một bộ phận lao động khỏi chế độ nô lệ — tiến bộ về mặt nhân quyền. Cũng giống hạn điền, nó đụng chạm trực tiếp vào lợi ích của quý tộc Trần cũ.',
+    verdict: '✓ Tiến bộ nhân đạo — cùng vấn đề với hạn điền: thiếu nền tảng chính trị để thực thi.',
+    vClass: 'verdict-mix',
+  },
+  {
+    title: 'Cải cách thi cử và giáo dục',
+    body: 'Bổ sung môn Toán vào thi cử thay vì chỉ thuần văn chương chữ Hán bác học. Dịch sách từ chữ Hán sang chữ Nôm để phổ biến kiến thức rộng hơn. Mở thêm trường học ở các lộ (tỉnh), không chỉ tập trung ở kinh đô. Đây là một trong những cải cách ít gây phản đối nhất và có tác động tích cực về lâu dài — thúc đẩy phát triển chữ Nôm, dân chủ hóa giáo dục.',
+    verdict: '✓ Thành công và tiến bộ — ít gây phản đối, tác động lâu dài tích cực.',
+    vClass: 'verdict-ok',
+  },
+  {
+    title: 'Cải cách quân sự',
+    body: 'Cải tổ quân đội, xây dựng thêm thuyền chiến lớn, phát triển vũ khí. Một số nguồn đề cập đến súng thần công trong giai đoạn này, tuy niên đại chính xác còn tranh luận giữa các sử gia. Quân đội nhà Hồ thực sự mạnh hơn cuối nhà Trần — nhưng sức mạnh quân sự không bù đắp được thiếu hụt về lòng dân và tính chính danh khi đối mặt với xâm lược quy mô lớn.',
+    verdict: '△ Cải thiện được về vũ khí nhưng không giải quyết được yếu điểm cốt lõi.',
+    vClass: 'verdict-mix',
+  },
+  {
+    title: 'Y tế công cộng',
+    body: 'Lập cơ quan chuyên trách y tế, cấp phát thuốc miễn phí cho người nghèo và bệnh nhân. Đây là một trong những chính sách y tế công cộng sớm nhất trong lịch sử Đại Việt. Phạm vi thực hiện còn hạn chế và chưa đủ tạo ra tác động kinh tế–xã hội lớn, nhưng cho thấy tầm nhìn về phúc lợi xã hội của Hồ Quý Ly.',
+    verdict: '✓ Tiến bộ về nhân đạo — quy mô còn hạn chế, chưa đủ ảnh hưởng chiến lược.',
+    vClass: 'verdict-ok',
+  },
+];
+
+let activeReformCard = -1;
+
+function reformShow(idx) {
+  const cards = document.querySelectorAll('.reform-card');
+  cards.forEach((c, i) => {
+    if (i === idx) c.classList.toggle('active');
+    else c.classList.remove('active');
+  });
+
+  if (activeReformCard === idx) {
+    activeReformCard = -1;
+    document.getElementById('reform-detail').classList.remove('show');
+    return;
+  }
+  activeReformCard = idx;
+
+  const r = REFORMS[idx];
+  document.getElementById('reform-dtitle').textContent = r.title;
+  document.getElementById('reform-dbody').textContent = r.body;
+  const v = document.getElementById('reform-verdict');
+  v.textContent = r.verdict;
+  v.className = 'reform-verdict ' + r.vClass;
+  document.getElementById('reform-detail').classList.add('show');
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 4 — Sơ đồ nhân–quả (tab)
+   ════════════════════════════════════════════════ */
+function ceSwitch(id) {
+  document.querySelectorAll('.ce-diagram').forEach(el => el.classList.remove('show'));
+  document.getElementById('ce-' + id).classList.add('show');
+  document.querySelectorAll('.ce-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 6 — Quiz
+   ════════════════════════════════════════════════ */
+const QUIZ = [
+  {
+    q: 'Hồ Quý Ly đặt quốc hiệu gì khi lập nhà Hồ năm 1400?',
+    opts: ['Đại Việt', 'Đại Ngu', 'Đại Cồ Việt', 'Văn Lang'],
+    correct: 1,
+    explain: 'Đại Ngu — có nghĩa là "vùng đất bình yên của Nghiêu Thuấn", ngụ ý kế thừa đức trị của bậc thánh vương. Đây là quốc hiệu duy nhất trong lịch sử Việt Nam mang tên này; khi nhà Lê sơ thành lập, quốc hiệu trở lại là Đại Việt.'
+  },
+  {
+    q: 'Nhà Minh lấy lý do gì để xâm lược Đại Ngu (1406)?',
+    opts: [
+      'Đại Ngu không nộp cống đúng hạn',
+      '"Phù Trần diệt Hồ" — giúp con cháu nhà Trần lấy lại ngôi',
+      'Bảo vệ thương nhân Trung Hoa bị tấn công',
+      'Hồ Quý Ly xúc phạm thiên triều qua thư từ ngoại giao',
+    ],
+    correct: 1,
+    explain: '"Phù Trần diệt Hồ" (giúp phục hồi nhà Trần, diệt trừ nhà Hồ) là cái cớ nhà Minh sử dụng — vừa che đậy tham vọng xâm lược, vừa tận dụng sự ủng hộ của những người còn trung thành với nhà Trần. Đây là thủ đoạn ngoại giao quen thuộc trong lịch sử xâm lược.'
+  },
+  {
+    q: 'Lý do CHỦ YẾU nhà Hồ thất bại nhanh trước quân Minh (1406–1407) là gì?',
+    opts: [
+      'Quân Minh có vũ khí hiện đại hơn hẳn',
+      'Hồ Quý Ly chạy trốn trước khi chiến đấu',
+      'Mất lòng dân — không huy động được sức kháng cự toàn dân',
+      'Nhiều tướng nhà Hồ bị mua chuộc',
+    ],
+    correct: 2,
+    explain: 'Nguyên nhân cốt lõi là mất lòng dân: Hồ Quý Ly cướp ngôi nhà Trần (còn uy tín), cải cách vội vã gây bất bình, không xây dựng được lòng tin. Khi quân Minh đến, dân không nổi dậy kháng cự tự phát như thời chống Mông–Nguyên. Không có sức toàn dân, quân chính quy không thể cầm cự lâu.'
+  },
+  {
+    q: 'Nguyễn Trãi gia nhập lực lượng Lam Sơn khoảng năm nào?',
+    opts: ['1418 — ngay từ đầu cùng Lê Lợi', '1420', '1424', '1426'],
+    correct: 1,
+    explain: 'Nguyễn Trãi gia nhập khoảng năm 1420, không phải ngay từ đầu (1418). Ông là con trai Nguyễn Phi Khanh — người bị nhà Minh bắt đưa về Trung Quốc. Sau khi gia nhập, Nguyễn Trãi nhanh chóng trở thành cố vấn chiến lược và người phụ trách ngoại giao–tâm công.'
+  },
+  {
+    q: 'Trận nào được coi là bước đột phá chiến lược đầu tiên của Lam Sơn khỏi vùng Thanh Hóa?',
+    opts: [
+      'Giải phóng Nghệ An (1424)',
+      'Trận Tốt Động–Chúc Động (1426)',
+      'Vây Đông Quan (1426)',
+      'Trận Chi Lăng–Xương Giang (1427)',
+    ],
+    correct: 0,
+    explain: 'Giải phóng Nghệ An tháng 10/1424 là bước đột phá chiến lược đầu tiên — Lam Sơn thoát khỏi vùng núi Thanh Hóa chật hẹp, có hậu phương rộng và giàu hơn. Đây là tiền đề cho việc mở rộng tiếp vào Tân Bình–Thuận Hóa và tiến ra Bắc.'
+  },
+  {
+    q: 'Ai bị giết trong trận Chi Lăng (10/1427), khiến quân viện binh Minh tan vỡ?',
+    opts: ['Vương Thông', 'Mộc Thạnh', 'Liễu Thăng', 'Trương Phụ'],
+    correct: 2,
+    explain: 'Liễu Thăng — thống soái dẫn quân viện binh từ Quảng Tây (khoảng 100.000 quân) — bị giết tại ải Chi Lăng. Mất chủ tướng, quân viện binh hỗn loạn và bị tiêu diệt phần lớn ở Xương Giang. Mộc Thạnh (đạo viện binh thứ hai từ Vân Nam) hay tin, rút lui mà không giao chiến.'
+  },
+  {
+    q: 'Bình Ngô đại cáo (1428) có điểm gì mới so với Nam quốc sơn hà (thế kỷ XI)?',
+    opts: [
+      'Lần đầu tiên tuyên bố Đại Việt không phụ thuộc vào Trung Hoa',
+      'Khẳng định chủ quyền dựa trên bản sắc toàn dân tộc (văn hiến, phong tục, lịch sử riêng) — không chỉ quyền của vua',
+      'Viết bằng chữ Nôm thay vì chữ Hán',
+      'Tuyên bố lần đầu về biên giới địa lý của Đại Việt',
+    ],
+    correct: 1,
+    explain: 'Nam quốc sơn hà chủ yếu khẳng định quyền trị vì của "Nam đế" trên lãnh thổ dựa vào "thiên thư". Bình Ngô đại cáo đi xa hơn: khẳng định bản sắc của toàn dân tộc Việt — văn hiến, phong tục, nhân tài, lịch sử riêng. Đây là tư duy chủ quyền dân tộc toàn diện hơn, gần với khái niệm quốc gia-dân tộc hiện đại.'
+  },
+];
+
+let quizIdx = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = `Câu ${quizIdx + 1}/${QUIZ.length}: ${q.q}`;
+  document.getElementById('quiz-prog').textContent = `${quizIdx + 1} / ${QUIZ.length}`;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? `Điểm: ${quizScore}/${quizIdx}` : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = function() { quizAnswer(i); };
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  document.getElementById('btn-quiz-restart').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+
+  document.getElementById('quiz-score').textContent = `Điểm: ${quizScore}/${quizIdx + 1}`;
+
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent =
+      `Kết quả: ${quizScore}/${QUIZ.length} (${pct}%)`;
+    document.getElementById('quiz-prog').textContent =
+      pct >= 80 ? 'Xuất sắc!' : pct >= 60 ? 'Tốt — ôn lại câu sai.' : 'Cần ôn tập thêm.';
+    document.getElementById('btn-quiz-restart').style.display = 'inline-block';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+function quizRestart() {
+  quizIdx = 0; quizScore = 0; quizAnswered = false;
+  quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

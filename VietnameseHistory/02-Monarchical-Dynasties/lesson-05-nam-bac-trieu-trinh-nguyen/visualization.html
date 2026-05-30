@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Nam – Bắc triều, Trịnh – Nguyễn phân tranh &amp; Nam tiến</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ── Palette lịch sử Việt ── */
+  :root {
+    --accent:       #b45309;
+    --accent-soft:  #fef3c7;
+    --accent-dark:  #78350f;
+    --red-war:      #b91c1c;
+    --red-soft:     #fee2e2;
+    --green-peace:  #15803d;
+    --green-soft:   #dcfce7;
+    --stone:        #78716c;
+    --stone-soft:   #f5f5f4;
+    --blue-water:   #1d4ed8;
+    --blue-soft:    #dbeafe;
+    --trinh-color:  #1d4ed8;
+    --trinh-soft:   #dbeafe;
+    --nguyen-color: #b45309;
+    --nguyen-soft:  #fef3c7;
+    --mac-color:    #6b21a8;
+    --mac-soft:     #f3e8ff;
+    --bg-card:      #ffffff;
+    --bg-section:   #fffbeb;
+  }
+
+  main { max-width: 1080px; }
+
+  h1 { color: var(--accent-dark); font-size: 1.55rem; margin-bottom: 6px; }
+  h2 { color: var(--accent); margin-top: 40px; padding-bottom: 8px;
+       border-bottom: 2px solid var(--accent-soft); font-size: 1.2rem; }
+
+  .subtitle {
+    color: var(--stone);
+    font-size: 15px;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 5px rgba(180,83,9,.12);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .war-box {
+    background: var(--red-soft);
+    border-left: 4px solid var(--red-war);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .trinh-box {
+    background: var(--trinh-soft);
+    border-left: 4px solid var(--trinh-color);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .nguyen-box {
+    background: var(--nguyen-soft);
+    border-left: 4px solid var(--nguyen-color);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 1 — Bản đồ Nam tiến (SVG tương tác)
+     ══════════════════════════════════════════════ */
+  .map-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+  #namtien-svg {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .era-btn {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+    color: #374151;
+  }
+  .era-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .era-btn:hover:not(.active) {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .era-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0 10px;
+  }
+
+  .map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-swatch {
+    width: 18px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,.15);
+    flex-shrink: 0;
+  }
+
+  .map-info-panel {
+    background: var(--bg-section);
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    min-height: 60px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 2 — Sơ đồ quyền lực Trịnh – Nguyễn
+     ══════════════════════════════════════════════ */
+  .power-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .power-row {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .power-node {
+    flex: 1;
+    min-width: 140px;
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    border: 2px solid transparent;
+  }
+  .power-node:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+  }
+  .power-node .node-title {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .power-node .node-sub {
+    font-size: 12px;
+    opacity: .8;
+  }
+
+  .node-le    { background: #fef9c3; border-color: #eab308; color: #713f12; }
+  .node-trinh { background: var(--trinh-soft); border-color: var(--trinh-color); color: #1e3a5f; }
+  .node-nguyen{ background: var(--nguyen-soft); border-color: var(--nguyen-color); color: var(--accent-dark); }
+  .node-mac   { background: var(--mac-soft); border-color: var(--mac-color); color: #4a044e; }
+
+  .power-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--stone);
+    padding: 4px 0;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .power-detail {
+    background: var(--bg-section);
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+    margin-top: 4px;
+  }
+  .power-detail.show { display: block; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 3 — Timeline tương tác
+     ══════════════════════════════════════════════ */
+  .timeline {
+    position: relative;
+    padding: 8px 0 8px 32px;
+    margin: 8px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--mac-color), var(--red-war), var(--trinh-color), var(--accent));
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 18px;
+    padding-left: 20px;
+    cursor: pointer;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -26px;
+    top: 6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent);
+    transition: transform .15s;
+  }
+  .tl-item:hover::before { transform: scale(1.25); }
+  .tl-item.war::before   { background: var(--red-war);    box-shadow: 0 0 0 2px var(--red-war); }
+  .tl-item.peace::before { background: var(--green-peace); box-shadow: 0 0 0 2px var(--green-peace); }
+  .tl-item.key::before   {
+    width: 18px; height: 18px;
+    left: -28px; top: 4px;
+    background: var(--red-war);
+    box-shadow: 0 0 0 3px var(--red-war), 0 0 0 6px rgba(185,28,28,.2);
+  }
+  .tl-item.mac::before   { background: var(--mac-color); box-shadow: 0 0 0 2px var(--mac-color); }
+  .tl-item.south::before { background: var(--accent); box-shadow: 0 0 0 2px var(--accent-dark); }
+
+  .tl-year  { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .tl-item.war .tl-year   { color: var(--red-war); }
+  .tl-item.key .tl-year   { color: var(--red-war); font-size: 15px; }
+  .tl-item.peace .tl-year { color: var(--green-peace); }
+  .tl-item.mac .tl-year   { color: var(--mac-color); }
+  .tl-item.south .tl-year { color: var(--accent-dark); }
+
+  .tl-title { font-weight: 700; font-size: 14px; color: #1f2937; line-height: 1.4; }
+  .tl-desc  { font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.5; display: none; }
+  .tl-item.open .tl-desc { display: block; }
+
+  .tl-badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .badge-mac    { background: var(--mac-soft); color: var(--mac-color); }
+  .badge-war    { background: var(--red-soft); color: #991b1b; }
+  .badge-south  { background: var(--accent-soft); color: var(--accent-dark); }
+  .badge-peace  { background: var(--green-soft); color: var(--green-peace); }
+  .badge-culture{ background: #e0f2fe; color: #075985; }
+
+  /* filter buttons */
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .filter-btn {
+    padding: 5px 13px;
+    border-radius: 14px;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s;
+    color: #374151;
+  }
+  .filter-btn.active { color: white; border-color: transparent; }
+  .filter-btn[data-cat="all"].active   { background: #374151; }
+  .filter-btn[data-cat="mac"].active   { background: var(--mac-color); }
+  .filter-btn[data-cat="war"].active   { background: var(--red-war); }
+  .filter-btn[data-cat="south"].active { background: var(--accent); }
+  .filter-btn[data-cat="culture"].active { background: #0369a1; }
+
+  /* ══════════════════════════════════════════════
+     MODULE 4 — Bản đồ Đàng Trong – Đàng Ngoài
+     ══════════════════════════════════════════════ */
+  .dangtrongmap-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+  #dangtrongmap-svg {
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* ══════════════════════════════════════════════
+     MODULE 5 — Quiz
+     ══════════════════════════════════════════════ */
+  .quiz-q { font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #1f2937; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .quiz-opt {
+    padding: 10px 14px;
+    border-radius: 7px;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+    transition: border-color .15s, background .15s;
+  }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: var(--green-peace); background: var(--green-soft); color: #14532d; font-weight: 600; }
+  .quiz-opt.wrong   { border-color: var(--red-war); background: var(--red-soft); color: #991b1b; }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-feedback {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-top: 8px;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: var(--green-soft); color: #14532d; border: 1px solid var(--green-peace); }
+  .quiz-feedback.err { background: var(--red-soft); color: #991b1b; border: 1px solid var(--red-war); }
+  .quiz-nav { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .quiz-progress { font-size: 13px; color: var(--stone); }
+  .quiz-score { font-weight: 700; color: var(--green-peace); font-size: 15px; }
+
+  @media (max-width: 600px) {
+    .power-row { flex-direction: column; }
+    .power-node { min-width: 0; }
+    h1 { font-size: 1.25rem; }
+    .era-btn { font-size: 12px; padding: 5px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Lịch sử VN — Triều đại</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-le-so-hong-duc/visualization.html">← L4: Lê sơ &amp; Hồng Đức</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Trịnh – Nguyễn &amp; Nam tiến</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-tay-son-quang-trung/visualization.html">L6: Tây Sơn &amp; Quang Trung →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Nam – Bắc triều, Trịnh – Nguyễn phân tranh &amp; Nam tiến</h1>
+<p class="subtitle">Đất nước chia cắt hơn 100 năm — và hành trình mở cõi về phương Nam định hình lãnh thổ Việt Nam hiện đại</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Bản đồ Nam tiến động (SVG)
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Bản đồ Nam tiến — Lãnh thổ mở rộng theo thời gian</h2>
+
+<div class="card">
+  <div class="info-box">
+    <strong>Cách dùng:</strong> Chọn mốc thời gian để xem lãnh thổ Đàng Trong mở rộng đến đâu ở thời điểm đó.
+    Di chuột / chạm vào vùng lãnh thổ để xem thông tin chi tiết.
+  </div>
+
+  <div class="era-row" id="era-row">
+    <button class="era-btn active" data-era="0" onclick="setEra(0)">1558 — Khởi đầu</button>
+    <button class="era-btn" data-era="1" onclick="setEra(1)">1611 — Phú Yên</button>
+    <button class="era-btn" data-era="2" onclick="setEra(2)">1653 — Khánh Hòa</button>
+    <button class="era-btn" data-era="3" onclick="setEra(3)">1693 — Champa cuối</button>
+    <button class="era-btn" data-era="4" onclick="setEra(4)">1698 — Gia Định</button>
+    <button class="era-btn" data-era="5" onclick="setEra(5)">1757 — ĐBSCL đầy đủ</button>
+  </div>
+
+  <div class="map-legend">
+    <div class="legend-item"><div class="legend-swatch" style="background:#93c5fd;border-color:#3b82f6"></div> Biển Đông</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#fde68a;border-color:#ca8a04"></div> Đàng Ngoài (chúa Trịnh)</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#d97706;opacity:.7"></div> Đàng Trong — vùng kiểm soát ban đầu (1558)</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#b45309;opacity:.85"></div> Đất sáp nhập sau (Nam tiến)</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#92400e"></div> Đất sáp nhập mới nhất (kỳ được chọn)</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#d1d5db;border-color:#9ca3af"></div> Champa / Chân Lạp (chưa sáp nhập)</div>
+  </div>
+
+  <div class="map-wrap">
+    <svg id="namtien-svg" width="340" height="580" viewBox="0 0 340 580">
+      <!-- Nền biển -->
+      <rect x="0" y="0" width="340" height="580" fill="#bfdbfe" rx="6"/>
+
+      <!-- Đường bờ biển phía Đông — đơn giản hóa -->
+      <!-- Vùng Đàng Ngoài: phía Bắc sông Gianh -->
+      <path id="land-north"
+        d="M 20,20 L 200,20 L 220,40 L 230,80 L 240,110 L 250,130 L 245,145 L 235,155
+           L 220,165 L 200,170 L 180,175 L 160,178 L 140,182 L 120,185 L 100,195
+           L 80,205 L 60,200 L 40,195 L 20,190 Z"
+        fill="#fde68a" stroke="#ca8a04" stroke-width="1.5"/>
+      <text x="100" y="100" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">ĐÀNG NGOÀI</text>
+      <text x="100" y="115" font-size="10" fill="#92400e" text-anchor="middle">(Chúa Trịnh)</text>
+      <text x="100" y="130" font-size="9" fill="#92400e" text-anchor="middle">Thăng Long ★</text>
+
+      <!-- Sông Gianh — ranh giới -->
+      <line id="song-gianh" x1="60" y1="200" x2="250" y2="185" stroke="#1d4ed8" stroke-width="2.5" stroke-dasharray="6,3"/>
+      <text x="155" y="200" font-size="10" font-weight="700" fill="#1d4ed8" text-anchor="middle">Sông Gianh</text>
+      <text x="155" y="212" font-size="9" fill="#1d4ed8" text-anchor="middle">(ranh giới Trịnh–Nguyễn)</text>
+
+      <!-- === ĐÀNG TRONG — phân chia theo era === -->
+
+      <!-- Vùng gốc 1558: Thuận Hóa (Thừa Thiên–Huế + Quảng Nam) -->
+      <path id="region-0"
+        d="M 60,205 L 80,205 L 100,195 L 120,185 L 140,182 L 160,178 L 180,175 L 200,170
+           L 220,165 L 235,155 L 245,145 L 250,230 L 245,245 L 235,260 L 220,270 L 200,278
+           L 180,282 L 160,284 L 140,285 L 120,283 L 100,278 L 80,270 L 60,260 Z"
+        fill="#d97706" fill-opacity="0.75" stroke="#92400e" stroke-width="1.5"
+        style="cursor:pointer" onclick="mapClick(0)"
+        data-info="Thuận Hóa &amp; Quảng Nam (1558): Nguyễn Hoàng vào trấn thủ năm 1558. Đây là căn cứ địa ban đầu của chúa Nguyễn — vùng đất hẹp nhưng có cảng Hội An (Faifo) phát triển thương mại quốc tế.">
+      </path>
+      <text x="155" y="230" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Thuận Hóa</text>
+      <text x="155" y="243" font-size="9" fill="#fff" text-anchor="middle">&amp; Quảng Nam (1558)</text>
+      <text x="155" y="256" font-size="9" fill="#fff" text-anchor="middle">Hội An ★</text>
+
+      <!-- Phú Yên (sáp nhập 1611) -->
+      <path id="region-1"
+        d="M 60,260 L 80,270 L 100,278 L 120,283 L 140,285 L 160,284 L 180,282 L 200,278
+           L 220,270 L 235,260 L 245,245 L 250,290 L 245,305 L 235,315 L 220,320 L 200,322
+           L 180,323 L 160,322 L 140,320 L 120,316 L 100,308 L 80,298 L 60,290 Z"
+        fill="#b45309" fill-opacity="0.25" stroke="#92400e" stroke-width="1.2"
+        style="cursor:pointer" onclick="mapClick(1)"
+        data-info="Phú Yên (1611): Chúa Nguyễn Hoàng lập phủ Phú Yên — bước đột phá đầu tiên vượt qua ranh giới cũ với Champa. Đây là mốc đánh dấu Nam tiến chính thức bắt đầu.">
+      </path>
+      <text id="label-1" x="155" y="298" font-size="10" font-weight="700" fill="#78350f" text-anchor="middle" opacity="0.3">Phú Yên (1611)</text>
+
+      <!-- Khánh Hòa (sáp nhập 1653) -->
+      <path id="region-2"
+        d="M 60,290 L 80,298 L 100,308 L 120,316 L 140,320 L 160,322 L 180,323 L 200,322
+           L 220,320 L 235,315 L 245,305 L 250,335 L 245,350 L 235,358 L 220,362 L 200,364
+           L 180,364 L 160,363 L 140,361 L 120,357 L 100,350 L 80,340 L 60,330 Z"
+        fill="#b45309" fill-opacity="0.25" stroke="#92400e" stroke-width="1.2"
+        style="cursor:pointer" onclick="mapClick(2)"
+        data-info="Khánh Hòa (1653): Chúa Nguyễn Phúc Tần chinh phục vùng Khánh Hòa từ Champa sau khi vua Champa tấn công vào lãnh thổ Đàng Trong. Nha Trang ngày nay thuộc vùng đất này.">
+      </path>
+      <text id="label-2" x="155" y="340" font-size="10" font-weight="700" fill="#78350f" text-anchor="middle" opacity="0.3">Khánh Hòa (1653)</text>
+
+      <!-- Champa cuối (Ninh Thuận – Bình Thuận, sáp nhập 1693) -->
+      <path id="region-3"
+        d="M 60,330 L 80,340 L 100,350 L 120,357 L 140,361 L 160,363 L 180,364 L 200,364
+           L 220,362 L 235,358 L 245,350 L 250,375 L 245,388 L 235,395 L 220,398 L 200,399
+           L 180,399 L 160,398 L 140,396 L 120,393 L 100,388 L 80,380 L 60,370 Z"
+        fill="#b45309" fill-opacity="0.25" stroke="#92400e" stroke-width="1.2"
+        style="cursor:pointer" onclick="mapClick(3)"
+        data-info="Ninh Thuận – Bình Thuận (1693): Chúa Nguyễn Phúc Chu chinh phục vùng đất cuối cùng của vương quốc Champa. Từ đây nhà nước Champa chấm dứt tồn tại độc lập. Người Chăm tiếp tục sinh sống tại địa phương.">
+      </path>
+      <text id="label-3" x="155" y="375" font-size="9" font-weight="700" fill="#78350f" text-anchor="middle" opacity="0.3">Ninh Thuận – Bình Thuận (1693)</text>
+
+      <!-- Đông Nam Bộ – Gia Định (1698) -->
+      <path id="region-4"
+        d="M 45,380 L 60,370 L 80,380 L 100,388 L 120,393 L 140,396 L 160,398 L 180,399
+           L 200,399 L 220,398 L 235,395 L 250,390 L 265,400 L 270,420 L 260,440 L 240,450
+           L 220,455 L 200,457 L 180,456 L 160,454 L 140,450 L 120,444 L 100,436 L 80,425
+           L 60,412 L 40,400 Z"
+        fill="#b45309" fill-opacity="0.25" stroke="#92400e" stroke-width="1.2"
+        style="cursor:pointer" onclick="mapClick(4)"
+        data-info="Phủ Gia Định (1698): Lễ Thành Hầu Nguyễn Hữu Kính lập phủ Gia Định gồm hai huyện Phước Long và Tân Bình. Đây là mốc thành lập hành chính chính thức vùng đất Sài Gòn – TP.HCM ngày nay.">
+      </path>
+      <text id="label-4" x="160" y="425" font-size="10" font-weight="700" fill="#78350f" text-anchor="middle" opacity="0.3">Gia Định (1698)</text>
+      <text id="label-4b" x="160" y="438" font-size="9" fill="#78350f" text-anchor="middle" opacity="0.3">Sài Gòn ★</text>
+
+      <!-- ĐBSCL (1708-1757) -->
+      <path id="region-5"
+        d="M 40,400 L 60,412 L 80,425 L 100,436 L 120,444 L 140,450 L 160,454 L 180,456
+           L 200,457 L 220,455 L 240,450 L 260,440 L 270,420 L 280,440 L 285,460 L 280,480
+           L 265,495 L 245,505 L 220,512 L 195,516 L 170,517 L 145,516 L 120,512 L 95,505
+           L 70,495 L 50,480 L 35,462 L 30,445 L 32,425 Z"
+        fill="#b45309" fill-opacity="0.25" stroke="#92400e" stroke-width="1.2"
+        style="cursor:pointer" onclick="mapClick(5)"
+        data-info="Đồng bằng sông Cửu Long (1708–1757): Mạc Cửu dâng Hà Tiên (1708); các vùng Mỹ Tho, Vĩnh Long, Châu Đốc được nhận qua nhượng địa từ Chân Lạp. Đến giữa thế kỉ XVIII, lãnh thổ đạt đến Hà Tiên – Cà Mau.">
+      </path>
+      <text id="label-5a" x="165" y="478" font-size="10" font-weight="700" fill="#78350f" text-anchor="middle" opacity="0.3">ĐBSCL (1708–1757)</text>
+      <text id="label-5b" x="165" y="492" font-size="9" fill="#78350f" text-anchor="middle" opacity="0.3">Hà Tiên ★  Cà Mau ★</text>
+
+      <!-- Nhãn tên miền -->
+      <text x="155" y="168" font-size="10" fill="#92400e" font-weight="600" text-anchor="middle">↓ ĐÀNG TRONG (Chúa Nguyễn)</text>
+
+      <!-- Nhãn hướng -->
+      <text x="310" y="30" font-size="11" fill="#1e40af" text-anchor="middle">BIỂN</text>
+      <text x="310" y="43" font-size="11" fill="#1e40af" text-anchor="middle">ĐÔNG</text>
+    </svg>
+  </div>
+
+  <div class="map-info-panel" id="map-info-panel">
+    Chọn mốc thời gian ở trên hoặc bấm vào vùng lãnh thổ trên bản đồ để xem thông tin chi tiết.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Sơ đồ quyền lực Trịnh – Nguyễn
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Sơ đồ cơ cấu quyền lực: Vua Lê – Chúa Trịnh – Chúa Nguyễn</h2>
+
+<div class="card">
+  <div class="info-box">
+    Bấm vào từng ô để hiểu vai trò và mối quan hệ của các thực thể quyền lực trong giai đoạn 1545–1786.
+  </div>
+
+  <div class="power-diagram">
+
+    <!-- Hàng 1: Vua Lê (danh nghĩa tối cao) -->
+    <div class="power-row" style="justify-content:center;">
+      <div class="power-node node-le" style="max-width:240px" onclick="showPower(0)">
+        <div class="node-title">Vua Lê</div>
+        <div class="node-sub">Danh nghĩa tối cao — "Thiên tử"<br>Không có quyền lực thực tế</div>
+      </div>
+    </div>
+
+    <div class="power-arrow">
+      <span style="color:#ca8a04">— Phong tước / Danh nghĩa trên —</span>
+      <span style="color:#ca8a04">↓↑</span>
+      <span style="color:#ca8a04">— Quyền lực thực tế kiểm soát —</span>
+    </div>
+
+    <!-- Hàng 2: Chúa Trịnh và Chúa Nguyễn -->
+    <div class="power-row">
+      <div class="power-node node-trinh" onclick="showPower(1)">
+        <div class="node-title">Chúa Trịnh</div>
+        <div class="node-sub">Đàng Ngoài<br>Thực quyền quân sự + hành chính<br>Thăng Long</div>
+      </div>
+      <div style="display:flex;align-items:center;padding:0 8px;">
+        <div style="text-align:center;font-size:12px;color:var(--red-war);font-weight:700;white-space:nowrap">
+          ← Chiến tranh →<br>
+          <span style="font-size:11px;color:var(--stone)">7 lần (1627–1672)</span><br>
+          <span style="font-size:11px;color:var(--stone)">Sông Gianh làm ranh</span>
+        </div>
+      </div>
+      <div class="power-node node-nguyen" onclick="showPower(2)">
+        <div class="node-title">Chúa Nguyễn</div>
+        <div class="node-sub">Đàng Trong<br>Thực quyền + Nam tiến<br>Phú Xuân (Huế)</div>
+      </div>
+    </div>
+
+    <!-- Hàng 3: Kết quả -->
+    <div class="power-row">
+      <div class="power-node" style="background:#f0fdf4;border:2px solid var(--green-peace);flex:1;cursor:default">
+        <div class="node-title" style="color:var(--green-peace)">Đàng Ngoài</div>
+        <div class="node-sub" style="color:#166534">Bắc sông Gianh<br>Kinh tế nông nghiệp<br>Nhiều khởi nghĩa nông dân cuối XVIII</div>
+      </div>
+      <div style="display:flex;align-items:center;padding:0 4px;font-size:20px;color:#9ca3af">||</div>
+      <div class="power-node" style="background:#fff7ed;border:2px solid #ea580c;flex:1;cursor:default">
+        <div class="node-title" style="color:#c2410c">Đàng Trong</div>
+        <div class="node-sub" style="color:#9a3412">Nam sông Gianh<br>Thương mại (Hội An)<br>Nam tiến mở rộng lãnh thổ</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="power-detail" id="power-detail"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Timeline tương tác (lọc theo chủ đề)
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Chuỗi thời gian 1527 – 1786</h2>
+
+<div class="card">
+  <div class="info-box">
+    Bấm vào từng mốc để xem chi tiết. Dùng nút lọc để tập trung vào một chủ đề.
+  </div>
+
+  <div class="filter-row">
+    <button class="filter-btn active" data-cat="all"     onclick="filterTL('all')">Tất cả</button>
+    <button class="filter-btn"        data-cat="mac"     onclick="filterTL('mac')">Nhà Mạc</button>
+    <button class="filter-btn"        data-cat="war"     onclick="filterTL('war')">Chiến tranh T–N</button>
+    <button class="filter-btn"        data-cat="south"   onclick="filterTL('south')">Nam tiến</button>
+    <button class="filter-btn"        data-cat="culture" onclick="filterTL('culture')">Văn hóa</button>
+  </div>
+
+  <div class="timeline" id="tl-container">
+
+    <div class="tl-item mac" data-cat="mac" onclick="toggleTL(this)">
+      <div class="tl-year">1527 <span class="tl-badge badge-mac">Nhà Mạc</span></div>
+      <div class="tl-title">Mạc Đăng Dung lập nhà Mạc</div>
+      <div class="tl-desc">Ép vua Lê Cung Hoàng nhường ngôi. Đây là lần đầu tiên kể từ khi Lê Thái Tổ dựng nghiệp (1428), ngôi vua Lê bị lật đổ. Mở ra giai đoạn Nam – Bắc triều.</div>
+    </div>
+
+    <div class="tl-item mac" data-cat="mac" onclick="toggleTL(this)">
+      <div class="tl-year">1533 <span class="tl-badge badge-mac">Lê trung hưng</span></div>
+      <div class="tl-title">Nguyễn Kim lập Lê Trang Tông — Lê trung hưng</div>
+      <div class="tl-desc">Căn cứ tại Thanh Hóa. Cuộc chiến Nam – Bắc triều chính thức bắt đầu. Nhà Mạc (Bắc – Thăng Long) đối đầu Lê trung hưng (Nam – Thanh Hóa, Nghệ An).</div>
+    </div>
+
+    <div class="tl-item mac" data-cat="mac" onclick="toggleTL(this)">
+      <div class="tl-year">1540 <span class="tl-badge badge-mac">Nhà Mạc</span></div>
+      <div class="tl-title">Mạc Đăng Dung thần phục nhà Minh</div>
+      <div class="tl-desc">Sang biên giới quỳ dâng biểu, nhận tước "An Nam đô thống sứ" — bị hạ cấp so với "An Nam quốc vương" trước đó. Hành động này bị sử thần chỉ trích nhục quốc thể, làm nhà Mạc mất thêm chính danh.</div>
+    </div>
+
+    <div class="tl-item" data-cat="mac" onclick="toggleTL(this)">
+      <div class="tl-year">1545</div>
+      <div class="tl-title">Nguyễn Kim bị đầu độc; Trịnh Kiểm nắm quyền</div>
+      <div class="tl-desc">Con rể Nguyễn Kim là Trịnh Kiểm tiếp quản quyền quân sự. Nguyễn Hoàng — con trai Nguyễn Kim — bắt đầu lo sợ bị Trịnh Kiểm loại trừ.</div>
+    </div>
+
+    <div class="tl-item south" data-cat="south" onclick="toggleTL(this)">
+      <div class="tl-year">1558 <span class="tl-badge badge-south">Nam tiến</span></div>
+      <div class="tl-title">Nguyễn Hoàng vào trấn thủ Thuận Hóa</div>
+      <div class="tl-desc">Quyết định lịch sử: Nguyễn Hoàng xin vào trấn thủ vùng đất xa xôi phía Nam để tránh bị Trịnh Kiểm tiêu diệt. Đây là bước đầu tách biệt dẫn đến Trịnh – Nguyễn phân tranh.</div>
+    </div>
+
+    <div class="tl-item mac" data-cat="mac" onclick="toggleTL(this)">
+      <div class="tl-year">1592 <span class="tl-badge badge-mac">Nhà Mạc</span></div>
+      <div class="tl-title">Quân Lê–Trịnh chiếm lại Thăng Long — nhà Mạc tan rã</div>
+      <div class="tl-desc">Sau 65 năm tồn tại, nhà Mạc mất Thăng Long. Tàn dư chạy lên Cao Bằng tiếp tục tồn tại đến 1677 dưới sự bảo trợ của nhà Thanh.</div>
+    </div>
+
+    <div class="tl-item south" data-cat="south" onclick="toggleTL(this)">
+      <div class="tl-year">1611 <span class="tl-badge badge-south">Nam tiến</span></div>
+      <div class="tl-title">Nguyễn Hoàng lập phủ Phú Yên</div>
+      <div class="tl-desc">Bước đầu tiên vượt qua ranh giới cũ, đánh chiếm và sáp nhập vùng đất từ Champa. Nam tiến chính thức bắt đầu.</div>
+    </div>
+
+    <div class="tl-item war" data-cat="war" onclick="toggleTL(this)">
+      <div class="tl-year">1613</div>
+      <div class="tl-title">Nguyễn Phúc Nguyên từ chối nộp thuế cho Thăng Long</div>
+      <div class="tl-desc">Con trai và người kế nghiệp Nguyễn Hoàng (mất 1613) từ chối nộp thuế cho chúa Trịnh — dấu hiệu rõ ràng nhất cho thấy Đàng Trong đang trên đường ly khai thực sự.</div>
+    </div>
+
+    <div class="tl-item war key" data-cat="war" onclick="toggleTL(this)">
+      <div class="tl-year">1627 <span class="tl-badge badge-war">Chiến tranh</span></div>
+      <div class="tl-title">Chiến tranh Trịnh – Nguyễn lần 1 bùng nổ</div>
+      <div class="tl-desc">Bắt đầu 45 năm xung đột vũ trang giữa hai họ. Quân Trịnh tiến vào Đàng Trong nhưng không đột phá được phòng tuyến Nguyễn; lui quân.</div>
+    </div>
+
+    <div class="tl-item" data-cat="culture" onclick="toggleTL(this)">
+      <div class="tl-year">1637 <span class="tl-badge badge-culture">Ngoại thương</span></div>
+      <div class="tl-title">Hà Lan lập thương điếm tại Phố Hiến (Đàng Ngoài)</div>
+      <div class="tl-desc">VOC (Công ty Đông Ấn Hà Lan) mở thương điếm tại Phố Hiến — đỉnh cao của ngoại thương Đàng Ngoài. "Thứ nhất Kinh Kỳ, thứ nhì Phố Hiến" — câu tục ngữ phản ánh vị thế đô thị Phố Hiến thế kỉ XVII.</div>
+    </div>
+
+    <div class="tl-item war" data-cat="war" onclick="toggleTL(this)">
+      <div class="tl-year">1643–1648 <span class="tl-badge badge-war">Chiến tranh</span></div>
+      <div class="tl-title">Đàng Trong phản công — ngăn quân Trịnh tại sông Gianh</div>
+      <div class="tl-desc">Đào Duy Từ thiết kế hệ thống "Lũy Thầy" — công trình phòng thủ then chốt. Quân Nguyễn phản công, giữ vững ranh giới sông Gianh.</div>
+    </div>
+
+    <div class="tl-item south" data-cat="south" onclick="toggleTL(this)">
+      <div class="tl-year">1651 <span class="tl-badge badge-culture">Văn hóa</span></div>
+      <div class="tl-title">Alexandre de Rhodes xuất bản từ điển Việt–Bồ–La</div>
+      <div class="tl-desc">Tại Rome, giáo sĩ Dòng Tên Alexandre de Rhodes (Đắc Lộ) xuất bản Dictionarium Annamiticum Lusitanum et Latinum — hệ thống hóa chữ Quốc ngữ. Nền tảng của văn tự Việt Nam hiện đại.</div>
+    </div>
+
+    <div class="tl-item south" data-cat="south" onclick="toggleTL(this)">
+      <div class="tl-year">1653 <span class="tl-badge badge-south">Nam tiến</span></div>
+      <div class="tl-title">Sáp nhập Khánh Hòa từ Champa</div>
+      <div class="tl-desc">Chúa Nguyễn Phúc Tần chinh phục vùng Khánh Hòa sau khi Champa tấn công biên giới. Vùng Nha Trang ngày nay thuộc đợt sáp nhập này.</div>
+    </div>
+
+    <div class="tl-item war" data-cat="war" onclick="toggleTL(this)">
+      <div class="tl-year">1672 <span class="tl-badge badge-war">Chiến tranh</span></div>
+      <div class="tl-title">Lần giao tranh cuối cùng — hòa hoãn không chính thức</div>
+      <div class="tl-desc">Chúa Trịnh Tạc tiến đánh với đại quân lần cuối; bị ngăn cản. Sau 1672, không còn chiến tranh quy mô lớn. Chia cắt Trịnh – Nguyễn ổn định hơn 100 năm.</div>
+    </div>
+
+    <div class="tl-item south" data-cat="south" onclick="toggleTL(this)">
+      <div class="tl-year">1693 <span class="tl-badge badge-south">Nam tiến</span></div>
+      <div class="tl-title">Champa hoàn toàn sụp đổ — sáp nhập Ninh Thuận, Bình Thuận</div>
+      <div class="tl-desc">Chúa Nguyễn Phúc Chu chinh phục phần lãnh thổ Champa còn lại. Chấm dứt sự tồn tại độc lập của vương quốc Champa sau hơn 1.500 năm lịch sử. Người Chăm tiếp tục cư trú tại địa phương.</div>
+    </div>
+
+    <div class="tl-item south" data-cat="south" onclick="toggleTL(this)">
+      <div class="tl-year">1698 <span class="tl-badge badge-south">Nam tiến</span></div>
+      <div class="tl-title">Nguyễn Hữu Kính lập phủ Gia Định</div>
+      <div class="tl-desc">Mốc lịch sử của TP.HCM: Lễ Thành Hầu Nguyễn Hữu Kính lập phủ Gia Định gồm huyện Phước Long và huyện Tân Bình — đơn vị hành chính đầu tiên của vùng đất Sài Gòn.</div>
+    </div>
+
+    <div class="tl-item south" data-cat="south" onclick="toggleTL(this)">
+      <div class="tl-year">1708 <span class="tl-badge badge-south">Nam tiến</span></div>
+      <div class="tl-title">Mạc Cửu dâng Hà Tiên — chúa Nguyễn tiếp nhận</div>
+      <div class="tl-desc">Hào trưởng người Hoa Mạc Cửu (đến Hà Tiên từ 1679) xin thần phục chúa Nguyễn, được phong chức Tổng binh Hà Tiên. Mở ra thời kỳ khai phá đồng bằng sông Cửu Long.</div>
+    </div>
+
+    <div class="tl-item south" data-cat="south" onclick="toggleTL(this)">
+      <div class="tl-year">1757 <span class="tl-badge badge-south">Nam tiến</span></div>
+      <div class="tl-title">Nhận thêm đất từ Chân Lạp — hoàn chỉnh đồng bằng sông Cửu Long</div>
+      <div class="tl-desc">Vua Chân Lạp nhường các vùng Mỹ Tho, Vĩnh Long, Trà Vinh, Châu Đốc cho chúa Nguyễn. Lãnh thổ Đàng Trong đạt đến Hà Tiên – Cà Mau, về cơ bản định hình miền Nam Việt Nam hiện đại.</div>
+    </div>
+
+    <div class="tl-item war key" data-cat="war" onclick="toggleTL(this)">
+      <div class="tl-year">1771 <span class="tl-badge badge-war">Bước ngoặt</span></div>
+      <div class="tl-title">Khởi nghĩa Tây Sơn bùng nổ — tiền đề từ bài này</div>
+      <div class="tl-desc">Anh em Nguyễn Nhạc, Nguyễn Huệ, Nguyễn Lữ khởi nghĩa tại Tây Sơn (Bình Định). Bối cảnh: mâu thuẫn tích lũy từ hơn 100 năm chia cắt, thuế khóa nặng, nông dân kiệt sức. Xem Lesson 06 — Tây Sơn &amp; Quang Trung.</div>
+    </div>
+
+    <div class="tl-item peace" data-cat="war" onclick="toggleTL(this)">
+      <div class="tl-year">1786 <span class="tl-badge badge-peace">Thống nhất</span></div>
+      <div class="tl-title">Nguyễn Huệ đánh ra Bắc — kết thúc chia cắt Trịnh–Nguyễn</div>
+      <div class="tl-desc">Nguyễn Huệ tiến quân ra Thăng Long, lật đổ chúa Trịnh, thống nhất hai miền dưới cờ Tây Sơn. Nhà Lê cũng sụp đổ sau đó (1789). Giai đoạn Trịnh–Nguyễn phân tranh chính thức kết thúc sau 159 năm (1627–1786).</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Bản đồ Đàng Trong – Đàng Ngoài chi tiết
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Đàng Trong – Đàng Ngoài: Ranh giới và so sánh</h2>
+
+<div class="card">
+  <div class="info-box">
+    Hai miền Đàng Trong và Đàng Ngoài khác biệt không chỉ về địa lý mà còn về kinh tế, xã hội và hướng phát triển.
+  </div>
+
+  <div style="overflow-x:auto;">
+    <svg id="dangtrongmap-svg" width="560" height="300" viewBox="0 0 560 300">
+      <!-- Phông nền -->
+      <rect x="0" y="0" width="560" height="300" fill="#f8fafc" rx="8"/>
+
+      <!-- Cột Đàng Ngoài -->
+      <rect x="10" y="10" width="250" height="280" rx="10" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+      <text x="135" y="38" font-size="15" font-weight="700" fill="#1e3a5f" text-anchor="middle">ĐÀNG NGOÀI</text>
+      <text x="135" y="56" font-size="11" fill="#1e3a5f" text-anchor="middle">Bắc sông Gianh • Chúa Trịnh</text>
+
+      <!-- Các đặc điểm Đàng Ngoài -->
+      <text x="25" y="82"  font-size="12" fill="#1e3a5f">Kinh đô: Thăng Long (Hà Nội)</text>
+      <text x="25" y="102" font-size="12" fill="#1e3a5f">Diện tích: nhỏ hơn nhưng đông dân</text>
+      <text x="25" y="122" font-size="12" fill="#1e3a5f">Kinh tế: nông nghiệp truyền thống</text>
+      <text x="25" y="142" font-size="12" fill="#1e3a5f">Thương mại: Phố Hiến (Hưng Yên)</text>
+      <text x="25" y="162" font-size="12" fill="#1e3a5f">Khoa cử Nho học duy trì</text>
+      <text x="25" y="182" font-size="12" fill="#1e3a5f">Cuối XVIII: nhiều khởi nghĩa nông dân</text>
+      <text x="25" y="202" font-size="12" fill="#b91c1c">Vua Lê — danh nghĩa tối cao</text>
+      <text x="25" y="222" font-size="12" fill="#b91c1c">Chúa Trịnh — thực quyền</text>
+
+      <!-- Nhãn dân số gần đúng -->
+      <rect x="25" y="235" width="225" height="40" rx="6" fill="white" fill-opacity="0.7"/>
+      <text x="137" y="252" font-size="11" fill="#374151" text-anchor="middle" font-style="italic">Dân số đông hơn; nhưng nhiều</text>
+      <text x="137" y="267" font-size="11" fill="#374151" text-anchor="middle" font-style="italic">cuộc khởi nghĩa cuối thế kỉ XVIII</text>
+
+      <!-- Dấu phân cách -->
+      <rect x="268" y="60" width="24" height="180" rx="8" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.5"/>
+      <text x="280" y="140" font-size="10" font-weight="700" fill="#b91c1c" text-anchor="middle" transform="rotate(-90,280,140)">SÔNG GIANH — RANH GIỚI</text>
+
+      <!-- Cột Đàng Trong -->
+      <rect x="300" y="10" width="250" height="280" rx="10" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+      <text x="425" y="38" font-size="15" font-weight="700" fill="#78350f" text-anchor="middle">ĐÀNG TRONG</text>
+      <text x="425" y="56" font-size="11" fill="#78350f" text-anchor="middle">Nam sông Gianh • Chúa Nguyễn</text>
+
+      <!-- Các đặc điểm Đàng Trong -->
+      <text x="315" y="82"  font-size="12" fill="#78350f">Kinh đô: Phú Xuân (Huế)</text>
+      <text x="315" y="102" font-size="12" fill="#78350f">Diện tích: mở rộng dần về Nam</text>
+      <text x="315" y="122" font-size="12" fill="#78350f">Kinh tế: thương mại + khai phá</text>
+      <text x="315" y="142" font-size="12" fill="#78350f">Thương mại: Hội An (Quảng Nam)</text>
+      <text x="315" y="162" font-size="12" fill="#78350f">Cởi mở với thương nhân ngoại</text>
+      <text x="315" y="182" font-size="12" fill="#78350f">Nam tiến: Champa → ĐBSCL</text>
+      <text x="315" y="202" font-size="12" fill="#b45309">Chúa Nguyễn — thực quyền</text>
+      <text x="315" y="222" font-size="12" fill="#b45309">(Nhận danh nghĩa thuộc Lê)</text>
+
+      <rect x="315" y="235" width="225" height="40" rx="6" fill="white" fill-opacity="0.7"/>
+      <text x="427" y="252" font-size="11" fill="#374151" text-anchor="middle" font-style="italic">Đến giữa XVIII: lãnh thổ gấp đôi</text>
+      <text x="427" y="267" font-size="11" fill="#374151" text-anchor="middle" font-style="italic">ban đầu; đến Hà Tiên – Cà Mau</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 5 — Quiz ôn tập
+     ═══════════════════════════════════════════════════════ -->
+<h2>5. Ôn tập — Trắc nghiệm</h2>
+
+<div class="card" id="quiz-card">
+  <div class="quiz-q" id="quiz-q"></div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+  <div class="quiz-feedback" id="quiz-fb"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-primary" id="btn-quiz-next" onclick="quizNext()" style="display:none">Câu tiếp →</button>
+    <button class="btn btn-secondary" id="btn-quiz-restart" onclick="quizRestart()" style="display:none">Làm lại</button>
+    <span class="quiz-progress" id="quiz-prog"></span>
+    <span class="quiz-score" id="quiz-score"></span>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   MODULE 1 — Bản đồ Nam tiến
+   ════════════════════════════════════════════════ */
+
+// Dữ liệu từng era
+const ERA_DATA = [
+  {
+    label: '1558 — Khởi đầu: Thuận Hóa & Quảng Nam',
+    info: '<strong>1558:</strong> Nguyễn Hoàng vào trấn thủ Thuận Hóa. Đây là vùng đất nhỏ hẹp nhưng có cảng Hội An (Faifo) — trung tâm thương mại quốc tế lớn nhất Đàng Trong. Thương nhân Nhật, Hoa, Hà Lan, Bồ Đào Nha đều có mặt tại Hội An từ cuối thế kỉ XVI.',
+    active: [0], // region-0 là vùng chính
+    newHighlight: 0
+  },
+  {
+    label: '1611 — Phú Yên: Bước đầu Nam tiến',
+    info: '<strong>1611:</strong> Nguyễn Hoàng lập phủ Phú Yên — bước đầu tiên vượt qua ranh giới cũ với Champa. Đây là mốc đánh dấu Nam tiến chính thức bắt đầu.',
+    active: [0, 1],
+    newHighlight: 1
+  },
+  {
+    label: '1653 — Khánh Hòa: Tiến sâu vào đất Champa',
+    info: '<strong>1653:</strong> Chúa Nguyễn Phúc Tần chinh phục Khánh Hòa sau khi Champa tấn công biên giới. Nha Trang ngày nay thuộc vùng đất này.',
+    active: [0, 1, 2],
+    newHighlight: 2
+  },
+  {
+    label: '1693 — Chấm dứt Champa: Ninh Thuận, Bình Thuận',
+    info: '<strong>1693:</strong> Chúa Nguyễn Phúc Chu chinh phục phần lãnh thổ Champa còn lại. Chấm dứt sự tồn tại độc lập của vương quốc Champa sau hơn 1.500 năm. Người Chăm tiếp tục cư trú tại địa phương.',
+    active: [0, 1, 2, 3],
+    newHighlight: 3
+  },
+  {
+    label: '1698 — Gia Định: Nền tảng TP.HCM',
+    info: '<strong>1698:</strong> Lễ Thành Hầu Nguyễn Hữu Kính lập phủ Gia Định — đơn vị hành chính đầu tiên của vùng đất Sài Gòn – TP.HCM ngày nay. Đây là mốc quan trọng trong lịch sử đô thị miền Nam.',
+    active: [0, 1, 2, 3, 4],
+    newHighlight: 4
+  },
+  {
+    label: '1757 — Đồng bằng sông Cửu Long: Hà Tiên – Cà Mau',
+    info: '<strong>1708–1757:</strong> Mạc Cửu dâng Hà Tiên (1708); vua Chân Lạp nhường Mỹ Tho, Vĩnh Long, Châu Đốc (1757). Lãnh thổ Đàng Trong đạt đến Hà Tiên – Cà Mau, định hình miền Nam Việt Nam hiện đại.',
+    active: [0, 1, 2, 3, 4, 5],
+    newHighlight: 5
+  }
+];
+
+let currentEra = 0;
+
+function setEra(idx) {
+  currentEra = idx;
+
+  // Cập nhật nút
+  document.querySelectorAll('.era-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+
+  // Cập nhật panel thông tin
+  document.getElementById('map-info-panel').innerHTML = ERA_DATA[idx].info;
+
+  // Cập nhật màu vùng
+  const eraData = ERA_DATA[idx];
+
+  for (let r = 0; r <= 5; r++) {
+    const region = document.getElementById('region-' + r);
+    if (!region) continue;
+
+    if (eraData.active.includes(r)) {
+      if (r === eraData.newHighlight) {
+        // Vùng mới nhất: màu đậm nhất
+        region.setAttribute('fill', '#92400e');
+        region.setAttribute('fill-opacity', '0.9');
+      } else if (r === 0) {
+        // Vùng gốc: màu nền chúa Nguyễn
+        region.setAttribute('fill', '#d97706');
+        region.setAttribute('fill-opacity', '0.75');
+      } else {
+        // Vùng đã sáp nhập trước: màu trung gian
+        region.setAttribute('fill', '#b45309');
+        region.setAttribute('fill-opacity', '0.7');
+      }
+    } else {
+      // Chưa sáp nhập: màu nhạt
+      region.setAttribute('fill', '#b45309');
+      region.setAttribute('fill-opacity', '0.15');
+    }
+  }
+
+  // Cập nhật độ rõ nhãn
+  const labelIds = [
+    'label-1',
+    'label-2',
+    'label-3',
+    'label-4', 'label-4b',
+    'label-5a', 'label-5b'
+  ];
+  const labelEra = [1, 2, 3, 4, 4, 5, 5];
+  labelIds.forEach((lid, i) => {
+    const el = document.getElementById(lid);
+    if (!el) return;
+    if (eraData.active.includes(labelEra[i])) {
+      el.setAttribute('opacity', '1');
+    } else {
+      el.setAttribute('opacity', '0.2');
+    }
+  });
+}
+
+function mapClick(regionIdx) {
+  // Tìm era tương ứng với vùng được bấm
+  for (let e = 0; e < ERA_DATA.length; e++) {
+    if (ERA_DATA[e].newHighlight === regionIdx) {
+      setEra(e);
+      // Nếu currentEra nhỏ hơn, hiển thị thêm
+      if (currentEra < e) setEra(e);
+      document.getElementById('map-info-panel').innerHTML =
+        document.getElementById('region-' + regionIdx).getAttribute('data-info');
+      break;
+    }
+    if (regionIdx === 0) {
+      // Vùng gốc
+      setEra(0);
+      document.getElementById('map-info-panel').innerHTML =
+        document.getElementById('region-0').getAttribute('data-info');
+      break;
+    }
+  }
+}
+
+// Khởi tạo ban đầu
+setEra(0);
+
+/* ════════════════════════════════════════════════
+   MODULE 2 — Sơ đồ quyền lực
+   ════════════════════════════════════════════════ */
+
+const POWER_DATA = [
+  {
+    title: 'Vua Lê — Biểu tượng chính thống',
+    body: 'Vua Lê trong giai đoạn 1545–1786 là "bình phong chính danh" cho chúa Trịnh. Về mặt danh nghĩa, vua là Thiên tử — người được trời trao quyền cai trị. Về thực chất, vua không có quyền lực quân sự hay tài chính. Tuy nhiên, uy tín biểu tượng của vua Lê vẫn còn rất lớn: các cuộc khởi nghĩa chống Trịnh thường nhân danh "phù Lê diệt Trịnh". Năm 1786, khi Nguyễn Huệ tiến ra Bắc, ban đầu cũng nhân danh "phù Lê".'
+  },
+  {
+    title: 'Chúa Trịnh — Thực quyền Đàng Ngoài',
+    body: 'Từ Trịnh Kiểm (1545) đến Trịnh Bồng (1786), họ Trịnh nắm toàn bộ thực quyền: quân đội, tài chính, bổ nhiệm quan lại. Chúa Trịnh nhận tước "Vương" do vua Lê phong — hình thức hợp pháp hóa quyền lực. Đàng Ngoài có nền kinh tế nông nghiệp truyền thống, khoa cử Nho học duy trì đều đặn, nhưng cuối thế kỉ XVIII xuất hiện nhiều cuộc khởi nghĩa nông dân lớn (Lê Duy Mật, Nguyễn Hữu Cầu, Hoàng Công Chất...).'
+  },
+  {
+    title: 'Chúa Nguyễn — Thực quyền Đàng Trong & Nam tiến',
+    body: 'Từ Nguyễn Hoàng (1558) đến Nguyễn Phúc Thuần (bị Tây Sơn lật đổ 1777), họ Nguyễn xây dựng Đàng Trong như một lãnh địa độc lập trên thực tế. Chính sách mở cửa thương mại (Hội An) mang lại nguồn lực bù đắp cho việc ít dân hơn Đàng Ngoài. Quan trọng nhất: công cuộc Nam tiến từ 1611 đến 1757 mở rộng lãnh thổ đến Hà Tiên – Cà Mau, định hình miền Nam Việt Nam hiện đại.'
+  }
+];
+
+function showPower(idx) {
+  const detail = document.getElementById('power-detail');
+  detail.innerHTML = '<strong>' + POWER_DATA[idx].title + '</strong><br>' + POWER_DATA[idx].body;
+  detail.classList.add('show');
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 3 — Timeline tương tác & lọc
+   ════════════════════════════════════════════════ */
+
+function toggleTL(el) {
+  el.classList.toggle('open');
+}
+
+function filterTL(cat) {
+  // Cập nhật nút lọc
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === cat);
+  });
+
+  // Hiện/ẩn mốc
+  document.querySelectorAll('#tl-container .tl-item').forEach(item => {
+    if (cat === 'all' || item.dataset.cat === cat) {
+      item.style.display = '';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 5 — Quiz ôn tập
+   ════════════════════════════════════════════════ */
+
+const QUIZ = [
+  {
+    q: 'Mạc Đăng Dung lên ngôi năm nào và phải làm gì để được nhà Minh công nhận?',
+    opts: [
+      '1527 — Dâng biểu thần phục, nhận tước "An Nam đô thống sứ"',
+      '1527 — Giao nộp đất biên giới, nhận tước "An Nam quốc vương"',
+      '1533 — Ký hiệp ước hòa bình, giữ nguyên tước "An Nam quốc vương"',
+      '1540 — Lên ngôi sau khi nhà Minh đồng ý trước'
+    ],
+    correct: 0,
+    explain: 'Mạc Đăng Dung lên ngôi năm 1527. Năm 1540, ông thân hành sang biên giới quỳ dâng biểu thần phục nhà Minh và nhận tước "An Nam đô thống sứ" — thấp hơn tước "An Nam quốc vương" mà các vua Đại Việt trước đó có. Hành động này bị coi là nhục quốc thể nhưng là bước thực dụng để tránh xâm lược khi đang đối phó Lê trung hưng.'
+  },
+  {
+    q: 'Vì sao chúa Trịnh không phế bỏ vua Lê dù nắm toàn bộ quyền lực thực tế?',
+    opts: [
+      'Vì quân đội của vua Lê mạnh hơn, chúa Trịnh sợ bị trả thù',
+      'Vì chính danh Nho giáo, bài học nhà Mạc bị coi là nghịch thần, và dùng danh vua Lê để hợp pháp hóa quyền lực',
+      'Vì người Trung Quốc yêu cầu phải giữ nhà Lê trên ngôi vua',
+      'Vì vua Lê kiểm soát nguồn thuế thu từ nông dân'
+    ],
+    correct: 1,
+    explain: 'Ba lý do cốt lõi: (1) Trong xã hội Nho giáo, phế vua là phá vỡ trật tự thiêng liêng — sĩ phu không phục; (2) Nhà Mạc phế vua Lê và bị gọi là "nghịch thần" suốt 65 năm — bài học nhãn tiền; (3) Dùng danh vua Lê để hợp pháp hóa mọi quyết định: chiếu chỉ phát dưới danh vua Lê, tước "Vương" do vua Lê phong.'
+  },
+  {
+    q: 'Ranh giới thực tế giữa Đàng Trong và Đàng Ngoài là con sông nào?',
+    opts: [
+      'Sông Mã (Thanh Hóa)',
+      'Sông Lam (Nghệ An)',
+      'Sông Gianh (Quảng Bình)',
+      'Sông Thu Bồn (Quảng Nam)'
+    ],
+    correct: 2,
+    explain: 'Sông Gianh (tên chữ: Linh Giang), thuộc tỉnh Quảng Bình ngày nay. Ranh giới này không được ký kết chính thức mà hình thành tự nhiên sau các lần giao tranh. Phía Bắc sông Gianh: Đàng Ngoài (chúa Trịnh). Phía Nam: Đàng Trong (chúa Nguyễn).'
+  },
+  {
+    q: 'Mốc nào đánh dấu việc thành lập đơn vị hành chính đầu tiên của vùng TP.HCM ngày nay?',
+    opts: [
+      '1658 — Chúa Nguyễn lần đầu giao chiến với Chân Lạp',
+      '1679 — Nhóm người Hoa của Mạc Cửu đến Hà Tiên',
+      '1698 — Nguyễn Hữu Kính lập phủ Gia Định',
+      '1757 — Vua Chân Lạp nhường đất đồng bằng sông Cửu Long'
+    ],
+    correct: 2,
+    explain: 'Năm 1698, Lễ Thành Hầu Nguyễn Hữu Kính (Nguyễn Hữu Cảnh) lập phủ Gia Định gồm huyện Phước Long và huyện Tân Bình — đơn vị hành chính đầu tiên của vùng Sài Gòn – TP.HCM ngày nay. Đây là mốc lịch sử quan trọng trong lịch sử đô thị miền Nam.'
+  },
+  {
+    q: 'Chữ Quốc ngữ được Alexandre de Rhodes hệ thống hóa và phổ biến ra thế giới qua ấn phẩm nào, xuất bản năm nào?',
+    opts: [
+      'Phép giảng tám ngày, 1645',
+      'Dictionarium Annamiticum Lusitanum et Latinum (Từ điển Việt–Bồ–La), 1651',
+      'Catechismus pro iis qui volunt suscipere baptismum, 1640',
+      'Relation des progrès de la foi au royaume de la Cochinchine, 1652'
+    ],
+    correct: 1,
+    explain: 'Năm 1651 tại Rome, Alexandre de Rhodes (Đắc Lộ) xuất bản Dictionarium Annamiticum Lusitanum et Latinum — từ điển Việt–Bồ–La — cùng với Phép giảng tám ngày. Đây là lần đầu tiên hệ thống chữ Quốc ngữ được xuất bản và phổ biến ra thế giới. Lưu ý: ông kế thừa công trình của nhiều giáo sĩ đi trước, không phải người phát minh duy nhất.'
+  },
+  {
+    q: 'Sau bảy lần giao tranh (1627–1672), vì sao không bên nào thắng quyết định?',
+    opts: [
+      'Vì hai bên ký hòa ước quốc tế dưới sự trung gian của Hà Lan',
+      'Vì quân số của hai bên hoàn toàn cân bằng nhau',
+      'Vì hệ thống phòng thủ Lũy Thầy ngăn Trịnh tiến Nam, trong khi Nguyễn không đủ lực vượt sông Gianh tấn công lâu dài vào đồng bằng Bắc Bộ',
+      'Vì nhà Thanh (Trung Quốc) can thiệp buộc hai bên ngừng chiến'
+    ],
+    correct: 2,
+    explain: 'Sự cân bằng lực lượng có cơ sở địa lý và quân sự: (1) Đào Duy Từ thiết kế hệ thống "Lũy Thầy" — công trình phòng thủ kiên cố ngăn quân Trịnh tiến sâu vào Đàng Trong; (2) Đàng Trong dân ít hơn nhưng địa hình thuận lợi phòng thủ; (3) Đàng Ngoài đông dân hơn nhưng quân Nguyễn không đủ lực để chiếm giữ lâu dài đồng bằng Bắc Bộ. Kết quả là thế giằng co kéo dài.'
+  },
+  {
+    q: 'Mạc Cửu là ai và ông có vai trò như thế nào trong quá trình sáp nhập đồng bằng sông Cửu Long?',
+    opts: [
+      'Tướng Chân Lạp người đã nhường đất cho chúa Nguyễn',
+      'Hào trưởng người Hoa đến Hà Tiên từ 1679, sau đó xin thần phục chúa Nguyễn (1708), mở đường khai phá ĐBSCL',
+      'Vị quan nhà Nguyễn được cử đi khai phá đồng bằng sông Cửu Long',
+      'Nhà buôn người Bồ Đào Nha lập thương điếm tại Hà Tiên'
+    ],
+    correct: 1,
+    explain: 'Mạc Cửu là hào trưởng người Hoa (gốc Quảng Đông) đến Hà Tiên năm 1679 để tị nạn sau khi nhà Minh sụp đổ. Ông khai phá và tổ chức dân cư vùng Hà Tiên, sau đó năm 1708 xin thần phục chúa Nguyễn Phúc Chu, được phong chức Tổng binh Hà Tiên. Đây là cách thức "khai phá trước, sáp nhập sau" đặc trưng của quá trình mở rộng đồng bằng sông Cửu Long.'
+  }
+];
+
+let quizIdx = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+function quizRender() {
+  const q = QUIZ[quizIdx];
+  document.getElementById('quiz-q').textContent = 'Câu ' + (quizIdx + 1) + '/' + QUIZ.length + ': ' + q.q;
+  document.getElementById('quiz-prog').textContent = (quizIdx + 1) + ' / ' + QUIZ.length;
+  document.getElementById('quiz-score').textContent = quizIdx > 0 ? 'Điểm: ' + quizScore + '/' + quizIdx : '';
+
+  const optsEl = document.getElementById('quiz-opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach(function(opt, i) {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = function() { quizAnswer(i); };
+    optsEl.appendChild(btn);
+  });
+
+  document.getElementById('quiz-fb').className = 'quiz-feedback';
+  document.getElementById('quiz-fb').innerHTML = '';
+  document.getElementById('btn-quiz-next').style.display = 'none';
+  document.getElementById('btn-quiz-restart').style.display = 'none';
+  quizAnswered = false;
+}
+
+function quizAnswer(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const q = QUIZ[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+
+  opts.forEach(function(btn, i) {
+    btn.classList.add('disabled');
+    btn.onclick = null;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== q.correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb');
+  if (chosen === q.correct) {
+    quizScore++;
+    fb.className = 'quiz-feedback show ok';
+    fb.innerHTML = '<strong>Đúng!</strong> ' + q.explain;
+  } else {
+    fb.className = 'quiz-feedback show err';
+    fb.innerHTML = '<strong>Chưa đúng.</strong> Đáp án: <em>' + q.opts[q.correct] + '</em>. ' + q.explain;
+  }
+
+  document.getElementById('quiz-score').textContent = 'Điểm: ' + quizScore + '/' + (quizIdx + 1);
+
+  if (quizIdx < QUIZ.length - 1) {
+    document.getElementById('btn-quiz-next').style.display = 'inline-block';
+  } else {
+    const pct = Math.round((quizScore / QUIZ.length) * 100);
+    document.getElementById('quiz-score').textContent =
+      'Kết quả: ' + quizScore + '/' + QUIZ.length + ' (' + pct + '%)';
+    document.getElementById('quiz-prog').textContent =
+      pct >= 85 ? 'Xuất sắc!' : pct >= 70 ? 'Tốt — ôn lại các câu sai.' : 'Cần ôn tập thêm.';
+    document.getElementById('btn-quiz-restart').style.display = 'inline-block';
+  }
+}
+
+function quizNext() {
+  quizIdx++;
+  if (quizIdx < QUIZ.length) quizRender();
+}
+
+function quizRestart() {
+  quizIdx = 0;
+  quizScore = 0;
+  quizAnswered = false;
+  quizRender();
+}
+
+quizRender();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

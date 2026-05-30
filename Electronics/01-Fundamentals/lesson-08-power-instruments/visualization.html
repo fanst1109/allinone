@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Nguồn &amp; Dụng cụ đo</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #d1fae5; }
+
+  .card {
+    background: white; border-radius: 8px;
+    padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; font-size: 14px; }
+
+  input[type="range"] { width: 160px; max-width: 100%; accent-color: #4d7c0f; }
+  input[type="number"] {
+    padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 4px;
+    font-size: 14px; font-family: monospace; width: 90px; box-sizing: border-box;
+  }
+
+  button {
+    background: #4d7c0f; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #3f6412; }
+  button.secondary { background: #64748b; }
+  button.secondary:hover { background: #475569; }
+  button.active-btn { background: #166534; outline: 2px solid #4ade80; }
+
+  .stat {
+    display: inline-block; background: #ecfccb; padding: 6px 12px;
+    border-radius: 6px; margin: 4px 6px 4px 0;
+    font-family: monospace; font-size: 14px;
+  }
+  .stat strong { color: #166534; }
+  .result {
+    padding: 14px; background: #f0fdf4;
+    border-radius: 8px; margin-top: 12px;
+    border-left: 4px solid #4d7c0f;
+    font-size: 14px; line-height: 1.6;
+  }
+  .warn { background: #fff7ed; border-left-color: #f97316; }
+  .danger { background: #fef2f2; border-left-color: #dc2626; }
+  .info { background: #eff6ff; border-left-color: #3b82f6; }
+
+  /* ===== Oscilloscope ===== */
+  .scope-wrap {
+    background: #0d1117; border-radius: 10px;
+    padding: 12px; display: inline-block;
+    width: 100%; box-sizing: border-box;
+  }
+  canvas#scope {
+    display: block; margin: 0 auto;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+  }
+  .scope-controls {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px;
+    align-items: center;
+  }
+  .scope-controls label { color: #e2e8f0; min-width: 100px; font-size: 13px; }
+  .scope-controls select {
+    padding: 5px 8px; border-radius: 4px; border: 1px solid #4a5568;
+    background: #1e2d3d; color: #e2e8f0; font-size: 13px;
+  }
+  .scope-controls input[type="range"] { width: 120px; accent-color: #4ade80; }
+  .scope-readout {
+    background: #0d1117; border-radius: 6px; padding: 10px 14px;
+    margin-top: 10px; display: flex; flex-wrap: wrap; gap: 12px;
+  }
+  .scope-readout .val {
+    font-family: monospace; font-size: 14px;
+    color: #4ade80; background: #161b22;
+    padding: 4px 10px; border-radius: 4px;
+  }
+  .scope-readout .val span { color: #94a3b8; font-size: 12px; }
+
+  /* ===== Multimeter ===== */
+  .meter-display {
+    background: #1a202c; border-radius: 8px;
+    padding: 16px; text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: 36px; color: #4ade80;
+    letter-spacing: 2px; min-height: 60px;
+    border: 2px solid #2d3748;
+  }
+  .meter-mode-btns { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .meter-mode-btns button {
+    padding: 6px 12px; font-size: 13px;
+    background: #475569; flex: 1; min-width: 80px;
+  }
+  .meter-mode-btns button.active-btn {
+    background: #166534; outline: 2px solid #4ade80;
+  }
+
+  /* ===== Pin simulator ===== */
+  .pin-bar-wrap { margin: 10px 0; }
+  .pin-bar-bg {
+    background: #e2e8f0; border-radius: 6px;
+    height: 24px; overflow: hidden; position: relative;
+  }
+  .pin-bar-fill {
+    height: 100%; border-radius: 6px;
+    transition: width 0.3s ease, background 0.3s ease;
+    display: flex; align-items: center; padding-left: 8px;
+    color: white; font-size: 12px; font-weight: 700;
+    min-width: 30px;
+  }
+
+  /* Internal resistance circuit diagram (SVG) */
+  svg.circuit { display: block; margin: 8px auto; }
+
+  @media (max-width: 600px) {
+    .scope-controls input[type="range"] { width: 90px; }
+    input[type="number"] { width: 70px; }
+    label { min-width: 100px; }
+    .meter-display { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Fundamentals</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-filters/visualization.html">← L7: Bộ lọc</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Nguồn &amp; Dụng cụ đo</span>
+  <span class="sep">·</span>
+  <a href="../../02-Semiconductors/lesson-01-semiconductor-pn/visualization.html">Tầng 2 → Bán dẫn</a>
+</nav>
+
+<main>
+<h1>Lesson 08 — Nguồn &amp; Dụng cụ đo</h1>
+<p>Mô phỏng 4 công cụ: <strong>Oscilloscope</strong> tương tác (đọc biên độ &amp; tần số từ lưới), <strong>Nội trở nguồn</strong> (xem sụt áp theo tải), <strong>Pin &amp; thời gian xả</strong>, <strong>Multimeter</strong> (3 chế độ đo).</p>
+
+<!-- ============================================================
+     MODULE 1: OSCILLOSCOPE
+     ============================================================ -->
+<h2>1. Oscilloscope — Đọc biên độ &amp; tần số từ lưới</h2>
+<div class="card">
+  <p>Chọn dạng sóng, điều chỉnh biên độ và tần số. Dùng nút <strong>V/div</strong> và <strong>time/div</strong> để "zoom" lưới, rồi đọc V<sub>pp</sub>, T, f như khi dùng scope thật.</p>
+
+  <div class="scope-wrap">
+    <canvas id="scope" width="640" height="320"></canvas>
+
+    <div class="scope-controls">
+      <label>Dạng sóng:</label>
+      <select id="waveType" onchange="drawScope()">
+        <option value="sin">Sin (hình sin)</option>
+        <option value="square">Vuông (square)</option>
+        <option value="tri">Tam giác (triangle)</option>
+      </select>
+
+      <label>Biên độ A:</label>
+      <input type="range" id="ampSlider" min="0.5" max="8" step="0.5" value="3" oninput="updateScopeLabels(); drawScope()">
+      <span id="ampVal" style="color:#4ade80; font-size:13px; font-family:monospace">3 V</span>
+
+      <label>Tần số:</label>
+      <input type="range" id="freqSlider" min="1" max="10" step="1" value="3" oninput="updateScopeLabels(); drawScope()">
+      <span id="freqVal" style="color:#4ade80; font-size:13px; font-family:monospace">300 Hz</span>
+    </div>
+
+    <div class="scope-controls" style="margin-top:6px">
+      <label>V/div:</label>
+      <select id="vdiv" onchange="drawScope()">
+        <option value="0.2">0.2 V</option>
+        <option value="0.5">0.5 V</option>
+        <option value="1" selected>1 V</option>
+        <option value="2">2 V</option>
+        <option value="5">5 V</option>
+      </select>
+
+      <label>time/div:</label>
+      <select id="tdiv" onchange="drawScope()">
+        <option value="0.1">0.1 ms</option>
+        <option value="0.2">0.2 ms</option>
+        <option value="0.5" selected>0.5 ms</option>
+        <option value="1">1 ms</option>
+        <option value="2">2 ms</option>
+        <option value="5">5 ms</option>
+      </select>
+    </div>
+
+    <div class="scope-readout" id="scopeReadout"></div>
+  </div>
+
+  <div class="result info" id="scopeGuide"></div>
+</div>
+
+<!-- ============================================================
+     MODULE 2: INTERNAL RESISTANCE / VOLTAGE SAG
+     ============================================================ -->
+<h2>2. Nội trở nguồn &amp; Sụt áp</h2>
+<div class="card">
+  <p>Kéo thanh tải R<sub>tải</sub> để xem điện áp đầu ra thay đổi thế nào khi tải nặng dần.</p>
+
+  <!-- Circuit diagram -->
+  <svg class="circuit" width="420" height="140" viewBox="0 0 420 140">
+    <!-- wires -->
+    <line x1="30" y1="70" x2="90" y2="70" stroke="#4ade80" stroke-width="2"/>
+    <line x1="170" y1="70" x2="250" y2="70" stroke="#4ade80" stroke-width="2"/>
+    <line x1="330" y1="70" x2="390" y2="70" stroke="#4ade80" stroke-width="2"/>
+    <!-- return wire bottom -->
+    <line x1="30" y1="110" x2="390" y2="110" stroke="#64748b" stroke-width="2"/>
+    <line x1="30" y1="70" x2="30" y2="110" stroke="#64748b" stroke-width="2"/>
+    <line x1="390" y1="70" x2="390" y2="110" stroke="#64748b" stroke-width="2"/>
+    <!-- voltage source circle -->
+    <circle cx="60" cy="90" r="22" fill="none" stroke="#4ade80" stroke-width="2"/>
+    <text x="60" y="87" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="700">V_src</text>
+    <text x="60" y="100" text-anchor="middle" fill="#94a3b8" font-size="9" id="srcLabel">12 V</text>
+    <!-- R_noi resistor box -->
+    <rect x="90" y="58" width="80" height="24" rx="3" fill="none" stroke="#f97316" stroke-width="2"/>
+    <text x="130" y="73" text-anchor="middle" fill="#f97316" font-size="11" font-weight="700">R_nội</text>
+    <text x="130" y="86" text-anchor="middle" fill="#f97316" font-size="10" id="rnLabel">0.5 Ω</text>
+    <!-- R_load resistor box -->
+    <rect x="250" y="58" width="80" height="24" rx="3" fill="none" stroke="#3b82f6" stroke-width="2"/>
+    <text x="290" y="73" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="700">R_tải</text>
+    <text x="290" y="86" text-anchor="middle" fill="#3b82f6" font-size="10" id="rlLabel">10 Ω</text>
+    <!-- V_terminal marker -->
+    <circle cx="250" cy="70" r="4" fill="#4ade80"/>
+    <text x="255" y="58" fill="#4ade80" font-size="10">V_tải</text>
+    <text x="255" y="50" fill="#4ade80" font-size="11" font-weight="700" id="vtLabel">?</text>
+    <!-- current arrow -->
+    <defs>
+      <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="#fbbf24"/>
+      </marker>
+    </defs>
+    <line x1="200" y1="62" x2="230" y2="62" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arr)"/>
+    <text x="215" y="56" text-anchor="middle" fill="#fbbf24" font-size="9" id="iLabel">I</text>
+    <!-- GND symbol -->
+    <line x1="210" y1="110" x2="210" y2="120" stroke="#64748b" stroke-width="2"/>
+    <line x1="200" y1="120" x2="220" y2="120" stroke="#64748b" stroke-width="2"/>
+    <line x1="203" y1="124" x2="217" y2="124" stroke="#64748b" stroke-width="2"/>
+    <line x1="206" y1="128" x2="214" y2="128" stroke="#64748b" stroke-width="2"/>
+  </svg>
+
+  <div class="row">
+    <label>V_nguồn (V):</label>
+    <input type="range" id="vsrc" min="1" max="24" step="0.5" value="12" oninput="calcVsag()">
+    <span id="vsrcVal" style="font-family:monospace; font-weight:700">12 V</span>
+  </div>
+  <div class="row">
+    <label>R_nội (Ω):</label>
+    <input type="range" id="rint" min="0" max="10" step="0.1" value="0.5" oninput="calcVsag()">
+    <span id="rintVal" style="font-family:monospace; font-weight:700">0.5 Ω</span>
+  </div>
+  <div class="row">
+    <label>R_tải (Ω):</label>
+    <input type="range" id="rload" min="0.5" max="200" step="0.5" value="10" oninput="calcVsag()">
+    <span id="rloadVal" style="font-family:monospace; font-weight:700">10 Ω</span>
+  </div>
+
+  <div class="result" id="vsagResult"></div>
+</div>
+
+<!-- ============================================================
+     MODULE 3: PIN / BATTERY RUNTIME
+     ============================================================ -->
+<h2>3. Pin &amp; Thời gian xả</h2>
+<div class="card">
+  <p>Nhập thông số pin và thiết bị để tính thời gian sử dụng thực tế.</p>
+
+  <div class="row">
+    <label>Dung lượng (mAh):</label>
+    <input type="number" id="batCap" value="3000" step="100" min="50" oninput="calcBat()">
+  </div>
+  <div class="row">
+    <label>Hiệu suất η (%):</label>
+    <input type="range" id="batEta" min="60" max="98" step="1" value="90" oninput="calcBat()">
+    <span id="batEtaVal" style="font-family:monospace; font-weight:700">90%</span>
+  </div>
+  <div class="row">
+    <label>Dòng tải (mA):</label>
+    <input type="number" id="batLoad" value="150" step="10" min="1" oninput="calcBat()">
+  </div>
+  <div class="row">
+    <label>Điện áp danh định (V):</label>
+    <input type="number" id="batV" value="3.7" step="0.1" min="1" oninput="calcBat()">
+  </div>
+
+  <div class="pin-bar-wrap">
+    <div style="font-size:13px; color:#64748b; margin-bottom:4px">Thời gian còn lại (biểu tượng):</div>
+    <div class="pin-bar-bg">
+      <div class="pin-bar-fill" id="pinBar" style="width:80%; background:#4d7c0f">80%</div>
+    </div>
+  </div>
+
+  <div class="result" id="batResult"></div>
+
+  <div style="margin-top:12px">
+    <div style="font-size:13px; font-weight:700; margin-bottom:6px; color:#475569">Preset nhanh:</div>
+    <div class="row">
+      <button class="secondary" onclick="setBat(500,0.75,9,4.5,'Pin 9V Carbon')">Pin 9V carbon</button>
+      <button class="secondary" onclick="setBat(2600,0.88,100,3.7,'18650 Li-ion')">18650 (100mA)</button>
+      <button class="secondary" onclick="setBat(4000,0.90,300,3.8,'Điện thoại')">Điện thoại</button>
+      <button class="secondary" onclick="setBat(10000,0.80,1500,5,'Powerbank → DT')">Powerbank→DT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODULE 4: MULTIMETER SIMULATOR
+     ============================================================ -->
+<h2>4. Multimeter — Mô phỏng đo mạch</h2>
+<div class="card">
+  <p>Chọn chế độ đo, thiết lập mạch, nhấn <strong>Đo</strong> để xem kết quả và lời giải thích.</p>
+
+  <div class="meter-mode-btns" id="meterModeBtns">
+    <button onclick="setMeterMode('V')" id="modeV">DCV — Đo V</button>
+    <button onclick="setMeterMode('I')" id="modeI">DCA — Đo I</button>
+    <button onclick="setMeterMode('R')" id="modeR">Ohm — Đo R</button>
+    <button onclick="setMeterMode('cont')" id="modeCont">Thông mạch</button>
+  </div>
+
+  <div id="meterInputArea"></div>
+
+  <div class="meter-display" id="meterDisplay">- - - -</div>
+  <div class="result" id="meterResult" style="margin-top:12px"></div>
+</div>
+
+<!-- ============================================================
+     MODULE 5: SAFETY QUICK REFERENCE
+     ============================================================ -->
+<h2>5. An toàn điện — Tra cứu nhanh</h2>
+<div class="card">
+  <p>Nhập điện áp và điện trở người để tính dòng và đánh giá nguy hiểm.</p>
+  <div class="row">
+    <label>Điện áp (V):</label>
+    <input type="number" id="safeV" value="24" step="1" min="1" max="10000" oninput="calcSafe()">
+    <label>R người (kΩ):</label>
+    <input type="number" id="safeR" value="5" step="0.5" min="0.5" max="100" oninput="calcSafe()">
+  </div>
+  <div style="margin: 8px 0; font-size:13px; color:#64748b">
+    Gợi ý: tay khô ~50 kΩ, tay ướt ~2–5 kΩ, đứng trong nước ~1 kΩ.
+  </div>
+  <div class="result" id="safeResult"></div>
+</div>
+
+</main>
+
+<script>
+/* ====================================================
+   OSCILLOSCOPE
+   ==================================================== */
+const SCOPE_W = 640, SCOPE_H = 320;
+const GRID_COLS = 10, GRID_ROWS = 8;
+const CELL_W = SCOPE_W / GRID_COLS; // 64px
+const CELL_H = SCOPE_H / GRID_ROWS; // 40px
+
+const freqMap = [50,100,200,300,500,750,1000,2000,5000,10000];
+
+function updateScopeLabels() {
+  const amp = parseFloat(document.getElementById('ampSlider').value);
+  const fi  = parseInt(document.getElementById('freqSlider').value);
+  const freq = freqMap[fi - 1];
+  document.getElementById('ampVal').textContent  = amp + ' V';
+  document.getElementById('freqVal').textContent = freq >= 1000 ? (freq/1000) + ' kHz' : freq + ' Hz';
+}
+
+function drawScope() {
+  const canvas = document.getElementById('scope');
+  const ctx = canvas.getContext('2d');
+  const W = SCOPE_W, H = SCOPE_H;
+
+  // Background
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(74,222,128,0.15)';
+  ctx.lineWidth = 1;
+  for (let c = 0; c <= GRID_COLS; c++) {
+    ctx.beginPath(); ctx.moveTo(c * CELL_W, 0); ctx.lineTo(c * CELL_W, H); ctx.stroke();
+  }
+  for (let r = 0; r <= GRID_ROWS; r++) {
+    ctx.beginPath(); ctx.moveTo(0, r * CELL_H); ctx.lineTo(W, r * CELL_H); ctx.stroke();
+  }
+  // Center lines brighter
+  ctx.strokeStyle = 'rgba(74,222,128,0.4)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+
+  // Tick marks on center axes
+  ctx.strokeStyle = 'rgba(74,222,128,0.5)';
+  ctx.lineWidth = 1;
+  for (let c = 0; c <= GRID_COLS * 5; c++) {
+    const x = c * (CELL_W / 5);
+    ctx.beginPath(); ctx.moveTo(x, H/2 - 4); ctx.lineTo(x, H/2 + 4); ctx.stroke();
+  }
+  for (let r = 0; r <= GRID_ROWS * 5; r++) {
+    const y = r * (CELL_H / 5);
+    ctx.beginPath(); ctx.moveTo(W/2 - 4, y); ctx.lineTo(W/2 + 4, y); ctx.stroke();
+  }
+
+  // Parameters
+  const amp   = parseFloat(document.getElementById('ampSlider').value);
+  const fi    = parseInt(document.getElementById('freqSlider').value);
+  const freq  = freqMap[fi - 1];
+  const vdiv  = parseFloat(document.getElementById('vdiv').value);
+  const tdiv  = parseFloat(document.getElementById('tdiv').value) * 1e-3; // ms → s
+  const waveType = document.getElementById('waveType').value;
+
+  // pixels per volt
+  const pxPerV  = CELL_H / vdiv;
+  // time window (full screen = GRID_COLS × tdiv seconds)
+  const tTotal  = GRID_COLS * tdiv;
+  const T       = 1 / freq;  // period in seconds
+  const centerY = H / 2;
+
+  // Draw waveform
+  ctx.strokeStyle = '#4ade80';
+  ctx.lineWidth = 2;
+  ctx.shadowColor = '#4ade80';
+  ctx.shadowBlur = 4;
+  ctx.beginPath();
+  let first = true;
+  for (let px = 0; px < W; px++) {
+    const t = (px / W) * tTotal;
+    const phase = (t / T) % 1; // 0..1 within one period
+    let v = 0;
+    if (waveType === 'sin') {
+      v = amp * Math.sin(2 * Math.PI * t / T);
+    } else if (waveType === 'square') {
+      v = phase < 0.5 ? amp : -amp;
+    } else { // triangle
+      v = phase < 0.5 ? amp * (4 * phase - 1) : amp * (3 - 4 * phase);
+    }
+    const py = centerY - v * pxPerV;
+    if (first) { ctx.moveTo(px, py); first = false; }
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Grid labels (V/div markings on left)
+  ctx.fillStyle = 'rgba(148,163,184,0.8)';
+  ctx.font = '10px monospace';
+  ctx.textAlign = 'left';
+  for (let r = 0; r <= GRID_ROWS; r++) {
+    const vAtRow = ((GRID_ROWS/2) - r) * vdiv;
+    ctx.fillText(vAtRow.toFixed(Math.abs(vdiv) < 1 ? 1 : 0) + 'V', 3, r * CELL_H + 12);
+  }
+  // Time labels bottom
+  ctx.textAlign = 'center';
+  for (let c = 1; c < GRID_COLS; c++) {
+    const tMs = c * tdiv * 1000;
+    const label = tMs >= 1 ? tMs.toFixed(0) + 'ms' : (tMs * 1000).toFixed(0) + 'µs';
+    ctx.fillText(label, c * CELL_W, H - 3);
+  }
+
+  // Update readout
+  const Vpp = 2 * amp;
+  const Vpp_divs = Vpp / vdiv;
+  const T_divs   = T / tdiv;
+  const Vrms     = waveType === 'sin' ? (amp / Math.SQRT2).toFixed(3) :
+                   waveType === 'square' ? amp.toFixed(3) :
+                   (amp / Math.sqrt(3)).toFixed(3);
+
+  document.getElementById('scopeReadout').innerHTML =
+    `<div class="val">V<sub>pp</sub> = ${Vpp.toFixed(2)} V <span>(${Vpp_divs.toFixed(1)} ô × ${vdiv}V)</span></div>` +
+    `<div class="val">A = ${amp.toFixed(2)} V</div>` +
+    `<div class="val">T = ${(T*1000).toFixed(3)} ms <span>(${T_divs.toFixed(2)} ô × ${(tdiv*1000).toFixed(3)}ms)</span></div>` +
+    `<div class="val">f = ${freq >= 1000 ? (freq/1000).toFixed(2)+' kHz' : freq+' Hz'}</div>` +
+    `<div class="val">V<sub>RMS</sub> ≈ ${Vrms} V</div>`;
+
+  // Guide panel
+  const vppDiv = Vpp / vdiv;
+  const tDiv   = T / tdiv;
+  document.getElementById('scopeGuide').innerHTML =
+    `<strong>Cách đọc:</strong> Sóng chiếm <strong>${vppDiv.toFixed(1)} ô dọc</strong> từ đỉnh đến đáy → ` +
+    `V<sub>pp</sub> = ${vppDiv.toFixed(1)} × ${vdiv} V = <strong>${Vpp.toFixed(2)} V</strong>. ` +
+    `Một chu kỳ chiếm <strong>${tDiv.toFixed(2)} ô ngang</strong> → ` +
+    `T = ${tDiv.toFixed(2)} × ${(tdiv*1000).toFixed(2)} ms = <strong>${(T*1000).toFixed(3)} ms</strong> → ` +
+    `f = 1/T = <strong>${freq >= 1000 ? (freq/1000).toFixed(2)+' kHz' : freq+' Hz'}</strong>.`;
+}
+
+/* ====================================================
+   INTERNAL RESISTANCE / VOLTAGE SAG
+   ==================================================== */
+function calcVsag() {
+  const Vs  = parseFloat(document.getElementById('vsrc').value);
+  const Ri  = parseFloat(document.getElementById('rint').value);
+  const Rl  = parseFloat(document.getElementById('rload').value);
+
+  document.getElementById('vsrcVal').textContent  = Vs.toFixed(1) + ' V';
+  document.getElementById('rintVal').textContent  = Ri.toFixed(1) + ' Ω';
+  document.getElementById('rloadVal').textContent = Rl.toFixed(1) + ' Ω';
+
+  // Update SVG text labels
+  document.getElementById('srcLabel').textContent = Vs.toFixed(1) + ' V';
+  document.getElementById('rnLabel').textContent  = Ri.toFixed(1) + ' Ω';
+  document.getElementById('rlLabel').textContent  = Rl.toFixed(1) + ' Ω';
+
+  const I      = Vs / (Ri + Rl);
+  const Vtail  = Vs - I * Ri;
+  const Vdrop  = I * Ri;
+  const Pload  = I * I * Rl;
+  const Pint   = I * I * Ri;
+  const Ptotal = I * Vs;
+  const eta    = Ptotal > 0 ? (Pload / Ptotal * 100) : 0;
+
+  document.getElementById('vtLabel').textContent = Vtail.toFixed(2) + ' V';
+  document.getElementById('iLabel').textContent  = 'I=' + (I * 1000).toFixed(1) + 'mA';
+
+  const sagPct = Vtail / Vs * 100;
+  let cls = 'result';
+  if (sagPct < 70) cls += ' danger';
+  else if (sagPct < 90) cls += ' warn';
+
+  document.getElementById('vsagResult').className = cls;
+  document.getElementById('vsagResult').innerHTML =
+    `<div><strong>Dòng tải:</strong> I = ${Vs.toFixed(1)} / (${Ri.toFixed(1)} + ${Rl.toFixed(1)}) = <strong>${(I*1000).toFixed(2)} mA</strong></div>` +
+    `<div><strong>Sụt áp nội trở:</strong> ΔV = I × R_nội = ${(I*1000).toFixed(2)} mA × ${Ri.toFixed(1)} Ω = <strong>${Vdrop.toFixed(3)} V</strong></div>` +
+    `<div><strong>V_tải = V_nguồn − ΔV</strong> = ${Vs.toFixed(2)} − ${Vdrop.toFixed(3)} = <strong>${Vtail.toFixed(3)} V</strong> (${sagPct.toFixed(1)}% V_nguồn)</div>` +
+    `<div><strong>Hiệu suất:</strong> η = P_tải / P_tổng = ${Pload.toFixed(3)} W / ${Ptotal.toFixed(3)} W = <strong>${eta.toFixed(1)}%</strong></div>` +
+    `<div style="margin-top:6px; font-size:12px; color:#64748b">
+       Tải nhẹ (R_tải lớn → I nhỏ) → sụt áp nhỏ → hiệu suất cao.
+       Tải nặng (R_tải nhỏ → I lớn) → sụt áp lớn → V_tải giảm.
+    </div>`;
+}
+
+/* ====================================================
+   BATTERY RUNTIME
+   ==================================================== */
+function calcBat() {
+  const C   = parseFloat(document.getElementById('batCap').value);
+  const eta = parseFloat(document.getElementById('batEta').value) / 100;
+  const I   = parseFloat(document.getElementById('batLoad').value);
+  const V   = parseFloat(document.getElementById('batV').value);
+
+  document.getElementById('batEtaVal').textContent = Math.round(eta * 100) + '%';
+
+  if (!C || !I || !V) return;
+
+  const t_h   = C * eta / I;            // hours
+  const t_min = t_h * 60;
+  const Wh    = C / 1000 * V;           // Wh nominal
+  const Wh_eff = Wh * eta;
+
+  const h = Math.floor(t_h);
+  const m = Math.round((t_h - h) * 60);
+  const pct = Math.min(100, Math.max(5, 100));  // bar always show 100 for "full" simulation
+
+  // bar shows how η affects usable energy
+  const barPct = Math.round(eta * 100);
+  const barColor = barPct >= 85 ? '#4d7c0f' : barPct >= 70 ? '#d97706' : '#dc2626';
+  document.getElementById('pinBar').style.width  = barPct + '%';
+  document.getElementById('pinBar').style.background = barColor;
+  document.getElementById('pinBar').textContent  = barPct + '% η';
+
+  document.getElementById('batResult').innerHTML =
+    `<div><strong>Tổng dòng tiêu thụ:</strong> ${I} mA</div>` +
+    `<div><strong>Dung lượng hiệu dụng:</strong> ${C} × ${Math.round(eta*100)}% = <strong>${(C*eta).toFixed(0)} mAh</strong></div>` +
+    `<div><strong>Thời gian xả:</strong> t = ${(C*eta).toFixed(0)} / ${I} = <strong>${t_h.toFixed(2)} giờ</strong> ≈ <strong>${h} giờ ${m} phút</strong></div>` +
+    `<div><strong>Năng lượng danh định:</strong> ${Wh.toFixed(1)} Wh &nbsp;|&nbsp; Năng lượng hiệu dụng: ${Wh_eff.toFixed(1)} Wh</div>` +
+    `<div style="font-size:12px; color:#64748b; margin-top:6px">
+      Giảm dòng tải (tắt bớt ngoại vi, giảm sáng màn hình...) → kéo dài pin phi tuyến:
+      giảm I 2× → t tăng 2× nhưng hiệu suất hóa học cũng tăng nhẹ.
+    </div>`;
+}
+
+function setBat(cap, eta, load, v, label) {
+  document.getElementById('batCap').value  = cap;
+  document.getElementById('batEta').value  = Math.round(eta * 100);
+  document.getElementById('batLoad').value = load;
+  document.getElementById('batV').value    = v;
+  calcBat();
+}
+
+/* ====================================================
+   MULTIMETER SIMULATOR
+   ==================================================== */
+let meterMode = 'V';
+
+function setMeterMode(mode) {
+  meterMode = mode;
+  ['V','I','R','cont'].forEach(m => {
+    document.getElementById('mode'+m.charAt(0).toUpperCase()+m.slice(1)).classList.toggle('active-btn', m === mode);
+  });
+  // special IDs
+  document.getElementById('modeV').classList.toggle('active-btn', mode==='V');
+  document.getElementById('modeI').classList.toggle('active-btn', mode==='I');
+  document.getElementById('modeR').classList.toggle('active-btn', mode==='R');
+  document.getElementById('modeCont').classList.toggle('active-btn', mode==='cont');
+
+  const area = document.getElementById('meterInputArea');
+  document.getElementById('meterDisplay').textContent = '- - - -';
+  document.getElementById('meterResult').innerHTML = '';
+
+  if (mode === 'V') {
+    area.innerHTML = `
+      <div class="row">
+        <label>V_nguồn (V):</label>
+        <input type="number" id="mmVs" value="9" step="0.5" min="0">
+        <label>R_nội (Ω):</label>
+        <input type="number" id="mmRi" value="1.5" step="0.1" min="0">
+        <label>R_tải (Ω):</label>
+        <input type="number" id="mmRl" value="220" step="10" min="1">
+      </div>
+      <div class="row">
+        <label>R_input meter (MΩ):</label>
+        <input type="number" id="mmRm" value="1" step="0.5" min="0.1">
+      </div>
+      <div class="row"><button onclick="doMeter()">Đo</button></div>`;
+  } else if (mode === 'I') {
+    area.innerHTML = `
+      <div class="row">
+        <label>V_nguồn (V):</label>
+        <input type="number" id="mmVs" value="5" step="0.5" min="0">
+        <label>R_tải (Ω):</label>
+        <input type="number" id="mmRl" value="100" step="10" min="1">
+        <label>R_meter (Ω):</label>
+        <input type="number" id="mmRm2" value="1" step="0.5" min="0">
+      </div>
+      <div class="row"><button onclick="doMeter()">Đo</button>
+        <button class="secondary" onclick="doMeterWrong()">⚠ Đo SAI (song song)</button></div>`;
+  } else if (mode === 'R') {
+    area.innerHTML = `
+      <div class="row">
+        <label>Điện trở cần đo (Ω):</label>
+        <input type="number" id="mmRr" value="470" step="10" min="0">
+        <label>Nguồn trong mạch:</label>
+        <select id="mmHasPwr">
+          <option value="0">Đã ngắt nguồn</option>
+          <option value="1">CÒN NGUỒN (sai!)</option>
+        </select>
+      </div>
+      <div class="row"><button onclick="doMeter()">Đo</button></div>`;
+  } else {
+    area.innerHTML = `
+      <div class="row">
+        <label>Điện trở dây dẫn (Ω):</label>
+        <input type="number" id="mmRcont" value="0.3" step="0.1" min="0">
+        <label>Nguồn trong mạch:</label>
+        <select id="mmContPwr">
+          <option value="0">Đã ngắt nguồn</option>
+          <option value="1">CÒN NGUỒN (sai!)</button>
+        </select>
+      </div>
+      <div class="row"><button onclick="doMeter()">Đo</button></div>`;
+  }
+}
+
+function doMeter() {
+  const disp = document.getElementById('meterDisplay');
+  const res  = document.getElementById('meterResult');
+
+  if (meterMode === 'V') {
+    const Vs = parseFloat(document.getElementById('mmVs').value);
+    const Ri = parseFloat(document.getElementById('mmRi').value);
+    const Rl = parseFloat(document.getElementById('mmRl').value);
+    const Rm = parseFloat(document.getElementById('mmRm').value) * 1e6;
+    // Meter in parallel with Rl
+    const Rpar = (Rl * Rm) / (Rl + Rm);
+    const I    = Vs / (Ri + Rpar);
+    const Vmeas = I * Rpar;
+    const Vtrue  = Vs * Rl / (Ri + Rl);
+    const err    = Math.abs(Vmeas - Vtrue) / Vtrue * 100;
+    disp.textContent = Vmeas.toFixed(3) + ' V';
+    res.className = 'result' + (err > 5 ? ' warn' : '');
+    res.innerHTML =
+      `<div>V thực (không có đồng hồ): ${Vtrue.toFixed(4)} V</div>` +
+      `<div>V đo được (R_meter // R_tải): ${Vmeas.toFixed(4)} V</div>` +
+      `<div>Sai số do nội trở đồng hồ: <strong>${err.toFixed(3)}%</strong></div>` +
+      `<div style="margin-top:6px; font-size:12px">
+        R_input đồng hồ (${(Rm/1e6).toFixed(1)} MΩ) song song với R_tải (${Rl} Ω):
+        R_tương_đương = ${Rpar.toFixed(2)} Ω.
+        ${err > 5 ? '<strong style="color:#dc2626">Sai số > 5% — R_tải quá gần R_meter!</strong>' : 'Sai số nhỏ — đồng hồ không ảnh hưởng đáng kể.'}
+      </div>`;
+  } else if (meterMode === 'I') {
+    const Vs = parseFloat(document.getElementById('mmVs').value);
+    const Rl = parseFloat(document.getElementById('mmRl').value);
+    const Rm = parseFloat(document.getElementById('mmRm2').value);
+    const I  = Vs / (Rl + Rm);
+    disp.textContent = (I * 1000).toFixed(2) + ' mA';
+    res.className = 'result';
+    res.innerHTML =
+      `<div>Dòng đo được: I = ${Vs} / (${Rl} + ${Rm}) = <strong>${(I*1000).toFixed(3)} mA</strong></div>` +
+      `<div>Sụt áp trên đồng hồ: ${(I*Rm).toFixed(4)} V (nhỏ nếu R_meter nhỏ)</div>` +
+      `<div style="margin-top:6px; font-size:12px">
+        Đồng hồ mắc <em>nối tiếp</em> đúng cách — toàn bộ dòng tải chạy qua.
+        R_meter nhỏ → gần không ảnh hưởng mạch.
+      </div>`;
+  } else if (meterMode === 'R') {
+    const Rr      = parseFloat(document.getElementById('mmRr').value);
+    const hasPwr  = parseInt(document.getElementById('mmHasPwr').value);
+    if (hasPwr) {
+      disp.textContent = 'ERR';
+      res.className = 'result danger';
+      res.innerHTML = '<strong>Kết quả sai hoàn toàn!</strong> Mạch đang có điện → nguồn ngoài can thiệp vào dòng đo của đồng hồ → số hiển thị vô nghĩa. Còn có thể hỏng đồng hồ và gây nguy hiểm.';
+    } else {
+      const noise = (Math.random() - 0.5) * Rr * 0.01; // ±0.5% noise
+      disp.textContent = (Rr + noise).toFixed(1) + ' Ω';
+      res.className = 'result';
+      res.innerHTML =
+        `<div>Điện trở đo: ≈ ${Rr} Ω (±0.5% sai số đo thông thường).</div>` +
+        `<div style="margin-top:6px; font-size:12px">
+          Đồng hồ tự cấp dòng nhỏ (mA) qua R_cần_đo, đo V rơi → tính R = V/I.
+          Nguồn đã ngắt → kết quả chính xác.
+        </div>`;
+    }
+  } else {
+    const Rcont  = parseFloat(document.getElementById('mmRcont').value);
+    const hasPwr = parseInt(document.getElementById('mmContPwr').value);
+    if (hasPwr) {
+      disp.textContent = 'ERR';
+      res.className = 'result danger';
+      res.innerHTML = '<strong>Nguy hiểm!</strong> Đo thông mạch khi còn nguồn → kết quả sai và có thể hỏng đồng hồ hoặc gây chập điện.';
+    } else if (Rcont <= 50) {
+      disp.textContent = '))) THÔNG';
+      disp.style.color = '#4ade80';
+      res.className = 'result';
+      res.innerHTML = `Mạch thông! Điện trở dây: ${Rcont} Ω ≤ 50 Ω → đồng hồ phát tiếng bíp.`;
+    } else {
+      disp.textContent = 'OL (hở)';
+      disp.style.color = '#f97316';
+      res.className = 'result warn';
+      res.innerHTML = `Điện trở dây: ${Rcont} Ω > 50 Ω → không thông. Có thể dây đứt hoặc tiếp xúc kém.`;
+    }
+    return;
+  }
+  disp.style.color = '#4ade80';
+}
+
+function doMeterWrong() {
+  const Vs = parseFloat(document.getElementById('mmVs').value);
+  const disp = document.getElementById('meterDisplay');
+  const res  = document.getElementById('meterResult');
+  // Meter in parallel with source ≈ 0 Ω in series
+  const I_short = Vs / 1.5; // ~1.5 Ω internal to meter
+  disp.textContent = 'CHÁY!';
+  disp.style.color = '#dc2626';
+  res.className = 'result danger';
+  res.innerHTML =
+    `<strong>Đo dòng mắc SONG SONG nguồn ${Vs}V!</strong><br>` +
+    `R_meter (chế độ A) ≈ 1–2 Ω → I = ${Vs}/1.5 ≈ <strong>${I_short.toFixed(1)} A</strong> — ` +
+    `cầu chì đồng hồ (thường 200 mA hoặc 10 A) cháy ngay lập tức. ` +
+    `Trong thực tế: tiếng "tách", mùi khét, đồng hồ hỏng vĩnh viễn nếu không có cầu chì.`;
+}
+
+/* ====================================================
+   SAFETY CALCULATOR
+   ==================================================== */
+function calcSafe() {
+  const V  = parseFloat(document.getElementById('safeV').value);
+  const R  = parseFloat(document.getElementById('safeR').value) * 1000; // kΩ → Ω
+  if (!V || !R) return;
+  const I_mA = V / R * 1000;
+  let lvl, cls, note;
+  if (I_mA < 1) {
+    lvl = 'Gần như không cảm nhận được'; cls = 'result';
+    note = 'An toàn trong điều kiện bình thường.';
+  } else if (I_mA < 5) {
+    lvl = 'Nhẹ — ngứa ran, giật nhẹ'; cls = 'result';
+    note = 'Khó chịu nhưng không nguy hiểm với người lớn khỏe mạnh.';
+  } else if (I_mA < 20) {
+    lvl = 'Đau rõ — co cơ, khó thả tay ra'; cls = 'result warn';
+    note = 'Nguy cơ không tự thoát ra được nếu bám vào vật dẫn điện.';
+  } else if (I_mA < 50) {
+    lvl = 'Nguy hiểm — co giật mạnh, khó thở'; cls = 'result warn';
+    note = 'Có thể gây hại nghiêm trọng, đặc biệt nếu kéo dài.';
+  } else if (I_mA < 100) {
+    lvl = 'RẤT NGUY HIỂM — rung tim (ventricular fibrillation)'; cls = 'result danger';
+    note = 'Nguy cơ tử vong cao. Cần hồi sức tim phổi (CPR) ngay.';
+  } else {
+    lvl = 'CỰC KỲ NGUY HIỂM — thường tử vong'; cls = 'result danger';
+    note = 'Bỏng nặng, co cứng cơ, ngừng tim. Tử vong gần như chắc chắn nếu không cấp cứu.';
+  }
+
+  document.getElementById('safeResult').className = cls;
+  document.getElementById('safeResult').innerHTML =
+    `<div><strong>Dòng qua người:</strong> I = ${V} V / ${(R/1000).toFixed(1)} kΩ = <strong>${I_mA.toFixed(2)} mA</strong></div>` +
+    `<div><strong>Mức độ:</strong> ${lvl}</div>` +
+    `<div style="margin-top:6px; font-size:13px">${note}</div>`;
+}
+
+/* ====================================================
+   INIT
+   ==================================================== */
+window.addEventListener('load', () => {
+  updateScopeLabels();
+  drawScope();
+  calcVsag();
+  calcBat();
+  setMeterMode('V');
+  calcSafe();
+});
+
+// Make canvas responsive
+window.addEventListener('resize', () => {
+  const canvas = document.getElementById('scope');
+  const wrap   = canvas.parentElement;
+  const ratio  = SCOPE_W / SCOPE_H;
+  const maxW   = Math.min(SCOPE_W, wrap.clientWidth - 24);
+  canvas.style.width  = maxW + 'px';
+  canvas.style.height = (maxW / ratio) + 'px';
+});
+window.dispatchEvent(new Event('resize'));
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

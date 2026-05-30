@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Tín hiệu AC, Trở kháng &amp; Mạch RLC</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #bbf7d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 140px; }
+  input[type="range"] { width: 180px; max-width: 100%; accent-color: #4d7c0f; }
+  input[type="number"] { padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 110px; max-width: 100%; box-sizing: border-box; }
+  .val-badge { display: inline-block; min-width: 80px; padding: 3px 10px; background: #ecfccb; border-radius: 5px; font-family: monospace; font-size: 14px; font-weight: 700; color: #365314; }
+  button { background: #4d7c0f; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button:hover { background: #3f6212; }
+  button.muted { background: #94a3b8; }
+  button.muted:hover { background: #64748b; }
+  button.muted.active { background: #4d7c0f; }
+  .stat { display: inline-block; background: #ecfccb; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #365314; }
+  .result { padding: 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; margin-top: 12px; font-size: 14px; line-height: 1.7; }
+  .result code { background: #ecfccb; padding: 2px 6px; border-radius: 3px; font-size: 13px; }
+  .formula { font-family: monospace; background: #1a202c; color: #a8e063; padding: 10px 16px; border-radius: 6px; margin: 8px 0; font-size: 14px; }
+  table.ztable { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14px; }
+  table.ztable th { background: #4d7c0f; color: white; padding: 8px 12px; text-align: left; }
+  table.ztable td { padding: 7px 12px; border-bottom: 1px solid #e2e8f0; }
+  table.ztable tr:nth-child(even) td { background: #f7fef0; }
+  .highlight-row td { background: #bbf7d0 !important; font-weight: 700; color: #14532d; }
+  .tag-C { color: #dc2626; font-weight: 700; }
+  .tag-L { color: #1d4ed8; font-weight: 700; }
+  .tag-R { color: #92400e; font-weight: 700; }
+
+  /* SVG canvas containers */
+  .svg-wrap { overflow-x: auto; }
+  svg.wave-canvas {
+    display: block; margin: 12px auto;
+    background: #0f172a;
+    border-radius: 8px;
+  }
+  svg.zcurve-canvas {
+    display: block; margin: 12px auto;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+  }
+
+  /* RLC resonance calculator */
+  .rlc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .rlc-grid { grid-template-columns: 1fr; } }
+  .rlc-input-group { background: #f8fafc; border-radius: 6px; padding: 12px 14px; }
+  .rlc-input-group label { display: block; margin-bottom: 6px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Fundamentals</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-inductor-rl/visualization.html">← L5: Cuộn cảm &amp; mạch RL</a>
+  <span class="sep">·</span>
+  <span class="current">L6: AC, trở kháng &amp; RLC</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-filters/visualization.html">L7: Bộ lọc →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Tín hiệu AC, Trở kháng &amp; Mạch RLC</h1>
+<p>Ba công cụ tương tác: vẽ sóng sin (V_peak / V_rms), máy tính trở kháng Z theo tần số, và máy tính cộng hưởng RLC.</p>
+
+<!-- ========== MODULE 1: Sóng sin ========== -->
+<h2>1. Sóng sin AC — Biên độ, Tần số &amp; RMS</h2>
+<div class="card">
+  <div class="row">
+    <label>Biên độ V_peak (V):</label>
+    <input type="range" id="vpeak" min="1" max="400" step="1" value="311" oninput="drawWave()">
+    <span class="val-badge" id="vpeak_lbl">311 V</span>
+  </div>
+  <div class="row">
+    <label>Tần số f (Hz):</label>
+    <input type="range" id="freq" min="1" max="1000" step="1" value="50" oninput="drawWave()">
+    <span class="val-badge" id="freq_lbl">50 Hz</span>
+  </div>
+  <div class="row">
+    <button class="muted active" onclick="setPreset('grid')">Điện lưới 220V/50Hz</button>
+    <button class="muted" onclick="setPreset('audio1k')">Âm thanh 1 kHz</button>
+    <button class="muted" onclick="setPreset('low')">Sóng thấp 5 Hz</button>
+  </div>
+  <div class="svg-wrap">
+    <svg class="wave-canvas" id="waveSvg" width="640" height="240" viewBox="0 0 640 240"></svg>
+  </div>
+  <div class="result" id="waveResult"></div>
+</div>
+
+<!-- ========== MODULE 2: Máy tính trở kháng ========== -->
+<h2>2. Trở kháng Z_C và Z_L theo tần số</h2>
+<div class="card">
+  <div class="row">
+    <label>Tụ C (µF):</label>
+    <input type="number" id="cap_uf" step="1" value="10" oninput="updateZCalc()">
+    <label style="min-width:80px">Cuộn L (mH):</label>
+    <input type="number" id="ind_mh" step="1" value="10" oninput="updateZCalc()">
+  </div>
+  <div class="row">
+    <label>Tần số f hiện tại (Hz):</label>
+    <input type="range" id="fslider" min="10" max="200000" step="10" value="1000" oninput="updateZCalc()">
+    <span class="val-badge" id="fslider_lbl">1000 Hz</span>
+  </div>
+  <div class="svg-wrap">
+    <svg class="zcurve-canvas" id="zcurveSvg" width="620" height="260" viewBox="0 0 620 260"></svg>
+  </div>
+  <div class="result" id="zcalcResult"></div>
+
+  <p style="font-size:13px; margin-top:12px; color:#4a5568">
+    Bảng nhanh tại một số tần số phổ biến:
+  </p>
+  <table class="ztable" id="ztable"></table>
+</div>
+
+<!-- ========== MODULE 3: Cộng hưởng RLC ========== -->
+<h2>3. Máy tính Cộng hưởng RLC</h2>
+<div class="card">
+  <p>Nhập L và C để tính tần số cộng hưởng f₀ = 1 / (2π√(LC)). Tại f₀: Z_L = Z_C, tổng trở cực tiểu = R.</p>
+  <div class="rlc-grid">
+    <div class="rlc-input-group">
+      <label>Điện trở R (Ω):</label>
+      <input type="number" id="rlc_R" value="100" step="10" oninput="calcRLC()">
+    </div>
+    <div class="rlc-input-group">
+      <label>Cuộn cảm L:</label>
+      <div class="row" style="margin:0; gap:6px">
+        <input type="number" id="rlc_L" value="100" step="10" oninput="calcRLC()" style="width:90px">
+        <select id="rlc_Lunit" onchange="calcRLC()" style="padding:7px 6px; border:1px solid #cbd5e0; border-radius:4px; font-size:14px">
+          <option value="1e-6">µH</option>
+          <option value="1e-3">mH</option>
+          <option value="1">H</option>
+        </select>
+      </div>
+    </div>
+    <div class="rlc-input-group">
+      <label>Tụ điện C:</label>
+      <div class="row" style="margin:0; gap:6px">
+        <input type="number" id="rlc_C" value="1" step="0.1" oninput="calcRLC()" style="width:90px">
+        <select id="rlc_Cunit" onchange="calcRLC()" style="padding:7px 6px; border:1px solid #cbd5e0; border-radius:4px; font-size:14px">
+          <option value="1e-12">pF</option>
+          <option value="1e-9" selected>nF</option>
+          <option value="1e-6">µF</option>
+        </select>
+      </div>
+    </div>
+    <div class="rlc-input-group">
+      <label>Ví dụ nhanh:</label>
+      <div class="row" style="margin:0; gap:6px; flex-wrap:wrap">
+        <button class="muted" onclick="setRLCPreset('am')">Đài AM ~503 kHz</button>
+        <button class="muted" onclick="setRLCPreset('audio')">Âm thanh ~1.59 kHz</button>
+        <button class="muted" onclick="setRLCPreset('1mh1uf')">1 mH / 1 µF</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" id="rlcResult" style="margin-top:16px"></div>
+
+  <!-- Biểu đồ đáp ứng tần số RLC -->
+  <div class="svg-wrap" style="margin-top:16px">
+    <svg class="zcurve-canvas" id="rlcSvg" width="620" height="260" viewBox="0 0 620 260"></svg>
+  </div>
+  <p style="font-size:12px; color:#64748b; text-align:center; margin-top:4px">
+    Đường cong tổng trở |Z| theo tần số (đơn vị Ω, trục tần số log). Điểm tối thiểu = tần số cộng hưởng f₀.
+  </p>
+</div>
+
+</main>
+
+<script>
+// ============================================================
+// MODULE 1 — Sóng sin
+// ============================================================
+const W = 640, H = 240;
+const PAD = 40;
+const PLOT_W = W - 2*PAD, PLOT_H = H - 2*PAD;
+
+function setPreset(name) {
+  const presets = {
+    grid:   { vpeak: 311, freq: 50 },
+    audio1k:{ vpeak: 10, freq: 1000 },
+    low:    { vpeak: 50, freq: 5 }
+  };
+  const p = presets[name];
+  document.getElementById('vpeak').value = p.vpeak;
+  document.getElementById('freq').value  = p.freq;
+  document.querySelectorAll('#waveModuleButtons button.muted').forEach(b => b.classList.remove('active'));
+  drawWave();
+}
+
+function drawWave() {
+  const vpeak = parseFloat(document.getElementById('vpeak').value);
+  const freq  = parseFloat(document.getElementById('freq').value);
+  const vrms  = vpeak / Math.SQRT2;
+  const T     = 1 / freq;
+
+  document.getElementById('vpeak_lbl').textContent = vpeak + ' V';
+  document.getElementById('freq_lbl').textContent  = freq + ' Hz';
+
+  const svg = document.getElementById('waveSvg');
+  svg.innerHTML = '';
+  const ns = 'http://www.w3.org/2000/svg';
+
+  // Background grid
+  const numCycles = 2.5;
+  // Y: map vpeak -> top, -vpeak -> bottom, 0 -> center
+  const cy = PAD + PLOT_H / 2;
+  const yScale = (PLOT_H / 2 - 8) / vpeak;
+
+  // Grid lines
+  for (let gi = 0; gi <= 4; gi++) {
+    const gx = PAD + gi * PLOT_W / 4;
+    const gl = document.createElementNS(ns, 'line');
+    gl.setAttribute('x1', gx); gl.setAttribute('y1', PAD);
+    gl.setAttribute('x2', gx); gl.setAttribute('y2', PAD + PLOT_H);
+    gl.setAttribute('stroke', '#1e293b'); gl.setAttribute('stroke-width', 1);
+    svg.appendChild(gl);
+    if (gi > 0) {
+      const gt = document.createElementNS(ns, 'text');
+      gt.setAttribute('x', gx); gt.setAttribute('y', PAD + PLOT_H + 16);
+      gt.setAttribute('text-anchor', 'middle'); gt.setAttribute('fill', '#94a3b8'); gt.setAttribute('font-size', '11');
+      gt.textContent = fmtTime((gi / 4) * numCycles * T);
+      svg.appendChild(gt);
+    }
+  }
+  // Horizontal grid (amplitude)
+  for (let hi = -1; hi <= 1; hi++) {
+    const gy = cy - hi * (PLOT_H / 2 - 8);
+    const hgl = document.createElementNS(ns, 'line');
+    hgl.setAttribute('x1', PAD); hgl.setAttribute('y1', gy);
+    hgl.setAttribute('x2', PAD + PLOT_W); hgl.setAttribute('y2', gy);
+    hgl.setAttribute('stroke', hi === 0 ? '#475569' : '#1e293b'); hgl.setAttribute('stroke-width', hi === 0 ? 1.5 : 1);
+    svg.appendChild(hgl);
+    if (hi !== 0) {
+      const hlt = document.createElementNS(ns, 'text');
+      hlt.setAttribute('x', PAD - 6); hlt.setAttribute('y', gy + 4);
+      hlt.setAttribute('text-anchor', 'end'); hlt.setAttribute('fill', '#94a3b8'); hlt.setAttribute('font-size', '11');
+      hlt.textContent = (hi > 0 ? '+' : '') + (hi * vpeak).toFixed(0) + 'V';
+      svg.appendChild(hlt);
+    }
+  }
+
+  // RMS dashed lines
+  const yRms_pos = cy - vrms * yScale;
+  const yRms_neg = cy + vrms * yScale;
+  for (const yRl of [yRms_pos, yRms_neg]) {
+    const rl = document.createElementNS(ns, 'line');
+    rl.setAttribute('x1', PAD); rl.setAttribute('y1', yRl);
+    rl.setAttribute('x2', PAD + PLOT_W); rl.setAttribute('y2', yRl);
+    rl.setAttribute('stroke', '#fbbf24'); rl.setAttribute('stroke-width', 1.5);
+    rl.setAttribute('stroke-dasharray', '6 4');
+    svg.appendChild(rl);
+  }
+  // RMS label
+  const rmsLbl = document.createElementNS(ns, 'text');
+  rmsLbl.setAttribute('x', PAD + PLOT_W - 4); rmsLbl.setAttribute('y', yRms_pos - 4);
+  rmsLbl.setAttribute('text-anchor', 'end'); rmsLbl.setAttribute('fill', '#fbbf24'); rmsLbl.setAttribute('font-size', '11');
+  rmsLbl.textContent = '±V_rms = ±' + vrms.toFixed(1) + 'V';
+  svg.appendChild(rmsLbl);
+
+  // Sine wave path
+  const pts = [];
+  const STEPS = 400;
+  for (let i = 0; i <= STEPS; i++) {
+    const t = (i / STEPS) * numCycles * T;
+    const v = vpeak * Math.sin(2 * Math.PI * freq * t);
+    const px = PAD + (i / STEPS) * PLOT_W;
+    const py = cy - v * yScale;
+    pts.push(i === 0 ? `M${px.toFixed(1)},${py.toFixed(1)}` : `L${px.toFixed(1)},${py.toFixed(1)}`);
+  }
+  const wavePath = document.createElementNS(ns, 'path');
+  wavePath.setAttribute('d', pts.join(' '));
+  wavePath.setAttribute('stroke', '#4ade80'); wavePath.setAttribute('stroke-width', 2.5);
+  wavePath.setAttribute('fill', 'none');
+  svg.appendChild(wavePath);
+
+  // Peak marker
+  const tPeak = T / 4;
+  const xPeak = PAD + (tPeak / (numCycles * T)) * PLOT_W;
+  const yPeak = cy - vpeak * yScale;
+  const pm = document.createElementNS(ns, 'circle');
+  pm.setAttribute('cx', xPeak); pm.setAttribute('cy', yPeak); pm.setAttribute('r', 5);
+  pm.setAttribute('fill', '#f87171'); pm.setAttribute('stroke', 'white'); pm.setAttribute('stroke-width', 1.5);
+  svg.appendChild(pm);
+  const pmLbl = document.createElementNS(ns, 'text');
+  pmLbl.setAttribute('x', xPeak + 8); pmLbl.setAttribute('y', yPeak - 4);
+  pmLbl.setAttribute('fill', '#f87171'); pmLbl.setAttribute('font-size', '12'); pmLbl.setAttribute('font-weight', '700');
+  pmLbl.textContent = 'V_peak = ' + vpeak.toFixed(0) + 'V';
+  svg.appendChild(pmLbl);
+
+  // Time axis label
+  const taxLbl = document.createElementNS(ns, 'text');
+  taxLbl.setAttribute('x', PAD + PLOT_W); taxLbl.setAttribute('y', H - 2);
+  taxLbl.setAttribute('text-anchor', 'end'); taxLbl.setAttribute('fill', '#94a3b8'); taxLbl.setAttribute('font-size', '11');
+  taxLbl.textContent = 'thời gian';
+  svg.appendChild(taxLbl);
+
+  // Result
+  document.getElementById('waveResult').innerHTML =
+    `<div class="row">
+       <span class="stat">V_peak = <strong>${vpeak} V</strong></span>
+       <span class="stat">V_rms = <strong>${vrms.toFixed(2)} V</strong></span>
+       <span class="stat">f = <strong>${fmtFreq(freq)}</strong></span>
+       <span class="stat">T = <strong>${fmtTime(T)}</strong></span>
+       <span class="stat">ω = <strong>${(2*Math.PI*freq).toFixed(1)} rad/s</strong></span>
+     </div>
+     <div style="margin-top:8px">
+       Phương trình: <code>v(t) = ${vpeak} · sin(2π × ${freq} · t)</code>
+       &nbsp;|&nbsp; Đường vàng nét đứt = ±V_rms = ±${vrms.toFixed(1)} V
+     </div>`;
+}
+
+function fmtFreq(f) {
+  if (f >= 1e6) return (f/1e6).toFixed(2) + ' MHz';
+  if (f >= 1e3) return (f/1e3).toFixed(2) + ' kHz';
+  return f.toFixed(0) + ' Hz';
+}
+function fmtTime(t) {
+  if (t < 1e-6) return (t*1e9).toFixed(2) + ' ns';
+  if (t < 1e-3) return (t*1e6).toFixed(2) + ' µs';
+  if (t < 1)    return (t*1e3).toFixed(2) + ' ms';
+  return t.toFixed(3) + ' s';
+}
+function fmtOhm(z) {
+  if (z >= 1e6) return (z/1e6).toFixed(2) + ' MΩ';
+  if (z >= 1e3) return (z/1e3).toFixed(2) + ' kΩ';
+  return z.toFixed(1) + ' Ω';
+}
+
+// ============================================================
+// MODULE 2 — Máy tính Z_C, Z_L
+// ============================================================
+const ZSVG_W = 620, ZSVG_H = 260, ZPADY = 30, ZPADX = 60;
+const CURVE_H = ZSVG_H - ZPADY - 30;
+const CURVE_W = ZSVG_W - ZPADX - 20;
+
+function updateZCalc() {
+  const C = parseFloat(document.getElementById('cap_uf').value) * 1e-6;
+  const L = parseFloat(document.getElementById('ind_mh').value) * 1e-3;
+  const fCur = parseFloat(document.getElementById('fslider').value);
+  document.getElementById('fslider_lbl').textContent = fmtFreq(fCur);
+
+  const ZC = 1 / (2 * Math.PI * fCur * C);
+  const ZL = 2 * Math.PI * fCur * L;
+
+  // Draw Z curves
+  drawZCurves(C, L, fCur);
+
+  // Table
+  const fList = [50, 100, 1000, 5000, 10000, 50000, 100000];
+  let rows = `<thead><tr><th>Tần số f</th><th class="tag-C">Z_C (Ω)</th><th class="tag-L">Z_L (Ω)</th><th>Ghi chú</th></tr></thead><tbody>`;
+  for (const f of fList) {
+    const zc = 1 / (2 * Math.PI * f * C);
+    const zl = 2 * Math.PI * f * L;
+    const note = Math.abs(zc - zl) / Math.max(zc, zl) < 0.01 ? '⭐ Cộng hưởng (Z_C ≈ Z_L)' : (zc > zl ? 'Z_C chủ đạo (tụ cản hơn)' : 'Z_L chủ đạo (cuộn cản hơn)');
+    const isF0 = Math.abs(zc - zl) / Math.max(zc, zl) < 0.05;
+    rows += `<tr${isF0 ? ' class="highlight-row"' : ''}><td>${fmtFreq(f)}</td><td>${fmtOhm(zc)}</td><td>${fmtOhm(zl)}</td><td style="font-size:12px">${note}</td></tr>`;
+  }
+  rows += '</tbody>';
+  document.getElementById('ztable').innerHTML = rows;
+
+  document.getElementById('zcalcResult').innerHTML =
+    `<div class="row">
+       <span class="stat tag-C">Z_C = <strong>${fmtOhm(ZC)}</strong></span>
+       <span class="stat tag-L">Z_L = <strong>${fmtOhm(ZL)}</strong></span>
+       <span class="stat">tại f = <strong>${fmtFreq(fCur)}</strong></span>
+     </div>
+     <div style="margin-top:8px">
+       <code>Z_C = 1/(2π × ${fmtFreq(fCur)} × ${parseFloat(document.getElementById('cap_uf').value)} µF) = ${fmtOhm(ZC)}</code><br>
+       <code>Z_L = 2π × ${fmtFreq(fCur)} × ${parseFloat(document.getElementById('ind_mh').value)} mH = ${fmtOhm(ZL)}</code>
+     </div>`;
+}
+
+function drawZCurves(C, L, fCur) {
+  const svg = document.getElementById('zcurveSvg');
+  svg.innerHTML = '';
+  const ns = 'http://www.w3.org/2000/svg';
+
+  // Log-scale f from 10 Hz to 200 kHz
+  const fMin = 10, fMax = 200000;
+  const logMin = Math.log10(fMin), logMax = Math.log10(fMax);
+
+  // Z range: compute at fMin and fMax to get range
+  // Z_C at fMin (very large), Z_L at fMax (large), use log scale for Z too
+  const allZs = [];
+  for (let i = 0; i <= 200; i++) {
+    const f = Math.pow(10, logMin + i * (logMax - logMin) / 200);
+    allZs.push(1 / (2 * Math.PI * f * C));
+    allZs.push(2 * Math.PI * f * L);
+  }
+  const zMax = Math.min(Math.max(...allZs), 1e6);
+  const zMin = 0.1;
+  const logZMin = Math.log10(zMin), logZMax = Math.log10(zMax);
+
+  function fx(f) {
+    return ZPADX + (Math.log10(f) - logMin) / (logMax - logMin) * CURVE_W;
+  }
+  function fy(z) {
+    const clamped = Math.max(zMin, Math.min(zMax, z));
+    return ZPADY + CURVE_H - (Math.log10(clamped) - logZMin) / (logZMax - logZMin) * CURVE_H;
+  }
+
+  // Grid lines (log freq)
+  const fGrids = [10, 100, 1000, 10000, 100000];
+  for (const fg of fGrids) {
+    const gx = fx(fg);
+    const gl = document.createElementNS(ns, 'line');
+    gl.setAttribute('x1', gx); gl.setAttribute('y1', ZPADY);
+    gl.setAttribute('x2', gx); gl.setAttribute('y2', ZPADY + CURVE_H);
+    gl.setAttribute('stroke', '#e2e8f0'); gl.setAttribute('stroke-width', 1);
+    svg.appendChild(gl);
+    const gt = document.createElementNS(ns, 'text');
+    gt.setAttribute('x', gx); gt.setAttribute('y', ZPADY + CURVE_H + 16);
+    gt.setAttribute('text-anchor', 'middle'); gt.setAttribute('fill', '#94a3b8'); gt.setAttribute('font-size', '10');
+    gt.textContent = fmtFreq(fg);
+    svg.appendChild(gt);
+  }
+
+  // Z grid lines
+  const zGrids = [1, 10, 100, 1000, 10000, 100000];
+  for (const zg of zGrids) {
+    if (zg < zMin || zg > zMax * 10) continue;
+    const gy = fy(zg);
+    const zgl = document.createElementNS(ns, 'line');
+    zgl.setAttribute('x1', ZPADX); zgl.setAttribute('y1', gy);
+    zgl.setAttribute('x2', ZPADX + CURVE_W); zgl.setAttribute('y2', gy);
+    zgl.setAttribute('stroke', '#e2e8f0'); zgl.setAttribute('stroke-width', 1);
+    svg.appendChild(zgl);
+    const zgt = document.createElementNS(ns, 'text');
+    zgt.setAttribute('x', ZPADX - 4); zgt.setAttribute('y', gy + 4);
+    zgt.setAttribute('text-anchor', 'end'); zgt.setAttribute('fill', '#94a3b8'); zgt.setAttribute('font-size', '10');
+    zgt.textContent = fmtOhm(zg);
+    svg.appendChild(zgt);
+  }
+
+  // Axes
+  const axH = document.createElementNS(ns, 'line');
+  axH.setAttribute('x1', ZPADX); axH.setAttribute('y1', ZPADY + CURVE_H);
+  axH.setAttribute('x2', ZPADX + CURVE_W); axH.setAttribute('y2', ZPADY + CURVE_H);
+  axH.setAttribute('stroke', '#475569'); axH.setAttribute('stroke-width', 1.5);
+  svg.appendChild(axH);
+  const axV = document.createElementNS(ns, 'line');
+  axV.setAttribute('x1', ZPADX); axV.setAttribute('y1', ZPADY);
+  axV.setAttribute('x2', ZPADX); axV.setAttribute('y2', ZPADY + CURVE_H);
+  axV.setAttribute('stroke', '#475569'); axV.setAttribute('stroke-width', 1.5);
+  svg.appendChild(axV);
+
+  // Draw Z_C (red)
+  const ptsC = [], ptsL = [];
+  const STEPS2 = 300;
+  for (let i = 0; i <= STEPS2; i++) {
+    const f = Math.pow(10, logMin + i * (logMax - logMin) / STEPS2);
+    const zc = 1 / (2 * Math.PI * f * C);
+    const zl = 2 * Math.PI * f * L;
+    ptsC.push((i === 0 ? 'M' : 'L') + fx(f).toFixed(1) + ',' + fy(zc).toFixed(1));
+    ptsL.push((i === 0 ? 'M' : 'L') + fx(f).toFixed(1) + ',' + fy(zl).toFixed(1));
+  }
+  const pathC = document.createElementNS(ns, 'path');
+  pathC.setAttribute('d', ptsC.join(' ')); pathC.setAttribute('stroke', '#dc2626');
+  pathC.setAttribute('stroke-width', 2.5); pathC.setAttribute('fill', 'none');
+  svg.appendChild(pathC);
+  const pathL = document.createElementNS(ns, 'path');
+  pathL.setAttribute('d', ptsL.join(' ')); pathL.setAttribute('stroke', '#1d4ed8');
+  pathL.setAttribute('stroke-width', 2.5); pathL.setAttribute('fill', 'none');
+  svg.appendChild(pathL);
+
+  // Current frequency indicator
+  const xcur = fx(fCur);
+  const vcl = document.createElementNS(ns, 'line');
+  vcl.setAttribute('x1', xcur); vcl.setAttribute('y1', ZPADY);
+  vcl.setAttribute('x2', xcur); vcl.setAttribute('y2', ZPADY + CURVE_H);
+  vcl.setAttribute('stroke', '#4d7c0f'); vcl.setAttribute('stroke-width', 1.5);
+  vcl.setAttribute('stroke-dasharray', '5 3');
+  svg.appendChild(vcl);
+
+  // Dots at current f
+  const dotZC = 1 / (2 * Math.PI * fCur * C);
+  const dotZL = 2 * Math.PI * fCur * L;
+  for (const [z, col] of [[dotZC, '#dc2626'], [dotZL, '#1d4ed8']]) {
+    const d = document.createElementNS(ns, 'circle');
+    d.setAttribute('cx', xcur); d.setAttribute('cy', fy(z)); d.setAttribute('r', 5);
+    d.setAttribute('fill', col); d.setAttribute('stroke', 'white'); d.setAttribute('stroke-width', 1.5);
+    svg.appendChild(d);
+  }
+
+  // Legend
+  const legData = [['Z_C (tụ)', '#dc2626', ZPADX + 10], ['Z_L (cuộn)', '#1d4ed8', ZPADX + 90]];
+  for (const [lbl, col, lx] of legData) {
+    const lr = document.createElementNS(ns, 'rect');
+    lr.setAttribute('x', lx); lr.setAttribute('y', ZPADY + 4); lr.setAttribute('width', 24); lr.setAttribute('height', 4);
+    lr.setAttribute('fill', col); lr.setAttribute('rx', 2);
+    svg.appendChild(lr);
+    const lt = document.createElementNS(ns, 'text');
+    lt.setAttribute('x', lx + 28); lt.setAttribute('y', ZPADY + 10);
+    lt.setAttribute('fill', col); lt.setAttribute('font-size', '12'); lt.setAttribute('font-weight', '700');
+    lt.textContent = lbl;
+    svg.appendChild(lt);
+  }
+}
+
+// ============================================================
+// MODULE 3 — RLC Cộng hưởng
+// ============================================================
+function setRLCPreset(name) {
+  const presets = {
+    am:     { R: 10, L: 100, Lunit: '1e-6', C: 1, Cunit: '1e-9' },
+    audio:  { R: 100, L: 10, Lunit: '1e-3', C: 1, Cunit: '1e-6' },
+    '1mh1uf': { R: 50, L: 1, Lunit: '1e-3', C: 1, Cunit: '1e-6' }
+  };
+  const p = presets[name];
+  document.getElementById('rlc_R').value = p.R;
+  document.getElementById('rlc_L').value = p.L;
+  document.getElementById('rlc_Lunit').value = p.Lunit;
+  document.getElementById('rlc_C').value = p.C;
+  document.getElementById('rlc_Cunit').value = p.Cunit;
+  calcRLC();
+}
+
+function calcRLC() {
+  const R = parseFloat(document.getElementById('rlc_R').value) || 0;
+  const Lval = parseFloat(document.getElementById('rlc_L').value) || 0;
+  const Lunit = parseFloat(document.getElementById('rlc_Lunit').value);
+  const Cval = parseFloat(document.getElementById('rlc_C').value) || 0;
+  const Cunit = parseFloat(document.getElementById('rlc_Cunit').value);
+  const L = Lval * Lunit;
+  const C = Cval * Cunit;
+
+  if (L <= 0 || C <= 0) {
+    document.getElementById('rlcResult').innerHTML = '<span style="color:#dc2626">Nhập L và C hợp lệ.</span>';
+    return;
+  }
+
+  const LC = L * C;
+  const f0 = 1 / (2 * Math.PI * Math.sqrt(LC));
+  const ZL_f0 = 2 * Math.PI * f0 * L;
+  const ZC_f0 = 1 / (2 * Math.PI * f0 * C);
+  const Q = (R > 0) ? ZL_f0 / R : Infinity;
+  const BW = (R > 0 && Q > 0) ? f0 / Q : Infinity;
+
+  // Band identification
+  let bandNote = '';
+  if (f0 < 30) bandNote = 'ELF/VLF (hạ âm)';
+  else if (f0 < 300) bandNote = 'âm thanh thấp';
+  else if (f0 < 20000) bandNote = 'dải âm thanh';
+  else if (f0 < 530000) bandNote = 'dưới dải AM';
+  else if (f0 <= 1600000) bandNote = 'dải AM (530 kHz – 1.6 MHz)';
+  else if (f0 < 87e6) bandNote = 'dải sóng ngắn';
+  else if (f0 <= 108e6) bandNote = 'dải FM (87–108 MHz)';
+  else bandNote = 'VHF/UHF (truyền hình, LTE...)';
+
+  document.getElementById('rlcResult').innerHTML = `
+    <div class="row">
+      <span class="stat">f₀ = <strong>${fmtFreq(f0)}</strong></span>
+      <span class="stat">T₀ = <strong>${fmtTime(1/f0)}</strong></span>
+      <span class="stat">Z_L(f₀) = Z_C(f₀) = <strong>${fmtOhm(ZL_f0)}</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat">|Z_tổng|(f₀) = <strong>${fmtOhm(R)} = R</strong> (cực tiểu)</span>
+      <span class="stat">Q = <strong>${Q === Infinity ? '∞' : Q.toFixed(2)}</strong></span>
+      <span class="stat">Dải thông (BW) = <strong>${BW === Infinity ? '0' : fmtFreq(BW)}</strong></span>
+    </div>
+    <div style="margin-top:10px">
+      Dải tần: <strong>${bandNote}</strong>.
+      ${Q > 10 ? ' <span style="color:#4d7c0f">Q cao — cộng hưởng sắc nét, chọn tần số tốt.</span>' :
+        Q > 2 ? ' Cộng hưởng vừa phải.' : ' <span style="color:#92400e">Q thấp — đỉnh cộng hưởng rộng và thấp.</span>'}
+    </div>
+    <div style="margin-top:8px; font-family:monospace; font-size:12px; color:#4a5568">
+      Tính: LC = ${(L*1e9).toFixed(3)} nH·F &nbsp;|&nbsp;
+      √(LC) = ${(Math.sqrt(LC)*1e7).toFixed(3)} × 10⁻⁷ s &nbsp;|&nbsp;
+      f₀ = 1 / (2π × √(LC))
+    </div>`;
+
+  drawRLCCurve(R, L, C, f0);
+}
+
+function drawRLCCurve(R, L, C, f0) {
+  const svg = document.getElementById('rlcSvg');
+  svg.innerHTML = '';
+  const ns = 'http://www.w3.org/2000/svg';
+
+  // Frequency range: 3 decades centered around f0
+  const fCenter = f0;
+  const fMin2 = fCenter / 100;
+  const fMax2 = fCenter * 100;
+  const logMin2 = Math.log10(fMin2), logMax2 = Math.log10(fMax2);
+
+  function fx2(f) {
+    return ZPADX + (Math.log10(f) - logMin2) / (logMax2 - logMin2) * CURVE_W;
+  }
+
+  // Compute Z range
+  const zVals = [];
+  for (let i = 0; i <= 200; i++) {
+    const f = Math.pow(10, logMin2 + i * (logMax2 - logMin2) / 200);
+    const ZL = 2 * Math.PI * f * L;
+    const ZC_v = 1 / (2 * Math.PI * f * C);
+    const Ztot = Math.sqrt(R * R + (ZL - ZC_v) ** 2);
+    zVals.push(Ztot);
+  }
+  const zMaxV = Math.max(...zVals);
+  const zMinV = R > 0 ? R : 0.01;
+  const logZMin2 = Math.log10(zMinV * 0.5);
+  const logZMax2 = Math.log10(zMaxV * 2);
+
+  function fy2(z) {
+    const cz = Math.max(zMinV * 0.5, Math.min(zMaxV * 2, z));
+    return ZPADY + CURVE_H - (Math.log10(cz) - logZMin2) / (logZMax2 - logZMin2) * CURVE_H;
+  }
+
+  // Grid
+  for (let fi = 0; fi <= 4; fi++) {
+    const fv = Math.pow(10, logMin2 + fi * (logMax2 - logMin2) / 4);
+    const gx = fx2(fv);
+    const gl = document.createElementNS(ns, 'line');
+    gl.setAttribute('x1', gx); gl.setAttribute('y1', ZPADY);
+    gl.setAttribute('x2', gx); gl.setAttribute('y2', ZPADY + CURVE_H);
+    gl.setAttribute('stroke', '#e2e8f0'); gl.setAttribute('stroke-width', 1);
+    svg.appendChild(gl);
+    const gt = document.createElementNS(ns, 'text');
+    gt.setAttribute('x', gx); gt.setAttribute('y', ZPADY + CURVE_H + 16);
+    gt.setAttribute('text-anchor', 'middle'); gt.setAttribute('fill', '#94a3b8'); gt.setAttribute('font-size', '10');
+    gt.textContent = fmtFreq(fv);
+    svg.appendChild(gt);
+  }
+
+  // Z curve
+  const pts = [];
+  const STEPS3 = 400;
+  for (let i = 0; i <= STEPS3; i++) {
+    const f = Math.pow(10, logMin2 + i * (logMax2 - logMin2) / STEPS3);
+    const ZL = 2 * Math.PI * f * L;
+    const ZC_v = 1 / (2 * Math.PI * f * C);
+    const Ztot = Math.sqrt(R * R + (ZL - ZC_v) ** 2);
+    pts.push((i === 0 ? 'M' : 'L') + fx2(f).toFixed(1) + ',' + fy2(Ztot).toFixed(1));
+  }
+  const zPath = document.createElementNS(ns, 'path');
+  zPath.setAttribute('d', pts.join(' ')); zPath.setAttribute('stroke', '#4d7c0f');
+  zPath.setAttribute('stroke-width', 2.5); zPath.setAttribute('fill', 'none');
+  svg.appendChild(zPath);
+
+  // f0 marker
+  const xf0 = fx2(f0);
+  const yf0 = fy2(R > 0 ? R : zMinV);
+  const f0line = document.createElementNS(ns, 'line');
+  f0line.setAttribute('x1', xf0); f0line.setAttribute('y1', ZPADY);
+  f0line.setAttribute('x2', xf0); f0line.setAttribute('y2', ZPADY + CURVE_H);
+  f0line.setAttribute('stroke', '#f59e0b'); f0line.setAttribute('stroke-width', 1.5);
+  f0line.setAttribute('stroke-dasharray', '5 3');
+  svg.appendChild(f0line);
+  const f0dot = document.createElementNS(ns, 'circle');
+  f0dot.setAttribute('cx', xf0); f0dot.setAttribute('cy', yf0); f0dot.setAttribute('r', 6);
+  f0dot.setAttribute('fill', '#f59e0b'); f0dot.setAttribute('stroke', 'white'); f0dot.setAttribute('stroke-width', 2);
+  svg.appendChild(f0dot);
+  const f0lbl = document.createElementNS(ns, 'text');
+  f0lbl.setAttribute('x', xf0 + 8); f0lbl.setAttribute('y', yf0 - 8);
+  f0lbl.setAttribute('fill', '#f59e0b'); f0lbl.setAttribute('font-size', '12'); f0lbl.setAttribute('font-weight', '700');
+  f0lbl.textContent = 'f₀ = ' + fmtFreq(f0);
+  svg.appendChild(f0lbl);
+
+  // R line (minimum Z)
+  if (R > 0) {
+    const yR = fy2(R);
+    const rLine = document.createElementNS(ns, 'line');
+    rLine.setAttribute('x1', ZPADX); rLine.setAttribute('y1', yR);
+    rLine.setAttribute('x2', ZPADX + CURVE_W); rLine.setAttribute('y2', yR);
+    rLine.setAttribute('stroke', '#92400e'); rLine.setAttribute('stroke-width', 1);
+    rLine.setAttribute('stroke-dasharray', '4 3');
+    svg.appendChild(rLine);
+    const rLbl = document.createElementNS(ns, 'text');
+    rLbl.setAttribute('x', ZPADX + 4); rLbl.setAttribute('y', yR - 4);
+    rLbl.setAttribute('fill', '#92400e'); rLbl.setAttribute('font-size', '11');
+    rLbl.textContent = 'Z_min = R = ' + fmtOhm(R);
+    svg.appendChild(rLbl);
+  }
+
+  // Axes
+  const axH2 = document.createElementNS(ns, 'line');
+  axH2.setAttribute('x1', ZPADX); axH2.setAttribute('y1', ZPADY + CURVE_H);
+  axH2.setAttribute('x2', ZPADX + CURVE_W); axH2.setAttribute('y2', ZPADY + CURVE_H);
+  axH2.setAttribute('stroke', '#475569'); axH2.setAttribute('stroke-width', 1.5);
+  svg.appendChild(axH2);
+  const axV2 = document.createElementNS(ns, 'line');
+  axV2.setAttribute('x1', ZPADX); axV2.setAttribute('y1', ZPADY);
+  axV2.setAttribute('x2', ZPADX); axV2.setAttribute('y2', ZPADY + CURVE_H);
+  axV2.setAttribute('stroke', '#475569'); axV2.setAttribute('stroke-width', 1.5);
+  svg.appendChild(axV2);
+
+  // Y axis label
+  const yaxLbl = document.createElementNS(ns, 'text');
+  yaxLbl.setAttribute('x', 10); yaxLbl.setAttribute('y', ZPADY + CURVE_H / 2);
+  yaxLbl.setAttribute('text-anchor', 'middle'); yaxLbl.setAttribute('fill', '#4a5568'); yaxLbl.setAttribute('font-size', '11');
+  yaxLbl.setAttribute('transform', `rotate(-90, 10, ${ZPADY + CURVE_H / 2})`);
+  yaxLbl.textContent = '|Z| (Ω)';
+  svg.appendChild(yaxLbl);
+}
+
+// ============================================================
+// Init
+// ============================================================
+drawWave();
+updateZCalc();
+calcRLC();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

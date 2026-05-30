@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Tụ điện &amp; Mạch RC</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #14532d; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #86efac; }
+
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  .row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 10px 0;
+  }
+
+  label { font-weight: 600; min-width: 60px; }
+
+  input[type="range"] {
+    width: 140px;
+    accent-color: #4d7c0f;
+  }
+
+  .val-display {
+    font-family: monospace;
+    font-size: 14px;
+    background: #f0fdf4;
+    padding: 3px 8px;
+    border-radius: 4px;
+    min-width: 72px;
+    display: inline-block;
+    text-align: right;
+    border: 1px solid #bbf7d0;
+  }
+
+  button {
+    background: #4d7c0f;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.15s;
+  }
+  button:hover { background: #3f6212; }
+  button.secondary {
+    background: #64748b;
+  }
+  button.secondary:hover { background: #475569; }
+  button.danger {
+    background: #dc2626;
+  }
+  button.danger:hover { background: #b91c1c; }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  .stat-box {
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-family: monospace;
+    font-size: 13px;
+  }
+  .stat-box .lbl { color: #166534; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .stat-box .num { font-size: 17px; font-weight: 700; color: #14532d; margin-top: 2px; }
+
+  /* ── Curve Canvas ── */
+  .curve-wrap {
+    position: relative;
+    margin: 12px 0;
+  }
+  canvas.curve {
+    display: block;
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto;
+    border-radius: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+  }
+
+  /* ── Circuit diagram ── */
+  svg.circuit {
+    display: block;
+    margin: 12px auto;
+    max-width: 480px;
+    width: 100%;
+  }
+
+  /* ── Progress bar ── */
+  .pbar-wrap {
+    background: #e2e8f0;
+    border-radius: 999px;
+    height: 22px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .pbar-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    min-width: 32px;
+  }
+
+  /* ── Table ── */
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 12px 0; }
+  th { background: #4d7c0f; color: white; padding: 8px 10px; text-align: left; }
+  td { padding: 7px 10px; border-bottom: 1px solid #e2e8f0; }
+  tr:nth-child(even) td { background: #f0fdf4; }
+  td.highlight { font-weight: 700; color: #4d7c0f; }
+
+  /* ── Mode tabs ── */
+  .tab-bar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .tab-btn {
+    background: #e2e8f0;
+    color: #475569;
+    border: none;
+    padding: 7px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.15s;
+  }
+  .tab-btn.active {
+    background: #4d7c0f;
+    color: white;
+  }
+
+  /* ── Annotation on curve ── */
+  .curve-note {
+    font-size: 12px;
+    color: #475569;
+    margin-top: 4px;
+    text-align: center;
+  }
+
+  /* ── Formula box ── */
+  .formula-box {
+    background: #f0fdf4;
+    border-left: 4px solid #4d7c0f;
+    padding: 10px 16px;
+    border-radius: 0 6px 6px 0;
+    font-family: monospace;
+    font-size: 15px;
+    margin: 12px 0;
+    overflow-x: auto;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 480px) {
+    input[type="range"] { width: 110px; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    table { font-size: 12px; }
+    th, td { padding: 5px 7px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Fundamentals</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-resistors-divider/visualization.html">← L3: Điện trở &amp; phân áp</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Tụ điện &amp; mạch RC</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-inductor-rl/visualization.html">L5: Cuộn cảm &amp; mạch RL →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Tụ điện &amp; Mạch RC</h1>
+<p>Mô phỏng nạp/xả tụ điện theo thời gian. Thay đổi R, C, V<sub>s</sub> để xem đường cong V<sub>C</sub>(t) cập nhật trực tiếp.</p>
+
+<!-- ══════════════════════════════════════════
+     MODULE 1: RC Circuit — Charge / Discharge
+     ════════════════════════════════════════ -->
+<h2>1. Mô phỏng mạch RC — Nạp &amp; Xả</h2>
+
+<div class="card">
+
+  <!-- Mode selector -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tabCharge" onclick="setMode('charge')">Nạp tụ</button>
+    <button class="tab-btn" id="tabDischarge" onclick="setMode('discharge')">Xả tụ</button>
+  </div>
+
+  <!-- Controls -->
+  <div class="row">
+    <label>R</label>
+    <input type="range" id="slR" min="1" max="100" value="10" step="1" oninput="syncSliders()">
+    <span class="val-display" id="dspR">10 kΩ</span>
+  </div>
+  <div class="row">
+    <label>C</label>
+    <input type="range" id="slC" min="1" max="1000" value="100" step="1" oninput="syncSliders()">
+    <span class="val-display" id="dspC">100 µF</span>
+  </div>
+  <div class="row" id="rowVs">
+    <label>V<sub>s</sub></label>
+    <input type="range" id="slVs" min="1" max="24" value="9" step="0.5" oninput="syncSliders()">
+    <span class="val-display" id="dspVs">9 V</span>
+  </div>
+  <div class="row" id="rowV0" style="display:none">
+    <label>V<sub>0</sub></label>
+    <input type="range" id="slV0" min="1" max="24" value="9" step="0.5" oninput="syncSliders()">
+    <span class="val-display" id="dspV0">9 V</span>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-grid" id="statsGrid"></div>
+
+  <!-- Animate controls -->
+  <div class="row">
+    <button id="btnAnim" onclick="toggleAnim()">▶ Chạy mô phỏng</button>
+    <button class="secondary" onclick="resetAnim()">↺ Reset</button>
+  </div>
+
+  <!-- Progress bar -->
+  <div style="font-size:13px; color:#475569; margin-top:10px">Mức nạp / còn lại:</div>
+  <div class="pbar-wrap">
+    <div class="pbar-fill" id="pbar" style="width:0%; background:#4d7c0f;">0%</div>
+  </div>
+
+  <!-- Curve canvas -->
+  <div class="curve-wrap">
+    <canvas class="curve" id="cvCurve" width="680" height="260"></canvas>
+  </div>
+  <div class="curve-note" id="curveNote"></div>
+
+  <!-- Formula display -->
+  <div class="formula-box" id="formulaBox"></div>
+</div>
+
+<!-- ══════════════════════════
+     MODULE 2: Reference Table
+     ══════════════════════════ -->
+<h2>2. Bảng giá trị chuẩn τ</h2>
+
+<div class="card">
+  <p>Giá trị V<sub>C</sub> tại các mốc thời gian quan trọng — cập nhật theo R, C, V<sub>s</sub>/V<sub>0</sub> đang chọn ở trên.</p>
+  <table id="tblTau">
+    <thead>
+      <tr>
+        <th>Thời gian</th>
+        <th>Hệ số</th>
+        <th>V<sub>C</sub> (V)</th>
+        <th>% (nạp)</th>
+        <th>% (xả)</th>
+      </tr>
+    </thead>
+    <tbody id="tblTauBody"></tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODULE 3: Q–C–V Calculator
+     ════════════════════════════════════════ -->
+<h2>3. Máy tính Q = C·V và E = ½·C·V²</h2>
+
+<div class="card">
+  <p>Tính điện tích và năng lượng tích lũy trong tụ.</p>
+  <div class="row">
+    <label>C (µF)</label>
+    <input type="range" id="qcC" min="1" max="10000" value="100" step="1" oninput="calcQCV()">
+    <span class="val-display" id="qcDspC">100 µF</span>
+  </div>
+  <div class="row">
+    <label>V (V)</label>
+    <input type="range" id="qcV" min="0.5" max="50" value="12" step="0.5" oninput="calcQCV()">
+    <span class="val-display" id="qcDspV">12 V</span>
+  </div>
+
+  <div class="stat-grid" id="qcStats"></div>
+
+  <!-- SVG diagram: capacitor symbol + labels -->
+  <svg class="circuit" viewBox="0 0 480 120">
+    <!-- Wire left -->
+    <line x1="40" y1="60" x2="190" y2="60" stroke="#1a202c" stroke-width="2"/>
+    <!-- Plate left -->
+    <line x1="190" y1="28" x2="190" y2="92" stroke="#dc2626" stroke-width="5"/>
+    <!-- Plate right -->
+    <line x1="210" y1="28" x2="210" y2="92" stroke="#1d4ed8" stroke-width="5"/>
+    <!-- Wire right -->
+    <line x1="210" y1="60" x2="360" y2="60" stroke="#1a202c" stroke-width="2"/>
+    <!-- V source symbol -->
+    <circle cx="60" cy="60" r="18" fill="none" stroke="#4d7c0f" stroke-width="2"/>
+    <text x="60" y="55" text-anchor="middle" font-size="12" fill="#4d7c0f">+</text>
+    <text x="60" y="70" text-anchor="middle" font-size="12" fill="#4d7c0f">−</text>
+    <text x="60" y="94" text-anchor="middle" font-size="11" fill="#4d7c0f">V</text>
+    <!-- Labels on plates -->
+    <text x="183" y="22" text-anchor="middle" font-size="14" fill="#dc2626" font-weight="700">+Q</text>
+    <text x="217" y="22" text-anchor="middle" font-size="14" fill="#1d4ed8" font-weight="700">−Q</text>
+    <!-- C label -->
+    <text x="200" y="108" text-anchor="middle" font-size="13" fill="#4d7c0f" font-weight="700">C</text>
+    <!-- Electric field arrows between plates -->
+    <line x1="196" y1="50" x2="204" y2="50" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrowE)"/>
+    <line x1="196" y1="60" x2="204" y2="60" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrowE)"/>
+    <line x1="196" y1="70" x2="204" y2="70" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrowE)"/>
+    <!-- E field label -->
+    <text x="200" y="38" text-anchor="middle" font-size="10" fill="#92400e">E⃗</text>
+    <!-- Arrow marker -->
+    <defs>
+      <marker id="arrowE" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto">
+        <polygon points="0 0, 5 2.5, 0 5" fill="#f59e0b"/>
+      </marker>
+    </defs>
+    <!-- Dynamic charge dots (drawn by JS) -->
+    <g id="chargeDots"></g>
+    <!-- Q label -->
+    <text id="qLabel" x="200" y="118" text-anchor="middle" font-size="12" fill="#475569"></text>
+  </svg>
+</div>
+
+<!-- ══════════════════════════════════
+     MODULE 4: Time Solver (use ln)
+     ══════════════════════════════ -->
+<h2>4. Tính thời gian bằng logarithm</h2>
+
+<div class="card">
+  <p>Cho mạch RC, tính thời gian t để V<sub>C</sub> đạt một giá trị mong muốn.</p>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" id="solTabCharge" onclick="setSolMode('charge')">Nạp</button>
+    <button class="tab-btn" id="solTabDischarge" onclick="setSolMode('discharge')">Xả</button>
+  </div>
+
+  <div class="row">
+    <label>R (kΩ)</label>
+    <input type="range" id="solR" min="1" max="100" value="10" step="1" oninput="calcSolver()">
+    <span class="val-display" id="solDspR">10 kΩ</span>
+  </div>
+  <div class="row">
+    <label>C (µF)</label>
+    <input type="range" id="solC" min="1" max="1000" value="100" step="1" oninput="calcSolver()">
+    <span class="val-display" id="solDspC">100 µF</span>
+  </div>
+  <div class="row" id="solRowVs">
+    <label>V<sub>s</sub> (V)</label>
+    <input type="range" id="solVs" min="1" max="24" value="9" step="0.5" oninput="calcSolver()">
+    <span class="val-display" id="solDspVs">9 V</span>
+  </div>
+  <div class="row" id="solRowV0" style="display:none">
+    <label>V<sub>0</sub> (V)</label>
+    <input type="range" id="solV0" min="1" max="24" value="9" step="0.5" oninput="calcSolver()">
+    <span class="val-display" id="solDspV0">9 V</span>
+  </div>
+  <div class="row">
+    <label>V<sub>target</sub> (V)</label>
+    <input type="range" id="solVt" min="0.1" max="23.9" value="6" step="0.1" oninput="calcSolver()">
+    <span class="val-display" id="solDspVt">6.0 V</span>
+  </div>
+
+  <div class="formula-box" id="solResult"></div>
+</div>
+
+</main>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  GLOBALS
+// ══════════════════════════════════════════════════════
+let mode = 'charge';      // 'charge' | 'discharge'
+let animRunning = false;
+let animTimer = null;
+let animT = 0;
+let animTMax = 0;
+
+// ── Helper: format nice SI ──
+function fmtSI(val, unit, decimals = 2) {
+  if (Math.abs(val) >= 1e-3 && Math.abs(val) < 1) return (val * 1e3).toFixed(decimals) + ' m' + unit;
+  if (Math.abs(val) >= 1e-6 && Math.abs(val) < 1e-3) return (val * 1e6).toFixed(decimals) + ' µ' + unit;
+  if (Math.abs(val) >= 1e-9 && Math.abs(val) < 1e-6) return (val * 1e9).toFixed(decimals) + ' n' + unit;
+  return val.toFixed(decimals) + ' ' + unit;
+}
+
+// ══════════════════════════════════════════════════════
+//  MODULE 1 — RC Simulation
+// ══════════════════════════════════════════════════════
+function setMode(m) {
+  mode = m;
+  document.getElementById('tabCharge').classList.toggle('active', m === 'charge');
+  document.getElementById('tabDischarge').classList.toggle('active', m === 'discharge');
+  document.getElementById('rowVs').style.display = (m === 'charge') ? '' : 'none';
+  document.getElementById('rowV0').style.display = (m === 'discharge') ? '' : 'none';
+  resetAnim();
+}
+
+function getParams() {
+  const R_kOhm = parseFloat(document.getElementById('slR').value);
+  const C_uF   = parseFloat(document.getElementById('slC').value);
+  const Vs     = parseFloat(document.getElementById('slVs').value);
+  const V0     = parseFloat(document.getElementById('slV0').value);
+  const R = R_kOhm * 1e3;
+  const C = C_uF * 1e-6;
+  const tau = R * C;
+  return { R, C, Vs, V0, tau, R_kOhm, C_uF };
+}
+
+function syncSliders() {
+  const p = getParams();
+  document.getElementById('dspR').textContent = p.R_kOhm + ' kΩ';
+  document.getElementById('dspC').textContent = p.C_uF + ' µF';
+  document.getElementById('dspVs').textContent = parseFloat(document.getElementById('slVs').value).toFixed(1) + ' V';
+  document.getElementById('dspV0').textContent = parseFloat(document.getElementById('slV0').value).toFixed(1) + ' V';
+  updateStatsAndCurve();
+  updateTauTable();
+}
+
+function vAt(t, p) {
+  if (mode === 'charge') {
+    return p.Vs * (1 - Math.exp(-t / p.tau));
+  } else {
+    return p.V0 * Math.exp(-t / p.tau);
+  }
+}
+
+function updateStatsAndCurve() {
+  const p = getParams();
+  const Vfull = (mode === 'charge') ? p.Vs : p.V0;
+  const Vcur = vAt(animT, p);
+  const pct = Vcur / Vfull;
+  const iCur = (mode === 'charge')
+    ? (p.Vs - Vcur) / p.R
+    : Vcur / p.R;
+
+  // Stats
+  const sg = document.getElementById('statsGrid');
+  sg.innerHTML = `
+    <div class="stat-box"><div class="lbl">τ = R·C</div><div class="num">${fmtSI(p.tau, 's')}</div></div>
+    <div class="stat-box"><div class="lbl">5τ (nạp xong)</div><div class="num">${fmtSI(5 * p.tau, 's')}</div></div>
+    <div class="stat-box"><div class="lbl">V<sub>C</sub> hiện tại</div><div class="num">${Vcur.toFixed(3)} V</div></div>
+    <div class="stat-box"><div class="lbl">Dòng I hiện tại</div><div class="num">${fmtSI(iCur, 'A')}</div></div>
+    <div class="stat-box"><div class="lbl">t hiện tại</div><div class="num">${fmtSI(animT, 's')}</div></div>
+    <div class="stat-box"><div class="lbl">t / τ</div><div class="num">${(animT / p.tau).toFixed(2)}</div></div>
+  `;
+
+  // Progress bar
+  const pctDisp = Math.min(Math.max(pct * 100, 0), 100);
+  const pb = document.getElementById('pbar');
+  pb.style.width = pctDisp.toFixed(1) + '%';
+  pb.style.background = pctDisp > 90 ? '#15803d' : (pctDisp > 60 ? '#4d7c0f' : '#86efac');
+  pb.style.color = pctDisp > 30 ? 'white' : '#14532d';
+  pb.textContent = pctDisp.toFixed(1) + '%';
+
+  // Formula
+  const fb = document.getElementById('formulaBox');
+  if (mode === 'charge') {
+    fb.textContent = `V_C(t) = ${Vfull.toFixed(1)} × (1 − e^(−t / ${fmtSI(p.tau,'s',3)}))    tại t=${fmtSI(animT,'s',3)}: V_C = ${Vcur.toFixed(3)} V`;
+  } else {
+    fb.textContent = `V_C(t) = ${Vfull.toFixed(1)} × e^(−t / ${fmtSI(p.tau,'s',3)})    tại t=${fmtSI(animT,'s',3)}: V_C = ${Vcur.toFixed(3)} V`;
+  }
+
+  // Note
+  document.getElementById('curveNote').textContent =
+    mode === 'charge'
+      ? `Đường cong nạp: tiếp cận ${Vfull.toFixed(1)} V, đạt 63% tại t = τ = ${fmtSI(p.tau,'s')}`
+      : `Đường cong xả: giảm từ ${Vfull.toFixed(1)} V, còn 37% tại t = τ = ${fmtSI(p.tau,'s')}`;
+
+  drawCurve(p, animT);
+}
+
+function drawCurve(p, tCur) {
+  const canvas = document.getElementById('cvCurve');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const pad = { l: 54, r: 24, t: 20, b: 38 };
+  const plotW = W - pad.l - pad.r;
+  const plotH = H - pad.t - pad.b;
+
+  const Vfull = (mode === 'charge') ? p.Vs : p.V0;
+  const tMax = 5.5 * p.tau;
+
+  function tx(t) { return pad.l + (t / tMax) * plotW; }
+  function ty(v) { return pad.t + plotH - (v / (Vfull * 1.08)) * plotH; }
+
+  // Background
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = 'white';
+  ctx.fillRect(pad.l, pad.t, plotW, plotH);
+
+  // Grid: tau lines
+  const tauMarks = [1, 2, 3, 4, 5];
+  tauMarks.forEach(k => {
+    const x = tx(k * p.tau);
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + plotH); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(k + 'τ', x, pad.t + plotH + 14);
+  });
+
+  // Horizontal dashed reference lines: 63%, 95%
+  const refLines = mode === 'charge'
+    ? [{ pct: 0.632, label: '63.2%' }, { pct: 0.950, label: '95%' }, { pct: 0.993, label: '99.3%' }]
+    : [{ pct: 0.368, label: '36.8%' }, { pct: 0.050, label: '5%' }, { pct: 0.007, label: '0.7%' }];
+
+  refLines.forEach(r => {
+    const Vref = Vfull * r.pct;
+    const yref = ty(Vref);
+    ctx.strokeStyle = '#cbd5e0';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(pad.l, yref); ctx.lineTo(pad.l + plotW, yref); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#64748b';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(r.label, pad.l + 3, yref - 3);
+  });
+
+  // Axes
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + plotH);
+  ctx.lineTo(pad.l + plotW, pad.t + plotH);
+  ctx.stroke();
+
+  // Y axis labels
+  ctx.fillStyle = '#475569';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'right';
+  const yTicks = [0, 0.25, 0.5, 0.75, 1.0];
+  yTicks.forEach(r => {
+    const v = Vfull * r;
+    const y = ty(v);
+    ctx.fillText(v.toFixed(1) + 'V', pad.l - 5, y + 4);
+    ctx.strokeStyle = '#f1f5f9';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([2, 2]);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + plotW, y); ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  // X axis label
+  ctx.fillStyle = '#475569';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('t', pad.l + plotW + 14, pad.t + plotH + 4);
+  ctx.textAlign = 'right';
+  ctx.fillText('V', pad.l - 4, pad.t + 6);
+
+  // V_full line
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 4]);
+  ctx.beginPath(); ctx.moveTo(pad.l, ty(Vfull)); ctx.lineTo(pad.l + plotW, ty(Vfull)); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(Vfull.toFixed(1) + 'V', pad.l - 3, ty(Vfull) - 3);
+
+  // Draw curve (full in light green)
+  ctx.strokeStyle = '#86efac';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  const steps = 300;
+  for (let i = 0; i <= steps; i++) {
+    const t = (i / steps) * tMax;
+    const v = vAt(t, p);
+    const x = tx(t), y = ty(v);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Draw animated part in strong green
+  if (tCur > 0) {
+    ctx.strokeStyle = '#4d7c0f';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    const stepsAnim = Math.ceil((tCur / tMax) * steps);
+    for (let i = 0; i <= stepsAnim; i++) {
+      const t = (i / stepsAnim) * tCur;
+      const v = vAt(t, p);
+      const x = tx(t), y = ty(v);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Current point dot
+    const Vcur = vAt(tCur, p);
+    const dotX = tx(tCur), dotY = ty(Vcur);
+    ctx.fillStyle = '#dc2626';
+    ctx.beginPath();
+    ctx.arc(dotX, dotY, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Dotted vertical from dot to x-axis
+    ctx.strokeStyle = '#dc2626';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(dotX, dotY); ctx.lineTo(dotX, pad.t + plotH); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // V_C label next to dot
+    ctx.fillStyle = '#dc2626';
+    ctx.font = 'bold 12px monospace';
+    ctx.textAlign = 'left';
+    const labelX = Math.min(dotX + 8, pad.l + plotW - 60);
+    ctx.fillText(Vcur.toFixed(2) + ' V', labelX, dotY - 8);
+  }
+
+  // τ annotation at x = tau, y = 63.2%
+  const markX = tx(p.tau);
+  const markY = ty(Vfull * (mode === 'charge' ? 0.632 : 0.368));
+  ctx.fillStyle = '#4d7c0f';
+  ctx.beginPath(); ctx.arc(markX, markY, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.font = 'bold 11px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#4d7c0f';
+  ctx.fillText(mode === 'charge' ? '63.2%' : '36.8%', markX + 6, markY - 4);
+}
+
+function toggleAnim() {
+  if (animRunning) {
+    clearInterval(animTimer);
+    animRunning = false;
+    document.getElementById('btnAnim').textContent = '▶ Tiếp tục';
+  } else {
+    const p = getParams();
+    if (animT === 0) animTMax = 5.5 * p.tau;
+    animRunning = true;
+    document.getElementById('btnAnim').textContent = '⏸ Dừng';
+    const dt = animTMax / 200;
+    animTimer = setInterval(() => {
+      animT = Math.min(animT + dt, animTMax);
+      updateStatsAndCurve();
+      if (animT >= animTMax) {
+        clearInterval(animTimer);
+        animRunning = false;
+        document.getElementById('btnAnim').textContent = '▶ Chạy lại';
+      }
+    }, 30);
+  }
+}
+
+function resetAnim() {
+  if (animTimer) clearInterval(animTimer);
+  animRunning = false;
+  animT = 0;
+  document.getElementById('btnAnim').textContent = '▶ Chạy mô phỏng';
+  syncSliders();
+}
+
+// ── Tau Table ──
+function updateTauTable() {
+  const p = getParams();
+  const Vref = (mode === 'charge') ? p.Vs : p.V0;
+  const rows = [
+    { k: 1, coef: mode === 'charge' ? (1 - Math.exp(-1)) : Math.exp(-1) },
+    { k: 2, coef: mode === 'charge' ? (1 - Math.exp(-2)) : Math.exp(-2) },
+    { k: 3, coef: mode === 'charge' ? (1 - Math.exp(-3)) : Math.exp(-3) },
+    { k: 4, coef: mode === 'charge' ? (1 - Math.exp(-4)) : Math.exp(-4) },
+    { k: 5, coef: mode === 'charge' ? (1 - Math.exp(-5)) : Math.exp(-5) },
+  ];
+  const chargeCoefs = [0.632, 0.865, 0.950, 0.982, 0.993];
+  const dischCoefs  = [0.368, 0.135, 0.050, 0.018, 0.007];
+
+  const tbody = document.getElementById('tblTauBody');
+  tbody.innerHTML = rows.map(r => {
+    const tSec = fmtSI(r.k * p.tau, 's', 3);
+    const Vc = (Vref * r.coef).toFixed(3);
+    const highlight = (r.k === 1 || r.k === 3 || r.k === 5) ? ' class="highlight"' : '';
+    return `<tr>
+      <td${highlight}>t = ${r.k}τ = ${tSec}</td>
+      <td${highlight}>${r.coef.toFixed(4)}</td>
+      <td${highlight}>${Vc} V</td>
+      <td${highlight}>${(chargeCoefs[r.k-1]*100).toFixed(1)}%</td>
+      <td${highlight}>${(dischCoefs[r.k-1]*100).toFixed(1)}%</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+//  MODULE 3 — Q·C·V Calculator
+// ══════════════════════════════════════════════════════
+function calcQCV() {
+  const C_uF = parseFloat(document.getElementById('qcC').value);
+  const V    = parseFloat(document.getElementById('qcV').value);
+  document.getElementById('qcDspC').textContent = C_uF + ' µF';
+  document.getElementById('qcDspV').textContent = V.toFixed(1) + ' V';
+
+  const C = C_uF * 1e-6;
+  const Q = C * V;
+  const E = 0.5 * C * V * V;
+
+  document.getElementById('qcStats').innerHTML = `
+    <div class="stat-box">
+      <div class="lbl">C</div>
+      <div class="num">${C_uF} µF</div>
+    </div>
+    <div class="stat-box">
+      <div class="lbl">V</div>
+      <div class="num">${V.toFixed(1)} V</div>
+    </div>
+    <div class="stat-box">
+      <div class="lbl">Q = C·V</div>
+      <div class="num">${fmtSI(Q, 'C')}</div>
+    </div>
+    <div class="stat-box">
+      <div class="lbl">E = ½·C·V²</div>
+      <div class="num">${fmtSI(E, 'J')}</div>
+    </div>
+  `;
+
+  // Animate charge dots on the SVG diagram
+  const dotsGroup = document.getElementById('chargeDots');
+  dotsGroup.innerHTML = '';
+  const numDots = Math.min(Math.round(Q * 1e4), 18); // max 18 dots
+  for (let i = 0; i < numDots; i++) {
+    const yy = 32 + (i % 9) * 6 + Math.random() * 2;
+    // + charge on left plate
+    const c1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c1.setAttribute('cx', 182 - (Math.floor(i / 9)) * 5);
+    c1.setAttribute('cy', yy);
+    c1.setAttribute('r', 3);
+    c1.setAttribute('fill', '#dc2626');
+    c1.setAttribute('opacity', '0.7');
+    dotsGroup.appendChild(c1);
+    // − charge on right plate
+    const c2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c2.setAttribute('cx', 218 + (Math.floor(i / 9)) * 5);
+    c2.setAttribute('cy', yy);
+    c2.setAttribute('r', 3);
+    c2.setAttribute('fill', '#1d4ed8');
+    c2.setAttribute('opacity', '0.7');
+    dotsGroup.appendChild(c2);
+  }
+  document.getElementById('qLabel').textContent = `Q = ${fmtSI(Q, 'C')}`;
+}
+
+// ══════════════════════════════════════════════════════
+//  MODULE 4 — Time Solver
+// ══════════════════════════════════════════════════════
+let solMode = 'charge';
+
+function setSolMode(m) {
+  solMode = m;
+  document.getElementById('solTabCharge').classList.toggle('active', m === 'charge');
+  document.getElementById('solTabDischarge').classList.toggle('active', m === 'discharge');
+  document.getElementById('solRowVs').style.display = (m === 'charge') ? '' : 'none';
+  document.getElementById('solRowV0').style.display = (m === 'discharge') ? '' : 'none';
+  calcSolver();
+}
+
+function calcSolver() {
+  const R_k  = parseFloat(document.getElementById('solR').value);
+  const C_u  = parseFloat(document.getElementById('solC').value);
+  const Vs   = parseFloat(document.getElementById('solVs').value);
+  const V0   = parseFloat(document.getElementById('solV0').value);
+  const Vt   = parseFloat(document.getElementById('solVt').value);
+  const R = R_k * 1e3;
+  const C = C_u * 1e-6;
+  const tau = R * C;
+
+  document.getElementById('solDspR').textContent  = R_k + ' kΩ';
+  document.getElementById('solDspC').textContent  = C_u + ' µF';
+  document.getElementById('solDspVs').textContent = Vs.toFixed(1) + ' V';
+  document.getElementById('solDspV0').textContent = V0.toFixed(1) + ' V';
+  document.getElementById('solDspVt').textContent = Vt.toFixed(1) + ' V';
+
+  // Clamp Vt
+  const Vmax = (solMode === 'charge') ? Vs : V0;
+  if (Vt >= Vmax) {
+    document.getElementById('solResult').innerHTML =
+      `⚠ V_target (${Vt.toFixed(1)} V) ≥ V_max (${Vmax.toFixed(1)} V) — không hợp lệ.`;
+    return;
+  }
+  if (Vt <= 0) {
+    document.getElementById('solResult').innerHTML = `⚠ V_target phải > 0 V.`;
+    return;
+  }
+
+  let t, formula;
+  if (solMode === 'charge') {
+    // t = -tau * ln(1 - Vt/Vs)
+    const ratio = 1 - Vt / Vs;
+    if (ratio <= 0) { document.getElementById('solResult').innerHTML = '⚠ Không hợp lệ.'; return; }
+    t = -tau * Math.log(ratio);
+    formula =
+      `τ = R·C = ${R_k}kΩ × ${C_u}µF = ${fmtSI(tau,'s',3)}\n` +
+      `t = −τ × ln(1 − V_t/V_s)\n` +
+      `  = −${fmtSI(tau,'s',3)} × ln(1 − ${Vt.toFixed(1)}/${Vs.toFixed(1)})\n` +
+      `  = −${fmtSI(tau,'s',3)} × ln(${ratio.toFixed(4)})\n` +
+      `  = −${fmtSI(tau,'s',3)} × (${Math.log(ratio).toFixed(4)})\n` +
+      `  = ${fmtSI(t,'s',4)}  (= ${(t/tau).toFixed(3)} × τ)`;
+  } else {
+    // t = tau * ln(V0/Vt)
+    const ratio = V0 / Vt;
+    t = tau * Math.log(ratio);
+    formula =
+      `τ = R·C = ${R_k}kΩ × ${C_u}µF = ${fmtSI(tau,'s',3)}\n` +
+      `t = τ × ln(V₀/V_t)\n` +
+      `  = ${fmtSI(tau,'s',3)} × ln(${V0.toFixed(1)}/${Vt.toFixed(1)})\n` +
+      `  = ${fmtSI(tau,'s',3)} × ln(${ratio.toFixed(4)})\n` +
+      `  = ${fmtSI(tau,'s',3)} × ${Math.log(ratio).toFixed(4)}\n` +
+      `  = ${fmtSI(t,'s',4)}  (= ${(t/tau).toFixed(3)} × τ)`;
+  }
+
+  document.getElementById('solResult').textContent = formula;
+}
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+syncSliders();
+calcQCV();
+calcSolver();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

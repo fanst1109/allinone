@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Điện trở thực tế &amp; Phân áp</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* ===== Component colors ===== */
+  :root {
+    --accent: #4d7c0f;
+    --accent-soft: #ecfccb;
+    --accent-hover: #3f6212;
+    --wire-hot: #dc2626;
+    --wire-gnd: #1a202c;
+    --wire-blue: #1d4ed8;
+    --wire-yellow: #d97706;
+  }
+
+  h1 { color: #1a202c; }
+  h2 { color: #1a3a1a; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #bbf7d0; }
+
+  /* ===== Card ===== */
+  .card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  /* ===== Row / control ===== */
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; min-width: 140px; }
+  .ctrl-group label { font-size: 13px; color: #555; }
+  input[type="range"] { width: 100%; max-width: 220px; accent-color: var(--accent); }
+  input[type="number"] {
+    padding: 6px 10px; border: 1px solid #cbd5e0; border-radius: 5px;
+    font-size: 14px; font-family: monospace; width: 100%; max-width: 110px;
+  }
+  .val-badge {
+    display: inline-block; background: var(--accent-soft); color: #1a3a1a;
+    padding: 3px 8px; border-radius: 5px; font-family: monospace;
+    font-weight: 700; font-size: 14px; min-width: 60px; text-align: center;
+  }
+
+  /* ===== Result box ===== */
+  .result-box {
+    background: #f0fdf4; border: 1px solid #86efac;
+    border-radius: 8px; padding: 14px 18px; margin-top: 12px;
+    font-family: monospace; font-size: 15px; line-height: 1.7;
+  }
+  .result-box .formula { color: #374151; }
+  .result-box .highlight { color: #166534; font-weight: 700; font-size: 17px; }
+  .result-box .note { font-family: sans-serif; font-size: 13px; color: #6b7280; margin-top: 6px; }
+  .warn { color: #92400e; font-weight: 600; }
+
+  /* ===== Tabs ===== */
+  .tab-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 2px; }
+  .tab-btn {
+    padding: 7px 16px; border: none; border-radius: 6px 6px 0 0;
+    background: #e2e8f0; color: #374151; cursor: pointer; font-size: 14px;
+    font-weight: 600; transition: background .15s;
+  }
+  .tab-btn.active { background: var(--accent); color: white; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ===== SVG circuit ===== */
+  svg.circuit {
+    display: block; margin: 0 auto;
+    width: 100%; max-width: 480px;
+    border-radius: 8px; overflow: visible;
+  }
+
+  /* ===== Color band display ===== */
+  .band-strip {
+    display: flex; align-items: center; gap: 3px;
+    background: #fafafa; border: 1px solid #e2e8f0;
+    border-radius: 8px; padding: 12px 16px; margin: 10px 0;
+    flex-wrap: wrap;
+  }
+  .band {
+    width: 22px; height: 44px; border-radius: 3px;
+    border: 1.5px solid rgba(0,0,0,0.18); cursor: pointer;
+    transition: transform .12s, box-shadow .12s;
+    flex-shrink: 0;
+  }
+  .band:hover { transform: scaleY(1.12); box-shadow: 0 2px 8px rgba(0,0,0,0.22); }
+  .band.selected { outline: 3px solid var(--accent); transform: scaleY(1.12); }
+  .band-label { font-size: 11px; text-align: center; margin-top: 4px; font-weight: 600; }
+  .band-slot { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .resistor-body {
+    display: flex; align-items: center; gap: 0;
+    background: #fde68a; border-radius: 6px; padding: 0 8px;
+    border: 1.5px solid #d97706; height: 48px;
+  }
+  .lead { width: 20px; height: 3px; background: #9ca3af; border-radius: 2px; }
+
+  /* ===== Sensor sim ===== */
+  .sensor-wrap {
+    display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; margin-top: 8px;
+  }
+  .sensor-ctrl { display: flex; flex-direction: column; gap: 8px; min-width: 200px; flex: 1 1 200px; }
+  .sensor-display { flex: 1 1 200px; }
+  .light-bar {
+    width: 100%; max-width: 280px; height: 20px; border-radius: 6px;
+    background: linear-gradient(to right, #1a1a2e, #ffd700);
+    border: 1px solid #cbd5e0; cursor: pointer; margin: 4px 0;
+  }
+  #lightSlider { width: 100%; max-width: 280px; }
+  .adc-bar-wrap { background: #e2e8f0; border-radius: 6px; height: 16px; overflow: hidden; margin-top: 6px; }
+  .adc-bar { height: 100%; background: var(--accent); border-radius: 6px; transition: width .2s; }
+
+  /* ===== Power rating indicator ===== */
+  .power-pill {
+    display: inline-block; padding: 4px 12px; border-radius: 20px;
+    font-weight: 700; font-size: 14px; margin-top: 6px;
+  }
+  .power-ok { background: #dcfce7; color: #166534; }
+  .power-warn { background: #fef9c3; color: #92400e; }
+  .power-danger { background: #fee2e2; color: #991b1b; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 600px) {
+    .band { width: 17px; height: 36px; }
+    .resistor-body { height: 40px; }
+    svg.circuit { max-width: 100%; }
+    .ctrl-group { min-width: 110px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Fundamentals</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-kirchhoff-circuits/visualization.html">← L2: Mạch &amp; Kirchhoff</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Điện trở &amp; phân áp</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-capacitor-rc/visualization.html">L4: Tụ điện &amp; mạch RC →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Điện trở thực tế &amp; Phân áp</h1>
+<p>Bộ công cụ gồm 4 module: Đọc mã màu, Máy tính phân áp (tương tác), Mô phỏng loading effect, Cảm biến quang trở.</p>
+
+<!-- ============================================================
+     MODULE 1 — ĐỌC MÃ MÀU
+     ============================================================ -->
+<h2>1. Đọc mã màu điện trở (4 vòng)</h2>
+<div class="card">
+  <p>Chọn màu cho từng vòng bằng cách nhấn vào bảng màu bên dưới. Kết quả tính tự động.</p>
+
+  <div style="display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start; margin-top:12px;">
+    <!-- Band picker -->
+    <div style="flex:1 1 300px;">
+      <div style="display:flex; gap:8px; align-items:flex-end; margin-bottom:10px; flex-wrap:wrap;">
+        <div class="band-slot" id="slot0">
+          <div class="band selected" id="b0" style="background:#8B4513;" data-idx="0" onclick="pickBand(this)"></div>
+          <div class="band-label">Vòng 1</div>
+        </div>
+        <div class="band-slot" id="slot1">
+          <div class="band selected" id="b1" style="background:#000000;" data-idx="1" onclick="pickBand(this)"></div>
+          <div class="band-label">Vòng 2</div>
+        </div>
+        <!-- spacer = resistor body -->
+        <div class="resistor-body" style="flex:1 1 40px; justify-content:center;">
+          <div class="lead"></div>
+          <div id="rb_band1" style="width:14px;height:44px;border-radius:2px;background:#8B4513;border:1px solid rgba(0,0,0,.2);"></div>
+          <div style="width:8px;"></div>
+          <div id="rb_band2" style="width:14px;height:44px;border-radius:2px;background:#000000;border:1px solid rgba(0,0,0,.2);"></div>
+          <div style="width:8px;"></div>
+          <div id="rb_band3" style="width:14px;height:44px;border-radius:2px;background:#dc2626;border:1px solid rgba(0,0,0,.2);"></div>
+          <div style="width:16px;"></div>
+          <div id="rb_band4" style="width:14px;height:44px;border-radius:2px;background:#d4aa00;border:1px solid rgba(0,0,0,.2);"></div>
+          <div class="lead"></div>
+        </div>
+        <div class="band-slot" id="slot2">
+          <div class="band selected" id="b2" style="background:#dc2626;" data-idx="2" onclick="pickBand(this)"></div>
+          <div class="band-label">Vòng 3<br><small>(Nhân)</small></div>
+        </div>
+        <div class="band-slot" id="slot3">
+          <div class="band selected" id="b3" style="background:#d4aa00;" data-idx="3" onclick="pickBand(this)"></div>
+          <div class="band-label">Vòng 4<br><small>(Dung sai)</small></div>
+        </div>
+      </div>
+
+      <!-- Color palette -->
+      <div id="palette" style="display:none; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px; margin-top:8px;">
+        <div style="font-size:13px; font-weight:600; margin-bottom:8px;" id="palette-label">Chọn màu:</div>
+        <div id="palette-colors" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-box" id="ccResult"></div>
+</div>
+
+<!-- ============================================================
+     MODULE 2 — PHÂN ÁP TƯƠNG TÁC
+     ============================================================ -->
+<h2>2. Máy tính phân áp (Voltage Divider)</h2>
+<div class="card">
+  <p>Điều chỉnh slider — V_out và sơ đồ cập nhật ngay.</p>
+
+  <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start;">
+    <!-- Controls -->
+    <div style="display:flex; flex-direction:column; gap:14px; min-width:200px; flex:1 1 200px;">
+      <div class="ctrl-group">
+        <label>V_in: <span class="val-badge" id="lVin">5.0 V</span></label>
+        <input type="range" id="rVin" min="1" max="24" step="0.5" value="5" oninput="calcDiv()">
+      </div>
+      <div class="ctrl-group">
+        <label>R1: <span class="val-badge" id="lR1">10 kΩ</span></label>
+        <input type="range" id="rR1" min="1" max="200" step="1" value="10" oninput="calcDiv()">
+        <small style="color:#888">(×1 kΩ, E12 gần nhất tự động hiển thị)</small>
+      </div>
+      <div class="ctrl-group">
+        <label>R2: <span class="val-badge" id="lR2">10 kΩ</span></label>
+        <input type="range" id="rR2" min="1" max="200" step="1" value="10" oninput="calcDiv()">
+      </div>
+    </div>
+
+    <!-- SVG circuit -->
+    <svg class="circuit" viewBox="0 0 260 260" id="divSvg">
+      <!-- wires + components drawn by JS -->
+    </svg>
+  </div>
+
+  <div class="result-box" id="divResult"></div>
+</div>
+
+<!-- ============================================================
+     MODULE 3 — LOADING EFFECT
+     ============================================================ -->
+<h2>3. Tải ảnh hưởng phân áp (Loading Effect)</h2>
+<div class="card">
+  <p>Thêm tải R_L song song với R2 và quan sát V_out thay đổi.</p>
+
+  <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start;">
+    <div style="display:flex; flex-direction:column; gap:14px; min-width:200px; flex:1 1 200px;">
+      <div class="ctrl-group">
+        <label>V_in: <span class="val-badge" id="lLVin">5.0 V</span></label>
+        <input type="range" id="rLVin" min="1" max="24" step="0.5" value="5" oninput="calcLoad()">
+      </div>
+      <div class="ctrl-group">
+        <label>R1: <span class="val-badge" id="lLR1">10 kΩ</span></label>
+        <input type="range" id="rLR1" min="1" max="100" step="1" value="10" oninput="calcLoad()">
+      </div>
+      <div class="ctrl-group">
+        <label>R2: <span class="val-badge" id="lLR2">10 kΩ</span></label>
+        <input type="range" id="rLR2" min="1" max="100" step="1" value="10" oninput="calcLoad()">
+      </div>
+      <div class="ctrl-group">
+        <label>R_tải (R_L): <span class="val-badge" id="lRL">∞ (không tải)</span></label>
+        <input type="range" id="rRL" min="0" max="100" step="1" value="100" oninput="calcLoad()">
+        <small style="color:#888">Kéo về 0 = tải R_L = 1 kΩ; kéo sang phải = tải cao hơn.</small>
+      </div>
+    </div>
+
+    <svg class="circuit" viewBox="0 0 260 300" id="loadSvg"></svg>
+  </div>
+
+  <div class="result-box" id="loadResult"></div>
+</div>
+
+<!-- ============================================================
+     MODULE 4 — CẢM BIẾN QUANG TRỞ
+     ============================================================ -->
+<h2>4. Mô phỏng cảm biến quang trở (LDR)</h2>
+<div class="card">
+  <p>Kéo thanh "Ánh sáng" để thay đổi điện trở LDR. Xem V_out và giá trị ADC thay đổi theo thời gian thực.</p>
+
+  <div class="sensor-wrap">
+    <div class="sensor-ctrl">
+      <div class="ctrl-group">
+        <label>V_cc: <span class="val-badge" id="lSVcc">3.3 V</span></label>
+        <input type="range" id="rSVcc" min="1.8" max="5" step="0.1" value="3.3" oninput="calcSensor()">
+      </div>
+      <div class="ctrl-group">
+        <label>R_ref: <span class="val-badge" id="lSRef">10 kΩ</span></label>
+        <input type="range" id="rSRef" min="1" max="100" step="1" value="10" oninput="calcSensor()">
+      </div>
+      <div class="ctrl-group">
+        <label>Ánh sáng:</label>
+        <div class="light-bar"></div>
+        <input type="range" id="lightSlider" min="0" max="100" step="1" value="50" oninput="calcSensor()">
+        <small style="color:#888; font-size:12px;" id="lLdrR">LDR ≈ 10 kΩ</small>
+      </div>
+      <div class="ctrl-group">
+        <label>ADC: <span class="val-badge" id="lADCBits">12-bit</span></label>
+        <select id="selADC" onchange="calcSensor()" style="padding:5px 8px; border-radius:5px; border:1px solid #cbd5e0; font-size:14px; max-width:120px;">
+          <option value="10">10-bit (0–1023)</option>
+          <option value="12" selected>12-bit (0–4095)</option>
+          <option value="16">16-bit (0–65535)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sensor-display">
+      <!-- SVG circuit for LDR -->
+      <svg class="circuit" viewBox="0 0 220 260" id="sensorSvg"></svg>
+      <div class="result-box" id="sensorResult"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODULE 5 — PHÂN DÒNG
+     ============================================================ -->
+<h2>5. Phân dòng (Current Divider)</h2>
+<div class="card">
+  <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start;">
+    <div style="display:flex; flex-direction:column; gap:14px; min-width:200px; flex:1 1 200px;">
+      <div class="ctrl-group">
+        <label>I_tổng: <span class="val-badge" id="lCI">6 mA</span></label>
+        <input type="range" id="rCI" min="0.1" max="50" step="0.1" value="6" oninput="calcCurr()">
+      </div>
+      <div class="ctrl-group">
+        <label>R1: <span class="val-badge" id="lCR1">6.8 kΩ</span></label>
+        <input type="range" id="rCR1" min="1" max="100" step="0.1" value="6.8" oninput="calcCurr()">
+      </div>
+      <div class="ctrl-group">
+        <label>R2: <span class="val-badge" id="lCR2">3.3 kΩ</span></label>
+        <input type="range" id="rCR2" min="1" max="100" step="0.1" value="3.3" oninput="calcCurr()">
+      </div>
+    </div>
+    <svg class="circuit" viewBox="0 0 260 200" id="currSvg"></svg>
+  </div>
+  <div class="result-box" id="currResult"></div>
+</div>
+
+</main>
+
+<script>
+// =====================================================================
+// MODULE 1 — COLOR CODE READER
+// =====================================================================
+const COLORS = [
+  { name:'Đen',    hex:'#000000', digit:0, mult:1,      tol:null   },
+  { name:'Nâu',    hex:'#8B4513', digit:1, mult:10,     tol:'±1%'  },
+  { name:'Đỏ',     hex:'#dc2626', digit:2, mult:100,    tol:'±2%'  },
+  { name:'Cam',    hex:'#ea580c', digit:3, mult:1000,   tol:null   },
+  { name:'Vàng',   hex:'#eab308', digit:4, mult:10000,  tol:null   },
+  { name:'Lục',    hex:'#16a34a', digit:5, mult:100000, tol:null   },
+  { name:'Lam',    hex:'#1d4ed8', digit:6, mult:1e6,    tol:null   },
+  { name:'Tím',    hex:'#7c3aed', digit:7, mult:null,   tol:null   },
+  { name:'Xám',    hex:'#6b7280', digit:8, mult:null,   tol:null   },
+  { name:'Trắng',  hex:'#f9fafb', digit:9, mult:null,   tol:null   },
+  { name:'Vàng kim',hex:'#d4aa00',digit:null,mult:0.1,  tol:'±5%'  },
+  { name:'Bạc',    hex:'#9ca3af', digit:null,mult:0.01, tol:'±10%' },
+];
+
+// Default bands: Nâu(1), Đen(0), Đỏ(×100), Vàng kim (±5%) → 1kΩ ±5%
+let bands = [1, 0, 2, 10]; // indices into COLORS
+
+let activeBandSlot = -1;
+
+function pickBand(el) {
+  const idx = parseInt(el.dataset.idx);
+  activeBandSlot = idx;
+  // Show palette
+  const palette = document.getElementById('palette');
+  palette.style.display = 'block';
+  document.getElementById('palette-label').textContent = `Chọn màu cho Vòng ${idx+1}:`;
+  renderPalette(idx);
+}
+
+function renderPalette(slotIdx) {
+  const container = document.getElementById('palette-colors');
+  container.innerHTML = '';
+  COLORS.forEach((c, ci) => {
+    // Filter: vòng 1 & 2 chỉ có digit; vòng 3 chỉ có mult; vòng 4 chỉ có tol
+    if (slotIdx < 2 && c.digit === null) return;
+    if (slotIdx === 2 && c.mult === null) return;
+    if (slotIdx === 3 && c.tol === null) return;
+
+    const swatch = document.createElement('div');
+    swatch.style.cssText = `width:32px;height:32px;border-radius:5px;background:${c.hex};
+      border:2px solid rgba(0,0,0,.18);cursor:pointer;
+      ${bands[slotIdx]===ci ? 'outline:3px solid #4d7c0f;' : ''}`;
+    swatch.title = c.name;
+    swatch.onclick = () => {
+      bands[slotIdx] = ci;
+      updateBandDisplay();
+      renderPalette(slotIdx); // re-render to update highlight
+      calcCC();
+    };
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;';
+    const nm = document.createElement('div');
+    nm.style.cssText = 'font-size:10px;text-align:center;max-width:36px;line-height:1.1;';
+    nm.textContent = c.name;
+    wrap.appendChild(swatch);
+    wrap.appendChild(nm);
+    container.appendChild(wrap);
+  });
+}
+
+function updateBandDisplay() {
+  const ids = ['b0','b1','b2','b3'];
+  const rbIds = ['rb_band1','rb_band2','rb_band3','rb_band4'];
+  bands.forEach((ci, i) => {
+    document.getElementById(ids[i]).style.background = COLORS[ci].hex;
+    document.getElementById(rbIds[i]).style.background = COLORS[ci].hex;
+  });
+}
+
+function fmtR(r) {
+  if (r >= 1e6) return (r/1e6).toFixed(r%1e6===0?0:2) + ' MΩ';
+  if (r >= 1e3) return (r/1e3).toFixed(r%1e3===0?0:1) + ' kΩ';
+  return r.toFixed(r < 10 ? 1 : 0) + ' Ω';
+}
+
+function calcCC() {
+  const c1 = COLORS[bands[0]], c2 = COLORS[bands[1]];
+  const c3 = COLORS[bands[2]], c4 = COLORS[bands[3]];
+
+  if (c1.digit === null || c2.digit === null || c3.mult === null) {
+    document.getElementById('ccResult').innerHTML = '<span class="warn">Chọn màu hợp lệ cho 4 vòng.</span>';
+    return;
+  }
+
+  const base = c1.digit * 10 + c2.digit;
+  const R = base * c3.mult;
+  const tol = c4.tol || '±20%';
+  const tolPct = parseFloat(tol) / 100;
+  const Rmin = R * (1 - Math.abs(tolPct));
+  const Rmax = R * (1 + Math.abs(tolPct));
+
+  document.getElementById('ccResult').innerHTML = `
+    <div class="formula">Công thức: (${c1.name}[${c1.digit}] × 10 + ${c2.name}[${c2.digit}]) × ${fmtR(c3.mult).replace(' Ω','').replace(' kΩ','k').replace(' MΩ','M')}</div>
+    <div class="formula">= (${c1.digit*10} + ${c2.digit}) × ${c3.mult < 1 ? c3.mult : fmtR(c3.mult).replace(' Ω','')} = <span class="highlight">${fmtR(R)}</span> ${tol}</div>
+    <div class="formula" style="margin-top:4px;">Dải thực tế: <strong>${fmtR(Rmin)}</strong> – <strong>${fmtR(Rmax)}</strong></div>
+    <div class="note">${checkE12(R)}</div>
+  `;
+}
+
+function checkE12(R) {
+  const E12 = [1.0,1.2,1.5,1.8,2.2,2.7,3.3,3.9,4.7,5.6,6.8,8.2];
+  // Normalize R to 1.0–10 range
+  if (R <= 0) return '';
+  let r = R;
+  while (r >= 10) r /= 10;
+  while (r < 1) r *= 10;
+  const match = E12.find(v => Math.abs(v - r) < 0.05);
+  if (match) return `✓ Giá trị này có trong dãy E12 (${fmtR(R)}).`;
+  // Check E24
+  const E24 = [1.0,1.1,1.2,1.3,1.5,1.6,1.8,2.0,2.2,2.4,2.7,3.0,3.3,3.6,3.9,4.3,4.7,5.1,5.6,6.2,6.8,7.5,8.2,9.1];
+  const m24 = E24.find(v => Math.abs(v - r) < 0.05);
+  if (m24) return `⚠ Không có trong E12, nhưng có trong dãy E24 (${fmtR(R)}).`;
+  return `✗ Giá trị này KHÔNG có trong E12 hoặc E24 — cần chọn giá trị gần nhất.`;
+}
+
+// Init color code
+updateBandDisplay();
+calcCC();
+
+
+// =====================================================================
+// MODULE 2 — VOLTAGE DIVIDER CALCULATOR
+// =====================================================================
+function nearestE12(val) {
+  const E12 = [1.0,1.2,1.5,1.8,2.2,2.7,3.3,3.9,4.7,5.6,6.8,8.2];
+  let r = val;
+  let mult = 1;
+  while (r >= 10) { r /= 10; mult *= 10; }
+  while (r < 1)  { r *= 10; mult /= 10; }
+  let best = E12[0], bestD = Math.abs(r - E12[0]);
+  E12.forEach(v => { const d = Math.abs(v - r); if (d < bestD) { bestD = d; best = v; } });
+  return best * mult;
+}
+
+function calcDiv() {
+  const Vin = parseFloat(document.getElementById('rVin').value);
+  const R1k = parseFloat(document.getElementById('rR1').value);
+  const R2k = parseFloat(document.getElementById('rR2').value);
+  const R1 = R1k * 1000, R2 = R2k * 1000;
+  const R1e = nearestE12(R1), R2e = nearestE12(R2);
+
+  document.getElementById('lVin').textContent = Vin.toFixed(1) + ' V';
+  document.getElementById('lR1').textContent  = fmtR(R1);
+  document.getElementById('lR2').textContent  = fmtR(R2);
+
+  const Vout = Vin * R2 / (R1 + R2);
+  const I    = Vin / (R1 + R2);
+  const P1   = I * I * R1, P2 = I * I * R2;
+
+  drawDivider(Vin, R1, R2, Vout, 'divSvg');
+
+  document.getElementById('divResult').innerHTML = `
+    <div class="formula">V_out = ${Vin} × ${fmtR(R2)} / (${fmtR(R1)} + ${fmtR(R2)})</div>
+    <div class="formula">     = ${Vin} × ${(R2/(R1+R2)).toFixed(4)} = <span class="highlight">${Vout.toFixed(3)} V</span></div>
+    <div class="formula" style="margin-top:6px;">Dòng I = V_in/(R1+R2) = ${(I*1000).toFixed(3)} mA</div>
+    <div class="formula">Công suất R1: ${(P1*1000).toFixed(2)} mW &nbsp;|&nbsp; R2: ${(P2*1000).toFixed(2)} mW</div>
+    <div class="note">E12 gần nhất: R1 ≈ ${fmtR(R1e)}, R2 ≈ ${fmtR(R2e)} → V_out_E12 ≈ ${(Vin*R2e/(R1e+R2e)).toFixed(3)} V</div>
+  `;
+}
+
+function drawDivider(Vin, R1, R2, Vout, svgId) {
+  const svg = document.getElementById(svgId);
+  const W = 260, H = 260;
+  // Nodes: A=top(Vin), M=mid(Vout), B=bot(GND)
+  const xL = 90, xR = 170, yA = 30, yM = 130, yB = 230;
+
+  svg.innerHTML = `
+    <!-- Vin label -->
+    <text x="20" y="${yA+5}" font-size="14" font-weight="700" fill="${'#dc2626'}">+${Vin}V</text>
+    <!-- GND label -->
+    <text x="10" y="${yB+5}" font-size="14" font-weight="700" fill="${'#374151'}">GND</text>
+    <!-- Left wire top -->
+    <line x1="${xL}" y1="${yA}" x2="${xL}" y2="${yA+20}" stroke="#dc2626" stroke-width="2.5"/>
+    <!-- R1 -->
+    ${drawR(xL, yA+20, 50, '#1e40af', 'R1='+fmtR(R1))}
+    <!-- wire between R1 and R2 -->
+    <line x1="${xL}" y1="${yA+80}" x2="${xL}" y2="${yM-10}" stroke="#1a202c" stroke-width="2.5"/>
+    <!-- dot at mid -->
+    <circle cx="${xL}" cy="${yM}" r="5" fill="#4d7c0f"/>
+    <!-- R2 -->
+    ${drawR(xL, yM+10, 50, '#047857', 'R2='+fmtR(R2))}
+    <!-- wire GND -->
+    <line x1="${xL}" y1="${yM+70}" x2="${xL}" y2="${yB}" stroke="#1a202c" stroke-width="2.5"/>
+    <!-- GND symbol -->
+    ${drawGND(xL, yB)}
+    <!-- Vout wire right -->
+    <line x1="${xL}" y1="${yM}" x2="${xR+30}" y2="${yM}" stroke="#4d7c0f" stroke-width="2" stroke-dasharray="5,3"/>
+    <text x="${xR+35}" y="${yM+5}" font-size="13" font-weight="700" fill="#166534">V_out = ${Vout.toFixed(3)}V</text>
+  `;
+}
+
+function drawR(x, y, h, color, label) {
+  const bw = 14, bh = h;
+  return `
+    <rect x="${x - bw/2}" y="${y}" width="${bw}" height="${bh}" rx="3"
+          fill="white" stroke="${color}" stroke-width="2.5"/>
+    <line x1="${x}" y1="${y}" x2="${x}" y2="${y+5}" stroke="${color}" stroke-width="2"/>
+    <line x1="${x}" y1="${y+bh-5}" x2="${x}" y2="${y+bh}" stroke="${color}" stroke-width="2"/>
+    <text x="${x+12}" y="${y + bh/2 + 4}" font-size="11" fill="${color}" font-weight="600">${label}</text>
+  `;
+}
+
+function drawGND(x, y) {
+  return `
+    <line x1="${x-14}" y1="${y}" x2="${x+14}" y2="${y}" stroke="#374151" stroke-width="2"/>
+    <line x1="${x-9}"  y1="${y+5}" x2="${x+9}"  y2="${y+5}" stroke="#374151" stroke-width="2"/>
+    <line x1="${x-4}"  y1="${y+10}" x2="${x+4}"  y2="${y+10}" stroke="#374151" stroke-width="2"/>
+  `;
+}
+
+calcDiv();
+
+
+// =====================================================================
+// MODULE 3 — LOADING EFFECT
+// =====================================================================
+function calcLoad() {
+  const Vin = parseFloat(document.getElementById('rLVin').value);
+  const R1k = parseFloat(document.getElementById('rLR1').value);
+  const R2k = parseFloat(document.getElementById('rLR2').value);
+  const rlPos = parseFloat(document.getElementById('rRL').value); // 0=1kΩ, 100=noload
+
+  const R1 = R1k * 1000, R2 = R2k * 1000;
+  // Map slider: 0→1kΩ, 100→no load (simulate as 10MΩ)
+  const RL = rlPos === 100 ? Infinity : 1000 * Math.pow(10, rlPos / 25);
+
+  document.getElementById('lLVin').textContent = Vin.toFixed(1) + ' V';
+  document.getElementById('lLR1').textContent  = fmtR(R1);
+  document.getElementById('lLR2').textContent  = fmtR(R2);
+  document.getElementById('lRL').textContent   = RL === Infinity ? '∞ (không tải)' : fmtR(RL);
+
+  const Vout_ideal = Vin * R2 / (R1 + R2);
+  const R2eff = RL === Infinity ? R2 : (R2 * RL) / (R2 + RL);
+  const Vout_load = Vin * R2eff / (R1 + R2eff);
+  const drop_pct = (Vout_ideal - Vout_load) / Vout_ideal * 100;
+
+  drawLoadCircuit(Vin, R1, R2, Vout_load, RL, R2eff, 'loadSvg');
+
+  let verdict = '';
+  if (RL === Infinity) {
+    verdict = '<span style="color:#166534;font-weight:700;">✓ Không tải — V_out lý tưởng.</span>';
+  } else if (drop_pct < 5) {
+    verdict = `<span style="color:#166534;font-weight:700;">✓ R_L đủ lớn (${(RL/R2).toFixed(0)}×R2) — loading effect nhỏ (&lt;5%).</span>`;
+  } else if (drop_pct < 15) {
+    verdict = `<span class="warn">⚠ Loading effect đáng kể (${drop_pct.toFixed(1)}%). R_L = ${(RL/R2).toFixed(1)}×R2 — cần R_L &gt; 10×R2 = ${fmtR(10*R2)}.</span>`;
+  } else {
+    verdict = `<span style="color:#991b1b;font-weight:700;">✗ Loading effect nghiêm trọng (${drop_pct.toFixed(1)}%)! R_L quá nhỏ so với R2.</span>`;
+  }
+
+  document.getElementById('loadResult').innerHTML = `
+    <div class="formula">V_out lý tưởng (không tải) = ${Vin} × ${fmtR(R2)}/(${fmtR(R1)}+${fmtR(R2)}) = <strong>${Vout_ideal.toFixed(3)} V</strong></div>
+    ${RL !== Infinity ? `<div class="formula">R2_eff = R2 ∥ R_L = ${fmtR(R2)} × ${fmtR(RL)} / (${fmtR(R2)} + ${fmtR(RL)}) = <strong>${fmtR(R2eff)}</strong></div>` : ''}
+    <div class="formula">V_out thực tế = ${Vin} × ${fmtR(R2eff)}/(${fmtR(R1)}+${fmtR(R2eff)}) = <span class="highlight">${Vout_load.toFixed(3)} V</span></div>
+    ${RL !== Infinity ? `<div class="formula" style="margin-top:4px;">Sụt điện áp: <strong>${(Vout_ideal - Vout_load).toFixed(3)} V</strong> (${drop_pct.toFixed(1)}%)</div>` : ''}
+    <div class="note" style="margin-top:8px;">${verdict}</div>
+  `;
+}
+
+function drawLoadCircuit(Vin, R1, R2, Vout, RL, R2eff, svgId) {
+  const svg = document.getElementById(svgId);
+  const xL = 80, yA = 20, yM = 130, yB = 250;
+  const xRL = 170;
+
+  let rlSection = '';
+  if (RL !== Infinity) {
+    rlSection = `
+      <line x1="${xL}" y1="${yM}" x2="${xRL}" y2="${yM}" stroke="#d97706" stroke-width="2"/>
+      ${drawR(xRL, yM+10, 50, '#d97706', 'R_L='+fmtR(RL))}
+      <line x1="${xRL}" y1="${yM+60}" x2="${xRL}" y2="${yB}" stroke="#d97706" stroke-width="2"/>
+      <line x1="${xL}" y1="${yB}" x2="${xRL}" y2="${yB}" stroke="#d97706" stroke-width="1.5" stroke-dasharray="4,3"/>
+    `;
+  }
+
+  svg.innerHTML = `
+    <text x="12" y="${yA+5}" font-size="13" font-weight="700" fill="#dc2626">+${Vin}V</text>
+    <line x1="${xL}" y1="${yA}" x2="${xL}" y2="${yA+18}" stroke="#dc2626" stroke-width="2.5"/>
+    ${drawR(xL, yA+18, 52, '#1e40af', 'R1='+fmtR(R1))}
+    <line x1="${xL}" y1="${yA+80}" x2="${xL}" y2="${yM-8}" stroke="#1a202c" stroke-width="2.5"/>
+    <circle cx="${xL}" cy="${yM}" r="5" fill="#4d7c0f"/>
+    ${drawR(xL, yM+8, 52, '#047857', 'R2='+fmtR(R2))}
+    <line x1="${xL}" y1="${yM+70}" x2="${xL}" y2="${yB}" stroke="#1a202c" stroke-width="2.5"/>
+    ${drawGND(xL, yB)}
+    ${rlSection}
+    <text x="${xL+12}" y="${yM+5}" font-size="12" font-weight="700" fill="#166534">V_out=${Vout.toFixed(2)}V</text>
+  `;
+}
+
+calcLoad();
+
+
+// =====================================================================
+// MODULE 4 — SENSOR SIM
+// =====================================================================
+function calcSensor() {
+  const Vcc  = parseFloat(document.getElementById('rSVcc').value);
+  const Rref = parseFloat(document.getElementById('rSRef').value) * 1000;
+  const light = parseFloat(document.getElementById('lightSlider').value); // 0=dark, 100=bright
+  // LDR model: dark=1MΩ, bright=100Ω (log scale)
+  const ldrR = Math.round(1e6 * Math.pow(10, -4 * light / 100));
+
+  document.getElementById('lSVcc').textContent  = Vcc.toFixed(1) + ' V';
+  document.getElementById('lSRef').textContent  = fmtR(Rref);
+  document.getElementById('lLdrR').textContent  = `LDR ≈ ${fmtR(ldrR)} (${light < 20 ? 'tối' : light < 60 ? 'trong nhà' : 'nắng'})`;
+  document.getElementById('lADCBits').textContent = document.getElementById('selADC').value + '-bit';
+
+  const bits = parseInt(document.getElementById('selADC').value);
+  const maxADC = (1 << bits) - 1;
+
+  // Circuit: Vcc -- Rref -- node -- LDR -- GND
+  const Vout = Vcc * ldrR / (Rref + ldrR);
+  const adcVal = Math.round(Vout / Vcc * maxADC);
+  const adcPct = adcVal / maxADC * 100;
+
+  drawSensorCircuit(Vcc, Rref, ldrR, Vout, light, 'sensorSvg');
+
+  document.getElementById('adc-bar-fill') && (document.getElementById('adc-bar-fill').style.width = adcPct + '%');
+
+  document.getElementById('sensorResult').innerHTML = `
+    <div class="formula">V_out = V_cc × LDR / (R_ref + LDR)</div>
+    <div class="formula">     = ${Vcc} × ${fmtR(ldrR)} / (${fmtR(Rref)} + ${fmtR(ldrR)})</div>
+    <div class="formula">     = <span class="highlight">${Vout.toFixed(3)} V</span></div>
+    <div class="formula" style="margin-top:6px;">ADC (${bits}-bit): <strong>${adcVal}</strong> / ${maxADC} &nbsp;(${adcPct.toFixed(1)}%)</div>
+    <div style="background:#e2e8f0;border-radius:6px;height:14px;overflow:hidden;margin-top:8px;">
+      <div style="width:${adcPct}%;height:100%;background:var(--accent);border-radius:6px;transition:width .3s;"></div>
+    </div>
+    <div class="note">Khi ánh sáng tăng → LDR giảm → V_out giảm → ADC đọc số nhỏ hơn.<br>Chọn R_ref ≈ LDR tại ngưỡng cần phát hiện để độ nhạy cao nhất.</div>
+  `;
+}
+
+function drawSensorCircuit(Vcc, Rref, ldrR, Vout, light, svgId) {
+  const svg = document.getElementById(svgId);
+  const xL = 90, yA = 20, yM = 120, yB = 220;
+  // LDR color: bright=yellow, dark=navy
+  const ldrHue = `hsl(${50 - light*0.4}, ${70}%, ${30 + light*0.4}%)`;
+
+  svg.innerHTML = `
+    <text x="10" y="${yA+5}" font-size="13" font-weight="700" fill="#dc2626">+${Vcc}V</text>
+    <line x1="${xL}" y1="${yA}" x2="${xL}" y2="${yA+18}" stroke="#dc2626" stroke-width="2.5"/>
+    ${drawR(xL, yA+18, 52, '#1e40af', 'R_ref='+fmtR(Rref))}
+    <line x1="${xL}" y1="${yA+80}" x2="${xL}" y2="${yM-8}" stroke="#1a202c" stroke-width="2.5"/>
+    <circle cx="${xL}" cy="${yM}" r="5" fill="#4d7c0f"/>
+    <!-- LDR (special symbol) -->
+    <rect x="${xL-7}" y="${yM+8}" width="14" height="52" rx="3" fill="white" stroke="${ldrHue}" stroke-width="2.5"/>
+    <!-- arrows for light -->
+    <text x="${xL+14}" y="${yM+28}" font-size="18" fill="${ldrHue}" opacity="0.9">↗</text>
+    <text x="${xL+14}" y="${yM+48}" font-size="14" fill="${ldrHue}" opacity="0.7">☀</text>
+    <text x="${xL+32}" y="${yM+38}" font-size="11" fill="${ldrHue}" font-weight="600">LDR</text>
+    <text x="${xL+32}" y="${yM+50}" font-size="10" fill="#555">${fmtR(ldrR)}</text>
+    <line x1="${xL}" y1="${yM+60}" x2="${xL}" y2="${yB}" stroke="#1a202c" stroke-width="2.5"/>
+    ${drawGND(xL, yB)}
+    <line x1="${xL}" y1="${yM}" x2="${xL+50}" y2="${yM}" stroke="#4d7c0f" stroke-width="2" stroke-dasharray="4,3"/>
+    <text x="${xL+55}" y="${yM+5}" font-size="12" font-weight="700" fill="#166534">${Vout.toFixed(2)}V</text>
+    <text x="${xL+55}" y="${yM+18}" font-size="11" fill="#555">→ ADC</text>
+  `;
+}
+
+calcSensor();
+
+
+// =====================================================================
+// MODULE 5 — CURRENT DIVIDER
+// =====================================================================
+function calcCurr() {
+  const ImA = parseFloat(document.getElementById('rCI').value);
+  const R1k = parseFloat(document.getElementById('rCR1').value);
+  const R2k = parseFloat(document.getElementById('rCR2').value);
+  const I = ImA / 1000;
+  const R1 = R1k * 1000, R2 = R2k * 1000;
+
+  document.getElementById('lCI').textContent  = ImA.toFixed(1) + ' mA';
+  document.getElementById('lCR1').textContent = fmtR(R1);
+  document.getElementById('lCR2').textContent = fmtR(R2);
+
+  const I1 = I * R2 / (R1 + R2);
+  const I2 = I * R1 / (R1 + R2);
+  const Req = R1 * R2 / (R1 + R2);
+  const V  = I * Req;
+
+  drawCurrDivider(I, I1, I2, R1, R2, V, 'currSvg');
+
+  document.getElementById('currResult').innerHTML = `
+    <div class="formula">I1 (qua R1) = I × R2/(R1+R2) = ${ImA.toFixed(1)}mA × ${fmtR(R2)}/(${fmtR(R1)}+${fmtR(R2)}) = <span class="highlight">${(I1*1000).toFixed(3)} mA</span></div>
+    <div class="formula">I2 (qua R2) = I × R1/(R1+R2) = ${ImA.toFixed(1)}mA × ${fmtR(R1)}/(${fmtR(R1)}+${fmtR(R2)}) = <span class="highlight">${(I2*1000).toFixed(3)} mA</span></div>
+    <div class="formula" style="margin-top:6px;">Kiểm tra: I1 + I2 = ${((I1+I2)*1000).toFixed(3)} mA ≈ ${ImA.toFixed(1)} mA ✓</div>
+    <div class="formula">Điện áp V = I × R_eq = ${ImA.toFixed(1)} mA × ${fmtR(Req)} = <strong>${(V).toFixed(3)} V</strong></div>
+    <div class="note">Nhớ: tử số là điện trở nhánh <em>kia</em>. Nhánh điện trở nhỏ hơn nhận dòng lớn hơn.</div>
+  `;
+}
+
+function drawCurrDivider(I, I1, I2, R1, R2, V, svgId) {
+  const svg = document.getElementById(svgId);
+  const xIn = 30, xOut = 230, yT = 30, yB = 170, xM = 130;
+
+  svg.innerHTML = `
+    <!-- Top wire -->
+    <line x1="${xIn}" y1="${yT}" x2="${xM}" y2="${yT}" stroke="#dc2626" stroke-width="2.5"/>
+    <text x="${xIn-5}" y="${yT-8}" font-size="12" font-weight="700" fill="#dc2626">I=${(I*1000).toFixed(1)}mA →</text>
+    <!-- Junction top -->
+    <circle cx="${xM}" cy="${yT}" r="5" fill="#1a202c"/>
+    <!-- R1 branch (left) -->
+    <line x1="${xM}" y1="${yT}" x2="${xM-55}" y2="${yT}"/>
+    <line x1="${xM-55}" y1="${yT}" x2="${xM-55}" y2="${yT+30}" stroke="#1e40af" stroke-width="2.5"/>
+    ${drawR(xM-55, yT+30, 50, '#1e40af', '')}
+    <text x="${xM-55+16}" y="${yT+55}" font-size="11" fill="#1e40af" font-weight="600">R1=${fmtR(R1)}</text>
+    <text x="${xM-55+16}" y="${yT+68}" font-size="11" fill="#1e40af">I1=${(I1*1000).toFixed(2)}mA</text>
+    <line x1="${xM-55}" y1="${yT+80}" x2="${xM-55}" y2="${yB}" stroke="#1e40af" stroke-width="2.5"/>
+    <!-- R2 branch (right) -->
+    <line x1="${xM}" y1="${yT}" x2="${xM+55}" y2="${yT}" stroke="#047857" stroke-width="2.5"/>
+    <line x1="${xM+55}" y1="${yT}" x2="${xM+55}" y2="${yT+30}" stroke="#047857" stroke-width="2.5"/>
+    ${drawR(xM+55, yT+30, 50, '#047857', '')}
+    <text x="${xM+55+16}" y="${yT+55}" font-size="11" fill="#047857" font-weight="600">R2=${fmtR(R2)}</text>
+    <text x="${xM+55+16}" y="${yT+68}" font-size="11" fill="#047857">I2=${(I2*1000).toFixed(2)}mA</text>
+    <line x1="${xM+55}" y1="${yT+80}" x2="${xM+55}" y2="${yB}" stroke="#047857" stroke-width="2.5"/>
+    <!-- Bottom junction -->
+    <line x1="${xM-55}" y1="${yB}" x2="${xM+55}" y2="${yB}" stroke="#1a202c" stroke-width="2.5"/>
+    <circle cx="${xM}" cy="${yB}" r="5" fill="#1a202c"/>
+    <!-- Output -->
+    <line x1="${xM}" y1="${yB}" x2="${xOut}" y2="${yB}" stroke="#374151" stroke-width="2.5"/>
+    <text x="${xOut-5}" y="${yB+14}" font-size="12" fill="#374151">→ GND (${(V).toFixed(2)}V)</text>
+  `;
+}
+
+calcCurr();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

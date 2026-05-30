@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Điện áp, Dòng điện, Điện trở</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #a3e635; }
+
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  /* ── Ohm Calculator ── */
+  .ohm-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .ohm-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .ohm-field label {
+    font-weight: 700;
+    font-size: 15px;
+    color: #374151;
+  }
+  .ohm-field .unit-tag {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 400;
+  }
+  .ohm-field input[type="number"] {
+    padding: 8px 10px;
+    border: 2px solid #d1fae5;
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: monospace;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+  }
+  .ohm-field input[type="number"]:focus {
+    outline: none;
+    border-color: #4d7c0f;
+  }
+  .ohm-field input[type="number"].computed {
+    background: #f0fdf4;
+    border-color: #86efac;
+    color: #14532d;
+    font-weight: 700;
+  }
+  .ohm-field input[type="number"].active-input {
+    border-color: #4d7c0f;
+  }
+  .radio-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .radio-row button {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 2px solid #d1d5db;
+    background: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.15s;
+  }
+  .radio-row button.active {
+    background: #4d7c0f;
+    border-color: #4d7c0f;
+    color: white;
+  }
+
+  .result-box {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-family: monospace;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+  .result-box .highlight {
+    color: #14532d;
+    font-weight: 700;
+    font-size: 17px;
+  }
+  .result-box .warn {
+    color: #dc2626;
+    font-weight: 600;
+  }
+  .result-box .ok {
+    color: #047857;
+    font-weight: 600;
+  }
+
+  /* ── Slider section ── */
+  .slider-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .slider-group { display: flex; flex-direction: column; gap: 6px; }
+  .slider-group label { font-weight: 700; font-size: 14px; color: #374151; }
+  .slider-group input[type="range"] { width: 100%; accent-color: #4d7c0f; }
+  .slider-val {
+    font-family: monospace;
+    font-size: 15px;
+    color: #4d7c0f;
+    font-weight: 700;
+  }
+
+  /* ── Circuit SVG ── */
+  .circuit-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 16px 0;
+    overflow-x: auto;
+  }
+  svg.circuit {
+    display: block;
+    max-width: 100%;
+  }
+
+  /* ── Ohm Triangle ── */
+  .triangle-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+  svg.triangle {
+    max-width: 200px;
+    flex-shrink: 0;
+  }
+  .triangle-legend {
+    font-size: 14px;
+    line-height: 1.9;
+    color: #374151;
+  }
+  .triangle-legend strong { color: #4d7c0f; }
+
+  /* ── Power table ── */
+  table.power-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 12px;
+  }
+  table.power-table th {
+    background: #4d7c0f;
+    color: white;
+    padding: 8px 10px;
+    text-align: left;
+  }
+  table.power-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  table.power-table tr:nth-child(even) td { background: #f0fdf4; }
+  table.power-table td.over { color: #dc2626; font-weight: 700; }
+  table.power-table td.ok { color: #047857; font-weight: 700; }
+
+  /* ── Tabs ── */
+  .tab-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab-bar button {
+    padding: 7px 14px;
+    border-radius: 6px 6px 0 0;
+    border: 2px solid #d1d5db;
+    border-bottom: none;
+    background: #f9fafb;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+  }
+  .tab-bar button.active {
+    background: white;
+    border-color: #4d7c0f;
+    color: #4d7c0f;
+    border-bottom: 2px solid white;
+    margin-bottom: -2px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .ohm-grid { grid-template-columns: 1fr 1fr; }
+    .slider-wrap { grid-template-columns: 1fr; }
+    .triangle-wrap { flex-direction: column; align-items: center; }
+  }
+  @media (max-width: 400px) {
+    .ohm-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Fundamentals</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Điện áp, dòng, điện trở</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-kirchhoff-circuits/visualization.html">L2: Mạch &amp; Kirchhoff →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — Điện áp, Dòng điện, Điện trở</h1>
+<p>Công cụ tương tác: Máy tính Định luật Ohm, Sơ đồ mạch SVG với dòng chảy động, Tam giác Ohm, Bảng công suất điện trở.</p>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — Ohm Calculator
+     ══════════════════════════════════════════════════════════ -->
+<h2>1. Máy tính Định luật Ohm</h2>
+<div class="card">
+  <p>Chọn đại lượng cần <strong>tính</strong>, nhập 2 giá trị còn lại, kết quả hiện ngay bên dưới.</p>
+
+  <div class="radio-row">
+    <button class="active" onclick="setTarget('V')">Tính V (Volt)</button>
+    <button onclick="setTarget('I')">Tính I (Ampe)</button>
+    <button onclick="setTarget('R')">Tính R (Ohm)</button>
+  </div>
+
+  <div class="ohm-grid">
+    <div class="ohm-field">
+      <label>Điện áp V <span class="unit-tag">(Volt)</span></label>
+      <input type="number" id="inp_V" min="0" step="0.1" value="5" oninput="calcOhm()">
+    </div>
+    <div class="ohm-field">
+      <label>Dòng điện I <span class="unit-tag">(mA)</span></label>
+      <input type="number" id="inp_I" min="0" step="1" value="10" oninput="calcOhm()">
+    </div>
+    <div class="ohm-field">
+      <label>Điện trở R <span class="unit-tag">(kΩ)</span></label>
+      <input type="number" id="inp_R" min="0.001" step="0.1" value="0.5" oninput="calcOhm()">
+    </div>
+  </div>
+
+  <div class="result-box" id="ohm-result">Chọn đại lượng cần tính ở trên...</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — Circuit Diagram + Slider
+     ══════════════════════════════════════════════════════════ -->
+<h2>2. Sơ đồ mạch tương tác</h2>
+<div class="card">
+  <p>Kéo thanh trượt V và R — sơ đồ mạch cập nhật dòng điện I và công suất P theo thời gian thực.</p>
+
+  <div class="slider-wrap">
+    <div class="slider-group">
+      <label>Điện áp V: <span class="slider-val" id="sl-V-val">5.0 V</span></label>
+      <input type="range" id="sl-V" min="1" max="24" step="0.5" value="5" oninput="updateCircuit()">
+    </div>
+    <div class="slider-group">
+      <label>Điện trở R: <span class="slider-val" id="sl-R-val">220 Ω</span></label>
+      <input type="range" id="sl-R" min="10" max="10000" step="10" value="220" oninput="updateCircuit()">
+    </div>
+  </div>
+
+  <div class="circuit-wrap">
+    <svg class="circuit" id="circuitSvg" width="560" height="280" viewBox="0 0 560 280">
+      <!-- Background -->
+      <rect width="560" height="280" fill="#f8fafc" rx="10"/>
+
+      <!-- Circuit wire top: left to right -->
+      <!-- Source positive terminal → top wire → Resistor top -->
+      <line x1="100" y1="60" x2="420" y2="60" stroke="#dc2626" stroke-width="3" id="wire-top"/>
+
+      <!-- Wire right: top to bottom (right side) -->
+      <line x1="420" y1="60" x2="420" y2="220" stroke="#1a202c" stroke-width="3" id="wire-right"/>
+
+      <!-- Wire bottom: right to left -->
+      <line x1="420" y1="220" x2="100" y2="220" stroke="#1a202c" stroke-width="3" id="wire-bottom"/>
+
+      <!-- Wire left: bottom to source negative terminal -->
+      <line x1="100" y1="220" x2="100" y2="165" stroke="#1a202c" stroke-width="3" id="wire-left-bottom"/>
+      <line x1="100" y1="95" x2="100" y2="60" stroke="#dc2626" stroke-width="3" id="wire-left-top"/>
+
+      <!-- Voltage Source (battery symbol) at left center -->
+      <!-- Body -->
+      <rect x="80" y="95" width="40" height="70" fill="white" stroke="#374151" stroke-width="2" rx="4"/>
+      <!-- Long plate (positive) -->
+      <line x1="88" y1="108" x2="112" y2="108" stroke="#dc2626" stroke-width="3"/>
+      <!-- Short plate (negative) -->
+      <line x1="92" y1="120" x2="108" y2="120" stroke="#374151" stroke-width="3"/>
+      <!-- Another long plate -->
+      <line x1="88" y1="132" x2="112" y2="132" stroke="#dc2626" stroke-width="2"/>
+      <!-- Another short plate -->
+      <line x1="92" y1="144" x2="108" y2="144" stroke="#374151" stroke-width="2"/>
+      <!-- + label -->
+      <text x="100" y="103" text-anchor="middle" fill="#dc2626" font-size="12" font-weight="700">+</text>
+      <!-- − label -->
+      <text x="100" y="160" text-anchor="middle" fill="#374151" font-size="14" font-weight="700">−</text>
+      <!-- V source label -->
+      <text x="100" y="185" text-anchor="middle" fill="#374151" font-size="13" font-weight="700" id="lbl-Vs">V = 5.0 V</text>
+
+      <!-- Resistor (zig-zag) at top-right area -->
+      <!-- Resistor centered around x=420, y=60 along top wire — actually place it on the right wire -->
+      <!-- Place resistor on top wire, centered at x=280, y=60 -->
+      <!-- Lead from left side of resistor -->
+      <line x1="100" y1="60" x2="200" y2="60" stroke="#dc2626" stroke-width="3" id="wire-top-left"/>
+      <!-- Resistor body box -->
+      <rect x="200" y="48" width="120" height="24" fill="white" stroke="#4d7c0f" stroke-width="2.5" rx="4" id="res-body"/>
+      <!-- Zigzag inside resistor body -->
+      <polyline id="res-zz" points="206,60 216,52 226,68 236,52 246,68 256,52 266,68 276,52 286,60 314,60"
+        fill="none" stroke="#4d7c0f" stroke-width="2" stroke-linejoin="round"/>
+      <!-- Lead from right side of resistor to corner -->
+      <line x1="320" y1="60" x2="420" y2="60" stroke="#dc2626" stroke-width="3" id="wire-top-right"/>
+
+      <!-- Hide original full top wire (replaced by split) -->
+      <!-- Resistor label above -->
+      <text x="260" y="40" text-anchor="middle" fill="#4d7c0f" font-size="13" font-weight="700" id="lbl-R">R = 220 Ω</text>
+
+      <!-- Current arrow on right wire (downward) -->
+      <defs>
+        <marker id="arr-red" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#dc2626"/>
+        </marker>
+        <marker id="arr-dark" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#374151"/>
+        </marker>
+      </defs>
+
+      <!-- Flow dots animated via JS -->
+      <g id="flow-group"></g>
+
+      <!-- Labels: I and P -->
+      <text x="450" y="135" text-anchor="start" fill="#1d4ed8" font-size="13" font-weight="700" id="lbl-I">I = ?</text>
+      <text x="450" y="155" text-anchor="start" fill="#9333ea" font-size="13" font-weight="700" id="lbl-P">P = ?</text>
+
+      <!-- GND symbol at bottom of source -->
+      <line x1="86" y1="224" x2="114" y2="224" stroke="#374151" stroke-width="2"/>
+      <line x1="91" y1="229" x2="109" y2="229" stroke="#374151" stroke-width="1.5"/>
+      <line x1="96" y1="234" x2="104" y2="234" stroke="#374151" stroke-width="1"/>
+
+      <!-- Corner dots -->
+      <circle cx="100" cy="60" r="4" fill="#dc2626"/>
+      <circle cx="420" cy="60" r="4" fill="#dc2626"/>
+      <circle cx="420" cy="220" r="4" fill="#374151"/>
+      <circle cx="100" cy="220" r="4" fill="#374151"/>
+    </svg>
+  </div>
+
+  <div class="result-box" id="circuit-result">Kéo thanh trượt để xem kết quả...</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — Ohm Triangle + Power Formulas
+     ══════════════════════════════════════════════════════════ -->
+<h2>3. Tam giác Ohm &amp; Công suất</h2>
+<div class="card">
+  <div class="tab-bar">
+    <button class="active" onclick="showTab('tab-tri')">Tam giác Ohm</button>
+    <button onclick="showTab('tab-pwr')">Bảng công suất</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-tri">
+    <div class="triangle-wrap">
+      <svg class="triangle" width="200" height="180" viewBox="0 0 200 180">
+        <!-- Triangle outline -->
+        <polygon points="100,10 10,165 190,165" fill="#f0fdf4" stroke="#4d7c0f" stroke-width="2.5"/>
+        <!-- Dividing line -->
+        <line x1="10" y1="105" x2="190" y2="105" stroke="#4d7c0f" stroke-width="2"/>
+        <line x1="100" y1="105" x2="100" y2="165" stroke="#4d7c0f" stroke-width="2"/>
+        <!-- V label (top) -->
+        <text x="100" y="75" text-anchor="middle" fill="#dc2626" font-size="28" font-weight="900" id="tri-V">V</text>
+        <!-- I label (bottom-left) -->
+        <text x="55" y="145" text-anchor="middle" fill="#1d4ed8" font-size="24" font-weight="900" id="tri-I">I</text>
+        <!-- R label (bottom-right) -->
+        <text x="148" y="145" text-anchor="middle" fill="#4d7c0f" font-size="24" font-weight="900" id="tri-R">R</text>
+        <!-- × symbol -->
+        <text x="100" y="148" text-anchor="middle" fill="#6b7280" font-size="16">×</text>
+        <!-- Cover highlight (animated by JS) -->
+        <rect id="tri-cover" x="0" y="0" width="0" height="0" fill="rgba(253,224,71,0.6)" rx="4"/>
+      </svg>
+
+      <div class="triangle-legend">
+        <strong>Cách dùng tam giác Ohm:</strong><br>
+        Che phần cần tìm → đọc phép tính còn lại.<br><br>
+        Che <strong>V</strong> → V = I × R<br>
+        Che <strong>I</strong> → I = V ÷ R<br>
+        Che <strong>R</strong> → R = V ÷ I<br><br>
+        <em>Bấm tên đại lượng để xem highlight:</em><br>
+        <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+          <button onclick="highlightTri('V')" style="padding:5px 12px; border-radius:4px; border:2px solid #dc2626; background:white; color:#dc2626; font-weight:700; cursor:pointer;">Che V</button>
+          <button onclick="highlightTri('I')" style="padding:5px 12px; border-radius:4px; border:2px solid #1d4ed8; background:white; color:#1d4ed8; font-weight:700; cursor:pointer;">Che I</button>
+          <button onclick="highlightTri('R')" style="padding:5px 12px; border-radius:4px; border:2px solid #4d7c0f; background:white; color:#4d7c0f; font-weight:700; cursor:pointer;">Che R</button>
+        </div>
+        <div id="tri-formula" style="margin-top:12px; font-size:15px; font-family:monospace; background:#f0fdf4; padding:10px; border-radius:6px; min-height:40px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-pwr">
+    <p>Ba dạng công thức công suất. Bảng dưới so sánh công suất thực tế với công suất định mức điện trở.</p>
+    <div style="overflow-x:auto;">
+      <table class="power-table" id="pwr-table">
+        <thead>
+          <tr>
+            <th>R (Ω)</th>
+            <th>I (mA)</th>
+            <th>V = I·R (V)</th>
+            <th>P = I²·R (mW)</th>
+            <th>Định mức 1/4 W</th>
+          </tr>
+        </thead>
+        <tbody id="pwr-tbody"></tbody>
+      </table>
+    </div>
+    <p style="font-size:13px; color:#6b7280; margin-top:8px;">Các tổ hợp R và I phổ biến trong mạch điện tử thực tế. <span style="color:#dc2626; font-weight:600;">Đỏ</span> = vượt 1/4 W.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 4 — Water Analogy Visualization
+     ══════════════════════════════════════════════════════════ -->
+<h2>4. Analogy dòng nước</h2>
+<div class="card">
+  <p>Hình dung ba đại lượng điện qua hệ thống ống nước: điện áp ↔ chênh lệch độ cao (áp suất), dòng điện ↔ lưu lượng nước, điện trở ↔ độ hẹp ống.</p>
+  <div class="circuit-wrap">
+    <svg width="520" height="240" viewBox="0 0 520 240" id="waterSvg">
+      <rect width="520" height="240" fill="#f0f9ff" rx="10"/>
+
+      <!-- Tank left (high voltage = high water) -->
+      <rect x="30" y="40" width="60" height="150" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2" rx="4"/>
+      <!-- Water level in tank -->
+      <rect x="32" y="60" width="56" height="128" fill="#3b82f6" rx="2" id="water-tank"/>
+      <!-- Tank label -->
+      <text x="60" y="30" text-anchor="middle" fill="#1e40af" font-size="12" font-weight="700">Nguồn áp</text>
+      <text x="60" y="205" text-anchor="middle" fill="#1e40af" font-size="12">(V cao)</text>
+
+      <!-- Pipe (horizontal, middle height) -->
+      <rect x="90" y="115" width="260" height="20" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5" rx="3"/>
+
+      <!-- Narrow section = Resistor -->
+      <rect x="200" y="108" width="60" height="34" fill="white" stroke="#4d7c0f" stroke-width="2.5" rx="4"/>
+      <text x="230" y="124" text-anchor="middle" fill="#4d7c0f" font-size="11" font-weight="700">ống hẹp</text>
+      <text x="230" y="136" text-anchor="middle" fill="#4d7c0f" font-size="10">(Điện trở R)</text>
+      <!-- Narrow pipe inside -->
+      <rect x="210" y="118" width="40" height="10" fill="#86efac" rx="2"/>
+
+      <!-- Tank right (lower / ground) -->
+      <rect x="350" y="100" width="60" height="90" fill="#dcfce7" stroke="#22c55e" stroke-width="2" rx="4"/>
+      <rect x="352" y="140" width="56" height="48" fill="#22c55e" rx="2" id="water-drain"/>
+      <text x="380" y="90" text-anchor="middle" fill="#15803d" font-size="12" font-weight="700">GND</text>
+      <text x="380" y="205" text-anchor="middle" fill="#15803d" font-size="12">(V thấp)</text>
+
+      <!-- Pipe connecting right tank -->
+      <rect x="350" y="115" width="10" height="20" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1"/>
+
+      <!-- Flow dots in pipe -->
+      <circle id="fd1" cx="110" cy="125" r="5" fill="#1d4ed8" opacity="0.7"/>
+      <circle id="fd2" cx="150" cy="125" r="5" fill="#1d4ed8" opacity="0.7"/>
+      <circle id="fd3" cx="310" cy="125" r="5" fill="#1d4ed8" opacity="0.7"/>
+      <circle id="fd4" cx="340" cy="125" r="5" fill="#1d4ed8" opacity="0.7"/>
+
+      <!-- Labels -->
+      <text x="60" y="50" text-anchor="middle" fill="#1e40af" font-size="20" font-weight="900" id="w-V-lbl">V</text>
+      <text x="230" y="82" text-anchor="middle" fill="#4d7c0f" font-size="12" font-weight="700" id="w-R-lbl">R (ống hẹp)</text>
+      <text x="230" y="165" text-anchor="middle" fill="#1d4ed8" font-size="12" font-weight="700" id="w-I-lbl">I = lưu lượng</text>
+
+      <!-- Arrow right in pipe -->
+      <text x="170" y="129" text-anchor="middle" fill="#1d4ed8" font-size="14" font-weight="900">→</text>
+      <text x="300" y="129" text-anchor="middle" fill="#1d4ed8" font-size="14" font-weight="900">→</text>
+
+      <!-- Captions below -->
+      <text x="60" y="222" text-anchor="middle" fill="#374151" font-size="11">Chênh độ cao</text>
+      <text x="60" y="233" text-anchor="middle" fill="#374151" font-size="11">= điện áp V</text>
+      <text x="230" y="222" text-anchor="middle" fill="#374151" font-size="11">Ống hẹp = điện</text>
+      <text x="230" y="233" text-anchor="middle" fill="#374151" font-size="11">trở R cản dòng</text>
+      <text x="390" y="222" text-anchor="middle" fill="#374151" font-size="11">Bể thấp hơn</text>
+      <text x="390" y="233" text-anchor="middle" fill="#374151" font-size="11">= mass (GND)</text>
+    </svg>
+  </div>
+  <div style="background:#f0fdf4; border-radius:6px; padding:12px 16px; font-size:14px; line-height:1.7; margin-top:8px;">
+    <strong>Tóm tắt analogy nước ↔ điện:</strong><br>
+    Điện áp V = chênh lệch mực nước (áp suất) giữa hai bể.
+    Dòng điện I = lưu lượng nước chảy qua ống.
+    Điện trở R = độ hẹp của ống — ống hẹp hơn → cùng áp suất → lưu lượng nhỏ hơn.
+    Đây chính là Định luật Ohm: I = V / R.
+  </div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// MODULE 1: Ohm Calculator
+// ═══════════════════════════════════════════════════════════
+
+let ohmTarget = 'V'; // which quantity to compute
+
+function setTarget(t) {
+  ohmTarget = t;
+  document.querySelectorAll('.radio-row button').forEach((b, idx) => {
+    const targets = ['V', 'I', 'R'];
+    b.classList.toggle('active', targets[idx] === t);
+  });
+  // Mark computed field
+  ['V','I','R'].forEach(f => {
+    const inp = document.getElementById('inp_' + f);
+    inp.classList.toggle('computed', f === t);
+    inp.readOnly = (f === t);
+  });
+  calcOhm();
+}
+
+function calcOhm() {
+  const V_raw = parseFloat(document.getElementById('inp_V').value);
+  const I_mA  = parseFloat(document.getElementById('inp_I').value);
+  const R_kΩ  = parseFloat(document.getElementById('inp_R').value);
+
+  // Convert to SI
+  const I_A = I_mA / 1000;
+  const R_Ω = R_kΩ * 1000;
+
+  let V, I, R, P;
+  let formula = '';
+  let result_html = '';
+
+  if (ohmTarget === 'V') {
+    if (isNaN(I_mA) || isNaN(R_kΩ) || I_A <= 0 || R_Ω <= 0) { showOhmError(); return; }
+    V = I_A * R_Ω;
+    I = I_A; R = R_Ω;
+    document.getElementById('inp_V').value = V.toFixed(4);
+    formula = `V = I × R = ${I_mA} mA × ${R_kΩ} kΩ = ${I_A.toFixed(6)} A × ${R_Ω} Ω`;
+  } else if (ohmTarget === 'I') {
+    if (isNaN(V_raw) || isNaN(R_kΩ) || V_raw <= 0 || R_Ω <= 0) { showOhmError(); return; }
+    V = V_raw; R = R_Ω;
+    I = V / R;
+    document.getElementById('inp_I').value = (I * 1000).toFixed(4);
+    formula = `I = V / R = ${V} V / ${R_kΩ} kΩ = ${V} / ${R_Ω} Ω`;
+  } else { // R
+    if (isNaN(V_raw) || isNaN(I_mA) || V_raw <= 0 || I_A <= 0) { showOhmError(); return; }
+    V = V_raw; I = I_A;
+    R = V / I;
+    document.getElementById('inp_R').value = (R / 1000).toFixed(6);
+    formula = `R = V / I = ${V} V / ${I_mA} mA = ${V} / ${I_A} A`;
+  }
+
+  P = V * I;
+  const P_mW = P * 1000;
+
+  // Power rating check
+  const ratings = [0.125, 0.25, 0.5, 1, 2, 5];
+  const recRating = ratings.find(r => r >= P * 2) || 10; // derating x2
+  const passQW = P <= 0.125;
+  const passHW = P <= 0.25;
+  const passHalfW = P <= 0.5;
+
+  let pwrClass = P <= 0.125 ? 'ok' : (P <= 0.25 ? 'ok' : (P <= 0.5 ? 'ok' : 'warn'));
+  let pwrNote = '';
+  if (P >= 0.5) pwrNote = `<span class="warn">Quá 1/4 W — không dùng điện trở nhỏ thông thường!</span>`;
+  else if (P >= 0.25) pwrNote = `<span class="warn">Gần giới hạn 1/4 W — nên chọn 1/2 W để an toàn.</span>`;
+  else if (P >= 0.125) pwrNote = `<span class="ok">Ổn với điện trở 1/4 W, nhưng nên dùng 1/2 W khi có thể.</span>`;
+  else pwrNote = `<span class="ok">Rất an toàn — điện trở 1/8 W (125 mW) là đủ.</span>`;
+
+  document.getElementById('ohm-result').innerHTML = `
+    <div>${formula} = <span class="highlight">${ohmTarget === 'V' ? V.toFixed(3)+' V' : ohmTarget === 'I' ? (I*1000).toFixed(3)+' mA' : (R/1000).toFixed(4)+' kΩ ('+R.toFixed(0)+' Ω)'}</span></div>
+    <div style="margin-top:6px">V = <strong>${V.toFixed(3)} V</strong>  ·  I = <strong>${(I*1000).toFixed(3)} mA</strong>  ·  R = <strong>${R < 1000 ? R.toFixed(1)+' Ω' : (R/1000).toFixed(3)+' kΩ'}</strong></div>
+    <div style="margin-top:6px">Công suất P = V × I = ${V.toFixed(3)} × ${(I*1000).toFixed(3)} mA = <span class="highlight">${P_mW.toFixed(2)} mW = ${P.toFixed(4)} W</span></div>
+    <div style="margin-top:6px">Điện trở đề xuất (derating 2×): chọn loại <strong>${recRating >= 1 ? recRating+' W' : (recRating*1000)+' mW'}</strong>. ${pwrNote}</div>
+  `;
+}
+
+function showOhmError() {
+  document.getElementById('ohm-result').innerHTML = '<span style="color:#dc2626">Nhập giá trị hợp lệ (> 0) cho 2 đại lượng còn lại.</span>';
+}
+
+// Init ohm calc
+setTarget('V');
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 2: Circuit Diagram with animated flow dots
+// ═══════════════════════════════════════════════════════════
+
+// Flow dot animation state
+const CIRCUIT_DOTS = 8;
+let dotPositions = [];
+let dotAnimId = null;
+
+// Circuit path: clockwise from source (+) → top wire → resistor → right wire → bottom → left (source −)
+// We'll animate dots along a simple rectangular path
+// Waypoints: [x,y] traversed in order
+const PATH = [
+  [100, 60],   // 0: source + terminal
+  [200, 60],   // 1: resistor left
+  [320, 60],   // 2: resistor right
+  [420, 60],   // 3: top-right corner
+  [420, 220],  // 4: bottom-right corner
+  [100, 220],  // 5: bottom-left corner
+  [100, 60],   // 6: back to source (loop)
+];
+
+function pathLength() {
+  let total = 0;
+  for (let i = 1; i < PATH.length; i++) {
+    const dx = PATH[i][0] - PATH[i-1][0];
+    const dy = PATH[i][1] - PATH[i-1][1];
+    total += Math.sqrt(dx*dx + dy*dy);
+  }
+  return total;
+}
+
+function posAtDist(dist) {
+  const totalLen = pathLength();
+  dist = ((dist % totalLen) + totalLen) % totalLen;
+  let remaining = dist;
+  for (let i = 1; i < PATH.length; i++) {
+    const dx = PATH[i][0] - PATH[i-1][0];
+    const dy = PATH[i][1] - PATH[i-1][1];
+    const segLen = Math.sqrt(dx*dx + dy*dy);
+    if (remaining <= segLen) {
+      const t = remaining / segLen;
+      return [PATH[i-1][0] + t*dx, PATH[i-1][1] + t*dy];
+    }
+    remaining -= segLen;
+  }
+  return PATH[0];
+}
+
+let flowOffset = 0;
+let flowSpeed = 1; // pixels per frame
+
+function initFlowDots() {
+  const svg = document.getElementById('circuitSvg');
+  const g = document.getElementById('flow-group');
+  g.innerHTML = '';
+  dotPositions = [];
+  const total = pathLength();
+  for (let i = 0; i < CIRCUIT_DOTS; i++) {
+    const dist = (total / CIRCUIT_DOTS) * i;
+    dotPositions.push(dist);
+    const pos = posAtDist(dist);
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", pos[0]);
+    circle.setAttribute("cy", pos[1]);
+    circle.setAttribute("r", "5");
+    circle.setAttribute("fill", "#dc2626");
+    circle.setAttribute("opacity", "0.75");
+    circle.id = "dot_" + i;
+    g.appendChild(circle);
+  }
+}
+
+function animateDots() {
+  const total = pathLength();
+  for (let i = 0; i < CIRCUIT_DOTS; i++) {
+    dotPositions[i] = (dotPositions[i] + flowSpeed) % total;
+    const pos = posAtDist(dotPositions[i]);
+    const circle = document.getElementById("dot_" + i);
+    if (circle) {
+      circle.setAttribute("cx", pos[0]);
+      circle.setAttribute("cy", pos[1]);
+    }
+  }
+  dotAnimId = requestAnimationFrame(animateDots);
+}
+
+function updateCircuit() {
+  const V = parseFloat(document.getElementById('sl-V').value);
+  const R = parseFloat(document.getElementById('sl-R').value);
+  const I = V / R;    // Ampere
+  const P = V * I;    // Watt
+  const I_mA = I * 1000;
+
+  document.getElementById('sl-V-val').textContent = V.toFixed(1) + ' V';
+  document.getElementById('sl-R-val').textContent = R >= 1000 ? (R/1000).toFixed(1) + ' kΩ' : R.toFixed(0) + ' Ω';
+
+  // Update SVG labels
+  document.getElementById('lbl-Vs').textContent = 'V = ' + V.toFixed(1) + ' V';
+  document.getElementById('lbl-R').textContent = 'R = ' + (R >= 1000 ? (R/1000).toFixed(1) + ' kΩ' : R.toFixed(0) + ' Ω');
+  document.getElementById('lbl-I').textContent = 'I = ' + I_mA.toFixed(2) + ' mA';
+  document.getElementById('lbl-P').textContent = 'P = ' + (P*1000).toFixed(2) + ' mW';
+
+  // Speed proportional to I (normalized)
+  flowSpeed = Math.max(0.3, Math.min(4, I_mA / 10));
+
+  // Power warning
+  const pwrClass = P > 0.25 ? 'warn' : 'ok';
+  const pwrNote = P > 0.5 ? 'Điện trở 1/4 W sẽ cháy!' :
+                  P > 0.25 ? 'Vượt 1/4 W — dùng 1/2 W hoặc lớn hơn.' :
+                  P > 0.125 ? 'Ổn với 1/4 W.' : 'An toàn với 1/8 W.';
+
+  document.getElementById('circuit-result').innerHTML =
+    `V = ${V.toFixed(1)} V · R = ${R >= 1000 ? (R/1000).toFixed(1)+' kΩ' : R.toFixed(0)+' Ω'}<br>` +
+    `I = V / R = ${V.toFixed(1)} / ${R.toFixed(0)} = <span class="highlight">${I_mA.toFixed(3)} mA</span><br>` +
+    `P = I² × R = (${I_mA.toFixed(3)} mA)² × ${R.toFixed(0)} Ω = <span class="highlight">${(P*1000).toFixed(2)} mW</span><br>` +
+    `<span class="${pwrClass}">${pwrNote}</span>`;
+}
+
+// Init circuit
+initFlowDots();
+animateDots();
+updateCircuit();
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 3: Ohm Triangle
+// ═══════════════════════════════════════════════════════════
+
+function highlightTri(target) {
+  const cover = document.getElementById('tri-cover');
+  const formula = document.getElementById('tri-formula');
+
+  if (target === 'V') {
+    // Cover top portion (triangle apex area)
+    cover.setAttribute('x', '60'); cover.setAttribute('y', '10');
+    cover.setAttribute('width', '80'); cover.setAttribute('height', '90');
+    formula.textContent = 'Che V → V = I × R';
+    formula.style.color = '#dc2626';
+  } else if (target === 'I') {
+    // Cover bottom-left
+    cover.setAttribute('x', '10'); cover.setAttribute('y', '108');
+    cover.setAttribute('width', '85'); cover.setAttribute('height', '55');
+    formula.textContent = 'Che I → I = V ÷ R';
+    formula.style.color = '#1d4ed8';
+  } else {
+    // Cover bottom-right
+    cover.setAttribute('x', '105'); cover.setAttribute('y', '108');
+    cover.setAttribute('width', '85'); cover.setAttribute('height', '55');
+    formula.textContent = 'Che R → R = V ÷ I';
+    formula.style.color = '#4d7c0f';
+  }
+}
+
+// Init triangle
+highlightTri('V');
+
+function showTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULE 3b: Power Table
+// ═══════════════════════════════════════════════════════════
+
+(function buildPowerTable() {
+  const combinations = [
+    [220, 10],
+    [220, 50],
+    [470, 20],
+    [1000, 10],
+    [1000, 50],
+    [100, 50],
+    [100, 100],
+    [10, 200],
+    [10, 500],
+    [4700, 5],
+    [10000, 1],
+    [33, 200],
+  ];
+
+  const tbody = document.getElementById('pwr-tbody');
+  combinations.forEach(([R, I_mA]) => {
+    const I = I_mA / 1000;
+    const V = I * R;
+    const P = I * I * R;
+    const P_mW = P * 1000;
+    const pass = P <= 0.25;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${R >= 1000 ? (R/1000).toFixed(1)+' kΩ' : R+' Ω'}</td>
+      <td>${I_mA} mA</td>
+      <td>${V.toFixed(2)} V</td>
+      <td class="${pass ? 'ok' : 'over'}">${P_mW.toFixed(1)} mW</td>
+      <td class="${pass ? 'ok' : 'over'}">${pass ? 'Đạt' : 'Quá tải!'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+})();
+
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

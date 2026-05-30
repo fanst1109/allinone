@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Cuộn cảm &amp; Mạch RL</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #d1fae5; }
+
+  .card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  /* Controls row */
+  .ctrl-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    align-items: center;
+    margin: 10px 0;
+  }
+  .ctrl-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ctrl-group label {
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+    min-width: 55px;
+  }
+  input[type="range"] {
+    width: 120px;
+  }
+  .val-box {
+    font-family: monospace;
+    font-size: 13px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 4px;
+    padding: 2px 8px;
+    min-width: 60px;
+    text-align: center;
+  }
+
+  /* Buttons */
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+  button {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-primary { background: #4d7c0f; color: white; }
+  .btn-primary:hover { background: #3f6212; }
+  .btn-danger  { background: #dc2626; color: white; }
+  .btn-danger:hover  { background: #b91c1c; }
+  .btn-neutral { background: #64748b; color: white; }
+  .btn-neutral:hover { background: #475569; }
+
+  /* Stats row */
+  .stat-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .stat {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-family: monospace;
+    font-size: 13px;
+  }
+  .stat strong { color: #166534; }
+  .stat.warn   { background: #fef2f2; border-color: #fecaca; }
+  .stat.warn strong { color: #991b1b; }
+  .stat.blue   { background: #eff6ff; border-color: #bfdbfe; }
+  .stat.blue strong { color: #1e40af; }
+
+  /* SVG chart */
+  .chart-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+  svg.chart {
+    display: block;
+    width: 100%;
+    max-width: 680px;
+    height: 220px;
+    background: #fafafa;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    margin: 8px auto;
+  }
+
+  /* Circuit diagram */
+  svg.circuit {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    height: 180px;
+    margin: 0 auto 8px;
+  }
+
+  /* Spike indicator */
+  .spike-bar-wrap {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 10px 0;
+  }
+  .spike-bar-track {
+    height: 20px;
+    background: #fee2e2;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 6px 0;
+    position: relative;
+  }
+  .spike-bar-fill {
+    height: 100%;
+    background: linear-gradient(to right, #fbbf24, #dc2626);
+    border-radius: 4px;
+    transition: width 0.3s;
+    min-width: 2px;
+  }
+  .spike-label { font-family: monospace; font-size: 13px; margin: 2px 0; }
+
+  /* Analog gauge for tau */
+  .tau-display {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 15px;
+  }
+  .tau-display .big { font-size: 28px; font-weight: 700; color: #166534; font-family: monospace; }
+
+  /* Annotation box */
+  .anno {
+    background: #fefce8;
+    border-left: 4px solid #f59e0b;
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    margin: 10px 0;
+    font-size: 14px;
+  }
+
+  /* Info note */
+  .note {
+    font-size: 13px;
+    color: #475569;
+    margin: 6px 0;
+  }
+
+  /* Two-col layout for wide */
+  .two-col {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .two-col > .card { flex: 1 1 280px; margin: 0; }
+
+  @media (max-width: 600px) {
+    input[type="range"] { width: 90px; }
+    .ctrl-group label { min-width: 40px; }
+    svg.chart { height: 180px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Fundamentals</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-capacitor-rc/visualization.html">← L4: Tụ điện &amp; mạch RC</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Cuộn cảm &amp; mạch RL</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-ac-impedance-rlc/visualization.html">L6: AC, trở kháng &amp; RLC →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Cuộn cảm &amp; Mạch RL</h1>
+<p>Bộ mô phỏng: (1) Mạch RL tương tác — đường cong I(t) chạy động. (2) Spike điện áp khi ngắt mạch. (3) Năng lượng cuộn cảm và so sánh với tụ điện.</p>
+
+<!-- ========== MODULE 1: RL CIRCUIT SIMULATOR ========== -->
+<h2>1. Mô phỏng mạch RL — Nạp &amp; Xả</h2>
+<div class="card">
+  <p>Điều chỉnh L, R, V rồi nhấn <strong>Đóng mạch</strong> để xem dòng tăng dần. Nhấn <strong>Ngắt mạch</strong> để xem dòng giảm. Đường cong vẽ theo thời gian thực.</p>
+
+  <!-- Sliders -->
+  <div class="ctrl-row">
+    <div class="ctrl-group">
+      <label>L (mH):</label>
+      <input type="range" id="slL" min="1" max="200" value="10" step="1" oninput="onParamChange()">
+      <span class="val-box" id="lblL">10 mH</span>
+    </div>
+    <div class="ctrl-group">
+      <label>R (Ω):</label>
+      <input type="range" id="slR" min="10" max="1000" value="100" step="10" oninput="onParamChange()">
+      <span class="val-box" id="lblR">100 Ω</span>
+    </div>
+    <div class="ctrl-group">
+      <label>V (V):</label>
+      <input type="range" id="slV" min="1" max="24" value="12" step="1" oninput="onParamChange()">
+      <span class="val-box" id="lblV">12 V</span>
+    </div>
+  </div>
+
+  <!-- Tau display -->
+  <div class="two-col" style="margin:12px 0;">
+    <div class="tau-display" style="flex:1 1 160px;">
+      <div>Hằng số thời gian</div>
+      <div class="big" id="tauDisplay">0.10 ms</div>
+      <div style="font-size:12px;color:#6b7280">τ = L/R</div>
+    </div>
+    <div class="tau-display" style="flex:1 1 160px; background:#eff6ff; border-color:#bfdbfe;">
+      <div>Dòng ổn định</div>
+      <div class="big" style="color:#1e40af" id="imaxDisplay">120 mA</div>
+      <div style="font-size:12px;color:#6b7280">I<sub>max</sub> = V/R</div>
+    </div>
+    <div class="tau-display" style="flex:1 1 160px; background:#fefce8; border-color:#fde68a;">
+      <div>Năng lượng max</div>
+      <div class="big" style="color:#92400e" id="emaxDisplay">0.72 mJ</div>
+      <div style="font-size:12px;color:#6b7280">E = ½LI²</div>
+    </div>
+  </div>
+
+  <!-- Circuit SVG (schematic) -->
+  <svg class="circuit" viewBox="0 0 420 180" id="circuitSvg">
+    <!-- Wire top -->
+    <line x1="40" y1="40" x2="380" y2="40" stroke="#1a202c" stroke-width="2.5"/>
+    <!-- Wire bottom -->
+    <line x1="40" y1="140" x2="160" y2="140" stroke="#1a202c" stroke-width="2.5"/>
+    <line x1="260" y1="140" x2="380" y2="140" stroke="#1a202c" stroke-width="2.5"/>
+    <!-- Left wire (source) -->
+    <line x1="40" y1="40" x2="40" y2="140" stroke="#1a202c" stroke-width="2.5"/>
+    <!-- Right wire -->
+    <line x1="380" y1="40" x2="380" y2="140" stroke="#1a202c" stroke-width="2.5"/>
+
+    <!-- Voltage source (left) -->
+    <circle cx="40" cy="90" r="22" fill="white" stroke="#4d7c0f" stroke-width="2.5"/>
+    <text x="40" y="85" text-anchor="middle" font-size="11" fill="#166534" font-weight="700">+</text>
+    <text x="40" y="100" text-anchor="middle" font-size="11" fill="#166534">V</text>
+    <text x="40" y="114" text-anchor="middle" font-size="10" fill="#6b7280" id="vsLabel">12 V</text>
+
+    <!-- Switch (bottom, between left and right bottom wire) -->
+    <circle cx="185" cy="140" r="5" fill="white" stroke="#475569" stroke-width="2"/>
+    <circle cx="235" cy="140" r="5" fill="white" stroke="#475569" stroke-width="2"/>
+    <line id="swLine" x1="190" y1="140" x2="230" y2="125" stroke="#475569" stroke-width="2.5" stroke-dasharray="none"/>
+    <text x="210" y="162" text-anchor="middle" font-size="11" fill="#475569" id="swLabel">Ngắt</text>
+
+    <!-- Resistor (top, from 80 to 200) -->
+    <rect x="90" y="28" width="80" height="24" rx="4" fill="white" stroke="#dc2626" stroke-width="2"/>
+    <text x="130" y="44" text-anchor="middle" font-size="11" fill="#dc2626" font-weight="700" id="rLabel">100 Ω</text>
+
+    <!-- Inductor (top, from 240 to 360) — zigzag -->
+    <path id="inductorPath"
+      d="M240,40 Q252,24 264,40 Q276,56 288,40 Q300,24 312,40 Q324,56 336,40 Q348,24 360,40"
+      fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+    <text x="300" y="20" text-anchor="middle" font-size="11" fill="#1d4ed8" font-weight="700" id="lLabel">10 mH</text>
+
+    <!-- Current arrow + label -->
+    <defs>
+      <marker id="arrowG" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#166534"/>
+      </marker>
+    </defs>
+    <line id="currArrow" x1="160" y1="40" x2="200" y2="40" stroke="#166534" stroke-width="2" marker-end="url(#arrowG)" opacity="0"/>
+    <text id="currLabel" x="185" y="33" text-anchor="middle" font-size="11" fill="#166534" font-weight="700" opacity="0">I = 0 mA</text>
+  </svg>
+
+  <!-- Action buttons -->
+  <div class="btn-row">
+    <button class="btn-primary" id="btnClose" onclick="doClose()">Dong mach</button>
+    <button class="btn-danger"  id="btnOpen"  onclick="doOpen()" disabled>Ngat mach</button>
+    <button class="btn-neutral" onclick="doReset()">Reset</button>
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-wrap">
+    <svg class="chart" viewBox="0 0 680 220" id="chartSvg">
+      <!-- Axes drawn by JS -->
+    </svg>
+  </div>
+  <p class="note">Trục X: thời gian (µs); Trục Y: dòng điện I (mA). Đường xanh lá = I(t). Đường nét đứt xanh dương = I_max. Đường nét đứt cam = mức 63.2% (1τ).</p>
+
+  <!-- Live stats -->
+  <div class="stat-row" id="statsRow">
+    <span class="stat">t = <strong id="statT">0.0 µs</strong></span>
+    <span class="stat">I = <strong id="statI">0.0 mA</strong></span>
+    <span class="stat">V_L = <strong id="statVL">0.0 V</strong></span>
+    <span class="stat">V_R = <strong id="statVR">0.0 V</strong></span>
+    <span class="stat blue">τ đã qua: <strong id="statTau">0.0 τ</strong></span>
+  </div>
+
+  <div class="anno" id="annoText">
+    Nhấn <strong>Dong mach</strong> để bắt đầu mô phỏng. Dòng bắt đầu từ 0 và tăng dần đến I_max = V/R.
+  </div>
+</div>
+
+<!-- ========== MODULE 2: SPIKE SIMULATOR ========== -->
+<h2>2. Spike điện áp khi ngắt mạch đột ngột</h2>
+<div class="card">
+  <p>Mô phỏng điện áp spike khi transistor ngắt relay/cuộn điện từ. Thay đổi tốc độ ngắt để thấy spike tăng vọt.</p>
+
+  <div class="ctrl-row">
+    <div class="ctrl-group">
+      <label>L (mH):</label>
+      <input type="range" id="spL" min="1" max="200" value="50" step="1" oninput="calcSpike()">
+      <span class="val-box" id="spLbl">50 mH</span>
+    </div>
+    <div class="ctrl-group">
+      <label>I₀ (A):</label>
+      <input type="range" id="spI" min="0.01" max="2" value="0.1" step="0.01" oninput="calcSpike()">
+      <span class="val-box" id="spIlbl">0.10 A</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Δt (µs):</label>
+      <input type="range" id="spDt" min="1" max="500" value="5" step="1" oninput="calcSpike()">
+      <span class="val-box" id="spDtlbl">5 µs</span>
+    </div>
+  </div>
+
+  <!-- Presets -->
+  <div class="btn-row">
+    <button class="btn-neutral" onclick="setSpike(50,0.1,5)">Relay + transistor nhanh</button>
+    <button class="btn-neutral" onclick="setSpike(50,0.1,200)">Relay + diode flyback</button>
+    <button class="btn-neutral" onclick="setSpike(10,0.5,2)">Cuon cảm nho, ngat nhanh</button>
+    <button class="btn-neutral" onclick="setSpike(100,0.2,10)">Relay lon, ngat vua</button>
+  </div>
+
+  <div class="spike-bar-wrap" id="spikeBox">
+    <div class="spike-label" id="spFormula">V_spike = L × dI/dt = ... </div>
+    <div class="spike-bar-track">
+      <div class="spike-bar-fill" id="spikeBar" style="width:10%"></div>
+    </div>
+    <div class="spike-label" id="spResult" style="font-size:15px; font-weight:700"></div>
+    <div id="spStatus" style="margin-top:8px; font-size:14px;"></div>
+  </div>
+
+  <p class="note">Tham chiếu: transistor phổ biến V_CE_max ~ 30-60 V. Vi điều khiển GPIO ~ 3.3-5 V. Spike vượt ngưỡng này sẽ phá hủy linh kiện.</p>
+</div>
+
+<!-- ========== MODULE 3: ENERGY COMPARISON ========== -->
+<h2>3. Năng lượng cuộn cảm — So sánh với tụ điện</h2>
+<div class="card">
+  <p>So sánh trực quan năng lượng E = ½L·I² (cuộn cảm) vs E = ½C·V² (tụ điện).</p>
+
+  <div class="two-col">
+    <div class="card" style="background:#f0fdf4; box-shadow:none; border:1px solid #bbf7d0;">
+      <strong style="color:#166534">Cuộn cảm</strong>
+      <div class="ctrl-row" style="margin-top:10px;">
+        <div class="ctrl-group">
+          <label>L (mH):</label>
+          <input type="range" id="enL" min="1" max="500" value="10" step="1" oninput="calcEnergy()">
+          <span class="val-box" id="enLlbl">10 mH</span>
+        </div>
+      </div>
+      <div class="ctrl-row">
+        <div class="ctrl-group">
+          <label>I (A):</label>
+          <input type="range" id="enI" min="0.01" max="5" value="1" step="0.01" oninput="calcEnergy()">
+          <span class="val-box" id="enIlbl">1.00 A</span>
+        </div>
+      </div>
+      <div class="stat" style="margin-top:8px;">E_L = <strong id="enEL">5.00 mJ</strong></div>
+    </div>
+
+    <div class="card" style="background:#eff6ff; box-shadow:none; border:1px solid #bfdbfe;">
+      <strong style="color:#1e40af">Tụ điện</strong>
+      <div class="ctrl-row" style="margin-top:10px;">
+        <div class="ctrl-group">
+          <label>C (µF):</label>
+          <input type="range" id="enC" min="1" max="10000" value="470" step="1" oninput="calcEnergy()">
+          <span class="val-box" id="enClbl">470 µF</span>
+        </div>
+      </div>
+      <div class="ctrl-row">
+        <div class="ctrl-group">
+          <label>V (V):</label>
+          <input type="range" id="enV" min="1" max="50" value="12" step="1" oninput="calcEnergy()">
+          <span class="val-box" id="enVlbl">12 V</span>
+        </div>
+      </div>
+      <div class="stat blue" style="margin-top:8px;">E_C = <strong id="enEC">33.84 mJ</strong></div>
+    </div>
+  </div>
+
+  <!-- Bar chart comparison -->
+  <div style="margin:16px 0;">
+    <div style="font-size:13px; margin-bottom:6px; font-weight:600;">Tỉ lệ năng lượng:</div>
+    <div style="display:flex; align-items:center; gap:8px; margin:4px 0;">
+      <div style="width:80px; font-size:12px; color:#166534; font-weight:600;">E_L</div>
+      <div style="flex:1; height:20px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
+        <div id="barL" style="height:100%; background:#4d7c0f; border-radius:4px; transition:width 0.3s; width:13%"></div>
+      </div>
+      <div style="width:70px; font-family:monospace; font-size:12px;" id="barLlbl">5.00 mJ</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px; margin:4px 0;">
+      <div style="width:80px; font-size:12px; color:#1e40af; font-weight:600;">E_C</div>
+      <div style="flex:1; height:20px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
+        <div id="barC" style="height:100%; background:#1d4ed8; border-radius:4px; transition:width 0.3s; width:87%"></div>
+      </div>
+      <div style="width:70px; font-family:monospace; font-size:12px;" id="barClbl">33.84 mJ</div>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <span class="stat" id="enRatio">E_C/E_L = 6.8×</span>
+  </div>
+  <p class="note">Cả hai công thức ½L·I² và ½C·V² hoàn toàn đối xứng — biểu hiện của tính đối ngẫu (duality) giữa tụ và cuộn cảm trong điện tử.</p>
+</div>
+
+<!-- ========== MODULE 4: VL FORMULA EXPLORER ========== -->
+<h2>4. Khám phá V_L = L·(dI/dt)</h2>
+<div class="card">
+  <p>Nhập tham số để tính V_L và kiểm tra các ví dụ số từ bài học.</p>
+
+  <div class="ctrl-row">
+    <div class="ctrl-group">
+      <label>L:</label>
+      <input type="number" id="vlL" value="100" min="0.001" step="1" style="width:80px; padding:6px 8px; border:1px solid #cbd5e0; border-radius:4px; font-size:14px; font-family:monospace;">
+      <select id="vlLunit" style="padding:6px; border:1px solid #cbd5e0; border-radius:4px; font-size:14px;">
+        <option value="0.001" selected>mH</option>
+        <option value="0.000001">µH</option>
+        <option value="1">H</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <label>dI:</label>
+      <input type="number" id="vlDI" value="1" step="0.1" style="width:80px; padding:6px 8px; border:1px solid #cbd5e0; border-radius:4px; font-size:14px; font-family:monospace;">
+      <span style="font-size:13px;">A</span>
+    </div>
+    <div class="ctrl-group">
+      <label>dt:</label>
+      <input type="number" id="vlDt" value="1" step="0.1" style="width:80px; padding:6px 8px; border:1px solid #cbd5e0; border-radius:4px; font-size:14px; font-family:monospace;">
+      <select id="vlDtunit" style="padding:6px; border:1px solid #cbd5e0; border-radius:4px; font-size:14px;">
+        <option value="0.001" selected>ms</option>
+        <option value="0.000001">µs</option>
+        <option value="1">s</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="calcVL()" style="margin:8px 0;">Tinh V_L</button>
+
+  <div class="card" style="background:#fafafa; box-shadow:none; border:1px solid #e2e8f0; margin-top:8px;" id="vlResult">
+    <span style="color:#94a3b8">Nhập tham số và nhấn Tính V_L.</span>
+  </div>
+
+  <!-- Preset examples -->
+  <div style="margin-top:12px;">
+    <strong style="font-size:13px;">Ví dụ từ bài học:</strong>
+    <div class="btn-row" style="margin-top:8px;">
+      <button class="btn-neutral" onclick="setVL(100,'0.001',2,1,'1')">Ví dụ 1: 100mH, dI=2A/s</button>
+      <button class="btn-neutral" onclick="setVL(100,'0.001',1,1,'0.001')">Ví dụ 2: 100mH, 1A/1ms</button>
+      <button class="btn-neutral" onclick="setVL(10,'0.000001',5,1,'0.000001')">Ví dụ 3: 10µH, 5A/1µs</button>
+      <button class="btn-neutral" onclick="setVL(50,'0.001',0.2,10,'0.000001')">Ví dụ 4: Relay ngat 10µs</button>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ============================================================
+// MODULE 1: RL CIRCUIT SIMULATOR
+// ============================================================
+let simState = 'idle'; // idle | charging | discharging | done
+let simAF = null;
+let simStartTime = 0;
+let simI0 = 0; // initial current when phase starts
+let simPhase = 'charge'; // charge | discharge
+let chartPoints = []; // [{t_us, i_ma, phase}]
+let paramL = 0.01; // H
+let paramR = 100;  // Ω
+let paramV = 12;   // V
+
+function fmtTime(s) {
+  if (s < 1e-6) return (s * 1e9).toFixed(1) + ' ns';
+  if (s < 1e-3) return (s * 1e6).toFixed(1) + ' µs';
+  if (s < 1) return (s * 1e3).toFixed(2) + ' ms';
+  return s.toFixed(3) + ' s';
+}
+
+function fmtCurrent(a) {
+  if (Math.abs(a) < 1e-3) return (a * 1e6).toFixed(1) + ' µA';
+  if (Math.abs(a) < 1) return (a * 1e3).toFixed(2) + ' mA';
+  return a.toFixed(4) + ' A';
+}
+
+function onParamChange() {
+  paramL = parseFloat(document.getElementById('slL').value) / 1000;
+  paramR = parseFloat(document.getElementById('slR').value);
+  paramV = parseFloat(document.getElementById('slV').value);
+  document.getElementById('lblL').textContent = (paramL * 1000).toFixed(0) + ' mH';
+  document.getElementById('lblR').textContent = paramR + ' Ω';
+  document.getElementById('lblV').textContent = paramV + ' V';
+
+  const tau = paramL / paramR;
+  const imax = paramV / paramR;
+  const emax = 0.5 * paramL * imax * imax;
+
+  document.getElementById('tauDisplay').textContent = fmtTime(tau);
+  document.getElementById('imaxDisplay').textContent = fmtCurrent(imax);
+  document.getElementById('emaxDisplay').textContent = fmtEnergy(emax);
+
+  // Update circuit labels
+  document.getElementById('vsLabel').textContent = paramV + ' V';
+  document.getElementById('rLabel').textContent = paramR + ' Ω';
+  document.getElementById('lLabel').textContent = (paramL * 1000).toFixed(0) + ' mH';
+
+  if (simState === 'idle') doReset();
+}
+
+function fmtEnergy(j) {
+  if (j < 1e-6) return (j * 1e9).toFixed(2) + ' nJ';
+  if (j < 1e-3) return (j * 1e6).toFixed(2) + ' µJ';
+  if (j < 1) return (j * 1e3).toFixed(3) + ' mJ';
+  return j.toFixed(3) + ' J';
+}
+
+function doReset() {
+  if (simAF) { cancelAnimationFrame(simAF); simAF = null; }
+  simState = 'idle';
+  chartPoints = [];
+  simI0 = 0;
+  document.getElementById('btnClose').disabled = false;
+  document.getElementById('btnOpen').disabled = true;
+  document.getElementById('swLine').setAttribute('x1', '190');
+  document.getElementById('swLine').setAttribute('x2', '230');
+  document.getElementById('swLine').setAttribute('y1', '140');
+  document.getElementById('swLine').setAttribute('y2', '125');
+  document.getElementById('swLabel').textContent = 'Ngắt';
+  document.getElementById('currArrow').setAttribute('opacity', '0');
+  document.getElementById('currLabel').setAttribute('opacity', '0');
+  drawChart();
+  updateStats(0, 0, paramV, 0);
+  document.getElementById('annoText').innerHTML = 'Nhấn <strong>Dong mach</strong> để bắt đầu mô phỏng. Dòng bắt đầu từ 0 và tăng dần đến I<sub>max</sub> = V/R.';
+}
+
+function doClose() {
+  if (simState !== 'idle') return;
+  simState = 'charging';
+  simPhase = 'charge';
+  simI0 = 0;
+  simStartTime = performance.now();
+  document.getElementById('btnClose').disabled = true;
+  document.getElementById('btnOpen').disabled = false;
+  document.getElementById('swLine').setAttribute('x1', '190');
+  document.getElementById('swLine').setAttribute('x2', '230');
+  document.getElementById('swLine').setAttribute('y1', '140');
+  document.getElementById('swLine').setAttribute('y2', '140');
+  document.getElementById('swLabel').textContent = 'Đóng';
+  document.getElementById('currArrow').setAttribute('opacity', '1');
+  document.getElementById('annoText').innerHTML = '<strong>Dòng đang tăng dần.</strong> Cuộn cảm cản trở thay đổi — ban đầu V_L = V_s, dòng = 0. Dần dần dòng tăng, V_L giảm, V_R tăng.';
+  simAF = requestAnimationFrame(simStep);
+}
+
+function doOpen() {
+  if (simState !== 'charging' && simState !== 'done_charge') return;
+  // Get current I
+  const elapsed = (performance.now() - simStartTime) / 1000;
+  const tau = paramL / paramR;
+  const imax = paramV / paramR;
+  simI0 = imax * (1 - Math.exp(-elapsed / tau));
+  simState = 'discharging';
+  simPhase = 'discharge';
+  simStartTime = performance.now();
+  document.getElementById('btnOpen').disabled = true;
+  document.getElementById('swLine').setAttribute('y2', '125');
+  document.getElementById('swLabel').textContent = 'Ngắt';
+  document.getElementById('annoText').innerHTML = '<strong>Dòng đang giảm dần.</strong> Cuộn cảm "tiếp tục đẩy" dòng qua R. Năng lượng từ trường chuyển thành nhiệt ở R.';
+  simAF = requestAnimationFrame(simStep);
+}
+
+function simStep(ts) {
+  const elapsed = (ts - simStartTime) / 1000; // giây
+  const tau = paramL / paramR;
+  const imax = paramV / paramR;
+  let I, VL, VR;
+
+  if (simPhase === 'charge') {
+    I = imax * (1 - Math.exp(-elapsed / tau));
+    VL = paramV * Math.exp(-elapsed / tau);
+    VR = I * paramR;
+  } else {
+    I = simI0 * Math.exp(-elapsed / tau);
+    VL = -I * paramR; // Negative: supporting current direction
+    VR = I * paramR;
+  }
+
+  // Add point
+  const t_us = elapsed * 1e6;
+  if (chartPoints.length === 0 || t_us - chartPoints[chartPoints.length - 1].t_us > 2) {
+    chartPoints.push({ t_us, i_ma: I * 1000, phase: simPhase });
+  }
+
+  updateStats(elapsed, I, VL, VR);
+  drawChart();
+
+  // Update arrow
+  const opacity = Math.min(1, I / imax * 2 + 0.1);
+  document.getElementById('currArrow').setAttribute('opacity', String(opacity));
+  document.getElementById('currLabel').setAttribute('opacity', String(opacity));
+  document.getElementById('currLabel').textContent = 'I = ' + fmtCurrent(I);
+
+  // Continue or stop
+  const done = (simPhase === 'charge' && elapsed > 6 * tau) ||
+               (simPhase === 'discharge' && I < imax * 0.005);
+
+  if (!done) {
+    simAF = requestAnimationFrame(simStep);
+  } else {
+    simState = simPhase === 'charge' ? 'done_charge' : 'done_discharge';
+    if (simPhase === 'charge') {
+      document.getElementById('annoText').innerHTML =
+        '<strong>Dòng đã ổn định</strong> ≈ I<sub>max</sub> = ' + fmtCurrent(imax) +
+        '. Cuộn cảm bây giờ như dây dẫn (V_L ≈ 0). Nhấn <strong>Ngat mach</strong> để xem dòng giảm.';
+    } else {
+      document.getElementById('annoText').innerHTML =
+        '<strong>Dòng đã về 0.</strong> Toàn bộ năng lượng từ trường đã chuyển thành nhiệt ở R. Nhấn <strong>Reset</strong> để thử lại.';
+      document.getElementById('currArrow').setAttribute('opacity', '0');
+    }
+  }
+}
+
+function updateStats(elapsed, I, VL, VR) {
+  const tau = paramL / paramR;
+  document.getElementById('statT').textContent = (elapsed * 1e6).toFixed(1) + ' µs';
+  document.getElementById('statI').textContent = fmtCurrent(I);
+  document.getElementById('statVL').textContent = Math.abs(VL).toFixed(2) + ' V';
+  document.getElementById('statVR').textContent = VR.toFixed(2) + ' V';
+  document.getElementById('statTau').textContent = (elapsed / tau).toFixed(2) + ' τ';
+}
+
+function drawChart() {
+  const svg = document.getElementById('chartSvg');
+  const W = 680, H = 220;
+  const px = 55, py = 15, pw = W - px - 20, ph = H - py - 30;
+
+  const tau = paramL / paramR;
+  const imax_ma = (paramV / paramR) * 1000;
+  const tmax_us = Math.max(6 * tau * 1e6, 1);
+
+  // Find max I in data
+  let dataImax = imax_ma;
+  for (const p of chartPoints) if (p.i_ma > dataImax) dataImax = p.i_ma;
+  dataImax = Math.max(dataImax, imax_ma);
+  const yMax = dataImax * 1.15;
+
+  function tx(t) { return px + (t / tmax_us) * pw; }
+  function ty(i) { return py + ph - (i / yMax) * ph; }
+
+  let html = '';
+
+  // Background
+  html += `<rect x="${px}" y="${py}" width="${pw}" height="${ph}" fill="#fff" rx="3"/>`;
+
+  // Grid lines
+  for (let k = 0; k <= 5; k++) {
+    const t = k * tmax_us / 5;
+    const x = tx(t);
+    html += `<line x1="${x}" y1="${py}" x2="${x}" y2="${py + ph}" stroke="#e2e8f0" stroke-width="1"/>`;
+    html += `<text x="${x}" y="${py + ph + 18}" text-anchor="middle" font-size="10" fill="#94a3b8">${t.toFixed(0)} µs</text>`;
+  }
+  for (let k = 0; k <= 4; k++) {
+    const i = k * yMax / 4;
+    const y = ty(i);
+    html += `<line x1="${px}" y1="${y}" x2="${px + pw}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+    html += `<text x="${px - 6}" y="${y + 4}" text-anchor="end" font-size="10" fill="#94a3b8">${i.toFixed(0)}</text>`;
+  }
+
+  // Axes
+  html += `<line x1="${px}" y1="${py}" x2="${px}" y2="${py + ph}" stroke="#475569" stroke-width="2"/>`;
+  html += `<line x1="${px}" y1="${py + ph}" x2="${px + pw}" y2="${py + ph}" stroke="#475569" stroke-width="2"/>`;
+  html += `<text x="${px - 30}" y="${py + ph / 2}" text-anchor="middle" font-size="11" fill="#475569" transform="rotate(-90,${px - 30},${py + ph / 2})">I (mA)</text>`;
+  html += `<text x="${px + pw / 2}" y="${H - 2}" text-anchor="middle" font-size="11" fill="#475569">Thời gian (µs)</text>`;
+
+  // Imax dashed line
+  const ymx = ty(imax_ma);
+  html += `<line x1="${px}" y1="${ymx}" x2="${px + pw}" y2="${ymx}" stroke="#1d4ed8" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.7"/>`;
+  html += `<text x="${px + pw - 4}" y="${ymx - 4}" text-anchor="end" font-size="10" fill="#1d4ed8">I_max=${imax_ma.toFixed(1)} mA</text>`;
+
+  // 63.2% line
+  const y632 = ty(imax_ma * 0.632);
+  html += `<line x1="${px}" y1="${y632}" x2="${px + pw}" y2="${y632}" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,3" opacity="0.8"/>`;
+  html += `<text x="${px + 4}" y="${y632 - 4}" font-size="9" fill="#f59e0b">63.2%</text>`;
+
+  // tau marker
+  const xtau = tx(tau * 1e6);
+  if (xtau >= px && xtau <= px + pw) {
+    html += `<line x1="${xtau}" y1="${py}" x2="${xtau}" y2="${py + ph}" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>`;
+    html += `<text x="${xtau + 3}" y="${py + 12}" font-size="10" fill="#f59e0b">1τ</text>`;
+  }
+
+  // Data path
+  if (chartPoints.length > 1) {
+    const charge = chartPoints.filter(p => p.phase === 'charge');
+    const discharge = chartPoints.filter(p => p.phase === 'discharge');
+
+    // Charge: green
+    if (charge.length > 1) {
+      let d = `M${tx(charge[0].t_us)},${ty(charge[0].i_ma)}`;
+      for (let i = 1; i < charge.length; i++) {
+        d += ` L${tx(charge[i].t_us)},${ty(charge[i].i_ma)}`;
+      }
+      html += `<path d="${d}" fill="none" stroke="#4d7c0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    }
+
+    // Discharge: need to shift time relative to start of discharge phase
+    if (discharge.length > 1) {
+      const t0 = discharge[0].t_us;
+      // Find time offset: discharge starts where charge ended on chart
+      let chargeEnd_t = 0;
+      if (charge.length > 0) chargeEnd_t = charge[charge.length - 1].t_us;
+      let d = `M${tx(chargeEnd_t)},${ty(discharge[0].i_ma)}`;
+      for (let i = 1; i < discharge.length; i++) {
+        const t = chargeEnd_t + (discharge[i].t_us - t0);
+        d += ` L${tx(t)},${ty(discharge[i].i_ma)}`;
+      }
+      html += `<path d="${d}" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    }
+  }
+
+  svg.innerHTML = html;
+}
+
+// ============================================================
+// MODULE 2: SPIKE CALCULATOR
+// ============================================================
+function setSpike(l_mh, i0_a, dt_us) {
+  document.getElementById('spL').value = l_mh;
+  document.getElementById('spI').value = i0_a;
+  document.getElementById('spDt').value = dt_us;
+  calcSpike();
+}
+
+function calcSpike() {
+  const L = parseFloat(document.getElementById('spL').value) / 1000;
+  const I0 = parseFloat(document.getElementById('spI').value);
+  const dt = parseFloat(document.getElementById('spDt').value) / 1e6;
+
+  document.getElementById('spLbl').textContent = (L * 1000).toFixed(0) + ' mH';
+  document.getElementById('spIlbl').textContent = I0.toFixed(2) + ' A';
+  document.getElementById('spDtlbl').textContent = (dt * 1e6).toFixed(0) + ' µs';
+
+  const dIdt = I0 / dt;
+  const Vspike = L * dIdt;
+
+  document.getElementById('spFormula').textContent =
+    `V_spike = L × dI/dt = ${(L*1000).toFixed(0)} mH × ${I0.toFixed(2)} A / ${(dt*1e6).toFixed(0)} µs = ${(L*1000).toFixed(0)}×10⁻³ × ${dIdt.toFixed(0)} = `;
+
+  document.getElementById('spResult').textContent = `V_spike = ${Vspike.toFixed(0)} V`;
+
+  // Bar: max bar at 2000V
+  const pct = Math.min(100, (Vspike / 2000) * 100);
+  document.getElementById('spikeBar').style.width = Math.max(2, pct) + '%';
+
+  let status = '';
+  if (Vspike < 5) {
+    status = '<span style="color:#166534; font-weight:600;">An toàn</span> — dưới mức gây hỏng hầu hết linh kiện.';
+  } else if (Vspike < 30) {
+    status = '<span style="color:#92400e; font-weight:600;">Chú ý</span> — có thể hỏng vi điều khiển 3.3V/5V. Cần diode flyback.';
+  } else if (Vspike < 100) {
+    status = '<span style="color:#dc2626; font-weight:600;">Nguy hiểm</span> — phá hủy transistor phổ biến (V_CE_max 30-60V). Bắt buộc diode flyback.';
+  } else {
+    status = '<span style="color:#7f1d1d; font-weight:700;">Rất nguy hiểm</span> — hỏng ngay lập tức mọi transistor thông thường, có thể gây hồ quang. Bắt buộc diode flyback + TVS.';
+  }
+  document.getElementById('spStatus').innerHTML = status;
+}
+
+// ============================================================
+// MODULE 3: ENERGY COMPARISON
+// ============================================================
+function calcEnergy() {
+  const L = parseFloat(document.getElementById('enL').value) / 1000;
+  const I = parseFloat(document.getElementById('enI').value);
+  const C = parseFloat(document.getElementById('enC').value) / 1e6;
+  const V = parseFloat(document.getElementById('enV').value);
+
+  document.getElementById('enLlbl').textContent = (L*1000).toFixed(0) + ' mH';
+  document.getElementById('enIlbl').textContent = I.toFixed(2) + ' A';
+  document.getElementById('enClbl').textContent = (C*1e6).toFixed(0) + ' µF';
+  document.getElementById('enVlbl').textContent = V.toFixed(0) + ' V';
+
+  const EL = 0.5 * L * I * I;
+  const EC = 0.5 * C * V * V;
+
+  document.getElementById('enEL').textContent = fmtEnergy(EL);
+  document.getElementById('enEC').textContent = fmtEnergy(EC);
+
+  const total = EL + EC;
+  const pctL = total > 0 ? (EL / total * 100) : 50;
+  const pctC = total > 0 ? (EC / total * 100) : 50;
+  document.getElementById('barL').style.width = Math.max(2, pctL).toFixed(1) + '%';
+  document.getElementById('barC').style.width = Math.max(2, pctC).toFixed(1) + '%';
+  document.getElementById('barLlbl').textContent = fmtEnergy(EL);
+  document.getElementById('barClbl').textContent = fmtEnergy(EC);
+
+  let ratio = '';
+  if (EL > 0 && EC > 0) {
+    if (EC >= EL) ratio = `E_C / E_L = ${(EC/EL).toFixed(1)}×`;
+    else ratio = `E_L / E_C = ${(EL/EC).toFixed(1)}×`;
+  } else {
+    ratio = 'Một giá trị = 0';
+  }
+  document.getElementById('enRatio').textContent = ratio;
+}
+
+// ============================================================
+// MODULE 4: VL FORMULA EXPLORER
+// ============================================================
+function setVL(lVal, lUnit, dI, dt, dtUnit) {
+  document.getElementById('vlL').value = lVal;
+  document.getElementById('vlLunit').value = lUnit;
+  document.getElementById('vlDI').value = dI;
+  document.getElementById('vlDt').value = dt;
+  document.getElementById('vlDtunit').value = dtUnit;
+  calcVL();
+}
+
+function calcVL() {
+  const lVal = parseFloat(document.getElementById('vlL').value);
+  const lUnit = parseFloat(document.getElementById('vlLunit').value);
+  const dI = parseFloat(document.getElementById('vlDI').value);
+  const dtVal = parseFloat(document.getElementById('vlDt').value);
+  const dtUnit = parseFloat(document.getElementById('vlDtunit').value);
+
+  const L = lVal * lUnit;
+  const dt = dtVal * dtUnit;
+  const dIdt = dI / dt;
+  const VL = L * dIdt;
+
+  // Human-readable unit names
+  const lUnitName = lUnit === 0.001 ? 'mH' : lUnit === 0.000001 ? 'µH' : 'H';
+  const dtUnitName = dtUnit === 0.001 ? 'ms' : dtUnit === 0.000001 ? 'µs' : 's';
+
+  document.getElementById('vlResult').innerHTML = `
+    <div style="font-family:monospace; font-size:14px; line-height:2;">
+      <div><strong>Bước 1:</strong> Chuyển đổi đơn vị</div>
+      <div>&nbsp;&nbsp;L = ${lVal} ${lUnitName} = ${L.toExponential(3)} H</div>
+      <div>&nbsp;&nbsp;dt = ${dtVal} ${dtUnitName} = ${dt.toExponential(3)} s</div>
+      <br>
+      <div><strong>Bước 2:</strong> Tính dI/dt</div>
+      <div>&nbsp;&nbsp;dI/dt = ΔI / Δt = ${dI} A / ${dt.toExponential(3)} s = ${dIdt.toExponential(3)} A/s</div>
+      <br>
+      <div><strong>Bước 3:</strong> Áp dụng V_L = L · dI/dt</div>
+      <div>&nbsp;&nbsp;V_L = ${L.toExponential(3)} H × ${dIdt.toExponential(3)} A/s</div>
+      <div style="font-size:18px; margin-top:8px; color:#166534;"><strong>V_L = ${VL.toFixed(3)} V</strong></div>
+      ${VL > 100 ? `<div style="margin-top:8px; color:#dc2626; font-weight:700;">⚠ Điện áp lớn — kiểm tra bảo vệ linh kiện!</div>` : ''}
+    </div>
+  `;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+onParamChange();
+calcSpike();
+calcEnergy();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

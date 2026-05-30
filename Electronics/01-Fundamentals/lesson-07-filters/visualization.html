@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Bộ lọc (Filters)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  .row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 10px 0;
+  }
+
+  label { font-weight: 600; min-width: 100px; }
+
+  input[type="range"] {
+    flex: 1;
+    min-width: 120px;
+    max-width: 260px;
+    accent-color: #4d7c0f;
+  }
+
+  .val-display {
+    font-family: monospace;
+    font-size: 14px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 4px;
+    padding: 3px 8px;
+    min-width: 80px;
+    text-align: right;
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 8px 0;
+  }
+
+  button.filter-btn {
+    background: #e2e8f0;
+    color: #2d3748;
+    border: 2px solid #cbd5e0;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  button.filter-btn.active {
+    background: #4d7c0f;
+    color: white;
+    border-color: #365314;
+  }
+  button.filter-btn:hover:not(.active) {
+    background: #cbd5e0;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .stat-box {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    padding: 10px 14px;
+  }
+  .stat-box .lbl {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 2px;
+  }
+  .stat-box .val {
+    font-family: monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: #14532d;
+  }
+  .stat-box.accent { background: #fef9c3; border-color: #fde68a; }
+  .stat-box.accent .val { color: #92400e; }
+  .stat-box.info { background: #eff6ff; border-color: #bfdbfe; }
+  .stat-box.info .val { color: #1e40af; }
+
+  /* Bode canvas container */
+  .bode-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  canvas#bodeCanvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #cbd5e0;
+  }
+
+  /* Circuit diagram */
+  .circuit-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 12px 0;
+  }
+  svg.circuit-svg {
+    max-width: 420px;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* Signal demo */
+  canvas#sigCanvas {
+    display: block;
+    width: 100%;
+    max-width: 760px;
+    height: auto;
+    margin: 0 auto;
+    border-radius: 6px;
+    border: 1px solid #cbd5e0;
+  }
+
+  .freq-marker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+    font-size: 14px;
+  }
+  .freq-marker .dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 480px) {
+    label { min-width: 80px; font-size: 14px; }
+    .stat-box .val { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Fundamentals</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-ac-impedance-rlc/visualization.html">← L6: AC, trở kháng &amp; RLC</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Bộ lọc</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-power-instruments/visualization.html">L8: Nguồn &amp; dụng cụ đo →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Bộ lọc (Filters)</h1>
+<p>Công cụ tương tác: chọn LPF / HPF, điều chỉnh R và C → xem giản đồ Bode và điểm −3 dB theo thời gian thực.</p>
+
+<!-- ===== MODULE 1: Bộ điều khiển bộ lọc ===== -->
+<h2>1. Cấu hình bộ lọc RC</h2>
+<div class="card">
+  <div class="btn-group">
+    <button class="filter-btn active" id="btnLPF" onclick="setFilterType('lpf')">Thông thấp (LPF)</button>
+    <button class="filter-btn" id="btnHPF" onclick="setFilterType('hpf')">Thông cao (HPF)</button>
+  </div>
+
+  <!-- Circuit diagram -->
+  <div class="circuit-wrap">
+    <svg class="circuit-svg" id="circuitSvg" viewBox="0 0 420 110"></svg>
+  </div>
+
+  <div class="row">
+    <label>R (kΩ):</label>
+    <input type="range" id="sliderR" min="0.1" max="100" step="0.1" value="10" oninput="onSlider()">
+    <span class="val-display" id="dispR">10.0 kΩ</span>
+  </div>
+  <div class="row">
+    <label>C (nF):</label>
+    <input type="range" id="sliderC" min="1" max="1000" step="1" value="100" oninput="onSlider()">
+    <span class="val-display" id="dispC">100 nF</span>
+  </div>
+
+  <div class="stat-grid" id="statGrid">
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<!-- ===== MODULE 2: Giản đồ Bode ===== -->
+<h2>2. Giản đồ Bode — Đáp ứng biên độ</h2>
+<div class="card">
+  <p style="font-size:14px; color:#4b5563; margin:0 0 10px">Trục X: tần số (thang log, Hz). Trục Y: biên độ (dB). Đường xanh lá = đáp ứng thực; đường đứt nét = xấp xỉ thẳng. Điểm vàng = −3 dB tại f_c.</p>
+  <div class="bode-wrap">
+    <canvas id="bodeCanvas" width="760" height="380"></canvas>
+  </div>
+  <div style="display:flex; gap:20px; flex-wrap:wrap; margin-top:10px; font-size:13px">
+    <span><span style="display:inline-block;width:28px;height:3px;background:#4d7c0f;vertical-align:middle;border-radius:2px"></span> Đáp ứng thực tế</span>
+    <span><span style="display:inline-block;width:28px;height:3px;background:#9ca3af;vertical-align:middle;border-style:dashed;border-top:2px dashed #9ca3af;border-bottom:none"></span> Xấp xỉ tuyến tính</span>
+    <span style="color:#b45309">● Điểm −3 dB (f_c)</span>
+  </div>
+</div>
+
+<!-- ===== MODULE 3: Thử tần số tín hiệu ===== -->
+<h2>3. Thử với tần số tín hiệu cụ thể</h2>
+<div class="card">
+  <p style="font-size:14px; color:#4b5563; margin:0 0 10px">Kéo thanh trượt để chọn tần số tín hiệu đầu vào → xem độ suy giảm và dạng sóng so sánh V_in vs V_out.</p>
+  <div class="row">
+    <label>f tín hiệu:</label>
+    <input type="range" id="sliderF" min="1" max="5" step="0.01" value="3" oninput="onSliderF()">
+    <span class="val-display" id="dispF">1.00 kHz</span>
+  </div>
+  <div class="stat-grid" id="sigStatGrid">
+    <!-- filled by JS -->
+  </div>
+
+  <canvas id="sigCanvas" width="760" height="200"></canvas>
+
+  <div style="display:flex; gap:20px; flex-wrap:wrap; margin-top:10px; font-size:13px">
+    <span style="color:#1d4ed8">── V_in (2 V đỉnh)</span>
+    <span style="color:#dc2626">── V_out (sau bộ lọc)</span>
+  </div>
+</div>
+
+<!-- ===== MODULE 4: Bảng tra nhanh ===== -->
+<h2>4. Bảng tra biên độ theo f/f_c</h2>
+<div class="card">
+  <p style="font-size:14px; color:#4b5563; margin:0 0 12px">Bộ lọc hiện tại (f_c được tính tự động). Cột vàng = điểm f_c.</p>
+  <div style="overflow-x:auto">
+    <table id="lookupTable" style="border-collapse:collapse; font-size:14px; min-width:620px; width:100%">
+      <!-- filled by JS -->
+    </table>
+  </div>
+</div>
+
+</main>
+
+<script>
+// =============== State ===============
+let filterType = 'lpf'; // 'lpf' | 'hpf'
+let R_ohm = 10000;   // Ohm
+let C_farad = 100e-9; // Farad
+let f_sig_log = 3;   // log10(f) của tần số tín hiệu thử
+
+// =============== Utilities ===============
+function fc() {
+  return 1 / (2 * Math.PI * R_ohm * C_farad);
+}
+
+function H_mag(f) {
+  const ratio = f / fc();
+  if (filterType === 'lpf') {
+    return 1 / Math.sqrt(1 + ratio * ratio);
+  } else {
+    return ratio / Math.sqrt(1 + ratio * ratio);
+  }
+}
+
+function H_dB(f) {
+  const h = H_mag(f);
+  return 20 * Math.log10(Math.max(h, 1e-9));
+}
+
+function fmtFreq(f) {
+  if (f >= 1e6) return (f/1e6).toFixed(2) + ' MHz';
+  if (f >= 1000) return (f/1000).toFixed(f >= 10000 ? 1 : 2) + ' kHz';
+  return f.toFixed(f >= 100 ? 0 : 1) + ' Hz';
+}
+
+function fmtR(r) {
+  if (r >= 1e6) return (r/1e6).toFixed(2) + ' MΩ';
+  if (r >= 1000) return (r/1000).toFixed(1) + ' kΩ';
+  return r.toFixed(0) + ' Ω';
+}
+
+function fmtC(c) {
+  if (c >= 1e-6) return (c*1e6).toFixed(2) + ' µF';
+  if (c >= 1e-9) return (c*1e9).toFixed(1) + ' nF';
+  return (c*1e12).toFixed(0) + ' pF';
+}
+
+// =============== Slider handlers ===============
+function onSlider() {
+  R_ohm = parseFloat(document.getElementById('sliderR').value) * 1000;
+  C_farad = parseFloat(document.getElementById('sliderC').value) * 1e-9;
+  document.getElementById('dispR').textContent = fmtR(R_ohm);
+  document.getElementById('dispC').textContent = fmtC(C_farad);
+  update();
+}
+
+function onSliderF() {
+  f_sig_log = parseFloat(document.getElementById('sliderF').value);
+  const f = Math.pow(10, f_sig_log);
+  document.getElementById('dispF').textContent = fmtFreq(f);
+  updateSigModule();
+}
+
+function setFilterType(type) {
+  filterType = type;
+  document.getElementById('btnLPF').classList.toggle('active', type === 'lpf');
+  document.getElementById('btnHPF').classList.toggle('active', type === 'hpf');
+  update();
+}
+
+// =============== Stats ===============
+function updateStats() {
+  const fC = fc();
+  const h_fc = H_mag(fC);
+  const dB_fc = H_dB(fC);
+  const RC = R_ohm * C_farad;
+
+  document.getElementById('statGrid').innerHTML = `
+    <div class="stat-box accent">
+      <div class="lbl">Tần số cắt f_c</div>
+      <div class="val">${fmtFreq(fC)}</div>
+    </div>
+    <div class="stat-box">
+      <div class="lbl">RC (hằng số thời gian τ)</div>
+      <div class="val">${(RC*1000).toFixed(3)} ms</div>
+    </div>
+    <div class="stat-box info">
+      <div class="lbl">Biên độ tại f_c</div>
+      <div class="val">0.707 (−3 dB)</div>
+    </div>
+    <div class="stat-box info">
+      <div class="lbl">Độ dốc (bậc 1)</div>
+      <div class="val">±20 dB/dec</div>
+    </div>
+  `;
+}
+
+// =============== Bode Plot ===============
+function drawBode() {
+  const canvas = document.getElementById('bodeCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const PAD = { top: 30, bottom: 50, left: 60, right: 30 };
+  const PW = W - PAD.left - PAD.right;
+  const PH = H - PAD.top - PAD.bottom;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(0, 0, W, H);
+
+  // Plot area background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(PAD.left, PAD.top, PW, PH);
+
+  const fC = fc();
+  // Frequency range: 3 decades below to 3 decades above fc, clamp to [1 Hz, 100 MHz]
+  const logFc = Math.log10(fC);
+  const logFmin = Math.max(0, logFc - 3.5);
+  const logFmax = Math.min(8, logFc + 3.5);
+
+  // dB range
+  const dBmin = -80, dBmax = 10;
+
+  function xOf(logF) {
+    return PAD.left + ((logF - logFmin) / (logFmax - logFmin)) * PW;
+  }
+  function yOf(dB) {
+    return PAD.top + ((dBmax - dB) / (dBmax - dBmin)) * PH;
+  }
+
+  // ---- Grid lines (frequency) ----
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 1;
+  for (let lf = Math.ceil(logFmin); lf <= Math.floor(logFmax); lf++) {
+    const x = xOf(lf);
+    ctx.beginPath(); ctx.moveTo(x, PAD.top); ctx.lineTo(x, PAD.top + PH); ctx.stroke();
+    // minor grid (log subdivisions)
+    for (let k = 2; k <= 9; k++) {
+      const xm = xOf(lf - 1 + Math.log10(k));
+      ctx.globalAlpha = 0.4;
+      ctx.beginPath(); ctx.moveTo(xm, PAD.top); ctx.lineTo(xm, PAD.top + PH); ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // ---- Grid lines (dB) ----
+  for (let db = dBmin; db <= dBmax; db += 20) {
+    const y = yOf(db);
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + PW, y); ctx.stroke();
+    // label
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(db + ' dB', PAD.left - 6, y + 4);
+  }
+  // 0 dB line (thicker)
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 1.5;
+  const y0 = yOf(0);
+  ctx.beginPath(); ctx.moveTo(PAD.left, y0); ctx.lineTo(PAD.left + PW, y0); ctx.stroke();
+
+  // -3 dB line
+  ctx.strokeStyle = '#fbbf24';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([5, 4]);
+  const y3 = yOf(-3);
+  ctx.beginPath(); ctx.moveTo(PAD.left, y3); ctx.lineTo(PAD.left + PW, y3); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#b45309';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('−3 dB', PAD.left + 4, y3 - 5);
+
+  // ---- Frequency axis labels ----
+  ctx.fillStyle = '#374151';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'center';
+  for (let lf = Math.ceil(logFmin); lf <= Math.floor(logFmax); lf++) {
+    const x = xOf(lf);
+    const f = Math.pow(10, lf);
+    ctx.fillText(fmtFreq(f), x, PAD.top + PH + 18);
+  }
+  // Axis title
+  ctx.fillStyle = '#6b7280';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Tần số (Hz — thang log)', PAD.left + PW/2, PAD.top + PH + 38);
+  ctx.save();
+  ctx.translate(14, PAD.top + PH/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText('Biên độ (dB)', 0, 0);
+  ctx.restore();
+
+  // ---- Piecewise linear approximation ----
+  ctx.strokeStyle = '#9ca3af';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 5]);
+  ctx.beginPath();
+  if (filterType === 'lpf') {
+    // flat at 0 dB until fc, then slope -20 dB/decade
+    const xFc = xOf(logFc);
+    ctx.moveTo(PAD.left, y0);
+    ctx.lineTo(xFc, y0);
+    // slope: -20 dB/decade
+    const xEnd = xOf(logFmax);
+    const dBend = -20 * (logFmax - logFc);
+    ctx.lineTo(xEnd, yOf(Math.max(dBmin, dBend)));
+  } else {
+    // slope +20 until fc, then flat
+    const xFc = xOf(logFc);
+    const xStart = xOf(logFmin);
+    const dBstart = -20 * (logFc - logFmin);
+    ctx.moveTo(xStart, yOf(Math.max(dBmin, dBstart)));
+    ctx.lineTo(xFc, y0);
+    ctx.lineTo(PAD.left + PW, y0);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // ---- Actual response curve ----
+  ctx.strokeStyle = '#4d7c0f';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  let started = false;
+  const N = 400;
+  for (let i = 0; i <= N; i++) {
+    const logF = logFmin + (i / N) * (logFmax - logFmin);
+    const f = Math.pow(10, logF);
+    const db = H_dB(f);
+    const x = xOf(logF);
+    const y = yOf(Math.max(dBmin, Math.min(dBmax + 5, db)));
+    if (!started) { ctx.moveTo(x, y); started = true; }
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // ---- f_c marker ----
+  const xFc = xOf(logFc);
+  const yFc = yOf(-3);
+  // vertical dashed line at fc
+  ctx.strokeStyle = '#d97706';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(xFc, PAD.top); ctx.lineTo(xFc, PAD.top + PH); ctx.stroke();
+  ctx.setLineDash([]);
+  // dot at -3dB
+  ctx.fillStyle = '#f59e0b';
+  ctx.strokeStyle = '#92400e';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(xFc, yFc, 7, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  // label fc
+  ctx.fillStyle = '#92400e';
+  ctx.font = 'bold 12px sans-serif';
+  ctx.textAlign = 'center';
+  const fcLblX = Math.min(Math.max(xFc, PAD.left + 30), PAD.left + PW - 30);
+  ctx.fillText('f_c = ' + fmtFreq(fC), fcLblX, PAD.top + PH + 18);
+
+  // ---- f_signal marker (if in range) ----
+  const f_sig = Math.pow(10, f_sig_log);
+  if (f_sig >= Math.pow(10, logFmin) && f_sig <= Math.pow(10, logFmax)) {
+    const xSig = xOf(f_sig_log);
+    const dBSig = H_dB(f_sig);
+    const ySig = yOf(Math.max(dBmin, Math.min(dBmax + 5, dBSig)));
+    ctx.strokeStyle = '#dc2626';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(xSig, PAD.top); ctx.lineTo(xSig, PAD.top + PH); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#dc2626';
+    ctx.beginPath(); ctx.arc(xSig, ySig, 5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#991b1b';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = xSig > PAD.left + PW/2 ? 'right' : 'left';
+    const offset = xSig > PAD.left + PW/2 ? -10 : 10;
+    ctx.fillText(dBSig.toFixed(1) + ' dB', xSig + offset, ySig - 8);
+  }
+
+  // Border
+  ctx.strokeStyle = '#cbd5e0';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(PAD.left, PAD.top, PW, PH);
+}
+
+// =============== Circuit Diagram ===============
+function drawCircuit() {
+  const svg = document.getElementById('circuitSvg');
+  svg.innerHTML = '';
+
+  const ns = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs, text) {
+    const e = document.createElementNS(ns, tag);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  // Layout constants
+  const y = 55; // midline
+  const x0 = 20, x1 = 90, x2 = 200, x3 = 310, x4 = 390;
+  const gndY = 95;
+
+  // Wire: V_in to R
+  svg.appendChild(el('line', { x1: x0, y1: y, x2: x1, y2: y, stroke: '#1a202c', 'stroke-width': 2 }));
+  // V_in label
+  const vinText = el('text', { x: x0, y: y - 12, 'text-anchor': 'middle', fill: '#1d4ed8', 'font-weight': '700', 'font-size': '13' }, 'V_in');
+  svg.appendChild(vinText);
+
+  if (filterType === 'lpf') {
+    // LPF: R then C to GND, V_out across C
+    // Resistor (x1..x2)
+    drawResistor(svg, el, x1, x2, y);
+    // Wire x2 to junction
+    svg.appendChild(el('line', { x1: x2, y1: y, x2: x3, y2: y, stroke: '#1a202c', 'stroke-width': 2 }));
+    // Capacitor (vertical, from junction to GND)
+    drawCapacitor(svg, el, x3, y, gndY);
+    // Wire x3 to V_out
+    svg.appendChild(el('line', { x1: x3, y1: y, x2: x4, y2: y, stroke: '#dc2626', 'stroke-width': 2 }));
+    // GND lines
+    drawGnd(svg, el, x3, gndY);
+    // V_out label
+    svg.appendChild(el('text', { x: x4 + 4, y: y + 5, 'text-anchor': 'start', fill: '#dc2626', 'font-weight': '700', 'font-size': '13' }, 'V_out'));
+    // Component labels
+    svg.appendChild(el('text', { x: (x1+x2)/2, y: y - 22, 'text-anchor': 'middle', fill: '#1a202c', 'font-size': '12' }, 'R'));
+    svg.appendChild(el('text', { x: x3 + 18, y: (y+gndY)/2 + 4, 'text-anchor': 'start', fill: '#1a202c', 'font-size': '12' }, 'C'));
+    // Note label
+    svg.appendChild(el('text', { x: x3, y: y - 10, 'text-anchor': 'middle', fill: '#6b7280', 'font-size': '11' }, '↕ V_out'));
+
+  } else {
+    // HPF: C then R to GND, V_out across R
+    // Capacitor horizontal (x1..x2)
+    drawCapacitorH(svg, el, x1, x2, y);
+    // Wire x2 to junction
+    svg.appendChild(el('line', { x1: x2, y1: y, x2: x3, y2: y, stroke: '#1a202c', 'stroke-width': 2 }));
+    // Resistor (vertical, from junction to GND)
+    drawResistorV(svg, el, x3, y, gndY);
+    // Wire x3 to V_out
+    svg.appendChild(el('line', { x1: x3, y1: y, x2: x4, y2: y, stroke: '#dc2626', 'stroke-width': 2 }));
+    // GND lines
+    drawGnd(svg, el, x3, gndY);
+    // V_out label
+    svg.appendChild(el('text', { x: x4 + 4, y: y + 5, 'text-anchor': 'start', fill: '#dc2626', 'font-weight': '700', 'font-size': '13' }, 'V_out'));
+    // Component labels
+    svg.appendChild(el('text', { x: (x1+x2)/2, y: y - 22, 'text-anchor': 'middle', fill: '#1a202c', 'font-size': '12' }, 'C'));
+    svg.appendChild(el('text', { x: x3 + 18, y: (y+gndY)/2 + 4, 'text-anchor': 'start', fill: '#1a202c', 'font-size': '12' }, 'R'));
+    svg.appendChild(el('text', { x: x3, y: y - 10, 'text-anchor': 'middle', fill: '#6b7280', 'font-size': '11' }, '↕ V_out'));
+  }
+
+  // R and C value annotations at bottom
+  const rV = fmtR(R_ohm);
+  const cV = fmtC(C_farad);
+  const fcV = fmtFreq(fc());
+  const ann = el('text', { x: 210, y: 108, 'text-anchor': 'middle', fill: '#374151', 'font-size': '11' },
+    `R = ${rV}  ·  C = ${cV}  ·  f_c = ${fcV}`);
+  svg.appendChild(ann);
+}
+
+function drawResistor(svg, el, x1, x2, y) {
+  // Zigzag resistor
+  const mid = (x1 + x2) / 2;
+  const seg = (x2 - x1) / 8;
+  const amp = 8;
+  let pts = `${x1},${y}`;
+  for (let i = 0; i < 8; i++) {
+    const xi = x1 + (i + 0.5) * seg;
+    const yi = y + (i % 2 === 0 ? -amp : amp);
+    pts += ` ${xi},${yi}`;
+  }
+  pts += ` ${x2},${y}`;
+  svg.appendChild(el('polyline', { points: pts, fill: 'none', stroke: '#1a202c', 'stroke-width': 2 }));
+}
+
+function drawResistorV(svg, el, x, y1, y2) {
+  const seg = (y2 - y1) / 8;
+  const amp = 8;
+  let pts = `${x},${y1}`;
+  for (let i = 0; i < 8; i++) {
+    const yi = y1 + (i + 0.5) * seg;
+    const xi = x + (i % 2 === 0 ? -amp : amp);
+    pts += ` ${xi},${yi}`;
+  }
+  pts += ` ${x},${y2}`;
+  svg.appendChild(el('polyline', { points: pts, fill: 'none', stroke: '#1a202c', 'stroke-width': 2 }));
+}
+
+function drawCapacitor(svg, el, x, y1, y2) {
+  const mid = (y1 + y2) / 2;
+  const gap = 5;
+  svg.appendChild(el('line', { x1: x, y1: y1, x2: x, y2: mid - gap, stroke: '#1a202c', 'stroke-width': 2 }));
+  svg.appendChild(el('line', { x1: x - 14, y1: mid - gap, x2: x + 14, y2: mid - gap, stroke: '#1a202c', 'stroke-width': 3 }));
+  svg.appendChild(el('line', { x1: x - 14, y1: mid + gap, x2: x + 14, y2: mid + gap, stroke: '#1a202c', 'stroke-width': 3 }));
+  svg.appendChild(el('line', { x1: x, y1: mid + gap, x2: x, y2: y2, stroke: '#1a202c', 'stroke-width': 2 }));
+}
+
+function drawCapacitorH(svg, el, x1, x2, y) {
+  const mid = (x1 + x2) / 2;
+  const gap = 5;
+  svg.appendChild(el('line', { x1: x1, y1: y, x2: mid - gap, y2: y, stroke: '#1a202c', 'stroke-width': 2 }));
+  svg.appendChild(el('line', { x1: mid - gap, y1: y - 14, x2: mid - gap, y2: y + 14, stroke: '#1a202c', 'stroke-width': 3 }));
+  svg.appendChild(el('line', { x1: mid + gap, y1: y - 14, x2: mid + gap, y2: y + 14, stroke: '#1a202c', 'stroke-width': 3 }));
+  svg.appendChild(el('line', { x1: mid + gap, y1: y, x2: x2, y2: y, stroke: '#1a202c', 'stroke-width': 2 }));
+}
+
+function drawGnd(svg, el, x, y) {
+  svg.appendChild(el('line', { x1: x - 12, y1: y, x2: x + 12, y2: y, stroke: '#1a202c', 'stroke-width': 2 }));
+  svg.appendChild(el('line', { x1: x - 8, y1: y + 5, x2: x + 8, y2: y + 5, stroke: '#1a202c', 'stroke-width': 2 }));
+  svg.appendChild(el('line', { x1: x - 4, y1: y + 10, x2: x + 4, y2: y + 10, stroke: '#1a202c', 'stroke-width': 2 }));
+}
+
+// =============== Signal Module ===============
+function updateSigModule() {
+  const f_sig = Math.pow(10, f_sig_log);
+  const fC = fc();
+  const hMag = H_mag(f_sig);
+  const dB = H_dB(f_sig);
+  const Vin = 2.0;
+  const Vout = Vin * hMag;
+
+  // Phase shift
+  let phase_deg;
+  if (filterType === 'lpf') {
+    phase_deg = -Math.atan(f_sig / fC) * 180 / Math.PI;
+  } else {
+    phase_deg = 90 - Math.atan(f_sig / fC) * 180 / Math.PI;
+  }
+
+  // Relative position description
+  let pos_desc;
+  const ratio = f_sig / fC;
+  if (ratio < 0.1) pos_desc = filterType === 'lpf' ? 'trong dải thông (rất ít suy giảm)' : 'trong dải chặn (suy giảm mạnh)';
+  else if (ratio < 0.5) pos_desc = filterType === 'lpf' ? 'gần dải thông' : 'trong dải chặn';
+  else if (ratio < 2.0) pos_desc = 'gần điểm f_c (chuyển tiếp)';
+  else if (ratio < 10) pos_desc = filterType === 'lpf' ? 'trong dải chặn' : 'trong dải thông';
+  else pos_desc = filterType === 'lpf' ? 'trong dải chặn (suy giảm mạnh)' : 'trong dải thông (rất ít suy giảm)';
+
+  document.getElementById('sigStatGrid').innerHTML = `
+    <div class="stat-box accent">
+      <div class="lbl">f tín hiệu</div>
+      <div class="val">${fmtFreq(f_sig)}</div>
+    </div>
+    <div class="stat-box">
+      <div class="lbl">f / f_c</div>
+      <div class="val">${ratio.toFixed(3)}</div>
+    </div>
+    <div class="stat-box info">
+      <div class="lbl">|H(f)| = V_out/V_in</div>
+      <div class="val">${hMag.toFixed(4)}</div>
+    </div>
+    <div class="stat-box info">
+      <div class="lbl">Suy giảm (dB)</div>
+      <div class="val">${dB.toFixed(2)} dB</div>
+    </div>
+    <div class="stat-box">
+      <div class="lbl">V_out đỉnh (V_in = 2 V)</div>
+      <div class="val">${Vout.toFixed(4)} V</div>
+    </div>
+    <div class="stat-box">
+      <div class="lbl">Góc pha</div>
+      <div class="val">${phase_deg.toFixed(1)}°</div>
+    </div>
+  `;
+
+  // Descriptive note
+  let noteEl = document.getElementById('sigNote');
+  if (!noteEl) {
+    noteEl = document.createElement('p');
+    noteEl.id = 'sigNote';
+    noteEl.style.cssText = 'font-size:13px;color:#374151;margin:8px 0 4px;';
+    document.getElementById('sigStatGrid').after(noteEl);
+  }
+  noteEl.textContent = `Tín hiệu ở ${fmtFreq(f_sig)} ${pos_desc}. f_c = ${fmtFreq(fC)}.`;
+
+  drawSignal(f_sig, hMag, phase_deg);
+
+  // Also update bode marker
+  drawBode();
+}
+
+function drawSignal(f_sig, hMag, phase_deg) {
+  const canvas = document.getElementById('sigCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const PAD = { top: 20, bottom: 25, left: 50, right: 20 };
+  const PW = W - PAD.left - PAD.right;
+  const PH = H - PAD.top - PAD.bottom;
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(PAD.left, PAD.top, PW, PH);
+
+  const midY = PAD.top + PH / 2;
+  const Vin = 2.0;
+  const Vout = Vin * hMag;
+  const scaleV = PH / 2 / (Vin * 1.1);
+
+  // Grid
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 1;
+  for (let v of [-2, -1, 0, 1, 2]) {
+    const y = midY - v * scaleV;
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + PW, y); ctx.stroke();
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(v + 'V', PAD.left - 4, y + 4);
+  }
+
+  // Show 2 cycles
+  const cycles = 2;
+  const phase_rad = phase_deg * Math.PI / 180;
+
+  // V_in
+  ctx.strokeStyle = '#1d4ed8';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i <= PW; i++) {
+    const t = (i / PW) * cycles;
+    const val = Vin * Math.sin(2 * Math.PI * t);
+    const x = PAD.left + i;
+    const y = midY - val * scaleV;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // V_out
+  ctx.strokeStyle = '#dc2626';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let i = 0; i <= PW; i++) {
+    const t = (i / PW) * cycles;
+    const val = Vout * Math.sin(2 * Math.PI * t + phase_rad);
+    const x = PAD.left + i;
+    const y = midY - val * scaleV;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Amplitude arrows
+  const xArrow = PAD.left + PW * 0.08;
+  // Vin peak
+  ctx.strokeStyle = '#1d4ed8'; ctx.lineWidth = 1.5;
+  ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(xArrow - 8, midY - Vin*scaleV); ctx.lineTo(PAD.left + PW, midY - Vin*scaleV); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#1d4ed8';
+  ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'right';
+  ctx.fillText(`V_in=${Vin.toFixed(1)}V`, PAD.left + PW - 2, midY - Vin*scaleV - 4);
+
+  // Vout peak
+  if (Vout > 0.05) {
+    ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 1.5;
+    ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(xArrow - 8, midY - Vout*scaleV); ctx.lineTo(xArrow + 40, midY - Vout*scaleV); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#dc2626';
+    ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(`V_out=${Vout.toFixed(3)}V`, xArrow + 44, midY - Vout*scaleV - 4);
+  }
+
+  // Border
+  ctx.strokeStyle = '#cbd5e0';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(PAD.left, PAD.top, PW, PH);
+}
+
+// =============== Lookup Table ===============
+function updateLookupTable() {
+  const fC = fc();
+  const ratios = [0.01, 0.1, 0.3, 0.5, 1, 2, 3, 10, 100];
+  let html = `<thead><tr>
+    <th style="text-align:right;padding:6px 10px;background:#f1f5f9;border:1px solid #e2e8f0">f / f_c</th>
+    <th style="text-align:right;padding:6px 10px;background:#f1f5f9;border:1px solid #e2e8f0">f (Hz)</th>
+    <th style="text-align:right;padding:6px 10px;background:#f1f5f9;border:1px solid #e2e8f0">|H(f)|</th>
+    <th style="text-align:right;padding:6px 10px;background:#f1f5f9;border:1px solid #e2e8f0">dB</th>
+    <th style="text-align:left;padding:6px 10px;background:#f1f5f9;border:1px solid #e2e8f0">Nhận xét</th>
+  </tr></thead><tbody>`;
+
+  for (const r of ratios) {
+    const f = fC * r;
+    const h = H_mag(f);
+    const db = H_dB(f);
+    const isFC = r === 1;
+    const bg = isFC ? '#fef9c3' : 'white';
+    const bold = isFC ? 'font-weight:700;' : '';
+
+    let remark;
+    if (filterType === 'lpf') {
+      if (r <= 0.1) remark = 'Dải thông — rất ít suy giảm';
+      else if (r < 0.5) remark = 'Gần thông — ít suy giảm';
+      else if (r === 1) remark = 'Điểm f_c — −3 dB (70.7%)';
+      else if (r <= 3) remark = 'Vùng chuyển tiếp';
+      else if (r <= 10) remark = 'Dải chặn';
+      else remark = 'Dải chặn sâu';
+    } else {
+      if (r >= 10) remark = 'Dải thông — rất ít suy giảm';
+      else if (r > 3) remark = 'Gần thông — ít suy giảm';
+      else if (r === 1) remark = 'Điểm f_c — −3 dB (70.7%)';
+      else if (r >= 0.3) remark = 'Vùng chuyển tiếp';
+      else remark = 'Dải chặn sâu';
+    }
+
+    html += `<tr style="background:${bg};${bold}">
+      <td style="text-align:right;padding:5px 10px;border:1px solid #e2e8f0">${r}</td>
+      <td style="text-align:right;padding:5px 10px;border:1px solid #e2e8f0;font-family:monospace">${fmtFreq(f)}</td>
+      <td style="text-align:right;padding:5px 10px;border:1px solid #e2e8f0;font-family:monospace">${h.toFixed(4)}</td>
+      <td style="text-align:right;padding:5px 10px;border:1px solid #e2e8f0;font-family:monospace">${db.toFixed(2)}</td>
+      <td style="text-align:left;padding:5px 10px;border:1px solid #e2e8f0;font-size:13px;color:#374151">${remark}</td>
+    </tr>`;
+  }
+
+  html += '</tbody>';
+  document.getElementById('lookupTable').innerHTML = html;
+}
+
+// =============== Full update ===============
+function update() {
+  updateStats();
+  drawCircuit();
+  drawBode();
+  updateSigModule();
+  updateLookupTable();
+}
+
+// =============== Init ===============
+onSlider();    // set initial R/C display values
+onSliderF();   // set initial freq display value
+update();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

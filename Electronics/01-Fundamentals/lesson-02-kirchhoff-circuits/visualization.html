@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Mạch &amp; Định luật Kirchhoff</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  /* --- Accent xanh lá Electronics --- */
+  :root {
+    --acc: #4d7c0f;
+    --acc-soft: #ecfccb;
+    --acc-dark: #3a5c09;
+    --wire-pos: #dc2626;
+    --wire-gnd: #1a202c;
+    --wire-blue: #1d4ed8;
+  }
+
+  h1 { color: #1a202c; margin-bottom: 4px; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  p.lead { color: #4a5568; margin-top: 4px; }
+
+  .card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin: 10px 0;
+  }
+
+  label { font-weight: 600; min-width: 110px; font-size: 14px; }
+
+  input[type="number"] {
+    padding: 6px 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: monospace;
+    width: 90px;
+    box-sizing: border-box;
+  }
+
+  select {
+    padding: 6px 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-size: 14px;
+    background: white;
+  }
+
+  button.btn-primary {
+    background: var(--acc);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  button.btn-primary:hover { background: var(--acc-dark); }
+
+  button.btn-outline {
+    background: white;
+    color: var(--acc);
+    border: 2px solid var(--acc);
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  button.btn-outline.active {
+    background: var(--acc);
+    color: white;
+  }
+
+  .result-box {
+    background: var(--acc-soft);
+    border-left: 4px solid var(--acc);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .result-box strong { color: var(--acc-dark); }
+
+  .warn-box {
+    background: #fef9c3;
+    border-left: 4px solid #ca8a04;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+
+  /* R nối tiếp/song song — thanh hình ảnh */
+  .r-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin: 8px 0;
+  }
+  .r-input-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .r-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+    min-width: 28px;
+  }
+  .r-input {
+    width: 80px;
+    padding: 5px 8px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 13px;
+    box-sizing: border-box;
+  }
+
+  /* --- SVG mạch KCL --- */
+  .svg-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+  svg.circuit {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .node-circle {
+    fill: #374151;
+    stroke: white;
+    stroke-width: 2;
+  }
+  .wire {
+    stroke: #374151;
+    stroke-width: 2.5;
+    fill: none;
+    stroke-linecap: round;
+  }
+  .wire-pos { stroke: var(--wire-pos); }
+  .wire-gnd { stroke: var(--wire-gnd); }
+  .source-rect { fill: #fef3c7; stroke: #d97706; stroke-width: 2; rx: 4; }
+  .resistor-rect { fill: #dbeafe; stroke: var(--wire-blue); stroke-width: 2; }
+  .arrow-head { fill: #374151; }
+  .arrow-pos { fill: var(--wire-pos); }
+  .arrow-blue { fill: var(--wire-blue); }
+  .lbl { font-family: monospace; font-size: 12px; fill: #1a202c; }
+  .lbl-bold { font-weight: 700; }
+  .lbl-red { fill: var(--wire-pos); }
+  .lbl-blue { fill: var(--wire-blue); }
+  .lbl-green { fill: var(--acc); }
+  .highlight-node { fill: #fef9c3; stroke: #ca8a04; stroke-width: 2.5; }
+
+  /* KCL interactive */
+  .kcl-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .kcl-stat {
+    display: inline-block;
+    background: #dbeafe;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 13px;
+  }
+  .kcl-stat.ok { background: #dcfce7; color: #166534; }
+  .kcl-stat.fail { background: #fee2e2; color: #991b1b; }
+
+  /* Bảng tổng kết */
+  table.sum-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 12px;
+  }
+  table.sum-table th {
+    background: var(--acc);
+    color: white;
+    padding: 8px 12px;
+    text-align: left;
+  }
+  table.sum-table td {
+    padding: 7px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    font-family: monospace;
+  }
+  table.sum-table tr:nth-child(even) td { background: #f8fafc; }
+  table.sum-table tr.total-row td { font-weight: 700; background: var(--acc-soft); }
+
+  @media (max-width: 600px) {
+    input[type="number"], .r-input { width: 70px; }
+    label { min-width: 80px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Electronics — Fundamentals</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-voltage-current-resistance/visualization.html">← L1: Điện áp, dòng, điện trở</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Mạch &amp; Kirchhoff</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-resistors-divider/visualization.html">L3: Điện trở &amp; phân áp →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Mạch &amp; Định luật Kirchhoff</h1>
+<p class="lead">Công cụ: Máy tính R tương đương (nối tiếp / song song), Mô phỏng KCL tại nút, Giải mạch hỗn hợp bước-bước.</p>
+
+<!-- ===== MODULE 1: R tương đương ===== -->
+<h2>1. Tính R tương đương</h2>
+<div class="card">
+  <div class="row">
+    <label>Kiểu mắc:</label>
+    <button class="btn-outline active" id="btnSeries" onclick="setMode('series')">Nối tiếp</button>
+    <button class="btn-outline" id="btnParallel" onclick="setMode('parallel')">Song song</button>
+    <span id="modeHint" style="font-size:13px;color:#64748b">— cùng dòng, áp chia</span>
+  </div>
+
+  <div class="row">
+    <label>Số điện trở:</label>
+    <select id="rCount" onchange="buildRInputs()">
+      <option value="2">2</option>
+      <option value="3" selected>3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+    </select>
+    <label style="margin-left:16px">Nguồn V (V):</label>
+    <input type="number" id="vSource" value="12" step="1" oninput="calcR()">
+  </div>
+
+  <div id="rInputsWrap" class="r-row"></div>
+
+  <div style="margin-top:12px">
+    <button class="btn-primary" onclick="calcR()">Tính</button>
+  </div>
+
+  <div class="result-box" id="rResult" style="display:none"></div>
+
+  <!-- SVG sơ đồ mạch -->
+  <div class="svg-wrap" id="schWrap" style="margin-top:16px; display:none">
+    <svg id="schSvg" class="circuit" viewBox="0 0 560 160" height="160"></svg>
+  </div>
+</div>
+
+<!-- ===== MODULE 2: KCL tại nút ===== -->
+<h2>2. Định luật dòng Kirchhoff (KCL) tại nút</h2>
+<div class="card">
+  <p style="font-size:14px;color:#374151">
+    Nhập dòng tại nút A (dương = <strong>vào</strong>, âm = <strong>ra</strong>). Ít nhất một dòng để trống — chương trình tự tính.
+  </p>
+
+  <div class="row" id="kclInputRow">
+    <div class="r-input-group"><span class="r-label">I₁ (mA)</span><input class="r-input" id="ki0" type="number" step="0.1" value="8" placeholder="vào=+, ra=−"></div>
+    <div class="r-input-group"><span class="r-label">I₂ (mA)</span><input class="r-input" id="ki1" type="number" step="0.1" value="3" placeholder="vào=+, ra=−"></div>
+    <div class="r-input-group"><span class="r-label">I₃ (mA)</span><input class="r-input" id="ki2" type="number" step="0.1" value="-5" placeholder="vào=+, ra=−"></div>
+    <div class="r-input-group"><span class="r-label">I₄ (mA)</span><input class="r-input" id="ki3" type="number" step="0.1" value="" placeholder="(để trống → tính)"></div>
+  </div>
+
+  <div class="row" style="margin-top:4px">
+    <button class="btn-primary" onclick="calcKcl()">Kiểm tra KCL</button>
+    <button class="btn-outline" style="margin-left:8px" onclick="kclPreset('example1')">Ví dụ 1</button>
+    <button class="btn-outline" onclick="kclPreset('example2')">Ví dụ 2</button>
+  </div>
+
+  <!-- SVG minh họa nút -->
+  <div class="svg-wrap" style="margin-top:14px">
+    <svg id="kclSvg" class="circuit" viewBox="0 0 440 260" height="200"></svg>
+  </div>
+
+  <div class="kcl-display" id="kclStats"></div>
+  <div class="result-box" id="kclResult" style="display:none; margin-top:12px"></div>
+</div>
+
+<!-- ===== MODULE 3: KVL và giải mạch hỗn hợp ===== -->
+<h2>3. Giải mạch hỗn hợp (KVL + KCL)</h2>
+<div class="card">
+  <p style="font-size:14px;color:#374151">
+    Mạch: nguồn V<sub>s</sub> — R₁ (nối tiếp) — cụm song song [R₂ ‖ R₃]. Nhập giá trị, bấm Giải.
+  </p>
+  <div class="row">
+    <label>V<sub>s</sub> (V):</label>
+    <input type="number" id="hvs" value="24" step="1" style="width:80px">
+    <label>R₁ (Ω):</label>
+    <input type="number" id="hr1" value="40" step="1" style="width:80px">
+    <label>R₂ (Ω):</label>
+    <input type="number" id="hr2" value="60" step="1" style="width:80px">
+    <label>R₃ (Ω):</label>
+    <input type="number" id="hr3" value="120" step="1" style="width:80px">
+  </div>
+  <div class="row">
+    <button class="btn-primary" onclick="solveHybrid()">Giải từng bước</button>
+    <button class="btn-outline" style="margin-left:8px" onclick="hybridPreset(24,40,60,120)">Ví dụ README</button>
+    <button class="btn-outline" onclick="hybridPreset(30,30,60,60)">Bài tập 5</button>
+  </div>
+
+  <!-- SVG sơ đồ mạch hỗn hợp -->
+  <div class="svg-wrap" style="margin-top:16px">
+    <svg id="hybridSvg" class="circuit" viewBox="0 0 560 220" height="200"></svg>
+  </div>
+
+  <div id="hybridSteps" style="display:none; margin-top:14px"></div>
+  <table class="sum-table" id="hybridTable" style="display:none"></table>
+</div>
+
+</main>
+
+<script>
+// ======================================================
+// MODULE 1 — Tính R tương đương
+// ======================================================
+let rMode = 'series';
+
+function setMode(m) {
+  rMode = m;
+  document.getElementById('btnSeries').classList.toggle('active', m === 'series');
+  document.getElementById('btnParallel').classList.toggle('active', m === 'parallel');
+  document.getElementById('modeHint').textContent = m === 'series'
+    ? '— cùng dòng, áp chia theo R'
+    : '— cùng áp, dòng chia ngược R';
+  calcR();
+}
+
+function buildRInputs() {
+  const n = parseInt(document.getElementById('rCount').value);
+  const wrap = document.getElementById('rInputsWrap');
+  const defaults = [100, 200, 150, 220, 330, 470];
+  wrap.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const g = document.createElement('div');
+    g.className = 'r-input-group';
+    g.innerHTML = `<span class="r-label">R${toSub(i+1)} (Ω)</span>
+      <input class="r-input" type="number" step="1" value="${defaults[i] || 100}" id="ri${i}" oninput="calcR()">`;
+    wrap.appendChild(g);
+  }
+  calcR();
+}
+
+function toSub(n) {
+  const subs = ['₁','₂','₃','₄','₅','₆'];
+  return subs[n-1] || n;
+}
+
+function getRValues() {
+  const n = parseInt(document.getElementById('rCount').value);
+  const vals = [];
+  for (let i = 0; i < n; i++) {
+    const v = parseFloat(document.getElementById('ri'+i).value);
+    if (isNaN(v) || v <= 0) return null;
+    vals.push(v);
+  }
+  return vals;
+}
+
+function fmt(x, unit) {
+  if (Math.abs(x) >= 1000) return (x/1000).toFixed(3).replace(/\.?0+$/,'') + ' k' + unit;
+  if (Math.abs(x) < 1) return (x*1000).toFixed(2).replace(/\.?0+$/,'') + ' m' + unit;
+  return x.toFixed(2).replace(/\.?0+$/,'') + ' ' + unit;
+}
+
+function calcR() {
+  const vals = getRValues();
+  if (!vals) {
+    document.getElementById('rResult').style.display = 'none';
+    document.getElementById('schWrap').style.display = 'none';
+    return;
+  }
+  const V = parseFloat(document.getElementById('vSource').value) || 12;
+  let Rtd, formula;
+  const lines = [];
+
+  if (rMode === 'series') {
+    Rtd = vals.reduce((a, b) => a + b, 0);
+    formula = vals.map((r,i) => `R${toSub(i+1)}=${fmt(r,'Ω')}`).join(' + ');
+    lines.push(`R_tđ = ${formula} = <strong>${fmt(Rtd,'Ω')}</strong>`);
+  } else {
+    const sumInv = vals.reduce((a, b) => a + 1/b, 0);
+    Rtd = 1 / sumInv;
+    const invTerms = vals.map((r,i) => `1/${fmt(r,'Ω')}`).join(' + ');
+    lines.push(`1/R_tđ = ${invTerms} = ${sumInv.toFixed(5).replace(/0+$/,'')}`);
+    lines.push(`R_tđ = <strong>${fmt(Rtd,'Ω')}</strong>`);
+  }
+
+  const Itotal = V / Rtd;
+  lines.push(`I_tổng = V / R_tđ = ${V} V / ${fmt(Rtd,'Ω')} = <strong>${fmt(Itotal,'A')}</strong>`);
+
+  if (rMode === 'series') {
+    lines.push('');
+    lines.push('<em>Điện áp trên từng điện trở (V = I × R):</em>');
+    vals.forEach((r, i) => {
+      const vi = Itotal * r;
+      lines.push(`  V_R${toSub(i+1)} = ${fmt(Itotal,'A')} × ${fmt(r,'Ω')} = <strong>${fmt(vi,'V')}</strong>`);
+    });
+    const sumV = vals.reduce((a, r) => a + Itotal * r, 0);
+    lines.push(`  Kiểm tra: ΣV = ${fmt(sumV,'V')} ${Math.abs(sumV - V) < 0.01 ? '= V_nguồn ✓' : '≠ V_nguồn (kiểm tra input)'}`);
+  } else {
+    lines.push('');
+    lines.push('<em>Dòng qua từng nhánh (I = V / R):</em>');
+    let sumI = 0;
+    vals.forEach((r, i) => {
+      const ii = V / r;
+      sumI += ii;
+      lines.push(`  I_R${toSub(i+1)} = ${V} V / ${fmt(r,'Ω')} = <strong>${fmt(ii,'A')}</strong>`);
+    });
+    lines.push(`  Kiểm tra: ΣI = ${fmt(sumI,'A')} ${Math.abs(sumI - Itotal) < 0.001 ? '= I_tổng ✓' : '≠ I_tổng (lỗi?)'}`);
+  }
+
+  const box = document.getElementById('rResult');
+  box.innerHTML = lines.join('<br>');
+  box.style.display = 'block';
+
+  drawSchematic(vals, Rtd, Itotal, V);
+}
+
+// --- SVG sơ đồ ---
+function drawSchematic(vals, Rtd, Itotal, V) {
+  const svg = document.getElementById('schSvg');
+  const wrap = document.getElementById('schWrap');
+  wrap.style.display = 'block';
+  svg.innerHTML = '';
+
+  const n = vals.length;
+  const W = 560, H = 160;
+  const margin = 40;
+  const sourceX = 40, sourceW = 36, sourceH = 52;
+  const rW = 46, rH = 28;
+
+  function line(x1, y1, x2, y2, cls) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg','line');
+    el.setAttribute('x1',x1); el.setAttribute('y1',y1);
+    el.setAttribute('x2',x2); el.setAttribute('y2',y2);
+    el.setAttribute('class', 'wire ' + (cls||''));
+    svg.appendChild(el); return el;
+  }
+  function rect(x, y, w, h, cls) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    el.setAttribute('x',x); el.setAttribute('y',y);
+    el.setAttribute('width',w); el.setAttribute('height',h);
+    el.setAttribute('class', cls||''); el.setAttribute('rx','3');
+    svg.appendChild(el); return el;
+  }
+  function text(x, y, txt, cls) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg','text');
+    el.setAttribute('x',x); el.setAttribute('y',y);
+    el.setAttribute('text-anchor','middle');
+    el.setAttribute('class','lbl '+(cls||''));
+    el.textContent = txt;
+    svg.appendChild(el); return el;
+  }
+
+  const midY = H / 2;
+  const topY = midY - 30;
+  const botY = midY + 30;
+
+  if (rMode === 'series') {
+    // Nguồn ở trái, các R nối tiếp theo hàng
+    const srcX = 30, srcY = midY - sourceH/2;
+    rect(srcX, srcY, sourceW, sourceH, 'source-rect');
+    text(srcX + sourceW/2, midY - 4, 'V', 'lbl-bold');
+    text(srcX + sourceW/2, midY + 9, `${V}V`, '');
+
+    // Cạnh trên: từ nguồn sang các R
+    const usableW = W - srcX - sourceW - 40;
+    const spacing = usableW / n;
+    let cx = srcX + sourceW + 10;
+
+    // dây từ đỉnh nguồn ra
+    line(srcX + sourceW, srcY + 8, cx, srcY + 8, 'wire-pos');
+
+    for (let i = 0; i < n; i++) {
+      const rx = cx + (i * spacing);
+      const ry = srcY + 8 - rH/2;
+      // dây nối tới R
+      if (i > 0) line(rx - spacing + rW, srcY + 8, rx, srcY + 8, '');
+      rect(rx, ry, rW, rH, 'resistor-rect');
+      text(rx + rW/2, ry + 11, `R${toSub(i+1)}`, 'lbl-bold');
+      text(rx + rW/2, ry + 22, fmt(vals[i],'Ω'), '');
+    }
+
+    const lastRx = cx + (n-1)*spacing + rW;
+    const rightX = W - 30;
+    // dây sau R cuối
+    line(lastRx, srcY + 8, rightX, srcY + 8, '');
+    // dây dọc bên phải xuống
+    line(rightX, srcY + 8, rightX, srcY + sourceH - 8, '');
+    // dây đáy về nguồn
+    line(rightX, srcY + sourceH - 8, srcX + sourceW, srcY + sourceH - 8, 'wire-gnd');
+
+    // nhãn dòng ở cạnh trên
+    text((srcX + sourceW + lastRx)/2, srcY + 8 - 12, `I = ${fmt(Itotal,'A')}`, 'lbl-green lbl-bold');
+
+    // dấu + / −
+    text(srcX + sourceW/2, srcY + 4, '+', 'lbl-red lbl-bold');
+    text(srcX + sourceW/2, srcY + sourceH - 4, '−', '');
+
+  } else {
+    // Song song: nguồn trái, thanh ngang trên/dưới, mỗi R thẳng đứng
+    const srcX = 30, srcY = midY - sourceH/2;
+    rect(srcX, srcY, sourceW, sourceH, 'source-rect');
+    text(srcX + sourceW/2, midY - 4, 'V', 'lbl-bold');
+    text(srcX + sourceW/2, midY + 9, `${V}V`, '');
+    text(srcX + sourceW/2, srcY + 4, '+', 'lbl-red lbl-bold');
+    text(srcX + sourceW/2, srcY + sourceH - 4, '−', '');
+
+    const busTopY = srcY + 8;
+    const busBotY = srcY + sourceH - 8;
+
+    const usableW = W - srcX - sourceW - 50;
+    const spacing = usableW / (n + 0.5);
+    const startX = srcX + sourceW + spacing * 0.5;
+
+    // Bus trên và dưới
+    const busRightX = startX + n * spacing;
+    line(srcX + sourceW, busTopY, busRightX, busTopY, 'wire-pos');
+    line(srcX + sourceW, busBotY, busRightX, busBotY, 'wire-gnd');
+    // nối đầu phải
+    line(busRightX, busTopY, busRightX, busBotY, '');
+
+    const Ii = vals.map(r => V/r);
+    for (let i = 0; i < n; i++) {
+      const rx = startX + i * spacing;
+      const ry = busTopY + (busBotY - busTopY)/2 - rH/2;
+      // dây từ bus trên xuống R
+      line(rx + rW/2, busTopY, rx + rW/2, ry, '');
+      rect(rx, ry, rW, rH, 'resistor-rect');
+      text(rx + rW/2, ry + 11, `R${toSub(i+1)}`, 'lbl-bold');
+      text(rx + rW/2, ry + 22, fmt(vals[i],'Ω'), '');
+      // dây từ R xuống bus dưới
+      line(rx + rW/2, ry + rH, rx + rW/2, busBotY, '');
+      // nhãn dòng
+      text(rx + rW/2, ry - 8, fmt(Ii[i],'A'), 'lbl-blue');
+    }
+
+    // nhãn dòng tổng
+    text(srcX + sourceW + 12, busTopY - 10, `I_tổng = ${fmt(Itotal,'A')}`, 'lbl-green lbl-bold');
+  }
+}
+
+// ======================================================
+// MODULE 2 — KCL tại nút
+// ======================================================
+function kclPreset(name) {
+  const presets = {
+    example1: [8, 3, -5, ''],
+    example2: [1, 4, -2, '', -0.5]
+  };
+  const p = presets[name];
+  if (!p) return;
+  ['ki0','ki1','ki2','ki3','ki4'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) el.value = p[i] !== undefined ? p[i] : '';
+  });
+  calcKcl();
+}
+
+function calcKcl() {
+  const ids = ['ki0','ki1','ki2','ki3'];
+  const vals = ids.map(id => {
+    const el = document.getElementById(id);
+    if (!el) return null;
+    const s = el.value.trim();
+    return s === '' ? null : parseFloat(s);
+  });
+
+  let unknownIdx = -1, known = [];
+  vals.forEach((v, i) => {
+    if (v === null || isNaN(v)) { unknownIdx = i; known.push(null); }
+    else known.push(v);
+  });
+
+  const sumKnown = known.reduce((a, v) => a + (v || 0), 0);
+  let unknown = null;
+  if (unknownIdx >= 0) {
+    unknown = -sumKnown;
+    vals[unknownIdx] = unknown;
+  }
+
+  const total = vals.reduce((a, v) => a + (v || 0), 0);
+  const ok = Math.abs(total) < 0.001;
+
+  // Vẽ SVG nút
+  drawKclNode(vals, unknownIdx, unknown);
+
+  const statsEl = document.getElementById('kclStats');
+  const iin = vals.filter(v => v !== null && v > 0).reduce((a, v) => a + v, 0);
+  const iout = vals.filter(v => v !== null && v < 0).reduce((a, v) => a + v, 0);
+
+  statsEl.innerHTML = `
+    <span class="kcl-stat">Tổng dòng vào: <strong>${iin.toFixed(2)} mA</strong></span>
+    <span class="kcl-stat">Tổng dòng ra: <strong>${Math.abs(iout).toFixed(2)} mA</strong></span>
+    <span class="kcl-stat ${ok ? 'ok' : 'fail'}">${ok ? '✓ KCL thỏa mãn' : '✗ KCL không thỏa — kiểm tra lại'}</span>
+  `;
+
+  const resEl = document.getElementById('kclResult');
+  resEl.style.display = 'block';
+
+  let html = '<strong>Phân tích KCL tại nút A:</strong><br>';
+  const labels = ['I₁','I₂','I₃','I₄'];
+  vals.forEach((v, i) => {
+    if (v === null) return;
+    const dir = v > 0 ? '→ vào' : '← ra';
+    const mark = i === unknownIdx ? ' ← <strong>(tính được)</strong>' : '';
+    html += `${labels[i]} = ${v > 0 ? '+' : ''}${v.toFixed(2)} mA (${dir})${mark}<br>`;
+  });
+  html += `<br>KCL: ΣI_vào = ΣI_ra → <strong>${iin.toFixed(2)} mA ${ok ? '=' : '≠'} ${Math.abs(iout).toFixed(2)} mA</strong>`;
+  if (unknownIdx >= 0) {
+    html += `<br><br>Tính ngược: I_ẩn = −(${known.filter(v=>v!==null).map(v=>v.toFixed(2)).join(' + ')}) = <strong>${unknown.toFixed(2)} mA</strong>`;
+    html += `<br>${unknown < 0 ? 'Âm → dòng đi RA khỏi nút.' : 'Dương → dòng đi VÀO nút.'}`;
+  }
+  resEl.innerHTML = html;
+}
+
+function drawKclNode(vals, unknownIdx, unknown) {
+  const svg = document.getElementById('kclSvg');
+  svg.innerHTML = '';
+  const W = 440, H = 260;
+  const cx = W/2, cy = H/2;
+  const labels = ['I₁','I₂','I₃','I₄'];
+  // 4 hướng: trên, phải, dưới, trái
+  const dirs = [
+    {dx: 0, dy: -1, lx: 0, ly: -18},
+    {dx: 1, dy: 0, lx: 14, ly: 5},
+    {dx: 0, dy: 1, lx: 0, ly: 14},
+    {dx: -1, dy: 0, lx: -14, ly: 5}
+  ];
+  const armLen = 80;
+
+  function mkEl(tag) { return document.createElementNS('http://www.w3.org/2000/svg', tag); }
+
+  dirs.forEach((d, i) => {
+    const val = vals[i];
+    const isUnknown = i === unknownIdx;
+
+    // Điểm cuối nhánh
+    const ex = cx + d.dx * armLen;
+    const ey = cy + d.dy * armLen;
+
+    // Dây
+    const wire = mkEl('line');
+    wire.setAttribute('x1', cx); wire.setAttribute('y1', cy);
+    wire.setAttribute('x2', ex); wire.setAttribute('y2', ey);
+    wire.setAttribute('class', 'wire');
+    wire.setAttribute('stroke', isUnknown ? '#94a3b8' : (val > 0 ? '#dc2626' : '#1d4ed8'));
+    wire.setAttribute('stroke-dasharray', isUnknown ? '5,4' : 'none');
+    svg.appendChild(wire);
+
+    // Mũi tên dòng (chiều thật)
+    const arrowEl = mkEl('polygon');
+    let ax, ay, pts;
+    if (val !== null && !isNaN(val)) {
+      const entering = val > 0;  // dương = vào nút
+      // Đặt mũi tên ở giữa nhánh
+      const mx = cx + d.dx * armLen * 0.55;
+      const my = cy + d.dy * armLen * 0.55;
+      // mũi tên dọc theo hướng dòng
+      const sz = 7;
+      const nx = d.dy, ny = -d.dx; // pháp tuyến
+      const headDir = entering ? 1 : -1; // hướng về nút nếu vào
+      const tipX = mx + d.dx * sz * headDir;
+      const tipY = my + d.dy * sz * headDir;
+      pts = `${tipX},${tipY} ${mx - d.dx*sz*headDir + nx*sz*0.6},${my - d.dy*sz*headDir + ny*sz*0.6} ${mx - d.dx*sz*headDir - nx*sz*0.6},${my - d.dy*sz*headDir - ny*sz*0.6}`;
+      arrowEl.setAttribute('points', pts);
+      arrowEl.setAttribute('fill', val > 0 ? '#dc2626' : '#1d4ed8');
+      svg.appendChild(arrowEl);
+    }
+
+    // Label điểm cuối
+    const tx = ex + d.dx * 22 + d.lx;
+    const ty = ey + d.dy * 22 + d.ly;
+    const tlbl = mkEl('text');
+    tlbl.setAttribute('x', tx); tlbl.setAttribute('y', ty);
+    tlbl.setAttribute('text-anchor', 'middle');
+    tlbl.setAttribute('class', 'lbl lbl-bold');
+    if (isUnknown) {
+      tlbl.textContent = `${labels[i]} = ?`;
+      tlbl.setAttribute('fill', '#ca8a04');
+    } else {
+      const sign = val >= 0 ? '+' : '';
+      tlbl.textContent = `${labels[i]} = ${sign}${val.toFixed(1)}mA`;
+      tlbl.setAttribute('fill', val > 0 ? '#dc2626' : '#1d4ed8');
+    }
+    svg.appendChild(tlbl);
+  });
+
+  // Nút trung tâm A
+  const nodeCircle = mkEl('circle');
+  nodeCircle.setAttribute('cx', cx); nodeCircle.setAttribute('cy', cy);
+  nodeCircle.setAttribute('r', 14); nodeCircle.setAttribute('class', 'highlight-node');
+  svg.appendChild(nodeCircle);
+  const nodeLabel = mkEl('text');
+  nodeLabel.setAttribute('x', cx); nodeLabel.setAttribute('y', cy + 5);
+  nodeLabel.setAttribute('text-anchor', 'middle');
+  nodeLabel.setAttribute('class', 'lbl lbl-bold');
+  nodeLabel.textContent = 'A';
+  svg.appendChild(nodeLabel);
+
+  // Legend
+  const leg = mkEl('text');
+  leg.setAttribute('x', 10); leg.setAttribute('y', H - 12);
+  leg.setAttribute('class', 'lbl'); leg.setAttribute('fill', '#64748b');
+  leg.textContent = 'Đỏ = dòng vào  Xanh = dòng ra  Nét đứt = ẩn cần tính';
+  svg.appendChild(leg);
+}
+
+// ======================================================
+// MODULE 3 — Giải mạch hỗn hợp
+// ======================================================
+function hybridPreset(vs, r1, r2, r3) {
+  document.getElementById('hvs').value = vs;
+  document.getElementById('hr1').value = r1;
+  document.getElementById('hr2').value = r2;
+  document.getElementById('hr3').value = r3;
+  solveHybrid();
+}
+
+function solveHybrid() {
+  const Vs = parseFloat(document.getElementById('hvs').value);
+  const R1 = parseFloat(document.getElementById('hr1').value);
+  const R2 = parseFloat(document.getElementById('hr2').value);
+  const R3 = parseFloat(document.getElementById('hr3').value);
+
+  if ([Vs,R1,R2,R3].some(v => isNaN(v) || v <= 0)) return;
+
+  const R23 = (R2*R3)/(R2+R3);
+  const Rtd = R1 + R23;
+  const Itotal = Vs / Rtd;
+  const VR1 = Itotal * R1;
+  const V23 = Itotal * R23;
+  const I2 = V23 / R2;
+  const I3 = V23 / R3;
+
+  // SVG
+  drawHybridCircuit(Vs, R1, R2, R3, VR1, V23, Itotal, I2, I3);
+
+  // Bước giải
+  const stepsEl = document.getElementById('hybridSteps');
+  stepsEl.style.display = 'block';
+  stepsEl.innerHTML = `
+<div class="result-box">
+<strong>Bước 1 — Tính R₂₃ (song song R₂ ‖ R₃):</strong><br>
+R₂₃ = (R₂ · R₃) / (R₂ + R₃) = (${R2} × ${R3}) / (${R2} + ${R3}) = ${(R2*R3).toFixed(0)} / ${R2+R3} = <strong>${fmt(R23,'Ω')}</strong>
+</div>
+<div class="result-box" style="margin-top:8px">
+<strong>Bước 2 — Tính R_tđ toàn mạch (R₁ nối tiếp R₂₃):</strong><br>
+R_tđ = R₁ + R₂₃ = ${R1} + ${fmt(R23,'Ω')} = <strong>${fmt(Rtd,'Ω')}</strong>
+</div>
+<div class="result-box" style="margin-top:8px">
+<strong>Bước 3 — Tính dòng tổng:</strong><br>
+I_tổng = V_s / R_tđ = ${Vs} V / ${fmt(Rtd,'Ω')} = <strong>${fmt(Itotal,'A')}</strong>
+</div>
+<div class="result-box" style="margin-top:8px">
+<strong>Bước 4 — Tính điện áp từng phần:</strong><br>
+V_R₁ = I_tổng × R₁ = ${fmt(Itotal,'A')} × ${R1} Ω = <strong>${fmt(VR1,'V')}</strong><br>
+V_ss  = I_tổng × R₂₃ = ${fmt(Itotal,'A')} × ${fmt(R23,'Ω')} = <strong>${fmt(V23,'V')}</strong><br>
+KVL: V_R₁ + V_ss = ${fmt(VR1,'V')} + ${fmt(V23,'V')} = ${fmt(VR1+V23,'V')} ${Math.abs(VR1+V23-Vs)<0.01 ? '= V_s ✓' : '≠ V_s (lỗi?)'}
+</div>
+<div class="result-box" style="margin-top:8px">
+<strong>Bước 5 — Tính dòng nhánh song song (KCL):</strong><br>
+I₂ = V_ss / R₂ = ${fmt(V23,'V')} / ${R2} Ω = <strong>${fmt(I2,'A')}</strong><br>
+I₃ = V_ss / R₃ = ${fmt(V23,'V')} / ${R3} Ω = <strong>${fmt(I3,'A')}</strong><br>
+KCL: I₂ + I₃ = ${fmt(I2,'A')} + ${fmt(I3,'A')} = ${fmt(I2+I3,'A')} ${Math.abs(I2+I3-Itotal)<0.001 ? '= I_tổng ✓' : '≠ I_tổng (lỗi?)'}
+</div>
+  `;
+
+  // Bảng kết quả
+  const tbl = document.getElementById('hybridTable');
+  tbl.style.display = 'table';
+  tbl.innerHTML = `
+<thead><tr><th>Phần tử</th><th>R (Ω)</th><th>V (V)</th><th>I (mA)</th><th>P (mW)</th></tr></thead>
+<tbody>
+  <tr><td>R₁ (nối tiếp)</td><td>${R1}</td><td>${VR1.toFixed(2)}</td><td>${(Itotal*1000).toFixed(1)}</td><td>${(VR1*Itotal*1000).toFixed(1)}</td></tr>
+  <tr><td>R₂ (song song)</td><td>${R2}</td><td>${V23.toFixed(2)}</td><td>${(I2*1000).toFixed(1)}</td><td>${(V23*I2*1000).toFixed(1)}</td></tr>
+  <tr><td>R₃ (song song)</td><td>${R3}</td><td>${V23.toFixed(2)}</td><td>${(I3*1000).toFixed(1)}</td><td>${(V23*I3*1000).toFixed(1)}</td></tr>
+  <tr class="total-row"><td>Toàn mạch</td><td>${fmt(Rtd,'')}</td><td>${Vs}</td><td>${(Itotal*1000).toFixed(1)}</td><td>${(Vs*Itotal*1000).toFixed(1)}</td></tr>
+</tbody>
+  `;
+}
+
+function drawHybridCircuit(Vs, R1, R2, R3, VR1, V23, Itotal, I2, I3) {
+  const svg = document.getElementById('hybridSvg');
+  svg.innerHTML = '';
+  const W = 560, H = 220;
+
+  function mkEl(tag) { return document.createElementNS('http://www.w3.org/2000/svg', tag); }
+  function line(x1,y1,x2,y2,stroke,dash) {
+    const l = mkEl('line');
+    l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);
+    l.setAttribute('stroke', stroke||'#374151'); l.setAttribute('stroke-width','2.5');
+    l.setAttribute('stroke-linecap','round');
+    if (dash) l.setAttribute('stroke-dasharray', dash);
+    svg.appendChild(l);
+  }
+  function rect(x,y,w,h,fill,stroke) {
+    const r = mkEl('rect');
+    r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',h);
+    r.setAttribute('fill',fill);r.setAttribute('stroke',stroke||'#374151');
+    r.setAttribute('stroke-width','2');r.setAttribute('rx','3');
+    svg.appendChild(r);
+  }
+  function txt(x,y,s,fill,bold,anchor) {
+    const t = mkEl('text');
+    t.setAttribute('x',x);t.setAttribute('y',y);
+    t.setAttribute('text-anchor', anchor||'middle');
+    t.setAttribute('fill',fill||'#1a202c');
+    t.setAttribute('font-size','12');
+    t.setAttribute('font-family','monospace');
+    if (bold) t.setAttribute('font-weight','700');
+    t.textContent = s;
+    svg.appendChild(t);
+  }
+  function circle(x,y,r,fill,stroke) {
+    const c = mkEl('circle');
+    c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',r);
+    c.setAttribute('fill',fill||'#374151');c.setAttribute('stroke',stroke||'white');
+    c.setAttribute('stroke-width','2');
+    svg.appendChild(c);
+  }
+
+  // Layout
+  const srcX=28, srcY=70, srcW=32, srcH=80;
+  const topY=35, botY=185, nodeAX=200, nodeBX=400;
+  const r1X=80, r1Y=topY-14, r1W=56, r1H=28;
+  const r2X=240, r2Y=50, r2W=56, r2H=28;
+  const r3X=240, r3Y=140, r3W=56, r3H=28;
+
+  // Nguồn
+  rect(srcX, srcY, srcW, srcH, '#fef3c7', '#d97706');
+  txt(srcX+srcW/2, srcY+30, 'V_s', '#92400e', true);
+  txt(srcX+srcW/2, srcY+46, `${Vs}V`, '#92400e');
+  txt(srcX+srcW/2, srcY+8, '+', '#dc2626', true);
+  txt(srcX+srcW/2, srcY+srcH-6, '−', '#374151', true);
+
+  // Nút A (giữa R1 và cụm song song)
+  // Nút B (sau cụm song song)
+  const nodeAY = topY, nodeBY = topY;
+
+  // Dây trên: nguồn → R1 → node A
+  line(srcX+srcW, topY, r1X, topY, '#dc2626');
+  rect(r1X, r1Y, r1W, r1H, '#dbeafe', '#1d4ed8');
+  txt(r1X+r1W/2, r1Y+11, 'R₁', '#1d4ed8', true);
+  txt(r1X+r1W/2, r1Y+22, `${R1}Ω`, '#1d4ed8');
+  line(r1X+r1W, topY, nodeAX, topY, '#dc2626');
+
+  // Node A
+  circle(nodeAX, topY, 6, '#4d7c0f', 'white');
+  txt(nodeAX, topY-12, 'A', '#4d7c0f', true);
+
+  // Nhánh R2 (trên)
+  line(nodeAX, topY, r2X, r2Y+r2H/2, '#374151');
+  rect(r2X, r2Y, r2W, r2H, '#dcfce7', '#4d7c0f');
+  txt(r2X+r2W/2, r2Y+11, 'R₂', '#4d7c0f', true);
+  txt(r2X+r2W/2, r2Y+22, `${R2}Ω`, '#4d7c0f');
+  line(r2X+r2W, r2Y+r2H/2, nodeBX, topY, '#374151');
+
+  // Nhánh R3 (dưới)
+  line(nodeAX, topY, nodeAX, botY, '#374151');
+  line(nodeAX, botY, r3X, r3Y+r3H/2, '#374151');
+  rect(r3X, r3Y, r3W, r3H, '#dcfce7', '#4d7c0f');
+  txt(r3X+r3W/2, r3Y+11, 'R₃', '#4d7c0f', true);
+  txt(r3X+r3W/2, r3Y+22, `${R3}Ω`, '#4d7c0f');
+  line(r3X+r3W, r3Y+r3H/2, nodeBX, botY, '#374151');
+  line(nodeBX, botY, nodeBX, topY, '#374151');
+
+  // Node B
+  circle(nodeBX, topY, 6, '#4d7c0f', 'white');
+  txt(nodeBX, topY-12, 'B', '#4d7c0f', true);
+
+  // Dây về nguồn (bot)
+  line(srcX+srcW, botY, nodeBX, botY, '#1a202c');
+  line(srcX+srcW, srcY+srcH-8, srcX+srcW, botY, '#1a202c');
+  line(srcX+srcW, srcY+8, srcX+srcW, topY, '#dc2626');
+  // Dây trên nguồn → đường trên
+  line(srcX+srcW, topY, srcX+srcW, topY, '#dc2626');
+
+  // Nhãn dòng
+  txt((srcX+srcW+r1X)/2, topY-14, `I=${fmt(Itotal,'A')}`, '#dc2626', true);
+  txt(r2X+r2W/2, r2Y-8, `I₂=${fmt(I2,'A')}`, '#4d7c0f', false);
+  txt(r3X+r3W/2, r3Y+r3H+12, `I₃=${fmt(I3,'A')}`, '#4d7c0f', false);
+
+  // Nhãn điện áp
+  txt(r1X+r1W/2, r1Y+r1H+14, `V=${fmt(VR1,'V')}`, '#dc2626', false);
+  txt(r2X+r2W+48, (r2Y+r3Y+r3H)/2, `V=${fmt(V23,'V')}`, '#4d7c0f', true);
+}
+
+// ======================================================
+// Khởi tạo
+// ======================================================
+buildRInputs();
+calcKcl();
+drawKclNode([8, 3, -5, null], 3, null);
+hybridPreset(24, 40, 60, 120);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -45,6 +45,7 @@
 | Psychology | Tâm lý học khoa học — 3 tầng × 15 bài: cognitive (Stroop, biases) → social/developmental → clinical & methods | [Psychology/](./Psychology/) |
 | Statistics | Thống kê — 3 tầng × 15 bài: mô tả dữ liệu → suy luận → Bayesian, nhân quả, time series | [Statistics/](./Statistics/) |
 | Vectors | Lộ trình toán cho AI & ML — 5 tầng từ đại số phổ thông tới xác suất & cross-entropy | [Vectors/](./Vectors/) |
+| VietnameseHistory | Lịch sử Việt Nam — 3 tầng × 8 bài: dựng nước & Bắc thuộc → các triều đại quân chủ → cận-hiện đại & Đổi mới | [VietnameseHistory/](./VietnameseHistory/) |
 
 > Mở [`index.html`](./index.html) ở root để xem trang chính có liên kết tới mọi lĩnh vực.
 

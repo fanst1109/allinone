@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Bảo mật & cô lập OS</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #4338ca;
+    --accent-soft: #eef2ff;
+    --virt-purple: #4338ca;
+    --virt-dark: #312e81;
+    --virt-mid: #818cf8;
+    --sec-red: #dc2626;
+    --sec-green: #16a34a;
+    --sec-orange: #d97706;
+    --sec-blue: #0369a1;
+  }
+  h1 { color: var(--virt-dark); }
+  h2 { color: var(--virt-purple); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--virt-mid); }
+  .card { background:#fff; border-radius:10px; padding:20px 24px; box-shadow:0 1px 4px rgba(67,56,202,.1); margin:16px 0; }
+  .info-box { background:var(--accent-soft); border-left:4px solid var(--virt-purple); border-radius:0 8px 8px 0; padding:12px 16px; margin:12px 0; font-size:14px; line-height:1.7; }
+  .btn { padding:8px 18px; border-radius:6px; border:none; font-size:14px; font-weight:600; cursor:pointer; transition:background .15s, transform .1s; }
+  .btn:active { transform:scale(.97); }
+  .btn-primary { background:var(--virt-purple); color:white; }
+  .btn-primary:hover { background:var(--virt-dark); }
+  .btn-secondary { background:#f1f5f9; color:#374151; border:1px solid #d1d5db; }
+  .btn-secondary:hover { background:#e2e8f0; }
+  .btn-danger { background:var(--sec-red); color:white; }
+  .btn-danger:hover { background:#b91c1c; }
+  .btn-success { background:var(--sec-green); color:white; }
+  .btn-success:hover { background:#15803d; }
+  .btn-row { display:flex; gap:10px; flex-wrap:wrap; margin:12px 0; }
+
+  /* ── Module 1: chmod calculator ── */
+  .chmod-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 16px 0;
+  }
+  @media (max-width:600px) { .chmod-grid { grid-template-columns:1fr; } }
+  .perm-group {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #e2e8f0;
+  }
+  .perm-group-title {
+    padding: 8px 12px;
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+  }
+  .perm-owner-t { background:#dbeafe; color:#1e3a8a; }
+  .perm-group-t { background:#dcfce7; color:#14532d; }
+  .perm-other-t { background:#fef3c7; color:#78350f; }
+  .perm-bits {
+    display: flex;
+    justify-content: space-around;
+    padding: 12px 8px;
+  }
+  .bit-toggle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .bit-check {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 2px solid #d1d5db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    transition: all .15s;
+    background: white;
+  }
+  .bit-check.on { border-color: var(--virt-purple); background: var(--virt-purple); color: white; }
+  .bit-label { font-size: 11px; color: #6b7280; font-weight: 600; }
+  .bit-val { font-size: 12px; color: var(--virt-purple); font-weight: 700; }
+
+  .chmod-result {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    font-family: monospace;
+    font-size: 15px;
+    line-height: 2;
+  }
+  .chmod-result .octal { color: #fbbf24; font-size: 20px; font-weight: 700; }
+  .chmod-result .sym { color: #4ade80; font-size: 18px; }
+  .chmod-result .bit-owner { color: #60a5fa; }
+  .chmod-result .bit-group { color: #34d399; }
+  .chmod-result .bit-other { color: #fcd34d; }
+
+  /* ── Module 2: Access check simulation ── */
+  .access-scene {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  @media (max-width:600px) { .access-scene { grid-template-columns:1fr; } }
+  .user-card {
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 13px;
+    border: 2px solid #e2e8f0;
+    background: white;
+  }
+  .user-card-title { font-weight:700; font-size:14px; margin-bottom:8px; }
+  .file-card {
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 13px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+  }
+
+  .access-result {
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .access-allow { background:#dcfce7; color:#14532d; border:2px solid #86efac; }
+  .access-deny  { background:#fee2e2; color:#991b1b; border:2px solid #fca5a5; }
+  .access-neutral { background:#f8fafc; color:#374151; border:2px solid #e2e8f0; }
+
+  .access-log {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    margin-top: 10px;
+    min-height: 60px;
+    white-space: pre-wrap;
+  }
+  .log-ok  { color:#4ade80; }
+  .log-err { color:#f87171; }
+  .log-inf { color:#94a3b8; }
+
+  .select-styled {
+    padding: 7px 12px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 13px;
+    background: white;
+    color: #374151;
+    cursor: pointer;
+  }
+  .row-label { font-weight:600; font-size:13px; margin-bottom:4px; }
+
+  /* ── Module 3: Privilege Escalation ── */
+  .pe-steps {
+    margin: 16px 0;
+  }
+  .pe-step {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+  }
+  .pe-num {
+    background: var(--virt-purple);
+    color: white;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .pe-num.danger { background: var(--sec-red); }
+  .pe-num.ok { background: var(--sec-green); }
+  .pe-content {
+    background: #f8fafc;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    line-height: 1.6;
+    flex: 1;
+    border-left: 3px solid #e2e8f0;
+  }
+  .pe-content.danger { border-left-color: var(--sec-red); background:#fff5f5; }
+  .pe-content.ok { border-left-color: var(--sec-green); background:#f0fdf4; }
+  .pe-content code { background:#e2e8f0; padding:1px 6px; border-radius:4px; font-size:12px; }
+
+  /* ── Module 4: seccomp demo ── */
+  .syscall-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 12px 0;
+  }
+  .syscall-badge {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: monospace;
+    font-weight: 600;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all .15s;
+    user-select: none;
+  }
+  .syscall-allowed  { background:#dcfce7; color:#14532d; border-color:#86efac; }
+  .syscall-blocked  { background:#fee2e2; color:#991b1b; border-color:#fca5a5; }
+  .syscall-pending  { background:#fef3c7; color:#78350f; border-color:#fde68a; }
+  .syscall-info {
+    background:#f8fafc; border-radius:8px; padding:12px 16px;
+    font-size:13px; line-height:1.7; margin-top:10px;
+    border:1px solid #e2e8f0; min-height:50px;
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Advanced</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-containers/visualization.html">← L02: Container</a>
+  <span class="sep">·</span>
+  <span class="current">L03: Bảo mật & cô lập OS</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-smp-multicore-scheduling/visualization.html">L04: Lập lịch đa nhân →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Bảo mật & cô lập OS</h1>
+
+<div class="info-box">
+  Tương tác: bật/tắt bit rwx để tính quyền Unix tức thời — xem số bát phân và ký hiệu đồng bộ.
+  Chọn user và file để mô phỏng kernel kiểm tra quyền truy cập từng bước.
+  Xem demo leo thang đặc quyền và seccomp lọc syscall.
+</div>
+
+<!-- ═══ MODULE 1: chmod Calculator ═══ -->
+<h2>1. Máy tính chmod tương tác</h2>
+
+<p>Bật/tắt các bit rwx cho từng nhóm để xem số bát phân và ký hiệu cập nhật tức thời. Thử chọn preset phổ biến.</p>
+
+<div class="card">
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="setPreset(7,5,5)">0755 (script/bin)</button>
+    <button class="btn btn-secondary" onclick="setPreset(6,4,4)">0644 (config)</button>
+    <button class="btn btn-secondary" onclick="setPreset(6,0,0)">0600 (secret)</button>
+    <button class="btn btn-secondary" onclick="setPreset(7,0,0)">0700 (private dir)</button>
+    <button class="btn btn-secondary" onclick="setPreset(4,4,4)">0444 (read-only)</button>
+    <button class="btn btn-secondary" onclick="setPreset(7,7,7)">0777 (⚠ insecure)</button>
+    <button class="btn btn-secondary" onclick="setPreset(0,0,0)">0000 (no access)</button>
+  </div>
+  <div class="chmod-grid">
+    <div class="perm-group">
+      <div class="perm-group-title perm-owner-t">Owner (chủ sở hữu)</div>
+      <div class="perm-bits">
+        <div class="bit-toggle" onclick="toggleBit('o','r')">
+          <div class="bit-check on" id="bit-o-r">r</div>
+          <div class="bit-label">Read</div>
+          <div class="bit-val">+4</div>
+        </div>
+        <div class="bit-toggle" onclick="toggleBit('o','w')">
+          <div class="bit-check on" id="bit-o-w">w</div>
+          <div class="bit-label">Write</div>
+          <div class="bit-val">+2</div>
+        </div>
+        <div class="bit-toggle" onclick="toggleBit('o','x')">
+          <div class="bit-check on" id="bit-o-x">x</div>
+          <div class="bit-label">Exec</div>
+          <div class="bit-val">+1</div>
+        </div>
+      </div>
+    </div>
+    <div class="perm-group">
+      <div class="perm-group-title perm-group-t">Group (nhóm)</div>
+      <div class="perm-bits">
+        <div class="bit-toggle" onclick="toggleBit('g','r')">
+          <div class="bit-check on" id="bit-g-r">r</div>
+          <div class="bit-label">Read</div>
+          <div class="bit-val">+4</div>
+        </div>
+        <div class="bit-toggle" onclick="toggleBit('g','w')">
+          <div class="bit-check" id="bit-g-w">w</div>
+          <div class="bit-label">Write</div>
+          <div class="bit-val">+2</div>
+        </div>
+        <div class="bit-toggle" onclick="toggleBit('g','x')">
+          <div class="bit-check on" id="bit-g-x">x</div>
+          <div class="bit-label">Exec</div>
+          <div class="bit-val">+1</div>
+        </div>
+      </div>
+    </div>
+    <div class="perm-group">
+      <div class="perm-group-title perm-other-t">Other (người khác)</div>
+      <div class="perm-bits">
+        <div class="bit-toggle" onclick="toggleBit('ot','r')">
+          <div class="bit-check on" id="bit-ot-r">r</div>
+          <div class="bit-label">Read</div>
+          <div class="bit-val">+4</div>
+        </div>
+        <div class="bit-toggle" onclick="toggleBit('ot','w')">
+          <div class="bit-check" id="bit-ot-w">w</div>
+          <div class="bit-label">Write</div>
+          <div class="bit-val">+2</div>
+        </div>
+        <div class="bit-toggle" onclick="toggleBit('ot','x')">
+          <div class="bit-check on" id="bit-ot-x">x</div>
+          <div class="bit-label">Exec</div>
+          <div class="bit-val">+1</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chmod-result" id="chmod-result"></div>
+  <div id="chmod-warn" style="margin-top:8px;font-size:13px;color:var(--sec-red);font-weight:600"></div>
+</div>
+
+<!-- ═══ MODULE 2: Access Check Simulation ═══ -->
+<h2>2. Mô phỏng Kernel kiểm tra quyền truy cập</h2>
+
+<div class="card">
+  <p style="font-size:14px;margin:0 0 14px">Chọn user và file, rồi nhấn "Kiểm tra" để xem kernel quyết định có cho phép truy cập không.</p>
+  <div class="access-scene">
+    <div>
+      <div class="row-label">Chọn User:</div>
+      <select class="select-styled" id="user-sel" style="width:100%;margin-bottom:10px" onchange="resetAccessResult()">
+        <option value="alice">alice (UID=1001, groups: alice, developers)</option>
+        <option value="bob">bob (UID=1002, groups: bob, developers)</option>
+        <option value="charlie">charlie (UID=1003, groups: charlie)</option>
+        <option value="root">root (UID=0)</option>
+      </select>
+      <div class="row-label">Thao tác:</div>
+      <select class="select-styled" id="op-sel" style="width:100%;margin-bottom:10px" onchange="resetAccessResult()">
+        <option value="read">Đọc file (read)</option>
+        <option value="write">Ghi file (write)</option>
+        <option value="exec">Thực thi (execute)</option>
+      </select>
+    </div>
+    <div>
+      <div class="row-label">Chọn File:</div>
+      <select class="select-styled" id="file-sel" style="width:100%;margin-bottom:10px" onchange="resetAccessResult()">
+        <option value="report">report.csv — owner:bob, group:developers, 0640</option>
+        <option value="shadow">/etc/shadow — owner:root, group:shadow, 0640</option>
+        <option value="script">script.sh — owner:alice, group:developers, 0755</option>
+        <option value="secret">secret.key — owner:alice, group:alice, 0600</option>
+        <option value="public">public.txt — owner:root, group:root, 0644</option>
+      </select>
+      <div id="file-preview" class="file-card" style="font-family:monospace;font-size:12px;line-height:1.8"></div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="checkAccess()">Kiểm tra quyền truy cập</button>
+    <button class="btn btn-secondary" onclick="resetAccessResult()">↺ Reset</button>
+  </div>
+  <div class="access-result access-neutral" id="access-result">Nhấn "Kiểm tra" để xem kết quả.</div>
+  <div class="access-log" id="access-log">-- Chọn user, thao tác, file rồi nhấn Kiểm tra --</div>
+</div>
+
+<!-- ═══ MODULE 3: Privilege Escalation Demo ═══ -->
+<h2>3. Leo thang đặc quyền — Demo Setuid & Sudo</h2>
+
+<div class="card">
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="pe-btn-passwd" onclick="showPE('passwd')">Demo: passwd (setuid)</button>
+    <button class="btn btn-danger" id="pe-btn-suid-bug" onclick="showPE('suid-bug')">Demo: Khai thác SUID sai</button>
+    <button class="btn btn-secondary" id="pe-btn-sudo" onclick="showPE('sudo')">Demo: sudo misconfiguration</button>
+    <button class="btn btn-success" id="pe-btn-cap" onclick="showPE('cap')">Demo: Capability an toàn</button>
+  </div>
+  <div class="pe-steps" id="pe-content">
+    <div style="color:#94a3b8;font-size:14px;padding:12px">Chọn một demo để xem.</div>
+  </div>
+</div>
+
+<!-- ═══ MODULE 4: seccomp Demo ═══ -->
+<h2>4. seccomp — Lọc System Call</h2>
+
+<div class="card">
+  <p style="font-size:14px;margin:0 0 12px">
+    Click vào syscall để xem giải thích. Chuyển đổi profile để thấy sự khác biệt giữa "unrestricted", "Docker default" và "strict".
+  </p>
+  <div class="btn-row">
+    <button class="btn btn-danger" onclick="setSeccompProfile('none')">Không có seccomp</button>
+    <button class="btn btn-secondary" onclick="setSeccompProfile('docker')">Docker default profile</button>
+    <button class="btn btn-success" onclick="setSeccompProfile('strict')">Strict (web API)</button>
+  </div>
+  <div id="seccomp-profile-desc" class="info-box" style="margin:8px 0">Chọn một profile.</div>
+  <div class="syscall-grid" id="syscall-grid"></div>
+  <div class="syscall-info" id="syscall-info">Click vào một syscall để xem giải thích và mức độ nguy hiểm.</div>
+</div>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+<script>
+// ═══ MODULE 1: chmod calculator ═══
+const bits = {
+  o: { r:true, w:true, x:true },
+  g: { r:true, w:false, x:true },
+  ot: { r:true, w:false, x:true }
+};
+
+function toggleBit(group, bit) {
+  bits[group][bit] = !bits[group][bit];
+  const el = document.getElementById(`bit-${group}-${bit}`);
+  el.classList.toggle('on', bits[group][bit]);
+  updateChmod();
+}
+
+function setPreset(o, g, ot) {
+  const decode = (n) => ({ r: !!(n&4), w: !!(n&2), x: !!(n&1) });
+  bits.o = decode(o); bits.g = decode(g); bits.ot = decode(ot);
+  ['o','g','ot'].forEach(grp => {
+    ['r','w','x'].forEach(b => {
+      const el = document.getElementById(`bit-${grp}-${b}`);
+      el.classList.toggle('on', bits[grp][b]);
+    });
+  });
+  updateChmod();
+}
+
+function updateChmod() {
+  const calc = (grp) => (bits[grp].r?4:0)+(bits[grp].w?2:0)+(bits[grp].x?1:0);
+  const ov = calc('o'), gv = calc('g'), otv = calc('ot');
+  const toSym = (n) => `${n&4?'r':'-'}${n&2?'w':'-'}${n&1?'x':'-'}`;
+  const os = toSym(ov), gs = toSym(gv), ots = toSym(otv);
+
+  document.getElementById('chmod-result').innerHTML =
+    `Số bát phân: <span class="octal">0${ov}${gv}${otv}</span><br>` +
+    `Ký hiệu:     <span class="sym">-<span class="bit-owner">${os}</span><span class="bit-group">${gs}</span><span class="bit-other">${ots}</span></span><br>` +
+    `chmod:        <span style="color:#a78bfa">chmod 0${ov}${gv}${otv} &lt;file&gt;</span><br>` +
+    `Owner: ${ov===7?'đọc + ghi + thực thi':ov===6?'đọc + ghi':ov===5?'đọc + thực thi':ov===4?'chỉ đọc':ov===3?'ghi + thực thi':ov===2?'chỉ ghi':ov===1?'chỉ thực thi':'không có quyền'} | ` +
+    `Group: ${gv===7?'đọc + ghi + thực thi':gv===6?'đọc + ghi':gv===5?'đọc + thực thi':gv===4?'chỉ đọc':gv===3?'ghi + thực thi':gv===2?'chỉ ghi':gv===1?'chỉ thực thi':'không có quyền'} | ` +
+    `Other: ${otv===7?'đọc + ghi + thực thi':otv===6?'đọc + ghi':otv===5?'đọc + thực thi':otv===4?'chỉ đọc':otv===3?'ghi + thực thi':otv===2?'chỉ ghi':otv===1?'chỉ thực thi':'không có quyền'}`;
+
+  const warn = document.getElementById('chmod-warn');
+  if (ov===7&&gv===7&&otv===7) warn.textContent = '⚠ 0777: CỰC KỲ NGUY HIỂM — mọi user có thể đọc, ghi, chạy file này. Không bao giờ dùng trong production!';
+  else if (otv>=2) warn.textContent = '⚠ Other có quyền ghi — mọi user trên hệ thống ghi được vào file này. Kiểm tra lại nhu cầu thực tế.';
+  else warn.textContent = '';
+}
+
+updateChmod();
+
+// ═══ MODULE 2: Access Check ═══
+const FILES_DATA = {
+  report: { name:'report.csv', owner:'bob', ownerUID:1002, group:'developers', groupGID:500, perm:0o640, permStr:'0640' },
+  shadow: { name:'/etc/shadow', owner:'root', ownerUID:0, group:'shadow', groupGID:42, perm:0o640, permStr:'0640' },
+  script: { name:'script.sh', owner:'alice', ownerUID:1001, group:'developers', groupGID:500, perm:0o755, permStr:'0755' },
+  secret: { name:'secret.key', owner:'alice', ownerUID:1001, group:'alice', groupGID:1001, perm:0o600, permStr:'0600' },
+  public: { name:'public.txt', owner:'root', ownerUID:0, group:'root', groupGID:0, perm:0o644, permStr:'0644' }
+};
+const USERS_DATA = {
+  alice:   { uid:1001, gids:[1001,500], groups:['alice','developers'] },
+  bob:     { uid:1002, gids:[1002,500], groups:['bob','developers'] },
+  charlie: { uid:1003, gids:[1003], groups:['charlie'] },
+  root:    { uid:0, gids:[0], groups:['root'] }
+};
+
+function resetAccessResult() {
+  document.getElementById('access-result').className = 'access-result access-neutral';
+  document.getElementById('access-result').textContent = 'Nhấn "Kiểm tra" để xem kết quả.';
+  document.getElementById('access-log').textContent = '-- Chọn user, thao tác, file rồi nhấn Kiểm tra --';
+  updateFilePreview();
+}
+
+function updateFilePreview() {
+  const fk = document.getElementById('file-sel').value;
+  const f = FILES_DATA[fk];
+  const toSym = (n) => `${n&4?'r':'-'}${n&2?'w':'-'}${n&1?'x':'-'}`;
+  const o = (f.perm>>6)&7, g=(f.perm>>3)&7, ot=f.perm&7;
+  document.getElementById('file-preview').innerHTML =
+    `Owner: <strong>${f.owner}</strong> (UID ${f.ownerUID})<br>Group: <strong>${f.group}</strong> (GID ${f.groupGID})<br>` +
+    `Quyền: <strong>${f.permStr}</strong> = -${toSym(o)}${toSym(g)}${toSym(ot)}`;
+}
+updateFilePreview();
+document.getElementById('file-sel').addEventListener('change', updateFilePreview);
+
+function checkAccess() {
+  const uk = document.getElementById('user-sel').value;
+  const fk = document.getElementById('file-sel').value;
+  const op = document.getElementById('op-sel').value;
+  const user = USERS_DATA[uk];
+  const file = FILES_DATA[fk];
+  const bitIdx = op==='read'?2:op==='write'?1:0;
+  const log = document.getElementById('access-log');
+  const result = document.getElementById('access-result');
+  log.innerHTML = '';
+
+  const addLog = (msg, cls='') => {
+    const s = document.createElement('span');
+    s.className = cls;
+    s.textContent = msg + '\n';
+    log.appendChild(s);
+  };
+
+  addLog(`Kernel: open("${file.name}", O_${op.toUpperCase()}) — user=${uk} (UID=${user.uid})`,'log-inf');
+
+  // root bypass
+  if (user.uid === 0 && op !== 'exec') {
+    addLog(`UID=0 (root): bypass tất cả DAC kiểm tra (ngoại trừ execute).`,'log-ok');
+    addLog(`→ ALLOWED`, 'log-ok');
+    result.className = 'access-result access-allow';
+    result.textContent = '✓ ĐƯỢC PHÉP — root bypass mọi kiểm tra DAC (trừ execute)';
+    return;
+  }
+  if (user.uid === 0 && op === 'exec') {
+    const o=(file.perm>>6)&7,g=(file.perm>>3)&7,ot=file.perm&7;
+    const anyX = (o|g|ot)&1;
+    addLog(`UID=0 (root execute): kiểm tra có BIT execute nào không...`,'log-inf');
+    if (anyX) { addLog('Có bit x → ALLOWED','log-ok'); result.className='access-result access-allow'; result.textContent='✓ ĐƯỢC PHÉP (root + có bit x)'; }
+    else { addLog('Không có bit x nào → DENIED','log-err'); result.className='access-result access-deny'; result.textContent='✗ BỊ TỪ CHỐI — không có bit x dù là root'; }
+    return;
+  }
+
+  // Step 1: check owner
+  addLog(`Bước 1: UID=${user.uid} có phải owner? Owner UID=${file.ownerUID}`, 'log-inf');
+  let perm;
+  if (user.uid === file.ownerUID) {
+    perm = (file.perm >> 6) & 7;
+    addLog(`  → Khớp owner! Áp dụng quyền owner: ${(perm&4?'r':'_')}${(perm&2?'w':'_')}${(perm&1?'x':'_')} (${perm})`, 'log-ok');
+    addLog(`Dừng kiểm tra (owner match — không check group/other tiếp).`,'log-inf');
+  } else {
+    addLog(`  → Không phải owner.`, 'log-inf');
+    addLog(`Bước 2: UID=${user.uid} trong group file (GID=${file.groupGID} "${file.group}")?`, 'log-inf');
+    const inGroup = user.gids.includes(file.groupGID);
+    if (inGroup) {
+      perm = (file.perm >> 3) & 7;
+      addLog(`  → Khớp group "${file.group}"! Áp dụng quyền group: ${(perm&4?'r':'_')}${(perm&2?'w':'_')}${(perm&1?'x':'_')} (${perm})`, 'log-ok');
+      addLog(`Dừng kiểm tra (group match).`,'log-inf');
+    } else {
+      addLog(`  → Không trong group.`, 'log-inf');
+      addLog(`Bước 3: Áp dụng quyền other.`, 'log-inf');
+      perm = file.perm & 7;
+      addLog(`  Quyền other: ${(perm&4?'r':'_')}${(perm&2?'w':'_')}${(perm&1?'x':'_')} (${perm})`, 'log-inf');
+    }
+  }
+
+  const allowed = !!(perm & (1 << bitIdx));
+  if (allowed) {
+    addLog(`✓ Bit ${op==='read'?'read(r)':op==='write'?'write(w)':'execute(x)'} = 1 → ALLOWED`, 'log-ok');
+    result.className = 'access-result access-allow';
+    result.textContent = '✓ ĐƯỢC PHÉP — kernel cho phép truy cập';
+  } else {
+    addLog(`✗ Bit ${op==='read'?'read(r)':op==='write'?'write(w)':'execute(x)'} = 0 → DENIED`, 'log-err');
+    result.className = 'access-result access-deny';
+    result.textContent = '✗ BỊ TỪ CHỐI — Operation not permitted (EPERM)';
+  }
+}
+
+// ═══ MODULE 3: PE demos ═══
+const PE_DATA = {
+  'passwd': {
+    title:'Demo: passwd với Setuid bit',
+    steps:[
+      {ok:true, txt:'User <code>alice</code> (UID=1001) gõ lệnh: <code>passwd</code>'},
+      {ok:true, txt:'Kernel: <code>fork() + execve("/usr/bin/passwd")</code>'},
+      {ok:true, txt:'Kernel đọc metadata <code>/usr/bin/passwd</code>: owner=root(0), setuid bit=1'},
+      {ok:true, txt:'Kernel set <strong>euid = 0 (root)</strong>, ruid = 1001 (alice vẫn là alice)'},
+      {ok:true, txt:'<code>passwd</code> chạy với euid=0 → có thể đọc <code>/etc/shadow</code>'},
+      {ok:true, txt:'<code>passwd</code> kiểm tra ruid=1001 → chỉ cho phép đổi password của alice (không giả mạo được root)'},
+      {ok:true, txt:'<code>passwd</code> ghi hash mới vào <code>/etc/shadow</code>'},
+      {ok:true, txt:'<code>passwd</code> exit → euid=0 biến mất, không có gì bị giữ lại'}
+    ]
+  },
+  'suid-bug': {
+    title:'⚠ Demo: Khai thác SUID sai cấu hình (buffer overflow)',
+    steps:[
+      {ok:false, txt:'Admin vô tình: <code>chmod u+s /usr/local/bin/backup</code> (backup có bug buffer overflow!)'},
+      {ok:false, txt:'Attacker (UID=9999) chạy: <code>/usr/local/bin/backup [crafted input]</code>'},
+      {ok:false, txt:'Kernel: setuid bit=1, owner=root → <strong>euid = 0</strong> cho tiến trình backup'},
+      {ok:false, txt:'Buffer overflow: attacker ghi đè return address bằng shellcode'},
+      {ok:false, txt:'Tiến trình backup (euid=0) bị kiểm soát bởi attacker → <code>execve("/bin/sh")</code>'},
+      {ok:false, txt:'<strong>SHELL ROOT MỞ!</strong> Attacker toàn quyền hệ thống.'},
+      {ok:true, txt:'Phòng tránh: kiểm tra kỹ trước khi set setuid; dùng capability thay thế; ASLR + stack canary + seccomp'}
+    ]
+  },
+  'sudo': {
+    title:'⚠ Demo: sudo misconfiguration (GTFOBins)',
+    steps:[
+      {ok:false, txt:'Sudo rule: <code>alice ALL=(root) NOPASSWD: /usr/bin/find</code>'},
+      {ok:false, txt:'Alice gõ: <code>sudo find /etc -exec /bin/sh \\;</code>'},
+      {ok:false, txt:'sudo chạy find với euid=0 (root)'},
+      {ok:false, txt:'find thực thi: <code>execve("/bin/sh")</code> với euid=0 (vì find đang là root)'},
+      {ok:false, txt:'<strong>SHELL ROOT!</strong> Từ find → shell. Alice có full root.'},
+      {ok:true, txt:'Phòng tránh: chỉ grant sudo cho lệnh cụ thể KHÔNG thể spawn shell; kiểm tra GTFOBins trước khi cấp sudo'}
+    ]
+  },
+  'cap': {
+    title:'✓ Demo: Dùng Capability thay Setuid (an toàn hơn)',
+    steps:[
+      {ok:true, txt:'Thay vì setuid root cho nginx, cấp capability:'},
+      {ok:true, txt:'<code>setcap cap_net_bind_service=+ep /usr/sbin/nginx</code>'},
+      {ok:true, txt:'nginx khởi động với UID=www-data (unprivileged, ~UID 33)'},
+      {ok:true, txt:'Kernel: nginx có cap_net_bind_service → cho phép bind port 80/443'},
+      {ok:true, txt:'nginx KHÔNG có quyền root khác: không đọc /etc/shadow, không kill PID khác, không mount'},
+      {ok:true, txt:'Nếu nginx bị exploit: attacker chỉ có UID=33 + cap_net_bind_service → thiệt hại tối thiểu'},
+      {ok:true, txt:'So sánh setuid root: nếu nginx bị exploit → attacker toàn quyền root. Capability: damage containment!'}
+    ]
+  }
+};
+
+function showPE(key) {
+  const d = PE_DATA[key];
+  document.querySelectorAll('[id^="pe-btn"]').forEach(b => {
+    b.className = b.id === 'pe-btn-'+key ? (key==='suid-bug'||key==='sudo'?'btn btn-danger':'btn '+(key==='cap'?'btn-success':'btn-secondary')) : 'btn btn-secondary';
+  });
+  const cont = document.getElementById('pe-content');
+  cont.innerHTML = `<div style="font-weight:700;font-size:14px;margin-bottom:12px;color:var(--virt-dark)">${d.title}</div>`;
+  d.steps.forEach((s,i) => {
+    const div = document.createElement('div');
+    div.className = 'pe-step';
+    div.innerHTML = `<div class="pe-num ${s.ok?'ok':'danger'}">${i+1}</div><div class="pe-content ${s.ok?'ok':'danger'}">${s.txt}</div>`;
+    cont.appendChild(div);
+  });
+}
+
+// ═══ MODULE 4: seccomp ═══
+const SYSCALLS = [
+  { name:'read',    danger:0, desc:'Đọc từ file descriptor. Cần thiết cho mọi app.' },
+  { name:'write',   danger:0, desc:'Ghi vào file descriptor. Cần thiết cho mọi app.' },
+  { name:'open',    danger:0, desc:'Mở file. Cần thiết cho đọc/ghi file.' },
+  { name:'close',   danger:0, desc:'Đóng file descriptor.' },
+  { name:'socket',  danger:0, desc:'Tạo socket mạng. Cần cho web server.' },
+  { name:'connect', danger:0, desc:'Kết nối socket. Cần cho client.' },
+  { name:'accept',  danger:0, desc:'Chấp nhận kết nối đến. Cần cho server.' },
+  { name:'mmap',    danger:0, desc:'Map bộ nhớ. Cần cho memory allocator (malloc).' },
+  { name:'brk',     danger:0, desc:'Thay đổi kích thước heap. Dùng bởi malloc.' },
+  { name:'futex',   danger:0, desc:'Fast userspace mutex. Cần cho threading/locking.' },
+  { name:'execve',  danger:2, desc:'Thực thi chương trình mới. Nếu bị exploit có thể spawn shell. Nên BLOCK cho container.' },
+  { name:'ptrace',  danger:2, desc:'Theo dõi tiến trình khác (debug). Rất nguy hiểm — cho phép đọc memory và inject code.' },
+  { name:'mount',   danger:2, desc:'Mount filesystem. Container không cần — nếu cho phép có thể mount /proc/sysrq-trigger.' },
+  { name:'keyctl',  danger:2, desc:'Thao tác kernel keyring. Attacker có thể lấy key mã hóa từ kernel.' },
+  { name:'add_key', danger:2, desc:'Thêm key vào kernel keyring. Cần block trong container.' },
+  { name:'reboot',  danger:2, desc:'Khởi động lại hệ thống. Rõ ràng là không cần trong container.' },
+  { name:'acct',    danger:1, desc:'Bật accounting tiến trình. Ít dùng, nên block phòng ngừa.' },
+  { name:'syslog',  danger:1, desc:'Đọc kernel log buffer. Có thể lộ thông tin nhạy cảm.' },
+  { name:'setuid',  danger:1, desc:'Thay đổi UID. Trong container rootless nên block.' },
+  { name:'chroot',  danger:1, desc:'Thay đổi root directory. Có thể dùng để escape chroot jail.' },
+];
+
+const PROFILES = {
+  none: {
+    name:'Không có seccomp',
+    desc:'Tiến trình không bị lọc — có thể gọi bất kỳ syscall nào. Đây là chế độ mặc định của process thông thường. Nguy hiểm nhất — nếu bị exploit, attacker có thể dùng mọi syscall.',
+    blocked: []
+  },
+  docker: {
+    name:'Docker default seccomp profile',
+    desc:'Docker block ~40 syscall nguy hiểm theo mặc định. Hầu hết syscall thông dụng vẫn được phép. Balance tốt giữa security và compatibility.',
+    blocked:['execve','ptrace','mount','keyctl','add_key','reboot','acct','setuid','chroot']
+  },
+  strict: {
+    name:'Strict profile (web API)',
+    desc:'Chỉ cho phép các syscall thực sự cần cho một web API đơn giản. Rất an toàn nhưng cần test kỹ — nếu block sai syscall app sẽ crash.',
+    blocked:['execve','ptrace','mount','keyctl','add_key','reboot','acct','syslog','setuid','chroot']
+  }
+};
+
+let currentProfile = 'docker';
+
+function setSeccompProfile(p) {
+  currentProfile = p;
+  const pr = PROFILES[p];
+  document.getElementById('seccomp-profile-desc').innerHTML = `<strong>${pr.name}</strong><br>${pr.desc}`;
+  renderSyscalls();
+}
+
+function renderSyscalls() {
+  const pr = PROFILES[currentProfile];
+  const grid = document.getElementById('syscall-grid');
+  grid.innerHTML = '';
+  SYSCALLS.forEach(sc => {
+    const btn = document.createElement('div');
+    const isBlocked = pr.blocked.includes(sc.name);
+    btn.className = 'syscall-badge ' + (isBlocked ? 'syscall-blocked' : sc.danger===2 ? 'syscall-pending' : 'syscall-allowed');
+    btn.textContent = (isBlocked ? '🚫 ' : sc.danger===2&&!isBlocked ? '⚠ ' : '✓ ') + sc.name;
+    btn.onclick = () => {
+      const info = document.getElementById('syscall-info');
+      const isB = pr.blocked.includes(sc.name);
+      info.innerHTML = `<strong>${sc.name}</strong> ${isB?'<span style="color:var(--sec-red)">[BLOCKED]</span>':'<span style="color:var(--sec-green)">[ALLOWED]</span>'}<br>${sc.desc}<br>${sc.danger===2?'<span style="color:var(--sec-red)">Nguy hiểm cao — nên block trong container/sandbox.</span>':sc.danger===1?'<span style="color:var(--sec-orange)">Nguy hiểm trung bình — cân nhắc block.</span>':'<span style="color:var(--sec-green)">Cần thiết cho hầu hết app — nên allow.</span>'}`;
+    };
+    grid.appendChild(btn);
+  });
+}
+
+setSeccompProfile('docker');
+</script>
+</body>
+</html>

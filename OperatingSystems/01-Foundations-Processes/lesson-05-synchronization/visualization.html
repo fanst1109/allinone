@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Đồng bộ hoá (Synchronization)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #6d28d9;
+    --accent-soft: #ede9fe;
+    --accent-mid: #8b5cf6;
+    --accent-dark: #4c1d95;
+    --ok: #16a34a;
+    --ok-soft: #dcfce7;
+    --err: #dc2626;
+    --err-soft: #fee2e2;
+    --warn: #d97706;
+    --warn-soft: #fef3c7;
+    --bg-card: #ffffff;
+    --bg-section: #f5f3ff;
+  }
+
+  h1 { color: var(--accent-dark); }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-mid); }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(109,40,217,.10);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ═══════════════════════════════════
+     MODULE 1 — Race Condition Simulator
+     ═══════════════════════════════════ */
+  #race-stage {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .thread-panel {
+    border-radius: 8px;
+    padding: 16px;
+    font-family: monospace;
+    font-size: 13px;
+  }
+  .thread-a { background: #eff6ff; border: 2px solid #3b82f6; }
+  .thread-b { background: #fdf4ff; border: 2px solid #a855f7; }
+  .thread-title { font-weight: 700; font-size: 14px; margin-bottom: 8px; }
+  .thread-a .thread-title { color: #1d4ed8; }
+  .thread-b .thread-title { color: #7e22ce; }
+
+  .op-line {
+    padding: 6px 10px;
+    border-radius: 4px;
+    margin: 3px 0;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    border: 2px solid transparent;
+    line-height: 1.5;
+  }
+  .op-line:hover { filter: brightness(.95); }
+  .op-line.active { border-color: #374151; transform: scale(1.02); box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+  .op-line.done { opacity: .5; }
+  .op-line.pending { background: #fef9c3; }
+  .op-line.running { background: #dcfce7; }
+  .op-line.disabled { cursor: default; opacity: .4; }
+
+  #race-state {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 2;
+    margin: 12px 0;
+  }
+  #race-state .var { color: #fbbf24; font-weight: 700; }
+  #race-state .reg-a { color: #60a5fa; }
+  #race-state .reg-b { color: #c084fc; }
+  #race-state .correct { color: #4ade80; }
+  #race-state .wrong { color: #f87171; font-weight: 700; }
+
+  #race-result {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 8px 0;
+    font-weight: 700;
+    font-size: 15px;
+    display: none;
+  }
+  #race-result.ok { background: var(--ok-soft); color: var(--ok); }
+  #race-result.err { background: var(--err-soft); color: var(--err); }
+
+  .lock-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 12px 0;
+    padding: 10px 16px;
+    background: var(--bg-section);
+    border-radius: 8px;
+  }
+  .toggle-label { font-weight: 600; font-size: 14px; color: #374151; }
+  .toggle-switch {
+    position: relative;
+    width: 48px;
+    height: 26px;
+    cursor: pointer;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: #d1d5db;
+    border-radius: 26px;
+    transition: background .2s;
+  }
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 20px; height: 20px;
+    left: 3px; top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: transform .2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.3);
+  }
+  input:checked + .toggle-slider { background: var(--ok); }
+  input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+  /* ═══════════════════════════════════
+     MODULE 2 — TAS Simulator
+     ═══════════════════════════════════ */
+  #tas-arena {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+  .tas-thread {
+    flex: 1;
+    min-width: 160px;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 13px;
+    font-family: monospace;
+  }
+  .tas-t0 { background: #eff6ff; border: 2px solid #3b82f6; }
+  .tas-t1 { background: #fdf4ff; border: 2px solid #a855f7; }
+  .tas-mid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-width: 120px;
+  }
+  .lock-box {
+    width: 80px; height: 80px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 700;
+    transition: background .3s, color .3s;
+    border: 3px solid;
+  }
+  .lock-box.unlocked { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+  .lock-box.locked   { background: var(--err-soft); border-color: var(--err); color: var(--err); }
+  .lock-label { font-size: 11px; font-weight: 600; margin-top: 4px; }
+
+  .cs-indicator {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .cs-empty { background: #f1f5f9; color: #64748b; }
+  .cs-t0 { background: #dbeafe; color: #1d4ed8; }
+  .cs-t1 { background: #ede9fe; color: #7e22ce; }
+
+  #tas-log {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    min-height: 60px;
+    max-height: 160px;
+    overflow-y: auto;
+    margin-top: 12px;
+    white-space: pre-wrap;
+  }
+  #tas-log .ok  { color: #4ade80; }
+  #tas-log .err { color: #f87171; }
+  #tas-log .info { color: #93c5fd; }
+  #tas-log .warn { color: #fbbf24; }
+
+  /* ═══════════════════════════════════
+     MODULE 3 — Peterson Visualizer
+     ═══════════════════════════════════ */
+  #peterson-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 16px;
+    align-items: start;
+    margin: 16px 0;
+  }
+  .p-panel {
+    border-radius: 8px;
+    padding: 14px;
+    font-family: monospace;
+    font-size: 13px;
+  }
+  .p0-panel { background: #eff6ff; border: 2px solid #3b82f6; }
+  .p1-panel { background: #fdf4ff; border: 2px solid #a855f7; }
+  .p-panel h4 { margin: 0 0 10px; font-size: 13px; }
+  .p0-panel h4 { color: #1d4ed8; }
+  .p1-panel h4 { color: #7e22ce; }
+
+  .p-state-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 14px;
+    background: white;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: monospace;
+    min-width: 140px;
+  }
+  .p-state-row { display: flex; justify-content: space-between; gap: 8px; }
+  .p-var { color: #64748b; }
+  .p-val { font-weight: 700; }
+  .p-val.true  { color: var(--ok); }
+  .p-val.false { color: var(--err); }
+  .p-val.num   { color: var(--accent); }
+
+  .p-phase {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 6px;
+  }
+  .phase-idle { background: #f1f5f9; color: #64748b; }
+  .phase-wait { background: var(--warn-soft); color: var(--warn); }
+  .phase-cs   { background: var(--ok-soft); color: var(--ok); }
+
+  #peterson-log {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    min-height: 60px;
+    max-height: 180px;
+    overflow-y: auto;
+    margin-top: 12px;
+    white-space: pre-wrap;
+  }
+  #peterson-log .ok  { color: #4ade80; }
+  #peterson-log .info { color: #93c5fd; }
+  #peterson-log .warn { color: #fbbf24; }
+
+  @media (max-width: 600px) {
+    #race-stage { grid-template-columns: 1fr; }
+    #peterson-grid { grid-template-columns: 1fr; }
+    #tas-arena { flex-direction: column; }
+    .tas-mid { flex-direction: row; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Processes</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-cpu-scheduling/visualization.html">← L4: Lập lịch CPU</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Đồng bộ hoá</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-semaphores-classic-problems/visualization.html">L6: Semaphore →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Đồng bộ hoá (Synchronization)</h1>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 1 — Race Condition Simulator
+     ═══════════════════════════════════════════════════════════ -->
+<h2>1. Mô phỏng Race Condition — count++</h2>
+
+<div class="card">
+  <p>Hai thread A và B cùng thực hiện <code>count++</code>. Ban đầu <code>count = 0</code>. Kỳ vọng: <code>count = 2</code>.</p>
+  <p>Bấm <strong>từng bước</strong> để xen kẽ lệnh LOAD/ADD/STORE. Quan sát kết quả khi bị xen kẽ sai chỗ.</p>
+
+  <div class="lock-toggle">
+    <span class="toggle-label">Bật Lock (Mutex):</span>
+    <label class="toggle-switch">
+      <input type="checkbox" id="lock-toggle" onchange="toggleLock()">
+      <span class="toggle-slider"></span>
+    </label>
+    <span id="lock-status" style="font-size:13px;color:#64748b;">Tắt — Race condition có thể xảy ra</span>
+  </div>
+
+  <div id="race-stage">
+    <div class="thread-panel thread-a">
+      <div class="thread-title">Thread A (xanh)</div>
+      <div class="op-line pending" id="a-load" onclick="execStep('a','load')">1. LOAD  regA ← count</div>
+      <div class="op-line" id="a-add"  onclick="execStep('a','add')">2. ADD   regA ← regA + 1</div>
+      <div class="op-line" id="a-store" onclick="execStep('a','store')">3. STORE count ← regA</div>
+    </div>
+    <div class="thread-panel thread-b">
+      <div class="thread-title">Thread B (tím)</div>
+      <div class="op-line pending" id="b-load" onclick="execStep('b','load')">1. LOAD  regB ← count</div>
+      <div class="op-line" id="b-add"  onclick="execStep('b','add')">2. ADD   regB ← regB + 1</div>
+      <div class="op-line" id="b-store" onclick="execStep('b','store')">3. STORE count ← regB</div>
+    </div>
+  </div>
+
+  <div id="race-state">
+    <span class="var">count</span> = <span id="sv-count">0</span>
+    &nbsp;|&nbsp;
+    <span class="reg-a">regA</span> = <span id="sv-rega">?</span>
+    &nbsp;|&nbsp;
+    <span class="reg-b">regB</span> = <span id="sv-regb">?</span>
+    &nbsp;|&nbsp;
+    <span id="sv-lock">Lock: OFF</span>
+  </div>
+
+  <div id="race-result"></div>
+
+  <div id="race-log" style="background:#1e293b;color:#e2e8f0;border-radius:8px;padding:12px 16px;font-family:monospace;font-size:13px;line-height:1.8;min-height:40px;max-height:150px;overflow-y:auto;margin-top:10px;white-space:pre-wrap;"></div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="resetRace()">Chạy lại</button>
+    <button class="btn btn-primary" onclick="autoDemo()">Demo tự động (xen kẽ)</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 2 — Test-And-Set Simulator
+     ═══════════════════════════════════════════════════════════ -->
+<h2>2. Mô phỏng Test-And-Set (TAS) Spinlock</h2>
+
+<div class="card">
+  <p>Hai thread tranh nhau vào Critical Section qua spinlock TAS. Bấm nút để thread thực hiện TAS. Thread nào TAS trả về <strong>false</strong> (lock đang mở) thì thắng — vào CS. Thread kia phải spin.</p>
+
+  <div id="tas-arena">
+    <div class="tas-thread tas-t0">
+      <div class="thread-title" style="color:#1d4ed8;font-weight:700;margin-bottom:8px;">Thread 0</div>
+      <div id="t0-phase" class="p-phase phase-idle">Idle</div>
+      <br>
+      <button class="btn btn-primary" style="width:100%;font-size:13px;" onclick="tasAction(0)">TAS → vào CS</button>
+      <br><br>
+      <button class="btn btn-secondary" style="width:100%;font-size:13px;" onclick="releaseCS(0)">Thoát CS (unlock)</button>
+    </div>
+
+    <div class="tas-mid">
+      <div style="font-weight:700;font-size:12px;color:#64748b;text-align:center;">SHARED LOCK</div>
+      <div class="lock-box unlocked" id="tas-lock-box">
+        <span id="tas-lock-icon">🔓</span>
+        <span class="lock-label" id="tas-lock-label">OPEN</span>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:11px;color:#64748b;">CS đang giữ bởi:</div>
+        <div class="cs-indicator cs-empty" id="tas-cs-holder">Không ai</div>
+      </div>
+    </div>
+
+    <div class="tas-thread tas-t1">
+      <div class="thread-title" style="color:#7e22ce;font-weight:700;margin-bottom:8px;">Thread 1</div>
+      <div id="t1-phase" class="p-phase phase-idle">Idle</div>
+      <br>
+      <button class="btn btn-primary" style="width:100%;font-size:13px;background:#7e22ce;" onclick="tasAction(1)">TAS → vào CS</button>
+      <br><br>
+      <button class="btn btn-secondary" style="width:100%;font-size:13px;" onclick="releaseCS(1)">Thoát CS (unlock)</button>
+    </div>
+  </div>
+
+  <div id="tas-log"><span style="color:#94a3b8;">// Log sự kiện xuất hiện ở đây...</span></div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="resetTAS()">Reset</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODULE 3 — Peterson Algorithm Visualizer
+     ═══════════════════════════════════════════════════════════ -->
+<h2>3. Thuật toán Peterson — Kiểm tra từng bước</h2>
+
+<div class="card">
+  <p>Mô phỏng thuật toán Peterson với 2 process P0 và P1. Mỗi process chạy đúng 3 bước entry: đặt flag, đặt turn, kiểm tra điều kiện chờ.</p>
+
+  <div class="info-box">
+    <strong>Biến chia sẻ:</strong>
+    <code>flag[0], flag[1]</code> (boolean — ý định vào CS) &nbsp;|&nbsp;
+    <code>turn</code> (int — nhường ai vào trước)
+  </div>
+
+  <div id="peterson-grid">
+    <div class="p-panel p0-panel">
+      <h4>Process P0</h4>
+      <div id="p0-steps">
+        <div class="op-line pending" id="p0-s1" onclick="pStep(0,1)">1. flag[0] = true</div>
+        <div class="op-line" id="p0-s2" onclick="pStep(0,2)">2. turn = 1</div>
+        <div class="op-line" id="p0-s3" onclick="pStep(0,3)">3. while(flag[1] &amp;&amp; turn==1)</div>
+        <div class="op-line" id="p0-cs" style="background:#dcfce7;display:none;padding:8px 10px;border-radius:4px;color:#166534;font-weight:700;">★ TRONG CRITICAL SECTION</div>
+      </div>
+      <div id="p0-phase" class="p-phase phase-idle" style="margin-top:10px;">Idle</div>
+      <button class="btn btn-secondary" style="margin-top:8px;font-size:12px;" onclick="pExitCS(0)">Thoát CS</button>
+    </div>
+
+    <div class="p-state-box" style="min-width:130px;">
+      <div style="font-weight:700;font-size:12px;color:#64748b;margin-bottom:4px;text-align:center;">TRẠNG THÁI</div>
+      <div class="p-state-row">
+        <span class="p-var">flag[0]:</span>
+        <span class="p-val" id="pv-f0">false</span>
+      </div>
+      <div class="p-state-row">
+        <span class="p-var">flag[1]:</span>
+        <span class="p-val" id="pv-f1">false</span>
+      </div>
+      <div class="p-state-row">
+        <span class="p-var">turn:</span>
+        <span class="p-val num" id="pv-turn">0</span>
+      </div>
+      <div style="border-top:1px solid #e2e8f0;margin:6px 0;"></div>
+      <div style="font-size:11px;color:#64748b;text-align:center;">CS giữ bởi</div>
+      <div class="cs-indicator cs-empty" id="p-cs-holder" style="margin-top:4px;">Không ai</div>
+    </div>
+
+    <div class="p-panel p1-panel">
+      <h4>Process P1</h4>
+      <div id="p1-steps">
+        <div class="op-line pending" id="p1-s1" onclick="pStep(1,1)">1. flag[1] = true</div>
+        <div class="op-line" id="p1-s2" onclick="pStep(1,2)">2. turn = 0</div>
+        <div class="op-line" id="p1-s3" onclick="pStep(1,3)">3. while(flag[0] &amp;&amp; turn==0)</div>
+        <div class="op-line" id="p1-cs" style="background:#ede9fe;display:none;padding:8px 10px;border-radius:4px;color:#5b21b6;font-weight:700;">★ TRONG CRITICAL SECTION</div>
+      </div>
+      <div id="p1-phase" class="p-phase phase-idle" style="margin-top:10px;">Idle</div>
+      <button class="btn btn-secondary" style="margin-top:8px;font-size:12px;" onclick="pExitCS(1)">Thoát CS</button>
+    </div>
+  </div>
+
+  <div id="peterson-log"><span style="color:#94a3b8;">// Nhấn các bước để thấy luồng thực thi...</span></div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="resetPeterson()">Reset</button>
+    <button class="btn btn-primary" onclick="autoPeterson()">Demo: P0 và P1 cùng vào</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════
+   MODULE 1 — Race Condition Simulator
+   ═══════════════════════════════════ */
+let raceState = {
+  count: 0, regA: null, regB: null,
+  aStep: 0, bStep: 0,   // 0=load,1=add,2=store,3=done
+  locked: false, lockHolder: null,
+  autoRunning: false
+};
+
+function resetRace() {
+  raceState = { count:0, regA:null, regB:null, aStep:0, bStep:0,
+    locked: document.getElementById('lock-toggle').checked,
+    lockHolder: null, autoRunning: false };
+  document.getElementById('race-result').style.display = 'none';
+  document.getElementById('race-log').textContent = '';
+  updateRaceUI();
+  ['a-load','a-add','a-store','b-load','b-add','b-store'].forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'op-line';
+  });
+  document.getElementById('a-load').classList.add('pending');
+  document.getElementById('b-load').classList.add('pending');
+}
+
+function toggleLock() {
+  raceState.locked = document.getElementById('lock-toggle').checked;
+  document.getElementById('lock-status').textContent = raceState.locked
+    ? 'Bật — Mutex bảo vệ count' : 'Tắt — Race condition có thể xảy ra';
+  resetRace();
+}
+
+function updateRaceUI() {
+  document.getElementById('sv-count').textContent = raceState.count;
+  document.getElementById('sv-rega').textContent  = raceState.regA === null ? '?' : raceState.regA;
+  document.getElementById('sv-regb').textContent  = raceState.regB === null ? '?' : raceState.regB;
+  document.getElementById('sv-lock').textContent  = raceState.locked
+    ? `Lock: ON (giữ bởi: ${raceState.lockHolder ?? 'không ai'})`
+    : 'Lock: OFF';
+}
+
+function raceLog(msg) {
+  const el = document.getElementById('race-log');
+  el.textContent += msg + '\n';
+  el.scrollTop = el.scrollHeight;
+}
+
+function canExec(who) {
+  if (!raceState.locked) return true;
+  // with lock: only holder can continue, non-holder can only grab at step 0
+  if (raceState.lockHolder === null) return true;     // lock free
+  return raceState.lockHolder === who;
+}
+
+function execStep(who, op) {
+  if (raceState.autoRunning) return;
+  const aStep = raceState.aStep;
+  const bStep = raceState.bStep;
+  const opIdx = op === 'load' ? 0 : op === 'add' ? 1 : 2;
+  const expected = who === 'a' ? aStep : bStep;
+  if (opIdx !== expected) return;  // out of order
+
+  if (raceState.locked) {
+    if (opIdx === 0 && raceState.lockHolder !== null) {
+      raceLog(`[Thread ${who.toUpperCase()}] Chờ mutex... (giữ bởi ${raceState.lockHolder.toUpperCase()})`);
+      return;
+    }
+    if (opIdx === 0 && raceState.lockHolder === null) {
+      raceState.lockHolder = who;
+      raceLog(`[Thread ${who.toUpperCase()}] Lấy mutex thành công`);
+    }
+    if (raceState.lockHolder !== who) {
+      raceLog(`[Thread ${who.toUpperCase()}] Đang bị block (mutex giữ bởi ${raceState.lockHolder.toUpperCase()})`);
+      return;
+    }
+  }
+
+  const id = `${who}-${op}`;
+  document.getElementById(id).classList.add('done');
+  document.getElementById(id).classList.remove('pending','running');
+
+  if (who === 'a') {
+    if (op === 'load')  { raceState.regA = raceState.count; raceLog(`[Thread A] LOAD regA ← count = ${raceState.count}`); }
+    if (op === 'add')   { raceState.regA += 1; raceLog(`[Thread A] ADD  regA = ${raceState.regA - 1} + 1 = ${raceState.regA}`); }
+    if (op === 'store') { raceState.count = raceState.regA; raceLog(`[Thread A] STORE count ← regA = ${raceState.regA}`);
+      if (raceState.locked) { raceState.lockHolder = null; raceLog(`[Thread A] Giải phóng mutex`); } }
+    raceState.aStep++;
+  } else {
+    if (op === 'load')  { raceState.regB = raceState.count; raceLog(`[Thread B] LOAD regB ← count = ${raceState.count}`); }
+    if (op === 'add')   { raceState.regB += 1; raceLog(`[Thread B] ADD  regB = ${raceState.regB - 1} + 1 = ${raceState.regB}`); }
+    if (op === 'store') { raceState.count = raceState.regB; raceLog(`[Thread B] STORE count ← regB = ${raceState.regB}`);
+      if (raceState.locked) { raceState.lockHolder = null; raceLog(`[Thread B] Giải phóng mutex`); } }
+    raceState.bStep++;
+  }
+
+  // highlight next step
+  const nextOps = ['load','add','store'];
+  const nextA = nextOps[raceState.aStep];
+  const nextB = nextOps[raceState.bStep];
+  if (nextA) document.getElementById(`a-${nextA}`).classList.add('pending');
+  if (nextB) document.getElementById(`b-${nextB}`).classList.add('pending');
+
+  updateRaceUI();
+
+  if (raceState.aStep === 3 && raceState.bStep === 3) {
+    const correct = raceState.count === 2;
+    const res = document.getElementById('race-result');
+    res.style.display = 'block';
+    res.className = correct ? 'ok' : 'err';
+    res.textContent = correct
+      ? `✓ count = ${raceState.count} — Đúng! (kỳ vọng 2). Không có race condition.`
+      : `✗ count = ${raceState.count} — SAI! (kỳ vọng 2). Một lần tăng bị mất — race condition!`;
+  }
+}
+
+async function autoDemo() {
+  if (raceState.autoRunning) return;
+  resetRace();
+  document.getElementById('lock-toggle').checked = false;
+  raceState.locked = false;
+  document.getElementById('lock-status').textContent = 'Tắt — Race condition có thể xảy ra';
+  raceState.autoRunning = true;
+  const delay = ms => new Promise(r => setTimeout(r, ms));
+  // Xen kẽ: A-load, B-load, A-add, B-add, A-store, B-store → kết quả sai
+  const seq = [['a','load'],['b','load'],['a','add'],['b','add'],['a','store'],['b','store']];
+  for (const [who, op] of seq) {
+    execStep(who, op);
+    await delay(700);
+  }
+  raceState.autoRunning = false;
+}
+
+/* ═══════════════════════════════════
+   MODULE 2 — TAS Simulator
+   ═══════════════════════════════════ */
+let tasLock = false;
+let tasHolder = null;  // 0 or 1
+
+function tasLog(msg, cls='') {
+  const el = document.getElementById('tas-log');
+  const line = cls ? `<span class="${cls}">${msg}</span>\n` : msg + '\n';
+  el.innerHTML += line;
+  el.scrollTop = el.scrollHeight;
+}
+
+function updateTASUI() {
+  const box  = document.getElementById('tas-lock-box');
+  const icon = document.getElementById('tas-lock-icon');
+  const lbl  = document.getElementById('tas-lock-label');
+  if (tasLock) {
+    box.className = 'lock-box locked';
+    icon.textContent = '🔒';
+    lbl.textContent = 'LOCKED';
+  } else {
+    box.className = 'lock-box unlocked';
+    icon.textContent = '🔓';
+    lbl.textContent = 'OPEN';
+  }
+  const holder = document.getElementById('tas-cs-holder');
+  if (tasHolder === null) {
+    holder.className = 'cs-indicator cs-empty';
+    holder.textContent = 'Không ai';
+  } else {
+    holder.className = `cs-indicator cs-t${tasHolder}`;
+    holder.textContent = `Thread ${tasHolder}`;
+  }
+  [0, 1].forEach(t => {
+    const el = document.getElementById(`t${t}-phase`);
+    if (tasHolder === t) {
+      el.className = 'p-phase phase-cs';
+      el.textContent = 'Trong CS';
+    } else if (tasHolder !== null && tasHolder !== t) {
+      el.className = 'p-phase phase-wait';
+      el.textContent = 'Spin (chờ)';
+    } else {
+      el.className = 'p-phase phase-idle';
+      el.textContent = 'Idle';
+    }
+  });
+}
+
+function tasAction(thread) {
+  const old = tasLock;       // TestAndSet: đọc giá trị cũ
+  if (!old) {
+    // TAS trả về false → lock đang mở → thread thắng
+    tasLock = true;
+    tasHolder = thread;
+    tasLog(`[T${thread}] TAS() → trả về false (lock mở) → set lock=true → vào CS ✓`, 'ok');
+  } else {
+    // TAS trả về true → lock đang đóng → spin
+    tasLog(`[T${thread}] TAS() → trả về true (lock đóng) → spin, thử lại...`, 'warn');
+  }
+  updateTASUI();
+}
+
+function releaseCS(thread) {
+  if (tasHolder !== thread) {
+    tasLog(`[T${thread}] Không trong CS — không thể unlock!`, 'err');
+    return;
+  }
+  tasLock = false;
+  tasHolder = null;
+  tasLog(`[T${thread}] UNLOCK — lock=false, CS trống`, 'info');
+  updateTASUI();
+}
+
+function resetTAS() {
+  tasLock = false;
+  tasHolder = null;
+  document.getElementById('tas-log').innerHTML = '<span style="color:#94a3b8;">// Log sự kiện xuất hiện ở đây...</span>';
+  updateTASUI();
+}
+
+/* ═══════════════════════════════════
+   MODULE 3 — Peterson Visualizer
+   ═══════════════════════════════════ */
+let pState = {
+  flag: [false, false],
+  turn: 0,
+  step: [0, 0],    // step per process: 0=s1,1=s2,2=s3,3=cs,4=done
+  inCS: null
+};
+
+function updatePetersonUI() {
+  document.getElementById('pv-f0').textContent = pState.flag[0] ? 'true' : 'false';
+  document.getElementById('pv-f0').className = 'p-val ' + (pState.flag[0] ? 'true' : 'false');
+  document.getElementById('pv-f1').textContent = pState.flag[1] ? 'true' : 'false';
+  document.getElementById('pv-f1').className = 'p-val ' + (pState.flag[1] ? 'true' : 'false');
+  document.getElementById('pv-turn').textContent = pState.turn;
+
+  const holder = document.getElementById('p-cs-holder');
+  if (pState.inCS === null) {
+    holder.className = 'cs-indicator cs-empty';
+    holder.textContent = 'Không ai';
+  } else {
+    holder.className = `cs-indicator cs-t${pState.inCS}`;
+    holder.textContent = `P${pState.inCS}`;
+  }
+
+  [0, 1].forEach(p => {
+    const el = document.getElementById(`p${p}-phase`);
+    if (pState.inCS === p) { el.className = 'p-phase phase-cs'; el.textContent = 'Trong CS'; }
+    else if (pState.step[p] === 2) { el.className = 'p-phase phase-wait'; el.textContent = 'Kiểm tra điều kiện...'; }
+    else if (pState.step[p] > 0 && pState.step[p] < 3) { el.className = 'p-phase phase-wait'; el.textContent = 'Entry section'; }
+    else { el.className = 'p-phase phase-idle'; el.textContent = 'Idle'; }
+  });
+}
+
+function pLog(msg, cls='info') {
+  const el = document.getElementById('peterson-log');
+  el.innerHTML += `<span class="${cls}">${msg}</span>\n`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function pStep(proc, step) {
+  const j = 1 - proc;
+  if (pState.step[proc] !== step - 1) return; // wrong order
+  if (pState.inCS === proc) return;
+
+  if (step === 1) {
+    pState.flag[proc] = true;
+    pState.step[proc] = 1;
+    document.getElementById(`p${proc}-s1`).classList.add('done');
+    document.getElementById(`p${proc}-s2`).classList.add('pending');
+    pLog(`[P${proc}] flag[${proc}] = true  — "Tôi muốn vào CS"`, 'ok');
+  } else if (step === 2) {
+    pState.turn = j;
+    pState.step[proc] = 2;
+    document.getElementById(`p${proc}-s2`).classList.add('done');
+    document.getElementById(`p${proc}-s3`).classList.add('pending');
+    pLog(`[P${proc}] turn = ${j}  — "Nhường P${j} trước"`, 'ok');
+  } else if (step === 3) {
+    // evaluate while condition
+    const condFlag = pState.flag[j];
+    const condTurn = pState.turn === j;
+    const mustWait = condFlag && condTurn;
+    pState.step[proc] = 3;
+    document.getElementById(`p${proc}-s3`).classList.add('done');
+    pLog(`[P${proc}] while(flag[${j}]=${condFlag} && turn==${j}? ${condTurn}) → ${mustWait ? 'CHỜ (true)' : 'VÀO CS (false)'}`, mustWait ? 'warn' : 'ok');
+    if (!mustWait) {
+      if (pState.inCS !== null) {
+        pLog(`[P${proc}] ⚠ Mutual exclusion VI PHẠM — P${pState.inCS} đang trong CS!`, 'err');
+      } else {
+        pState.inCS = proc;
+        document.getElementById(`p${proc}-cs`).style.display = 'block';
+        pLog(`[P${proc}] ★ VÀO CRITICAL SECTION`, 'ok');
+      }
+    } else {
+      pLog(`[P${proc}] ⏸ Spinning... bấm lại để kiểm tra điều kiện`, 'warn');
+      // Reset step 3 so user can click again after other process moves
+      pState.step[proc] = 2;
+      document.getElementById(`p${proc}-s3`).classList.remove('done');
+      document.getElementById(`p${proc}-s3`).classList.add('pending');
+    }
+  }
+  updatePetersonUI();
+}
+
+function pExitCS(proc) {
+  if (pState.inCS !== proc) return;
+  pState.flag[proc] = false;
+  pState.inCS = null;
+  document.getElementById(`p${proc}-cs`).style.display = 'none';
+  pState.step[proc] = 0;
+  ['s1','s2','s3'].forEach(s => {
+    document.getElementById(`p${proc}-${s}`).className = 'op-line';
+  });
+  document.getElementById(`p${proc}-s1`).classList.add('pending');
+  pLog(`[P${proc}] Thoát CS — flag[${proc}] = false`, 'info');
+  updatePetersonUI();
+}
+
+function resetPeterson() {
+  pState = { flag:[false,false], turn:0, step:[0,0], inCS:null };
+  document.getElementById('peterson-log').innerHTML = '<span style="color:#94a3b8;">// Nhấn các bước để thấy luồng thực thi...</span>';
+  [0,1].forEach(p => {
+    ['s1','s2','s3'].forEach(s => {
+      const el = document.getElementById(`p${p}-${s}`);
+      el.className = 'op-line';
+    });
+    document.getElementById(`p${p}-s1`).classList.add('pending');
+    document.getElementById(`p${p}-cs`).style.display = 'none';
+  });
+  updatePetersonUI();
+}
+
+async function autoPeterson() {
+  resetPeterson();
+  const delay = ms => new Promise(r => setTimeout(r, ms));
+  pLog('=== Demo: P0 và P1 cùng vào lúc nhau ===', 'info');
+  await delay(400);
+  pStep(0,1); await delay(500);
+  pStep(0,2); await delay(500);
+  pStep(1,1); await delay(500);
+  pStep(1,2); await delay(500);
+  // Now turn=0 (set by P1). P0 checks: flag[1]=true AND turn==1? → turn==0 (false) → P0 enters
+  pLog('[P0] Kiểm tra: flag[1]=true, turn==1? → turn=0 → false → P0 ĐƯỢC VÀO', 'ok');
+  pStep(0,3); await delay(600);
+  // P1 checks: flag[0]=true AND turn==0? → true → P1 waits
+  pLog('[P1] Kiểm tra: flag[0]=true, turn==0? → true → P1 PHẢI CHỜ', 'warn');
+  pStep(1,3); await delay(600);
+  pLog('>>> Mutual Exclusion đảm bảo: chỉ P0 trong CS ✓', 'ok');
+}
+
+// Init
+updateTASUI();
+updatePetersonUI();
+resetRace();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

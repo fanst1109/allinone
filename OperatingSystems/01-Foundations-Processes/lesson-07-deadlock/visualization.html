@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Deadlock</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #6d28d9;
+    --accent-soft: #ede9fe;
+    --accent-mid: #8b5cf6;
+    --accent-dark: #4c1d95;
+    --ok: #16a34a;
+    --ok-soft: #dcfce7;
+    --err: #dc2626;
+    --err-soft: #fee2e2;
+    --warn: #d97706;
+    --warn-soft: #fef3c7;
+    --bg-card: #ffffff;
+    --bg-section: #f5f3ff;
+  }
+
+  h1 { color: var(--accent-dark); }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-mid); }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(109,40,217,.10);
+    margin: 16px 0;
+  }
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-danger { background: var(--err); color: white; }
+  .btn-danger:hover { background: #b91c1c; }
+  .btn-ok { background: var(--ok); color: white; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ═══════════════════════════════════════
+     MODULE 1 — RAG
+     ═══════════════════════════════════════ */
+  #rag-container {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 16px;
+    align-items: start;
+  }
+  #rag-svg-wrap { overflow-x: auto; }
+  #rag-svg { display: block; }
+
+  .rag-controls {
+    padding: 14px;
+    background: var(--bg-section);
+    border-radius: 8px;
+    font-size: 13px;
+  }
+  .rag-controls h4 { margin: 0 0 10px; color: var(--accent-dark); font-size: 14px; }
+  .rag-select {
+    width: 100%; padding: 6px 8px;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    margin: 4px 0 8px;
+  }
+  .rag-legend {
+    margin-top: 12px;
+    font-size: 12px;
+    line-height: 2;
+    color: #374151;
+  }
+  .legend-row { display: flex; align-items: center; gap: 6px; }
+  .leg-line { display: inline-block; width: 30px; height: 3px; }
+
+  #rag-result {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    margin-top: 10px;
+    display: none;
+  }
+  #rag-result.ok  { background: var(--ok-soft);  color: var(--ok); }
+  #rag-result.err { background: var(--err-soft); color: var(--err); }
+
+  #rag-log {
+    background: #1e293b; color: #e2e8f0;
+    border-radius: 8px; padding: 12px 16px;
+    font-family: monospace; font-size: 12px;
+    line-height: 1.8; max-height: 120px;
+    overflow-y: auto; margin-top: 10px;
+    white-space: pre-wrap;
+  }
+
+  /* ═══════════════════════════════════════
+     MODULE 2 — Banker's Algorithm
+     ═══════════════════════════════════════ */
+  .banker-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-family: monospace;
+    margin: 12px 0;
+  }
+  .banker-table th {
+    background: var(--accent-soft);
+    color: var(--accent-dark);
+    padding: 8px 10px;
+    text-align: center;
+    border: 1px solid #d1d5db;
+    font-size: 12px;
+  }
+  .banker-table td {
+    padding: 6px 10px;
+    border: 1px solid #e2e8f0;
+    text-align: center;
+  }
+  .banker-table tr:hover td { background: #faf5ff; }
+  .row-done td { opacity: .5; text-decoration: line-through; }
+  .row-active td { background: #fef9c3 !important; font-weight: 700; }
+  .row-safe td { background: var(--ok-soft) !important; }
+  .cell-need  { background: #f0fdf4; }
+  .cell-alloc { background: #eff6ff; }
+  .cell-max   { background: var(--accent-soft); }
+
+  .banker-state {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .state-box {
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  .avail-box { background: #dcfce7; border: 2px solid #16a34a; }
+  .seq-box   { background: var(--accent-soft); border: 2px solid var(--accent); }
+  .seq-item {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    background: var(--accent);
+    color: white;
+    font-weight: 700;
+    margin: 2px;
+    font-size: 13px;
+  }
+
+  #banker-log {
+    background: #1e293b; color: #e2e8f0;
+    border-radius: 8px; padding: 12px 16px;
+    font-family: monospace; font-size: 13px;
+    line-height: 1.8; max-height: 180px;
+    overflow-y: auto; margin-top: 10px;
+    white-space: pre-wrap;
+  }
+
+  @media (max-width: 700px) {
+    #rag-container { grid-template-columns: 1fr; }
+    .banker-state  { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Processes</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-semaphores-classic-problems/visualization.html">← L6: Semaphore</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Deadlock</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-ipc/visualization.html">L8: IPC →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Deadlock</h1>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Resource-Allocation Graph
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Resource-Allocation Graph (RAG) tương tác</h2>
+
+<div class="card">
+  <p>Thêm cạnh <strong>Request</strong> (P→R) và <strong>Assignment</strong> (R→P). Hệ thống tự dò chu trình.</p>
+
+  <div id="rag-container">
+    <div id="rag-svg-wrap">
+      <svg id="rag-svg" width="480" height="380" viewBox="0 0 480 380">
+        <defs>
+          <marker id="arrowhead-req" markerWidth="8" markerHeight="7"
+                  refX="8" refY="3.5" orient="auto">
+            <polygon points="0 0, 8 3.5, 0 7" fill="#dc2626"/>
+          </marker>
+          <marker id="arrowhead-asgn" markerWidth="8" markerHeight="7"
+                  refX="8" refY="3.5" orient="auto">
+            <polygon points="0 0, 8 3.5, 0 7" fill="#16a34a"/>
+          </marker>
+          <marker id="arrowhead-cycle" markerWidth="8" markerHeight="7"
+                  refX="8" refY="3.5" orient="auto">
+            <polygon points="0 0, 8 3.5, 0 7" fill="#dc2626"/>
+          </marker>
+        </defs>
+        <g id="rag-edges"></g>
+        <g id="rag-nodes"></g>
+      </svg>
+    </div>
+
+    <div class="rag-controls">
+      <h4>Thêm cạnh</h4>
+      <label style="font-size:12px;color:#64748b;">Loại cạnh:</label>
+      <select class="rag-select" id="edge-type">
+        <option value="req">Request: P → R</option>
+        <option value="asgn">Assignment: R → P</option>
+      </select>
+      <label style="font-size:12px;color:#64748b;">Process:</label>
+      <select class="rag-select" id="edge-proc">
+        <option>P1</option><option>P2</option><option>P3</option><option>P4</option>
+      </select>
+      <label style="font-size:12px;color:#64748b;">Resource:</label>
+      <select class="rag-select" id="edge-res">
+        <option>R1</option><option>R2</option><option>R3</option>
+      </select>
+      <button class="btn btn-primary" style="width:100%;margin-top:6px;" onclick="addEdge()">Thêm cạnh</button>
+      <button class="btn btn-secondary" style="width:100%;margin-top:6px;" onclick="checkCycle()">Dò chu trình</button>
+      <button class="btn btn-secondary" style="width:100%;margin-top:6px;" onclick="resetRAG()">Reset</button>
+      <button class="btn btn-danger" style="width:100%;margin-top:6px;font-size:12px;" onclick="loadDeadlockDemo()">Demo Deadlock</button>
+
+      <div class="rag-legend">
+        <div class="legend-row"><span class="leg-line" style="background:#dc2626;"></span>Request P→R</div>
+        <div class="legend-row"><span class="leg-line" style="background:#16a34a;"></span>Assignment R→P</div>
+        <div class="legend-row"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#eff6ff;border:2px solid #3b82f6;"></span> Process (tròn)</div>
+        <div class="legend-row"><span style="display:inline-block;width:18px;height:14px;background:#fef9c3;border:2px solid #d97706;"></span> Resource (vuông)</div>
+      </div>
+
+      <div id="rag-result"></div>
+    </div>
+  </div>
+
+  <div id="rag-log"><span style="color:#94a3b8;">// Thêm cạnh để xây dựng đồ thị...</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Banker's Algorithm
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Thuật toán Banker — Tìm Safe Sequence</h2>
+
+<div class="card">
+  <p>Ví dụ từ README: 5 process, 3 tài nguyên (A, B, C), Total = [10, 5, 7]. Nhấn <strong>"Bước tiếp theo"</strong> để thực hiện từng bước tìm safe sequence.</p>
+
+  <div class="banker-state">
+    <div class="state-box avail-box">
+      <strong>Available:</strong><br>
+      A = <span id="avail-a">3</span> &nbsp;
+      B = <span id="avail-b">3</span> &nbsp;
+      C = <span id="avail-c">2</span>
+    </div>
+    <div class="state-box seq-box">
+      <strong>Safe Sequence:</strong><br>
+      <span id="safe-seq">—</span>
+    </div>
+  </div>
+
+  <div style="overflow-x:auto;">
+    <table class="banker-table" id="banker-tbl">
+      <thead>
+        <tr>
+          <th>Process</th>
+          <th colspan="3">Max (A B C)</th>
+          <th colspan="3">Allocation (A B C)</th>
+          <th colspan="3" class="cell-need">Need (A B C)</th>
+          <th>Trạng thái</th>
+        </tr>
+      </thead>
+      <tbody id="banker-tbody"></tbody>
+    </table>
+  </div>
+
+  <div id="banker-result" style="display:none;padding:12px 16px;border-radius:8px;font-weight:700;font-size:14px;margin-top:8px;"></div>
+
+  <div id="banker-log"><span style="color:#94a3b8;">// Nhấn "Bước tiếp theo" để bắt đầu tìm safe sequence...</span></div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="bankerStep()">Bước tiếp theo</button>
+    <button class="btn btn-secondary" onclick="resetBanker()">Reset</button>
+    <button class="btn btn-ok" onclick="bankerAuto()">Chạy tự động</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — 4 Điều kiện Coffman
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. 4 Điều kiện Coffman — Phòng ngừa</h2>
+
+<div class="card">
+  <p>Nhấn vào mỗi điều kiện để xem cách phá và ưu/nhược điểm.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" id="coffman-grid"></div>
+</div>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════════
+   MODULE 1 — RAG
+   ═══════════════════════════════════════ */
+// Node positions
+const procPos = {
+  P1: {x:60,  y:70},  P2: {x:60,  y:190},
+  P3: {x:60,  y:310}, P4: {x:60,  y:430}
+};
+const resPos = {
+  R1: {x:340, y:100}, R2: {x:340, y:220}, R3: {x:340, y:340}
+};
+let ragEdges = [];
+let cycleEdges = [];
+
+function renderRAG() {
+  const nodesG = document.getElementById('rag-nodes');
+  const edgesG = document.getElementById('rag-edges');
+  nodesG.innerHTML = '';
+  edgesG.innerHTML = '';
+
+  const cycleSet = new Set(cycleEdges.map(e => e[0]+'-'+e[1]+'-'+e[2]));
+
+  // Draw edges
+  ragEdges.forEach(([type, proc, res]) => {
+    const pp = procPos[proc];
+    const rp = resPos[res];
+    const isCycle = cycleSet.has(type+'-'+proc+'-'+res);
+    let x1, y1, x2, y2;
+    if (type === 'req') {
+      x1=pp.x+22; y1=pp.y; x2=rp.x-20; y2=rp.y;
+    } else {
+      x1=rp.x-20; y1=rp.y; x2=pp.x+22; y2=pp.y;
+    }
+    const color = isCycle ? '#dc2626' : (type === 'req' ? '#dc2626' : '#16a34a');
+    const sw = isCycle ? '3' : '2';
+    const marker = type === 'req' ? 'arrowhead-req' : 'arrowhead-asgn';
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('stroke', color);
+    line.setAttribute('stroke-width', sw);
+    line.setAttribute('marker-end', `url(#${marker})`);
+    if (isCycle) line.setAttribute('stroke-dasharray', '6,3');
+    edgesG.appendChild(line);
+  });
+
+  // Draw process nodes
+  Object.entries(procPos).forEach(([name, pos]) => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx', pos.x); c.setAttribute('cy', pos.y);
+    c.setAttribute('r', '22');
+    c.setAttribute('fill', '#eff6ff'); c.setAttribute('stroke', '#3b82f6');
+    c.setAttribute('stroke-width', '2.5');
+    g.appendChild(c);
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', pos.x); t.setAttribute('y', pos.y+5);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','13');
+    t.setAttribute('font-weight','700'); t.setAttribute('fill','#1d4ed8');
+    t.textContent = name;
+    g.appendChild(t);
+    nodesG.appendChild(g);
+  });
+
+  // Draw resource nodes
+  Object.entries(resPos).forEach(([name, pos]) => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    const r = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    r.setAttribute('x', pos.x-20); r.setAttribute('y', pos.y-20);
+    r.setAttribute('width', '40'); r.setAttribute('height', '40');
+    r.setAttribute('rx', '4');
+    r.setAttribute('fill', '#fef9c3'); r.setAttribute('stroke', '#d97706');
+    r.setAttribute('stroke-width', '2.5');
+    g.appendChild(r);
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', pos.x); t.setAttribute('y', pos.y+5);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','12');
+    t.setAttribute('font-weight','700'); t.setAttribute('fill','#92400e');
+    t.textContent = name;
+    g.appendChild(t);
+    nodesG.appendChild(g);
+  });
+}
+
+function addEdge() {
+  const type = document.getElementById('edge-type').value;
+  const proc = document.getElementById('edge-proc').value;
+  const res  = document.getElementById('edge-res').value;
+  const key = type+'-'+proc+'-'+res;
+  if (!ragEdges.find(e => e[0]===type&&e[1]===proc&&e[2]===res)) {
+    ragEdges.push([type, proc, res]);
+    ragLog(`Thêm cạnh: ${type==='req'?proc+'→'+res:res+'→'+proc}`);
+  }
+  cycleEdges = [];
+  document.getElementById('rag-result').style.display = 'none';
+  renderRAG();
+}
+
+function ragLog(msg) {
+  const el = document.getElementById('rag-log');
+  if (el.querySelector('span[style]')) el.innerHTML = '';
+  el.textContent += msg + '\n';
+  el.scrollTop = el.scrollHeight;
+}
+
+function checkCycle() {
+  // Build adjacency: req edge = P→R→P (via assignment), assignment R→P = R→P
+  // We detect cycle in the combined graph P→R and R→P
+  // Convert to P→P via resources
+  const procs = ['P1','P2','P3','P4'];
+  // wait-for: P waits for P' if: P→req→R and R→asgn→P'
+  const waitFor = {}; // P → [P']
+  procs.forEach(p => waitFor[p] = []);
+
+  ragEdges.forEach(e1 => {
+    if (e1[0] === 'req') {
+      const [, reqProc, reqRes] = e1;
+      ragEdges.forEach(e2 => {
+        if (e2[0] === 'asgn' && e2[2] === reqRes && e2[1] !== reqProc) {
+          const asgnProc = e2[1];
+          if (!waitFor[reqProc].includes(asgnProc)) {
+            waitFor[reqProc].push(asgnProc);
+          }
+        }
+      });
+    }
+  });
+
+  // DFS cycle detection
+  const visited = {};
+  const inStack = {};
+  let cycleFound = false;
+  let cyclePath = [];
+
+  function dfs(node, path) {
+    if (inStack[node]) {
+      cyclePath = path.slice(path.indexOf(node));
+      cycleFound = true;
+      return;
+    }
+    if (visited[node]) return;
+    visited[node] = true;
+    inStack[node] = true;
+    for (const next of (waitFor[node] || [])) {
+      dfs(next, [...path, next]);
+      if (cycleFound) return;
+    }
+    inStack[node] = false;
+  }
+
+  procs.forEach(p => { if (!visited[p]) dfs(p, [p]); });
+
+  const res = document.getElementById('rag-result');
+  res.style.display = 'block';
+  if (cycleFound) {
+    res.className = 'err';
+    res.textContent = `Chu trình phát hiện: ${cyclePath.join(' → ')} → ${cyclePath[0]} — DEADLOCK!`;
+    // highlight cycle edges
+    cycleEdges = [];
+    for (let i = 0; i < cyclePath.length; i++) {
+      const from = cyclePath[i];
+      const to = cyclePath[(i+1)%cyclePath.length];
+      // find req edge from→res and asgn edge res→to
+      ragEdges.forEach(e => {
+        if (e[0]==='req' && e[1]===from) {
+          const r = e[2];
+          if (ragEdges.find(e2=>e2[0]==='asgn'&&e2[2]===r&&e2[1]===to)) {
+            cycleEdges.push(e);
+            cycleEdges.push(['asgn', to, r]);
+          }
+        }
+      });
+    }
+    ragLog(`DEADLOCK phát hiện! Chu trình: ${cyclePath.join('→')}→${cyclePath[0]}`);
+  } else {
+    res.className = 'ok';
+    res.textContent = 'Không có chu trình — Không có deadlock.';
+    ragLog('Không có chu trình trong RAG — hệ thống an toàn.');
+  }
+  renderRAG();
+}
+
+function resetRAG() {
+  ragEdges = []; cycleEdges = [];
+  document.getElementById('rag-result').style.display = 'none';
+  document.getElementById('rag-log').innerHTML = '<span style="color:#94a3b8;">// Thêm cạnh để xây dựng đồ thị...</span>';
+  renderRAG();
+}
+
+function loadDeadlockDemo() {
+  ragEdges = [
+    ['asgn','P1','R1'], ['req','P1','R2'],
+    ['asgn','P2','R2'], ['req','P2','R3'],
+    ['asgn','P3','R3'], ['req','P3','R1'],
+    ['req','P4','R2']
+  ];
+  cycleEdges = [];
+  document.getElementById('rag-result').style.display = 'none';
+  document.getElementById('rag-log').innerHTML = '<span style="color:#94a3b8;">// Thêm cạnh để xây dựng đồ thị...</span>';
+  ragLog('Demo: P1 giữ R1, xin R2. P2 giữ R2, xin R3. P3 giữ R3, xin R1. P4 xin R2.');
+  ragLog('→ Nhấn "Dò chu trình" để kiểm tra deadlock');
+  renderRAG();
+}
+
+/* ═══════════════════════════════════════
+   MODULE 2 — Banker's Algorithm
+   ═══════════════════════════════════════ */
+const bankerData = [
+  // [name, maxA, maxB, maxC, allocA, allocB, allocC]
+  ['P0', 7,5,3,  0,1,0],
+  ['P1', 3,2,2,  2,0,0],
+  ['P2', 9,0,2,  3,0,2],
+  ['P3', 2,2,2,  2,1,1],
+  ['P4', 4,3,3,  0,0,2],
+];
+let bkAvail = [3,3,2];
+let bkFinished = [false,false,false,false,false];
+let bkSafeSeq = [];
+let bkStep = 0;
+
+function bankerNeed(i) {
+  const d = bankerData[i];
+  return [d[1]-d[4], d[2]-d[5], d[3]-d[6]];
+}
+
+function renderBankerTable() {
+  const tbody = document.getElementById('banker-tbody');
+  tbody.innerHTML = '';
+  bankerData.forEach((d, i) => {
+    const need = bankerNeed(i);
+    const tr = document.createElement('tr');
+    tr.id = `bk-row-${i}`;
+    const safeIdx = bkSafeSeq.indexOf(i);
+    if (bkFinished[i]) tr.className = 'row-done';
+    tr.innerHTML = `
+      <td><strong>${d[0]}</strong></td>
+      <td class="cell-max">${d[1]}</td><td class="cell-max">${d[2]}</td><td class="cell-max">${d[3]}</td>
+      <td class="cell-alloc">${d[4]}</td><td class="cell-alloc">${d[5]}</td><td class="cell-alloc">${d[6]}</td>
+      <td class="cell-need">${need[0]}</td><td class="cell-need">${need[1]}</td><td class="cell-need">${need[2]}</td>
+      <td>${bkFinished[i] ? `<span style="color:var(--ok);font-weight:700;">#${safeIdx+1} Xong</span>` : 'Chờ'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('avail-a').textContent = bkAvail[0];
+  document.getElementById('avail-b').textContent = bkAvail[1];
+  document.getElementById('avail-c').textContent = bkAvail[2];
+
+  const seqEl = document.getElementById('safe-seq');
+  if (bkSafeSeq.length === 0) {
+    seqEl.textContent = '—';
+  } else {
+    seqEl.innerHTML = bkSafeSeq.map(i => `<span class="seq-item">P${i}</span>`).join(' → ');
+  }
+}
+
+function bkLog(msg, cls='') {
+  const el = document.getElementById('banker-log');
+  if (el.querySelector('span[style]')) el.innerHTML = '';
+  const colors = { ok:'#4ade80', err:'#f87171', info:'#93c5fd', warn:'#fbbf24' };
+  if (cls) el.innerHTML += `<span style="color:${colors[cls]}">${msg}</span>\n`;
+  else el.textContent += msg + '\n';
+  el.scrollTop = el.scrollHeight;
+}
+
+function bankerStep() {
+  if (bkSafeSeq.length === bankerData.length) {
+    bkLog('Đã hoàn thành — tất cả process đã được thêm vào safe sequence.', 'ok');
+    return;
+  }
+
+  let found = false;
+  for (let i = 0; i < bankerData.length; i++) {
+    if (bkFinished[i]) continue;
+    const need = bankerNeed(i);
+    const canRun = need[0]<=bkAvail[0] && need[1]<=bkAvail[1] && need[2]<=bkAvail[2];
+    bkLog(`Kiểm tra P${i}: Need=[${need}], Avail=[${bkAvail}] → ${canRun ? 'CÓ THỂ CHẠY ✓' : 'Không đủ'}`, canRun?'ok':'info');
+    if (canRun && !found) {
+      found = true;
+      bkFinished[i] = true;
+      bkSafeSeq.push(i);
+      const d = bankerData[i];
+      const newAvail = [
+        bkAvail[0]+d[4], bkAvail[1]+d[5], bkAvail[2]+d[6]
+      ];
+      bkLog(`→ Chạy P${i}: Available += Alloc[${d[4]},${d[5]},${d[6]}] → [${newAvail}]`, 'ok');
+      bkAvail = newAvail;
+      // Highlight row
+      const row = document.getElementById(`bk-row-${i}`);
+      if (row) row.className = 'row-safe';
+    }
+  }
+
+  if (!found) {
+    const remaining = bankerData.filter((_,i) => !bkFinished[i]).map(d=>d[0]);
+    bkLog(`Không process nào chạy được với Available=[${bkAvail}]`, 'err');
+    bkLog(`Remaining: ${remaining.join(', ')} → UNSAFE STATE / DEADLOCK`, 'err');
+    const res = document.getElementById('banker-result');
+    res.style.display = 'block';
+    res.style.background = 'var(--err-soft)';
+    res.style.color = 'var(--err)';
+    res.textContent = '✗ Không tìm được safe sequence — Unsafe State!';
+  } else if (bkSafeSeq.length === bankerData.length) {
+    bkLog(`Safe sequence tìm được: ${bkSafeSeq.map(i=>'P'+i).join(' → ')}`, 'ok');
+    bkLog('✓ Hệ thống ở trạng thái AN TOÀN — Không deadlock!', 'ok');
+    const res = document.getElementById('banker-result');
+    res.style.display = 'block';
+    res.style.background = 'var(--ok-soft)';
+    res.style.color = 'var(--ok)';
+    res.textContent = `✓ Safe sequence: ${bkSafeSeq.map(i=>'P'+i).join(' → ')}`;
+  }
+
+  renderBankerTable();
+  bkStep++;
+}
+
+function resetBanker() {
+  bkAvail = [3,3,2];
+  bkFinished = [false,false,false,false,false];
+  bkSafeSeq = [];
+  bkStep = 0;
+  document.getElementById('banker-log').innerHTML = '<span style="color:#94a3b8;">// Nhấn "Bước tiếp theo" để bắt đầu tìm safe sequence...</span>';
+  document.getElementById('banker-result').style.display = 'none';
+  renderBankerTable();
+}
+
+async function bankerAuto() {
+  resetBanker();
+  const delay = ms => new Promise(r => setTimeout(r, ms));
+  while (bkSafeSeq.length < bankerData.length) {
+    const before = bkSafeSeq.length;
+    bankerStep();
+    if (bkSafeSeq.length === before) break; // no progress
+    await delay(900);
+  }
+}
+
+/* ═══════════════════════════════════════
+   MODULE 3 — Coffman Conditions
+   ═══════════════════════════════════════ */
+const coffman = [
+  {
+    name: '1. Mutual Exclusion',
+    desc: 'Tài nguyên không thể chia sẻ — chỉ 1 process tại 1 thời điểm.',
+    break: 'Dùng tài nguyên chia sẻ được (read-only file, immutable data).',
+    pro: 'Hiệu quả với dữ liệu chỉ đọc.',
+    con: 'Không áp dụng được với tài nguyên vốn cần exclusive (printer, mutex).'
+  },
+  {
+    name: '2. Hold and Wait',
+    desc: 'Process giữ tài nguyên trong khi chờ thêm tài nguyên khác.',
+    break: 'Yêu cầu xin tất cả tài nguyên trước khi bắt đầu, hoặc thả hết trước khi xin thêm.',
+    pro: 'Đơn giản về lý thuyết.',
+    con: 'Lãng phí tài nguyên, có thể starvation, khó áp dụng nếu không biết trước nhu cầu.'
+  },
+  {
+    name: '3. No Preemption',
+    desc: 'Tài nguyên chỉ có thể giải phóng bởi chính process đang giữ.',
+    break: 'Cho phép OS cưỡng đoạt tài nguyên (preempt), save state và restart sau.',
+    pro: 'Linh hoạt với tài nguyên có thể save/restore (CPU, memory).',
+    con: 'Không feasible với printer, CD writer đang ghi... — không thể pause.'
+  },
+  {
+    name: '4. Circular Wait',
+    desc: 'Tồn tại chuỗi P₁→P₂→...→Pₙ→P₁ chờ tài nguyên lẫn nhau.',
+    break: 'Đánh số tài nguyên, bắt buộc xin theo thứ tự tăng dần.',
+    pro: 'Chi phí thấp, không ảnh hưởng hiệu năng, dễ enforce bằng convention.',
+    con: 'Cần thiết kế thứ tự số từ trước, thứ tự phải nhất quán toàn hệ thống.'
+  }
+];
+
+const grid = document.getElementById('coffman-grid');
+coffman.forEach((c, i) => {
+  const card = document.createElement('div');
+  card.style.cssText = 'background:var(--bg-section);border-radius:10px;padding:14px;cursor:pointer;border:2px solid transparent;transition:border .2s;';
+  card.innerHTML = `
+    <div style="font-weight:700;color:var(--accent-dark);margin-bottom:6px;font-size:14px;">${c.name}</div>
+    <div style="font-size:13px;color:#374151;margin-bottom:8px;">${c.desc}</div>
+    <div id="coffman-detail-${i}" style="display:none;">
+      <div style="background:white;border-radius:6px;padding:10px;font-size:12px;line-height:1.7;">
+        <strong style="color:#374151;">Cách phá:</strong><br>${c.break}<br><br>
+        <strong style="color:var(--ok);">✓ Ưu điểm:</strong> ${c.pro}<br>
+        <strong style="color:var(--err);">✗ Nhược điểm:</strong> ${c.con}
+      </div>
+    </div>
+    <div style="font-size:11px;color:#94a3b8;margin-top:6px;">Nhấn để xem chi tiết</div>
+  `;
+  card.addEventListener('click', () => {
+    const det = document.getElementById(`coffman-detail-${i}`);
+    const shown = det.style.display !== 'none';
+    det.style.display = shown ? 'none' : 'block';
+    card.style.borderColor = shown ? 'transparent' : 'var(--accent)';
+  });
+  grid.appendChild(card);
+});
+
+// Init
+renderRAG();
+renderBankerTable();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

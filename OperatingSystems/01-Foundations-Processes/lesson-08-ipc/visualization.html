@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — IPC: Giao tiếp liên tiến trình</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #6d28d9;
+    --accent-soft: #ede9fe;
+    --accent-mid: #8b5cf6;
+    --accent-dark: #4c1d95;
+    --ok: #16a34a;
+    --ok-soft: #dcfce7;
+    --err: #dc2626;
+    --err-soft: #fee2e2;
+    --warn: #d97706;
+    --warn-soft: #fef3c7;
+    --bg-card: #ffffff;
+    --bg-section: #f5f3ff;
+  }
+
+  h1 { color: var(--accent-dark); }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-mid); }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(109,40,217,.10);
+    margin: 16px 0;
+  }
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ═══════════════════════════════════════
+     MODULE 1 — IPC Selector
+     ═══════════════════════════════════════ */
+  .ipc-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .ipc-card {
+    padding: 14px;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all .2s;
+    text-align: center;
+  }
+  .ipc-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+  .ipc-card.active { border-color: var(--accent); }
+  .ipc-card .icon { font-size: 28px; margin-bottom: 6px; }
+  .ipc-card .name { font-weight: 700; font-size: 14px; }
+  .ipc-card .speed { font-size: 11px; margin-top: 4px; font-weight: 600; }
+
+  .ipc-detail {
+    display: none;
+    padding: 16px;
+    border-radius: 10px;
+    border: 2px solid var(--accent);
+    background: var(--bg-section);
+    margin-top: 8px;
+    animation: fadeIn .2s;
+  }
+  .ipc-detail.show { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .ipc-detail h4 { color: var(--accent-dark); margin-bottom: 8px; }
+  .ipc-detail .tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+  .tag {
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .tag-speed { background: #dcfce7; color: #166534; }
+  .tag-dir   { background: #dbeafe; color: #1e40af; }
+  .tag-use   { background: var(--warn-soft); color: #92400e; }
+  .pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 10px;
+    font-size: 13px;
+  }
+  .pros { background: var(--ok-soft); border-radius: 6px; padding: 10px; }
+  .cons { background: var(--err-soft); border-radius: 6px; padding: 10px; }
+  .pros h5 { color: var(--ok); margin: 0 0 6px; }
+  .cons h5 { color: var(--err); margin: 0 0 6px; }
+
+  /* ═══════════════════════════════════════
+     MODULE 2 — Pipe Walk-through
+     ═══════════════════════════════════════ */
+  #pipe-svg-wrap { overflow-x: auto; }
+  #pipe-svg { display: block; margin: 0 auto; }
+
+  .step-indicator {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+  .step-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    border: 2px solid;
+    transition: all .2s;
+    cursor: default;
+  }
+  .step-dot.done    { background: var(--ok-soft);   border-color: var(--ok);   color: var(--ok); }
+  .step-dot.active  { background: var(--accent);     border-color: var(--accent-dark); color: white; transform: scale(1.1); }
+  .step-dot.pending { background: #f1f5f9; border-color: #d1d5db; color: #9ca3af; }
+
+  #pipe-desc {
+    background: #1e293b; color: #e2e8f0;
+    border-radius: 8px; padding: 14px 16px;
+    font-family: monospace; font-size: 13px;
+    line-height: 1.8; min-height: 60px;
+    white-space: pre-wrap;
+  }
+  #pipe-desc .code { color: #fbbf24; }
+  #pipe-desc .ok   { color: #4ade80; }
+  #pipe-desc .info { color: #93c5fd; }
+
+  /* ═══════════════════════════════════════
+     MODULE 3 — IPC Comparison
+     ═══════════════════════════════════════ */
+  .compare-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 13px; margin: 12px 0;
+  }
+  .compare-table th {
+    background: var(--accent-soft); color: var(--accent-dark);
+    padding: 8px 12px; border: 1px solid #d1d5db;
+    text-align: left; font-size: 12px;
+  }
+  .compare-table td {
+    padding: 8px 12px; border: 1px solid #e2e8f0;
+    vertical-align: middle;
+  }
+  .compare-table tr:hover td { background: #faf5ff; }
+  .speed-bar {
+    height: 8px; border-radius: 4px;
+    background: linear-gradient(to right, var(--accent), var(--accent-mid));
+    display: inline-block;
+  }
+
+  /* ═══════════════════════════════════════
+     MODULE 4 — Signal Demo
+     ═══════════════════════════════════════ */
+  .process-box {
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 8px 0;
+    font-family: monospace;
+    font-size: 13px;
+    position: relative;
+  }
+  .proc-a { background: #eff6ff; border: 2px solid #3b82f6; }
+  .proc-b { background: #fdf4ff; border: 2px solid #a855f7; }
+  .proc-title { font-weight: 700; font-size: 13px; margin-bottom: 6px; }
+  .proc-a .proc-title { color: #1d4ed8; }
+  .proc-b .proc-title { color: #7e22ce; }
+
+  .signal-arrow {
+    display: flex; align-items: center; gap: 8px;
+    margin: 4px 0; font-size: 13px;
+    opacity: 0; transform: translateY(-4px);
+    transition: all .4s;
+  }
+  .signal-arrow.visible { opacity: 1; transform: none; }
+  .sig-badge {
+    padding: 3px 10px; border-radius: 12px;
+    font-weight: 700; font-size: 12px;
+  }
+
+  #signal-log {
+    background: #1e293b; color: #e2e8f0;
+    border-radius: 8px; padding: 12px 16px;
+    font-family: monospace; font-size: 13px;
+    line-height: 1.8; max-height: 140px;
+    overflow-y: auto; margin-top: 10px;
+    white-space: pre-wrap;
+  }
+
+  @media (max-width: 600px) {
+    .ipc-grid { grid-template-columns: 1fr 1fr; }
+    .pros-cons { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 400px) {
+    .ipc-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Processes</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-deadlock/visualization.html">← L7: Deadlock</a>
+  <span class="sep">·</span>
+  <span class="current">L8: IPC</span>
+  <span class="sep">·</span>
+  <a href="../../02-Memory-Storage/lesson-01-memory-management/visualization.html">Tầng 2 → Quản lý bộ nhớ</a>
+</nav>
+
+<main>
+<h1>Lesson 08 — IPC: Giao tiếp liên tiến trình</h1>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — IPC Selector
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Các cơ chế IPC — Nhấn để xem chi tiết</h2>
+
+<div class="card">
+  <div class="ipc-grid" id="ipc-grid"></div>
+  <div id="ipc-detail-panel" class="ipc-detail"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Pipe Walk-through
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Walk-through: <code>ls | grep .go</code></h2>
+
+<div class="card">
+  <p>Bấm từng bước để thấy shell tạo pipe, fork, redirect và exec.</p>
+
+  <div class="step-indicator" id="step-dots"></div>
+
+  <div id="pipe-svg-wrap">
+    <svg id="pipe-svg" width="560" height="320" viewBox="0 0 560 320">
+      <!-- Background regions -->
+      <rect x="0" y="0" width="560" height="320" fill="#f8fafc" rx="8"/>
+
+      <!-- Shell process box -->
+      <rect id="shell-box" x="10" y="10" width="130" height="300" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+      <text x="75" y="32" text-anchor="middle" font-size="12" font-weight="700" fill="#166534">Shell</text>
+
+      <!-- Kernel / Pipe buffer -->
+      <rect id="pipe-box" x="200" y="120" width="160" height="50" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="2" opacity="0"/>
+      <text id="pipe-label" x="280" y="140" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e" opacity="0">Pipe Buffer (64KB)</text>
+      <text id="pipe-sub"   x="280" y="158" text-anchor="middle" font-size="10" fill="#92400e" opacity="0">kernel RAM</text>
+
+      <!-- Child 1 box (ls) -->
+      <rect id="c1-box" x="380" y="30" width="120" height="110" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" opacity="0"/>
+      <text id="c1-title" x="440" y="52" text-anchor="middle" font-size="12" font-weight="700" fill="#1d4ed8" opacity="0">Child 1</text>
+      <text id="c1-cmd"   x="440" y="70" text-anchor="middle" font-size="11" fill="#1d4ed8" opacity="0">execve(ls)</text>
+      <text id="c1-fd"    x="440" y="88" text-anchor="middle" font-size="10" fill="#374151" opacity="0">stdout → fd[1]</text>
+      <text id="c1-fd2"   x="440" y="104" text-anchor="middle" font-size="10" fill="#374151" opacity="0">(dup2)</text>
+      <rect id="c1-state" x="396" y="114" width="90" height="18" rx="4" fill="#dcfce7" opacity="0"/>
+      <text id="c1-stxt" x="441" y="127" text-anchor="middle" font-size="10" font-weight="700" fill="#166534" opacity="0">Ghi vào pipe</text>
+
+      <!-- Child 2 box (grep) -->
+      <rect id="c2-box" x="380" y="170" width="120" height="110" rx="8" fill="#fdf4ff" stroke="#a855f7" stroke-width="2" opacity="0"/>
+      <text id="c2-title" x="440" y="192" text-anchor="middle" font-size="12" font-weight="700" fill="#7e22ce" opacity="0">Child 2</text>
+      <text id="c2-cmd"   x="440" y="210" text-anchor="middle" font-size="11" fill="#7e22ce" opacity="0">execve(grep)</text>
+      <text id="c2-fd"    x="440" y="228" text-anchor="middle" font-size="10" fill="#374151" opacity="0">stdin ← fd[0]</text>
+      <text id="c2-fd2"   x="440" y="244" text-anchor="middle" font-size="10" fill="#374151" opacity="0">(dup2)</text>
+      <rect id="c2-state" x="396" y="254" width="90" height="18" rx="4" fill="#ede9fe" opacity="0"/>
+      <text id="c2-stxt" x="441" y="267" text-anchor="middle" font-size="10" font-weight="700" fill="#5b21b6" opacity="0">Đọc từ pipe</text>
+
+      <!-- Data flow arrows (hidden initially) -->
+      <!-- ls → pipe -->
+      <line id="arrow-ls-pipe" x1="378" y1="84" x2="360" y2="140" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="6,3"
+            marker-end="url(#arr-blue)" opacity="0"/>
+      <!-- pipe → grep -->
+      <line id="arrow-pipe-grep" x1="360" y1="157" x2="378" y2="215" stroke="#a855f7" stroke-width="2.5" stroke-dasharray="6,3"
+            marker-end="url(#arr-purple)" opacity="0"/>
+      <!-- fork arrows from shell -->
+      <line id="arrow-fork1" x1="140" y1="85" x2="378" y2="85" stroke="#16a34a" stroke-width="2" marker-end="url(#arr-green)" opacity="0"/>
+      <line id="arrow-fork2" x1="140" y1="225" x2="378" y2="225" stroke="#16a34a" stroke-width="2" marker-end="url(#arr-green)" opacity="0"/>
+
+      <!-- Shell labels -->
+      <text id="sh-pipe"  x="75" y="65" text-anchor="middle" font-size="10" fill="#374151" opacity="0">pipe(fd)</text>
+      <text id="sh-fork1" x="75" y="95" text-anchor="middle" font-size="10" fill="#374151" opacity="0">fork() #1</text>
+      <text id="sh-fork2" x="75" y="235" text-anchor="middle" font-size="10" fill="#374151" opacity="0">fork() #2</text>
+      <text id="sh-wait"  x="75" y="270" text-anchor="middle" font-size="10" fill="#374151" opacity="0">wait(children)</text>
+
+      <defs>
+        <marker id="arr-blue" markerWidth="8" markerHeight="7" refX="8" refY="3.5" orient="auto">
+          <polygon points="0 0, 8 3.5, 0 7" fill="#3b82f6"/>
+        </marker>
+        <marker id="arr-purple" markerWidth="8" markerHeight="7" refX="8" refY="3.5" orient="auto">
+          <polygon points="0 0, 8 3.5, 0 7" fill="#a855f7"/>
+        </marker>
+        <marker id="arr-green" markerWidth="8" markerHeight="7" refX="8" refY="3.5" orient="auto">
+          <polygon points="0 0, 8 3.5, 0 7" fill="#16a34a"/>
+        </marker>
+        <marker id="arr-orange" markerWidth="8" markerHeight="7" refX="8" refY="3.5" orient="auto">
+          <polygon points="0 0, 8 3.5, 0 7" fill="#d97706"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <div id="pipe-desc"><span style="color:#94a3b8;">// Nhấn "Bước tiếp theo" để bắt đầu...</span></div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="nextPipeStep()">Bước tiếp theo</button>
+    <button class="btn btn-secondary" onclick="resetPipe()">Reset</button>
+    <button class="btn btn-secondary" onclick="autoPipe()">Chạy tự động</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — IPC Comparison Table
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Bảng so sánh cơ chế IPC</h2>
+
+<div class="card">
+  <div style="overflow-x:auto;">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Cơ chế</th>
+          <th>Tốc độ</th>
+          <th>Hướng</th>
+          <th>Số lượng</th>
+          <th>Phù hợp với</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Shared Memory</strong></td>
+          <td><span class="speed-bar" style="width:80px;"></span> Nhanh nhất</td>
+          <td>2 chiều</td>
+          <td>Nhiều-nhiều</td>
+          <td>Video, database buffer, data lớn</td>
+        </tr>
+        <tr>
+          <td><strong>Anonymous Pipe</strong></td>
+          <td><span class="speed-bar" style="width:60px;"></span> Nhanh</td>
+          <td>1 chiều</td>
+          <td>1 parent + children</td>
+          <td>Shell pipeline, parent-child streaming</td>
+        </tr>
+        <tr>
+          <td><strong>Named Pipe (FIFO)</strong></td>
+          <td><span class="speed-bar" style="width:58px;"></span> Nhanh</td>
+          <td>1 chiều</td>
+          <td>Bất kỳ (qua tên)</td>
+          <td>Daemon ↔ CLI tool, log streaming</td>
+        </tr>
+        <tr>
+          <td><strong>Message Queue</strong></td>
+          <td><span class="speed-bar" style="width:45px;"></span> Trung bình</td>
+          <td>2 chiều</td>
+          <td>Nhiều-nhiều</td>
+          <td>Task queue, event notification, priority</td>
+        </tr>
+        <tr>
+          <td><strong>Signal</strong></td>
+          <td><span class="speed-bar" style="width:55px;"></span> Nhanh (async)</td>
+          <td>1 chiều</td>
+          <td>Bất kỳ → bất kỳ</td>
+          <td>Shutdown, reload config, child exit</td>
+        </tr>
+        <tr>
+          <td><strong>Socket (Unix)</strong></td>
+          <td><span class="speed-bar" style="width:50px;"></span> Trung bình</td>
+          <td>2 chiều</td>
+          <td>Nhiều-nhiều</td>
+          <td>Client-server, cross-machine, microservices</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:12px;">
+    <p style="font-size:13px;font-weight:600;color:#374151;">Chọn nhanh theo tình huống:</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;" id="use-case-grid">
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — Signal Demo
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Mô phỏng Signal</h2>
+
+<div class="card">
+  <p>Chọn signal và gửi từ Process A đến Process B. Quan sát hành vi mặc định và custom handler.</p>
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:12px 0;">
+    <label style="font-weight:600;font-size:14px;">Chọn signal:</label>
+    <select id="sig-select" style="padding:6px 10px;border:2px solid #d1d5db;border-radius:6px;font-size:14px;">
+      <option value="SIGINT">SIGINT (2) — Ctrl+C</option>
+      <option value="SIGTERM">SIGTERM (15) — Terminate</option>
+      <option value="SIGKILL">SIGKILL (9) — Kill (force)</option>
+      <option value="SIGUSR1">SIGUSR1 (10) — User-defined</option>
+      <option value="SIGCHLD">SIGCHLD (17) — Child exit</option>
+    </select>
+    <label style="font-weight:600;font-size:14px;">Handler:</label>
+    <select id="handler-select" style="padding:6px 10px;border:2px solid #d1d5db;border-radius:6px;font-size:14px;">
+      <option value="default">Mặc định</option>
+      <option value="custom">Custom handler</option>
+      <option value="ignore">Ignore (SIG_IGN)</option>
+    </select>
+    <button class="btn btn-primary" onclick="sendSignal()">Gửi Signal</button>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;">
+    <div class="process-box proc-a">
+      <div class="proc-title">Process A (sender)</div>
+      <div style="font-size:12px;color:#64748b;">PID: 1001</div>
+      <div id="proc-a-status" style="margin-top:8px;font-size:13px;">Đang chạy...</div>
+      <button class="btn btn-secondary" style="margin-top:8px;font-size:12px;padding:5px 10px;" onclick="sendSignal()">kill -&lt;SIG&gt; 1002</button>
+    </div>
+
+    <div class="process-box proc-b">
+      <div class="proc-title">Process B (receiver)</div>
+      <div style="font-size:12px;color:#64748b;">PID: 1002</div>
+      <div id="proc-b-status" style="margin-top:8px;font-size:13px;">Đang chạy...</div>
+      <div id="handler-code" style="margin-top:8px;font-family:monospace;font-size:11px;color:#374151;display:none;"></div>
+    </div>
+  </div>
+
+  <div id="signal-arrow-area" style="text-align:center;margin:8px 0;min-height:32px;">
+    <div id="sig-arrow" class="signal-arrow" style="justify-content:center;">
+      <span>Process A</span>
+      <span style="font-size:20px;">→</span>
+      <span id="sig-badge-label" class="sig-badge" style="background:var(--err-soft);color:var(--err);">SIGTERM</span>
+      <span style="font-size:20px;">→</span>
+      <span>Process B</span>
+    </div>
+  </div>
+
+  <div id="signal-log"><span style="color:#94a3b8;">// Chọn signal và nhấn "Gửi Signal"...</span></div>
+
+  <div class="btn-row"><button class="btn btn-secondary" onclick="resetSignal()">Reset</button></div>
+</div>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════════
+   MODULE 1 — IPC Selector
+   ═══════════════════════════════════════ */
+const ipcMechs = [
+  {
+    name: 'Shared Memory', icon: '🧠', color: '#ede9fe', border: '#6d28d9',
+    speed: 'Nhanh nhất', speedTag: '★★★★★',
+    dir: '2 chiều', use: 'Video, buffer lớn',
+    desc: 'OS tạo vùng nhớ vật lý được map vào address space của nhiều process. Zero-copy — nhanh nhất.',
+    pros: ['Zero-copy, không overhead syscall mỗi lần đọc/ghi', 'Phù hợp data lớn (video, database buffer)'],
+    cons: ['Cần tự đồng bộ (semaphore/mutex)', 'Race condition nếu không cẩn thận', 'Khó debug']
+  },
+  {
+    name: 'Anonymous Pipe', icon: '🔧', color: '#dcfce7', border: '#16a34a',
+    speed: 'Nhanh', speedTag: '★★★★☆',
+    dir: '1 chiều', use: 'Shell pipeline',
+    desc: 'Kênh byte stream 1 chiều trong kernel. Chỉ dùng giữa process có quan hệ cha-con. Backpressure tự nhiên.',
+    pros: ['Đơn giản, built-in backpressure', 'Không cần đồng bộ thêm (kernel quản lý)'],
+    cons: ['Chỉ 1 chiều', 'Chỉ cha-con (hoặc dùng FIFO)', 'Byte stream — không có ranh giới message']
+  },
+  {
+    name: 'Named Pipe (FIFO)', icon: '📂', color: '#fef9c3', border: '#d97706',
+    speed: 'Nhanh', speedTag: '★★★★☆',
+    dir: '1 chiều', use: 'Daemon ↔ CLI',
+    desc: 'Pipe có tên trong filesystem. Bất kỳ process nào biết đường dẫn đều kết nối được. Không cần quan hệ cha-con.',
+    pros: ['Không cần quan hệ cha-con', 'Persistent trong filesystem', 'Đơn giản như file I/O'],
+    cons: ['Vẫn 1 chiều', 'Không có message boundary', 'Block đến khi cả 2 đầu mở']
+  },
+  {
+    name: 'Message Queue', icon: '📬', color: '#dbeafe', border: '#3b82f6',
+    speed: 'Trung bình', speedTag: '★★★☆☆',
+    dir: '2 chiều', use: 'Task queue, events',
+    desc: 'Kernel quản lý queue các message rời rạc. Hỗ trợ priority, nhiều sender/receiver, không cần timing đồng bộ.',
+    pros: ['Message có ranh giới rõ ràng', 'Priority queue', 'Nhiều sender, nhiều receiver'],
+    cons: ['Chậm hơn pipe và shared memory', 'Message size giới hạn', 'Cần cleanup thủ công']
+  },
+  {
+    name: 'Signal', icon: '⚡', color: '#fce7f3', border: '#db2777',
+    speed: 'Nhanh (async)', speedTag: '★★★★☆',
+    dir: '1 chiều', use: 'Notification, shutdown',
+    desc: 'Async notification đến process. Chỉ truyền loại sự kiện (số hiệu), không mang data. Có thể catch, ignore, hoặc để default.',
+    pros: ['Async — không cần target đang "sẵn sàng"', 'Built-in vào OS, không cần setup'],
+    cons: ['Không mang data', 'Race condition trong signal handler phức tạp', 'SIGKILL không thể bắt']
+  },
+  {
+    name: 'Socket', icon: '🔌', color: '#ecfdf5', border: '#059669',
+    speed: 'Trung bình', speedTag: '★★★☆☆',
+    dir: '2 chiều', use: 'Client-server, mạng',
+    desc: 'Linh hoạt nhất: hoạt động trên cùng máy (Unix domain socket) lẫn qua mạng (TCP/IP). Xem thêm: Networking.',
+    pros: ['Cross-machine', 'Bidirectional', 'Nhiều protocol (TCP, UDP)'],
+    cons: ['Overhead lớn nhất trong cùng máy', 'Cần serialize/deserialize data', 'Setup phức tạp hơn']
+  }
+];
+
+let activeIPC = null;
+
+function renderIPCGrid() {
+  const grid = document.getElementById('ipc-grid');
+  grid.innerHTML = '';
+  ipcMechs.forEach((m, i) => {
+    const card = document.createElement('div');
+    card.className = 'ipc-card' + (activeIPC === i ? ' active' : '');
+    card.style.cssText = `background:${m.color};border-color:${m.border};`;
+    card.innerHTML = `<div class="icon">${m.icon}</div><div class="name">${m.name}</div><div class="speed" style="color:${m.border};">${m.speedTag}</div>`;
+    card.addEventListener('click', () => selectIPC(i));
+    grid.appendChild(card);
+  });
+}
+
+function selectIPC(idx) {
+  activeIPC = activeIPC === idx ? null : idx;
+  renderIPCGrid();
+  const panel = document.getElementById('ipc-detail-panel');
+  if (activeIPC === null) { panel.className = 'ipc-detail'; return; }
+  const m = ipcMechs[idx];
+  panel.innerHTML = `
+    <h4>${m.icon} ${m.name}</h4>
+    <div class="tags">
+      <span class="tag tag-speed">Tốc độ: ${m.speedTag}</span>
+      <span class="tag tag-dir">Hướng: ${m.dir}</span>
+      <span class="tag tag-use">Dùng: ${m.use}</span>
+    </div>
+    <p style="font-size:13px;color:#374151;line-height:1.7;">${m.desc}</p>
+    <div class="pros-cons">
+      <div class="pros"><h5>Ưu điểm</h5>${m.pros.map(p=>`<div>✓ ${p}</div>`).join('')}</div>
+      <div class="cons"><h5>Nhược điểm</h5>${m.cons.map(c=>`<div>✗ ${c}</div>`).join('')}</div>
+    </div>
+  `;
+  panel.className = 'ipc-detail show';
+}
+
+/* ═══════════════════════════════════════
+   MODULE 2 — Pipe Walk-through
+   ═══════════════════════════════════════ */
+const pipeSteps = [
+  {
+    label: '1. pipe()',
+    ids: { show: ['pipe-box','pipe-label','pipe-sub','sh-pipe'] },
+    desc: `<span class="code">Shell gọi pipe(fd[2]):</span>\n  fd[0] = đầu đọc (read end)\n  fd[1] = đầu ghi (write end)\n<span class="ok">→ Kernel tạo pipe buffer 64KB trong RAM</span>`
+  },
+  {
+    label: '2. fork #1',
+    ids: { show: ['c1-box','c1-title','sh-fork1','arrow-fork1'] },
+    desc: `<span class="code">Shell fork() → tạo Child 1 (sẽ là ls)</span>\n  Child 1 thừa kế fd[0] và fd[1] từ shell\n  Child 1 sẽ close(fd[0]) và dup2(fd[1], STDOUT_FILENO)`
+  },
+  {
+    label: '3. dup2 ls',
+    ids: { show: ['c1-cmd','c1-fd','c1-fd2','c1-state','c1-stxt'] },
+    desc: `<span class="code">Child 1 (ls) setup redirect:</span>\n  close(fd[0])              // không cần đầu đọc\n  dup2(fd[1], STDOUT_FILENO) // stdout → write end của pipe\n  close(fd[1])              // đóng fd[1] gốc\n  execve("/bin/ls", ...)\n<span class="ok">→ ls bây giờ ghi vào pipe qua stdout</span>`
+  },
+  {
+    label: '4. fork #2',
+    ids: { show: ['c2-box','c2-title','sh-fork2','arrow-fork2'] },
+    desc: `<span class="code">Shell fork() → tạo Child 2 (sẽ là grep)</span>\n  Child 2 thừa kế fd[0] và fd[1]\n  Child 2 sẽ close(fd[1]) và dup2(fd[0], STDIN_FILENO)`
+  },
+  {
+    label: '5. dup2 grep',
+    ids: { show: ['c2-cmd','c2-fd','c2-fd2','c2-state','c2-stxt','sh-wait'] },
+    desc: `<span class="code">Child 2 (grep) setup redirect:</span>\n  close(fd[1])              // không cần đầu ghi\n  dup2(fd[0], STDIN_FILENO) // stdin ← read end của pipe\n  close(fd[0])\n  execve("/bin/grep", ".go", ...)\n<span class="ok">→ grep bây giờ đọc từ pipe qua stdin</span>`
+  },
+  {
+    label: '6. Data flow',
+    ids: { show: ['arrow-ls-pipe','arrow-pipe-grep'] },
+    desc: `<span class="ok">ls ghi danh sách file → pipe buffer (fd[1])</span>\n<span class="info">│ kernel buffer 64KB</span>\n<span class="ok">grep đọc từ pipe buffer ← (fd[0])</span>\n  grep lọc dòng chứa ".go" → in ra terminal\n  Backpressure: ls dừng nếu buffer đầy, chờ grep đọc`
+  },
+  {
+    label: '7. EOF',
+    ids: { show: [] },
+    desc: `<span class="ok">ls xong → close(fd[1]) → kernel đánh dấu EOF</span>\ngrep đọc đến EOF → kết thúc\nShell nhận SIGCHLD từ cả hai con → wait() → done\n<span class="ok">═══ Pipeline hoàn tất ═══</span>`
+  }
+];
+let pipeStepIdx = -1;
+let pipeAutoRunning = false;
+
+function buildStepDots() {
+  const container = document.getElementById('step-dots');
+  container.innerHTML = '';
+  pipeSteps.forEach((s, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'step-dot ' + (i < pipeStepIdx ? 'done' : i === pipeStepIdx ? 'active' : 'pending');
+    dot.textContent = i + 1;
+    dot.title = s.label;
+    container.appendChild(dot);
+  });
+}
+
+function showSVGElement(id, show) {
+  const el = document.getElementById(id);
+  if (el) el.setAttribute('opacity', show ? '1' : '0');
+}
+
+function nextPipeStep() {
+  if (pipeAutoRunning) return;
+  pipeStepIdx++;
+  if (pipeStepIdx >= pipeSteps.length) { pipeStepIdx = pipeSteps.length - 1; return; }
+  const step = pipeSteps[pipeStepIdx];
+  step.ids.show.forEach(id => showSVGElement(id, true));
+  document.getElementById('pipe-desc').innerHTML = step.desc;
+  buildStepDots();
+}
+
+function resetPipe() {
+  pipeStepIdx = -1;
+  pipeAutoRunning = false;
+  // Hide all dynamic elements
+  ['pipe-box','pipe-label','pipe-sub','sh-pipe',
+   'c1-box','c1-title','sh-fork1','arrow-fork1',
+   'c1-cmd','c1-fd','c1-fd2','c1-state','c1-stxt',
+   'c2-box','c2-title','sh-fork2','arrow-fork2',
+   'c2-cmd','c2-fd','c2-fd2','c2-state','c2-stxt','sh-wait',
+   'arrow-ls-pipe','arrow-pipe-grep'].forEach(id => showSVGElement(id, false));
+  document.getElementById('pipe-desc').innerHTML = '<span style="color:#94a3b8;">// Nhấn "Bước tiếp theo" để bắt đầu...</span>';
+  buildStepDots();
+}
+
+async function autoPipe() {
+  if (pipeAutoRunning) return;
+  resetPipe();
+  pipeAutoRunning = true;
+  const delay = ms => new Promise(r => setTimeout(r, ms));
+  while (pipeStepIdx < pipeSteps.length - 1) {
+    nextPipeStep();
+    await delay(900);
+    if (!pipeAutoRunning) break;
+  }
+  pipeAutoRunning = false;
+}
+
+/* ═══════════════════════════════════════
+   Use-case grid
+   ═══════════════════════════════════════ */
+const useCases = [
+  { q: 'Shell pipeline', a: 'Anonymous Pipe', icon: '🔧' },
+  { q: 'Data lớn (video/audio)', a: 'Shared Memory', icon: '🧠' },
+  { q: 'Task queue nhiều worker', a: 'Message Queue', icon: '📬' },
+  { q: 'Daemon reload config', a: 'Signal (SIGHUP)', icon: '⚡' },
+  { q: 'Daemon ↔ CLI tool', a: 'Named Pipe / Unix Socket', icon: '📂' },
+  { q: 'Client ↔ Server qua mạng', a: 'TCP Socket', icon: '🔌' }
+];
+
+const ucGrid = document.getElementById('use-case-grid');
+useCases.forEach(uc => {
+  const div = document.createElement('div');
+  div.style.cssText = 'background:var(--bg-section);border-radius:8px;padding:10px 12px;font-size:13px;';
+  div.innerHTML = `<div style="color:#64748b;margin-bottom:3px;">${uc.q}</div><div style="font-weight:700;color:var(--accent-dark);">${uc.icon} ${uc.a}</div>`;
+  ucGrid.appendChild(div);
+});
+
+/* ═══════════════════════════════════════
+   MODULE 4 — Signal Demo
+   ═══════════════════════════════════════ */
+const sigInfo = {
+  SIGINT:  { num:2,  def:'Terminate (lịch sự)', canCatch:true,  color:'#f97316', bg:'#fff7ed',
+    desc:'Ctrl+C — yêu cầu kết thúc. Có thể bắt để cleanup trước khi exit.' },
+  SIGTERM: { num:15, def:'Terminate', canCatch:true,  color:'#dc2626', bg:'#fee2e2',
+    desc:'Yêu cầu kết thúc lịch sự. Có thể catch để cleanup resource.' },
+  SIGKILL: { num:9,  def:'Kill ngay (force)', canCatch:false, color:'#7c3aed', bg:'#ede9fe',
+    desc:'Không thể bắt, không thể ignore. Kernel kill ngay lập tức. Không cleanup được.' },
+  SIGUSR1: { num:10, def:'Terminate (nếu không catch)', canCatch:true,  color:'#0369a1', bg:'#e0f2fe',
+    desc:'User-defined signal. Ứng dụng tự định nghĩa ý nghĩa (vd: reload, dump stats).' },
+  SIGCHLD: { num:17, def:'Ignore', canCatch:true,  color:'#16a34a', bg:'#dcfce7',
+    desc:'Kernel gửi cho parent khi child kết thúc. Parent dùng để wait() và cleanup zombie.' }
+};
+
+function sigLog(msg, cls='') {
+  const el = document.getElementById('signal-log');
+  if (el.querySelector('span[style]')) el.innerHTML = '';
+  const colors = { ok:'#4ade80', err:'#f87171', info:'#93c5fd', warn:'#fbbf24' };
+  if (cls) el.innerHTML += `<span style="color:${colors[cls]}">${msg}</span>\n`;
+  else el.textContent += msg + '\n';
+  el.scrollTop = el.scrollHeight;
+}
+
+function sendSignal() {
+  const sig = document.getElementById('sig-select').value;
+  const handlerMode = document.getElementById('handler-select').value;
+  const info = sigInfo[sig];
+
+  // Show arrow
+  const badge = document.getElementById('sig-badge-label');
+  badge.textContent = `${sig} (${info.num})`;
+  badge.style.background = info.bg;
+  badge.style.color = info.color;
+  const arrow = document.getElementById('sig-arrow');
+  arrow.classList.remove('visible');
+  setTimeout(() => arrow.classList.add('visible'), 50);
+
+  document.getElementById('proc-a-status').textContent = `Đã gửi kill -${info.num} 1002`;
+  sigLog(`[A→B] kill -${sig} (${info.num}) 1002`, 'info');
+  sigLog(`[Kernel] Đặt ${sig} vào pending queue của PID 1002`, 'info');
+
+  // Determine behavior
+  let action, statusB;
+  if (sig === 'SIGKILL') {
+    action = '← SIGKILL không thể catch/ignore → Terminate ngay';
+    statusB = 'TERMINATED (killed)';
+    sigLog(`[B] ${sig} không thể bắt/ignore → Kernel terminate ngay`, 'err');
+    sigLog(`[B] PID 1002 kết thúc — không có cleanup`, 'err');
+  } else if (handlerMode === 'ignore') {
+    action = `← Signal bị ignore (SIG_IGN)`;
+    statusB = 'Bỏ qua signal — vẫn chạy';
+    sigLog(`[B] signal(${sig}, SIG_IGN) → bỏ qua`, 'warn');
+    sigLog(`[B] Process tiếp tục chạy bình thường`, 'ok');
+  } else if (handlerMode === 'custom') {
+    action = `← Custom handler được gọi`;
+    statusB = 'Chạy custom handler';
+    sigLog(`[B] Signal handler được gọi: handler_${sig.toLowerCase()}(${info.num})`, 'ok');
+    if (sig === 'SIGTERM' || sig === 'SIGINT') {
+      sigLog(`  → Cleanup resource...`, 'ok');
+      sigLog(`  → Đóng file, flush buffer...`, 'ok');
+      sigLog(`  → exit(0) — thoát có trật tự`, 'ok');
+    } else if (sig === 'SIGUSR1') {
+      sigLog(`  → Reload config file...`, 'ok');
+      sigLog(`  → Cập nhật cấu hình runtime`, 'ok');
+      sigLog(`  → Return từ handler — process tiếp tục`, 'ok');
+    } else if (sig === 'SIGCHLD') {
+      sigLog(`  → waitpid(-1, &status, WNOHANG)`, 'ok');
+      sigLog(`  → Collect exit status của child`, 'ok');
+      sigLog(`  → Giải phóng zombie process`, 'ok');
+    }
+    statusB = sig === 'SIGTERM' || sig === 'SIGINT' ? 'Terminated (cleanup done)' : 'Đang chạy (handler xong)';
+  } else {
+    // default
+    action = `← Hành vi mặc định: ${info.def}`;
+    statusB = info.def.includes('Terminate') ? 'TERMINATED (default)' : 'Bỏ qua (default)';
+    sigLog(`[B] Không có handler riêng → hành vi mặc định: ${info.def}`, info.def.includes('Terminate') ? 'err' : 'ok');
+  }
+
+  document.getElementById('proc-b-status').textContent = action;
+  sigLog(`[B] Kết quả: ${statusB}`, 'ok');
+
+  // Show handler code
+  const codeEl = document.getElementById('handler-code');
+  if (handlerMode === 'custom' && sig !== 'SIGKILL') {
+    codeEl.style.display = 'block';
+    codeEl.textContent = `void handler(int sig) {\n  // custom logic\n}`;
+  } else {
+    codeEl.style.display = 'none';
+  }
+}
+
+function resetSignal() {
+  document.getElementById('proc-a-status').textContent = 'Đang chạy...';
+  document.getElementById('proc-b-status').textContent = 'Đang chạy...';
+  document.getElementById('handler-code').style.display = 'none';
+  document.getElementById('sig-arrow').classList.remove('visible');
+  document.getElementById('signal-log').innerHTML = '<span style="color:#94a3b8;">// Chọn signal và nhấn "Gửi Signal"...</span>';
+}
+
+// Init
+renderIPCGrid();
+resetPipe();
+buildStepDots();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

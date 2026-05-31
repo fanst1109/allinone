@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Semaphore & Bài toán kinh điển</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #6d28d9;
+    --accent-soft: #ede9fe;
+    --accent-mid: #8b5cf6;
+    --accent-dark: #4c1d95;
+    --ok: #16a34a;
+    --ok-soft: #dcfce7;
+    --err: #dc2626;
+    --err-soft: #fee2e2;
+    --warn: #d97706;
+    --warn-soft: #fef3c7;
+    --bg-card: #ffffff;
+    --bg-section: #f5f3ff;
+  }
+
+  h1 { color: var(--accent-dark); }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-mid); }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(109,40,217,.10);
+    margin: 16px 0;
+  }
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-danger { background: var(--err); color: white; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; align-items: center; }
+
+  /* ═══════════════════════════════════════
+     MODULE 1 — Semaphore Walk-through
+     ═══════════════════════════════════════ */
+  .sem-display {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+  .sem-circle {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    border: 4px solid;
+    transition: background .3s, color .3s;
+  }
+  .sem-pos  { background: var(--ok-soft);   border-color: var(--ok);   color: var(--ok); }
+  .sem-zero { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+  .sem-neg  { background: var(--err-soft);  border-color: var(--err);  color: var(--err); }
+
+  .thread-queue {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .t-chip {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 2px solid;
+  }
+  .t-running { background: var(--ok-soft);   border-color: var(--ok);   color: var(--ok); }
+  .t-blocked { background: var(--err-soft);  border-color: var(--err);  color: var(--err); }
+
+  #sem-log {
+    background: #1e293b; color: #e2e8f0;
+    border-radius: 8px; padding: 12px 16px;
+    font-family: monospace; font-size: 13px;
+    line-height: 1.8; max-height: 160px;
+    overflow-y: auto; margin-top: 10px;
+    white-space: pre-wrap; min-height: 40px;
+  }
+
+  /* ═══════════════════════════════════════
+     MODULE 2 — Producer-Consumer
+     ═══════════════════════════════════════ */
+  .pc-arena {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: start;
+    margin: 16px 0;
+  }
+  .pc-actor {
+    border-radius: 8px;
+    padding: 14px;
+    min-width: 120px;
+    text-align: center;
+  }
+  .producer-box { background: #eff6ff; border: 2px solid #3b82f6; }
+  .consumer-box { background: #fdf4ff; border: 2px solid #a855f7; }
+  .pc-label { font-weight: 700; font-size: 13px; margin-bottom: 8px; }
+  .producer-box .pc-label { color: #1d4ed8; }
+  .consumer-box .pc-label { color: #7e22ce; }
+  .pc-status {
+    font-size: 12px; padding: 4px 8px;
+    border-radius: 4px; margin: 6px 0;
+    font-weight: 600;
+  }
+  .status-ok   { background: var(--ok-soft);   color: var(--ok); }
+  .status-wait { background: var(--warn-soft);  color: var(--warn); }
+  .status-idle { background: #f1f5f9; color: #64748b; }
+
+  .buffer-area {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .buffer-cells {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .buf-cell {
+    width: 44px; height: 44px;
+    border-radius: 6px;
+    border: 2px solid #d1d5db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    transition: all .3s;
+    background: #f9fafb;
+  }
+  .buf-cell.filled {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-dark);
+  }
+  .buf-cell.in-ptr  { outline: 3px solid #3b82f6; outline-offset: 2px; }
+  .buf-cell.out-ptr { outline: 3px solid #a855f7; outline-offset: 2px; }
+
+  .sem-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 8px 0;
+  }
+  .sem-badge {
+    text-align: center;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 13px;
+    min-width: 80px;
+  }
+  .sb-mutex { background: #dbeafe; border: 2px solid #3b82f6; }
+  .sb-empty { background: #dcfce7; border: 2px solid #16a34a; }
+  .sb-full  { background: var(--accent-soft); border: 2px solid var(--accent); }
+
+  #pc-log {
+    background: #1e293b; color: #e2e8f0;
+    border-radius: 8px; padding: 12px 16px;
+    font-family: monospace; font-size: 13px;
+    line-height: 1.8; max-height: 150px;
+    overflow-y: auto; margin-top: 10px;
+    white-space: pre-wrap; min-height: 40px;
+  }
+
+  /* ═══════════════════════════════════════
+     MODULE 3 — Dining Philosophers
+     ═══════════════════════════════════════ */
+  #dp-stage {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  #dp-svg { width: 100%; }
+
+  .dp-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+    justify-content: center;
+  }
+  .dp-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 2px solid;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .dp-state-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin: 12px 0;
+  }
+  .dp-state-cell {
+    text-align: center;
+    padding: 8px 4px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 2px solid;
+  }
+  .dp-thinking { background: #f0fdf4; border-color: var(--ok);   color: var(--ok); }
+  .dp-hungry   { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+  .dp-eating   { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-dark); }
+  .dp-deadlock { background: var(--err-soft); border-color: var(--err); color: var(--err); }
+
+  #dp-log {
+    background: #1e293b; color: #e2e8f0;
+    border-radius: 8px; padding: 12px 16px;
+    font-family: monospace; font-size: 13px;
+    line-height: 1.8; max-height: 150px;
+    overflow-y: auto; margin-top: 10px;
+    white-space: pre-wrap; min-height: 40px;
+  }
+
+  .mode-select {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin: 10px 0; align-items: center;
+  }
+  .mode-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 2px solid;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .mode-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .mode-btn:not(.active) { background: white; color: var(--accent); border-color: var(--accent-mid); }
+
+  @media (max-width: 600px) {
+    .pc-arena { grid-template-columns: 1fr; }
+    #dp-stage { max-width: 340px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Processes</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-synchronization/visualization.html">← L5: Đồng bộ hoá</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Semaphore & bài toán kinh điển</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-deadlock/visualization.html">L7: Deadlock →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Semaphore & Bài toán kinh điển</h1>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Semaphore Walk-through
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Semaphore — Walk-through P/V</h2>
+
+<div class="card">
+  <p>Điều chỉnh giá trị khởi tạo rồi gọi <strong>wait(P)</strong> và <strong>signal(V)</strong> để xem giá trị semaphore thay đổi và thread nào bị block.</p>
+
+  <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
+    <label style="font-weight:600;font-size:14px;">S khởi tạo:</label>
+    <input type="number" id="sem-init" value="2" min="0" max="5" style="width:60px;padding:4px 8px;border:2px solid #d1d5db;border-radius:6px;font-size:14px;font-weight:700;">
+    <button class="btn btn-secondary" onclick="initSem()">Khởi tạo</button>
+    <span style="font-size:13px;color:#64748b;">Thêm thread bằng ô nhập dưới</span>
+  </div>
+
+  <div class="sem-display">
+    <div>
+      <div style="font-size:12px;color:#64748b;font-weight:600;margin-bottom:4px;text-align:center;">S =</div>
+      <div class="sem-circle sem-pos" id="sem-val-circle">2</div>
+    </div>
+    <div>
+      <div style="font-size:12px;color:#64748b;font-weight:600;margin-bottom:4px;">Threads chạy:</div>
+      <div class="thread-queue" id="running-queue">—</div>
+    </div>
+    <div>
+      <div style="font-size:12px;color:#64748b;font-weight:600;margin-bottom:4px;">Threads blocked:</div>
+      <div class="thread-queue" id="blocked-queue">—</div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px;">
+    <input type="text" id="thread-name" placeholder="Tên thread (vd: T1)" style="padding:6px 10px;border:2px solid #d1d5db;border-radius:6px;font-size:14px;width:140px;">
+    <button class="btn btn-primary" onclick="semWait()">wait(S) / P(S)</button>
+    <button class="btn btn-secondary" onclick="semSignal()">signal(S) / V(S)</button>
+  </div>
+
+  <div id="sem-log"><span style="color:#94a3b8;">// Nhập tên thread và bấm wait/signal để bắt đầu...</span></div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="initSem()">Reset</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Producer-Consumer
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Producer-Consumer (Bounded Buffer)</h2>
+
+<div class="card">
+  <p>Buffer 5 ô. Producer thêm item, Consumer lấy item. Quan sát 3 semaphore <code>mutex</code>, <code>empty</code>, <code>full</code> thay đổi.</p>
+
+  <div class="sem-row">
+    <div class="sem-badge sb-mutex">mutex<br><strong id="pc-mutex">1</strong></div>
+    <div class="sem-badge sb-empty">empty<br><strong id="pc-empty">5</strong></div>
+    <div class="sem-badge sb-full">full<br><strong id="pc-full">0</strong></div>
+  </div>
+
+  <div class="pc-arena">
+    <div class="pc-actor producer-box">
+      <div class="pc-label">Producer</div>
+      <div class="pc-status status-idle" id="prod-status">Idle</div>
+      <button class="btn btn-primary" style="font-size:12px;padding:6px 12px;" onclick="produce()">Sản xuất</button>
+      <div style="font-size:11px;color:#64748b;margin-top:6px;">in = <span id="pc-in">0</span></div>
+    </div>
+
+    <div class="buffer-area">
+      <div style="font-weight:600;font-size:13px;color:#374151;text-align:center;margin-bottom:4px;">Buffer (5 ô)</div>
+      <div class="buffer-cells" id="buf-cells"></div>
+      <div style="font-size:11px;color:#64748b;text-align:center;">🔵 = in pointer &nbsp; 🟣 = out pointer</div>
+    </div>
+
+    <div class="pc-actor consumer-box">
+      <div class="pc-label">Consumer</div>
+      <div class="pc-status status-idle" id="cons-status">Idle</div>
+      <button class="btn btn-primary" style="font-size:12px;padding:6px 12px;background:#7e22ce;" onclick="consume()">Tiêu thụ</button>
+      <div style="font-size:11px;color:#64748b;margin-top:6px;">out = <span id="pc-out">0</span></div>
+    </div>
+  </div>
+
+  <div id="pc-log"><span style="color:#94a3b8;">// Bấm Sản xuất / Tiêu thụ để xem hoạt động...</span></div>
+  <div class="btn-row"><button class="btn btn-secondary" onclick="resetPC()">Reset</button></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Dining Philosophers
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Dining Philosophers — Mô phỏng</h2>
+
+<div class="card">
+  <div class="mode-select">
+    <span style="font-weight:600;font-size:14px;">Chế độ:</span>
+    <button class="mode-btn active" id="mode-naive" onclick="setMode('naive')">Naive (có thể deadlock)</button>
+    <button class="mode-btn" id="mode-asymm" onclick="setMode('asymm')">Bất đối xứng (T4 đổi chiều)</button>
+  </div>
+
+  <div id="dp-stage">
+    <svg id="dp-svg" viewBox="0 0 480 480">
+      <!-- Background circle / table -->
+      <circle cx="240" cy="240" r="90" fill="#fef3c7" stroke="#d97706" stroke-width="3"/>
+      <text x="240" y="244" text-anchor="middle" font-size="13" fill="#92400e" font-weight="700">Bàn ăn</text>
+
+      <!-- Philosophers (5 positions, 72° apart, radius 170) -->
+      <!-- chopsticks (5, between phils) drawn dynamically -->
+      <g id="chops-layer"></g>
+      <g id="phils-layer"></g>
+    </svg>
+  </div>
+
+  <div class="dp-state-grid" id="dp-state-grid"></div>
+
+  <div class="dp-controls">
+    <span style="font-size:13px;font-weight:600;color:#374151;">Nhấn vào triết gia để thay đổi trạng thái:</span>
+  </div>
+  <div class="btn-row" style="justify-content:center;">
+    <button class="btn btn-secondary" onclick="resetDP()">Reset</button>
+    <button class="btn btn-danger" onclick="demoDeadlock()">Demo Deadlock</button>
+    <button class="btn btn-primary" onclick="demoSolve()">Demo Giải pháp</button>
+  </div>
+
+  <div id="dp-log"><span style="color:#94a3b8;">// Nhấn "Demo Deadlock" để xem vì sao deadlock xảy ra...</span></div>
+</div>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════
+   MODULE 1 — Semaphore Walk-through
+   ═══════════════════════════════════ */
+let semVal = 2;
+let runningThreads = [];
+let blockedThreads = [];
+
+function initSem() {
+  semVal = parseInt(document.getElementById('sem-init').value) || 2;
+  runningThreads = [];
+  blockedThreads = [];
+  document.getElementById('sem-log').innerHTML = '<span style="color:#94a3b8;">// Nhập tên thread và bấm wait/signal để bắt đầu...</span>';
+  updateSemUI();
+}
+
+function semLog(msg, cls='') {
+  const el = document.getElementById('sem-log');
+  if (el.querySelector('span[style]')) el.innerHTML = '';
+  el.textContent += (cls ? `[${cls}] ` : '') + msg + '\n';
+  el.scrollTop = el.scrollHeight;
+}
+
+function updateSemUI() {
+  const circle = document.getElementById('sem-val-circle');
+  circle.textContent = semVal;
+  circle.className = 'sem-circle ' + (semVal > 0 ? 'sem-pos' : semVal === 0 ? 'sem-zero' : 'sem-neg');
+
+  const rq = document.getElementById('running-queue');
+  rq.innerHTML = runningThreads.length === 0 ? '—' :
+    runningThreads.map(t => `<span class="t-chip t-running">${t}</span>`).join('');
+
+  const bq = document.getElementById('blocked-queue');
+  bq.innerHTML = blockedThreads.length === 0 ? '—' :
+    blockedThreads.map(t => `<span class="t-chip t-blocked">${t} ⛔</span>`).join('');
+}
+
+function semWait() {
+  const name = document.getElementById('thread-name').value.trim() || 'T?';
+  semVal--;
+  if (semLog) {
+    const el = document.getElementById('sem-log');
+    if (el.querySelector('span[style]')) el.innerHTML = '';
+    el.textContent += `[${name}] wait(S): S = ${semVal + 1} - 1 = ${semVal}` +
+      (semVal < 0 ? ` → BLOCKED (|S|=${Math.abs(semVal)} threads waiting)` : ` → vào được`) + '\n';
+    el.scrollTop = el.scrollHeight;
+  }
+  if (semVal < 0) {
+    blockedThreads.push(name);
+  } else {
+    runningThreads.push(name);
+  }
+  updateSemUI();
+}
+
+function semSignal() {
+  const name = document.getElementById('thread-name').value.trim() || 'T?';
+  const prevVal = semVal;
+  semVal++;
+  // Find this thread in running and remove it
+  const ri = runningThreads.indexOf(name);
+  if (ri !== -1) runningThreads.splice(ri, 1);
+
+  const el = document.getElementById('sem-log');
+  if (el.querySelector('span[style]')) el.innerHTML = '';
+  el.textContent += `[${name}] signal(S): S = ${prevVal} + 1 = ${semVal}`;
+  if (prevVal <= 0 && blockedThreads.length > 0) {
+    const woken = blockedThreads.shift();
+    runningThreads.push(woken);
+    el.textContent += ` → đánh thức ${woken}`;
+  }
+  el.textContent += '\n';
+  el.scrollTop = el.scrollHeight;
+  updateSemUI();
+}
+
+/* ═══════════════════════════════════
+   MODULE 2 — Producer-Consumer
+   ═══════════════════════════════════ */
+const N = 5;
+let pcMutex = 1, pcEmpty = N, pcFull = 0;
+let pcIn = 0, pcOut = 0;
+let pcBuffer = new Array(N).fill(null);
+let itemCounter = 65; // 'A'
+
+function pcLog(msg, cls='') {
+  const el = document.getElementById('pc-log');
+  if (el.querySelector('span[style]')) el.innerHTML = '';
+  el.textContent += (cls ? `[${cls}] ` : '') + msg + '\n';
+  el.scrollTop = el.scrollHeight;
+}
+
+function updatePCUI() {
+  document.getElementById('pc-mutex').textContent = pcMutex;
+  document.getElementById('pc-empty').textContent = pcEmpty;
+  document.getElementById('pc-full').textContent = pcFull;
+  document.getElementById('pc-in').textContent = pcIn;
+  document.getElementById('pc-out').textContent = pcOut;
+  renderBuffer();
+}
+
+function renderBuffer() {
+  const container = document.getElementById('buf-cells');
+  container.innerHTML = '';
+  for (let i = 0; i < N; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'buf-cell';
+    if (pcBuffer[i]) { cell.classList.add('filled'); cell.textContent = pcBuffer[i]; }
+    if (i === pcIn)  cell.classList.add('in-ptr');
+    if (i === pcOut) cell.classList.add('out-ptr');
+    container.appendChild(cell);
+  }
+}
+
+function produce() {
+  if (pcEmpty === 0) {
+    document.getElementById('prod-status').className = 'pc-status status-wait';
+    document.getElementById('prod-status').textContent = 'Chờ (buffer đầy)';
+    pcLog(`Producer: wait(empty) → empty=${pcEmpty} = 0 → BLOCKED! Buffer đầy.`);
+    return;
+  }
+  const item = String.fromCharCode(itemCounter++);
+  if (itemCounter > 90) itemCounter = 65;
+  document.getElementById('prod-status').className = 'pc-status status-ok';
+  document.getElementById('prod-status').textContent = `Đang sản xuất ${item}`;
+
+  pcLog(`Producer: wait(empty) → empty=${pcEmpty}→${pcEmpty-1}`);
+  pcEmpty--;
+  pcLog(`Producer: wait(mutex) → mutex=${pcMutex}→${pcMutex-1}`);
+  pcMutex--;
+  pcBuffer[pcIn] = item;
+  const oldIn = pcIn;
+  pcIn = (pcIn + 1) % N;
+  pcLog(`Producer: buffer[${oldIn}] = '${item}', in → ${pcIn}`);
+  pcMutex++;
+  pcLog(`Producer: signal(mutex) → mutex=${pcMutex-1}→${pcMutex}`);
+  pcFull++;
+  pcLog(`Producer: signal(full) → full=${pcFull-1}→${pcFull}`);
+  document.getElementById('prod-status').className = 'pc-status status-idle';
+  document.getElementById('prod-status').textContent = `Xong ('${item}')`;
+  updatePCUI();
+}
+
+function consume() {
+  if (pcFull === 0) {
+    document.getElementById('cons-status').className = 'pc-status status-wait';
+    document.getElementById('cons-status').textContent = 'Chờ (buffer rỗng)';
+    pcLog(`Consumer: wait(full) → full=${pcFull} = 0 → BLOCKED! Buffer rỗng.`);
+    return;
+  }
+  document.getElementById('cons-status').className = 'pc-status status-ok';
+  pcLog(`Consumer: wait(full) → full=${pcFull}→${pcFull-1}`);
+  pcFull--;
+  pcLog(`Consumer: wait(mutex) → mutex=${pcMutex}→${pcMutex-1}`);
+  pcMutex--;
+  const item = pcBuffer[pcOut];
+  pcBuffer[pcOut] = null;
+  const oldOut = pcOut;
+  pcOut = (pcOut + 1) % N;
+  pcLog(`Consumer: item = buffer[${oldOut}] = '${item}', out → ${pcOut}`);
+  pcMutex++;
+  pcLog(`Consumer: signal(mutex) → mutex=${pcMutex-1}→${pcMutex}`);
+  pcEmpty++;
+  pcLog(`Consumer: signal(empty) → empty=${pcEmpty-1}→${pcEmpty}`);
+  document.getElementById('cons-status').className = 'pc-status status-idle';
+  document.getElementById('cons-status').textContent = `Xong (lấy '${item}')`;
+  updatePCUI();
+}
+
+function resetPC() {
+  pcMutex = 1; pcEmpty = N; pcFull = 0;
+  pcIn = 0; pcOut = 0; pcBuffer = new Array(N).fill(null);
+  itemCounter = 65;
+  document.getElementById('pc-log').innerHTML = '<span style="color:#94a3b8;">// Bấm Sản xuất / Tiêu thụ để xem hoạt động...</span>';
+  document.getElementById('prod-status').className = 'pc-status status-idle';
+  document.getElementById('prod-status').textContent = 'Idle';
+  document.getElementById('cons-status').className = 'pc-status status-idle';
+  document.getElementById('cons-status').textContent = 'Idle';
+  updatePCUI();
+}
+
+/* ═══════════════════════════════════
+   MODULE 3 — Dining Philosophers
+   ═══════════════════════════════════ */
+// States: 0=thinking, 1=hungry, 2=eating, 3=deadlock
+let dpStates = [0, 0, 0, 0, 0];
+let chopsticks = [false, false, false, false, false]; // true = held
+let dpMode = 'naive'; // 'naive' or 'asymm'
+const N_PHIL = 5;
+const CX = 240, CY = 240, R_PHIL = 170, R_TABLE = 90, R_CHOP = 130;
+const COLORS = ['#3b82f6','#16a34a','#d97706','#dc2626','#7e22ce'];
+const STATE_NAMES = ['Suy nghĩ','Đói','Đang ăn','DEADLOCK'];
+const STATE_CLASSES = ['dp-thinking','dp-hungry','dp-eating','dp-deadlock'];
+
+function philPos(i, r) {
+  const angle = (i * 2 * Math.PI / N_PHIL) - Math.PI / 2;
+  return { x: CX + r * Math.cos(angle), y: CY + r * Math.sin(angle) };
+}
+
+function chopPos(i) {
+  const angle = ((i + 0.5) * 2 * Math.PI / N_PHIL) - Math.PI / 2;
+  return { x: CX + R_CHOP * Math.cos(angle), y: CY + R_CHOP * Math.sin(angle) };
+}
+
+function renderDP() {
+  const philsLayer = document.getElementById('phils-layer');
+  const chopsLayer = document.getElementById('chops-layer');
+  philsLayer.innerHTML = '';
+  chopsLayer.innerHTML = '';
+
+  // Draw chopsticks
+  for (let i = 0; i < N_PHIL; i++) {
+    const pos = chopPos(i);
+    const held = chopsticks[i];
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', pos.x);
+    circle.setAttribute('cy', pos.y);
+    circle.setAttribute('r', '14');
+    circle.setAttribute('fill', held ? '#fca5a5' : '#fef9c3');
+    circle.setAttribute('stroke', held ? '#dc2626' : '#d97706');
+    circle.setAttribute('stroke-width', '2.5');
+    chopsLayer.appendChild(circle);
+
+    const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    txt.setAttribute('x', pos.x);
+    txt.setAttribute('y', pos.y + 4);
+    txt.setAttribute('text-anchor', 'middle');
+    txt.setAttribute('font-size', '11');
+    txt.setAttribute('font-weight', '700');
+    txt.setAttribute('fill', held ? '#991b1b' : '#92400e');
+    txt.textContent = `C${i}`;
+    chopsLayer.appendChild(txt);
+  }
+
+  // Draw philosophers
+  for (let i = 0; i < N_PHIL; i++) {
+    const pos = philPos(i, R_PHIL);
+    const state = dpStates[i];
+    const fills = ['#eff6ff','#fef9c3','#ede9fe','#fee2e2'];
+    const strokes = ['#3b82f6','#d97706','#7c3aed','#dc2626'];
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.style.cursor = 'pointer';
+    g.addEventListener('click', () => nextState(i));
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', pos.x);
+    circle.setAttribute('cy', pos.y);
+    circle.setAttribute('r', '30');
+    circle.setAttribute('fill', fills[state]);
+    circle.setAttribute('stroke', strokes[state]);
+    circle.setAttribute('stroke-width', '3');
+    g.appendChild(circle);
+
+    const emoji = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    emoji.setAttribute('x', pos.x);
+    emoji.setAttribute('y', pos.y - 2);
+    emoji.setAttribute('text-anchor', 'middle');
+    emoji.setAttribute('font-size', '18');
+    emoji.textContent = ['🤔','😤','🍜','💀'][state];
+    g.appendChild(emoji);
+
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', pos.x);
+    label.setAttribute('y', pos.y + 16);
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('font-size', '11');
+    label.setAttribute('font-weight', '700');
+    label.setAttribute('fill', strokes[state]);
+    label.textContent = `T${i}`;
+    g.appendChild(label);
+
+    philsLayer.appendChild(g);
+  }
+
+  // State grid
+  const grid = document.getElementById('dp-state-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i < N_PHIL; i++) {
+    const cell = document.createElement('div');
+    cell.className = `dp-state-cell ${STATE_CLASSES[dpStates[i]]}`;
+    cell.innerHTML = `T${i}<br>${STATE_NAMES[dpStates[i]]}`;
+    grid.appendChild(cell);
+  }
+}
+
+function dpLog(msg, cls='info') {
+  const el = document.getElementById('dp-log');
+  if (el.querySelector('span[style]')) el.innerHTML = '';
+  const colors = { ok:'#4ade80', err:'#f87171', warn:'#fbbf24', info:'#93c5fd' };
+  el.innerHTML += `<span style="color:${colors[cls]||'#e2e8f0'}">${msg}</span>\n`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function nextState(i) {
+  // Cycle: thinking → hungry → eating (if can) → thinking
+  const s = dpStates[i];
+  if (s === 0) {
+    dpStates[i] = 1; // hungry
+    dpLog(`T${i}: Suy nghĩ → Đói (muốn cầm đũa)`, 'warn');
+  } else if (s === 1) {
+    // Try to eat: need left and right chopstick
+    const left = i, right = (i + 1) % N_PHIL;
+    let grabLeft = left, grabRight = right;
+    // Asymmetric: T4 grabs right (chop 0) first, then left (chop 4)
+    if (dpMode === 'asymm' && i === 4) {
+      grabLeft = 0; grabRight = 4;
+    }
+    if (!chopsticks[grabLeft] && !chopsticks[grabRight]) {
+      chopsticks[grabLeft] = true;
+      chopsticks[grabRight] = true;
+      dpStates[i] = 2; // eating
+      dpLog(`T${i}: Cầm được C${grabLeft} và C${grabRight} → Đang ăn`, 'ok');
+    } else {
+      dpLog(`T${i}: Muốn ăn nhưng C${grabLeft}${chopsticks[grabLeft]?'(bận)':''} hoặc C${grabRight}${chopsticks[grabRight]?'(bận)':''} → Chờ`, 'warn');
+    }
+  } else if (s === 2) {
+    // Release chopsticks
+    const left = i, right = (i + 1) % N_PHIL;
+    let grabLeft = left, grabRight = right;
+    if (dpMode === 'asymm' && i === 4) { grabLeft = 0; grabRight = 4; }
+    chopsticks[grabLeft] = false;
+    chopsticks[grabRight] = false;
+    dpStates[i] = 0; // thinking
+    dpLog(`T${i}: Xong ăn → Thả C${grabLeft} và C${grabRight} → Suy nghĩ`, 'info');
+  } else if (s === 3) {
+    dpStates[i] = 0;
+    chopsticks[i] = false;
+    dpLog(`T${i}: Reset về Suy nghĩ`, 'info');
+  }
+  renderDP();
+}
+
+function resetDP() {
+  dpStates = [0, 0, 0, 0, 0];
+  chopsticks = [false, false, false, false, false];
+  document.getElementById('dp-log').innerHTML = '<span style="color:#94a3b8;">// Nhấn "Demo Deadlock" để xem vì sao deadlock xảy ra...</span>';
+  renderDP();
+}
+
+function setMode(mode) {
+  dpMode = mode;
+  document.getElementById('mode-naive').classList.toggle('active', mode === 'naive');
+  document.getElementById('mode-asymm').classList.toggle('active', mode === 'asymm');
+  resetDP();
+  dpLog(`Chế độ: ${mode === 'naive' ? 'Naive (tất cả cầm đũa trái trước)' : 'Bất đối xứng (T4 cầm C0 trước)'}`, 'info');
+}
+
+async function demoDeadlock() {
+  resetDP();
+  dpMode = 'naive';
+  setMode('naive');
+  const delay = ms => new Promise(r => setTimeout(r, ms));
+  dpLog('=== Demo Deadlock: tất cả cùng cầm đũa trái ===', 'warn');
+  await delay(400);
+
+  // All become hungry
+  for (let i = 0; i < 5; i++) {
+    dpStates[i] = 1;
+    dpLog(`T${i}: Suy nghĩ → Đói`, 'warn');
+    renderDP();
+    await delay(300);
+  }
+  await delay(400);
+
+  // All grab left chopstick (naive: T4 grabs chop 4, then waits for chop 0)
+  dpLog('--- Mỗi triết gia cầm đũa trái của mình ---', 'warn');
+  for (let i = 0; i < 5; i++) {
+    chopsticks[i] = true; // each holds their left chopstick
+    renderDP();
+    await delay(350);
+  }
+  dpLog('--- Tất cả đang giữ 1 đũa, chờ đũa phải ---', 'err');
+  await delay(500);
+
+  // Mark all as deadlock
+  for (let i = 0; i < 5; i++) {
+    dpStates[i] = 3;
+  }
+  renderDP();
+  dpLog('💀 DEADLOCK! Mỗi triết gia giữ đũa trái, chờ đũa phải', 'err');
+  dpLog('  T0: giữ C0, chờ C1 (T1 giữ)', 'err');
+  dpLog('  T1: giữ C1, chờ C2 (T2 giữ)', 'err');
+  dpLog('  T2: giữ C2, chờ C3 (T3 giữ)', 'err');
+  dpLog('  T3: giữ C3, chờ C4 (T4 giữ)', 'err');
+  dpLog('  T4: giữ C4, chờ C0 (T0 giữ) → chu trình kín!', 'err');
+}
+
+async function demoSolve() {
+  resetDP();
+  dpMode = 'asymm';
+  setMode('asymm');
+  const delay = ms => new Promise(r => setTimeout(r, ms));
+  dpLog('=== Demo Giải pháp bất đối xứng (T4 cầm C0 trước) ===', 'ok');
+  await delay(400);
+
+  // All hungry
+  for (let i = 0; i < 5; i++) { dpStates[i] = 1; renderDP(); await delay(200); }
+  await delay(300);
+  dpLog('Tất cả đói — thử cầm đũa theo quy tắc mới', 'info');
+
+  // T0..T3 grab left (Ci), T4 grabs C0 (right of T4) first
+  dpLog('T4 cố cầm C0 (đũa phải của T4)...', 'warn');
+  // T0 grabs C0 first in naive, but in asymm T4 competes for C0
+  // Simulate: T0 grabs C0, then T4 cannot grab C0, one of them will eat
+  chopsticks[0] = true; // T0 grabbed C0
+  dpLog('T0 cầm được C0 (đũa trái của T0)', 'ok');
+  chopsticks[1] = true; dpLog('T1 cầm được C1', 'ok'); renderDP(); await delay(300);
+  chopsticks[2] = true; dpLog('T2 cầm được C2', 'ok'); renderDP(); await delay(300);
+  chopsticks[3] = true; dpLog('T3 cầm được C3', 'ok'); renderDP(); await delay(300);
+  // T4 tries C0 but T0 holds it → T4 cannot grab → circuit broken!
+  dpLog('T4 thử cầm C0 → T0 đang giữ → T4 CHỜ (chu trình bị phá!)', 'warn');
+  await delay(400);
+  dpLog('→ Không có vòng tròn đầy đủ → KHÔNG DEADLOCK', 'ok');
+  await delay(400);
+  // T0 grabs C1 — wait, T1 holds C1. T0 eats if it can get C1.
+  // Show T3 can eat (has C3, and C4 is free)
+  chopsticks[4] = true;
+  dpStates[3] = 2; // T3 eating (holds C3 and C4)
+  dpLog('T3 cầm được C4 (tự do) → T3 ăn được!', 'ok');
+  renderDP();
+  await delay(500);
+  dpLog('T3 ăn xong → thả C3, C4 → T2 hoặc T4 có thể ăn', 'info');
+  chopsticks[3] = false; chopsticks[4] = false;
+  dpStates[3] = 0;
+  dpLog('Hệ thống tiến triển, không bị kẹt ✓', 'ok');
+  renderDP();
+}
+
+// Init
+initSem();
+renderDP();
+resetPC();
+updatePCUI();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

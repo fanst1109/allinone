@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Capstone: Mini-Scheduler</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #4338ca;
+    --accent-soft: #e0e7ff;
+    --accent-hover: #3730a3;
+    --p-colors: #4338ca, #0891b2, #16a34a, #d97706, #dc2626, #7c3aed;
+  }
+
+  h1 { color: #1e1b4b; }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-soft); }
+
+  .card {
+    background: #fff; border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(67,56,202,.10);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px; margin: 12px 0;
+    font-size: 14px; line-height: 1.7;
+  }
+
+  .btn {
+    padding: 8px 18px; border-radius: 6px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+  .btn-danger:hover { background: #fee2e2; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ── Process Config Table ── */
+  .proc-cfg-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+  .proc-cfg-table th { background: #1e293b; color: #e2e8f0; padding: 7px 10px; font-weight: 600; }
+  .proc-cfg-table td { padding: 6px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+  .proc-cfg-table input[type=number] {
+    width: 60px; padding: 4px 6px; border: 1px solid #d1d5db; border-radius: 4px;
+    font-size: 13px; text-align: center;
+  }
+  .proc-cfg-table tr:nth-child(even) { background: #f8fafc; }
+  .proc-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+
+  /* ── Algo & Config selectors ── */
+  .algo-pills { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .algo-pill {
+    padding: 6px 14px; border-radius: 16px; border: 2px solid #e2e8f0;
+    font-size: 13px; font-weight: 600; cursor: pointer; background: white;
+    transition: all .15s;
+  }
+  .algo-pill:hover { border-color: var(--accent); }
+  .algo-pill.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  .cfg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 10px 0; }
+  .cfg-field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+  .cfg-field label { font-weight: 600; color: #374151; }
+  .cfg-field input, .cfg-field select {
+    padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px;
+  }
+
+  /* ── Gantt Chart ── */
+  #gantt-wrap { overflow-x: auto; width: 100%; }
+  #gantt-svg { display: block; margin: 0 auto; }
+
+  /* ── Memory State ── */
+  .mem-frame-grid {
+    display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0;
+  }
+  .mem-frame {
+    width: 48px; height: 48px; border-radius: 6px; border: 2px solid #e2e8f0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; transition: all .3s;
+    cursor: default;
+  }
+  .mem-frame.free { background: #f8fafc; color: #94a3b8; }
+
+  /* ── Stats ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin: 12px 0; }
+  .stat-card { background: var(--accent-soft); border-radius: 8px; padding: 14px 16px; }
+  .stat-label { font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 4px; }
+  .stat-value { font-size: 22px; font-weight: 800; color: var(--accent); font-family: monospace; }
+  .stat-unit { font-size: 11px; color: #94a3b8; }
+
+  /* ── Process state table ── */
+  .state-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .state-table th { background: #f1f5f9; padding: 7px 10px; font-weight: 600; text-align: left; font-size: 12px; }
+  .state-table td { padding: 6px 10px; border-bottom: 1px solid #f1f5f9; font-family: monospace; font-size: 12px; }
+  .state-R { color: #16a34a; font-weight: 700; }
+  .state-W { color: #f59e0b; font-weight: 700; }
+  .state-D { color: #64748b; }
+  .state-RUN { color: #4338ca; font-weight: 700; }
+
+  /* ── Speed control ── */
+  .speed-row { display: flex; align-items: center; gap: 12px; margin: 8px 0; font-size: 13px; }
+
+  @media (max-width: 600px) {
+    .cfg-grid { grid-template-columns: 1fr; }
+    .proc-cfg-table input[type=number] { width: 50px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Advanced</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-observability-performance/visualization.html">← L7: Quan sát</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Capstone — Mini-Scheduler</span>
+  <span class="sep">·</span>
+  <a href="../index.html">Hết → Trang Tầng 3</a>
+</nav>
+
+<main>
+<h1>Lesson 08 — Capstone: Mini-Scheduler</h1>
+<div class="info-box">
+  Mô phỏng OS thu nhỏ tích hợp: CPU scheduling + memory management (paging). Nhập workload, chọn cấu hình và xem Gantt chart, trạng thái bộ nhớ, và thống kê tổng hợp.
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 1 — Workload Config
+════════════════════════════════════════ -->
+<h2>1. Cấu hình Workload</h2>
+
+<div class="card">
+  <div style="overflow-x:auto;">
+    <table class="proc-cfg-table" id="proc-table">
+      <thead>
+        <tr>
+          <th>Màu</th><th>Tên</th><th>Arrival</th><th>Burst</th>
+          <th>Priority (1=cao)</th><th>Pages</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="proc-tbody"></tbody>
+    </table>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="addProcess()">+ Thêm process</button>
+    <button class="btn btn-secondary" onclick="loadPreset('default')">Preset: Mặc định</button>
+    <button class="btn btn-secondary" onclick="loadPreset('rt')">Preset: Real-time like</button>
+    <button class="btn btn-secondary" onclick="loadPreset('heavy')">Preset: Memory heavy</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 2 — Algorithm & Memory Config
+════════════════════════════════════════ -->
+<h2>2. Cấu hình Thuật toán &amp; Bộ nhớ</h2>
+
+<div class="card">
+  <div style="margin-bottom:12px;">
+    <div style="font-weight:600;font-size:14px;margin-bottom:6px;">Thuật toán lập lịch:</div>
+    <div class="algo-pills" id="algo-pills">
+      <div class="algo-pill active" data-algo="FCFS" onclick="selectAlgo('FCFS',this)">FCFS</div>
+      <div class="algo-pill" data-algo="SJF" onclick="selectAlgo('SJF',this)">SJF (non-preemptive)</div>
+      <div class="algo-pill" data-algo="RR" onclick="selectAlgo('RR',this)">Round-Robin</div>
+      <div class="algo-pill" data-algo="PRIORITY" onclick="selectAlgo('PRIORITY',this)">Priority (preemptive)</div>
+    </div>
+  </div>
+
+  <div class="cfg-grid">
+    <div class="cfg-field">
+      <label>Quantum RR (đơn vị):</label>
+      <input type="number" id="quantum" value="2" min="1" max="10">
+    </div>
+    <div class="cfg-field">
+      <label>Tổng số frame RAM:</label>
+      <input type="number" id="frames" value="8" min="4" max="24">
+    </div>
+    <div class="cfg-field">
+      <label>Chính sách page replacement:</label>
+      <select id="page-policy">
+        <option value="FIFO">FIFO</option>
+        <option value="LRU">LRU</option>
+      </select>
+    </div>
+    <div class="cfg-field">
+      <label>Thời gian tối đa (đơn vị):</label>
+      <input type="number" id="max-time" value="40" min="10" max="120">
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="run-btn" onclick="runSimulation()">Chạy mô phỏng</button>
+    <button class="btn btn-secondary" onclick="stepSim()" id="step-btn" disabled>Bước tiếp</button>
+    <button class="btn btn-danger" onclick="resetSim()">Reset</button>
+  </div>
+  <div class="speed-row">
+    <span>Tốc độ animation:</span>
+    <input type="range" id="speed" min="100" max="1500" value="600" style="width:120px;">
+    <span id="speed-val">600ms</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 3 — Gantt + Memory
+════════════════════════════════════════ -->
+<h2>3. Gantt Chart &amp; Trạng thái bộ nhớ</h2>
+
+<div class="card">
+  <div id="gantt-wrap">
+    <svg id="gantt-svg" width="740" height="140" viewBox="0 0 740 140"></svg>
+  </div>
+  <div id="current-tick-info" class="info-box" style="margin-top:10px;">Chờ mô phỏng...</div>
+</div>
+
+<div class="card">
+  <div style="font-weight:600;font-size:14px;margin-bottom:8px;">Trạng thái frames RAM (mỗi ô = 1 frame):</div>
+  <div class="mem-frame-grid" id="mem-frames"></div>
+  <div id="mem-info" style="font-size:13px;color:#64748b;margin-top:6px;"></div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 4 — Process States
+════════════════════════════════════════ -->
+<div class="card">
+  <div style="font-weight:600;font-size:14px;margin-bottom:8px;">Trạng thái process tại thời điểm hiện tại:</div>
+  <div style="overflow-x:auto;">
+    <table class="state-table" id="state-table">
+      <thead><tr><th>PID</th><th>Tên</th><th>State</th><th>Remaining</th><th>Wait</th><th>Pages in RAM</th><th>Page Faults</th></tr></thead>
+      <tbody id="state-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 5 — Statistics
+════════════════════════════════════════ -->
+<h2>4. Thống kê tổng hợp</h2>
+
+<div class="card">
+  <div class="stats-grid" id="stats-grid"></div>
+  <div id="stats-comparison" style="margin-top:12px;font-size:13px;"></div>
+</div>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+<script>
+/* ══════════════════════════════════════════════
+   DATA & COLORS
+══════════════════════════════════════════════ */
+const P_COLORS = ['#4338ca','#0891b2','#16a34a','#d97706','#dc2626','#7c3aed','#ec4899','#0f766e'];
+
+let processes = [];
+let algo = 'FCFS';
+let simState = null;
+let simTimer = null;
+let stepMode = false;
+
+document.getElementById('speed').addEventListener('input',function(){
+  document.getElementById('speed-val').textContent=this.value+'ms';
+});
+
+/* ══════════════════════════════════════════════
+   PROCESS TABLE
+══════════════════════════════════════════════ */
+function renderProcTable(){
+  const tbody = document.getElementById('proc-tbody');
+  tbody.innerHTML = '';
+  processes.forEach((p,i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="proc-dot" style="background:${P_COLORS[i%P_COLORS.length]}"></span></td>
+      <td><input style="width:64px;border:1px solid #d1d5db;border-radius:4px;padding:3px 6px;font-size:13px;" value="${p.name}" onchange="processes[${i}].name=this.value"></td>
+      <td><input type="number" value="${p.arrival}" min="0" max="50" onchange="processes[${i}].arrival=+this.value"></td>
+      <td><input type="number" value="${p.burst}" min="1" max="30" onchange="processes[${i}].burst=+this.value"></td>
+      <td><input type="number" value="${p.priority}" min="1" max="10" onchange="processes[${i}].priority=+this.value"></td>
+      <td><input type="number" value="${p.pages}" min="1" max="12" onchange="processes[${i}].pages=+this.value"></td>
+      <td><button class="btn btn-danger" style="padding:4px 10px;font-size:12px;" onclick="removeProcess(${i})">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function addProcess(){
+  const i = processes.length;
+  processes.push({ name:`P${i+1}`, arrival:i*2, burst:3+i, priority:i+1, pages:2+Math.floor(i/2) });
+  renderProcTable();
+}
+
+function removeProcess(i){
+  processes.splice(i,1);
+  renderProcTable();
+}
+
+function loadPreset(name){
+  if(name==='default'){
+    processes=[
+      {name:'P1',arrival:0,burst:5,priority:2,pages:2},
+      {name:'P2',arrival:1,burst:3,priority:1,pages:3},
+      {name:'P3',arrival:2,burst:4,priority:3,pages:2},
+      {name:'P4',arrival:3,burst:2,priority:2,pages:1},
+    ];
+  } else if(name==='rt'){
+    processes=[
+      {name:'RT-High',arrival:0,burst:2,priority:1,pages:2},
+      {name:'RT-Mid',arrival:1,burst:4,priority:2,pages:3},
+      {name:'Best-Effort',arrival:0,burst:8,priority:5,pages:2},
+      {name:'RT-Low',arrival:2,burst:3,priority:3,pages:2},
+    ];
+  } else if(name==='heavy'){
+    processes=[
+      {name:'DB',arrival:0,burst:6,priority:2,pages:5},
+      {name:'App',arrival:1,burst:4,priority:1,pages:4},
+      {name:'Cache',arrival:2,burst:3,priority:3,pages:5},
+      {name:'Worker',arrival:3,burst:5,priority:2,pages:3},
+    ];
+  }
+  renderProcTable();
+}
+
+function selectAlgo(a, btn){
+  algo = a;
+  document.querySelectorAll('.algo-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+/* ══════════════════════════════════════════════
+   SIMULATION ENGINE
+══════════════════════════════════════════════ */
+const STATE = { WAITING:'WAITING', READY:'READY', RUNNING:'RUNNING', DONE:'DONE' };
+
+function runSimulation(){
+  if(simTimer) clearInterval(simTimer);
+  document.getElementById('run-btn').disabled=true;
+  document.getElementById('step-btn').disabled=false;
+
+  const maxT = +document.getElementById('max-time').value;
+  const quantum = +document.getElementById('quantum').value;
+  const totalFrames = +document.getElementById('frames').value;
+  const pagePolicy = document.getElementById('page-policy').value;
+
+  // Build process objects
+  const procs = processes.map((p,i)=>({
+    pid:i, name:p.name, arrival:p.arrival, burst:p.burst,
+    priority:p.priority, pages:p.pages,
+    color: P_COLORS[i%P_COLORS.length],
+    state: STATE.WAITING,
+    remaining: p.burst,
+    startTime: -1, finishTime: -1, waitTime: 0,
+    pagesInRAM: [], pageFaults: 0,
+  }));
+
+  // Memory state
+  const frames = new Array(totalFrames).fill(-1); // frame[i] = PID (-1=free)
+  const frameLoad = new Array(totalFrames).fill(0); // for LRU: last access time
+  let frameQueue = []; // for FIFO
+
+  // Gantt & event log
+  const gantt = []; // [{t, pid, color}]
+  let running = null;
+  let readyQueue = [];
+  let quantumLeft = quantum;
+
+  // Run simulation
+  for(let t=0; t<maxT; t++){
+    // Arrivals
+    procs.forEach(p=>{
+      if(p.arrival===t && p.state===STATE.WAITING){
+        p.state=STATE.READY;
+        allocateMemory(p, frames, frameQueue, frameLoad, pagePolicy, procs, t);
+        readyQueue.push(p);
+      }
+    });
+
+    // Update running
+    if(running){
+      running.remaining--;
+      if(running.remaining===0){
+        running.state=STATE.DONE;
+        running.finishTime=t+1;
+        releaseMemory(running, frames, frameQueue);
+        running=null; quantumLeft=quantum;
+      } else if(algo==='RR'){
+        quantumLeft--;
+        if(quantumLeft===0){
+          running.state=STATE.READY;
+          readyQueue.push(running);
+          running=null; quantumLeft=quantum;
+        }
+      } else if(algo==='PRIORITY'){
+        // Check if higher priority process arrived
+        const higher = readyQueue.find(p=>p.priority<running.priority);
+        if(higher){
+          running.state=STATE.READY;
+          readyQueue.push(running);
+          running=null;
+        }
+      }
+    }
+
+    // Schedule next
+    if(!running && readyQueue.length){
+      let next;
+      if(algo==='FCFS'){
+        next = readyQueue.shift();
+      } else if(algo==='SJF'){
+        readyQueue.sort((a,b)=>a.remaining-b.remaining || a.arrival-b.arrival);
+        next = readyQueue.shift();
+      } else if(algo==='RR'){
+        next = readyQueue.shift();
+        quantumLeft = quantum;
+      } else if(algo==='PRIORITY'){
+        readyQueue.sort((a,b)=>a.priority-b.priority || a.arrival-b.arrival);
+        next = readyQueue.shift();
+      }
+      next.state=STATE.RUNNING;
+      if(next.startTime<0) next.startTime=t;
+      running=next;
+    }
+
+    // Update wait times
+    readyQueue.forEach(p=>p.waitTime++);
+
+    // Record gantt
+    gantt.push({ t, pid: running?running.pid:-1, color: running?running.color:'#e5e7eb', name: running?running.name:'idle' });
+  }
+
+  // Compute statistics
+  const done = procs.filter(p=>p.state===STATE.DONE);
+  const avgWait = done.length ? done.reduce((s,p)=>s+p.waitTime,0)/done.length : 0;
+  const avgTurnaround = done.length ? done.reduce((s,p)=>s+(p.finishTime-p.arrival),0)/done.length : 0;
+  const cpuUtil = gantt.filter(g=>g.pid>=0).length/maxT*100;
+  const totalPF = procs.reduce((s,p)=>s+p.pageFaults,0);
+  const throughput = done.length/maxT;
+
+  simState = { gantt, procs, maxT, totalFrames, frames, stats:{avgWait,avgTurnaround,cpuUtil,totalPF,throughput,done:done.length} };
+
+  renderAll();
+  animateGantt();
+}
+
+function allocateMemory(p, frames, frameQueue, frameLoad, policy, allProcs, t){
+  const needed = p.pages;
+  const freeIndices = frames.map((f,i)=>f===-1?i:-1).filter(i=>i>=0);
+
+  if(freeIndices.length>=needed){
+    // Just allocate
+    for(let i=0;i<needed;i++){
+      frames[freeIndices[i]]=p.pid;
+      frameLoad[freeIndices[i]]=t;
+      frameQueue.push(freeIndices[i]);
+      p.pagesInRAM.push(freeIndices[i]);
+    }
+    p.pageFaults += needed; // cold start
+  } else {
+    // Need replacement
+    const available = freeIndices.length;
+    // Cold start for available
+    for(let i=0;i<available;i++){
+      frames[freeIndices[i]]=p.pid;
+      frameLoad[freeIndices[i]]=t;
+      frameQueue.push(freeIndices[i]);
+      p.pagesInRAM.push(freeIndices[i]);
+    }
+    p.pageFaults += available;
+
+    const toEvict = needed - available;
+    for(let e=0;e<toEvict;e++){
+      let evictFrame;
+      if(policy==='FIFO'){
+        // Find oldest frame not owned by this process
+        for(let qi=0;qi<frameQueue.length;qi++){
+          const fi=frameQueue[qi];
+          if(frames[fi]!==p.pid && frames[fi]>=0){
+            evictFrame=fi;
+            frameQueue.splice(qi,1);
+            break;
+          }
+        }
+      } else {
+        // LRU: find frame with smallest frameLoad
+        let minT=Infinity, minFi=-1;
+        for(let fi=0;fi<frames.length;fi++){
+          if(frames[fi]!==p.pid && frames[fi]>=0 && frameLoad[fi]<minT){
+            minT=frameLoad[fi]; minFi=fi;
+          }
+        }
+        evictFrame=minFi;
+      }
+      if(evictFrame===undefined||evictFrame<0) continue;
+      const evictedPID=frames[evictFrame];
+      const victim=allProcs.find(pr=>pr.pid===evictedPID);
+      if(victim) victim.pagesInRAM=victim.pagesInRAM.filter(f=>f!==evictFrame);
+      frames[evictFrame]=p.pid;
+      frameLoad[evictFrame]=t;
+      if(policy==='FIFO') frameQueue.push(evictFrame);
+      p.pagesInRAM.push(evictFrame);
+      p.pageFaults++;
+    }
+  }
+}
+
+function releaseMemory(p, frames, frameQueue){
+  p.pagesInRAM.forEach(fi=>{ frames[fi]=-1; });
+  const released=new Set(p.pagesInRAM);
+  for(let i=frameQueue.length-1;i>=0;i--){ if(released.has(frameQueue[i])) frameQueue.splice(i,1); }
+  p.pagesInRAM=[];
+}
+
+function resetSim(){
+  if(simTimer) clearInterval(simTimer);
+  simState=null; simTimer=null;
+  document.getElementById('run-btn').disabled=false;
+  document.getElementById('step-btn').disabled=true;
+  document.getElementById('gantt-svg').innerHTML='';
+  document.getElementById('current-tick-info').innerHTML='Chờ mô phỏng...';
+  document.getElementById('mem-frames').innerHTML='';
+  document.getElementById('mem-info').textContent='';
+  document.getElementById('state-tbody').innerHTML='';
+  document.getElementById('stats-grid').innerHTML='';
+}
+
+/* ══════════════════════════════════════════════
+   RENDERING
+══════════════════════════════════════════════ */
+let displayTick = 0;
+
+function renderAll(){
+  if(!simState) return;
+  drawGantt(simState.gantt, simState.maxT, displayTick);
+  renderMemory(displayTick);
+  renderStateTable(displayTick);
+  renderStats();
+}
+
+function drawGantt(gantt, maxT, highlightT){
+  const svgEl=document.getElementById('gantt-svg');
+  const procs=simState.procs;
+  const n=procs.length;
+  const W=740, rowH=32, topPad=28, leftPad=54, rightPad=20;
+  const H=topPad+n*rowH+32;
+  const tw=W-leftPad-rightPad;
+  const unitW=tw/maxT;
+
+  svgEl.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svgEl.setAttribute('height',H);
+  svgEl.innerHTML='';
+  const ns='http://www.w3.org/2000/svg';
+  function el(tag,attrs,txt){
+    const e=document.createElementNS(ns,tag);
+    for(const[k,v] of Object.entries(attrs)) e.setAttribute(k,v);
+    if(txt!==undefined) e.textContent=txt;
+    return e;
+  }
+
+  // Time axis
+  const tickStep=Math.max(1,Math.floor(maxT/20));
+  for(let t=0;t<=maxT;t+=tickStep){
+    const x=leftPad+t*unitW;
+    svgEl.appendChild(el('line',{x1:x,y1:topPad-4,x2:x,y2:topPad+n*rowH,stroke:'#e2e8f0','stroke-width':.8}));
+    svgEl.appendChild(el('text',{x,y:topPad-6,'text-anchor':'middle','font-size':9,'fill':'#94a3b8'},t));
+  }
+
+  // Process rows
+  procs.forEach((p,i)=>{
+    const y=topPad+i*rowH;
+    svgEl.appendChild(el('text',{x:leftPad-4,y:y+rowH/2+4,'text-anchor':'end','font-size':12,'fill':p.color,'font-weight':'700'},p.name));
+    svgEl.appendChild(el('rect',{x:leftPad,y:y+1,width:tw,height:rowH-2,fill:'#f8fafc',rx:2}));
+
+    // Arrival marker
+    const arrX=leftPad+p.arrival*unitW;
+    svgEl.appendChild(el('line',{x1:arrX,y1:y,x2:arrX,y2:y+rowH,stroke:p.color,'stroke-width':1.5,'stroke-dasharray':'3,2',opacity:.6}));
+  });
+
+  // Gantt blocks — group consecutive same-process
+  let i=0;
+  while(i<gantt.length){
+    const g=gantt[i];
+    if(g.pid<0){i++;continue;}
+    let j=i;
+    while(j<gantt.length && gantt[j].pid===g.pid) j++;
+    const procRow=procs.findIndex(p=>p.pid===g.pid);
+    if(procRow<0){i=j;continue;}
+    const y=topPad+procRow*rowH;
+    const x=leftPad+g.t*unitW;
+    const w=(j-i)*unitW;
+    svgEl.appendChild(el('rect',{x,y:y+3,width:Math.max(w-1,1),height:rowH-6,fill:g.color,rx:3}));
+    if(w>20) svgEl.appendChild(el('text',{x:x+w/2,y:y+rowH/2+4,'text-anchor':'middle','font-size':10,'fill':'#fff','font-weight':'700'},procs[procRow].name));
+    i=j;
+  }
+
+  // Highlight current tick
+  if(highlightT>=0 && highlightT<maxT){
+    const hx=leftPad+highlightT*unitW;
+    svgEl.appendChild(el('line',{x1:hx,y1:topPad-4,x2:hx,y2:topPad+n*rowH,stroke:'#dc2626','stroke-width':2}));
+    svgEl.appendChild(el('text',{x:hx,y:H-8,'text-anchor':'middle','font-size':10,'fill':'#dc2626','font-weight':'700'},`t=${highlightT}`));
+  }
+}
+
+function renderMemory(t){
+  const {procs, totalFrames} = simState;
+  const grid=document.getElementById('mem-frames');
+  grid.innerHTML='';
+
+  // Reconstruct frame state at time t
+  // (We stored final frame state; for simplicity show final state during animation)
+  const frameState=new Array(totalFrames).fill(-1);
+  procs.forEach(p=>{
+    if(p.pagesInRAM.length>0){
+      p.pagesInRAM.forEach(fi=>{ if(fi<totalFrames) frameState[fi]=p.pid; });
+    }
+  });
+
+  let usedCount=0;
+  for(let fi=0;fi<totalFrames;fi++){
+    const div=document.createElement('div');
+    div.className='mem-frame';
+    const pid=frameState[fi];
+    if(pid>=0){
+      usedCount++;
+      const p=procs[pid];
+      div.style.background=p.color;
+      div.style.borderColor=p.color;
+      div.style.color='white';
+      div.innerHTML=`<span>${p.name}</span><span style="font-size:9px">f${fi}</span>`;
+      div.title=`Frame ${fi}: ${p.name}`;
+    } else {
+      div.innerHTML=`<span style="font-size:9px;color:#cbd5e1">f${fi}</span><span style="font-size:8px;color:#cbd5e1">free</span>`;
+      div.title=`Frame ${fi}: free`;
+    }
+    grid.appendChild(div);
+  }
+  document.getElementById('mem-info').textContent=
+    `Frames dùng: ${usedCount}/${totalFrames} (${Math.round(usedCount/totalFrames*100)}%). Tổng page faults: ${procs.reduce((s,p)=>s+p.pageFaults,0)}`;
+}
+
+function renderStateTable(t){
+  const {procs, gantt} = simState;
+  const g=gantt[Math.min(t,gantt.length-1)];
+  const currentPID=g?g.pid:-1;
+
+  const tbody=document.getElementById('state-tbody');
+  tbody.innerHTML=procs.map(p=>{
+    const isCurrent=p.pid===currentPID;
+    const stateLabel=p.state===STATE.DONE?'DONE':isCurrent?'RUN':p.state;
+    const stateClass=p.state===STATE.DONE?'state-D':isCurrent?'state-RUN':p.state===STATE.READY?'state-R':'state-W';
+    return `<tr ${isCurrent?'style="background:#e0e7ff"':''}>
+      <td>${p.pid}</td>
+      <td style="color:${p.color};font-weight:700">${p.name}</td>
+      <td class="${stateClass}">${stateLabel}</td>
+      <td>${p.remaining}</td>
+      <td>${p.waitTime}</td>
+      <td>${p.pagesInRAM.length}/${p.pages}</td>
+      <td style="${p.pageFaults>3?'color:#dc2626;font-weight:700':''}">${p.pageFaults}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderStats(){
+  const s=simState.stats;
+  const grid=document.getElementById('stats-grid');
+  grid.innerHTML=[
+    {label:'Throughput',val:(s.throughput*10).toFixed(2),unit:'proc/10t'},
+    {label:'Avg Wait',val:s.avgWait.toFixed(2),unit:'đơn vị'},
+    {label:'Avg Turnaround',val:s.avgTurnaround.toFixed(2),unit:'đơn vị'},
+    {label:'CPU Utilization',val:s.cpuUtil.toFixed(1),unit:'%'},
+    {label:'Total Page Faults',val:s.totalPF,unit:'lần'},
+    {label:'Process hoàn thành',val:s.done,unit:'/'+simState.procs.length},
+  ].map(m=>`
+    <div class="stat-card">
+      <div class="stat-label">${m.label}</div>
+      <div class="stat-value">${m.val}</div>
+      <div class="stat-unit">${m.unit}</div>
+    </div>`).join('');
+
+  document.getElementById('stats-comparison').innerHTML=
+    `<strong>Nhận xét:</strong> ` +
+    (s.cpuUtil>90?'CPU được dùng hiệu quả (>90%). ':s.cpuUtil<50?'CPU idle nhiều — xem xét thêm process. ':'CPU sử dụng trung bình. ') +
+    (s.avgWait>8?'Wait time cao — thử SJF hoặc Priority để giảm. ':s.avgWait<3?'Wait time thấp — scheduling tốt. ':'') +
+    (s.totalPF>10?`Page fault cao (${s.totalPF} lần) — thêm RAM hoặc giảm pages mỗi process. `:'Page fault ở mức chấp nhận được. ');
+}
+
+/* ══════════════════════════════════════════════
+   ANIMATION
+══════════════════════════════════════════════ */
+function animateGantt(){
+  displayTick=0;
+  const speed=+document.getElementById('speed').value;
+  simTimer=setInterval(()=>{
+    if(displayTick>=simState.maxT){
+      clearInterval(simTimer); simTimer=null;
+      document.getElementById('run-btn').disabled=false;
+      document.getElementById('current-tick-info').innerHTML='<strong>Mô phỏng hoàn tất.</strong> Xem thống kê bên dưới.';
+      return;
+    }
+    const g=simState.gantt[displayTick];
+    const name=g.pid>=0?simState.procs[g.pid].name:'idle';
+    document.getElementById('current-tick-info').innerHTML=
+      `<strong>t=${displayTick}:</strong> CPU đang chạy → <span style="color:${g.color};font-weight:700">${name}</span>`;
+    renderAll();
+    displayTick++;
+  }, speed);
+}
+
+function stepSim(){
+  if(!simState) return;
+  if(simTimer){ clearInterval(simTimer); simTimer=null; }
+  if(displayTick<simState.maxT){
+    const g=simState.gantt[displayTick];
+    const name=g.pid>=0?simState.procs[g.pid].name:'idle';
+    document.getElementById('current-tick-info').innerHTML=
+      `<strong>t=${displayTick}:</strong> CPU → <span style="color:${g.color};font-weight:700">${name}</span>`;
+    renderAll();
+    displayTick++;
+  }
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+loadPreset('default');
+renderProcTable();
+</script>
+</body>
+</html>

@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Bộ nhớ ảo & Demand Paging</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --vm-accent: #0e7490;
+    --vm-soft:   #cffafe;
+    --vm-mid:    #22d3ee;
+    --vm-dark:   #164e63;
+    --ram-color: #16a34a;
+    --disk-color:#d97706;
+    --fault-color:#dc2626;
+  }
+
+  h1 { color: var(--vm-dark); }
+  h2 { color: var(--vm-accent); margin-top: 36px; padding-bottom: 6px;
+       border-bottom: 2px solid var(--vm-mid); }
+
+  .card {
+    background: #fff; border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(14,116,144,.12);
+    margin: 16px 0;
+  }
+
+  .btn {
+    padding: 8px 18px; border-radius: 6px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--vm-accent); color: #fff; }
+  .btn-primary:hover { background: var(--vm-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  .ctrl-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin: 12px 0; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  .ctrl-group label { font-size: 13px; color: #374151; font-weight: 600; }
+  input[type=number], input[type=text], select {
+    border: 1px solid #d1d5db; border-radius: 6px;
+    padding: 7px 10px; font-size: 14px; width: 130px;
+    max-width: 100%; box-sizing: border-box;
+  }
+
+  /* Stats */
+  .stats { display: flex; flex-wrap: wrap; gap: 12px; margin: 8px 0; }
+  .stat-box {
+    background: #f0f9ff; border: 1px solid #bae6fd;
+    border-radius: 8px; padding: 10px 16px; min-width: 110px; text-align: center;
+  }
+  .stat-val { font-size: 22px; font-weight: 700; color: var(--vm-accent); }
+  .stat-val.fault { color: var(--fault-color); }
+  .stat-lbl { font-size: 12px; color: #6b7280; }
+
+  /* Page timeline */
+  #timeline-wrap { overflow-x: auto; margin: 12px 0; }
+  #timeline {
+    display: flex; flex-direction: column; gap: 2px;
+    min-width: 700px; font-family: monospace; font-size: 12px;
+  }
+  .tl-row {
+    display: flex; gap: 2px; align-items: center;
+  }
+  .tl-label {
+    width: 70px; flex-shrink: 0; color: #6b7280; font-size: 11px;
+    text-align: right; padding-right: 8px;
+  }
+  .tl-cell {
+    width: 40px; height: 30px; border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; flex-shrink: 0;
+    transition: all .2s;
+  }
+  .tl-cell.in-ram  { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+  .tl-cell.on-disk { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  .tl-cell.fault   { background: #fee2e2; color: #991b1b; border: 2px solid #f87171; }
+  .tl-cell.empty   { background: #f8fafc; color: #9ca3af; border: 1px solid #e2e8f0; }
+  .tl-step { font-size: 11px; color: #6b7280; text-align: center; width: 40px; flex-shrink: 0; }
+
+  /* Page table display */
+  #pt-display {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0;
+  }
+  .pte-card {
+    background: #f8fafc; border: 1.5px solid #e2e8f0;
+    border-radius: 8px; padding: 10px 14px; text-align: center;
+    min-width: 90px; transition: all .3s;
+  }
+  .pte-card.valid   { background: #dcfce7; border-color: #86efac; }
+  .pte-card.invalid { background: #fee2e2; border-color: #fca5a5; }
+  .pte-card.fault-now { background: #fef3c7; border-color: #fde68a;
+                         box-shadow: 0 0 0 3px #fbbf24; }
+  .pte-num { font-size: 11px; color: #6b7280; font-weight: 700; }
+  .pte-status { font-size: 18px; }
+  .pte-frame { font-size: 12px; color: #374151; font-weight: 600; margin-top: 2px; }
+
+  /* Log */
+  .log {
+    background: #1e293b; color: #e2e8f0;
+    border-radius: 8px; padding: 14px 16px;
+    font-family: monospace; font-size: 13px;
+    line-height: 1.8; min-height: 60px; max-height: 220px;
+    overflow-y: auto; margin-top: 12px; white-space: pre-wrap;
+  }
+  .log .ok   { color: #4ade80; }
+  .log .fault { color: #f87171; }
+  .log .info { color: #93c5fd; }
+  .log .step { color: #fbbf24; }
+
+  /* EAT result */
+  .eat-result {
+    background: #f0f9ff; border: 1px solid #bae6fd;
+    border-radius: 10px; padding: 16px 20px; margin-top: 12px;
+    font-family: monospace; font-size: 14px; line-height: 2;
+  }
+  .eat-bar-wrap { margin: 8px 0; }
+  .eat-bar {
+    height: 22px; border-radius: 4px;
+    display: flex; align-items: center; padding: 0 10px;
+    font-size: 12px; font-weight: 700; color: #fff;
+    transition: width .5s ease; min-width: 50px;
+  }
+
+  /* Working set display */
+  #ws-display {
+    background: #f8fafc; border: 1px solid #e2e8f0;
+    border-radius: 8px; padding: 14px 18px; margin: 12px 0;
+    font-family: monospace; font-size: 13px; line-height: 2;
+  }
+  .ws-tag {
+    display: inline-block; background: var(--vm-soft);
+    border: 1px solid var(--vm-mid); border-radius: 12px;
+    padding: 2px 10px; margin: 2px; font-size: 12px; font-weight: 600;
+    color: var(--vm-dark);
+  }
+
+  @media (max-width: 600px) {
+    .ctrl-row { gap: 8px; }
+    input[type=number], input[type=text], select { width: 100%; }
+    .tl-cell, .tl-step { width: 32px; }
+    .tl-label { width: 55px; }
+    #timeline { min-width: 500px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Memory</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-tlb-multilevel-paging/visualization.html">← L03: TLB</a>
+  <span class="sep">·</span>
+  <span class="current">L04: Bộ nhớ ảo</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-page-replacement/visualization.html">L05: Thay trang →</a>
+</nav>
+<main>
+  <h1>Bộ nhớ ảo &amp; Demand Paging</h1>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODULE 1 — Page Fault Timeline
+       ═══════════════════════════════════════════════════════ -->
+  <h2>Module 1 — Dòng thời gian Page Fault</h2>
+  <div class="card">
+    <p>Nhập chuỗi trang truy cập và số frame RAM. Xem từng bước trang nào ở RAM, trang nào gây page fault.</p>
+
+    <div class="ctrl-row">
+      <div class="ctrl-group" style="flex:1;min-width:200px">
+        <label>Chuỗi truy cập trang (cách nhau dấu phẩy)</label>
+        <input type="text" id="pf-seq" value="1,2,3,4,1,2,5,1,2,3,4,5" style="width:100%">
+      </div>
+      <div class="ctrl-group">
+        <label>Số frame RAM</label>
+        <input type="number" id="pf-frames" value="3" min="1" max="10">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="runPF()">Chạy mô phỏng</button>
+      <button class="btn btn-secondary" onclick="stepPF()">Từng bước →</button>
+      <button class="btn btn-secondary" onclick="resetPF()">Reset</button>
+      <button class="btn btn-secondary" onclick="loadPFPreset(1)">Ví dụ locality tốt</button>
+      <button class="btn btn-secondary" onclick="loadPFPreset(2)">Ví dụ thrashing</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat-box">
+        <div class="stat-val" id="pf-total">0</div>
+        <div class="stat-lbl">Tổng truy cập</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val fault" id="pf-faults">0</div>
+        <div class="stat-lbl">Page Faults</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="pf-rate">—</div>
+        <div class="stat-lbl">Fault Rate</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="pf-hits">0</div>
+        <div class="stat-lbl">RAM Hits</div>
+      </div>
+    </div>
+
+    <!-- Page table display -->
+    <div style="font-size:13px;font-weight:600;color:#374151;margin:8px 0 4px">Trạng thái trang (xanh=RAM, đỏ=đĩa, vàng=fault hiện tại):</div>
+    <div id="pt-display"></div>
+
+    <!-- Timeline -->
+    <div id="timeline-wrap"><div id="timeline"></div></div>
+    <div class="log" id="pf-log">-- Chạy mô phỏng để xem kết quả --</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODULE 2 — EAT Calculator
+       ═══════════════════════════════════════════════════════ -->
+  <h2>Module 2 — Tính EAT với Page Fault</h2>
+  <div class="card">
+    <p>Tính Effective Access Time khi có page fault.</p>
+    <div class="ctrl-row">
+      <div class="ctrl-group">
+        <label>Page fault rate p (0–1)</label>
+        <input type="number" id="eat-p" value="0.001" min="0" max="1" step="0.0001">
+      </div>
+      <div class="ctrl-group">
+        <label>RAM access time (ns)</label>
+        <input type="number" id="eat-tmem" value="100" min="1">
+      </div>
+      <div class="ctrl-group">
+        <label>Storage type</label>
+        <select id="eat-storage">
+          <option value="8000000">HDD (~8 ms)</option>
+          <option value="100000">SSD (~100 µs)</option>
+          <option value="50000">NVMe (~50 µs)</option>
+          <option value="custom">Tùy chỉnh</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>t_fault (ns, nếu tùy chỉnh)</label>
+        <input type="number" id="eat-tfault" value="8000000" min="1">
+      </div>
+      <div class="ctrl-group">
+        <label>&nbsp;</label>
+        <button class="btn btn-primary" onclick="calcEAT()">Tính EAT</button>
+      </div>
+    </div>
+    <div id="eat-result"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODULE 3 — Working Set Demo
+       ═══════════════════════════════════════════════════════ -->
+  <h2>Module 3 — Working Set & Thrashing</h2>
+  <div class="card">
+    <p>Theo dõi working set: tập trang được truy cập trong cửa sổ Δ bước gần nhất.</p>
+    <div class="ctrl-row">
+      <div class="ctrl-group" style="flex:1;min-width:200px">
+        <label>Chuỗi truy cập trang</label>
+        <input type="text" id="ws-seq" value="1,2,3,4,3,2,1,1,2,5,1,2,3,4,4,3" style="width:100%">
+      </div>
+      <div class="ctrl-group">
+        <label>Cửa sổ Δ</label>
+        <input type="number" id="ws-delta" value="5" min="1" max="20">
+      </div>
+      <div class="ctrl-group">
+        <label>RAM frames</label>
+        <input type="number" id="ws-frames" value="4" min="1" max="20">
+      </div>
+      <div class="ctrl-group">
+        <label>&nbsp;</label>
+        <button class="btn btn-primary" onclick="calcWS()">Tính working set</button>
+      </div>
+    </div>
+    <div id="ws-display"></div>
+    <div id="ws-chart" style="margin-top:12px"></div>
+  </div>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════
+// MODULE 1 — Page Fault Timeline (FIFO simple)
+// ═══════════════════════════════════════════════════════
+let pfSteps = [];
+let pfStepIdx = 0;
+
+function buildPFSteps() {
+  const seq = document.getElementById('pf-seq').value
+    .split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+  const frames = parseInt(document.getElementById('pf-frames').value) || 3;
+
+  const allPages = [...new Set(seq)].sort((a,b)=>a-b);
+  let ram = [];   // current pages in RAM (FIFO queue)
+  const steps = [];
+  let faults = 0, hits = 0;
+
+  for (let i = 0; i < seq.length; i++) {
+    const pg = seq[i];
+    const isFault = !ram.includes(pg);
+    if (isFault) {
+      faults++;
+      if (ram.length >= frames) ram.shift(); // FIFO evict
+      ram.push(pg);
+    } else {
+      hits++;
+    }
+    steps.push({
+      pg, isFault, ramSnap: [...ram], allPages,
+      faults, hits, step: i+1
+    });
+  }
+  pfSteps = steps;
+  return steps;
+}
+
+function renderPFTimeline(upToStep) {
+  const steps = pfSteps;
+  if (!steps.length) return;
+
+  const allPages = steps[0].allPages;
+  const numSteps = upToStep; // show steps 0..upToStep-1
+
+  const timeline = document.getElementById('timeline');
+  timeline.innerHTML = '';
+
+  // Header row (step numbers)
+  const headerRow = document.createElement('div');
+  headerRow.className = 'tl-row';
+  headerRow.innerHTML = '<div class="tl-label">Bước →</div>';
+  for (let i = 1; i <= numSteps; i++) {
+    const c = document.createElement('div');
+    c.className = 'tl-step'; c.textContent = i;
+    headerRow.appendChild(c);
+  }
+  timeline.appendChild(headerRow);
+
+  // Access row
+  const accRow = document.createElement('div');
+  accRow.className = 'tl-row';
+  accRow.innerHTML = '<div class="tl-label">Truy cập</div>';
+  for (let i = 0; i < numSteps; i++) {
+    const c = document.createElement('div');
+    c.className = 'tl-cell ' + (steps[i].isFault ? 'fault' : 'in-ram');
+    c.textContent = 'P' + steps[i].pg;
+    accRow.appendChild(c);
+  }
+  timeline.appendChild(accRow);
+
+  // Fault indicator
+  const fRow = document.createElement('div');
+  fRow.className = 'tl-row';
+  fRow.innerHTML = '<div class="tl-label">Fault?</div>';
+  for (let i = 0; i < numSteps; i++) {
+    const c = document.createElement('div');
+    c.className = 'tl-cell ' + (steps[i].isFault ? 'fault' : 'in-ram');
+    c.textContent = steps[i].isFault ? 'F' : '—';
+    fRow.appendChild(c);
+  }
+  timeline.appendChild(fRow);
+
+  // RAM state rows (one per frame slot)
+  const maxFrames = parseInt(document.getElementById('pf-frames').value) || 3;
+  for (let f = 0; f < maxFrames; f++) {
+    const row = document.createElement('div');
+    row.className = 'tl-row';
+    row.innerHTML = `<div class="tl-label">Frame ${f}</div>`;
+    for (let i = 0; i < numSteps; i++) {
+      const ram = steps[i].ramSnap;
+      const c = document.createElement('div');
+      if (f < ram.length) {
+        c.className = 'tl-cell in-ram';
+        c.textContent = 'P' + ram[f];
+      } else {
+        c.className = 'tl-cell empty';
+        c.textContent = '—';
+      }
+      row.appendChild(c);
+    }
+    timeline.appendChild(row);
+  }
+}
+
+function renderPTDisplay(step) {
+  const s = pfSteps[step - 1];
+  if (!s) { document.getElementById('pt-display').innerHTML = ''; return; }
+  const allPages = s.allPages;
+  const pt = document.getElementById('pt-display');
+  pt.innerHTML = '';
+  allPages.forEach(pg => {
+    const inRam = s.ramSnap.includes(pg);
+    const isCurrent = s.pg === pg;
+    const div = document.createElement('div');
+    div.className = 'pte-card ' + (isCurrent && s.isFault ? 'fault-now' : (inRam ? 'valid' : 'invalid'));
+    div.innerHTML = `
+      <div class="pte-num">Page ${pg}</div>
+      <div class="pte-status">${inRam ? '✓' : '✗'}</div>
+      <div class="pte-frame">${inRam ? 'RAM' : 'Đĩa'}${isCurrent ? ' ←' : ''}</div>`;
+    pt.appendChild(div);
+  });
+}
+
+function updatePFStats(upToStep) {
+  const s = pfSteps[upToStep-1] || { faults: 0, hits: 0, step: 0 };
+  document.getElementById('pf-total').textContent  = s.step;
+  document.getElementById('pf-faults').textContent = s.faults;
+  document.getElementById('pf-hits').textContent   = s.hits;
+  const total = s.faults + s.hits;
+  document.getElementById('pf-rate').textContent   = total > 0 ? (s.faults/total*100).toFixed(1)+'%' : '—';
+}
+
+function runPF() {
+  buildPFSteps();
+  pfStepIdx = pfSteps.length;
+
+  renderPFTimeline(pfSteps.length);
+  renderPTDisplay(pfSteps.length);
+  updatePFStats(pfSteps.length);
+
+  const logEl = document.getElementById('pf-log');
+  logEl.innerHTML = '';
+  pfSteps.forEach(s => {
+    const cls = s.isFault ? 'fault' : 'ok';
+    const label = s.isFault ? '✗ PAGE FAULT — nạp từ đĩa' : '✓ RAM hit';
+    logEl.innerHTML += `<span class="${cls}">[${s.step}] Page ${s.pg} → ${label}  |  RAM: [${s.ramSnap.map(p=>'P'+p).join(', ')}]</span>\n`;
+  });
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function stepPF() {
+  if (pfStepIdx === 0 || pfSteps.length === 0) {
+    buildPFSteps();
+    pfStepIdx = 0;
+    document.getElementById('pf-log').innerHTML = '';
+    document.getElementById('timeline').innerHTML = '';
+    updatePFStats(0);
+  }
+  if (pfStepIdx >= pfSteps.length) {
+    document.getElementById('pf-log').innerHTML += '<span class="info">-- Kết thúc --</span>\n';
+    return;
+  }
+  pfStepIdx++;
+
+  renderPFTimeline(pfStepIdx);
+  renderPTDisplay(pfStepIdx);
+  updatePFStats(pfStepIdx);
+
+  const s = pfSteps[pfStepIdx - 1];
+  const logEl = document.getElementById('pf-log');
+  const cls = s.isFault ? 'fault' : 'ok';
+  const label = s.isFault ? '✗ PAGE FAULT — OS nạp trang từ đĩa' : '✓ RAM hit — truy cập bình thường';
+  logEl.innerHTML += `<span class="${cls}">[Bước ${s.step}] Page ${s.pg}: ${label}\n  RAM hiện tại: [${s.ramSnap.map(p=>'P'+p).join(', ')}]</span>\n`;
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function resetPF() {
+  pfSteps = []; pfStepIdx = 0;
+  document.getElementById('pf-log').innerHTML = '-- Reset --';
+  document.getElementById('timeline').innerHTML = '';
+  document.getElementById('pt-display').innerHTML = '';
+  updatePFStats(0);
+}
+
+function loadPFPreset(n) {
+  if (n === 1) {
+    document.getElementById('pf-seq').value   = '1,2,3,1,2,3,1,2,3,1,2,3';
+    document.getElementById('pf-frames').value = '3';
+  } else {
+    document.getElementById('pf-seq').value   = '1,2,3,4,1,2,3,4,1,2,3,4';
+    document.getElementById('pf-frames').value = '3';
+  }
+  runPF();
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 2 — EAT Calculator
+// ═══════════════════════════════════════════════════════
+document.getElementById('eat-storage').addEventListener('change', function() {
+  if (this.value !== 'custom') {
+    document.getElementById('eat-tfault').value = this.value;
+  }
+});
+
+function calcEAT() {
+  const p      = parseFloat(document.getElementById('eat-p').value) || 0.001;
+  const tmem   = parseFloat(document.getElementById('eat-tmem').value) || 100;
+  const storeSel = document.getElementById('eat-storage').value;
+  const tfault = storeSel === 'custom'
+    ? parseFloat(document.getElementById('eat-tfault').value) || 8000000
+    : parseFloat(storeSel);
+
+  const eatHit   = tmem;
+  const eatFault = tfault + tmem; // fault service + data access
+  const eat      = (1 - p) * eatHit + p * eatFault;
+  const eatNoVM  = tmem;
+
+  const tfaultMs = (tfault / 1e6).toFixed(3);
+  const eatMicro = (eat / 1000).toFixed(2);
+  const slowdown = (eat / eatNoVM).toFixed(1);
+
+  const maxBar = Math.max(eat, eatNoVM) * 1.1;
+  const w1 = Math.max(5, (eatNoVM / maxBar * 100)).toFixed(1);
+  const w2 = Math.max(5, (eat / maxBar * 100)).toFixed(1);
+
+  document.getElementById('eat-result').innerHTML = `
+  <div class="eat-result">
+    <strong>Thông số:</strong> p=${p}, t_mem=${tmem} ns, t_fault=${tfaultMs} ms<br><br>
+    <strong>Tính EAT:</strong><br>
+    EAT = (1−${p}) × ${tmem} + ${p} × (${(tfault/1e6).toFixed(3)} ms + ${tmem} ns)<br>
+        = ${((1-p)*eatHit).toFixed(2)} + ${(p * eatFault).toFixed(2)}<br>
+        = <strong>${eat.toFixed(2)} ns = ${eatMicro} µs</strong><br><br>
+    <strong>So sánh:</strong>
+    <div class="eat-bar-wrap">
+      <div style="font-size:12px;color:#6b7280;margin-bottom:3px">Không VM (thuần RAM): ${eatNoVM} ns</div>
+      <div class="eat-bar" style="background:#22c55e;width:${w1}%">${eatNoVM} ns</div>
+    </div>
+    <div class="eat-bar-wrap">
+      <div style="font-size:12px;color:#6b7280;margin-bottom:3px">Với VM (p=${p}): ${eat.toFixed(1)} ns</div>
+      <div class="eat-bar" style="background:#${eat < eatNoVM*2?'0ea5e9':'f97316'};width:${w2}%">${eat.toFixed(0)} ns</div>
+    </div>
+    <br>
+    Chậm hơn <strong style="color:${eat > eatNoVM*5?'#dc2626':'#16a34a'}">${slowdown}×</strong> so với không VM.
+    ${eat > eatNoVM * 10 ? '<br><span style="color:#dc2626">⚠ Overhead quá cao! Cần giảm page fault rate.</span>' : ''}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 3 — Working Set
+// ═══════════════════════════════════════════════════════
+function calcWS() {
+  const seq = document.getElementById('ws-seq').value
+    .split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+  const delta  = parseInt(document.getElementById('ws-delta').value) || 5;
+  const frames = parseInt(document.getElementById('ws-frames').value) || 4;
+
+  const wsDisplay = document.getElementById('ws-display');
+  const wsChart   = document.getElementById('ws-chart');
+
+  wsDisplay.innerHTML = '';
+  wsChart.innerHTML   = '';
+
+  if (seq.length === 0) { wsDisplay.textContent = 'Nhập chuỗi truy cập.'; return; }
+
+  // Compute working set at each time step
+  const wsSizes = [];
+  for (let t = 0; t < seq.length; t++) {
+    const start = Math.max(0, t - delta + 1);
+    const ws = new Set(seq.slice(start, t+1));
+    wsSizes.push(ws.size);
+
+    const wsTags = [...ws].sort((a,b)=>a-b).map(p =>
+      `<span class="ws-tag">P${p}</span>`).join('');
+    const isThrashing = ws.size > frames;
+    wsDisplay.innerHTML += `
+      <div style="margin:4px 0;font-size:13px">
+        <strong>t=${t+1}</strong> (truy cập P${seq[t]}):
+        W = {${wsTags}} — |W|=${ws.size}
+        ${isThrashing ? '<span style="color:#dc2626;font-weight:700"> ⚠ THRASHING (|W|>frames)</span>' : ''}
+      </div>`;
+  }
+
+  // Simple bar chart of |W| over time
+  const maxSize = Math.max(...wsSizes, frames);
+  wsChart.innerHTML = `<div style="font-size:12px;font-weight:700;color:#6b7280;margin-bottom:8px">Kích thước working set theo thời gian (đỏ = vượt quá RAM=${frames} frame):</div>`;
+  const chartDiv = document.createElement('div');
+  chartDiv.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;align-items:flex-end;height:80px';
+  wsSizes.forEach((sz, i) => {
+    const bar = document.createElement('div');
+    const h = Math.max(4, (sz / maxSize * 70));
+    const over = sz > frames;
+    bar.style.cssText = `height:${h}px;width:28px;background:${over?'#ef4444':'#0e7490'};border-radius:2px 2px 0 0;position:relative`;
+    bar.title = `t=${i+1}: |W|=${sz}`;
+    const lbl = document.createElement('div');
+    lbl.style.cssText = 'position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-size:10px;color:#6b7280';
+    lbl.textContent = sz;
+    bar.appendChild(lbl);
+    chartDiv.appendChild(bar);
+  });
+  wsChart.appendChild(chartDiv);
+
+  // Thrashing line
+  const lineDiv = document.createElement('div');
+  lineDiv.style.cssText = `margin-top:28px;font-size:12px;color:#dc2626;font-weight:700`;
+  lineDiv.textContent = `--- Ngưỡng RAM: ${frames} frame (cột đỏ = thrashing) ---`;
+  wsChart.appendChild(lineDiv);
+}
+
+// ── Init ──
+window.addEventListener('DOMContentLoaded', () => {
+  runPF();
+  calcEAT();
+  calcWS();
+});
+</script>
+</body>
+</html>

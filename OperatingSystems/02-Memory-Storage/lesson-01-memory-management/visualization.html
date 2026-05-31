@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Quản lý bộ nhớ</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --mem-accent: #0e7490;
+    --mem-soft:   #cffafe;
+    --mem-mid:    #22d3ee;
+    --mem-dark:   #164e63;
+    --free-color: #e0f2fe;
+    --free-border:#0ea5e9;
+    --proc-a:     #7c3aed;
+    --proc-b:     #059669;
+    --proc-c:     #d97706;
+    --proc-d:     #dc2626;
+    --proc-e:     #db2777;
+    --frag-color: #fca5a5;
+    --frag-border:#ef4444;
+  }
+
+  h1 { color: var(--mem-dark); }
+  h2 { color: var(--mem-accent); margin-top: 36px; padding-bottom: 6px;
+       border-bottom: 2px solid var(--mem-mid); }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(14,116,144,.12);
+    margin: 16px 0;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px; border-radius: 6px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--mem-accent); color: #fff; }
+  .btn-primary:hover { background: var(--mem-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ── Memory map ── */
+  #mem-map-wrap { overflow-x: auto; }
+  #mem-map {
+    display: flex; flex-direction: column; gap: 2px;
+    min-width: 320px; width: 100%; max-width: 700px; margin: 0 auto;
+    font-family: monospace; font-size: 13px;
+  }
+  .mem-row {
+    display: flex; align-items: center; gap: 8px;
+    height: 36px; border-radius: 4px; padding: 0 10px;
+    transition: background .25s;
+    border: 1px solid transparent;
+  }
+  .mem-row.free {
+    background: var(--free-color);
+    border-color: var(--free-border);
+  }
+  .mem-row.proc-A { background: #ede9fe; border-color: var(--proc-a); }
+  .mem-row.proc-B { background: #d1fae5; border-color: var(--proc-b); }
+  .mem-row.proc-C { background: #fef3c7; border-color: var(--proc-c); }
+  .mem-row.proc-D { background: #fee2e2; border-color: var(--proc-d); }
+  .mem-row.proc-E { background: #fce7f3; border-color: var(--proc-e); }
+  .mem-row.chosen { box-shadow: 0 0 0 3px #0e7490; }
+  .mem-row.frag   { background: var(--frag-color); border-color: var(--frag-border); }
+
+  .mem-addr  { width: 90px; color: #6b7280; flex-shrink: 0; }
+  .mem-label { flex: 1; font-weight: 600; }
+  .mem-size  { width: 70px; text-align: right; color: #374151; flex-shrink: 0; }
+
+  /* ── Controls ── */
+  .ctrl-row {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
+    margin: 16px 0;
+  }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  .ctrl-group label { font-size: 13px; color: #374151; font-weight: 600; }
+  input[type=number], select {
+    border: 1px solid #d1d5db; border-radius: 6px;
+    padding: 7px 10px; font-size: 14px;
+    width: 120px; max-width: 100%;
+    box-sizing: border-box;
+  }
+  select { width: 150px; }
+
+  /* ── Log ── */
+  #alloc-log {
+    background: #1e293b; color: #e2e8f0;
+    border-radius: 8px; padding: 14px 16px;
+    font-family: monospace; font-size: 13px;
+    line-height: 1.8; min-height: 60px; max-height: 180px;
+    overflow-y: auto; margin-top: 12px;
+    white-space: pre-wrap;
+  }
+  #alloc-log .ok   { color: #4ade80; }
+  #alloc-log .fail { color: #f87171; }
+  #alloc-log .info { color: #93c5fd; }
+
+  /* ── Legend ── */
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0 16px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  .legend-swatch { width: 16px; height: 16px; border-radius: 3px; border: 1.5px solid; }
+
+  /* ── Stats ── */
+  .stats { display: flex; flex-wrap: wrap; gap: 16px; margin: 8px 0; }
+  .stat-box {
+    background: #f0f9ff; border: 1px solid #bae6fd;
+    border-radius: 8px; padding: 10px 16px; min-width: 120px;
+    text-align: center;
+  }
+  .stat-val { font-size: 22px; font-weight: 700; color: var(--mem-accent); }
+  .stat-lbl { font-size: 12px; color: #6b7280; }
+
+  /* ── Address translator ── */
+  .translate-box {
+    background: #f0f9ff; border: 1px solid #bae6fd;
+    border-radius: 10px; padding: 20px; margin: 12px 0;
+  }
+  .translate-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 12px; }
+  .translate-result {
+    margin-top: 12px; padding: 14px 16px;
+    border-radius: 8px; font-size: 15px; line-height: 1.8;
+  }
+  .translate-result.ok   { background: #dcfce7; border: 1px solid #86efac; }
+  .translate-result.fail { background: #fee2e2; border: 1px solid #fca5a5; }
+
+  /* ── Mobile responsive ── */
+  @media (max-width: 600px) {
+    .ctrl-row { gap: 8px; }
+    input[type=number], select { width: 100%; }
+    .stats { gap: 10px; }
+    .stat-box { min-width: 100px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Memory</a>
+  <span class="sep">·</span>
+  <a href="../../01-Foundations-Processes/lesson-08-ipc/visualization.html">← Tầng 1: IPC</a>
+  <span class="sep">·</span>
+  <span class="current">L01: Quản lý bộ nhớ</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-paging/visualization.html">L02: Paging →</a>
+</nav>
+<main>
+  <h1>Quản lý bộ nhớ — Memory Management</h1>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODULE 1: Address Translator
+       ═══════════════════════════════════════════════════════ -->
+  <h2>Module 1 — Dịch địa chỉ (Base + Limit)</h2>
+  <div class="card">
+    <p>Nhập <strong>base</strong>, <strong>limit</strong> và <strong>địa chỉ logic</strong>. MMU sẽ kiểm tra và tính địa chỉ vật lý.</p>
+    <div class="translate-box">
+      <div class="translate-row">
+        <div class="ctrl-group">
+          <label>Base register (KB)</label>
+          <input type="number" id="t-base" value="14000" min="0" max="999999">
+        </div>
+        <div class="ctrl-group">
+          <label>Limit register (KB)</label>
+          <input type="number" id="t-limit" value="4096" min="1" max="999999">
+        </div>
+        <div class="ctrl-group">
+          <label>Địa chỉ logic</label>
+          <input type="number" id="t-logic" value="1000" min="0">
+        </div>
+        <div class="ctrl-group">
+          <label>&nbsp;</label>
+          <button class="btn btn-primary" onclick="translateAddr()">Dịch địa chỉ</button>
+        </div>
+      </div>
+      <div id="translate-result"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="setExample(0,0,4096,1000)">Ví dụ: logic 1000</button>
+      <button class="btn btn-secondary" onclick="setExample(0,14000,4096,4095)">Logic 4095 (byte cuối)</button>
+      <button class="btn btn-secondary" onclick="setExample(0,14000,4096,4100)">Logic 4100 (lỗi)</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODULE 2: Memory Allocator
+       ═══════════════════════════════════════════════════════ -->
+  <h2>Module 2 — Bộ cấp phát bộ nhớ (First / Best / Worst Fit)</h2>
+  <div class="card">
+    <p>Mô phỏng RAM <strong>1000 KB</strong>. Thêm hoặc xóa tiến trình và quan sát chiến lược cấp phát.</p>
+
+    <div class="legend">
+      <span class="legend-item"><span class="legend-swatch" style="background:#ede9fe;border-color:#7c3aed"></span>Tiến trình A</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#d1fae5;border-color:#059669"></span>Tiến trình B</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#fef3c7;border-color:#d97706"></span>Tiến trình C</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#fee2e2;border-color:#dc2626"></span>Tiến trình D</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#e0f2fe;border-color:#0ea5e9"></span>Trống (free)</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#fca5a5;border-color:#ef4444"></span>Phân mảnh</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat-box">
+        <div class="stat-val" id="stat-total">1000</div>
+        <div class="stat-lbl">Tổng RAM (KB)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="stat-used">0</div>
+        <div class="stat-lbl">Đã dùng (KB)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="stat-free">1000</div>
+        <div class="stat-lbl">Trống (KB)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="stat-holes">1</div>
+        <div class="stat-lbl">Số lỗ trống</div>
+      </div>
+    </div>
+
+    <div class="ctrl-row">
+      <div class="ctrl-group">
+        <label>Kích thước (KB)</label>
+        <input type="number" id="req-size" value="200" min="1" max="1000">
+      </div>
+      <div class="ctrl-group">
+        <label>Tiến trình</label>
+        <select id="req-proc">
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+          <option value="E">E</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>Chiến lược</label>
+        <select id="req-strategy">
+          <option value="first">First-Fit</option>
+          <option value="best">Best-Fit</option>
+          <option value="worst">Worst-Fit</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>&nbsp;</label>
+        <button class="btn btn-primary" onclick="allocate()">Cấp phát</button>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="freeProc('B')">Giải phóng B</button>
+      <button class="btn btn-secondary" onclick="freeProc('A')">Giải phóng A</button>
+      <button class="btn btn-secondary" onclick="freeProc('C')">Giải phóng C</button>
+      <button class="btn btn-secondary" onclick="freeProc('D')">Giải phóng D</button>
+      <button class="btn btn-secondary" onclick="resetMem()">Reset bộ nhớ</button>
+      <button class="btn btn-secondary" onclick="loadPreset()">Nạp kịch bản mẫu</button>
+    </div>
+
+    <div id="mem-map-wrap"><div id="mem-map"></div></div>
+    <div id="alloc-log">-- Log cấp phát --</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODULE 3: Fragmentation Demo
+       ═══════════════════════════════════════════════════════ -->
+  <h2>Module 3 — Phân mảnh & Compaction</h2>
+  <div class="card">
+    <p>Kịch bản này minh họa phân mảnh ngoài: sau khi một số tiến trình rời đi, tổng trống đủ nhưng không thể cấp tiếp.</p>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="fragDemo()">Chạy kịch bản phân mảnh</button>
+      <button class="btn btn-secondary" onclick="compactDemo()">Compaction</button>
+      <button class="btn btn-secondary" onclick="resetFrag()">Reset</button>
+    </div>
+    <div id="frag-status" style="margin:10px 0;font-weight:600;color:var(--mem-accent)"></div>
+    <div id="frag-map-wrap"><div id="frag-map"></div></div>
+    <div id="frag-log" style="background:#1e293b;color:#e2e8f0;border-radius:8px;padding:14px 16px;font-family:monospace;font-size:13px;line-height:1.8;min-height:60px;max-height:160px;overflow-y:auto;margin-top:10px;white-space:pre-wrap;"></div>
+  </div>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════
+// MODULE 1 — Address Translator
+// ═══════════════════════════════════════════════════════
+function setExample(dummy, base, limit, logic) {
+  document.getElementById('t-base').value  = base;
+  document.getElementById('t-limit').value = limit;
+  document.getElementById('t-logic').value = logic;
+  translateAddr();
+}
+
+function translateAddr() {
+  const base  = parseInt(document.getElementById('t-base').value)  || 0;
+  const limit = parseInt(document.getElementById('t-limit').value) || 1;
+  const logic = parseInt(document.getElementById('t-logic').value) || 0;
+  const div   = document.getElementById('translate-result');
+
+  if (logic < 0) {
+    div.innerHTML = '<div class="translate-result fail">⚠ Địa chỉ logic phải ≥ 0.</div>';
+    return;
+  }
+  if (logic >= limit) {
+    div.innerHTML = `<div class="translate-result fail">
+      <strong>SEGMENTATION FAULT</strong><br>
+      Địa chỉ logic <code>${logic}</code> ≥ limit <code>${limit}</code><br>
+      MMU từ chối — phần cứng tạo ngắt bảo vệ bộ nhớ.
+    </div>`;
+  } else {
+    const phys = logic + base;
+    div.innerHTML = `<div class="translate-result ok">
+      <strong>Hợp lệ ✓</strong><br>
+      Kiểm tra: logic ${logic} &lt; limit ${limit} — OK<br>
+      Địa chỉ vật lý = ${logic} + ${base} = <strong>${phys}</strong><br>
+      Tiến trình chiếm vật lý [${base} – ${base + limit - 1}]
+    </div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 2 — Memory Allocator
+// ═══════════════════════════════════════════════════════
+const RAM_SIZE = 1000;
+// segments: [{start, size, proc}]  proc='free' | 'A'..'E'
+let segments = [{ start: 0, size: RAM_SIZE, proc: 'free' }];
+let logEl;
+
+function logMsg(cls, txt) {
+  if (!logEl) logEl = document.getElementById('alloc-log');
+  logEl.innerHTML += `<span class="${cls}">${txt}</span>\n`;
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function clearLog() {
+  if (!logEl) logEl = document.getElementById('alloc-log');
+  logEl.innerHTML = '';
+}
+
+function renderMap() {
+  const map = document.getElementById('mem-map');
+  map.innerHTML = '';
+  let used = 0, holes = 0;
+
+  for (const seg of segments) {
+    const row = document.createElement('div');
+    row.className = 'mem-row';
+    if (seg.proc === 'free') {
+      row.classList.add('free');
+      holes++;
+    } else {
+      row.classList.add(`proc-${seg.proc}`);
+      used += seg.size;
+    }
+    row.innerHTML = `
+      <span class="mem-addr">${seg.start}–${seg.start + seg.size - 1}</span>
+      <span class="mem-label">${seg.proc === 'free' ? 'Trống' : 'Tiến trình ' + seg.proc}</span>
+      <span class="mem-size">${seg.size} KB</span>`;
+    map.appendChild(row);
+  }
+
+  document.getElementById('stat-used').textContent = used;
+  document.getElementById('stat-free').textContent = RAM_SIZE - used;
+  document.getElementById('stat-holes').textContent = holes;
+}
+
+function mergeFree() {
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (let i = 0; i < segments.length - 1; i++) {
+      if (segments[i].proc === 'free' && segments[i+1].proc === 'free') {
+        segments[i].size += segments[i+1].size;
+        segments.splice(i+1, 1);
+        changed = true;
+        break;
+      }
+    }
+  }
+}
+
+function getFreeHoles() {
+  return segments
+    .map((s, i) => ({ ...s, idx: i }))
+    .filter(s => s.proc === 'free');
+}
+
+function allocate() {
+  const size     = parseInt(document.getElementById('req-size').value);
+  const proc     = document.getElementById('req-proc').value;
+  const strategy = document.getElementById('req-strategy').value;
+
+  if (!size || size <= 0) { logMsg('fail', '✗ Kích thước phải > 0.'); return; }
+
+  // Check proc already allocated
+  if (segments.some(s => s.proc === proc)) {
+    logMsg('fail', `✗ Tiến trình ${proc} đã tồn tại trong RAM. Giải phóng trước.`);
+    return;
+  }
+
+  const holes = getFreeHoles();
+  const eligible = holes.filter(h => h.size >= size);
+
+  if (eligible.length === 0) {
+    const totalFree = holes.reduce((s, h) => s + h.size, 0);
+    logMsg('fail', `✗ Không cấp được ${size} KB cho tiến trình ${proc}. Trống rời rạc: ${totalFree} KB (phân mảnh ngoài).`);
+    return;
+  }
+
+  let chosen;
+  const strat = document.getElementById('req-strategy').value;
+  if (strat === 'first') {
+    chosen = eligible[0];
+    logMsg('info', `First-Fit: chọn lỗ tại [${chosen.start}–${chosen.start+chosen.size-1}] (${chosen.size} KB)`);
+  } else if (strat === 'best') {
+    chosen = eligible.reduce((a, b) => a.size < b.size ? a : b);
+    logMsg('info', `Best-Fit: chọn lỗ tại [${chosen.start}–${chosen.start+chosen.size-1}] (${chosen.size} KB, dư ${chosen.size-size} KB)`);
+  } else {
+    chosen = eligible.reduce((a, b) => a.size > b.size ? a : b);
+    logMsg('info', `Worst-Fit: chọn lỗ tại [${chosen.start}–${chosen.start+chosen.size-1}] (${chosen.size} KB, dư ${chosen.size-size} KB)`);
+  }
+
+  // Split segment
+  const idx = chosen.idx;
+  const remainder = chosen.size - size;
+  segments.splice(idx, 1,
+    { start: chosen.start, size: size, proc: proc },
+    ...(remainder > 0 ? [{ start: chosen.start + size, size: remainder, proc: 'free' }] : [])
+  );
+
+  logMsg('ok', `✓ Tiến trình ${proc} (${size} KB) → [${chosen.start}–${chosen.start+size-1}]`);
+  renderMap();
+}
+
+function freeProc(proc) {
+  const idx = segments.findIndex(s => s.proc === proc);
+  if (idx === -1) { logMsg('fail', `✗ Tiến trình ${proc} không có trong RAM.`); return; }
+  const seg = segments[idx];
+  logMsg('info', `Giải phóng tiến trình ${proc}: [${seg.start}–${seg.start+seg.size-1}] (${seg.size} KB)`);
+  segments[idx] = { ...seg, proc: 'free' };
+  mergeFree();
+  renderMap();
+}
+
+function resetMem() {
+  segments = [{ start: 0, size: RAM_SIZE, proc: 'free' }];
+  clearLog();
+  logMsg('info', 'Reset — RAM 1000 KB trống hoàn toàn.');
+  renderMap();
+}
+
+function loadPreset() {
+  // Preset: A(200), gap(150), B(250), gap(150), C(150), gap(100)
+  segments = [
+    { start: 0,   size: 200, proc: 'A' },
+    { start: 200, size: 150, proc: 'free' },
+    { start: 350, size: 250, proc: 'B' },
+    { start: 600, size: 150, proc: 'free' },
+    { start: 750, size: 150, proc: 'C' },
+    { start: 900, size: 100, proc: 'free' },
+  ];
+  clearLog();
+  logMsg('info', 'Kịch bản mẫu: A(200), [trống 150], B(250), [trống 150], C(150), [trống 100]');
+  logMsg('info', 'Tổng trống: 400 KB. Thử cấp 300 KB với các chiến lược khác nhau.');
+  renderMap();
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 3 — Fragmentation Demo
+// ═══════════════════════════════════════════════════════
+let fragSegs = [];
+let fragStep = 0;
+
+const FRAG_RAM = 1000;
+
+function renderFragMap() {
+  const map = document.getElementById('frag-map');
+  if (!map) return;
+  map.id = 'frag-map';
+  map.style.cssText = 'display:flex;flex-direction:column;gap:2px;max-width:700px;margin:0 auto;font-family:monospace;font-size:13px;';
+  map.innerHTML = '';
+  for (const seg of fragSegs) {
+    const row = document.createElement('div');
+    row.style.cssText = `display:flex;align-items:center;gap:8px;height:34px;border-radius:4px;padding:0 10px;border:1px solid transparent;`;
+    if (seg.proc === 'free') {
+      row.style.background = '#e0f2fe'; row.style.borderColor = '#0ea5e9';
+    } else if (seg.frag) {
+      row.style.background = '#fca5a5'; row.style.borderColor = '#ef4444';
+    } else {
+      const colors = { A:'#ede9fe|#7c3aed', B:'#d1fae5|#059669', C:'#fef3c7|#d97706', D:'#fee2e2|#dc2626', E:'#fce7f3|#db2777' };
+      const [bg, bd] = (colors[seg.proc] || '#f1f5f9|#9ca3af').split('|');
+      row.style.background = bg; row.style.borderColor = bd;
+    }
+    row.innerHTML = `
+      <span style="width:90px;color:#6b7280">${seg.start}–${seg.start+seg.size-1}</span>
+      <span style="flex:1;font-weight:600">${seg.proc==='free'?'Trống':(seg.frag?'[phân mảnh]':'Tiến trình '+seg.proc)}</span>
+      <span style="width:70px;text-align:right;color:#374151">${seg.size} KB</span>`;
+    map.appendChild(row);
+  }
+}
+
+function fragLog(txt, cls='') {
+  const el = document.getElementById('frag-log');
+  el.innerHTML += `<span style="color:${cls||'#e2e8f0'}">${txt}</span>\n`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function fragDemo() {
+  fragStep = 0;
+  document.getElementById('frag-log').innerHTML = '';
+  document.getElementById('frag-status').textContent = '';
+
+  // Setup: A(200) + free(100) + B(300) + free(100) + C(200) + free(100)
+  fragSegs = [
+    { start: 0,   size: 200, proc: 'A' },
+    { start: 200, size: 100, proc: 'free' },
+    { start: 300, size: 300, proc: 'B' },
+    { start: 600, size: 100, proc: 'free' },
+    { start: 700, size: 200, proc: 'C' },
+    { start: 900, size: 100, proc: 'free' },
+  ];
+  renderFragMap();
+  fragLog('Bước 1: Nạp A(200), B(300), C(200) vào RAM 1000 KB.', '#93c5fd');
+  fragLog('  Lỗ trống: [200–299]=100KB, [600–699]=100KB, [900–999]=100KB', '#e2e8f0');
+
+  setTimeout(() => {
+    // Remove B
+    fragSegs[2] = { start: 300, size: 300, proc: 'free' };
+    renderFragMap();
+    fragLog('\nBước 2: Tiến trình B kết thúc → lỗ [300–599] = 300 KB.', '#93c5fd');
+    fragLog('  Tổng trống: 100+300+100+100 = 600 KB', '#e2e8f0');
+
+    setTimeout(() => {
+      // Try request 400 KB
+      fragLog('\nBước 3: Tiến trình D yêu cầu 400 KB.', '#93c5fd');
+      fragLog('  Duyệt lỗ: [200–299]=100<400, [300–599]=300<400, [600–699]=100<400, [900–999]=100<400', '#fbbf24');
+      fragLog('  ✗ PHÂN MẢNH NGOÀI! Tổng trống=600KB đủ, nhưng không có lỗ ≥ 400 KB liên tục.', '#f87171');
+      document.getElementById('frag-status').textContent =
+        'Phân mảnh ngoài: Tổng trống 600 KB, nhưng D (400 KB) không được cấp!';
+
+      // Mark holes as fragmented-ish for visual effect
+      for (const s of fragSegs) if (s.proc === 'free') s.frag = true;
+      renderFragMap();
+    }, 1500);
+  }, 1500);
+}
+
+function compactDemo() {
+  if (fragSegs.length === 0) {
+    fragLog('Chạy kịch bản phân mảnh trước!', '#f87171');
+    return;
+  }
+  document.getElementById('frag-log').innerHTML += '\n';
+  fragLog('Compaction: dồn tất cả tiến trình về đầu RAM...', '#93c5fd');
+
+  // Collect procs in order
+  const procs = fragSegs.filter(s => s.proc !== 'free');
+  const totalProc = procs.reduce((s, p) => s + p.size, 0);
+  const totalFree = FRAG_RAM - totalProc;
+
+  let cursor = 0;
+  fragSegs = [];
+  for (const p of procs) {
+    fragSegs.push({ start: cursor, size: p.size, proc: p.proc });
+    cursor += p.size;
+  }
+  fragSegs.push({ start: cursor, size: totalFree, proc: 'free' });
+
+  renderFragMap();
+  fragLog(`  Sau compaction: ${totalFree} KB trống liên tục tại [${totalProc}–${FRAG_RAM-1}].`, '#4ade80');
+  fragLog('  Tiến trình D (400 KB) có thể được cấp ngay bây giờ!', '#4ade80');
+  document.getElementById('frag-status').textContent =
+    `Compaction xong: ${totalFree} KB liên tục — D (400 KB) có thể cấp!`;
+}
+
+function resetFrag() {
+  fragSegs = [];
+  document.getElementById('frag-map').innerHTML = '';
+  document.getElementById('frag-log').innerHTML = '';
+  document.getElementById('frag-status').textContent = '';
+}
+
+// ── Init ──
+window.addEventListener('DOMContentLoaded', () => {
+  renderMap();
+  translateAddr();
+});
+</script>
+</body>
+</html>

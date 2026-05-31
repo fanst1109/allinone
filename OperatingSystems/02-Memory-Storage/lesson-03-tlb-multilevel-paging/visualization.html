@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — TLB & Bảng trang nhiều cấp</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --tlb-accent: #0e7490;
+    --tlb-soft:   #cffafe;
+    --tlb-mid:    #22d3ee;
+    --tlb-dark:   #164e63;
+    --hit-color:  #16a34a;
+    --miss-color: #dc2626;
+    --hit-bg:     #dcfce7;
+    --miss-bg:    #fee2e2;
+  }
+
+  h1 { color: var(--tlb-dark); }
+  h2 { color: var(--tlb-accent); margin-top: 36px; padding-bottom: 6px;
+       border-bottom: 2px solid var(--tlb-mid); }
+
+  .card {
+    background: #fff; border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(14,116,144,.12);
+    margin: 16px 0;
+  }
+
+  .btn {
+    padding: 8px 18px; border-radius: 6px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--tlb-accent); color: #fff; }
+  .btn-primary:hover { background: var(--tlb-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  .ctrl-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin: 12px 0; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  .ctrl-group label { font-size: 13px; color: #374151; font-weight: 600; }
+  input[type=number], input[type=text], select {
+    border: 1px solid #d1d5db; border-radius: 6px;
+    padding: 7px 10px; font-size: 14px; width: 130px;
+    max-width: 100%; box-sizing: border-box;
+  }
+
+  /* TLB table */
+  #tlb-table-wrap { overflow-x: auto; margin: 12px 0; }
+  #tlb-table {
+    border-collapse: collapse; width: 100%; max-width: 500px;
+    font-size: 13px; font-family: monospace;
+  }
+  #tlb-table th {
+    background: var(--tlb-accent); color: #fff;
+    padding: 8px 14px; text-align: center;
+  }
+  #tlb-table td {
+    border: 1px solid #e2e8f0; padding: 7px 14px;
+    text-align: center; transition: background .3s;
+  }
+  #tlb-table tr.hit td  { background: var(--hit-bg); }
+  #tlb-table tr.miss td { background: var(--miss-bg); }
+  #tlb-table tr.new td  { background: #fef3c7; }
+
+  /* Log */
+  .log {
+    background: #1e293b; color: #e2e8f0;
+    border-radius: 8px; padding: 14px 16px;
+    font-family: monospace; font-size: 13px;
+    line-height: 1.8; min-height: 60px; max-height: 200px;
+    overflow-y: auto; margin-top: 12px; white-space: pre-wrap;
+  }
+  .log .hit  { color: #4ade80; }
+  .log .miss { color: #f87171; }
+  .log .info { color: #93c5fd; }
+  .log .step { color: #fbbf24; }
+
+  /* Stats row */
+  .stats { display: flex; flex-wrap: wrap; gap: 12px; margin: 8px 0; }
+  .stat-box {
+    background: #f0f9ff; border: 1px solid #bae6fd;
+    border-radius: 8px; padding: 10px 16px; min-width: 110px;
+    text-align: center;
+  }
+  .stat-val { font-size: 22px; font-weight: 700; color: var(--tlb-accent); }
+  .stat-lbl { font-size: 12px; color: #6b7280; }
+
+  /* Multi-level diagram */
+  #ml-diagram {
+    display: flex; flex-direction: column; gap: 20px;
+    font-family: monospace; font-size: 13px; margin: 16px 0;
+    max-width: 700px; margin: 16px auto;
+  }
+  .ml-level {
+    background: #f8fafc; border: 1.5px solid #e2e8f0;
+    border-radius: 10px; padding: 14px 18px;
+  }
+  .ml-level-title {
+    font-size: 12px; font-weight: 700; color: #6b7280;
+    text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px;
+  }
+  .ml-entries {
+    display: flex; flex-wrap: wrap; gap: 4px;
+  }
+  .ml-entry {
+    width: 60px; height: 36px; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600;
+    border: 1.5px solid transparent;
+    transition: all .3s;
+  }
+  .ml-entry.null  { background: #f1f5f9; color: #9ca3af; border-color: #e2e8f0; }
+  .ml-entry.valid { background: #cffafe; color: var(--tlb-dark); border-color: var(--tlb-mid); }
+  .ml-entry.active { background: #fbbf24; color: #78350f; border-color: #f59e0b;
+                      box-shadow: 0 0 0 2px #fde68a; }
+  .ml-entry.target { background: #4ade80; color: #14532d; border-color: #22c55e;
+                      box-shadow: 0 0 0 2px #bbf7d0; }
+
+  /* EAT calculator */
+  .eat-row {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin: 12px 0;
+  }
+  .eat-result {
+    background: #f0f9ff; border: 1px solid #bae6fd;
+    border-radius: 10px; padding: 16px 20px; margin-top: 12px;
+    font-family: monospace; font-size: 14px; line-height: 2;
+  }
+  .eat-bar-wrap { margin: 10px 0; }
+  .eat-bar {
+    height: 24px; border-radius: 4px; display: flex; align-items: center;
+    padding: 0 10px; font-size: 12px; font-weight: 700; color: #fff;
+    transition: width .5s ease;
+  }
+  .bar-nopaging  { background: #22c55e; }
+  .bar-tlb       { background: #0ea5e9; }
+  .bar-notlb     { background: #f97316; }
+
+  @media (max-width: 600px) {
+    .ctrl-row { gap: 8px; }
+    input[type=number], input[type=text], select { width: 100%; }
+    .ml-entry { width: 48px; height: 30px; font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Memory</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-paging/visualization.html">← L02: Paging</a>
+  <span class="sep">·</span>
+  <span class="current">L03: TLB & Bảng trang nhiều cấp</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-virtual-memory-demand-paging/visualization.html">L04: Bộ nhớ ảo →</a>
+</nav>
+<main>
+  <h1>TLB &amp; Bảng trang nhiều cấp</h1>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODULE 1 — TLB Simulator
+       ═══════════════════════════════════════════════════════ -->
+  <h2>Module 1 — Mô phỏng TLB</h2>
+  <div class="card">
+    <p>Nhập chuỗi page number truy cập (cách nhau dấu phẩy). TLB dùng chính sách <strong>LRU</strong> để thay thế.</p>
+
+    <div class="ctrl-row">
+      <div class="ctrl-group" style="flex:1;min-width:200px">
+        <label>Chuỗi page truy cập (page numbers, cách nhau ",")</label>
+        <input type="text" id="tlb-seq" value="1,2,3,1,4,2,5,1,2,3" style="width:100%">
+      </div>
+      <div class="ctrl-group">
+        <label>Kích thước TLB</label>
+        <input type="number" id="tlb-size" value="4" min="1" max="16">
+      </div>
+      <div class="ctrl-group">
+        <label>Bảng trang (page → frame)</label>
+        <input type="text" id="tlb-ptable" value="0:10,1:3,2:7,3:1,4:5,5:9" style="width:180px">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="runTLB()">Chạy mô phỏng</button>
+      <button class="btn btn-secondary" onclick="stepTLB()">Từng bước →</button>
+      <button class="btn btn-secondary" onclick="resetTLB()">Reset</button>
+      <button class="btn btn-secondary" onclick="loadTLBPreset(1)">Ví dụ locality tốt</button>
+      <button class="btn btn-secondary" onclick="loadTLBPreset(2)">Ví dụ locality kém</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat-box">
+        <div class="stat-val" id="tlb-hits">0</div>
+        <div class="stat-lbl">TLB Hits</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="tlb-misses">0</div>
+        <div class="stat-lbl">TLB Misses</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="tlb-ratio">—</div>
+        <div class="stat-lbl">Hit Ratio</div>
+      </div>
+    </div>
+
+    <div id="tlb-table-wrap">
+      <table id="tlb-table">
+        <thead><tr><th>Slot</th><th>Page #</th><th>Frame #</th><th>LRU</th></tr></thead>
+        <tbody id="tlb-tbody"></tbody>
+      </table>
+    </div>
+    <div class="log" id="tlb-log">-- Chạy mô phỏng để xem kết quả --</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODULE 2 — Two-Level Page Table
+       ═══════════════════════════════════════════════════════ -->
+  <h2>Module 2 — Bảng trang 2 cấp</h2>
+  <div class="card">
+    <p>Mô phỏng dịch địa chỉ qua bảng trang 2 cấp. Hệ thống 16-bit, page 64 B (6 bit offset), p1=5 bit, p2=5 bit.</p>
+
+    <div class="ctrl-row">
+      <div class="ctrl-group">
+        <label>Địa chỉ ảo (decimal, 0–65535)</label>
+        <input type="number" id="ml-vaddr" value="2500" min="0" max="65535">
+      </div>
+      <div class="ctrl-group">
+        <label>&nbsp;</label>
+        <button class="btn btn-primary" onclick="translateML()">Dịch địa chỉ 2 cấp</button>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="loadMLExample(1)">Ví dụ: addr=2500</button>
+      <button class="btn btn-secondary" onclick="loadMLExample(2)">Ví dụ: addr=8192</button>
+      <button class="btn btn-secondary" onclick="loadMLExample(3)">Ví dụ: addr=63</button>
+    </div>
+
+    <div id="ml-diagram"></div>
+    <div class="log" id="ml-log">-- Nhập địa chỉ và nhấn Dịch --</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODULE 3 — EAT Calculator
+       ═══════════════════════════════════════════════════════ -->
+  <h2>Module 3 — Tính EAT (Effective Access Time)</h2>
+  <div class="card">
+    <p>Tính thời gian truy cập bộ nhớ hiệu dụng với TLB.</p>
+    <div class="eat-row">
+      <div class="ctrl-group">
+        <label>TLB Hit Ratio (α, 0–1)</label>
+        <input type="number" id="eat-alpha" value="0.95" min="0" max="1" step="0.01">
+      </div>
+      <div class="ctrl-group">
+        <label>RAM access time (ns)</label>
+        <input type="number" id="eat-tmem" value="100" min="1">
+      </div>
+      <div class="ctrl-group">
+        <label>Số cấp bảng trang (k)</label>
+        <select id="eat-k">
+          <option value="1">1 cấp</option>
+          <option value="2" selected>2 cấp</option>
+          <option value="4">4 cấp (x86-64)</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>&nbsp;</label>
+        <button class="btn btn-primary" onclick="calcEAT()">Tính EAT</button>
+      </div>
+    </div>
+    <div id="eat-result"></div>
+  </div>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════
+// MODULE 1 — TLB Simulator (LRU)
+// ═══════════════════════════════════════════════════════
+let tlbState = [];    // [{page, frame, lru}]
+let tlbSteps = [];
+let tlbStepIdx = 0;
+let tlbHits = 0, tlbMisses = 0;
+let pageTableMap = {};
+
+function parsePTable(str) {
+  const map = {};
+  str.split(',').forEach(p => {
+    const [k, v] = p.trim().split(':');
+    if (k !== undefined && v !== undefined) map[parseInt(k)] = parseInt(v);
+  });
+  return map;
+}
+
+function buildTLBSteps() {
+  const seq = document.getElementById('tlb-seq').value
+    .split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+  const cap = parseInt(document.getElementById('tlb-size').value) || 4;
+  pageTableMap = parsePTable(document.getElementById('tlb-ptable').value);
+
+  tlbState = [];
+  tlbSteps = [];
+  let clock = 0, hits = 0, misses = 0;
+
+  for (const pg of seq) {
+    clock++;
+    const frame = pageTableMap[pg] ?? (pg * 3 + 5); // fallback
+    const idx = tlbState.findIndex(e => e.page === pg);
+    let isHit;
+    if (idx !== -1) {
+      isHit = true; hits++;
+      tlbState[idx].lru = clock;
+    } else {
+      isHit = false; misses++;
+      if (tlbState.length < cap) {
+        tlbState.push({ page: pg, frame, lru: clock });
+      } else {
+        // LRU eviction
+        const lruIdx = tlbState.reduce((mi, e, i, arr) => e.lru < arr[mi].lru ? i : mi, 0);
+        tlbState[lruIdx] = { page: pg, frame, lru: clock };
+      }
+    }
+    tlbSteps.push({ pg, frame, isHit, tlbSnap: JSON.parse(JSON.stringify(tlbState)), hits, misses });
+  }
+
+  tlbHits = hits; tlbMisses = misses;
+  return tlbSteps;
+}
+
+function renderTLBTable(snap) {
+  const tbody = document.getElementById('tlb-tbody');
+  const cap   = parseInt(document.getElementById('tlb-size').value) || 4;
+  tbody.innerHTML = '';
+  for (let i = 0; i < cap; i++) {
+    const e = snap[i];
+    const tr = document.createElement('tr');
+    tr.innerHTML = e
+      ? `<td>${i}</td><td>P${e.page}</td><td>F${e.frame}</td><td>${e.lru}</td>`
+      : `<td>${i}</td><td>—</td><td>—</td><td>—</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+function runTLB() {
+  buildTLBSteps();
+  tlbStepIdx = tlbSteps.length;
+
+  const lastSnap = tlbSteps.length > 0 ? tlbSteps[tlbSteps.length-1].tlbSnap : [];
+  renderTLBTable(lastSnap);
+
+  const logEl = document.getElementById('tlb-log');
+  logEl.innerHTML = '';
+  tlbSteps.forEach((s, i) => {
+    const cls = s.isHit ? 'hit' : 'miss';
+    const label = s.isHit ? '✓ HIT ' : '✗ MISS';
+    logEl.innerHTML += `<span class="${cls}">[Step ${i+1}] Page ${s.pg} (Frame ${s.frame}) — ${label}</span>\n`;
+  });
+  logEl.scrollTop = logEl.scrollHeight;
+
+  updateTLBStats();
+}
+
+function stepTLB() {
+  if (tlbStepIdx === 0 || tlbSteps.length === 0) {
+    buildTLBSteps();
+    tlbStepIdx = 0;
+    document.getElementById('tlb-log').innerHTML = '';
+    tlbHits = 0; tlbMisses = 0;
+  }
+  if (tlbStepIdx >= tlbSteps.length) {
+    document.getElementById('tlb-log').innerHTML += '<span class="info">-- Kết thúc chuỗi --</span>\n';
+    return;
+  }
+
+  const s   = tlbSteps[tlbStepIdx];
+  const cls = s.isHit ? 'hit' : 'miss';
+  const label = s.isHit ? '✓ TLB HIT' : '✗ TLB MISS → tra bảng trang';
+
+  renderTLBTable(s.tlbSnap);
+
+  const logEl = document.getElementById('tlb-log');
+  logEl.innerHTML += `<span class="${cls}">[Step ${tlbStepIdx+1}] Page ${s.pg} → Frame ${s.frame} — ${label}</span>\n`;
+  logEl.scrollTop = logEl.scrollHeight;
+
+  tlbHits = s.hits; tlbMisses = s.misses;
+  tlbStepIdx++;
+  updateTLBStats();
+}
+
+function updateTLBStats() {
+  document.getElementById('tlb-hits').textContent   = tlbHits;
+  document.getElementById('tlb-misses').textContent = tlbMisses;
+  const total = tlbHits + tlbMisses;
+  document.getElementById('tlb-ratio').textContent =
+    total > 0 ? (tlbHits / total * 100).toFixed(1) + '%' : '—';
+}
+
+function resetTLB() {
+  tlbState = []; tlbSteps = []; tlbStepIdx = 0; tlbHits = 0; tlbMisses = 0;
+  document.getElementById('tlb-log').innerHTML = '-- Reset --';
+  renderTLBTable([]);
+  updateTLBStats();
+}
+
+function loadTLBPreset(n) {
+  if (n === 1) {
+    document.getElementById('tlb-seq').value = '1,1,2,2,1,3,3,1,2,4,1,2,3';
+    document.getElementById('tlb-size').value = '4';
+  } else {
+    document.getElementById('tlb-seq').value = '1,2,3,4,5,6,7,8,1,2,3,4,5';
+    document.getElementById('tlb-size').value = '4';
+  }
+  tlbStepIdx = 0;
+  runTLB();
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 2 — Two-Level Page Table (16-bit, 64B page)
+// page = 10 bit: p1=5, p2=5. offset=6 bit.
+// ═══════════════════════════════════════════════════════
+// Prebuilt outer table and inner tables for demo
+const ML_OFFSET_BITS = 6;
+const ML_P_BITS = 5;
+const ML_PAGE_SIZE = 64;
+
+// outer_table[p1] = array of frame numbers (inner table) or null
+const outerTable = {};
+function buildMLTable() {
+  // Populate some p1 buckets
+  for (let p1 = 0; p1 < 8; p1++) {
+    outerTable[p1] = [];
+    for (let p2 = 0; p2 < 32; p2++) {
+      outerTable[p1][p2] = (p1 * 32 + p2 + 1) % 64; // synthetic frame numbers
+    }
+  }
+}
+
+function translateML() {
+  const vaddr = parseInt(document.getElementById('ml-vaddr').value) || 0;
+  const offset = vaddr & ((1 << ML_OFFSET_BITS) - 1);         // low 6 bits
+  const pageNum = vaddr >> ML_OFFSET_BITS;                     // upper 10 bits
+  const p2 = pageNum & ((1 << ML_P_BITS) - 1);                // low 5 bits of pageNum
+  const p1 = (pageNum >> ML_P_BITS) & ((1 << ML_P_BITS) - 1); // high 5 bits
+
+  const logEl = document.getElementById('ml-log');
+  logEl.innerHTML = '';
+
+  const diag = document.getElementById('ml-diagram');
+  diag.innerHTML = '';
+
+  // addr bits display
+  const bits = vaddr.toString(2).padStart(16, '0');
+  const bitRow = document.createElement('div');
+  bitRow.style.cssText = 'font-family:monospace;font-size:13px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:10px 14px;margin-bottom:10px;overflow-x:auto';
+  bitRow.innerHTML = `
+    <span style="color:#0369a1;font-weight:700">${bits.slice(0,5)}</span>
+    <span style="color:#7c3aed;font-weight:700">${bits.slice(5,10)}</span>
+    <span style="color:#059669;font-weight:700">${bits.slice(10,16)}</span>
+    <br>
+    <span style="color:#0369a1">p1=${p1} (${bits.slice(0,5)}₂)</span>
+    &nbsp;&nbsp;
+    <span style="color:#7c3aed">p2=${p2} (${bits.slice(5,10)}₂)</span>
+    &nbsp;&nbsp;
+    <span style="color:#059669">offset=${offset} (${bits.slice(10,16)}₂)</span>
+  `;
+  diag.appendChild(bitRow);
+
+  // Level 1
+  const l1 = document.createElement('div'); l1.className = 'ml-level';
+  l1.innerHTML = `<div class="ml-level-title">Cấp 1 — Outer Page Table (32 mục, p1=${p1} được tra)</div>
+    <div class="ml-entries" id="ml-l1-entries"></div>`;
+  diag.appendChild(l1);
+
+  setTimeout(() => {
+    const l1c = document.getElementById('ml-l1-entries');
+    for (let i = 0; i < 8; i++) {
+      const e = document.createElement('div');
+      e.className = 'ml-entry ' + (outerTable[i] ? 'valid' : 'null');
+      if (i === p1) e.className = 'ml-entry active';
+      e.textContent = i === p1 ? `p1=${i}` : (outerTable[i] ? `[${i}]→` : `[${i}]=∅`);
+      l1c.appendChild(e);
+    }
+    // Placeholder for out of range
+    const more = document.createElement('div');
+    more.className = 'ml-entry null';
+    more.style.width = '80px';
+    more.textContent = '... (32 total)';
+    l1c.appendChild(more);
+  }, 100);
+
+  // Arrow
+  const arrDiv = document.createElement('div');
+  arrDiv.style.cssText = 'text-align:center;font-size:22px;color:var(--tlb-accent)';
+  arrDiv.textContent = '↓';
+  diag.appendChild(arrDiv);
+
+  // Level 2
+  const l2 = document.createElement('div'); l2.className = 'ml-level';
+  l2.innerHTML = `<div class="ml-level-title">Cấp 2 — Inner Table cho p1=${p1} (32 mục, p2=${p2} được tra)</div>
+    <div class="ml-entries" id="ml-l2-entries"></div>`;
+  diag.appendChild(l2);
+
+  const inner = outerTable[p1] || null;
+  const frameNum = inner ? inner[p2] : null;
+  const physAddr = frameNum !== null ? frameNum * ML_PAGE_SIZE + offset : null;
+
+  setTimeout(() => {
+    const l2c = document.getElementById('ml-l2-entries');
+    if (!inner) {
+      l2c.innerHTML = '<div style="color:#dc2626;font-size:13px">NULL — page fault hoặc lỗi bảo vệ</div>';
+      return;
+    }
+    for (let i = 0; i < 8 && i < inner.length; i++) {
+      const e = document.createElement('div');
+      e.className = 'ml-entry ' + (i === p2 ? 'target' : 'valid');
+      e.textContent = i === p2 ? `F${inner[i]}` : `[${i}]=${inner[i]}`;
+      l2c.appendChild(e);
+    }
+    const more2 = document.createElement('div');
+    more2.className = 'ml-entry null';
+    more2.style.width = '80px';
+    more2.textContent = '... (32 total)';
+    l2c.appendChild(more2);
+  }, 200);
+
+  // Result
+  const arrDiv2 = document.createElement('div');
+  arrDiv2.style.cssText = 'text-align:center;font-size:22px;color:var(--tlb-accent)';
+  arrDiv2.textContent = '↓';
+  diag.appendChild(arrDiv2);
+
+  const result = document.createElement('div');
+  result.style.cssText = 'background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:14px 18px;font-family:monospace;font-size:13px;line-height:2';
+  if (physAddr !== null) {
+    result.innerHTML = `<strong>Kết quả:</strong>
+outer_table[${p1}] → inner table #${p1}
+inner_table[${p2}] = Frame <strong>${frameNum}</strong>
+Địa chỉ vật lý = ${frameNum} × ${ML_PAGE_SIZE} + ${offset} = <strong>${physAddr}</strong>`;
+  } else {
+    result.style.background = '#fee2e2';
+    result.style.borderColor = '#fca5a5';
+    result.innerHTML = `<strong style="color:#dc2626">Page fault!</strong> outer_table[${p1}] = NULL`;
+  }
+  diag.appendChild(result);
+
+  logEl.innerHTML = `<span class="step">Địa chỉ ảo ${vaddr} (0x${vaddr.toString(16).toUpperCase()}) → p1=${p1}, p2=${p2}, offset=${offset}</span>`;
+  if (physAddr !== null)
+    logEl.innerHTML += `\n<span class="hit">→ Frame ${frameNum} → vật lý ${physAddr}</span>`;
+}
+
+function loadMLExample(n) {
+  const vals = [2500, 8192, 63];
+  document.getElementById('ml-vaddr').value = vals[n-1];
+  translateML();
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 3 — EAT Calculator
+// ═══════════════════════════════════════════════════════
+function calcEAT() {
+  const alpha = parseFloat(document.getElementById('eat-alpha').value) || 0.95;
+  const tmem  = parseFloat(document.getElementById('eat-tmem').value) || 100;
+  const k     = parseInt(document.getElementById('eat-k').value) || 1;
+
+  const eat_hit  = tmem;                   // TLB hit: 1 RAM access (data)
+  const eat_miss = (k + 1) * tmem;         // TLB miss: k page table lookups + 1 data
+  const eat      = alpha * eat_hit + (1 - alpha) * eat_miss;
+  const eat_nopaging = tmem;               // no paging: 1 RAM access
+  const eat_notlb    = (k + 1) * tmem;    // paging no TLB: all misses
+
+  const maxBar = eat_notlb;
+  const pctTLB  = (eat / maxBar * 100).toFixed(1);
+  const pctNoTLB = 100;
+  const pctNoPag = (eat_nopaging / maxBar * 100).toFixed(1);
+
+  document.getElementById('eat-result').innerHTML = `
+  <div class="eat-result">
+    <strong>Thông số:</strong> α=${alpha}, t_mem=${tmem} ns, bảng trang ${k} cấp<br><br>
+    <strong>Tính EAT:</strong><br>
+    EAT = α × t_hit + (1−α) × t_miss<br>
+        = ${alpha} × ${eat_hit} + ${(1-alpha).toFixed(2)} × ${eat_miss}<br>
+        = ${(alpha * eat_hit).toFixed(1)} + ${((1-alpha) * eat_miss).toFixed(1)}<br>
+        = <strong>${eat.toFixed(1)} ns</strong><br><br>
+    <strong>So sánh:</strong>
+    <div class="eat-bar-wrap">
+      <div style="font-size:12px;color:#6b7280;margin-bottom:4px">Không paging: ${eat_nopaging} ns</div>
+      <div class="eat-bar bar-nopaging" style="width:${pctNoPag}%">${eat_nopaging} ns</div>
+    </div>
+    <div class="eat-bar-wrap">
+      <div style="font-size:12px;color:#6b7280;margin-bottom:4px">Paging + TLB (α=${alpha}): ${eat.toFixed(1)} ns</div>
+      <div class="eat-bar bar-tlb" style="width:${pctTLB}%;min-width:60px">${eat.toFixed(1)} ns</div>
+    </div>
+    <div class="eat-bar-wrap">
+      <div style="font-size:12px;color:#6b7280;margin-bottom:4px">Paging không TLB: ${eat_notlb} ns</div>
+      <div class="eat-bar bar-notlb" style="width:${pctNoTLB}%">${eat_notlb} ns</div>
+    </div>
+    <br>Overhead so với không paging: <strong style="color:${eat > eat_nopaging*1.2?'#dc2626':'#16a34a'}">${((eat/eat_nopaging - 1)*100).toFixed(1)}%</strong>
+  </div>`;
+}
+
+// ── Init ──
+window.addEventListener('DOMContentLoaded', () => {
+  buildMLTable();
+  renderTLBTable([]);
+  calcEAT();
+  translateML();
+});
+</script>
+</body>
+</html>

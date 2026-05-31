@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Paging</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --pg-accent: #0e7490;
+    --pg-soft:   #cffafe;
+    --pg-mid:    #22d3ee;
+    --pg-dark:   #164e63;
+  }
+
+  h1 { color: var(--pg-dark); }
+  h2 { color: var(--pg-accent); margin-top: 36px; padding-bottom: 6px;
+       border-bottom: 2px solid var(--pg-mid); }
+
+  .card {
+    background: #fff; border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(14,116,144,.12);
+    margin: 16px 0;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 8px 18px; border-radius: 6px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--pg-accent); color: #fff; }
+  .btn-primary:hover { background: var(--pg-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* Controls */
+  .ctrl-row {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
+    margin: 12px 0;
+  }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  .ctrl-group label { font-size: 13px; color: #374151; font-weight: 600; }
+  input[type=number], select {
+    border: 1px solid #d1d5db; border-radius: 6px;
+    padding: 7px 10px; font-size: 14px; width: 130px;
+    max-width: 100%; box-sizing: border-box;
+  }
+
+  /* Translate result */
+  .t-result {
+    margin-top: 14px; padding: 16px 20px;
+    border-radius: 8px; font-size: 14px; line-height: 2;
+    font-family: monospace;
+  }
+  .t-result.ok   { background: #dcfce7; border: 1px solid #86efac; }
+  .t-result.fail { background: #fee2e2; border: 1px solid #fca5a5; }
+
+  /* Page table editor */
+  #pt-editor {
+    display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0;
+  }
+  .pt-entry {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; background: #f0f9ff; border: 1.5px solid #0ea5e9;
+    border-radius: 8px; padding: 8px 10px; min-width: 80px;
+  }
+  .pt-entry label { font-size: 11px; color: #0369a1; font-weight: 700; }
+  .pt-entry input {
+    width: 60px; text-align: center;
+    border: 1px solid #bae6fd; border-radius: 4px;
+    padding: 4px; font-size: 13px;
+  }
+
+  /* Visual memory layout */
+  .mem-layout {
+    display: flex; gap: 24px; flex-wrap: wrap; margin: 16px 0;
+    justify-content: center;
+  }
+  .mem-col { display: flex; flex-direction: column; gap: 3px; min-width: 130px; }
+  .mem-col-title {
+    font-size: 12px; font-weight: 700; color: #6b7280;
+    text-align: center; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .5px;
+  }
+  .mem-block {
+    height: 32px; border-radius: 4px; display: flex; align-items: center;
+    justify-content: center; font-size: 12px; font-weight: 600;
+    border: 1.5px solid transparent; transition: all .3s;
+  }
+  .mem-block.free  { background: #f1f5f9; color: #9ca3af; border-color: #e2e8f0; }
+  .mem-block.used  { background: #cffafe; color: var(--pg-dark); border-color: var(--pg-mid); }
+  .mem-block.highlight { background: #fbbf24; color: #78350f; border-color: #f59e0b;
+                          box-shadow: 0 0 0 2px #fde68a; }
+  .mem-block.target { background: #4ade80; color: #14532d; border-color: #22c55e;
+                       box-shadow: 0 0 0 2px #bbf7d0; }
+
+  /* Step display */
+  .steps {
+    background: #1e293b; color: #e2e8f0;
+    border-radius: 8px; padding: 16px;
+    font-family: monospace; font-size: 13px;
+    line-height: 2; margin-top: 12px;
+    white-space: pre-wrap;
+  }
+  .steps .step-num { color: #38bdf8; }
+  .steps .step-val { color: #4ade80; font-weight: 700; }
+  .steps .step-err { color: #f87171; }
+
+  /* Bit decomposition display */
+  .bit-view {
+    display: flex; gap: 2px; flex-wrap: nowrap; overflow-x: auto;
+    margin: 12px 0; padding: 8px;
+    background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0;
+  }
+  .bit-cell {
+    width: 28px; height: 38px; border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+  }
+  .bit-cell.pg { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
+  .bit-cell.off { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+  .bit-legend { display: flex; gap: 20px; font-size: 12px; margin-top: 6px; }
+  .bit-legend span { display: flex; align-items: center; gap: 6px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; }
+
+  @media (max-width: 600px) {
+    .mem-layout { gap: 12px; }
+    .mem-col { min-width: 100px; }
+    .ctrl-row { gap: 8px; }
+    input[type=number], select { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Memory</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-memory-management/visualization.html">← L01: Quản lý bộ nhớ</a>
+  <span class="sep">·</span>
+  <span class="current">L02: Paging</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-tlb-multilevel-paging/visualization.html">L03: TLB →</a>
+</nav>
+<main>
+  <h1>Paging — Phân trang bộ nhớ</h1>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODULE 1 — Address Translator
+       ═══════════════════════════════════════════════════════ -->
+  <h2>Module 1 — Bộ dịch địa chỉ (Address Translator)</h2>
+  <div class="card">
+    <p>Nhập địa chỉ ảo và bảng trang. Xem từng bước tách page/offset và tính địa chỉ vật lý.</p>
+
+    <div class="ctrl-row">
+      <div class="ctrl-group">
+        <label>Page size (bytes)</label>
+        <select id="page-size">
+          <option value="256">256 B</option>
+          <option value="512">512 B</option>
+          <option value="1024">1 KB</option>
+          <option value="4096" selected>4 KB</option>
+          <option value="65536">64 KB</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>Địa chỉ ảo (decimal)</label>
+        <input type="number" id="vaddr" value="4660" min="0">
+      </div>
+      <div class="ctrl-group">
+        <label>&nbsp;</label>
+        <button class="btn btn-primary" onclick="translate()">Dịch địa chỉ</button>
+      </div>
+    </div>
+
+    <p style="font-size:13px;color:#374151;margin:4px 0 8px">Bảng trang (page number → frame number). Thêm trang bằng nút bên dưới.</p>
+    <div id="pt-editor"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="addPTE()">+ Thêm trang</button>
+      <button class="btn btn-secondary" onclick="removePTE()">− Bỏ trang cuối</button>
+      <button class="btn btn-secondary" onclick="loadExample(1)">Ví dụ 1 (4KB)</button>
+      <button class="btn btn-secondary" onclick="loadExample(2)">Ví dụ 2 (256B)</button>
+      <button class="btn btn-secondary" onclick="loadExample(3)">Ví dụ 3 (1KB)</button>
+    </div>
+
+    <div id="bit-decomp" style="display:none">
+      <p style="font-size:13px;font-weight:700;margin:12px 0 4px">Phân tích bit:</p>
+      <div class="bit-view" id="bit-view"></div>
+      <div class="bit-legend">
+        <span><span class="swatch" style="background:#dbeafe;border:1px solid #93c5fd"></span>Page number bits</span>
+        <span><span class="swatch" style="background:#dcfce7;border:1px solid #86efac"></span>Offset bits</span>
+      </div>
+    </div>
+
+    <div id="translate-steps"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODULE 2 — Visual Memory Layout
+       ═══════════════════════════════════════════════════════ -->
+  <h2>Module 2 — Bản đồ bộ nhớ (Logical → Physical)</h2>
+  <div class="card">
+    <p>Xem bố cục trang logic và frame vật lý. Frame màu vàng = trang đang được dịch; xanh lá = frame đích.</p>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="renderLayout()">Cập nhật bản đồ</button>
+      <button class="btn btn-secondary" onclick="animateTranslation()">Mô phỏng dịch địa chỉ</button>
+    </div>
+    <div class="mem-layout" id="mem-layout"></div>
+    <div id="layout-info" style="font-size:13px;color:#374151;margin-top:8px;line-height:1.7;"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODULE 3 — Internal Fragmentation Demo
+       ═══════════════════════════════════════════════════════ -->
+  <h2>Module 3 — Phân mảnh trong (Internal Fragmentation)</h2>
+  <div class="card">
+    <p>Nhập kích thước tiến trình và page size để tính số trang cần thiết và phân mảnh trong.</p>
+    <div class="ctrl-row">
+      <div class="ctrl-group">
+        <label>Kích thước tiến trình (bytes)</label>
+        <input type="number" id="proc-size" value="9000" min="1">
+      </div>
+      <div class="ctrl-group">
+        <label>Page size (bytes)</label>
+        <input type="number" id="frag-page-size" value="4096" min="1">
+      </div>
+      <div class="ctrl-group">
+        <label>&nbsp;</label>
+        <button class="btn btn-primary" onclick="calcFrag()">Tính phân mảnh</button>
+      </div>
+    </div>
+    <div id="frag-result"></div>
+  </div>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════
+// Page Table State
+// ═══════════════════════════════════════════════════════
+let pageTable = [3, 7, 1, 4, 0]; // page 0..4 → frame
+
+function renderPTE() {
+  const ed = document.getElementById('pt-editor');
+  ed.innerHTML = '';
+  pageTable.forEach((frame, pg) => {
+    const div = document.createElement('div');
+    div.className = 'pt-entry';
+    div.innerHTML = `<label>Page ${pg}</label>
+      <span style="font-size:11px;color:#6b7280">→</span>
+      <input type="number" value="${frame}" min="0" max="255"
+        onchange="pageTable[${pg}]=parseInt(this.value)||0">
+      <span style="font-size:11px;color:#6b7280">frame</span>`;
+    ed.appendChild(div);
+  });
+}
+
+function addPTE() {
+  const maxFrame = pageTable.length + 3;
+  pageTable.push(maxFrame);
+  renderPTE();
+}
+
+function removePTE() {
+  if (pageTable.length > 1) { pageTable.pop(); renderPTE(); }
+}
+
+function loadExample(n) {
+  if (n === 1) {
+    document.getElementById('page-size').value = '4096';
+    document.getElementById('vaddr').value = '4660';
+    pageTable = [3, 7, 1, 4, 0];
+  } else if (n === 2) {
+    document.getElementById('page-size').value = '256';
+    document.getElementById('vaddr').value = '1000';
+    pageTable = [2, 5, 0, 4, 6];
+  } else if (n === 3) {
+    document.getElementById('page-size').value = '1024';
+    document.getElementById('vaddr').value = '3071';
+    pageTable = [0, 4, 2];
+  }
+  renderPTE();
+  translate();
+  renderLayout();
+}
+
+// ═══════════════════════════════════════════════════════
+// Address Translation
+// ═══════════════════════════════════════════════════════
+let lastTranslation = null;
+
+function translate() {
+  const pageSize = parseInt(document.getElementById('page-size').value);
+  const vaddr    = parseInt(document.getElementById('vaddr').value) || 0;
+  const steps    = document.getElementById('translate-steps');
+  const bitDiv   = document.getElementById('bit-decomp');
+
+  const pageNum = Math.floor(vaddr / pageSize);
+  const offset  = vaddr % pageSize;
+
+  // Bit decomposition
+  const offsetBits = Math.log2(pageSize);
+  if (Number.isInteger(offsetBits)) {
+    bitDiv.style.display = 'block';
+    renderBits(vaddr, offsetBits);
+  } else {
+    bitDiv.style.display = 'none';
+  }
+
+  if (pageNum >= pageTable.length) {
+    steps.innerHTML = `<div class="t-result fail">
+      <span class="step-err">LỖI: Page number = ${pageNum} vượt quá giới hạn bảng trang (${pageTable.length} trang).</span><br>
+      OS tạo Segmentation Fault hoặc cấp phát thêm trang (tùy cấu hình).
+    </div>`;
+    lastTranslation = null;
+    return;
+  }
+
+  const frameNum = pageTable[pageNum];
+  const physAddr = frameNum * pageSize + offset;
+  lastTranslation = { pageNum, offset, frameNum, physAddr, pageSize, vaddr };
+
+  steps.innerHTML = `<div class="t-result ok">
+<strong>Bước 1: Tách địa chỉ ảo ${vaddr}</strong>
+  page_number = ${vaddr} ÷ ${pageSize} = <strong>${pageNum}</strong>
+  offset      = ${vaddr} mod ${pageSize} = <strong>${offset}</strong>
+
+<strong>Bước 2: Tra bảng trang</strong>
+  page_table[${pageNum}] = frame <strong>${frameNum}</strong>
+
+<strong>Bước 3: Tính địa chỉ vật lý</strong>
+  vật_lý = ${frameNum} × ${pageSize} + ${offset}
+         = ${frameNum * pageSize} + ${offset}
+         = <strong>${physAddr}</strong>
+
+Frame ${frameNum} chiếm vật lý [${frameNum * pageSize} – ${frameNum * pageSize + pageSize - 1}]
+</div>`;
+
+  renderLayout();
+}
+
+function renderBits(addr, offsetBits) {
+  const bv = document.getElementById('bit-view');
+  bv.innerHTML = '';
+  const bits = addr.toString(2).padStart(32, '0');
+  const pgBits = 32 - offsetBits;
+
+  // Show last 20 bits for readability
+  const shown = Math.min(32, pgBits + offsetBits + 4);
+  const start = 32 - shown;
+
+  for (let i = start; i < 32; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'bit-cell ' + (i < 32 - offsetBits ? 'pg' : 'off');
+    cell.textContent = bits[i];
+    bv.appendChild(cell);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// Visual Memory Layout
+// ═══════════════════════════════════════════════════════
+function renderLayout() {
+  const layout = document.getElementById('mem-layout');
+  const info   = document.getElementById('layout-info');
+  const ps     = parseInt(document.getElementById('page-size').value);
+  const lt     = lastTranslation;
+
+  // Logical pages
+  const logCol = document.createElement('div');
+  logCol.className = 'mem-col';
+  logCol.innerHTML = `<div class="mem-col-title">Không gian logic</div>`;
+  pageTable.forEach((_, pg) => {
+    const b = document.createElement('div');
+    b.className = 'mem-block used';
+    if (lt && pg === lt.pageNum) b.className = 'mem-block highlight';
+    b.textContent = `Page ${pg}`;
+    logCol.appendChild(b);
+  });
+
+  // Arrow
+  const arrow = document.createElement('div');
+  arrow.className = 'mem-col';
+  arrow.innerHTML = `<div class="mem-col-title">&nbsp;</div>`;
+  const ar = document.createElement('div');
+  ar.style.cssText = 'display:flex;align-items:center;justify-content:center;height:'+(pageTable.length*35)+'px;font-size:28px;color:var(--pg-accent)';
+  ar.textContent = '→';
+  arrow.appendChild(ar);
+
+  // Physical frames (show all frames used)
+  const maxFrame = Math.max(...pageTable) + 2;
+  const physCol = document.createElement('div');
+  physCol.className = 'mem-col';
+  physCol.innerHTML = `<div class="mem-col-title">RAM vật lý</div>`;
+  for (let f = 0; f <= maxFrame; f++) {
+    const usedBy = pageTable.indexOf(f);
+    const b = document.createElement('div');
+    if (usedBy === -1) {
+      b.className = 'mem-block free';
+      b.textContent = `Frame ${f} (trống)`;
+    } else {
+      b.className = 'mem-block used';
+      if (lt && f === lt.frameNum) b.className = 'mem-block target';
+      b.textContent = `Frame ${f} (P${usedBy})`;
+    }
+    physCol.appendChild(b);
+  }
+
+  layout.innerHTML = '';
+  layout.appendChild(logCol);
+  layout.appendChild(arrow);
+  layout.appendChild(physCol);
+
+  if (lt) {
+    info.innerHTML = `Địa chỉ ảo <strong>${lt.vaddr}</strong> → Page <strong>${lt.pageNum}</strong> (vàng) → Frame <strong>${lt.frameNum}</strong> (xanh) → Địa chỉ vật lý <strong>${lt.physAddr}</strong>`;
+  } else {
+    info.innerHTML = 'Nhấn "Dịch địa chỉ" để xem ánh xạ được highlight.';
+  }
+}
+
+function animateTranslation() {
+  if (!lastTranslation) { translate(); return; }
+  const lt = lastTranslation;
+  const layout = document.getElementById('mem-layout');
+  const blocks = layout.querySelectorAll('.mem-block');
+  // reset
+  blocks.forEach(b => {
+    if (b.classList.contains('highlight')) { b.classList.remove('highlight'); b.classList.add('used'); }
+    if (b.classList.contains('target')) { b.classList.remove('target'); b.classList.add('used'); }
+  });
+  setTimeout(() => {
+    blocks[lt.pageNum]?.classList.add('highlight');
+    setTimeout(() => {
+      const physBlocks = layout.querySelectorAll('.mem-col:last-child .mem-block');
+      physBlocks.forEach(b => {
+        if (b.textContent.includes(`Frame ${lt.frameNum}`)) {
+          b.classList.remove('used'); b.classList.add('target');
+        }
+      });
+    }, 700);
+  }, 100);
+}
+
+// ═══════════════════════════════════════════════════════
+// Internal Fragmentation Calculator
+// ═══════════════════════════════════════════════════════
+function calcFrag() {
+  const proc = parseInt(document.getElementById('proc-size').value) || 1;
+  const ps   = parseInt(document.getElementById('frag-page-size').value) || 1;
+  const pages = Math.ceil(proc / ps);
+  const totalAlloc = pages * ps;
+  const frag = totalAlloc - proc;
+  const fragPct = ((frag / totalAlloc) * 100).toFixed(1);
+
+  document.getElementById('frag-result').innerHTML = `
+    <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:18px 20px;margin-top:12px">
+      <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:12px">
+        <div style="text-align:center;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:12px 20px">
+          <div style="font-size:24px;font-weight:700;color:var(--pg-accent)">${pages}</div>
+          <div style="font-size:12px;color:#6b7280">Số trang cần</div>
+        </div>
+        <div style="text-align:center;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:12px 20px">
+          <div style="font-size:24px;font-weight:700;color:#d97706">${frag.toLocaleString()}</div>
+          <div style="font-size:12px;color:#6b7280">Phân mảnh trong (bytes)</div>
+        </div>
+        <div style="text-align:center;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:12px 20px">
+          <div style="font-size:24px;font-weight:700;color:#6b7280">${fragPct}%</div>
+          <div style="font-size:12px;color:#6b7280">Tỷ lệ lãng phí</div>
+        </div>
+      </div>
+      <div style="font-family:monospace;font-size:13px;line-height:2">
+        Tiến trình: ${proc.toLocaleString()} bytes<br>
+        Page size: ${ps.toLocaleString()} bytes<br>
+        Số trang: ⌈${proc} / ${ps}⌉ = <strong>${pages}</strong><br>
+        Tổng cấp: ${pages} × ${ps} = <strong>${totalAlloc.toLocaleString()} bytes</strong><br>
+        Phân mảnh trong: ${totalAlloc.toLocaleString()} − ${proc.toLocaleString()} = <strong style="color:#dc2626">${frag.toLocaleString()} bytes</strong>
+        ${frag === 0 ? '<br><span style="color:#16a34a">✓ Không phân mảnh (tiến trình vừa khít số trang)</span>' : ''}
+      </div>
+    </div>`;
+}
+
+// ── Init ──
+window.addEventListener('DOMContentLoaded', () => {
+  renderPTE();
+  translate();
+  calcFrag();
+});
+</script>
+</body>
+</html>

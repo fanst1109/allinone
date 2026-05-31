@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Kernel &amp; System Call</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #6d28d9;
+    --accent-soft: #ede9fe;
+    --accent-mid: #8b5cf6;
+    --accent-dark: #4c1d95;
+    --kernel-bg: #1e1b4b;
+    --kernel-fg: #c4b5fd;
+    --user-bg: #f0fdf4;
+    --user-fg: #166534;
+    --syscall-c: #d97706;
+    --ok-c: #16a34a;
+    --card-bg: #ffffff;
+  }
+
+  h1 { color: var(--accent-dark); }
+  h2 { color: var(--accent); margin-top: 40px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-mid); }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(109,40,217,.10);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ── Module 1: Syscall Animation ── */
+  #syscall-stage {
+    width: 100%;
+    overflow-x: auto;
+  }
+  #syscall-svg {
+    display: block;
+    margin: 0 auto;
+  }
+  .step-info {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 18px;
+    min-height: 56px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 12px;
+  }
+  .step-info strong { color: var(--accent); }
+  #step-counter {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 6px;
+  }
+
+  /* ── Module 2: Syscall Table ── */
+  .syscall-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .syscall-table th {
+    background: var(--accent);
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+  }
+  .syscall-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: top;
+  }
+  .syscall-table tr:hover td { background: var(--accent-soft); cursor: pointer; }
+  .syscall-table tr.active td { background: #ddd6fe; }
+  .syscall-num {
+    font-family: monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent-dark);
+  }
+  .syscall-name {
+    font-family: monospace;
+    font-weight: 700;
+    color: #1e40af;
+  }
+  #syscall-detail {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    min-height: 80px;
+    margin-top: 14px;
+    white-space: pre-wrap;
+  }
+  #syscall-detail .hl { color: #a78bfa; }
+  #syscall-detail .val { color: #4ade80; }
+  #syscall-detail .cmt { color: #64748b; }
+
+  /* ── Module 3: Boot sequence ── */
+  .boot-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 12px 0;
+  }
+  .boot-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 14px 18px;
+    border-left: 3px solid #e5e7eb;
+    position: relative;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .boot-step:hover { background: #f8fafc; }
+  .boot-step.active {
+    border-left-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .boot-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: #6b7280;
+    flex-shrink: 0;
+    transition: background .15s, color .15s;
+  }
+  .boot-step.active .boot-num {
+    background: var(--accent);
+    color: white;
+  }
+  .boot-text strong { display: block; font-size: 15px; color: #1f2937; }
+  .boot-text small { font-size: 12px; color: #6b7280; }
+  .boot-text p { font-size: 13px; color: #374151; margin-top: 6px; line-height: 1.6; }
+  #boot-detail {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 60px;
+    margin-top: 12px;
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .syscall-table { font-size: 12px; }
+    .syscall-table td, .syscall-table th { padding: 7px 8px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Processes</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Kernel &amp; Syscall</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-process/visualization.html">L2: Tiến trình →</a>
+</nav>
+<main>
+<h1>Lesson 01 — Kernel &amp; System Call</h1>
+<p style="color:#6b7280;font-size:15px;margin-top:-8px;">
+  Hệ điều hành là gì, user mode vs kernel mode, cơ chế syscall và quá trình boot.
+</p>
+
+<!-- ═══════════════ MODULE 1: Syscall Animation ═══════════════ -->
+<h2>1. Animation — Hành trình của một System Call</h2>
+<div class="card">
+  <p style="font-size:14px;color:#374151;margin-bottom:12px;">
+    Nhấn <strong>Bước tiếp theo</strong> để xem từng bước khi ứng dụng gọi syscall <code>read(fd, buf, 512)</code>.
+    Quan sát cách CPU chuyển từ <span style="color:#166534;font-weight:700;">User Mode</span> sang
+    <span style="color:#6d28d9;font-weight:700;">Kernel Mode</span> và trở về.
+  </p>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="stepNext()">▶ Bước tiếp theo</button>
+    <button class="btn btn-secondary" onclick="resetSyscall()">↺ Reset</button>
+  </div>
+  <div id="syscall-stage">
+    <svg id="syscall-svg" width="640" height="340" viewBox="0 0 640 340">
+      <!-- Background layers -->
+      <rect x="0" y="0" width="640" height="160" fill="#f0fdf4" rx="0"/>
+      <rect x="0" y="160" width="640" height="180" fill="#1e1b4b" rx="0"/>
+      <!-- Labels -->
+      <text x="16" y="22" font-size="13" font-weight="700" fill="#166534">USER MODE</text>
+      <text x="16" y="182" font-size="13" font-weight="700" fill="#c4b5fd">KERNEL MODE</text>
+      <!-- Divider -->
+      <line x1="0" y1="160" x2="640" y2="160" stroke="#6d28d9" stroke-width="2" stroke-dasharray="6,3"/>
+      <!-- App box -->
+      <rect id="app-box" x="30" y="40" width="140" height="90" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+      <text x="100" y="62" font-size="12" font-weight="700" fill="#166534" text-anchor="middle">Application</text>
+      <text x="100" y="80" font-size="11" fill="#374151" text-anchor="middle">printf("Hello")</text>
+      <text x="100" y="96" font-size="11" fill="#374151" text-anchor="middle">→ write(1,buf,5)</text>
+      <text x="100" y="112" font-size="11" fill="#6b7280" text-anchor="middle">rax=1 rdi=1</text>
+      <!-- CPU Registers -->
+      <rect id="reg-box" x="240" y="35" width="180" height="100" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+      <text x="330" y="57" font-size="12" font-weight="700" fill="#92400e" text-anchor="middle">CPU Registers</text>
+      <text id="reg-rax" x="260" y="76" font-size="11" fill="#374151" font-family="monospace">rax = 0</text>
+      <text id="reg-rdi" x="260" y="92" font-size="11" fill="#374151" font-family="monospace">rdi = 0</text>
+      <text id="reg-rsi" x="260" y="108" font-size="11" fill="#374151" font-family="monospace">rsi = 0x7fff...</text>
+      <text id="reg-mode" x="330" y="126" font-size="11" font-weight="700" fill="#166534" text-anchor="middle">Mode: USER</text>
+      <!-- Kernel handler -->
+      <rect id="kern-box" x="30" y="190" width="170" height="90" rx="8" fill="#2d2060" stroke="#8b5cf6" stroke-width="2"/>
+      <text x="115" y="212" font-size="12" font-weight="700" fill="#c4b5fd" text-anchor="middle">Kernel Handler</text>
+      <text x="115" y="230" font-size="11" fill="#a78bfa" text-anchor="middle">sys_write()</text>
+      <text x="115" y="247" font-size="11" fill="#94a3b8" text-anchor="middle">kiểm tra fd, buf</text>
+      <text x="115" y="264" font-size="11" fill="#94a3b8" text-anchor="middle">ghi ra stdout</text>
+      <!-- Device -->
+      <rect id="dev-box" x="470" y="190" width="140" height="90" rx="8" fill="#1e3a5f" stroke="#3b82f6" stroke-width="2"/>
+      <text x="540" y="212" font-size="12" font-weight="700" fill="#93c5fd" text-anchor="middle">Device / File</text>
+      <text x="540" y="232" font-size="11" fill="#7dd3fc" text-anchor="middle">stdout / terminal</text>
+      <text x="540" y="250" font-size="11" fill="#7dd3fc" text-anchor="middle">disk / socket</text>
+      <!-- Arrows (hidden initially) -->
+      <!-- Arrow 1: App → Registers (syscall setup) -->
+      <g id="arr-1" opacity="0">
+        <line x1="170" y1="85" x2="238" y2="85" stroke="#d97706" stroke-width="2" marker-end="url(#arrow-amber)"/>
+        <text x="204" y="78" font-size="10" fill="#d97706" text-anchor="middle">set regs</text>
+      </g>
+      <!-- Arrow 2: syscall instruction (user→kernel) -->
+      <g id="arr-2" opacity="0">
+        <line x1="200" y1="140" x2="200" y2="188" stroke="#6d28d9" stroke-width="2.5" marker-end="url(#arrow-violet)" stroke-dasharray="4,2"/>
+        <text x="215" y="167" font-size="10" fill="#8b5cf6">SYSCALL</text>
+        <text x="215" y="180" font-size="10" fill="#8b5cf6">trap</text>
+      </g>
+      <!-- Arrow 3: kernel → device -->
+      <g id="arr-3" opacity="0">
+        <line x1="200" y1="240" x2="468" y2="240" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow-blue)"/>
+        <text x="334" y="232" font-size="10" fill="#60a5fa" text-anchor="middle">I/O request</text>
+      </g>
+      <!-- Arrow 4: kernel → registers (result) -->
+      <g id="arr-4" opacity="0">
+        <line x1="200" y1="188" x2="200" y2="142" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrow-green)" stroke-dasharray="4,2"/>
+        <text x="218" y="170" font-size="10" fill="#16a34a">SYSRET</text>
+        <text x="218" y="183" font-size="10" fill="#16a34a">return</text>
+      </g>
+      <!-- Arrow 5: back to app -->
+      <g id="arr-5" opacity="0">
+        <line x1="238" y1="85" x2="172" y2="85" stroke="#16a34a" stroke-width="2" marker-end="url(#arrow-green)"/>
+        <text x="204" y="78" font-size="10" fill="#16a34a" text-anchor="middle">result</text>
+      </g>
+      <!-- Highlight overlay -->
+      <rect id="hl-user" x="1" y="1" width="638" height="158" fill="none" stroke="none" rx="0"/>
+      <rect id="hl-kern" x="1" y="161" width="638" height="178" fill="none" stroke="none" rx="0"/>
+      <!-- Defs -->
+      <defs>
+        <marker id="arrow-amber" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#d97706"/>
+        </marker>
+        <marker id="arrow-violet" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#6d28d9"/>
+        </marker>
+        <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/>
+        </marker>
+        <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+  <div class="step-info" id="step-text">
+    Nhấn <strong>▶ Bước tiếp theo</strong> để bắt đầu. Chúng ta sẽ theo dõi lệnh
+    <code>write(fd=1, buf="Hello", count=5)</code> — ghi "Hello" ra stdout.
+  </div>
+  <div id="step-counter">Bước 0 / 5</div>
+</div>
+
+<!-- ═══════════════ MODULE 2: Syscall Table ═══════════════ -->
+<h2>2. Bảng System Call — Click để xem chi tiết</h2>
+<div class="card">
+  <p style="font-size:14px;color:#374151;margin-bottom:14px;">
+    Click vào bất kỳ syscall nào để xem mô tả, tham số, và ví dụ thực tế.
+  </p>
+  <div style="overflow-x:auto">
+  <table class="syscall-table" id="sc-table">
+    <thead>
+      <tr><th>Số hiệu</th><th>Tên syscall</th><th>Mô tả ngắn</th><th>Dùng trong</th></tr>
+    </thead>
+    <tbody id="sc-tbody"></tbody>
+  </table>
+  </div>
+  <div id="syscall-detail">← Click vào một dòng để xem chi tiết</div>
+</div>
+
+<!-- ═══════════════ MODULE 3: Boot Sequence ═══════════════ -->
+<h2>3. Quá trình Boot — Click để khám phá từng giai đoạn</h2>
+<div class="card">
+  <p style="font-size:14px;color:#374151;margin-bottom:12px;">
+    Từ khi nhấn nút nguồn đến khi shell xuất hiện — 6 giai đoạn.
+    Click vào mỗi bước để xem giải thích chi tiết.
+  </p>
+  <div class="boot-steps" id="boot-steps"></div>
+  <div id="boot-detail"></div>
+</div>
+
+<!-- ═══════════════ MODULE 4: Mode Comparison ═══════════════ -->
+<h2>4. User Mode vs Kernel Mode — So sánh</h2>
+<div class="card">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div style="background:var(--user-bg);border:2px solid #16a34a;border-radius:10px;padding:18px;">
+      <div style="font-weight:700;color:var(--user-fg);font-size:16px;margin-bottom:10px;">
+        👤 User Mode (Ring 3)
+      </div>
+      <ul style="font-size:13px;color:#374151;line-height:2;margin:0;padding-left:20px;">
+        <li>Ứng dụng người dùng</li>
+        <li>Không truy cập I/O trực tiếp</li>
+        <li>Không đọc/ghi RAM tuỳ ý</li>
+        <li>Không tắt ngắt (interrupt)</li>
+        <li>Lệnh vi phạm → CPU exception</li>
+        <li>Ví dụ: Chrome, Python, bash</li>
+      </ul>
+    </div>
+    <div style="background:#1e1b4b;border:2px solid #6d28d9;border-radius:10px;padding:18px;">
+      <div style="font-weight:700;color:#c4b5fd;font-size:16px;margin-bottom:10px;">
+        ⚙ Kernel Mode (Ring 0)
+      </div>
+      <ul style="font-size:13px;color:#a78bfa;line-height:2;margin:0;padding-left:20px;">
+        <li>OS Kernel</li>
+        <li>Truy cập mọi thiết bị I/O</li>
+        <li>Đọc/ghi bất kỳ địa chỉ RAM</li>
+        <li>Lập trình bảng trang (MMU)</li>
+        <li>Bật/tắt interrupt</li>
+        <li>Ví dụ: Linux kernel, NTFS driver</li>
+      </ul>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:16px;padding:12px;background:#fef3c7;border-radius:8px;">
+    <strong style="color:#92400e;">Cánh cửa duy nhất: System Call (SYSCALL instruction)</strong>
+    <span style="font-size:13px;color:#78350f;display:block;margin-top:4px;">
+      User Mode muốn làm điều đặc quyền → gọi syscall → CPU trap → Kernel xử lý → SYSRET về User Mode
+    </span>
+  </div>
+</div>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+<script>
+// ── Module 1: Syscall Animation ──
+const steps = [
+  {
+    text: '<strong>Bước 1 — Ứng dụng chuẩn bị tham số:</strong> Ứng dụng đặt số hiệu syscall <code>write</code> = <strong>1</strong> vào thanh ghi <code>rax</code>. Tham số: <code>rdi=1</code> (fd stdout), <code>rsi=0x7fff1000</code> (địa chỉ buffer "Hello"), <code>rdx=5</code> (5 byte). CPU đang ở <strong>User Mode</strong>.',
+    arrows: [1], regs: { rax:'rax = 1  ← write', rdi:'rdi = 1  ← stdout', rsi:'rsi = 0x7fff1000', mode:'Mode: USER' }, modeKern: false
+  },
+  {
+    text: '<strong>Bước 2 — Lệnh SYSCALL (Trap vào Kernel):</strong> Ứng dụng thực thi lệnh <code>syscall</code>. CPU lưu trạng thái hiện tại (rip, rflags) vào kernel stack. CPU chuyển sang <strong style="color:#8b5cf6">Kernel Mode</strong>. Nhảy đến địa chỉ handler lưu trong MSR LSTAR.',
+    arrows: [1,2], regs: { rax:'rax = 1  ← write', rdi:'rdi = 1', rsi:'rsi = 0x7fff1000', mode:'Mode: KERNEL ←' }, modeKern: true
+  },
+  {
+    text: '<strong>Bước 3 — Kernel xử lý:</strong> Kernel đọc <code>rax=1</code> → biết là <code>write</code>. Kiểm tra fd=1 hợp lệ (stdout). Kiểm tra buffer <code>0x7fff1000</code> thuộc user space. Copy 5 byte "Hello" từ user buffer vào kernel buffer rồi ghi ra terminal.',
+    arrows: [1,2,3], regs: { rax:'rax = 1', rdi:'rdi = 1', rsi:'rsi = 0x7fff1000', mode:'Mode: KERNEL' }, modeKern: true
+  },
+  {
+    text: '<strong>Bước 4 — Kết quả và SYSRET:</strong> Kernel đặt kết quả vào <code>rax = 5</code> (số byte đã ghi). Thực thi lệnh <code>sysret</code>. CPU khôi phục rip/rflags từ kernel stack. Chuyển sang <strong style="color:#166534">User Mode</strong>.',
+    arrows: [1,4], regs: { rax:'rax = 5  ← bytes written', rdi:'rdi = 1', rsi:'rsi = 0x7fff1000', mode:'Mode: USER ←' }, modeKern: false
+  },
+  {
+    text: '<strong>Bước 5 — Ứng dụng nhận kết quả:</strong> CPU tiếp tục thực thi lệnh tiếp theo sau <code>syscall</code> trong ứng dụng. <code>rax = 5</code> — số byte ghi được. "Hello" đã xuất hiện trên terminal. Toàn bộ quá trình: ~100-300 nanoseconds.',
+    arrows: [5], regs: { rax:'rax = 5  ← result', rdi:'rdi = 1', rsi:'rsi = 0x7fff1000', mode:'Mode: USER ✓' }, modeKern: false
+  }
+];
+let currentStep = 0;
+
+function resetSyscall() {
+  currentStep = 0;
+  for (let i = 1; i <= 5; i++) document.getElementById('arr-'+i).style.opacity = '0';
+  document.getElementById('reg-rax').textContent = 'rax = 0';
+  document.getElementById('reg-rdi').textContent = 'rdi = 0';
+  document.getElementById('reg-rsi').textContent = 'rsi = 0x7fff...';
+  document.getElementById('reg-mode').textContent = 'Mode: USER';
+  document.getElementById('reg-mode').setAttribute('fill', '#166534');
+  document.getElementById('step-text').innerHTML = 'Nhấn <strong>▶ Bước tiếp theo</strong> để bắt đầu. Chúng ta sẽ theo dõi lệnh <code>write(fd=1, buf="Hello", count=5)</code>.';
+  document.getElementById('step-counter').textContent = 'Bước 0 / 5';
+  document.getElementById('syscall-svg').querySelector('rect[id="hl-user"]').setAttribute('fill', 'none');
+  document.getElementById('syscall-svg').querySelector('rect[id="hl-kern"]').setAttribute('fill', 'none');
+}
+
+function stepNext() {
+  if (currentStep >= steps.length) return;
+  const s = steps[currentStep];
+  // Reset arrows
+  for (let i = 1; i <= 5; i++) document.getElementById('arr-'+i).style.opacity = '0';
+  // Show arrows
+  s.arrows.forEach(a => { document.getElementById('arr-'+a).style.opacity = '1'; });
+  // Update regs
+  document.getElementById('reg-rax').textContent = s.regs.rax;
+  document.getElementById('reg-rdi').textContent = s.regs.rdi;
+  document.getElementById('reg-rsi').textContent = s.regs.rsi;
+  const modeEl = document.getElementById('reg-mode');
+  modeEl.textContent = s.regs.mode;
+  modeEl.setAttribute('fill', s.modeKern ? '#8b5cf6' : '#166534');
+  // Highlight
+  const hlU = document.getElementById('hl-user');
+  const hlK = document.getElementById('hl-kern');
+  if (s.modeKern) {
+    hlU.setAttribute('fill', 'rgba(0,0,0,0.07)');
+    hlK.setAttribute('fill', 'rgba(139,92,246,0.05)');
+  } else {
+    hlU.setAttribute('fill', 'rgba(22,163,74,0.04)');
+    hlK.setAttribute('fill', 'rgba(0,0,0,0.1)');
+  }
+  // Info
+  document.getElementById('step-text').innerHTML = s.text;
+  currentStep++;
+  document.getElementById('step-counter').textContent = `Bước ${currentStep} / ${steps.length}`;
+}
+
+// ── Module 2: Syscall Table ──
+const syscalls = [
+  { num: 0, name: 'read', desc: 'Đọc dữ liệu từ file descriptor', use: 'Đọc file, socket, stdin, pipe',
+    detail: `<span class="hl">read</span>(fd, buf, count) → ssize_t\n\n<span class="cmt">Đọc tối đa 'count' byte từ fd vào buf.</span>\n<span class="val">Trả về:</span> số byte đọc được; 0 = EOF; -1 = lỗi\n\n<span class="cmt">Ví dụ:</span>\nchar buf[4096];\nssize_t n = read(STDIN_FILENO, buf, sizeof(buf));\n<span class="cmt">// Đọc từ stdin, block cho đến khi có data</span>` },
+  { num: 1, name: 'write', desc: 'Ghi dữ liệu vào file descriptor', use: 'Ghi file, in ra stdout, gửi socket',
+    detail: `<span class="hl">write</span>(fd, buf, count) → ssize_t\n\n<span class="cmt">Ghi 'count' byte từ buf vào fd.</span>\n<span class="val">Trả về:</span> số byte ghi được; -1 = lỗi\n\n<span class="cmt">Ví dụ:</span>\nconst char* msg = "Hello, OS!\n";\nwrite(STDOUT_FILENO, msg, strlen(msg));\n<span class="cmt">// In ra stdout (fd=1)</span>` },
+  { num: 2, name: 'open', desc: 'Mở file, trả về file descriptor', use: 'Trước khi đọc/ghi file',
+    detail: `<span class="hl">open</span>(pathname, flags, mode) → int\n\n<span class="cmt">Mở file tại 'pathname' với cờ 'flags'.</span>\n<span class="val">Trả về:</span> fd (số nguyên dương); -1 = lỗi\n\n<span class="cmt">Flags phổ biến:</span>\n  O_RDONLY  = chỉ đọc\n  O_WRONLY  = chỉ ghi\n  O_RDWR   = đọc và ghi\n  O_CREAT   = tạo nếu chưa có\n  O_TRUNC   = xoá nội dung cũ\n\n<span class="cmt">Ví dụ:</span>\nint fd = open("/etc/passwd", O_RDONLY);\n<span class="cmt">// fd thường là 3 (0,1,2 đã dùng)</span>` },
+  { num: 3, name: 'close', desc: 'Đóng file descriptor', use: 'Sau khi xong việc với file',
+    detail: `<span class="hl">close</span>(fd) → int\n\n<span class="cmt">Giải phóng fd. Nếu là fd cuối cùng trỏ vào file: flush buffer, release lock.</span>\n<span class="val">Trả về:</span> 0 = thành công; -1 = lỗi\n\n<span class="cmt">Tại sao phải close?</span>\nMỗi process có giới hạn fd (mặc định 1024 trên Linux).\nKhông close → "fd leak" → eventually "Too many open files".` },
+  { num: 9, name: 'mmap', desc: 'Map file hoặc cấp phát bộ nhớ ảo', use: 'Bên dưới malloc() lớn, shared memory',
+    detail: `<span class="hl">mmap</span>(addr, length, prot, flags, fd, offset) → void*\n\n<span class="cmt">Ánh xạ một vùng địa chỉ ảo. Hai dùng chính:</span>\n1. Cấp phát anonymous memory (thay brk):\n   <span class="val">mmap(NULL, 4096, PROT_READ|PROT_WRITE,\n        MAP_PRIVATE|MAP_ANONYMOUS, -1, 0)</span>\n\n2. Map file vào memory:\n   <span class="val">mmap(NULL, filesize, PROT_READ, MAP_SHARED, fd, 0)</span>\n   <span class="cmt">// Đọc file bằng con trỏ, không cần read()</span>` },
+  { num: 57, name: 'fork', desc: 'Tạo tiến trình con — bản sao của cha', use: 'Shell tạo process mới',
+    detail: `<span class="hl">fork</span>() → pid_t\n\n<span class="cmt">Tạo bản sao của tiến trình hiện tại.</span>\n<span class="val">Trả về:</span>\n  Trong cha: PID của con (số dương)\n  Trong con: 0\n  Lỗi: -1\n\n<span class="cmt">Sau fork, cả cha và con đều chạy từ lệnh tiếp theo.\nCopy-on-Write: RAM chỉ sao chép khi cần ghi.</span>` },
+  { num: 59, name: 'execve', desc: 'Thay chương trình hiện tại bằng binary mới', use: 'Sau fork, để chạy lệnh mới',
+    detail: `<span class="hl">execve</span>(pathname, argv[], envp[]) → (không trả về nếu thành công)\n\n<span class="cmt">Thay thế image của tiến trình bằng binary mới.\nPID không đổi. Address space mới hoàn toàn.</span>\n\n<span class="cmt">Ví dụ:</span>\nchar* args[] = {"/bin/ls", "-la", NULL};\nexecve("/bin/ls", args, environ);\n<span class="cmt">// Nếu thành công, lệnh sau đây KHÔNG bao giờ chạy</span>\nperror("exec failed");` },
+  { num: 60, name: 'exit', desc: 'Kết thúc tiến trình', use: 'Cuối main(), khi gặp lỗi fatal',
+    detail: `<span class="hl">exit</span>(status) → (không trả về)\n\n<span class="cmt">Kết thúc tiến trình với exit code 'status'.\nKernel giải phóng tài nguyên, gửi SIGCHLD cho cha,\nprocess trở thành zombie cho đến khi cha wait().</span>\n\n<span class="val">Convention:</span>\n  0 = thành công\n  1-127 = lỗi (1 = generic error)\n  128+N = killed by signal N` },
+];
+
+const tbody = document.getElementById('sc-tbody');
+const detail = document.getElementById('syscall-detail');
+let activeRow = null;
+
+syscalls.forEach((s, i) => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td><span class="syscall-num">${s.num}</span></td>
+    <td><span class="syscall-name">${s.name}</span></td>
+    <td>${s.desc}</td>
+    <td style="font-size:12px;color:#6b7280">${s.use}</td>`;
+  tr.addEventListener('click', () => {
+    if (activeRow) activeRow.classList.remove('active');
+    tr.classList.add('active');
+    activeRow = tr;
+    detail.innerHTML = s.detail;
+  });
+  tbody.appendChild(tr);
+});
+
+// ── Module 3: Boot Sequence ──
+const bootStages = [
+  { num:1, title:'Firmware (BIOS / UEFI)', time:'0.1–2 giây',
+    desc:'CPU khởi động tại địa chỉ cố định <code>0xFFFFFFF0</code>. Firmware thực hiện POST (Power-On Self Test): kiểm tra RAM, CPU, bus. UEFI hiện đại hỗ trợ Secure Boot — xác minh chữ ký bootloader trước khi nạp. Sau POST, tìm thiết bị boot (ổ đĩa, USB...) và đọc bootloader.' },
+  { num:2, title:'Bootloader (GRUB2 / Windows Boot Manager)', time:'1–3 giây',
+    desc:'Bootloader được đọc từ MBR (512 byte đầu ổ đĩa) hoặc phân vùng EFI. GRUB2 hiển thị menu chọn OS. Bootloader nạp <strong>kernel image</strong> (<code>vmlinuz</code>) và <strong>initramfs</strong> (filesystem RAM tạm chứa driver cần thiết để mount ổ đĩa) vào RAM.' },
+  { num:3, title:'Kernel khởi tạo', time:'0.5–3 giây',
+    desc:'Kernel giải nén bản thân. Khởi tạo <strong>MMU</strong> (Memory Management Unit) và bảng trang. Phát hiện và khởi tạo driver: CPU, RAM, timer, interrupt controller. Mount <code>initramfs</code> làm root tạm. Tìm ổ đĩa thật và mount root filesystem thật sự.' },
+  { num:4, title:'PID 1 — systemd / init', time:'2–10 giây',
+    desc:'Kernel tạo tiến trình đầu tiên: <strong>PID = 1</strong> là <code>systemd</code> (Linux hiện đại). systemd đọc unit files, xây dependency graph, khởi động services theo thứ tự: network → DNS → syslog → display manager... Mọi process sau này đều là con cháu của PID 1.' },
+  { num:5, title:'Login Service', time:'< 1 giây',
+    desc:'systemd khởi động login service: <code>getty</code> cho terminal text, <code>GDM</code>/<code>LightDM</code> cho GUI. Getty hiển thị prompt "login:" và chờ username. Xác thực qua <strong>PAM</strong> (Pluggable Authentication Modules) — kiểm tra mật khẩu trong <code>/etc/shadow</code>.' },
+  { num:6, title:'Shell / Desktop Environment', time:'Ngay lập tức',
+    desc:'Sau xác thực, login service chạy shell (<code>/bin/bash</code>) hoặc desktop (<code>GNOME</code>, <code>KDE</code>). Từ đây, tất cả tương tác người dùng diễn ra ở <strong>User Mode</strong> thông qua syscall. Kernel vẫn chạy nền, xử lý interrupt và quản lý tài nguyên.' },
+];
+
+const bootContainer = document.getElementById('boot-steps');
+const bootDetail = document.getElementById('boot-detail');
+let activeBootStep = null;
+
+bootStages.forEach((s, i) => {
+  const div = document.createElement('div');
+  div.className = 'boot-step';
+  div.innerHTML = `<div class="boot-num">${s.num}</div>
+    <div class="boot-text">
+      <strong>${s.title}</strong>
+      <small>Thời gian: ${s.time}</small>
+    </div>`;
+  div.addEventListener('click', () => {
+    if (activeBootStep) activeBootStep.classList.remove('active');
+    div.classList.add('active');
+    activeBootStep = div;
+    bootDetail.style.display = 'block';
+    bootDetail.innerHTML = `<strong>${s.title}:</strong> ${s.desc}`;
+  });
+  bootContainer.appendChild(div);
+});
+</script>
+</body>
+</html>

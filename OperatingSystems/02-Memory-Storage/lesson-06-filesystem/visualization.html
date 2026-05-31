@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Hệ thống file (Filesystem)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #0e7490;
+    --accent-soft: #cffafe;
+    --accent-hover: #0c6480;
+    --bg-card: #ffffff;
+    --bg-section: #f0fdfa;
+    --inode-color: #7c3aed;
+    --block-used: #0e7490;
+    --block-free: #e2e8f0;
+    --block-indirect: #ea580c;
+    --block-data: #16a34a;
+  }
+
+  h1 { color: #134e4a; }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid #a5f3fc; }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(14,116,144,.12);
+    margin: 16px 0;
+  }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ─── Inode Explorer ─── */
+  .inode-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 20px;
+  }
+
+  .file-list { display: flex; flex-direction: column; gap: 6px; }
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all .15s;
+    font-size: 14px;
+  }
+  .file-item:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .file-item.selected { background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
+  .file-icon { font-size: 18px; }
+  .file-name { flex: 1; }
+  .file-size { font-size: 12px; color: #6b7280; }
+
+  .inode-panel {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 16px;
+    border: 1.5px solid #e2e8f0;
+  }
+  .inode-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--inode-color);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 10px;
+  }
+  .inode-field {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 13px;
+    gap: 8px;
+  }
+  .inode-field:last-child { border-bottom: none; }
+  .inode-key { color: #6b7280; min-width: 120px; }
+  .inode-val { color: #1e293b; font-family: monospace; font-weight: 600; text-align: right; }
+  .inode-val.ptr { color: var(--block-indirect); }
+  .inode-val.ptr-direct { color: var(--block-data); }
+
+  /* Block map */
+  .block-map-wrap { overflow-x: auto; margin-top: 16px; }
+  .block-map-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 8px;
+  }
+  .block-grid {
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+    gap: 3px;
+    min-width: 400px;
+  }
+  .block-cell {
+    aspect-ratio: 1;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    cursor: default;
+    transition: transform .1s;
+  }
+  .block-cell:hover { transform: scale(1.1); }
+  .block-cell.free { background: var(--block-free); color: #9ca3af; }
+  .block-cell.used-other { background: #cbd5e1; color: #475569; }
+  .block-cell.inode-block { background: #ede9fe; color: #7c3aed; border: 1.5px solid var(--inode-color); }
+  .block-cell.direct-data { background: #dcfce7; color: #166534; border: 1.5px solid #16a34a; }
+  .block-cell.indirect-block { background: #fed7aa; color: #9a3412; border: 1.5px solid #ea580c; }
+
+  .block-legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    font-size: 12px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot {
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Allocation comparison */
+  .alloc-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .alloc-card {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 14px;
+    border: 1.5px solid #e2e8f0;
+  }
+  .alloc-card h3 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: var(--accent);
+  }
+  .alloc-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 8px 0;
+  }
+  .alloc-block {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .alloc-block.data { background: #dcfce7; color: #166534; border: 1.5px solid #16a34a; }
+  .alloc-block.ptr { background: #fed7aa; color: #9a3412; border: 1.5px solid #ea580c; }
+  .alloc-block.free { background: #f1f5f9; color: #9ca3af; border: 1.5px dashed #d1d5db; }
+  .alloc-arrow {
+    font-size: 14px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+  }
+
+  .access-result {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    margin-top: 10px;
+    min-height: 60px;
+    white-space: pre-wrap;
+  }
+  .access-result .ok { color: #4ade80; }
+  .access-result .step { color: #93c5fd; }
+  .access-result .warn { color: #fbbf24; }
+
+  /* Path resolver */
+  .path-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin: 12px 0;
+    padding: 10px 14px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1.5px solid #e2e8f0;
+    font-family: monospace;
+    font-size: 14px;
+  }
+  .path-seg {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .path-seg.root { background: #ede9fe; color: #7c3aed; }
+  .path-seg.dir { background: #dbeafe; color: #1d4ed8; }
+  .path-seg.file { background: #dcfce7; color: #166534; }
+  .path-sep { color: #9ca3af; font-size: 16px; }
+  .path-arrow { color: #0e7490; font-size: 13px; }
+
+  @media (max-width: 768px) {
+    .inode-layout { grid-template-columns: 1fr; }
+    .alloc-grid { grid-template-columns: 1fr; }
+    .block-grid { grid-template-columns: repeat(10, 1fr); }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Memory</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-page-replacement/visualization.html">← L5: Thay trang</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Filesystem</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-io-disk-scheduling/visualization.html">L7: I/O & Disk →</a>
+</nav>
+<main>
+  <h1>Lesson 06 — Hệ thống file (Filesystem)</h1>
+
+  <!-- ═══════════════════════════════
+       MODULE 1 — Path Resolution
+       ═══════════════════════════════ -->
+  <h2>Phân giải đường dẫn (Path Resolution)</h2>
+  <div class="card">
+    <p style="color:#475569;font-size:14px;margin:0 0 12px;">
+      Xem OS phân giải từng component của đường dẫn thành inode number.
+    </p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+      <select id="path-select" style="padding:7px 10px;border:1.5px solid #a5f3fc;border-radius:6px;font-size:14px;background:#f0fdfa;color:#134e4a;">
+        <option>/home/user/documents/report.pdf</option>
+        <option>/var/log/syslog</option>
+        <option>/usr/local/bin/python3</option>
+        <option>/etc/passwd</option>
+      </select>
+      <button class="btn btn-primary" onclick="resolvePath()">Phân giải</button>
+    </div>
+    <div id="path-display" class="path-box">Chọn đường dẫn và nhấn Phân giải.</div>
+    <div id="path-steps" class="access-result"></div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       MODULE 2 — Inode Explorer
+       ═══════════════════════════════ -->
+  <h2>Inode Explorer — Chọn file, xem block</h2>
+  <div class="card">
+    <p style="color:#475569;font-size:14px;margin:0 0 14px;">
+      Click vào file để xem inode của nó và các block dữ liệu trên bản đồ đĩa.
+    </p>
+    <div class="inode-layout">
+      <!-- File list -->
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">
+          Thư mục /home/user/
+        </div>
+        <div class="file-list" id="file-list"></div>
+      </div>
+      <!-- Inode panel -->
+      <div>
+        <div class="inode-panel" id="inode-panel">
+          <div class="inode-title">Inode — chọn file để xem</div>
+          <div style="color:#9ca3af;font-size:13px;">Click vào file bên trái.</div>
+        </div>
+        <!-- Block map -->
+        <div class="block-map-wrap">
+          <div class="block-map-title">Bản đồ block đĩa (128 block)</div>
+          <div class="block-grid" id="block-grid"></div>
+          <div class="block-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#f1f5f9;border:1.5px solid #d1d5db;"></div>Trống</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#cbd5e1;"></div>File khác</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#ede9fe;border:1.5px solid #7c3aed;"></div>Inode table</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#dcfce7;border:1.5px solid #16a34a;"></div>Data (file này)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#fed7aa;border:1.5px solid #ea580c;"></div>Indirect block</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Block access calculator -->
+    <div style="margin-top:20px;border-top:1.5px solid #e2e8f0;padding-top:16px;">
+      <div style="font-size:14px;font-weight:700;color:#374151;margin-bottom:10px;">Tính toán truy cập byte — Walk-through</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <label style="font-size:13px;color:#6b7280;">Byte offset:</label>
+        <input type="number" id="byte-offset" value="50000" min="0"
+          style="padding:6px 10px;border:1.5px solid #a5f3fc;border-radius:6px;font-size:14px;max-width:130px;background:#f0fdfa;">
+        <button class="btn btn-secondary" onclick="calcByteAccess()">Tính</button>
+      </div>
+      <div class="access-result" id="byte-result">Chọn file và nhập byte offset...</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       MODULE 3 — Allocation Comparison
+       ═══════════════════════════════ -->
+  <h2>So sánh 3 cách cấp phát block</h2>
+  <div class="card">
+    <p style="color:#475569;font-size:14px;margin:0 0 14px;">
+      File 5 block cùng được biểu diễn theo 3 chiến lược. Nhập block thứ k để xem số lần truy cập đĩa.
+    </p>
+    <div class="alloc-grid" id="alloc-grid"></div>
+
+    <div style="margin-top:16px;border-top:1.5px solid #e2e8f0;padding-top:14px;">
+      <div style="font-size:14px;font-weight:700;color:#374151;margin-bottom:10px;">
+        Truy cập block thứ k (5-block file):
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <label style="font-size:13px;color:#6b7280;">k =</label>
+        <input type="number" id="block-k" value="3" min="0" max="4"
+          style="padding:6px 10px;border:1.5px solid #a5f3fc;border-radius:6px;font-size:14px;max-width:80px;background:#f0fdfa;">
+        <button class="btn btn-secondary" onclick="calcBlockAccess()">Tính số I/O</button>
+      </div>
+      <div class="access-result" id="block-result">Nhập k và nhấn Tính.</div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+const FILES = [
+  {
+    name: 'notes.txt', icon: '📄', size: '3 KB',
+    inode: 42, mode: '-rw-r--r--', uid: 1000, gid: 1000,
+    sizeBytes: 3072, nlink: 1,
+    mtime: '2026-05-30 10:00',
+    // 3072 / 4096 = 0.75 → 1 block
+    direct: [14, -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+    single_indirect: -1, double_indirect: -1
+  },
+  {
+    name: 'photo.jpg', icon: '🖼', size: '18 KB',
+    inode: 83, mode: '-rw-r--r--', uid: 1000, gid: 1000,
+    sizeBytes: 18432, nlink: 1,
+    mtime: '2026-05-29 15:30',
+    // 18432 / 4096 = 4.5 → 5 blocks
+    direct: [22, 23, 24, 25, 26, -1,-1,-1,-1,-1,-1,-1],
+    single_indirect: -1, double_indirect: -1
+  },
+  {
+    name: 'data.bin', icon: '🗃', size: '52 KB',
+    inode: 115, mode: '-rw-------', uid: 1000, gid: 1000,
+    sizeBytes: 53248, nlink: 1,
+    mtime: '2026-05-31 08:00',
+    // 53248 / 4096 = 13 → 13 blocks (12 direct + 1 single indirect)
+    direct: [35,36,37,38,39,40,41,42,43,44,45,46],
+    single_indirect: 60, // block 60 chứa con trỏ tới block 61
+    indirect_data: [61],
+    double_indirect: -1
+  },
+  {
+    name: 'video.mp4', icon: '🎬', size: '128 KB',
+    inode: 201, mode: '-rw-r--r--', uid: 1000, gid: 1000,
+    sizeBytes: 131072, nlink: 2,
+    mtime: '2026-05-28 20:00',
+    // 131072 / 4096 = 32 → 32 blocks (12 direct + 20 single indirect)
+    direct: [70,71,72,73,74,75,76,77,78,79,80,81],
+    single_indirect: 100, // block 100 = index block trỏ tới 102-121
+    indirect_data: Array.from({length:20},(_,i)=>102+i),
+    double_indirect: -1
+  }
+];
+
+const PATH_DATA = {
+  '/home/user/documents/report.pdf': [
+    {seg:'/', type:'root', inode:2, note:'Root inode (inode 2 theo quy ước ext4)'},
+    {seg:'home', type:'dir', inode:5, note:'Đọc directory root → tìm "home" → inode 5'},
+    {seg:'user', type:'dir', inode:47, note:'Đọc directory inode 5 → tìm "user" → inode 47'},
+    {seg:'documents', type:'dir', inode:312, note:'Đọc directory inode 47 → tìm "documents" → inode 312'},
+    {seg:'report.pdf', type:'file', inode:1024, note:'Đọc directory inode 312 → tìm "report.pdf" → inode 1024. Đọc data blocks của inode 1024.'},
+  ],
+  '/var/log/syslog': [
+    {seg:'/', type:'root', inode:2, note:'Root inode'},
+    {seg:'var', type:'dir', inode:18, note:'Đọc root dir → tìm "var" → inode 18'},
+    {seg:'log', type:'dir', inode:203, note:'Đọc inode 18 → tìm "log" → inode 203'},
+    {seg:'syslog', type:'file', inode:892, note:'Đọc inode 203 → tìm "syslog" → inode 892. Truy cập data.'},
+  ],
+  '/usr/local/bin/python3': [
+    {seg:'/', type:'root', inode:2, note:'Root inode'},
+    {seg:'usr', type:'dir', inode:11, note:'Root dir → "usr" → inode 11'},
+    {seg:'local', type:'dir', inode:156, note:'inode 11 → "local" → inode 156'},
+    {seg:'bin', type:'dir', inode:289, note:'inode 156 → "bin" → inode 289'},
+    {seg:'python3', type:'file', inode:4402, note:'inode 289 → "python3" → inode 4402. Thực thi.'},
+  ],
+  '/etc/passwd': [
+    {seg:'/', type:'root', inode:2, note:'Root inode'},
+    {seg:'etc', type:'dir', inode:9, note:'Root dir → "etc" → inode 9'},
+    {seg:'passwd', type:'file', inode:55, note:'inode 9 → "passwd" → inode 55. Đọc data blocks.'},
+  ],
+};
+
+// ═══════════════════════════════════════════════════════
+// MODULE 1 — Path Resolution
+// ═══════════════════════════════════════════════════════
+function resolvePath() {
+  const path = document.getElementById('path-select').value;
+  const segs = PATH_DATA[path] || [];
+
+  // Display path segments
+  const display = document.getElementById('path-display');
+  display.innerHTML = '';
+  segs.forEach((s, i) => {
+    if (i > 0) {
+      const sep = document.createElement('span');
+      sep.className = 'path-sep';
+      sep.textContent = '/';
+      display.appendChild(sep);
+    }
+    const seg = document.createElement('span');
+    seg.className = `path-seg ${s.type}`;
+    seg.textContent = s.seg === '/' ? '/' : s.seg;
+    display.appendChild(seg);
+    const inoSpan = document.createElement('span');
+    inoSpan.style.cssText = 'font-size:11px;color:#6b7280;align-self:flex-end;margin-left:2px;';
+    inoSpan.textContent = `(inode ${s.inode})`;
+    display.appendChild(inoSpan);
+  });
+
+  // Steps
+  const steps = document.getElementById('path-steps');
+  let txt = '';
+  segs.forEach((s, i) => {
+    txt += `\x1b[0mBước ${i+1}: "${s.seg}" → inode #${s.inode}\n`;
+    txt += `         ${s.note}\n`;
+  });
+  steps.innerHTML = '';
+  segs.forEach((s, i) => {
+    const line1 = document.createElement('span');
+    line1.className = 'step';
+    line1.textContent = `Bước ${i+1}: "${s.seg}" → inode #${s.inode}\n`;
+    steps.appendChild(line1);
+    const line2 = document.createElement('span');
+    line2.className = 'ok';
+    line2.textContent = `         ${s.note}\n`;
+    steps.appendChild(line2);
+  });
+  const total = document.createElement('span');
+  total.style.color = '#fbbf24';
+  total.textContent = `─── Tổng ${segs.length} bước tra directory + 1 lần đọc data → ${segs.length + 1} disk I/O (nếu không cache)\n`;
+  steps.appendChild(total);
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 2 — Inode Explorer
+// ═══════════════════════════════════════════════════════
+let selectedFile = null;
+
+function initFileList() {
+  const list = document.getElementById('file-list');
+  FILES.forEach(f => {
+    const item = document.createElement('div');
+    item.className = 'file-item';
+    item.innerHTML = `<span class="file-icon">${f.icon}</span><span class="file-name">${f.name}</span><span class="file-size">${f.size}</span>`;
+    item.onclick = () => selectFile(f, item);
+    list.appendChild(item);
+  });
+}
+
+function selectFile(f, el) {
+  document.querySelectorAll('.file-item').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedFile = f;
+  renderInode(f);
+  renderBlockMap(f);
+}
+
+function renderInode(f) {
+  const panel = document.getElementById('inode-panel');
+  const directPtrs = f.direct.map((b,i) => b >= 0
+    ? `<div class="inode-field"><span class="inode-key">direct[${i}]</span><span class="inode-val ptr-direct">block ${b}</span></div>`
+    : `<div class="inode-field"><span class="inode-key">direct[${i}]</span><span class="inode-val" style="color:#d1d5db;">—</span></div>`
+  ).join('');
+
+  const siStr = f.single_indirect >= 0
+    ? `block ${f.single_indirect} → [${(f.indirect_data||[]).join(', ')}]`
+    : '—';
+
+  panel.innerHTML = `
+    <div class="inode-title">Inode #${f.inode} — ${f.name}</div>
+    <div class="inode-field"><span class="inode-key">mode</span><span class="inode-val">${f.mode}</span></div>
+    <div class="inode-field"><span class="inode-key">uid/gid</span><span class="inode-val">${f.uid}/${f.gid}</span></div>
+    <div class="inode-field"><span class="inode-key">size</span><span class="inode-val">${f.sizeBytes.toLocaleString()} bytes</span></div>
+    <div class="inode-field"><span class="inode-key">nlink</span><span class="inode-val">${f.nlink}</span></div>
+    <div class="inode-field"><span class="inode-key">mtime</span><span class="inode-val">${f.mtime}</span></div>
+    <div style="margin-top:8px;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.4px;">Block Pointers</div>
+    ${directPtrs}
+    <div class="inode-field"><span class="inode-key">single_indirect</span><span class="inode-val ptr">${siStr}</span></div>
+    <div class="inode-field"><span class="inode-key">double_indirect</span><span class="inode-val" style="color:#d1d5db;">—</span></div>
+    <div class="inode-field"><span class="inode-key">triple_indirect</span><span class="inode-val" style="color:#d1d5db;">—</span></div>
+  `;
+}
+
+// Other files' blocks (static layout)
+const OTHER_BLOCKS = new Set([3,4,5,6,7,8,9,10,11,12,13,30,31,32,33,50,51,52,53,54,55,90,91,92]);
+const INODE_BLOCKS = new Set([0,1,2]); // inode table
+
+function renderBlockMap(f) {
+  const grid = document.getElementById('block-grid');
+  grid.innerHTML = '';
+
+  const directSet = new Set(f.direct.filter(b => b >= 0));
+  const indirectSet = new Set();
+  const indirectDataSet = new Set();
+  if (f.single_indirect >= 0) {
+    indirectSet.add(f.single_indirect);
+    (f.indirect_data||[]).forEach(b => indirectDataSet.add(b));
+  }
+
+  for (let i = 0; i < 128; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'block-cell';
+    cell.title = `Block ${i}`;
+    cell.textContent = i;
+
+    if (INODE_BLOCKS.has(i)) {
+      cell.classList.add('inode-block');
+    } else if (directSet.has(i)) {
+      cell.classList.add('direct-data');
+    } else if (indirectSet.has(i)) {
+      cell.classList.add('indirect-block');
+    } else if (indirectDataSet.has(i)) {
+      cell.classList.add('direct-data');
+    } else if (OTHER_BLOCKS.has(i)) {
+      cell.classList.add('used-other');
+    } else {
+      cell.classList.add('free');
+    }
+    grid.appendChild(cell);
+  }
+}
+
+function initBlockMap() {
+  const grid = document.getElementById('block-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 128; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'block-cell';
+    cell.textContent = i;
+    if (INODE_BLOCKS.has(i)) cell.classList.add('inode-block');
+    else if (OTHER_BLOCKS.has(i)) cell.classList.add('used-other');
+    else cell.classList.add('free');
+    grid.appendChild(cell);
+  }
+}
+
+function calcByteAccess() {
+  const offset = parseInt(document.getElementById('byte-offset').value) || 0;
+  const result = document.getElementById('byte-result');
+  result.innerHTML = '';
+
+  const BLOCK_SIZE = 4096;
+  const PTRS_PER_BLOCK = 1024; // 4096 / 4
+  const DIRECT = 12;
+
+  const blockIdx = Math.floor(offset / BLOCK_SIZE);
+  const byteOff = offset % BLOCK_SIZE;
+
+  const append = (txt, cls) => {
+    const s = document.createElement('span');
+    if (cls) s.className = cls;
+    s.textContent = txt + '\n';
+    result.appendChild(s);
+  };
+
+  append(`Byte offset: ${offset.toLocaleString()}`, 'step');
+  append(`Block index: ⌊${offset} ÷ ${BLOCK_SIZE}⌋ = ${blockIdx}`, 'step');
+  append(`Offset trong block: ${offset} mod ${BLOCK_SIZE} = ${byteOff} bytes`, 'step');
+
+  if (blockIdx < DIRECT) {
+    append(`Block ${blockIdx} < 12 → nằm trong DIRECT pointers`, 'ok');
+    append(`Truy cập: đọc data block (1 disk I/O — nếu inode đã cached)`, 'ok');
+  } else if (blockIdx < DIRECT + PTRS_PER_BLOCK) {
+    const idx = blockIdx - DIRECT;
+    append(`Block ${blockIdx}: 12 ≤ ${blockIdx} < ${DIRECT + PTRS_PER_BLOCK} → SINGLE INDIRECT`, 'warn');
+    append(`Con trỏ thứ ${idx} trong single indirect block`, 'step');
+    append(`I/O: (1) đọc single_indirect block → (2) lấy con trỏ [${idx}] → (3) đọc data block`, 'ok');
+    append(`Tổng: 2 disk I/O (nếu inode cached)`, 'ok');
+  } else if (blockIdx < DIRECT + PTRS_PER_BLOCK + PTRS_PER_BLOCK*PTRS_PER_BLOCK) {
+    const idx = blockIdx - DIRECT - PTRS_PER_BLOCK;
+    const l1 = Math.floor(idx / PTRS_PER_BLOCK);
+    const l2 = idx % PTRS_PER_BLOCK;
+    append(`Block ${blockIdx} → DOUBLE INDIRECT`, 'warn');
+    append(`Chỉ số trong double: ${idx} → L1=${l1}, L2=${l2}`, 'step');
+    append(`I/O: (1) double_indirect → (2) single_indirect[${l1}] → (3) data block`, 'ok');
+    append(`Tổng: 3 disk I/O (nếu inode cached)`, 'ok');
+  } else {
+    append(`Block ${blockIdx} → TRIPLE INDIRECT (rất hiếm gặp với file < 4TB)`, 'warn');
+    append(`Tổng: 4 disk I/O (nếu inode cached)`, 'ok');
+  }
+
+  if (selectedFile) {
+    const fileBlocks = Math.ceil(selectedFile.sizeBytes / BLOCK_SIZE);
+    if (blockIdx >= fileBlocks) {
+      append(`\n⚠ Offset ${offset} vượt quá kích thước file (${selectedFile.sizeBytes} bytes = ${fileBlocks} block)`, 'warn');
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 3 — Allocation Comparison
+// ═══════════════════════════════════════════════════════
+const ALLOC_DATA = {
+  contiguous: {
+    name: 'Liền kề (Contiguous)',
+    start: 20, count: 5,
+    blocks: [20,21,22,23,24],
+    description: 'Inode: start=20, length=5. Block k = 20 + k'
+  },
+  linked: {
+    name: 'Liên kết (Linked)',
+    // block: [data, next]
+    blocks: [20, 35, 12, 58, 47],
+    description: 'Block 20→35→12→58→47→NULL. Truy cập block k: đọc k+1 lần.'
+  },
+  indexed: {
+    name: 'Chỉ mục / Inode',
+    indexBlock: 80,
+    dataBlocks: [20, 35, 12, 58, 47],
+    description: 'Index block 80 chứa con trỏ [20, 35, 12, 58, 47]. Direct → 1 I/O.'
+  }
+};
+
+function renderAllocGrid() {
+  const grid = document.getElementById('alloc-grid');
+  grid.innerHTML = '';
+
+  // Contiguous
+  const c = ALLOC_DATA.contiguous;
+  let html = `<div class="alloc-card">
+    <h3>${c.name}</h3>
+    <div style="font-size:12px;color:#6b7280;margin-bottom:8px;">${c.description}</div>
+    <div style="font-size:12px;color:#374151;margin-bottom:4px;">Inode → {start: 20, len: 5}</div>
+    <div class="alloc-row">`;
+  for(let i=0;i<30;i++){
+    if(i>=20&&i<=24) html+=`<div class="alloc-block data" title="Block ${i}">${i}</div>`;
+    else if([0,1,2].includes(i)) html+=`<div class="alloc-block ptr" title="Inode table">${i}</div>`;
+    else if([8,10,15].includes(i)) html+=`<div class="alloc-block" style="background:#cbd5e1;color:#475569;" title="File khác">${i}</div>`;
+    else html+=`<div class="alloc-block free" title="Trống">${i}</div>`;
+  }
+  html+=`</div>
+    <div style="font-size:12px;margin-top:8px;color:#16a34a;">✓ Random access nhanh: O(1)</div>
+    <div style="font-size:12px;color:#dc2626;">✗ Phân mảnh ngoài; khó mở rộng</div>
+  </div>`;
+
+  // Linked
+  const lnk = ALLOC_DATA.linked;
+  html += `<div class="alloc-card">
+    <h3>${lnk.name}</h3>
+    <div style="font-size:12px;color:#6b7280;margin-bottom:8px;">${lnk.description}</div>
+    <div style="font-size:12px;color:#374151;margin-bottom:4px;">Inode → {head: 20}</div>
+    <div class="alloc-row" style="align-items:center;">`;
+  lnk.blocks.forEach((b,i)=>{
+    html+=`<div class="alloc-block data" title="Block ${b} (data ${i})">${b}</div>`;
+    if(i<lnk.blocks.length-1) html+=`<div class="alloc-arrow">→</div>`;
+  });
+  html+=`<div class="alloc-arrow">→ NULL</div>`;
+  html+=`</div>
+    <div style="font-size:11px;color:#6b7280;margin-top:4px;">Mỗi block có 4 byte cho con trỏ next</div>
+    <div style="font-size:12px;margin-top:8px;color:#16a34a;">✓ Không phân mảnh; dễ mở rộng</div>
+    <div style="font-size:12px;color:#dc2626;">✗ Random access O(k) disk I/O</div>
+  </div>`;
+
+  // Indexed
+  const idx = ALLOC_DATA.indexed;
+  html += `<div class="alloc-card">
+    <h3>${idx.name}</h3>
+    <div style="font-size:12px;color:#6b7280;margin-bottom:8px;">${idx.description}</div>
+    <div style="font-size:12px;color:#374151;margin-bottom:4px;">Inode → {direct[0]: 20, ..., direct[4]: 47}</div>
+    <div class="alloc-row" style="align-items:center;">
+      <div class="alloc-block ptr" title="Index block ${idx.indexBlock}">${idx.indexBlock}</div>
+      <div class="alloc-arrow">→</div>`;
+  idx.dataBlocks.forEach(b=>{
+    html+=`<div class="alloc-block data" title="Data block ${b}">${b}</div>`;
+  });
+  html+=`</div>
+    <div style="font-size:12px;margin-top:8px;color:#16a34a;">✓ Random access 1-2 I/O; không phân mảnh</div>
+    <div style="font-size:12px;color:#6b7280;">~ Overhead 1 index block; nhiều I/O với triple indirect</div>
+  </div>`;
+
+  grid.innerHTML = html;
+}
+
+function calcBlockAccess() {
+  const k = parseInt(document.getElementById('block-k').value) || 0;
+  const result = document.getElementById('block-result');
+  result.innerHTML = '';
+
+  const append = (txt, cls) => {
+    const s = document.createElement('span');
+    if (cls) s.className = cls;
+    s.textContent = txt + '\n';
+    result.appendChild(s);
+  };
+
+  if (k < 0 || k > 4) {
+    append('File có 5 block (0..4). k phải từ 0 đến 4.', 'warn');
+    return;
+  }
+
+  append(`Truy cập block thứ ${k} (file 5 block):`, 'step');
+
+  // Contiguous
+  append(`\nLinh kề: địa chỉ = start + ${k} = ${20 + k} → 1 disk I/O`, 'ok');
+
+  // Linked
+  const linked = ALLOC_DATA.linked.blocks;
+  let lkSteps = '';
+  for(let i=0;i<=k;i++) {
+    lkSteps += `đọc block ${linked[i]}${i<k?' → ':' → ĐÂY'}`;
+  }
+  append(`Liên kết: ${lkSteps} → ${k+1} disk I/O`, k > 2 ? 'warn' : 'ok');
+
+  // Indexed (all direct for 5 blocks)
+  append(`Chỉ mục (inode direct[${k}] = ${ALLOC_DATA.indexed.dataBlocks[k]}): 1 disk I/O (direct pointer)`, 'ok');
+
+  append(`\nTổng hợp: Liền kề = Chỉ mục = 1 I/O; Liên kết = ${k+1} I/O`, 'step');
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  initFileList();
+  initBlockMap();
+  renderAllocGrid();
+  resolvePath();
+});
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

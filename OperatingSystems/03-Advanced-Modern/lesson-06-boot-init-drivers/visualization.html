@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Boot, Init &amp; Driver</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #4338ca;
+    --accent-soft: #e0e7ff;
+    --accent-hover: #3730a3;
+    --stage-colors: #4338ca, #0891b2, #16a34a, #d97706, #7c3aed;
+  }
+
+  h1 { color: #1e1b4b; }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-soft); }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(67,56,202,.10);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .btn {
+    padding: 8px 18px; border-radius: 6px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ── Module 1 Boot Stages ── */
+  .boot-pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 16px 0;
+  }
+  .boot-stage {
+    display: flex;
+    align-items: stretch;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 4px;
+    cursor: pointer;
+    transition: box-shadow .15s, transform .1s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1);
+  }
+  .boot-stage:hover { transform: translateX(4px); box-shadow: 0 3px 10px rgba(0,0,0,.15); }
+  .boot-stage.active { transform: translateX(6px); box-shadow: 0 4px 16px rgba(67,56,202,.3); }
+  .stage-icon {
+    width: 60px; min-width: 60px; display: flex; align-items: center; justify-content: center;
+    font-size: 22px; color: white;
+  }
+  .stage-body { padding: 12px 16px; flex: 1; }
+  .stage-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .stage-short { font-size: 13px; color: #64748b; }
+  .stage-arrow {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; color: #94a3b8; padding: 0 6px; margin: -2px 0;
+    text-align: center;
+  }
+
+  /* Stage detail panel */
+  #stage-detail {
+    background: #1e293b; color: #e2e8f0;
+    border-radius: 10px; padding: 20px 22px;
+    margin: 10px 0; font-size: 14px; line-height: 1.8;
+    min-height: 120px;
+  }
+  #stage-detail h3 { color: #93c5fd; margin: 0 0 12px; }
+  #stage-detail code { background: #0f172a; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px; }
+  .sd-item { display: flex; gap: 10px; padding: 5px 0; border-bottom: 1px solid #334155; }
+  .sd-item:last-child { border-bottom: none; }
+  .sd-key { color: #7dd3fc; font-weight: 600; min-width: 140px; }
+
+  /* ── Module 2 Interrupt Vector Table ── */
+  .ivt-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .ivt-entry {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .ivt-entry:hover { border-color: var(--accent); background: var(--accent-soft); transform: scale(1.02); }
+  .ivt-entry.active { border-color: var(--accent); background: var(--accent); color: white; }
+  .ivt-vec { font-family: monospace; font-weight: 700; font-size: 12px; color: #7c3aed; }
+  .ivt-entry.active .ivt-vec { color: #c4b5fd; }
+  .ivt-name { font-size: 14px; font-weight: 600; margin: 2px 0; }
+  .ivt-src { font-size: 12px; color: #64748b; }
+  .ivt-entry.active .ivt-src { color: #bfdbfe; }
+
+  /* ISR flow animation */
+  #isr-flow {
+    display: flex; flex-direction: column; gap: 8px; margin-top: 12px;
+  }
+  .isr-step {
+    display: flex; gap: 12px; align-items: center;
+    padding: 10px 14px; border-radius: 8px;
+    background: #f1f5f9; border-left: 4px solid #e2e8f0;
+    opacity: .4; transition: all .3s;
+    font-size: 13px;
+  }
+  .isr-step.active { opacity: 1; border-left-color: var(--accent); background: var(--accent-soft); }
+  .isr-step.done { opacity: .8; border-left-color: #16a34a; background: #f0fdf4; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; min-width: 24px; }
+  .isr-step.done .step-num { background: #16a34a; }
+
+  /* ── Module 3 Polling vs Interrupt ── */
+  #poll-canvas { display: block; margin: 0 auto; max-width: 100%; }
+
+  @media (max-width: 600px) {
+    .ivt-grid { grid-template-columns: 1fr 1fr; }
+    .sd-key { min-width: 100px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Advanced</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-realtime-scheduling/visualization.html">← L5: Real-time</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Boot &amp; Driver</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-observability-performance/visualization.html">L7: Quan sát →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Boot, Init &amp; Driver</h1>
+
+<!-- ════════════════════════════════════════════
+     MODULE 1 — Boot Sequence Interactive
+════════════════════════════════════════════ -->
+<h2>Module 1 — Chuỗi khởi động tương tác</h2>
+
+<div class="card">
+  <p>Nhấn vào từng giai đoạn để xem điều gì xảy ra bên trong. Nhấn <strong>Chạy tuần tự</strong> để xem animation boot từng bước.</p>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="playBootSeq()">Chạy tuần tự</button>
+    <button class="btn btn-secondary" onclick="resetBoot()">Reset</button>
+  </div>
+
+  <div class="boot-pipeline" id="boot-pipeline"></div>
+  <div id="stage-detail"><span style="color:#64748b">Nhấn vào một giai đoạn để xem chi tiết.</span></div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODULE 2 — Interrupt Vector Table
+════════════════════════════════════════════ -->
+<h2>Module 2 — Bảng vector ngắt &amp; ISR</h2>
+
+<div class="card">
+  <p>Nhấn vào một entry trong Interrupt Vector Table để xem luồng xử lý ngắt từng bước.</p>
+
+  <div class="ivt-grid" id="ivt-grid"></div>
+
+  <div id="isr-flow">
+    <p style="color:#94a3b8;font-size:13px;">Chọn một interrupt để xem ISR flow.</p>
+  </div>
+
+  <div class="btn-row" style="margin-top:14px;">
+    <button class="btn btn-primary" id="isr-play-btn" onclick="animateISR()" disabled>Chạy animation ISR</button>
+    <button class="btn btn-secondary" onclick="resetISR()">Reset</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODULE 3 — Polling vs Interrupt
+════════════════════════════════════════════ -->
+<h2>Module 3 — Polling vs Interrupt-driven I/O</h2>
+
+<div class="card">
+  <p>So sánh hiệu quả CPU của hai phương pháp I/O. Kéo thanh trượt để điều chỉnh thời gian I/O.</p>
+
+  <div style="margin:12px 0;">
+    <label style="font-size:14px;font-weight:600;">Thời gian chờ I/O (ms): <span id="io-delay-val">50</span></label>
+    <input type="range" id="io-delay" min="5" max="200" value="50" style="width:100%;margin:6px 0;" oninput="updatePollChart()">
+  </div>
+  <canvas id="poll-canvas" width="680" height="200"></canvas>
+  <div class="info-box" id="poll-info">Kéo thanh trượt để thấy sự khác biệt CPU utilization.</div>
+</div>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+<script>
+/* ═══════════════════════════════════════════
+   MODULE 1 — Boot Sequence
+═══════════════════════════════════════════ */
+const BOOT_STAGES = [
+  {
+    icon: '⚡', color: '#4338ca', title: 'Firmware (BIOS/UEFI)',
+    short: 'Power-On Self Test · Tìm thiết bị boot',
+    detail: {
+      heading: '1. Firmware: BIOS / UEFI',
+      items: [
+        { key: 'Bước đầu tiên', val: 'Firmware chạy ngay khi điện được cấp, từ ROM gắn trên mainboard.' },
+        { key: 'POST', val: 'Power-On Self Test: kiểm tra CPU, RAM, GPU, thiết bị I/O. Nếu lỗi → beep code.' },
+        { key: 'BIOS vs UEFI', val: 'BIOS (16-bit, MBR, tối đa 2TB) → UEFI (64-bit, GPT, Secure Boot, giao diện đồ họa).' },
+        { key: 'Tìm boot device', val: 'Tra Boot Order (UEFI settings): HDD → USB → CD → network. Đọc MBR hoặc ESP.' },
+        { key: 'Thời gian', val: '~0.5-3 giây tùy phần cứng và số thiết bị.' },
+      ]
+    }
+  },
+  {
+    icon: '📦', color: '#0891b2', title: 'Bootloader (GRUB)',
+    short: 'Nạp kernel image · Hiển thị menu boot',
+    detail: {
+      heading: '2. Bootloader: GRUB',
+      items: [
+        { key: 'Vị trí', val: 'Stage 1 trong MBR (512 byte) hoặc ESP. Stage 2 đọc /boot/grub/grub.cfg.' },
+        { key: 'Hiển thị menu', val: 'Danh sách kernel có thể boot. Timeout mặc định 5s rồi chọn default.' },
+        { key: 'Nạp kernel', val: 'Đọc /boot/vmlinuz-<version> (kernel đã nén) và /boot/initrd.img vào RAM.' },
+        { key: 'Kernel cmdline', val: 'Truyền tham số: root=/dev/sda1 quiet splash ro. Kernel đọc từ đây.' },
+        { key: 'Nhảy vào kernel', val: 'GRUB gọi entry point của kernel image — xong nhiệm vụ của bootloader.' },
+      ]
+    }
+  },
+  {
+    icon: '🐧', color: '#7c3aed', title: 'Kernel Initialization',
+    short: 'Giải nén · Thiết lập MMU · initramfs · Mount root',
+    detail: {
+      heading: '3. Kernel Initialization',
+      items: [
+        { key: 'Giải nén', val: 'vmlinuz tự giải nén (zstd/gzip) ra vmlinux ở RAM. Code head_64.S chạy đầu tiên.' },
+        { key: 'Thiết lập CPU', val: 'Vào protected mode, thiết lập GDT/IDT, enable paging (MMU on), setup SMP.' },
+        { key: 'initramfs', val: 'Bung file system tạm trong RAM — chứa driver tối thiểu (SATA, crypto, filesystem) để mount root thật.' },
+        { key: 'Khám phá phần cứng', val: 'PCI enumeration, ACPI, DeviceTree (ARM). Probe và init driver thiết bị.' },
+        { key: 'Mount root', val: 'Sau khi có driver SATA/NVMe, mount /dev/sda1 (hoặc từ cmdline root=). Chuyển từ initramfs.' },
+        { key: 'Spawn PID 1', val: 'Gọi exec("/sbin/init") hoặc theo cmdline init=. Đây là tiến trình đầu tiên user space.' },
+      ]
+    }
+  },
+  {
+    icon: '⚙️', color: '#d97706', title: 'systemd (PID 1)',
+    short: 'Khởi động service song song · Resolve dependency',
+    detail: {
+      heading: '4. systemd — Init hiện đại',
+      items: [
+        { key: 'PID 1', val: 'Tiến trình đầu tiên user space, cha của mọi process. Nếu PID 1 chết → kernel panic.' },
+        { key: 'Unit files', val: '/lib/systemd/system/*.service, *.mount, *.target — mô tả service và dependency.' },
+        { key: 'Parallel startup', val: 'Các service độc lập chạy song song — nhanh hơn SysV init chạy tuần tự.' },
+        { key: 'Targets', val: 'multi-user.target (CLI), graphical.target (GUI). Tương đương runlevel cũ.' },
+        { key: 'Công cụ', val: 'systemctl start/stop/status/enable/disable. journalctl -xe để xem log.' },
+        { key: 'Thời gian', val: 'systemd-analyze blame — xem service nào làm boot chậm nhất.' },
+      ]
+    }
+  },
+  {
+    icon: '🖥️', color: '#16a34a', title: 'User Space',
+    short: 'Login manager · Shell · Desktop environment',
+    detail: {
+      heading: '5. User Space',
+      items: [
+        { key: 'Getty / GDM', val: 'getty khởi động terminal đăng nhập (tty1..6). GDM/SDDM là graphical login manager.' },
+        { key: 'PAM auth', val: 'Pluggable Authentication Modules — kiểm tra username/password, setup session.' },
+        { key: 'Shell', val: 'bash/zsh được fork từ login process. .bashrc / .profile được load.' },
+        { key: 'Desktop', val: 'GNOME, KDE, XFCE — chạy trên Wayland hoặc X11 display server.' },
+        { key: 'Tổng thời gian', val: 'Boot cơ bản: 5-20s (SSD + NVMe nhanh). HDD cũ + nhiều service: 30-60s+.' },
+      ]
+    }
+  }
+];
+
+let bootTimers = [];
+let activeStage = -1;
+
+function buildBoot(){
+  const container = document.getElementById('boot-pipeline');
+  container.innerHTML = '';
+  BOOT_STAGES.forEach((s,i) => {
+    const div = document.createElement('div');
+    div.className = 'boot-stage';
+    div.id = `bstage-${i}`;
+    div.style.background = `${s.color}18`;
+    div.style.border = `2px solid ${s.color}40`;
+    div.innerHTML = `
+      <div class="stage-icon" style="background:${s.color}">${s.icon}</div>
+      <div class="stage-body">
+        <div class="stage-title" style="color:${s.color}">${s.title}</div>
+        <div class="stage-short">${s.short}</div>
+      </div>
+    `;
+    div.addEventListener('click',()=>showStage(i));
+    container.appendChild(div);
+    if(i<BOOT_STAGES.length-1){
+      const arrow = document.createElement('div');
+      arrow.className='stage-arrow';
+      arrow.textContent='↓';
+      container.appendChild(arrow);
+    }
+  });
+}
+
+function showStage(i){
+  activeStage = i;
+  document.querySelectorAll('.boot-stage').forEach((el,j)=>{
+    el.classList.toggle('active',j===i);
+  });
+  const s = BOOT_STAGES[i];
+  const det = document.getElementById('stage-detail');
+  let html=`<h3>${s.detail.heading}</h3>`;
+  s.detail.items.forEach(item=>{
+    html+=`<div class="sd-item"><span class="sd-key">${item.key}</span><span>${item.val}</span></div>`;
+  });
+  det.innerHTML=html;
+}
+
+function playBootSeq(){
+  resetBoot();
+  bootTimers.forEach(clearTimeout);
+  bootTimers=[];
+  BOOT_STAGES.forEach((_,i)=>{
+    bootTimers.push(setTimeout(()=>showStage(i), i*1200));
+  });
+}
+
+function resetBoot(){
+  bootTimers.forEach(clearTimeout);
+  bootTimers=[];
+  activeStage=-1;
+  document.querySelectorAll('.boot-stage').forEach(el=>el.classList.remove('active'));
+  document.getElementById('stage-detail').innerHTML='<span style="color:#64748b">Nhấn vào một giai đoạn để xem chi tiết.</span>';
+}
+
+/* ═══════════════════════════════════════════
+   MODULE 2 — IVT & ISR
+═══════════════════════════════════════════ */
+const IVT_ENTRIES = [
+  { vec:'0x00', name:'Divide by Zero', src:'CPU exception', color:'#dc2626', isr:'do_divide_error()', steps:['CPU phát hiện lệnh DIV với số chia = 0','Tự động ngắt với vector 0x00','ISR do_divide_error() gửi SIGFPE đến process','Process nhận signal → terminate (nếu không handle)'] },
+  { vec:'0x06', name:'Invalid Opcode', src:'CPU exception', color:'#d97706', isr:'do_invalid_op()', steps:['CPU gặp bytecode không hợp lệ','Exception vector 0x06','ISR báo cáo lỗi, gửi SIGILL đến process','Thường do executable bị hỏng hoặc lỗi compiler'] },
+  { vec:'0x0E', name:'Page Fault', src:'MMU exception', color:'#7c3aed', isr:'do_page_fault()', steps:['Process truy cập địa chỉ ảo không có PTE hợp lệ','MMU phát exception với error code và địa chỉ lỗi vào CR2','do_page_fault() kiểm tra: demand paging? swap? invalid?','Nếu hợp lệ: nạp trang vào RAM, update PTE, resume process','Nếu invalid (null deref...): gửi SIGSEGV'] },
+  { vec:'0x20', name:'Timer (IRQ 0)', src:'PIT / APIC', color:'#0891b2', isr:'timer_interrupt()', steps:['APIC phát ngắt mỗi 1ms (1000 Hz)','CPU lưu context, nhảy ISR','Cập nhật jiffies, ktime','Kiểm tra timer wheel — kích hoạt hrtimer callback','Gọi scheduler_tick() — có thể trigger preemption','EOI gửi đến APIC'] },
+  { vec:'0x21', name:'Keyboard (IRQ 1)', src:'Keyboard controller', color:'#16a34a', isr:'kbd_interrupt()', steps:['Người dùng nhấn/nhả phím','Bộ điều khiển PS/2 gửi IRQ 1','Top half ISR: đọc scancode từ port 0x60','Schedule bottom half (softirq)','Bottom half: chuyển scancode → keycode → ký tự','Ghi vào keyboard buffer → wakeup process đang read()'] },
+  { vec:'0x2B', name:'Network (IRQ 11)', src:'NIC', color:'#4338ca', isr:'e1000_intr()', steps:['Gói tin đến NIC, DMA tự copy vào ring buffer trong RAM','NIC phát ngắt','Top half ISR: báo cho NAPI, disable NIC interrupt','Schedule NAPI poll (bottom half)','NAPI poll: xử lý packet từ ring buffer, gọi netif_receive_skb()','Pass lên IP layer → TCP → socket buffer → wakeup recv()','Re-enable NIC interrupt'] },
+];
+
+let selectedIVT = null;
+let isrAnimTimer = null;
+
+function buildIVT(){
+  const grid=document.getElementById('ivt-grid');
+  grid.innerHTML='';
+  IVT_ENTRIES.forEach((e,i)=>{
+    const div=document.createElement('div');
+    div.className='ivt-entry';
+    div.id=`ivt-${i}`;
+    div.innerHTML=`
+      <div class="ivt-vec">${e.vec}</div>
+      <div class="ivt-name">${e.name}</div>
+      <div class="ivt-src">${e.src}</div>
+    `;
+    div.style.borderColor=e.color+'80';
+    div.addEventListener('click',()=>selectIVT(i));
+    grid.appendChild(div);
+  });
+}
+
+function selectIVT(i){
+  document.querySelectorAll('.ivt-entry').forEach((el,j)=>{
+    el.classList.toggle('active',j===i);
+    el.style.borderColor = j===i ? IVT_ENTRIES[i].color : IVT_ENTRIES[j].color+'80';
+  });
+  selectedIVT=i;
+  buildISRFlow(i);
+  document.getElementById('isr-play-btn').disabled=false;
+}
+
+function buildISRFlow(i){
+  const entry = IVT_ENTRIES[i];
+  const flow = document.getElementById('isr-flow');
+  const preamble = [
+    `Phần cứng phát ngắt: ${entry.src}`,
+    `CPU hoàn thành instruction đang chạy`,
+    `CPU lưu context (registers, IP, flags) lên stack`,
+    `Tra IVT[${entry.vec}] → jump to ${entry.isr}`,
+  ];
+  const allSteps=[...preamble,...entry.steps,'ISR kết thúc: gửi EOI đến APIC','CPU khôi phục context, tiếp tục'];
+  flow.innerHTML='';
+  allSteps.forEach((s,j)=>{
+    const div=document.createElement('div');
+    div.className='isr-step';
+    div.id=`istep-${j}`;
+    div.innerHTML=`<div class="step-num">${j+1}</div><span>${s}</span>`;
+    div.style.borderLeftColor = j<4 ? '#4338ca' : j<4+entry.steps.length ? entry.color : '#16a34a';
+    flow.appendChild(div);
+  });
+}
+
+function animateISR(){
+  if(selectedIVT===null) return;
+  resetISR(false);
+  buildISRFlow(selectedIVT);
+  const steps=document.querySelectorAll('.isr-step');
+  steps.forEach((el,j)=>{
+    setTimeout(()=>{
+      if(j>0) steps[j-1].classList.replace('active','done');
+      el.classList.add('active');
+      el.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }, j*500);
+  });
+  setTimeout(()=>{ if(steps.length) steps[steps.length-1].classList.replace('active','done'); }, steps.length*500);
+}
+
+function resetISR(resetSel=true){
+  if(isrAnimTimer) clearTimeout(isrAnimTimer);
+  document.querySelectorAll('.isr-step').forEach(el=>{
+    el.classList.remove('active','done');
+  });
+  if(resetSel){
+    selectedIVT=null;
+    document.querySelectorAll('.ivt-entry').forEach((el,j)=>{ el.classList.remove('active'); el.style.borderColor=IVT_ENTRIES[j].color+'80'; });
+    document.getElementById('isr-flow').innerHTML='<p style="color:#94a3b8;font-size:13px;">Chọn một interrupt để xem ISR flow.</p>';
+    document.getElementById('isr-play-btn').disabled=true;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   MODULE 3 — Polling vs Interrupt chart
+═══════════════════════════════════════════ */
+function updatePollChart(){
+  const delay = +document.getElementById('io-delay').value;
+  document.getElementById('io-delay-val').textContent = delay;
+
+  const canvas = document.getElementById('poll-canvas');
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const total=300; // total time units to show
+  const rowH=60, pad={l:110,r:20,t:20,b:30}, unitW=(W-pad.l-pad.r)/total;
+  const ioStart=50, ioEnd=ioStart+delay;
+
+  ['Polling','Interrupt'].forEach((label,row)=>{
+    const y=pad.t+row*(rowH+20);
+    ctx.fillStyle='#374151'; ctx.font='bold 13px sans-serif'; ctx.textAlign='right';
+    ctx.fillText(label,pad.l-8,y+rowH/2+5);
+
+    // CPU timeline
+    if(row===0){
+      // Polling: CPU busy polling for I/O duration
+      // Before I/O
+      drawCPUBlock(ctx,pad.l,y,ioStart*unitW,rowH,'#4338ca','Useful work');
+      // During I/O wait (spin)
+      drawCPUBlock(ctx,pad.l+ioStart*unitW,y,delay*unitW,rowH,'#dc2626','SPIN WAIT (wasted)');
+      // After
+      drawCPUBlock(ctx,pad.l+ioEnd*unitW,y,(total-ioEnd)*unitW,rowH,'#4338ca','Useful work');
+    } else {
+      // Interrupt: CPU free during I/O
+      drawCPUBlock(ctx,pad.l,y,ioStart*unitW,rowH,'#4338ca','Useful work');
+      // CPU does other work while waiting
+      drawCPUBlock(ctx,pad.l+ioStart*unitW,y,delay*unitW,rowH,'#16a34a','Other process');
+      // Interrupt handling (very short)
+      const isrW=Math.max(4,total*0.02)*unitW;
+      drawCPUBlock(ctx,pad.l+ioEnd*unitW,y,isrW,rowH,'#d97706','ISR');
+      // Continue
+      drawCPUBlock(ctx,pad.l+ioEnd*unitW+isrW,y,(total-ioEnd)*unitW-isrW,rowH,'#4338ca','Useful work');
+    }
+
+    // I/O device line
+    const iy=y+rowH+4;
+    ctx.strokeStyle='#94a3b8'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(pad.l+ioStart*unitW,iy); ctx.lineTo(pad.l+ioEnd*unitW,iy); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#94a3b8'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(`I/O ${delay}ms`,pad.l+(ioStart+delay/2)*unitW,iy-3);
+    // Arrow mark
+    ctx.strokeStyle='#dc2626'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(pad.l+ioEnd*unitW,iy+6); ctx.lineTo(pad.l+ioEnd*unitW,iy-10); ctx.stroke();
+    if(row===1){
+      ctx.fillStyle='#d97706'; ctx.font='10px sans-serif';
+      ctx.fillText('→ ngắt',pad.l+ioEnd*unitW+30,iy);
+    }
+  });
+
+  // Time axis
+  ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(pad.l,H-pad.b); ctx.lineTo(W-pad.r,H-pad.b); ctx.stroke();
+  for(let t=0;t<=total;t+=50){
+    const x=pad.l+t*unitW;
+    ctx.fillStyle='#94a3b8'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(t,x,H-pad.b+12);
+  }
+  ctx.fillStyle='#374151'; ctx.textAlign='center';
+  ctx.fillText('Thời gian (đơn vị tương đối)',pad.l+(W-pad.l-pad.r)/2,H-4);
+
+  // Summary
+  const pollingWaste = Math.round(delay/total*100);
+  const intWaste = Math.round(total*0.02);
+  document.getElementById('poll-info').innerHTML =
+    `<strong>Polling:</strong> CPU bị lãng phí <strong style="color:#dc2626">${pollingWaste}%</strong> thời gian spin-waiting. ` +
+    `<strong>Interrupt:</strong> CPU overhead chỉ ~${intWaste} đơn vị (ISR) — còn lại chạy process khác. ` +
+    `Với I/O chậm (disk, mạng), interrupt-driven tiết kiệm <strong>${pollingWaste}%</strong> CPU.`;
+}
+
+function drawCPUBlock(ctx,x,y,w,h,color,label){
+  if(w<=0) return;
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  ctx.roundRect(x,y+2,w-1,h-4,3);
+  ctx.fill();
+  if(w>40){
+    ctx.fillStyle='rgba(255,255,255,.9)';
+    ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(label,x+w/2,y+h/2+4);
+  }
+}
+
+// Init
+buildBoot();
+buildIVT();
+updatePollChart();
+
+// Polyfill roundRect for older browsers
+if(!CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
+    this.moveTo(x+r,y);
+    this.lineTo(x+w-r,y);
+    this.quadraticCurveTo(x+w,y,x+w,y+r);
+    this.lineTo(x+w,y+h-r);
+    this.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    this.lineTo(x+r,y+h);
+    this.quadraticCurveTo(x,y+h,x,y+h-r);
+    this.lineTo(x,y+r);
+    this.quadraticCurveTo(x,y,x+r,y);
+    this.closePath();
+  };
+}
+</script>
+</body>
+</html>

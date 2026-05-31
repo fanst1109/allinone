@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Thuật toán thay trang</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #0e7490;
+    --accent-soft: #cffafe;
+    --accent-hover: #0c6480;
+    --hit-color: #16a34a;
+    --fault-color: #dc2626;
+    --victim-color: #ea580c;
+    --bg-card: #ffffff;
+    --bg-section: #f0fdfa;
+  }
+
+  h1 { color: #134e4a; }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid #a5f3fc; }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(14,116,144,.12);
+    margin: 16px 0;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+    margin-bottom: 16px;
+  }
+  .ctrl-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .ctrl-group label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+  .ctrl-group input[type="text"],
+  .ctrl-group input[type="number"],
+  .ctrl-group select {
+    padding: 7px 10px;
+    border: 1.5px solid #a5f3fc;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #f0fdfa;
+    color: #134e4a;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .ctrl-group input[type="number"] { max-width: 80px; }
+  .ctrl-group input:focus, .ctrl-group select:focus { border-color: var(--accent); }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    white-space: nowrap;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ─── Simulation area ─── */
+  #sim-area { overflow-x: auto; }
+
+  .ref-string-display {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+    overflow-x: auto;
+    padding: 8px 0;
+    margin-bottom: 12px;
+  }
+  .ref-cell {
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    background: #e2e8f0;
+    color: #374151;
+    flex-shrink: 0;
+    transition: background .2s;
+  }
+  .ref-cell.active { background: var(--accent); color: #fff; }
+  .ref-cell.hit { background: #dcfce7; color: #166534; border: 2px solid #16a34a; }
+  .ref-cell.fault { background: #fee2e2; color: #991b1b; border: 2px solid #dc2626; }
+
+  /* Frame display */
+  .frame-table-wrap { overflow-x: auto; }
+  table.frame-table {
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 500px;
+    width: 100%;
+  }
+  table.frame-table th {
+    background: var(--accent);
+    color: #fff;
+    padding: 6px 10px;
+    text-align: center;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  table.frame-table td {
+    padding: 5px 10px;
+    text-align: center;
+    border: 1px solid #e2e8f0;
+    font-family: monospace;
+    font-size: 13px;
+    min-width: 36px;
+  }
+  table.frame-table tr:nth-child(even) { background: #f8fafc; }
+  .cell-hit { background: #dcfce7 !important; color: #166534; font-weight: 700; }
+  .cell-fault { background: #fee2e2 !important; color: #991b1b; font-weight: 700; }
+  .cell-victim { background: #fed7aa !important; color: #9a3412; }
+  .cell-new { background: #dbeafe !important; color: #1e40af; font-weight: 700; }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    background: var(--bg-section);
+    border-radius: 8px;
+    padding: 12px 20px;
+    margin: 12px 0;
+    font-size: 15px;
+  }
+  .stat-item { display: flex; flex-direction: column; gap: 2px; }
+  .stat-label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: .5px; }
+  .stat-value { font-size: 22px; font-weight: 700; }
+  .stat-value.fault-count { color: var(--fault-color); }
+  .stat-value.hit-count { color: var(--hit-color); }
+  .stat-value.algo-name { color: var(--accent); font-size: 17px; }
+
+  /* Log */
+  #sim-log {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 8px;
+    white-space: pre-wrap;
+  }
+  #sim-log .hit { color: #4ade80; }
+  #sim-log .fault { color: #f87171; }
+  #sim-log .info { color: #93c5fd; }
+  #sim-log .warn { color: #fbbf24; }
+
+  /* Comparison table */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .compare-table th {
+    background: var(--accent);
+    color: #fff;
+    padding: 8px 12px;
+    text-align: left;
+  }
+  .compare-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .compare-table tr:hover td { background: var(--accent-soft); }
+  .best { color: #16a34a; font-weight: 700; }
+  .worst { color: #dc2626; }
+
+  /* Clock viz */
+  #clock-canvas-wrap { text-align: center; }
+  #clock-svg { display: block; margin: 0 auto; max-width: 100%; }
+
+  @media (max-width: 600px) {
+    .controls { flex-direction: column; }
+    .ctrl-group input[type="number"] { max-width: 100%; }
+    .stats-bar { gap: 12px; }
+    .stat-value { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Memory</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-virtual-memory-demand-paging/visualization.html">← L4: Bộ nhớ ảo</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Thay trang</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-filesystem/visualization.html">L6: Filesystem →</a>
+</nav>
+<main>
+  <h1>Lesson 05 — Thuật toán thay trang</h1>
+
+  <!-- ═══════════════════════════════════
+       MODULE 1 — Interactive Simulation
+       ═══════════════════════════════════ -->
+  <h2>Mô phỏng thuật toán thay trang</h2>
+  <div class="card">
+    <p style="margin:0 0 12px;color:#475569;font-size:14px;">
+      Nhập chuỗi tham chiếu và số frame, chọn thuật toán, rồi bấm <strong>Chạy</strong> để xem từng bước.
+    </p>
+    <div class="controls">
+      <div class="ctrl-group" style="flex:1;min-width:200px;">
+        <label>Chuỗi tham chiếu (cách nhau bởi dấu cách)</label>
+        <input type="text" id="ref-input" value="7 0 1 2 0 3 0 4 2 3 0 3 2 1 2 0 1 7 0 1">
+      </div>
+      <div class="ctrl-group">
+        <label>Số frame</label>
+        <input type="number" id="frame-input" value="3" min="1" max="8">
+      </div>
+      <div class="ctrl-group">
+        <label>Thuật toán</label>
+        <select id="algo-select">
+          <option value="fifo">FIFO</option>
+          <option value="optimal">Optimal (OPT)</option>
+          <option value="lru">LRU</option>
+          <option value="clock">Clock (Second-Chance)</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="runSim()">▶ Chạy toàn bộ</button>
+      <button class="btn btn-secondary" onclick="stepSim()">⏭ Từng bước</button>
+      <button class="btn btn-secondary" onclick="resetSim()">↺ Đặt lại</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-bar" id="stats-bar">
+      <div class="stat-item">
+        <span class="stat-label">Thuật toán</span>
+        <span class="stat-value algo-name" id="stat-algo">—</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Page fault</span>
+        <span class="stat-value fault-count" id="stat-faults">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Page hit</span>
+        <span class="stat-value hit-count" id="stat-hits">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Fault rate</span>
+        <span class="stat-value" id="stat-rate" style="color:#6b7280;">—</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Tiến độ</span>
+        <span class="stat-value" id="stat-progress" style="color:#6b7280;">0 / 0</span>
+      </div>
+    </div>
+
+    <!-- Reference string visual -->
+    <div id="ref-display" class="ref-string-display"></div>
+
+    <!-- Frame table -->
+    <div class="frame-table-wrap">
+      <table class="frame-table" id="frame-table">
+        <thead id="frame-thead"></thead>
+        <tbody id="frame-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Log -->
+    <div id="sim-log">Nhấn "Chạy toàn bộ" hoặc "Từng bước" để bắt đầu...</div>
+  </div>
+
+  <!-- ═══════════════════════════════════
+       MODULE 2 — Belady's Anomaly Demo
+       ═══════════════════════════════════ -->
+  <h2>Nghịch lý Belady — so sánh 3 vs 4 frame (FIFO)</h2>
+  <div class="card">
+    <p style="color:#475569;font-size:14px;margin:0 0 12px;">
+      Chuỗi <code>1 2 3 4 1 2 5 1 2 3 4 5</code>: thêm 1 frame nhưng FIFO lại có nhiều page fault hơn!
+    </p>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="showBelady()">Hiển thị nghịch lý Belady</button>
+    </div>
+    <div id="belady-result" style="display:none;margin-top:12px;"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════
+       MODULE 3 — Algorithm Comparison
+       ═══════════════════════════════════ -->
+  <h2>So sánh 4 thuật toán — cùng chuỗi tham chiếu</h2>
+  <div class="card">
+    <p style="color:#475569;font-size:14px;margin:0 0 12px;">
+      Chạy cả 4 thuật toán với cùng chuỗi và số frame, so sánh số page fault.
+    </p>
+    <div class="controls">
+      <div class="ctrl-group" style="flex:1;min-width:200px;">
+        <label>Chuỗi tham chiếu</label>
+        <input type="text" id="cmp-ref" value="7 0 1 2 0 3 0 4 2 3 0 3 2 1 2 0 1 7 0 1">
+      </div>
+      <div class="ctrl-group">
+        <label>Số frame</label>
+        <input type="number" id="cmp-frames" value="3" min="1" max="8">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="runComparison()">So sánh tất cả</button>
+    </div>
+    <div id="cmp-result"></div>
+  </div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA & STATE
+// ═══════════════════════════════════════════════════════
+let simState = null;
+
+// ═══════════════════════════════════════════════════════
+// ALGORITHMS
+// ═══════════════════════════════════════════════════════
+
+function runFIFO(refs, nFrames) {
+  const steps = [];
+  const frames = Array(nFrames).fill(-1);
+  const queue = []; // order of arrival
+  let faults = 0, hits = 0;
+
+  for (let i = 0; i < refs.length; i++) {
+    const page = refs[i];
+    const framesBefore = [...frames];
+    if (frames.includes(page)) {
+      hits++;
+      steps.push({ page, frames: [...frames], result: 'hit', victim: -1 });
+    } else {
+      faults++;
+      let victim = -1;
+      let victimSlot = -1;
+      if (frames.includes(-1)) {
+        victimSlot = frames.indexOf(-1);
+      } else {
+        const victimPage = queue.shift();
+        victimSlot = frames.indexOf(victimPage);
+        victim = victimPage;
+      }
+      frames[victimSlot] = page;
+      queue.push(page);
+      steps.push({ page, frames: [...frames], result: 'fault', victim, newSlot: victimSlot });
+    }
+  }
+  return { steps, faults, hits };
+}
+
+function runOptimal(refs, nFrames) {
+  const steps = [];
+  const frames = Array(nFrames).fill(-1);
+  let faults = 0, hits = 0;
+
+  for (let i = 0; i < refs.length; i++) {
+    const page = refs[i];
+    if (frames.includes(page)) {
+      hits++;
+      steps.push({ page, frames: [...frames], result: 'hit', victim: -1 });
+    } else {
+      faults++;
+      if (frames.includes(-1)) {
+        const slot = frames.indexOf(-1);
+        frames[slot] = page;
+        steps.push({ page, frames: [...frames], result: 'fault', victim: -1, newSlot: slot });
+      } else {
+        // find victim: page used farthest in future
+        let farthest = -1, victimSlot = 0;
+        for (let j = 0; j < frames.length; j++) {
+          const nextUse = refs.indexOf(frames[j], i + 1);
+          const dist = nextUse === -1 ? Infinity : nextUse;
+          if (dist > farthest) { farthest = dist; victimSlot = j; }
+        }
+        const victim = frames[victimSlot];
+        frames[victimSlot] = page;
+        steps.push({ page, frames: [...frames], result: 'fault', victim, newSlot: victimSlot });
+      }
+    }
+  }
+  return { steps, faults, hits };
+}
+
+function runLRU(refs, nFrames) {
+  const steps = [];
+  const frames = Array(nFrames).fill(-1);
+  const lastUsed = {}; // page -> last access time
+  let faults = 0, hits = 0;
+
+  for (let i = 0; i < refs.length; i++) {
+    const page = refs[i];
+    if (frames.includes(page)) {
+      hits++;
+      lastUsed[page] = i;
+      steps.push({ page, frames: [...frames], result: 'hit', victim: -1 });
+    } else {
+      faults++;
+      if (frames.includes(-1)) {
+        const slot = frames.indexOf(-1);
+        frames[slot] = page;
+        lastUsed[page] = i;
+        steps.push({ page, frames: [...frames], result: 'fault', victim: -1, newSlot: slot });
+      } else {
+        let lruTime = Infinity, victimSlot = 0;
+        for (let j = 0; j < frames.length; j++) {
+          const t = lastUsed[frames[j]] !== undefined ? lastUsed[frames[j]] : -1;
+          if (t < lruTime) { lruTime = t; victimSlot = j; }
+        }
+        const victim = frames[victimSlot];
+        frames[victimSlot] = page;
+        lastUsed[page] = i;
+        steps.push({ page, frames: [...frames], result: 'fault', victim, newSlot: victimSlot });
+      }
+    }
+  }
+  return { steps, faults, hits };
+}
+
+function runClock(refs, nFrames) {
+  const steps = [];
+  const frames = Array(nFrames).fill(-1);
+  const rBit = Array(nFrames).fill(0);
+  let hand = 0;
+  let faults = 0, hits = 0;
+
+  for (let i = 0; i < refs.length; i++) {
+    const page = refs[i];
+    const idx = frames.indexOf(page);
+    if (idx !== -1) {
+      hits++;
+      rBit[idx] = 1;
+      steps.push({ page, frames: [...frames], rBits: [...rBit], result: 'hit', victim: -1, hand });
+    } else {
+      faults++;
+      // Find victim
+      let rounds = 0;
+      while (true) {
+        if (frames[hand] === -1) {
+          // empty slot
+          frames[hand] = page;
+          rBit[hand] = 1;
+          const slot = hand;
+          hand = (hand + 1) % nFrames;
+          steps.push({ page, frames: [...frames], rBits: [...rBit], result: 'fault', victim: -1, newSlot: slot, hand });
+          break;
+        } else if (rBit[hand] === 0) {
+          const victim = frames[hand];
+          frames[hand] = page;
+          rBit[hand] = 1;
+          const slot = hand;
+          hand = (hand + 1) % nFrames;
+          steps.push({ page, frames: [...frames], rBits: [...rBit], result: 'fault', victim, newSlot: slot, hand });
+          break;
+        } else {
+          rBit[hand] = 0;
+          hand = (hand + 1) % nFrames;
+          rounds++;
+          if (rounds > nFrames * 2) break; // safety
+        }
+      }
+    }
+  }
+  return { steps, faults, hits };
+}
+
+function runAlgo(name, refs, nFrames) {
+  switch (name) {
+    case 'fifo': return runFIFO(refs, nFrames);
+    case 'optimal': return runOptimal(refs, nFrames);
+    case 'lru': return runLRU(refs, nFrames);
+    case 'clock': return runClock(refs, nFrames);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════════════════
+
+function parseRefs(str) {
+  return str.trim().split(/\s+/).map(Number).filter(n => !isNaN(n));
+}
+
+function algoLabel(name) {
+  const m = { fifo: 'FIFO', optimal: 'Optimal (OPT)', lru: 'LRU', clock: 'Clock' };
+  return m[name] || name;
+}
+
+function buildTable(steps, refs, nFrames, upTo) {
+  const thead = document.getElementById('frame-thead');
+  const tbody = document.getElementById('frame-tbody');
+  thead.innerHTML = '';
+  tbody.innerHTML = '';
+
+  // Header: Bước | Trang | Frame 0..N-1 | Kết quả | Đuổi
+  const hrow = document.createElement('tr');
+  ['Bước', 'Trang', ...Array.from({length:nFrames},(_,i)=>`F${i}`), 'Kết quả', 'Đuổi'].forEach(h => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    hrow.appendChild(th);
+  });
+  thead.appendChild(hrow);
+
+  for (let i = 0; i < upTo && i < steps.length; i++) {
+    const s = steps[i];
+    const tr = document.createElement('tr');
+
+    const tdStep = document.createElement('td');
+    tdStep.textContent = i + 1;
+    tr.appendChild(tdStep);
+
+    const tdPage = document.createElement('td');
+    tdPage.textContent = s.page;
+    tdPage.style.fontWeight = '700';
+    tr.appendChild(tdPage);
+
+    for (let j = 0; j < nFrames; j++) {
+      const td = document.createElement('td');
+      const v = s.frames[j];
+      td.textContent = v === -1 ? '—' : v;
+      if (s.result === 'fault' && s.newSlot === j) {
+        td.className = 'cell-new';
+      }
+      tr.appendChild(td);
+    }
+
+    const tdRes = document.createElement('td');
+    tdRes.textContent = s.result === 'hit' ? 'HIT' : 'FAULT';
+    tdRes.style.fontWeight = '700';
+    tdRes.style.color = s.result === 'hit' ? '#16a34a' : '#dc2626';
+    tr.appendChild(tdRes);
+
+    const tdVic = document.createElement('td');
+    tdVic.textContent = s.victim !== undefined && s.victim >= 0 ? s.victim : '—';
+    if (s.victim >= 0) tdVic.style.color = '#ea580c';
+    tr.appendChild(tdVic);
+
+    tbody.appendChild(tr);
+  }
+}
+
+function buildRefDisplay(refs, activeIdx) {
+  const div = document.getElementById('ref-display');
+  div.innerHTML = '';
+  refs.forEach((r, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'ref-cell';
+    cell.textContent = r;
+    if (simState && i < simState.step) {
+      cell.classList.add(simState.result.steps[i].result);
+    }
+    if (i === activeIdx) cell.classList.add('active');
+    div.appendChild(cell);
+  });
+}
+
+function updateStats(faults, hits, total, algoName, step) {
+  document.getElementById('stat-algo').textContent = algoLabel(algoName);
+  document.getElementById('stat-faults').textContent = faults;
+  document.getElementById('stat-hits').textContent = hits;
+  const rate = total > 0 ? ((faults / total) * 100).toFixed(1) + '%' : '—';
+  document.getElementById('stat-rate').textContent = rate;
+  document.getElementById('stat-progress').textContent = step + ' / ' + total;
+}
+
+function appendLog(msg, cls) {
+  const log = document.getElementById('sim-log');
+  const span = document.createElement('span');
+  if (cls) span.className = cls;
+  span.textContent = msg + '\n';
+  log.appendChild(span);
+  log.scrollTop = log.scrollHeight;
+}
+
+// ═══════════════════════════════════════════════════════
+// SIM CONTROLS
+// ═══════════════════════════════════════════════════════
+
+function resetSim() {
+  simState = null;
+  document.getElementById('frame-thead').innerHTML = '';
+  document.getElementById('frame-tbody').innerHTML = '';
+  document.getElementById('ref-display').innerHTML = '';
+  document.getElementById('sim-log').innerHTML = 'Nhấn "Chạy toàn bộ" hoặc "Từng bước" để bắt đầu...';
+  updateStats(0, 0, 0, '—', 0);
+}
+
+function initSim() {
+  const refs = parseRefs(document.getElementById('ref-input').value);
+  const nFrames = parseInt(document.getElementById('frame-input').value) || 3;
+  const algo = document.getElementById('algo-select').value;
+  if (refs.length === 0) { alert('Nhập chuỗi tham chiếu hợp lệ.'); return null; }
+  if (!simState || simState.refs.join() !== refs.join() || simState.nFrames !== nFrames || simState.algo !== algo) {
+    const result = runAlgo(algo, refs, nFrames);
+    simState = { refs, nFrames, algo, result, step: 0 };
+    document.getElementById('sim-log').innerHTML = '';
+    buildRefDisplay(refs, -1);
+    appendLog(`[${algoLabel(algo)}] ${refs.length} tham chiếu, ${nFrames} frame`, 'info');
+  }
+  return simState;
+}
+
+function runSim() {
+  const st = initSim();
+  if (!st) return;
+  st.step = st.result.steps.length;
+  buildTable(st.result.steps, st.refs, st.nFrames, st.step);
+  buildRefDisplay(st.refs, -1);
+  document.getElementById('sim-log').innerHTML = '';
+  appendLog(`[${algoLabel(st.algo)}] Kết quả đầy đủ:`, 'info');
+  let faults = 0, hits = 0;
+  st.result.steps.forEach((s, i) => {
+    if (s.result === 'hit') { hits++; appendLog(`  Bước ${i+1}: trang ${s.page} → HIT`, 'hit'); }
+    else { faults++; appendLog(`  Bước ${i+1}: trang ${s.page} → FAULT${s.victim >= 0 ? ` (đuổi ${s.victim})` : ''}`, 'fault'); }
+  });
+  appendLog(`─── Tổng: ${faults} fault, ${hits} hit (fault rate: ${(faults/st.refs.length*100).toFixed(1)}%)`, 'info');
+  updateStats(faults, hits, st.refs.length, st.algo, st.step);
+}
+
+function stepSim() {
+  const st = initSim();
+  if (!st) return;
+  if (st.step >= st.result.steps.length) {
+    appendLog('Đã đến cuối chuỗi tham chiếu.', 'warn');
+    return;
+  }
+  const s = st.result.steps[st.step];
+  buildRefDisplay(st.refs, st.step);
+  st.step++;
+  buildTable(st.result.steps, st.refs, st.nFrames, st.step);
+
+  let faults = 0, hits = 0;
+  for (let i = 0; i < st.step; i++) {
+    if (st.result.steps[i].result === 'hit') hits++; else faults++;
+  }
+  updateStats(faults, hits, st.refs.length, st.algo, st.step);
+
+  if (s.result === 'hit') {
+    appendLog(`Bước ${st.step}: trang ${s.page} → HIT (đã có trong frame)`, 'hit');
+  } else {
+    const msg = s.victim >= 0
+      ? `Bước ${st.step}: trang ${s.page} → FAULT (đuổi trang ${s.victim})`
+      : `Bước ${st.step}: trang ${s.page} → FAULT (frame trống)`;
+    appendLog(msg, 'fault');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// BELADY DEMO
+// ═══════════════════════════════════════════════════════
+
+function showBelady() {
+  const refs = [1,2,3,4,1,2,5,1,2,3,4,5];
+  const r3 = runFIFO(refs, 3);
+  const r4 = runFIFO(refs, 4);
+
+  const div = document.getElementById('belady-result');
+  div.style.display = '';
+
+  let html = `<div style="display:flex;gap:20px;flex-wrap:wrap;">`;
+
+  [3,4].forEach(n => {
+    const res = n === 3 ? r3 : r4;
+    html += `<div style="flex:1;min-width:260px;">
+      <h3 style="color:var(--accent);margin:0 0 8px;">FIFO — ${n} frame: <span style="color:${n===3?'#16a34a':'#dc2626'}">${res.faults} fault</span></h3>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <tr style="background:var(--accent);color:#fff;">
+          <th style="padding:4px 6px;">Bước</th><th>Trang</th>
+          ${Array.from({length:n},(_,i)=>`<th>F${i}</th>`).join('')}
+          <th>Kết quả</th>
+        </tr>`;
+    res.steps.forEach((s,i) => {
+      const rowColor = s.result === 'hit' ? '#f0fdf4' : '#fef2f2';
+      html += `<tr style="background:${rowColor}">
+        <td style="padding:3px 6px;text-align:center;">${i+1}</td>
+        <td style="text-align:center;font-weight:700;">${s.page}</td>
+        ${s.frames.map((f,j)=>`<td style="text-align:center;${s.newSlot===j?'font-weight:700;color:#1d4ed8;':''}">${f<0?'—':f}</td>`).join('')}
+        <td style="text-align:center;font-weight:700;color:${s.result==='hit'?'#16a34a':'#dc2626'}">${s.result.toUpperCase()}</td>
+      </tr>`;
+    });
+    html += `</table></div>`;
+  });
+
+  html += `</div>`;
+  html += `<div style="margin-top:16px;background:#fef9c3;border-left:4px solid #eab308;padding:12px 16px;border-radius:0 8px 8px 0;font-size:14px;">
+    <strong>Nghịch lý Belady:</strong> FIFO với <strong>3 frame</strong> → <strong>${r3.faults} fault</strong>;
+    FIFO với <strong>4 frame</strong> → <strong>${r4.faults} fault</strong>.
+    Thêm 1 frame nhưng số fault <em>tăng</em> lên ${r4.faults - r3.faults} fault!
+    LRU và Optimal <strong>không</strong> mắc nghịch lý này.
+  </div>`;
+  div.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPARISON
+// ═══════════════════════════════════════════════════════
+
+function runComparison() {
+  const refs = parseRefs(document.getElementById('cmp-ref').value);
+  const nFrames = parseInt(document.getElementById('cmp-frames').value) || 3;
+  if (refs.length === 0) return;
+
+  const algos = ['fifo','optimal','lru','clock'];
+  const results = algos.map(a => ({ name: a, ...runAlgo(a, refs, nFrames) }));
+  const minFault = Math.min(...results.map(r => r.faults));
+  const maxFault = Math.max(...results.map(r => r.faults));
+
+  let html = `<table class="compare-table" style="margin-top:12px;">
+    <thead><tr><th>Thuật toán</th><th>Page Fault</th><th>Page Hit</th><th>Fault Rate</th><th>Ghi chú</th></tr></thead>
+    <tbody>`;
+  results.forEach(r => {
+    const rate = (r.faults / refs.length * 100).toFixed(1) + '%';
+    const isBest = r.faults === minFault;
+    const isWorst = r.faults === maxFault && maxFault !== minFault;
+    const cls = isBest ? 'best' : (isWorst ? 'worst' : '');
+    const note = {
+      fifo: 'Đơn giản nhất; mắc nghịch lý Belady',
+      optimal: 'Tốt nhất lý thuyết; không cài đặt được',
+      lru: 'Tốt thực tế; chi phí cao',
+      clock: 'Xấp xỉ LRU; dùng trong OS thực'
+    }[r.name];
+    html += `<tr>
+      <td class="${cls}">${algoLabel(r.name)}${isBest?' ★':''}</td>
+      <td class="${cls}">${r.faults}</td>
+      <td>${r.hits}</td>
+      <td>${rate}</td>
+      <td style="font-size:12px;color:#6b7280;">${note}</td>
+    </tr>`;
+  });
+  html += `</tbody></table>`;
+  html += `<div style="margin-top:10px;font-size:13px;color:#6b7280;">
+    ★ = ít fault nhất · Chuỗi: [${refs.join(', ')}] · ${nFrames} frame
+  </div>`;
+  document.getElementById('cmp-result').innerHTML = html;
+}
+
+// Init on load
+window.addEventListener('DOMContentLoaded', () => {
+  buildRefDisplay(parseRefs(document.getElementById('ref-input').value), -1);
+  runComparison();
+});
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

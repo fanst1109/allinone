@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Lập lịch thời gian thực</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #4338ca;
+    --accent-soft: #e0e7ff;
+    --accent-hover: #3730a3;
+    --rt-high: #dc2626;
+    --rt-mid: #f59e0b;
+    --rt-low: #16a34a;
+    --miss: #dc2626;
+    --hit: #16a34a;
+    --idle-col: #e5e7eb;
+  }
+
+  h1 { color: #1e1b4b; }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-soft); }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(67,56,202,.10);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* Task config table */
+  .task-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  .task-table th { background: var(--accent); color: white; padding: 8px 12px; font-size: 13px; }
+  .task-table td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; font-size: 14px; vertical-align: middle; }
+  .task-table input[type=number] {
+    width: 70px; padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px;
+    font-size: 13px; text-align: center;
+  }
+  .task-table tr:hover { background: #f8fafc; }
+
+  .badge {
+    display: inline-block; padding: 2px 9px; border-radius: 12px; font-size: 12px; font-weight: 700;
+  }
+  .badge-h { background: #fee2e2; color: #991b1b; }
+  .badge-m { background: #fef3c7; color: #92400e; }
+  .badge-l { background: #dcfce7; color: #166534; }
+
+  /* Timeline canvas area */
+  #timeline-wrap { width: 100%; overflow-x: auto; }
+  #timeline-svg { display: block; margin: 0 auto; }
+
+  /* Utilization bar */
+  .util-bar-wrap { display: flex; align-items: center; gap: 12px; margin: 8px 0; }
+  .util-bar-bg { flex: 1; height: 22px; background: #e5e7eb; border-radius: 11px; overflow: hidden; }
+  .util-bar-fill { height: 100%; border-radius: 11px; transition: width .4s; }
+  .util-label { font-size: 14px; font-weight: 700; min-width: 60px; }
+
+  /* Algorithm radio */
+  .algo-radio { display: flex; gap: 16px; flex-wrap: wrap; margin: 10px 0; }
+  .algo-radio label {
+    display: flex; align-items: center; gap: 6px; padding: 8px 16px;
+    border: 2px solid #d1d5db; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;
+    transition: all .15s;
+  }
+  .algo-radio input[type=radio] { accent-color: var(--accent); }
+  .algo-radio label:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+
+  #result-box {
+    background: #1e293b; color: #e2e8f0;
+    border-radius: 8px; padding: 14px 16px;
+    font-family: monospace; font-size: 13px; line-height: 1.8;
+    min-height: 80px; max-height: 220px; overflow-y: auto; margin-top: 12px;
+    white-space: pre-wrap;
+  }
+  #result-box .ok   { color: #4ade80; }
+  #result-box .miss { color: #f87171; }
+  #result-box .info { color: #93c5fd; }
+
+  /* Module 2 — Priority Inversion */
+  #pi-svg { display: block; margin: 0 auto; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .task-table input[type=number] { width: 56px; }
+    .algo-radio { flex-direction: column; gap: 8px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Advanced</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-smp-multicore-scheduling/visualization.html">← L4: Lập lịch đa nhân</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Real-time Scheduling</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-boot-init-drivers/visualization.html">L6: Boot &amp; Driver →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Lập lịch thời gian thực</h1>
+
+<!-- ═══════════════════════════════════════════════
+     MODULE 1 — RT Scheduler Simulation
+═══════════════════════════════════════════════ -->
+<h2>Module 1 — Mô phỏng lập lịch RMS &amp; EDF</h2>
+
+<div class="card">
+  <p>Nhập các task định kỳ, chọn thuật toán, rồi nhấn <strong>Chạy mô phỏng</strong> để xem timeline thực thi và kiểm tra deadline.</p>
+
+  <table class="task-table" id="task-tbl">
+    <thead>
+      <tr>
+        <th>Task</th>
+        <th>Period T (ms)</th>
+        <th>WCET C (ms)</th>
+        <th>U = C/T</th>
+        <th>Ưu tiên RMS</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge badge-h">τ₁</span></td>
+        <td><input type="number" id="t1-period" value="4" min="1" max="60"></td>
+        <td><input type="number" id="t1-wcet" value="1" min="1" max="30"></td>
+        <td id="u1-cell">—</td>
+        <td id="p1-cell">—</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-m">τ₂</span></td>
+        <td><input type="number" id="t2-period" value="6" min="1" max="60"></td>
+        <td><input type="number" id="t2-wcet" value="2" min="1" max="30"></td>
+        <td id="u2-cell">—</td>
+        <td id="p2-cell">—</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-l">τ₃</span></td>
+        <td><input type="number" id="t3-period" value="12" min="1" max="60"></td>
+        <td><input type="number" id="t3-wcet" value="3" min="1" max="30"></td>
+        <td id="u3-cell">—</td>
+        <td id="p3-cell">—</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="util-bar-wrap">
+    <span style="font-size:13px;min-width:120px;">Tổng Utilization:</span>
+    <div class="util-bar-bg"><div class="util-bar-fill" id="util-fill" style="width:0%;background:#4338ca;"></div></div>
+    <span class="util-label" id="util-text">—</span>
+  </div>
+
+  <div class="info-box" id="feasibility-box">
+    Nhập số liệu và nhấn Chạy để xem phân tích khả thi.
+  </div>
+
+  <div class="algo-radio">
+    <label><input type="radio" name="algo" value="RMS" checked> RMS (Rate-Monotonic)</label>
+    <label><input type="radio" name="algo" value="EDF"> EDF (Earliest-Deadline-First)</label>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="runSim()">Chạy mô phỏng</button>
+    <button class="btn btn-secondary" onclick="resetSim()">Reset ví dụ mặc định</button>
+  </div>
+</div>
+
+<div class="card">
+  <div id="timeline-wrap">
+    <svg id="timeline-svg" width="760" height="180" viewBox="0 0 760 180"></svg>
+  </div>
+  <div id="result-box"><span class="info">Nhấn "Chạy mô phỏng" để xem timeline và phân tích deadline.</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MODULE 2 — Priority Inversion
+═══════════════════════════════════════════════ -->
+<h2>Module 2 — Priority Inversion &amp; Priority Inheritance</h2>
+
+<div class="card">
+  <p>Minh họa vấn đề priority inversion và giải pháp priority inheritance với 3 task chia sẻ mutex.</p>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="animatePI('none')">Không có Inheritance</button>
+    <button class="btn btn-primary" onclick="animatePI('pip')">Có Priority Inheritance</button>
+    <button class="btn btn-secondary" onclick="resetPI()">Reset</button>
+  </div>
+
+  <div id="pi-wrap" style="overflow-x:auto;">
+    <svg id="pi-svg" width="720" height="220" viewBox="0 0 720 220"></svg>
+  </div>
+  <div id="pi-info" class="info-box" style="margin-top:10px;">
+    Chọn chế độ để xem animation priority inversion.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MODULE 3 — Utilization Bound Calculator
+═══════════════════════════════════════════════ -->
+<h2>Module 3 — Điều kiện khả thi Liu &amp; Layland</h2>
+
+<div class="card">
+  <p>Bảng điều kiện đủ theo số lượng task n và so sánh với ∑U của bài toán hiện tại:</p>
+
+  <div id="bound-table-wrap" style="overflow-x:auto;">
+    <table id="bound-table" style="border-collapse:collapse;font-size:14px;min-width:480px;">
+      <thead>
+        <tr>
+          <th style="background:var(--accent);color:#fff;padding:8px 14px;border-radius:6px 0 0 0;">n</th>
+          <th style="background:var(--accent);color:#fff;padding:8px 14px;">Bound RMS (%)</th>
+          <th style="background:var(--accent);color:#fff;padding:8px 14px;">EDF bound (%)</th>
+          <th style="background:var(--accent);color:#fff;padding:8px 14px;border-radius:0 6px 0 0;">Trạng thái (RMS)</th>
+        </tr>
+      </thead>
+      <tbody id="bound-tbody"></tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:14px;">
+    <canvas id="bound-chart" width="680" height="180" style="display:block;margin:0 auto;max-width:100%;"></canvas>
+  </div>
+</div>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════
+   MODULE 1 — Simulator
+═══════════════════════════════════════════════════════ */
+const COLORS = ['#4338ca','#0891b2','#16a34a','#d97706'];
+const LIGHT  = ['#e0e7ff','#cffafe','#dcfce7','#fef3c7'];
+
+function gcd(a,b){ return b===0?a:gcd(b,a%b); }
+function lcm(a,b){ return a/gcd(a,b)*b; }
+function lcmArr(arr){ return arr.reduce((a,b)=>lcm(a,b)); }
+
+function getTasks(){
+  return [
+    { name:'τ₁', T:+document.getElementById('t1-period').value, C:+document.getElementById('t1-wcet').value },
+    { name:'τ₂', T:+document.getElementById('t2-period').value, C:+document.getElementById('t2-wcet').value },
+    { name:'τ₃', T:+document.getElementById('t3-period').value, C:+document.getElementById('t3-wcet').value },
+  ].filter(t=>t.T>0 && t.C>0 && t.C<=t.T);
+}
+
+function updateFeasibility(){
+  const tasks = getTasks();
+  if(!tasks.length){ return; }
+  const sumU = tasks.reduce((s,t)=>s+t.C/t.T,0);
+  const n = tasks.length;
+  const rmsB = n*(Math.pow(2,1/n)-1);
+
+  // Update utilization cells
+  tasks.forEach((t,i)=>{
+    const u = (t.C/t.T).toFixed(3);
+    document.getElementById(`u${i+1}-cell`).textContent = u;
+  });
+
+  // Utilization bar
+  const pct = Math.min(sumU*100,100);
+  const fill = document.getElementById('util-fill');
+  fill.style.width = pct+'%';
+  fill.style.background = sumU>1?'#dc2626':sumU>rmsB?'#f59e0b':'#16a34a';
+  document.getElementById('util-text').textContent = (sumU*100).toFixed(1)+'%';
+
+  // RMS priorities
+  const sorted = [...tasks].sort((a,b)=>a.T-b.T);
+  tasks.forEach((t,i)=>{
+    const rank = sorted.findIndex(s=>s.name===t.name)+1;
+    document.getElementById(`p${i+1}-cell`).textContent = `P${rank}`;
+  });
+
+  // Feasibility box
+  const fBox = document.getElementById('feasibility-box');
+  let html = `<strong>∑U = ${sumU.toFixed(3)}</strong> | Bound RMS (n=${n}): ${(rmsB*100).toFixed(1)}% | EDF bound: 100%<br>`;
+  if(sumU <= rmsB){
+    html += `<span style="color:#166534">✓ RMS đảm bảo deadline (điều kiện đủ thỏa)</span>`;
+  } else if(sumU <= 1){
+    html += `<span style="color:#92400e">⚠ RMS cần phân tích thêm (∑U > bound RMS) | EDF đảm bảo (∑U ≤ 1)</span>`;
+  } else {
+    html += `<span style="color:#991b1b">✗ ∑U > 1 — không thuật toán nào đảm bảo 100% deadline</span>`;
+  }
+  fBox.innerHTML = html;
+
+  updateBoundTable(n, sumU);
+}
+
+function runSim(){
+  updateFeasibility();
+  const tasks = getTasks();
+  if(!tasks.length){ return; }
+  const algo = document.querySelector('input[name=algo]:checked').value;
+
+  const hp = Math.min(lcmArr(tasks.map(t=>t.T)), 60);
+  const schedule = simulate(tasks, algo, hp);
+  drawTimeline(tasks, schedule, hp);
+
+  // Log
+  const log = document.getElementById('result-box');
+  let txt = `<span class="info">Thuật toán: ${algo} | Hyperperiod: ${hp} ms | ∑U: ${(tasks.reduce((s,t)=>s+t.C/t.T,0)*100).toFixed(1)}%\n</span>`;
+  let anyMiss = false;
+  tasks.forEach((t,i)=>{
+    let jobN = Math.floor(hp/t.T);
+    for(let j=0;j<jobN;j++){
+      const release = j*t.T;
+      const deadline = release + t.T;
+      // Find last unit this job ran
+      let lastRun = -1;
+      schedule.forEach(s=>{ if(s.task===i && s.job===j) lastRun=Math.max(lastRun,s.end); });
+      if(lastRun<0){ txt+=`<span class="miss">MISS ${t.name} job${j+1} [release=${release}, deadline=${deadline}] — không chạy!\n</span>`; anyMiss=true; }
+      else if(lastRun > deadline){ txt+=`<span class="miss">MISS ${t.name} job${j+1} [deadline=${deadline}] — xong lúc ${lastRun}\n</span>`; anyMiss=true; }
+      else { txt+=`<span class="ok">OK   ${t.name} job${j+1} [deadline=${deadline}] — xong lúc ${lastRun}\n</span>`; }
+    }
+  });
+  if(!anyMiss) txt+=`<span class="ok">\n✓ Mọi deadline đều được đáp ứng!</span>`;
+  log.innerHTML = txt;
+}
+
+function simulate(tasks, algo, hp){
+  // State per task: remaining[i] = remaining execution for current job
+  const n = tasks.length;
+  const remaining = new Array(n).fill(0);
+  const jobIdx = new Array(n).fill(0);
+  const nextRelease = tasks.map((_,i)=>0);
+  const schedule = [];
+
+  for(let t=0;t<hp;t++){
+    // Release jobs
+    for(let i=0;i<n;i++){
+      if(t>=nextRelease[i] && t%tasks[i].T===0){
+        remaining[i] += tasks[i].C;
+        nextRelease[i] = t + tasks[i].T;
+      }
+    }
+    // Pick task to run
+    let pick = -1;
+    if(algo==='RMS'){
+      // Smallest period = highest priority
+      let minP = Infinity;
+      for(let i=0;i<n;i++){
+        if(remaining[i]>0 && tasks[i].T<minP){ minP=tasks[i].T; pick=i; }
+      }
+    } else {
+      // EDF — earliest absolute deadline
+      let minD = Infinity;
+      for(let i=0;i<n;i++){
+        if(remaining[i]>0){
+          const job = Math.floor(t/tasks[i].T);
+          const dl = (job+1)*tasks[i].T;
+          if(dl<minD){ minD=dl; pick=i; }
+        }
+      }
+    }
+    if(pick>=0){
+      const job = Math.floor(t/tasks[pick].T);
+      schedule.push({task:pick, job, start:t, end:t+1});
+      remaining[pick]--;
+    }
+  }
+  // Merge consecutive same-task-same-job slots
+  const merged = [];
+  for(const s of schedule){
+    if(merged.length && merged[merged.length-1].task===s.task && merged[merged.length-1].job===s.job && merged[merged.length-1].end===s.start){
+      merged[merged.length-1].end = s.end;
+    } else { merged.push({...s}); }
+  }
+  return merged;
+}
+
+function drawTimeline(tasks, schedule, hp){
+  const n = tasks.length;
+  const svgEl = document.getElementById('timeline-svg');
+  const W=760, rowH=40, topPad=30, leftPad=60;
+  const H = topPad + n*rowH + 40;
+  const tw = W - leftPad - 20;
+  const unitW = tw/hp;
+
+  svgEl.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svgEl.setAttribute('height', H);
+  svgEl.innerHTML='';
+
+  const ns='http://www.w3.org/2000/svg';
+  function el(tag,attrs,txt){
+    const e=document.createElementNS(ns,tag);
+    for(const[k,v] of Object.entries(attrs)) e.setAttribute(k,v);
+    if(txt!==undefined) e.textContent=txt;
+    return e;
+  }
+
+  // Axis ticks
+  for(let t=0;t<=hp;t++){
+    const x=leftPad+t*unitW;
+    svgEl.appendChild(el('line',{x1:x,y1:topPad-5,x2:x,y2:topPad+n*rowH,stroke:'#cbd5e1',
+      'stroke-width': t%Math.max(1,Math.floor(hp/12))===0?1.2:.4}));
+    if(t%Math.max(1,Math.floor(hp/12))===0){
+      svgEl.appendChild(el('text',{x:x,y:topPad-8,'text-anchor':'middle','font-size':10,'fill':'#64748b'},t));
+    }
+  }
+
+  // Task rows
+  tasks.forEach((task,i)=>{
+    const y=topPad+i*rowH;
+    // Row label
+    svgEl.appendChild(el('text',{x:leftPad-6,y:y+rowH/2+5,'text-anchor':'end','font-size':13,'fill':COLORS[i],'font-weight':'700'},task.name));
+    // Row bg
+    svgEl.appendChild(el('rect',{x:leftPad,y,width:tw,height:rowH-4,fill:'#f8fafc',rx:3}));
+
+    // Deadline marks
+    let jobs=Math.ceil(hp/task.T);
+    for(let j=0;j<jobs;j++){
+      const dl=(j+1)*task.T;
+      if(dl>hp) break;
+      const x=leftPad+dl*unitW;
+      svgEl.appendChild(el('line',{x1:x,y1:y,x2:x,y2:y+rowH-4,stroke:'#dc2626','stroke-width':1.5,'stroke-dasharray':'3,2'}));
+      // Downward arrow at deadline
+      svgEl.appendChild(el('polygon',{points:`${x},${y+rowH-4} ${x-4},${y+rowH-10} ${x+4},${y+rowH-10}`,fill:'#dc2626'}));
+    }
+  });
+
+  // Blocks
+  schedule.forEach(s=>{
+    const task=tasks[s.task];
+    const y=topPad+s.task*rowH;
+    const x=leftPad+s.start*unitW;
+    const w=(s.end-s.start)*unitW;
+    const g=document.createElementNS(ns,'g');
+    g.appendChild(el('rect',{x,y:y+2,width:Math.max(w-1,1),height:rowH-8,fill:COLORS[s.task],rx:3}));
+    if(w>18){
+      const lbl=g.appendChild(el('text',{x:x+w/2,y:y+rowH/2+1,'text-anchor':'middle','font-size':10,'fill':'#fff','font-weight':'700'}));
+      lbl.textContent=`${task.name}`;
+    }
+    svgEl.appendChild(g);
+  });
+
+  // Legend
+  const legY=H-16;
+  svgEl.appendChild(el('line',{x1:leftPad,y1:legY-5,x2:leftPad+12,y2:legY-5,stroke:'#dc2626','stroke-width':1.5,'stroke-dasharray':'3,2'}));
+  svgEl.appendChild(el('text',{x:leftPad+16,y:legY,'font-size':11,'fill':'#64748b'},'= Deadline'));
+  svgEl.appendChild(el('text',{x:leftPad+110,y:legY,'font-size':11,'fill':'#64748b'},'(mũi tên đỏ nét đứt)'));
+}
+
+function resetSim(){
+  document.getElementById('t1-period').value=4;
+  document.getElementById('t1-wcet').value=1;
+  document.getElementById('t2-period').value=6;
+  document.getElementById('t2-wcet').value=2;
+  document.getElementById('t3-period').value=12;
+  document.getElementById('t3-wcet').value=3;
+  document.getElementById('result-box').innerHTML='<span class="info">Nhấn "Chạy mô phỏng" để xem timeline.</span>';
+  document.getElementById('timeline-svg').innerHTML='';
+  updateFeasibility();
+}
+
+/* ═══════════════════════════════════════════════════════
+   MODULE 2 — Priority Inversion Animation
+═══════════════════════════════════════════════════════ */
+const PI_TASKS = [{name:'τ_H',color:'#dc2626'},{name:'τ_M',color:'#f59e0b'},{name:'τ_L',color:'#16a34a'}];
+
+function resetPI(){
+  document.getElementById('pi-svg').innerHTML='';
+  document.getElementById('pi-info').innerHTML='Chọn chế độ để xem animation priority inversion.';
+}
+
+function animatePI(mode){
+  const svgEl=document.getElementById('pi-svg');
+  const W=720,H=220;
+  svgEl.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svgEl.innerHTML='';
+  const ns='http://www.w3.org/2000/svg';
+  function el(tag,attrs,txt){
+    const e=document.createElementNS(ns,tag);
+    for(const[k,v] of Object.entries(attrs)) e.setAttribute(k,v);
+    if(txt!==undefined) e.textContent=txt;
+    return e;
+  }
+
+  // none: τ_L lock t=0..1, τ_H block t=1, τ_M preempts t=1..4, τ_L continues t=4..6, τ_H runs t=6..8
+  // pip:  τ_L lock t=0..1, τ_H block t=1 → τ_L inherits, τ_L finishes t=1..3, τ_H t=3..5, τ_M t=5..8
+
+  const rows=[{label:'τ_H (High)',color:'#dc2626'},{label:'τ_M (Mid)',color:'#f59e0b'},{label:'τ_L (Low)',color:'#16a34a'}];
+  const maxT=8;
+  const leftPad=100,topPad=30,rowH=46,unitW=(W-leftPad-20)/maxT;
+
+  // Grid
+  for(let t=0;t<=maxT;t++){
+    const x=leftPad+t*unitW;
+    svgEl.appendChild(el('line',{x1:x,y1:topPad-8,x2:x,y2:topPad+3*rowH,stroke:'#e2e8f0','stroke-width':t===0?1.5:.7}));
+    svgEl.appendChild(el('text',{x:x,y:topPad-11,'text-anchor':'middle','font-size':11,'fill':'#64748b'},`t=${t}`));
+  }
+
+  rows.forEach((r,i)=>{
+    const y=topPad+i*rowH;
+    svgEl.appendChild(el('text',{x:leftPad-6,y:y+rowH/2+5,'text-anchor':'end','font-size':12,'fill':r.color,'font-weight':'700'},r.label));
+    svgEl.appendChild(el('rect',{x:leftPad,y,width:W-leftPad-20,height:rowH-6,fill:'#f8fafc',rx:3}));
+  });
+
+  function block(row,t0,t1,color,label,opacity=1){
+    const y=topPad+row*rowH+2;
+    const x=leftPad+t0*unitW;
+    const w=(t1-t0)*unitW-1;
+    svgEl.appendChild(el('rect',{x,y,width:Math.max(w,1),height:rowH-10,fill:color,rx:3,opacity}));
+    if(w>24) svgEl.appendChild(el('text',{x:x+w/2,y:y+rowH/2-5,'text-anchor':'middle','font-size':10.5,'fill':'#fff','font-weight':'700'},label));
+  }
+  function hatch(row,t0,t1,color){
+    const y=topPad+row*rowH+2;
+    const x=leftPad+t0*unitW;
+    const w=(t1-t0)*unitW-1;
+    const h=rowH-10;
+    // striped rect
+    const defs=svgEl.querySelector('defs')||svgEl.insertBefore(el('defs',{}),' ');
+    const pid='hatch'+row+t0;
+    const pat=el('pattern',{id:pid,width:6,height:6,patternUnits:'userSpaceOnUse',patternTransform:'rotate(45)'});
+    pat.appendChild(el('line',{x1:0,y1:0,x2:0,y2:6,stroke:color,'stroke-width':3,opacity:.5}));
+    svgEl.querySelector('defs')||svgEl.prepend(el('defs',{}));
+    // quick way: just use opacity
+    svgEl.appendChild(el('rect',{x,y,width:Math.max(w,1),height:h,fill:color,rx:3,opacity:.28}));
+    svgEl.appendChild(el('text',{x:x+w/2,y:y+h/2+4,'text-anchor':'middle','font-size':10,'fill':color,'font-weight':'700'},'BLOCK'));
+  }
+
+  if(mode==='none'){
+    // τ_L: runs t=0..1, t=4..6
+    block(2,0,1,'#16a34a','lock(M)');
+    hatch(2,1,4,'#16a34a');
+    block(2,4,6,'#16a34a','unlock(M)');
+    // τ_H: starts t=1, blocked t=1..6, runs t=6..8
+    hatch(0,1,6,'#dc2626');
+    block(0,6,8,'#dc2626','runs');
+    // τ_M: t=1..4
+    block(1,1,4,'#f59e0b','preempts τ_L');
+
+    // Mutex icon
+    const mx=leftPad+0.1*unitW;
+    svgEl.appendChild(el('text',{x:mx,y:H-14,'font-size':11,'fill':'#4338ca'},'🔒 M locked by τ_L @ t=0'));
+    document.getElementById('pi-info').innerHTML=
+      '<strong>Không có Priority Inheritance:</strong> τ_H blocked t=1→6 (5 đơn vị) vì τ_M preempt τ_L mà τ_L đang giữ mutex. ' +
+      'τ_H (ưu tiên cao nhất) phải chờ τ_M (ưu tiên trung bình) — đây là Priority Inversion!';
+  } else {
+    // PIP
+    block(2,0,1,'#16a34a','lock(M)');
+    block(2,1,3,'#16a34a','(+ưu tiên↑)');  // inherited priority
+    // τ_H: block t=1..3, run t=3..5
+    hatch(0,1,3,'#dc2626');
+    block(0,3,5,'#dc2626','runs');
+    // τ_M: cannot preempt t=1..3 because τ_L has high priority now; runs after τ_H
+    block(1,5,8,'#f59e0b','runs (after τ_H)');
+    // Inheritance arrow
+    const ix=leftPad+1*unitW, iy=topPad+2*rowH-6, ey=topPad+2*rowH-6;
+    svgEl.appendChild(el('text',{x:ix+4,y:topPad+2*rowH-14,'font-size':10,'fill':'#4338ca'},'Thừa kế ưu tiên τ_H'));
+    document.getElementById('pi-info').innerHTML=
+      '<strong>Có Priority Inheritance:</strong> τ_H blocked t=1→3 (chỉ 2 đơn vị). τ_L nhận ưu tiên của τ_H → τ_M không thể preempt → τ_L hoàn thành critical section nhanh hơn. Giảm blocking từ 5 xuống còn 2 đơn vị!';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   MODULE 3 — Bound Table & Chart
+═══════════════════════════════════════════════════════ */
+function updateBoundTable(n, sumU){
+  const tbody=document.getElementById('bound-tbody');
+  tbody.innerHTML='';
+  for(let i=1;i<=6;i++){
+    const b=i*(Math.pow(2,1/i)-1);
+    const ok=sumU<=b;
+    const bg=i===n?(ok?'#dcfce7':'#fee2e2'):'';
+    const tr=document.createElement('tr');
+    tr.style.background=bg;
+    tr.innerHTML=`<td style="padding:8px 14px;font-weight:${i===n?700:400}">${i}${i===n?' (bạn)':''}</td>
+      <td style="padding:8px 14px;text-align:center">${(b*100).toFixed(1)}%</td>
+      <td style="padding:8px 14px;text-align:center;color:#166534">100%</td>
+      <td style="padding:8px 14px;">${i===n?(sumU<=b?'<span style="color:#166534;font-weight:700">✓ An toàn</span>':'<span style="color:#991b1b;font-weight:700">⚠ Cần phân tích thêm</span>'):'—'}</td>`;
+    tbody.appendChild(tr);
+  }
+  drawBoundChart(n, sumU);
+}
+
+function drawBoundChart(highlightN, sumU){
+  const canvas=document.getElementById('bound-chart');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const pad={l:50,r:20,t:20,b:30};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+
+  const ns=[1,2,3,4,5,6,7,8];
+  const bounds=ns.map(i=>i*(Math.pow(2,1/i)-1));
+  const ln2=Math.LN2;
+
+  ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1;
+  for(let y=0;y<=100;y+=20){
+    const py=pad.t+ch*(1-y/100);
+    ctx.beginPath(); ctx.moveTo(pad.l,py); ctx.lineTo(pad.l+cw,py); ctx.stroke();
+    ctx.fillStyle='#94a3b8'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+    ctx.fillText(y+'%',pad.l-5,py+4);
+  }
+
+  // Bounds line
+  ctx.strokeStyle='#4338ca'; ctx.lineWidth=2.5; ctx.setLineDash([]);
+  ctx.beginPath();
+  ns.forEach((n,i)=>{
+    const x=pad.l+i*(cw/(ns.length-1));
+    const y=pad.t+ch*(1-bounds[i]);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  // EDF line
+  ctx.strokeStyle='#16a34a'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l+cw,pad.t); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Sum U line
+  const uy=pad.t+ch*(1-Math.min(sumU,1));
+  ctx.strokeStyle='#dc2626'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(pad.l,uy); ctx.lineTo(pad.l+cw,uy); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#dc2626'; ctx.font='11px sans-serif'; ctx.textAlign='left';
+  ctx.fillText(`∑U=${(sumU*100).toFixed(1)}%`,pad.l+cw+4,uy+4);
+
+  // Dots
+  ns.forEach((n,i)=>{
+    const x=pad.l+i*(cw/(ns.length-1));
+    const y=pad.t+ch*(1-bounds[i]);
+    ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2);
+    ctx.fillStyle=n===highlightN?'#f59e0b':'#4338ca'; ctx.fill();
+    ctx.fillStyle='#374151'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(n,x,pad.t+ch+18);
+  });
+
+  // Labels
+  ctx.fillStyle='#4338ca'; ctx.font='bold 11px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('RMS bound',pad.l+4,pad.t+ch*(1-bounds[0])-8);
+  ctx.fillStyle='#16a34a';
+  ctx.fillText('EDF bound (100%)',pad.l+4,pad.t+8);
+  ctx.fillStyle='#374151'; ctx.textAlign='center';
+  ctx.fillText('n (số lượng task)',pad.l+cw/2,H-2);
+}
+
+// Init
+document.querySelectorAll('#task-tbl input').forEach(i=>i.addEventListener('input',updateFeasibility));
+updateFeasibility();
+updateBoundTable(3, 0.833);
+</script>
+</body>
+</html>

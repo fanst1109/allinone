@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Ảo hoá & Hypervisor</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #4338ca;
+    --accent-soft: #eef2ff;
+    --accent-hover: #3730a3;
+    --virt-purple: #4338ca;
+    --virt-soft: #eef2ff;
+    --virt-mid: #818cf8;
+    --virt-dark: #312e81;
+    --hw-color: #78716c;
+    --hw-soft: #f5f5f4;
+    --guest-a: #0369a1;
+    --guest-b: #047857;
+    --guest-c: #b45309;
+    --trap-color: #dc2626;
+    --ok-color: #16a34a;
+  }
+
+  h1 { color: var(--virt-dark); }
+  h2 { color: var(--virt-purple); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--virt-mid); }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(67,56,202,.1);
+    margin: 16px 0;
+  }
+  .info-box {
+    background: var(--virt-soft);
+    border-left: 4px solid var(--virt-purple);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--virt-purple); color: white; }
+  .btn-primary:hover { background: var(--virt-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ── Module 1: Stack diagram ── */
+  .stack-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 16px 0;
+  }
+  @media (max-width: 600px) {
+    .stack-container { grid-template-columns: 1fr; }
+  }
+  .stack-diagram { border-radius: 8px; overflow: hidden; }
+  .stack-title {
+    background: var(--virt-purple);
+    color: white;
+    text-align: center;
+    padding: 8px;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .stack-layer {
+    padding: 10px 14px;
+    text-align: center;
+    font-size: 13px;
+    cursor: pointer;
+    transition: filter .15s, transform .1s;
+    border-bottom: 1px solid rgba(0,0,0,.08);
+    user-select: none;
+    position: relative;
+  }
+  .stack-layer:hover { filter: brightness(0.92); }
+  .stack-layer.selected { outline: 3px solid #f59e0b; outline-offset: -3px; z-index: 1; }
+  .layer-app-a  { background: #dbeafe; color: #1e3a8a; }
+  .layer-app-b  { background: #dcfce7; color: #14532d; }
+  .layer-app-c  { background: #fef3c7; color: #78350f; }
+  .layer-guest  { background: #e0e7ff; color: #3730a3; }
+  .layer-hyp1   { background: #4338ca; color: white; }
+  .layer-hyp2   { background: #7c3aed; color: white; }
+  .layer-hostos { background: #9333ea; color: white; }
+  .layer-hw     { background: #374151; color: white; }
+
+  .layer-desc {
+    background: var(--virt-soft);
+    border: 1px solid #c7d2fe;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 60px;
+    transition: opacity .2s;
+  }
+  .layer-desc strong { color: var(--virt-dark); }
+
+  /* ── Module 2: Trap-and-emulate demo ── */
+  .trap-scene {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 16px;
+    align-items: start;
+    margin: 16px 0;
+  }
+  @media (max-width: 600px) {
+    .trap-scene { grid-template-columns: 1fr; }
+  }
+  .trap-box {
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  .trap-guest { background: #dbeafe; border: 2px solid #93c5fd; }
+  .trap-arrow-col { display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 20px; }
+  .trap-arrow { font-size: 24px; color: var(--trap-color); transition: transform .3s; }
+  .trap-arrow.ok-arrow { color: var(--ok-color); }
+  .trap-hyp { background: #ede9fe; border: 2px solid #c4b5fd; }
+
+  .trap-log {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    min-height: 100px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 12px;
+    white-space: pre-wrap;
+  }
+  .trap-log .trap-line { color: #f87171; }
+  .trap-log .emu-line  { color: #a78bfa; }
+  .trap-log .ok-line   { color: #4ade80; }
+  .trap-log .info-line { color: #94a3b8; }
+
+  .instr-select {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .instr-btn {
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 2px solid #c7d2fe;
+    background: white;
+    color: #3730a3;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: monospace;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  .instr-btn:hover { background: #eef2ff; }
+  .instr-btn.selected { background: var(--virt-purple); color: white; border-color: var(--virt-dark); }
+
+  /* ── Module 3: Memory virtualization ── */
+  .mem-scene {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr 60px 1fr;
+    gap: 8px;
+    align-items: start;
+    margin: 16px 0;
+  }
+  @media (max-width: 680px) {
+    .mem-scene { grid-template-columns: 1fr; }
+    .mem-arrow-col { display: none; }
+  }
+  .mem-col-title {
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+    padding: 6px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+  }
+  .mem-col { display: flex; flex-direction: column; gap: 4px; }
+  .mem-row {
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 12px;
+    font-family: monospace;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color .2s, transform .1s;
+  }
+  .mem-row:hover { transform: scale(1.03); }
+  .mem-row.active-gva { border-color: #f59e0b; }
+  .mem-row.active-gpa { border-color: #8b5cf6; }
+  .mem-row.active-hpa { border-color: #16a34a; }
+  .gva-row { background: #dbeafe; color: #1e3a8a; }
+  .gpa-row { background: #ede9fe; color: #4c1d95; }
+  .hpa-row { background: #dcfce7; color: #14532d; }
+  .mem-arrow-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #94a3b8;
+    padding-top: 32px;
+  }
+  .mem-info {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.8;
+    border: 1px solid #e2e8f0;
+    min-height: 60px;
+  }
+  .mem-info code { background: #e2e8f0; padding: 1px 6px; border-radius: 4px; font-size: 13px; }
+
+  /* ── Module 4: VT-x ring diagram ── */
+  #ring-svg-wrap { overflow-x: auto; }
+  .ring-info {
+    background: var(--virt-soft);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 60px;
+  }
+
+  /* ── Comparison table ── */
+  .cmp-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  .cmp-table th { background: var(--virt-purple); color: white; padding: 10px 14px; text-align: left; }
+  .cmp-table td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; }
+  .cmp-table tr:nth-child(even) td { background: #f8fafc; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .badge-1 { background: #dcfce7; color: #14532d; }
+  .badge-2 { background: #fee2e2; color: #991b1b; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Advanced</a>
+  <span class="sep">·</span>
+  <a href="../../02-Memory-Storage/lesson-08-modern-storage/visualization.html">← Tầng 2: Lưu trữ hiện đại</a>
+  <span class="sep">·</span>
+  <span class="current">L01: Ảo hoá & Hypervisor</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-containers/visualization.html">L02: Container →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — Ảo hoá & Hypervisor</h1>
+
+<div class="info-box">
+  Tương tác: click từng lớp trong sơ đồ để xem vai trò — so sánh kiến trúc type 1 và type 2.
+  Chạy demo trap-and-emulate để xem hypervisor xử lý lệnh đặc quyền ra sao.
+  Click ô địa chỉ ảo để theo dõi chuỗi dịch bộ nhớ GVA → GPA → HPA.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 1 — Stack Diagram: Type 1 vs Type 2
+     ═══════════════════════════════════════════════════════ -->
+<h2>1. Kiến trúc Hypervisor Type 1 vs Type 2</h2>
+
+<p>Click vào từng lớp trong sơ đồ để xem giải thích. So sánh hai kiến trúc cạnh nhau.</p>
+
+<div class="stack-container">
+  <!-- Type 1 -->
+  <div class="stack-diagram" id="t1-stack">
+    <div class="stack-title">Hypervisor TYPE 1 — Bare-metal</div>
+    <div class="stack-layer layer-app-a" data-type="1" data-layer="app-a" onclick="selectLayer(this)">
+      App (Nginx, MySQL...) — VM-A
+    </div>
+    <div class="stack-layer layer-guest" data-type="1" data-layer="guest-a" onclick="selectLayer(this)">
+      Guest OS A (Linux / Windows)
+    </div>
+    <div class="stack-layer layer-app-b" data-type="1" data-layer="app-b" onclick="selectLayer(this)">
+      App (Python, Node...) — VM-B
+    </div>
+    <div class="stack-layer layer-guest" data-type="1" data-layer="guest-b" onclick="selectLayer(this)">
+      Guest OS B (Linux / Windows)
+    </div>
+    <div class="stack-layer layer-hyp1" data-type="1" data-layer="hyp1" onclick="selectLayer(this)">
+      ⚙ Hypervisor (ESXi / KVM / Hyper-V)
+    </div>
+    <div class="stack-layer layer-hw" data-type="1" data-layer="hw" onclick="selectLayer(this)">
+      Phần cứng vật lý (CPU / RAM / NIC / Disk)
+    </div>
+  </div>
+
+  <!-- Type 2 -->
+  <div class="stack-diagram" id="t2-stack">
+    <div class="stack-title">Hypervisor TYPE 2 — Hosted</div>
+    <div class="stack-layer layer-app-c" data-type="2" data-layer="app-g" onclick="selectLayer(this)">
+      App trong VM (Ubuntu / Windows VM)
+    </div>
+    <div class="stack-layer layer-guest" data-type="2" data-layer="guest-g" onclick="selectLayer(this)">
+      Guest OS (chạy trong VM)
+    </div>
+    <div class="stack-layer layer-hyp2" data-type="2" data-layer="hyp2" onclick="selectLayer(this)">
+      ⚙ Hypervisor App (VirtualBox / VMware WS)
+    </div>
+    <div class="stack-layer layer-app-a" data-type="2" data-layer="host-app" onclick="selectLayer(this)">
+      Các app khác (Chrome, VS Code...)
+    </div>
+    <div class="stack-layer layer-hostos" data-type="2" data-layer="hostos" onclick="selectLayer(this)">
+      Host OS (Windows / macOS / Linux)
+    </div>
+    <div class="stack-layer layer-hw" data-type="2" data-layer="hw2" onclick="selectLayer(this)">
+      Phần cứng vật lý (CPU / RAM / NIC / Disk)
+    </div>
+  </div>
+</div>
+
+<div class="layer-desc" id="layer-desc">
+  Click vào bất kỳ lớp nào trong hai sơ đồ để xem giải thích chi tiết.
+</div>
+
+<table class="cmp-table" style="margin-top:16px">
+  <thead><tr><th>Tiêu chí</th><th>Type 1 <span class="badge badge-1">bare-metal</span></th><th>Type 2 <span class="badge badge-2">hosted</span></th></tr></thead>
+  <tbody>
+    <tr><td>Chạy trên</td><td>Phần cứng vật lý trực tiếp</td><td>Host OS (Windows/macOS/Linux)</td></tr>
+    <tr><td>Hiệu năng</td><td>Cao (~2–5% overhead)</td><td>Thấp hơn (~10–20% overhead)</td></tr>
+    <tr><td>Bảo mật</td><td>Tốt hơn (attack surface nhỏ)</td><td>Kém hơn (host OS là rủi ro thêm)</td></tr>
+    <tr><td>Dùng cho</td><td>Server, cloud, production</td><td>Dev, học tập, test</td></tr>
+    <tr><td>Ví dụ</td><td>ESXi, KVM, Hyper-V, Xen</td><td>VirtualBox, VMware Workstation/Fusion</td></tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 2 — Trap-and-Emulate Demo
+     ═══════════════════════════════════════════════════════ -->
+<h2>2. Demo Trap-and-Emulate</h2>
+
+<p>Chọn một lệnh đặc quyền mà Guest OS muốn thực thi, rồi nhấn "Chạy" để xem hypervisor xử lý thế nào.</p>
+
+<div class="card">
+  <div class="instr-select">
+    <button class="instr-btn selected" id="instr-CLI" onclick="selectInstr('CLI')">CLI</button>
+    <button class="instr-btn" id="instr-HLT" onclick="selectInstr('HLT')">HLT</button>
+    <button class="instr-btn" id="instr-WRMSR" onclick="selectInstr('WRMSR')">WRMSR</button>
+    <button class="instr-btn" id="instr-SGDT" onclick="selectInstr('SGDT')">SGDT</button>
+    <button class="instr-btn" id="instr-LIDT" onclick="selectInstr('LIDT')">LIDT</button>
+  </div>
+  <div class="info-box" id="instr-info" style="margin-bottom:12px">
+    <strong>CLI</strong> — Clear Interrupt Flag. Tắt ngắt phần cứng. Lệnh này chỉ được phép ở ring 0 (kernel mode). Nếu Guest OS chạy ở ring 3 và dùng CLI, CPU sẽ trap về hypervisor.
+  </div>
+  <div class="trap-scene">
+    <div class="trap-box trap-guest">
+      <strong style="color:#1e3a8a">Guest OS</strong> (ring 3 / VMX non-root)
+      <br><br>
+      <code id="trap-instr-display" style="background:#bfdbfe;padding:3px 8px;border-radius:4px;font-weight:700">CLI</code>
+      <br><small style="color:#374151">← thực thi lệnh đặc quyền</small>
+    </div>
+    <div class="trap-arrow-col">
+      <div class="trap-arrow" id="trap-arrow-down">▼</div>
+      <div style="font-size:11px;color:#64748b;text-align:center;width:60px">TRAP / VMEXIT</div>
+      <div class="trap-arrow ok-arrow" id="trap-arrow-up" style="opacity:0.3">▲</div>
+      <div style="font-size:11px;color:#64748b;text-align:center;width:60px">VMRESUME</div>
+    </div>
+    <div class="trap-box trap-hyp">
+      <strong style="color:#4c1d95">Hypervisor</strong> (ring -1 / VMX root)
+      <br><br>
+      <div id="hyp-action" style="color:#374151;font-size:13px">Chờ trap từ guest...</div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="runTrap()">▶ Chạy</button>
+    <button class="btn btn-secondary" onclick="resetTrap()">↺ Reset</button>
+  </div>
+  <div class="trap-log" id="trap-log">-- Nhấn "Chạy" để bắt đầu --</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 3 — Memory Virtualization: GVA → GPA → HPA
+     ═══════════════════════════════════════════════════════ -->
+<h2>3. Ảo hoá Bộ nhớ: GVA → GPA → HPA</h2>
+
+<p>Click vào một địa chỉ ảo (GVA) trong cột trái để xem chuỗi dịch địa chỉ qua 3 tầng.</p>
+
+<div class="card">
+  <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:12px">
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600">
+      Chế độ:
+      <select id="mem-mode-sel" onchange="setMemMode(this.value)" style="padding:4px 8px;border-radius:5px;border:1px solid #cbd5e1">
+        <option value="shadow">Shadow Page Table</option>
+        <option value="nested">Nested Page Table (EPT)</option>
+      </select>
+    </label>
+  </div>
+  <div class="mem-scene" id="mem-scene">
+    <div>
+      <div class="mem-col-title" style="background:#dbeafe;color:#1e3a8a">GVA<br><small>Địa chỉ ảo guest</small></div>
+      <div class="mem-col" id="gva-col"></div>
+    </div>
+    <div class="mem-arrow-col">→</div>
+    <div>
+      <div class="mem-col-title" style="background:#ede9fe;color:#4c1d95">GPA<br><small>Địa chỉ vật lý guest</small></div>
+      <div class="mem-col" id="gpa-col"></div>
+    </div>
+    <div class="mem-arrow-col">→</div>
+    <div>
+      <div class="mem-col-title" style="background:#dcfce7;color:#14532d">HPA<br><small>Địa chỉ vật lý host</small></div>
+      <div class="mem-col" id="hpa-col"></div>
+    </div>
+  </div>
+  <div class="mem-info" id="mem-info">Click một GVA để xem ánh xạ.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODULE 4 — VT-x Ring Diagram
+     ═══════════════════════════════════════════════════════ -->
+<h2>4. Vòng đặc quyền VT-x (Ring Hierarchy)</h2>
+
+<p>Click vào từng vòng để xem vai trò và ví dụ. So sánh x86 cổ điển với VT-x hiện đại.</p>
+
+<div class="card">
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="btn-classic" onclick="showRing('classic')">x86 Cổ điển</button>
+    <button class="btn btn-primary" id="btn-vtx" onclick="showRing('vtx')">VT-x Hiện đại</button>
+  </div>
+  <div id="ring-svg-wrap">
+    <svg id="ring-svg" width="480" height="280" viewBox="0 0 480 280" style="display:block;margin:0 auto">
+      <!-- rings drawn by JS -->
+    </svg>
+  </div>
+  <div class="ring-info" id="ring-info">Click vào vòng để xem chi tiết.</div>
+</div>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// MODULE 1 — Layer descriptions
+// ═══════════════════════════════════════════════════════
+const LAYER_INFO = {
+  'app-a': {
+    title: 'Application (VM-A)',
+    color: '#1e3a8a',
+    html: `<strong>Ứng dụng chạy bên trong VM-A</strong> — Nginx, MySQL, Java app... Ứng dụng không biết mình đang chạy trong máy ảo. Nó nghĩ mình đang dùng phần cứng thật với toàn bộ tài nguyên.<br><br>Ví dụ: một instance Nginx trên EC2 AWS.`
+  },
+  'guest-a': {
+    title: 'Guest OS A',
+    color: '#3730a3',
+    html: `<strong>Hệ điều hành khách (Guest OS)</strong> — Ubuntu, Windows Server, CentOS... Guest OS có kernel riêng, file system riêng, network interface ảo riêng.<br><br>Guest OS nghĩ mình đang chạy ở ring 0 trên phần cứng thật. Thực ra nó đang ở VMX non-root mode và bị hypervisor giám sát.`
+  },
+  'app-b': {
+    title: 'Application (VM-B)',
+    color: '#14532d',
+    html: `<strong>Ứng dụng trong VM-B</strong> — có thể là hệ điều hành khác hoàn toàn, ví dụ VM-A chạy Linux còn VM-B chạy Windows Server.<br><br>VM-A và VM-B hoàn toàn cô lập nhau: VM-B crash không ảnh hưởng VM-A.`
+  },
+  'guest-b': {
+    title: 'Guest OS B',
+    color: '#3730a3',
+    html: `<strong>Hệ điều hành khách thứ hai</strong> — cũng có kernel riêng hoàn toàn độc lập với Guest OS A.<br><br>Cô lập bộ nhớ: hypervisor đảm bảo VM-B không bao giờ đọc/ghi vào vùng RAM của VM-A.`
+  },
+  'hyp1': {
+    title: 'Hypervisor Type 1 (bare-metal)',
+    color: '#4338ca',
+    html: `<strong>Hypervisor Type 1</strong> — chạy trực tiếp trên phần cứng, không có OS host bên dưới. Nó là lớp phần mềm mỏng nhất có thể.<br><br>Nhiệm vụ:<br>• Phân chia tài nguyên CPU, RAM, I/O cho các VM.<br>• Trap và giả lập lệnh đặc quyền từ guest.<br>• Đảm bảo cô lập bộ nhớ giữa các VM.<br><br>Ví dụ: <strong>VMware ESXi</strong> (chiếm ~150MB disk), <strong>KVM</strong> (module Linux kernel), <strong>Microsoft Hyper-V</strong>.`
+  },
+  'hyp2': {
+    title: 'Hypervisor Type 2 (hosted)',
+    color: '#7c3aed',
+    html: `<strong>Hypervisor Type 2</strong> — là một ứng dụng bình thường cài trên Host OS. Giao tiếp với phần cứng qua driver của Host OS.<br><br>Overhead cao hơn type 1 vì phải đi qua thêm tầng Host OS. Nhưng dễ cài đặt — cài như một app thông thường.<br><br>Ví dụ: <strong>Oracle VirtualBox</strong>, <strong>VMware Workstation</strong>, <strong>VMware Fusion</strong> (macOS).`
+  },
+  'app-g': {
+    title: 'Ứng dụng trong VM',
+    color: '#78350f',
+    html: `<strong>Ứng dụng chạy trong máy ảo</strong> — không khác gì app trong VM của type 1. Thường dùng để test cross-platform, chạy OS khác song song.<br><br>Ví dụ: chạy Ubuntu VM trên macOS để test Docker container.`
+  },
+  'guest-g': {
+    title: 'Guest OS (trong type 2)',
+    color: '#3730a3',
+    html: `<strong>Guest OS trong hypervisor type 2</strong> — tương tự type 1 nhưng overhead cao hơn vì mọi I/O phải đi qua: Guest OS → Hypervisor App → Host OS → Driver → Phần cứng.<br><br>Latency I/O thường cao hơn 20–50% so với type 1.`
+  },
+  'host-app': {
+    title: 'App khác trên Host OS',
+    color: '#1e3a8a',
+    html: `<strong>Ứng dụng thông thường trên Host OS</strong> — Chrome, VS Code, Slack... chạy song song với hypervisor type 2. Đây là lý do type 2 phổ biến với developer: vừa code trên macOS vừa chạy Ubuntu VM.`
+  },
+  'hostos': {
+    title: 'Host OS (chỉ type 2)',
+    color: '#6b21a8',
+    html: `<strong>Hệ điều hành host</strong> — Windows 11, macOS Sonoma, Ubuntu Desktop... OS mà người dùng cài và dùng bình thường. Hypervisor type 2 chạy như một ứng dụng trên OS này.<br><br>Rủi ro bảo mật: nếu Host OS bị tấn công (malware, privilege escalation), hypervisor cũng có thể bị ảnh hưởng. Type 1 không có vấn đề này.`
+  },
+  'hw': {
+    title: 'Phần cứng vật lý',
+    color: '#374151',
+    html: `<strong>Phần cứng vật lý</strong> — CPU (với VT-x/AMD-V), RAM, ổ đĩa NVMe, card mạng...<br><br>CPU hiện đại (sau 2010) đều có Intel VT-x hoặc AMD-V: thêm ring -1 (VMX root mode) và cơ chế VMLAUNCH/VMEXIT để hỗ trợ ảo hoá phần cứng, giảm overhead trap-and-emulate xuống mức tối thiểu.`
+  },
+  'hw2': {
+    title: 'Phần cứng vật lý (type 2)',
+    color: '#374151',
+    html: `<strong>Phần cứng vật lý</strong> — giống type 1 về phần cứng, nhưng hypervisor type 2 không giao tiếp trực tiếp với phần cứng: mọi yêu cầu I/O phải đi qua Host OS driver.<br><br>Điều này tạo ra overhead thêm nhưng cũng có lợi: Host OS driver đã được tối ưu và ổn định.`
+  }
+};
+
+function selectLayer(el) {
+  // deselect all
+  document.querySelectorAll('.stack-layer').forEach(l => l.classList.remove('selected'));
+  el.classList.add('selected');
+  const layer = el.dataset.layer;
+  const info = LAYER_INFO[layer];
+  if (!info) return;
+  const desc = document.getElementById('layer-desc');
+  desc.innerHTML = `<strong style="color:${info.color}">${info.title}</strong><br>${info.html}`;
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 2 — Trap-and-Emulate
+// ═══════════════════════════════════════════════════════
+const INSTRS = {
+  'CLI': {
+    desc: '<strong>CLI</strong> — Clear Interrupt Flag. Tắt ngắt phần cứng. Lệnh này chỉ được phép ở ring 0 (kernel mode). Nếu Guest OS chạy ở ring 3 và dùng CLI, CPU sẽ trap về hypervisor.',
+    steps: [
+      { log: '-- Guest OS thực thi: CLI (Clear Interrupt Flag) --', cls: 'info-line' },
+      { log: 'CPU: Phát hiện CLI ở VMX non-root ring 0... VMEXIT!', cls: 'trap-line' },
+      { log: 'Hypervisor nhận VMEXIT (exit reason: CLI).', cls: 'emu-line', hyp: 'VMEXIT nhận được!\nExit reason: CLI\nĐang xử lý...' },
+      { log: 'Hypervisor: Ghi nhận trạng thái ngắt ảo (vIF = 0).', cls: 'emu-line', hyp: 'Giả lập: set vIF=0\nNGUYÊN TẮC: KHÔNG tắt ngắt thật\n(các VM khác vẫn nhận ngắt bình thường)' },
+      { log: 'Hypervisor: VMRESUME — trả điều khiển về Guest OS.', cls: 'ok-line', hyp: 'VMRESUME\nGuest OS nghĩ: ngắt đã tắt ✓' },
+      { log: '✓ Guest OS tiếp tục, không biết CLI không thực sự tắt ngắt vật lý.', cls: 'ok-line' }
+    ]
+  },
+  'HLT': {
+    desc: '<strong>HLT</strong> — Halt CPU. Dừng CPU cho đến khi có ngắt. Lệnh đặc quyền — nếu guest OS dùng để "nghỉ" khi idle, hypervisor phải xử lý để CPU vật lý có thể phục vụ VM khác.',
+    steps: [
+      { log: '-- Guest OS thực thi: HLT (Halt) --', cls: 'info-line' },
+      { log: 'CPU: HLT ở VMX non-root... VMEXIT!', cls: 'trap-line' },
+      { log: 'Hypervisor nhận VMEXIT (exit reason: HLT).', cls: 'emu-line', hyp: 'VMEXIT: HLT\nGuest OS muốn idle...' },
+      { log: 'Hypervisor: Đánh dấu VM-A trạng thái "waiting for interrupt".', cls: 'emu-line', hyp: 'VM-A → trạng thái HALTED\nCPU vật lý sẵn sàng chạy VM khác' },
+      { log: 'Hypervisor: Schedule VM-B hoặc VM-C lên CPU vật lý.', cls: 'emu-line', hyp: 'Switch context → VM-B\n(CPU vật lý không bị idle lãng phí)' },
+      { log: '✓ CPU vật lý phục vụ VM-B trong khi VM-A đang chờ ngắt.', cls: 'ok-line' }
+    ]
+  },
+  'WRMSR': {
+    desc: '<strong>WRMSR</strong> — Write Model-Specific Register. Ghi vào MSR (thanh ghi đặc biệt của CPU, vd: IA32_TSC_DEADLINE, EFER). Lệnh đặc quyền — hypervisor phải kiểm soát để guest không ghi vào MSR ảnh hưởng cả hệ thống.',
+    steps: [
+      { log: '-- Guest OS: WRMSR (ghi vào IA32_APIC_BASE) --', cls: 'info-line' },
+      { log: 'CPU: WRMSR ở VMX non-root... VMEXIT!', cls: 'trap-line' },
+      { log: 'Hypervisor nhận VMEXIT. Đọc VMCS: guest muốn ghi vào IA32_APIC_BASE.', cls: 'emu-line', hyp: 'VMEXIT: WRMSR\nMSR index: 0x1B (IA32_APIC_BASE)\nGiá trị: 0xFEE00900' },
+      { log: 'Hypervisor: Kiểm tra — IA32_APIC_BASE được phép ghi ảo.', cls: 'emu-line', hyp: 'Kiểm tra policy...\n→ Cho phép giả lập' },
+      { log: 'Hypervisor: Cập nhật APIC ảo của VM. KHÔNG ghi vào MSR vật lý.', cls: 'emu-line', hyp: 'Ghi vào virtual APIC state\nvApic.base = 0xFEE00000\nMSR vật lý: GIỮ NGUYÊN' },
+      { log: '✓ VMRESUME. Guest OS nghĩ đã ghi thành công vào MSR.', cls: 'ok-line' }
+    ]
+  },
+  'SGDT': {
+    desc: '<strong>SGDT</strong> — Store Global Descriptor Table. Đọc địa chỉ của GDT vào bộ nhớ. Trên x86 cổ điển, đây là "sensitive non-privileged instruction" — không trap ở user mode! VT-x sửa lỗi này.',
+    steps: [
+      { log: '-- Guest OS: SGDT (đọc địa chỉ GDT) --', cls: 'info-line' },
+      { log: 'VT-x: SGDT được cấu hình trong VMCS để luôn gây VMEXIT.', cls: 'info-line' },
+      { log: 'CPU: VMEXIT (exit reason: SGDT).', cls: 'trap-line', hyp: 'VMEXIT: SGDT\n(x86 cổ điển: KHÔNG trap!\nVT-x sửa vấn đề này)' },
+      { log: 'Hypervisor: Guest muốn đọc GDT. Tính GDT ảo của VM này.', cls: 'emu-line', hyp: 'GDT ảo của VM: 0xFFFF800000012000\n(GDT thật: 0xFFFFAAAA000BBBB0)\n→ Trả GDT ảo, không lộ GDT thật' },
+      { log: 'Hypervisor: Ghi giá trị GDT ảo vào vùng nhớ guest chỉ định.', cls: 'emu-line' },
+      { log: '✓ VMRESUME. Guest OS nhận GDT ảo — không biết địa chỉ GDT thật.', cls: 'ok-line' }
+    ]
+  },
+  'LIDT': {
+    desc: '<strong>LIDT</strong> — Load Interrupt Descriptor Table. Thay đổi IDT (bảng vector ngắt). Đây là lệnh đặc quyền — nếu guest thay được IDT thật, nó có thể chiếm control flow toàn hệ thống.',
+    steps: [
+      { log: '-- Guest OS: LIDT (nạp IDT mới) --', cls: 'info-line' },
+      { log: 'CPU: LIDT ở VMX non-root... VMEXIT!', cls: 'trap-line' },
+      { log: 'Hypervisor: Nhận VMEXIT. Guest muốn thay IDT tại 0xFFFF800000011000.', cls: 'emu-line', hyp: 'VMEXIT: LIDT\nGuest IDT base: 0xFFFF800000011000\nLimit: 0xFF' },
+      { log: 'Hypervisor: Lưu "IDT ảo" của guest vào VMCS.', cls: 'emu-line', hyp: 'Lưu vIDT = 0xFFFF800000011000\nIDT thật KHÔNG bị thay đổi.\nHypervisor vẫn kiểm soát ngắt vật lý.' },
+      { log: 'Khi guest nhận ngắt: hypervisor intercept, tra vIDT, gọi handler trong guest.', cls: 'emu-line' },
+      { log: '✓ VMRESUME. Guest OS nghĩ IDT đã được nạp.', cls: 'ok-line' }
+    ]
+  }
+};
+
+let currentInstr = 'CLI';
+let trapRunning = false;
+let trapStepIdx = 0;
+let trapTimer = null;
+
+function selectInstr(name) {
+  currentInstr = name;
+  document.querySelectorAll('.instr-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('instr-' + name).classList.add('selected');
+  document.getElementById('instr-info').innerHTML = INSTRS[name].desc;
+  document.getElementById('trap-instr-display').textContent = name;
+  resetTrap();
+}
+
+function resetTrap() {
+  if (trapTimer) clearTimeout(trapTimer);
+  trapRunning = false;
+  trapStepIdx = 0;
+  document.getElementById('trap-log').textContent = '-- Nhấn "Chạy" để bắt đầu --';
+  document.getElementById('hyp-action').textContent = 'Chờ trap từ guest...';
+  document.getElementById('trap-arrow-up').style.opacity = '0.3';
+  document.getElementById('trap-arrow-down').style.color = 'var(--trap-color)';
+}
+
+function runTrap() {
+  if (trapRunning) return;
+  trapRunning = true;
+  trapStepIdx = 0;
+  document.getElementById('trap-log').textContent = '';
+  document.getElementById('hyp-action').textContent = 'Chờ trap từ guest...';
+  document.getElementById('trap-arrow-up').style.opacity = '0.3';
+
+  const steps = INSTRS[currentInstr].steps;
+
+  function doStep() {
+    if (trapStepIdx >= steps.length) {
+      trapRunning = false;
+      document.getElementById('trap-arrow-up').style.opacity = '1';
+      return;
+    }
+    const s = steps[trapStepIdx++];
+    const log = document.getElementById('trap-log');
+    const line = document.createElement('span');
+    line.className = s.cls;
+    line.textContent = s.log + '\n';
+    log.appendChild(line);
+    log.scrollTop = log.scrollHeight;
+    if (s.hyp) {
+      document.getElementById('hyp-action').textContent = s.hyp;
+      document.getElementById('trap-arrow-down').style.color = '#f59e0b';
+    }
+    trapTimer = setTimeout(doStep, 900);
+  }
+  doStep();
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 3 — Memory Virtualization
+// ═══════════════════════════════════════════════════════
+const MEM_MAPS = [
+  { gva: '0x0000_3000', gpa: '0x0001_0000', hpa: '0x009A_0000' },
+  { gva: '0x0000_7000', gpa: '0x0002_0000', hpa: '0x00BB_F000' },
+  { gva: '0x0000_A000', gpa: '0x0003_1000', hpa: '0x00C4_4000' },
+  { gva: '0x0001_2000', gpa: '0x0004_0000', hpa: '0x00D1_2000' },
+  { gva: '0x0002_5000', gpa: '0x0005_5000', hpa: '0x00E0_8000' },
+  { gva: '0xFFFF_8000', gpa: '0x00FF_0000', hpa: '0x01F0_0000' }
+];
+
+let memMode = 'shadow';
+let selectedMem = -1;
+
+function setMemMode(m) {
+  memMode = m;
+  renderMemScene();
+  selectedMem = -1;
+  document.getElementById('mem-info').textContent = 'Click một GVA để xem ánh xạ.';
+}
+
+function renderMemScene() {
+  const gvaCol = document.getElementById('gva-col');
+  const gpaCol = document.getElementById('gpa-col');
+  const hpaCol = document.getElementById('hpa-col');
+  gvaCol.innerHTML = '';
+  gpaCol.innerHTML = '';
+  hpaCol.innerHTML = '';
+  MEM_MAPS.forEach((m, i) => {
+    const gva = document.createElement('div');
+    gva.className = 'mem-row gva-row';
+    gva.textContent = m.gva;
+    gva.onclick = () => selectMem(i);
+    gva.id = 'gva-' + i;
+    gvaCol.appendChild(gva);
+
+    const gpa = document.createElement('div');
+    gpa.className = 'mem-row gpa-row';
+    gpa.textContent = m.gpa;
+    gpa.id = 'gpa-' + i;
+    gpaCol.appendChild(gpa);
+
+    const hpa = document.createElement('div');
+    hpa.className = 'mem-row hpa-row';
+    hpa.textContent = m.hpa;
+    hpa.id = 'hpa-' + i;
+    hpaCol.appendChild(hpa);
+  });
+}
+
+function selectMem(i) {
+  // clear previous
+  MEM_MAPS.forEach((_, j) => {
+    const gva = document.getElementById('gva-' + j);
+    const gpa = document.getElementById('gpa-' + j);
+    const hpa = document.getElementById('hpa-' + j);
+    if (gva) { gva.classList.remove('active-gva'); gpa.classList.remove('active-gpa'); hpa.classList.remove('active-hpa'); }
+  });
+  selectedMem = i;
+  document.getElementById('gva-' + i).classList.add('active-gva');
+
+  if (memMode === 'shadow') {
+    // shadow: GVA → HPA directly (skip GPA)
+    document.getElementById('hpa-' + i).classList.add('active-hpa');
+    document.getElementById('mem-info').innerHTML =
+      `<strong>Shadow Page Table:</strong><br>` +
+      `CPU tra bảng trang bóng (hypervisor quản lý) trực tiếp:<br>` +
+      `<code>${MEM_MAPS[i].gva}</code> → <code>${MEM_MAPS[i].hpa}</code><br>` +
+      `<em>GPA (${MEM_MAPS[i].gpa}) bị bỏ qua trong shadow table — ánh xạ GVA→HPA trực tiếp.</em><br>` +
+      `Ưu điểm: chỉ 1 lần page walk. Nhược điểm: mỗi thay đổi bảng trang guest → trap → hypervisor cập nhật shadow table.`;
+  } else {
+    // nested: GVA → GPA → HPA
+    document.getElementById('gpa-' + i).classList.add('active-gpa');
+    document.getElementById('hpa-' + i).classList.add('active-hpa');
+    document.getElementById('mem-info').innerHTML =
+      `<strong>Nested Page Table (EPT/AMD-V):</strong><br>` +
+      `CPU tự thực hiện 2 cấp page walk trong phần cứng:<br>` +
+      `<code>${MEM_MAPS[i].gva}</code> → (guest PT) → <code>${MEM_MAPS[i].gpa}</code> → (EPT) → <code>${MEM_MAPS[i].hpa}</code><br>` +
+      `<em>Phần cứng CPU tra cả 2 bảng trang — không cần trap vào hypervisor.</em><br>` +
+      `4-level × 4-level = tối đa 16 bước tra bảng khi TLB miss. TLB cache kết quả → lần sau 1 bước.`;
+  }
+}
+
+renderMemScene();
+
+// ═══════════════════════════════════════════════════════
+// MODULE 4 — Ring Diagram
+// ═══════════════════════════════════════════════════════
+let ringMode = 'vtx';
+
+const RING_DATA = {
+  classic: [
+    { label: 'Ring 0\nOS Kernel', r: 120, fill: '#dc2626', text: '#fff',
+      desc: '<strong>Ring 0 — OS Kernel (thật sự)</strong><br>Chỉ có một entity chạy ở ring 0: OS kernel thật. Trong môi trường ảo hoá x86 cổ điển (không có VT-x), hypervisor chạy ở ring 0, còn guest OS bị đẩy xuống ring 1 (hoặc ring 3). Vấn đề: guest OS nghĩ mình ở ring 0 nhưng thực ra không — gây ra các lệnh sensitive non-privileged không trap.' },
+    { label: 'Ring 1\nGuest OS (bị hạ)', r: 80, fill: '#7c3aed', text: '#fff',
+      desc: '<strong>Ring 1 — Guest OS (bị hạ cấp)</strong><br>Trên x86 cổ điển, hypervisor đẩy guest OS xuống ring 1 (hoặc ring 3 trong binary translation). Vấn đề: có 17 lệnh x86 nhạy cảm không trap khi chạy ở ring 1 → hypervisor không biết → lỗ hổng bảo mật hoặc sai kết quả.' },
+    { label: 'Ring 3\nUser Processes', r: 40, fill: '#0369a1', text: '#fff',
+      desc: '<strong>Ring 3 — User Processes</strong><br>Tiến trình người dùng (app) chạy ở ring 3 — cả trong VM lẫn ngoài VM đều như nhau.' }
+  ],
+  vtx: [
+    { label: 'Ring -1\nHypervisor\n(VMX root)', r: 130, fill: '#312e81', text: '#fff',
+      desc: '<strong>Ring -1 — Hypervisor (VMX root mode)</strong><br>VT-x bổ sung một ring mới bên ngoài ring 0. Hypervisor (KVM, ESXi, Hyper-V) chạy ở đây — có quyền tuyệt đối trên toàn hệ thống.<br><br>Lệnh: <code>VMLAUNCH</code> (khởi động VM), <code>VMRESUME</code> (tiếp tục VM), <code>VMEXIT</code> (trap về hypervisor).<br>Dữ liệu kiểm soát: <strong>VMCS</strong> (VM Control Structure) — mô tả trạng thái CPU của VM.' },
+    { label: 'Ring 0\nGuest OS\n(VMX non-root)', r: 90, fill: '#4338ca', text: '#fff',
+      desc: '<strong>Ring 0 — Guest OS (VMX non-root mode)</strong><br>Guest OS "nghĩ" mình đang ở ring 0 thật, nhưng thực ra đang ở VMX non-root ring 0 — bị giám sát bởi hypervisor.<br><br>Mọi lệnh đặc quyền (kể cả 17 lệnh non-trapping của x86 cổ điển) đều gây VMEXIT về hypervisor. Vấn đề x86 cổ điển được giải quyết hoàn toàn.' },
+    { label: 'Ring 3\nGuest User\nProcesses', r: 48, fill: '#0369a1', text: '#fff',
+      desc: '<strong>Ring 3 — Guest User Processes (VMX non-root)</strong><br>App chạy bên trong VM, ở ring 3 của VMX non-root mode. System call từ app → trap về Guest OS kernel (ring 0 VMX non-root). Nếu Guest OS cần lệnh đặc quyền → VMEXIT → Hypervisor (ring -1).' }
+  ]
+};
+
+function showRing(mode) {
+  ringMode = mode;
+  document.getElementById('btn-classic').className = mode === 'classic' ? 'btn btn-primary' : 'btn btn-secondary';
+  document.getElementById('btn-vtx').className = mode === 'vtx' ? 'btn btn-primary' : 'btn btn-secondary';
+  drawRings();
+  document.getElementById('ring-info').textContent = 'Click vào vòng để xem chi tiết.';
+}
+
+function drawRings() {
+  const svg = document.getElementById('ring-svg');
+  const cx = 240, cy = 140;
+  const rings = RING_DATA[ringMode];
+  svg.innerHTML = '';
+
+  rings.forEach((ring, i) => {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', cx);
+    circle.setAttribute('cy', cy);
+    circle.setAttribute('r', ring.r);
+    circle.setAttribute('fill', ring.fill);
+    circle.setAttribute('stroke', '#fff');
+    circle.setAttribute('stroke-width', '3');
+    circle.style.cursor = 'pointer';
+    circle.addEventListener('click', () => clickRing(i));
+    svg.appendChild(circle);
+
+    // label lines
+    const lines = ring.label.split('\n');
+    lines.forEach((ln, li) => {
+      const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      txt.setAttribute('x', cx);
+      txt.setAttribute('y', cy - (lines.length - 1) * 8 + li * 16);
+      txt.setAttribute('text-anchor', 'middle');
+      txt.setAttribute('dominant-baseline', 'middle');
+      txt.setAttribute('fill', ring.text);
+      txt.setAttribute('font-size', ring.r > 100 ? '13' : ring.r > 70 ? '12' : '11');
+      txt.setAttribute('font-weight', li === 0 ? '700' : '400');
+      txt.style.pointerEvents = 'none';
+      txt.textContent = ln;
+      svg.appendChild(txt);
+    });
+  });
+}
+
+function clickRing(i) {
+  const rings = RING_DATA[ringMode];
+  // highlight
+  const svgRings = document.getElementById('ring-svg').querySelectorAll('circle');
+  svgRings.forEach((c, j) => {
+    c.setAttribute('stroke', j === i ? '#f59e0b' : '#fff');
+    c.setAttribute('stroke-width', j === i ? '5' : '3');
+  });
+  document.getElementById('ring-info').innerHTML = rings[i].desc;
+}
+
+// init
+showRing('vtx');
+</script>
+</body>
+</html>

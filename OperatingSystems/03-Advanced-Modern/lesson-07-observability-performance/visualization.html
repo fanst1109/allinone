@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Quan sát &amp; Hiệu năng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #4338ca;
+    --accent-soft: #e0e7ff;
+    --accent-hover: #3730a3;
+    --cpu-color: #4338ca;
+    --io-color: #0891b2;
+    --mem-color: #d97706;
+    --net-color: #16a34a;
+    --idle-color: #e5e7eb;
+    --wait-color: #f59e0b;
+    --swap-color: #dc2626;
+  }
+
+  h1 { color: #1e1b4b; }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-soft); }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(67,56,202,.10);
+    margin: 16px 0;
+  }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .btn {
+    padding: 8px 18px; border-radius: 6px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ── Dashboard Module ── */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .metric-card {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .metric-title {
+    font-size: 13px; font-weight: 600; color: #64748b;
+    text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px;
+  }
+  .metric-value {
+    font-size: 28px; font-weight: 800; color: #1e293b;
+    font-family: monospace; line-height: 1;
+  }
+  .metric-bar {
+    height: 8px; background: #e2e8f0; border-radius: 4px; margin: 8px 0; overflow: hidden;
+  }
+  .metric-bar-fill { height: 100%; border-radius: 4px; transition: width .5s; }
+  .metric-sub { font-size: 12px; color: #94a3b8; }
+
+  /* Stacked CPU bar */
+  .cpu-stack { height: 24px; border-radius: 6px; overflow: hidden; display: flex; margin: 8px 0; }
+  .cpu-seg { height: 100%; transition: width .5s; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: white; overflow: hidden; }
+
+  /* Process table */
+  .proc-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .proc-table th { background: #1e293b; color: #e2e8f0; padding: 7px 10px; font-weight: 600; text-align: left; }
+  .proc-table td { padding: 6px 10px; border-bottom: 1px solid #f1f5f9; font-family: monospace; }
+  .proc-table tr:hover { background: #f8fafc; }
+  .proc-state-R { color: #16a34a; font-weight: 700; }
+  .proc-state-S { color: #94a3b8; }
+  .proc-state-D { color: #dc2626; font-weight: 700; }
+
+  /* Workload selector */
+  .workload-btns { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  .wb { padding: 8px 16px; border-radius: 20px; border: 2px solid #e2e8f0; cursor: pointer;
+        font-size: 13px; font-weight: 600; background: white; transition: all .15s; }
+  .wb:hover { border-color: var(--accent); }
+  .wb.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* Load gauge */
+  #load-canvas { display: block; margin: 0 auto; max-width: 100%; }
+
+  /* Diagnosis */
+  .diag-section { margin-top: 16px; }
+  .diag-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 10px 14px; border-radius: 8px; margin: 6px 0; font-size: 13px;
+  }
+  .diag-ok { background: #f0fdf4; border-left: 4px solid #16a34a; }
+  .diag-warn { background: #fffbeb; border-left: 4px solid #f59e0b; }
+  .diag-crit { background: #fef2f2; border-left: 4px solid #dc2626; }
+  .diag-icon { font-size: 16px; min-width: 20px; }
+
+  /* History chart */
+  #history-canvas { display: block; margin: 0 auto; max-width: 100%; }
+
+  @media (max-width: 600px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .metric-value { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Advanced</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-boot-init-drivers/visualization.html">← L6: Boot &amp; Driver</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Quan sát &amp; Hiệu năng</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-capstone-mini-scheduler/visualization.html">L8: Capstone →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Quan sát &amp; Hiệu năng</h1>
+
+<!-- ════════════════════════════════════════════
+     MODULE 1 — System Dashboard
+════════════════════════════════════════════ -->
+<h2>Module 1 — Bảng điều khiển hệ thống mô phỏng</h2>
+
+<div class="card">
+  <p>Chọn loại workload để mô phỏng hệ thống. Quan sát các chỉ số thay đổi và tự chẩn đoán nút thắt cổ chai.</p>
+
+  <div class="workload-btns" id="wb-row">
+    <button class="wb active" data-wl="idle" onclick="setWorkload('idle',this)">Nhàn rỗi</button>
+    <button class="wb" data-wl="cpu" onclick="setWorkload('cpu',this)">CPU-bound</button>
+    <button class="wb" data-wl="io" onclick="setWorkload('io',this)">I/O-bound</button>
+    <button class="wb" data-wl="mem" onclick="setWorkload('mem',this)">Memory pressure</button>
+    <button class="wb" data-wl="thrash" onclick="setWorkload('thrash',this)">Thrashing</button>
+    <button class="wb" data-wl="mixed" onclick="setWorkload('mixed',this)">Mixed</button>
+  </div>
+
+  <div class="dashboard-grid">
+    <!-- CPU -->
+    <div class="metric-card">
+      <div class="metric-title">CPU</div>
+      <div class="cpu-stack" id="cpu-stack"></div>
+      <div style="display:flex;gap:10px;font-size:12px;flex-wrap:wrap;" id="cpu-legend"></div>
+      <div class="metric-sub" id="cpu-sub" style="margin-top:6px;"></div>
+    </div>
+
+    <!-- Load Average -->
+    <div class="metric-card">
+      <div class="metric-title">Load Average</div>
+      <div class="metric-value" id="load-val">0.0 / 0.0 / 0.0</div>
+      <div class="metric-bar" style="margin-top:10px;">
+        <div class="metric-bar-fill" id="load-fill" style="background:#4338ca;width:0%"></div>
+      </div>
+      <div class="metric-sub" id="load-sub"></div>
+    </div>
+
+    <!-- Memory -->
+    <div class="metric-card">
+      <div class="metric-title">Bộ nhớ (8 GB)</div>
+      <div class="cpu-stack" id="mem-stack"></div>
+      <div style="display:flex;gap:10px;font-size:12px;flex-wrap:wrap;" id="mem-legend"></div>
+      <div class="metric-sub" id="mem-sub" style="margin-top:6px;"></div>
+    </div>
+
+    <!-- Swap & I/O -->
+    <div class="metric-card">
+      <div class="metric-title">Swap &amp; I/O</div>
+      <div id="swap-io-vals" style="font-size:13px;line-height:2;font-family:monospace;"></div>
+    </div>
+  </div>
+
+  <!-- Process table -->
+  <div style="overflow-x:auto;margin-top:10px;">
+    <table class="proc-table" id="proc-table">
+      <thead><tr><th>PID</th><th>Tên</th><th>State</th><th>%CPU</th><th>%MEM</th><th>Lệnh</th></tr></thead>
+      <tbody id="proc-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODULE 2 — Diagnosis Engine
+════════════════════════════════════════════ -->
+<h2>Module 2 — Chẩn đoán nút thắt</h2>
+
+<div class="card">
+  <p>Dựa trên các chỉ số ở trên, hệ thống tự chẩn đoán vấn đề và gợi ý giải pháp. Thay đổi workload để thấy chẩn đoán khác nhau.</p>
+
+  <div id="diag-panel" class="diag-section"></div>
+
+  <div class="info-box" id="diag-tool-hint" style="margin-top:14px;">
+    Công cụ nên chạy: <span id="diag-tools"></span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODULE 3 — History Chart + Load Gauge
+════════════════════════════════════════════ -->
+<h2>Module 3 — Lịch sử chỉ số &amp; Load Gauge</h2>
+
+<div class="card">
+  <canvas id="history-canvas" width="720" height="200"></canvas>
+
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;font-size:12px;" id="hist-legend"></div>
+</div>
+
+<div class="card">
+  <p>Biểu đồ đồng hồ Load Average (4-core system):</p>
+  <canvas id="load-canvas" width="320" height="180" style="max-width:320px;display:block;margin:0 auto;"></canvas>
+  <div id="load-gauge-label" style="text-align:center;font-size:14px;color:#64748b;margin-top:6px;"></div>
+</div>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+<script>
+/* ══════════════════════════════════════════════
+   WORKLOAD DEFINITIONS
+══════════════════════════════════════════════ */
+const CPU_COUNT = 4;
+
+const WORKLOADS = {
+  idle: {
+    cpu: { us:2, sy:1, wa:0.5, hi:0.2, si:0.1 },
+    load: [0.12, 0.10, 0.08],
+    mem: { used:1.8, cache:1.2, swap:0 },
+    swap: { si:0, so:0 }, io: { bi:5, bo:10, cs:200, intr:350 },
+    procs: [
+      { pid:1, name:'systemd', state:'S', cpu:0.0, mem:0.1, cmd:'systemd --system' },
+      { pid:892, name:'sshd', state:'S', cpu:0.0, mem:0.1, cmd:'/usr/sbin/sshd' },
+      { pid:1024, name:'bash', state:'S', cpu:0.0, mem:0.1, cmd:'-bash' },
+    ]
+  },
+  cpu: {
+    cpu: { us:78, sy:8, wa:0.5, hi:0.2, si:0.3 },
+    load: [4.8, 3.2, 1.8],
+    mem: { used:2.1, cache:1.5, swap:0 },
+    swap: { si:0, so:0 }, io: { bi:10, bo:20, cs:8500, intr:12000 },
+    procs: [
+      { pid:3421, name:'myapp', state:'R', cpu:382, mem:1.2, cmd:'./myapp --threads=4' },
+      { pid:3422, name:'myapp', state:'R', cpu:95, mem:0.8, cmd:'./myapp worker 1' },
+      { pid:3423, name:'myapp', state:'R', cpu:92, mem:0.8, cmd:'./myapp worker 2' },
+      { pid:892, name:'sshd', state:'S', cpu:0, mem:0.1, cmd:'/usr/sbin/sshd' },
+    ]
+  },
+  io: {
+    cpu: { us:8, sy:6, wa:74, hi:3, si:2 },
+    load: [3.2, 2.8, 2.1],
+    mem: { used:3.0, cache:3.8, swap:0 },
+    swap: { si:0, so:0 }, io: { bi:18000, bo:22000, cs:3200, intr:25000 },
+    procs: [
+      { pid:2100, name:'mysqld', state:'D', cpu:12, mem:15, cmd:'mysqld --datadir=/var/lib/mysql' },
+      { pid:2101, name:'mysqld', state:'D', cpu:8, mem:12, cmd:'mysqld query thread' },
+      { pid:2102, name:'rsync', state:'D', cpu:3, mem:0.5, cmd:'rsync -avz /data/ /backup/' },
+      { pid:892, name:'sshd', state:'S', cpu:0, mem:0.1, cmd:'/usr/sbin/sshd' },
+    ]
+  },
+  mem: {
+    cpu: { us:15, sy:12, wa:18, hi:0.5, si:1 },
+    load: [2.1, 1.9, 1.7],
+    mem: { used:6.8, cache:0.8, swap:0.2 },
+    swap: { si:5, so:3 }, io: { bi:500, bo:200, cs:4000, intr:5000 },
+    procs: [
+      { pid:4000, name:'java', state:'R', cpu:45, mem:52, cmd:'java -Xmx6g -jar app.jar' },
+      { pid:4001, name:'postgres', state:'S', cpu:8, mem:18, cmd:'postgres: autovacuum' },
+      { pid:4002, name:'node', state:'S', cpu:3, mem:8, cmd:'node server.js' },
+      { pid:892, name:'sshd', state:'S', cpu:0, mem:0.1, cmd:'/usr/sbin/sshd' },
+    ]
+  },
+  thrash: {
+    cpu: { us:5, sy:10, wa:78, hi:1, si:3 },
+    load: [7.8, 6.2, 4.5],
+    mem: { used:7.9, cache:0.05, swap:1.8 },
+    swap: { si:240, so:220 }, io: { bi:42000, bo:40000, cs:12000, intr:35000 },
+    procs: [
+      { pid:5000, name:'java', state:'D', cpu:2, mem:60, cmd:'java -Xmx7g -jar bigapp.jar' },
+      { pid:5001, name:'chrome', state:'D', cpu:1, mem:25, cmd:'chrome --renderer' },
+      { pid:5002, name:'postgres', state:'D', cpu:0, mem:20, cmd:'postgres: backend' },
+      { pid:5003, name:'node', state:'D', cpu:0, mem:12, cmd:'node heavy.js' },
+    ]
+  },
+  mixed: {
+    cpu: { us:35, sy:10, wa:22, hi:1.5, si:2 },
+    load: [2.8, 2.5, 2.0],
+    mem: { used:4.5, cache:2.2, swap:0.1 },
+    swap: { si:2, so:1 }, io: { bi:5000, bo:8000, cs:6000, intr:9000 },
+    procs: [
+      { pid:6000, name:'nginx', state:'R', cpu:28, mem:2, cmd:'nginx: worker process' },
+      { pid:6001, name:'postgres', state:'D', cpu:15, mem:12, cmd:'postgres: SELECT query' },
+      { pid:6002, name:'node', state:'R', cpu:22, mem:8, cmd:'node api-server.js' },
+      { pid:6003, name:'rsync', state:'D', cpu:3, mem:0.5, cmd:'rsync backup job' },
+    ]
+  }
+};
+
+/* History ring buffer */
+const HIST_LEN = 60;
+const history = { cpu_us:[], cpu_wa:[], load:[], swap_si:[] };
+Object.values(history).forEach(a=>{ for(let i=0;i<HIST_LEN;i++) a.push(0); });
+
+let currentWL = 'idle';
+let simInterval = null;
+
+function setWorkload(wl, btn){
+  currentWL = wl;
+  document.querySelectorAll('.wb').forEach(b=>b.classList.toggle('active',b===btn));
+  renderDashboard();
+}
+
+function renderDashboard(){
+  const wl = WORKLOADS[currentWL];
+
+  // ── CPU Stack Bar ──
+  const total = wl.cpu.us + wl.cpu.sy + wl.cpu.wa + wl.cpu.hi + wl.cpu.si;
+  const idle = Math.max(0, 100 - total);
+  const segs = [
+    { label:'us', val:wl.cpu.us, color:'#4338ca' },
+    { label:'sy', val:wl.cpu.sy, color:'#7c3aed' },
+    { label:'wa', val:wl.cpu.wa, color:'#f59e0b' },
+    { label:'hi', val:wl.cpu.hi, color:'#dc2626' },
+    { label:'si', val:wl.cpu.si, color:'#0891b2' },
+    { label:'id', val:idle, color:'#e5e7eb' },
+  ];
+  const stack = document.getElementById('cpu-stack');
+  stack.innerHTML = segs.map(s=>`<div class="cpu-seg" style="width:${s.val}%;background:${s.color}" title="${s.label}=${s.val.toFixed(1)}%">${s.val>=8?s.label:''}</div>`).join('');
+  const legend = document.getElementById('cpu-legend');
+  legend.innerHTML = segs.map(s=>`<span><span style="display:inline-block;width:10px;height:10px;background:${s.color};border-radius:2px;margin-right:3px;"></span>${s.label}=${s.val.toFixed(1)}%</span>`).join('');
+  document.getElementById('cpu-sub').textContent = `Active: ${total.toFixed(1)}% | Idle: ${idle.toFixed(1)}%`;
+
+  // ── Load Average ──
+  const [l1,l5,l15] = wl.load;
+  document.getElementById('load-val').textContent = `${l1.toFixed(2)} / ${l5.toFixed(2)} / ${l15.toFixed(2)}`;
+  const loadPct = Math.min(l1/CPU_COUNT*100, 100);
+  document.getElementById('load-fill').style.width = loadPct+'%';
+  document.getElementById('load-fill').style.background = loadPct>100?'#dc2626':loadPct>75?'#f59e0b':'#16a34a';
+  document.getElementById('load-sub').textContent = `Load/CPU = ${(l1/CPU_COUNT).toFixed(2)} (${CPU_COUNT} cores) | ${l1>CPU_COUNT?'OVER':'OK'}`;
+
+  // ── Memory ──
+  const memTotal=8.0, used=wl.mem.used, cache=wl.mem.cache, swap=wl.mem.swap;
+  const memFree = Math.max(0, memTotal-used-cache);
+  const memSegs=[
+    { label:'Used', val:(used/memTotal*100), color:'#4338ca' },
+    { label:'Cache', val:(cache/memTotal*100), color:'#0891b2' },
+    { label:'Free', val:(memFree/memTotal*100), color:'#e5e7eb' },
+  ];
+  document.getElementById('mem-stack').innerHTML=memSegs.map(s=>`<div class="cpu-seg" style="width:${s.val}%;background:${s.color}">${s.val>=10?s.label:''}</div>`).join('');
+  document.getElementById('mem-legend').innerHTML=memSegs.map(s=>`<span><span style="display:inline-block;width:10px;height:10px;background:${s.color};border-radius:2px;margin-right:3px;"></span>${s.label}=${(s.val*memTotal/100).toFixed(1)}GB</span>`).join('');
+  document.getElementById('mem-sub').textContent=`Swap used: ${swap.toFixed(1)}GB`;
+
+  // ── Swap & I/O ──
+  const io=wl.io, sw=wl.swap;
+  document.getElementById('swap-io-vals').innerHTML=
+    `si: <b style="color:${sw.si>10?'#dc2626':'#374151'}">${sw.si} MB/s</b>  so: <b style="color:${sw.so>10?'#dc2626':'#374151'}">${sw.so} MB/s</b><br>
+     bi: <b>${io.bi}</b> blk/s  bo: <b>${io.bo}</b> blk/s<br>
+     cs: <b>${io.cs}</b>/s  intr: <b>${io.intr}</b>/s`;
+
+  // ── Process table ──
+  const tbody=document.getElementById('proc-tbody');
+  tbody.innerHTML=wl.procs.map(p=>`
+    <tr>
+      <td>${p.pid}</td>
+      <td>${p.name}</td>
+      <td class="proc-state-${p.state}">${p.state}</td>
+      <td style="color:${p.cpu>50?'#dc2626':p.cpu>20?'#f59e0b':'#374151'}">${p.cpu.toFixed(1)}</td>
+      <td style="color:${p.mem>30?'#dc2626':p.mem>10?'#f59e0b':'#374151'}">${p.mem.toFixed(1)}</td>
+      <td style="color:#64748b;font-size:12px;">${p.cmd}</td>
+    </tr>`).join('');
+
+  // ── Diagnosis ──
+  runDiagnosis(wl);
+
+  // ── History update ──
+  history.cpu_us.push(wl.cpu.us); history.cpu_us.shift();
+  history.cpu_wa.push(wl.cpu.wa); history.cpu_wa.shift();
+  history.load.push(wl.load[0]/CPU_COUNT*100); history.load.shift();
+  history.swap_si.push(Math.min(wl.swap.si*2,100)); history.swap_si.shift();
+  drawHistory();
+  drawLoadGauge(wl.load[0]);
+}
+
+/* ══════════════════════════════════════════════
+   DIAGNOSIS
+══════════════════════════════════════════════ */
+function runDiagnosis(wl){
+  const diags = [];
+  const [l1] = wl.load;
+  const ratio = l1/CPU_COUNT;
+  const wa = wl.cpu.wa;
+  const si = wl.swap.si, so = wl.swap.so;
+  const us = wl.cpu.us+wl.cpu.sy;
+
+  if(si>50||so>50){
+    diags.push({cls:'crit',icon:'🔴',title:'THRASHING nghiêm trọng',msg:`si=${si} MB/s, so=${so} MB/s — kernel đang swap liên tục. Hệ thống gần như unusable. Cần thêm RAM hoặc kill process nặng nhất.`});
+  } else if(si>5||so>5){
+    diags.push({cls:'warn',icon:'🟡',title:'Memory pressure',msg:`si=${si} MB/s, so=${so} MB/s — RAM đang thiếu. Xem process nào dùng nhiều nhất: top -o %MEM`});
+  } else {
+    diags.push({cls:'ok',icon:'🟢',title:'Bộ nhớ ổn',msg:`Không có hoạt động swap đáng kể.`});
+  }
+
+  if(wa>50){
+    diags.push({cls:'crit',icon:'🔴',title:'I/O bottleneck nghiêm trọng',msg:`%wa=${wa.toFixed(1)}% — CPU đang chờ I/O phần lớn thời gian. Chạy: iostat -xz 2 5 và iotop để tìm thiết bị/process gây ra.`});
+  } else if(wa>15){
+    diags.push({cls:'warn',icon:'🟡',title:'I/O wait đáng chú ý',msg:`%wa=${wa.toFixed(1)}% — có hoạt động I/O đáng kể. Kiểm tra iostat.`});
+  } else {
+    diags.push({cls:'ok',icon:'🟢',title:'I/O bình thường',msg:`%wa=${wa.toFixed(1)}% — không có dấu hiệu I/O bottleneck.`});
+  }
+
+  if(us>80&&wa<10){
+    diags.push({cls:'crit',icon:'🔴',title:'CPU bottleneck',msg:`CPU active=${us.toFixed(1)}% — đang quá tải CPU. Chạy: top -o %CPU | head -10 và perf top để tìm function hot.`});
+  } else if(us>60){
+    diags.push({cls:'warn',icon:'🟡',title:'CPU cao',msg:`CPU active=${us.toFixed(1)}%. Theo dõi xem có tăng tiếp không.`});
+  } else {
+    diags.push({cls:'ok',icon:'🟢',title:'CPU ổn',msg:`CPU active=${us.toFixed(1)}%.`});
+  }
+
+  if(ratio>1.5){
+    diags.push({cls:'crit',icon:'🔴',title:'Load quá tải',msg:`Load/CPU=${ratio.toFixed(2)} — có ${Math.round((l1-CPU_COUNT)*10)/10} process đang xếp hàng chờ CPU. Cần xem load đến từ CPU hay I/O wait.`});
+  } else if(ratio>0.8){
+    diags.push({cls:'warn',icon:'🟡',title:'Load cao',msg:`Load/CPU=${ratio.toFixed(2)} — hệ thống bận. Theo dõi xu hướng.`});
+  } else {
+    diags.push({cls:'ok',icon:'🟢',title:'Load bình thường',msg:`Load/CPU=${ratio.toFixed(2)}.`});
+  }
+
+  document.getElementById('diag-panel').innerHTML=diags.map(d=>`
+    <div class="diag-item diag-${d.cls}">
+      <span class="diag-icon">${d.icon}</span>
+      <div><strong>${d.title}</strong><br>${d.msg}</div>
+    </div>`).join('');
+
+  const tools=[];
+  if(wl.cpu.wa>15) tools.push('iostat -xz 2 5', 'iotop');
+  if(wl.swap.si>5) tools.push('vmstat 1', 'top -o %MEM');
+  if(us>60) tools.push('perf top', 'top -o %CPU');
+  if(tools.length===0) tools.push('uptime', 'vmstat 1');
+  document.getElementById('diag-tools').innerHTML=tools.map(t=>`<code style="background:#1e293b;color:#e2e8f0;padding:2px 8px;border-radius:4px;margin:2px;font-size:12px;">${t}</code>`).join(' ');
+}
+
+/* ══════════════════════════════════════════════
+   HISTORY CHART
+══════════════════════════════════════════════ */
+const HIST_SERIES = [
+  { key:'cpu_us', label:'CPU us%', color:'#4338ca' },
+  { key:'cpu_wa', label:'IO wait%', color:'#f59e0b' },
+  { key:'load', label:'Load/CPU×100%', color:'#dc2626' },
+  { key:'swap_si', label:'Swap×2%', color:'#7c3aed' },
+];
+
+function drawHistory(){
+  const canvas=document.getElementById('history-canvas');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const pad={l:40,r:20,t:10,b:24};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+
+  // Grid
+  ctx.strokeStyle='#f1f5f9'; ctx.lineWidth=1;
+  for(let y=0;y<=100;y+=25){
+    const py=pad.t+ch*(1-y/100);
+    ctx.beginPath(); ctx.moveTo(pad.l,py); ctx.lineTo(pad.l+cw,py); ctx.stroke();
+    ctx.fillStyle='#94a3b8'; ctx.font='10px sans-serif'; ctx.textAlign='right';
+    ctx.fillText(y+'%',pad.l-4,py+3);
+  }
+
+  HIST_SERIES.forEach(s=>{
+    const data=history[s.key];
+    ctx.strokeStyle=s.color; ctx.lineWidth=2; ctx.setLineDash([]);
+    ctx.beginPath();
+    data.forEach((v,i)=>{
+      const x=pad.l+i*(cw/(HIST_LEN-1));
+      const y=pad.t+ch*(1-Math.min(v,100)/100);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  });
+
+  // Legend
+  const legEl=document.getElementById('hist-legend');
+  legEl.innerHTML=HIST_SERIES.map(s=>`<span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:20px;height:3px;background:${s.color};border-radius:2px;"></span><span style="font-size:12px;">${s.label}</span></span>`).join('');
+}
+
+/* ══════════════════════════════════════════════
+   LOAD GAUGE
+══════════════════════════════════════════════ */
+function drawLoadGauge(load1){
+  const canvas=document.getElementById('load-canvas');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2, cy=H-20, r=120;
+
+  // Draw arc background
+  const startA=Math.PI, endA=2*Math.PI;
+  const zones=[
+    { from:0, to:0.7, color:'#dcfce7' }, // green
+    { from:0.7, to:1.0, color:'#fef3c7' }, // yellow
+    { from:1.0, to:2.0, color:'#fee2e2' }, // red
+  ];
+  zones.forEach(z=>{
+    const a1=Math.PI+Math.min(z.from/2,1)*Math.PI;
+    const a2=Math.PI+Math.min(z.to/2,1)*Math.PI;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,a1,a2);
+    ctx.fillStyle=z.color; ctx.fill();
+  });
+
+  // Gauge arc
+  ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,2*Math.PI); ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=16; ctx.stroke();
+
+  // Filled arc
+  const fillRatio = Math.min(load1/CPU_COUNT/2, 1);
+  const fillColor = fillRatio>0.5?'#dc2626':fillRatio>0.35?'#f59e0b':'#16a34a';
+  ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,Math.PI+fillRatio*Math.PI);
+  ctx.strokeStyle=fillColor; ctx.lineWidth=16; ctx.stroke();
+
+  // Needle
+  const needleAngle=Math.PI+fillRatio*Math.PI;
+  const nx=cx+Math.cos(needleAngle)*(r-20), ny=cy+Math.sin(needleAngle)*(r-20);
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(nx,ny);
+  ctx.strokeStyle='#1e293b'; ctx.lineWidth=2.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fillStyle='#1e293b'; ctx.fill();
+
+  // Labels
+  ctx.fillStyle='#374151'; ctx.font='bold 14px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('0',pad_l(cx,r,'0'),cy+16);
+  ctx.textAlign='center';
+  ctx.fillText('1.0',cx,cy-r-8);
+  ctx.textAlign='right';
+  ctx.fillText('2+',cx+r+8,cy+16);
+
+  // Value
+  ctx.fillStyle=fillColor; ctx.font='bold 22px monospace'; ctx.textAlign='center';
+  ctx.fillText((load1/CPU_COUNT).toFixed(2),cx,cy-14);
+  ctx.fillStyle='#64748b'; ctx.font='12px sans-serif';
+  ctx.fillText(`load/CPU (load=${load1.toFixed(2)}, ${CPU_COUNT} cores)`,cx,cy+12);
+
+  function pad_l(cx,r,lbl){ return cx-r-8; }
+}
+
+/* ══════════════════════════════════════════════
+   LIVE SIMULATION
+══════════════════════════════════════════════ */
+function addNoise(val, range){
+  return Math.max(0, Math.min(100, val + (Math.random()-0.5)*range));
+}
+
+function tick(){
+  const base = WORKLOADS[currentWL];
+  const noisy = JSON.parse(JSON.stringify(base));
+  noisy.cpu.us = addNoise(base.cpu.us, 6);
+  noisy.cpu.wa = addNoise(base.cpu.wa, 5);
+  noisy.load[0] = Math.max(0, base.load[0] + (Math.random()-0.5)*0.4);
+  noisy.swap.si = Math.max(0, base.swap.si + (Math.random()-0.5)*10);
+  noisy.swap.so = Math.max(0, base.swap.so + (Math.random()-0.5)*10);
+
+  // Update history
+  history.cpu_us.push(noisy.cpu.us); history.cpu_us.shift();
+  history.cpu_wa.push(noisy.cpu.wa); history.cpu_wa.shift();
+  history.load.push(noisy.load[0]/CPU_COUNT*100); history.load.shift();
+  history.swap_si.push(Math.min(noisy.swap.si*2,100)); history.swap_si.shift();
+
+  // Update load gauge and history chart only (without full re-render)
+  drawHistory();
+  drawLoadGauge(noisy.load[0]);
+}
+
+// Init
+renderDashboard();
+setInterval(tick, 1500);
+</script>
+</body>
+</html>

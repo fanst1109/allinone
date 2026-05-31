@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Thread &amp; Concurrency</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #6d28d9;
+    --accent-soft: #ede9fe;
+    --accent-mid: #8b5cf6;
+    --accent-dark: #4c1d95;
+    --t1-c: #0369a1;
+    --t2-c: #be185d;
+    --heap-c: #059669;
+    --code-c: #4f46e5;
+    --card-bg: #ffffff;
+  }
+
+  h1 { color: var(--accent-dark); }
+  h2 { color: var(--accent); margin-top: 40px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-mid); }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(109,40,217,.10);
+    margin: 16px 0;
+  }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  .info-box {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ── Module 1: Thread vs Process ── */
+  #tvp-svg { display: block; margin: 0 auto; }
+
+  /* ── Module 2: Concurrency vs Parallelism ── */
+  #cp-container { position: relative; }
+  .cp-timeline {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 10px 0;
+  }
+  .cp-label { font-weight:700; font-size:13px; margin-bottom:8px; }
+  .cp-bars { display:flex; flex-direction:column; gap:6px; }
+  .cp-row { display:flex; align-items:center; gap:8px; }
+  .cp-name { width:60px; font-size:12px; font-weight:700; flex-shrink:0; }
+  .cp-track { flex:1; height:24px; background:#e5e7eb; border-radius:4px; position:relative; overflow:hidden; min-width:200px; }
+  .cp-seg {
+    position:absolute; top:2px; height:20px; border-radius:3px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:10px; font-weight:700; color:white;
+    transition: all .3s;
+  }
+  .cp-tick-row { display:flex; padding-left:68px; }
+  .cp-tick { flex:1; text-align:left; font-size:10px; color:#9ca3af; min-width:0; }
+
+  /* ── Module 3: Race Condition ── */
+  .race-controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin:12px 0; }
+  .counter-display {
+    font-size:48px;
+    font-weight:900;
+    color: var(--accent-dark);
+    text-align:center;
+    font-family:monospace;
+    padding: 12px;
+    background: var(--accent-soft);
+    border-radius:10px;
+    margin: 12px 0;
+  }
+  .counter-expected {
+    text-align:center;
+    font-size:14px;
+    color:#6b7280;
+    margin-top:-8px;
+    margin-bottom:12px;
+  }
+  #race-log {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    min-height: 80px;
+    max-height: 200px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+  }
+  .thread-select {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .thread-col {
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 13px;
+  }
+  .t1-col { background: #e0f2fe; border: 2px solid #0369a1; }
+  .t2-col { background: #fce7f3; border: 2px solid #be185d; }
+
+  @media (max-width: 480px) {
+    .counter-display { font-size: 36px; }
+    .thread-select { grid-template-columns: 1fr; }
+    .cp-name { width: 45px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Processes</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-process/visualization.html">← L2: Tiến trình</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Thread &amp; Concurrency</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-cpu-scheduling/visualization.html">L4: Lập lịch CPU →</a>
+</nav>
+<main>
+<h1>Lesson 03 — Thread &amp; Concurrency</h1>
+<p style="color:#6b7280;font-size:15px;margin-top:-8px;">
+  Thread vs Process, Concurrency vs Parallelism, và Race Condition.
+</p>
+
+<!-- ═══════════════ MODULE 1: Thread vs Process ═══════════════ -->
+<h2>1. Thread chia sẻ Address Space — nhưng Stack riêng</h2>
+<div class="card">
+  <p style="font-size:14px;color:#374151;margin-bottom:12px;">
+    Sơ đồ dưới minh hoạ một <strong>Process</strong> với 2 <strong>Thread</strong>.
+    Phần màu xanh/hồng là riêng của từng thread; phần nền là chia sẻ.
+  </p>
+  <div style="overflow-x:auto">
+  <svg id="tvp-svg" width="580" height="330" viewBox="0 0 580 330">
+    <!-- Process container -->
+    <rect x="10" y="10" width="560" height="310" rx="12" fill="#f8fafc" stroke="#6d28d9" stroke-width="2"/>
+    <text x="290" y="32" font-size="14" font-weight="700" fill="#4c1d95" text-anchor="middle">Process (PID=1234) — 1 Address Space</text>
+
+    <!-- Shared sections (code, data, heap) -->
+    <rect x="30" y="45" width="520" height="38" rx="6" fill="#e0e7ff" stroke="#4f46e5" stroke-width="1.5"/>
+    <text x="290" y="61" font-size="12" font-weight="700" fill="#312e81" text-anchor="middle">Text Segment (Code) — CHIA SẺ</text>
+    <text x="290" y="75" font-size="10" fill="#4338ca" text-anchor="middle">cùng machine code, cùng binary — 1 bản duy nhất trong RAM</text>
+
+    <rect x="30" y="90" width="520" height="36" rx="6" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+    <text x="290" y="106" font-size="12" font-weight="700" fill="#065f46" text-anchor="middle">Heap &amp; Data — CHIA SẺ</text>
+    <text x="290" y="120" font-size="10" fill="#047857" text-anchor="middle">counter=0 (tại 0x602010) — cả hai thread đều thấy, đều ghi được</text>
+
+    <!-- Thread stacks -->
+    <rect x="30" y="138" width="248" height="100" rx="8" fill="#dbeafe" stroke="#0369a1" stroke-width="2"/>
+    <text x="154" y="158" font-size="12" font-weight="700" fill="#1d4ed8" text-anchor="middle">Thread 1 Stack — RIÊNG</text>
+    <text x="154" y="174" font-size="11" fill="#1e40af" text-anchor="middle" font-family="monospace">rsp = 0x7fff_9000</text>
+    <text x="154" y="190" font-size="11" fill="#1e40af" text-anchor="middle" font-family="monospace">PC  = 0x400A80</text>
+    <text x="154" y="206" font-size="11" fill="#374151" text-anchor="middle">local_x = 42</text>
+    <text x="154" y="222" font-size="11" fill="#374151" text-anchor="middle">return_addr = 0x400B00</text>
+
+    <rect x="302" y="138" width="248" height="100" rx="8" fill="#fce7f3" stroke="#be185d" stroke-width="2"/>
+    <text x="426" y="158" font-size="12" font-weight="700" fill="#9d174d" text-anchor="middle">Thread 2 Stack — RIÊNG</text>
+    <text x="426" y="174" font-size="11" fill="#9d174d" text-anchor="middle" font-family="monospace">rsp = 0x7ffe_8000</text>
+    <text x="426" y="190" font-size="11" fill="#9d174d" text-anchor="middle" font-family="monospace">PC  = 0x400C20</text>
+    <text x="426" y="206" font-size="11" fill="#374151" text-anchor="middle">local_y = 99</text>
+    <text x="426" y="222" font-size="11" fill="#374151" text-anchor="middle">return_addr = 0x400D10</text>
+
+    <!-- Separator -->
+    <line x1="290" y1="138" x2="290" y2="238" stroke="#6b7280" stroke-width="1" stroke-dasharray="4,3"/>
+
+    <!-- fd table -->
+    <rect x="30" y="250" width="520" height="55" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="290" y="268" font-size="12" font-weight="700" fill="#92400e" text-anchor="middle">File Descriptor Table — CHIA SẺ</text>
+    <text x="290" y="285" font-size="10" fill="#78350f" text-anchor="middle">fd[0]=stdin  fd[1]=stdout  fd[2]=stderr  fd[3]=log.txt</text>
+    <text x="290" y="298" font-size="10" fill="#78350f" text-anchor="middle">Cả 2 thread cùng thấy → ghi đồng thời vào fd[3] cần lock!</text>
+
+    <!-- Thread labels -->
+    <text x="154" y="316" font-size="11" fill="#0369a1" font-weight="700" text-anchor="middle">🔵 Thread 1: process_request()</text>
+    <text x="426" y="316" font-size="11" fill="#be185d" font-weight="700" text-anchor="middle">🔴 Thread 2: do_computation()</text>
+  </svg>
+  </div>
+  <div class="info-box">
+    <strong>Kết luận:</strong> Thread nhẹ hơn process vì chỉ cần tạo stack mới (~8 KB – 8 MB), không cần sao chép toàn bộ address space.
+    Giao tiếp qua biến global/heap trực tiếp — không cần IPC như pipe hay socket.
+    Nhưng: chia sẻ là con dao hai lưỡi — một thread viết sai địa chỉ có thể corrupt dữ liệu thread khác.
+  </div>
+</div>
+
+<!-- ═══════════════ MODULE 2: Concurrency vs Parallelism ═══════════════ -->
+<h2>2. Concurrency vs Parallelism — Minh họa Timeline</h2>
+<div class="card">
+  <p style="font-size:14px;color:#374151;margin-bottom:12px;">
+    Chọn kịch bản để xem timeline thực thi của Thread A và Thread B.
+  </p>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="showCP(0)" id="cp-btn-0">1 Core — Concurrent</button>
+    <button class="btn btn-secondary" onclick="showCP(1)" id="cp-btn-1">2 Core — Parallel</button>
+    <button class="btn btn-secondary" onclick="showCP(2)" id="cp-btn-2">I/O Bound — Concurrent</button>
+  </div>
+
+  <div id="cp-scenario-0" class="cp-timeline" style="display:none">
+    <div class="cp-label" style="color:#0369a1">Kịch bản 1: 1 Core — Concurrent KHÔNG Parallel</div>
+    <div class="cp-bars">
+      <div class="cp-row">
+        <div class="cp-name" style="color:#0369a1">Thread A</div>
+        <div class="cp-track" id="cp0-a"></div>
+      </div>
+      <div class="cp-row">
+        <div class="cp-name" style="color:#be185d">Thread B</div>
+        <div class="cp-track" id="cp0-b"></div>
+      </div>
+      <div class="cp-row">
+        <div class="cp-name">Core 1</div>
+        <div class="cp-track" id="cp0-c1"></div>
+      </div>
+    </div>
+    <div class="cp-tick-row" id="cp0-ticks"></div>
+    <p style="font-size:13px;color:#374151;margin-top:10px;">
+      A và B xen kẽ nhau trên 1 core — <strong>CONCURRENT</strong>.
+      Tại bất kỳ thời điểm nào, chỉ 1 thread thực sự chạy — <strong>KHÔNG PARALLEL</strong>.
+      Tổng thời gian: 20ms (A: 10ms + B: 10ms, không chồng chéo về CPU time).
+    </p>
+  </div>
+
+  <div id="cp-scenario-1" class="cp-timeline" style="display:none">
+    <div class="cp-label" style="color:#16a34a">Kịch bản 2: 2 Core — Concurrent VÀ Parallel</div>
+    <div class="cp-bars">
+      <div class="cp-row">
+        <div class="cp-name" style="color:#0369a1">Thread A</div>
+        <div class="cp-track" id="cp1-a"></div>
+      </div>
+      <div class="cp-row">
+        <div class="cp-name" style="color:#be185d">Thread B</div>
+        <div class="cp-track" id="cp1-b"></div>
+      </div>
+      <div class="cp-row">
+        <div class="cp-name">Core 1</div>
+        <div class="cp-track" id="cp1-c1"></div>
+      </div>
+      <div class="cp-row">
+        <div class="cp-name">Core 2</div>
+        <div class="cp-track" id="cp1-c2"></div>
+      </div>
+    </div>
+    <div class="cp-tick-row" id="cp1-ticks"></div>
+    <p style="font-size:13px;color:#374151;margin-top:10px;">
+      A chạy trên Core 1, B chạy trên Core 2 đồng thời — <strong>PARALLEL thật sự</strong>.
+      Tổng thời gian: <strong>10ms</strong> (giảm 2x so với 1 core).
+    </p>
+  </div>
+
+  <div id="cp-scenario-2" class="cp-timeline" style="display:none">
+    <div class="cp-label" style="color:#d97706">Kịch bản 3: I/O Bound — CPU Overlap</div>
+    <div class="cp-bars">
+      <div class="cp-row">
+        <div class="cp-name" style="color:#0369a1">Thread A</div>
+        <div class="cp-track" id="cp2-a"></div>
+      </div>
+      <div class="cp-row">
+        <div class="cp-name" style="color:#be185d">Thread B</div>
+        <div class="cp-track" id="cp2-b"></div>
+      </div>
+      <div class="cp-row">
+        <div class="cp-name">Core 1</div>
+        <div class="cp-track" id="cp2-c1"></div>
+      </div>
+    </div>
+    <div class="cp-tick-row" id="cp2-ticks"></div>
+    <p style="font-size:13px;color:#374151;margin-top:10px;">
+      Thread A đọc file (wait), B tính toán trong lúc đó → CPU không lãng phí.
+      Đây là lý do dùng multi-thread cho <strong>I/O-bound</strong> task ngay cả trên 1 core.
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════ MODULE 3: Race Condition Demo ═══════════════ -->
+<h2>3. Mô phỏng Race Condition — counter++</h2>
+<div class="card">
+  <p style="font-size:14px;color:#374151;margin-bottom:12px;">
+    Hai thread cùng tăng <code>counter++</code> 10 lần mỗi thread.
+    Kết quả mong đợi: <strong>20</strong>. Nhưng với race condition, kết quả có thể khác.
+  </p>
+  <div class="thread-select">
+    <div class="t1-col">
+      <strong style="color:#0369a1">Thread A</strong>
+      <div style="font-family:monospace;font-size:12px;margin-top:6px;color:#374151;">
+        for i in 0..10:<br>
+        &nbsp;&nbsp;rax = counter  <span style="color:#6b7280">← đọc</span><br>
+        &nbsp;&nbsp;rax += 1       <span style="color:#6b7280">← tăng</span><br>
+        &nbsp;&nbsp;counter = rax  <span style="color:#6b7280">← ghi</span>
+      </div>
+    </div>
+    <div class="t2-col">
+      <strong style="color:#be185d">Thread B</strong>
+      <div style="font-family:monospace;font-size:12px;margin-top:6px;color:#374151;">
+        for i in 0..10:<br>
+        &nbsp;&nbsp;rax = counter  <span style="color:#6b7280">← đọc</span><br>
+        &nbsp;&nbsp;rax += 1       <span style="color:#6b7280">← tăng</span><br>
+        &nbsp;&nbsp;counter = rax  <span style="color:#6b7280">← ghi</span>
+      </div>
+    </div>
+  </div>
+  <div class="race-controls">
+    <label style="font-size:13px;font-weight:700;">Xác suất race:</label>
+    <input type="range" id="race-prob" min="0" max="90" value="60" style="width:120px;accent-color:var(--accent)">
+    <span id="race-prob-val" style="font-family:monospace;font-weight:700;color:var(--accent)">60%</span>
+    <button class="btn btn-primary" onclick="runRace()">▶ Chạy</button>
+    <button class="btn btn-secondary" onclick="runRaceMany()">✕ 100 lần</button>
+    <button class="btn btn-secondary" onclick="resetRace()">↺ Reset</button>
+  </div>
+  <div class="counter-display" id="race-counter">0</div>
+  <div class="counter-expected">Mong đợi: 20 | Thực tế: <span id="race-actual">—</span></div>
+  <div id="race-log">Nhấn ▶ Chạy để mô phỏng...</div>
+  <div id="race-stats" style="font-size:13px;color:#6b7280;margin-top:8px;"></div>
+</div>
+
+<!-- ═══════════════ MODULE 4: Thread Models ═══════════════ -->
+<h2>4. Mô hình Threading: 1:1 vs M:N</h2>
+<div class="card">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div style="border:2px solid #0369a1;border-radius:10px;padding:16px;background:#e0f2fe;">
+      <div style="font-weight:700;color:#0369a1;font-size:15px;margin-bottom:8px;">1:1 (Kernel Thread)</div>
+      <div style="font-size:13px;color:#374151;line-height:1.7;">
+        <div>User Thread ↔ Kernel Thread</div>
+        <div style="margin-top:6px;font-family:monospace;font-size:12px;background:#c7e6ff;border-radius:4px;padding:6px;">
+          U1 — U2 — U3<br>
+          ↕ &nbsp;&nbsp;&nbsp;&nbsp; ↕ &nbsp;&nbsp;&nbsp;&nbsp; ↕<br>
+          K1 — K2 — K3<br>
+          ↕ &nbsp;&nbsp;&nbsp;&nbsp; ↕ &nbsp;&nbsp;&nbsp;&nbsp; ↕<br>
+          Core1 Core2 Core1
+        </div>
+        <ul style="margin-top:8px;padding-left:16px;">
+          <li>Stack: 8 MB/thread</li>
+          <li>Tạo: ~20 μs (syscall)</li>
+          <li>Switch: ~1-10 μs (kernel)</li>
+          <li>Max: ~32,768 thread</li>
+          <li>Ví dụ: pthreads, Java thread</li>
+        </ul>
+      </div>
+    </div>
+    <div style="border:2px solid #16a34a;border-radius:10px;padding:16px;background:#dcfce7;">
+      <div style="font-weight:700;color:#16a34a;font-size:15px;margin-bottom:8px;">M:N (Go Goroutine)</div>
+      <div style="font-size:13px;color:#374151;line-height:1.7;">
+        <div>M goroutine → N kernel thread</div>
+        <div style="margin-top:6px;font-family:monospace;font-size:12px;background:#bbf7d0;border-radius:4px;padding:6px;">
+          G1 G2 G3 G4 G5 G6<br>
+          &nbsp;&nbsp; ↕ &nbsp;&nbsp;&nbsp;&nbsp; ↕ &nbsp;&nbsp;&nbsp;&nbsp; ↕<br>
+          &nbsp;&nbsp; K1 &nbsp;&nbsp;&nbsp; K2 &nbsp;&nbsp;&nbsp; K3<br>
+          &nbsp;&nbsp; ↕ &nbsp;&nbsp;&nbsp;&nbsp; ↕ &nbsp;&nbsp;&nbsp;&nbsp; ↕<br>
+          Core1 Core2 Core3
+        </div>
+        <ul style="margin-top:8px;padding-left:16px;">
+          <li>Stack: 2 KB khởi đầu</li>
+          <li>Tạo: ~1 μs (user space)</li>
+          <li>Switch: ~100 ns (runtime)</li>
+          <li>Max: hàng triệu goroutine</li>
+          <li>Ví dụ: Go, Erlang, Java Loom</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:14px;padding:10px;background:#fef3c7;border-radius:8px;font-size:13px;color:#92400e;">
+    <strong>Xu hướng hiện đại:</strong> M:N (goroutine, virtual thread) — tạo 100,000 goroutine ≈ 200 MB RAM thay vì 800 GB (1:1 thread)
+  </div>
+</div>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+<script>
+// ── Module 2: Concurrency vs Parallelism ──
+function makeSeg(left, width, color, label) {
+  const d = document.createElement('div');
+  d.className = 'cp-seg';
+  d.style.left = left + '%';
+  d.style.width = width + '%';
+  d.style.background = color;
+  d.textContent = label;
+  return d;
+}
+
+function makeTicks(containerId, count, step) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  c.innerHTML = '';
+  for (let i = 0; i <= count; i++) {
+    const t = document.createElement('div');
+    t.className = 'cp-tick';
+    t.textContent = (i * step) + 'ms';
+    c.appendChild(t);
+  }
+}
+
+function buildCP0() {
+  // 1 Core: A and B interleave
+  const tA = document.getElementById('cp0-a');
+  const tB = document.getElementById('cp0-b');
+  const tC1 = document.getElementById('cp0-c1');
+  tA.innerHTML = ''; tB.innerHTML = ''; tC1.innerHTML = '';
+  const unit = 100/20;
+  // A runs 0-5, 10-15 (context switched every 5ms)
+  [[0,5],[10,15]].forEach(([s,e]) => {
+    tA.appendChild(makeSeg(s*unit, (e-s)*unit, '#0369a1', e-s+'ms'));
+  });
+  [[5,10],[15,20]].forEach(([s,e]) => {
+    tB.appendChild(makeSeg(s*unit, (e-s)*unit, '#be185d', e-s+'ms'));
+  });
+  // Core1: A or B
+  [[0,5,'#0369a1','A'],[5,10,'#be185d','B'],[10,15,'#0369a1','A'],[15,20,'#be185d','B']].forEach(([s,e,c,l]) => {
+    tC1.appendChild(makeSeg(s*unit,(e-s)*unit,c,l));
+  });
+  makeTicks('cp0-ticks', 4, 5);
+}
+
+function buildCP1() {
+  // 2 cores: A on Core1, B on Core2 simultaneously
+  const unit = 100/12;
+  const tA = document.getElementById('cp1-a');
+  const tB = document.getElementById('cp1-b');
+  const tC1 = document.getElementById('cp1-c1');
+  const tC2 = document.getElementById('cp1-c2');
+  tA.innerHTML = ''; tB.innerHTML = ''; tC1.innerHTML = ''; tC2.innerHTML = '';
+  tA.appendChild(makeSeg(0, 10*unit, '#0369a1', '10ms'));
+  tB.appendChild(makeSeg(0, 10*unit, '#be185d', '10ms'));
+  tC1.appendChild(makeSeg(0, 10*unit, '#0369a1', 'A: 0-10ms'));
+  tC2.appendChild(makeSeg(0, 10*unit, '#be185d', 'B: 0-10ms'));
+  makeTicks('cp1-ticks', 4, 3);
+}
+
+function buildCP2() {
+  // I/O bound: A does compute then waits, B computes during A's wait
+  const unit = 100/16;
+  const tA = document.getElementById('cp2-a');
+  const tB = document.getElementById('cp2-b');
+  const tC1 = document.getElementById('cp2-c1');
+  tA.innerHTML = ''; tB.innerHTML = ''; tC1.innerHTML = '';
+  // A: compute 0-3, wait 3-10, compute 10-13
+  tA.appendChild(makeSeg(0, 3*unit, '#0369a1', 'CPU'));
+  tA.appendChild(makeSeg(3*unit, 7*unit, '#94a3b8', 'I/O wait'));
+  tA.appendChild(makeSeg(10*unit, 3*unit, '#0369a1', 'CPU'));
+  // B: compute 3-10
+  tB.appendChild(makeSeg(3*unit, 7*unit, '#be185d', 'CPU (7ms)'));
+  // Core: A(0-3), B(3-10), A(10-13)
+  tC1.appendChild(makeSeg(0, 3*unit, '#0369a1', 'A'));
+  tC1.appendChild(makeSeg(3*unit, 7*unit, '#be185d', 'B'));
+  tC1.appendChild(makeSeg(10*unit, 3*unit, '#0369a1', 'A'));
+  makeTicks('cp2-ticks', 4, 4);
+}
+
+let cpBuilt = [false, false, false];
+const builders = [buildCP0, buildCP1, buildCP2];
+
+function showCP(n) {
+  [0,1,2].forEach(i => {
+    document.getElementById('cp-scenario-'+i).style.display = 'none';
+    document.getElementById('cp-btn-'+i).classList.remove('btn-primary');
+    document.getElementById('cp-btn-'+i).classList.add('btn-secondary');
+  });
+  document.getElementById('cp-scenario-'+n).style.display = 'block';
+  document.getElementById('cp-btn-'+n).classList.remove('btn-secondary');
+  document.getElementById('cp-btn-'+n).classList.add('btn-primary');
+  if (!cpBuilt[n]) { builders[n](); cpBuilt[n] = true; }
+}
+
+// Show first scenario by default
+showCP(0);
+
+// ── Module 3: Race Condition ──
+document.getElementById('race-prob').addEventListener('input', function() {
+  document.getElementById('race-prob-val').textContent = this.value + '%';
+});
+
+let raceTotal = 0, raceLost = 0;
+
+function simulateRace(raceProb) {
+  let counter = 0;
+  const log = [];
+  for (let i = 0; i < 10; i++) {
+    // Thread A step
+    const aRead = counter;
+    // Simulate potential race: B might also read the same value
+    if (Math.random() * 100 < raceProb) {
+      const bRead = counter; // B reads same value as A
+      counter = aRead + 1; // A writes
+      counter = bRead + 1; // B overwrites (lost update!)
+      log.push(`<span style="color:#f87171">RACE! A读${aRead}→${aRead+1}, B读${bRead}→${bRead+1} (覆盖！丢失+1)</span>`);
+    } else {
+      counter = aRead + 1;
+      const bRead = counter;
+      counter = bRead + 1;
+      log.push(`<span style="color:#4ade80">OK A: ${aRead}→${aRead+1}, B: ${aRead+1}→${aRead+2}</span>`);
+    }
+  }
+  return { counter, log };
+}
+
+function simulateRaceVN(raceProb) {
+  let counter = 0;
+  const log = [];
+  for (let i = 0; i < 10; i++) {
+    const aRead = counter;
+    if (Math.random() * 100 < raceProb) {
+      const bRead = counter;
+      counter = aRead + 1;
+      counter = bRead + 1;
+      log.push(`<span style="color:#f87171">RACE! A đọc ${aRead}→ghi ${aRead+1}, B đọc ${bRead}→ghi ${bRead+1} (mất 1!)</span>`);
+    } else {
+      counter = aRead + 1;
+      const bRead = counter;
+      counter = bRead + 1;
+      log.push(`<span style="color:#4ade80">OK: A: ${aRead}→${aRead+1}, B: ${aRead+1}→${aRead+2}</span>`);
+    }
+  }
+  return { counter, log };
+}
+
+function runRace() {
+  const prob = parseInt(document.getElementById('race-prob').value);
+  const result = simulateRaceVN(prob);
+  document.getElementById('race-counter').textContent = result.counter;
+  document.getElementById('race-counter').style.color = result.counter === 20 ? '#059669' : '#dc2626';
+  document.getElementById('race-actual').textContent = result.counter;
+  document.getElementById('race-log').innerHTML = result.log.join('\n');
+  raceTotal++;
+  if (result.counter !== 20) raceLost++;
+  document.getElementById('race-stats').textContent =
+    `Thống kê: ${raceTotal} lần chạy, ${raceLost} lần sai (${raceTotal ? Math.round(raceLost/raceTotal*100) : 0}%)`;
+}
+
+function runRaceMany() {
+  raceTotal = 0; raceLost = 0;
+  const prob = parseInt(document.getElementById('race-prob').value);
+  const results = [];
+  for (let i = 0; i < 100; i++) {
+    const r = simulateRaceVN(prob);
+    results.push(r.counter);
+    if (r.counter !== 20) raceLost++;
+    raceTotal++;
+  }
+  const last = results[results.length - 1];
+  document.getElementById('race-counter').textContent = last;
+  document.getElementById('race-counter').style.color = last === 20 ? '#059669' : '#dc2626';
+  document.getElementById('race-actual').textContent = last;
+  const min = Math.min(...results), max = Math.max(...results);
+  const wrong = results.filter(x => x !== 20);
+  document.getElementById('race-log').innerHTML =
+    `Chạy 100 lần:\n<span style="color:#4ade80">Đúng (=20): ${100 - wrong.length} lần</span>\n<span style="color:#f87171">Sai (≠20): ${wrong.length} lần — giá trị từ ${min} đến ${max}</span>\nGiá trị sai phổ biến: ${wrong.slice(0,10).join(', ')}${wrong.length > 10 ? '...' : ''}`;
+  document.getElementById('race-stats').textContent =
+    `${100 - wrong.length}/100 đúng | ${wrong.length}/100 sai (${wrong.length}%) | Min=${min} Max=${max}`;
+}
+
+function resetRace() {
+  raceTotal = 0; raceLost = 0;
+  document.getElementById('race-counter').textContent = '0';
+  document.getElementById('race-counter').style.color = 'var(--accent-dark)';
+  document.getElementById('race-actual').textContent = '—';
+  document.getElementById('race-log').textContent = 'Nhấn ▶ Chạy để mô phỏng...';
+  document.getElementById('race-stats').textContent = '';
+}
+</script>
+</body>
+</html>

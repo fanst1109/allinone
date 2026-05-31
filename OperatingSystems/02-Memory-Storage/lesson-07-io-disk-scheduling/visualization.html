@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — I/O & Disk Scheduling</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #0e7490;
+    --accent-soft: #cffafe;
+    --accent-hover: #0c6480;
+    --bg-card: #ffffff;
+    --bg-section: #f0fdfa;
+    --head-color: #dc2626;
+    --request-color: #7c3aed;
+    --path-color: #0e7490;
+    --highlight-color: #ea580c;
+  }
+
+  h1 { color: #134e4a; }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid #a5f3fc; }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(14,116,144,.12);
+    margin: 16px 0;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+    margin-bottom: 16px;
+  }
+  .ctrl-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .ctrl-group label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+  .ctrl-group input[type="text"],
+  .ctrl-group input[type="number"],
+  .ctrl-group select {
+    padding: 7px 10px;
+    border: 1.5px solid #a5f3fc;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #f0fdfa;
+    color: #134e4a;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .ctrl-group input[type="number"] { max-width: 90px; }
+  .ctrl-group input:focus, .ctrl-group select:focus { border-color: var(--accent); }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    white-space: nowrap;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ─── Disk visualization ─── */
+  #disk-wrap { overflow-x: auto; }
+  #disk-svg { display: block; margin: 0 auto; max-width: 100%; }
+
+  .stats-bar {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    background: var(--bg-section);
+    border-radius: 8px;
+    padding: 12px 20px;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .stat-item { display: flex; flex-direction: column; gap: 2px; }
+  .stat-label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: .5px; }
+  .stat-value { font-size: 20px; font-weight: 700; }
+  .stat-value.distance { color: var(--accent); }
+  .stat-value.algo { color: #7c3aed; font-size: 15px; }
+
+  /* Step table */
+  .step-table-wrap { overflow-x: auto; margin-top: 12px; }
+  table.step-table {
+    border-collapse: collapse;
+    font-size: 13px;
+    width: 100%;
+    min-width: 360px;
+  }
+  table.step-table th {
+    background: var(--accent);
+    color: #fff;
+    padding: 6px 10px;
+    text-align: center;
+    font-size: 12px;
+  }
+  table.step-table td {
+    padding: 5px 10px;
+    text-align: center;
+    border: 1px solid #e2e8f0;
+    font-family: monospace;
+    font-size: 13px;
+  }
+  table.step-table tr:nth-child(even) { background: #f8fafc; }
+  .cell-total { background: #dbeafe; font-weight: 700; color: #1d4ed8; }
+
+  /* Comparison table */
+  .cmp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 12px;
+  }
+  .cmp-table th {
+    background: var(--accent);
+    color: #fff;
+    padding: 8px 12px;
+    text-align: left;
+  }
+  .cmp-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .cmp-table tr:hover td { background: var(--accent-soft); }
+  .best-val { color: #16a34a; font-weight: 700; }
+  .worst-val { color: #dc2626; }
+
+  /* Bar chart */
+  .bar-wrap { margin-top: 12px; }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 5px 0;
+  }
+  .bar-label { min-width: 70px; font-size: 13px; font-weight: 600; color: #374151; text-align: right; }
+  .bar-bg { flex: 1; background: #e2e8f0; border-radius: 4px; height: 22px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width .4s ease; display: flex; align-items: center; padding-left: 8px; }
+  .bar-num { font-size: 12px; font-weight: 700; color: #fff; }
+
+  @media (max-width: 600px) {
+    .controls { flex-direction: column; }
+    .ctrl-group input[type="number"] { max-width: 100%; }
+    .stats-bar { gap: 12px; }
+    .stat-value { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Memory</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-filesystem/visualization.html">← L6: Filesystem</a>
+  <span class="sep">·</span>
+  <span class="current">L7: I/O & Disk</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-modern-storage/visualization.html">L8: Lưu trữ hiện đại →</a>
+</nav>
+<main>
+  <h1>Lesson 07 — I/O & Disk Scheduling</h1>
+
+  <!-- ═══════════════════════════════════
+       MODULE 1 — Disk Scheduling Sim
+       ═══════════════════════════════════ -->
+  <h2>Mô phỏng disk scheduling — di chuyển đầu đọc</h2>
+  <div class="card">
+    <p style="color:#475569;font-size:14px;margin:0 0 12px;">
+      Nhập hàng đợi cylinder và vị trí đầu đọc, chọn thuật toán để thấy đường đi của đầu đọc.
+    </p>
+    <div class="controls">
+      <div class="ctrl-group" style="flex:1;min-width:200px;">
+        <label>Hàng đợi cylinder (cách nhau bởi dấu cách)</label>
+        <input type="text" id="queue-input" value="98 183 37 122 14 124 65 67">
+      </div>
+      <div class="ctrl-group">
+        <label>Đầu đọc tại</label>
+        <input type="number" id="head-input" value="53" min="0">
+      </div>
+      <div class="ctrl-group">
+        <label>Tổng cylinder</label>
+        <input type="number" id="total-cyl" value="200" min="10">
+      </div>
+      <div class="ctrl-group">
+        <label>Thuật toán</label>
+        <select id="algo-select">
+          <option value="fcfs">FCFS</option>
+          <option value="sstf">SSTF</option>
+          <option value="scan" selected>SCAN</option>
+          <option value="cscan">C-SCAN</option>
+          <option value="look">LOOK</option>
+          <option value="clook">C-LOOK</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>Hướng ban đầu</label>
+        <select id="dir-select">
+          <option value="up">Ascending (tăng)</option>
+          <option value="down">Descending (giảm)</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="runSchedule()">▶ Chạy</button>
+      <button class="btn btn-secondary" onclick="useDefault()">Dùng ví dụ chuẩn</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-bar" id="stats-bar">
+      <div class="stat-item">
+        <span class="stat-label">Thuật toán</span>
+        <span class="stat-value algo" id="stat-algo">—</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Tổng quãng đường</span>
+        <span class="stat-value distance" id="stat-dist">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Số bước</span>
+        <span class="stat-value" id="stat-steps" style="color:#374151;">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Đầu tại</span>
+        <span class="stat-value" id="stat-head" style="color:#dc2626;">—</span>
+      </div>
+    </div>
+
+    <!-- Disk visualization SVG -->
+    <div id="disk-wrap">
+      <svg id="disk-svg" width="700" height="200" viewBox="0 0 700 200"></svg>
+    </div>
+
+    <!-- Step table -->
+    <div class="step-table-wrap">
+      <table class="step-table" id="step-table">
+        <thead><tr><th>Bước</th><th>Từ</th><th>Đến</th><th>Di chuyển</th><th>Tổng cộng</th></tr></thead>
+        <tbody id="step-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════
+       MODULE 2 — Algorithm Comparison
+       ═══════════════════════════════════ -->
+  <h2>So sánh tất cả thuật toán</h2>
+  <div class="card">
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="runAllComparison()">So sánh tất cả</button>
+    </div>
+    <div id="cmp-result"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════
+       MODULE 3 — HDD Anatomy
+       ═══════════════════════════════════ -->
+  <h2>Cấu trúc đĩa cứng & tính thời gian truy cập</h2>
+  <div class="card">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div>
+        <svg width="260" height="240" viewBox="0 0 260 240" style="max-width:100%;height:auto;">
+          <!-- Platter -->
+          <ellipse cx="130" cy="130" rx="110" ry="50" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+          <ellipse cx="130" cy="110" rx="110" ry="50" fill="#cbd5e1" stroke="#94a3b8" stroke-width="2"/>
+          <!-- Tracks -->
+          <ellipse cx="130" cy="110" rx="85" ry="38" fill="none" stroke="#0e7490" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <ellipse cx="130" cy="110" rx="60" ry="27" fill="none" stroke="#0e7490" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <ellipse cx="130" cy="110" rx="35" ry="16" fill="none" stroke="#0e7490" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <!-- Spindle -->
+          <ellipse cx="130" cy="110" rx="12" ry="6" fill="#475569"/>
+          <!-- Read arm -->
+          <line x1="130" y1="110" x2="220" y2="70" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="220" cy="70" r="6" fill="#dc2626"/>
+          <!-- Labels -->
+          <text x="230" y="70" font-size="11" fill="#dc2626" font-weight="700">Đầu đọc</text>
+          <text x="180" y="108" font-size="10" fill="#0e7490">track</text>
+          <text x="155" y="118" font-size="10" fill="#0e7490">track</text>
+          <text x="130" y="128" font-size="10" fill="#0e7490" text-anchor="middle">track</text>
+          <!-- Cylinder label -->
+          <text x="40" y="130" font-size="10" fill="#6b7280">Cylinder</text>
+          <line x1="40" y1="120" x2="45" y2="112" stroke="#6b7280" stroke-width="1"/>
+          <line x1="45" y1="112" x2="45" y2="140" stroke="#6b7280" stroke-width="1" stroke-dasharray="2,2"/>
+          <!-- Sector -->
+          <text x="132" y="85" font-size="10" fill="#7c3aed" text-anchor="middle" font-weight="700">sector</text>
+          <path d="M130,110 L170,90" stroke="#7c3aed" stroke-width="1.5"/>
+          <!-- Title -->
+          <text x="130" y="20" font-size="13" fill="#134e4a" font-weight="700" text-anchor="middle">Cấu trúc HDD</text>
+        </svg>
+      </div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#374151;margin-bottom:12px;">Tính thời gian truy cập</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="ctrl-group">
+            <label>RPM (vòng/phút)</label>
+            <input type="number" id="rpm-input" value="7200" min="1000" style="max-width:120px;">
+          </div>
+          <div class="ctrl-group">
+            <label>Seek time trung bình (ms)</label>
+            <input type="number" id="seek-input" value="8" min="0" step="0.1" style="max-width:120px;">
+          </div>
+          <div class="ctrl-group">
+            <label>Transfer time (ms)</label>
+            <input type="number" id="transfer-input" value="0.5" min="0" step="0.1" style="max-width:120px;">
+          </div>
+          <button class="btn btn-secondary" onclick="calcAccessTime()" style="width:fit-content;">Tính</button>
+          <div id="access-result" style="background:#f0fdfa;border-radius:8px;padding:12px;font-size:13px;line-height:2;font-family:monospace;border:1.5px solid #a5f3fc;min-height:60px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// ALGORITHMS
+// ═══════════════════════════════════════════════════════
+
+function parseCylinders(str) {
+  return str.trim().split(/\s+/).map(Number).filter(n => !isNaN(n) && n >= 0);
+}
+
+function algoLabel(a) {
+  const m = {fcfs:'FCFS',sstf:'SSTF',scan:'SCAN',cscan:'C-SCAN',look:'LOOK',clook:'C-LOOK'};
+  return m[a]||a;
+}
+
+// Returns array of {from, to, distance}
+function runFCFS(queue, head) {
+  const steps = [];
+  let cur = head;
+  for (const c of queue) {
+    steps.push({from: cur, to: c, distance: Math.abs(c - cur)});
+    cur = c;
+  }
+  return steps;
+}
+
+function runSSTF(queue, head) {
+  const steps = [];
+  let cur = head;
+  const rem = [...queue];
+  while (rem.length > 0) {
+    let minDist = Infinity, minIdx = 0;
+    rem.forEach((c, i) => {
+      if (Math.abs(c - cur) < minDist) { minDist = Math.abs(c - cur); minIdx = i; }
+    });
+    const next = rem.splice(minIdx, 1)[0];
+    steps.push({from: cur, to: next, distance: minDist});
+    cur = next;
+  }
+  return steps;
+}
+
+function runSCAN(queue, head, totalCyl, dir) {
+  const steps = [];
+  let cur = head;
+  const maxCyl = totalCyl - 1;
+  const sorted = [...new Set([...queue])].sort((a,b)=>a-b);
+  const up = sorted.filter(c => c >= cur);
+  const down = sorted.filter(c => c < cur).reverse();
+
+  if (dir === 'up') {
+    // go up, then to end, then down
+    [...up, maxCyl, ...down].reduce((prev, next) => {
+      if (prev === next && prev === maxCyl) return next; // skip duplicate end
+      steps.push({from: prev, to: next, distance: Math.abs(next - prev)});
+      return next;
+    }, cur);
+  } else {
+    [...down, 0, ...up].reduce((prev, next) => {
+      steps.push({from: prev, to: next, distance: Math.abs(next - prev)});
+      return next;
+    }, cur);
+  }
+  return steps;
+}
+
+function runCSCAN(queue, head, totalCyl, dir) {
+  const steps = [];
+  let cur = head;
+  const maxCyl = totalCyl - 1;
+  const sorted = [...new Set([...queue])].sort((a,b)=>a-b);
+
+  if (dir === 'up') {
+    const up = sorted.filter(c => c >= cur);
+    const wrap = sorted.filter(c => c < cur);
+    // Go up to end, then wrap to 0, then continue
+    const path = [...up, maxCyl, 0, ...wrap];
+    path.reduce((prev, next) => {
+      steps.push({from: prev, to: next, distance: Math.abs(next - prev)});
+      return next;
+    }, cur);
+  } else {
+    const down = sorted.filter(c => c <= cur).reverse();
+    const wrap = sorted.filter(c => c > cur).reverse();
+    const path = [...down, 0, maxCyl, ...wrap];
+    path.reduce((prev, next) => {
+      steps.push({from: prev, to: next, distance: Math.abs(next - prev)});
+      return next;
+    }, cur);
+  }
+  return steps;
+}
+
+function runLOOK(queue, head, dir) {
+  const steps = [];
+  let cur = head;
+  const sorted = [...new Set([...queue])].sort((a,b)=>a-b);
+  const up = sorted.filter(c => c >= cur);
+  const down = sorted.filter(c => c < cur).reverse();
+
+  const path = dir === 'up' ? [...up, ...down] : [...down, ...up];
+  path.reduce((prev, next) => {
+    steps.push({from: prev, to: next, distance: Math.abs(next - prev)});
+    return next;
+  }, cur);
+  return steps;
+}
+
+function runCLOOK(queue, head, dir) {
+  const steps = [];
+  let cur = head;
+  const sorted = [...new Set([...queue])].sort((a,b)=>a-b);
+
+  if (dir === 'up') {
+    const up = sorted.filter(c => c >= cur);
+    const wrap = sorted.filter(c => c < cur);
+    const path = [...up, ...wrap];
+    path.reduce((prev, next) => {
+      steps.push({from: prev, to: next, distance: Math.abs(next - prev)});
+      return next;
+    }, cur);
+  } else {
+    const down = sorted.filter(c => c <= cur).reverse();
+    const wrap = sorted.filter(c => c > cur).reverse();
+    const path = [...down, ...wrap];
+    path.reduce((prev, next) => {
+      steps.push({from: prev, to: next, distance: Math.abs(next - prev)});
+      return next;
+    }, cur);
+  }
+  return steps;
+}
+
+function runAlgo(name, queue, head, totalCyl, dir) {
+  switch (name) {
+    case 'fcfs': return runFCFS(queue, head);
+    case 'sstf': return runSSTF(queue, head);
+    case 'scan': return runSCAN(queue, head, totalCyl, dir);
+    case 'cscan': return runCSCAN(queue, head, totalCyl, dir);
+    case 'look': return runLOOK(queue, head, dir);
+    case 'clook': return runCLOOK(queue, head, dir);
+  }
+  return [];
+}
+
+function totalDist(steps) {
+  return steps.reduce((s, st) => s + st.distance, 0);
+}
+
+// ═══════════════════════════════════════════════════════
+// DRAW
+// ═══════════════════════════════════════════════════════
+
+function drawDiskViz(steps, head, totalCyl, queue) {
+  const svg = document.getElementById('disk-svg');
+  const W = 700, H = 200;
+  const PAD_L = 60, PAD_R = 20, PAD_T = 30, PAD_B = 30;
+  const drawW = W - PAD_L - PAD_R;
+  const drawH = H - PAD_T - PAD_B;
+
+  const cylToX = c => PAD_L + (c / (totalCyl - 1)) * drawW;
+  const stepToY = (i, n) => PAD_T + (i / Math.max(n - 1, 1)) * drawH;
+
+  let svgContent = '';
+
+  // Background grid lines (cylinders 0, 50, 100, 150, 199)
+  for (const tick of [0, 50, 100, 150, totalCyl-1]) {
+    const x = cylToX(tick);
+    svgContent += `<line x1="${x}" y1="${PAD_T}" x2="${x}" y2="${H-PAD_B}" stroke="#e2e8f0" stroke-width="1"/>`;
+    svgContent += `<text x="${x}" y="${PAD_T-6}" text-anchor="middle" font-size="10" fill="#9ca3af">${tick}</text>`;
+  }
+
+  // Axis labels
+  svgContent += `<text x="${PAD_L}" y="${H-5}" font-size="10" fill="#6b7280">0</text>`;
+  svgContent += `<text x="${W-PAD_R}" y="${H-5}" font-size="10" fill="#6b7280" text-anchor="end">Cylinder</text>`;
+  svgContent += `<text x="${PAD_L-8}" y="${PAD_T}" font-size="10" fill="#6b7280" text-anchor="end">Start</text>`;
+
+  // Request markers at top
+  const allPoints = [...new Set([head, ...queue])];
+  allPoints.forEach(c => {
+    const x = cylToX(c);
+    const isHead = c === head;
+    const col = isHead ? '#dc2626' : '#7c3aed';
+    svgContent += `<line x1="${x}" y1="${PAD_T}" x2="${x}" y2="${H-PAD_B}" stroke="${col}" stroke-width="${isHead?2:1}" stroke-dasharray="${isHead?'':'3,3'}"/>`;
+    if (!isHead) {
+      svgContent += `<circle cx="${x}" cy="${PAD_T}" r="4" fill="${col}" opacity="0.7"/>`;
+    }
+  });
+
+  // Path
+  const allSteps = [{from: head, to: head}, ...steps];
+  const n = allSteps.length;
+  let pathD = '';
+  allSteps.forEach((s, i) => {
+    const x = cylToX(s.from);
+    const y = stepToY(i, n);
+    pathD += i === 0 ? `M${x},${y}` : ` L${x},${y}`;
+  });
+  // Last point
+  if (steps.length > 0) {
+    const last = steps[steps.length - 1];
+    const x = cylToX(last.to);
+    const y = stepToY(n - 1, n);
+    pathD += ` L${x},${y}`;
+  }
+  svgContent += `<path d="${pathD}" stroke="var(--path-color)" stroke-width="2" fill="none" stroke-linejoin="round"/>`;
+
+  // Dots on path
+  allSteps.forEach((s, i) => {
+    const x = cylToX(s.from);
+    const y = stepToY(i, n);
+    svgContent += `<circle cx="${x}" cy="${y}" r="4" fill="${i===0?'#dc2626':'#0e7490'}" stroke="#fff" stroke-width="1.5"/>`;
+    if (i === 0) {
+      svgContent += `<text x="${x+8}" y="${y+4}" font-size="10" fill="#dc2626" font-weight="700">Head=${s.from}</text>`;
+    }
+  });
+  if (steps.length > 0) {
+    const last = steps[steps.length - 1];
+    const x = cylToX(last.to);
+    const y = stepToY(n - 1, n);
+    svgContent += `<circle cx="${x}" cy="${y}" r="4" fill="#16a34a" stroke="#fff" stroke-width="1.5"/>`;
+  }
+
+  svg.innerHTML = svgContent;
+}
+
+function buildStepTable(steps) {
+  const tbody = document.getElementById('step-tbody');
+  tbody.innerHTML = '';
+  let running = 0;
+  steps.forEach((s, i) => {
+    running += s.distance;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td>${s.from}</td>
+      <td>${s.to}</td>
+      <td>${s.distance}</td>
+      <td class="${i===steps.length-1?'cell-total':''}">${running}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// MAIN
+// ═══════════════════════════════════════════════════════
+
+function runSchedule() {
+  const queue = parseCylinders(document.getElementById('queue-input').value);
+  const head = parseInt(document.getElementById('head-input').value) || 53;
+  const totalCyl = parseInt(document.getElementById('total-cyl').value) || 200;
+  const algo = document.getElementById('algo-select').value;
+  const dir = document.getElementById('dir-select').value;
+
+  if (queue.length === 0) return;
+
+  const steps = runAlgo(algo, queue, head, totalCyl, dir);
+  const dist = totalDist(steps);
+
+  document.getElementById('stat-algo').textContent = algoLabel(algo);
+  document.getElementById('stat-dist').textContent = dist;
+  document.getElementById('stat-steps').textContent = steps.length;
+  document.getElementById('stat-head').textContent = head;
+
+  drawDiskViz(steps, head, totalCyl, queue);
+  buildStepTable(steps);
+}
+
+function useDefault() {
+  document.getElementById('queue-input').value = '98 183 37 122 14 124 65 67';
+  document.getElementById('head-input').value = '53';
+  document.getElementById('total-cyl').value = '200';
+  document.getElementById('dir-select').value = 'up';
+  runSchedule();
+}
+
+function runAllComparison() {
+  const queue = parseCylinders(document.getElementById('queue-input').value);
+  const head = parseInt(document.getElementById('head-input').value) || 53;
+  const totalCyl = parseInt(document.getElementById('total-cyl').value) || 200;
+  const dir = document.getElementById('dir-select').value;
+  if (queue.length === 0) return;
+
+  const algos = ['fcfs','sstf','scan','cscan','look','clook'];
+  const results = algos.map(a => ({
+    name: a,
+    dist: totalDist(runAlgo(a, queue, head, totalCyl, dir))
+  }));
+  results.sort((a,b)=>a.dist-b.dist);
+  const minD = results[0].dist;
+  const maxD = results[results.length-1].dist;
+
+  const barColors = {
+    fcfs:'#dc2626',sstf:'#7c3aed',scan:'#0e7490',cscan:'#0369a1',look:'#16a34a',clook:'#059669'
+  };
+  const notes = {
+    fcfs:'Đơn giản, tệ nhất; không starvation',
+    sstf:'Tốt nhất về quãng đường; có starvation',
+    scan:'Thang máy; không starvation',
+    cscan:'Chỉ 1 chiều; thời gian chờ đều',
+    look:'SCAN không đến tận cùng; thực tế dùng',
+    clook:'C-SCAN không đến tận cùng; thực tế dùng'
+  };
+
+  let html = `<table class="cmp-table">
+    <thead><tr><th>Thuật toán</th><th>Tổng quãng đường</th><th>Starvation?</th><th>Ghi chú</th></tr></thead><tbody>`;
+  results.forEach(r => {
+    const isBest = r.dist === minD;
+    const isWorst = r.dist === maxD;
+    const cls = isBest ? 'best-val' : (isWorst ? 'worst-val' : '');
+    const starv = r.name === 'sstf' ? '<span style="color:#dc2626;">Có</span>' : '<span style="color:#16a34a;">Không</span>';
+    html += `<tr><td class="${cls}">${algoLabel(r.name)}${isBest?' ★':''}</td>
+      <td class="${cls}">${r.dist}</td><td>${starv}</td>
+      <td style="font-size:12px;color:#6b7280;">${notes[r.name]}</td></tr>`;
+  });
+  html += `</tbody></table>`;
+
+  // Bar chart
+  html += `<div class="bar-wrap">`;
+  results.forEach(r => {
+    const pct = maxD > 0 ? (r.dist / maxD * 100).toFixed(1) : 0;
+    html += `<div class="bar-row">
+      <div class="bar-label">${algoLabel(r.name)}</div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${barColors[r.name]};">
+        <span class="bar-num">${r.dist}</span>
+      </div></div>
+    </div>`;
+  });
+  html += `</div>`;
+  html += `<div style="margin-top:8px;font-size:12px;color:#6b7280;">
+    ★ = ít di chuyển nhất · Queue: [${queue.join(', ')}] · Head: ${head} · ${totalCyl} cylinder
+  </div>`;
+
+  document.getElementById('cmp-result').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════
+// Access time calculator
+// ═══════════════════════════════════════════════════════
+function calcAccessTime() {
+  const rpm = parseFloat(document.getElementById('rpm-input').value) || 7200;
+  const seek = parseFloat(document.getElementById('seek-input').value) || 8;
+  const transfer = parseFloat(document.getElementById('transfer-input').value) || 0.5;
+
+  const oneRevMs = 60000 / rpm;
+  const rotLatency = oneRevMs / 2;
+  const total = seek + rotLatency + transfer;
+
+  document.getElementById('access-result').innerHTML =
+    `1 vòng quay: ${oneRevMs.toFixed(2)} ms (${rpm} RPM)\n` +
+    `Rotational latency TB: ${rotLatency.toFixed(2)} ms\n` +
+    `Seek time TB: ${seek.toFixed(2)} ms\n` +
+    `Transfer time: ${transfer.toFixed(2)} ms\n` +
+    `─────────────────────\n` +
+    `Tổng truy cập TB: ${total.toFixed(2)} ms`;
+}
+
+// Init
+window.addEventListener('DOMContentLoaded', () => {
+  useDefault();
+  calcAccessTime();
+  runAllComparison();
+});
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

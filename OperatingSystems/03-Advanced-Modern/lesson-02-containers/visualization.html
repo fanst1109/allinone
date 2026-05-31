@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Container</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #4338ca;
+    --accent-soft: #eef2ff;
+    --virt-purple: #4338ca;
+    --virt-dark: #312e81;
+    --virt-mid: #818cf8;
+    --cont-teal: #0d9488;
+    --cont-soft: #f0fdfa;
+    --ns-blue: #0369a1;
+    --cg-orange: #b45309;
+    --overlay-green: #166534;
+  }
+  h1 { color: var(--virt-dark); }
+  h2 { color: var(--virt-purple); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--virt-mid); }
+
+  .card { background:#fff; border-radius:10px; padding:20px 24px; box-shadow:0 1px 4px rgba(67,56,202,.1); margin:16px 0; }
+  .info-box { background:var(--accent-soft); border-left:4px solid var(--virt-purple); border-radius:0 8px 8px 0; padding:12px 16px; margin:12px 0; font-size:14px; line-height:1.7; }
+  .btn { padding:8px 18px; border-radius:6px; border:none; font-size:14px; font-weight:600; cursor:pointer; transition:background .15s, transform .1s; }
+  .btn:active { transform:scale(.97); }
+  .btn-primary { background:var(--virt-purple); color:white; }
+  .btn-primary:hover { background:var(--virt-dark); }
+  .btn-secondary { background:#f1f5f9; color:#374151; border:1px solid #d1d5db; }
+  .btn-secondary:hover { background:#e2e8f0; }
+  .btn-row { display:flex; gap:10px; flex-wrap:wrap; margin:12px 0; }
+
+  /* ── Module 1: Container vs VM Stack ── */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 16px 0;
+  }
+  @media (max-width:600px) { .arch-grid { grid-template-columns:1fr; } }
+  .arch-col-title {
+    text-align: center;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 8px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+  }
+  .arch-layer {
+    padding: 8px 12px;
+    text-align: center;
+    font-size: 12px;
+    border-bottom: 1px solid rgba(0,0,0,.07);
+    cursor: pointer;
+    transition: filter .15s;
+    user-select: none;
+  }
+  .arch-layer:hover { filter:brightness(.9); }
+  .arch-layer.selected { outline: 3px solid #f59e0b; outline-offset: -2px; }
+  .l-app   { background:#dbeafe; color:#1e3a8a; }
+  .l-rt    { background:#dcfce7; color:#14532d; }
+  .l-cont  { background:#0d9488; color:#fff; }
+  .l-cg    { background:#0f766e; color:#fff; }
+  .l-kern  { background:#374151; color:#fff; }
+  .l-hw    { background:#1f2937; color:#fff; }
+  .l-gos   { background:#6d28d9; color:#fff; }
+  .l-hyp   { background:#4338ca; color:#fff; }
+
+  .arch-desc {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 12px;
+    min-height: 60px;
+  }
+  .cmp-table { width:100%; border-collapse:collapse; margin:12px 0; font-size:13px; }
+  .cmp-table th { background:var(--virt-purple); color:#fff; padding:8px 12px; text-align:left; }
+  .cmp-table td { padding:7px 12px; border-bottom:1px solid #e2e8f0; }
+  .cmp-table tr:nth-child(even) td { background:#f8fafc; }
+  .better { color:#16a34a; font-weight:700; }
+  .worse  { color:#dc2626; }
+
+  /* ── Module 2: Namespace demo ── */
+  .ns-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 16px 0;
+  }
+  @media (max-width:600px) { .ns-grid { grid-template-columns:1fr; } }
+  .ns-box {
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 13px;
+  }
+  .ns-host { background:#f1f5f9; border:2px solid #94a3b8; }
+  .ns-container { background:#ecfdf5; border:2px solid #6ee7b7; }
+  .ns-title { font-weight:700; font-size:14px; margin-bottom:10px; }
+  .pid-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    font-family: monospace;
+    font-size: 12px;
+  }
+  .pid-host { background:#f8fafc; }
+  .pid-in-cont { background:#d1fae5; font-weight:600; }
+  .pid-badge {
+    background: #4338ca;
+    color: white;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .pid-badge-c { background: #0d9488; }
+  .pid-arrow { color: #f59e0b; font-weight:700; }
+
+  .ns-select {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .ns-tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 2px solid #c7d2fe;
+    background: white;
+    color: #3730a3;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .ns-tab:hover { background: #eef2ff; }
+  .ns-tab.active { background: var(--virt-purple); color: white; border-color: var(--virt-dark); }
+
+  .ns-detail {
+    background: #eef2ff;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 12px;
+  }
+
+  /* ── Module 3: cgroup demo ── */
+  .cg-demo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 14px 0;
+  }
+  @media (max-width:600px) { .cg-demo { grid-template-columns:1fr; } }
+  .cg-meter {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+  }
+  .cg-header { background:var(--virt-purple); color:white; padding:8px 12px; font-size:13px; font-weight:700; }
+  .cg-bar-wrap { background:#f1f5f9; height:28px; margin:10px 12px; border-radius:4px; overflow:hidden; position:relative; }
+  .cg-bar { height:100%; border-radius:4px; transition: width .4s; }
+  .cg-bar-label { position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:12px; font-weight:700; color:#374151; }
+  .cg-limit-marker { position:absolute; top:0; bottom:0; width:2px; background:#dc2626; }
+  .cg-body { padding:8px 12px 12px; font-size:13px; line-height:1.7; }
+  .cg-status { font-weight:700; font-size:14px; padding:4px 0; }
+  .status-ok { color:#16a34a; }
+  .status-warn { color:#d97706; }
+  .status-kill { color:#dc2626; }
+
+  .cg-slider-row { display:flex; align-items:center; gap:12px; margin:10px 0; flex-wrap:wrap; }
+  .cg-slider-row label { font-weight:600; font-size:13px; width:120px; }
+  .cg-slider-row input[type="range"] { flex:1; min-width:100px; accent-color:var(--virt-purple); }
+  .cg-val { font-family:monospace; font-size:14px; color:var(--virt-purple); font-weight:700; width:80px; }
+
+  /* ── Module 4: OverlayFS ── */
+  .overlay-scene {
+    position: relative;
+    margin: 16px 0;
+  }
+  #overlay-svg-wrap { overflow-x: auto; }
+  .overlay-log {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    min-height: 80px;
+    max-height: 180px;
+    overflow-y: auto;
+    margin-top: 12px;
+    white-space: pre-wrap;
+  }
+  .ol-read  { color: #4ade80; }
+  .ol-write { color: #f59e0b; }
+  .ol-copy  { color: #a78bfa; }
+  .ol-info  { color: #94a3b8; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Advanced</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-virtualization/visualization.html">← L01: Ảo hoá</a>
+  <span class="sep">·</span>
+  <span class="current">L02: Container</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-os-security/visualization.html">L03: Bảo mật OS →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Container: Namespace, cgroup & OverlayFS</h1>
+
+<div class="info-box">
+  Tương tác: so sánh kiến trúc container vs VM, demo namespace (PID, network, mount, UTS),
+  điều chỉnh slider cgroup CPU/memory và xem trạng thái throttle/OOM,
+  mô phỏng OverlayFS với Copy-on-Write.
+</div>
+
+<!-- ═══ MODULE 1: Container vs VM Architecture ═══ -->
+<h2>1. Container vs VM — Kiến trúc so sánh</h2>
+<p>Click vào từng lớp để xem giải thích. So sánh điểm khác nhau giữa hai kiến trúc.</p>
+
+<div class="arch-grid">
+  <div>
+    <div class="arch-col-title" style="background:#ecfdf5;color:#065f46">Container (Docker/OCI)</div>
+    <div class="arch-layer l-app" data-arch="cont" data-id="ca-app" onclick="archClick(this)">App A (Nginx)</div>
+    <div class="arch-layer l-rt" data-arch="cont" data-id="ca-lib" onclick="archClick(this)">Libs / Runtime (glibc, node...)</div>
+    <div class="arch-layer l-app" data-arch="cont" data-id="ca-appb" onclick="archClick(this)">App B (Python service)</div>
+    <div class="arch-layer l-rt" data-arch="cont" data-id="ca-libb" onclick="archClick(this)">Libs / Runtime</div>
+    <div class="arch-layer l-cont" data-arch="cont" data-id="ca-ns" onclick="archClick(this)">Namespace (PID, net, mnt...)</div>
+    <div class="arch-layer l-cg" data-arch="cont" data-id="ca-cg" onclick="archClick(this)">cgroup (CPU, memory limit)</div>
+    <div class="arch-layer l-kern" data-arch="cont" data-id="ca-kern" onclick="archClick(this)">Linux Kernel host (dùng chung)</div>
+    <div class="arch-layer l-hw" data-arch="cont" data-id="ca-hw" onclick="archClick(this)">Phần cứng vật lý</div>
+  </div>
+  <div>
+    <div class="arch-col-title" style="background:#eef2ff;color:#3730a3">Máy ảo (VM)</div>
+    <div class="arch-layer l-app" data-arch="vm" data-id="vm-app" onclick="archClick(this)">App A (Nginx)</div>
+    <div class="arch-layer l-gos" data-arch="vm" data-id="vm-gos-a" onclick="archClick(this)">Guest OS + Kernel A (Linux)</div>
+    <div class="arch-layer l-app" data-arch="vm" data-id="vm-appb" onclick="archClick(this)">App B (Windows IIS)</div>
+    <div class="arch-layer l-gos" data-arch="vm" data-id="vm-gos-b" onclick="archClick(this)">Guest OS + Kernel B (Windows)</div>
+    <div class="arch-layer l-hyp" data-arch="vm" data-id="vm-hyp" onclick="archClick(this)">Hypervisor (KVM / ESXi)</div>
+    <div class="arch-layer l-kern" data-arch="vm" data-id="vm-kern" onclick="archClick(this)">Host OS / Bare-metal</div>
+    <div class="arch-layer l-hw" data-arch="vm" data-id="vm-hw" onclick="archClick(this)">Phần cứng vật lý</div>
+  </div>
+</div>
+
+<div class="arch-desc" id="arch-desc">Click vào một lớp để xem giải thích chi tiết.</div>
+
+<table class="cmp-table" style="margin-top:16px">
+  <thead><tr><th>Tiêu chí</th><th>Container</th><th>Máy ảo</th></tr></thead>
+  <tbody>
+    <tr><td>Kernel</td><td class="better">Dùng chung host kernel</td><td>Kernel riêng mỗi VM</td></tr>
+    <tr><td>Khởi động</td><td class="better">~50–200ms</td><td class="worse">30–120 giây</td></tr>
+    <tr><td>RAM footprint</td><td class="better">5–50 MB / container</td><td class="worse">512 MB – 2 GB / VM</td></tr>
+    <tr><td>Cô lập</td><td class="worse">Trung bình (share kernel)</td><td class="better">Mạnh (hypervisor)</td></tr>
+    <tr><td>Chạy OS khác</td><td class="worse">Không (chỉ Linux nếu host Linux)</td><td class="better">Có (bất kỳ OS)</td></tr>
+    <tr><td>Overhead</td><td class="better">~1–5%</td><td class="worse">~5–20%</td></tr>
+    <tr><td>Dùng cho</td><td>Microservice, CI/CD, scale</td><td>Cô lập mạnh, OS khác, legacy</td></tr>
+  </tbody>
+</table>
+
+<!-- ═══ MODULE 2: Namespace Demo ═══ -->
+<h2>2. Namespace — Cô lập View</h2>
+
+<div class="card">
+  <div class="ns-select" id="ns-tabs">
+    <button class="ns-tab active" onclick="showNs('pid')">PID</button>
+    <button class="ns-tab" onclick="showNs('net')">Network</button>
+    <button class="ns-tab" onclick="showNs('mnt')">Mount</button>
+    <button class="ns-tab" onclick="showNs('uts')">UTS</button>
+    <button class="ns-tab" onclick="showNs('user')">User</button>
+  </div>
+
+  <div id="ns-pid-view">
+    <div class="ns-grid">
+      <div class="ns-box ns-host">
+        <div class="ns-title" style="color:#374151">Host — PID thật</div>
+        <div id="host-pid-list"></div>
+      </div>
+      <div class="ns-box ns-container">
+        <div class="ns-title" style="color:#0d9488">Container — PID ảo (namespace)</div>
+        <div id="cont-pid-list"></div>
+      </div>
+    </div>
+    <div style="text-align:center;margin:10px 0">
+      <button class="btn btn-primary" onclick="addContProcess()">+ Spawn process trong container</button>
+      <button class="btn btn-secondary" onclick="resetPids()">↺ Reset</button>
+    </div>
+  </div>
+
+  <div id="ns-net-view" style="display:none">
+    <div class="ns-grid">
+      <div class="ns-box ns-host">
+        <div class="ns-title" style="color:#374151">Host Network namespace</div>
+        <div style="font-size:13px;line-height:2;font-family:monospace">
+          eth0: 192.168.1.100/24<br>
+          lo: 127.0.0.1<br>
+          docker0: 172.17.0.1/16<br>
+          veth0abc: (paired với container)<br>
+          <br>route: default via 192.168.1.1
+        </div>
+      </div>
+      <div class="ns-box ns-container">
+        <div class="ns-title" style="color:#0d9488">Container Network namespace</div>
+        <div style="font-size:13px;line-height:2;font-family:monospace">
+          eth0: 172.17.0.2/16<br>
+          lo: 127.0.0.1<br>
+          <em style="color:#6b7280">(không thấy eth0 host)</em><br>
+          <em style="color:#6b7280">(không thấy docker0)</em><br>
+          <br>route: default via 172.17.0.1
+        </div>
+      </div>
+    </div>
+    <div class="ns-detail">
+      <strong>Cơ chế veth pair:</strong> Docker tạo một cặp interface ảo: <code>veth0abc</code> ở host side (gắn vào bridge docker0) và <code>eth0</code> trong container namespace. Packet từ container → eth0 → veth0abc → docker0 bridge → NAT → eth0 host → Internet.<br>
+      <strong>Port mapping</strong> <code>-p 8080:80</code>: iptables DNAT trên host: gói đến host:8080 → redirect đến 172.17.0.2:80.
+    </div>
+  </div>
+
+  <div id="ns-mnt-view" style="display:none">
+    <div class="ns-grid">
+      <div class="ns-box ns-host">
+        <div class="ns-title" style="color:#374151">Host Mount namespace</div>
+        <div style="font-size:12px;line-height:2;font-family:monospace">
+          / → /dev/sda1 (ext4)<br>
+          /home → /dev/sda2<br>
+          /var/lib/docker → /dev/sdb1<br>
+          /proc → proc<br>
+          /sys → sysfs
+        </div>
+      </div>
+      <div class="ns-box ns-container">
+        <div class="ns-title" style="color:#0d9488">Container Mount namespace</div>
+        <div style="font-size:12px;line-height:2;font-family:monospace">
+          / → OverlayFS (merged)<br>
+          &nbsp;&nbsp;(lowerdir=image layers)<br>
+          &nbsp;&nbsp;(upperdir=container layer)<br>
+          /proc → proc (namespace riêng)<br>
+          /data → /host/data (bind mount)
+        </div>
+      </div>
+    </div>
+    <div class="ns-detail">
+      <strong>pivot_root:</strong> Khi tạo container, Docker dùng <code>pivot_root()</code> để đổi root filesystem của tiến trình sang OverlayFS merged directory. Container thấy image filesystem như root (<code>/</code>) của mình — không thấy <code>/home</code>, <code>/var/lib/docker</code> của host.<br>
+      <strong>Bind mount</strong> (<code>-v /host/data:/data</code>): trong mount namespace container, gắn thư mục host vào đường dẫn container — cách duy nhất để dữ liệu tồn tại sau khi container bị xóa.
+    </div>
+  </div>
+
+  <div id="ns-uts-view" style="display:none">
+    <div class="ns-grid">
+      <div class="ns-box ns-host">
+        <div class="ns-title" style="color:#374151">Host UTS namespace</div>
+        <div style="font-size:13px;line-height:2;font-family:monospace">
+          hostname: prod-server-01<br>
+          domainname: example.com
+        </div>
+      </div>
+      <div class="ns-box ns-container">
+        <div class="ns-title" style="color:#0d9488">Container UTS namespace</div>
+        <div style="font-size:13px;line-height:2;font-family:monospace">
+          hostname: a1b2c3d4e5f6<br>
+          &nbsp;&nbsp;(container ID prefix)<br>
+          hoặc tùy chỉnh: --hostname web-01
+        </div>
+      </div>
+    </div>
+    <div class="ns-detail">
+      <strong>UTS namespace</strong> cô lập <code>hostname</code> và <code>domainname</code>. Trong container, lệnh <code>hostname</code> trả về container ID (hoặc hostname custom). Lệnh <code>sethostname()</code> trong container chỉ ảnh hưởng UTS namespace của container, không ảnh hưởng host. Quan trọng khi app config dựa vào hostname.
+    </div>
+  </div>
+
+  <div id="ns-user-view" style="display:none">
+    <div class="ns-grid">
+      <div class="ns-box ns-host">
+        <div class="ns-title" style="color:#374151">Host User namespace</div>
+        <div style="font-size:13px;line-height:2;font-family:monospace">
+          UID 0:  root<br>
+          UID 1000: user1<br>
+          UID 1001: user2<br>
+          UID 100000+: (reserved)
+        </div>
+      </div>
+      <div class="ns-box ns-container">
+        <div class="ns-title" style="color:#0d9488">Container User namespace (rootless)</div>
+        <div style="font-size:13px;line-height:2;font-family:monospace">
+          Container UID 0 (root)<br>
+          → Host UID 100000<br>
+          Container UID 1<br>
+          → Host UID 100001<br>
+          <em style="color:#16a34a">root trong container KHÔNG phải root thật!</em>
+        </div>
+      </div>
+    </div>
+    <div class="ns-detail">
+      <strong>User namespace</strong>: ánh xạ UID/GID giữa container và host. <strong>Rootless container</strong>: tiến trình UID 0 (root) trong container thực ra là UID 100000 (unprivileged user) ở host. Nếu container breakout, attacker chỉ có quyền của user 100000 — không phải root thật. Bảo mật tốt hơn nhiều so với container thông thường (chạy root thật).
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODULE 3: cgroup Demo ═══ -->
+<h2>3. cgroup — Giới hạn Tài nguyên</h2>
+
+<div class="card">
+  <p style="margin:0 0 14px;font-size:14px">Kéo slider để thay đổi tải CPU và memory của container. Quan sát khi đạt giới hạn cgroup.</p>
+  <div class="cg-slider-row">
+    <label>Giới hạn CPU</label>
+    <input type="range" min="0.5" max="4" step="0.5" value="2" id="cpu-limit-sl" oninput="updateCg()">
+    <span class="cg-val" id="cpu-limit-val">2.0 core</span>
+  </div>
+  <div class="cg-slider-row">
+    <label>Tải CPU hiện tại</label>
+    <input type="range" min="0" max="4" step="0.1" value="0.8" id="cpu-load-sl" oninput="updateCg()">
+    <span class="cg-val" id="cpu-load-val">0.8 core</span>
+  </div>
+  <div class="cg-slider-row">
+    <label>Giới hạn Memory</label>
+    <input type="range" min="128" max="2048" step="128" value="512" id="mem-limit-sl" oninput="updateCg()">
+    <span class="cg-val" id="mem-limit-val">512 MB</span>
+  </div>
+  <div class="cg-slider-row">
+    <label>Memory dùng</label>
+    <input type="range" min="0" max="2048" step="64" value="200" id="mem-load-sl" oninput="updateCg()">
+    <span class="cg-val" id="mem-load-val">200 MB</span>
+  </div>
+
+  <div class="cg-demo">
+    <div class="cg-meter">
+      <div class="cg-header">CPU Usage</div>
+      <div class="cg-bar-wrap">
+        <div class="cg-bar" id="cpu-bar" style="width:0%;background:#4338ca"></div>
+        <div class="cg-limit-marker" id="cpu-limit-marker" style="left:50%"></div>
+        <span class="cg-bar-label" id="cpu-bar-label">0%</span>
+      </div>
+      <div class="cg-body">
+        <div id="cpu-status" class="cg-status status-ok">OK</div>
+        <div id="cpu-detail" style="font-size:12px;color:#64748b;margin-top:4px"></div>
+      </div>
+    </div>
+    <div class="cg-meter">
+      <div class="cg-header">Memory Usage</div>
+      <div class="cg-bar-wrap">
+        <div class="cg-bar" id="mem-bar" style="width:0%;background:#0d9488"></div>
+        <div class="cg-limit-marker" id="mem-limit-marker" style="left:50%"></div>
+        <span class="cg-bar-label" id="mem-bar-label">0%</span>
+      </div>
+      <div class="cg-body">
+        <div id="mem-status" class="cg-status status-ok">OK</div>
+        <div id="mem-detail" style="font-size:12px;color:#64748b;margin-top:4px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cg-kernel-info" class="info-box" style="margin-top:12px">
+    Điều chỉnh slider để xem cgroup hoạt động.
+  </div>
+</div>
+
+<!-- ═══ MODULE 4: OverlayFS Demo ═══ -->
+<h2>4. OverlayFS — Copy-on-Write</h2>
+
+<div class="card">
+  <p style="font-size:14px;margin:0 0 12px">Chọn hành động để mô phỏng OverlayFS. 2 container (C1, C2) cùng dùng chung image layers.</p>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="olAction('read-c1')">📖 C1 đọc /app/config.json</button>
+    <button class="btn btn-primary" onclick="olAction('read-c2')">📖 C2 đọc /app/config.json</button>
+    <button class="btn btn-secondary" onclick="olAction('write-c1')">✏ C1 ghi /app/config.json</button>
+    <button class="btn btn-secondary" onclick="olAction('write-c2')">✏ C2 ghi /app/main.py</button>
+    <button class="btn btn-secondary" onclick="olAction('delete-c1')">🗑 C1 xóa /bin/helper</button>
+    <button class="btn btn-secondary" onclick="olReset()">↺ Reset</button>
+  </div>
+  <div id="overlay-svg-wrap">
+    <svg id="ol-svg" width="600" height="300" viewBox="0 0 600 300" style="display:block;margin:0 auto"></svg>
+  </div>
+  <div class="overlay-log" id="ol-log">-- Chọn hành động để bắt đầu --</div>
+</div>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+<script>
+// ═══ MODULE 1: Architecture click ═══
+const ARCH_INFO = {
+  'ca-app': { t:'Application (trong container)', d:'App chạy trong container — Nginx, Node.js, Python... Ứng dụng không biết mình đang trong container. System call từ app → kernel host (qua namespace filter).' },
+  'ca-lib': { t:'Libs / Runtime', d:'Thư viện mà app cần (glibc, OpenSSL, node_modules...). Đây là phần nằm trong image Docker — mỗi container có bản copy của mình (qua OverlayFS).' },
+  'ca-ns': { t:'Namespace (PID, net, mnt...)', d:'Namespace tạo "kính lọc": tiến trình trong container chỉ thấy PID của mình, network interface của mình, filesystem của mình. Kernel Linux vẫn là một kernel, nhưng mỗi tiến trình có "view" riêng.' },
+  'ca-cg': { t:'cgroup (CPU, memory limit)', d:'Control Group giới hạn tài nguyên: container không được dùng quá X core CPU, Y GB RAM. Nếu vượt CPU → throttled; vượt memory → OOM kill.' },
+  'ca-kern': { t:'Linux Kernel host (dùng chung!)', d:'Đây là điểm khác biệt lớn nhất so với VM: tất cả container dùng CHUNG một kernel Linux host. System call từ bất kỳ container nào → kernel host xử lý. Nếu kernel có lỗ hổng, mọi container đều bị ảnh hưởng.' },
+  'ca-hw': { t:'Phần cứng vật lý', d:'CPU, RAM, disk, NIC vật lý. Container truy cập trực tiếp qua kernel — không qua hypervisor emulation. Đây là lý do container overhead thấp (~1–5%).' },
+  'ca-appb': { t:'Application B (container khác)', d:'Container thứ hai chạy song song — cùng kernel host, namespace riêng. Hai container hoàn toàn cô lập nhau về filesystem, network, PID. Nhưng dùng chung kernel.' },
+  'ca-libb': { t:'Libs B (container thứ hai)', d:'Libs của container B — có thể khác version hoàn toàn với container A. Ví dụ: A dùng Node 18, B dùng Node 20. OverlayFS cho phép mỗi container có bộ lib riêng mà không conflict.' },
+  'vm-app': { t:'Application trong VM-A', d:'App chạy trong VM. System call → Guest OS kernel A → hypervisor (nếu cần lệnh đặc quyền) → phần cứng.' },
+  'vm-gos-a': { t:'Guest OS + Kernel A (Linux)', d:'Kernel Linux riêng cho VM-A — toàn bộ OS với kernel, scheduler, memory manager riêng. Chiếm 200–500 MB RAM chỉ cho OS. Khởi động 30–120 giây.' },
+  'vm-appb': { t:'Application trong VM-B (Windows)', d:'App chạy trong VM khác — có thể là Windows Server, với IIS web server. VM-A và VM-B hoàn toàn độc lập, kể cả kernel.' },
+  'vm-gos-b': { t:'Guest OS + Kernel B (Windows)', d:'Windows kernel riêng cho VM-B. Đây là điểm VM mạnh hơn container: chạy được bất kỳ OS nào. Container chỉ chạy được Linux nếu host là Linux.' },
+  'vm-hyp': { t:'Hypervisor (KVM / ESXi)', d:'Hypervisor phân chia tài nguyên và cô lập VM. Mọi lệnh đặc quyền của guest OS → trap về hypervisor. Overhead 5–20% so với native.' },
+  'vm-kern': { t:'Host OS / Bare-metal', d:'Type 1 (ESXi): hypervisor chạy thẳng trên phần cứng. Type 2 (VirtualBox): chạy trên Host OS. Xem Lesson 01 — Ảo hoá & Hypervisor.' },
+  'vm-hw': { t:'Phần cứng vật lý', d:'Giống container — CPU, RAM, disk, NIC. Nhưng VM truy cập qua hypervisor emulation → overhead cao hơn container.' }
+};
+function archClick(el) {
+  document.querySelectorAll('.arch-layer').forEach(l => l.classList.remove('selected'));
+  el.classList.add('selected');
+  const info = ARCH_INFO[el.dataset.id];
+  if (!info) return;
+  document.getElementById('arch-desc').innerHTML = `<strong>${info.t}</strong><br>${info.d}`;
+}
+
+// ═══ MODULE 2: Namespace Demo ═══
+let hostPids = [
+  {hpid:1, name:'init/systemd', inCont:false},
+  {hpid:1200, name:'containerd', inCont:false},
+  {hpid:2001, name:'bash', inCont:true, cpid:1},
+  {hpid:2002, name:'nginx-master', inCont:true, cpid:7},
+  {hpid:2003, name:'nginx-worker', inCont:true, cpid:8},
+  {hpid:2004, name:'sshd', inCont:false},
+];
+let nextHostPid = 2100;
+let nextCPid = 20;
+
+function renderPids() {
+  const hList = document.getElementById('host-pid-list');
+  const cList = document.getElementById('cont-pid-list');
+  hList.innerHTML = '';
+  cList.innerHTML = '';
+  hostPids.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'pid-row pid-host';
+    row.innerHTML = `<span class="pid-badge">PID ${p.hpid}</span> <span>${p.name}</span> ${p.inCont ? '<span style="color:#0d9488;font-size:11px">[container]</span>' : ''}`;
+    hList.appendChild(row);
+    if (p.inCont) {
+      const crow = document.createElement('div');
+      crow.className = 'pid-row pid-in-cont';
+      crow.innerHTML = `<span class="pid-badge pid-badge-c">PID ${p.cpid}</span> <span>${p.name}</span> <span class="pid-arrow">↔</span> <span style="color:#64748b;font-size:11px">host:${p.hpid}</span>`;
+      cList.appendChild(crow);
+    }
+  });
+}
+
+function addContProcess() {
+  const names = ['redis-server','worker','cron','logger','api'];
+  const name = names[Math.floor(Math.random()*names.length)]+'-'+Math.floor(Math.random()*100);
+  hostPids.push({hpid:nextHostPid++, name, inCont:true, cpid:nextCPid++});
+  renderPids();
+}
+function resetPids() {
+  hostPids = [
+    {hpid:1, name:'init/systemd', inCont:false},
+    {hpid:1200, name:'containerd', inCont:false},
+    {hpid:2001, name:'bash', inCont:true, cpid:1},
+    {hpid:2002, name:'nginx-master', inCont:true, cpid:7},
+    {hpid:2003, name:'nginx-worker', inCont:true, cpid:8},
+    {hpid:2004, name:'sshd', inCont:false},
+  ];
+  nextHostPid = 2100; nextCPid = 20;
+  renderPids();
+}
+renderPids();
+
+function showNs(ns) {
+  ['pid','net','mnt','uts','user'].forEach(n => {
+    document.getElementById('ns-'+n+'-view').style.display = n===ns ? '' : 'none';
+  });
+  document.querySelectorAll('.ns-tab').forEach((b,i) => {
+    b.classList.toggle('active', ['pid','net','mnt','uts','user'][i]===ns);
+  });
+}
+
+// ═══ MODULE 3: cgroup Demo ═══
+function updateCg() {
+  const cpuLimit = parseFloat(document.getElementById('cpu-limit-sl').value);
+  const cpuLoad  = parseFloat(document.getElementById('cpu-load-sl').value);
+  const memLimit = parseInt(document.getElementById('mem-limit-sl').value);
+  const memLoad  = parseInt(document.getElementById('mem-load-sl').value);
+
+  document.getElementById('cpu-limit-val').textContent = cpuLimit.toFixed(1) + ' core';
+  document.getElementById('cpu-load-val').textContent  = cpuLoad.toFixed(1) + ' core';
+  document.getElementById('mem-limit-val').textContent = memLimit + ' MB';
+  document.getElementById('mem-load-val').textContent  = memLoad + ' MB';
+
+  const hostCores = 8;
+  const cpuPct = Math.min(cpuLoad/hostCores*100, 100);
+  const cpuLimitPct = Math.min(cpuLimit/hostCores*100, 100);
+  const memPct = Math.min(memLoad/memLimit*100, 100);
+
+  const cpuBar = document.getElementById('cpu-bar');
+  const memBar = document.getElementById('mem-bar');
+  cpuBar.style.width = cpuPct+'%';
+  memBar.style.width = Math.min(memPct,100)+'%';
+
+  document.getElementById('cpu-limit-marker').style.left = cpuLimitPct+'%';
+  document.getElementById('mem-limit-marker').style.left = '100%'; // limit is 100% of bar
+
+  document.getElementById('cpu-bar-label').textContent = cpuPct.toFixed(0)+'%';
+  document.getElementById('mem-bar-label').textContent = Math.min(memPct,100).toFixed(0)+'%';
+
+  const cpuStatus = document.getElementById('cpu-status');
+  const memStatus = document.getElementById('mem-status');
+  const cpuDetail = document.getElementById('cpu-detail');
+  const memDetail = document.getElementById('mem-detail');
+  const info = document.getElementById('cg-kernel-info');
+
+  const quota = Math.round(cpuLimit * 100000);
+  cpuDetail.textContent = `cpu.cfs_quota_us = ${quota} / cpu.cfs_period_us = 100000`;
+
+  if (cpuLoad > cpuLimit + 0.01) {
+    cpuBar.style.background = '#f59e0b';
+    cpuStatus.className = 'cg-status status-warn';
+    cpuStatus.textContent = 'THROTTLED';
+    info.innerHTML = `<strong>CPU Throttle:</strong> Container yêu cầu ${cpuLoad.toFixed(1)} core nhưng giới hạn là ${cpuLimit.toFixed(1)} core. Kernel scheduler throttle container: mỗi 100ms, container được dùng tối đa ${quota}µs CPU. Phần dư phải chờ period tiếp theo. Ứng dụng chậm hơn nhưng KHÔNG bị kill.`;
+  } else {
+    cpuBar.style.background = '#4338ca';
+    cpuStatus.className = 'cg-status status-ok';
+    cpuStatus.textContent = 'OK';
+  }
+
+  memDetail.textContent = `memory.limit_in_bytes = ${memLimit * 1024 * 1024}`;
+
+  if (memLoad > memLimit) {
+    memBar.style.background = '#dc2626';
+    memBar.style.width = '100%';
+    memStatus.className = 'cg-status status-kill';
+    memStatus.textContent = 'OOM KILLED';
+    info.innerHTML = `<strong>OOM Kill:</strong> Container dùng ${memLoad} MB vượt giới hạn ${memLimit} MB. Linux OOM Killer được kích hoạt: chọn tiến trình dùng nhiều memory nhất trong container và gửi SIGKILL. Container exit code 137 (128+9). Docker log: <code>Killed</code>. Nếu --restart=always, Docker tự restart container.`;
+  } else if (memLoad > memLimit * 0.85) {
+    memBar.style.background = '#f59e0b';
+    memStatus.className = 'cg-status status-warn';
+    memStatus.textContent = 'WARNING (>85%)';
+    if (cpuLoad <= cpuLimit + 0.01) info.innerHTML = `Memory đang ở ${memLoad} MB / ${memLimit} MB (${Math.round(memLoad/memLimit*100)}%). Sắp đến giới hạn. Linux kernel bắt đầu swap (nếu có) và reclaim page cache. Hiệu năng giảm. Tăng --memory hoặc giảm tải.`;
+  } else {
+    memBar.style.background = '#0d9488';
+    memStatus.className = 'cg-status status-ok';
+    memStatus.textContent = 'OK';
+    if (cpuLoad <= cpuLimit + 0.01) info.innerHTML = `Container hoạt động bình thường. CPU: ${cpuLoad.toFixed(1)}/${cpuLimit.toFixed(1)} core (${(cpuLoad/cpuLimit*100).toFixed(0)}%). Memory: ${memLoad}/${memLimit} MB (${Math.round(memLoad/memLimit*100)}%).`;
+  }
+}
+updateCg();
+
+// ═══ MODULE 4: OverlayFS Demo ═══
+const OL_FILES = {
+  'layerA': {
+    color: '#6d28d9',
+    label: 'Layer A\n(Image base — read-only)',
+    files: { '/app/config.json': '{"version":1}', '/bin/sh': '[binary]', '/bin/helper': '[binary]' }
+  },
+  'layerB': {
+    color: '#0369a1',
+    label: 'Layer B\n(App layer — read-only)',
+    files: { '/app/main.py': 'print("hello")' }
+  },
+  'upperC1': {
+    color: '#0d9488',
+    label: 'Container C1\nUpperdir (read-write)',
+    files: {}
+  },
+  'upperC2': {
+    color: '#d97706',
+    label: 'Container C2\nUpperdir (read-write)',
+    files: {}
+  }
+};
+
+function olReset() {
+  OL_FILES.upperC1.files = {};
+  OL_FILES.upperC2.files = {};
+  drawOverlay();
+  const log = document.getElementById('ol-log');
+  log.textContent = '-- Reset. Các upperdir trống. --';
+}
+
+function olLog(msg, cls) {
+  const log = document.getElementById('ol-log');
+  const span = document.createElement('span');
+  span.className = cls;
+  span.textContent = msg + '\n';
+  log.appendChild(span);
+  log.scrollTop = log.scrollHeight;
+}
+
+function olAction(act) {
+  const log = document.getElementById('ol-log');
+  log.textContent = '';
+
+  if (act === 'read-c1') {
+    olLog('C1: open("/app/config.json", O_RDONLY)', 'ol-info');
+    if ('/app/config.json' in OL_FILES.upperC1.files) {
+      olLog('OverlayFS: tìm thấy trong C1 upperdir (ưu tiên đầu tiên)', 'ol-read');
+      olLog('Nội dung: ' + OL_FILES.upperC1.files['/app/config.json'], 'ol-read');
+    } else {
+      olLog('OverlayFS: không có trong C1 upperdir → tìm layerB...', 'ol-info');
+      if ('/app/config.json' in OL_FILES.layerB.files) {
+        olLog('Tìm thấy trong Layer B', 'ol-read');
+        olLog('Nội dung: ' + OL_FILES.layerB.files['/app/config.json'], 'ol-read');
+      } else {
+        olLog('OverlayFS: không có trong layerB → tìm layerA...', 'ol-info');
+        olLog('Tìm thấy trong Layer A (lowerdir)', 'ol-read');
+        olLog('Nội dung: ' + OL_FILES.layerA.files['/app/config.json'], 'ol-read');
+      }
+    }
+    olLog('✓ Read thành công. Lowerdir KHÔNG bị thay đổi.', 'ol-read');
+  }
+
+  else if (act === 'read-c2') {
+    olLog('C2: open("/app/config.json", O_RDONLY)', 'ol-info');
+    if ('/app/config.json' in OL_FILES.upperC2.files) {
+      olLog('Tìm thấy trong C2 upperdir', 'ol-read');
+      olLog('Nội dung: ' + OL_FILES.upperC2.files['/app/config.json'], 'ol-read');
+    } else {
+      olLog('Không có trong C2 upperdir → tìm lowerdir...', 'ol-info');
+      olLog('Tìm thấy trong Layer A (lowerdir)', 'ol-read');
+      olLog('Nội dung: ' + OL_FILES.layerA.files['/app/config.json'], 'ol-read');
+    }
+    olLog('✓ C2 thấy nội dung GỐC (Layer A không bị ảnh hưởng bởi C1)', 'ol-read');
+  }
+
+  else if (act === 'write-c1') {
+    olLog('C1: open("/app/config.json", O_WRONLY|O_TRUNC)', 'ol-info');
+    if (!('/app/config.json' in OL_FILES.upperC1.files)) {
+      olLog('OverlayFS: /app/config.json chưa có trong C1 upperdir', 'ol-info');
+      olLog('→ Copy-on-Write: copy từ Layer A lên C1 upperdir', 'ol-copy');
+      olLog('  copy: layerA:/app/config.json → upperC1:/app/config.json', 'ol-copy');
+    }
+    OL_FILES.upperC1.files['/app/config.json'] = '{"version":2,"updated":true}';
+    olLog('Ghi nội dung mới vào C1 upperdir: {"version":2,"updated":true}', 'ol-write');
+    olLog('✓ Layer A vẫn GIỮ NGUYÊN {"version":1}. C2 không bị ảnh hưởng.', 'ol-write');
+    drawOverlay();
+  }
+
+  else if (act === 'write-c2') {
+    olLog('C2: open("/app/main.py", O_WRONLY|O_TRUNC)', 'ol-info');
+    if (!('/app/main.py' in OL_FILES.upperC2.files)) {
+      olLog('Copy-on-Write: copy /app/main.py từ Layer B → C2 upperdir', 'ol-copy');
+    }
+    OL_FILES.upperC2.files['/app/main.py'] = 'print("hello v2 from C2")';
+    olLog('Ghi vào C2 upperdir: print("hello v2 from C2")', 'ol-write');
+    olLog('✓ Layer B vẫn có bản gốc. C1 không bị ảnh hưởng.', 'ol-write');
+    drawOverlay();
+  }
+
+  else if (act === 'delete-c1') {
+    olLog('C1: unlink("/bin/helper")', 'ol-info');
+    olLog('OverlayFS: không xóa được từ lowerdir (read-only)', 'ol-info');
+    olLog('→ Tạo "whiteout" file tại C1 upperdir: /bin/helper (char 0:0)', 'ol-copy');
+    OL_FILES.upperC1.files['/bin/helper'] = '[WHITEOUT]';
+    olLog('Từ nay C1 không thấy /bin/helper (bị whiteout che)', 'ol-write');
+    olLog('✓ Layer A vẫn có /bin/helper. C2 vẫn thấy /bin/helper bình thường.', 'ol-write');
+    drawOverlay();
+  }
+}
+
+function drawOverlay() {
+  const svg = document.getElementById('ol-svg');
+  svg.innerHTML = '';
+  const W = 600, H = 300;
+  const layers = [
+    { key:'upperC2', y:0, x:320, w:250, h:55, clr:OL_FILES.upperC2.color },
+    { key:'upperC1', y:0, x:30, w:250, h:55, clr:OL_FILES.upperC1.color },
+    { key:'layerB', y:70, x:30, w:540, h:55, clr:OL_FILES.layerB.color },
+    { key:'layerA', y:140, x:30, w:540, h:55, clr:OL_FILES.layerA.color },
+  ];
+
+  // merged label
+  const mergedLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  mergedLabel.setAttribute('x', W/2);
+  mergedLabel.setAttribute('y', H-12);
+  mergedLabel.setAttribute('text-anchor', 'middle');
+  mergedLabel.setAttribute('font-size', '12');
+  mergedLabel.setAttribute('fill', '#64748b');
+  mergedLabel.textContent = '↑ Merged view (tiến trình trong container thấy tổng hợp từ trên xuống)';
+  svg.appendChild(mergedLabel);
+
+  layers.forEach(l => {
+    const data = OL_FILES[l.key];
+    // rect
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', l.x); rect.setAttribute('y', l.y+20);
+    rect.setAttribute('width', l.w); rect.setAttribute('height', l.h);
+    rect.setAttribute('rx', 8); rect.setAttribute('fill', l.clr);
+    rect.setAttribute('opacity', '0.15');
+    rect.setAttribute('stroke', l.clr); rect.setAttribute('stroke-width', '2');
+    svg.appendChild(rect);
+
+    // label
+    const lbl = data.label.split('\n');
+    lbl.forEach((ln, i) => {
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.setAttribute('x', l.x + l.w/2);
+      t.setAttribute('y', l.y + 20 + 18 + i*14);
+      t.setAttribute('text-anchor', 'middle');
+      t.setAttribute('font-size', i===0?'12':'10');
+      t.setAttribute('font-weight', i===0?'700':'400');
+      t.setAttribute('fill', l.clr);
+      t.textContent = ln;
+      svg.appendChild(t);
+    });
+
+    // files
+    const files = Object.keys(data.files);
+    files.forEach((f, fi) => {
+      const fx = l.x + 6;
+      const fy = l.y + 20 + 34 + fi * 13;
+      if (fy > l.y + 20 + l.h - 4) return;
+      const ft = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      ft.setAttribute('x', fx);
+      ft.setAttribute('y', fy);
+      ft.setAttribute('font-size', '10');
+      ft.setAttribute('font-family', 'monospace');
+      ft.setAttribute('fill', data.files[f]==='[WHITEOUT]'?'#dc2626':l.clr);
+      ft.textContent = (data.files[f]==='[WHITEOUT]'?'✗ ':'✓ ') + f;
+      svg.appendChild(ft);
+    });
+  });
+
+  // arrows
+  [[175,75,'C1 merged'],[175,145,'↓ fallthrough'],[300,130,'↓ fallthrough']].forEach(([ax,ay,lbl])=>{
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t.setAttribute('x',ax); t.setAttribute('y',ay);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','10');
+    t.setAttribute('fill','#94a3b8');
+    t.textContent=lbl; svg.appendChild(t);
+  });
+}
+drawOverlay();
+</script>
+</body>
+</html>

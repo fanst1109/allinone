@@ -39,6 +39,7 @@
 | English | Lộ trình học tiếng Anh — phát âm, từ vựng, ngữ pháp, kỹ năng | [English/](./English/) |
 | Math | Toán cổ điển — 6 tầng × 8 bài, số học → calculus → toán năm 1 đại học | [Math/](./Math/) |
 | Networking | Mạng máy tính — 3 tầng × 8 bài: mô hình phân tầng & IP/TCP → DNS/HTTP/TLS → an ninh/cloud/chẩn đoán | [Networking/](./Networking/) |
+| OperatingSystems | Hệ điều hành — 3 tầng × 8 bài: tiến trình & lập lịch → bộ nhớ ảo & lưu trữ → ảo hoá, container, vận hành | [OperatingSystems/](./OperatingSystems/) |
 | Physics | Vật lý — 3 tầng × 8 bài, cơ học → điện-từ → vật lý hiện đại preview | [Physics/](./Physics/) |
 | PoliticalScience | Chính trị học qua lý thuyết trò chơi — 3 tầng × 15 bài: NE → voting paradox → deterrence/mechanism design | [PoliticalScience/](./PoliticalScience/) |
 | Programming | Học lập trình bằng Go từ tư duy đến production — 9 tier × 84 lesson | [Programming/](./Programming/) |

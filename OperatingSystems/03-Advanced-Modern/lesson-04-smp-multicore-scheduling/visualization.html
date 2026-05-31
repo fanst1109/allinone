@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Lập lịch đa nhân & NUMA</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #4338ca;
+    --accent-soft: #eef2ff;
+    --virt-purple: #4338ca;
+    --virt-dark: #312e81;
+    --virt-mid: #818cf8;
+    --core-colors: #0369a1, #047857, #b45309, #7c3aed;
+    --task-a: #0369a1;
+    --task-b: #047857;
+    --task-c: #b45309;
+    --task-d: #7c3aed;
+    --task-e: #be185d;
+    --task-f: #0891b2;
+    --task-g: #4d7c0f;
+    --task-h: #92400e;
+    --idle-color: #d1d5db;
+    --numa0: #3b82f6;
+    --numa1: #f59e0b;
+  }
+  h1 { color: var(--virt-dark); }
+  h2 { color: var(--virt-purple); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid var(--virt-mid); }
+  .card { background:#fff; border-radius:10px; padding:20px 24px; box-shadow:0 1px 4px rgba(67,56,202,.1); margin:16px 0; }
+  .info-box { background:var(--accent-soft); border-left:4px solid var(--virt-purple); border-radius:0 8px 8px 0; padding:12px 16px; margin:12px 0; font-size:14px; line-height:1.7; }
+  .btn { padding:8px 18px; border-radius:6px; border:none; font-size:14px; font-weight:600; cursor:pointer; transition:background .15s, transform .1s; }
+  .btn:active { transform:scale(.97); }
+  .btn-primary { background:var(--virt-purple); color:white; }
+  .btn-primary:hover { background:var(--virt-dark); }
+  .btn-secondary { background:#f1f5f9; color:#374151; border:1px solid #d1d5db; }
+  .btn-secondary:hover { background:#e2e8f0; }
+  .btn-row { display:flex; gap:10px; flex-wrap:wrap; margin:12px 0; }
+
+  /* ── Module 1: Run queue visualization ── */
+  .cores-area {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+  @media (max-width:680px) { .cores-area { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width:380px) { .cores-area { grid-template-columns: 1fr; } }
+  .core-box {
+    border-radius: 8px;
+    border: 2px solid #d1d5db;
+    overflow: hidden;
+    cursor: default;
+  }
+  .core-header {
+    padding: 6px 10px;
+    font-weight: 700;
+    font-size: 13px;
+    color: white;
+    text-align: center;
+  }
+  .core-0h { background:#0369a1; }
+  .core-1h { background:#047857; }
+  .core-2h { background:#b45309; }
+  .core-3h { background:#7c3aed; }
+  .core-running {
+    padding: 6px 8px;
+    font-size: 12px;
+    text-align: center;
+    background: #f0f9ff;
+    border-bottom: 1px solid #e2e8f0;
+    min-height: 28px;
+    font-weight: 600;
+  }
+  .core-queue {
+    padding: 6px 8px;
+    min-height: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .task-chip {
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: grab;
+    user-select: none;
+  }
+  .task-chip.dragging { opacity: 0.5; }
+  .task-chip.affinity-locked { outline: 2px solid #dc2626; }
+  .idle-chip { background:#d1d5db; color:#374151; font-size:11px; text-align:center; padding:4px; border-radius:5px; }
+
+  .task-legend {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0;
+  }
+  .legend-chip { display:flex; align-items:center; gap:5px; font-size:12px; }
+  .legend-dot { width:12px; height:12px; border-radius:3px; }
+
+  .sched-log {
+    background: #1e293b; color: #e2e8f0; border-radius: 8px;
+    padding: 12px 16px; font-family: monospace; font-size: 12px;
+    line-height: 1.7; min-height: 60px; max-height: 150px;
+    overflow-y: auto; margin-top: 10px; white-space: pre-wrap;
+  }
+  .log-steal  { color: #f59e0b; }
+  .log-ok     { color: #4ade80; }
+  .log-info   { color: #94a3b8; }
+  .log-warn   { color: #f87171; }
+
+  /* ── Module 2: NUMA visualization ── */
+  #numa-svg-wrap { overflow-x: auto; }
+  .numa-controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 12px 0;
+  }
+  .numa-info {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 12px;
+    border: 1px solid #e2e8f0;
+  }
+  .numa-info code { background:#e2e8f0; padding:1px 5px; border-radius:4px; font-size:13px; }
+  .latency-bar-wrap {
+    display: flex;
+    gap: 16px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+  .latency-bar-group { flex:1; min-width:200px; }
+  .lb-title { font-weight:700; font-size:13px; margin-bottom:6px; }
+  .lb-row { display:flex; align-items:center; gap:10px; margin:4px 0; font-size:12px; }
+  .lb-bar { height:18px; border-radius:4px; transition:width .4s; }
+  .lb-label { width:80px; font-family:monospace; }
+  .lb-val { font-family:monospace; font-size:11px; color:#374151; }
+
+  /* ── Module 3: Cache coherence ── */
+  .mesi-scene {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  @media (max-width:600px) { .mesi-scene { grid-template-columns:1fr; } }
+  .mesi-core {
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    overflow: hidden;
+  }
+  .mesi-core-title { background:#374151; color:white; padding:7px 12px; font-weight:700; font-size:13px; }
+  .mesi-cache {
+    padding: 8px 12px;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    min-height: 70px;
+  }
+  .mesi-state-M { color:#dc2626; font-weight:700; }
+  .mesi-state-E { color:#16a34a; font-weight:700; }
+  .mesi-state-S { color:#0369a1; font-weight:700; }
+  .mesi-state-I { color:#9ca3af; font-weight:700; }
+  .mesi-ram { background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 14px; margin:12px 0; font-family:monospace; font-size:13px; }
+  .mesi-log { background:#1e293b; color:#e2e8f0; border-radius:8px; padding:10px 14px; font-family:monospace; font-size:12px; line-height:1.7; min-height:60px; max-height:130px; overflow-y:auto; white-space:pre-wrap; }
+  .ml-bus { color:#fbbf24; }
+  .ml-ok  { color:#4ade80; }
+  .ml-inv { color:#f87171; }
+
+  /* ── Affinity toggle ── */
+  .affinity-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:10px 0; }
+  .affinity-badge {
+    padding:5px 12px; border-radius:6px; border:2px solid #e2e8f0;
+    background:white; color:#374151; font-size:12px; font-weight:600;
+    cursor:pointer; transition:all .15s; user-select:none;
+  }
+  .affinity-badge.locked { background:#fee2e2; border-color:#fca5a5; color:#991b1b; }
+  .affinity-badge.free { background:#dcfce7; border-color:#86efac; color:#14532d; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Advanced</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-os-security/visualization.html">← L03: Bảo mật OS</a>
+  <span class="sep">·</span>
+  <span class="current">L04: Lập lịch đa nhân & NUMA</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-realtime-scheduling/visualization.html">L05: Real-time →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Lập lịch đa nhân & NUMA</h1>
+
+<div class="info-box">
+  Tương tác: kéo task giữa các core để thấy load balancing hoạt động.
+  Bật/tắt affinity lock để thấy task bị "dính" vào core của mình.
+  Chọn vị trí memory trong NUMA và xem latency thay đổi.
+  Demo MESI cache coherence khi core ghi/đọc dữ liệu chia sẻ.
+</div>
+
+<!-- ═══ MODULE 1: Run Queue Simulation ═══ -->
+<h2>1. Mô phỏng Per-CPU Run Queue & Load Balancing</h2>
+
+<div class="card">
+  <div class="affinity-row">
+    <span style="font-weight:600;font-size:13px">CPU Affinity:</span>
+    <div class="affinity-badge free" id="aff-T5" onclick="toggleAff('T5')">T5: Free</div>
+    <div class="affinity-badge free" id="aff-T6" onclick="toggleAff('T6')">T6: Free</div>
+    <div class="affinity-badge free" id="aff-T7" onclick="toggleAff('T7')">T7: Free (RT)</div>
+  </div>
+  <div class="cores-area" id="cores-area"></div>
+  <div class="task-legend" id="task-legend"></div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="runLB()">⚖ Trigger Load Balance</button>
+    <button class="btn btn-secondary" onclick="stepSched()">▶ Step (1 quantum)</button>
+    <button class="btn btn-secondary" onclick="resetSched()">↺ Reset</button>
+    <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+      <input type="checkbox" id="lb-enabled" checked> Load Balancing bật
+    </label>
+  </div>
+  <div class="sched-log" id="sched-log">-- Nhấn "Trigger Load Balance" hoặc "Step" để bắt đầu --</div>
+</div>
+
+<!-- ═══ MODULE 2: NUMA Visualization ═══ -->
+<h2>2. NUMA — Độ trễ Local vs Remote</h2>
+
+<div class="card">
+  <p style="font-size:14px;margin:0 0 12px">Chọn vị trí của process và vị trí memory để tính toán latency NUMA.</p>
+  <div class="numa-controls">
+    <div>
+      <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Process chạy trên:</label>
+      <select class="select-styled" id="numa-proc" onchange="updateNUMA()" style="padding:7px 12px;border:1px solid #d1d5db;border-radius:6px">
+        <option value="0">Core 2 (NUMA Node 0)</option>
+        <option value="1">Core 14 (NUMA Node 1)</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Memory cấp phát ở:</label>
+      <select class="select-styled" id="numa-mem" onchange="updateNUMA()" style="padding:7px 12px;border:1px solid #d1d5db;border-radius:6px">
+        <option value="0">Node 0 RAM (64 GB)</option>
+        <option value="1">Node 1 RAM (64 GB)</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Kích thước data đọc:</label>
+      <select class="select-styled" id="numa-size" onchange="updateNUMA()" style="padding:7px 12px;border:1px solid #d1d5db;border-radius:6px">
+        <option value="64">64 MB</option>
+        <option value="256">256 MB</option>
+        <option value="512" selected>512 MB</option>
+        <option value="1024">1 GB</option>
+        <option value="4096">4 GB</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="numa-svg-wrap">
+    <svg id="numa-svg" width="560" height="240" viewBox="0 0 560 240" style="display:block;margin:0 auto"></svg>
+  </div>
+
+  <div class="latency-bar-wrap" id="latency-bars">
+    <!-- filled by JS -->
+  </div>
+  <div class="numa-info" id="numa-info">Chọn thông số ở trên để xem phân tích NUMA.</div>
+</div>
+
+<!-- ═══ MODULE 3: MESI Cache Coherence ═══ -->
+<h2>3. Cache Coherence — Giao thức MESI</h2>
+
+<div class="card">
+  <p style="font-size:14px;margin:0 0 12px">Demo cache coherence giữa 2 core. Chọn thao tác để xem trạng thái MESI thay đổi.</p>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="mesiAction('read0')">Core 0: Đọc X</button>
+    <button class="btn btn-secondary" onclick="mesiAction('read1')">Core 1: Đọc X</button>
+    <button class="btn btn-primary" onclick="mesiAction('write0')">Core 0: Ghi X=10</button>
+    <button class="btn btn-primary" onclick="mesiAction('write1')">Core 1: Ghi X=20</button>
+    <button class="btn btn-secondary" onclick="mesiAction('read1-after')">Core 1: Đọc X (sau write)</button>
+    <button class="btn btn-secondary" onclick="mesiReset()">↺ Reset</button>
+  </div>
+  <div class="mesi-scene">
+    <div class="mesi-core">
+      <div class="mesi-core-title">Core 0 — L1 Cache</div>
+      <div class="mesi-cache" id="mesi-c0">— (trống) —</div>
+    </div>
+    <div class="mesi-core">
+      <div class="mesi-core-title">Core 1 — L1 Cache</div>
+      <div class="mesi-cache" id="mesi-c1">— (trống) —</div>
+    </div>
+  </div>
+  <div class="mesi-ram" id="mesi-ram">RAM: X = <strong>5</strong> (giá trị khởi tạo)</div>
+  <div class="mesi-log" id="mesi-log">-- Chọn thao tác để bắt đầu --</div>
+</div>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+<script>
+// ═══ MODULE 1: Scheduler simulation ═══
+const TASK_COLORS = {
+  T1:'#0369a1', T2:'#047857', T3:'#b45309', T4:'#7c3aed',
+  T5:'#be185d', T6:'#0891b2', T7:'#4d7c0f', T8:'#92400e'
+};
+const CORE_COLORS = ['#0369a1','#047857','#b45309','#7c3aed'];
+
+let schedState = {
+  queues: [
+    [{id:'T1',rem:8},{id:'T2',rem:4},{id:'T3',rem:6}],
+    [{id:'T4',rem:12},{id:'T5',rem:5}],
+    [{id:'T6',rem:3},{id:'T7',rem:9},{id:'T8',rem:4}],
+    []
+  ],
+  affinityLocked: {},
+  time: 0
+};
+
+function toggleAff(tid) {
+  const locked = schedState.affinityLocked;
+  locked[tid] = !locked[tid];
+  document.getElementById('aff-'+tid).className = 'affinity-badge ' + (locked[tid]?'locked':'free');
+  document.getElementById('aff-'+tid).textContent = tid + ': ' + (locked[tid]?'Core Pin':'Free');
+  renderCores();
+}
+
+function renderCores() {
+  const area = document.getElementById('cores-area');
+  area.innerHTML = '';
+  const legend = document.getElementById('task-legend');
+  legend.innerHTML = '';
+
+  schedState.queues.forEach((q, ci) => {
+    const box = document.createElement('div');
+    box.className = 'core-box';
+    box.innerHTML = `<div class="core-header core-${ci}h">Core ${ci}</div>`;
+
+    const running = document.createElement('div');
+    running.className = 'core-running';
+    if (q.length > 0) {
+      running.style.background = TASK_COLORS[q[0].id] + '22';
+      running.innerHTML = `<span style="color:${TASK_COLORS[q[0].id]};font-weight:700">▶ ${q[0].id}</span> <span style="color:#64748b">(${q[0].rem}ms)</span>`;
+    } else {
+      running.innerHTML = '<span style="color:#9ca3af">IDLE</span>';
+    }
+    box.appendChild(running);
+
+    const queue = document.createElement('div');
+    queue.className = 'core-queue';
+    q.slice(1).forEach(t => {
+      const chip = document.createElement('div');
+      chip.className = 'task-chip' + (schedState.affinityLocked[t.id]?' affinity-locked':'');
+      chip.style.background = TASK_COLORS[t.id];
+      chip.innerHTML = `<span>${t.id}</span><span>${t.rem}ms${schedState.affinityLocked[t.id]?' 🔒':''}</span>`;
+      chip.draggable = !schedState.affinityLocked[t.id];
+      chip.dataset.task = t.id;
+      chip.dataset.from = ci;
+      chip.addEventListener('dragstart', e => {
+        if(schedState.affinityLocked[t.id]) { e.preventDefault(); return; }
+        e.dataTransfer.setData('task', t.id);
+        e.dataTransfer.setData('from', ci);
+        chip.classList.add('dragging');
+      });
+      chip.addEventListener('dragend', () => chip.classList.remove('dragging'));
+      queue.appendChild(chip);
+    });
+    if (q.length === 0) {
+      const idle = document.createElement('div'); idle.className='idle-chip'; idle.textContent='— idle —';
+      queue.appendChild(idle);
+    }
+
+    queue.addEventListener('dragover', e => e.preventDefault());
+    queue.addEventListener('drop', e => {
+      const tid = e.dataTransfer.getData('task');
+      const from = parseInt(e.dataTransfer.getData('from'));
+      if (schedState.affinityLocked[tid]) return;
+      moveTask(tid, from, ci, true);
+    });
+
+    box.appendChild(queue);
+    area.appendChild(box);
+  });
+
+  // legend
+  Object.entries(TASK_COLORS).forEach(([tid, col]) => {
+    const l = document.createElement('div'); l.className='legend-chip';
+    l.innerHTML = `<div class="legend-dot" style="background:${col}"></div><span>${tid}</span>`;
+    legend.appendChild(l);
+  });
+}
+
+function moveTask(tid, from, to, manual) {
+  if (from === to) return;
+  const fromQ = schedState.queues[from];
+  const idx = fromQ.findIndex(t=>t.id===tid);
+  if (idx<0) return;
+  const task = fromQ.splice(idx,1)[0];
+  schedState.queues[to].push(task);
+  const logEl = document.getElementById('sched-log');
+  const s = document.createElement('span');
+  s.className = manual ? 'log-steal' : 'log-ok';
+  s.textContent = `[t=${schedState.time}ms] ${manual?'Manual':'LB'} migrate: ${tid} Core${from}→Core${to}\n`;
+  logEl.appendChild(s); logEl.scrollTop=logEl.scrollHeight;
+  renderCores();
+}
+
+function runLB() {
+  if (!document.getElementById('lb-enabled').checked) {
+    appendLog('Load balancing disabled.', 'log-warn'); return;
+  }
+  const loads = schedState.queues.map(q=>q.reduce((s,t)=>s+t.rem,0));
+  const maxLoad = Math.max(...loads);
+  const minLoad = Math.min(...loads);
+  const maxCore = loads.indexOf(maxLoad);
+  const minCore = loads.indexOf(minLoad);
+  appendLog(`[t=${schedState.time}ms] Load check: [${loads.join(', ')}]ms`, 'log-info');
+  if (maxLoad - minLoad < 4) { appendLog('Balanced (diff < 4ms) — no action.','log-ok'); return; }
+  // steal last (non-running, non-locked) task from maxCore
+  const q = schedState.queues[maxCore];
+  for (let i=q.length-1;i>=1;i--) {
+    if (!schedState.affinityLocked[q[i].id]) {
+      const t = q.splice(i,1)[0];
+      schedState.queues[minCore].push(t);
+      appendLog(`Work-steal: ${t.id} Core${maxCore}(${maxLoad}ms)→Core${minCore}(${minLoad}ms)`, 'log-steal');
+      renderCores(); return;
+    }
+  }
+  appendLog('All tasks on busiest core have affinity lock — cannot steal.','log-warn');
+}
+
+function stepSched() {
+  schedState.time += 4;
+  schedState.queues.forEach((q,ci) => {
+    if (q.length>0) {
+      q[0].rem = Math.max(0, q[0].rem-4);
+      if (q[0].rem===0) {
+        const done = q.shift();
+        appendLog(`[t=${schedState.time}ms] Core${ci}: ${done.id} DONE`, 'log-ok');
+      }
+    }
+  });
+  renderCores();
+  if (document.getElementById('lb-enabled').checked) runLB();
+}
+
+function resetSched() {
+  schedState = {
+    queues:[
+      [{id:'T1',rem:8},{id:'T2',rem:4},{id:'T3',rem:6}],
+      [{id:'T4',rem:12},{id:'T5',rem:5}],
+      [{id:'T6',rem:3},{id:'T7',rem:9},{id:'T8',rem:4}],
+      []
+    ],
+    affinityLocked:{},
+    time:0
+  };
+  document.getElementById('sched-log').textContent='-- Reset --\n';
+  ['T5','T6','T7'].forEach(t=>{
+    const el = document.getElementById('aff-'+t);
+    el.className='affinity-badge free';
+    el.textContent=t+': Free';
+  });
+  renderCores();
+}
+
+function appendLog(msg, cls) {
+  const logEl = document.getElementById('sched-log');
+  const s = document.createElement('span'); s.className=cls; s.textContent=msg+'\n';
+  logEl.appendChild(s); logEl.scrollTop=logEl.scrollHeight;
+}
+
+renderCores();
+
+// ═══ MODULE 2: NUMA ═══
+function updateNUMA() {
+  const proc = parseInt(document.getElementById('numa-proc').value);
+  const mem  = parseInt(document.getElementById('numa-mem').value);
+  const sizeMB = parseInt(document.getElementById('numa-size').value);
+
+  const isLocal = proc === mem;
+  const localLat = 70; // ns
+  const remoteLat = 130; // ns
+  const lat = isLocal ? localLat : remoteLat;
+
+  const lines = sizeMB * 1024 * 1024 / 64;
+  const totalNs = lines * lat;
+  const totalMs = (totalNs / 1e6).toFixed(0);
+
+  // NUMA SVG
+  const svg = document.getElementById('numa-svg');
+  svg.innerHTML = '';
+  const W=560, H=240;
+  // Node 0
+  const n0x=40, n1x=290, ny=30, nw=220, nh=160;
+  [[n0x,'NUMA Node 0\nCore 0–11\n#3b82f6',0],[n1x,'NUMA Node 1\nCore 12–23\n#f59e0b',1]].forEach(([nx,lbl,ni])=>{
+    const col = ni===0?'#3b82f6':'#f59e0b';
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x',nx); rect.setAttribute('y',ny);
+    rect.setAttribute('width',nw); rect.setAttribute('height',nh);
+    rect.setAttribute('rx',10); rect.setAttribute('fill',col+'22');
+    rect.setAttribute('stroke',col); rect.setAttribute('stroke-width','2');
+    svg.appendChild(rect);
+    const lines = lbl.split('\n');
+    lines.forEach((ln,i)=>{
+      const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x',nx+nw/2); t.setAttribute('y',ny+22+i*18);
+      t.setAttribute('text-anchor','middle'); t.setAttribute('font-size',i===0?'13':'11');
+      t.setAttribute('font-weight',i===0?'700':'400'); t.setAttribute('fill',col==='#3b82f6'?'#1d4ed8':'#92400e');
+      t.textContent = i===2?'':ln; svg.appendChild(t);
+    });
+    // RAM
+    const rr = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rr.setAttribute('x',nx+20); rr.setAttribute('y',ny+90);
+    rr.setAttribute('width',nw-40); rr.setAttribute('height',40);
+    rr.setAttribute('rx',6); rr.setAttribute('fill',col+'44'); rr.setAttribute('stroke',col);
+    svg.appendChild(rr);
+    const rt = document.createElementNS('http://www.w3.org/2000/svg','text');
+    rt.setAttribute('x',nx+nw/2); rt.setAttribute('y',ny+115);
+    rt.setAttribute('text-anchor','middle'); rt.setAttribute('font-size','12');
+    rt.setAttribute('fill','#374151'); rt.setAttribute('font-weight','700');
+    rt.textContent = 'RAM 64GB'; svg.appendChild(rt);
+    // Process / Memory indicator
+    if (ni===proc) {
+      const pt = document.createElementNS('http://www.w3.org/2000/svg','text');
+      pt.setAttribute('x',nx+nw/2); pt.setAttribute('y',ny+62);
+      pt.setAttribute('text-anchor','middle'); pt.setAttribute('font-size','11');
+      pt.setAttribute('fill',col==='#3b82f6'?'#1d4ed8':'#92400e'); pt.setAttribute('font-weight','700');
+      pt.textContent = '⚙ Process đang chạy'; svg.appendChild(pt);
+    }
+    if (ni===mem) {
+      const mt = document.createElementNS('http://www.w3.org/2000/svg','text');
+      mt.setAttribute('x',nx+nw/2); mt.setAttribute('y',ny+75);
+      mt.setAttribute('text-anchor','middle'); mt.setAttribute('font-size','11');
+      mt.setAttribute('fill',ni===0?'#1d4ed8':'#92400e'); mt.setAttribute('font-weight','700');
+      mt.textContent = '📦 Memory ở đây'; svg.appendChild(mt);
+    }
+  });
+
+  // Arrow + label
+  const arrowY = ny + 130;
+  const col = isLocal ? '#16a34a' : '#dc2626';
+  const arrow = document.createElementNS('http://www.w3.org/2000/svg','line');
+  arrow.setAttribute('x1', proc===0 ? n0x+nw : n1x);
+  arrow.setAttribute('y1', arrowY);
+  arrow.setAttribute('x2', mem===0 ? n0x+nw+10 : n1x-10);
+  arrow.setAttribute('y2', arrowY);
+  arrow.setAttribute('stroke', col);
+  arrow.setAttribute('stroke-width','3');
+  arrow.setAttribute('marker-end','url(#arrow)');
+  if (proc!==mem) svg.appendChild(arrow);
+
+  // defs arrowhead
+  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+  defs.innerHTML = `<marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="${col}"/></marker>`;
+  svg.insertBefore(defs, svg.firstChild);
+
+  const latLbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+  latLbl.setAttribute('x', W/2);
+  latLbl.setAttribute('y', arrowY + (isLocal ? 20 : 20));
+  latLbl.setAttribute('text-anchor','middle');
+  latLbl.setAttribute('font-size','13');
+  latLbl.setAttribute('font-weight','700');
+  latLbl.setAttribute('fill', col);
+  latLbl.textContent = isLocal ? `LOCAL access: ~${localLat}ns` : `REMOTE access: ~${remoteLat}ns (${(remoteLat/localLat).toFixed(1)}x slower)`;
+  svg.appendChild(latLbl);
+
+  // Latency bars
+  const barsDiv = document.getElementById('latency-bars');
+  const maxLat = 400;
+  barsDiv.innerHTML = `
+    <div class="latency-bar-group">
+      <div class="lb-title">So sánh latency mỗi access</div>
+      <div class="lb-row"><span class="lb-label">L1 cache</span><div class="lb-bar" style="width:${4/maxLat*100}%;background:#4338ca;max-width:220px"></div><span class="lb-val">~4 cycle (~1.3ns)</span></div>
+      <div class="lb-row"><span class="lb-label">L3 cache</span><div class="lb-bar" style="width:${40/maxLat*100}%;background:#0369a1;max-width:220px"></div><span class="lb-val">~40 cycle (~13ns)</span></div>
+      <div class="lb-row"><span class="lb-label">RAM local</span><div class="lb-bar" style="width:${localLat/maxLat*100}%;background:#16a34a;max-width:220px"></div><span class="lb-val">~200 cycle (~${localLat}ns)</span></div>
+      <div class="lb-row"><span class="lb-label">RAM remote</span><div class="lb-bar" style="width:${remoteLat/maxLat*100}%;background:#dc2626;max-width:220px"></div><span class="lb-val">~390 cycle (~${remoteLat}ns)</span></div>
+    </div>
+    <div class="latency-bar-group">
+      <div class="lb-title">Kịch bản hiện tại</div>
+      <div class="lb-row"><span class="lb-label">Latency</span><div class="lb-bar" style="width:${lat/maxLat*100}%;background:${isLocal?'#16a34a':'#dc2626'};max-width:220px"></div><span class="lb-val" style="color:${isLocal?'#16a34a':'#dc2626'};font-weight:700">~${lat}ns (${isLocal?'LOCAL':'REMOTE'})</span></div>
+      <div class="lb-row"><span class="lb-label">Tổng thời gian</span><span style="font-size:13px;font-weight:700;color:${isLocal?'#16a34a':'#dc2626'}">${sizeMB}MB đọc ≈ <strong>${totalMs}ms</strong></span></div>
+      ${!isLocal ? `<div class="lb-row"><span style="font-size:12px;color:#dc2626">So với local (${Math.round(lines*localLat/1e6)}ms): chậm hơn ${((lines*remoteLat-lines*localLat)/lines/localLat*100).toFixed(0)}%</span></div>` : ''}
+    </div>
+  `;
+
+  document.getElementById('numa-info').innerHTML = isLocal ?
+    `<strong>LOCAL access:</strong> Process (Node ${proc}) và Memory đều ở cùng NUMA node.<br>Latency: ~${localLat}ns/access. Hiệu năng tối ưu.<br><code>numactl --cpunodebind=${proc} --membind=${proc} ./app</code> — pin cả process và memory vào cùng node.` :
+    `<strong>REMOTE access:</strong> Process ở Node ${proc}, Memory ở Node ${mem} — phải qua QPI/UPI interconnect.<br>Latency: ~${remoteLat}ns/access — chậm hơn ${(remoteLat/localLat).toFixed(1)}x so với local (${localLat}ns).<br>Sửa: <code>numactl --cpunodebind=${mem} --membind=${mem} ./app</code> hoặc dùng <code>--localalloc</code>.<br>Hoặc enable auto NUMA balancing: <code>echo 1 > /proc/sys/kernel/numa_balancing</code>`;
+}
+
+updateNUMA();
+
+// ═══ MODULE 3: MESI ═══
+let mesiState = { c0:'I', c1:'I', ramVal:5, c0Val:null, c1Val:null };
+
+function mesiReset() {
+  mesiState = { c0:'I', c1:'I', ramVal:5, c0Val:null, c1Val:null };
+  renderMESI();
+  document.getElementById('mesi-log').textContent = '-- Reset. Cả 2 core: Invalid. RAM: X=5 --\n';
+}
+
+function renderMESI() {
+  const stateClass = (s) => `mesi-state-${s}`;
+  const stateDesc = {M:'Modified (dirty, chỉ ở đây, khác RAM)',E:'Exclusive (clean, chỉ ở đây, = RAM)',S:'Shared (clean, nhiều core có)',I:'Invalid (không hợp lệ, cần load lại)'};
+  document.getElementById('mesi-c0').innerHTML =
+    `addr X: val=<strong>${mesiState.c0Val??'—'}</strong><br>state: <span class="${stateClass(mesiState.c0)}">[${mesiState.c0}] ${stateDesc[mesiState.c0]}</span>`;
+  document.getElementById('mesi-c1').innerHTML =
+    `addr X: val=<strong>${mesiState.c1Val??'—'}</strong><br>state: <span class="${stateClass(mesiState.c1)}">[${mesiState.c1}] ${stateDesc[mesiState.c1]}</span>`;
+  document.getElementById('mesi-ram').innerHTML =
+    `RAM: X = <strong>${mesiState.ramVal}</strong>`;
+}
+
+function mesiLog(msg, cls='') {
+  const el = document.getElementById('mesi-log');
+  const s = document.createElement('span'); s.className=cls; s.textContent=msg+'\n';
+  el.appendChild(s); el.scrollTop=el.scrollHeight;
+}
+
+function mesiAction(act) {
+  const s = mesiState;
+  if (act==='read0') {
+    if (s.c0==='I') {
+      mesiLog('Core 0: READ X — L1 miss (Invalid)','ml-bus');
+      mesiLog('Bus: Read request for X','ml-bus');
+      if (s.c1==='M') {
+        mesiLog('Core 1 snoop: X đang Modified → writeback RAM','ml-inv');
+        s.ramVal = s.c1Val; s.c1 = 'S';
+        mesiLog(`RAM updated: X=${s.ramVal}`,'ml-ok');
+      }
+      s.c0Val = s.ramVal;
+      s.c0 = (s.c1==='I'||s.c1==='S') ? (s.c1==='S'?'S':'E') : 'S';
+      if (s.c1==='S') s.c0='S';
+      if (s.c1==='I') s.c0='E';
+      mesiLog(`Core 0 load X=${s.c0Val} từ RAM → state [${s.c0}]`,'ml-ok');
+    } else { mesiLog(`Core 0: READ X — L1 HIT (state=${s.c0}), val=${s.c0Val}`,'ml-ok'); }
+  }
+  else if (act==='read1') {
+    if (s.c1==='I') {
+      mesiLog('Core 1: READ X — L1 miss (Invalid)','ml-bus');
+      mesiLog('Bus: Read request for X','ml-bus');
+      if (s.c0==='M') {
+        mesiLog('Core 0 snoop: X đang Modified → writeback RAM','ml-inv');
+        s.ramVal = s.c0Val; s.c0 = 'S';
+        mesiLog(`RAM updated: X=${s.ramVal}`,'ml-ok');
+      }
+      s.c1Val = s.ramVal;
+      s.c1 = (s.c0==='I') ? 'E' : 'S';
+      if (s.c0!=='I') { s.c0 = 'S'; }
+      mesiLog(`Core 1 load X=${s.c1Val} từ RAM → state [${s.c1}]`,'ml-ok');
+    } else { mesiLog(`Core 1: READ X — L1 HIT (state=${s.c1}), val=${s.c1Val}`,'ml-ok'); }
+  }
+  else if (act==='write0') {
+    mesiLog('Core 0: WRITE X=10','ml-bus');
+    if (s.c1!=='I') {
+      mesiLog('Bus: RFO (Request For Ownership) — invalidate Core 1','ml-inv');
+      s.c1 = 'I'; s.c1Val = null;
+      mesiLog('Core 1: X → [I] Invalid','ml-inv');
+    }
+    s.c0Val = 10; s.c0 = 'M';
+    mesiLog(`Core 0: X=${s.c0Val} state [M] (RAM chưa update, dirty)`,'ml-ok');
+    // RAM not updated yet
+  }
+  else if (act==='write1') {
+    mesiLog('Core 1: WRITE X=20','ml-bus');
+    if (s.c0!=='I') {
+      mesiLog('Bus: RFO — invalidate Core 0','ml-inv');
+      if (s.c0==='M') { s.ramVal=s.c0Val; mesiLog(`Core 0 writeback: RAM X=${s.ramVal}`,'ml-ok'); }
+      s.c0='I'; s.c0Val=null;
+    }
+    s.c1Val=20; s.c1='M';
+    mesiLog(`Core 1: X=${s.c1Val} state [M]`,'ml-ok');
+  }
+  else if (act==='read1-after') {
+    if (s.c1==='I') {
+      mesiLog('Core 1: READ X — Miss! X đang Invalid','ml-bus');
+      if (s.c0==='M') {
+        mesiLog(`Core 0 snoop: dirty X=${s.c0Val} → writeback RAM`,'ml-inv');
+        s.ramVal=s.c0Val; s.c0='S';
+        mesiLog(`RAM X=${s.ramVal} (updated từ Core 0 Modified)`,'ml-ok');
+      }
+      s.c1Val=s.ramVal; s.c1='S';
+      if (s.c0!=='I') s.c0='S';
+      mesiLog(`Core 1 đọc X=${s.c1Val} (GIỐNG GIÁ TRỊ Core 0 đã ghi!) state [S]`,'ml-ok');
+    } else { mesiLog(`Core 1: READ X — Hit, val=${s.c1Val}`,'ml-ok'); }
+  }
+  renderMESI();
+}
+
+mesiReset();
+</script>
+</body>
+</html>

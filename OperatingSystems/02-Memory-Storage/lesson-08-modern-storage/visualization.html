@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Lưu trữ hiện đại</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #0e7490;
+    --accent-soft: #cffafe;
+    --accent-hover: #0c6480;
+    --bg-card: #ffffff;
+    --bg-section: #f0fdfa;
+    --data-color: #16a34a;
+    --parity-color: #7c3aed;
+    --mirror-color: #0369a1;
+    --free-color: #e2e8f0;
+    --fault-color: #dc2626;
+  }
+
+  h1 { color: #134e4a; }
+  h2 { color: var(--accent); margin-top: 36px; padding-bottom: 6px; border-bottom: 2px solid #a5f3fc; }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(14,116,144,.12);
+    margin: 16px 0;
+  }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-danger { background: #dc2626; color: #fff; }
+  .btn-danger:hover { background: #b91c1c; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* ─── RAID visualizer ─── */
+  .raid-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+    margin-bottom: 16px;
+  }
+  .ctrl-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .ctrl-group label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+  .ctrl-group select,
+  .ctrl-group input[type="number"] {
+    padding: 7px 10px;
+    border: 1.5px solid #a5f3fc;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #f0fdfa;
+    color: #134e4a;
+    outline: none;
+    box-sizing: border-box;
+  }
+  .ctrl-group input[type="number"] { max-width: 90px; }
+  .ctrl-group select:focus, .ctrl-group input:focus { border-color: var(--accent); }
+
+  /* RAID disk display */
+  .raid-disks {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+    justify-content: center;
+  }
+  .raid-disk {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 80px;
+  }
+  .disk-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #374151;
+    text-align: center;
+  }
+  .disk-body {
+    width: 70px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 2px solid #e2e8f0;
+    transition: all .3s;
+  }
+  .disk-body.failed {
+    border-color: var(--fault-color);
+    opacity: 0.5;
+    position: relative;
+  }
+  .disk-stripe {
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    white-space: nowrap;
+    overflow: hidden;
+    transition: background .3s;
+  }
+  .stripe-data { background: #dcfce7; color: #166534; }
+  .stripe-parity { background: #ede9fe; color: #7c3aed; }
+  .stripe-mirror { background: #dbeafe; color: #1d4ed8; }
+  .stripe-empty { background: var(--free-color); color: #9ca3af; }
+  .stripe-failed { background: #fef2f2; color: #991b1b; text-decoration: line-through; }
+  .stripe-recovered { background: #fef9c3; color: #92400e; animation: pulse .5s ease-in-out 3; }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* RAID stats */
+  .raid-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .raid-stat {
+    background: var(--bg-section);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+  .raid-stat .label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: .4px; }
+  .raid-stat .value { font-size: 20px; font-weight: 700; color: var(--accent); margin-top: 2px; }
+
+  /* Comparison matrix */
+  .cmp-matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .cmp-matrix th {
+    background: var(--accent);
+    color: #fff;
+    padding: 8px 10px;
+    text-align: center;
+  }
+  .cmp-matrix td {
+    padding: 7px 10px;
+    text-align: center;
+    border: 1px solid #e2e8f0;
+  }
+  .cmp-matrix tr:nth-child(even) td { background: #f8fafc; }
+  .best { color: #16a34a; font-weight: 700; }
+  .good { color: #0e7490; }
+  .bad { color: #dc2626; }
+
+  /* Journaling animation */
+  .journal-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .journal-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    opacity: 0.4;
+    transition: all .3s;
+    border-left: 4px solid #e2e8f0;
+  }
+  .journal-step.active {
+    opacity: 1;
+    background: var(--bg-section);
+    border-left-color: var(--accent);
+  }
+  .journal-step.done {
+    opacity: 0.8;
+    background: #f0fdf4;
+    border-left-color: #16a34a;
+  }
+  .journal-step.crash {
+    opacity: 1;
+    background: #fef2f2;
+    border-left-color: #dc2626;
+  }
+  .step-icon { font-size: 18px; flex-shrink: 0; }
+  .step-text { flex: 1; }
+  .step-status {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+  }
+  .status-done { background: #dcfce7; color: #166534; }
+  .status-active { background: var(--accent-soft); color: var(--accent); }
+  .status-crash { background: #fee2e2; color: #991b1b; }
+  .status-replay { background: #fef9c3; color: #92400e; }
+
+  /* SSD anatomy */
+  .ssd-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px;
+    max-width: 400px;
+    margin: 12px auto;
+  }
+  .ssd-page {
+    height: 28px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    border: 1px solid transparent;
+  }
+  .ssd-page:hover { border-color: #374151; transform: scale(1.05); }
+  .ssd-page.valid { background: #dcfce7; color: #166534; }
+  .ssd-page.invalid { background: #fee2e2; color: #991b1b; text-decoration: line-through; }
+  .ssd-page.empty { background: #f1f5f9; color: #9ca3af; }
+  .ssd-page.new-write { background: #dbeafe; color: #1d4ed8; animation: flash .3s ease-in-out; }
+
+  @keyframes flash {
+    0% { background: #fef9c3; }
+    100% { background: #dbeafe; }
+  }
+
+  .ssd-info {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    margin: 10px 0;
+    min-height: 60px;
+  }
+  .ssd-info .ok { color: #4ade80; }
+  .ssd-info .warn { color: #fbbf24; }
+  .ssd-info .info { color: #93c5fd; }
+
+  @media (max-width: 600px) {
+    .raid-disks { gap: 8px; }
+    .raid-disk { min-width: 60px; }
+    .disk-body { width: 56px; }
+    .ssd-grid { grid-template-columns: repeat(3, 1fr); }
+    .raid-stats { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">OperatingSystems — Memory</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-io-disk-scheduling/visualization.html">← L7: I/O & Disk</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Lưu trữ hiện đại</span>
+  <span class="sep">·</span>
+  <a href="../../03-Advanced-Modern/lesson-01-virtualization/visualization.html">Tầng 3 → Ảo hoá</a>
+</nav>
+<main>
+  <h1>Lesson 08 — Lưu trữ hiện đại</h1>
+
+  <!-- ═══════════════════════════════════
+       MODULE 1 — RAID Visualizer
+       ═══════════════════════════════════ -->
+  <h2>So sánh RAID tương tác</h2>
+  <div class="card">
+    <p style="color:#475569;font-size:14px;margin:0 0 14px;">
+      Chọn mức RAID và số đĩa để xem layout dữ liệu, parity, dung lượng và khả năng chịu lỗi.
+      Bấm "Hỏng đĩa" để xem cơ chế phục hồi.
+    </p>
+    <div class="raid-controls">
+      <div class="ctrl-group">
+        <label>Mức RAID</label>
+        <select id="raid-level" onchange="renderRAID()">
+          <option value="0">RAID 0 — Striping</option>
+          <option value="1">RAID 1 — Mirroring</option>
+          <option value="5" selected>RAID 5 — Distributed Parity</option>
+          <option value="10">RAID 10 — Mirror + Stripe</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>Số đĩa</label>
+        <input type="number" id="num-disks" value="4" min="2" max="8" onchange="renderRAID()">
+      </div>
+      <div class="ctrl-group">
+        <label>Dung lượng mỗi đĩa (TB)</label>
+        <input type="number" id="disk-tb" value="1" min="1" max="20" onchange="renderRAID()">
+      </div>
+    </div>
+
+    <!-- RAID Stats -->
+    <div class="raid-stats" id="raid-stats"></div>
+
+    <!-- Disk display -->
+    <div class="raid-disks" id="raid-disks"></div>
+
+    <!-- Controls -->
+    <div class="btn-row" id="fail-btns"></div>
+    <div id="raid-log" style="font-size:13px;color:#475569;padding:8px 12px;background:#f8fafc;border-radius:8px;min-height:36px;"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════
+       MODULE 2 — Comparison Table
+       ═══════════════════════════════════ -->
+  <h2>So sánh 4 mức RAID — cùng 4 đĩa × 1 TB</h2>
+  <div class="card">
+    <table class="cmp-matrix">
+      <thead>
+        <tr>
+          <th>RAID</th>
+          <th>Dung lượng dùng được</th>
+          <th>Hiệu suất không gian</th>
+          <th>Chịu đĩa hỏng</th>
+          <th>Read</th>
+          <th>Write</th>
+          <th>Dùng khi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>RAID 0</strong></td>
+          <td class="best">4 TB</td>
+          <td class="best">100%</td>
+          <td class="bad">0 đĩa</td>
+          <td class="best">Rất cao (4×)</td>
+          <td class="best">Rất cao (4×)</td>
+          <td>Scratch disk, gaming</td>
+        </tr>
+        <tr>
+          <td><strong>RAID 1</strong></td>
+          <td class="bad">2 TB</td>
+          <td class="bad">50%</td>
+          <td class="good">1 đĩa/cặp</td>
+          <td class="good">Cao (đọc cả 2)</td>
+          <td>Trung bình (ghi 2)</td>
+          <td>Hệ thống critical</td>
+        </tr>
+        <tr>
+          <td><strong>RAID 5</strong></td>
+          <td class="good">3 TB</td>
+          <td class="good">75%</td>
+          <td class="good">1 đĩa</td>
+          <td class="good">Cao (stripe)</td>
+          <td>Trung bình (parity)</td>
+          <td>NAS, file server</td>
+        </tr>
+        <tr>
+          <td><strong>RAID 10</strong></td>
+          <td class="bad">2 TB</td>
+          <td class="bad">50%</td>
+          <td class="best">1-2 đĩa</td>
+          <td class="best">Rất cao</td>
+          <td class="good">Cao (no parity)</td>
+          <td>Database production</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════════════════════════════
+       MODULE 3 — Journaling Animation
+       ═══════════════════════════════════ -->
+  <h2>Journaling — Cơ chế chống crash</h2>
+  <div class="card">
+    <p style="color:#475569;font-size:14px;margin:0 0 14px;">
+      Xem từng bước ghi file với journaling. Bấm "Giả lập crash" để thấy hệ thống khôi phục thế nào.
+    </p>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="runJournal()">▶ Chạy bình thường</button>
+      <button class="btn btn-danger" onclick="runJournalCrash()">⚡ Giả lập crash</button>
+      <button class="btn btn-secondary" onclick="resetJournal()">↺ Reset</button>
+    </div>
+    <div class="journal-steps" id="journal-steps">
+      <!-- Steps will be injected -->
+    </div>
+    <div id="journal-result" style="margin-top:12px;padding:12px 16px;border-radius:8px;font-size:14px;display:none;"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════
+       MODULE 4 — SSD Write Simulation
+       ═══════════════════════════════════ -->
+  <h2>SSD — Mô phỏng ghi và Garbage Collection</h2>
+  <div class="card">
+    <p style="color:#475569;font-size:14px;margin:0 0 14px;">
+      Mỗi hàng = 1 block (4 page). Ghi dữ liệu và xem write amplification + garbage collection.
+    </p>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="ssdWrite()">Ghi 1 page</button>
+      <button class="btn btn-secondary" onclick="ssdDelete()">Xóa page ngẫu nhiên</button>
+      <button class="btn btn-secondary" onclick="ssdGC()">Chạy GC</button>
+      <button class="btn btn-secondary" onclick="ssdReset()">Reset SSD</button>
+    </div>
+    <div class="ssd-grid" id="ssd-grid"></div>
+    <div class="ssd-info" id="ssd-info">SSD sẵn sàng. Nhấn "Ghi 1 page" để bắt đầu.</div>
+  </div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// MODULE 1 — RAID VISUALIZER
+// ═══════════════════════════════════════════════════════
+
+let failedDisks = new Set();
+
+function renderRAID() {
+  failedDisks.clear();
+  const level = document.getElementById('raid-level').value;
+  let n = parseInt(document.getElementById('num-disks').value) || 4;
+  const tb = parseFloat(document.getElementById('disk-tb').value) || 1;
+
+  // Enforce min disks
+  if (level === '1' && n % 2 !== 0) { n = Math.max(2, n - 1); document.getElementById('num-disks').value = n; }
+  if (level === '10' && n % 2 !== 0) { n = Math.max(4, n % 2 === 0 ? n : n + 1); document.getElementById('num-disks').value = n; }
+  if (level === '5' && n < 3) { n = 3; document.getElementById('num-disks').value = n; }
+
+  renderRAIDLayout(level, n, tb);
+  renderRAIDStats(level, n, tb);
+  renderFailButtons(n);
+  document.getElementById('raid-log').textContent = 'Tất cả đĩa hoạt động bình thường.';
+}
+
+function renderRAIDStats(level, n, tb) {
+  const stats = calcRAIDStats(level, n, tb);
+  const div = document.getElementById('raid-stats');
+  div.innerHTML = `
+    <div class="raid-stat"><div class="label">Dung lượng dùng được</div><div class="value">${stats.usable} TB</div></div>
+    <div class="raid-stat"><div class="label">Hiệu suất không gian</div><div class="value">${stats.efficiency}%</div></div>
+    <div class="raid-stat"><div class="label">Chịu đĩa hỏng</div><div class="value">${stats.fault}</div></div>
+    <div class="raid-stat"><div class="label">Overhead parity/mirror</div><div class="value">${(n * tb - stats.usable).toFixed(1)} TB</div></div>
+  `;
+}
+
+function calcRAIDStats(level, n, tb) {
+  switch(level) {
+    case '0': return { usable: (n*tb).toFixed(1), efficiency: 100, fault: '0 đĩa' };
+    case '1': return { usable: (Math.floor(n/2)*tb).toFixed(1), efficiency: 50, fault: '1 đĩa/cặp' };
+    case '5': return { usable: ((n-1)*tb).toFixed(1), efficiency: Math.round((n-1)/n*100), fault: '1 đĩa' };
+    case '10': return { usable: (Math.floor(n/2)*tb).toFixed(1), efficiency: 50, fault: '1-2 đĩa' };
+  }
+}
+
+const STRIPE_COLORS = [
+  {bg:'#dcfce7', color:'#166534'},
+  {bg:'#dbeafe', color:'#1d4ed8'},
+  {bg:'#fef9c3', color:'#92400e'},
+  {bg:'#ffe4e6', color:'#9f1239'},
+  {bg:'#d1fae5', color:'#065f46'},
+  {bg:'#e0e7ff', color:'#3730a3'},
+  {bg:'#fce7f3', color:'#9d174d'},
+  {bg:'#ecfdf5', color:'#047857'},
+];
+
+function renderRAIDLayout(level, n, tb) {
+  const container = document.getElementById('raid-disks');
+  container.innerHTML = '';
+
+  const ROWS = 6;
+  const disks = Array.from({length: n}, (_, i) => ({
+    label: `Đĩa ${i}`,
+    stripes: []
+  }));
+
+  if (level === '0') {
+    for (let row = 0; row < ROWS; row++) {
+      const letter = String.fromCharCode(65 + row);
+      const c = STRIPE_COLORS[row % STRIPE_COLORS.length];
+      for (let d = 0; d < n; d++) {
+        disks[d].stripes.push({ text: `${letter}${d}`, cls: 'stripe-data', bg: c.bg, color: c.color });
+      }
+    }
+  } else if (level === '1') {
+    const pairs = Math.floor(n / 2);
+    for (let row = 0; row < ROWS; row++) {
+      const letter = String.fromCharCode(65 + row);
+      const c = STRIPE_COLORS[row % STRIPE_COLORS.length];
+      for (let p = 0; p < pairs; p++) {
+        const stripeText = `${letter}${p}`;
+        disks[p * 2].stripes.push({ text: stripeText, cls: 'stripe-data', bg: c.bg, color: c.color });
+        disks[p * 2 + 1].stripes.push({ text: `(${stripeText})`, cls: 'stripe-mirror', bg: '#dbeafe', color: '#1d4ed8' });
+      }
+    }
+  } else if (level === '5') {
+    for (let row = 0; row < ROWS; row++) {
+      const letter = String.fromCharCode(65 + row);
+      const parityDisk = (ROWS - 1 - row) % n;
+      const c = STRIPE_COLORS[row % STRIPE_COLORS.length];
+      let dataIdx = 0;
+      for (let d = 0; d < n; d++) {
+        if (d === parityDisk) {
+          disks[d].stripes.push({ text: `P(${letter})`, cls: 'stripe-parity', bg: '#ede9fe', color: '#7c3aed' });
+        } else {
+          disks[d].stripes.push({ text: `${letter}${dataIdx}`, cls: 'stripe-data', bg: c.bg, color: c.color });
+          dataIdx++;
+        }
+      }
+    }
+  } else if (level === '10') {
+    const pairs = Math.floor(n / 2);
+    for (let row = 0; row < ROWS; row++) {
+      const letter = String.fromCharCode(65 + row);
+      const c = STRIPE_COLORS[row % STRIPE_COLORS.length];
+      for (let p = 0; p < pairs; p++) {
+        const stripeText = `${letter}${p}`;
+        disks[p * 2].stripes.push({ text: stripeText, cls: 'stripe-data', bg: c.bg, color: c.color });
+        disks[p * 2 + 1].stripes.push({ text: `(${stripeText})`, cls: 'stripe-mirror', bg: '#dbeafe', color: '#1d4ed8' });
+      }
+    }
+  }
+
+  disks.forEach((disk, i) => {
+    const diskDiv = document.createElement('div');
+    diskDiv.className = 'raid-disk';
+    diskDiv.id = `disk-${i}`;
+
+    const label = document.createElement('div');
+    label.className = 'disk-label';
+    label.textContent = disk.label;
+    diskDiv.appendChild(label);
+
+    const body = document.createElement('div');
+    body.className = 'disk-body';
+    disk.stripes.forEach(s => {
+      const stripe = document.createElement('div');
+      stripe.className = `disk-stripe ${s.cls}`;
+      stripe.style.background = s.bg;
+      stripe.style.color = s.color;
+      stripe.textContent = s.text;
+      body.appendChild(stripe);
+    });
+    diskDiv.appendChild(body);
+
+    const diskStatus = document.createElement('div');
+    diskStatus.id = `disk-status-${i}`;
+    diskStatus.style.cssText = 'font-size:10px;color:#16a34a;font-weight:700;';
+    diskStatus.textContent = '✓ OK';
+    diskDiv.appendChild(diskStatus);
+
+    container.appendChild(diskDiv);
+  });
+}
+
+function renderFailButtons(n) {
+  const div = document.getElementById('fail-btns');
+  div.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-secondary';
+    btn.textContent = `Hỏng Đĩa ${i}`;
+    btn.id = `fail-btn-${i}`;
+    btn.onclick = () => failDisk(i);
+    div.appendChild(btn);
+  }
+  const recoverBtn = document.createElement('button');
+  recoverBtn.className = 'btn btn-primary';
+  recoverBtn.textContent = 'Phục hồi tất cả';
+  recoverBtn.onclick = renderRAID;
+  div.appendChild(recoverBtn);
+}
+
+function failDisk(idx) {
+  const level = document.getElementById('raid-level').value;
+  const n = parseInt(document.getElementById('num-disks').value) || 4;
+  failedDisks.add(idx);
+
+  // Update disk display
+  const body = document.querySelector(`#disk-${idx} .disk-body`);
+  if (body) {
+    body.classList.add('failed');
+    body.querySelectorAll('.disk-stripe').forEach(s => {
+      s.className = 'disk-stripe stripe-failed';
+      s.style.background = '#fef2f2';
+      s.style.color = '#991b1b';
+    });
+  }
+  const status = document.getElementById(`disk-status-${idx}`);
+  if (status) { status.textContent = '✗ HỎNG'; status.style.color = '#dc2626'; }
+
+  const btn = document.getElementById(`fail-btn-${idx}`);
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
+
+  // Evaluate
+  let log = '';
+  const maxFault = {
+    '0': 0,
+    '1': Math.floor(n/2), // each pair can have 1
+    '5': 1,
+    '10': failedDisks.size <= Math.floor(n/2) ? 1 : 0
+  }[level];
+
+  if (level === '0') {
+    log = '⚠ RAID 0: Dữ liệu mất! RAID 0 không có fault tolerance.';
+    document.getElementById('raid-log').style.color = '#dc2626';
+  } else if (level === '5' && failedDisks.size === 1) {
+    // Show parity recovery on other disks
+    document.querySelectorAll('.disk-body:not(.failed) .disk-stripe').forEach(s => {
+      if (s.classList.contains('stripe-parity') || s.classList.contains('stripe-data')) {
+        s.classList.add('stripe-recovered');
+      }
+    });
+    log = `✓ RAID 5: Đĩa ${idx} hỏng. Dữ liệu được tái tính từ parity. Cần thay đĩa và rebuild sớm!`;
+    document.getElementById('raid-log').style.color = '#0e7490';
+  } else if (level === '5' && failedDisks.size > 1) {
+    log = '✗ RAID 5: Hỏng 2 đĩa — KHÔNG thể phục hồi! Dữ liệu mất.';
+    document.getElementById('raid-log').style.color = '#dc2626';
+  } else if (level === '1') {
+    // Check pairs
+    const pairs = Math.floor(n/2);
+    let pairStatus = '';
+    for (let p = 0; p < pairs; p++) {
+      const d0 = failedDisks.has(p*2);
+      const d1 = failedDisks.has(p*2+1);
+      if (d0 && d1) {
+        pairStatus += `Cặp ${p} (đĩa ${p*2} + ${p*2+1}): MẤT DỮ LIỆU! `;
+      } else if (d0 || d1) {
+        pairStatus += `Cặp ${p}: có mirror còn lại, an toàn. `;
+      }
+    }
+    log = pairStatus || `✓ RAID 1: Đĩa ${idx} hỏng, mirror còn nguyên.`;
+    document.getElementById('raid-log').style.color = pairStatus.includes('MẤT') ? '#dc2626' : '#0e7490';
+  } else if (level === '10') {
+    const pairs = Math.floor(n/2);
+    let allSafe = true;
+    for (let p = 0; p < pairs; p++) {
+      if (failedDisks.has(p*2) && failedDisks.has(p*2+1)) allSafe = false;
+    }
+    log = allSafe
+      ? `✓ RAID 10: Đĩa ${idx} hỏng, dữ liệu an toàn từ mirror.`
+      : '✗ RAID 10: Cả 2 đĩa trong 1 cặp hỏng — mất dữ liệu!';
+    document.getElementById('raid-log').style.color = allSafe ? '#0e7490' : '#dc2626';
+  }
+  document.getElementById('raid-log').textContent = log;
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 3 — JOURNALING ANIMATION
+// ═══════════════════════════════════════════════════════
+
+const JOURNAL_STEPS = [
+  { icon: '📝', text: 'Bước 1: Ghi vào Journal — TxBegin + mô tả thay đổi (inode, bitmap, directory)', status: 'active' },
+  { icon: '✅', text: 'Bước 2: Journal commit — "TxEnd" ghi xuống đĩa (journal đã đầy đủ)', status: 'done' },
+  { icon: '💾', text: 'Bước 3: Áp dụng thay đổi thật — cập nhật inode trên đĩa', status: 'done' },
+  { icon: '💾', text: 'Bước 4: Áp dụng thay đổi thật — cập nhật bitmap (free-space)', status: 'done' },
+  { icon: '💾', text: 'Bước 5: Áp dụng thay đổi thật — cập nhật directory entry', status: 'done' },
+  { icon: '🗑', text: 'Bước 6: Xóa journal entry (checkpoint hoàn tất, không cần nữa)', status: 'done' },
+];
+
+let journalTimer = null;
+
+function resetJournal() {
+  if (journalTimer) clearInterval(journalTimer);
+  const container = document.getElementById('journal-steps');
+  container.innerHTML = '';
+  JOURNAL_STEPS.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'journal-step';
+    div.id = `jstep-${i}`;
+    div.innerHTML = `
+      <span class="step-icon">${s.icon}</span>
+      <span class="step-text">${s.text}</span>
+    `;
+    container.appendChild(div);
+  });
+  const result = document.getElementById('journal-result');
+  result.style.display = 'none';
+}
+
+function runJournal() {
+  resetJournal();
+  let step = 0;
+  journalTimer = setInterval(() => {
+    if (step > 0) {
+      const prev = document.getElementById(`jstep-${step-1}`);
+      if (prev) prev.className = 'journal-step done';
+    }
+    if (step < JOURNAL_STEPS.length) {
+      const cur = document.getElementById(`jstep-${step}`);
+      if (cur) {
+        cur.className = 'journal-step active';
+        cur.innerHTML = `<span class="step-icon">${JOURNAL_STEPS[step].icon}</span>
+          <span class="step-text">${JOURNAL_STEPS[step].text}</span>
+          <span class="step-status status-active">ĐANG THỰC HIỆN</span>`;
+      }
+      step++;
+    } else {
+      clearInterval(journalTimer);
+      const result = document.getElementById('journal-result');
+      result.style.display = '';
+      result.style.background = '#f0fdf4';
+      result.style.borderLeft = '4px solid #16a34a';
+      result.innerHTML = '<strong style="color:#16a34a;">✓ Hoàn tất!</strong> Tất cả thay đổi đã được áp dụng và journal đã được dọn sạch. Filesystem nhất quán.';
+    }
+  }, 700);
+}
+
+function runJournalCrash() {
+  resetJournal();
+  // Crash after step 2 (journal committed, but real write not done)
+  const crashAt = 3; // crash during step 3
+  let step = 0;
+  journalTimer = setInterval(() => {
+    if (step > 0 && step <= crashAt) {
+      const prev = document.getElementById(`jstep-${step-1}`);
+      if (prev) {
+        if (step - 1 < 2) {
+          prev.className = 'journal-step done';
+          prev.innerHTML = `<span class="step-icon">${JOURNAL_STEPS[step-1].icon}</span>
+            <span class="step-text">${JOURNAL_STEPS[step-1].text}</span>
+            <span class="step-status status-done">✓ XONG</span>`;
+        } else {
+          prev.className = 'journal-step crash';
+          prev.innerHTML = `<span class="step-icon">⚡</span>
+            <span class="step-text"><strong>MẤT ĐIỆN!</strong> Crash xảy ra tại bước ${step}.</span>
+            <span class="step-status status-crash">CRASH</span>`;
+        }
+      }
+    }
+    if (step < crashAt) {
+      const cur = document.getElementById(`jstep-${step}`);
+      if (cur) {
+        cur.className = 'journal-step active';
+        cur.innerHTML = `<span class="step-icon">${JOURNAL_STEPS[step].icon}</span>
+          <span class="step-text">${JOURNAL_STEPS[step].text}</span>
+          <span class="step-status status-active">ĐANG THỰC HIỆN</span>`;
+      }
+      step++;
+    } else if (step === crashAt) {
+      clearInterval(journalTimer);
+      // Show recovery
+      setTimeout(() => {
+        const result = document.getElementById('journal-result');
+        result.style.display = '';
+        result.style.background = '#fef9c3';
+        result.style.borderLeft = '4px solid #eab308';
+        result.innerHTML = `<strong>⚡ Crash xảy ra sau khi journal commit!</strong><br><br>
+          Khi reboot: OS đọc journal → thấy entry chưa checkpoint →
+          <strong>Replay lại các bước 3–6</strong> từ journal → filesystem khôi phục về trạng thái nhất quán.<br><br>
+          <span style="color:#16a34a;">✓ Không mất dữ liệu nhờ journaling!</span>`;
+      }, 500);
+      step++;
+    }
+  }, 800);
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE 4 — SSD SIMULATION
+// ═══════════════════════════════════════════════════════
+
+const SSD_BLOCKS = 3;
+const SSD_PAGES_PER_BLOCK = 4;
+const TOTAL_PAGES = SSD_BLOCKS * SSD_PAGES_PER_BLOCK;
+
+// States: 'empty', 'valid', 'invalid'
+let ssdState = [];
+let nextWriteIdx = 0;
+let writeCount = 0;
+let gcCount = 0;
+
+function ssdReset() {
+  ssdState = Array(TOTAL_PAGES).fill('empty');
+  nextWriteIdx = 0;
+  writeCount = 0;
+  gcCount = 0;
+  renderSSD();
+  ssdLog('SSD reset. Tất cả page trống.', 'info');
+}
+
+function renderSSD() {
+  const grid = document.getElementById('ssd-grid');
+  grid.innerHTML = '';
+  ssdState.forEach((state, i) => {
+    const block = Math.floor(i / SSD_PAGES_PER_BLOCK);
+    const pageInBlock = i % SSD_PAGES_PER_BLOCK;
+
+    const cell = document.createElement('div');
+    cell.className = `ssd-page ${state === 'empty' ? 'ssd-page empty' : state === 'valid' ? 'ssd-page valid' : 'ssd-page invalid'}`;
+    cell.textContent = state === 'empty' ? `B${block}P${pageInBlock}` : state === 'valid' ? `DATA` : `INVALID`;
+    cell.title = `Block ${block}, Page ${pageInBlock}: ${state}`;
+    grid.appendChild(cell);
+  });
+
+  const validCount = ssdState.filter(s => s === 'valid').length;
+  const invalidCount = ssdState.filter(s => s === 'invalid').length;
+  const emptyCount = ssdState.filter(s => s === 'empty').length;
+
+  // Update info bar
+  const info = document.getElementById('ssd-info');
+  info.innerHTML = `<span class="info">Valid: ${validCount} | Invalid (rác): ${invalidCount} | Trống: ${emptyCount}</span>\n` +
+    `<span class="info">Tổng ghi: ${writeCount} | GC chạy: ${gcCount} lần</span>`;
+}
+
+function ssdLog(msg, cls) {
+  const info = document.getElementById('ssd-info');
+  const span = document.createElement('span');
+  span.className = cls || '';
+  span.textContent = '\n' + msg;
+  info.appendChild(span);
+}
+
+function ssdWrite() {
+  // Find first empty page
+  const emptyIdx = ssdState.findIndex(s => s === 'empty');
+  if (emptyIdx === -1) {
+    ssdLog('Không còn page trống! Cần chạy GC trước.', 'warn');
+    return;
+  }
+  ssdState[emptyIdx] = 'valid';
+  writeCount++;
+
+  const block = Math.floor(emptyIdx / SSD_PAGES_PER_BLOCK);
+  const pg = emptyIdx % SSD_PAGES_PER_BLOCK;
+  renderSSD();
+
+  // Flash animation
+  const cells = document.getElementById('ssd-grid').children;
+  if (cells[emptyIdx]) {
+    cells[emptyIdx].classList.add('new-write');
+    setTimeout(() => cells[emptyIdx] && cells[emptyIdx].classList.remove('new-write'), 400);
+  }
+  ssdLog(`Ghi vào Block ${block}, Page ${pg} → trang mới = valid.`, 'ok');
+
+  const emptyLeft = ssdState.filter(s => s === 'empty').length;
+  if (emptyLeft <= 2) ssdLog('Cảnh báo: sắp hết trang trống — GC sẽ cần chạy!', 'warn');
+}
+
+function ssdDelete() {
+  // Mark a random valid page as invalid
+  const validIndices = ssdState.map((s,i) => s === 'valid' ? i : -1).filter(i => i >= 0);
+  if (validIndices.length === 0) { ssdLog('Không có page valid để xóa.', 'warn'); return; }
+  const idx = validIndices[Math.floor(Math.random() * validIndices.length)];
+  ssdState[idx] = 'invalid';
+  renderSSD();
+  const block = Math.floor(idx / SSD_PAGES_PER_BLOCK);
+  const pg = idx % SSD_PAGES_PER_BLOCK;
+  ssdLog(`Xóa Block ${block} Page ${pg} → đánh dấu invalid (chưa xóa vật lý trên flash).`, 'warn');
+}
+
+function ssdGC() {
+  // Find block with most invalid pages
+  let maxInvalid = -1, targetBlock = -1;
+  for (let b = 0; b < SSD_BLOCKS; b++) {
+    const start = b * SSD_PAGES_PER_BLOCK;
+    const invalidInBlock = ssdState.slice(start, start + SSD_PAGES_PER_BLOCK).filter(s => s === 'invalid').length;
+    if (invalidInBlock > maxInvalid) { maxInvalid = invalidInBlock; targetBlock = b; }
+  }
+
+  if (maxInvalid === 0) { ssdLog('Không có block nào cần GC (không có invalid page).', 'info'); return; }
+
+  const start = targetBlock * SSD_PAGES_PER_BLOCK;
+  const validPages = [];
+  for (let p = start; p < start + SSD_PAGES_PER_BLOCK; p++) {
+    if (ssdState[p] === 'valid') validPages.push(p - start);
+  }
+
+  gcCount++;
+  ssdLog(`GC: Block ${targetBlock} có ${maxInvalid} invalid page. Copy ${validPages.length} valid page sang block khác...`, 'info');
+  ssdLog(`    (1) Đọc ${validPages.length} valid page từ Block ${targetBlock} vào RAM`, 'info');
+  ssdLog(`    (2) Xóa toàn bộ Block ${targetBlock} (erase → tất cả về empty)`, 'warn');
+
+  // Erase block
+  for (let p = start; p < start + SSD_PAGES_PER_BLOCK; p++) {
+    ssdState[p] = 'empty';
+  }
+
+  ssdLog(`    (3) Ghi lại ${validPages.length} valid page vào page trống`, 'ok');
+  // Write back valid pages (simplified: into erased block again)
+  let wi = start;
+  for (let v = 0; v < validPages.length; v++) {
+    ssdState[wi] = 'valid';
+    wi++;
+  }
+
+  renderSSD();
+  ssdLog(`GC hoàn tất: Block ${targetBlock} đã được dọn → ${SSD_PAGES_PER_BLOCK - validPages.length} page trống mới.`, 'ok');
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  renderRAID();
+  resetJournal();
+  ssdReset();
+});
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

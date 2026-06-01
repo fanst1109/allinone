@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Âm thanh &amp; cao độ</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  .card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+  label { font-weight: 600; }
+  input[type="number"] { padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 15px; font-family: monospace; width: 80px; }
+  input[type="range"] { flex: 1; min-width: 180px; accent-color: #7e22ce; }
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: #6b21a8; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  .result {
+    padding: 14px 16px; background: #f3e8ff; border-radius: 8px; margin-top: 12px;
+    font-size: 15px; line-height: 1.7;
+  }
+  .result .big { font-size: 22px; font-weight: 800; color: #6b21a8; font-family: monospace; }
+  .badge { display: inline-block; background: #e9d5ff; color: #6b21a8; padding: 3px 9px; border-radius: 6px; font-family: monospace; font-weight: 700; margin: 2px; }
+
+  /* ---- Piano ---- */
+  .piano-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .piano {
+    position: relative; display: flex; height: 180px; min-width: 320px;
+    user-select: none; touch-action: manipulation; margin: 0 auto; max-width: 560px;
+  }
+  .wkey {
+    flex: 1; background: linear-gradient(#fff, #f1f1f1); border: 1px solid #aaa;
+    border-radius: 0 0 6px 6px; position: relative; cursor: pointer;
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;
+    font-size: 11px; color: #555; font-weight: 600;
+  }
+  .wkey.active { background: linear-gradient(#e9d5ff, #d8b4fe); }
+  .bkey {
+    position: absolute; top: 0; width: 8%; height: 62%;
+    background: linear-gradient(#333, #000); border-radius: 0 0 5px 5px;
+    z-index: 2; cursor: pointer; color: #ddd; font-size: 9px;
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px;
+  }
+  .bkey.active { background: linear-gradient(#7e22ce, #6b21a8); }
+
+  canvas { display: block; width: 100%; max-width: 560px; height: auto; margin: 10px auto;
+           background: #faf7fb; border: 1px solid #e9d5ff; border-radius: 8px; }
+  .nowplaying { font-family: monospace; font-weight: 700; color: #6b21a8; min-height: 22px; }
+
+  @media (max-width: 480px) {
+    .piano { height: 150px; }
+    .wkey { font-size: 9px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Fundamentals</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Âm thanh &amp; cao độ</span>
+  <span class="sep">·</span>
+  <span>L2: Tên nốt &amp; bàn phím (sắp có)</span>
+</nav>
+
+<main>
+<h1>Lesson 01 — Âm thanh &amp; cao độ</h1>
+<p>Một "nốt" thực ra là một <strong>tần số</strong> (Hz). Bốn công cụ dưới đây cho bạn <em>nghe</em> điều đó:
+bàn phím piano bấm ra tiếng, máy tính công thức <code>f = 440·2^(n/12)</code>, bộ trượt tần số → nốt gần nhất + cents,
+và minh họa octave 2:1. <strong>🔊 Bật loa.</strong></p>
+
+<h2>1. 🎹 Bàn phím — bấm để nghe</h2>
+<div class="card">
+  <p class="hint">Click (hoặc chạm) vào phím. Mỗi phím hiện tên nốt + tần số tính từ <code>f = 440·2^(n/12)</code>.</p>
+  <div class="piano-wrap">
+    <div class="piano" id="piano"></div>
+  </div>
+  <div class="nowplaying" id="np">&nbsp;</div>
+  <p class="hint">Phím trắng C4→C5 (một octave). A4 = 440 Hz là nốt chuẩn; C4 = "đô giữa" ≈ 261.63 Hz; C5 cao hơn C4 đúng 1 octave (×2).</p>
+</div>
+
+<h2>2. 🧮 Máy tính tần số — <code>f = 440·2^(n/12)</code></h2>
+<div class="card">
+  <div class="row">
+    <label for="n">n (số nửa cung tính từ A4):</label>
+    <input type="range" id="n" min="-24" max="24" value="0" step="1">
+    <input type="number" id="nNum" min="-24" max="24" value="0" step="1">
+  </div>
+  <div class="result">
+    <span class="val" id="nName">A4</span> &nbsp; cách A4 <span class="val" id="nVal">0</span> nửa cung<br>
+    f = 440 · 2<sup id="nExp">0/12</sup> = <span class="big" id="nFreq">440.00</span> Hz
+    <button class="ghost" id="playN" style="margin-left:10px">▶ Nghe</button>
+  </div>
+  <p class="hint">Kéo về <span class="val">+12</span> → ×2 (880 Hz, lên 1 octave). Về <span class="val">−9</span> → C4 (261.63 Hz, middle C).</p>
+</div>
+
+<h2>3. 🎚️ Bộ trượt tần số → nốt gần nhất &amp; độ lệch (cents)</h2>
+<div class="card">
+  <div class="row">
+    <label for="freq">Tần số:</label>
+    <input type="range" id="freq" min="110" max="1000" value="440" step="1">
+    <span><span class="val" id="freqVal">440</span> Hz</span>
+    <button class="ghost" id="playFreq">▶ Nghe</button>
+  </div>
+  <div class="result">
+    Nốt gần nhất: <span class="big" id="nearName">A4</span> (<span class="val" id="nearFreq">440.00</span> Hz)<br>
+    Lệch: <span class="val" id="centsVal">0.0</span> cents
+    <span class="hint" id="centsTxt">— đúng nốt chuẩn.</span>
+  </div>
+  <canvas id="wave" width="560" height="120"></canvas>
+  <p class="hint">cents = 1200·log₂(f / f<sub>nốt</sub>). |cents| &gt; ~5 là tai nhạy bắt đầu nghe "phô". Sóng vẽ minh họa: tần số cao → chu kỳ ngắn hơn.</p>
+</div>
+
+<h2>4. 🔁 Octave = gấp đôi tần số (2:1)</h2>
+<div class="card">
+  <p class="hint">Nghe một nốt, rồi nốt cao hơn 1 octave. Tần số ×2 nhưng tai nghe "cùng một nốt".</p>
+  <div class="row">
+    <label for="base">Nốt gốc:</label>
+    <input type="range" id="base" min="110" max="440" value="220" step="1">
+    <span><span class="val" id="baseVal">220</span> Hz → octave trên: <span class="val" id="octVal">440</span> Hz</span>
+  </div>
+  <div class="row">
+    <button id="playLow">▶ Nốt gốc</button>
+    <button id="playHigh">▶ Octave trên (×2)</button>
+    <button id="playBoth" class="ghost">▶ Cả hai cùng lúc</button>
+  </div>
+  <canvas id="octWave" width="560" height="140"></canvas>
+  <p class="hint">Sóng đỏ (octave trên) hoàn thành đúng <strong>2 chu kỳ</strong> trong thời gian sóng tím (gốc) hoàn thành <strong>1 chu kỳ</strong> → khớp nhau → "cùng màu".</p>
+</div>
+
+<script>
+// ---------- Web Audio ----------
+let ctx = null;
+function audio() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); return ctx; }
+function playTone(freq, dur = 0.7, when = 0) {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  // bao hình (envelope) cho êm tai
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.25, t0 + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+const NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function freqFromN(n) { return 440 * Math.pow(2, n / 12); }       // n nửa cung từ A4
+function nameFromN(n) {                                            // n từ A4 → tên nốt
+  const midi = 69 + n;
+  return NAMES[((midi % 12) + 12) % 12] + (Math.floor(midi / 12) - 1);
+}
+
+// ---------- 1. Piano ----------
+// C4..C5: n (nửa cung từ A4) cho từng nốt
+const WHITE = [ {n:-9,l:'C4'},{n:-7,l:'D4'},{n:-5,l:'E4'},{n:-4,l:'F4'},
+                {n:-2,l:'G4'},{n:0,l:'A4'},{n:2,l:'B4'},{n:3,l:'C5'} ];
+// black: gắn sau phím trắng index i, với n nửa cung
+const BLACK = [ {after:0,n:-8,l:'C#4'},{after:1,n:-6,l:'D#4'},
+                {after:3,n:-3,l:'F#4'},{after:4,n:-1,l:'G#4'},{after:5,n:1,l:'A#4'} ];
+const piano = document.getElementById('piano');
+const np = document.getElementById('np');
+function hit(el, n, label) {
+  const f = freqFromN(n);
+  playTone(f, 0.8);
+  np.textContent = `▶ ${label} — ${f.toFixed(2)} Hz  (n = ${n} nửa cung từ A4)`;
+  el.classList.add('active');
+  setTimeout(() => el.classList.remove('active'), 250);
+}
+WHITE.forEach(w => {
+  const k = document.createElement('div');
+  k.className = 'wkey'; k.textContent = w.l;
+  k.addEventListener('pointerdown', () => hit(k, w.n, w.l));
+  piano.appendChild(k);
+});
+BLACK.forEach(b => {
+  const k = document.createElement('div');
+  k.className = 'bkey'; k.textContent = b.l.replace('#','♯');
+  k.style.left = `calc(${(b.after + 1) * 12.5}% - 4%)`;
+  k.addEventListener('pointerdown', (e) => { e.stopPropagation(); hit(k, b.n, b.l); });
+  piano.appendChild(k);
+});
+
+// ---------- 2. Máy tính tần số ----------
+const nR = document.getElementById('n'), nNum = document.getElementById('nNum');
+function updN(n) {
+  n = Math.max(-24, Math.min(24, n | 0));
+  nR.value = n; nNum.value = n;
+  document.getElementById('nVal').textContent = (n > 0 ? '+' : '') + n;
+  document.getElementById('nName').textContent = nameFromN(n);
+  document.getElementById('nExp').textContent = n + '/12';
+  document.getElementById('nFreq').textContent = freqFromN(n).toFixed(2);
+}
+nR.addEventListener('input', () => updN(+nR.value));
+nNum.addEventListener('input', () => updN(+nNum.value));
+document.getElementById('playN').addEventListener('click', () => playTone(freqFromN(+nR.value), 0.9));
+updN(0);
+
+// ---------- 3. Bộ trượt tần số → nốt gần nhất ----------
+const freqR = document.getElementById('freq');
+const waveC = document.getElementById('wave'), wx = waveC.getContext('2d');
+function drawWave(canvas, c, freqs, colors) {
+  const W = canvas.width, H = canvas.height;
+  c.clearRect(0, 0, W, H);
+  c.strokeStyle = '#e9d5ff'; c.beginPath(); c.moveTo(0, H/2); c.lineTo(W, H/2); c.stroke();
+  const ref = Math.min(...freqs);
+  freqs.forEach((f, i) => {
+    c.strokeStyle = colors[i]; c.lineWidth = 2; c.beginPath();
+    const cycles = (f / ref) * 2;            // sóng thấp nhất vẽ 2 chu kỳ
+    for (let x = 0; x <= W; x++) {
+      const y = H/2 - Math.sin((x / W) * cycles * 2 * Math.PI) * (H/2 - 12);
+      x === 0 ? c.moveTo(x, y) : c.lineTo(x, y);
+    }
+    c.stroke();
+  });
+}
+function updFreq(f) {
+  document.getElementById('freqVal').textContent = f;
+  const n = Math.round(12 * Math.log2(f / 440));
+  const nf = freqFromN(n);
+  const cents = 1200 * Math.log2(f / nf);
+  document.getElementById('nearName').textContent = nameFromN(n);
+  document.getElementById('nearFreq').textContent = nf.toFixed(2);
+  document.getElementById('centsVal').textContent = (cents >= 0 ? '+' : '') + cents.toFixed(1);
+  const txt = document.getElementById('centsTxt');
+  if (Math.abs(cents) < 5) txt.textContent = '— coi như đúng nốt (tai khó phân biệt).';
+  else if (cents > 0) txt.textContent = '— cao hơn (sharp ♯) nốt gần nhất.';
+  else txt.textContent = '— thấp hơn (flat ♭) nốt gần nhất.';
+  drawWave(waveC, wx, [f], ['#7e22ce']);
+}
+freqR.addEventListener('input', () => updFreq(+freqR.value));
+document.getElementById('playFreq').addEventListener('click', () => playTone(+freqR.value, 0.9));
+updFreq(440);
+
+// ---------- 4. Octave demo ----------
+const baseR = document.getElementById('base');
+const octC = document.getElementById('octWave'), ox = octC.getContext('2d');
+function updOct(f) {
+  document.getElementById('baseVal').textContent = f;
+  document.getElementById('octVal').textContent = f * 2;
+  drawWave(octC, ox, [f, f * 2], ['#7e22ce', '#dc2626']);
+}
+baseR.addEventListener('input', () => updOct(+baseR.value));
+document.getElementById('playLow').addEventListener('click', () => playTone(+baseR.value, 1.0));
+document.getElementById('playHigh').addEventListener('click', () => playTone(+baseR.value * 2, 1.0));
+document.getElementById('playBoth').addEventListener('click', () => { playTone(+baseR.value, 1.2); playTone(+baseR.value * 2, 1.2); });
+updOct(220);
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

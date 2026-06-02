@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Gam thứ &amp; các mode</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --acc: #7e22ce;
+    --acc-h: #6b21a8;
+    --acc-s: #f3e8ff;
+    --acc-m: #e9d5ff;
+  }
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 44px; padding-bottom: 8px; border-bottom: 2px solid var(--acc-m); }
+  p.intro-text { color: #444; line-height: 1.7; margin-bottom: 20px; }
+
+  /* Cards */
+  .card {
+    background: #fff; border-radius: 12px; padding: 22px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin: 18px 0;
+  }
+  .hint { font-size: 13px; color: #666; margin: 6px 0 0; line-height: 1.6; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #333; }
+  select {
+    padding: 8px 12px; border: 1.5px solid #cbd5e0; border-radius: 8px;
+    font-size: 15px; background: #fff; cursor: pointer; color: #2d3748;
+  }
+  button {
+    background: var(--acc); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--acc-h); }
+  button.ghost { background: var(--acc-s); color: var(--acc-h); }
+  button.ghost:hover { background: var(--acc-m); }
+  .val { font-family: monospace; font-weight: 700; color: var(--acc); }
+  .badge {
+    display: inline-block; background: var(--acc-m); color: var(--acc-h);
+    padding: 3px 10px; border-radius: 6px; font-family: monospace;
+    font-weight: 700; margin: 2px 3px;
+  }
+  .result {
+    padding: 14px 18px; background: var(--acc-s); border-radius: 10px;
+    margin-top: 14px; font-size: 15px; line-height: 1.8;
+  }
+  .result .big { font-size: 20px; font-weight: 800; color: var(--acc-h); font-family: monospace; }
+
+  /* ===== Piano ===== */
+  .piano-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 16px 0; }
+  .piano {
+    position: relative; display: flex; height: 170px;
+    min-width: 300px; max-width: 680px;
+    user-select: none; touch-action: manipulation; margin: 0 auto;
+  }
+  .wkey {
+    flex: 1; background: linear-gradient(180deg, #fafafa, #ececec);
+    border: 1px solid #bbb; border-radius: 0 0 7px 7px;
+    position: relative; cursor: pointer;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 7px; font-size: 10px; color: #666; font-weight: 600;
+    transition: background 0.08s;
+  }
+  .wkey.scale-note { background: linear-gradient(180deg, #d8b4fe, #c084fc) !important; color: #fff; }
+  .wkey.root-note  { background: linear-gradient(180deg, #7e22ce, #6b21a8) !important; color: #fff; }
+  .wkey.raised-note { background: linear-gradient(180deg, #f59e0b, #d97706) !important; color: #fff; }
+  .wkey.active-flash { background: linear-gradient(180deg, #a78bfa, #7c3aed) !important; }
+
+  .bkey {
+    position: absolute; top: 0; width: 7.5%; height: 60%;
+    background: linear-gradient(180deg, #2d2d2d, #111);
+    border-radius: 0 0 5px 5px; z-index: 2; cursor: pointer;
+    color: #ccc; font-size: 9px;
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px;
+    transition: background 0.08s;
+  }
+  .bkey.scale-note { background: linear-gradient(180deg, #a855f7, #7e22ce) !important; color: #fff; }
+  .bkey.root-note  { background: linear-gradient(180deg, #7e22ce, #4c1d95) !important; color: #fff; }
+  .bkey.raised-note { background: linear-gradient(180deg, #d97706, #92400e) !important; color: #fff; }
+  .bkey.active-flash { background: linear-gradient(180deg, #a78bfa, #6d28d9) !important; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+  .leg-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  .leg-box {
+    width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0;
+    border: 1px solid rgba(0,0,0,0.15);
+  }
+
+  /* Scale formula strip */
+  .formula-strip {
+    display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0; align-items: center;
+  }
+  .step-box {
+    width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; font-weight: 700; font-family: monospace; font-size: 14px;
+    border: 2px solid transparent;
+  }
+  .step-box.whole { background: #dcfce7; color: #166534; border-color: #86efac; }
+  .step-box.half  { background: #fce7f3; color: #831843; border-color: #f9a8d4; }
+  .step-box.aug   { background: #fef3c7; color: #78350f; border-color: #fcd34d; }
+  .step-arrow { color: #94a3b8; font-size: 18px; }
+
+  /* Note sequence chips */
+  .note-seq { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .note-chip {
+    padding: 5px 12px; border-radius: 20px; font-family: monospace;
+    font-weight: 700; font-size: 15px; border: 2px solid transparent;
+  }
+  .note-chip.root   { background: var(--acc); color: #fff; }
+  .note-chip.normal { background: var(--acc-m); color: var(--acc-h); }
+  .note-chip.raised { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+  .note-chip.lowered { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+
+  /* Mode selector grid */
+  .mode-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px; margin: 14px 0;
+  }
+  .mode-btn {
+    background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 10px;
+    padding: 10px 8px; cursor: pointer; text-align: center;
+    transition: all 0.15s; font-weight: 600;
+  }
+  .mode-btn:hover { border-color: var(--acc); background: var(--acc-s); }
+  .mode-btn.active { border-color: var(--acc); background: var(--acc-m); color: var(--acc-h); }
+  .mode-btn .mode-name { font-size: 14px; }
+  .mode-btn .mode-degree { font-size: 11px; color: #64748b; margin-top: 2px; }
+  .mode-btn.active .mode-degree { color: var(--acc-h); }
+
+  /* Comparison table */
+  .cmp-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+  .cmp-table th { background: var(--acc-m); color: var(--acc-h); padding: 8px 12px; text-align: left; }
+  .cmp-table td { padding: 7px 12px; border-bottom: 1px solid #f1f5f9; }
+  .cmp-table tr:last-child td { border-bottom: none; }
+  .cmp-table .diff { color: #dc2626; font-weight: 700; }
+  .cmp-table .same { color: #94a3b8; }
+
+  .playing-indicator { color: var(--acc-h); font-weight: 700; font-size: 14px; min-height: 22px; margin-top: 8px; }
+
+  @media (max-width: 480px) {
+    .piano { height: 140px; }
+    .wkey { font-size: 8px; }
+    .step-box { width: 28px; height: 28px; font-size: 11px; }
+    .mode-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+    .cmp-table { font-size: 12px; }
+    .cmp-table th, .cmp-table td { padding: 6px 8px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Fundamentals</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-major-scale/visualization.html">← L5: Gam trưởng</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Gam thứ &amp; các mode</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-rhythm-meter/visualization.html">L7: Nhịp &amp; tiết tấu →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Gam thứ &amp; các mode</h1>
+<p class="intro-text">Hai công cụ tương tác: <strong>Xưởng gam thứ</strong> (nghe 3 biến thể natural / harmonic / melodic) và <strong>Khám phá mode</strong> (7 màu sắc âm nhạc từ 1 gam trưởng). <strong>🔊 Bật loa.</strong></p>
+
+<!-- ===== PHẦN 1: XƯỞNG GAM THỨ ===== -->
+<h2>1. 🎹 Xưởng gam thứ — nghe 3 biến thể</h2>
+<div class="card">
+  <div class="row">
+    <label for="rootSelect">Nốt gốc:</label>
+    <select id="rootSelect">
+      <option value="9">A</option>
+      <option value="11">B</option>
+      <option value="0">C</option>
+      <option value="2">D</option>
+      <option value="4">E</option>
+      <option value="5">F</option>
+      <option value="7">G</option>
+      <option value="1">C♯ / D♭</option>
+      <option value="3">D♯ / E♭</option>
+      <option value="6">F♯ / G♭</option>
+      <option value="8">G♯ / A♭</option>
+      <option value="10">A♯ / B♭</option>
+    </select>
+    <label for="scaleType">Loại gam:</label>
+    <select id="scaleType">
+      <option value="natural">Tự nhiên (Natural)</option>
+      <option value="harmonic">Hòa thanh (Harmonic)</option>
+      <option value="melodic_up">Giai điệu ↑ (Melodic ascending)</option>
+      <option value="melodic_dn">Giai điệu ↓ (Melodic descending)</option>
+    </select>
+  </div>
+
+  <div class="piano-wrap">
+    <div class="piano" id="piano1"></div>
+  </div>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-box" style="background:#7e22ce;"></div> Chủ âm (root)</div>
+    <div class="leg-item"><div class="leg-box" style="background:#c084fc;"></div> Nốt trong gam</div>
+    <div class="leg-item"><div class="leg-box" style="background:#d97706;"></div> Nốt được nâng (↑)</div>
+  </div>
+
+  <div id="scaleFormula" class="formula-strip"></div>
+
+  <div id="scaleChips" class="note-seq"></div>
+
+  <div id="scaleInfo" class="result" style="margin-top:10px;"></div>
+
+  <div class="row" style="margin-top:14px;">
+    <button id="btnPlayUp">▶ Phát đi lên</button>
+    <button id="btnPlayDown" class="ghost">▶ Phát đi xuống</button>
+    <button id="btnPlayChord" class="ghost">▶ Hợp âm i (tonic)</button>
+  </div>
+  <div class="playing-indicator" id="playInd1">&nbsp;</div>
+  <p class="hint" id="scaleHint">Màu tím nhạt = nốt trong gam. Màu cam = nốt bị nâng (harmonic/melodic). Nhấn phím để nghe riêng.</p>
+</div>
+
+<!-- ===== PHẦN 2: SO SÁNH 3 BIẾN THỂ ===== -->
+<h2>2. 🔬 So sánh 3 biến thể cùng nốt gốc</h2>
+<div class="card">
+  <p class="hint">Chọn nốt gốc ở Phần 1, bảng dưới đây tự cập nhật so sánh ba biến thể.</p>
+  <div id="cmpTableWrap" style="overflow-x:auto;"></div>
+  <div class="row" style="margin-top:12px;">
+    <button id="btnCmpNat">▶ Natural</button>
+    <button id="btnCmpHar" class="ghost">▶ Harmonic</button>
+    <button id="btnCmpMel" class="ghost">▶ Melodic ↑</button>
+  </div>
+  <div class="playing-indicator" id="playInd2">&nbsp;</div>
+</div>
+
+<!-- ===== PHẦN 3: KHÁM PHÁ MODE ===== -->
+<h2>3. 🌈 Khám phá mode — 7 màu sắc từ C major</h2>
+<div class="card">
+  <p>Chọn một mode để nghe nó và xem nốt đặc trưng so với Ionian (C major).</p>
+
+  <div class="mode-grid" id="modeGrid"></div>
+
+  <div class="piano-wrap" style="margin-top:16px;">
+    <div class="piano" id="piano2"></div>
+  </div>
+
+  <div id="modeChips" class="note-seq"></div>
+  <div id="modeInfo" class="result" style="margin-top:10px;"></div>
+
+  <div class="row" style="margin-top:12px;">
+    <button id="btnPlayMode">▶ Phát mode</button>
+    <button id="btnPlayModeDown" class="ghost">▶ Phát xuống</button>
+  </div>
+  <div class="playing-indicator" id="playInd3">&nbsp;</div>
+
+  <div id="modeCmpWrap" style="overflow-x:auto; margin-top:18px;"></div>
+</div>
+
+<script>
+// ===================== WEB AUDIO =====================
+let ctx = null;
+function audio() {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  return ctx;
+}
+function playTone(freq, dur = 0.6, when = 0, type = 'sine') {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g   = ac.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.22, t0 + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+// Note helpers (MIDI: C4=60, A4=69)
+const NOTE_NAMES_SHARP = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+const NOTE_NAMES_FLAT  = ['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'];
+
+function freqFromMidi(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+function midiNote(pitch, oct) { return pitch + (oct + 1) * 12; } // pitch=0..11
+
+// Prefer flat names for certain roots
+const PREFER_FLAT = new Set([1, 3, 5, 8, 10]); // Db, Eb, F (optional), Ab, Bb
+function noteName(pitch) {
+  const p = ((pitch % 12) + 12) % 12;
+  return PREFER_FLAT.has(p) ? NOTE_NAMES_FLAT[p] : NOTE_NAMES_SHARP[p];
+}
+
+// ===================== SCALE FORMULAS =====================
+// Each formula: array of semitone intervals (7 values, sum=12)
+const SCALE_FORMULAS = {
+  natural:    [2,1,2,2,1,2,2],
+  harmonic:   [2,1,2,2,1,3,1],
+  melodic_up: [2,1,2,2,2,2,1],
+  melodic_dn: [2,2,1,2,2,1,2], // natural minor descending = read natural ascending reversed
+};
+
+// Degrees raised compared to natural minor (0-indexed)
+const RAISED_DEGREES = {
+  natural:    [],
+  harmonic:   [6],       // bậc 7 (index 6)
+  melodic_up: [5, 6],    // bậc 6, 7
+  melodic_dn: [],
+};
+
+function buildScale(rootPitch, formulaKey) {
+  const intervals = SCALE_FORMULAS[formulaKey];
+  const notes = [rootPitch];
+  let current = rootPitch;
+  for (let i = 0; i < 7; i++) {
+    current = (current + intervals[i]) % 12;
+    notes.push(current);
+  }
+  return notes; // 8 values (includes octave repeat at index 7)
+}
+
+// Get scale note pitches (unique 7) from formula starting at root
+function scaleNotes7(rootPitch, formulaKey) {
+  const s = buildScale(rootPitch, formulaKey);
+  return s.slice(0, 7);
+}
+
+// Compared to natural minor: which pitches are raised
+function raisedPitches(rootPitch, formulaKey) {
+  const nat   = scaleNotes7(rootPitch, 'natural');
+  const scale = scaleNotes7(rootPitch, formulaKey);
+  const raised = new Set();
+  const rdIdx = RAISED_DEGREES[formulaKey] || [];
+  rdIdx.forEach(i => {
+    raised.add(((scale[i]) % 12 + 12) % 12);
+  });
+  return raised;
+}
+
+// ===================== PIANO BUILDER =====================
+// We show 2 octaves: C4..B5 (MIDI 60..83)
+// White keys in C4..B5 (14 keys)
+const WHITE_MIDI = [];
+const BLACK_INFO = []; // {midi, afterWhiteIdx}
+(function buildKeys() {
+  let wi = 0;
+  for (let m = 60; m <= 83; m++) {
+    const p = m % 12;
+    const isWhite = [0,2,4,5,7,9,11].includes(p);
+    if (isWhite) {
+      WHITE_MIDI.push(m);
+      wi++;
+    } else {
+      // attach to previous white key
+      BLACK_INFO.push({ midi: m, afterWhiteIdx: wi - 1 });
+    }
+  }
+})();
+
+function buildPiano(containerId, onKeyClick) {
+  const piano = document.getElementById(containerId);
+  piano.innerHTML = '';
+  const wkeys = [];
+  WHITE_MIDI.forEach((m, i) => {
+    const k = document.createElement('div');
+    k.className = 'wkey';
+    k.dataset.midi = m;
+    k.dataset.pitch = m % 12;
+    k.textContent = NOTE_NAMES_SHARP[m % 12] + Math.floor(m / 12 - 1);
+    k.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      playTone(freqFromMidi(m), 0.7);
+      k.classList.add('active-flash');
+      setTimeout(() => k.classList.remove('active-flash'), 200);
+      if (onKeyClick) onKeyClick(m);
+    });
+    piano.appendChild(k);
+    wkeys.push(k);
+  });
+
+  BLACK_INFO.forEach(b => {
+    const k = document.createElement('div');
+    k.className = 'bkey';
+    k.dataset.midi = b.midi;
+    k.dataset.pitch = b.midi % 12;
+    k.textContent = NOTE_NAMES_FLAT[b.midi % 12];
+    // Position: after white key index b.afterWhiteIdx
+    // Each white key = 100/14 % of piano width
+    const wPct = 100 / WHITE_MIDI.length;
+    k.style.left = `calc(${(b.afterWhiteIdx + 1) * wPct}% - 3.5%)`;
+    k.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      playTone(freqFromMidi(b.midi), 0.7);
+      k.classList.add('active-flash');
+      setTimeout(() => k.classList.remove('active-flash'), 200);
+      if (onKeyClick) onKeyClick(b.midi);
+    });
+    piano.appendChild(k);
+  });
+
+  return piano;
+}
+
+function highlightPiano(pianoId, scalePitches, rootPitch, raisedSet) {
+  const piano = document.getElementById(pianoId);
+  piano.querySelectorAll('[data-pitch]').forEach(k => {
+    const p = parseInt(k.dataset.pitch);
+    k.classList.remove('scale-note','root-note','raised-note');
+    if (p === ((rootPitch % 12) + 12) % 12) {
+      k.classList.add('root-note');
+    } else if (raisedSet && raisedSet.has(p)) {
+      k.classList.add('raised-note');
+    } else if (scalePitches.includes(p)) {
+      k.classList.add('scale-note');
+    }
+  });
+}
+
+// ===================== SECTION 1 — SCALE WORKSHOP =====================
+const rootSelect  = document.getElementById('rootSelect');
+const scaleType   = document.getElementById('scaleType');
+const formulaDiv  = document.getElementById('scaleFormula');
+const chipsDiv    = document.getElementById('scaleChips');
+const infoDiv     = document.getElementById('scaleInfo');
+const playInd1    = document.getElementById('playInd1');
+
+const SCALE_LABELS = {
+  natural:    'Tự nhiên (Natural minor)',
+  harmonic:   'Hòa thanh (Harmonic minor)',
+  melodic_up: 'Giai điệu ↑ (Melodic ascending)',
+  melodic_dn: 'Giai điệu ↓ (Melodic descending = Natural)',
+};
+
+const STEP_LABELS = { 2:'T', 1:'½', 3:'A²' };
+const STEP_CLASSES = { 2:'whole', 1:'half', 3:'aug' };
+
+function renderFormula(formulaKey) {
+  const intervals = SCALE_FORMULAS[formulaKey];
+  formulaDiv.innerHTML = '';
+  intervals.forEach((step, i) => {
+    if (i > 0) {
+      const arr = document.createElement('span');
+      arr.className = 'step-arrow'; arr.textContent = '→';
+      formulaDiv.appendChild(arr);
+    }
+    const box = document.createElement('div');
+    box.className = 'step-box ' + STEP_CLASSES[step];
+    box.textContent = STEP_LABELS[step];
+    box.title = step + ' nửa cung';
+    formulaDiv.appendChild(box);
+  });
+}
+
+function renderChips(rootPitch, formulaKey) {
+  const notes = scaleNotes7(rootPitch, formulaKey);
+  const raised = raisedPitches(rootPitch, formulaKey);
+  const nat    = scaleNotes7(rootPitch, 'natural');
+  chipsDiv.innerHTML = '';
+  notes.forEach((p, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'note-chip';
+    chip.textContent = noteName(p);
+    if (i === 0) chip.classList.add('root');
+    else if (raised.has(((p%12)+12)%12)) chip.classList.add('raised');
+    else chip.classList.add('normal');
+    chipsDiv.appendChild(chip);
+    // play on click
+    chip.style.cursor = 'pointer';
+    chip.addEventListener('click', () => {
+      // find midi in octave 4 or 5
+      const midiBase = 60; // C4
+      let m = midiBase + (((p - 0) % 12 + 12) % 12);
+      if (m < midiBase) m += 12;
+      playTone(freqFromMidi(m), 0.6);
+    });
+  });
+  // add octave
+  const chip8 = document.createElement('span');
+  chip8.className = 'note-chip root';
+  chip8.textContent = noteName(rootPitch) + '\'';
+  chipsDiv.appendChild(chip8);
+}
+
+function renderInfo(rootPitch, formulaKey) {
+  const raised = raisedPitches(rootPitch, formulaKey);
+  let html = `<strong>${noteName(rootPitch)} ${SCALE_LABELS[formulaKey]}</strong><br>`;
+  html += `Công thức: <span class="val">${SCALE_FORMULAS[formulaKey].join('–')}</span> nửa cung`;
+  if (formulaKey === 'harmonic') {
+    html += '<br>⚡ Khoảng <strong>Augmented 2nd (3nc)</strong> giữa bậc 6→7: nốt đặc trưng của harmonic minor.';
+    html += '<br>Bậc 7 được nâng → <strong>leading tone</strong> (cảm âm) kéo về chủ âm.';
+  } else if (formulaKey === 'melodic_up') {
+    html += '<br>⬆ Đi lên: nâng bậc 6+7 → giai điệu trơn hơn (không có khoảng A2).';
+    html += '<br>⬇ Đi xuống: trở về tự nhiên (trong classical; jazz giữ nguyên).';
+  } else if (formulaKey === 'melodic_dn') {
+    html += '<br>⬇ Descending = Natural minor (trở về bình thường khi đi xuống).';
+  } else {
+    html += '<br>Bậc 3, 6, 7 thấp hơn major cùng tên 1 nửa cung (♭3, ♭6, ♭7).';
+  }
+  infoDiv.innerHTML = html;
+}
+
+function updateScaleWorkshop() {
+  const rootPitch  = parseInt(rootSelect.value);
+  const formula    = scaleType.value;
+  const notes7     = scaleNotes7(rootPitch, formula);
+  const raised     = raisedPitches(rootPitch, formula);
+
+  buildPiano('piano1', null);
+  highlightPiano('piano1', notes7, rootPitch, raised);
+  renderFormula(formula);
+  renderChips(rootPitch, formula);
+  renderInfo(rootPitch, formula);
+  updateCompareTable();
+}
+
+// Play scale
+function getScaleMidis(rootPitch, formulaKey, startOct = 4) {
+  const intervals = SCALE_FORMULAS[formulaKey];
+  const rootMidi  = 60 + ((rootPitch - 0 + 12) % 12); // C4=60
+  // adjust to be within octave starting near 60
+  let base = rootMidi;
+  if (base < 57) base += 12; // keep in ~oct4
+  const midis = [base];
+  let cur = base;
+  for (let i = 0; i < 7; i++) {
+    cur += intervals[i];
+    midis.push(cur);
+  }
+  return midis;
+}
+
+document.getElementById('btnPlayUp').addEventListener('click', () => {
+  const midis = getScaleMidis(parseInt(rootSelect.value), scaleType.value);
+  midis.forEach((m, i) => playTone(freqFromMidi(m), 0.55, i * 0.3));
+  playInd1.textContent = '▶ Đang phát đi lên…';
+  setTimeout(() => { playInd1.textContent = ''; }, midis.length * 300 + 500);
+});
+
+document.getElementById('btnPlayDown').addEventListener('click', () => {
+  // if melodic_up, play melodic_dn for down; else use same formula reversed
+  const rootPitch = parseInt(rootSelect.value);
+  let formulaDn = scaleType.value;
+  if (formulaDn === 'melodic_up') formulaDn = 'melodic_dn';
+  const midis = getScaleMidis(rootPitch, formulaDn).reverse();
+  midis.forEach((m, i) => playTone(freqFromMidi(m), 0.55, i * 0.3));
+  playInd1.textContent = '▶ Đang phát đi xuống…';
+  setTimeout(() => { playInd1.textContent = ''; }, midis.length * 300 + 500);
+});
+
+document.getElementById('btnPlayChord').addEventListener('click', () => {
+  // Tonic triad: bậc 1, 3, 5
+  const rootPitch = parseInt(rootSelect.value);
+  const formula   = scaleType.value;
+  const midis     = getScaleMidis(rootPitch, formula);
+  [midis[0], midis[2], midis[4]].forEach(m => playTone(freqFromMidi(m), 1.2, 0));
+  playInd1.textContent = '▶ Hợp âm i (' + noteName(rootPitch) + ' – ' + noteName(midis[2]%12) + ' – ' + noteName(midis[4]%12) + ')';
+  setTimeout(() => { playInd1.textContent = ''; }, 1500);
+});
+
+rootSelect.addEventListener('change', updateScaleWorkshop);
+scaleType.addEventListener('change', updateScaleWorkshop);
+
+// ===================== SECTION 2 — COMPARE TABLE =====================
+function updateCompareTable() {
+  const rootPitch = parseInt(rootSelect.value);
+  const rn = noteName(rootPitch);
+  const types = ['natural','harmonic','melodic_up'];
+  const labels = ['Natural','Harmonic','Melodic ↑'];
+  const DEGREE_LABELS = ['1','2','3','4','5','6','7','8'];
+
+  let html = `<table class="cmp-table"><thead><tr><th>Loại</th>`;
+  DEGREE_LABELS.forEach(d => { html += `<th>Bậc ${d}</th>`; });
+  html += `</tr></thead><tbody>`;
+
+  const natNotes = scaleNotes7(rootPitch, 'natural');
+
+  types.forEach((t, ti) => {
+    const notes = scaleNotes7(rootPitch, t);
+    const notes8 = [...notes, notes[0]]; // add octave
+    html += `<tr><td><strong>${labels[ti]}</strong></td>`;
+    notes8.forEach((p, i) => {
+      const isRaised = (t !== 'natural') && i < 7 && p !== natNotes[i];
+      const cls = isRaised ? ' class="diff"' : (i === 0 || i === 7 ? ' style="font-weight:700;color:#7e22ce"' : '');
+      html += `<td${cls}>${noteName(p)}</td>`;
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table>`;
+  document.getElementById('cmpTableWrap').innerHTML = html;
+}
+
+// Compare play buttons
+document.getElementById('btnCmpNat').addEventListener('click', () => {
+  const midis = getScaleMidis(parseInt(rootSelect.value), 'natural');
+  midis.forEach((m, i) => playTone(freqFromMidi(m), 0.5, i * 0.28));
+  document.getElementById('playInd2').textContent = '▶ Natural minor…';
+  setTimeout(() => { document.getElementById('playInd2').textContent = ''; }, midis.length * 280 + 400);
+});
+document.getElementById('btnCmpHar').addEventListener('click', () => {
+  const midis = getScaleMidis(parseInt(rootSelect.value), 'harmonic');
+  midis.forEach((m, i) => playTone(freqFromMidi(m), 0.5, i * 0.28));
+  document.getElementById('playInd2').textContent = '▶ Harmonic minor… (chú ý khoảng nhảy bậc 6→7)';
+  setTimeout(() => { document.getElementById('playInd2').textContent = ''; }, midis.length * 280 + 400);
+});
+document.getElementById('btnCmpMel').addEventListener('click', () => {
+  const midis = getScaleMidis(parseInt(rootSelect.value), 'melodic_up');
+  midis.forEach((m, i) => playTone(freqFromMidi(m), 0.5, i * 0.28));
+  document.getElementById('playInd2').textContent = '▶ Melodic ascending… (bậc 6+7 nâng, trơn hơn)';
+  setTimeout(() => { document.getElementById('playInd2').textContent = ''; }, midis.length * 280 + 400);
+});
+
+// ===================== SECTION 3 — MODE EXPLORER =====================
+const MODES = [
+  {
+    name: 'Ionian',
+    degree: 'Bậc 1 = major',
+    intervals: [2,2,1,2,2,2,1],
+    root: 0, // C
+    characteristic: 'Sáng, vui, ổn định — gam trưởng chuẩn',
+    colorTag: 'major',
+    specialNote: null,
+    desc: '= C major. Không có nốt đặc biệt — chuẩn của mọi chuẩn.',
+  },
+  {
+    name: 'Dorian',
+    degree: 'Bậc 2 — D',
+    intervals: [2,1,2,2,2,1,2],
+    root: 2, // D
+    characteristic: 'Minor nhưng sáng hơn — jazzy, dân ca Celtic, Santana',
+    colorTag: 'minor-light',
+    specialNote: 'Bậc 6 tự nhiên (♮6) — khác Aeolian ở chỗ này',
+    desc: 'D E F G A B C D. Bậc 6 = B♮ (thay vì B♭ của D natural minor) → cảm giác minor nhưng không quá tối.',
+  },
+  {
+    name: 'Phrygian',
+    degree: 'Bậc 3 — E',
+    intervals: [1,2,2,2,1,2,2],
+    root: 4, // E
+    characteristic: 'Tối, kịch tính, Tây Ban Nha / Flamenco',
+    colorTag: 'dark',
+    specialNote: 'Bậc 2 giáng (♭2) — chỉ 1 nửa cung lên từ chủ âm',
+    desc: 'E F G A B C D E. Bậc 2 = F♮ (thay vì F♯ của E natural minor). Cung ♭2 gây ra màu sắc "Trung Đông / Tây Ban Nha".',
+  },
+  {
+    name: 'Lydian',
+    degree: 'Bậc 4 — F',
+    intervals: [2,2,2,1,2,2,1],
+    root: 5, // F
+    characteristic: 'Mơ màng, huyền ảo, nhạc phim viễn tưởng (John Williams)',
+    colorTag: 'dreamy',
+    specialNote: 'Bậc 4 thăng (♯4) — tritone với chủ âm',
+    desc: 'F G A B C D E F. Bậc 4 = B♮ (thay vì B♭ của F major). Tritone F–B tạo cảm giác "lơ lửng, không trọng lực".',
+  },
+  {
+    name: 'Mixolydian',
+    degree: 'Bậc 5 — G',
+    intervals: [2,2,1,2,2,1,2],
+    root: 7, // G
+    characteristic: 'Major phóng khoáng — blues, rock, dân ca',
+    colorTag: 'major-dark',
+    specialNote: 'Bậc 7 giáng (♭7) — không có leading tone',
+    desc: 'G A B C D E F G. Bậc 7 = F♮ (thay vì F♯ của G major). Thiếu leading tone làm gam "mở", không kết chặt về chủ âm.',
+  },
+  {
+    name: 'Aeolian',
+    degree: 'Bậc 6 — A',
+    intervals: [2,1,2,2,1,2,2],
+    root: 9, // A
+    characteristic: 'Buồn, trầm tư — = Natural minor chuẩn',
+    colorTag: 'minor',
+    specialNote: null,
+    desc: 'A B C D E F G A. = A natural minor. Bậc 3, 6, 7 đều giáng so với A major.',
+  },
+  {
+    name: 'Locrian',
+    degree: 'Bậc 7 — B',
+    intervals: [1,2,2,1,2,2,2],
+    root: 11, // B
+    characteristic: 'Căng thẳng, bất ổn — hợp âm i là diminished',
+    colorTag: 'tense',
+    specialNote: '♭2 và ♭5 — quãng 5 giáng làm tonic chord mất ổn định',
+    desc: 'B C D E F G A B. So B natural minor: thêm ♭2 (C♮ thay C♯) và ♭5 (F♮ thay F♯). Hợp âm tonic = B dim (B–D–F).',
+  },
+];
+
+const MODE_COLORS = {
+  'major':      { bg: '#dcfce7', border: '#86efac', text: '#166534' },
+  'minor-light':{ bg: '#ede9fe', border: '#a78bfa', text: '#4c1d95' },
+  'dark':       { bg: '#fce7f3', border: '#f9a8d4', text: '#831843' },
+  'dreamy':     { bg: '#fef9c3', border: '#fde047', text: '#713f12' },
+  'major-dark': { bg: '#fed7aa', border: '#fb923c', text: '#7c2d12' },
+  'minor':      { bg: '#e0e7ff', border: '#818cf8', text: '#312e81' },
+  'tense':      { bg: '#fee2e2', border: '#fca5a5', text: '#7f1d1d' },
+};
+
+let selectedMode = 1; // Dorian default
+
+function buildModeGrid() {
+  const grid = document.getElementById('modeGrid');
+  grid.innerHTML = '';
+  MODES.forEach((m, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'mode-btn' + (i === selectedMode ? ' active' : '');
+    const c = MODE_COLORS[m.colorTag];
+    if (i === selectedMode) {
+      btn.style.background = c.bg;
+      btn.style.borderColor = c.border;
+      btn.style.color = c.text;
+    }
+    btn.innerHTML = `<div class="mode-name">${m.name}</div><div class="mode-degree">${m.degree}</div>`;
+    btn.addEventListener('click', () => { selectedMode = i; updateModeExplorer(); });
+    grid.appendChild(btn);
+  });
+}
+
+function buildModeScaleNotes(modeIdx) {
+  // Use the mode's intervals starting from its root pitch
+  const m = MODES[modeIdx];
+  const intervals = m.intervals;
+  const rootPitch = m.root;
+  const notes = [rootPitch];
+  let cur = rootPitch;
+  intervals.forEach(step => {
+    cur = (cur + step) % 12;
+    notes.push(cur);
+  });
+  return notes; // 8 notes
+}
+
+function getModeChipClass(noteIdx, modeIdx) {
+  const m = MODES[modeIdx];
+  // compare to Ionian (C=0: C D E F G A B = [0,2,4,5,7,9,11])
+  const ionianNotes = [0,2,4,5,7,9,11];
+  const modeNotes7  = buildModeScaleNotes(modeIdx).slice(0,7);
+  // Shift ionian to same root
+  const rootShift = m.root; // mode root - C = rootShift semitones
+  const ionianShifted = ionianNotes.map(n => (n + rootShift) % 12);
+
+  if (noteIdx === 0) return 'root';
+  const noteP = modeNotes7[noteIdx];
+  const ionP  = ionianShifted[noteIdx];
+  if (noteP === ionP) return 'normal';
+  // Check if raised or lowered vs major
+  const diff = ((noteP - ionP + 12) % 12);
+  if (diff === 1) return 'raised'; // up 1 semitone = raised
+  if (diff === 11) return 'lowered'; // down 1 semitone = lowered
+  return 'lowered'; // down 2 (♭♭5 etc) — rare
+}
+
+function updateModeExplorer() {
+  const m = MODES[selectedMode];
+  const notes8 = buildModeScaleNotes(selectedMode);
+  const notes7 = notes8.slice(0, 7);
+  const c = MODE_COLORS[m.colorTag];
+
+  // Update grid active state
+  document.querySelectorAll('.mode-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === selectedMode);
+    if (i === selectedMode) {
+      btn.style.background = c.bg;
+      btn.style.borderColor = c.border;
+      btn.style.color = c.text;
+    } else {
+      btn.style.background = '';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+    }
+  });
+
+  // Piano highlight
+  buildPiano('piano2', null);
+  highlightPiano('piano2', notes7, m.root, new Set());
+
+  // Chips
+  const chipsDiv = document.getElementById('modeChips');
+  chipsDiv.innerHTML = '';
+  notes8.forEach((p, i) => {
+    if (i === 7) return; // skip repeated root at end
+    const chip = document.createElement('span');
+    chip.className = 'note-chip ' + getModeChipClass(i, selectedMode);
+    chip.textContent = noteName(p);
+    chip.style.cursor = 'pointer';
+    chip.addEventListener('click', () => {
+      let midi = 60 + ((p - 0 + 12) % 12);
+      if (midi < 57) midi += 12;
+      playTone(freqFromMidi(midi), 0.6);
+    });
+    chipsDiv.appendChild(chip);
+  });
+
+  // Info
+  const infoDiv2 = document.getElementById('modeInfo');
+  let html = `<strong>${m.name}</strong> &nbsp;`;
+  html += `<span style="background:${c.bg};color:${c.text};padding:2px 10px;border-radius:12px;font-size:13px;">${m.characteristic}</span><br>`;
+  html += `<br>${m.desc}`;
+  if (m.specialNote) {
+    html += `<br><br>⭐ <strong>Nốt đặc trưng:</strong> ${m.specialNote}`;
+  }
+  infoDiv2.innerHTML = html;
+  infoDiv2.style.background = c.bg;
+  infoDiv2.style.border = `1.5px solid ${c.border}`;
+
+  // Comparison table vs Ionian
+  renderModeCompareTable();
+}
+
+function renderModeCompareTable() {
+  const ionianNotes = [0,2,4,5,7,9,11]; // C D E F G A B
+  const m = MODES[selectedMode];
+  const modeNotes7 = buildModeScaleNotes(selectedMode).slice(0,7);
+  const rootShift  = m.root;
+  const ionianShifted = ionianNotes.map(n => (n + rootShift) % 12);
+  const ionianName = noteName(m.root) + ' Ionian (major)';
+  const modeName   = noteName(m.root) + ' ' + m.name;
+
+  let html = `<table class="cmp-table"><thead><tr>`;
+  html += `<th>Gam</th>`;
+  [1,2,3,4,5,6,7].forEach(d => { html += `<th>Bậc ${d}</th>`; });
+  html += `</tr></thead><tbody>`;
+
+  // Ionian row
+  html += `<tr><td><em>${ionianName}</em></td>`;
+  ionianShifted.forEach(p => { html += `<td>${noteName(p)}</td>`; });
+  html += `</tr>`;
+
+  // Mode row
+  html += `<tr><td><strong>${modeName}</strong></td>`;
+  modeNotes7.forEach((p, i) => {
+    const ionP = ionianShifted[i];
+    const diff = ((p - ionP + 12) % 12);
+    let cls = '';
+    if (p !== ionP) cls = ' class="diff"';
+    html += `<td${cls}>${noteName(p)}${p !== ionP ? (diff === 11 ? ' ♭' : ' ♯') : ''}</td>`;
+  });
+  html += `</tr>`;
+
+  html += `</tbody></table>`;
+  html += `<p class="hint" style="margin-top:6px;">Ô <span class="diff" style="font-weight:700;">đỏ</span> = khác với Ionian (major) cùng tên. Đây là nốt đặc trưng của mode.</p>`;
+  document.getElementById('modeCmpWrap').innerHTML = html;
+}
+
+// Play mode buttons
+document.getElementById('btnPlayMode').addEventListener('click', () => {
+  const m = MODES[selectedMode];
+  const rootMidi = (() => {
+    let b = 60 + ((m.root + 12) % 12);
+    if (b < 57) b += 12;
+    return b;
+  })();
+  const ascending = [rootMidi];
+  let cc = rootMidi;
+  m.intervals.forEach(step => { cc += step; ascending.push(cc); });
+  ascending.forEach((mid, i) => playTone(freqFromMidi(mid), 0.5, i * 0.28));
+  document.getElementById('playInd3').textContent = `▶ ${noteName(m.root)} ${m.name} đi lên…`;
+  setTimeout(() => { document.getElementById('playInd3').textContent = ''; }, ascending.length * 280 + 400);
+});
+
+document.getElementById('btnPlayModeDown').addEventListener('click', () => {
+  const m = MODES[selectedMode];
+  const rootMidi = (() => {
+    let b = 60 + ((m.root + 12) % 12);
+    if (b < 57) b += 12;
+    return b;
+  })();
+  const ascending = [rootMidi];
+  let cc = rootMidi;
+  m.intervals.forEach(step => { cc += step; ascending.push(cc); });
+  ascending.reverse().forEach((mid, i) => playTone(freqFromMidi(mid), 0.5, i * 0.28));
+  document.getElementById('playInd3').textContent = `▶ ${noteName(m.root)} ${m.name} đi xuống…`;
+  setTimeout(() => { document.getElementById('playInd3').textContent = ''; }, ascending.length * 280 + 400);
+});
+
+// ===================== INIT =====================
+buildPiano('piano1', null);
+buildPiano('piano2', null);
+buildModeGrid();
+updateScaleWorkshop();
+updateModeExplorer();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Bộ khóa &amp; vòng quãng 5</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  .card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; }
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: #6b21a8; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; color: #5b21b6; }
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  .result {
+    padding: 14px 16px; background: #f3e8ff; border-radius: 8px; margin-top: 12px;
+    font-size: 15px; line-height: 1.8;
+  }
+  .big { font-size: 20px; font-weight: 800; color: #6b21a8; font-family: monospace; }
+  .badge { display: inline-block; background: #e9d5ff; color: #6b21a8; padding: 3px 8px; border-radius: 6px; font-family: monospace; font-weight: 700; margin: 2px; font-size: 13px; }
+  .badge.sharp { background: #fef3c7; color: #92400e; }
+  .badge.flat { background: #dbeafe; color: #1e40af; }
+  .badge.note { background: #dcfce7; color: #166534; }
+  .badge.minor { background: #fce7f3; color: #9d174d; }
+
+  /* --- Circle of Fifths SVG --- */
+  .cof-wrap { display: flex; justify-content: center; margin: 16px 0; }
+  .cof-wrap svg { max-width: 480px; width: 100%; height: auto; cursor: pointer; }
+
+  /* --- Info Panel --- */
+  #cof-info { min-height: 120px; }
+  #cof-info .key-name { font-size: 28px; font-weight: 800; color: #6b21a8; }
+  #cof-info .sig-label { font-weight: 700; font-size: 15px; margin-top: 4px; }
+  #cof-info .notes-row { margin: 8px 0; }
+  #cof-info .play-btn { margin-top: 8px; }
+
+  /* --- Sharp/Flat order display --- */
+  .acc-sequence { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; align-items: center; }
+  .acc-item {
+    padding: 5px 10px; border-radius: 6px; font-family: monospace; font-weight: 700;
+    font-size: 15px; border: 2px solid transparent; transition: all 0.2s;
+  }
+  .acc-item.active-sharp { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+  .acc-item.active-flat  { background: #dbeafe; border-color: #3b82f6; color: #1e40af; }
+  .acc-item.dim { background: #f3f4f6; color: #9ca3af; }
+
+  /* --- Quiz --- */
+  .quiz-box { margin: 16px 0; }
+  .quiz-prompt { font-size: 18px; font-weight: 700; color: #2d3748; margin-bottom: 12px; }
+  .quiz-choices { display: flex; flex-wrap: wrap; gap: 8px; }
+  .quiz-choices button {
+    min-width: 80px; padding: 8px 14px; font-size: 14px;
+    background: #f9fafb; color: #374151; border: 2px solid #e5e7eb;
+  }
+  .quiz-choices button:hover { background: #f3e8ff; border-color: #a855f7; color: #6b21a8; }
+  .quiz-choices button.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+  .quiz-choices button.wrong { background: #fee2e2; border-color: #dc2626; color: #991b1b; }
+  .quiz-feedback { min-height: 28px; font-weight: 700; margin-top: 8px; font-size: 15px; }
+  .quiz-score { font-size: 13px; color: #6b21a8; }
+
+  /* --- Staff display --- */
+  .staff-wrap { overflow-x: auto; }
+
+  @media (max-width: 480px) {
+    .cof-wrap svg { max-width: 340px; }
+    #cof-info .key-name { font-size: 22px; }
+    h2 { font-size: 17px; }
+    .quiz-choices button { min-width: 60px; padding: 7px 10px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Fundamentals</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-rhythm-meter/visualization.html">← L7: Nhịp &amp; tiết tấu</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Bộ khóa &amp; vòng quãng 5</span>
+  <span class="sep">·</span>
+  <a href="../../02-Harmony/index.html">Tầng 2: Harmony →</a>
+</nav>
+
+<main>
+<h1>Lesson 08 — Bộ khóa &amp; vòng quãng 5</h1>
+<p>Ba công cụ tương tác: <strong>(1)</strong> Vòng quãng 5 — click điệu để nghe gam phát thật.
+<strong>(2)</strong> Thứ tự dấu thăng/giáng tích lũy trực quan. <strong>(3)</strong> Quiz đoán điệu từ bộ khóa.
+<strong>🔊 Bật loa.</strong></p>
+
+<!-- ===== SECTION 1: Circle of Fifths ===== -->
+<h2>1. 🎵 Vòng quãng 5 — click để nghe</h2>
+<div class="card">
+  <p class="hint">Click vào bất kỳ điệu nào → xem bộ khóa, các nốt trong gam, điệu thứ tương đối, và <strong>nghe gam phát tuần tự</strong>.</p>
+
+  <div class="cof-wrap">
+    <svg id="cof-svg" viewBox="0 0 480 480" width="480" height="480" xmlns="http://www.w3.org/2000/svg">
+      <!-- Rendered by JS -->
+    </svg>
+  </div>
+
+  <div class="result" id="cof-info">
+    <div style="color:#9ca3af;font-style:italic;">← Click vào một điệu trên vòng để xem thông tin.</div>
+  </div>
+  <p class="hint">Vòng ngoài: 12 điệu trưởng. Vòng trong: điệu thứ tương đối (cùng bộ khóa). Đi theo chiều kim đồng hồ = +1 dấu thăng; ngược chiều = +1 dấu giáng.</p>
+</div>
+
+<!-- ===== SECTION 2: Sharp/Flat order ===== -->
+<h2>2. 📋 Thứ tự dấu thăng &amp; giáng tích lũy</h2>
+<div class="card">
+  <p>Dùng thanh kéo để xem dấu nào được thêm vào khi đi từng bước quanh vòng quãng 5.</p>
+  <div class="row" style="gap:20px;">
+    <button class="ghost" id="mode-sharp" onclick="setAccMode('sharp')">♯ Thăng</button>
+    <button id="mode-flat" onclick="setAccMode('flat')">♭ Giáng</button>
+    <span id="acc-key-label" class="val" style="font-size:16px;">G trưởng — 1♯</span>
+  </div>
+  <div class="row" style="margin-top:8px;">
+    <label>Số dấu: <span id="acc-count" class="val">1</span></label>
+    <input type="range" id="acc-slider" min="0" max="7" value="1" step="1"
+           style="flex:1;min-width:120px;accent-color:#7e22ce;">
+  </div>
+  <div class="acc-sequence" id="acc-seq"></div>
+  <div style="margin-top:8px;">
+    <span style="font-weight:700;">Mẹo nhớ: </span>
+    <span id="acc-mnemonic" class="val"></span>
+  </div>
+  <p class="hint" id="acc-hint"></p>
+</div>
+
+<!-- ===== SECTION 3: Quiz ===== -->
+<h2>3. ❓ Quiz — Đoán điệu từ bộ khóa</h2>
+<div class="card">
+  <p class="hint">Xem bộ khóa cho bên dưới, đoán tên điệu trưởng tương ứng. Mỗi lần click "Câu hỏi mới" sẽ tạo câu ngẫu nhiên.</p>
+  <div class="row" style="gap:12px;margin-bottom:8px;">
+    <button onclick="newQuiz()">🔀 Câu hỏi mới</button>
+    <span class="quiz-score">Đúng: <span id="q-correct">0</span> / <span id="q-total">0</span></span>
+  </div>
+  <div class="quiz-box">
+    <div class="quiz-prompt" id="q-prompt">Nhấn "Câu hỏi mới" để bắt đầu.</div>
+    <!-- Staff SVG for quiz key sig display -->
+    <div class="staff-wrap">
+      <svg id="q-staff" viewBox="0 0 360 90" width="360" height="90" style="max-width:100%;height:auto;display:block;margin:8px 0;">
+        <!-- Staff lines and accidentals rendered by JS -->
+      </svg>
+    </div>
+    <div class="quiz-choices" id="q-choices"></div>
+    <div class="quiz-feedback" id="q-feedback"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  Web Audio
+// ============================================================
+let ctx = null;
+function audio() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); return ctx; }
+function playTone(freq, dur = 0.6, when = 0) {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.22, t0 + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+const NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function freqFromN(n) { return 440 * Math.pow(2, n / 12); }
+function nameFromN(n) {
+  const midi = 69 + n;
+  return NAMES[((midi % 12) + 12) % 12] + (Math.floor(midi / 12) - 1);
+}
+
+// ============================================================
+//  Music theory data
+// ============================================================
+
+// Circle of fifths data (clockwise from 12 o'clock = C)
+// Each entry: { name, sharps(+) or flats(-), notes[], minor }
+const COF_MAJOR = [
+  { name: 'C',  acc: 0,  notes: ['C','D','E','F','G','A','B'],             minor: 'Am',  minorFull: 'A thứ' },
+  { name: 'G',  acc: 1,  notes: ['G','A','B','C','D','E','F♯'],            minor: 'Em',  minorFull: 'E thứ' },
+  { name: 'D',  acc: 2,  notes: ['D','E','F♯','G','A','B','C♯'],           minor: 'Bm',  minorFull: 'B thứ' },
+  { name: 'A',  acc: 3,  notes: ['A','B','C♯','D','E','F♯','G♯'],          minor: 'F♯m', minorFull: 'F♯ thứ' },
+  { name: 'E',  acc: 4,  notes: ['E','F♯','G♯','A','B','C♯','D♯'],         minor: 'C♯m', minorFull: 'C♯ thứ' },
+  { name: 'B',  acc: 5,  notes: ['B','C♯','D♯','E','F♯','G♯','A♯'],        minor: 'G♯m', minorFull: 'G♯ thứ' },
+  { name: 'F♯/G♭', acc: 6, notes: ['F♯','G♯','A♯','B','C♯','D♯','E♯'],   minor: 'D♯m/E♭m', minorFull: 'D♯/E♭ thứ' },
+  { name: 'D♭', acc: -5, notes: ['D♭','E♭','F','G♭','A♭','B♭','C'],        minor: 'B♭m', minorFull: 'B♭ thứ' },
+  { name: 'A♭', acc: -4, notes: ['A♭','B♭','C','D♭','E♭','F','G'],         minor: 'Fm',  minorFull: 'F thứ' },
+  { name: 'E♭', acc: -3, notes: ['E♭','F','G','A♭','B♭','C','D'],          minor: 'Cm',  minorFull: 'C thứ' },
+  { name: 'B♭', acc: -2, notes: ['B♭','C','D','E♭','F','G','A'],           minor: 'Gm',  minorFull: 'G thứ' },
+  { name: 'F',  acc: -1, notes: ['F','G','A','B♭','C','D','E'],            minor: 'Dm',  minorFull: 'D thứ' },
+];
+
+// MIDI semitone from C4 for each scale degree of each key
+// notes -> MIDI offsets from C4 (middle C = 60)
+const NOTE_MIDI = {'C':60,'C#':61,'D♭':61,'D':62,'D#':63,'E♭':63,'E':64,'F':65,
+  'F#':66,'F♯':66,'G♭':66,'G':67,'G#':68,'G♯':68,'A♭':68,'A':69,'A#':70,'A♯':70,
+  'B♭':70,'B':71,'C♯':61,'D♯':63,'E♯':65,'A♯':70,'B♯':72};
+
+function getScaleMidi(notes) {
+  // Return ascending MIDI notes starting from the root in octave 4/5
+  const root = NOTE_MIDI[notes[0]];
+  const out = [];
+  let prev = -1;
+  notes.forEach(n => {
+    let m = NOTE_MIDI[n];
+    if (m === undefined) m = 60;
+    // ensure ascending
+    while (m <= prev) m += 12;
+    out.push(m);
+    prev = m;
+  });
+  // Add octave root
+  out.push(out[0] + 12);
+  return out;
+}
+
+function playScale(notes) {
+  const midi = getScaleMidi(notes);
+  // MIDI to freq relative to A4=69
+  midi.forEach((m, i) => {
+    const freq = 440 * Math.pow(2, (m - 69) / 12);
+    playTone(freq, 0.55, i * 0.28);
+  });
+}
+
+// Acc label
+function accLabel(acc) {
+  if (acc === 0) return '0 dấu biến';
+  if (acc > 0)  return acc + '♯';
+  return Math.abs(acc) + '♭';
+}
+
+// ============================================================
+//  Circle of Fifths SVG
+// ============================================================
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const CX = 240, CY = 240;
+const R_OUT = 210, R_MID = 155, R_IN = 100, R_INNER_MINOR = 80;
+
+function polarToXY(angleDeg, r) {
+  const rad = (angleDeg - 90) * Math.PI / 180;
+  return { x: CX + r * Math.cos(rad), y: CY + r * Math.sin(rad) };
+}
+
+function makeSVGEl(tag, attrs) {
+  const el = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+
+let selectedIdx = -1;
+
+function buildCOF() {
+  const svg = document.getElementById('cof-svg');
+  svg.innerHTML = '';
+
+  // Background circle
+  svg.appendChild(makeSVGEl('circle', { cx: CX, cy: CY, r: R_OUT + 8, fill: '#faf7fb', stroke: '#e9d5ff', 'stroke-width': 2 }));
+
+  // Draw 12 sectors (outer = major, inner = minor)
+  const sectorAngle = 30; // 360/12
+
+  COF_MAJOR.forEach((key, i) => {
+    const startA = i * sectorAngle - sectorAngle / 2;
+    const endA   = startA + sectorAngle;
+    const midA   = i * sectorAngle;
+
+    // --- Outer sector (major) ---
+    const o1 = polarToXY(startA, R_OUT);
+    const o2 = polarToXY(endA,   R_OUT);
+    const m1 = polarToXY(startA, R_MID);
+    const m2 = polarToXY(endA,   R_MID);
+
+    const outerPath = [
+      `M ${m1.x} ${m1.y}`,
+      `A ${R_OUT} ${R_OUT} 0 0 1 ${o1.x} ${o1.y}`,
+      `A ${R_OUT} ${R_OUT} 0 0 1 ${o2.x} ${o2.y}`,
+      `L ${m2.x} ${m2.y}`,
+      `A ${R_MID} ${R_MID} 0 0 0 ${m1.x} ${m1.y}`,
+      'Z'
+    ].join(' ');
+
+    // sharps = warm, flats = cool, enharmonic = split
+    let fill = '#f9fafb';
+    if (key.acc > 0) fill = '#fefce8';
+    else if (key.acc < 0) fill = '#eff6ff';
+    else fill = '#f0fdf4';
+
+    const outerSector = makeSVGEl('path', {
+      d: outerPath,
+      fill,
+      stroke: '#c4b5fd',
+      'stroke-width': 1.5,
+      class: 'cof-sector-major',
+      'data-idx': i
+    });
+    outerSector.addEventListener('click', () => selectKey(i));
+    outerSector.style.cursor = 'pointer';
+    outerSector.style.transition = 'filter 0.15s';
+    svg.appendChild(outerSector);
+
+    // Major key label
+    const lp = polarToXY(midA, (R_OUT + R_MID) / 2);
+    const lbl = makeSVGEl('text', {
+      x: lp.x, y: lp.y,
+      'text-anchor': 'middle',
+      'dominant-baseline': 'middle',
+      'font-size': key.name.length > 2 ? '13' : '16',
+      'font-weight': '700',
+      fill: '#2d3748',
+      'pointer-events': 'none'
+    });
+    lbl.textContent = key.name;
+    svg.appendChild(lbl);
+
+    // Acc count label (small)
+    const ap = polarToXY(midA, R_OUT - 14);
+    const albl = makeSVGEl('text', {
+      x: ap.x, y: ap.y,
+      'text-anchor': 'middle',
+      'dominant-baseline': 'middle',
+      'font-size': '10',
+      fill: key.acc > 0 ? '#92400e' : (key.acc < 0 ? '#1e40af' : '#6b7280'),
+      'pointer-events': 'none'
+    });
+    albl.textContent = accLabel(key.acc);
+    svg.appendChild(albl);
+
+    // --- Inner sector (minor) ---
+    const i1 = polarToXY(startA, R_IN);
+    const i2 = polarToXY(endA,   R_IN);
+    const mi1 = polarToXY(startA, R_MID);
+    const mi2 = polarToXY(endA,   R_MID);
+
+    const innerPath = [
+      `M ${mi1.x} ${mi1.y}`,
+      `A ${R_MID} ${R_MID} 0 0 1 ${mi2.x} ${mi2.y}`,  // should be: outer arc of R_MID, but we go "inward"
+      `A ${R_MID} ${R_MID} 0 0 1 ${mi2.x} ${mi2.y}`,
+      `L ${i2.x} ${i2.y}`,
+      `A ${R_IN} ${R_IN} 0 0 0 ${i1.x} ${i1.y}`,
+      `L ${mi1.x} ${mi1.y}`,
+      'Z'
+    ].join(' ');
+
+    // Use proper arc for inner ring
+    const innerPath2 = [
+      `M ${m1.x} ${m1.y}`,
+      `A ${R_MID} ${R_MID} 0 0 1 ${m2.x} ${m2.y}`,
+      `L ${i2.x} ${i2.y}`,
+      `A ${R_IN} ${R_IN} 0 0 0 ${i1.x} ${i1.y}`,
+      'Z'
+    ].join(' ');
+
+    const innerFill = key.acc > 0 ? '#fef9c3' : (key.acc < 0 ? '#dbeafe' : '#dcfce7');
+    const innerSector = makeSVGEl('path', {
+      d: innerPath2,
+      fill: innerFill,
+      stroke: '#c4b5fd',
+      'stroke-width': 1,
+      class: 'cof-sector-minor',
+      'data-idx': i
+    });
+    innerSector.addEventListener('click', () => selectKey(i));
+    innerSector.style.cursor = 'pointer';
+    svg.appendChild(innerSector);
+
+    // Minor label
+    const mlp = polarToXY(midA, (R_MID + R_IN) / 2);
+    const mlbl = makeSVGEl('text', {
+      x: mlp.x, y: mlp.y,
+      'text-anchor': 'middle',
+      'dominant-baseline': 'middle',
+      'font-size': '11',
+      'font-weight': '600',
+      fill: '#9d174d',
+      'pointer-events': 'none'
+    });
+    mlbl.textContent = key.minor;
+    svg.appendChild(mlbl);
+  });
+
+  // Center circle
+  svg.appendChild(makeSVGEl('circle', { cx: CX, cy: CY, r: R_IN, fill: '#f3e8ff', stroke: '#a78bfa', 'stroke-width': 2 }));
+  const cl1 = makeSVGEl('text', { x: CX, y: CY - 8, 'text-anchor': 'middle', 'font-size': '13', 'font-weight': '700', fill: '#6b21a8' });
+  cl1.textContent = 'Vòng';
+  const cl2 = makeSVGEl('text', { x: CX, y: CY + 8, 'text-anchor': 'middle', 'font-size': '13', 'font-weight': '700', fill: '#6b21a8' });
+  cl2.textContent = 'Quãng 5';
+  svg.appendChild(cl1);
+  svg.appendChild(cl2);
+}
+
+function selectKey(idx) {
+  selectedIdx = idx;
+  const key = COF_MAJOR[idx];
+
+  // Highlight selected sector
+  document.querySelectorAll('.cof-sector-major, .cof-sector-minor').forEach(el => {
+    el.style.filter = 'none';
+    el.style.opacity = '1';
+  });
+  document.querySelectorAll(`[data-idx="${idx}"]`).forEach(el => {
+    el.style.filter = 'brightness(0.85) saturate(1.4)';
+  });
+
+  // Build info panel
+  const info = document.getElementById('cof-info');
+  const accStr = accLabel(key.acc);
+  const accType = key.acc > 0 ? 'dấu thăng (♯)' : (key.acc < 0 ? 'dấu giáng (♭)' : 'không dấu biến');
+
+  let sigDetails = '';
+  if (key.acc > 0) {
+    const sharpSeq = ['F♯','C♯','G♯','D♯','A♯','E♯','B♯'];
+    sigDetails = sharpSeq.slice(0, key.acc).map(s => `<span class="badge sharp">${s}</span>`).join(' ');
+  } else if (key.acc < 0) {
+    const flatSeq = ['B♭','E♭','A♭','D♭','G♭','C♭','F♭'];
+    sigDetails = flatSeq.slice(0, Math.abs(key.acc)).map(s => `<span class="badge flat">${s}</span>`).join(' ');
+  } else {
+    sigDetails = '<span class="badge">C D E F G A B</span>';
+  }
+
+  const noteBadges = key.notes.map(n => `<span class="badge note">${n}</span>`).join(' ');
+
+  info.innerHTML = `
+    <div class="key-name">${key.name} trưởng</div>
+    <div class="sig-label">Bộ khóa: <strong>${accStr}</strong> ${accType}</div>
+    <div style="margin:6px 0;">${sigDetails}</div>
+    <div class="notes-row"><strong>7 nốt trong gam:</strong> ${noteBadges}</div>
+    <div style="margin:4px 0;"><strong>Điệu thứ tương đối:</strong> <span class="badge minor">${key.minor} (${key.minorFull})</span></div>
+    <button class="play-btn" onclick="playScale(${JSON.stringify(key.notes)})">▶ Nghe gam ${key.name} trưởng</button>
+  `;
+}
+
+buildCOF();
+
+// ============================================================
+//  Section 2: Sharp/Flat accumulation display
+// ============================================================
+const SHARP_SEQ = ['F♯','C♯','G♯','D♯','A♯','E♯','B♯'];
+const FLAT_SEQ  = ['B♭','E♭','A♭','D♭','G♭','C♭','F♭'];
+
+// Key names for each count
+const SHARP_KEYS = ['C','G','D','A','E','B','F♯','C♯'];
+const FLAT_KEYS  = ['C','F','B♭','E♭','A♭','D♭','G♭','C♭'];
+const SHARP_MNEMONIC = 'Father Charles Goes Down And Ends Battle';
+const FLAT_MNEMONIC  = 'Battle Ends And Down Goes Charles\'s Father';
+
+let accMode = 'sharp';
+
+function setAccMode(mode) {
+  accMode = mode;
+  document.getElementById('mode-sharp').className = mode === 'sharp' ? 'ghost' : '';
+  document.getElementById('mode-flat').className  = mode === 'flat'  ? 'ghost' : '';
+  // Reset slider
+  const slider = document.getElementById('acc-slider');
+  const n = parseInt(slider.value);
+  updateAccDisplay(n);
+}
+
+function updateAccDisplay(n) {
+  document.getElementById('acc-count').textContent = n;
+  const seq = accMode === 'sharp' ? SHARP_SEQ : FLAT_SEQ;
+  const keys = accMode === 'sharp' ? SHARP_KEYS : FLAT_KEYS;
+  const sym = accMode === 'sharp' ? '♯' : '♭';
+
+  const keyName = keys[n];
+  const label = n === 0 ? 'C trưởng — 0 dấu biến' : `${keyName} trưởng — ${n}${sym}`;
+  document.getElementById('acc-key-label').textContent = label;
+
+  const container = document.getElementById('acc-seq');
+  container.innerHTML = '';
+  seq.forEach((acc, i) => {
+    const div = document.createElement('div');
+    div.className = 'acc-item ' + (i < n ? (accMode === 'sharp' ? 'active-sharp' : 'active-flat') : 'dim');
+    div.textContent = acc;
+    container.appendChild(div);
+  });
+
+  // Mnemonic
+  document.getElementById('acc-mnemonic').textContent =
+    accMode === 'sharp' ? SHARP_MNEMONIC : FLAT_MNEMONIC;
+
+  // Hint
+  let hint = '';
+  if (n === 0) {
+    hint = 'Không có dấu biến → C trưởng (hoặc A thứ).';
+  } else if (accMode === 'sharp') {
+    const last = seq[n - 1];
+    // Remove ♯ and find note + 1 semitone
+    const noteBase = last.replace('♯','');
+    hint = `Mẹo tìm điệu: dấu thăng cuối là ${last} → ${last} + 1 nửa cung = chủ âm ${keyName}.`;
+  } else {
+    if (n === 1) {
+      hint = 'Chỉ 1 giáng (B♭) → F trưởng (học thuộc riêng, không có quy tắc áp chót).';
+    } else {
+      const apChot = seq[n - 2]; // second to last
+      hint = `Mẹo tìm điệu: dấu giáng áp chót là ${apChot} → chủ âm là ${apChot.replace('♭','')}♭ = ${keyName} trưởng.`;
+      // fix: if the note base doesn't have flat
+      if (!apChot.includes('♭')) {
+        hint = `Mẹo tìm điệu: dấu giáng áp chót là ${apChot} → chủ âm là ${keyName} trưởng.`;
+      }
+    }
+  }
+  document.getElementById('acc-hint').textContent = hint;
+}
+
+document.getElementById('acc-slider').addEventListener('input', function() {
+  updateAccDisplay(parseInt(this.value));
+});
+
+// Init
+setAccMode('sharp');
+updateAccDisplay(1);
+
+// ============================================================
+//  Section 3: Quiz
+// ============================================================
+let qCorrect = 0, qTotal = 0;
+let currentAnswer = '';
+let quizAnswered = false;
+
+// All 15 key sigs (0..7 sharps, 1..7 flats)
+const ALL_KEYS = [
+  { sig: '0',  sigText: '0 dấu biến', answer: 'C' },
+  { sig: '1♯', sigText: '1 thăng',  answer: 'G' },
+  { sig: '2♯', sigText: '2 thăng',  answer: 'D' },
+  { sig: '3♯', sigText: '3 thăng',  answer: 'A' },
+  { sig: '4♯', sigText: '4 thăng',  answer: 'E' },
+  { sig: '5♯', sigText: '5 thăng',  answer: 'B' },
+  { sig: '6♯', sigText: '6 thăng',  answer: 'F♯' },
+  { sig: '7♯', sigText: '7 thăng',  answer: 'C♯' },
+  { sig: '1♭', sigText: '1 giáng',  answer: 'F' },
+  { sig: '2♭', sigText: '2 giáng',  answer: 'B♭' },
+  { sig: '3♭', sigText: '3 giáng',  answer: 'E♭' },
+  { sig: '4♭', sigText: '4 giáng',  answer: 'A♭' },
+  { sig: '5♭', sigText: '5 giáng',  answer: 'D♭' },
+  { sig: '6♭', sigText: '6 giáng',  answer: 'G♭' },
+  { sig: '7♭', sigText: '7 giáng',  answer: 'C♭' },
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function newQuiz() {
+  quizAnswered = false;
+  const q = ALL_KEYS[Math.floor(Math.random() * ALL_KEYS.length)];
+  currentAnswer = q.answer;
+
+  document.getElementById('q-prompt').textContent = `Bộ khóa: ${q.sigText} — Điệu trưởng nào?`;
+  document.getElementById('q-feedback').textContent = '';
+
+  // Draw staff with key sig
+  drawQuizStaff(q.sig);
+
+  // Build choices: correct + 3 random wrong
+  const wrong = shuffle(ALL_KEYS.filter(k => k.answer !== q.answer)).slice(0, 3).map(k => k.answer);
+  const choices = shuffle([q.answer, ...wrong]);
+
+  const cb = document.getElementById('q-choices');
+  cb.innerHTML = '';
+  choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.textContent = c + ' trưởng';
+    btn.addEventListener('click', () => checkAnswer(c, btn));
+    cb.appendChild(btn);
+  });
+}
+
+function checkAnswer(chosen, btn) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  qTotal++;
+
+  const fb = document.getElementById('q-feedback');
+  if (chosen === currentAnswer) {
+    qCorrect++;
+    btn.className = 'correct';
+    fb.textContent = '✓ Đúng!';
+    fb.style.color = '#16a34a';
+  } else {
+    btn.className = 'wrong';
+    fb.textContent = `✗ Sai. Đáp án đúng: ${currentAnswer} trưởng.`;
+    fb.style.color = '#dc2626';
+    // Highlight correct
+    document.querySelectorAll('#q-choices button').forEach(b => {
+      if (b.textContent === currentAnswer + ' trưởng') b.className = 'correct';
+    });
+  }
+  document.getElementById('q-correct').textContent = qCorrect;
+  document.getElementById('q-total').textContent = qTotal;
+}
+
+// Draw staff with key signature accidentals
+function drawQuizStaff(sig) {
+  const svg = document.getElementById('q-staff');
+  svg.innerHTML = '';
+
+  const W = 360, H = 90;
+  const staffTop = 20;
+  const lineGap = 10; // space between staff lines
+  const lines = 5;
+
+  // Draw 5 staff lines
+  for (let i = 0; i < lines; i++) {
+    const y = staffTop + i * lineGap;
+    const line = makeSVGEl('line', { x1: 10, y1: y, x2: W - 10, y2: y, stroke: '#374151', 'stroke-width': 1.5 });
+    svg.appendChild(line);
+  }
+
+  // Treble clef placeholder (simplified glyph via text)
+  const clef = makeSVGEl('text', {
+    x: 14, y: staffTop + lineGap * 3.5 + 3,
+    'font-size': '52',
+    fill: '#374151',
+    'font-family': 'serif'
+  });
+  clef.textContent = '𝄞'; // Unicode treble clef
+  svg.appendChild(clef);
+
+  // Draw accidentals
+  // Standard positions on treble clef staff for sharps (line/space from top)
+  // Sharp positions (treble): F5, C5, G5, D5, A4, E5, B4 — approximate y positions
+  const sharpY = [staffTop + lineGap * 0,        // F (top line)
+                  staffTop + lineGap * 1.5,       // C (3rd space from top)
+                  staffTop + lineGap * (-0.5),    // G (above staff)
+                  staffTop + lineGap * 1,         // D
+                  staffTop + lineGap * 2.5,       // A
+                  staffTop + lineGap * 1.5 + 3,   // E (approximate)
+                  staffTop + lineGap * 3];        // B
+
+  const flatY  = [staffTop + lineGap * 3,        // B
+                  staffTop + lineGap * 1.5,       // E
+                  staffTop + lineGap * 3.5,       // A
+                  staffTop + lineGap * 2,         // D
+                  staffTop + lineGap * 4,         // G (below staff + 1)
+                  staffTop + lineGap * 2.5,       // C
+                  staffTop + lineGap * 4.5];      // F
+
+  let startX = 56;
+  const accSpacing = 16;
+
+  if (sig === '0') {
+    const txt = makeSVGEl('text', { x: startX, y: staffTop + 2 * lineGap + 5,
+      'font-size': '13', fill: '#6b7280', 'font-style': 'italic' });
+    txt.textContent = '(không dấu biến)';
+    svg.appendChild(txt);
+    return;
+  }
+
+  const isSharp = sig.includes('♯');
+  const count = parseInt(sig);
+  const seq = isSharp ? SHARP_SEQ : FLAT_SEQ;
+  const yArr = isSharp ? sharpY : flatY;
+  const sym = isSharp ? '♯' : '♭';
+  const col = isSharp ? '#92400e' : '#1e40af';
+
+  for (let k = 0; k < count && k < seq.length; k++) {
+    const x = startX + k * accSpacing;
+    const y = yArr[k] !== undefined ? yArr[k] : staffTop + 20;
+    const acc = makeSVGEl('text', {
+      x, y,
+      'font-size': isSharp ? '14' : '18',
+      'font-weight': '700',
+      fill: col,
+      'font-family': 'serif'
+    });
+    acc.textContent = sym;
+    svg.appendChild(acc);
+
+    // Note name below
+    const noteName = seq[k].replace('♯','').replace('♭','');
+    const nlbl = makeSVGEl('text', {
+      x: x + 2, y: staffTop + 4 * lineGap + 20,
+      'font-size': '10', fill: col, 'text-anchor': 'middle'
+    });
+    nlbl.textContent = seq[k];
+    svg.appendChild(nlbl);
+  }
+}
+
+// Init quiz prompt
+document.getElementById('q-prompt').textContent = 'Nhấn "Câu hỏi mới" để bắt đầu.';
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

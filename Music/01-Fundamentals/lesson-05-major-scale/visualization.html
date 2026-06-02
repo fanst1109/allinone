@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Gam trưởng (Major Scale)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  .card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+  label { font-weight: 600; }
+
+  select {
+    padding: 8px 12px; border: 1.5px solid #d8b4fe; border-radius: 8px;
+    font-size: 15px; font-weight: 600; background: #faf5ff; color: #6b21a8;
+    cursor: pointer;
+  }
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: #6b21a8; }
+  button:active { transform: scale(0.97); }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  button.danger { background: #ef4444; }
+  button.danger:hover { background: #dc2626; }
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  .result {
+    padding: 14px 16px; background: #f3e8ff; border-radius: 8px; margin-top: 12px;
+    font-size: 15px; line-height: 1.8;
+  }
+  .result .big { font-size: 20px; font-weight: 800; color: #6b21a8; font-family: monospace; }
+  .badge {
+    display: inline-block; background: #e9d5ff; color: #6b21a8;
+    padding: 3px 9px; border-radius: 6px; font-family: monospace;
+    font-weight: 700; margin: 2px; font-size: 13px;
+  }
+  .badge.sharp { background: #fef9c3; color: #92400e; }
+  .badge.flat  { background: #dbeafe; color: #1e40af; }
+
+  /* ========== FORMULA STEPS ========== */
+  .formula-strip {
+    display: flex; flex-wrap: wrap; gap: 0; align-items: center;
+    margin: 14px 0 6px; font-family: monospace;
+  }
+  .fnode {
+    display: flex; flex-direction: column; align-items: center;
+    min-width: 44px;
+  }
+  .fnode .fname {
+    font-size: 15px; font-weight: 700; padding: 6px 8px;
+    border-radius: 7px; background: #e9d5ff; color: #6b21a8;
+    min-width: 36px; text-align: center;
+  }
+  .fnode .fname.root { background: #7e22ce; color: #fff; }
+  .fnode .fname.scale { background: #d1fae5; color: #065f46; }
+  .fnode .fdegree { font-size: 11px; color: #9a6ebe; margin-top: 3px; }
+  .fnode .fsolfege { font-size: 11px; color: #6b7280; }
+  .farrow {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 0 4px; margin-bottom: 24px;
+  }
+  .farrow .fstep {
+    font-size: 11px; font-weight: 700; padding: 2px 5px;
+    border-radius: 4px; white-space: nowrap;
+  }
+  .farrow .fstep.tone { background: #fef9c3; color: #854d0e; }
+  .farrow .fstep.semi { background: #fee2e2; color: #991b1b; }
+  .farrow .fline { width: 20px; height: 2px; background: #cbd5e0; margin-top: 3px; }
+
+  /* ========== PIANO ========== */
+  .piano-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .piano {
+    position: relative; display: flex; height: 170px;
+    min-width: 560px; max-width: 780px;
+    user-select: none; touch-action: manipulation; margin: 0 auto;
+  }
+  /* Two octaves: C3..B4, then C5 */
+  .wkey {
+    flex: 1; background: linear-gradient(#fff, #f3f3f3);
+    border: 1px solid #bbb; border-radius: 0 0 7px 7px;
+    position: relative; cursor: pointer;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 7px; font-size: 10px; color: #888; font-weight: 600;
+    transition: background 0.12s;
+  }
+  .wkey:hover { background: linear-gradient(#f3e8ff, #e9d5ff); }
+  .wkey.in-scale { background: linear-gradient(#7e22ce, #9333ea) !important; color: #fff !important; }
+  .wkey.root-key { background: linear-gradient(#4c1d95, #7e22ce) !important; color: #fff !important; font-weight: 800; }
+  .wkey.active { background: linear-gradient(#e9d5ff, #c084fc) !important; }
+
+  .bkey {
+    position: absolute; top: 0; width: 7.5%; height: 62%;
+    background: linear-gradient(#333, #111); border-radius: 0 0 5px 5px;
+    z-index: 2; cursor: pointer; color: #aaa; font-size: 8px;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 4px; transition: background 0.12s;
+  }
+  .bkey:hover { background: linear-gradient(#6b21a8, #7e22ce); }
+  .bkey.in-scale { background: linear-gradient(#6b21a8, #9333ea) !important; color: #fff !important; }
+  .bkey.root-key { background: linear-gradient(#3b0764, #6b21a8) !important; color: #fff !important; font-weight: 800; }
+  .bkey.active { background: linear-gradient(#a855f7, #d8b4fe) !important; color: #fff !important; }
+
+  .nowplaying { font-family: monospace; font-weight: 700; color: #6b21a8; min-height: 22px; margin-top: 8px; }
+
+  /* degree labels above piano */
+  .degree-row {
+    display: flex; margin: 0 auto 4px; max-width: 780px; min-width: 560px;
+  }
+  .degree-cell {
+    flex: 1; text-align: center; font-size: 10px; color: transparent;
+    font-weight: 700; height: 18px; line-height: 18px;
+    transition: color 0.2s;
+  }
+  .degree-cell.show { color: #7e22ce; }
+
+  /* ========== STEP TABLE ========== */
+  .step-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+  .step-table th { background: #f3e8ff; color: #6b21a8; padding: 7px 10px; text-align: center; }
+  .step-table td { padding: 6px 10px; text-align: center; border-bottom: 1px solid #f0e0ff; }
+  .step-table tr.row-ok td { color: #065f46; background: #f0fdf4; }
+  .step-table tr.row-err td { color: #991b1b; background: #fef2f2; }
+  .step-table .nc-tone { color: #854d0e; font-weight: 700; }
+  .step-table .nc-semi { color: #991b1b; font-weight: 700; }
+
+  /* ========== QUIZ ========== */
+  .quiz-notes { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .qnote {
+    padding: 8px 14px; border-radius: 8px; font-family: monospace;
+    font-size: 16px; font-weight: 700; cursor: pointer; border: 2px solid transparent;
+    background: #f3e8ff; color: #6b21a8; transition: all 0.15s;
+  }
+  .qnote:hover { border-color: #7e22ce; }
+  .qnote.selected { background: #7e22ce; color: #fff; }
+  .qnote.correct { background: #d1fae5; color: #065f46; border-color: #10b981; }
+  .qnote.wrong { background: #fee2e2; color: #991b1b; border-color: #ef4444; }
+  .quiz-feedback { margin-top: 10px; font-weight: 700; min-height: 24px; }
+  .quiz-feedback.ok  { color: #065f46; }
+  .quiz-feedback.bad { color: #991b1b; }
+
+  @media (max-width: 768px) {
+    .piano, .degree-row { min-width: 400px; }
+    .piano { height: 140px; }
+    .bkey { width: 8%; }
+    .wkey { font-size: 8px; }
+    .formula-strip { gap: 0; }
+    .fnode .fname { font-size: 13px; padding: 5px 6px; min-width: 28px; }
+    .farrow .fline { width: 12px; }
+  }
+  @media (max-width: 480px) {
+    .piano, .degree-row { min-width: 320px; }
+    .piano { height: 120px; }
+    .fnode { min-width: 34px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Fundamentals</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-intervals/visualization.html">← L4: Quãng</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Gam trưởng</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-minor-scales-modes/visualization.html">L6: Gam thứ &amp; mode →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Gam trưởng (Major Scale)</h1>
+<p>
+  Chọn nốt gốc → xem gam tô sáng trên bàn phím, công thức T-T-½ hiển thị từng bước,
+  phát gam đi lên/xuống. Bấm từng phím để nghe. <strong>🔊 Bật loa.</strong>
+</p>
+
+<!-- ====== MODULE 1: SCALE WORKSHOP ====== -->
+<h2>1. Xưởng gam trưởng</h2>
+<div class="card">
+  <div class="row">
+    <label for="rootSel">Nốt gốc:</label>
+    <select id="rootSel">
+      <option value="0">C</option>
+      <option value="2">D</option>
+      <option value="4">E</option>
+      <option value="5">F</option>
+      <option value="7" selected>G</option>
+      <option value="9">A</option>
+      <option value="11">B</option>
+      <option value="1">C♯ / D♭</option>
+      <option value="3">D♯ / E♭</option>
+      <option value="6">F♯ / G♭</option>
+      <option value="8">G♯ / A♭</option>
+      <option value="10">A♯ / B♭</option>
+    </select>
+    <button id="btnUp">▶ Phát lên</button>
+    <button id="btnDown" class="ghost">▶ Phát xuống</button>
+    <button id="btnAll" class="ghost">▶ Lên + Xuống</button>
+  </div>
+
+  <!-- formula strip -->
+  <div id="formulaStrip" class="formula-strip"></div>
+
+  <!-- piano -->
+  <div class="piano-wrap">
+    <div id="degreeRow" class="degree-row"></div>
+    <div class="piano" id="piano"></div>
+  </div>
+  <div class="nowplaying" id="np">&nbsp;</div>
+
+  <!-- step table -->
+  <div id="stepTable" style="margin-top:14px; overflow-x:auto"></div>
+
+  <p class="hint">
+    Nốt tím đậm = nốt gốc (tonic). Nốt tím nhạt = các bậc còn lại trong gam.
+    Phím không màu = nằm ngoài gam.
+  </p>
+</div>
+
+<!-- ====== MODULE 2: DEGREE INFO ====== -->
+<h2>2. Tên bậc và vai trò</h2>
+<div class="card">
+  <p>Bấm từng nốt trong gam đang hiển thị ở trên — thông tin bậc sẽ xuất hiện ở đây.</p>
+  <div id="degreeInfo" class="result" style="display:none">
+    <span class="big" id="diNote">—</span>
+    &nbsp;<span id="diRoman" style="font-weight:700;color:#7e22ce"></span>
+    &nbsp;·&nbsp;<span id="diName" style="font-weight:600"></span>
+    &nbsp;·&nbsp; Solfège: <span class="val" id="diSolfege"></span><br>
+    <span id="diDesc" style="font-size:14px;color:#4a5568"></span>
+  </div>
+  <div style="overflow-x:auto; margin-top:14px">
+  <table class="step-table">
+    <thead><tr>
+      <th>Bậc</th><th>La Mã</th><th>Tiếng Anh</th><th>Tiếng Việt</th><th>Solfège</th><th>Trong gam hiện tại</th>
+    </tr></thead>
+    <tbody id="degreeTable"></tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ====== MODULE 3: QUIZ ====== -->
+<h2>3. Thử thách — tìm nốt sai</h2>
+<div class="card">
+  <p>Hệ thống đưa ra 8 nốt tự xưng là một gam trưởng — nhưng <strong>có đúng 1 nốt sai</strong>.
+  Bạn bấm vào nốt mà bạn cho là sai, rồi nhấn "Kiểm tra".</p>
+  <div class="row">
+    <button id="btnNewQuiz">🎲 Gam mới</button>
+    <span id="quizLabel" style="font-weight:600;color:#7e22ce"></span>
+  </div>
+  <div class="quiz-notes" id="quizNotes"></div>
+  <div class="row">
+    <button id="btnCheckQuiz">Kiểm tra</button>
+    <button id="btnRevealQuiz" class="ghost">Xem đáp án</button>
+  </div>
+  <div class="quiz-feedback" id="quizFeedback"></div>
+</div>
+
+<script>
+// ============================================================
+//  WEB AUDIO
+// ============================================================
+let ctx = null;
+function audio() {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  return ctx;
+}
+function playTone(freq, dur = 0.65, when = 0) {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g   = ac.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.22, t0 + 0.015);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+// chromatic names (sharp preferred)
+const NAMES_S = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+// flat variants (for display in gam)
+const NAMES_F = ['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'];
+
+function freqFromN(n) { return 440 * Math.pow(2, n / 12); }
+// n = semitones from A4 (A4=0). MIDI A4=69 → midi = 69 + n
+function midiToName(midi) {
+  return NAMES_S[((midi % 12) + 12) % 12] + Math.floor(midi / 12 - 1);
+}
+function freqFromMidi(midi) { return 440 * Math.pow(2, (midi - 69) / 12); }
+
+// ============================================================
+//  MAJOR SCALE FORMULA: 2-2-1-2-2-2-1 semitones
+// ============================================================
+const FORMULA = [2, 2, 1, 2, 2, 2, 1];  // intervals between consecutive degrees
+const DEGREE_ROMAN   = ['I','II','III','IV','V','VI','VII'];
+const DEGREE_ENG     = ['Tonic','Supertonic','Mediant','Subdominant','Dominant','Submediant','Leading tone'];
+const DEGREE_VI      = ['Chủ âm','Thượng chủ âm','Trung âm','Hạ át âm','Át âm','Thứ âm','Cảm âm'];
+const DEGREE_SOLFEGE = ['Do','Re','Mi','Fa','Sol','La','Ti'];
+const DEGREE_DESC    = [
+  'Trung tâm hấp dẫn — nốt "ổn định", bài nhạc muốn về đây.',
+  'Bậc 2, một nguyên cung trên tonic.',
+  'Nằm giữa tonic và dominant, tạo màu "vui" của gam trưởng.',
+  'Hạ át: cách tonic 5 nửa cung (2.5 tone). Tạo cảm giác "phiêu".',
+  'Át: cách tonic 7 nửa cung (quãng 5). Tạo sức căng, muốn giải về I.',
+  'Bậc 6 — cầu nối mềm giữa dominant và octave.',
+  'Cảm âm/dẫn âm: chỉ cách tonic 1 nửa cung phía dưới — "kéo" về I mạnh nhất.',
+];
+
+// Build scale: rootPc = pitch class 0-11, octave starts C4 (midi 60)
+// Returns array of 8 midi numbers (degree 1..7 + octave)
+function buildScale(rootPc) {
+  // find starting midi: C4=60, so find nearest note in octave 4 area
+  // rootPc 0=C,1=C#,...11=B
+  let startMidi = 60 + rootPc; // in octave 4 range
+  // keep it C4..B4 (60..71) range for best piano display
+  if (startMidi >= 72) startMidi -= 12;
+  const notes = [startMidi];
+  let cur = startMidi;
+  for (let i = 0; i < 7; i++) {
+    cur += FORMULA[i];
+    notes.push(cur);
+  }
+  return notes; // 8 notes (root + 7 steps + octave = index 0..7)
+}
+
+// Prefer flat names for flats, sharp for sharps — pick more "standard" name
+// rootPc → preferred accidental style
+function preferFlat(rootPc) {
+  return [5, 10, 3, 8, 1].includes(rootPc); // F Bb Eb Ab Db
+}
+function pitchName(pc, useFlat) {
+  return useFlat ? NAMES_F[pc] : NAMES_S[pc];
+}
+
+// ============================================================
+//  PIANO BUILD: 2 octaves C3..C5 (midi 48..72)
+//  White keys per octave: C D E F G A B = positions 0,2,4,5,7,9,11
+// ============================================================
+const WHITE_PC = [0,2,4,5,7,9,11]; // pitch classes for white keys in one octave
+// Build two octaves starting C3 (midi 48)
+const PIANO_START = 48; // C3
+const PIANO_WHITES = []; // [{midi, pc, el}]
+const PIANO_BLACKS = []; // [{midi, pc, el, afterWhiteIdx}]
+
+function buildPiano() {
+  const piano   = document.getElementById('piano');
+  const degRow  = document.getElementById('degreeRow');
+  piano.innerHTML = '';
+  degRow.innerHTML = '';
+
+  // white keys
+  const octaves = [0, 1]; // two octaves (C3, C4) + extra C5
+  let wIdx = 0;
+  PIANO_WHITES.length = 0;
+  PIANO_BLACKS.length = 0;
+
+  for (let oct = 0; oct <= 2; oct++) {
+    const pcs = oct < 2 ? WHITE_PC : [0]; // C5 only for last
+    for (const pc of pcs) {
+      const midi = PIANO_START + oct * 12 + pc;
+      const el = document.createElement('div');
+      el.className = 'wkey';
+      el.dataset.midi = midi;
+      el.dataset.wIdx = wIdx;
+      // label on some keys
+      if (pc === 0) el.textContent = midiToName(midi);
+      el.addEventListener('pointerdown', () => pianoHit(el, midi));
+      piano.appendChild(el);
+
+      // degree cell
+      const dc = document.createElement('div');
+      dc.className = 'degree-cell';
+      dc.dataset.midi = midi;
+      degRow.appendChild(dc);
+
+      PIANO_WHITES.push({ midi, pc, el, wIdx, degCell: dc });
+      wIdx++;
+    }
+  }
+  const totalW = PIANO_WHITES.length;
+
+  // black keys: for each white key index, check if next pc has a black
+  // blackOffset[i] = position fraction from left of piano
+  // We build by iterating whites and checking if there's a sharp between them
+  const wWidth = 100 / totalW; // % per white key
+  for (let i = 0; i < PIANO_WHITES.length - 1; i++) {
+    const w = PIANO_WHITES[i];
+    const wNext = PIANO_WHITES[i + 1];
+    // if there's a semitone between them that's a black key
+    if (wNext.midi - w.midi === 2) {
+      const bMidi = w.midi + 1;
+      const bPc = bMidi % 12;
+      const el = document.createElement('div');
+      el.className = 'bkey';
+      el.dataset.midi = bMidi;
+      // position: centered between white key i and i+1
+      el.style.left = `calc(${(i + 1) * wWidth}% - ${wWidth * 0.36}%)`;
+      el.style.width = `${wWidth * 0.65}%`;
+      el.addEventListener('pointerdown', e => { e.stopPropagation(); pianoHit(el, bMidi); });
+      piano.appendChild(el);
+      PIANO_BLACKS.push({ midi: bMidi, pc: bPc, el, wIdx: i });
+    }
+  }
+}
+
+function pianoHit(el, midi) {
+  const freq = freqFromMidi(midi);
+  playTone(freq, 0.8);
+  const name = midiToName(midi);
+  document.getElementById('np').textContent =
+    `▶ ${name} — ${freq.toFixed(2)} Hz`;
+  el.classList.add('active');
+  setTimeout(() => el.classList.remove('active'), 220);
+
+  // show degree info if in current scale
+  const scaleNotes = buildScale(currentRoot);
+  const degIdx = scaleNotes.slice(0, 7).indexOf(midi);
+  if (degIdx >= 0) {
+    showDegreeInfo(midi, degIdx, false);
+  } else {
+    // check octave equivalents
+    const pcHit = midi % 12;
+    const rootPc = currentRoot;
+    let foundDeg = -1;
+    scaleNotes.slice(0, 7).forEach((m, i) => { if (m % 12 === pcHit) foundDeg = i; });
+    if (foundDeg >= 0) showDegreeInfo(midi, foundDeg, false);
+    else hideDegreeInfo();
+  }
+}
+
+function showDegreeInfo(midi, degIdx, fromTable) {
+  const fl = preferFlat(currentRoot);
+  const pc = midi % 12;
+  const noteName = pitchName(pc, fl) + Math.floor(midi / 12 - 1);
+  document.getElementById('diNote').textContent    = noteName;
+  document.getElementById('diRoman').textContent   = DEGREE_ROMAN[degIdx];
+  document.getElementById('diName').textContent    = DEGREE_ENG[degIdx] + ' — ' + DEGREE_VI[degIdx];
+  document.getElementById('diSolfege').textContent = DEGREE_SOLFEGE[degIdx];
+  document.getElementById('diDesc').textContent    = DEGREE_DESC[degIdx];
+  document.getElementById('degreeInfo').style.display = 'block';
+}
+function hideDegreeInfo() {
+  document.getElementById('degreeInfo').style.display = 'none';
+}
+
+// ============================================================
+//  RENDER SCALE
+// ============================================================
+let currentRoot = 7; // G by default
+
+function renderScale(rootPc) {
+  currentRoot = rootPc;
+  const scaleNotes = buildScale(rootPc);
+  const scalePcs = scaleNotes.map(m => m % 12);
+  const fl = preferFlat(rootPc);
+
+  // highlight piano keys
+  [...PIANO_WHITES, ...PIANO_BLACKS].forEach(k => {
+    k.el.classList.remove('in-scale', 'root-key');
+  });
+  // degree row
+  document.querySelectorAll('.degree-cell').forEach(dc => {
+    dc.classList.remove('show');
+    dc.textContent = '';
+  });
+
+  scaleNotes.slice(0, 7).forEach((midi, di) => {
+    // find matching piano key (check both octaves)
+    [...PIANO_WHITES, ...PIANO_BLACKS].forEach(k => {
+      if (k.midi % 12 === midi % 12) {
+        if (di === 0) k.el.classList.add('root-key');
+        else          k.el.classList.add('in-scale');
+      }
+    });
+    // degree row: show degree on white keys in scale
+    PIANO_WHITES.forEach(w => {
+      if (w.midi === midi || w.midi === midi + 12 || w.midi === midi - 12) {
+        if (w.degCell) {
+          w.degCell.textContent = DEGREE_ROMAN[di];
+          w.degCell.classList.add('show');
+        }
+      }
+    });
+    // handle black keys in scale for degree display — skip (no cell)
+  });
+
+  renderFormulaStrip(rootPc, scaleNotes);
+  renderStepTable(rootPc, scaleNotes);
+  renderDegreeTable(rootPc, scaleNotes);
+}
+
+function renderFormulaStrip(rootPc, notes) {
+  const fl = preferFlat(rootPc);
+  const strip = document.getElementById('formulaStrip');
+  strip.innerHTML = '';
+
+  for (let i = 0; i < 8; i++) {
+    const pc = notes[i] % 12;
+    const octStr = i < 7 ? String(Math.floor(notes[i] / 12) - 1) : String(Math.floor(notes[i] / 12) - 1);
+    const nameStr = pitchName(pc, fl);
+    const node = document.createElement('div');
+    node.className = 'fnode';
+    const fname = document.createElement('div');
+    fname.className = 'fname' + (i === 0 ? ' root' : (i < 7 ? ' scale' : ' root'));
+    fname.textContent = nameStr;
+    const fdeg = document.createElement('div');
+    fdeg.className = 'fdegree';
+    fdeg.textContent = i < 7 ? DEGREE_ROMAN[i] : 'I';
+    const fsol = document.createElement('div');
+    fsol.className = 'fsolfege';
+    fsol.textContent = i < 7 ? DEGREE_SOLFEGE[i] : 'Do';
+    node.appendChild(fname);
+    node.appendChild(fdeg);
+    node.appendChild(fsol);
+    strip.appendChild(node);
+
+    if (i < 7) {
+      const arr = document.createElement('div');
+      arr.className = 'farrow';
+      const step = document.createElement('div');
+      const isHalf = FORMULA[i] === 1;
+      step.className = 'fstep ' + (isHalf ? 'semi' : 'tone');
+      step.textContent = isHalf ? '½' : 'T';
+      const line = document.createElement('div');
+      line.className = 'fline';
+      arr.appendChild(step);
+      arr.appendChild(line);
+      strip.appendChild(arr);
+    }
+  }
+}
+
+function renderStepTable(rootPc, notes) {
+  const fl = preferFlat(rootPc);
+  const tbody = document.getElementById('stepTable');
+  let html = `<table class="step-table">
+    <thead><tr>
+      <th>Bước</th><th>Từ</th><th>Khoảng</th><th>Đến</th><th>Nửa cung</th><th>OK?</th>
+    </tr></thead><tbody>`;
+  for (let i = 0; i < 7; i++) {
+    const fromPc = notes[i] % 12;
+    const toPc   = notes[i + 1] % 12;
+    const interval = notes[i + 1] - notes[i];
+    const expected = FORMULA[i];
+    const ok = interval === expected;
+    const cls = ok ? 'row-ok' : 'row-err';
+    const stepStr = interval === 2 ? 'T (nguyên)' : '½ (nửa)';
+    const ncCls = interval === 2 ? 'nc-tone' : 'nc-semi';
+    html += `<tr class="${cls}">
+      <td>${i + 1}</td>
+      <td>${pitchName(fromPc, fl)}</td>
+      <td class="${ncCls}">${stepStr}</td>
+      <td>${pitchName(toPc, fl)}</td>
+      <td>${interval}</td>
+      <td>${ok ? '✓' : '✗'}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  tbody.innerHTML = html;
+}
+
+function renderDegreeTable(rootPc, notes) {
+  const fl = preferFlat(rootPc);
+  const tbody = document.getElementById('degreeTable');
+  let html = '';
+  for (let i = 0; i < 7; i++) {
+    const pc = notes[i] % 12;
+    html += `<tr>
+      <td>${i + 1}</td>
+      <td><strong>${DEGREE_ROMAN[i]}</strong></td>
+      <td>${DEGREE_ENG[i]}</td>
+      <td>${DEGREE_VI[i]}</td>
+      <td>${DEGREE_SOLFEGE[i]}</td>
+      <td><span class="badge">${pitchName(pc, fl)}</span></td>
+    </tr>`;
+  }
+  tbody.innerHTML = html;
+}
+
+// ============================================================
+//  PLAYBACK
+// ============================================================
+function playScaleUp(rootPc) {
+  const notes = buildScale(rootPc);
+  notes.forEach((midi, i) => {
+    setTimeout(() => {
+      playTone(freqFromMidi(midi), 0.55);
+      highlightKey(midi);
+    }, i * 300);
+  });
+}
+function playScaleDown(rootPc) {
+  const notes = buildScale(rootPc).slice().reverse();
+  notes.forEach((midi, i) => {
+    setTimeout(() => {
+      playTone(freqFromMidi(midi), 0.55);
+      highlightKey(midi);
+    }, i * 300);
+  });
+}
+function playScaleUpDown(rootPc) {
+  const up = buildScale(rootPc);
+  const down = up.slice().reverse();
+  const seq = [...up, ...down.slice(1)];
+  seq.forEach((midi, i) => {
+    setTimeout(() => {
+      playTone(freqFromMidi(midi), 0.5);
+      highlightKey(midi);
+    }, i * 280);
+  });
+}
+function highlightKey(midi) {
+  [...PIANO_WHITES, ...PIANO_BLACKS].forEach(k => {
+    if (k.midi === midi) {
+      k.el.classList.add('active');
+      setTimeout(() => k.el.classList.remove('active'), 250);
+    }
+  });
+}
+
+// ============================================================
+//  QUIZ
+// ============================================================
+let quizAnswer = -1;
+let quizChosen = -1;
+let quizLocked = false;
+
+// All 12 root pitch classes
+const ALL_ROOTS = Array.from({length: 12}, (_, i) => i);
+
+function newQuiz() {
+  quizAnswer = -1;
+  quizChosen = -1;
+  quizLocked = false;
+  document.getElementById('quizFeedback').textContent = '';
+  document.getElementById('quizFeedback').className = 'quiz-feedback';
+
+  // pick random root
+  const rootPc = ALL_ROOTS[Math.floor(Math.random() * 12)];
+  const fl = preferFlat(rootPc);
+  const correctNotes = buildScale(rootPc).slice(0, 8); // 8 notes
+
+  // pick a random degree to corrupt (not tonic = 0)
+  const corruptDeg = 1 + Math.floor(Math.random() * 6); // 1..6
+  const errorOffset = Math.random() < 0.5 ? 1 : -1;
+
+  const displayNotes = correctNotes.map((m, i) =>
+    i === corruptDeg ? m + errorOffset : m
+  );
+  quizAnswer = corruptDeg;
+
+  const fl2 = preferFlat(rootPc);
+  document.getElementById('quizLabel').textContent =
+    `Gam xuất phát từ nốt ${pitchName(rootPc, fl2)} — bấm nốt sai:`;
+
+  const container = document.getElementById('quizNotes');
+  container.innerHTML = '';
+  displayNotes.forEach((midi, i) => {
+    const pc = ((midi % 12) + 12) % 12;
+    const noteName = pitchName(pc, fl2);
+    const btn = document.createElement('div');
+    btn.className = 'qnote';
+    btn.textContent = noteName + (i < 7 ? DEGREE_ROMAN[i] : 'I');
+    btn.dataset.deg = i;
+    btn.addEventListener('click', () => {
+      if (quizLocked) return;
+      container.querySelectorAll('.qnote').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      quizChosen = i;
+      document.getElementById('quizFeedback').textContent = '';
+    });
+    container.appendChild(btn);
+  });
+}
+
+function checkQuiz() {
+  if (quizLocked) return;
+  if (quizChosen < 0) {
+    document.getElementById('quizFeedback').textContent = 'Bạn chưa chọn nốt nào.';
+    document.getElementById('quizFeedback').className = 'quiz-feedback bad';
+    return;
+  }
+  quizLocked = true;
+  const fb = document.getElementById('quizFeedback');
+  const btns = document.querySelectorAll('#quizNotes .qnote');
+  btns.forEach(b => {
+    const d = parseInt(b.dataset.deg);
+    if (d === quizAnswer) b.classList.add('correct');
+    else if (d === quizChosen) b.classList.add('wrong');
+  });
+  if (quizChosen === quizAnswer) {
+    fb.textContent = '✓ Đúng! Bạn tìm ra nốt sai.';
+    fb.className = 'quiz-feedback ok';
+  } else {
+    fb.textContent = `✗ Chưa đúng. Nốt sai là bậc ${DEGREE_ROMAN[quizAnswer]} (được tô xanh).`;
+    fb.className = 'quiz-feedback bad';
+  }
+}
+
+function revealQuiz() {
+  quizLocked = true;
+  const fb = document.getElementById('quizFeedback');
+  const btns = document.querySelectorAll('#quizNotes .qnote');
+  btns.forEach(b => {
+    if (parseInt(b.dataset.deg) === quizAnswer) b.classList.add('correct');
+  });
+  fb.textContent = `Nốt sai là bậc ${DEGREE_ROMAN[quizAnswer]}.`;
+  fb.className = 'quiz-feedback bad';
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+buildPiano();
+renderScale(7); // G major by default
+
+document.getElementById('rootSel').addEventListener('change', function () {
+  renderScale(parseInt(this.value));
+});
+document.getElementById('btnUp').addEventListener('click', () => playScaleUp(currentRoot));
+document.getElementById('btnDown').addEventListener('click', () => playScaleDown(currentRoot));
+document.getElementById('btnAll').addEventListener('click', () => playScaleUpDown(currentRoot));
+document.getElementById('btnNewQuiz').addEventListener('click', newQuiz);
+document.getElementById('btnCheckQuiz').addEventListener('click', checkQuiz);
+document.getElementById('btnRevealQuiz').addEventListener('click', revealQuiz);
+
+newQuiz();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

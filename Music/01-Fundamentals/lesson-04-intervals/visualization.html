@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Quãng (Intervals)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --acc: #7e22ce;
+    --acc-hover: #6b21a8;
+    --acc-soft: #f3e8ff;
+    --acc-mid: #e9d5ff;
+  }
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid var(--acc-mid); }
+  .card {
+    background: #fff; border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+  label { font-weight: 600; }
+  select {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 14px; background: #fff; color: #1a202c;
+    cursor: pointer; max-width: 100%;
+  }
+  button {
+    background: var(--acc); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: var(--acc-hover); }
+  button.ghost { background: var(--acc-soft); color: var(--acc-hover); }
+  button.ghost:hover { background: var(--acc-mid); }
+  .val { font-family: monospace; font-weight: 700; color: var(--acc); }
+  .result {
+    padding: 14px 16px; background: var(--acc-soft); border-radius: 8px;
+    margin-top: 12px; font-size: 15px; line-height: 1.9;
+  }
+  .result .big { font-size: 22px; font-weight: 800; color: var(--acc-hover); font-family: monospace; }
+  .badge {
+    display: inline-block; background: var(--acc-mid); color: var(--acc-hover);
+    padding: 3px 9px; border-radius: 6px; font-family: monospace;
+    font-weight: 700; margin: 2px; font-size: 13px;
+  }
+  .badge.good { background: #dcfce7; color: #166534; }
+  .badge.bad  { background: #fee2e2; color: #991b1b; }
+  .badge.mid  { background: #fef9c3; color: #713f12; }
+
+  /* --- Interval Table --- */
+  .itab { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px; }
+  .itab th { background: var(--acc-mid); padding: 8px 10px; text-align: left; font-weight: 700; color: var(--acc-hover); }
+  .itab td { padding: 7px 10px; border-bottom: 1px solid #f0e6ff; }
+  .itab tr:last-child td { border-bottom: none; }
+  .itab tr.hl td { background: #fdf4ff; font-weight: 700; }
+  .itab .nc { text-align: center; }
+
+  /* --- Consonance ruler --- */
+  .ruler-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .ruler-svg { display: block; margin: 0 auto; }
+
+  /* --- Inversion tool --- */
+  .inv-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; }
+  .inv-box {
+    background: var(--acc-soft); border-radius: 10px; padding: 16px; text-align: center;
+  }
+  .inv-box .name { font-size: 20px; font-weight: 800; color: var(--acc); }
+  .inv-box .sub  { font-size: 13px; color: #555; margin-top: 4px; }
+  .inv-arrow { font-size: 28px; text-align: center; color: var(--acc); }
+
+  /* --- Waveform canvas --- */
+  canvas.wave {
+    display: block; width: 100%; max-width: 560px; height: auto;
+    margin: 10px auto; background: #faf7fb;
+    border: 1px solid var(--acc-mid); border-radius: 8px;
+  }
+
+  @media (max-width: 600px) {
+    .inv-grid { grid-template-columns: 1fr; }
+    .inv-arrow { transform: rotate(90deg); }
+    .itab { font-size: 12px; }
+    .itab td, .itab th { padding: 5px 6px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Fundamentals</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-staff-notation/visualization.html">← L3: Khuông nhạc</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Quãng (intervals)</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-major-scale/visualization.html">L5: Gam trưởng →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Quãng (Intervals)</h1>
+<p>Quãng là <strong>khoảng cách cao độ</strong> giữa hai nốt, mô tả bằng <em>số</em> (đếm tên chữ cái) và <em>chất</em> (trưởng/thứ/đúng/tăng/giảm). Ba công cụ dưới đây cho bạn <em>nghe</em> và <em>cảm nhận</em> các quãng. <strong>🔊 Bật loa.</strong></p>
+
+<!-- ======================================== -->
+<h2>1. 🎹 Xưởng quãng — nghe melodic & harmonic</h2>
+<div class="card">
+  <p class="hint">Chọn nốt gốc và loại quãng → nghe từng nốt (melodic) hoặc cả hai cùng lúc (harmonic).</p>
+  <div class="row">
+    <div>
+      <label for="rootSel">Nốt gốc:</label><br>
+      <select id="rootSel"></select>
+    </div>
+    <div>
+      <label for="intSel">Loại quãng:</label><br>
+      <select id="intSel"></select>
+    </div>
+  </div>
+  <div class="row">
+    <button id="btnMel">▶ Melodic (lần lượt)</button>
+    <button id="btnHarm" class="ghost">▶ Harmonic (cùng lúc)</button>
+  </div>
+  <div class="result" id="workshopResult">Chọn nốt gốc và quãng rồi bấm nghe.</div>
+  <canvas class="wave" id="wvWorkshop" width="560" height="100"></canvas>
+</div>
+
+<!-- ======================================== -->
+<h2>2. 📊 Bảng 13 quãng — số nửa cung & chất</h2>
+<div class="card">
+  <p class="hint">Click vào một hàng để nghe quãng đó (từ C4). Màu xanh = thuận hoàn hảo, xanh nhạt = thuận không hoàn hảo, vàng = trung gian, đỏ = nghịch.</p>
+  <div style="overflow-x:auto">
+    <table class="itab" id="intTable">
+      <thead>
+        <tr>
+          <th>Tên quãng</th><th class="nc">KH</th><th class="nc">Nửa cung</th>
+          <th>Tỷ lệ (just)</th><th class="nc">Cents (just)</th>
+          <th>ET cents</th><th>Cảm giác</th>
+        </tr>
+      </thead>
+      <tbody id="intTbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ======================================== -->
+<h2>3. 📏 Thước thuận – nghịch (consonance ruler)</h2>
+<div class="card">
+  <p class="hint">Trục từ 0 đến 12 nửa cung. Tỷ lệ số nguyên đơn giản (3:2, 4:3...) → thuận. Phức tạp → nghịch.</p>
+  <div class="ruler-wrap">
+    <svg class="ruler-svg" id="rulerSvg" width="560" height="180" viewBox="0 0 560 180"></svg>
+  </div>
+  <p class="hint">Click lên nhãn quãng để nghe.</p>
+</div>
+
+<!-- ======================================== -->
+<h2>4. 🔄 Công cụ đảo quãng (Inversion)</h2>
+<div class="card">
+  <p class="hint">Chọn một quãng để xem quãng đảo. Verify: số + số đảo = 9 | nửa cung + nửa cung đảo = 12 | chất đổi theo quy tắc.</p>
+  <div class="row">
+    <label for="invSel">Quãng gốc:</label>
+    <select id="invSel"></select>
+    <button id="btnInvPlay">▶ Nghe gốc</button>
+    <button id="btnInvPlayInv" class="ghost">▶ Nghe đảo</button>
+  </div>
+  <div class="inv-grid" id="invGrid">
+    <div class="inv-box" id="invOrigBox">
+      <div class="name" id="invOrigName">—</div>
+      <div class="sub" id="invOrigSub"></div>
+    </div>
+    <div class="inv-arrow">⇄</div>
+    <div class="inv-box" id="invInvBox">
+      <div class="name" id="invInvName">—</div>
+      <div class="sub" id="invInvSub"></div>
+    </div>
+  </div>
+  <div class="result" id="invResult" style="margin-top:12px"></div>
+</div>
+
+<script>
+// ============================================================
+// Web Audio helpers (copied from lesson-01 pattern)
+// ============================================================
+let _ctx = null;
+function audio() {
+  if (!_ctx) _ctx = new (window.AudioContext || window.webkitAudioContext)();
+  return _ctx;
+}
+function playTone(freq, dur = 0.8, when = 0) {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g   = ac.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.22, t0 + 0.03);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+const NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+/**
+ * n = nửa cung tính từ A4 (A4 = 0)
+ * Trả về tần số Hz
+ */
+function freqFromN(n) { return 440 * Math.pow(2, n / 12); }
+
+/**
+ * n tính từ A4 → tên nốt (vd A4, C5, ...)
+ */
+function nameFromN(n) {
+  const midi = 69 + n;
+  return NAMES[((midi % 12) + 12) % 12] + (Math.floor(midi / 12) - 1);
+}
+
+// ============================================================
+// Interval data
+// ============================================================
+// just = [num, den] tỷ lệ tần số thuần
+const INTERVALS = [
+  { sym:'P1',  name:'Quãng 1 đúng (Unison)',         semi:0,  num:9,  den:1,  numN:1, denN:1, feel:'perfect', feelLabel:'Thuận hoàn hảo' },
+  { sym:'m2',  name:'Quãng 2 thứ (Minor 2nd)',        semi:1,  num:16, den:15, numN:2, denN:2, feel:'dissonant',feelLabel:'Nghịch mạnh' },
+  { sym:'M2',  name:'Quãng 2 trưởng (Major 2nd)',     semi:2,  num:9,  den:8,  numN:2, denN:2, feel:'mild',    feelLabel:'Trung gian' },
+  { sym:'m3',  name:'Quãng 3 thứ (Minor 3rd)',        semi:3,  num:6,  den:5,  numN:3, denN:3, feel:'imperfect',feelLabel:'Thuận không hoàn hảo'},
+  { sym:'M3',  name:'Quãng 3 trưởng (Major 3rd)',     semi:4,  num:5,  den:4,  numN:3, denN:3, feel:'imperfect',feelLabel:'Thuận không hoàn hảo'},
+  { sym:'P4',  name:'Quãng 4 đúng (Perfect 4th)',     semi:5,  num:4,  den:3,  numN:4, denN:4, feel:'perfect', feelLabel:'Thuận hoàn hảo' },
+  { sym:'TT',  name:'Tritone (A4/d5)',                 semi:6,  num:45, den:32, numN:5, denN:5, feel:'tension', feelLabel:'Nghịch cực mạnh' },
+  { sym:'P5',  name:'Quãng 5 đúng (Perfect 5th)',     semi:7,  num:3,  den:2,  numN:5, denN:5, feel:'perfect', feelLabel:'Thuận hoàn hảo' },
+  { sym:'m6',  name:'Quãng 6 thứ (Minor 6th)',        semi:8,  num:8,  den:5,  numN:6, denN:6, feel:'imperfect',feelLabel:'Thuận không hoàn hảo'},
+  { sym:'M6',  name:'Quãng 6 trưởng (Major 6th)',     semi:9,  num:5,  den:3,  numN:6, denN:6, feel:'imperfect',feelLabel:'Thuận không hoàn hảo'},
+  { sym:'m7',  name:'Quãng 7 thứ (Minor 7th)',        semi:10, num:16, den:9,  numN:7, denN:7, feel:'dissonant',feelLabel:'Nghịch' },
+  { sym:'M7',  name:'Quãng 7 trưởng (Major 7th)',     semi:11, num:15, den:8,  numN:7, denN:7, feel:'dissonant',feelLabel:'Nghịch' },
+  { sym:'P8',  name:'Quãng 8 đúng (Octave)',          semi:12, num:2,  den:1,  numN:8, denN:8, feel:'perfect', feelLabel:'Thuận hoàn hảo' },
+];
+
+// feel → CSS badge class
+const FEEL_CLASS = {
+  perfect: 'good',
+  imperfect: 'good',
+  mild: 'mid',
+  dissonant: 'bad',
+  tension: 'bad',
+};
+
+// ============================================================
+// Inversion quality map
+// ============================================================
+const INV_QUALITY = {
+  'P1':'P8', 'P8':'P1',
+  'm2':'M7', 'M7':'m2',
+  'M2':'m7', 'm7':'M2',
+  'm3':'M6', 'M6':'m3',
+  'M3':'m6', 'm6':'M3',
+  'P4':'P5', 'P5':'P4',
+  'TT':'TT',
+};
+
+// ============================================================
+// Root note selector — C4 through B4 (n nửa cung từ A4)
+// ============================================================
+const ROOT_NOTES = [
+  { label:'C4',  n:-9 }, { label:'C♯4/D♭4', n:-8 }, { label:'D4', n:-7 },
+  { label:'D♯4/E♭4', n:-6 }, { label:'E4', n:-5 }, { label:'F4', n:-4 },
+  { label:'F♯4/G♭4', n:-3 }, { label:'G4', n:-2 }, { label:'G♯4/A♭4', n:-1 },
+  { label:'A4',  n:0  }, { label:'A♯4/B♭4', n:1 }, { label:'B4', n:2 },
+];
+
+// ============================================================
+// Populate root selector
+// ============================================================
+const rootSel = document.getElementById('rootSel');
+ROOT_NOTES.forEach((r, i) => {
+  const o = document.createElement('option');
+  o.value = i; o.textContent = r.label;
+  if (r.label === 'C4') o.selected = true;
+  rootSel.appendChild(o);
+});
+
+// ============================================================
+// Populate interval selector (workshop & inversion)
+// ============================================================
+function populateIntSel(sel, defaultSym) {
+  INTERVALS.forEach((iv, i) => {
+    const o = document.createElement('option');
+    o.value = i;
+    o.textContent = `${iv.sym} — ${iv.name.replace(/\(.*\)/, '').trim()} (${iv.semi} nc)`;
+    if (iv.sym === defaultSym) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+populateIntSel(document.getElementById('intSel'), 'M3');
+populateIntSel(document.getElementById('invSel'), 'M3');
+
+// ============================================================
+// Wave drawing helper
+// ============================================================
+function drawWaves(canvas, freqs, colors) {
+  const W = canvas.width, H = canvas.height;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  // center line
+  ctx.strokeStyle = '#e9d5ff'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+  if (!freqs.length) return;
+  const refF = Math.min(...freqs);
+  freqs.forEach((f, i) => {
+    ctx.strokeStyle = colors[i]; ctx.lineWidth = 2.5; ctx.beginPath();
+    const cycles = (f / refF) * 2;
+    for (let x = 0; x <= W; x++) {
+      const y = H/2 - Math.sin((x / W) * cycles * 2 * Math.PI) * (H/2 - 10);
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  });
+}
+
+// ============================================================
+// Section 1 — Workshop
+// ============================================================
+function getWorkshopFreqs() {
+  const rootIdx = +rootSel.value;
+  const intIdx  = +document.getElementById('intSel').value;
+  const root    = ROOT_NOTES[rootIdx];
+  const iv      = INTERVALS[intIdx];
+  // root note: n nửa cung từ A4
+  // top note: root.n + iv.semi nửa cung từ A4
+  const f1 = freqFromN(root.n);
+  const f2 = freqFromN(root.n + iv.semi);
+  return { f1, f2, root, iv };
+}
+
+function showWorkshopResult(f1, f2, root, iv) {
+  const ratio = (f2 / f1).toFixed(4);
+  const centsET = iv.semi * 100;
+  const centsJust = (1200 * Math.log2(iv.num / iv.den)).toFixed(2);
+  const deviation = (centsET - parseFloat(centsJust)).toFixed(2);
+  document.getElementById('workshopResult').innerHTML =
+    `<strong>${root.label}</strong> + <span class="val">${iv.sym}</span> =
+     <strong>${nameFromN(root.n + iv.semi)}</strong>
+     &nbsp;·&nbsp; <span class="badge">${iv.semi} nửa cung</span>
+     <span class="badge ${FEEL_CLASS[iv.feel]}">${iv.feelLabel}</span><br>
+     Tần số: <span class="val">${f1.toFixed(2)} Hz</span> →
+     <span class="val">${f2.toFixed(2)} Hz</span>
+     &nbsp;·&nbsp; Tỷ lệ ET: <span class="val">${ratio}</span>
+     ≈ ${iv.num}:${iv.den} (just)<br>
+     Cents ET: <span class="val">${centsET}</span> &nbsp;·&nbsp;
+     Cents just: <span class="val">${centsJust}</span> &nbsp;·&nbsp;
+     Độ lệch ET−just: <span class="val">${deviation}</span> cents`;
+  drawWaves(
+    document.getElementById('wvWorkshop'),
+    iv.semi === 0 ? [f1] : [f1, f2],
+    ['#7e22ce', '#db2777']
+  );
+}
+
+document.getElementById('btnMel').addEventListener('click', () => {
+  const { f1, f2, root, iv } = getWorkshopFreqs();
+  playTone(f1, 0.7, 0);
+  if (iv.semi > 0) playTone(f2, 0.7, 0.75);
+  showWorkshopResult(f1, f2, root, iv);
+});
+
+document.getElementById('btnHarm').addEventListener('click', () => {
+  const { f1, f2, root, iv } = getWorkshopFreqs();
+  playTone(f1, 1.2, 0);
+  playTone(f2, 1.2, 0);
+  showWorkshopResult(f1, f2, root, iv);
+});
+
+// auto-update display when selectors change
+[rootSel, document.getElementById('intSel')].forEach(s =>
+  s.addEventListener('change', () => {
+    const { f1, f2, root, iv } = getWorkshopFreqs();
+    showWorkshopResult(f1, f2, root, iv);
+  })
+);
+
+// Init workshop display
+(function() {
+  const { f1, f2, root, iv } = getWorkshopFreqs();
+  showWorkshopResult(f1, f2, root, iv);
+})();
+
+// ============================================================
+// Section 2 — Interval table
+// ============================================================
+const tbody = document.getElementById('intTbody');
+INTERVALS.forEach((iv, idx) => {
+  const centsJust = (1200 * Math.log2(iv.num / iv.den)).toFixed(1);
+  const centsET   = iv.semi * 100;
+  const dev       = (centsET - parseFloat(centsJust)).toFixed(1);
+  const cls       = FEEL_CLASS[iv.feel];
+  const tr = document.createElement('tr');
+  tr.style.cursor = 'pointer';
+  tr.innerHTML = `
+    <td>${iv.name}</td>
+    <td class="nc"><span class="badge">${iv.sym}</span></td>
+    <td class="nc"><strong>${iv.semi}</strong></td>
+    <td>${iv.num}:${iv.den}</td>
+    <td class="nc">${centsJust}</td>
+    <td class="nc">${centsET} <small style="color:#999">(${dev > 0 ? '+' : ''}${dev})</small></td>
+    <td><span class="badge ${cls}">${iv.feelLabel}</span></td>`;
+  tr.addEventListener('click', () => {
+    // remove highlight from all
+    document.querySelectorAll('#intTbody tr').forEach(r => r.classList.remove('hl'));
+    tr.classList.add('hl');
+    const f1 = freqFromN(-9);           // C4
+    const f2 = freqFromN(-9 + iv.semi);
+    playTone(f1, 0.6, 0);
+    if (iv.semi > 0) playTone(f2, 0.6, 0.65);
+  });
+  tbody.appendChild(tr);
+});
+
+// ============================================================
+// Section 3 — Consonance ruler SVG
+// ============================================================
+(function buildRuler() {
+  const svg   = document.getElementById('rulerSvg');
+  const W = 560, H = 180, PL = 30, PR = 20, PB = 30;
+  const trackY = 80;
+  const trackW = W - PL - PR;
+
+  // background
+  const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  bg.setAttribute('width', W); bg.setAttribute('height', H);
+  bg.setAttribute('fill','#faf7fb'); svg.appendChild(bg);
+
+  // axis line
+  const ax = document.createElementNS('http://www.w3.org/2000/svg','line');
+  ax.setAttribute('x1', PL); ax.setAttribute('x2', W - PR);
+  ax.setAttribute('y1', trackY); ax.setAttribute('y2', trackY);
+  ax.setAttribute('stroke','#cbd5e0'); ax.setAttribute('stroke-width','2');
+  svg.appendChild(ax);
+
+  // feel band
+  const bands = [
+    { x1:0,  x2:0,  col:'#dcfce7' }, // P1
+    { x1:1,  x2:2,  col:'#fee2e2' }, // m2,M2
+    { x1:3,  x2:4,  col:'#d1fae5' }, // m3,M3
+    { x1:5,  x2:5,  col:'#dcfce7' }, // P4
+    { x1:6,  x2:6,  col:'#fef9c3' }, // tritone
+    { x1:7,  x2:7,  col:'#dcfce7' }, // P5
+    { x1:8,  x2:9,  col:'#d1fae5' }, // m6,M6
+    { x1:10, x2:11, col:'#fee2e2' }, // m7,M7
+    { x1:12, x2:12, col:'#dcfce7' }, // P8
+  ];
+  // draw band rects behind axis
+  bands.forEach(b => {
+    const bx = PL + (b.x1 / 12) * trackW - 10;
+    const bw = ((b.x2 - b.x1) / 12) * trackW + 20;
+    const r = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    r.setAttribute('x', bx); r.setAttribute('width', Math.max(bw, 16));
+    r.setAttribute('y', trackY - 28); r.setAttribute('height', 56);
+    r.setAttribute('rx', 6); r.setAttribute('fill', b.col); r.setAttribute('opacity','0.7');
+    svg.insertBefore(r, ax);
+  });
+
+  INTERVALS.forEach(iv => {
+    const x = PL + (iv.semi / 12) * trackW;
+    // tick
+    const tick = document.createElementNS('http://www.w3.org/2000/svg','line');
+    tick.setAttribute('x1', x); tick.setAttribute('x2', x);
+    tick.setAttribute('y1', trackY - 14); tick.setAttribute('y2', trackY + 14);
+    tick.setAttribute('stroke', iv.feel === 'perfect' ? '#16a34a' :
+                                iv.feel === 'imperfect' ? '#15803d' :
+                                iv.feel === 'tension' ? '#b91c1c' :
+                                iv.feel === 'dissonant' ? '#dc2626' : '#92400e');
+    tick.setAttribute('stroke-width', iv.feel === 'perfect' ? 3 : 2);
+    svg.appendChild(tick);
+
+    // label box
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('cursor','pointer');
+    g.setAttribute('tabindex','0');
+
+    const yLabel = iv.semi % 2 === 0 ? trackY + 32 : trackY - 36;
+    const fo = document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+    fo.setAttribute('x', x - 22); fo.setAttribute('y', yLabel - 14);
+    fo.setAttribute('width', 44); fo.setAttribute('height', 28);
+    fo.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml"
+      style="background:${iv.feel==='perfect'?'#16a34a':iv.feel==='imperfect'?'#166534':iv.feel==='tension'?'#b91c1c':iv.feel==='dissonant'?'#dc2626':'#92400e'};
+             color:#fff;font-size:11px;font-weight:700;text-align:center;
+             border-radius:4px;padding:3px 2px;line-height:1.3;">${iv.sym}<br>${iv.semi}</div>`;
+    g.appendChild(fo);
+    g.addEventListener('click', () => {
+      const f1 = freqFromN(-9);
+      const f2 = freqFromN(-9 + iv.semi);
+      playTone(f1, 0.6, 0);
+      if (iv.semi > 0) playTone(f2, 0.6, 0.65);
+    });
+    svg.appendChild(g);
+  });
+
+  // x-axis labels 0..12
+  for (let i = 0; i <= 12; i++) {
+    const x = PL + (i / 12) * trackW;
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', x); t.setAttribute('y', H - 8);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','11');
+    t.setAttribute('fill','#94a3b8');
+    t.textContent = i;
+    svg.appendChild(t);
+  }
+  // x label
+  const xl = document.createElementNS('http://www.w3.org/2000/svg','text');
+  xl.setAttribute('x', W/2); xl.setAttribute('y', H - 8 + 14);
+  xl.setAttribute('text-anchor','middle'); xl.setAttribute('font-size','11');
+  xl.setAttribute('fill','#94a3b8');
+  xl.textContent = 'Số nửa cung';
+  svg.appendChild(xl);
+})();
+
+// ============================================================
+// Section 4 — Inversion tool
+// ============================================================
+function updateInversion() {
+  const idx     = +document.getElementById('invSel').value;
+  const iv      = INTERVALS[idx];
+  const invSym  = INV_QUALITY[iv.sym];
+  const invIdx  = INTERVALS.findIndex(x => x.sym === invSym);
+  const invIv   = INTERVALS[invIdx];
+
+  document.getElementById('invOrigName').textContent = iv.sym;
+  document.getElementById('invOrigSub').innerHTML =
+    `${iv.semi} nửa cung &nbsp;·&nbsp; số ${iv.numN}`;
+
+  document.getElementById('invInvName').textContent = invIv.sym;
+  document.getElementById('invInvSub').innerHTML =
+    `${invIv.semi} nửa cung &nbsp;·&nbsp; số ${invIv.numN}`;
+
+  const numSum  = iv.numN + invIv.numN;
+  const semiSum = iv.semi + invIv.semi;
+  const numOk   = numSum === 9 ? '✅' : '❌';
+  const semiOk  = semiSum === 12 ? '✅' : '❌';
+
+  document.getElementById('invResult').innerHTML =
+    `<strong>${iv.sym}</strong> (${iv.name.match(/\(([^)]+)\)/)?.[1] || iv.name}) đảo thành
+     <strong>${invIv.sym}</strong> (${invIv.name.match(/\(([^)]+)\)/)?.[1] || invIv.name})<br>
+     Số ${iv.numN} + ${invIv.numN} = <span class="val">${numSum}</span> ${numOk} (phải bằng 9) &nbsp;·&nbsp;
+     ${iv.semi} + ${invIv.semi} = <span class="val">${semiSum}</span> ${semiOk} (phải bằng 12)<br>
+     <em>Chất đổi:</em> ${qualityLabel(iv.sym)} → ${qualityLabel(invIv.sym)}`;
+}
+
+function qualityLabel(sym) {
+  if (sym.startsWith('P')) return 'Đúng (perfect)';
+  if (sym.startsWith('M')) return 'Trưởng (major)';
+  if (sym.startsWith('m')) return 'Thứ (minor)';
+  if (sym === 'TT')        return 'Tritone';
+  return sym;
+}
+
+document.getElementById('invSel').addEventListener('change', updateInversion);
+
+document.getElementById('btnInvPlay').addEventListener('click', () => {
+  const iv = INTERVALS[+document.getElementById('invSel').value];
+  const f1 = freqFromN(-9); // C4
+  const f2 = freqFromN(-9 + iv.semi);
+  playTone(f1, 0.7, 0);
+  if (iv.semi > 0) playTone(f2, 0.7, 0.75);
+});
+
+document.getElementById('btnInvPlayInv').addEventListener('click', () => {
+  const iv     = INTERVALS[+document.getElementById('invSel').value];
+  const invSym = INV_QUALITY[iv.sym];
+  const invIv  = INTERVALS.find(x => x.sym === invSym);
+  const f1 = freqFromN(-5); // E4 (để đảo nghe rõ hơn)
+  const f2 = freqFromN(-5 + invIv.semi);
+  playTone(f1, 0.7, 0);
+  if (invIv.semi > 0) playTone(f2, 0.7, 0.75);
+});
+
+updateInversion();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

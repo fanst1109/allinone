@@ -16,14 +16,14 @@ Những viên gạch đầu tiên: âm thanh là gì, cao độ đo bằng tần
 
 | Bài | Chủ đề | Khái niệm chính |
 |-----|--------|-----------------|
-| Lesson 01 | Âm thanh & cao độ | Sóng âm, tần số (Hz), octave (2:1), `f = 440·2^(n/12)`, A4 = 440 Hz |
-| Lesson 02 | Tên nốt & bàn phím piano | 12 nửa cung, C D E F G A B, thăng/giáng, enharmonic (C♯ = D♭) |
-| Lesson 03 | Khuông nhạc & ký hiệu | Staff, khóa Sol/Fa, vị trí nốt, trường độ (nốt tròn → móc kép), dấu lặng |
-| Lesson 04 | Quãng (intervals) | Nửa cung / nguyên cung, quãng 2–8, trưởng/thứ/đúng, thuận/nghịch & tỷ lệ tần số |
-| Lesson 05 | Gam trưởng | Công thức T–T–½–T–T–T–½, dựng từ mọi nốt gốc, bậc của gam |
-| Lesson 06 | Gam thứ & các mode | Thứ tự nhiên/hòa thanh/giai điệu, 7 mode (Ionian → Locrian) |
-| Lesson 07 | Nhịp & tiết tấu | Beat, tempo (BPM), số chỉ nhịp (4/4, 3/4, 6/8), trường độ &amp; phân số |
-| Lesson 08 | Bộ khóa & vòng quãng 5 | Key signature, circle of fifths, điệu trưởng/thứ song song |
+| [Lesson 01](./lesson-01-sound-pitch/) | Âm thanh & cao độ | Sóng âm, tần số (Hz), octave (2:1), `f = 440·2^(n/12)`, A4 = 440 Hz |
+| [Lesson 02](./lesson-02-note-names/) | Tên nốt & bàn phím piano | 12 nửa cung, C D E F G A B, thăng/giáng, enharmonic (C♯ = D♭) |
+| [Lesson 03](./lesson-03-staff-notation/) | Khuông nhạc & ký hiệu | Staff, khóa Sol/Fa, vị trí nốt, trường độ (nốt tròn → móc kép), dấu lặng |
+| [Lesson 04](./lesson-04-intervals/) | Quãng (intervals) | Nửa cung / nguyên cung, quãng 2–8, trưởng/thứ/đúng, thuận/nghịch & tỷ lệ tần số |
+| [Lesson 05](./lesson-05-major-scale/) | Gam trưởng | Công thức T–T–½–T–T–T–½, dựng từ mọi nốt gốc, bậc của gam |
+| [Lesson 06](./lesson-06-minor-scales-modes/) | Gam thứ & các mode | Thứ tự nhiên/hòa thanh/giai điệu, 7 mode (Ionian → Locrian) |
+| [Lesson 07](./lesson-07-rhythm-meter/) | Nhịp & tiết tấu | Beat, tempo (BPM), số chỉ nhịp (4/4, 3/4, 6/8), trường độ &amp; phân số |
+| [Lesson 08](./lesson-08-key-signatures-circle/) | Bộ khóa & vòng quãng 5 | Key signature, circle of fifths, điệu trưởng/thứ song song |
 
 ## Sau tầng này
 

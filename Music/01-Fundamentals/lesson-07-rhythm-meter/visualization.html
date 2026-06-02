@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Nhịp &amp; tiết tấu</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  .card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; }
+  input[type="range"] { flex: 1; min-width: 140px; accent-color: #7e22ce; }
+  select {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 14px; background: #fff; cursor: pointer;
+  }
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    white-space: nowrap;
+  }
+  button:hover { background: #6b21a8; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  .result {
+    padding: 14px 16px; background: #f3e8ff; border-radius: 8px; margin-top: 12px;
+    font-size: 15px; line-height: 1.8;
+  }
+  .result .big { font-size: 22px; font-weight: 800; color: #6b21a8; font-family: monospace; }
+
+  /* ---- Metronome beats LED ---- */
+  .beat-row {
+    display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; justify-content: flex-start;
+  }
+  .beat-led {
+    width: 52px; height: 52px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 18px; color: #888;
+    background: #e2e8f0; border: 2px solid #cbd5e0;
+    transition: background 0.05s, color 0.05s, border-color 0.05s, transform 0.05s;
+    user-select: none;
+  }
+  .beat-led.strong { background: #7e22ce !important; color: #fff !important; border-color: #6b21a8 !important; transform: scale(1.12); }
+  .beat-led.medium { background: #a855f7 !important; color: #fff !important; border-color: #9333ea !important; transform: scale(1.06); }
+  .beat-led.weak   { background: #d8b4fe !important; color: #6b21a8 !important; border-color: #c084fc !important; transform: scale(1.03); }
+  .beat-led.off    { background: #e2e8f0; color: #888; border-color: #cbd5e0; transform: scale(1); }
+
+  /* ---- Rhythm builder ---- */
+  .note-palette {
+    display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0;
+  }
+  .note-btn {
+    background: #f3e8ff; color: #6b21a8; border: 2px solid #d8b4fe;
+    border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
+  }
+  .note-btn:hover { background: #e9d5ff; }
+  .note-btn.selected { background: #7e22ce; color: #fff; border-color: #6b21a8; }
+
+  .sequence-row {
+    display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0;
+    min-height: 52px; padding: 8px; background: #faf7fb;
+    border: 2px dashed #d8b4fe; border-radius: 8px; align-items: center;
+  }
+  .seq-note {
+    display: flex; flex-direction: column; align-items: center;
+    background: #e9d5ff; border-radius: 6px; padding: 4px 8px;
+    font-size: 12px; cursor: pointer; user-select: none; position: relative;
+  }
+  .seq-note .note-sym { font-size: 20px; }
+  .seq-note .note-val { font-size: 10px; color: #6b21a8; font-weight: 700; }
+  .seq-note.active-play { background: #7e22ce; color: #fff; }
+  .seq-note.active-play .note-val { color: #e9d5ff; }
+  .seq-note:hover { background: #fca5a5; }
+  .seq-empty { color: #aaa; font-size: 13px; font-style: italic; padding: 6px; }
+
+  .total-bar {
+    height: 12px; border-radius: 6px; background: #e2e8f0; overflow: hidden; margin: 8px 0;
+  }
+  .total-fill {
+    height: 100%; border-radius: 6px; background: #7e22ce;
+    transition: width 0.2s;
+  }
+  .total-fill.over { background: #dc2626; }
+  .status-ok  { color: #16a34a; font-weight: 700; }
+  .status-err { color: #dc2626; font-weight: 700; }
+  .status-partial { color: #ca8a04; font-weight: 700; }
+
+  /* ---- Tempo info box ---- */
+  .info-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px;
+    margin: 12px 0;
+  }
+  .info-cell {
+    background: #f3e8ff; border-radius: 8px; padding: 12px 14px; text-align: center;
+  }
+  .info-cell .label { font-size: 12px; color: #6b21a8; font-weight: 600; margin-bottom: 4px; }
+  .info-cell .value { font-size: 20px; font-weight: 800; color: #6b21a8; font-family: monospace; }
+
+  /* ---- Subdivision visual ---- */
+  .subdiv-wrap {
+    display: flex; gap: 4px; flex-wrap: wrap; margin: 10px 0;
+  }
+  .subdiv-cell {
+    display: flex; align-items: center; justify-content: center;
+    height: 36px; border-radius: 6px; font-weight: 700; font-size: 13px;
+    background: #e9d5ff; color: #6b21a8; border: 1.5px solid #c084fc;
+    transition: background 0.05s;
+  }
+  .subdiv-cell.beat-start { background: #7e22ce; color: #fff; border-color: #6b21a8; }
+  .subdiv-cell.beat-mid   { background: #d8b4fe; color: #6b21a8; border-color: #a855f7; }
+  .subdiv-cell.active     { background: #a855f7 !important; color: #fff !important; }
+
+  @media (max-width: 480px) {
+    .beat-led { width: 42px; height: 42px; font-size: 15px; }
+    .info-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Fundamentals</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-minor-scales-modes/visualization.html">← L6: Gam thứ &amp; mode</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Nhịp &amp; tiết tấu</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-key-signatures-circle/visualization.html">L8: Bộ khóa &amp; vòng quãng 5 →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Nhịp &amp; tiết tấu</h1>
+<p>Phách là <strong>đồng hồ</strong> của âm nhạc. Bài này cho bạn <em>nghe và cảm nhận</em> nhịp qua metronome tương tác, trình tạo tiết tấu, và minh họa subdivision. <strong>🔊 Bật loa.</strong></p>
+
+<!-- ===== MODULE 1: Metronome ===== -->
+<h2>1. 🥁 Metronome — Nghe phách đều</h2>
+<div class="card">
+  <p class="hint">Điều chỉnh BPM và số chỉ nhịp rồi nhấn <strong>Bắt đầu</strong>. Phách 1 phát tiếng cao (mạnh), phách khác thấp hơn. Đèn LED sáng theo phách hiện tại.</p>
+
+  <div class="row">
+    <label for="bpmRange">Tempo (BPM):</label>
+    <input type="range" id="bpmRange" min="40" max="220" value="80" step="1">
+    <span><span class="val" id="bpmVal">80</span> BPM</span>
+  </div>
+
+  <div class="row">
+    <label for="timeSig">Số chỉ nhịp:</label>
+    <select id="timeSig">
+      <option value="4/4">4/4 — Bốn tư (pop, rock)</option>
+      <option value="3/4">3/4 — Ba tư (waltz)</option>
+      <option value="2/4">2/4 — Hai tư (march)</option>
+      <option value="6/8">6/8 — Sáu tám (kép)</option>
+      <option value="5/4">5/4 — Năm tư (bất thường)</option>
+    </select>
+  </div>
+
+  <div class="info-grid" id="tempoInfo">
+    <div class="info-cell">
+      <div class="label">Thời lượng 1 phách</div>
+      <div class="value" id="beatDur">0.750 s</div>
+    </div>
+    <div class="info-cell">
+      <div class="label">Phách/ô nhịp</div>
+      <div class="value" id="beatsPerBar">4</div>
+    </div>
+    <div class="info-cell">
+      <div class="label">Thời lượng 1 ô</div>
+      <div class="value" id="barDur">3.00 s</div>
+    </div>
+    <div class="info-cell">
+      <div class="label">Công thức</div>
+      <div class="value" style="font-size:14px">60 / BPM</div>
+    </div>
+  </div>
+
+  <div class="beat-row" id="beatLeds"></div>
+
+  <div class="row" style="margin-top:14px">
+    <button id="metroStart">▶ Bắt đầu</button>
+    <button id="metroStop" class="ghost" disabled>⏹ Dừng</button>
+    <span class="hint" id="metroStatus" style="margin:0">Nhấn Bắt đầu để nghe</span>
+  </div>
+  <p class="hint">LED tím đậm = phách <strong>mạnh</strong>; tím nhạt = phách vừa; lavender = phách nhẹ. Trong 4/4: phách 1 mạnh nhất, phách 3 vừa, 2&amp;4 nhẹ. Trong 3/4: chỉ phách 1 mạnh.</p>
+</div>
+
+<!-- ===== MODULE 2: Rhythm Builder ===== -->
+<h2>2. 🎼 Trình tạo tiết tấu — Lấp đầy ô nhịp</h2>
+<div class="card">
+  <p class="hint">Chọn loại nốt từ bảng phía dưới rồi nhấn <strong>Thêm nốt</strong> để xếp vào ô nhịp. Khi tổng trường độ khớp số chỉ nhịp → nhấn <strong>▶ Phát</strong> để nghe. Click vào nốt trong ô để xóa.</p>
+
+  <div class="row">
+    <label>Số chỉ nhịp:</label>
+    <select id="builderSig">
+      <option value="4">4/4 (4 phách đen)</option>
+      <option value="3">3/4 (3 phách đen)</option>
+      <option value="2">2/4 (2 phách đen)</option>
+      <option value="6h">6/8 (6 móc đơn)</option>
+    </select>
+  </div>
+
+  <div style="margin-bottom:6px"><strong>Chọn nốt:</strong></div>
+  <div class="note-palette" id="notePalette">
+    <!-- filled by JS -->
+  </div>
+
+  <div class="row" style="gap:8px">
+    <button id="addNote">+ Thêm nốt</button>
+    <button id="clearSeq" class="ghost">🗑 Xóa tất cả</button>
+    <button id="playSeq" class="ghost" disabled>▶ Phát</button>
+  </div>
+
+  <div style="margin:10px 0; font-size:14px">
+    Tổng trường độ: <span class="val" id="totalVal">0</span> / <span class="val" id="maxVal">4</span> phách
+    &nbsp;
+    <span id="seqStatus" class="status-partial">— Trống, thêm nốt vào</span>
+  </div>
+  <div class="total-bar"><div class="total-fill" id="totalFill" style="width:0%"></div></div>
+
+  <div class="sequence-row" id="seqRow">
+    <span class="seq-empty">Ô nhịp trống — nhấn "+ Thêm nốt" để bắt đầu</span>
+  </div>
+  <p class="hint">Click nốt trong ô để xóa từng nốt. Khi ô đủ (màu xanh) nhấn ▶ Phát để nghe nhịp điệu.</p>
+</div>
+
+<!-- ===== MODULE 3: Subdivision visual ===== -->
+<h2>3. 🔬 Subdivision — Nhịp đơn vs Nhịp kép</h2>
+<div class="card">
+  <p class="hint">So sánh cách chia phách của nhịp đơn (chia 2) và nhịp kép (chia 3). Ô được tô màu mạnh ở mỗi phách cảm nhận chính.</p>
+
+  <div class="row">
+    <label>Nhịp:</label>
+    <select id="subdivSig">
+      <option value="44">4/4 — Nhịp đơn, 4 phách đen</option>
+      <option value="34">3/4 — Nhịp đơn, 3 phách đen</option>
+      <option value="24">2/4 — Nhịp đơn, 2 phách đen</option>
+      <option value="68">6/8 — Nhịp kép, 2 phách lớn (÷3)</option>
+      <option value="98">9/8 — Nhịp kép, 3 phách lớn (÷3)</option>
+      <option value="128">12/8 — Nhịp kép, 4 phách lớn (÷3)</option>
+    </select>
+    <button id="playSubdiv" class="ghost">▶ Phát nhịp</button>
+  </div>
+
+  <div class="subdiv-wrap" id="subdivCells"></div>
+  <div class="result" id="subdivInfo" style="font-size:14px">Chọn nhịp để xem minh họa.</div>
+</div>
+
+<script>
+// ============================================================
+// Web Audio helpers (copied from lesson-01 template)
+// ============================================================
+let ctx = null;
+function audio() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); return ctx; }
+function playTone(freq, dur = 0.08, when = 0, gain = 0.25) {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g   = ac.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(gain, t0 + 0.006);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.02);
+}
+
+const NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function freqFromN(n) { return 440 * Math.pow(2, n / 12); }
+function nameFromN(n) {
+  const midi = 69 + n;
+  return NAMES[((midi % 12) + 12) % 12] + (Math.floor(midi / 12) - 1);
+}
+
+// Tick pitches
+const TICK_STRONG = 1200;  // Hz — phách mạnh (high click)
+const TICK_MEDIUM = 900;   // Hz — phách vừa (4/4 beat 3)
+const TICK_WEAK   = 680;   // Hz — phách nhẹ
+const TICK_DUR    = 0.05;  // giây
+
+// ============================================================
+// MODULE 1 — Metronome
+// ============================================================
+const bpmRange   = document.getElementById('bpmRange');
+const bpmVal     = document.getElementById('bpmVal');
+const timeSigSel = document.getElementById('timeSig');
+const beatLedsEl = document.getElementById('beatLeds');
+const metroStart = document.getElementById('metroStart');
+const metroStop  = document.getElementById('metroStop');
+const metroStatus= document.getElementById('metroStatus');
+
+let metroTimer   = null;
+let currentBeat  = 0;
+let totalBeats   = 4;
+
+function parseSig(sigStr) {
+  // Returns { beats, subdivision: 'simple'|'compound', beatPattern: ['strong','weak',...] }
+  const map = {
+    '4/4': { beats: 4, type: 'simple',   pattern: ['strong','weak','medium','weak'] },
+    '3/4': { beats: 3, type: 'simple',   pattern: ['strong','weak','weak'] },
+    '2/4': { beats: 2, type: 'simple',   pattern: ['strong','weak'] },
+    '6/8': { beats: 6, type: 'compound', pattern: ['strong','weak','weak','medium','weak','weak'] },
+    '5/4': { beats: 5, type: 'simple',   pattern: ['strong','weak','medium','weak','weak'] },
+  };
+  return map[sigStr] || map['4/4'];
+}
+
+function tickFreq(strength) {
+  if (strength === 'strong') return TICK_STRONG;
+  if (strength === 'medium') return TICK_MEDIUM;
+  return TICK_WEAK;
+}
+
+function buildLeds(sig) {
+  const info = parseSig(sig);
+  totalBeats = info.beats;
+  beatLedsEl.innerHTML = '';
+  info.pattern.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'beat-led off';
+    d.id = `led_${i}`;
+    d.textContent = i + 1;
+    beatLedsEl.appendChild(d);
+  });
+}
+
+function lightLed(beatIdx, sig) {
+  const info = parseSig(sig);
+  // Clear all
+  for (let i = 0; i < info.beats; i++) {
+    const el = document.getElementById(`led_${i}`);
+    if (el) el.className = 'beat-led off';
+  }
+  // Light current
+  const el = document.getElementById(`led_${beatIdx}`);
+  if (el) {
+    const s = info.pattern[beatIdx];
+    el.className = `beat-led ${s}`;
+  }
+}
+
+function updateTempoInfo() {
+  const bpm = +bpmRange.value;
+  const sig = timeSigSel.value;
+  const info = parseSig(sig);
+  const beatDurS = 60 / bpm;
+  document.getElementById('beatDur').textContent = beatDurS.toFixed(3) + ' s';
+  document.getElementById('beatsPerBar').textContent = info.beats;
+  document.getElementById('barDur').textContent = (beatDurS * info.beats).toFixed(2) + ' s';
+  bpmVal.textContent = bpm;
+}
+
+function startMetronome() {
+  stopMetronome();
+  audio(); // unlock AudioContext on user gesture
+  const bpm  = +bpmRange.value;
+  const sig  = timeSigSel.value;
+  const info = parseSig(sig);
+  const intervalMs = (60 / bpm) * 1000;
+  currentBeat = 0;
+
+  function tick() {
+    const strength = info.pattern[currentBeat];
+    playTone(tickFreq(strength), TICK_DUR, 0, strength === 'strong' ? 0.4 : strength === 'medium' ? 0.25 : 0.15);
+    lightLed(currentBeat, sig);
+    metroStatus.textContent = `Ô nhịp: phách ${currentBeat + 1} / ${info.beats}`;
+    currentBeat = (currentBeat + 1) % info.beats;
+  }
+
+  tick(); // immediate first tick
+  metroTimer = setInterval(tick, intervalMs);
+  metroStart.disabled = true;
+  metroStop.disabled  = false;
+}
+
+function stopMetronome() {
+  if (metroTimer) { clearInterval(metroTimer); metroTimer = null; }
+  currentBeat = 0;
+  // clear LEDs
+  const sig  = timeSigSel.value;
+  const info = parseSig(sig);
+  for (let i = 0; i < info.beats; i++) {
+    const el = document.getElementById(`led_${i}`);
+    if (el) el.className = 'beat-led off';
+  }
+  metroStart.disabled = false;
+  metroStop.disabled  = true;
+  metroStatus.textContent = 'Đã dừng.';
+}
+
+bpmRange.addEventListener('input', () => {
+  updateTempoInfo();
+  if (metroTimer) { stopMetronome(); startMetronome(); }
+});
+timeSigSel.addEventListener('change', () => {
+  buildLeds(timeSigSel.value);
+  updateTempoInfo();
+  if (metroTimer) { stopMetronome(); startMetronome(); }
+});
+metroStart.addEventListener('click', startMetronome);
+metroStop.addEventListener('click',  stopMetronome);
+
+// Init
+buildLeds('4/4');
+updateTempoInfo();
+
+// ============================================================
+// MODULE 2 — Rhythm Builder
+// ============================================================
+const NOTE_DEFS = [
+  { name: 'Tròn',        sym: '𝅝',  val: 4,    label: 'Tròn (4 đen)' },
+  { name: 'Trắng',       sym: '𝅗𝅥',  val: 2,    label: 'Trắng (2 đen)' },
+  { name: 'Trắng chấm',  sym: '𝅗𝅥.',  val: 3,    label: 'Trắng· (3 đen)' },
+  { name: 'Đen',         sym: '♩',   val: 1,    label: 'Đen (1 phách)' },
+  { name: 'Đen chấm',    sym: '♩.',  val: 1.5,  label: 'Đen· (1.5 phách)' },
+  { name: 'Móc đơn',     sym: '♪',   val: 0.5,  label: 'Móc đơn (0.5)' },
+  { name: 'Móc kép',     sym: '𝅘𝅥𝅯',   val: 0.25, label: 'Móc kép (0.25)' },
+  { name: 'Lặng đen',    sym: '𝄽',   val: 1,    label: 'Lặng đen (1 phách)', rest: true },
+  { name: 'Lặng móc',    sym: '𝄾',   val: 0.5,  label: 'Lặng móc (0.5)', rest: true },
+];
+
+const builderSig  = document.getElementById('builderSig');
+const notePalette = document.getElementById('notePalette');
+const addNoteBtn  = document.getElementById('addNote');
+const clearSeqBtn = document.getElementById('clearSeq');
+const playSeqBtn  = document.getElementById('playSeq');
+const seqRow      = document.getElementById('seqRow');
+
+let selectedNoteIdx = 3; // default: đen
+let sequence = [];        // array of NOTE_DEFS entries
+
+function getMaxBeats() {
+  const v = builderSig.value;
+  if (v === '4') return 4;
+  if (v === '3') return 3;
+  if (v === '2') return 2;
+  if (v === '6h') return 3; // 6 móc = 3 phách đen units (each móc = 0.5)
+  return 4;
+}
+
+function getMaxLabel() {
+  const v = builderSig.value;
+  if (v === '6h') return '3 (6 móc đơn)';
+  return getMaxBeats().toString();
+}
+
+function totalSeq() { return sequence.reduce((s, n) => s + n.val, 0); }
+
+function renderPalette() {
+  notePalette.innerHTML = '';
+  NOTE_DEFS.forEach((n, i) => {
+    const b = document.createElement('button');
+    b.className = 'note-btn' + (i === selectedNoteIdx ? ' selected' : '');
+    b.title = n.label;
+    b.innerHTML = `${n.sym} ${n.name}`;
+    b.addEventListener('click', () => {
+      selectedNoteIdx = i;
+      renderPalette();
+    });
+    notePalette.appendChild(b);
+  });
+}
+
+function renderSeq() {
+  const maxB = getMaxBeats();
+  const tot  = totalSeq();
+  document.getElementById('maxVal').textContent = getMaxLabel();
+  document.getElementById('totalVal').textContent = tot % 1 === 0 ? tot : tot.toFixed(2);
+  const pct = Math.min(tot / maxB * 100, 100);
+  const fill = document.getElementById('totalFill');
+  fill.style.width = pct + '%';
+  fill.className = 'total-fill' + (tot > maxB ? ' over' : '');
+  const statusEl = document.getElementById('seqStatus');
+  if (tot === 0)       { statusEl.textContent = '— Trống, thêm nốt vào'; statusEl.className = 'status-partial'; }
+  else if (tot < maxB) { statusEl.textContent = `— Còn thiếu ${+(maxB - tot).toFixed(2)} phách`; statusEl.className = 'status-partial'; }
+  else if (tot === maxB){ statusEl.textContent = '✓ Ô nhịp đầy — sẵn sàng phát!'; statusEl.className = 'status-ok'; }
+  else                 { statusEl.textContent = `✗ Quá ${+(tot - maxB).toFixed(2)} phách — xóa bớt`; statusEl.className = 'status-err'; }
+  playSeqBtn.disabled = (tot !== maxB);
+
+  seqRow.innerHTML = '';
+  if (sequence.length === 0) {
+    seqRow.innerHTML = '<span class="seq-empty">Ô nhịp trống — nhấn "+ Thêm nốt" để bắt đầu</span>';
+    return;
+  }
+  sequence.forEach((n, idx) => {
+    const el = document.createElement('div');
+    el.className = 'seq-note';
+    el.title = `${n.name} = ${n.val} phách — Click để xóa`;
+    el.innerHTML = `<span class="note-sym">${n.sym}</span><span class="note-val">${n.val}p</span>`;
+    el.addEventListener('click', () => {
+      sequence.splice(idx, 1);
+      renderSeq();
+    });
+    seqRow.appendChild(el);
+  });
+}
+
+addNoteBtn.addEventListener('click', () => {
+  const note = NOTE_DEFS[selectedNoteIdx];
+  const maxB = getMaxBeats();
+  if (totalSeq() + note.val > maxB) {
+    alert(`Thêm nốt này sẽ vượt quá ${maxB} phách. Xóa bớt hoặc chọn nốt nhỏ hơn.`);
+    return;
+  }
+  sequence.push(note);
+  renderSeq();
+});
+
+clearSeqBtn.addEventListener('click', () => { sequence = []; renderSeq(); });
+
+builderSig.addEventListener('change', () => { sequence = []; renderSeq(); });
+
+let seqPlayTimer = null;
+
+function playSequence() {
+  if (seqPlayTimer) { clearTimeout(seqPlayTimer); seqPlayTimer = null; }
+  const bpm = +bpmRange.value;
+  const beatS = 60 / bpm; // 1 phách đen = bao nhiêu giây
+  const ac = audio();
+  let t = ac.currentTime + 0.05;
+  const noteEls = seqRow.querySelectorAll('.seq-note');
+  sequence.forEach((n, i) => {
+    const dur = n.val * beatS;
+    if (!n.rest) {
+      // pitch: alternate between C4 and E4 so sequence sounds melodic
+      const pitch = i % 2 === 0 ? 261.63 : 329.63;
+      playTone(pitch, dur * 0.85, t - ac.currentTime, 0.3);
+    }
+    // Light up LED
+    const idx = i;
+    const delay = (t - ac.currentTime) * 1000;
+    setTimeout(() => {
+      noteEls.forEach(el => el.classList.remove('active-play'));
+      if (noteEls[idx]) noteEls[idx].classList.add('active-play');
+    }, delay);
+    setTimeout(() => {
+      if (noteEls[idx]) noteEls[idx].classList.remove('active-play');
+    }, delay + dur * 1000 * 0.9);
+    t += dur;
+  });
+}
+
+playSeqBtn.addEventListener('click', playSequence);
+
+// Init palette & seq
+renderPalette();
+renderSeq();
+
+// ============================================================
+// MODULE 3 — Subdivision visual
+// ============================================================
+const SUBDIV_DEFS = {
+  '44': {
+    label: '4/4 — Nhịp đơn',
+    cells: [
+      { text: '1', cls: 'beat-start' },
+      { text: '+', cls: 'beat-mid' },
+      { text: '2', cls: 'beat-start' },
+      { text: '+', cls: 'beat-mid' },
+      { text: '3', cls: 'beat-start' },
+      { text: '+', cls: 'beat-mid' },
+      { text: '4', cls: 'beat-start' },
+      { text: '+', cls: 'beat-mid' },
+    ],
+    desc: '<strong>4/4 — Nhịp đơn</strong>: 4 phách đen, mỗi phách chia làm 2 (sub = móc đơn). Đếm: <em>"1–và–2–và–3–và–4–và"</em>. Phách 1 mạnh nhất, phách 3 vừa, 2&amp;4 nhẹ.',
+    pattern: [0.4, 0.15, 0.25, 0.15, 0.4, 0.15, 0.25, 0.15], // gain per cell
+    pitches: [1000, 700, 800, 700, 850, 700, 800, 700],
+    beats: 4,
+  },
+  '34': {
+    label: '3/4 — Nhịp đơn (Waltz)',
+    cells: [
+      { text: '1', cls: 'beat-start' },
+      { text: '+', cls: 'beat-mid' },
+      { text: '2', cls: 'beat-start' },
+      { text: '+', cls: 'beat-mid' },
+      { text: '3', cls: 'beat-start' },
+      { text: '+', cls: 'beat-mid' },
+    ],
+    desc: '<strong>3/4 — Nhịp đơn (Waltz)</strong>: 3 phách đen, mỗi phách chia 2. Đếm: <em>"1–và–2–và–3–và"</em>. Chỉ phách 1 mạnh. Cảm giác: <em>ĐI – bước – bước</em>.',
+    pattern: [0.4, 0.15, 0.2, 0.12, 0.2, 0.12],
+    pitches: [1000, 700, 750, 700, 750, 700],
+    beats: 3,
+  },
+  '24': {
+    label: '2/4 — Nhịp đơn (March)',
+    cells: [
+      { text: '1', cls: 'beat-start' },
+      { text: '+', cls: 'beat-mid' },
+      { text: '2', cls: 'beat-start' },
+      { text: '+', cls: 'beat-mid' },
+    ],
+    desc: '<strong>2/4 — Nhịp đơn (March/Hành khúc)</strong>: 2 phách đen, mỗi phách chia 2. Đếm: <em>"1–và–2–và"</em>. Cảm giác: <em>MẠNH – nhẹ – MẠNH – nhẹ</em>.',
+    pattern: [0.4, 0.15, 0.22, 0.12],
+    pitches: [1000, 700, 770, 700],
+    beats: 2,
+  },
+  '68': {
+    label: '6/8 — Nhịp kép',
+    cells: [
+      { text: '1', cls: 'beat-start' },
+      { text: '2', cls: 'beat-mid' },
+      { text: '3', cls: 'beat-mid' },
+      { text: '4', cls: 'beat-start' },
+      { text: '5', cls: 'beat-mid' },
+      { text: '6', cls: 'beat-mid' },
+    ],
+    desc: '<strong>6/8 — Nhịp kép</strong>: 6 móc đơn, nhưng cảm nhận <em>2 phách lớn</em> (nốt đen chấm). Mỗi phách lớn = 3 móc đơn. Đếm: <em>"1–và–a–2–và–a"</em>. Cảm giác chao đưa 2 nhịp.',
+    pattern: [0.4, 0.15, 0.12, 0.3, 0.15, 0.12],
+    pitches: [1000, 700, 700, 850, 700, 700],
+    beats: 2,
+  },
+  '98': {
+    label: '9/8 — Nhịp kép (Waltz kép)',
+    cells: [
+      { text: '1', cls: 'beat-start' },
+      { text: '2', cls: 'beat-mid' },
+      { text: '3', cls: 'beat-mid' },
+      { text: '4', cls: 'beat-start' },
+      { text: '5', cls: 'beat-mid' },
+      { text: '6', cls: 'beat-mid' },
+      { text: '7', cls: 'beat-start' },
+      { text: '8', cls: 'beat-mid' },
+      { text: '9', cls: 'beat-mid' },
+    ],
+    desc: '<strong>9/8 — Nhịp kép (Waltz kép)</strong>: 9 móc đơn, cảm nhận <em>3 phách lớn</em> (nốt đen chấm). Giống 3/4 về cấu trúc nhưng mỗi phách chia 3 thay vì 2.',
+    pattern: [0.4, 0.14, 0.12, 0.28, 0.14, 0.12, 0.28, 0.14, 0.12],
+    pitches: [1000, 700, 700, 820, 700, 700, 820, 700, 700],
+    beats: 3,
+  },
+  '128': {
+    label: '12/8 — Nhịp kép (Blues/Ballad)',
+    cells: [
+      { text: '1', cls: 'beat-start' },
+      { text: '2', cls: 'beat-mid' },
+      { text: '3', cls: 'beat-mid' },
+      { text: '4', cls: 'beat-start' },
+      { text: '5', cls: 'beat-mid' },
+      { text: '6', cls: 'beat-mid' },
+      { text: '7', cls: 'beat-start' },
+      { text: '8', cls: 'beat-mid' },
+      { text: '9', cls: 'beat-mid' },
+      { text: '10', cls: 'beat-start' },
+      { text: '11', cls: 'beat-mid' },
+      { text: '12', cls: 'beat-mid' },
+    ],
+    desc: '<strong>12/8 — Nhịp kép (Blues/Ballad)</strong>: 12 móc đơn, cảm nhận <em>4 phách lớn</em>. Rất phổ biến trong blues và ballad rock — cảm giác "lắc đầu" 3 nhịp trên mỗi phách.',
+    pattern: [0.4, 0.14, 0.12, 0.3, 0.14, 0.12, 0.3, 0.14, 0.12, 0.3, 0.14, 0.12],
+    pitches: [1000, 700, 700, 820, 700, 700, 820, 700, 700, 820, 700, 700],
+    beats: 4,
+  },
+};
+
+const subdivSigSel = document.getElementById('subdivSig');
+const subdivCells  = document.getElementById('subdivCells');
+const subdivInfo   = document.getElementById('subdivInfo');
+const playSubdivBtn= document.getElementById('playSubdiv');
+
+function renderSubdiv(key) {
+  const def = SUBDIV_DEFS[key];
+  if (!def) return;
+  subdivInfo.innerHTML = def.desc;
+  subdivCells.innerHTML = '';
+  // Compute cell width — divide available space evenly
+  const n = def.cells.length;
+  def.cells.forEach((c, i) => {
+    const el = document.createElement('div');
+    el.className = `subdiv-cell ${c.cls}`;
+    el.id = `sc_${i}`;
+    el.style.flex = '1';
+    el.style.minWidth = n <= 6 ? '44px' : '32px';
+    el.textContent = c.text;
+    subdivCells.appendChild(el);
+  });
+}
+
+function playSubdivAnim(key) {
+  const def = SUBDIV_DEFS[key];
+  if (!def) return;
+  const bpm   = +bpmRange.value;
+  const beatS = 60 / bpm; // 1 phách đen
+  // For compound: each cell is 1/3 phách lớn; for simple: each cell is half phách
+  const isCompound = ['68','98','128'].includes(key);
+  const cellS = isCompound ? beatS / 3 : beatS / 2;
+  const ac = audio();
+  let t = ac.currentTime + 0.04;
+  def.cells.forEach((c, i) => {
+    playTone(def.pitches[i], TICK_DUR, t - ac.currentTime, def.pattern[i]);
+    const delay = (t - ac.currentTime) * 1000;
+    setTimeout(() => {
+      document.querySelectorAll('.subdiv-cell').forEach(el => el.classList.remove('active'));
+      const el = document.getElementById(`sc_${i}`);
+      if (el) el.classList.add('active');
+    }, delay);
+    setTimeout(() => {
+      const el = document.getElementById(`sc_${i}`);
+      if (el) el.classList.remove('active');
+    }, delay + cellS * 1000 * 0.85);
+    t += cellS;
+  });
+}
+
+subdivSigSel.addEventListener('change', () => renderSubdiv(subdivSigSel.value));
+playSubdivBtn.addEventListener('click', () => { audio(); playSubdivAnim(subdivSigSel.value); });
+
+// Init
+renderSubdiv('44');
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

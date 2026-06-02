@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Khuông nhạc &amp; ký hiệu</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+
+  .card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0 0; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; }
+
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: #6b21a8; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  button.active-btn { background: #6b21a8; outline: 2px solid #c4b5fd; }
+
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  .result {
+    padding: 14px 16px; background: #f3e8ff; border-radius: 8px; margin-top: 12px;
+    font-size: 15px; line-height: 1.8;
+  }
+  .result .big { font-size: 22px; font-weight: 800; color: #6b21a8; font-family: monospace; }
+  .badge { display: inline-block; background: #e9d5ff; color: #6b21a8; padding: 3px 9px; border-radius: 6px; font-family: monospace; font-weight: 700; margin: 2px; }
+
+  /* ----- Staff SVG ----- */
+  .staff-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  svg.staff-svg { display: block; margin: 0 auto; cursor: pointer; }
+  .staff-line { stroke: #374151; stroke-width: 1.5; }
+  .ledger-line { stroke: #374151; stroke-width: 1.5; }
+  .clef-text { font-size: 64px; fill: #1a202c; font-family: serif; user-select: none; }
+  .hit-zone { fill: transparent; }
+  .hit-zone:hover { fill: rgba(126,34,206,0.08); }
+  .note-head { fill: #7e22ce; stroke: #6b21a8; stroke-width: 1; transition: r 0.1s; }
+  .note-label { font-size: 13px; fill: #6b21a8; font-weight: 700; font-family: sans-serif; pointer-events: none; }
+  .pos-label { font-size: 11px; fill: #9ca3af; font-family: sans-serif; pointer-events: none; }
+  .info-box { background: #f3e8ff; border-radius: 8px; padding: 10px 14px; margin-top: 10px; font-size: 14px; min-height: 40px; }
+
+  /* toggle clef */
+  .clef-toggle { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .clef-toggle button { min-width: 140px; }
+
+  /* ----- Duration table ----- */
+  .dur-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .dur-card {
+    background: #faf7fb; border: 2px solid #e9d5ff; border-radius: 10px;
+    padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.15s;
+    user-select: none;
+  }
+  .dur-card:hover { border-color: #a855f7; background: #f3e8ff; }
+  .dur-card.playing { border-color: #7e22ce; background: #e9d5ff; transform: scale(1.04); }
+  .dur-svg { display: block; margin: 0 auto 6px; overflow: visible; }
+  .dur-name { font-size: 12px; font-weight: 700; color: #4b5563; }
+  .dur-beats { font-size: 11px; color: #7e22ce; font-weight: 700; margin-top: 2px; }
+
+  /* ----- Beat calculator ----- */
+  .beat-pills { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+  .pill {
+    background: #e9d5ff; color: #6b21a8; padding: 6px 12px; border-radius: 20px;
+    font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;
+    border: 2px solid transparent; transition: all 0.12s;
+  }
+  .pill:hover { background: #d8b4fe; }
+  .pill .rm { font-size: 11px; color: #9333ea; margin-left: 4px; }
+  .calc-result { font-size: 16px; font-weight: 700; color: #6b21a8; margin-top: 8px; }
+  .calc-bar { height: 10px; background: #e9d5ff; border-radius: 5px; margin-top: 8px; overflow: hidden; }
+  .calc-fill { height: 100%; background: #7e22ce; border-radius: 5px; transition: width 0.3s; }
+  .add-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .add-btns button { padding: 7px 10px; font-size: 12px; }
+
+  @media (max-width: 600px) {
+    .dur-grid { grid-template-columns: repeat(3, 1fr); }
+    .clef-toggle button { min-width: 120px; font-size: 13px; }
+  }
+  @media (max-width: 420px) {
+    .dur-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Fundamentals</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-note-names/visualization.html">← L2: Tên nốt &amp; bàn phím</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Khuông nhạc &amp; ký hiệu</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-intervals/visualization.html">L4: Quãng →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Khuông nhạc &amp; ký hiệu</h1>
+<p>Ba công cụ tương tác: <strong>khuông nhạc</strong> click nghe nốt (khóa Sol/Fa), <strong>bảng trường độ</strong> click nghe nhịp, và <strong>máy tính phách</strong> cho nhịp tự chọn. <strong>🔊 Bật loa.</strong></p>
+
+<!-- ============================================================ -->
+<h2>1. Khuông nhạc — click để nghe</h2>
+<div class="card">
+  <div class="clef-toggle">
+    <button id="btnTreble" class="active-btn" onclick="setClef('treble')">🎼 Khóa Sol (Treble)</button>
+    <button id="btnBass" class="ghost" onclick="setClef('bass')">🎸 Khóa Fa (Bass)</button>
+  </div>
+  <p class="hint">Click vào bất kỳ dòng hoặc khe nào để nghe cao độ tương ứng. Dòng kẻ phụ (nét ngắn) cũng click được.</p>
+  <div class="staff-wrap">
+    <svg id="staffSvg" class="staff-svg" width="560" height="260" viewBox="0 0 560 260"></svg>
+  </div>
+  <div class="info-box" id="staffInfo">Click vào dòng hoặc khe trên khuông để xem tên nốt và nghe âm thanh.</div>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Trường độ — click để nghe nhịp</h2>
+<div class="card">
+  <p class="hint">Click vào mỗi loại nốt để nghe độ dài tương ứng. Nhịp (BPM) mặc định = 80. Số phách tính theo nốt tròn = 4 phách.</p>
+  <div class="row">
+    <label>Tempo: <span id="tempoVal">80</span> BPM</label>
+    <input type="range" id="tempoRange" min="40" max="160" value="80" step="1"
+           style="flex:1;min-width:120px;accent-color:#7e22ce;"
+           oninput="document.getElementById('tempoVal').textContent=this.value">
+  </div>
+  <div class="dur-grid" id="durGrid"></div>
+  <div class="result" id="durInfo" style="min-height:44px">Chọn một trường độ để nghe và xem thông tin.</div>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Máy tính tổng phách</h2>
+<div class="card">
+  <p class="hint">Thêm nốt vào chuỗi rồi tính tổng phách. Có thể kiểm tra một nhịp 4/4, 3/4 hay 6/8.</p>
+  <div class="add-btns" id="addBtns"></div>
+  <div style="margin-top:10px;">
+    <strong>Chuỗi hiện tại:</strong>
+    <div class="beat-pills" id="beatPills"><em style="color:#9ca3af;font-size:13px">Chưa có nốt nào. Bấm nút trên để thêm.</em></div>
+  </div>
+  <div class="calc-result" id="calcResult">Tổng: 0 phách</div>
+  <div class="calc-bar"><div class="calc-fill" id="calcFill" style="width:0%"></div></div>
+  <p class="hint" id="calcHint">Nhịp 4/4 cần đúng 4 phách.</p>
+  <div class="row" style="margin-top:10px;">
+    <button onclick="clearBeats()">Xóa tất cả</button>
+    <button class="ghost" onclick="playSequence()">▶ Phát chuỗi</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// Web Audio
+// ============================================================
+let ctx = null;
+function audio() {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  return ctx;
+}
+function playTone(freq, dur = 0.5, when = 0) {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.28, t0 + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+const NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function freqFromN(n) { return 440 * Math.pow(2, n / 12); }
+function nameFromN(n) {
+  const midi = 69 + n;
+  return NAMES[((midi % 12) + 12) % 12] + (Math.floor(midi / 12) - 1);
+}
+// Convert note name like "E4" to semitone offset from A4
+function noteToN(name) {
+  const noteMap = {C:-9, D:-7, E:-5, F:-4, G:-2, A:0, B:2};
+  const letter = name[0];
+  const octave = parseInt(name[name.length-1]);
+  return noteMap[letter] + (octave - 4) * 12;
+}
+
+// ============================================================
+// Staff (Khuông nhạc)
+// ============================================================
+// Define positions: index = step from middle of staff (step 0 = middle line = B4 treble / D3 bass)
+// We'll use a slot-based system: slot 0 = bottom ledger area, increasing upward
+
+// Treble clef notes by slot (slot 0 = C4 ledger, slot 1 = D4 space, slot 2 = E4 line1, ...)
+// Each slot = half-step in diatonic scale on staff
+const TREBLE_SLOTS = [
+  // slot index : [noteName, isLine, displaySlot]
+  // We'll define from bottom: 2 ledger notes below, 5 lines + 4 spaces, 2 ledger above
+  { note: 'B3', isLine: false, label: 'Khe phụ dưới 2' },  // 0
+  { note: 'C4', isLine: true,  label: 'Ledger line (C4 - Đô giữa)' },  // 1
+  { note: 'D4', isLine: false, label: 'Khe 0 (dưới dòng 1)' },  // 2
+  { note: 'E4', isLine: true,  label: 'Dòng 1' },  // 3
+  { note: 'F4', isLine: false, label: 'Khe 1' },   // 4
+  { note: 'G4', isLine: true,  label: 'Dòng 2 (nốt neo G4)' },  // 5
+  { note: 'A4', isLine: false, label: 'Khe 2' },   // 6
+  { note: 'B4', isLine: true,  label: 'Dòng 3' },  // 7
+  { note: 'C5', isLine: false, label: 'Khe 3' },   // 8
+  { note: 'D5', isLine: true,  label: 'Dòng 4' },  // 9
+  { note: 'E5', isLine: false, label: 'Khe 4' },   // 10
+  { note: 'F5', isLine: true,  label: 'Dòng 5' },  // 11
+  { note: 'G5', isLine: false, label: 'Khe trên dòng 5' }, // 12
+  { note: 'A5', isLine: true,  label: 'Ledger line trên 1' }, // 13
+];
+
+const BASS_SLOTS = [
+  { note: 'E2', isLine: false, label: 'Khe phụ dưới 2' },  // 0
+  { note: 'F2', isLine: true,  label: 'Ledger line F2' },   // 1
+  { note: 'G2', isLine: false, label: 'Khe dưới dòng 1' }, // 2 - actually space below line 1
+  { note: 'G2', isLine: true,  label: 'Dòng 1 (G2)' },     // 3
+  { note: 'A2', isLine: false, label: 'Khe 1 (A2)' },      // 4
+  { note: 'B2', isLine: true,  label: 'Dòng 2 (B2)' },     // 5
+  { note: 'C3', isLine: false, label: 'Khe 2 (C3)' },      // 6
+  { note: 'D3', isLine: true,  label: 'Dòng 3 (D3)' },     // 7
+  { note: 'E3', isLine: false, label: 'Khe 3 (E3)' },      // 8
+  { note: 'F3', isLine: true,  label: 'Dòng 4 (F3 - nốt neo)' }, // 9
+  { note: 'G3', isLine: false, label: 'Khe 4 (G3)' },      // 10
+  { note: 'A3', isLine: true,  label: 'Dòng 5 (A3)' },     // 11
+  { note: 'B3', isLine: false, label: 'Khe trên dòng 5' }, // 12
+  { note: 'C4', isLine: true,  label: 'Ledger line C4 (Đô giữa)' }, // 13
+];
+
+// Fix bass slot 2 (space below line 1 is actually F#2/Gb2 area, but diatonic = F#2 skip)
+// Correct: below G2 (line1) = F#2 space -- but for visual we show F2 space
+// Let me redo bass slots cleanly
+const BASS_SLOTS_CLEAN = [
+  { note: 'E2', isLine: false, label: 'Khe phụ (E2)' },   // 0
+  { note: 'F2', isLine: true,  label: 'Ledger line (F2)' }, // 1  ← extra ledger
+  { note: 'F#2',isLine: false, label: 'Khe phụ (F♯2)' },  // 2
+  { note: 'G2', isLine: true,  label: 'Dòng 1 (G2)' },    // 3
+  { note: 'A2', isLine: false, label: 'Khe 1 (A2)' },     // 4
+  { note: 'B2', isLine: true,  label: 'Dòng 2 (B2)' },    // 5
+  { note: 'C3', isLine: false, label: 'Khe 2 (C3)' },     // 6
+  { note: 'D3', isLine: true,  label: 'Dòng 3 (D3)' },    // 7
+  { note: 'E3', isLine: false, label: 'Khe 3 (E3)' },     // 8
+  { note: 'F3', isLine: true,  label: 'Dòng 4 (F3 — nốt neo)' }, // 9
+  { note: 'G3', isLine: false, label: 'Khe 4 (G3)' },     // 10
+  { note: 'A3', isLine: true,  label: 'Dòng 5 (A3)' },    // 11
+  { note: 'B3', isLine: false, label: 'Khe trên (B3)' },  // 12
+  { note: 'C4', isLine: true,  label: 'Ledger line (C4 — Đô giữa)' }, // 13
+];
+
+let currentClef = 'treble';
+
+function noteNameToFreq(name) {
+  // Handle names like 'C4', 'F#2', 'A3' etc
+  const noteMapFull = { C:0, D:2, E:4, F:5, G:7, A:9, B:11 };
+  let i = 0;
+  const letter = name[i++];
+  let sharp = 0;
+  if (name[i] === '#') { sharp = 1; i++; }
+  else if (name[i] === 'b') { sharp = -1; i++; }
+  const octave = parseInt(name[i]);
+  const semitone = noteMapFull[letter] + sharp;
+  // midi = (octave+1)*12 + semitone
+  const midi = (octave + 1) * 12 + semitone;
+  return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+function drawStaff() {
+  const svg = document.getElementById('staffSvg');
+  svg.innerHTML = '';
+  const W = 560, H = 260;
+  const LEFT = 80, RIGHT = W - 20;
+  const STEP = 14; // pixels per diatonic step
+  const slots = currentClef === 'treble' ? TREBLE_SLOTS : BASS_SLOTS_CLEAN;
+  // The 5 main staff lines correspond to slots 3,5,7,9,11 (indices in slots array)
+  const lineSlots = [3, 5, 7, 9, 11];
+  // Y coordinate: slot 13 = top, slot 0 = bottom
+  // Map: slot → y
+  const YBASE = H - 40; // y for slot 0
+  function slotY(s) { return YBASE - s * STEP; }
+
+  // Draw 5 staff lines
+  lineSlots.forEach(s => {
+    const y = slotY(s);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', LEFT);
+    line.setAttribute('x2', RIGHT);
+    line.setAttribute('y1', y);
+    line.setAttribute('y2', y);
+    line.setAttribute('class', 'staff-line');
+    svg.appendChild(line);
+  });
+
+  // Draw ledger line below (slot 1 if it's a line)
+  [1, 13].forEach(s => {
+    if (slots[s] && slots[s].isLine) {
+      const y = slotY(s);
+      const cx = (LEFT + RIGHT) / 2 + 20;
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', cx - 28);
+      line.setAttribute('x2', cx + 28);
+      line.setAttribute('y1', y);
+      line.setAttribute('y2', y);
+      line.setAttribute('class', 'ledger-line');
+      line.setAttribute('stroke-dasharray', '');
+      svg.appendChild(line);
+    }
+  });
+
+  // Draw clef symbol (text approximation)
+  const clefText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  if (currentClef === 'treble') {
+    clefText.setAttribute('x', '10');
+    clefText.setAttribute('y', String(slotY(7) + 22));
+    clefText.setAttribute('font-size', '80');
+    clefText.setAttribute('fill', '#1a202c');
+    clefText.setAttribute('font-family', 'serif');
+    clefText.textContent = '𝄞'; // treble clef Unicode
+  } else {
+    clefText.setAttribute('x', '10');
+    clefText.setAttribute('y', String(slotY(9) + 6));
+    clefText.setAttribute('font-size', '52');
+    clefText.setAttribute('fill', '#1a202c');
+    clefText.setAttribute('font-family', 'serif');
+    clefText.textContent = '𝄢'; // bass clef Unicode
+  }
+  svg.appendChild(clefText);
+
+  // Draw hit zones + note labels on left side
+  const NOTE_CX = (LEFT + RIGHT) / 2 + 20;
+  slots.forEach((slot, i) => {
+    const y = slotY(i);
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', String(LEFT));
+    rect.setAttribute('y', String(y - STEP / 2));
+    rect.setAttribute('width', String(RIGHT - LEFT));
+    rect.setAttribute('height', String(STEP));
+    rect.setAttribute('class', 'hit-zone');
+    rect.style.cursor = 'pointer';
+
+    // Highlight ledger zones
+    if (i === 1 || i === 13) {
+      rect.setAttribute('fill', 'rgba(126,34,206,0.03)');
+    }
+
+    rect.addEventListener('click', () => {
+      showNote(slot, NOTE_CX, y, svg, slots, slotY);
+    });
+    svg.appendChild(rect);
+
+    // Position label on right side
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    lbl.setAttribute('x', String(RIGHT - 4));
+    lbl.setAttribute('y', String(y + 4));
+    lbl.setAttribute('text-anchor', 'end');
+    lbl.setAttribute('class', 'pos-label');
+    if (slot.isLine && [3,5,7,9,11].includes(i)) {
+      lbl.setAttribute('fill', '#9ca3af');
+      lbl.textContent = slot.note;
+    } else if (i === 1 || i === 13) {
+      lbl.setAttribute('fill', '#c084fc');
+      lbl.textContent = slot.note;
+    }
+    svg.appendChild(lbl);
+  });
+
+  // Note position labels on left
+  [3,5,7,9,11].forEach((s, i) => {
+    const y = slotY(s);
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t.setAttribute('x', String(LEFT - 4));
+    t.setAttribute('y', String(y + 4));
+    t.setAttribute('text-anchor', 'end');
+    t.setAttribute('font-size', '10');
+    t.setAttribute('fill', '#6b7280');
+    t.setAttribute('font-family', 'sans-serif');
+    t.textContent = 'D' + (i + 1);
+    svg.appendChild(t);
+  });
+}
+
+let currentNoteCircle = null;
+let currentLedgerHighlight = null;
+
+function showNote(slot, cx, y, svg, slots, slotY) {
+  const freq = noteNameToFreq(slot.note);
+  playTone(freq, 0.8);
+
+  // Remove previous note circle
+  if (currentNoteCircle) currentNoteCircle.remove();
+  if (currentLedgerHighlight) currentLedgerHighlight.remove();
+
+  // Draw note circle
+  const circle = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+  circle.setAttribute('cx', String(cx));
+  circle.setAttribute('cy', String(y));
+  circle.setAttribute('rx', '12');
+  circle.setAttribute('ry', '9');
+  circle.setAttribute('class', 'note-head');
+  svg.appendChild(circle);
+  currentNoteCircle = circle;
+
+  // If ledger note, highlight ledger line
+  const slotIdx = slots.indexOf(slot);
+  if (slotIdx === 1 || slotIdx === 13) {
+    const ledger = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    ledger.setAttribute('x1', String(cx - 30));
+    ledger.setAttribute('x2', String(cx + 30));
+    ledger.setAttribute('y1', String(y));
+    ledger.setAttribute('y2', String(y));
+    ledger.setAttribute('stroke', '#7e22ce');
+    ledger.setAttribute('stroke-width', '2.5');
+    svg.appendChild(ledger);
+    currentLedgerHighlight = ledger;
+  }
+
+  // Note label above/below
+  const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  lbl.setAttribute('x', String(cx));
+  lbl.setAttribute('y', String(y - 16));
+  lbl.setAttribute('text-anchor', 'middle');
+  lbl.setAttribute('class', 'note-label');
+  lbl.textContent = slot.note;
+  svg.appendChild(lbl);
+  currentNoteCircle._lbl = lbl;
+
+  // Info box
+  const isAnchor = (currentClef === 'treble' && slot.note === 'G4') ||
+                   (currentClef === 'bass'   && slot.note === 'F3');
+  const isMiddleC = slot.note === 'C4';
+  let extra = '';
+  if (isAnchor) extra = ' <span class="badge">Nốt neo của khóa!</span>';
+  if (isMiddleC) extra = ' <span class="badge">Đô giữa (Middle C)!</span>';
+
+  document.getElementById('staffInfo').innerHTML =
+    `<strong class="val">${slot.note}</strong> — ${slot.label}${extra}<br>` +
+    `Tần số: <span class="val">${freq.toFixed(2)} Hz</span>  ` +
+    `(n = ${Math.round(12 * Math.log2(freq / 440))} nửa cung từ A4)`;
+
+  // Auto-remove after 2s
+  setTimeout(() => {
+    if (circle.parentNode) {
+      circle.remove();
+      if (lbl.parentNode) lbl.remove();
+      if (currentLedgerHighlight && currentLedgerHighlight.parentNode) {
+        currentLedgerHighlight.remove();
+        currentLedgerHighlight = null;
+      }
+    }
+  }, 2000);
+}
+
+function setClef(clef) {
+  currentClef = clef;
+  document.getElementById('btnTreble').className = clef === 'treble' ? 'active-btn' : 'ghost';
+  document.getElementById('btnBass').className   = clef === 'bass'   ? 'active-btn' : 'ghost';
+  currentNoteCircle = null;
+  currentLedgerHighlight = null;
+  drawStaff();
+  document.getElementById('staffInfo').textContent = 'Click vào dòng hoặc khe trên khuông để xem tên nốt và nghe âm thanh.';
+}
+
+// ============================================================
+// Duration grid
+// ============================================================
+const DURATIONS = [
+  { name: 'Nốt tròn',    eng: 'Whole',      beats: 4,    svg: wholeNoteSVG    },
+  { name: 'Nốt trắng',   eng: 'Half',       beats: 2,    svg: halfNoteSVG     },
+  { name: 'Nốt đen',     eng: 'Quarter',    beats: 1,    svg: quarterNoteSVG  },
+  { name: 'Móc đơn',     eng: 'Eighth',     beats: 0.5,  svg: eighthNoteSVG   },
+  { name: 'Móc kép',     eng: 'Sixteenth',  beats: 0.25, svg: sixteenthNoteSVG},
+];
+
+function wholeNoteSVG() {
+  return `<svg class="dur-svg" width="36" height="32" viewBox="0 0 36 32">
+    <ellipse cx="18" cy="16" rx="14" ry="10" fill="none" stroke="#7e22ce" stroke-width="3"/>
+  </svg>`;
+}
+function halfNoteSVG() {
+  return `<svg class="dur-svg" width="36" height="44" viewBox="0 0 36 44">
+    <ellipse cx="16" cy="34" rx="12" ry="8" fill="none" stroke="#7e22ce" stroke-width="2.5" transform="rotate(-15 16 34)"/>
+    <line x1="27" y1="32" x2="27" y2="4" stroke="#7e22ce" stroke-width="2.5"/>
+  </svg>`;
+}
+function quarterNoteSVG() {
+  return `<svg class="dur-svg" width="36" height="44" viewBox="0 0 36 44">
+    <ellipse cx="16" cy="34" rx="12" ry="8" fill="#7e22ce" transform="rotate(-15 16 34)"/>
+    <line x1="27" y1="32" x2="27" y2="4" stroke="#7e22ce" stroke-width="2.5"/>
+  </svg>`;
+}
+function eighthNoteSVG() {
+  return `<svg class="dur-svg" width="36" height="44" viewBox="0 0 36 44">
+    <ellipse cx="16" cy="34" rx="12" ry="8" fill="#7e22ce" transform="rotate(-15 16 34)"/>
+    <line x1="27" y1="32" x2="27" y2="4" stroke="#7e22ce" stroke-width="2.5"/>
+    <path d="M27 4 Q38 10 30 20" fill="none" stroke="#7e22ce" stroke-width="2.5"/>
+  </svg>`;
+}
+function sixteenthNoteSVG() {
+  return `<svg class="dur-svg" width="36" height="44" viewBox="0 0 36 44">
+    <ellipse cx="16" cy="34" rx="12" ry="8" fill="#7e22ce" transform="rotate(-15 16 34)"/>
+    <line x1="27" y1="32" x2="27" y2="4" stroke="#7e22ce" stroke-width="2.5"/>
+    <path d="M27 4 Q38 10 30 20" fill="none" stroke="#7e22ce" stroke-width="2.5"/>
+    <path d="M27 13 Q38 19 30 29" fill="none" stroke="#7e22ce" stroke-width="2.5"/>
+  </svg>`;
+}
+
+function buildDurGrid() {
+  const grid = document.getElementById('durGrid');
+  grid.innerHTML = '';
+  DURATIONS.forEach((d, i) => {
+    const card = document.createElement('div');
+    card.className = 'dur-card';
+    card.id = 'durCard' + i;
+    card.innerHTML = d.svg() +
+      `<div class="dur-name">${d.name}</div>` +
+      `<div class="dur-beats">${d.beats} phách</div>`;
+    card.addEventListener('click', () => playDuration(d, i));
+    grid.appendChild(card);
+  });
+}
+
+function playDuration(d, idx) {
+  // Highlight card
+  document.querySelectorAll('.dur-card').forEach(c => c.classList.remove('playing'));
+  document.getElementById('durCard' + idx).classList.add('playing');
+
+  const bpm = parseInt(document.getElementById('tempoRange').value);
+  const secPerBeat = 60 / bpm;
+  const dur = d.beats * secPerBeat;
+
+  // Phát nốt A4 với độ dài tương ứng
+  playTone(440, Math.max(dur * 0.9, 0.05));
+
+  // Nếu là móc đơn/kép, phát nhiều lần để dễ nghe độ dài
+  if (d.beats <= 0.5) {
+    // Play a quick sequence to perceive the short duration
+    for (let i = 1; i < 4; i++) {
+      playTone(440, Math.max(dur * 0.8, 0.05), i * dur);
+    }
+  }
+
+  document.getElementById('durInfo').innerHTML =
+    `<strong class="val">${d.name}</strong> (<em>${d.eng} note</em>) — ` +
+    `<span class="badge">${d.beats} phách</span> = 1/${4/d.beats} nốt tròn<br>` +
+    `Ở ${bpm} BPM: 1 phách = ${(secPerBeat).toFixed(2)} giây → nốt này kéo dài <strong>${(dur).toFixed(3)} giây</strong><br>` +
+    `Quan hệ: 1 tròn = 2 trắng = 4 đen = 8 móc đơn = 16 móc kép`;
+
+  setTimeout(() => {
+    document.getElementById('durCard' + idx).classList.remove('playing');
+  }, dur * 1000 + 300);
+}
+
+// ============================================================
+// Beat calculator
+// ============================================================
+const BEAT_NOTES = [
+  { label: '+ Tròn (4p)',       beats: 4,    note: 'whole'     },
+  { label: '+ Trắng (2p)',      beats: 2,    note: 'half'      },
+  { label: '+ Trắng. (3p)',     beats: 3,    note: 'half-dot'  },
+  { label: '+ Đen (1p)',        beats: 1,    note: 'quarter'   },
+  { label: '+ Đen. (1.5p)',     beats: 1.5,  note: 'quarter-dot'},
+  { label: '+ Móc đơn (0.5p)',  beats: 0.5,  note: 'eighth'    },
+  { label: '+ Móc kép (0.25p)', beats: 0.25, note: 'sixteenth' },
+];
+
+let beatList = [];
+
+function buildAddBtns() {
+  const wrap = document.getElementById('addBtns');
+  wrap.innerHTML = '';
+  BEAT_NOTES.forEach((n, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'ghost';
+    btn.textContent = n.label;
+    btn.addEventListener('click', () => addBeat(n));
+    wrap.appendChild(btn);
+  });
+}
+
+function addBeat(n) {
+  beatList.push({ ...n });
+  renderBeatPills();
+  updateCalc();
+}
+
+function removeBeat(i) {
+  beatList.splice(i, 1);
+  renderBeatPills();
+  updateCalc();
+}
+
+function renderBeatPills() {
+  const wrap = document.getElementById('beatPills');
+  if (beatList.length === 0) {
+    wrap.innerHTML = '<em style="color:#9ca3af;font-size:13px">Chưa có nốt nào. Bấm nút trên để thêm.</em>';
+    return;
+  }
+  wrap.innerHTML = '';
+  beatList.forEach((n, i) => {
+    const pill = document.createElement('span');
+    pill.className = 'pill';
+    pill.innerHTML = `${n.label.replace('+ ','')} <span class="rm" onclick="removeBeat(${i})">✕</span>`;
+    wrap.appendChild(pill);
+  });
+}
+
+function updateCalc() {
+  const total = beatList.reduce((s, n) => s + n.beats, 0);
+  document.getElementById('calcResult').textContent = `Tổng: ${total} phách`;
+  const pct = Math.min(total / 4 * 100, 100);
+  document.getElementById('calcFill').style.width = pct + '%';
+  const hint = document.getElementById('calcHint');
+  if (total === 0) {
+    hint.textContent = 'Nhịp 4/4 cần đúng 4 phách.';
+    document.getElementById('calcFill').style.background = '#7e22ce';
+  } else if (total < 4) {
+    hint.textContent = `Thiếu ${(4-total).toFixed(2)} phách so với nhịp 4/4.`;
+    document.getElementById('calcFill').style.background = '#f59e0b';
+  } else if (total === 4) {
+    hint.textContent = 'Đúng 1 nhịp 4/4! (4 phách)';
+    document.getElementById('calcFill').style.background = '#22c55e';
+  } else if (total === 3) {
+    hint.textContent = 'Đúng 1 nhịp 3/4! (3 phách)';
+    document.getElementById('calcFill').style.background = '#22c55e';
+  } else if (total === 6) {
+    hint.textContent = 'Đúng 1 nhịp 6/4! hoặc 2 nhịp 3/4 (6 phách)';
+    document.getElementById('calcFill').style.background = '#22c55e';
+  } else if (total > 4) {
+    hint.textContent = `Vượt quá 1 nhịp 4/4 (${total} > 4). Tương đương ${(total/4).toFixed(2)} nhịp 4/4.`;
+    document.getElementById('calcFill').style.background = '#ef4444';
+  }
+}
+
+function clearBeats() {
+  beatList = [];
+  renderBeatPills();
+  updateCalc();
+}
+
+function playSequence() {
+  if (beatList.length === 0) return;
+  const bpm = parseInt(document.getElementById('tempoRange').value);
+  const secPerBeat = 60 / bpm;
+  let offset = 0;
+  const freqs = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
+  beatList.forEach((n, i) => {
+    const freq = freqs[i % freqs.length];
+    const dur = n.beats * secPerBeat * 0.85;
+    playTone(freq, Math.max(dur, 0.05), offset);
+    offset += n.beats * secPerBeat;
+  });
+}
+
+// ============================================================
+// Init
+// ============================================================
+drawStaff();
+buildDurGrid();
+buildAddBtns();
+updateCalc();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

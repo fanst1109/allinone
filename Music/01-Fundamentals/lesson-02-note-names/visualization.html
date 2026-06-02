@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Tên nốt &amp; bàn phím piano</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  .card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+  label { font-weight: 600; }
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: #6b21a8; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  button.active-btn { background: #6b21a8; box-shadow: inset 0 2px 4px rgba(0,0,0,0.25); }
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  .result {
+    padding: 14px 16px; background: #f3e8ff; border-radius: 8px; margin-top: 12px;
+    font-size: 15px; line-height: 1.7;
+  }
+  .result .big { font-size: 22px; font-weight: 800; color: #6b21a8; font-family: monospace; }
+  .badge { display: inline-block; background: #e9d5ff; color: #6b21a8; padding: 3px 9px; border-radius: 6px; font-family: monospace; font-weight: 700; margin: 2px; }
+  .nowplaying { font-family: monospace; font-weight: 700; color: #6b21a8; min-height: 22px; margin-top: 8px; }
+
+  /* ---- Piano ---- */
+  .piano-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .piano {
+    position: relative; display: flex; height: 180px; min-width: 280px; width: 100%; max-width: 560px;
+    user-select: none; touch-action: manipulation; margin: 0 auto;
+  }
+  .wkey {
+    flex: 1; background: linear-gradient(#fff, #f1f1f1); border: 1px solid #aaa;
+    border-radius: 0 0 6px 6px; position: relative; cursor: pointer;
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;
+    font-size: 11px; color: #555; font-weight: 600; transition: background 0.1s;
+  }
+  .wkey:hover { background: linear-gradient(#f3e8ff, #e9d5ff); }
+  .wkey.active { background: linear-gradient(#e9d5ff, #d8b4fe); }
+  .wkey.highlight-hs { background: linear-gradient(#fef3c7, #fde68a) !important; border-color: #f59e0b !important; }
+  .wkey.highlight-ws { background: linear-gradient(#d1fae5, #a7f3d0) !important; border-color: #10b981 !important; }
+  .wkey .key-label { pointer-events: none; font-size: 10px; font-weight: 700; line-height: 1.2; text-align: center; }
+  .wkey .key-label .sub { display: block; font-size: 9px; font-weight: 400; color: #888; }
+  .bkey {
+    position: absolute; top: 0; width: 8%; height: 62%;
+    background: linear-gradient(#333, #000); border-radius: 0 0 5px 5px;
+    z-index: 2; cursor: pointer; color: #ccc; font-size: 9px;
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px;
+    transition: background 0.1s;
+  }
+  .bkey:hover { background: linear-gradient(#5a2d82, #3b0f6b); }
+  .bkey.active { background: linear-gradient(#7e22ce, #6b21a8); }
+  .bkey .key-label { pointer-events: none; font-size: 8px; font-weight: 700; line-height: 1.2; text-align: center; color: #ddd; }
+  .bkey .key-label .sub { display: block; font-size: 7px; font-weight: 400; color: #aaa; }
+
+  /* name toggle buttons */
+  .toggle-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .toggle-row button { padding: 6px 12px; font-size: 13px; }
+
+  /* ---- Quiz ---- */
+  .quiz-piano-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .quiz-piano {
+    position: relative; display: flex; height: 150px; min-width: 280px; width: 100%; max-width: 480px;
+    user-select: none; touch-action: manipulation; margin: 0 auto;
+  }
+  .quiz-target {
+    position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+    font-size: 20px; font-weight: 800; color: #fff;
+    background: #7e22ce; border-radius: 6px; padding: 3px 10px;
+    pointer-events: none; z-index: 10; white-space: nowrap;
+  }
+  .quiz-feedback { font-size: 16px; font-weight: 700; min-height: 26px; margin-top: 8px; }
+  .quiz-feedback.correct { color: #16a34a; }
+  .quiz-feedback.wrong { color: #dc2626; }
+  .quiz-score { font-size: 14px; color: #555; margin-top: 4px; }
+  .btn-quiz { padding: 8px 18px; font-size: 14px; }
+
+  /* ---- Half-step / Whole-step chart ---- */
+  .hs-chart { width: 100%; overflow-x: auto; }
+  .hs-svg { display: block; margin: 0 auto; }
+
+  @media (max-width: 480px) {
+    .piano, .quiz-piano { height: 140px; }
+    .wkey { font-size: 9px; }
+    .bkey { font-size: 7px; }
+    h2 { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Fundamentals</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-sound-pitch/visualization.html">← L1: Âm thanh &amp; cao độ</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Tên nốt &amp; bàn phím</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-staff-notation/visualization.html">L3: Khuông nhạc →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Tên nốt &amp; bàn phím piano</h1>
+<p>Bốn công cụ dưới đây giúp bạn <em>nghe và nhìn</em> hệ thống tên nốt: bàn phím tương tác có thể đổi chế độ hiển thị tên, bộ đố ngẫu nhiên, và biểu đồ half-step / whole-step. <strong>🔊 Bật loa.</strong></p>
+
+<h2>1. 🎹 Bàn phím — bấm để nghe, đổi chế độ tên nốt</h2>
+<div class="card">
+  <div class="toggle-row">
+    <button id="modeNatural" class="ghost active-btn" onclick="setMode('natural')">Chữ cái (C D E…)</button>
+    <button id="modeSharp" class="ghost" onclick="setMode('sharp')">Thăng ♯</button>
+    <button id="modeFlat" class="ghost" onclick="setMode('flat')">Giáng ♭</button>
+    <button id="modeEnharmonic" class="ghost" onclick="setMode('enharmonic')">Enharmonic kép</button>
+  </div>
+  <p class="hint" id="modeDesc">Hiển thị tên chữ cái tự nhiên. Phím đen hiện C♯/D♯… (mặc định thăng).</p>
+  <div class="piano-wrap">
+    <div class="piano" id="piano"></div>
+  </div>
+  <div class="nowplaying" id="np">&nbsp;</div>
+  <p class="hint">Click phím → nghe âm thanh + hiện tần số. C4 = "đô giữa" ≈ 261.63 Hz. A4 = 440 Hz (nốt chuẩn). Dùng nút toggle để thấy cùng một phím có nhiều tên khác nhau.</p>
+</div>
+
+<h2>2. ❓ Đố vui — đoán tên phím</h2>
+<div class="card">
+  <p class="hint">Phím được highlight sẽ nổi bật màu tím ở trên. Bấm vào tên đúng bên dưới để trả lời!</p>
+  <div class="quiz-piano-wrap">
+    <div class="quiz-piano" id="quizPiano">
+      <div class="quiz-target" id="quizTarget">?</div>
+    </div>
+  </div>
+  <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+    <button class="btn-quiz" onclick="newQuiz()">🎲 Phím ngẫu nhiên mới</button>
+    <label style="font-size:13px;"><input type="checkbox" id="quizIncludeBlack" checked> Gồm phím đen</label>
+  </div>
+  <div style="margin-top:12px;" id="quizAnswers"></div>
+  <div class="quiz-feedback" id="quizFeedback"></div>
+  <div class="quiz-score" id="quizScore">Điểm: 0 / 0</div>
+</div>
+
+<h2>3. 📐 Half-step &amp; Whole-step — E–F và B–C đặc biệt</h2>
+<div class="card">
+  <p>Trong một octave C→C, có <strong>5 whole step</strong> (nguyên cung, ký hiệu <span style="display:inline-block;width:16px;height:16px;background:#10b981;border-radius:3px;vertical-align:middle;"></span>) và <strong>2 half step</strong> (nửa cung, ký hiệu <span style="display:inline-block;width:16px;height:16px;background:#f59e0b;border-radius:3px;vertical-align:middle;"></span>). Hai cặp half-step là <strong>E–F</strong> và <strong>B–C</strong> — không có phím đen ở giữa.</p>
+  <div class="hs-chart">
+    <svg class="hs-svg" viewBox="0 0 680 220" width="680" height="220">
+      <!-- Defs -->
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L7,3 z" fill="#555"/>
+        </marker>
+      </defs>
+      <!-- White key boxes -->
+      <!-- C D E F G A B C -->
+      <!-- x positions: 30 110 190 270 350 430 510 590 -->
+      <!-- half: E-F (190-270), B-C(510-590) -->
+      <!-- whole: all others -->
+
+      <!-- arrows between notes showing step type -->
+      <!-- C-D whole -->
+      <rect x="30" y="60" width="70" height="50" rx="6" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+      <text x="65" y="90" text-anchor="middle" font-size="20" font-weight="800" fill="#065f46">C</text>
+      <text x="65" y="104" text-anchor="middle" font-size="10" fill="#065f46">whole</text>
+      <line x1="100" y1="85" x2="108" y2="85" stroke="#10b981" stroke-width="2.5" marker-end="url(#arr)"/>
+      <!-- D-E whole -->
+      <rect x="110" y="60" width="70" height="50" rx="6" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+      <text x="145" y="90" text-anchor="middle" font-size="20" font-weight="800" fill="#065f46">D</text>
+      <text x="145" y="104" text-anchor="middle" font-size="10" fill="#065f46">whole</text>
+      <line x1="180" y1="85" x2="188" y2="85" stroke="#10b981" stroke-width="2.5" marker-end="url(#arr)"/>
+      <!-- E-F HALF -->
+      <rect x="190" y="60" width="70" height="50" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5"/>
+      <text x="225" y="90" text-anchor="middle" font-size="20" font-weight="800" fill="#92400e">E</text>
+      <text x="225" y="104" text-anchor="middle" font-size="10" fill="#92400e">HALF ↕</text>
+      <line x1="260" y1="85" x2="268" y2="85" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arr)"/>
+      <!-- F-G whole -->
+      <rect x="270" y="60" width="70" height="50" rx="6" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+      <text x="305" y="90" text-anchor="middle" font-size="20" font-weight="800" fill="#065f46">F</text>
+      <text x="305" y="104" text-anchor="middle" font-size="10" fill="#065f46">whole</text>
+      <line x1="340" y1="85" x2="348" y2="85" stroke="#10b981" stroke-width="2.5" marker-end="url(#arr)"/>
+      <!-- G-A whole -->
+      <rect x="350" y="60" width="70" height="50" rx="6" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+      <text x="385" y="90" text-anchor="middle" font-size="20" font-weight="800" fill="#065f46">G</text>
+      <text x="385" y="104" text-anchor="middle" font-size="10" fill="#065f46">whole</text>
+      <line x1="420" y1="85" x2="428" y2="85" stroke="#10b981" stroke-width="2.5" marker-end="url(#arr)"/>
+      <!-- A-B whole -->
+      <rect x="430" y="60" width="70" height="50" rx="6" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+      <text x="465" y="90" text-anchor="middle" font-size="20" font-weight="800" fill="#065f46">A</text>
+      <text x="465" y="104" text-anchor="middle" font-size="10" fill="#065f46">whole</text>
+      <line x1="500" y1="85" x2="508" y2="85" stroke="#10b981" stroke-width="2.5" marker-end="url(#arr)"/>
+      <!-- B-C HALF -->
+      <rect x="510" y="60" width="70" height="50" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5"/>
+      <text x="545" y="90" text-anchor="middle" font-size="20" font-weight="800" fill="#92400e">B</text>
+      <text x="545" y="104" text-anchor="middle" font-size="10" fill="#92400e">HALF ↕</text>
+      <line x1="580" y1="85" x2="588" y2="85" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arr)"/>
+      <!-- C next octave -->
+      <rect x="590" y="60" width="70" height="50" rx="6" fill="#e9d5ff" stroke="#7e22ce" stroke-width="2"/>
+      <text x="625" y="90" text-anchor="middle" font-size="20" font-weight="800" fill="#6b21a8">C</text>
+      <text x="625" y="104" text-anchor="middle" font-size="10" fill="#6b21a8">+1 octave</text>
+
+      <!-- Black key indicators -->
+      <!-- C# between C and D -->
+      <rect x="88" y="140" width="44" height="30" rx="4" fill="#1a1a1a"/>
+      <text x="110" y="160" text-anchor="middle" font-size="10" fill="#ccc">C♯/D♭</text>
+      <!-- D# between D and E -->
+      <rect x="168" y="140" width="44" height="30" rx="4" fill="#1a1a1a"/>
+      <text x="190" y="160" text-anchor="middle" font-size="10" fill="#ccc">D♯/E♭</text>
+      <!-- NO black key between E and F -->
+      <text x="225" y="160" text-anchor="middle" font-size="11" fill="#f59e0b" font-weight="700">✕ phím đen</text>
+      <!-- F# between F and G -->
+      <rect x="328" y="140" width="44" height="30" rx="4" fill="#1a1a1a"/>
+      <text x="350" y="160" text-anchor="middle" font-size="10" fill="#ccc">F♯/G♭</text>
+      <!-- G# between G and A -->
+      <rect x="408" y="140" width="44" height="30" rx="4" fill="#1a1a1a"/>
+      <text x="430" y="160" text-anchor="middle" font-size="10" fill="#ccc">G♯/A♭</text>
+      <!-- A# between A and B -->
+      <rect x="488" y="140" width="44" height="30" rx="4" fill="#1a1a1a"/>
+      <text x="510" y="160" text-anchor="middle" font-size="10" fill="#ccc">A♯/B♭</text>
+      <!-- NO black key between B and C -->
+      <text x="575" y="160" text-anchor="middle" font-size="11" fill="#f59e0b" font-weight="700">✕ phím đen</text>
+
+      <!-- Legend -->
+      <rect x="30" y="195" width="14" height="14" rx="3" fill="#d1fae5" stroke="#10b981" stroke-width="1.5"/>
+      <text x="50" y="206" font-size="12" fill="#333">Whole step (1 nguyên cung = 2 nửa cung)</text>
+      <rect x="340" y="195" width="14" height="14" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="360" y="206" font-size="12" fill="#333">Half step (nửa cung)</text>
+    </svg>
+  </div>
+  <p class="hint">Vị trí "✕ phím đen" (E–F và B–C) là nơi không có phím đen xen giữa → khoảng cách chỉ 1 nửa cung, không phải nguyên cung.</p>
+
+  <!-- Interactive: click two white keys, show step count -->
+  <div style="margin-top: 16px;">
+    <p style="font-weight:600; margin-bottom:8px;">🖱 Bấm 2 phím trắng để đếm nửa cung:</p>
+    <div class="piano-wrap">
+      <div class="piano" id="pianoStep" style="max-width:560px;"></div>
+    </div>
+    <div class="result" id="stepResult" style="display:none;"></div>
+  </div>
+</div>
+
+<h2>4. 🔤 Scientific Pitch Notation — số octave</h2>
+<div class="card">
+  <p>Gõ số nửa cung <strong>n</strong> tính từ A4 (n=0) để xem tên nốt đầy đủ (SPN) và tần số:</p>
+  <div class="row" style="gap: 16px;">
+    <label for="spnSlider">n =</label>
+    <input type="range" id="spnSlider" min="-24" max="24" value="0" step="1" style="flex:1; min-width:150px; accent-color:#7e22ce;">
+    <span class="val" id="spnN">0</span>
+  </div>
+  <div class="result">
+    <span class="big" id="spnName">A4</span>
+    &nbsp;&nbsp; tần số: <span class="val" id="spnFreq">440.00</span> Hz
+    &nbsp;&nbsp;
+    <button class="ghost" id="spnPlay" style="padding:5px 12px; font-size:13px;">▶ Nghe</button>
+    <br>
+    <span style="font-size:13px; color:#555;">Công thức: f = 440 · 2<sup id="spnExp">0/12</sup></span>
+  </div>
+  <div style="margin-top:14px; font-size:13px; color:#555; line-height:1.8;">
+    <strong>Tham chiếu nhanh:</strong>
+    <span class="badge">C4 = đô giữa = 261.63 Hz</span>
+    <span class="badge">A4 = 440 Hz (chuẩn)</span>
+    <span class="badge">B3 → C4 = ranh giới octave</span>
+  </div>
+  <p class="hint">Kéo slider sang n=−9 để thấy C4 (middle C). n=+3 → C5 (C4 × 2). Ranh giới octave đổi sau B→C, không phải A→B.</p>
+</div>
+
+<script>
+// ========== Web Audio ==========
+let ctx = null;
+function audio() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); return ctx; }
+function playTone(freq, dur) {
+  dur = dur || 0.7;
+  const ac = audio();
+  const t0 = ac.currentTime;
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.28, t0 + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+const NAMES_SHARP = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+const NAMES_FLAT  = ['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'];
+
+function freqFromN(n) { return 440 * Math.pow(2, n / 12); }
+function nameFromN(n) {
+  const midi = 69 + n;
+  const pc = ((midi % 12) + 12) % 12;
+  const oct = Math.floor(midi / 12) - 1;
+  return NAMES_SHARP[pc] + oct;
+}
+function nameFlat(n) {
+  const midi = 69 + n;
+  const pc = ((midi % 12) + 12) % 12;
+  const oct = Math.floor(midi / 12) - 1;
+  return NAMES_FLAT[pc] + oct;
+}
+
+// ========== Piano data (C4..C5) ==========
+// White keys: {n: semitones from A4, naturalName, octave}
+const WHITE_KEYS = [
+  {n:-9, nat:'C', oct:4},
+  {n:-7, nat:'D', oct:4},
+  {n:-5, nat:'E', oct:4},
+  {n:-4, nat:'F', oct:4},
+  {n:-2, nat:'G', oct:4},
+  {n: 0, nat:'A', oct:4},
+  {n: 2, nat:'B', oct:4},
+  {n: 3, nat:'C', oct:5},
+];
+// Black keys: {after: index of white key to the left, n, sharpName, flatName}
+const BLACK_KEYS = [
+  {after:0, n:-8, sharp:'C♯', flat:'D♭', oct:4},
+  {after:1, n:-6, sharp:'D♯', flat:'E♭', oct:4},
+  {after:3, n:-3, sharp:'F♯', flat:'G♭', oct:4},
+  {after:4, n:-1, sharp:'G♯', flat:'A♭', oct:4},
+  {after:5, n: 1, sharp:'A♯', flat:'B♭', oct:4},
+];
+
+let nameMode = 'natural'; // 'natural' | 'sharp' | 'flat' | 'enharmonic'
+const modeDescs = {
+  natural:    'Hiển thị tên chữ cái tự nhiên. Phím đen hiện tên thăng (C♯, D♯…) làm mặc định.',
+  sharp:      'Mọi phím đen hiện tên thăng (♯). Chú ý E♯=F và B♯=C vẫn là phím trắng.',
+  flat:       'Mọi phím đen hiện tên giáng (♭). Ví dụ: C♯ → D♭, F♯ → G♭.',
+  enharmonic: 'Phím đen hiện cả 2 tên (enharmonic kép). Dùng để so sánh hai tên của cùng một phím.',
+};
+
+function getLabelForKey(isBlack, keyData) {
+  if (!isBlack) {
+    // White key
+    const name = keyData.nat + keyData.oct;
+    return name;
+  }
+  // Black key
+  if (nameMode === 'natural' || nameMode === 'sharp') {
+    return keyData.sharp + keyData.oct;
+  } else if (nameMode === 'flat') {
+    return keyData.flat + keyData.oct;
+  } else { // enharmonic
+    return keyData.sharp + keyData.oct + '\n' + keyData.flat + keyData.oct;
+  }
+}
+
+function buildPiano(containerId, onHit, extraWhiteClass) {
+  const piano = document.getElementById(containerId);
+  piano.innerHTML = '';
+  const wKeyEls = [];
+  WHITE_KEYS.forEach((w, i) => {
+    const k = document.createElement('div');
+    k.className = 'wkey' + (extraWhiteClass ? ' ' + extraWhiteClass(w, i) : '');
+    const label = document.createElement('div');
+    label.className = 'key-label';
+    label.textContent = w.nat + w.oct;
+    k.appendChild(label);
+    k.addEventListener('pointerdown', () => {
+      playTone(freqFromN(w.n), 0.8);
+      if (onHit) onHit(k, w, false);
+      k.classList.add('active');
+      setTimeout(() => k.classList.remove('active'), 260);
+    });
+    piano.appendChild(k);
+    wKeyEls.push(k);
+  });
+  BLACK_KEYS.forEach(b => {
+    const k = document.createElement('div');
+    k.className = 'bkey';
+    const label = document.createElement('div');
+    label.className = 'key-label';
+    const lines = getLabelForKey(true, b).split('\n');
+    label.textContent = lines[0];
+    if (lines[1]) {
+      const sub = document.createElement('span');
+      sub.className = 'sub';
+      sub.textContent = lines[1];
+      label.appendChild(sub);
+    }
+    k.appendChild(label);
+    k.style.left = 'calc(' + ((b.after + 1) * (100 / WHITE_KEYS.length)) + '% - 4%)';
+    k.addEventListener('pointerdown', (e) => {
+      e.stopPropagation();
+      playTone(freqFromN(b.n), 0.8);
+      if (onHit) onHit(k, b, true);
+      k.classList.add('active');
+      setTimeout(() => k.classList.remove('active'), 260);
+    });
+    piano.appendChild(k);
+  });
+  return { wKeyEls };
+}
+
+// ========== Section 1: Main Piano ==========
+const np = document.getElementById('np');
+function mainHit(el, keyData, isBlack) {
+  const freq = freqFromN(keyData.n).toFixed(2);
+  let label;
+  if (isBlack) {
+    label = getLabelForKey(true, keyData);
+  } else {
+    label = keyData.nat + keyData.oct;
+  }
+  const enharmonic = isBlack ? ' (' + keyData.sharp + keyData.oct + ' = ' + keyData.flat + keyData.oct + ')' : '';
+  np.textContent = '▶ ' + label.replace('\n', ' / ') + enharmonic + '  —  ' + freq + ' Hz  (n = ' + keyData.n + ' từ A4)';
+}
+
+function buildMainPiano() {
+  buildPiano('piano', mainHit, null);
+}
+buildMainPiano();
+
+function setMode(mode) {
+  nameMode = mode;
+  ['modeNatural','modeSharp','modeFlat','modeEnharmonic'].forEach(id => {
+    document.getElementById(id).classList.remove('active-btn');
+  });
+  const idMap = {natural:'modeNatural', sharp:'modeSharp', flat:'modeFlat', enharmonic:'modeEnharmonic'};
+  document.getElementById(idMap[mode]).classList.add('active-btn');
+  document.getElementById('modeDesc').textContent = modeDescs[mode];
+  buildMainPiano();
+}
+
+// ========== Section 2: Quiz ==========
+let quizCorrect = 0, quizTotal = 0;
+let quizCurrentKey = null; // {n, label (sharp), flatLabel, isBlack}
+
+// Build quiz piano (display only — clicking IS the answer input)
+function buildQuizPiano(highlightN) {
+  const container = document.getElementById('quizPiano');
+  container.innerHTML = '';
+  // Re-add target marker
+  const target = document.createElement('div');
+  target.className = 'quiz-target';
+  target.id = 'quizTarget';
+  target.textContent = '▶ Phím nào?';
+  container.appendChild(target);
+
+  WHITE_KEYS.forEach((w, i) => {
+    const k = document.createElement('div');
+    k.className = 'wkey';
+    if (w.n === highlightN) {
+      k.style.background = 'linear-gradient(#a855f7, #7e22ce)';
+      k.style.borderColor = '#7e22ce';
+    }
+    const label = document.createElement('div');
+    label.className = 'key-label';
+    label.textContent = ''; // no labels in quiz display
+    k.appendChild(label);
+    container.appendChild(k);
+  });
+  BLACK_KEYS.forEach(b => {
+    const k = document.createElement('div');
+    k.className = 'bkey';
+    if (b.n === highlightN) {
+      k.style.background = 'linear-gradient(#a855f7, #7e22ce)';
+    }
+    k.style.left = 'calc(' + ((b.after + 1) * (100 / WHITE_KEYS.length)) + '% - 4%)';
+    const label = document.createElement('div');
+    label.className = 'key-label';
+    label.textContent = '';
+    k.appendChild(label);
+    container.appendChild(k);
+  });
+}
+
+function newQuiz() {
+  const includeBlack = document.getElementById('quizIncludeBlack').checked;
+  const pool = includeBlack
+    ? [...WHITE_KEYS.map(w => ({n:w.n, labelSharp: w.nat+w.oct, labelFlat: w.nat+w.oct, isBlack:false})),
+       ...BLACK_KEYS.map(b => ({n:b.n, labelSharp: b.sharp+b.oct, labelFlat: b.flat+b.oct, isBlack:true}))]
+    : WHITE_KEYS.map(w => ({n:w.n, labelSharp: w.nat+w.oct, labelFlat: w.nat+w.oct, isBlack:false}));
+
+  quizCurrentKey = pool[Math.floor(Math.random() * pool.length)];
+  buildQuizPiano(quizCurrentKey.n);
+  playTone(freqFromN(quizCurrentKey.n), 0.6);
+
+  // Build answer buttons
+  const answersDiv = document.getElementById('quizAnswers');
+  answersDiv.innerHTML = '';
+
+  // Generate options: correct + 3 distractors
+  const allLabels = [...WHITE_KEYS.map(w => w.nat+w.oct),
+                     ...BLACK_KEYS.map(b => b.sharp+b.oct),
+                     ...BLACK_KEYS.map(b => b.flat+b.oct)];
+  const correctLabels = quizCurrentKey.isBlack
+    ? [quizCurrentKey.labelSharp, quizCurrentKey.labelFlat]
+    : [quizCurrentKey.labelSharp];
+
+  // Pick distractors (not enharmonic of correct)
+  const distractors = allLabels.filter(l => !correctLabels.includes(l));
+  // Shuffle distractors and pick 3
+  for (let i = distractors.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [distractors[i], distractors[j]] = [distractors[j], distractors[i]];
+  }
+  const options = [correctLabels[0], ...distractors.slice(0,3)];
+  // Shuffle options
+  for (let i = options.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [options[i], options[j]] = [options[j], options[i]];
+  }
+
+  document.getElementById('quizFeedback').textContent = '';
+  document.getElementById('quizFeedback').className = 'quiz-feedback';
+
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'ghost';
+    btn.style.cssText = 'margin:4px 6px 4px 0; font-size:15px; padding:8px 16px;';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => checkAnswer(opt));
+    answersDiv.appendChild(btn);
+  });
+}
+
+function checkAnswer(chosen) {
+  if (!quizCurrentKey) return;
+  quizTotal++;
+  const correct = quizCurrentKey.isBlack
+    ? (chosen === quizCurrentKey.labelSharp || chosen === quizCurrentKey.labelFlat)
+    : (chosen === quizCurrentKey.labelSharp);
+  const fb = document.getElementById('quizFeedback');
+  if (correct) {
+    quizCorrect++;
+    fb.className = 'quiz-feedback correct';
+    const enDesc = quizCurrentKey.isBlack ? ' (cũng gọi là ' + quizCurrentKey.labelFlat + ' — enharmonic!)' : '';
+    fb.textContent = '✓ Đúng! ' + quizCurrentKey.labelSharp + enDesc + ' — ' + freqFromN(quizCurrentKey.n).toFixed(2) + ' Hz';
+    playTone(freqFromN(quizCurrentKey.n), 1.0);
+  } else {
+    fb.className = 'quiz-feedback wrong';
+    const correctAnswer = quizCurrentKey.isBlack
+      ? quizCurrentKey.labelSharp + ' (hoặc ' + quizCurrentKey.labelFlat + ')'
+      : quizCurrentKey.labelSharp;
+    fb.textContent = '✗ Sai. Đáp án đúng: ' + correctAnswer;
+  }
+  document.getElementById('quizScore').textContent = 'Điểm: ' + quizCorrect + ' / ' + quizTotal + ' (' + Math.round(quizCorrect/quizTotal*100) + '%)';
+  quizCurrentKey = null; // prevent double-click scoring
+}
+
+// Init quiz on load
+newQuiz();
+
+// ========== Section 3: Step counter piano ==========
+let stepSelectedN = null;
+
+function buildStepPiano() {
+  const container = document.getElementById('pianoStep');
+  container.innerHTML = '';
+
+  WHITE_KEYS.forEach((w, i) => {
+    const k = document.createElement('div');
+    k.className = 'wkey';
+    if (stepSelectedN === w.n) {
+      k.style.background = 'linear-gradient(#a855f7, #7e22ce)';
+      k.style.color = '#fff';
+      k.style.borderColor = '#7e22ce';
+    }
+    const label = document.createElement('div');
+    label.className = 'key-label';
+    label.textContent = w.nat + w.oct;
+    k.appendChild(label);
+    k.addEventListener('pointerdown', () => handleStepClick(w.n, w.nat + w.oct));
+    container.appendChild(k);
+  });
+  BLACK_KEYS.forEach(b => {
+    const k = document.createElement('div');
+    k.className = 'bkey';
+    if (stepSelectedN === b.n) {
+      k.style.background = 'linear-gradient(#a855f7, #7e22ce)';
+    }
+    k.style.left = 'calc(' + ((b.after + 1) * (100 / WHITE_KEYS.length)) + '% - 4%)';
+    const label = document.createElement('div');
+    label.className = 'key-label';
+    label.textContent = b.sharp + b.oct;
+    k.appendChild(label);
+    k.addEventListener('pointerdown', (e) => { e.stopPropagation(); handleStepClick(b.n, b.sharp + '/' + b.flat + b.oct); });
+    container.appendChild(k);
+  });
+}
+
+let stepFirst = null; // {n, name}
+function handleStepClick(n, name) {
+  playTone(freqFromN(n), 0.5);
+  if (stepFirst === null) {
+    stepFirst = {n, name};
+    stepSelectedN = n;
+    buildStepPiano();
+    document.getElementById('stepResult').style.display = 'none';
+  } else {
+    const steps = Math.abs(n - stepFirst.n);
+    const low = n < stepFirst.n ? {n, name} : stepFirst;
+    const high = n < stepFirst.n ? stepFirst : {n, name};
+    const isHalf = steps === 1;
+    const isWhole = steps === 2;
+    const isEF = (low.name.startsWith('E') && high.name.startsWith('F'));
+    const isBC = (low.name.startsWith('B') && high.name.startsWith('C'));
+
+    let desc = '';
+    if (steps === 0) {
+      desc = 'Bạn chọn cùng một phím!';
+    } else {
+      desc = '<strong>' + stepFirst.name + ' → ' + name + '</strong>: <span class="big">' + steps + ' nửa cung</span>';
+      if (isHalf) {
+        desc += ' = <span style="color:#f59e0b; font-weight:700;">Half step (nửa cung)</span>';
+        if (isEF) desc += ' &nbsp; ← E–F không có phím đen ở giữa!';
+        if (isBC) desc += ' &nbsp; ← B–C không có phím đen ở giữa!';
+      } else if (isWhole) {
+        desc += ' = <span style="color:#10b981; font-weight:700;">Whole step (nguyên cung)</span>';
+      } else {
+        const w = (steps / 2).toFixed(1);
+        desc += ' = ' + w + ' nguyên cung';
+      }
+    }
+    document.getElementById('stepResult').style.display = '';
+    document.getElementById('stepResult').innerHTML = desc;
+    stepFirst = null;
+    stepSelectedN = null;
+    buildStepPiano();
+  }
+}
+buildStepPiano();
+
+// ========== Section 4: SPN slider ==========
+const spnSlider = document.getElementById('spnSlider');
+function updSPN(n) {
+  n = parseInt(n, 10);
+  document.getElementById('spnN').textContent = (n >= 0 ? '+' : '') + n;
+  document.getElementById('spnName').textContent = nameFromN(n);
+  document.getElementById('spnFreq').textContent = freqFromN(n).toFixed(2);
+  document.getElementById('spnExp').textContent = n + '/12';
+}
+spnSlider.addEventListener('input', () => updSPN(spnSlider.value));
+document.getElementById('spnPlay').addEventListener('click', () => playTone(freqFromN(+spnSlider.value), 0.9));
+updSPN(0);
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Chuyển điệu (Modulation)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  .card {
+    background: #fff; border-radius: 10px; padding: 22px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 16px 0;
+  }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0 0; line-height: 1.6; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; }
+  select {
+    padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 7px;
+    font-size: 14px; background: #fff; cursor: pointer;
+  }
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: #6b21a8; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  button.stop { background: #fee2e2; color: #991b1b; }
+  button.stop:hover { background: #fecaca; }
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  .result {
+    padding: 14px 18px; background: #f3e8ff; border-radius: 8px;
+    margin-top: 12px; font-size: 14px; line-height: 1.8;
+  }
+  .result .big { font-size: 20px; font-weight: 800; color: #6b21a8; font-family: monospace; }
+  .badge {
+    display: inline-block; background: #ede9fe; color: #5b21b6;
+    padding: 3px 9px; border-radius: 6px; font-family: monospace;
+    font-weight: 700; margin: 2px; font-size: 13px;
+  }
+  .badge.new { background: #d1fae5; color: #065f46; }
+  .badge.both { background: #fef3c7; color: #92400e; }
+
+  /* Chord sequence display */
+  .seq {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; align-items: center;
+  }
+  .chord-box {
+    min-width: 54px; padding: 10px 8px; text-align: center;
+    border-radius: 8px; border: 2px solid #e9d5ff;
+    background: #faf7fb; font-weight: 700; font-size: 15px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .chord-box.active { background: #7e22ce; color: #fff; border-color: #6b21a8; }
+  .chord-box.pivot { background: #fef3c7; border-color: #d97706; color: #92400e; }
+  .chord-box.target { background: #d1fae5; border-color: #059669; color: #065f46; }
+  .chord-box .roman { font-size: 10px; color: #888; font-weight: 400; margin-top: 2px; }
+  .chord-box.active .roman { color: #e9d5ff; }
+  .chord-box.pivot .roman { color: #b45309; }
+  .chord-box.target .roman { color: #047857; }
+  .arrow { font-size: 18px; color: #a78bfa; align-self: center; }
+
+  /* Circle of Fifths mini SVG */
+  .cof-wrap { display: flex; justify-content: center; margin: 16px 0; }
+
+  /* Table wrapper for mobile */
+  .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { border-collapse: collapse; width: 100%; min-width: 380px; font-size: 14px; }
+  th { background: #f3e8ff; color: #5b21b6; font-weight: 700; padding: 8px 12px; text-align: left; }
+  td { padding: 8px 12px; border-bottom: 1px solid #f3e8ff; }
+  tr:last-child td { border-bottom: none; }
+
+  /* Legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; font-size: 13px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+
+  @media (max-width: 480px) {
+    .chord-box { min-width: 44px; padding: 8px 5px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Harmony</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-inversions-voice-leading/visualization.html">← L5: Đảo hợp âm</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Chuyển điệu</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-extended-chords/visualization.html">L7: Hòa âm mở rộng →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Chuyển điệu (Modulation)</h1>
+<p>Khám phá ba kỹ thuật chuyển điệu bằng tai nghe thật. <strong>🔊 Bật loa.</strong>
+Hai công cụ dưới đây minh họa: (1) lực kéo của <em>át thứ cấp</em>, (2) sự mượt mà của <em>hợp âm bản lề</em>.
+Bonus: vòng quãng 5 mini hiển thị các điệu gần trực quan.</p>
+
+<!-- ===== MODULE 1: Secondary Dominant ===== -->
+<h2>1. Át thứ cấp — V/x</h2>
+<div class="card">
+  <p class="hint">Chọn bậc đích trong C trưởng. Hệ thống dựng V⁷/x và phát chuỗi để bạn nghe "lực kéo tạm thời" về bậc đó — rồi quay về I.</p>
+  <div class="row">
+    <label for="secDomTarget">Bậc đích:</label>
+    <select id="secDomTarget">
+      <option value="V">V — G trưởng (V/V = D7)</option>
+      <option value="IV">IV — F trưởng (V/IV = C7)</option>
+      <option value="vi">vi — Am thứ (V/vi = E7)</option>
+      <option value="ii">ii — Dm thứ (V/ii = A7)</option>
+      <option value="iii">iii — Em thứ (V/iii = B7)</option>
+    </select>
+  </div>
+  <div id="sdSeq" class="seq"></div>
+  <div id="sdExplain" class="result"></div>
+  <div class="row" style="margin-top:14px">
+    <button id="playSD">▶ Phát chuỗi</button>
+    <button id="stopSD" class="stop">◼ Dừng</button>
+  </div>
+  <p class="hint">Màu vàng = hợp âm bản lề/át thứ cấp. Màu xanh lá = bậc đích được "tonicize". Nhận thấy hợp âm vàng → xanh có "sức kéo" rõ không?</p>
+</div>
+
+<!-- ===== MODULE 2: Pivot Chord / Modulation ===== -->
+<h2>2. Hợp âm bản lề — Chuyển điệu thật sự</h2>
+<div class="card">
+  <p class="hint">Chọn điệu đích (điệu gần của C trưởng). Hệ thống tìm hợp âm bản lề tốt nhất và phát tiến trình chuyển điệu đầy đủ.</p>
+  <div class="row">
+    <label for="pivotTarget">Điệu đích:</label>
+    <select id="pivotTarget">
+      <option value="G">→ G trưởng (thêm 1 thăng)</option>
+      <option value="F">→ F trưởng (thêm 1 giáng)</option>
+      <option value="Am">→ Am thứ (tương đối thứ)</option>
+      <option value="Em">→ Em thứ (tương đối thứ của G)</option>
+      <option value="Dm">→ Dm thứ (tương đối thứ của F)</option>
+    </select>
+  </div>
+  <div id="pivotSeq" class="seq"></div>
+  <div id="pivotInfo" class="result"></div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#fef3c7;border:2px solid #d97706"></div> Hợp âm bản lề (pivot)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#d1fae5;border:2px solid #059669"></div> Hợp âm điệu mới</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#faf7fb;border:2px solid #e9d5ff"></div> Hợp âm điệu cũ (C)</div>
+  </div>
+  <div class="row" style="margin-top:12px">
+    <button id="playPivot">▶ Phát chuyển điệu</button>
+    <button id="stopPivot" class="stop">◼ Dừng</button>
+  </div>
+</div>
+
+<!-- ===== MODULE 3: Circle of Fifths ===== -->
+<h2>3. Vòng quãng 5 — điệu gần được highlight</h2>
+<div class="card">
+  <p class="hint">Chọn điệu tính gốc. Vòng quãng 5 sẽ highlight 5 điệu gần (khác ≤1 dấu hóa). Nhấn tên điệu để nghe bộ ba nốt (triad) của điệu đó.</p>
+  <div class="row">
+    <label for="cofRoot">Điệu gốc:</label>
+    <select id="cofRoot">
+      <option value="C">C trưởng</option>
+      <option value="G">G trưởng</option>
+      <option value="D">D trưởng</option>
+      <option value="A">A trưởng</option>
+      <option value="E">E trưởng</option>
+      <option value="F">F trưởng</option>
+      <option value="Bb">Bb trưởng</option>
+      <option value="Eb">Eb trưởng</option>
+    </select>
+  </div>
+  <div class="cof-wrap">
+    <svg id="cofSvg" width="360" height="360" viewBox="0 0 360 360">
+      <circle cx="180" cy="180" r="170" fill="#f8f5ff" stroke="#e9d5ff" stroke-width="1.5"/>
+      <!-- Rings filled by JS -->
+    </svg>
+  </div>
+  <div id="cofInfo" class="result" style="display:none"></div>
+  <p class="hint">Vòng ngoài: điệu trưởng. Vòng trong (nhỏ, chữ nghiêng): điệu thứ tương đối. Tím đậm = điệu gốc. Vàng = điệu gần. Xám nhạt = điệu xa.</p>
+</div>
+
+<!-- ===== MODULE 4: Quick Compare ===== -->
+<h2>4. So sánh nhanh — cùng một hợp âm, hai điệu</h2>
+<div class="card">
+  <p class="hint">Nghe Am được "diễn giải" theo hai cách: như vi(C) rồi như ii(G). Sự khác biệt nằm ở ngữ cảnh xung quanh — bộ não bạn tự cập nhật "tôi đang ở điệu nào".</p>
+  <div class="row">
+    <button id="playAmC">▶ Am là vi trong C (I – IV – vi – V – I)</button>
+  </div>
+  <div class="row">
+    <button id="playAmG">▶ Am là ii trong G (I – ii – V – I)</button>
+  </div>
+  <div id="compareInfo" class="result" style="min-height:40px"></div>
+  <p class="hint">Chú ý: Am không thay đổi, nhưng hợp âm xung quanh khiến nó nghe "thuộc về nơi khác".</p>
+</div>
+
+<script>
+// ============================================================
+// Web Audio utilities
+// ============================================================
+let ctx = null;
+function audio() {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  return ctx;
+}
+
+// Store scheduled sources so we can stop them
+let scheduledSources = [];
+
+function stopAll() {
+  scheduledSources.forEach(src => { try { src.stop(); } catch(e) {} });
+  scheduledSources = [];
+}
+
+function playTone(freq, dur, when) {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.22, t0 + 0.03);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur * 0.9);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+  scheduledSources.push(osc);
+}
+
+// 12 note names, chromatic from C
+const CHROMATIC = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+// MIDI number for each note (C4=60)
+function midiOf(name, oct) {
+  const idx = CHROMATIC.indexOf(name);
+  return 60 + (oct - 4) * 12 + idx;
+}
+function freqFromMidi(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+
+// Play a chord (array of MIDI notes) at a given 'when' offset
+function playChord(midiNotes, dur, when) {
+  midiNotes.forEach(m => playTone(freqFromMidi(m), dur, when));
+}
+
+// ============================================================
+// Chord data: MIDI notes for common chords (root position, 3-note triads or 4-note 7ths)
+// All octave-fitted so they sound nice (mid register)
+// ============================================================
+const CHORDS = {
+  // Major triads
+  'C':  [60, 64, 67],          // C4 E4 G4
+  'D':  [62, 66, 69],          // D4 F#4 A4
+  'Eb': [63, 67, 70],
+  'E':  [64, 68, 71],          // E4 G#4 B4
+  'F':  [65, 69, 72],          // F4 A4 C5
+  'G':  [67, 71, 74],          // G4 B4 D5
+  'A':  [69, 73, 76],
+  'Bb': [70, 74, 77],
+  'B':  [71, 75, 78],
+  // Minor triads
+  'Am': [57, 60, 64],          // A3 C4 E4
+  'Dm': [62, 65, 69],          // D4 F4 A4
+  'Em': [64, 67, 71],          // E4 G4 B4
+  'Bm': [59, 62, 66],          // B3 D4 F#4
+  'Cm': [60, 63, 67],
+  'Fm': [65, 68, 72],
+  'Gm': [67, 70, 74],
+  // Dominant 7th chords
+  'D7': [62, 66, 69, 72],      // D4 F#4 A4 C5
+  'C7': [60, 64, 67, 70],      // C4 E4 G4 Bb4
+  'E7': [64, 68, 71, 74],      // E4 G#4 B4 D5
+  'A7': [57, 61, 64, 67],      // A3 C#4 E4 G4
+  'B7': [59, 63, 66, 69],      // B3 D#4 F#4 A4
+  'G7': [67, 71, 74, 77],      // G4 B4 D5 F5
+  'F#7':[66, 70, 73, 76],
+};
+
+// Play a sequence of chords with timing
+// seq: [{chord: 'C', dur: 0.9}, ...]
+// returns total duration
+function playSeq(seq, beatSec) {
+  stopAll();
+  audio(); // unlock context
+  let when = 0.05;
+  seq.forEach(item => {
+    const notes = CHORDS[item.chord];
+    if (notes) playChord(notes, beatSec * item.dur * 0.85, when);
+    when += beatSec * item.dur;
+  });
+  return when;
+}
+
+// ============================================================
+// MODULE 1: Secondary Dominant
+// ============================================================
+const SD_DATA = {
+  'V': {
+    secDom: 'D7', target: 'G', final: 'C',
+    roman_sd: 'V⁷/V', roman_t: 'V', roman_f: 'I',
+    explain: '<strong>V⁷/V = D7</strong> → <strong>V = G</strong> → <strong>I = C</strong><br>'
+           + 'D7 (D–F#–A–C): F# là dẫn âm của G, C là thứ 7 giải về B.<br>'
+           + 'Chuỗi này tonicize G tạm thời trước khi về tonic C.',
+    seq: ['C','D7','G','C']
+  },
+  'IV': {
+    secDom: 'C7', target: 'F', final: 'C',
+    roman_sd: 'V⁷/IV', roman_t: 'IV', roman_f: 'I',
+    explain: '<strong>V⁷/IV = C7</strong> → <strong>IV = F</strong> → <strong>I = C</strong><br>'
+           + 'C7 thêm Bb vào hợp âm C quen thuộc — âm blues/gospel điển hình.<br>'
+           + 'Bb là thứ 7 kéo về A (bậc 3 của F).',
+    seq: ['C','C7','F','C']
+  },
+  'vi': {
+    secDom: 'E7', target: 'Am', final: 'C',
+    roman_sd: 'V⁷/vi', roman_t: 'vi', roman_f: 'I',
+    explain: '<strong>V⁷/vi = E7</strong> → <strong>vi = Am</strong> → <strong>I = C</strong><br>'
+           + 'E7 (E–G#–B–D): G# là dẫn âm của Am, tạo cảm xúc "buồn bất ngờ".<br>'
+           + 'Sau Am, quay về I để xác nhận điệu C vẫn còn.',
+    seq: ['C','E7','Am','C']
+  },
+  'ii': {
+    secDom: 'A7', target: 'Dm', final: 'C',
+    roman_sd: 'V⁷/ii', roman_t: 'ii', roman_f: 'I',
+    explain: '<strong>V⁷/ii = A7</strong> → <strong>ii = Dm</strong> → <strong>I = C</strong><br>'
+           + 'A7 (A–C#–E–G): C# là dẫn âm của D.<br>'
+           + 'Tiến trình này xuất hiện nhiều trong flamenco và nhạc Latin.',
+    seq: ['C','A7','Dm','C']
+  },
+  'iii': {
+    secDom: 'B7', target: 'Em', final: 'C',
+    roman_sd: 'V⁷/iii', roman_t: 'iii', roman_f: 'I',
+    explain: '<strong>V⁷/iii = B7</strong> → <strong>iii = Em</strong> → <strong>I = C</strong><br>'
+           + 'B7 (B–D#–F#–A): D# là dẫn âm của Em. Hiếm gặp nhất trong 5 át thứ cấp của C.<br>'
+           + 'Tạo màu sắc "cổ điển baroque" khi dùng.',
+    seq: ['C','B7','Em','C']
+  }
+};
+
+function renderSdSeq(target) {
+  const data = SD_DATA[target];
+  const container = document.getElementById('sdSeq');
+  container.innerHTML = '';
+
+  const labels = {
+    'C':  {r:'I', cls:''},
+    [data.secDom]: {r: data.roman_sd, cls:'both'},
+    [data.target]: {r: data.roman_t, cls:'target'},
+    'G':  {r:'V', cls:''},
+    'F':  {r:'IV', cls:''},
+    'Am': {r:'vi', cls:''},
+    'Dm': {r:'ii', cls:''},
+    'Em': {r:'iii', cls:''},
+  };
+
+  data.seq.forEach((ch, i) => {
+    if (i > 0) {
+      const arr = document.createElement('span');
+      arr.className = 'arrow';
+      arr.textContent = '→';
+      container.appendChild(arr);
+    }
+    const box = document.createElement('div');
+    const isSecDom = (ch === data.secDom);
+    const isTarget = (ch === data.target && i > 0 && i < data.seq.length - 1);
+    box.className = 'chord-box' + (isSecDom ? ' both' : (isTarget ? ' target' : ''));
+    const ro = labels[ch] ? labels[ch].r : '';
+    box.innerHTML = `${ch}<div class="roman">${ro}</div>`;
+    container.appendChild(box);
+  });
+
+  document.getElementById('sdExplain').innerHTML = data.explain;
+}
+
+function highlightSdBox(idx) {
+  const boxes = document.querySelectorAll('#sdSeq .chord-box');
+  boxes.forEach((b, i) => {
+    if (i === idx) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+}
+
+document.getElementById('secDomTarget').addEventListener('change', function() {
+  renderSdSeq(this.value);
+});
+renderSdSeq('V');
+
+document.getElementById('playSD').addEventListener('click', function() {
+  const target = document.getElementById('secDomTarget').value;
+  const data = SD_DATA[target];
+  const beatSec = 1.1;
+  stopAll();
+  audio();
+  let when = 0.05;
+  data.seq.forEach((ch, i) => {
+    const notes = CHORDS[ch];
+    if (notes) playChord(notes, beatSec * 0.85, when);
+    // highlight
+    (function(idx, w) {
+      const ac = audio();
+      const delay = w * 1000;
+      setTimeout(() => highlightSdBox(idx), delay < 0 ? 0 : delay);
+    })(i, when);
+    when += beatSec;
+  });
+  setTimeout(() => {
+    document.querySelectorAll('#sdSeq .chord-box').forEach(b => b.classList.remove('active'));
+  }, when * 1000 + 200);
+});
+
+document.getElementById('stopSD').addEventListener('click', stopAll);
+
+// ============================================================
+// MODULE 2: Pivot Chord Modulation
+// ============================================================
+const PIVOT_DATA = {
+  'G': {
+    name: 'G trưởng',
+    pivot: 'Am',
+    pivot_roman_old: 'vi (C)',
+    pivot_roman_new: 'ii (G)',
+    seq: [
+      {chord:'C', label:'I (C)', cls:''},
+      {chord:'F', label:'IV (C)', cls:''},
+      {chord:'Am', label:'vi/ii — bản lề', cls:'pivot'},
+      {chord:'D7', label:'V⁷ (G)', cls:'target'},
+      {chord:'G', label:'I (G)', cls:'target'},
+    ],
+    explain: 'Bản lề: <span class="badge both">Am = vi(C) / ii(G)</span><br>'
+           + 'Am (A–C–E) hợp lệ trong cả C lẫn G.<br>'
+           + 'D7 xác nhận G là điệu mới → kết hoàn toàn trên I(G).'
+  },
+  'F': {
+    name: 'F trưởng',
+    pivot: 'C',
+    pivot_roman_old: 'I (C)',
+    pivot_roman_new: 'V (F)',
+    seq: [
+      {chord:'C', label:'I (C)', cls:''},
+      {chord:'Am', label:'vi (C)', cls:''},
+      {chord:'C', label:'I/V — bản lề', cls:'pivot'},
+      {chord:'Bb', label:'IV (F)', cls:'target'},
+      {chord:'F', label:'I (F)', cls:'target'},
+    ],
+    explain: 'Bản lề: <span class="badge both">C = I(C) / V(F)</span><br>'
+           + 'Sau khi Am, C xuất hiện — tai vẫn ở C. Nhưng Bb (không có trong C) xác nhận F là điệu mới.'
+  },
+  'Am': {
+    name: 'Am thứ',
+    pivot: 'Em',
+    pivot_roman_old: 'iii (C)',
+    pivot_roman_new: 'v (Am)',
+    seq: [
+      {chord:'C', label:'I (C)', cls:''},
+      {chord:'G', label:'V (C)', cls:''},
+      {chord:'Em', label:'iii/v — bản lề', cls:'pivot'},
+      {chord:'B7', label:'V⁷ (Am)', cls:'target'},
+      {chord:'Am', label:'i (Am)', cls:'target'},
+    ],
+    explain: 'Bản lề: <span class="badge both">Em = iii(C) / v(Am)</span><br>'
+           + 'Em (E–G–B) có mặt trong cả C lẫn Am tự nhiên.<br>'
+           + 'B7 (dẫn âm D#→E không có trong C) xác nhận Am.'
+  },
+  'Em': {
+    name: 'Em thứ',
+    pivot: 'Bm',
+    pivot_roman_old: 'iii (G, qua G)',
+    pivot_roman_new: 'v (Em)',
+    seq: [
+      {chord:'C', label:'I (C)', cls:''},
+      {chord:'G', label:'V (C) / I (G) — trung gian', cls:''},
+      {chord:'Bm', label:'iii/v — bản lề', cls:'pivot'},
+      {chord:'B7', label:'V⁷ (Em)', cls:'target'},
+      {chord:'Em', label:'i (Em)', cls:'target'},
+    ],
+    explain: 'Chuyển qua G (điệu trung gian): C → G (V/I) → Bm (iii(G)/v(Em)) → B7 → Em.<br>'
+           + 'Bản lề: <span class="badge both">Bm = iii(G) / v(Em)</span>.<br>'
+           + 'B7 thêm D# — nốt không có trong C hay G → xác nhận Em.'
+  },
+  'Dm': {
+    name: 'Dm thứ',
+    pivot: 'Am',
+    pivot_roman_old: 'vi (C)',
+    pivot_roman_new: 'v (Dm)',
+    seq: [
+      {chord:'C', label:'I (C)', cls:''},
+      {chord:'F', label:'IV (C)', cls:''},
+      {chord:'Am', label:'vi/v — bản lề', cls:'pivot'},
+      {chord:'A7', label:'V⁷ (Dm)', cls:'target'},
+      {chord:'Dm', label:'i (Dm)', cls:'target'},
+    ],
+    explain: 'Bản lề: <span class="badge both">Am = vi(C) / v(Dm tự nhiên)</span><br>'
+           + 'A7 thêm C# (không có trong C) → xác nhận Dm là tâm mới.'
+  }
+};
+
+function renderPivotSeq(target) {
+  const data = PIVOT_DATA[target];
+  const container = document.getElementById('pivotSeq');
+  container.innerHTML = '';
+
+  data.seq.forEach((item, i) => {
+    if (i > 0) {
+      const arr = document.createElement('span');
+      arr.className = 'arrow';
+      arr.textContent = '→';
+      container.appendChild(arr);
+    }
+    const box = document.createElement('div');
+    box.className = 'chord-box' + (item.cls ? ' ' + item.cls : '');
+    box.innerHTML = `${item.chord}<div class="roman">${item.label}</div>`;
+    container.appendChild(box);
+  });
+
+  document.getElementById('pivotInfo').innerHTML = data.explain;
+}
+
+function highlightPivotBox(idx) {
+  const boxes = document.querySelectorAll('#pivotSeq .chord-box');
+  boxes.forEach((b, i) => {
+    if (i === idx) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+}
+
+document.getElementById('pivotTarget').addEventListener('change', function() {
+  renderPivotSeq(this.value);
+});
+renderPivotSeq('G');
+
+document.getElementById('playPivot').addEventListener('click', function() {
+  const target = document.getElementById('pivotTarget').value;
+  const data = PIVOT_DATA[target];
+  const beatSec = 1.2;
+  stopAll();
+  audio();
+  let when = 0.05;
+  data.seq.forEach((item, i) => {
+    const notes = CHORDS[item.chord];
+    if (notes) playChord(notes, beatSec * 0.85, when);
+    (function(idx, w) {
+      setTimeout(() => highlightPivotBox(idx), w * 1000);
+    })(i, when);
+    when += beatSec;
+  });
+  setTimeout(() => {
+    document.querySelectorAll('#pivotSeq .chord-box').forEach(b => b.classList.remove('active'));
+  }, when * 1000 + 200);
+});
+
+document.getElementById('stopPivot').addEventListener('click', stopAll);
+
+// ============================================================
+// MODULE 3: Circle of Fifths SVG
+// ============================================================
+// Outer ring (major): C G D A E B F# / Gb Db Ab Eb Bb F
+// We use 12 major keys mapped to positions 0..11 (C=0, G=1, D=2, ...)
+const COF_MAJOR = ['C','G','D','A','E','B','F#','Db','Ab','Eb','Bb','F'];
+const COF_MINOR = ['Am','Em','Bm','F#m','C#m','G#m','D#m','Bbm','Fm','Cm','Gm','Dm'];
+const COF_SIGS  = [0, 1, 2, 3, 4, 5, 6, -5, -4, -3, -2, -1]; // # positive, b negative
+
+// Closely related keys for a given major key (by COF index)
+// Related = self ± 1 on COF + relative minors of those
+function getRelated(rootName) {
+  const idx = COF_MAJOR.indexOf(rootName);
+  if (idx === -1) return new Set();
+  const related = new Set();
+  const n = 12;
+  // same key
+  related.add('maj:' + idx);
+  related.add('min:' + idx); // relative minor
+  // right neighbor (+1)
+  const right = (idx + 1) % n;
+  related.add('maj:' + right);
+  related.add('min:' + right);
+  // left neighbor (-1)
+  const left = (idx + n - 1) % n;
+  related.add('maj:' + left);
+  related.add('min:' + left);
+  return related;
+}
+
+function drawCOF(rootName) {
+  const svg = document.getElementById('cofSvg');
+  // Clear previous drawn elements (keep base circle)
+  while (svg.children.length > 1) svg.removeChild(svg.lastChild);
+
+  const cx = 180, cy = 180;
+  const outerR = 155, innerR = 105;
+  const n = 12;
+  const related = getRelated(rootName);
+  const rootIdx = COF_MAJOR.indexOf(rootName);
+
+  for (let i = 0; i < n; i++) {
+    const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+    const nextAngle = ((i + 1) / n) * 2 * Math.PI - Math.PI / 2;
+    const midAngle = (angle + nextAngle) / 2;
+    const isRoot = (i === rootIdx);
+    const isRelatedMaj = related.has('maj:' + i) && !isRoot;
+    const isRelatedMin = related.has('min:' + i);
+
+    // Draw outer sector (major)
+    const x1o = cx + outerR * Math.cos(angle);
+    const y1o = cy + outerR * Math.sin(angle);
+    const x2o = cx + outerR * Math.cos(nextAngle);
+    const y2o = cy + outerR * Math.sin(nextAngle);
+    const x1i = cx + innerR * Math.cos(angle);
+    const y1i = cy + innerR * Math.sin(angle);
+    const x2i = cx + innerR * Math.cos(nextAngle);
+    const y2i = cy + innerR * Math.sin(nextAngle);
+
+    const majColor = isRoot ? '#7e22ce' : (isRelatedMaj ? '#fef3c7' : '#f1eefd');
+    const majStroke = isRoot ? '#5b21b6' : (isRelatedMaj ? '#d97706' : '#ddd6fe');
+
+    const pathMaj = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    pathMaj.setAttribute('d',
+      `M ${x1i} ${y1i} L ${x1o} ${y1o} A ${outerR} ${outerR} 0 0 1 ${x2o} ${y2o} L ${x2i} ${y2i} A ${innerR} ${innerR} 0 0 0 ${x1i} ${y1i} Z`
+    );
+    pathMaj.setAttribute('fill', majColor);
+    pathMaj.setAttribute('stroke', majStroke);
+    pathMaj.setAttribute('stroke-width', '1.5');
+    pathMaj.style.cursor = 'pointer';
+    pathMaj.addEventListener('click', () => playCofKey(COF_MAJOR[i], false));
+    svg.appendChild(pathMaj);
+
+    // Major label
+    const lx = cx + (outerR + innerR) / 2 * Math.cos(midAngle);
+    const ly = cy + (outerR + innerR) / 2 * Math.sin(midAngle);
+    const txtMaj = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    txtMaj.setAttribute('x', lx);
+    txtMaj.setAttribute('y', ly + 5);
+    txtMaj.setAttribute('text-anchor', 'middle');
+    txtMaj.setAttribute('font-size', isRoot ? '15' : '13');
+    txtMaj.setAttribute('font-weight', isRoot ? '800' : '600');
+    txtMaj.setAttribute('fill', isRoot ? '#fff' : (isRelatedMaj ? '#92400e' : '#6b7280'));
+    txtMaj.setAttribute('font-family', 'sans-serif');
+    txtMaj.style.pointerEvents = 'none';
+    txtMaj.textContent = COF_MAJOR[i];
+    svg.appendChild(txtMaj);
+
+    // Draw inner sector (minor)
+    const minR = 85, coreR = 40;
+    const x1m = cx + minR * Math.cos(angle);
+    const y1m = cy + minR * Math.sin(angle);
+    const x2m = cx + minR * Math.cos(nextAngle);
+    const y2m = cy + minR * Math.sin(nextAngle);
+    const x1c = cx + coreR * Math.cos(angle);
+    const y1c = cy + coreR * Math.sin(angle);
+    const x2c = cx + coreR * Math.cos(nextAngle);
+    const y2c = cy + coreR * Math.sin(nextAngle);
+
+    const minColor = isRelatedMin && !isRoot ? '#d1fae5' : '#f8f5ff';
+    const minStroke = isRelatedMin && !isRoot ? '#059669' : '#e9d5ff';
+
+    const pathMin = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    pathMin.setAttribute('d',
+      `M ${x1c} ${y1c} L ${x1m} ${y1m} A ${minR} ${minR} 0 0 1 ${x2m} ${y2m} L ${x2c} ${y2c} A ${coreR} ${coreR} 0 0 0 ${x1c} ${y1c} Z`
+    );
+    pathMin.setAttribute('fill', minColor);
+    pathMin.setAttribute('stroke', minStroke);
+    pathMin.setAttribute('stroke-width', '1');
+    pathMin.style.cursor = 'pointer';
+    pathMin.addEventListener('click', () => playCofKey(COF_MINOR[i], true));
+    svg.appendChild(pathMin);
+
+    // Minor label
+    const mlx = cx + (minR + coreR) / 2 * Math.cos(midAngle);
+    const mly = cy + (minR + coreR) / 2 * Math.sin(midAngle);
+    const txtMin = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    txtMin.setAttribute('x', mlx);
+    txtMin.setAttribute('y', mly + 4);
+    txtMin.setAttribute('text-anchor', 'middle');
+    txtMin.setAttribute('font-size', '10');
+    txtMin.setAttribute('font-style', 'italic');
+    txtMin.setAttribute('fill', (isRelatedMin && !isRoot) ? '#065f46' : '#9ca3af');
+    txtMin.setAttribute('font-family', 'sans-serif');
+    txtMin.style.pointerEvents = 'none';
+    txtMin.textContent = COF_MINOR[i];
+    svg.appendChild(txtMin);
+  }
+
+  // Center label
+  const cLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  cLabel.setAttribute('x', cx);
+  cLabel.setAttribute('y', cy - 6);
+  cLabel.setAttribute('text-anchor', 'middle');
+  cLabel.setAttribute('font-size', '12');
+  cLabel.setAttribute('fill', '#6b7280');
+  cLabel.setAttribute('font-family', 'sans-serif');
+  cLabel.textContent = 'Click';
+  svg.appendChild(cLabel);
+  const cLabel2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  cLabel2.setAttribute('x', cx);
+  cLabel2.setAttribute('y', cy + 10);
+  cLabel2.setAttribute('text-anchor', 'middle');
+  cLabel2.setAttribute('font-size', '12');
+  cLabel2.setAttribute('fill', '#6b7280');
+  cLabel2.setAttribute('font-family', 'sans-serif');
+  cLabel2.textContent = 'để nghe';
+  svg.appendChild(cLabel2);
+}
+
+// Play the tonic triad of a COF key
+const COF_CHORD_MAP = {
+  'C':'C','G':'G','D':'D','A':'A','E':'E','B':'B','F#':'F#','Db':'Eb','Ab':'Ab','Eb':'Eb','Bb':'Bb','F':'F',
+  'Am':'Am','Em':'Em','Bm':'Bm','F#m':'Fm','C#m':'Cm','G#m':'Gm','D#m':'Dm','Bbm':'Bbm','Fm':'Fm','Cm':'Cm','Gm':'Gm','Dm':'Dm'
+};
+// Simplified: just use what we have in CHORDS dict, fallback gracefully
+function playCofKey(keyName, isMinor) {
+  const chordName = keyName;
+  const notes = CHORDS[chordName];
+  const infoEl = document.getElementById('cofInfo');
+  if (notes) {
+    stopAll();
+    audio();
+    playChord(notes, 1.2, 0.05);
+    infoEl.style.display = 'block';
+    const idx = isMinor ? COF_MINOR.indexOf(keyName) : COF_MAJOR.indexOf(keyName);
+    const sig = idx >= 0 ? COF_SIGS[idx] : 0;
+    const sigStr = sig === 0 ? '0 dấu hóa' : (sig > 0 ? sig + ' thăng' : Math.abs(sig) + ' giáng');
+    infoEl.innerHTML = `<strong>${keyName}</strong> — ${isMinor ? 'thứ' : 'trưởng'}, ${sigStr}`;
+  }
+}
+
+document.getElementById('cofRoot').addEventListener('change', function() {
+  drawCOF(this.value);
+  document.getElementById('cofInfo').style.display = 'none';
+});
+drawCOF('C');
+
+// ============================================================
+// MODULE 4: Am context compare
+// ============================================================
+document.getElementById('playAmC').addEventListener('click', function() {
+  stopAll();
+  audio();
+  // I – IV – vi – V – I in C
+  const seq = ['C','F','Am','G','C'];
+  const beat = 1.1;
+  let when = 0.05;
+  const info = document.getElementById('compareInfo');
+  info.innerHTML = 'Đang phát: <span class="badge">I(C)</span> → <span class="badge">IV(C)</span> → <span class="badge both">vi(C) = Am</span> → <span class="badge">V(C)</span> → <span class="badge">I(C)</span><br>Am ở đây nghe như "đang về nhà" trong C trưởng.';
+  seq.forEach((ch, i) => {
+    const notes = CHORDS[ch];
+    if (notes) playChord(notes, beat * 0.85, when);
+    when += beat;
+  });
+});
+
+document.getElementById('playAmG').addEventListener('click', function() {
+  stopAll();
+  audio();
+  // I – ii – V – I in G: G – Am – D7 – G
+  const seq = ['G','Am','D7','G'];
+  const beat = 1.1;
+  let when = 0.05;
+  const info = document.getElementById('compareInfo');
+  info.innerHTML = 'Đang phát: <span class="badge">I(G)</span> → <span class="badge both">ii(G) = Am</span> → <span class="badge">V⁷(G)</span> → <span class="badge">I(G)</span><br>Am ở đây nghe "chờ đợi, chưa ổn định" — chuẩn bị về G.';
+  seq.forEach((ch, i) => {
+    const notes = CHORDS[ch];
+    if (notes) playChord(notes, beat * 0.85, when);
+    when += beat;
+  });
+});
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

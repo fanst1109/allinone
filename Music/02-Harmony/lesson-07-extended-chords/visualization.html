@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Hòa âm mở rộng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  .card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; font-size: 14px; }
+  select {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 14px; background: #fff; cursor: pointer;
+  }
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    white-space: nowrap;
+  }
+  button:hover { background: #6b21a8; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  button.small { padding: 6px 12px; font-size: 13px; }
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  .result {
+    padding: 14px 16px; background: #f3e8ff; border-radius: 8px; margin-top: 12px;
+    font-size: 14px; line-height: 1.8;
+  }
+  .result .big { font-size: 20px; font-weight: 800; color: #6b21a8; font-family: monospace; }
+  .badge {
+    display: inline-block; background: #7e22ce; color: #fff;
+    padding: 3px 10px; border-radius: 14px; font-family: monospace;
+    font-weight: 700; margin: 2px; font-size: 13px;
+  }
+  .badge.off { background: #e9d5ff; color: #6b21a8; }
+
+  /* ---- Piano ---- */
+  .piano-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 12px 0; }
+  .piano {
+    position: relative; height: 160px; min-width: 390px;
+    width: max-content; margin: 0 auto;
+    user-select: none; touch-action: manipulation;
+  }
+  .wkey {
+    position: absolute; bottom: 0;
+    background: linear-gradient(#fff, #f0f0f0);
+    border: 1px solid #aaa; border-radius: 0 0 5px 5px;
+    cursor: pointer;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 6px; font-size: 10px; color: #555; font-weight: 600;
+    box-sizing: border-box;
+  }
+  .wkey.active { background: linear-gradient(#e9d5ff, #c4b5fd); border-color: #7e22ce; }
+  .wkey.highlight { background: linear-gradient(#ddd6fe, #a78bfa); border-color: #6b21a8; }
+  .bkey {
+    position: absolute; top: 0;
+    background: linear-gradient(#333, #111);
+    border-radius: 0 0 4px 4px; z-index: 2; cursor: pointer;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 4px; font-size: 8px; color: #ddd; font-weight: 600;
+    box-sizing: border-box;
+  }
+  .bkey.active { background: linear-gradient(#7e22ce, #5b21b6); }
+  .bkey.highlight { background: linear-gradient(#6b21a8, #4c1d95); }
+
+  /* ---- Comparison grid ---- */
+  .cmp-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px;
+  }
+  .cmp-cell {
+    background: #faf7ff; border: 1px solid #e9d5ff; border-radius: 8px;
+    padding: 12px 10px; text-align: center; cursor: pointer;
+    transition: box-shadow 0.15s;
+  }
+  .cmp-cell:hover { box-shadow: 0 0 0 2px #7e22ce; }
+  .cmp-cell.playing { box-shadow: 0 0 0 2px #7e22ce; background: #f3e8ff; }
+  .cmp-cell .cmp-name { font-weight: 800; font-size: 15px; color: #4c1d95; }
+  .cmp-cell .cmp-notes { font-size: 11px; font-family: monospace; color: #6b21a8; margin-top: 4px; }
+  .cmp-cell .cmp-feel { font-size: 11px; color: #64748b; margin-top: 4px; }
+
+  /* ---- add9 vs 9 comparison ---- */
+  .vs-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+  .vs-card {
+    background: #faf7ff; border: 2px solid #e9d5ff; border-radius: 10px;
+    padding: 16px; text-align: center;
+  }
+  .vs-card.has7 { border-color: #7e22ce; }
+  .vs-name { font-size: 22px; font-weight: 900; color: #4c1d95; margin-bottom: 6px; }
+  .vs-notes { font-family: monospace; font-size: 13px; color: #6b21a8; line-height: 1.8; }
+  .vs-tag {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; margin: 4px 2px;
+  }
+  .tag-yes { background: #7e22ce; color: #fff; }
+  .tag-no { background: #e9d5ff; color: #6b21a8; }
+
+  /* ---- sus resolve ---- */
+  .resolve-chain { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .resolve-box {
+    background: #f3e8ff; border: 1px solid #c4b5fd; border-radius: 8px;
+    padding: 10px 14px; text-align: center; cursor: pointer;
+    min-width: 80px;
+  }
+  .resolve-box:hover { background: #e9d5ff; }
+  .resolve-box.playing { background: #ddd6fe; border-color: #7e22ce; }
+  .resolve-arrow { font-size: 20px; color: #7e22ce; font-weight: 700; }
+  .resolve-name { font-size: 16px; font-weight: 800; color: #4c1d95; }
+  .resolve-sub { font-size: 11px; color: #6b21a8; font-family: monospace; }
+
+  @media (max-width: 600px) {
+    .cmp-grid { grid-template-columns: repeat(2, 1fr); }
+    .vs-wrap { grid-template-columns: 1fr; }
+    .piano { min-width: 330px; }
+  }
+  @media (max-width: 400px) {
+    .cmp-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Harmony</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-modulation/visualization.html">← L6: Chuyển điệu</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Hòa âm mở rộng</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-functional-analysis/visualization.html">L8: Phân tích chức năng →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Hòa âm mở rộng (Extended Chords)</h1>
+<p>Chồng quãng 3 lên hợp âm bảy để thu được bậc <strong>9, 11, 13</strong>. Ba công cụ dưới đây cho bạn <em>nghe</em> sự khác biệt: xưởng xây hợp âm, so sánh màu sắc triad→7→9→13, và phân biệt add9 vs 9. <strong>🔊 Bật loa.</strong></p>
+
+<!-- ============================================================ -->
+<h2>1. Xưởng hợp âm mở rộng</h2>
+<div class="card">
+  <p class="hint">Chọn nốt gốc và loại hợp âm → xem nốt, offset nửa cung, và nghe âm thanh.</p>
+  <div class="row">
+    <label for="root">Gốc:</label>
+    <select id="root">
+      <option value="0">C</option>
+      <option value="1">C♯ / D♭</option>
+      <option value="2">D</option>
+      <option value="3">D♯ / E♭</option>
+      <option value="4">E</option>
+      <option value="5">F</option>
+      <option value="6">F♯ / G♭</option>
+      <option value="7">G</option>
+      <option value="8">G♯ / A♭</option>
+      <option value="9">A</option>
+      <option value="10">A♯ / B♭</option>
+      <option value="11">B</option>
+    </select>
+    <label for="chtype">Loại:</label>
+    <select id="chtype">
+      <option value="dom7">7 (dominant 7th)</option>
+      <option value="maj7">maj7</option>
+      <option value="min7">m7</option>
+      <option value="dom9" selected>9 (dominant 9th)</option>
+      <option value="maj9">maj9</option>
+      <option value="min9">m9</option>
+      <option value="dom11">11 (dominant 11th)</option>
+      <option value="dom13">13 (dominant 13th)</option>
+      <option value="add9">add9</option>
+      <option value="sus4">sus4</option>
+      <option value="sus2">sus2</option>
+      <option value="dom7b9">7♭9 (altered ♭9)</option>
+      <option value="dom7s9">7♯9 (altered ♯9, Hendrix)</option>
+    </select>
+    <button id="playChord">▶ Nghe hợp âm</button>
+    <button id="playArpeg" class="ghost">▶ Arpeggio</button>
+  </div>
+  <div class="result" id="chordResult">
+    <span class="big" id="chordName">C9</span><br>
+    Nốt: <span id="chordNotes"></span><br>
+    Offset: <span id="chordOffsets"></span><br>
+    <span id="chordDesc" style="color:#4a5568;font-size:13px;"></span>
+  </div>
+  <div class="piano-wrap">
+    <div class="piano" id="piano"></div>
+  </div>
+  <p class="hint">Phím được tô màu = nốt thuộc hợp âm. Bấm bất kỳ phím nào để nghe nốt đơn.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. So sánh màu sắc — triad → 7 → 9 → 13</h2>
+<div class="card">
+  <p class="hint">Nhấn từng ô để nghe. Cùng gốc C, thêm từng tầng mở rộng — cảm nhận âm thanh "dày" và "giàu màu" dần lên.</p>
+  <div class="row">
+    <label for="cmpRoot">Gốc so sánh:</label>
+    <select id="cmpRoot">
+      <option value="0">C</option>
+      <option value="2">D</option>
+      <option value="5">F</option>
+      <option value="7">G</option>
+      <option value="9">A</option>
+    </select>
+    <button id="playAll" class="ghost small">▶ Nghe tất cả (tuần tự)</button>
+  </div>
+  <div class="cmp-grid" id="cmpGrid"></div>
+  <p class="hint">Mỗi tầng thêm 1 nốt: triad (3 nốt) → C7 (4) → C9 (5) → C13 (6, bỏ bậc 5 và 11). Tai sẽ cảm nhận sự "phồng" tăng dần.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Phân biệt add9 và 9</h2>
+<div class="card">
+  <p class="hint">Một nốt khác biệt (bậc 7) tạo ra hai màu âm hoàn toàn khác nhau. Nghe thật kỹ.</p>
+  <div class="vs-wrap" id="vsWrap"></div>
+  <div class="row" style="margin-top:14px">
+    <label for="vsRoot">Gốc:</label>
+    <select id="vsRoot">
+      <option value="0">C</option>
+      <option value="2">D</option>
+      <option value="5">F</option>
+      <option value="7">G</option>
+      <option value="9">A</option>
+    </select>
+    <button id="playVsAdd" class="ghost">▶ add9 (không bậc 7)</button>
+    <button id="playVsDom">▶ 9 (có bậc 7)</button>
+  </div>
+  <p class="hint">add9 = triad + bậc 9, sáng và "pop". 9 = 7th chord + bậc 9, căng và "jazz". Sự khác biệt nằm ở một nốt duy nhất — bậc ♭7.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>4. Sus chord — treo và giải quyết</h2>
+<div class="card">
+  <p class="hint">sus4 "treo lơ lửng" rồi giải quyết (resolve) về hợp âm trưởng khi bậc 4 → bậc 3. Nghe từng bước.</p>
+  <div class="row">
+    <label for="susRoot">Gốc sus:</label>
+    <select id="susRoot">
+      <option value="0">C</option>
+      <option value="5">F</option>
+      <option value="7">G</option>
+      <option value="9">A</option>
+      <option value="2">D</option>
+    </select>
+    <button id="playResolve">▶ sus4 → trưởng (giải quyết)</button>
+    <button id="playCompare" class="ghost">▶ sus2 nghe thử</button>
+  </div>
+  <div class="resolve-chain" id="resolveChain"></div>
+  <p class="hint" id="susHint"></p>
+</div>
+
+<script>
+// ============================================================
+// WEB AUDIO
+// ============================================================
+let ctx = null;
+function audio() {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  return ctx;
+}
+function playTone(freq, dur = 0.9, when = 0, gain = 0.22) {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(gain, t0 + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+const NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const DISPLAY = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+
+function freqFromMidi(midi) { return 440 * Math.pow(2, (midi - 69) / 12); }
+function midiFromRoot(rootSemitone, octave = 4) {
+  // rootSemitone: 0=C, 1=C#...11=B; octave 4 means C4=60
+  return (octave + 1) * 12 + rootSemitone;
+}
+function noteNameFromMidi(midi) {
+  return DISPLAY[((midi % 12) + 12) % 12] + Math.floor(midi / 12 - 1);
+}
+
+function playChordMidi(midis, arpeggiate = false) {
+  midis.forEach((m, i) => {
+    playTone(freqFromMidi(m), 1.4, arpeggiate ? i * 0.12 : 0, 0.18);
+  });
+}
+
+// ============================================================
+// CHORD DEFINITIONS
+// offsets from root (semitones), displayed name, description
+// ============================================================
+const CHORD_TYPES = {
+  dom7:    { offsets: [0,4,7,10],       name: '7',     desc: 'Dominant 7th — bậc ♭7 tạo sức căng, muốn giải quyết về IV.' },
+  maj7:    { offsets: [0,4,7,11],       name: 'maj7',  desc: 'Major 7th — bậc 7 lớn, nghe "sáng, nhẹ nhàng, lơ lửng".' },
+  min7:    { offsets: [0,3,7,10],       name: 'm7',    desc: 'Minor 7th — bậc 3 nhỏ + bậc ♭7, nghe "sâu, buồn".' },
+  dom9:    { offsets: [0,4,7,10,14],    name: '9',     desc: 'Dominant 9th = 7th + bậc 9 (+14 nc). Nghe "phồng, jazz, funk".' },
+  maj9:    { offsets: [0,4,7,11,14],    name: 'maj9',  desc: 'Major 9th = maj7 + bậc 9. Nghe "sáng, neo-soul, lơ lửng".' },
+  min9:    { offsets: [0,3,7,10,14],    name: 'm9',    desc: 'Minor 9th = m7 + bậc 9. Nghe "sâu, R&B, smooth".' },
+  dom11:   { offsets: [0,7,10,14,17],   name: '11',    desc: '11th — bỏ bậc 3 (tránh chỏi E–F). Nghe "trung tính, huyền bí".' },
+  dom13:   { offsets: [0,4,7,10,14,21], name: '13',    desc: '13th = 9th + bậc 13 (+21 nc). Nghe "giàu màu, full jazz".' },
+  add9:    { offsets: [0,4,7,14],       name: 'add9',  desc: 'add9 = triad + bậc 9. KHÔNG có bậc 7. Nghe "sáng, pop, nhẹ".' },
+  sus4:    { offsets: [0,5,7],          name: 'sus4',  desc: 'sus4 — bậc 3 → bậc 4 (+5 nc). Mất tính trưởng/thứ. "Treo lơ lửng".' },
+  sus2:    { offsets: [0,2,7],          name: 'sus2',  desc: 'sus2 — bậc 3 → bậc 2 (+2 nc). "Mở, tươi, trong veo".' },
+  dom7b9:  { offsets: [0,4,7,10,13],    name: '7♭9',   desc: '7♭9 — bậc 9 hạ 1 nc (+13). Nghe "căng thẳng, lo âu, bebop".' },
+  dom7s9:  { offsets: [0,4,7,10,15],    name: '7♯9',   desc: '7♯9 "Hendrix chord" — bậc 9 nâng 1 nc (+15). Nghe "thô, blues, rock".' },
+};
+
+// ============================================================
+// PIANO BUILDER (2 octaves: C4–B5)
+// ============================================================
+const PIANO_EL = document.getElementById('piano');
+// Layout: 2 octaves, 14 white keys
+// Each white key width: 28px, height 160px
+// Black key width: 18px, height: 98px
+const WW = 28, WH = 160, BW = 18, BH = 98;
+const WHITE_PATTERN = [0,2,4,5,7,9,11]; // semitones above C for white keys
+const BLACK_MAP = {1:0, 3:1, 6:3, 8:4, 10:5}; // semitone -> after-white-index offset within octave
+const totalWhite = 14;
+PIANO_EL.style.width = (totalWhite * WW) + 'px';
+PIANO_EL.style.height = WH + 'px';
+
+// Build note map: midi -> {el, isBlack}
+const pianoNotes = {};
+
+// White keys first
+let wIdx = 0;
+for (let oct = 4; oct <= 5; oct++) {
+  for (let wi = 0; wi < 7; wi++) {
+    const semi = WHITE_PATTERN[wi];
+    const midi = midiFromRoot(semi, oct);
+    const el = document.createElement('div');
+    el.className = 'wkey';
+    el.style.left = (wIdx * WW) + 'px';
+    el.style.width = WW + 'px';
+    el.style.height = WH + 'px';
+    el.textContent = DISPLAY[semi] + oct;
+    el.dataset.midi = midi;
+    el.addEventListener('pointerdown', () => { playTone(freqFromMidi(midi), 0.6); flashKey(el); });
+    PIANO_EL.appendChild(el);
+    pianoNotes[midi] = { el, isBlack: false, wIdx };
+    wIdx++;
+  }
+}
+
+// Black keys
+wIdx = 0;
+for (let oct = 4; oct <= 5; oct++) {
+  for (let wi = 0; wi < 7; wi++) {
+    const semi = WHITE_PATTERN[wi];
+    const bSemi = semi + 1; // potential black key above this white
+    // check if black key exists
+    if (BLACK_MAP.hasOwnProperty(bSemi) || (semi === 11 && false)) {
+      // black key is between wIdx and wIdx+1
+      const midi = midiFromRoot(bSemi, oct);
+      const el = document.createElement('div');
+      el.className = 'bkey';
+      el.style.left = (wIdx * WW + WW - BW/2) + 'px';
+      el.style.width = BW + 'px';
+      el.style.height = BH + 'px';
+      el.textContent = DISPLAY[bSemi] + oct;
+      el.dataset.midi = midi;
+      el.addEventListener('pointerdown', (e) => { e.stopPropagation(); playTone(freqFromMidi(midi), 0.6); flashKey(el); });
+      PIANO_EL.appendChild(el);
+      pianoNotes[midi] = { el, isBlack: true };
+    }
+    wIdx++;
+  }
+}
+
+function flashKey(el) {
+  el.classList.add('active');
+  setTimeout(() => el.classList.remove('active'), 300);
+}
+
+function highlightKeys(midis) {
+  // clear all
+  Object.values(pianoNotes).forEach(({ el }) => el.classList.remove('highlight'));
+  midis.forEach(m => {
+    if (pianoNotes[m]) pianoNotes[m].el.classList.add('highlight');
+  });
+}
+
+// ============================================================
+// SECTION 1 — CHORD WORKSHOP
+// ============================================================
+function buildChordMidis(rootSemitone, offsets) {
+  // root octave: C4 = midi 60. rootSemitone 0=C..11=B
+  const rootMidi = 60 + rootSemitone; // place root in octave 4 area
+  return offsets.map(o => rootMidi + o);
+}
+
+function updateWorkshop() {
+  const root = parseInt(document.getElementById('root').value);
+  const chtype = document.getElementById('chtype').value;
+  const def = CHORD_TYPES[chtype];
+  const midis = buildChordMidis(root, def.offsets);
+  const rootName = DISPLAY[root];
+
+  document.getElementById('chordName').textContent = rootName + def.name;
+  document.getElementById('chordNotes').innerHTML = midis.map(m =>
+    '<span class="badge">' + noteNameFromMidi(m) + '</span>'
+  ).join(' ');
+  document.getElementById('chordOffsets').innerHTML = def.offsets.map(o =>
+    '<span class="badge off">+' + o + '</span>'
+  ).join(' ');
+  document.getElementById('chordDesc').textContent = def.desc;
+  highlightKeys(midis);
+}
+
+document.getElementById('root').addEventListener('change', updateWorkshop);
+document.getElementById('chtype').addEventListener('change', updateWorkshop);
+document.getElementById('playChord').addEventListener('click', () => {
+  const root = parseInt(document.getElementById('root').value);
+  const chtype = document.getElementById('chtype').value;
+  const midis = buildChordMidis(root, CHORD_TYPES[chtype].offsets);
+  playChordMidi(midis, false);
+});
+document.getElementById('playArpeg').addEventListener('click', () => {
+  const root = parseInt(document.getElementById('root').value);
+  const chtype = document.getElementById('chtype').value;
+  const midis = buildChordMidis(root, CHORD_TYPES[chtype].offsets);
+  playChordMidi(midis, true);
+});
+updateWorkshop();
+
+// ============================================================
+// SECTION 2 — COMPARISON: triad → 7 → 9 → 13
+// ============================================================
+const CMP_CHORDS = [
+  { key: 'triad', offsets: [0,4,7],         label: 'Triad',  feel: 'sáng, đơn giản' },
+  { key: 'dom7',  offsets: [0,4,7,10],       label: '7',      feel: 'có màu, căng nhẹ' },
+  { key: 'dom9',  offsets: [0,4,7,10,14],    label: '9',      feel: 'phồng, ấm, jazz' },
+  { key: 'dom13', offsets: [0,4,7,10,14,21], label: '13',     feel: 'giàu màu, full' },
+];
+
+function buildCmpGrid(root) {
+  const grid = document.getElementById('cmpGrid');
+  grid.innerHTML = '';
+  const rootName = DISPLAY[root];
+  CMP_CHORDS.forEach(ch => {
+    const midis = buildChordMidis(root, ch.offsets);
+    const noteNames = midis.map(m => DISPLAY[((m%12)+12)%12]).join(' ');
+    const cell = document.createElement('div');
+    cell.className = 'cmp-cell';
+    cell.innerHTML = `
+      <div class="cmp-name">${rootName}${ch.label}</div>
+      <div class="cmp-notes">${noteNames}</div>
+      <div class="cmp-feel">${ch.feel}</div>
+    `;
+    cell.addEventListener('click', () => {
+      document.querySelectorAll('.cmp-cell').forEach(c => c.classList.remove('playing'));
+      cell.classList.add('playing');
+      playChordMidi(midis, false);
+      setTimeout(() => cell.classList.remove('playing'), 1500);
+    });
+    grid.appendChild(cell);
+  });
+}
+
+document.getElementById('cmpRoot').addEventListener('change', () => {
+  buildCmpGrid(parseInt(document.getElementById('cmpRoot').value));
+});
+
+let playAllTimer = null;
+document.getElementById('playAll').addEventListener('click', () => {
+  if (playAllTimer) clearTimeout(playAllTimer);
+  const root = parseInt(document.getElementById('cmpRoot').value);
+  const cells = document.querySelectorAll('.cmp-cell');
+  let i = 0;
+  function step() {
+    if (i > 0) cells[i-1].classList.remove('playing');
+    if (i >= CMP_CHORDS.length) return;
+    const midis = buildChordMidis(root, CMP_CHORDS[i].offsets);
+    cells[i].classList.add('playing');
+    playChordMidi(midis, false);
+    i++;
+    playAllTimer = setTimeout(step, 1800);
+  }
+  step();
+});
+
+buildCmpGrid(0);
+
+// ============================================================
+// SECTION 3 — add9 vs 9
+// ============================================================
+function buildVs(root) {
+  const rootName = DISPLAY[root];
+  const add9Offs = [0,4,7,14];
+  const dom9Offs = [0,4,7,10,14];
+  const add9Midis = buildChordMidis(root, add9Offs);
+  const dom9Midis = buildChordMidis(root, dom9Offs);
+
+  const add9Notes = add9Offs.map((o,i) => {
+    const n = DISPLAY[((60+root+o)%12+12)%12];
+    const isB7 = false;
+    return `<div>${n} <small style="color:#94a3b8">(+${o})</small></div>`;
+  }).join('');
+  const dom9Notes = dom9Offs.map((o,i) => {
+    const isB7 = (o === 10);
+    const n = DISPLAY[((60+root+o)%12+12)%12];
+    return `<div style="${isB7?'color:#7e22ce;font-weight:800':''}">${n} <small style="color:#94a3b8">(+${o})${isB7?' ← bậc ♭7':''}</small></div>`;
+  }).join('');
+
+  const wrap = document.getElementById('vsWrap');
+  wrap.innerHTML = `
+    <div class="vs-card">
+      <div class="vs-name">${rootName}add9</div>
+      <div class="vs-notes">${add9Notes}</div>
+      <div style="margin-top:8px">
+        <span class="vs-tag tag-no">Không có bậc 7</span>
+      </div>
+      <div style="font-size:12px;color:#64748b;margin-top:6px">Sáng · pop · nhẹ nhàng</div>
+    </div>
+    <div class="vs-card has7">
+      <div class="vs-name">${rootName}9</div>
+      <div class="vs-notes">${dom9Notes}</div>
+      <div style="margin-top:8px">
+        <span class="vs-tag tag-yes">Có bậc ♭7 (+10)</span>
+      </div>
+      <div style="font-size:12px;color:#64748b;margin-top:6px">Căng · jazz · muốn giải quyết</div>
+    </div>
+  `;
+
+  // store for buttons
+  document.getElementById('playVsAdd')._midis = add9Midis;
+  document.getElementById('playVsDom')._midis = dom9Midis;
+}
+
+document.getElementById('vsRoot').addEventListener('change', () => {
+  buildVs(parseInt(document.getElementById('vsRoot').value));
+});
+document.getElementById('playVsAdd').addEventListener('click', (e) => {
+  playChordMidi(e.currentTarget._midis, false);
+});
+document.getElementById('playVsDom').addEventListener('click', (e) => {
+  playChordMidi(e.currentTarget._midis, false);
+});
+buildVs(0);
+
+// ============================================================
+// SECTION 4 — SUS resolve
+// ============================================================
+function buildSusChain(root) {
+  const rootName = DISPLAY[root];
+  const sus4Midis = buildChordMidis(root, [0,5,7]);
+  const majMidis = buildChordMidis(root, [0,4,7]);
+  const sus2Midis = buildChordMidis(root, [0,2,7]);
+
+  const sus4Notes = [0,5,7].map(o => DISPLAY[((root+o)%12+12)%12]).join(' ');
+  const majNotes  = [0,4,7].map(o => DISPLAY[((root+o)%12+12)%12]).join(' ');
+  const sus2Notes = [0,2,7].map(o => DISPLAY[((root+o)%12+12)%12]).join(' ');
+
+  const chain = document.getElementById('resolveChain');
+  chain.innerHTML = '';
+
+  function makeBox(name, notes, midis, delayMs = 0) {
+    const box = document.createElement('div');
+    box.className = 'resolve-box';
+    box.innerHTML = `<div class="resolve-name">${name}</div><div class="resolve-sub">${notes}</div>`;
+    box.addEventListener('click', () => {
+      document.querySelectorAll('.resolve-box').forEach(b => b.classList.remove('playing'));
+      box.classList.add('playing');
+      playChordMidi(midis, false);
+      setTimeout(() => box.classList.remove('playing'), 1200);
+    });
+    box._midis = midis;
+    return box;
+  }
+
+  chain.appendChild(makeBox(rootName + 'sus4', sus4Notes, sus4Midis));
+  const arr = document.createElement('span');
+  arr.className = 'resolve-arrow'; arr.textContent = '→';
+  chain.appendChild(arr);
+  chain.appendChild(makeBox(rootName + ' (trưởng)', majNotes, majMidis));
+
+  document.getElementById('susHint').textContent =
+    `${rootName}sus4 = {${sus4Notes}} — bậc 4 (${DISPLAY[(root+5)%12]}) "treo". Giải quyết về ${rootName} trưởng khi bậc 4 → bậc 3 (${DISPLAY[(root+5)%12]}→${DISPLAY[(root+4)%12]}).`;
+
+  // store sus2 for compare
+  document.getElementById('playResolve')._data = { sus4: sus4Midis, maj: majMidis };
+  document.getElementById('playCompare')._midis = sus2Midis;
+  document.getElementById('playCompare').textContent = `▶ ${rootName}sus2 nghe thử (${sus2Notes})`;
+}
+
+document.getElementById('susRoot').addEventListener('change', () => {
+  buildSusChain(parseInt(document.getElementById('susRoot').value));
+});
+
+document.getElementById('playResolve').addEventListener('click', (e) => {
+  const { sus4, maj } = e.currentTarget._data;
+  playChordMidi(sus4, false);
+  setTimeout(() => playChordMidi(maj, false), 1500);
+});
+document.getElementById('playCompare').addEventListener('click', (e) => {
+  playChordMidi(e.currentTarget._midis, false);
+});
+buildSusChain(0);
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

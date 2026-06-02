@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Hợp âm ba (Triads)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  .card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; }
+  select {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 15px; background: #fff; cursor: pointer;
+  }
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: #6b21a8; }
+  button:active { transform: scale(0.97); }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  .result {
+    padding: 14px 16px; background: #f3e8ff; border-radius: 8px; margin-top: 12px;
+    font-size: 15px; line-height: 1.8;
+  }
+  .result .big { font-size: 22px; font-weight: 800; color: #6b21a8; font-family: monospace; }
+  .badge {
+    display: inline-block; background: #e9d5ff; color: #6b21a8;
+    padding: 3px 9px; border-radius: 6px; font-family: monospace; font-weight: 700;
+    margin: 2px; font-size: 15px;
+  }
+  .badge.active-note { background: #7e22ce; color: #fff; }
+
+  /* ---- Piano ---- */
+  .piano-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .piano {
+    position: relative; display: flex; height: 170px;
+    min-width: 420px; max-width: 640px;
+    user-select: none; touch-action: manipulation; margin: 0 auto;
+  }
+  .wkey {
+    flex: 1; background: linear-gradient(#fff, #f0f0f0); border: 1px solid #aaa;
+    border-radius: 0 0 6px 6px; position: relative; cursor: pointer;
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 7px;
+    font-size: 11px; color: #555; font-weight: 600; transition: background 0.1s;
+  }
+  .wkey:hover { background: linear-gradient(#f3e8ff, #e9d5ff); }
+  .wkey.chord-note { background: linear-gradient(#c4b5fd, #a78bfa) !important; color: #3b0764; border-color: #7c3aed; }
+  .wkey.chord-root { background: linear-gradient(#7e22ce, #6b21a8) !important; color: #fff; border-color: #5b21b6; }
+  .bkey {
+    position: absolute; top: 0; width: 7.5%; height: 62%;
+    background: linear-gradient(#333, #111); border-radius: 0 0 5px 5px;
+    z-index: 2; cursor: pointer; color: #ddd; font-size: 8.5px;
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px;
+    transition: background 0.1s;
+  }
+  .bkey:hover { background: linear-gradient(#555, #333); }
+  .bkey.chord-note { background: linear-gradient(#7c3aed, #5b21b6) !important; color: #e9d5ff; }
+  .bkey.chord-root { background: linear-gradient(#4c1d95, #3b0764) !important; color: #f3e8ff; }
+
+  /* ---- Chord type tabs ---- */
+  .type-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  .type-tab {
+    padding: 8px 18px; border-radius: 20px; border: 2px solid #e9d5ff;
+    font-weight: 700; font-size: 14px; cursor: pointer; background: #f3e8ff; color: #6b21a8;
+    transition: all 0.15s;
+  }
+  .type-tab:hover { border-color: #a78bfa; }
+  .type-tab.active { background: #7e22ce; color: #fff; border-color: #7e22ce; }
+
+  /* ---- Comparison grid ---- */
+  .cmp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px; }
+  .cmp-card {
+    border-radius: 10px; padding: 14px 16px; cursor: pointer;
+    border: 2px solid transparent; transition: all 0.15s; position: relative;
+  }
+  .cmp-card:hover { border-color: #7e22ce; transform: translateY(-2px); }
+  .cmp-card.major-card { background: #fef9c3; }
+  .cmp-card.minor-card { background: #dbeafe; }
+  .cmp-card.dim-card   { background: #fce7f3; }
+  .cmp-card.aug-card   { background: #d1fae5; }
+  .cmp-card-title { font-weight: 800; font-size: 16px; margin-bottom: 4px; }
+  .cmp-card-notes { font-family: monospace; font-size: 14px; color: #374151; }
+  .cmp-card-desc { font-size: 12px; color: #6b7280; margin-top: 4px; }
+  .cmp-play-btn {
+    position: absolute; top: 10px; right: 12px;
+    background: rgba(126,34,206,0.15); border: none; border-radius: 6px;
+    padding: 4px 10px; font-size: 13px; cursor: pointer; color: #6b21a8; font-weight: 700;
+  }
+  .cmp-play-btn:hover { background: rgba(126,34,206,0.3); }
+
+  /* ---- Quiz ---- */
+  .quiz-panel { text-align: center; }
+  .quiz-answer-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 14px 0; }
+  .quiz-btn {
+    padding: 12px 10px; border-radius: 8px; border: 2px solid #e9d5ff;
+    font-size: 15px; font-weight: 700; cursor: pointer; background: #f3e8ff; color: #3b0764;
+    transition: all 0.15s;
+  }
+  .quiz-btn:hover { border-color: #7e22ce; background: #e9d5ff; }
+  .quiz-btn.correct { background: #bbf7d0; border-color: #22c55e; color: #166534; }
+  .quiz-btn.wrong   { background: #fecaca; border-color: #ef4444; color: #991b1b; }
+  .quiz-status { font-size: 16px; font-weight: 700; min-height: 28px; margin: 10px 0; }
+  .quiz-score { font-family: monospace; font-size: 14px; color: #6b7280; margin-top: 4px; }
+  .quiz-reveal { font-size: 13px; color: #6b21a8; background: #f3e8ff; border-radius: 6px; padding: 8px 12px; margin-top: 8px; }
+
+  /* ---- Interval diagram ---- */
+  .interval-svg-wrap { overflow-x: auto; }
+
+  @media (max-width: 600px) {
+    .cmp-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .cmp-card { padding: 10px 12px; }
+    .cmp-card-title { font-size: 14px; }
+    .quiz-answer-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .piano { height: 140px; }
+    .wkey { font-size: 9px; }
+    .bkey { font-size: 8px; }
+  }
+  @media (max-width: 400px) {
+    .type-tabs { gap: 5px; }
+    .type-tab { padding: 6px 12px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Harmony</a>
+  <span class="sep">·</span>
+  <a href="../../01-Fundamentals/index.html">← Tầng 1: Fundamentals</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Hợp âm ba</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-seventh-chords/visualization.html">L2: Hợp âm bảy →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — Hợp âm ba (Triads)</h1>
+<p>Ba công cụ bên dưới cho bạn <em>nghe</em> và <em>cảm nhận</em> sự khác biệt giữa 4 loại hợp âm ba.
+<strong>🔊 Bật loa để nghe.</strong></p>
+
+<!-- ======================================================
+     MODULE 1: Xưởng hợp âm ba
+     ====================================================== -->
+<h2>1. Xưởng hợp âm ba</h2>
+<div class="card">
+  <p class="hint">Chọn nốt gốc và loại hợp âm. Piano sẽ tô sáng 3 nốt tương ứng. Dùng nút Phát và Rải để nghe.</p>
+
+  <div class="row">
+    <label>Nốt gốc:</label>
+    <select id="rootSel">
+      <option value="0">C</option>
+      <option value="1">C♯ / D♭</option>
+      <option value="2">D</option>
+      <option value="3">D♯ / E♭</option>
+      <option value="4">E</option>
+      <option value="5">F</option>
+      <option value="6">F♯ / G♭</option>
+      <option value="7">G</option>
+      <option value="8">G♯ / A♭</option>
+      <option value="9" selected>A</option>
+      <option value="10">A♯ / B♭</option>
+      <option value="11">B</option>
+    </select>
+  </div>
+
+  <div class="type-tabs" id="typeTabs">
+    <button class="type-tab active" data-type="major">Trưởng (Major)</button>
+    <button class="type-tab" data-type="minor">Thứ (Minor)</button>
+    <button class="type-tab" data-type="dim">Giảm (Dim)</button>
+    <button class="type-tab" data-type="aug">Tăng (Aug)</button>
+  </div>
+
+  <div class="piano-wrap">
+    <div class="piano" id="piano1"></div>
+  </div>
+
+  <div class="result" id="chordInfo">
+    <!-- filled by JS -->
+  </div>
+
+  <div class="row" style="margin-top:14px">
+    <button id="btnPlay">▶ Phát hợp âm</button>
+    <button id="btnArp" class="ghost">♩ Rải (arpeggio)</button>
+  </div>
+  <p class="hint" id="moodHint"></p>
+</div>
+
+<!-- ======================================================
+     MODULE 2: Đối chiếu 4 loại cùng nốt gốc
+     ====================================================== -->
+<h2>2. Đối chiếu 4 loại trên cùng nốt gốc</h2>
+<div class="card">
+  <p class="hint">Click vào từng card để nghe màu sắc cảm xúc của từng loại hợp âm trên cùng nốt gốc. Nghe lần lượt để cảm nhận sự khác biệt.</p>
+
+  <div class="row">
+    <label>Nốt gốc:</label>
+    <select id="cmpRootSel">
+      <option value="0" selected>C</option>
+      <option value="1">C♯ / D♭</option>
+      <option value="2">D</option>
+      <option value="3">D♯ / E♭</option>
+      <option value="4">E</option>
+      <option value="5">F</option>
+      <option value="6">F♯ / G♭</option>
+      <option value="7">G</option>
+      <option value="8">G♯ / A♭</option>
+      <option value="9">A</option>
+      <option value="10">A♯ / B♭</option>
+      <option value="11">B</option>
+    </select>
+  </div>
+
+  <div class="cmp-grid" id="cmpGrid">
+    <!-- filled by JS -->
+  </div>
+  <p class="hint">Lắng nghe: trưởng/thứ dùng quãng 5 đúng (7 nửa cung); giảm dùng quãng 5 giảm (6 nửa cung); tăng dùng quãng 5 tăng (8 nửa cung). Sự khác biệt rõ nhất ở nốt giữa (third).</p>
+</div>
+
+<!-- ======================================================
+     MODULE 3: Quiz nhận diện
+     ====================================================== -->
+<h2>3. Quiz — Nghe và đoán loại hợp âm</h2>
+<div class="card quiz-panel">
+  <p>Nhấn <strong>Phát hợp âm mới</strong>, nghe, rồi đoán xem đó là loại nào.</p>
+
+  <div class="row" style="justify-content:center; gap:12px">
+    <button id="quizNewBtn">▶ Phát hợp âm mới</button>
+    <button id="quizReplayBtn" class="ghost" disabled>↺ Nghe lại</button>
+  </div>
+  <div id="quizRootHint" style="font-size:13px; color:#9ca3af; margin:6px 0; min-height:18px;"></div>
+
+  <div class="quiz-answer-grid">
+    <button class="quiz-btn" data-ans="major">Trưởng (Major)</button>
+    <button class="quiz-btn" data-ans="minor">Thứ (Minor)</button>
+    <button class="quiz-btn" data-ans="dim">Giảm (Dim)</button>
+    <button class="quiz-btn" data-ans="aug">Tăng (Aug)</button>
+  </div>
+
+  <div class="quiz-status" id="quizStatus"></div>
+  <div class="quiz-score" id="quizScore">Đúng: 0 / 0</div>
+  <div class="quiz-reveal" id="quizReveal" style="display:none"></div>
+</div>
+
+<script>
+// ============================================================
+// WEB AUDIO
+// ============================================================
+let ctx = null;
+function audio() {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  return ctx;
+}
+function playTone(freq, dur = 0.9, when = 0) {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g   = ac.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.2, t0 + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+// Note names & frequencies
+const NAMES = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+const FLAT_NAMES = ['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'];
+
+function freqFromN(n) { return 440 * Math.pow(2, n / 12); }
+// n = semitones from A4; A4 is MIDI 69
+function freqFromMidi(midi) { return 440 * Math.pow(2, (midi - 69) / 12); }
+
+// Chord offsets: [third_offset, fifth_offset]
+const CHORD_OFFSETS = {
+  major: [4, 7],
+  minor: [3, 7],
+  dim:   [3, 6],
+  aug:   [4, 8]
+};
+const CHORD_NAMES = { major: 'Trưởng', minor: 'Thứ', dim: 'Giảm', aug: 'Tăng' };
+const CHORD_SYMBOL = { major: '', minor: 'm', dim: '°', aug: '+' };
+const CHORD_MOOD = {
+  major: 'Sáng, vui, mạnh mẽ — nền tảng của nhạc điệu trưởng.',
+  minor: 'Tối, sâu lắng, cảm xúc — nền tảng của nhạc ballad và điệu thứ.',
+  dim:   'Căng thẳng, bất an — thường xuất hiện trước bậc I để tạo kịch tính (bậc VII°).',
+  aug:   'Mơ hồ, lơ lửng, kỳ ảo — hiếm trong nhạc cổ điển, phổ biến trong jazz và nhạc phim.'
+};
+const CHORD_OFFSET_TEXT = {
+  major: 'M3 (4 nc) + m3 (3 nc) = P5 (7 nc)',
+  minor: 'm3 (3 nc) + M3 (4 nc) = P5 (7 nc)',
+  dim:   'm3 (3 nc) + m3 (3 nc) = d5 (6 nc, tritone)',
+  aug:   'M3 (4 nc) + M3 (4 nc) = A5 (8 nc)'
+};
+
+// Get note name for a given chromatic index (0=C) with preferred sharp/flat
+function noteName(semitone) {
+  const idx = ((semitone % 12) + 12) % 12;
+  return NAMES[idx];
+}
+function noteNameFlat(semitone) {
+  const idx = ((semitone % 12) + 12) % 12;
+  return FLAT_NAMES[idx];
+}
+
+// Build chord info: root is chromatic index 0-11 (C=0), octave base for piano display
+function buildChord(rootIdx, type) {
+  const offsets = CHORD_OFFSETS[type];
+  const notes = [rootIdx, (rootIdx + offsets[0]) % 12, (rootIdx + offsets[1]) % 12];
+  return notes;
+}
+
+// MIDI notes for piano: C3 (MIDI 48) to C5 (MIDI 72) = 25 notes
+const PIANO_START_MIDI = 48; // C3
+const PIANO_END_MIDI   = 72; // C5 (inclusive)
+// We display C4 octave for interaction (C4=60 to B4=71) plus C5
+// Actually show 2 octaves: C3-C5 = MIDI 48-72
+// For simplicity, show C4 to C5+a few = MIDI 60-76
+const PIANO_LO = 60; // C4
+const PIANO_HI = 76; // E5 (to show more keys)
+
+// White key MIDI notes in range
+function isWhite(midi) {
+  const pos = midi % 12;
+  return [0,2,4,5,7,9,11].includes(pos);
+}
+
+// ============================================================
+// MODULE 1: PIANO BUILDER
+// ============================================================
+let currentRootIdx = 9; // A
+let currentType = 'major';
+
+const piano1El = document.getElementById('piano1');
+
+// Build white and black key arrays for PIANO_LO..PIANO_HI
+const allMidi = [];
+for (let m = PIANO_LO; m <= PIANO_HI; m++) allMidi.push(m);
+const whiteKeys = allMidi.filter(isWhite);
+const blackKeys = allMidi.filter(m => !isWhite(m));
+
+// Render piano once; highlight changes
+function buildPiano(container) {
+  container.innerHTML = '';
+  const N = whiteKeys.length;
+
+  // create white key elements
+  whiteKeys.forEach((midi, i) => {
+    const k = document.createElement('div');
+    k.className = 'wkey';
+    k.dataset.midi = midi;
+    const pos = midi % 12;
+    const octave = Math.floor(midi / 12) - 1;
+    k.title = NAMES[pos] + octave + ' — ' + freqFromMidi(midi).toFixed(1) + ' Hz';
+    // label only C keys
+    if (pos === 0) k.textContent = 'C' + octave;
+    k.addEventListener('pointerdown', () => {
+      playTone(freqFromMidi(midi), 0.7);
+    });
+    container.appendChild(k);
+  });
+
+  // create black key elements
+  blackKeys.forEach(midi => {
+    const pos = midi % 12;
+    const octave = Math.floor(midi / 12) - 1;
+    // find position between white keys
+    const wIdx = whiteKeys.findIndex(w => w > midi) ; // index of the white key to the right
+    if (wIdx < 0) return;
+    const k = document.createElement('div');
+    k.className = 'bkey';
+    k.dataset.midi = midi;
+    k.title = NAMES[pos] + octave + ' — ' + freqFromMidi(midi).toFixed(1) + ' Hz';
+    k.textContent = NAMES[pos];
+    // position: wIdx white keys visible to the right, each white key is 100/N %
+    // black key sits between wIdx-1 and wIdx, centred slightly to the left of right white key
+    const pct = ((wIdx - 0.35) / N) * 100;
+    k.style.left = pct + '%';
+    k.addEventListener('pointerdown', e => {
+      e.stopPropagation();
+      playTone(freqFromMidi(midi), 0.7);
+    });
+    container.appendChild(k);
+  });
+}
+buildPiano(piano1El);
+
+function highlightPiano(container, chordChromatic, rootChromatic) {
+  // chordChromatic: array of chromatic indices (0-11) that belong to chord
+  container.querySelectorAll('.wkey, .bkey').forEach(k => {
+    const midi = +k.dataset.midi;
+    const chromatic = midi % 12;
+    k.classList.remove('chord-note', 'chord-root');
+    if (chromatic === rootChromatic) {
+      k.classList.add('chord-root');
+    } else if (chordChromatic.includes(chromatic)) {
+      k.classList.add('chord-note');
+    }
+  });
+}
+
+function updateWorkshop() {
+  const chord = buildChord(currentRootIdx, currentType);
+  const rootName = NAMES[currentRootIdx];
+  const [t3, t5] = CHORD_OFFSETS[currentType];
+  const n3 = NAMES[(currentRootIdx + t3) % 12];
+  const n5 = NAMES[(currentRootIdx + t5) % 12];
+  const symbol = rootName + CHORD_SYMBOL[currentType];
+
+  highlightPiano(piano1El, chord, currentRootIdx);
+
+  document.getElementById('chordInfo').innerHTML =
+    `<span class="big">${symbol}</span> &nbsp;
+     <span style="font-size:16px;font-weight:600;color:#374151;">${CHORD_NAMES[currentType]}</span>
+     <br>
+     Nốt: <span class="badge active-note">${rootName}</span>
+           <span class="badge">${n3}</span>
+           <span class="badge">${n5}</span>
+     <br>
+     Offset: <span class="val">{0, ${t3}, ${t5}}</span> &nbsp;·&nbsp;
+     Cấu tạo: <span style="color:#374151">${CHORD_OFFSET_TEXT[currentType]}</span>`;
+
+  document.getElementById('moodHint').textContent = CHORD_MOOD[currentType];
+}
+
+// Root selector
+document.getElementById('rootSel').addEventListener('change', e => {
+  currentRootIdx = +e.target.value;
+  updateWorkshop();
+});
+
+// Type tabs
+document.querySelectorAll('#typeTabs .type-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#typeTabs .type-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentType = btn.dataset.type;
+    updateWorkshop();
+  });
+});
+
+// Play chord (simultaneous)
+document.getElementById('btnPlay').addEventListener('click', () => {
+  const [t3, t5] = CHORD_OFFSETS[currentType];
+  // Find MIDI for root in octave 4 area
+  const rootMidi = findRootMidi(currentRootIdx);
+  playTone(freqFromMidi(rootMidi), 1.2, 0);
+  playTone(freqFromMidi(rootMidi + t3), 1.2, 0);
+  playTone(freqFromMidi(rootMidi + t5), 1.2, 0);
+});
+
+// Arpeggio
+document.getElementById('btnArp').addEventListener('click', () => {
+  const [t3, t5] = CHORD_OFFSETS[currentType];
+  const rootMidi = findRootMidi(currentRootIdx);
+  playTone(freqFromMidi(rootMidi),      0.8, 0.00);
+  playTone(freqFromMidi(rootMidi + t3), 0.8, 0.35);
+  playTone(freqFromMidi(rootMidi + t5), 0.8, 0.70);
+  // resolve back down
+  playTone(freqFromMidi(rootMidi), 0.9, 1.10);
+});
+
+function findRootMidi(chromatic) {
+  // prefer octave 4 (MIDI 60-71), fallback to 72-83
+  const m = 60 + chromatic;
+  return m >= 60 && m <= 71 ? m : m;
+}
+
+// ============================================================
+// MODULE 2: COMPARISON GRID
+// ============================================================
+const CMP_STYLES = {
+  major: { cls: 'major-card', emoji: '☀', label: 'Trưởng', desc: 'Sáng, vui, mạnh mẽ' },
+  minor: { cls: 'minor-card', emoji: '🌙', label: 'Thứ', desc: 'Tối, sâu lắng, buồn' },
+  dim:   { cls: 'dim-card',   emoji: '⚡', label: 'Giảm (°)', desc: 'Căng thẳng, bất an' },
+  aug:   { cls: 'aug-card',   emoji: '🌀', label: 'Tăng (+)', desc: 'Mơ hồ, lơ lửng' }
+};
+
+let cmpRoot = 0; // C
+function updateCmpGrid() {
+  const grid = document.getElementById('cmpGrid');
+  grid.innerHTML = '';
+  const rootMidi = 60 + cmpRoot; // octave 4
+  ['major','minor','dim','aug'].forEach(type => {
+    const [t3, t5] = CHORD_OFFSETS[type];
+    const n0 = NAMES[cmpRoot];
+    const n3 = NAMES[(cmpRoot + t3) % 12];
+    const n5 = NAMES[(cmpRoot + t5) % 12];
+    const st = CMP_STYLES[type];
+    const card = document.createElement('div');
+    card.className = 'cmp-card ' + st.cls;
+    card.innerHTML =
+      `<div class="cmp-card-title">${st.emoji} ${n0}${CHORD_SYMBOL[type]} — ${st.label}</div>
+       <div class="cmp-card-notes">${n0} – ${n3} – ${n5}</div>
+       <div class="cmp-card-desc">${st.desc}</div>
+       <button class="cmp-play-btn" title="Nghe">▶</button>`;
+    card.querySelector('.cmp-play-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      playTone(freqFromMidi(rootMidi),      1.1, 0);
+      playTone(freqFromMidi(rootMidi + t3), 1.1, 0);
+      playTone(freqFromMidi(rootMidi + t5), 1.1, 0);
+    });
+    card.addEventListener('click', () => {
+      playTone(freqFromMidi(rootMidi),      1.1, 0);
+      playTone(freqFromMidi(rootMidi + t3), 1.1, 0);
+      playTone(freqFromMidi(rootMidi + t5), 1.1, 0);
+    });
+    grid.appendChild(card);
+  });
+}
+document.getElementById('cmpRootSel').addEventListener('change', e => {
+  cmpRoot = +e.target.value;
+  updateCmpGrid();
+});
+updateCmpGrid();
+
+// ============================================================
+// MODULE 3: QUIZ
+// ============================================================
+let quizCorrect = 0, quizTotal = 0;
+let quizCurrentType = null;
+let quizCurrentRoot = null;
+let quizAnswered = false;
+
+const quizTypes = ['major','minor','dim','aug'];
+
+function newQuiz() {
+  quizCurrentType = quizTypes[Math.floor(Math.random() * 4)];
+  quizCurrentRoot = Math.floor(Math.random() * 12);
+  quizAnswered = false;
+
+  // reset buttons
+  document.querySelectorAll('.quiz-btn').forEach(b => {
+    b.classList.remove('correct','wrong');
+    b.disabled = false;
+  });
+  document.getElementById('quizStatus').textContent = '';
+  document.getElementById('quizReveal').style.display = 'none';
+  document.getElementById('quizRootHint').textContent = '';
+  document.getElementById('quizReplayBtn').disabled = false;
+
+  playQuizChord();
+}
+
+function playQuizChord() {
+  if (quizCurrentType === null) return;
+  const rootMidi = 60 + quizCurrentRoot;
+  const [t3, t5] = CHORD_OFFSETS[quizCurrentType];
+  playTone(freqFromMidi(rootMidi),      1.2, 0);
+  playTone(freqFromMidi(rootMidi + t3), 1.2, 0);
+  playTone(freqFromMidi(rootMidi + t5), 1.2, 0);
+}
+
+document.getElementById('quizNewBtn').addEventListener('click', newQuiz);
+document.getElementById('quizReplayBtn').addEventListener('click', () => {
+  if (quizCurrentType !== null) playQuizChord();
+});
+
+document.querySelectorAll('.quiz-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (quizAnswered || quizCurrentType === null) return;
+    quizAnswered = true;
+    quizTotal++;
+    const ans = btn.dataset.ans;
+    const isCorrect = ans === quizCurrentType;
+    if (isCorrect) {
+      quizCorrect++;
+      btn.classList.add('correct');
+      document.getElementById('quizStatus').textContent = 'Đúng rồi!';
+      document.getElementById('quizStatus').style.color = '#16a34a';
+    } else {
+      btn.classList.add('wrong');
+      document.getElementById('quizStatus').textContent = 'Chưa đúng.';
+      document.getElementById('quizStatus').style.color = '#dc2626';
+      // highlight correct
+      document.querySelectorAll('.quiz-btn').forEach(b => {
+        if (b.dataset.ans === quizCurrentType) b.classList.add('correct');
+      });
+    }
+    // disable all
+    document.querySelectorAll('.quiz-btn').forEach(b => b.disabled = true);
+    document.getElementById('quizScore').textContent = `Đúng: ${quizCorrect} / ${quizTotal}`;
+
+    // reveal info
+    const rootName = NAMES[quizCurrentRoot];
+    const [t3, t5] = CHORD_OFFSETS[quizCurrentType];
+    const n3 = NAMES[(quizCurrentRoot + t3) % 12];
+    const n5 = NAMES[(quizCurrentRoot + t5) % 12];
+    const sym = rootName + CHORD_SYMBOL[quizCurrentType];
+    document.getElementById('quizReveal').style.display = 'block';
+    document.getElementById('quizReveal').innerHTML =
+      `Hợp âm: <strong>${sym}</strong> (${CHORD_NAMES[quizCurrentType]}) = ${rootName} – ${n3} – ${n5}
+       &nbsp;·&nbsp; Offset {0, ${t3}, ${t5}}`;
+  });
+});
+
+// ============================================================
+// INIT
+// ============================================================
+updateWorkshop();
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Hợp âm theo bậc (Diatonic Chords)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  .card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0 0; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; }
+  select {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 15px; background: #fff; cursor: pointer;
+  }
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: #6b21a8; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  button.sm { padding: 6px 12px; font-size: 13px; }
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  .badge {
+    display: inline-block; background: #e9d5ff; color: #6b21a8;
+    padding: 3px 9px; border-radius: 6px; font-family: monospace; font-weight: 700; margin: 2px;
+    font-size: 13px;
+  }
+  .badge.maj { background: #7e22ce; color: #fff; }
+  .badge.min { background: #e9d5ff; color: #6b21a8; }
+  .badge.dim { background: #3b0764; color: #f3e8ff; }
+  .badge.maj7 { background: #7e22ce; color: #fff; }
+  .badge.min7 { background: #c4b5fd; color: #3b0764; }
+  .badge.dom7 { background: #dc2626; color: #fff; }
+  .badge.hdim7 { background: #1e1b4b; color: #c7d2fe; }
+
+  /* chord grid */
+  .chord-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin: 16px 0;
+  }
+  .chord-cell {
+    background: #f8f5ff; border: 2px solid #e9d5ff; border-radius: 10px;
+    padding: 10px 6px; text-align: center; cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    user-select: none;
+  }
+  .chord-cell:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(126,34,206,0.2); }
+  .chord-cell.playing { border-color: #7e22ce; background: #f3e8ff; transform: scale(1.04); }
+  .chord-cell .numeral { font-size: 13px; color: #9d6ecc; font-weight: 700; margin-bottom: 4px; }
+  .chord-cell .chord-name { font-size: 15px; font-weight: 800; color: #3b0764; }
+  .chord-cell .chord-notes { font-size: 10px; color: #6b7280; margin-top: 4px; font-family: monospace; }
+  .chord-cell .chord-quality { margin-top: 4px; }
+  .chord-cell.deg-1 { border-color: #7e22ce; }
+  .chord-cell.deg-5 { border-color: #dc2626; }
+
+  /* Piano */
+  .piano-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .piano {
+    position: relative; display: flex; height: 160px; min-width: 320px;
+    user-select: none; touch-action: manipulation; margin: 0 auto; max-width: 600px;
+  }
+  .wkey {
+    flex: 1; background: linear-gradient(#fff, #f1f1f1); border: 1px solid #aaa;
+    border-radius: 0 0 6px 6px; position: relative; cursor: pointer;
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px;
+    font-size: 10px; color: #555; font-weight: 600; transition: background 0.1s;
+  }
+  .wkey.highlighted { background: linear-gradient(#e9d5ff, #d8b4fe) !important; color: #6b21a8; }
+  .wkey.root { background: linear-gradient(#7e22ce, #6b21a8) !important; color: #fff; }
+  .bkey {
+    position: absolute; top: 0; width: 8%; height: 60%;
+    background: linear-gradient(#333, #000); border-radius: 0 0 5px 5px;
+    z-index: 2; cursor: pointer; color: #ddd; font-size: 9px;
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px;
+    transition: background 0.1s;
+  }
+  .bkey.highlighted { background: linear-gradient(#7e22ce, #6b21a8) !important; }
+  .bkey.root { background: linear-gradient(#9333ea, #7e22ce) !important; }
+
+  /* Toggle */
+  .toggle-group { display: flex; gap: 0; border-radius: 8px; overflow: hidden; border: 1.5px solid #7e22ce; }
+  .toggle-group button {
+    border-radius: 0; flex: 1; background: #f3e8ff; color: #6b21a8;
+    border: none; padding: 7px 14px; font-size: 13px; cursor: pointer; font-weight: 700;
+  }
+  .toggle-group button.active { background: #7e22ce; color: #fff; }
+  .toggle-group button:hover:not(.active) { background: #e9d5ff; }
+
+  /* Info bar */
+  .info-bar {
+    padding: 12px 16px; background: #f3e8ff; border-radius: 8px; margin-top: 12px;
+    font-size: 14px; line-height: 1.7; min-height: 52px;
+  }
+  .info-bar .big { font-size: 20px; font-weight: 800; color: #6b21a8; }
+
+  /* Quiz */
+  .quiz-options { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  .quiz-option {
+    background: #f3e8ff; color: #6b21a8; border: 2px solid #e9d5ff;
+    border-radius: 8px; padding: 9px 18px; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  .quiz-option:hover { background: #e9d5ff; }
+  .quiz-option.correct { background: #d1fae5; color: #065f46; border-color: #10b981; }
+  .quiz-option.wrong { background: #fee2e2; color: #7f1d1d; border-color: #ef4444; }
+  .quiz-question { font-size: 16px; font-weight: 700; margin: 10px 0; }
+  .quiz-result { font-size: 14px; margin-top: 8px; min-height: 24px; }
+  .score { font-family: monospace; font-weight: 700; color: #7e22ce; }
+
+  @media (max-width: 600px) {
+    .chord-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width: 420px) {
+    .chord-grid { grid-template-columns: repeat(3, 1fr); }
+    .piano { height: 130px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Harmony</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-seventh-chords/visualization.html">← L2: Hợp âm bảy</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Hợp âm theo bậc</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-progressions-cadences/visualization.html">L4: Tiến trình &amp; kết →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Hợp âm theo bậc (Diatonic Chords)</h1>
+<p>Mỗi điệu nhạc có <strong>7 hợp âm "home team"</strong> — dựng trên từng bậc của gam, chỉ dùng nốt trong gam. Click từng hợp âm bên dưới để <strong>nghe</strong> và xem nốt sáng lên trên đàn. <strong>🔊 Bật loa.</strong></p>
+
+<!-- ============================
+     MODULE 1 — Chord Set
+     ============================ -->
+<h2>1. Bộ hợp âm của điệu</h2>
+<div class="card">
+  <div class="row">
+    <label for="rootSel">Nốt chủ:</label>
+    <select id="rootSel">
+      <option value="0">C</option>
+      <option value="2">D</option>
+      <option value="4">E</option>
+      <option value="5">F</option>
+      <option value="7">G</option>
+      <option value="9">A</option>
+      <option value="11">B</option>
+      <option value="1">C♯ / D♭</option>
+      <option value="3">D♯ / E♭</option>
+      <option value="6">F♯ / G♭</option>
+      <option value="8">G♯ / A♭</option>
+      <option value="10">A♯ / B♭</option>
+    </select>
+    <label for="modeSel">Điệu:</label>
+    <select id="modeSel">
+      <option value="major">Trưởng (Major)</option>
+      <option value="minor">Thứ tự nhiên (Natural Minor)</option>
+    </select>
+    <div class="toggle-group" id="chordTypeToggle">
+      <button class="active" data-type="triad">Hợp âm ba</button>
+      <button data-type="seventh">Hợp âm bảy</button>
+    </div>
+  </div>
+
+  <div class="chord-grid" id="chordGrid"></div>
+
+  <div class="info-bar" id="infoBar">Click vào một hợp âm để nghe và xem nốt.</div>
+
+  <div class="piano-wrap" style="margin-top:14px">
+    <div class="piano" id="piano"></div>
+  </div>
+  <p class="hint">Phím tím đậm = nốt gốc; phím tím nhạt = các nốt còn lại của hợp âm. Phạm vi hiển thị: C3–C5.</p>
+</div>
+
+<!-- ============================
+     MODULE 2 — Scale degrees explained
+     ============================ -->
+<h2>2. Vai trò của từng bậc</h2>
+<div class="card">
+  <p>Hover (hoặc nhấn) vào từng hàng để hiểu vai trò của mỗi bậc trong điệu hiện tại:</p>
+  <div id="degreeTable" style="overflow-x:auto"></div>
+</div>
+
+<!-- ============================
+     MODULE 3 — Quiz
+     ============================ -->
+<h2>3. Quiz nhận dạng hợp âm theo bậc</h2>
+<div class="card">
+  <div class="row">
+    <label for="quizModeSel">Điệu quiz:</label>
+    <select id="quizModeSel">
+      <option value="major">Trưởng</option>
+      <option value="minor">Thứ tự nhiên</option>
+      <option value="both">Cả hai</option>
+    </select>
+    <label for="quizTypeSel">Loại câu hỏi:</label>
+    <select id="quizTypeSel">
+      <option value="quality">Điệu + Bậc → Chất hợp âm</option>
+      <option value="numeral">Điệu + Tên hợp âm → Số La Mã</option>
+    </select>
+    <button id="newQuizBtn">Câu mới ▶</button>
+  </div>
+  <div class="quiz-question" id="quizQuestion">Nhấn "Câu mới" để bắt đầu.</div>
+  <div class="quiz-options" id="quizOptions"></div>
+  <div class="quiz-result" id="quizResult"></div>
+  <p class="hint">Điểm: <span class="score" id="scoreDisp">0 / 0</span></p>
+</div>
+
+<script>
+// =============================================
+//  WEB AUDIO
+// =============================================
+let ctx = null;
+function audio() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); return ctx; }
+function playTone(freq, dur = 0.8, when = 0, vol = 0.22) {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol, t0 + 0.025);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+// MIDI note number → frequency (A4 = 69 = 440 Hz)
+function freqMidi(midi) { return 440 * Math.pow(2, (midi - 69) / 12); }
+
+// Chromatic note names (sharps & flats for display)
+const NOTE_SHARP = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+const NOTE_FLAT  = ['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'];
+// Which spelling to prefer per root
+function noteName(pc, rootPc) {
+  // roots that prefer flats: D♭(1),E♭(3),F(5),G♭(6),A♭(8),B♭(10)
+  const flatRoots = [1,3,5,6,8,10];
+  return flatRoots.includes(rootPc) ? NOTE_FLAT[pc] : NOTE_SHARP[pc];
+}
+
+// =============================================
+//  MUSIC THEORY DATA
+// =============================================
+
+// Intervals in semitones for scale degrees above root
+// Major scale: W W H W W W H  = 0,2,4,5,7,9,11
+const MAJOR_SCALE_ST = [0, 2, 4, 5, 7, 9, 11];
+// Natural minor: W H W W H W W = 0,2,3,5,7,8,10
+const MINOR_SCALE_ST = [0, 2, 3, 5, 7, 8, 10];
+
+// Diatonic triad qualities for major/minor
+// [third semitones above root, fifth semitones above root]
+// major: [4,7]=maj, [3,7]=min, [3,6]=dim
+const TRIAD_QUALITY = {
+  major: ['maj','min','min','maj','maj','min','dim'],
+  minor: ['min','dim','maj','min','min','maj','maj']
+};
+
+const SEVENTH_QUALITY = {
+  major: ['maj7','min7','min7','maj7','dom7','min7','hdim7'],
+  minor: ['min7','hdim7','maj7','min7','min7','maj7','dom7']
+};
+
+const NUMERAL = {
+  major: ['I','ii','iii','IV','V','vi','vii°'],
+  minor: ['i','ii°','III','iv','v','VI','VII']
+};
+
+// Intervals for chord types
+function triadIntervals(quality) {
+  if (quality === 'maj') return [0, 4, 7];
+  if (quality === 'min') return [0, 3, 7];
+  if (quality === 'dim') return [0, 3, 6];
+  if (quality === 'aug') return [0, 4, 8];
+  return [0, 4, 7];
+}
+function seventhIntervals(quality) {
+  if (quality === 'maj7')  return [0, 4, 7, 11];
+  if (quality === 'min7')  return [0, 3, 7, 10];
+  if (quality === 'dom7')  return [0, 4, 7, 10];
+  if (quality === 'hdim7') return [0, 3, 6, 10];
+  if (quality === 'dim7')  return [0, 3, 6, 9];
+  return [0, 4, 7, 11];
+}
+
+function qualityLabel(q) {
+  const map = {
+    maj:'Trưởng', min:'Thứ', dim:'Giảm', aug:'Tăng',
+    maj7:'Maj7', min7:'m7', dom7:'Dom7', hdim7:'ø7', dim7:'dim7'
+  };
+  return map[q] || q;
+}
+function qualityClass(q) {
+  if (q === 'maj' || q === 'maj7') return 'maj';
+  if (q === 'min' || q === 'min7') return 'min';
+  if (q === 'dim' || q === 'hdim7' || q === 'dim7') return 'dim';
+  if (q === 'dom7') return 'dom7';
+  return 'min';
+}
+
+// Build chord name string
+function chordNameStr(rootPc, quality) {
+  const root = noteName(rootPc, rootPc);
+  if (quality === 'maj') return root;
+  if (quality === 'min') return root + 'm';
+  if (quality === 'dim') return root + '°';
+  if (quality === 'aug') return root + '+';
+  if (quality === 'maj7') return root + 'maj7';
+  if (quality === 'min7') return root + 'm7';
+  if (quality === 'dom7') return root + '7';
+  if (quality === 'hdim7') return root + 'ø7';
+  if (quality === 'dim7') return root + '°7';
+  return root;
+}
+
+// Get scale PCs
+function getScalePCs(rootPc, mode) {
+  const steps = mode === 'major' ? MAJOR_SCALE_ST : MINOR_SCALE_ST;
+  return steps.map(s => (rootPc + s) % 12);
+}
+
+// Build 7 diatonic chords data
+function buildChords(rootPc, mode, chordType) {
+  const scalePCs = getScalePCs(rootPc, mode);
+  const qualities = chordType === 'seventh'
+    ? SEVENTH_QUALITY[mode]
+    : TRIAD_QUALITY[mode];
+
+  return scalePCs.map((pc, i) => {
+    const q = qualities[i];
+    const intervals = chordType === 'seventh'
+      ? seventhIntervals(q)
+      : triadIntervals(q);
+    // MIDI notes: place chord around octave 4 (C4 = MIDI 60)
+    // C4 MIDI = 60, so root in octave 4 = 60 + offset
+    let baseMidi = 48 + pc; // C3 octave as floor
+    // place root in comfortable range (MIDI 48–71)
+    while (baseMidi < 48) baseMidi += 12;
+    while (baseMidi > 71) baseMidi -= 12;
+    const midiNotes = intervals.map(iv => baseMidi + iv);
+    const noteNames = midiNotes.map(m => noteName(m % 12, rootPc));
+    return {
+      pc, quality: q, numeral: NUMERAL[mode][i],
+      name: chordNameStr(pc, q),
+      midiNotes, noteNames,
+      degree: i
+    };
+  });
+}
+
+// =============================================
+//  PIANO (C3–C5, 2 octaves + 1 key)
+// =============================================
+const PIANO_START = 48; // C3
+const PIANO_END   = 72; // C5
+
+// White keys in range
+const WHITE_PCS = [0,2,4,5,7,9,11]; // relative to octave
+let pianoKeys = []; // {midi, pc, el, type}
+
+function buildPiano() {
+  const piano = document.getElementById('piano');
+  piano.innerHTML = '';
+  pianoKeys = [];
+
+  // Enumerate all keys C3..C5
+  const whites = [];
+  const blacks = [];
+  for (let midi = PIANO_START; midi <= PIANO_END; midi++) {
+    const pc = midi % 12;
+    const isWhite = WHITE_PCS.includes(pc);
+    const entry = { midi, pc, type: isWhite ? 'w' : 'b', el: null };
+    if (isWhite) whites.push(entry);
+    blacks.push(entry);
+    pianoKeys.push(entry);
+  }
+
+  // Create white keys as flex children
+  whites.forEach(k => {
+    const el = document.createElement('div');
+    el.className = 'wkey';
+    const oct = Math.floor(k.midi / 12) - 1;
+    el.textContent = NOTE_SHARP[k.pc] + oct;
+    el.style.fontSize = '9px';
+    k.el = el;
+    piano.appendChild(el);
+  });
+
+  // Create black keys absolutely positioned
+  // For each white key (by index), compute left%
+  // White keys: each takes 1/nWhites of width
+  const nW = whites.length;
+  const blackPCs = [1,3,6,8,10]; // within octave
+  for (let midi = PIANO_START; midi <= PIANO_END; midi++) {
+    const pc = midi % 12;
+    if (!blackPCs.includes(pc)) continue;
+    // find index of preceding white key
+    let prevWhiteIdx = -1;
+    for (let m = midi - 1; m >= PIANO_START; m--) {
+      if (WHITE_PCS.includes(m % 12)) {
+        prevWhiteIdx = whites.findIndex(w => w.midi === m);
+        break;
+      }
+    }
+    if (prevWhiteIdx < 0) continue;
+    const leftPct = ((prevWhiteIdx + 1) / nW * 100);
+    const entry = pianoKeys.find(k => k.midi === midi);
+    if (!entry) continue;
+    const el = document.createElement('div');
+    el.className = 'bkey';
+    el.style.left = `calc(${leftPct}% - 3.5%)`;
+    entry.el = el;
+    piano.appendChild(el);
+  }
+}
+
+function highlightPiano(midiNotes) {
+  // Clear
+  pianoKeys.forEach(k => {
+    k.el.classList.remove('highlighted', 'root');
+  });
+  if (!midiNotes || midiNotes.length === 0) return;
+  const rootMidi = midiNotes[0];
+  midiNotes.forEach((m, i) => {
+    // Find key matching this midi (could be across octaves — find nearest in range)
+    const targetPc = m % 12;
+    // find all keys with this pc
+    const candidates = pianoKeys.filter(k => k.pc === targetPc);
+    if (candidates.length === 0) return;
+    // pick closest midi
+    let best = candidates[0];
+    candidates.forEach(c => {
+      if (Math.abs(c.midi - m) < Math.abs(best.midi - m)) best = c;
+    });
+    if (i === 0) best.el.classList.add('root');
+    else best.el.classList.add('highlighted');
+  });
+}
+
+// =============================================
+//  CHORD GRID
+// =============================================
+let currentChords = [];
+let activeCell = null;
+let chordType = 'triad';
+
+function renderChordGrid() {
+  const rootPc = parseInt(document.getElementById('rootSel').value);
+  const mode   = document.getElementById('modeSel').value;
+  currentChords = buildChords(rootPc, mode, chordType);
+
+  const grid = document.getElementById('chordGrid');
+  grid.innerHTML = '';
+
+  currentChords.forEach((ch, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'chord-cell';
+    if (i === 0) cell.classList.add('deg-1');
+    if (i === 4) cell.classList.add('deg-5');
+
+    const qClass = qualityClass(ch.quality);
+    cell.innerHTML = `
+      <div class="numeral">${ch.numeral}</div>
+      <div class="chord-name">${ch.name}</div>
+      <div class="chord-notes">${ch.noteNames.join('–')}</div>
+      <div class="chord-quality"><span class="badge ${qClass}">${qualityLabel(ch.quality)}</span></div>
+    `;
+
+    cell.addEventListener('click', () => playChord(ch, cell));
+    grid.appendChild(cell);
+  });
+
+  // Update degree table
+  renderDegreeTable(mode);
+}
+
+function playChord(ch, cell) {
+  if (activeCell) activeCell.classList.remove('playing');
+  activeCell = cell;
+  cell.classList.add('playing');
+  setTimeout(() => cell && cell.classList.remove('playing'), 700);
+
+  // Play notes arpeggiated + together
+  ch.midiNotes.forEach((m, i) => playTone(freqMidi(m), 1.2, i * 0.06));
+
+  // Info bar
+  const rootPc = parseInt(document.getElementById('rootSel').value);
+  const rootName = noteName(rootPc, rootPc);
+  const modeName = document.getElementById('modeSel').value === 'major' ? 'trưởng' : 'thứ';
+  document.getElementById('infoBar').innerHTML =
+    `<span class="big">${ch.name}</span> &nbsp; = bậc <span class="val">${ch.numeral}</span> trong ${rootName} ${modeName}<br>
+    Nốt: <b>${ch.noteNames.join(' – ')}</b> &nbsp;|&nbsp; Chất: <span class="badge ${qualityClass(ch.quality)}">${qualityLabel(ch.quality)}</span>`;
+
+  highlightPiano(ch.midiNotes);
+}
+
+// =============================================
+//  DEGREE TABLE
+// =============================================
+function renderDegreeTable(mode) {
+  const roles = {
+    major: [
+      { deg: 'I', role: 'Chủ âm (Tonic)', color: '#7e22ce', desc: 'Điểm xuất phát và đích đến. Cảm giác nghỉ ngơi, "ở nhà".' },
+      { deg: 'ii', role: 'Supertonic', color: '#6b7280', desc: 'Hợp âm chuẩn bị, thường đứng trước V. Chuỗi ii–V–I là chuỗi phổ biến nhất trong nhạc jazz & cổ điển.' },
+      { deg: 'iii', role: 'Mediant', color: '#6b7280', desc: 'Dùng thay I hoặc iii→IV trong giai điệu trữ tình. Ít gặp ở vị trí độc lập.' },
+      { deg: 'IV', role: 'Hạ át âm (Subdominant)', color: '#0369a1', desc: 'Cảm giác "mở ra", rời khỏi trung tâm nhẹ nhàng. I–IV–V–I là khung xương của nhạc pop/rock.' },
+      { deg: 'V', role: 'Át âm (Dominant)', color: '#dc2626', desc: 'Tạo căng thẳng mạnh nhất muốn giải quyết về I. Tritone trong V7 (bậc 3 và bậc 7) "kéo" về I.' },
+      { deg: 'vi', role: 'Hạ trung âm (Submediant)', color: '#0369a1', desc: 'Gam song sinh của I (relative minor). Cảm giác tương tự I nhưng u hơn, hay thay I trong "deceptive cadence" (V→vi).' },
+      { deg: 'vii°', role: 'Cảm âm (Leading-tone chord)', color: '#dc2626', desc: 'Có thể thay V — chứa 3 nốt trên của V7. Leading tone (bậc 7) kéo mạnh lên I. Thường dùng dưới dạng đảo hợp âm.' }
+    ],
+    minor: [
+      { deg: 'i', role: 'Chủ âm (Tonic)', color: '#7e22ce', desc: 'Điểm xuất phát và đích đến của điệu thứ. Chất thứ tạo màu u, trầm.' },
+      { deg: 'ii°', role: 'Supertonic giảm', color: '#6b7280', desc: 'Không ổn định vì dim5. Thường dùng đảo (♮II6 hay iiø7) trước V để chuẩn bị kết.' },
+      { deg: 'III', role: 'Trung âm (Mediant)', color: '#0369a1', desc: 'Gam song sinh trưởng (relative major). Tạo chuyển điệu tạm thời sang màu trưởng.' },
+      { deg: 'iv', role: 'Hạ át âm (Subdominant)', color: '#0369a1', desc: 'Chất thứ giữ màu âm u của điệu. iv→V hay iv→i phổ biến trong nhạc flamenco, rock.' },
+      { deg: 'v', role: 'Át âm thứ (Minor dominant)', color: '#9d6ecc', desc: 'KHÔNG có leading tone → lực kéo yếu. Nhạc cổ điển thường thay bằng V trưởng (từ gam thứ harmonic) để tạo kết mạnh.' },
+      { deg: 'VI', role: 'Hạ trung âm trưởng', color: '#0369a1', desc: 'Hợp âm trưởng trong bối cảnh thứ tạo hiệu ứng "sáng lên đột ngột". Phổ biến trong nhạc rock/metal (i–VII–VI–VII).' },
+      { deg: 'VII', role: 'Bậc 7 trưởng (Subtonic)', color: '#6b7280', desc: 'Khác vii° (leading-tone): VII trong gam thứ tự nhiên là trưởng, thiếu leading tone. Phổ biến trong nhạc modal, rock, folk.' }
+    ]
+  };
+
+  const data = roles[mode];
+  let html = '<table style="width:100%;border-collapse:collapse;font-size:13px">';
+  html += '<thead><tr style="background:#f3e8ff"><th style="padding:8px 10px;text-align:left">Bậc</th><th style="padding:8px 10px;text-align:left">Tên gọi</th><th style="padding:8px 10px;text-align:left">Vai trò trong điệu</th></tr></thead><tbody>';
+  data.forEach((row, i) => {
+    const bg = i % 2 === 0 ? '#fff' : '#faf5ff';
+    html += `<tr style="background:${bg}">
+      <td style="padding:7px 10px;font-weight:800;color:${row.color};font-size:15px">${row.deg}</td>
+      <td style="padding:7px 10px;font-weight:700;color:#374151;white-space:nowrap">${row.role}</td>
+      <td style="padding:7px 10px;color:#4b5563;line-height:1.5">${row.desc}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('degreeTable').innerHTML = html;
+}
+
+// =============================================
+//  QUIZ
+// =============================================
+let quizScore = { correct: 0, total: 0 };
+let quizAnswered = false;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function generateQuiz() {
+  quizAnswered = false;
+  const quizMode = document.getElementById('quizModeSel').value;
+  const quizType = document.getElementById('quizTypeSel').value;
+
+  let mode;
+  if (quizMode === 'major') mode = 'major';
+  else if (quizMode === 'minor') mode = 'minor';
+  else mode = Math.random() < 0.5 ? 'major' : 'minor';
+
+  // Pick random root
+  const rootPc = Math.floor(Math.random() * 12);
+  const rootName = noteName(rootPc, rootPc);
+  const modeName = mode === 'major' ? 'trưởng' : 'thứ';
+  const scalePCs = getScalePCs(rootPc, mode);
+  const degIdx = Math.floor(Math.random() * 7);
+  const qualities = TRIAD_QUALITY[mode];
+  const numerals = NUMERAL[mode];
+  const correctQuality = qualities[degIdx];
+  const correctNumeral = numerals[degIdx];
+  const chordPc = scalePCs[degIdx];
+  const chordName = chordNameStr(chordPc, correctQuality);
+
+  let questionText, correctAnswer, allOptions;
+
+  if (quizType === 'quality') {
+    questionText = `Trong ${rootName} ${modeName}, hợp âm tại bậc <b>${correctNumeral}</b> có chất gì?`;
+    correctAnswer = qualityLabel(correctQuality);
+    // Distractors: pick from other qualities
+    const allQ = ['Trưởng','Thứ','Giảm','Maj7','m7','Dom7','ø7'];
+    const wrong = shuffle(allQ.filter(q => q !== correctAnswer)).slice(0, 3);
+    allOptions = shuffle([correctAnswer, ...wrong]);
+  } else {
+    // numeral
+    questionText = `Trong ${rootName} ${modeName}, hợp âm <b>${chordName}</b> ứng với bậc La Mã nào?`;
+    correctAnswer = correctNumeral;
+    const wrong = shuffle(numerals.filter((_, j) => j !== degIdx)).slice(0, 3);
+    allOptions = shuffle([correctAnswer, ...wrong]);
+  }
+
+  document.getElementById('quizQuestion').innerHTML = questionText;
+
+  const optDiv = document.getElementById('quizOptions');
+  optDiv.innerHTML = '';
+  allOptions.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => {
+      if (quizAnswered) return;
+      quizAnswered = true;
+      quizScore.total++;
+      if (opt === correctAnswer) {
+        btn.classList.add('correct');
+        quizScore.correct++;
+        document.getElementById('quizResult').innerHTML = '✅ Đúng!';
+      } else {
+        btn.classList.add('wrong');
+        // Highlight correct
+        optDiv.querySelectorAll('.quiz-option').forEach(b => {
+          if (b.textContent === correctAnswer) b.classList.add('correct');
+        });
+        document.getElementById('quizResult').innerHTML = `❌ Sai. Đáp án đúng: <b>${correctAnswer}</b>`;
+      }
+      document.getElementById('scoreDisp').textContent = `${quizScore.correct} / ${quizScore.total}`;
+    });
+    optDiv.appendChild(btn);
+  });
+  document.getElementById('quizResult').textContent = '';
+}
+
+// =============================================
+//  INIT
+// =============================================
+buildPiano();
+renderChordGrid();
+
+document.getElementById('rootSel').addEventListener('change', renderChordGrid);
+document.getElementById('modeSel').addEventListener('change', renderChordGrid);
+
+document.querySelectorAll('#chordTypeToggle button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#chordTypeToggle button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    chordType = btn.dataset.type;
+    renderChordGrid();
+  });
+});
+
+document.getElementById('newQuizBtn').addEventListener('click', generateQuiz);
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

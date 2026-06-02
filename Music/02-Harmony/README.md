@@ -17,14 +17,14 @@ Chồng các nốt của gam lên nhau để tạo hợp âm, rồi nối các h
 
 | Bài | Chủ đề | Khái niệm chính |
 |-----|--------|-----------------|
-| Lesson 01 | Hợp âm ba (triads) | Cấu tạo bậc 1–3–5; trưởng / thứ / giảm / tăng |
-| Lesson 02 | Hợp âm bảy (seventh) | maj7, m7, dom7 (7), m7♭5, dim7 |
-| Lesson 03 | Hợp âm theo bậc | Diatonic chords, số La Mã I–ii–iii–IV–V–vi–vii° |
-| Lesson 04 | Tiến trình & kết | I–IV–V–I, ii–V–I; authentic / plagal / deceptive cadence |
-| Lesson 05 | Đảo hợp âm & dẫn giọng | Inversion (gốc/1/2), voice leading mượt, figured bass cơ bản |
-| Lesson 06 | Chuyển điệu | Pivot chord, secondary dominant (V/V), điệu gần |
-| Lesson 07 | Hòa âm mở rộng | 9th / 11th / 13th, sus2/sus4, add9, altered |
-| Lesson 08 | Phân tích chức năng | Tonic / subdominant / dominant; phân tích một đoạn pop/folk |
+| [Lesson 01](./lesson-01-triads/) | Hợp âm ba (triads) | Cấu tạo bậc 1–3–5; trưởng / thứ / giảm / tăng |
+| [Lesson 02](./lesson-02-seventh-chords/) | Hợp âm bảy (seventh) | maj7, m7, dom7 (7), m7♭5, dim7 |
+| [Lesson 03](./lesson-03-diatonic-chords/) | Hợp âm theo bậc | Diatonic chords, số La Mã I–ii–iii–IV–V–vi–vii° |
+| [Lesson 04](./lesson-04-progressions-cadences/) | Tiến trình & kết | I–IV–V–I, ii–V–I; authentic / plagal / deceptive cadence |
+| [Lesson 05](./lesson-05-inversions-voice-leading/) | Đảo hợp âm & dẫn giọng | Inversion (gốc/1/2), voice leading mượt, figured bass cơ bản |
+| [Lesson 06](./lesson-06-modulation/) | Chuyển điệu | Pivot chord, secondary dominant (V/V), điệu gần |
+| [Lesson 07](./lesson-07-extended-chords/) | Hòa âm mở rộng | 9th / 11th / 13th, sus2/sus4, add9, altered |
+| [Lesson 08](./lesson-08-functional-analysis/) | Phân tích chức năng | Tonic / subdominant / dominant; phân tích một đoạn pop/folk |
 
 ## Trước & sau tầng này
 

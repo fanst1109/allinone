@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Phân tích hòa âm chức năng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+
+  /* ---- Chung ---- */
+  .card {
+    background: #fff; border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 16px 0;
+  }
+  .hint { font-size: 13px; color: #666; margin: 6px 0 0; line-height: 1.5; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 8px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s;
+  }
+  button:hover { background: #6b21a8; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  select {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 14px; background: #fff; cursor: pointer;
+  }
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  .badge {
+    display: inline-block; padding: 3px 9px; border-radius: 6px;
+    font-family: monospace; font-weight: 700; font-size: 13px; margin: 2px;
+  }
+
+  /* ---- Màu chức năng ---- */
+  .fn-T  { background: #bbf7d0; color: #14532d; border: 1px solid #86efac; }
+  .fn-S  { background: #fef08a; color: #713f12; border: 1px solid #fde047; }
+  .fn-D  { background: #fecaca; color: #7f1d1d; border: 1px solid #fca5a5; }
+  .fn-T2 { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; } /* T thay thế */
+
+  /* ---- Chord strip ---- */
+  .chord-strip {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; align-items: flex-start;
+  }
+  .chord-box {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    min-width: 60px; padding: 8px 10px; border-radius: 8px;
+    border: 2px solid transparent; cursor: pointer; transition: transform .1s, box-shadow .1s;
+  }
+  .chord-box:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(126,34,206,.2); }
+  .chord-box.playing { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(126,34,206,.35); }
+  .chord-box .roman { font-size: 17px; font-weight: 800; }
+  .chord-box .name  { font-size: 12px; font-weight: 600; }
+  .chord-box .fn    { font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-top: 2px; }
+  .chord-box.fn-T-bg  { background: #f0fdf4; border-color: #86efac; }
+  .chord-box.fn-S-bg  { background: #fefce8; border-color: #fde047; }
+  .chord-box.fn-D-bg  { background: #fff1f2; border-color: #fca5a5; }
+  .chord-box.fn-T2-bg { background: #ecfdf5; border-color: #6ee7b7; }
+
+  /* ---- Arrow flow ---- */
+  .flow-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .flow {
+    display: flex; align-items: center; gap: 4px; padding: 10px 0;
+    min-width: max-content; flex-wrap: nowrap;
+  }
+  .flow-item {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 14px;
+  }
+  .flow-arrow { color: #9ca3af; font-size: 18px; }
+  .flow-tension { font-size: 11px; color: #6b7280; margin-top: 3px; font-weight: 400; }
+
+  /* ---- Preset songs ---- */
+  .song-card {
+    border: 2px solid #e9d5ff; border-radius: 10px; padding: 14px 16px; margin: 10px 0;
+    cursor: pointer; transition: border-color .15s, background .15s;
+  }
+  .song-card:hover { border-color: #7e22ce; background: #faf5ff; }
+  .song-card.active { border-color: #7e22ce; background: #f3e8ff; }
+  .song-name { font-weight: 700; color: #4c1d95; font-size: 15px; margin-bottom: 4px; }
+  .song-meta { font-size: 12px; color: #6b7280; }
+
+  /* ---- Quiz ---- */
+  .quiz-question {
+    font-size: 16px; font-weight: 600; margin-bottom: 12px;
+  }
+  .quiz-opts { display: flex; gap: 10px; flex-wrap: wrap; }
+  .quiz-opts button {
+    font-size: 15px; padding: 10px 20px; border-radius: 8px; min-width: 80px;
+  }
+  .quiz-opts button.correct { background: #16a34a; }
+  .quiz-opts button.wrong   { background: #dc2626; }
+  .quiz-result { margin-top: 12px; font-size: 15px; font-weight: 600; min-height: 24px; }
+  .quiz-score { font-size: 13px; color: #6b7280; margin-top: 6px; }
+
+  /* ---- Legend ---- */
+  .legend { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+  .leg-item {
+    display: flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600;
+  }
+  .leg-dot { width: 14px; height: 14px; border-radius: 3px; }
+
+  /* ---- Custom input ---- */
+  .chord-btn-grid {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0;
+  }
+  .chord-btn-grid button {
+    padding: 7px 12px; font-size: 13px; border-radius: 7px; min-width: 52px;
+  }
+  .seq-display {
+    display: flex; flex-wrap: wrap; gap: 6px; min-height: 44px;
+    padding: 8px; border: 2px dashed #e9d5ff; border-radius: 8px; align-items: center;
+    margin: 8px 0;
+  }
+  .seq-chip {
+    padding: 5px 10px; border-radius: 6px; font-size: 13px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; gap: 4px;
+  }
+  .seq-chip .del { font-size: 12px; color: inherit; opacity: .6; }
+  .seq-empty { color: #9ca3af; font-size: 13px; font-style: italic; }
+
+  @media (max-width: 480px) {
+    .chord-box { min-width: 50px; padding: 6px 7px; }
+    .chord-box .roman { font-size: 15px; }
+    .chord-box .name  { font-size: 11px; }
+    .flow-item { padding: 5px 8px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Harmony</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-extended-chords/visualization.html">← L7: Hòa âm mở rộng</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Phân tích chức năng</span>
+  <span class="sep">·</span>
+  <a href="../../03-Applied-Composition/index.html">Tầng 3: Applied →</a>
+</nav>
+
+<main>
+<h1>Lesson 08 — Phân tích hòa âm chức năng</h1>
+<p>Mỗi hợp âm mang một <strong>vai trò chức năng</strong> (T / S / D) trong điệu. Ba công cụ dưới đây giúp bạn <em>nghe</em> và <em>nhìn</em> sự căng–giải đó. <strong>🔊 Bật loa.</strong></p>
+
+<!-- ======== LEGEND ======== -->
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:#86efac"></div> T — Tonic (ổn định)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#6ee7b7"></div> T* — Tonic thay thế (vi/iii)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#fde047"></div> S — Subdominant (rời nhà)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#fca5a5"></div> D — Dominant (căng, đòi về)</div>
+</div>
+
+<!-- ======== SECTION 1: Analyzer ======== -->
+<h2>1. Máy phân tích tiến trình hợp âm</h2>
+<div class="card">
+  <div class="row">
+    <label><strong>Giọng điệu:</strong></label>
+    <select id="keySelect">
+      <option value="C">C trưởng</option>
+      <option value="G">G trưởng</option>
+      <option value="D">D trưởng</option>
+      <option value="A">A trưởng</option>
+      <option value="E">E trưởng</option>
+      <option value="F">F trưởng</option>
+      <option value="Bb">B♭ trưởng</option>
+      <option value="Eb">E♭ trưởng</option>
+    </select>
+  </div>
+
+  <p style="font-weight:600;margin:12px 0 6px">Chọn hợp âm để thêm vào tiến trình:</p>
+  <div class="chord-btn-grid" id="chordBtnGrid"></div>
+
+  <p style="font-weight:600;margin:12px 0 4px">Tiến trình đang soạn <span class="hint">(click hợp âm để xóa)</span>:</p>
+  <div class="seq-display" id="seqDisplay"><span class="seq-empty">Chưa có hợp âm — bấm vào lưới trên để thêm</span></div>
+
+  <div class="row" style="margin-top:10px">
+    <button id="analyzeBtn">Phân tích</button>
+    <button class="ghost" id="playSeqBtn" disabled>▶ Phát tiến trình</button>
+    <button class="ghost" id="clearSeqBtn">Xóa hết</button>
+  </div>
+
+  <div id="analysisResult" style="margin-top:14px"></div>
+</div>
+
+<!-- ======== SECTION 2: Preset songs ======== -->
+<h2>2. Tiến trình từ bài hát nổi tiếng</h2>
+<div class="card">
+  <p class="hint">Chọn một bài để xem phân tích chức năng và nghe tiến trình.</p>
+
+  <div id="songList"></div>
+
+  <div id="songAnalysis" style="margin-top:14px;display:none">
+    <div id="songChordStrip" class="chord-strip"></div>
+    <div class="flow-wrap"><div id="songFlow" class="flow"></div></div>
+    <div id="songStory" style="margin-top:10px;padding:10px 14px;background:#f3e8ff;border-radius:8px;font-size:14px;line-height:1.7"></div>
+    <div class="row" style="margin-top:10px">
+      <button id="playSongBtn">▶ Phát</button>
+      <button class="ghost" id="stopSongBtn">■ Dừng</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======== SECTION 3: Quiz ======== -->
+<h2>3. Quiz — Đoán chức năng hợp âm</h2>
+<div class="card">
+  <p class="hint">Trong giọng điệu cho sẵn, hợp âm này có chức năng gì?</p>
+  <div id="quizBox">
+    <div class="quiz-question" id="quizQ">Đang tải...</div>
+    <div class="quiz-opts" id="quizOpts"></div>
+    <div class="quiz-result" id="quizResult"></div>
+    <div class="quiz-score" id="quizScore"></div>
+  </div>
+  <div class="row" style="margin-top:12px">
+    <button id="nextQuizBtn" class="ghost">Câu tiếp →</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// Web Audio
+// ============================================================
+let actx = null;
+function audio() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  return actx;
+}
+function playTone(freq, dur = 0.8, when = 0) {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.22, t0 + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+const NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function freqFromN(n) { return 440 * Math.pow(2, n / 12); }
+function noteFreq(noteName, octave) {
+  const idx = NAMES.indexOf(noteName.replace('b','').replace('♭',''));
+  // handle flats
+  const flatMap = {'Bb':10,'Eb':3,'Ab':8,'Db':1,'Gb':6};
+  const i = (flatMap[noteName] !== undefined) ? flatMap[noteName] : NAMES.indexOf(noteName);
+  const n = (octave * 12 + i) - (4 * 12 + 9); // relative to A4
+  return freqFromN(n);
+}
+
+// Play a chord: array of note names (like ['C','E','G']), octave base
+function playChord(notes, oct, dur = 1.0, when = 0) {
+  notes.forEach((n, i) => {
+    // spread voicing slightly
+    const o = (i === notes.length - 1 && notes.length === 3) ? oct + 1 : oct;
+    const actualOct = (i === 2) ? oct + 1 : oct;
+    playTone(noteFreq(n, actualOct), dur, when);
+  });
+}
+
+// ============================================================
+// Music theory data
+// ============================================================
+
+// Major key definitions: root index in NAMES, diatonic scale degrees
+const KEYS = {
+  'C':  { root: 0,  name: 'C trưởng',   sig: 0 },
+  'G':  { root: 7,  name: 'G trưởng',   sig: 1 },
+  'D':  { root: 2,  name: 'D trưởng',   sig: 2 },
+  'A':  { root: 9,  name: 'A trưởng',   sig: 3 },
+  'E':  { root: 4,  name: 'E trưởng',   sig: 4 },
+  'F':  { root: 5,  name: 'F trưởng',   sig: -1 },
+  'Bb': { root: 10, name: 'B♭ trưởng',  sig: -2 },
+  'Eb': { root: 3,  name: 'E♭ trưởng',  sig: -3 },
+};
+
+// Major scale intervals: W W H W W W H (semitones from root)
+const MAJOR_STEPS = [0, 2, 4, 5, 7, 9, 11];
+// Chord qualities on each degree: M m m M M m dim
+const CHORD_QUALITY = ['M','m','m','M','M','m','dim'];
+// Roman numerals (upper/lower)
+const ROMAN = ['I','ii','iii','IV','V','vi','vii°'];
+// Functional roles
+// 0=I=T, 1=ii=S, 2=iii=T*, 3=IV=S, 4=V=D, 5=vi=T*, 6=vii°=D
+const FUNC = ['T','S','T*','S','D','T*','D'];
+const FUNC_LABEL = { 'T': 'Tonic', 'S': 'Subdominant', 'D': 'Dominant', 'T*': 'Tonic thay thế' };
+const FUNC_SHORT = { 'T': 'T', 'S': 'S', 'D': 'D', 'T*': 'T*' };
+const FN_CLASS = { 'T': 'fn-T', 'S': 'fn-S', 'D': 'fn-D', 'T*': 'fn-T2' };
+const FN_BG   = { 'T': 'fn-T-bg', 'S': 'fn-S-bg', 'D': 'fn-D-bg', 'T*': 'fn-T2-bg' };
+
+// Triad intervals: M=[0,4,7], m=[0,3,7], dim=[0,3,6]
+const TRIAD = { 'M': [0,4,7], 'm': [0,3,7], 'dim': [0,3,6] };
+
+function getDiatonic(key) {
+  const root = KEYS[key].root;
+  return MAJOR_STEPS.map((step, deg) => {
+    const noteIdx = (root + step) % 12;
+    const noteName = NAMES[noteIdx];
+    const quality = CHORD_QUALITY[deg];
+    const notes = TRIAD[quality].map(s => NAMES[(noteIdx + s) % 12]);
+    return {
+      degree: deg,
+      roman: ROMAN[deg],
+      noteName,
+      quality,
+      notes,
+      func: FUNC[deg],
+      label: FUNC_LABEL[FUNC[deg]],
+    };
+  });
+}
+
+// ============================================================
+// Section 1: Analyzer
+// ============================================================
+let currentKey = 'C';
+let sequence = []; // array of degree indices (0-6)
+
+function renderChordBtnGrid() {
+  const diatonic = getDiatonic(currentKey);
+  const grid = document.getElementById('chordBtnGrid');
+  grid.innerHTML = '';
+  diatonic.forEach((ch, deg) => {
+    const btn = document.createElement('button');
+    btn.className = 'ghost';
+    btn.innerHTML = `<strong>${ch.roman}</strong><br><span style="font-size:11px;font-weight:400">${ch.noteName}${ch.quality === 'm' ? 'm' : ch.quality === 'dim' ? '°' : ''}</span>`;
+    btn.style.minWidth = '58px';
+    btn.addEventListener('click', () => {
+      sequence.push(deg);
+      renderSeqDisplay();
+    });
+    grid.appendChild(btn);
+  });
+}
+
+function renderSeqDisplay() {
+  const diatonic = getDiatonic(currentKey);
+  const disp = document.getElementById('seqDisplay');
+  disp.innerHTML = '';
+  if (sequence.length === 0) {
+    disp.innerHTML = '<span class="seq-empty">Chưa có hợp âm — bấm vào lưới trên để thêm</span>';
+    document.getElementById('playSeqBtn').disabled = true;
+    document.getElementById('analyzeBtn').disabled = true;
+    return;
+  }
+  document.getElementById('playSeqBtn').disabled = false;
+  document.getElementById('analyzeBtn').disabled = false;
+  sequence.forEach((deg, i) => {
+    const ch = diatonic[deg];
+    const fn = ch.func;
+    const chip = document.createElement('div');
+    chip.className = `seq-chip ${FN_BG[fn]}`;
+    chip.style.border = `1.5px solid ${fn==='T'?'#86efac':fn==='T*'?'#6ee7b7':fn==='S'?'#fde047':'#fca5a5'}`;
+    chip.innerHTML = `<span>${ch.roman}</span><span class="del" title="Xóa">✕</span>`;
+    chip.addEventListener('click', () => {
+      sequence.splice(i, 1);
+      renderSeqDisplay();
+      document.getElementById('analysisResult').innerHTML = '';
+    });
+    disp.appendChild(chip);
+  });
+}
+
+function renderAnalysis(diatonic, seq) {
+  const res = document.getElementById('analysisResult');
+  if (!seq || seq.length === 0) { res.innerHTML = ''; return; }
+
+  // Chord strip
+  let stripHtml = '<div class="chord-strip">';
+  seq.forEach((deg, i) => {
+    const ch = diatonic[deg];
+    const fn = ch.func;
+    stripHtml += `<div class="chord-box ${FN_BG[fn]}">
+      <span class="roman" style="color:${fn==='D'?'#991b1b':fn==='S'?'#92400e':fn.startsWith('T')?'#14532d':'#14532d'}">${ch.roman}</span>
+      <span class="name">${ch.noteName}${ch.quality==='m'?'m':ch.quality==='dim'?'°':''}</span>
+      <span class="fn badge ${FN_CLASS[fn]}">${fn}</span>
+    </div>`;
+    if (i < seq.length - 1) stripHtml += `<div style="display:flex;align-items:center;font-size:20px;color:#9ca3af;padding-top:4px">→</div>`;
+  });
+  stripHtml += '</div>';
+
+  // Flow
+  let flowHtml = '<div class="flow-wrap"><div class="flow">';
+  seq.forEach((deg, i) => {
+    const ch = diatonic[deg];
+    const fn = ch.func;
+    const bg = fn==='T'?'#bbf7d0':fn==='T*'?'#d1fae5':fn==='S'?'#fef08a':'#fecaca';
+    const col = fn==='T'?'#14532d':fn==='T*'?'#065f46':fn==='S'?'#713f12':'#7f1d1d';
+    flowHtml += `<div class="flow-item" style="background:${bg};color:${col}">
+      <div>${ch.roman}</div>
+      <div style="font-size:11px;font-weight:400">${fn}</div>
+    </div>`;
+    if (i < seq.length - 1) {
+      const nextFn = diatonic[seq[i+1]].func;
+      const curFn = fn;
+      let tension = '';
+      if ((curFn==='D'||curFn==='T*') && nextFn.startsWith('T')) tension = '✓ giải quyết';
+      else if (curFn==='S' && nextFn==='D') tension = '→ tăng căng';
+      else if (curFn.startsWith('T') && nextFn==='S') tension = '→ rời nhà';
+      else if (curFn.startsWith('T') && nextFn==='D') tension = '→ căng ngay';
+      else if (curFn==='D' && nextFn==='S') tension = '⚠ lùi';
+      flowHtml += `<div style="display:flex;flex-direction:column;align-items:center">
+        <span class="flow-arrow">→</span>
+        <span class="flow-tension">${tension}</span>
+      </div>`;
+    }
+  });
+  flowHtml += '</div></div>';
+
+  // Story
+  const story = buildStory(seq, diatonic);
+  const storyHtml = `<div style="padding:10px 14px;background:#f3e8ff;border-radius:8px;font-size:14px;line-height:1.7;margin-top:10px">${story}</div>`;
+
+  res.innerHTML = stripHtml + flowHtml + storyHtml;
+}
+
+function buildStory(seq, diatonic) {
+  const fns = seq.map(d => diatonic[d].func);
+  const parts = [];
+  // Look for deceptive cadence: D → T*
+  let hasDeceptive = false;
+  for (let i = 0; i < fns.length - 1; i++) {
+    if (fns[i] === 'D' && fns[i+1] === 'T*') hasDeceptive = true;
+  }
+  // Look for authentic cadence: D → T
+  let hasAuthentic = false;
+  for (let i = 0; i < fns.length - 1; i++) {
+    if (fns[i] === 'D' && fns[i+1] === 'T') hasAuthentic = true;
+  }
+  // Look for backward motion: D → S
+  let hasBackward = false;
+  for (let i = 0; i < fns.length - 1; i++) {
+    if (fns[i] === 'D' && fns[i+1] === 'S') hasBackward = true;
+  }
+  // Look for ii–V–I or IV–V–I
+  let hasiiVI = false;
+  for (let i = 0; i < fns.length - 2; i++) {
+    if (fns[i] === 'S' && fns[i+1] === 'D' && fns[i+2] === 'T') hasiiVI = true;
+  }
+
+  if (fns[0] && fns[0].startsWith('T')) parts.push('Bắt đầu ổn định (Tonic).');
+  else if (fns[0] === 'S') parts.push('Bắt đầu ngay từ Subdominant — tạo cảm giác "đang giữa chừng".');
+  else if (fns[0] === 'D') parts.push('Mở đầu bằng Dominant — căng thẳng ngay từ đầu.');
+
+  if (hasiiVI) parts.push('Có chuỗi S→D→T — cadence hoàn chỉnh và mạnh mẽ.');
+  if (hasDeceptive) parts.push('Có kết lừa (Deceptive Cadence): D dẫn về T* thay vì T — tai bị bất ngờ!');
+  if (hasAuthentic) parts.push('Có kết xác thực (Authentic Cadence): D→T — "về nhà" rõ ràng và thỏa mãn.');
+  if (hasBackward) parts.push('Lưu ý: có D→S — chuyển động "lùi", tạo hiệu ứng bất ngờ hoặc trì hoãn.');
+
+  const lastFn = fns[fns.length - 1];
+  if (lastFn === 'T') parts.push('Kết thúc ở Tonic chính — cảm giác hoàn tất.');
+  else if (lastFn === 'T*') parts.push('Kết ở Tonic thay thế — lơ lửng nhẹ, chưa hoàn toàn kết thúc.');
+  else if (lastFn === 'D') parts.push('Kết ở Dominant — câu hỏi mở, tai đang chờ giải quyết về T.');
+  else if (lastFn === 'S') parts.push('Kết ở Subdominant — hiếm gặp, tạo cảm giác bỏ lửng.');
+
+  return parts.map(p => `• ${p}`).join('<br>');
+}
+
+document.getElementById('keySelect').addEventListener('change', e => {
+  currentKey = e.target.value;
+  sequence = [];
+  renderChordBtnGrid();
+  renderSeqDisplay();
+  document.getElementById('analysisResult').innerHTML = '';
+});
+
+document.getElementById('analyzeBtn').addEventListener('click', () => {
+  const diatonic = getDiatonic(currentKey);
+  renderAnalysis(diatonic, sequence);
+});
+
+document.getElementById('clearSeqBtn').addEventListener('click', () => {
+  sequence = [];
+  renderSeqDisplay();
+  document.getElementById('analysisResult').innerHTML = '';
+});
+
+document.getElementById('playSeqBtn').addEventListener('click', () => {
+  const diatonic = getDiatonic(currentKey);
+  const ac = audio();
+  const chordDur = 1.2;
+  sequence.forEach((deg, i) => {
+    const ch = diatonic[deg];
+    playChord(ch.notes, 4, chordDur * 0.9, i * chordDur);
+  });
+});
+
+// ============================================================
+// Section 2: Preset songs
+// ============================================================
+const SONGS = [
+  {
+    title: 'Vòng pop (I–V–vi–IV)',
+    meta: 'Có trong hàng nghìn bài: Let It Be, Someone Like You, Despacito...',
+    key: 'C',
+    degrees: [0, 4, 5, 3],
+    story: 'T→D→T*→S: Xuất phát ổn định → căng thẳng → kết lừa (vi thay I) → rời nhà. Vòng lặp không bao giờ "kết thúc" — phù hợp để lặp vô tận.'
+  },
+  {
+    title: 'Cadence jazz (ii–V–I)',
+    meta: 'Công thức kết câu trong jazz; phổ biến toàn thể loại.',
+    key: 'C',
+    degrees: [1, 4, 0],
+    story: 'S→D→T: Công thức kết thúc mạnh nhất trong nhạc jazz. S chuẩn bị, D căng tối đa, T giải quyết hoàn toàn.'
+  },
+  {
+    title: 'Vòng 50s (I–vi–IV–V)',
+    meta: 'Doo-wop, ballad 50s-60s: Stand By Me, Blue Moon...',
+    key: 'C',
+    degrees: [0, 5, 3, 4],
+    story: 'T→T*→S→D: Hai Tonic đầu tạo "dạo đầu ổn định" dài; S và D bùng lên mạnh trước khi giải về I. Cảm giác hoài cổ, nhẹ nhàng.'
+  },
+  {
+    title: 'I–IV–V–I (Blues cơ bản)',
+    meta: 'Nền tảng blues, country, folk; rất nhiều bài pop đơn giản.',
+    key: 'C',
+    degrees: [0, 3, 4, 0],
+    story: 'T→S→D→T: Chu trình chức năng hoàn chỉnh nhất. Rõ ràng, mạch lạc, phổ biến nhất lịch sử âm nhạc tông điệu.'
+  },
+  {
+    title: 'I–V–vi–iii–IV–I–IV–V',
+    meta: 'Canon in D (Pachelbel) — biến thể nổi tiếng.',
+    key: 'C',
+    degrees: [0, 4, 5, 2, 3, 0, 3, 4],
+    story: 'T→D→T*→T→S→T→S→D: Bốn Tonic liên tiếp ở đầu (I, V giải về T*, iii) tạo vùng ổn định rộng. S xuất hiện ở giữa và cuối. Kết ở D — câu hỏi mở đang chờ I tiếp theo.'
+  },
+  {
+    title: 'I–IV–ii–V–I (S kép trước D)',
+    meta: 'Tiến trình "dày" với hai Subdominant liên tiếp.',
+    key: 'C',
+    degrees: [0, 3, 1, 4, 0],
+    story: 'T→S→S→D→T: Hai Subdominant (IV rồi ii) "dồn" năng lượng trước khi vào D. ii–V–I ở cuối là authentic cadence mạnh. Tiến trình nghe "chắc chắn", dày dặn.'
+  },
+];
+
+let activeSong = null;
+let songOscTimers = [];
+
+function renderSongList() {
+  const list = document.getElementById('songList');
+  list.innerHTML = '';
+  SONGS.forEach((song, i) => {
+    const card = document.createElement('div');
+    card.className = 'song-card';
+    card.innerHTML = `<div class="song-name">${song.title}</div><div class="song-meta">${song.meta}</div>`;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.song-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      activeSong = song;
+      renderSongAnalysis(song);
+    });
+    list.appendChild(card);
+  });
+}
+
+function renderSongAnalysis(song) {
+  const panel = document.getElementById('songAnalysis');
+  panel.style.display = 'block';
+  const diatonic = getDiatonic(song.key);
+  // chord strip
+  const strip = document.getElementById('songChordStrip');
+  strip.innerHTML = '';
+  song.degrees.forEach((deg, i) => {
+    const ch = diatonic[deg];
+    const fn = ch.func;
+    const box = document.createElement('div');
+    box.className = `chord-box ${FN_BG[fn]}`;
+    box.innerHTML = `<span class="roman">${ch.roman}</span>
+      <span class="name">${ch.noteName}${ch.quality==='m'?'m':ch.quality==='dim'?'°':''}</span>
+      <span class="fn badge ${FN_CLASS[fn]}">${fn}</span>`;
+    box.addEventListener('click', () => {
+      box.classList.add('playing');
+      playChord(ch.notes, 4, 1.0, 0);
+      setTimeout(() => box.classList.remove('playing'), 500);
+    });
+    strip.appendChild(box);
+    if (i < song.degrees.length - 1) {
+      const arr = document.createElement('div');
+      arr.style.cssText = 'display:flex;align-items:center;font-size:18px;color:#9ca3af;padding-top:2px';
+      arr.textContent = '→';
+      strip.appendChild(arr);
+    }
+  });
+  // flow
+  const flow = document.getElementById('songFlow');
+  flow.innerHTML = '';
+  song.degrees.forEach((deg, i) => {
+    const ch = diatonic[deg];
+    const fn = ch.func;
+    const bg = fn==='T'?'#bbf7d0':fn==='T*'?'#d1fae5':fn==='S'?'#fef08a':'#fecaca';
+    const col = fn==='T'?'#14532d':fn==='T*'?'#065f46':fn==='S'?'#713f12':'#7f1d1d';
+    const item = document.createElement('div');
+    item.className = 'flow-item';
+    item.style.cssText = `background:${bg};color:${col}`;
+    item.innerHTML = `<div>${ch.roman}</div><div style="font-size:11px;font-weight:400">${fn}</div>`;
+    flow.appendChild(item);
+    if (i < song.degrees.length - 1) {
+      const arr = document.createElement('span');
+      arr.className = 'flow-arrow';
+      arr.textContent = '→';
+      flow.appendChild(arr);
+    }
+  });
+  // story
+  document.getElementById('songStory').innerHTML = `<strong>Câu chuyện căng–giải:</strong><br>${song.story}`;
+}
+
+document.getElementById('playSongBtn').addEventListener('click', () => {
+  if (!activeSong) return;
+  const diatonic = getDiatonic(activeSong.key);
+  const chordDur = 1.2;
+  activeSong.degrees.forEach((deg, i) => {
+    const ch = diatonic[deg];
+    playChord(ch.notes, 4, chordDur * 0.9, i * chordDur);
+  });
+});
+
+document.getElementById('stopSongBtn').addEventListener('click', () => {
+  // Web Audio doesn't have a global stop, but we can create a new context or just let oscillators fade
+  // The envelope already handles fade-out; this is a no-op for now but gives UX feedback
+});
+
+// ============================================================
+// Section 3: Quiz
+// ============================================================
+let quizScore = { correct: 0, total: 0 };
+let quizLocked = false;
+
+const QUIZ_POOL = [];
+// Generate questions for each key x each degree
+['C','G','D','F','Bb'].forEach(k => {
+  getDiatonic(k).forEach((ch, deg) => {
+    QUIZ_POOL.push({ key: k, deg, ch });
+  });
+});
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+let quizQueue = shuffle([...QUIZ_POOL]);
+let quizIdx = 0;
+
+function nextQuestion() {
+  quizLocked = false;
+  document.getElementById('quizResult').textContent = '';
+  const q = quizQueue[quizIdx % quizQueue.length];
+  quizIdx++;
+  if (quizIdx >= quizQueue.length) { quizQueue = shuffle([...QUIZ_POOL]); quizIdx = 0; }
+
+  const keyName = KEYS[q.key].name;
+  const chName = q.ch.noteName + (q.ch.quality === 'm' ? ' minor' : q.ch.quality === 'dim' ? ' dim' : ' major');
+  document.getElementById('quizQ').innerHTML =
+    `Trong <span class="val">${keyName}</span>, hợp âm <span class="val">${q.ch.roman} (${chName})</span> có chức năng gì?`;
+
+  // Options: 4 options, always include correct one
+  const allFuncs = ['T','T*','S','D'];
+  const wrong = allFuncs.filter(f => f !== q.ch.func);
+  const opts = shuffle([q.ch.func, ...wrong]).slice(0, 4);
+  if (!opts.includes(q.ch.func)) opts[0] = q.ch.func;
+
+  const optsDiv = document.getElementById('quizOpts');
+  optsDiv.innerHTML = '';
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.textContent = `${opt} — ${FUNC_LABEL[opt]}`;
+    btn.className = 'ghost';
+    btn.addEventListener('click', () => {
+      if (quizLocked) return;
+      quizLocked = true;
+      quizScore.total++;
+      // Play the chord
+      playChord(q.ch.notes, 4, 1.0, 0);
+      if (opt === q.ch.func) {
+        btn.classList.add('correct');
+        btn.style.background = '#16a34a';
+        quizScore.correct++;
+        document.getElementById('quizResult').innerHTML =
+          `<span style="color:#16a34a">Đúng!</span> ${q.ch.roman} = ${FUNC_LABEL[q.ch.func]}. ` +
+          `Hợp âm: ${q.ch.notes.join('–')}`;
+      } else {
+        btn.classList.add('wrong');
+        btn.style.background = '#dc2626';
+        // Highlight correct
+        optsDiv.querySelectorAll('button').forEach(b => {
+          if (b.textContent.startsWith(q.ch.func)) {
+            b.style.background = '#16a34a'; b.style.color = '#fff';
+          }
+        });
+        document.getElementById('quizResult').innerHTML =
+          `<span style="color:#dc2626">Sai.</span> Đáp án đúng: <strong>${FUNC_LABEL[q.ch.func]}</strong>. ` +
+          `${q.ch.roman} (${q.ch.notes.join('–')}) là ${q.ch.func}.`;
+      }
+      document.getElementById('quizScore').textContent =
+        `Tổng: ${quizScore.correct}/${quizScore.total} đúng (${Math.round(quizScore.correct/quizScore.total*100)}%)`;
+    });
+    optsDiv.appendChild(btn);
+  });
+}
+
+document.getElementById('nextQuizBtn').addEventListener('click', nextQuestion);
+
+// ============================================================
+// Init
+// ============================================================
+document.getElementById('analyzeBtn').disabled = true;
+renderChordBtnGrid();
+renderSeqDisplay();
+renderSongList();
+nextQuestion();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

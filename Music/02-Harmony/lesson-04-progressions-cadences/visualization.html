@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Tiến trình &amp; kết</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+
+  .card {
+    background: #fff; border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 16px 0;
+  }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+
+  select {
+    padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 7px;
+    font-size: 14px; background: #fff; cursor: pointer; max-width: 100%;
+  }
+  select:focus { outline: 2px solid #7e22ce; }
+
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    white-space: nowrap;
+  }
+  button:hover { background: #6b21a8; }
+  button:disabled { background: #c4b5fd; cursor: default; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  button.stop-btn { background: #dc2626; }
+  button.stop-btn:hover { background: #b91c1c; }
+
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  .badge {
+    display: inline-block; background: #e9d5ff; color: #6b21a8;
+    padding: 4px 10px; border-radius: 6px; font-family: monospace;
+    font-weight: 700; font-size: 14px; margin: 3px;
+  }
+
+  /* ---- Progression Player ---- */
+  .chord-row {
+    display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0; align-items: stretch;
+  }
+  .chord-block {
+    flex: 1; min-width: 70px; max-width: 120px;
+    background: #f8f4ff; border: 2px solid #e9d5ff; border-radius: 10px;
+    padding: 10px 8px; text-align: center; transition: all 0.2s;
+  }
+  .chord-block.playing {
+    background: #7e22ce; border-color: #6b21a8; color: #fff;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(126,34,206,0.35);
+  }
+  .chord-block .numeral {
+    font-size: 22px; font-weight: 800; font-family: serif; line-height: 1.1;
+  }
+  .chord-block .cname {
+    font-size: 12px; font-weight: 600; margin-top: 4px; opacity: 0.8;
+  }
+  .chord-block .notes-txt {
+    font-size: 10px; opacity: 0.65; margin-top: 2px; font-family: monospace;
+  }
+  .chord-block.playing .cname,
+  .chord-block.playing .notes-txt { opacity: 1; }
+
+  /* ---- Cadence Gallery ---- */
+  .cadence-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 14px 0;
+  }
+  .cadence-card {
+    background: #f8f4ff; border: 2px solid #e9d5ff; border-radius: 10px;
+    padding: 14px; cursor: pointer; transition: all 0.15s;
+  }
+  .cadence-card:hover { border-color: #7e22ce; background: #ede9fe; }
+  .cadence-card.active { border-color: #7e22ce; background: #7e22ce; color: #fff; }
+  .cadence-card .cad-formula {
+    font-size: 20px; font-weight: 800; font-family: serif; margin-bottom: 6px;
+  }
+  .cadence-card .cad-type { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .cadence-card .cad-feel { font-size: 12px; opacity: 0.8; }
+  .cadence-card.active .cad-feel { opacity: 0.9; }
+  .cadence-desc {
+    margin-top: 12px; padding: 12px 14px; background: #f3e8ff;
+    border-radius: 8px; font-size: 14px; line-height: 1.65; min-height: 48px;
+  }
+
+  /* ---- Custom Builder ---- */
+  .builder-slots {
+    display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; align-items: flex-start;
+  }
+  .slot {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    min-width: 80px;
+  }
+  .slot label { font-size: 12px; color: #6a6a6a; font-weight: 600; }
+  .slot select { width: 100%; font-size: 13px; padding: 6px 8px; }
+
+  .built-chord-row {
+    display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0;
+  }
+  .built-block {
+    flex: 1; min-width: 60px; background: #f8f4ff; border: 2px solid #e9d5ff;
+    border-radius: 8px; padding: 8px 6px; text-align: center;
+    transition: all 0.2s;
+  }
+  .built-block.playing {
+    background: #7e22ce; border-color: #6b21a8; color: #fff;
+    transform: translateY(-3px);
+  }
+  .built-block .bn { font-size: 18px; font-weight: 800; font-family: serif; }
+  .built-block .bc { font-size: 11px; opacity: 0.75; margin-top: 2px; }
+
+  /* ---- Info section ---- */
+  .info-box {
+    background: #f3e8ff; border-left: 3px solid #7e22ce;
+    padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 12px 0;
+    font-size: 14px; line-height: 1.7;
+  }
+
+  @media (max-width: 480px) {
+    .cadence-grid { grid-template-columns: 1fr 1fr; }
+    .chord-block { min-width: 55px; }
+    .chord-block .numeral { font-size: 18px; }
+    .slot { min-width: 68px; }
+  }
+  @media (max-width: 360px) {
+    .cadence-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Harmony</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-diatonic-chords/visualization.html">← L3: Hợp âm theo bậc</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Tiến trình &amp; kết</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-inversions-voice-leading/visualization.html">L5: Đảo hợp âm →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Tiến trình &amp; kết</h1>
+<p>Ba công cụ dưới đây cho bạn <strong>nghe</strong> cách hợp âm nối tiếp nhau tạo ra cảm xúc: trình phát tiến trình, phòng trưng bày kết, và bộ xây tiến trình tự do. <strong>🔊 Bật loa.</strong></p>
+
+<!-- ========== MODULE 1: PROGRESSION PLAYER ========== -->
+<h2>1. Trình phát tiến trình hợp âm</h2>
+<div class="card">
+  <p class="hint">Chọn điệu và tiến trình, nhấn <strong>Phát</strong> để nghe hợp âm nối tiếp nhau. Hợp âm đang phát được tô sáng.</p>
+
+  <div class="row">
+    <label for="keySelect" style="font-weight:600">Điệu:</label>
+    <select id="keySelect">
+      <option value="C">C trưởng</option>
+      <option value="G">G trưởng</option>
+      <option value="F">F trưởng</option>
+      <option value="D">D trưởng</option>
+      <option value="Bb">Bb trưởng</option>
+    </select>
+
+    <label for="progSelect" style="font-weight:600">Tiến trình:</label>
+    <select id="progSelect">
+      <option value="I-IV-V-I">I – IV – V – I (Blues / Rock)</option>
+      <option value="I-V-vi-IV">I – V – vi – IV (Pop)</option>
+      <option value="vi-IV-I-V">vi – IV – I – V (Minor-feel pop)</option>
+      <option value="ii-V-I">ii – V – I (Jazz)</option>
+      <option value="I-vi-IV-V">I – vi – IV – V (50s Doo-wop)</option>
+    </select>
+  </div>
+
+  <div class="chord-row" id="chordRow"></div>
+
+  <div class="row">
+    <button id="playProg">▶ Phát</button>
+    <button id="stopProg" class="stop-btn" disabled>■ Dừng</button>
+    <label style="font-size:13px; color:#555">
+      Tốc độ:
+      <select id="tempoSelect" style="font-size:13px; padding:5px 8px;">
+        <option value="1.2">Nhanh</option>
+        <option value="0.9" selected>Vừa</option>
+        <option value="1.5">Chậm</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="info-box" id="progInfo">Chọn tiến trình và nhấn Phát để nghe.</div>
+</div>
+
+<!-- ========== MODULE 2: CADENCE GALLERY ========== -->
+<h2>2. Phòng trưng bày kết (Cadences)</h2>
+<div class="card">
+  <p class="hint">Nhấn vào từng ô để nghe và cảm nhận sự khác biệt giữa 4 loại kết trong điệu C trưởng.</p>
+
+  <div class="cadence-grid" id="cadenceGrid"></div>
+
+  <div class="cadence-desc" id="cadDesc">← Nhấn vào một loại kết để nghe và xem giải thích.</div>
+
+  <div class="row" style="margin-top:10px">
+    <button id="stopCad" class="stop-btn" disabled>■ Dừng kết</button>
+  </div>
+</div>
+
+<!-- ========== MODULE 3: CUSTOM BUILDER ========== -->
+<h2>3. Xây tiến trình tự do</h2>
+<div class="card">
+  <p class="hint">Chọn 4 hợp âm từ 7 hợp âm diatonic của C trưởng, rồi nhấn Phát để nghe tiến trình bạn tạo ra.</p>
+
+  <div class="builder-slots" id="builderSlots"></div>
+
+  <div class="built-chord-row" id="builtRow"></div>
+
+  <div class="row" style="margin-top:8px">
+    <button id="playBuilt">▶ Phát tiến trình của tôi</button>
+    <button id="stopBuilt" class="stop-btn" disabled>■ Dừng</button>
+    <button id="randomBuilt" class="ghost">🎲 Ngẫu nhiên</button>
+  </div>
+  <div class="info-box" id="builtInfo">Chọn 4 hợp âm rồi nhấn Phát.</div>
+</div>
+
+<!-- ========== MODULE 4: REFERENCE ========== -->
+<h2>4. Bảng tra nhanh — Tiến trình &amp; kết</h2>
+<div class="card">
+  <div style="overflow-x:auto">
+    <table style="width:100%; border-collapse:collapse; font-size:14px; min-width:540px">
+      <thead>
+        <tr style="background:#f3e8ff; color:#6b21a8">
+          <th style="padding:10px 12px; text-align:left; border-bottom:2px solid #e9d5ff">Tiến trình</th>
+          <th style="padding:10px 12px; text-align:left; border-bottom:2px solid #e9d5ff">C trưởng</th>
+          <th style="padding:10px 12px; text-align:left; border-bottom:2px solid #e9d5ff">Phong cách</th>
+          <th style="padding:10px 12px; text-align:left; border-bottom:2px solid #e9d5ff">Cảm giác</th>
+        </tr>
+      </thead>
+      <tbody id="progTable"></tbody>
+    </table>
+  </div>
+  <div style="margin-top: 20px; overflow-x:auto">
+    <table style="width:100%; border-collapse:collapse; font-size:14px; min-width:480px">
+      <thead>
+        <tr style="background:#f3e8ff; color:#6b21a8">
+          <th style="padding:10px 12px; text-align:left; border-bottom:2px solid #e9d5ff">Loại kết</th>
+          <th style="padding:10px 12px; text-align:left; border-bottom:2px solid #e9d5ff">Công thức</th>
+          <th style="padding:10px 12px; text-align:left; border-bottom:2px solid #e9d5ff">C trưởng</th>
+          <th style="padding:10px 12px; text-align:left; border-bottom:2px solid #e9d5ff">Cảm giác</th>
+        </tr>
+      </thead>
+      <tbody id="cadTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// ==========================================================================
+// WEB AUDIO ENGINE
+// ==========================================================================
+let ctx = null;
+let activeNodes = [];
+
+function audio() {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  return ctx;
+}
+
+function playTone(freq, dur = 0.8, when = 0) {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.22, t0 + 0.025);
+  g.gain.exponentialRampToValueAtTime(0.12, t0 + dur * 0.5);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.06);
+  activeNodes.push({ osc, g, stopTime: t0 + dur + 0.06 });
+}
+
+function stopAllTones() {
+  const ac = audio();
+  const now = ac.currentTime;
+  activeNodes.forEach(({ osc, g }) => {
+    try {
+      g.gain.cancelScheduledValues(now);
+      g.gain.setValueAtTime(g.gain.value, now);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+      osc.stop(now + 0.05);
+    } catch(e) {}
+  });
+  activeNodes = [];
+}
+
+const NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function freqFromN(n) { return 440 * Math.pow(2, n / 12); }
+function nameFromN(n) {
+  const midi = 69 + n;
+  return NAMES[((midi % 12) + 12) % 12] + (Math.floor(midi / 12) - 1);
+}
+
+// ==========================================================================
+// MUSIC DATA
+// ==========================================================================
+
+// semitones relative to C4 (n from A4: C4 = -9)
+// Each key: root offset from C (semitones)
+const KEY_OFFSETS = { C: 0, G: 7, F: -5, D: 2, Bb: -2 };
+const KEY_NAMES = { C: 'C trưởng', G: 'G trưởng', F: 'F trưởng', D: 'D trưởng', Bb: 'Bb trưởng' };
+
+// Diatonic triads of major scale (intervals in semitones from root)
+// Format: [root_offset_in_scale, [intervals]]
+const DIATONIC = [
+  { numeral: 'I',    type: 'maj', offsets: [0, 4, 7] },
+  { numeral: 'ii',   type: 'min', offsets: [2, 5, 9] },
+  { numeral: 'iii',  type: 'min', offsets: [4, 7, 11] },
+  { numeral: 'IV',   type: 'maj', offsets: [5, 9, 12] },
+  { numeral: 'V',    type: 'maj', offsets: [7, 11, 14] },
+  { numeral: 'vi',   type: 'min', offsets: [9, 12, 16] },
+  { numeral: 'vii°', type: 'dim', offsets: [11, 14, 17] },
+];
+
+// Note names for display, given key root
+const NOTE_NAMES_PER_KEY = {
+  C:  ['C','D','E','F','G','A','B'],
+  G:  ['G','A','B','C','D','E','F#'],
+  F:  ['F','G','A','Bb','C','D','E'],
+  D:  ['D','E','F#','G','A','B','C#'],
+  Bb: ['Bb','C','D','Eb','F','G','A'],
+};
+
+// Chord name in each key for each diatonic degree
+function chordNameInKey(degreeIdx, key) {
+  const ns = NOTE_NAMES_PER_KEY[key];
+  const scaleSteps = [0, 2, 4, 5, 7, 9, 11];
+  const rootNote = ns[degreeIdx];
+  const type = DIATONIC[degreeIdx].type;
+  if (type === 'maj') return rootNote;
+  if (type === 'min') return rootNote + 'm';
+  return rootNote + '°';
+}
+
+// Get frequencies for a diatonic chord in a given key
+// n_from_A4 for key root: C4=-9, G4=-2, F4=-4, D4=-7, Bb3=-11
+const KEY_ROOT_N = { C: -9, G: -2, F: -4, D: -7, Bb: -11 };
+
+function chordFreqs(degreeIdx, key) {
+  const rootN = KEY_ROOT_N[key];
+  const offsets = DIATONIC[degreeIdx].offsets;
+  return offsets.map(o => freqFromN(rootN + o));
+}
+
+// Known progressions
+const PROGRESSIONS = {
+  'I-IV-V-I': {
+    label: 'I – IV – V – I',
+    style: 'Blues / Rock',
+    feel: 'Vui, dứt khoát, về nhà mạnh',
+    degrees: [0, 3, 4, 0]
+  },
+  'I-V-vi-IV': {
+    label: 'I – V – vi – IV',
+    style: 'Pop hiện đại',
+    feel: 'Vui vẻ, cuốn hút, dễ nghe',
+    degrees: [0, 4, 5, 3]
+  },
+  'vi-IV-I-V': {
+    label: 'vi – IV – I – V',
+    style: 'Minor-feel pop',
+    feel: 'Tối hơn, trầm tư, cuộn vòng',
+    degrees: [5, 3, 0, 4]
+  },
+  'ii-V-I': {
+    label: 'ii – V – I',
+    style: 'Jazz',
+    feel: 'Chuẩn bị – căng – giải quyết',
+    degrees: [1, 4, 0]
+  },
+  'I-vi-IV-V': {
+    label: 'I – vi – IV – V',
+    style: '50s Doo-wop',
+    feel: 'Lãng mạn, hoài cổ, đều đặn',
+    degrees: [0, 5, 3, 4]
+  }
+};
+
+// Cadences in C major
+const CADENCES = [
+  {
+    formula: 'V → I',
+    type: 'Kết trọn (Authentic)',
+    example: 'G → C',
+    feel: 'Dứt khoát nhất — "về nhà". Cảm âm B lên C, F xuống E. Dấu chấm "." của âm nhạc.',
+    degrees: [4, 0],
+    key: 'C'
+  },
+  {
+    formula: 'IV → I',
+    type: 'Kết biến cách (Plagal)',
+    example: 'F → C',
+    feel: 'Nhẹ nhàng, trang trọng. Gọi là kết "Amen" vì hay dùng cuối thánh ca.',
+    degrees: [3, 0],
+    key: 'C'
+  },
+  {
+    formula: '... → V',
+    type: 'Kết nửa (Half)',
+    example: 'F → G (IV → V)',
+    feel: 'Lửng, chờ đợi, câu hỏi chưa trả lời. Như dấu phẩy giữa câu văn dài.',
+    degrees: [3, 4],
+    key: 'C'
+  },
+  {
+    formula: 'V → vi',
+    type: 'Kết lừa (Deceptive)',
+    example: 'G → Am',
+    feel: 'Bất ngờ! Tai chờ C (I) nhưng nghe Am (vi). Câu chuyện chưa kết thúc.',
+    degrees: [4, 5],
+    key: 'C'
+  }
+];
+
+// ==========================================================================
+// MODULE 1 — Progression Player
+// ==========================================================================
+let progTimeout = null;
+let progScheduled = [];
+
+function buildChordRow(progKey, keyName) {
+  const prog = PROGRESSIONS[progKey];
+  const row = document.getElementById('chordRow');
+  row.innerHTML = '';
+  prog.degrees.forEach((degIdx, i) => {
+    const div = document.createElement('div');
+    div.className = 'chord-block';
+    div.id = 'cb-' + i;
+    const freqs = chordFreqs(degIdx, keyName);
+    const cname = chordNameInKey(degIdx, keyName);
+    const noteList = DIATONIC[degIdx].offsets.map(o => {
+      const rootN = KEY_ROOT_N[keyName];
+      return nameFromN(rootN + o).replace(/\d/, '');
+    }).join('–');
+    div.innerHTML = `
+      <div class="numeral">${DIATONIC[degIdx].numeral}</div>
+      <div class="cname">${cname}</div>
+      <div class="notes-txt">${noteList}</div>
+    `;
+    row.appendChild(div);
+  });
+}
+
+function updateProgInfo(progKey, keyName) {
+  const prog = PROGRESSIONS[progKey];
+  const kLabel = KEY_NAMES[keyName];
+  const chordNames = prog.degrees.map(d => chordNameInKey(d, keyName)).join(' – ');
+  document.getElementById('progInfo').innerHTML =
+    `<strong>${prog.label}</strong> trong ${kLabel}: <span class="val">${chordNames}</span><br>
+     Phong cách: ${prog.style} · Cảm giác: ${prog.feel}`;
+}
+
+function clearProgHighlight() {
+  document.querySelectorAll('.chord-block').forEach(b => b.classList.remove('playing'));
+}
+
+function playProgression() {
+  stopProgression();
+  const progKey = document.getElementById('progSelect').value;
+  const keyName = document.getElementById('keySelect').value;
+  const tempo = parseFloat(document.getElementById('tempoSelect').value);
+  const prog = PROGRESSIONS[progKey];
+
+  document.getElementById('playProg').disabled = true;
+  document.getElementById('stopProg').disabled = false;
+
+  const ac = audio();
+  const dur = tempo * 0.95;
+
+  prog.degrees.forEach((degIdx, i) => {
+    const freqs = chordFreqs(degIdx, keyName);
+    const when = i * tempo;
+    freqs.forEach(f => playTone(f, dur, when));
+
+    // Highlight block
+    const t = setTimeout(() => {
+      clearProgHighlight();
+      const blk = document.getElementById('cb-' + i);
+      if (blk) blk.classList.add('playing');
+    }, when * 1000);
+    progScheduled.push(t);
+  });
+
+  // End: remove highlight, re-enable buttons
+  const totalTime = prog.degrees.length * tempo * 1000 + dur * 1000;
+  const endT = setTimeout(() => {
+    clearProgHighlight();
+    document.getElementById('playProg').disabled = false;
+    document.getElementById('stopProg').disabled = true;
+  }, totalTime + 200);
+  progScheduled.push(endT);
+}
+
+function stopProgression() {
+  stopAllTones();
+  progScheduled.forEach(t => clearTimeout(t));
+  progScheduled = [];
+  clearProgHighlight();
+  document.getElementById('playProg').disabled = false;
+  document.getElementById('stopProg').disabled = true;
+}
+
+document.getElementById('playProg').addEventListener('click', playProgression);
+document.getElementById('stopProg').addEventListener('click', stopProgression);
+
+document.getElementById('keySelect').addEventListener('change', () => {
+  stopProgression();
+  const pk = document.getElementById('progSelect').value;
+  const kn = document.getElementById('keySelect').value;
+  buildChordRow(pk, kn);
+  updateProgInfo(pk, kn);
+});
+document.getElementById('progSelect').addEventListener('change', () => {
+  stopProgression();
+  const pk = document.getElementById('progSelect').value;
+  const kn = document.getElementById('keySelect').value;
+  buildChordRow(pk, kn);
+  updateProgInfo(pk, kn);
+});
+
+// Init
+buildChordRow('I-IV-V-I', 'C');
+updateProgInfo('I-IV-V-I', 'C');
+
+// ==========================================================================
+// MODULE 2 — Cadence Gallery
+// ==========================================================================
+let cadScheduled = [];
+
+function stopCadence() {
+  stopAllTones();
+  cadScheduled.forEach(t => clearTimeout(t));
+  cadScheduled = [];
+  document.querySelectorAll('.cadence-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('stopCad').disabled = true;
+}
+
+const cadGrid = document.getElementById('cadenceGrid');
+CADENCES.forEach((cad, idx) => {
+  const div = document.createElement('div');
+  div.className = 'cadence-card';
+  div.id = 'cad-' + idx;
+  div.innerHTML = `
+    <div class="cad-formula">${cad.formula}</div>
+    <div class="cad-type">${cad.type}</div>
+    <div class="cad-feel">${cad.example}</div>
+  `;
+  div.addEventListener('click', () => playCadence(idx));
+  cadGrid.appendChild(div);
+});
+
+function playCadence(idx) {
+  stopCadence();
+  const cad = CADENCES[idx];
+  const tempo = 1.1;
+  const dur = 1.0;
+
+  document.getElementById('cad-' + idx).classList.add('active');
+  document.getElementById('stopCad').disabled = false;
+
+  cad.degrees.forEach((degIdx, i) => {
+    const freqs = chordFreqs(degIdx, cad.key);
+    const when = i * tempo;
+    freqs.forEach(f => playTone(f, dur, when));
+  });
+
+  document.getElementById('cadDesc').innerHTML =
+    `<strong>${cad.type}</strong> — <span class="val">${cad.example}</span><br>${cad.feel}`;
+
+  const endT = setTimeout(() => {
+    document.querySelectorAll('.cadence-card').forEach(c => c.classList.remove('active'));
+    document.getElementById('stopCad').disabled = true;
+  }, cad.degrees.length * tempo * 1000 + dur * 1000 + 200);
+  cadScheduled.push(endT);
+}
+
+document.getElementById('stopCad').addEventListener('click', stopCadence);
+
+// Fill reference table: cadences
+const cadTable = document.getElementById('cadTable');
+CADENCES.forEach(cad => {
+  const tr = document.createElement('tr');
+  tr.style.borderBottom = '1px solid #f3e8ff';
+  tr.innerHTML = `
+    <td style="padding:9px 12px; font-weight:700">${cad.type.split('(')[0].trim()}</td>
+    <td style="padding:9px 12px; font-family:serif; font-size:16px; font-weight:700">${cad.formula}</td>
+    <td style="padding:9px 12px; font-family:monospace">${cad.example}</td>
+    <td style="padding:9px 12px; color:#555; font-size:13px">${cad.feel.split('.')[0]}.</td>
+  `;
+  cadTable.appendChild(tr);
+});
+
+// ==========================================================================
+// MODULE 3 — Custom Builder
+// ==========================================================================
+const NUM_SLOTS = 4;
+let builtScheduled = [];
+
+const builderSlots = document.getElementById('builderSlots');
+for (let s = 0; s < NUM_SLOTS; s++) {
+  const slot = document.createElement('div');
+  slot.className = 'slot';
+  slot.innerHTML = `<label>Hợp âm ${s + 1}</label>`;
+  const sel = document.createElement('select');
+  sel.id = 'slot-' + s;
+  DIATONIC.forEach((d, idx) => {
+    const opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = d.numeral + ' (' + chordNameInKey(idx, 'C') + ')';
+    if (s === 0 && idx === 0) opt.selected = true;
+    if (s === 1 && idx === 4) opt.selected = true;
+    if (s === 2 && idx === 5) opt.selected = true;
+    if (s === 3 && idx === 3) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change', () => { stopBuilt(); updateBuiltRow(); });
+  slot.appendChild(sel);
+  builderSlots.appendChild(slot);
+}
+
+function getBuiltDegrees() {
+  return Array.from({length: NUM_SLOTS}, (_, s) => parseInt(document.getElementById('slot-' + s).value));
+}
+
+function updateBuiltRow() {
+  const degrees = getBuiltDegrees();
+  const row = document.getElementById('builtRow');
+  row.innerHTML = '';
+  degrees.forEach((degIdx, i) => {
+    const div = document.createElement('div');
+    div.className = 'built-block';
+    div.id = 'bb-' + i;
+    const cn = chordNameInKey(degIdx, 'C');
+    const noteStr = DIATONIC[degIdx].offsets.map(o => {
+      return nameFromN(KEY_ROOT_N['C'] + o).replace(/\d/, '');
+    }).join('–');
+    div.innerHTML = `<div class="bn">${DIATONIC[degIdx].numeral}</div><div class="bc">${cn}<br><span style="font-size:10px;opacity:0.6">${noteStr}</span></div>`;
+    row.appendChild(div);
+  });
+  document.getElementById('builtInfo').textContent =
+    'Tiến trình: ' + degrees.map(d => DIATONIC[d].numeral).join(' – ') +
+    '  |  ' + degrees.map(d => chordNameInKey(d, 'C')).join(' – ');
+}
+
+function stopBuilt() {
+  stopAllTones();
+  builtScheduled.forEach(t => clearTimeout(t));
+  builtScheduled = [];
+  document.querySelectorAll('.built-block').forEach(b => b.classList.remove('playing'));
+  document.getElementById('playBuilt').disabled = false;
+  document.getElementById('stopBuilt').disabled = true;
+}
+
+function playBuilt() {
+  stopBuilt();
+  const degrees = getBuiltDegrees();
+  const tempo = 1.0;
+  const dur = 0.92;
+
+  document.getElementById('playBuilt').disabled = true;
+  document.getElementById('stopBuilt').disabled = false;
+
+  degrees.forEach((degIdx, i) => {
+    const freqs = chordFreqs(degIdx, 'C');
+    const when = i * tempo;
+    freqs.forEach(f => playTone(f, dur, when));
+    const t = setTimeout(() => {
+      document.querySelectorAll('.built-block').forEach(b => b.classList.remove('playing'));
+      const blk = document.getElementById('bb-' + i);
+      if (blk) blk.classList.add('playing');
+    }, when * 1000);
+    builtScheduled.push(t);
+  });
+
+  const endT = setTimeout(() => {
+    document.querySelectorAll('.built-block').forEach(b => b.classList.remove('playing'));
+    document.getElementById('playBuilt').disabled = false;
+    document.getElementById('stopBuilt').disabled = true;
+  }, degrees.length * tempo * 1000 + dur * 1000 + 200);
+  builtScheduled.push(endT);
+}
+
+document.getElementById('playBuilt').addEventListener('click', playBuilt);
+document.getElementById('stopBuilt').addEventListener('click', stopBuilt);
+document.getElementById('randomBuilt').addEventListener('click', () => {
+  stopBuilt();
+  for (let s = 0; s < NUM_SLOTS; s++) {
+    const sel = document.getElementById('slot-' + s);
+    sel.value = Math.floor(Math.random() * DIATONIC.length);
+  }
+  updateBuiltRow();
+});
+
+// Init builder
+updateBuiltRow();
+
+// ==========================================================================
+// MODULE 4 — Progression reference table
+// ==========================================================================
+const progTable = document.getElementById('progTable');
+Object.values(PROGRESSIONS).forEach(prog => {
+  const chords = prog.degrees.map(d => chordNameInKey(d, 'C')).join(' – ');
+  const tr = document.createElement('tr');
+  tr.style.borderBottom = '1px solid #f3e8ff';
+  tr.innerHTML = `
+    <td style="padding:9px 12px; font-family:serif; font-size:15px; font-weight:700">${prog.label}</td>
+    <td style="padding:9px 12px; font-family:monospace; font-size:13px">${chords}</td>
+    <td style="padding:9px 12px; color:#6b21a8; font-size:13px">${prog.style}</td>
+    <td style="padding:9px 12px; color:#555; font-size:13px">${prog.feel}</td>
+  `;
+  progTable.appendChild(tr);
+});
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

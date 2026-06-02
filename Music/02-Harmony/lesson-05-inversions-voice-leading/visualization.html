@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L5 — Đảo hợp âm &amp; dẫn giọng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  h3 { color: #4a2d7a; margin-top: 24px; }
+  .card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 16px 0; }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; }
+  select {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 14px; background: #fff; min-width: 140px;
+  }
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: #6b21a8; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  button.active-btn { background: #6b21a8; outline: 2px solid #c4b5fd; }
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  .result {
+    padding: 14px 16px; background: #f3e8ff; border-radius: 8px; margin-top: 12px;
+    font-size: 15px; line-height: 1.8;
+  }
+  .result .big { font-size: 20px; font-weight: 800; color: #6b21a8; font-family: monospace; }
+  .badge { display: inline-block; background: #e9d5ff; color: #6b21a8; padding: 3px 9px; border-radius: 6px; font-family: monospace; font-weight: 700; margin: 2px; }
+  .badge.bass { background: #7e22ce; color: #fff; }
+  .tag-root { background: #dcfce7; color: #166534; }
+  .tag-3rd  { background: #fef3c7; color: #92400e; }
+  .tag-5th  { background: #dbeafe; color: #1e40af; }
+  .tag-7th  { background: #ffe4e6; color: #9f1239; }
+
+  /* ---- Piano ---- */
+  .piano-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .piano {
+    position: relative; display: flex; height: 170px; min-width: 340px;
+    user-select: none; touch-action: manipulation; margin: 0 auto; max-width: 620px;
+  }
+  .wkey {
+    flex: 1; background: linear-gradient(#fff, #f1f1f1); border: 1px solid #aaa;
+    border-radius: 0 0 6px 6px; position: relative; cursor: pointer;
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 7px;
+    font-size: 10px; color: #555; font-weight: 600; transition: background 0.1s;
+  }
+  .wkey.root { background: linear-gradient(#bbf7d0, #86efac); }
+  .wkey.third { background: linear-gradient(#fef08a, #fde047); }
+  .wkey.fifth { background: linear-gradient(#bfdbfe, #93c5fd); }
+  .wkey.seventh { background: linear-gradient(#fecdd3, #fda4af); }
+  .wkey.bass-note { outline: 3px solid #7e22ce; outline-offset: -2px; }
+  .wkey:hover { filter: brightness(0.95); }
+  .bkey {
+    position: absolute; top: 0; width: 8%; height: 62%;
+    background: linear-gradient(#333, #000); border-radius: 0 0 5px 5px;
+    z-index: 2; cursor: pointer; color: #ddd; font-size: 9px;
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px;
+    transition: background 0.1s;
+  }
+  .bkey.root { background: linear-gradient(#16a34a, #15803d); }
+  .bkey.third { background: linear-gradient(#ca8a04, #a16207); }
+  .bkey.fifth { background: linear-gradient(#1d4ed8, #1e3a8a); }
+  .bkey.seventh { background: linear-gradient(#be123c, #9f1239); }
+  .bkey.bass-note { outline: 3px solid #f3e8ff; outline-offset: -2px; }
+  .legend {
+    display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0;
+    font-size: 13px; align-items: center;
+  }
+  .legend span { padding: 3px 10px; border-radius: 5px; font-weight: 600; }
+
+  /* ---- Voice leading arrows ---- */
+  .vl-container { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin: 12px 0; }
+  .vl-block {
+    flex: 1; min-width: 260px; max-width: 380px; background: #faf5ff;
+    border: 1px solid #e9d5ff; border-radius: 10px; padding: 16px;
+  }
+  .vl-block h4 { margin: 0 0 12px; font-size: 15px; color: #6b21a8; }
+  .voice-row {
+    display: flex; align-items: center; gap: 8px; margin: 6px 0;
+    font-size: 14px;
+  }
+  .voice-label { width: 70px; font-weight: 700; color: #4a5568; font-size: 13px; }
+  .note-box {
+    width: 48px; text-align: center; padding: 5px 4px; border-radius: 6px;
+    font-family: monospace; font-weight: 700; font-size: 14px; flex-shrink: 0;
+  }
+  .arrow { color: #9f1239; font-size: 16px; flex: 1; text-align: center; }
+  .arrow.smooth { color: #15803d; }
+  .move-label { font-size: 11px; color: #718096; min-width: 60px; }
+
+  /* ---- Quiz ---- */
+  .quiz-grid { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0; }
+  .quiz-item {
+    flex: 1; min-width: 180px; background: #faf5ff; border: 2px solid #e9d5ff;
+    border-radius: 10px; padding: 16px; cursor: pointer; transition: border-color 0.2s;
+    text-align: center;
+  }
+  .quiz-item:hover { border-color: #7e22ce; }
+  .quiz-item.correct { border-color: #22c55e; background: #f0fdf4; }
+  .quiz-item.wrong { border-color: #ef4444; background: #fef2f2; }
+  .quiz-chord { font-size: 22px; font-weight: 800; color: #6b21a8; font-family: monospace; }
+  .quiz-info { font-size: 13px; color: #718096; margin-top: 4px; }
+  .quiz-result { font-size: 13px; font-weight: 700; margin-top: 8px; min-height: 18px; }
+  .answer-btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+
+  @media (max-width: 480px) {
+    .piano { height: 140px; }
+    .wkey { font-size: 8px; padding-bottom: 4px; }
+    .vl-block { min-width: 100%; }
+    .quiz-item { min-width: 140px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Harmony</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-progressions-cadences/visualization.html">← L4: Tiến trình &amp; kết</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Đảo hợp âm &amp; dẫn giọng</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-modulation/visualization.html">L6: Chuyển điệu →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Đảo hợp âm &amp; dẫn giọng</h1>
+<p>Cùng một hợp âm nghe khác nhau tùy <strong>nốt nào ở bè bass</strong> — đó là thế đảo (inversion).
+Và cách mỗi bè di chuyển khi chuyển hợp âm xác định nhạc nghe <em>mượt</em> hay <em>gập ghềnh</em> — đó là dẫn giọng.
+<strong>🔊 Bật loa.</strong></p>
+
+<!-- ===== SECTION 1: Inversions Explorer ===== -->
+<h2>1. Khám phá thế đảo</h2>
+<div class="card">
+  <div class="row">
+    <div>
+      <label for="chordSel">Hợp âm:</label><br>
+      <select id="chordSel">
+        <option value="C">C trưởng (C–E–G)</option>
+        <option value="G">G trưởng (G–B–D)</option>
+        <option value="F">F trưởng (F–A–C)</option>
+        <option value="Am">A thứ (A–C–E)</option>
+        <option value="Dm">D thứ (D–F–A)</option>
+        <option value="Em">E thứ (E–G–B)</option>
+        <option value="G7">G7 (G–B–D–F)</option>
+        <option value="Cmaj7">Cmaj7 (C–E–G–B)</option>
+        <option value="Dm7">Dm7 (D–F–A–C)</option>
+      </select>
+    </div>
+    <div>
+      <label for="invSel">Thế đảo:</label><br>
+      <select id="invSel">
+        <option value="0">Thế gốc (root position)</option>
+        <option value="1">Thế đảo 1 (first inversion)</option>
+        <option value="2">Thế đảo 2 (second inversion)</option>
+        <option value="3">Thế đảo 3 (seventh chords only)</option>
+      </select>
+    </div>
+    <button id="playInv">▶ Phát hợp âm</button>
+  </div>
+  <div class="result" id="invResult">
+    <span class="big" id="invName">C</span>&nbsp;
+    <span id="invFigured" class="badge"></span>
+    <span id="invSlash" class="badge"></span>
+    <br>
+    Bass: <span class="badge bass" id="invBass">C4</span>
+    &nbsp; Các nốt: <span id="invNotes"></span>
+    <br>
+    <span id="invDesc" style="color:#6b21a8;font-size:13px"></span>
+  </div>
+  <div class="legend">
+    <span class="tag-root">● Nốt gốc (root)</span>
+    <span class="tag-3rd">● Bậc 3 (third)</span>
+    <span class="tag-5th">● Bậc 5 (fifth)</span>
+    <span class="tag-7th">● Bậc 7 (seventh)</span>
+    <span style="color:#7e22ce;font-weight:700">⬜ viền tím = bè bass</span>
+  </div>
+  <div class="piano-wrap">
+    <div class="piano" id="piano1"></div>
+  </div>
+  <p class="hint">Phím màu xanh lá = nốt gốc · vàng = bậc 3 · xanh dương = bậc 5 · đỏ hồng = bậc 7. Viền tím đậm = bè bass.</p>
+</div>
+
+<!-- ===== SECTION 2: Voice Leading ===== -->
+<h2>2. Dẫn giọng — Nhảy vs. Mượt</h2>
+<div class="card">
+  <p>Chọn tiến trình hợp âm để so sánh hai cách chuyển: <strong>đều thế gốc</strong> (nhảy quãng lớn)
+  vs. <strong>dùng thế đảo + nốt chung</strong> (đi bậc, mượt).</p>
+  <div class="row">
+    <div>
+      <label for="progSel">Tiến trình:</label><br>
+      <select id="progSel">
+        <option value="CG">C → G (trong C trưởng)</option>
+        <option value="CF">C → F (trong C trưởng)</option>
+        <option value="GC">G → C (kết V→I)</option>
+        <option value="CGAmF">C → G → Am → F (I–V–vi–IV)</option>
+      </select>
+    </div>
+  </div>
+  <div class="vl-container" id="vlContainer"></div>
+  <div class="row" style="margin-top:12px">
+    <button id="playJumpy">▶ Phát cách "nhảy" (thế gốc)</button>
+    <button id="playSmooth" class="ghost">▶ Phát cách "mượt" (dùng đảo)</button>
+  </div>
+  <p class="hint">Nghe sự khác biệt: cách mượt ít nhảy hơn, nghe liền lạc hơn. Mũi tên đỏ = nhảy xa, xanh = đi bậc, dấu = = giữ nguyên.</p>
+</div>
+
+<!-- ===== SECTION 3: Quiz ===== -->
+<h2>3. Quiz — Nhận diện thế đảo</h2>
+<div class="card">
+  <p>Nhìn vào nốt bass và ký hiệu hợp âm, xác định đây là thế nào?</p>
+  <div id="quizArea">
+    <div id="quizQuestion" class="result" style="font-size:17px; margin-bottom:12px"></div>
+    <div class="answer-btn-row" id="quizAnswers"></div>
+    <div id="quizFeedback" style="font-weight:700;font-size:15px;min-height:24px;margin:8px 0"></div>
+    <div class="row" style="margin-top:10px">
+      <button id="nextQuiz" class="ghost">Câu tiếp theo →</button>
+      <span id="quizScore" style="font-size:14px;color:#6b21a8"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// Web Audio helpers
+// ============================================================
+let actx = null;
+function audio() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  return actx;
+}
+function playTone(freq, dur = 0.8, when = 0, vol = 0.22) {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol, t0 + 0.015);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+const NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+// n = semitones from A4 (69 in MIDI, A4=440Hz)
+function freqFromN(n) { return 440 * Math.pow(2, n / 12); }
+// MIDI note number → frequency
+function freqFromMidi(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+// MIDI → name+octave e.g. 60→"C4"
+function noteName(m) {
+  const oct = Math.floor(m / 12) - 1;
+  return NAMES[m % 12] + oct;
+}
+
+// ============================================================
+// Chord definitions: name, notes (MIDI numbers), role per note (r=root, 3=third, 5=fifth, 7=seventh)
+// ============================================================
+const CHORDS = {
+  'C':    { name:'C',     notes:[60,64,67],       roles:['r','3','5'] },
+  'G':    { name:'G',     notes:[67,71,74],       roles:['r','3','5'] },
+  'F':    { name:'F',     notes:[65,69,72],       roles:['r','3','5'] },
+  'Am':   { name:'Am',    notes:[69,72,76],       roles:['r','3','5'] },
+  'Dm':   { name:'Dm',    notes:[62,65,69],       roles:['r','3','5'] },
+  'Em':   { name:'Em',    notes:[64,67,71],       roles:['r','3','5'] },
+  'G7':   { name:'G7',    notes:[67,71,74,77],    roles:['r','3','5','7'] },
+  'Cmaj7':{ name:'Cmaj7', notes:[60,64,67,71],    roles:['r','3','5','7'] },
+  'Dm7':  { name:'Dm7',   notes:[62,65,69,72],    roles:['r','3','5','7'] },
+};
+
+// Given chord key and inversion index, return sorted MIDI notes (bass first is lowest)
+// inversion: 0=root, 1=first (3rd in bass), 2=second (5th in bass), 3=third (7th in bass)
+function getInversionNotes(chordKey, inv) {
+  const ch = CHORDS[chordKey];
+  const n = ch.notes.length; // 3 or 4
+  inv = Math.min(inv, n - 1);
+  // rotate: inversion 0 → [root,3,5,7]; 1 → [3,5,7,root+oct]; etc.
+  // We keep notes in natural register: bass = lowest, then voices above
+  const base = ch.notes.slice(); // copy, ascending order
+  // The note at index inv goes to bass (we lower it by octave if needed to ensure it's lowest)
+  let rotated = [];
+  for (let i = 0; i < n; i++) {
+    rotated.push(base[(i + inv) % n]);
+  }
+  // Ensure each note is >= previous (move up by octaves if needed)
+  for (let i = 1; i < n; i++) {
+    while (rotated[i] <= rotated[i - 1]) rotated[i] += 12;
+  }
+  // Now set bass to reasonable range: around 48-55 (C3-G3 range)
+  const bassTarget = 48; // C3
+  while (rotated[0] > bassTarget + 12) {
+    for (let i = 0; i < n; i++) rotated[i] -= 12;
+  }
+  while (rotated[0] < bassTarget - 3) {
+    for (let i = 0; i < n; i++) rotated[i] += 12;
+  }
+  return { midi: rotated, roles: ch.roles.slice(inv).concat(ch.roles.slice(0, inv)) };
+}
+
+function getFiguredBass(inv, isSeventhChord) {
+  if (isSeventhChord) {
+    return ['7','6/5','4/3','4/2'][inv] || '';
+  } else {
+    return ['','6','6/4'][inv] || '';
+  }
+}
+
+function getSlashChord(chordKey, inv) {
+  const ch = CHORDS[chordKey];
+  if (inv === 0) return ch.name;
+  const bassNote = NAMES[ch.notes[inv] % 12];
+  return ch.name + '/' + bassNote;
+}
+
+function getInvDesc(inv, isSeventhChord) {
+  const tri = ['Thế gốc: ổn định nhất, nốt gốc ở bass.',
+               'Thế đảo 1: nhẹ, linh hoạt — bậc 3 ở bass.',
+               'Thế đảo 2: kém ổn định — bậc 5 ở bass. Dùng trong passing/cadential 6/4.'];
+  const sev = [...tri, 'Thế đảo 3: bậc 7 ở bass — lực dẫn về tonic rất mạnh.'];
+  return (isSeventhChord ? sev : tri)[inv] || '';
+}
+
+// ============================================================
+// Piano renderer (C3 to C5, two octaves)
+// ============================================================
+// White keys: C3 D3 E3 F3 G3 A3 B3 C4 D4 E4 F4 G4 A4 B4 C5
+// MIDI: 48 50 52 53 55 57 59 60 62 64 65 67 69 71 72
+const WKEYS_MIDI = [48,50,52,53,55,57,59, 60,62,64,65,67,69,71, 72];
+const BKEYS_DEF = [
+  {midi:49,afterIdx:0},{midi:51,afterIdx:1},
+  {midi:54,afterIdx:3},{midi:56,afterIdx:4},{midi:58,afterIdx:5},
+  {midi:61,afterIdx:7},{midi:63,afterIdx:8},
+  {midi:66,afterIdx:10},{midi:68,afterIdx:11},{midi:70,afterIdx:12}
+];
+
+function buildPiano(pianoEl, highlightMidi, bassNoteMidi, onKey) {
+  pianoEl.innerHTML = '';
+  const roleForMidi = {};
+  if (highlightMidi) {
+    highlightMidi.midi.forEach((m, i) => {
+      // normalize to pitch class for multi-octave piano
+      roleForMidi[m] = highlightMidi.roles[i];
+    });
+  }
+
+  function roleClass(midi) {
+    // check exact midi first
+    if (roleForMidi[midi] !== undefined) return roleForMidi[midi];
+    // also check +/- 12
+    if (roleForMidi[midi + 12] !== undefined) return roleForMidi[midi + 12];
+    if (roleForMidi[midi - 12] !== undefined) return roleForMidi[midi - 12];
+    if (roleForMidi[midi + 24] !== undefined) return roleForMidi[midi + 24];
+    if (roleForMidi[midi - 24] !== undefined) return roleForMidi[midi - 24];
+    return null;
+  }
+
+  function cssForRole(role) {
+    if (!role) return '';
+    return { r:'root', '3':'third', '5':'fifth', '7':'seventh' }[role] || '';
+  }
+
+  // White keys
+  WKEYS_MIDI.forEach((m, idx) => {
+    const k = document.createElement('div');
+    const rClass = cssForRole(roleClass(m));
+    k.className = 'wkey' + (rClass ? ' ' + rClass : '');
+    if (bassNoteMidi !== undefined) {
+      // Check if this white key's pitch class matches bass pitch class (any octave)
+      if ((m % 12) === (bassNoteMidi % 12)) k.classList.add('bass-note');
+    }
+    k.textContent = noteName(m);
+    k.dataset.midi = m;
+    if (onKey) k.addEventListener('pointerdown', () => onKey(m));
+    pianoEl.appendChild(k);
+  });
+
+  // Black keys
+  BKEYS_DEF.forEach(b => {
+    const k = document.createElement('div');
+    const rClass = cssForRole(roleClass(b.midi));
+    k.className = 'bkey' + (rClass ? ' ' + rClass : '');
+    if (bassNoteMidi !== undefined) {
+      if ((b.midi % 12) === (bassNoteMidi % 12)) k.classList.add('bass-note');
+    }
+    k.textContent = NAMES[b.midi % 12].replace('#','♯');
+    k.dataset.midi = b.midi;
+    // position: after white key at afterIdx
+    const wW = 100 / WKEYS_MIDI.length; // % per white key
+    k.style.left = `calc(${(b.afterIdx + 1) * wW}% - ${wW * 0.4}%)`;
+    k.style.width = `${wW * 0.8}%`;
+    if (onKey) k.addEventListener('pointerdown', e => { e.stopPropagation(); onKey(b.midi); });
+    pianoEl.appendChild(k);
+  });
+}
+
+// ============================================================
+// Section 1: Inversion Explorer
+// ============================================================
+const piano1 = document.getElementById('piano1');
+const chordSel = document.getElementById('chordSel');
+const invSel = document.getElementById('invSel');
+
+function updateInversion() {
+  const ck = chordSel.value;
+  const inv = parseInt(invSel.value);
+  const ch = CHORDS[ck];
+  const isSev = ch.notes.length === 4;
+
+  if (inv === 3 && !isSev) {
+    invSel.value = '2';
+    return updateInversion();
+  }
+
+  const data = getInversionNotes(ck, inv);
+  const bassM = data.midi[0];
+  const figured = getFiguredBass(inv, isSev);
+  const slash = getSlashChord(ck, inv);
+
+  document.getElementById('invName').textContent = ch.name;
+  const figEl = document.getElementById('invFigured');
+  figEl.textContent = figured ? 'figured: ' + figured : 'thế gốc';
+  figEl.style.display = '';
+  const slashEl = document.getElementById('invSlash');
+  slashEl.textContent = slash;
+  document.getElementById('invBass').textContent = noteName(bassM);
+
+  // notes with roles
+  const notesEl = document.getElementById('invNotes');
+  notesEl.innerHTML = data.midi.map((m, i) => {
+    const roleMap = { r:'tag-root', '3':'tag-3rd', '5':'tag-5th', '7':'tag-7th' };
+    const cls = roleMap[data.roles[i]] || '';
+    const label = i === 0 ? ' (bass)' : '';
+    return `<span class="badge ${cls}">${noteName(m)}${label}</span>`;
+  }).join(' ');
+
+  document.getElementById('invDesc').textContent = getInvDesc(inv, isSev);
+
+  buildPiano(piano1, data, bassM, (m) => playTone(freqFromMidi(m), 0.7));
+}
+
+// Disable inversion 3 for triads
+chordSel.addEventListener('change', () => {
+  const isSev = CHORDS[chordSel.value].notes.length === 4;
+  invSel.options[3].disabled = !isSev;
+  updateInversion();
+});
+invSel.addEventListener('change', updateInversion);
+
+document.getElementById('playInv').addEventListener('click', () => {
+  const ck = chordSel.value;
+  const inv = parseInt(invSel.value);
+  const data = getInversionNotes(ck, inv);
+  data.midi.forEach((m, i) => playTone(freqFromMidi(m), 1.2, i * 0.0, 0.2));
+});
+
+updateInversion();
+
+// ============================================================
+// Section 2: Voice Leading
+// ============================================================
+// Each progression: array of { label, chordKey, inv } pairs for "jumpy" and "smooth"
+const PROGRESSIONS = {
+  'CG': {
+    title: 'C → G',
+    jumpy: [
+      { label:'C', midi:[48,52,55,60], voices:['Bass','Tenor','Alto','Soprano'] },
+      { label:'G', midi:[43,47,50,55], voices:['Bass','Tenor','Alto','Soprano'] }
+    ],
+    smooth: [
+      { label:'C', midi:[48,52,55,60], voices:['Bass','Tenor','Alto','Soprano'] },
+      { label:'G/B', midi:[47,50,55,59], voices:['Bass','Tenor','Alto','Soprano'] }
+    ],
+    jumpyNote: 'Bass nhảy quãng 5 xuống (C→G), alto quãng 4 xuống, v.v.',
+    smoothNote: 'Bass đi bước (C→B), tenor giữ G (nốt chung), alto D nhảy nhỏ, soprano đi bước.'
+  },
+  'CF': {
+    title: 'C → F',
+    jumpy: [
+      { label:'C', midi:[48,52,55,60], voices:['Bass','Tenor','Alto','Soprano'] },
+      { label:'F', midi:[41,45,48,53], voices:['Bass','Tenor','Alto','Soprano'] }
+    ],
+    smooth: [
+      { label:'C', midi:[48,52,55,60], voices:['Bass','Tenor','Alto','Soprano'] },
+      { label:'F', midi:[41,48,53,60], voices:['Bass','Tenor','Alto','Soprano'] }
+    ],
+    jumpyNote: 'Bass nhảy quãng 5 xuống (C→F).',
+    smoothNote: 'Soprano giữ C (nốt chung C-F), alto & tenor đi bước.'
+  },
+  'GC': {
+    title: 'G → C (V→I)',
+    jumpy: [
+      { label:'G', midi:[43,47,50,55], voices:['Bass','Tenor','Alto','Soprano'] },
+      { label:'C', midi:[48,52,55,60], voices:['Bass','Tenor','Alto','Soprano'] }
+    ],
+    smooth: [
+      { label:'G/B', midi:[47,50,55,59], voices:['Bass','Tenor','Alto','Soprano'] },
+      { label:'C', midi:[48,52,55,60], voices:['Bass','Tenor','Alto','Soprano'] }
+    ],
+    jumpyNote: 'Bass nhảy quãng 4 lên (G→C).',
+    smoothNote: 'G/B: bass đi bước (B→C), tenor giữ G, alto đi bước D→E, soprano B→C (leading tone giải quyết).'
+  },
+  'CGAmF': {
+    title: 'C → G → Am → F (I–V–vi–IV)',
+    jumpy: [
+      { label:'C', midi:[48,52,55,60], voices:['Bass','Tenor','Alto','Soprano'] },
+      { label:'G', midi:[43,47,50,55], voices:['Bass','Tenor','Alto','Soprano'] },
+      { label:'Am', midi:[45,52,57,60], voices:['Bass','Tenor','Alto','Soprano'] },
+      { label:'F', midi:[41,45,48,53], voices:['Bass','Tenor','Alto','Soprano'] }
+    ],
+    smooth: [
+      { label:'C', midi:[48,52,55,60], voices:['Bass','Tenor','Alto','Soprano'] },
+      { label:'G/B', midi:[47,50,55,59], voices:['Bass','Tenor','Alto','Soprano'] },
+      { label:'Am', midi:[45,52,57,60], voices:['Bass','Tenor','Alto','Soprano'] },
+      { label:'F', midi:[41,48,53,60], voices:['Bass','Tenor','Alto','Soprano'] }
+    ],
+    jumpyNote: 'Bass nhảy C→G→A→F: quãng 5, quãng 2, quãng 3.',
+    smoothNote: 'Bass đi C→B→A→F: C xuống bước (B), tiếp xuống bước (A), rồi nhảy nhỏ F.'
+  }
+};
+
+const vlContainer = document.getElementById('vlContainer');
+const progSel = document.getElementById('progSel');
+
+function renderVoiceLeading(progKey) {
+  const prog = PROGRESSIONS[progKey];
+  vlContainer.innerHTML = '';
+
+  function makeBlock(title, steps, noteText) {
+    const block = document.createElement('div');
+    block.className = 'vl-block';
+    block.innerHTML = `<h4>${title}</h4>`;
+
+    const voiceCount = steps[0].voices.length;
+    for (let v = 0; v < voiceCount; v++) {
+      const row = document.createElement('div');
+      row.className = 'voice-row';
+      const lbl = document.createElement('span');
+      lbl.className = 'voice-label';
+      lbl.textContent = steps[0].voices[v];
+      row.appendChild(lbl);
+
+      steps.forEach((step, si) => {
+        const box = document.createElement('span');
+        box.className = 'note-box';
+        const m = step.midi[v];
+        box.textContent = noteName(m);
+        // color: bass=purple, others=light
+        if (v === 0) { box.style.background = '#e9d5ff'; box.style.color = '#6b21a8'; }
+        else { box.style.background = '#faf5ff'; box.style.color = '#1a202c'; }
+        row.appendChild(box);
+
+        if (si < steps.length - 1) {
+          const arr = document.createElement('span');
+          const next = steps[si + 1].midi[v];
+          const diff = next - m;
+          if (diff === 0) {
+            arr.className = 'arrow smooth';
+            arr.textContent = '=';
+          } else if (Math.abs(diff) <= 2) {
+            arr.className = 'arrow smooth';
+            arr.textContent = diff > 0 ? '↑' : '↓';
+          } else {
+            arr.className = 'arrow';
+            arr.textContent = diff > 0 ? '↑↑' : '↓↓';
+          }
+          const moveL = document.createElement('span');
+          moveL.className = 'move-label';
+          if (diff === 0) moveL.textContent = 'giữ';
+          else moveL.textContent = (diff > 0 ? '+' : '') + diff + ' st';
+          arr.title = moveL.textContent;
+          row.appendChild(arr);
+        }
+      });
+      block.appendChild(row);
+    }
+
+    const note = document.createElement('p');
+    note.className = 'hint';
+    note.style.marginTop = '10px';
+    note.textContent = noteText;
+    block.appendChild(note);
+    return block;
+  }
+
+  vlContainer.appendChild(makeBlock('Cách "Nhảy" (đều thế gốc)', prog.jumpy, prog.jumpyNote));
+  vlContainer.appendChild(makeBlock('Cách "Mượt" (dùng thế đảo)', prog.smooth, prog.smoothNote));
+}
+
+progSel.addEventListener('change', () => renderVoiceLeading(progSel.value));
+renderVoiceLeading('CG');
+
+document.getElementById('playJumpy').addEventListener('click', () => {
+  const prog = PROGRESSIONS[progSel.value];
+  prog.jumpy.forEach((step, si) => {
+    step.midi.forEach(m => playTone(freqFromMidi(m), 1.0, si * 1.1, 0.18));
+  });
+});
+
+document.getElementById('playSmooth').addEventListener('click', () => {
+  const prog = PROGRESSIONS[progSel.value];
+  prog.smooth.forEach((step, si) => {
+    step.midi.forEach(m => playTone(freqFromMidi(m), 1.0, si * 1.1, 0.18));
+  });
+});
+
+// ============================================================
+// Section 3: Quiz
+// ============================================================
+const QUIZ_BANK = [
+  { q: 'Hợp âm C trưởng (C–E–G) có bè bass là <strong>E</strong>. Đây là thế nào?',
+    ans: 'Thế đảo 1', why: 'E là bậc 3 của C trưởng. Bậc 3 ở bass = thế đảo 1. Figured: 6.' },
+  { q: 'Ký hiệu <strong>G/D</strong>. Hợp âm G trưởng (G–B–D). Thế mấy?',
+    ans: 'Thế đảo 2', why: 'Bass là D = bậc 5 của G trưởng. Bậc 5 ở bass = thế đảo 2. Figured: 6/4.' },
+  { q: 'Hợp âm F trưởng (F–A–C) có bass là <strong>F</strong>. Thế nào?',
+    ans: 'Thế gốc', why: 'F là root (nốt gốc) của F trưởng. Root ở bass = thế gốc.' },
+  { q: 'Ký hiệu <strong>Am/E</strong>. A thứ = A–C–E. Thế mấy?',
+    ans: 'Thế đảo 2', why: 'Bass là E = bậc 5 của A thứ. Bậc 5 ở bass = thế đảo 2.' },
+  { q: 'Hợp âm G7 (G–B–D–F) có bass là <strong>B</strong>. Thế đảo nào?',
+    ans: 'Thế đảo 1', why: 'B là bậc 3 của G7. Bậc 3 ở bass = thế đảo 1. Figured: 6/5.' },
+  { q: 'Hợp âm Dm7 (D–F–A–C) có bass là <strong>C</strong>. Thế nào?',
+    ans: 'Thế đảo 3', why: 'C là bậc 7 của Dm7. Bậc 7 ở bass = thế đảo 3. Figured: 4/2.' },
+  { q: 'Ký hiệu <strong>Em/B</strong>. E thứ = E–G–B. Thế mấy?',
+    ans: 'Thế đảo 2', why: 'Bass là B = bậc 5 của E thứ. Bậc 5 ở bass = thế đảo 2.' },
+  { q: 'Hợp âm Cmaj7 (C–E–G–B) có bass là <strong>G</strong>. Thế nào?',
+    ans: 'Thế đảo 2', why: 'G là bậc 5 của Cmaj7. Bậc 5 ở bass = thế đảo 2. Figured: 4/3.' },
+  { q: 'Ký hiệu <strong>F/A</strong>. F trưởng = F–A–C. Thế mấy?',
+    ans: 'Thế đảo 1', why: 'Bass là A = bậc 3 của F trưởng. Bậc 3 ở bass = thế đảo 1.' },
+  { q: 'Hợp âm G7 (G–B–D–F) có bass là <strong>F</strong>. Đây là thế gì?',
+    ans: 'Thế đảo 3', why: 'F là bậc 7 của G7. Bậc 7 ở bass = thế đảo 3. Figured: 4/2.' },
+];
+
+const OPTIONS = ['Thế gốc', 'Thế đảo 1', 'Thế đảo 2', 'Thế đảo 3'];
+
+let quizIdx = 0;
+let quizCorrect = 0;
+let quizTotal = 0;
+let quizOrder = [];
+let answered = false;
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function renderQuiz() {
+  if (quizOrder.length === 0) quizOrder = shuffle(QUIZ_BANK.map((_, i) => i));
+  const q = QUIZ_BANK[quizOrder[quizIdx % quizOrder.length]];
+  answered = false;
+
+  document.getElementById('quizQuestion').innerHTML = q.q;
+  const ansArea = document.getElementById('quizAnswers');
+  ansArea.innerHTML = '';
+  OPTIONS.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'ghost';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => {
+      if (answered) return;
+      answered = true;
+      quizTotal++;
+      const fb = document.getElementById('quizFeedback');
+      if (opt === q.ans) {
+        quizCorrect++;
+        btn.style.background = '#dcfce7';
+        btn.style.color = '#166534';
+        fb.style.color = '#166534';
+        fb.textContent = '✓ Đúng! ' + q.why;
+      } else {
+        btn.style.background = '#fee2e2';
+        btn.style.color = '#991b1b';
+        fb.style.color = '#991b1b';
+        fb.textContent = '✗ Sai. Đáp án: ' + q.ans + '. ' + q.why;
+        // highlight correct
+        ansArea.querySelectorAll('button').forEach(b => {
+          if (b.textContent === q.ans) {
+            b.style.background = '#dcfce7';
+            b.style.color = '#166534';
+          }
+        });
+      }
+      document.getElementById('quizScore').textContent = `${quizCorrect}/${quizTotal} đúng`;
+    });
+    ansArea.appendChild(btn);
+  });
+  document.getElementById('quizFeedback').textContent = '';
+  document.getElementById('quizScore').textContent = quizTotal > 0 ? `${quizCorrect}/${quizTotal} đúng` : '';
+}
+
+document.getElementById('nextQuiz').addEventListener('click', () => {
+  quizIdx++;
+  renderQuiz();
+});
+
+renderQuiz();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -16,14 +16,14 @@ Dùng bộ công cụ logic của Tầng 1 để mổ xẻ lập luận **thực
 
 | Bài | Chủ đề | Khái niệm chính |
 |-----|--------|-----------------|
-| Lesson 01 | Cấu trúc lập luận | Premise/conclusion, từ chỉ dẫn, sơ đồ lập luận, tiền đề ẩn |
-| Lesson 02 | Ngụy biện hình thức | Affirming the consequent, denying the antecedent |
-| Lesson 03 | Ngụy biện phi hình thức — đánh lạc hướng | Ad hominem, straw man, red herring, tu quoque |
-| Lesson 04 | Ngụy biện — giả định & cấu trúc sai | False dilemma, slippery slope, begging the question, equivocation |
-| Lesson 05 | Thiên kiến nhận thức | Confirmation bias, anchoring, availability; liên hệ tâm lý học |
-| Lesson 06 | Đánh giá bằng chứng & nguồn | Correlation ≠ causation, cherry-picking, độ tin cậy nguồn |
-| Lesson 07 | Lập luận quy nạp & loại suy | Inductive strength, analogy, suy luận thống kê |
-| Lesson 08 | Tranh luận & phản biện | Dựng/bác lập luận, steelman, gánh nặng chứng minh |
+| [Lesson 01](./lesson-01-argument-structure/) | Cấu trúc lập luận | Premise/conclusion, từ chỉ dẫn, sơ đồ lập luận, tiền đề ẩn |
+| [Lesson 02](./lesson-02-formal-fallacies/) | Ngụy biện hình thức | Affirming the consequent, denying the antecedent |
+| [Lesson 03](./lesson-03-informal-fallacies-distraction/) | Ngụy biện phi hình thức — đánh lạc hướng | Ad hominem, straw man, red herring, tu quoque |
+| [Lesson 04](./lesson-04-informal-fallacies-assumption/) | Ngụy biện — giả định & cấu trúc sai | False dilemma, slippery slope, begging the question, equivocation |
+| [Lesson 05](./lesson-05-cognitive-biases/) | Thiên kiến nhận thức | Confirmation bias, anchoring, availability; liên hệ tâm lý học |
+| [Lesson 06](./lesson-06-evidence-sources/) | Đánh giá bằng chứng & nguồn | Correlation ≠ causation, cherry-picking, độ tin cậy nguồn |
+| [Lesson 07](./lesson-07-inductive-analogy/) | Lập luận quy nạp & loại suy | Inductive strength, analogy, suy luận thống kê |
+| [Lesson 08](./lesson-08-debate-rebuttal/) | Tranh luận & phản biện | Dựng/bác lập luận, steelman, gánh nặng chứng minh |
 
 ## Trước & sau tầng này
 

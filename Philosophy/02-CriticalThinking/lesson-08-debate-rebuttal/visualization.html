@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Tranh luận &amp; phản biện</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-hover: #44403c;
+    --accent-soft: #f0eeec;
+  }
+
+  h1 { color: #1c1917; }
+  h2 {
+    color: #292524;
+    margin-top: 40px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #d6d3d1;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #78716c;
+    margin: 6px 0 0;
+    line-height: 1.5;
+  }
+
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  button.ghost:hover { background: #e7e5e4; }
+  button.sm { padding: 6px 12px; font-size: 13px; }
+
+  /* ---- Shared quiz styles ---- */
+  .quiz-item {
+    border: 2px solid #e7e5e4;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin: 12px 0;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .quiz-item.correct { border-color: #86efac; background: #f0fdf4; }
+  .quiz-item.wrong   { border-color: #fca5a5; background: #fff7f7; }
+
+  .quiz-label {
+    font-size: 13px;
+    color: #78716c;
+    font-weight: 600;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .quiz-sentence {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1c1917;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .choice-btn {
+    background: #f5f5f4;
+    color: #44403c;
+    border: 2px solid #d6d3d1;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    text-align: left;
+    line-height: 1.4;
+  }
+  .choice-btn:hover:not(:disabled) { background: #e7e5e4; border-color: #a8a29e; }
+  .choice-btn:disabled { cursor: default; opacity: 0.7; }
+  .choice-btn.selected-correct { background: #bbf7d0; border-color: #22c55e; color: #14532d; }
+  .choice-btn.selected-wrong   { background: #fecaca; border-color: #ef4444; color: #7f1d1d; }
+  .choice-btn.reveal-correct   { background: #dcfce7; border-color: #86efac; color: #166534; }
+
+  .explanation {
+    display: none;
+    margin-top: 10px;
+    padding: 12px 14px;
+    background: var(--accent-soft);
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #292524;
+  }
+  .explanation.show { display: block; }
+
+  /* ---- Score bar ---- */
+  .score-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--accent-soft);
+    border-radius: 10px;
+    margin: 16px 0;
+    font-size: 15px;
+    flex-wrap: wrap;
+  }
+  .score-num {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: monospace;
+    white-space: nowrap;
+  }
+  .score-bar > div { flex: 1; min-width: 0; }
+  progress {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    background: #e7e5e4;
+  }
+  progress::-webkit-progress-bar { background: #e7e5e4; border-radius: 4px; }
+  progress::-webkit-progress-value { background: var(--accent); border-radius: 4px; }
+  progress::-moz-progress-bar { background: var(--accent); border-radius: 4px; }
+
+  /* ---- Section 1: Rebuttal builder ---- */
+  .arg-box {
+    background: #fafaf9;
+    border: 1px solid #e7e5e4;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 10px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .arg-box strong { color: #292524; }
+  .arg-part {
+    margin: 4px 0;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-right: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .tag-p { background: #dbeafe; color: #1e40af; }
+  .tag-c { background: #fef3c7; color: #92400e; }
+  .tag-w { background: #ede9fe; color: #5b21b6; }
+
+  /* Rebuttal type badge */
+  .rebuttal-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    margin: 2px 3px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .rb-premise { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+  .rb-inference { background: #ede9fe; color: #5b21b6; border-color: #ddd6fe; }
+  .rb-counter-eg { background: #d1fae5; color: #064e3b; border-color: #a7f3d0; }
+  .rb-counter-arg { background: #fef3c7; color: #78350f; border-color: #fde68a; }
+  .rebuttal-badge:hover { opacity: 0.8; transform: scale(1.04); }
+  .rebuttal-badge.sel { box-shadow: 0 0 0 3px #57534e44; transform: scale(1.06); }
+
+  .feedback-box {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 10px;
+    display: none;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-box.ok { background: #f0fdf4; border: 1px solid #86efac; }
+  .feedback-box.miss { background: #fff7ed; border: 1px solid #fed7aa; }
+
+  /* ---- Section 2: Steelman vs Straw man ---- */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+  .interp-card {
+    border: 2px solid #e7e5e4;
+    border-radius: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    font-size: 14px;
+    line-height: 1.6;
+    user-select: none;
+  }
+  .interp-card:hover { border-color: #a8a29e; background: #fafaf9; }
+  .interp-card.selected { border-color: var(--accent); background: var(--accent-soft); }
+  .interp-card.reveal-correct { border-color: #22c55e; background: #f0fdf4; }
+  .interp-card.reveal-wrong   { border-color: #ef4444; background: #fff7f7; }
+  .interp-card .card-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    color: #78716c;
+  }
+
+  /* ---- Section 3: Burden of Proof ---- */
+  .situation-box {
+    background: #fafaf9;
+    border-left: 4px solid var(--accent);
+    padding: 12px 16px;
+    margin: 10px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .situation-box p { margin: 4px 0; }
+
+  .bop-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0;
+  }
+  .bop-btn {
+    background: #f5f5f4;
+    color: #44403c;
+    border: 2px solid #d6d3d1;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .bop-btn:hover:not(:disabled) { background: #e7e5e4; }
+  .bop-btn:disabled { cursor: default; }
+  .bop-btn.sel-correct { background: #bbf7d0; border-color: #22c55e; color: #14532d; }
+  .bop-btn.sel-wrong   { background: #fecaca; border-color: #ef4444; color: #7f1d1d; }
+  .bop-btn.reveal      { background: #dcfce7; border-color: #86efac; color: #166534; }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .card { padding: 14px 14px; }
+    .quiz-sentence { font-size: 14px; }
+    h2 { font-size: 17px; }
+    .choice-btn { font-size: 12px; padding: 7px 11px; }
+    .score-num { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Critical Thinking</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-inductive-analogy/visualization.html">← L7: Lập luận quy nạp</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Tranh luận &amp; phản biện</span>
+  <span class="sep">·</span>
+  <a href="../../03-AdvancedLogic-Language/index.html">Tầng 3: Advanced &amp; Language →</a>
+</nav>
+
+<main>
+<h1>Lesson 08 — Tranh luận &amp; phản biện</h1>
+<p>Ba bài tập tương tác dưới đây luyện ba kỹ năng cốt lõi: xác định <strong>ai gánh burden of proof</strong>, phân biệt <strong>steelman vs straw man</strong>, và chọn đúng <strong>kiểu phản bác</strong> cho một lập luận cụ thể.</p>
+
+<!-- ============================================================ -->
+<h2>1. Dựng &amp; phân tích phản bác</h2>
+<div class="card">
+  <p>Mỗi lập luận dưới đây đã được phân tích ra tiền đề và kết luận. Hãy chọn kiểu phản bác <em>phù hợp nhất</em> cho từng lập luận dựa trên điểm yếu rõ ràng nhất của nó.</p>
+  <p class="hint">Bốn kiểu: <span class="rebuttal-badge rb-premise">Bác tiền đề</span> <span class="rebuttal-badge rb-inference">Bác suy luận</span> <span class="rebuttal-badge rb-counter-eg">Phản ví dụ</span> <span class="rebuttal-badge rb-counter-arg">Phản lập luận</span></p>
+
+  <div class="score-bar" id="scoreBar1">
+    <div class="score-num" id="score1">0 / 0</div>
+    <div>
+      <progress id="prog1" value="0" max="1"></progress>
+      <div class="hint" id="scoreHint1">Chọn kiểu phản bác để bắt đầu.</div>
+    </div>
+    <button class="ghost sm" onclick="resetSection1()">Làm lại</button>
+  </div>
+
+  <div id="rebArea"></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Steelman vs Straw man</h2>
+<div class="card">
+  <p>Mỗi câu hỏi cho bạn một <strong>luận điểm gốc</strong> và hai cách diễn giải. Hãy xác định đâu là <strong>steelman</strong> (phiên bản mạnh nhất, hợp lý nhất) và đâu là <strong>straw man</strong> (phiên bản yếu nhất, bị bóp méo).</p>
+
+  <div class="score-bar" id="scoreBar2">
+    <div class="score-num" id="score2">0 / 0</div>
+    <div>
+      <progress id="prog2" value="0" max="1"></progress>
+      <div class="hint" id="scoreHint2">Bấm vào một trong hai diễn giải để chọn.</div>
+    </div>
+    <button class="ghost sm" onclick="resetSection2()">Làm lại</button>
+  </div>
+
+  <div id="steelArea"></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Ai gánh burden of proof?</h2>
+<div class="card">
+  <p>Trong mỗi tình huống, hãy xác định <strong>bên nào phải cung cấp bằng chứng/lý lẽ</strong> — hay đây là trường hợp <em>không ai</em> cần chứng minh vì đây là kiến thức đã được xác lập.</p>
+
+  <div class="score-bar" id="scoreBar3">
+    <div class="score-num" id="score3">0 / 0</div>
+    <div>
+      <progress id="prog3" value="0" max="1"></progress>
+      <div class="hint" id="scoreHint3">Chọn bên gánh burden of proof.</div>
+    </div>
+    <button class="ghost sm" onclick="resetSection3()">Làm lại</button>
+  </div>
+
+  <div id="bopArea"></div>
+</div>
+
+<script>
+// ================================================================
+// SECTION 1 — REBUTTAL TYPES
+// ================================================================
+const REBUTTAL_QS = [
+  {
+    title: 'Lập luận về thức ăn tự nhiên',
+    premise1: 'Mọi thứ có nguồn gốc tự nhiên đều tốt cho sức khỏe.',
+    premise2: 'Arsenic là chất có nguồn gốc tự nhiên.',
+    conclusion: 'Vậy arsenic tốt cho sức khỏe.',
+    bestType: 'premise',
+    bestLabel: 'Bác tiền đề',
+    explanation: 'Điểm yếu rõ nhất là <strong>tiền đề 1 sai</strong>: arsenic, thủy ngân, nọc rắn, nấm Amanita phalloides đều "tự nhiên" và đều cực độc. "Tự nhiên" ≠ "tốt cho sức khỏe". Bác tiền đề 1 là đủ để hạ toàn bộ lập luận — không cần bác suy luận hay cần phản lập luận.',
+    allTypes: {
+      premise: { ok: true, note: 'Đúng — tiền đề 1 sai rõ ràng: arsenic tự nhiên nhưng cực độc.' },
+      inference: { ok: false, note: 'Suy luận về mặt hình thức hợp lệ (nếu tiền đề đúng thì kết luận theo sau). Vấn đề không nằm ở bước suy luận mà ở nội dung tiền đề.' },
+      'counter-eg': { ok: true, note: 'Cũng chấp nhận được — arsenic chính là phản ví dụ cho tiền đề 1. Nhưng bác tiền đề trực tiếp có cấu trúc rõ hơn.' },
+      'counter-arg': { ok: false, note: 'Không cần xây phản lập luận phức tạp khi tiền đề có thể bác trực tiếp và nhanh chóng.' }
+    }
+  },
+  {
+    title: 'Lập luận về tương quan và nhân quả',
+    premise1: 'Số lượng nhà thờ ở một thành phố tăng.',
+    premise2: 'Tội phạm ở thành phố đó cũng tăng.',
+    conclusion: 'Vậy nhà thờ là nguyên nhân gây tội phạm.',
+    bestType: 'inference',
+    bestLabel: 'Bác suy luận',
+    explanation: 'Cả hai tiền đề (dữ kiện) có thể đúng — dân số tăng thì cả nhà thờ lẫn tội phạm đều tăng. Nhưng <strong>suy luận sai</strong>: tương quan không phải nhân quả (<em>post hoc ergo propter hoc</em>). Biến thứ ba (dân số tăng) giải thích cả hai. Bác suy luận chính xác nhất ở đây.',
+    allTypes: {
+      premise: { ok: false, note: 'Hai tiền đề là dữ kiện thống kê có thể đúng. Không có gì để bác ở tiền đề.' },
+      inference: { ok: true, note: 'Đúng — suy luận nhảy từ tương quan sang nhân quả là lỗi logic kinh điển.' },
+      'counter-eg': { ok: false, note: 'Phản ví dụ ít hiệu quả ở đây vì vấn đề không phải ở tính phổ quát của tiền đề mà ở bước suy luận.' },
+      'counter-arg': { ok: false, note: 'Có thể dùng nhưng ít hiệu quả hơn — vấn đề cốt lõi là lỗi logic cần chỉ ra trực tiếp.' }
+    }
+  },
+  {
+    title: 'Lập luận về thành công',
+    premise1: 'Mọi người giàu có đều chăm chỉ làm việc.',
+    premise2: 'Tôi chăm chỉ làm việc.',
+    conclusion: 'Vậy tôi sẽ trở nên giàu có.',
+    bestType: 'inference',
+    bestLabel: 'Bác suy luận',
+    explanation: 'Suy luận có lỗi <strong>khẳng định hệ quả</strong> (affirming the consequent): "Mọi A đều có B. Tôi có B. Vậy tôi là A." — không hợp lệ. Nhiều người chăm chỉ vẫn không giàu vì chăm chỉ là điều kiện cần không phải đủ. Bác suy luận là kiểu phản bác chính xác nhất.',
+    allTypes: {
+      premise: { ok: false, note: 'Tiền đề 1 có thể tranh luận nhưng không sai hiển nhiên. Điểm yếu lớn nhất là ở bước suy luận.' },
+      inference: { ok: true, note: 'Đúng — đây là lỗi affirming the consequent: "Mọi A→B; Tôi có B; → Tôi là A" không hợp lệ.' },
+      'counter-eg': { ok: true, note: 'Cũng chấp nhận được — bạn có thể chỉ ra nhiều người chăm chỉ không giàu. Nhưng bác suy luận chính xác và thuyết phục hơn về mặt logic.' },
+      'counter-arg': { ok: false, note: 'Không cần thiết — điểm yếu logic có thể chỉ ra trực tiếp.' }
+    }
+  },
+  {
+    title: 'Lập luận về chính sách cấm đoán',
+    premise1: 'Cấm rượu hoàn toàn sẽ loại bỏ tai nạn giao thông do rượu.',
+    premise2: 'Chúng ta muốn loại bỏ tai nạn giao thông do rượu.',
+    conclusion: 'Vậy nên cấm rượu hoàn toàn.',
+    bestType: 'counter-arg',
+    bestLabel: 'Phản lập luận',
+    explanation: 'Tiền đề 1 đáng ngờ nhưng để cho qua; suy luận có thể phản bác nhưng cách mạnh nhất là <strong>phản lập luận độc lập</strong>: (1) Lịch sử Prohibition ở Mỹ (1920–1933) cho thấy cấm rượu tạo ra thị trường ngầm, băng đảng mafia, tăng tội phạm; (2) có các biện pháp hiệu quả hơn để giảm TNGT rượu bia (giới hạn nồng độ cồn, phạt nặng, kiểm tra định kỳ) mà không cần cấm toàn bộ; (3) tự do cá nhân là giá trị cần cân nhắc.',
+    allTypes: {
+      premise: { ok: true, note: 'Cũng hợp lý — tiền đề 1 có thể sai: cấm không đảm bảo loại bỏ hoàn toàn (thị trường chợ đen). Nhưng phản lập luận mạnh và thuyết phục hơn.' },
+      inference: { ok: false, note: 'Suy luận hình thức không có lỗi nghiêm trọng — vấn đề là ở thực tiễn và các hệ quả không được xem xét.' },
+      'counter-eg': { ok: false, note: 'Phản ví dụ ít phù hợp ở đây vì không có mệnh đề "tất cả" cần bác.' },
+      'counter-arg': { ok: true, note: 'Đúng — phản lập luận từ lịch sử Prohibition và các biện pháp thay thế hiệu quả hơn là kiểu phản bác mạnh nhất cho trường hợp này.' }
+    }
+  },
+  {
+    title: 'Lập luận về học thuật',
+    premise1: 'Mọi sinh viên xuất sắc đều học hơn 8 giờ mỗi ngày.',
+    premise2: 'Bạn muốn trở thành sinh viên xuất sắc.',
+    conclusion: 'Vậy bạn phải học hơn 8 giờ mỗi ngày.',
+    bestType: 'counter-eg',
+    bestLabel: 'Phản ví dụ',
+    explanation: 'Tiền đề 1 là mệnh đề phổ quát "Mọi... đều..." — <strong>phản ví dụ</strong> là kiểu bác trực tiếp và hiệu quả nhất. Ví dụ: Richard Feynman nổi tiếng học theo cách tập trung ngắn và chơi nhiều; nhiều sinh viên đứng đầu lớp tại các đại học hàng đầu không học 8 giờ/ngày mà chú trọng chất lượng học, không phải số giờ. Một phản ví dụ đủ để bác tiền đề phổ quát.',
+    allTypes: {
+      premise: { ok: true, note: 'Cũng chấp nhận — bác tiền đề 1 là đúng. Phản ví dụ là cách hiệu quả nhất để bác tiền đề phổ quát.' },
+      inference: { ok: false, note: 'Suy luận không có lỗi hình thức nghiêm trọng — vấn đề nằm ở tiền đề sai.' },
+      'counter-eg': { ok: true, note: 'Đúng — mệnh đề "Mọi... đều..." bị bác bởi một phản ví dụ duy nhất.' },
+      'counter-arg': { ok: false, note: 'Phản lập luận phức tạp hơn cần thiết — phản ví dụ đơn giản và trực tiếp hơn.' }
+    }
+  }
+];
+
+let reb_answers = new Array(REBUTTAL_QS.length).fill(null);
+let reb_score = 0, reb_answered = 0;
+
+const TYPE_META = {
+  premise:     { label: 'Bác tiền đề',    cls: 'rb-premise' },
+  inference:   { label: 'Bác suy luận',   cls: 'rb-inference' },
+  'counter-eg':  { label: 'Phản ví dụ',    cls: 'rb-counter-eg' },
+  'counter-arg': { label: 'Phản lập luận', cls: 'rb-counter-arg' }
+};
+
+function renderSection1() {
+  const area = document.getElementById('rebArea');
+  area.innerHTML = '';
+  REBUTTAL_QS.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = 'reb-' + i;
+
+    div.innerHTML = `
+      <div class="quiz-label">Lập luận ${i + 1}</div>
+      <div class="quiz-sentence">${q.title}</div>
+      <div class="arg-box">
+        <div class="arg-part"><span class="tag tag-p">T1</span>${q.premise1}</div>
+        <div class="arg-part"><span class="tag tag-p">T2</span>${q.premise2}</div>
+        <div class="arg-part"><span class="tag tag-c">KL</span><strong>${q.conclusion}</strong></div>
+      </div>
+      <div style="margin:10px 0 4px; font-size:13px; color:#78716c; font-weight:600">Kiểu phản bác phù hợp nhất:</div>
+      <div class="btn-row" id="reb-btns-${i}"></div>
+      <div class="feedback-box" id="reb-fb-${i}"></div>
+    `;
+    area.appendChild(div);
+
+    const btnRow = div.querySelector(`#reb-btns-${i}`);
+    Object.entries(TYPE_META).forEach(([typeKey, meta]) => {
+      const btn = document.createElement('button');
+      btn.className = 'rebuttal-badge ' + meta.cls;
+      btn.textContent = meta.label;
+      btn.dataset.type = typeKey;
+      btn.addEventListener('click', () => handleReb(i, typeKey, btn));
+      btnRow.appendChild(btn);
+    });
+  });
+  updateScore1();
+}
+
+function handleReb(i, chosen, btn) {
+  if (reb_answers[i] !== null) return;
+  const q = REBUTTAL_QS[i];
+  const info = q.allTypes[chosen];
+  const isCorrect = (chosen === q.bestType);
+
+  reb_answers[i] = isCorrect;
+  if (isCorrect) reb_score++;
+  reb_answered++;
+
+  // Mark buttons
+  const btnRow = document.getElementById('reb-btns-' + i);
+  btnRow.querySelectorAll('.rebuttal-badge').forEach(b => {
+    b.style.pointerEvents = 'none';
+    if (b.dataset.type === q.bestType) b.style.outline = '3px solid #22c55e';
+    if (b.dataset.type === chosen && !isCorrect) b.style.outline = '3px solid #ef4444';
+  });
+
+  const item = document.getElementById('reb-' + i);
+  item.className = 'quiz-item ' + (isCorrect ? 'correct' : 'wrong');
+
+  const fb = document.getElementById('reb-fb-' + i);
+  fb.className = 'feedback-box show ' + (isCorrect ? 'ok' : 'miss');
+  let note = info ? `<em>${info.note}</em><br>` : '';
+  fb.innerHTML = note + '<strong>Phân tích:</strong> ' + q.explanation;
+
+  updateScore1();
+}
+
+function updateScore1() {
+  const n = REBUTTAL_QS.length;
+  document.getElementById('score1').textContent = reb_score + ' / ' + reb_answered;
+  document.getElementById('prog1').value = reb_answered === 0 ? 0 : reb_score / reb_answered;
+  const hint = document.getElementById('scoreHint1');
+  if (reb_answered === 0) {
+    hint.textContent = 'Chọn kiểu phản bác để bắt đầu.';
+  } else if (reb_answered < n) {
+    hint.textContent = `Đã trả lời ${reb_answered}/${n}. Tỷ lệ đúng: ${Math.round(reb_score / reb_answered * 100)}%.`;
+  } else {
+    const pct = Math.round(reb_score / n * 100);
+    const msg = pct === 100 ? 'Xuất sắc! Bạn phân biệt rõ bốn kiểu phản bác.'
+      : pct >= 60 ? 'Tốt! Ôn lại những câu sai.'
+      : 'Hãy đọc lại mục 3 trong README rồi thử lại.';
+    hint.textContent = `Hoàn thành! ${pct}% — ${msg}`;
+  }
+}
+
+function resetSection1() {
+  reb_answers = new Array(REBUTTAL_QS.length).fill(null);
+  reb_score = 0; reb_answered = 0;
+  renderSection1();
+}
+
+// ================================================================
+// SECTION 2 — STEELMAN vs STRAW MAN
+// ================================================================
+const STEEL_QS = [
+  {
+    claim: '"Nên giảm ngân sách quốc phòng và chuyển nguồn lực sang giáo dục và y tế."',
+    options: [
+      {
+        label: 'Diễn giải A',
+        text: 'Người này muốn đất nước không có quân đội, để mặc cho kẻ thù xâm lược mà không phòng thủ.',
+        type: 'straw',
+        typeLabel: 'Straw Man'
+      },
+      {
+        label: 'Diễn giải B',
+        text: 'Lập luận mạnh nhất: ngưỡng chi tiêu quốc phòng tối ưu là điểm mà đồng tiền biên tế tiếp theo tạo ra nhiều an ninh hơn khi đầu tư vào giáo dục/y tế — một số nghiên cứu gợi ý nhiều nước đã vượt ngưỡng này; giảm ngân sách quốc phòng có chọn lọc (loại các chương trình vũ khí kém hiệu quả, lỗi thời) có thể không làm giảm thực sự khả năng phòng thủ.',
+        type: 'steel',
+        typeLabel: 'Steelman'
+      }
+    ],
+    explanation: '<strong>Diễn giải A là straw man</strong>: người đưa ra luận điểm không hề nói "không có quân đội" — đây là diễn giải cực đoan sai lệch. <strong>Diễn giải B là steelman</strong>: xây dựng lập luận kinh tế học nghiêm túc về điểm tối ưu của chi tiêu quốc phòng, thừa nhận sắc thái, và không bóp méo ý định gốc.'
+  },
+  {
+    claim: '"Trẻ em không nên có smartphone trước tuổi 13."',
+    options: [
+      {
+        label: 'Diễn giải A',
+        text: 'Nghiên cứu phát triển thần kinh cho thấy dopamine reward loops của mạng xã hội có thể gây nghiện hành vi ở não đang phát triển; trước 13 tuổi, vỏ não trước trán (kiểm soát xung động) chưa đủ phát triển để tự điều tiết. Đây không phải chống công nghệ mà là lập lịch tiếp xúc phù hợp giai đoạn phát triển.',
+        type: 'steel',
+        typeLabel: 'Steelman'
+      },
+      {
+        label: 'Diễn giải B',
+        text: 'Họ muốn trẻ em bị cô lập xã hội, không biết công nghệ và tụt hậu so với bạn bè trong thế giới hiện đại.',
+        type: 'straw',
+        typeLabel: 'Straw Man'
+      }
+    ],
+    explanation: '<strong>Diễn giải A là steelman</strong>: dựa trên khoa học thần kinh cụ thể, phân biệt giữa "chống công nghệ" và "lập lịch phù hợp" — đây là cách đọc mạnh nhất và hợp lý nhất của lập luận gốc. <strong>Diễn giải B là straw man</strong>: "cô lập xã hội" và "tụt hậu" là diễn giải cực đoan không có trong luận điểm gốc.'
+  },
+  {
+    claim: '"Nên đánh thuế nặng hơn vào thu nhập của tỷ phú."',
+    options: [
+      {
+        label: 'Diễn giải A',
+        text: 'Người này ghét người giàu và muốn trừng phạt thành công. Nếu ai thành công thì bị lấy hết tiền, ai còn muốn cố gắng nữa?',
+        type: 'straw',
+        typeLabel: 'Straw Man'
+      },
+      {
+        label: 'Diễn giải B',
+        text: 'Lập luận từ kinh tế học phúc lợi: marginal utility của đồng tiền giảm dần khi giàu hơn (tỷ phú thứ 1000 của một người ít có ý nghĩa hơn đồng đầu tiên của người nghèo); Pareto improvement có thể đạt được bằng cách tái phân phối; và nếu thuế thiết kế đúng (chỉ đánh phần cực giàu, có exemption cho tái đầu tư sản xuất), distortion incentive có thể được giảm thiểu.',
+        type: 'steel',
+        typeLabel: 'Steelman'
+      }
+    ],
+    explanation: '<strong>Diễn giải A là straw man</strong>: quy chụp động cơ ("ghét người giàu") và diễn giải cực đoan ("lấy hết tiền") không có trong luận điểm gốc. <strong>Diễn giải B là steelman</strong>: xây dựng lập luận kinh tế học nghiêm túc với nguyên lý giảm dần biên tế và thiết kế thuế cẩn thận — mạnh hơn cả những gì người đưa ra luận điểm gốc có thể tự trình bày.'
+  },
+  {
+    claim: '"Chương trình học đại học quá thiên về lý thuyết, không đủ kỹ năng thực tế."',
+    options: [
+      {
+        label: 'Diễn giải A',
+        text: 'Steelman: Sự phân kỳ ngày càng lớn giữa kỹ năng tuyển dụng yêu cầu và kỹ năng sinh viên tốt nghiệp có được (skill gap) được ghi nhận bởi nhiều khảo sát nhà tuyển dụng; tốc độ thay đổi công nghệ và ngành nghề nhanh hơn chu kỳ cập nhật chương trình học; điều này không phủ nhận giá trị tư duy phê phán từ lý thuyết nhưng lập luận cho việc tích hợp project-based learning và internship có hệ thống.',
+        type: 'steel',
+        typeLabel: 'Steelman'
+      },
+      {
+        label: 'Diễn giải B',
+        text: 'Người này không coi trọng học thuật, muốn đại học thành trường dạy nghề và loại bỏ nghiên cứu cơ bản.',
+        type: 'straw',
+        typeLabel: 'Straw Man'
+      }
+    ],
+    explanation: '<strong>Diễn giải A là steelman</strong>: thừa nhận giá trị lý thuyết (tư duy phê phán), dùng dữ liệu thực (skill gap surveys), và đề xuất giải pháp tích hợp thay vì loại bỏ — đây là đọc mạnh nhất của luận điểm gốc. <strong>Diễn giải B là straw man</strong>: "loại bỏ nghiên cứu cơ bản" không có trong luận điểm; đây là quy chụp ý định.'
+  }
+];
+
+let steel_answers = new Array(STEEL_QS.length).fill(null);
+let steel_score = 0, steel_answered = 0;
+
+function renderSection2() {
+  const area = document.getElementById('steelArea');
+  area.innerHTML = '';
+  STEEL_QS.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = 'steel-' + i;
+
+    let optsHtml = '<div class="two-col">';
+    q.options.forEach((opt, j) => {
+      optsHtml += `
+        <div class="interp-card" id="interp-${i}-${j}" data-qi="${i}" data-oi="${j}">
+          <div class="card-label">${opt.label}</div>
+          <div>${opt.text}</div>
+        </div>`;
+    });
+    optsHtml += '</div>';
+
+    div.innerHTML = `
+      <div class="quiz-label">Tình huống ${i + 1}</div>
+      <div class="quiz-sentence">Luận điểm gốc: ${q.claim}</div>
+      <p style="font-size:13px;color:#78716c;margin:0 0 8px">Đâu là <strong>steelman</strong> (mạnh nhất, hợp lý nhất)? Bấm vào diễn giải bạn chọn.</p>
+      ${optsHtml}
+      <div class="explanation" id="steel-exp-${i}"></div>
+    `;
+    area.appendChild(div);
+
+    // Attach click to each option card
+    q.options.forEach((opt, j) => {
+      document.getElementById(`interp-${i}-${j}`).addEventListener('click', () => handleSteel(i, j));
+    });
+  });
+  updateScore2();
+}
+
+function handleSteel(qi, oi) {
+  if (steel_answers[qi] !== null) return;
+  const q = STEEL_QS[qi];
+  const chosen = q.options[oi];
+  const isCorrect = chosen.type === 'steel';
+
+  steel_answers[qi] = isCorrect;
+  if (isCorrect) steel_score++;
+  steel_answered++;
+
+  q.options.forEach((opt, j) => {
+    const card = document.getElementById(`interp-${qi}-${j}`);
+    card.style.pointerEvents = 'none';
+    if (opt.type === 'steel') card.className = 'interp-card reveal-correct';
+    else if (j === oi && !isCorrect) card.className = 'interp-card reveal-wrong';
+  });
+
+  const item = document.getElementById('steel-' + qi);
+  item.className = 'quiz-item ' + (isCorrect ? 'correct' : 'wrong');
+
+  const exp = document.getElementById('steel-exp-' + qi);
+  exp.className = 'explanation show';
+  exp.innerHTML = q.explanation;
+
+  updateScore2();
+}
+
+function updateScore2() {
+  const n = STEEL_QS.length;
+  document.getElementById('score2').textContent = steel_score + ' / ' + steel_answered;
+  document.getElementById('prog2').value = steel_answered === 0 ? 0 : steel_score / steel_answered;
+  const hint = document.getElementById('scoreHint2');
+  if (steel_answered === 0) {
+    hint.textContent = 'Bấm vào một trong hai diễn giải để chọn.';
+  } else if (steel_answered < n) {
+    hint.textContent = `Đã trả lời ${steel_answered}/${n}. Tỷ lệ đúng: ${Math.round(steel_score / steel_answered * 100)}%.`;
+  } else {
+    const pct = Math.round(steel_score / n * 100);
+    const msg = pct === 100 ? 'Xuất sắc! Bạn phân biệt rõ steelman và straw man.'
+      : pct >= 50 ? 'Tốt! Ôn lại những câu sai để hiểu rõ hơn.'
+      : 'Hãy đọc lại mục 2 trong README rồi thử lại.';
+    hint.textContent = `Hoàn thành! ${pct}% — ${msg}`;
+  }
+}
+
+function resetSection2() {
+  steel_answers = new Array(STEEL_QS.length).fill(null);
+  steel_score = 0; steel_answered = 0;
+  renderSection2();
+}
+
+// ================================================================
+// SECTION 3 — BURDEN OF PROOF
+// ================================================================
+const BOP_QS = [
+  {
+    situation: [
+      'A: "Uống sữa bò gây ung thư ruột. Tôi đọc được trên một trang web."',
+      'B: "Tôi không tin điều đó."',
+      'C (đứng cạnh): "Vậy B phải chứng minh sữa bò không gây ung thư."'
+    ],
+    options: ['A gánh BOP', 'B gánh BOP', 'C đúng — B phải chứng minh', 'Cả A và B cùng gánh'],
+    correct: 0,
+    correctLabel: 'A gánh BOP',
+    explanation: '<strong>A gánh burden of proof</strong>. A đưa ra khẳng định nhân quả cụ thể (sữa bò → ung thư ruột) từ nguồn không đáng tin — phải cung cấp nghiên cứu, cơ chế sinh học. B chỉ phủ nhận — không cần chứng minh gì. C sai: đây là <em>burden shifting</em> bất hợp lệ. Trong thực tế, nghiên cứu dịch tễ học quy mô lớn không ủng hộ mối liên hệ nhân quả đơn giản này.'
+  },
+  {
+    situation: [
+      'Trong một cuộc tranh luận về chính sách:',
+      'A: "Tăng lương tối thiểu sẽ gây thất nghiệp hàng loạt."',
+      'B: "Không đúng — tăng lương tối thiểu có thể không ảnh hưởng đáng kể đến việc làm."'
+    ],
+    options: ['Chỉ A gánh BOP', 'Chỉ B gánh BOP', 'Cả A và B đều gánh BOP', 'Không ai cần chứng minh'],
+    correct: 2,
+    correctLabel: 'Cả A và B đều gánh BOP',
+    explanation: '<strong>Cả A và B đều gánh BOP</strong>. A khẳng định "sẽ gây thất nghiệp hàng loạt" — phải dẫn nghiên cứu kinh tế, mô hình. B phản bác bằng một khẳng định tích cực ("không ảnh hưởng đáng kể") — cũng cần dẫn bằng chứng (Card & Krueger 1994, nghiên cứu về các thành phố có lương tối thiểu khác nhau). Đây là vùng tranh chấp thực sự trong kinh tế học — cả hai phía đều cần bằng chứng.'
+  },
+  {
+    situation: [
+      'A: "Chưa có ai chứng minh được rằng ngoại cảm (ESP) không tồn tại."',
+      'B: "Vậy ngoại cảm tồn tại."',
+      'C: "Không — A cần chứng minh ngoại cảm tồn tại trước."'
+    ],
+    options: ['A và B đúng — vắng mặt bằng chứng phủ định là bằng chứng', 'C đúng — bên khẳng định phải chứng minh', 'Không ai có BOP — đây là vấn đề niềm tin', 'B gánh BOP vì B đang đưa ra kết luận'],
+    correct: 1,
+    correctLabel: 'C đúng — bên khẳng định phải chứng minh',
+    explanation: '<strong>C hoàn toàn đúng</strong>. Lập luận của A là <em>appeal to ignorance</em> (argument from ignorance): "chưa chứng minh được sai" ≠ "đúng". Logic này dẫn đến absurdity: "Chưa ai chứng minh được rồng không tồn tại, vậy rồng tồn tại." Burden of proof thuộc về bên khẳng định sự tồn tại của hiện tượng phi thường — cần bằng chứng phi thường (Carl Sagan).'
+  },
+  {
+    situation: [
+      'Trong buổi họp công ty:',
+      'Quản lý A: "Dự án X thất bại vì nhóm phát triển làm việc không hiệu quả."',
+      'Kỹ sư B: "Chúng tôi không đồng ý — có nhiều nguyên nhân khác."',
+      'A: "Vậy B hãy chứng minh cho tôi thấy nhóm không phải nguyên nhân."'
+    ],
+    options: ['A đúng — B phải chứng minh nhóm không lỗi', 'A sai — A đang burden shifting bất hợp lệ', 'Cả hai cùng có lỗi', 'B không cần phản hồi gì'],
+    correct: 1,
+    correctLabel: 'A sai — A đang burden shifting bất hợp lệ',
+    explanation: '<strong>A đang burden shifting bất hợp lệ</strong>. A đưa ra cáo buộc cụ thể ("nhóm phát triển không hiệu quả") nhưng không cung cấp bằng chứng — chỉ khẳng định. Sau đó A chuyển nghĩa vụ chứng minh sang B. Đúng ra: A phải cung cấp bằng chứng cho cáo buộc của mình trước (dữ liệu về tiến độ, KPI, v.v.); B sau đó có thể phản bác bằng bằng chứng ngược chiều.'
+  },
+  {
+    situation: [
+      'A: "Biến đổi khí hậu do con người gây ra là thực tế khoa học."',
+      'B: "Anh phải chứng minh điều đó."'
+    ],
+    options: ['B đúng — A phải chứng minh mọi khẳng định', 'A không cần chứng minh — đây là đồng thuận khoa học', 'Cả hai phải cung cấp bằng chứng bình đẳng', 'B gánh BOP vì B đang thách thức'],
+    correct: 1,
+    correctLabel: 'A không cần chứng minh lại — đây là đồng thuận khoa học',
+    explanation: '<strong>Đây là trường hợp đặc biệt</strong>: Biến đổi khí hậu nhân tạo là đồng thuận khoa học với mức độ bằng chứng cực kỳ cao (IPCC, NASA, NOAA, peer-reviewed journals). Burden of proof đã được đáp ứng bởi cộng đồng khoa học — A không cần "chứng minh lại từ đầu" mỗi khi bị thách thức. <em>Thay vào đó</em>, B — bên bác bỏ đồng thuận khoa học — mang burden of proof: phải giải thích tại sao bằng chứng tích lũy hàng thập kỷ là sai. Burden shifting trong khoa học hoạt động khác với tranh luận hàng ngày.'
+  }
+];
+
+let bop_answers = new Array(BOP_QS.length).fill(null);
+let bop_score = 0, bop_answered = 0;
+
+function renderSection3() {
+  const area = document.getElementById('bopArea');
+  area.innerHTML = '';
+  BOP_QS.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = 'bop-' + i;
+
+    let situHtml = q.situation.map(s => `<p>${s}</p>`).join('');
+    let optsHtml = '<div class="bop-options">';
+    q.options.forEach((opt, j) => {
+      optsHtml += `<button class="bop-btn" id="bop-btn-${i}-${j}" data-j="${j}" onclick="handleBOP(${i}, ${j})">${opt}</button>`;
+    });
+    optsHtml += '</div>';
+
+    div.innerHTML = `
+      <div class="quiz-label">Tình huống ${i + 1}</div>
+      <div class="situation-box">${situHtml}</div>
+      ${optsHtml}
+      <div class="explanation" id="bop-exp-${i}"></div>
+    `;
+    area.appendChild(div);
+  });
+  updateScore3();
+}
+
+function handleBOP(qi, chosen) {
+  if (bop_answers[qi] !== null) return;
+  const q = BOP_QS[qi];
+  const isCorrect = chosen === q.correct;
+
+  bop_answers[qi] = isCorrect;
+  if (isCorrect) bop_score++;
+  bop_answered++;
+
+  q.options.forEach((opt, j) => {
+    const btn = document.getElementById(`bop-btn-${qi}-${j}`);
+    btn.disabled = true;
+    if (j === q.correct) btn.className = 'bop-btn reveal';
+    else if (j === chosen && !isCorrect) btn.className = 'bop-btn sel-wrong';
+  });
+
+  const item = document.getElementById('bop-' + qi);
+  item.className = 'quiz-item ' + (isCorrect ? 'correct' : 'wrong');
+
+  const exp = document.getElementById('bop-exp-' + qi);
+  exp.className = 'explanation show';
+  exp.innerHTML = q.explanation;
+
+  updateScore3();
+}
+
+function updateScore3() {
+  const n = BOP_QS.length;
+  document.getElementById('score3').textContent = bop_score + ' / ' + bop_answered;
+  document.getElementById('prog3').value = bop_answered === 0 ? 0 : bop_score / bop_answered;
+  const hint = document.getElementById('scoreHint3');
+  if (bop_answered === 0) {
+    hint.textContent = 'Chọn bên gánh burden of proof.';
+  } else if (bop_answered < n) {
+    hint.textContent = `Đã trả lời ${bop_answered}/${n}. Tỷ lệ đúng: ${Math.round(bop_score / bop_answered * 100)}%.`;
+  } else {
+    const pct = Math.round(bop_score / n * 100);
+    const msg = pct === 100 ? 'Xuất sắc! Bạn hiểu rõ burden of proof.'
+      : pct >= 60 ? 'Tốt! Ôn lại những câu sai.'
+      : 'Hãy đọc lại mục 1 trong README rồi thử lại.';
+    hint.textContent = `Hoàn thành! ${pct}% — ${msg}`;
+  }
+}
+
+function resetSection3() {
+  bop_answers = new Array(BOP_QS.length).fill(null);
+  bop_score = 0; bop_answered = 0;
+  renderSection3();
+}
+
+// ================================================================
+// INIT
+// ================================================================
+renderSection1();
+renderSection2();
+renderSection3();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

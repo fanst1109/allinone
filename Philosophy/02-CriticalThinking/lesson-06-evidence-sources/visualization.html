@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Đánh giá bằng chứng &amp; nguồn</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-hover: #44403c;
+    --accent-soft: #f0eeec;
+  }
+
+  h1 { color: #1c1917; }
+  h2 { color: #292524; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #d6d3d1; }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #78716c;
+    margin: 6px 0 0;
+    line-height: 1.5;
+  }
+
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  button.ghost:hover { background: #e7e5e4; }
+  button.sm { padding: 6px 12px; font-size: 13px; }
+  button.active { background: #44403c; box-shadow: 0 0 0 3px #c8b99a; }
+
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0;
+  }
+
+  /* ===== MODULE 1: SCATTER ===== */
+  .scatter-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .scatter-left { flex: 1 1 300px; min-width: 0; }
+  .scatter-right { flex: 0 0 200px; min-width: 0; }
+
+  svg.scatter {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    background: #fafaf9;
+    border: 1px solid #e7e5e4;
+  }
+
+  .legend-box {
+    background: #fafaf9;
+    border: 1px solid #e7e5e4;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+  }
+  .legend-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .scenario-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0;
+  }
+  .scenario-tab {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid #d6d3d1;
+    background: #fafaf9;
+    color: #57534e;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .scenario-tab:hover { background: #e7e5e4; }
+  .scenario-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .info-panel {
+    background: var(--accent-soft);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 10px 0;
+    color: #292524;
+  }
+  .info-panel strong { color: var(--accent); }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .badge-warn { background: #fef3c7; color: #92400e; }
+  .badge-ok { background: #dcfce7; color: #166534; }
+  .badge-bad { background: #fee2e2; color: #991b1b; }
+
+  /* ===== MODULE 2: CHERRY-PICK ===== */
+  .chart-container {
+    position: relative;
+    margin: 12px 0;
+  }
+  svg.barchart {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .reveal-overlay {
+    display: none;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255,255,255,0.92);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: #57534e;
+    text-align: center;
+    padding: 16px;
+  }
+  .reveal-overlay.hidden { display: none; }
+
+  .quote-box {
+    background: #fff7ed;
+    border-left: 4px solid #fb923c;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 10px 0;
+    color: #292524;
+  }
+
+  .full-data-box {
+    background: #f0fdf4;
+    border-left: 4px solid #4ade80;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 10px 0;
+    color: #292524;
+    display: none;
+  }
+  .full-data-box.show { display: block; }
+
+  /* ===== MODULE 3: SOURCE CHECKER ===== */
+  .source-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+    margin: 14px 0;
+  }
+  .source-card {
+    border: 2px solid #e7e5e4;
+    border-radius: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: #fff;
+  }
+  .source-card:hover { background: #fafaf9; border-color: #a8a29e; }
+  .source-card.selected { border-color: var(--accent); background: var(--accent-soft); }
+  .source-card-title { font-weight: 700; font-size: 14px; color: #1c1917; margin-bottom: 6px; }
+  .source-card-desc { font-size: 13px; color: #78716c; line-height: 1.5; }
+
+  .criteria-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin: 10px 0;
+  }
+  .criteria-table th {
+    background: #e7e5e4;
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 700;
+    color: #292524;
+  }
+  .criteria-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f5f5f4;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .criteria-table tr:last-child td { border-bottom: none; }
+  .criteria-table tr:hover td { background: #fafaf9; }
+
+  .score-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    font-size: 16px;
+    font-weight: 800;
+    font-family: monospace;
+    flex-shrink: 0;
+  }
+  .score-high { background: #dcfce7; color: #166534; }
+  .score-mid { background: #fef3c7; color: #92400e; }
+  .score-low { background: #fee2e2; color: #991b1b; }
+
+  .total-score-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--accent-soft);
+    border-radius: 10px;
+    margin: 14px 0;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 480px) {
+    .card { padding: 14px 14px; }
+    .scatter-right { flex: 1 1 100%; }
+    h2 { font-size: 17px; }
+    .source-grid { grid-template-columns: 1fr; }
+    .scenario-tab { font-size: 12px; padding: 5px 10px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Critical Thinking</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-cognitive-biases/visualization.html">← L5: Thiên kiến nhận thức</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Đánh giá bằng chứng &amp; nguồn</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-inductive-analogy/visualization.html">L7: Lập luận quy nạp →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Đánh giá bằng chứng &amp; nguồn</h1>
+<p>Ba bài tập tương tác giúp bạn hiểu tại sao <strong>tương quan không phải nhân quả</strong>, nhận ra <strong>cherry-picking</strong>, và đánh giá <strong>độ tin cậy của nguồn</strong> thông tin.</p>
+
+<!-- ============================================================ -->
+<h2>1. Tương quan vs nhân quả — vai trò của biến gây nhiễu</h2>
+<div class="card">
+  <p>Chọn một kịch bản, quan sát tương quan X↔Y, rồi bật "Hiện biến gây nhiễu Z" để thấy tương quan thực sự đến từ đâu.</p>
+
+  <div class="scenario-tabs" id="scenarioTabs"></div>
+
+  <div class="scatter-wrap">
+    <div class="scatter-left">
+      <svg class="scatter" id="scatterSvg" viewBox="0 0 420 300" width="420" height="300">
+        <defs>
+          <clipPath id="plotClip">
+            <rect x="55" y="20" width="340" height="240"/>
+          </clipPath>
+        </defs>
+        <!-- Axes -->
+        <line x1="55" y1="260" x2="395" y2="260" stroke="#d6d3d1" stroke-width="1.5"/>
+        <line x1="55" y1="20" x2="55" y2="260" stroke="#d6d3d1" stroke-width="1.5"/>
+        <!-- X axis label -->
+        <text id="xLabel" x="225" y="292" text-anchor="middle" font-size="12" fill="#78716c"></text>
+        <!-- Y axis label -->
+        <text id="yLabel" x="14" y="145" text-anchor="middle" font-size="12" fill="#78716c" transform="rotate(-90,14,145)"></text>
+        <!-- Grid lines -->
+        <line x1="55" y1="175" x2="395" y2="175" stroke="#f0eeec" stroke-width="1"/>
+        <line x1="55" y1="90" x2="395" y2="90" stroke="#f0eeec" stroke-width="1"/>
+        <line x1="140" y1="20" x2="140" y2="260" stroke="#f0eeec" stroke-width="1"/>
+        <line x1="225" y1="20" x2="225" y2="260" stroke="#f0eeec" stroke-width="1"/>
+        <line x1="310" y1="20" x2="310" y2="260" stroke="#f0eeec" stroke-width="1"/>
+        <!-- Points group -->
+        <g id="scatterPoints" clip-path="url(#plotClip)"></g>
+        <!-- Trend line -->
+        <line id="trendLine" x1="0" y1="0" x2="0" y2="0" stroke="#57534e" stroke-width="1.5" stroke-dasharray="5,4" opacity="0"/>
+        <!-- Correlation label -->
+        <text id="corrLabel" x="390" y="36" text-anchor="end" font-size="12" fill="#57534e" font-weight="700"></text>
+      </svg>
+    </div>
+    <div class="scatter-right">
+      <div class="legend-box">
+        <div style="font-weight:700;font-size:13px;margin-bottom:8px;color:#292524">Chú thích</div>
+        <div id="legendContent"></div>
+      </div>
+      <div style="margin-top:10px">
+        <button id="btnConfounder" class="ghost" onclick="toggleConfounder()">Hiện biến nhiễu Z</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-panel" id="scenarioInfo"></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Săn cherry-pick — phát hiện dữ liệu bị giấu</h2>
+<div class="card">
+  <p>Xem "trích dẫn" mà người biện luận đưa ra, rồi bấm "Xem dữ liệu đầy đủ" để phát hiện phần bị giấu. Chọn kịch bản để khám phá các dạng cherry-picking khác nhau.</p>
+
+  <div class="scenario-tabs" id="cherryTabs"></div>
+
+  <div class="quote-box" id="cherryQuote"></div>
+
+  <div style="overflow-x:auto">
+    <svg class="barchart" id="cherryChart" viewBox="0 0 540 240" width="540" height="240">
+      <defs>
+        <clipPath id="barClip"><rect x="55" y="10" width="470" height="200"/></clipPath>
+      </defs>
+      <line x1="55" y1="210" x2="525" y2="210" stroke="#d6d3d1" stroke-width="1.5"/>
+      <line x1="55" y1="10" x2="55" y2="210" stroke="#d6d3d1" stroke-width="1.5"/>
+      <g id="cherryBars" clip-path="url(#barClip)"></g>
+      <g id="cherryLabels"></g>
+      <text id="cherryYLabel" x="16" y="115" text-anchor="middle" font-size="11" fill="#78716c" transform="rotate(-90,16,115)"></text>
+    </svg>
+  </div>
+
+  <div class="btn-row">
+    <button onclick="revealFullData()">Xem dữ liệu đầy đủ</button>
+    <button class="ghost" onclick="resetCherry()">Ẩn lại</button>
+  </div>
+
+  <div class="full-data-box" id="fullDataBox"></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Bảng kiểm đánh giá nguồn</h2>
+<div class="card">
+  <p>Chọn một nguồn thông tin bên dưới để xem đánh giá theo 6 tiêu chí. So sánh các nguồn để thấy mức độ tin cậy khác nhau rõ rệt như thế nào.</p>
+
+  <div class="source-grid" id="sourceGrid"></div>
+
+  <div id="sourceCriteriaArea" style="display:none">
+    <div class="total-score-bar" id="totalScoreBar"></div>
+    <div style="overflow-x:auto">
+      <table class="criteria-table" id="criteriaTable">
+        <thead>
+          <tr>
+            <th style="width:160px">Tiêu chí</th>
+            <th style="width:80px;text-align:center">Điểm</th>
+            <th>Đánh giá</th>
+          </tr>
+        </thead>
+        <tbody id="criteriaTbody"></tbody>
+      </table>
+    </div>
+    <div class="info-panel" id="sourceConclusion"></div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// SCATTER — MODULE 1
+// ================================================================
+const SCENARIOS = [
+  {
+    id: 'icecream',
+    label: 'Kem & đuối nước',
+    xLabel: 'Doanh số kem (nghìn ly)',
+    yLabel: 'Số vụ đuối nước',
+    zLabel: 'Nhiệt độ',
+    zLow: 'Mát (< 20°C)',
+    zHigh: 'Nóng (≥ 30°C)',
+    colorLow: '#93c5fd',
+    colorHigh: '#f97316',
+    info: '<strong>Kịch bản:</strong> Kem và đuối nước có tương quan dương rõ (r ≈ 0.82). Nhưng biến gây nhiễu <strong>Z = nhiệt độ</strong> gây cả hai: trời nóng → bán nhiều kem VÀ nhiều người tắm sông/biển → đuối nước nhiều hơn. Khi bật biến nhiễu, thấy rõ điểm chia thành hai cụm — trong mỗi cụm, tương quan X↔Y yếu hơn nhiều.',
+    points: [
+      {x:12,y:8,z:0},{x:15,y:10,z:0},{x:10,y:7,z:0},{x:8,y:5,z:0},{x:13,y:9,z:0},
+      {x:9,y:6,z:0},{x:11,y:8,z:0},{x:7,y:4,z:0},{x:14,y:10,z:0},{x:6,y:5,z:0},
+      {x:60,y:38,z:1},{x:75,y:50,z:1},{x:80,y:55,z:1},{x:65,y:42,z:1},{x:70,y:46,z:1},
+      {x:85,y:58,z:1},{x:55,y:36,z:1},{x:90,y:62,z:1},{x:72,y:48,z:1},{x:78,y:52,z:1},
+    ]
+  },
+  {
+    id: 'hospital',
+    label: 'Bệnh viện & tử vong',
+    xLabel: 'Tỷ lệ nhập viện (%)',
+    yLabel: 'Tỷ lệ tử vong (%)',
+    zLabel: 'Độ nặng bệnh',
+    zLow: 'Bệnh nhẹ',
+    zHigh: 'Bệnh nặng',
+    colorLow: '#4ade80',
+    colorHigh: '#ef4444',
+    info: '<strong>Kịch bản nhân quả ngược:</strong> Thoạt nhìn "tỷ lệ nhập viện cao → tỷ lệ tử vong cao". Nhưng <strong>Z = độ nặng bệnh</strong> giải thích tất cả: người bệnh nặng hơn → nhập viện nhiều hơn VÀ tử vong nhiều hơn. Bệnh viện không gây tử vong — ngược lại bệnh nặng gây cả hai. Đây là biến nhiễu cộng với nhân quả ngược.',
+    points: [
+      {x:5,y:0.5,z:0},{x:8,y:0.8,z:0},{x:6,y:0.6,z:0},{x:4,y:0.4,z:0},{x:9,y:1.0,z:0},
+      {x:3,y:0.3,z:0},{x:7,y:0.7,z:0},{x:10,y:0.9,z:0},{x:5,y:0.5,z:0},{x:6,y:0.6,z:0},
+      {x:60,y:18,z:1},{x:75,y:22,z:1},{x:80,y:28,z:1},{x:65,y:20,z:1},{x:70,y:24,z:1},
+      {x:85,y:30,z:1},{x:55,y:16,z:1},{x:90,y:32,z:1},{x:72,y:25,z:1},{x:78,y:26,z:1},
+    ]
+  },
+  {
+    id: 'spurious',
+    label: 'Tương quan giả',
+    xLabel: 'Phim Nicolas Cage (số phim/năm)',
+    yLabel: 'Đuối bồn tắm (số ca/năm)',
+    zLabel: 'Năm',
+    zLow: '1999–2003',
+    zHigh: '2004–2009',
+    colorLow: '#a78bfa',
+    colorHigh: '#f43f5e',
+    info: '<strong>Tương quan giả (spurious):</strong> r ≈ 0.67 nhưng <strong>không có cơ chế nhân quả nào</strong> nối hai biến này. Cả hai đều có xu hướng thay đổi theo năm — một trùng hợp thống kê thuần túy. Ví dụ nổi tiếng từ Tyler Vigen (spuriouscorrelations.com). Bài học: tương quan mạnh mà thiếu cơ chế hợp lý → phải nghi ngờ spurious.',
+    points: [
+      {x:2,y:109,z:0},{x:2,y:102,z:0},{x:3,y:112,z:0},{x:2,y:105,z:0},{x:3,y:108,z:0},
+      {x:4,y:120,z:1},{x:3,y:110,z:1},{x:5,y:130,z:1},{x:4,y:122,z:1},{x:3,y:115,z:1},
+      {x:5,y:135,z:1},{x:6,y:140,z:1},{x:4,y:118,z:1},{x:6,y:142,z:1},{x:2,y:98,z:0},
+      {x:2,y:100,z:0},{x:3,y:106,z:0},{x:3,y:111,z:0},{x:4,y:125,z:1},{x:5,y:132,z:1}
+    ]
+  }
+];
+
+let currentScenario = 0;
+let showConfounder = false;
+
+function initScatterTabs() {
+  const tabs = document.getElementById('scenarioTabs');
+  SCENARIOS.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'scenario-tab' + (i === 0 ? ' active' : '');
+    btn.textContent = s.label;
+    btn.onclick = () => selectScenario(i);
+    tabs.appendChild(btn);
+  });
+}
+
+function selectScenario(i) {
+  currentScenario = i;
+  showConfounder = false;
+  document.getElementById('btnConfounder').textContent = 'Hiện biến nhiễu Z';
+  document.getElementById('btnConfounder').classList.remove('active');
+  document.querySelectorAll('#scenarioTabs .scenario-tab').forEach((b, j) => {
+    b.classList.toggle('active', j === i);
+  });
+  renderScatter();
+}
+
+function toggleConfounder() {
+  showConfounder = !showConfounder;
+  const btn = document.getElementById('btnConfounder');
+  btn.textContent = showConfounder ? 'Ẩn biến nhiễu Z' : 'Hiện biến nhiễu Z';
+  btn.classList.toggle('active', showConfounder);
+  renderScatter();
+}
+
+function renderScatter() {
+  const sc = SCENARIOS[currentScenario];
+  const pts = sc.points;
+
+  // Axis labels
+  document.getElementById('xLabel').textContent = sc.xLabel;
+  document.getElementById('yLabel').textContent = sc.yLabel;
+
+  // Compute ranges
+  const xs = pts.map(p => p.x);
+  const ys = pts.map(p => p.y);
+  const xMin = Math.min(...xs), xMax = Math.max(...xs);
+  const yMin = Math.min(...ys), yMax = Math.max(...ys);
+  const xRange = xMax - xMin || 1;
+  const yRange = yMax - yMin || 1;
+
+  // SVG plot area: x from 55 to 395 (width 340), y from 260 down to 20 (height 240)
+  const toSvgX = v => 55 + ((v - xMin) / xRange) * 320 + 10;
+  const toSvgY = v => 260 - ((v - yMin) / yRange) * 220 - 10;
+
+  const g = document.getElementById('scatterPoints');
+  g.innerHTML = '';
+
+  pts.forEach(p => {
+    const cx = toSvgX(p.x);
+    const cy = toSvgY(p.y);
+    const fill = showConfounder
+      ? (p.z === 0 ? sc.colorLow : sc.colorHigh)
+      : '#57534e';
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', cx);
+    circle.setAttribute('cy', cy);
+    circle.setAttribute('r', 5);
+    circle.setAttribute('fill', fill);
+    circle.setAttribute('opacity', '0.82');
+    g.appendChild(circle);
+  });
+
+  // Trend line (simple linear regression)
+  const n = pts.length;
+  const meanX = xs.reduce((a,b)=>a+b,0)/n;
+  const meanY = ys.reduce((a,b)=>a+b,0)/n;
+  const slope = pts.reduce((s,p)=>s+(p.x-meanX)*(p.y-meanY),0) /
+                pts.reduce((s,p)=>s+(p.x-meanX)**2,0);
+  const intercept = meanY - slope * meanX;
+
+  const x1val = xMin;
+  const x2val = xMax;
+  const tl = document.getElementById('trendLine');
+  tl.setAttribute('x1', toSvgX(x1val));
+  tl.setAttribute('y1', toSvgY(intercept + slope * x1val));
+  tl.setAttribute('x2', toSvgX(x2val));
+  tl.setAttribute('y2', toSvgY(intercept + slope * x2val));
+  tl.setAttribute('opacity', '0.5');
+
+  // Correlation coefficient
+  const ssXY = pts.reduce((s,p)=>s+(p.x-meanX)*(p.y-meanY),0);
+  const ssX = pts.reduce((s,p)=>s+(p.x-meanX)**2,0);
+  const ssY = pts.reduce((s,p)=>s+(p.y-meanY)**2,0);
+  const r = ssXY / Math.sqrt(ssX * ssY);
+  document.getElementById('corrLabel').textContent = 'r = ' + r.toFixed(2);
+
+  // Legend
+  const leg = document.getElementById('legendContent');
+  if (showConfounder) {
+    leg.innerHTML = `
+      <div class="legend-row"><div class="legend-dot" style="background:${sc.colorLow}"></div><span>${sc.zLow}</span></div>
+      <div class="legend-row"><div class="legend-dot" style="background:${sc.colorHigh}"></div><span>${sc.zHigh}</span></div>
+      <div style="margin-top:10px;font-size:12px;color:#78716c">Tô màu theo <strong>${sc.zLabel}</strong></div>
+    `;
+  } else {
+    leg.innerHTML = `
+      <div class="legend-row"><div class="legend-dot" style="background:#57534e"></div><span>Điểm dữ liệu</span></div>
+      <div class="legend-row" style="margin-top:6px"><svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="#57534e" stroke-width="1.5" stroke-dasharray="4,3"/></svg> <span>Đường xu hướng</span></div>
+      <div style="margin-top:10px;font-size:12px;color:#78716c">Bật "Hiện biến nhiễu Z" để xem cụm màu</div>
+    `;
+  }
+
+  document.getElementById('scenarioInfo').innerHTML = sc.info;
+}
+
+// ================================================================
+// CHERRY-PICK — MODULE 2
+// ================================================================
+const CHERRY_SCENARIOS = [
+  {
+    label: 'Doanh số cổ phiếu',
+    quote: '📢 CEO tuyên bố: "Từ tháng 4 đến tháng 6, doanh số phục hồi ấn tượng — tăng 28.6%!" (Sản phẩm ra mắt tháng 1)',
+    yLabel: 'Doanh số (triệu đ)',
+    months: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+    values: [100, 80, 85, 70, 75, 90],
+    highlighted: [3, 4, 5], // tháng 4-6 (index)
+    fullData: '📊 <strong>Dữ liệu đầy đủ 6 tháng:</strong> Tháng 1 (ra mắt): 100tr → Tháng 6: 90tr. <strong>Giảm 10% so với ra mắt.</strong> CEO chọn điểm thấp nhất (tháng 4: 70tr) làm điểm xuất phát để số % tăng trông đẹp. Con số 28.6% chính xác nhưng ngữ cảnh cố tình sai lệch — đây là cherry-picking khoảng thời gian (temporal cherry-picking).'
+  },
+  {
+    label: 'Nhiệt độ toàn cầu',
+    quote: '📢 Lập luận: "Từ 1998 đến 2012, nhiệt độ Trái Đất không tăng — bằng chứng là biến đổi khí hậu bị phóng đại!"',
+    yLabel: 'Nhiệt độ (°C so chuẩn)',
+    months: ['1995','1998','2001','2004','2007','2010','2013','2016','2019','2022'],
+    values: [0.38, 0.61, 0.54, 0.57, 0.62, 0.72, 0.68, 1.01, 0.98, 1.02],
+    highlighted: [1, 2, 3, 4, 5, 6], // 1998-2013
+    fullData: '📊 <strong>Dữ liệu đầy đủ 1995–2022:</strong> Xu hướng tăng dài hạn rõ ràng. Năm 1998 là đỉnh El Niño bất thường — chọn điểm này làm điểm xuất phát cố tình làm slope trông phẳng trong đoạn ngắn. Phải nhìn toàn chuỗi dài hạn để thấy bức tranh thật. Đây là temporal cherry-picking kinh điển.'
+  },
+  {
+    label: 'Danh mục đầu tư',
+    quote: '📢 Quảng cáo quỹ: "Danh mục A của chúng tôi tăng 40% năm ngoái! Hãy đầu tư ngay!"',
+    yLabel: 'Hiệu suất (%)',
+    months: ['QI', 'QII', 'QIII', 'QIV (A)', 'QIV (B)', 'QIV (C)', 'QIV (D)'],
+    values: [5, 8, 12, 40, -25, -15, 3],
+    highlighted: [3], // chỉ danh mục A
+    fullData: '📊 <strong>Dữ liệu đầy đủ:</strong> Danh mục A tăng 40% (đúng), nhưng danh mục B giảm 25%, danh mục C giảm 15%, danh mục D chỉ tăng 3%. Hiệu suất trung bình của toàn quỹ: (40-25-15+3)/4 = 0.75% — gần như không sinh lời. Chỉ đăng con số đẹp nhất = cherry-picking cấp danh mục (portfolio cherry-picking).'
+  }
+];
+
+let currentCherry = 0;
+let cherryRevealed = false;
+
+function initCherryTabs() {
+  const tabs = document.getElementById('cherryTabs');
+  CHERRY_SCENARIOS.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'scenario-tab' + (i === 0 ? ' active' : '');
+    btn.textContent = s.label;
+    btn.onclick = () => selectCherry(i);
+    tabs.appendChild(btn);
+  });
+}
+
+function selectCherry(i) {
+  currentCherry = i;
+  cherryRevealed = false;
+  document.querySelectorAll('#cherryTabs .scenario-tab').forEach((b, j) => {
+    b.classList.toggle('active', j === i);
+  });
+  renderCherry();
+}
+
+function renderCherry() {
+  const sc = CHERRY_SCENARIOS[currentCherry];
+  document.getElementById('cherryQuote').innerHTML = sc.quote;
+  document.getElementById('fullDataBox').innerHTML = sc.fullData;
+  document.getElementById('fullDataBox').classList.toggle('show', cherryRevealed);
+  document.getElementById('cherryYLabel').textContent = sc.yLabel;
+
+  const values = sc.values;
+  const months = sc.months;
+  const n = months.length;
+  const maxVal = Math.max(...values.map(Math.abs)) * 1.15;
+  const minVal = Math.min(...values);
+  const hasNeg = minVal < 0;
+
+  // SVG: viewBox="0 0 540 240", plot area x:55-525, y:10-210
+  const barW = Math.min(40, (470 / n) - 8);
+  const gap = (470 - barW * n) / (n + 1);
+  const zeroY = hasNeg ? 210 - (0 - minVal) / (maxVal - minVal + Math.abs(minVal)) * 200 * 0.95 : 210;
+  const yScale = (v) => {
+    if (hasNeg) {
+      return 210 - ((v - minVal) / (maxVal - minVal + Math.abs(minVal))) * 190;
+    }
+    return 210 - (v / maxVal) * 190;
+  };
+
+  const barsG = document.getElementById('cherryBars');
+  const labsG = document.getElementById('cherryLabels');
+  barsG.innerHTML = '';
+  labsG.innerHTML = '';
+
+  // Zero line for negative charts
+  if (hasNeg) {
+    const zl = document.createElementNS('http://www.w3.org/2000/svg','line');
+    zl.setAttribute('x1','55'); zl.setAttribute('x2','525');
+    zl.setAttribute('y1', yScale(0)); zl.setAttribute('y2', yScale(0));
+    zl.setAttribute('stroke','#a8a29e'); zl.setAttribute('stroke-width','1');
+    barsG.appendChild(zl);
+  }
+
+  months.forEach((m, i) => {
+    const v = values[i];
+    const isHighlighted = sc.highlighted.includes(i);
+    const x = 55 + gap + i * (barW + gap);
+    const y0 = yScale(0);
+    const y1 = yScale(v);
+    const barY = Math.min(y0, y1);
+    const barH = Math.abs(y0 - y1);
+
+    const fill = cherryRevealed
+      ? (isHighlighted ? '#f97316' : '#a8a29e')
+      : (isHighlighted ? '#f97316' : '#c8c5c2');
+
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x', x);
+    rect.setAttribute('y', barY);
+    rect.setAttribute('width', barW);
+    rect.setAttribute('height', Math.max(barH, 2));
+    rect.setAttribute('fill', fill);
+    rect.setAttribute('rx', '3');
+    barsG.appendChild(rect);
+
+    // Month label
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x', x + barW/2);
+    lbl.setAttribute('y', 228);
+    lbl.setAttribute('text-anchor','middle');
+    lbl.setAttribute('font-size','10');
+    lbl.setAttribute('fill','#78716c');
+    lbl.textContent = m;
+    labsG.appendChild(lbl);
+
+    // Value label on bar
+    const vlbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    vlbl.setAttribute('x', x + barW/2);
+    const labelY = v >= 0 ? barY - 4 : barY + barH + 12;
+    vlbl.setAttribute('y', labelY);
+    vlbl.setAttribute('text-anchor','middle');
+    vlbl.setAttribute('font-size','10');
+    vlbl.setAttribute('fill', isHighlighted && cherryRevealed ? '#c2410c' : '#57534e');
+    vlbl.setAttribute('font-weight', isHighlighted ? '700' : '400');
+    vlbl.textContent = v > 0 ? '+' + v : v;
+    labsG.appendChild(vlbl);
+  });
+}
+
+function revealFullData() {
+  cherryRevealed = true;
+  renderCherry();
+  document.getElementById('fullDataBox').classList.add('show');
+}
+
+function resetCherry() {
+  cherryRevealed = false;
+  renderCherry();
+  document.getElementById('fullDataBox').classList.remove('show');
+}
+
+// ================================================================
+// SOURCE CHECKER — MODULE 3
+// ================================================================
+const SOURCES = [
+  {
+    id: 'blog',
+    title: 'A — Blog cá nhân',
+    desc: '"Uống nước gừng chữa đau khớp — câu chuyện hồi phục kỳ diệu của tôi"',
+    criteria: [
+      { name: 'Sơ/thứ cấp', score: 0, text: 'Giai thoại cá nhân — không phải nghiên cứu hay nguồn học thuật. Cấp độ bằng chứng thấp nhất.' },
+      { name: 'Chuyên môn', score: 0, text: 'Người viết là người dùng thông thường, không có đào tạo y khoa hay nghiên cứu.' },
+      { name: 'Xung đột lợi ích', score: 1, text: 'Không rõ — có thể có hoặc không có. Một số blog cá nhân có liên kết affiliate.' },
+      { name: 'Bình duyệt', score: 0, text: 'Không có peer review. Không ai kiểm tra nội dung trước khi đăng.' },
+      { name: 'Ngày tháng', score: 1, text: 'Blog thường có ngày đăng, nhưng nội dung không cập nhật theo bằng chứng mới.' },
+      { name: 'Phương pháp', score: 0, text: 'Giai thoại đơn lẻ: không có nhóm đối chứng, không đo lường khách quan, không loại trừ placebo hay regression to the mean.' },
+    ],
+    conclusion: '⚠ <strong>Độ tin cậy rất thấp.</strong> Giai thoại có thể gợi giả thuyết cần nghiên cứu, nhưng không thể dùng làm bằng chứng về hiệu quả điều trị. Đặc biệt chú ý: đau khớp mãn tính thường tự giảm theo chu kỳ — người viết blog có thể cải thiện do hồi phục tự nhiên, không phải do gừng.'
+  },
+  {
+    id: 'journal',
+    title: 'B — Journal of Nutrition (2023)',
+    desc: 'Nghiên cứu mù đôi, có nhóm đối chứng, n=180, tài trợ bởi quỹ nghiên cứu quốc gia',
+    criteria: [
+      { name: 'Sơ/thứ cấp', score: 2, text: 'Nguồn sơ cấp — bài báo gốc báo cáo trực tiếp kết quả nghiên cứu.' },
+      { name: 'Chuyên môn', score: 2, text: 'Journal of Nutrition là tạp chí dinh dưỡng uy tín (IF ≈ 5.2). Tác giả là nhà nghiên cứu được đồng nghiệp đánh giá.' },
+      { name: 'Xung đột lợi ích', score: 2, text: 'Tài trợ bởi quỹ nghiên cứu quốc gia — không có xung đột lợi ích thương mại rõ ràng. (Luôn kiểm tra phần disclosure trong bài.)' },
+      { name: 'Bình duyệt', score: 2, text: 'Peer-reviewed bởi chuyên gia độc lập trước khi đăng — đảm bảo tối thiểu tiêu chuẩn phương pháp.' },
+      { name: 'Ngày tháng', score: 2, text: '2023 — nghiên cứu gần đây, dùng phương pháp và tiêu chuẩn hiện đại.' },
+      { name: 'Phương pháp', score: 2, text: 'Mù đôi (double-blind): cả người tham gia lẫn nhà nghiên cứu không biết ai dùng thật/giả. Có nhóm đối chứng placebo. n=180: đủ lớn để có statistical power hợp lý.' },
+    ],
+    conclusion: '✅ <strong>Độ tin cậy cao nhất trong ba nguồn.</strong> Vẫn cần: (1) Tìm nghiên cứu khác để xem kết quả có replicable không; (2) Xem kích thước hiệu ứng (effect size) có thực tế ý nghĩa không (p < 0.05 không nói về độ lớn hiệu ứng); (3) Đọc full text, không chỉ abstract — cần kiểm tra các chi tiết phương pháp.'
+  },
+  {
+    id: 'vendor',
+    title: 'C — Website nhà sản xuất',
+    desc: '"Nhiều nghiên cứu chứng minh sản phẩm của chúng tôi hiệu quả" — không dẫn nguồn cụ thể',
+    criteria: [
+      { name: 'Sơ/thứ cấp', score: 0, text: 'Nguồn tam cấp không rõ ràng — tóm tắt "nhiều nghiên cứu" mà không dẫn nghiên cứu gốc. Không thể kiểm chứng.' },
+      { name: 'Chuyên môn', score: 0, text: 'Trang web thương mại, viết bởi nhân viên marketing, không phải chuyên gia y tế hay nghiên cứu.' },
+      { name: 'Xung đột lợi ích', score: 0, text: 'Xung đột lợi ích rõ ràng và nghiêm trọng: nhà sản xuất có lợi ích tài chính trực tiếp từ việc người đọc tin sản phẩm hiệu quả.' },
+      { name: 'Bình duyệt', score: 0, text: 'Không có peer review. Nội dung do nhà sản xuất kiểm soát hoàn toàn.' },
+      { name: 'Ngày tháng', score: 0, text: 'Không rõ ngày tháng. Trang web thương mại thường không ghi ngày cập nhật.' },
+      { name: 'Phương pháp', score: 0, text: '"Nhiều nghiên cứu" không rõ tên, không rõ phương pháp, không thể kiểm chứng. Có thể là các nghiên cứu được tài trợ bởi chính công ty hoặc nghiên cứu chất lượng thấp.' },
+    ],
+    conclusion: '❌ <strong>Độ tin cậy rất thấp.</strong> Đây là nguồn có xung đột lợi ích nghiêm trọng nhất. Cần tìm nghiên cứu độc lập, peer-reviewed để đánh giá sản phẩm. Dấu hiệu "nhiều nghiên cứu chứng minh" mà không dẫn nguồn là red flag rõ ràng.'
+  }
+];
+
+let currentSource = null;
+
+function initSourceGrid() {
+  const grid = document.getElementById('sourceGrid');
+  SOURCES.forEach((s, i) => {
+    const card = document.createElement('div');
+    card.className = 'source-card';
+    card.id = 'src-' + s.id;
+    card.innerHTML = `<div class="source-card-title">${s.title}</div><div class="source-card-desc">${s.desc}</div>`;
+    card.onclick = () => selectSource(i);
+    grid.appendChild(card);
+  });
+}
+
+function selectSource(i) {
+  currentSource = i;
+  document.querySelectorAll('.source-card').forEach((c, j) => {
+    c.classList.toggle('selected', j === i);
+  });
+  renderSourceCriteria();
+}
+
+function renderSourceCriteria() {
+  const src = SOURCES[currentSource];
+  document.getElementById('sourceCriteriaArea').style.display = 'block';
+
+  const totalScore = src.criteria.reduce((s, c) => s + c.score, 0);
+  const maxScore = src.criteria.length * 2;
+
+  const scoreEl = document.getElementById('totalScoreBar');
+  const pct = (totalScore / maxScore * 100).toFixed(0);
+  const cls = totalScore >= maxScore * 0.7 ? 'score-high' : totalScore >= maxScore * 0.4 ? 'score-mid' : 'score-low';
+  scoreEl.innerHTML = `
+    <div class="score-circle ${cls}">${totalScore}</div>
+    <div style="flex:1">
+      <div style="font-weight:700;font-size:15px;color:#1c1917">${src.title}</div>
+      <div class="hint">Tổng điểm: ${totalScore}/${maxScore} (${pct}%) — ${pct >= 70 ? 'Tin cậy cao' : pct >= 40 ? 'Cần thận trọng' : 'Tin cậy thấp'}</div>
+    </div>
+  `;
+
+  const tbody = document.getElementById('criteriaTbody');
+  tbody.innerHTML = '';
+  src.criteria.forEach(c => {
+    const tr = document.createElement('tr');
+    const scoreCls = c.score === 2 ? 'score-high' : c.score === 1 ? 'score-mid' : 'score-low';
+    const scoreLabel = c.score === 2 ? '✓ Tốt' : c.score === 1 ? '~ Trung bình' : '✗ Yếu';
+    tr.innerHTML = `
+      <td><strong>${c.name}</strong></td>
+      <td style="text-align:center"><span class="badge ${c.score === 2 ? 'badge-ok' : c.score === 1 ? 'badge-warn' : 'badge-bad'}">${scoreLabel}</span></td>
+      <td>${c.text}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('sourceConclusion').innerHTML = src.conclusion;
+}
+
+// ================================================================
+// INIT
+// ================================================================
+initScatterTabs();
+renderScatter();
+initCherryTabs();
+renderCherry();
+initSourceGrid();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

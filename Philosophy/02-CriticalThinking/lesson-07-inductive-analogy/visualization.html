@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Lập luận quy nạp &amp; loại suy</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-hover: #44403c;
+    --accent-soft: #f0eeec;
+  }
+
+  h1 { color: #1c1917; }
+  h2 { color: #292524; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #d6d3d1; }
+  h3 { color: #3f3c39; margin-top: 24px; }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #78716c;
+    margin: 6px 0 0;
+    line-height: 1.5;
+  }
+
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  button.ghost:hover { background: #e7e5e4; }
+  button.sm { padding: 6px 12px; font-size: 13px; }
+
+  /* ============================================================
+     SECTION 1 — THƯỚC SỨC MẠNH QUY NẠP
+  ============================================================ */
+  .slider-row {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin: 18px 0;
+  }
+
+  .slider-group label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: #292524;
+    margin-bottom: 6px;
+  }
+  .slider-group label span {
+    font-family: monospace;
+    color: var(--accent);
+    font-size: 15px;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .strength-bar-wrap {
+    margin: 16px 0 8px;
+  }
+  .strength-bar-track {
+    height: 22px;
+    background: #e7e5e4;
+    border-radius: 11px;
+    overflow: hidden;
+    position: relative;
+  }
+  .strength-bar-fill {
+    height: 100%;
+    border-radius: 11px;
+    transition: width 0.3s, background 0.3s;
+  }
+  .strength-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #78716c;
+    margin-top: 4px;
+  }
+
+  .strength-verdict {
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.7;
+    font-weight: 500;
+  }
+  .verdict-strong { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+  .verdict-medium { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+  .verdict-weak   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+  .scenario-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .scenario-btn {
+    background: #f5f5f4;
+    color: #44403c;
+    border: 1px solid #d6d3d1;
+    border-radius: 7px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .scenario-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+  /* ============================================================
+     SECTION 2 — ĐÁNH GIÁ LOẠI SUY
+  ============================================================ */
+  .analogy-setup {
+    background: var(--accent-soft);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 14px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .analogy-setup strong { color: var(--accent); }
+
+  .points-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 14px 0;
+  }
+  @media (max-width: 600px) {
+    .points-grid { grid-template-columns: 1fr; }
+  }
+
+  .points-col h4 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #78716c;
+    margin: 0 0 10px;
+  }
+
+  .point-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+    padding: 8px 10px;
+    border: 1px solid #e7e5e4;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    user-select: none;
+    font-size: 13px;
+    line-height: 1.4;
+    background: #fff;
+  }
+  .point-item:hover { background: #fafaf9; }
+  .point-item.selected-relevant   { background: #dcfce7; border-color: #86efac; }
+  .point-item.selected-irrelevant { background: #fee2e2; border-color: #fca5a5; }
+  .point-item.selected-diff       { background: #fef3c7; border-color: #fde68a; }
+
+  .point-tag {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #d6d3d1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    transition: all 0.15s;
+  }
+  .point-item.selected-relevant   .point-tag { background: #22c55e; border-color: #22c55e; color: #fff; }
+  .point-item.selected-irrelevant .point-tag { background: #ef4444; border-color: #ef4444; color: #fff; }
+  .point-item.selected-diff       .point-tag { background: #f59e0b; border-color: #f59e0b; color: #fff; }
+
+  .point-text { flex: 1; }
+  .point-meta { font-size: 11px; color: #78716c; margin-top: 2px; }
+
+  .analogy-score-area {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .score-pills {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .pill-green { background: #dcfce7; color: #166534; }
+  .pill-red   { background: #fee2e2; color: #991b1b; }
+  .pill-amber { background: #fef3c7; color: #92400e; }
+
+  /* ============================================================
+     SECTION 3 — PHÂN LOẠI
+  ============================================================ */
+  .classify-examples {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .example-item {
+    border: 2px solid #e7e5e4;
+    border-radius: 10px;
+    padding: 16px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .example-item.correct-class { border-color: #86efac; background: #f0fdf4; }
+  .example-item.wrong-class   { border-color: #fca5a5; background: #fff7f7; }
+
+  .example-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1c1917;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .example-text em { font-style: italic; color: #57534e; }
+
+  .class-btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .class-btn {
+    background: #f5f5f4;
+    color: #44403c;
+    border: 1px solid #d6d3d1;
+    border-radius: 7px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .class-btn:hover { background: #e7e5e4; }
+  .class-btn.chosen-correct { background: #bbf7d0; border-color: #22c55e; color: #14532d; }
+  .class-btn.chosen-wrong   { background: #fecaca; border-color: #ef4444; color: #7f1d1d; }
+  .class-btn.reveal-correct { background: #dcfce7; border-color: #86efac; color: #166534; }
+  .class-btn:disabled { cursor: default; opacity: 0.7; }
+
+  .example-explanation {
+    display: none;
+    margin-top: 8px;
+    padding: 10px 14px;
+    background: var(--accent-soft);
+    border-radius: 7px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #292524;
+  }
+  .example-explanation.show { display: block; }
+
+  .classify-score {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    background: var(--accent-soft);
+    border-radius: 10px;
+    margin: 16px 0;
+  }
+  .classify-score-num {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: monospace;
+  }
+
+  /* ============================================================
+     RESPONSIVE
+  ============================================================ */
+  @media (max-width: 480px) {
+    .card { padding: 14px 14px; }
+    h2 { font-size: 17px; }
+    .scenario-btn { font-size: 12px; padding: 5px 10px; }
+    .class-btn { font-size: 12px; padding: 5px 10px; }
+    .example-text { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Critical Thinking</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-evidence-sources/visualization.html">← L6: Đánh giá bằng chứng</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Lập luận quy nạp &amp; loại suy</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-debate-rebuttal/visualization.html">L8: Tranh luận &amp; phản biện →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Lập luận quy nạp &amp; loại suy</h1>
+<p>Ba công cụ tương tác giúp bạn luyện đánh giá sức mạnh quy nạp, phân tích loại suy, và nhận dạng kiểu lập luận. Không phải lý thuyết thuần — hãy thực hành từng bước.</p>
+
+<!-- ============================================================ -->
+<h2>1. Thước sức mạnh quy nạp</h2>
+<div class="card">
+  <p>Điều chỉnh hai yếu tố để thấy sức mạnh của khái quát hóa quy nạp thay đổi như thế nào. Thử các kịch bản mẫu để so sánh trực tiếp.</p>
+
+  <div class="slider-row">
+    <div class="slider-group">
+      <label>
+        Cỡ mẫu (số quan sát)
+        <span id="sampleSizeVal">500</span>
+      </label>
+      <input type="range" id="sampleSize" min="1" max="5000" step="1" value="500" oninput="updateStrength()">
+      <div class="strength-label">
+        <span>1</span><span>1.000</span><span>2.500</span><span>5.000</span>
+      </div>
+    </div>
+
+    <div class="slider-group">
+      <label>
+        Tính đại diện (0 = lệch hoàn toàn, 100 = ngẫu nhiên hoàn toàn)
+        <span id="reprVal">70</span>
+      </label>
+      <input type="range" id="repr" min="0" max="100" step="1" value="70" oninput="updateStrength()">
+      <div class="strength-label">
+        <span>Lệch hoàn toàn</span><span>Trung bình</span><span>Ngẫu nhiên hoàn hảo</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="strength-bar-wrap">
+    <div class="strength-bar-track">
+      <div class="strength-bar-fill" id="strengthFill" style="width:60%; background:#f59e0b;"></div>
+    </div>
+    <div style="display:flex; justify-content:space-between; font-size:12px; color:#78716c; margin-top:4px;">
+      <span>Rất yếu</span><span>Yếu</span><span>Trung bình</span><span>Mạnh</span><span>Rất mạnh</span>
+    </div>
+  </div>
+
+  <div class="strength-verdict" id="strengthVerdict"></div>
+
+  <p class="hint" style="margin-top:16px; font-weight:600;">Thử kịch bản mẫu:</p>
+  <div class="scenario-btns">
+    <button class="scenario-btn" onclick="setScenario(5, 20, 'Hỏi 5 bạn bè trong cùng nhóm')">Hỏi 5 bạn bè</button>
+    <button class="scenario-btn" onclick="setScenario(50, 40, 'Khảo sát thuận tiện, 50 người')">50 người — lệch</button>
+    <button class="scenario-btn" onclick="setScenario(1000, 30, 'Literary Digest 1936: mẫu lớn nhưng cực kỳ lệch')">Mẫu lớn, rất lệch</button>
+    <button class="scenario-btn" onclick="setScenario(500, 85, 'Thăm dò ngẫu nhiên phân tầng, 500 người')">500 người — đại diện</button>
+    <button class="scenario-btn" onclick="setScenario(2000, 92, 'Khảo sát quốc gia 2.000 người ngẫu nhiên')">2.000 — ngẫu nhiên</button>
+    <button class="scenario-btn" onclick="setScenario(10, 95, 'Thử nghiệm lâm sàng nhỏ, kiểm soát chặt')">10 người — kiểm soát</button>
+  </div>
+  <div id="scenarioNote" class="hint" style="margin-top:10px;"></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Đánh giá loại suy</h2>
+<div class="card">
+  <p>Chọn loại suy để phân tích, sau đó đánh giá từng điểm tương đồng và dị biệt. Hệ thống sẽ cho điểm và giải thích.</p>
+
+  <div style="margin-bottom: 14px;">
+    <label style="font-size:14px; font-weight:600; color:#292524;">Chọn loại suy cần phân tích:</label><br>
+    <div class="scenario-btns" style="margin-top:8px;">
+      <button class="scenario-btn" id="analogyBtn0" onclick="loadAnalogy(0)">Thuốc A trên chuột</button>
+      <button class="scenario-btn" id="analogyBtn1" onclick="loadAnalogy(1)">Máy tính vs. não</button>
+      <button class="scenario-btn" id="analogyBtn2" onclick="loadAnalogy(2)">Phạt tù vs. phạt phòng</button>
+      <button class="scenario-btn" id="analogyBtn3" onclick="loadAnalogy(3)">Quốc gia A và B</button>
+    </div>
+  </div>
+
+  <div id="analogyArea"></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Phân loại kiểu lập luận</h2>
+<div class="card">
+  <p>Đọc mỗi lập luận và chọn kiểu phù hợp. Nhận giải thích ngay sau khi trả lời.</p>
+
+  <div class="classify-score">
+    <div class="classify-score-num" id="classScore">0 / 0</div>
+    <div style="flex:1; font-size:14px; color:#57534e;" id="classHint">Bắt đầu phân loại để xem điểm.</div>
+    <button class="ghost sm" onclick="resetClassify()">Làm lại</button>
+  </div>
+
+  <div class="classify-examples" id="classifyArea"></div>
+</div>
+
+<script>
+/* ================================================================
+   SECTION 1 — THƯỚC SỨC MẠNH QUY NẠP
+================================================================ */
+
+function calcStrength(n, repr) {
+  // repr: 0-100
+  // n: 1-5000
+  // score = log-scale cỡ mẫu * tính đại diện
+  var nScore = Math.min(1, Math.log10(n + 1) / Math.log10(5001));
+  var rScore = repr / 100;
+  // Tính đại diện quan trọng hơn cỡ mẫu khi repr thấp
+  var combined;
+  if (rScore < 0.25) {
+    // Lệch nghiêm trọng → mẫu lớn không cứu được
+    combined = nScore * 0.15 + rScore * 0.85;
+  } else {
+    combined = nScore * 0.45 + rScore * 0.55;
+  }
+  return Math.min(1, combined);
+}
+
+function strengthLabel(score) {
+  if (score >= 0.75) return { text: 'Rất mạnh', cls: 'verdict-strong', color: '#22c55e' };
+  if (score >= 0.55) return { text: 'Mạnh', cls: 'verdict-strong', color: '#4ade80' };
+  if (score >= 0.38) return { text: 'Trung bình', cls: 'verdict-medium', color: '#facc15' };
+  if (score >= 0.20) return { text: 'Yếu', cls: 'verdict-weak', color: '#f97316' };
+  return { text: 'Rất yếu', cls: 'verdict-weak', color: '#ef4444' };
+}
+
+function strengthExplanation(n, repr, score, lbl) {
+  var parts = [];
+  if (n < 10) {
+    parts.push('Cỡ mẫu <strong>cực nhỏ (' + n + ')</strong> — không thể đại diện cho bất kỳ tổng thể lớn nào.');
+  } else if (n < 50) {
+    parts.push('Cỡ mẫu <strong>nhỏ (' + n + ')</strong> — chỉ đủ cho ước tính sơ bộ.');
+  } else if (n < 300) {
+    parts.push('Cỡ mẫu <strong>vừa (' + n + ')</strong> — có thể dùng nếu mẫu đại diện tốt.');
+  } else if (n < 1000) {
+    parts.push('Cỡ mẫu <strong>tốt (' + n + ')</strong> — đủ cho biên sai số ~±4-5% (độ tin cậy 95%).');
+  } else {
+    parts.push('Cỡ mẫu <strong>lớn (' + n + ')</strong> — biên sai số thấp, tiếp cận khảo sát chuyên nghiệp.');
+  }
+
+  if (repr < 20) {
+    parts.push('Tính đại diện <strong>cực thấp (' + repr + '/100)</strong> — mẫu lệch nghiêm trọng, dù có bao nhiêu quan sát cũng không cứu được kết luận.');
+  } else if (repr < 40) {
+    parts.push('Tính đại diện <strong>thấp (' + repr + '/100)</strong> — có lệch đáng kể, kết quả không đáng tin cậy.');
+  } else if (repr < 60) {
+    parts.push('Tính đại diện <strong>trung bình (' + repr + '/100)</strong> — có lệch nhất định, cần thận trọng khi kết luận.');
+  } else if (repr < 80) {
+    parts.push('Tính đại diện <strong>khá tốt (' + repr + '/100)</strong> — mẫu tương đối ngẫu nhiên và phong phú.');
+  } else {
+    parts.push('Tính đại diện <strong>cao (' + repr + '/100)</strong> — mẫu gần ngẫu nhiên, ít lệch, nền tảng vững chắc.');
+  }
+
+  parts.push('<strong>Kết luận:</strong> Lập luận quy nạp mức <strong>' + lbl.text + '</strong>. Nhớ: dù mạnh đến đâu, quy nạp vẫn không cho kết quả chắc chắn tuyệt đối — chỉ xác suất cao.');
+  return parts.join('<br>');
+}
+
+function updateStrength() {
+  var n = parseInt(document.getElementById('sampleSize').value, 10);
+  var repr = parseInt(document.getElementById('repr').value, 10);
+  document.getElementById('sampleSizeVal').textContent = n.toLocaleString('vi-VN');
+  document.getElementById('reprVal').textContent = repr;
+
+  var score = calcStrength(n, repr);
+  var pct = Math.round(score * 100);
+  var lbl = strengthLabel(score);
+
+  var fill = document.getElementById('strengthFill');
+  fill.style.width = pct + '%';
+  fill.style.background = lbl.color;
+
+  var verdict = document.getElementById('strengthVerdict');
+  verdict.className = 'strength-verdict ' + lbl.cls;
+  verdict.innerHTML = strengthExplanation(n, repr, score, lbl);
+}
+
+function setScenario(n, repr, note) {
+  document.getElementById('sampleSize').value = n;
+  document.getElementById('repr').value = repr;
+  document.getElementById('scenarioNote').textContent = note;
+  updateStrength();
+}
+
+updateStrength();
+
+/* ================================================================
+   SECTION 2 — ĐÁNH GIÁ LOẠI SUY
+================================================================ */
+
+var ANALOGIES = [
+  {
+    title: 'Thuốc A trên chuột → kết luận cho người',
+    premise: '<strong>X</strong> (thuốc A trên người) giống <strong>Y</strong> (thuốc A trên chuột thí nghiệm). Y: thuốc A chữa khỏi bệnh X ở chuột. → Kết luận: <em>Thuốc A có thể có tác dụng với bệnh X ở người.</em>',
+    similarities: [
+      { text: 'Đều là động vật có vú (mammal)', meta: 'Điểm chung về loại động vật', relevant: true, reason: 'Liên quan: nhiều cơ chế sinh học chia sẻ giữa động vật có vú, trong đó có con đường dẫn thuốc.' },
+      { text: 'Hệ miễn dịch hoạt động theo cơ chế tương tự', meta: 'Cơ chế sinh học', relevant: true, reason: 'Liên quan trực tiếp: thuốc tác động qua hệ miễn dịch cần tương đồng này.' },
+      { text: 'Chuyển hóa thuốc qua gan theo enzyme CYP', meta: 'Dược lý học', relevant: true, reason: 'Liên quan cao: đây là cơ chế chính thuốc được xử lý trong cơ thể.' },
+      { text: 'Cả hai đều có màu đỏ trong máu (hemoglobin)', meta: 'Tính chất sinh học', relevant: false, reason: 'Không liên quan đến cơ chế tác dụng của thuốc cụ thể này.' },
+    ],
+    differences: [
+      { text: 'Kích thước cơ thể và liều lượng khác nhau', meta: 'Dược lý học — dị biệt', reason: 'Liên quan: liều thuốc an toàn cho chuột có thể độc với người nếu tính theo trọng lượng đơn giản.' },
+      { text: 'Chuột có tuổi thọ và chu kỳ trao đổi chất nhanh hơn người', meta: 'Sinh học — dị biệt', reason: 'Ảnh hưởng nhất định đến hiệu quả dài hạn của thuốc.' },
+    ],
+    verdict: 'Mạnh (trong phạm vi thử nghiệm tiếp theo)',
+    verdictExpl: 'Ba điểm tương đồng (động vật có vú, hệ miễn dịch, chuyển hóa gan) đều liên quan trực tiếp. Các điểm dị biệt quan trọng nhưng có thể kiểm soát qua hiệu chỉnh liều. Kết luận "có thể có tác dụng — đủ để thử nghiệm ở người" là phù hợp. Loại suy mạnh ở đây đủ để JUSTIFy nghiên cứu tiếp, không phải để bỏ qua thử nghiệm lâm sàng.',
+  },
+  {
+    title: 'Máy tính vs. não người',
+    premise: '<strong>X</strong> (não người) giống <strong>Y</strong> (máy tính) ở nhiều điểm. Y: máy tính hoạt động tốt hơn khi thêm RAM. → Kết luận: <em>Não người sẽ "hoạt động tốt hơn" khi tăng... bộ nhớ?</em>',
+    similarities: [
+      { text: 'Cả hai đều xử lý thông tin', meta: 'Chức năng tổng quát', relevant: false, reason: 'Quá trừu tượng — "xử lý thông tin" ở máy tính (phép toán nhị phân) khác hoàn toàn với não (điện hóa, synapse). Không liên quan đến RAM.' },
+      { text: 'Cả hai có thể "bị lỗi" (crash / nhầm)', meta: 'Hiện tượng', relevant: false, reason: 'Cơ chế lỗi khác hoàn toàn: bug phần mềm vs. lỗi nhận thức. Không liên quan đến RAM.' },
+      { text: 'Cả hai lưu trữ thông tin', meta: 'Chức năng', relevant: false, reason: 'Bộ nhớ máy tính là bit vật lý. Bộ nhớ não là thay đổi synapse — cơ chế hoàn toàn khác. Không liên quan.' },
+      { text: 'Cả hai tiêu thụ năng lượng', meta: 'Vật lý', relevant: false, reason: 'Não tiêu thụ glucose, máy tính tiêu thụ điện. Không liên quan đến câu hỏi về RAM.' },
+    ],
+    differences: [
+      { text: 'Não không có "RAM" theo nghĩa vật lý — bộ nhớ ngắn hạn hoạt động khác hoàn toàn', meta: 'Cấu trúc căn bản — dị biệt', reason: 'Dị biệt cực kỳ liên quan: kết luận "tăng RAM" không có nghĩa gì với não.' },
+      { text: 'Não tái cấu trúc (neuroplasticity), máy tính phần cứng cố định', meta: 'Cơ chế thích nghi', reason: 'Dị biệt quan trọng: não cải thiện qua luyện tập, không qua thêm phần cứng.' },
+    ],
+    verdict: 'Rất yếu (loại suy hỏng)',
+    verdictExpl: 'Tất cả các điểm tương đồng đều không liên quan đến kết luận. "Xử lý thông tin" là phép ẩn dụ, không phải cơ chế vật lý tương đồng. Dị biệt về cấu trúc (não không có RAM) phá vỡ hoàn toàn loại suy. Đây là ví dụ kinh điển của faulty analogy — dùng ẩn dụ như thật.',
+  },
+  {
+    title: 'Phạt tù vs. phạt phòng trẻ em',
+    premise: '<strong>X</strong> (phạt tù người phạm tội) giống <strong>Y</strong> (phạt phòng trẻ em). Y: phạt phòng hiệu quả trong cải thiện hành vi trẻ. → Kết luận: <em>Phạt tù cũng hiệu quả trong cải tạo người phạm tội.</em>',
+    similarities: [
+      { text: 'Cả hai đều là cách ly khỏi môi trường thường', meta: 'Cơ chế', relevant: true, reason: 'Có liên quan một phần: cách ly có thể tạo cơ hội suy nghĩ.' },
+      { text: 'Cả hai đáp trả hành vi không được chấp nhận', meta: 'Mục tiêu chung', relevant: true, reason: 'Liên quan nhưng yếu: mục tiêu phạt phòng (dạy dỗ) khác phạt tù (trừng phạt + bảo vệ xã hội).' },
+      { text: 'Cả hai có yếu tố thời gian cách ly', meta: 'Hình thức', relevant: false, reason: 'Thời gian khác nhau cơ bản: vài giờ vs. nhiều năm. Tác động tâm lý không thể so sánh.' },
+    ],
+    differences: [
+      { text: 'Môi trường: phòng an toàn vs. tù có bạo lực, tệ nạn', meta: 'Môi trường — dị biệt quan trọng', reason: 'Liên quan trực tiếp: môi trường tù thường làm tăng khả năng tái phạm, không giảm.' },
+      { text: 'Quan hệ: cha mẹ-con vs. nhà nước-công dân (không có tình yêu thương)', meta: 'Quan hệ xã hội — dị biệt', reason: 'Liên quan: phạt phòng hiệu quả vì trong bối cảnh quan hệ yêu thương, không phải cách ly đơn thuần.' },
+      { text: 'Nhận thức: trẻ em vs. người trưởng thành có nhận thức đầy đủ', meta: 'Phát triển tâm lý — dị biệt', reason: 'Liên quan: cơ chế học hành vi ở trẻ em khác người trưởng thành.' },
+    ],
+    verdict: 'Yếu',
+    verdictExpl: 'Điểm dị biệt liên quan (môi trường tù, quan hệ không yêu thương, nhận thức khác nhau) lớn hơn và quan trọng hơn điểm tương đồng. Loại suy này bỏ qua bằng chứng thực nghiệm về hiệu quả thực tế của phạt tù — trong thực tế tỷ lệ tái phạm thường cao. Có thể dùng loại suy để đặt câu hỏi nghiên cứu, không để kết luận chính sách.',
+  },
+  {
+    title: 'Quốc gia A tăng trưởng → Quốc gia B sẽ tương tự',
+    premise: '<strong>X</strong> (quốc gia B) giống <strong>Y</strong> (quốc gia A). Y: A đã tăng trưởng kinh tế 8%/năm trong 10 năm sau mở cửa. → Kết luận: <em>B cũng sẽ tăng trưởng tương tự.</em>',
+    similarities: [
+      { text: 'Cả hai đang phát triển (developing countries)', meta: 'Phân loại kinh tế', relevant: true, reason: 'Có liên quan một phần — nhưng "đang phát triển" là nhóm rất đa dạng, không nói lên nhiều.' },
+      { text: 'Cả hai có dân số trẻ', meta: 'Nhân khẩu học', relevant: true, reason: 'Liên quan: dân số trẻ tạo lợi thế lao động, nhưng cần kèm đào tạo và việc làm.' },
+      { text: 'Cả hai vừa mở cửa thị trường', meta: 'Chính sách kinh tế', relevant: true, reason: 'Liên quan cao: mở cửa thị trường là yếu tố chính của so sánh. Nhưng cách mở cửa có thể khác nhau.' },
+      { text: 'Cả hai có nền kinh tế nông nghiệp là chủ đạo', meta: 'Cơ cấu kinh tế', relevant: true, reason: 'Liên quan vừa: xuất phát điểm tương tự có thể tạo con đường tương tự.' },
+    ],
+    differences: [
+      { text: 'Thể chế chính trị và pháp quyền có thể khác nhau', meta: 'Thể chế — dị biệt quan trọng', reason: 'Liên quan cao: thể chế ổn định và pháp quyền là yếu tố quan trọng của tăng trưởng bền vững.' },
+      { text: 'Bối cảnh địa chính trị và đối tác thương mại khác nhau', meta: 'Địa kinh tế — dị biệt', reason: 'Liên quan: A có thể được hưởng điều kiện thương mại đặc biệt không có ở B.' },
+    ],
+    verdict: 'Trung bình',
+    verdictExpl: 'Có 4 điểm tương đồng liên quan, nhưng 2 điểm dị biệt quan trọng chưa được kiểm soát. Kết luận "cũng sẽ tăng trưởng tương tự" quá mạnh so với bằng chứng — "có tiềm năng tương tự nếu thể chế và điều kiện thuận lợi" sẽ phù hợp hơn. Đây là mức loại suy dùng được để đưa ra giả thuyết, không phải kết luận chắc chắn.',
+  },
+];
+
+var analogyState = { current: 0, selected: {}, selectedDiffs: {} };
+
+function loadAnalogy(idx) {
+  analogyState.current = idx;
+  analogyState.selected = {};
+  analogyState.selectedDiffs = {};
+  renderAnalogy();
+  // Highlight active button
+  for (var i = 0; i < 4; i++) {
+    var btn = document.getElementById('analogyBtn' + i);
+    if (btn) {
+      btn.style.background = i === idx ? 'var(--accent-soft)' : '';
+      btn.style.borderColor = i === idx ? 'var(--accent)' : '';
+      btn.style.color = i === idx ? 'var(--accent)' : '';
+    }
+  }
+}
+
+function renderAnalogy() {
+  var a = ANALOGIES[analogyState.current];
+  var html = '';
+
+  html += '<div class="analogy-setup"><strong>Loại suy:</strong> ' + a.premise + '</div>';
+
+  html += '<div class="points-grid">';
+
+  // Similarities
+  html += '<div class="points-col"><h4>Điểm tương đồng</h4>';
+  for (var i = 0; i < a.similarities.length; i++) {
+    var s = a.similarities[i];
+    var key = 'sim-' + i;
+    var sel = analogyState.selected[key];
+    var cls = '';
+    var tag = '';
+    if (sel === 'relevant') { cls = 'selected-relevant'; tag = '✓'; }
+    else if (sel === 'irrelevant') { cls = 'selected-irrelevant'; tag = '✗'; }
+    html += '<div class="point-item ' + cls + '" onclick="toggleSimilarity(' + i + ')" id="point-sim-' + i + '">';
+    html += '<div class="point-tag">' + tag + '</div>';
+    html += '<div class="point-text">' + s.text + '<div class="point-meta">' + s.meta + '</div>';
+    if (sel) {
+      html += '<div class="point-meta" style="margin-top:4px;color:#292524;">' + s.reason + '</div>';
+    }
+    html += '</div></div>';
+  }
+  html += '</div>';
+
+  // Differences
+  html += '<div class="points-col"><h4>Điểm dị biệt</h4>';
+  for (var j = 0; j < a.differences.length; j++) {
+    var d = a.differences[j];
+    var dkey = 'diff-' + j;
+    var dsel = analogyState.selectedDiffs[dkey];
+    var dcls = dsel ? 'selected-diff' : '';
+    var dtag = dsel ? '!' : '';
+    html += '<div class="point-item ' + dcls + '" onclick="toggleDiff(' + j + ')" id="point-diff-' + j + '">';
+    html += '<div class="point-tag" style="' + (dsel ? '' : 'background:#fff8; color:#78716c;') + '">' + dtag + '</div>';
+    html += '<div class="point-text">' + d.text + '<div class="point-meta">' + d.meta + '</div>';
+    if (dsel) {
+      html += '<div class="point-meta" style="margin-top:4px;color:#292524;">' + d.reason + '</div>';
+    }
+    html += '</div></div>';
+  }
+  html += '</div>';
+
+  html += '</div>'; // points-grid
+
+  html += '<p class="hint">Bấm vào điểm tương đồng để đánh dấu <strong>Có liên quan</strong> (bấm lần 1) hoặc <strong>Không liên quan</strong> (bấm lần 2). Bấm điểm dị biệt để đánh dấu quan trọng.</p>';
+
+  // Score area
+  var relCount = 0, irrelCount = 0, diffCount = 0;
+  for (var k in analogyState.selected) {
+    if (analogyState.selected[k] === 'relevant') relCount++;
+    else if (analogyState.selected[k] === 'irrelevant') irrelCount++;
+  }
+  for (var m in analogyState.selectedDiffs) {
+    if (analogyState.selectedDiffs[m]) diffCount++;
+  }
+
+  html += '<div class="analogy-score-area" style="background: var(--accent-soft); border: 1px solid #d6d3d1;">';
+  html += '<div class="score-pills">';
+  html += '<span class="pill pill-green">✓ Liên quan: ' + relCount + '</span>';
+  html += '<span class="pill pill-red">✗ Không liên quan: ' + irrelCount + '</span>';
+  html += '<span class="pill pill-amber">! Dị biệt ghi nhận: ' + diffCount + '</span>';
+  html += '</div>';
+
+  // Verdict
+  html += '<strong>Phán quyết (đáp án):</strong> ' + a.verdict + '<br>';
+  html += '<span style="color:#44403c;">' + a.verdictExpl + '</span>';
+  html += '</div>';
+
+  document.getElementById('analogyArea').innerHTML = html;
+}
+
+function toggleSimilarity(i) {
+  var key = 'sim-' + i;
+  var cur = analogyState.selected[key];
+  if (!cur) analogyState.selected[key] = 'relevant';
+  else if (cur === 'relevant') analogyState.selected[key] = 'irrelevant';
+  else delete analogyState.selected[key];
+  renderAnalogy();
+}
+
+function toggleDiff(j) {
+  var key = 'diff-' + j;
+  analogyState.selectedDiffs[key] = !analogyState.selectedDiffs[key];
+  renderAnalogy();
+}
+
+loadAnalogy(0);
+
+/* ================================================================
+   SECTION 3 — PHÂN LOẠI
+================================================================ */
+
+var CLASSIFY_EXAMPLES = [
+  {
+    text: '"Chúng tôi khảo sát ngẫu nhiên 1.200 học sinh từ 20 trường THPT ở 5 tỉnh thành — 73% cho biết áp lực học tập là nguồn căng thẳng chính. Vậy phần lớn học sinh THPT Việt Nam chịu áp lực học tập cao."',
+    correct: 'Khái quát hóa quy nạp',
+    options: ['Khái quát hóa quy nạp', 'Loại suy', 'Tam đoạn luận thống kê', 'Abduction'],
+    explanation: 'Đây là khái quát hóa quy nạp: từ mẫu (1.200 học sinh từ nhiều tỉnh) suy ra tổng thể (học sinh THPT cả nước). Mạnh vì cỡ mẫu lớn, có phân tầng (nhiều tỉnh, nhiều trường), ngẫu nhiên.'
+  },
+  {
+    text: '"Hầu hết bác sĩ khuyên bệnh nhân tiểu đường hạn chế đường tinh luyện. Ông Hoàng bị tiểu đường tuýp 2. Vậy bác sĩ của ông Hoàng có khả năng khuyên ông hạn chế đường tinh luyện."',
+    correct: 'Tam đoạn luận thống kê',
+    options: ['Khái quát hóa quy nạp', 'Loại suy', 'Tam đoạn luận thống kê', 'Abduction'],
+    explanation: 'Đây là tam đoạn luận thống kê: áp dụng thống kê về một lớp ("hầu hết bác sĩ") cho một cá thể cụ thể trong lớp đó (bác sĩ của ông Hoàng). Cấu trúc: "Hầu hết A là B; x là A → x có khả năng là B."'
+  },
+  {
+    text: '"Con sông này tương tự con sông ở tỉnh X — cùng chiều dài, cùng lưu vực rộng, cùng mùa lũ. Tỉnh X đã trị lũ thành công bằng hệ thống đê kè. Vậy tỉnh này có thể áp dụng giải pháp tương tự."',
+    correct: 'Loại suy',
+    options: ['Khái quát hóa quy nạp', 'Loại suy', 'Tam đoạn luận thống kê', 'Abduction'],
+    explanation: 'Đây là loại suy: con sông này giống sông tỉnh X ở các điểm liên quan (chiều dài, lưu vực, mùa lũ) → có thể áp dụng giải pháp tương tự. Cần đánh giá thêm: địa hình, điều kiện đất, nguồn lực.'
+  },
+  {
+    text: '"Sáng nay tôi nhận được 12 email phàn nàn về lỗi thanh toán từ các khách hàng dùng thẻ Visa. Không có phàn nàn nào từ người dùng Mastercard. Có lẽ cổng thanh toán Visa đang gặp sự cố."',
+    correct: 'Abduction',
+    options: ['Khái quát hóa quy nạp', 'Loại suy', 'Tam đoạn luận thống kê', 'Abduction'],
+    explanation: 'Đây là abduction: từ các quan sát (12 phàn nàn Visa, 0 Mastercard), suy luận đến giải thích tốt nhất (cổng Visa có sự cố). Giả thuyết này toàn diện (giải thích cả hai mẫu quan sát), giản tiện (một nguyên nhân), và có thể kiểm chứng.'
+  },
+  {
+    text: '"Tôi thử 2 con mèo — cả hai đều thích cá hơn thịt gà. Vậy mèo thích cá hơn thịt gà."',
+    correct: 'Khái quát hóa quy nạp',
+    options: ['Khái quát hóa quy nạp', 'Loại suy', 'Tam đoạn luận thống kê', 'Abduction'],
+    explanation: 'Khái quát hóa quy nạp — nhưng RẤT YẾU: cỡ mẫu chỉ 2 con mèo, không ngẫu nhiên, không đại diện. Đây là ví dụ kinh điển của "hasty generalization" (khái quát vội). Cần ít nhất hàng trăm con mèo với nhiều giống khác nhau mới có cơ sở kết luận.'
+  },
+  {
+    text: '"Phần lớn ứng viên lập trình có portfolio dự án thực tế đều qua được vòng phỏng vấn kỹ thuật. Anh Tuấn có portfolio 5 dự án thực tế. Vậy anh Tuấn có khả năng cao qua vòng phỏng vấn kỹ thuật."',
+    correct: 'Tam đoạn luận thống kê',
+    options: ['Khái quát hóa quy nạp', 'Loại suy', 'Tam đoạn luận thống kê', 'Abduction'],
+    explanation: 'Tam đoạn luận thống kê: "Hầu hết A (ứng viên có portfolio) là B (qua phỏng vấn); x (anh Tuấn) là A → x có thể là B." Mạnh nếu "phần lớn" là tỷ lệ cao và không có thông tin trái chiều về anh Tuấn.'
+  },
+  {
+    text: '"Hệ thống giao thông thành phố giống cơ thể người — có mạch máu chính (đường cao tốc), mao mạch (phố nhỏ), và tim bơm máu (trung tâm). Khi mạch máu bị tắc, cơ thể trục trặc. Vậy khi đường chính bị tắc, cả hệ thống giao thông trục trặc."',
+    correct: 'Loại suy',
+    options: ['Khái quát hóa quy nạp', 'Loại suy', 'Tam đoạn luận thống kê', 'Abduction'],
+    explanation: 'Loại suy: giao thông ↔ cơ thể người. Kết luận khá mạnh vì điểm tương đồng (mạng lưới phân phối, điểm nghẽn) liên quan trực tiếp. Đây là loại suy hữu ích trong quy hoạch đô thị — dù là ẩn dụ nhưng cơ chế tắc nghẽn là thật.'
+  },
+  {
+    text: '"Cây trong phòng thí nghiệm tôi bị héo đột ngột sau một đêm, dù hôm qua còn xanh tốt. Đất ẩm đủ. Ánh sáng bình thường. Nhưng hôm qua có người bón phân mới. Có lẽ liều phân quá cao gây ngộ độc rễ."',
+    correct: 'Abduction',
+    options: ['Khái quát hóa quy nạp', 'Loại suy', 'Tam đoạn luận thống kê', 'Abduction'],
+    explanation: 'Abduction: từ các quan sát (héo đột ngột, đất ẩm bình thường, ánh sáng bình thường, mới bón phân), suy luận đến giải thích tốt nhất (ngộ độc phân bón). Loại bỏ nguyên nhân thiếu nước và thiếu sáng, giải thuyết còn lại là phân bón — toàn diện, giản tiện.'
+  },
+];
+
+var classState = { answers: new Array(CLASSIFY_EXAMPLES.length).fill(null), score: 0, answered: 0 };
+
+function renderClassify() {
+  var area = document.getElementById('classifyArea');
+  var html = '';
+  for (var i = 0; i < CLASSIFY_EXAMPLES.length; i++) {
+    var ex = CLASSIFY_EXAMPLES[i];
+    var ans = classState.answers[i];
+    var itemCls = '';
+    if (ans !== null) {
+      itemCls = ans.correct ? 'correct-class' : 'wrong-class';
+    }
+    html += '<div class="example-item ' + itemCls + '">';
+    html += '<div class="example-text">' + ex.text + '</div>';
+    html += '<div class="class-btn-row">';
+    for (var j = 0; j < ex.options.length; j++) {
+      var opt = ex.options[j];
+      var btnCls = 'class-btn';
+      if (ans !== null) {
+        if (opt === ex.correct) btnCls += ' reveal-correct';
+        else if (ans !== null && opt === ans.chosen && !ans.correct) btnCls += ' chosen-wrong';
+      }
+      var disabled = ans !== null ? 'disabled' : '';
+      html += '<button class="' + btnCls + '" ' + disabled + ' onclick="classifyAnswer(' + i + ', \'' + escOpt(opt) + '\')">' + opt + '</button>';
+    }
+    html += '</div>';
+    var expCls = ans !== null ? 'example-explanation show' : 'example-explanation';
+    html += '<div class="' + expCls + '">' + ex.explanation + '</div>';
+    html += '</div>';
+  }
+  area.innerHTML = html;
+  updateClassScore();
+}
+
+function escOpt(s) {
+  return s.replace(/'/g, "\\'");
+}
+
+function classifyAnswer(i, chosen) {
+  if (classState.answers[i] !== null) return;
+  var ex = CLASSIFY_EXAMPLES[i];
+  var correct = chosen === ex.correct;
+  classState.answers[i] = { chosen: chosen, correct: correct };
+  if (correct) classState.score++;
+  classState.answered++;
+  renderClassify();
+}
+
+function updateClassScore() {
+  var total = CLASSIFY_EXAMPLES.length;
+  var s = classState.score;
+  var a = classState.answered;
+  document.getElementById('classScore').textContent = s + ' / ' + a;
+  var hint = document.getElementById('classHint');
+  if (a === 0) { hint.textContent = 'Bắt đầu phân loại để xem điểm.'; return; }
+  if (a < total) {
+    hint.textContent = 'Đã trả lời ' + a + '/' + total + ' câu. Tỷ lệ đúng: ' + Math.round(s / a * 100) + '%.';
+    return;
+  }
+  var pct = Math.round(s / total * 100);
+  var msg = pct === 100 ? 'Xuất sắc — bạn nhận dạng chính xác mọi kiểu lập luận!' :
+            pct >= 75  ? 'Tốt! Ôn lại các câu sai để củng cố.' :
+            pct >= 50  ? 'Ổn. Đọc lại phần giải thích từng câu nhé.' :
+                        'Hãy đọc lại README rồi thử lại.';
+  hint.textContent = 'Hoàn thành! ' + pct + '% — ' + msg;
+}
+
+function resetClassify() {
+  classState = { answers: new Array(CLASSIFY_EXAMPLES.length).fill(null), score: 0, answered: 0 };
+  renderClassify();
+}
+
+renderClassify();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

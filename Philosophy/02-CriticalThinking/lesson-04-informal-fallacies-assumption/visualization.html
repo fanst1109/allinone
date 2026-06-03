@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Ngụy biện giả định &amp; cấu trúc sai</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-hover: #44403c;
+    --accent-soft: #f0eeec;
+  }
+
+  h1 { color: #1c1917; }
+  h2 { color: #292524; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #d6d3d1; }
+
+  /* ---- Gallery ---- */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .fallacy-card {
+    background: #fff;
+    border: 2px solid #e7e5e4;
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    position: relative;
+    user-select: none;
+  }
+  .fallacy-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 16px rgba(87,83,78,0.13);
+    transform: translateY(-2px);
+  }
+  .fallacy-card.active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .card-tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 3px 9px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .card-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1c1917;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+  .card-en {
+    font-size: 12px;
+    color: #78716c;
+    font-style: italic;
+    margin-bottom: 12px;
+  }
+  .card-desc {
+    font-size: 14px;
+    color: #44403c;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .detail-panel {
+    display: none;
+    margin-top: 16px;
+    padding: 18px;
+    background: #fff;
+    border: 1px solid #d6d3d1;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #292524;
+    animation: fadeIn 0.2s;
+  }
+  .detail-panel.show { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .detail-section {
+    margin-bottom: 14px;
+  }
+  .detail-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #78716c;
+    margin-bottom: 5px;
+  }
+  .example-block {
+    background: #f5f5f4;
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    font-style: italic;
+    color: #292524;
+    margin: 6px 0;
+    font-size: 14px;
+  }
+  .rebut-block {
+    background: #f0fdf4;
+    border-left: 3px solid #22c55e;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    color: #166534;
+    margin: 6px 0;
+    font-size: 14px;
+  }
+
+  .expand-hint {
+    font-size: 12px;
+    color: #a8a29e;
+    position: absolute;
+    bottom: 14px;
+    right: 16px;
+  }
+  .fallacy-card.active .expand-hint { color: var(--accent); }
+
+  /* ---- Quiz ---- */
+  .quiz-wrap {
+    background: #fff;
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  .quiz-q {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1c1917;
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  .quiz-context {
+    font-style: italic;
+    color: #44403c;
+    background: #f5f5f4;
+    border-radius: 7px;
+    padding: 12px 16px;
+    font-size: 15px;
+    margin-bottom: 14px;
+    line-height: 1.6;
+  }
+
+  .option-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .opt-btn {
+    background: #f5f5f4;
+    color: #292524;
+    border: 2px solid #e7e5e4;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s;
+    line-height: 1.4;
+  }
+  .opt-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
+  .opt-btn.correct { background: #dcfce7; border-color: #22c55e; color: #14532d; font-weight: 700; }
+  .opt-btn.wrong   { background: #fee2e2; border-color: #ef4444; color: #7f1d1d; }
+  .opt-btn.reveal  { background: #fefce8; border-color: #ca8a04; color: #713f12; }
+  .opt-btn:disabled { cursor: default; }
+
+  .quiz-explanation {
+    display: none;
+    padding: 12px 16px;
+    background: var(--accent-soft);
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #292524;
+    margin-top: 8px;
+  }
+  .quiz-explanation.show { display: block; }
+
+  .quiz-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .score-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    background: var(--accent-soft);
+    border-radius: 10px;
+    margin-bottom: 16px;
+  }
+  .score-big {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: monospace;
+  }
+
+  .btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .btn.ghost {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .btn.ghost:hover { background: #e7e5e4; }
+  .btn.sm { padding: 6px 12px; font-size: 13px; }
+
+  .progress-bar {
+    height: 6px;
+    background: #e7e5e4;
+    border-radius: 3px;
+    overflow: hidden;
+    flex: 1;
+    min-width: 60px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+
+  /* ---- Circular Viz ---- */
+  .circular-wrap {
+    background: #fff;
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  .circ-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+    align-items: center;
+  }
+
+  .circ-select {
+    padding: 8px 12px;
+    border: 1px solid #d6d3d1;
+    border-radius: 7px;
+    font-size: 14px;
+    color: #292524;
+    background: #fff;
+    cursor: pointer;
+    flex: 1;
+    min-width: 0;
+    max-width: 400px;
+    box-sizing: border-box;
+  }
+  .circ-select:focus { outline: 2px solid var(--accent); border-color: transparent; }
+
+  .circ-svg-wrap {
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+  }
+
+  .circ-analysis {
+    margin-top: 18px;
+    padding: 14px 16px;
+    background: #f5f5f4;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #292524;
+  }
+  .circ-analysis strong { color: #1c1917; }
+
+  /* Step labels in SVG */
+  .step-node {
+    transition: all 0.3s;
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 768px) {
+    .gallery-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 480px) {
+    .quiz-wrap, .circular-wrap { padding: 14px; }
+    .quiz-q { font-size: 14px; }
+    .opt-btn { font-size: 13px; padding: 8px 12px; }
+    h2 { font-size: 17px; }
+    .fallacy-card { padding: 14px; }
+    .card-name { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Critical Thinking</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-informal-fallacies-distraction/visualization.html">← L3: Ngụy biện đánh lạc hướng</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Ngụy biện giả định &amp; cấu trúc</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-cognitive-biases/visualization.html">L5: Thiên kiến nhận thức →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Ngụy biện giả định &amp; cấu trúc sai</h1>
+<p>Ba bài tập tương tác: <strong>Phòng trưng bày</strong> (khám phá từng ngụy biện), <strong>Bắt ngụy biện</strong> (quiz nhận diện), và <strong>Vòng tròn lộ diện</strong> (minh họa lập luận circular).</p>
+
+<!-- ============================================================ -->
+<h2>1. Phòng trưng bày ngụy biện</h2>
+<p>Bấm vào từng thẻ để xem định nghĩa, ví dụ và cách phản bác.</p>
+
+<div class="gallery-grid" id="galleryGrid"></div>
+
+<!-- ============================================================ -->
+<h2>2. Bắt ngụy biện</h2>
+<div class="quiz-wrap">
+  <div class="score-display" id="scoreDisplay">
+    <div class="score-big" id="scoreBig">0 / 0</div>
+    <div style="flex:1">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div style="font-size:13px; color:#78716c; margin-top:4px" id="scoreHint">Bắt đầu quiz để xem điểm.</div>
+    </div>
+    <button class="btn ghost sm" onclick="resetQuiz()">Làm lại</button>
+  </div>
+
+  <div id="quizArea"></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Vòng tròn lộ diện</h2>
+<div class="circular-wrap">
+  <p>Chọn một ví dụ lập luận circular để xem sơ đồ vòng tròn — tiền đề và kết luận phụ thuộc lẫn nhau.</p>
+  <div class="circ-controls">
+    <select class="circ-select" id="circSelect" onchange="renderCircular()">
+      <option value="0">Ví dụ 1: Kinh thánh và Chúa</option>
+      <option value="1">Ví dụ 2: Người đáng tin cậy</option>
+      <option value="2">Ví dụ 3: Luật pháp và quyền lực</option>
+      <option value="3">Ví dụ 4: Sách chuyên gia</option>
+    </select>
+    <button class="btn ghost sm" onclick="animateCircular()">Phát hoạt ảnh</button>
+  </div>
+  <div class="circ-svg-wrap" id="circSvgWrap"></div>
+  <div class="circ-analysis" id="circAnalysis"></div>
+</div>
+
+<script>
+// ================================================================
+// DỮ LIỆU NGỤY BIỆN
+// ================================================================
+const FALLACIES = [
+  {
+    tag: 'F1',
+    name: 'Lưỡng nan giả',
+    en: 'False Dilemma / False Dichotomy',
+    desc: 'Chỉ đưa ra 2 lựa chọn trong khi thực tế còn nhiều hơn.',
+    examples: [
+      '"Hoặc anh theo tôi, hoặc anh chống lại tôi."',
+      '"Học toán hoặc thất nghiệp cả đời."',
+      '"Nếu không ủng hộ chính sách này, anh ghét đất nước."',
+      '"Chúng ta hoặc hành động ngay, hoặc thảm họa xảy ra."',
+    ],
+    howSpot: 'Hỏi: "Còn lựa chọn nào khác không?" Thường tác giả không giải thích tại sao chỉ có đúng hai lựa chọn đó.',
+    rebuttal: '"Câu này đặt ra hai lựa chọn — nhưng còn nhiều khả năng khác. Ví dụ: [liệt kê lựa chọn thứ ba]. Tại sao chỉ có hai?"',
+    warning: 'Không phải mọi "Hoặc A hoặc B" đều là ngụy biện. Nhị phân thật (sống/chết, số chẵn/lẻ) không ngụy biện.',
+  },
+  {
+    tag: 'F2',
+    name: 'Trượt dốc',
+    en: 'Slippery Slope',
+    desc: 'Khẳng định A tất yếu dẫn tới chuỗi hậu quả tệ Z mà không chứng minh từng bước.',
+    examples: [
+      '"Cho phép hôn nhân đồng giới → phá vỡ gia đình → sụp đổ đạo đức → văn minh sụp đổ."',
+      '"Nếu học sinh dùng điện thoại → chơi game → học sa sút → thất nghiệp."',
+      '"Nếu tăng một loại thuế → tăng mọi loại thuế → kinh tế sụp đổ."',
+      '"Bỏ một buổi tập → mất thói quen → sức khỏe sa sút."',
+    ],
+    howSpot: 'Hỏi bằng chứng cho từng mũi tên "→" trong chuỗi. Mỗi bước có bằng chứng thực nghiệm không?',
+    rebuttal: '"Lập luận này giả định A tất yếu dẫn đến B, B đến C... — nhưng bằng chứng nào cho từng bước đó?"',
+    warning: 'Chuỗi nhân quả có bằng chứng KHÔNG phải ngụy biện. Ví dụ chuỗi bệnh tim-mạch trong y học có bằng chứng dịch tễ học.',
+  },
+  {
+    tag: 'F3',
+    name: 'Vòng tròn',
+    en: 'Circular Reasoning / Begging the Question',
+    desc: 'Kết luận đã được giả định trong tiền đề — không có thông tin mới.',
+    examples: [
+      '"Kinh thánh đúng vì Chúa nói vậy; Chúa tồn tại vì Kinh thánh nói vậy."',
+      '"Tôi trung thực vì không nói dối; không nói dối vì tôi trung thực."',
+      '"Luật pháp đúng vì nhà nước ban hành; nhà nước có quyền ban hành vì luật pháp cho phép."',
+      '"Sách này đúng vì chuyên gia viết; ông ấy là chuyên gia vì sách nói vậy."',
+    ],
+    howSpot: 'Hỏi: "Nếu bỏ kết luận ra, tiền đề còn đứng vững độc lập không?" Nếu không — vòng tròn.',
+    rebuttal: '"Lập luận này dùng kết luận để chứng minh tiền đề. Cần bằng chứng độc lập từ nguồn thứ ba."',
+    warning: '"Begging the question" trong tiếng Anh thông thường (bị dùng sai) nghĩa là "đặt ra câu hỏi" — khác hoàn toàn nghĩa kỹ thuật trong logic.',
+  },
+  {
+    tag: 'F4',
+    name: 'Khái quát vội',
+    en: 'Hasty Generalization',
+    desc: 'Kết luận tổng quát từ mẫu quá nhỏ hoặc không đại diện.',
+    examples: [
+      '"Tôi quen 3 luật sư tham lam. Luật sư là tham."',
+      '"Thử 10 con chuột thấy thuốc hiệu quả → thuốc này chữa ung thư."',
+      '"Tôi ăn ớt cay, 70 tuổi vẫn khỏe. Ớt cay tốt cho sức khỏe."',
+      '"Mọi người bạn bè tôi đều thích nhạc pop → nhạc pop phổ biến nhất."',
+    ],
+    howSpot: 'Hỏi: "Cỡ mẫu bao nhiêu? Chọn ngẫu nhiên không? Có đại diện cho tổng thể không?"',
+    rebuttal: '"Kết luận này dựa trên [X] trường hợp — cỡ mẫu quá nhỏ/không đại diện để kết luận tổng quát."',
+    warning: 'Mẫu nhỏ vẫn có thể hữu ích nếu nêu rõ giới hạn. Ngụy biện khi tuyên bố chắc chắn không tương xứng với cỡ mẫu.',
+  },
+  {
+    tag: 'F5',
+    name: 'Đánh tráo khái niệm',
+    en: 'Equivocation',
+    desc: 'Dùng một từ với 2 nghĩa khác nhau trong cùng lập luận.',
+    examples: [
+      '"Lông vũ nhẹ. Cái gì nhẹ không nặng nề. Lông vũ không nặng nề." [nhẹ = khối lượng vs. không quan trọng]',
+      '"Tin vào khoa học. Phong thủy là khoa học. Tin vào phong thủy." [khoa học = phương pháp vs. nhãn hiệu]',
+      '"Luật bắt phải tuân thủ. Định luật Newton là luật. Phải tuân thủ Newton." [luật = pháp luật vs. tự nhiên]',
+      '"Không có gì tốt hơn hạnh phúc. Hamburger tốt hơn không có gì. Hamburger tốt hơn hạnh phúc." [không có gì = trống rỗng vs. so sánh]',
+    ],
+    howSpot: 'Theo dõi từ khóa qua toàn lập luận. Mỗi lần từ xuất hiện, kiểm tra nghĩa có nhất quán không.',
+    rebuttal: '"Từ [X] được dùng với hai nghĩa khác nhau: [nghĩa 1] ở tiền đề 1 và [nghĩa 2] ở tiền đề 2. Lập luận sụp đổ khi làm rõ nghĩa."',
+    warning: 'Chơi chữ (pun) cố ý khác equivocation ngụy biện — người nghe biết và đồng thuận. Nguy hiểm nhất là equivocation vô tình.',
+  },
+  {
+    tag: 'F6',
+    name: 'Câu hỏi cài bẫy',
+    en: 'Loaded Question',
+    desc: 'Câu hỏi ẩn chứa giả định chưa được thừa nhận.',
+    examples: [
+      '"Anh đã ngừng gian lận chưa?" [giả định: anh đã từng gian lận]',
+      '"Tại sao người Việt Nam hay trốn thuế?" [giả định: người Việt hay trốn thuế]',
+      '"Khi nào bạn sẽ ngừng lãng phí thời gian?" [giả định: bạn đang lãng phí]',
+      '"Bạn thích cướp đất của người nghèo hay người già?" [giả định: bạn cướp đất]',
+    ],
+    howSpot: 'Hỏi: "Câu hỏi này giả định điều gì? Giả định đó đã được thừa nhận chưa?"',
+    rebuttal: '"Câu hỏi này chứa giả định [X] chưa được chứng minh. Trước tiên cần xác lập [X] đã."',
+    warning: 'Không phải mọi câu hỏi phức tạp đều là loaded. "Bạn thích cà phê hay trà?" không có giả định gây hại.',
+  },
+  {
+    tag: 'F7',
+    name: 'Post Hoc',
+    en: 'Post Hoc Ergo Propter Hoc',
+    desc: 'Kết luận nhân quả chỉ từ thứ tự thời gian (sau đó ≠ do đó).',
+    examples: [
+      '"Đeo vòng đỏ rồi thi đậu → vòng đỏ đem lại may mắn."',
+      '"Doanh số kem tăng → đuối nước tăng → kem gây đuối nước." [thật ra: thời tiết nóng gây cả hai]',
+      '"Từ khi thống đốc mới nhậm chức → tội phạm tăng → thống đốc gây ra tội phạm."',
+      '"Uống thuốc lá → khỏi cảm → thuốc lá chữa cảm." [cảm tự khỏi sau 7-10 ngày]',
+    ],
+    howSpot: 'Hỏi: "Có cơ chế nhân quả nào có thể kiểm tra không? Hay chỉ là trùng hợp thời gian?"',
+    rebuttal: '"A xảy ra trước B không có nghĩa A gây ra B. Cần xét: biến thứ ba, cơ chế nhân quả, kiểm soát thực nghiệm."',
+    warning: 'Tương quan là gợi ý, không phải kết luận. Cần thực nghiệm kiểm soát (RCT) để xác nhận nhân quả.',
+  },
+];
+
+// ================================================================
+// 1. PHÒNG TRƯNG BÀY
+// ================================================================
+let activeCard = null;
+
+function renderGallery() {
+  const grid = document.getElementById('galleryGrid');
+  grid.innerHTML = '';
+  FALLACIES.forEach((f, i) => {
+    const card = document.createElement('div');
+    card.className = 'fallacy-card';
+    card.id = 'fc-' + i;
+    card.innerHTML = `
+      <div class="card-tag">${f.tag}</div>
+      <div class="card-name">${f.name}</div>
+      <div class="card-en">${f.en}</div>
+      <div class="card-desc">${f.desc}</div>
+      <div class="expand-hint" id="fchint-${i}">▼ Xem chi tiết</div>
+      <div class="detail-panel" id="fdp-${i}">
+        <div class="detail-section">
+          <div class="detail-label">Ví dụ</div>
+          ${f.examples.map(e => `<div class="example-block">${e}</div>`).join('')}
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Cách nhận ra</div>
+          <div style="color:#44403c">${f.howSpot}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Câu phản bác</div>
+          <div class="rebut-block">${f.rebuttal}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Lưu ý quan trọng</div>
+          <div style="background:#fef3c7; border-left:3px solid #f59e0b; padding:10px 14px; border-radius:0 6px 6px 0; font-size:13px; color:#78350f;">${f.warning}</div>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', () => toggleCard(i));
+    grid.appendChild(card);
+  });
+}
+
+function toggleCard(i) {
+  const card = document.getElementById('fc-' + i);
+  const panel = document.getElementById('fdp-' + i);
+  const hint = document.getElementById('fchint-' + i);
+
+  if (activeCard !== null && activeCard !== i) {
+    const prevCard = document.getElementById('fc-' + activeCard);
+    const prevPanel = document.getElementById('fdp-' + activeCard);
+    const prevHint = document.getElementById('fchint-' + activeCard);
+    prevCard.classList.remove('active');
+    prevPanel.classList.remove('show');
+    prevHint.textContent = '▼ Xem chi tiết';
+  }
+
+  if (card.classList.contains('active')) {
+    card.classList.remove('active');
+    panel.classList.remove('show');
+    hint.textContent = '▼ Xem chi tiết';
+    activeCard = null;
+  } else {
+    card.classList.add('active');
+    panel.classList.add('show');
+    hint.textContent = '▲ Thu gọn';
+    activeCard = i;
+  }
+}
+
+// ================================================================
+// 2. QUIZ BẮT NGỤY BIỆN
+// ================================================================
+const QUIZ_ITEMS = [
+  {
+    statement: '"Hoặc anh ủng hộ dự án này, hoặc anh không muốn công ty phát triển."',
+    options: ['Lưỡng nan giả (False Dilemma)', 'Trượt dốc (Slippery Slope)', 'Vòng tròn (Circular Reasoning)', 'Đánh tráo khái niệm (Equivocation)'],
+    correct: 0,
+    explanation: 'Đây là False Dilemma: chỉ đưa ra hai lựa chọn (ủng hộ / không muốn phát triển) trong khi có nhiều khả năng khác — ví dụ: ủng hộ công ty phát triển nhưng phản đối cách tiếp cận của dự án này, hoặc đề xuất phương án khác.'
+  },
+  {
+    statement: '"Nếu trường cho phép mặc đồ tự do → học sinh sẽ mặc không lịch sự → kỷ luật suy giảm → học lực giảm → trường tụt hạng."',
+    options: ['Khái quát vội (Hasty Generalization)', 'Trượt dốc (Slippery Slope)', 'Câu hỏi cài bẫy (Loaded Question)', 'Post Hoc'],
+    correct: 1,
+    explanation: 'Đây là Slippery Slope: chuỗi hậu quả (trang phục tự do → kỷ luật → học lực → xếp hạng) không được chứng minh từng bước. Thực tế nhiều trường không có đồng phục vẫn duy trì kỷ luật và học lực tốt.'
+  },
+  {
+    statement: '"Anh đã bao giờ ngừng nói dối với sếp chưa?"',
+    options: ['Lưỡng nan giả (False Dilemma)', 'Post Hoc', 'Câu hỏi cài bẫy (Loaded Question)', 'Vòng tròn (Circular Reasoning)'],
+    correct: 2,
+    explanation: 'Đây là Loaded Question: câu hỏi giả định rằng người được hỏi đã từng nói dối sếp — điều này chưa được thiết lập. Dù trả lời "Rồi" hay "Chưa" đều xác nhận giả định đó. Cần từ chối khung câu hỏi: "Câu hỏi này giả định tôi đã nói dối — điều đó chưa được chứng minh."'
+  },
+  {
+    statement: '"Từ hôm tôi bắt đầu uống sinh tố xanh, tinh thần tôi cải thiện hẳn. Sinh tố xanh tốt cho tinh thần."',
+    options: ['Post Hoc Ergo Propter Hoc', 'Lưỡng nan giả (False Dilemma)', 'Khái quát vội (Hasty Generalization)', 'Đánh tráo khái niệm (Equivocation)'],
+    correct: 0,
+    explanation: 'Post Hoc: "sau đó" không phải "do đó". Cải thiện tinh thần có thể do nhiều yếu tố khác: ngủ đủ giấc hơn, bớt stress, placebo effect, mùa thay đổi, v.v. Cần nghiên cứu kiểm soát để xác nhận nhân quả.'
+  },
+  {
+    statement: '"Tôi đã phỏng vấn 5 sinh viên và cả 5 đều không biết lịch sử. Sinh viên ngày nay không quan tâm lịch sử."',
+    options: ['Vòng tròn (Circular Reasoning)', 'Trượt dốc (Slippery Slope)', 'Khái quát vội (Hasty Generalization)', 'Post Hoc'],
+    correct: 2,
+    explanation: 'Hasty Generalization: từ mẫu 5 người (không ngẫu nhiên, không đại diện) kết luận về toàn bộ sinh viên. Cần khảo sát ngẫu nhiên trên mẫu đủ lớn, kiểm soát các biến số (ngành học, trường, vùng miền) để có kết luận đại diện.'
+  },
+  {
+    statement: '"Cuốn sách này đáng tin vì giáo sư X viết. Tôi biết ông là giáo sư uy tín vì cuốn sách này nói vậy."',
+    options: ['Lưỡng nan giả (False Dilemma)', 'Vòng tròn (Circular Reasoning)', 'Đánh tráo khái niệm (Equivocation)', 'Câu hỏi cài bẫy (Loaded Question)'],
+    correct: 1,
+    explanation: 'Circular Reasoning: A ("sách đáng tin") phụ thuộc B ("ông là giáo sư uy tín") và B phụ thuộc A ("sách nói vậy"). Không có bằng chứng độc lập. Cần xác minh uy tín qua nguồn bên ngoài: hồ sơ công bố khoa học, xếp hạng đại học, đánh giá đồng nghiệp.'
+  },
+  {
+    statement: '"Sức mạnh là điều kiện cần. Sức mạnh của đồng đội rất cần thiết. Vậy đồng đội rất cần thiết." [Lập luận về một môn thể thao đồng đội]',
+    options: ['Đánh tráo khái niệm (Equivocation)', 'Post Hoc', 'Khái quát vội (Hasty Generalization)', 'Lưỡng nan giả (False Dilemma)'],
+    correct: 0,
+    explanation: 'Equivocation: từ "sức mạnh" bị dùng với hai nghĩa — "sức mạnh" (strength) như điều kiện chung vs. "sức mạnh của đồng đội" (team strength/camaraderie, hay teamwork). Đây là chơi chữ giả vờ logic.'
+  },
+  {
+    statement: '"Nếu chúng ta không đầu tư vào giáo dục ngay bây giờ → thế hệ trẻ thất học → kinh tế sụp đổ → đất nước nghèo mãi."',
+    options: ['Lưỡng nan giả (False Dilemma)', 'Trượt dốc (Slippery Slope)', 'Vòng tròn (Circular Reasoning)', 'Post Hoc'],
+    correct: 1,
+    explanation: 'Slippery Slope: mỗi bước trong chuỗi (không đầu tư → thất học → sụp đổ kinh tế → nghèo mãi) cần bằng chứng riêng. "Không đầu tư ngay bây giờ" không tất yếu dẫn đến "thất học" — phụ thuộc vào mức hiện tại, nguồn thay thế, thời gian, v.v.'
+  },
+];
+
+let quizState = {
+  current: 0,
+  score: 0,
+  answered: 0,
+  results: new Array(QUIZ_ITEMS.length).fill(null),
+};
+
+function renderQuiz() {
+  const area = document.getElementById('quizArea');
+  const qi = quizState.current;
+  const item = QUIZ_ITEMS[qi];
+
+  area.innerHTML = `
+    <div style="font-size:13px; color:#78716c; margin-bottom:12px; font-weight:600">
+      Câu ${qi + 1} / ${QUIZ_ITEMS.length}
+    </div>
+    <div class="quiz-q">Xác định ngụy biện trong lập luận sau:</div>
+    <div class="quiz-context">${item.statement}</div>
+    <div class="option-list" id="optList">
+      ${item.options.map((opt, oi) => `
+        <button class="opt-btn" id="opt-${oi}" onclick="pickOption(${oi})">${opt}</button>
+      `).join('')}
+    </div>
+    <div class="quiz-explanation" id="quizExp"></div>
+    <div class="quiz-nav">
+      <button class="btn ghost sm" onclick="prevQ()" ${qi === 0 ? 'disabled' : ''}>← Câu trước</button>
+      <div style="flex:1"></div>
+      <button class="btn sm" id="nextBtn" onclick="nextQ()" style="display:none">Câu tiếp →</button>
+    </div>
+  `;
+
+  // Nếu đã trả lời câu này rồi
+  if (quizState.results[qi] !== null) {
+    restoreAnswerUI(qi);
+  }
+
+  updateScoreUI();
+}
+
+function pickOption(oi) {
+  const qi = quizState.current;
+  if (quizState.results[qi] !== null) return;
+
+  const item = QUIZ_ITEMS[qi];
+  const correct = (oi === item.correct);
+
+  quizState.results[qi] = correct;
+  if (correct) quizState.score++;
+  quizState.answered++;
+
+  // UI
+  const btns = document.querySelectorAll('.opt-btn');
+  btns.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === oi && correct) b.classList.add('correct');
+    else if (idx === oi && !correct) b.classList.add('wrong');
+    else if (idx === item.correct && !correct) b.classList.add('reveal');
+  });
+
+  const exp = document.getElementById('quizExp');
+  exp.innerHTML = item.explanation;
+  exp.classList.add('show');
+
+  document.getElementById('nextBtn').style.display = qi < QUIZ_ITEMS.length - 1 ? 'inline-block' : 'none';
+
+  updateScoreUI();
+}
+
+function restoreAnswerUI(qi) {
+  const item = QUIZ_ITEMS[qi];
+  const btns = document.querySelectorAll('.opt-btn');
+  btns.forEach((b, idx) => {
+    b.disabled = true;
+    if (quizState.results[qi] && idx === item.correct) b.classList.add('correct');
+    else if (!quizState.results[qi] && idx === item.correct) b.classList.add('reveal');
+  });
+  const exp = document.getElementById('quizExp');
+  exp.innerHTML = item.explanation;
+  exp.classList.add('show');
+  document.getElementById('nextBtn').style.display = qi < QUIZ_ITEMS.length - 1 ? 'inline-block' : 'none';
+}
+
+function nextQ() {
+  if (quizState.current < QUIZ_ITEMS.length - 1) {
+    quizState.current++;
+    renderQuiz();
+  }
+}
+
+function prevQ() {
+  if (quizState.current > 0) {
+    quizState.current--;
+    renderQuiz();
+  }
+}
+
+function resetQuiz() {
+  quizState = { current: 0, score: 0, answered: 0, results: new Array(QUIZ_ITEMS.length).fill(null) };
+  renderQuiz();
+}
+
+function updateScoreUI() {
+  const { score, answered } = quizState;
+  document.getElementById('scoreBig').textContent = score + ' / ' + answered;
+  const pct = answered === 0 ? 0 : (score / answered) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  const hint = document.getElementById('scoreHint');
+  if (answered === 0) {
+    hint.textContent = 'Bắt đầu quiz để xem điểm.';
+  } else if (answered < QUIZ_ITEMS.length) {
+    hint.textContent = `Đã trả lời ${answered}/${QUIZ_ITEMS.length} câu. Tỷ lệ đúng: ${Math.round(pct)}%.`;
+  } else {
+    const p = Math.round(pct);
+    let msg = p === 100 ? 'Xuất sắc! Bạn nhận diện ngụy biện rất tốt.' :
+              p >= 75 ? 'Tốt! Ôn lại những câu sai.' :
+              p >= 50 ? 'Trung bình. Đọc lại phần giải thích.' : 'Hãy đọc README rồi thử lại.';
+    hint.textContent = `Hoàn thành! ${p}% — ${msg}`;
+  }
+}
+
+// ================================================================
+// 3. VÒNG TRÒN LỘ DIỆN — SVG DIAGRAM
+// ================================================================
+const CIRCULAR_EXAMPLES = [
+  {
+    nodes: ['Kinh thánh là đúng', 'Chúa tồn tại', 'Chúa xác nhận Kinh thánh', 'Kinh thánh xác nhận Chúa'],
+    arrows: [[0,1],[1,2],[2,3],[3,0]],
+    center: 'VÒNG TRÒN\nkhép kín',
+    analysis: '<strong>Ví dụ 1:</strong> "Kinh thánh đúng vì Chúa nói vậy; Chúa tồn tại vì Kinh thánh nói vậy." — Bốn mệnh đề phụ thuộc nhau thành vòng khép kín. Không có mệnh đề nào được hỗ trợ bởi bằng chứng bên ngoài vòng.',
+  },
+  {
+    nodes: ['Người này đáng tin (A)', 'Anh ấy không nói dối (B)', 'B ← vì A', 'A ← vì B'],
+    arrows: [[0,1],[1,2],[2,3],[3,0]],
+    center: 'A ↔ B\nnhau',
+    analysis: '<strong>Ví dụ 2:</strong> "Người này đáng tin vì không nói dối; không nói dối vì đáng tin." — A cần B để chứng minh, B cần A để chứng minh. Không tiến được ra khỏi vòng.',
+  },
+  {
+    nodes: ['Luật pháp hợp pháp (A)', 'Nhà nước có quyền (B)', 'A hợp lệ vì B', 'B hợp lệ vì A'],
+    arrows: [[0,1],[1,2],[2,3],[3,0]],
+    center: 'Quyền\n↔ Luật',
+    analysis: '<strong>Ví dụ 3:</strong> "Luật pháp đúng vì nhà nước ban hành; nhà nước có quyền ban hành vì luật pháp cho phép." — Quyền lực và tính hợp pháp định nghĩa lẫn nhau, không có nền độc lập.',
+  },
+  {
+    nodes: ['Sách đáng tin (A)', 'Ông là chuyên gia (B)', 'A vì B', 'B vì A (sách nói)'],
+    arrows: [[0,1],[1,2],[2,3],[3,0]],
+    center: 'Sách\n↔ Uy tín',
+    analysis: '<strong>Ví dụ 4:</strong> "Sách này đúng vì chuyên gia viết; ông là chuyên gia vì sách nói vậy." — Uy tín tác giả và độ tin cậy của sách phụ thuộc lẫn nhau.',
+  },
+];
+
+let circAnim = null;
+let circHighlight = -1;
+
+function renderCircular() {
+  const idx = parseInt(document.getElementById('circSelect').value);
+  const ex = CIRCULAR_EXAMPLES[idx];
+  circHighlight = -1;
+
+  const W = 520, H = 340, cx = 260, cy = 170, r = 110;
+  const n = ex.nodes.length;
+  const pts = ex.nodes.map((_, i) => {
+    const angle = (2 * Math.PI / n) * i - Math.PI / 2;
+    return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
+  });
+
+  const nodeW = 130, nodeH = 42;
+
+  let arrowDefs = `<defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444"/>
+    </marker>
+    <marker id="arrowhead-hi" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#dc2626"/>
+    </marker>
+  </defs>`;
+
+  // Draw arrows
+  let arrowsSVG = '';
+  ex.arrows.forEach(([from, to], ai) => {
+    const fp = pts[from];
+    const tp = pts[to];
+    const dx = tp.x - fp.x;
+    const dy = tp.y - fp.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const ux = dx / dist, uy = dy / dist;
+    const pad = 26;
+    const x1 = fp.x + ux * (nodeW / 2 + 4);
+    const y1 = fp.y + uy * (nodeH / 2 + 4);
+    const x2 = tp.x - ux * (nodeW / 2 + 14);
+    const y2 = tp.y - uy * (nodeH / 2 + 14);
+    arrowsSVG += `<line id="arr-${ai}" x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"
+      stroke="#ef4444" stroke-width="2" marker-end="url(#arrowhead)" stroke-dasharray="6,3" opacity="0.7"/>`;
+  });
+
+  // Draw nodes
+  let nodesSVG = '';
+  ex.nodes.forEach((label, i) => {
+    const p = pts[i];
+    nodesSVG += `
+      <g id="cnode-${i}" class="step-node">
+        <rect x="${(p.x - nodeW / 2).toFixed(1)}" y="${(p.y - nodeH / 2).toFixed(1)}"
+          width="${nodeW}" height="${nodeH}" rx="8" ry="8"
+          fill="#fff" stroke="#d6d3d1" stroke-width="2"/>
+        <text x="${p.x.toFixed(1)}" y="${(p.y - 5).toFixed(1)}"
+          text-anchor="middle" font-size="11" font-family="system-ui,sans-serif" fill="#1c1917" font-weight="600">
+          ${escSVG(label.length > 18 ? label.slice(0, 18) + '...' : label)}
+        </text>
+        <text x="${p.x.toFixed(1)}" y="${(p.y + 10).toFixed(1)}"
+          text-anchor="middle" font-size="10" font-family="system-ui,sans-serif" fill="#78716c">
+          ${escSVG(label.length > 18 ? '(còn tiếp)' : '')}
+        </text>
+      </g>`;
+  });
+
+  // Center label
+  const lines = ex.center.split('\n');
+  const centerSVG = lines.map((l, li) =>
+    `<text x="${cx}" y="${cy + (li - (lines.length - 1) / 2) * 16}"
+      text-anchor="middle" font-size="12" font-family="system-ui,sans-serif"
+      fill="#ef4444" font-weight="700">${escSVG(l)}</text>`
+  ).join('');
+
+  const svgHtml = `<svg width="520" height="340" viewBox="0 0 520 340" style="max-width:100%;height:auto">
+    ${arrowDefs}
+    ${arrowsSVG}
+    ${nodesSVG}
+    ${centerSVG}
+  </svg>`;
+
+  document.getElementById('circSvgWrap').innerHTML = svgHtml;
+  document.getElementById('circAnalysis').innerHTML = ex.analysis;
+}
+
+function escSVG(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function animateCircular() {
+  if (circAnim) { clearInterval(circAnim); circAnim = null; }
+  const idx = parseInt(document.getElementById('circSelect').value);
+  const ex = CIRCULAR_EXAMPLES[idx];
+  const n = ex.nodes.length;
+  let step = 0;
+
+  function highlight(s) {
+    for (let i = 0; i < n; i++) {
+      const node = document.getElementById('cnode-' + i);
+      if (!node) continue;
+      const rect = node.querySelector('rect');
+      if (rect) {
+        rect.setAttribute('fill', i === s ? '#fee2e2' : '#fff');
+        rect.setAttribute('stroke', i === s ? '#ef4444' : '#d6d3d1');
+        rect.setAttribute('stroke-width', i === s ? '3' : '2');
+      }
+    }
+  }
+
+  circAnim = setInterval(() => {
+    highlight(step % n);
+    step++;
+    if (step > n * 2) {
+      clearInterval(circAnim);
+      circAnim = null;
+      // Reset
+      for (let i = 0; i < n; i++) {
+        const node = document.getElementById('cnode-' + i);
+        if (!node) continue;
+        const rect = node.querySelector('rect');
+        if (rect) {
+          rect.setAttribute('fill', '#fff');
+          rect.setAttribute('stroke', '#d6d3d1');
+          rect.setAttribute('stroke-width', '2');
+        }
+      }
+    }
+  }, 600);
+}
+
+// ================================================================
+// KHỞI TẠO
+// ================================================================
+renderGallery();
+renderQuiz();
+renderCircular();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

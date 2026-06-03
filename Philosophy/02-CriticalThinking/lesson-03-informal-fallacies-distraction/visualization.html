@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Ngụy biện đánh lạc hướng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-hover: #44403c;
+    --accent-soft: #f0eeec;
+  }
+
+  h1 { color: #1c1917; }
+  h2 {
+    color: #292524;
+    margin-top: 40px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #d6d3d1;
+  }
+
+  /* ---- Card chung ---- */
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+  .hint {
+    font-size: 13px;
+    color: #78716c;
+    margin: 6px 0 0;
+    line-height: 1.5;
+  }
+
+  /* ---- Buttons ---- */
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  button.ghost:hover { background: #e7e5e4; }
+  button.sm { padding: 6px 12px; font-size: 13px; }
+
+  /* ---- PHÒNG TRƯNG BÀY ---- */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .gallery-tile {
+    background: #fafaf9;
+    border: 2px solid #e7e5e4;
+    border-radius: 10px;
+    padding: 16px 14px;
+    cursor: pointer;
+    transition: border-color 0.18s, background 0.18s, transform 0.12s;
+    user-select: none;
+  }
+  .gallery-tile:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    transform: translateY(-2px);
+  }
+  .gallery-tile.active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .tile-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .tile-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #1c1917;
+    line-height: 1.3;
+    margin-bottom: 4px;
+  }
+  .tile-latin {
+    font-size: 12px;
+    color: #78716c;
+    font-style: italic;
+  }
+
+  /* Panel chi tiết */
+  .detail-panel {
+    display: none;
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 20px 22px;
+    background: #fff;
+    margin-top: 12px;
+    animation: fadeIn 0.18s ease;
+  }
+  .detail-panel.show { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .detail-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .detail-icon { font-size: 36px; flex-shrink: 0; }
+  .detail-title { font-size: 20px; font-weight: 800; color: #1c1917; margin: 0; }
+  .detail-latin { font-size: 13px; color: #78716c; font-style: italic; }
+
+  .detail-section { margin: 14px 0; }
+  .detail-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #78716c;
+    margin-bottom: 6px;
+  }
+  .detail-def {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #292524;
+  }
+
+  .example-list { list-style: none; padding: 0; margin: 0; }
+  .example-item {
+    background: #fafaf9;
+    border-left: 3px solid #d6d3d1;
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    margin: 8px 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #44403c;
+  }
+  .example-item em { color: #57534e; font-style: italic; }
+
+  .refute-box {
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    border-radius: 7px;
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #166534;
+    margin-top: 10px;
+  }
+  .refute-box strong { color: #14532d; }
+
+  .warning-box {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 7px;
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #7c2d12;
+    margin-top: 10px;
+  }
+  .warning-box strong { color: #9a3412; }
+
+  /* ---- BẮT NGỤY BIỆN ---- */
+  .quiz-item {
+    border: 2px solid #e7e5e4;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin: 14px 0;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .quiz-item.correct { border-color: #86efac; background: #f0fdf4; }
+  .quiz-item.wrong   { border-color: #fca5a5; background: #fff7f7; }
+
+  .quiz-dialogue {
+    background: #fafaf9;
+    border-radius: 7px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #292524;
+  }
+  .q-speaker {
+    font-weight: 700;
+    color: var(--accent);
+    margin-right: 4px;
+  }
+  .q-line { margin: 4px 0; }
+  .q-highlight {
+    background: #fef9c3;
+    border-radius: 3px;
+    padding: 0 3px;
+  }
+
+  .quiz-prompt {
+    font-size: 14px;
+    color: #44403c;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .choice-btn {
+    background: #f5f5f4;
+    color: #44403c;
+    border: 1.5px solid #d6d3d1;
+    border-radius: 7px;
+    padding: 7px 13px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .choice-btn:hover { background: #e7e5e4; border-color: #a8a29e; }
+  .choice-btn:disabled { cursor: default; opacity: 0.85; }
+  .choice-btn.selected-correct { background: #bbf7d0; border-color: #22c55e; color: #14532d; }
+  .choice-btn.selected-wrong   { background: #fecaca; border-color: #ef4444; color: #7f1d1d; }
+  .choice-btn.reveal-correct   { background: #dcfce7; border-color: #86efac; color: #166534; }
+
+  .quiz-explanation {
+    display: none;
+    margin-top: 10px;
+    padding: 12px 14px;
+    background: var(--accent-soft);
+    border-radius: 7px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #292524;
+  }
+  .quiz-explanation.show { display: block; }
+
+  /* Score bar */
+  .score-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--accent-soft);
+    border-radius: 10px;
+    margin: 16px 0;
+    font-size: 15px;
+    flex-wrap: wrap;
+  }
+  .score-num {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: monospace;
+    white-space: nowrap;
+  }
+  .score-detail { flex: 1; min-width: 120px; }
+  progress {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    appearance: none;
+    -webkit-appearance: none;
+    background: #e7e5e4;
+  }
+  progress::-webkit-progress-bar { background: #e7e5e4; border-radius: 4px; }
+  progress::-webkit-progress-value { background: var(--accent); border-radius: 4px; }
+  progress::-moz-progress-bar { background: var(--accent); border-radius: 4px; }
+
+  /* ---- BẢNG SO SÁNH ---- */
+  .compare-wrap { overflow-x: auto; }
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    min-width: 640px;
+  }
+  .compare-table th {
+    background: #e7e5e4;
+    color: #292524;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 700;
+  }
+  .compare-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f5f5f4;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .compare-table tr:hover td { background: #fafaf9; }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .fb-name {
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .detail-header { flex-direction: column; gap: 8px; }
+    .card { padding: 14px 14px; }
+    h2 { font-size: 17px; }
+    .choice-btn { padding: 6px 10px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Critical Thinking</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-formal-fallacies/visualization.html">← L2: Ngụy biện hình thức</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Ngụy biện đánh lạc hướng</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-informal-fallacies-assumption/visualization.html">L4: Ngụy biện giả định →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Ngụy biện phi hình thức: đánh lạc hướng</h1>
+<p>Bảy loại ngụy biện này không sai ở cấu trúc — chúng sai vì <strong>nội dung không liên quan đến luận điểm</strong>: công kích người nói, bóp méo lập luận, lái sang chủ đề khác, viện đám đông, hoặc thay lý lẽ bằng cảm xúc.</p>
+
+<!-- ============================================================ -->
+<h2>1. Phòng trưng bày ngụy biện</h2>
+<div class="card">
+  <p>Chọn một thẻ để xem định nghĩa, ví dụ thực tế, và cách phản bác.</p>
+
+  <div class="gallery-grid" id="galleryGrid"></div>
+  <div class="detail-panel" id="detailPanel"></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Bắt ngụy biện</h2>
+<div class="card">
+  <p>Đọc đoạn hội thoại, xác định câu <span style="background:#fef9c3;border-radius:3px;padding:0 3px">được làm nổi bật</span> phạm ngụy biện loại nào.</p>
+
+  <div class="score-bar">
+    <div class="score-num" id="quizScoreNum">0 / 0</div>
+    <div class="score-detail">
+      <progress id="quizProgress" value="0" max="1"></progress>
+      <div class="hint" id="quizHint">Bắt đầu làm bài để xem điểm.</div>
+    </div>
+    <button class="ghost sm" onclick="resetQuiz()">Làm lại</button>
+  </div>
+
+  <div id="quizArea"></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Bảng so sánh tổng hợp</h2>
+<div class="card">
+  <p>Nhìn tổng thể 7 ngụy biện — cơ chế, dấu hiệu nhận biết, và cách phản ứng.</p>
+  <div class="compare-wrap">
+    <table class="compare-table" id="compareTable"></table>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// DỮ LIỆU NGỤY BIỆN
+// ================================================================
+const FALLACIES = [
+  {
+    id: 'ad-hominem',
+    icon: '🗡️',
+    name: 'Ad Hominem',
+    nameVi: 'Công kích cá nhân',
+    latin: 'ad hominem',
+    def: 'Bác bỏ một lập luận bằng cách công kích <strong>người đưa ra</strong> lập luận thay vì xét nội dung lập luận đó.',
+    examples: [
+      '"Anh nghèo thế thì biết gì về kinh tế mà bàn!"',
+      '"Nghiên cứu do công ty thuốc lá tài trợ — kết quả chắc chắn sai, không cần đọc."',
+      '"Bà ấy ly hôn hai lần — đừng nghe ý kiến về cải cách gia đình của bà."',
+      '"Luận điểm của anh vô giá trị — anh không có bằng tiến sĩ."',
+    ],
+    refute: 'Tách biệt người nói khỏi nội dung: "Đặc điểm cá nhân không chứng minh luận điểm sai — hãy xét lý lẽ/bằng chứng cụ thể."',
+    warning: 'Phân biệt: chỉ ra xung đột lợi ích để <em>yêu cầu thêm bằng chứng</em> là hợp lệ. Ad hominem thật sự: dùng để <em>tự động bác bỏ</em> kết luận mà không xét dữ liệu.',
+  },
+  {
+    id: 'straw-man',
+    icon: '🪆',
+    name: 'Straw Man',
+    nameVi: 'Người rơm',
+    latin: 'straw man',
+    def: 'Bóp méo hoặc phóng đại luận điểm của đối phương thành <strong>phiên bản dễ tấn công hơn</strong>, rồi phản bác phiên bản đó.',
+    examples: [
+      'A: "Nên cải cách cảnh sát." → B: "Anh muốn xóa bỏ hoàn toàn cảnh sát và để tội phạm hoành hành!"',
+      'A: "Nên ăn ít thịt đỏ hơn." → B: "Anh muốn tất cả trở thành người ăn chay?"',
+      'A: "Bài kiểm tra quá nhiều gây áp lực." → B: "Cô muốn học sinh không bao giờ bị đánh giá?"',
+      'A: "Tăng thuế cho thu nhập trên 1 tỷ." → B: "Điển hình tư tưởng cộng sản — lấy hết tiền người giàu!"',
+    ],
+    refute: 'Làm rõ luận điểm thật: "Tôi không nói [X cực đoan] — tôi nói [X thật]. Bạn có lý lẽ gì chống lại [X thật] không?"',
+    warning: 'Không phải mọi "bạn hiểu sai ý tôi" đều là straw man — đôi khi là hiểu nhầm thật. Straw man điển hình bóp méo <em>đáng kể và theo hướng cực đoan hóa</em>.',
+  },
+  {
+    id: 'red-herring',
+    icon: '🐟',
+    name: 'Red Herring',
+    nameVi: 'Cá trích / Đánh trống lảng',
+    latin: 'red herring',
+    def: 'Chêm vào cuộc tranh luận thông tin hoặc chủ đề <strong>không liên quan</strong> nhằm chuyển hướng khỏi luận điểm đang được xét.',
+    examples: [
+      'Phóng viên hỏi về cắt giảm ngân sách → Bộ trưởng nói về chương trình xây trường mới.',
+      '"Con chưa làm bài tập." → "Nhưng hôm qua con đã rửa bát và dọn phòng rồi mà!"',
+      '"Tại sao không có phụ cấp y tế?" → "Công ty vừa được bình chọn nơi làm việc tốt nhất và có bàn bóng bàn miễn phí..."',
+      '"Sản phẩm này bị thu hồi vì lý do gì?" → "Chúng tôi đã bán hơn 10 triệu sản phẩm thành công trong 5 năm qua!"',
+    ],
+    refute: 'Nhận diện và kéo về: "Thông tin đó thú vị, nhưng không trả lời câu hỏi ban đầu: [lặp lại câu hỏi/luận điểm]."',
+    warning: 'Phân biệt với mở rộng ngữ cảnh hợp lệ: đôi khi bối cảnh rộng hơn <em>thật sự</em> giúp hiểu vấn đề. Red herring: thông tin chêm vào không giúp trả lời câu hỏi ban đầu.',
+  },
+  {
+    id: 'tu-quoque',
+    icon: '👉',
+    name: 'Tu Quoque',
+    nameVi: 'Anh cũng vậy',
+    latin: 'tu quoque / whataboutism',
+    def: 'Bác bỏ một phê phán bằng cách chỉ ra đối phương cũng phạm sai lầm tương tự, <strong>thay vì xét xem phê phán có đúng không</strong>.',
+    examples: [
+      'Bác sĩ: "Cần bỏ thuốc lá." → Bệnh nhân: "Nhưng bác sĩ cũng từng hút mà!"',
+      'Nước A chỉ trích nhân quyền nước B → B: "Nước A vi phạm còn nặng hơn!"',
+      'Sếp: "Báo cáo của bạn nộp muộn." → "Nhưng anh Hùng cũng nộp muộn mà!"',
+      'Mẹ: "Con xem điện thoại quá nhiều." → "Nhưng mẹ xem TV cả tối mà!"',
+    ],
+    refute: 'Tách biệt các vấn đề: "Việc người khác cũng làm không chứng minh hành vi đúng. Hãy xét từng trường hợp riêng: phê phán này có đúng không?"',
+    warning: 'Phân biệt: chỉ ra đạo đức giả như <em>một điểm bổ sung</em> là hợp lệ — nhưng không dùng để bác bỏ nội dung lập luận.',
+  },
+  {
+    id: 'appeal-authority',
+    icon: '🎓',
+    name: 'Appeal to Authority',
+    nameVi: 'Viện thẩm quyền sai',
+    latin: 'argumentum ad verecundiam',
+    def: 'Dùng ý kiến của "người có thẩm quyền" hoặc người nổi tiếng <strong>thay thế hoàn toàn</strong> cho bằng chứng, đặc biệt khi thẩm quyền đó không thuộc lĩnh vực đang thảo luận.',
+    examples: [
+      '"Diễn viên X nói vaccine gây tự kỷ — không nên tiêm cho con."',
+      '"Nhà vật lý đoạt Nobel nói chính sách kinh tế Y là tốt nhất — nên áp dụng ngay."',
+      '"CEO công ty thực phẩm bảo sản phẩm hoàn toàn an toàn — tin được."',
+      '"Người hàng xóm giàu nhất phố bảo đầu tư cổ phiếu Z là ngon — tôi làm theo thôi."',
+    ],
+    refute: 'Kiểm tra chuyên môn và bằng chứng: "Người này có chuyên môn về đúng lĩnh vực không? Có bằng chứng độc lập nào không?"',
+    warning: 'Viện dẫn chuyên gia <em>hợp lệ</em>: đúng lĩnh vực, có đồng thuận học thuật, kèm bằng chứng. Không phải mọi viện thẩm quyền đều là ngụy biện.',
+  },
+  {
+    id: 'bandwagon',
+    icon: '🎪',
+    name: 'Bandwagon',
+    nameVi: 'Viện đám đông',
+    latin: 'ad populum',
+    def: 'Dùng việc "nhiều người tin / làm" làm <strong>bằng chứng chính</strong> cho tính đúng đắn.',
+    examples: [
+      '"90% người Việt dùng thực phẩm chức năng này — chắc chắn hiệu quả!"',
+      '"Cả khu phố mua cổ phiếu X — không thể sai được."',
+      '"Sản phẩm bán chạy số 1 Việt Nam" dùng như bằng chứng chất lượng tốt nhất.',
+      '"Tất cả mọi người đều biết rằng [quan niệm cổ hủ Y] là đúng."',
+    ],
+    refute: 'Tách số lượng khỏi tính đúng sai: "Số đông tin không chứng minh điều đó đúng. Lịch sử có nhiều quan niệm phổ biến mà sau này hóa ra sai — cần bằng chứng độc lập."',
+    warning: 'Phân biệt: thực hành phổ biến <em>có cơ sở bằng chứng độc lập</em> không phải bandwagon. Ví dụ: "phần lớn bác sĩ rửa tay trước phẫu thuật" là thực hành có cơ sở khoa học.',
+  },
+  {
+    id: 'appeal-emotion',
+    icon: '😭',
+    name: 'Appeal to Emotion',
+    nameVi: 'Viện cảm xúc',
+    latin: 'argumentum ad passiones',
+    def: 'Dùng cảm xúc mạnh (sợ hãi, thương hại, tức giận, tự hào...) <strong>thay thế hoàn toàn</strong> cho lý lẽ và bằng chứng.',
+    examples: [
+      '"Nếu không mua bảo hiểm ngay, gia đình sẽ rơi vào cảnh khốn cùng!" — gây sợ, không so sánh điều khoản.',
+      '"Giáo sư ơi, ba mẹ con bệnh nặng, gia đình tan vỡ nếu con trượt..." — thương hại thay vì học lực.',
+      '"Người thông minh như bạn chắc chắn đồng ý rằng X là đúng." — xu nịnh trí tuệ.',
+      '"Bọn họ đang phá hoại đất nước — làm sao bạn ngồi yên?!" — kích động giận dữ.',
+    ],
+    refute: 'Nhận diện và hỏi bằng chứng: "Lập luận này chủ yếu dựa vào [cảm xúc]. Vấn đề thực tế là: [câu hỏi factual]. Có số liệu hoặc nghiên cứu nào hỗ trợ không?"',
+    warning: 'Cảm xúc không phải luôn sai trong lập luận — ngụy biện xảy ra khi cảm xúc <em>thay thế</em> bằng chứng. Cảm xúc <em>đi kèm</em> bằng chứng là lập luận hợp lệ.',
+  },
+];
+
+// ================================================================
+// PHÒNG TRƯNG BÀY
+// ================================================================
+let activeFallacyId = null;
+
+function renderGallery() {
+  const grid = document.getElementById('galleryGrid');
+  grid.innerHTML = '';
+  FALLACIES.forEach(f => {
+    const tile = document.createElement('div');
+    tile.className = 'gallery-tile';
+    tile.id = 'tile-' + f.id;
+    tile.innerHTML = `
+      <span class="tile-icon">${f.icon}</span>
+      <div class="tile-name">${f.name}<br><span style="font-weight:400;color:#44403c">${f.nameVi}</span></div>
+      <div class="tile-latin">${f.latin}</div>
+    `;
+    tile.addEventListener('click', () => toggleDetail(f.id));
+    grid.appendChild(tile);
+  });
+}
+
+function toggleDetail(id) {
+  const panel = document.getElementById('detailPanel');
+  if (activeFallacyId === id) {
+    // Đóng
+    panel.classList.remove('show');
+    document.getElementById('tile-' + id).classList.remove('active');
+    activeFallacyId = null;
+    return;
+  }
+  // Mở mới
+  if (activeFallacyId) {
+    document.getElementById('tile-' + activeFallacyId).classList.remove('active');
+  }
+  activeFallacyId = id;
+  document.getElementById('tile-' + id).classList.add('active');
+
+  const f = FALLACIES.find(x => x.id === id);
+  panel.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-icon">${f.icon}</div>
+      <div>
+        <div class="detail-title">${f.name} — ${f.nameVi}</div>
+        <div class="detail-latin">${f.latin}</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-label">Định nghĩa</div>
+      <div class="detail-def">${f.def}</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-label">Ví dụ thực tế</div>
+      <ul class="example-list">
+        ${f.examples.map(e => `<li class="example-item">${e}</li>`).join('')}
+      </ul>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-label">Cách phản bác</div>
+      <div class="refute-box"><strong>Cách vạch ra:</strong> ${f.refute}</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-label">Lưu ý phân biệt</div>
+      <div class="warning-box"><strong>Chú ý:</strong> ${f.warning}</div>
+    </div>
+  `;
+  panel.classList.add('show');
+  // Scroll vào view nếu cần
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+}
+
+// ================================================================
+// BẮT NGỤY BIỆN
+// ================================================================
+const QUIZ_DATA = [
+  {
+    dialogue: [
+      { speaker: 'A', text: 'Tôi nghĩ chúng ta nên tăng cường kiểm tra thực phẩm nhập khẩu.' },
+      { speaker: 'B', text: '<span class="q-highlight">Anh từng bị phạt vì vi phạm vệ sinh thực phẩm năm ngoái — anh không có tư cách nói về an toàn thực phẩm!</span>' },
+    ],
+    question: 'Câu được làm nổi bật của B là ngụy biện loại nào?',
+    correct: 'ad-hominem',
+    explanation: '<strong>Ad hominem.</strong> B công kích lý lịch của A thay vì xét đề xuất kiểm tra thực phẩm. Dù A có vi phạm trong quá khứ, điều đó không làm cho đề xuất của A sai hay đúng — cần xét nội dung đề xuất.',
+  },
+  {
+    dialogue: [
+      { speaker: 'A', text: 'Có lẽ chúng ta nên giảm giờ làm việc xuống còn 35 giờ/tuần để cải thiện sức khỏe người lao động.' },
+      { speaker: 'B', text: '<span class="q-highlight">Vậy anh muốn toàn bộ nền kinh tế sụp đổ và không ai thèm làm việc nữa à?!</span>' },
+    ],
+    question: 'Câu của B phạm ngụy biện gì?',
+    correct: 'straw-man',
+    explanation: '<strong>Straw man.</strong> A đề xuất giảm giờ làm còn 35h/tuần — B biến thành "không ai làm việc nữa" và "sụp đổ kinh tế". Đây là phiên bản bóp méo cực đoan, không phải luận điểm A nêu.',
+  },
+  {
+    dialogue: [
+      { speaker: 'PV', text: 'Thưa ông, dự án cầu đường bị chậm tiến độ 2 năm — lý do là gì?' },
+      { speaker: 'Quan chức', text: '<span class="q-highlight">Tôi rất vui vì bạn quan tâm đến hạ tầng. Thực ra, tỉnh chúng tôi vừa hoàn thành 50 km đường mới ở vùng nông thôn và giải ngân đúng hạn nhiều dự án khác...</span>' },
+    ],
+    question: 'Phản hồi của quan chức là ngụy biện loại nào?',
+    correct: 'red-herring',
+    explanation: '<strong>Red herring.</strong> Phóng viên hỏi về nguyên nhân chậm tiến độ cụ thể — quan chức lái sang thành tích khác. Thông tin về 50 km đường khác không trả lời câu hỏi được đặt ra.',
+  },
+  {
+    dialogue: [
+      { speaker: 'Bác sĩ', text: 'Bạn nên bỏ hút thuốc — nguy cơ ung thư phổi tăng gấp 25 lần.' },
+      { speaker: 'BN', text: '<span class="q-highlight">Anh có bỏ không? Hồi trẻ anh cũng hút mà tôi biết!</span>' },
+    ],
+    question: 'Câu của bệnh nhân là ngụy biện gì?',
+    correct: 'tu-quoque',
+    explanation: '<strong>Tu quoque.</strong> Việc bác sĩ có hút thuốc trong quá khứ không làm cho khuyến cáo y tế về nguy cơ ung thư trở nên sai. Khoa học về tác hại thuốc lá độc lập với tiểu sử cá nhân của người khuyên.',
+  },
+  {
+    dialogue: [
+      { speaker: 'A', text: 'Tôi đang cân nhắc uống thực phẩm chức năng X để tăng chiều cao.' },
+      { speaker: 'B', text: '<span class="q-highlight">Cầu thủ bóng đá Y — người cao nhất đội tuyển — nói anh ấy dùng sản phẩm này từ nhỏ. Cứ tin đi!</span>' },
+    ],
+    question: 'Lập luận của B là ngụy biện gì?',
+    correct: 'appeal-authority',
+    explanation: '<strong>Appeal to authority lạm dụng.</strong> Cầu thủ bóng đá có thể cao vì di truyền, chế độ ăn, tập luyện... Anh ta không phải chuyên gia dinh dưỡng hay y học — chứng thực của anh không thay thế được bằng chứng lâm sàng.',
+  },
+  {
+    dialogue: [
+      { speaker: 'A', text: 'Mình không chắc đầu tư tiền vào cổ phiếu meme này có khôn không.' },
+      { speaker: 'B', text: '<span class="q-highlight">Cả nhóm bạn bè 20 người đều đã mua rồi, ai cũng nói sẽ tăng gấp 10 lần! Không mua bây giờ là bỏ lỡ cơ hội vàng đấy.</span>' },
+    ],
+    question: 'Câu của B là ngụy biện gì?',
+    correct: 'bandwagon',
+    explanation: '<strong>Bandwagon / ad populum.</strong> "20 người bạn mua" không phải phân tích tài chính. Tâm lý đám đông (FOMO) đã dẫn đến nhiều bong bóng tài chính lịch sử. Cần phân tích giá trị thực, rủi ro, và chiến lược cá nhân.',
+  },
+  {
+    dialogue: [
+      { speaker: 'A', text: 'Tôi đề xuất cải cách chính sách bảo hiểm thất nghiệp theo mô hình Bắc Âu.' },
+      { speaker: 'B', text: '<span class="q-highlight">Hãy nghĩ đến những người đang thất nghiệp — họ đang đói, con cái họ không có tương lai. Bạn còn ngồi đây phân tích số liệu khô khan làm gì?!</span>' },
+    ],
+    question: 'Câu của B phạm ngụy biện gì?',
+    correct: 'appeal-emotion',
+    explanation: '<strong>Appeal to emotion.</strong> B dùng hình ảnh đau khổ để tắt thảo luận chính sách, thay vì cung cấp lý lẽ về tại sao đề xuất của A tốt hay xấu. Phân tích chính sách cần số liệu, không chỉ cảm xúc — dù cảm xúc là hoàn toàn có giá trị khi đi kèm bằng chứng.',
+  },
+  {
+    dialogue: [
+      { speaker: 'A', text: 'Nghiên cứu của nhóm tôi cho thấy chế độ ngủ đủ 8 giờ giúp tăng năng suất 20%.' },
+      { speaker: 'B', text: '<span class="q-highlight">Tiến sĩ Z — nhà tâm lý học hàng đầu thế giới — đã khẳng định 6 giờ là đủ cho người trưởng thành. Nghiên cứu của anh không đáng tin bằng ý kiến của ông ấy.</span>' },
+    ],
+    question: 'Câu của B là ngụy biện gì?',
+    correct: 'appeal-authority',
+    explanation: '<strong>Appeal to authority.</strong> Dù tiến sĩ Z là chuyên gia, B dùng ý kiến cá nhân của ông để bác bỏ nghiên cứu cụ thể của A mà không xét phương pháp hay số liệu. Cần so sánh bằng chứng, không chỉ danh tiếng. (Lưu ý: nếu B nêu nghiên cứu của Z thay vì chỉ ý kiến, lập luận sẽ mạnh hơn.)',
+  },
+  {
+    dialogue: [
+      { speaker: 'A', text: 'Chúng ta cần đánh giá lại hiệu quả của chương trình này sau 3 năm triển khai.' },
+      { speaker: 'B', text: '<span class="q-highlight">Anh đề xuất bỏ hoàn toàn chương trình và để hàng ngàn người hưởng lợi từ nó không có gì à?</span>' },
+    ],
+    question: 'Câu của B phạm ngụy biện gì?',
+    correct: 'straw-man',
+    explanation: '<strong>Straw man.</strong> A đề xuất "đánh giá lại hiệu quả" — B bóp méo thành "bỏ hoàn toàn chương trình". Đây là phiên bản cực đoan không có trong lời A.',
+  },
+  {
+    dialogue: [
+      { speaker: 'Bố', text: 'Con xem điện thoại đến 2 giờ sáng ảnh hưởng đến học tập.' },
+      { speaker: 'Con', text: '<span class="q-highlight">Nhưng hàng triệu sinh viên đại học ở Mỹ đều thức khuya và họ vẫn thành công mà!</span>' },
+    ],
+    question: 'Câu của con là ngụy biện gì?',
+    correct: 'bandwagon',
+    explanation: '<strong>Bandwagon / ad populum.</strong> "Hàng triệu sinh viên làm vậy" không chứng minh thức khuya đến 2 giờ sáng không ảnh hưởng đến học tập. Còn nhiều yếu tố khác: chất lượng giấc ngủ, lịch học, v.v. Số đông không phải bằng chứng khoa học.',
+  },
+];
+
+// Trạng thái quiz
+let qAnswers = new Array(QUIZ_DATA.length).fill(null);
+let qScore = 0;
+let qAnswered = 0;
+
+function renderQuiz() {
+  const area = document.getElementById('quizArea');
+  area.innerHTML = '';
+  QUIZ_DATA.forEach((q, i) => {
+    const item = document.createElement('div');
+    item.className = 'quiz-item';
+    item.id = 'qi-' + i;
+
+    // Hội thoại
+    const dlg = document.createElement('div');
+    dlg.className = 'quiz-dialogue';
+    dlg.innerHTML = q.dialogue.map(line =>
+      `<div class="q-line"><span class="q-speaker">${line.speaker}:</span>${line.text}</div>`
+    ).join('');
+    item.appendChild(dlg);
+
+    // Câu hỏi
+    const prompt = document.createElement('div');
+    prompt.className = 'quiz-prompt';
+    prompt.textContent = q.question;
+    item.appendChild(prompt);
+
+    // Các nút chọn
+    const row = document.createElement('div');
+    row.className = 'btn-row';
+    FALLACIES.forEach(f => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.id = `qbtn-${i}-${f.id}`;
+      btn.textContent = f.name;
+      btn.title = f.nameVi;
+      btn.addEventListener('click', () => handleQuizAnswer(i, f.id));
+      row.appendChild(btn);
+    });
+    item.appendChild(row);
+
+    // Giải thích
+    const exp = document.createElement('div');
+    exp.className = 'quiz-explanation';
+    exp.id = 'qexp-' + i;
+    exp.innerHTML = q.explanation;
+    item.appendChild(exp);
+
+    area.appendChild(item);
+  });
+  updateQuizScore();
+}
+
+function handleQuizAnswer(qi, selectedId) {
+  if (qAnswers[qi] !== null) return; // Đã trả lời
+
+  const q = QUIZ_DATA[qi];
+  const isCorrect = selectedId === q.correct;
+
+  // Disable all buttons
+  FALLACIES.forEach(f => {
+    const btn = document.getElementById(`qbtn-${qi}-${f.id}`);
+    if (btn) btn.disabled = true;
+  });
+
+  // Style buttons
+  const selBtn = document.getElementById(`qbtn-${qi}-${selectedId}`);
+  const corrBtn = document.getElementById(`qbtn-${qi}-${q.correct}`);
+  if (selBtn) selBtn.classList.add(isCorrect ? 'selected-correct' : 'selected-wrong');
+  if (!isCorrect && corrBtn) corrBtn.classList.add('reveal-correct');
+
+  // Style item
+  document.getElementById('qi-' + qi).className = 'quiz-item ' + (isCorrect ? 'correct' : 'wrong');
+
+  // Show explanation
+  document.getElementById('qexp-' + qi).classList.add('show');
+
+  // Record
+  qAnswers[qi] = isCorrect;
+  if (isCorrect) qScore++;
+  qAnswered++;
+  updateQuizScore();
+}
+
+function updateQuizScore() {
+  const total = QUIZ_DATA.length;
+  document.getElementById('quizScoreNum').textContent = qScore + ' / ' + qAnswered;
+  const prog = document.getElementById('quizProgress');
+  prog.value = qAnswered === 0 ? 0 : qScore / qAnswered;
+  prog.max = 1;
+  const hint = document.getElementById('quizHint');
+  if (qAnswered === 0) {
+    hint.textContent = 'Bắt đầu làm bài để xem điểm.';
+  } else if (qAnswered < total) {
+    hint.textContent = `Đã trả lời ${qAnswered}/${total} câu. Tỷ lệ đúng: ${Math.round(qScore / qAnswered * 100)}%.`;
+  } else {
+    const pct = Math.round(qScore / total * 100);
+    let msg = '';
+    if (pct === 100) msg = 'Xuất sắc! Bạn nhận diện rất tốt các ngụy biện đánh lạc hướng.';
+    else if (pct >= 70) msg = 'Tốt! Ôn lại những câu sai để củng cố.';
+    else if (pct >= 50) msg = 'Ổn. Đọc lại phần Phòng trưng bày và thử lại.';
+    else msg = 'Hãy đọc lại README và xem từng thẻ trong Phòng trưng bày trước.';
+    hint.textContent = `Hoàn thành! ${pct}% — ${msg}`;
+  }
+}
+
+function resetQuiz() {
+  qAnswers = new Array(QUIZ_DATA.length).fill(null);
+  qScore = 0;
+  qAnswered = 0;
+  renderQuiz();
+}
+
+// ================================================================
+// BẢNG SO SÁNH
+// ================================================================
+function renderCompare() {
+  const table = document.getElementById('compareTable');
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Ngụy biện</th>
+        <th>Cơ chế đánh lạc hướng</th>
+        <th>Dấu hiệu nhận biết</th>
+        <th>Cách phản ứng</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${FALLACIES.map(f => `
+        <tr>
+          <td>
+            <span style="font-size:18px">${f.icon}</span><br>
+            <span class="fb-name">${f.name}</span><br>
+            <span style="font-size:12px;color:#78716c">${f.nameVi}</span>
+          </td>
+          <td>${getCompMechanism(f.id)}</td>
+          <td>${getCompSignal(f.id)}</td>
+          <td>${getCompReact(f.id)}</td>
+        </tr>
+      `).join('')}
+    </tbody>
+  `;
+}
+
+function getCompMechanism(id) {
+  const map = {
+    'ad-hominem': 'Công kích người nói thay vì luận điểm',
+    'straw-man': 'Bóp méo luận điểm thành phiên bản dễ tấn công',
+    'red-herring': 'Chêm thông tin không liên quan để chuyển hướng',
+    'tu-quoque': 'Trỏ sai lầm của người phê bình để né phê phán',
+    'appeal-authority': 'Dùng danh tiếng ngoài lĩnh vực thay bằng chứng',
+    'bandwagon': 'Dùng số đông làm bằng chứng cho tính đúng đắn',
+    'appeal-emotion': 'Dùng cảm xúc mạnh thay thế lý lẽ và số liệu',
+  };
+  return map[id] || '';
+}
+
+function getCompSignal(id) {
+  const map = {
+    'ad-hominem': '"Anh/bà/họ là người như thế nào"',
+    'straw-man': 'Đột ngột nói điều cực đoan hơn bạn từng nói',
+    'red-herring': 'Chủ đề đột ngột chuyển sang thứ không trả lời câu hỏi ban đầu',
+    'tu-quoque': '"Nhưng anh/họ cũng..." để bác bỏ phê phán',
+    'appeal-authority': 'Người nổi tiếng/thẩm quyền nói thay cho bằng chứng',
+    'bandwagon': '"Ai cũng", "số 1", "hàng triệu người"',
+    'appeal-emotion': 'Ngôn ngữ giàu cảm xúc, không có số liệu',
+  };
+  return map[id] || '';
+}
+
+function getCompReact(id) {
+  const map = {
+    'ad-hominem': 'Tách người nói khỏi luận điểm; xét nội dung',
+    'straw-man': 'Làm rõ luận điểm thật; yêu cầu phản bác đúng luận điểm',
+    'red-herring': 'Nhận diện; kéo về câu hỏi ban đầu',
+    'tu-quoque': 'Xét phê phán độc lập với ai đưa ra',
+    'appeal-authority': 'Kiểm tra chuyên môn và bằng chứng độc lập',
+    'bandwagon': 'Tách số lượng khỏi tính đúng sai; hỏi bằng chứng',
+    'appeal-emotion': 'Nhận diện cảm xúc; hỏi số liệu thực chất',
+  };
+  return map[id] || '';
+}
+
+// ================================================================
+// KHỞI TẠO
+// ================================================================
+renderGallery();
+renderQuiz();
+renderCompare();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

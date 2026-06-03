@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Ngụy biện hình thức</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-hover: #44403c;
+    --accent-soft: #f0eeec;
+  }
+
+  h1 { color: #1c1917; }
+  h2 { color: #292524; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #d6d3d1; }
+  h3 { color: #44403c; margin-top: 24px; }
+
+  /* ===== Shared card ===== */
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .hint { font-size: 13px; color: #78716c; margin: 6px 0 0; }
+
+  /* ===== Buttons ===== */
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost {
+    background: var(--accent-soft); color: var(--accent); border: 1px solid #d6d3d1;
+  }
+  button.ghost:hover { background: #e7e5e4; }
+  button:disabled { opacity: 0.45; cursor: default; }
+
+  /* ===== Section 1: Form selector ===== */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .form-card {
+    border: 2px solid #d6d3d1; border-radius: 10px; padding: 14px 16px;
+    cursor: pointer; transition: border-color 0.15s, background 0.15s;
+    background: #fafaf9;
+  }
+  .form-card:hover { border-color: #a8a29e; background: #f5f5f4; }
+  .form-card.active { border-color: var(--accent); background: var(--accent-soft); }
+  .form-card.valid { border-color: #15803d; background: #f0fdf4; }
+  .form-card.valid.active { border-color: #15803d; background: #dcfce7; }
+  .form-card.invalid { border-color: #b91c1c; background: #fef2f2; }
+  .form-card.invalid.active { border-color: #b91c1c; background: #fee2e2; }
+
+  .fc-badge {
+    display: inline-block; font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 20px; margin-bottom: 6px;
+  }
+  .badge-valid { background: #dcfce7; color: #15803d; }
+  .badge-invalid { background: #fee2e2; color: #b91c1c; }
+
+  .fc-name { font-weight: 700; font-size: 15px; color: #1c1917; margin: 2px 0 4px; }
+  .fc-struct { font-family: 'Georgia', serif; font-size: 13px; color: #57534e; line-height: 1.7; }
+
+  /* ===== Truth table ===== */
+  .tt-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 14px; }
+  table.tt {
+    border-collapse: collapse; font-family: 'Georgia', serif; font-size: 15px; min-width: 280px;
+  }
+  table.tt th {
+    background: #292524; color: #fff; padding: 8px 14px; text-align: center;
+    font-weight: 600; white-space: nowrap;
+  }
+  table.tt th.col-premise { background: #44403c; }
+  table.tt th.col-conc { background: #57534e; }
+  table.tt td {
+    padding: 7px 14px; text-align: center; border-bottom: 1px solid #e7e5e4; white-space: nowrap;
+  }
+  table.tt tr:nth-child(even) td { background: #fafaf9; }
+  table.tt td.val-T { color: #15803d; font-weight: 700; }
+  table.tt td.val-F { color: #b91c1c; font-weight: 700; }
+  table.tt td.conc-T { color: #15803d; font-weight: 800; background: #f0fdf4; }
+  table.tt td.conc-F { color: #b91c1c; font-weight: 800; background: #fef2f2; }
+  table.tt tr.counterex td { background: #ffe4e6 !important; }
+  table.tt tr.counterex td.val-T { color: #9f1239; }
+  table.tt tr.counterex td.val-F { color: #9f1239; }
+  table.tt tr.counterex td.conc-F { color: #9f1239; font-weight: 900; background: #fecdd3 !important; font-size: 16px; }
+
+  .verdict {
+    margin-top: 14px; padding: 12px 16px; border-radius: 8px;
+    font-weight: 700; font-size: 15px;
+  }
+  .verdict.valid { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+  .verdict.invalid { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
+
+  .counterex-legend {
+    display: inline-block; margin-top: 8px; font-size: 13px; color: #9f1239;
+    background: #fecdd3; padding: 3px 10px; border-radius: 4px;
+  }
+
+  /* ===== Section 2: Quiz ===== */
+  .quiz-item {
+    border: 2px solid #d6d3d1; border-radius: 10px; padding: 16px 18px;
+    margin-bottom: 14px; background: #fafaf9;
+  }
+  .quiz-item.answered-correct { border-color: #15803d; background: #f0fdf4; }
+  .quiz-item.answered-wrong { border-color: #b91c1c; background: #fef2f2; }
+  .quiz-premise { font-size: 14px; color: #44403c; margin-bottom: 8px; line-height: 1.7; }
+  .quiz-premise em { font-style: normal; color: #1c1917; font-weight: 600; }
+  .quiz-choices { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .quiz-choice {
+    background: #f5f5f4; border: 1px solid #d6d3d1; border-radius: 20px;
+    padding: 6px 16px; font-size: 13px; cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .quiz-choice:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .quiz-choice.correct { background: #dcfce7; border-color: #15803d; color: #15803d; font-weight: 700; }
+  .quiz-choice.wrong { background: #fee2e2; border-color: #b91c1c; color: #b91c1c; font-weight: 700; }
+  .quiz-choice.reveal-correct { background: #dcfce7; border-color: #15803d; color: #15803d; }
+  .quiz-feedback { margin-top: 10px; font-size: 13px; display: none; line-height: 1.6; }
+  .quiz-feedback.show { display: block; }
+  .quiz-score { font-size: 15px; font-weight: 700; margin-top: 4px; color: #44403c; }
+
+  /* ===== Section 3: Comparison ===== */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .compare-col {
+    border-radius: 10px; padding: 16px;
+    border: 2px solid;
+  }
+  .compare-col.valid-col { border-color: #15803d; background: #f0fdf4; }
+  .compare-col.invalid-col { border-color: #b91c1c; background: #fef2f2; }
+  .compare-col h4 { margin: 0 0 10px; font-size: 15px; }
+  .compare-col.valid-col h4 { color: #15803d; }
+  .compare-col.invalid-col h4 { color: #b91c1c; }
+  .struct-box {
+    font-family: 'Georgia', serif; font-size: 14px; line-height: 2;
+    background: rgba(255,255,255,0.7); border-radius: 6px; padding: 10px 14px;
+    margin-bottom: 10px;
+  }
+  .struct-box .line { display: block; }
+  .struct-box .conc-line { border-top: 1px solid #a8a29e; margin-top: 4px; padding-top: 4px; font-weight: 700; }
+  .example-box {
+    font-size: 13px; color: #44403c; background: rgba(255,255,255,0.6);
+    border-radius: 6px; padding: 10px 12px; line-height: 1.7;
+  }
+  .example-box em { font-style: normal; color: #1c1917; font-weight: 600; }
+  .mini-tt-wrap { overflow-x: auto; margin-top: 10px; }
+  table.mini-tt { border-collapse: collapse; font-size: 13px; font-family: 'Georgia', serif; }
+  table.mini-tt th { background: #44403c; color: #fff; padding: 5px 10px; text-align: center; }
+  table.mini-tt td { padding: 5px 10px; text-align: center; border-bottom: 1px solid #e7e5e4; }
+  table.mini-tt td.tv-T { color: #15803d; font-weight: 700; }
+  table.mini-tt td.tv-F { color: #b91c1c; font-weight: 700; }
+  table.mini-tt tr.ce td { background: #ffe4e6 !important; font-weight: 700; }
+
+  .compare-pair { margin-bottom: 28px; }
+  .compare-pair h3 { text-align: center; color: #44403c; font-size: 16px; margin-bottom: 12px; }
+
+  @media (max-width: 600px) {
+    .compare-grid { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    table.tt th, table.tt td { padding: 6px 9px; font-size: 13px; }
+    .quiz-choices { flex-direction: column; }
+    .quiz-choice { text-align: center; border-radius: 8px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Critical Thinking</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-argument-structure/visualization.html">← L1: Cấu trúc lập luận</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Ngụy biện hình thức</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-informal-fallacies-distraction/visualization.html">L3: Ngụy biện đánh lạc hướng →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Ngụy biện hình thức</h1>
+<p>Bốn dạng lập luận dùng câu điều kiện <em>p → q</em> — hai hợp lệ, hai là ngụy biện. Cấu trúc quyết định tất cả, bất kể nội dung.</p>
+
+<!-- ===================== SECTION 1 ===================== -->
+<h2>1. Hợp lệ hay ngụy biện? — Chọn dạng lập luận</h2>
+<div class="card">
+  <p class="hint">Bấm vào một dạng lập luận để xem sơ đồ cấu trúc, bảng chân lý đầy đủ và dòng phản ví dụ (nếu có).</p>
+  <div class="form-grid" id="formGrid"></div>
+  <div id="formDetail" style="margin-top:18px"></div>
+</div>
+
+<!-- ===================== SECTION 2 ===================== -->
+<h2>2. Quiz — Bắt ngụy biện hình thức</h2>
+<div class="card">
+  <p>Đọc từng lập luận ngôn ngữ tự nhiên dưới đây và chọn tên đúng. <span class="quiz-score" id="quizScore"></span></p>
+  <div id="quizContainer"></div>
+  <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+    <button id="resetQuiz" class="ghost">Làm lại quiz</button>
+  </div>
+</div>
+
+<!-- ===================== SECTION 3 ===================== -->
+<h2>3. So sánh cạnh nhau — Hợp lệ vs. Ngụy biện</h2>
+<div class="card">
+  <p class="hint">Mỗi cặp hợp lệ/ngụy biện chỉ khác nhau ở một bước — nhưng sự khác biệt đó là tất cả.</p>
+
+  <div class="compare-pair" id="pair1"></div>
+  <div class="compare-pair" id="pair2"></div>
+</div>
+
+<script>
+/* ==========================================================
+   DATA
+   ========================================================== */
+
+// Four argument forms using p -> q
+const FORMS = [
+  {
+    id: 'mp',
+    name: 'Modus Ponens',
+    nameVI: 'Khẳng định tiền kiện',
+    valid: true,
+    struct: ['p → q', 'p', '∴ q'],
+    premises: ['p → q', 'p'],
+    concLabel: 'q',
+    // For truth table: rows = [p, q]
+    // Premises[0] = p→q, Premises[1] = p, Conclusion = q
+    ttCols: ['p', 'q', 'p → q', 'p', 'q (kết luận)'],
+    rows: [
+      { p: true,  q: true,  pr1: true,  pr2: true,  conc: true  },
+      { p: true,  q: false, pr1: false, pr2: true,  conc: false },
+      { p: false, q: true,  pr1: true,  pr2: false, conc: true  },
+      { p: false, q: false, pr1: true,  pr2: false, conc: false },
+    ],
+    counterexRow: null, // no counterexample — valid
+    example: '"Nếu mưa thì đường ướt. Trời đang mưa. ∴ Đường ướt."',
+    explain: 'Biết p (trời mưa) và p→q → kết luận q hợp lệ. Đây là quy tắc suy diễn cơ bản nhất.'
+  },
+  {
+    id: 'mt',
+    name: 'Modus Tollens',
+    nameVI: 'Phủ định hậu kiện',
+    valid: true,
+    struct: ['p → q', '¬q', '∴ ¬p'],
+    premises: ['p → q', '¬q'],
+    concLabel: '¬p',
+    ttCols: ['p', 'q', 'p → q', '¬q', '¬p (kết luận)'],
+    rows: [
+      { p: true,  q: true,  pr1: true,  pr2: false, conc: false },
+      { p: true,  q: false, pr1: false, pr2: true,  conc: false },
+      { p: false, q: true,  pr1: true,  pr2: false, conc: true  },
+      { p: false, q: false, pr1: true,  pr2: true,  conc: true  },
+    ],
+    counterexRow: null,
+    example: '"Nếu mưa thì đường ướt. Đường không ướt. ∴ Trời không mưa."',
+    explain: 'Biết ¬q và p→q → ¬p hợp lệ (phủ định từ hậu kiện về tiền kiện). Đây là nghịch mệnh đề (contrapositive) của p→q.'
+  },
+  {
+    id: 'ac',
+    name: 'Affirming the Consequent',
+    nameVI: 'Khẳng định hậu kiện',
+    valid: false,
+    struct: ['p → q', 'q', '∴ p'],
+    premises: ['p → q', 'q'],
+    concLabel: 'p',
+    ttCols: ['p', 'q', 'p → q', 'q', 'p (kết luận)'],
+    rows: [
+      { p: true,  q: true,  pr1: true,  pr2: true,  conc: true  },
+      { p: true,  q: false, pr1: false, pr2: false, conc: true  },
+      { p: false, q: true,  pr1: true,  pr2: true,  conc: false },  // ← COUNTEREXAMPLE
+      { p: false, q: false, pr1: true,  pr2: false, conc: false },
+    ],
+    counterexRow: 2, // 0-indexed
+    example: '"Nếu mưa thì đường ướt. Đường ướt. ∴ Trời mưa."',
+    explain: 'Phản ví dụ (dòng đỏ): p=F, q=T — xe tưới nước làm đường ướt dù không mưa. Cả hai tiền đề T nhưng kết luận F → không hợp lệ.'
+  },
+  {
+    id: 'da',
+    name: 'Denying the Antecedent',
+    nameVI: 'Phủ định tiền kiện',
+    valid: false,
+    struct: ['p → q', '¬p', '∴ ¬q'],
+    premises: ['p → q', '¬p'],
+    concLabel: '¬q',
+    ttCols: ['p', 'q', 'p → q', '¬p', '¬q (kết luận)'],
+    rows: [
+      { p: true,  q: true,  pr1: true,  pr2: false, conc: false },
+      { p: true,  q: false, pr1: false, pr2: false, conc: true  },
+      { p: false, q: true,  pr1: true,  pr2: true,  conc: false }, // ← COUNTEREXAMPLE
+      { p: false, q: false, pr1: true,  pr2: true,  conc: true  },
+    ],
+    counterexRow: 2,
+    example: '"Nếu mưa thì đường ướt. Trời không mưa. ∴ Đường không ướt."',
+    explain: 'Phản ví dụ (dòng đỏ): p=F, q=T — xe tưới nước → đường vẫn ướt dù không mưa. Cả hai tiền đề T nhưng kết luận (¬q = F) → không hợp lệ.'
+  }
+];
+
+/* ==========================================================
+   SECTION 1: Form selector
+   ========================================================== */
+const formGrid = document.getElementById('formGrid');
+const formDetail = document.getElementById('formDetail');
+let activeFormId = null;
+
+function tv(b) { return b ? 'T' : 'F'; }
+function tdClass(b, isConc) {
+  if (isConc) return b ? 'conc-T' : 'conc-F';
+  return b ? 'val-T' : 'val-F';
+}
+
+function renderFormDetail(form) {
+  // Build struct display
+  const structHTML = form.struct.map((line, i) => {
+    if (i === form.struct.length - 1) {
+      return `<span class="line conc-line">${line}</span>`;
+    }
+    return `<span class="line">${line}</span>`;
+  }).join('');
+
+  // Build truth table
+  let tableHTML = '<table class="tt"><thead><tr>';
+  form.ttCols.forEach((col, ci) => {
+    const isP1 = ci === 2;
+    const isP2 = ci === 3;
+    const isConc = ci === 4;
+    let cls = '';
+    if (isP1 || isP2) cls = 'col-premise';
+    if (isConc) cls = 'col-conc';
+    tableHTML += `<th class="${cls}">${col}</th>`;
+  });
+  tableHTML += '</tr></thead><tbody>';
+
+  form.rows.forEach((row, ri) => {
+    const isCE = ri === form.counterexRow;
+    tableHTML += `<tr${isCE ? ' class="counterex"' : ''}>`;
+    // p
+    tableHTML += `<td class="${tdClass(row.p, false)}">${tv(row.p)}</td>`;
+    // q
+    tableHTML += `<td class="${tdClass(row.q, false)}">${tv(row.q)}</td>`;
+    // pr1
+    tableHTML += `<td class="${tdClass(row.pr1, false)}">${tv(row.pr1)}</td>`;
+    // pr2
+    tableHTML += `<td class="${tdClass(row.pr2, false)}">${tv(row.pr2)}</td>`;
+    // conc
+    tableHTML += `<td class="${tdClass(row.conc, true)}">${tv(row.conc)}${isCE ? ' ◄' : ''}</td>`;
+    tableHTML += '</tr>';
+  });
+  tableHTML += '</tbody></table>';
+
+  const verdictClass = form.valid ? 'valid' : 'invalid';
+  const verdictText = form.valid
+    ? '✓ HỢP LỆ — Không tồn tại dòng nào có mọi tiền đề T mà kết luận F.'
+    : '✗ NGỤY BIỆN — Dòng đỏ: mọi tiền đề T nhưng kết luận F.';
+
+  const ceHTML = !form.valid
+    ? `<div class="counterex-legend">Dòng đỏ = phản ví dụ chứng minh không hợp lệ</div>`
+    : '';
+
+  formDetail.innerHTML = `
+    <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;margin-bottom:14px">
+      <div>
+        <div style="font-size:13px;color:#78716c;margin-bottom:4px">Cấu trúc hình thức</div>
+        <div class="struct-box" style="min-width:140px">${structHTML}</div>
+      </div>
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:13px;color:#78716c;margin-bottom:4px">Ví dụ ngôn ngữ tự nhiên</div>
+        <div style="font-size:14px;color:#292524;line-height:1.8;background:#fafaf9;border-radius:8px;padding:12px 14px;border:1px solid #e7e5e4">${form.example}</div>
+      </div>
+    </div>
+    <div class="tt-wrap">${tableHTML}</div>
+    ${ceHTML}
+    <div class="verdict ${verdictClass}">${verdictText}</div>
+    <p style="font-size:14px;color:#44403c;margin-top:10px">${form.explain}</p>
+  `;
+}
+
+FORMS.forEach(form => {
+  const card = document.createElement('div');
+  const validClass = form.valid ? 'valid' : 'invalid';
+  card.className = `form-card ${validClass}`;
+  card.innerHTML = `
+    <div><span class="fc-badge ${form.valid ? 'badge-valid' : 'badge-invalid'}">${form.valid ? '✓ HỢP LỆ' : '✗ NGỤY BIỆN'}</span></div>
+    <div class="fc-name">${form.name}</div>
+    <div style="font-size:12px;color:#78716c;margin-bottom:6px">${form.nameVI}</div>
+    <div class="fc-struct">${form.struct.map((l,i) => i===form.struct.length-1 ? '<strong>'+l+'</strong>' : l).join('<br>')}</div>
+  `;
+  card.addEventListener('click', () => {
+    if (activeFormId === form.id) {
+      card.classList.remove('active');
+      formDetail.innerHTML = '';
+      activeFormId = null;
+    } else {
+      document.querySelectorAll('.form-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      activeFormId = form.id;
+      renderFormDetail(form);
+    }
+  });
+  formGrid.appendChild(card);
+});
+
+/* ==========================================================
+   SECTION 2: Quiz
+   ========================================================== */
+const QUIZ_ITEMS = [
+  {
+    text: 'Tiền đề 1: "Nếu là bác sĩ thì phải học y khoa."\nTiền đề 2: "Bà Lan đã học y khoa."\nKết luận: "∴ Bà Lan là bác sĩ."',
+    answer: 'ac',
+    choices: ['mp', 'mt', 'ac', 'da'],
+    feedback: 'Dạng p→q, q ∴ p — Khẳng định hậu kiện. Bà Lan có thể học y khoa để nghiên cứu dược học hoặc y tế công cộng, không nhất thiết là bác sĩ.'
+  },
+  {
+    text: 'Tiền đề 1: "Nếu lạm phát cao thì ngân hàng tăng lãi suất."\nTiền đề 2: "Lạm phát không cao."\nKết luận: "∴ Ngân hàng không tăng lãi suất."',
+    answer: 'da',
+    choices: ['mp', 'mt', 'ac', 'da'],
+    feedback: 'Dạng p→q, ¬p ∴ ¬q — Phủ định tiền kiện. Ngân hàng có thể tăng lãi suất vì lý do khác (kiểm soát tỷ giá, ổn định tài chính...).'
+  },
+  {
+    text: 'Tiền đề 1: "Nếu có động đất thì nhà cao tầng rung lắc."\nTiền đề 2: "Nhà cao tầng không rung lắc."\nKết luận: "∴ Không có động đất."',
+    answer: 'mt',
+    choices: ['mp', 'mt', 'ac', 'da'],
+    feedback: 'Dạng p→q, ¬q ∴ ¬p — Modus Tollens. Hợp lệ! Biết nhà không rung (¬q) và nếu động đất thì nhà rung (p→q), suy ra không động đất (¬p).'
+  },
+  {
+    text: 'Tiền đề 1: "Nếu học chăm thì đạt điểm A."\nTiền đề 2: "Nam học chăm."\nKết luận: "∴ Nam đạt điểm A."',
+    answer: 'mp',
+    choices: ['mp', 'mt', 'ac', 'da'],
+    feedback: 'Dạng p→q, p ∴ q — Modus Ponens. Hợp lệ! Biết p (học chăm) và p→q, suy ra q.'
+  },
+  {
+    text: 'Tiền đề 1: "Nếu là kim cương thì rất cứng."\nTiền đề 2: "Viên đá này rất cứng."\nKết luận: "∴ Viên đá này là kim cương."',
+    answer: 'ac',
+    choices: ['mp', 'mt', 'ac', 'da'],
+    feedback: 'Dạng p→q, q ∴ p — Khẳng định hậu kiện. Phản ví dụ: corundum (ruby, sapphire) cũng rất cứng (Mohs 9) nhưng không phải kim cương.'
+  },
+  {
+    text: 'Tiền đề 1: "Nếu là cá voi thì là động vật có vú."\nTiền đề 2: "Cá ngựa vằn không phải cá voi."\nKết luận: "∴ Cá ngựa vằn không phải động vật có vú."',
+    answer: 'da',
+    choices: ['mp', 'mt', 'ac', 'da'],
+    feedback: 'Dạng p→q, ¬p ∴ ¬q — Phủ định tiền kiện. Cá ngựa vằn (zebra) là động vật có vú! Không phải cá voi nhưng vẫn là thú. Đây là phản ví dụ kinh điển.'
+  },
+];
+
+const CHOICE_LABELS = {
+  'mp': 'Modus Ponens (Hợp lệ)',
+  'mt': 'Modus Tollens (Hợp lệ)',
+  'ac': 'Khẳng định hậu kiện (Ngụy biện)',
+  'da': 'Phủ định tiền kiện (Ngụy biện)',
+};
+
+let quizState = QUIZ_ITEMS.map(() => ({ answered: false, correct: null }));
+const quizScore = document.getElementById('quizScore');
+
+function updateScore() {
+  const answered = quizState.filter(s => s.answered).length;
+  const correct = quizState.filter(s => s.correct).length;
+  if (answered === 0) {
+    quizScore.textContent = '';
+  } else if (answered < QUIZ_ITEMS.length) {
+    quizScore.textContent = `${correct}/${answered} câu đúng`;
+  } else {
+    quizScore.textContent = `Kết quả: ${correct}/${QUIZ_ITEMS.length} — ${correct === QUIZ_ITEMS.length ? 'Xuất sắc!' : correct >= 4 ? 'Tốt!' : 'Ôn thêm nhé!'}`;
+  }
+}
+
+function renderQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+  quizState = QUIZ_ITEMS.map(() => ({ answered: false, correct: null }));
+  updateScore();
+
+  QUIZ_ITEMS.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = `quiz-${idx}`;
+
+    const premisesHTML = item.text.split('\n').map(line => {
+      return `<div>${line.replace(/^(Tiền đề \d+:|Kết luận:)/, m => `<em>${m}</em>`)}</div>`;
+    }).join('');
+
+    const choicesHTML = item.choices.map(ch => {
+      return `<button class="quiz-choice" data-quiz="${idx}" data-choice="${ch}">${CHOICE_LABELS[ch]}</button>`;
+    }).join('');
+
+    div.innerHTML = `
+      <div class="quiz-premise">${premisesHTML}</div>
+      <div class="quiz-choices">${choicesHTML}</div>
+      <div class="quiz-feedback" id="qfb-${idx}">${item.feedback}</div>
+    `;
+    container.appendChild(div);
+  });
+
+  // Attach events
+  container.querySelectorAll('.quiz-choice').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const idx = parseInt(this.dataset.quiz);
+      const choice = this.dataset.choice;
+      if (quizState[idx].answered) return;
+
+      quizState[idx].answered = true;
+      quizState[idx].correct = (choice === QUIZ_ITEMS[idx].answer);
+
+      const itemEl = document.getElementById(`quiz-${idx}`);
+      itemEl.classList.add(quizState[idx].correct ? 'answered-correct' : 'answered-wrong');
+
+      // Mark choices
+      itemEl.querySelectorAll('.quiz-choice').forEach(b => {
+        b.disabled = true;
+        if (b.dataset.choice === QUIZ_ITEMS[idx].answer) {
+          b.classList.add(b === this ? 'correct' : 'reveal-correct');
+        } else if (b === this && !quizState[idx].correct) {
+          b.classList.add('wrong');
+        }
+      });
+
+      // Show feedback
+      const fb = document.getElementById(`qfb-${idx}`);
+      fb.classList.add('show');
+
+      updateScore();
+    });
+  });
+}
+
+document.getElementById('resetQuiz').addEventListener('click', renderQuiz);
+renderQuiz();
+
+/* ==========================================================
+   SECTION 3: Comparison pairs
+   ========================================================== */
+
+// Helper: mini truth table HTML
+function miniTT(cols, rows, ceRow) {
+  let h = '<table class="mini-tt"><thead><tr>';
+  cols.forEach(c => { h += `<th>${c}</th>`; });
+  h += '</tr></thead><tbody>';
+  rows.forEach((row, ri) => {
+    const isCE = ri === ceRow;
+    h += `<tr${isCE ? ' class="ce"' : ''}>`;
+    row.forEach((v, ci) => {
+      const isLast = ci === row.length - 1;
+      const cls = v === 'T' ? 'tv-T' : 'tv-F';
+      h += `<td class="${cls}">${v}${isCE && isLast ? ' ◄' : ''}</td>`;
+    });
+    h += '</tr>';
+  });
+  h += '</tbody></table>';
+  return h;
+}
+
+// Pair 1: Modus Ponens vs Affirming the Consequent
+function renderPair1() {
+  const el = document.getElementById('pair1');
+  el.innerHTML = `
+    <h3>Cặp 1: Modus Ponens (hợp lệ) vs. Khẳng định hậu kiện (ngụy biện)</h3>
+    <p style="font-size:14px;color:#57534e;text-align:center;margin-bottom:14px">Cả hai đều biết <em>p → q</em>. Khác nhau: MP biết <strong>p</strong> (tiền kiện); AC biết <strong>q</strong> (hậu kiện). Một chữ — một trời một vực.</p>
+    <div class="compare-grid">
+      <div class="compare-col valid-col">
+        <h4>✓ Modus Ponens</h4>
+        <div class="struct-box">
+          <span class="line">p → q</span>
+          <span class="line">p</span>
+          <span class="line conc-line">∴ q</span>
+        </div>
+        <div class="example-box">
+          <em>Tiền đề 1:</em> Nếu mưa thì đường ướt.<br>
+          <em>Tiền đề 2:</em> Trời mưa.<br>
+          <em>Kết luận:</em> ∴ Đường ướt. ✓
+        </div>
+        <div class="mini-tt-wrap">
+          ${miniTT(
+            ['p', 'q', 'p→q', 'p', 'q'],
+            [
+              ['T','T','T','T','T'],
+              ['T','F','F','T','F'],
+              ['F','T','T','F','T'],
+              ['F','F','T','F','F'],
+            ],
+            null
+          )}
+        </div>
+        <p style="font-size:12px;color:#15803d;margin-top:8px">Không có dòng phản ví dụ → HỢP LỆ</p>
+      </div>
+      <div class="compare-col invalid-col">
+        <h4>✗ Khẳng định hậu kiện</h4>
+        <div class="struct-box">
+          <span class="line">p → q</span>
+          <span class="line">q</span>
+          <span class="line conc-line">∴ p</span>
+        </div>
+        <div class="example-box">
+          <em>Tiền đề 1:</em> Nếu mưa thì đường ướt.<br>
+          <em>Tiền đề 2:</em> Đường ướt.<br>
+          <em>Kết luận:</em> ∴ Trời mưa. ✗<br>
+          <span style="color:#9f1239;font-size:12px">(Có thể xe tưới nước làm ướt!)</span>
+        </div>
+        <div class="mini-tt-wrap">
+          ${miniTT(
+            ['p', 'q', 'p→q', 'q', 'p'],
+            [
+              ['T','T','T','T','T'],
+              ['T','F','F','F','T'],
+              ['F','T','T','T','F'],
+              ['F','F','T','F','F'],
+            ],
+            2
+          )}
+        </div>
+        <p style="font-size:12px;color:#b91c1c;margin-top:8px">Dòng đỏ (p=F,q=T): tiền đề T, kết luận F → NGỤY BIỆN</p>
+      </div>
+    </div>
+  `;
+}
+
+// Pair 2: Modus Tollens vs Denying the Antecedent
+function renderPair2() {
+  const el = document.getElementById('pair2');
+  el.innerHTML = `
+    <h3>Cặp 2: Modus Tollens (hợp lệ) vs. Phủ định tiền kiện (ngụy biện)</h3>
+    <p style="font-size:14px;color:#57534e;text-align:center;margin-bottom:14px">Cả hai đều phủ định. Khác nhau: MT phủ định <strong>hậu kiện</strong> (¬q → ¬p); DA phủ định <strong>tiền kiện</strong> (¬p → ¬q). Sai chiều là sai tất cả.</p>
+    <div class="compare-grid">
+      <div class="compare-col valid-col">
+        <h4>✓ Modus Tollens</h4>
+        <div class="struct-box">
+          <span class="line">p → q</span>
+          <span class="line">¬q</span>
+          <span class="line conc-line">∴ ¬p</span>
+        </div>
+        <div class="example-box">
+          <em>Tiền đề 1:</em> Nếu mưa thì đường ướt.<br>
+          <em>Tiền đề 2:</em> Đường không ướt.<br>
+          <em>Kết luận:</em> ∴ Trời không mưa. ✓
+        </div>
+        <div class="mini-tt-wrap">
+          ${miniTT(
+            ['p', 'q', 'p→q', '¬q', '¬p'],
+            [
+              ['T','T','T','F','F'],
+              ['T','F','F','T','F'],
+              ['F','T','T','F','T'],
+              ['F','F','T','T','T'],
+            ],
+            null
+          )}
+        </div>
+        <p style="font-size:12px;color:#15803d;margin-top:8px">Không có dòng phản ví dụ → HỢP LỆ</p>
+      </div>
+      <div class="compare-col invalid-col">
+        <h4>✗ Phủ định tiền kiện</h4>
+        <div class="struct-box">
+          <span class="line">p → q</span>
+          <span class="line">¬p</span>
+          <span class="line conc-line">∴ ¬q</span>
+        </div>
+        <div class="example-box">
+          <em>Tiền đề 1:</em> Nếu mưa thì đường ướt.<br>
+          <em>Tiền đề 2:</em> Trời không mưa.<br>
+          <em>Kết luận:</em> ∴ Đường không ướt. ✗<br>
+          <span style="color:#9f1239;font-size:12px">(Có thể xe tưới nước làm ướt!)</span>
+        </div>
+        <div class="mini-tt-wrap">
+          ${miniTT(
+            ['p', 'q', 'p→q', '¬p', '¬q'],
+            [
+              ['T','T','T','F','F'],
+              ['T','F','F','F','T'],
+              ['F','T','T','T','F'],
+              ['F','F','T','T','T'],
+            ],
+            2
+          )}
+        </div>
+        <p style="font-size:12px;color:#b91c1c;margin-top:8px">Dòng đỏ (p=F,q=T): tiền đề T, kết luận F → NGỤY BIỆN</p>
+      </div>
+    </div>
+  `;
+}
+
+renderPair1();
+renderPair2();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

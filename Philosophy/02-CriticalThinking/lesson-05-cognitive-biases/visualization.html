@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Thiên kiến nhận thức</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-hover: #44403c;
+    --accent-soft: #f0eeec;
+  }
+
+  h1 { color: #1c1917; }
+  h2 { color: #292524; margin-top: 44px; padding-bottom: 8px; border-bottom: 2px solid #d6d3d1; }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #78716c;
+    margin: 6px 0 0;
+    line-height: 1.5;
+  }
+
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button:disabled { background: #a8a29e; cursor: default; }
+  button.ghost {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  button.ghost:hover { background: #e7e5e4; }
+  button.sm { padding: 6px 12px; font-size: 13px; }
+  button.outline {
+    background: #fff;
+    color: var(--accent);
+    border: 2px solid var(--accent);
+  }
+  button.outline:hover { background: var(--accent-soft); }
+
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0;
+    align-items: center;
+  }
+
+  /* ---- Anchor experiment ---- */
+  .anchor-display {
+    font-size: 64px;
+    font-weight: 900;
+    color: var(--accent);
+    text-align: center;
+    padding: 20px;
+    background: var(--accent-soft);
+    border-radius: 10px;
+    margin: 14px 0;
+    letter-spacing: -2px;
+    font-family: monospace;
+  }
+  .anchor-input {
+    width: 100%;
+    max-width: 260px;
+    padding: 10px 14px;
+    border: 2px solid #d6d3d1;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    box-sizing: border-box;
+    color: #1c1917;
+  }
+  .anchor-input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+
+  .anchor-results {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 16px;
+  }
+  @media (max-width: 480px) {
+    .anchor-results { grid-template-columns: 1fr; }
+  }
+  .anchor-col {
+    border-radius: 8px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .anchor-col.low { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .anchor-col.high { background: #fef3c7; border: 1px solid #fde68a; }
+  .anchor-col-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #78716c;
+    margin-bottom: 6px;
+  }
+  .anchor-col-anchor {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: monospace;
+  }
+  .anchor-col.low .anchor-col-anchor { color: #1d4ed8; }
+  .anchor-col.high .anchor-col-anchor { color: #92400e; }
+  .anchor-col-avg {
+    font-size: 28px;
+    font-weight: 900;
+    font-family: monospace;
+    margin-top: 4px;
+  }
+  .anchor-col.low .anchor-col-avg { color: #1d4ed8; }
+  .anchor-col.high .anchor-col-avg { color: #b45309; }
+  .anchor-col-n {
+    font-size: 12px;
+    color: #78716c;
+    margin-top: 4px;
+  }
+
+  .phase-label {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .phase-anchor { background: #fef9c3; color: #92400e; }
+  .phase-answer { background: #dbeafe; color: #1e40af; }
+
+  /* ---- Wason task ---- */
+  .card-grid-4 {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+    justify-content: center;
+  }
+  .wason-card {
+    width: 80px;
+    height: 110px;
+    border-radius: 10px;
+    border: 3px solid #d6d3d1;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 26px;
+    font-weight: 900;
+    font-family: monospace;
+    color: #1c1917;
+    user-select: none;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .wason-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .wason-card.selected { border-color: #2563eb; background: #eff6ff; }
+  .wason-card.correct-pick { border-color: #16a34a; background: #f0fdf4; }
+  .wason-card.wrong-pick { border-color: #dc2626; background: #fef2f2; }
+  .wason-card.correct-reveal { border-color: #16a34a; background: #dcfce7; }
+  .wason-card.disabled { cursor: default; }
+  .wason-card .tick {
+    position: absolute;
+    top: 5px; right: 7px;
+    font-size: 15px;
+  }
+  .wason-card small {
+    font-size: 11px;
+    font-weight: 400;
+    color: #78716c;
+    margin-top: 4px;
+    font-family: sans-serif;
+  }
+  @media (max-width: 480px) {
+    .wason-card { width: 64px; height: 90px; font-size: 20px; }
+  }
+
+  .rule-box {
+    background: var(--accent-soft);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #292524;
+    border-left: 4px solid var(--accent);
+    margin: 12px 0;
+  }
+
+  .wason-result {
+    display: none;
+    margin-top: 12px;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .wason-result.show { display: block; }
+  .wason-result.correct-res { background: #f0fdf4; border: 1px solid #86efac; }
+  .wason-result.wrong-res { background: #fff7ed; border: 1px solid #fed7aa; }
+
+  /* ---- Framing ---- */
+  .framing-scenario {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  @media (max-width: 600px) {
+    .framing-scenario { grid-template-columns: 1fr; }
+  }
+  .framing-option {
+    border: 3px solid #e7e5e4;
+    border-radius: 10px;
+    padding: 18px 16px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+  }
+  .framing-option:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .framing-option.selected { border-color: #2563eb; background: #eff6ff; }
+  .framing-option.chosen { border-color: #7c3aed; background: #f5f3ff; }
+  .framing-option-label {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #78716c;
+    margin-bottom: 8px;
+  }
+  .framing-option-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1c1917;
+    line-height: 1.5;
+  }
+
+  .framing-step {
+    display: none;
+  }
+  .framing-step.active { display: block; }
+
+  .framing-reveal {
+    background: #f5f3ff;
+    border: 1px solid #c4b5fd;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .framing-stats {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+  .framing-stat {
+    flex: 1;
+    min-width: 0;
+    background: #fafaf9;
+    border: 1px solid #e7e5e4;
+    border-radius: 8px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .framing-stat-label {
+    font-size: 12px;
+    color: #78716c;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .framing-stat-num {
+    font-size: 26px;
+    font-weight: 900;
+    font-family: monospace;
+    color: var(--accent);
+  }
+  .framing-stat-sub {
+    font-size: 12px;
+    color: #a8a29e;
+    margin-top: 2px;
+  }
+
+  /* ---- Gallery ---- */
+  .bias-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  @media (max-width: 480px) {
+    .bias-gallery { grid-template-columns: 1fr; }
+  }
+  .bias-tile {
+    border: 2px solid #e7e5e4;
+    border-radius: 10px;
+    padding: 18px 16px;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    user-select: none;
+  }
+  .bias-tile:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .bias-tile.open { border-color: var(--accent); }
+  .bias-tile-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .bias-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+    line-height: 1.2;
+  }
+  .bias-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1c1917;
+  }
+  .bias-subtitle {
+    font-size: 13px;
+    color: #78716c;
+    margin-top: 2px;
+  }
+  .bias-body {
+    display: none;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e7e5e4;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #44403c;
+  }
+  .bias-tile.open .bias-body { display: block; }
+  .bias-example {
+    margin-top: 8px;
+    background: var(--accent-soft);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: #44403c;
+  }
+  .bias-stat {
+    display: inline-block;
+    background: #fef3c7;
+    color: #92400e;
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 8px;
+  }
+
+  /* ---- Shared utilities ---- */
+  .badge-green {
+    display: inline-block;
+    background: #dcfce7; color: #166534;
+    padding: 3px 10px; border-radius: 6px;
+    font-weight: 700; font-size: 13px;
+  }
+  .badge-red {
+    display: inline-block;
+    background: #fee2e2; color: #991b1b;
+    padding: 3px 10px; border-radius: 6px;
+    font-weight: 700; font-size: 13px;
+  }
+  .badge-purple {
+    display: inline-block;
+    background: #f3e8ff; color: #6b21a8;
+    padding: 3px 10px; border-radius: 6px;
+    font-weight: 700; font-size: 13px;
+  }
+
+  .intro-badge {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .section-intro {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #44403c;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 480px) {
+    .card { padding: 14px; }
+    h2 { font-size: 17px; }
+    .anchor-display { font-size: 44px; }
+    button { padding: 8px 14px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Critical Thinking</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-informal-fallacies-assumption/visualization.html">← L4: Ngụy biện giả định</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Thiên kiến nhận thức</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-evidence-sources/visualization.html">L6: Đánh giá bằng chứng →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Thiên kiến nhận thức</h1>
+<p class="section-intro">Bốn thí nghiệm nhỏ giúp bạn <em>trải nghiệm trực tiếp</em> các thiên kiến nhận thức trên chính mình — không chỉ đọc định nghĩa. Mỗi thí nghiệm được thiết kế để bạn nhận ra bias trong quá trình ra quyết định thực tế.</p>
+
+<!-- ================================================================ -->
+<h2>1. Thí nghiệm Mỏ neo (Anchoring Bias)</h2>
+<div class="card">
+  <p class="section-intro">Bạn sẽ thấy một con số (mỏ neo), sau đó trả lời một câu hỏi. Thống kê sẽ so sánh đáp án của những người thấy mỏ neo <strong>thấp</strong> vs <strong>cao</strong> — để thấy ảnh hưởng của con số vô nghĩa đó lên phán đoán.</p>
+
+  <!-- Phase 1: Anchor display -->
+  <div id="anchorPhase1" class="framing-step active">
+    <span class="phase-label phase-anchor">Bước 1 — Nhìn vào con số này</span>
+    <div class="anchor-display" id="anchorNum">?</div>
+    <p class="hint" style="text-align:center">Nhìn vào số này trong 3 giây rồi bấm tiếp.</p>
+    <div class="btn-row" style="justify-content:center">
+      <button onclick="showAnchorQuestion()">Tiếp tục →</button>
+    </div>
+  </div>
+
+  <!-- Phase 2: Question -->
+  <div id="anchorPhase2" class="framing-step">
+    <span class="phase-label phase-answer">Bước 2 — Trả lời câu hỏi</span>
+    <p style="font-size:15px; font-weight:600; margin: 12px 0 6px;">
+      Theo bạn, phần trăm các quốc gia châu Phi trong tổng số thành viên Liên Hợp Quốc là bao nhiêu?
+    </p>
+    <p class="hint">Nhập số từ 0 đến 100. Đừng tra Google — hãy dùng trực giác.</p>
+    <div class="btn-row" style="align-items:flex-end; gap:12px; margin-top:10px">
+      <input type="number" id="anchorAnswer" class="anchor-input" min="0" max="100" placeholder="0–100" />
+      <button onclick="submitAnchorAnswer()">Gửi đáp án</button>
+    </div>
+    <p id="anchorErr" style="color:#dc2626; font-size:13px; margin:4px 0; display:none">Vui lòng nhập số từ 0 đến 100.</p>
+  </div>
+
+  <!-- Phase 3: Results -->
+  <div id="anchorPhase3" class="framing-step">
+    <span class="phase-label phase-answer">Kết quả — Thống kê theo mỏ neo</span>
+    <div class="anchor-results">
+      <div class="anchor-col low">
+        <div class="anchor-col-title">Nhóm thấy mỏ neo thấp</div>
+        <div class="anchor-col-anchor" id="lowAnchorVal">—</div>
+        <div class="anchor-col-avg" id="lowAvg">—</div>
+        <div class="anchor-col-n" id="lowN">— lượt</div>
+      </div>
+      <div class="anchor-col high">
+        <div class="anchor-col-title">Nhóm thấy mỏ neo cao</div>
+        <div class="anchor-col-anchor" id="highAnchorVal">—</div>
+        <div class="anchor-col-avg" id="highAvg">—</div>
+        <div class="anchor-col-n" id="highN">— lượt</div>
+      </div>
+    </div>
+    <div id="anchorAnalysis" style="margin-top:14px; padding:14px; background:#fef9c3; border-radius:8px; font-size:14px; line-height:1.7; display:none"></div>
+    <div style="margin-top:14px; padding:12px 14px; background:var(--accent-soft); border-radius:8px; font-size:13px; color:#44403c; line-height:1.6">
+      <strong>Đáp án thực tế:</strong> Khoảng <strong>28%</strong> thành viên LHQ là quốc gia châu Phi (54/193 thành viên năm 2024). Trong thí nghiệm gốc của Tversky &amp; Kahneman (1974), nhóm thấy mỏ neo 10 đoán trung bình 25%, nhóm thấy mỏ neo 65 đoán trung bình 45% — dù con số bánh xe hoàn toàn ngẫu nhiên.
+    </div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="ghost sm" onclick="resetAnchor()">Thử lại với mỏ neo khác</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<h2>2. Wason Selection Task — Thiên kiến xác nhận</h2>
+<div class="card">
+  <p class="section-intro">Bài toán kinh điển do Peter Wason (1966) thiết kế. Chỉ ~10% người giải đúng lần đầu — bởi vì bộ não tự nhiên tìm <em>bằng chứng ủng hộ</em> thay vì <em>bằng chứng bác bỏ</em>.</p>
+
+  <div id="wasonGame">
+    <div class="rule-box">
+      Quy tắc cần kiểm tra: <strong>"Nếu một mặt là nguyên âm (E, A, I, O, U), mặt kia phải là số chẵn."</strong>
+    </div>
+    <p style="font-size:15px; font-weight:600; margin:12px 0 4px;">Trên bàn có 4 lá bài, mỗi lá có chữ một mặt và số mặt kia:</p>
+    <div class="card-grid-4" id="wasonCards">
+      <!-- Rendered by JS -->
+    </div>
+    <p class="hint">Bấm để chọn lá bài cần lật. Chọn <em>tối thiểu</em> những lá nào đủ để kiểm tra quy tắc?</p>
+    <div class="btn-row" style="margin-top:12px">
+      <button onclick="submitWason()" id="wasonSubmit" disabled>Kiểm tra lựa chọn</button>
+      <button class="ghost sm" onclick="resetWason()">Làm lại</button>
+    </div>
+    <div id="wasonResult" class="wason-result"></div>
+  </div>
+
+  <!-- Explanation always visible -->
+  <div style="margin-top:20px; padding:14px; background:#eff6ff; border-radius:8px; border:1px solid #bfdbfe; font-size:14px; line-height:1.7">
+    <strong>Tại sao khó?</strong> Đa số người chọn <strong>E</strong> (tìm xác nhận) và <strong>4</strong> (cũng tìm xác nhận) — lá 4 không thể bác bỏ quy tắc vì quy tắc nói "nếu nguyên âm thì chẵn", không nói "nếu chẵn thì nguyên âm". Lá <strong>7</strong> bị bỏ qua vì nó là <em>bằng chứng tiêu cực tiềm năng</em> — nếu mặt sau là nguyên âm thì vi phạm! Đây chính là confirmation bias: bộ não né tránh tìm kiếm phản chứng.
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<h2>3. Hiệu ứng đóng khung (Framing Effect)</h2>
+<div class="card">
+  <p class="section-intro">Cùng một kịch bản, được trình bày theo hai cách khác nhau. Bạn sẽ xem <strong>một</strong> cách trình bày (ngẫu nhiên), đưa ra lựa chọn, rồi xem so sánh với nhóm thấy cách kia.</p>
+
+  <!-- Step 1: Show framing and ask choice -->
+  <div id="framingStep1" class="framing-step active">
+    <div id="framingScenario" style="margin-bottom:14px"></div>
+    <p style="font-size:15px; font-weight:600; margin:10px 0 4px;">Bạn chọn phương án nào?</p>
+    <div class="framing-scenario" id="framingOptions">
+      <!-- Rendered by JS -->
+    </div>
+    <div class="btn-row" style="margin-top:12px">
+      <button onclick="submitFraming()" id="framingSubmit" disabled>Xác nhận lựa chọn</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Reveal comparison -->
+  <div id="framingStep2" class="framing-step">
+    <div id="framingRevealContent"></div>
+    <div class="framing-stats" id="framingStats"></div>
+    <div class="framing-reveal">
+      <strong>Điểm mấu chốt:</strong> Phương án A và C là <em>giống hệt nhau</em> về thông tin (cứu 200 người / để 400 chết). Phương án B và D cũng như nhau (rủi ro). Nhưng người ta lựa chọn khác nhau tùy cách diễn đạt — vì bộ não xử lý "lời lãi" và "mất mát" theo hai hệ thống cảm xúc khác nhau (Kahneman, 2011).
+    </div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="ghost sm" onclick="resetFraming()">Thử lại</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<h2>4. Phòng trưng bày — Các thiên kiến khác</h2>
+<div class="card">
+  <p class="section-intro">Bấm vào từng ô để mở rộng và đọc cơ chế + ví dụ số cụ thể. Mỗi ô là một thiên kiến đã học trong bài.</p>
+  <div class="bias-gallery" id="biasGallery">
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<h2>5. Tóm tắt — Bản đồ thiên kiến</h2>
+<div class="card">
+  <p class="section-intro">Sơ đồ phân loại 6 thiên kiến theo <strong>nguồn gốc</strong>: thiên kiến xuất phát từ thu thập thông tin (input) hay từ đánh giá/quyết định (processing)?</p>
+  <div style="overflow-x:auto">
+    <table style="width:100%; border-collapse:collapse; font-size:14px; min-width:520px">
+      <thead>
+        <tr style="background:#e7e5e4">
+          <th style="padding:10px 14px; text-align:left; font-weight:700; color:#292524">Thiên kiến</th>
+          <th style="padding:10px 14px; text-align:left; font-weight:700; color:#292524">Giai đoạn</th>
+          <th style="padding:10px 14px; text-align:left; font-weight:700; color:#292524">Cơ chế</th>
+          <th style="padding:10px 14px; text-align:left; font-weight:700; color:#292524">Đối phó</th>
+        </tr>
+      </thead>
+      <tbody id="summaryTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// ====================================================================
+// 1. ANCHORING EXPERIMENT
+// ====================================================================
+// Dữ liệu mỏ neo: thấp (10, 15) và cao (65, 75)
+const LOW_ANCHORS = [10, 15, 20];
+const HIGH_ANCHORS = [60, 65, 75];
+
+// Lưu dữ liệu phiên này trong memory (không localStorage để mỗi lần refresh là độc lập)
+// Nhưng tích lũy trong session bằng cách dùng sessionStorage
+function getAnchorData() {
+  try {
+    const raw = sessionStorage.getItem('anchorData_v1');
+    return raw ? JSON.parse(raw) : { low: [], high: [] };
+  } catch(e) { return { low: [], high: [] }; }
+}
+function saveAnchorData(data) {
+  try { sessionStorage.setItem('anchorData_v1', JSON.stringify(data)); } catch(e) {}
+}
+
+let currentAnchor = null;
+let currentAnchorGroup = null;
+
+function initAnchor() {
+  // Seed dữ liệu ban đầu để viz có ý nghĩa ngay từ đầu
+  const data = getAnchorData();
+  if (data.low.length === 0 && data.high.length === 0) {
+    // Seed với dữ liệu giả thực tế từ thí nghiệm gốc
+    data.low = [18, 22, 25, 30, 20, 15, 28, 12, 35, 24];
+    data.high = [45, 50, 48, 60, 42, 55, 38, 65, 52, 40];
+    saveAnchorData(data);
+  }
+
+  // Random group
+  const isLow = Math.random() < 0.5;
+  const anchors = isLow ? LOW_ANCHORS : HIGH_ANCHORS;
+  currentAnchor = anchors[Math.floor(Math.random() * anchors.length)];
+  currentAnchorGroup = isLow ? 'low' : 'high';
+
+  document.getElementById('anchorNum').textContent = currentAnchor;
+  showStep('anchorPhase', 1);
+}
+
+function showStep(prefix, n) {
+  [1, 2, 3].forEach(i => {
+    const el = document.getElementById(prefix + i);
+    if (el) el.className = 'framing-step' + (i === n ? ' active' : '');
+  });
+}
+
+function showAnchorQuestion() {
+  showStep('anchorPhase', 2);
+  document.getElementById('anchorAnswer').focus();
+}
+
+function submitAnchorAnswer() {
+  const val = parseInt(document.getElementById('anchorAnswer').value, 10);
+  const errEl = document.getElementById('anchorErr');
+  if (isNaN(val) || val < 0 || val > 100) {
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  const data = getAnchorData();
+  data[currentAnchorGroup].push(val);
+  saveAnchorData(data);
+
+  renderAnchorResults(data, val);
+  showStep('anchorPhase', 3);
+}
+
+function renderAnchorResults(data, userVal) {
+  const lowAvg = data.low.length ? (data.low.reduce((a, b) => a + b, 0) / data.low.length).toFixed(1) : '—';
+  const highAvg = data.high.length ? (data.high.reduce((a, b) => a + b, 0) / data.high.length).toFixed(1) : '—';
+
+  // Display representative anchors
+  document.getElementById('lowAnchorVal').textContent = 'Mỏ neo: ~' + LOW_ANCHORS[1];
+  document.getElementById('highAnchorVal').textContent = 'Mỏ neo: ~' + HIGH_ANCHORS[1];
+
+  document.getElementById('lowAvg').textContent = lowAvg + '%';
+  document.getElementById('highAvg').textContent = highAvg + '%';
+  document.getElementById('lowN').textContent = data.low.length + ' lượt';
+  document.getElementById('highN').textContent = data.high.length + ' lượt';
+
+  // Analysis
+  const analysis = document.getElementById('anchorAnalysis');
+  if (data.low.length >= 2 && data.high.length >= 2) {
+    const diff = (parseFloat(highAvg) - parseFloat(lowAvg)).toFixed(1);
+    const yourGroup = currentAnchorGroup === 'low' ? 'thấp' : 'cao';
+    analysis.style.display = 'block';
+    analysis.innerHTML = `
+      <strong>Phân tích:</strong> Nhóm mỏ neo cao đoán trung bình cao hơn nhóm mỏ neo thấp <strong>${diff} điểm phần trăm</strong>.
+      Đây là hiệu ứng mỏ neo — con số ${currentAnchor} (mỏ neo <em>${yourGroup}</em>) bạn thấy lúc nãy đã ảnh hưởng đến đáp án của bạn:
+      bạn đoán <strong>${userVal}%</strong>. Đáp án thực tế: <strong>28%</strong>.
+    `;
+  } else {
+    analysis.style.display = 'block';
+    analysis.innerHTML = `Bạn đoán <strong>${userVal}%</strong>. Đáp án thực tế: <strong>28%</strong>. Mỏ neo bạn thấy là <strong>${currentAnchor}</strong> (nhóm ${currentAnchorGroup === 'low' ? 'thấp' : 'cao'}). Thêm người chơi để thấy thống kê đầy đủ!`;
+  }
+}
+
+function resetAnchor() {
+  document.getElementById('anchorAnswer').value = '';
+  initAnchor();
+}
+
+// ====================================================================
+// 2. WASON SELECTION TASK
+// ====================================================================
+const WASON_CARDS = [
+  { face: 'E', sub: 'nguyên âm', isCorrect: true,  reason: 'Phải lật — nếu mặt sau là số lẻ thì vi phạm quy tắc.' },
+  { face: 'K', sub: 'phụ âm',    isCorrect: false, reason: 'Không cần — quy tắc không đề cập phụ âm. Mặt sau là gì cũng không vi phạm.' },
+  { face: '4', sub: 'số chẵn',   isCorrect: false, reason: 'Không cần — dù mặt sau là nguyên âm hay phụ âm đều không vi phạm. (Quy tắc: nguyên âm → chẵn; không phải chẵn → nguyên âm.)' },
+  { face: '7', sub: 'số lẻ',     isCorrect: true,  reason: 'Phải lật — nếu mặt sau là nguyên âm thì vi phạm quy tắc!' },
+];
+
+let wasonSelected = new Set();
+let wasonDone = false;
+
+function renderWasonCards() {
+  const container = document.getElementById('wasonCards');
+  container.innerHTML = '';
+  WASON_CARDS.forEach((c, i) => {
+    const card = document.createElement('div');
+    card.className = 'wason-card' + (wasonSelected.has(i) ? ' selected' : '');
+    if (wasonDone) card.classList.add('disabled');
+    card.id = 'wcard-' + i;
+    card.innerHTML = `<span>${c.face}</span><small>${c.sub}</small>`;
+    if (!wasonDone) {
+      card.addEventListener('click', () => toggleWason(i));
+    }
+    container.appendChild(card);
+  });
+  document.getElementById('wasonSubmit').disabled = wasonSelected.size === 0 || wasonDone;
+}
+
+function toggleWason(i) {
+  if (wasonDone) return;
+  if (wasonSelected.has(i)) wasonSelected.delete(i);
+  else wasonSelected.add(i);
+  renderWasonCards();
+}
+
+function submitWason() {
+  if (wasonDone) return;
+  wasonDone = true;
+
+  const correctSet = new Set(WASON_CARDS.map((c, i) => c.isCorrect ? i : -1).filter(i => i >= 0));
+  const userIsCorrect = wasonSelected.size === correctSet.size &&
+    [...wasonSelected].every(i => correctSet.has(i));
+
+  // Color cards
+  WASON_CARDS.forEach((c, i) => {
+    const card = document.getElementById('wcard-' + i);
+    card.classList.add('disabled');
+    if (wasonSelected.has(i) && c.isCorrect)  card.classList.add('correct-pick');
+    if (wasonSelected.has(i) && !c.isCorrect) card.classList.add('wrong-pick');
+    if (!wasonSelected.has(i) && c.isCorrect) card.classList.add('correct-reveal');
+    card.innerHTML = `<span>${c.face}</span><small>${c.sub}</small>`;
+    // Add tick
+    if (wasonSelected.has(i)) {
+      const tick = document.createElement('span');
+      tick.className = 'tick';
+      tick.textContent = c.isCorrect ? '✓' : '✗';
+      card.appendChild(tick);
+    }
+  });
+  document.getElementById('wasonSubmit').disabled = true;
+
+  // Build explanation per card
+  let cardExps = WASON_CARDS.map((c, i) => {
+    const icon = c.isCorrect ? '✓' : '✗ (không cần)';
+    return `<li><strong>${c.face}</strong> (${c.sub}): ${c.reason}</li>`;
+  }).join('');
+
+  const resultEl = document.getElementById('wasonResult');
+  resultEl.classList.add('show');
+  resultEl.classList.add(userIsCorrect ? 'correct-res' : 'wrong-res');
+
+  if (userIsCorrect) {
+    resultEl.innerHTML = `<strong>Chính xác!</strong> Bạn đã lật đúng E và 7 — hai lá có thể vi phạm quy tắc.
+      Bạn thuộc thiểu số ~10% người giải đúng lần đầu.<br><br>
+      <ul style="margin:6px 0; padding-left:18px; line-height:1.8">${cardExps}</ul>`;
+  } else {
+    const selected = [...wasonSelected].map(i => WASON_CARDS[i].face).join(', ') || '(không lá nào)';
+    resultEl.innerHTML = `<strong>Chưa chính xác.</strong> Bạn chọn: <strong>${selected}</strong>. Đáp án đúng: <strong>E và 7</strong>.<br><br>
+      <ul style="margin:6px 0; padding-left:18px; line-height:1.8">${cardExps}</ul>
+      <br><strong>Lý do thường sai:</strong> Lá 4 trông hấp dẫn vì nó "ủng hộ" quy tắc (chẵn → muốn thấy nguyên âm). Nhưng ngay cả nếu mặt sau là phụ âm thì cũng không vi phạm — quy tắc một chiều. Đây là confirmation bias: tìm bằng chứng ủng hộ thay vì bằng chứng bác bỏ.`;
+  }
+}
+
+function resetWason() {
+  wasonSelected = new Set();
+  wasonDone = false;
+  document.getElementById('wasonResult').innerHTML = '';
+  document.getElementById('wasonResult').className = 'wason-result';
+  renderWasonCards();
+}
+
+// ====================================================================
+// 3. FRAMING EFFECT
+// ====================================================================
+const FRAMING_VERSIONS = [
+  {
+    // Positive frame (gain)
+    frame: 'gain',
+    label: 'Phiên bản A (đóng khung: lời lãi)',
+    scenario: 'Một dịch bệnh dự kiến giết 600 người. Có hai phương án ứng phó:',
+    options: [
+      { id: 'A', text: 'Phương án A: Chắc chắn cứu được <strong>200 người</strong>.' },
+      { id: 'B', text: 'Phương án B: Xác suất 1/3 cứu tất cả 600 người, xác suất 2/3 không cứu được ai.' },
+    ],
+    correctNote: 'Bạn thấy <strong>khung lời lãi</strong>. Trong thí nghiệm gốc: 72% chọn A (chắc chắn, tránh rủi ro).',
+    statsLabel: ['Chọn A (chắc chắn)', 'Chọn B (rủi ro)'],
+    statsKey: 'gain',
+  },
+  {
+    // Negative frame (loss)
+    frame: 'loss',
+    label: 'Phiên bản B (đóng khung: mất mát)',
+    scenario: 'Một dịch bệnh dự kiến giết 600 người. Có hai phương án ứng phó:',
+    options: [
+      { id: 'C', text: 'Phương án C: Chắc chắn <strong>400 người sẽ chết</strong>.' },
+      { id: 'D', text: 'Phương án D: Xác suất 1/3 không ai chết, xác suất 2/3 tất cả 600 người chết.' },
+    ],
+    correctNote: 'Bạn thấy <strong>khung mất mát</strong>. Trong thí nghiệm gốc: 78% chọn D (rủi ro — để tránh cái chết chắc chắn của 400 người).',
+    statsLabel: ['Chọn C (chắc chắn)', 'Chọn D (rủi ro)'],
+    statsKey: 'loss',
+  }
+];
+
+function getFramingData() {
+  try {
+    const raw = sessionStorage.getItem('framingData_v1');
+    return raw ? JSON.parse(raw) : {
+      gain: [38, 72],  // [chọn A, chọn B] - seed từ thí nghiệm gốc
+      loss: [22, 78],  // [chọn C, chọn D]
+    };
+  } catch(e) { return { gain: [38, 72], loss: [22, 78] }; }
+}
+function saveFramingData(data) {
+  try { sessionStorage.setItem('framingData_v1', JSON.stringify(data)); } catch(e) {}
+}
+
+let currentFramingVersion = null;
+let framingChoice = null;
+
+function initFraming() {
+  framingChoice = null;
+  currentFramingVersion = FRAMING_VERSIONS[Math.floor(Math.random() * 2)];
+  const v = currentFramingVersion;
+
+  // Render scenario
+  const scenarioEl = document.getElementById('framingScenario');
+  scenarioEl.innerHTML = `<div style="background:var(--accent-soft); border-radius:8px; padding:12px 16px; margin-bottom:10px">
+    <span class="intro-badge">${v.label}</span><br>
+    <span style="font-size:15px; color:#292524">${v.scenario}</span>
+  </div>`;
+
+  // Render options
+  const optionsEl = document.getElementById('framingOptions');
+  optionsEl.innerHTML = '';
+  v.options.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'framing-option';
+    div.innerHTML = `<div class="framing-option-label">Phương án ${opt.id}</div>
+      <div class="framing-option-text">${opt.text}</div>`;
+    div.addEventListener('click', () => selectFramingOption(i, div));
+    optionsEl.appendChild(div);
+  });
+
+  document.getElementById('framingSubmit').disabled = true;
+
+  // Show step 1
+  document.getElementById('framingStep1').className = 'framing-step active';
+  document.getElementById('framingStep2').className = 'framing-step';
+}
+
+function selectFramingOption(i, el) {
+  // Deselect all
+  document.querySelectorAll('.framing-option').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+  framingChoice = i;
+  document.getElementById('framingSubmit').disabled = false;
+}
+
+function submitFraming() {
+  if (framingChoice === null) return;
+
+  const v = currentFramingVersion;
+  const data = getFramingData();
+
+  // Record choice (0 = first option, 1 = second option)
+  data[v.statsKey][framingChoice]++;
+  saveFramingData(data);
+
+  // Render reveal
+  const total_gain = data.gain[0] + data.gain[1];
+  const total_loss = data.loss[0] + data.loss[1];
+  const pct_gain_safe = total_gain ? Math.round(data.gain[0] / total_gain * 100) : 0;
+  const pct_gain_risk = total_gain ? Math.round(data.gain[1] / total_gain * 100) : 0;
+  const pct_loss_safe = total_loss ? Math.round(data.loss[0] / total_loss * 100) : 0;
+  const pct_loss_risk = total_loss ? Math.round(data.loss[1] / total_loss * 100) : 0;
+
+  const chosen = v.options[framingChoice];
+  document.getElementById('framingRevealContent').innerHTML = `
+    <div style="padding:12px 16px; background:#f5f3ff; border-radius:8px; margin-bottom:12px">
+      <strong>Bạn chọn Phương án ${chosen.id}</strong> (${framingChoice === 0 ? 'chắc chắn' : 'chấp nhận rủi ro'}). ${v.correctNote}
+    </div>
+    <div style="font-size:15px; font-weight:600; margin-bottom:8px">So sánh hai nhóm (trong phiên này + dữ liệu nền):</div>
+  `;
+
+  document.getElementById('framingStats').innerHTML = `
+    <div class="framing-stat">
+      <div class="framing-stat-label">Nhóm khung Lời lãi</div>
+      <div class="framing-stat-num">${pct_gain_safe}%</div>
+      <div class="framing-stat-sub">chọn chắc chắn (A)</div>
+    </div>
+    <div class="framing-stat">
+      <div class="framing-stat-label" style="color:#7c3aed">Nhóm khung Mất mát</div>
+      <div class="framing-stat-num" style="color:#7c3aed">${pct_loss_risk}%</div>
+      <div class="framing-stat-sub">chọn rủi ro (D)</div>
+    </div>
+    <div class="framing-stat" style="background:#fff7ed; border-color:#fed7aa">
+      <div class="framing-stat-label" style="color:#9a3412">Gốc Kahneman &amp; Tversky</div>
+      <div class="framing-stat-num" style="color:#9a3412">72% / 78%</div>
+      <div class="framing-stat-sub">A (gain) / D (loss)</div>
+    </div>
+  `;
+
+  document.getElementById('framingStep1').className = 'framing-step';
+  document.getElementById('framingStep2').className = 'framing-step active';
+}
+
+function resetFraming() {
+  initFraming();
+}
+
+// ====================================================================
+// 4. BIAS GALLERY
+// ====================================================================
+const BIASES = [
+  {
+    icon: '⚓',
+    name: 'Mỏ neo (Anchoring)',
+    subtitle: 'Thí nghiệm 1 ở trên',
+    body: `Con số đầu tiên bạn thấy neo mọi phán đoán sau — kể cả khi con số đó hoàn toàn ngẫu nhiên.`,
+    example: `Ariely et al.: sinh viên MIT viết 2 chữ số cuối SN, sau đó đấu giá chai rượu. Tương quan: +0.55 — con số vô nghĩa ảnh hưởng trực tiếp đến giá đấu.`,
+    stat: 'Khác biệt trung bình: 20 điểm % (thí nghiệm LHQ)',
+  },
+  {
+    icon: '🔍',
+    name: 'Xác nhận (Confirmation)',
+    subtitle: 'Thí nghiệm 2 — Wason task',
+    body: `Bộ não tìm bằng chứng ủng hộ niềm tin sẵn có, né tránh bằng chứng bác bỏ. Xảy ra ở cả thu thập lẫn diễn giải thông tin.`,
+    example: `Wason (1966): ~46% người chọn E và 4 (tìm xác nhận), bỏ qua 7 (bằng chứng phủ định tiềm năng). Chỉ ~10% chọn đúng E và 7.`,
+    stat: '46% mắc lỗi điển hình trong Wason task',
+  },
+  {
+    icon: '📰',
+    name: 'Sẵn có (Availability)',
+    subtitle: 'Ước lượng bằng ký ức dễ nhớ',
+    body: `Xác suất sự kiện được ước lượng bằng mức độ dễ nghĩ ra ví dụ — không phải tần suất thực tế. Sự kiện nổi bật, gần đây, cảm xúc mạnh bị đánh giá cao hơn.`,
+    example: `Máy bay vs ô tô: xác suất tử vong khi đi ô tô cao hơn khoảng 95 lần so với máy bay (tính theo km di chuyển, dữ liệu NTSB). Nhưng đa số sợ bay hơn — vì tai nạn máy bay đưa tin rầm rộ, dễ nhớ.`,
+    stat: 'Ô tô nguy hiểm hơn máy bay ~95× (theo km)',
+  },
+  {
+    icon: '🖼',
+    name: 'Đóng khung (Framing)',
+    subtitle: 'Thí nghiệm 3 ở trên',
+    body: `Cách trình bày thay đổi quyết định dù nội dung thông tin như nhau. Đặc biệt mạnh với khung lời lãi vs mất mát — vì bộ não bất đối xứng với lợi ích và mất mát.`,
+    example: `"90% nạc" bán chạy hơn "10% mỡ". Kahneman: người cảm nhận nỗi đau khi mất 100đ mạnh hơn niềm vui khi được 100đ (loss aversion, tỷ lệ ~2:1).`,
+    stat: 'Kahneman: mất mát được cảm nhận mạnh gấp ~2× lợi ích tương đương',
+  },
+  {
+    icon: '💸',
+    name: 'Chi phí chìm (Sunk Cost)',
+    subtitle: 'Tiếp tục vì "đã lỡ đầu tư"',
+    body: `Chi phí đã bỏ ra không thể thu hồi — không nên ảnh hưởng đến quyết định tương lai. Nhưng bộ não né tránh thừa nhận mất mát, dẫn đến tiếp tục đầu tư phi lý.`,
+    example: `Nghiên cứu Arkes & Blumer (1985): người được vé xem hát miễn phí hủy đi trong bão ít hơn 50% so với người mua vé bình thường — dù đều "mất" như nhau nếu không đi.`,
+    stat: 'Concorde Fallacy: Anh-Pháp tiếp tục dự án Concorde dù biết thua lỗ, vì "đã đầu tư quá nhiều"',
+  },
+  {
+    icon: '📈',
+    name: 'Dunning–Kruger',
+    subtitle: 'Người kém kỹ năng tự đánh giá quá cao',
+    body: `Người có trình độ thấp thiếu năng lực meta-cognitive để nhận ra họ thiếu kỹ năng gì. Người có năng lực cao đôi khi đánh giá thấp mình (false consensus effect).`,
+    example: `Kruger & Dunning (1999): Nhóm 25% yếu nhất về logic đánh giá mình ở percentile 62 — sai lệch 37 điểm. Nhóm giỏi nhất đánh giá thấp mình vì cho rằng người khác cũng làm tốt tương đương.`,
+    stat: 'Nhóm yếu nhất: tự đánh giá percentile 62, thực tế percentile 12',
+  },
+];
+
+function renderGallery() {
+  const container = document.getElementById('biasGallery');
+  container.innerHTML = '';
+  BIASES.forEach((b, i) => {
+    const tile = document.createElement('div');
+    tile.className = 'bias-tile';
+    tile.id = 'btile-' + i;
+    tile.innerHTML = `
+      <div class="bias-tile-header">
+        <div class="bias-icon">${b.icon}</div>
+        <div>
+          <div class="bias-name">${b.name}</div>
+          <div class="bias-subtitle">${b.subtitle}</div>
+        </div>
+      </div>
+      <div class="bias-body">
+        <p style="margin:0 0 6px">${b.body}</p>
+        <div class="bias-example"><strong>Ví dụ thực tế:</strong> ${b.example}</div>
+        <div class="bias-stat">${b.stat}</div>
+      </div>
+    `;
+    tile.addEventListener('click', () => {
+      const isOpen = tile.classList.contains('open');
+      // Close all
+      document.querySelectorAll('.bias-tile').forEach(t => t.classList.remove('open'));
+      if (!isOpen) tile.classList.add('open');
+    });
+    container.appendChild(tile);
+  });
+}
+
+// ====================================================================
+// 5. SUMMARY TABLE
+// ====================================================================
+const SUMMARY_ROWS = [
+  {
+    name: 'Xác nhận (Confirmation)',
+    stage: 'Thu thập thông tin',
+    mechanism: 'Ưu tiên bằng chứng ủng hộ niềm tin',
+    counter: 'Hỏi "Bằng chứng nào bác bỏ điều này?"',
+  },
+  {
+    name: 'Mỏ neo (Anchoring)',
+    stage: 'Đánh giá / định lượng',
+    mechanism: 'Thông tin đầu tiên neo mọi ước lượng sau',
+    counter: 'Tự đặt điểm tham chiếu trước khi nghe đề xuất',
+  },
+  {
+    name: 'Sẵn có (Availability)',
+    stage: 'Ước lượng xác suất',
+    mechanism: 'Dùng mức độ dễ nhớ thay vì số liệu thực',
+    counter: 'Tra số liệu thống kê; phân biệt nổi bật vs phổ biến',
+  },
+  {
+    name: 'Đóng khung (Framing)',
+    stage: 'Ra quyết định',
+    mechanism: 'Cách trình bày thay đổi lựa chọn',
+    counter: 'Tái đóng khung theo cả hai hướng (lợi/mất)',
+  },
+  {
+    name: 'Chi phí chìm (Sunk cost)',
+    stage: 'Ra quyết định liên tục',
+    mechanism: 'Tiếp tục vì sợ thừa nhận mất mát quá khứ',
+    counter: '"Nếu bắt đầu lại hôm nay, mình có chọn không?"',
+  },
+  {
+    name: 'Dunning–Kruger',
+    stage: 'Tự đánh giá',
+    mechanism: 'Thiếu meta-cognition để nhận ra giới hạn',
+    counter: 'Ghi chép dự đoán + kết quả; hỏi chuyên gia',
+  },
+];
+
+function renderSummaryTable() {
+  const tbody = document.getElementById('summaryTable');
+  SUMMARY_ROWS.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #f5f5f4';
+    if (i % 2 === 0) tr.style.background = '#fafaf9';
+    tr.innerHTML = `
+      <td style="padding:10px 14px; font-weight:600; color:#1c1917">${r.name}</td>
+      <td style="padding:10px 14px; font-size:13px; color:#57534e">${r.stage}</td>
+      <td style="padding:10px 14px; font-size:13px; color:#44403c">${r.mechanism}</td>
+      <td style="padding:10px 14px; font-size:13px; color:#166534; background:#f0fdf4">${r.counter}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ====================================================================
+// INIT
+// ====================================================================
+initAnchor();
+renderWasonCards();
+initFraming();
+renderGallery();
+renderSummaryTable();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

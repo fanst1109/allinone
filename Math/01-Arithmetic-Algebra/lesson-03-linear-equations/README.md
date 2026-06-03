@@ -56,6 +56,31 @@ trong đó **x là ẩn cần tìm**, a và b là hằng số.
 
 **Ví dụ 4 (vô nghiệm)**: `x + 3 = x + 5`. Chuyển: 3 = 5. Sai → **KHÔNG nghiệm**.
 
+### 1.4. Verify nghiệm bằng cách thế lại
+
+Giải xong **luôn thế nghiệm vào phương trình gốc** để chắc. Vd 1: `x=4` → `2·4+3 = 11` ✓ (đúng vế phải). Đây là cách bắt lỗi rẻ nhất.
+
+⚠ **Lỗi thường gặp**: chuyển vế mà **quên đổi dấu**. `x + 3 = 10` → `x = 10 − 3 = 7` (đổi `+3` thành `−3`), **không** phải `x = 10 + 3`. Quy tắc: số đổi bên thì đổi dấu.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Vì sao chuyển vế lại đổi dấu?"* Vì thực chất là **trừ cùng một số ở cả 2 vế**. `x+3=10` ⟺ trừ 3 hai vế ⟺ `x = 10−3`. "Đổi dấu" chỉ là cách nói gọn.
+- *"Khi nào PT vô nghiệm / vô số nghiệm?"* Khi ẩn `x` **triệt tiêu hết**: còn lại đẳng thức số sai (`3=5`) → vô nghiệm; còn lại đẳng thức đúng (`4=4`) → vô số nghiệm.
+
+🔁 **Dừng lại tự kiểm tra**: giải `3x − 5 = x + 7`.
+
+<details><summary>Đáp án</summary>
+
+`3x − x = 7 + 5` → `2x = 12` → `x = 6`. Thế lại: `3·6−5 = 13`, `6+7 = 13` ✓.
+
+</details>
+
+### 📝 Tóm tắt mục 1
+
+- PT bậc 1: `ax+b=0` → `x = −b/a` (`a≠0`).
+- 2 quy tắc: chuyển vế (đổi dấu), nhân/chia 2 vế cùng số ≠ 0.
+- Ẩn triệt tiêu → vô nghiệm (số sai) hoặc vô số nghiệm (số đúng).
+
 ---
 
 ## 2. Hệ phương trình bậc 1 hai ẩn
@@ -99,6 +124,29 @@ Từ (1): y = 10 − x. Thay vào (2): 2x − (10 − x) = 5 → 3x = 15 → **x
 1. **Cắt nhau**: 1 nghiệm duy nhất.
 2. **Song song** (a₁/a₂ = b₁/b₂ ≠ c₁/c₂): vô nghiệm.
 3. **Trùng nhau** (a₁/a₂ = b₁/b₂ = c₁/c₂): vô số nghiệm.
+
+💡 **Trực giác / Hình dung**: mỗi phương trình bậc 1 hai ẩn là **một đường thẳng** trên mặt phẳng. Nghiệm của hệ = **giao điểm**. Hai đường cắt nhau → 1 giao điểm (1 nghiệm); song song → không gặp (vô nghiệm); trùng nhau → gặp khắp nơi (vô số nghiệm).
+
+⚠ **Lỗi thường gặp**: khi dùng phương pháp cộng để triệt tiêu, nếu hệ số **cùng dấu** thì phải **trừ** (hoặc nhân −1 một vế trước khi cộng), đừng cộng thẳng. Kiểm tra: sau khi cộng/trừ, một ẩn phải biến mất.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Thế hay cộng đại số tốt hơn?"* Khi một ẩn đã có hệ số 1 (dễ rút) → **thế** nhanh. Khi hệ số "lệch" khó rút → **cộng đại số** gọn hơn. Kết quả như nhau.
+- *"Làm sao biết hệ vô nghiệm mà không vẽ?"* So tỉ lệ hệ số: nếu `a₁/a₂ = b₁/b₂` nhưng `≠ c₁/c₂` → song song → vô nghiệm.
+
+🔁 **Dừng lại tự kiểm tra**: giải hệ `x + y = 5`, `x − y = 1`.
+
+<details><summary>Đáp án</summary>
+
+Cộng 2 PT: `2x = 6` → `x = 3`. Thế: `y = 5 − 3 = 2`. → `(3, 2)`. Kiểm: `3−2 = 1` ✓.
+
+</details>
+
+### 📝 Tóm tắt mục 2
+
+- Hệ 2 PT 2 ẩn = tìm giao 2 đường thẳng.
+- 2 cách: **thế** (rút 1 ẩn) và **cộng đại số** (triệt tiêu 1 ẩn).
+- 3 khả năng: cắt (1 nghiệm) / song song (vô nghiệm) / trùng (vô số).
 
 ---
 
@@ -152,14 +200,11 @@ x − y = 2
 
 **Bài 2**: 4x + 8 − 3 = 2x + 9 → 4x + 5 = 2x + 9 → 2x = 4 → **x = 2**.
 
-**Bài 3**: Cộng 2 PT: 3x = 9 → **x = 3**. Thay: y = 2x − 7 = −1. Vậy **(x, y) = (3, 1)**. (Kiểm tra: 2·3 + 1 = 7 ✓, 3 − 1 = 2 ✓.)
-
-Đợi, sai. Để tôi tính lại:
-- (1): 2x + y = 7
-- (2): x − y = 2
-- Cộng: 3x = 9 → x = 3.
+**Bài 3**:
+- (1): 2x + y = 7; (2): x − y = 2.
+- Cộng (1)+(2): 3x = 9 → x = 3.
 - Từ (2): y = x − 2 = 1.
-- Kiểm tra (1): 2·3 + 1 = 7 ✓.
+- Kiểm tra (1): 2·3 + 1 = 7 ✓; (2): 3 − 1 = 2 ✓.
 - → **(x, y) = (3, 1)**.
 
 **Bài 4**: 

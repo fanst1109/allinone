@@ -81,6 +81,8 @@ Số hữu tỉ khi viết dưới dạng thập phân thì:
 - **Hữu hạn**: 1/4 = 0.25.
 - **Vô hạn LẶP LẠI tuần hoàn**: 1/3 = 0.333..., 1/7 = 0.142857142857...
 
+**Đổi ngược thập phân lặp → phân số** (chứng minh \`0.333... = 1/3\`): đặt \`x = 0.333...\`. Nhân 10: \`10x = 3.333...\`. Trừ: \`10x − x = 3.333... − 0.333...\` → \`9x = 3\` → \`x = 3/9 = 1/3\` ✓. Mọi số thập phân lặp tuần hoàn đều đổi về p/q được như vậy → đó là lý do chúng là **hữu tỉ**.
+
 ### 3.3. Vấn đề của ℚ
 
 Có những số **không** viết được dưới dạng p/q. Ví dụ kinh điển: **√2**.
@@ -126,6 +128,23 @@ Mỗi tập sau bao gồm tập trước. ℝ\\ℚ = tập các số vô tỉ.
 
 - **ℝ liên tục (dày đặc)**: giữa 2 số thực bất kỳ luôn có vô số số thực khác.
 - **ℝ không đếm được**: số phần tử ℝ "lớn hơn" số phần tử ℕ (chứng minh đường chéo Cantor — sẽ học ở tầng cao hơn).
+
+**Ví dụ "dày đặc" bằng số**: giữa \`0.1\` và \`0.2\` có \`0.15\`; giữa \`0.1\` và \`0.15\` có \`0.125\`; cứ thế lấy trung điểm mãi không hết → vô số số ở giữa.
+
+⚠ **Lỗi thường gặp**: tưởng "vô tỉ = số rất lớn" hoặc "vô tỉ = số thập phân dài". Sai — vô tỉ nghĩa là **không viết được dưới dạng p/q**. \`0.333...\` dài vô hạn nhưng vẫn **hữu tỉ** (=1/3); còn \`π\` mới là vô tỉ. Độ dài thập phân không quyết định, **tính lặp tuần hoàn** mới quyết định.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"\`0.999... = 1\` thật à?"* Đúng, **bằng nhau** (không phải xấp xỉ). Vì \`1/3 = 0.333...\`, nhân 3: \`1 = 0.999...\`. Đây là 2 cách viết của cùng một số.
+- *"Có 'nhiều' số vô tỉ hơn hữu tỉ không?"* Có — ℚ đếm được còn ℝ thì không, nên số vô tỉ "nhiều hơn vô hạn lần". Hầu hết số thực là vô tỉ.
+
+🔁 **Dừng lại tự kiểm tra**: \`√4\` là số gì (hữu tỉ hay vô tỉ)? Còn \`√5\`?
+
+<details><summary>Đáp án</summary>
+
+\`√4 = 2\` → **hữu tỉ** (số nguyên). \`√5 ≈ 2.236...\` không viết được p/q → **vô tỉ** (chứng minh tương tự √2).
+
+</details>
 
 ### 📝 Tóm tắt mục 1-4
 

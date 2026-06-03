@@ -41,6 +41,7 @@
 | Music | Lý thuyết âm nhạc — 3 tầng × 8 bài: cao độ/nốt/gam/nhịp → hòa âm (hợp âm, tiến trình) → âm sắc, hình thức, jazz & sáng tác | [Music/](./Music/) |
 | Networking | Mạng máy tính — 3 tầng × 8 bài: mô hình phân tầng & IP/TCP → DNS/HTTP/TLS → an ninh/cloud/chẩn đoán | [Networking/](./Networking/) |
 | OperatingSystems | Hệ điều hành — 3 tầng × 8 bài: tiến trình & lập lịch → bộ nhớ ảo & lưu trữ → ảo hoá, container, vận hành | [OperatingSystems/](./OperatingSystems/) |
+| Philosophy | Triết học (Logic & Tư duy phản biện) — 3 tầng × 8 bài: logic hình thức (bảng chân lý, vị từ) → ngụy biện & tư duy phản biện → logic modal, nghịch lý, triết học ngôn ngữ | [Philosophy/](./Philosophy/) |
 | Physics | Vật lý — 3 tầng × 8 bài, cơ học → điện-từ → vật lý hiện đại preview | [Physics/](./Physics/) |
 | PoliticalScience | Chính trị học qua lý thuyết trò chơi — 3 tầng × 15 bài: NE → voting paradox → deterrence/mechanism design | [PoliticalScience/](./PoliticalScience/) |
 | Programming | Học lập trình bằng Go từ tư duy đến production — 9 tier × 84 lesson | [Programming/](./Programming/) |

@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Nghịch lý logic (Paradoxes)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-hover: #44403c;
+    --accent-soft: #f0eeec;
+  }
+
+  h1 { color: #1c1917; }
+  h2 { color: #292524; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #d6d3d1; }
+  h3 { color: #44403c; margin-top: 24px; }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 22px 26px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #78716c;
+    margin: 6px 0 0;
+    line-height: 1.55;
+  }
+
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  button.ghost:hover { background: #e7e5e4; }
+  button.sm { padding: 6px 14px; font-size: 13px; }
+
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  /* ===== MODULE 1: LIAR PARADOX ===== */
+  .liar-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin: 20px 0;
+  }
+
+  .liar-sentence {
+    background: #fafaf9;
+    border: 2px solid #d6d3d1;
+    border-radius: 12px;
+    padding: 18px 28px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1c1917;
+    text-align: center;
+    letter-spacing: 0.01em;
+    max-width: 420px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .liar-value {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    color: #44403c;
+    font-weight: 600;
+  }
+
+  .tv-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: 800;
+    font-family: monospace;
+    transition: all 0.3s;
+  }
+  .tv-badge.T { background: #dcfce7; color: #166534; border: 2px solid #86efac; }
+  .tv-badge.F { background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; }
+  .tv-badge.Q { background: #fef3c7; color: #92400e; border: 2px solid #fcd34d; }
+
+  .liar-arrow {
+    font-size: 22px;
+    color: #a8a29e;
+    animation: pulse 1s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .liar-log {
+    width: 100%;
+    max-width: 460px;
+    background: #fafaf9;
+    border: 1px solid #e7e5e4;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #44403c;
+    min-height: 60px;
+    box-sizing: border-box;
+    font-family: monospace;
+  }
+
+  .liar-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 4px;
+  }
+
+  .oscillate-indicator {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #9a3412;
+    font-weight: 600;
+  }
+  .oscillate-indicator.show { display: flex; }
+
+  /* ===== MODULE 2: RUSSELL ===== */
+  .russell-arena {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+
+  .set-box {
+    flex: 1;
+    min-width: 0;
+    border: 2px dashed #d6d3d1;
+    border-radius: 12px;
+    padding: 16px;
+    position: relative;
+    min-height: 120px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    box-sizing: border-box;
+  }
+  .set-box:hover { border-color: var(--accent); background: #fafaf9; }
+  .set-box.active { border-color: var(--accent); border-style: solid; }
+
+  .set-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #a8a29e;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .set-name {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: monospace;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .set-desc {
+    font-size: 13px;
+    color: #78716c;
+    line-height: 1.5;
+  }
+
+  .set-self-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 5px;
+  }
+  .set-self-badge.yes { background: #dcfce7; color: #166534; }
+  .set-self-badge.no { background: #fee2e2; color: #991b1b; }
+
+  .russell-step {
+    background: #fafaf9;
+    border: 1px solid #e7e5e4;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 8px 0;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #292524;
+  }
+  .russell-step .step-num {
+    display: inline-flex;
+    width: 22px; height: 22px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    margin-right: 8px;
+    flex-shrink: 0;
+    vertical-align: middle;
+  }
+
+  .contradiction-box {
+    display: none;
+    padding: 14px 18px;
+    background: #fff7ed;
+    border: 2px solid #fb923c;
+    border-radius: 10px;
+    margin: 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #9a3412;
+    line-height: 1.6;
+  }
+  .contradiction-box.show { display: block; }
+
+  .choice-btns {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 14px 0;
+  }
+
+  .choice-btn {
+    flex: 1;
+    min-width: 140px;
+    padding: 12px 16px;
+    border: 2px solid #d6d3d1;
+    border-radius: 10px;
+    background: #fff;
+    color: #44403c;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    font-family: monospace;
+  }
+  .choice-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .choice-btn.selected { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+
+  /* ===== MODULE 3: SORITES ===== */
+  .sorites-viz {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .sand-display {
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+  }
+
+  .sand-count-display {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .sand-count-num {
+    font-size: 36px;
+    font-weight: 800;
+    font-family: monospace;
+    color: #92400e;
+  }
+
+  .sand-count-label {
+    font-size: 14px;
+    color: #78716c;
+    margin-left: 8px;
+  }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+  }
+  .slider-row label {
+    font-size: 12px;
+    color: #a8a29e;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  #sandSlider {
+    flex: 1;
+    min-width: 0;
+    accent-color: #92400e;
+    height: 6px;
+    cursor: pointer;
+  }
+
+  .sand-svg-wrap {
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+  }
+
+  .pile-verdict {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+  }
+
+  .verdict-label {
+    font-size: 14px;
+    color: #78716c;
+    font-weight: 600;
+  }
+
+  .verdict-badge {
+    font-size: 20px;
+    font-weight: 800;
+    padding: 10px 28px;
+    border-radius: 10px;
+    transition: all 0.3s;
+  }
+  .verdict-badge.clear-yes { background: #dcfce7; color: #166534; }
+  .verdict-badge.clear-no  { background: #fee2e2; color: #991b1b; }
+  .verdict-badge.borderline { background: #fef3c7; color: #92400e; }
+
+  .sorites-argument {
+    background: #fafaf9;
+    border: 1px solid #e7e5e4;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: #292524;
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+  }
+
+  .arg-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #a8a29e;
+    margin-bottom: 4px;
+  }
+
+  .arg-text {
+    font-family: serif;
+    font-size: 14.5px;
+    color: #1c1917;
+  }
+
+  .arg-divider {
+    border: none;
+    border-top: 1px solid #d6d3d1;
+    margin: 8px 0;
+  }
+
+  .user-mark-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .mark-btn {
+    padding: 7px 14px;
+    border: 1.5px solid #d6d3d1;
+    border-radius: 7px;
+    background: #fff;
+    color: #44403c;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .mark-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .mark-btn.marked-yes { background: #dcfce7; border-color: #86efac; color: #166534; }
+  .mark-btn.marked-no  { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+
+  .boundary-chart {
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+    background: #fafaf9;
+    border: 1px solid #e7e5e4;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #44403c;
+  }
+
+  .boundary-bar-wrap {
+    position: relative;
+    height: 28px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 8px 0;
+    background: #e7e5e4;
+  }
+
+  .boundary-bar-yes  { position: absolute; left: 0; top: 0; bottom: 0; background: #86efac; transition: width 0.3s; }
+  .boundary-bar-no   { position: absolute; right: 0; top: 0; bottom: 0; background: #fca5a5; transition: width 0.3s; }
+  .boundary-bar-grey { position: absolute; top: 0; bottom: 0; background: #fcd34d; transition: all 0.3s; }
+
+  .boundary-marker {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 3px;
+    background: #fff;
+    opacity: 0.8;
+  }
+
+  .bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #78716c;
+  }
+
+  /* ===== SUMMARY TABLE ===== */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  .compare-table th {
+    background: #e7e5e4;
+    color: #292524;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .compare-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f5f5f4;
+    vertical-align: top;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:hover td { background: #fafaf9; }
+  .compare-table .paradox-name {
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 480px) {
+    .card { padding: 14px 14px; }
+    .liar-sentence { font-size: 15px; padding: 14px 16px; }
+    .sand-count-num { font-size: 28px; }
+    h2 { font-size: 17px; }
+    .compare-table { font-size: 12px; }
+    .compare-table th, .compare-table td { padding: 8px 8px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Advanced Logic &amp; Language</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-modal-logic/visualization.html">← L1: Logic modal</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Nghịch lý logic</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-godel-incompleteness/visualization.html">L3: Gödel →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Nghịch lý logic (Paradoxes)</h1>
+<p>Ba nghịch lý nền tảng đã buộc logic và toán học phải xây dựng lại từ đầu. Khám phá chúng qua mô phỏng tương tác.</p>
+
+<!-- ============================================================ -->
+<h2>1. Nghịch lý kẻ nói dối (Liar's Paradox)</h2>
+<div class="card">
+  <p>Câu <strong>"Câu này là sai."</strong> tạo ra vòng lặp không bao giờ dừng: gán ĐÚNG → suy ra SAI → suy ra ĐÚNG → ... Bấm <em>Giả sử ĐÚNG</em> hoặc <em>Giả sử SAI</em> để xem suy luận từng bước.</p>
+
+  <div class="liar-display">
+    <div class="liar-sentence" id="liarSentence">"Câu này là sai."</div>
+
+    <div class="liar-value">
+      <span>Giả sử câu có giá trị:</span>
+      <div class="tv-badge Q" id="tvBadge">?</div>
+    </div>
+
+    <div class="liar-arrow" id="liarArrow" style="display:none">↕</div>
+
+    <div class="liar-log" id="liarLog">Bấm một nút bên dưới để bắt đầu suy luận...</div>
+
+    <div class="oscillate-indicator" id="oscillateIndicator">
+      ⚠ Vòng lặp vô tận — không thể gán giá trị nhất quán!
+    </div>
+  </div>
+
+  <div class="liar-controls">
+    <button onclick="startLiar('T')">Giả sử ĐÚNG (T)</button>
+    <button onclick="startLiar('F')">Giả sử SAI (F)</button>
+    <button class="ghost sm" onclick="resetLiar()">Đặt lại</button>
+  </div>
+
+  <p class="hint" style="margin-top:16px">
+    <strong>Cơ chế:</strong> Câu tự quy chiếu (nói về chính nó) + phủ định ("là sai") tạo ra mâu thuẫn không thoát ra được.
+    Đây là điểm khởi đầu dẫn đến định lý bất toàn Gödel (Lesson 03).
+  </p>
+
+  <h3 style="margin-top:20px">Các biến thể</h3>
+  <div class="btn-row" style="margin-bottom:10px">
+    <button class="ghost sm" onclick="setVariant('classic')">Hình thức gốc</button>
+    <button class="ghost sm" onclick="setVariant('epimenides')">Epimenides</button>
+    <button class="ghost sm" onclick="setVariant('card')">Hai tờ giấy</button>
+    <button class="ghost sm" onclick="setVariant('truthteller')">Kẻ nói thật (so sánh)</button>
+  </div>
+  <div id="variantDesc" class="russell-step" style="display:none"></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Nghịch lý Russell</h2>
+<div class="card">
+  <p>Tập <strong>R = {x : x ∉ x}</strong> — tập hợp tất cả tập hợp không chứa chính mình. Chọn giả thuyết bên dưới để theo dõi suy luận dẫn đến mâu thuẫn.</p>
+
+  <div class="choice-btns">
+    <button class="choice-btn" id="rIn" onclick="chooseR('in')">R ∈ R<br><small style="font-weight:400;font-family:sans-serif">R chứa chính nó</small></button>
+    <button class="choice-btn" id="rOut" onclick="chooseR('out')">R ∉ R<br><small style="font-weight:400;font-family:sans-serif">R không chứa chính nó</small></button>
+  </div>
+
+  <div id="russellSteps" style="margin-top:4px"></div>
+  <div class="contradiction-box" id="russellContradiction"></div>
+
+  <div class="btn-row">
+    <button class="ghost sm" onclick="resetRussell()">Đặt lại</button>
+  </div>
+
+  <h3>Nghịch lý thợ cắt tóc (Barber Paradox)</h3>
+  <p style="font-size:14px; color:#44403c; line-height:1.65">
+    Phiên bản thông tục: Trong một thị trấn có một thợ cắt tóc, cắt tóc cho đúng những ai <em>không tự cắt tóc cho mình</em>.
+    Thợ cắt tóc có tự cắt tóc không?
+  </p>
+  <div class="choice-btns">
+    <button class="choice-btn" id="barberYes" onclick="chooseBarber('yes')">Có, tự cắt</button>
+    <button class="choice-btn" id="barberNo" onclick="chooseBarber('no')">Không, nhờ người khác</button>
+  </div>
+  <div id="barberSteps" style="margin-top:4px"></div>
+  <div class="contradiction-box" id="barberContradiction"></div>
+  <div class="btn-row">
+    <button class="ghost sm" onclick="resetBarber()">Đặt lại</button>
+  </div>
+
+  <p class="hint" style="margin-top:14px">
+    <strong>Sự khác biệt:</strong> Nghịch lý thợ cắt tóc <em>có</em> giải quyết được — thợ cắt tóc mô tả đó không tồn tại.
+    Nghịch lý Russell thì không: tập R được đảm bảo tồn tại bởi nguyên lý bao hàm toàn diện — phải từ bỏ chính nguyên lý đó.
+  </p>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Nghịch lý đống cát (Sorites Paradox)</h2>
+<div class="card">
+  <p>Kéo thanh trượt để thay đổi số hạt cát. Quan sát: không có ranh giới sắc nào giữa "là đống" và "không phải đống".</p>
+
+  <div class="sorites-viz">
+    <div class="sand-display">
+      <div class="sand-count-display">
+        <span class="sand-count-num" id="sandNum">500000</span>
+        <span class="sand-count-label">hạt cát</span>
+      </div>
+    </div>
+
+    <div class="slider-row">
+      <label>1</label>
+      <input type="range" id="sandSlider" min="1" max="1000000" value="500000" step="1" oninput="updateSand()">
+      <label>1.000.000</label>
+    </div>
+
+    <div class="sand-svg-wrap">
+      <svg id="sandSvg" width="500" height="120" viewBox="0 0 500 120" style="width:100%;height:auto">
+        <!-- Pile will be drawn by JS -->
+      </svg>
+    </div>
+
+    <div class="pile-verdict">
+      <div class="verdict-label">Đây có phải là "đống cát" không?</div>
+      <div class="verdict-badge" id="sandVerdict">...</div>
+    </div>
+
+    <div class="sorites-argument" id="soritesArg">
+      <!-- updated by JS -->
+    </div>
+
+    <p class="hint" style="text-align:center">Bấm nhanh một số giá trị:</p>
+    <div class="btn-row" style="justify-content:center">
+      <button class="ghost sm" onclick="setSand(1000000)">1.000.000</button>
+      <button class="ghost sm" onclick="setSand(10000)">10.000</button>
+      <button class="ghost sm" onclick="setSand(1000)">1.000</button>
+      <button class="ghost sm" onclick="setSand(100)">100</button>
+      <button class="ghost sm" onclick="setSand(10)">10</button>
+      <button class="ghost sm" onclick="setSand(1)">1</button>
+    </div>
+  </div>
+
+  <h3>Ranh giới do bạn tự vẽ</h3>
+  <p style="font-size:14px; color:#44403c; line-height:1.65">
+    Không có ranh giới khách quan — nhưng bạn có thể tự vẽ. Bấm để đánh dấu: ở số hạt hiện tại, bạn nói "đống" hay "không phải đống"?
+  </p>
+  <div class="user-mark-row">
+    <button class="mark-btn" id="markYesBtn" onclick="markCurrent('yes')">Là đống ✓</button>
+    <button class="mark-btn" id="markNoBtn" onclick="markCurrent('no')">Không phải ✗</button>
+    <button class="ghost sm" onclick="clearMarks()">Xóa đánh dấu</button>
+  </div>
+
+  <div class="boundary-chart" id="boundaryChart" style="margin-top:14px">
+    <div class="arg-label">Bản đồ đánh dấu của bạn (1 → 1.000.000)</div>
+    <div class="boundary-bar-wrap" id="boundaryBarWrap">
+      <div class="boundary-bar-yes" id="bBarYes" style="width:0%"></div>
+      <div class="boundary-bar-no" id="bBarNo" style="width:0%"></div>
+      <div class="boundary-bar-grey" id="bBarGrey" style="left:0%;width:100%"></div>
+      <div class="boundary-marker" id="bMarker" style="left:50%"></div>
+    </div>
+    <div class="bar-labels">
+      <span>1 hạt</span>
+      <span style="color:#92400e; font-weight:600">Vùng mờ (không đánh dấu)</span>
+      <span>1.000.000 hạt</span>
+    </div>
+    <div id="boundaryNote" style="font-size:12px; color:#78716c; margin-top:6px"></div>
+  </div>
+
+  <p class="hint" style="margin-top:12px">
+    <strong>Lập luận sorites:</strong> Tiền đề 1 (1.000.000 hạt là đống) và Tiền đề 2 (bớt 1 hạt vẫn là đống) đều có vẻ đúng — nhưng kết luận (1 hạt là đống) rõ ràng sai. Vị từ "đống" không có ranh giới sắc nên không thể áp dụng induction theo cách này.
+  </p>
+</div>
+
+<!-- ============================================================ -->
+<h2>4. So sánh ba nghịch lý</h2>
+<div class="card">
+  <div style="overflow-x:auto">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Nghịch lý</th>
+          <th>Nguồn gốc</th>
+          <th>Phá vỡ cái gì</th>
+          <th>Giải pháp</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="paradox-name">Kẻ nói dối</span><br>
+            <span style="font-family:monospace; font-size:12px; color:#78716c">"Câu này sai"</span></td>
+          <td>Tự quy chiếu + phủ định</td>
+          <td>Giá trị chân lý của câu tự tham chiếu</td>
+          <td>Phân tầng ngôn ngữ (Tarski), cấm tự quy chiếu</td>
+        </tr>
+        <tr>
+          <td><span class="paradox-name">Russell</span><br>
+            <span style="font-family:monospace; font-size:12px; color:#78716c">R = {x : x ∉ x}</span></td>
+          <td>Định nghĩa impredicative trong tập hợp</td>
+          <td>Lý thuyết tập hợp ngây thơ (Frege)</td>
+          <td>Type Theory; ZFC (axiom of separation)</td>
+        </tr>
+        <tr>
+          <td><span class="paradox-name">Sorites</span><br>
+            <span style="font-family:monospace; font-size:12px; color:#78716c">"Đống cát"</span></td>
+          <td>Vị từ mơ hồ (vague predicate)</td>
+          <td>Tính áp dụng của logic hai giá trị cho ngôn ngữ tự nhiên</td>
+          <td>Fuzzy logic, supervaluationism (không hoàn toàn)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="hint" style="margin-top:12px">
+    Cả ba đều bắt đầu từ tiền đề "có vẻ vô hại" — sự khác biệt nằm ở <em>loại</em> vấn đề: cấu trúc logic (Liar, Russell) hay ngữ nghĩa vị từ (Sorites).
+  </p>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+// =================================================================
+// MODULE 1 — LIAR'S PARADOX
+// =================================================================
+
+const LIAR_STEPS_T = [
+  { tv: 'T', log: 'Bước 1: Giả sử câu có giá trị ĐÚNG (T).' },
+  { tv: 'T', log: 'Bước 2: Nếu câu ĐÚNG → nội dung câu là sự thật.' },
+  { tv: 'T', log: 'Bước 3: Nội dung câu phát biểu: "Câu này là SAI."' },
+  { tv: 'F', log: 'Bước 4: Vì nội dung đúng → câu thật sự là SAI (F).' },
+  { tv: 'F', log: 'Bước 5: Nhưng ta giả sử câu là ĐÚNG (T) — MÂU THUẪN!' },
+  { tv: 'T', log: 'Bước 6: Nếu câu SAI → lại dẫn về giả thuyết ĐÚNG...' },
+  { tv: 'F', log: 'Bước 7: ...và lại dẫn về SAI...' },
+  { tv: 'T', log: 'Bước 8: ...ĐÚNG... SAI... ĐÚNG... — vòng lặp vô tận!' },
+];
+
+const LIAR_STEPS_F = [
+  { tv: 'F', log: 'Bước 1: Giả sử câu có giá trị SAI (F).' },
+  { tv: 'F', log: 'Bước 2: Nếu câu SAI → nội dung câu không đúng sự thật.' },
+  { tv: 'F', log: 'Bước 3: Nội dung câu phát biểu: "Câu này là SAI."' },
+  { tv: 'T', log: 'Bước 4: Vì nội dung sai → "câu này là SAI" sai → câu thật sự ĐÚNG (T).' },
+  { tv: 'T', log: 'Bước 5: Nhưng ta giả sử câu là SAI (F) — MÂU THUẪN!' },
+  { tv: 'F', log: 'Bước 6: Nếu câu ĐÚNG → lại dẫn về giả thuyết SAI...' },
+  { tv: 'T', log: 'Bước 7: ...và lại dẫn về ĐÚNG...' },
+  { tv: 'F', log: 'Bước 8: ...SAI... ĐÚNG... SAI... — vòng lặp vô tận!' },
+];
+
+let liarInterval = null;
+let liarStepIdx = 0;
+let liarSteps = [];
+
+function startLiar(initial) {
+  clearInterval(liarInterval);
+  liarStepIdx = 0;
+  liarSteps = initial === 'T' ? LIAR_STEPS_T : LIAR_STEPS_F;
+  document.getElementById('oscillateIndicator').classList.remove('show');
+  document.getElementById('liarArrow').style.display = 'block';
+  document.getElementById('liarLog').textContent = '';
+  updateLiarStep();
+  liarInterval = setInterval(() => {
+    liarStepIdx++;
+    if (liarStepIdx >= liarSteps.length) {
+      liarStepIdx = liarSteps.length - 1;
+      clearInterval(liarInterval);
+      document.getElementById('oscillateIndicator').classList.add('show');
+    } else {
+      updateLiarStep();
+    }
+  }, 900);
+}
+
+function updateLiarStep() {
+  const step = liarSteps[liarStepIdx];
+  const badge = document.getElementById('tvBadge');
+  badge.className = 'tv-badge ' + step.tv;
+  badge.textContent = step.tv;
+  document.getElementById('liarLog').textContent = step.log;
+}
+
+function resetLiar() {
+  clearInterval(liarInterval);
+  liarInterval = null;
+  liarStepIdx = 0;
+  const badge = document.getElementById('tvBadge');
+  badge.className = 'tv-badge Q';
+  badge.textContent = '?';
+  document.getElementById('liarLog').textContent = 'Bấm một nút bên dưới để bắt đầu suy luận...';
+  document.getElementById('liarArrow').style.display = 'none';
+  document.getElementById('oscillateIndicator').classList.remove('show');
+  document.getElementById('variantDesc').style.display = 'none';
+}
+
+const VARIANTS = {
+  classic: {
+    title: 'Hình thức gốc (Classic Liar)',
+    text: '"Câu này là sai." — Gán ĐÚNG → nội dung đúng → câu sai → MÂU THUẪN. Gán SAI → nội dung sai → câu đúng → MÂU THUẪN.'
+  },
+  epimenides: {
+    title: 'Nghịch lý Epimenides (~thế kỷ 6 TCN)',
+    text: '"Mọi người Crete đều nói dối." — Câu này được nói bởi Epimenides, người Crete. Nếu đúng → Epimenides (người Crete) cũng nói dối → câu này sai → mâu thuẫn. Tuy nhiên, đây là "nghịch lý yếu": nếu Epimenides nói dối, câu chỉ cần sai — nghĩa là một số người Crete không nói dối — không dẫn đến mâu thuẫn tức thì. Hình thức tinh gọn hơn là "Câu này là sai."'
+  },
+  card: {
+    title: 'Nghịch lý hai tờ giấy (Card Paradox)',
+    text: 'Tờ A: "Câu trên tờ B là ĐÚNG." Tờ B: "Câu trên tờ A là SAI."\n\nNếu A=T → B đúng → "A sai" đúng → A=F → MÂU THUẪN.\nNếu A=F → B sai → "A sai" sai → A đúng → A=T → MÂU THUẪN.\n\nHai câu tạo vòng lặp tự quy chiếu gián tiếp — cùng cấu trúc với Liar, chỉ qua một trung gian.'
+  },
+  truthteller: {
+    title: 'So sánh: Kẻ nói thật (Truth-teller) — KHÔNG phải nghịch lý',
+    text: '"Câu này là ĐÚNG." — Gán ĐÚNG → nội dung đúng → câu đúng → nhất quán (T→T). Gán SAI → nội dung sai → "câu này đúng" sai → câu sai → nhất quán (F→F). KHÔNG có mâu thuẫn! Đây là câu "trống" (vacuously consistent) — có tự quy chiếu nhưng KHÔNG có phủ định, nên không gây nghịch lý. Phân biệt: cần cả hai yếu tố (tự quy chiếu + phủ định) mới có nghịch lý.'
+  }
+};
+
+function setVariant(key) {
+  const v = VARIANTS[key];
+  const el = document.getElementById('variantDesc');
+  el.innerHTML = '<strong>' + v.title + '</strong><br><br>' + v.text.replace(/\n/g, '<br>');
+  el.style.display = 'block';
+}
+
+// =================================================================
+// MODULE 2 — RUSSELL'S PARADOX
+// =================================================================
+
+function chooseR(choice) {
+  document.getElementById('rIn').classList.toggle('selected', choice === 'in');
+  document.getElementById('rOut').classList.toggle('selected', choice === 'out');
+
+  const stepsEl = document.getElementById('russellSteps');
+  const contEl  = document.getElementById('russellContradiction');
+
+  if (choice === 'in') {
+    stepsEl.innerHTML = makeStep(1, 'Giả sử <strong>R ∈ R</strong> (R chứa chính nó).') +
+      makeStep(2, 'R ∈ R có nghĩa R thỏa vị từ P(x) = "x ∉ x" (vì đó là điều kiện để được vào R).') +
+      makeStep(3, 'P(R) đúng → R ∉ R (R không chứa chính nó).') +
+      makeStep(4, 'Nhưng ta vừa giả sử R ∈ R — <strong>MÂU THUẪN!</strong><br>R ∈ R → R ∉ R');
+    contEl.innerHTML = '<strong>Mâu thuẫn:</strong> R ∈ R ⟹ R ∉ R<br>Giả thuyết "R chứa chính nó" tự phủ nhận.';
+    contEl.classList.add('show');
+  } else {
+    stepsEl.innerHTML = makeStep(1, 'Giả sử <strong>R ∉ R</strong> (R không chứa chính nó).') +
+      makeStep(2, 'R ∉ R có nghĩa R không thỏa vị từ "x ∉ x"? Nhưng chờ đã — "x ∉ x" chính là điều kiện để được vào R!') +
+      makeStep(3, 'R ∉ R → R thỏa điều kiện P(R) = "R ∉ R" là đúng → R phải thuộc {x : x ∉ x} = R.') +
+      makeStep(4, 'Tức là R ∈ R — <strong>MÂU THUẪN!</strong><br>R ∉ R → R ∈ R');
+    contEl.innerHTML = '<strong>Mâu thuẫn:</strong> R ∉ R ⟹ R ∈ R<br>Giả thuyết "R không chứa chính nó" cũng tự phủ nhận.';
+    contEl.classList.add('show');
+  }
+}
+
+function makeStep(num, html) {
+  return `<div class="russell-step"><span class="step-num">${num}</span> ${html}</div>`;
+}
+
+function resetRussell() {
+  document.getElementById('rIn').classList.remove('selected');
+  document.getElementById('rOut').classList.remove('selected');
+  document.getElementById('russellSteps').innerHTML = '';
+  document.getElementById('russellContradiction').classList.remove('show');
+}
+
+function chooseBarber(choice) {
+  document.getElementById('barberYes').classList.toggle('selected', choice === 'yes');
+  document.getElementById('barberNo').classList.toggle('selected', choice === 'no');
+
+  const stepsEl = document.getElementById('barberSteps');
+  const contEl  = document.getElementById('barberContradiction');
+
+  if (choice === 'yes') {
+    stepsEl.innerHTML =
+      makeStep(1, 'Giả sử thợ cắt tóc <strong>tự cắt tóc cho mình</strong>.') +
+      makeStep(2, 'Nhưng thợ cắt tóc chỉ cắt tóc cho những ai <em>không tự cắt tóc</em>.') +
+      makeStep(3, 'Vậy thợ thuộc nhóm "tự cắt" → thợ <strong>không được cắt</strong> cho mình.') +
+      makeStep(4, 'Thợ không tự cắt nữa — <strong>MÂU THUẪN!</strong> với giả sử ban đầu.');
+    contEl.innerHTML = '<strong>Kết luận:</strong> Thợ tự cắt → Thợ không được tự cắt → MÂU THUẪN.';
+    contEl.classList.add('show');
+  } else {
+    stepsEl.innerHTML =
+      makeStep(1, 'Giả sử thợ cắt tóc <strong>không tự cắt tóc cho mình</strong>.') +
+      makeStep(2, 'Thợ cắt tóc cho những ai không tự cắt — và thợ không tự cắt.') +
+      makeStep(3, 'Vậy thợ thuộc nhóm "không tự cắt" → thợ <strong>phải được cắt</strong> bởi thợ (tức tự cắt).') +
+      makeStep(4, 'Thợ tự cắt — <strong>MÂU THUẪN!</strong> với giả sử ban đầu.');
+    contEl.innerHTML = '<strong>Kết luận:</strong> Thợ không tự cắt → Thợ phải tự cắt → MÂU THUẪN.<br><br>Giải pháp: Thợ cắt tóc mô tả như vậy <em>không thể tồn tại</em>. (Khác với Russell: ở đây chỉ cần từ chối sự tồn tại của "thợ" — không cần xây lại toàn bộ lý thuyết tập hợp.)';
+    contEl.classList.add('show');
+  }
+}
+
+function resetBarber() {
+  document.getElementById('barberYes').classList.remove('selected');
+  document.getElementById('barberNo').classList.remove('selected');
+  document.getElementById('barberSteps').innerHTML = '';
+  document.getElementById('barberContradiction').classList.remove('show');
+}
+
+// =================================================================
+// MODULE 3 — SORITES
+// =================================================================
+
+// Marks: index by "bucket" (0..99 = 1% steps of log scale)
+const NUM_BUCKETS = 100;
+const userMarks = new Array(NUM_BUCKETS).fill(null); // null | 'yes' | 'no'
+
+function getBucket(n) {
+  // Map 1..1000000 to 0..99 via log scale
+  const ratio = Math.log(n) / Math.log(1000000);
+  return Math.min(NUM_BUCKETS - 1, Math.max(0, Math.floor(ratio * NUM_BUCKETS)));
+}
+
+function getSandVerdict(n) {
+  if (n >= 200000) return { cls: 'clear-yes', text: 'Rõ ràng là ĐỐNG' };
+  if (n >= 50000)  return { cls: 'clear-yes', text: 'Đống lớn' };
+  if (n >= 5000)   return { cls: 'borderline', text: '... có lẽ là đống?' };
+  if (n >= 500)    return { cls: 'borderline', text: '??? — Vùng mờ' };
+  if (n >= 50)     return { cls: 'borderline', text: '??? — Khó nói' };
+  if (n >= 10)     return { cls: 'borderline', text: 'Không rõ là đống không' };
+  if (n >= 3)      return { cls: 'clear-no',  text: 'Không phải đống' };
+  return { cls: 'clear-no', text: 'Rõ ràng KHÔNG phải đống' };
+}
+
+function formatNum(n) {
+  return n.toLocaleString('vi-VN');
+}
+
+function updateSand() {
+  const slider = document.getElementById('sandSlider');
+  const n = parseInt(slider.value);
+
+  document.getElementById('sandNum').textContent = formatNum(n);
+
+  const verdict = getSandVerdict(n);
+  const vbadge = document.getElementById('sandVerdict');
+  vbadge.className = 'verdict-badge ' + verdict.cls;
+  vbadge.textContent = verdict.text;
+
+  // Draw SVG pile
+  drawSandPile(n);
+
+  // Update argument
+  updateSoritesArg(n);
+
+  // Update boundary chart marker
+  const pct = Math.log(n) / Math.log(1000000) * 100;
+  document.getElementById('bMarker').style.left = Math.min(98, Math.max(1, pct)) + '%';
+
+  // Update mark buttons
+  const bucket = getBucket(n);
+  const mark = userMarks[bucket];
+  document.getElementById('markYesBtn').className = 'mark-btn' + (mark === 'yes' ? ' marked-yes' : '');
+  document.getElementById('markNoBtn').className  = 'mark-btn' + (mark === 'no'  ? ' marked-no'  : '');
+}
+
+function drawSandPile(n) {
+  const svg = document.getElementById('sandSvg');
+  const W = 500, H = 120;
+  const maxN = 1000000;
+  const ratio = Math.pow(n / maxN, 0.35); // non-linear for better visual
+  const pileH = Math.max(4, Math.floor(ratio * 80));
+  const pileW = Math.max(10, Math.floor(ratio * 360 + 40));
+  const cx = W / 2;
+  const baseY = H - 10;
+  const topY = baseY - pileH;
+
+  // Trapezoid shape: wider at base
+  const bw = pileW;
+  const tw = Math.max(4, Math.floor(pileW * 0.4));
+
+  // Color
+  const r1 = 204, g1 = 153, b1 = 102;  // light sand
+  const r2 = 139, g2 = 90,  b2 = 43;   // dark sand
+
+  // Interpolate color by size
+  const t = ratio;
+  const r = Math.round(r2 + (r1 - r2) * (1 - t));
+  const g = Math.round(g2 + (g1 - g2) * (1 - t));
+  const b = Math.round(b2 + (b1 - b2) * (1 - t));
+  const fillColor = `rgb(${r},${g},${b})`;
+  const strokeColor = `rgb(${Math.max(0,r-30)},${Math.max(0,g-30)},${Math.max(0,b-30)})`;
+
+  const x1 = cx - bw/2, x2 = cx + bw/2;
+  const x3 = cx + tw/2, x4 = cx - tw/2;
+
+  const pts = `${x1},${baseY} ${x2},${baseY} ${x3},${topY} ${x4},${topY}`;
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${fillColor}" stop-opacity="0.9"/>
+        <stop offset="100%" stop-color="${strokeColor}" stop-opacity="1"/>
+      </linearGradient>
+    </defs>
+    <polygon points="${pts}" fill="url(#sg)" stroke="${strokeColor}" stroke-width="1.5"/>
+    ${n <= 20 ? renderIndividualGrains(n, cx, baseY, topY, pileW, strokeColor) : ''}
+    <text x="${cx}" y="${topY - 6}" text-anchor="middle" font-size="12" fill="#78716c" font-family="sans-serif">
+      ${n >= 1000 ? (n/1000).toFixed(n >= 10000 ? 0 : 1)+'k' : n} hạt
+    </text>
+  `;
+}
+
+function renderIndividualGrains(n, cx, baseY, topY, pileW, strokeColor) {
+  if (n === 0) return '';
+  const rows = Math.ceil(Math.sqrt(n));
+  let dots = '';
+  const grain_r = 5;
+  let placed = 0;
+
+  for (let row = 0; row < rows && placed < n; row++) {
+    const y = baseY - grain_r - row * (grain_r * 2 + 2);
+    if (y < topY + grain_r) break;
+    const cols = Math.min(n - placed, rows - row);
+    for (let col = 0; col < cols && placed < n; col++) {
+      const x = cx - (cols - 1) * (grain_r * 2 + 2) / 2 + col * (grain_r * 2 + 2);
+      dots += `<circle cx="${x}" cy="${y}" r="${grain_r}" fill="#d4a76a" stroke="${strokeColor}" stroke-width="1"/>`;
+      placed++;
+    }
+  }
+  return dots;
+}
+
+function updateSoritesArg(n) {
+  const el = document.getElementById('soritesArg');
+  const nFmt = formatNum(n);
+  const n1Fmt = formatNum(n - 1);
+
+  let conclusionNote = '';
+  if (n <= 2) {
+    conclusionNote = ' <span style="color:#991b1b;font-weight:700">(Rõ ràng vô lý!)</span>';
+  } else if (n <= 100) {
+    conclusionNote = ' <span style="color:#9a3412;font-weight:600">(Có vẻ vô lý...)</span>';
+  }
+
+  el.innerHTML = `
+    <div class="arg-label">Lập luận sorites tại ${nFmt} hạt</div>
+    <div class="arg-text">
+      <strong>Tiền đề 1:</strong> 1.000.000 hạt cát tạo thành một đống.<br>
+      <strong>Tiền đề 2:</strong> Nếu <em>${nFmt}</em> hạt là đống, thì <em>${n1Fmt}</em> hạt cũng là đống.<br>
+      <em style="color:#a8a29e; font-size:13px">(Bớt 1 hạt không thay đổi bản chất của đống.)</em>
+    </div>
+    <hr class="arg-divider">
+    <div class="arg-text">
+      <strong>Kết luận (nếu áp dụng ${(n === 1 ? '0' : formatNum(n-1))} lần tiếp):</strong>
+      1 hạt cát cũng là đống.${conclusionNote}
+    </div>
+  `;
+}
+
+function setSand(n) {
+  document.getElementById('sandSlider').value = n;
+  updateSand();
+}
+
+function markCurrent(verdict) {
+  const n = parseInt(document.getElementById('sandSlider').value);
+  const bucket = getBucket(n);
+  // Toggle: if already same mark, remove it
+  userMarks[bucket] = (userMarks[bucket] === verdict) ? null : verdict;
+  updateSand();
+  updateBoundaryBar();
+}
+
+function clearMarks() {
+  userMarks.fill(null);
+  updateSand();
+  updateBoundaryBar();
+}
+
+function updateBoundaryBar() {
+  // Find contiguous regions
+  const total = NUM_BUCKETS;
+
+  // Count yes/no/null regions
+  let yesMax = -1, noMin = total;
+  for (let i = 0; i < total; i++) {
+    if (userMarks[i] === 'yes' && i > yesMax) yesMax = i;
+    if (userMarks[i] === 'no' && i < noMin) noMin = i;
+  }
+
+  // Bar: green from 0..yesMax, red from noMin..end, yellow in between
+  const yesPct = yesMax >= 0 ? ((yesMax + 1) / total * 100) : 0;
+  const noPct  = noMin < total ? ((total - noMin) / total * 100) : 0;
+  const greyLeft = yesPct;
+  const greyWidth = Math.max(0, 100 - yesPct - noPct);
+
+  document.getElementById('bBarYes').style.width = yesPct + '%';
+  document.getElementById('bBarNo').style.width  = noPct  + '%';
+  document.getElementById('bBarGrey').style.left  = greyLeft + '%';
+  document.getElementById('bBarGrey').style.width = greyWidth + '%';
+
+  const noteEl = document.getElementById('boundaryNote');
+  const markedCount = userMarks.filter(m => m !== null).length;
+  if (markedCount === 0) {
+    noteEl.textContent = 'Chưa có đánh dấu nào. Kéo slider rồi bấm "Là đống" / "Không phải" để vẽ ranh giới của bạn.';
+  } else {
+    let msg = `Đã đánh dấu ${markedCount} vùng. `;
+    if (greyWidth > 5) {
+      msg += `Vùng màu vàng (${greyWidth.toFixed(0)}%) là vùng bạn chưa đánh dấu — vùng mờ ranh giới.`;
+    } else {
+      msg += 'Bạn đã vẽ ranh giới rõ — nhưng ranh giới đó có thực sự "đúng" không?';
+    }
+    noteEl.textContent = msg;
+  }
+}
+
+// =======================================
+// INIT
+// =======================================
+updateSand();
+updateBoundaryBar();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

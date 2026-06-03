@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L4: Logic mờ &amp; nhiều giá trị</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-hover: #44403c;
+    --accent-soft: #f0eeec;
+  }
+
+  h1 { color: #1c1917; }
+  h2 { color: #292524; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #d6d3d1; }
+  h3 { color: #44403c; margin-top: 28px; }
+
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 22px 26px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.09);
+    margin: 18px 0;
+  }
+
+  /* Sliders */
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+  }
+  .slider-label {
+    font-weight: 700;
+    font-size: 16px;
+    min-width: 30px;
+    font-family: 'Georgia', serif;
+    color: #292524;
+  }
+  input[type=range] {
+    flex: 1;
+    min-width: 120px;
+    max-width: 340px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .slider-val {
+    font-family: 'Georgia', serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--accent);
+    min-width: 34px;
+    text-align: right;
+  }
+
+  /* Fuzzy result bars */
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  @media (max-width: 560px) {
+    .result-grid { grid-template-columns: 1fr; }
+  }
+  .result-item {
+    background: var(--accent-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+  .result-item .op-name {
+    font-size: 13px;
+    color: #78716c;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .result-item .op-formula {
+    font-family: 'Georgia', serif;
+    font-size: 13px;
+    color: #57534e;
+    margin-bottom: 6px;
+  }
+  .result-item .op-val {
+    font-family: 'Georgia', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1c1917;
+    margin-bottom: 8px;
+  }
+  .bar-track {
+    background: #e7e5e4;
+    border-radius: 6px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.18s ease, background 0.18s ease;
+  }
+
+  /* 3-valued truth table */
+  .tt-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 14px; }
+  table.tt {
+    border-collapse: collapse;
+    font-family: 'Georgia', serif;
+    font-size: 14px;
+    min-width: 320px;
+    width: 100%;
+  }
+  table.tt th {
+    background: #292524;
+    color: #fff;
+    padding: 8px 12px;
+    text-align: center;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  table.tt th.var-col { background: #44403c; }
+  table.tt td {
+    padding: 7px 12px;
+    text-align: center;
+    border-bottom: 1px solid #f5f5f4;
+    font-size: 14px;
+  }
+  table.tt tr:nth-child(even) td { background: #fafaf9; }
+  .cell-T { color: #15803d; font-weight: 700; }
+  .cell-U { color: #b45309; font-weight: 700; }
+  .cell-F { color: #b91c1c; font-weight: 700; }
+
+  /* Tab system for truth table */
+  .tab-bar {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .tab-btn {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid #d6d3d1;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.13s;
+    font-family: 'Georgia', serif;
+  }
+  .tab-btn:hover { background: #e7e5e4; }
+  .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* Membership graph */
+  .graph-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  .graph-panel { flex: 1 1 280px; min-width: 0; }
+  .graph-controls { flex: 0 0 200px; min-width: 0; }
+  @media (max-width: 600px) {
+    .graph-controls { flex: 1 1 100%; }
+  }
+
+  svg.membership-graph {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    display: block;
+  }
+
+  .fn-select-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .fn-btn {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid #d6d3d1;
+    border-radius: 8px;
+    padding: 6px 13px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.13s;
+  }
+  .fn-btn:hover { background: #e7e5e4; }
+  .fn-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .probe-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .probe-label { font-size: 14px; font-weight: 600; color: #44403c; white-space: nowrap; }
+  .probe-result {
+    font-family: 'Georgia', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 48px;
+    text-align: center;
+  }
+  .probe-bar-wrap {
+    flex: 1;
+    min-width: 80px;
+  }
+
+  /* Color scale */
+  .color-scale-note {
+    font-size: 12px;
+    color: #78716c;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .cs-swatch {
+    display: inline-block;
+    width: 60px;
+    height: 8px;
+    border-radius: 4px;
+  }
+
+  .info-box {
+    background: #fef9c3;
+    border-left: 4px solid #ca8a04;
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    margin: 12px 0;
+    font-size: 14px;
+    color: #78350f;
+  }
+
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 14px;
+  }
+  @media (max-width: 560px) {
+    .comparison-grid { grid-template-columns: 1fr; }
+  }
+  .cmp-card {
+    background: var(--accent-soft);
+    border-radius: 10px;
+    padding: 14px 16px;
+    border-top: 3px solid var(--accent);
+  }
+  .cmp-card.blue { border-top-color: #2563eb; }
+  .cmp-card.green { border-top-color: #16a34a; }
+  .cmp-card.orange { border-top-color: #ea580c; }
+  .cmp-card h4 { margin: 0 0 8px; font-size: 14px; color: #1c1917; }
+  .cmp-card p { margin: 0; font-size: 13px; color: #57534e; line-height: 1.5; }
+  .cmp-card .example {
+    margin-top: 8px;
+    font-size: 12px;
+    background: #fff;
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: #44403c;
+    font-family: 'Georgia', serif;
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Advanced Logic &amp; Language</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-godel-incompleteness/visualization.html">← L3: Gödel</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Logic mờ &amp; nhiều giá trị</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-sense-reference/visualization.html">L5: Ngữ nghĩa &amp; quy chiếu →</a>
+</nav>
+
+<main>
+  <h1>Logic mờ &amp; nhiều giá trị</h1>
+  <p style="color:#78716c;font-size:15px;margin-top:-6px;">Lesson 04 · Advanced Logic &amp; Language · Bài 4/8</p>
+
+  <!-- MODULE 1: Fuzzy calculator -->
+  <h2>1. Máy tính chân lý mờ</h2>
+  <p>Kéo hai thanh trượt để đặt độ đúng <strong>p</strong> và <strong>q</strong> ∈ [0, 1]. Các phép toán mờ cập nhật tức thì.</p>
+
+  <div class="card">
+    <div class="slider-row">
+      <span class="slider-label">p</span>
+      <input type="range" id="sliderP" min="0" max="100" value="70">
+      <span class="slider-val" id="valP">0.70</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">q</span>
+      <input type="range" id="sliderQ" min="0" max="100" value="40">
+      <span class="slider-val" id="valQ">0.40</span>
+    </div>
+
+    <div class="result-grid" id="resultGrid">
+      <!-- populated by JS -->
+    </div>
+
+    <div class="info-box" id="lawCheck" style="margin-top:16px;"></div>
+  </div>
+
+  <!-- MODULE 2: Membership function graph -->
+  <h2>2. Hàm thành viên (Membership Function)</h2>
+  <p>Chọn khái niệm mờ, kéo thanh trượt để xem độ thành viên μ(x) tại điểm đó trên đồ thị.</p>
+
+  <div class="card">
+    <div class="fn-select-row">
+      <button class="fn-btn active" data-fn="tall">📏 "Cao" (chiều cao cm)</button>
+      <button class="fn-btn" data-fn="warm">🌡 "Ấm" (nhiệt độ °C)</button>
+      <button class="fn-btn" data-fn="old">👤 "Già" (tuổi)</button>
+      <button class="fn-btn" data-fn="heavy">⚖ "Nặng" (kg)</button>
+    </div>
+
+    <div class="graph-container">
+      <div class="graph-panel">
+        <svg class="membership-graph" id="memberSvg" width="460" height="260" viewBox="0 0 460 260">
+          <!-- axes drawn by JS -->
+          <g id="svgAxes"></g>
+          <g id="svgCurve"></g>
+          <g id="svgProbe"></g>
+        </svg>
+        <div class="color-scale-note">
+          <span>Màu:</span>
+          <span class="cs-swatch" style="background:linear-gradient(to right,#ef4444,#f59e0b,#22c55e)"></span>
+          <span>0 (đỏ) → 1 (xanh)</span>
+        </div>
+      </div>
+      <div class="graph-controls">
+        <div class="probe-row" style="flex-direction:column;align-items:flex-start;gap:10px;">
+          <div>
+            <div class="probe-label" id="probeSliderLabel">Chiều cao (cm)</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap;">
+              <input type="range" id="probeSlider" min="140" max="210" value="170" style="min-width:100px;max-width:180px;">
+              <span class="probe-result" id="probeXVal">170</span>
+            </div>
+          </div>
+          <div style="width:100%">
+            <div class="probe-label">μ(x) =</div>
+            <div class="probe-result" id="probeMuVal">0.50</div>
+            <div class="probe-bar-wrap">
+              <div class="bar-track" style="height:14px;border-radius:7px;">
+                <div class="bar-fill" id="probeMuBar" style="width:50%;background:#f59e0b;border-radius:7px;"></div>
+              </div>
+            </div>
+          </div>
+          <div style="font-size:13px;color:#78716c;" id="probeDesc">Hơi cao / trung bình</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULE 3: 3-valued truth table -->
+  <h2>3. Bảng chân lý ba trị (Kleene K3)</h2>
+  <p>Chọn phép toán để xem bảng chân lý đầy đủ với ba giá trị: <span class="cell-T">T</span> (đúng), <span class="cell-U">U</span> (không xác định), <span class="cell-F">F</span> (sai).</p>
+
+  <div class="card">
+    <div class="tab-bar" id="ttTabs">
+      <button class="tab-btn active" data-op="not">¬p</button>
+      <button class="tab-btn" data-op="and">p ∧ q</button>
+      <button class="tab-btn" data-op="or">p ∨ q</button>
+      <button class="tab-btn" data-op="imp">p → q</button>
+    </div>
+    <div class="tt-wrap">
+      <table class="tt" id="ttTable"></table>
+    </div>
+    <div class="info-box" id="ttNote" style="margin-top:14px;"></div>
+  </div>
+
+  <!-- MODULE 4: Three-way distinction -->
+  <h2>4. Phân biệt ba khái niệm</h2>
+  <p>Ba khái niệm thường bị nhầm lẫn — nhưng hoàn toàn khác nhau về bản chất.</p>
+
+  <div class="comparison-grid">
+    <div class="cmp-card blue">
+      <h4>Không xác định (U)<br><small style="font-weight:400;font-size:12px;">Logic ba trị</small></h4>
+      <p>Câu có giá trị T/F xác định, nhưng ta chưa biết — hoặc tương lai chưa diễn ra.</p>
+      <div class="example">
+        "Ngày mai mưa" = U<br>
+        p + ¬p = U∨U = <span class="cell-U">U</span> (không phải 1!)
+      </div>
+    </div>
+    <div class="cmp-card orange">
+      <h4>Độ đúng mờ (0.7)<br><small style="font-weight:400;font-size:12px;">Logic mờ</small></h4>
+      <p>Câu <em>thực sự</em> đúng ở mức 0.7 vì vị từ tự thân có bản chất liên tục.</p>
+      <div class="example">
+        "175cm là cao" = 0.75<br>
+        p ∨ ¬p = max(0.7, 0.3) = <strong>0.7</strong> ≠ 1
+      </div>
+    </div>
+    <div class="cmp-card green">
+      <h4>Xác suất (0.7)<br><small style="font-weight:400;font-size:12px;">Probability</small></h4>
+      <p>Câu là T hoặc F (lưỡng trị), nhưng <em>sự kiện</em> xảy ra với khả năng 70%.</p>
+      <div class="example">
+        "Xúc xắc ra 4" = xác suất 1/6<br>
+        P(A) + P(¬A) = <strong>1</strong> luôn
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive quiz -->
+  <h2>5. Bài kiểm tra nhanh</h2>
+  <p>Mỗi câu hỏi tương ứng với một trong ba khái niệm hoặc một phép toán mờ. Chọn đáp án đúng.</p>
+
+  <div class="card" id="quizContainer">
+    <!-- populated by JS -->
+  </div>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+
+<script>
+// ===================== MODULE 1: Fuzzy calculator =====================
+
+const fns = {
+  neg:  (p, q) => +(1 - p).toFixed(3),
+  negQ: (p, q) => +(1 - q).toFixed(3),
+  and:  (p, q) => +Math.min(p, q).toFixed(3),
+  or:   (p, q) => +Math.max(p, q).toFixed(3),
+  imp:  (p, q) => +Math.min(1, 1 - p + q).toFixed(3),
+};
+
+const ops = [
+  { key: 'neg',  label: '¬p', formula: '1 − p' },
+  { key: 'negQ', label: '¬q', formula: '1 − q' },
+  { key: 'and',  label: 'p ∧ q', formula: 'min(p, q)' },
+  { key: 'or',   label: 'p ∨ q', formula: 'max(p, q)' },
+  { key: 'imp',  label: 'p → q', formula: 'min(1, 1−p+q)' },
+];
+
+function valToColor(v) {
+  // 0=red, 0.5=amber, 1=green
+  if (v <= 0.5) {
+    const t = v * 2;
+    const r = Math.round(239 + (245 - 239) * t);
+    const g = Math.round(68 + (158 - 68) * t);
+    const b = Math.round(68 + (11 - 68) * t);
+    return `rgb(${r},${g},${b})`;
+  } else {
+    const t = (v - 0.5) * 2;
+    const r = Math.round(245 + (34 - 245) * t);
+    const g = Math.round(158 + (197 - 158) * t);
+    const b = Math.round(11 + (94 - 11) * t);
+    return `rgb(${r},${g},${b})`;
+  }
+}
+
+function renderFuzzyCalc() {
+  const p = parseFloat(document.getElementById('sliderP').value) / 100;
+  const q = parseFloat(document.getElementById('sliderQ').value) / 100;
+  document.getElementById('valP').textContent = p.toFixed(2);
+  document.getElementById('valQ').textContent = q.toFixed(2);
+
+  const grid = document.getElementById('resultGrid');
+  grid.innerHTML = ops.map(op => {
+    const v = fns[op.key](p, q);
+    const pct = (v * 100).toFixed(1) + '%';
+    const col = valToColor(v);
+    return `
+      <div class="result-item">
+        <div class="op-name">${op.label}</div>
+        <div class="op-formula">= ${op.formula}</div>
+        <div class="op-val">${v.toFixed(3)}</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${pct};background:${col}"></div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Law check
+  const exMid = Math.max(p, 1 - p).toFixed(3);
+  const nonCon = Math.min(p, 1 - p).toFixed(3);
+  const deMorgan1L = (1 - Math.min(p, q)).toFixed(3);
+  const deMorgan1R = Math.max(1 - p, 1 - q).toFixed(3);
+  const deMorganOk = Math.abs(parseFloat(deMorgan1L) - parseFloat(deMorgan1R)) < 0.001;
+
+  document.getElementById('lawCheck').innerHTML =
+    `<strong>Kiểm tra luật cơ bản:</strong><br>
+    • Trung gian loại trừ p∨¬p = max(${p.toFixed(2)}, ${(1-p).toFixed(2)}) = <strong>${exMid}</strong> ${parseFloat(exMid) === 1.0 ? '= 1 ✓' : '≠ 1 (không đúng khi p ≠ 0 hoặc 1!)'}<br>
+    • Không mâu thuẫn p∧¬p = min(${p.toFixed(2)}, ${(1-p).toFixed(2)}) = <strong>${nonCon}</strong> ${parseFloat(nonCon) === 0.0 ? '= 0 ✓' : '≠ 0 (không đúng khi p ≠ 0 hoặc 1!)'}<br>
+    • De Morgan ¬(p∧q) = ${deMorgan1L}; ¬p∨¬q = ${deMorgan1R} ${deMorganOk ? '✓ bằng nhau' : '≠'}`;
+}
+
+document.getElementById('sliderP').addEventListener('input', renderFuzzyCalc);
+document.getElementById('sliderQ').addEventListener('input', renderFuzzyCalc);
+renderFuzzyCalc();
+
+// ===================== MODULE 2: Membership function graph =====================
+
+const memberFns = {
+  tall: {
+    label: 'Chiều cao (cm)',
+    unit: 'cm',
+    min: 140, max: 210,
+    defaultVal: 170,
+    mu: x => Math.max(0, Math.min(1, (x - 160) / 20)),
+    concept: '"Cao"',
+    desc: v => v >= 0.9 ? 'Rất cao' : v >= 0.7 ? 'Cao' : v >= 0.5 ? 'Khá cao / trung bình' : v >= 0.3 ? 'Hơi cao' : v > 0 ? 'Gần như không cao' : 'Không cao',
+    ticks: [140, 150, 155, 160, 165, 170, 175, 180, 185, 190, 200, 210],
+  },
+  warm: {
+    label: 'Nhiệt độ (°C)',
+    unit: '°C',
+    min: 0, max: 45,
+    defaultVal: 22,
+    // trapezoidal: rise 18-26, plateau 26-30, fall 30-38
+    mu: x => {
+      if (x <= 18) return 0;
+      if (x <= 26) return (x - 18) / 8;
+      if (x <= 30) return 1;
+      if (x <= 38) return 1 - (x - 30) / 8;
+      return 0;
+    },
+    concept: '"Ấm"',
+    desc: v => v >= 0.95 ? 'Rất ấm' : v >= 0.7 ? 'Ấm' : v >= 0.4 ? 'Hơi ấm' : v > 0 ? 'Gần ngưỡng' : 'Không ấm (lạnh hoặc nóng)',
+    ticks: [0, 10, 18, 22, 26, 30, 34, 38, 45],
+  },
+  old: {
+    label: 'Tuổi',
+    unit: 'tuổi',
+    min: 0, max: 100,
+    defaultVal: 55,
+    mu: x => Math.max(0, Math.min(1, (x - 45) / 25)),
+    concept: '"Già"',
+    desc: v => v >= 0.9 ? 'Rất già' : v >= 0.7 ? 'Già' : v >= 0.5 ? 'Trung niên / hơi già' : v >= 0.2 ? 'Chưa già' : v > 0 ? 'Gần ngưỡng trung niên' : 'Còn trẻ',
+    ticks: [0, 20, 35, 45, 55, 65, 70, 80, 100],
+  },
+  heavy: {
+    label: 'Cân nặng (kg)',
+    unit: 'kg',
+    min: 30, max: 130,
+    defaultVal: 70,
+    mu: x => Math.max(0, Math.min(1, (x - 55) / 25)),
+    concept: '"Nặng"',
+    desc: v => v >= 0.9 ? 'Rất nặng' : v >= 0.7 ? 'Nặng' : v >= 0.5 ? 'Khá nặng' : v >= 0.2 ? 'Hơi nặng' : v > 0 ? 'Gần ngưỡng' : 'Nhẹ',
+    ticks: [30, 45, 55, 65, 75, 80, 90, 100, 115, 130],
+  },
+};
+
+let currentFn = 'tall';
+
+const SVG_W = 460, SVG_H = 260;
+const PAD_L = 46, PAD_R = 18, PAD_T = 18, PAD_B = 48;
+const PLOT_W = SVG_W - PAD_L - PAD_R;
+const PLOT_H = SVG_H - PAD_T - PAD_B;
+
+function xToSvg(x, fnKey) {
+  const fn = memberFns[fnKey];
+  return PAD_L + (x - fn.min) / (fn.max - fn.min) * PLOT_W;
+}
+function yToSvg(mu) {
+  return PAD_T + (1 - mu) * PLOT_H;
+}
+function svgToX(sx, fnKey) {
+  const fn = memberFns[fnKey];
+  return fn.min + (sx - PAD_L) / PLOT_W * (fn.max - fn.min);
+}
+
+function drawMemberGraph(fnKey, probeX) {
+  const fn = memberFns[fnKey];
+  const svg = document.getElementById('memberSvg');
+  const axesG = document.getElementById('svgAxes');
+  const curveG = document.getElementById('svgCurve');
+  const probeG = document.getElementById('svgProbe');
+
+  // Axes
+  let axHtml = '';
+  // x-axis
+  axHtml += `<line x1="${PAD_L}" y1="${PAD_T+PLOT_H}" x2="${PAD_L+PLOT_W}" y2="${PAD_T+PLOT_H}" stroke="#a8a29e" stroke-width="1.5"/>`;
+  // y-axis
+  axHtml += `<line x1="${PAD_L}" y1="${PAD_T}" x2="${PAD_L}" y2="${PAD_T+PLOT_H}" stroke="#a8a29e" stroke-width="1.5"/>`;
+  // y ticks 0, 0.25, 0.5, 0.75, 1
+  [0, 0.25, 0.5, 0.75, 1.0].forEach(mu => {
+    const sy = yToSvg(mu);
+    axHtml += `<line x1="${PAD_L-5}" y1="${sy}" x2="${PAD_L+PLOT_W}" y2="${sy}" stroke="#e7e5e4" stroke-width="${mu === 0 || mu === 1 ? 1.5 : 0.8}" stroke-dasharray="${mu === 0 || mu === 1 ? '' : '4,3'}"/>`;
+    axHtml += `<text x="${PAD_L-9}" y="${sy+4}" text-anchor="end" font-size="11" fill="#78716c">${mu.toFixed(2)}</text>`;
+  });
+  // x ticks
+  const numXTicks = 6;
+  for (let i = 0; i <= numXTicks; i++) {
+    const x = fn.min + i / numXTicks * (fn.max - fn.min);
+    const sx = xToSvg(x, fnKey);
+    axHtml += `<line x1="${sx}" y1="${PAD_T+PLOT_H}" x2="${sx}" y2="${PAD_T+PLOT_H+5}" stroke="#a8a29e" stroke-width="1"/>`;
+    axHtml += `<text x="${sx}" y="${PAD_T+PLOT_H+17}" text-anchor="middle" font-size="10" fill="#78716c">${Math.round(x)}</text>`;
+  }
+  // axis labels
+  axHtml += `<text x="${PAD_L+PLOT_W/2}" y="${SVG_H-2}" text-anchor="middle" font-size="12" fill="#57534e">${fn.label}</text>`;
+  axHtml += `<text x="10" y="${PAD_T+PLOT_H/2}" text-anchor="middle" font-size="12" fill="#57534e" transform="rotate(-90,10,${PAD_T+PLOT_H/2})">μ(x)</text>`;
+  axesG.innerHTML = axHtml;
+
+  // Curve — gradient coloring via segments
+  const steps = 200;
+  let curvePath = '';
+  let coloredSegs = '';
+  for (let i = 0; i <= steps; i++) {
+    const x = fn.min + i / steps * (fn.max - fn.min);
+    const mu = fn.mu(x);
+    const sx = xToSvg(x, fnKey);
+    const sy = yToSvg(mu);
+    if (i === 0) curvePath = `M${sx},${sy}`;
+    else curvePath += ` L${sx},${sy}`;
+  }
+  // Filled area (gradient approach: clip + rects)
+  // Build polyline with fill underneath
+  let fillPath = `M${PAD_L},${yToSvg(0)}`;
+  for (let i = 0; i <= steps; i++) {
+    const x = fn.min + i / steps * (fn.max - fn.min);
+    const mu = fn.mu(x);
+    const sx = xToSvg(x, fnKey);
+    const sy = yToSvg(mu);
+    fillPath += ` L${sx},${sy}`;
+  }
+  fillPath += ` L${PAD_L+PLOT_W},${yToSvg(0)} Z`;
+
+  curveG.innerHTML = `
+    <path d="${fillPath}" fill="#57534e" fill-opacity="0.08"/>
+    <path d="${curvePath}" fill="none" stroke="#57534e" stroke-width="2.5" stroke-linejoin="round"/>
+    <text x="${PAD_L+PLOT_W-6}" y="${yToSvg(1)-8}" text-anchor="end" font-size="12" fill="#57534e" font-weight="600">μ(${fn.concept})</text>
+  `;
+
+  // Probe
+  const mu = fn.mu(probeX);
+  const sx = xToSvg(probeX, fnKey);
+  const sy = yToSvg(mu);
+  const col = valToColor(mu);
+  probeG.innerHTML = `
+    <line x1="${sx}" y1="${PAD_T}" x2="${sx}" y2="${PAD_T+PLOT_H}" stroke="${col}" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.8"/>
+    <line x1="${PAD_L}" y1="${sy}" x2="${PAD_L+PLOT_W}" y2="${sy}" stroke="${col}" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.8"/>
+    <circle cx="${sx}" cy="${sy}" r="7" fill="${col}" stroke="#fff" stroke-width="2"/>
+    <text x="${sx+10}" y="${sy-8}" font-size="12" fill="${col}" font-weight="700">${mu.toFixed(3)}</text>
+  `;
+
+  // Update probe display
+  document.getElementById('probeXVal').textContent = Math.round(probeX) + fn.unit;
+  document.getElementById('probeMuVal').textContent = mu.toFixed(3);
+  document.getElementById('probeMuVal').style.color = col;
+  document.getElementById('probeMuBar').style.width = (mu * 100).toFixed(1) + '%';
+  document.getElementById('probeMuBar').style.background = col;
+  document.getElementById('probeDesc').textContent = fn.desc(mu);
+}
+
+function setupMemberGraph(fnKey) {
+  currentFn = fnKey;
+  const fn = memberFns[fnKey];
+  const slider = document.getElementById('probeSlider');
+  slider.min = fn.min;
+  slider.max = fn.max;
+  slider.value = fn.defaultVal;
+  document.getElementById('probeSliderLabel').textContent = fn.label;
+  drawMemberGraph(fnKey, fn.defaultVal);
+}
+
+document.querySelectorAll('.fn-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.fn-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    setupMemberGraph(btn.dataset.fn);
+  });
+});
+
+document.getElementById('probeSlider').addEventListener('input', function() {
+  drawMemberGraph(currentFn, parseFloat(this.value));
+});
+
+setupMemberGraph('tall');
+
+// ===================== MODULE 3: 3-valued truth table =====================
+
+const VALS = ['T', 'U', 'F'];
+const NUM  = { T: 1, U: 0.5, F: 0 };
+
+function kleeneNot(a) {
+  if (a === 'T') return 'F';
+  if (a === 'F') return 'T';
+  return 'U';
+}
+function kleeneAnd(a, b) {
+  const v = Math.min(NUM[a], NUM[b]);
+  if (v === 1) return 'T';
+  if (v === 0) return 'F';
+  return 'U';
+}
+function kleeneOr(a, b) {
+  const v = Math.max(NUM[a], NUM[b]);
+  if (v === 1) return 'T';
+  if (v === 0) return 'F';
+  return 'U';
+}
+function kleeneImp(a, b) {
+  // ¬a ∨ b (Kleene)
+  return kleeneOr(kleeneNot(a), b);
+}
+
+function cellClass(v) {
+  return v === 'T' ? 'cell-T' : v === 'F' ? 'cell-F' : 'cell-U';
+}
+function cellHtml(v) {
+  return `<td class="${cellClass(v)}">${v}</td>`;
+}
+
+const ttNotes = {
+  not: 'Phủ định mờ: ¬U = U. Phủ định "không xác định" vẫn là "không xác định".',
+  and: 'Hội mờ: F "hút xuống" — F∧anything = F. U∧T = U, U∧F = F.',
+  or:  'Tuyển mờ: T "kéo lên" — T∨anything = T. U∨T = T, U∨F = U.',
+  imp: 'Kéo theo Kleene = ¬p∨q. Lưu ý: U→U = U trong Kleene (khác Łukasiewicz: U→U = T).',
+};
+
+function renderTruthTable(op) {
+  const table = document.getElementById('ttTable');
+  let html = '';
+
+  if (op === 'not') {
+    html += '<thead><tr><th class="var-col">p</th><th>¬p</th></tr></thead><tbody>';
+    VALS.forEach(a => {
+      html += `<tr>${cellHtml(a)}${cellHtml(kleeneNot(a))}</tr>`;
+    });
+    html += '</tbody>';
+  } else {
+    const opFn = op === 'and' ? kleeneAnd : op === 'or' ? kleeneOr : kleeneImp;
+    const opSym = op === 'and' ? '∧' : op === 'or' ? '∨' : '→';
+    html += `<thead><tr><th class="var-col">p</th><th class="var-col">q</th><th>p ${opSym} q</th></tr></thead><tbody>`;
+    VALS.forEach(a => {
+      VALS.forEach(b => {
+        html += `<tr>${cellHtml(a)}${cellHtml(b)}${cellHtml(opFn(a, b))}</tr>`;
+      });
+    });
+    html += '</tbody>';
+  }
+
+  table.innerHTML = html;
+  document.getElementById('ttNote').textContent = ttNotes[op];
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTruthTable(btn.dataset.op);
+  });
+});
+
+renderTruthTable('not');
+
+// ===================== MODULE 5: Quiz =====================
+
+const quizQuestions = [
+  {
+    q: 'Cho p = 0.8, q = 0.3. Tính p ∧ q (fuzzy AND = min)?',
+    opts: ['0.8', '0.3', '0.55', '1.1'],
+    ans: 1,
+    exp: 'min(0.8, 0.3) = 0.3. Hội mờ chọn giá trị nhỏ hơn — bị giới hạn bởi điều kiện yếu hơn.',
+  },
+  {
+    q: 'Cho p = 0.6. Tính ¬p (fuzzy NOT)?',
+    opts: ['0.6', '0.4', '0.5', '0.0'],
+    ans: 1,
+    exp: '¬p = 1 − 0.6 = 0.4.',
+  },
+  {
+    q: 'Trong logic mờ, luật nào KHÔNG còn đúng với p = 0.5?',
+    opts: ['De Morgan', 'Trung gian loại trừ (p∨¬p=1)', 'Phủ định kép (¬¬p=p)', 'Giao hoán (p∧q=q∧p)'],
+    ans: 1,
+    exp: 'p∨¬p = max(0.5, 0.5) = 0.5 ≠ 1. Luật trung gian loại trừ không đúng trong logic mờ khi p ≠ 0 và p ≠ 1.',
+  },
+  {
+    q: '"Người 168cm là cao" với μ("cao") = 0.4. Đây là loại giá trị nào?',
+    opts: ['Xác suất', 'Không xác định (ba trị)', 'Độ đúng mờ', 'Giá trị boolean'],
+    ans: 2,
+    exp: 'Đây là độ đúng mờ: ta biết chính xác chiều cao, nhưng "cao" là vị từ mờ có bản chất liên tục. Không phải xác suất hay ba trị.',
+  },
+  {
+    q: 'Trong Kleene K3, kết quả của U ∧ F là gì?',
+    opts: ['U', 'F', 'T', 'Không xác định'],
+    ans: 1,
+    exp: 'U ∧ F = min(U, F) = min(0.5, 0) = 0 = F. F "hút xuống" trong hội: bất kỳ giá trị AND F đều = F.',
+  },
+  {
+    q: 'Hệ điều khiển mờ máy giặt dùng logic mờ để làm gì?',
+    opts: [
+      'Tính xác suất vải bẩn',
+      'Điều chỉnh thời gian/bột giặt dựa trên mức độ bẩn liên tục',
+      'Chuyển đổi T/F ngẫu nhiên',
+      'Lưu bảng quyết định nhị phân',
+    ],
+    ans: 1,
+    exp: 'Cảm biến đo độ đục nước → "mức bẩn" là giá trị mờ ∈ [0,1] → điều chỉnh mịn thay vì bật/tắt đột ngột.',
+  },
+];
+
+let quizState = quizQuestions.map(() => ({ chosen: null, locked: false }));
+
+function renderQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = quizQuestions.map((q, qi) => {
+    const state = quizState[qi];
+    const optsHtml = q.opts.map((opt, oi) => {
+      let cls = 'qopt';
+      if (state.locked) {
+        if (oi === q.ans) cls += ' correct';
+        else if (oi === state.chosen && oi !== q.ans) cls += ' wrong';
+      } else if (oi === state.chosen) {
+        cls += ' chosen';
+      }
+      return `<button class="${cls}" onclick="chooseOpt(${qi},${oi})" ${state.locked ? 'disabled' : ''}>${opt}</button>`;
+    }).join('');
+    const expHtml = state.locked
+      ? `<div class="quiz-exp">${q.exp}</div>` : '';
+    return `
+      <div class="quiz-item" style="margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid #e7e5e4;">
+        <div style="font-weight:600;margin-bottom:10px;font-size:15px;">Câu ${qi+1}: ${q.q}</div>
+        <div class="qopts" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;">${optsHtml}</div>
+        ${expHtml}
+      </div>`;
+  }).join('');
+}
+
+window.chooseOpt = function(qi, oi) {
+  if (quizState[qi].locked) return;
+  quizState[qi].chosen = oi;
+  quizState[qi].locked = true;
+  renderQuiz();
+};
+
+// Inject quiz styles
+const quizStyle = document.createElement('style');
+quizStyle.textContent = `
+  .qopt {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1.5px solid #d6d3d1;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.13s, border-color 0.13s;
+    font-family: inherit;
+  }
+  .qopt:hover:not([disabled]) { background: #e7e5e4; }
+  .qopt.chosen { background: #dbeafe; border-color: #3b82f6; color: #1d4ed8; }
+  .qopt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; font-weight: 700; }
+  .qopt.wrong { background: #fee2e2; border-color: #dc2626; color: #b91c1c; }
+  .quiz-exp {
+    background: #f0fdf4;
+    border-left: 3px solid #16a34a;
+    border-radius: 0 6px 6px 0;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: #15803d;
+    margin-top: 8px;
+  }
+`;
+document.head.appendChild(quizStyle);
+
+renderQuiz();
+</script>
+</body>
+</html>

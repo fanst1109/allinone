@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L5 — Ngữ nghĩa &amp; quy chiếu</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-hover: #44403c;
+    --accent-soft: #f0eeec;
+  }
+
+  h1 { color: #1c1917; }
+  h2 { color: #292524; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #d6d3d1; }
+
+  /* ---- Card wrapper ---- */
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #78716c;
+    margin: 6px 0 0;
+    line-height: 1.5;
+  }
+
+  /* ---- Buttons ---- */
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+
+  .btn-ghost {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid #d6d3d1;
+  }
+  .btn-ghost:hover { background: #e7e5e4; }
+
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  /* ---- SVG diagram ---- */
+  .diagram-wrap {
+    overflow-x: auto;
+  }
+
+  /* ---- Module 1: Sơ đồ Nghĩa ↔ Quy chiếu ---- */
+  .expr-label {
+    font-size: 13px;
+    font-weight: 700;
+    fill: #292524;
+  }
+  .sense-label {
+    font-size: 11px;
+    fill: #78716c;
+  }
+  .ref-label {
+    font-size: 14px;
+    font-weight: 800;
+    fill: #1c1917;
+  }
+  .arrow-line {
+    stroke: #a8a29e;
+    stroke-width: 1.8;
+    fill: none;
+    marker-end: url(#arrowhead);
+  }
+  .arrow-line.highlight {
+    stroke: var(--accent);
+    stroke-width: 2.5;
+  }
+
+  /* ---- Module 2: a=a vs a=b ---- */
+  .cmp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  @media (max-width: 600px) {
+    .cmp-grid { grid-template-columns: 1fr; }
+  }
+
+  .cmp-box {
+    border: 2px solid #e7e5e4;
+    border-radius: 10px;
+    padding: 16px;
+    transition: border-color 0.25s, background 0.25s;
+  }
+  .cmp-box.active { border-color: var(--accent); background: var(--accent-soft); }
+
+  .cmp-title {
+    font-size: 18px;
+    font-family: monospace;
+    font-weight: 800;
+    color: #1c1917;
+    margin-bottom: 8px;
+  }
+  .cmp-verdict {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    margin: 6px 0;
+  }
+  .verdict-tautology { background: #fef3c7; color: #92400e; }
+  .verdict-info      { background: #dcfce7; color: #166534; }
+
+  .cmp-body {
+    font-size: 14px;
+    color: #44403c;
+    line-height: 1.7;
+    margin-top: 8px;
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .toggle-label {
+    font-size: 14px;
+    color: #292524;
+    font-weight: 600;
+  }
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; inset: 0;
+    background: #d6d3d1;
+    border-radius: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .slider::before {
+    content: '';
+    position: absolute;
+    left: 3px; bottom: 3px;
+    width: 20px; height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+  }
+  .switch input:checked + .slider { background: var(--accent); }
+  .switch input:checked + .slider::before { transform: translateX(22px); }
+
+  /* ---- Module 3: Russell analyzer ---- */
+  .russell-input-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    align-items: flex-end;
+  }
+  .russell-field {
+    flex: 1;
+    min-width: 0;
+  }
+  .russell-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #78716c;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .russell-field input, .russell-field select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 12px;
+    border: 1px solid #d6d3d1;
+    border-radius: 7px;
+    font-size: 14px;
+    color: #1c1917;
+    background: #fff;
+  }
+  .russell-field input:focus,
+  .russell-field select:focus { outline: 2px solid var(--accent); border-color: transparent; }
+
+  .logic-formula {
+    background: #fafaf9;
+    border: 1px solid #e7e5e4;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: 'Georgia', serif;
+    font-size: 15px;
+    color: #292524;
+    line-height: 1.8;
+    margin: 12px 0;
+    overflow-x: auto;
+    white-space: pre-wrap;
+  }
+
+  .formula-step {
+    margin: 6px 0;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #44403c;
+  }
+  .formula-step .ok   { color: #166534; font-weight: 700; }
+  .formula-step .fail { color: #991b1b; font-weight: 700; }
+
+  .result-box {
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 15px;
+    line-height: 1.7;
+    margin-top: 10px;
+    border: 2px solid;
+  }
+  .result-true  { background: #f0fdf4; border-color: #86efac; color: #14532d; }
+  .result-false { background: #fff7f7; border-color: #fca5a5; color: #7f1d1d; }
+  .result-empty { background: #f5f5f4; border-color: #d6d3d1; color: #57534e; }
+
+  .example-chip {
+    display: inline-block;
+    background: #f5f5f4;
+    border: 1px solid #d6d3d1;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 13px;
+    color: #44403c;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    margin: 3px 2px;
+  }
+  .example-chip:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+  /* ---- Badges ---- */
+  .badge-t  { display: inline-block; background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 5px; font-weight: 700; font-family: monospace; font-size: 13px; }
+  .badge-f  { display: inline-block; background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 5px; font-weight: 700; font-family: monospace; font-size: 13px; }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 480px) {
+    .card { padding: 14px 14px; }
+    h2 { font-size: 17px; }
+    .cmp-title { font-size: 15px; }
+    .logic-formula { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Advanced Logic &amp; Language</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-fuzzy-manyvalued/visualization.html">← L4: Logic mờ</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Ngữ nghĩa &amp; quy chiếu</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-speech-acts/visualization.html">L6: Hành vi ngôn ngữ →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Ngữ nghĩa &amp; quy chiếu (Sense &amp; Reference)</h1>
+<p>Ba module tương tác minh họa lý thuyết Frege và Russell: sơ đồ nhiều nghĩa cùng quy chiếu, so sánh a=a vs a=b, và máy phân tích mô tả xác định.</p>
+
+<!-- ============================================================ -->
+<h2>1. Sơ đồ: Nghĩa (Sinn) → Quy chiếu (Bedeutung)</h2>
+<div class="card">
+  <p>Mỗi ô vuông là một <strong>biểu thức ngôn ngữ</strong> với nghĩa (Sinn) riêng. Mũi tên chỉ tới <strong>đối tượng quy chiếu (Bedeutung)</strong> chung. Chọn nhóm ví dụ để thấy sơ đồ tương ứng.</p>
+
+  <div class="btn-row" id="diagramBtns">
+    <button onclick="showDiagram('venus')" id="db-venus">Sao Mai / Sao Hôm / Venus</button>
+    <button class="btn-ghost" onclick="showDiagram('nguyendu')" id="db-nguyendu">Tác giả Truyện Kiều / Nguyễn Du</button>
+    <button class="btn-ghost" onclick="showDiagram('so2')" id="db-so2">Số 2 — ba mô tả</button>
+  </div>
+
+  <div class="diagram-wrap">
+    <svg id="diagramSvg" width="560" height="300" viewBox="0 0 560 300">
+      <defs>
+        <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#a8a29e" />
+        </marker>
+        <marker id="arrowhead-hl" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#57534e" />
+        </marker>
+      </defs>
+      <!-- drawn by JS -->
+    </svg>
+  </div>
+  <p class="hint">Di chuột qua biểu thức để làm nổi bật mũi tên tương ứng.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Đồng nhất: a = a vs a = b — Tại sao cái sau mang thông tin?</h2>
+<div class="card">
+  <div class="toggle-row">
+    <span class="toggle-label">Hiển thị chi tiết phân tích:</span>
+    <label class="switch">
+      <input type="checkbox" id="detailToggle" onchange="toggleDetail()">
+      <span class="slider"></span>
+    </label>
+    <span id="toggleLabel" style="font-size:13px;color:#78716c;">Tắt</span>
+  </div>
+
+  <div class="cmp-grid">
+    <!-- a = a -->
+    <div class="cmp-box" id="box-aa">
+      <div class="cmp-title">"Sao Mai = Sao Mai"</div>
+      <div class="cmp-verdict verdict-tautology">Tautology — không mang tin</div>
+      <div class="cmp-body" id="detail-aa" style="display:none">
+        <strong>Nghĩa (Sinn) vế trái:</strong> thiên thể sáng phía đông trước bình minh<br>
+        <strong>Nghĩa (Sinn) vế phải:</strong> thiên thể sáng phía đông trước bình minh<br>
+        <strong>Quy chiếu hai vế:</strong> cùng Venus<br><br>
+        Hai vế <em>cùng nghĩa</em> và <em>cùng quy chiếu</em>. Câu chỉ nói: "X = X" — hiển nhiên đúng, không tiết lộ gì mới. Ai hiểu "Sao Mai" thì tự biết câu này đúng mà không cần quan sát.
+      </div>
+      <div class="cmp-body" id="simple-aa">
+        Hai vế <strong>cùng nghĩa, cùng quy chiếu</strong>. Hiển nhiên đúng — không cần quan sát, không tiết lộ điều gì về thế giới.
+      </div>
+    </div>
+
+    <!-- a = b -->
+    <div class="cmp-box active" id="box-ab">
+      <div class="cmp-title">"Sao Mai = Sao Hôm"</div>
+      <div class="cmp-verdict verdict-info">Mang thông tin — phát hiện thực sự</div>
+      <div class="cmp-body" id="detail-ab" style="display:none">
+        <strong>Nghĩa (Sinn) vế trái:</strong> thiên thể sáng phía đông trước bình minh<br>
+        <strong>Nghĩa (Sinn) vế phải:</strong> thiên thể sáng phía tây lúc hoàng hôn<br>
+        <strong>Quy chiếu hai vế:</strong> cùng Venus (Sao Kim)<br><br>
+        Hai vế <em>khác nghĩa</em> nhưng <em>cùng quy chiếu</em>. Câu nối hai "con đường nhận thức" khác nhau về cùng một đích. Người Babylon cổ đại không biết điều này — phải dùng thiên văn học để phát hiện. Đó là thông tin thực sự về thế giới.
+      </div>
+      <div class="cmp-body" id="simple-ab">
+        Hai vế <strong>khác nghĩa, cùng quy chiếu</strong>. Nối hai "con đường nhận thức" về cùng một đối tượng — đây là phát hiện thực sự, cần quan sát để biết.
+      </div>
+    </div>
+  </div>
+
+  <!-- Ví dụ thứ hai -->
+  <div style="margin-top:8px">
+    <span style="font-size:13px;color:#78716c;font-weight:700">Xem ví dụ khác:</span>
+    <div class="btn-row" style="margin-top:6px">
+      <button class="btn-ghost" onclick="setCmpExample('venus')" id="ex-venus">Sao Mai / Sao Hôm</button>
+      <button class="btn-ghost" onclick="setCmpExample('nguyendu')" id="ex-nd">Nguyễn Du / Tố Như</button>
+      <button class="btn-ghost" onclick="setCmpExample('lincoln')" id="ex-lc">Lincoln / TT Hoa Kỳ 1865</button>
+    </div>
+  </div>
+
+  <div id="cmpExplainBox" style="margin-top:12px; font-size:14px; color:#44403c; background:#fafaf9; border:1px solid #e7e5e4; border-radius:8px; padding:14px 16px; line-height:1.7;">
+    Chọn ví dụ để xem phân tích Sinn / Bedeutung.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Máy phân tích mô tả xác định (Russell)</h2>
+<div class="card">
+  <p>Chọn một ví dụ hoặc tự nhập để xem dạng logic ∃x(...) của Russell và đánh giá giá trị chân lý.</p>
+
+  <div style="margin-bottom:12px">
+    <span style="font-size:13px;color:#78716c;font-weight:700">Ví dụ nhanh:</span><br>
+    <span class="example-chip" onclick="loadExample('vua-phap')">Vua nước Pháp hói đầu</span>
+    <span class="example-chip" onclick="loadExample('tac-gia-kieu')">Tác giả Truyện Kiều là nhà thơ</span>
+    <span class="example-chip" onclick="loadExample('hanh-tinh-gap')">Hành tinh gần Mặt Trời nhất có vành đai</span>
+    <span class="example-chip" onclick="loadExample('so-lon-nhat')">Số tự nhiên lớn nhất là số lẻ</span>
+    <span class="example-chip" onclick="loadExample('vua-anh')">Vua hiện tại của Anh đang trị vì</span>
+  </div>
+
+  <div class="russell-input-row">
+    <div class="russell-field" style="flex:2">
+      <label>Mô tả xác định F (the F)</label>
+      <input type="text" id="rFieldF" placeholder="vd: vua nước Pháp hiện nay" oninput="russellAnalyze()">
+    </div>
+    <div class="russell-field" style="flex:2">
+      <label>Vị từ G (is G)</label>
+      <input type="text" id="rFieldG" placeholder="vd: hói đầu" oninput="russellAnalyze()">
+    </div>
+    <div class="russell-field" style="flex:1">
+      <label>Tồn tại F?</label>
+      <select id="rExists" onchange="russellAnalyze()">
+        <option value="yes">Có</option>
+        <option value="no">Không</option>
+      </select>
+    </div>
+    <div class="russell-field" style="flex:1">
+      <label>Duy nhất?</label>
+      <select id="rUnique" onchange="russellAnalyze()">
+        <option value="yes">Có</option>
+        <option value="no">Không</option>
+      </select>
+    </div>
+    <div class="russell-field" style="flex:1">
+      <label>G đúng với F?</label>
+      <select id="rPred" onchange="russellAnalyze()">
+        <option value="yes">Có</option>
+        <option value="no">Không</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="russellOutput"></div>
+</div>
+
+</main>
+
+<script>
+// ===================================================================
+// MODULE 1: DIAGRAM
+// ===================================================================
+
+const DIAGRAMS = {
+  venus: {
+    title: 'Ba biểu thức — cùng quy chiếu: Venus (Sao Kim)',
+    exprs: [
+      { label: '"Sao Mai"', sense: 'Thiên thể sáng phía đông\ntrước bình minh' },
+      { label: '"Sao Hôm"', sense: 'Thiên thể sáng phía tây\nlúc hoàng hôn' },
+      { label: '"Sao Kim"', sense: 'Hành tinh thứ hai\ntừ Mặt Trời' },
+    ],
+    ref: 'Venus\n(Sao Kim)',
+  },
+  nguyendu: {
+    title: 'Ba biểu thức — cùng quy chiếu: Nguyễn Du',
+    exprs: [
+      { label: '"Nguyễn Du"',       sense: 'Tên riêng\n(rigid designator)' },
+      { label: '"Ông Tố Như"',      sense: 'Người có tên hiệu\nTố Như' },
+      { label: '"Tác giả Truyện Kiều"', sense: 'Người đã viết\ntác phẩm Truyện Kiều' },
+    ],
+    ref: 'Nguyễn Du\n(1766–1820)',
+  },
+  so2: {
+    title: 'Ba biểu thức — cùng quy chiếu: số 2',
+    exprs: [
+      { label: '"Số chẵn nhỏ nhất"',       sense: 'Số nguyên dương nhỏ nhất\nchia hết cho 2' },
+      { label: '"Số nguyên tố nhỏ nhất"',   sense: 'Số nguyên tố nhỏ\nnhất trong dãy tự nhiên' },
+      { label: '"Cơ số hệ nhị phân"',       sense: 'Số đơn vị trong hệ\nđếm nhị phân máy tính' },
+    ],
+    ref: 'Số  2',
+  },
+};
+
+let currentDiagram = 'venus';
+
+function showDiagram(key) {
+  currentDiagram = key;
+  // Update buttons
+  ['venus', 'nguyendu', 'so2'].forEach(k => {
+    const btn = document.getElementById('db-' + k);
+    if (btn) {
+      btn.className = (k === key) ? '' : 'btn-ghost';
+    }
+  });
+  drawDiagram(key);
+}
+
+function drawDiagram(key) {
+  const data = DIAGRAMS[key];
+  const svg = document.getElementById('diagramSvg');
+  svg.innerHTML = `
+    <defs>
+      <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="#a8a29e" />
+      </marker>
+      <marker id="arrowhead-hl" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="#57534e" />
+      </marker>
+    </defs>`;
+
+  const W = 560, H = 300;
+  const n = data.exprs.length;
+
+  // Reference circle (right side)
+  const refCX = W - 90, refCY = H / 2, refR = 56;
+
+  // Expression boxes (left side)
+  const boxW = 160, boxH = 64;
+  const boxX = 30;
+  const spacing = H / (n + 1);
+
+  const exprCenters = [];
+
+  data.exprs.forEach((expr, i) => {
+    const boxY = spacing * (i + 1) - boxH / 2;
+    const cx = boxX + boxW / 2;
+    const cy = boxY + boxH / 2;
+    exprCenters.push({ cx, cy, boxX, boxY });
+
+    // Arrow from box right edge to circle left edge
+    const ax1 = boxX + boxW + 4;
+    const ay1 = cy;
+    const ax2 = refCX - refR - 4;
+    const ay2 = refCY + (i - 1) * 22;
+    const midX = (ax1 + ax2) / 2;
+
+    // Draw arrow
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', `M ${ax1} ${ay1} C ${midX} ${ay1}, ${midX} ${ay2}, ${ax2} ${ay2}`);
+    path.setAttribute('stroke', '#c7c3c0');
+    path.setAttribute('stroke-width', '1.8');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('marker-end', 'url(#arrowhead)');
+    path.id = 'arrow-' + i;
+    svg.appendChild(path);
+
+    // Box background
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', boxX); rect.setAttribute('y', boxY);
+    rect.setAttribute('width', boxW); rect.setAttribute('height', boxH);
+    rect.setAttribute('rx', '8');
+    rect.setAttribute('fill', '#fff');
+    rect.setAttribute('stroke', '#d6d3d1');
+    rect.setAttribute('stroke-width', '1.5');
+    rect.id = 'box-' + i;
+    rect.style.cursor = 'pointer';
+    svg.appendChild(rect);
+
+    // Expression label (main)
+    const textMain = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    textMain.setAttribute('x', cx); textMain.setAttribute('y', boxY + 20);
+    textMain.setAttribute('text-anchor', 'middle');
+    textMain.setAttribute('font-size', '12');
+    textMain.setAttribute('font-weight', '700');
+    textMain.setAttribute('fill', '#1c1917');
+    textMain.textContent = expr.label;
+    svg.appendChild(textMain);
+
+    // Sense label (italics, small, multi-line via two tspans)
+    const senseLines = expr.sense.split('\n');
+    const textSense = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    textSense.setAttribute('x', cx); textSense.setAttribute('y', boxY + 36);
+    textSense.setAttribute('text-anchor', 'middle');
+    textSense.setAttribute('font-size', '10');
+    textSense.setAttribute('fill', '#78716c');
+    textSense.setAttribute('font-style', 'italic');
+    senseLines.forEach((line, li) => {
+      const ts = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+      ts.setAttribute('x', cx);
+      ts.setAttribute('dy', li === 0 ? '0' : '13');
+      ts.textContent = line;
+      textSense.appendChild(ts);
+    });
+    svg.appendChild(textSense);
+
+    // Hover highlight
+    const hoverTarget = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    hoverTarget.setAttribute('x', boxX); hoverTarget.setAttribute('y', boxY);
+    hoverTarget.setAttribute('width', boxW); hoverTarget.setAttribute('height', boxH);
+    hoverTarget.setAttribute('rx', '8');
+    hoverTarget.setAttribute('fill', 'transparent');
+    hoverTarget.style.cursor = 'pointer';
+    hoverTarget.addEventListener('mouseenter', () => highlightArrow(i, true));
+    hoverTarget.addEventListener('mouseleave', () => highlightArrow(i, false));
+    svg.appendChild(hoverTarget);
+  });
+
+  // Reference circle
+  const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  circle.setAttribute('cx', refCX); circle.setAttribute('cy', refCY);
+  circle.setAttribute('r', refR);
+  circle.setAttribute('fill', '#f0eeec');
+  circle.setAttribute('stroke', '#78716c');
+  circle.setAttribute('stroke-width', '2');
+  svg.appendChild(circle);
+
+  // Reference label — possibly multiline
+  const refLines = data.ref.split('\n');
+  const refText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  refText.setAttribute('text-anchor', 'middle');
+  refText.setAttribute('font-weight', '800');
+  refText.setAttribute('font-size', '13');
+  refText.setAttribute('fill', '#1c1917');
+  refLines.forEach((line, li) => {
+    const ts = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+    ts.setAttribute('x', refCX);
+    const startY = refCY - (refLines.length - 1) * 8 + li * 16;
+    ts.setAttribute('y', startY);
+    ts.textContent = line;
+    refText.appendChild(ts);
+  });
+  svg.appendChild(refText);
+
+  // Label above circle
+  const lblBed = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  lblBed.setAttribute('x', refCX); lblBed.setAttribute('y', refCY - refR - 8);
+  lblBed.setAttribute('text-anchor', 'middle');
+  lblBed.setAttribute('font-size', '11');
+  lblBed.setAttribute('fill', '#78716c');
+  lblBed.textContent = 'Bedeutung (quy chiếu)';
+  svg.appendChild(lblBed);
+
+  // Label above expr boxes
+  const lblSinn = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  lblSinn.setAttribute('x', boxX + boxW / 2); lblSinn.setAttribute('y', spacing / 2 - 4);
+  lblSinn.setAttribute('text-anchor', 'middle');
+  lblSinn.setAttribute('font-size', '11');
+  lblSinn.setAttribute('fill', '#78716c');
+  lblSinn.textContent = 'Sinn (nghĩa) — mode of presentation';
+  svg.appendChild(lblSinn);
+}
+
+function highlightArrow(i, on) {
+  const path = document.getElementById('arrow-' + i);
+  const box  = document.getElementById('box-'   + i);
+  if (!path || !box) return;
+  if (on) {
+    path.setAttribute('stroke', '#57534e');
+    path.setAttribute('stroke-width', '2.5');
+    path.setAttribute('marker-end', 'url(#arrowhead-hl)');
+    box.setAttribute('stroke', '#57534e');
+    box.setAttribute('stroke-width', '2');
+    box.setAttribute('fill', '#f0eeec');
+  } else {
+    path.setAttribute('stroke', '#c7c3c0');
+    path.setAttribute('stroke-width', '1.8');
+    path.setAttribute('marker-end', 'url(#arrowhead)');
+    box.setAttribute('stroke', '#d6d3d1');
+    box.setAttribute('stroke-width', '1.5');
+    box.setAttribute('fill', '#fff');
+  }
+}
+
+// ===================================================================
+// MODULE 2: a=a vs a=b
+// ===================================================================
+
+const CMP_EXAMPLES = {
+  venus: {
+    aa: { expr: '"Sao Mai = Sao Mai"', sinn_l: 'thiên thể sáng phía đông trước bình minh', sinn_r: 'thiên thể sáng phía đông trước bình minh', ref: 'Venus (Sao Kim)', same_sinn: true },
+    ab: { expr: '"Sao Mai = Sao Hôm"', sinn_l: 'thiên thể sáng phía đông trước bình minh', sinn_r: 'thiên thể sáng phía tây lúc hoàng hôn', ref: 'Venus (Sao Kim)', same_sinn: false },
+    note: 'Người Babylon cổ đại không biết Sao Mai và Sao Hôm là cùng một thiên thể. Phát hiện đó đòi hỏi quan sát thiên văn — đó là thông tin thực sự.',
+  },
+  nguyendu: {
+    aa: { expr: '"Nguyễn Du = Nguyễn Du"', sinn_l: 'tên riêng — rigid designator', sinn_r: 'tên riêng — rigid designator', ref: 'Nguyễn Du (1766–1820)', same_sinn: true },
+    ab: { expr: '"Nguyễn Du = Ông Tố Như"', sinn_l: 'tên riêng trực tiếp', sinn_r: 'người mang tên hiệu Tố Như', ref: 'Nguyễn Du (1766–1820)', same_sinn: false },
+    note: 'Ai không biết Tố Như là bút hiệu của Nguyễn Du thì câu này mang thông tin thực sự về nhân vật lịch sử.',
+  },
+  lincoln: {
+    aa: { expr: '"Lincoln = Lincoln"', sinn_l: 'tên riêng — rigid designator', sinn_r: 'tên riêng — rigid designator', ref: 'Abraham Lincoln', same_sinn: true },
+    ab: { expr: '"Lincoln = Tổng thống Hoa Kỳ năm 1865"', sinn_l: 'tên riêng', sinn_r: 'người giữ chức Tổng thống Hoa Kỳ năm 1865', ref: 'Abraham Lincoln', same_sinn: false },
+    note: 'Câu này không hiển nhiên với ai chưa học lịch sử Mỹ — đó là thông tin lịch sử cần học mới biết.',
+  },
+};
+
+let currentCmpEx = 'venus';
+
+function setCmpExample(key) {
+  currentCmpEx = key;
+  ['venus', 'nd', 'lc'].forEach(k => {
+    const short = { venus: 'venus', nd: 'nguyendu', lc: 'lincoln' }[k];
+    const btn = document.getElementById('ex-' + k);
+    if (btn) btn.className = (short === key) ? '' : 'btn-ghost';
+  });
+  const data = CMP_EXAMPLES[key];
+  if (!data) return;
+
+  // Update box titles and verdicts
+  document.querySelector('#box-aa .cmp-title').textContent = data.aa.expr;
+  document.querySelector('#box-ab .cmp-title').textContent = data.ab.expr;
+
+  const isDetail = document.getElementById('detailToggle').checked;
+  if (isDetail) {
+    document.getElementById('detail-aa').innerHTML =
+      `<strong>Nghĩa (Sinn) vế trái:</strong> ${data.aa.sinn_l}<br>` +
+      `<strong>Nghĩa (Sinn) vế phải:</strong> ${data.aa.sinn_r}<br>` +
+      `<strong>Quy chiếu hai vế:</strong> ${data.aa.ref}<br><br>` +
+      `Hai vế <em>cùng nghĩa</em> — tautology nhận thức, hiển nhiên đúng.`;
+    document.getElementById('detail-ab').innerHTML =
+      `<strong>Nghĩa (Sinn) vế trái:</strong> ${data.ab.sinn_l}<br>` +
+      `<strong>Nghĩa (Sinn) vế phải:</strong> ${data.ab.sinn_r}<br>` +
+      `<strong>Quy chiếu hai vế:</strong> ${data.ab.ref}<br><br>` +
+      `Hai vế <em>khác nghĩa</em> — nối hai mode of presentation về cùng một đối tượng. ${data.note}`;
+  } else {
+    document.getElementById('simple-aa').textContent = 'Hai vế cùng nghĩa, cùng quy chiếu. Hiển nhiên đúng — không tiết lộ điều gì về thế giới.';
+    document.getElementById('simple-ab').innerHTML = `Hai vế <strong>khác nghĩa, cùng quy chiếu</strong>. ${data.note}`;
+  }
+
+  document.getElementById('cmpExplainBox').innerHTML =
+    `<strong>${data.ab.expr}</strong><br>` +
+    `Vế trái (Sinn): <em>${data.ab.sinn_l}</em><br>` +
+    `Vế phải (Sinn): <em>${data.ab.sinn_r}</em><br>` +
+    `Quy chiếu chung: <strong>${data.ab.ref}</strong><br>` +
+    `<span style="color:#57534e;font-size:13px">${data.note}</span>`;
+}
+
+function toggleDetail() {
+  const on = document.getElementById('detailToggle').checked;
+  document.getElementById('toggleLabel').textContent = on ? 'Bật' : 'Tắt';
+
+  const data = CMP_EXAMPLES[currentCmpEx];
+  if (on) {
+    document.getElementById('detail-aa').style.display = 'block';
+    document.getElementById('detail-ab').style.display = 'block';
+    document.getElementById('simple-aa').style.display = 'none';
+    document.getElementById('simple-ab').style.display = 'none';
+
+    document.getElementById('detail-aa').innerHTML =
+      `<strong>Nghĩa (Sinn) vế trái:</strong> ${data.aa.sinn_l}<br>` +
+      `<strong>Nghĩa (Sinn) vế phải:</strong> ${data.aa.sinn_r}<br>` +
+      `<strong>Quy chiếu hai vế:</strong> ${data.aa.ref}<br><br>` +
+      `Hai vế <em>cùng nghĩa</em> — tautology nhận thức, hiển nhiên đúng.`;
+    document.getElementById('detail-ab').innerHTML =
+      `<strong>Nghĩa (Sinn) vế trái:</strong> ${data.ab.sinn_l}<br>` +
+      `<strong>Nghĩa (Sinn) vế phải:</strong> ${data.ab.sinn_r}<br>` +
+      `<strong>Quy chiếu hai vế:</strong> ${data.ab.ref}<br><br>` +
+      `Hai vế <em>khác nghĩa</em> — nối hai mode of presentation về cùng đối tượng. ${data.note}`;
+  } else {
+    document.getElementById('detail-aa').style.display = 'none';
+    document.getElementById('detail-ab').style.display = 'none';
+    document.getElementById('simple-aa').style.display = 'block';
+    document.getElementById('simple-ab').style.display = 'block';
+  }
+}
+
+// ===================================================================
+// MODULE 3: RUSSELL ANALYZER
+// ===================================================================
+
+const EXAMPLES_RUSSELL = {
+  'vua-phap': {
+    F: 'vua nước Pháp hiện nay',
+    G: 'hói đầu',
+    exists: 'no',
+    unique: 'yes',
+    pred: 'no',
+    note: 'Pháp là nước cộng hòa — không có vua. Điều kiện tồn tại không thỏa → câu SAI (không phải vô nghĩa).',
+  },
+  'tac-gia-kieu': {
+    F: 'tác giả của Truyện Kiều',
+    G: 'nhà thơ lớn của Việt Nam',
+    exists: 'yes',
+    unique: 'yes',
+    pred: 'yes',
+    note: 'Nguyễn Du là tác giả duy nhất, và ông là nhà thơ lớn. Cả ba điều kiện thỏa → câu ĐÚNG.',
+  },
+  'hanh-tinh-gap': {
+    F: 'hành tinh gần Mặt Trời nhất trong hệ Mặt Trời',
+    G: 'có vành đai như Sao Thổ',
+    exists: 'yes',
+    unique: 'yes',
+    pred: 'no',
+    note: 'Sao Thủy tồn tại và duy nhất là hành tinh gần Mặt Trời nhất — nhưng Sao Thủy không có vành đai nổi tiếng. Điều kiện 3 không thỏa → câu SAI.',
+  },
+  'so-lon-nhat': {
+    F: 'số tự nhiên lớn nhất',
+    G: 'là số lẻ',
+    exists: 'no',
+    unique: 'yes',
+    pred: 'yes',
+    note: 'Không tồn tại số tự nhiên lớn nhất (dãy vô hạn). Điều kiện tồn tại không thỏa → câu SAI.',
+  },
+  'vua-anh': {
+    F: 'vua hiện tại của Vương quốc Anh',
+    G: 'đang trị vì theo chế độ quân chủ lập hiến',
+    exists: 'yes',
+    unique: 'yes',
+    pred: 'yes',
+    note: 'Vương quốc Anh có Vua Charles III (kế vị năm 2022). Cả ba điều kiện thỏa → câu ĐÚNG.',
+  },
+};
+
+function loadExample(key) {
+  const ex = EXAMPLES_RUSSELL[key];
+  if (!ex) return;
+  document.getElementById('rFieldF').value = ex.F;
+  document.getElementById('rFieldG').value = ex.G;
+  document.getElementById('rExists').value = ex.exists;
+  document.getElementById('rUnique').value = ex.unique;
+  document.getElementById('rPred').value = ex.pred;
+  russellAnalyze(ex.note);
+}
+
+function russellAnalyze(extraNote) {
+  const F = document.getElementById('rFieldF').value.trim();
+  const G = document.getElementById('rFieldG').value.trim();
+  const exists = document.getElementById('rExists').value;
+  const unique = document.getElementById('rUnique').value;
+  const pred   = document.getElementById('rPred').value;
+
+  const out = document.getElementById('russellOutput');
+
+  if (!F && !G) {
+    out.innerHTML = '';
+    return;
+  }
+
+  const fDisplay = F || 'F';
+  const gDisplay = G || 'G';
+
+  // Build formula display
+  const formulaText =
+    `"Cái-duy-nhất-${fDisplay} là ${gDisplay}"\n\n` +
+    `→ ∃x ( ${fDisplay}(x)\n` +
+    `       ∧ ∀y ( ${fDisplay}(y) → y = x )\n` +
+    `       ∧ ${gDisplay}(x) )`;
+
+  // Evaluate steps
+  const step1ok = (exists === 'yes');
+  const step2ok = (unique === 'yes');
+  const step3ok = (pred   === 'yes');
+
+  let stepsHtml = '';
+
+  stepsHtml += `<div class="formula-step">
+    <span class="${step1ok ? 'ok' : 'fail'}">${step1ok ? '✓' : '✗'}</span>
+    <strong>Điều kiện 1 — Tồn tại:</strong>
+    Có tồn tại x sao cho <em>${fDisplay}(x)</em>?
+    ${step1ok ? '<span class="ok">Có → thỏa</span>' : '<span class="fail">Không → câu SAI (dừng đánh giá)</span>'}
+  </div>`;
+
+  if (step1ok) {
+    stepsHtml += `<div class="formula-step">
+      <span class="${step2ok ? 'ok' : 'fail'}">${step2ok ? '✓' : '✗'}</span>
+      <strong>Điều kiện 2 — Duy nhất:</strong>
+      ∀y ( ${fDisplay}(y) → y = x ) — có đúng một x là ${fDisplay}?
+      ${step2ok ? '<span class="ok">Có → thỏa</span>' : '<span class="fail">Không → câu SAI (dừng đánh giá)</span>'}
+    </div>`;
+  }
+
+  if (step1ok && step2ok) {
+    stepsHtml += `<div class="formula-step">
+      <span class="${step3ok ? 'ok' : 'fail'}">${step3ok ? '✓' : '✗'}</span>
+      <strong>Điều kiện 3 — Vị từ:</strong>
+      x duy nhất đó có là <em>${gDisplay}</em>?
+      ${step3ok ? '<span class="ok">Có → thỏa</span>' : '<span class="fail">Không → câu SAI</span>'}
+    </div>`;
+  }
+
+  // Final verdict
+  const allOk = step1ok && step2ok && step3ok;
+  const verdictCls = allOk ? 'result-true' : 'result-false';
+  const verdictText = allOk
+    ? '<strong>Kết quả: ĐÚNG (T)</strong> — Cả ba điều kiện tồn tại, duy nhất và vị từ đều thỏa mãn.'
+    : '<strong>Kết quả: SAI (F)</strong> — ' + (
+        !step1ok ? 'Điều kiện tồn tại không thỏa. Câu sai — không phải vô nghĩa.' :
+        !step2ok ? 'Điều kiện duy nhất không thỏa. Câu sai.' :
+                   'Điều kiện vị từ không thỏa. Câu sai.'
+      );
+
+  const noteHtml = extraNote
+    ? `<div style="margin-top:8px;font-size:13px;color:#57534e;border-top:1px solid #e7e5e4;padding-top:8px">${extraNote}</div>`
+    : '';
+
+  out.innerHTML = `
+    <div class="logic-formula">${formulaText}</div>
+    <div style="margin:10px 0">${stepsHtml}</div>
+    <div class="result-box ${verdictCls}">${verdictText}${noteHtml}</div>
+  `;
+}
+
+// ===================================================================
+// INIT
+// ===================================================================
+drawDiagram('venus');
+russellAnalyze();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

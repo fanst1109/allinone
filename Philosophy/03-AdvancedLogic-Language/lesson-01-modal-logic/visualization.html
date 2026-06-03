@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Logic modal (Modal Logic)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-hover: #44403c;
+    --accent-soft: #f0eeec;
+  }
+
+  h1 { color: #1c1917; }
+  h2 {
+    color: #292524;
+    margin-top: 40px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #d6d3d1;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #78716c;
+    margin: 6px 0 0;
+    line-height: 1.5;
+  }
+
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  button.ghost:hover { background: #e7e5e4; }
+  button.sm { padding: 6px 12px; font-size: 13px; }
+  button.active-btn {
+    background: var(--accent);
+    color: #fff;
+    outline: 3px solid #d6d3d1;
+    outline-offset: 2px;
+  }
+
+  .badge-t {
+    display: inline-block;
+    background: #dcfce7; color: #166534;
+    padding: 3px 10px; border-radius: 6px;
+    font-weight: 700; font-family: monospace; font-size: 14px;
+  }
+  .badge-f {
+    display: inline-block;
+    background: #fee2e2; color: #991b1b;
+    padding: 3px 10px; border-radius: 6px;
+    font-weight: 700; font-family: monospace; font-size: 14px;
+  }
+
+  /* ---- Kripke Graph ---- */
+  .kripke-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .kripke-svg-wrap {
+    flex: 1 1 300px;
+    min-width: 0;
+  }
+  .kripke-svg-wrap svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .kripke-controls {
+    flex: 0 0 220px;
+    min-width: 0;
+  }
+
+  .world-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .world-btn {
+    padding: 8px 14px;
+    border: 2px solid #d6d3d1;
+    border-radius: 8px;
+    background: #fafaf9;
+    color: #44403c;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: monospace;
+  }
+  .world-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .world-btn.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .formula-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .formula-btn {
+    padding: 7px 12px;
+    border: 1px solid #d6d3d1;
+    border-radius: 7px;
+    background: #f5f5f4;
+    color: #44403c;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: monospace;
+  }
+  .formula-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .formula-btn.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .kripke-result {
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 15px;
+    line-height: 1.7;
+    margin-top: 8px;
+    border: 1px solid #e7e5e4;
+    background: #fafaf9;
+  }
+  .kripke-result.true-result { background: #f0fdf4; border-color: #86efac; }
+  .kripke-result.false-result { background: #fff7f7; border-color: #fca5a5; }
+
+  .result-formula {
+    font-family: monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .step-list {
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .step-list li {
+    padding: 4px 0;
+    font-size: 13px;
+    color: #44403c;
+    border-bottom: 1px solid #f0eeec;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .step-list li:last-child { border-bottom: none; }
+  .step-dot-t { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
+  .step-dot-f { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; flex-shrink: 0; }
+  .step-dot-h { width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; flex-shrink: 0; }
+
+  /* ---- Duality Panel ---- */
+  .duality-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  @media (max-width: 600px) {
+    .duality-grid { grid-template-columns: 1fr; }
+  }
+
+  .duality-card {
+    border: 2px solid #e7e5e4;
+    border-radius: 10px;
+    padding: 16px;
+    background: #fafaf9;
+  }
+  .duality-card h4 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: #57534e;
+  }
+  .duality-formula {
+    font-family: monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1c1917;
+    margin: 6px 0;
+  }
+  .duality-example {
+    font-size: 13px;
+    color: #78716c;
+    line-height: 1.6;
+    margin-top: 8px;
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+
+  .duality-toggle-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #44403c;
+    min-width: 90px;
+  }
+
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: #d6d3d1;
+    border-radius: 26px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .toggle-slider:before {
+    content: '';
+    position: absolute;
+    height: 20px; width: 20px;
+    left: 3px; top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+  }
+  .toggle-switch input:checked + .toggle-slider { background: var(--accent); }
+  .toggle-switch input:checked + .toggle-slider:before { transform: translateX(22px); }
+
+  .duality-live {
+    background: var(--accent-soft);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .duality-live .eq-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 4px 0;
+  }
+  .eq-label {
+    font-family: monospace;
+    font-weight: 700;
+    font-size: 15px;
+    color: #1c1917;
+    min-width: 100px;
+  }
+  .eq-val { font-weight: 700; }
+
+  /* ---- Modality Table ---- */
+  .modality-table-wrap { overflow-x: auto; }
+  .modality-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    min-width: 600px;
+  }
+  .modality-table th {
+    background: #e7e5e4;
+    color: #292524;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+  }
+  .modality-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f5f5f4;
+    vertical-align: top;
+  }
+  .modality-table tr:last-child td { border-bottom: none; }
+  .modality-table tr:hover td { background: #fafaf9; }
+  .type-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .type-logic { background: #e0f2fe; color: #075985; }
+  .type-phys  { background: #d1fae5; color: #065f46; }
+  .type-epist { background: #fef3c7; color: #92400e; }
+  .type-deon  { background: #ede9fe; color: #4c1d95; }
+
+  .row-detail {
+    display: none;
+    padding: 10px 14px;
+    background: var(--accent-soft);
+    font-size: 13px;
+    line-height: 1.7;
+    color: #44403c;
+  }
+  .row-detail.show { display: table-row; }
+
+  /* SVG nodes */
+  .world-node { cursor: pointer; }
+  .world-circle { transition: fill 0.2s, stroke 0.2s; }
+  .world-label { font-family: monospace; font-weight: 700; font-size: 14px; pointer-events: none; }
+  .p-label { font-size: 12px; pointer-events: none; }
+  .arrow-line { stroke: #78716c; stroke-width: 1.8; fill: none; }
+  .arrow-head { fill: #78716c; }
+  .self-loop { stroke: #78716c; stroke-width: 1.8; fill: none; }
+
+  /* Highlight for accessed worlds */
+  .accessed-circle { stroke: #3b82f6 !important; stroke-width: 3 !important; }
+  .current-circle  { stroke: var(--accent) !important; stroke-width: 3 !important; fill: var(--accent-soft) !important; }
+
+  @media (max-width: 480px) {
+    .card { padding: 14px 14px; }
+    h2 { font-size: 17px; }
+    .kripke-controls { flex: 1 1 100%; }
+    .formula-btn { font-size: 12px; padding: 6px 10px; }
+    .world-btn { font-size: 12px; padding: 6px 10px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Advanced Logic &amp; Language</a>
+  <span class="sep">·</span>
+  <a href="../../02-CriticalThinking/index.html">← Tầng 2: Critical Thinking</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Logic modal</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-paradoxes/visualization.html">L2: Nghịch lý →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — Logic modal (Modal Logic)</h1>
+<p>Ba bài tập tương tác giúp bạn nắm vững <strong>ngữ nghĩa thế giới khả dĩ (Kripke)</strong>, <strong>đối ngẫu □/◇</strong>, và <strong>bốn loại tất yếu</strong> trong logic modal.</p>
+
+<!-- ============================================================ -->
+<h2>1. Đồ thị Kripke tương tác</h2>
+<div class="card">
+  <p>Đồ thị có <strong>4 thế giới</strong> (w₁–w₄) với quan hệ truy cập (mũi tên) và giá trị <strong>p</strong> tại mỗi thế giới. Chọn <em>thế giới hiện tại</em> và <em>công thức modal</em> để tính giá trị <span class="badge-t">T</span> hoặc <span class="badge-f">F</span>.</p>
+
+  <div class="kripke-wrap">
+    <!-- SVG đồ thị -->
+    <div class="kripke-svg-wrap">
+      <svg id="kripkeSvg" viewBox="0 0 480 340" width="480" height="340" aria-label="Đồ thị Kripke 4 thế giới">
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" class="arrow-head"/>
+          </marker>
+          <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/>
+          </marker>
+        </defs>
+
+        <!-- Mũi tên (vẽ trước để nằm dưới node) -->
+        <!-- w1 -> w2 -->
+        <line id="edge-1-2" x1="168" y1="108" x2="292" y2="108"
+              class="arrow-line" marker-end="url(#arrow)"/>
+        <!-- w1 -> w3 -->
+        <line id="edge-1-3" x1="140" y1="128" x2="140" y2="212"
+              class="arrow-line" marker-end="url(#arrow)"/>
+        <!-- w2 -> w4 -->
+        <line id="edge-2-4" x1="312" y1="128" x2="312" y2="212"
+              class="arrow-line" marker-end="url(#arrow)"/>
+        <!-- w3 -> w4 -->
+        <line id="edge-3-4" x1="168" y1="232" x2="284" y2="232"
+              class="arrow-line" marker-end="url(#arrow)"/>
+        <!-- w2 -> w3 (diagonal) -->
+        <line id="edge-2-3" x1="294" y1="120" x2="158" y2="218"
+              class="arrow-line" marker-end="url(#arrow)"/>
+
+        <!-- Node w1 -->
+        <g class="world-node" id="node-w1" onclick="selectWorld('w1')" role="button" tabindex="0" aria-label="Thế giới w1">
+          <circle id="circle-w1" cx="140" cy="108" r="32" class="world-circle" fill="#fff" stroke="#a8a29e" stroke-width="2"/>
+          <text x="140" y="104" text-anchor="middle" dominant-baseline="middle" class="world-label" fill="#1c1917">w₁</text>
+          <text x="140" y="122" text-anchor="middle" class="p-label" fill="#57534e" id="plabel-w1">p = F</text>
+        </g>
+
+        <!-- Node w2 -->
+        <g class="world-node" id="node-w2" onclick="selectWorld('w2')" role="button" tabindex="0" aria-label="Thế giới w2">
+          <circle id="circle-w2" cx="312" cy="108" r="32" class="world-circle" fill="#fff" stroke="#a8a29e" stroke-width="2"/>
+          <text x="312" y="104" text-anchor="middle" dominant-baseline="middle" class="world-label" fill="#1c1917">w₂</text>
+          <text x="312" y="122" text-anchor="middle" class="p-label" fill="#57534e" id="plabel-w2">p = T</text>
+        </g>
+
+        <!-- Node w3 -->
+        <g class="world-node" id="node-w3" onclick="selectWorld('w3')" role="button" tabindex="0" aria-label="Thế giới w3">
+          <circle id="circle-w3" cx="140" cy="232" r="32" class="world-circle" fill="#fff" stroke="#a8a29e" stroke-width="2"/>
+          <text x="140" y="228" text-anchor="middle" dominant-baseline="middle" class="world-label" fill="#1c1917">w₃</text>
+          <text x="140" y="246" text-anchor="middle" class="p-label" fill="#57534e" id="plabel-w3">p = F</text>
+        </g>
+
+        <!-- Node w4 (self-loop) -->
+        <!-- Self-loop arc -->
+        <path id="edge-4-4" d="M 340 220 C 380 200, 390 260, 348 248"
+              class="self-loop" marker-end="url(#arrow)" stroke="#78716c"/>
+        <g class="world-node" id="node-w4" onclick="selectWorld('w4')" role="button" tabindex="0" aria-label="Thế giới w4">
+          <circle id="circle-w4" cx="312" cy="232" r="32" class="world-circle" fill="#fff" stroke="#a8a29e" stroke-width="2"/>
+          <text x="312" y="228" text-anchor="middle" dominant-baseline="middle" class="world-label" fill="#1c1917">w₄</text>
+          <text x="312" y="246" text-anchor="middle" class="p-label" fill="#57534e" id="plabel-w4">p = T</text>
+        </g>
+
+        <!-- Nhãn cạnh -->
+        <text x="228" y="96" text-anchor="middle" font-size="11" fill="#a8a29e">R</text>
+        <text x="120" y="172" text-anchor="middle" font-size="11" fill="#a8a29e">R</text>
+        <text x="332" y="172" text-anchor="middle" font-size="11" fill="#a8a29e">R</text>
+        <text x="228" y="222" text-anchor="middle" font-size="11" fill="#a8a29e">R</text>
+        <text x="238" y="182" text-anchor="middle" font-size="11" fill="#a8a29e">R</text>
+
+        <!-- Chú thích -->
+        <text x="20" y="310" font-size="12" fill="#78716c">Thế giới được chọn (■): viền nâu</text>
+        <text x="20" y="326" font-size="12" fill="#78716c">Thế giới truy cập được (R): viền xanh lam</text>
+      </svg>
+    </div>
+
+    <!-- Bảng điều khiển -->
+    <div class="kripke-controls">
+      <div style="font-size:13px; font-weight:700; color:#292524; margin-bottom:6px;">Thế giới hiện tại (w):</div>
+      <div class="world-selector" id="worldSelector">
+        <button class="world-btn" onclick="selectWorld('w1')">w₁</button>
+        <button class="world-btn" onclick="selectWorld('w2')">w₂</button>
+        <button class="world-btn" onclick="selectWorld('w3')">w₃</button>
+        <button class="world-btn" onclick="selectWorld('w4')">w₄</button>
+      </div>
+
+      <div style="font-size:13px; font-weight:700; color:#292524; margin-bottom:6px; margin-top:10px;">Công thức modal:</div>
+      <div class="formula-selector" id="formulaSelector">
+        <button class="formula-btn" onclick="selectFormula('p')">p</button>
+        <button class="formula-btn" onclick="selectFormula('not_p')">¬p</button>
+        <button class="formula-btn" onclick="selectFormula('box_p')">□p</button>
+        <button class="formula-btn" onclick="selectFormula('dia_p')">◇p</button>
+        <button class="formula-btn" onclick="selectFormula('box_not_p')">□¬p</button>
+        <button class="formula-btn" onclick="selectFormula('dia_not_p')">◇¬p</button>
+        <button class="formula-btn" onclick="selectFormula('box_dia_p')">□◇p</button>
+        <button class="formula-btn" onclick="selectFormula('dia_box_p')">◇□p</button>
+      </div>
+
+      <div class="kripke-result" id="kripkeResult">
+        <span style="color:#78716c; font-size:13px;">Chọn thế giới và công thức để tính.</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="hint">Mô hình: W={w₁,w₂,w₃,w₄}; R: w₁→w₂, w₁→w₃, w₂→w₃, w₂→w₄, w₃→w₄, w₄→w₄; V(p): w₁=F, w₂=T, w₃=F, w₄=T.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Đối ngẫu □ và ◇</h2>
+<div class="card">
+  <p>Hai quy luật đối ngẫu: <strong>□p ≡ ¬◇¬p</strong> và <strong>◇p ≡ ¬□¬p</strong>. Bật/tắt giá trị p ở từng thế giới để quan sát sự tương đương tự động.</p>
+
+  <div class="duality-grid">
+    <div class="duality-card">
+      <h4>Quy luật 1</h4>
+      <div class="duality-formula">□p ≡ ¬◇¬p</div>
+      <div class="duality-example">
+        "Tất yếu p" = "Không thể không-p"<br>
+        Giống: ∀x.P(x) ≡ ¬∃x.¬P(x)
+      </div>
+    </div>
+    <div class="duality-card">
+      <h4>Quy luật 2</h4>
+      <div class="duality-formula">◇p ≡ ¬□¬p</div>
+      <div class="duality-example">
+        "Có thể p" = "Không tất yếu không-p"<br>
+        Giống: ∃x.P(x) ≡ ¬∀x.¬P(x)
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px;">
+    <div style="font-size:13px; font-weight:700; color:#292524; margin-bottom:10px;">Bật/tắt giá trị p tại từng thế giới (mô hình đơn giản: W={a,b,c}, aRb, aRc):</div>
+    <div class="toggle-row">
+      <span class="duality-toggle-label">p tại a:</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="tog-a" checked onchange="updateDuality()">
+        <span class="toggle-slider"></span>
+      </label>
+      <span id="val-a" style="font-family:monospace; font-weight:700; color: var(--accent);">T</span>
+    </div>
+    <div class="toggle-row">
+      <span class="duality-toggle-label">p tại b:</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="tog-b" onchange="updateDuality()">
+        <span class="toggle-slider"></span>
+      </label>
+      <span id="val-b" style="font-family:monospace; font-weight:700; color: var(--accent);">F</span>
+    </div>
+    <div class="toggle-row">
+      <span class="duality-toggle-label">p tại c:</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="tog-c" checked onchange="updateDuality()">
+        <span class="toggle-slider"></span>
+      </label>
+      <span id="val-c" style="font-family:monospace; font-weight:700; color: var(--accent);">T</span>
+    </div>
+
+    <div style="font-size:12px; color:#78716c; margin-bottom:8px;">Quan hệ R: a→b, a→c (b và c không có thế giới nào truy cập được)</div>
+
+    <div class="duality-live" id="dualityLive"></div>
+  </div>
+
+  <div style="margin-top: 16px; padding: 12px 16px; background: #fef3c7; border-radius: 8px; font-size: 13px; line-height: 1.7; color: #92400e;">
+    <strong>Lưu ý quan trọng:</strong> ¬□p ≡ ◇¬p (KHÁC với ◇p). Ví dụ: "Không tất yếu trời mưa" = "Có thể trời không mưa" — đây là ◇¬p, không phải ◇p. Nhầm điều này là lỗi phổ biến nhất trong logic modal.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Bảng các loại tất yếu (modality)</h2>
+<div class="card">
+  <p>Bấm vào từng hàng để xem giải thích chi tiết về ứng dụng và cách diễn giải quan hệ truy cập R.</p>
+
+  <div class="modality-table-wrap">
+    <table class="modality-table" id="modalityTable">
+      <thead>
+        <tr>
+          <th>Loại</th>
+          <th>Ký hiệu □</th>
+          <th>□p đọc là</th>
+          <th>◇p đọc là</th>
+          <th>Ví dụ □p</th>
+          <th>Ví dụ ◇p</th>
+        </tr>
+      </thead>
+      <tbody id="modalityBody"></tbody>
+    </table>
+  </div>
+  <p class="hint" style="margin-top: 10px;">Bấm vào hàng để xem giải thích thêm về quan hệ truy cập R và ứng dụng thực tế.</p>
+</div>
+
+<script>
+// ================================================================
+// CẤU HÌNH MÔ HÌNH KRIPKE
+// ================================================================
+// W = {w1, w2, w3, w4}
+// R: w1->w2, w1->w3, w2->w3, w2->w4, w3->w4, w4->w4 (self-loop)
+// V(p): w1=F, w2=T, w3=F, w4=T
+
+const MODEL = {
+  worlds: ['w1', 'w2', 'w3', 'w4'],
+  R: {
+    w1: ['w2', 'w3'],
+    w2: ['w3', 'w4'],
+    w3: ['w4'],
+    w4: ['w4']  // self-loop
+  },
+  V: {
+    w1: { p: false },
+    w2: { p: true  },
+    w3: { p: false },
+    w4: { p: true  }
+  }
+};
+
+// Tọa độ tâm các node (khớp với SVG)
+const NODE_POS = { w1: [140,108], w2: [312,108], w3: [140,232], w4: [312,232] };
+
+// Tên hiển thị subscript
+const W_NAMES = { w1: 'w₁', w2: 'w₂', w3: 'w₃', w4: 'w₄' };
+
+let selectedWorld = null;
+let selectedFormula = null;
+
+// ---- Tính giá trị công thức tại thế giới w ----
+function evalP(w) { return MODEL.V[w].p; }
+function evalNotP(w) { return !evalP(w); }
+function evalBoxP(w) {
+  const acc = MODEL.R[w];
+  if (acc.length === 0) return true; // vacuously true
+  return acc.every(w2 => evalP(w2));
+}
+function evalDiaP(w) {
+  const acc = MODEL.R[w];
+  if (acc.length === 0) return false;
+  return acc.some(w2 => evalP(w2));
+}
+function evalBoxNotP(w) {
+  const acc = MODEL.R[w];
+  if (acc.length === 0) return true;
+  return acc.every(w2 => !evalP(w2));
+}
+function evalDiaNotP(w) {
+  const acc = MODEL.R[w];
+  if (acc.length === 0) return false;
+  return acc.some(w2 => !evalP(w2));
+}
+function evalBoxDiaP(w) {
+  // □◇p tại w: mọi w' truy cập từ w đều có ◇p đúng tại w'
+  const acc = MODEL.R[w];
+  if (acc.length === 0) return true;
+  return acc.every(w2 => evalDiaP(w2));
+}
+function evalDiaBoxP(w) {
+  // ◇□p tại w: tồn tại w' truy cập từ w mà □p đúng tại w'
+  const acc = MODEL.R[w];
+  if (acc.length === 0) return false;
+  return acc.some(w2 => evalBoxP(w2));
+}
+
+const FORMULAS = {
+  p:         { label: 'p',    fn: evalP,       desc: 'Giá trị trực tiếp của p tại thế giới hiện tại.' },
+  not_p:     { label: '¬p',   fn: evalNotP,    desc: 'Phủ định của p tại thế giới hiện tại.' },
+  box_p:     { label: '□p',   fn: evalBoxP,    desc: '□p = T khi MỌI thế giới truy cập được đều có p = T. Nếu không có thế giới nào truy cập được → T (vacuously true).' },
+  dia_p:     { label: '◇p',   fn: evalDiaP,    desc: '◇p = T khi CÓ ÍT NHẤT MỘT thế giới truy cập được có p = T. Nếu không có thế giới nào truy cập được → F.' },
+  box_not_p: { label: '□¬p',  fn: evalBoxNotP, desc: '□¬p = T khi mọi thế giới truy cập được đều có p = F. Tương đương ¬◇p.' },
+  dia_not_p: { label: '◇¬p',  fn: evalDiaNotP, desc: '◇¬p = T khi tồn tại ít nhất một thế giới truy cập được có p = F. Tương đương ¬□p.' },
+  box_dia_p: { label: '□◇p',  fn: evalBoxDiaP, desc: '□◇p = T khi với mọi w\' truy cập từ w, ta có ◇p đúng tại w\'. Đây là công thức của hệ S5.' },
+  dia_box_p: { label: '◇□p',  fn: evalDiaBoxP, desc: '◇□p = T khi tồn tại w\' truy cập từ w mà □p đúng tại w\'.' },
+};
+
+// ---- Cập nhật SVG highlight ----
+function updateSvgHighlight(world, formula) {
+  const allWorlds = MODEL.worlds;
+
+  // Reset tất cả circles
+  allWorlds.forEach(w => {
+    const circle = document.getElementById('circle-' + w);
+    if (circle) {
+      circle.setAttribute('stroke', '#a8a29e');
+      circle.setAttribute('stroke-width', '2');
+      circle.setAttribute('fill', '#fff');
+    }
+  });
+
+  // Reset tất cả edges
+  const edges = document.querySelectorAll('.arrow-line, .self-loop');
+  edges.forEach(e => {
+    e.setAttribute('stroke', '#78716c');
+    e.setAttribute('marker-end', 'url(#arrow)');
+  });
+
+  if (!world) return;
+
+  // Highlight thế giới hiện tại
+  const currCircle = document.getElementById('circle-' + world);
+  if (currCircle) {
+    currCircle.setAttribute('stroke', '#57534e');
+    currCircle.setAttribute('stroke-width', '3');
+    currCircle.setAttribute('fill', '#f0eeec');
+  }
+
+  // Highlight thế giới truy cập được (màu xanh)
+  const accessed = MODEL.R[world] || [];
+  accessed.forEach(aw => {
+    if (aw === world) return; // self-loop — đã xử lý riêng
+    const ac = document.getElementById('circle-' + aw);
+    if (ac) {
+      ac.setAttribute('stroke', '#3b82f6');
+      ac.setAttribute('stroke-width', '3');
+    }
+  });
+
+  // Highlight self-loop nếu có
+  if (accessed.includes(world)) {
+    const selfLoop = document.getElementById('edge-' + world.replace('w','') + '-' + world.replace('w',''));
+    if (selfLoop) {
+      selfLoop.setAttribute('stroke', '#3b82f6');
+    }
+  }
+
+  // Highlight cạnh từ world đến accessed
+  const wNum = world.replace('w','');
+  accessed.forEach(aw => {
+    const awNum = aw.replace('w','');
+    // Thứ tự lớn → nhỏ cũng check
+    const edgeId1 = 'edge-' + wNum + '-' + awNum;
+    const edgeId2 = 'edge-' + awNum + '-' + wNum;
+    const edge = document.getElementById(edgeId1) || document.getElementById(edgeId2);
+    if (edge) {
+      edge.setAttribute('stroke', '#3b82f6');
+      edge.setAttribute('marker-end', 'url(#arrow-blue)');
+    }
+  });
+}
+
+// ---- Tạo bước giải thích ----
+function buildSteps(world, formulaKey) {
+  const f = FORMULAS[formulaKey];
+  const acc = MODEL.R[world];
+  const fLabel = f.label;
+  const wName = W_NAMES[world];
+  const result = f.fn(world);
+
+  let steps = [];
+
+  if (formulaKey === 'p' || formulaKey === 'not_p') {
+    const val = formulaKey === 'p' ? MODEL.V[world].p : !MODEL.V[world].p;
+    steps.push({ dot: val ? 't' : 'f', text: `Tra bảng V: ${fLabel} tại ${wName} = ${val ? 'T' : 'F'}` });
+  } else {
+    // Modal formulas: liệt kê các thế giới truy cập
+    if (acc.length === 0) {
+      if (formulaKey.startsWith('box')) {
+        steps.push({ dot: 't', text: `${wName} không có thế giới nào truy cập được → □... đúng vacuously → T` });
+      } else {
+        steps.push({ dot: 'f', text: `${wName} không có thế giới nào truy cập được → ◇... không tìm được → F` });
+      }
+    } else {
+      steps.push({ dot: 'h', text: `Thế giới truy cập từ ${wName}: {${acc.map(x=>W_NAMES[x]).join(', ')}}` });
+      // Liệt kê giá trị p tại từng thế giới truy cập
+      if (formulaKey === 'box_p' || formulaKey === 'dia_p') {
+        acc.forEach(aw => {
+          const pv = MODEL.V[aw].p;
+          steps.push({ dot: pv?'t':'f', text: `p tại ${W_NAMES[aw]} = ${pv?'T':'F'}` });
+        });
+        if (formulaKey === 'box_p') {
+          steps.push({ dot: result?'t':'f', text: result ? `MỌI thế giới truy cập được đều có p=T → □p = T` : `Có thế giới truy cập được (${acc.filter(a=>!MODEL.V[a].p).map(x=>W_NAMES[x]).join(', ')}) có p=F → □p = F` });
+        } else {
+          steps.push({ dot: result?'t':'f', text: result ? `TỒN TẠI thế giới truy cập được (${acc.filter(a=>MODEL.V[a].p).map(x=>W_NAMES[x]).join(', ')}) có p=T → ◇p = T` : `KHÔNG có thế giới truy cập được nào có p=T → ◇p = F` });
+        }
+      } else if (formulaKey === 'box_not_p' || formulaKey === 'dia_not_p') {
+        acc.forEach(aw => {
+          const notpv = !MODEL.V[aw].p;
+          steps.push({ dot: notpv?'t':'f', text: `¬p tại ${W_NAMES[aw]} = ${notpv?'T':'F'}` });
+        });
+        if (formulaKey === 'box_not_p') {
+          steps.push({ dot: result?'t':'f', text: result ? `Mọi thế giới truy cập được đều có ¬p=T → □¬p = T` : `Có thế giới truy cập được có ¬p=F → □¬p = F` });
+        } else {
+          steps.push({ dot: result?'t':'f', text: result ? `Tồn tại thế giới truy cập được có ¬p=T → ◇¬p = T` : `Không có thế giới truy cập được nào có ¬p=T → ◇¬p = F` });
+        }
+      } else if (formulaKey === 'box_dia_p') {
+        acc.forEach(aw => {
+          const dv = evalDiaP(aw);
+          steps.push({ dot: dv?'t':'f', text: `◇p tại ${W_NAMES[aw]} = ${dv?'T':'F'}` });
+        });
+        steps.push({ dot: result?'t':'f', text: result ? `Mọi thế giới truy cập được đều có ◇p=T → □◇p = T` : `Có thế giới truy cập được có ◇p=F → □◇p = F` });
+      } else if (formulaKey === 'dia_box_p') {
+        acc.forEach(aw => {
+          const bv = evalBoxP(aw);
+          steps.push({ dot: bv?'t':'f', text: `□p tại ${W_NAMES[aw]} = ${bv?'T':'F'}` });
+        });
+        steps.push({ dot: result?'t':'f', text: result ? `Tồn tại thế giới truy cập được có □p=T → ◇□p = T` : `Không có thế giới truy cập được nào có □p=T → ◇□p = F` });
+      }
+    }
+  }
+  return steps;
+}
+
+// ---- Hiển thị kết quả ----
+function renderKripkeResult() {
+  const el = document.getElementById('kripkeResult');
+  if (!selectedWorld || !selectedFormula) {
+    el.className = 'kripke-result';
+    el.innerHTML = '<span style="color:#78716c; font-size:13px;">Chọn thế giới và công thức để tính.</span>';
+    return;
+  }
+  const f = FORMULAS[selectedFormula];
+  const result = f.fn(selectedWorld);
+  const wName = W_NAMES[selectedWorld];
+
+  el.className = 'kripke-result ' + (result ? 'true-result' : 'false-result');
+
+  const steps = buildSteps(selectedWorld, selectedFormula);
+  const stepsHTML = steps.map(s => {
+    const dotClass = s.dot === 't' ? 'step-dot-t' : s.dot === 'f' ? 'step-dot-f' : 'step-dot-h';
+    return `<li><span class="${dotClass}"></span>${escHtml(s.text)}</li>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="result-formula">${f.label} tại ${wName} = <span class="${result?'badge-t':'badge-f'}">${result?'T':'F'}</span></div>
+    <p style="font-size:13px; color:#78716c; margin:4px 0 6px;">${f.desc}</p>
+    <ul class="step-list">${stepsHTML}</ul>
+  `;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function selectWorld(w) {
+  selectedWorld = w;
+  // Update button highlight
+  document.querySelectorAll('.world-btn').forEach((b,i) => {
+    b.classList.toggle('selected', MODEL.worlds[i] === w);
+  });
+  updateSvgHighlight(w, selectedFormula);
+  renderKripkeResult();
+}
+
+function selectFormula(fKey) {
+  selectedFormula = fKey;
+  document.querySelectorAll('.formula-btn').forEach(b => {
+    b.classList.toggle('selected', b.getAttribute('onclick').includes("'" + fKey + "'"));
+  });
+  updateSvgHighlight(selectedWorld, fKey);
+  renderKripkeResult();
+}
+
+// ================================================================
+// PHẦN 2: ĐỐI NGẪU
+// ================================================================
+// Mô hình đơn giản: W={a,b,c}, aRb, aRc; b và c không có gì truy cập
+function getTogVal(id) { return document.getElementById(id).checked; }
+
+function updateDuality() {
+  const pa = getTogVal('tog-a');
+  const pb = getTogVal('tog-b');
+  const pc = getTogVal('tog-c');
+
+  // Cập nhật label
+  document.getElementById('val-a').textContent = pa ? 'T' : 'F';
+  document.getElementById('val-b').textContent = pb ? 'T' : 'F';
+  document.getElementById('val-c').textContent = pc ? 'T' : 'F';
+  document.getElementById('val-a').style.color = pa ? '#166534' : '#991b1b';
+  document.getElementById('val-b').style.color = pb ? '#166534' : '#991b1b';
+  document.getElementById('val-c').style.color = pc ? '#166534' : '#991b1b';
+
+  // Tính tại a: R(a) = {b, c}
+  // □p tại a
+  const boxP_a = pb && pc;
+  // ◇p tại a
+  const diaP_a = pb || pc;
+  // ◇¬p tại a = có ít nhất một trong b,c có ¬p = T → !pb || !pc
+  const diaNP_a = (!pb) || (!pc);
+  // ¬◇¬p tại a
+  const negDiaNP_a = !diaNP_a;
+  // □¬p tại a
+  const boxNP_a = (!pb) && (!pc);
+  // ¬□¬p tại a
+  const negBoxNP_a = !boxNP_a;
+
+  const tv = v => `<span class="${v?'badge-t':'badge-f'}">${v?'T':'F'}</span>`;
+
+  const html = `
+    <div style="font-size:13px; font-weight:700; color:#292524; margin-bottom:10px;">Tính tại thế giới a (R(a) = {b, c}):</div>
+    <div class="eq-row">
+      <span class="eq-label">p tại b:</span> ${tv(pb)}
+      <span style="margin-left:20px" class="eq-label">p tại c:</span> ${tv(pc)}
+    </div>
+    <div class="eq-row">
+      <span class="eq-label">□p tại a:</span> <span class="eq-val">${tv(boxP_a)}</span>
+      <span style="font-size:12px; color:#78716c; margin-left:8px;">(b=${pb?'T':'F'} AND c=${pc?'T':'F'})</span>
+    </div>
+    <div class="eq-row">
+      <span class="eq-label">¬◇¬p tại a:</span> <span class="eq-val">${tv(negDiaNP_a)}</span>
+      <span style="font-size:12px; color:#78716c; margin-left:8px;">◇¬p=${diaP_a||(!pb)||(!pc) ? tv(diaNP_a):''} ${tv(diaNP_a)} → ¬◇¬p=${tv(negDiaNP_a)}</span>
+    </div>
+    <div class="eq-row" style="color: ${boxP_a===negDiaNP_a?'#166534':'#991b1b'}; font-weight:700; margin-top:4px;">
+      □p ≡ ¬◇¬p: ${boxP_a===negDiaNP_a?'✓ Bằng nhau':'✗ Khác nhau (lỗi logic)'}
+    </div>
+    <hr style="border:none; border-top:1px solid #d6d3d1; margin:12px 0;">
+    <div class="eq-row">
+      <span class="eq-label">◇p tại a:</span> <span class="eq-val">${tv(diaP_a)}</span>
+      <span style="font-size:12px; color:#78716c; margin-left:8px;">(b=${pb?'T':'F'} OR c=${pc?'T':'F'})</span>
+    </div>
+    <div class="eq-row">
+      <span class="eq-label">¬□¬p tại a:</span> <span class="eq-val">${tv(negBoxNP_a)}</span>
+      <span style="font-size:12px; color:#78716c; margin-left:8px;">□¬p=${tv(boxNP_a)} → ¬□¬p=${tv(negBoxNP_a)}</span>
+    </div>
+    <div class="eq-row" style="color: ${diaP_a===negBoxNP_a?'#166534':'#991b1b'}; font-weight:700; margin-top:4px;">
+      ◇p ≡ ¬□¬p: ${diaP_a===negBoxNP_a?'✓ Bằng nhau':'✗ Khác nhau (lỗi logic)'}
+    </div>
+  `;
+  document.getElementById('dualityLive').innerHTML = html;
+}
+
+// ================================================================
+// PHẦN 3: BẢNG MODALITY
+// ================================================================
+const MODALITY_DATA = [
+  {
+    type: 'logic',
+    badge: '<span class="type-badge type-logic">Logic</span>',
+    symbol: '□_L',
+    box: 'Tất yếu (logic)',
+    dia: 'Có thể (logic)',
+    exBox: '□_L(p ∨ ¬p)',
+    exDia: '◇_L(Trời mưa)',
+    detail: `<strong>Thế giới W:</strong> Mọi tình huống logic có thể tưởng tượng được, không vi phạm quy tắc logic hình thức.<br>
+<strong>Quan hệ R:</strong> Mọi thế giới truy cập mọi thế giới (R tổng quát — hệ S5).<br>
+<strong>Đặc trưng:</strong> Mạnh nhất — điều tất yếu logic không thể sai trong BẤT KỲ tình huống nào. Ví dụ: □_L(p ∨ ¬p) — luật loại trừ trung gian; □_L(2+2=4).<br>
+<strong>Ứng dụng:</strong> Toán học thuần túy, logic hình thức, phân tích khái niệm.`
+  },
+  {
+    type: 'phys',
+    badge: '<span class="type-badge type-phys">Vật lý</span>',
+    symbol: '□_phys',
+    box: 'Tất yếu (vật lý)',
+    dia: 'Có thể (vật lý)',
+    exBox: '□_phys(c ≈ 3×10⁸ m/s)',
+    exDia: '◇_phys(phân rã hạt nhân)',
+    detail: `<strong>Thế giới W:</strong> Các thế giới có cùng định luật vật lý với thế giới thực (định luật bảo toàn, tương đối tính, lượng tử...).<br>
+<strong>Quan hệ R:</strong> w truy cập w' khi w' có cùng định luật vật lý với thực tế.<br>
+<strong>Đặc trưng:</strong> Yếu hơn tất yếu logic — có thể tưởng tượng vũ trụ với vật lý khác (không mâu thuẫn logic), nhưng không thể xảy ra trong thế giới vật lý của chúng ta.<br>
+<strong>Ví dụ:</strong> □_phys(Không vật thể có khối lượng nào đạt vận tốc ánh sáng); ◇_phys(Ngôi sao trở thành lỗ đen).<br>
+<strong>Ứng dụng:</strong> Triết học khoa học, siêu hình học tự nhiên.`
+  },
+  {
+    type: 'epist',
+    badge: '<span class="type-badge type-epist">Nhận thức</span>',
+    symbol: 'K (Knows)',
+    box: '"Tôi biết p" (Kp)',
+    dia: 'Không loại trừ p',
+    exBox: 'K_tôi(Hà Nội là thủ đô VN)',
+    exDia: '◇_K(Thủ phạm là A)',
+    detail: `<strong>Thế giới W:</strong> Các tình huống nhất quán với mọi điều chủ thể biết.<br>
+<strong>Quan hệ R (indistinguishability):</strong> wRw' khi w' nhất quán với tất cả bằng chứng/hiểu biết của chủ thể tại w — chủ thể không thể phân biệt w và w' dựa trên điều họ biết.<br>
+<strong>Đặc trưng:</strong> Phụ thuộc vào chủ thể và thời điểm. Cùng p, người A biết nhưng người B chưa biết → K_A(p) = T, K_B(p) = F.<br>
+<strong>Tiên đề:</strong> Thường dùng hệ S4 (Kp → KKp: "Nếu tôi biết p thì tôi biết rằng tôi biết p") hoặc S5.<br>
+<strong>Ứng dụng:</strong> Nhận thức luận, logic đa tác nhân (multi-agent), AI, giao thức mật mã.`
+  },
+  {
+    type: 'deon',
+    badge: '<span class="type-badge type-deon">Nghĩa vụ</span>',
+    symbol: 'O (Obligatory)',
+    box: '"Bắt buộc p" (Op)',
+    dia: '"Được phép p" (Pp)',
+    exBox: 'O(Giữ lời hứa)',
+    exDia: 'P(Chọn nghề nghiệp)',
+    detail: `<strong>Thế giới W:</strong> Các thế giới "lý tưởng về mặt đạo đức/pháp lý" — nơi mọi quy tắc đều được tuân thủ.<br>
+<strong>Quan hệ R:</strong> wRw' khi w' là thế giới lý tưởng có thể đạt được từ w (nếu mọi người thực hiện nghĩa vụ của mình).<br>
+<strong>Đặc trưng:</strong> Ký hiệu riêng: O (Obligation = bắt buộc) và P (Permission = được phép). P(p) = ¬O(¬p): "Được phép p" = "Không bắt buộc không-p".<br>
+<strong>Vấn đề nổi tiếng:</strong> "Is-Ought Problem" — không thể suy ra O(p) (nghĩa vụ) từ p (sự thật) đơn thuần.<br>
+<strong>Ứng dụng:</strong> Triết học đạo đức, luật học hình thức, AI đạo đức, hợp đồng thông minh (smart contracts).`
+  }
+];
+
+function renderModalityTable() {
+  const tbody = document.getElementById('modalityBody');
+  tbody.innerHTML = '';
+  MODALITY_DATA.forEach((row, i) => {
+    // Data row
+    const tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    tr.innerHTML = `
+      <td>${row.badge}</td>
+      <td style="font-family:monospace; font-weight:700;">${row.symbol}</td>
+      <td>${row.box}</td>
+      <td>${row.dia}</td>
+      <td style="font-family:monospace; font-size:12px;">${row.exBox}</td>
+      <td style="font-family:monospace; font-size:12px;">${row.exDia}</td>
+    `;
+    tr.addEventListener('click', () => toggleDetail(i));
+    tbody.appendChild(tr);
+
+    // Detail row
+    const dr = document.createElement('tr');
+    dr.id = 'detail-' + i;
+    const dc = document.createElement('td');
+    dc.setAttribute('colspan', '6');
+    dc.className = 'row-detail';
+    dc.innerHTML = row.detail;
+    dr.appendChild(dc);
+    tbody.appendChild(dr);
+  });
+}
+
+function toggleDetail(i) {
+  const el = document.getElementById('detail-' + i).querySelector('.row-detail') ||
+             document.getElementById('detail-' + i).firstChild;
+  el.classList.toggle('show');
+}
+
+// ================================================================
+// KHỞI TẠO
+// ================================================================
+renderModalityTable();
+updateDuality();
+// Chọn mặc định
+selectWorld('w1');
+selectFormula('box_p');
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

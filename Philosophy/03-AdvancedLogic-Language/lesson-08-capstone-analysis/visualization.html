@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L08 — Capstone: Bàn phân tích lập luận</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-hover: #44403c;
+    --accent-soft: #f0eeec;
+  }
+
+  h1 { color: #1c1917; }
+  h2 { color: #292524; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #d6d3d1; }
+
+  /* ---- Tabs ---- */
+  .tab-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 20px 0 0;
+  }
+  .tab-btn {
+    background: #f5f5f4;
+    color: #44403c;
+    border: 2px solid #e7e5e4;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .tab-btn:hover { background: #e7e5e4; border-color: #a8a29e; }
+  .tab-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ---- Cards / Boxes ---- */
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #78716c;
+    margin: 6px 0 0;
+    line-height: 1.5;
+  }
+
+  /* ---- Buttons ---- */
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid #d6d3d1;
+  }
+  button.ghost:hover { background: #e7e5e4; }
+  button.sm { padding: 6px 12px; font-size: 13px; }
+  button:disabled { opacity: 0.45; cursor: default; }
+
+  /* ---- Step panel ---- */
+  .step-panel {
+    margin: 12px 0;
+  }
+  .step-row {
+    display: flex;
+    gap: 10px;
+    margin: 8px 0;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 30px; height: 30px; flex-shrink: 0;
+    border-radius: 50%;
+    background: #d6d3d1;
+    color: #57534e;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px;
+    transition: background 0.3s, color 0.3s;
+  }
+  .step-num.done {
+    background: var(--accent);
+    color: #fff;
+  }
+  .step-num.active {
+    background: #92400e;
+    color: #fff;
+    box-shadow: 0 0 0 3px #fde68a;
+  }
+
+  .step-content {
+    flex: 1;
+    min-width: 0;
+  }
+  .step-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: #292524;
+    margin-bottom: 2px;
+  }
+  .step-body {
+    display: none;
+    margin-top: 10px;
+    padding: 14px 16px;
+    background: var(--accent-soft);
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #292524;
+    animation: fadeIn 0.2s ease;
+  }
+  .step-body.show { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+  .step-body table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 10px 0;
+  }
+  .step-body th {
+    background: #e7e5e4;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 700;
+  }
+  .step-body td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f5f5f4;
+    vertical-align: top;
+  }
+  .step-body tr:last-child td { border-bottom: none; }
+
+  .badge-valid { display: inline-block; background: #dcfce7; color: #166534; padding: 3px 10px; border-radius: 6px; font-weight: 700; font-size: 13px; }
+  .badge-sound { display: inline-block; background: #dbeafe; color: #1e3a8a; padding: 3px 10px; border-radius: 6px; font-weight: 700; font-size: 13px; }
+  .badge-warn  { display: inline-block; background: #fef9c3; color: #854d0e; padding: 3px 10px; border-radius: 6px; font-weight: 700; font-size: 13px; }
+  .badge-error { display: inline-block; background: #fee2e2; color: #991b1b; padding: 3px 10px; border-radius: 6px; font-weight: 700; font-size: 13px; }
+  .badge-modal { display: inline-block; background: #ede9fe; color: #4c1d95; padding: 3px 10px; border-radius: 6px; font-weight: 700; font-size: 13px; }
+
+  code {
+    font-family: 'Courier New', monospace;
+    background: #f5f5f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #292524;
+  }
+
+  pre {
+    background: #1c1917;
+    color: #e7e5e4;
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    overflow-x: auto;
+    line-height: 1.6;
+    margin: 10px 0;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* ---- Argument selector ---- */
+  .arg-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .arg-btn {
+    background: #f5f5f4;
+    color: #44403c;
+    border: 2px solid #e7e5e4;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    text-align: left;
+    flex: 1;
+    min-width: 140px;
+  }
+  .arg-btn:hover { background: #e7e5e4; border-color: #a8a29e; }
+  .arg-btn.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+  /* ---- Navigation controls ---- */
+  .nav-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .step-indicator {
+    font-size: 13px;
+    color: #78716c;
+    flex: 1;
+    text-align: center;
+    min-width: 100px;
+  }
+
+  /* ---- Interactive tagger ---- */
+  .text-block {
+    background: #fafaf9;
+    border: 1px solid #e7e5e4;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 15px;
+    line-height: 1.9;
+    margin: 12px 0;
+  }
+  .tag-word {
+    display: inline-block;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 1px 3px;
+    transition: background 0.15s;
+    margin: 1px;
+  }
+  .tag-word:hover { background: #e7e5e4; }
+  .tag-word.tagged-premise { background: #fed7aa; color: #7c2d12; font-weight: 600; }
+  .tag-word.tagged-conclusion { background: #bbf7d0; color: #14532d; font-weight: 600; }
+
+  .tag-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0;
+    align-items: center;
+    font-size: 13px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #d6d3d1;
+    font-weight: 600;
+  }
+  .legend-item.active-tag { box-shadow: 0 0 0 2px var(--accent); }
+  .swatch-premise { width: 14px; height: 14px; background: #fed7aa; border-radius: 3px; }
+  .swatch-conclusion { width: 14px; height: 14px; background: #bbf7d0; border-radius: 3px; }
+
+  .tagger-result {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 12px;
+    display: none;
+  }
+  .tagger-result.show { display: block; }
+  .tagger-result.ok { background: #f0fdf4; border: 1px solid #86efac; }
+  .tagger-result.warn { background: #fff7ed; border: 1px solid #fed7aa; }
+
+  /* ---- Toolkit table ---- */
+  .toolkit-section {
+    margin: 20px 0;
+  }
+  .toolkit-section h3 {
+    font-size: 16px;
+    color: #292524;
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    background: var(--accent-soft);
+    border-radius: 6px;
+    border-left: 3px solid var(--accent);
+  }
+  .toolkit-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .toolkit-table th {
+    background: #e7e5e4;
+    padding: 9px 12px;
+    text-align: left;
+    font-weight: 700;
+    color: #292524;
+  }
+  .toolkit-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .toolkit-table tr:hover td { background: #fafaf9; }
+  .toolkit-table tr:last-child td { border-bottom: none; }
+  .tag-t1 { display: inline-block; background: #dbeafe; color: #1e3a8a; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+  .tag-t2 { display: inline-block; background: #dcfce7; color: #166534; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+  .tag-t3 { display: inline-block; background: #ede9fe; color: #4c1d95; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 600px) {
+    .card { padding: 14px 14px; }
+    h2 { font-size: 17px; }
+    .tab-btn { font-size: 12px; padding: 7px 12px; }
+    .arg-btn { font-size: 13px; padding: 8px 12px; min-width: 120px; }
+    .step-body { font-size: 13px; }
+    .step-title { font-size: 13px; }
+    pre { font-size: 11px; }
+    .toolkit-table { font-size: 12px; }
+    .toolkit-table td, .toolkit-table th { padding: 7px 8px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Advanced Logic &amp; Language</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-logic-computation/visualization.html">← L7: Logic &amp; tính toán</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Capstone — Phân tích lập luận</span>
+  <span class="sep">·</span>
+  <span>🎉 Hoàn tất Philosophy</span>
+</nav>
+
+<main>
+<h1>Lesson 08 — Capstone: Bàn phân tích lập luận</h1>
+<p>Tích hợp toàn bộ kỹ năng ba tầng Philosophy vào một quy trình phân tích 6 bước. Chọn tab để bắt đầu.</p>
+
+<div class="tab-bar" role="tablist">
+  <button class="tab-btn active" onclick="switchTab('tab-analyse')" role="tab">🔍 Phân tích 6 bước</button>
+  <button class="tab-btn" onclick="switchTab('tab-tagger')" role="tab">✏️ Tự gán tiền đề</button>
+  <button class="tab-btn" onclick="switchTab('tab-toolkit')" role="tab">🧰 Hộp công cụ</button>
+</div>
+
+<!-- ================================================================ -->
+<!-- TAB 1 — PHÂN TÍCH 6 BƯỚC -->
+<!-- ================================================================ -->
+<div id="tab-analyse" class="tab-panel active">
+
+  <h2>Phân tích lập luận từng bước</h2>
+  <p>Chọn một lập luận kinh điển, rồi bấm <strong>Bước tiếp theo</strong> để hé lộ từng tầng phân tích.</p>
+
+  <div class="card">
+    <div style="font-weight:700; margin-bottom:8px; color:#292524;">Chọn lập luận:</div>
+    <div class="arg-selector" id="argSelector"></div>
+  </div>
+
+  <div class="card" id="argCard" style="display:none">
+    <div id="argQuote" style="font-style:italic; background:#f9f7f5; border-left:3px solid #d6d3d1; padding:12px 16px; border-radius:6px; margin-bottom:16px; color:#44403c; font-size:14px; line-height:1.7;"></div>
+    <div class="step-panel" id="stepPanel"></div>
+    <div class="nav-controls">
+      <button class="ghost sm" id="btnPrev" onclick="prevStep()" disabled>← Trước</button>
+      <div class="step-indicator" id="stepIndicator"></div>
+      <button class="sm" id="btnNext" onclick="nextStep()">Tiếp theo →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- TAB 2 — INTERACTIVE TAGGER -->
+<!-- ================================================================ -->
+<div id="tab-tagger" class="tab-panel">
+
+  <h2>Tự phân tích: gán tiền đề và kết luận</h2>
+  <p>Bấm từng câu/cụm để đánh dấu là <strong>tiền đề</strong> hay <strong>kết luận</strong>, sau đó kiểm tra với đáp án mẫu.</p>
+
+  <div class="card">
+    <div style="font-weight:700; margin-bottom:10px; color:#292524;">Chọn đoạn lập luận:</div>
+    <div class="arg-selector" id="taggerSelector"></div>
+  </div>
+
+  <div class="card" id="taggerCard" style="display:none">
+    <div class="tag-legend">
+      <span style="font-weight:600; color:#78716c;">Đang gán:</span>
+      <div class="legend-item active-tag" id="legendPremise" onclick="setActiveTag('premise')">
+        <div class="swatch-premise"></div> Tiền đề
+      </div>
+      <div class="legend-item" id="legendConclusion" onclick="setActiveTag('conclusion')">
+        <div class="swatch-conclusion"></div> Kết luận
+      </div>
+      <button class="ghost sm" style="margin-left:auto" onclick="clearTags()">Xóa tất cả</button>
+    </div>
+
+    <div class="text-block" id="taggerText"></div>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+      <button onclick="checkTags()">Kiểm tra kết quả</button>
+      <button class="ghost" onclick="showTaggerAnswer()">Xem đáp án mẫu</button>
+    </div>
+
+    <div class="tagger-result" id="taggerResult"></div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- TAB 3 — TOOLKIT -->
+<!-- ================================================================ -->
+<div id="tab-toolkit" class="tab-panel">
+
+  <h2>Hộp công cụ — Tổng kết toàn bộ ba tầng</h2>
+  <p>Bảng tổng hợp mọi khái niệm đã học, dùng để tra cứu nhanh khi phân tích lập luận.</p>
+
+  <div class="toolkit-section">
+    <h3>Tầng 1 — Formal Logic</h3>
+    <div style="overflow-x:auto">
+      <table class="toolkit-table">
+        <thead><tr><th>Khái niệm</th><th>Ký hiệu / Dạng</th><th>Ý nghĩa cốt lõi</th><th>Bài</th></tr></thead>
+        <tbody id="toolkit-t1"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="toolkit-section">
+    <h3>Tầng 2 — Critical Thinking</h3>
+    <div style="overflow-x:auto">
+      <table class="toolkit-table">
+        <thead><tr><th>Khái niệm</th><th>Ý nghĩa cốt lõi</th><th>Cảnh báo thường gặp</th><th>Bài</th></tr></thead>
+        <tbody id="toolkit-t2"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="toolkit-section">
+    <h3>Tầng 3 — Advanced Logic & Language</h3>
+    <div style="overflow-x:auto">
+      <table class="toolkit-table">
+        <thead><tr><th>Khái niệm</th><th>Ký hiệu / Dạng</th><th>Ý nghĩa cốt lõi</th><th>Bài</th></tr></thead>
+        <tbody id="toolkit-t3"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px; background:#f9f7f5;">
+    <strong style="color:#292524;">Quy trình 6 bước — nhắc nhở nhanh</strong>
+    <ol style="margin:10px 0 0; padding-left:20px; line-height:2; font-size:14px; color:#44403c;">
+      <li><strong>Tách tiền đề và kết luận</strong> (kể cả ẩn).</li>
+      <li><strong>Hình thức hóa</strong> bằng ký hiệu phù hợp (mệnh đề / vị từ / modal).</li>
+      <li><strong>Kiểm tra hợp lệ (valid)</strong> — nếu tiền đề đúng, kết luận có bắt buộc đúng?</li>
+      <li><strong>Đánh giá tiền đề → Sound</strong> — tiền đề thực sự đúng chưa?</li>
+      <li><strong>Phát hiện ngụy biện và giả định ẩn</strong>.</li>
+      <li><strong>Steelman + phản đối</strong> có trách nhiệm.</li>
+    </ol>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// DỮ LIỆU LẬP LUẬN
+// ================================================================
+const ARGUMENTS = [
+  {
+    id: 'cogito',
+    name: 'Cogito (Descartes)',
+    subtitle: 'Tôi tư duy, do đó tôi tồn tại',
+    quote: '"Je pense, donc je suis" — René Descartes, Méditations (1641).\n"Trong lúc tôi nghi ngờ mọi thứ, chính hành động nghi ngờ chứng minh rằng tôi đang tư duy. Và vì tôi đang tư duy, tôi tồn tại."',
+    steps: [
+      {
+        title: 'Bước 1 — Tách tiền đề và kết luận',
+        content: `<table>
+          <tr><th style="width:130px">Vai trò</th><th>Nội dung</th></tr>
+          <tr><td><strong>Tiền đề 1</strong></td><td>Tôi đang tư duy (nghi ngờ = tư duy).</td></tr>
+          <tr><td><strong>Tiền đề 2 (ẩn)</strong></td><td>Bất kỳ thứ gì đang tư duy thì tồn tại.</td></tr>
+          <tr><td><strong>Kết luận</strong></td><td>Tôi tồn tại.</td></tr>
+        </table>
+        <p class="hint">⚠ Descartes không viết đây như tam đoạn luận — ông trình bày như điều tự hiển nhiên (direct apprehension). Viết lại thành P1+P2→C là một diễn giải, không phải ý định gốc.</p>`
+      },
+      {
+        title: 'Bước 2 — Hình thức hóa',
+        content: `<p><span class="badge-modal">Logic vị từ</span></p>
+        <pre>T(x) = "x đang tư duy"
+E(x) = "x tồn tại"
+d     = Descartes (tôi)
+
+P1: T(d)
+P2: ∀x (T(x) → E(x))
+──────────────────────
+C:  E(d)            [modus ponens + UI]</pre>
+        <p>Diễn giải B (performative): Cogito không phải suy luận — hành động nghi ngờ <em>chính là</em> bằng chứng của kinh nghiệm đang xảy ra. Không cần tiền đề 2 nếu hiểu theo cách này.</p>`
+      },
+      {
+        title: 'Bước 3 — Hợp lệ (Valid)?',
+        content: `<p><span class="badge-valid">✓ Hợp lệ (Diễn giải A)</span></p>
+        <p>Cấu trúc là <strong>universal instantiation + modus ponens</strong> — hợp lệ hoàn toàn trong logic vị từ cổ điển.</p>
+        <p><strong>Kiểm tra phản ví dụ:</strong> Có thể có T(d) đúng và ∀x(T(x)→E(x)) đúng mà E(d) sai không? <em>Không</em> — bước UI cho T(d)→E(d), rồi MP từ T(d) cho E(d). Không có phản ví dụ.</p>
+        <p class="hint">Diễn giải B không phải suy luận → câu hỏi "valid?" không áp dụng theo nghĩa thông thường.</p>`
+      },
+      {
+        title: 'Bước 4 — Tiền đề và Sound',
+        content: `<p><strong>Tiền đề 1 (T(d) — tôi đang tư duy):</strong> Đây là tiền đề <em>mạnh</em> — chính hành động nghi ngờ nó là bằng chứng xác nhận nó. Khó bác bỏ nhất.</p>
+        <p><strong>Phản đối của Lichtenberg/Wittgenstein:</strong> "Tôi đang tư duy" ẩn giả định về chủ thể "tôi". Tất cả ta biết chắc là <em>"đang có tư duy xảy ra"</em> — chưa thể suy ra "tôi" là chủ thể với nhân cách bất biến.</p>
+        <p><strong>Tiền đề 2 (ẩn — bất kỳ thứ gì tư duy thì tồn tại):</strong> Nghe hiển nhiên nhưng không tự minh. "Tồn tại" theo nghĩa nào — vật lý? tâm lý? logic?</p>
+        <p><span class="badge-warn">Còn tranh cãi</span> Sound phụ thuộc vào diễn giải "tôi" và "tồn tại".</p>`
+      },
+      {
+        title: 'Bước 5 — Ngụy biện và giả định ẩn',
+        content: `<strong>Giả định ẩn 1:</strong> Từ "đang có kinh nghiệm" → "có một 'tôi' liên tục". Cogito chứng minh kinh nghiệm tại thời điểm đó, không tự động chứng minh bản sắc liên tục theo thời gian.
+        <br><br>
+        <strong>Có phải vòng tròn (petitio principii)?</strong> Arnauld phê phán: Descartes dùng quy tắc logic để xây nền tảng, nhưng bản thân quy tắc cũng cần chứng minh. Descartes phản bác: Cogito là trực giác trực tiếp, không cần quy tắc trung gian.
+        <br><br>
+        <strong>Equivocation:</strong> "Tồn tại" có thể là (a) vật lý trong không gian, (b) có kinh nghiệm chủ quan, (c) có thể được nói đến. Descartes chứng minh (b) không tự động cho (a).`
+      },
+      {
+        title: 'Bước 6 — Steelman và phản đối',
+        content: `<strong>Steelman:</strong>
+        <blockquote style="border-left:3px solid #a8a29e; padding-left:12px; margin:10px 0; color:#44403c; font-style:italic;">"Trong lúc nghi ngờ mọi thứ, có một điều không thể nghi ngờ: chính hành động nghi ngờ đang xảy ra. Để nghi ngờ xảy ra, phải có gì đó đang trải qua sự nghi ngờ đó. Đây không phải suy luận — tôi không cần lý thuyết để biết rằng đang có kinh nghiệm, vì bản thân việc nghi ngờ điều này đã xác nhận nó."</blockquote>
+        Phiên bản này tránh được phê phán về tam đoạn luận và vòng tròn.
+        <br><br>
+        <strong>Phản đối (sau steelman):</strong> Khoảng cách từ <em>"kinh nghiệm xảy ra"</em> → <em>"có một cái tôi bất biến"</em> vẫn là một bước nhảy không tầm thường. Hume và "bundle theory" lập luận: không có "tôi" bền vững — chỉ có dòng kinh nghiệm không gắn với chủ thể nào cố định.`
+      }
+    ]
+  },
+  {
+    id: 'ontological',
+    name: 'Lập luận Bản thể luận (Anselm)',
+    subtitle: 'GCB phải tồn tại trong thực tế',
+    quote: '"Chúng ta hiểu Thượng đế là thứ mà không thể có gì lớn hơn được nghĩ đến. Nhưng thứ tồn tại cả trong thực tế lẫn trong tư tưởng thì lớn hơn thứ chỉ tồn tại trong tư tưởng. Do đó Thượng đế phải tồn tại trong thực tế." — Anselm of Canterbury, Proslogion (1078)',
+    steps: [
+      {
+        title: 'Bước 1 — Tách tiền đề và kết luận',
+        content: `<table>
+          <tr><th style="width:160px">Vai trò</th><th>Nội dung</th></tr>
+          <tr><td><strong>P1 (định nghĩa)</strong></td><td>"Thượng đế" = thực thể không thể có thực thể nào lớn hơn có thể nghĩ đến (GCB).</td></tr>
+          <tr><td><strong>P2</strong></td><td>GCB có thể được hình dung trong tư tưởng (tồn tại in intellectu).</td></tr>
+          <tr><td><strong>P3 (ẩn)</strong></td><td>Tồn tại trong thực tế (in re) thì "lớn hơn" tồn tại chỉ trong tư tưởng.</td></tr>
+          <tr><td><strong>P4 (ẩn)</strong></td><td>Nếu GCB chỉ tồn tại trong tư tưởng, có thể nghĩ đến GCB tồn tại thực — cái đó lớn hơn GCB — mâu thuẫn với định nghĩa.</td></tr>
+          <tr><td><strong>Kết luận</strong></td><td>GCB phải tồn tại trong thực tế (= Thượng đế tồn tại).</td></tr>
+        </table>`
+      },
+      {
+        title: 'Bước 2 — Hình thức hóa (Logic modal)',
+        content: `<p><span class="badge-modal">Logic modal S5</span></p>
+        <pre>G = "GCB tồn tại"
+
+Phiên bản Plantinga (hiện đại hóa):
+1. ◇□G           (tồn tại tất yếu của GCB là khả dĩ)
+2. ◇□G → □□G    (axiom S5: necessity of necessity)
+3. □□G → □G     (tất yếu tất yếu → tất yếu)
+4. □G → G       (điều tất yếu là đúng trong mọi thế giới)
+──────────────────────────────────
+5. G</pre>
+        <p class="hint">Phiên bản Anselm gốc dùng ngôn ngữ tự nhiên; Plantinga (1974) mới hình thức hóa bằng modal S5. Hai phiên bản không hoàn toàn đồng nhất.</p>`
+      },
+      {
+        title: 'Bước 3 — Hợp lệ (Valid)?',
+        content: `<p><span class="badge-valid">✓ Hợp lệ về hình thức (trong S5)</span></p>
+        <p>Suy luận từ 1-4 đến 5 là hợp lệ <em>trong hệ thống modal S5</em>. Tuy nhiên, S5 có axiom mạnh: <code>◇□P → □P</code> — lựa chọn hệ thống modal nào (K, T, S4, S5) là phần quan trọng của tranh luận.</p>
+        <p>Trong hệ thống modal yếu hơn (S4), bước 2 không giữ → lập luận không hợp lệ.</p>`
+      },
+      {
+        title: 'Bước 4 — Tiền đề và Sound',
+        content: `<p><strong>P3 (ẩn) — "Tồn tại thực tế lớn hơn tồn tại tư tưởng":</strong> Đây là tiền đề yếu nhất và quan trọng nhất. Ai định nghĩa "lớn hơn"? Lớn theo nghĩa gì — đạo đức, vật lý, siêu hình?</p>
+        <p><strong>P1 (◇□G — tồn tại tất yếu của GCB là khả dĩ):</strong> Nghe hiển nhiên nhưng cực kỳ mạnh. Người phủ nhận có thể đồng đều nói: <code>◇¬□G</code> (không tồn tại tất yếu là khả dĩ) — và trong S5, đây tương đương với <code>¬□G</code>, phủ nhận kết luận.</p>
+        <p><span class="badge-warn">Còn tranh cãi</span> Lập luận này không thuyết phục được người hoài nghi ngay từ tiền đề 1.</p>`
+      },
+      {
+        title: 'Bước 5 — Ngụy biện và giả định ẩn',
+        content: `<strong>Phê phán của Kant (có ảnh hưởng nhất):</strong> "Tồn tại" không phải là thuộc tính (predicate) của đối tượng. Nói "X tồn tại" không thêm thuộc tính gì vào X — chỉ khẳng định X có thể hiện. So sánh "tồn tại thực tế" vs "tồn tại tư tưởng" như hai mức độ "lớn" là lỗi phạm trù (category mistake).
+        <br><br>
+        <strong>Phê phán của Gaunilo (reductio):</strong> "Hòn đảo hoàn hảo nhất có thể hình dung" cũng phải tồn tại theo cùng logic — rõ ràng là vô lý. Anselm phản bác: lập luận chỉ áp dụng cho thực thể <em>tất yếu</em>, không phải đảo <em>ngẫu nhiên</em>.
+        <br><br>
+        <strong>Giả định ẩn:</strong> Có thể hình dung GCB → GCB là khái niệm có ý nghĩa. Nhưng các khái niệm mâu thuẫn (hình tròn vuông) cũng có thể hình dung ở mức ngôn ngữ mà không thực sự nhất quán.`
+      },
+      {
+        title: 'Bước 6 — Steelman và phản đối',
+        content: `<strong>Steelman (Plantinga):</strong>
+        <blockquote style="border-left:3px solid #a8a29e; padding-left:12px; margin:10px 0; color:#44403c; font-style:italic;">"Nếu một thực thể toàn hảo có thể tồn tại (◇□G), thì trong ít nhất một thế giới khả dĩ nó tồn tại tất yếu. Nhưng điều tất yếu đúng trong một thế giới khả dĩ thì đúng trong mọi thế giới khả dĩ — kể cả thế giới thực. Đây không phải lý thuyết — đây là logic modal nhất quán."</blockquote>
+        <strong>Phản đối quyết định nhất:</strong> Tiền đề <code>◇□G</code> có thể bị từ chối đối xứng với <code>◇¬□G</code>. Lập luận đòi hỏi bạn đã không hoài nghi về khả năng của tồn tại tất yếu — người không tin GCB có lý do logic tương đương để bác bỏ tiền đề đó mà không mâu thuẫn.`
+      }
+    ]
+  },
+  {
+    id: 'modus-tollens',
+    name: 'Modus Tollens khoa học',
+    subtitle: 'Bác bỏ lý thuyết qua thực nghiệm',
+    quote: '"Nếu lý thuyết X đúng, thì thí nghiệm Y sẽ cho kết quả Z. Thí nghiệm Y đã được thực hiện và cho kết quả không phải Z. Do đó lý thuyết X sai." — Cấu trúc suy luận bác bỏ (falsification) theo Popper.',
+    steps: [
+      {
+        title: 'Bước 1 — Tách tiền đề và kết luận',
+        content: `<table>
+          <tr><th style="width:130px">Vai trò</th><th>Nội dung</th></tr>
+          <tr><td><strong>P1</strong></td><td>Nếu lý thuyết X đúng, thì thí nghiệm Y cho kết quả Z.</td></tr>
+          <tr><td><strong>P2</strong></td><td>Thí nghiệm Y không cho kết quả Z (¬Z).</td></tr>
+          <tr><td><strong>P3 (ẩn)</strong></td><td>Các điều kiện thí nghiệm hoàn toàn như giả định (ceteris paribus).</td></tr>
+          <tr><td><strong>Kết luận</strong></td><td>Lý thuyết X sai.</td></tr>
+        </table>`
+      },
+      {
+        title: 'Bước 2 — Hình thức hóa',
+        content: `<p><span class="badge-valid">Logic mệnh đề — Modus Tollens</span></p>
+        <pre>p = "Lý thuyết X đúng"
+q = "Thí nghiệm Y cho kết quả Z"
+
+P1: p → q         (dự đoán của lý thuyết)
+P2: ¬q            (quan sát thực nghiệm)
+──────────────────
+C:  ¬p            (modus tollens)</pre>
+        <p>Với tiền đề ẩn P3 (điều kiện chuẩn):</p>
+        <pre>P1': (p ∧ C₁ ∧ C₂ ∧ ... ∧ Cₙ) → q
+P2': ¬q
+C':  ¬p ∨ ¬C₁ ∨ ... ∨ ¬Cₙ    (Duhem-Quine)</pre>`
+      },
+      {
+        title: 'Bước 3 — Hợp lệ (Valid)?',
+        content: `<p><span class="badge-valid">✓ Hợp lệ hoàn toàn</span></p>
+        <p>Modus Tollens là dạng suy luận chuẩn, hợp lệ trong logic mệnh đề:</p>
+        <p><strong>Chứng minh:</strong> Giả sử P1 (p→q) và P2 (¬q) đúng, nhưng C (¬p) sai — tức p đúng. Từ P1 và p đúng, MP cho q. Nhưng P2 nói ¬q — mâu thuẫn. Vậy p phải sai (¬p đúng). ✓</p>
+        <p>Kiểm tra bảng chân lý một phần:</p>
+        <table>
+          <tr><th>p</th><th>q</th><th>p→q</th><th>¬q</th><th>¬p (kết luận)</th></tr>
+          <tr><td>T</td><td>T</td><td>T</td><td>F</td><td>F — nhưng ¬q=F nên dòng này không có P2 đúng</td></tr>
+          <tr><td>T</td><td>F</td><td>F</td><td>T</td><td>F — dòng này P1 sai, không liên quan</td></tr>
+          <tr><td>F</td><td>F</td><td>T</td><td>T</td><td>T — ✓ đây là dòng duy nhất có P1 và P2 đều đúng</td></tr>
+        </table>`
+      },
+      {
+        title: 'Bước 4 — Tiền đề và Sound',
+        content: `<p><strong>P3 ẩn (ceteris paribus):</strong> Đây là tiền đề quan trọng nhất trong ứng dụng thực tế. Khi thí nghiệm cho ¬Z, hai khả năng:</p>
+        <ol style="margin:10px 0; padding-left:20px; line-height:1.8; font-size:14px;">
+          <li><strong>Lý thuyết X sai</strong> (¬p) — điều kết luận mong muốn.</li>
+          <li><strong>Một điều kiện Cᵢ không được thỏa</strong> — lỗi dụng cụ, tạp nhiễu, điều kiện chưa kiểm soát.</li>
+        </ol>
+        <p>Khoa học ứng xử với ¬Z bằng cách <em>kiểm tra lại điều kiện trước</em> (tái lập thí nghiệm, loại trừ lỗi). Chỉ sau khi Cᵢ được xác nhận tốt, ¬Z mới thực sự gây áp lực lên p.</p>
+        <p><span class="badge-warn">Vấn đề Duhem-Quine</span> Không thể kiểm tra lý thuyết đơn lẻ mà không có cả hệ thống giả định phụ.</p>`
+      },
+      {
+        title: 'Bước 5 — Ngụy biện và giả định ẩn',
+        content: `<strong>Giả định ẩn chính:</strong> Dự đoán q là <em>duy nhất</em> từ lý thuyết X. Trong thực tế, một lý thuyết phức tạp thường đi kèm nhiều điều kiện biên và giả định phụ.
+        <br><br>
+        <strong>Ad hoc modification:</strong> Ngụy biện xảy ra khi lý thuyết được "vá" bằng cách thêm giả định phụ để thoát khỏi kết quả thí nghiệm bất lợi. Popper gọi đây là "immunization strategy" — làm lý thuyết không thể bác bỏ được (unfalsifiable) → mất tính khoa học.
+        <br><br>
+        <strong>Ví dụ lịch sử:</strong> Khi Uranus lệch quỹ đạo dự đoán từ Newton, các nhà khoa học không từ bỏ Newton ngay — họ giả thuyết có hành tinh chưa biết (Neptune) gây nhiễu. Đây là sửa giả định phụ (Cᵢ) hợp lý, không phải ad hoc, vì sau đó Neptune được phát hiện xác nhận.`
+      },
+      {
+        title: 'Bước 6 — Steelman và phản đối',
+        content: `<strong>Steelman của falsificationism (Popper):</strong>
+        <blockquote style="border-left:3px solid #a8a29e; padding-left:12px; margin:10px 0; color:#44403c; font-style:italic;">"Khoa học tiến bộ không bằng cách xác nhận lý thuyết mà bằng cách loại bỏ lý thuyết sai. Lý thuyết tốt là lý thuyết có thể bị bác bỏ nhưng chưa bị bác bỏ. Khi ¬q xảy ra và điều kiện đã được kiểm soát tốt, đây là bằng chứng mạnh nhất ta có thể yêu cầu."</blockquote>
+        <strong>Phản đối (Kuhn, Lakatos):</strong> Trong thực tế lịch sử, không lý thuyết lớn nào bị từ bỏ ngay sau một thí nghiệm bất lợi. Các cộng đồng khoa học có "core beliefs" được bảo vệ bởi "vành đai bảo vệ" giả định phụ. Điều này không phải phi lý — đôi khi kiên trì với lý thuyết dù bằng chứng bất lợi ngắn hạn là chiến lược nghiên cứu hợp lý (research programme của Lakatos).`
+      }
+    ]
+  }
+];
+
+// ================================================================
+// TAGGER DATA
+// ================================================================
+const TAGGER_EXERCISES = [
+  {
+    id: 'exercise1',
+    name: 'Lập luận về mưa',
+    sentences: [
+      { id: 0, text: 'Nếu trời mưa, đường sẽ ướt.' },
+      { id: 1, text: 'Trời đang mưa.' },
+      { id: 2, text: 'Do đó đường đang ướt.' }
+    ],
+    answer: {
+      premises: [0, 1],
+      conclusions: [2]
+    },
+    explanation: 'Modus ponens đơn giản. Câu 1 và 2 là tiền đề (P: p→q và P: p). Câu 3 là kết luận (C: q). Lập luận hợp lệ hoàn toàn.'
+  },
+  {
+    id: 'exercise2',
+    name: 'Lập luận về con chim',
+    sentences: [
+      { id: 0, text: 'Tất cả chim đều biết bay.' },
+      { id: 1, text: 'Con cánh cụt là chim.' },
+      { id: 2, text: 'Suy ra con cánh cụt biết bay.' }
+    ],
+    answer: {
+      premises: [0, 1],
+      conclusions: [2]
+    },
+    explanation: 'Hình thức: hợp lệ (modus barbara). Nhưng không sound — tiền đề 1 sai (cánh cụt không bay). Lập luận hợp lệ nhưng không đúng đắn.'
+  },
+  {
+    id: 'exercise3',
+    name: 'Lập luận về số nguyên tố',
+    sentences: [
+      { id: 0, text: 'Mọi số nguyên tố đều lớn hơn 1.' },
+      { id: 1, text: 'Có vô hạn số nguyên tố.' },
+      { id: 2, text: 'Vậy có vô hạn số lớn hơn 1.' }
+    ],
+    answer: {
+      premises: [0, 1],
+      conclusions: [2]
+    },
+    explanation: 'Hợp lệ và sound: cả hai tiền đề đúng (định lý đã được chứng minh). Kết luận tất yếu đúng. Lập luận toán học hoàn chỉnh.'
+  }
+];
+
+// ================================================================
+// TRẠNG THÁI
+// ================================================================
+let currentArgIdx = 0;
+let currentStep = 0;
+
+// Tagger state
+let currentTaggerIdx = 0;
+let activeTag = 'premise';
+let taggedWords = {}; // { wordKey: 'premise' | 'conclusion' }
+
+// ================================================================
+// TAB SWITCHING
+// ================================================================
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  // find button
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const idx = ['tab-analyse', 'tab-tagger', 'tab-toolkit'].indexOf(tabId);
+  if (idx >= 0) tabBtns[idx].classList.add('active');
+}
+
+// ================================================================
+// ARGUMENT ANALYSIS
+// ================================================================
+function renderArgSelector() {
+  const sel = document.getElementById('argSelector');
+  sel.innerHTML = '';
+  ARGUMENTS.forEach((arg, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'arg-btn' + (i === 0 ? ' active' : '');
+    btn.innerHTML = '<div style="font-size:13px; color:#78716c; font-weight:400;">' + arg.subtitle + '</div>' +
+                    '<div>' + arg.name + '</div>';
+    btn.onclick = () => selectArg(i);
+    sel.appendChild(btn);
+  });
+  renderArgCard(0);
+}
+
+function selectArg(idx) {
+  currentArgIdx = idx;
+  currentStep = 0;
+  document.querySelectorAll('.arg-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  renderArgCard(idx);
+}
+
+function renderArgCard(idx) {
+  const arg = ARGUMENTS[idx];
+  document.getElementById('argCard').style.display = 'block';
+  document.getElementById('argQuote').innerHTML = arg.quote.replace(/\n/g, '<br>');
+  renderSteps(arg);
+  updateNavControls(arg);
+}
+
+function renderSteps(arg) {
+  const panel = document.getElementById('stepPanel');
+  panel.innerHTML = '';
+  arg.steps.forEach((step, i) => {
+    const row = document.createElement('div');
+    row.className = 'step-row';
+
+    const num = document.createElement('div');
+    num.className = 'step-num' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+    num.textContent = i + 1;
+    row.appendChild(num);
+
+    const content = document.createElement('div');
+    content.className = 'step-content';
+
+    const title = document.createElement('div');
+    title.className = 'step-title';
+    title.textContent = step.title;
+    content.appendChild(title);
+
+    const body = document.createElement('div');
+    body.className = 'step-body' + (i <= currentStep ? ' show' : '');
+    body.innerHTML = step.content;
+    content.appendChild(body);
+
+    row.appendChild(content);
+    panel.appendChild(row);
+  });
+}
+
+function updateNavControls(arg) {
+  const total = arg.steps.length;
+  document.getElementById('btnPrev').disabled = currentStep === 0;
+  document.getElementById('btnNext').disabled = currentStep >= total - 1;
+  document.getElementById('stepIndicator').textContent =
+    'Bước ' + (currentStep + 1) + ' / ' + total;
+}
+
+function nextStep() {
+  const arg = ARGUMENTS[currentArgIdx];
+  if (currentStep < arg.steps.length - 1) {
+    currentStep++;
+    renderSteps(arg);
+    updateNavControls(arg);
+    // Scroll to new step
+    const rows = document.querySelectorAll('.step-row');
+    if (rows[currentStep]) {
+      rows[currentStep].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+}
+
+function prevStep() {
+  const arg = ARGUMENTS[currentArgIdx];
+  if (currentStep > 0) {
+    currentStep--;
+    renderSteps(arg);
+    updateNavControls(arg);
+  }
+}
+
+// ================================================================
+// TAGGER
+// ================================================================
+function renderTaggerSelector() {
+  const sel = document.getElementById('taggerSelector');
+  sel.innerHTML = '';
+  TAGGER_EXERCISES.forEach((ex, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'arg-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = ex.name;
+    btn.onclick = () => selectTagger(i);
+    sel.appendChild(btn);
+  });
+  renderTaggerCard(0);
+}
+
+function selectTagger(idx) {
+  currentTaggerIdx = idx;
+  taggedWords = {};
+  document.querySelectorAll('#taggerSelector .arg-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  renderTaggerCard(idx);
+}
+
+function renderTaggerCard(idx) {
+  const ex = TAGGER_EXERCISES[idx];
+  document.getElementById('taggerCard').style.display = 'block';
+  document.getElementById('taggerResult').className = 'tagger-result';
+  document.getElementById('taggerResult').innerHTML = '';
+
+  const textEl = document.getElementById('taggerText');
+  textEl.innerHTML = '';
+
+  ex.sentences.forEach(sent => {
+    const span = document.createElement('span');
+    span.className = 'tag-word';
+    span.dataset.id = sent.id;
+    span.textContent = sent.text;
+    span.onclick = () => toggleTag(span, sent.id);
+    textEl.appendChild(span);
+    textEl.appendChild(document.createTextNode(' '));
+  });
+}
+
+function setActiveTag(type) {
+  activeTag = type;
+  document.getElementById('legendPremise').classList.toggle('active-tag', type === 'premise');
+  document.getElementById('legendConclusion').classList.toggle('active-tag', type === 'conclusion');
+}
+
+function toggleTag(el, id) {
+  const key = String(id);
+  if (taggedWords[key] === activeTag) {
+    delete taggedWords[key];
+    el.className = 'tag-word';
+  } else {
+    taggedWords[key] = activeTag;
+    el.className = 'tag-word tagged-' + activeTag;
+  }
+}
+
+function clearTags() {
+  taggedWords = {};
+  document.querySelectorAll('#taggerText .tag-word').forEach(el => {
+    el.className = 'tag-word';
+  });
+  document.getElementById('taggerResult').className = 'tagger-result';
+  document.getElementById('taggerResult').innerHTML = '';
+}
+
+function checkTags() {
+  const ex = TAGGER_EXERCISES[currentTaggerIdx];
+  const resultEl = document.getElementById('taggerResult');
+
+  const userPremises = Object.entries(taggedWords)
+    .filter(([, v]) => v === 'premise').map(([k]) => parseInt(k));
+  const userConclusions = Object.entries(taggedWords)
+    .filter(([, v]) => v === 'conclusion').map(([k]) => parseInt(k));
+
+  const correctP = ex.answer.premises;
+  const correctC = ex.answer.conclusions;
+
+  const premiseOk = correctP.every(id => userPremises.includes(id)) &&
+                    userPremises.every(id => correctP.includes(id));
+  const conclusionOk = correctC.every(id => userConclusions.includes(id)) &&
+                       userConclusions.every(id => correctC.includes(id));
+
+  if (premiseOk && conclusionOk) {
+    resultEl.className = 'tagger-result show ok';
+    resultEl.innerHTML = '<strong>Chính xác!</strong> Bạn đã xác định đúng tiền đề và kết luận.<br>' + ex.explanation;
+  } else {
+    let msg = '<strong>Chưa đúng.</strong> ';
+    if (!premiseOk) msg += 'Tiền đề chưa khớp. ';
+    if (!conclusionOk) msg += 'Kết luận chưa khớp. ';
+    msg += '<br><span class="hint">Gợi ý: tìm câu nêu lý do dẫn đến câu kia — đó là tiền đề. Câu được chứng minh bởi các câu kia là kết luận. Hãy thử lại!</span>';
+    resultEl.className = 'tagger-result show warn';
+    resultEl.innerHTML = msg;
+  }
+}
+
+function showTaggerAnswer() {
+  const ex = TAGGER_EXERCISES[currentTaggerIdx];
+  taggedWords = {};
+  ex.answer.premises.forEach(id => { taggedWords[String(id)] = 'premise'; });
+  ex.answer.conclusions.forEach(id => { taggedWords[String(id)] = 'conclusion'; });
+
+  document.querySelectorAll('#taggerText .tag-word').forEach(el => {
+    const id = String(el.dataset.id);
+    if (taggedWords[id] === 'premise') el.className = 'tag-word tagged-premise';
+    else if (taggedWords[id] === 'conclusion') el.className = 'tag-word tagged-conclusion';
+    else el.className = 'tag-word';
+  });
+
+  const resultEl = document.getElementById('taggerResult');
+  resultEl.className = 'tagger-result show ok';
+  resultEl.innerHTML = '<strong>Đáp án mẫu:</strong> ' + ex.explanation;
+}
+
+// ================================================================
+// TOOLKIT DATA & RENDER
+// ================================================================
+const TOOLKIT_T1 = [
+  { concept: 'Mệnh đề (Proposition)', symbol: 'p, q, r — T/F', meaning: 'Câu khẳng định có giá trị chân lý xác định. Không phải câu hỏi, mệnh lệnh, câu mở.', lesson: 'L01' },
+  { concept: 'Liên từ logic', symbol: '¬, ∧, ∨, →, ↔', meaning: 'Nối mệnh đề: phủ định, và, hoặc, kéo theo, tương đương. Bảng chân lý định nghĩa từng phép.', lesson: 'L02' },
+  { concept: 'Tautology / Contradiction', symbol: '⊤ / ⊥', meaning: 'Luôn đúng / Luôn sai bất kể giá trị biến. Dùng để kiểm tra đồng nhất logic.', lesson: 'L03' },
+  { concept: 'Hợp lệ (Valid)', symbol: 'P₁∧P₂⊨C', meaning: 'Nếu mọi tiền đề đúng thì kết luận bắt buộc đúng. Không cần tiền đề thực sự đúng.', lesson: 'L04' },
+  { concept: 'Đúng đắn (Sound)', symbol: 'Valid + tiền đề đúng', meaning: 'Hợp lệ VÀ tất cả tiền đề thực sự đúng → kết luận chắc chắn đúng. Tiêu chuẩn cao nhất.', lesson: 'L04' },
+  { concept: 'Modus Ponens (MP)', symbol: 'p→q, p ⊢ q', meaning: 'Khẳng định tiền tố: p→q và p đúng → q đúng. Dạng cơ bản nhất.', lesson: 'L04' },
+  { concept: 'Modus Tollens (MT)', symbol: 'p→q, ¬q ⊢ ¬p', meaning: 'Phủ định hậu tố: p→q và ¬q đúng → ¬p đúng. Cấu trúc của falsification khoa học.', lesson: 'L04' },
+  { concept: 'Logic vị từ (Predicate)', symbol: '∀x P(x), ∃x Q(x)', meaning: 'Mở rộng logic mệnh đề để nói về đối tượng và thuộc tính. Lượng từ ràng buộc biến.', lesson: 'L05' },
+  { concept: 'Phản ví dụ (Counterexample)', symbol: 'P₁∧P₂=T, C=F', meaning: 'Tình huống cụ thể làm tiền đề đúng, kết luận sai → chứng minh lập luận không hợp lệ.', lesson: 'L06' }
+];
+
+const TOOLKIT_T2 = [
+  { concept: 'Tiền đề ẩn (Implicit Premise)', meaning: 'Giả định không được phát biểu mà lập luận ngầm dựa vào. Thường là điểm yếu nhất.', warning: 'Dễ bỏ qua vì không xuất hiện trong văn bản. Phải chủ động tìm.', lesson: 'L01' },
+  { concept: 'Affirming the Consequent', meaning: 'Sai lầm: p→q và q đúng → kết luận p đúng. Không hợp lệ!', warning: 'Ví dụ: "Trời mưa thì đường ướt. Đường ướt. Vậy trời mưa" — sai (có thể ai tưới).', lesson: 'L02' },
+  { concept: 'Ad Hominem', meaning: 'Tấn công người nói thay vì lập luận. Không liên quan đến tính đúng sai của nội dung.', warning: 'Phân biệt: thông tin về uy tín CÓ thể liên quan khi lập luận dựa vào thẩm quyền.', lesson: 'L03' },
+  { concept: 'Straw Man', meaning: 'Tấn công phiên bản biến dạng (yếu hơn) của lập luận đối phương thay vì phiên bản thực.', warning: 'Steelman là đối lập của straw man — xây dựng phiên bản mạnh nhất trước khi phản bác.', lesson: 'L03' },
+  { concept: 'Begging the Question (Vòng tròn)', meaning: 'Tiền đề của lập luận giả định kết luận mà nó cần chứng minh. Circular reasoning.', warning: 'Đôi khi ẩn sâu — cần hỏi "tiền đề này được chứng minh bởi gì?"', lesson: 'L04' },
+  { concept: 'False Dichotomy', meaning: 'Trình bày chỉ hai lựa chọn trong khi thực tế có nhiều hơn.', warning: '"Hoặc ủng hộ A hoặc phản đối B" — bỏ qua các vị trí trung gian.', lesson: 'L04' },
+  { concept: 'Slippery Slope', meaning: 'Giả định bước đầu tiên tất yếu dẫn đến chuỗi hệ quả cực đoan mà không chứng minh từng bước.', warning: 'Có thể KHÔNG phải ngụy biện nếu có bằng chứng thực nghiệm cho chuỗi đó.', lesson: 'L04' },
+  { concept: 'Steelman', meaning: 'Xây dựng phiên bản mạnh nhất có thể của lập luận trước khi phản bác. Trái ngược straw man.', warning: 'Steelman không có nghĩa là đồng ý — là kỹ thuật hiểu và phản bác công bằng.', lesson: 'L08' },
+  { concept: 'Burden of Proof', meaning: 'Người đưa ra tuyên bố có trách nhiệm chứng minh. Không phải người nghi ngờ phải chứng minh sai.', warning: '"Tuyên bố phi thường cần bằng chứng phi thường" (Sagan).', lesson: 'L08' }
+];
+
+const TOOLKIT_T3 = [
+  { concept: 'Logic modal', symbol: '□P (tất yếu), ◇P (khả dĩ)', meaning: 'P đúng ở mọi thế giới khả dĩ (□) hay ít nhất một (◇). □P→◇P nhưng không ngược.', lesson: 'L01' },
+  { concept: 'Nghịch lý Liar', symbol: '"Câu này sai"', meaning: 'Câu tự-tham chiếu không thể gán giá trị nhất quán. Dẫn đến phân cấp ngôn ngữ (Tarski).', lesson: 'L02' },
+  { concept: 'Nghịch lý Russell', symbol: 'R={x: x∉x}', meaning: 'Tập hợp tự-tham chiếu gây mâu thuẫn trong lý thuyết tập ngây thơ. Dẫn đến ZFC.', lesson: 'L02' },
+  { concept: 'Định lý Gödel (Không đầy đủ)', symbol: 'T⊬G_T (nếu T nhất quán)', meaning: 'Trong bất kỳ hệ thống đủ mạnh nhất quán nào, tồn tại mệnh đề đúng nhưng không thể chứng minh.', lesson: 'L03' },
+  { concept: 'Logic mờ (Fuzzy)', symbol: 'v(P) ∈ [0,1]', meaning: 'Giá trị chân lý là số thực trong [0,1], không chỉ T/F. Mô hình hóa độ không chắc chắn.', lesson: 'L04' },
+  { concept: 'Sense vs. Reference (Frege)', symbol: 'Sinn / Bedeutung', meaning: '"Ngôi sao buổi sáng" và "ngôi sao buổi tối" có cùng tham chiếu (Venus) nhưng nghĩa khác.', lesson: 'L05' },
+  { concept: 'Speech Acts', symbol: 'Locutionary / Illocutionary / Perlocutionary', meaning: 'Hành động trong ngôn ngữ: nói gì (locutionary), làm gì (illocutionary), tác động gì (perlocutionary).', lesson: 'L06' },
+  { concept: 'SAT Problem / Logic tính toán', symbol: 'CNF, □φ→Valid', meaning: 'Kiểm tra thỏa được (satisfiability) là NP-complete. Nền tảng của formal verification và AI.', lesson: 'L07' }
+];
+
+function renderToolkitTable(tbodyId, data, isCritical) {
+  const tbody = document.getElementById(tbodyId);
+  tbody.innerHTML = '';
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+    if (isCritical) {
+      tr.innerHTML = `<td><strong>${row.concept}</strong></td>
+        <td>${row.meaning}</td>
+        <td style="color:#92400e; font-size:13px;">${row.warning}</td>
+        <td><span class="tag-t2">${row.lesson}</span></td>`;
+    } else {
+      tr.innerHTML = `<td><strong>${row.concept}</strong></td>
+        <td><code>${row.symbol}</code></td>
+        <td>${row.meaning}</td>
+        <td><span class="${tbodyId === 'toolkit-t1' ? 'tag-t1' : 'tag-t3'}">${row.lesson}</span></td>`;
+    }
+    tbody.appendChild(tr);
+  });
+}
+
+// ================================================================
+// INIT
+// ================================================================
+function init() {
+  renderArgSelector();
+  renderTaggerSelector();
+  renderToolkitTable('toolkit-t1', TOOLKIT_T1, false);
+  renderToolkitTable('toolkit-t2', TOOLKIT_T2, true);
+  renderToolkitTable('toolkit-t3', TOOLKIT_T3, false);
+}
+
+init();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

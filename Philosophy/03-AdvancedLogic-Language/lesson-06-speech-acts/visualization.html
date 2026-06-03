@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Hành vi ngôn ngữ (Speech Acts)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-hover: #44403c;
+    --accent-soft: #f0eeec;
+  }
+
+  h1 { color: #1c1917; }
+  h2 {
+    color: #292524;
+    margin-top: 44px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #d6d3d1;
+  }
+
+  /* ---- card ---- */
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #78716c;
+    margin: 6px 0 0;
+    line-height: 1.5;
+  }
+
+  /* ---- buttons ---- */
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  button.ghost:hover { background: #e7e5e4; }
+  button.sm { padding: 6px 12px; font-size: 13px; }
+
+  /* ---- score bar ---- */
+  .score-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--accent-soft);
+    border-radius: 10px;
+    margin: 16px 0;
+    font-size: 15px;
+    flex-wrap: wrap;
+  }
+  .score-num {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: monospace;
+    flex-shrink: 0;
+  }
+  .score-bar .bar-right { flex: 1; min-width: 160px; }
+
+  progress {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    appearance: none;
+    -webkit-appearance: none;
+    background: #e7e5e4;
+  }
+  progress::-webkit-progress-bar { background: #e7e5e4; border-radius: 4px; }
+  progress::-webkit-progress-value { background: var(--accent); border-radius: 4px; }
+  progress::-moz-progress-bar { background: var(--accent); border-radius: 4px; }
+
+  /* ---- quiz items ---- */
+  .quiz-item {
+    border: 2px solid #e7e5e4;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin: 14px 0;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .quiz-item.correct { border-color: #86efac; background: #f0fdf4; }
+  .quiz-item.wrong   { border-color: #fca5a5; background: #fff7f7; }
+
+  .quiz-sentence {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1c1917;
+    margin-bottom: 12px;
+    line-height: 1.5;
+    font-style: italic;
+  }
+
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .choice-btn {
+    background: #f5f5f4;
+    color: #44403c;
+    border: 1.5px solid #d6d3d1;
+    border-radius: 7px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .choice-btn:hover:not(:disabled) { background: #e7e5e4; border-color: #a8a29e; }
+  .choice-btn:disabled { cursor: default; }
+  .choice-btn.selected-correct { background: #bbf7d0; border-color: #22c55e; color: #14532d; }
+  .choice-btn.selected-wrong   { background: #fecaca; border-color: #ef4444; color: #7f1d1d; }
+  .choice-btn.reveal-correct   { background: #dcfce7; border-color: #86efac; color: #166534; }
+
+  .quiz-explanation {
+    display: none;
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: var(--accent-soft);
+    border-radius: 7px;
+    font-size: 14px;
+    line-height: 1.65;
+    color: #292524;
+  }
+  .quiz-explanation.show { display: block; }
+
+  /* ---- type badge ---- */
+  .type-tag {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+  .tag-assertive    { background: #dbeafe; color: #1e40af; }
+  .tag-directive    { background: #fef9c3; color: #854d0e; }
+  .tag-commissive   { background: #dcfce7; color: #166534; }
+  .tag-expressive   { background: #fae8ff; color: #7e22ce; }
+  .tag-declaration  { background: #fee2e2; color: #991b1b; }
+
+  /* ---- Section 2: 3 tầng ---- */
+  .layer-diagram {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin: 16px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e7e5e4;
+  }
+  .layer {
+    padding: 16px 20px;
+    transition: background 0.25s;
+  }
+  .layer:nth-child(1) { background: #e8f4fd; border-bottom: 1px solid #d6d3d1; }
+  .layer:nth-child(2) { background: #fdf8e8; border-bottom: 1px solid #d6d3d1; }
+  .layer:nth-child(3) { background: #f3fef3; }
+  .layer-label {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #78716c;
+    margin-bottom: 4px;
+  }
+  .layer-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1c1917;
+    margin-bottom: 4px;
+  }
+  .layer-content {
+    font-size: 14px;
+    color: #44403c;
+    line-height: 1.6;
+    min-height: 20px;
+  }
+  .layer-empty { color: #a8a29e; font-style: italic; }
+
+  .utterance-btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .utt-btn {
+    background: #fff;
+    border: 1.5px solid #d6d3d1;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-style: italic;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    color: #292524;
+    font-weight: 500;
+  }
+  .utt-btn:hover { background: #fafaf9; border-color: #a8a29e; }
+  .utt-btn.active { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+
+  /* ---- Section 3: Felicity ---- */
+  .scenario-card {
+    border: 2px solid #e7e5e4;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 14px 0;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .scenario-card.felicitous   { border-color: #86efac; background: #f0fdf4; }
+  .scenario-card.infelicitous { border-color: #fca5a5; background: #fff7f7; }
+
+  .scenario-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1c1917;
+    margin-bottom: 6px;
+  }
+  .scenario-desc {
+    font-size: 14px;
+    color: #44403c;
+    line-height: 1.65;
+    margin-bottom: 12px;
+  }
+  .scenario-quote {
+    font-style: italic;
+    color: #57534e;
+    background: #f5f5f4;
+    border-left: 3px solid #a8a29e;
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  .verdict-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .verdict-btn {
+    background: #f5f5f4;
+    border: 1.5px solid #d6d3d1;
+    border-radius: 7px;
+    padding: 7px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .verdict-btn:hover:not(:disabled) { background: #e7e5e4; }
+  .verdict-btn:disabled { cursor: default; }
+  .verdict-btn.sel-felicitous   { background: #bbf7d0; border-color: #22c55e; color: #14532d; }
+  .verdict-btn.sel-infelicitous { background: #fecaca; border-color: #ef4444; color: #7f1d1d; }
+  .verdict-btn.reveal-f   { background: #dcfce7; border-color: #86efac; color: #166534; }
+  .verdict-btn.reveal-inf { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+
+  .scenario-explanation {
+    display: none;
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: var(--accent-soft);
+    border-radius: 7px;
+    font-size: 14px;
+    line-height: 1.65;
+    color: #292524;
+  }
+  .scenario-explanation.show { display: block; }
+
+  /* ---- reference table ---- */
+  .ref-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 12px;
+  }
+  .ref-table th {
+    background: #e7e5e4;
+    color: #292524;
+    padding: 9px 12px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .ref-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #f5f5f4;
+    vertical-align: top;
+  }
+  .ref-table tr:last-child td { border-bottom: none; }
+  .ref-table tr:hover td { background: #fafaf9; }
+
+  /* ---- responsive ---- */
+  @media (max-width: 480px) {
+    .card { padding: 14px 14px; }
+    .quiz-sentence { font-size: 14px; }
+    .choice-btn { padding: 6px 10px; font-size: 12px; }
+    h2 { font-size: 17px; }
+    .score-bar { gap: 10px; }
+    .score-num { font-size: 20px; }
+    .layer { padding: 12px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Advanced Logic &amp; Language</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-sense-reference/visualization.html">← L5: Ngữ nghĩa &amp; quy chiếu</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Hành vi ngôn ngữ</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-logic-computation/visualization.html">L7: Logic &amp; tính toán →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Hành vi ngôn ngữ (Speech Acts)</h1>
+<p>Không phải câu nào cũng để mô tả thực tại. Một câu có thể <strong>thực hiện hành động</strong> ngay khi được nói ra — đặt tên, tuyên án, hứa hẹn, sa thải. Ba bài tập dưới đây giúp bạn luyện phân loại và phân tích hành vi ngôn ngữ.</p>
+
+<!-- ============================================================ -->
+<h2>1. Phân loại hành vi tại lời (5 nhóm Searle)</h2>
+<div class="card">
+  <p>Với mỗi câu, chọn loại illocutionary act theo Searle. Sau khi chọn, bạn sẽ thấy giải thích.</p>
+
+  <!-- Bảng tham chiếu nhanh -->
+  <details style="margin-bottom:16px">
+    <summary style="cursor:pointer; font-weight:600; font-size:14px; color:var(--accent)">Bảng tham chiếu 5 nhóm Searle (bấm để mở)</summary>
+    <div style="overflow-x:auto; margin-top:10px">
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>Loại</th>
+            <th>Ý nghĩa</th>
+            <th>Ví dụ nhanh</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="type-tag tag-assertive">Assertive</span></td>
+            <td>Khẳng định đúng/sai về sự kiện — người nói cam kết với tính chân thật</td>
+            <td>"Hà Nội là thủ đô Việt Nam."</td>
+          </tr>
+          <tr>
+            <td><span class="type-tag tag-directive">Directive</span></td>
+            <td>Khiến người nghe làm gì — ra lệnh, yêu cầu, hỏi, cấm đoán</td>
+            <td>"Đóng cửa lại!" / "Bạn có thể giúp không?"</td>
+          </tr>
+          <tr>
+            <td><span class="type-tag tag-commissive">Commissive</span></td>
+            <td>Người nói cam kết hành động tương lai — hứa, thề, tình nguyện</td>
+            <td>"Tôi hứa sẽ đến đúng giờ."</td>
+          </tr>
+          <tr>
+            <td><span class="type-tag tag-expressive">Expressive</span></td>
+            <td>Biểu đạt cảm xúc/trạng thái tâm lý — xin lỗi, cảm ơn, chúc mừng</td>
+            <td>"Xin lỗi vì đã đến muộn."</td>
+          </tr>
+          <tr>
+            <td><span class="type-tag tag-declaration">Declaration</span></td>
+            <td>Tạo ra thực tại mới bằng cách nói — sa thải, tuyên án, đặt tên, tuyên chiến</td>
+            <td>"Anh bị sa thải kể từ hôm nay."</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+  <div class="score-bar">
+    <div class="score-num" id="s1ScoreNum">0 / 0</div>
+    <div class="bar-right">
+      <progress id="s1Progress" value="0" max="1"></progress>
+      <div class="hint" id="s1Hint">Bắt đầu phân loại để xem điểm.</div>
+    </div>
+    <button class="ghost sm" onclick="resetSection1()">Làm lại</button>
+  </div>
+
+  <div id="s1Area"></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Ba tầng của một phát ngôn</h2>
+<div class="card">
+  <p>Chọn một phát ngôn bên dưới để xem phân tích 3 tầng: <strong>tạo lời</strong> (locutionary), <strong>tại lời</strong> (illocutionary), <strong>mượn lời</strong> (perlocutionary). Sau đó thử đoán illocutionary force trước khi xem đáp án.</p>
+
+  <div class="utterance-btn-row" id="uttBtnRow"></div>
+
+  <div id="layerDiagram" class="layer-diagram">
+    <div class="layer">
+      <div class="layer-label">Tầng 1</div>
+      <div class="layer-name">Hành vi tạo lời (Locutionary)</div>
+      <div class="layer-content layer-empty" id="locContent">Chọn một phát ngôn bên trên.</div>
+    </div>
+    <div class="layer">
+      <div class="layer-label">Tầng 2</div>
+      <div class="layer-name">Hành vi tại lời (Illocutionary)</div>
+      <div class="layer-content" id="illoContent">
+        <span class="layer-empty">Chọn một phát ngôn bên trên.</span>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-label">Tầng 3</div>
+      <div class="layer-name">Hành vi mượn lời (Perlocutionary)</div>
+      <div class="layer-content layer-empty" id="perloContent">Chọn một phát ngôn bên trên.</div>
+    </div>
+  </div>
+
+  <div id="illoGuessArea" style="display:none; margin-top:14px">
+    <p style="font-size:14px; color:#44403c; margin-bottom:8px"><strong>Bạn đoán illocutionary force chính là gì?</strong></p>
+    <div class="btn-row" id="illoGuessBtns"></div>
+    <div id="illoGuessResult" style="display:none; margin-top:10px; padding:10px 14px; background:var(--accent-soft); border-radius:7px; font-size:14px; line-height:1.65;"></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Điều kiện thành công (Felicity Conditions)</h2>
+<div class="card">
+  <p>Với mỗi tình huống, hãy đánh giá performative đó <strong>thành</strong> (felicitous) hay <strong>bất thành</strong> (infelicitous). Chú ý: bất thành vì misfire (không xảy ra) hay vì abuse (xảy ra nhưng không thành thật)?</p>
+
+  <div class="score-bar">
+    <div class="score-num" id="s3ScoreNum">0 / 0</div>
+    <div class="bar-right">
+      <progress id="s3Progress" value="0" max="1"></progress>
+      <div class="hint" id="s3Hint">Bắt đầu đánh giá để xem điểm.</div>
+    </div>
+    <button class="ghost sm" onclick="resetSection3()">Làm lại</button>
+  </div>
+
+  <div id="s3Area"></div>
+</div>
+
+<script>
+// ================================================================
+// DỮ LIỆU
+// ================================================================
+
+// ---- Section 1: 5 nhóm Searle ----
+const SEARLE_TYPES = ['Assertive', 'Directive', 'Commissive', 'Expressive', 'Declaration'];
+const TYPE_TAG_CLS = {
+  'Assertive':   'tag-assertive',
+  'Directive':   'tag-directive',
+  'Commissive':  'tag-commissive',
+  'Expressive':  'tag-expressive',
+  'Declaration': 'tag-declaration',
+};
+
+const S1_QUESTIONS = [
+  {
+    sentence: '"Hội đồng xét xử tuyên bố bị cáo vô tội."',
+    answer: 'Declaration',
+    explanation: '<strong>Declaration.</strong> Phát ngôn này thay đổi trạng thái pháp lý của bị cáo — từ "bị truy tố" sang "vô tội trước pháp luật". Cần thẩm quyền thẩm phán/hội đồng. Đây là performative mạnh nhất của Austin.'
+  },
+  {
+    sentence: '"Nhiệt độ trên sao Hỏa vào ban đêm có thể xuống −73°C."',
+    answer: 'Assertive',
+    explanation: '<strong>Assertive.</strong> Khẳng định sự kiện khoa học — có thể kiểm tra đúng/sai (đúng: theo NASA, nhiệt độ trung bình đêm trên sao Hỏa khoảng −73°C). Người nói cam kết với tính chân thật của câu này.'
+  },
+  {
+    sentence: '"Tôi hứa sẽ không tiết lộ thông tin này với ai."',
+    answer: 'Commissive',
+    explanation: '<strong>Commissive.</strong> Người nói cam kết hành động trong tương lai — cụ thể là giữ bí mật. Tạo ra nghĩa vụ của chính người nói. Nếu tiết lộ sau đó = vi phạm lời hứa.'
+  },
+  {
+    sentence: '"Xin hãy ngồi xuống và bắt đầu làm bài thi."',
+    answer: 'Directive',
+    explanation: '<strong>Directive.</strong> Yêu cầu người nghe thực hiện hai hành động: ngồi xuống và làm bài. Hướng khớp: người nghe phải thay đổi hành động để phù hợp với yêu cầu. Dạng lịch sự ("xin hãy") nhưng vẫn là directive.'
+  },
+  {
+    sentence: '"Cảm ơn bạn đã giúp tôi vượt qua giai đoạn khó khăn đó."',
+    answer: 'Expressive',
+    explanation: '<strong>Expressive.</strong> Biểu đạt lòng biết ơn — trạng thái tâm lý của người nói đối với hành động của người nghe. Không khẳng định sự thật mới, không yêu cầu hành động. Không có hướng khớp (no fit required).'
+  },
+  {
+    sentence: '"Tôi nghĩ dự án này có nguy cơ bị trễ tiến độ."',
+    answer: 'Assertive',
+    explanation: '<strong>Assertive.</strong> Cụ thể là <em>conjecture</em> (suy đoán) — một dạng assertive yếu hơn, người nói không cam kết hoàn toàn mà chỉ biểu đạt ý kiến. Vẫn là assertive vì có thể đánh giá độ xác của nó.'
+  },
+  {
+    sentence: '"Bạn có thể tắt điện trước khi ra về không?"',
+    answer: 'Directive',
+    explanation: '<strong>Directive.</strong> Hình thức ngữ pháp là câu hỏi (có/không), nhưng illocutionary force thực sự là <em>yêu cầu</em> người nghe tắt điện. Đây là ví dụ kinh điển của "indirect speech act" — illocution ẩn sau hình thức câu hỏi.'
+  },
+  {
+    sentence: '"Tôi tình nguyện ở lại dọn dẹp sau buổi tiệc."',
+    answer: 'Commissive',
+    explanation: '<strong>Commissive.</strong> Người nói tự nguyện cam kết thực hiện hành động — dọn dẹp. Không ai yêu cầu, người nói chủ động đặt nghĩa vụ lên bản thân.'
+  },
+  {
+    sentence: '"Chúc mừng bạn đã đỗ kỳ thi!"',
+    answer: 'Expressive',
+    explanation: '<strong>Expressive.</strong> Biểu đạt niềm vui/chúc mừng của người nói trước thành tích của người nghe. Không khẳng định thông tin mới (người nói biết kết quả rồi), không yêu cầu hành động.'
+  },
+  {
+    sentence: '"Tôi, thay mặt hội đồng giáo sư, công nhận anh là tiến sĩ triết học."',
+    answer: 'Declaration',
+    explanation: '<strong>Declaration.</strong> Phát ngôn tạo ra thực tại mới: người được gọi giờ <em>là</em> tiến sĩ theo nghĩa thể chế. Cần thẩm quyền của hội đồng chính thức. Không mô tả — biến đổi.'
+  },
+];
+
+// ---- Section 2: 3 tầng ----
+const UTTERANCES = [
+  {
+    label: '"Trời lạnh đấy."',
+    context: 'Nói với người bạn đang mở cửa sổ vào buổi tối mùa đông.',
+    locutionary: 'Câu khẳng định tiếng Việt, chủ ngữ "trời", vị ngữ "lạnh", thán từ "đấy" nhấn mạnh. Nội dung mệnh đề: nhiệt độ không khí thấp.',
+    illocutionary: 'Gợi ý / yêu cầu ngầm (indirect directive): "hãy đóng cửa sổ lại". Không phải thông báo thông tin mới — người nghe đang ở cùng phòng, cũng cảm nhận được nhiệt độ.',
+    illoType: 'Directive',
+    perlocutionary: 'Người nghe đứng dậy đóng cửa sổ; hoặc lấy thêm áo; hoặc nói "ừ lạnh thật" rồi không làm gì. Kết quả thực tế phụ thuộc người nghe và ngữ cảnh.',
+    illoGuessOptions: ['Assertive', 'Directive', 'Expressive', 'Declaration'],
+  },
+  {
+    label: '"Anh có biết mình đang nói chuyện với ai không?"',
+    context: 'Quan chức cấp cao nói với nhân viên trẻ sau khi nhân viên phát biểu thẳng thắn.',
+    locutionary: 'Câu hỏi về nhận thức: "anh" (chủ ngữ) có biết danh tính người đang đối thoại không. Hình thức: câu hỏi có/không.',
+    illocutionary: 'Không phải hỏi thật về nhận thức. Đây là <strong>đe dọa uy quyền / cảnh báo</strong> (intimidation / warning): "tôi có quyền lực hơn anh, anh nên thay đổi thái độ". Loại directive ngầm ẩn.',
+    illoType: 'Directive',
+    perlocutionary: 'Nhân viên cảm thấy e sợ, thay đổi thái độ; hoặc tự ái và cãi lại; hoặc lịch sự xin lỗi. Tùy tính cách và bối cảnh văn hóa.',
+    illoGuessOptions: ['Assertive', 'Directive', 'Commissive', 'Expressive'],
+  },
+  {
+    label: '"Tôi tuyên bố hai người là vợ chồng hợp pháp."',
+    context: 'Quan chức hộ tịch nói trong lễ đăng ký kết hôn, đúng thủ tục pháp lý.',
+    locutionary: 'Câu tuyên bố ngôi thứ nhất, động từ "tuyên bố", bổ ngữ "hai người là vợ chồng hợp pháp". Cú pháp performative rõ ràng.',
+    illocutionary: '<strong>Declaration.</strong> Tạo ra thực tại mới: hai người giờ là vợ chồng theo pháp luật. Điều này không tồn tại trước khi câu được nói — phát ngôn biến đổi trạng thái xã hội.',
+    illoType: 'Declaration',
+    perlocutionary: 'Hai người có địa vị pháp lý mới; gia đình chứng kiến vui mừng; quyền thừa kế, nghĩa vụ thuế, v.v. thay đổi.',
+    illoGuessOptions: ['Assertive', 'Commissive', 'Declaration', 'Expressive'],
+  },
+  {
+    label: '"Xin lỗi, tôi vô tình đổ nước lên hồ sơ của bạn."',
+    context: 'Nhân viên nói với đồng nghiệp sau khi làm rơi ly nước.',
+    locutionary: 'Câu thú nhận hành động trong quá khứ: chủ ngữ "tôi", động từ "đổ", bổ ngữ "nước lên hồ sơ", tình thái từ "vô tình", kèm "xin lỗi" mở đầu.',
+    illocutionary: '<strong>Expressive — xin lỗi (apology).</strong> Biểu đạt hối hận và thừa nhận trách nhiệm. Cũng có thể kèm assertive (thông báo sự kiện), nhưng illocution chính là cầu xin tha thứ.',
+    illoType: 'Expressive',
+    perlocutionary: 'Đồng nghiệp tha thứ; hoặc tức giận; hoặc giúp lau dọn. Phản ứng phụ thuộc mức độ thiệt hại và tính tình người nghe.',
+    illoGuessOptions: ['Assertive', 'Directive', 'Expressive', 'Declaration'],
+  },
+  {
+    label: '"Phòng này có mùi khói thuốc."',
+    context: 'Người giám sát nói với nhân viên đang hút thuốc trong văn phòng không được phép.',
+    locutionary: 'Câu khẳng định về trạng thái khứu giác trong phòng — chủ ngữ "phòng này", vị ngữ "có mùi khói thuốc".',
+    illocutionary: '<strong>Directive ngầm ẩn (indirect directive)</strong>: "dập thuốc ngay và đừng hút trong phòng nữa". Người nói không hỏi về mùi khói — người nói và người nghe đều biết nguồn gốc.',
+    illoType: 'Directive',
+    perlocutionary: 'Nhân viên dập thuốc, xin lỗi; hoặc giả vờ không hiểu; hoặc ra ngoài hút tiếp.',
+    illoGuessOptions: ['Assertive', 'Directive', 'Expressive', 'Commissive'],
+  },
+];
+
+// ---- Section 3: Felicity ----
+const S3_SCENARIOS = [
+  {
+    title: 'Diễn viên tuyên bố phiên tòa',
+    desc: 'Trong một vở kịch pháp đình, diễn viên đóng vai thẩm phán nói:',
+    quote: '"Tòa tuyên bố phiên xét xử bắt đầu."',
+    answer: 'infelicitous',
+    infelicityType: 'misfire',
+    explanation: '<strong>Bất thành — Misfire.</strong> Vi phạm điều kiện A2 (đúng người, đúng hoàn cảnh): diễn viên không có thẩm quyền tư pháp thực sự; ngữ cảnh là sân khấu, không phải phòng xử án. Austin gọi đây là "hollow performative" — câu nói rỗng (parasitic use). Không có phiên tòa nào được mở trong thực tế.'
+  },
+  {
+    title: 'Thẩm phán tuyên án đúng thủ tục',
+    desc: 'Thẩm phán có thẩm quyền, sau phiên xét xử đầy đủ, tuyên đọc bản án:',
+    quote: '"Tòa tuyên phạt bị cáo ba năm tù giam về tội danh đã nêu."',
+    answer: 'felicitous',
+    infelicityType: null,
+    explanation: '<strong>Thành (felicitous).</strong> Đủ điều kiện: A1 (tồn tại thủ tục pháp lý), A2 (thẩm phán có thẩm quyền, phòng xử án đúng nơi), B1 (đọc đúng thủ tục), B2 (hoàn thành). Bản án có hiệu lực pháp lý.'
+  },
+  {
+    title: 'Người hứa biết trước sẽ không giữ lời',
+    desc: 'Một người nói với bạn, trong khi thầm nghĩ sẽ không thực hiện:',
+    quote: '"Tôi hứa sẽ trả tiền vay cho bạn vào tuần tới."',
+    answer: 'infelicitous',
+    infelicityType: 'abuse',
+    explanation: '<strong>Bất thành — Abuse.</strong> Lời hứa <em>thành</em> về mặt xã hội: người nghe có quyền trông chờ, người nói có nghĩa vụ. Nhưng vi phạm điều kiện Γ1 (người nói không thực sự có ý định giữ lời). Đây là <em>abuse</em> (lạm dụng), không phải misfire. Khác với misfire: nếu không giữ lời, người nói có thể bị truy trách nhiệm — lời hứa đã có hiệu lực xã hội.'
+  },
+  {
+    title: 'Giám đốc sa thải qua điện thoại',
+    desc: 'Giám đốc có thẩm quyền gọi điện cho nhân viên và nói:',
+    quote: '"Anh bị sa thải kể từ ngày hôm nay. Phòng nhân sự sẽ liên lạc về thủ tục."',
+    answer: 'felicitous',
+    infelicityType: null,
+    explanation: '<strong>Thành (felicitous).</strong> Hình thức giao tiếp (điện thoại thay vì mặt đối mặt) không làm mất hiệu lực declaration — điều quan trọng là đúng người nói (giám đốc có thẩm quyền nhân sự) và nội dung rõ ràng. Trong thực tế pháp lý nhiều nơi, sa thải bằng lời nói cần xác nhận bằng văn bản để có đầy đủ hiệu lực, nhưng về mặt illocutionary act, declaration đã được thực hiện.'
+  },
+  {
+    title: 'Học sinh tuyên bố buổi học kết thúc',
+    desc: 'Một học sinh trong lớp nói to:',
+    quote: '"Tôi tuyên bố buổi học hôm nay kết thúc!"',
+    answer: 'infelicitous',
+    infelicityType: 'misfire',
+    explanation: '<strong>Bất thành — Misfire.</strong> Vi phạm A2: học sinh không có thẩm quyền kết thúc buổi học — quyền đó thuộc giáo viên hoặc tín hiệu của trường (chuông). Câu được nói nhưng không tạo ra thực tại tương ứng: buổi học vẫn tiếp tục (hoặc bị gián đoạn vì lý do khác, không phải vì tuyên bố này).'
+  },
+  {
+    title: 'Người xin lỗi không hối hận',
+    desc: 'Một nhân viên bị ép buộc xin lỗi, nói trước mọi người mà không có chút hối hận:',
+    quote: '"Tôi xin lỗi vì đã nói điều đó trong cuộc họp."',
+    answer: 'infelicitous',
+    infelicityType: 'abuse',
+    explanation: '<strong>Bất thành — Abuse.</strong> Hành vi xin lỗi <em>thành</em> về mặt xã hội: lời xin lỗi đã được phát ngôn, người nghe có thể chấp nhận hoặc từ chối. Nhưng vi phạm Γ1: người nói không thực sự hối hận. Đây là abuse — lạm dụng nghi thức xã hội (apologetic ritual) mà không có trạng thái tâm lý tương ứng. Khác với misfire: xã hội vẫn ghi nhận lời xin lỗi được nói ra.'
+  },
+];
+
+// ================================================================
+// SECTION 1 — Phân loại Searle
+// ================================================================
+let s1Answers = new Array(S1_QUESTIONS.length).fill(null);
+let s1Score = 0, s1Answered = 0;
+
+function renderSection1() {
+  const area = document.getElementById('s1Area');
+  area.innerHTML = '';
+  S1_QUESTIONS.forEach((q, i) => {
+    const item = document.createElement('div');
+    item.className = 'quiz-item';
+    item.id = 'qi1-' + i;
+
+    const sent = document.createElement('div');
+    sent.className = 'quiz-sentence';
+    sent.textContent = q.sentence;
+    item.appendChild(sent);
+
+    const btnRow = document.createElement('div');
+    btnRow.className = 'btn-row';
+
+    SEARLE_TYPES.forEach(type => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.id = 's1btn-' + i + '-' + type;
+      btn.innerHTML = '<span class="type-tag ' + TYPE_TAG_CLS[type] + '">' + type + '</span>';
+      btn.addEventListener('click', () => handleS1(i, type));
+      btnRow.appendChild(btn);
+    });
+    item.appendChild(btnRow);
+
+    const exp = document.createElement('div');
+    exp.className = 'quiz-explanation';
+    exp.id = 'exp1-' + i;
+    exp.innerHTML = q.explanation;
+    item.appendChild(exp);
+
+    area.appendChild(item);
+  });
+  updateS1Score();
+}
+
+function handleS1(i, userType) {
+  if (s1Answers[i] !== null) return;
+  const q = S1_QUESTIONS[i];
+  const correct = (userType === q.answer);
+
+  // Disable all buttons for this question
+  SEARLE_TYPES.forEach(type => {
+    const b = document.getElementById('s1btn-' + i + '-' + type);
+    if (b) b.disabled = true;
+  });
+
+  const selBtn = document.getElementById('s1btn-' + i + '-' + userType);
+  if (selBtn) selBtn.classList.add(correct ? 'selected-correct' : 'selected-wrong');
+
+  if (!correct) {
+    const corrBtn = document.getElementById('s1btn-' + i + '-' + q.answer);
+    if (corrBtn) corrBtn.classList.add('reveal-correct');
+  }
+
+  document.getElementById('qi1-' + i).classList.add(correct ? 'correct' : 'wrong');
+  document.getElementById('exp1-' + i).classList.add('show');
+
+  s1Answers[i] = correct;
+  if (correct) s1Score++;
+  s1Answered++;
+  updateS1Score();
+}
+
+function updateS1Score() {
+  const total = S1_QUESTIONS.length;
+  document.getElementById('s1ScoreNum').textContent = s1Score + ' / ' + s1Answered;
+  const prog = document.getElementById('s1Progress');
+  prog.value = s1Answered === 0 ? 0 : s1Score / s1Answered;
+  const hint = document.getElementById('s1Hint');
+  if (s1Answered === 0) {
+    hint.textContent = 'Bắt đầu phân loại để xem điểm.';
+  } else if (s1Answered < total) {
+    hint.textContent = 'Đã phân loại ' + s1Answered + '/' + total + '. Tỷ lệ đúng: ' + Math.round(s1Score / s1Answered * 100) + '%.';
+  } else {
+    const pct = Math.round(s1Score / total * 100);
+    let msg = pct === 100 ? 'Xuất sắc — nắm vững 5 nhóm Searle!' :
+              pct >= 70  ? 'Tốt! Ôn lại những câu sai.' :
+                           'Hãy đọc lại bảng tham chiếu, rồi làm lại.';
+    hint.textContent = 'Hoàn thành! ' + pct + '% — ' + msg;
+  }
+}
+
+function resetSection1() {
+  s1Answers = new Array(S1_QUESTIONS.length).fill(null);
+  s1Score = 0; s1Answered = 0;
+  renderSection1();
+}
+
+// ================================================================
+// SECTION 2 — Ba tầng
+// ================================================================
+let currentUttIdx = null;
+let illoGuessed = false;
+
+function renderSection2() {
+  const btnRow = document.getElementById('uttBtnRow');
+  btnRow.innerHTML = '';
+  UTTERANCES.forEach((u, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'utt-btn';
+    btn.id = 'utt-' + i;
+    btn.textContent = u.label;
+    btn.addEventListener('click', () => selectUtterance(i));
+    btnRow.appendChild(btn);
+  });
+}
+
+function selectUtterance(i) {
+  // Update active btn
+  document.querySelectorAll('.utt-btn').forEach((b, j) => {
+    b.classList.toggle('active', j === i);
+  });
+
+  currentUttIdx = i;
+  illoGuessed = false;
+  const u = UTTERANCES[i];
+
+  // Locutionary
+  const loc = document.getElementById('locContent');
+  loc.classList.remove('layer-empty');
+  loc.innerHTML = '<em style="color:#6b7280; font-size:12px; display:block; margin-bottom:4px">Ngữ cảnh: ' + u.context + '</em>' + u.locutionary;
+
+  // Illocutionary — hiện với placeholder trước
+  const illo = document.getElementById('illoContent');
+  illo.innerHTML = '<span class="layer-empty">Đoán loại illocution bên dưới trước...</span>';
+
+  // Perlocutionary
+  const perlo = document.getElementById('perloContent');
+  perlo.classList.remove('layer-empty');
+  perlo.innerHTML = u.perlocutionary;
+
+  // Guess area
+  const guessArea = document.getElementById('illoGuessArea');
+  guessArea.style.display = 'block';
+  const guessBtns = document.getElementById('illoGuessBtns');
+  guessBtns.innerHTML = '';
+  document.getElementById('illoGuessResult').style.display = 'none';
+
+  u.illoGuessOptions.forEach(type => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.id = 'illoguess-' + type;
+    btn.innerHTML = '<span class="type-tag ' + TYPE_TAG_CLS[type] + '">' + type + '</span>';
+    btn.addEventListener('click', () => handleIlloGuess(type));
+    guessBtns.appendChild(btn);
+  });
+}
+
+function handleIlloGuess(userType) {
+  if (illoGuessed || currentUttIdx === null) return;
+  illoGuessed = true;
+  const u = UTTERANCES[currentUttIdx];
+  const correct = (userType === u.illoType);
+
+  // Disable guess buttons
+  u.illoGuessOptions.forEach(type => {
+    const b = document.getElementById('illoguess-' + type);
+    if (b) b.disabled = true;
+  });
+
+  const selBtn = document.getElementById('illoguess-' + userType);
+  if (selBtn) selBtn.classList.add(correct ? 'selected-correct' : 'selected-wrong');
+  if (!correct) {
+    const corrBtn = document.getElementById('illoguess-' + u.illoType);
+    if (corrBtn) corrBtn.classList.add('reveal-correct');
+  }
+
+  // Reveal illocutionary analysis
+  const illo = document.getElementById('illoContent');
+  illo.innerHTML = u.illocutionary;
+
+  const resultEl = document.getElementById('illoGuessResult');
+  resultEl.style.display = 'block';
+  const icon = correct ? '✓ Đúng!' : '✗ Chưa đúng.';
+  resultEl.innerHTML = '<strong>' + icon + '</strong> ' + (correct
+    ? 'Illocutionary force chính là <span class="type-tag ' + TYPE_TAG_CLS[u.illoType] + '">' + u.illoType + '</span>.'
+    : 'Illocutionary force thực sự là <span class="type-tag ' + TYPE_TAG_CLS[u.illoType] + '">' + u.illoType + '</span>. Lý do: xem phân tích tầng 2 ở trên.');
+}
+
+// ================================================================
+// SECTION 3 — Felicity Conditions
+// ================================================================
+let s3Answers = new Array(S3_SCENARIOS.length).fill(null);
+let s3Score = 0, s3Answered = 0;
+
+function renderSection3() {
+  const area = document.getElementById('s3Area');
+  area.innerHTML = '';
+  S3_SCENARIOS.forEach((sc, i) => {
+    const card = document.createElement('div');
+    card.className = 'scenario-card';
+    card.id = 'sc3-' + i;
+
+    const title = document.createElement('div');
+    title.className = 'scenario-title';
+    title.textContent = sc.title;
+    card.appendChild(title);
+
+    const desc = document.createElement('div');
+    desc.className = 'scenario-desc';
+    desc.textContent = sc.desc;
+    card.appendChild(desc);
+
+    const quote = document.createElement('div');
+    quote.className = 'scenario-quote';
+    quote.textContent = sc.quote;
+    card.appendChild(quote);
+
+    const verdictRow = document.createElement('div');
+    verdictRow.className = 'verdict-row';
+
+    const btnF = document.createElement('button');
+    btnF.className = 'verdict-btn';
+    btnF.id = 's3bf-' + i;
+    btnF.textContent = 'Thành (felicitous)';
+    btnF.addEventListener('click', () => handleS3(i, 'felicitous'));
+
+    const btnI = document.createElement('button');
+    btnI.className = 'verdict-btn';
+    btnI.id = 's3bi-' + i;
+    btnI.textContent = 'Bất thành (infelicitous)';
+    btnI.addEventListener('click', () => handleS3(i, 'infelicitous'));
+
+    verdictRow.appendChild(btnF);
+    verdictRow.appendChild(btnI);
+    card.appendChild(verdictRow);
+
+    const exp = document.createElement('div');
+    exp.className = 'scenario-explanation';
+    exp.id = 'exp3-' + i;
+    exp.innerHTML = sc.explanation;
+    card.appendChild(exp);
+
+    area.appendChild(card);
+  });
+  updateS3Score();
+}
+
+function handleS3(i, userVerdict) {
+  if (s3Answers[i] !== null) return;
+  const sc = S3_SCENARIOS[i];
+  const correct = (userVerdict === sc.answer);
+
+  const bF = document.getElementById('s3bf-' + i);
+  const bI = document.getElementById('s3bi-' + i);
+  if (bF) bF.disabled = true;
+  if (bI) bI.disabled = true;
+
+  if (userVerdict === 'felicitous') {
+    if (bF) bF.classList.add(correct ? 'sel-felicitous' : 'selected-wrong');
+    if (!correct && bI) bI.classList.add('reveal-inf');
+  } else {
+    if (bI) bI.classList.add(correct ? 'sel-infelicitous' : 'selected-wrong');
+    if (!correct && bF) bF.classList.add('reveal-f');
+  }
+
+  const card = document.getElementById('sc3-' + i);
+  card.classList.add(sc.answer === 'felicitous' ? 'felicitous' : 'infelicitous');
+
+  document.getElementById('exp3-' + i).classList.add('show');
+
+  s3Answers[i] = correct;
+  if (correct) s3Score++;
+  s3Answered++;
+  updateS3Score();
+}
+
+function updateS3Score() {
+  const total = S3_SCENARIOS.length;
+  document.getElementById('s3ScoreNum').textContent = s3Score + ' / ' + s3Answered;
+  const prog = document.getElementById('s3Progress');
+  prog.value = s3Answered === 0 ? 0 : s3Score / s3Answered;
+  const hint = document.getElementById('s3Hint');
+  if (s3Answered === 0) {
+    hint.textContent = 'Bắt đầu đánh giá để xem điểm.';
+  } else if (s3Answered < total) {
+    hint.textContent = 'Đã đánh giá ' + s3Answered + '/' + total + '. Tỷ lệ đúng: ' + Math.round(s3Score / s3Answered * 100) + '%.';
+  } else {
+    const pct = Math.round(s3Score / total * 100);
+    let msg = pct === 100 ? 'Xuất sắc — hiểu rõ felicity conditions!' :
+              pct >= 67  ? 'Tốt! Chú ý phân biệt misfire vs abuse.' :
+                           'Hãy đọc lại mục 4 về felicity conditions.';
+    hint.textContent = 'Hoàn thành! ' + pct + '% — ' + msg;
+  }
+}
+
+function resetSection3() {
+  s3Answers = new Array(S3_SCENARIOS.length).fill(null);
+  s3Score = 0; s3Answered = 0;
+  renderSection3();
+}
+
+// ================================================================
+// INIT
+// ================================================================
+renderSection1();
+renderSection2();
+renderSection3();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

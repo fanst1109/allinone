@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Định lý bất toàn Gödel</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-hover: #44403c;
+    --accent-soft: #f0eeec;
+  }
+
+  h1 { color: #1c1917; }
+  h2 {
+    color: #292524;
+    margin-top: 40px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #d6d3d1;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #78716c;
+    margin: 6px 0 0;
+    line-height: 1.5;
+  }
+
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  button.ghost:hover { background: #e7e5e4; }
+  button.sm { padding: 6px 12px; font-size: 13px; }
+
+  /* ===== MODULE 1: Gödel Numbering Machine ===== */
+  .gm-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .gm-symbol-btn {
+    background: #f5f5f4;
+    color: #292524;
+    border: 2px solid #e7e5e4;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 15px;
+    font-family: monospace;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.13s, border-color 0.13s;
+    min-width: 44px;
+    text-align: center;
+  }
+  .gm-symbol-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+  .gm-expr-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    min-height: 48px;
+    background: #fafaf9;
+    border: 2px dashed #d6d3d1;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 12px 0;
+  }
+  .gm-token {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    border: 1.5px solid #d6d3d1;
+    border-radius: 7px;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: border-color 0.13s;
+    position: relative;
+  }
+  .gm-token:hover { border-color: #f87171; }
+  .gm-token .sym { font-size: 16px; font-weight: 700; font-family: monospace; color: #292524; }
+  .gm-token .cod { font-size: 11px; color: #78716c; }
+  .gm-token .del-hint {
+    position: absolute;
+    top: -8px; right: -8px;
+    background: #f87171;
+    color: #fff;
+    border-radius: 50%;
+    width: 18px; height: 18px;
+    font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity 0.13s;
+    pointer-events: none;
+  }
+  .gm-token:hover .del-hint { opacity: 1; }
+  .gm-expr-empty { color: #a8a29e; font-size: 14px; font-style: italic; }
+
+  .gm-formula-row {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+    font-size: 14px;
+    color: #44403c;
+    line-height: 1.8;
+  }
+  .gm-formula-row .label {
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 100px;
+  }
+  .gm-formula-row .expr {
+    font-family: monospace;
+    background: #f5f5f4;
+    padding: 2px 8px;
+    border-radius: 5px;
+  }
+  .gm-result-box {
+    background: linear-gradient(135deg, #f5f5f4, #e7e5e4);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 14px;
+    text-align: center;
+  }
+  .gm-result-label { font-size: 13px; color: #78716c; margin-bottom: 4px; }
+  .gm-result-num {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: monospace;
+    color: var(--accent);
+    word-break: break-all;
+  }
+  .gm-result-approx { font-size: 12px; color: #a8a29e; margin-top: 4px; }
+
+  .presets-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .preset-btn {
+    background: #f5f5f4;
+    color: #44403c;
+    border: 1px solid #d6d3d1;
+    border-radius: 7px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-family: monospace;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.13s;
+  }
+  .preset-btn:hover { background: var(--accent-soft); }
+
+  /* ===== MODULE 2: Self-Reference Diagram ===== */
+  .sr-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 16px 0;
+  }
+  .sr-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  @media (max-width: 600px) {
+    .sr-compare { grid-template-columns: 1fr; }
+  }
+  .sr-box {
+    border-radius: 10px;
+    padding: 16px 18px;
+    border: 2px solid;
+  }
+  .sr-box.liar {
+    border-color: #fca5a5;
+    background: #fff7f7;
+  }
+  .sr-box.godel {
+    border-color: #86efac;
+    background: #f0fdf4;
+  }
+  .sr-box-title {
+    font-weight: 800;
+    font-size: 14px;
+    margin-bottom: 10px;
+    letter-spacing: 0.03em;
+  }
+  .sr-box.liar .sr-box-title { color: #991b1b; }
+  .sr-box.godel .sr-box-title { color: #166534; }
+
+  .sr-sentence {
+    font-family: monospace;
+    font-size: 14px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 8px 0;
+    font-weight: 600;
+  }
+  .sr-case {
+    font-size: 13px;
+    color: #44403c;
+    line-height: 1.6;
+    margin: 8px 0;
+  }
+  .sr-case strong { color: #292524; }
+  .badge {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 12px;
+    vertical-align: middle;
+  }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-amber { background: #fef3c7; color: #92400e; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+
+  /* Interactive SVG diagram */
+  .sr-svg-wrap { overflow-x: auto; }
+  svg.sr-svg { display: block; max-width: 100%; height: auto; }
+
+  .step-btns { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .step-btn {
+    background: #f5f5f4;
+    color: #44403c;
+    border: 1px solid #d6d3d1;
+    border-radius: 7px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.13s, border-color 0.13s;
+  }
+  .step-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .step-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .sr-explanation {
+    background: var(--accent-soft);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #292524;
+    min-height: 70px;
+    transition: opacity 0.2s;
+    margin-top: 10px;
+  }
+
+  /* ===== MODULE 3: Venn Diagram ===== */
+  .venn-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .venn-svg-wrap { overflow-x: auto; width: 100%; }
+  svg.venn-svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+
+  .venn-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    font-size: 13px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-dot {
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .venn-examples {
+    width: 100%;
+  }
+  .venn-example-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .vtab {
+    background: #f5f5f4;
+    border: 1px solid #d6d3d1;
+    border-radius: 7px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #44403c;
+    transition: background 0.13s;
+  }
+  .vtab:hover { background: var(--accent-soft); }
+  .vtab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .venn-ex-content {
+    background: #fafaf9;
+    border-radius: 9px;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    border: 1px solid #e7e5e4;
+  }
+  .venn-ex-content .ex-title {
+    font-weight: 700;
+    color: #292524;
+    margin-bottom: 6px;
+  }
+  .venn-ex-content .ex-region {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-right: 6px;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 480px) {
+    .card { padding: 14px 14px; }
+    h2 { font-size: 17px; }
+    .gm-symbol-btn { padding: 6px 10px; font-size: 13px; min-width: 36px; }
+    .gm-result-num { font-size: 16px; }
+    .sr-case { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Advanced Logic &amp; Language</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-paradoxes/visualization.html">← L2: Nghịch lý</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Định lý bất toàn Gödel</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-fuzzy-manyvalued/visualization.html">L4: Logic mờ →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Định lý bất toàn Gödel</h1>
+<p>Ba công cụ tương tác giúp bạn khám phá trực tiếp ba ý tưởng cốt lõi: <strong>đánh số Gödel</strong>, <strong>câu tự quy chiếu</strong>, và <strong>khoảng cách giữa "đúng" và "chứng minh được"</strong>.</p>
+
+<!-- ============================================================ -->
+<h2>1. Máy đánh số Gödel</h2>
+<div class="card">
+  <p>Chọn các ký hiệu để xây dựng một biểu thức. Máy sẽ mã hóa từng ký hiệu thành lũy thừa nguyên tố và tính số Gödel của toàn bộ biểu thức. <span class="hint">Bấm vào token trong biểu thức để xóa từng ký hiệu.</span></p>
+
+  <!-- Bảng ký hiệu -->
+  <div class="gm-controls" id="symbolPalette"></div>
+
+  <!-- Biểu thức hiện tại -->
+  <div class="gm-expr-display" id="exprDisplay">
+    <span class="gm-expr-empty">Chọn ký hiệu bên trên để bắt đầu...</span>
+  </div>
+
+  <!-- Công thức mã hóa -->
+  <div id="encodingFormula"></div>
+
+  <!-- Kết quả -->
+  <div id="godelResult"></div>
+
+  <!-- Presets -->
+  <div style="margin-top:14px">
+    <span class="hint" style="font-weight:600">Thử nhanh:</span>
+    <div class="presets-row">
+      <button class="preset-btn" onclick="loadPreset('0=0')">0 = 0</button>
+      <button class="preset-btn" onclick="loadPreset('0+0')">0 + 0</button>
+      <button class="preset-btn" onclick="loadPreset('S(0)')">S(0)</button>
+      <button class="preset-btn" onclick="loadPreset('x=x')">x = x</button>
+      <button class="preset-btn" onclick="loadPreset('S(0)=S(0)')">S(0) = S(0)</button>
+    </div>
+  </div>
+
+  <!-- Bảng tra cứu -->
+  <details style="margin-top:14px">
+    <summary style="cursor:pointer; font-size:13px; color:var(--accent); font-weight:600">Bảng ký hiệu & mã Gödel</summary>
+    <div style="overflow-x:auto; margin-top:8px">
+      <table id="symbolTable" style="width:100%; border-collapse:collapse; font-size:13px;"></table>
+    </div>
+  </details>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Câu Gödel — "Tôi không chứng minh được"</h2>
+<div class="card">
+  <p>Câu Gödel G tránh được mâu thuẫn của kẻ nói dối bằng một thay đổi nhỏ nhưng quyết định. Khám phá từng bước suy luận qua sơ đồ tương tác.</p>
+
+  <!-- So sánh Liar vs Gödel -->
+  <div class="sr-compare">
+    <div class="sr-box liar">
+      <div class="sr-box-title">Nghịch lý kẻ nói dối (Liar)</div>
+      <div class="sr-sentence">"Câu này là SAI."</div>
+      <div class="sr-case">
+        <strong>Gán T:</strong> "câu này sai" đúng → câu là sai → F ≠ T
+        <span class="badge badge-red">Mâu thuẫn</span>
+      </div>
+      <div class="sr-case">
+        <strong>Gán F:</strong> "câu này sai" sai → câu không sai → đúng → T ≠ F
+        <span class="badge badge-red">Mâu thuẫn</span>
+      </div>
+      <div class="sr-case" style="margin-top:10px; padding:8px; background:rgba(255,255,255,0.6); border-radius:6px;">
+        Kết quả: không thể gán T hay F
+        <span class="badge badge-red">Không phải mệnh đề</span>
+      </div>
+    </div>
+
+    <div class="sr-box godel">
+      <div class="sr-box-title">Câu Gödel G</div>
+      <div class="sr-sentence">"Câu này KHÔNG CHỨNG MINH được."</div>
+      <div class="sr-case">
+        <strong>Nếu G ⊢ (chứng minh được):</strong> G nói G không ⊢ → mâu thuẫn với nhất quán
+        <span class="badge badge-red">Không thể xảy ra</span>
+      </div>
+      <div class="sr-case">
+        <strong>Nếu G không ⊢:</strong> G nói G không ⊢ → G nói đúng!
+        <span class="badge badge-green">Không mâu thuẫn</span>
+      </div>
+      <div class="sr-case" style="margin-top:10px; padding:8px; background:rgba(255,255,255,0.6); border-radius:6px;">
+        Kết quả: G không ⊢, nhưng G đúng
+        <span class="badge badge-green">Hệ bất toàn</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sơ đồ dạng steps -->
+  <p style="margin-top: 20px; font-weight:600; color:#292524;">Sơ đồ suy luận từng bước — câu Gödel G trong hệ nhất quán H:</p>
+
+  <div class="step-btns" id="stepBtns"></div>
+  <div class="sr-explanation" id="srExplanation"></div>
+
+  <!-- SVG diagram -->
+  <div class="sr-svg-wrap" style="margin-top:20px">
+    <svg class="sr-svg" width="560" height="260" viewBox="0 0 560 260">
+      <!-- Boxes -->
+      <!-- H (the system) -->
+      <rect x="10" y="30" width="540" height="220" rx="14" fill="#f9f9f8" stroke="#d6d3d1" stroke-width="2"/>
+      <text x="30" y="55" font-family="monospace" font-size="13" font-weight="700" fill="#78716c">Hệ hình thức H</text>
+
+      <!-- Tiên đề -->
+      <rect x="30" y="70" width="150" height="60" rx="9" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.5"/>
+      <text x="105" y="95" text-anchor="middle" font-size="13" font-weight="700" fill="#1e40af">Tiên đề</text>
+      <text x="105" y="113" text-anchor="middle" font-size="11" fill="#3b82f6">PA₁, PA₂, ...</text>
+
+      <!-- Luật suy diễn -->
+      <rect x="200" y="70" width="150" height="60" rx="9" fill="#dcfce7" stroke="#86efac" stroke-width="1.5"/>
+      <text x="275" y="95" text-anchor="middle" font-size="13" font-weight="700" fill="#166534">Luật suy diễn</text>
+      <text x="275" y="113" text-anchor="middle" font-size="11" fill="#22c55e">Modus ponens, ...</text>
+
+      <!-- Định lý (Theorems) -->
+      <rect x="370" y="70" width="160" height="60" rx="9" fill="#f3e8ff" stroke="#c4b5fd" stroke-width="1.5"/>
+      <text x="450" y="95" text-anchor="middle" font-size="13" font-weight="700" fill="#7c3aed">Định lý ⊢</text>
+      <text x="450" y="113" text-anchor="middle" font-size="11" fill="#8b5cf6">2+2=4, ...</text>
+
+      <!-- Mũi tên từ tiên đề + luật → định lý -->
+      <path d="M180 100 L198 100" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"/>
+      <path d="M350 100 L368 100" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- Câu G -->
+      <rect id="svgBoxG" x="140" y="160" width="280" height="65" rx="10" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+      <text x="280" y="187" text-anchor="middle" font-family="monospace" font-size="14" font-weight="800" fill="#92400e" id="svgLabelG">G</text>
+      <text x="280" y="207" text-anchor="middle" font-size="12" fill="#78716c" id="svgDescG">"G không chứng minh được trong H"</text>
+      <text x="280" y="222" text-anchor="middle" font-size="11" fill="#a8a29e" id="svgStatusG"></text>
+
+      <!-- Mũi tên G tự quy chiếu (vòng cung nhỏ) -->
+      <path id="selfArrow" d="M280 160 C280 140 310 125 330 145 C345 160 335 180 310 178 L295 174"
+        stroke="#f59e0b" stroke-width="2" fill="none" marker-end="url(#arrAmber)" opacity="0.7"/>
+
+      <!-- Mũi tên G → Theorems (bị chặn) -->
+      <path id="arrowGT" d="M420 185 L452 140" stroke="#ef4444" stroke-width="2" fill="none"
+        stroke-dasharray="5,4" marker-end="url(#arrRed)" opacity="0"/>
+
+      <!-- Dấu X chặn -->
+      <text id="blockX" x="444" y="168" font-size="18" font-weight="900" fill="#ef4444" text-anchor="middle" opacity="0">✗</text>
+
+      <!-- Dấu checkmark G đúng -->
+      <text id="trueCheck" x="140" y="188" font-size="16" fill="#22c55e" font-weight="700" opacity="0">✓ Đúng!</text>
+
+      <!-- Arrow markers -->
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#64748b"/>
+        </marker>
+        <marker id="arrAmber" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#f59e0b"/>
+        </marker>
+        <marker id="arrRed" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#ef4444"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Provable ⊊ True — sơ đồ Venn</h2>
+<div class="card">
+  <p>Định lý bất toàn thứ nhất cho thấy tập <em>định lý chứng minh được</em> là một tập con <strong>thực sự nhỏ hơn</strong> tập <em>mệnh đề đúng</em> — có câu đúng nhưng không chứng minh được. Sơ đồ dưới đây minh họa quan hệ giữa ba vùng.</p>
+
+  <div class="venn-wrap">
+    <div class="venn-svg-wrap">
+      <svg class="venn-svg" width="500" height="300" viewBox="0 0 500 300">
+        <!-- Outer: All well-formed sentences -->
+        <ellipse cx="250" cy="150" rx="230" ry="130" fill="#f5f5f4" stroke="#d6d3d1" stroke-width="2"/>
+
+        <!-- Middle: True sentences -->
+        <ellipse cx="230" cy="150" rx="165" ry="105" fill="#dcfce7" stroke="#86efac" stroke-width="2"/>
+
+        <!-- Inner: Provable sentences -->
+        <ellipse cx="210" cy="148" rx="105" ry="72" fill="#bfdbfe" stroke="#60a5fa" stroke-width="2"/>
+
+        <!-- Labels -->
+        <text x="430" y="145" text-anchor="middle" font-size="12" font-weight="700" fill="#78716c">Mọi</text>
+        <text x="430" y="161" text-anchor="middle" font-size="12" font-weight="700" fill="#78716c">câu hình</text>
+        <text x="430" y="177" text-anchor="middle" font-size="12" font-weight="700" fill="#78716c">thức</text>
+
+        <text x="355" y="82" text-anchor="middle" font-size="12" font-weight="700" fill="#166534">Câu ĐÚNG</text>
+        <text x="355" y="98" text-anchor="middle" font-size="12" fill="#166534">(True)</text>
+
+        <text x="210" y="138" text-anchor="middle" font-size="12" font-weight="700" fill="#1e40af">Chứng minh</text>
+        <text x="210" y="154" text-anchor="middle" font-size="12" font-weight="700" fill="#1e40af">được</text>
+        <text x="210" y="170" text-anchor="middle" font-size="11" fill="#1e40af">(Provable ⊢)</text>
+
+        <!-- Gödel sentence marker -->
+        <circle id="vennDotG" cx="320" cy="130" r="8" fill="#f59e0b" stroke="#92400e" stroke-width="2"/>
+        <text x="326" y="120" font-size="12" font-weight="700" fill="#92400e">G</text>
+        <text x="326" y="108" font-size="11" fill="#92400e">(đúng,</text>
+        <text x="326" y="120" font-size="11" fill="#92400e">không ⊢)</text>
+        <!-- re-arrange label to be legible -->
+        <text x="330" y="110" font-size="11" fill="#78716c">G</text>
+        <text x="340" y="125" font-size="10" fill="#92400e">đúng</text>
+        <text x="340" y="138" font-size="10" fill="#92400e">≠ ⊢</text>
+
+        <!-- Paris-Harrington marker -->
+        <circle cx="345" cy="170" r="6" fill="#f59e0b" stroke="#92400e" stroke-width="1.5"/>
+        <text x="355" y="174" font-size="10" fill="#78716c">PH</text>
+
+        <!-- False sentence marker -->
+        <circle cx="430" cy="200" r="6" fill="#fca5a5" stroke="#991b1b" stroke-width="1.5"/>
+        <text x="440" y="204" font-size="10" fill="#991b1b">Sai</text>
+
+        <!-- 2+2=4 marker -->
+        <circle cx="175" cy="145" r="6" fill="#1e40af" stroke="#1e3a8a" stroke-width="1.5"/>
+        <text x="155" y="140" font-size="10" fill="#1e40af">2+2=4</text>
+
+        <!-- Goldbach marker -->
+        <circle cx="305" cy="155" r="6" fill="#f59e0b" stroke="#92400e" stroke-width="1.5" opacity="0.7"/>
+        <text x="315" y="159" font-size="9" fill="#78716c">Goldbach?</text>
+      </svg>
+    </div>
+
+    <div class="venn-legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#bfdbfe; border:1.5px solid #60a5fa;"></div>
+        <span>Chứng minh được (⊢)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#dcfce7; border:1.5px solid #86efac;"></div>
+        <span>Đúng nhưng không ⊢ (vùng bất toàn)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#f5f5f4; border:1.5px solid #d6d3d1;"></div>
+        <span>Sai hoặc vô nghĩa (ngoài True)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#f59e0b; border:2px solid #92400e; border-radius:50%;"></div>
+        <span>Ví dụ cụ thể (bấm xem)</span>
+      </div>
+    </div>
+
+    <!-- Tabs giải thích -->
+    <div class="venn-examples">
+      <div class="venn-example-tabs">
+        <button class="vtab active" onclick="showVennTab('provable')">⊢ 2+2=4</button>
+        <button class="vtab" onclick="showVennTab('godel')">G (Gödel)</button>
+        <button class="vtab" onclick="showVennTab('ph')">Paris-Harrington</button>
+        <button class="vtab" onclick="showVennTab('goldbach')">Goldbach?</button>
+        <button class="vtab" onclick="showVennTab('false')">Câu sai</button>
+      </div>
+      <div class="venn-ex-content" id="vennContent"></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ================================================================
+// MODULE 1 — GÖDEL NUMBERING MACHINE
+// ================================================================
+
+const SYMBOLS = [
+  { sym: '0',   code: 1,  name: 'Số không',          prime_idx: null },
+  { sym: 'S',   code: 3,  name: 'Kế tiếp (successor)',prime_idx: null },
+  { sym: '+',   code: 5,  name: 'Phép cộng',          prime_idx: null },
+  { sym: '×',   code: 7,  name: 'Phép nhân',          prime_idx: null },
+  { sym: '=',   code: 9,  name: 'Bằng nhau',          prime_idx: null },
+  { sym: '(',   code: 11, name: 'Ngoặc mở',           prime_idx: null },
+  { sym: ')',   code: 13, name: 'Ngoặc đóng',         prime_idx: null },
+  { sym: 'x',   code: 17, name: 'Biến x',             prime_idx: null },
+  { sym: 'y',   code: 19, name: 'Biến y',             prime_idx: null },
+  { sym: '¬',   code: 21, name: 'Phủ định',           prime_idx: null },
+  { sym: '∀',   code: 23, name: 'Với mọi',            prime_idx: null },
+];
+
+// First 20 primes
+const PRIMES = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71];
+
+let currentExpr = []; // array of symbol objects
+
+function initModule1() {
+  // Build palette
+  const palette = document.getElementById('symbolPalette');
+  SYMBOLS.forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'gm-symbol-btn';
+    btn.textContent = s.sym;
+    btn.title = s.name + ' (mã: ' + s.code + ')';
+    btn.addEventListener('click', () => addSymbol(s));
+    palette.appendChild(btn);
+  });
+
+  // Build symbol table
+  const tbl = document.getElementById('symbolTable');
+  tbl.innerHTML = '<tr style="background:#e7e5e4"><th style="padding:6px 10px;text-align:left">Ký hiệu</th><th style="padding:6px 10px;text-align:left">Tên</th><th style="padding:6px 10px;text-align:right">Mã Gödel</th></tr>';
+  SYMBOLS.forEach(s => {
+    tbl.innerHTML += '<tr><td style="padding:5px 10px;font-family:monospace;font-weight:700;font-size:16px">' + s.sym + '</td><td style="padding:5px 10px;font-size:13px;color:#44403c">' + s.name + '</td><td style="padding:5px 10px;font-family:monospace;font-weight:700;color:var(--accent);text-align:right">' + s.code + '</td></tr>';
+  });
+
+  renderExpr();
+}
+
+function addSymbol(s) {
+  if (currentExpr.length >= 9) return; // limit
+  currentExpr.push(s);
+  renderExpr();
+}
+
+function removeSymbol(idx) {
+  currentExpr.splice(idx, 1);
+  renderExpr();
+}
+
+function renderExpr() {
+  const display = document.getElementById('exprDisplay');
+  const formulaDiv = document.getElementById('encodingFormula');
+  const resultDiv = document.getElementById('godelResult');
+
+  if (currentExpr.length === 0) {
+    display.innerHTML = '<span class="gm-expr-empty">Chọn ký hiệu bên trên để bắt đầu...</span>';
+    formulaDiv.innerHTML = '';
+    resultDiv.innerHTML = '';
+    return;
+  }
+
+  // Render tokens
+  display.innerHTML = '';
+  currentExpr.forEach((s, i) => {
+    const tok = document.createElement('div');
+    tok.className = 'gm-token';
+    tok.innerHTML = '<span class="sym">' + s.sym + '</span><span class="cod">mã: ' + s.code + '</span><span class="del-hint">✕</span>';
+    tok.addEventListener('click', () => removeSymbol(i));
+    display.appendChild(tok);
+  });
+
+  // Build encoding formula
+  const codes = currentExpr.map(s => s.code);
+  const formulaParts = codes.map((c, i) => {
+    const p = PRIMES[i];
+    return p + '<sup>' + c + '</sup>';
+  });
+  formulaDiv.innerHTML = '<div class="gm-formula-row"><span class="label">Biểu thức:</span><span class="expr">' + currentExpr.map(s => s.sym).join('') + '</span></div><div class="gm-formula-row"><span class="label">Mã:</span><span class="expr">[' + codes.join(', ') + ']</span></div><div class="gm-formula-row"><span class="label">Công thức:</span><span class="expr">' + formulaParts.join(' × ') + '</span></div>';
+
+  // Compute Gödel number (BigInt for large numbers)
+  let godelNum = BigInt(1);
+  let overflow = false;
+  for (let i = 0; i < codes.length; i++) {
+    const base = BigInt(PRIMES[i]);
+    const exp = BigInt(codes[i]);
+    godelNum *= base ** exp;
+    if (godelNum > BigInt('9999999999999999999999999999999')) {
+      overflow = true;
+      break;
+    }
+  }
+
+  let numStr = godelNum.toString();
+  let approxStr = '';
+  if (overflow) {
+    numStr = '>> 10^31 (rất lớn)';
+    approxStr = 'Số quá lớn để hiển thị đầy đủ — điều này bình thường! Gödel chỉ cần chứng minh sự tồn tại, không cần tính ra.';
+  } else if (numStr.length > 15) {
+    approxStr = '≈ ' + numStr.slice(0,3) + '.' + numStr.slice(3,6) + ' × 10^' + (numStr.length - 1);
+  }
+
+  resultDiv.innerHTML = '<div class="gm-result-box"><div class="gm-result-label">Số Gödel của "' + currentExpr.map(s=>s.sym).join('') + '":</div><div class="gm-result-num">' + numStr + '</div>' + (approxStr ? '<div class="gm-result-approx">' + approxStr + '</div>' : '') + '</div>';
+}
+
+const PRESETS = {
+  '0=0':      ['0','=','0'],
+  '0+0':      ['0','+','0'],
+  'S(0)':     ['S','(','0',')'],
+  'x=x':      ['x','=','x'],
+  'S(0)=S(0)':['S','(','0',')','=','S','(','0',')'],
+};
+
+function loadPreset(name) {
+  const symNames = PRESETS[name];
+  if (!symNames) return;
+  currentExpr = [];
+  symNames.forEach(sym => {
+    const s = SYMBOLS.find(x => x.sym === sym);
+    if (s) currentExpr.push(s);
+  });
+  renderExpr();
+}
+
+// ================================================================
+// MODULE 2 — SELF-REFERENCE DIAGRAM
+// ================================================================
+
+const SR_STEPS = [
+  {
+    label: 'Bước 0: Câu G',
+    explanation: 'Nhờ đánh số Gödel, ta xây dựng được câu G trong ngôn ngữ số học, câu này tự quy chiếu: G ≡ "Câu có số Gödel g(G) không chứng minh được trong hệ H." Nói ngắn: <strong>G nói "Tôi không chứng minh được."</strong> Mũi tên tự quy chiếu biểu diễn câu G trỏ về chính nó.'
+  },
+  {
+    label: 'Bước 1: Giả sử G ⊢',
+    explanation: '<strong>Giả sử G chứng minh được (G ⊢, G là định lý).</strong> Vì H nhất quán, mọi định lý của H phải đúng. G là định lý → G đúng. G nói "G không chứng minh được" → G không phải định lý. <span class="badge badge-red">Mâu thuẫn!</span> Giả sử này phá vỡ nhất quán của H.'
+  },
+  {
+    label: 'Bước 2: G không ⊢',
+    explanation: '<strong>Vậy G không chứng minh được (G ∉ Theorems(H)).</strong> G nói "G không chứng minh được" — và điều đó là đúng! Câu G nói đúng về chính mình. <span class="badge badge-green">Không mâu thuẫn.</span> G đúng nhưng không có chứng minh trong H.'
+  },
+  {
+    label: 'Bước 3: Kết luận',
+    explanation: '<strong>Kết luận:</strong> Nếu H nhất quán và đủ mạnh, thì tồn tại câu G vừa đúng vừa không chứng minh được trong H. <span class="badge badge-blue">Định lý bất toàn 1</span> — mọi hệ như vậy đều không đầy đủ. G không nằm trong vùng "Theorems ⊢", nhưng G đúng. Vùng "True" lớn hơn vùng "Provable ⊢".'
+  },
+];
+
+let currentStep = 0;
+
+function initModule2() {
+  const btns = document.getElementById('stepBtns');
+  SR_STEPS.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.className = 'step-btn' + (i === 0 ? ' active' : '');
+    b.textContent = s.label;
+    b.addEventListener('click', () => showStep(i));
+    btns.appendChild(b);
+  });
+  showStep(0);
+}
+
+function showStep(i) {
+  currentStep = i;
+  // Update buttons
+  const btns = document.querySelectorAll('.step-btn');
+  btns.forEach((b, j) => b.classList.toggle('active', j === i));
+  // Update explanation
+  document.getElementById('srExplanation').innerHTML = SR_STEPS[i].explanation;
+  // Update SVG
+  updateSVG(i);
+}
+
+function updateSVG(step) {
+  const arrowGT = document.getElementById('arrowGT');
+  const blockX = document.getElementById('blockX');
+  const trueCheck = document.getElementById('trueCheck');
+  const boxG = document.getElementById('svgBoxG');
+  const statusG = document.getElementById('svgStatusG');
+
+  // Reset
+  arrowGT.setAttribute('opacity','0');
+  blockX.setAttribute('opacity','0');
+  trueCheck.setAttribute('opacity','0');
+  boxG.setAttribute('fill','#fef3c7');
+  boxG.setAttribute('stroke','#f59e0b');
+  statusG.textContent = '';
+
+  if (step === 1) {
+    // Assume G provable → show arrow to theorems (blocked)
+    arrowGT.setAttribute('opacity','1');
+    blockX.setAttribute('opacity','1');
+    boxG.setAttribute('fill','#fee2e2');
+    boxG.setAttribute('stroke','#ef4444');
+    statusG.textContent = 'Giả sử: G ⊢ → Mâu thuẫn!';
+  } else if (step === 2) {
+    // G not provable, but true
+    boxG.setAttribute('fill','#f0fdf4');
+    boxG.setAttribute('stroke','#86efac');
+    statusG.textContent = 'G không ⊢ → G nói đúng!';
+    trueCheck.setAttribute('opacity','1');
+  } else if (step === 3) {
+    // Conclusion
+    boxG.setAttribute('fill','#f0fdf4');
+    boxG.setAttribute('stroke','#86efac');
+    statusG.textContent = 'G: đúng nhưng không ⊢ — H bất toàn.';
+    trueCheck.setAttribute('opacity','1');
+  }
+}
+
+// ================================================================
+// MODULE 3 — VENN DIAGRAM TABS
+// ================================================================
+
+const VENN_CONTENT = {
+  provable: {
+    region: 'Chứng minh được (⊢)',
+    regionClass: 'badge-blue',
+    html: '<strong>2 + 2 = 4</strong> — chứng minh được trong Peano Arithmetic. Từ tiên đề PA, áp dụng định nghĩa phép cộng và quy nạp, ta dẫn ra kết quả trong một chuỗi bước hữu hạn. Đây là ví dụ điển hình nằm trong vùng "Provable ⊢" — vừa đúng vừa chứng minh được. Phần lớn toán học ứng dụng hàng ngày nằm ở vùng này.'
+  },
+  godel: {
+    region: 'Đúng nhưng không chứng minh được',
+    regionClass: 'badge-amber',
+    html: '<strong>Câu Gödel G</strong> — câu số học nói "G không chứng minh được trong H". Theo Định lý bất toàn 1: nếu H nhất quán, G đúng và G không chứng minh được. Từ bên ngoài hệ (meta-level), ta thấy G đúng. Bên trong H, không có chứng minh nào. G nằm trong vùng "True" nhưng ngoài vùng "Provable ⊢". Đây chính là minh chứng Provable ⊊ True.'
+  },
+  ph: {
+    region: 'Đúng nhưng không chứng minh được',
+    regionClass: 'badge-amber',
+    html: '<strong>Định lý Paris-Harrington (1977)</strong> — một câu "tự nhiên" về tổ hợp học: với mọi n đủ lớn, mọi tô màu n-phần tử đều có tập con đồng màu đủ lớn (dạng mạnh của Ramsey). Câu này đúng — có thể chứng minh trong ZFC. Nhưng không chứng minh được trong Peano Arithmetic (PA). Đây là ví dụ phi-nhân tạo đầu tiên của câu đúng nhưng không PA-provable.'
+  },
+  goldbach: {
+    region: '?? (chưa biết vùng nào)',
+    regionClass: 'badge-amber',
+    html: '<strong>Giả thuyết Goldbach</strong>: "Mọi số chẵn lớn hơn 2 đều là tổng của hai số nguyên tố." Đã xác minh cho mọi số chẵn đến 4×10^18, nhưng chưa có chứng minh tổng quát. <em>Câu này nằm ở đâu?</em> Ta chưa biết. Có ba khả năng: (1) Đúng và chứng minh được trong PA/ZFC — chỉ là chưa ai tìm ra chứng minh. (2) Đúng nhưng không chứng minh được (như câu Gödel). (3) Sai — nhưng nếu sai thì phải có phản ví dụ cụ thể, mà chưa ai tìm thấy.'
+  },
+  false: {
+    region: 'Sai — ngoài vùng True',
+    regionClass: 'badge-red',
+    html: '<strong>Câu sai</strong> — ví dụ "2 + 2 = 5". Câu này không thuộc vùng "True" và không thuộc vùng "Provable ⊢" (trong hệ nhất quán, không chứng minh được câu sai). Nhưng chú ý: ¬"2+2=5" = "2+2≠5" là câu đúng và chứng minh được. Định lý bất toàn không nói gì đặc biệt về câu sai — nó chỉ quan tâm đến sự tách rời giữa "đúng" và "chứng minh được" ở phía các câu đúng.'
+  }
+};
+
+let activeVennTab = 'provable';
+
+function showVennTab(key) {
+  activeVennTab = key;
+  // Update tabs
+  document.querySelectorAll('.vtab').forEach(t => {
+    t.classList.toggle('active', t.getAttribute('onclick') === 'showVennTab(\'' + key + '\')');
+  });
+  // Update content
+  const data = VENN_CONTENT[key];
+  document.getElementById('vennContent').innerHTML =
+    '<div class="ex-title"><span class="ex-region ' + data.regionClass + '">' + data.region + '</span></div>' +
+    data.html;
+}
+
+// ================================================================
+// INIT
+// ================================================================
+initModule1();
+initModule2();
+showVennTab('provable');
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

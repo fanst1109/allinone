@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Logic &amp; tính toán</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-hover: #44403c;
+    --accent-soft: #f0eeec;
+  }
+
+  h1 { color: #1c1917; }
+  h2 { color: #292524; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #d6d3d1; }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .hint { font-size: 13px; color: #78716c; margin: 6px 0 0; }
+
+  /* ---- Buttons ---- */
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost {
+    background: var(--accent-soft); color: var(--accent); border: 1px solid #d6d3d1;
+  }
+  button.ghost:hover { background: #e7e5e4; }
+  button.tog {
+    background: #fafaf9; color: #57534e; border: 1px solid #d6d3d1;
+    border-radius: 8px; padding: 9px 18px; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: background 0.1s, border-color 0.1s;
+    min-width: 70px;
+  }
+  button.tog.on { background: #15803d; color: #fff; border-color: #15803d; }
+  button.tog.off { background: #b91c1c; color: #fff; border-color: #b91c1c; }
+
+  /* ---- Section 1: Gate workshop ---- */
+  .gate-layout {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  .gate-selector { display: flex; flex-direction: column; gap: 8px; }
+  .gate-btn {
+    background: #fafaf9; border: 1px solid #d6d3d1; border-radius: 8px;
+    padding: 10px 14px; font-size: 14px; font-weight: 600;
+    cursor: pointer; text-align: left; transition: all 0.15s;
+    font-family: inherit;
+  }
+  .gate-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .gate-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .gate-right { min-width: 0; }
+
+  .io-panel {
+    display: flex; gap: 24px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .io-group { display: flex; flex-direction: column; gap: 8px; }
+  .io-label { font-size: 12px; color: #78716c; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .input-row { display: flex; gap: 8px; align-items: center; }
+  .input-name { font-family: 'Georgia', serif; font-size: 16px; font-weight: 700; color: #292524; min-width: 20px; }
+  .arrow-sep { font-size: 24px; color: #a8a29e; padding: 0 4px; }
+  .output-display {
+    width: 64px; height: 64px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 800; font-family: 'Georgia', serif;
+    border: 3px solid transparent; transition: all 0.2s;
+  }
+  .output-display.T { background: #f0fdf4; color: #15803d; border-color: #86efac; }
+  .output-display.F { background: #fef2f2; color: #b91c1c; border-color: #fca5a5; }
+
+  .gate-svg-wrap { margin: 16px 0; overflow-x: auto; }
+
+  /* Truth table for gates */
+  .gate-tt { margin-top: 12px; }
+  table.gt {
+    border-collapse: collapse; font-family: 'Georgia', serif; font-size: 14px;
+  }
+  table.gt th {
+    background: #292524; color: #fff; padding: 7px 16px; text-align: center;
+    white-space: nowrap;
+  }
+  table.gt td {
+    padding: 6px 16px; text-align: center; border-bottom: 1px solid #e7e5e4;
+    white-space: nowrap;
+  }
+  table.gt tr:nth-child(even) td { background: #fafaf9; }
+  table.gt td.T { color: #15803d; font-weight: 700; }
+  table.gt td.F { color: #b91c1c; font-weight: 700; }
+  table.gt td.hi { background: #fef9c3 !important; }
+
+  .formula-label {
+    font-family: 'Georgia', serif; font-size: 15px; color: #57534e;
+    margin: 10px 0 4px; padding: 8px 12px;
+    background: #f5f5f4; border-radius: 6px; border-left: 3px solid var(--accent);
+    display: inline-block;
+  }
+
+  /* ---- Section 2: SAT mini ---- */
+  .sat-formula-display {
+    font-family: 'Georgia', serif; font-size: 20px; color: #1c1917;
+    margin: 12px 0; padding: 12px 16px;
+    background: #fafaf9; border-radius: 8px; border: 1px solid #e7e5e4;
+    line-height: 1.7;
+  }
+  .sat-controls {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 14px 0;
+  }
+  .sat-var-group {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .sat-var-name {
+    font-family: 'Georgia', serif; font-size: 16px; font-weight: 700; color: #292524;
+    min-width: 16px;
+  }
+  .sat-result {
+    margin-top: 12px; padding: 12px 16px; border-radius: 8px;
+    font-size: 15px; font-weight: 600; min-height: 44px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sat-result.sat { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+  .sat-result.unsat { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
+  .sat-result.neutral { background: #f5f5f4; color: #78716c; border: 1px solid #e7e5e4; }
+
+  .sat-finder-result {
+    margin-top: 10px; font-size: 13px; color: #57534e;
+    padding: 8px 12px; background: #fafaf9; border-radius: 6px;
+  }
+
+  .sat-preset-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .sat-preset-btn {
+    background: #fafaf9; border: 1px solid #d6d3d1; border-radius: 20px;
+    padding: 6px 14px; font-size: 13px; font-family: 'Georgia', serif;
+    cursor: pointer; white-space: nowrap; transition: background 0.12s;
+  }
+  .sat-preset-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+  /* Clause highlights */
+  .clause { white-space: nowrap; }
+  .clause.sat-cl { color: #15803d; }
+  .clause.unsat-cl { color: #b91c1c; }
+  .clause.neu-cl { color: #57534e; }
+
+  /* ---- Section 3: Decidability table ---- */
+  .dec-table-wrap { overflow-x: auto; }
+  table.dec {
+    border-collapse: collapse; font-size: 14px; width: 100%; min-width: 560px;
+  }
+  table.dec th {
+    background: #292524; color: #fff; padding: 10px 14px; text-align: left;
+    font-weight: 600; white-space: nowrap;
+  }
+  table.dec td {
+    padding: 10px 14px; border-bottom: 1px solid #e7e5e4; vertical-align: top;
+    line-height: 1.5;
+  }
+  table.dec tr:nth-child(even) td { background: #fafaf9; }
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 12px;
+    font-size: 12px; font-weight: 700; white-space: nowrap;
+  }
+  .badge.yes { background: #dcfce7; color: #15803d; }
+  .badge.no { background: #fee2e2; color: #b91c1c; }
+  .badge.hard { background: #fef9c3; color: #854d0e; }
+
+  .dec-detail {
+    margin-top: 16px; padding: 14px 16px;
+    border-radius: 8px; background: #f5f5f4;
+    border-left: 3px solid var(--accent);
+    font-size: 14px; line-height: 1.6; display: none;
+  }
+  .dec-detail.open { display: block; }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 640px) {
+    .gate-layout { grid-template-columns: 1fr; }
+    .gate-selector { flex-direction: row; flex-wrap: wrap; }
+    .gate-btn { flex: 1 1 auto; text-align: center; padding: 8px 10px; }
+    .io-panel { gap: 14px; }
+    table.gt th, table.gt td { padding: 5px 10px; font-size: 13px; }
+    table.dec th, table.dec td { padding: 8px 10px; font-size: 13px; }
+    .sat-formula-display { font-size: 16px; }
+    .output-display { width: 54px; height: 54px; font-size: 22px; }
+  }
+  @media (max-width: 480px) {
+    .gate-selector { gap: 6px; }
+    .gate-btn { font-size: 13px; padding: 7px 9px; }
+    button.tog { padding: 7px 12px; font-size: 13px; min-width: 56px; }
+    .io-panel { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Advanced Logic &amp; Language</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-speech-acts/visualization.html">← L6: Hành vi ngôn ngữ</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Logic &amp; tính toán</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-capstone-analysis/visualization.html">L8: Capstone →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Logic &amp; tính toán</h1>
+<p>Ba module tương tác: xưởng mạch logic (Boolean gates), SAT mini (thỏa được), và bảng decidability so sánh các hệ logic.</p>
+
+<!-- ============================================================
+     SECTION 1 — Gate Workshop
+     ============================================================ -->
+<h2>1. Xưởng mạch logic — Boolean gates</h2>
+<div class="card">
+  <p class="hint">Chọn cổng, bật/tắt đầu vào → xem đầu ra + ký hiệu SVG + bảng chân lý. Hàng hiện tại được đánh dấu vàng.</p>
+
+  <div class="gate-layout">
+    <!-- Gate selector -->
+    <div class="gate-selector" id="gateSel"></div>
+
+    <!-- Right panel -->
+    <div class="gate-right">
+      <!-- I/O controls -->
+      <div class="io-panel">
+        <div class="io-group">
+          <div class="io-label">Đầu vào</div>
+          <div class="input-row">
+            <span class="input-name">p</span>
+            <button class="tog off" id="togP" onclick="toggleInput('p')">0</button>
+          </div>
+          <div class="input-row" id="rowQ">
+            <span class="input-name">q</span>
+            <button class="tog off" id="togQ" onclick="toggleInput('q')">0</button>
+          </div>
+        </div>
+
+        <span class="arrow-sep">→</span>
+
+        <div class="io-group">
+          <div class="io-label">Đầu ra</div>
+          <div class="output-display F" id="outputDisplay">0</div>
+        </div>
+      </div>
+
+      <!-- Formula -->
+      <div id="gateFormula"></div>
+
+      <!-- SVG symbol -->
+      <div class="gate-svg-wrap" id="gateSvgWrap"></div>
+
+      <!-- Truth table -->
+      <div class="gate-tt" id="gateTT"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SECTION 2 — SAT Mini
+     ============================================================ -->
+<h2>2. SAT mini — Tự gán giá trị, kiểm tra thỏa được</h2>
+<div class="card">
+  <p class="hint">Chọn công thức (CNF), gán T/F cho từng biến, hệ tính kết quả từng mệnh đề. Nút "Tự tìm" duyệt toàn bộ 2ⁿ tổ hợp.</p>
+
+  <div class="sat-preset-row" id="satPresets"></div>
+
+  <div class="sat-formula-display" id="satFormulaDisplay"></div>
+
+  <div class="sat-controls">
+    <div class="sat-var-group">
+      <span class="sat-var-name">p</span>
+      <button class="tog off" id="satTogP" onclick="satToggle('p')">F</button>
+    </div>
+    <div class="sat-var-group">
+      <span class="sat-var-name">q</span>
+      <button class="tog off" id="satTogQ" onclick="satToggle('q')">F</button>
+    </div>
+    <div class="sat-var-group">
+      <span class="sat-var-name">r</span>
+      <button class="tog off" id="satTogR" onclick="satToggle('r')">F</button>
+    </div>
+    <button onclick="satFindAll()" style="margin-left:auto">Tự tìm (2ⁿ)</button>
+  </div>
+
+  <div class="sat-result neutral" id="satResult">← Chọn công thức và gán giá trị để kiểm tra.</div>
+  <div class="sat-finder-result" id="satFinderResult" style="display:none"></div>
+</div>
+
+<!-- ============================================================
+     SECTION 3 — Decidability table
+     ============================================================ -->
+<h2>3. Decidable hay không — So sánh các hệ logic</h2>
+<div class="card">
+  <p class="hint">Click vào một hàng để xem giải thích chi tiết.</p>
+  <div class="dec-table-wrap">
+    <table class="dec" id="decTable">
+      <thead>
+        <tr>
+          <th>Hệ thống / Bài toán</th>
+          <th>Quyết định được?</th>
+          <th>Lý do ngắn gọn</th>
+          <th>Liên kết</th>
+        </tr>
+      </thead>
+      <tbody id="decBody"></tbody>
+    </table>
+  </div>
+  <div class="dec-detail" id="decDetail"></div>
+</div>
+
+<script>
+/* ================================================================
+   SHARED UTILITIES
+   ================================================================ */
+function tv(b) { return b ? 'T' : 'F'; }
+function cls(b) { return b ? 'T' : 'F'; }
+
+/* ================================================================
+   SECTION 1 — GATE WORKSHOP
+   ================================================================ */
+const GATES = [
+  {
+    id: 'AND', label: 'AND (∧)', unary: false,
+    fn: (p, q) => p && q,
+    formula: 'p ∧ q',
+    desc: 'Cả hai đầu vào phải là 1 → đầu ra mới là 1.',
+    svgPath: `
+      <g transform="translate(10,10)">
+        <!-- wires in -->
+        <line x1="0" y1="25" x2="40" y2="25" stroke="#57534e" stroke-width="2"/>
+        <line x1="0" y1="55" x2="40" y2="55" stroke="#57534e" stroke-width="2"/>
+        <!-- body: D-shape AND -->
+        <path d="M40,10 L40,70 Q100,70 100,40 Q100,10 40,10 Z"
+              fill="#e0dbd5" stroke="#57534e" stroke-width="2.5"/>
+        <!-- wire out -->
+        <line x1="100" y1="40" x2="140" y2="40" stroke="#57534e" stroke-width="2"/>
+        <!-- labels -->
+        <text x="-4" y="29" text-anchor="end" font-size="14" font-family="Georgia,serif" font-weight="700" fill="#292524">p</text>
+        <text x="-4" y="59" text-anchor="end" font-size="14" font-family="Georgia,serif" font-weight="700" fill="#292524">q</text>
+        <text x="148" y="44" font-size="14" font-family="Georgia,serif" font-weight="700" fill="#292524">out</text>
+        <text x="70" y="44" text-anchor="middle" font-size="13" font-family="Georgia,serif" fill="#57534e">AND</text>
+      </g>
+    `,
+    svgW: 180, svgH: 100
+  },
+  {
+    id: 'OR', label: 'OR (∨)', unary: false,
+    fn: (p, q) => p || q,
+    formula: 'p ∨ q',
+    desc: 'Ít nhất một đầu vào là 1 → đầu ra là 1.',
+    svgPath: `
+      <g transform="translate(10,10)">
+        <line x1="0" y1="25" x2="38" y2="25" stroke="#57534e" stroke-width="2"/>
+        <line x1="0" y1="55" x2="38" y2="55" stroke="#57534e" stroke-width="2"/>
+        <!-- OR shape: curved body -->
+        <path d="M30,10 Q50,40 30,70 Q70,70 100,40 Q70,10 30,10 Z"
+              fill="#e0dbd5" stroke="#57534e" stroke-width="2.5"/>
+        <line x1="100" y1="40" x2="140" y2="40" stroke="#57534e" stroke-width="2"/>
+        <text x="-4" y="29" text-anchor="end" font-size="14" font-family="Georgia,serif" font-weight="700" fill="#292524">p</text>
+        <text x="-4" y="59" text-anchor="end" font-size="14" font-family="Georgia,serif" font-weight="700" fill="#292524">q</text>
+        <text x="148" y="44" font-size="14" font-family="Georgia,serif" font-weight="700" fill="#292524">out</text>
+        <text x="72" y="44" text-anchor="middle" font-size="13" font-family="Georgia,serif" fill="#57534e">OR</text>
+      </g>
+    `,
+    svgW: 180, svgH: 100
+  },
+  {
+    id: 'NOT', label: 'NOT (¬)', unary: true,
+    fn: (p) => !p,
+    formula: '¬p',
+    desc: 'Đảo ngược: 0 → 1, 1 → 0.',
+    svgPath: `
+      <g transform="translate(10,10)">
+        <line x1="0" y1="40" x2="40" y2="40" stroke="#57534e" stroke-width="2"/>
+        <!-- triangle body -->
+        <polygon points="40,10 40,70 95,40" fill="#e0dbd5" stroke="#57534e" stroke-width="2.5"/>
+        <!-- bubble -->
+        <circle cx="100" cy="40" r="6" fill="#fff" stroke="#57534e" stroke-width="2.5"/>
+        <line x1="106" y1="40" x2="140" y2="40" stroke="#57534e" stroke-width="2"/>
+        <text x="-4" y="44" text-anchor="end" font-size="14" font-family="Georgia,serif" font-weight="700" fill="#292524">p</text>
+        <text x="148" y="44" font-size="14" font-family="Georgia,serif" font-weight="700" fill="#292524">out</text>
+        <text x="67" y="44" text-anchor="middle" font-size="13" font-family="Georgia,serif" fill="#57534e">NOT</text>
+      </g>
+    `,
+    svgW: 175, svgH: 90
+  },
+  {
+    id: 'XOR', label: 'XOR (⊕)', unary: false,
+    fn: (p, q) => p !== q,
+    formula: '(p ∧ ¬q) ∨ (¬p ∧ q)',
+    desc: 'Đầu ra là 1 khi hai đầu vào KHÁC nhau. = (p∧¬q) ∨ (¬p∧q)',
+    svgPath: `
+      <g transform="translate(10,10)">
+        <line x1="0" y1="25" x2="36" y2="25" stroke="#57534e" stroke-width="2"/>
+        <line x1="0" y1="55" x2="36" y2="55" stroke="#57534e" stroke-width="2"/>
+        <!-- XOR: OR shape + extra curve -->
+        <path d="M30,10 Q50,40 30,70 Q70,70 100,40 Q70,10 30,10 Z"
+              fill="#e0dbd5" stroke="#57534e" stroke-width="2.5"/>
+        <!-- extra arc -->
+        <path d="M22,10 Q42,40 22,70" fill="none" stroke="#57534e" stroke-width="2.5"/>
+        <line x1="100" y1="40" x2="140" y2="40" stroke="#57534e" stroke-width="2"/>
+        <text x="-4" y="29" text-anchor="end" font-size="14" font-family="Georgia,serif" font-weight="700" fill="#292524">p</text>
+        <text x="-4" y="59" text-anchor="end" font-size="14" font-family="Georgia,serif" font-weight="700" fill="#292524">q</text>
+        <text x="148" y="44" font-size="14" font-family="Georgia,serif" font-weight="700" fill="#292524">out</text>
+        <text x="72" y="44" text-anchor="middle" font-size="13" font-family="Georgia,serif" fill="#57534e">XOR</text>
+      </g>
+    `,
+    svgW: 180, svgH: 100
+  },
+  {
+    id: 'NAND', label: 'NAND', unary: false,
+    fn: (p, q) => !(p && q),
+    formula: '¬(p ∧ q)',
+    desc: 'NOT(AND) = đầu ra 0 chỉ khi CẢ HAI đầu vào = 1. Cổng phổ quát: dựng mọi cổng khác từ NAND.',
+    svgPath: `
+      <g transform="translate(10,10)">
+        <line x1="0" y1="25" x2="40" y2="25" stroke="#57534e" stroke-width="2"/>
+        <line x1="0" y1="55" x2="40" y2="55" stroke="#57534e" stroke-width="2"/>
+        <!-- AND body -->
+        <path d="M40,10 L40,70 Q95,70 95,40 Q95,10 40,10 Z"
+              fill="#e0dbd5" stroke="#57534e" stroke-width="2.5"/>
+        <!-- bubble -->
+        <circle cx="101" cy="40" r="6" fill="#fff" stroke="#57534e" stroke-width="2.5"/>
+        <line x1="107" y1="40" x2="140" y2="40" stroke="#57534e" stroke-width="2"/>
+        <text x="-4" y="29" text-anchor="end" font-size="14" font-family="Georgia,serif" font-weight="700" fill="#292524">p</text>
+        <text x="-4" y="59" text-anchor="end" font-size="14" font-family="Georgia,serif" font-weight="700" fill="#292524">q</text>
+        <text x="148" y="44" font-size="14" font-family="Georgia,serif" font-weight="700" fill="#292524">out</text>
+        <text x="65" y="44" text-anchor="middle" font-size="13" font-family="Georgia,serif" fill="#57534e">NAND</text>
+      </g>
+    `,
+    svgW: 185, svgH: 100
+  }
+];
+
+let gateState = { gate: 'AND', p: false, q: false };
+
+// Render gate selector buttons
+const gateSel = document.getElementById('gateSel');
+GATES.forEach(g => {
+  const btn = document.createElement('button');
+  btn.className = 'gate-btn' + (g.id === 'AND' ? ' active' : '');
+  btn.textContent = g.label;
+  btn.onclick = () => selectGate(g.id);
+  gateSel.appendChild(btn);
+});
+
+function selectGate(id) {
+  gateState.gate = id;
+  document.querySelectorAll('.gate-btn').forEach((b, i) => {
+    b.classList.toggle('active', GATES[i].id === id);
+  });
+  const gate = GATES.find(g => g.id === id);
+  // Hide q row for NOT
+  document.getElementById('rowQ').style.display = gate.unary ? 'none' : 'flex';
+  renderGate();
+}
+
+function toggleInput(name) {
+  gateState[name] = !gateState[name];
+  const btn = document.getElementById('tog' + name.toUpperCase());
+  btn.textContent = gateState[name] ? '1' : '0';
+  btn.className = 'tog ' + (gateState[name] ? 'on' : 'off');
+  renderGate();
+}
+
+function renderGate() {
+  const gate = GATES.find(g => g.id === gateState.gate);
+  const p = gateState.p;
+  const q = gateState.q;
+  const out = gate.unary ? gate.fn(p) : gate.fn(p, q);
+
+  // Output display
+  const disp = document.getElementById('outputDisplay');
+  disp.textContent = out ? '1' : '0';
+  disp.className = 'output-display ' + (out ? 'T' : 'F');
+
+  // Formula
+  document.getElementById('gateFormula').innerHTML =
+    `<div class="formula-label">Công thức: ${escHtml(gate.formula)}</div>
+     <p class="hint" style="margin-top:6px">${gate.desc}</p>`;
+
+  // SVG
+  const svgWire = buildWireSvg(gate, p, q, out);
+  document.getElementById('gateSvgWrap').innerHTML = svgWire;
+
+  // Truth table
+  document.getElementById('gateTT').innerHTML = buildGateTT(gate, p, q);
+}
+
+function buildWireSvg(gate, p, q, out) {
+  // Color wires by value
+  const pColor = p ? '#15803d' : '#b91c1c';
+  const qColor = q ? '#15803d' : '#b91c1c';
+  const outColor = out ? '#15803d' : '#b91c1c';
+
+  // Inject colored lines on top of the template
+  let svg = gate.svgPath;
+  // Replace stroke color for input/output lines by rebuilding them colored
+  // We'll overlay colored wires using a separate SVG layer
+  const w = gate.svgW;
+  const h = gate.svgH;
+
+  let coloredWires = '';
+  if (!gate.unary) {
+    coloredWires = `
+      <line x1="10" y1="35" x2="50" y2="35" stroke="${pColor}" stroke-width="3" stroke-linecap="round"/>
+      <line x1="10" y1="65" x2="50" y2="65" stroke="${qColor}" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="10" cy="35" r="4" fill="${pColor}"/>
+      <circle cx="10" cy="65" r="4" fill="${qColor}"/>
+      <circle cx="${w - 30}" cy="50" r="4" fill="${outColor}"/>
+    `;
+    if (gate.id === 'NOT') {
+      coloredWires = `
+        <line x1="10" y1="50" x2="50" y2="50" stroke="${pColor}" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="10" cy="50" r="4" fill="${pColor}"/>
+        <circle cx="${w - 28}" cy="50" r="4" fill="${outColor}"/>
+      `;
+    }
+  } else {
+    coloredWires = `
+      <line x1="10" y1="50" x2="50" y2="50" stroke="${pColor}" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="10" cy="50" r="4" fill="${pColor}"/>
+      <circle cx="${w - 28}" cy="50" r="4" fill="${outColor}"/>
+    `;
+  }
+
+  const fullSvg = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="max-width:100%;height:auto">
+    ${svg}
+    ${coloredWires}
+  </svg>`;
+  return fullSvg;
+}
+
+function buildGateTT(gate, curP, curQ) {
+  const rows = gate.unary
+    ? [[false], [true]]
+    : [[false,false],[false,true],[true,false],[true,true]];
+
+  let html = '<div style="overflow-x:auto"><table class="gt"><thead><tr>';
+  if (!gate.unary) {
+    html += '<th>p</th><th>q</th>';
+  } else {
+    html += '<th>p</th>';
+  }
+  html += `<th>${escHtml(gate.formula)}</th></tr></thead><tbody>`;
+
+  rows.forEach(row => {
+    const p = row[0];
+    const q = gate.unary ? undefined : row[1];
+    const out = gate.unary ? gate.fn(p) : gate.fn(p, q);
+    const isCur = gate.unary
+      ? (p === curP)
+      : (p === curP && q === curQ);
+    const hiClass = isCur ? ' hi' : '';
+    html += `<tr>`;
+    html += `<td class="${cls(p)}${hiClass}">${tv(p)}</td>`;
+    if (!gate.unary) html += `<td class="${cls(q)}${hiClass}">${tv(q)}</td>`;
+    html += `<td class="${cls(out)}${hiClass}">${tv(out)}</td>`;
+    html += `</tr>`;
+  });
+  html += '</tbody></table></div>';
+  return html;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init gate
+renderGate();
+
+/* ================================================================
+   SECTION 2 — SAT MINI
+   ================================================================ */
+
+// CNF formula representation: array of clauses, each clause = array of literals
+// Literal: { var: 'p'|'q'|'r', neg: bool }
+const SAT_PRESETS = [
+  {
+    name: '(p ∨ q ∨ ¬r) ∧ (¬p ∨ ¬q ∨ r) ∧ (p ∨ ¬q ∨ ¬r)',
+    label: 'Thỏa được (3-SAT)',
+    clauses: [
+      [{v:'p',n:false},{v:'q',n:false},{v:'r',n:true}],
+      [{v:'p',n:true},{v:'q',n:true},{v:'r',n:false}],
+      [{v:'p',n:false},{v:'q',n:true},{v:'r',n:true}]
+    ]
+  },
+  {
+    name: '(p ∨ q) ∧ (p ∨ ¬q) ∧ (¬p ∨ q) ∧ (¬p ∨ ¬q)',
+    label: 'Hằng sai (UNSAT)',
+    clauses: [
+      [{v:'p',n:false},{v:'q',n:false}],
+      [{v:'p',n:false},{v:'q',n:true}],
+      [{v:'p',n:true},{v:'q',n:false}],
+      [{v:'p',n:true},{v:'q',n:true}]
+    ]
+  },
+  {
+    name: '(p ∨ ¬q) ∧ (¬p ∨ r) ∧ (¬r ∨ q)',
+    label: 'Thỏa được (dây chuyền)',
+    clauses: [
+      [{v:'p',n:false},{v:'q',n:true}],
+      [{v:'p',n:true},{v:'r',n:false}],
+      [{v:'r',n:true},{v:'q',n:false}]
+    ]
+  },
+  {
+    name: '(p ∨ q ∨ r) ∧ (¬p) ∧ (¬q) ∧ (¬r)',
+    label: 'Hằng sai (đơn literal)',
+    clauses: [
+      [{v:'p',n:false},{v:'q',n:false},{v:'r',n:false}],
+      [{v:'p',n:true}],
+      [{v:'q',n:true}],
+      [{v:'r',n:true}]
+    ]
+  },
+  {
+    name: '(p ∨ r) ∧ (¬p ∨ ¬r) ∧ (q ∨ r)',
+    label: 'Thỏa được (ít ràng buộc)',
+    clauses: [
+      [{v:'p',n:false},{v:'r',n:false}],
+      [{v:'p',n:true},{v:'r',n:true}],
+      [{v:'q',n:false},{v:'r',n:false}]
+    ]
+  }
+];
+
+let satState = {
+  preset: 0,
+  p: false, q: false, r: false
+};
+
+// Render presets
+const satPresetsEl = document.getElementById('satPresets');
+SAT_PRESETS.forEach((ps, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'sat-preset-btn';
+  btn.textContent = ps.label;
+  btn.onclick = () => satSelectPreset(i);
+  satPresetsEl.appendChild(btn);
+});
+
+function satSelectPreset(i) {
+  satState.preset = i;
+  document.querySelectorAll('.sat-preset-btn').forEach((b, j) => {
+    b.style.background = j === i ? 'var(--accent-soft)' : '';
+    b.style.borderColor = j === i ? 'var(--accent)' : '';
+  });
+  // Reset vars
+  satState.p = false; satState.q = false; satState.r = false;
+  ['P','Q','R'].forEach(x => {
+    const btn = document.getElementById('satTog' + x);
+    btn.textContent = 'F'; btn.className = 'tog off';
+  });
+  document.getElementById('satFinderResult').style.display = 'none';
+  renderSat();
+}
+
+function satToggle(v) {
+  satState[v] = !satState[v];
+  const btn = document.getElementById('satTog' + v.toUpperCase());
+  btn.textContent = satState[v] ? 'T' : 'F';
+  btn.className = 'tog ' + (satState[v] ? 'on' : 'off');
+  document.getElementById('satFinderResult').style.display = 'none';
+  renderSat();
+}
+
+function evalClause(clause, env) {
+  return clause.some(lit => {
+    const val = env[lit.v];
+    return lit.n ? !val : val;
+  });
+}
+
+function evalFormula(clauses, env) {
+  return clauses.every(c => evalClause(c, env));
+}
+
+function litStr(lit) {
+  return (lit.n ? '¬' : '') + lit.v;
+}
+
+function clauseStr(clause) {
+  return '(' + clause.map(litStr).join(' ∨ ') + ')';
+}
+
+function renderSat() {
+  const ps = SAT_PRESETS[satState.preset];
+  const env = { p: satState.p, q: satState.q, r: satState.r };
+
+  // Render formula with clause coloring
+  const clauseHtml = ps.clauses.map(clause => {
+    const ok = evalClause(clause, env);
+    const clsCl = ok ? 'sat-cl' : 'unsat-cl';
+    return `<span class="clause ${clsCl}">${escHtml(clauseStr(clause))}</span>`;
+  }).join(' <span style="color:#57534e;font-weight:700">∧</span> ');
+  document.getElementById('satFormulaDisplay').innerHTML = clauseHtml;
+
+  // Overall result
+  const overallOk = evalFormula(ps.clauses, env);
+  const resultEl = document.getElementById('satResult');
+  if (overallOk) {
+    resultEl.className = 'sat-result sat';
+    resultEl.innerHTML = '✓ THỎA ĐƯỢC — Gán hiện tại: p=' + tv(satState.p) + ', q=' + tv(satState.q) + ', r=' + tv(satState.r) + ' làm toàn bộ công thức = <strong>T</strong>.';
+  } else {
+    const anyT = ps.clauses.some(c => evalClause(c, env));
+    resultEl.className = 'sat-result unsat';
+    const nFail = ps.clauses.filter(c => !evalClause(c, env)).length;
+    resultEl.innerHTML = '✗ Gán hiện tại KHÔNG thỏa — ' + nFail + ' mệnh đề (màu đỏ) = F. Thử gán khác hoặc nhấn "Tự tìm".';
+  }
+}
+
+function satFindAll() {
+  const ps = SAT_PRESETS[satState.preset];
+  const vars = ['p','q','r'];
+  const n = 3;
+  const solutions = [];
+  const total = 1 << n;
+  for (let i = 0; i < total; i++) {
+    const env = {};
+    vars.forEach((v, j) => { env[v] = !!(i >> (n - 1 - j) & 1); });
+    if (evalFormula(ps.clauses, env)) {
+      solutions.push({...env});
+    }
+  }
+
+  const finderEl = document.getElementById('satFinderResult');
+  finderEl.style.display = 'block';
+  if (solutions.length === 0) {
+    finderEl.innerHTML = '<strong>UNSAT:</strong> Không tìm thấy cách gán nào thỏa được. Công thức là hằng sai (contradiction).';
+  } else {
+    const solStrs = solutions.map(s =>
+      'p=' + tv(s.p) + ' q=' + tv(s.q) + ' r=' + tv(s.r)
+    );
+    const isAll = solutions.length === total;
+    if (isAll) {
+      finderEl.innerHTML = `<strong>Hằng đúng (Tautology):</strong> Mọi ${total} cách gán đều thỏa được. ` +
+        solutions.map(s => '<code>' + 'p=' + tv(s.p) + ' q=' + tv(s.q) + ' r=' + tv(s.r) + '</code>').join(', ');
+    } else {
+      finderEl.innerHTML = `<strong>Thỏa được:</strong> Tìm thấy ${solutions.length}/${total} cách gán thỏa được:<br>` +
+        solutions.map(s => '<code>p=' + tv(s.p) + ' q=' + tv(s.q) + ' r=' + tv(s.r) + '</code>').join(' · ') +
+        `<br><span style="color:#78716c;font-size:12px">Đã duyệt đủ 2³=8 tổ hợp.</span>`;
+      // Auto-apply first solution
+      const first = solutions[0];
+      satState.p = first.p; satState.q = first.q; satState.r = first.r;
+      ['p','q','r'].forEach(v => {
+        const btn = document.getElementById('satTog' + v.toUpperCase());
+        btn.textContent = satState[v] ? 'T' : 'F';
+        btn.className = 'tog ' + (satState[v] ? 'on' : 'off');
+      });
+      renderSat();
+    }
+  }
+}
+
+// Init SAT
+satSelectPreset(0);
+
+/* ================================================================
+   SECTION 3 — DECIDABILITY TABLE
+   ================================================================ */
+const DEC_ROWS = [
+  {
+    system: 'Logic mệnh đề — Tautology?',
+    badge: 'yes', badgeText: 'Decidable',
+    reason: 'Bảng chân lý hữu hạn (2ⁿ dòng)',
+    link: 'SAT: NP-complete',
+    detail: `<strong>Logic mệnh đề là decidable.</strong><br><br>
+      Bài toán: "Công thức φ với n biến có phải tautology không?"<br>
+      Thuật toán: Lập bảng chân lý đủ 2ⁿ dòng. Kiểm tra từng dòng trong O(|φ|). Tổng: O(2ⁿ·|φ|) — hữu hạn, dừng, đúng.<br><br>
+      <em>Ví dụ:</em> φ = p ∨ ¬p, n=1: 2 dòng, mọi dòng T → Tautology. Dừng trong 2 bước.<br>
+      φ = p ∧ q, n=2: 4 dòng, dòng (T,F)→F → Không tautology. Dừng trong 4 bước.<br><br>
+      <strong>Lưu ý:</strong> Decidable ≠ nhanh. SAT (tìm lời giải thỏa được) cũng decidable nhưng chưa có thuật toán đa thức — NP-complete.`
+  },
+  {
+    system: 'Logic vị từ bậc nhất — Hệ quả logic?',
+    badge: 'no', badgeText: 'Undecidable',
+    reason: 'Church–Turing 1936: miền vô hạn, không có bảng hữu hạn',
+    link: 'Semi-decidable (có thể prove nếu đúng)',
+    detail: `<strong>Logic vị từ bậc nhất (FOL) là undecidable.</strong><br><br>
+      Định lý Church–Turing (1936): Không tồn tại thuật toán quyết định được "φ có phải hệ quả logic không?" cho mọi φ trong FOL.<br><br>
+      <em>Tại sao?</em> FOL có lượng từ ∀x, ∃x trên miền có thể vô hạn (số tự nhiên, đồ thị, ...). Không thể lập bảng chân lý hữu hạn — phải kiểm tra vô hạn mô hình.<br><br>
+      <em>Ví dụ:</em> "∀x∀y (x+y = y+x)" trong số học — đúng, nhưng cần xác minh trên ℕ vô hạn. Thuật toán có thể tìm bằng chứng nếu câu đúng (semi-decidable = recursively enumerable), nhưng nếu câu sai — có thể tìm kiếm mãi không dừng.<br><br>
+      <strong>Hệ quả:</strong> Không thể tự động hóa hoàn toàn việc kiểm tra tính đúng đắn của toán học. Đây là cơ sở lý thuyết của giới hạn trình kiểm chứng hình thức (formal verifier).`
+  },
+  {
+    system: 'SAT (Propositional Satisfiability)',
+    badge: 'hard', badgeText: 'Decidable, NP-complete',
+    reason: 'Có thuật toán (2ⁿ), chưa có thuật toán đa thức',
+    link: 'Cook–Levin 1971',
+    detail: `<strong>SAT là decidable nhưng NP-complete.</strong><br><br>
+      Bài toán: "Có cách gán T/F làm φ = T không?"<br>
+      Thuật toán brute-force: duyệt 2ⁿ tổ hợp. Luôn dừng → decidable.<br><br>
+      <strong>NP-complete (Cook–Levin 1971):</strong> SAT là bài toán NP-đầy đủ đầu tiên được chứng minh — mọi bài trong NP quy về SAT trong thời gian đa thức.<br><br>
+      <em>Ý nghĩa:</em><br>
+      • n=20: 2²⁰ ≈ 10⁶ → giải được trong giây.<br>
+      • n=100: 2¹⁰⁰ ≈ 10³⁰ → vượt mọi máy tính.<br>
+      • Chưa ai tìm thuật toán đa thức (đây là bài toán P vs NP).<br>
+      • SAT solver hiện đại (MiniSat, Z3) dùng CDCL + heuristic, giải triệu biến trong thực tế.`
+  },
+  {
+    system: 'Halting Problem (bài toán dừng)',
+    badge: 'no', badgeText: 'Undecidable',
+    reason: 'Turing 1936: tự-tham chiếu → mâu thuẫn',
+    link: 'Nền tảng lý thuyết tính toán',
+    detail: `<strong>Halting Problem là undecidable (Turing 1936).</strong><br><br>
+      Bài toán: "Chương trình P với input I có dừng không?"<br><br>
+      <strong>Chứng minh (sketch):</strong><br>
+      Giả sử H(P,I) tồn tại và luôn đúng. Xây D(X):<br>
+      — Nếu H(X,X)="dừng" → D vòng mãi.<br>
+      — Nếu H(X,X)="vòng mãi" → D dừng.<br>
+      Chạy D(D): cả hai nhánh đều mâu thuẫn → H không thể tồn tại.<br><br>
+      <em>Hệ quả thực tế:</em> Không thể có công cụ tổng quát kiểm tra mọi chương trình có bug vô hạn không. Tất cả static analyzer đều phải chấp nhận false positive hoặc false negative.<br><br>
+      <strong>Rice's Theorem:</strong> Mọi thuộc tính ngữ nghĩa không tầm thường của chương trình đều undecidable (tổng quát hóa Halting Problem).`
+  },
+  {
+    system: 'Gödel Incompleteness (bất toàn)',
+    badge: 'no', badgeText: 'Không chứng minh được',
+    reason: 'Gödel 1931: tự-tham chiếu trong hệ chứng minh',
+    link: 'Lesson 03 — Gödel',
+    detail: `<strong>Định lý bất toàn của Gödel (1931).</strong><br><br>
+      Trong mọi hệ thống công lý F đủ mạnh (chứa số học Peano) và nhất quán:<br>
+      1. Tồn tại mệnh đề G đúng trong ℕ nhưng không chứng minh được trong F. (Incompleteness I)<br>
+      2. F không thể chứng minh tính nhất quán của chính nó. (Incompleteness II)<br><br>
+      <strong>Kỹ thuật:</strong> Gödel numbering — mã hóa câu "G không chứng minh được trong F" bằng số học, tạo tự-tham chiếu. Rất giống diagonalization của Turing.<br><br>
+      <em>Khác Halting:</em> Gödel về giới hạn <em>chứng minh</em>; Turing về giới hạn <em>tính toán</em>. G đúng và có thể chứng minh trong hệ F' mạnh hơn — nhưng F' lại có câu G' tương tự. Chuỗi không bao giờ kết thúc.<br><br>
+      <em>Điểm chung với Halting:</em> Cả hai dùng self-reference + phủ định để tạo mâu thuẫn — đây là "trái tim" của cả hai chứng minh.`
+  }
+];
+
+let decOpenRow = -1;
+const decBody = document.getElementById('decBody');
+const decDetail = document.getElementById('decDetail');
+
+DEC_ROWS.forEach((row, i) => {
+  const tr = document.createElement('tr');
+  tr.style.cursor = 'pointer';
+  tr.innerHTML = `
+    <td><strong>${row.system}</strong></td>
+    <td><span class="badge ${row.badge}">${row.badgeText}</span></td>
+    <td>${row.reason}</td>
+    <td style="color:#78716c;font-size:13px">${row.link}</td>
+  `;
+  tr.onclick = () => toggleDecRow(i, row);
+  decBody.appendChild(tr);
+});
+
+function toggleDecRow(i, row) {
+  if (decOpenRow === i) {
+    decDetail.classList.remove('open');
+    decOpenRow = -1;
+    return;
+  }
+  decOpenRow = i;
+  decDetail.innerHTML = row.detail;
+  decDetail.classList.add('open');
+  decDetail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

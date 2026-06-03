@@ -82,6 +82,40 @@ x = (−b ± √Δ) / (2a)
 
 **Ví dụ 3**: \`x² + x + 1 = 0\`. Δ = 1 − 4 = −3 < 0 → **VÔ NGHIỆM** trong ℝ.
 
+### 1.6. Trực giác đồ thị — vì sao Δ quyết định số nghiệm
+
+💡 **Hình dung**: \`y = ax² + bx + c\` là một **parabol**. "Nghiệm" của \`ax²+bx+c = 0\` chính là chỗ parabol **cắt trục hoành** (y=0). Khi đó Δ cho biết:
+- **Δ > 0**: parabol cắt trục x ở **2 điểm** → 2 nghiệm.
+- **Δ = 0**: parabol **chạm** trục x ở đúng đỉnh → 1 nghiệm kép.
+- **Δ < 0**: parabol **không chạm** trục x (lơ lửng trên hoặc dưới) → vô nghiệm thực.
+
+Đỉnh parabol ở \`x = −b/(2a)\` — sẽ dùng lại ở [Lesson 08 — Hàm sơ cấp](../lesson-08-elementary-functions/).
+
+⚠ **Lỗi thường gặp**
+
+- Quên điều kiện \`a ≠ 0\`. Nếu \`a = 0\` thì không còn là PT bậc 2 mà là bậc 1, công thức \`−b/(2a)\` chia cho 0 → vô nghĩa.
+- Tính \`Δ\` khi \`b\` âm: \`b²\` luôn **dương**. Vd \`x²−5x+6\`: \`Δ = (−5)² − 4·1·6 = 25−24 = 1\`, không phải \`−25−24\`.
+- Quên dấu \`−b\` ở tử: nghiệm là \`(−b ± √Δ)/(2a)\`, với \`b=−5\` thì \`−b = +5\`.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Vì sao có dấu \`±\`?"* Vì bước \`(x + b/2a)² = Δ/4a²\` khi lấy căn cho **2 khả năng**: \`x + b/2a = +√Δ/2a\` hoặc \`= −√Δ/2a\`. Một bình phương có 2 căn (dương và âm).
+- *"Δ < 0 là vô nghiệm hẳn, hay có nghiệm 'ẩn'?"* Vô nghiệm trong ℝ, nhưng **có 2 nghiệm phức** (Tier 03 — Số phức). \`√(số âm)\` tồn tại trong số phức.
+
+🔁 **Dừng lại tự kiểm tra**: giải \`x² − 6x + 8 = 0\` bằng công thức.
+
+<details><summary>Đáp án</summary>
+
+\`Δ = 36 − 32 = 4\`, \`√Δ = 2\`. \`x = (6 ± 2)/2\` → \`x = 4\` hoặc \`x = 2\`. (Viete: tổng 6, tích 8 ✓.)
+
+</details>
+
+### 📝 Tóm tắt mục 1
+
+- PT bậc 2: \`ax²+bx+c=0\` (\`a≠0\`); nghiệm = chỗ parabol cắt trục x.
+- \`Δ = b²−4ac\` quyết định: \`>0\` (2 nghiệm), \`=0\` (1 kép), \`<0\` (vô nghiệm ℝ).
+- Công thức \`x = (−b ± √Δ)/(2a)\`, suy ra từ bình phương đầy đủ.
+
 ---
 
 ## 2. Định lý Viete
@@ -101,6 +135,47 @@ x₁ · x₂ = c/a
 **Tìm nhanh nghiệm**: \`x² − 5x + 6 = 0\`. Cần 2 số có tổng = 5 và tích = 6 → **2 và 3**.
 
 **Lập PT từ 2 nghiệm**: Cho biết nghiệm là 4 và −3. PT là x² − (4 + (−3))x + 4·(−3) = \`x² − x − 12 = 0\`.
+
+### 2.3. Chứng minh định lý Viete (từng bước)
+
+Cho PT có 2 nghiệm \`x₁, x₂\` theo công thức nghiệm:
+\`\`\`
+x₁ = (−b + √Δ)/(2a),   x₂ = (−b − √Δ)/(2a)
+\`\`\`
+
+**Tổng** — cộng 2 nghiệm, phần \`√Δ\` triệt tiêu:
+\`\`\`
+x₁ + x₂ = [(−b + √Δ) + (−b − √Δ)] / (2a) = (−2b)/(2a) = −b/a   ✓
+\`\`\`
+
+**Tích** — nhân 2 nghiệm, dùng hằng đẳng thức \`(m+n)(m−n) = m²−n²\` với \`m=−b, n=√Δ\`:
+\`\`\`
+x₁ · x₂ = [(−b)² − (√Δ)²] / (2a)² = (b² − Δ) / (4a²)
+\`\`\`
+Thay \`Δ = b² − 4ac\`:
+\`\`\`
+= (b² − (b² − 4ac)) / (4a²) = 4ac / (4a²) = c/a   ✓
+\`\`\`
+
+Không bước nào "dễ thấy" — mọi phép biến đổi đều hiện rõ.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Viete dùng khi nào thay cho công thức nghiệm?"* Khi nghiệm "đẹp" (nguyên/nhẩm được). \`x²−5x+6=0\`: nhẩm 2 số tổng 5, tích 6 → 2 và 3, nhanh hơn tính Δ.
+- *"Viete có đúng khi Δ < 0 không?"* Có — đúng cả với 2 nghiệm phức (tổng và tích vẫn là số thực \`−b/a\`, \`c/a\`).
+
+🔁 **Dừng lại tự kiểm tra**: dùng Viete nhẩm nghiệm \`x² − 7x + 10 = 0\`.
+
+<details><summary>Đáp án</summary>
+
+Cần 2 số tổng 7, tích 10 → **2 và 5**. (Kiểm: \`2+5=7\`, \`2·5=10\` ✓.)
+
+</details>
+
+### 📝 Tóm tắt mục 2
+
+- Viete: \`x₁+x₂ = −b/a\`, \`x₁·x₂ = c/a\` — suy trực tiếp từ công thức nghiệm.
+- Dùng để nhẩm nghiệm đẹp và lập PT từ 2 nghiệm cho trước.
 
 ---
 

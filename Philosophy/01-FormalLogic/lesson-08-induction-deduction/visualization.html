@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Quy nạp vs Diễn dịch</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-soft: #f0eeec;
+    --accent-hover: #44403c;
+    --stone-100: #f5f5f4;
+    --stone-200: #e7e5e4;
+    --stone-300: #d6d3d1;
+    --stone-600: #57534e;
+    --stone-700: #44403c;
+    --stone-800: #292524;
+    --ded-color: #1d4ed8;
+    --ded-light: #dbeafe;
+    --ded-border: #93c5fd;
+    --ind-color: #15803d;
+    --ind-light: #dcfce7;
+    --ind-border: #86efac;
+    --abd-color: #9333ea;
+    --abd-light: #f3e8ff;
+    --abd-border: #d8b4fe;
+    --weak-color: #dc2626;
+    --weak-light: #fee2e2;
+    --strong-color: #16a34a;
+    --strong-light: #dcfce7;
+  }
+
+  h1 { color: var(--stone-800); margin-bottom: 6px; }
+  .lead { color: #57534e; font-size: 15px; line-height: 1.7; margin-bottom: 8px; max-width: 760px; }
+
+  h2 { color: var(--stone-800); margin-top: 48px; padding-bottom: 8px;
+       border-bottom: 2px solid var(--stone-200); font-size: 1.2rem; }
+
+  .card {
+    background: #fff; border-radius: 12px; padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin: 16px 0;
+    border: 1px solid var(--stone-200);
+  }
+
+  /* ---- Kiểu suy luận badges ---- */
+  .badge-ded { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700;
+               background:var(--ded-light); color:var(--ded-color); border:1px solid var(--ded-border); }
+  .badge-ind { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700;
+               background:var(--ind-light); color:var(--ind-color); border:1px solid var(--ind-border); }
+  .badge-abd { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700;
+               background:var(--abd-light); color:var(--abd-color); border:1px solid var(--abd-border); }
+
+  /* ---- Module 1: Phân loại ---- */
+  .arg-card {
+    background: var(--stone-100); border-radius: 10px; padding: 16px 18px;
+    margin: 12px 0; border: 2px solid transparent; transition: border-color 0.2s;
+    cursor: default;
+  }
+  .arg-card.correct { border-color: var(--strong-color); background: var(--strong-light); }
+  .arg-card.wrong   { border-color: var(--weak-color);   background: var(--weak-light); }
+
+  .arg-text { font-size: 14px; line-height: 1.6; color: var(--stone-700); margin-bottom: 12px; }
+  .arg-text .premise { color: var(--stone-600); }
+  .arg-text .conclusion { font-weight: 600; color: var(--stone-800); }
+
+  .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-type {
+    padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    border: 2px solid transparent; cursor: pointer; transition: all 0.15s;
+    background: #fff;
+  }
+  .btn-ded { border-color: var(--ded-border); color: var(--ded-color); }
+  .btn-ded:hover, .btn-ded.selected { background: var(--ded-light); border-color: var(--ded-color); }
+  .btn-ind { border-color: var(--ind-border); color: var(--ind-color); }
+  .btn-ind:hover, .btn-ind.selected { background: var(--ind-light); border-color: var(--ind-color); }
+  .btn-abd { border-color: var(--abd-border); color: var(--abd-color); }
+  .btn-abd:hover, .btn-abd.selected { background: var(--abd-light); border-color: var(--abd-color); }
+
+  .feedback {
+    margin-top: 10px; padding: 10px 14px; border-radius: 8px; font-size: 13px;
+    line-height: 1.6; display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.ok { background: var(--strong-light); color: #14532d; border: 1px solid var(--ind-border); }
+  .feedback.err { background: var(--weak-light); color: #7f1d1d; border: 1px solid #fca5a5; }
+
+  .score-bar {
+    display: flex; gap: 12px; align-items: center; margin: 16px 0 4px;
+    flex-wrap: wrap;
+  }
+  .score-pill {
+    background: var(--stone-200); border-radius: 20px; padding: 4px 14px;
+    font-size: 13px; font-weight: 700; color: var(--stone-700);
+  }
+  .score-pill.good { background: var(--ind-light); color: var(--ind-color); }
+  .reset-btn {
+    padding: 7px 16px; background: var(--stone-600); color: #fff; border: none;
+    border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .reset-btn:hover { background: var(--stone-700); }
+
+  /* ---- Module 2: Thiên nga đen ---- */
+  .swan-stage {
+    min-height: 120px; display: flex; flex-wrap: wrap; gap: 8px;
+    align-items: flex-start; padding: 14px; background: #f8f7f5;
+    border-radius: 10px; border: 1px solid var(--stone-200); margin: 12px 0;
+  }
+  .swan { font-size: 28px; transition: transform 0.3s; display: inline-block; cursor: default; }
+  .swan.new-add { animation: popIn 0.35s ease; }
+  @keyframes popIn {
+    0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+    70%  { transform: scale(1.2) rotate(5deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  .black-swan-wrap { animation: crashIn 0.5s ease; }
+  @keyframes crashIn {
+    0%   { transform: scale(0); opacity: 0; }
+    60%  { transform: scale(1.4); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .belief-track { margin: 14px 0; }
+  .belief-label {
+    display: flex; justify-content: space-between; font-size: 13px;
+    color: var(--stone-600); margin-bottom: 6px; font-weight: 600;
+  }
+  .belief-bar-bg {
+    height: 22px; background: var(--stone-200); border-radius: 11px; overflow: hidden;
+    position: relative;
+  }
+  .belief-bar-fill {
+    height: 100%; border-radius: 11px; transition: width 0.5s ease, background 0.5s;
+    display: flex; align-items: center; padding-left: 10px;
+    font-size: 11px; font-weight: 700; color: #fff;
+    min-width: 0;
+  }
+  .belief-bar-fill.collapsed {
+    background: var(--weak-color) !important;
+    animation: flashRed 0.6s ease;
+  }
+  @keyframes flashRed {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0.3; }
+  }
+
+  .claim-box {
+    padding: 12px 14px; border-radius: 8px; font-size: 14px;
+    margin: 10px 0; line-height: 1.6; font-weight: 500;
+    transition: all 0.4s;
+  }
+  .claim-box.alive   { background: var(--ind-light); border: 1.5px solid var(--ind-border); color: #14532d; }
+  .claim-box.dead    { background: var(--weak-light); border: 1.5px dashed var(--weak-color); color: #7f1d1d;
+                       text-decoration: line-through; }
+  .claim-box.neutral { background: var(--stone-100); border: 1.5px solid var(--stone-300); color: var(--stone-700); }
+
+  .swan-controls { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  .swan-btn {
+    padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    border: none; cursor: pointer; transition: all 0.15s;
+  }
+  .swan-btn.primary { background: var(--stone-600); color: #fff; }
+  .swan-btn.primary:hover { background: var(--stone-700); }
+  .swan-btn.primary:disabled { background: var(--stone-300); cursor: default; }
+  .swan-btn.danger  { background: #dc2626; color: #fff; }
+  .swan-btn.danger:hover  { background: #b91c1c; }
+  .swan-btn.danger:disabled { background: #fca5a5; cursor: default; }
+  .swan-btn.ghost   { background: #fff; color: var(--stone-600); border: 1.5px solid var(--stone-300); }
+  .swan-btn.ghost:hover { border-color: var(--stone-600); }
+
+  .swan-count { font-size: 13px; color: var(--stone-600); margin: 4px 0; }
+  .collapse-msg {
+    padding: 14px 16px; border-radius: 10px; background: var(--weak-light);
+    border: 2px solid var(--weak-color); color: #7f1d1d; font-size: 14px;
+    font-weight: 600; margin-top: 10px; display: none; line-height: 1.6;
+  }
+  .collapse-msg.show { display: block; }
+
+  /* ---- Module 3: Thước đo quy nạp ---- */
+  .ind-case {
+    background: var(--stone-100); border-radius: 10px; padding: 16px 18px;
+    margin: 12px 0; border-left: 4px solid var(--stone-300);
+  }
+  .ind-case-title { font-weight: 700; font-size: 14px; color: var(--stone-800); margin-bottom: 6px; }
+  .ind-case-arg { font-size: 13px; color: var(--stone-600); line-height: 1.6; margin-bottom: 12px; }
+  .strength-meter { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .strength-bar-bg {
+    flex: 1; min-width: 120px; height: 16px; background: var(--stone-200);
+    border-radius: 8px; overflow: hidden;
+  }
+  .strength-bar-fill { height: 100%; border-radius: 8px; transition: width 0.5s; }
+  .strength-label { font-size: 12px; font-weight: 700; min-width: 60px; }
+  .criteria-list { margin-top: 10px; display: none; }
+  .criteria-list.show { display: block; }
+  .criterion { display: flex; gap: 8px; align-items: flex-start; font-size: 13px;
+               color: var(--stone-600); margin: 5px 0; line-height: 1.5; }
+  .crit-icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+  .show-detail-btn {
+    padding: 5px 12px; font-size: 12px; font-weight: 600; border-radius: 6px;
+    border: 1.5px solid var(--stone-300); background: #fff;
+    color: var(--stone-600); cursor: pointer; transition: all 0.15s; margin-top: 8px;
+  }
+  .show-detail-btn:hover { border-color: var(--stone-600); }
+
+  /* Phân loại 3 kiểu tham chiếu */
+  .type-ref-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0;
+  }
+  @media (max-width: 600px) { .type-ref-grid { grid-template-columns: 1fr; } }
+  .type-ref-card {
+    border-radius: 10px; padding: 14px 16px; font-size: 13px; line-height: 1.6;
+  }
+  .type-ref-card.ded { background: var(--ded-light); border: 1px solid var(--ded-border); }
+  .type-ref-card.ind { background: var(--ind-light); border: 1px solid var(--ind-border); }
+  .type-ref-card.abd { background: var(--abd-light); border: 1px solid var(--abd-border); }
+  .type-ref-card h4 { margin: 0 0 6px; font-size: 13px; }
+  .type-ref-card h4.ded { color: var(--ded-color); }
+  .type-ref-card h4.ind { color: var(--ind-color); }
+  .type-ref-card h4.abd { color: var(--abd-color); }
+
+  /* Layout & misc */
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  .hint { font-size: 12px; color: #78716c; margin: 6px 0; line-height: 1.5; }
+  .section-intro { font-size: 14px; color: var(--stone-600); line-height: 1.7;
+                   margin: 8px 0 16px; max-width: 700px; }
+  .verdict-row { display: flex; gap: 10px; align-items: center; margin: 12px 0; flex-wrap: wrap; }
+  .verdict-tag {
+    padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  }
+  .vt-certain { background: var(--ded-light); color: var(--ded-color); border: 1px solid var(--ded-border); }
+  .vt-probable { background: var(--ind-light); color: var(--ind-color); border: 1px solid var(--ind-border); }
+  .vt-possible { background: var(--abd-light); color: var(--abd-color); border: 1px solid var(--abd-border); }
+
+  @media (max-width: 480px) {
+    .card { padding: 14px 14px; }
+    .arg-card { padding: 12px 14px; }
+    .swan { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Formal Logic</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-syllogisms/visualization.html">← L7: Tam đoạn luận</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Quy nạp vs Diễn dịch</span>
+  <span class="sep">·</span>
+  <a href="../../02-CriticalThinking/index.html">Tầng 2: Critical Thinking →</a>
+</nav>
+
+<main>
+<h1>Lesson 08 — Quy nạp vs Diễn dịch</h1>
+<p class="lead">Ba kiểu suy luận: <span class="badge-ded">Diễn dịch</span> (chắc chắn) · <span class="badge-ind">Quy nạp</span> (xác suất) · <span class="badge-abd">Abduction</span> (tốt nhất). Thực hành phân loại, rồi xem trực quan tại sao quy nạp không bao giờ chắc chắn 100%.</p>
+
+<!-- ===== THAM CHIẾU 3 KIỂU ===== -->
+<h2>0. Bảng tham chiếu nhanh</h2>
+<div class="type-ref-grid">
+  <div class="type-ref-card ded">
+    <h4 class="ded">Diễn dịch (Deduction)</h4>
+    Tổng quát → Cụ thể<br>
+    <strong>Chắc chắn</strong> nếu hợp lệ + tiền đề đúng.<br>
+    Đánh giá: <em>valid / sound</em><br>
+    <span style="color:#555;font-size:12px">VD: Mọi người tử vong. Socrates là người. → Socrates tử vong.</span>
+  </div>
+  <div class="type-ref-card ind">
+    <h4 class="ind">Quy nạp (Induction)</h4>
+    Cụ thể → Tổng quát<br>
+    <strong>Xác suất</strong>, không chắc chắn.<br>
+    Đánh giá: <em>mạnh / yếu</em><br>
+    <span style="color:#555;font-size:12px">VD: 1000 thiên nga đều trắng → mọi thiên nga trắng (có thể sai).</span>
+  </div>
+  <div class="type-ref-card abd">
+    <h4 class="abd">Abduction (IBE)</h4>
+    Hiện tượng → Giả thuyết<br>
+    <strong>Giải thích tốt nhất</strong> hiện có.<br>
+    Đánh giá: <em>tốt / không tốt</em><br>
+    <span style="color:#555;font-size:12px">VD: Sân ướt → có thể trời vừa mưa.</span>
+  </div>
+</div>
+
+<!-- ===== MODULE 1: PHÂN LOẠI ===== -->
+<h2>1. Phân loại lập luận</h2>
+<p class="section-intro">Đọc từng lập luận, chọn kiểu phù hợp. Khi chọn đúng, bạn thấy giải thích tại sao.</p>
+
+<div id="quiz-container"></div>
+
+<div class="score-bar">
+  <span class="score-pill" id="score-pill">0 / 7 đúng</span>
+  <button class="reset-btn" id="reset-quiz">Làm lại</button>
+</div>
+
+<!-- ===== MODULE 2: THIÊN NGA ĐEN ===== -->
+<h2>2. Thiên nga đen — quy nạp sụp đổ</h2>
+<p class="section-intro">Thêm dần quan sát "thiên nga trắng" → khái quát ngày càng mạnh. Rồi bấm <strong>"Thiên nga đen xuất hiện!"</strong> để thấy toàn bộ khái quát sụp đổ sau một phản ví dụ duy nhất.</p>
+
+<div class="card">
+  <div class="swan-count" id="swan-count">Quan sát: 0 thiên nga</div>
+
+  <div id="claim-current" class="claim-box neutral">
+    Chưa có dữ liệu. Hãy thêm quan sát.
+  </div>
+
+  <div class="belief-track">
+    <div class="belief-label">
+      <span>Độ tin vào khái quát "mọi thiên nga đều trắng"</span>
+      <span id="belief-pct">0%</span>
+    </div>
+    <div class="belief-bar-bg">
+      <div class="belief-bar-fill" id="belief-bar" style="width:0%;background:var(--stone-300)"></div>
+    </div>
+  </div>
+
+  <div class="swan-stage" id="swan-stage">
+    <span style="color:#a8a29e;font-size:13px;padding:4px">Sân quan sát trống...</span>
+  </div>
+
+  <div class="swan-controls">
+    <button class="swan-btn primary" id="add-1">+1 thiên nga trắng</button>
+    <button class="swan-btn primary" id="add-5">+5 thiên nga trắng</button>
+    <button class="swan-btn primary" id="add-20">+20 thiên nga trắng</button>
+    <button class="swan-btn danger"  id="add-black">🦢 Thiên nga đen xuất hiện!</button>
+    <button class="swan-btn ghost"   id="reset-swan">Đặt lại</button>
+  </div>
+
+  <div class="collapse-msg" id="collapse-msg">
+    <strong>Khái quát sụp đổ!</strong> Sau <span id="white-count-msg">?</span> lần quan sát thiên nga trắng,
+    một con thiên nga đen duy nhất đã <strong>bác bỏ hoàn toàn</strong> kết luận "mọi thiên nga đều trắng".<br>
+    Đây chính là "vấn đề quy nạp" của Hume: không có số lượng xác nhận nào — dù là triệu hay tỷ — đủ để
+    <em>đảm bảo</em> về mặt logic rằng quy luật sẽ giữ mãi mãi.
+  </div>
+  <p class="hint">Mỗi thiên nga trắng tăng "độ tin" thêm một ít. Đến 50 con, thanh gần đầy. Nhưng "gần đầy" vẫn không phải 100% — và một con đen phá sạch.</p>
+</div>
+
+<!-- ===== MODULE 3: THƯỚC ĐO ===== -->
+<h2>3. Thước đo sức mạnh quy nạp</h2>
+<p class="section-intro">Năm lập luận quy nạp với mức độ mạnh khác nhau. Bấm "Xem tiêu chí" để biết điểm mạnh/yếu của từng lập luận.</p>
+
+<div id="strength-container"></div>
+
+</main>
+
+<script>
+// ================================================
+// MODULE 1 — Phân loại lập luận
+// ================================================
+const QUESTIONS = [
+  {
+    id: 0,
+    premises: [
+      'Mọi hình tam giác có tổng 3 góc bằng 180°.',
+      'ABC là hình tam giác.'
+    ],
+    conclusion: 'Tổng 3 góc của ABC bằng 180°.',
+    answer: 'ded',
+    explanation: '<span class="badge-ded">Diễn dịch</span> — Từ quy tắc tổng quát (mọi hình tam giác) + trường hợp cụ thể (ABC là tam giác) → kết luận <strong>chắc chắn</strong>. Đây là modus ponens với lượng từ phổ quát. Kết luận không thể sai nếu tiền đề đúng.'
+  },
+  {
+    id: 1,
+    premises: [
+      'Khảo sát 800 sinh viên từ 10 trường đại học khắp cả nước.',
+      '72% dùng điện thoại hơn 4 tiếng/ngày.'
+    ],
+    conclusion: 'Khoảng 72% sinh viên Việt Nam dùng điện thoại hơn 4 tiếng/ngày.',
+    answer: 'ind',
+    explanation: '<span class="badge-ind">Quy nạp</span> — Từ mẫu 800 người → khái quát cho toàn bộ sinh viên Việt Nam. Kết luận <strong>xác suất cao</strong> nếu mẫu đại diện tốt, nhưng không chắc chắn. Bằng chứng mới (mẫu lớn hơn, phân tầng khác) có thể thay đổi con số.'
+  },
+  {
+    id: 2,
+    premises: [
+      'Máy tính khởi động chậm bất thường.',
+      'CPU luôn 90-95% khi vừa mở.'
+    ],
+    conclusion: 'Có thể một tiến trình nền đang chiếm CPU.',
+    answer: 'abd',
+    explanation: '<span class="badge-abd">Abduction</span> — Từ triệu chứng quan sát (chậm, CPU cao) → <strong>giả thuyết giải thích tốt nhất</strong>. Không chắc chắn — có thể virus quét, update tự động, hay driver lỗi. Cần kiểm tra Task Manager để xác nhận.'
+  },
+  {
+    id: 3,
+    premises: [
+      'Nếu trời mưa thì đường ướt.',
+      'Trời đang mưa.'
+    ],
+    conclusion: 'Đường ướt.',
+    answer: 'ded',
+    explanation: '<span class="badge-ded">Diễn dịch</span> — Cấu trúc modus ponens cổ điển: P→Q, P → Q. Kết luận <strong>tất yếu</strong>. Lưu ý: đây khác với abduction (sân ướt → có thể trời mưa). Ở đây chiều đi ngược lại: đã biết trời mưa → kết luận chắc chắn về đường.'
+  },
+  {
+    id: 4,
+    premises: [
+      'Tôi gặp 4 người từ tỉnh A trong tuần này.',
+      'Cả 4 người đều nói giọng rất nặng.'
+    ],
+    conclusion: 'Người tỉnh A đều nói giọng nặng.',
+    answer: 'ind',
+    explanation: '<span class="badge-ind">Quy nạp yếu</span> — Từ 4 quan sát → khái quát cho toàn bộ dân tỉnh A. Đây là lỗi <strong>khái quát vội (hasty generalization)</strong>: mẫu quá nhỏ (4 người / hàng triệu dân), không ngẫu nhiên, thiên lệch chọn mẫu. Quy nạp đúng nhưng <em>rất yếu</em>.'
+  },
+  {
+    id: 5,
+    premises: [
+      'Bệnh nhân có các triệu chứng: sốt 38.5°C, đau họng, chảy nước mũi, test nhanh dương tính.'
+    ],
+    conclusion: 'Bệnh nhân có thể bị cúm.',
+    answer: 'abd',
+    explanation: '<span class="badge-abd">Abduction</span> — Bác sĩ suy từ triệu chứng → <strong>chẩn đoán có khả năng nhất</strong>. Không phải quy nạp (không khái quát từ nhiều bệnh nhân) và không phải diễn dịch (không có quy tắc tất định). Chẩn đoán là giả thuyết — cần xét nghiệm xác nhận, điều chỉnh nếu không phản hồi điều trị.'
+  },
+  {
+    id: 6,
+    premises: [
+      'Trong 50 năm quan trắc (1974-2024) tại trạm khí tượng Đà Nẵng,',
+      'mỗi năm đều có ít nhất 1 cơn bão vào miền Trung.'
+    ],
+    conclusion: 'Năm 2025 cũng sẽ có bão vào miền Trung.',
+    answer: 'ind',
+    explanation: '<span class="badge-ind">Quy nạp mạnh</span> — Mẫu 50 năm, nhất quán, một địa điểm cụ thể, có dữ liệu khí tượng hỗ trợ. Khá mạnh trong thực tế. Nhưng biến đổi khí hậu hay năm El Niño đặc biệt có thể làm sai — kết luận vẫn là <em>xác suất</em>, không phải chắc chắn tuyệt đối.'
+  }
+];
+
+let quizAnswers = {};
+let quizCorrect = 0;
+
+function renderQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizAnswers = {};
+  quizCorrect = 0;
+  updateScore();
+
+  QUESTIONS.forEach(q => {
+    const div = document.createElement('div');
+    div.className = 'arg-card';
+    div.id = 'arg-' + q.id;
+
+    const premText = q.premises.map(p => `<span class="premise">${p}</span>`).join('<br>');
+    div.innerHTML = `
+      <div class="arg-text">
+        <div style="margin-bottom:6px">${premText}</div>
+        <div class="conclusion">→ ${q.conclusion}</div>
+      </div>
+      <div class="btn-group">
+        <button class="btn-type btn-ded" data-q="${q.id}" data-ans="ded">Diễn dịch</button>
+        <button class="btn-type btn-ind" data-q="${q.id}" data-ans="ind">Quy nạp</button>
+        <button class="btn-type btn-abd" data-q="${q.id}" data-ans="abd">Abduction</button>
+      </div>
+      <div class="feedback" id="fb-${q.id}"></div>
+    `;
+    container.appendChild(div);
+  });
+
+  container.querySelectorAll('.btn-type').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const qid = +this.dataset.q;
+      if (quizAnswers[qid] !== undefined) return; // đã trả lời
+
+      const chosen = this.dataset.ans;
+      const q = QUESTIONS[qid];
+      const correct = chosen === q.answer;
+
+      quizAnswers[qid] = chosen;
+
+      // disable all buttons for this question
+      container.querySelectorAll(`[data-q="${qid}"]`).forEach(b => {
+        b.disabled = true;
+        b.classList.remove('selected');
+      });
+      this.classList.add('selected');
+
+      const card = document.getElementById('arg-' + qid);
+      const fb = document.getElementById('fb-' + qid);
+
+      if (correct) {
+        card.classList.add('correct');
+        fb.className = 'feedback show ok';
+        fb.innerHTML = '✓ Đúng! ' + q.explanation;
+        quizCorrect++;
+      } else {
+        card.classList.add('wrong');
+        fb.className = 'feedback show err';
+        const typeLabel = { ded: 'Diễn dịch', ind: 'Quy nạp', abd: 'Abduction' };
+        fb.innerHTML = `✗ Chưa đúng. Đáp án là <strong>${typeLabel[q.answer]}</strong>. ${q.explanation}`;
+      }
+      updateScore();
+    });
+  });
+}
+
+function updateScore() {
+  const pill = document.getElementById('score-pill');
+  pill.textContent = quizCorrect + ' / ' + QUESTIONS.length + ' đúng';
+  pill.className = 'score-pill' + (quizCorrect === QUESTIONS.length ? ' good' : '');
+}
+
+document.getElementById('reset-quiz').addEventListener('click', renderQuiz);
+renderQuiz();
+
+
+// ================================================
+// MODULE 2 — Thiên nga đen
+// ================================================
+let whiteCount = 0;
+let blackAppeared = false;
+
+function getBeliefPct(n) {
+  if (n === 0) return 0;
+  // log growth: 1 con = 20%, 10 con ≈ 60%, 50 con ≈ 90%, 100 = 95%
+  return Math.min(97, Math.round(40 * Math.log10(n + 1)));
+}
+
+function beliefColor(pct) {
+  if (pct < 40) return '#a16207';
+  if (pct < 70) return '#15803d';
+  return '#166534';
+}
+
+function renderSwans() {
+  const stage = document.getElementById('swan-stage');
+  if (whiteCount === 0 && !blackAppeared) {
+    stage.innerHTML = '<span style="color:#a8a29e;font-size:13px;padding:4px">Sân quan sát trống...</span>';
+    return;
+  }
+  // Display up to 60 swans visually
+  const show = Math.min(whiteCount, 60);
+  let html = '';
+  for (let i = 0; i < show; i++) {
+    html += '<span class="swan" title="Thiên nga trắng #' + (i+1) + '">🦢</span>';
+  }
+  if (whiteCount > 60) {
+    html += `<span style="font-size:13px;color:#57534e;align-self:center;padding:4px">…và ${whiteCount - 60} con nữa</span>`;
+  }
+  if (blackAppeared) {
+    html += '<span class="swan black-swan-wrap" title="Thiên nga đen!" style="font-size:32px">🖤</span>';
+  }
+  stage.innerHTML = html;
+}
+
+function updateSwanUI() {
+  const pct = blackAppeared ? 0 : getBeliefPct(whiteCount);
+  const bar = document.getElementById('belief-bar');
+  const pctEl = document.getElementById('belief-pct');
+  const claim = document.getElementById('claim-current');
+  const countEl = document.getElementById('swan-count');
+
+  countEl.textContent = `Quan sát: ${whiteCount} thiên nga trắng${blackAppeared ? ' + 1 thiên nga đen' : ''}`;
+  pctEl.textContent = pct + '%';
+
+  if (blackAppeared) {
+    bar.style.width = '100%';
+    bar.style.background = 'var(--weak-color)';
+    bar.className = 'belief-bar-fill collapsed';
+    bar.textContent = 'SỤP ĐỔ';
+    claim.className = 'claim-box dead';
+    claim.textContent = '"Mọi thiên nga đều trắng." — bị bác bỏ hoàn toàn!';
+    document.getElementById('collapse-msg').classList.add('show');
+    document.getElementById('white-count-msg').textContent = whiteCount;
+  } else {
+    bar.className = 'belief-bar-fill';
+    bar.style.width = pct + '%';
+    bar.style.background = beliefColor(pct);
+    bar.textContent = pct > 15 ? pct + '%' : '';
+
+    if (whiteCount === 0) {
+      claim.className = 'claim-box neutral';
+      claim.textContent = 'Chưa có dữ liệu. Hãy thêm quan sát.';
+    } else if (whiteCount < 10) {
+      claim.className = 'claim-box alive';
+      claim.textContent = `Bằng chứng ban đầu: ${whiteCount} thiên nga đều trắng. Khái quát còn yếu.`;
+    } else if (whiteCount < 30) {
+      claim.className = 'claim-box alive';
+      claim.textContent = `Sau ${whiteCount} quan sát nhất quán: "Thiên nga thường có màu trắng." Quy nạp trung bình.`;
+    } else {
+      claim.className = 'claim-box alive';
+      claim.textContent = `Sau ${whiteCount} quan sát — tất cả trắng. Khái quát mạnh: "Mọi thiên nga đều trắng." Nhưng vẫn chưa chắc 100%...`;
+    }
+  }
+  renderSwans();
+}
+
+function addWhite(n) {
+  if (blackAppeared) return;
+  whiteCount += n;
+  updateSwanUI();
+}
+
+function addBlack() {
+  if (blackAppeared) return;
+  blackAppeared = true;
+  updateSwanUI();
+  // Animate the last few white swans shaking
+  const swans = document.querySelectorAll('#swan-stage .swan');
+  swans.forEach((s, i) => {
+    setTimeout(() => {
+      s.style.opacity = '0.35';
+      s.style.transform = 'scale(0.8)';
+    }, i * 15);
+  });
+}
+
+function resetSwan() {
+  whiteCount = 0;
+  blackAppeared = false;
+  document.getElementById('collapse-msg').classList.remove('show');
+  const bar = document.getElementById('belief-bar');
+  bar.className = 'belief-bar-fill';
+  updateSwanUI();
+}
+
+document.getElementById('add-1').addEventListener('click', () => addWhite(1));
+document.getElementById('add-5').addEventListener('click', () => addWhite(5));
+document.getElementById('add-20').addEventListener('click', () => addWhite(20));
+document.getElementById('add-black').addEventListener('click', addBlack);
+document.getElementById('reset-swan').addEventListener('click', resetSwan);
+updateSwanUI();
+
+
+// ================================================
+// MODULE 3 — Thước đo sức mạnh quy nạp
+// ================================================
+const IND_CASES = [
+  {
+    title: 'Ví dụ 1 — Mẫu quá nhỏ (Rất yếu)',
+    argument: 'Tôi gặp 3 người dùng iPhone ở quán cà phê này. Cả 3 người đều dùng iPhone. Vậy hầu hết người Việt Nam dùng iPhone.',
+    strength: 8,
+    color: '#dc2626',
+    label: 'Rất yếu',
+    criteria: [
+      { icon: '✗', text: 'Cỡ mẫu: 3 người — quá nhỏ để đại diện 100 triệu dân.' },
+      { icon: '✗', text: 'Tính đại diện: chọn mẫu tại quán café ở thành phố — thiên lệch rõ ràng (tầng lớp, địa lý).' },
+      { icon: '✗', text: 'Tính đa dạng: cùng địa điểm, thời điểm, nhóm xã hội.' },
+      { icon: '✓', text: 'Tính phản chứng: chưa thử tìm ngược (dễ tìm — dữ liệu thị trường cho thấy Android chiếm đa số).' }
+    ]
+  },
+  {
+    title: 'Ví dụ 2 — Khái quát vội (Yếu)',
+    argument: 'Công ty chúng tôi thử 30 nhân viên áp dụng làm việc 4 ngày/tuần — năng suất tăng 20%. Vậy mọi công ty nên áp dụng lịch này.',
+    strength: 28,
+    color: '#ea580c',
+    label: 'Yếu',
+    criteria: [
+      { icon: '△', text: 'Cỡ mẫu: 30 người — nhỏ nhưng không phải quá tệ cho thử nghiệm nội bộ.' },
+      { icon: '✗', text: 'Tính đại diện: một công ty, một ngành nghề — không đại diện cho "mọi công ty" (sản xuất, bệnh viện, v.v.).' },
+      { icon: '✗', text: 'Tính đa dạng: cùng văn hóa công ty, lĩnh vực, thị trường.' },
+      { icon: '✗', text: 'Bước nhảy quá lớn: từ kết quả 1 công ty → khuyến nghị toàn bộ.' }
+    ]
+  },
+  {
+    title: 'Ví dụ 3 — Quy nạp khoa học (Trung bình)',
+    argument: '150 người tham gia thử nghiệm uống trà xanh mỗi ngày trong 3 tháng; chỉ số cholesterol xấu (LDL) giảm trung bình 8% so với nhóm đối chứng 150 người. P < 0.05.',
+    strength: 62,
+    color: '#ca8a04',
+    label: 'Trung bình',
+    criteria: [
+      { icon: '✓', text: 'Cỡ mẫu: 300 tổng (150 mỗi nhóm) — đủ để phát hiện hiệu ứng trung bình.' },
+      { icon: '✓', text: 'Có nhóm đối chứng (placebo): loại trừ tác dụng giả.' },
+      { icon: '✓', text: 'Ý nghĩa thống kê: p < 0.05 giảm xác suất kết quả ngẫu nhiên.' },
+      { icon: '△', text: 'Tính đại diện: chưa biết mẫu có đại diện chủng tộc, độ tuổi, điều kiện sức khỏe đa dạng?' },
+      { icon: '△', text: 'Thời gian: 3 tháng — chưa rõ hiệu quả dài hạn.' }
+    ]
+  },
+  {
+    title: 'Ví dụ 4 — Dữ liệu lớn, đa dạng (Mạnh)',
+    argument: 'Phân tích 2 triệu bệnh án từ 50 bệnh viện ở 15 tỉnh (2010-2020): bệnh nhân hút thuốc có nguy cơ ung thư phổi cao hơn 15 lần so với không hút thuốc. Kết quả nhất quán qua mọi nhóm nhân khẩu học.',
+    strength: 88,
+    color: '#16a34a',
+    label: 'Mạnh',
+    criteria: [
+      { icon: '✓', text: 'Cỡ mẫu: 2 triệu — rất lớn, đủ để phát hiện hiệu ứng nhỏ và giảm nhiễu.' },
+      { icon: '✓', text: 'Tính đại diện: 50 bệnh viện, 15 tỉnh, 10 năm — đa dạng về địa lý, thời gian.' },
+      { icon: '✓', text: 'Nhất quán qua nhóm nhân khẩu: kết quả không phụ thuộc nhóm cụ thể.' },
+      { icon: '✓', text: 'Hiệu ứng lớn: 15 lần — khó giải thích bằng yếu tố nhiễu ngẫu nhiên.' },
+      { icon: '△', text: 'Vẫn là quy nạp — không phải tất định. Cơ chế sinh học cần nghiên cứu thêm.' }
+    ]
+  },
+  {
+    title: 'Ví dụ 5 — Hằng số vật lý (Rất mạnh, nhưng vẫn quy nạp!)',
+    argument: 'Trong 400 năm thực nghiệm (từ Galileo đến nay), ở mọi vật thể thử nghiệm được, gia tốc trọng trường gần bề mặt Trái Đất ≈ 9.8 m/s² (với điều chỉnh địa lý). Kết quả nhất quán toàn cầu.',
+    strength: 97,
+    color: '#1d4ed8',
+    label: 'Rất mạnh',
+    criteria: [
+      { icon: '✓', text: 'Cỡ mẫu: hàng triệu thực nghiệm qua 400 năm.' },
+      { icon: '✓', text: 'Tính đa dạng: mọi loại vật liệu, hình dạng, địa điểm trên Trái Đất.' },
+      { icon: '✓', text: 'Nhất quán tuyệt đối: không có ngoại lệ được ghi nhận (trong điều kiện chuẩn).' },
+      { icon: '✓', text: 'Lý thuyết hỗ trợ: General Relativity của Einstein giải thích cơ chế.' },
+      { icon: '!', text: 'Vẫn là quy nạp — Hume sẽ nhắc: không có đảm bảo logic nào rằng g = 9.8 ở lần thực nghiệm tiếp theo. Nhưng đây là quy nạp cực kỳ mạnh mà khoa học dựa vào.' }
+    ]
+  }
+];
+
+function renderStrength() {
+  const container = document.getElementById('strength-container');
+  container.innerHTML = '';
+  IND_CASES.forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = 'ind-case';
+    div.style.borderLeftColor = c.color;
+    div.innerHTML = `
+      <div class="ind-case-title">${c.title}</div>
+      <div class="ind-case-arg">${c.argument}</div>
+      <div class="strength-meter">
+        <div class="strength-bar-bg">
+          <div class="strength-bar-fill" id="sbar-${i}" style="width:0%;background:${c.color}"></div>
+        </div>
+        <span class="strength-label" style="color:${c.color}">${c.label}</span>
+      </div>
+      <button class="show-detail-btn" id="detail-btn-${i}">Xem tiêu chí ▾</button>
+      <div class="criteria-list" id="criteria-${i}">
+        ${c.criteria.map(cr => `<div class="criterion"><span class="crit-icon">${cr.icon}</span><span>${cr.text}</span></div>`).join('')}
+      </div>
+    `;
+    container.appendChild(div);
+
+    document.getElementById('detail-btn-' + i).addEventListener('click', function() {
+      const cl = document.getElementById('criteria-' + i);
+      cl.classList.toggle('show');
+      this.textContent = cl.classList.contains('show') ? 'Ẩn tiêu chí ▴' : 'Xem tiêu chí ▾';
+    });
+
+    // Animate bar in
+    setTimeout(() => {
+      document.getElementById('sbar-' + i).style.width = c.strength + '%';
+    }, 100 + i * 80);
+  });
+}
+
+renderStrength();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

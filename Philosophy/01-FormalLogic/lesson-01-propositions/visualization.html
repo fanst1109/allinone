@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Mệnh đề &amp; giá trị chân lý</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-hover: #44403c;
+    --accent-soft: #f0eeec;
+  }
+
+  h1 { color: #1c1917; }
+  h2 { color: #292524; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #d6d3d1; }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+    margin: 16px 0;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #78716c;
+    margin: 6px 0 0;
+    line-height: 1.5;
+  }
+
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  button.ghost:hover { background: #e7e5e4; }
+  button.sm { padding: 6px 12px; font-size: 13px; }
+
+  .val { font-family: monospace; font-weight: 700; color: var(--accent); }
+  .badge-t {
+    display: inline-block;
+    background: #dcfce7; color: #166534;
+    padding: 3px 10px; border-radius: 6px;
+    font-weight: 700; font-family: monospace; font-size: 14px;
+  }
+  .badge-f {
+    display: inline-block;
+    background: #fee2e2; color: #991b1b;
+    padding: 3px 10px; border-radius: 6px;
+    font-weight: 700; font-family: monospace; font-size: 14px;
+  }
+  .badge-np {
+    display: inline-block;
+    background: #fef3c7; color: #92400e;
+    padding: 3px 10px; border-radius: 6px;
+    font-weight: 700; font-family: monospace; font-size: 13px;
+  }
+
+  /* ---- Quiz ---- */
+  .quiz-item {
+    border: 2px solid #e7e5e4;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin: 12px 0;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .quiz-item.correct { border-color: #86efac; background: #f0fdf4; }
+  .quiz-item.wrong   { border-color: #fca5a5; background: #fff7f7; }
+  .quiz-item.neutral { border-color: #e7e5e4; background: #fff; }
+
+  .quiz-sentence {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1c1917;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .quiz-sentence em { font-style: normal; color: #57534e; }
+
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .quiz-btn {
+    background: #f5f5f4;
+    color: #44403c;
+    border: 1px solid #d6d3d1;
+    border-radius: 7px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .quiz-btn:hover { background: #e7e5e4; border-color: #a8a29e; }
+  .quiz-btn.selected-correct { background: #bbf7d0; border-color: #22c55e; color: #14532d; }
+  .quiz-btn.selected-wrong   { background: #fecaca; border-color: #ef4444; color: #7f1d1d; }
+  .quiz-btn.reveal-correct   { background: #dcfce7; border-color: #86efac; color: #166534; }
+
+  .quiz-explanation {
+    display: none;
+    margin-top: 8px;
+    padding: 10px 14px;
+    background: var(--accent-soft);
+    border-radius: 7px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #292524;
+  }
+  .quiz-explanation.show { display: block; }
+
+  .score-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--accent-soft);
+    border-radius: 10px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .score-num {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: monospace;
+  }
+
+  /* ---- Variable Table ---- */
+  .var-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+  .var-table th {
+    background: #e7e5e4;
+    color: #292524;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+  }
+  .var-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f5f5f4;
+    vertical-align: top;
+  }
+  .var-table tr:last-child td { border-bottom: none; }
+  .var-table tr:hover td { background: #fafaf9; }
+  .var-name {
+    font-family: monospace;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  /* ---- 3-Step Checker ---- */
+  .step-box {
+    border: 1px solid #e7e5e4;
+    border-radius: 8px;
+    margin: 10px 0;
+    overflow: hidden;
+  }
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #fafaf9;
+    font-weight: 600;
+    font-size: 14px;
+    color: #292524;
+    cursor: pointer;
+    user-select: none;
+  }
+  .step-num {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px;
+    flex-shrink: 0;
+  }
+  .step-body {
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #44403c;
+    border-top: 1px solid #e7e5e4;
+  }
+  .step-result {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 13px;
+    margin-top: 6px;
+  }
+  .step-pass { background: #dcfce7; color: #166534; }
+  .step-fail { background: #fee2e2; color: #991b1b; }
+  .step-pending { background: #f0eeec; color: #57534e; }
+
+  .checker-input-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    align-items: center;
+  }
+  .checker-input {
+    flex: 1;
+    min-width: 200px;
+    max-width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #d6d3d1;
+    border-radius: 7px;
+    font-size: 15px;
+    color: #1c1917;
+    box-sizing: border-box;
+  }
+  .checker-input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+
+  .checklist-result {
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 15px;
+    line-height: 1.7;
+    margin-top: 12px;
+  }
+  .checklist-result.is-prop { background: #f0fdf4; border: 1px solid #86efac; }
+  .checklist-result.not-prop { background: #fff7ed; border: 1px solid #fed7aa; }
+
+  /* ---- Progress ---- */
+  progress {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    appearance: none;
+    -webkit-appearance: none;
+    background: #e7e5e4;
+  }
+  progress::-webkit-progress-bar { background: #e7e5e4; border-radius: 4px; }
+  progress::-webkit-progress-value { background: var(--accent); border-radius: 4px; }
+  progress::-moz-progress-bar { background: var(--accent); border-radius: 4px; }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 480px) {
+    .card { padding: 14px 14px; }
+    .quiz-sentence { font-size: 14px; }
+    .quiz-btn { padding: 6px 10px; font-size: 12px; }
+    h2 { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Formal Logic</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Mệnh đề &amp; chân lý</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-truth-tables/visualization.html">L2: Bảng chân lý →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — Mệnh đề &amp; giá trị chân lý</h1>
+<p>Logic hình thức bắt đầu từ câu hỏi: <strong>câu này có phải mệnh đề không — và nếu có, nó đúng hay sai?</strong> Ba bài tập tương tác dưới đây giúp bạn luyện trực giác cho vấn đề nền tảng này.</p>
+
+<!-- ============================================================ -->
+<h2>1. Máy phân loại mệnh đề</h2>
+<div class="card">
+  <p>Với mỗi câu, hãy bấm <strong>Mệnh đề</strong> hoặc <strong>Không phải</strong>. Nếu chọn "Mệnh đề", tiếp tục chọn giá trị chân lý <strong>T (Đúng)</strong> hoặc <strong>F (Sai)</strong>.</p>
+
+  <div class="score-bar" id="scoreBar">
+    <div class="score-num" id="scoreNum">0 / 0</div>
+    <div style="flex:1">
+      <progress id="scoreProgress" value="0" max="1"></progress>
+      <div class="hint" id="scoreHint">Bắt đầu phân loại để xem điểm.</div>
+    </div>
+    <button class="ghost sm" id="resetBtn" onclick="resetQuiz()">Làm lại</button>
+  </div>
+
+  <div id="quizArea"></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Bảng biến mệnh đề p, q, r</h2>
+<div class="card">
+  <p>Bảng dưới đây minh họa cách gán ký hiệu biến cho mệnh đề và giá trị chân lý của chúng. Bấm vào ô giá trị để lật sang T ↔ F và quan sát.</p>
+
+  <div style="overflow-x:auto">
+    <table class="var-table" id="varTable">
+      <thead>
+        <tr>
+          <th style="width:60px">Biến</th>
+          <th>Mệnh đề</th>
+          <th style="width:100px; text-align:center">Giá trị</th>
+          <th>Ghi chú</th>
+        </tr>
+      </thead>
+      <tbody id="varTbody"></tbody>
+    </table>
+  </div>
+  <p class="hint" style="margin-top:12px">Bấm ô "Giá trị" để đổi T ↔ F — đây là thao tác gán giá trị chân lý cho biến, giống như bảng chân lý ở Lesson 02.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Bộ kiểm tra 3 bước</h2>
+<div class="card">
+  <p>Nhập một câu bất kỳ để kiểm tra từng tiêu chí. Gợi ý thử: <em>"x + 1 = 5"</em>, <em>"Trời đang mưa"</em>, <em>"Ai đó thông minh?"</em>, <em>"Câu này sai"</em>.</p>
+
+  <div class="checker-input-row">
+    <input type="text" class="checker-input" id="checkerInput"
+           placeholder='Nhập câu cần kiểm tra...'
+           maxlength="150"
+           oninput="runChecker()"
+    />
+  </div>
+
+  <div id="checkerSteps"></div>
+  <div id="checkerResult"></div>
+
+  <div style="margin-top:14px">
+    <span style="font-size:13px; color:#78716c; font-weight:600">Thử nhanh:</span>
+    <div class="btn-row" style="margin-top:6px">
+      <button class="quiz-btn" onclick="setChecker('2 + 2 = 4')">2 + 2 = 4</button>
+      <button class="quiz-btn" onclick="setChecker('x > 3')">x &gt; 3</button>
+      <button class="quiz-btn" onclick="setChecker('Bạn có khỏe không?')">Bạn có khỏe không?</button>
+      <button class="quiz-btn" onclick="setChecker('Hãy im lặng!')">Hãy im lặng!</button>
+      <button class="quiz-btn" onclick="setChecker('Câu này sai')">Câu này sai</button>
+      <button class="quiz-btn" onclick="setChecker('Mặt Trời quay quanh Trái Đất')">Mặt Trời quay quanh Trái Đất</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// 1. DỮ LIỆU CÂU HỎI
+// ================================================================
+const QUESTIONS = [
+  {
+    sentence: '"2 + 2 = 4"',
+    isProp: true,
+    tv: 'T',
+    explanation: 'Câu khẳng định toán học: 2+2=4 theo định nghĩa số học. Đây là mệnh đề đúng (T). Không có biến tự do, không phải câu hỏi hay mệnh lệnh.'
+  },
+  {
+    sentence: '"Hà Nội là thủ đô của Việt Nam"',
+    isProp: true,
+    tv: 'T',
+    explanation: 'Câu khẳng định sự kiện địa lý-chính trị. Giá trị T — đúng theo thực tế. Là mệnh đề hoàn chỉnh.'
+  },
+  {
+    sentence: '"Mặt Trời quay quanh Trái Đất"',
+    isProp: true,
+    tv: 'F',
+    explanation: 'Câu khẳng định — là mệnh đề. Nhưng giá trị là F: thực tế Trái Đất quay quanh Mặt Trời, không phải ngược lại (đây từng là sai lầm phổ biến trước Copernicus).'
+  },
+  {
+    sentence: '"Mấy giờ rồi?"',
+    isProp: false,
+    tv: null,
+    explanation: 'Câu hỏi (interrogative sentence) — không có giá trị chân lý. Ta không thể nói câu này "đúng" hay "sai". Không phải mệnh đề.'
+  },
+  {
+    sentence: '"Đóng cửa lại!"',
+    isProp: false,
+    tv: null,
+    explanation: 'Câu mệnh lệnh (imperative sentence) — yêu cầu hành động, không khẳng định điều gì. Không có giá trị chân lý. Không phải mệnh đề.'
+  },
+  {
+    sentence: '"x + 1 = 5" (x chưa xác định)',
+    isProp: false,
+    tv: null,
+    explanation: 'Câu mở chứa biến tự do x. Giá trị chân lý phụ thuộc x: nếu x=4 thì T, nếu x≠4 thì F. Chưa gán x → chưa xác định giá trị → không phải mệnh đề. (Trở thành mệnh đề khi gán x, ví dụ: "4+1=5" là T.)'
+  },
+  {
+    sentence: '"7 là số nguyên tố"',
+    isProp: true,
+    tv: 'T',
+    explanation: '7 là số nguyên tố: chỉ chia hết cho 1 và 7. Đây là mệnh đề đúng (T). Câu khẳng định, không có biến tự do.'
+  },
+  {
+    sentence: '"Tất cả chim đều biết bay"',
+    isProp: true,
+    tv: 'F',
+    explanation: 'Mệnh đề — câu khẳng định về toàn bộ lớp chim. Giá trị F: phản ví dụ dễ thấy là chim cánh cụt, đà điểu, chim kiwi — đều là chim nhưng không biết bay. Một phản ví dụ là đủ để bác bỏ mệnh đề "tất cả".'
+  },
+  {
+    sentence: '"Câu này là sai"',
+    isProp: false,
+    tv: null,
+    explanation: 'Nghịch lý Liar\'s Paradox (tự-phủ định): nếu câu đúng thì nó sai (mâu thuẫn); nếu câu sai thì nó đúng (mâu thuẫn). Không thể gán T hay F mà không tự mâu thuẫn → không phải mệnh đề trong logic cổ điển.'
+  },
+  {
+    sentence: '"Có sự sống ngoài Trái Đất"',
+    isProp: true,
+    tv: '?',
+    explanation: 'Đây là mệnh đề dù ta chưa biết giá trị chân lý! Câu khẳng định, không có biến tự do, không phải câu hỏi/nghịch lý. Giá trị T hoặc F tồn tại khách quan (vũ trụ hoặc có hoặc không có sự sống ngoài Trái Đất) — con người chỉ chưa biết. "Chưa biết" ≠ "không phải mệnh đề".',
+    specialTV: true
+  },
+  {
+    sentence: '"Ôi, đẹp quá!"',
+    isProp: false,
+    tv: null,
+    explanation: 'Câu cảm thán (exclamatory sentence) — biểu đạt cảm xúc, không khẳng định điều gì. Không có giá trị chân lý. Không phải mệnh đề.'
+  },
+  {
+    sentence: '"9 = 3²"',
+    isProp: true,
+    tv: 'T',
+    explanation: '3² = 3×3 = 9. Đúng theo định nghĩa. Mệnh đề — T.'
+  }
+];
+
+// Trạng thái quiz
+let answers = new Array(QUESTIONS.length).fill(null); // null | {isProp, tv}
+let score = 0;
+let answered = 0;
+
+function renderQuiz() {
+  const area = document.getElementById('quizArea');
+  area.innerHTML = '';
+  QUESTIONS.forEach((q, i) => {
+    const item = document.createElement('div');
+    item.className = 'quiz-item neutral';
+    item.id = 'qi-' + i;
+
+    // Câu hỏi
+    const sent = document.createElement('div');
+    sent.className = 'quiz-sentence';
+    sent.innerHTML = q.sentence;
+    item.appendChild(sent);
+
+    // Bước 1: Mệnh đề hay không?
+    const row1 = document.createElement('div');
+    row1.className = 'btn-row';
+
+    const btnYes = makeBtn('Mệnh đề ✓', 'quiz-btn', () => handleStep1(i, true));
+    btnYes.id = 'btn-yes-' + i;
+    const btnNo = makeBtn('Không phải ✗', 'quiz-btn', () => handleStep1(i, false));
+    btnNo.id = 'btn-no-' + i;
+    row1.appendChild(btnYes);
+    row1.appendChild(btnNo);
+    item.appendChild(row1);
+
+    // Bước 2: T hay F (ẩn ban đầu)
+    const row2 = document.createElement('div');
+    row2.className = 'btn-row';
+    row2.id = 'row2-' + i;
+    row2.style.display = 'none';
+
+    const labelTV = document.createElement('span');
+    labelTV.style.fontSize = '13px';
+    labelTV.style.color = '#78716c';
+    labelTV.style.fontWeight = '600';
+    labelTV.textContent = 'Giá trị chân lý: ';
+    row2.appendChild(labelTV);
+
+    const btnT = makeBtn('T — Đúng', 'quiz-btn', () => handleStep2(i, 'T'));
+    btnT.id = 'btn-T-' + i;
+    const btnF = makeBtn('F — Sai', 'quiz-btn', () => handleStep2(i, 'F'));
+    btnF.id = 'btn-F-' + i;
+
+    if (q.specialTV) {
+      const btnUnk = makeBtn('? — Chưa biết', 'quiz-btn', () => handleStep2(i, '?'));
+      btnUnk.id = 'btn-?-' + i;
+      row2.appendChild(btnT);
+      row2.appendChild(btnF);
+      row2.appendChild(btnUnk);
+    } else {
+      row2.appendChild(btnT);
+      row2.appendChild(btnF);
+    }
+    item.appendChild(row2);
+
+    // Giải thích
+    const exp = document.createElement('div');
+    exp.className = 'quiz-explanation';
+    exp.id = 'exp-' + i;
+    exp.innerHTML = q.explanation;
+    item.appendChild(exp);
+
+    area.appendChild(item);
+  });
+  updateScore();
+}
+
+function makeBtn(text, cls, fn) {
+  const b = document.createElement('button');
+  b.className = cls;
+  b.innerHTML = text;
+  b.addEventListener('click', fn);
+  return b;
+}
+
+function handleStep1(i, userIsProp) {
+  const q = QUESTIONS[i];
+  const item = document.getElementById('qi-' + i);
+  const btnYes = document.getElementById('btn-yes-' + i);
+  const btnNo = document.getElementById('btn-no-' + i);
+  const row2 = document.getElementById('row2-' + i);
+  const exp = document.getElementById('exp-' + i);
+
+  // Disable step 1 buttons
+  btnYes.disabled = true;
+  btnNo.disabled = true;
+
+  if (userIsProp === q.isProp) {
+    // Bước 1 đúng
+    btnYes.classList.add(userIsProp ? 'selected-correct' : 'quiz-btn');
+    btnNo.classList.add(!userIsProp ? 'selected-correct' : 'quiz-btn');
+    if (userIsProp) btnYes.classList.add('selected-correct');
+    else btnNo.classList.add('selected-correct');
+
+    if (!q.isProp) {
+      // Không phải mệnh đề — kết thúc, đúng hoàn toàn
+      item.className = 'quiz-item correct';
+      exp.classList.add('show');
+      recordAnswer(i, true);
+    } else {
+      // Là mệnh đề — hiện bước 2
+      row2.style.display = 'flex';
+    }
+  } else {
+    // Bước 1 sai
+    if (userIsProp) btnYes.classList.add('selected-wrong');
+    else btnNo.classList.add('selected-wrong');
+
+    // Highlight đáp án đúng
+    if (q.isProp) document.getElementById('btn-yes-' + i).classList.add('reveal-correct');
+    else document.getElementById('btn-no-' + i).classList.add('reveal-correct');
+
+    item.className = 'quiz-item wrong';
+    exp.classList.add('show');
+    recordAnswer(i, false);
+  }
+}
+
+function handleStep2(i, userTV) {
+  const q = QUESTIONS[i];
+  const item = document.getElementById('qi-' + i);
+  const exp = document.getElementById('exp-' + i);
+
+  // Disable bước 2 buttons
+  ['T', 'F', '?'].forEach(v => {
+    const b = document.getElementById('btn-' + v + '-' + i);
+    if (b) b.disabled = true;
+  });
+
+  const correct = (userTV === q.tv);
+
+  const selBtn = document.getElementById('btn-' + userTV + '-' + i);
+  if (selBtn) selBtn.classList.add(correct ? 'selected-correct' : 'selected-wrong');
+
+  if (!correct) {
+    const corrBtn = document.getElementById('btn-' + q.tv + '-' + i);
+    if (corrBtn) corrBtn.classList.add('reveal-correct');
+  }
+
+  item.className = 'quiz-item ' + (correct ? 'correct' : 'wrong');
+  exp.classList.add('show');
+  recordAnswer(i, correct);
+}
+
+function recordAnswer(i, isCorrect) {
+  if (answers[i] !== null) return; // Đã trả lời rồi
+  answers[i] = isCorrect;
+  if (isCorrect) score++;
+  answered++;
+  updateScore();
+}
+
+function updateScore() {
+  const total = QUESTIONS.length;
+  document.getElementById('scoreNum').textContent = score + ' / ' + answered;
+  const prog = document.getElementById('scoreProgress');
+  prog.value = answered === 0 ? 0 : score / answered;
+  prog.max = 1;
+  const hint = document.getElementById('scoreHint');
+  if (answered === 0) {
+    hint.textContent = 'Bắt đầu phân loại để xem điểm.';
+  } else if (answered < total) {
+    hint.textContent = 'Đã trả lời ' + answered + '/' + total + ' câu. ' +
+      (answered > 0 ? 'Tỷ lệ đúng: ' + Math.round(score / answered * 100) + '%.' : '');
+  } else {
+    const pct = Math.round(score / total * 100);
+    let msg = '';
+    if (pct === 100) msg = 'Xuất sắc! Bạn nắm vững khái niệm mệnh đề.';
+    else if (pct >= 75) msg = 'Tốt! Ôn lại những câu sai để củng cố.';
+    else if (pct >= 50) msg = 'Ổn. Đọc lại phần giải thích từng câu nhé.';
+    else msg = 'Hãy đọc lại README, rồi làm lại bài này.';
+    hint.textContent = 'Hoàn thành! ' + pct + '% — ' + msg;
+  }
+}
+
+function resetQuiz() {
+  answers = new Array(QUESTIONS.length).fill(null);
+  score = 0;
+  answered = 0;
+  renderQuiz();
+}
+
+// ================================================================
+// 2. BẢNG BIẾN MỆNH ĐỀ
+// ================================================================
+const VAR_DATA = [
+  { name: 'p', stmt: 'Hà Nội là thủ đô Việt Nam', tv: 'T', note: 'Sự kiện địa lý. Giá trị T.' },
+  { name: 'q', stmt: '7 là số chẵn', tv: 'F', note: '7 = 2×3+1, số lẻ. Giá trị F.' },
+  { name: 'r', stmt: 'Mọi tam giác đều có tổng nội góc = 180°', tv: 'T', note: 'Định lý hình học Euclid. Giá trị T.' },
+  { name: 's', stmt: 'Số π là số hữu tỷ', tv: 'F', note: 'Đã chứng minh π vô tỷ (Lambert, 1761). Giá trị F.' },
+  { name: 't', stmt: 'Có sự sống ngoài Trái Đất', tv: '?', note: 'Mệnh đề hợp lệ — giá trị xác định nhưng con người chưa biết.' }
+];
+
+function renderVarTable() {
+  const tbody = document.getElementById('varTbody');
+  tbody.innerHTML = '';
+  VAR_DATA.forEach((row, i) => {
+    const tr = document.createElement('tr');
+
+    const tdName = document.createElement('td');
+    tdName.innerHTML = '<span class="var-name">' + row.name + '</span>';
+    tr.appendChild(tdName);
+
+    const tdStmt = document.createElement('td');
+    tdStmt.textContent = row.stmt;
+    tr.appendChild(tdStmt);
+
+    const tdTV = document.createElement('td');
+    tdTV.style.textAlign = 'center';
+    tdTV.style.cursor = 'pointer';
+    tdTV.title = 'Bấm để lật T ↔ F';
+    tdTV.innerHTML = renderTVBadge(row.tv);
+    tdTV.addEventListener('click', () => {
+      if (row.tv === 'T') row.tv = 'F';
+      else if (row.tv === 'F') row.tv = 'T';
+      // '?' không lật
+      tdTV.innerHTML = renderTVBadge(row.tv);
+    });
+    tr.appendChild(tdTV);
+
+    const tdNote = document.createElement('td');
+    tdNote.style.fontSize = '13px';
+    tdNote.style.color = '#78716c';
+    tdNote.innerHTML = row.note;
+    tr.appendChild(tdNote);
+
+    tbody.appendChild(tr);
+  });
+}
+
+function renderTVBadge(tv) {
+  if (tv === 'T') return '<span class="badge-t">T</span>';
+  if (tv === 'F') return '<span class="badge-f">F</span>';
+  return '<span class="badge-np">?</span>';
+}
+
+// ================================================================
+// 3. BỘ KIỂM TRA 3 BƯỚC
+// ================================================================
+
+// Từ khóa đơn giản để heuristic detect
+const Q_MARKS = ['?', 'không?', 'sao?', 'gì?', 'nào?', 'ai?', 'đâu?', 'khi nào?'];
+const IMPERATIVE_STARTS = ['hãy ', 'đừng ', 'xin ', 'vui lòng ', 'hãy ', 'đi ', 'làm ', 'hãy làm', 'hãy học'];
+const EXCL_MARKS = ['!', 'ôi', 'wow', 'trời ơi', 'tuyệt vời'];
+const FREE_VAR_HINTS = [/\bx\b/, /\by\b/, /\bn\b/, /\bk\b/, /\bt\b(?!rời|hủ|hực|am|oán|ừng|ập)/, /\ba\b/, /\bb\b/];
+const PARADOX_HINTS = ['câu này sai', 'câu này không phải', 'câu này đúng và sai', 'câu này không đúng'];
+
+const CHECKER_KNOWN = [
+  { pattern: /2\s*\+\s*2\s*=\s*4/, isProp: true, tv: 'T', reason: 'Phép toán đúng: 2+2=4.' },
+  { pattern: /x\s*[+\-*/]\s*\d/, isProp: false, reason: 'Biến tự do x — câu mở.' },
+  { pattern: /câu này sai/i, isProp: false, reason: 'Nghịch lý tự-phủ định (Liar\'s Paradox).' },
+  { pattern: /mặt trời quay quanh trái đất/i, isProp: true, tv: 'F', reason: 'Sai khoa học — Trái Đất quay quanh Mặt Trời.' },
+  { pattern: /trái đất quay quanh mặt trời/i, isProp: true, tv: 'T', reason: 'Đúng khoa học.' },
+  { pattern: /hà nội.*thủ đô/i, isProp: true, tv: 'T', reason: 'Sự kiện địa lý đúng.' },
+];
+
+function detectType(text) {
+  const t = text.trim().toLowerCase();
+  if (!t) return { step1: 'pending', step2: 'pending', step3: 'pending', isProp: null };
+
+  // Known patterns
+  for (const k of CHECKER_KNOWN) {
+    if (k.pattern.test(t)) {
+      if (!k.isProp) {
+        return { step1: 'pass', step2: 'fail', step3: 'pass',
+          isProp: false, step2Reason: k.reason };
+      }
+      return { step1: 'pass', step2: 'pass', step3: 'pass',
+        isProp: true, tv: k.tv, step3Reason: k.reason };
+    }
+  }
+
+  // Step 1: hình thức câu — câu hỏi?
+  const hasQ = Q_MARKS.some(m => t.includes(m)) || t.endsWith('?');
+  if (hasQ) {
+    return { step1: 'fail', step2: 'pending', step3: 'pending', isProp: false,
+      step1Reason: 'Câu hỏi (có dấu ? hoặc từ hỏi) — không có giá trị chân lý.' };
+  }
+
+  // Mệnh lệnh?
+  const isImper = IMPERATIVE_STARTS.some(s => t.startsWith(s));
+  if (isImper) {
+    return { step1: 'fail', step2: 'pending', step3: 'pending', isProp: false,
+      step1Reason: 'Mệnh lệnh/cầu khiến (bắt đầu bằng "hãy", "đừng", v.v.) — không có giá trị chân lý.' };
+  }
+
+  // Cảm thán?
+  const hasExcl = t.endsWith('!') || EXCL_MARKS.some(e => t.startsWith(e));
+  if (hasExcl) {
+    return { step1: 'fail', step2: 'pending', step3: 'pending', isProp: false,
+      step1Reason: 'Câu cảm thán (kết thúc "!" hoặc bắt đầu cảm thán) — không có giá trị chân lý.' };
+  }
+
+  // Step 2: biến tự do?
+  const hasFreeVar = FREE_VAR_HINTS.some(re => re.test(t)) && !t.includes('mọi ') && !t.includes('tất cả ') && !t.includes('với mọi');
+  if (hasFreeVar) {
+    return { step1: 'pass', step2: 'fail', step3: 'pending', isProp: false,
+      step2Reason: 'Phát hiện có thể có biến tự do (x, y, n, k...). Nếu biến chưa được gán giá trị → câu mở, không phải mệnh đề.' };
+  }
+
+  // Step 3: nghịch lý?
+  const hasParadox = PARADOX_HINTS.some(p => t.includes(p));
+  if (hasParadox) {
+    return { step1: 'pass', step2: 'pass', step3: 'fail', isProp: false,
+      step3Reason: 'Nghịch lý tự-phủ định: gán T gây mâu thuẫn, gán F cũng gây mâu thuẫn.' };
+  }
+
+  // Qua cả 3 bước → có khả năng là mệnh đề
+  return { step1: 'pass', step2: 'pass', step3: 'pass', isProp: true,
+    note: 'Dựa trên kiểm tra heuristic — câu có dạng khẳng định, không phát hiện biến tự do hay nghịch lý.' };
+}
+
+function setChecker(text) {
+  document.getElementById('checkerInput').value = text;
+  runChecker();
+}
+
+function runChecker() {
+  const text = document.getElementById('checkerInput').value.trim();
+  const stepsEl = document.getElementById('checkerSteps');
+  const resultEl = document.getElementById('checkerResult');
+
+  if (!text) {
+    stepsEl.innerHTML = '';
+    resultEl.innerHTML = '';
+    return;
+  }
+
+  const det = detectType(text);
+
+  const STEPS = [
+    {
+      num: 1,
+      label: 'Hình thức câu — có phải câu khẳng định (declarative)?',
+      passText: 'Câu có dạng khẳng định — qua bước 1.',
+      failText: det.step1Reason || 'Không phải câu khẳng định.',
+    },
+    {
+      num: 2,
+      label: 'Biến tự do — câu có chứa biến chưa xác định giá trị?',
+      passText: 'Không phát hiện biến tự do — qua bước 2.',
+      failText: det.step2Reason || 'Câu chứa biến tự do — không phải mệnh đề.',
+    },
+    {
+      num: 3,
+      label: 'Nghịch lý — gán T/F có tự mâu thuẫn không?',
+      passText: 'Không phát hiện tự-tham chiếu nghịch lý — qua bước 3.',
+      failText: det.step3Reason || 'Câu tự-tham chiếu gây nghịch lý.',
+    },
+  ];
+
+  const states = [det.step1, det.step2, det.step3];
+
+  let html = '';
+  for (let i = 0; i < 3; i++) {
+    const s = STEPS[i];
+    const st = states[i];
+    if (st === 'pending') break; // Dừng nếu bước trước đã fail
+    const labelCls = st === 'pass' ? 'step-pass' : 'step-fail';
+    const labelTxt = st === 'pass' ? '✓ Qua' : '✗ Dừng';
+    const bodyTxt = st === 'pass' ? s.passText : s.failText;
+    html += `
+      <div class="step-box">
+        <div class="step-header">
+          <div class="step-num">${s.num}</div>
+          <span>${s.label}</span>
+        </div>
+        <div class="step-body">
+          ${bodyTxt}
+          <br><span class="step-result ${labelCls}">${labelTxt}</span>
+        </div>
+      </div>`;
+  }
+  stepsEl.innerHTML = html;
+
+  // Kết quả cuối
+  if (det.isProp === true) {
+    let tvNote = '';
+    if (det.tv) {
+      tvNote = ' Giá trị chân lý: <span class="' + (det.tv === 'T' ? 'badge-t' : 'badge-f') + '">' + det.tv + '</span>.';
+    }
+    if (det.step3Reason) tvNote += ' ' + det.step3Reason;
+    if (det.note) tvNote += '<br><span class="hint">' + det.note + '</span>';
+    resultEl.innerHTML = `<div class="checklist-result is-prop">
+      <strong>Kết luận: Đây có thể là mệnh đề.</strong>${tvNote}
+    </div>`;
+  } else if (det.isProp === false) {
+    const reason = det.step1Reason || det.step2Reason || det.step3Reason || 'Không thỏa điều kiện mệnh đề.';
+    resultEl.innerHTML = `<div class="checklist-result not-prop">
+      <strong>Kết luận: Không phải mệnh đề.</strong> ${reason}
+    </div>`;
+  } else {
+    resultEl.innerHTML = '';
+  }
+}
+
+// ================================================================
+// KHỞI TẠO
+// ================================================================
+renderQuiz();
+renderVarTable();
+runChecker();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

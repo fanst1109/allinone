@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Phương pháp chứng minh</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-dark: #44403c;
+    --accent-soft: #f0eeec;
+    --accent-mid: #78716c;
+    --accent-border: #d6d3d1;
+    --ok: #15803d;
+    --ok-bg: #dcfce7;
+    --err: #b91c1c;
+    --err-bg: #fee2e2;
+    --warn: #92400e;
+    --warn-bg: #fef3c7;
+    --step-bg: #fafaf9;
+  }
+
+  h1 { color: #1c1917; }
+  h2 { color: #292524; margin-top: 44px; padding-bottom: 8px; border-bottom: 2px solid var(--accent-border); }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 22px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    margin: 16px 0;
+    border: 1px solid var(--accent-border);
+  }
+
+  .hint { font-size: 13px; color: #6b7280; margin: 6px 0; line-height: 1.6; }
+  .label-bold { font-weight: 700; color: var(--accent-dark); }
+
+  /* buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn:hover { background: var(--accent-dark); }
+  .btn.ghost { background: var(--accent-soft); color: var(--accent-dark); }
+  .btn.ghost:hover { background: var(--accent-border); }
+  .btn.ok-btn { background: #16a34a; }
+  .btn.ok-btn:hover { background: #15803d; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+
+  /* selector tabs */
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+  .tab {
+    padding: 7px 16px; border-radius: 20px; border: 2px solid var(--accent-border);
+    font-size: 14px; font-weight: 600; cursor: pointer; background: #fff;
+    color: var(--accent-dark); transition: all 0.15s;
+  }
+  .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* proof step list */
+  .step-list { list-style: none; margin: 12px 0; padding: 0; }
+  .step-list li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 10px 14px; border-radius: 8px; margin-bottom: 6px;
+    background: var(--step-bg); border: 1px solid var(--accent-border);
+    font-size: 15px; opacity: 0; transform: translateY(8px);
+    transition: opacity 0.35s, transform 0.35s;
+  }
+  .step-list li.revealed { opacity: 1; transform: translateY(0); }
+  .step-num {
+    min-width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+    background: var(--accent); color: #fff; border-radius: 50%;
+    font-size: 12px; font-weight: 800; margin-top: 1px;
+  }
+  .step-body { flex: 1; }
+  .step-stmt { font-weight: 600; color: #1c1917; }
+  .step-reason { font-size: 13px; color: var(--accent-mid); margin-top: 3px; }
+  .step-tag {
+    display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px;
+    font-weight: 700; margin-left: 6px; vertical-align: middle;
+  }
+  .tag-assume { background: #dbeafe; color: #1d4ed8; }
+  .tag-def { background: #ede9fe; color: #6d28d9; }
+  .tag-arith { background: #d1fae5; color: #065f46; }
+  .tag-conc { background: #fef9c3; color: #854d0e; }
+  .tag-contra { background: #fee2e2; color: #991b1b; }
+
+  .proof-done {
+    display: none; padding: 12px 16px; background: #f0fdf4; border: 2px solid #16a34a;
+    border-radius: 8px; color: #15803d; font-weight: 700; font-size: 16px; margin-top: 12px;
+  }
+  .proof-done.show { display: block; }
+
+  /* claim select dropdown */
+  select {
+    padding: 8px 12px; border: 1.5px solid var(--accent-border); border-radius: 8px;
+    font-size: 14px; font-family: inherit; background: #fff; color: #1c1917;
+    cursor: pointer; max-width: 100%;
+  }
+
+  /* contradiction viz */
+  .contra-box {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center;
+    margin: 16px 0;
+  }
+  .contra-side {
+    background: var(--step-bg); border: 1.5px solid var(--accent-border);
+    border-radius: 10px; padding: 14px; font-size: 14px; min-height: 80px;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .contra-side.flash-ok { border-color: #16a34a; background: var(--ok-bg); }
+  .contra-side.flash-err { border-color: #dc2626; background: var(--err-bg); }
+  .contra-arrow {
+    font-size: 28px; color: var(--accent-mid); display: flex; align-items: center;
+    justify-content: center;
+  }
+  .contra-label { font-size: 11px; color: var(--accent-mid); text-transform: uppercase;
+                   letter-spacing: 0.06em; margin-bottom: 5px; font-weight: 700; }
+
+  @media (max-width: 600px) {
+    .contra-box { grid-template-columns: 1fr; }
+    .contra-arrow { transform: rotate(90deg); }
+  }
+
+  /* counterexample hunt */
+  .prop-display {
+    background: var(--accent-soft); border-radius: 8px; padding: 14px 18px;
+    font-size: 15px; font-weight: 600; color: var(--accent-dark); margin-bottom: 12px;
+    border-left: 4px solid var(--accent);
+  }
+  .number-grid {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0;
+  }
+  .num-btn {
+    min-width: 44px; height: 44px; padding: 0 8px; border-radius: 8px;
+    border: 2px solid var(--accent-border); background: #fff; font-size: 15px;
+    font-weight: 700; cursor: pointer; color: var(--accent-dark); transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .num-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .num-btn.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .num-btn.confirmed-ok { background: var(--ok-bg); border-color: #16a34a; color: var(--ok); }
+  .num-btn.confirmed-fail { background: var(--err-bg); border-color: #dc2626; color: var(--err); }
+
+  .feedback-box {
+    padding: 12px 16px; border-radius: 8px; font-size: 15px; margin-top: 12px;
+    min-height: 48px; display: none;
+  }
+  .feedback-box.ok { display: block; background: var(--ok-bg); color: var(--ok); border: 1.5px solid #16a34a; }
+  .feedback-box.err { display: block; background: var(--err-bg); color: var(--err); border: 1.5px solid #dc2626; }
+  .feedback-box.warn { display: block; background: var(--warn-bg); color: var(--warn); border: 1.5px solid #d97706; }
+
+  .score-bar {
+    display: flex; align-items: center; gap: 12px; margin: 14px 0;
+    font-size: 14px; color: var(--accent-mid);
+  }
+  .score-pip {
+    width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--accent-border);
+    background: #fff;
+  }
+  .score-pip.done { background: var(--ok); border-color: var(--ok); }
+
+  .method-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px;
+  }
+  .badge-direct { background: #dbeafe; color: #1d4ed8; }
+  .badge-contra { background: #ede9fe; color: #6d28d9; }
+  .badge-absurd { background: #fee2e2; color: #991b1b; }
+  .badge-cex { background: #fef9c3; color: #854d0e; }
+
+  .progress-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+  .progress-bar {
+    flex: 1; height: 8px; background: var(--accent-border); border-radius: 4px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent); width: 0%;
+    transition: width 0.4s ease;
+  }
+  .progress-text { font-size: 13px; color: var(--accent-mid); min-width: 48px; text-align: right; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Formal Logic</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-predicate-logic/visualization.html">← L5: Logic vị từ</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Phương pháp chứng minh</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-syllogisms/visualization.html">L7: Tam đoạn luận →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Phương pháp chứng minh</h1>
+<p>Ba công cụ tương tác: xây chứng minh từng bước, xem phản chứng √2 vô tỉ, và săn phản ví dụ để bác mệnh đề phổ quát.</p>
+
+<!-- ===== MODULE 1: STEP-BY-STEP PROOF BUILDER ===== -->
+<h2>1. Trình dựng chứng minh từng bước</h2>
+<div class="card">
+  <p class="hint">Chọn một mệnh đề cần chứng minh. Bấm <strong>Hé lộ bước tiếp theo</strong> để lần lượt thấy từng bước — giả thiết, biến đổi, và kết luận — kèm lý do dùng ở mỗi bước.</p>
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
+    <label class="label-bold" for="proofSelect">Mệnh đề:</label>
+    <select id="proofSelect">
+      <option value="0">Nếu n chẵn thì n² chẵn (Trực tiếp)</option>
+      <option value="1">Nếu n² chẵn thì n chẵn (Phản đảo)</option>
+      <option value="2">Tổng hai số lẻ là chẵn (Trực tiếp)</option>
+      <option value="3">Nếu n³ chẵn thì n chẵn (Phản đảo)</option>
+    </select>
+  </div>
+
+  <div id="methodBadge"></div>
+
+  <div id="claimBox" class="prop-display"></div>
+
+  <div class="progress-row">
+    <span class="label-bold" style="font-size:13px">Tiến trình:</span>
+    <div class="progress-bar"><div class="progress-fill" id="proofProgress"></div></div>
+    <span class="progress-text" id="proofProgressTxt">0 / 0</span>
+  </div>
+
+  <ul class="step-list" id="stepList"></ul>
+
+  <div class="proof-done" id="proofDone">✔ Q.E.D. — Chứng minh hoàn tất. ∎</div>
+
+  <div class="btn-row">
+    <button class="btn" id="btnReveal">Hé lộ bước tiếp theo ▼</button>
+    <button class="btn ghost" id="btnReset">Bắt đầu lại ↺</button>
+  </div>
+  <p class="hint" id="proofHint"></p>
+</div>
+
+<!-- ===== MODULE 2: CONTRADICTION VIZ (√2 irrational) ===== -->
+<h2>2. Phản chứng — √2 vô tỉ</h2>
+<div class="card">
+  <p class="hint">Phản chứng hoạt động bằng cách <em>giả sử điều cần chứng minh là sai</em>, rồi suy ra mâu thuẫn. Bấm từng bước để theo dõi chuỗi lập luận.</p>
+
+  <div class="tabs" id="sqrtTabs"></div>
+
+  <div id="sqrtDisplay"></div>
+
+  <div class="btn-row">
+    <button class="btn" id="btnSqrtPrev" disabled>← Bước trước</button>
+    <button class="btn" id="btnSqrtNext">Bước tiếp →</button>
+    <button class="btn ghost" id="btnSqrtReset">Bắt đầu ↺</button>
+  </div>
+</div>
+
+<!-- ===== MODULE 3: COUNTEREXAMPLE HUNT ===== -->
+<h2>3. Săn phản ví dụ</h2>
+<div class="card">
+  <p class="hint">Với mỗi mệnh đề phổ quát, tìm một số trong bảng làm mệnh đề <strong>sai</strong>. Một phản ví dụ là đủ để bác bỏ mệnh đề. Bấm từng số để kiểm tra.</p>
+
+  <div class="tabs" id="cexTabs"></div>
+
+  <div id="cexProp" class="prop-display"></div>
+
+  <div class="score-bar" id="cexScoreBar"></div>
+
+  <div id="numberGrid" class="number-grid"></div>
+
+  <div id="cexFeedback" class="feedback-box"></div>
+
+  <div class="btn-row">
+    <button class="btn ghost" id="btnCexHint">Gợi ý</button>
+    <button class="btn ghost" id="btnCexNext">Mệnh đề tiếp →</button>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   MODULE 1: STEP-BY-STEP PROOF BUILDER
+   ===================================================================== */
+
+const PROOFS = [
+  {
+    id: 0,
+    claim: "∀n ∈ ℤ : n chẵn  →  n² chẵn",
+    method: "direct",
+    methodLabel: "Chứng minh trực tiếp",
+    methodClass: "badge-direct",
+    hint: "Giả sử tiền đề đúng, biến đổi đại số, đạt kết luận.",
+    steps: [
+      { stmt: "Giả sử n chẵn.", reason: "Đây là giả thiết (tiền đề của hàm ý p → q).", tag: "assume" },
+      { stmt: "n = 2k với k ∈ ℤ.", reason: "Định nghĩa số chẵn: số chẵn luôn viết được dưới dạng 2k.", tag: "def" },
+      { stmt: "n² = (2k)² = 4k².", reason: "Khai triển bình phương: (2k)² = 4k².", tag: "arith" },
+      { stmt: "n² = 2 · (2k²).", reason: "Rút thừa số 2: 4k² = 2 · 2k².", tag: "arith" },
+      { stmt: "2k² ∈ ℤ vì k ∈ ℤ và tập số nguyên đóng với phép nhân.", reason: "Tính chất đóng của ℤ.", tag: "def" },
+      { stmt: "n² = 2·(số nguyên)  →  n² chẵn. ∎", reason: "Định nghĩa số chẵn: bất kỳ số nào viết được 2·m (m ∈ ℤ) đều chẵn.", tag: "conc" }
+    ]
+  },
+  {
+    id: 1,
+    claim: "∀n ∈ ℤ : n² chẵn  →  n chẵn",
+    method: "contrapositive",
+    methodLabel: "Phép phản đảo",
+    methodClass: "badge-contra",
+    hint: "p→q ≡ ¬q→¬p. Thay vì chứng minh 'n² chẵn → n chẵn', ta chứng minh 'n lẻ → n² lẻ'.",
+    steps: [
+      { stmt: "Nhận xét: p→q ≡ ¬q→¬p (tương đương logic — phản đảo).", reason: "Bảng chân lý, đã chứng minh ở Lesson 03.", tag: "def" },
+      { stmt: "Chuyển sang chứng minh: n lẻ  →  n² lẻ.", reason: "Đây là phản đảo của mệnh đề gốc: ¬q='n lẻ', ¬p='n² lẻ'.", tag: "assume" },
+      { stmt: "Giả sử n lẻ.", reason: "Giả thiết của phản đảo (¬q).", tag: "assume" },
+      { stmt: "n = 2k + 1 với k ∈ ℤ.", reason: "Định nghĩa số lẻ.", tag: "def" },
+      { stmt: "n² = (2k+1)² = 4k² + 4k + 1.", reason: "Khai triển: (a+b)² = a² + 2ab + b².", tag: "arith" },
+      { stmt: "n² = 2(2k² + 2k) + 1.", reason: "Nhóm thừa số 2: 4k²+4k = 2(2k²+2k), phần còn lại là 1.", tag: "arith" },
+      { stmt: "2k²+2k ∈ ℤ  →  n² = 2·(số nguyên) + 1  →  n² lẻ. ∎", reason: "Định nghĩa số lẻ. Phản đảo đúng → mệnh đề gốc đúng.", tag: "conc" }
+    ]
+  },
+  {
+    id: 2,
+    claim: "∀a, b ∈ ℤ : a lẻ ∧ b lẻ  →  a+b chẵn",
+    method: "direct",
+    methodLabel: "Chứng minh trực tiếp",
+    methodClass: "badge-direct",
+    hint: "Biểu diễn cả a và b qua định nghĩa số lẻ, cộng lại.",
+    steps: [
+      { stmt: "Giả sử a lẻ và b lẻ.", reason: "Giả thiết.", tag: "assume" },
+      { stmt: "a = 2j + 1, b = 2k + 1 với j, k ∈ ℤ.", reason: "Định nghĩa số lẻ — áp dụng cho cả a lẫn b (dùng hai biến j, k khác nhau).", tag: "def" },
+      { stmt: "a + b = (2j+1) + (2k+1) = 2j + 2k + 2.", reason: "Cộng và rút gọn.", tag: "arith" },
+      { stmt: "a + b = 2(j + k + 1).", reason: "Rút thừa số 2.", tag: "arith" },
+      { stmt: "j + k + 1 ∈ ℤ.", reason: "Tập số nguyên đóng với cộng.", tag: "def" },
+      { stmt: "a + b = 2·(số nguyên)  →  a+b chẵn. ∎", reason: "Định nghĩa số chẵn.", tag: "conc" }
+    ]
+  },
+  {
+    id: 3,
+    claim: "∀n ∈ ℤ : n³ chẵn  →  n chẵn",
+    method: "contrapositive",
+    methodLabel: "Phép phản đảo",
+    methodClass: "badge-contra",
+    hint: "Phản đảo: 'n lẻ → n³ lẻ'. Chứng minh bằng khai triển (2k+1)³.",
+    steps: [
+      { stmt: "Chuyển sang chứng minh phản đảo: n lẻ  →  n³ lẻ.", reason: "p→q ≡ ¬q→¬p. Ở đây ¬q='n lẻ', ¬p='n³ lẻ'.", tag: "assume" },
+      { stmt: "Giả sử n lẻ.", reason: "Giả thiết phản đảo.", tag: "assume" },
+      { stmt: "n = 2k + 1 với k ∈ ℤ.", reason: "Định nghĩa số lẻ.", tag: "def" },
+      { stmt: "n³ = (2k+1)³ = 8k³ + 12k² + 6k + 1.", reason: "Khai triển lập phương: (a+b)³ = a³+3a²b+3ab²+b³.", tag: "arith" },
+      { stmt: "n³ = 2(4k³ + 6k² + 3k) + 1.", reason: "Nhóm thừa số 2: 8k³+12k²+6k = 2(4k³+6k²+3k), phần còn lại là 1.", tag: "arith" },
+      { stmt: "4k³+6k²+3k ∈ ℤ  →  n³ = 2·(số nguyên)+1  →  n³ lẻ. ∎", reason: "Định nghĩa số lẻ. Phản đảo đúng → 'n³ chẵn → n chẵn' đúng.", tag: "conc" }
+    ]
+  }
+];
+
+const TAG_META = {
+  assume: { label: "Giả thiết", cls: "tag-assume" },
+  def:    { label: "Định nghĩa", cls: "tag-def" },
+  arith:  { label: "Đại số", cls: "tag-arith" },
+  conc:   { label: "Kết luận", cls: "tag-conc" },
+  contra: { label: "Mâu thuẫn", cls: "tag-contra" }
+};
+
+let currentProof = PROOFS[0];
+let revealedCount = 0;
+
+function renderProof(p) {
+  currentProof = p;
+  revealedCount = 0;
+  document.getElementById('claimBox').textContent = p.claim;
+  // method badge
+  document.getElementById('methodBadge').innerHTML =
+    `<span class="method-badge ${p.methodClass}">${p.methodLabel}</span>`;
+  document.getElementById('proofHint').textContent = p.hint;
+  document.getElementById('proofDone').classList.remove('show');
+
+  // build steps (hidden)
+  const ul = document.getElementById('stepList');
+  ul.innerHTML = '';
+  p.steps.forEach((s, i) => {
+    const li = document.createElement('li');
+    const tm = TAG_META[s.tag];
+    li.innerHTML = `
+      <div class="step-num">${i + 1}</div>
+      <div class="step-body">
+        <div class="step-stmt">${s.stmt}<span class="step-tag ${tm.cls}">${tm.label}</span></div>
+        <div class="step-reason">${s.reason}</div>
+      </div>`;
+    ul.appendChild(li);
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = currentProof.steps.length;
+  const fill = document.getElementById('proofProgress');
+  const txt = document.getElementById('proofProgressTxt');
+  fill.style.width = (revealedCount / total * 100) + '%';
+  txt.textContent = revealedCount + ' / ' + total;
+  document.getElementById('btnReveal').disabled = revealedCount >= total;
+}
+
+document.getElementById('btnReveal').addEventListener('click', () => {
+  const items = document.getElementById('stepList').querySelectorAll('li');
+  if (revealedCount < items.length) {
+    items[revealedCount].classList.add('revealed');
+    revealedCount++;
+    updateProgress();
+    if (revealedCount === items.length) {
+      document.getElementById('proofDone').classList.add('show');
+    }
+  }
+});
+
+document.getElementById('btnReset').addEventListener('click', () => {
+  renderProof(currentProof);
+});
+
+document.getElementById('proofSelect').addEventListener('change', function() {
+  renderProof(PROOFS[parseInt(this.value)]);
+});
+
+renderProof(PROOFS[0]);
+
+
+/* =====================================================================
+   MODULE 2: SQRT(2) CONTRADICTION WALK-THROUGH
+   ===================================================================== */
+
+const SQRT_STEPS = [
+  {
+    title: "Giả sử ¬Q",
+    left: { label: "Giả sử (¬Q)", content: "√2 là số HỮU TỈ:\n√2 = a/b với a, b ∈ ℤ, b ≠ 0,\nphân số a/b đã rút gọn tối giản\n(ƯCLN(a, b) = 1)." },
+    right: { label: "Mục tiêu", content: "Tìm mâu thuẫn với điều đã biết để loại bỏ giả sử này." },
+    note: "Bước khởi đầu: ta không tin √2 hữu tỉ, nhưng GIẢ SỬ điều ngược lại để xem nó dẫn tới đâu.",
+    tag: "assume"
+  },
+  {
+    title: "Bình phương hai vế",
+    left: { label: "Từ bước 1", content: "√2 = a/b\n→ 2 = a²/b²\n→ a² = 2b²." },
+    right: { label: "Suy ra", content: "a² chẵn (vì a² = 2·b², chia hết cho 2)." },
+    note: "Đây là biến đổi đại số thuần tuý, không có gì sai ở bước này.",
+    tag: "arith"
+  },
+  {
+    title: "a phải chẵn",
+    left: { label: "Đã biết (Lesson này, Ví dụ 1 Mục 2)", content: "Nếu n² chẵn thì n chẵn.\n(Chứng minh bằng phản đảo.)" },
+    right: { label: "Áp dụng cho a", content: "a² chẵn (bước 2)\n→ a chẵn\n→ a = 2c với c ∈ ℤ." },
+    note: "Kết quả đã chứng minh trước đó được dùng lại — đây là cách xây dựng toán học tích luỹ.",
+    tag: "def"
+  },
+  {
+    title: "Thế a = 2c vào a² = 2b²",
+    left: { label: "a = 2c (bước 3)", content: "a² = (2c)² = 4c².\nMà a² = 2b² (bước 2).\n→ 4c² = 2b²\n→ b² = 2c²." },
+    right: { label: "Suy ra", content: "b² chẵn (vì b² = 2c², chia hết cho 2).\n→ b chẵn (cùng lý do như bước 3).\n→ b = 2d với d ∈ ℤ." },
+    note: "Cùng lập luận được áp dụng lần thứ hai, lần này cho b.",
+    tag: "arith"
+  },
+  {
+    title: "MÂU THUẪN!",
+    left: { label: "Từ bước 3 và 4", content: "a chẵn (a = 2c)\nvà\nb chẵn (b = 2d)\n→ 2 | a và 2 | b\n→ ƯCLN(a, b) ≥ 2." },
+    right: { label: "Nhưng bước 1 nói...", content: "a/b TỐI GIẢN,\ntức ƯCLN(a, b) = 1.\nMà ƯCLN(a,b) ≥ 2 ≠ 1. CONTRADICTIO!" },
+    note: "Hai điều không thể cùng đúng: ƯCLN = 1 VÀ ƯCLN ≥ 2 là mâu thuẫn trực tiếp. Vậy giả sử ¬Q (√2 hữu tỉ) phải sai.",
+    tag: "contra"
+  },
+  {
+    title: "Kết luận: √2 vô tỉ ∎",
+    left: { label: "Tổng kết logic", content: "Ta đã giả sử ¬Q và suy ra mâu thuẫn.\nTheo quy tắc phản chứng:\n¬Q → ⊥  ≡  Q đúng." },
+    right: { label: "Kết quả", content: "√2 ∉ ℚ.\n\nKhông tồn tại phân số nào (kể cả ở dạng tối giản) bình phương lên bằng 2." },
+    note: "Chứng minh hoàn tất. Đây là một trong những chứng minh đẹp nhất trong lịch sử toán học — có từ thời Pythagore (~500 TCN).",
+    tag: "conc"
+  }
+];
+
+let sqrtStep = 0;
+
+function buildSqrtTabs() {
+  const container = document.getElementById('sqrtTabs');
+  container.innerHTML = '';
+  SQRT_STEPS.forEach((s, i) => {
+    const t = document.createElement('button');
+    t.className = 'tab' + (i === sqrtStep ? ' active' : '');
+    t.textContent = (i + 1) + '. ' + s.title;
+    t.disabled = i > sqrtStep;
+    t.addEventListener('click', () => { sqrtStep = i; renderSqrtStep(); });
+    container.appendChild(t);
+  });
+}
+
+function renderSqrtStep() {
+  const s = SQRT_STEPS[sqrtStep];
+  const tm = TAG_META[s.tag] || { label: '', cls: '' };
+  const isContra = s.tag === 'contra';
+
+  document.getElementById('sqrtDisplay').innerHTML = `
+    <div class="contra-box">
+      <div class="contra-side${isContra ? ' flash-err' : ''}">
+        <div class="contra-label">${s.left.label}</div>
+        <div style="white-space:pre-line;font-size:14px">${s.left.content}</div>
+      </div>
+      <div class="contra-arrow">${isContra ? '💥' : '→'}</div>
+      <div class="contra-side${isContra ? ' flash-ok' : ''}">
+        <div class="contra-label">${s.right.label}</div>
+        <div style="white-space:pre-line;font-size:14px">${s.right.content}</div>
+      </div>
+    </div>
+    <div class="feedback-box ${isContra ? 'err' : 'warn'}" style="display:block">
+      <span class="step-tag ${tm.cls}" style="margin-right:8px">${tm.label}</span>${s.note}
+    </div>`;
+
+  document.getElementById('btnSqrtPrev').disabled = sqrtStep === 0;
+  document.getElementById('btnSqrtNext').disabled = sqrtStep === SQRT_STEPS.length - 1;
+  document.getElementById('btnSqrtNext').textContent = sqrtStep === SQRT_STEPS.length - 1 ? 'Xong ✔' : 'Bước tiếp →';
+
+  // unlock next tab
+  buildSqrtTabs();
+}
+
+document.getElementById('btnSqrtNext').addEventListener('click', () => {
+  if (sqrtStep < SQRT_STEPS.length - 1) { sqrtStep++; renderSqrtStep(); }
+});
+document.getElementById('btnSqrtPrev').addEventListener('click', () => {
+  if (sqrtStep > 0) { sqrtStep--; renderSqrtStep(); }
+});
+document.getElementById('btnSqrtReset').addEventListener('click', () => {
+  sqrtStep = 0; renderSqrtStep();
+});
+
+buildSqrtTabs();
+renderSqrtStep();
+
+
+/* =====================================================================
+   MODULE 3: COUNTEREXAMPLE HUNT
+   ===================================================================== */
+
+const CEX_PUZZLES = [
+  {
+    label: "∀n chẵn",
+    prop: "∀n ∈ {2, 4, 6, 8, 10, 12} : n² + 2 là số nguyên tố",
+    domain: [2, 4, 6, 8, 10, 12],
+    check: n => {
+      const v = n * n + 2;
+      return isPrime(v);
+    },
+    failMsg: n => `n = ${n}: n²+2 = ${n*n+2} = ${factorize(n*n+2)}. Đây là phản ví dụ — ${n*n+2} không phải số nguyên tố!`,
+    okMsg: n => `n = ${n}: n²+2 = ${n*n+2} là số nguyên tố. Chưa bác được, thử tiếp.`,
+    hint: "Thử n = 4: 16 + 2 = 18 = 2 × 9.",
+    explain: "n = 4 cho 18 = 2×9, không nguyên tố. Phản ví dụ đầu tiên: n = 4."
+  },
+  {
+    label: "∀n ≥ 2",
+    prop: "∀n ∈ {2, 3, 4, 5, 6, 7, 8, 9} : n² − n + 11 là số nguyên tố",
+    domain: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    check: n => isPrime(n * n - n + 11),
+    failMsg: n => `n = ${n}: n²−n+11 = ${n*n-n+11} = ${factorize(n*n-n+11)}. Phản ví dụ tìm thấy!`,
+    okMsg: n => `n = ${n}: ${n*n-n+11} là số nguyên tố. Tiếp tục tìm.`,
+    hint: "Thử n = 11: 121 − 11 + 11 = 121 = 11².",
+    explain: "n = 11 cho 121 = 11×11. Công thức đúng với n = 2..10 nhưng sai ở n = 11!"
+  },
+  {
+    label: "∀ số lẻ",
+    prop: "∀n ∈ {1, 3, 5, 7, 9, 11, 13} (lẻ) : n² ≥ n + 2",
+    domain: [1, 3, 5, 7, 9, 11, 13],
+    check: n => n * n >= n + 2,
+    failMsg: n => `n = ${n}: n² = ${n*n}, n+2 = ${n+2}. Vậy n² < n+2 — phản ví dụ!`,
+    okMsg: n => `n = ${n}: ${n*n} ≥ ${n+2}. Chưa bác được, thử tiếp.`,
+    hint: "Thử số nhỏ nhất trong tập: n = 1.",
+    explain: "n = 1: 1² = 1 < 3 = 1+2. Phản ví dụ đơn giản nhất."
+  },
+  {
+    label: "∀ n chia 3",
+    prop: "∀n ∈ {3, 6, 9, 12, 15, 18, 21} (chia hết 3) : n/3 + 1 là số nguyên tố",
+    domain: [3, 6, 9, 12, 15, 18, 21],
+    check: n => isPrime(n / 3 + 1),
+    failMsg: n => `n = ${n}: n/3+1 = ${n/3+1} = ${factorize(n/3+1)}. Phản ví dụ!`,
+    okMsg: n => `n = ${n}: ${n/3+1} là số nguyên tố. Thử tiếp.`,
+    hint: "Thử n = 21: 21/3 + 1 = 7 + 1 = 8 = 2³.",
+    explain: "n = 21: 8 = 2³ không nguyên tố."
+  }
+];
+
+function isPrime(n) {
+  if (n < 2) return false;
+  if (n === 2) return true;
+  if (n % 2 === 0) return false;
+  for (let i = 3; i <= Math.sqrt(n); i += 2) if (n % i === 0) return false;
+  return true;
+}
+
+function factorize(n) {
+  if (isPrime(n)) return n + ' (nguyên tố)';
+  const factors = [];
+  let d = 2, m = n;
+  while (m > 1) {
+    let cnt = 0;
+    while (m % d === 0) { m /= d; cnt++; }
+    if (cnt > 0) factors.push(cnt > 1 ? d + '×'.repeat(cnt - 1) + d : '' + d);
+    d++;
+  }
+  return factors.join(' × ');
+}
+
+let cexIdx = 0;
+let cexTried = {};
+let cexFound = false;
+
+function buildCexTabs() {
+  const ct = document.getElementById('cexTabs');
+  ct.innerHTML = '';
+  CEX_PUZZLES.forEach((p, i) => {
+    const t = document.createElement('button');
+    t.className = 'tab' + (i === cexIdx ? ' active' : '');
+    t.textContent = p.label;
+    t.addEventListener('click', () => { cexIdx = i; loadCex(); });
+    ct.appendChild(t);
+  });
+}
+
+function loadCex() {
+  cexTried = {};
+  cexFound = false;
+  buildCexTabs();
+  const puzzle = CEX_PUZZLES[cexIdx];
+  document.getElementById('cexProp').textContent = puzzle.prop;
+
+  // score pips
+  const bar = document.getElementById('cexScoreBar');
+  bar.innerHTML = '<span style="font-weight:700;color:var(--accent-dark)">Đã thử:</span>';
+  puzzle.domain.forEach(n => {
+    const pip = document.createElement('div');
+    pip.className = 'score-pip';
+    pip.id = 'pip-' + n;
+    bar.appendChild(pip);
+  });
+
+  // number buttons
+  const grid = document.getElementById('numberGrid');
+  grid.innerHTML = '';
+  puzzle.domain.forEach(n => {
+    const b = document.createElement('button');
+    b.className = 'num-btn';
+    b.textContent = n;
+    b.id = 'numBtn-' + n;
+    b.addEventListener('click', () => tryNumber(n));
+    grid.appendChild(b);
+  });
+
+  // clear feedback
+  const fb = document.getElementById('cexFeedback');
+  fb.className = 'feedback-box';
+  fb.textContent = '';
+  document.getElementById('btnCexHint').textContent = 'Gợi ý';
+}
+
+function tryNumber(n) {
+  if (cexFound) return;
+  const puzzle = CEX_PUZZLES[cexIdx];
+  const ok = puzzle.check(n);
+  cexTried[n] = true;
+
+  const btn = document.getElementById('numBtn-' + n);
+  const pip = document.getElementById('pip-' + n);
+  pip.classList.add('done');
+
+  const fb = document.getElementById('cexFeedback');
+  if (!ok) {
+    // FOUND counterexample
+    btn.classList.add('confirmed-fail');
+    cexFound = true;
+    fb.className = 'feedback-box ok';
+    fb.innerHTML = `<strong>Phản ví dụ tìm thấy!</strong> ${puzzle.failMsg(n)}<br><em style="font-size:13px;margin-top:6px;display:block">${puzzle.explain}</em>`;
+    // mark all remaining unchecked
+    puzzle.domain.forEach(x => {
+      const b = document.getElementById('numBtn-' + x);
+      if (!cexTried[x]) b.disabled = true;
+    });
+  } else {
+    btn.classList.add('confirmed-ok');
+    fb.className = 'feedback-box warn';
+    fb.textContent = puzzle.okMsg(n);
+  }
+}
+
+document.getElementById('btnCexHint').addEventListener('click', () => {
+  const puzzle = CEX_PUZZLES[cexIdx];
+  const fb = document.getElementById('cexFeedback');
+  if (!cexFound) {
+    fb.className = 'feedback-box warn';
+    fb.textContent = 'Gợi ý: ' + puzzle.hint;
+  }
+});
+
+document.getElementById('btnCexNext').addEventListener('click', () => {
+  cexIdx = (cexIdx + 1) % CEX_PUZZLES.length;
+  loadCex();
+});
+
+loadCex();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Tính hợp lệ &amp; luật suy luận</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --acc: #57534e;
+    --acc-dark: #44403c;
+    --acc-soft: #f0eeec;
+    --acc-border: #d4cfc9;
+    --valid-bg: #d1fae5;
+    --valid-fg: #065f46;
+    --invalid-bg: #fee2e2;
+    --invalid-fg: #991b1b;
+    --counter-bg: #fef3c7;
+    --counter-fg: #92400e;
+    --tp-bg: #eff6ff;
+    --tp-fg: #1e40af;
+  }
+  h2 { color: #292524; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid var(--acc-border); }
+  h3 { color: #44403c; margin-top: 24px; }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+    border: 1px solid var(--acc-border);
+  }
+
+  label { font-weight: 600; font-size: 14px; display: block; margin-bottom: 4px; }
+  input[type="text"] {
+    width: 100%; max-width: 360px; box-sizing: border-box;
+    padding: 8px 12px; border: 1.5px solid var(--acc-border);
+    border-radius: 7px; font-size: 14px; font-family: 'Courier New', monospace;
+  }
+  input[type="text"]:focus { outline: none; border-color: var(--acc); }
+
+  button.btn {
+    background: var(--acc); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 20px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s;
+  }
+  button.btn:hover { background: var(--acc-dark); }
+  button.btn-ghost {
+    background: var(--acc-soft); color: var(--acc-dark); border: 1.5px solid var(--acc-border);
+    border-radius: 8px; padding: 7px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s;
+  }
+  button.btn-ghost:hover { background: var(--acc-border); }
+  button.btn-ghost.active {
+    background: var(--acc); color: #fff; border-color: var(--acc);
+  }
+
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin: 12px 0; }
+  .col { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .flex-1 { flex: 1; }
+
+  /* premise inputs */
+  .premise-list { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+  .premise-row { display: flex; gap: 8px; align-items: center; }
+  .premise-label {
+    font-family: monospace; font-weight: 700; font-size: 13px;
+    color: var(--tp-fg); background: var(--tp-bg);
+    padding: 5px 8px; border-radius: 5px; white-space: nowrap;
+  }
+  .premise-row input[type="text"] { flex: 1; max-width: none; }
+
+  /* result badge */
+  .result-badge {
+    display: inline-block; padding: 10px 20px; border-radius: 8px;
+    font-size: 16px; font-weight: 700; margin: 12px 0;
+  }
+  .badge-valid { background: var(--valid-bg); color: var(--valid-fg); }
+  .badge-invalid { background: var(--invalid-bg); color: var(--invalid-fg); }
+  .badge-neutral { background: var(--acc-soft); color: var(--acc-dark); }
+
+  /* truth table */
+  .tt-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 14px 0; }
+  table.tt {
+    border-collapse: collapse; font-family: 'Courier New', monospace; font-size: 13px;
+    min-width: 300px; width: max-content; max-width: 100%;
+  }
+  table.tt th {
+    background: var(--acc); color: #fff; padding: 6px 12px; text-align: center;
+    font-weight: 700; white-space: nowrap;
+  }
+  table.tt th.th-tp { background: #1d4ed8; }
+  table.tt th.th-cl { background: #374151; }
+  table.tt td {
+    padding: 5px 12px; text-align: center; border-bottom: 1px solid #f0eeec;
+    white-space: nowrap;
+  }
+  table.tt tr.all-true td { background: var(--tp-bg); }
+  table.tt tr.counterex td { background: var(--counter-bg); font-weight: 700; }
+  table.tt tr.counterex td.kl-cell { background: var(--invalid-bg); color: var(--invalid-fg); }
+  table.tt tr.highlight-valid td { background: var(--valid-bg); }
+  table.tt tr.highlight-valid td.kl-cell { background: #a7f3d0; color: var(--valid-fg); font-weight: 700; }
+
+  /* inference law cards */
+  .law-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin: 14px 0; }
+  .law-card {
+    background: #fff; border: 1.5px solid var(--acc-border); border-radius: 9px;
+    padding: 14px 16px; cursor: pointer; transition: border-color .15s, box-shadow .15s;
+  }
+  .law-card:hover { border-color: var(--acc); }
+  .law-card.selected { border-color: var(--acc); box-shadow: 0 0 0 2px var(--acc); }
+  .law-card .law-name { font-weight: 700; font-size: 15px; color: var(--acc-dark); margin-bottom: 4px; }
+  .law-card .law-schema {
+    font-family: 'Courier New', monospace; font-size: 12px;
+    background: var(--acc-soft); padding: 6px 8px; border-radius: 5px;
+    white-space: pre-line; color: #292524;
+  }
+
+  .detail-panel {
+    background: var(--acc-soft); border-radius: 10px; padding: 18px 22px; margin: 14px 0;
+    border: 1px solid var(--acc-border);
+  }
+  .detail-panel h4 { margin: 0 0 10px; color: var(--acc-dark); font-size: 15px; }
+  .schema-block {
+    font-family: 'Courier New', monospace; background: #fff;
+    border: 1px solid var(--acc-border); border-radius: 7px;
+    padding: 12px 16px; font-size: 14px; line-height: 1.9;
+    white-space: pre-line; margin: 8px 0;
+  }
+  .schema-block .line-sep { border-top: 2px solid var(--acc); margin: 4px 0; }
+  .example-text {
+    font-size: 14px; line-height: 1.7; margin: 10px 0;
+    background: #fff; border-radius: 7px; padding: 10px 14px;
+    border: 1px solid var(--acc-border);
+  }
+  .example-text em { color: var(--acc-dark); font-style: normal; font-weight: 600; }
+
+  /* compare panel */
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 14px 0; }
+  @media (max-width: 600px) { .compare-grid { grid-template-columns: 1fr; } }
+  .compare-panel {
+    border-radius: 10px; padding: 16px 18px; border: 2px solid;
+    min-width: 0;
+  }
+  .compare-panel.valid-panel { border-color: #10b981; background: #f0fdf4; }
+  .compare-panel.invalid-panel { border-color: #ef4444; background: #fff5f5; }
+  .compare-panel h4 { margin: 0 0 10px; font-size: 14px; font-weight: 700; }
+  .compare-panel.valid-panel h4 { color: var(--valid-fg); }
+  .compare-panel.invalid-panel h4 { color: var(--invalid-fg); }
+  .compare-panel .schema-sm {
+    font-family: 'Courier New', monospace; font-size: 13px;
+    background: #fff; border-radius: 6px; padding: 8px 12px;
+    border: 1px solid #e5e7eb; white-space: pre-line; line-height: 1.8;
+    overflow-x: auto;
+  }
+  .compare-note {
+    font-size: 13px; margin-top: 10px; padding: 7px 10px;
+    border-radius: 6px;
+  }
+  .valid-panel .compare-note { background: var(--valid-bg); color: var(--valid-fg); }
+  .invalid-panel .compare-note { background: var(--invalid-bg); color: var(--invalid-fg); }
+
+  /* parser hint */
+  .hint-box {
+    font-size: 13px; color: #6b7280; background: #f9fafb;
+    border: 1px solid #e5e7eb; border-radius: 7px;
+    padding: 8px 12px; margin-top: 8px;
+  }
+  .hint-box code { background: #e5e7eb; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+
+  .err { color: #dc2626; font-size: 13px; font-weight: 600; margin: 6px 0; min-height: 18px; }
+
+  @media (max-width: 480px) {
+    .law-grid { grid-template-columns: 1fr 1fr; }
+    .law-card .law-name { font-size: 13px; }
+    .law-card .law-schema { font-size: 11px; }
+    .detail-panel { padding: 14px 14px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Formal Logic</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-equivalence-laws/visualization.html">← L3: Tương đương</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Tính hợp lệ &amp; suy luận</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-predicate-logic/visualization.html">L5: Logic vị từ →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Tính hợp lệ &amp; luật suy luận</h1>
+<p>Ba công cụ tương tác: <strong>máy kiểm tra tính hợp lệ</strong> (nhập công thức, máy dựng bảng chân lý, tìm dòng phản ví dụ), <strong>phòng luật suy luận</strong> (xem sơ đồ + ví dụ + bảng xác nhận), và <strong>so sánh hợp lệ vs ngụy biện</strong>.</p>
+
+<!-- ============================================================ -->
+<h2>1. Máy kiểm tra tính hợp lệ</h2>
+<!-- ============================================================ -->
+<div class="card">
+  <p style="margin-top:0">Nhập tối đa 3 tiền đề (premises) và 1 kết luận (conclusion) dưới dạng công thức mệnh đề dùng biến <code>p</code>, <code>q</code>, <code>r</code>. Máy sẽ dựng bảng chân lý đầy đủ và kiểm tra tính hợp lệ.</p>
+  <div class="hint-box">
+    <strong>Cú pháp:</strong> &nbsp;
+    <code>!</code> hoặc <code>~</code> = ¬ (phủ định) &nbsp;|&nbsp;
+    <code>&amp;</code> hoặc <code>^</code> = ∧ (hội) &nbsp;|&nbsp;
+    <code>|</code> = ∨ (tuyển) &nbsp;|&nbsp;
+    <code>-&gt;</code> = → (kéo theo) &nbsp;|&nbsp;
+    <code>&lt;-&gt;</code> = ↔ (tương đương) &nbsp;|&nbsp;
+    Dùng ngoặc <code>()</code> để nhóm.
+  </div>
+
+  <div style="margin-top:14px">
+    <div style="font-weight:700; margin-bottom:8px; color: #1d4ed8;">Tiền đề:</div>
+    <div class="premise-list" id="premiseList">
+      <div class="premise-row">
+        <span class="premise-label">TP 1</span>
+        <input type="text" class="premise-input" value="p -> q" placeholder="vd: p -> q">
+      </div>
+      <div class="premise-row">
+        <span class="premise-label">TP 2</span>
+        <input type="text" class="premise-input" value="p" placeholder="vd: p (để trống = bỏ qua)">
+      </div>
+      <div class="premise-row">
+        <span class="premise-label">TP 3</span>
+        <input type="text" class="premise-input" value="" placeholder="vd: !q (để trống = bỏ qua)">
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <label>Kết luận:</label>
+      <input type="text" id="conclusionInput" value="q" placeholder="vd: q">
+    </div>
+    <div class="err" id="parseErr"></div>
+    <div class="row" style="margin-top:12px; gap:8px">
+      <button class="btn" onclick="runChecker()">Kiểm tra tính hợp lệ</button>
+      <button class="btn-ghost" onclick="loadPreset('mp')">Modus Ponens</button>
+      <button class="btn-ghost" onclick="loadPreset('mt')">Modus Tollens</button>
+      <button class="btn-ghost" onclick="loadPreset('ac')">Ngụy biện AC</button>
+      <button class="btn-ghost" onclick="loadPreset('da')">Ngụy biện DA</button>
+    </div>
+  </div>
+
+  <div id="checkerResult" style="display:none; margin-top:16px">
+    <div id="checkerBadge"></div>
+    <div id="checkerNote" style="font-size:14px; margin: 4px 0 12px; color:#374151;"></div>
+    <div class="tt-wrap">
+      <table class="tt" id="checkerTable"></table>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Phòng luật suy luận</h2>
+<!-- ============================================================ -->
+<div class="card">
+  <p style="margin-top:0">Chọn một luật suy luận để xem sơ đồ hình thức, ví dụ ngôn ngữ tự nhiên, và bảng chân lý xác nhận tính hợp lệ.</p>
+  <div class="law-grid" id="lawGrid"></div>
+  <div class="detail-panel" id="lawDetail" style="display:none"></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Hợp lệ vs Ngụy biện — so sánh cạnh nhau</h2>
+<!-- ============================================================ -->
+<div class="card">
+  <p style="margin-top:0">Hai cặp dưới đây thể hiện cách một luật hợp lệ và một ngụy biện hình thức trông rất giống nhau nhưng khác về tính hợp lệ.</p>
+
+  <h3>Cặp 1: Modus Ponens (hợp lệ) vs Khẳng định hậu kiện (không hợp lệ)</h3>
+  <div class="compare-grid">
+    <div class="compare-panel valid-panel">
+      <h4>✓ MODUS PONENS — Hợp lệ</h4>
+      <div class="schema-sm">p → q
+p
+───────
+∴ q</div>
+      <div class="compare-note">Có tiền kiện → có hậu kiện.<br>Không có dòng phản ví dụ.</div>
+      <div class="tt-wrap" style="margin-top:10px">
+        <table class="tt" id="ttMP"></table>
+      </div>
+    </div>
+    <div class="compare-panel invalid-panel">
+      <h4>✗ KHẲNG ĐỊNH HẬU KIỆN — Không hợp lệ</h4>
+      <div class="schema-sm">p → q
+q       ← hậu kiện
+───────
+∴ p    ← SAI!</div>
+      <div class="compare-note">Dòng phản ví dụ: p=F, q=T.<br>"Đường trơn" ≠ "trời mưa".</div>
+      <div class="tt-wrap" style="margin-top:10px">
+        <table class="tt" id="ttAC"></table>
+      </div>
+    </div>
+  </div>
+
+  <h3>Cặp 2: Modus Tollens (hợp lệ) vs Phủ định tiền kiện (không hợp lệ)</h3>
+  <div class="compare-grid">
+    <div class="compare-panel valid-panel">
+      <h4>✓ MODUS TOLLENS — Hợp lệ</h4>
+      <div class="schema-sm">p → q
+¬q      ← phủ định hậu kiện
+───────
+∴ ¬p</div>
+      <div class="compare-note">Không có hậu kiện → không có tiền kiện.<br>Không có dòng phản ví dụ.</div>
+      <div class="tt-wrap" style="margin-top:10px">
+        <table class="tt" id="ttMT"></table>
+      </div>
+    </div>
+    <div class="compare-panel invalid-panel">
+      <h4>✗ PHỦ ĐỊNH TIỀN KIỆN — Không hợp lệ</h4>
+      <div class="schema-sm">p → q
+¬p      ← phủ định tiền kiện
+───────
+∴ ¬q   ← SAI!</div>
+      <div class="compare-note">Dòng phản ví dụ: p=F, q=T.<br>"Không mưa" ≠ "đường không trơn".</div>
+      <div class="tt-wrap" style="margin-top:10px">
+        <table class="tt" id="ttDA"></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// PARSER: mệnh đề logic
+// Tokens: IDENT(p/q/r), NOT(!|~), AND(&|^), OR(|), IMP(->), IFF(<->), LPAREN, RPAREN
+// Precedence (thấp → cao): IFF < IMP < OR < AND < NOT
+// ================================================================
+function tokenize(expr) {
+  const tokens = [];
+  let i = 0;
+  expr = expr.trim();
+  while (i < expr.length) {
+    const ch = expr[i];
+    if (' \t'.includes(ch)) { i++; continue; }
+    if (ch === '(' ) { tokens.push({t:'LPAREN'}); i++; }
+    else if (ch === ')') { tokens.push({t:'RPAREN'}); i++; }
+    else if (ch === '!' || ch === '~') { tokens.push({t:'NOT'}); i++; }
+    else if (ch === '&' || ch === '^') { tokens.push({t:'AND'}); i++; }
+    else if (ch === '|') { tokens.push({t:'OR'}); i++; }
+    else if (ch === '<' && expr.slice(i,i+3) === '<->') { tokens.push({t:'IFF'}); i+=3; }
+    else if (ch === '-' && expr.slice(i,i+2) === '->') { tokens.push({t:'IMP'}); i+=2; }
+    else if (/[a-zA-Z]/.test(ch)) {
+      let id = '';
+      while (i < expr.length && /[a-zA-Z0-9_]/.test(expr[i])) id += expr[i++];
+      tokens.push({t:'IDENT', v: id.toLowerCase()});
+    } else {
+      throw new Error('Ký tự không nhận dạng được: ' + ch);
+    }
+  }
+  return tokens;
+}
+
+// Recursive descent parser
+function parse(expr) {
+  if (!expr.trim()) return null;
+  const tokens = tokenize(expr);
+  let pos = 0;
+  function peek() { return tokens[pos] || null; }
+  function consume() { return tokens[pos++]; }
+  function parseIFF() {
+    let left = parseIMP();
+    while (peek() && peek().t === 'IFF') { consume(); let r = parseIMP(); left = {op:'IFF',left,right:r}; }
+    return left;
+  }
+  function parseIMP() {
+    let left = parseOR();
+    while (peek() && peek().t === 'IMP') { consume(); let r = parseOR(); left = {op:'IMP',left,right:r}; }
+    return left;
+  }
+  function parseOR() {
+    let left = parseAND();
+    while (peek() && peek().t === 'OR') { consume(); let r = parseAND(); left = {op:'OR',left,right:r}; }
+    return left;
+  }
+  function parseAND() {
+    let left = parseNOT();
+    while (peek() && peek().t === 'AND') { consume(); let r = parseNOT(); left = {op:'AND',left,right:r}; }
+    return left;
+  }
+  function parseNOT() {
+    if (peek() && peek().t === 'NOT') { consume(); return {op:'NOT',arg:parseNOT()}; }
+    return parseAtom();
+  }
+  function parseAtom() {
+    const t = peek();
+    if (!t) throw new Error('Hết token, thiếu biểu thức.');
+    if (t.t === 'IDENT') { consume(); return {op:'VAR', v: t.v}; }
+    if (t.t === 'LPAREN') {
+      consume();
+      const e = parseIFF();
+      const r = consume();
+      if (!r || r.t !== 'RPAREN') throw new Error('Thiếu dấu đóng ngoặc ).');
+      return e;
+    }
+    throw new Error('Token không hợp lệ: ' + t.t);
+  }
+  const tree = parseIFF();
+  if (pos < tokens.length) throw new Error('Có token thừa sau vị trí ' + pos);
+  return tree;
+}
+
+function collectVars(node, vars) {
+  if (!node) return;
+  if (node.op === 'VAR') { vars.add(node.v); return; }
+  if (node.op === 'NOT') { collectVars(node.arg, vars); return; }
+  collectVars(node.left, vars); collectVars(node.right, vars);
+}
+
+function evaluate(node, env) {
+  if (!node) return true;
+  if (node.op === 'VAR') return env[node.v];
+  if (node.op === 'NOT') return !evaluate(node.arg, env);
+  if (node.op === 'AND') return evaluate(node.left, env) && evaluate(node.right, env);
+  if (node.op === 'OR')  return evaluate(node.left, env) || evaluate(node.right, env);
+  if (node.op === 'IMP') return !evaluate(node.left, env) || evaluate(node.right, env);
+  if (node.op === 'IFF') return evaluate(node.left, env) === evaluate(node.right, env);
+  return false;
+}
+
+function tv(b) { return b ? 'T' : 'F'; }
+
+// Build HTML truth table from parsed premises + conclusion
+// Returns {valid, counterRows, table}
+function buildTable(premiseTrees, conclusionTree, varList) {
+  const n = varList.length;
+  const rows = [];
+  for (let mask = 0; mask < (1 << n); mask++) {
+    const env = {};
+    varList.forEach((v, i) => env[v] = !!((mask >> (n - 1 - i)) & 1));
+    const tpVals = premiseTrees.map(t => evaluate(t, env));
+    const clVal = evaluate(conclusionTree, env);
+    const allTP = tpVals.every(v => v);
+    const counter = allTP && !clVal;
+    rows.push({env, tpVals, clVal, allTP, counter});
+  }
+  const valid = !rows.some(r => r.counter);
+  return {valid, rows};
+}
+
+function renderTable(tableEl, varList, premiseTrees, premiseExprs, conclusionTree, conclusionExpr) {
+  const {valid, rows} = buildTable(premiseTrees, conclusionTree, varList);
+
+  let html = '<thead><tr>';
+  varList.forEach(v => html += `<th>${v}</th>`);
+  premiseExprs.forEach((e, i) => html += `<th class="th-tp">TP ${i+1}: ${escH(e)}</th>`);
+  html += `<th class="th-cl">Kết luận: ${escH(conclusionExpr)}</th>`;
+  html += '</tr></thead><tbody>';
+
+  rows.forEach(r => {
+    let cls = '';
+    if (r.counter) cls = 'counterex';
+    else if (r.allTP && valid) cls = 'highlight-valid';
+    else if (r.allTP) cls = 'all-true';
+    html += `<tr class="${cls}">`;
+    varList.forEach(v => html += `<td>${tv(r.env[v])}</td>`);
+    r.tpVals.forEach(v => html += `<td>${tv(v)}</td>`);
+    html += `<td class="kl-cell">${tv(r.clVal)}${r.counter ? ' ←' : ''}</td>`;
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  tableEl.innerHTML = html;
+  return valid;
+}
+
+function escH(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ================================================================
+// SECTION 1: Checker
+// ================================================================
+const PRESETS = {
+  mp:  { premises: ['p -> q', 'p', ''],      conclusion: 'q' },
+  mt:  { premises: ['p -> q', '!q', ''],     conclusion: '!p' },
+  hs:  { premises: ['p -> q', 'q -> r', ''], conclusion: 'p -> r' },
+  ds:  { premises: ['p | q', '!p', ''],      conclusion: 'q' },
+  ac:  { premises: ['p -> q', 'q', ''],      conclusion: 'p' },
+  da:  { premises: ['p -> q', '!p', ''],     conclusion: '!q' },
+};
+
+function loadPreset(key) {
+  const pr = PRESETS[key];
+  const inputs = document.querySelectorAll('.premise-input');
+  pr.premises.forEach((v, i) => { if (inputs[i]) inputs[i].value = v; });
+  document.getElementById('conclusionInput').value = pr.conclusion;
+  runChecker();
+}
+
+function runChecker() {
+  const errEl = document.getElementById('parseErr');
+  errEl.textContent = '';
+  const inputs = Array.from(document.querySelectorAll('.premise-input'));
+  const premiseExprs = inputs.map(i => i.value.trim()).filter(v => v !== '');
+  const conclusionExpr = document.getElementById('conclusionInput').value.trim();
+
+  if (!conclusionExpr) { errEl.textContent = 'Vui lòng nhập kết luận.'; return; }
+
+  let premiseTrees = [], conclusionTree;
+  try {
+    premiseTrees = premiseExprs.map(e => {
+      const t = parse(e);
+      if (!t) throw new Error('Công thức rỗng: "' + e + '"');
+      return t;
+    });
+    conclusionTree = parse(conclusionExpr);
+    if (!conclusionTree) throw new Error('Kết luận rỗng.');
+  } catch(e) {
+    errEl.textContent = 'Lỗi cú pháp: ' + e.message;
+    document.getElementById('checkerResult').style.display = 'none';
+    return;
+  }
+
+  const varSet = new Set();
+  premiseTrees.forEach(t => collectVars(t, varSet));
+  collectVars(conclusionTree, varSet);
+  const varList = Array.from(varSet).sort();
+
+  if (varList.length > 4) { errEl.textContent = 'Hỗ trợ tối đa 4 biến (p, q, r, s).'; return; }
+
+  const tableEl = document.getElementById('checkerTable');
+  const valid = renderTable(tableEl, varList, premiseTrees, premiseExprs, conclusionTree, conclusionExpr);
+
+  const badgeEl = document.getElementById('checkerBadge');
+  const noteEl = document.getElementById('checkerNote');
+  if (valid) {
+    badgeEl.innerHTML = '<span class="result-badge badge-valid">HỢP LỆ (Valid)</span>';
+    noteEl.textContent = 'Không tìm thấy dòng phản ví dụ. Mọi dòng có tất cả tiền đề = T đều có kết luận = T.';
+  } else {
+    badgeEl.innerHTML = '<span class="result-badge badge-invalid">KHÔNG HỢP LỆ (Invalid)</span>';
+    noteEl.textContent = 'Tìm thấy dòng phản ví dụ (nền vàng ↑): tất cả tiền đề = T nhưng kết luận = F.';
+  }
+  document.getElementById('checkerResult').style.display = 'block';
+}
+
+// ================================================================
+// SECTION 2: Inference law detail cards
+// ================================================================
+const LAWS = [
+  {
+    id: 'mp', name: 'Modus Ponens', abbr: 'MP',
+    schema: 'p → q\np\n───────\n∴ q',
+    example: '<em>TP1:</em> Nếu trời mưa thì đường trơn. (p→q)<br><em>TP2:</em> Trời mưa. (p)<br><em>KL:</em> Đường trơn. (q)',
+    premises: ['p -> q', 'p'], conclusion: 'q',
+  },
+  {
+    id: 'mt', name: 'Modus Tollens', abbr: 'MT',
+    schema: 'p → q\n¬q\n───────\n∴ ¬p',
+    example: '<em>TP1:</em> Nếu trời mưa thì đường trơn. (p→q)<br><em>TP2:</em> Đường KHÔNG trơn. (¬q)<br><em>KL:</em> Trời KHÔNG mưa. (¬p)',
+    premises: ['p -> q', '!q'], conclusion: '!p',
+  },
+  {
+    id: 'hs', name: 'Tam đoạn luận giả thiết', abbr: 'HS',
+    schema: 'p → q\nq → r\n───────\n∴ p → r',
+    example: '<em>TP1:</em> Nếu học thì hiểu. (p→q)<br><em>TP2:</em> Nếu hiểu thì vận dụng được. (q→r)<br><em>KL:</em> Nếu học thì vận dụng được. (p→r)',
+    premises: ['p -> q', 'q -> r'], conclusion: 'p -> r',
+  },
+  {
+    id: 'ds', name: 'Tam đoạn luận tuyển', abbr: 'DS',
+    schema: 'p ∨ q\n¬p\n───────\n∴ q',
+    example: '<em>TP1:</em> Ký túc xá hoặc nhà trọ. (p∨q)<br><em>TP2:</em> Không phải ký túc xá. (¬p)<br><em>KL:</em> Nhà trọ. (q)',
+    premises: ['p | q', '!p'], conclusion: 'q',
+  },
+  {
+    id: 'add', name: 'Cộng', abbr: 'Add',
+    schema: 'p\n───────\n∴ p ∨ q',
+    example: '<em>TP1:</em> Hôm nay là thứ Hai. (p)<br><em>KL:</em> Hôm nay là thứ Hai hoặc trời mưa. (p∨q)',
+    premises: ['p'], conclusion: 'p | q',
+  },
+  {
+    id: 'simp', name: 'Rút gọn', abbr: 'Simp',
+    schema: 'p ∧ q\n───────\n∴ p',
+    example: '<em>TP1:</em> An chăm chỉ và thông minh. (p∧q)<br><em>KL:</em> An chăm chỉ. (p)',
+    premises: ['p & q'], conclusion: 'p',
+  },
+];
+
+let selectedLaw = null;
+
+function renderLawGrid() {
+  const grid = document.getElementById('lawGrid');
+  grid.innerHTML = LAWS.map(l => `
+    <div class="law-card" id="lc-${l.id}" onclick="selectLaw('${l.id}')">
+      <div class="law-name">${l.abbr} — ${l.name}</div>
+      <div class="law-schema">${l.schema}</div>
+    </div>
+  `).join('');
+}
+
+function selectLaw(id) {
+  if (selectedLaw === id) {
+    selectedLaw = null;
+    document.querySelectorAll('.law-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('lawDetail').style.display = 'none';
+    return;
+  }
+  selectedLaw = id;
+  document.querySelectorAll('.law-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('lc-' + id).classList.add('selected');
+
+  const law = LAWS.find(l => l.id === id);
+  const detailEl = document.getElementById('lawDetail');
+
+  // Build the truth table for this law
+  let premiseTrees, conclusionTree, varList;
+  try {
+    premiseTrees = law.premises.map(e => parse(e));
+    conclusionTree = parse(law.conclusion);
+    const vs = new Set();
+    premiseTrees.forEach(t => collectVars(t, vs));
+    collectVars(conclusionTree, vs);
+    varList = Array.from(vs).sort();
+  } catch(e) { return; }
+
+  const ttId = 'lawTT-' + id;
+  detailEl.innerHTML = `
+    <h4>${law.abbr} — ${law.name}</h4>
+    <div class="schema-block">${law.schema.replace(/\n/g,'<br><span class="line-sep"></span>').replace('∴','∴')}</div>
+    <div class="example-text">${law.example}</div>
+    <div style="font-weight:700; font-size:13px; margin:12px 0 4px; color:#374151;">Bảng chân lý xác nhận:</div>
+    <div class="tt-wrap"><table class="tt" id="${ttId}"></table></div>
+  `;
+  detailEl.style.display = 'block';
+
+  const tableEl = document.getElementById(ttId);
+  renderTable(tableEl, varList, premiseTrees, law.premises, conclusionTree, law.conclusion);
+}
+
+// ================================================================
+// SECTION 3: Compare tables (static)
+// ================================================================
+function buildCompare(tableId, premises, conclusion) {
+  let premiseTrees, conclusionTree, varList;
+  try {
+    premiseTrees = premises.map(e => parse(e));
+    conclusionTree = parse(conclusion);
+    const vs = new Set();
+    premiseTrees.forEach(t => collectVars(t, vs));
+    collectVars(conclusionTree, vs);
+    varList = Array.from(vs).sort();
+  } catch(e) { return; }
+  const tableEl = document.getElementById(tableId);
+  if (tableEl) renderTable(tableEl, varList, premiseTrees, premises, conclusionTree, conclusion);
+}
+
+// ================================================================
+// INIT
+// ================================================================
+renderLawGrid();
+buildCompare('ttMP', ['p -> q', 'p'], 'q');
+buildCompare('ttAC', ['p -> q', 'q'], 'p');
+buildCompare('ttMT', ['p -> q', '!q'], '!p');
+buildCompare('ttDA', ['p -> q', '!p'], '!q');
+// Run default checker on load
+runChecker();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

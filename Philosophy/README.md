@@ -15,7 +15,7 @@ Lộ trình triết học đi qua cánh cửa **logic**: học cách một lập
 
 | # | Tầng | Trạng thái | Nội dung chính |
 |---|------|------------|----------------|
-| 1 | [Formal Logic](./01-FormalLogic/) | 🚧 Khung | Mệnh đề & bảng chân lý, liên từ, tương đương, tính hợp lệ & luật suy luận, logic vị từ, chứng minh, tam đoạn luận, quy nạp vs diễn dịch |
+| 1 | [Formal Logic](./01-FormalLogic/) | ✅ 8/8 bài | Mệnh đề & bảng chân lý, liên từ, tương đương, tính hợp lệ & luật suy luận, logic vị từ, chứng minh, tam đoạn luận, quy nạp vs diễn dịch |
 | 2 | [Critical Thinking](./02-CriticalThinking/) | 🚧 Khung | Cấu trúc lập luận, ngụy biện hình thức & phi hình thức, thiên kiến nhận thức, đánh giá bằng chứng, lập luận quy nạp, tranh luận & phản biện |
 | 3 | [Advanced Logic & Language](./03-AdvancedLogic-Language/) | 🚧 Khung | Logic modal, nghịch lý, Gödel (preview), logic mờ, ngữ nghĩa & quy chiếu, hành vi ngôn ngữ, logic & tính toán, capstone phân tích lập luận |
 

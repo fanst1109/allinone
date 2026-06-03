@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Logic vị từ (Predicate Logic)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-dark: #44403c;
+    --accent-soft: #f0eeec;
+    --accent-mid: #a8a29e;
+    --accent-border: #d6d3d1;
+    --ok: #16a34a;
+    --ok-soft: #dcfce7;
+    --err: #dc2626;
+    --err-soft: #fee2e2;
+    --warn: #ca8a04;
+    --warn-soft: #fef9c3;
+    --info: #0369a1;
+    --info-soft: #e0f2fe;
+  }
+
+  h1 { color: #1c1917; }
+  h2 { color: #292524; margin-top: 44px; padding-bottom: 8px; border-bottom: 2px solid var(--accent-border); }
+  p.lead { color: #57534e; font-size: 15px; line-height: 1.75; margin-bottom: 20px; }
+
+  .card {
+    background: #fff;
+    border: 1px solid var(--accent-border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin: 16px 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .card-title {
+    font-size: 14px; font-weight: 700; letter-spacing: .04em;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 12px;
+  }
+
+  /* --- Buttons --- */
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: background .15s;
+  }
+  button:hover { background: var(--accent-dark); }
+  button.ghost {
+    background: var(--accent-soft); color: var(--accent-dark);
+  }
+  button.ghost:hover { background: #e7e5e4; }
+  button.sm { padding: 5px 11px; font-size: 12px; }
+
+  /* --- World: objects --- */
+  .world-grid {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin: 14px 0;
+  }
+  .obj {
+    width: 68px; height: 68px;
+    border-radius: 10px;
+    border: 2px solid var(--accent-border);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-size: 11px; line-height: 1.4;
+    cursor: default; transition: border-color .2s, box-shadow .2s, background .2s;
+    background: #fafaf9;
+    text-align: center;
+    padding: 4px;
+  }
+  .obj .icon { font-size: 22px; margin-bottom: 2px; }
+  .obj .name { font-weight: 700; font-size: 10px; color: #292524; }
+  .obj .props { font-size: 9px; color: #78716c; }
+  .obj.sat {
+    border-color: var(--ok); background: var(--ok-soft);
+    box-shadow: 0 0 0 2px var(--ok);
+  }
+  .obj.unsat {
+    border-color: var(--err); background: var(--err-soft);
+    box-shadow: 0 0 0 2px var(--err);
+  }
+  .obj.neutral {
+    border-color: var(--accent-border); background: #fafaf9;
+    box-shadow: none;
+  }
+
+  .result-box {
+    padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    min-height: 40px; margin-top: 10px; line-height: 1.6;
+  }
+  .result-box.true  { background: var(--ok-soft); color: var(--ok); border: 1px solid #86efac; }
+  .result-box.false { background: var(--err-soft); color: var(--err); border: 1px solid #fca5a5; }
+  .result-box.neutral { background: var(--accent-soft); color: var(--accent-dark); border: 1px solid var(--accent-border); }
+
+  .formula-display {
+    font-family: 'Courier New', monospace; font-size: 16px; font-weight: 700;
+    color: #1c1917; background: var(--accent-soft); padding: 10px 14px;
+    border-radius: 8px; border-left: 4px solid var(--accent);
+    margin: 10px 0; letter-spacing: .02em;
+  }
+
+  /* --- Select & row --- */
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 10px 0; }
+  select {
+    padding: 7px 10px; border: 1px solid var(--accent-border); border-radius: 7px;
+    font-size: 13px; background: #fff; color: #1c1917; cursor: pointer;
+  }
+  select:focus { outline: none; border-color: var(--accent); }
+
+  label { font-weight: 600; font-size: 13px; color: #44403c; }
+
+  /* --- Negation section --- */
+  .neg-pair {
+    display: flex; gap: 14px; flex-wrap: wrap; margin: 12px 0;
+  }
+  .neg-box {
+    flex: 1 1 200px; padding: 14px 16px; border-radius: 10px;
+    border: 1px solid var(--accent-border);
+  }
+  .neg-box .box-label { font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--accent-mid); margin-bottom: 6px; }
+  .neg-box .formula { font-family: monospace; font-size: 15px; font-weight: 700;
+    color: #1c1917; }
+  .neg-box .meaning { font-size: 12px; color: #57534e; margin-top: 6px; }
+  .neg-box.origin { background: var(--info-soft); border-color: #bae6fd; }
+  .neg-box.negated { background: var(--warn-soft); border-color: #fde68a; }
+
+  .step-list { list-style: none; padding: 0; margin: 10px 0; }
+  .step-list li {
+    padding: 6px 12px; font-size: 13px; font-family: monospace;
+    border-left: 3px solid var(--accent-border); margin: 4px 0;
+    background: #fafaf9; border-radius: 0 6px 6px 0;
+  }
+  .step-list li.key { border-left-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+
+  /* --- Quiz --- */
+  .quiz-card {
+    border: 1px solid var(--accent-border); border-radius: 10px;
+    padding: 16px 18px; margin: 12px 0; background: #fff;
+  }
+  .quiz-card .q-text {
+    font-size: 14px; font-weight: 600; color: #1c1917; margin-bottom: 12px;
+    border-left: 3px solid var(--accent); padding-left: 10px;
+  }
+  .quiz-opts { display: flex; flex-direction: column; gap: 7px; }
+  .quiz-opt {
+    display: flex; align-items: flex-start; gap: 9px;
+    padding: 9px 12px; border: 1px solid var(--accent-border);
+    border-radius: 7px; cursor: pointer; font-size: 13px;
+    font-family: monospace; transition: background .15s, border-color .15s;
+    background: #fafaf9;
+  }
+  .quiz-opt:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .quiz-opt.correct { background: var(--ok-soft); border-color: var(--ok); color: #15803d; font-weight: 700; }
+  .quiz-opt.wrong   { background: var(--err-soft); border-color: var(--err); color: #b91c1c; }
+  .quiz-opt.reveal-correct { background: var(--ok-soft); border-color: var(--ok); opacity: .8; }
+  .quiz-opt input[type=radio] { margin-top: 2px; accent-color: var(--accent); }
+  .quiz-feedback {
+    margin-top: 10px; padding: 10px 14px; border-radius: 8px; font-size: 13px;
+    line-height: 1.6; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: var(--ok-soft); color: #15803d; border: 1px solid #86efac; }
+  .quiz-feedback.bad { background: var(--err-soft); color: #b91c1c; border: 1px solid #fca5a5; }
+
+  .quiz-score {
+    font-size: 20px; font-weight: 800; color: var(--accent-dark);
+    padding: 14px; background: var(--accent-soft); border-radius: 10px;
+    text-align: center; margin: 14px 0; display: none;
+  }
+
+  /* --- Domain selector --- */
+  .domain-btn {
+    padding: 6px 13px; font-size: 12px; border-radius: 20px;
+    border: 1px solid var(--accent-border); background: #fff;
+    cursor: pointer; transition: background .15s, border-color .15s;
+    color: #44403c; font-weight: 600;
+  }
+  .domain-btn:hover, .domain-btn.active {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+  }
+
+  /* --- Legend --- */
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; font-size: 12px; }
+  .leg-item { display: flex; align-items: center; gap: 5px; }
+  .leg-dot {
+    width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0;
+  }
+
+  .hint { font-size: 12px; color: #78716c; margin: 6px 0; }
+
+  @media (max-width: 480px) {
+    .obj { width: 58px; height: 58px; }
+    .obj .icon { font-size: 18px; }
+    .neg-pair { flex-direction: column; }
+    .neg-box { flex: 1 1 auto; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Formal Logic</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-validity-inference/visualization.html">← L4: Tính hợp lệ</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Logic vị từ</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-proof-methods/visualization.html">L6: Chứng minh →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Logic vị từ (Predicate Logic)</h1>
+<p class="lead">
+  Logic mệnh đề xử lý câu như khối đặc. Logic vị từ nhìn vào bên trong: <strong>∀x</strong> (với mọi x) và <strong>∃x</strong> (tồn tại x) cho phép nói về lớp đối tượng. Ba công cụ dưới đây giúp bạn <em>nhìn thấy</em> cách lượng từ hoạt động.
+</p>
+
+<!-- ============================================================ -->
+<h2>1. Thế giới nhỏ — đánh giá ∀ và ∃ trực tiếp</h2>
+
+<div class="card">
+  <div class="card-title">Miền (domain) — chọn tập đối tượng</div>
+  <div class="row">
+    <button class="domain-btn active" id="dBtn0" onclick="setDomain(0)">Động vật (8 con)</button>
+    <button class="domain-btn" id="dBtn1" onclick="setDomain(1)">Số {1..6}</button>
+    <button class="domain-btn" id="dBtn2" onclick="setDomain(2)">Học sinh (6 em)</button>
+  </div>
+  <p class="hint">Chọn miền, rồi chọn công thức bên dưới — hệ thống sẽ đánh giá và tô màu từng phần tử.</p>
+</div>
+
+<div class="card">
+  <div class="card-title">Phần tử trong miền</div>
+  <div class="world-grid" id="worldGrid"></div>
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#dcfce7;border:2px solid #16a34a"></div> Thỏa mãn điều kiện P(x)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#fee2e2;border:2px solid #dc2626"></div> Không thỏa P(x)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#fafaf9;border:2px solid #d6d3d1"></div> Chưa đánh giá</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Chọn công thức để đánh giá</div>
+  <div class="row">
+    <label for="formulaSel">Công thức:</label>
+    <select id="formulaSel" onchange="evaluateFormula()"></select>
+  </div>
+  <div class="formula-display" id="formulaDisplay">—</div>
+  <div class="result-box neutral" id="evalResult">Chọn công thức để xem kết quả đánh giá.</div>
+  <p class="hint" id="evalExplain"></p>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Phủ định lượng từ — đẩy ¬ vào trong</h2>
+
+<div class="card">
+  <div class="card-title">Chọn câu để xem phủ định đúng</div>
+  <div class="row">
+    <label for="negSel">Câu gốc:</label>
+    <select id="negSel" onchange="showNegation()">
+      <option value="0">∀x(Người(x) → Chết(x)) — "Mọi người đều phải chết"</option>
+      <option value="1">∃x(SinhViên(x) ∧ NgủTrongLớp(x)) — "Có sinh viên ngủ trong lớp"</option>
+      <option value="2">∀x(Mèo(x) → ¬Bay(x)) — "Không con mèo nào biết bay"</option>
+      <option value="3">∃x(NgTố(x) ∧ Chẵn(x)) — "Có số nguyên tố chẵn"</option>
+      <option value="4">∀x(Chẵn(x) → Chia2(x)) — "Mọi số chẵn chia hết cho 2"</option>
+      <option value="5">∃x(SVYKhoa(x) ∧ ¬HọcGP(x)) — "Có SV Y khoa không học Giải phẫu"</option>
+    </select>
+  </div>
+
+  <div class="neg-pair" id="negPair">
+    <div class="neg-box origin" id="negOriginBox">
+      <div class="box-label">Câu gốc</div>
+      <div class="formula" id="negOriginFormula">—</div>
+      <div class="meaning" id="negOriginMeaning">—</div>
+    </div>
+    <div style="display:flex;align-items:center;font-size:22px;color:#a8a29e;padding:0 2px">⇓</div>
+    <div class="neg-box negated" id="negResultBox">
+      <div class="box-label">Phủ định đúng</div>
+      <div class="formula" id="negResultFormula">—</div>
+      <div class="meaning" id="negResultMeaning">—</div>
+    </div>
+  </div>
+
+  <div class="card-title" style="margin-top:14px">Các bước biến đổi</div>
+  <ol class="step-list" id="negSteps"></ol>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Quiz — dịch câu tiếng Việt sang ký hiệu</h2>
+
+<div class="card">
+  <p class="hint">Chọn ký hiệu logic vị từ đúng cho mỗi câu. Sau khi chọn xong tất cả, nhấn "Kiểm tra kết quả".</p>
+  <div id="quizContainer"></div>
+  <div class="row" style="margin-top:14px">
+    <button onclick="checkQuiz()">Kiểm tra kết quả</button>
+    <button class="ghost" onclick="resetQuiz()">Làm lại</button>
+  </div>
+  <div class="quiz-score" id="quizScore"></div>
+</div>
+
+</main>
+
+<script>
+// ================================================================
+// DATA
+// ================================================================
+
+// --- Domains ---
+const DOMAINS = [
+  {
+    name: "Động vật (8 con)",
+    items: [
+      { id:"dog",  icon:"🐕", name:"Chó",   props:{ ĐộngVật:true,  CóLông:true,  Bay:false, ThốngMinh:true,  SốngDướiNước:false, Mèo:false } },
+      { id:"cat",  icon:"🐈", name:"Mèo",   props:{ ĐộngVật:true,  CóLông:true,  Bay:false, ThốngMinh:true,  SốngDướiNước:false, Mèo:true  } },
+      { id:"bird", icon:"🐦", name:"Chim",  props:{ ĐộngVật:true,  CóLông:true,  Bay:true,  ThốngMinh:false, SốngDướiNước:false, Mèo:false } },
+      { id:"fish", icon:"🐟", name:"Cá",    props:{ ĐộngVật:true,  CóLông:false, Bay:false, ThốngMinh:false, SốngDướiNước:true,  Mèo:false } },
+      { id:"bat",  icon:"🦇", name:"Dơi",   props:{ ĐộngVật:true,  CóLông:true,  Bay:true,  ThốngMinh:false, SốngDướiNước:false, Mèo:false } },
+      { id:"duck", icon:"🦆", name:"Vịt",   props:{ ĐộngVật:true,  CóLông:true,  Bay:true,  ThốngMinh:false, SốngDướiNước:true,  Mèo:false } },
+      { id:"snk",  icon:"🐍", name:"Rắn",   props:{ ĐộngVật:true,  CóLông:false, Bay:false, ThốngMinh:false, SốngDướiNước:false, Mèo:false } },
+      { id:"tur",  icon:"🐢", name:"Rùa",   props:{ ĐộngVật:true,  CóLông:false, Bay:false, ThốngMinh:false, SốngDướiNước:true,  Mèo:false } },
+    ],
+    formulas: [
+      { label:"∀x ĐộngVật(x)",               desc:"Mọi phần tử là động vật",         pred: x => x.ĐộngVật, quant:"forall" },
+      { label:"∀x Bay(x)",                    desc:"Mọi phần tử biết bay",            pred: x => x.Bay, quant:"forall" },
+      { label:"∃x Bay(x)",                    desc:"Có phần tử biết bay",             pred: x => x.Bay, quant:"exists" },
+      { label:"∀x(CóLông(x) → ¬SốngDướiNước(x))", desc:"Mọi vật có lông đều không sống dưới nước", pred: x => !x.CóLông || !x.SốngDướiNước, quant:"forall" },
+      { label:"∃x(Bay(x) ∧ SốngDướiNước(x))", desc:"Có vật vừa biết bay vừa sống dưới nước", pred: x => x.Bay && x.SốngDướiNước, quant:"exists" },
+      { label:"∀x(Mèo(x) → ¬Bay(x))",        desc:"Không con mèo nào biết bay",      pred: x => !x.Mèo || !x.Bay, quant:"forall" },
+    ]
+  },
+  {
+    name: "Số {1..6}",
+    items: [
+      { id:"n1", icon:"", name:"1", props:{ SốTN:true, Chẵn:false, NgTố:false, Lớn3:false, ChiaHết2:false, Dương:true } },
+      { id:"n2", icon:"", name:"2", props:{ SốTN:true, Chẵn:true,  NgTố:true,  Lớn3:false, ChiaHết2:true,  Dương:true } },
+      { id:"n3", icon:"", name:"3", props:{ SốTN:true, Chẵn:false, NgTố:true,  Lớn3:false, ChiaHết2:false, Dương:true } },
+      { id:"n4", icon:"", name:"4", props:{ SốTN:true, Chẵn:true,  NgTố:false, Lớn3:true,  ChiaHết2:true,  Dương:true } },
+      { id:"n5", icon:"", name:"5", props:{ SốTN:true, Chẵn:false, NgTố:true,  Lớn3:true,  ChiaHết2:false, Dương:true } },
+      { id:"n6", icon:"", name:"6", props:{ SốTN:true, Chẵn:true,  NgTố:false, Lớn3:true,  ChiaHết2:true,  Dương:true } },
+    ],
+    formulas: [
+      { label:"∀x Chẵn(x)",                      desc:"Mọi số trong D đều chẵn",              pred: x => x.Chẵn, quant:"forall" },
+      { label:"∃x Chẵn(x)",                       desc:"Có số chẵn trong D",                   pred: x => x.Chẵn, quant:"exists" },
+      { label:"∀x(Chẵn(x) → ChiaHết2(x))",       desc:"Mọi số chẵn chia hết cho 2",           pred: x => !x.Chẵn || x.ChiaHết2, quant:"forall" },
+      { label:"∃x(NgTố(x) ∧ Chẵn(x))",           desc:"Có số nguyên tố chẵn",                 pred: x => x.NgTố && x.Chẵn, quant:"exists" },
+      { label:"∀x Dương(x)",                      desc:"Mọi số đều dương",                     pred: x => x.Dương, quant:"forall" },
+      { label:"∃x(Lớn3(x) ∧ NgTố(x))",           desc:"Có số > 3 là nguyên tố",               pred: x => x.Lớn3 && x.NgTố, quant:"exists" },
+    ]
+  },
+  {
+    name: "Học sinh (6 em)",
+    items: [
+      { id:"an",   icon:"👩", name:"An",    props:{ SinhViên:true, Đậu:true,  HọcGiỏi:true,  NgủTrongLớp:false, ĐiMuộn:false } },
+      { id:"binh", icon:"👨", name:"Bình",  props:{ SinhViên:true, Đậu:true,  HọcGiỏi:false, NgủTrongLớp:true,  ĐiMuộn:true  } },
+      { id:"chi",  icon:"👩", name:"Chi",   props:{ SinhViên:true, Đậu:false, HọcGiỏi:false, NgủTrongLớp:true,  ĐiMuộn:false } },
+      { id:"dung", icon:"👨", name:"Dũng",  props:{ SinhViên:true, Đậu:true,  HọcGiỏi:true,  NgủTrongLớp:false, ĐiMuộn:false } },
+      { id:"em",   icon:"👩", name:"Em",    props:{ SinhViên:true, Đậu:false, HọcGiỏi:false, NgủTrongLớp:false, ĐiMuộn:true  } },
+      { id:"phuc", icon:"👨", name:"Phúc",  props:{ SinhViên:true, Đậu:true,  HọcGiỏi:false, NgủTrongLớp:false, ĐiMuộn:false } },
+    ],
+    formulas: [
+      { label:"∀x(SinhViên(x) → Đậu(x))",               desc:"Mọi sinh viên đều đậu",             pred: x => !x.SinhViên || x.Đậu, quant:"forall" },
+      { label:"∃x(SinhViên(x) ∧ ¬Đậu(x))",              desc:"Có sinh viên không đậu",            pred: x => x.SinhViên && !x.Đậu, quant:"exists" },
+      { label:"∀x(SinhViên(x) → ¬NgủTrongLớp(x))",      desc:"Không ai ngủ trong lớp",            pred: x => !x.SinhViên || !x.NgủTrongLớp, quant:"forall" },
+      { label:"∃x(HọcGiỏi(x) ∧ Đậu(x))",               desc:"Có học sinh giỏi và đậu",           pred: x => x.HọcGiỏi && x.Đậu, quant:"exists" },
+      { label:"∀x(HọcGiỏi(x) → Đậu(x))",               desc:"Mọi học sinh giỏi đều đậu",         pred: x => !x.HọcGiỏi || x.Đậu, quant:"forall" },
+      { label:"∃x(ĐiMuộn(x) ∧ Đậu(x))",                desc:"Có người đi muộn nhưng vẫn đậu",    pred: x => x.ĐiMuộn && x.Đậu, quant:"exists" },
+    ]
+  }
+];
+
+// --- Negation data ---
+const NEG_DATA = [
+  {
+    origin:  "∀x(Người(x) → Chết(x))",
+    origVN:  "Mọi người đều phải chết.",
+    negated: "∃x(Người(x) ∧ ¬Chết(x))",
+    negVN:   "Có người không phải chết.",
+    steps: [
+      "¬∀x(Người(x) → Chết(x))",
+      "≡  ∃x ¬(Người(x) → Chết(x))       [đổi ∀ → ∃]",
+      "≡  ∃x (Người(x) ∧ ¬Chết(x))       [¬(P→Q) ≡ P∧¬Q]",
+    ]
+  },
+  {
+    origin:  "∃x(SinhViên(x) ∧ NgủTrongLớp(x))",
+    origVN:  "Có sinh viên ngủ trong lớp.",
+    negated: "∀x(SinhViên(x) → ¬NgủTrongLớp(x))",
+    negVN:   "Mọi sinh viên đều không ngủ trong lớp.",
+    steps: [
+      "¬∃x(SinhViên(x) ∧ NgủTrongLớp(x))",
+      "≡  ∀x ¬(SinhViên(x) ∧ NgủTrongLớp(x))    [đổi ∃ → ∀]",
+      "≡  ∀x (¬SinhViên(x) ∨ ¬NgủTrongLớp(x))   [De Morgan]",
+      "≡  ∀x (SinhViên(x) → ¬NgủTrongLớp(x))    [¬A∨B ≡ A→B]",
+    ]
+  },
+  {
+    origin:  "∀x(Mèo(x) → ¬Bay(x))",
+    origVN:  "Không con mèo nào biết bay.",
+    negated: "∃x(Mèo(x) ∧ Bay(x))",
+    negVN:   "Có con mèo biết bay.",
+    steps: [
+      "¬∀x(Mèo(x) → ¬Bay(x))",
+      "≡  ∃x ¬(Mèo(x) → ¬Bay(x))        [đổi ∀ → ∃]",
+      "≡  ∃x (Mèo(x) ∧ ¬¬Bay(x))        [¬(P→Q) ≡ P∧¬Q]",
+      "≡  ∃x (Mèo(x) ∧ Bay(x))           [¬¬Bay ≡ Bay]",
+    ]
+  },
+  {
+    origin:  "∃x(NgTố(x) ∧ Chẵn(x))",
+    origVN:  "Có số nguyên tố chẵn.",
+    negated: "∀x(NgTố(x) → ¬Chẵn(x))",
+    negVN:   "Mọi số nguyên tố đều không chẵn.",
+    steps: [
+      "¬∃x(NgTố(x) ∧ Chẵn(x))",
+      "≡  ∀x ¬(NgTố(x) ∧ Chẵn(x))       [đổi ∃ → ∀]",
+      "≡  ∀x (¬NgTố(x) ∨ ¬Chẵn(x))      [De Morgan]",
+      "≡  ∀x (NgTố(x) → ¬Chẵn(x))       [¬A∨B ≡ A→B]",
+    ]
+  },
+  {
+    origin:  "∀x(Chẵn(x) → Chia2(x))",
+    origVN:  "Mọi số chẵn chia hết cho 2.",
+    negated: "∃x(Chẵn(x) ∧ ¬Chia2(x))",
+    negVN:   "Có số chẵn không chia hết cho 2.",
+    steps: [
+      "¬∀x(Chẵn(x) → Chia2(x))",
+      "≡  ∃x ¬(Chẵn(x) → Chia2(x))      [đổi ∀ → ∃]",
+      "≡  ∃x (Chẵn(x) ∧ ¬Chia2(x))      [¬(P→Q) ≡ P∧¬Q]",
+    ]
+  },
+  {
+    origin:  "∃x(SVYKhoa(x) ∧ ¬HọcGP(x))",
+    origVN:  "Có sinh viên Y khoa không học Giải phẫu.",
+    negated: "∀x(SVYKhoa(x) → HọcGP(x))",
+    negVN:   "Mọi sinh viên Y khoa đều học Giải phẫu.",
+    steps: [
+      "¬∃x(SVYKhoa(x) ∧ ¬HọcGP(x))",
+      "≡  ∀x ¬(SVYKhoa(x) ∧ ¬HọcGP(x))  [đổi ∃ → ∀]",
+      "≡  ∀x (¬SVYKhoa(x) ∨ HọcGP(x))   [De Morgan]",
+      "≡  ∀x (SVYKhoa(x) → HọcGP(x))    [¬A∨B ≡ A→B]",
+    ]
+  }
+];
+
+// --- Quiz data ---
+const QUIZ_DATA = [
+  {
+    q: "\"Mọi con chim đều có cánh.\"",
+    vietNote: "Dùng mẫu: Mọi A đều B",
+    opts: [
+      { f:"∃x(Chim(x) ∧ CóCánh(x))", correct:false },
+      { f:"∀x(Chim(x) → CóCánh(x))", correct:true  },
+      { f:"∀x(Chim(x) ∧ CóCánh(x))", correct:false },
+      { f:"∃x(Chim(x) → CóCánh(x))", correct:false },
+    ],
+    explain: "\"Mọi A đều B\" → ∀x(A(x)→B(x)). Dùng →, không dùng ∧ (nếu dùng ∧ thì mọi vật trong miền phải vừa là chim vừa có cánh)."
+  },
+  {
+    q: "\"Tồn tại số nguyên tố chẵn.\"",
+    vietNote: "Dùng mẫu: Có A là B",
+    opts: [
+      { f:"∀x(NgTố(x) → Chẵn(x))", correct:false },
+      { f:"∀x(NgTố(x) ∧ Chẵn(x))", correct:false },
+      { f:"∃x(NgTố(x) ∧ Chẵn(x))", correct:true  },
+      { f:"∃x(NgTố(x) → Chẵn(x))", correct:false },
+    ],
+    explain: "\"Có A là B\" → ∃x(A(x)∧B(x)). Dùng ∧ — yêu cầu đồng thời cả hai tính chất. Dùng → sẽ sai vì x không nguyên tố làm vế trái sai → câu luôn đúng vô nghĩa."
+  },
+  {
+    q: "\"Không con cá nào biết leo cây.\"",
+    vietNote: "Dùng mẫu: Không A nào là B",
+    opts: [
+      { f:"¬∃x(Cá(x) ∧ LeoCây(x))", correct:true  },
+      { f:"∃x(Cá(x) ∧ ¬LeoCây(x))", correct:false },
+      { f:"∃x(Cá(x) → ¬LeoCây(x))", correct:false },
+      { f:"∀x(Cá(x) ∧ ¬LeoCây(x))", correct:false },
+    ],
+    explain: "Cả ¬∃x(Cá(x)∧LeoCây(x)) và ∀x(Cá(x)→¬LeoCây(x)) đều đúng và tương đương. Đáp án ở đây chọn dạng phủ định tường minh ¬∃ — cũng hợp lệ theo De Morgan. (∀x(Cá(x)∧¬LeoCây(x)) SAI vì đòi mọi vật phải là cá.)"
+  },
+  {
+    q: "\"Có số tự nhiên không là số lẻ.\"",
+    vietNote: "Dùng mẫu: Có A không phải B",
+    opts: [
+      { f:"∀x(SốTN(x) → ¬Lẻ(x))", correct:false },
+      { f:"∃x(SốTN(x) ∧ ¬Lẻ(x))", correct:true  },
+      { f:"∃x(SốTN(x) → ¬Lẻ(x))", correct:false },
+      { f:"∀x(SốTN(x) ∧ ¬Lẻ(x))", correct:false },
+    ],
+    explain: "\"Có A không phải B\" → ∃x(A(x)∧¬B(x)). Dùng ∧ với ¬ ở vế phải. Ví dụ x=2: SốTN(2)=Đ, ¬Lẻ(2)=Đ → thỏa."
+  },
+  {
+    q: "Phủ định của \"∀x(SinhViên(x) → Đậu(x))\" là:",
+    vietNote: "Áp dụng: ¬∀x(A→B) ≡ ∃x(A∧¬B)",
+    opts: [
+      { f:"∀x(SinhViên(x) → ¬Đậu(x))", correct:false },
+      { f:"∃x(SinhViên(x) ∨ ¬Đậu(x))", correct:false },
+      { f:"∃x(SinhViên(x) ∧ ¬Đậu(x))", correct:true  },
+      { f:"¬∃x(SinhViên(x) ∧ Đậu(x))", correct:false },
+    ],
+    explain: "¬∀x(P→Q) ≡ ∃x¬(P→Q) ≡ ∃x(P∧¬Q). Vậy ∃x(SinhViên(x)∧¬Đậu(x)) = \"Có sinh viên không đậu\". Lỗi phổ biến: đổi thành ∀x(SV→¬Đậu) — đó là câu khác, không phải phủ định."
+  },
+  {
+    q: "\"Mọi động vật có lông đều không sống dưới nước.\"",
+    vietNote: "Dùng mẫu: Mọi A đều không B",
+    opts: [
+      { f:"∀x(CóLông(x) ∧ ¬SốngDướiNước(x))", correct:false },
+      { f:"∃x(CóLông(x) → ¬SốngDướiNước(x))", correct:false },
+      { f:"∃x(CóLông(x) ∧ ¬SốngDướiNước(x))", correct:false },
+      { f:"∀x(CóLông(x) → ¬SốngDướiNước(x))", correct:true  },
+    ],
+    explain: "\"Mọi A đều không B\" → ∀x(A(x)→¬B(x)). Đây là dạng ∀ + →¬, tương đương ¬∃x(A(x)∧B(x))."
+  },
+];
+
+// ================================================================
+// STATE
+// ================================================================
+let currentDomain = 0;
+let quizAnswers = new Array(QUIZ_DATA.length).fill(null);
+let quizChecked = false;
+
+// ================================================================
+// 1. WORLD
+// ================================================================
+function setDomain(d) {
+  currentDomain = d;
+  [0,1,2].forEach(i => {
+    document.getElementById('dBtn'+i).classList.toggle('active', i===d);
+  });
+  renderWorld();
+  renderFormulaSelect();
+  document.getElementById('evalResult').className = 'result-box neutral';
+  document.getElementById('evalResult').textContent = 'Chọn công thức để xem kết quả đánh giá.';
+  document.getElementById('formulaDisplay').textContent = '—';
+  document.getElementById('evalExplain').textContent = '';
+}
+
+function renderWorld() {
+  const dom = DOMAINS[currentDomain];
+  const grid = document.getElementById('worldGrid');
+  grid.innerHTML = '';
+  dom.items.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'obj neutral';
+    el.id = 'obj-' + item.id;
+    const propLines = Object.entries(item.props)
+      .filter(([,v]) => v)
+      .map(([k]) => k)
+      .join(', ');
+    el.innerHTML = `<div class="icon">${item.icon || item.name}</div>
+      <div class="name">${item.name}</div>
+      <div class="props">${propLines || '—'}</div>`;
+    grid.appendChild(el);
+  });
+}
+
+function renderFormulaSelect() {
+  const sel = document.getElementById('formulaSel');
+  sel.innerHTML = '';
+  const dom = DOMAINS[currentDomain];
+  dom.formulas.forEach((f, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = f.label;
+    sel.appendChild(opt);
+  });
+}
+
+function evaluateFormula() {
+  const dom = DOMAINS[currentDomain];
+  const idx = +document.getElementById('formulaSel').value;
+  const formula = dom.formulas[idx];
+  if (!formula) return;
+
+  document.getElementById('formulaDisplay').textContent = formula.label;
+
+  const items = dom.items;
+  let resultVal;
+  const satisfied = [];
+  const unsatisfied = [];
+
+  if (formula.quant === 'forall') {
+    resultVal = true;
+    items.forEach(item => {
+      if (formula.pred(item.props)) {
+        satisfied.push(item);
+      } else {
+        unsatisfied.push(item);
+        resultVal = false;
+      }
+    });
+  } else {
+    resultVal = false;
+    items.forEach(item => {
+      if (formula.pred(item.props)) {
+        satisfied.push(item);
+        resultVal = true;
+      } else {
+        unsatisfied.push(item);
+      }
+    });
+  }
+
+  // color objects
+  items.forEach(item => {
+    const el = document.getElementById('obj-' + item.id);
+    const sat = satisfied.find(s => s.id === item.id);
+    const unsat = unsatisfied.find(s => s.id === item.id);
+    if (formula.quant === 'forall') {
+      // green = satisfies P(x); red = counterexample
+      el.className = sat ? 'obj sat' : 'obj unsat';
+    } else {
+      // green = witness; neutral = not a witness (not necessarily bad for ∃)
+      el.className = sat ? 'obj sat' : 'obj neutral';
+    }
+  });
+
+  const resBox = document.getElementById('evalResult');
+  resBox.className = 'result-box ' + (resultVal ? 'true' : 'false');
+
+  let explanation = '';
+  if (formula.quant === 'forall') {
+    if (resultVal) {
+      explanation = `✓ ĐÚNG — P(x) thỏa mãn cho tất cả ${items.length} phần tử trong miền (tất cả tô xanh).`;
+    } else {
+      const counter = unsatisfied.map(u => u.name).join(', ');
+      explanation = `✗ SAI — Phản ví dụ (counterexample): ${counter}. ∀ chỉ cần MỘT phần tử không thỏa là toàn bộ câu sai.`;
+    }
+  } else {
+    if (resultVal) {
+      const witness = satisfied.map(s => s.name).join(', ');
+      explanation = `✓ ĐÚNG — Nhân chứng (witness): ${witness}. ∃ chỉ cần MỘT phần tử thỏa là câu đúng.`;
+    } else {
+      explanation = `✗ SAI — Không có phần tử nào thỏa P(x) trong toàn bộ miền ${items.length} phần tử.`;
+    }
+  }
+
+  resBox.textContent = (resultVal ? '✓ ĐÚNG' : '✗ SAI') + ' — ' + formula.desc;
+  document.getElementById('evalExplain').textContent = explanation;
+}
+
+// ================================================================
+// 2. NEGATION
+// ================================================================
+function showNegation() {
+  const idx = +document.getElementById('negSel').value;
+  const d = NEG_DATA[idx];
+
+  document.getElementById('negOriginFormula').textContent = d.origin;
+  document.getElementById('negOriginMeaning').textContent = '"' + d.origVN + '"';
+  document.getElementById('negResultFormula').textContent = d.negated;
+  document.getElementById('negResultMeaning').textContent = '"' + d.negVN + '"';
+
+  const stepList = document.getElementById('negSteps');
+  stepList.innerHTML = '';
+  d.steps.forEach((s, i) => {
+    const li = document.createElement('li');
+    if (i === d.steps.length - 1) li.className = 'key';
+    li.textContent = s;
+    stepList.appendChild(li);
+  });
+}
+
+// ================================================================
+// 3. QUIZ
+// ================================================================
+function renderQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+  quizChecked = false;
+  quizAnswers = new Array(QUIZ_DATA.length).fill(null);
+  document.getElementById('quizScore').style.display = 'none';
+
+  QUIZ_DATA.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'quiz-card';
+    card.id = 'qcard-' + qi;
+
+    const qText = document.createElement('div');
+    qText.className = 'q-text';
+    qText.textContent = (qi+1) + '. ' + q.q;
+    card.appendChild(qText);
+
+    const note = document.createElement('p');
+    note.className = 'hint';
+    note.textContent = 'Gợi ý: ' + q.vietNote;
+    card.appendChild(note);
+
+    const opts = document.createElement('div');
+    opts.className = 'quiz-opts';
+
+    q.opts.forEach((opt, oi) => {
+      const label = document.createElement('label');
+      label.className = 'quiz-opt';
+      label.id = 'qopt-' + qi + '-' + oi;
+
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'q' + qi;
+      radio.value = oi;
+      radio.addEventListener('change', () => {
+        quizAnswers[qi] = oi;
+      });
+
+      const span = document.createElement('span');
+      span.textContent = opt.f;
+
+      label.appendChild(radio);
+      label.appendChild(span);
+      opts.appendChild(label);
+    });
+
+    card.appendChild(opts);
+
+    const feedback = document.createElement('div');
+    feedback.className = 'quiz-feedback';
+    feedback.id = 'qfb-' + qi;
+    card.appendChild(feedback);
+
+    container.appendChild(card);
+  });
+}
+
+function checkQuiz() {
+  let correct = 0;
+  QUIZ_DATA.forEach((q, qi) => {
+    const answered = quizAnswers[qi];
+    const fb = document.getElementById('qfb-' + qi);
+    const correctIdx = q.opts.findIndex(o => o.correct);
+
+    q.opts.forEach((opt, oi) => {
+      const lbl = document.getElementById('qopt-' + qi + '-' + oi);
+      lbl.classList.remove('correct', 'wrong', 'reveal-correct');
+      if (answered === oi) {
+        if (opt.correct) {
+          lbl.classList.add('correct');
+        } else {
+          lbl.classList.add('wrong');
+        }
+      } else if (oi === correctIdx && answered !== null && !q.opts[answered].correct) {
+        lbl.classList.add('reveal-correct');
+      }
+    });
+
+    if (answered !== null) {
+      fb.className = 'quiz-feedback show ' + (q.opts[answered].correct ? 'ok' : 'bad');
+      fb.textContent = (q.opts[answered].correct ? '✓ Đúng! ' : '✗ Sai. ') + q.explain;
+      if (q.opts[answered].correct) correct++;
+    } else {
+      fb.className = 'quiz-feedback show bad';
+      fb.textContent = '⚠ Chưa chọn. ' + q.explain;
+    }
+  });
+
+  quizChecked = true;
+  const score = document.getElementById('quizScore');
+  score.style.display = 'block';
+  const pct = Math.round(correct / QUIZ_DATA.length * 100);
+  let msg = '';
+  if (pct === 100) msg = '🏆 Xuất sắc! Bạn nắm vững logic vị từ.';
+  else if (pct >= 67) msg = '👍 Khá tốt! Xem lại các câu sai để củng cố.';
+  else msg = '📖 Cần ôn thêm — đọc lại mục quy tắc ∀ vs ∃.';
+  score.textContent = `Kết quả: ${correct}/${QUIZ_DATA.length} (${pct}%) — ${msg}`;
+}
+
+function resetQuiz() {
+  renderQuiz();
+}
+
+// ================================================================
+// INIT
+// ================================================================
+setDomain(0);
+evaluateFormula();
+showNegation();
+renderQuiz();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

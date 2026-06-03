@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Tương đương &amp; luật logic</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-soft: #f0eeec;
+    --accent-hover: #44403c;
+    --accent-dark: #292524;
+  }
+
+  h1 { color: var(--accent-dark); }
+  h2 { color: var(--accent-dark); margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #d6d3d1; }
+  h3 { color: #44403c; margin-top: 24px; }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 22px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+    border: 1px solid #e7e5e4;
+  }
+
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+
+  label { font-weight: 600; color: #44403c; }
+
+  input[type="text"] {
+    padding: 8px 12px;
+    border: 1.5px solid #d6d3d1;
+    border-radius: 7px;
+    font-size: 15px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    width: 100%;
+    max-width: 280px;
+    box-sizing: border-box;
+    color: #1c1917;
+    background: #fafaf9;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus { outline: none; border-color: var(--accent); background: #fff; }
+
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1.5px solid #d6d3d1;
+  }
+  button.ghost:hover { background: #e7e5e4; }
+  button.active-btn {
+    background: #44403c;
+    color: #fff;
+  }
+
+  .hint { font-size: 13px; color: #78716c; margin: 6px 0 2px; line-height: 1.5; }
+
+  .val { font-family: monospace; font-weight: 700; color: var(--accent); }
+
+  .result-box {
+    padding: 14px 16px;
+    background: var(--accent-soft);
+    border-radius: 8px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.8;
+    border-left: 4px solid var(--accent);
+  }
+  .result-box.success {
+    background: #f0fdf4;
+    border-left-color: #16a34a;
+    color: #14532d;
+  }
+  .result-box.fail {
+    background: #fef2f2;
+    border-left-color: #dc2626;
+    color: #7f1d1d;
+  }
+  .result-box .big {
+    font-size: 20px;
+    font-weight: 800;
+    font-family: monospace;
+  }
+
+  .error-box {
+    padding: 10px 14px;
+    background: #fef9c3;
+    border-left: 4px solid #ca8a04;
+    border-radius: 6px;
+    color: #78350f;
+    font-size: 13px;
+    margin-top: 8px;
+  }
+
+  /* Truth table */
+  .tt-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 12px; }
+  table.tt {
+    border-collapse: collapse;
+    font-size: 14px;
+    min-width: 320px;
+    font-family: monospace;
+  }
+  table.tt th {
+    background: var(--accent);
+    color: #fff;
+    padding: 7px 14px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  table.tt td {
+    padding: 6px 14px;
+    text-align: center;
+    border-bottom: 1px solid #e7e5e4;
+    white-space: nowrap;
+  }
+  table.tt tr:nth-child(even) td { background: #fafaf9; }
+  table.tt td.T { color: #16a34a; font-weight: 700; }
+  table.tt td.F { color: #dc2626; font-weight: 700; }
+  table.tt td.highlight { background: #fef9c3 !important; }
+  table.tt td.col-a { background: #f0f9ff !important; }
+  table.tt td.col-b { background: #f0fdf4 !important; }
+  table.tt th.col-a { background: #0369a1 !important; }
+  table.tt th.col-b { background: #15803d !important; }
+
+  /* De Morgan demo */
+  .dm-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  @media (max-width: 600px) {
+    .dm-grid { grid-template-columns: 1fr; }
+  }
+  .dm-card {
+    background: #fafaf9;
+    border-radius: 8px;
+    padding: 14px;
+    border: 1.5px solid #d6d3d1;
+  }
+  .dm-card h4 { margin: 0 0 10px; color: #44403c; font-size: 15px; }
+
+  .toggle-row {
+    display: flex;
+    gap: 8px;
+    margin: 8px 0;
+    flex-wrap: wrap;
+  }
+  .tog-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1.5px solid #d6d3d1;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: monospace;
+    transition: all 0.15s;
+    background: #fff;
+    color: #44403c;
+    min-width: 44px;
+    text-align: center;
+  }
+  .tog-btn.val-T { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+  .tog-btn.val-F { background: #fee2e2; border-color: #dc2626; color: #991b1b; }
+
+  .formula-display {
+    font-family: monospace;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 10px 14px;
+    background: #fff;
+    border-radius: 7px;
+    border: 1.5px solid #e7e5e4;
+    margin: 8px 0;
+    color: #1c1917;
+  }
+  .formula-display .sub-T { color: #16a34a; }
+  .formula-display .sub-F { color: #dc2626; }
+  .formula-display .sub-neutral { color: #44403c; }
+
+  .eq-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 15px;
+    margin: 8px 4px 0;
+  }
+  .eq-badge.yes { background: #dcfce7; color: #14532d; }
+  .eq-badge.no { background: #fee2e2; color: #991b1b; }
+
+  /* Variants table */
+  .var-grid {
+    display: grid;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .var-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1.5px solid #e7e5e4;
+    background: #fff;
+    flex-wrap: wrap;
+  }
+  .var-row.is-equiv {
+    border-color: #16a34a;
+    background: #f0fdf4;
+  }
+  .var-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #78716c;
+    min-width: 120px;
+  }
+  .var-formula {
+    font-family: monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1c1917;
+    flex: 1;
+  }
+  .var-badge {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 700;
+  }
+  .var-badge.equiv { background: #dcfce7; color: #14532d; }
+  .var-badge.not-equiv { background: #fee2e2; color: #991b1b; }
+
+  .section-title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #78716c;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 180px;
+    max-width: 300px;
+  }
+
+  kbd {
+    background: #f5f5f4;
+    border: 1px solid #d6d3d1;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 12px;
+    font-family: monospace;
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Formal Logic</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-truth-tables/visualization.html">← L2: Bảng chân lý</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Tương đương &amp; luật logic</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-validity-inference/visualization.html">L4: Tính hợp lệ →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Tương đương &amp; luật logic</h1>
+<p>Ba công cụ tương tác: kiểm tra tương đương hai công thức bất kỳ, demo De Morgan theo từng giá trị, và phân tích đảo/phản/phản đảo của điều kiện.</p>
+<p class="hint">Cú pháp: <kbd>!</kbd> hoặc <kbd>~</kbd> = ¬ &nbsp;·&nbsp; <kbd>&amp;</kbd> hoặc <kbd>^</kbd> = ∧ &nbsp;·&nbsp; <kbd>|</kbd> hoặc <kbd>v</kbd> = ∨ &nbsp;·&nbsp; <kbd>-&gt;</kbd> = → &nbsp;·&nbsp; <kbd>&lt;-&gt;</kbd> = ↔ &nbsp;·&nbsp; Biến: <kbd>p</kbd>, <kbd>q</kbd>, <kbd>r</kbd>, <kbd>s</kbd></p>
+
+<!-- ===== MODULE 1: Equivalence checker ===== -->
+<h2>1. Máy kiểm tra tương đương</h2>
+<div class="card">
+  <p>Nhập hai công thức logic. Máy sẽ sinh bảng chân lý và so sánh từng dòng, kết luận hai công thức có tương đương (≡) hay không.</p>
+  <div class="row">
+    <div class="input-group">
+      <label for="fA">Công thức A:</label>
+      <input type="text" id="fA" value="!(p & q)" placeholder="vd: !(p & q)">
+    </div>
+    <div class="input-group">
+      <label for="fB">Công thức B:</label>
+      <input type="text" id="fB" value="!p | !q" placeholder="vd: !p | !q">
+    </div>
+    <button id="btnCheck" style="align-self:flex-end">Kiểm tra ≡</button>
+  </div>
+  <p class="hint">Thử sẵn: De Morgan (<code>!(p &amp; q)</code> vs <code>!p | !q</code>). Hoặc: <code>p -&gt; q</code> vs <code>!p | q</code>. Hoặc: <code>p -&gt; q</code> vs <code>q -&gt; p</code> (đảo — không tương đương).</p>
+  <div id="eqResult"></div>
+</div>
+
+<!-- ===== MODULE 2: De Morgan Demo ===== -->
+<h2>2. Demo De Morgan — bật/tắt từng giá trị</h2>
+<div class="card">
+  <p>Nhấn vào các nút <strong>p</strong> và <strong>q</strong> để bật/tắt giá trị T/F. Hai cột kết quả của hai vế De Morgan luôn khớp nhau.</p>
+  <div class="toggle-row">
+    <button class="tog-btn val-T" id="togP" onclick="toggleVar('p')">p = T</button>
+    <button class="tog-btn val-T" id="togQ" onclick="toggleVar('q')">q = T</button>
+  </div>
+
+  <div class="dm-grid">
+    <div class="dm-card">
+      <h4>De Morgan 1: ¬(p ∧ q) ≡ ¬p ∨ ¬q</h4>
+      <div class="formula-display" id="dm1Left"></div>
+      <div style="text-align:center; font-size:20px; color:#78716c; margin:4px 0">≡</div>
+      <div class="formula-display" id="dm1Right"></div>
+      <div id="dm1Badge"></div>
+    </div>
+    <div class="dm-card">
+      <h4>De Morgan 2: ¬(p ∨ q) ≡ ¬p ∧ ¬q</h4>
+      <div class="formula-display" id="dm2Left"></div>
+      <div style="text-align:center; font-size:20px; color:#78716c; margin:4px 0">≡</div>
+      <div class="formula-display" id="dm2Right"></div>
+      <div id="dm2Badge"></div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:20px">Bảng chân lý đầy đủ — tất cả 4 dòng</h3>
+  <div class="tt-wrap">
+    <table class="tt" id="dmTable">
+      <thead>
+        <tr>
+          <th>p</th><th>q</th><th>¬p</th><th>¬q</th>
+          <th class="col-a">¬(p∧q)</th><th class="col-a">¬p∨¬q</th>
+          <th class="col-b">¬(p∨q)</th><th class="col-b">¬p∧¬q</th>
+        </tr>
+      </thead>
+      <tbody id="dmBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== MODULE 3: Converse/Inverse/Contrapositive ===== -->
+<h2>3. Đảo — Phản — Phản đảo của điều kiện</h2>
+<div class="card">
+  <p>Nhập hai vế p và q của điều kiện p → q. Công cụ hiển thị ba biến thể và bảng chân lý so sánh tất cả, làm rõ cái nào tương đương gốc.</p>
+  <div class="row">
+    <div class="input-group">
+      <label for="vP">Vế p (tiền đề):</label>
+      <input type="text" id="vP" value="p" placeholder="vd: p">
+    </div>
+    <div class="input-group">
+      <label for="vQ">Vế q (kết luận):</label>
+      <input type="text" id="vQ" value="q" placeholder="vd: q">
+    </div>
+    <button id="btnVariants" style="align-self:flex-end">Phân tích</button>
+  </div>
+  <p class="hint">Thử: p = <code>p</code>, q = <code>q</code> (tổng quát). Hoặc p = <code>p</code>, q = <code>p | q</code> để xem ví dụ cụ thể hơn.</p>
+  <div id="variantResult"></div>
+</div>
+
+<script>
+'use strict';
+
+// ============================================================
+// PARSER & EVALUATOR
+// ============================================================
+// Tokenizer: normalize input then tokenize
+function tokenize(expr) {
+  // normalize: -> stays, <-> stays, ! ~ -> !, & ^ -> &, | v -> |
+  let s = expr.trim()
+    .replace(/<->/g, ' BICOND ')
+    .replace(/->/g, ' IMPL ')
+    .replace(/[~!]/g, ' NOT ')
+    .replace(/\^/g, ' AND ')
+    .replace(/&/g, ' AND ')
+    .replace(/\bv\b/gi, ' OR ')   // standalone 'v'
+    .replace(/[|]/g, ' OR ')
+    .replace(/\(/g, ' ( ')
+    .replace(/\)/g, ' ) ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const tokens = [];
+  for (const t of s.split(' ')) {
+    if (t === '') continue;
+    const u = t.toUpperCase();
+    if (['NOT','AND','OR','IMPL','BICOND','(',')'].includes(u)) {
+      tokens.push(u);
+    } else if (/^[a-z]$/i.test(t)) {
+      tokens.push(t.toLowerCase()); // variable
+    } else if (t === '1' || t.toUpperCase() === 'T') {
+      tokens.push('TRUE');
+    } else if (t === '0' || t.toUpperCase() === 'F') {
+      tokens.push('FALSE');
+    } else {
+      throw new Error('Ký hiệu không nhận dạng được: "' + t + '"');
+    }
+  }
+  return tokens;
+}
+
+// Recursive descent parser
+// Grammar:
+//   expr   := bicond
+//   bicond := impl (BICOND impl)*
+//   impl   := or (IMPL impl)?          <- right associative
+//   or     := and (OR and)*
+//   and    := not (AND not)*
+//   not    := NOT not | atom
+//   atom   := var | TRUE | FALSE | '(' expr ')'
+
+class Parser {
+  constructor(tokens) {
+    this.tokens = tokens;
+    this.pos = 0;
+  }
+  peek() { return this.tokens[this.pos]; }
+  consume() { return this.tokens[this.pos++]; }
+  expect(t) {
+    const got = this.consume();
+    if (got !== t) throw new Error('Mong đợi "' + t + '", nhận được "' + got + '"');
+    return got;
+  }
+  parse() {
+    const node = this.parseBicond();
+    if (this.pos < this.tokens.length) throw new Error('Ký hiệu thừa: "' + this.peek() + '"');
+    return node;
+  }
+  parseBicond() {
+    let left = this.parseImpl();
+    while (this.peek() === 'BICOND') {
+      this.consume();
+      const right = this.parseImpl();
+      left = { op: 'BICOND', left, right };
+    }
+    return left;
+  }
+  parseImpl() {
+    const left = this.parseOr();
+    if (this.peek() === 'IMPL') {
+      this.consume();
+      const right = this.parseImpl(); // right assoc
+      return { op: 'IMPL', left, right };
+    }
+    return left;
+  }
+  parseOr() {
+    let left = this.parseAnd();
+    while (this.peek() === 'OR') {
+      this.consume();
+      const right = this.parseAnd();
+      left = { op: 'OR', left, right };
+    }
+    return left;
+  }
+  parseAnd() {
+    let left = this.parseNot();
+    while (this.peek() === 'AND') {
+      this.consume();
+      const right = this.parseNot();
+      left = { op: 'AND', left, right };
+    }
+    return left;
+  }
+  parseNot() {
+    if (this.peek() === 'NOT') {
+      this.consume();
+      const operand = this.parseNot();
+      return { op: 'NOT', operand };
+    }
+    return this.parseAtom();
+  }
+  parseAtom() {
+    const t = this.peek();
+    if (t === undefined) throw new Error('Công thức chưa hoàn chỉnh — thiếu token');
+    if (t === '(') {
+      this.consume();
+      const inner = this.parseBicond();
+      this.expect(')');
+      return inner;
+    }
+    if (t === 'TRUE') { this.consume(); return { op: 'CONST', val: true }; }
+    if (t === 'FALSE') { this.consume(); return { op: 'CONST', val: false }; }
+    if (/^[a-z]$/.test(t)) { this.consume(); return { op: 'VAR', name: t }; }
+    throw new Error('Token không hợp lệ: "' + t + '"');
+  }
+}
+
+function parseFormula(expr) {
+  const tokens = tokenize(expr);
+  const parser = new Parser(tokens);
+  return parser.parse();
+}
+
+function evalNode(node, env) {
+  switch (node.op) {
+    case 'CONST': return node.val;
+    case 'VAR':
+      if (!(node.name in env)) throw new Error('Biến "' + node.name + '" chưa được khai báo');
+      return env[node.name];
+    case 'NOT': return !evalNode(node.operand, env);
+    case 'AND': return evalNode(node.left, env) && evalNode(node.right, env);
+    case 'OR':  return evalNode(node.left, env) || evalNode(node.right, env);
+    case 'IMPL': return !evalNode(node.left, env) || evalNode(node.right, env);
+    case 'BICOND': {
+      const l = evalNode(node.left, env);
+      const r = evalNode(node.right, env);
+      return l === r;
+    }
+    default: throw new Error('Toán tử không biết: ' + node.op);
+  }
+}
+
+function collectVars(node, vars = new Set()) {
+  if (node.op === 'VAR') vars.add(node.name);
+  if (node.operand) collectVars(node.operand, vars);
+  if (node.left) collectVars(node.left, vars);
+  if (node.right) collectVars(node.right, vars);
+  return vars;
+}
+
+function genRows(varList) {
+  const n = varList.length;
+  const rows = [];
+  for (let i = 0; i < (1 << n); i++) {
+    const env = {};
+    for (let j = 0; j < n; j++) {
+      env[varList[j]] = !!(i & (1 << (n - 1 - j)));
+    }
+    rows.push(env);
+  }
+  return rows;
+}
+
+// ============================================================
+// Helpers
+// ============================================================
+function boolStr(v) { return v ? 'T' : 'F'; }
+
+function tdBool(v, extra = '') {
+  return '<td class="' + (v ? 'T' : 'F') + extra + '">' + boolStr(v) + '</td>';
+}
+
+function safeParseEval(exprStr, env) {
+  const node = parseFormula(exprStr);
+  return evalNode(node, env);
+}
+
+// ============================================================
+// MODULE 1: Equivalence Checker
+// ============================================================
+function checkEquivalence() {
+  const exprA = document.getElementById('fA').value.trim();
+  const exprB = document.getElementById('fB').value.trim();
+  const out = document.getElementById('eqResult');
+
+  if (!exprA || !exprB) {
+    out.innerHTML = '<div class="error-box">Vui lòng nhập cả hai công thức.</div>';
+    return;
+  }
+
+  let nodeA, nodeB;
+  try { nodeA = parseFormula(exprA); } catch(e) {
+    out.innerHTML = '<div class="error-box">Lỗi cú pháp công thức A: ' + e.message + '</div>'; return;
+  }
+  try { nodeB = parseFormula(exprB); } catch(e) {
+    out.innerHTML = '<div class="error-box">Lỗi cú pháp công thức B: ' + e.message + '</div>'; return;
+  }
+
+  const varsA = collectVars(nodeA);
+  const varsB = collectVars(nodeB);
+  const allVars = [...new Set([...varsA, ...varsB])].sort();
+
+  if (allVars.length > 4) {
+    out.innerHTML = '<div class="error-box">Tối đa 4 biến (p, q, r, s). Công thức hiện có ' + allVars.length + ' biến.</div>';
+    return;
+  }
+
+  const rows = genRows(allVars);
+  const valsA = rows.map(env => evalNode(nodeA, env));
+  const valsB = rows.map(env => evalNode(nodeB, env));
+
+  const diffRows = [];
+  for (let i = 0; i < rows.length; i++) {
+    if (valsA[i] !== valsB[i]) diffRows.push(i);
+  }
+  const isEquiv = diffRows.length === 0;
+
+  // Build table
+  let tableHtml = '<div class="tt-wrap"><table class="tt"><thead><tr>';
+  for (const v of allVars) tableHtml += '<th>' + v + '</th>';
+  tableHtml += '<th class="col-a">A: ' + escHtml(exprA) + '</th>';
+  tableHtml += '<th class="col-b">B: ' + escHtml(exprB) + '</th>';
+  tableHtml += '<th>A ↔ B</th></tr></thead><tbody>';
+
+  for (let i = 0; i < rows.length; i++) {
+    const isHighlight = diffRows.includes(i);
+    tableHtml += '<tr>';
+    for (const v of allVars) tableHtml += tdBool(rows[i][v]);
+    tableHtml += tdBool(valsA[i], ' col-a' + (isHighlight ? ' highlight' : ''));
+    tableHtml += tdBool(valsB[i], ' col-b' + (isHighlight ? ' highlight' : ''));
+    const bicond = valsA[i] === valsB[i];
+    tableHtml += tdBool(bicond, isHighlight ? ' highlight' : '');
+    tableHtml += '</tr>';
+  }
+  tableHtml += '</tbody></table></div>';
+
+  let resultHtml;
+  if (isEquiv) {
+    resultHtml = '<div class="result-box success">'
+      + '<span class="big">✓ ' + escHtml(exprA) + ' ≡ ' + escHtml(exprB) + '</span><br>'
+      + 'Hai công thức <strong>tương đương logic</strong>: cột A và cột B giống hệt nhau ở tất cả '
+      + rows.length + ' dòng. A↔B là <strong>hằng đúng (tautology)</strong>.'
+      + '</div>';
+  } else {
+    resultHtml = '<div class="result-box fail">'
+      + '<span class="big">✗ ' + escHtml(exprA) + ' ≢ ' + escHtml(exprB) + '</span><br>'
+      + 'Hai công thức <strong>không tương đương</strong>: khác nhau ở '
+      + diffRows.length + ' dòng (được tô vàng trong bảng). '
+      + 'A↔B không phải hằng đúng.'
+      + '</div>';
+  }
+
+  out.innerHTML = resultHtml + tableHtml;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+document.getElementById('btnCheck').addEventListener('click', checkEquivalence);
+document.getElementById('fA').addEventListener('keydown', function(e){ if(e.key==='Enter') checkEquivalence(); });
+document.getElementById('fB').addEventListener('keydown', function(e){ if(e.key==='Enter') checkEquivalence(); });
+
+// Run on load
+checkEquivalence();
+
+// ============================================================
+// MODULE 2: De Morgan Demo
+// ============================================================
+const dmVars = { p: true, q: true };
+
+function toggleVar(v) {
+  dmVars[v] = !dmVars[v];
+  updateDM();
+}
+
+function fmtVal(v) {
+  return '<span class="' + (v ? 'sub-T' : 'sub-F') + '">' + boolStr(v) + '</span>';
+}
+
+function updateDM() {
+  const p = dmVars.p, q = dmVars.q;
+  const np = !p, nq = !q;
+  const pandq = p && q;
+  const porq = p || q;
+
+  // update toggle buttons
+  const togP = document.getElementById('togP');
+  const togQ = document.getElementById('togQ');
+  togP.textContent = 'p = ' + boolStr(p);
+  togP.className = 'tog-btn ' + (p ? 'val-T' : 'val-F');
+  togQ.textContent = 'q = ' + boolStr(q);
+  togQ.className = 'tog-btn ' + (q ? 'val-T' : 'val-F');
+
+  // De Morgan 1: !(p & q) vs !p | !q
+  const dm1L = !pandq;
+  const dm1R = np || nq;
+  document.getElementById('dm1Left').innerHTML
+    = '¬(' + fmtVal(p) + ' ∧ ' + fmtVal(q) + ') = ¬' + fmtVal(pandq) + ' = ' + fmtVal(dm1L);
+  document.getElementById('dm1Right').innerHTML
+    = fmtVal(np) + ' ∨ ' + fmtVal(nq) + ' = ' + fmtVal(dm1R);
+  document.getElementById('dm1Badge').innerHTML
+    = '<span class="eq-badge ' + (dm1L===dm1R?'yes':'no') + '">'
+    + (dm1L===dm1R ? '✓ Bằng nhau (' + boolStr(dm1L) + ')' : '✗ Khác nhau') + '</span>';
+
+  // De Morgan 2: !(p | q) vs !p & !q
+  const dm2L = !porq;
+  const dm2R = np && nq;
+  document.getElementById('dm2Left').innerHTML
+    = '¬(' + fmtVal(p) + ' ∨ ' + fmtVal(q) + ') = ¬' + fmtVal(porq) + ' = ' + fmtVal(dm2L);
+  document.getElementById('dm2Right').innerHTML
+    = fmtVal(np) + ' ∧ ' + fmtVal(nq) + ' = ' + fmtVal(dm2R);
+  document.getElementById('dm2Badge').innerHTML
+    = '<span class="eq-badge ' + (dm2L===dm2R?'yes':'no') + '">'
+    + (dm2L===dm2R ? '✓ Bằng nhau (' + boolStr(dm2L) + ')' : '✗ Khác nhau') + '</span>';
+
+  // Full table
+  const allPairs = [[true,true],[true,false],[false,true],[false,false]];
+  let bodyHtml = '';
+  for (const [rp, rq] of allPairs) {
+    const rnp = !rp, rnq = !rq;
+    const rPaQ = rp && rq, rPoQ = rp || rq;
+    const r1L = !rPaQ, r1R = rnp || rnq;
+    const r2L = !rPoQ, r2R = rnp && rnq;
+    const isActive = (rp === p && rq === q);
+    const rowClass = isActive ? ' style="outline:2px solid #57534e; outline-offset:-1px;"' : '';
+    bodyHtml += '<tr' + rowClass + '>';
+    bodyHtml += tdBool(rp) + tdBool(rq) + tdBool(rnp) + tdBool(rnq);
+    bodyHtml += tdBool(r1L, ' col-a') + tdBool(r1R, ' col-a');
+    bodyHtml += tdBool(r2L, ' col-b') + tdBool(r2R, ' col-b');
+    bodyHtml += '</tr>';
+  }
+  document.getElementById('dmBody').innerHTML = bodyHtml;
+}
+
+updateDM();
+
+// ============================================================
+// MODULE 3: Converse/Inverse/Contrapositive
+// ============================================================
+function analyzeVariants() {
+  const pExpr = document.getElementById('vP').value.trim();
+  const qExpr = document.getElementById('vQ').value.trim();
+  const out = document.getElementById('variantResult');
+
+  if (!pExpr || !qExpr) {
+    out.innerHTML = '<div class="error-box">Vui lòng nhập cả p và q.</div>';
+    return;
+  }
+
+  let nodeP, nodeQ;
+  try { nodeP = parseFormula(pExpr); } catch(e) {
+    out.innerHTML = '<div class="error-box">Lỗi cú pháp vế p: ' + e.message + '</div>'; return;
+  }
+  try { nodeQ = parseFormula(qExpr); } catch(e) {
+    out.innerHTML = '<div class="error-box">Lỗi cú pháp vế q: ' + e.message + '</div>'; return;
+  }
+
+  const allVars = [...new Set([...collectVars(nodeP), ...collectVars(nodeQ)])].sort();
+  if (allVars.length > 3) {
+    out.innerHTML = '<div class="error-box">Tối đa 3 biến trong công cụ này.</div>'; return;
+  }
+  if (allVars.length === 0) {
+    out.innerHTML = '<div class="error-box">Công thức cần có ít nhất một biến (p, q, r).</div>'; return;
+  }
+
+  const rows = genRows(allVars);
+
+  // Compute all 4 variants for each row
+  // original: p -> q
+  // converse: q -> p
+  // inverse:  !p -> !q
+  // contrapositive: !q -> !p
+  const vOrig = rows.map(env => {
+    const vp = evalNode(nodeP, env), vq = evalNode(nodeQ, env);
+    return { p: vp, q: vq, orig: !vp || vq, conv: !vq || vp, inv: vp || !vq, contra: vq || !vp };
+    // orig: p->q = !p|q
+    // conv: q->p = !q|p
+    // inv: !p->!q = p|!q  (double check: !(!p)|(!q) = p|!q)
+    // contra: !q->!p = q|!p
+  });
+
+  // Check equivalences with orig
+  const origVals = vOrig.map(r => r.orig);
+  const convVals = vOrig.map(r => r.conv);
+  const invVals  = vOrig.map(r => r.inv);
+  const contraVals = vOrig.map(r => r.contra);
+
+  const convEquiv  = origVals.every((v, i) => v === convVals[i]);
+  const invEquiv   = origVals.every((v, i) => v === invVals[i]);
+  const contraEquiv = origVals.every((v, i) => v === contraVals[i]);
+  const convInvEquiv = convVals.every((v, i) => v === invVals[i]);
+
+  const pLabel = escHtml(pExpr);
+  const qLabel = escHtml(qExpr);
+
+  // Variants display
+  const variants = [
+    { name: 'Gốc (Original)', label: 'p → q', formula: pLabel + ' → ' + qLabel, equiv: true, vals: origVals },
+    { name: 'Đảo (Converse)', label: 'q → p', formula: qLabel + ' → ' + pLabel, equiv: convEquiv, vals: convVals },
+    { name: 'Phản (Inverse)', label: '¬p → ¬q', formula: '¬(' + pLabel + ') → ¬(' + qLabel + ')', equiv: invEquiv, vals: invVals },
+    { name: 'Phản đảo (Contrapositive)', label: '¬q → ¬p', formula: '¬(' + qLabel + ') → ¬(' + pLabel + ')', equiv: contraEquiv, vals: contraVals },
+  ];
+
+  let varHtml = '<div class="var-grid">';
+  for (const v of variants) {
+    varHtml += '<div class="var-row' + (v.equiv ? ' is-equiv' : '') + '">'
+      + '<span class="var-label">' + v.name + '</span>'
+      + '<span class="var-formula">' + v.formula + '</span>'
+      + '<span class="var-badge ' + (v.equiv ? 'equiv' : 'not-equiv') + '">'
+      + (v.equiv ? '≡ gốc ✓' : '≢ gốc') + '</span>'
+      + '</div>';
+  }
+  varHtml += '</div>';
+
+  // Summary
+  let sumHtml = '<div class="result-box" style="margin-top:12px">';
+  sumHtml += '<strong>Tóm tắt:</strong><br>';
+  sumHtml += '• Gốc ≡ Phản đảo: <strong>' + (contraEquiv ? 'Có ✓' : 'Không ✗') + '</strong><br>';
+  sumHtml += '• Đảo ≡ Phản: <strong>' + (convInvEquiv ? 'Có ✓' : 'Không ✗') + '</strong><br>';
+  if (!convEquiv && !invEquiv && contraEquiv && convInvEquiv) {
+    sumHtml += '→ Đây là trường hợp tổng quát: chỉ phản đảo ≡ gốc; đảo ≡ phản nhưng ≢ gốc.';
+  } else if (convEquiv && invEquiv && contraEquiv) {
+    sumHtml += '→ Trường hợp đặc biệt: tất cả bốn biến thể tương đương nhau (xảy ra khi p↔q).';
+  } else {
+    sumHtml += '→ Xem bảng bên dưới để biết chi tiết.';
+  }
+  sumHtml += '</div>';
+
+  // Table
+  let tableHtml = '<div class="tt-wrap"><table class="tt"><thead><tr>';
+  for (const v of allVars) tableHtml += '<th>' + v + '</th>';
+  tableHtml += '<th>p</th><th>q</th><th>Gốc p→q</th><th>Đảo q→p</th><th>Phản ¬p→¬q</th><th>Phản đảo ¬q→¬p</th>';
+  tableHtml += '</tr></thead><tbody>';
+
+  for (let i = 0; i < rows.length; i++) {
+    const env = rows[i];
+    const r = vOrig[i];
+    tableHtml += '<tr>';
+    for (const v of allVars) tableHtml += tdBool(env[v]);
+    tableHtml += tdBool(r.p) + tdBool(r.q);
+    tableHtml += tdBool(r.orig);
+    // Highlight diff cells
+    tableHtml += tdBool(r.conv, r.conv !== r.orig ? ' highlight' : '');
+    tableHtml += tdBool(r.inv, r.inv !== r.orig ? ' highlight' : '');
+    tableHtml += tdBool(r.contra, r.contra !== r.orig ? ' highlight' : '');
+    tableHtml += '</tr>';
+  }
+  tableHtml += '</tbody></table></div>';
+  tableHtml += '<p class="hint">Ô tô vàng = giá trị khác với gốc (p→q).</p>';
+
+  out.innerHTML = varHtml + sumHtml + tableHtml;
+}
+
+document.getElementById('btnVariants').addEventListener('click', analyzeVariants);
+document.getElementById('vP').addEventListener('keydown', function(e){ if(e.key==='Enter') analyzeVariants(); });
+document.getElementById('vQ').addEventListener('keydown', function(e){ if(e.key==='Enter') analyzeVariants(); });
+
+analyzeVariants();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

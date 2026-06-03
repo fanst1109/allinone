@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Liên từ &amp; bảng chân lý</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-hover: #44403c;
+    --accent-soft: #f0eeec;
+  }
+
+  h1 { color: #1c1917; }
+  h2 { color: #292524; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #d6d3d1; }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+  .hint { font-size: 13px; color: #78716c; margin: 6px 0 0; }
+
+  /* Buttons */
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost {
+    background: var(--accent-soft); color: var(--accent); border: 1px solid #d6d3d1;
+  }
+  button.ghost:hover { background: #e7e5e4; }
+  button.sym {
+    background: var(--accent-soft); color: var(--accent);
+    border: 1px solid #a8a29e; border-radius: 6px;
+    padding: 6px 11px; font-size: 16px; font-weight: 700;
+    cursor: pointer; font-family: 'Georgia', serif;
+    min-width: 40px; transition: background 0.12s;
+  }
+  button.sym:hover { background: #e7e5e4; }
+
+  /* Formula input area */
+  .formula-row {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px;
+  }
+  #formulaInput {
+    flex: 1; min-width: 200px; max-width: 100%;
+    padding: 10px 14px; font-size: 16px; font-family: 'Georgia', 'Times New Roman', serif;
+    border: 2px solid #d6d3d1; border-radius: 8px; outline: none;
+    transition: border-color 0.15s; box-sizing: border-box;
+  }
+  #formulaInput:focus { border-color: var(--accent); }
+  .sym-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .status-bar {
+    min-height: 24px; font-size: 13px; margin: 6px 0;
+    font-weight: 600;
+  }
+  .status-ok { color: #15803d; }
+  .status-err { color: #b91c1c; }
+  .status-taut { color: #1d4ed8; font-size: 14px; }
+  .status-cont { color: #b91c1c; font-size: 14px; }
+  .status-cont2 { color: #78716c; font-size: 14px; }
+
+  /* Truth table */
+  .tt-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 14px; }
+  table.tt {
+    border-collapse: collapse; font-family: 'Georgia', serif;
+    font-size: 15px; min-width: 200px;
+  }
+  table.tt th {
+    background: #292524; color: #fff;
+    padding: 8px 14px; text-align: center; font-weight: 600;
+    white-space: nowrap;
+  }
+  table.tt th.var { background: #44403c; }
+  table.tt th.main { background: #57534e; letter-spacing: 0.03em; }
+  table.tt td {
+    padding: 7px 14px; text-align: center; border-bottom: 1px solid #e7e5e4;
+    white-space: nowrap;
+  }
+  table.tt tr:nth-child(even) td { background: #fafaf9; }
+  table.tt td.val-T { color: #15803d; font-weight: 700; }
+  table.tt td.val-F { color: #b91c1c; font-weight: 700; }
+  table.tt td.main-T { color: #15803d; font-weight: 800; background: #f0fdf4; }
+  table.tt td.main-F { color: #b91c1c; font-weight: 800; background: #fef2f2; }
+
+  /* 5 connectives section */
+  .conn-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px; margin-top: 16px;
+  }
+  .conn-card {
+    border: 1px solid #d6d3d1; border-radius: 10px; padding: 16px 18px;
+    cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s;
+    background: #fff;
+  }
+  .conn-card:hover, .conn-card.active {
+    border-color: var(--accent); box-shadow: 0 0 0 2px #d6d3d1;
+  }
+  .conn-card.active { background: var(--accent-soft); }
+  .conn-sym { font-size: 26px; font-family: 'Georgia', serif; font-weight: 700; color: var(--accent); }
+  .conn-name { font-weight: 700; font-size: 15px; color: #1c1917; margin: 4px 0 2px; }
+  .conn-rule { font-size: 13px; color: #57534e; margin-bottom: 10px; }
+  .mini-tt { font-size: 13px; font-family: monospace; }
+  .mini-tt table { border-collapse: collapse; }
+  .mini-tt td, .mini-tt th { padding: 3px 8px; border: 1px solid #e7e5e4; text-align: center; }
+  .mini-tt th { background: #44403c; color: #fff; font-size: 12px; }
+  .tv-T { color: #15803d; font-weight: 700; }
+  .tv-F { color: #b91c1c; font-weight: 700; }
+
+  /* Examples */
+  .eg-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .eg-btn {
+    background: #fafaf9; border: 1px solid #d6d3d1; border-radius: 20px;
+    padding: 6px 14px; font-size: 13px; font-family: 'Georgia', serif;
+    cursor: pointer; transition: background 0.12s;
+    white-space: nowrap;
+  }
+  .eg-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+  /* Priority table */
+  .priority-table { font-size: 14px; }
+  .priority-table td, .priority-table th {
+    padding: 6px 12px; border: 1px solid #e7e5e4;
+  }
+  .priority-table th { background: #44403c; color: #fff; }
+
+  @media (max-width: 480px) {
+    .conn-grid { grid-template-columns: 1fr; }
+    #formulaInput { font-size: 15px; }
+    table.tt th, table.tt td { padding: 6px 9px; font-size: 13px; }
+    button.sym { padding: 5px 8px; font-size: 14px; min-width: 34px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Formal Logic</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-propositions/visualization.html">← L1: Mệnh đề &amp; chân lý</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Liên từ &amp; bảng chân lý</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-equivalence-laws/visualization.html">L3: Tương đương →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Liên từ &amp; bảng chân lý</h1>
+<p>Chân lý của mệnh đề phức phụ thuộc hoàn toàn vào chân lý các thành phần. Bài này cho bạn <strong>thử nghiệm trực tiếp</strong>: nhập công thức bất kỳ, máy sinh bảng chân lý đầy đủ ngay lập tức.</p>
+
+<!-- ===================== SECTION 1: 5 connectives ===================== -->
+<h2>1. Năm liên từ cơ bản — click để xem bảng</h2>
+<div class="card">
+  <p class="hint">Click vào mỗi liên từ để hiển thị bảng chân lý và quy tắc vắn tắt. Bảng dưới đây tự cập nhật.</p>
+  <div class="conn-grid" id="connGrid"></div>
+  <div class="tt-wrap" id="connDetail" style="margin-top:18px"></div>
+</div>
+
+<!-- ===================== SECTION 2: truth table builder ===================== -->
+<h2>2. Máy dựng bảng chân lý — nhập công thức của bạn</h2>
+<div class="card">
+  <div class="sym-row" id="symRow"></div>
+  <div class="formula-row">
+    <input type="text" id="formulaInput" placeholder="Ví dụ: (p → q) ∧ ¬r" spellcheck="false" autocomplete="off">
+    <button id="buildBtn">Dựng bảng</button>
+    <button class="ghost" id="clearBtn">Xóa</button>
+  </div>
+  <div class="status-bar" id="statusBar"></div>
+  <div class="tt-wrap" id="ttOutput"></div>
+  <p class="hint" style="margin-top:12px">Biến hỗ trợ: <code>p q r s</code> (dùng bất kỳ tổ hợp nào). Toán tử: <code>¬ ~ !</code> (NOT) · <code>∧ &amp; ^</code> (AND) · <code>∨ |</code> (OR) · <code>→ -&gt;</code> (THEN) · <code>↔ &lt;-&gt;</code> (IFF) · <code>( )</code> (ngoặc).</p>
+</div>
+
+<!-- ===================== SECTION 3: built-in examples ===================== -->
+<h2>3. Ví dụ dựng sẵn — bấm để nạp vào máy</h2>
+<div class="card">
+  <div class="eg-row" id="egRow"></div>
+  <p class="hint">Sau khi nạp ví dụ, bấm "Dựng bảng" hoặc đợi tự động. Quan sát cột cuối để nhận biết tautology / contradiction / contingency.</p>
+</div>
+
+<!-- ===================== SECTION 4: operator priority ===================== -->
+<h2>4. Thứ tự ưu tiên toán tử</h2>
+<div class="card">
+  <div style="overflow-x:auto">
+  <table class="priority-table">
+    <tr><th>Ưu tiên</th><th>Toán tử</th><th>Tên</th><th>Ví dụ đọc</th></tr>
+    <tr><td>1 (cao nhất)</td><td style="font-family:serif;font-size:16px">¬</td><td>Phủ định (NOT)</td><td><code>¬p ∧ q</code> = <code>(¬p) ∧ q</code></td></tr>
+    <tr><td>2</td><td style="font-family:serif;font-size:16px">∧</td><td>Hội (AND)</td><td><code>p ∧ q ∨ r</code> = <code>(p ∧ q) ∨ r</code></td></tr>
+    <tr><td>3</td><td style="font-family:serif;font-size:16px">∨</td><td>Tuyển (OR)</td><td><code>p ∨ q → r</code> = <code>(p ∨ q) → r</code></td></tr>
+    <tr><td>4</td><td style="font-family:serif;font-size:16px">→</td><td>Kéo theo (IF-THEN)</td><td><code>p → q ↔ r</code> = <code>(p → q) ↔ r</code></td></tr>
+    <tr><td>5 (thấp nhất)</td><td style="font-family:serif;font-size:16px">↔</td><td>Tương đương (IFF)</td><td><code>p ↔ q ↔ r</code> = trái sang phải</td></tr>
+  </table>
+  </div>
+  <p class="hint" style="margin-top:10px">Khi không chắc — luôn dùng ngoặc <code>()</code>. Ngoặc có ưu tiên cao nhất.</p>
+</div>
+
+<script>
+/* =========================================================
+   PARSER & EVALUATOR — Propositional Logic Formula
+   Supported: ¬ ~ !   ∧ & ^   ∨ |   → ->   ↔ <->   ( )
+   Variables: p q r s (any combination)
+   Precedence: ¬(5) > ∧(4) > ∨(3) > →(2) > ↔(1)
+   ========================================================= */
+
+// ---- Tokenizer ----
+function tokenize(src) {
+  // Normalize ASCII aliases to canonical symbols
+  let s = src
+    .replace(/<->/g, '↔')
+    .replace(/->/g, '→')
+    .replace(/[~!]/g, '¬')
+    .replace(/[&^]/g, '∧')
+    .replace(/\|/g, '∨');
+
+  const tokens = [];
+  let i = 0;
+  while (i < s.length) {
+    const ch = s[i];
+    if (ch === ' ' || ch === '\t' || ch === '\n') { i++; continue; }
+    if (ch === '¬' || ch === '∧' || ch === '∨' || ch === '→' || ch === '↔') {
+      tokens.push({ type: 'op', val: ch }); i++; continue;
+    }
+    if (ch === '(') { tokens.push({ type: 'lparen' }); i++; continue; }
+    if (ch === ')') { tokens.push({ type: 'rparen' }); i++; continue; }
+    if (/[pqrs]/.test(ch)) { tokens.push({ type: 'var', val: ch }); i++; continue; }
+    if (/[A-Za-z]/.test(ch)) {
+      // collect multi-char identifier that isn't p/q/r/s
+      let id = '';
+      while (i < s.length && /[A-Za-z0-9_]/.test(s[i])) { id += s[i]; i++; }
+      tokens.push({ type: 'unknown', val: id }); continue;
+    }
+    // Unknown single char
+    tokens.push({ type: 'unknown', val: ch }); i++;
+  }
+  return tokens;
+}
+
+// ---- Precedence ----
+const PREC = { '↔': 1, '→': 2, '∨': 3, '∧': 4 };
+
+/* ---- Recursive descent parser ----
+   Grammar (eliminating left-recursion, lowest precedence first):
+     expr  := iff
+     iff   := impl (↔ impl)*
+     impl  := disj (→ disj)*    [→ is right-assoc, but for truth tables assoc doesn't matter]
+     disj  := conj (∨ conj)*
+     conj  := neg  (∧ neg )*
+     neg   := ¬ neg | atom
+     atom  := var | ( expr )
+*/
+
+class Parser {
+  constructor(tokens) {
+    this.tokens = tokens;
+    this.pos = 0;
+  }
+  peek() { return this.tokens[this.pos] || { type: 'eof' }; }
+  consume() { return this.tokens[this.pos++]; }
+  expect(type) {
+    const t = this.peek();
+    if (t.type !== type) throw new Error(`Mong đợi ${type}, gặp ${t.type}(${t.val || ''})`);
+    return this.consume();
+  }
+
+  parseExpr() { return this.parseIff(); }
+
+  parseIff() {
+    let left = this.parseImpl();
+    while (this.peek().type === 'op' && this.peek().val === '↔') {
+      this.consume();
+      const right = this.parseImpl();
+      left = { type: 'binop', op: '↔', left, right };
+    }
+    return left;
+  }
+
+  parseImpl() {
+    let left = this.parseDisj();
+    // → is right-associative: parse right side recursively
+    if (this.peek().type === 'op' && this.peek().val === '→') {
+      this.consume();
+      const right = this.parseImpl();
+      return { type: 'binop', op: '→', left, right };
+    }
+    return left;
+  }
+
+  parseDisj() {
+    let left = this.parseConj();
+    while (this.peek().type === 'op' && this.peek().val === '∨') {
+      this.consume();
+      const right = this.parseConj();
+      left = { type: 'binop', op: '∨', left, right };
+    }
+    return left;
+  }
+
+  parseConj() {
+    let left = this.parseNeg();
+    while (this.peek().type === 'op' && this.peek().val === '∧') {
+      this.consume();
+      const right = this.parseNeg();
+      left = { type: 'binop', op: '∧', left, right };
+    }
+    return left;
+  }
+
+  parseNeg() {
+    if (this.peek().type === 'op' && this.peek().val === '¬') {
+      this.consume();
+      const operand = this.parseNeg();
+      return { type: 'unop', op: '¬', operand };
+    }
+    return this.parseAtom();
+  }
+
+  parseAtom() {
+    const t = this.peek();
+    if (t.type === 'var') {
+      this.consume();
+      return { type: 'var', val: t.val };
+    }
+    if (t.type === 'lparen') {
+      this.consume();
+      const inner = this.parseExpr();
+      this.expect('rparen');
+      return inner;
+    }
+    if (t.type === 'unknown') {
+      throw new Error(`Ký tự không hợp lệ: "${t.val}". Chỉ dùng biến p,q,r,s và toán tử ¬ ∧ ∨ → ↔.`);
+    }
+    if (t.type === 'eof') {
+      throw new Error('Công thức kết thúc bất ngờ — thiếu toán hạng.');
+    }
+    throw new Error(`Không mong đợi token: ${t.type}(${t.val || ''})`);
+  }
+}
+
+function parse(src) {
+  const tokens = tokenize(src.trim());
+  if (tokens.length === 0) throw new Error('Công thức rỗng.');
+  const parser = new Parser(tokens);
+  const ast = parser.parseExpr();
+  if (parser.pos < tokens.length) {
+    const rem = tokens.slice(parser.pos).map(t => t.val || t.type).join('');
+    throw new Error(`Công thức dư thừa sau khi phân tích: "${rem}"`);
+  }
+  return ast;
+}
+
+// ---- Evaluator ----
+function evaluate(ast, env) {
+  switch (ast.type) {
+    case 'var': return env[ast.val];
+    case 'unop':
+      return !evaluate(ast.operand, env);
+    case 'binop': {
+      const L = evaluate(ast.left, env);
+      const R = evaluate(ast.right, env);
+      switch (ast.op) {
+        case '∧': return L && R;
+        case '∨': return L || R;
+        case '→': return (!L) || R;
+        case '↔': return L === R;
+      }
+    }
+  }
+}
+
+// ---- Collect variables ----
+function collectVars(ast, set = new Set()) {
+  if (ast.type === 'var') { set.add(ast.val); return set; }
+  if (ast.type === 'unop') { collectVars(ast.operand, set); return set; }
+  if (ast.type === 'binop') { collectVars(ast.left, set); collectVars(ast.right, set); return set; }
+  return set;
+}
+
+// ---- Collect sub-expressions for column headers ----
+function collectSubExprs(ast, list = []) {
+  if (ast.type === 'var') return list;
+  if (ast.type === 'unop') {
+    collectSubExprs(ast.operand, list);
+    list.push(ast);
+    return list;
+  }
+  if (ast.type === 'binop') {
+    collectSubExprs(ast.left, list);
+    collectSubExprs(ast.right, list);
+    list.push(ast);
+    return list;
+  }
+  return list;
+}
+
+// ---- AST to display string ----
+function astToStr(ast) {
+  if (ast.type === 'var') return ast.val;
+  if (ast.type === 'unop') {
+    const inner = astToStr(ast.operand);
+    const needParen = ast.operand.type === 'binop';
+    return '¬' + (needParen ? '(' + inner + ')' : inner);
+  }
+  if (ast.type === 'binop') {
+    const L = astToStr(ast.left);
+    const R = astToStr(ast.right);
+    const lPrec = ast.left.type === 'binop' ? PREC[ast.left.op] : 99;
+    const rPrec = ast.right.type === 'binop' ? PREC[ast.right.op] : 99;
+    const myPrec = PREC[ast.op];
+    const lStr = lPrec < myPrec ? '(' + L + ')' : L;
+    const rStr = (rPrec < myPrec || (rPrec === myPrec && ast.op === '→')) ? '(' + R + ')' : R;
+    return lStr + ' ' + ast.op + ' ' + rStr;
+  }
+  return '?';
+}
+
+// ---- Build truth table ----
+function buildTruthTable(formula) {
+  const ast = parse(formula);
+  const varSet = collectVars(ast);
+  const vars = ['p','q','r','s'].filter(v => varSet.has(v));
+  const n = vars.length;
+  const rows = 1 << n; // 2^n
+
+  const subExprs = collectSubExprs(ast, []);
+  // Filter to show only meaningful intermediate nodes (not just single-var)
+  // Show all unop and binop sub-expressions, plus the root
+  const cols = subExprs; // already excludes pure vars
+
+  const data = [];
+  for (let i = 0; i < rows; i++) {
+    const env = {};
+    for (let v = 0; v < n; v++) {
+      env[vars[v]] = !((i >> (n - 1 - v)) & 1); // high bit = first var = T
+    }
+    const rowVals = vars.map(v => env[v]);
+    const subVals = cols.map(c => evaluate(c, env));
+    data.push({ env, rowVals, subVals });
+  }
+
+  const mainIdx = cols.length - 1; // last col = root = "main" connective
+  const mainVals = data.map(d => d.subVals[mainIdx]);
+  const allT = mainVals.every(v => v);
+  const allF = mainVals.every(v => !v);
+
+  return { vars, cols, data, allT, allF, mainIdx, ast };
+}
+
+// ---- Render table to HTML ----
+function renderTable(result) {
+  const { vars, cols, data, allT, allF, mainIdx } = result;
+  let html = '<table class="tt"><thead><tr>';
+  vars.forEach(v => {
+    html += `<th class="var">${v}</th>`;
+  });
+  cols.forEach((c, i) => {
+    const label = astToStr(c);
+    const cls = i === mainIdx ? 'main' : '';
+    html += `<th class="${cls}">${escHtml(label)}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+  data.forEach(row => {
+    html += '<tr>';
+    row.rowVals.forEach(v => {
+      html += `<td class="val-${v ? 'T' : 'F'}">${v ? 'T' : 'F'}</td>`;
+    });
+    row.subVals.forEach((v, i) => {
+      const isMain = i === mainIdx;
+      const cls = isMain ? (v ? 'main-T' : 'main-F') : (v ? 'val-T' : 'val-F');
+      html += `<td class="${cls}">${v ? 'T' : 'F'}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  return html;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ---- SECTION 1: Five connectives ----
+const CONNS = [
+  {
+    sym: '¬', nameVI: 'Phủ định (NOT)', en: 'Negation',
+    rule: '¬p = F khi p = T; ¬p = T khi p = F',
+    rows: [{p:'T',q:null,r:'F'},{p:'F',q:null,r:'T'}],
+    hdrs: ['p','¬p'],
+    formula: '¬p'
+  },
+  {
+    sym: '∧', nameVI: 'Hội (AND)', en: 'Conjunction',
+    rule: 'T chỉ khi CẢ HAI T',
+    rows: [{p:'T',q:'T',r:'T'},{p:'T',q:'F',r:'F'},{p:'F',q:'T',r:'F'},{p:'F',q:'F',r:'F'}],
+    hdrs: ['p','q','p ∧ q'],
+    formula: 'p ∧ q'
+  },
+  {
+    sym: '∨', nameVI: 'Tuyển (OR bao hàm)', en: 'Disjunction',
+    rule: 'F chỉ khi CẢ HAI F',
+    rows: [{p:'T',q:'T',r:'T'},{p:'T',q:'F',r:'T'},{p:'F',q:'T',r:'T'},{p:'F',q:'F',r:'F'}],
+    hdrs: ['p','q','p ∨ q'],
+    formula: 'p ∨ q'
+  },
+  {
+    sym: '→', nameVI: 'Kéo theo (IF-THEN)', en: 'Conditional',
+    rule: 'F chỉ khi p=T và q=F',
+    rows: [{p:'T',q:'T',r:'T'},{p:'T',q:'F',r:'F'},{p:'F',q:'T',r:'T'},{p:'F',q:'F',r:'T'}],
+    hdrs: ['p','q','p → q'],
+    formula: 'p → q'
+  },
+  {
+    sym: '↔', nameVI: 'Tương đương (IFF)', en: 'Biconditional',
+    rule: 'T khi p, q CÙNG giá trị',
+    rows: [{p:'T',q:'T',r:'T'},{p:'T',q:'F',r:'F'},{p:'F',q:'T',r:'F'},{p:'F',q:'F',r:'T'}],
+    hdrs: ['p','q','p ↔ q'],
+    formula: 'p ↔ q'
+  }
+];
+
+const connGrid = document.getElementById('connGrid');
+const connDetail = document.getElementById('connDetail');
+let activeConn = -1;
+
+function renderMiniTable(conn) {
+  const isUnary = conn.hdrs.length === 2;
+  let h = `<div class="mini-tt"><table>`;
+  h += '<tr>' + conn.hdrs.map(hdr => `<th>${hdr}</th>`).join('') + '</tr>';
+  conn.rows.forEach(row => {
+    const vals = isUnary ? [row.p, row.r] : [row.p, row.q, row.r];
+    h += '<tr>' + vals.map((v, i) => {
+      const isLast = i === vals.length - 1;
+      return `<td class="tv-${v}"${isLast ? ' style="font-size:14px"' : ''}>${v}</td>`;
+    }).join('') + '</tr>';
+  });
+  h += '</table></div>';
+  return h;
+}
+
+function showConnDetail(idx) {
+  if (activeConn === idx) {
+    // toggle off
+    connDetail.innerHTML = '';
+    document.querySelectorAll('.conn-card').forEach(c => c.classList.remove('active'));
+    activeConn = -1;
+    return;
+  }
+  activeConn = idx;
+  document.querySelectorAll('.conn-card').forEach((c, i) => {
+    c.classList.toggle('active', i === idx);
+  });
+  const conn = CONNS[idx];
+  // Use the full builder for detail view
+  try {
+    const result = buildTruthTable(conn.formula);
+    connDetail.innerHTML = `
+      <div style="margin-bottom:8px">
+        <strong style="font-size:16px">${conn.sym} — ${conn.nameVI}</strong>
+        <span style="color:#78716c;font-size:13px;margin-left:8px">(${conn.en})</span>
+      </div>
+      <p style="font-size:14px;color:#292524;margin:4px 0 10px">${conn.rule}</p>
+    ` + renderTable(result);
+  } catch(e) {
+    connDetail.innerHTML = `<p style="color:red">${e.message}</p>`;
+  }
+}
+
+CONNS.forEach((conn, idx) => {
+  const card = document.createElement('div');
+  card.className = 'conn-card';
+  card.innerHTML = `
+    <div class="conn-sym">${conn.sym}</div>
+    <div class="conn-name">${conn.nameVI}</div>
+    <div class="conn-rule">${conn.rule}</div>
+    ${renderMiniTable(conn)}
+  `;
+  card.addEventListener('click', () => showConnDetail(idx));
+  connGrid.appendChild(card);
+});
+
+// ---- SECTION 2: Formula builder ----
+const SYMS = ['¬','∧','∨','→','↔','(',')',' p ',' q ',' r ',' s '];
+const symRow = document.getElementById('symRow');
+SYMS.forEach(sym => {
+  const btn = document.createElement('button');
+  btn.className = 'sym';
+  btn.textContent = sym.trim() || sym;
+  btn.title = sym.trim();
+  btn.addEventListener('click', () => insertSym(sym));
+  symRow.appendChild(btn);
+});
+
+const formulaInput = document.getElementById('formulaInput');
+const statusBar = document.getElementById('statusBar');
+const ttOutput = document.getElementById('ttOutput');
+const buildBtn = document.getElementById('buildBtn');
+const clearBtn = document.getElementById('clearBtn');
+
+function insertSym(sym) {
+  const start = formulaInput.selectionStart;
+  const end = formulaInput.selectionEnd;
+  const val = formulaInput.value;
+  formulaInput.value = val.slice(0, start) + sym + val.slice(end);
+  formulaInput.selectionStart = formulaInput.selectionEnd = start + sym.length;
+  formulaInput.focus();
+  triggerBuild();
+}
+
+function triggerBuild() {
+  const formula = formulaInput.value.trim();
+  if (!formula) {
+    statusBar.textContent = '';
+    ttOutput.innerHTML = '';
+    return;
+  }
+  try {
+    const result = buildTruthTable(formula);
+    const n = result.vars.length;
+    const rows = 1 << n;
+    let statusHtml = `<span class="status-ok">✓ ${n} biến · ${rows} dòng. Công thức: <em>${escHtml(astToStr(result.ast))}</em></span>`;
+    if (result.allT) statusHtml += `&nbsp;&nbsp;<span class="status-taut">★ Hằng đúng (Tautology) — đúng trong mọi trường hợp!</span>`;
+    else if (result.allF) statusHtml += `&nbsp;&nbsp;<span class="status-cont">✗ Hằng sai (Contradiction) — sai trong mọi trường hợp!</span>`;
+    else statusHtml += `&nbsp;&nbsp;<span class="status-cont2">Ngẫu nhiên (Contingency)</span>`;
+    statusBar.innerHTML = statusHtml;
+    ttOutput.innerHTML = renderTable(result);
+  } catch(e) {
+    statusBar.innerHTML = `<span class="status-err">Lỗi cú pháp: ${escHtml(e.message)}</span>`;
+    ttOutput.innerHTML = '';
+  }
+}
+
+buildBtn.addEventListener('click', triggerBuild);
+clearBtn.addEventListener('click', () => {
+  formulaInput.value = '';
+  statusBar.textContent = '';
+  ttOutput.innerHTML = '';
+  formulaInput.focus();
+});
+formulaInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') triggerBuild();
+});
+// Auto-build with debounce
+let debounceTimer = null;
+formulaInput.addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(triggerBuild, 400);
+});
+
+// ---- SECTION 3: Examples ----
+const EXAMPLES = [
+  { label: 'p ∧ q', formula: 'p ∧ q' },
+  { label: 'p ∨ q', formula: 'p ∨ q' },
+  { label: 'p → q', formula: 'p → q' },
+  { label: '¬p ∨ q', formula: '¬p ∨ q' },
+  { label: '(p ∧ q) → r', formula: '(p ∧ q) → r' },
+  { label: 'p → (q ∨ ¬r)', formula: 'p → (q ∨ ¬r)' },
+  { label: '¬(p ∨ q)', formula: '¬(p ∨ q)' },
+  { label: 'p ↔ q', formula: 'p ↔ q' },
+  { label: '(p → q) ∧ (q → p)', formula: '(p → q) ∧ (q → p)' },
+  { label: 'p ∨ ¬p  ★', formula: 'p ∨ ¬p' },
+  { label: 'p ∧ ¬p  ✗', formula: 'p ∧ ¬p' },
+  { label: '(p → q) → (¬p ∨ q)  ★', formula: '(p → q) → (¬p ∨ q)' },
+  { label: 'p → (p ∨ q)  ★', formula: 'p → (p ∨ q)' },
+  { label: '¬(p ∧ q) ↔ (¬p ∨ ¬q)  ★', formula: '¬(p ∧ q) ↔ (¬p ∨ ¬q)' },
+];
+
+const egRow = document.getElementById('egRow');
+EXAMPLES.forEach(eg => {
+  const btn = document.createElement('button');
+  btn.className = 'eg-btn';
+  btn.textContent = eg.label;
+  btn.addEventListener('click', () => {
+    formulaInput.value = eg.formula;
+    formulaInput.focus();
+    triggerBuild();
+    // Scroll to builder section
+    formulaInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  egRow.appendChild(btn);
+});
+
+// ---- Init: show first connective expanded ----
+showConnDetail(0);
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

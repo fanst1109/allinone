@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Tam đoạn luận (Syllogisms)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #57534e;
+    --accent-soft: #f0eeec;
+    --accent-hover: #44403c;
+    --accent-mid: #78716c;
+  }
+
+  h1 { color: #292524; }
+  h2 { color: #44403c; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #d6d3d1; }
+  h3 { color: #57534e; margin-top: 24px; }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin: 16px 0;
+  }
+
+  /* --- Buttons --- */
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.ghost {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid #d6d3d1;
+  }
+  button.ghost:hover { background: #e7e5e4; }
+  button.active-btn {
+    background: var(--accent-hover);
+    outline: 2px solid #a8a29e;
+  }
+
+  /* --- AEIO badge --- */
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-weight: 700;
+    font-size: 14px;
+    margin: 2px;
+  }
+  .badge-A { background: #dcfce7; color: #166534; }
+  .badge-E { background: #fee2e2; color: #991b1b; }
+  .badge-I { background: #dbeafe; color: #1e40af; }
+  .badge-O { background: #fef9c3; color: #854d0e; }
+
+  /* --- AEIO Table --- */
+  .aeio-table { width: 100%; border-collapse: collapse; }
+  .aeio-table th, .aeio-table td {
+    padding: 10px 14px;
+    border: 1px solid #e7e5e4;
+    text-align: left;
+    font-size: 14px;
+  }
+  .aeio-table th { background: var(--accent-soft); font-weight: 700; }
+  .aeio-table tr:hover td { background: #fafaf9; }
+
+  /* --- Venn SVG wrapper --- */
+  .venn-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .venn-svg-outer {
+    width: 100%;
+    max-width: 520px;
+  }
+
+  /* --- Controls row --- */
+  .ctrl-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin: 10px 0;
+  }
+  select {
+    padding: 7px 10px;
+    border: 1px solid #d6d3d1;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #fff;
+    color: #292524;
+    cursor: pointer;
+  }
+  select:focus { outline: 2px solid var(--accent); }
+  label { font-weight: 600; font-size: 14px; color: #44403c; }
+
+  /* --- Verdict box --- */
+  .verdict {
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 14px;
+    line-height: 1.6;
+  }
+  .verdict.valid   { background: #dcfce7; color: #166534; border-left: 4px solid #22c55e; }
+  .verdict.invalid { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
+  .verdict.pending { background: var(--accent-soft); color: #57534e; border-left: 4px solid #a8a29e; }
+
+  /* --- Examples gallery --- */
+  .ex-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+    margin-top: 14px;
+  }
+  .ex-card {
+    background: #fafaf9;
+    border: 1px solid #e7e5e4;
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: box-shadow 0.15s, background 0.15s;
+  }
+  .ex-card:hover { background: #f5f5f4; box-shadow: 0 2px 8px rgba(0,0,0,0.09); }
+  .ex-card.selected { background: #f0eeec; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+  .ex-card .ex-title { font-weight: 700; font-size: 14px; color: #292524; margin-bottom: 6px; }
+  .ex-card .ex-type { font-size: 12px; color: #78716c; margin-bottom: 8px; }
+  .ex-card .ex-premise { font-size: 13px; color: #44403c; line-height: 1.6; font-family: monospace; }
+  .ex-card .ex-result { font-size: 12px; font-weight: 700; margin-top: 8px; }
+  .ex-card.valid-ex .ex-result { color: #166534; }
+  .ex-card.invalid-ex .ex-result { color: #991b1b; }
+
+  .hint { font-size: 13px; color: #78716c; margin: 6px 0; }
+  .mono { font-family: monospace; }
+
+  /* Explanation panel */
+  .explain-panel {
+    background: #fafaf9;
+    border: 1px solid #e7e5e4;
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: none;
+  }
+  .explain-panel.visible { display: block; }
+
+  @media (max-width: 480px) {
+    .ctrl-row { flex-direction: column; align-items: flex-start; }
+    .ex-grid { grid-template-columns: 1fr; }
+    .aeio-table th, .aeio-table td { padding: 7px 8px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Formal Logic</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-proof-methods/visualization.html">← L6: Chứng minh</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Tam đoạn luận</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-induction-deduction/visualization.html">L8: Quy nạp vs diễn dịch →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Tam đoạn luận (Syllogisms)</h1>
+<p>Ba công cụ tương tác: bảng 4 loại mệnh đề A/E/I/O, máy Venn tam đoạn luận (tự tô vùng theo tiền đề), và bộ sưu tập ví dụ kinh điển + ngụy biện.</p>
+
+<!-- ===================== MODULE 1: AEIO TABLE ===================== -->
+<h2>1. Bốn loại mệnh đề phạm trù (A / E / I / O)</h2>
+<div class="card">
+  <p class="hint">Bấm vào từng hàng để xem minh họa sơ đồ Venn 2 vòng tương ứng.</p>
+  <div style="overflow-x:auto">
+    <table class="aeio-table" id="aeioTable">
+      <thead>
+        <tr>
+          <th>Ký hiệu</th>
+          <th>Tên</th>
+          <th>Dạng chuẩn</th>
+          <th>Ví dụ</th>
+          <th>S chu diên?</th>
+          <th>P chu diên?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-type="A" style="cursor:pointer">
+          <td><span class="badge badge-A">A</span></td>
+          <td>Toàn xưng khẳng định</td>
+          <td class="mono">Mọi S là P</td>
+          <td>Mọi chó đều là động vật</td>
+          <td>Có</td>
+          <td>Không</td>
+        </tr>
+        <tr data-type="E" style="cursor:pointer">
+          <td><span class="badge badge-E">E</span></td>
+          <td>Toàn xưng phủ định</td>
+          <td class="mono">Không S nào là P</td>
+          <td>Không con cá nào là thú</td>
+          <td>Có</td>
+          <td>Có</td>
+        </tr>
+        <tr data-type="I" style="cursor:pointer">
+          <td><span class="badge badge-I">I</span></td>
+          <td>Đặc xưng khẳng định</td>
+          <td class="mono">Một số S là P</td>
+          <td>Một số sinh viên là nhạc sĩ</td>
+          <td>Không</td>
+          <td>Không</td>
+        </tr>
+        <tr data-type="O" style="cursor:pointer">
+          <td><span class="badge badge-O">O</span></td>
+          <td>Đặc xưng phủ định</td>
+          <td class="mono">Một số S không là P</td>
+          <td>Một số chim không biết bay</td>
+          <td>Không</td>
+          <td>Có</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- Mini Venn 2 circles for AEIO illustration -->
+  <div style="margin-top:16px; text-align:center">
+    <svg id="venn2svg" width="320" height="160" viewBox="0 0 320 160" style="max-width:100%;height:auto;display:block;margin:0 auto">
+      <defs>
+        <pattern id="hatch" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="8" stroke="#78716c" stroke-width="1.5"/>
+        </pattern>
+        <clipPath id="clipS2">
+          <circle cx="110" cy="80" r="62"/>
+        </clipPath>
+        <clipPath id="clipP2">
+          <circle cx="210" cy="80" r="62"/>
+        </clipPath>
+        <clipPath id="clipSnotP2">
+          <rect x="0" y="0" width="210" height="160"/>
+        </clipPath>
+        <clipPath id="clipPnotS2">
+          <rect x="110" y="0" width="210" height="160"/>
+        </clipPath>
+      </defs>
+      <!-- Shade regions (controlled by JS) -->
+      <rect id="shade-s-only" x="0" y="0" width="320" height="160" fill="url(#hatch)" opacity="0" clip-path="url(#clipS2)"/>
+      <rect id="shade-p-only" x="0" y="0" width="320" height="160" fill="url(#hatch)" opacity="0" clip-path="url(#clipP2)"/>
+      <!-- Circles -->
+      <circle cx="110" cy="80" r="62" fill="none" stroke="#57534e" stroke-width="2.5" opacity="0.7"/>
+      <circle cx="210" cy="80" r="62" fill="none" stroke="#57534e" stroke-width="2.5" opacity="0.7"/>
+      <!-- Intersection shade -->
+      <g id="shade-intersect" opacity="0">
+        <circle cx="110" cy="80" r="62" fill="url(#hatch)" clip-path="url(#clipP2)"/>
+      </g>
+      <!-- Cross marks for I/O -->
+      <text id="cross2" x="160" y="85" text-anchor="middle" font-size="20" fill="#1e40af" font-weight="700" opacity="0">×</text>
+      <text id="cross2-s" x="72" y="85" text-anchor="middle" font-size="20" fill="#854d0e" font-weight="700" opacity="0">×</text>
+      <!-- Labels -->
+      <text x="70" y="20" text-anchor="middle" font-size="15" fill="#44403c" font-weight="700">S</text>
+      <text x="250" y="20" text-anchor="middle" font-size="15" fill="#44403c" font-weight="700">P</text>
+      <!-- Description -->
+      <text id="venn2desc" x="160" y="152" text-anchor="middle" font-size="12" fill="#78716c">← Bấm vào hàng trong bảng để xem minh họa</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ===================== MODULE 2: VENN MACHINE ===================== -->
+<h2>2. Máy Venn tam đoạn luận</h2>
+<div class="card">
+  <p>Chọn loại mệnh đề cho hai tiền đề, rồi chọn loại kết luận. Sơ đồ Venn 3 vòng sẽ tự tô vùng và kiểm tra tính hợp lệ.</p>
+
+  <div class="ctrl-row">
+    <label>Tiền đề lớn (M – P):</label>
+    <select id="selMP">
+      <option value="A">A — Mọi M là P</option>
+      <option value="E">E — Không M nào là P</option>
+      <option value="I">I — Một số M là P</option>
+      <option value="O">O — Một số M không là P</option>
+    </select>
+  </div>
+  <div class="ctrl-row">
+    <label>Tiền đề nhỏ (S – M):</label>
+    <select id="selSM">
+      <option value="A">A — Mọi S là M</option>
+      <option value="E">E — Không S nào là M</option>
+      <option value="I">I — Một số S là M</option>
+      <option value="O">O — Một số S không là M</option>
+    </select>
+  </div>
+  <div class="ctrl-row">
+    <label>Kết luận kiểm tra (S – P):</label>
+    <select id="selSP">
+      <option value="A">A — Mọi S là P</option>
+      <option value="E">E — Không S nào là P</option>
+      <option value="I">I — Một số S là P</option>
+      <option value="O">O — Một số S không là P</option>
+    </select>
+  </div>
+  <button id="btnCheck" style="margin-top:4px">Kiểm tra hợp lệ</button>
+
+  <div class="venn-wrap" style="margin-top:20px">
+    <div class="venn-svg-outer">
+      <svg id="venn3svg" width="520" height="360" viewBox="0 0 520 360" style="max-width:100%;height:auto;display:block;margin:0 auto">
+        <defs>
+          <pattern id="hatchMain" patternUnits="userSpaceOnUse" width="9" height="9" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="9" stroke="#78716c" stroke-width="1.5" opacity="0.7"/>
+          </pattern>
+
+          <!-- Region clip paths for the 7 non-empty regions of 3 circles -->
+          <!-- Circles: S center(190,155,r80), P center(330,155,r80), M center(260,265,r80) -->
+          <clipPath id="cS">  <circle cx="190" cy="155" r="80"/></clipPath>
+          <clipPath id="cP">  <circle cx="330" cy="155" r="80"/></clipPath>
+          <clipPath id="cM">  <circle cx="260" cy="265" r="80"/></clipPath>
+
+          <!-- notP = right half gone -->
+          <clipPath id="cNotP"><rect x="0" y="0" width="330" height="360"/></clipPath>
+          <!-- notS = left half gone -->
+          <clipPath id="cNotS"><rect x="190" y="0" width="330" height="360"/></clipPath>
+          <!-- notM = bottom half gone -->
+          <clipPath id="cNotM"><rect x="0" y="0" width="520" height="265"/></clipPath>
+
+          <!-- S∩P = S clipped to P -->
+          <clipPath id="cSP">
+            <circle cx="330" cy="155" r="80"/>
+          </clipPath>
+          <!-- S∩M = S clipped to M -->
+          <clipPath id="cSM">
+            <circle cx="260" cy="265" r="80"/>
+          </clipPath>
+          <!-- M∩P = M clipped to P -->
+          <clipPath id="cMP">
+            <circle cx="330" cy="155" r="80"/>
+          </clipPath>
+        </defs>
+
+        <!-- === SHADING LAYERS (drawn bottom-up, JS toggles opacity) === -->
+
+        <!-- Region 1: S only (S not P not M) — shade entire S, then remove P and M intersections via overdraw in JS logic approach
+             We paint with full-region rect clipped to S, colored, then JS adjusts -->
+
+        <!-- We use a simpler approach: paint each region as an SVG shape using clip-path layering.
+             Each region is a rect covering everything, clip-pathed to the target circle,
+             then further masked by inverted circles via a compound clip.
+             SVG 1.1 doesn't support compound clip-paths easily, so we use semi-transparent color fills
+             for the 7 regions directly. -->
+
+        <!-- Background fill rects for each region (opacity toggled by JS): -->
+        <!-- S only: clip to S circle, but visually exclude P and M by JS using intersection detection -->
+
+        <!-- Simple approach: 7 colored overlay regions painted as circles with varying opacity -->
+        <!-- Region: S-only -->
+        <circle id="r-s-only" cx="190" cy="155" r="80" fill="url(#hatchMain)" opacity="0"/>
+        <!-- Region: P-only -->
+        <circle id="r-p-only" cx="330" cy="155" r="80" fill="url(#hatchMain)" opacity="0"/>
+        <!-- Region: M-only -->
+        <circle id="r-m-only" cx="260" cy="265" r="80" fill="url(#hatchMain)" opacity="0"/>
+        <!-- Region: S∩P (no M) — paint intersection -->
+        <g id="r-sp-only" opacity="0">
+          <circle cx="190" cy="155" r="80" fill="url(#hatchMain)" clip-path="url(#cSP)"/>
+        </g>
+        <!-- Region: S∩M (no P) -->
+        <g id="r-sm-only" opacity="0">
+          <circle cx="190" cy="155" r="80" fill="url(#hatchMain)" clip-path="url(#cSM)"/>
+        </g>
+        <!-- Region: M∩P (no S) -->
+        <g id="r-mp-only" opacity="0">
+          <circle cx="260" cy="265" r="80" fill="url(#hatchMain)" clip-path="url(#cMP)"/>
+        </g>
+        <!-- Region: S∩M∩P (center) -->
+        <g id="r-smp" opacity="0">
+          <circle cx="190" cy="155" r="80" fill="url(#hatchMain)" clip-path="url(#cSP)"/>
+          <!-- second layer to ensure triple intersection is filled -->
+        </g>
+
+        <!-- Cross marks (×) for I/O premises -->
+        <text id="x-sp" x="260" y="148" text-anchor="middle" font-size="22" fill="#1e40af" font-weight="700" opacity="0">×</text>
+        <text id="x-sm" x="212" y="228" text-anchor="middle" font-size="22" fill="#1e40af" font-weight="700" opacity="0">×</text>
+        <text id="x-mp" x="308" y="228" text-anchor="middle" font-size="22" fill="#1e40af" font-weight="700" opacity="0">×</text>
+        <text id="x-sonly" x="152" y="148" text-anchor="middle" font-size="22" fill="#854d0e" font-weight="700" opacity="0">×</text>
+        <text id="x-ponly" x="368" y="148" text-anchor="middle" font-size="22" fill="#854d0e" font-weight="700" opacity="0">×</text>
+        <text id="x-monly" x="260" y="320" text-anchor="middle" font-size="22" fill="#854d0e" font-weight="700" opacity="0">×</text>
+        <text id="x-smp" x="260" y="195" text-anchor="middle" font-size="22" fill="#1e40af" font-weight="700" opacity="0">×</text>
+
+        <!-- Circle borders (drawn on top of shading) -->
+        <circle cx="190" cy="155" r="80" fill="none" stroke="#57534e" stroke-width="2.5"/>
+        <circle cx="330" cy="155" r="80" fill="none" stroke="#57534e" stroke-width="2.5"/>
+        <circle cx="260" cy="265" r="80" fill="none" stroke="#57534e" stroke-width="2.5"/>
+
+        <!-- Labels -->
+        <text x="130" y="95"  text-anchor="middle" font-size="20" fill="#292524" font-weight="700">S</text>
+        <text x="390" y="95"  text-anchor="middle" font-size="20" fill="#292524" font-weight="700">P</text>
+        <text x="260" y="358" text-anchor="middle" font-size="20" fill="#292524" font-weight="700">M</text>
+
+        <!-- Region labels (small, for orientation) -->
+        <text x="150" y="155" text-anchor="middle" font-size="11" fill="#a8a29e">S∩M</text>
+        <text x="260" y="160" text-anchor="middle" font-size="11" fill="#a8a29e">S∩M∩P</text>
+        <text x="370" y="155" text-anchor="middle" font-size="11" fill="#a8a29e">M∩P</text>
+        <text x="260" y="260" text-anchor="middle" font-size="11" fill="#a8a29e">M</text>
+        <text x="120" y="115" text-anchor="middle" font-size="11" fill="#a8a29e">S</text>
+        <text x="260" y="110" text-anchor="middle" font-size="11" fill="#a8a29e">S∩P</text>
+        <text x="400" y="115" text-anchor="middle" font-size="11" fill="#a8a29e">P</text>
+      </svg>
+    </div>
+
+    <div id="vennLegend" style="font-size:13px;color:#57534e;text-align:center">
+      <span style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px">
+        <svg width="20" height="14" viewBox="0 0 20 14"><rect width="20" height="14" fill="url(#hatchMain)"/></svg> Vùng rỗng (tô gạch)
+      </span>
+      <span style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px">
+        <span style="font-size:16px;color:#1e40af;font-weight:700">×</span> Có ít nhất 1 phần tử
+      </span>
+    </div>
+
+    <div id="verdictBox" class="verdict pending">
+      Chọn tiền đề và bấm "Kiểm tra hợp lệ".
+    </div>
+    <div id="explainBox" style="font-size:14px;line-height:1.7;color:#44403c;margin-top:8px;padding:12px 14px;background:#fafaf9;border-radius:8px;border:1px solid #e7e5e4;display:none"></div>
+  </div>
+</div>
+
+<!-- ===================== MODULE 3: EXAMPLES GALLERY ===================== -->
+<h2>3. Bộ sưu tập ví dụ kinh điển</h2>
+<div class="card">
+  <p class="hint">Bấm vào một ví dụ để xem sơ đồ Venn và phân tích chi tiết ở Module 2.</p>
+  <div class="ex-grid" id="exGrid"></div>
+  <div id="exExplain" class="explain-panel"></div>
+</div>
+
+<script>
+// ============================================================
+//  MODULE 1: AEIO 2-circle Venn
+// ============================================================
+const v2desc   = document.getElementById('venn2desc');
+const shadeS   = document.getElementById('shade-s-only');
+const shadeP   = document.getElementById('shade-p-only');
+const shadeInt = document.getElementById('shade-intersect');
+const cross2   = document.getElementById('cross2');
+const cross2s  = document.getElementById('cross2-s');
+
+const aeioRows = document.querySelectorAll('#aeioTable tbody tr');
+aeioRows.forEach(row => {
+  row.addEventListener('click', () => {
+    aeioRows.forEach(r => r.style.background = '');
+    row.style.background = '#f5f5f4';
+    drawVenn2(row.dataset.type);
+  });
+});
+
+function drawVenn2(type) {
+  // Reset
+  shadeS.setAttribute('opacity', '0');
+  shadeP.setAttribute('opacity', '0');
+  shadeInt.setAttribute('opacity', '0');
+  cross2.setAttribute('opacity', '0');
+  cross2s.setAttribute('opacity', '0');
+
+  const descs = {
+    A: 'A — "Mọi S là P": S ⊂ P. Vùng S-ngoài-P bị tô (rỗng).',
+    E: 'E — "Không S nào là P": S∩P rỗng. Giao điểm bị tô.',
+    I: 'I — "Một số S là P": S∩P có ít nhất 1 phần tử (dấu ×).',
+    O: 'O — "Một số S không là P": có phần tử trong S-ngoài-P (dấu ×).',
+  };
+  v2desc.textContent = descs[type] || '';
+
+  if (type === 'A') {
+    // Shade S-not-P: shade entire S, then overlay white (not possible simply)
+    // Use a different approach: shade a half-rect clipped to S
+    // Actually: shade S-only visually. We shade the entire S circle but then
+    // for simplicity shade the "left lune" of S (rough approximation in SVG).
+    // Better: We handle this with the clipSnotP2 approach.
+    // We will just shade left part only.
+    shadeS.setAttribute('clip-path', 'url(#clipSnotP2)');
+    shadeS.setAttribute('opacity', '0.9');
+  } else if (type === 'E') {
+    shadeInt.setAttribute('opacity', '0.9');
+  } else if (type === 'I') {
+    cross2.setAttribute('opacity', '1');
+  } else if (type === 'O') {
+    cross2s.setAttribute('opacity', '1');
+  }
+}
+
+// ============================================================
+//  MODULE 2: Venn 3-circle machine
+// ============================================================
+
+// Region IDs and which "voids" they represent
+// Regions in Venn3: s-only, p-only, m-only, sp-only, sm-only, mp-only, smp
+// For each mnemonic premise type, which regions get shaded (empty) or marked (×):
+
+// We model 7 region states: 0=unknown, 1=empty(shaded), 2=has-element(×)
+// Regions: { sOnly, pOnly, mOnly, spOnly, smOnly, mpOnly, smpAll }
+
+function freshState() {
+  return { sOnly:0, pOnly:0, mOnly:0, spOnly:0, smOnly:0, mpOnly:0, smpAll:0 };
+}
+
+// Apply a major premise (M-P relationship)
+function applyMP(state, type) {
+  // type ∈ {A,E,I,O} — "Mọi M là P", "Không M nào là P", etc.
+  if (type === 'A') {
+    // Mọi M là P → M-not-P = empty → mOnly=empty, smOnly=empty
+    state.mOnly  = 1; // M-only region empty
+    state.smOnly = 1; // S∩M-not-P region empty
+  } else if (type === 'E') {
+    // Không M nào là P → M∩P = empty → mpOnly=empty, smpAll=empty
+    state.mpOnly = 1;
+    state.smpAll = 1;
+  } else if (type === 'I') {
+    // Một số M là P → mark × somewhere in M∩P
+    // If mp-only not empty and smp not empty: mark border; for simplicity mark mpOnly or smpAll
+    if (state.mpOnly !== 1 && state.smpAll !== 1) {
+      // place × in mpOnly (prefer non-triple if not forced)
+      state.mpOnly = state.mpOnly === 0 ? 2 : state.mpOnly;
+    } else if (state.mpOnly !== 1) {
+      state.mpOnly = state.mpOnly === 0 ? 2 : state.mpOnly;
+    } else if (state.smpAll !== 1) {
+      state.smpAll = state.smpAll === 0 ? 2 : state.smpAll;
+    }
+  } else if (type === 'O') {
+    // Một số M không là P → mark × somewhere in M-not-P
+    if (state.mOnly !== 1 && state.smOnly !== 1) {
+      state.mOnly = state.mOnly === 0 ? 2 : state.mOnly;
+    } else if (state.mOnly !== 1) {
+      state.mOnly = state.mOnly === 0 ? 2 : state.mOnly;
+    } else if (state.smOnly !== 1) {
+      state.smOnly = state.smOnly === 0 ? 2 : state.smOnly;
+    }
+  }
+}
+
+// Apply minor premise (S-M relationship)
+function applySM(state, type) {
+  if (type === 'A') {
+    // Mọi S là M → S-not-M = empty → sOnly=empty, spOnly=empty
+    state.sOnly  = 1;
+    state.spOnly = 1;
+  } else if (type === 'E') {
+    // Không S nào là M → S∩M = empty → smOnly=empty, smpAll=empty
+    state.smOnly = 1;
+    state.smpAll = 1;
+  } else if (type === 'I') {
+    // Một số S là M → × in S∩M
+    if (state.smOnly !== 1 && state.smpAll !== 1) {
+      state.smOnly = state.smOnly === 0 ? 2 : state.smOnly;
+    } else if (state.smOnly !== 1) {
+      state.smOnly = state.smOnly === 0 ? 2 : state.smOnly;
+    } else if (state.smpAll !== 1) {
+      state.smpAll = state.smpAll === 0 ? 2 : state.smpAll;
+    }
+  } else if (type === 'O') {
+    // Một số S không là M → × in S-not-M
+    if (state.sOnly !== 1 && state.spOnly !== 1) {
+      state.sOnly = state.sOnly === 0 ? 2 : state.sOnly;
+    } else if (state.sOnly !== 1) {
+      state.sOnly = state.sOnly === 0 ? 2 : state.sOnly;
+    } else if (state.spOnly !== 1) {
+      state.spOnly = state.spOnly === 0 ? 2 : state.spOnly;
+    }
+  }
+}
+
+// Check if a conclusion type (S-P relationship) is FORCED by the state
+function checkConclusion(state, type) {
+  if (type === 'A') {
+    // Mọi S là P: need sOnly=empty AND spOnly=empty (all S inside P)
+    return (state.sOnly === 1 && state.spOnly === 1) ? 'valid' : 'invalid';
+  } else if (type === 'E') {
+    // Không S nào là P: need spOnly=empty AND smpAll=empty
+    return (state.spOnly === 1 && state.smpAll === 1) ? 'valid' : 'invalid';
+  } else if (type === 'I') {
+    // Một số S là P: need at least one × in spOnly or smpAll
+    const forced = (state.spOnly === 2 || state.smpAll === 2);
+    return forced ? 'valid' : 'invalid';
+  } else if (type === 'O') {
+    // Một số S không là P: need at least one × in sOnly or smOnly
+    const forced = (state.sOnly === 2 || state.smOnly === 2);
+    return forced ? 'valid' : 'invalid';
+  }
+  return 'invalid';
+}
+
+function renderVenn3(state) {
+  // Map region IDs to state keys
+  const map = {
+    's-only': 'sOnly',
+    'p-only': 'pOnly',
+    'm-only': 'mOnly',
+    'sp-only': 'spOnly',
+    'sm-only': 'smOnly',
+    'mp-only': 'mpOnly',
+    'smp': 'smpAll',
+  };
+
+  // Shading elements (for empty regions)
+  document.getElementById('r-s-only').setAttribute('opacity',  state.sOnly  === 1 ? '0.6' : '0');
+  document.getElementById('r-p-only').setAttribute('opacity',  state.pOnly  === 1 ? '0.6' : '0');
+  document.getElementById('r-m-only').setAttribute('opacity',  state.mOnly  === 1 ? '0.6' : '0');
+  document.getElementById('r-sp-only').setAttribute('opacity', state.spOnly === 1 ? '0.6' : '0');
+  document.getElementById('r-sm-only').setAttribute('opacity', state.smOnly === 1 ? '0.6' : '0');
+  document.getElementById('r-mp-only').setAttribute('opacity', state.mpOnly === 1 ? '0.6' : '0');
+  document.getElementById('r-smp').setAttribute('opacity',     state.smpAll === 1 ? '0.6' : '0');
+
+  // Cross marks (for non-empty regions)
+  document.getElementById('x-sp').setAttribute('opacity',    state.spOnly === 2 ? '1' : '0');
+  document.getElementById('x-sm').setAttribute('opacity',    state.smOnly === 2 ? '1' : '0');
+  document.getElementById('x-mp').setAttribute('opacity',    state.mpOnly === 2 ? '1' : '0');
+  document.getElementById('x-sonly').setAttribute('opacity', state.sOnly  === 2 ? '1' : '0');
+  document.getElementById('x-ponly').setAttribute('opacity', state.pOnly  === 2 ? '1' : '0');
+  document.getElementById('x-monly').setAttribute('opacity', state.mOnly  === 2 ? '1' : '0');
+  document.getElementById('x-smp').setAttribute('opacity',   state.smpAll === 2 ? '1' : '0');
+}
+
+document.getElementById('btnCheck').addEventListener('click', () => {
+  const mp = document.getElementById('selMP').value;
+  const sm = document.getElementById('selSM').value;
+  const sp = document.getElementById('selSP').value;
+
+  // Build state: apply universal (A/E) premises first, then particular (I/O)
+  const state = freshState();
+
+  // Apply in order: universals first
+  const mpPriority = (mp === 'A' || mp === 'E') ? 0 : 1;
+  const smPriority = (sm === 'A' || sm === 'E') ? 0 : 1;
+
+  if (mpPriority <= smPriority) {
+    applyMP(state, mp);
+    applySM(state, sm);
+  } else {
+    applySM(state, sm);
+    applyMP(state, mp);
+  }
+
+  renderVenn3(state);
+
+  const result = checkConclusion(state, sp);
+  const verdictBox = document.getElementById('verdictBox');
+  const explainBox = document.getElementById('explainBox');
+
+  const mpLabel = { A:'Mọi M là P', E:'Không M nào là P', I:'Một số M là P', O:'Một số M không là P' };
+  const smLabel = { A:'Mọi S là M', E:'Không S nào là M', I:'Một số S là M', O:'Một số S không là M' };
+  const spLabel = { A:'Mọi S là P', E:'Không S nào là P', I:'Một số S là P', O:'Một số S không là P' };
+
+  if (result === 'valid') {
+    verdictBox.className = 'verdict valid';
+    verdictBox.textContent = 'HỢP LE — Kết luận bắt buộc đúng nếu tiền đề đúng.';
+  } else {
+    verdictBox.className = 'verdict invalid';
+    verdictBox.textContent = 'KHÔNG HỢP LỆ — Sơ đồ Venn không đảm bảo kết luận.';
+  }
+
+  // Explain
+  explainBox.style.display = 'block';
+  let explanation = `<strong>Tiền đề lớn (M–P):</strong> <span class="badge badge-${mp}">${mp}</span> ${mpLabel[mp]}<br>`;
+  explanation += `<strong>Tiền đề nhỏ (S–M):</strong> <span class="badge badge-${sm}">${sm}</span> ${smLabel[sm]}<br>`;
+  explanation += `<strong>Kết luận kiểm tra:</strong> <span class="badge badge-${sp}">${sp}</span> ${spLabel[sp]}<br><br>`;
+
+  // Add specific explanation
+  if (mp === 'A' && sm === 'A' && sp === 'A') {
+    explanation += '<strong>Dạng Barbara (AAA-1):</strong> Tô M-không-P và S-không-M → S-không-P rỗng → kết luận "Mọi S là P" được đảm bảo. ✓';
+  } else if (mp === 'E' && sm === 'A' && sp === 'E') {
+    explanation += '<strong>Dạng Celarent (EAE-1):</strong> Tô M∩P và S-không-M → S∩P rỗng → kết luận "Không S nào là P" được đảm bảo. ✓';
+  } else if (mp === 'A' && sm === 'I' && sp === 'I') {
+    explanation += '<strong>Dạng Darii (AII-1):</strong> Tô M-không-P → dấu × trong S∩M buộc rơi vào S∩M∩P ⊂ S∩P → kết luận "Một số S là P" được đảm bảo. ✓';
+  } else if (result === 'invalid' && (
+    (mp === 'A' && sm === 'A' && sp !== 'A') ||
+    (mp.includes('A') && sm.includes('A'))
+  )) {
+    explanation += '⚠ Kiểm tra: M có chu diên ít nhất một lần không? Nếu cả hai tiền đề đều không chu diên M → ngụy biện trung từ không chu diên.';
+  } else if (result === 'invalid') {
+    explanation += '⚠ Sơ đồ Venn không tạo ra bằng chứng bắt buộc cho kết luận. Có thể do: (1) trung từ M không chu diên, (2) kết luận mở rộng hạn từ, hoặc (3) hai tiền đề phủ định.';
+  } else {
+    explanation += 'Sơ đồ Venn xác nhận kết luận được bắt buộc bởi trạng thái các vùng sau khi áp dụng tiền đề.';
+  }
+
+  explainBox.innerHTML = explanation;
+});
+
+// ============================================================
+//  MODULE 3: Examples gallery
+// ============================================================
+const EXAMPLES = [
+  {
+    name: 'Barbara (AAA-1)',
+    type: 'valid',
+    form: 'AAA',
+    mp: 'A', sm: 'A', sp: 'A',
+    premises: [
+      'Mọi người đều phải chết.    [A]',
+      'Mọi người Hy Lạp là người.  [A]',
+      '∴ Mọi người Hy Lạp đều phải chết. [A]'
+    ],
+    explain: 'Dạng kinh điển nhất. M = người, S = người Hy Lạp, P = phải chết. M chu diên ở tiền đề nhỏ (dạng A → S chu diên). Sơ đồ Venn: tô M-không-P và S-không-M → S-không-P rỗng → kết luận A được đảm bảo.'
+  },
+  {
+    name: 'Celarent (EAE-1)',
+    type: 'valid',
+    form: 'EAE',
+    mp: 'E', sm: 'A', sp: 'E',
+    premises: [
+      'Không loài bò sát nào có lông. [E]',
+      'Mọi con rắn là bò sát.         [A]',
+      '∴ Không con rắn nào có lông.   [E]'
+    ],
+    explain: 'M = bò sát, S = con rắn, P = có lông. Tiền đề lớn E: M∩P rỗng. Tiền đề nhỏ A: S-không-M rỗng. Kết luận: S∩P rỗng (cả S∩M∩P và S∩P-không-M đều rỗng). Hợp lệ.'
+  },
+  {
+    name: 'Darii (AII-1)',
+    type: 'valid',
+    form: 'AII',
+    mp: 'A', sm: 'I', sp: 'I',
+    premises: [
+      'Mọi triết gia đều tư duy sâu sắc. [A]',
+      'Một số giáo sư là triết gia.       [I]',
+      '∴ Một số giáo sư tư duy sâu sắc.  [I]'
+    ],
+    explain: 'M = triết gia, S = giáo sư, P = tư duy sâu sắc. Tô M-không-P (A). Dấu × trong S∩M → sau khi tô, buộc × rơi vào S∩M∩P ⊂ S∩P → kết luận I được đảm bảo.'
+  },
+  {
+    name: 'Ferio (EIO-1)',
+    type: 'valid',
+    form: 'EIO',
+    mp: 'E', sm: 'I', sp: 'O',
+    premises: [
+      'Không loài cá nào có phổi.         [E]',
+      'Một số sinh vật biển là cá.         [I]',
+      '∴ Một số sinh vật biển không có phổi. [O]'
+    ],
+    explain: 'M = cá, S = sinh vật biển, P = có phổi. Tiền đề E tô M∩P rỗng. Dấu × trong S∩M → × chỉ có thể nằm trong S∩M-không-P (vì M∩P rỗng) → kết luận O "Một số S không là P" được đảm bảo.'
+  },
+  {
+    name: 'Ngụy biện: Trung từ không chu diên',
+    type: 'invalid',
+    form: 'AAA*',
+    mp: 'A', sm: 'A', sp: 'A',
+    premises: [
+      'Mọi chó là động vật.   [A] (M=chó, P=động vật)',
+      'Mọi mèo là động vật.   [A] (S=mèo, M\'=động vật)',
+      '∴ Mọi mèo là chó.      [A] ← SAI!'
+    ],
+    explain: '⚠ CHÚ Ý: Đây là ví dụ ngụy biện được biểu diễn với M=chó và M\'=động vật — thực ra có 4 hạn từ, không phải 3! Trung từ bị dùng với nghĩa khác nhau (equivocation). Hoặc xét: cả hai tiền đề đều có M là vị ngữ dạng A → M KHÔNG chu diên → ngụy biện trung từ không chu diên (undistributed middle).',
+    note: 'KHÔNG HỢP LỆ'
+  },
+  {
+    name: 'Ngụy biện: Kết luận đúng, lập luận sai',
+    type: 'invalid',
+    form: 'AAA*',
+    mp: 'A', sm: 'A', sp: 'A',
+    premises: [
+      'Mọi động vật có vú đều thở. [A]',
+      'Mọi cá heo đều thở.         [A]',
+      '∴ Mọi cá heo là động vật có vú. [A] ← KHÔNG hợp lệ dù đúng thực tế!'
+    ],
+    explain: '⚠ Kết luận đúng trong thực tế (cá heo có vú thật), nhưng lập luận KHÔNG HỢP LỆ về mặt hình thức. M = "thở" không chu diên ở cả hai tiền đề. Sự thật rằng cá heo có vú là kiến thức độc lập — lập luận này không chứng minh được điều đó.'
+  }
+];
+
+const exGrid = document.getElementById('exGrid');
+const exExplain = document.getElementById('exExplain');
+
+EXAMPLES.forEach((ex, i) => {
+  const card = document.createElement('div');
+  card.className = `ex-card ${ex.type === 'valid' ? 'valid-ex' : 'invalid-ex'}`;
+  card.innerHTML = `
+    <div class="ex-title">${ex.name}</div>
+    <div class="ex-type">${ex.form}</div>
+    <div class="ex-premise">${ex.premises.join('<br>')}</div>
+    <div class="ex-result">${ex.type === 'valid' ? '✓ HỢP LỆ' : '✗ KHÔNG HỢP LỆ'}</div>
+  `;
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.ex-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+
+    // Load into venn machine
+    document.getElementById('selMP').value = ex.mp;
+    document.getElementById('selSM').value = ex.sm;
+    document.getElementById('selSP').value = ex.sp;
+    document.getElementById('btnCheck').click();
+
+    // Show explanation
+    exExplain.innerHTML = `<strong>${ex.name}</strong><br>${ex.explain}`;
+    exExplain.classList.add('visible');
+
+    // Scroll to module 2
+    document.getElementById('venn3svg').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  exGrid.appendChild(card);
+});
+
+// Trigger Barbara by default to show something on load
+window.addEventListener('DOMContentLoaded', () => {
+  // Auto-check Barbara
+  document.getElementById('btnCheck').click();
+});
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

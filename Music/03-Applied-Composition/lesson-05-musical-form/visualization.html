@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Hình thức bài nhạc</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  .card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .hint { font-size: 13px; color: #6b7280; margin: 6px 0 0; line-height: 1.5; }
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: #6b21a8; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  select {
+    padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 8px;
+    font-size: 14px; background: #fff; cursor: pointer; accent-color: #7e22ce;
+  }
+
+  /* ===== TIMELINE ===== */
+  .timeline {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin: 14px 0; align-items: stretch; min-height: 60px;
+  }
+  .tblock {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border-radius: 8px; cursor: pointer; padding: 6px 4px;
+    font-weight: 700; font-size: 13px; line-height: 1.3;
+    border: 2px solid transparent; transition: transform 0.1s, box-shadow 0.1s;
+    min-width: 44px; text-align: center; user-select: none;
+  }
+  .tblock:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .tblock.active {
+    border-color: #1a202c;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.22);
+  }
+  .tblock .blabel { font-size: 11px; font-weight: 400; opacity: 0.85; }
+  .tblock .bmeasures { font-size: 10px; opacity: 0.7; margin-top: 2px; }
+
+  /* Section colours */
+  .col-A  { background: #dbeafe; color: #1e40af; }
+  .col-B  { background: #fce7f3; color: #9d174d; }
+  .col-C  { background: #d1fae5; color: #065f46; }
+  .col-I  { background: #f3f4f6; color: #374151; }
+  .col-V  { background: #ede9fe; color: #4c1d95; }
+  .col-PC { background: #fef3c7; color: #92400e; }
+  .col-CH { background: #fecaca; color: #991b1b; }
+  .col-BR { background: #cffafe; color: #164e63; }
+  .col-O  { background: #f3f4f6; color: #4b5563; }
+
+  /* status bar */
+  .status-bar {
+    background: #f3e8ff; border-radius: 8px; padding: 10px 14px;
+    margin: 10px 0; font-size: 14px; min-height: 40px;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .status-bar .sname { font-weight: 700; color: #6b21a8; font-size: 16px; }
+  .status-bar .sdesc { color: #374151; }
+
+  /* form info table */
+  .form-info { font-size: 14px; line-height: 1.7; margin: 10px 0; }
+  .form-info table { width: 100%; border-collapse: collapse; }
+  .form-info td, .form-info th { padding: 6px 10px; border: 1px solid #e9d5ff; }
+  .form-info th { background: #f3e8ff; font-weight: 700; }
+  .form-info tr:nth-child(even) { background: #faf5ff; }
+
+  /* === Section 2: Pop map === */
+  .pop-seq {
+    display: flex; flex-wrap: nowrap; overflow-x: auto;
+    gap: 0; margin: 14px 0; -webkit-overflow-scrolling: touch;
+  }
+  .pop-block {
+    flex: 0 0 auto; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 10px 8px; min-width: 52px; font-size: 12px;
+    font-weight: 700; text-align: center; cursor: pointer;
+    border-right: 1px solid rgba(255,255,255,0.4);
+    transition: filter 0.2s;
+  }
+  .pop-block:last-child { border-right: none; }
+  .pop-block.playing { outline: 3px solid #1a202c; outline-offset: -3px; filter: brightness(1.08); }
+  .pop-block .pb-label { font-size: 13px; font-weight: 800; }
+  .pop-block .pb-name  { font-size: 10px; font-weight: 400; opacity: 0.85; margin-top: 2px; }
+  .pop-block .pb-bars  { font-size: 10px; opacity: 0.7; }
+
+  /* === Section 3: Builder === */
+  .palette { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .pal-block {
+    padding: 8px 14px; border-radius: 8px; cursor: pointer;
+    font-weight: 700; font-size: 14px; border: 2px solid transparent;
+    transition: transform 0.1s;
+  }
+  .pal-block:hover { transform: scale(1.05); }
+  .pal-block.selected { border-color: #1a202c; }
+  .builder-timeline {
+    display: flex; flex-wrap: wrap; gap: 6px; min-height: 60px;
+    background: #faf5ff; border-radius: 8px; padding: 10px;
+    border: 2px dashed #d8b4fe; margin: 10px 0; align-items: center;
+  }
+  .builder-block {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; border-radius: 8px; padding: 8px 10px;
+    font-weight: 700; font-size: 14px; cursor: pointer; position: relative;
+    min-width: 48px; text-align: center;
+  }
+  .builder-block .del-btn {
+    position: absolute; top: -6px; right: -6px;
+    background: #ef4444; color: #fff; border-radius: 50%;
+    width: 16px; height: 16px; font-size: 11px; line-height: 16px;
+    text-align: center; cursor: pointer; font-weight: 700; display: none;
+  }
+  .builder-block:hover .del-btn { display: block; }
+  .builder-empty { color: #9ca3af; font-size: 13px; font-style: italic; }
+  .builder-name {
+    background: #f3e8ff; border-radius: 6px; padding: 4px 10px;
+    font-size: 14px; font-weight: 700; color: #6b21a8; display: inline-block;
+    margin: 8px 4px 0; letter-spacing: 0.5px;
+  }
+
+  @media (max-width: 480px) {
+    .tblock { min-width: 38px; font-size: 12px; }
+    .pop-block { min-width: 44px; }
+    .form-info td, .form-info th { padding: 4px 6px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Applied &amp; Composition</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-advanced-rhythm/visualization.html">← L4: Tiết tấu nâng cao</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Hình thức bài nhạc</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-counterpoint/visualization.html">L6: Đối âm →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Hình thức bài nhạc (Musical Form)</h1>
+<p>Âm nhạc có <strong>kiến trúc bên trong</strong>: các đoạn A, B, C... sắp xếp thành cấu trúc có tên. Ba công cụ dưới đây cho bạn <em>nghe</em> sự khác biệt giữa các form. <strong>🔊 Bật loa.</strong></p>
+
+<!-- ===================================================== -->
+<h2>1. Khám phá hình thức — click để nghe</h2>
+<div class="card">
+  <div class="row">
+    <label for="formSel" style="font-weight:600">Chọn form:</label>
+    <select id="formSel">
+      <option value="ab">AB — Binary (hai đoạn)</option>
+      <option value="aba">ABA — Ternary (ba đoạn)</option>
+      <option value="aba_rnd">AB A' — Rounded Binary</option>
+      <option value="aaba">AABA — Jazz Standard (32 ô nhịp)</option>
+      <option value="rondo">ABACA — Rondo</option>
+      <option value="vcvc">Verse–Chorus — Pop</option>
+    </select>
+  </div>
+
+  <div id="formDesc" class="form-info" style="margin-bottom:12px"></div>
+
+  <div class="timeline" id="formTimeline"></div>
+
+  <div class="status-bar" id="statusBar">
+    <span class="sdesc">Click vào một khối để nghe motif đại diện của đoạn đó.</span>
+  </div>
+
+  <div class="row" style="margin-top:10px">
+    <button id="playSeq">▶ Phát lần lượt</button>
+    <button id="stopBtn" class="ghost">■ Dừng</button>
+    <span class="hint" style="margin:0">Phát hết chuỗi tự động, mỗi đoạn ~1.2 giây</span>
+  </div>
+  <p class="hint">Màu khối: <span style="background:#dbeafe;padding:2px 7px;border-radius:4px;color:#1e40af;font-weight:600">A</span> · <span style="background:#fce7f3;padding:2px 7px;border-radius:4px;color:#9d174d;font-weight:600">B</span> · <span style="background:#d1fae5;padding:2px 7px;border-radius:4px;color:#065f46;font-weight:600">C</span> · <span style="background:#ede9fe;padding:2px 7px;border-radius:4px;color:#4c1d95;font-weight:600">Verse</span> · <span style="background:#fecaca;padding:2px 7px;border-radius:4px;color:#991b1b;font-weight:600">Chorus</span></p>
+</div>
+
+<!-- ===================================================== -->
+<h2>2. Bản đồ bài pop — tự động phát theo thứ tự</h2>
+<div class="card">
+  <p class="hint">Cấu trúc điển hình của bài pop 3–4 phút. Click một khối để phát; nút "Phát tự động" chạy qua toàn bộ, khối đang phát sẽ được làm nổi bật.</p>
+  <div style="overflow-x:auto">
+    <div class="pop-seq" id="popSeq"></div>
+  </div>
+  <div class="status-bar" id="popStatus">
+    <span class="sdesc">Click một đoạn để nghe, hoặc bấm "Phát tự động".</span>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <button id="popAuto">▶ Phát tự động</button>
+    <button id="popStop" class="ghost">■ Dừng</button>
+    <button id="popReset" class="ghost">↺ Reset</button>
+  </div>
+</div>
+
+<!-- ===================================================== -->
+<h2>3. Tự xếp form — ghép khối, nghe kết quả</h2>
+<div class="card">
+  <p class="hint">Chọn đoạn bên dưới rồi click "Thêm". Ghép thành cấu trúc bất kỳ rồi bấm "Phát tất cả" để nghe.</p>
+  <div class="palette" id="palette"></div>
+  <div class="row">
+    <button id="addBlock">+ Thêm đoạn đã chọn</button>
+    <button id="clearBuilder" class="ghost">✕ Xóa tất cả</button>
+  </div>
+  <div class="builder-timeline" id="builderTL">
+    <span class="builder-empty" id="builderEmpty">← Chọn đoạn và thêm vào đây</span>
+  </div>
+  <div style="margin:8px 0">
+    Cấu trúc: <span id="builderName" class="builder-name">—</span>
+  </div>
+  <div class="row">
+    <button id="playBuilder">▶ Phát tất cả</button>
+    <button id="stopBuilder" class="ghost">■ Dừng</button>
+  </div>
+  <div class="status-bar" id="builderStatus">
+    <span class="sdesc">Ghép các đoạn và nghe tổng thể.</span>
+  </div>
+</div>
+
+<script>
+// =============================================
+// WEB AUDIO CORE (giống pattern lesson 01)
+// =============================================
+let ctx = null;
+function audio() {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  return ctx;
+}
+
+function playTone(freq, dur = 0.7, when = 0, vol = 0.22) {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol, t0 + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+const NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function freqFromN(n) { return 440 * Math.pow(2, n / 12); }
+function nameFromN(n) {
+  const midi = 69 + n;
+  return NAMES[((midi % 12) + 12) % 12] + (Math.floor(midi / 12) - 1);
+}
+
+// =============================================
+// MOTIF DEFINITIONS — mỗi section có 1 motif ngắn
+// Motif = mảng [n_semitones_from_A4, duration_sec]
+// =============================================
+const MOTIFS = {
+  // A: giai điệu vui, ổn định — C major arpeggio-style
+  A: [
+    [-9, 0.25], [-5, 0.25], [-2, 0.25], [3, 0.3],
+    [-2, 0.2], [-5, 0.5]
+  ],
+  // A_prime: như A nhưng kết hơi khác
+  "A'": [
+    [-9, 0.25], [-5, 0.25], [-2, 0.25], [3, 0.3],
+    [0, 0.2], [-9, 0.6]
+  ],
+  // B: tương phản — vùng minor/dominant, căng hơn
+  B: [
+    [-2, 0.3], [1, 0.3], [-2, 0.3], [-4, 0.3],
+    [-5, 0.5]
+  ],
+  // C: đoạn mới thứ 2 — hướng lên, mới lạ
+  C: [
+    [3, 0.25], [5, 0.25], [7, 0.25], [8, 0.25],
+    [7, 0.2], [3, 0.5]
+  ],
+  // Verse: mộc mạc, kể chuyện — đơn giản bước đi
+  V: [
+    [-9, 0.3], [-7, 0.3], [-5, 0.3], [-4, 0.3],
+    [-5, 0.5]
+  ],
+  // Pre-chorus: căng thẳng, build-up
+  PC: [
+    [-4, 0.2], [-2, 0.2], [0, 0.2], [2, 0.2],
+    [3, 0.6]
+  ],
+  // Chorus: bùng cháy — jumpy, cao
+  CH: [
+    [3, 0.2], [7, 0.2], [3, 0.2], [7, 0.2],
+    [5, 0.2], [3, 0.5]
+  ],
+  // Bridge: khác hẳn — nhảy lên cao
+  BR: [
+    [8, 0.3], [5, 0.2], [8, 0.3], [10, 0.3],
+    [8, 0.5]
+  ],
+  // Intro / Outro: nhẹ
+  I: [
+    [-9, 0.4], [-5, 0.4], [-2, 0.4], [-9, 0.6]
+  ],
+  O: [
+    [-9, 0.3], [-12, 0.3], [-16, 0.3], [-21, 0.8]
+  ]
+};
+
+// Tổng duration của một motif
+function motifDur(key) {
+  const m = MOTIFS[key];
+  if (!m) return 0.8;
+  return m.reduce((s, [, d]) => s + d, 0);
+}
+
+// Phát một motif từ "when" (giây từ now)
+function playMotif(key, when = 0) {
+  const ac = audio();
+  const m = MOTIFS[key];
+  if (!m) { playTone(440, 0.6, when); return; }
+  let t = when;
+  m.forEach(([n, dur]) => {
+    playTone(freqFromN(n), dur * 0.85, t);
+    t += dur;
+  });
+}
+
+// =============================================
+// FORM DEFINITIONS
+// =============================================
+const SECTION_META = {
+  A:   { label: 'A',      cssClass: 'col-A',  name: 'Đoạn A', desc: 'Chủ đề chính, tông chủ, ổn định' },
+  "A'":{ label: "A'",    cssClass: 'col-A',  name: 'Đoạn A\'', desc: 'Chủ đề A quay về có biến tấu nhỏ' },
+  B:   { label: 'B',      cssClass: 'col-B',  name: 'Đoạn B', desc: 'Tương phản: chất liệu mới, tông mới' },
+  C:   { label: 'C',      cssClass: 'col-C',  name: 'Đoạn C', desc: 'Chất liệu mới thứ hai (Rondo)' },
+  I:   { label: 'Intro',  cssClass: 'col-I',  name: 'Intro', desc: 'Giới thiệu, thiết lập màu sắc âm nhạc' },
+  V:   { label: 'Verse',  cssClass: 'col-V',  name: 'Phiên khúc (Verse)', desc: 'Kể chuyện, lời thay đổi mỗi lần' },
+  PC:  { label: 'Pre-C',  cssClass: 'col-PC', name: 'Pre-Chorus', desc: 'Build-up căng thẳng trước điệp khúc' },
+  CH:  { label: 'Chorus', cssClass: 'col-CH', name: 'Điệp khúc (Chorus)', desc: 'Đỉnh cảm xúc, lời cố định, "bùng cháy"' },
+  BR:  { label: 'Bridge', cssClass: 'col-BR', name: 'Bridge', desc: 'Tương phản một lần duy nhất, sau chorus 2' },
+  O:   { label: 'Outro',  cssClass: 'col-O',  name: 'Outro', desc: 'Kết thúc, fade out hoặc cadence dứt khoát' },
+};
+
+const FORMS = {
+  ab: {
+    name: 'AB — Binary (hai đoạn)',
+    description: 'Hai đoạn tương phản. A thường kết ở dominant; B tiếp tục và kết về tonic. Phổ biến trong nhạc baroque (minuet, dance suite).',
+    sections: [
+      { key: 'A', bars: '1–8' },
+      { key: 'A', bars: '9–16', repeat: true },
+      { key: 'B', bars: '17–24' },
+      { key: 'B', bars: '25–32', repeat: true },
+    ]
+  },
+  aba: {
+    name: 'ABA — Ternary (ba đoạn)',
+    description: 'A trọn vẹn (kết tonic) → B tương phản → A quay lại đầy đủ. Tạo cảm giác "đi rồi trở về". Ví dụ: Für Elise (Beethoven).',
+    sections: [
+      { key: 'A',   bars: '1–16' },
+      { key: 'B',   bars: '17–32' },
+      { key: 'A',   bars: '33–48' },
+    ]
+  },
+  aba_rnd: {
+    name: "AB A' — Rounded Binary",
+    description: "A chuyển ngay sang B (không dừng ở tonic), B dẫn về A' rút gọn. Phổ biến trong sonatina và nhiều bài classical nhỏ.",
+    sections: [
+      { key: 'A',   bars: '1–8' },
+      { key: 'B',   bars: '9–20' },
+      { key: "A'",  bars: '21–28' },
+    ]
+  },
+  aaba: {
+    name: 'AABA — Jazz Standard (32 ô nhịp)',
+    description: 'Mỗi đoạn 8 ô nhịp. A = chủ đề tonic; B = bridge/middle eight (tông mới, tương phản); A3 = chủ đề quay về. Ví dụ: Autumn Leaves, Take the A Train.',
+    sections: [
+      { key: 'A',  bars: '1–8',   label: 'A (1–8)' },
+      { key: 'A',  bars: '9–16',  label: 'A (9–16)' },
+      { key: 'B',  bars: '17–24', label: 'B Bridge (17–24)' },
+      { key: 'A',  bars: '25–32', label: 'A (25–32)' },
+    ]
+  },
+  rondo: {
+    name: 'ABACA — Rondo',
+    description: 'Đoạn A là "trạm cơ sở" — trở về sau mỗi đoạn mới. ABACA là rondo 5 đoạn phổ biến nhất. Ví dụ: Rondo alla Turca (Mozart).',
+    sections: [
+      { key: 'A', bars: '1–16' },
+      { key: 'B', bars: '17–32' },
+      { key: 'A', bars: '33–48' },
+      { key: 'C', bars: '49–64' },
+      { key: 'A', bars: '65–80' },
+    ]
+  },
+  vcvc: {
+    name: 'Verse–Chorus — Pop',
+    description: 'Intro → Verse → Pre-Chorus → Chorus (× 2) → Bridge → Chorus. Verse kể chuyện (lời đổi); Chorus bùng nổ (lời cố định); Bridge xuất hiện một lần.',
+    sections: [
+      { key: 'I',  bars: '8' },
+      { key: 'V',  bars: '16', label: 'Verse 1' },
+      { key: 'PC', bars: '8' },
+      { key: 'CH', bars: '16', label: 'Chorus 1' },
+      { key: 'V',  bars: '16', label: 'Verse 2' },
+      { key: 'PC', bars: '8' },
+      { key: 'CH', bars: '16', label: 'Chorus 2' },
+      { key: 'BR', bars: '10', label: 'Bridge' },
+      { key: 'CH', bars: '16', label: 'Chorus 3' },
+      { key: 'O',  bars: '4' },
+    ]
+  }
+};
+
+// =============================================
+// SECTION 1: Form Explorer
+// =============================================
+const formSel      = document.getElementById('formSel');
+const formDesc     = document.getElementById('formDesc');
+const formTimeline = document.getElementById('formTimeline');
+const statusBar    = document.getElementById('statusBar');
+
+let seqTimeout = null;
+let seqActive = false;
+
+function clearSeq() {
+  seqActive = false;
+  if (seqTimeout) { clearTimeout(seqTimeout); seqTimeout = null; }
+}
+
+function buildFormTimeline(formKey) {
+  clearSeq();
+  const form = FORMS[formKey];
+  // description
+  formDesc.innerHTML = `<p style="margin:0 0 8px;color:#374151">${form.description}</p>`;
+
+  // timeline blocks
+  formTimeline.innerHTML = '';
+  form.sections.forEach((sec, i) => {
+    const meta = SECTION_META[sec.key] || SECTION_META['A'];
+    const el = document.createElement('div');
+    el.className = `tblock ${meta.cssClass}`;
+    el.dataset.idx = i;
+    el.dataset.key = sec.key;
+    const displayLabel = sec.label || meta.label;
+    el.innerHTML = `<span>${displayLabel}</span><span class="bmeasures">${sec.bars ? sec.bars + ' ô' : ''}</span>`;
+    el.title = `${meta.name}: ${meta.desc}`;
+    el.addEventListener('click', () => playSectionBlock(sec.key, el));
+    formTimeline.appendChild(el);
+  });
+  setStatus('statusBar', '', `Chọn form: <strong>${form.name}</strong>. Click vào khối để nghe motif đại diện.`);
+}
+
+function playSectionBlock(key, el) {
+  clearSeq();
+  audio(); // unlock context
+  playMotif(key, 0);
+  const meta = SECTION_META[key] || SECTION_META['A'];
+  setStatus('statusBar', meta.name, meta.desc);
+  // highlight
+  document.querySelectorAll('#formTimeline .tblock').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const dur = motifDur(key);
+  seqTimeout = setTimeout(() => {
+    if (el) el.classList.remove('active');
+  }, dur * 1000 + 300);
+}
+
+function setStatus(id, name, desc) {
+  const bar = document.getElementById(id);
+  bar.innerHTML = name
+    ? `<span class="sname">${name}</span><span class="sep" style="color:#ccc">|</span><span class="sdesc">${desc}</span>`
+    : `<span class="sdesc">${desc}</span>`;
+}
+
+// play sequence
+document.getElementById('playSeq').addEventListener('click', () => {
+  clearSeq();
+  seqActive = true;
+  const formKey = formSel.value;
+  const form = FORMS[formKey];
+  const blocks = formTimeline.querySelectorAll('.tblock');
+  let offset = 0;
+  const GAP = 0.12;
+
+  form.sections.forEach((sec, i) => {
+    const dur = motifDur(sec.key);
+    const myOffset = offset;
+    const myI = i;
+    seqTimeout = setTimeout(() => {
+      if (!seqActive) return;
+      blocks.forEach(b => b.classList.remove('active'));
+      blocks[myI] && blocks[myI].classList.add('active');
+      playMotif(sec.key, 0);
+      const meta = SECTION_META[sec.key] || SECTION_META['A'];
+      setStatus('statusBar', meta.name, meta.desc + (sec.label ? ` — ${sec.label}` : ''));
+    }, myOffset * 1000);
+    offset += dur + GAP;
+  });
+  // clear active at end
+  seqTimeout = setTimeout(() => {
+    blocks.forEach(b => b.classList.remove('active'));
+    setStatus('statusBar', '', 'Đã phát xong. Click lại hoặc chọn form khác.');
+    seqActive = false;
+  }, offset * 1000 + 300);
+});
+
+document.getElementById('stopBtn').addEventListener('click', () => {
+  clearSeq();
+  document.querySelectorAll('#formTimeline .tblock').forEach(b => b.classList.remove('active'));
+  setStatus('statusBar', '', 'Đã dừng.');
+});
+
+formSel.addEventListener('change', () => buildFormTimeline(formSel.value));
+buildFormTimeline('ab');
+
+// =============================================
+// SECTION 2: Pop Map
+// =============================================
+const POP_SECTIONS = [
+  { key: 'I',  label: 'Intro',    name: 'Intro',        bars: 8,  desc: 'Nhạc cụ, thiết lập groove' },
+  { key: 'V',  label: 'V1',       name: 'Verse 1',      bars: 16, desc: 'Lời kể chuyện phần 1, năng lượng vừa' },
+  { key: 'PC', label: 'Pre-C',    name: 'Pre-Chorus',   bars: 8,  desc: 'Build-up căng thẳng' },
+  { key: 'CH', label: 'Chorus 1', name: 'Chorus 1',     bars: 16, desc: 'Bùng nổ, lời hook chính' },
+  { key: 'V',  label: 'V2',       name: 'Verse 2',      bars: 16, desc: 'Lời mới, nhạc tương tự V1' },
+  { key: 'PC', label: 'Pre-C',    name: 'Pre-Chorus',   bars: 8,  desc: 'Y chang PC trước' },
+  { key: 'CH', label: 'Chorus 2', name: 'Chorus 2',     bars: 16, desc: 'Y chang Chorus 1' },
+  { key: 'BR', label: 'Bridge',   name: 'Bridge',       bars: 10, desc: '"Break" tương phản một lần' },
+  { key: 'CH', label: 'Chorus 3', name: 'Chorus 3',     bars: 16, desc: 'Có thể thêm lớp hòa âm' },
+  { key: 'O',  label: 'Outro',    name: 'Outro',        bars: 4,  desc: 'Fade out hoặc cadence dứt' },
+];
+
+const popSeq = document.getElementById('popSeq');
+let popAuto = false, popAutoTimeout = null;
+
+POP_SECTIONS.forEach((sec, i) => {
+  const meta = SECTION_META[sec.key] || SECTION_META['A'];
+  const el = document.createElement('div');
+  el.className = `pop-block ${meta.cssClass}`;
+  el.dataset.idx = i;
+  el.innerHTML = `<span class="pb-label">${sec.label}</span><span class="pb-name">${meta.label !== sec.label ? meta.name.replace('Phiên khúc (','').replace(')','').replace('Điệp khúc (','').replace(')','') : ''}</span><span class="pb-bars">${sec.bars} ô</span>`;
+  el.title = `${sec.name}: ${sec.desc}`;
+  el.addEventListener('click', () => {
+    stopPopAuto();
+    playPopBlock(i);
+  });
+  popSeq.appendChild(el);
+});
+
+function playPopBlock(i) {
+  const sec = POP_SECTIONS[i];
+  audio();
+  playMotif(sec.key, 0);
+  document.querySelectorAll('#popSeq .pop-block').forEach(b => b.classList.remove('playing'));
+  popSeq.children[i] && popSeq.children[i].classList.add('playing');
+  setStatus('popStatus', sec.name, sec.desc);
+  const dur = motifDur(sec.key);
+  return dur;
+}
+
+function stopPopAuto() {
+  popAuto = false;
+  if (popAutoTimeout) { clearTimeout(popAutoTimeout); popAutoTimeout = null; }
+}
+
+document.getElementById('popAuto').addEventListener('click', () => {
+  stopPopAuto();
+  popAuto = true;
+  let i = 0;
+  const GAP = 0.1;
+  function next() {
+    if (!popAuto || i >= POP_SECTIONS.length) {
+      document.querySelectorAll('#popSeq .pop-block').forEach(b => b.classList.remove('playing'));
+      setStatus('popStatus', '', 'Đã phát xong toàn bộ chuỗi pop. Nghe thấy sự thay đổi giữa các section chưa?');
+      popAuto = false;
+      return;
+    }
+    const dur = playPopBlock(i);
+    i++;
+    popAutoTimeout = setTimeout(next, (dur + GAP) * 1000);
+  }
+  next();
+});
+
+document.getElementById('popStop').addEventListener('click', () => {
+  stopPopAuto();
+  document.querySelectorAll('#popSeq .pop-block').forEach(b => b.classList.remove('playing'));
+  setStatus('popStatus', '', 'Đã dừng.');
+});
+
+document.getElementById('popReset').addEventListener('click', () => {
+  stopPopAuto();
+  document.querySelectorAll('#popSeq .pop-block').forEach(b => b.classList.remove('playing'));
+  setStatus('popStatus', '', 'Click một đoạn để nghe, hoặc bấm "Phát tự động".');
+});
+
+// =============================================
+// SECTION 3: Builder
+// =============================================
+const PALETTE_ITEMS = [
+  { key: 'A',  label: 'A' },
+  { key: "A'", label: "A'" },
+  { key: 'B',  label: 'B' },
+  { key: 'C',  label: 'C' },
+  { key: 'V',  label: 'Verse' },
+  { key: 'PC', label: 'Pre-C' },
+  { key: 'CH', label: 'Chorus' },
+  { key: 'BR', label: 'Bridge' },
+  { key: 'I',  label: 'Intro' },
+  { key: 'O',  label: 'Outro' },
+];
+
+const palette = document.getElementById('palette');
+let selectedPalKey = 'A';
+let builderBlocks = []; // array of keys
+let builderAutoActive = false, builderAutoTimeout = null;
+
+PALETTE_ITEMS.forEach(item => {
+  const meta = SECTION_META[item.key] || SECTION_META['A'];
+  const el = document.createElement('div');
+  el.className = `pal-block ${meta.cssClass}`;
+  el.dataset.key = item.key;
+  el.textContent = item.label;
+  el.title = meta.name;
+  el.addEventListener('click', () => {
+    palette.querySelectorAll('.pal-block').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedPalKey = item.key;
+  });
+  palette.appendChild(el);
+});
+palette.firstChild.classList.add('selected');
+
+function renderBuilder() {
+  const tl = document.getElementById('builderTL');
+  const emp = document.getElementById('builderEmpty');
+  const nameEl = document.getElementById('builderName');
+
+  // clear non-empty elements
+  Array.from(tl.children).forEach(c => { if (c !== emp) tl.removeChild(c); });
+
+  if (builderBlocks.length === 0) {
+    emp.style.display = '';
+    nameEl.textContent = '—';
+    return;
+  }
+  emp.style.display = 'none';
+
+  builderBlocks.forEach((key, idx) => {
+    const meta = SECTION_META[key] || SECTION_META['A'];
+    const el = document.createElement('div');
+    el.className = `builder-block ${meta.cssClass}`;
+    el.dataset.idx = idx;
+    el.innerHTML = `<span>${meta.label}</span><span class="del-btn">×</span>`;
+    el.querySelector('.del-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      builderBlocks.splice(idx, 1);
+      renderBuilder();
+    });
+    el.addEventListener('click', () => {
+      stopBuilderAuto();
+      playMotif(key, 0);
+      setStatus('builderStatus', meta.name, meta.desc);
+    });
+    tl.appendChild(el);
+  });
+
+  // build name string
+  nameEl.textContent = builderBlocks.map(k => SECTION_META[k]?.label || k).join(' → ');
+}
+
+document.getElementById('addBlock').addEventListener('click', () => {
+  builderBlocks.push(selectedPalKey);
+  renderBuilder();
+});
+
+document.getElementById('clearBuilder').addEventListener('click', () => {
+  stopBuilderAuto();
+  builderBlocks = [];
+  renderBuilder();
+  setStatus('builderStatus', '', 'Đã xóa. Ghép lại từ đầu.');
+});
+
+function stopBuilderAuto() {
+  builderAutoActive = false;
+  if (builderAutoTimeout) { clearTimeout(builderAutoTimeout); builderAutoTimeout = null; }
+}
+
+document.getElementById('playBuilder').addEventListener('click', () => {
+  if (builderBlocks.length === 0) {
+    setStatus('builderStatus', '', 'Chưa có đoạn nào. Thêm vào trước.');
+    return;
+  }
+  stopBuilderAuto();
+  builderAutoActive = true;
+  const tl = document.getElementById('builderTL');
+  const bblocks = Array.from(tl.querySelectorAll('.builder-block'));
+  let i = 0;
+  const GAP = 0.1;
+  function next() {
+    if (!builderAutoActive || i >= builderBlocks.length) {
+      bblocks.forEach(b => b.style.outline = '');
+      setStatus('builderStatus', '', 'Phát xong! Cấu trúc: ' + builderBlocks.map(k => SECTION_META[k]?.label || k).join(' → '));
+      builderAutoActive = false;
+      return;
+    }
+    bblocks.forEach(b => b.style.outline = '');
+    if (bblocks[i]) bblocks[i].style.outline = '2px solid #1a202c';
+    const key = builderBlocks[i];
+    audio();
+    playMotif(key, 0);
+    const meta = SECTION_META[key] || SECTION_META['A'];
+    setStatus('builderStatus', meta.name, meta.desc);
+    const dur = motifDur(key);
+    i++;
+    builderAutoTimeout = setTimeout(next, (dur + GAP) * 1000);
+  }
+  next();
+});
+
+document.getElementById('stopBuilder').addEventListener('click', () => {
+  stopBuilderAuto();
+  Array.from(document.getElementById('builderTL').querySelectorAll('.builder-block')).forEach(b => b.style.outline = '');
+  setStatus('builderStatus', '', 'Đã dừng.');
+});
+
+renderBuilder();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

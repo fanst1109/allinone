@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Âm sắc &amp; chuỗi bội âm</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  main { max-width: 960px; }
+
+  .card {
+    background: #fff; border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0 0; line-height: 1.5; }
+  label { font-weight: 600; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: #6b21a8; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  button.active-btn { background: #6b21a8; outline: 3px solid #c4b5fd; }
+
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  .badge {
+    display: inline-block; background: #e9d5ff; color: #6b21a8;
+    padding: 3px 9px; border-radius: 6px; font-family: monospace;
+    font-weight: 700; margin: 2px; font-size: 13px;
+  }
+  .result {
+    padding: 12px 16px; background: #f3e8ff; border-radius: 8px;
+    margin-top: 12px; font-size: 15px; line-height: 1.7;
+  }
+
+  /* ---- Additive Synth ---- */
+  .harmonics-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .h-col {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .h-col .h-label { font-size: 12px; font-weight: 700; color: #7e22ce; }
+  .h-col .h-freq  { font-size: 10px; color: #888; }
+  .h-col .h-amp   { font-size: 11px; color: #444; font-family: monospace; }
+  input[type="range"].vert {
+    -webkit-appearance: slider-vertical;
+    appearance: slider-vertical;
+    writing-mode: vertical-lr;
+    direction: rtl;
+    width: 28px; height: 110px;
+    accent-color: #7e22ce;
+    cursor: pointer;
+  }
+
+  .wave-canvas {
+    display: block; width: 100%; height: auto;
+    background: #faf7fb; border: 1px solid #e9d5ff; border-radius: 8px;
+    margin: 10px 0;
+  }
+  .spectrum-canvas {
+    display: block; width: 100%; height: auto;
+    background: #1a1a2e; border-radius: 8px;
+    margin: 10px 0;
+  }
+
+  /* ---- Waveform comparison ---- */
+  .wave-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .wave-btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .wave-info {
+    font-size: 13px; background: #f3e8ff; border-radius: 8px;
+    padding: 10px 14px; line-height: 1.6; margin: 8px 0;
+    min-height: 60px;
+  }
+  .wave-info code { background: #e9d5ff; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+
+  /* ---- Harmonic table ---- */
+  .ht-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 10px 0; }
+  .ht-row input[type="number"] {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 15px; font-family: monospace; width: 100px;
+  }
+  .ht-wrap { overflow-x: auto; }
+  table.ht {
+    border-collapse: collapse; width: 100%; min-width: 520px; font-size: 14px;
+  }
+  table.ht th {
+    background: #7e22ce; color: #fff; padding: 8px 10px; text-align: center;
+    font-weight: 700; font-size: 13px;
+  }
+  table.ht td {
+    padding: 7px 10px; text-align: center; border-bottom: 1px solid #f3e8ff;
+  }
+  table.ht tr:nth-child(even) td { background: #faf7fb; }
+  table.ht tr:hover td { background: #f3e8ff; }
+  .tag-octave { color: #16a34a; font-weight: 700; }
+  .tag-fifth  { color: #2563eb; font-weight: 700; }
+  .tag-third  { color: #d97706; font-weight: 700; }
+  .tag-fund   { color: #7e22ce; font-weight: 700; }
+  .tag-other  { color: #555; }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 640px) {
+    .harmonics-grid { grid-template-columns: repeat(4, 1fr); }
+    .wave-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 420px) {
+    .harmonics-grid { grid-template-columns: repeat(4, 1fr); gap: 4px; }
+    input[type="range"].vert { height: 80px; width: 24px; }
+    .h-col .h-label { font-size: 11px; }
+    .h-col .h-freq  { font-size: 9px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Applied &amp; Composition</a>
+  <span class="sep">·</span>
+  <a href="../../02-Harmony/index.html">← Tầng 2: Harmony</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Âm sắc &amp; bội âm</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-tuning-temperament/visualization.html">L2: Hệ điều âm →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — Âm sắc &amp; chuỗi bội âm</h1>
+<p>Cùng một nốt A4 (440 Hz) — sáo, violin, giọng người — nghe khác nhau vì <strong>cấu trúc bội âm</strong> khác nhau.
+Ba công cụ dưới đây cho bạn <em>nghe</em> và <em>thấy</em> điều đó. <strong>🔊 Bật loa.</strong></p>
+
+<!-- ===== SECTION 1: Additive Synth ===== -->
+<h2>1. Xưởng bội âm — Tổng hợp âm cộng (Additive Synthesis)</h2>
+<div class="card">
+  <p>Kéo các thanh trượt để điều chỉnh <strong>biên độ</strong> (0–1) của từng bội âm. Âm thanh và dạng sóng
+  cập nhật ngay lập tức. Kéo tất cả về 0 trừ H1 = sine thuần. Thêm H3, H5... = bắt đầu giống square.
+  Bật đủ H1..H8 = gần sawtooth.</p>
+
+  <div class="row">
+    <label for="fundFreq">Tần số cơ bản f₁:</label>
+    <input type="range" id="fundFreq" min="80" max="400" value="220" step="1"
+           style="flex:1; min-width:120px; accent-color:#7e22ce;">
+    <span class="val" id="fundFreqVal">220</span> Hz
+    <span style="font-size:13px; color:#888;" id="fundNote">(A3)</span>
+  </div>
+
+  <div class="harmonics-grid" id="harmonicsGrid"></div>
+
+  <div class="row" style="gap:8px; flex-wrap:wrap;">
+    <button id="playAdditive">▶ Phát âm cộng</button>
+    <button id="stopAdditive" class="ghost">■ Dừng</button>
+    <button class="ghost" id="presetSine">Preset: Sine</button>
+    <button class="ghost" id="presetSquare">Preset: Square</button>
+    <button class="ghost" id="presetSaw">Preset: Sawtooth</button>
+    <button class="ghost" id="presetTriangle">Preset: Triangle</button>
+  </div>
+
+  <p class="hint" id="specDesc">Dạng sóng tổng (màu tím). Kéo slider để nghe âm sắc thay đổi.</p>
+
+  <canvas id="waveCanvas" width="880" height="160" class="wave-canvas"></canvas>
+  <canvas id="specCanvas" width="880" height="120" class="spectrum-canvas"></canvas>
+  <p class="hint">Sơ đồ phổ (dưới): thanh màu tím = harmonic đang bật. Chiều cao = biên độ. Thêm harmonic → âm sáng hơn.</p>
+</div>
+
+<!-- ===== SECTION 2: Waveform Comparison ===== -->
+<h2>2. So sánh dạng sóng — Sine / Square / Sawtooth / Triangle</h2>
+<div class="card">
+  <p>Bốn dạng sóng cơ bản có cấu trúc bội âm khác nhau. Chọn một dạng, phát âm, và quan sát sóng + danh sách harmonic.</p>
+
+  <div class="row" style="gap:8px; flex-wrap:wrap;">
+    <label>Tần số:</label>
+    <input type="range" id="waveFreq" min="100" max="500" value="220" step="1"
+           style="width:140px; accent-color:#7e22ce;">
+    <span class="val" id="waveFreqVal">220</span> Hz
+  </div>
+
+  <div class="wave-btn-group">
+    <button id="btnSine"     class="active-btn">Sine (sine)</button>
+    <button id="btnSquare"   class="ghost">Square (square)</button>
+    <button id="btnSaw"      class="ghost">Sawtooth (sawtooth)</button>
+    <button id="btnTriangle" class="ghost">Triangle (triangle)</button>
+  </div>
+
+  <div class="wave-info" id="waveInfo">
+    <strong>Sine:</strong> Chỉ có H1 (fundamental). Âm "thuần", không có bội âm nào khác.
+    Gần với sáo flute ở register cao, hoặc tiếng còi điện tử.
+    <br>Harmonic: <code>H1 (biên độ 1.000)</code>
+  </div>
+
+  <div class="wave-grid">
+    <div>
+      <canvas id="cmpWave" width="420" height="160" class="wave-canvas" viewBox="0 0 420 160"></canvas>
+      <p class="hint" style="text-align:center">Dạng sóng thời gian</p>
+    </div>
+    <div>
+      <canvas id="cmpSpec" width="420" height="160" class="spectrum-canvas"></canvas>
+      <p class="hint" style="text-align:center; color:#aaa">Phổ bội âm</p>
+    </div>
+  </div>
+
+  <div class="row" style="gap:8px;">
+    <button id="playWave">▶ Phát</button>
+    <button id="stopWave" class="ghost">■ Dừng</button>
+    <span class="hint" id="wavePlayInfo">&nbsp;</span>
+  </div>
+</div>
+
+<!-- ===== SECTION 3: Harmonic Table ===== -->
+<h2>3. Bảng chuỗi bội âm — nhãn nhạc lý</h2>
+<div class="card">
+  <p>Nhập tần số cơ bản bất kỳ. Bảng hiển thị H1..H12, tần số, và quan hệ nhạc lý so với f₁.</p>
+
+  <div class="ht-row">
+    <label for="htFreq">f₁ =</label>
+    <input type="number" id="htFreq" value="110" min="20" max="500" step="1"> Hz
+    <span style="font-size:13px; color:#888;" id="htNote"></span>
+    <button id="htPresetA2">A2 (110 Hz)</button>
+    <button class="ghost" id="htPresetC4">C4 (261.63 Hz)</button>
+    <button class="ghost" id="htPresetE2">E2 (82.41 Hz)</button>
+  </div>
+
+  <div class="ht-wrap">
+    <table class="ht" id="htTable">
+      <thead>
+        <tr>
+          <th>Harmonic</th>
+          <th>Tần số (Hz)</th>
+          <th>Nốt gần nhất</th>
+          <th>Lệch (cents)</th>
+          <th>Quan hệ nhạc lý</th>
+        </tr>
+      </thead>
+      <tbody id="htBody"></tbody>
+    </table>
+  </div>
+  <div class="row" style="gap:8px; margin-top:12px; flex-wrap:wrap;">
+    <button id="htPlayAll">▶ Phát chuỗi (tuần tự)</button>
+    <button id="htPlayChord" class="ghost">▶ Phát hợp âm (cùng lúc)</button>
+    <button id="htStop" class="ghost">■ Dừng</button>
+    <span class="hint" id="htStatus">&nbsp;</span>
+  </div>
+  <p class="hint">
+    <span class="tag-fund">■ Tím</span> = fundamental &nbsp;
+    <span class="tag-octave">■ Xanh lá</span> = octave &nbsp;
+    <span class="tag-fifth">■ Xanh dương</span> = quãng 5 &nbsp;
+    <span class="tag-third">■ Cam</span> = quãng 3 trưởng &nbsp;
+    <span class="tag-other">■ Xám</span> = khác
+  </p>
+</div>
+
+<script>
+// ============================================================
+// Web Audio helpers
+// ============================================================
+let ctx = null;
+function audio() {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  return ctx;
+}
+
+const NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+function freqFromN(n) { return 440 * Math.pow(2, n / 12); }
+
+function nameFromN(n) {
+  const midi = 69 + n;
+  const oct  = Math.floor(midi / 12) - 1;
+  const name = NAMES[((midi % 12) + 12) % 12];
+  return name + oct;
+}
+
+/** Convert Hz → nearest note name + cents deviation */
+function freqToNote(freq) {
+  const n    = Math.round(12 * Math.log2(freq / 440));
+  const nf   = freqFromN(n);
+  const cents = 1200 * Math.log2(freq / nf);
+  return { name: nameFromN(n), freq: nf, cents };
+}
+
+/** Play a simple tone via osc.type */
+function playTone(freq, dur = 0.8, type = 'sine', gain = 0.25, when = 0) {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g   = ac.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(gain, t0 + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+  return osc;
+}
+
+/** Play additive synthesis: array of {freq, amp} */
+let additiveNodes = [];
+function stopAdditiveSynth() {
+  additiveNodes.forEach(({ osc, g }) => {
+    try {
+      const ac = audio();
+      const t = ac.currentTime;
+      g.gain.cancelScheduledValues(t);
+      g.gain.setValueAtTime(g.gain.value, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+      osc.stop(t + 0.07);
+    } catch(e) {}
+  });
+  additiveNodes = [];
+}
+
+function playAdditiveSynth(partials) {
+  stopAdditiveSynth();
+  const ac = audio();
+  const t0 = ac.currentTime;
+  partials.forEach(({ freq, amp }) => {
+    if (amp < 0.001) return;
+    const osc = ac.createOscillator();
+    const g   = ac.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(amp * 0.18, t0 + 0.03);
+    osc.connect(g).connect(ac.destination);
+    osc.start(t0);
+    additiveNodes.push({ osc, g });
+  });
+}
+
+// ============================================================
+// SECTION 1 — Additive Synth
+// ============================================================
+const NUM_HARMONICS = 8;
+let sliders = [];     // array of range inputs
+let ampVals = [1, 0.5, 0.33, 0.25, 0.2, 0.17, 0.14, 0.12]; // default sawtooth-ish
+
+const grid = document.getElementById('harmonicsGrid');
+const fundFreqInput  = document.getElementById('fundFreq');
+const fundFreqValEl  = document.getElementById('fundFreqVal');
+const fundNoteEl     = document.getElementById('fundNote');
+
+function getFundFreq() { return parseFloat(fundFreqInput.value) || 220; }
+
+function buildHarmonicsGrid() {
+  grid.innerHTML = '';
+  sliders = [];
+  const f = getFundFreq();
+  for (let i = 1; i <= NUM_HARMONICS; i++) {
+    const col  = document.createElement('div');
+    col.className = 'h-col';
+
+    const lbl  = document.createElement('div');
+    lbl.className = 'h-label';
+    lbl.textContent = 'H' + i;
+
+    const freq = document.createElement('div');
+    freq.className = 'h-freq';
+    freq.id = 'hfreq-' + i;
+    freq.textContent = Math.round(f * i) + ' Hz';
+
+    const sl = document.createElement('input');
+    sl.type  = 'range';
+    sl.className = 'vert';
+    sl.min   = 0; sl.max = 1; sl.step = 0.01;
+    sl.value = ampVals[i - 1] !== undefined ? ampVals[i - 1] : 0;
+    sl.setAttribute('data-h', i);
+
+    const ampLbl = document.createElement('div');
+    ampLbl.className = 'h-amp';
+    ampLbl.id = 'hamp-' + i;
+    ampLbl.textContent = parseFloat(sl.value).toFixed(2);
+
+    sl.addEventListener('input', () => {
+      ampVals[i - 1] = parseFloat(sl.value);
+      ampLbl.textContent = parseFloat(sl.value).toFixed(2);
+      drawAdditivePictures();
+      updateAdditiveSynth();
+    });
+
+    col.appendChild(lbl);
+    col.appendChild(freq);
+    col.appendChild(sl);
+    col.appendChild(ampLbl);
+    grid.appendChild(col);
+    sliders.push(sl);
+  }
+}
+
+function updateFreqLabels() {
+  const f = getFundFreq();
+  for (let i = 1; i <= NUM_HARMONICS; i++) {
+    const el = document.getElementById('hfreq-' + i);
+    if (el) el.textContent = Math.round(f * i) + ' Hz';
+  }
+}
+
+fundFreqInput.addEventListener('input', () => {
+  const f = getFundFreq();
+  fundFreqValEl.textContent = f;
+  const nn = freqToNote(f);
+  fundNoteEl.textContent = '(' + nn.name + ')';
+  updateFreqLabels();
+  drawAdditivePictures();
+  updateAdditiveSynth();
+});
+
+function getPartials() {
+  const f = getFundFreq();
+  return sliders.map((sl, i) => ({
+    freq: f * (i + 1),
+    amp:  parseFloat(sl.value)
+  }));
+}
+
+// Draw waveform (sum of sines, 2 cycles)
+const waveCanvas = document.getElementById('waveCanvas');
+const waveCtx    = waveCanvas.getContext('2d');
+
+function drawWaveform(canvas, ctx2d, partials, color = '#7e22ce') {
+  const W = canvas.width, H = canvas.height;
+  ctx2d.clearRect(0, 0, W, H);
+  // background
+  ctx2d.fillStyle = '#faf7fb';
+  ctx2d.fillRect(0, 0, W, H);
+  // center line
+  ctx2d.strokeStyle = '#e9d5ff'; ctx2d.lineWidth = 1;
+  ctx2d.beginPath(); ctx2d.moveTo(0, H/2); ctx2d.lineTo(W, H/2); ctx2d.stroke();
+
+  const active = partials.filter(p => p.amp > 0.001);
+  if (active.length === 0) return;
+
+  // Normalize: find max amplitude
+  let maxA = 0;
+  const STEPS = W * 2;
+  for (let x = 0; x < STEPS; x++) {
+    const t = (x / STEPS) * 2; // 2 cycles of fundamental
+    let y = 0;
+    active.forEach(p => {
+      const relFreq = p.freq / active[0].freq * (p.freq / active.reduce((mn, q) => Math.min(mn, q.freq), Infinity));
+      y += p.amp * Math.sin(2 * Math.PI * p.freq / active.reduce((mn, q) => Math.min(mn, q.freq), Infinity) * t * Math.PI);
+    });
+    maxA = Math.max(maxA, Math.abs(y));
+  }
+
+  // Simpler approach: just draw sum, normalize by total amp
+  const totalAmp = active.reduce((s, p) => s + p.amp, 0) || 1;
+
+  ctx2d.strokeStyle = color; ctx2d.lineWidth = 2.5;
+  ctx2d.beginPath();
+  for (let x = 0; x <= W; x++) {
+    const t = (x / W) * 2; // 2 cycles of f1
+    let sum = 0;
+    active.forEach(p => {
+      const harmN = Math.round(p.freq / getFundFreq());
+      sum += p.amp * Math.sin(2 * Math.PI * harmN * t);
+    });
+    const yPx = H / 2 - (sum / totalAmp) * (H / 2 - 14);
+    x === 0 ? ctx2d.moveTo(x, yPx) : ctx2d.lineTo(x, yPx);
+  }
+  ctx2d.stroke();
+}
+
+// Draw spectrum (bar chart)
+const specCanvas = document.getElementById('specCanvas');
+const specCtx    = specCanvas.getContext('2d');
+
+function drawSpectrum(canvas, ctx2d, partials, dark = true) {
+  const W = canvas.width, H = canvas.height;
+  ctx2d.clearRect(0, 0, W, H);
+  ctx2d.fillStyle = dark ? '#1a1a2e' : '#faf7fb';
+  ctx2d.fillRect(0, 0, W, H);
+
+  const n = partials.length;
+  const barW = Math.floor(W / n) - 4;
+  const maxAmp = Math.max(...partials.map(p => p.amp), 0.001);
+
+  partials.forEach((p, i) => {
+    const x = Math.round((i / n) * W) + 2;
+    const bh = Math.round((p.amp / maxAmp) * (H - 24));
+    const y  = H - bh - 4;
+    const alpha = p.amp > 0.001 ? 1 : 0.15;
+    ctx2d.fillStyle = dark
+      ? `rgba(167,139,250,${alpha})`
+      : `rgba(126,34,206,${alpha})`;
+    ctx2d.fillRect(x, y, Math.max(barW, 2), bh);
+    // label
+    ctx2d.fillStyle = dark ? '#c4b5fd' : '#7e22ce';
+    ctx2d.font = '11px monospace';
+    ctx2d.textAlign = 'center';
+    ctx2d.fillText('H' + (i + 1), x + barW / 2, H - 1);
+  });
+}
+
+function drawAdditivePictures() {
+  const partials = getPartials();
+  drawWaveform(waveCanvas, waveCtx, partials, '#7e22ce');
+  drawSpectrum(specCanvas, specCtx, partials, true);
+
+  // Guess waveform name
+  const amps = partials.map(p => p.amp);
+  const desc = guessWaveformName(amps);
+  document.getElementById('specDesc').textContent = desc;
+}
+
+function guessWaveformName(amps) {
+  const tol = 0.08;
+  // Pure sine?
+  if (amps[0] > 0.05 && amps.slice(1).every(a => a < tol)) return 'Dạng sóng: ≈ Sine — chỉ H1. Âm thuần, không có bội âm.';
+  // Even harmonics near zero?
+  const evenNearZero = [1,3,5,7].every(i => i < amps.length && amps[i] < tol);
+  const oddPresent   = [0,2,4,6].some(i => i < amps.length && amps[i] > tol);
+  if (evenNearZero && oddPresent) {
+    // Distinguish triangle (fast falloff) vs square
+    const rat = amps[2] > 0.001 ? amps[0] / amps[2] : 999;
+    if (rat > 7) return 'Dạng sóng: ≈ Triangle — bội lẻ, biên độ giảm theo 1/n². Âm "ngọt", gần sine.';
+    return 'Dạng sóng: ≈ Square — bội lẻ, biên độ 1/n. Âm "đục", gần tiếng clarinet.';
+  }
+  // All harmonics present?
+  if (amps.slice(0, 6).every(a => a > tol)) return 'Dạng sóng: ≈ Sawtooth — đủ mọi bội âm, biên độ 1/n. Âm sáng, giàu harmonics.';
+  return 'Dạng sóng tổng hợp — tùy chỉnh. Kéo slider để nghe âm sắc thay đổi.';
+}
+
+let additiveIsPlaying = false;
+function updateAdditiveSynth() {
+  if (additiveIsPlaying) playAdditiveSynth(getPartials());
+}
+
+document.getElementById('playAdditive').addEventListener('click', () => {
+  audio(); // unlock
+  additiveIsPlaying = true;
+  playAdditiveSynth(getPartials());
+});
+document.getElementById('stopAdditive').addEventListener('click', () => {
+  additiveIsPlaying = false;
+  stopAdditiveSynth();
+});
+
+// Presets
+function setPreset(type) {
+  ampVals = new Array(NUM_HARMONICS).fill(0);
+  if (type === 'sine') {
+    ampVals[0] = 1;
+  } else if (type === 'square') {
+    for (let i = 0; i < NUM_HARMONICS; i++) {
+      if ((i + 1) % 2 === 1) ampVals[i] = 1 / (i + 1); // odd only
+    }
+  } else if (type === 'saw') {
+    for (let i = 0; i < NUM_HARMONICS; i++) ampVals[i] = 1 / (i + 1);
+  } else if (type === 'triangle') {
+    for (let i = 0; i < NUM_HARMONICS; i++) {
+      if ((i + 1) % 2 === 1) ampVals[i] = 1 / ((i + 1) * (i + 1));
+    }
+  }
+  // Rebuild sliders
+  buildHarmonicsGrid();
+  drawAdditivePictures();
+  updateAdditiveSynth();
+}
+
+document.getElementById('presetSine').addEventListener('click',     () => setPreset('sine'));
+document.getElementById('presetSquare').addEventListener('click',   () => setPreset('square'));
+document.getElementById('presetSaw').addEventListener('click',      () => setPreset('saw'));
+document.getElementById('presetTriangle').addEventListener('click', () => setPreset('triangle'));
+
+// Init
+buildHarmonicsGrid();
+// Start with sawtooth preset to show richness
+setPreset('saw');
+
+// ============================================================
+// SECTION 2 — Waveform Comparison
+// ============================================================
+let currentWaveType = 'sine';
+let waveOsc = null;
+let waveGain = null;
+
+const WAVE_INFO = {
+  sine: {
+    label: 'Sine (sine)',
+    desc: `<strong>Sine:</strong> Chỉ có H1 (fundamental). Âm "thuần", không có bội âm nào khác.
+    Gần với sáo flute ở register cao, hoặc tiếng còi điện tử.<br>
+    Harmonic: <code>H1 (biên độ 1.000)</code>`,
+    harmonics: [1]
+  },
+  square: {
+    label: 'Square (square)',
+    desc: `<strong>Square:</strong> Chỉ bội lẻ H1, H3, H5, H7... biên độ 1, 1/3, 1/5, 1/7.<br>
+    Âm "đục", "mũi". Gần tiếng clarinet (cột khí đơn). Thiếu hoàn toàn H2, H4, H6, H8.<br>
+    Harmonic: <code>H1(1.000), H3(0.333), H5(0.200), H7(0.143), H9(0.111)...</code>`,
+    harmonics: [1, 3, 5, 7]
+  },
+  sawtooth: {
+    label: 'Sawtooth (sawtooth)',
+    desc: `<strong>Sawtooth:</strong> Đủ mọi bội âm H1, H2, H3, H4... biên độ 1, 1/2, 1/3, 1/4.<br>
+    Âm "sáng", "kim loại", giàu harmonics. Gần violin cung kéo, kèn đồng.<br>
+    Harmonic: <code>H1(1.000), H2(0.500), H3(0.333), H4(0.250), H5(0.200)...</code>`,
+    harmonics: [1, 2, 3, 4, 5, 6, 7, 8]
+  },
+  triangle: {
+    label: 'Triangle (triangle)',
+    desc: `<strong>Triangle:</strong> Bội lẻ như square, nhưng biên độ giảm theo 1/n²: 1, 1/9, 1/25, 1/49.<br>
+    Âm "ngọt", gần sine hơn square. Ít năng lượng ở bội âm cao.<br>
+    Harmonic: <code>H1(1.000), H3(0.111), H5(0.040), H7(0.020)...</code>`,
+    harmonics: [1, 3, 5, 7]
+  }
+};
+
+const cmpWaveC = document.getElementById('cmpWave');
+const cmpWaveX = cmpWaveC.getContext('2d');
+const cmpSpecC = document.getElementById('cmpSpec');
+const cmpSpecX = cmpSpecC.getContext('2d');
+
+function drawWaveformForType(type) {
+  const W = cmpWaveC.width, H = cmpWaveC.height;
+  cmpWaveX.clearRect(0, 0, W, H);
+  cmpWaveX.fillStyle = '#faf7fb'; cmpWaveX.fillRect(0, 0, W, H);
+  // center line
+  cmpWaveX.strokeStyle = '#e9d5ff'; cmpWaveX.lineWidth = 1;
+  cmpWaveX.beginPath(); cmpWaveX.moveTo(0, H/2); cmpWaveX.lineTo(W, H/2); cmpWaveX.stroke();
+
+  cmpWaveX.strokeStyle = '#7e22ce'; cmpWaveX.lineWidth = 2.5;
+  cmpWaveX.beginPath();
+  for (let x = 0; x <= W; x++) {
+    const t = (x / W) * 2 * Math.PI; // 1 cycle shown, scaled
+    let y = 0;
+    if (type === 'sine') {
+      y = Math.sin(t);
+    } else if (type === 'square') {
+      y = Math.sign(Math.sin(t));
+    } else if (type === 'sawtooth') {
+      y = (t / Math.PI) - 1; // -1..1 for one cycle
+      if (y > 1) y -= 2;
+    } else if (type === 'triangle') {
+      y = (2 / Math.PI) * Math.asin(Math.sin(t));
+    }
+    const yPx = H / 2 - y * (H / 2 - 10);
+    x === 0 ? cmpWaveX.moveTo(x, yPx) : cmpWaveX.lineTo(x, yPx);
+  }
+  cmpWaveX.stroke();
+}
+
+function drawSpectrumForType(type) {
+  const W = cmpSpecC.width, H = cmpSpecC.height;
+  cmpSpecX.clearRect(0, 0, W, H);
+  cmpSpecX.fillStyle = '#1a1a2e'; cmpSpecX.fillRect(0, 0, W, H);
+
+  const maxH = 10;
+  const barW = Math.floor(W / maxH) - 4;
+
+  for (let n = 1; n <= maxH; n++) {
+    let amp = 0;
+    if (type === 'sine') {
+      amp = n === 1 ? 1 : 0;
+    } else if (type === 'square') {
+      amp = n % 2 === 1 ? 1 / n : 0;
+    } else if (type === 'sawtooth') {
+      amp = 1 / n;
+    } else if (type === 'triangle') {
+      amp = n % 2 === 1 ? 1 / (n * n) : 0;
+    }
+    const x = Math.round(((n - 1) / maxH) * W) + 2;
+    const bh = Math.round(amp * (H - 22));
+    const y  = H - bh - 4;
+    cmpSpecX.fillStyle = amp > 0.001 ? 'rgba(167,139,250,1)' : 'rgba(167,139,250,0.12)';
+    cmpSpecX.fillRect(x, y, Math.max(barW, 2), bh);
+    cmpSpecX.fillStyle = '#c4b5fd';
+    cmpSpecX.font = '10px monospace'; cmpSpecX.textAlign = 'center';
+    cmpSpecX.fillText('H' + n, x + barW / 2, H - 1);
+  }
+}
+
+function selectWaveType(type) {
+  currentWaveType = type;
+  document.getElementById('waveInfo').innerHTML = WAVE_INFO[type].desc;
+  ['Sine','Square','Saw','Triangle'].forEach(t => {
+    const btn = document.getElementById('btn' + t);
+    const key = t === 'Saw' ? 'sawtooth' : t.toLowerCase();
+    btn.className = key === type ? 'active-btn' : 'ghost';
+  });
+  drawWaveformForType(type);
+  drawSpectrumForType(type);
+  document.getElementById('wavePlayInfo').textContent = '';
+  // Update playing osc if running
+  if (waveOsc) {
+    restartWaveOsc();
+  }
+}
+
+function restartWaveOsc() {
+  if (waveOsc) {
+    try { waveOsc.stop(); } catch(e) {}
+    waveOsc = null; waveGain = null;
+  }
+  const ac  = audio();
+  const f   = parseFloat(document.getElementById('waveFreq').value) || 220;
+  const osc = ac.createOscillator();
+  const g   = ac.createGain();
+  osc.type = currentWaveType;
+  osc.frequency.value = f;
+  g.gain.setValueAtTime(0.0001, ac.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.2, ac.currentTime + 0.03);
+  osc.connect(g).connect(ac.destination);
+  osc.start();
+  waveOsc = osc; waveGain = g;
+  document.getElementById('wavePlayInfo').textContent = '▶ đang phát ' + WAVE_INFO[currentWaveType].label;
+}
+
+document.getElementById('btnSine').addEventListener('click',     () => selectWaveType('sine'));
+document.getElementById('btnSquare').addEventListener('click',   () => selectWaveType('square'));
+document.getElementById('btnSaw').addEventListener('click',      () => selectWaveType('sawtooth'));
+document.getElementById('btnTriangle').addEventListener('click', () => selectWaveType('triangle'));
+
+document.getElementById('waveFreq').addEventListener('input', () => {
+  const f = parseFloat(document.getElementById('waveFreq').value) || 220;
+  document.getElementById('waveFreqVal').textContent = f;
+  if (waveOsc) waveOsc.frequency.value = f;
+});
+
+document.getElementById('playWave').addEventListener('click', () => {
+  audio();
+  restartWaveOsc();
+});
+
+document.getElementById('stopWave').addEventListener('click', () => {
+  if (waveOsc) {
+    const ac = audio();
+    waveGain.gain.cancelScheduledValues(ac.currentTime);
+    waveGain.gain.setValueAtTime(waveGain.gain.value, ac.currentTime);
+    waveGain.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.05);
+    waveOsc.stop(ac.currentTime + 0.07);
+    waveOsc = null; waveGain = null;
+  }
+  document.getElementById('wavePlayInfo').textContent = '';
+});
+
+// Init
+selectWaveType('sine');
+
+// ============================================================
+// SECTION 3 — Harmonic Table
+// ============================================================
+const HARMONIC_LABELS = [
+  '', // placeholder, index 0 unused
+  'Âm cơ bản (fundamental)',        // 1
+  'Octave (tỷ lệ 2:1)',            // 2
+  'Octave + quãng 5 (tỷ lệ 3:2)', // 3
+  '2 Octave (tỷ lệ 4:1)',          // 4
+  '2 Octave + quãng 3 trưởng',     // 5
+  '2 Octave + quãng 5 (tỷ lệ 3:2)',// 6
+  '2 Octave + quãng 7 thứ (hơi phẳng)', // 7
+  '3 Octave (tỷ lệ 8:1)',          // 8
+  '3 Octave + quãng 2 trưởng',     // 9
+  '3 Octave + quãng 3 trưởng',     // 10
+  '3 Octave + quãng 4 tăng (tritone)', // 11
+  '3 Octave + quãng 5',            // 12
+];
+
+const HARMONIC_CLASSES = ['','tag-fund','tag-octave','tag-fifth','tag-octave','tag-third','tag-fifth','tag-other','tag-octave','tag-other','tag-third','tag-other','tag-fifth'];
+
+function buildHarmonicTable(f1) {
+  const tbody = document.getElementById('htBody');
+  tbody.innerHTML = '';
+  const note = freqToNote(f1);
+  document.getElementById('htNote').textContent = '(' + note.name + ')';
+
+  for (let n = 1; n <= 12; n++) {
+    const freq  = f1 * n;
+    const noteData = freqToNote(freq);
+    const centsStr = (noteData.cents >= 0 ? '+' : '') + noteData.cents.toFixed(1);
+    const cls   = HARMONIC_CLASSES[n] || 'tag-other';
+    const lbl   = HARMONIC_LABELS[n]  || '—';
+    const tr    = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="${cls}">H${n}</td>
+      <td class="val">${freq.toFixed(2)}</td>
+      <td>${noteData.name}</td>
+      <td>${centsStr} cents</td>
+      <td class="${cls}">${lbl}</td>
+    `;
+    tr.addEventListener('click', () => {
+      audio();
+      playTone(freq, 0.7, 'sine', 0.2);
+    });
+    tr.style.cursor = 'pointer';
+    tr.title = 'Click để nghe H' + n + ' (' + freq.toFixed(1) + ' Hz)';
+    tbody.appendChild(tr);
+  }
+}
+
+document.getElementById('htFreq').addEventListener('input', () => {
+  const f = parseFloat(document.getElementById('htFreq').value) || 110;
+  buildHarmonicTable(f);
+});
+
+document.getElementById('htPresetA2').addEventListener('click', () => {
+  document.getElementById('htFreq').value = 110;
+  buildHarmonicTable(110);
+});
+document.getElementById('htPresetC4').addEventListener('click', () => {
+  document.getElementById('htFreq').value = 261.63;
+  buildHarmonicTable(261.63);
+});
+document.getElementById('htPresetE2').addEventListener('click', () => {
+  document.getElementById('htFreq').value = 82.41;
+  buildHarmonicTable(82.41);
+});
+
+let htSequenceTimer = null;
+let htChordNodes = [];
+
+function stopHtAll() {
+  if (htSequenceTimer) { clearTimeout(htSequenceTimer); htSequenceTimer = null; }
+  htChordNodes.forEach(n => { try { n.stop(); } catch(e) {} });
+  htChordNodes = [];
+  document.getElementById('htStatus').textContent = '';
+}
+
+document.getElementById('htStop').addEventListener('click', stopHtAll);
+
+document.getElementById('htPlayAll').addEventListener('click', () => {
+  stopHtAll();
+  audio();
+  const f1 = parseFloat(document.getElementById('htFreq').value) || 110;
+  const status = document.getElementById('htStatus');
+  let i = 1;
+  function playNext() {
+    if (i > 12) { status.textContent = '✓ Xong'; return; }
+    status.textContent = `▶ H${i} — ${(f1 * i).toFixed(1)} Hz`;
+    playTone(f1 * i, 0.45, 'sine', 0.22);
+    i++;
+    htSequenceTimer = setTimeout(playNext, 520);
+  }
+  playNext();
+});
+
+document.getElementById('htPlayChord').addEventListener('click', () => {
+  stopHtAll();
+  audio();
+  const f1 = parseFloat(document.getElementById('htFreq').value) || 110;
+  const ac = audio();
+  const t0 = ac.currentTime;
+  // Play H1..H8 simultaneously with decreasing gain
+  for (let n = 1; n <= 8; n++) {
+    const osc = ac.createOscillator();
+    const g   = ac.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = f1 * n;
+    const amp = (1 / n) * 0.15;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(amp, t0 + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 2.0);
+    osc.connect(g).connect(ac.destination);
+    osc.start(t0);
+    osc.stop(t0 + 2.1);
+    htChordNodes.push(osc);
+  }
+  document.getElementById('htStatus').textContent = '▶ Phát hợp âm bội âm H1–H8';
+  htSequenceTimer = setTimeout(() => {
+    document.getElementById('htStatus').textContent = '✓ Xong';
+  }, 2200);
+});
+
+// Init
+buildHarmonicTable(110);
+
+// ============================================================
+// Init fundamental note display
+// ============================================================
+(function() {
+  const f = getFundFreq();
+  fundFreqValEl.textContent = f;
+  const nn = freqToNote(f);
+  fundNoteEl.textContent = '(' + nn.name + ')';
+})();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

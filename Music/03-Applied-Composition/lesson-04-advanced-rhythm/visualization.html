@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Tiết tấu nâng cao</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  .card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; font-size: 14px; }
+  input[type="range"] { flex: 1; min-width: 120px; max-width: 260px; accent-color: #7e22ce; }
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: #6b21a8; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  button.stop { background: #e53e3e; }
+  button.stop:hover { background: #c53030; }
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  .result {
+    padding: 12px 16px; background: #f3e8ff; border-radius: 8px; margin-top: 10px;
+    font-size: 14px; line-height: 1.7;
+  }
+
+  /* ---- Syncopation grid ---- */
+  .beat-grid {
+    display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin: 14px 0;
+  }
+  .beat-cell {
+    width: 52px; height: 64px; border-radius: 8px; border: 2px solid #d8b4fe;
+    background: #faf5ff; cursor: pointer; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; font-size: 11px; font-weight: 600;
+    color: #555; user-select: none; transition: background 0.15s, border-color 0.15s;
+    position: relative;
+  }
+  .beat-cell.strong-beat { border-color: #7e22ce; }
+  .beat-cell.on { background: #7e22ce; color: #fff; border-color: #6b21a8; }
+  .beat-cell.on.strong-beat { background: #4c1d95; }
+  .beat-cell.playing { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  .beat-cell .sub { font-size: 9px; font-weight: 400; margin-top: 2px; color: inherit; opacity: 0.75; }
+  .beat-cell .icon { font-size: 18px; line-height: 1; }
+  .beat-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: #666; margin-top: 6px; justify-content: center; }
+  .beat-legend span { display: flex; align-items: center; gap: 5px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+
+  /* ---- Polyrhythm ---- */
+  .poly-canvas-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  #polyCanvas { display: block; margin: 0 auto; background: #faf5ff; border-radius: 8px; border: 1px solid #e9d5ff; }
+
+  /* ---- Swing ---- */
+  .swing-canvas-wrap { overflow-x: auto; }
+  #swingCanvas { display: block; margin: 0 auto; background: #faf5ff; border-radius: 8px; border: 1px solid #e9d5ff; }
+  .swing-info { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .swing-box {
+    flex: 1; min-width: 120px; padding: 10px 12px; border-radius: 8px; background: #f3e8ff;
+    font-size: 13px; line-height: 1.6;
+  }
+  .swing-box strong { color: #6b21a8; }
+
+  /* ---- Status bar ---- */
+  .status-bar {
+    padding: 8px 14px; background: #1e1b4b; color: #c4b5fd; border-radius: 8px;
+    font-family: monospace; font-size: 13px; min-height: 36px; margin-top: 10px;
+  }
+
+  @media (max-width: 480px) {
+    .beat-cell { width: 38px; height: 56px; font-size: 10px; }
+    .beat-cell .icon { font-size: 14px; }
+    button { padding: 8px 12px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Applied &amp; Composition</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-melody-motif/visualization.html">← L3: Giai điệu &amp; motif</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Tiết tấu nâng cao</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-musical-form/visualization.html">L5: Hình thức →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Tiết tấu nâng cao</h1>
+<p>Ba lab dưới đây cho bạn <em>nghe</em> các kỹ thuật tiết tấu nâng cao: đảo phách, polyrhythm 3:2, và swing. <strong>🔊 Bật loa.</strong></p>
+
+<!-- ============================================================
+     LAB 1 — SYNCOPATION GRID
+     ============================================================ -->
+<h2>1. Lab đảo phách (Syncopation)</h2>
+<div class="card">
+  <p>Ô nhịp 4/4 chia thành <strong>8 móc đơn</strong>. Click ô để bật/tắt nhấn. Phách mạnh (1,3) viền tím đậm. Nhấn <strong>▶ Loop</strong> để nghe.</p>
+
+  <div class="beat-grid" id="beatGrid"></div>
+
+  <div class="beat-legend">
+    <span><span class="swatch" style="background:#4c1d95;border:2px solid #4c1d95"></span> Phách mạnh ON</span>
+    <span><span class="swatch" style="background:#7e22ce;border:2px solid #7e22ce"></span> Phách bình thường ON</span>
+    <span><span class="swatch" style="background:#faf5ff;border:2px solid #7e22ce"></span> Phách mạnh OFF</span>
+    <span><span class="swatch" style="background:#faf5ff;border:2px solid #d8b4fe"></span> OFF</span>
+  </div>
+
+  <div class="row" style="margin-top:14px">
+    <label>BPM:</label>
+    <input type="range" id="syncBpm" min="60" max="180" value="100" step="5">
+    <span class="val" id="syncBpmVal">100</span>
+  </div>
+  <div class="row">
+    <button id="syncPlay">▶ Loop</button>
+    <button class="stop" id="syncStop">■ Dừng</button>
+    <button class="ghost" id="syncReset">↺ Reset mặc định</button>
+    <button class="ghost" id="syncSynco">💡 Ví dụ đảo phách</button>
+  </div>
+  <div class="status-bar" id="syncStatus">Nhấn ▶ Loop để bắt đầu…</div>
+  <p class="hint">Vị trí 1 và 5 (phách đen 1 và 3) = phách mạnh. Đảo phách: tắt phách mạnh, bật nửa phách (2,4,6,8). Nghe sự "giật" khi nhấn lệch vị trí.</p>
+</div>
+
+<!-- ============================================================
+     LAB 2 — POLYRHYTHM 3:2
+     ============================================================ -->
+<h2>2. Polyrhythm 3-chọi-2 (3:2)</h2>
+<div class="card">
+  <p>Lớp <strong style="color:#7e22ce">A (3 nốt)</strong> — cao; lớp <strong style="color:#b45309">B (2 nốt)</strong> — thấp. Cùng chu kỳ nhưng chia khác nhau. <strong>LCM(3,2) = 6</strong> mốc thời gian.</p>
+
+  <div class="poly-canvas-wrap">
+    <canvas id="polyCanvas" width="560" height="200" viewBox="0 0 560 200"></canvas>
+  </div>
+
+  <div class="row" style="margin-top:14px">
+    <label>Tốc độ (chu kỳ/phút):</label>
+    <input type="range" id="polyBpm" min="20" max="120" value="60" step="5">
+    <span class="val" id="polyBpmVal">60</span>
+  </div>
+  <div class="row">
+    <button id="polyPlay">▶ Bắt đầu</button>
+    <button class="stop" id="polyStop">■ Dừng</button>
+  </div>
+  <div class="status-bar" id="polyStatus">Nhấn ▶ Bắt đầu để nghe hai lớp nhịp chọi nhau…</div>
+
+  <div class="result" style="margin-top:10px">
+    <strong>Công thức:</strong> LCM(3,2) = 6 mốc đều. Lớp A gõ tại mốc <span class="val">1, 3, 5</span>; Lớp B gõ tại mốc <span class="val">1, 4</span>. Chỉ gặp nhau tại mốc <span class="val">1</span>.
+  </div>
+  <p class="hint">Nghe âm cao (lớp A) và âm thấp (lớp B) chạy song song. Khi cả hai cùng đánh → âm kép. Chỉ xảy ra mỗi chu kỳ một lần.</p>
+</div>
+
+<!-- ============================================================
+     LAB 3 — SWING SLIDER
+     ============================================================ -->
+<h2>3. Swing — Straight vs. Swung</h2>
+<div class="card">
+  <p>Kéo slider để thay đổi <strong>swing ratio</strong>: <em>1:1 = straight (đều)</em> → <em>2:1 = hard swing</em>. Nghe sự khác nhau của cặp móc đơn.</p>
+
+  <div class="row">
+    <label>Swing ratio:</label>
+    <input type="range" id="swingRatio" min="100" max="200" value="100" step="5">
+    <span class="val" id="swingRatioVal">1.0 : 1 (Straight)</span>
+  </div>
+  <div class="row">
+    <label>BPM:</label>
+    <input type="range" id="swingBpm" min="60" max="180" value="100" step="5">
+    <span class="val" id="swingBpmVal">100</span>
+  </div>
+
+  <div class="swing-canvas-wrap">
+    <canvas id="swingCanvas" width="560" height="110" viewBox="0 0 560 110"></canvas>
+  </div>
+
+  <div class="swing-info" id="swingInfo">
+    <div class="swing-box">
+      <strong>Nốt đầu (on-beat)</strong><br>
+      <span id="swingNote1">300 ms</span>
+    </div>
+    <div class="swing-box">
+      <strong>Nốt sau (off-beat)</strong><br>
+      <span id="swingNote2">300 ms</span>
+    </div>
+    <div class="swing-box">
+      <strong>Tổng 1 phách</strong><br>
+      <span id="swingTotal">600 ms</span>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:10px">
+    <button id="swingPlay">▶ Loop nghe</button>
+    <button class="stop" id="swingStop">■ Dừng</button>
+  </div>
+
+  <div class="row" style="margin-top:6px">
+    <button class="ghost" id="backbeatBtn">🥁 Nghe Backbeat (snare 2&amp;4)</button>
+    <button class="stop" id="backbeatStop">■ Dừng Backbeat</button>
+  </div>
+
+  <div class="status-bar" id="swingStatus">Kéo slider swing rồi nhấn ▶ để nghe…</div>
+  <p class="hint">Swing = nốt off-beat "nấn ná" → âm nhạc lắc lư. 2:1 = jazz hard swing (= triplet feel). Backbeat: kick phách 1&3, snare phách 2&4 (rock groove).</p>
+</div>
+
+<script>
+// ============================================================
+// WEB AUDIO CORE
+// ============================================================
+let ctx = null;
+function audio() {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  return ctx;
+}
+
+function playTone(freq, dur = 0.07, when = 0, gain = 0.22, type = 'sine') {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(gain, t0 + 0.005);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.02);
+}
+
+// Noise burst for snare/kick simulation
+function playNoise(type, when = 0) {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const bufSize = ac.sampleRate * 0.1;
+  const buf = ac.createBuffer(1, bufSize, ac.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1);
+  const src = ac.createBufferSource();
+  src.buffer = buf;
+  const bpf = ac.createBiquadFilter();
+  if (type === 'snare') { bpf.type = 'bandpass'; bpf.frequency.value = 3000; bpf.Q.value = 0.5; }
+  else { bpf.type = 'lowpass'; bpf.frequency.value = 120; }
+  const g = ac.createGain();
+  g.gain.setValueAtTime(0.4, t0);
+  g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.08);
+  src.connect(bpf).connect(g).connect(ac.destination);
+  src.start(t0);
+  src.stop(t0 + 0.12);
+  // tone for kick body
+  if (type === 'kick') {
+    const osc = ac.createOscillator();
+    const og = ac.createGain();
+    osc.frequency.setValueAtTime(150, t0);
+    osc.frequency.exponentialRampToValueAtTime(50, t0 + 0.08);
+    og.gain.setValueAtTime(0.6, t0);
+    og.gain.exponentialRampToValueAtTime(0.001, t0 + 0.1);
+    osc.connect(og).connect(ac.destination);
+    osc.start(t0); osc.stop(t0 + 0.12);
+  }
+}
+
+const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function freqFromN(n) { return 440 * Math.pow(2, n / 12); }
+function nameFromN(n) {
+  const midi = 69 + n;
+  return NOTE_NAMES[((midi % 12) + 12) % 12] + (Math.floor(midi / 12) - 1);
+}
+
+// ============================================================
+// LAB 1 — SYNCOPATION GRID
+// ============================================================
+const CELL_LABELS = [
+  { top: '1', sub: 'phách mạnh', strong: true },
+  { top: 'and 1', sub: '', strong: false },
+  { top: '2', sub: 'phách', strong: false },
+  { top: 'and 2', sub: '', strong: false },
+  { top: '3', sub: 'phách mạnh', strong: true },
+  { top: 'and 3', sub: '', strong: false },
+  { top: '4', sub: 'phách', strong: false },
+  { top: 'and 4', sub: '', strong: false },
+];
+
+const DEFAULT_PATTERN = [true, false, false, false, true, false, false, false];
+const SYNCO_PATTERN   = [false, true, false, true, false, true, false, false];
+
+let syncPattern = [...DEFAULT_PATTERN];
+let syncCells = [];
+let syncInterval = null;
+let syncStep = 0;
+
+function buildGrid() {
+  const grid = document.getElementById('beatGrid');
+  grid.innerHTML = '';
+  syncCells = [];
+  CELL_LABELS.forEach((lbl, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'beat-cell' + (lbl.strong ? ' strong-beat' : '') + (syncPattern[i] ? ' on' : '');
+    cell.innerHTML = `<span class="icon">♩</span><div style="font-size:10px;margin-top:3px">${lbl.top}</div><div class="sub">${lbl.sub}</div>`;
+    cell.addEventListener('click', () => {
+      syncPattern[i] = !syncPattern[i];
+      cell.classList.toggle('on', syncPattern[i]);
+    });
+    grid.appendChild(cell);
+    syncCells.push(cell);
+  });
+}
+
+function syncPlayStep() {
+  const i = syncStep % 8;
+  // visual flash
+  syncCells.forEach((c, idx) => c.classList.toggle('playing', idx === i));
+  if (syncPattern[i]) {
+    const isStrong = (i === 0 || i === 4);
+    const freq = isStrong ? 900 : 650;
+    const gain = isStrong ? 0.3 : 0.18;
+    playTone(freq, 0.06, 0, gain);
+  }
+  const bpm = parseInt(document.getElementById('syncBpm').value);
+  const stepMs = (60000 / bpm) / 2; // 8th note
+  document.getElementById('syncStatus').textContent =
+    `▶ Đang chạy — Bước ${i + 1}/8 | ${bpm} BPM | Bước = ${stepMs.toFixed(0)} ms`;
+  syncStep++;
+}
+
+document.getElementById('syncBpm').addEventListener('input', function () {
+  document.getElementById('syncBpmVal').textContent = this.value;
+  if (syncInterval) {
+    clearInterval(syncInterval);
+    const stepMs = (60000 / parseInt(this.value)) / 2;
+    syncInterval = setInterval(syncPlayStep, stepMs);
+  }
+});
+
+document.getElementById('syncPlay').addEventListener('click', () => {
+  audio(); // resume context
+  if (syncInterval) clearInterval(syncInterval);
+  syncStep = 0;
+  const bpm = parseInt(document.getElementById('syncBpm').value);
+  const stepMs = (60000 / bpm) / 2;
+  syncInterval = setInterval(syncPlayStep, stepMs);
+});
+
+document.getElementById('syncStop').addEventListener('click', () => {
+  if (syncInterval) { clearInterval(syncInterval); syncInterval = null; }
+  syncCells.forEach(c => c.classList.remove('playing'));
+  document.getElementById('syncStatus').textContent = '■ Dừng.';
+});
+
+document.getElementById('syncReset').addEventListener('click', () => {
+  syncPattern = [...DEFAULT_PATTERN];
+  buildGrid();
+  document.getElementById('syncStatus').textContent = 'Reset về mẫu mặc định (phách 1 & 3).';
+});
+
+document.getElementById('syncSynco').addEventListener('click', () => {
+  syncPattern = [...SYNCO_PATTERN];
+  buildGrid();
+  document.getElementById('syncStatus').textContent = '💡 Ví dụ đảo phách: nhấn và1, và2, và3 — phách mạnh im lặng.';
+});
+
+buildGrid();
+
+// ============================================================
+// LAB 2 — POLYRHYTHM
+// ============================================================
+const polyCanvas = document.getElementById('polyCanvas');
+const pCtx = polyCanvas.getContext('2d');
+let polyAnimId = null;
+let polyPhase = 0;  // 0..1 tiến trình trong một chu kỳ
+let polyLastTime = null;
+let polyRunning = false;
+let polyPeriodMs = 1000; // 1 chu kỳ = 60/bpm*1000 * 1 (chu kỳ ~ 1 bar tự đặt)
+
+// Tones: lớp A cao, lớp B thấp
+const POLY_FREQ_A = 880;  // lớp 3 — cao
+const POLY_FREQ_B = 330;  // lớp 2 — thấp
+
+// Track last trigger for each layer to debounce
+let polyLastA = -1, polyLastB = -1;
+
+function polyDraw(phase) {
+  const W = polyCanvas.width, H = polyCanvas.height;
+  pCtx.clearRect(0, 0, W, H);
+
+  // Background
+  pCtx.fillStyle = '#faf5ff';
+  pCtx.fillRect(0, 0, W, H);
+
+  const margin = 40;
+  const trackW = W - margin * 2;
+  const centerA = 60, centerB = 130;
+  const dotR = 18;
+
+  // --- Draw time axis ---
+  pCtx.strokeStyle = '#e9d5ff'; pCtx.lineWidth = 1;
+  pCtx.beginPath(); pCtx.moveTo(margin, centerA); pCtx.lineTo(margin + trackW, centerA); pCtx.stroke();
+  pCtx.beginPath(); pCtx.moveTo(margin, centerB); pCtx.lineTo(margin + trackW, centerB); pCtx.stroke();
+
+  // Labels
+  pCtx.font = 'bold 13px sans-serif';
+  pCtx.fillStyle = '#7e22ce';
+  pCtx.fillText('Lớp A (3 nốt)', 4, centerA + 4);
+  pCtx.fillStyle = '#b45309';
+  pCtx.fillText('Lớp B (2 nốt)', 4, centerB + 4);
+
+  // LCM grid lines (6)
+  for (let m = 0; m <= 6; m++) {
+    const x = margin + (m / 6) * trackW;
+    pCtx.strokeStyle = m === 0 || m === 6 ? '#a78bfa' : '#ede9fe';
+    pCtx.lineWidth = m === 0 || m === 6 ? 2 : 1;
+    pCtx.setLineDash([3, 3]);
+    pCtx.beginPath(); pCtx.moveTo(x, 20); pCtx.lineTo(x, H - 20); pCtx.stroke();
+    pCtx.setLineDash([]);
+    if (m < 6) {
+      pCtx.fillStyle = '#999'; pCtx.font = '11px monospace';
+      pCtx.fillText(m + 1, x + 3, H - 6);
+    }
+  }
+  pCtx.fillStyle = '#999'; pCtx.font = '11px monospace';
+  pCtx.fillText('mốc →', margin + trackW + 4, H - 6);
+
+  // Layer A positions: 1,3,5 → index 0,2,4 in 6 slots
+  const posA = [0, 2, 4]; // 0-indexed
+  posA.forEach(p => {
+    const x = margin + ((p) / 6) * trackW;
+    pCtx.beginPath();
+    pCtx.arc(x, centerA, dotR, 0, Math.PI * 2);
+    pCtx.fillStyle = '#ede9fe'; pCtx.fill();
+    pCtx.strokeStyle = '#7e22ce'; pCtx.lineWidth = 2; pCtx.stroke();
+    pCtx.fillStyle = '#7e22ce'; pCtx.font = 'bold 12px sans-serif'; pCtx.textAlign = 'center';
+    pCtx.fillText('A', x, centerA + 4);
+    pCtx.textAlign = 'left';
+  });
+
+  // Layer B positions: 1,4 → index 0,3
+  const posB = [0, 3];
+  posB.forEach(p => {
+    const x = margin + ((p) / 6) * trackW;
+    pCtx.beginPath();
+    pCtx.arc(x, centerB, dotR, 0, Math.PI * 2);
+    pCtx.fillStyle = '#fef3c7'; pCtx.fill();
+    pCtx.strokeStyle = '#b45309'; pCtx.lineWidth = 2; pCtx.stroke();
+    pCtx.fillStyle = '#b45309'; pCtx.font = 'bold 12px sans-serif'; pCtx.textAlign = 'center';
+    pCtx.fillText('B', x, centerB + 4);
+    pCtx.textAlign = 'left';
+  });
+
+  // Playhead
+  const phX = margin + phase * trackW;
+  pCtx.strokeStyle = '#f59e0b'; pCtx.lineWidth = 3; pCtx.setLineDash([4, 3]);
+  pCtx.beginPath(); pCtx.moveTo(phX, 15); pCtx.lineTo(phX, H - 15); pCtx.stroke();
+  pCtx.setLineDash([]);
+
+  // "Meet" markers (mốc 1 = start, lớp A và B cùng gặp)
+  pCtx.font = '11px sans-serif'; pCtx.fillStyle = '#6b21a8'; pCtx.textAlign = 'center';
+  pCtx.fillText('⬆ gặp nhau', margin, H - 20);
+  pCtx.textAlign = 'left';
+}
+
+function polyFrame(ts) {
+  if (!polyRunning) return;
+  if (polyLastTime === null) polyLastTime = ts;
+  const dt = ts - polyLastTime;
+  polyLastTime = ts;
+  polyPhase = (polyPhase + dt / polyPeriodMs) % 1;
+
+  // Trigger sounds: lớp A = 3 nốt ở phase 0, 1/3, 2/3
+  [0, 1/3, 2/3].forEach((p, i) => {
+    const slotA = Math.floor(polyPhase * 3);
+    if (slotA !== polyLastA && Math.abs(polyPhase - p) < 0.05) {
+      playTone(POLY_FREQ_A, 0.08, 0, 0.2);
+      polyLastA = slotA;
+    }
+  });
+  // lớp B = 2 nốt ở phase 0, 1/2
+  [0, 0.5].forEach((p, i) => {
+    const slotB = Math.floor(polyPhase * 2);
+    if (slotB !== polyLastB && Math.abs(polyPhase - p) < 0.07) {
+      playTone(POLY_FREQ_B, 0.1, 0, 0.25);
+      polyLastB = slotB;
+    }
+  });
+
+  polyDraw(polyPhase);
+  polyAnimId = requestAnimationFrame(polyFrame);
+}
+
+// Better trigger using scheduled Web Audio
+let polyTimers = [];
+function polyStop() {
+  polyRunning = false;
+  if (polyAnimId) { cancelAnimationFrame(polyAnimId); polyAnimId = null; }
+  polyTimers.forEach(t => clearTimeout(t));
+  polyTimers = [];
+  polyLastTime = null;
+  polyLastA = -1; polyLastB = -1;
+  polyDraw(0);
+  document.getElementById('polyStatus').textContent = '■ Dừng.';
+}
+
+function polyStart() {
+  audio();
+  polyStop();
+  polyRunning = true;
+  polyPhase = 0;
+  polyLastA = -1; polyLastB = -1;
+
+  const bpm = parseInt(document.getElementById('polyBpm').value);
+  polyPeriodMs = (60000 / bpm) * 2; // 1 chu kỳ = 2 phách đen (để nghe rõ)
+
+  function scheduleLoop() {
+    if (!polyRunning) return;
+    const period = polyPeriodMs;
+    // Lớp A: 3 nốt đều
+    [0, period/3, period*2/3].forEach(offset => {
+      const t = setTimeout(() => { if (polyRunning) playTone(POLY_FREQ_A, 0.09, 0, 0.22); }, offset);
+      polyTimers.push(t);
+    });
+    // Lớp B: 2 nốt đều
+    [0, period/2].forEach(offset => {
+      const t = setTimeout(() => { if (polyRunning) playTone(POLY_FREQ_B, 0.12, 0, 0.28); }, offset);
+      polyTimers.push(t);
+    });
+    const loopT = setTimeout(scheduleLoop, period);
+    polyTimers.push(loopT);
+  }
+  scheduleLoop();
+
+  // Animation
+  function animLoop(ts) {
+    if (!polyRunning) return;
+    if (polyLastTime === null) polyLastTime = ts;
+    const dt = ts - polyLastTime;
+    polyLastTime = ts;
+    polyPhase = (polyPhase + dt / polyPeriodMs) % 1;
+    polyDraw(polyPhase);
+    polyAnimId = requestAnimationFrame(animLoop);
+  }
+  polyAnimId = requestAnimationFrame(animLoop);
+
+  document.getElementById('polyStatus').textContent =
+    `▶ Đang chạy — lớp A (${POLY_FREQ_A} Hz cao), lớp B (${POLY_FREQ_B} Hz thấp). Chu kỳ = ${polyPeriodMs.toFixed(0)} ms.`;
+}
+
+document.getElementById('polyPlay').addEventListener('click', polyStart);
+document.getElementById('polyStop').addEventListener('click', () => {
+  polyStop();
+  document.getElementById('polyStatus').textContent = '■ Dừng.';
+});
+document.getElementById('polyBpm').addEventListener('input', function () {
+  document.getElementById('polyBpmVal').textContent = this.value;
+  if (polyRunning) polyStart();
+});
+
+polyDraw(0);
+
+// ============================================================
+// LAB 3 — SWING
+// ============================================================
+const swingCanvas = document.getElementById('swingCanvas');
+const sCtx = swingCanvas.getContext('2d');
+let swingTimers = [];
+let swingRunning = false;
+let backbeatTimers = [];
+let backbeatRunning = false;
+
+function swingDrawBars(ratio) {
+  const W = swingCanvas.width, H = swingCanvas.height;
+  sCtx.clearRect(0, 0, W, H);
+
+  const margin = 16;
+  const availW = W - margin * 2;
+  // 4 pairs of 8th notes = 4 phách đen
+  const pairCount = 4;
+  const pairW = availW / pairCount;
+
+  const bpm = parseInt(document.getElementById('swingBpm').value);
+  const beatMs = 60000 / bpm;
+
+  // ratio: e.g. 1.5 means long:short = 1.5:1
+  const frac1 = ratio / (ratio + 1); // fraction of beat for on-beat note
+  const frac2 = 1 / (ratio + 1);
+
+  sCtx.font = 'bold 11px sans-serif';
+  sCtx.fillStyle = '#6b21a8';
+  sCtx.fillText('Cặp móc đơn × 4 phách:', margin, 14);
+
+  for (let p = 0; p < pairCount; p++) {
+    const startX = margin + p * pairW + 4;
+    const noteH = 50;
+    const noteY = 28;
+    const n1W = frac1 * (pairW - 8) - 2;
+    const n2W = frac2 * (pairW - 8) - 2;
+
+    // Note 1 (on-beat)
+    sCtx.fillStyle = '#7e22ce';
+    sCtx.beginPath();
+    roundRect(sCtx, startX, noteY, n1W, noteH, 6);
+    sCtx.fill();
+
+    // Note 2 (off-beat)
+    sCtx.fillStyle = '#a78bfa';
+    sCtx.beginPath();
+    roundRect(sCtx, startX + n1W + 4, noteY, n2W, noteH, 6);
+    sCtx.fill();
+
+    // Label phách
+    sCtx.fillStyle = '#fff'; sCtx.font = 'bold 10px sans-serif'; sCtx.textAlign = 'center';
+    if (n1W > 20) sCtx.fillText(p + 1, startX + n1W / 2, noteY + noteH / 2 + 4);
+    if (n2W > 14) sCtx.fillText('and', startX + n1W + 4 + n2W / 2, noteY + noteH / 2 + 4);
+    sCtx.textAlign = 'left';
+  }
+
+  // Timing info
+  const n1Ms = (frac1 * beatMs).toFixed(0);
+  const n2Ms = (frac2 * beatMs).toFixed(0);
+  document.getElementById('swingNote1').textContent = n1Ms + ' ms';
+  document.getElementById('swingNote2').textContent = n2Ms + ' ms';
+  document.getElementById('swingTotal').textContent = beatMs.toFixed(0) + ' ms';
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y); ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r); ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h); ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r); ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
+function getSwingRatio() { return parseInt(document.getElementById('swingRatio').value) / 100; }
+function getSwingBpm() { return parseInt(document.getElementById('swingBpm').value); }
+
+document.getElementById('swingRatio').addEventListener('input', function () {
+  const r = parseInt(this.value) / 100;
+  const label = r <= 1.05 ? `${r.toFixed(1)} : 1 (Straight)` :
+                r >= 1.95 ? `${r.toFixed(1)} : 1 (Hard Swing)` :
+                `${r.toFixed(1)} : 1`;
+  document.getElementById('swingRatioVal').textContent = label;
+  swingDrawBars(r);
+  if (swingRunning) swingStop(), swingPlayLoop();
+});
+
+document.getElementById('swingBpm').addEventListener('input', function () {
+  document.getElementById('swingBpmVal').textContent = this.value;
+  swingDrawBars(getSwingRatio());
+  if (swingRunning) swingStop(), swingPlayLoop();
+});
+
+function swingStop() {
+  swingRunning = false;
+  swingTimers.forEach(t => clearTimeout(t));
+  swingTimers = [];
+}
+
+function swingPlayLoop() {
+  audio();
+  swingStop();
+  swingRunning = true;
+  const bpm = getSwingBpm();
+  const ratio = getSwingRatio();
+  const beatMs = 60000 / bpm;
+  const n1 = beatMs * ratio / (ratio + 1);
+  const n2 = beatMs * 1 / (ratio + 1);
+
+  // Play 4 pairs of 8th notes = 4 beats, then repeat
+  const FREQ_ON = 880;  // on-beat
+  const FREQ_OFF = 660; // off-beat
+
+  function scheduleBar() {
+    if (!swingRunning) return;
+    let cursor = 0;
+    const timers = [];
+    for (let beat = 0; beat < 4; beat++) {
+      const t1 = setTimeout(() => { if (swingRunning) playTone(FREQ_ON, 0.07, 0, 0.2); }, cursor);
+      const t2 = setTimeout(() => { if (swingRunning) playTone(FREQ_OFF, 0.06, 0, 0.14); }, cursor + n1);
+      timers.push(t1, t2);
+      cursor += n1 + n2;
+    }
+    const loopT = setTimeout(scheduleBar, cursor);
+    timers.push(loopT);
+    swingTimers = timers;
+  }
+  scheduleBar();
+  document.getElementById('swingStatus').textContent =
+    `▶ Swing ${ratio.toFixed(1)}:1 — on-beat ${(beatMs*ratio/(ratio+1)).toFixed(0)} ms / off-beat ${(beatMs/(ratio+1)).toFixed(0)} ms`;
+}
+
+document.getElementById('swingPlay').addEventListener('click', swingPlayLoop);
+document.getElementById('swingStop').addEventListener('click', () => {
+  swingStop();
+  document.getElementById('swingStatus').textContent = '■ Dừng.';
+});
+
+// Backbeat demo
+function backbeatStop() {
+  backbeatRunning = false;
+  backbeatTimers.forEach(t => clearTimeout(t));
+  backbeatTimers = [];
+}
+
+function backbeatPlayLoop() {
+  audio();
+  backbeatStop();
+  backbeatRunning = true;
+  const bpm = getSwingBpm();
+  const beatMs = 60000 / bpm;
+  const barMs = beatMs * 4;
+
+  function scheduleBar() {
+    if (!backbeatRunning) return;
+    const timers = [];
+    // kick: beat 1, 3
+    const k1 = setTimeout(() => { if (backbeatRunning) playNoise('kick', 0); }, 0);
+    const k2 = setTimeout(() => { if (backbeatRunning) playNoise('kick', 0); }, beatMs * 2);
+    // snare (backbeat): beat 2, 4
+    const s1 = setTimeout(() => { if (backbeatRunning) playNoise('snare', 0); }, beatMs);
+    const s2 = setTimeout(() => { if (backbeatRunning) playNoise('snare', 0); }, beatMs * 3);
+    // hi-hat: 8ths
+    for (let i = 0; i < 8; i++) {
+      const hh = setTimeout(() => {
+        if (backbeatRunning) playTone(8000, 0.03, 0, 0.06, 'square');
+      }, beatMs * i / 2);
+      timers.push(hh);
+    }
+    timers.push(k1, k2, s1, s2);
+    const loopT = setTimeout(scheduleBar, barMs);
+    timers.push(loopT);
+    backbeatTimers = timers;
+  }
+  scheduleBar();
+  document.getElementById('swingStatus').textContent =
+    `🥁 Backbeat — kick phách 1&3, snare phách 2&4 | ${bpm} BPM`;
+}
+
+document.getElementById('backbeatBtn').addEventListener('click', backbeatPlayLoop);
+document.getElementById('backbeatStop').addEventListener('click', () => {
+  backbeatStop();
+  document.getElementById('swingStatus').textContent = '■ Backbeat dừng.';
+});
+
+// Init swing draw
+swingDrawBars(1.0);
+document.getElementById('swingRatioVal').textContent = '1.0 : 1 (Straight)';
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

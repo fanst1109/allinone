@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Hòa âm jazz &amp; blues</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  p.lead { color: #4a5568; margin-bottom: 8px; }
+
+  .card {
+    background: #fff; border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 16px 0;
+  }
+  .hint { font-size: 13px; color: #718096; margin: 6px 0 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #2d3748; }
+
+  select {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 14px; background: #fff; color: #2d3748; cursor: pointer;
+  }
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 18px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: #6b21a8; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  button.stop-btn { background: #dc2626; }
+  button.stop-btn:hover { background: #b91c1c; }
+  button.active-btn { background: #15803d; }
+
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  .result {
+    padding: 14px 16px; background: #f3e8ff; border-radius: 8px; margin-top: 12px;
+    font-size: 15px; line-height: 1.8;
+  }
+  .badge {
+    display: inline-block; background: #e9d5ff; color: #6b21a8;
+    padding: 3px 9px; border-radius: 6px; font-family: monospace;
+    font-weight: 700; margin: 2px;
+  }
+  .badge.blue-note {
+    background: #1e3a5f; color: #93c5fd; border: 2px solid #3b82f6;
+  }
+  .badge.active-chord {
+    background: #7e22ce; color: #fff;
+  }
+
+  /* ── 12-bar blues grid ── */
+  .blues-grid-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .blues-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    min-width: 320px;
+    margin: 14px 0;
+  }
+  .bar-cell {
+    border: 2px solid #e9d5ff; border-radius: 8px;
+    padding: 10px 6px; text-align: center;
+    font-weight: 700; font-size: 15px; color: #4a5568;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    cursor: default; position: relative;
+  }
+  .bar-cell .bar-num {
+    font-size: 10px; font-weight: 400; color: #a0aec0;
+    display: block; margin-bottom: 2px;
+  }
+  .bar-cell .bar-label {
+    font-size: 11px; color: #9b59b6; display: block; margin-top: 2px;
+  }
+  .bar-cell.playing {
+    background: #7e22ce; border-color: #6b21a8; color: #fff;
+  }
+  .bar-cell.playing .bar-num,
+  .bar-cell.playing .bar-label { color: #e9d5ff; }
+  .bar-cell.done {
+    background: #f3e8ff; border-color: #d8b4fe;
+  }
+
+  /* ── Piano ── */
+  .piano-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 12px 0; }
+  .piano {
+    position: relative; display: flex; height: 170px; min-width: 440px;
+    user-select: none; touch-action: manipulation; max-width: 680px; margin: 0 auto;
+  }
+  .wkey {
+    flex: 1; background: linear-gradient(#fff, #f1f1f1);
+    border: 1px solid #aaa; border-radius: 0 0 6px 6px;
+    position: relative; cursor: pointer;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 7px; font-size: 10px; color: #555; font-weight: 600;
+  }
+  .wkey.hl-scale { background: linear-gradient(#e9d5ff, #d8b4fe); color: #6b21a8; }
+  .wkey.hl-blue  { background: linear-gradient(#1e3a5f, #1e40af); color: #93c5fd; }
+  .wkey.hl-root  { background: linear-gradient(#7e22ce, #6b21a8); color: #fff; }
+  .wkey.active   { background: linear-gradient(#f3e8ff, #e9d5ff) !important; }
+  .bkey {
+    position: absolute; top: 0; width: 8%; height: 60%;
+    background: linear-gradient(#333, #111); border-radius: 0 0 5px 5px;
+    z-index: 2; cursor: pointer; color: #ccc; font-size: 8px;
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px;
+  }
+  .bkey.hl-scale { background: linear-gradient(#7e22ce, #6b21a8); color: #e9d5ff; }
+  .bkey.hl-blue  { background: linear-gradient(#1e3a5f, #1e40af); color: #93c5fd; }
+  .bkey.hl-root  { background: linear-gradient(#581c87, #4c1d95); color: #f3e8ff; }
+  .bkey.active   { background: linear-gradient(#9333ea, #7e22ce) !important; }
+
+  .nowplaying {
+    font-family: monospace; font-weight: 700; color: #6b21a8;
+    min-height: 22px; margin-top: 8px; font-size: 14px;
+  }
+
+  /* ── Chord note display ── */
+  .chord-notes-row {
+    display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0;
+  }
+  .chord-box {
+    border: 2px solid #e9d5ff; border-radius: 10px;
+    padding: 10px 14px; text-align: center; min-width: 90px;
+    transition: background 0.2s, border-color 0.2s;
+    cursor: pointer;
+  }
+  .chord-box.highlighted {
+    background: #7e22ce; border-color: #6b21a8; color: #fff;
+  }
+  .chord-box .chord-name { font-size: 18px; font-weight: 800; }
+  .chord-box .chord-notes-txt { font-size: 11px; color: #718096; margin-top: 4px; }
+  .chord-box.highlighted .chord-notes-txt { color: #e9d5ff; }
+
+  /* ── Scale legend ── */
+  .scale-legend {
+    display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0;
+  }
+  .leg-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  .leg-swatch {
+    width: 18px; height: 18px; border-radius: 4px; border: 1px solid #ccc;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 480px) {
+    .blues-grid { grid-template-columns: repeat(3, 1fr); }
+    .bar-cell { font-size: 13px; padding: 8px 4px; }
+    .piano { height: 140px; }
+    .wkey { font-size: 8px; }
+    .chord-box { min-width: 72px; padding: 8px 8px; }
+    .chord-box .chord-name { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Applied &amp; Composition</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-counterpoint/visualization.html">← L6: Đối âm</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Hòa âm jazz &amp; blues</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-capstone-composition/visualization.html">L8: Capstone →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Hòa âm jazz &amp; blues</h1>
+<p class="lead">Ba module dưới đây cho bạn <em>nghe và thấy</em> ngôn ngữ của blues &amp; jazz: gam blues với blue note, chuỗi 12-bar, và tiến trình ii–V–I. <strong>🔊 Bật loa.</strong></p>
+
+<!-- ══════════════════════════════════════════════ -->
+<h2>1. 🎹 Gam blues &amp; blue note</h2>
+<div class="card">
+  <div class="row">
+    <label for="scaleRoot">Điệu:</label>
+    <select id="scaleRoot">
+      <option value="0">C</option>
+      <option value="2">D</option>
+      <option value="4">E</option>
+      <option value="5">F</option>
+      <option value="7">G</option>
+      <option value="9">A</option>
+      <option value="11">B</option>
+      <option value="1">C♯/D♭</option>
+      <option value="3">D♯/E♭</option>
+      <option value="6">F♯/G♭</option>
+      <option value="8">G♯/A♭</option>
+      <option value="10">A♯/B♭</option>
+    </select>
+    <button id="playScaleUp" class="ghost">▲ Lên</button>
+    <button id="playScaleDown" class="ghost">▼ Xuống</button>
+  </div>
+
+  <div class="scale-legend">
+    <div class="leg-item">
+      <div class="leg-swatch" style="background:linear-gradient(#7e22ce,#6b21a8)"></div>
+      <span>Gốc (root)</span>
+    </div>
+    <div class="leg-item">
+      <div class="leg-swatch" style="background:linear-gradient(#e9d5ff,#d8b4fe)"></div>
+      <span>Nốt gam blues</span>
+    </div>
+    <div class="leg-item">
+      <div class="leg-swatch" style="background:linear-gradient(#1e3a5f,#1e40af); border-color:#3b82f6"></div>
+      <span style="color:#1e3a5f; font-weight:700">Blue note ♭5</span>
+    </div>
+  </div>
+
+  <div class="piano-wrap">
+    <div class="piano" id="scalePiano"></div>
+  </div>
+  <div class="nowplaying" id="scaleNp">&nbsp;</div>
+
+  <div class="result" id="scaleResult">
+    <strong>C blues:</strong> C – E♭ – F – <span style="color:#3b82f6;font-weight:800">F♯ (blue note ♭5)</span> – G – B♭ – C<br>
+    Công thức offset: {0, 3, 5, <strong>6</strong>, 7, 10}
+  </div>
+  <p class="hint">Phím tím đậm = gốc. Phím xanh-tím nhạt = nốt trong gam blues. Phím xanh dương = blue note ♭5 (tritone — khoảng 6 nửa cung từ gốc, nằm giữa bậc 4 và bậc 5).</p>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<h2>2. 🎵 12-bar blues player</h2>
+<div class="card">
+  <div class="row">
+    <label for="bluesKey">Điệu:</label>
+    <select id="bluesKey">
+      <option value="0">C</option>
+      <option value="5">F</option>
+      <option value="7">G</option>
+      <option value="9">A</option>
+      <option value="4">E</option>
+      <option value="2">D</option>
+      <option value="10">B♭</option>
+      <option value="3">E♭</option>
+    </select>
+    <label>
+      <input type="checkbox" id="quickChange" checked>
+      Quick change (ô 2 = IV7)
+    </label>
+  </div>
+  <div class="row">
+    <label for="bluesTempo">Tempo:</label>
+    <input type="range" id="bluesTempo" min="60" max="160" value="90" step="5" style="width:120px; accent-color:#7e22ce">
+    <span><span class="val" id="bluesTempoVal">90</span> BPM</span>
+    <button id="playBlues">▶ Phát 12-bar</button>
+    <button id="stopBlues" class="stop-btn">■ Dừng</button>
+  </div>
+
+  <div class="blues-grid-wrap">
+    <div class="blues-grid" id="bluesGrid"></div>
+  </div>
+
+  <div class="result" id="bluesChordInfo">&nbsp;</div>
+  <p class="hint">Mỗi ô = 1 nhịp (bar). Ô đang phát sáng lên màu tím. Hợp âm dom7 (X7) dùng cho cả I, IV, V — đặc trưng của blues.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<h2>3. 🎸 ii–V–I jazz &amp; turnaround</h2>
+<div class="card">
+  <div class="row">
+    <label for="jazzKey">Điệu:</label>
+    <select id="jazzKey">
+      <option value="0">C</option>
+      <option value="5">F</option>
+      <option value="7">G</option>
+      <option value="2">D</option>
+      <option value="9">A</option>
+      <option value="4">E</option>
+      <option value="10">B♭</option>
+      <option value="3">E♭</option>
+      <option value="8">A♭</option>
+    </select>
+  </div>
+
+  <p style="margin:10px 0 6px; font-weight:600; color:#4a5568;">ii–V–I (nhấn để nghe từng hợp âm):</p>
+  <div class="chord-notes-row" id="iivi1Row"></div>
+
+  <div class="row" style="margin-top:12px">
+    <button id="playIIVI">▶ Phát ii–V–I</button>
+    <button id="playTurnaround" class="ghost">▶ Turnaround (I–vi–ii–V)</button>
+    <button id="stopJazz" class="stop-btn">■ Dừng</button>
+  </div>
+
+  <p style="margin:14px 0 6px; font-weight:600; color:#4a5568;">Turnaround I–vi–ii–V:</p>
+  <div class="chord-notes-row" id="turnaroundRow"></div>
+
+  <div class="result" id="jazzInfo">&nbsp;</div>
+
+  <div class="piano-wrap" style="margin-top:14px">
+    <div class="piano" id="jazzPiano"></div>
+  </div>
+  <div class="nowplaying" id="jazzNp">&nbsp;</div>
+
+  <p class="hint">Nhấn từng hợp âm để nghe và thấy nốt trên piano. "▶ Phát ii–V–I" phát tự động nối tiếp Dm7→G7→Cmaj7. Turnaround dùng cuối chorus để kéo về ô 1.</p>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   Web Audio core
+   ════════════════════════════════════════════════ */
+let actx = null;
+function audio() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  return actx;
+}
+
+/* Phát 1 nốt đơn */
+function playTone(freq, dur = 0.6, when = 0, vol = 0.22) {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol, t0 + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+/* Phát hợp âm (nhiều nốt cùng lúc) */
+function playChord(freqs, dur = 0.9, when = 0) {
+  freqs.forEach((f, i) => playTone(f, dur, when, i === 0 ? 0.20 : 0.14));
+}
+
+/* Dừng tất cả — tạo context mới */
+function stopAll() {
+  if (actx) { actx.close(); actx = null; }
+}
+
+/* Hệ thống nốt */
+const NOTE_NAMES = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+const NOTE_FLAT  = ['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'];
+
+function freqFromMidi(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+function noteName(midi, useFlat = false) {
+  const pc = ((midi % 12) + 12) % 12;
+  const oct = Math.floor(midi / 12) - 1;
+  return (useFlat ? NOTE_FLAT : NOTE_NAMES)[pc] + oct;
+}
+function noteNameShort(pc, useFlat = false) {
+  return (useFlat ? NOTE_FLAT : NOTE_NAMES)[((pc % 12) + 12) % 12];
+}
+
+/* Xây hợp âm từ gốc (pitch class 0–11) + offsets + octave base */
+function buildChord(rootPc, offsets, baseMidi = 60) {
+  // baseMidi: midi gần C4 (60), điều chỉnh để root nằm trong vùng C3–C5
+  const rootMidi = baseMidi + rootPc;
+  return offsets.map(o => rootMidi + o);
+}
+
+/* ════════════════════════════════════════════════
+   Cấu trúc hợp âm
+   ════════════════════════════════════════════════ */
+const DOM7   = [0, 4, 7, 10];   // dominant 7th
+const MIN7   = [0, 3, 7, 10];   // minor 7th
+const MAJ7   = [0, 4, 7, 11];   // major 7th
+const MIN7B5 = [0, 3, 6, 10];   // half-diminished (minor 7♭5)
+
+/* Blues scale offsets {0,3,5,6,7,10} */
+const BLUES_SCALE = [0, 3, 5, 6, 7, 10];
+
+/* ────────────────────────────────────────────────
+   Helpers: chuẩn hóa pitch class về cùng octave tự nhiên
+   ─────────────────────────────────────────────── */
+function useFlat(pc) {
+  // trả về true nếu nên dùng tên giáng
+  return [1,3,6,8,10].includes(((pc % 12)+12)%12);
+}
+function pcName(pc) {
+  pc = ((pc % 12)+12)%12;
+  const uf = useFlat(pc);
+  return (uf ? NOTE_FLAT : NOTE_NAMES)[pc];
+}
+
+/* ════════════════════════════════════════════════
+   MODULE 1 — Gam blues & piano
+   ════════════════════════════════════════════════ */
+const scalePiano = document.getElementById('scalePiano');
+const scaleNp    = document.getElementById('scaleNp');
+const scaleResult = document.getElementById('scaleResult');
+
+/* Xây piano 2 octave C4–C6 */
+const WHITE_MIDI = [60,62,64,65,67,69,71,72,74,76,77,79,81,83,84]; // C4..C6
+const BLACK_DEF = [
+  {after:0, midi:61},{after:1,midi:63},
+  {after:3, midi:66},{after:4,midi:68},{after:5,midi:70},
+  {after:7, midi:73},{after:8,midi:75},
+  {after:10,midi:78},{after:11,midi:80},{after:12,midi:82}
+];
+
+function buildScalePiano(rootPc) {
+  scalePiano.innerHTML = '';
+  // Tính nốt trong gam blues (pitch classes)
+  const scalePCs = new Set(BLUES_SCALE.map(o => ((rootPc + o) % 12 + 12) % 12));
+  const bluePc = ((rootPc + 6) % 12 + 12) % 12;
+
+  WHITE_MIDI.forEach((midi, i) => {
+    const pc = midi % 12;
+    const k = document.createElement('div');
+    k.className = 'wkey';
+    const isRoot = (pc === rootPc % 12);
+    const isBlue = (pc === bluePc);
+    const inScale = scalePCs.has(pc);
+    if (isRoot) k.classList.add('hl-root');
+    else if (isBlue) k.classList.add('hl-blue');
+    else if (inScale) k.classList.add('hl-scale');
+    k.textContent = noteName(midi, useFlat(pc)).replace(/\d/,'');
+    k.addEventListener('pointerdown', () => {
+      playTone(freqFromMidi(midi), 0.7);
+      scaleNp.textContent = '▶ ' + noteName(midi, useFlat(pc)) + '  (' + freqFromMidi(midi).toFixed(1) + ' Hz)';
+    });
+    scalePiano.appendChild(k);
+  });
+
+  // total white keys = 15 → 7 per octave × 2 + 1 (C6)
+  const totalWhite = 15;
+  BLACK_DEF.forEach(b => {
+    const pc = b.midi % 12;
+    const k = document.createElement('div');
+    k.className = 'bkey';
+    const isRoot = (pc === rootPc % 12);
+    const isBlue = (pc === bluePc);
+    const inScale = scalePCs.has(pc);
+    if (isRoot) k.classList.add('hl-root');
+    else if (isBlue) k.classList.add('hl-blue');
+    else if (inScale) k.classList.add('hl-scale');
+    k.textContent = noteName(b.midi, useFlat(pc)).replace(/\d/,'');
+    k.style.left = `calc(${(b.after + 1) * (100 / totalWhite)}% - ${(100 / totalWhite) * 0.5}%)`;
+    k.addEventListener('pointerdown', e => {
+      e.stopPropagation();
+      playTone(freqFromMidi(b.midi), 0.7);
+      scaleNp.textContent = '▶ ' + noteName(b.midi, useFlat(pc)) + '  (' + freqFromMidi(b.midi).toFixed(1) + ' Hz)';
+    });
+    scalePiano.appendChild(k);
+  });
+
+  // Cập nhật result text
+  const rootMidi = 60 + rootPc; // bắt đầu từ octave 4 gần nhất
+  const noteList = BLUES_SCALE.map((o, i) => {
+    const m = rootMidi + o;
+    const nm = noteName(m, useFlat(m % 12)).replace(/\d/,'');
+    if (i === 3) return `<span style="color:#3b82f6;font-weight:800">${nm} (blue note ♭5)</span>`;
+    return nm;
+  }).join(' – ');
+  const rootN = pcName(rootPc);
+  scaleResult.innerHTML = `<strong>${rootN} blues:</strong> ${noteList} – ${pcName(rootPc)}<br>Công thức offset: {0, 3, 5, <strong>6</strong>, 7, 10}`;
+}
+
+buildScalePiano(0);
+document.getElementById('scaleRoot').addEventListener('change', function() {
+  buildScalePiano(+this.value);
+});
+
+/* Phát gam lên/xuống */
+function playScale(rootPc, direction = 1) {
+  const baseMidi = 60 + rootPc;
+  const steps = direction === 1
+    ? [...BLUES_SCALE, 12]
+    : [...[...BLUES_SCALE, 12]].reverse();
+  steps.forEach((o, i) => {
+    playTone(freqFromMidi(baseMidi + o), 0.5, i * 0.22);
+  });
+}
+document.getElementById('playScaleUp').addEventListener('click', () => {
+  playScale(+document.getElementById('scaleRoot').value, 1);
+});
+document.getElementById('playScaleDown').addEventListener('click', () => {
+  playScale(+document.getElementById('scaleRoot').value, -1);
+});
+
+/* ════════════════════════════════════════════════
+   MODULE 2 — 12-bar blues player
+   ════════════════════════════════════════════════ */
+const bluesGrid    = document.getElementById('bluesGrid');
+const bluesInfo    = document.getElementById('bluesChordInfo');
+let bluesTimer     = [];    // setTimeout ids
+let bluesPlaying   = false;
+
+const ROLE_LABEL = { I7: 'I7', IV7: 'IV7', V7: 'V7' };
+const ROLE_COLOR = { I7: '', IV7: '', V7: '' };
+
+function buildBluesSequence(keyPc, quickChange) {
+  // Xây 12 hợp âm
+  const I7pc  = keyPc;
+  const IV7pc = (keyPc + 5) % 12;
+  const V7pc  = (keyPc + 7) % 12;
+
+  const seq = [
+    { pc: I7pc,  role: 'I7'  },   // 1
+    { pc: quickChange ? IV7pc : I7pc, role: quickChange ? 'IV7' : 'I7' }, // 2
+    { pc: I7pc,  role: 'I7'  },   // 3
+    { pc: I7pc,  role: 'I7'  },   // 4
+    { pc: IV7pc, role: 'IV7' },   // 5
+    { pc: IV7pc, role: 'IV7' },   // 6
+    { pc: I7pc,  role: 'I7'  },   // 7
+    { pc: I7pc,  role: 'I7'  },   // 8
+    { pc: V7pc,  role: 'V7'  },   // 9
+    { pc: IV7pc, role: 'IV7' },   // 10
+    { pc: I7pc,  role: 'I7'  },   // 11
+    { pc: V7pc,  role: 'V7'  },   // 12 turnaround
+  ];
+  return seq;
+}
+
+function renderBluesGrid(seq) {
+  bluesGrid.innerHTML = '';
+  seq.forEach((bar, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'bar-cell';
+    cell.id = 'bar' + i;
+    const roleColors = { I7: '#7e22ce', IV7: '#2563eb', V7: '#dc2626' };
+    cell.innerHTML = `<span class="bar-num">Ô ${i+1}${i===11?' (turnaround)':''}</span>
+      <strong>${pcName(bar.pc)}7</strong>
+      <span class="bar-label" style="color:${roleColors[bar.role]}">${bar.role}</span>`;
+    bluesGrid.appendChild(cell);
+  });
+}
+
+function getBluesInfo(bar) {
+  const nms = DOM7.map(o => pcName((bar.pc + o) % 12)).join(' – ');
+  return `<strong>${pcName(bar.pc)}7</strong> &nbsp;(${bar.role}): &nbsp;<span class="val">${nms}</span>
+    <span style="font-size:12px;color:#718096;margin-left:8px">dom7 = 1–3–5–♭7</span>`;
+}
+
+function stopBlues() {
+  bluesTimer.forEach(id => clearTimeout(id));
+  bluesTimer = [];
+  bluesPlaying = false;
+  // reset grid
+  document.querySelectorAll('.bar-cell').forEach(c => {
+    c.classList.remove('playing','done');
+  });
+  bluesInfo.innerHTML = '&nbsp;';
+  document.getElementById('playBlues').textContent = '▶ Phát 12-bar';
+}
+
+document.getElementById('stopBlues').addEventListener('click', () => {
+  stopBlues(); stopAll();
+});
+document.getElementById('bluesTempo').addEventListener('input', function() {
+  document.getElementById('bluesTempoVal').textContent = this.value;
+});
+
+document.getElementById('playBlues').addEventListener('click', function() {
+  if (bluesPlaying) { stopBlues(); stopAll(); return; }
+  const keyPc = +document.getElementById('bluesKey').value;
+  const qc    = document.getElementById('quickChange').checked;
+  const bpm   = +document.getElementById('bluesTempo').value;
+  const barMs = Math.round(60000 / bpm * 4); // 1 bar = 4 beats
+  const seq   = buildBluesSequence(keyPc, qc);
+  renderBluesGrid(seq);
+  bluesPlaying = true;
+  this.textContent = '■ Đang phát...';
+
+  // Lập lịch âm thanh bằng Web Audio time
+  const ac = audio();
+  const t0 = ac.currentTime + 0.1;
+  const secPerBar = 60 / bpm * 4;
+
+  seq.forEach((bar, i) => {
+    const midis = DOM7.map(o => {
+      const pc = (bar.pc + o + 12) % 12;
+      // đặt trong vùng C3–B3 (midi 48–59)
+      return 48 + pc;
+    });
+    playChord(midis.map(freqFromMidi), secPerBar * 0.85, i * secPerBar);
+
+    const tid = setTimeout(() => {
+      document.querySelectorAll('.bar-cell').forEach(c => c.classList.remove('playing'));
+      const cell = document.getElementById('bar' + i);
+      if (cell) {
+        cell.classList.add('playing');
+        for (let j = 0; j < i; j++) {
+          const prev = document.getElementById('bar' + j);
+          if (prev) { prev.classList.remove('playing'); prev.classList.add('done'); }
+        }
+      }
+      bluesInfo.innerHTML = getBluesInfo(bar);
+    }, i * barMs);
+    bluesTimer.push(tid);
+  });
+
+  // Xong
+  const endTid = setTimeout(() => {
+    document.querySelectorAll('.bar-cell').forEach(c => c.classList.remove('playing'));
+    bluesInfo.innerHTML = '✅ Xong 1 vòng 12-bar. Nhấn lại để phát tiếp.';
+    bluesPlaying = false;
+    document.getElementById('playBlues').textContent = '▶ Phát 12-bar';
+  }, 12 * barMs + 200);
+  bluesTimer.push(endTid);
+});
+
+// Init grid với C
+(function() {
+  const seq = buildBluesSequence(0, true);
+  renderBluesGrid(seq);
+})();
+
+/* ════════════════════════════════════════════════
+   MODULE 3 — ii–V–I jazz & turnaround
+   ════════════════════════════════════════════════ */
+const jazzPiano      = document.getElementById('jazzPiano');
+const jazzNp         = document.getElementById('jazzNp');
+const jazzInfo       = document.getElementById('jazzInfo');
+const iivi1Row       = document.getElementById('iivi1Row');
+const turnaroundRow  = document.getElementById('turnaroundRow');
+let jazzTimers       = [];
+let highlightedChord = null; // index in jazzPiano
+
+/* Xây bàn phím nhỏ hơn: C3–B4 (midi 48–71) */
+const JAZZ_WHITE = [48,50,52,53,55,57,59,60,62,64,65,67,69,71];
+const JAZZ_BLACK = [
+  {after:0,midi:49},{after:1,midi:51},
+  {after:3,midi:54},{after:4,midi:56},{after:5,midi:58},
+  {after:7,midi:61},{after:8,midi:63},
+  {after:10,midi:66},{after:11,midi:68},{after:12,midi:70}
+];
+
+function buildJazzPiano(highlightMidis = []) {
+  jazzPiano.innerHTML = '';
+  const hlSet = new Set(highlightMidis.map(m => ((m % 12)+12)%12));
+  const totalW = JAZZ_WHITE.length;
+
+  JAZZ_WHITE.forEach((midi, i) => {
+    const pc = midi % 12;
+    const k = document.createElement('div');
+    k.className = 'wkey';
+    if (hlSet.has(pc)) k.classList.add('hl-scale');
+    k.textContent = noteName(midi, useFlat(pc)).replace(/\d/,'');
+    k.addEventListener('pointerdown', () => {
+      playTone(freqFromMidi(midi), 0.6);
+      jazzNp.textContent = '▶ ' + noteName(midi, useFlat(pc)) + '  (' + freqFromMidi(midi).toFixed(1) + ' Hz)';
+    });
+    jazzPiano.appendChild(k);
+  });
+
+  JAZZ_BLACK.forEach(b => {
+    const pc = b.midi % 12;
+    const k = document.createElement('div');
+    k.className = 'bkey';
+    if (hlSet.has(pc)) k.classList.add('hl-scale');
+    k.textContent = noteName(b.midi, useFlat(pc)).replace(/\d/,'');
+    k.style.left = `calc(${(b.after + 1) * (100 / totalW)}% - ${(100 / totalW) * 0.5}%)`;
+    k.addEventListener('pointerdown', e => {
+      e.stopPropagation();
+      playTone(freqFromMidi(b.midi), 0.6);
+      jazzNp.textContent = '▶ ' + noteName(b.midi, useFlat(pc)) + '  (' + freqFromMidi(b.midi).toFixed(1) + ' Hz)';
+    });
+    jazzPiano.appendChild(k);
+  });
+}
+
+/* Tên hợp âm đẹp */
+function chordLabel(rootPc, type) {
+  const r = pcName(rootPc);
+  const labels = { dom7: '7', min7: 'm7', maj7: 'maj7', min7: 'm7' };
+  if (type === 'dom7') return r + '7';
+  if (type === 'min7') return r + 'm7';
+  if (type === 'maj7') return r + 'maj7';
+  return r;
+}
+function chordNoteNames(rootPc, offsets) {
+  return offsets.map(o => pcName((rootPc + o + 12) % 12)).join(' – ');
+}
+
+function buildIIVI(keyPc) {
+  // ii = min7 pada bậc 2 của major scale: keyPc + 2
+  // V  = dom7 pada keyPc + 7 (bậc 5)
+  // I  = maj7 pada keyPc
+  const iiPc = (keyPc + 2) % 12;
+  const vPc  = (keyPc + 7) % 12;
+  const iPc  = keyPc;
+  return [
+    { pc: iiPc, type: 'min7', offsets: MIN7, role: 'ii' },
+    { pc: vPc,  type: 'dom7', offsets: DOM7, role: 'V'  },
+    { pc: iPc,  type: 'maj7', offsets: MAJ7, role: 'I'  },
+  ];
+}
+
+function buildTurnaround(keyPc) {
+  // I–vi–ii–V
+  const iPc  = keyPc;
+  const viPc = (keyPc + 9) % 12;   // vi = major bậc 6
+  const iiPc = (keyPc + 2) % 12;
+  const vPc  = (keyPc + 7) % 12;
+  return [
+    { pc: iPc,  type: 'maj7', offsets: MAJ7, role: 'I'  },
+    { pc: viPc, type: 'min7', offsets: MIN7, role: 'vi' },
+    { pc: iiPc, type: 'min7', offsets: MIN7, role: 'ii' },
+    { pc: vPc,  type: 'dom7', offsets: DOM7, role: 'V'  },
+  ];
+}
+
+function renderChordRow(container, chords, activeIdx = -1) {
+  container.innerHTML = '';
+  chords.forEach((ch, i) => {
+    const box = document.createElement('div');
+    box.className = 'chord-box' + (i === activeIdx ? ' highlighted' : '');
+    const label = chordLabel(ch.pc, ch.type);
+    const notes = chordNoteNames(ch.pc, ch.offsets);
+    const roleColor = { I: '#7e22ce', ii: '#2563eb', V: '#dc2626', vi: '#059669' };
+    box.innerHTML = `<div class="chord-name">${label}</div>
+      <div style="font-size:10px;font-weight:700;color:${roleColor[ch.role] || '#666'};margin:2px 0">${ch.role}</div>
+      <div class="chord-notes-txt">${notes}</div>`;
+    box.addEventListener('click', () => {
+      // Phát hợp âm, highlight piano
+      const baseMidi = 48 + ch.pc; // bắt đầu từ C3
+      const midis = ch.offsets.map(o => baseMidi + o);
+      playChord(midis.map(freqFromMidi), 1.0);
+      buildJazzPiano(midis);
+      jazzNp.textContent = '▶ ' + label + ': ' + notes;
+      jazzInfo.innerHTML = `<strong>${label}</strong> (${ch.role}): ${notes}<br>
+        <span style="font-size:12px;color:#718096">Cấu trúc: ${ch.type === 'min7' ? 'min7 = 1–♭3–5–♭7' : ch.type === 'dom7' ? 'dom7 = 1–3–5–♭7' : 'maj7 = 1–3–5–7'}</span>`;
+      // Highlight box
+      document.querySelectorAll(`#${container.id} .chord-box`).forEach((b, j) => {
+        b.classList.toggle('highlighted', j === i);
+      });
+    });
+    container.appendChild(box);
+  });
+}
+
+function getJazzKey() { return +document.getElementById('jazzKey').value; }
+
+function refreshJazzUI() {
+  const kp = getJazzKey();
+  const iivi = buildIIVI(kp);
+  const ta   = buildTurnaround(kp);
+  renderChordRow(iivi1Row, iivi);
+  renderChordRow(turnaroundRow, ta);
+  buildJazzPiano([]);
+  jazzNp.textContent = '';
+  jazzInfo.innerHTML = 'Nhấn từng hợp âm để nghe, hoặc dùng nút ▶ để phát tự động.';
+}
+
+document.getElementById('jazzKey').addEventListener('change', refreshJazzUI);
+refreshJazzUI();
+
+/* Dừng jazz */
+function stopJazz() {
+  jazzTimers.forEach(id => clearTimeout(id));
+  jazzTimers = [];
+}
+document.getElementById('stopJazz').addEventListener('click', () => { stopJazz(); stopAll(); });
+
+/* Phát ii–V–I */
+document.getElementById('playIIVI').addEventListener('click', function() {
+  stopJazz(); stopAll();
+  const kp   = getJazzKey();
+  const iivi = buildIIVI(kp);
+  const dur  = 1.0;
+  const gap  = 1.15;
+
+  const ac = audio();
+  iivi.forEach((ch, i) => {
+    const baseMidi = 48 + ch.pc;
+    const midis = ch.offsets.map(o => baseMidi + o);
+    playChord(midis.map(freqFromMidi), dur, i * gap);
+    const tid = setTimeout(() => {
+      renderChordRow(iivi1Row, iivi, i);
+      buildJazzPiano(midis);
+      jazzNp.textContent = '▶ ' + chordLabel(ch.pc, ch.type) + ': ' + chordNoteNames(ch.pc, ch.offsets);
+      const desc = [
+        'ii (min7) — chuẩn bị, tạo "hành trình"',
+        'V (dom7) — sức căng lớn nhất, "kéo" về I',
+        'I (maj7) — giải quyết, "về nhà" ✓'
+      ];
+      jazzInfo.innerHTML = `<strong>${chordLabel(ch.pc, ch.type)}</strong>: ${chordNoteNames(ch.pc, ch.offsets)}<br>
+        <em style="color:#718096">${desc[i]}</em>`;
+    }, i * gap * 1000 + 50);
+    jazzTimers.push(tid);
+  });
+
+  const endTid = setTimeout(() => {
+    renderChordRow(iivi1Row, iivi, -1);
+    buildJazzPiano([]);
+    jazzInfo.innerHTML = '✅ ii–V–I hoàn chỉnh. Nghe ra sức căng D→G→C chưa?';
+  }, iivi.length * gap * 1000 + dur * 1000);
+  jazzTimers.push(endTid);
+});
+
+/* Phát turnaround */
+document.getElementById('playTurnaround').addEventListener('click', function() {
+  stopJazz(); stopAll();
+  const kp  = getJazzKey();
+  const ta  = buildTurnaround(kp);
+  const dur = 0.9;
+  const gap = 1.1;
+
+  const ac = audio();
+  ta.forEach((ch, i) => {
+    const baseMidi = 48 + ch.pc;
+    const midis = ch.offsets.map(o => baseMidi + o);
+    playChord(midis.map(freqFromMidi), dur, i * gap);
+    const tid = setTimeout(() => {
+      renderChordRow(turnaroundRow, ta, i);
+      buildJazzPiano(midis);
+      jazzNp.textContent = '▶ ' + chordLabel(ch.pc, ch.type) + ': ' + chordNoteNames(ch.pc, ch.offsets);
+      const desc = [
+        'I — điểm xuất phát',
+        'vi — màu thứ nhẹ, bất ngờ',
+        'ii — chuẩn bị V',
+        'V — căng tột → kéo về I đầu chorus'
+      ];
+      jazzInfo.innerHTML = `<strong>${chordLabel(ch.pc, ch.type)}</strong>: ${chordNoteNames(ch.pc, ch.offsets)}<br>
+        <em style="color:#718096">${desc[i]}</em>`;
+    }, i * gap * 1000 + 50);
+    jazzTimers.push(tid);
+  });
+
+  const endTid = setTimeout(() => {
+    renderChordRow(turnaroundRow, ta, -1);
+    buildJazzPiano([]);
+    jazzInfo.innerHTML = '✅ Turnaround I–vi–ii–V xong. V7 kéo về I ở đầu chorus tiếp theo.';
+  }, ta.length * gap * 1000 + dur * 1000);
+  jazzTimers.push(endTid);
+});
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

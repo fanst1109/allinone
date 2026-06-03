@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Capstone: Sáng tác</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  h3 { color: #4a5568; margin-top: 20px; }
+  .card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 14px 0; }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0 0; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; font-size: 14px; }
+  select {
+    padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px;
+    font-size: 14px; background: #fff; cursor: pointer;
+  }
+  input[type="range"] { flex: 1; min-width: 140px; accent-color: #7e22ce; }
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 8px 15px; font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: #6b21a8; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  button.danger { background: #fee2e2; color: #991b1b; }
+  button.danger:hover { background: #fecaca; }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* ---- Section 1: Key & Diatonic chords ---- */
+  .chord-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin: 12px 0;
+  }
+  .chord-btn {
+    padding: 10px 4px; border-radius: 8px; text-align: center;
+    cursor: pointer; border: 2px solid transparent;
+    font-size: 12px; font-weight: 700; transition: all 0.15s;
+    user-select: none;
+  }
+  .chord-btn.T  { background: #dcfce7; color: #166534; }
+  .chord-btn.S  { background: #dbeafe; color: #1d4ed8; }
+  .chord-btn.D  { background: #fee2e2; color: #991b1b; }
+  .chord-btn.T:hover  { background: #bbf7d0; border-color: #166534; }
+  .chord-btn.S:hover  { background: #bfdbfe; border-color: #1d4ed8; }
+  .chord-btn.D:hover  { background: #fecaca; border-color: #991b1b; }
+  .chord-btn .roman { font-size: 15px; display: block; }
+  .chord-btn .name  { font-size: 11px; font-weight: 400; opacity: 0.8; }
+  .chord-btn .fn    { font-size: 10px; display: block; margin-top: 2px; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 8px 0; font-size: 12px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+
+  /* ---- Section 2: Progression builder ---- */
+  .prog-slots {
+    display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0;
+  }
+  .prog-slot {
+    width: 72px; min-height: 72px; border: 2px dashed #cbd5e0;
+    border-radius: 8px; text-align: center; padding: 6px 4px;
+    font-size: 12px; cursor: pointer; position: relative;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .prog-slot.filled { border-style: solid; }
+  .prog-slot.filled.T { background: #f0fdf4; border-color: #166534; color: #166534; }
+  .prog-slot.filled.S { background: #eff6ff; border-color: #1d4ed8; color: #1d4ed8; }
+  .prog-slot.filled.D { background: #fef2f2; border-color: #991b1b; color: #991b1b; }
+  .prog-slot .bar-num { font-size: 10px; color: #9ca3af; }
+  .prog-slot .chord-name { font-size: 14px; font-weight: 700; }
+  .prog-slot .roman-small { font-size: 11px; }
+  .prog-slot .fn-small { font-size: 10px; }
+  .prog-slot .remove-x {
+    position: absolute; top: 2px; right: 4px; font-size: 12px;
+    cursor: pointer; color: #9ca3af; line-height: 1;
+  }
+  .prog-slot.playing { box-shadow: 0 0 0 3px #7e22ce; }
+  .empty-hint { font-size: 12px; color: #9ca3af; }
+
+  /* ---- Section 3: Piano roll ---- */
+  .piano-roll-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .piano-roll-container {
+    position: relative;
+    min-width: 560px;
+    margin: 10px 0;
+  }
+  .roll-header {
+    display: flex;
+    margin-left: 52px;
+  }
+  .roll-bar-label {
+    flex: 1;
+    text-align: center;
+    font-size: 11px;
+    color: #6b7280;
+    font-weight: 600;
+    border-left: 1px solid #e5e7eb;
+    padding: 3px 0;
+  }
+  .roll-body {
+    display: flex;
+  }
+  .roll-note-labels {
+    width: 50px;
+    flex-shrink: 0;
+  }
+  .roll-note-label {
+    height: 22px;
+    line-height: 22px;
+    text-align: right;
+    padding-right: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    border-top: 1px solid #f3f4f6;
+    box-sizing: border-box;
+  }
+  .roll-note-label.in-scale { color: #7e22ce; background: #faf5ff; }
+  .roll-note-label.root { color: #6b21a8; font-weight: 800; background: #f3e8ff; }
+  .roll-grid {
+    flex: 1;
+    position: relative;
+    cursor: crosshair;
+  }
+  .roll-cell {
+    position: absolute;
+    box-sizing: border-box;
+    border-right: 1px solid #e5e7eb;
+    border-top: 1px solid #f3f4f6;
+    transition: background 0.1s;
+  }
+  .roll-cell:hover { background: #f3e8ff !important; }
+  .roll-cell.beat1 { border-left: 2px solid #d1d5db; }
+  .roll-cell.note-placed {
+    background: #7e22ce !important;
+    border-radius: 3px;
+    border-color: #6b21a8;
+  }
+  .roll-cell.note-placed.playing-note { background: #f59e0b !important; border-color: #d97706; }
+  .roll-cell.bar-playing { background: rgba(126,34,206,0.06) !important; }
+  .roll-bar-div {
+    position: absolute;
+    top: 0; bottom: 0;
+    border-left: 2px solid #d1d5db;
+    pointer-events: none;
+  }
+
+  /* ---- Playback status ---- */
+  .playbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+  .play-status {
+    padding: 8px 14px; background: #f3e8ff; border-radius: 8px;
+    font-size: 13px; min-height: 36px; display: flex; align-items: center;
+    font-family: monospace;
+  }
+  .badge {
+    display: inline-block; background: #e9d5ff; color: #6b21a8;
+    padding: 2px 8px; border-radius: 5px; font-family: monospace;
+    font-weight: 700; font-size: 12px; margin: 1px;
+  }
+  .badge.T { background: #dcfce7; color: #166534; }
+  .badge.S { background: #dbeafe; color: #1d4ed8; }
+  .badge.D { background: #fee2e2; color: #991b1b; }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 600px) {
+    .chord-grid { grid-template-columns: repeat(4, 1fr); }
+    .prog-slots { gap: 4px; }
+    .prog-slot { width: 58px; min-height: 60px; font-size: 11px; }
+    .piano-roll-container { min-width: 480px; }
+    h2 { font-size: 16px; }
+  }
+  @media (max-width: 420px) {
+    .chord-grid { grid-template-columns: repeat(4, 1fr); }
+    .prog-slot { width: 50px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Applied &amp; Composition</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-jazz-blues/visualization.html">← L7: Jazz &amp; blues</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Capstone — Sáng tác</span>
+  <span class="sep">·</span>
+  <span>🎉 Hoàn tất Music</span>
+</nav>
+
+<main>
+<h1>Lesson 08 — Capstone: Xưởng sáng tác mini</h1>
+<p>Tổng hợp toàn bộ lý thuyết 3 tầng vào một đoạn nhạc 8 ô nhịp: chọn điệu → xếp tiến trình hợp âm → đặt nốt giai điệu → phát cả bài với đệm hợp âm đồng thời. <strong>🔊 Bật loa.</strong></p>
+
+<!-- =========== STEP 1: Key & Tempo =========== -->
+<h2>Bước 1 — Chọn điệu &amp; tempo</h2>
+<div class="card">
+  <div class="row">
+    <label for="keySelect">Điệu:</label>
+    <select id="keySelect">
+      <option value="C">C trưởng</option>
+      <option value="G">G trưởng</option>
+      <option value="F">F trưởng</option>
+      <option value="D">D trưởng</option>
+      <option value="Am">a thứ (tự nhiên)</option>
+      <option value="Em">e thứ (tự nhiên)</option>
+    </select>
+    <label for="tempoRange" style="margin-left:10px">Tempo:</label>
+    <input type="range" id="tempoRange" min="60" max="160" value="100" step="5" style="max-width:140px">
+    <span><span class="val" id="tempoVal">100</span> BPM</span>
+  </div>
+  <p class="hint">Chọn điệu sẽ cập nhật 7 hợp âm diatonic ở Bước 2 và giới hạn nốt trên piano-roll ở Bước 3.</p>
+</div>
+
+<!-- =========== STEP 2: Diatonic chords =========== -->
+<h2>Bước 2 — Xếp tiến trình hợp âm (≤8 ô nhịp)</h2>
+<div class="card">
+  <h3 style="margin-top:0">7 hợp âm diatonic — click để thêm vào tiến trình</h3>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#dcfce7;border:1px solid #166534"></div> T = Tonic (ổn định)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#dbeafe;border:1px solid #1d4ed8"></div> S = Subdominant (chuẩn bị)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fee2e2;border:1px solid #991b1b"></div> D = Dominant (căng thẳng)</div>
+  </div>
+  <div class="chord-grid" id="diatonicGrid"><!-- filled by JS --></div>
+
+  <h3>Tiến trình của bạn (click vào ô để xóa)</h3>
+  <div class="prog-slots" id="progSlots"><!-- filled by JS --></div>
+  <div class="row">
+    <button class="ghost danger" id="clearProg">Xóa tiến trình</button>
+    <button class="ghost" id="loadExample">Nạp ví dụ mẫu (C trưởng 8 ô)</button>
+  </div>
+  <p class="hint">Gợi ý kết: kết bằng hợp âm V→I (authentic cadence) ở 2 ô cuối để đoạn nhạc kết dứt khoát.</p>
+</div>
+
+<!-- =========== STEP 3: Piano roll =========== -->
+<h2>Bước 3 — Đặt nốt giai điệu (piano-roll)</h2>
+<div class="card">
+  <p class="hint">Mỗi cột = 1 ô nhịp (khớp với tiến trình hợp âm). Mỗi hàng = 1 nốt (chỉ hiện nốt trong gam). Click để đặt/xóa nốt. Mỗi ô nhịp đặt <strong>4 nốt</strong> (4 phách). Nốt gốc của mỗi hợp âm được đánh dấu đậm hơn.</p>
+  <div class="piano-roll-wrap">
+    <div class="piano-roll-container" id="rollContainer">
+      <!-- built by JS -->
+    </div>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <button class="ghost danger" id="clearRoll">Xóa giai điệu</button>
+    <span class="hint" style="margin:0">Gam đang dùng: <span id="scaleInfo" class="val">C–D–E–F–G–A–B</span></span>
+  </div>
+</div>
+
+<!-- =========== STEP 4: Playback =========== -->
+<h2>Bước 4 — Phát cả bài</h2>
+<div class="card">
+  <div class="playbar">
+    <button id="playBtn">▶ Phát cả bài</button>
+    <button id="stopBtn" class="ghost" disabled>⏹ Dừng</button>
+    <div class="play-status" id="playStatus">Sẵn sàng phát.</div>
+  </div>
+  <p class="hint">Phát đồng thời giai điệu (sine wave êm) + đệm hợp âm (nốt đầu ô nhịp, âm nhẹ). Ô nhịp đang phát được highlight màu tím. Cần ít nhất 1 hợp âm trong tiến trình.</p>
+
+  <h3 style="margin-top:16px">Phân tích tiến trình hiện tại</h3>
+  <div id="analysisRow" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;min-height:32px"></div>
+  <p class="hint" id="cadenceHint"></p>
+</div>
+
+<script>
+// ============================================================
+//  WEB AUDIO
+// ============================================================
+let ctx = null;
+function audio() {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  return ctx;
+}
+
+function playTone(freq, dur = 0.5, when = 0, vol = 0.22, type = 'sine') {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol, t0 + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + Math.max(dur - 0.05, 0.05));
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+function playChord(freqs, dur, when, vol = 0.09) {
+  freqs.forEach(f => playTone(f, dur, when, vol, 'triangle'));
+}
+
+const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function freqFromMidi(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+function midiToName(m) {
+  return NOTE_NAMES[m % 12] + Math.floor(m / 12 - 1);
+}
+
+// ============================================================
+//  SCALES & DIATONIC DATA
+// ============================================================
+// intervals from root (semitones) for major and natural minor
+const MAJOR_PATTERN = [0,2,4,5,7,9,11];
+const MINOR_PATTERN = [0,2,3,5,7,8,10];
+
+// For each key: root midi (octave 4), pattern, chord quality per degree
+const KEY_DATA = {
+  'C':  { root: 60, pattern: MAJOR_PATTERN, mode: 'major', label: 'C trưởng' },
+  'G':  { root: 67, pattern: MAJOR_PATTERN, mode: 'major', label: 'G trưởng' },
+  'F':  { root: 65, pattern: MAJOR_PATTERN, mode: 'major', label: 'F trưởng' },
+  'D':  { root: 62, pattern: MAJOR_PATTERN, mode: 'major', label: 'D trưởng' },
+  'Am': { root: 69, pattern: MINOR_PATTERN, mode: 'minor', label: 'a thứ' },
+  'Em': { root: 64, pattern: MINOR_PATTERN, mode: 'minor', label: 'e thứ' },
+};
+
+// Diatonic chords: [romanNumeral, quality (M=major, m=minor, d=dim), function (T/S/D)]
+// Major: I(M,T), ii(m,S), iii(m,T), IV(M,S), V(M,D), vi(m,T), vii°(d,D)
+const MAJOR_CHORDS = [
+  { roman: 'I',    qual: 'M', fn: 'T' },
+  { roman: 'ii',   qual: 'm', fn: 'S' },
+  { roman: 'iii',  qual: 'm', fn: 'T' },
+  { roman: 'IV',   qual: 'M', fn: 'S' },
+  { roman: 'V',    qual: 'M', fn: 'D' },
+  { roman: 'vi',   qual: 'm', fn: 'T' },
+  { roman: 'vii°', qual: 'd', fn: 'D' },
+];
+// Natural minor: i(m,T), ii°(d,S), III(M,T), iv(m,S), v(m,D), VI(M,T), VII(M,D)
+const MINOR_CHORDS = [
+  { roman: 'i',    qual: 'm', fn: 'T' },
+  { roman: 'ii°',  qual: 'd', fn: 'S' },
+  { roman: 'III',  qual: 'M', fn: 'T' },
+  { roman: 'iv',   qual: 'm', fn: 'S' },
+  { roman: 'v',    qual: 'm', fn: 'D' },
+  { roman: 'VI',   qual: 'M', fn: 'T' },
+  { roman: 'VII',  qual: 'M', fn: 'D' },
+];
+
+// Chord intervals: major=[0,4,7], minor=[0,3,7], dim=[0,3,6]
+const CHORD_INTERVALS = { M: [0,4,7], m: [0,3,7], d: [0,3,6] };
+
+function getKeyInfo(key) {
+  const kd = KEY_DATA[key];
+  const chordDefs = kd.mode === 'major' ? MAJOR_CHORDS : MINOR_CHORDS;
+  const scaleNotes = kd.pattern.map(iv => (kd.root + iv));
+  // Build 7 diatonic chords
+  const chords = chordDefs.map((cd, idx) => {
+    const chordRoot = scaleNotes[idx];
+    const intervals = CHORD_INTERVALS[cd.qual];
+    const midiNotes = intervals.map(iv => chordRoot + iv);
+    const noteName = NOTE_NAMES[chordRoot % 12];
+    const chordLabel = noteName + (cd.qual === 'M' ? '' : cd.qual === 'm' ? 'm' : '°');
+    return { ...cd, chordRoot, midiNotes, chordLabel };
+  });
+  return { ...kd, scaleNotes, chords };
+};
+
+// Scale info string
+function scaleInfoStr(key) {
+  const kd = KEY_DATA[key];
+  return kd.pattern.map(iv => NOTE_NAMES[(kd.root + iv) % 12]).join('–');
+}
+
+// ============================================================
+//  STATE
+// ============================================================
+let currentKey = 'C';
+let tempo = 100;
+let progression = []; // array of chord indices (0-6)
+const MAX_BARS = 8;
+const BEATS_PER_BAR = 4;
+
+// Piano roll: [bar][beat] = noteRow index | null
+// noteRow = index into rollNotes array (0 = highest)
+const ROLL_NOTE_COUNT = 15; // show 15 rows (nốt trong gam + 1 octave)
+let rollNotes = []; // array of {midi, name, inScale, isRoot} - built when key changes
+let rollGrid = []; // [bar][beat] = rollNoteIdx | null  (bars 0..7, beats 0..3)
+
+function initRollGrid() {
+  rollGrid = Array.from({length: MAX_BARS}, () => Array(BEATS_PER_BAR).fill(null));
+}
+initRollGrid();
+
+// Playback
+let isPlaying = false;
+let stopRequested = false;
+let scheduledTimeouts = [];
+
+// ============================================================
+//  BUILD ROLL NOTES
+// ============================================================
+function buildRollNotes(key) {
+  const kd = KEY_DATA[key];
+  const scaleSet = new Set(kd.pattern.map(iv => ((kd.root + iv) % 12)));
+  const rootPc = kd.root % 12;
+  const notes = [];
+  // From midi 84 (C6) down to midi 48 (C3) — range of ~3 octaves
+  for (let m = 84; m >= 48; m--) {
+    const pc = m % 12;
+    if (scaleSet.has(pc)) {
+      notes.push({
+        midi: m,
+        name: midiToName(m),
+        inScale: true,
+        isRoot: pc === rootPc,
+      });
+    }
+  }
+  // Limit to ROLL_NOTE_COUNT rows
+  return notes.slice(0, ROLL_NOTE_COUNT);
+}
+
+// ============================================================
+//  UI BUILDERS
+// ============================================================
+function buildDiatonicGrid(key) {
+  const { chords } = getKeyInfo(key);
+  const grid = document.getElementById('diatonicGrid');
+  grid.innerHTML = '';
+  chords.forEach((ch, idx) => {
+    const btn = document.createElement('div');
+    btn.className = 'chord-btn ' + ch.fn;
+    btn.innerHTML = `<span class="roman">${ch.roman}</span><span class="name">${ch.chordLabel}</span><span class="fn">${ch.fn}</span>`;
+    btn.addEventListener('click', () => addChordToProgression(idx));
+    grid.appendChild(btn);
+  });
+}
+
+function buildProgSlots() {
+  const { chords } = getKeyInfo(currentKey);
+  const container = document.getElementById('progSlots');
+  container.innerHTML = '';
+  for (let b = 0; b < MAX_BARS; b++) {
+    const slot = document.createElement('div');
+    const chordIdx = progression[b];
+    slot.className = 'prog-slot';
+    if (chordIdx !== undefined && chordIdx !== null) {
+      const ch = chords[chordIdx];
+      slot.className += ' filled ' + ch.fn;
+      slot.innerHTML = `
+        <div class="bar-num">Ô ${b+1}</div>
+        <div class="chord-name">${ch.chordLabel}</div>
+        <div class="roman-small">${ch.roman}</div>
+        <div class="fn-small">${ch.fn}</div>
+        <span class="remove-x" data-bar="${b}">✕</span>
+      `;
+      slot.querySelector('.remove-x').addEventListener('click', e => {
+        e.stopPropagation();
+        removeChordAt(+e.target.dataset.bar);
+      });
+    } else {
+      slot.innerHTML = `<div class="bar-num">Ô ${b+1}</div><div class="empty-hint">—</div>`;
+    }
+    container.appendChild(slot);
+  }
+  updateAnalysis();
+}
+
+function addChordToProgression(chordIdx) {
+  // Find first empty slot
+  const emptyIdx = progression.findIndex((v, i) => v === undefined || v === null);
+  const nextBar = progression.filter(v => v !== undefined && v !== null).length;
+  if (nextBar >= MAX_BARS) return; // full
+  progression[nextBar] = chordIdx;
+  buildProgSlots();
+  buildPianoRoll();
+}
+
+function removeChordAt(bar) {
+  // Shift down
+  progression.splice(bar, 1);
+  // Trim trailing undefs
+  while (progression.length > 0 && (progression[progression.length-1] === undefined || progression[progression.length-1] === null)) {
+    progression.pop();
+  }
+  buildProgSlots();
+  buildPianoRoll();
+}
+
+// ============================================================
+//  PIANO ROLL
+// ============================================================
+const CELL_W = 34; // px per beat
+const CELL_H = 22; // px per row
+
+function buildPianoRoll() {
+  rollNotes = buildRollNotes(currentKey);
+  const { chords } = getKeyInfo(currentKey);
+  const numBars = Math.max(progression.filter(v => v !== undefined && v !== null).length, 1);
+  const totalBeats = numBars * BEATS_PER_BAR;
+  const totalW = totalBeats * CELL_W;
+  const totalH = rollNotes.length * CELL_H;
+
+  const container = document.getElementById('rollContainer');
+  container.innerHTML = '';
+  container.style.width = (totalW + 52) + 'px';
+
+  // Header row
+  const header = document.createElement('div');
+  header.className = 'roll-header';
+  for (let b = 0; b < numBars; b++) {
+    const chordIdx = progression[b];
+    const ch = chordIdx !== undefined ? chords[chordIdx] : null;
+    const lbl = document.createElement('div');
+    lbl.className = 'roll-bar-label';
+    lbl.style.flexBasis = (CELL_W * BEATS_PER_BAR) + 'px';
+    lbl.style.flexGrow = '0';
+    lbl.style.flexShrink = '0';
+    lbl.textContent = ch ? `Ô${b+1} ${ch.chordLabel}` : `Ô${b+1}`;
+    header.appendChild(lbl);
+  }
+  container.appendChild(header);
+
+  // Body
+  const body = document.createElement('div');
+  body.className = 'roll-body';
+
+  // Note labels
+  const noteLabels = document.createElement('div');
+  noteLabels.className = 'roll-note-labels';
+  rollNotes.forEach(rn => {
+    const lbl = document.createElement('div');
+    lbl.className = 'roll-note-label' + (rn.isRoot ? ' root' : rn.inScale ? ' in-scale' : '');
+    lbl.textContent = rn.name;
+    lbl.style.height = CELL_H + 'px';
+    lbl.style.lineHeight = CELL_H + 'px';
+    noteLabels.appendChild(lbl);
+  });
+  body.appendChild(noteLabels);
+
+  // Grid
+  const grid = document.createElement('div');
+  grid.className = 'roll-grid';
+  grid.style.width = totalW + 'px';
+  grid.style.height = totalH + 'px';
+  grid.style.position = 'relative';
+
+  // Bar dividers
+  for (let b = 1; b < numBars; b++) {
+    const div = document.createElement('div');
+    div.className = 'roll-bar-div';
+    div.style.left = (b * BEATS_PER_BAR * CELL_W) + 'px';
+    grid.appendChild(div);
+  }
+
+  // Cells
+  rollNotes.forEach((rn, rowIdx) => {
+    for (let bar = 0; bar < numBars; bar++) {
+      for (let beat = 0; beat < BEATS_PER_BAR; beat++) {
+        const cell = document.createElement('div');
+        cell.className = 'roll-cell' + (beat === 0 ? ' beat1' : '');
+        cell.style.left = ((bar * BEATS_PER_BAR + beat) * CELL_W) + 'px';
+        cell.style.top = (rowIdx * CELL_H) + 'px';
+        cell.style.width = CELL_W + 'px';
+        cell.style.height = CELL_H + 'px';
+        // Check if placed
+        const placed = rollGrid[bar] && rollGrid[bar][beat] === rowIdx;
+        if (placed) cell.classList.add('note-placed');
+        cell.dataset.bar = bar;
+        cell.dataset.beat = beat;
+        cell.dataset.row = rowIdx;
+        cell.addEventListener('click', onCellClick);
+        grid.appendChild(cell);
+      }
+    }
+  });
+
+  body.appendChild(grid);
+  container.appendChild(body);
+
+  document.getElementById('scaleInfo').textContent = scaleInfoStr(currentKey);
+}
+
+function onCellClick(e) {
+  const bar = +e.currentTarget.dataset.bar;
+  const beat = +e.currentTarget.dataset.beat;
+  const row = +e.currentTarget.dataset.row;
+
+  if (!rollGrid[bar]) rollGrid[bar] = Array(BEATS_PER_BAR).fill(null);
+
+  if (rollGrid[bar][beat] === row) {
+    // Toggle off
+    rollGrid[bar][beat] = null;
+    e.currentTarget.classList.remove('note-placed');
+  } else {
+    // First clear old note in this (bar,beat)
+    const oldRow = rollGrid[bar][beat];
+    if (oldRow !== null) {
+      // Find and deactivate old cell
+      const oldCell = document.querySelector(`.roll-cell[data-bar="${bar}"][data-beat="${beat}"][data-row="${oldRow}"]`);
+      if (oldCell) oldCell.classList.remove('note-placed');
+    }
+    rollGrid[bar][beat] = row;
+    e.currentTarget.classList.add('note-placed');
+    // Preview note
+    const midi = rollNotes[row].midi;
+    playTone(freqFromMidi(midi), 0.4, 0, 0.2);
+  }
+}
+
+// ============================================================
+//  PLAYBACK
+// ============================================================
+function startPlayback() {
+  const numBars = progression.filter(v => v !== undefined && v !== null).length;
+  if (numBars === 0) {
+    document.getElementById('playStatus').textContent = 'Thêm ít nhất 1 hợp âm vào tiến trình!';
+    return;
+  }
+  const { chords } = getKeyInfo(currentKey);
+  const ac = audio();
+  const secPerBeat = 60 / tempo;
+  const secPerBar = secPerBeat * BEATS_PER_BAR;
+
+  isPlaying = true;
+  stopRequested = false;
+  document.getElementById('playBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+
+  let t = ac.currentTime + 0.05; // small start delay
+
+  for (let bar = 0; bar < numBars; bar++) {
+    const chordIdx = progression[bar];
+    const ch = chords[chordIdx];
+
+    // Schedule chord (each beat of bar, or just once per bar)
+    // Play chord once at bar start (whole bar duration), bass note prominent
+    const chordFreqs = ch.midiNotes.map(m => freqFromMidi(m));
+    // Also play bass an octave lower
+    const bassFreq = freqFromMidi(ch.midiNotes[0] - 12);
+    const barWhen = t + bar * secPerBar;
+
+    // Schedule chord strum: root on beat 1, others slightly after
+    playTone(bassFreq, secPerBar * 0.95, barWhen - ac.currentTime, 0.15, 'triangle');
+    chordFreqs.forEach((f, i) => {
+      playTone(f, secPerBar * 0.9, barWhen - ac.currentTime + i * 0.02, 0.07, 'triangle');
+    });
+
+    // Schedule melody notes
+    for (let beat = 0; beat < BEATS_PER_BAR; beat++) {
+      const rowIdx = rollGrid[bar] && rollGrid[bar][beat] !== null ? rollGrid[bar][beat] : null;
+      if (rowIdx !== null && rowIdx < rollNotes.length) {
+        const midi = rollNotes[rowIdx].midi;
+        const noteWhen = barWhen - ac.currentTime + beat * secPerBeat;
+        playTone(freqFromMidi(midi), secPerBeat * 0.85, noteWhen, 0.28, 'sine');
+      }
+    }
+
+    // UI highlight via setTimeout
+    const barDelay = (barWhen - ac.currentTime) * 1000;
+    const tid = setTimeout(() => {
+      if (stopRequested) return;
+      highlightBar(bar);
+      const ch2 = chords[chordIdx];
+      document.getElementById('playStatus').textContent =
+        `▶ Ô ${bar+1}/${numBars}  ${ch2.chordLabel} (${ch2.roman})  chức năng: ${ch2.fn}`;
+    }, barDelay);
+    scheduledTimeouts.push(tid);
+  }
+
+  // End
+  const endDelay = (t + numBars * secPerBar - ac.currentTime) * 1000;
+  const endTid = setTimeout(() => {
+    if (stopRequested) return;
+    stopPlayback(false);
+    document.getElementById('playStatus').textContent = '✓ Phát xong!';
+    clearBarHighlight();
+  }, endDelay);
+  scheduledTimeouts.push(endTid);
+}
+
+function stopPlayback(manual = true) {
+  stopRequested = true;
+  isPlaying = false;
+  scheduledTimeouts.forEach(t => clearTimeout(t));
+  scheduledTimeouts = [];
+  document.getElementById('playBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  if (manual) {
+    clearBarHighlight();
+    document.getElementById('playStatus').textContent = 'Đã dừng.';
+  }
+}
+
+function highlightBar(bar) {
+  clearBarHighlight();
+  document.querySelectorAll(`.prog-slot`).forEach((s, i) => {
+    if (i === bar) s.classList.add('playing');
+  });
+  document.querySelectorAll(`.roll-cell[data-bar="${bar}"]`).forEach(c => {
+    if (!c.classList.contains('note-placed')) c.classList.add('bar-playing');
+  });
+}
+
+function clearBarHighlight() {
+  document.querySelectorAll('.prog-slot.playing').forEach(s => s.classList.remove('playing'));
+  document.querySelectorAll('.roll-cell.bar-playing').forEach(c => c.classList.remove('bar-playing'));
+}
+
+// ============================================================
+//  ANALYSIS
+// ============================================================
+function updateAnalysis() {
+  const { chords } = getKeyInfo(currentKey);
+  const numBars = progression.filter(v => v !== undefined && v !== null).length;
+  const row = document.getElementById('analysisRow');
+  const hint = document.getElementById('cadenceHint');
+  row.innerHTML = '';
+  hint.textContent = '';
+  if (numBars === 0) return;
+
+  progression.slice(0, numBars).forEach((ci, i) => {
+    const ch = chords[ci];
+    const badge = document.createElement('span');
+    badge.className = 'badge ' + ch.fn;
+    badge.title = `Ô ${i+1}: ${ch.chordLabel}`;
+    badge.textContent = ch.roman + ' (' + ch.fn + ')';
+    row.appendChild(badge);
+  });
+
+  // Detect cadence at end
+  if (numBars >= 2) {
+    const last = chords[progression[numBars-1]];
+    const prev = chords[progression[numBars-2]];
+    let cadText = '';
+    if (last.roman === 'I' || last.roman === 'i') {
+      if (prev.roman === 'V' || prev.roman === 'v') cadText = '✓ Authentic cadence (V→I) — kết đóng mạnh nhất.';
+      else if (prev.roman === 'IV' || prev.roman === 'iv') cadText = '✓ Plagal cadence (IV→I) — kết nhẹ, "Amen".';
+      else cadText = `Kết về tonic (I) từ ${prev.chordLabel}.`;
+    } else if (last.roman === 'V' || last.roman === 'v') {
+      cadText = '⚠ Half cadence (kết ở V) — đoạn mở, chưa giải quyết.';
+    } else if (last.fn === 'T' && prev.roman === 'V') {
+      cadText = '✓ Deceptive cadence (V→' + last.roman + ') — bất ngờ, không về I.';
+    } else {
+      cadText = `Kết ở ${last.chordLabel} (${last.fn}).`;
+    }
+    hint.textContent = cadText;
+  }
+}
+
+// ============================================================
+//  EXAMPLE
+// ============================================================
+const EXAMPLE_PROG_C = [0, 5, 3, 4, 0, 3, 4, 0]; // I,vi,IV,V,I,IV,V,I in C major
+
+// Giai điệu mẫu: rollNotes index. We map note names to row indices after building.
+// C major scale notes from high to low: C6,B5,A5,G5,F5,E5,D5,C5,B4,A4,G4,F4,E4,D4,C4
+// In the roll for C, rollNotes built from midi 84 down in scale:
+// 84=C6,83->skip,82->skip,81=A5,79=G5,77=F5,76=E5,74=D5,72=C5,71=B4,69=A4,67=G4,65=F4,64=E4,62=D4,60=C4
+// Indices: C6=0,B5=1(wait--B is in C major),A5=2,G5=3,F5=4,E5=5,D5=6,C5=7,B4=8,A4=9,G4=10,F4=11,E4=12,D4=13,C4=14
+// melody: per bar per beat (4 beats)
+const EXAMPLE_MELODY = [
+  [5,6,7,6],   // bar1 C(I):   E5,D5,C5,D5
+  [5,4,5,6],   // bar2 Am(vi): E5,F5,E5,D5
+  [7,6,5,4],   // bar3 F(IV):  C5,D5,E5,F5
+  [3,4,5,6],   // bar4 G(V):   G5,F5,E5,D5
+  [5,6,7,8],   // bar5 C(I):   E5,D5,C5,B4
+  [9,8,7,6],   // bar6 F(IV):  A4,B4,C5,D5
+  [8,7,6,7],   // bar7 G(V):   B4,C5,D5,C5
+  [7,10,12,14],// bar8 C(I):   C5,G4,E4,C4
+];
+
+function loadExample() {
+  // Reset to C major first
+  currentKey = 'C';
+  document.getElementById('keySelect').value = 'C';
+  buildDiatonicGrid('C');
+
+  progression = [...EXAMPLE_PROG_C];
+  initRollGrid();
+  buildProgSlots();
+  buildPianoRoll(); // rebuilds rollNotes for C
+
+  // Now fill melody
+  EXAMPLE_MELODY.forEach((bar, b) => {
+    bar.forEach((rowIdx, beat) => {
+      if (rowIdx < rollNotes.length) {
+        rollGrid[b][beat] = rowIdx;
+      }
+    });
+  });
+
+  // Redraw cells
+  buildPianoRoll(); // rebuild to show placed notes
+  // Re-apply grid data after rebuild
+  EXAMPLE_MELODY.forEach((bar, b) => {
+    bar.forEach((rowIdx, beat) => {
+      if (rowIdx !== null && rowIdx < rollNotes.length) {
+        rollGrid[b][beat] = rowIdx;
+        const cell = document.querySelector(`.roll-cell[data-bar="${b}"][data-beat="${beat}"][data-row="${rowIdx}"]`);
+        if (cell) cell.classList.add('note-placed');
+      }
+    });
+  });
+
+  document.getElementById('playStatus').textContent = 'Ví dụ mẫu đã nạp. Nhấn ▶ Phát cả bài.';
+  updateAnalysis();
+}
+
+// ============================================================
+//  KEY CHANGE
+// ============================================================
+function onKeyChange(newKey) {
+  currentKey = newKey;
+  progression = [];
+  initRollGrid();
+  buildDiatonicGrid(newKey);
+  buildProgSlots();
+  buildPianoRoll();
+  document.getElementById('playStatus').textContent = 'Điệu đã đổi sang ' + KEY_DATA[newKey].label + '. Xếp lại tiến trình.';
+}
+
+// ============================================================
+//  INIT & EVENTS
+// ============================================================
+document.getElementById('keySelect').addEventListener('change', e => onKeyChange(e.target.value));
+document.getElementById('tempoRange').addEventListener('input', e => {
+  tempo = +e.target.value;
+  document.getElementById('tempoVal').textContent = tempo;
+});
+document.getElementById('clearProg').addEventListener('click', () => {
+  progression = [];
+  buildProgSlots();
+  buildPianoRoll();
+});
+document.getElementById('clearRoll').addEventListener('click', () => {
+  initRollGrid();
+  buildPianoRoll();
+  document.getElementById('playStatus').textContent = 'Đã xóa giai điệu.';
+});
+document.getElementById('loadExample').addEventListener('click', loadExample);
+document.getElementById('playBtn').addEventListener('click', () => {
+  if (!isPlaying) startPlayback();
+});
+document.getElementById('stopBtn').addEventListener('click', () => {
+  if (isPlaying) stopPlayback(true);
+});
+
+// Initial build
+buildDiatonicGrid(currentKey);
+buildProgSlots();
+buildPianoRoll();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

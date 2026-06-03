@@ -17,14 +17,14 @@ Từ luật sang nhạc thật: vì sao mỗi nhạc cụ có "màu" riêng, vì
 
 | Bài | Chủ đề | Khái niệm chính |
 |-----|--------|-----------------|
-| Lesson 01 | Âm sắc & chuỗi bội âm | Timbre, harmonic series, vì sao nhạc cụ khác nhau; phân tích Fourier (trực giác) |
-| Lesson 02 | Hệ điều âm & tuning | Equal temperament vs just intonation, cents, vì sao đúng 12 nốt |
-| Lesson 03 | Giai điệu & motif | Contour, motif, phrase, câu hỏi – câu trả lời (antecedent/consequent) |
-| Lesson 04 | Tiết tấu nâng cao | Đảo phách (syncopation), polyrhythm, swing, groove |
-| Lesson 05 | Hình thức bài nhạc | Verse–chorus, AABA, rondo, sonata (preview) |
-| Lesson 06 | Đối âm cơ bản | Species counterpoint, dẫn giọng độc lập, phong cách Bach |
-| Lesson 07 | Hòa âm jazz & blues | Blues scale, 12-bar blues, ii–V–I, tension &amp; resolution |
-| Lesson 08 | Capstone: sáng tác | Phân tích + sáng tác một đoạn 8 ô nhịp (giai điệu + đệm hợp âm) |
+| [Lesson 01](./lesson-01-timbre-harmonics/) | Âm sắc & chuỗi bội âm | Timbre, harmonic series, vì sao nhạc cụ khác nhau; phân tích Fourier (trực giác) |
+| [Lesson 02](./lesson-02-tuning-temperament/) | Hệ điều âm & tuning | Equal temperament vs just intonation, cents, vì sao đúng 12 nốt |
+| [Lesson 03](./lesson-03-melody-motif/) | Giai điệu & motif | Contour, motif, phrase, câu hỏi – câu trả lời (antecedent/consequent) |
+| [Lesson 04](./lesson-04-advanced-rhythm/) | Tiết tấu nâng cao | Đảo phách (syncopation), polyrhythm, swing, groove |
+| [Lesson 05](./lesson-05-musical-form/) | Hình thức bài nhạc | Verse–chorus, AABA, rondo, sonata (preview) |
+| [Lesson 06](./lesson-06-counterpoint/) | Đối âm cơ bản | Species counterpoint, dẫn giọng độc lập, phong cách Bach |
+| [Lesson 07](./lesson-07-jazz-blues/) | Hòa âm jazz & blues | Blues scale, 12-bar blues, ii–V–I, tension &amp; resolution |
+| [Lesson 08](./lesson-08-capstone-composition/) | Capstone: sáng tác | Phân tích + sáng tác một đoạn 8 ô nhịp (giai điệu + đệm hợp âm) |
 
 ## Trước tầng này
 

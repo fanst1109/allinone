@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Giai điệu &amp; motif</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  p.intro { color: #4a5568; line-height: 1.7; margin-bottom: 0; }
+
+  .card {
+    background: #fff; border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 16px 0;
+  }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0 0; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; }
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 8px 14px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s;
+  }
+  button:hover { background: #6b21a8; }
+  button:disabled { background: #c4b5fd; cursor: default; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  button.active-btn { background: #6b21a8; outline: 2px solid #a855f7; }
+
+  .result {
+    padding: 12px 16px; background: #f3e8ff; border-radius: 8px; margin-top: 10px;
+    font-size: 14px; line-height: 1.7;
+  }
+  .result .big { font-size: 20px; font-weight: 800; color: #6b21a8; font-family: monospace; }
+  .badge {
+    display: inline-block; background: #e9d5ff; color: #6b21a8;
+    padding: 3px 9px; border-radius: 6px; font-family: monospace; font-weight: 700;
+    margin: 2px; font-size: 13px;
+  }
+  .badge.highlight { background: #7e22ce; color: #fff; }
+
+  /* -------- Piano Roll Grid -------- */
+  .roll-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 10px 0; }
+  .roll-grid {
+    display: grid;
+    grid-template-rows: repeat(13, 30px);  /* C4..C5: 13 rows, top=high */
+    grid-template-columns: repeat(8, 44px);
+    gap: 2px;
+    width: max-content;
+    user-select: none;
+  }
+  .roll-cell {
+    border: 1px solid #e2d9f3;
+    border-radius: 4px;
+    background: #faf7fb;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: #a0aec0;
+    transition: background .1s;
+  }
+  .roll-cell:hover { background: #e9d5ff; }
+  .roll-cell.on { background: #7e22ce; color: #fff; border-color: #6b21a8; }
+  .roll-cell.on.transformed { background: #f59e0b; color: #1a202c; border-color: #d97706; }
+  .roll-cell.playing { background: #22c55e; color: #fff; }
+
+  .pitch-label {
+    display: grid;
+    grid-template-rows: repeat(13, 30px);
+    gap: 2px;
+    float: left;
+    margin-right: 4px;
+  }
+  .pitch-label div {
+    height: 30px; display: flex; align-items: center; justify-content: flex-end;
+    font-size: 11px; color: #6b21a8; font-family: monospace; font-weight: 700;
+    padding-right: 4px;
+  }
+  .roll-row { display: contents; }
+
+  /* beat labels */
+  .beat-labels {
+    display: grid;
+    grid-template-columns: repeat(8, 44px);
+    gap: 2px; margin-bottom: 3px;
+    width: max-content;
+  }
+  .beat-labels div {
+    font-size: 10px; color: #a0aec0; text-align: center; font-family: monospace;
+  }
+
+  /* -------- Contour SVG -------- */
+  .contour-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+  .contour-card {
+    flex: 1; min-width: 140px; padding: 12px;
+    border: 2px solid #e9d5ff; border-radius: 10px; text-align: center;
+    cursor: pointer; transition: border-color .15s, background .15s;
+  }
+  .contour-card:hover { background: #faf7fb; border-color: #a855f7; }
+  .contour-card.selected { background: #f3e8ff; border-color: #7e22ce; }
+  .contour-card svg { display: block; margin: 0 auto 6px; }
+  .contour-card .cname { font-weight: 700; font-size: 13px; color: #6b21a8; }
+  .contour-card .cdesc { font-size: 11px; color: #718096; margin-top: 2px; }
+
+  /* -------- Antecedent / Consequent -------- */
+  .qa-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0;
+  }
+  .qa-box {
+    padding: 14px; border-radius: 10px; text-align: center;
+  }
+  .qa-box.q { background: #fef3c7; border: 2px solid #f59e0b; }
+  .qa-box.a { background: #dcfce7; border: 2px solid #22c55e; }
+  .qa-box .qlabel { font-weight: 700; font-size: 13px; margin-bottom: 8px; }
+  .qa-box .notes-row { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .note-pill {
+    display: inline-block; padding: 4px 8px; border-radius: 6px;
+    font-family: monospace; font-weight: 700; font-size: 13px;
+    background: #e9d5ff; color: #6b21a8;
+  }
+  .note-pill.active-note { background: #22c55e; color: #fff; }
+  .note-pill.q-style { background: #fde68a; color: #92400e; }
+  .note-pill.q-style.active-note { background: #f59e0b; color: #fff; }
+  .note-pill.a-style { background: #bbf7d0; color: #14532d; }
+  .note-pill.a-style.active-note { background: #22c55e; color: #fff; }
+
+  /* status bar */
+  .status { min-height: 22px; font-family: monospace; font-size: 13px; color: #6b21a8; margin-top: 8px; }
+
+  @media (max-width: 600px) {
+    .roll-grid { grid-template-columns: repeat(8, 36px); }
+    .beat-labels { grid-template-columns: repeat(8, 36px); }
+    .pitch-label div { font-size: 10px; }
+    .qa-grid { grid-template-columns: 1fr; }
+    .contour-row { flex-direction: column; }
+  }
+  @media (max-width: 400px) {
+    .roll-grid { grid-template-columns: repeat(8, 30px); grid-template-rows: repeat(13, 26px); }
+    .beat-labels { grid-template-columns: repeat(8, 30px); }
+    .roll-cell { font-size: 9px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Applied &amp; Composition</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-tuning-temperament/visualization.html">← L2: Hệ điều âm</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Giai điệu &amp; motif</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-advanced-rhythm/visualization.html">L4: Tiết tấu nâng cao →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Giai điệu &amp; motif</h1>
+<p class="intro">Ba công cụ dưới đây cho bạn <em>nghe</em> và <em>cảm nhận</em> giai điệu: vẽ motif trên piano roll rồi nghe biến đổi; chọn đường nét mẫu; nghe cặp câu hỏi–đáp. <strong>🔊 Bật loa.</strong></p>
+
+<!-- ===================== MODULE 1: MOTIF PLAYGROUND ===================== -->
+<h2>1. Sân chơi motif — vẽ &amp; biến đổi</h2>
+<div class="card">
+  <p class="hint">Nhấn vào ô trong lưới để bật/tắt nốt (mỗi cột = 1 nhịp đen, hàng = cao độ C4–C5). Tối đa 8 nốt. Mỗi cột chỉ một nốt.</p>
+
+  <div style="display:flex; gap:4px; align-items:flex-start; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+    <div class="pitch-label" id="pitchLabel"></div>
+    <div>
+      <div class="beat-labels" id="beatLabels"></div>
+      <div class="roll-grid" id="rollGrid"></div>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:12px; gap:8px; flex-wrap:wrap;">
+    <button id="btnPlayOrig">▶ Nghe motif gốc</button>
+    <button class="ghost" id="btnClear">Xóa</button>
+    <button class="ghost" id="btnLoadEx">Nạp ví dụ (Beethoven)</button>
+  </div>
+
+  <hr style="border:none;border-top:1px solid #e9d5ff;margin:14px 0;">
+
+  <p style="font-weight:600;margin:0 0 8px;">Áp dụng biến đổi:</p>
+  <div class="row" style="gap:8px; flex-wrap:wrap;">
+    <button class="ghost" id="btnSeq">Mô tiến +1 bậc (Sequence)</button>
+    <button class="ghost" id="btnInv">Đảo ảnh (Inversion)</button>
+    <button class="ghost" id="btnRetro">Đảo ngược (Retrograde)</button>
+    <button class="ghost" id="btnAug">Tăng trường độ ×2 (Augmentation)</button>
+  </div>
+
+  <div class="result" id="transformResult" style="display:none;">
+    <span id="transformName" class="val"></span><br>
+    <span id="transformNotes"></span><br>
+    <button id="btnPlayTransform" style="margin-top:8px;">▶ Nghe biến đổi</button>
+  </div>
+  <div class="status" id="motifStatus">&nbsp;</div>
+</div>
+
+<!-- ===================== MODULE 2: CONTOUR ===================== -->
+<h2>2. Đường nét giai điệu — chọn &amp; nghe</h2>
+<div class="card">
+  <p class="hint">Nhấn vào một kiểu đường nét để xem nốt nhạc và nghe âm thanh tương ứng.</p>
+  <div class="contour-row" id="contourRow"></div>
+  <div class="result" id="contourResult" style="display:none;">
+    <strong id="contourName" class="val"></strong> — <span id="contourDesc"></span><br>
+    Nốt: <span id="contourNotes"></span><br>
+    <button id="btnPlayContour" style="margin-top:8px;">▶ Nghe</button>
+  </div>
+  <div class="status" id="contourStatus">&nbsp;</div>
+</div>
+
+<!-- ===================== MODULE 3: Q&A PHRASE ===================== -->
+<h2>3. Câu hỏi–đáp (Antecedent–Consequent)</h2>
+<div class="card">
+  <p class="hint">Câu hỏi kết ở bậc V (G — cảm giác lửng). Câu đáp kết ở bậc I (C — cảm giác trọn). Nghe từng câu rồi nghe cả period.</p>
+  <div class="qa-grid">
+    <div class="qa-box q">
+      <div class="qlabel" style="color:#92400e;">Câu hỏi (Antecedent)</div>
+      <div class="notes-row" id="antNotes"></div>
+      <button class="ghost" id="btnPlayAnt" style="border:1.5px solid #f59e0b;">▶ Nghe câu hỏi</button>
+      <div style="font-size:12px;color:#92400e;margin-top:6px;">Kết ở G (bậc V) — lửng ❓</div>
+    </div>
+    <div class="qa-box a">
+      <div class="qlabel" style="color:#14532d;">Câu đáp (Consequent)</div>
+      <div class="notes-row" id="conNotes"></div>
+      <button class="ghost" id="btnPlayCon" style="border:1.5px solid #22c55e;">▶ Nghe câu đáp</button>
+      <div style="font-size:12px;color:#14532d;margin-top:6px;">Kết ở C (bậc I) — trọn ✓</div>
+    </div>
+  </div>
+  <div class="row" style="margin-top:4px;">
+    <button id="btnPlayPeriod">▶ Nghe cả period (hỏi → đáp)</button>
+  </div>
+  <div class="status" id="qaStatus">&nbsp;</div>
+</div>
+
+<script>
+// ============================================================
+//  WEB AUDIO CORE
+// ============================================================
+let actx = null;
+function audio() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  return actx;
+}
+
+function playTone(freq, dur, when) {
+  const ac = audio();
+  const t0 = ac.currentTime + (when || 0);
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.25, t0 + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur * 0.95);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+// Nốt chromatic C4..C5 (index 0=C4 thấp nhất, 12=C5 cao nhất)
+// Trong piano roll: row 0 hiện thị = C5 (trên cùng), row 12 = C4 (dưới cùng)
+const NOTE_NAMES_FULL = ['C4','C#4','D4','D#4','E4','F4','F#4','G4','G#4','A4','A#4','B4','C5'];
+const NOTE_DISPLAY    = ['C4','C♯4','D4','D♯4','E4','F4','F♯4','G4','G♯4','A4','A♯4','B4','C5'];
+// n từ A4 cho từng nốt (index 0=C4)
+const NOTE_N_FROM_A4  = [-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3];
+
+function freqFromIndex(idx) {
+  // idx: 0=C4, 12=C5
+  return 440 * Math.pow(2, NOTE_N_FROM_A4[idx] / 12);
+}
+
+// C trưởng bậc: 0=C,2=D,4=E,5=F,7=G,9=A,11=B,12=C5
+const MAJOR_SCALE_INDICES = [0, 2, 4, 5, 7, 9, 11, 12];
+
+// ============================================================
+//  MODULE 1 — PIANO ROLL MOTIF
+// ============================================================
+const COLS = 8;
+const ROWS = 13; // C5(top,row0) .. C4(bottom,row12)
+
+// motif[col] = row index (0-based from top), or -1 if empty
+let motifData = new Array(COLS).fill(-1);
+let transformedData = new Array(COLS).fill(-1);
+
+// Build pitch labels (top = C5, bottom = C4)
+const pitchLabel = document.getElementById('pitchLabel');
+for (let r = 0; r < ROWS; r++) {
+  const div = document.createElement('div');
+  // row 0 = C5, row 12 = C4
+  const idx = ROWS - 1 - r; // 0=C4 at bottom, 12=C5 at top → row r shows index (12-r)
+  div.textContent = NOTE_DISPLAY[12 - r];
+  pitchLabel.appendChild(div);
+}
+
+// Beat labels
+const beatLabels = document.getElementById('beatLabels');
+for (let c = 0; c < COLS; c++) {
+  const div = document.createElement('div');
+  div.textContent = c + 1;
+  beatLabels.appendChild(div);
+}
+
+// Build grid cells: grid is row-major top-to-bottom, left-to-right
+// CSS grid: row 1 = top (C5), row 13 = bottom (C4)
+const rollGrid = document.getElementById('rollGrid');
+const cells = []; // cells[row][col]
+for (let r = 0; r < ROWS; r++) {
+  cells[r] = [];
+  for (let c = 0; c < COLS; c++) {
+    const cell = document.createElement('div');
+    cell.className = 'roll-cell';
+    // Pitch index: row 0 = C5 = pitchIdx 12, row 12 = C4 = pitchIdx 0
+    const pitchIdx = 12 - r;
+    cell.dataset.row = r;
+    cell.dataset.col = c;
+    cell.dataset.pitchIdx = pitchIdx;
+    cell.addEventListener('click', () => toggleCell(r, c, pitchIdx));
+    rollGrid.appendChild(cell);
+    cells[r][c] = cell;
+  }
+}
+
+function toggleCell(row, col, pitchIdx) {
+  // Deactivate any existing note in this column
+  for (let r = 0; r < ROWS; r++) {
+    if (motifData[col] === r) {
+      cells[r][col].classList.remove('on', 'transformed');
+      motifData[col] = -1;
+    }
+  }
+  // If clicked on already-on cell, just clear
+  if (motifData[col] === row) {
+    // already cleared above
+  } else {
+    motifData[col] = row;
+    cells[row][col].classList.add('on');
+  }
+  clearTransform();
+  playTone(freqFromIndex(pitchIdx), 0.3);
+}
+
+function clearTransform() {
+  transformedData = new Array(COLS).fill(-1);
+  // Remove transformed highlights
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      cells[r][c].classList.remove('transformed');
+  document.getElementById('transformResult').style.display = 'none';
+  document.getElementById('motifStatus').textContent = ' ';
+}
+
+function renderTransformed() {
+  // Clear all transformed class first
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      cells[r][c].classList.remove('transformed');
+  for (let c = 0; c < COLS; c++) {
+    if (transformedData[c] >= 0 && transformedData[c] < ROWS) {
+      cells[transformedData[c]][c].classList.add('transformed');
+    }
+  }
+}
+
+// Get active notes as array of {col, pitchIdx}
+function getMotifNotes() {
+  const notes = [];
+  for (let c = 0; c < COLS; c++) {
+    if (motifData[c] >= 0) {
+      notes.push({ col: c, pitchIdx: 12 - motifData[c] });
+    }
+  }
+  return notes;
+}
+
+// Get transformed notes as {col, pitchIdx}
+function getTransformedNotes() {
+  const notes = [];
+  for (let c = 0; c < COLS; c++) {
+    if (transformedData[c] >= 0 && transformedData[c] < ROWS) {
+      notes.push({ col: c, pitchIdx: 12 - transformedData[c] });
+    }
+  }
+  return notes;
+}
+
+function playNoteSequence(noteArr, durPerNote, statusEl, labelFn) {
+  if (noteArr.length === 0) {
+    statusEl.textContent = 'Chưa có nốt nào!';
+    return;
+  }
+  const ac = audio();
+  noteArr.forEach((note, i) => {
+    const when = i * durPerNote;
+    // highlight cell while playing
+    const delay = when * 1000;
+    setTimeout(() => {
+      // clear all playing
+      for (let r = 0; r < ROWS; r++)
+        for (let c = 0; c < COLS; c++)
+          cells[r][c].classList.remove('playing');
+      if (note.row !== undefined && note.row >= 0 && note.row < ROWS) {
+        cells[note.row][note.col].classList.add('playing');
+        setTimeout(() => cells[note.row][note.col].classList.remove('playing'), durPerNote * 800);
+      }
+      statusEl.textContent = labelFn ? labelFn(note, i) : `▶ Nốt ${i+1}: ${NOTE_DISPLAY[note.pitchIdx]}`;
+    }, delay);
+    playTone(freqFromIndex(Math.max(0, Math.min(12, note.pitchIdx))), durPerNote * 0.85, when);
+  });
+  setTimeout(() => { statusEl.textContent = ' '; }, noteArr.length * durPerNote * 1000 + 200);
+}
+
+// Attach row info to notes for cell highlighting
+function enrichNotesWithRow(notes) {
+  return notes.map(n => ({ ...n, row: motifData[n.col] }));
+}
+function enrichTransformedWithRow(notes) {
+  return notes.map(n => ({ ...n, row: transformedData[n.col] }));
+}
+
+document.getElementById('btnPlayOrig').addEventListener('click', () => {
+  const notes = enrichNotesWithRow(getMotifNotes());
+  playNoteSequence(notes, 0.5, document.getElementById('motifStatus'),
+    (n, i) => `▶ Nốt ${i+1}: ${NOTE_DISPLAY[n.pitchIdx]}`);
+});
+
+document.getElementById('btnClear').addEventListener('click', () => {
+  motifData = new Array(COLS).fill(-1);
+  transformedData = new Array(COLS).fill(-1);
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      cells[r][c].classList.remove('on', 'transformed', 'playing');
+  clearTransform();
+});
+
+// Load Beethoven motif: G G G Eb (in piano roll coords)
+// G4 = pitchIdx 7 = row 12-7=5; Eb4 = pitchIdx 3 = row 12-3=9
+document.getElementById('btnLoadEx').addEventListener('click', () => {
+  // Reset
+  motifData = new Array(COLS).fill(-1);
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      cells[r][c].classList.remove('on', 'transformed', 'playing');
+  clearTransform();
+  // G4=col0, G4=col1, G4=col2, Eb4=col3
+  const beethoven = [
+    { col: 0, pitchIdx: 7 },  // G4
+    { col: 1, pitchIdx: 7 },  // G4
+    { col: 2, pitchIdx: 7 },  // G4
+    { col: 3, pitchIdx: 3 },  // D#4 / Eb4
+  ];
+  beethoven.forEach(({ col, pitchIdx }) => {
+    const row = 12 - pitchIdx;
+    motifData[col] = row;
+    cells[row][col].classList.add('on');
+  });
+  document.getElementById('motifStatus').textContent = 'Motif Beethoven Giao hưởng số 5 đã nạp (G G G E♭).';
+});
+
+// ---- Transformations ----
+
+function applyTransform(name, fn) {
+  const origNotes = getMotifNotes();
+  if (origNotes.length === 0) {
+    document.getElementById('motifStatus').textContent = 'Hãy vẽ motif trước!';
+    return;
+  }
+  // Clear old transformed
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      cells[r][c].classList.remove('transformed');
+  transformedData = new Array(COLS).fill(-1);
+
+  const result = fn(origNotes);
+  if (!result) return;
+
+  const noteSpans = result.map(n => {
+    const clamped = Math.max(0, Math.min(12, n.pitchIdx));
+    const row = 12 - clamped;
+    if (n.col < COLS) {
+      transformedData[n.col] = row;
+    }
+    return `<span class="badge">${NOTE_DISPLAY[clamped]}</span>`;
+  }).join(' ');
+
+  renderTransformed();
+
+  const res = document.getElementById('transformResult');
+  res.style.display = 'block';
+  document.getElementById('transformName').textContent = name;
+  document.getElementById('transformNotes').innerHTML = noteSpans;
+  document.getElementById('motifStatus').textContent = `Biến đổi: ${name}. Ô vàng là nốt đã biến đổi.`;
+
+  document.getElementById('btnPlayTransform').onclick = () => {
+    const tNotes = getTransformedNotes().map(n => ({
+      ...n, row: transformedData[n.col]
+    }));
+    playNoteSequence(tNotes, 0.5, document.getElementById('motifStatus'),
+      (n, i) => `▶ ${name} nốt ${i+1}: ${NOTE_DISPLAY[Math.max(0,Math.min(12,n.pitchIdx))]}`);
+  };
+}
+
+// Sequence: shift up by 1 diatonic step in C major
+// C major scale indices: 0,2,4,5,7,9,11,12
+function diatonicStepUp(pitchIdx) {
+  for (let i = 0; i < MAJOR_SCALE_INDICES.length - 1; i++) {
+    if (MAJOR_SCALE_INDICES[i] === pitchIdx) return MAJOR_SCALE_INDICES[i + 1];
+  }
+  // If not in scale, find nearest and go up
+  for (let i = 0; i < MAJOR_SCALE_INDICES.length - 1; i++) {
+    if (MAJOR_SCALE_INDICES[i] > pitchIdx) return MAJOR_SCALE_INDICES[i];
+  }
+  return Math.min(12, pitchIdx + 2);
+}
+
+document.getElementById('btnSeq').addEventListener('click', () => {
+  applyTransform('Mô tiến +1 bậc (Sequence)', (notes) => {
+    return notes.map(n => ({ col: n.col, pitchIdx: diatonicStepUp(n.pitchIdx) }));
+  });
+});
+
+document.getElementById('btnInv').addEventListener('click', () => {
+  applyTransform('Đảo ảnh (Inversion)', (notes) => {
+    if (notes.length === 0) return null;
+    const pivot = notes[0].pitchIdx;
+    const intervals = notes.map((n, i) =>
+      i === 0 ? 0 : n.pitchIdx - notes[i - 1].pitchIdx
+    );
+    // Invert each interval (flip sign)
+    let cur = pivot;
+    return notes.map((n, i) => {
+      if (i === 0) return { col: n.col, pitchIdx: cur };
+      cur = cur - intervals[i]; // subtract instead of add
+      return { col: n.col, pitchIdx: cur };
+    });
+  });
+});
+
+document.getElementById('btnRetro').addEventListener('click', () => {
+  applyTransform('Đảo ngược (Retrograde)', (notes) => {
+    const reversed = [...notes].reverse();
+    // Keep original column order but with reversed pitches
+    return notes.map((n, i) => ({ col: n.col, pitchIdx: reversed[i].pitchIdx }));
+  });
+});
+
+document.getElementById('btnAug').addEventListener('click', () => {
+  applyTransform('Tăng trường độ ×2 (Augmentation)', (notes) => {
+    // Spread notes into every-other column
+    const result = [];
+    notes.forEach((n, i) => {
+      const newCol = i * 2;
+      if (newCol < COLS) result.push({ col: newCol, pitchIdx: n.pitchIdx });
+    });
+    return result;
+  });
+});
+
+// ============================================================
+//  MODULE 2 — CONTOUR
+// ============================================================
+const CONTOURS = [
+  {
+    name: 'Đi lên (Ascending)',
+    desc: 'Từng nốt cao hơn nốt trước — mở ra, câu hỏi',
+    notes: [
+      { name: 'C4', pitchIdx: 0 }, { name: 'D4', pitchIdx: 2 },
+      { name: 'E4', pitchIdx: 4 }, { name: 'G4', pitchIdx: 7 },
+      { name: 'A4', pitchIdx: 9 }, { name: 'C5', pitchIdx: 12 }
+    ],
+    // SVG path: x goes 0..80, y goes 60..0 (high)
+    svgPath: 'M4,56 L20,46 L36,36 L52,22 L68,12 L80,4',
+    svgColor: '#7e22ce'
+  },
+  {
+    name: 'Đi xuống (Descending)',
+    desc: 'Từng nốt thấp hơn — nghỉ ngơi, kết thúc',
+    notes: [
+      { name: 'C5', pitchIdx: 12 }, { name: 'A4', pitchIdx: 9 },
+      { name: 'G4', pitchIdx: 7 }, { name: 'E4', pitchIdx: 4 },
+      { name: 'D4', pitchIdx: 2 }, { name: 'C4', pitchIdx: 0 }
+    ],
+    svgPath: 'M4,4 L20,14 L36,24 L52,36 L68,46 L80,56',
+    svgColor: '#2563eb'
+  },
+  {
+    name: 'Vòm (Arch)',
+    desc: 'Lên đỉnh rồi xuống — trọn vẹn, hoàn chỉnh',
+    notes: [
+      { name: 'C4', pitchIdx: 0 }, { name: 'E4', pitchIdx: 4 },
+      { name: 'G4', pitchIdx: 7 }, { name: 'A4', pitchIdx: 9 },
+      { name: 'G4', pitchIdx: 7 }, { name: 'E4', pitchIdx: 4 },
+      { name: 'C4', pitchIdx: 0 }
+    ],
+    svgPath: 'M4,56 L18,36 L34,20 L48,8 L62,20 L74,36 L84,56',
+    svgColor: '#dc2626'
+  },
+  {
+    name: 'Lượn sóng (Wave)',
+    desc: 'Lên–xuống xen kẽ — sinh động, linh hoạt',
+    notes: [
+      { name: 'C4', pitchIdx: 0 }, { name: 'E4', pitchIdx: 4 },
+      { name: 'D4', pitchIdx: 2 }, { name: 'G4', pitchIdx: 7 },
+      { name: 'E4', pitchIdx: 4 }, { name: 'A4', pitchIdx: 9 },
+      { name: 'G4', pitchIdx: 7 }
+    ],
+    svgPath: 'M4,56 L18,32 L32,44 L48,16 L62,36 L74,8 L88,24',
+    svgColor: '#059669'
+  }
+];
+
+const contourRow = document.getElementById('contourRow');
+CONTOURS.forEach((c, ci) => {
+  const card = document.createElement('div');
+  card.className = 'contour-card';
+  card.innerHTML = `
+    <svg width="92" height="64" viewBox="0 0 92 64">
+      <line x1="0" y1="32" x2="92" y2="32" stroke="#e9d5ff" stroke-width="1"/>
+      <polyline points="${svgPoints(c.svgPath)}" fill="none" stroke="${c.svgColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="cname">${c.name}</div>
+    <div class="cdesc">${c.desc}</div>
+  `;
+  card.addEventListener('click', () => selectContour(ci, card));
+  contourRow.appendChild(card);
+});
+
+function svgPoints(path) {
+  // Convert M x,y L x,y ... to polyline points "x,y x,y ..."
+  return path.replace(/[ML]/g, '').trim();
+}
+
+let selectedContourIdx = -1;
+function selectContour(idx, card) {
+  document.querySelectorAll('.contour-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  selectedContourIdx = idx;
+  const c = CONTOURS[idx];
+  const res = document.getElementById('contourResult');
+  res.style.display = 'block';
+  document.getElementById('contourName').textContent = c.name;
+  document.getElementById('contourDesc').textContent = c.desc;
+  document.getElementById('contourNotes').innerHTML = c.notes.map(n => `<span class="badge">${n.name}</span>`).join(' → ');
+  document.getElementById('btnPlayContour').onclick = () => playContour(idx);
+  playContour(idx);
+}
+
+function playContour(idx) {
+  const c = CONTOURS[idx];
+  const statusEl = document.getElementById('contourStatus');
+  c.notes.forEach((note, i) => {
+    setTimeout(() => {
+      statusEl.textContent = `▶ ${note.name} — ${(440 * Math.pow(2, NOTE_N_FROM_A4[note.pitchIdx] / 12)).toFixed(1)} Hz`;
+    }, i * 450);
+    playTone(freqFromIndex(note.pitchIdx), 0.4, i * 0.45);
+  });
+  setTimeout(() => { statusEl.textContent = ' '; }, c.notes.length * 450 + 200);
+}
+
+// ============================================================
+//  MODULE 3 — ANTECEDENT / CONSEQUENT
+// ============================================================
+// "Twinkle Twinkle" in C major
+// Antecedent: C C G G A A G (kết ở G = bậc V)
+// Consequent: F F E E D D C (kết ở C = bậc I)
+
+const ANTECEDENT = [
+  { name: 'C4', pitchIdx: 0 },
+  { name: 'C4', pitchIdx: 0 },
+  { name: 'G4', pitchIdx: 7 },
+  { name: 'G4', pitchIdx: 7 },
+  { name: 'A4', pitchIdx: 9 },
+  { name: 'A4', pitchIdx: 9 },
+  { name: 'G4', pitchIdx: 7 },
+];
+
+const CONSEQUENT = [
+  { name: 'F4', pitchIdx: 5 },
+  { name: 'F4', pitchIdx: 5 },
+  { name: 'E4', pitchIdx: 4 },
+  { name: 'E4', pitchIdx: 4 },
+  { name: 'D4', pitchIdx: 2 },
+  { name: 'D4', pitchIdx: 2 },
+  { name: 'C4', pitchIdx: 0 },
+];
+
+function buildPills(notes, containerId, styleClass, endLabel) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  notes.forEach((n, i) => {
+    const pill = document.createElement('span');
+    pill.className = `note-pill ${styleClass}`;
+    pill.id = `${containerId}_pill_${i}`;
+    pill.textContent = n.name;
+    container.appendChild(pill);
+  });
+  if (endLabel) {
+    const lbl = document.createElement('span');
+    lbl.style.cssText = 'font-size:12px;font-weight:700;align-self:center;color:#555;';
+    lbl.textContent = endLabel;
+    container.appendChild(lbl);
+  }
+}
+
+buildPills(ANTECEDENT, 'antNotes', 'q-style', '→ V (G)');
+buildPills(CONSEQUENT, 'conNotes', 'a-style', '→ I (C)');
+
+function playPhrase(notes, styleClass, containerId, statusEl, startWhen) {
+  const sw = startWhen || 0;
+  notes.forEach((note, i) => {
+    setTimeout(() => {
+      document.querySelectorAll(`#${containerId} .note-pill`).forEach(p => p.classList.remove('active-note'));
+      const pill = document.getElementById(`${containerId}_pill_${i}`);
+      if (pill) pill.classList.add('active-note');
+      statusEl.textContent = `▶ ${containerId.includes('ant') ? 'Câu hỏi' : 'Câu đáp'} nốt ${i+1}: ${note.name}`;
+      if (i === notes.length - 1) {
+        setTimeout(() => {
+          document.querySelectorAll(`#${containerId} .note-pill`).forEach(p => p.classList.remove('active-note'));
+          statusEl.textContent = ' ';
+        }, 550);
+      }
+    }, (i * 0.48 + sw) * 1000);
+    playTone(freqFromIndex(note.pitchIdx), 0.42, i * 0.48 + sw);
+  });
+}
+
+document.getElementById('btnPlayAnt').addEventListener('click', () => {
+  playPhrase(ANTECEDENT, 'q-style', 'antNotes', document.getElementById('qaStatus'), 0);
+});
+document.getElementById('btnPlayCon').addEventListener('click', () => {
+  playPhrase(CONSEQUENT, 'a-style', 'conNotes', document.getElementById('qaStatus'), 0);
+});
+document.getElementById('btnPlayPeriod').addEventListener('click', () => {
+  const statusEl = document.getElementById('qaStatus');
+  statusEl.textContent = 'Đang phát câu hỏi...';
+  playPhrase(ANTECEDENT, 'q-style', 'antNotes', { textContent: '' }, 0);
+  const antDur = ANTECEDENT.length * 0.48 + 0.2;
+  setTimeout(() => {
+    statusEl.textContent = 'Đang phát câu đáp...';
+    playPhrase(CONSEQUENT, 'a-style', 'conNotes', statusEl, 0);
+  }, antDur * 1000);
+});
+
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

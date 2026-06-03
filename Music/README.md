@@ -17,9 +17,9 @@ Lộ trình lý thuyết âm nhạc (music theory) từ vật lý của âm than
 |---|------|------------|----------------|
 | 1 | [Fundamentals](./01-Fundamentals/) | ✅ 8/8 bài | Cao độ & tần số, tên nốt & bàn phím, khuông nhạc, quãng, gam trưởng/thứ & mode, nhịp & tiết tấu, bộ khóa & vòng quãng 5 |
 | 2 | [Harmony](./02-Harmony/) | ✅ 8/8 bài | Hợp âm ba & bảy, hợp âm theo bậc, tiến trình & kết, đảo hợp âm & dẫn giọng, chuyển điệu, hòa âm mở rộng, phân tích chức năng |
-| 3 | [Applied & Composition](./03-Applied-Composition/) | 🚧 Khung | Âm sắc & chuỗi bội âm, hệ điều âm & tuning, giai điệu & motif, tiết tấu nâng cao, hình thức bài nhạc, đối âm, jazz & blues, capstone sáng tác |
+| 3 | [Applied & Composition](./03-Applied-Composition/) | ✅ 8/8 bài | Âm sắc & chuỗi bội âm, hệ điều âm & tuning, giai điệu & motif, tiết tấu nâng cao, hình thức bài nhạc, đối âm, jazz & blues, capstone sáng tác |
 
-🚧 Khung = đã có folder + bảng lesson (lộ trình), chưa có nội dung từng lesson.
+✅ Cả 3 tầng đã hoàn tất — **24/24 bài** đầy đủ README + visualization tương tác (phát âm bằng Web Audio).
 
 ## Đích đến
 

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Hệ điều âm &amp; tuning</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+
+  .card {
+    background: #fff; border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { font-size: 13px; color: #6a6a6a; margin: 6px 0 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; }
+
+  button {
+    background: #7e22ce; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: #6b21a8; }
+  button.ghost { background: #f3e8ff; color: #6b21a8; }
+  button.ghost:hover { background: #e9d5ff; }
+  button.active-btn { background: #6b21a8; outline: 2px solid #a855f7; }
+
+  .val { font-family: monospace; font-weight: 700; color: #7e22ce; }
+  .result {
+    padding: 14px 16px; background: #f3e8ff; border-radius: 8px; margin-top: 12px;
+    font-size: 14px; line-height: 1.8;
+  }
+  .result .big { font-size: 20px; font-weight: 800; color: #6b21a8; font-family: monospace; }
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 6px;
+    font-family: monospace; font-weight: 700; font-size: 13px; margin: 2px;
+  }
+  .badge-ji { background: #dcfce7; color: #15803d; }
+  .badge-et { background: #dbeafe; color: #1d4ed8; }
+  .badge-diff { background: #fee2e2; color: #dc2626; }
+  .badge-diff.ok { background: #fef3c7; color: #92400e; }
+
+  /* Seletor hợp âm */
+  .interval-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px; margin: 12px 0;
+  }
+  .interval-btn {
+    background: #f3e8ff; color: #6b21a8; border: 2px solid #e9d5ff;
+    border-radius: 8px; padding: 8px 6px; font-size: 13px; font-weight: 600;
+    cursor: pointer; text-align: center; transition: background 0.15s;
+  }
+  .interval-btn:hover { background: #e9d5ff; }
+  .interval-btn.selected { background: #7e22ce; color: #fff; border-color: #7e22ce; }
+
+  /* Thanh biểu đồ */
+  .bar-wrap { overflow-x: auto; }
+  .bar-chart { display: flex; align-items: flex-end; gap: 4px; height: 200px; padding: 10px 0; min-width: 480px; }
+  .bar-group { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 0; }
+  .bar-group .label { font-size: 10px; color: #555; margin-top: 4px; text-align: center; }
+  .bar-pair { display: flex; gap: 3px; align-items: flex-end; height: 180px; }
+  .bar {
+    width: 22px; border-radius: 4px 4px 0 0; position: relative;
+    transition: height 0.3s; cursor: default;
+  }
+  .bar-ji { background: #22c55e; }
+  .bar-et { background: #3b82f6; }
+  .bar-legend { display: flex; gap: 16px; margin: 8px 0; font-size: 13px; }
+  .bar-legend span { display: flex; align-items: center; gap: 6px; }
+  .bar-legend .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+
+  /* Pythagorean demo */
+  .spiral-container { position: relative; margin: 0 auto; }
+  .step-list {
+    list-style: none; padding: 0; margin: 0;
+    max-height: 220px; overflow-y: auto;
+    font-family: monospace; font-size: 13px;
+    border: 1px solid #e9d5ff; border-radius: 6px;
+    background: #fafafa;
+  }
+  .step-list li {
+    padding: 4px 10px; border-bottom: 1px solid #f3e8ff;
+    display: flex; justify-content: space-between; gap: 10px;
+  }
+  .step-list li:last-child { border-bottom: none; }
+  .step-list li.highlight { background: #fef9c3; font-weight: 700; }
+
+  /* So sánh hệ sóng */
+  canvas { display: block; width: 100%; max-width: 640px; height: auto;
+           margin: 10px auto; background: #faf7fb;
+           border: 1px solid #e9d5ff; border-radius: 8px; }
+
+  .comma-box {
+    background: #fff7ed; border: 2px solid #fed7aa; border-radius: 10px;
+    padding: 16px; margin-top: 12px; font-size: 14px; line-height: 1.8;
+  }
+  .comma-box .big { font-size: 22px; font-weight: 800; color: #c2410c; font-family: monospace; }
+
+  /* Bảng so sánh */
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 500px; font-size: 13px; }
+  th { background: #7e22ce; color: #fff; padding: 8px 10px; text-align: left; }
+  td { padding: 7px 10px; border-bottom: 1px solid #f3e8ff; }
+  tr:nth-child(even) td { background: #faf7fb; }
+  tr.highlight-row td { background: #ede9fe; font-weight: 700; }
+
+  /* Status phát âm */
+  .play-status { font-size: 13px; color: #7e22ce; min-height: 20px; font-style: italic; }
+
+  @media (max-width: 600px) {
+    .interval-grid { grid-template-columns: repeat(3, 1fr); }
+    .bar { width: 15px; }
+  }
+  @media (max-width: 480px) {
+    .interval-grid { grid-template-columns: repeat(2, 1fr); }
+    button { padding: 8px 12px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Applied &amp; Composition</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-timbre-harmonics/visualization.html">← L1: Âm sắc &amp; bội âm</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Hệ điều âm &amp; tuning</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-melody-motif/visualization.html">L3: Giai điệu →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Hệ điều âm &amp; Tuning (Temperament)</h1>
+<p>Piano hiện đại dùng <strong>Equal Temperament (12-TET)</strong> — một sự thỏa hiệp lịch sử. Ba module dưới đây giúp bạn <em>nghe</em> và <em>nhìn</em> sự khác biệt giữa luật thuần (Just Intonation) và điều hòa đều. <strong>🔊 Bật loa.</strong></p>
+
+<!-- ======================== MODULE 1: THUẦN vs ĐỀU ======================== -->
+<h2>1. 🎵 Nghe Just Intonation vs Equal Temperament</h2>
+<div class="card">
+  <p class="hint">Chọn một quãng, rồi phát ở cả hai hệ điều âm để nghe sự khác biệt (beating). Nốt gốc luôn là A4 = 440 Hz.</p>
+
+  <div class="interval-grid" id="intervalGrid"></div>
+
+  <div class="result" id="result1">
+    <div class="row" style="margin:0 0 8px;">
+      <div>
+        <span class="badge badge-ji">JI</span>
+        <strong id="ji-name">Quãng 5 (3:2)</strong>: tần số = <span class="val" id="ji-freq">660.00</span> Hz
+        &nbsp;= <span class="val" id="ji-cents">701.96</span> cents
+      </div>
+    </div>
+    <div class="row" style="margin:0 0 8px;">
+      <div>
+        <span class="badge badge-et">ET</span>
+        <strong id="et-name">Quãng 5 (7 nửa cung)</strong>: tần số = <span class="val" id="et-freq">659.26</span> Hz
+        &nbsp;= <span class="val" id="et-cents">700.00</span> cents
+      </div>
+    </div>
+    <div>
+      Độ lệch ET − JI: <span class="big" id="diff-cents">−1.96</span> cents
+      &bull; Beating: <span class="val" id="beat-hz">0.74</span> Hz
+      <span id="beat-desc" style="font-size:12px; color:#555;"> (gần như không nghe thấy)</span>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:14px;">
+    <button id="playJI">▶ Phát JI</button>
+    <button id="playET">▶ Phát ET</button>
+    <button class="ghost" id="playBoth1">▶ Phát đồng thời (nghe beating)</button>
+    <button class="ghost" id="playChordJI">▶ Hợp âm JI</button>
+    <button class="ghost" id="playChordET">▶ Hợp âm ET</button>
+  </div>
+  <div class="play-status" id="playStatus1">&nbsp;</div>
+  <canvas id="waveCompare" width="640" height="140"></canvas>
+  <p class="hint">Sóng xanh lá = JI (tỷ lệ số nguyên, khớp đều đặn). Sóng xanh dương = ET (tỷ lệ vô tỷ, không bao giờ khớp hoàn hảo → beating rất chậm).</p>
+</div>
+
+<!-- ======================== MODULE 2: BIỂU ĐỒ CENTS ======================== -->
+<h2>2. 📊 Biểu đồ độ lệch cents: ET so với JI</h2>
+<div class="card">
+  <p>Mỗi cột đôi so sánh cents của quãng trong ET (xanh dương) và JI (xanh lá). Chênh lệch = mức lệch cần thỏa hiệp.</p>
+  <div class="bar-legend">
+    <span><span class="swatch" style="background:#22c55e"></span> Just Intonation (JI)</span>
+    <span><span class="swatch" style="background:#3b82f6"></span> Equal Temperament (ET = 12-TET)</span>
+  </div>
+  <div class="bar-wrap">
+    <div class="bar-chart" id="barChart"></div>
+  </div>
+  <div class="table-wrap" style="margin-top:16px;">
+    <table id="centsTable">
+      <thead>
+        <tr>
+          <th>Quãng</th><th>Nửa cung</th><th>Tỷ lệ JI</th>
+          <th>Cents JI</th><th>Cents ET</th><th>Lệch ET − JI</th>
+        </tr>
+      </thead>
+      <tbody id="centsTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ======================== MODULE 3: PYTHAGOREAN COMMA ======================== -->
+<h2>3. 🔄 Pythagorean Comma — vì sao luật thuần "không đóng vòng"</h2>
+<div class="card">
+  <p>Chồng 12 quãng 5 thuần (×3/2) lên nhau — lý thuyết phải về đúng 7 octave (×2<sup>7</sup>=128), nhưng thực tế <strong>không đóng vòng hoàn hảo</strong>.</p>
+
+  <div class="row">
+    <button id="btnAnimComma">▶ Chạy từng bước</button>
+    <button class="ghost" id="btnResetComma">↺ Reset</button>
+    <button class="ghost" id="btnPlayComma">🔊 Phát điểm lệch</button>
+  </div>
+
+  <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:12px;">
+    <div style="flex:1; min-width:260px;">
+      <strong style="font-size:13px;">12 quãng 5 thuần (×3/2 mỗi bước):</strong>
+      <ul class="step-list" id="stepList"></ul>
+    </div>
+    <div style="flex:0 0 200px;">
+      <svg id="commaCircle" width="200" height="200" viewBox="0 0 200 200"
+           style="display:block; margin: 0 auto;">
+        <!-- vòng tròn nền -->
+        <circle cx="100" cy="100" r="85" fill="none" stroke="#e9d5ff" stroke-width="2"/>
+        <!-- 12 nốt điểm -->
+        <g id="circleNotes"></g>
+        <!-- kim chỉ hiện tại -->
+        <line id="commaHand" x1="100" y1="100" x2="100" y2="18"
+              stroke="#7e22ce" stroke-width="2.5" stroke-linecap="round"
+              transform="rotate(0,100,100)"/>
+        <!-- điểm kết thúc (lệch) -->
+        <circle id="commaEnd" cx="100" cy="18" r="5" fill="#dc2626" opacity="0"/>
+        <text id="commaLabel" x="100" y="108" text-anchor="middle"
+              font-size="12" fill="#7e22ce" font-weight="700">Bước 0</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="comma-box" id="commaBox">
+    <strong>Tính toán:</strong><br>
+    12 quãng 5 thuần: <span class="val">(3/2)¹² = 3¹²/2¹² = 531441/4096 = <strong>129.746...</strong></span><br>
+    7 octave thuần: <span class="val">2⁷ = <strong>128.000</strong></span><br>
+    Tỷ lệ lệch: <span class="val">129.746.../128 = 1.013643...</span><br>
+    Pythagorean comma: <span class="big" id="commaVal">?</span> cents
+    <span id="commaProgress" style="color:#555; font-size:12px;"></span>
+  </div>
+
+  <p class="hint" style="margin-top:10px;">
+    Khi "Chạy từng bước": mỗi bước hiện tần số + kim xoay. Bước 12: kim về gần C nhưng <strong>lệch ~23.46 cents (~¼ nửa cung)</strong> so với C thật.
+    Nút "Phát điểm lệch": nghe C4 thuần (261.63 Hz) và C4-JI-từ-vòng (266.23 Hz) cùng lúc — tai nghe beating ~4.6 Hz.
+  </p>
+</div>
+
+<script>
+// ================================================================
+// Web Audio
+// ================================================================
+let ctx = null;
+function audio() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); return ctx; }
+
+function playTone(freq, dur = 0.8, when = 0, type = 'sine') {
+  const ac = audio();
+  const t0 = ac.currentTime + when;
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.22, t0 + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ac.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+
+function playChord(freqs, dur = 1.2) {
+  freqs.forEach(f => playTone(f, dur));
+}
+
+const NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function freqFromN(n) { return 440 * Math.pow(2, n / 12); }
+function nameFromN(n) {
+  const midi = 69 + n;
+  return NAMES[((midi % 12) + 12) % 12] + (Math.floor(midi / 12) - 1);
+}
+
+// ================================================================
+// Dữ liệu quãng nhạc
+// ================================================================
+// jiRatio: [p, q] tức là p/q; semitones: số nửa cung ET
+const INTERVALS = [
+  { name: 'Quãng 5 đúng', abbr: 'Q5',   jiRatio: [3,2],  semitones: 7,  baseNote: 'A4+E5' },
+  { name: 'Quãng 3 trưởng', abbr: 'Q3+', jiRatio: [5,4],  semitones: 4,  baseNote: 'A4+C#5' },
+  { name: 'Quãng 4 đúng', abbr: 'Q4',   jiRatio: [4,3],  semitones: 5,  baseNote: 'A4+D5' },
+  { name: 'Octave',       abbr: 'Oct',  jiRatio: [2,1],  semitones: 12, baseNote: 'A4+A5' },
+  { name: 'Quãng 6 trưởng', abbr: 'Q6+', jiRatio: [5,3],  semitones: 9,  baseNote: 'A4+F#5' },
+  { name: 'Quãng 3 thứ',  abbr: 'Q3m', jiRatio: [6,5],  semitones: 3,  baseNote: 'A4+C5' },
+  { name: 'Quãng 2 trưởng', abbr: 'Q2+', jiRatio: [9,8],  semitones: 2,  baseNote: 'A4+B4' },
+  { name: 'Nửa cung',     abbr: '½c',  jiRatio: [16,15], semitones: 1, baseNote: 'A4+A#4' },
+];
+
+function centsFromRatio(p, q) {
+  return 1200 * Math.log2(p / q);
+}
+
+const ROOT = 440; // A4
+
+function getJIFreq(iv) { return ROOT * iv.jiRatio[0] / iv.jiRatio[1]; }
+function getETFreq(iv) { return ROOT * Math.pow(2, iv.semitones / 12); }
+function getJICents(iv) { return centsFromRatio(iv.jiRatio[0], iv.jiRatio[1]); }
+function getETCents(iv) { return iv.semitones * 100; }
+function getDiff(iv) { return getETCents(iv) - getJICents(iv); }
+function getBeating(iv) { return Math.abs(getETFreq(iv) - getJIFreq(iv)); }
+
+// ================================================================
+// MODULE 1 — Nghe JI vs ET
+// ================================================================
+let selectedInterval = 0;
+
+const intervalGrid = document.getElementById('intervalGrid');
+INTERVALS.forEach((iv, idx) => {
+  const btn = document.createElement('button');
+  btn.className = 'interval-btn' + (idx === 0 ? ' selected' : '');
+  btn.textContent = iv.abbr + '\n' + iv.name;
+  btn.style.whiteSpace = 'pre-line';
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.interval-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedInterval = idx;
+    updateModule1();
+  });
+  intervalGrid.appendChild(btn);
+});
+
+function updateModule1() {
+  const iv = INTERVALS[selectedInterval];
+  const jiF = getJIFreq(iv);
+  const etF = getETFreq(iv);
+  const jiC = getJICents(iv);
+  const etC = getETCents(iv);
+  const diff = getDiff(iv);
+  const beat = getBeating(iv);
+
+  document.getElementById('ji-name').textContent = iv.name + ' (' + iv.jiRatio[0] + ':' + iv.jiRatio[1] + ')';
+  document.getElementById('ji-freq').textContent = jiF.toFixed(2);
+  document.getElementById('ji-cents').textContent = jiC.toFixed(2);
+  document.getElementById('et-name').textContent = iv.name + ' (' + iv.semitones + ' nửa cung)';
+  document.getElementById('et-freq').textContent = etF.toFixed(2);
+  document.getElementById('et-cents').textContent = etC.toFixed(2);
+
+  const diffEl = document.getElementById('diff-cents');
+  diffEl.textContent = (diff >= 0 ? '+' : '') + diff.toFixed(2);
+  diffEl.style.color = Math.abs(diff) < 5 ? '#15803d' : Math.abs(diff) < 15 ? '#92400e' : '#dc2626';
+
+  document.getElementById('beat-hz').textContent = beat.toFixed(2);
+  const beatDesc = document.getElementById('beat-desc');
+  if (beat < 1) beatDesc.textContent = ' (rất nhẹ, gần không nghe thấy)';
+  else if (beat < 5) beatDesc.textContent = ' (nhẹ, nghe rõ ở giọng người/đàn dài âm)';
+  else beatDesc.textContent = ' (nghe rõ, beating nhanh)';
+
+  drawWaveCompare(jiF, etF);
+}
+
+// Vẽ sóng so sánh
+const waveC = document.getElementById('waveCompare');
+const wx = waveC.getContext('2d');
+function drawWaveCompare(f1, f2) {
+  const W = waveC.width, H = waveC.height;
+  wx.clearRect(0, 0, W, H);
+
+  // Đường giữa
+  wx.strokeStyle = '#e9d5ff'; wx.lineWidth = 1;
+  wx.beginPath(); wx.moveTo(0, H/2); wx.lineTo(W, H/2); wx.stroke();
+
+  const ref = Math.min(f1, f2);
+  const duration = 3 / ref; // hiển thị 3 chu kỳ của nốt thấp hơn
+  const amp = H/2 - 16;
+
+  // Vẽ sóng JI (xanh lá)
+  wx.strokeStyle = '#22c55e'; wx.lineWidth = 2.5; wx.beginPath();
+  for (let x = 0; x <= W; x++) {
+    const t = (x / W) * duration;
+    const y = H/2 - Math.sin(2 * Math.PI * f1 * t) * amp;
+    x === 0 ? wx.moveTo(x, y) : wx.lineTo(x, y);
+  }
+  wx.stroke();
+
+  // Vẽ sóng ET (xanh dương, mờ hơn)
+  wx.strokeStyle = '#3b82f6'; wx.lineWidth = 2; wx.globalAlpha = 0.75; wx.beginPath();
+  for (let x = 0; x <= W; x++) {
+    const t = (x / W) * duration;
+    const y = H/2 - Math.sin(2 * Math.PI * f2 * t) * amp * 0.85;
+    x === 0 ? wx.moveTo(x, y) : wx.lineTo(x, y);
+  }
+  wx.stroke();
+  wx.globalAlpha = 1;
+
+  // Nhãn
+  wx.fillStyle = '#22c55e'; wx.font = 'bold 12px sans-serif';
+  wx.fillText('JI ' + f1.toFixed(2) + ' Hz', 8, 18);
+  wx.fillStyle = '#3b82f6';
+  wx.fillText('ET ' + f2.toFixed(2) + ' Hz', 8, 34);
+}
+
+// Nút phát
+document.getElementById('playJI').addEventListener('click', () => {
+  const iv = INTERVALS[selectedInterval];
+  playTone(ROOT, 1.0); playTone(getJIFreq(iv), 1.0);
+  setStatus1('▶ Đang phát JI: ' + ROOT.toFixed(0) + ' Hz + ' + getJIFreq(iv).toFixed(2) + ' Hz');
+});
+document.getElementById('playET').addEventListener('click', () => {
+  const iv = INTERVALS[selectedInterval];
+  playTone(ROOT, 1.0); playTone(getETFreq(iv), 1.0);
+  setStatus1('▶ Đang phát ET: ' + ROOT.toFixed(0) + ' Hz + ' + getETFreq(iv).toFixed(2) + ' Hz');
+});
+document.getElementById('playBoth1').addEventListener('click', () => {
+  const iv = INTERVALS[selectedInterval];
+  const jiF = getJIFreq(iv);
+  const etF = getETFreq(iv);
+  playTone(jiF, 2.0);
+  playTone(etF, 2.0);
+  setStatus1('▶ Phát đồng thời JI (' + jiF.toFixed(2) + ') + ET (' + etF.toFixed(2) + ') — nghe beating ' + getBeating(iv).toFixed(2) + ' Hz');
+});
+document.getElementById('playChordJI').addEventListener('click', () => {
+  const iv = INTERVALS[selectedInterval];
+  playChord([ROOT, getJIFreq(iv)], 1.5);
+  setStatus1('▶ Hợp âm JI');
+});
+document.getElementById('playChordET').addEventListener('click', () => {
+  const iv = INTERVALS[selectedInterval];
+  playChord([ROOT, getETFreq(iv)], 1.5);
+  setStatus1('▶ Hợp âm ET');
+});
+
+function setStatus1(txt) {
+  const el = document.getElementById('playStatus1');
+  el.textContent = txt;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.textContent = ' '; }, 3000);
+}
+
+updateModule1();
+
+// ================================================================
+// MODULE 2 — Biểu đồ cents
+// ================================================================
+
+// Dữ liệu đầy đủ cho bảng (bao gồm cả quãng không có trong selector)
+const ALL_INTERVALS = [
+  { name: 'Nửa cung (m2)', abbr: 'm2', jiRatio: [16,15], semitones: 1 },
+  { name: 'Quãng 2 trưởng', abbr: 'M2', jiRatio: [9,8],  semitones: 2 },
+  { name: 'Quãng 3 thứ',  abbr: 'm3', jiRatio: [6,5],  semitones: 3 },
+  { name: 'Quãng 3 trưởng', abbr: 'M3', jiRatio: [5,4],  semitones: 4 },
+  { name: 'Quãng 4 đúng', abbr: 'P4', jiRatio: [4,3],  semitones: 5 },
+  { name: 'Quãng 5 đúng', abbr: 'P5', jiRatio: [3,2],  semitones: 7 },
+  { name: 'Quãng 6 thứ',  abbr: 'm6', jiRatio: [8,5],  semitones: 8 },
+  { name: 'Quãng 6 trưởng', abbr: 'M6', jiRatio: [5,3],  semitones: 9 },
+  { name: 'Quãng 7 trưởng', abbr: 'M7', jiRatio: [15,8], semitones: 11 },
+];
+
+const HIGHLIGHT_ROWS = [3, 4, 5]; // M3, P4, P5 (0-indexed)
+
+// Vẽ biểu đồ cột
+const barChart = document.getElementById('barChart');
+const MAX_CENTS = 1200;
+const CHART_H = 170; // pixel cho 100% = tỷ lệ max
+
+ALL_INTERVALS.forEach((iv, idx) => {
+  const jiC = centsFromRatio(iv.jiRatio[0], iv.jiRatio[1]);
+  const etC = iv.semitones * 100;
+  const diff = etC - jiC;
+
+  const group = document.createElement('div');
+  group.className = 'bar-group';
+
+  const pair = document.createElement('div');
+  pair.className = 'bar-pair';
+
+  // JI bar
+  const barJI = document.createElement('div');
+  barJI.className = 'bar bar-ji';
+  const hJI = Math.round((jiC / MAX_CENTS) * CHART_H);
+  barJI.style.height = hJI + 'px';
+  barJI.title = 'JI: ' + jiC.toFixed(1) + ' cents';
+
+  // ET bar
+  const barET = document.createElement('div');
+  barET.className = 'bar bar-et';
+  const hET = Math.round((etC / MAX_CENTS) * CHART_H);
+  barET.style.height = hET + 'px';
+  barET.title = 'ET: ' + etC + ' cents';
+
+  pair.appendChild(barJI);
+  pair.appendChild(barET);
+
+  const lbl = document.createElement('div');
+  lbl.className = 'label';
+  lbl.innerHTML = iv.abbr + '<br><span style="color:' + (Math.abs(diff) < 5 ? '#15803d' : Math.abs(diff) < 15 ? '#92400e' : '#dc2626') + '">' + (diff >= 0 ? '+' : '') + diff.toFixed(1) + '</span>';
+
+  group.appendChild(pair);
+  group.appendChild(lbl);
+  barChart.appendChild(group);
+});
+
+// Bảng cents
+const tbody = document.getElementById('centsTableBody');
+ALL_INTERVALS.forEach((iv, idx) => {
+  const jiC = centsFromRatio(iv.jiRatio[0], iv.jiRatio[1]);
+  const etC = iv.semitones * 100;
+  const diff = etC - jiC;
+  const tr = document.createElement('tr');
+  if (HIGHLIGHT_ROWS.includes(idx)) tr.className = 'highlight-row';
+  const diffCol = (diff >= 0 ? '+' : '') + diff.toFixed(2);
+  const diffColor = Math.abs(diff) < 5 ? '#15803d' : Math.abs(diff) < 15 ? '#92400e' : '#dc2626';
+  tr.innerHTML = `<td>${iv.name}</td><td style="text-align:center">${iv.semitones}</td>
+    <td style="font-family:monospace">${iv.jiRatio[0]}:${iv.jiRatio[1]}</td>
+    <td style="font-family:monospace">${jiC.toFixed(2)}</td>
+    <td style="font-family:monospace">${etC}</td>
+    <td style="font-family:monospace;font-weight:700;color:${diffColor}">${diffCol}</td>`;
+  tbody.appendChild(tr);
+});
+
+// ================================================================
+// MODULE 3 — Pythagorean Comma
+// ================================================================
+
+// 12 tên nốt theo vòng quãng 5 (C→G→D→A→E→B→F#→C#→G#→D#→A#→F→C)
+const FIFTHS_NAMES = ['C','G','D','A','E','B','F#','C#','G#','D#','A#','F','C'];
+// Góc trên vòng tròn (12 nốt đều nhau, nhưng C ở trên cùng)
+const NOTE_ANGLES_DEG = [0,30,60,90,120,150,180,210,240,270,300,330]; // các nốt ET
+
+// Vẽ 12 điểm trên vòng
+const circleNotes = document.getElementById('circleNotes');
+const CX = 100, CY = 100, R = 85;
+for (let i = 0; i < 12; i++) {
+  const ang = (i * 30 - 90) * Math.PI / 180; // bắt đầu từ đỉnh (C)
+  const x = CX + R * Math.cos(ang);
+  const y = CY + R * Math.sin(ang);
+  const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  dot.setAttribute('cx', x);
+  dot.setAttribute('cy', y);
+  dot.setAttribute('r', 5);
+  dot.setAttribute('fill', '#e9d5ff');
+  dot.setAttribute('stroke', '#7e22ce');
+  dot.setAttribute('stroke-width', '1.5');
+  circleNotes.appendChild(dot);
+  const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  txt.setAttribute('x', CX + (R + 14) * Math.cos(ang));
+  txt.setAttribute('y', CY + (R + 14) * Math.sin(ang) + 4);
+  txt.setAttribute('text-anchor', 'middle');
+  txt.setAttribute('font-size', '10');
+  txt.setAttribute('fill', '#555');
+  txt.textContent = FIFTHS_NAMES[i];
+  circleNotes.appendChild(txt);
+}
+
+// Trạng thái animation Pythagorean
+let commaStep = 0;
+let commaAnim = null;
+const stepList = document.getElementById('stepList');
+
+// Tần số theo từng bước (bắt đầu C4)
+const C4 = 261.6256;
+
+function commaFreqAtStep(step) {
+  // Chồng step quãng 5 thuần, normalize về cùng octave với C4
+  let f = C4;
+  for (let i = 0; i < step; i++) {
+    f = f * 3/2;
+    // Normalize xuống nếu > C4 * 2
+    while (f > C4 * 2) f /= 2;
+  }
+  return f;
+}
+
+function getStepAngleDeg(step) {
+  // Mỗi quãng 5 = 7 nửa cung ET = 7×30° = 210° trên vòng 12 nốt theo TÊN NỐT
+  // nhưng vòng JI lệch dần → góc thật = step * (log₂(3/2) / log₂(2)) * 360 = step * 701.955/1200 * 360
+  // Tính góc tích lũy từ C (đỉnh = -90°)
+  const centsPerFifth = 1200 * Math.log2(3/2); // ~701.955
+  const totalCents = step * centsPerFifth;
+  // Modulo 1200 để normalize về 1 octave, sau đó * 360/1200
+  const angleDeg = (totalCents / 1200) * 360 - 90;
+  return angleDeg;
+}
+
+function renderCommaStep(step) {
+  // Xây danh sách
+  stepList.innerHTML = '';
+  for (let i = 0; i <= step; i++) {
+    const li = document.createElement('li');
+    const f = commaFreqAtStep(i);
+    const name = FIFTHS_NAMES[i % 13];
+    const mult = Math.pow(3/2, i);
+    const normalizedMult = mult / Math.pow(2, Math.floor(Math.log2(mult)));
+    li.innerHTML = `<span><strong>Bước ${i}:</strong> ${name}</span><span style="color:#7e22ce">${f.toFixed(2)} Hz</span>`;
+    if (i === step) li.className = 'highlight';
+    if (i === 12) {
+      li.innerHTML = `<span><strong>Bước 12:</strong> C (JI)</span><span style="color:#dc2626">${f.toFixed(2)} Hz ≠ ${C4.toFixed(2)}</span>`;
+      if (i === step) li.className = 'highlight';
+    }
+    stepList.appendChild(li);
+    if (i === step) li.scrollIntoView({ block: 'nearest' });
+  }
+
+  // Cập nhật kim trên vòng tròn
+  const hand = document.getElementById('commaHand');
+  const commaEnd = document.getElementById('commaEnd');
+  const commaLbl = document.getElementById('commaLabel');
+
+  const angDeg = getStepAngleDeg(step);
+  hand.setAttribute('transform', `rotate(${angDeg},${CX},${CY})`);
+  commaLbl.textContent = 'Bước ' + step;
+
+  if (step === 12) {
+    // Hiện điểm đỏ lệch
+    const angRad = (angDeg - 90 + 90) * Math.PI / 180;
+    const endX = CX + R * Math.cos((angDeg - 90) * Math.PI / 180);
+    const endY = CY + R * Math.sin((angDeg - 90) * Math.PI / 180);
+    commaEnd.setAttribute('cx', endX);
+    commaEnd.setAttribute('cy', endY);
+    commaEnd.setAttribute('opacity', '1');
+
+    const commaVal = 1200 * Math.log2(Math.pow(3/2, 12) / Math.pow(2, 7));
+    document.getElementById('commaVal').textContent = commaVal.toFixed(2) + ' cents';
+    document.getElementById('commaProgress').textContent =
+      ' ≈ ¼ nửa cung — tai người nghe được rõ ràng!';
+  } else {
+    commaEnd.setAttribute('opacity', '0');
+    const partialComma = 1200 * Math.log2(Math.pow(3/2, step) / Math.pow(2, Math.round(step * Math.log2(3/2))));
+    document.getElementById('commaVal').textContent = step === 0 ? '? (chưa tính)' :
+      (step * (1200 * Math.log2(3/2) - 700)).toFixed(2) + ' cents (tích lũy)';
+    document.getElementById('commaProgress').textContent = ' (đang chồng...)';
+  }
+}
+
+renderCommaStep(0);
+
+document.getElementById('btnAnimComma').addEventListener('click', () => {
+  if (commaAnim) return;
+  if (commaStep >= 12) { commaStep = 0; renderCommaStep(0); }
+  commaAnim = setInterval(() => {
+    commaStep++;
+    renderCommaStep(commaStep);
+    // Phát âm mỗi bước
+    const f = commaFreqAtStep(commaStep);
+    playTone(f, 0.4);
+    if (commaStep >= 12) { clearInterval(commaAnim); commaAnim = null; }
+  }, 600);
+});
+
+document.getElementById('btnResetComma').addEventListener('click', () => {
+  if (commaAnim) { clearInterval(commaAnim); commaAnim = null; }
+  commaStep = 0;
+  renderCommaStep(0);
+  document.getElementById('commaVal').textContent = '?';
+  document.getElementById('commaProgress').textContent = '';
+  document.getElementById('commaEnd').setAttribute('opacity', '0');
+});
+
+document.getElementById('btnPlayComma').addEventListener('click', () => {
+  // Phát C4 ET (261.63) và C4 JI sau 12 quãng 5 (266.23 Hz) cùng lúc
+  const etC4 = C4; // 261.63
+  const jiC4 = C4 * Math.pow(3/2, 12) / Math.pow(2, 7); // ~266.23
+  playTone(etC4, 2.5);
+  playTone(jiC4, 2.5);
+  const beat = Math.abs(jiC4 - etC4);
+  const btnStatus = document.getElementById('commaProgress');
+  btnStatus.textContent = ` — Beating ${beat.toFixed(2)} Hz (nghe "wah-wah" ~${beat.toFixed(1)} lần/giây)`;
+});
+
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

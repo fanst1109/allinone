@@ -27,6 +27,31 @@ Trong toán: chứng minh P(n) đúng với mọi n ≥ n₀ bằng cách:
 1. **Cơ sở**: chứng minh P(n₀) đúng.
 2. **Quy nạp**: giả sử P(k) đúng (k ≥ n₀), chứng minh P(k+1) đúng.
 
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Giả sử P(k) đúng — chẳng phải đó là điều cần chứng minh sao? Vòng tròn luẩn quẩn?"* Không. Ta KHÔNG giả sử P(n) đúng với mọi n; ta chỉ giả sử nó đúng **tại 1 giá trị k** rồi chứng minh **kéo theo** k+1. Như domino: ta không giả định "mọi quân đổ", chỉ giả định "nếu quân k đổ thì quân k+1 đổ". Cộng với "quân đầu đổ" → tất cả đổ.
+- *"Vì sao chỉ 2 bước mà phủ được vô hạn n?"* Cơ sở cho P(n₀). Bước quy nạp cho P(n₀)→P(n₀+1)→P(n₀+2)→... — dây chuyền vô tận. Mỗi n cụ thể đạt được sau hữu hạn bước.
+
+⚠ **Lỗi thường gặp — bỏ qua bước cơ sở**. Chỉ chứng minh \`P(k)→P(k+1)\` mà không kiểm \`P(n₀)\` thì vô nghĩa: domino đổ dây chuyền nhưng nếu không ai đẩy quân đầu thì chẳng quân nào đổ. Phản ví dụ (mục 7): "mọi số tự nhiên bằng nhau" có bước quy nạp hình thức nhưng cơ sở sai → mệnh đề sai.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Hai thành phần bắt buộc của một chứng minh quy nạp là gì?
+2. Trong analogy domino, "bước cơ sở" tương ứng điều gì?
+
+<details><summary>Đáp án</summary>
+
+1. (1) Cơ sở \`P(n₀)\` đúng; (2) Bước quy nạp \`P(k) → P(k+1)\`.
+2. Quân domino đầu tiên đổ (có người đẩy).
+
+</details>
+
+### 📝 Tóm tắt mục 1
+
+- Quy nạp = domino: cơ sở + hiệu ứng dây chuyền.
+- Giả thuyết quy nạp chỉ giả định P đúng tại **1 mốc k**, không phải mọi n.
+- Thiếu cơ sở → toàn bộ chứng minh sụp.
+
 ---
 
 ## 2. Quy nạp yếu — Mẫu chuẩn
@@ -44,6 +69,29 @@ Thì P(n) đúng ∀n ≥ n₀.
 > **(b) Vì sao cần**: Vì có vô hạn số tự nhiên — không thể kiểm tra mọi giá trị. Quy nạp là **cách duy nhất** chứng minh nghiêm túc các mệnh đề "∀n ∈ ℕ, P(n)". Là tiên đề thứ 5 của Peano (định nghĩa ℕ). Áp dụng khắp toán: chứng minh công thức tổng (Σi = n(n+1)/2), bất đẳng thức, chia hết, thuật toán đúng (correctness), đệ quy. Trong CS: chứng minh thuật toán đệ quy đúng (tower of Hanoi, merge sort) bằng quy nạp.
 >
 > **(c) Ví dụ số**: CM 1+2+...+n = n(n+1)/2. Cơ sở n=1: 1 = 1·2/2 ✓. Quy nạp: giả sử 1+...+k = k(k+1)/2, thì 1+...+k+(k+1) = k(k+1)/2 + (k+1) = (k+1)(k+2)/2 ✓. CM 2^n > n với n ≥ 1: cơ sở 2 > 1 ✓. Quy nạp: 2^k > k → 2^(k+1) = 2·2^k > 2k ≥ k+1 (khi k≥1) ✓. CM n³ + 2n chia hết 3: cơ sở 1+2 = 3 ✓. Quy nạp: (k+1)³+2(k+1) = (k³+2k) + 3(k²+k+1) — cả 2 phần chia hết 3 ✓. **Pitfall**: "Mọi n: n²+n+41 nguyên tố" — đúng n=0..39, SAI tại n=40 (= 41²). Quy nạp không thay được bằng "kiểm vài giá trị".
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Chọn \`n₀\` thế nào?"* Là giá trị nhỏ nhất mệnh đề cần đúng. Thường n₀ = 0 hoặc 1, nhưng có thể lớn hơn: \`2^n > n²\` chỉ đúng từ n ≥ 5 → cơ sở n₀ = 5.
+- *"Trong bước quy nạp, dùng giả thuyết ở đâu?"* Phải dùng ở 1 chỗ rõ ràng (đánh dấu "theo giả thuyết quy nạp"). Nếu chứng minh P(k+1) mà KHÔNG dùng P(k) thì đó không phải quy nạp (và thường là sai sót).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Viết bước cơ sở cho mệnh đề \`1+3+5+...+(2n−1) = n²\` với n₀ = 1.
+2. Trong bước quy nạp của tổng \`1+2+...+n\`, ta cộng thêm hạng tử nào để đi từ k tới k+1?
+
+<details><summary>Đáp án</summary>
+
+1. n = 1: VT = 1, VP = 1² = 1 ✓.
+2. Cộng thêm \`(k+1)\`: \`k(k+1)/2 + (k+1) = (k+1)(k+2)/2\`.
+
+</details>
+
+### 📝 Tóm tắt mục 2
+
+- Mẫu chuẩn: cơ sở \`P(n₀)\` + bước \`∀k≥n₀: P(k)→P(k+1)\`.
+- \`n₀\` = giá trị nhỏ nhất mệnh đề cần đúng (không nhất thiết 0/1).
+- Bước quy nạp PHẢI dùng giả thuyết P(k), nếu không thì sai.
 
 ---
 
@@ -83,6 +131,8 @@ Vậy P(n) đúng ∀n ≥ 1. □
 
 ## 5. Ví dụ — Chia hết 7 | (8^n - 1)
 
+💡 **Trực giác / Hình dung**: với bài chia hết, mẹo là **tách số ở bước k+1 thành "phần đã biết chia hết" cộng "phần thấy rõ chia hết"**. Ở đây \`8^(k+1) − 1 = 8·(8^k − 1) + 7\`: phần đầu chia hết 7 theo giả thuyết, phần \`7\` hiển nhiên chia hết 7 → tổng chia hết 7.
+
 **Cơ sở n = 1**: 8 - 1 = 7. 7|7 ✓.
 
 **Quy nạp**: Giả sử 7 | (8^k - 1). CM 7 | (8^(k+1) - 1).
@@ -91,9 +141,34 @@ Vậy P(n) đúng ∀n ≥ 1. □
 - 7 | 7.
 - → 7 | tổng = 8^(k+1) - 1. □
 
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Vì sao tách \`8^(k+1) − 1 = 8·(8^k−1) + 7\`?"* Để **lộ ra** \`(8^k − 1)\` — đúng cái giả thuyết quy nạp cho ta. Đây là kỹ thuật chung: cố biến đổi biểu thức bước k+1 để xuất hiện biểu thức bước k.
+- *"Bài tổng (mục 3), bất đẳng thức (mục 4), chia hết (mục 5) khác nhau chỗ nào?"* Cấu trúc 2 bước giống hệt; chỉ khác **cách dùng giả thuyết**: tổng → thay thế; bất đẳng thức → chặn trên/dưới; chia hết → tách phần chia hết.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Trong bước quy nạp \`3 | (4^n − 1)\`, tách \`4^(k+1) − 1\` thế nào?
+2. Cơ sở n=1 của \`7 | (8^n − 1)\` cho giá trị gì?
+
+<details><summary>Đáp án</summary>
+
+1. \`4^(k+1) − 1 = 4·(4^k − 1) + 3\`; phần đầu chia hết 3 (giả thuyết), phần \`3\` hiển nhiên.
+2. \`8^1 − 1 = 7\`, và \`7 | 7\` ✓.
+
+</details>
+
+### 📝 Tóm tắt mục 3–5
+
+- 3 dạng quy nạp phổ biến: tổng dãy, bất đẳng thức, chia hết — cùng khung 2 bước.
+- Chia hết: tách \`f(k+1) = (bội cũ chia hết) + (phần hiển nhiên chia hết)\`.
+- Luôn biến đổi để **lộ ra biểu thức bước k** dùng giả thuyết.
+
 ---
 
 ## 6. Quy nạp mạnh (Strong Induction)
+
+💡 **Trực giác / Hình dung**: quy nạp yếu là domino "mỗi quân chỉ đẩy quân kế tiếp". Quy nạp mạnh là domino "quân k+1 được đẩy bởi **tất cả** quân trước đó cùng lúc". Dùng khi P(k+1) cần dựa vào nhiều bước trước (vd P(k) và P(k−1)), không chỉ P(k) liền trước.
 
 🎯 **Khác**: Thay vì giả sử chỉ P(k), giả sử P(n₀), P(n₀+1), ..., P(k) **tất cả** đúng.
 
@@ -115,6 +190,31 @@ Vậy P(n) đúng ∀n ≥ 1. □
 
 ⟶ Đây là **chứng minh định lý cơ bản số học** (L02).
 
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Khi nào BẮT BUỘC dùng quy nạp mạnh thay vì yếu?"* Khi bước k+1 cần ≥ 2 bước trước, hoặc 1 bước **không liền kề**. Vd phân tích thừa số: \`k+1 = a·b\` với a, b < k+1 nhưng KHÔNG nhất thiết bằng k → cần giả thuyết cho mọi giá trị ≤ k, không chỉ P(k).
+- *"Quy nạp mạnh có 'mạnh hơn' thật không?"* Về sức biểu đạt thì **tương đương** quy nạp yếu (chứng minh được lẫn nhau), nhưng quy nạp mạnh tiện hơn cho các bài đệ quy phân nhánh.
+
+⚠ **Lỗi thường gặp**: dùng quy nạp yếu cho bài cần nhiều bước trước. Phản ví dụ: CM số Fibonacci \`F_n ≤ 2^n\` — bước \`F_{k+1} = F_k + F_{k−1}\` cần CẢ P(k) và P(k−1). Chỉ giả sử P(k) (quy nạp yếu) là **thiếu** → phải dùng quy nạp mạnh (và cần 2 cơ sở: n=1 và n=2).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Vì sao chứng minh "mọi n≥2 phân tích được thành tích nguyên tố" cần quy nạp mạnh?
+2. Quy nạp mạnh cần mấy bước cơ sở cho bài Fibonacci \`F_n ≤ 2^n\`?
+
+<details><summary>Đáp án</summary>
+
+1. Vì \`k+1 = a·b\` với a, b bất kỳ trong [2, k] — cần giả thuyết đúng cho **mọi** m ≤ k, không riêng k.
+2. Hai cơ sở: \`F_1 = 1 ≤ 2\` và \`F_2 = 1 ≤ 4\` (vì bước dùng cả 2 giá trị trước).
+
+</details>
+
+### 📝 Tóm tắt mục 6
+
+- Quy nạp mạnh giả sử P đúng cho **mọi** giá trị từ n₀ tới k.
+- Dùng khi P(k+1) cần nhiều bước trước (đệ quy phân nhánh, Fibonacci, phân tích thừa số).
+- Tương đương sức mạnh với quy nạp yếu, nhưng tiện hơn; có thể cần nhiều cơ sở.
+
 ---
 
 ## 7. Lỗi thường gặp
@@ -133,6 +233,29 @@ Mệnh đề sai: "Mọi tập n con ngựa đều cùng màu."
 - **Lỗi**: khi k = 1 → "lấy ra 1 con" → còn 0 con. 2 tập 0 con không "trùng giao" được → bước k → k+1 sai khi k = 1.
 
 ⟶ Bài học: **Kiểm tra bước quy nạp với k nhỏ nhất**.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Làm sao biết bước quy nạp 'lươn lẹo'?"* Kiểm tra nó tại **k nhỏ nhất** (thường k = n₀). Bài "ngựa cùng màu" sập vì khi k=1, lập luận "lấy ra 1 con, 2 nhóm con giao nhau" không còn giao → bước k→k+1 sai tại k=1.
+- *"Kiểm vài giá trị đầu đúng có đủ kết luận không?"* **Không bao giờ đủ**. Xem mệnh đề \`n²+n+41\`: đúng từ n=0 tới 39 nhưng sai tại n=40. Quan sát ≠ chứng minh.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. "Chứng minh" mọi nhóm n người có cùng chiều cao sai ở bước nào?
+2. \`n² + n + 41\` nguyên tố với n = 0,1,2 — kết luận "đúng mọi n" sai vì sao?
+
+<details><summary>Đáp án</summary>
+
+1. Giống "ngựa cùng màu": bước k→k+1 cần 2 nhóm con giao nhau, nhưng tại k=1 chúng không giao → đứt dây chuyền.
+2. Chỉ kiểm vài giá trị, không phải quy nạp. Thực tế sai tại n=40: \`40²+40+41 = 1681 = 41²\`.
+
+</details>
+
+### 📝 Tóm tắt mục 7
+
+- Quên cơ sở → toàn bộ sụp (dù bước quy nạp đúng).
+- Bước k→k+1 phải đúng cả tại **k nhỏ nhất** (bẫy "ngựa cùng màu").
+- Kiểm vài giá trị KHÔNG thay được chứng minh (phản ví dụ \`n²+n+41\`).
 
 ---
 

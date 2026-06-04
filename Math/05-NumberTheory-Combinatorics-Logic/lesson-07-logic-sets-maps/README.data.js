@@ -18,9 +18,15 @@ window.README_MD = `# Lesson 07 — Logic, tập hợp, ánh xạ
 
 ## 1. Logic mệnh đề
 
+💡 **Trực giác / Hình dung**: mệnh đề là câu "đúng/sai dứt khoát" — như công tắc chỉ có BẬT (T) hoặc TẮT (F). Các phép logic (∧, ∨, ¬...) là "mạch điện" ghép các công tắc lại: AND như 2 công tắc nối tiếp (cả 2 bật mới thông), OR như 2 công tắc song song (1 cái bật là thông).
+
 **Mệnh đề** = phát biểu **đúng** hoặc **sai** (không cả 2).
 
-**Ví dụ**: "2+2 = 4" (đúng). "Hà Nội > Sài Gòn" (sai về diện tích?).
+**4 ví dụ số đa dạng**:
+- "2+2 = 4" → mệnh đề **đúng**.
+- "7 là số chẵn" → mệnh đề **sai**.
+- "x + 1 = 5" → KHÔNG phải mệnh đề (đúng/sai tùy x — gọi là vị từ).
+- "Bạn khỏe không?" → KHÔNG phải mệnh đề (câu hỏi, không có giá trị đúng/sai).
 
 ### Phép toán logic
 
@@ -52,16 +58,45 @@ window.README_MD = `# Lesson 07 — Logic, tập hợp, ánh xạ
 ¬(p ∨ q) = ¬p ∧ ¬q
 \`\`\`
 
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Vì sao \`p → q\` đúng khi p sai?"* Vì \`p → q\` chỉ "hứa hẹn": *nếu* p thì q. Khi p không xảy ra, lời hứa không bị vi phạm → mặc định đúng. Vd "nếu trời mưa thì tôi mang ô" — hôm trời không mưa, dù tôi có mang ô hay không, lời hứa vẫn không sai.
+- *"\`p → q\` và \`q → p\` có giống nhau không?"* **Không**. \`p → q\` (thuận) khác \`q → p\` (đảo). Vd "mưa → ướt đường" đúng, nhưng "ướt đường → mưa" sai (có thể do tưới cây).
+
+⚠ **Lỗi thường gặp — lẫn \`p → q\` với chiều đảo \`q → p\`**. Chúng KHÔNG tương đương. Cái tương đương với \`p → q\` là **phản đảo** \`¬q → ¬p\`. Phản ví dụ kiểm bảng chân trị: với p=F, q=T: \`p→q = T\` nhưng \`q→p = F\` → khác nhau.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Dùng De Morgan, viết lại \`¬(p ∧ ¬q)\`.
+2. Mệnh đề "Nếu 2 > 3 thì mặt trời lạnh" đúng hay sai?
+
+<details><summary>Đáp án</summary>
+
+1. \`¬p ∨ ¬(¬q) = ¬p ∨ q\`.
+2. **Đúng** — vì p ("2 > 3") sai, nên \`p → q\` đúng bất kể q.
+
+</details>
+
+### 📝 Tóm tắt mục 1
+
+- Mệnh đề = câu đúng/sai dứt khoát (công tắc T/F).
+- \`p → q\` chỉ sai khi p đúng & q sai; p sai thì luôn đúng.
+- De Morgan: \`¬(p∧q) = ¬p∨¬q\`. \`p→q\` tương đương phản đảo \`¬q→¬p\`, KHÔNG phải đảo \`q→p\`.
+
 ---
 
 ## 2. Lượng từ
 
+💡 **Trực giác / Hình dung**: ∀ ("với mọi") là lời khẳng định mạnh — phải đúng cho **toàn bộ**, chỉ cần 1 phản ví dụ là sập. ∃ ("tồn tại") là khẳng định yếu — chỉ cần **1 trường hợp** đúng là xong. Phủ định đảo vai: phá vỡ "mọi" = chỉ ra 1 ngoại lệ (∃ phản ví dụ); phá vỡ "tồn tại" = chứng minh không cái nào (∀ đều không).
+
 - **∀x** = "với mọi x" (forall).
 - **∃x** = "tồn tại x" (exists).
 
-**Ví dụ**:
-- ∀x ∈ ℝ: x² ≥ 0 — "Mọi x thực, x² ≥ 0". Đúng.
-- ∃x ∈ ℝ: x² = 4 — "Tồn tại x: x² = 4". Đúng (x = 2 hoặc -2).
+**4 ví dụ số đa dạng**:
+- \`∀x ∈ ℝ: x² ≥ 0\` — **đúng** (mọi số thực bình phương không âm).
+- \`∃x ∈ ℝ: x² = 4\` — **đúng** (x = 2 hoặc −2).
+- \`∀x ∈ ℝ: x² > 0\` — **sai** (phản ví dụ x = 0 cho 0).
+- \`∃x ∈ ℝ: x² = −1\` — **sai** (không số thực nào bình phương ra âm).
 
 ### Phủ định lượng từ
 
@@ -74,9 +109,36 @@ window.README_MD = `# Lesson 07 — Logic, tập hợp, ánh xạ
 
 **Ví dụ**: Phủ định "mọi hoa đều đẹp" = "tồn tại 1 hoa không đẹp".
 
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Phủ định mệnh đề có nhiều lượng từ thế nào?"* Đảo từng cái từ ngoài vào trong và phủ định lõi. Vd \`¬(∀x ∃y: P(x,y)) = ∃x ∀y: ¬P(x,y)\`. Mỗi ∀ thành ∃, mỗi ∃ thành ∀.
+- *"Để bác bỏ '∀x: P(x)' tôi cần làm gì?"* Chỉ cần **1 phản ví dụ** (1 x làm P(x) sai). Vd bác bỏ "mọi số nguyên tố là lẻ" bằng p = 2.
+
+⚠ **Lỗi thường gặp — phủ định lượng từ sai (không đổi ∀↔∃)**. Phủ định "mọi sinh viên đều đậu" KHÔNG phải "mọi sinh viên đều rớt", mà là "**tồn tại** 1 sinh viên rớt". Phản ví dụ minh hoạ: lớp 10 người, 9 đậu 1 rớt → "mọi người đậu" sai, "mọi người rớt" cũng sai, chỉ "tồn tại người rớt" mới đúng là phủ định.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Phủ định "Mọi số chẵn đều chia hết cho 4".
+2. Phủ định "Tồn tại học sinh đạt điểm 10".
+
+<details><summary>Đáp án</summary>
+
+1. "Tồn tại 1 số chẵn không chia hết cho 4" (vd 6 — đúng là phản ví dụ).
+2. "Mọi học sinh đều không đạt điểm 10".
+
+</details>
+
+### 📝 Tóm tắt mục 2
+
+- ∀ = "với mọi" (1 phản ví dụ là sập); ∃ = "tồn tại" (1 trường hợp đủ).
+- Phủ định: đổi \`∀↔∃\` và phủ định lõi P.
+- Bác bỏ \`∀x:P(x)\` chỉ cần 1 phản ví dụ.
+
 ---
 
 ## 3. Tập hợp
+
+💡 **Trực giác / Hình dung**: tập hợp là 1 "cái túi" chứa các phần tử phân biệt, không quan tâm thứ tự, không lặp. Các phép toán tập hợp tương ứng phép logic: **giao (∩)** = "và" (∧), **hợp (∪)** = "hoặc" (∨), **phần bù** = "không" (¬). Vẽ biểu đồ Venn (vòng tròn chồng nhau) để "thấy" được.
 
 ### Định nghĩa & ký hiệu
 
@@ -102,6 +164,37 @@ window.README_MD = `# Lesson 07 — Logic, tập hợp, ánh xạ
 \`\`\`
 
 ⟶ **Tương đồng với logic**: ∪ ↔ ∨, ∩ ↔ ∧, c ↔ ¬.
+
+**4 ví dụ số đa dạng** (A = {1,2,3}, B = {2,3,4}):
+- \`A ∪ B = {1,2,3,4}\` (hợp = gộp, không lặp).
+- \`A ∩ B = {2,3}\` (giao = chung).
+- \`A \\ B = {1}\` (hiệu = ở A nhưng không ở B).
+- \`|A × B| = 3·3 = 9\` (tích Descartes có 9 cặp).
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"\`A ⊂ B\` và \`A ∈ B\` khác nhau thế nào?"* \`⊂\` là "tập con" (mọi phần tử của A đều ở B); \`∈\` là "phần tử". Vd với \`B = {1, {1,2}}\`: \`{1,2} ∈ B\` (là 1 phần tử), nhưng \`{1,2} ⊂ B\` thì sai (2 không ∈ B).
+- *"Tập n phần tử có bao nhiêu tập con?"* \`2^n\` (mỗi phần tử "có hoặc không" trong tập con) — liên hệ L04. Vd {1,2,3} có 2³ = 8 tập con.
+
+⚠ **Lỗi thường gặp — lẫn \`∈\` (phần tử) và \`⊂\` (tập con)**. Phản ví dụ: với A = {1,2,3}, viết \`1 ⊂ A\` là SAI (1 không phải tập), phải \`1 ∈ A\` hoặc \`{1} ⊂ A\`. Phần tử dùng ∈, tập con dùng ⊂.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Cho A = {1,2,3,4}, B = {3,4,5}. Tính A ∩ B, A ∪ B, A \\ B.
+2. \`∅\` có bao nhiêu tập con?
+
+<details><summary>Đáp án</summary>
+
+1. \`A ∩ B = {3,4}\`; \`A ∪ B = {1,2,3,4,5}\`; \`A \\ B = {1,2}\`.
+2. \`2^0 = 1\` (chỉ có chính nó — tập rỗng là tập con của mọi tập).
+
+</details>
+
+### 📝 Tóm tắt mục 3
+
+- Tập = túi phần tử phân biệt, không thứ tự; ∪/∩/bù tương ứng ∨/∧/¬.
+- De Morgan cho tập: \`(A∪B)^c = A^c ∩ B^c\`.
+- \`∈\` (phần tử) ≠ \`⊂\` (tập con); tập n phần tử có \`2^n\` tập con.
 
 ---
 
@@ -148,6 +241,31 @@ window.README_MD = `# Lesson 07 — Logic, tập hợp, ánh xạ
 
 - **Hàm hợp** (g ∘ f)(x) = g(f(x)).
 - **Hàm ngược**: chỉ tồn tại khi f là **song ánh**. f⁻¹(b) = a ⟺ f(a) = b.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Cùng công thức \`f(x) = x²\` sao khi đơn ánh khi không?"* Phụ thuộc **tập nguồn**. Trên ℝ: không đơn ánh (f(2)=f(−2)). Trên [0,∞): đơn ánh (chỉ phần x ≥ 0). Định nghĩa ánh xạ gồm cả công thức LẪN tập nguồn/đích.
+- *"Tính toàn ánh phụ thuộc gì?"* Phụ thuộc **tập đích B**. \`f(x)=x²\` lên ℝ không toàn ánh (số âm thiếu nguồn); lên [0,∞) thì toàn ánh (ảnh phủ kín đích).
+
+⚠ **Lỗi thường gặp — kết luận song ánh chỉ nhìn công thức, bỏ qua tập nguồn/đích**. Phản ví dụ: \`f(x) = x²\` "có vẻ" 1-1 nhưng trên ℝ thì KHÔNG đơn ánh (f(3)=f(−3)=9) và KHÔNG toàn ánh (f(x)=−4 vô nghiệm). Phải xét rõ A và B mới kết luận được.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. \`f: ℝ → ℝ, f(x) = x + 5\`. Song ánh không? Hàm ngược?
+2. \`f: ℕ → ℕ, f(n) = n + 1\`. Đơn ánh? Toàn ánh?
+
+<details><summary>Đáp án</summary>
+
+1. **Song ánh** (hàm bậc 1, hệ số ≠ 0). \`f⁻¹(y) = y − 5\`.
+2. Đơn ánh ✓ (n₁≠n₂ → n₁+1≠n₂+1). Toàn ánh ✗ (số 0 không có nguồn: không n∈ℕ nào cho f(n)=0).
+
+</details>
+
+### 📝 Tóm tắt mục 4
+
+- Ánh xạ gồm công thức + tập nguồn A + tập đích B.
+- Đơn ánh (1-1), toàn ánh (ảnh = B), song ánh (cả hai).
+- Hàm ngược tồn tại ⟺ song ánh. Đơn/toàn phụ thuộc A và B, không chỉ công thức.
 
 ---
 

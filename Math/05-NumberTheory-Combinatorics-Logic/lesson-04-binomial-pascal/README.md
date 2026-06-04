@@ -38,9 +38,31 @@
 >
 > **(c) Ví dụ số**: (a+b)³ = 1·a³ + 3·a²b + 3·ab² + 1·b³ (hệ số tầng 3 Pascal: 1,3,3,1). (x+1)^5 = x⁵ + 5x⁴ + 10x³ + 10x² + 5x + 1. Tính (1.01)^10 ≈ 1 + 10·0.01 + 45·0.0001 + ... ≈ 1.10462 (máy tính: 1.10462 ✓). Hệ số x^3 trong (2x−3)^7 = C(7,4)·(2x)³·(−3)⁴ = 35·8·81 = **22,680**. Σ_{k=0}^{n} C(n,k) = (1+1)^n = **2^n** = số tập con tập n phần tử ✓.
 
+⚠ **Lỗi thường gặp — quên hệ số của a, b khi chúng không phải biến đơn**. Trong `(2x − 3)^7`, số hạng tổng quát là `C(7,k)·(2x)^(7−k)·(−3)^k` — phải nâng cả `2` và `−3` lên lũy thừa, KHÔNG chỉ lấy `C(7,k)·x^(7−k)`. Phản ví dụ: hệ số x⁷ trong `(2x−3)^7` là `C(7,0)·2⁷·(−3)⁰ = 128`, KHÔNG phải 1.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Khai triển `(a+b)²` bằng nhị thức, đối chiếu hằng đẳng thức quen.
+2. Tính tổng các hệ số trong khai triển `(a+b)^4` (gợi ý: cho a = b = 1).
+
+<details><summary>Đáp án</summary>
+
+1. `C(2,0)a² + C(2,1)ab + C(2,2)b² = a² + 2ab + b²` ✓ (đúng hằng đẳng thức).
+2. `(1+1)^4 = 2^4 = 16` (= 1+4+6+4+1).
+
+</details>
+
+### 📝 Tóm tắt mục 1
+
+- `(a+b)^n = Σ C(n,k)·a^(n−k)·b^k`; hệ số = C(n,k) (tầng n Pascal).
+- Số hạng tổng quát: nâng **cả hệ số lẫn biến** lên lũy thừa.
+- `Σ C(n,k) = 2^n` (cho a=b=1) = số tập con.
+
 ---
 
 ## 2. Tam giác Pascal
+
+💡 **Trực giác / Hình dung**: tam giác Pascal là "máy tính hệ số" — mỗi số bằng tổng 2 số đỡ nó phía trên, như giọt nước rơi xuống tách đôi. Không cần công thức giai thừa, chỉ cần cộng dần từng tầng là ra mọi `C(n,k)`.
 
 ```
 Tầng 0:                    1
@@ -64,6 +86,31 @@ Tầng 6:        1   6  15  20  15   6   1
 | Pascal | C(n,k) = C(n-1,k-1) + C(n-1,k) | C(5,2) = C(4,1)+C(4,2) = 4+6 |
 | Tổng hàng | Σ C(n,k) = 2^n | 1+5+10+10+5+1 = 32 = 2^5 |
 | Tổng dấu xen | Σ (-1)^k·C(n,k) = 0 (n≥1) | 1-3+3-1 = 0 |
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Vì sao mỗi số = tổng 2 số trên (Pascal)?"* Vì `C(n,k) = C(n−1,k−1) + C(n−1,k)`: chọn k từ n vật = (chọn k−1 từ n−1, kèm vật cuối) + (chọn k từ n−1, bỏ vật cuối). Verify: `C(5,2) = C(4,1)+C(4,2) = 4+6 = 10` ✓.
+- *"Vì sao tổng dấu xen kẽ = 0?"* Đặt a = 1, b = −1 vào nhị thức: `(1−1)^n = 0^n = 0 = Σ(−1)^k C(n,k)`. Verify tầng 3: `1−3+3−1 = 0` ✓.
+
+⚠ **Lỗi thường gặp — đánh số tầng/cột bắt đầu từ 1 thay vì 0**. Tầng trên cùng là **tầng 0** (chỉ có số 1 = C(0,0)); trong mỗi tầng, vị trí trái nhất là **cột 0**. Phản ví dụ: số thứ 3 (từ trái, đếm từ 0 → vị trí 2) ở tầng 5 là `C(5,2) = 10`, KHÔNG phải C(5,3).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Viết tầng 7 của tam giác Pascal.
+2. Tổng các số ở tầng 6 bằng bao nhiêu?
+
+<details><summary>Đáp án</summary>
+
+1. Tầng 6 là `1 6 15 20 15 6 1` → tầng 7: `1 7 21 35 35 21 7 1` (cộng cặp kề).
+2. `2^6 = 64` (= 1+6+15+20+15+6+1).
+
+</details>
+
+### 📝 Tóm tắt mục 2
+
+- Tầng n chứa `C(n,0),...,C(n,n)`; mỗi số = tổng 2 số trên (Pascal).
+- Đánh số tầng và cột **từ 0**.
+- Tổng tầng = `2^n`; tổng dấu xen kẽ = 0 (n ≥ 1).
 
 ---
 
@@ -93,9 +140,38 @@ Tầng 6:        1   6  15  20  15   6   1
 
 **Ví dụ**: Tập {1, 2, 3, 4} có **2^4 = 16** tập con.
 
+💡 **Trực giác / Hình dung tìm hệ số**: để tìm hệ số của `x^m`, viết số hạng tổng quát `C(n,k)·(phần x)^... ·(phần còn lại)^k`, rồi giải bậc của x bằng m để tìm k. Như "tra bảng" — chọn đúng số hạng cần.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Tìm hệ số x⁴ trong (2x−3)⁷, vì sao đặt 7−k = 4?"* Số hạng tổng quát `C(7,k)·(2x)^(7−k)·(−3)^k` có bậc x là `7−k`. Muốn bậc 4 → `7−k = 4 → k = 3`. Rồi tính hệ số = `C(7,3)·2⁴·(−3)³ = 35·16·(−27) = −15120`.
+- *"Số tập con KỂ tập rỗng hay không?"* `2^n` ĐÃ tính cả tập rỗng và tập đầy đủ. Muốn bỏ tập rỗng: `2^n − 1`. Vd tập 5 phần tử: 32 tập con, 31 tập khác rỗng.
+
+⚠ **Lỗi thường gặp**: tìm hệ số nhưng quên phần lũy thừa của hằng số. Phản ví dụ: hệ số x⁴ trong `(2x−3)^7` KHÔNG phải `C(7,3) = 35` — phải nhân thêm `2⁴·(−3)³`.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Hệ số của x² trong `(1+x)^6`.
+2. Số tập con khác rỗng của tập 4 phần tử.
+
+<details><summary>Đáp án</summary>
+
+1. `C(6,2) = 15`.
+2. `2^4 − 1 = 15`.
+
+</details>
+
+### 📝 Tóm tắt mục 3
+
+- Tính nhanh `(a+b)^n` bằng hệ số Pascal tầng n.
+- Tìm hệ số `x^m`: viết số hạng tổng quát, giải bậc x = m, **nhân cả hằng số**.
+- Số tập con của tập n = `2^n` (gồm rỗng); khác rỗng = `2^n − 1`.
+
 ---
 
 ## 4. Tổng quát hóa — Khai triển đa thức
+
+💡 **Trực giác / Hình dung**: nhị thức Newton chia n thừa số thành 2 "rổ" (a hoặc b); đa thức (multinomial) chia thành **nhiều rổ** (a, b, c...). Hệ số `n!/(i!j!k!)` = số cách chia n vật vào các rổ kích thước i, j, k — đúng tinh thần "chọn nhóm" của tổ hợp.
 
 **Đa thức (a + b + c)^n** (đa thức tổng quát Newton):
 ```
@@ -104,7 +180,36 @@ Tầng 6:        1   6  15  20  15   6   1
 
 trong đó **n!/(i!·j!·k!)** = hệ số đa thức (multinomial coefficient).
 
-**Ví dụ**: (a+b+c)² = a² + b² + c² + 2ab + 2bc + 2ca.
+**4 ví dụ số đa dạng**:
+- `(a+b+c)² = a²+b²+c² + 2ab+2bc+2ca` (hệ số 2 = 2!/(1!1!0!)).
+- Hệ số `a²bc` trong `(a+b+c)^4` = `4!/(2!1!1!) = 24/2 = 12`.
+- Hệ số `a³` trong `(a+b+c)³` = `3!/(3!0!0!) = 1`.
+- Tổng tất cả hệ số `(a+b+c)^n` cho a=b=c=1 = `3^n` (vd n=2 → 9 = 1+1+1+2+2+2 ✓).
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Khi nào dùng multinomial thay binomial?"* Khi có ≥ 3 hạng tử trong ngoặc. `(a+b)^n` dùng C(n,k); `(a+b+c)^n` dùng `n!/(i!j!k!)`.
+- *"Số số hạng phân biệt trong `(a+b+c)^n` là bao nhiêu?"* Bằng số nghiệm nguyên không âm của `i+j+k = n`, tức tổ hợp lặp `C(n+2, 2)`. Vd n=2 → C(4,2) = 6 số hạng (a²,b²,c²,ab,bc,ca) ✓.
+
+⚠ **Lỗi thường gặp**: quên hệ số chéo (2ab...) khi khai triển `(a+b+c)²`. Phản ví dụ: `(a+b+c)² ≠ a²+b²+c²` — thiếu `2ab+2bc+2ca`. Kiểm số: `(1+1+1)² = 9`, còn `1+1+1 = 3` ≠ 9.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Hệ số của `a²b` trong `(a+b)³` (dùng binomial).
+2. Hệ số của `xyz` trong `(x+y+z)³`.
+
+<details><summary>Đáp án</summary>
+
+1. `C(3,1) = 3` (số hạng `C(3,1)a²b`).
+2. `3!/(1!1!1!) = 6`.
+
+</details>
+
+### 📝 Tóm tắt mục 4
+
+- Đa thức: `(a+b+c)^n = Σ [n!/(i!j!k!)] a^i b^j c^k`, tổng i+j+k = n.
+- Hệ số multinomial = số cách chia n vật vào các rổ i, j, k.
+- Tổng mọi hệ số = `(số hạng tử)^n` khi cho tất cả biến = 1.
 
 ---
 

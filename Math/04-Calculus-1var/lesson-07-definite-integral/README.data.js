@@ -22,6 +22,17 @@ window.README_MD = `# Lesson 07 — Tích phân xác định
 
 Đây là hình **cong** — không có công thức diện tích thẳng. Phải dùng tích phân.
 
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Sao không dùng công thức hình học quen thuộc?"* Vì cạnh trên là đường cong \`y = x²\`, không phải đoạn thẳng — không có công thức diện tích đa giác/hình tròn nào áp được. Ý tưởng giải tích: **xấp xỉ** bằng nhiều hình chữ nhật mỏng rồi cho số hình → ∞.
+- *"Diện tích này có ra số cụ thể không?"* Có, và bằng đúng \`1/3\` (sẽ tính ở mục 2 + 3). Đường cong vẫn cho diện tích hữu hạn xác định.
+
+### 📝 Tóm tắt mục 1
+
+- Diện tích dưới đường **cong** không có công thức hình học trực tiếp.
+- Giải pháp: xấp xỉ bằng hình chữ nhật mỏng, lấy giới hạn → tích phân.
+- Ví dụ dẫn dắt \`∫_0^1 x² dx = 1/3\` (tính ở mục 2-3).
+
 ---
 
 ## 2. Tổng Riemann — Định nghĩa tích phân
@@ -61,6 +72,31 @@ Khi n → ∞: S_n → (1·2)/6 = **1/3**.
 - n=1000: S ≈ 0.3338.
 - → 1/3 ≈ 0.3333.
 
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Dùng cận trái hay cận phải của mỗi đoạn?"* Với hàm liên tục, khi \`n → ∞\` cả hai (và điểm bất kỳ trong đoạn) cho **cùng** giới hạn. Vd \`∫_0^1 x² dx\`: cận phải cho \`0.385\` (n=10), cận trái cho \`0.285\` — nhưng cả hai → \`1/3\`. Chọn cận nào chỉ ảnh hưởng tốc độ hội tụ.
+- *"Vì sao \`Σ i² = n(n+1)(2n+1)/6\`?"* Đây là công thức tổng bình phương đã biết (chứng minh bằng quy nạp). Kiểm \`n=3\`: \`1+4+9 = 14\`, công thức \`3·4·7/6 = 84/6 = 14\` ✓. Nó cho phép biến tổng Riemann thành biểu thức đóng rồi mới lấy giới hạn.
+
+⚠ **Lỗi thường gặp — quên nhân \`Δx\`**. Tổng Riemann là \`Σ f(x_i)·Δx\`, KHÔNG phải \`Σ f(x_i)\`. Thiếu \`Δx\` (= bề rộng hình chữ nhật) thì kết quả không phải diện tích. Vd quên \`1/n\` ở trên sẽ ra \`∞\` thay vì \`1/3\`.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Với \`∫_0^1 x² dx\`, công thức \`S_n = (1+1/n)(2+1/n)/6\`. Tính \`S_n\` khi \`n = 2\`.
+2. Khi \`n → ∞\`, mỗi hình chữ nhật rộng \`Δx\` tiến về đâu?
+
+<details><summary>Đáp án</summary>
+
+1. \`(1+0.5)(2+0.5)/6 = (1.5·2.5)/6 = 3.75/6 = 0.625\` (xấp xỉ thô vì \`n\` nhỏ).
+2. \`Δx = 1/n → 0\` (hình chữ nhật càng mỏng, xấp xỉ càng khít đường cong).
+
+</details>
+
+### 📝 Tóm tắt mục 2
+
+- Tổng Riemann \`S_n = Σ f(x_i)·Δx\` xấp xỉ diện tích bằng \`n\` hình chữ nhật.
+- \`∫_a^b f dx = lim_{n→∞} S_n\` — giới hạn khi hình chữ nhật mỏng vô hạn.
+- **Đừng quên \`Δx\`**; cận trái/phải đều cho cùng giới hạn với hàm liên tục.
+
 ---
 
 ## 3. Định lý cơ bản giải tích (Fundamental Theorem of Calculus)
@@ -98,6 +134,32 @@ Viết tắt: F(b) - F(a) thường ghi là [F(x)]_a^b hoặc F(x)|_a^b.
 
 Khớp với kết quả tổng Riemann!
 
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Vì sao không cần \`+C\` ở tích phân xác định?"* Vì khi tính \`F(b) − F(a)\`, hằng số bị triệt tiêu: \`(F(b)+C) − (F(a)+C) = F(b) − F(a)\`. Tích phân **bất định** (nguyên hàm) cần \`+C\`, nhưng tích phân **xác định** thì không.
+- *"FTC1 và FTC2 liên hệ thế nào?"* FTC1 nói "tích phân rồi đạo hàm → trở lại hàm gốc" (chứng minh đạo hàm và tích phân ngược nhau). FTC2 là **hệ quả tính toán**: dùng nguyên hàm để tính tích phân xác định mà không cần tổng Riemann.
+- *"Chọn nguyên hàm nào trong FTC2?"* Bất kỳ một nguyên hàm nào cũng được (hằng số tự triệt tiêu). Thường chọn cái đơn giản nhất với \`C = 0\`.
+
+⚠ **Lỗi thường gặp — tính \`F(a) − F(b)\` thay vì \`F(b) − F(a)\`**. Thứ tự là **cận trên trừ cận dưới**. Đảo lại sẽ ra dấu ngược. Vd \`∫_0^1 x² dx = F(1)−F(0) = 1/3\`, nếu viết \`F(0)−F(1) = −1/3\` là sai dấu.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. \`∫_0^2 3x² dx = ?\` (dùng FTC2).
+2. \`∫_1^3 (1/x) dx = ?\`
+
+<details><summary>Đáp án</summary>
+
+1. \`F(x) = x³\` → \`F(2) − F(0) = 8 − 0 = 8\`.
+2. \`F(x) = ln|x|\` → \`ln 3 − ln 1 = ln 3 ≈ 1.0986\`.
+
+</details>
+
+### 📝 Tóm tắt mục 3
+
+- FTC1: \`d/dx ∫_a^x f(t)dt = f(x)\` — đạo hàm và tích phân ngược nhau.
+- FTC2: \`∫_a^b f dx = F(b) − F(a)\` với \`F' = f\` — tính tích phân qua nguyên hàm.
+- Không cần \`+C\` (triệt tiêu khi trừ); thứ tự **trên trừ dưới**.
+
 ---
 
 ## 4. Tính chất tích phân xác định
@@ -117,6 +179,33 @@ Khớp với kết quả tổng Riemann!
 
 Nếu muốn **diện tích thật**: ∫_0^{2π} |sin x| dx = 4.
 
+💡 **Trực giác**: tích phân xác định là **diện tích có dấu** — phần đồ thị trên trục Ox đóng góp dương, phần dưới đóng góp âm. Như "lãi và lỗ" cộng dồn: tổng đại số có thể nhỏ hơn tổng độ lớn.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Tích phân bằng 0 có nghĩa hàm bằng 0?"* Không. \`∫_0^{2π} sin x dx = 0\` nhưng \`sin x\` không hề bằng 0 khắp nơi — phần dương và âm **triệt tiêu**. Tích phân = 0 chỉ nói tổng đại số bằng 0.
+- *"Khi nào dùng tính chất cộng đoạn?"* Khi hàm đổi công thức/đổi dấu giữa chừng, hoặc muốn tách \`∫_a^b = ∫_a^c + ∫_c^b\` để xử lý từng phần. Rất hữu ích với hàm chia khúc hay \`|f(x)|\`.
+
+⚠ **Lỗi thường gặp — lẫn tích phân với diện tích thật**. Để tính **diện tích** giữa đường và trục khi hàm đổi dấu, phải lấy \`∫|f|\` (chia đoạn theo dấu), KHÔNG phải \`∫f\`. Vd diện tích của \`sin x\` trên \`[0, 2π]\` là \`4\`, không phải \`0\`.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. \`∫_{-1}^1 x dx = ?\` Giải thích.
+2. Tách \`∫_0^4 f dx\` qua điểm \`c = 2\` như thế nào?
+
+<details><summary>Đáp án</summary>
+
+1. \`[x²/2]_{-1}^1 = 1/2 − 1/2 = 0\` (hàm lẻ, phần âm \`[−1,0]\` triệt tiêu phần dương \`[0,1]\`).
+2. \`∫_0^4 f dx = ∫_0^2 f dx + ∫_2^4 f dx\` (cộng đoạn).
+
+</details>
+
+### 📝 Tóm tắt mục 4
+
+- Tích phân tuyến tính, cộng đoạn \`∫_a^b = ∫_a^c + ∫_c^b\`, đảo cận đổi dấu, \`∫_a^a = 0\`.
+- Tích phân là **diện tích có dấu** — phần dưới Ox âm; có thể bằng 0 dù hàm ≠ 0.
+- Muốn **diện tích thật** khi hàm đổi dấu: dùng \`∫|f|\`.
+
 ---
 
 ## 5. Đổi biến trong tích phân xác định
@@ -132,6 +221,33 @@ Nếu muốn **diện tích thật**: ∫_0^{2π} |sin x| dx = 4.
 - x = 0 → u = 0; x = 1 → u = 1.
 - = ∫_0^1 e^u du = e - 1 ≈ 1.718.
 
+💡 **Trực giác**: giống đổi biến cho nguyên hàm, nhưng cận tích phân là "vị trí trên trục x" — khi đổi sang biến \`u\`, các vị trí đó cũng phải dịch sang giá trị \`u\` tương ứng. Đổi cận giúp **không cần** thay \`u\` trở lại \`x\`.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Đổi cận rồi có cần thay \`u\` về \`x\` không?"* Không. Khi đã đổi cận sang \`u\`, tính thẳng \`∫_{g(a)}^{g(b)} f(u) du\` rồi áp FTC2 với biến \`u\`. Đỡ một bước so với nguyên hàm bất định.
+- *"Nếu quên đổi cận thì sao?"* Sẽ tính \`[F(u)]\` với cận \`x\` cũ → kết quả sai. Phải chọn một trong hai: đổi cận theo \`u\`, **hoặc** thay \`u\` về \`x\` rồi dùng cận \`x\` gốc — không trộn.
+
+⚠ **Lỗi thường gặp — đổi biến nhưng giữ nguyên cận \`x\`**. \`∫_0^1 2x·e^{x²} dx\`: sau khi đặt \`u = x²\`, nếu vẫn viết \`∫_0^1 e^u du\` với cận \`x\` cũ thì... ở đây trùng hợp \`0→0, 1→1\` nên đúng; nhưng \`∫_1^2 2x·e^{x²} dx\` thì \`u\` chạy \`1→4\`, giữ cận \`1→2\` sẽ sai. Luôn đổi cận theo \`u = g(x)\`.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. \`∫_0^2 2x·e^{x²} dx\` — cận \`u\` mới là gì? Tính kết quả.
+2. Vì sao đổi cận tiện hơn thay \`u\` về \`x\`?
+
+<details><summary>Đáp án</summary>
+
+1. \`u = x²\`: \`x=0→u=0\`, \`x=2→u=4\`. \`∫_0^4 e^u du = e⁴ − 1 ≈ 53.6\`.
+2. Vì tránh được bước thay \`u = g(x)\` ngược lại — tính trực tiếp trên biến \`u\` với cận mới.
+
+</details>
+
+### 📝 Tóm tắt mục 5
+
+- Đổi biến tích phân xác định: \`∫_a^b f(g(x))g'(x)dx = ∫_{g(a)}^{g(b)} f(u)du\`.
+- **Phải đổi cả cận** theo \`u = g(x)\`; sau đó không cần thay \`u\` về \`x\`.
+- Hoặc đổi cận, hoặc thay \`u\` về \`x\` rồi dùng cận gốc — không trộn lẫn.
+
 ---
 
 ## 6. Tích phân từng phần xác định
@@ -145,6 +261,33 @@ Nếu muốn **diện tích thật**: ∫_0^{2π} |sin x| dx = 4.
 - = [-x·cos x]_0^π + ∫_0^π cos x dx
 - = -π·cos π + 0 + [sin x]_0^π
 - = π + 0 - 0 = **π**.
+
+💡 **Trực giác**: công thức giống nguyên hàm \`∫u dv = uv − ∫v du\`, chỉ thêm việc **đánh giá \`uv\` tại hai cận** ngay. Phần \`[uv]_a^b\` lấy giá trị ở hai đầu, phần \`∫_a^b v du\` vẫn là tích phân xác định.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"\`[u·v]_a^b\` tính thế nào?"* Thay cận trên trừ cận dưới vào tích \`u·v\`. Ví dụ trên: \`[−x·cos x]_0^π = (−π·cos π) − (−0·cos 0) = (−π·(−1)) − 0 = π\`.
+- *"Chọn \`u, dv\` có khác nguyên hàm không?"* Không, vẫn theo **LIATE** như L06. Chỉ thêm bước đánh giá tại cận.
+
+⚠ **Lỗi thường gặp — quên đánh giá phần \`[uv]\` tại cận**. Viết \`∫_0^π x sin x dx = −∫_0^π cos x dx\` (bỏ luôn \`[−x cos x]_0^π\`) là thiếu hẳn một phần. Cả \`[uv]_a^b\` lẫn \`∫v du\` đều phải đánh giá tại cận.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. \`∫_0^1 x·e^x dx = ?\`
+2. Tính \`[x·sin x]_0^{π/2}\`.
+
+<details><summary>Đáp án</summary>
+
+1. \`u=x, dv=e^x dx, v=e^x\`: \`[x e^x]_0^1 − ∫_0^1 e^x dx = e − [e^x]_0^1 = e − (e−1) = 1\`.
+2. \`(π/2)·sin(π/2) − 0·sin 0 = (π/2)·1 − 0 = π/2\`.
+
+</details>
+
+### 📝 Tóm tắt mục 6
+
+- Từng phần xác định: \`∫_a^b u dv = [uv]_a^b − ∫_a^b v du\`.
+- Đánh giá **cả** \`[uv]\` tại hai cận **lẫn** tích phân còn lại; chọn \`u, dv\` theo LIATE.
+- Đừng bỏ sót phần \`[uv]_a^b\`.
 
 ---
 

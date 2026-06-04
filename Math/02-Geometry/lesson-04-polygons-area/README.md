@@ -14,6 +14,8 @@
 
 ## 1. Đa giác
 
+💡 **Trực giác / Hình dung**: đa giác là 1 hàng rào khép kín làm từ các đoạn thẳng — đi dọc hàng rào, mỗi lần tới góc thì rẽ, cuối cùng quay về điểm xuất phát. **Lồi** giống cái đĩa tròn-trịa không lõm vào (mọi góc trong < 180°); **lõm** giống ngôi sao 5 cánh hay chữ L, có chỗ "thụt vào".
+
 **Đa giác** = hình phẳng đóng tạo bởi các đoạn thẳng (gọi là **cạnh**) nối nhau tại các **đỉnh**.
 
 ### 1.1. Phân loại
@@ -59,9 +61,38 @@ Tổng góc ngoài (bất kỳ đa giác lồi) = 360°
 
 (Vì đi 1 vòng quanh đa giác = xoay 360°.)
 
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Vì sao chia n-giác được đúng (n−2) tam giác?"* Chọn 1 đỉnh, kẻ đường chéo tới các đỉnh không kề → tách thành các tam giác. Số tam giác luôn = số cạnh trừ 2. Vd ngũ giác (5 cạnh) → 3 tam giác.
+- *"Tổng góc ngoài có phụ thuộc số cạnh không?"* Không — luôn 360° bất kể n. Trực giác: đi 1 vòng quanh đa giác, tổng các lần "rẽ" (góc ngoài) đúng bằng 1 vòng = 360°.
+- *"Đa giác lõm thì công thức (n−2)·180° còn đúng?"* Tổng góc trong vẫn = (n−2)·180° cho đa giác đơn (không tự cắt), nhưng cách đo góc lõm (> 180°) phải cẩn thận.
+
+⚠ **Lỗi thường gặp**: quên trừ 2, viết "tổng góc trong = n·180°". Phản ví dụ: tứ giác (n=4) nếu lấy 4·180 = 720° là sai; đúng là (4−2)·180 = 360°. Lỗi thứ 2: lấy "mỗi góc đa giác đều = tổng/n" mà quên tính tổng trước — ngũ giác đều mỗi góc = 540/5 = 108°, không phải 180/5.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Tổng góc trong của lục giác (6 cạnh) là bao nhiêu? Mỗi góc nếu là lục giác đều?
+2. Đa giác đều có mỗi góc trong 150°. Đa giác có mấy cạnh?
+
+<details><summary>Đáp án</summary>
+
+1. (6−2)·180 = **720°**. Mỗi góc đều = 720/6 = **120°**.
+2. (n−2)·180/n = 150 → 180n − 360 = 150n → 30n = 360 → n = **12** (thập nhị giác).
+
+</details>
+
+### 📝 Tóm tắt mục 1
+
+- Đa giác: lồi (mọi góc < 180°) / lõm (có góc > 180°); đều (mọi cạnh + góc bằng nhau).
+- **Tổng góc trong = (n−2)·180°** (chia thành n−2 tam giác).
+- Đa giác đều n cạnh: mỗi góc trong = (n−2)·180°/n.
+- **Tổng góc ngoài = 360°** với mọi đa giác lồi (không phụ thuộc n).
+
 ---
 
 ## 2. Diện tích các hình
+
+💡 **Trực giác / Hình dung**: diện tích = "đếm số ô vuông đơn vị lấp đầy hình". Hình chữ nhật a×b = a hàng, mỗi hàng b ô → a·b ô. Mọi công thức khác đều suy ra bằng cách "cắt-ghép" về hình chữ nhật hay tam giác (vd hình bình hành cắt 1 tam giác ở đầu ghép sang đầu kia → thành chữ nhật đáy·cao).
 
 ### 2.1. Bảng công thức
 
@@ -86,6 +117,40 @@ Lục giác đều cạnh a = **6 tam giác đều** ghép lại (mỗi tam giá
 - S_lục_giác = 6 · (√3/4)·a² = **(3√3/2)·a²**.
 
 Cách khác: bán kính đường tròn ngoại tiếp = a (vì 6 tam giác đều có cạnh = bán kính). Hữu ích trong thực tế (mặt cắt tổ ong, bu-lông).
+
+### 2.4. Verify công thức bằng số thật
+
+- **Hình thang** đáy 5 và 11, cao 4: S = ½(5+11)·4 = ½·16·4 = **32**. Kiểm bằng cắt-ghép: 2 hình thang úp ngược ghép thành hình bình hành đáy (5+11)=16, cao 4 → diện tích 64; mỗi hình thang = 64/2 = 32 ✓.
+- **Hình thoi** 2 đường chéo 6 và 8: S = ½·6·8 = **24**. (Hình thoi = ½ hình chữ nhật bao quanh nó, cạnh = 2 đường chéo.)
+- **Tam giác đều** cạnh 4: S = (√3/4)·4² = (√3/4)·16 = 4√3 ≈ **6.93**.
+- **Lục giác đều** cạnh 4: S = (3√3/2)·16 = 24√3 ≈ **41.57** = 6 × 6.93 (6 tam giác đều) ✓.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Hình bình hành cũng đáy·cao như chữ nhật?"* Đúng — vì cắt 1 tam giác bên này ghép sang bên kia thành chữ nhật cùng đáy, cùng cao. "Cao" là khoảng cách vuông góc giữa 2 đáy, không phải cạnh xiên.
+- *"Hình thoi vừa có công thức ½d₁d₂ vừa đáy·cao?"* Có — hình thoi là hình bình hành đặc biệt (4 cạnh bằng), nên dùng được cả 2; ½d₁d₂ tiện khi biết 2 đường chéo.
+- *"Vì sao tam giác đều có √3?"* Vì chiều cao tam giác đều cạnh a = a√3/2 (từ Pythagoras trên nửa tam giác) → diện tích chứa √3.
+
+⚠ **Lỗi thường gặp**: quên hệ số ½ ở hình thang và hình thoi. Phản ví dụ: hình thoi đường chéo 6, 8 — nếu tính 6·8 = 48 là sai (đó là diện tích chữ nhật bao quanh), đúng là ½·48 = 24. Lỗi thứ 2: dùng cạnh xiên làm chiều cao của hình bình hành.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Hình thang 2 đáy 3 và 7, cao 5. Diện tích?
+2. Hình thoi có cạnh 5, một đường chéo 6. Diện tích? (gợi ý: 2 đường chéo vuông góc tại trung điểm)
+
+<details><summary>Đáp án</summary>
+
+1. S = ½(3+7)·5 = ½·10·5 = **25**.
+2. Nửa đường chéo 1 = 3; nửa đường chéo 2 = √(5²−3²) = 4 → đường chéo 2 = 8. S = ½·6·8 = **24**.
+
+</details>
+
+### 📝 Tóm tắt mục 2
+
+- Diện tích = đếm ô vuông đơn vị; mọi công thức suy từ chữ nhật/tam giác bằng cắt-ghép.
+- Nhớ hệ số ½ ở **tam giác, hình thang, hình thoi**.
+- Tam giác đều cạnh a: S = (√3/4)a²; lục giác đều = 6 tam giác đều = (3√3/2)a².
+- Diện tích luôn có đơn vị **bình phương**; "cao" là khoảng cách vuông góc, không phải cạnh xiên.
 
 ---
 

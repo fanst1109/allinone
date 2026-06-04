@@ -26,6 +26,33 @@ window.README_MD = `# Lesson 08 — Biến hình & Vector hình học
 - **Phép dời hình** (isometry): giữ khoảng cách. AB = A'B'. Bao gồm: tịnh tiến, đối xứng, quay.
 - **Phép đồng dạng** (similarity): giữ tỉ lệ khoảng cách. A'B'/AB = k (hằng). Bao gồm dời hình + vị tự.
 
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Phép biến hình khác hàm số chỗ nào?"* Bản chất là 1 hàm số, nhưng "đầu vào" và "đầu ra" đều là **điểm** trong mặt phẳng (không phải số). f: điểm → điểm.
+- *"Dời hình có phải luôn là đồng dạng không?"* Có — dời hình là đồng dạng với tỉ số k = 1 (giữ nguyên kích thước). Mọi dời hình đều đồng dạng, nhưng không ngược lại (vị tự đồng dạng mà không dời hình).
+- *"Vì sao gọi là ánh xạ 1-1?"* Vì mỗi điểm M cho đúng 1 ảnh M', và mỗi M' đến từ đúng 1 M — không có 2 điểm cùng ảnh, không có điểm bị "bỏ sót".
+
+⚠ **Lỗi thường gặp**: nghĩ "mọi phép biến hình đều giữ kích thước". Sai — **vị tự** (k≠±1) phóng to/thu nhỏ, không giữ khoảng cách. Phản ví dụ: vị tự k=3 biến đoạn dài 2 thành đoạn dài 6 (A'B' = 3·AB).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Phép nào trong số: tịnh tiến, quay, vị tự (k=2) — KHÔNG phải phép dời hình?
+2. Phép dời hình có giữ diện tích hình không?
+
+<details><summary>Đáp án</summary>
+
+1. Vị tự k=2 (đổi kích thước → A'B' = 2·AB ≠ AB). Tịnh tiến và quay giữ khoảng cách.
+2. Có — dời hình giữ khoảng cách nên giữ cả góc và diện tích.
+
+</details>
+
+### 📝 Tóm tắt mục 1
+
+- Phép biến hình = ánh xạ 1-1 từ mặt phẳng vào chính nó (điểm → điểm).
+- **Dời hình**: giữ khoảng cách (tịnh tiến, đối xứng, quay).
+- **Đồng dạng**: giữ tỉ lệ (dời hình + vị tự).
+- Dời hình ⊂ đồng dạng (dời hình = đồng dạng với k=1).
+
 ---
 
 ## 2. Tịnh tiến (Translation)
@@ -49,9 +76,44 @@ M(x, y) ──T_v──→ M'(x+a, y+b)
 
 **Tính chất**: Bảo toàn khoảng cách, góc, diện tích. Hai đường thẳng song song vẫn song song.
 
+**4 ví dụ số đa dạng** (v = (3, −2)):
+- M(0,0) → (3,−2).
+- M(1,5) → (4,3).
+- M(−2,4) → (1,2).
+- M(−3,2) → (0,0) (về gốc — vì M = −v).
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Tịnh tiến có làm hình xoay hay phóng to không?"* Không — chỉ "trượt" cả hình theo 1 hướng, giữ nguyên kích thước, hướng, hình dạng.
+- *"Tịnh tiến rồi tịnh tiến nữa thì sao?"* Bằng 1 tịnh tiến duy nhất với vector = tổng 2 vector. T_u rồi T_v = T_(u+v).
+- *"Vì sao ma trận tịnh tiến phải 3×3 (affine)?"* Vì cộng hằng số (a, b) không biểu diễn được bằng nhân ma trận 2×2; phải dùng "tọa độ thuần nhất" thêm 1 chiều.
+
+⚠ **Lỗi thường gặp**: trừ thay vì cộng vector. T_v biến (x,y) → (x+a, y+b), **cộng** từng thành phần. Phản ví dụ: v=(3,−2), M(1,5) → (1+3, 5+(−2)) = (4,3), không phải (1−3, 5+2) = (−2,7).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Tịnh tiến v = (−4, 6) biến M(5, 1) thành điểm nào?
+2. Tịnh tiến nào biến gốc O(0,0) về điểm (7, −3)?
+
+<details><summary>Đáp án</summary>
+
+1. (5−4, 1+6) = **(1, 7)**.
+2. v = **(7, −3)** (vì O + v = (7,−3)).
+
+</details>
+
+### 📝 Tóm tắt mục 2
+
+- Tịnh tiến T_v: M(x,y) → M'(x+a, y+b) với v = (a,b).
+- Là phép dời hình: giữ khoảng cách, góc, diện tích, tính song song.
+- Ghép 2 tịnh tiến = 1 tịnh tiến với vector tổng.
+- Ma trận affine 3×3 (tọa độ thuần nhất) vì cộng hằng số.
+
 ---
 
 ## 3. Đối xứng (Reflection)
+
+💡 **Hình dung**: đối xứng = "soi gương". Trục đối xứng là mặt gương; ảnh M' là ảnh phản chiếu của M, cách gương đúng bằng M nhưng ở phía bên kia. Lật 1 tờ giấy qua 1 đường gấp cũng là đối xứng. Đặc điểm: đối xứng **lật hướng** (chữ "b" thành "d") — khác với quay (giữ hướng).
 
 ### 3.1. Đối xứng qua trục Ox / Oy
 
@@ -73,6 +135,39 @@ M(x, y) → M'(-x, -y). Tương đương quay 180° quanh O.
 M(x, y) → M'(y, x). Đổi chỗ tọa độ.
 
 💡 **Vì sao đặc biệt?** Đây là phép biến hình "đảo ngược" hàm số: nếu y = f(x) thì hàm ngược có đồ thị đối xứng qua y = x.
+
+**4 ví dụ số đa dạng** (điểm M(3, 5)):
+- Qua Ox: (3, −5) (đổi dấu y).
+- Qua Oy: (−3, 5) (đổi dấu x).
+- Qua O (tâm): (−3, −5) (đổi dấu cả hai).
+- Qua y = x: (5, 3) (đổi chỗ).
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Đối xứng tâm O khác đối xứng trục thế nào?"* Đối xứng tâm = quay 180° quanh O (đổi dấu cả x và y); đối xứng trục = lật qua 1 đường (đổi dấu 1 tọa độ với Ox/Oy).
+- *"Đối xứng 2 lần qua cùng 1 trục thì sao?"* Về lại điểm gốc (đối xứng là phép "tự nghịch đảo": làm 2 lần = identity).
+- *"Vì sao qua y=x lại đổi chỗ tọa độ?"* Vì đường y=x đối xứng vai trò của x và y; soi gương qua nó hoán đổi 2 trục.
+
+⚠ **Lỗi thường gặp**: lẫn đối xứng qua Ox với qua Oy. Qua **Ox** (trục ngang) giữ x, đổi dấu **y**; qua **Oy** (trục dọc) giữ y, đổi dấu **x**. Phản ví dụ: M(3,5) qua Ox = (3,−5), KHÔNG phải (−3,5).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. M(−2, 7). Tìm ảnh qua Oy và qua tâm O.
+2. M(4, 1) đối xứng qua y = x thành điểm nào?
+
+<details><summary>Đáp án</summary>
+
+1. Qua Oy: (2, 7) (đổi dấu x). Qua O: (2, −7) (đổi dấu cả hai).
+2. (1, 4) (đổi chỗ tọa độ).
+
+</details>
+
+### 📝 Tóm tắt mục 3
+
+- Đối xứng = "soi gương", **lật hướng** hình.
+- Qua Ox: (x,−y); qua Oy: (−x,y); qua O: (−x,−y); qua y=x: (y,x).
+- Đối xứng tâm O = quay 180°.
+- Đối xứng làm 2 lần qua cùng trục = về điểm gốc.
 
 ---
 
@@ -109,6 +204,31 @@ R(α) = [cos α  −sin α]
 
 ⚠ **Quay quanh điểm I khác O**: Phải tịnh tiến về O trước. M → M − I → quay → kết quả + I.
 
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Quay góc dương là chiều nào?"* Quy ước: góc dương = **ngược chiều kim đồng hồ**. Góc âm = cùng chiều kim đồng hồ.
+- *"Quay 90° rồi 90° nữa có bằng quay 180°?"* Có — ghép 2 phép quay = cộng góc (R(α)·R(β) = R(α+β)). Đây là sức mạnh của biểu diễn ma trận.
+- *"Quay có giữ kích thước không?"* Có — quay là phép dời hình, mọi điểm giữ nguyên khoảng cách tới tâm quay (|3+4i| = 5 trước và sau khi quay).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Quay điểm (0, 1) góc 90° quanh O thành điểm nào?
+2. Quay điểm (2, 0) góc 180° quanh O thành điểm nào?
+
+<details><summary>Đáp án</summary>
+
+1. x' = 0·cos90 − 1·sin90 = −1; y' = 0·sin90 + 1·cos90 = 0 → **(−1, 0)**.
+2. Quay 180° = đổi dấu cả hai → **(−2, 0)**.
+
+</details>
+
+### 📝 Tóm tắt mục 4
+
+- Quay quanh O góc α: x' = xcosα − ysinα, y' = xsinα + ycosα.
+- Ma trận quay R(α) = [[cosα, −sinα],[sinα, cosα]].
+- Góc dương = ngược chiều kim đồng hồ; ghép 2 phép quay = cộng góc.
+- Quay là dời hình (giữ khoảng cách); quay 180° = đối xứng tâm O.
+
 ---
 
 ## 5. Phép vị tự (Dilation / Homothety)
@@ -128,6 +248,39 @@ M(x, y) → M'(k·x, k·y)
 **Ma trận**: R = k·I = [[k,0],[0,k]].
 
 **Tính chất**: KHÔNG bảo toàn khoảng cách (A'B' = |k|·AB), nhưng **bảo toàn góc** và **tỉ lệ**. Mọi hình → hình đồng dạng.
+
+**4 ví dụ số đa dạng** (tâm O, điểm M(4, 2)):
+- k = 2: (8, 4) (phóng to gấp đôi).
+- k = 0.5: (2, 1) (thu nhỏ một nửa).
+- k = −1: (−4, −2) (= đối xứng tâm O).
+- k = 3: (12, 6); diện tích hình tăng k² = 9 lần.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Vị tự k âm nghĩa là gì?"* Vừa phóng/thu theo |k|, vừa lật qua tâm O. k=−1 đúng bằng đối xứng tâm.
+- *"Diện tích đổi theo k hay k²?"* Theo **k²** (vì 2 chiều). Vị tự k=3 → diện tích × 9. Bán kính đường tròn × 3 → diện tích × 9.
+- *"Vì sao vị tự là đồng dạng mà không phải dời hình?"* Vì giữ hình dạng + góc (đồng dạng) nhưng đổi kích thước (không dời hình), trừ khi k=±1.
+
+⚠ **Lỗi thường gặp**: cho rằng diện tích nhân k (thay vì k²) hoặc quên đổi cả bán kính khi vị tự đường tròn. Phản ví dụ: vị tự k=2 đường tròn R=3 → R'=6 (× k), nhưng diện tích × k² = 4. Lỗi: tâm I của đường tròn cũng phải vị tự (I → k·I khi tâm vị tự là O).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Vị tự tâm O, k=3 biến điểm (2, −1) thành điểm nào?
+2. Vị tự k=2 biến đường tròn bán kính 4 thành đường tròn bán kính bao nhiêu? Diện tích tăng mấy lần?
+
+<details><summary>Đáp án</summary>
+
+1. (3·2, 3·(−1)) = **(6, −3)**.
+2. Bán kính 8 (= 4·2); diện tích tăng 2² = **4 lần**.
+
+</details>
+
+### 📝 Tóm tắt mục 5
+
+- Vị tự tâm O tỉ số k: M(x,y) → M'(kx, ky); ma trận k·I.
+- Không giữ khoảng cách (A'B' = |k|·AB) nhưng giữ góc + tỉ lệ → ra hình đồng dạng.
+- Diện tích × **k²** (3D: thể tích × k³).
+- k=−1 = đối xứng tâm O; k>0 không lật, k<0 lật.
 
 ---
 
@@ -167,6 +320,39 @@ Chứng minh:
 - ⟹ MN // BC và MN = ½ BC. □
 
 ⟵ Chứng minh bằng vector **2 dòng**, không cần hình vẽ phức tạp. Đó là sức mạnh.
+
+**4 ví dụ số đa dạng** (A(1,2), B(4,6)):
+- **AB** = (4−1, 6−2) = (3, 4); |**AB**| = √(9+16) = 5.
+- **BA** = (−3, −4) (ngược hướng **AB**); |**BA**| = 5 (cùng độ dài).
+- 2·**AB** = (6, 8).
+- Trung điểm AB = ((1+4)/2, (2+6)/2) = (2.5, 4).
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Vector AB và đoạn AB khác nhau gì?"* Đoạn không có hướng (AB = BA về độ dài, là 1 đối tượng). Vector **AB** ≠ **BA** (ngược hướng), mang cả hướng lẫn độ dài.
+- *"Cộng vector hình dung thế nào?"* Quy tắc tam giác: đặt nối đuôi v vào ngọn u, tổng là mũi tên từ gốc u tới ngọn v. Hoặc hình bình hành.
+- *"Vì sao chứng minh bằng vector gọn?"* Vì vector "đóng gói" cả hướng và độ dài trong 1 phép toán cộng/nhân — thay cho nhiều bước hình học rời.
+
+⚠ **Lỗi thường gặp**: lẫn vector chỉ phương (// đường) với vector pháp tuyến (⊥ đường). Nếu d: Ax+By+C=0 thì n = (A, B) là **pháp tuyến**, còn chỉ phương là (−B, A) (hoặc (B,−A)). Phản ví dụ: đường 2x+3y−1=0 có pháp (2,3), chỉ phương (−3,2) — không phải (2,3).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Cho A(2,1), B(5,5). Tính **AB** và |**AB**|.
+2. u = (3, 1), v = (−1, 4). Tính u + v và 2u.
+
+<details><summary>Đáp án</summary>
+
+1. **AB** = (3, 4); |**AB**| = √(9+16) = **5**.
+2. u + v = (2, 5); 2u = (6, 2).
+
+</details>
+
+### 📝 Tóm tắt mục 6
+
+- Vector = mũi tên có hướng + độ dài; **AB** ≠ **BA**; **AB** = (x₂−x₁, y₂−y₁).
+- Cộng: (a,b)+(c,d) = (a+c, b+d); nhân số k·(a,b) = (ka, kb).
+- Đường d: Ax+By+C=0 → pháp tuyến (A,B), chỉ phương (−B,A).
+- Chứng minh hình học bằng vector ngắn gọn (vd định lý đường trung bình tam giác).
 
 ---
 

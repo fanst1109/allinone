@@ -37,7 +37,37 @@ trong đó:
 - θ = π/4.
 - → z = √2·(cos π/4 + i·sin π/4).
 
-❓ **Vì sao có dạng này?** Vì khi nhân/chia số phức, dạng lượng giác **đơn giản hơn nhiều** dạng đại số (xem mục 3).
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Vì sao có dạng này?"* Vì khi nhân/chia số phức, dạng lượng giác **đơn giản hơn nhiều** dạng đại số (xem mục 3) — nhân = cộng góc.
+- *"argument có duy nhất không?"* Không — \`θ\` và \`θ + 2kπ\` cùng chỉ một điểm. Thường chọn **argument chính** trong \`(−π, π]\` để tránh nhập nhằng.
+- *"Vì sao dùng \`atan2(b, a)\` mà không phải \`arctan(b/a)\`?"* Vì \`arctan(b/a)\` không phân biệt phần tư (mất dấu). \`atan2\` xét dấu cả a và b → cho đúng góc trong cả 4 phần tư.
+
+⚠ **Lỗi thường gặp — tính argument bằng \`arctan(b/a)\` rồi quên chỉnh phần tư**. Phản ví dụ: \`z = −1 − i\` (phần tư III). \`arctan(b/a) = arctan((−1)/(−1)) = arctan(1) = π/4\` (phần tư I) — **sai**. Đúng phải cộng π: \`θ = π/4 + π = 5π/4\` (hoặc \`−3π/4\`). Luôn kiểm điểm thực sự nằm ở phần tư nào.
+
+**4 ví dụ số đa dạng (đại số → lượng giác)**:
+- \`z = 1 + i\`: r = √2, θ = π/4 → \`√2(cos π/4 + i sin π/4)\`.
+- \`z = 2i\`: r = 2, θ = π/2 → \`2(cos π/2 + i sin π/2)\`.
+- \`z = −3\`: r = 3, θ = π → \`3(cos π + i sin π)\`.
+- \`z = 1 − √3 i\`: r = √(1+3) = 2, θ = −π/3 (phần tư IV) → \`2(cos(−π/3) + i sin(−π/3))\`.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Viết \`z = √3 + i\` dưới dạng lượng giác.
+2. Mô-đun và argument của \`z = −2i\`?
+
+<details><summary>Đáp án</summary>
+
+1. \`r = √(3+1) = 2\`, \`θ = arctan(1/√3) = π/6\` (phần tư I) → \`2(cos π/6 + i sin π/6)\`.
+2. \`r = 2\`, \`θ = −π/2\` (trỏ thẳng xuống dưới).
+
+</details>
+
+### 📝 Tóm tắt mục 1
+
+- Dạng lượng giác: \`z = r(cos θ + i sin θ)\` với r = |z|, θ = arg(z).
+- Đổi đại số → cực: \`r = √(a²+b²)\`, \`θ = atan2(b, a)\` (chú ý phần tư).
+- argument xác định sai khác \`2kπ\`; chọn argument chính trong \`(−π, π]\`.
 
 ---
 
@@ -83,6 +113,33 @@ e^(iπ) = cos π + i·sin π = -1 + 0i = -1
 
 ⟶ **e^(iπ) + 1 = 0** — kết nối 5 hằng số quan trọng nhất: 0, 1, π, e, i. Được mệnh danh "công thức đẹp nhất toán học".
 
+⚠ **Lỗi thường gặp — quên \`θ\` trong Euler là RADIAN**. \`e^(iθ) = cos θ + i sin θ\` chỉ đúng khi θ tính bằng radian. Phản ví dụ: \`e^(iπ) = −1\`, nhưng nếu hiểu nhầm π ≈ 3.14 là "độ" thì \`cos 3.14° + i sin 3.14° ≈ 0.9985 + 0.0548i ≠ −1\`. Luôn dùng radian.
+
+⚠ **Lỗi thường gặp 2 — viết \`e^(iθ)\` có mô-đun khác 1**. \`|e^(iθ)| = √(cos²θ + sin²θ) = 1\` **luôn** — nó nằm trên đường tròn đơn vị. Mọi số phức là \`r·e^(iθ)\`; phần \`r\` mới mang độ lớn, \`e^(iθ)\` chỉ mang hướng.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Vì sao mũ (tăng trưởng) lại biến thành cos/sin (dao động)?"* Vì nhân với \`i\` = quay 90°. Khi mũ "đẩy" theo hướng vuông góc liên tục, quỹ đạo không phình ra mà **cuộn tròn** → ra dao động. Chứng minh chặt là khai triển Taylor ở trên.
+- *"\`e^(iθ)\` có thể bằng số thực không?"* Có, khi sin θ = 0, tức θ = kπ: \`e^(i·0) = 1\`, \`e^(iπ) = −1\`, \`e^(i·2π) = 1\`...
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. \`e^(iπ/2)\` bằng số phức nào?
+2. \`|e^(i·1.234)|\` bằng mấy?
+
+<details><summary>Đáp án</summary>
+
+1. \`cos(π/2) + i sin(π/2) = 0 + i = i\`.
+2. Bằng **1** (mọi \`e^(iθ)\` đều có mô-đun 1).
+
+</details>
+
+### 📝 Tóm tắt mục 2
+
+- \`e^(iθ) = cos θ + i sin θ\` (θ radian); mọi z = \`r·e^(iθ)\`.
+- \`|e^(iθ)| = 1\` (nằm trên đường tròn đơn vị); chứng minh qua Taylor.
+- \`e^(iπ) + 1 = 0\` nối 5 hằng số 0, 1, π, e, i.
+
 ---
 
 ## 3. Nhân / chia số phức dạng lượng giác
@@ -105,6 +162,31 @@ z₁ / z₂ = (r₁/r₂) · e^(i(θ₁ - θ₂))
 - Kiểm tra đại số: z₁ = 2(½ + i·√3/2) = 1 + i√3. z₂ = 3(√3/2 + i/2) = (3√3)/2 + (3/2)i.
 - z₁·z₂ = (1 + i√3)·((3√3)/2 + (3/2)i) = (3√3/2 - 3√3/2) + i(3/2 + 9/2) = 0 + 6i ✓.
 
+⚠ **Lỗi thường gặp — nhân mô-đun nhưng quên cộng argument (hoặc ngược lại)**. Khi nhân: **mô-đun nhân, argument cộng**. Phản ví dụ: \`z₁ = 2e^(iπ/3)\`, \`z₂ = 3e^(iπ/6)\`. Tích đúng \`6e^(iπ/2)\`; nếu lỡ cộng cả mô-đun ra \`5e^(i...)\` hoặc nhân cả argument ra \`6e^(iπ²/18)\` đều sai.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Nếu argument cộng vượt quá 2π thì sao?"* Trừ bớt 2π để đưa về \`(−π, π]\`. Vd \`θ = 7π/4\` ≡ \`7π/4 − 2π = −π/4\`. Cùng điểm.
+- *"Dạng lượng giác có lợi hơn đại số nhiều không?"* Cho **cộng/trừ** thì dạng đại số tiện hơn (cộng từng phần). Cho **nhân/chia/lũy thừa/căn** thì dạng cực vượt trội. Chọn dạng theo phép toán.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. \`z₁ = 4e^(iπ/2)\`, \`z₂ = 2e^(iπ/4)\`. Tính \`z₁·z₂\` và \`z₁/z₂\` dạng cực.
+2. \`(3e^(iπ/3))·(e^(i·2π/3))\` bằng gì?
+
+<details><summary>Đáp án</summary>
+
+1. \`z₁·z₂ = 8e^(i·3π/4)\`; \`z₁/z₂ = 2e^(iπ/4)\`.
+2. Mô-đun \`3·1 = 3\`, argument \`π/3 + 2π/3 = π\` → \`3e^(iπ) = −3\`.
+
+</details>
+
+### 📝 Tóm tắt mục 3
+
+- Nhân: **mô-đun nhân, argument cộng** (\`r₁r₂·e^(i(θ₁+θ₂))\`).
+- Chia: **mô-đun chia, argument trừ**.
+- Dạng cực thắng tuyệt đối ở nhân/chia/lũy thừa; đại số tiện cho cộng/trừ.
+
 ---
 
 ## 4. Ý nghĩa hình học của nhân số phức
@@ -122,6 +204,31 @@ z₁ / z₂ = (r₁/r₂) · e^(i(θ₁ - θ₂))
 - Nhân với i: (3+4i)·i = 3i + 4i² = -4 + 3i → điểm (-4, 3).
 
 Khớp với công thức quay ở L08-T2: (x,y) → (-y, x). ✓
+
+⚠ **Lỗi thường gặp — nhân với \`r·e^(iθ)\` mà quên phần phóng to r**. Nhân với một số phức mô-đun ≠ 1 vừa **quay** vừa **co giãn**. Phản ví dụ: nhân z với \`2i = 2e^(iπ/2)\` không chỉ quay 90° mà còn **phóng to gấp 2**. Nếu chỉ muốn quay (giữ độ lớn), nhân với \`e^(iθ)\` (mô-đun 1).
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Nhân với số thực dương k thì sao?"* \`k = k·e^(i·0)\` → quay 0° (không quay), chỉ **phóng to k lần**. Khớp trực giác: nhân với 2 làm vector dài gấp đôi.
+- *"Quay theo chiều kim đồng hồ thì nhân với gì?"* Nhân với \`e^(−iθ)\` (argument âm). Vd quay −90° = nhân với \`−i\`.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Nhân \`z = 2 + i\` với \`i\`. Kết quả? Ý nghĩa hình học?
+2. Muốn quay một điểm 180° quanh O thì nhân với số nào?
+
+<details><summary>Đáp án</summary>
+
+1. \`(2+i)·i = 2i + i² = −1 + 2i\` → điểm (2,1) quay 90° thành (−1, 2).
+2. Nhân với \`−1\` (= \`e^(iπ)\`), tức đối xứng qua gốc O.
+
+</details>
+
+### 📝 Tóm tắt mục 4
+
+- Nhân với \`e^(iθ)\` = quay góc θ (giữ độ lớn); nhân với \`r·e^(iθ)\` = quay θ + phóng to r.
+- Nhân với i = quay 90°; với −1 = quay 180°; với số thực k>0 = chỉ phóng to.
+- Số phức ≡ phép biến hình đồng dạng (quay + co giãn) trên mặt phẳng.
 
 ---
 

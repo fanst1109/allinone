@@ -36,6 +36,29 @@ Sau bài này bạn sẽ:
 
 💡 **Vì sao mô hình này hữu dụng?** Hầu hết khí thực ở áp suất thấp và nhiệt độ phòng đều **rất gần** khí lý tưởng. Mô hình này tính toán được, đơn giản, và cho kết quả chính xác cao trong nhiều ứng dụng (động cơ ô tô, bóng bay, khí quyển). Chỉ ở áp suất cao, nhiệt độ thấp (gần điểm hóa lỏng) thì sai số mới đáng kể.
 
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Khí thật khác khí lý tưởng ở chỗ nào?"* Khí thật có (1) phân tử **có kích thước** (chiếm thể tích) và (2) **lực hút giữa phân tử** (van der Waals). Hai hiệu ứng này bị bỏ qua trong mô hình lý tưởng. Ở áp suất cao/T thấp chúng trở nên đáng kể.
+- *"Vì sao ở áp suất thấp khí thật gần lý tưởng?"* Vì phân tử cách xa nhau → kích thước phân tử và lực hút không đáng kể so với khoảng cách → các giả định đúng.
+- *"Va chạm đàn hồi nghĩa là gì?"* Va chạm không mất năng lượng động — sau va chạm tổng động năng giữ nguyên (chỉ đổi hướng/chia lại). Nếu không đàn hồi, khí sẽ "nguội dần" tự nó, vô lý.
+
+⚠ **Lỗi thường gặp**
+
+- **Áp dụng mô hình lý tưởng cho mọi điều kiện**. Phản ví dụ: CO₂ ở 50 atm và 0°C lệch khá xa lý tưởng (gần hóa lỏng) — tính PV = nRT sẽ sai vài %. Hơi nước gần điểm sôi cũng lệch.
+- **Tưởng "khí lý tưởng" là một loại khí cụ thể**. Không — nó là mô hình toán học mọi khí tuân theo gần đúng, không phải một chất.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Trong 4 giả định, giả định nào bị phá vỡ khi nén khí tới áp suất cực cao?
+2. Helium ở nhiệt độ phòng, 1 atm — có gần khí lý tưởng không?
+
+<details><summary>Đáp án</summary>
+
+1. Giả định "phân tử là điểm chất, kích thước không đáng kể" — khi nén mạnh, khoảng cách giảm tới cỡ kích thước phân tử nên không còn bỏ qua được.
+2. Có, rất gần — He là khí đơn nguyên, lực hút giữa phân tử cực yếu, ở điều kiện thường nó là một trong những khí gần lý tưởng nhất.
+
+</details>
+
 ### 📝 Tóm tắt mục 1
 
 - Khí lý tưởng: phân tử = điểm, không tương tác, va chạm đàn hồi.
@@ -88,6 +111,29 @@ Gộp lại → P·V/T = const = n·R cho mọi khí lý tưởng. Đó là PV =
 
 **Ví dụ 4 — Khí quyển**: ở mặt biển, P ≈ 1 atm. Lên Everest (8848 m), P ≈ 0.33 atm. Nếu T không đổi (đơn giản hóa), thì mật độ phân tử ở Everest = 1/3 mặt biển → khó thở.
 
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"R từ đâu ra? Sao lại 8.314?"* R = N_A·k_B (số Avogadro nhân hằng số Boltzmann). Nó là hệ số chuyển từ "đếm mol" sang năng lượng. Giá trị 8.314 J/(mol·K) là kết quả đo, gắn liền định nghĩa mol và K.
+- *"Phải dùng đơn vị nào trong PV = nRT?"* Để dùng R = 8.314: **P bằng Pa, V bằng m³, T bằng Kelvin**. Lẫn atm hay L hay °C → sai. Đổi: 1 atm = 101,325 Pa, 1 L = 10⁻³ m³.
+- *"Vì sao 1 mol khí bất kỳ ở STP đều chiếm 22.4 L?"* Vì PV = nRT chỉ phụ thuộc số mol n, không phụ thuộc loại khí (giả định lý tưởng). Cùng n, P, T → cùng V, dù là He hay CO₂ (định luật Avogadro).
+
+⚠ **Lỗi thường gặp**
+
+- **Dùng T bằng °C thay vì K**. Phản ví dụ: khí ở 0°C nén đẳng nhiệt — nếu cắm T = 0 vào PV = nRT thì PV = 0 (vô lý). Phải dùng T = 273.15 K.
+- **Quên đổi L sang m³ hoặc atm sang Pa** khi dùng R = 8.314. Phản ví dụ: V = 5 L → phải là 0.005 m³, không phải 5.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. 1 mol khí lý tưởng ở 0°C, 1 atm chiếm thể tích bao nhiêu lít?
+2. 3 mol khí ở 300 K trong bình 10 L (= 0.01 m³). Tính P (Pa).
+
+<details><summary>Đáp án</summary>
+
+1. V = nRT/P = 1·8.314·273.15/101325 ≈ 0.0224 m³ = **22.4 L** (thể tích mol ở STP).
+2. P = nRT/V = 3·8.314·300/0.01 = 7,482,600/0.01... cẩn thận: 3·8.314·300 = 7482.6, chia 0.01 = **748,260 Pa ≈ 7.4 atm**.
+
+</details>
+
 ### 📝 Tóm tắt mục 2
 
 - PV = nRT (Pa, m³, mol, K).
@@ -124,6 +170,29 @@ V không đổi → P/T = const → **P₁/T₁ = P₂/T₂**.
 
 **Ví dụ**: Bình khí ở 25°C (298 K), P = 1 atm. Đốt lên 400°C (673 K) ở V const. P mới?
 - P_new = 1 × (673/298) = **2.26 atm**.
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"3 định luật này có phải 3 luật riêng không?"* Không — cả 3 là **trường hợp đặc biệt** của PV = nRT khi giữ một biến không đổi. Boyle (T const), Charles (P const), Gay-Lussac (V const). Không cần nhớ riêng, suy từ PV = nRT là ra.
+- *"Trong các tỉ lệ này dùng T bằng °C được không?"* KHÔNG. Vd Charles V₁/T₁ = V₂/T₂ phải dùng Kelvin. Phản ví dụ: 1 L ở 0°C nóng lên... nếu dùng °C thì chia cho 0, vô nghĩa.
+- *"Vì sao nóng thì P tăng (đẳng tích)?"* Vì T cao → phân tử nhanh hơn → đập vào thành bình mạnh và nhiều hơn → áp suất tăng.
+
+⚠ **Lỗi thường gặp**
+
+- **Dùng °C trong các tỉ lệ V/T, P/T**. Phản ví dụ: bóng 2 L ở 27°C đem xuống... nếu lấy T = 27 và T' = −3 thì tỉ lệ âm, vô lý. Đúng: dùng 300 K và 270 K → V' = 2·(270/300) = 1.8 L.
+- **Lẫn tỉ lệ thuận/nghịch**: Boyle là **nghịch** (V giảm → P tăng), Charles/Gay-Lussac là **thuận** (T tăng → V hoặc P tăng).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Nén khí từ 4 L xuống 1 L ở T không đổi, P ban đầu 1 atm. P mới?
+2. Bình kín ở 300 K, P = 2 atm, đốt lên 600 K. P mới?
+
+<details><summary>Đáp án</summary>
+
+1. Boyle: P₁V₁ = P₂V₂ → P₂ = 1·4/1 = **4 atm** (V giảm 4 lần → P tăng 4 lần).
+2. Gay-Lussac: P/T const → P₂ = 2·(600/300) = **4 atm** (T gấp đôi → P gấp đôi).
+
+</details>
 
 ### 📝 Tóm tắt mục 3
 
@@ -166,6 +235,29 @@ U = (3/2) · n · R · T
 \`\`\`
 
 (Hệ số (3/2) cho khí 1 nguyên tử như He, Ar. Khí 2 nguyên tử như O₂, N₂ có hệ số (5/2) vì còn dao động.)
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Vì sao KE chỉ phụ thuộc T, không phụ thuộc loại khí?"* Vì KE_trung_bình = (3/2)k_B·T chỉ chứa T. Ở cùng T, He và O₂ có cùng năng lượng động trung bình. Nhưng vì khối lượng khác → vận tốc khác (khí nhẹ chạy nhanh hơn).
+- *"v_rms ~500 m/s thì sao khói lan chậm vậy?"* Vì phân tử va chạm liên tục (hàng tỉ lần/giây), đường đi zigzag rất ngắn giữa các va chạm. Tốc độ tức thời lớn nhưng "khuếch tán ròng" chậm.
+- *"Vì sao khí 2 nguyên tử có hệ số 5/2?"* Vì ngoài 3 bậc tự do tịnh tiến, phân tử 2 nguyên tử còn quay (thêm 2 bậc) → tổng 5 bậc, mỗi bậc góp (1/2)k_B·T.
+
+⚠ **Lỗi thường gặp**
+
+- **Dùng T bằng °C trong KE = (3/2)k_B·T**. Phải dùng Kelvin (T tuyệt đối). Ở 0°C, KE ≠ 0; chỉ ở 0 K mới ≈ 0.
+- **Quên căn bậc 2 khi tính v_rms**: v_rms = √(3k_B·T/m), không phải 3k_B·T/m.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Ở cùng 300 K, He (nhẹ) và Ar (nặng) — phân tử nào có vận tốc trung bình lớn hơn?
+2. Tính KE trung bình của 1 phân tử khí ở 300 K (k_B = 1.38×10⁻²³ J/K).
+
+<details><summary>Đáp án</summary>
+
+1. He — vì cùng KE = (3/2)k_B·T nhưng m nhỏ hơn → v_rms = √(3k_B·T/m) lớn hơn.
+2. KE = (3/2)·1.38×10⁻²³·300 = **6.21 × 10⁻²¹ J** (mỗi phân tử, ở 300 K).
+
+</details>
 
 ### 📝 Tóm tắt mục 4
 

@@ -41,6 +41,29 @@ c = 1 / √(μ₀·ε₀) ≈ 3 × 10⁸ m/s
 
 💡 **Ý nghĩa**: trước Maxwell, điện và từ là 2 hiện tượng riêng. Ánh sáng là... ánh sáng. Sau Maxwell: cả 3 là **cùng 1 thứ** — điện trường và từ trường dao động lan truyền.
 
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Vì sao 4 phương trình lại 'thống nhất' điện và từ?"* Vì phương trình 3 (Faraday) và 4 (Ampère-Maxwell) **kết nối chéo**: E biến đổi sinh B, B biến đổi sinh E. Hai trường không độc lập mà nuôi nhau → tạo sóng tự lan truyền.
+- *"Maxwell 'thêm vào' gì?"* Số hạng μ₀ε₀∂E/∂t trong phương trình 4 — "điện trường biến đổi sinh từ trường". Chính số hạng này làm sóng EM tồn tại và cho ra c = 1/√(μ₀ε₀).
+- *"Vì sao ánh sáng = sóng EM?"* Vì c tính từ μ₀, ε₀ (hai hằng số đo từ thí nghiệm điện-từ) khớp đúng tốc độ ánh sáng đo độc lập. Trùng khớp này quá chính xác để là ngẫu nhiên.
+
+⚠ **Lỗi thường gặp**
+
+- **Tưởng ∇·B = 0 nghĩa là không có từ trường**. Sai — nó nghĩa là **không có monopole** (từ tích đơn lẻ); đường sức từ luôn khép kín, không có điểm "bắt đầu/kết thúc". Từ trường vẫn tồn tại.
+- **Nhầm c phụ thuộc nguồn sáng**: c = 1/√(μ₀ε₀) là hằng số của chân không, không phụ thuộc nguồn hay người quan sát (nền tảng thuyết tương đối).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Phương trình Maxwell nào nói "không có từ tích đơn lẻ"?
+2. Tốc độ sóng EM trong chân không được tính từ những hằng số nào?
+
+<details><summary>Đáp án</summary>
+
+1. Phương trình 2: ∇·B = 0 (định luật Gauss cho từ) — đường sức từ khép kín, không có monopole.
+2. c = 1/√(μ₀ε₀) — từ hằng số từ μ₀ và hằng số điện ε₀, cho ra ≈ 3×10⁸ m/s.
+
+</details>
+
 ### 📝 Tóm tắt mục 1
 
 - 4 phương trình Maxwell thống nhất điện + từ.
@@ -49,6 +72,8 @@ c = 1 / √(μ₀·ε₀) ≈ 3 × 10⁸ m/s
 ---
 
 ## 2. Sóng điện từ
+
+💡 **Trực giác**: sóng EM giống một "chuỗi domino tự dựng": điện trường biến đổi làm đổ domino từ trường kế bên, từ trường biến đổi lại dựng domino điện trường tiếp theo... cứ thế lan đi mãi trong không gian, không cần môi trường vật chất. Đó là lý do ánh sáng đi được qua chân không vũ trụ.
 
 ### 2.1. Cấu trúc
 
@@ -72,6 +97,29 @@ Sóng EM mang năng lượng (qua công thức Poynting) **và** động lượn
 - Ánh sáng Mặt Trời sưởi ấm Trái Đất (năng lượng).
 - Áp suất bức xạ — cánh buồm mặt trời hoạt động (động lượng).
 
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Sóng EM cần môi trường như sóng âm không?"* Không. Sóng âm cần không khí/nước (sóng cơ). Sóng EM tự lan truyền (E và B nuôi nhau) → đi qua chân không → ánh sáng Mặt Trời tới ta qua 150 triệu km chân không.
+- *"v = λf hay c = λf?"* Trong chân không mọi sóng EM cùng v = c = 3×10⁸ m/s, nên c = λf. Tần số f lớn → bước sóng λ nhỏ (nghịch nhau), tích luôn = c.
+- *"Sóng EM có khối lượng không? Sao lại mang động lượng?"* Photon không khối lượng nghỉ, nhưng vẫn mang động lượng (p = E/c). Đó là cơ sở của áp suất bức xạ và cánh buồm mặt trời.
+
+⚠ **Lỗi thường gặp**
+
+- **Tưởng sóng tần số cao đi nhanh hơn**. Sai — trong chân không **mọi** sóng EM (radio, ánh sáng, gamma) đi cùng c. Tần số khác nhau chỉ làm λ khác nhau, không làm v khác.
+- **Lẫn c = λf**: nếu f tăng gấp đôi thì λ giảm một nửa (vì tích cố định = c). Phản ví dụ: f = 10¹⁵ Hz → λ = 3e8/1e15 = 3×10⁻⁷ m = 300 nm.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Sóng radio và tia X — cái nào đi nhanh hơn trong chân không?
+2. Sóng EM có f = 6×10¹⁴ Hz. Tính bước sóng λ.
+
+<details><summary>Đáp án</summary>
+
+1. **Bằng nhau** — cả hai cùng v = c = 3×10⁸ m/s trong chân không. Chỉ khác λ và f.
+2. λ = c/f = 3×10⁸ / 6×10¹⁴ = **5 × 10⁻⁷ m = 500 nm** (ánh sáng nhìn thấy, màu xanh lục).
+
+</details>
+
 ### 📝 Tóm tắt mục 2
 
 - Sóng EM: E và B vuông góc nhau và vuông góc chiều truyền.
@@ -81,6 +129,8 @@ Sóng EM mang năng lượng (qua công thức Poynting) **và** động lượn
 ---
 
 ## 3. Phổ điện từ
+
+💡 **Trực giác**: phổ EM giống như một cây "đàn piano khổng lồ" — cùng một loại sóng (E-B dao động) nhưng tần số trải từ rất thấp (radio, "nốt trầm") tới rất cao (gamma, "nốt cao"). Mắt người chỉ "nghe" được một quãng tám hẹp ở giữa (ánh sáng nhìn thấy). Tất cả "nốt" đều là cùng một nhạc cụ — chỉ khác tần số.
 
 Phổ EM trải dài qua **20 bậc 10** về tần số!
 
@@ -113,6 +163,29 @@ Mắt người chỉ "thấy" được dải hẹp: ~ 400-790 THz = 380-780 nm. 
 ### 3.2. Vì sao mắt người chỉ thấy được dải này?
 
 Vì Mặt Trời phát ra ánh sáng tập trung mạnh nhất ở dải nhìn thấy (do nhiệt độ ~ 5800 K). Tiến hóa "tối ưu" mắt cho dải có ánh sáng nhiều nhất. Côn trùng (ong) thấy được UV, rắn thấy được hồng ngoại — đều hữu ích cho môi trường sống của chúng.
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Vì sao tia gamma nguy hiểm còn radio thì không, dù cùng là sóng EM?"* Vì năng lượng mỗi photon E = h·f. Tần số càng cao → photon càng "mạnh". Gamma (f ~10²⁰ Hz) đủ năng lượng phá liên kết DNA; radio (f ~10⁶ Hz) photon quá yếu, vô hại.
+- *"Bước sóng và tần số liên hệ ra sao trong phổ?"* Nghịch nhau: λ = c/f. Radio λ lớn (mét), gamma λ cực nhỏ (< 0.01 nm). Đi từ trái sang phải phổ: f tăng, λ giảm, năng lượng photon tăng.
+- *"Lò vi sóng dùng sóng gì và vì sao làm nóng nước?"* Vi sóng (~2.45 GHz). Tần số này "lắc" phân tử nước (có moment lưỡng cực) → ma sát → nhiệt. Đồ không chứa nước (sứ, thủy tinh) ít hấp thụ → vẫn nguội.
+
+⚠ **Lỗi thường gặp**
+
+- **Tưởng năng lượng sóng EM phụ thuộc biên độ, giống sóng cơ**. Năng lượng **mỗi photon** chỉ phụ thuộc f (E = h·f), không phụ thuộc cường độ. Cường độ lớn = nhiều photon, không phải photon mạnh hơn. Phản ví dụ: đèn radio cực sáng vẫn không phá được DNA vì mỗi photon quá yếu.
+- **Lẫn thứ tự phổ**: từ năng lượng thấp đến cao là radio → vi sóng → hồng ngoại → ánh sáng → UV → tia X → gamma. Đừng đảo.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Tia tử ngoại (UV) hay hồng ngoại (IR) — cái nào có photon năng lượng cao hơn?
+2. Photon ánh sáng tím f = 7.5×10¹⁴ Hz có năng lượng bao nhiêu (h = 6.63×10⁻³⁴ J·s)?
+
+<details><summary>Đáp án</summary>
+
+1. **UV** — tần số cao hơn IR → photon mạnh hơn (đó là lý do UV gây cháy nắng, IR chỉ làm ấm).
+2. E = h·f = 6.63×10⁻³⁴ · 7.5×10¹⁴ = **4.97 × 10⁻¹⁹ J** (≈ 3.1 eV).
+
+</details>
 
 ### 📝 Tóm tắt mục 3
 

@@ -49,6 +49,29 @@ Hướng: rời khỏi Q nếu Q > 0, vào Q nếu Q < 0.
 
 Đặt 1 điện tích thử +1 μC ở đó → lực F = q·E = 1e-6 × 4.5e6 = **4.5 N**.
 
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Điện trường E khác lực F thế nào?"* E là "lực **trên mỗi đơn vị điện tích**" (N/C), tồn tại trong không gian dù chưa có điện tích thử nào. F = q·E là lực thực tế khi đặt điện tích q vào. E là "tiềm năng gây lực", F là "lực thật".
+- *"Điện trường có thật không hay chỉ là công cụ tính?"* Có thật — nó mang năng lượng và động lượng (xem sóng EM, Lesson 08). Không chỉ là mẹo toán.
+- *"E giảm theo 1/r² hay 1/r?"* E từ điện tích điểm giảm theo **1/r²** (giống lực Coulomb). Điện thế V giảm theo 1/r — đừng nhầm hai cái.
+
+⚠ **Lỗi thường gặp**
+
+- **Nhầm điện trường E (V/m) với điện thế V (Volt)**. E là vector "lực/điện tích", V là vô hướng "thế năng/điện tích". Quan hệ: E = −dV/dr. Phản ví dụ: tại tâm giữa 2 điện tích trái dấu, V có thể = 0 nhưng E ≠ 0 (lực vẫn tồn tại).
+- **Quên E là vector có hướng**: E hướng ra xa điện tích dương, hướng vào điện tích âm.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Tính E ở 20 cm từ điện tích +1 μC.
+2. Điện tích −2 μC đặt trong điện trường E = 500 V/m hướng phải. Lực hướng nào, độ lớn bao nhiêu?
+
+<details><summary>Đáp án</summary>
+
+1. E = kQ/r² = 9e9·1e-6/(0.2)² = 9e3/0.04 = **2.25 × 10⁵ V/m**.
+2. F = |q|·E = 2e-6·500 = **10⁻³ N**, hướng **trái** (ngược E vì q âm).
+
+</details>
+
 ### 📝 Tóm tắt mục 1
 
 - E = F/q, đơn vị V/m. Điện trường từ Q điểm: E = kQ/r².
@@ -98,6 +121,29 @@ V = k · Q / r
 
 (Lưu ý: V ∝ 1/r, không phải 1/r² như E.)
 
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Điện thế V và hiệu điện thế U khác nhau ra sao?"* V là thế năng/điện tích tại **một điểm** (so với vô cùng). U = V_A − V_B là **chênh lệch** giữa 2 điểm. Trong mạch điện, cái ta đo (vd "pin 1.5 V") thường là U — hiệu điện thế giữa 2 cực.
+- *"Vì sao V là vô hướng còn E là vector?"* Vì V là năng lượng (vô hướng), E là lực/điện tích (vector). Cộng V nhiều điện tích chỉ cần cộng số; cộng E phải cộng vector — V dễ tính hơn nhiều.
+- *"Điện tích đi theo hướng nào trong điện trường?"* Điện tích **dương** trôi từ V cao xuống V thấp (như nước chảy xuống dốc); điện tích **âm** đi ngược lại (lên V cao).
+
+⚠ **Lỗi thường gặp**
+
+- **Lẫn V (điểm) với U (chênh lệch)**. "Điện thế giữa 2 điểm" thực ra là hiệu điện thế U. Phản ví dụ: nói "điểm này có hiệu điện thế 5 V" sai — điểm có điện thế V; hiệu điện thế cần 2 điểm.
+- **Dùng sai công thức 1/r vs 1/r²**: V = kQ/r (mũ 1), E = kQ/r² (mũ 2).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Pin 9 V chuyển 2 C điện tích qua mạch. Công lực điện bằng bao nhiêu?
+2. Điện thế ở 30 cm từ +3 μC bằng bao nhiêu?
+
+<details><summary>Đáp án</summary>
+
+1. W = q·U = 2·9 = **18 J**.
+2. V = kQ/r = 9e9·3e-6/0.3 = 27e3/0.3 = **9 × 10⁴ V = 90 kV**.
+
+</details>
+
 ### 📝 Tóm tắt mục 2
 
 - V = J/C = Volt. Đo "vị trí" trong trường điện.
@@ -142,6 +188,29 @@ W = (1/2) · C · U² = (1/2) · Q² / C
 - W = (1/2)·1e-4·100 = **5 × 10⁻³ J = 5 mJ**.
 
 (So sánh: pin AA 1.5 V chứa ~ 10,000 J — gấp 2 triệu lần tụ này. Tụ dùng để xả nhanh, không lưu trữ lâu dài.)
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Điện dung C nghĩa là gì cụ thể?"* C = Q/U đo "với mỗi Volt áp vào, tụ tích được bao nhiêu Coulomb". C lớn → cùng U chứa nhiều điện tích hơn. Đơn vị Farad (F) rất lớn — thực tế thường dùng μF (10⁻⁶ F).
+- *"Tụ và pin khác nhau ra sao?"* Pin lưu năng lượng **hóa học** (ổn định lâu, xả chậm). Tụ lưu năng lượng **điện trường** (nạp/xả cực nhanh nhưng ít năng lượng, tự xả dần). Tụ dùng cho flash, lọc nhiễu; pin dùng cấp điện lâu dài.
+- *"Vì sao năng lượng tụ là (1/2)CU² chứ không phải CU²?"* Vì khi nạp, U tăng dần từ 0 tới U cuối; năng lượng trung bình tương ứng hệ số 1/2 (tích phân). Giống thế năng lò xo (1/2)kx².
+
+⚠ **Lỗi thường gặp**
+
+- **Quên hệ số 1/2 trong W = (1/2)CU²**. Phản ví dụ: tụ 100 μF ở 10 V → W = 0.5·1e-4·100 = **5×10⁻³ J = 5 mJ**, không phải 10 mJ.
+- **Quên đổi μF sang F**: 100 μF = 100×10⁻⁶ F = 10⁻⁴ F.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Tụ 200 μF nạp đến 5 V. Tính điện tích Q lưu trữ.
+2. Cùng tụ đó, tính năng lượng tích trữ.
+
+<details><summary>Đáp án</summary>
+
+1. Q = C·U = 200e-6·5 = **10⁻³ C = 1 mC**.
+2. W = (1/2)CU² = 0.5·200e-6·25 = **2.5 × 10⁻³ J = 2.5 mJ**.
+
+</details>
 
 ### 📝 Tóm tắt mục 3
 

@@ -50,6 +50,29 @@ KE_trung_bình ∝ k_B · T   (k_B = hằng số Boltzmann)
 
 → Đó là tại sao **rơi vào hồ nước 30°C nguy hiểm hơn rơi vào que diêm cùng vài giây** (hồ truyền được nhiều Q hơn).
 
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Hai vật cùng T thì có cùng nhiệt lượng Q không?"* Không. T là "mức nóng", Q là "tổng năng lượng nhiệt" và phụ thuộc khối lượng. 1 g nước và 1 tấn nước cùng 80°C có cùng T, nhưng tấn nước chứa nhiều năng lượng nhiệt gấp 10⁶ lần.
+- *"Nóng hơn nghĩa là có nhiều nhiệt lượng hơn?"* Không nhất thiết. Que diêm 800°C nóng hơn hồ nước 30°C, nhưng hồ chứa năng lượng nhiệt khổng lồ hơn (vì m lớn). T cao ≠ Q lớn.
+- *"Vì sao nhiệt tự truyền từ nóng sang lạnh, không ngược lại?"* Vì các phân tử nóng (chuyển động nhanh) va chạm phân tử lạnh (chậm) và san sẻ năng lượng động — về trung bình, "nhanh" mất bớt cho "chậm". Đây là biểu hiện của định luật II (Lesson 03).
+
+⚠ **Lỗi thường gặp**
+
+- **Nhầm "nhiệt độ" với "nhiệt lượng"**. Câu "cốc nước này nhiều nhiệt độ" là sai — nhiệt độ là một mức (như độ cao), không phải lượng tích trữ. Đúng: "cốc nước này có nhiệt độ cao" hoặc "chứa nhiều nhiệt lượng".
+- **Tưởng vật nóng hơn luôn truyền cho ta nhiều năng lượng hơn**. Phản ví dụ: chạm tia lửa 800°C (m rất nhỏ) chỉ giật mình, nhưng nhúng tay vào nước 60°C (m lớn) bỏng nặng — vì nước truyền được Q nhiều hơn dù T thấp hơn.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Đun 1 g nước lên 90°C và 1 kg nước lên 50°C. Cái nào có T cao hơn? Cái nào chứa nhiều năng lượng nhiệt hơn?
+2. Nếu trộn 2 cốc nước cùng 40°C, nhiệt độ hỗn hợp có thành 80°C không?
+
+<details><summary>Đáp án</summary>
+
+1. T cao hơn: cốc 1 g (90°C). Năng lượng nhiệt nhiều hơn: cốc 1 kg — vì Q ∝ m·T, mà m gấp 1000 lần bù thừa cho T chỉ thấp hơn ~1.8 lần.
+2. Không. Nhiệt độ là cường độ, không cộng dồn. Trộn 2 cốc cùng 40°C → vẫn 40°C (chỉ tổng Q tăng gấp đôi).
+
+</details>
+
 ### 📝 Tóm tắt mục 1
 
 - T: mức độ nóng, ∝ KE trung bình phân tử.
@@ -85,6 +108,32 @@ K = °C + 273.15
 | Sôi nước | 100 | 212 | 373.15 |
 | Mặt Trời | 5500 | 9932 | 5773 |
 
+💡 **Trực giác**: 3 thang giống như 3 cây thước đo cùng một thanh gỗ nhưng vạch số 0 đặt ở chỗ khác và độ chia khác nhau. Celsius đặt 0 ở băng tan, Kelvin đặt 0 ở "không tuyệt đối" (không thể lạnh hơn). Cùng một vật, 3 thang cho 3 con số khác nhau nhưng mô tả cùng "mức nóng".
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Vì sao cần Kelvin khi đã có Celsius?"* Vì nhiều công thức vật lý (PV = nRT, η_Carnot = 1 − T_c/T_h) đòi T phải là **đại lượng tuyệt đối tỉ lệ với năng lượng** — bắt đầu từ 0 thật. Dùng °C trong các công thức này cho kết quả sai (có thể chia cho số âm).
+- *"ΔT = 10°C có bằng ΔT = 10 K không?"* Có, **chênh lệch** bằng nhau vì 2 thang cùng độ chia (chỉ khác gốc). Nhưng **giá trị tuyệt đối** thì khác: 10°C = 283.15 K.
+- *"Có nhiệt độ âm tuyệt đối (dưới 0 K) không?"* Không trong nghĩa thông thường — 0 K là giới hạn dưới khi chuyển động phân tử dừng. (Có khái niệm "nhiệt độ âm" trong hệ spin đặc biệt nhưng đó là chủ đề nâng cao, không phải "lạnh hơn 0 K".)
+
+⚠ **Lỗi thường gặp**
+
+- **Lẫn "chênh lệch" và "giá trị tuyệt đối" giữa °C và K**. Trong Q = m·c·ΔT, dùng ΔT = 75°C hay 75 K đều cho cùng kết quả (chênh lệch giống nhau). NHƯNG trong PV = nRT phải dùng T tuyệt đối: T = 25°C = **298.15 K**, không phải 25.
+  - Phản ví dụ: η_Carnot với T_h = 100°C, T_c = 0°C. Sai (dùng °C): 1 − 0/100 = 100% (!?). Đúng (dùng K): 1 − 273/373 = 26.8%.
+- **Quên +273.15 khi đổi sang Kelvin**: 0°C là 273.15 K, không phải 0 K.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Đổi 37°C (thân nhiệt) sang K và °F.
+2. Một quá trình làm vật tăng từ 20°C lên 50°C. ΔT bằng bao nhiêu K?
+
+<details><summary>Đáp án</summary>
+
+1. K = 37 + 273.15 = **310.15 K**. °F = (9/5)·37 + 32 = 66.6 + 32 = **98.6°F**.
+2. ΔT = 50 − 20 = 30°C = **30 K** (chênh lệch bằng nhau ở 2 thang).
+
+</details>
+
 ### 📝 Tóm tắt mục 2
 
 - K = °C + 273.15. Dùng K trong tính toán vật lý.
@@ -116,6 +165,37 @@ trong đó:
 **Ví dụ — Bơm xe đạp**: Khi bạn bơm nhanh, ống bơm nóng lên. Tại sao? Vì bạn **làm công vào không khí trong ống** (nén nó). W > 0 → ΔU > 0 → T tăng.
 
 **Ví dụ — Nồi cơm điện**: Cấp Q (điện làm dây mayso nóng). W = 0. ΔU = Q → nước trong nồi tăng U → tăng T → cơm chín.
+
+### 3.3. Nội năng U — định nghĩa đủ 3 phần
+
+**(a) Là gì**: **Nội năng U** = tổng năng lượng "bên trong" của hệ — năng lượng động của mọi phân tử (chuyển động, dao động, quay) cộng năng lượng tương tác giữa chúng. Đơn vị: **Joule (J)**.
+
+**(b) Vì sao cần**: T chỉ đo "mức nóng trung bình mỗi phân tử", còn U đo **tổng** năng lượng phân tử của cả hệ — phụ thuộc cả m lẫn T. Định luật I phát biểu gọn nhờ U: mọi cách "nạp năng lượng vào" (nhiệt Q hoặc công W) đều quy về thay đổi U. Không có U thì không phát biểu được bảo toàn năng lượng cho hệ nhiệt.
+
+**(c) Ví dụ số kèm đơn vị**: 2 mol khí He (đơn nguyên) ở 300 K có U = (3/2)·n·R·T = (3/2)·2·8.314·300 = **7482.6 J** (dùng R = 8.314 J/(mol·K), xem Lesson 02). Nếu cấp thêm Q = 1000 J mà không làm công (W = 0): ΔU = Q = 1000 J → U mới = 8482.6 J → T tăng lên T' = U'·2/(3·n·R) = 8482.6·2/(3·2·8.314) = **340.1 K**.
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"U và Q khác nhau thế nào? Cả hai đều là năng lượng mà?"* U là **trạng thái** (hệ đang chứa bao nhiêu năng lượng — như số dư tài khoản). Q là **dòng truyền** (đã nhận/mất bao nhiêu — như một giao dịch). Nói "hệ có bao nhiêu Q" là sai; chỉ nói "hệ có bao nhiêu U" và "đã truyền bao nhiêu Q".
+- *"Dấu của W theo quy ước nào?"* Bài này dùng quy ước **W = công môi trường làm VÀO hệ** (nén khí → W > 0). Có sách dùng ΔU = Q − W với W = công hệ làm RA. Hai quy ước chỉ khác dấu W — luôn kiểm tra sách đang dùng quy ước nào.
+- *"Hệ cô lập (không Q, không W) thì U thế nào?"* Q = 0, W = 0 → ΔU = 0 → U bảo toàn. Năng lượng bên trong không tự sinh tự mất.
+
+⚠ **Lỗi thường gặp**
+
+- **Sai dấu công W**. Với quy ước ΔU = Q + W của bài này: khí **bị nén** (môi trường làm công vào) → W > 0; khí **giãn nở** (hệ đẩy piston ra) → W < 0. Phản ví dụ: khí giãn nở làm 200 J công ra ngoài và nhận Q = 500 J → ΔU = 500 + (−200) = **300 J** (không phải 700 J).
+- **Lẫn U với Q**: viết "nội năng truyền vào" trong khi cái truyền là nhiệt lượng Q.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Hệ nhận Q = 800 J và đồng thời bị nén bởi công W = 300 J. ΔU bằng bao nhiêu?
+2. Bơm xe đạp nén nhanh (gần như không kịp thoát nhiệt, Q ≈ 0), bạn làm công 50 J vào khí. Nội năng và nhiệt độ khí thay đổi thế nào?
+
+<details><summary>Đáp án</summary>
+
+1. ΔU = Q + W = 800 + 300 = **1100 J** (cả hai đều nạp năng lượng vào hệ).
+2. Q ≈ 0, W = +50 J → ΔU = +50 J → nội năng tăng → T tăng (ống bơm nóng lên). Đây là nén đoạn nhiệt.
+
+</details>
 
 ### 📝 Tóm tắt mục 3
 
@@ -181,6 +261,29 @@ trong đó:
 - 50840 = 2137.9·T → T = **23.78°C**.
 - → Nhiệt độ chỉ tăng từ 20°C lên 23.78°C — nước hấp thụ rất tốt mà không nóng lên nhiều (vì c cao + m gấp 5).
 
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Dùng ΔT bằng °C hay K trong Q = mcΔT?"* Cả hai cho cùng kết quả vì ΔT là **chênh lệch** (1°C = 1 K về độ chia). c có đơn vị J/(kg·K) nhưng ΔT = 10°C = 10 K nên Q giống nhau.
+- *"Vì sao nước có c cao bất thường?"* Vì liên kết hydro giữa các phân tử H₂O hấp thụ nhiều năng lượng. Nạp nhiệt vào nước phần lớn đi "phá/kéo căng" liên kết hydro chứ không chỉ tăng tốc phân tử → cần nhiều Q cho mỗi 1 K.
+- *"Khi cân bằng nhiệt, năng lượng có mất đi không?"* Không (hệ cô lập). Q vật nóng mất = Q vật lạnh nhận. Đó là phương trình cân bằng.
+
+⚠ **Lỗi thường gặp**
+
+- **Quên đổi đơn vị khối lượng**: c của nước là 4186 J/**kg**·K. Nếu m cho bằng gam phải đổi sang kg. Phản ví dụ: đun 500 g nước lên 10 K → Q = 0.5·4186·10 = **20930 J**, KHÔNG phải 500·4186·10 = 20,930,000 J.
+- **Dùng sai dấu ΔT trong cân bằng nhiệt**: vật nóng thì (T_đầu − T_cân_bằng) > 0 (mất nhiệt), vật lạnh thì (T_cân_bằng − T_đầu) > 0 (nhận nhiệt). Đặt sai dấu → vô nghiệm.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Cần bao nhiêu Q để đun 0.5 kg nước (c = 4186) từ 20°C lên 100°C?
+2. Cùng Q, đun 1 kg sắt (c = 449) và 1 kg nước, cái nào nóng lên nhiều hơn?
+
+<details><summary>Đáp án</summary>
+
+1. Q = m·c·ΔT = 0.5·4186·(100 − 20) = 0.5·4186·80 = **167,440 J ≈ 167 kJ**.
+2. Sắt nóng nhanh hơn ~9.3 lần (c sắt nhỏ hơn ~9.3 lần) → cùng Q, sắt có ΔT lớn hơn. Vd Q = 4490 J: sắt tăng 10 K, nước chỉ tăng ~1.07 K.
+
+</details>
+
 ### 📝 Tóm tắt mục 4
 
 - Q = m·c·ΔT.
@@ -216,6 +319,29 @@ trong đó **L** = **nhiệt ẩn (latent heat)**:
 
 → Phần lớn năng lượng (75%) dành cho **bốc hơi**, không phải làm nóng. Đó là tại sao sôi nước chậm hơn nhiều người tưởng.
 
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Vì sao nhiệt độ không tăng dù vẫn cấp nhiệt liên tục khi đang sôi?"* Vì toàn bộ Q dùng để **phá liên kết** giữa các phân tử (lỏng → khí), không tăng năng lượng động (tức không tăng T). Khi đã chuyển pha xong, T mới lại tăng.
+- *"Vì sao mồ hôi làm mát cơ thể?"* Khi mồ hôi bốc hơi, nó hấp thụ L_v từ da (mỗi kg ~2.26 MJ) → da mất nhiệt → mát. Đây là làm mát bằng bay hơi.
+- *"Vì sao hơi nước 100°C bỏng nặng hơn nước 100°C?"* Khi hơi ngưng tụ trên da, nó nhả thêm L_v = 2.26 MJ/kg (ngoài nhiệt lượng do hạ T). Nước cùng T chỉ truyền phần m·c·ΔT.
+
+⚠ **Lỗi thường gặp**
+
+- **Dùng Q = m·c·ΔT cho giai đoạn chuyển pha**. Sai — trong chuyển pha ΔT = 0 nên công thức đó cho Q = 0, vô lý. Phải dùng **Q = m·L**. Phản ví dụ: làm tan 1 kg đá 0°C thành nước 0°C cần Q = m·L_f = 334,000 J, không phải 0.
+- **Quên đơn vị L là J/kg** (không phải J/(kg·K)) — L không nhân với ΔT.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Cần bao nhiêu Q để làm tan 2 kg nước đá ở 0°C thành nước 0°C? (L_f = 334,000 J/kg)
+2. Đun nước đang ở 100°C, cấp thêm nhiệt — nhiệt độ có vượt 100°C không (ở 1 atm)?
+
+<details><summary>Đáp án</summary>
+
+1. Q = m·L_f = 2·334,000 = **668,000 J = 668 kJ** (T không đổi, vẫn 0°C).
+2. Không, chừng nào còn nước lỏng. Nhiệt cấp thêm dùng để hóa hơi (m·L_v), T giữ 100°C cho đến khi hết nước.
+
+</details>
+
 ### 📝 Tóm tắt mục 5
 
 - Q = m·L cho chuyển pha. T không đổi.
@@ -242,6 +368,31 @@ Ví dụ: đun nước trong nồi — nước đáy nóng nổi lên, nước t
 Năng lượng truyền bằng **sóng điện từ** (chủ yếu hồng ngoại). Không cần môi trường — truyền được trong chân không.
 
 Ví dụ: Mặt Trời sưởi ấm Trái Đất qua 150 triệu km chân không bằng bức xạ.
+
+💡 **Trực giác phân biệt 3 cách**: dẫn nhiệt = chuyền tay theo hàng (vật không di chuyển, chỉ năng lượng truyền qua va chạm); đối lưu = băng chuyền (chính chất nóng di chuyển mang nhiệt đi); bức xạ = ném bóng qua khoảng trống (sóng EM bay qua, không cần "tay" trung gian).
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Vì sao bình giữ nhiệt (phích) giữ nóng lâu?"* Vì nó chặn cả 3 cách: lớp chân không giữa 2 thành chặn dẫn nhiệt và đối lưu (không có vật chất); lớp tráng bạc phản xạ bức xạ hồng ngoại trở lại. Cả 3 đường truyền bị bịt → nhiệt thoát rất chậm.
+- *"Tại sao kim loại sờ vào lạnh hơn gỗ dù cùng nhiệt độ phòng?"* Vì kim loại **dẫn nhiệt nhanh**, hút nhiệt từ tay rất nhanh → tay cảm thấy "lạnh". Gỗ dẫn chậm → tay không mất nhiệt nhiều → thấy "ấm" hơn. Cả hai thực ra cùng T.
+- *"Bức xạ có cần nhiệt độ cao không?"* Không. Mọi vật trên 0 K đều phát bức xạ nhiệt (hồng ngoại); vật càng nóng phát càng mạnh và bước sóng càng ngắn.
+
+⚠ **Lỗi thường gặp**
+
+- **Tưởng chỉ vật nóng mới bức xạ**. Sai — cả vật lạnh cũng bức xạ (yếu hơn). Cơ thể người 37°C liên tục phát hồng ngoại (camera nhiệt nhìn thấy được).
+- **Nhầm đối lưu xảy ra trong vật rắn**. Đối lưu cần chất chảy được (lỏng/khí) để mang nhiệt đi; vật rắn chỉ dẫn nhiệt.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Khói bốc lên từ lửa trại — đó là cơ chế truyền nhiệt nào?
+2. Ngồi gần đống lửa thấy ấm mặt dù không khí giữa lửa và mặt vẫn mát — cơ chế nào?
+
+<details><summary>Đáp án</summary>
+
+1. Đối lưu — khí nóng nhẹ hơn nên bay lên, mang theo nhiệt và khói.
+2. Bức xạ — hồng ngoại từ lửa truyền thẳng tới mặt qua không khí mà không làm nóng nhiều không khí trung gian.
+
+</details>
 
 ### 📝 Tóm tắt mục 6
 

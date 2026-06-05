@@ -54,6 +54,29 @@ Entropy có đơn vị **J/K** (giống nhiệt lượng chia cho nhiệt độ)
 
 **Ví dụ 3 — Đá tan trong nước ấm**: Đá (S thấp do tinh thể trật tự) gặp nước (S cao). Sau tan: cả hệ thành nước lạnh (S cao hơn).
 
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Entropy có phải 'độ bẩn' hay 'độ lộn xộn' theo nghĩa thường không?"* Gần đúng nhưng dễ gây hiểu lầm. Chính xác: entropy đếm **số cách sắp xếp vi mô (W)** cho cùng một trạng thái vĩ mô. Trạng thái "nhiều cách sắp xếp" được gọi là "hỗn loạn", nhưng định nghĩa là về số đếm W, không phải cảm giác bừa bộn.
+- *"Vì sao hệ tự đi về S cao mà không ngược lại?"* Vì trạng thái S cao có **nhiều cấu hình hơn** áp đảo → khi chọn ngẫu nhiên, gần như chắc chắn rơi vào nhóm đông. Đây là xác suất thuần, không phải "lực" đẩy.
+- *"Hệ có thể tự giảm entropy không?"* Một hệ con có thể (nếu môi trường bù lại nhiều hơn). Nhưng hệ **cô lập** thì không — S chỉ tăng hoặc giữ nguyên.
+
+⚠ **Lỗi thường gặp**
+
+- **Tưởng entropy luôn tăng cho MỌI hệ**. Sai — chỉ đúng cho hệ **cô lập** (hoặc tổng vũ trụ). Tủ lạnh làm giảm entropy bên trong, nhưng tăng entropy môi trường nhiều hơn. Phản ví dụ: nước đông thành đá trong tủ lạnh → S của nước giảm, không vi phạm gì vì S môi trường tăng nhiều hơn.
+- **Lẫn entropy (J/K) với năng lượng (J)**: chúng khác đơn vị; ΔS = Q/T chia cho nhiệt độ.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Hộp 2 ngăn, 4 phân tử. Trạng thái "3 trái + 1 phải" có bao nhiêu cách sắp xếp (W)?
+2. Mở chai nước hoa trong phòng — entropy của hệ (phòng + hơi nước hoa) tăng hay giảm?
+
+<details><summary>Đáp án</summary>
+
+1. W = C(4,1) = 4 cách (chọn 1 trong 4 phân tử sang ngăn phải). So với "2 trái + 2 phải" có W = 6 (nhiều hơn → entropy cao hơn).
+2. Tăng — hơi nước hoa khuếch tán khắp phòng (nhiều cấu hình hơn). Không bao giờ tự thu lại vào chai.
+
+</details>
+
 ### 📝 Tóm tắt mục 1
 
 - S = k_B·ln(W). Càng nhiều cấu hình → S càng lớn.
@@ -85,6 +108,29 @@ Dấu "=" chỉ xảy ra trong **quá trình thuận nghịch lý tưởng** (kh
 **Phát biểu Kelvin**: Không thể chế tạo một máy nhiệt **chỉ lấy nhiệt từ 1 nguồn và biến HOÀN TOÀN thành công**. Luôn phải có nhiệt "bỏ đi" vào nguồn lạnh hơn.
 
 **Phát biểu Clausius**: Nhiệt **không tự truyền** từ vật lạnh sang vật nóng. (Tủ lạnh làm được, nhưng phải tốn điện.)
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Định luật II có mâu thuẫn định luật I không?"* Không. Định luật I (bảo toàn năng lượng) cho biết "năng lượng không mất". Định luật II cho biết "hướng" quá trình diễn ra. Hai luật bổ sung nhau: một quá trình có thể không vi phạm I nhưng vẫn bị II cấm (vd nhiệt tự đi từ lạnh sang nóng — bảo toàn năng lượng vẫn ổn nhưng II cấm).
+- *"Sự sống tạo trật tự — có vi phạm định luật II không?"* Không. Cơ thể giảm entropy cục bộ, nhưng thải ra nhiệt + chất thải làm tăng entropy môi trường nhiều hơn. Tổng vũ trụ vẫn tăng.
+- *"Vì sao tủ lạnh đẩy được nhiệt từ lạnh ra nóng?"* Vì nó **tốn công** (điện). Clausius chỉ cấm nhiệt **tự** đi ngược, không cấm khi có công bơm vào.
+
+⚠ **Lỗi thường gặp**
+
+- **Tưởng entropy luôn tăng cho mọi vật**. Lại nhắc: chỉ tổng (hệ + môi trường) mới luôn ≥ 0. Phản ví dụ: nước trong khay đông thành đá → S nước giảm, nhưng dàn nóng tủ lạnh thải nhiệt làm S phòng tăng hơn.
+- **Nghĩ có thể đạt ΔS = 0 trong thực tế**. Dấu "=" chỉ ở quá trình thuận nghịch lý tưởng (không ma sát, vô cùng chậm) — không tồn tại thực tế.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Một máy "chỉ hút nhiệt từ không khí phòng rồi biến hoàn toàn thành điện, không thải gì". Máy này vi phạm phát biểu nào?
+2. Vì sao một video quay cảnh khói tự thu lại vào điếu thuốc trông "sai"?
+
+<details><summary>Đáp án</summary>
+
+1. Phát biểu Kelvin — không thể lấy nhiệt từ 1 nguồn và biến hoàn toàn thành công mà không thải nhiệt ra nguồn lạnh hơn.
+2. Vì đó là quá trình giảm entropy (khói tập trung lại có W nhỏ hơn khói lan tỏa). Vi phạm định luật II → mắt ta nhận ra "thời gian chạy ngược".
+
+</details>
 
 ### 📝 Tóm tắt mục 2
 
@@ -147,6 +193,29 @@ Sadi Carnot (1824) chứng minh: máy nhiệt **lý tưởng nhất có thể** 
 **Ví dụ 3 — Tủ lạnh** (máy nhiệt ngược): Tủ lạnh "lấy" nhiệt từ trong (T_c lạnh) và "thải" ra môi trường (T_h ấm). Cần cấp công W (điện). Hệ số làm lạnh:
 - COP = Q_c / W. Với T_h = 25°C = 298 K, T_c = 5°C = 278 K → COP_max = T_c/(T_h − T_c) = 278/20 = **13.9**.
 - Thực tế ~ 2-4.
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Vì sao không thể đạt η = 100%?"* Vì để biến HẾT nhiệt thành công, máy phải có Q_c = 0 (không thải nhiệt). Điều này đòi T_c = 0 K (không tuyệt đối, không đạt được) trong công thức Carnot. Định luật II cấm η = 100%.
+- *"T trong η_Carnot dùng °C hay K?"* BẮT BUỘC Kelvin. Phản ví dụ: T_h = 100°C, T_c = 0°C → nếu dùng °C: 1 − 0/100 = 100% (sai!). Dùng K: 1 − 273/373 = 26.8%.
+- *"Vì sao tăng T_h và giảm T_c đều tăng η?"* Vì η = 1 − T_c/T_h. T_h lớn hơn hoặc T_c nhỏ hơn → tỉ số T_c/T_h nhỏ hơn → η lớn hơn.
+
+⚠ **Lỗi thường gặp**
+
+- **Dùng °C trong η_Carnot**. Đây là lỗi #1. Luôn đổi sang Kelvin trước. Phản ví dụ ở trên: 100% vs 26.8% — sai hoàn toàn.
+- **Tưởng máy thực có thể đạt η_Carnot**. Carnot là **giới hạn trên lý thuyết**; máy thực luôn thấp hơn (ma sát, mất nhiệt). Nhà máy điện thực ~35-40% dù Carnot cho ~60%.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Máy nhiệt chạy giữa T_h = 600 K và T_c = 300 K. Hiệu suất Carnot tối đa?
+2. Máy nhận 2000 J từ nguồn nóng, sinh 700 J công. Q_c thải ra và η thực bằng bao nhiêu?
+
+<details><summary>Đáp án</summary>
+
+1. η_Carnot = 1 − T_c/T_h = 1 − 300/600 = **0.5 = 50%**.
+2. Q_c = Q_h − W = 2000 − 700 = **1300 J**. η = W/Q_h = 700/2000 = **35%**.
+
+</details>
 
 ### 📝 Tóm tắt mục 3
 

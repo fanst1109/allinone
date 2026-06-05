@@ -70,6 +70,29 @@ Quy luật cơ bản:
 
 Ví dụ: cọ thanh nhựa vào tóc → một số electron chuyển từ tóc sang nhựa. Nhựa thừa e → âm. Tóc thiếu e → dương. **Tổng** điện tích (tóc + nhựa) vẫn = 0.
 
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Cọ xát có 'tạo ra' điện tích không?"* Không. Điện tích được **chuyển** (electron đi từ vật này sang vật kia), không sinh ra mới. Tổng vẫn bảo toàn.
+- *"Vì sao điện tích lại lượng tử hóa (bội nguyên của e)?"* Vì hạt mang điện tự do nhỏ nhất là electron/proton, mỗi cái mang đúng ±e. Mọi vật tích điện là do thừa/thiếu một số nguyên electron.
+- *"Điện tích có giống khối lượng không?"* Giống ở chỗ đều là thuộc tính bẩm sinh của vật chất. Khác: khối lượng chỉ "dương" (luôn hút), điện tích có 2 dấu (hút và đẩy).
+
+⚠ **Lỗi thường gặp**
+
+- **Nhầm điện tích với dòng điện**. Điện tích q (đơn vị Coulomb, C) là "lượng điện"; dòng điện I (Ampere, A = C/s) là "điện tích chảy mỗi giây". Phản ví dụ: "bóng đèn dùng 2 C" sai nghĩa nếu ý là dòng — phải nói "2 A" (2 C mỗi giây).
+- **Tưởng có thể có điện tích 1.5e**. Không — điện tích tự do luôn là bội nguyên của e (quark phân số không tồn tại tự do).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Một vật mang điện tích −3.2 × 10⁻¹⁹ C. Nó thừa hay thiếu bao nhiêu electron?
+2. Cọ bóng bay vào tóc, bóng nhận thêm electron. Tóc mang điện gì?
+
+<details><summary>Đáp án</summary>
+
+1. q = −3.2×10⁻¹⁹ / (−1.6×10⁻¹⁹) = thừa **2 electron** (dấu âm → thừa electron).
+2. Tóc **mất** electron → mang điện **dương** (+). Tổng (bóng + tóc) vẫn trung hòa.
+
+</details>
+
 ### 📝 Tóm tắt mục 1
 
 - Điện tích = thuộc tính cơ bản, đơn vị Coulomb.
@@ -119,6 +142,29 @@ Hướng: theo đường nối 2 điện tích. Đẩy nếu cùng dấu, hút n
 
 **Ví dụ 4 — Sét**: Mây có khoảng 5-20 C tích lũy ở đáy. Khi phóng xuống đất qua không khí (r ~ 1 km), điện trường mạnh đến mức ion hóa không khí → tia chớp.
 
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Khoảng cách gấp đôi thì lực giảm bao nhiêu?"* Giảm **4 lần** (vì F ∝ 1/r²). Gấp 3 lần khoảng cách → lực giảm 9 lần. Đây là điểm khác với F ∝ 1/r.
+- *"Vì sao lực điện mạnh hơn hấp dẫn nhiều vậy nhưng đời thường ta không 'dính' nhau vì lực điện?"* Vì vật thường **trung hòa** (số + ≈ số −) → lực điện gần như triệt tiêu. Chỉ khi mất cân bằng nhỏ (cọ xát) mới thấy hiệu ứng.
+- *"r trong công thức đo từ đâu tới đâu?"* Từ **tâm điện tích này tới tâm điện tích kia** (với điện tích điểm). Không phải khoảng cách bề mặt.
+
+⚠ **Lỗi thường gặp**
+
+- **Quên bình phương r**. Phản ví dụ: 2 điện tích 1 μC cách 0.1 m → F = 9e9·(1e-6)²/(0.1)² = 9e9·1e-12/0.01 = **0.9 N**. Nếu quên bình phương (chia 0.1): được 0.09 N — sai 10 lần.
+- **Dùng đơn vị μC trực tiếp mà không đổi sang C**: 5 μC = 5×10⁻⁶ C, không phải 5.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. 2 điện tích cách nhau 2 cm có lực 8 N. Nếu kéo ra 4 cm (gấp đôi), lực còn bao nhiêu?
+2. Tính lực giữa 2 điện tích +2 μC và +2 μC cách 10 cm.
+
+<details><summary>Đáp án</summary>
+
+1. r gấp đôi → F giảm 4 lần → còn **2 N** (F ∝ 1/r²).
+2. F = 9e9·(2e-6)²/(0.1)² = 9e9·4e-12/0.01 = 0.036/0.01 = **3.6 N** (đẩy nhau, cùng dấu).
+
+</details>
+
 ### 📝 Tóm tắt mục 2
 
 - F = k·|q₁q₂|/r², k = 9 × 10⁹ N·m²/C².
@@ -148,6 +194,29 @@ F_tổng = F₁ + F₂ + F₃ + ...
 
 (Hệ đối xứng → điện tích giữa cân bằng. Nếu lệch nhẹ → đẩy ra xa, không tự lấy lại trạng thái cũ.)
 
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Tổng vector nghĩa là gì — sao không cộng số thông thường?"* Vì lực là **vector** (có hướng). 2 lực cùng độ lớn ngược chiều → triệt tiêu (tổng = 0), cùng chiều → cộng dồn, vuông góc → dùng định lý Pythagore. Phải tính theo từng thành phần x, y.
+- *"Sự có mặt của điện tích thứ 3 có làm yếu lực giữa 2 cái kia không?"* Không. Mỗi cặp tương tác **độc lập** — đó chính là nội dung nguyên lý chồng chất. Điện tích C không "chắn" lực giữa A và B.
+- *"Khi nào lực tổng bằng 0?"* Khi các lực thành phần cân bằng (đối xứng), như điện tích giữa trong ví dụ 3 điện tích thẳng hàng.
+
+⚠ **Lỗi thường gặp**
+
+- **Cộng độ lớn các lực như số vô hướng**. Phản ví dụ: 2 lực 3 N vuông góc → tổng KHÔNG phải 6 N mà là √(3²+3²) = √18 ≈ **4.24 N**. Phải cộng vector.
+- **Quên hướng (dấu) khi cộng trên cùng một trục**: lực đẩy về phải (+) và lực đẩy về trái (−) phải trừ nhau.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Một điện tích chịu 2 lực: 4 N hướng phải và 3 N hướng lên (vuông góc). Lực tổng độ lớn bao nhiêu?
+2. 2 điện tích +q đặt 2 bên cách đều một điện tích thử. Lực tổng lên điện tích thử bằng bao nhiêu?
+
+<details><summary>Đáp án</summary>
+
+1. F = √(4² + 3²) = √25 = **5 N** (Pythagore cho 2 lực vuông góc).
+2. **0** — 2 lực đẩy ngược chiều, cùng độ lớn (đối xứng) → triệt tiêu.
+
+</details>
+
 ### 📝 Tóm tắt mục 3
 
 - Lực tổng = tổng vector các lực riêng.
@@ -156,6 +225,8 @@ F_tổng = F₁ + F₂ + F₃ + ...
 ---
 
 ## 4. Vật dẫn điện vs Vật cách điện
+
+💡 **Trực giác**: tưởng tượng electron như những người trong tòa nhà. **Vật dẫn** = hành lang thông suốt, người (electron) đi lại tự do khắp nơi → điện tích lan nhanh. **Vật cách điện** = mỗi người bị khóa trong phòng riêng, không di chuyển được → điện tích đứng yên tại chỗ đặt vào.
 
 ### 4.1. Vật dẫn điện (Conductor)
 
@@ -173,6 +244,29 @@ F_tổng = F₁ + F₂ + F₃ + ...
 
 - Trung gian. Vd: silicon, germanium.
 - Có thể "bật-tắt" dẫn điện tùy điều kiện. Cơ sở của mọi chip điện tử.
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Vì sao điện tích đặt lên vật dẫn lại dồn ra bề mặt?"* Vì electron tự do đẩy nhau, chúng tản ra càng xa nhau càng tốt → tập trung ở bề mặt ngoài. Bên trong vật dẫn (cân bằng) điện trường = 0.
+- *"Nước có dẫn điện không?"* Nước tinh khiết dẫn rất kém, nhưng nước thường (có ion muối khoáng) dẫn được → đó là lý do nguy hiểm khi dùng điện gần nước.
+- *"Vì sao bán dẫn quan trọng?"* Vì có thể điều khiển nó dẫn/không dẫn (bằng điện áp, ánh sáng, pha tạp) → làm transistor, nền tảng mọi máy tính.
+
+⚠ **Lỗi thường gặp**
+
+- **Tưởng dây điện nguy hiểm vì electron "chảy nhanh"**. Thực ra electron trôi rất chậm (~mm/s); nguy hiểm vì **năng lượng** truyền nhanh (gần tốc độ ánh sáng dọc dây) và dòng lớn gây nhiệt.
+- **Nhầm "cách điện" là "không có điện tích"**: vật cách điện vẫn tích điện được, chỉ là điện tích **không lan** mà ở nguyên chỗ.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Đặt điện tích lên một quả cầu kim loại rỗng — điện tích phân bố ở đâu?
+2. Gỗ khô và gỗ ướt, cái nào dẫn điện tốt hơn?
+
+<details><summary>Đáp án</summary>
+
+1. Phân bố đều trên **bề mặt ngoài** (electron tự do đẩy nhau ra xa nhất); bên trong không có điện tích dư, điện trường bên trong = 0.
+2. Gỗ ướt — nước có ion làm tăng khả năng dẫn. Gỗ khô là chất cách điện khá tốt.
+
+</details>
 
 ### 📝 Tóm tắt mục 4
 

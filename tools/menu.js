@@ -58,8 +58,8 @@
     :root { --mm-bar-h: 52px; }
     /* ---------- Thanh bar (chung) ---------- */
     .mm-bar {
-      position: sticky; top: 0; z-index: 9000; background: #2d3748; color: #fff;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      position: sticky; top: 0; z-index: 9000; background: #ffffff; color: #1a1a1a;
+      border-bottom: 1px solid #e3e1dc; box-shadow: 0 1px 6px rgba(0,0,0,0.05);
     }
     .mm-bar-inner {
       max-width: 1100px; margin: 0 auto; padding: 0 16px;
@@ -69,22 +69,22 @@
     .mm-bar-inner::-webkit-scrollbar { display: none; }
     .mm-home {
       display: inline-flex; align-items: center; gap: 7px;
-      font-weight: 800; font-size: 15px; color: #fff; text-decoration: none;
+      font-weight: 800; font-size: 15px; color: #1a1a1a; text-decoration: none;
       white-space: nowrap; padding: 12px 12px 12px 0;
     }
     .mm-tabs { display: flex; align-items: stretch; gap: 2px; margin-left: 6px; flex: 1; min-width: 0; }
     .mm-tab {
-      appearance: none; background: none; border: none; color: #cbd5e0;
+      appearance: none; background: none; border: none; color: #5a6573;
       font-family: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer;
       padding: 10px 12px; white-space: nowrap;
       border-bottom: 3px solid transparent; transition: color .12s, background .12s;
       display: inline-flex; align-items: center; gap: 5px;
     }
-    .mm-tab:hover { color: #fff; background: rgba(255,255,255,0.07); }
-    .mm-tab.active { color: #fff; background: rgba(255,255,255,0.12); border-bottom-color: #63b3ed; }
-    .mm-tab .mm-caret { font-size: 9px; opacity: .7; }
+    .mm-tab:hover { color: #1a1a1a; background: #f1f5f9; }
+    .mm-tab.active { color: #2c5282; background: #ebf2fb; border-bottom-color: #4299e1; }
+    .mm-tab .mm-caret { font-size: 9px; opacity: .6; }
     .mm-burger {
-      display: none; appearance: none; background: none; border: none; color: #fff;
+      display: none; appearance: none; background: none; border: none; color: #2d3748;
       font-size: 22px; cursor: pointer; padding: 8px 4px 8px 12px; margin-left: auto; line-height: 1;
     }
 
@@ -119,12 +119,13 @@
     }
     .mm-drawer.open { display: block; }
     .mm-drawer-head {
-      position: sticky; top: 0; background: #2d3748; color: #fff;
+      position: sticky; top: 0; background: #ffffff; color: #1a1a1a;
+      border-bottom: 1px solid #e3e1dc;
       display: flex; align-items: center; justify-content: space-between;
       padding: 14px 18px; font-weight: 800; font-size: 17px;
       padding-top: calc(14px + env(safe-area-inset-top, 0px));
     }
-    .mm-drawer-close { appearance: none; background: none; border: none; color: #fff; font-size: 26px; cursor: pointer; line-height: 1; padding: 0 4px; }
+    .mm-drawer-close { appearance: none; background: none; border: none; color: #5a6573; font-size: 26px; cursor: pointer; line-height: 1; padding: 0 4px; }
     .mm-acc { border-bottom: 1px solid #e3e1dc; }
     .mm-acc-head {
       width: 100%; appearance: none; background: none; border: none; cursor: pointer;

@@ -27,7 +27,7 @@ Tầng cuối — toán đại cương của năm 1-2 đại học kỹ thuật.
 
 ## Sau tầng này
 
-Math hoàn chỉnh. Tiếp theo có thể chuyển sang:
+Tiếp theo là **[Tầng 7 — Mô hình hóa toán học](../07-Mathematical-Modeling/)**: áp dụng calculus + linear algebra + ODE + xác suất vào bài toán thực (chu trình mô hình hóa, hồi quy, mô hình động lực, tối ưu). Hoặc chuyển sang:
 - **Vectors/05-Probability + AI-ML** — áp dụng vào ML.
 - **Physics** — dùng calculus + linear algebra + ODE để mô hình hóa.
 - **Economics** — dùng calculus + xác suất cho econometrics.

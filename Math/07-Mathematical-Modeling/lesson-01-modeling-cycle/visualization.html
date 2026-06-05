@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Chu trình mô hình hóa & Thứ nguyên</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .lead { color: #475569; margin: 4px 0 16px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #334155; }
+  input[type="range"] { flex: 1; min-width: 180px; max-width: 320px; }
+  select { padding: 8px 10px; border-radius: 6px; border: 1px solid #cbd5e0; font-size: 15px; max-width: 100%; }
+  button { background: #94a3b8; color: white; border: none; padding: 9px 14px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; line-height: 1.6; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 700px; height: auto; background: #f8fafc; border-radius: 8px; }
+  /* Chu trình */
+  .cycle-step { cursor: pointer; transition: opacity .15s; }
+  .cycle-step:hover { opacity: .85; }
+  .step-desc { padding: 14px; background: #f1f5f9; border-left: 4px solid #15803d; border-radius: 6px; margin-top: 12px; min-height: 64px; }
+  .step-desc h4 { margin: 0 0 6px; color: #15803d; }
+  /* Dimension checker */
+  .dim-line { font-family: monospace; font-size: 15px; margin: 6px 0; }
+  .verdict-ok { color: #15803d; font-weight: 700; }
+  .verdict-bad { color: #b91c1c; font-weight: 700; }
+  .mlt { color: #2563eb; }
+  table.legend { border-collapse: collapse; margin-top: 8px; font-size: 14px; }
+  table.legend td { border: 1px solid #cbd5e0; padding: 4px 10px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Chu trình & Thứ nguyên</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-empirical-curve-fitting/README.md">L2: Mô hình từ dữ liệu →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 01 — Chu trình mô hình hóa & Phân tích thứ nguyên</h1>
+<p class="lead">Ba công cụ tương tác: bấm từng bước chu trình, kiểm tra cân bằng thứ nguyên, và mô phỏng cà phê nguội (định luật Newton) để thấy mô hình bám dữ liệu thế nào.</p>
+
+<h2>1. Chu trình mô hình hóa — bấm từng bước</h2>
+<div class="card">
+  <p class="lead">Bấm vào mỗi ô để xem bước đó làm gì và câu hỏi tự hỏi. Mũi tên đỏ từ bước 6 → bước 2 nhắc rằng đây là <strong>vòng lặp</strong>.</p>
+  <svg class="scene" id="cycle" viewBox="0 0 700 320" style="max-width:760px;height:auto;background:#f8fafc"></svg>
+  <div class="step-desc" id="stepDesc">
+    <h4>Bấm một bước để bắt đầu</h4>
+    <div>Chu trình không phải đường thẳng "đề → đáp số" mà là vòng lặp: dựng → kiểm tra → sửa giả định → dựng lại.</div>
+  </div>
+</div>
+
+<h2>2. Bộ kiểm tra thứ nguyên</h2>
+<div class="card">
+  <p class="lead">Chọn một công thức. Bộ kiểm tra phân tích thứ nguyên hai vế theo hệ <span class="mlt">M</span> (khối lượng) · <span class="mlt">L</span> (chiều dài) · <span class="mlt">T</span> (thời gian) và kết luận có cân bằng không. Nhớ: cân thứ nguyên là điều kiện <em>cần</em>, không <em>đủ</em>.</p>
+  <div class="row">
+    <label for="formula">Công thức:</label>
+    <select id="formula" onchange="checkDim()"></select>
+  </div>
+  <div id="dimOut" class="result"></div>
+  <table class="legend">
+    <tr><td>vận tốc v</td><td class="mlt">L·T⁻¹</td><td>gia tốc a</td><td class="mlt">L·T⁻²</td></tr>
+    <tr><td>lực F</td><td class="mlt">M·L·T⁻²</td><td>năng lượng E</td><td class="mlt">M·L²·T⁻²</td></tr>
+  </table>
+</div>
+
+<h2>3. Mô phỏng: cà phê nguội (định luật Newton)</h2>
+<div class="card">
+  <p class="lead">Mô hình <code>dT/dt = −k·(T − T_phòng)</code> → nghiệm <code>T(t) = T_phòng + (T₀ − T_phòng)·e<sup>−kt</sup></code>. Kéo slider để xem đường nguội và thời gian đạt nhiệt độ mục tiêu. Đường nét đứt = mục tiêu.</p>
+  <div class="row">
+    <label>k (phút⁻¹):</label>
+    <input type="range" id="k" min="0.02" max="0.30" step="0.005" value="0.074" oninput="drawCool()">
+    <span class="stat">k = <strong id="vK">0.074</strong></span>
+  </div>
+  <div class="row">
+    <label>T₀ (°C):</label>
+    <input type="range" id="t0" min="40" max="100" step="1" value="90" oninput="drawCool()">
+    <span class="stat">T₀ = <strong id="vT0">90</strong>°C</span>
+    <label>T_phòng:</label>
+    <input type="range" id="tr" min="0" max="40" step="1" value="25" oninput="drawCool()">
+    <span class="stat">T_phòng = <strong id="vTr">25</strong>°C</span>
+  </div>
+  <div class="row">
+    <label>Mục tiêu (°C):</label>
+    <input type="range" id="tgt" min="30" max="90" step="1" value="60" oninput="drawCool()">
+    <span class="stat">mục tiêu = <strong id="vTgt">60</strong>°C</span>
+  </div>
+  <svg class="scene" id="cool" viewBox="0 0 700 360"></svg>
+  <div class="result" id="coolOut"></div>
+</div>
+
+<script>
+/* ---------- Module 1: chu trình ---------- */
+const STEPS = [
+  { n:1, t:"Xác định bài toán", x:60,  y:40,  c:"#2563eb",
+    d:"Phát biểu rõ câu hỏi cần trả lời và đại lượng quan tâm.", q:"Mình thực sự muốn biết gì? Đầu ra là số nào?" },
+  { n:2, t:"Giả định", x:270, y:40,  c:"#7c3aed",
+    d:"Liệt kê cái gì bỏ qua, cái gì coi là hằng số.", q:"Yếu tố nào nhỏ, bỏ được? Cái gì gần như không đổi?" },
+  { n:3, t:"Lập mô hình", x:480, y:40, c:"#0891b2",
+    d:"Chọn biến, đơn vị; viết phương trình / quan hệ toán học.", q:"Quy luật nào nối các biến? Tốc độ thay đổi ra sao?" },
+  { n:4, t:"Giải / phân tích", x:480, y:200, c:"#15803d",
+    d:"Giải phương trình hoặc mô phỏng số để ra nghiệm.", q:"Nghiệm là gì? Hành vi dài hạn? Có điểm cân bằng?" },
+  { n:5, t:"Kiểm chứng", x:270, y:200, c:"#ca8a04",
+    d:"So nghiệm với dữ liệu/trực giác; ước lượng sai số.", q:"Khớp thực tế không? Sai bao nhiêu? Có vô lý chỗ nào?" },
+  { n:6, t:"Tinh chỉnh", x:60,  y:200, c:"#dc2626",
+    d:"Nếu chưa đạt: sửa giả định, quay lại bước 2 (vòng lặp).", q:"Bỏ giả định nào để khớp hơn? Có đáng phức tạp thêm?" },
+];
+const BW=160, BH=66;
+function buildCycle(){
+  const svg=document.getElementById("cycle");
+  let s="";
+  // arrows along 1→2→3→4→5→6
+  const cx=p=>p.x+BW/2, cy=p=>p.y+BH/2;
+  function arrow(a,b,col,dash){
+    return `<line x1="${a.x1}" y1="${a.y1}" x2="${a.x2}" y2="${a.y2}" stroke="${col}" stroke-width="2.5" ${dash?'stroke-dasharray="7 5"':''} marker-end="url(#ah)"/>`;
+  }
+  s+=`<defs><marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#475569"/></marker>
+       <marker id="ahr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#dc2626"/></marker></defs>`;
+  // horizontal top 1->2->3
+  s+=arrow({x1:220,y1:73,x2:268,y2:73},"#475569");
+  s+=arrow({x1:430,y1:73,x2:478,y2:73},"#475569");
+  // 3->4 down
+  s+=arrow({x1:560,y1:108,x2:560,y2:198},"#475569");
+  // 4->5->6 (right to left)
+  s+=arrow({x1:478,y1:233,x2:432,y2:233},"#475569");
+  s+=arrow({x1:268,y1:233,x2:222,y2:233},"#475569");
+  // loop 6 -> 2 (red dashed up + across)
+  s+=`<path d="M140,200 L140,150 L350,150 L350,108" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#ahr)"/>`;
+  s+=`<text x="350" y="142" fill="#dc2626" font-size="12" text-anchor="middle">lặp lại</text>`;
+  // boxes
+  STEPS.forEach(p=>{
+    s+=`<g class="cycle-step" onclick="showStep(${p.n})">
+      <rect x="${p.x}" y="${p.y}" width="${BW}" height="${BH}" rx="10" fill="white" stroke="${p.c}" stroke-width="2.5"/>
+      <text x="${cx(p)}" y="${p.y+26}" text-anchor="middle" font-size="14" font-weight="700" fill="${p.c}">${p.n}. ${p.t}</text>
+      <text x="${cx(p)}" y="${p.y+46}" text-anchor="middle" font-size="11" fill="#64748b">bấm để xem</text>
+    </g>`;
+  });
+  svg.innerHTML=s;
+}
+function showStep(n){
+  const p=STEPS.find(x=>x.n===n);
+  document.getElementById("stepDesc").innerHTML=
+    `<h4>Bước ${p.n} — ${p.t}</h4><div><strong>Làm gì:</strong> ${p.d}</div><div style="margin-top:6px"><strong>Tự hỏi:</strong> <em>${p.q}</em></div>`;
+}
+
+/* ---------- Module 2: dimension checker ---------- */
+// exponents [M,L,T]
+function fmt(e){
+  const names=["M","L","T"];
+  let parts=[];
+  for(let i=0;i<3;i++){ if(e[i]!==0){ parts.push(e[i]===1? names[i] : names[i]+sup(e[i])); } }
+  return parts.length? parts.join("·") : "1 (không thứ nguyên)";
+}
+function sup(n){
+  const map={"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹","/":"ᐟ"};
+  return String(n).split("").map(c=>map[c]||c).join("");
+}
+function eq(a,b){ return a[0]===b[0]&&a[1]===b[1]&&a[2]===b[2]; }
+const FORMULAS=[
+  { txt:"s = v · t  (quãng đường)", lhs:[0,1,0], lname:"s",
+    rhs:[0,1,0], rname:"v·t = (L·T⁻¹)·T", ok:true,
+    note:"Cân bằng ✓ — và đúng (10 m/s · 3 s = 30 m)." },
+  { txt:"E = ½ m v²  (động năng)", lhs:[1,2,-2], lname:"E",
+    rhs:[1,2,-2], rname:"m·v² = M·(L·T⁻¹)²", ok:true,
+    note:"Cân bằng ✓ — hằng số ½ không thứ nguyên, phương pháp không kiểm được nó." },
+  { txt:"v = ½ a t²  (SAI: nhầm v với s)", lhs:[0,1,-1], lname:"v",
+    rhs:[0,1,0], rname:"a·t² = (L·T⁻²)·T²", ok:false,
+    note:"KHÔNG cân bằng — a·t² có thứ nguyên L (chiều dài), đó là quãng đường, không phải vận tốc." },
+  { txt:"v = g · h  (SAI: thiếu căn)", lhs:[0,1,-1], lname:"v",
+    rhs:[0,2,-2], rname:"g·h = (L·T⁻²)·L", ok:false,
+    note:"KHÔNG cân bằng — g·h ra L²·T⁻². Dạng đúng là v = √(2gh): √(L²·T⁻²) = L·T⁻¹ ✓." },
+  { txt:"F = m · a  (lực)", lhs:[1,1,-2], lname:"F",
+    rhs:[1,1,-2], rname:"m·a = M·(L·T⁻²)", ok:true,
+    note:"Cân bằng ✓ — đây chính là định nghĩa thứ nguyên của lực." },
+  { txt:"E = m g h  (thế năng)", lhs:[1,2,-2], lname:"E",
+    rhs:[1,2,-2], rname:"m·g·h = M·(L·T⁻²)·L", ok:true,
+    note:"Cân bằng ✓ — cùng thứ nguyên năng lượng với ½mv²." },
+];
+function buildFormulaSelect(){
+  const sel=document.getElementById("formula");
+  sel.innerHTML=FORMULAS.map((f,i)=>`<option value="${i}">${f.txt}</option>`).join("");
+}
+function checkDim(){
+  const f=FORMULAS[+document.getElementById("formula").value];
+  const ok=eq(f.lhs,f.rhs);
+  const cls=ok?"verdict-ok":"verdict-bad";
+  const word=ok?"CÂN BẰNG ✓":"KHÔNG CÂN BẰNG ✗";
+  document.getElementById("dimOut").innerHTML=
+    `<div class="dim-line">[vế trái] &nbsp; [${f.lname}] = <span class="mlt">${fmt(f.lhs)}</span></div>
+     <div class="dim-line">[vế phải] &nbsp; [${f.rname}] = <span class="mlt">${fmt(f.rhs)}</span></div>
+     <div class="dim-line">So sánh hai vế: <span class="${cls}">${word}</span></div>
+     <div style="margin-top:8px;color:#475569">${f.note}</div>`;
+}
+
+/* ---------- Module 3: Newton cooling ---------- */
+function drawCool(){
+  const k=+document.getElementById("k").value;
+  const T0=+document.getElementById("t0").value;
+  const Tr=+document.getElementById("tr").value;
+  const tgt=+document.getElementById("tgt").value;
+  document.getElementById("vK").textContent=k.toFixed(3);
+  document.getElementById("vT0").textContent=T0;
+  document.getElementById("vTr").textContent=Tr;
+  document.getElementById("vTgt").textContent=tgt;
+
+  const W=700,H=360, ml=52,mr=20,mt=20,mb=42;
+  const x0=ml, x1=W-mr, y0=H-mb, y1=mt;
+  const tMax=40; // phút
+  const Tmin=0, Tmax=100;
+  const sx=t=>x0+(t/tMax)*(x1-x0);
+  const sy=T=>y0+((T-Tmin)/(Tmax-Tmin))*(y1-y0);
+  const Tfun=t=>Tr+(T0-Tr)*Math.exp(-k*t);
+
+  let s="";
+  // axes
+  s+=`<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="#94a3b8" stroke-width="1.5"/>`;
+  s+=`<line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y1}" stroke="#94a3b8" stroke-width="1.5"/>`;
+  // grid + labels (temp)
+  for(let T=0;T<=100;T+=20){
+    const y=sy(T);
+    s+=`<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+    s+=`<text x="${x0-8}" y="${y+4}" text-anchor="end" font-size="11" fill="#64748b">${T}</text>`;
+  }
+  for(let t=0;t<=tMax;t+=10){
+    const x=sx(t);
+    s+=`<text x="${x}" y="${y0+18}" text-anchor="middle" font-size="11" fill="#64748b">${t}</text>`;
+  }
+  s+=`<text x="${(x0+x1)/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="#475569">thời gian t (phút)</text>`;
+  s+=`<text x="14" y="${(y0+y1)/2}" text-anchor="middle" font-size="12" fill="#475569" transform="rotate(-90 14 ${(y0+y1)/2})">nhiệt độ T (°C)</text>`;
+  // room temp line
+  s+=`<line x1="${x0}" y1="${sy(Tr)}" x2="${x1}" y2="${sy(Tr)}" stroke="#0891b2" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+  s+=`<text x="${x1-4}" y="${sy(Tr)-5}" text-anchor="end" font-size="11" fill="#0891b2">T_phòng = ${Tr}</text>`;
+  // target line
+  s+=`<line x1="${x0}" y1="${sy(tgt)}" x2="${x1}" y2="${sy(tgt)}" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+  s+=`<text x="${x1-4}" y="${sy(tgt)-5}" text-anchor="end" font-size="11" fill="#dc2626">mục tiêu = ${tgt}</text>`;
+  // cooling curve
+  let path="";
+  for(let i=0;i<=240;i++){ const t=i/240*tMax; path+=(i? "L":"M")+sx(t).toFixed(1)+" "+sy(Tfun(t)).toFixed(1)+" "; }
+  s+=`<path d="${path}" fill="none" stroke="#15803d" stroke-width="3"/>`;
+
+  // time to reach target
+  let msg;
+  const reachable = (tgt>Tr && T0>tgt) || (tgt<Tr && T0<tgt);
+  if(Math.abs(T0-Tr)<1e-9 || (tgt-Tr)*(T0-Tr)<=0){
+    msg = `Với T₀=${T0}, T_phòng=${Tr}, mục tiêu=${tgt}: đường nguội <strong>không bao giờ chạm</strong> mục tiêu (mục tiêu nằm sai phía so với T_phòng). Cà phê chỉ tiệm cận T_phòng = ${Tr}°C.`;
+  } else {
+    const tHit = -Math.log((tgt-Tr)/(T0-Tr))/k;
+    if(tHit<0){
+      msg=`Mục tiêu ${tgt}°C đã ở "trước" thời điểm 0 (T₀ thấp hơn mục tiêu) — cà phê vốn đã dưới mục tiêu.`;
+    } else {
+      const x=sx(Math.min(tHit,tMax)), y=sy(tgt);
+      s+=`<circle cx="${x}" cy="${y}" r="5" fill="#dc2626"/>`;
+      msg=`Thời gian đạt <strong>${tgt}°C</strong>: t = −ln((${tgt}−${Tr})/(${T0}−${Tr})) / k = <strong>${tHit.toFixed(1)} phút</strong>. `+
+          `Kiểm chứng: T(0)=${Tfun(0).toFixed(0)}°C ✓, t→∞ ⇒ T→${Tr}°C ✓.`;
+    }
+  }
+  document.getElementById("cool").innerHTML=s;
+  document.getElementById("coolOut").innerHTML=msg;
+}
+
+/* init */
+buildCycle();
+buildFormulaSelect();
+checkDim();
+drawCool();
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

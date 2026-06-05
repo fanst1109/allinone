@@ -1,18 +1,36 @@
-// menu.js — Mega-menu điều hướng cho trang index gốc của repo.
+// menu.js — Menu điều hướng cho trang index gốc của repo.
 //
-// Thanh nav sticky trên cùng, chia theo các nhóm lĩnh vực có sẵn trên trang
-// (mỗi .domain-section h2). Bấm 1 nhóm → panel xổ xuống liệt kê các lĩnh vực
-// trong nhóm, mỗi lĩnh vực kèm các tier dạng chip.
+// Responsive 2 chế độ, dùng chung 1 model dữ liệu:
+//   • Desktop (≥760px): thanh mega-menu sticky trên cùng. Bấm nhóm → panel
+//     xổ xuống liệt kê lĩnh vực + tier (chip).
+//   • Mobile (<760px): thu về nút ☰ trên thanh; bấm mở drawer toàn màn hình
+//     dạng accordion (bấm nhóm để xổ/thu lĩnh vực + tier).
 //
-// Không cần data file: script quét chính DOM của index lúc runtime
+// Không cần data file: quét chính DOM index lúc runtime
 // (.domain-section → .card .title a → .tier-list a). Thêm lĩnh vực/tier mới
-// vào index.html là menu tự cập nhật, luôn đồng bộ.
+// vào index.html là menu tự cập nhật.
 //
 // Cách dùng: thêm <script src="tools/menu.js"></script> trước </body>.
 (function () {
   "use strict";
 
-  // ---- Quét DOM index để dựng cây Nhóm → Lĩnh vực → Tier ----
+  // Rút gọn tên nhóm cho tab desktop (tên đầy đủ vẫn giữ ở title + drawer).
+  function shorten(name) {
+    return name
+      .replace("Khoa học máy tính", "CS")
+      .replace("Machine Learning", "ML")
+      .replace("Khoa học tự nhiên", "KHTN")
+      .replace("Khoa học xã hội", "KHXH");
+  }
+
+  function softColor(rgb) {
+    var m = (rgb || "").match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+    if (!m) return "#ebf8ff";
+    var mix = function (c) { return Math.round(+c + (255 - +c) * 0.86); };
+    return "rgb(" + mix(m[1]) + "," + mix(m[2]) + "," + mix(m[3]) + ")";
+  }
+
+  // ---- Quét DOM index → cây Nhóm → Lĩnh vực → Tier ----
   function buildModel() {
     var groups = [];
     document.querySelectorAll(".domain-section").forEach(function (section) {
@@ -23,12 +41,7 @@
         var link = card.querySelector(".title a");
         if (!link) return;
         var accent = getComputedStyle(card).borderLeftColor || "#2c5282";
-        var domain = {
-          label: link.textContent.trim(), // gồm emoji
-          href: link.getAttribute("href"),
-          accent: accent,
-          tiers: [],
-        };
+        var domain = { label: link.textContent.trim(), href: link.getAttribute("href"), accent: accent, soft: softColor(accent), tiers: [] };
         card.querySelectorAll(".tier-list a").forEach(function (a) {
           domain.tiers.push({ label: a.textContent.trim(), href: a.getAttribute("href") });
         });
@@ -39,71 +52,99 @@
     return groups;
   }
 
-  // ---- CSS (gói trong file này, không đụng viz-base.css) ----
   function injectStyle() {
     if (document.getElementById("mega-menu-style")) return;
     var css = `
+    :root { --mm-bar-h: 52px; }
+    /* ---------- Thanh bar (chung) ---------- */
     .mm-bar {
-      position: sticky; top: 0; z-index: 9000;
-      background: #2d3748; color: #fff;
-      display: flex; align-items: stretch; gap: 2px;
-      padding: 0 8px; overflow-x: auto; -webkit-overflow-scrolling: touch;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.18); scrollbar-width: none;
+      position: sticky; top: 0; z-index: 9000; background: #2d3748; color: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
     }
-    .mm-bar::-webkit-scrollbar { display: none; }
+    .mm-bar-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 16px;
+      display: flex; align-items: stretch; gap: 4px; min-height: var(--mm-bar-h);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .mm-bar-inner::-webkit-scrollbar { display: none; }
     .mm-home {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 12px 14px; font-weight: 800; font-size: 15px; color: #fff;
-      text-decoration: none; white-space: nowrap; flex-shrink: 0;
+      display: inline-flex; align-items: center; gap: 7px;
+      font-weight: 800; font-size: 15px; color: #fff; text-decoration: none;
+      white-space: nowrap; padding: 12px 12px 12px 0;
     }
+    .mm-tabs { display: flex; align-items: stretch; gap: 2px; margin-left: 6px; flex: 1; min-width: 0; }
     .mm-tab {
       appearance: none; background: none; border: none; color: #cbd5e0;
-      font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
-      padding: 12px 14px; white-space: nowrap; flex-shrink: 0;
+      font-family: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer;
+      padding: 10px 12px; white-space: nowrap;
       border-bottom: 3px solid transparent; transition: color .12s, background .12s;
-      display: inline-flex; align-items: center; gap: 6px;
+      display: inline-flex; align-items: center; gap: 5px;
     }
-    .mm-tab:hover { color: #fff; background: rgba(255,255,255,0.06); }
-    .mm-tab.active { color: #fff; background: rgba(255,255,255,0.10); border-bottom-color: #63b3ed; }
-    .mm-tab .mm-caret { font-size: 10px; opacity: .7; }
+    .mm-tab:hover { color: #fff; background: rgba(255,255,255,0.07); }
+    .mm-tab.active { color: #fff; background: rgba(255,255,255,0.12); border-bottom-color: #63b3ed; }
+    .mm-tab .mm-caret { font-size: 9px; opacity: .7; }
+    .mm-burger {
+      display: none; appearance: none; background: none; border: none; color: #fff;
+      font-size: 22px; cursor: pointer; padding: 8px 4px 8px 12px; margin-left: auto; line-height: 1;
+    }
 
-    .mm-backdrop {
-      position: fixed; inset: 0; z-index: 8999; display: none;
-      background: rgba(15,23,42,0.35);
-    }
+    /* ---------- Desktop dropdown panel ---------- */
+    .mm-backdrop { position: fixed; inset: 0; z-index: 8999; display: none; background: rgba(15,23,42,0.35); }
     .mm-backdrop.open { display: block; }
-
     .mm-panel {
       position: fixed; left: 0; right: 0; z-index: 9000; display: none;
-      background: #fff; border-bottom: 1px solid #e3e1dc;
-      box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+      background: #fff; border-bottom: 1px solid #e3e1dc; box-shadow: 0 16px 40px rgba(0,0,0,0.18);
       max-height: 72vh; overflow-y: auto;
     }
     .mm-panel.open { display: block; }
-    .mm-panel-inner {
+    .mm-grid {
       max-width: 1100px; margin: 0 auto; padding: 22px 20px 26px;
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px 26px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px 26px;
     }
     .mm-dom { border-left: 3px solid var(--mm-accent, #2c5282); padding-left: 14px; }
-    .mm-dom-title {
-      font-size: 16px; font-weight: 700; text-decoration: none; color: #1a1a1a;
-      display: inline-block; margin-bottom: 8px;
-    }
+    .mm-dom-title { font-size: 16px; font-weight: 700; text-decoration: none; color: #1a1a1a; display: inline-block; margin-bottom: 8px; }
     .mm-dom-title:hover { color: var(--mm-accent, #2c5282); }
     .mm-chips { display: flex; flex-wrap: wrap; gap: 6px; }
     .mm-chip {
       font-size: 12px; font-weight: 600; text-decoration: none;
-      color: var(--mm-accent, #2c5282); background: var(--mm-accent-soft, #ebf8ff);
-      padding: 4px 10px; border-radius: 6px; transition: background .12s, color .12s;
+      color: var(--mm-accent, #2c5282); background: var(--mm-soft, #ebf8ff);
+      padding: 5px 11px; border-radius: 7px; transition: background .12s, color .12s;
     }
     .mm-chip:hover { background: var(--mm-accent, #2c5282); color: #fff; }
 
-    @media (max-width: 768px) {
-      .mm-home { font-size: 14px; padding: 12px 10px; }
-      .mm-tab { font-size: 13px; padding: 12px 10px; }
-      .mm-panel-inner { grid-template-columns: 1fr; padding: 18px 16px 22px; gap: 16px; }
-      .mm-panel { max-height: 78vh; }
-      .mm-chip { font-size: 13px; padding: 6px 12px; }
+    /* ---------- Mobile drawer (accordion) ---------- */
+    .mm-drawer {
+      position: fixed; inset: 0; z-index: 9100; display: none;
+      background: #fafaf7; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    .mm-drawer.open { display: block; }
+    .mm-drawer-head {
+      position: sticky; top: 0; background: #2d3748; color: #fff;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; font-weight: 800; font-size: 17px;
+      padding-top: calc(14px + env(safe-area-inset-top, 0px));
+    }
+    .mm-drawer-close { appearance: none; background: none; border: none; color: #fff; font-size: 26px; cursor: pointer; line-height: 1; padding: 0 4px; }
+    .mm-acc { border-bottom: 1px solid #e3e1dc; }
+    .mm-acc-head {
+      width: 100%; appearance: none; background: none; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 18px; font-family: inherit; font-size: 16px; font-weight: 700; color: #1a1a1a; text-align: left;
+    }
+    .mm-acc-head .mm-acc-caret { transition: transform .18s; color: #718096; font-size: 13px; }
+    .mm-acc.open .mm-acc-caret { transform: rotate(180deg); }
+    .mm-acc-body { display: none; padding: 0 18px 18px; }
+    .mm-acc.open .mm-acc-body { display: block; }
+    .mm-acc-dom { margin-top: 14px; border-left: 3px solid var(--mm-accent, #2c5282); padding-left: 12px; }
+    .mm-acc-dom:first-child { margin-top: 4px; }
+
+    @media (max-width: 759px) {
+      .mm-tabs { display: none; }
+      .mm-burger { display: inline-block; }
+      .mm-home { font-size: 16px; }
+    }
+    @media (min-width: 760px) {
+      .mm-drawer { display: none !important; }
     }`;
     var st = document.createElement("style");
     st.id = "mega-menu-style";
@@ -111,100 +152,148 @@
     document.head.appendChild(st);
   }
 
-  // Làm nhạt một màu rgb để dùng làm nền chip (trộn với trắng ~88%).
-  function softColor(rgb) {
-    var m = rgb.match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
-    if (!m) return "#ebf8ff";
-    var mix = function (c) { return Math.round(+c + (255 - +c) * 0.86); };
-    return "rgb(" + mix(m[1]) + "," + mix(m[2]) + "," + mix(m[3]) + ")";
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html != null) e.innerHTML = html;
+    return e;
   }
 
   function build() {
     injectStyle();
     var groups = buildModel();
-    if (!groups.length) return; // không phải trang index → bỏ qua
+    if (!groups.length) return;
 
-    // --- Thanh bar ---
-    var bar = document.createElement("nav");
-    bar.className = "mm-bar";
+    // ---------- Thanh bar ----------
+    var bar = el("nav", "mm-bar");
     bar.setAttribute("aria-label", "Điều hướng lĩnh vực");
-    var home = document.createElement("a");
-    home.className = "mm-home";
+    var inner = el("div", "mm-bar-inner");
+    var home = el("a", "mm-home", "🎓 Mục lục");
     home.href = "#";
-    home.innerHTML = "🎓 Mục lục";
-    home.addEventListener("click", function (e) { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); close(); });
-    bar.appendChild(home);
+    home.addEventListener("click", function (e) { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); closePanel(); });
+    inner.appendChild(home);
 
+    var tabsWrap = el("div", "mm-tabs");
     var tabs = [];
     groups.forEach(function (g, i) {
-      var t = document.createElement("button");
-      t.className = "mm-tab";
+      var t = el("button", "mm-tab", shorten(g.name) + ' <span class="mm-caret">▾</span>');
       t.type = "button";
-      t.innerHTML = g.name + ' <span class="mm-caret">▾</span>';
-      t.addEventListener("click", function () { toggle(i); });
-      t.addEventListener("mouseenter", function () { if (openIdx !== -1 && openIdx !== i) show(i); });
-      bar.appendChild(t);
+      t.title = g.name;
+      t.addEventListener("click", function () { togglePanel(i); });
+      t.addEventListener("mouseenter", function () { if (panelIdx !== -1 && panelIdx !== i) showPanel(i); });
+      tabsWrap.appendChild(t);
       tabs.push(t);
     });
+    inner.appendChild(tabsWrap);
 
-    // --- Backdrop + panel ---
-    var backdrop = document.createElement("div");
-    backdrop.className = "mm-backdrop";
-    var panel = document.createElement("div");
-    panel.className = "mm-panel";
+    var burger = el("button", "mm-burger", "☰");
+    burger.type = "button";
+    burger.setAttribute("aria-label", "Mở mục lục");
+    burger.addEventListener("click", openDrawer);
+    inner.appendChild(burger);
 
-    // Chèn bar lên đầu body, panel + backdrop sau đó.
+    bar.appendChild(inner);
+
+    // ---------- Desktop panel ----------
+    var backdrop = el("div", "mm-backdrop");
+    var panel = el("div", "mm-panel");
+
+    // ---------- Mobile drawer ----------
+    var drawer = el("div", "mm-drawer");
+    var dHead = el("div", "mm-drawer-head", "<span>🎓 Mục lục</span>");
+    var dClose = el("button", "mm-drawer-close", "✕");
+    dClose.type = "button";
+    dClose.setAttribute("aria-label", "Đóng");
+    dClose.addEventListener("click", closeDrawer);
+    dHead.appendChild(dClose);
+    drawer.appendChild(dHead);
+
+    groups.forEach(function (g, gi) {
+      var acc = el("div", "mm-acc");
+      var head = el("button", "mm-acc-head",
+        "<span>" + g.name + "</span><span class='mm-acc-caret'>▾</span>");
+      head.type = "button";
+      var body = el("div", "mm-acc-body");
+      g.domains.forEach(function (d) {
+        var dom = el("div", "mm-acc-dom");
+        dom.style.setProperty("--mm-accent", d.accent);
+        var html = '<a class="mm-dom-title" href="' + d.href + '">' + d.label + "</a>";
+        html += '<div class="mm-chips">';
+        d.tiers.forEach(function (t) {
+          html += '<a class="mm-chip" style="--mm-accent:' + d.accent + ';--mm-soft:' + d.soft + '" href="' + t.href + '">' + t.label + "</a>";
+        });
+        html += "</div>";
+        dom.innerHTML = html;
+        body.appendChild(dom);
+      });
+      head.addEventListener("click", function () {
+        // accordion: mở mục này, đóng các mục khác cho gọn
+        var wasOpen = acc.classList.contains("open");
+        drawer.querySelectorAll(".mm-acc.open").forEach(function (x) { x.classList.remove("open"); });
+        if (!wasOpen) acc.classList.add("open");
+      });
+      acc.appendChild(head);
+      acc.appendChild(body);
+      drawer.appendChild(acc);
+    });
+
     document.body.insertBefore(bar, document.body.firstChild);
     document.body.appendChild(backdrop);
     document.body.appendChild(panel);
+    document.body.appendChild(drawer);
 
-    var openIdx = -1;
-
+    // ---------- Logic desktop panel ----------
+    var panelIdx = -1;
     function renderPanel(i) {
       var g = groups[i];
-      var html = '<div class="mm-panel-inner">';
+      var html = '<div class="mm-grid">';
       g.domains.forEach(function (d) {
-        var soft = softColor(d.accent);
-        html += '<div class="mm-dom" style="--mm-accent:' + d.accent + ';--mm-accent-soft:' + soft + '">';
+        html += '<div class="mm-dom" style="--mm-accent:' + d.accent + ';--mm-soft:' + d.soft + '">';
         html += '<a class="mm-dom-title" href="' + d.href + '">' + d.label + "</a>";
         html += '<div class="mm-chips">';
-        d.tiers.forEach(function (t) {
-          html += '<a class="mm-chip" href="' + t.href + '">' + t.label + "</a>";
-        });
+        d.tiers.forEach(function (t) { html += '<a class="mm-chip" href="' + t.href + '">' + t.label + "</a>"; });
         html += "</div></div>";
       });
       html += "</div>";
       panel.innerHTML = html;
     }
-
     function positionPanel() {
-      // panel nằm ngay dưới thanh bar (bar sticky top:0).
       var r = bar.getBoundingClientRect();
       var top = Math.max(r.bottom, 0);
       panel.style.top = top + "px";
       backdrop.style.top = top + "px";
     }
-
-    function show(i) {
-      openIdx = i;
+    function showPanel(i) {
+      panelIdx = i;
       renderPanel(i);
       positionPanel();
       panel.classList.add("open");
       backdrop.classList.add("open");
       tabs.forEach(function (t, idx) { t.classList.toggle("active", idx === i); });
     }
-    function close() {
-      openIdx = -1;
+    function closePanel() {
+      panelIdx = -1;
       panel.classList.remove("open");
       backdrop.classList.remove("open");
       tabs.forEach(function (t) { t.classList.remove("active"); });
     }
-    function toggle(i) { if (openIdx === i) close(); else show(i); }
+    function togglePanel(i) { if (panelIdx === i) closePanel(); else showPanel(i); }
 
-    backdrop.addEventListener("click", close);
-    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && openIdx !== -1) close(); });
-    window.addEventListener("resize", function () { if (openIdx !== -1) positionPanel(); });
-    window.addEventListener("scroll", function () { if (openIdx !== -1) positionPanel(); }, { passive: true });
+    // ---------- Logic mobile drawer ----------
+    function openDrawer() { drawer.classList.add("open"); document.body.style.overflow = "hidden"; }
+    function closeDrawer() { drawer.classList.remove("open"); document.body.style.overflow = ""; }
+
+    backdrop.addEventListener("click", closePanel);
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      if (panelIdx !== -1) closePanel();
+      if (drawer.classList.contains("open")) closeDrawer();
+    });
+    window.addEventListener("resize", function () {
+      if (panelIdx !== -1) positionPanel();
+      if (window.innerWidth >= 760) closeDrawer();
+    });
+    window.addEventListener("scroll", function () { if (panelIdx !== -1) positionPanel(); }, { passive: true });
   }
 
   if (document.readyState === "loading") {

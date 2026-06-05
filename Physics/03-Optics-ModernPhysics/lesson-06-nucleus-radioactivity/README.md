@@ -38,6 +38,36 @@ Phần "hụt khối" này biến thành **năng lượng liên kết** theo Ein
 
 → Cần 27.3 MeV để "tách" He-4 thành 2p + 2n.
 
+**Định nghĩa đầy đủ — năng lượng liên kết (binding energy) E_lk**:
+- **(a) Là gì**: năng lượng (MeV) cần để TÁCH hoàn toàn một hạt nhân thành các proton và neutron riêng lẻ. Tương đương: năng lượng được GIẢI PHÓNG khi ghép các nucleon lại thành hạt nhân. Bằng `E_lk = Δm·c²` với Δm = độ hụt khối.
+- **(b) Vì sao cần**: để đo "độ bền" của hạt nhân và dự đoán phản ứng nào tỏa năng lượng. Không có nó thì không hiểu được vì sao Mặt Trời sáng (fusion) hay lò phản ứng tạo điện (fission).
+- **(c) Ví dụ số kèm đơn vị**: He-4 có Δm = 0.0293 u. `E_lk = 0.0293 × 931.5 MeV/u = 27.3 MeV`. Chia cho 4 nucleon → 6.8 MeV/nucleon (dùng để so với các hạt nhân khác ở Lesson 07).
+
+💡 **Trực giác**: hạt nhân giống như cục nam châm gắn lại — "tổng cân nặng" cục gắn NHẸ hơn các mảnh rời, vì một phần khối lượng đã "biến thành keo dán" (năng lượng liên kết) theo `E = mc²`.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Khối lượng tự nhiên 'mất đi' đâu?"* Không mất — nó chuyển thành năng lượng liên kết theo `E = mc²`. Đây là minh chứng trực tiếp khối lượng và năng lượng là một (xem Lesson 08).
+- *"Vì sao proton (cùng dương) không đẩy nhau văng ra?"* Vì **lực hạt nhân mạnh** ở cự ly ngắn (~10⁻¹⁵ m) mạnh hơn lực đẩy điện. Ngoài cự ly đó lực mạnh tắt nhanh → hạt nhân quá lớn (nhiều proton) trở nên bất ổn.
+- *"u là đơn vị gì?"* Đơn vị khối lượng nguyên tử, `1 u = 1.66×10⁻²⁷ kg`, và `1 u·c² = 931.5 MeV`.
+
+⚠ **Lỗi thường gặp**
+
+- **Lẫn số khối A và số hiệu Z.** A = tổng nucleon (p + n); Z = số proton (= số hiệu, định danh nguyên tố). Số neutron `N = A − Z`. Vd ²³⁸U: A=238, Z=92, N=146.
+- **Quên hệ số 931.5 khi đổi u → MeV.** `1 u → 931.5 MeV`. Bỏ qua → sai 3 bậc độ lớn.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Hạt nhân ¹⁴₆C có bao nhiêu proton và neutron?
+2. Một hạt nhân có độ hụt khối Δm = 0.05 u. Năng lượng liên kết bằng bao nhiêu MeV?
+
+<details><summary>Đáp án</summary>
+
+1. Z = 6 → 6 proton; A = 14 → `N = 14 − 6 = 8` neutron.
+2. `E_lk = 0.05 × 931.5 = 46.6 MeV`.
+
+</details>
+
 ### 📝 Tóm tắt mục 1
 
 - Hạt nhân = p + n, giữ bởi lực hạt nhân mạnh.
@@ -89,6 +119,32 @@ Phát ra khi hạt nhân từ trạng thái kích thích về trạng thái cơ 
 - Cần **chì dày** (vài cm) hoặc bê tông để chặn.
 - **NGUY HIỂM NHẤT**: xuyên qua cả cơ thể, phá DNA, gây ung thư.
 
+💡 **Trực giác**: ba loại phóng xạ giống ba "viên đạn" khác cỡ. α = viên đạn to chậm (ion hóa dữ nhưng đi gần, giấy chặn); β = viên đạn nhỏ nhanh (xuyên sâu hơn, nhôm chặn); γ = tia laser năng lượng cao (không khối lượng, xuyên rất xa, cần chì dày).
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Phóng xạ α/β làm số khối và số hiệu thay đổi thế nào?"* α: A giảm 4, Z giảm 2 (mất 2p+2n). β⁻: A giữ nguyên, Z TĂNG 1 (1 neutron → 1 proton + electron). γ: cả A và Z không đổi (chỉ nhả năng lượng dư).
+- *"Tại sao α nguy hiểm khi nuốt vào nhưng giấy lại chặn được?"* Vì ngoài da, lớp tế bào chết + quần áo đã chặn α. Nhưng nếu hít/nuốt, α "bắn" trực tiếp vào tế bào sống → ion hóa cực mạnh tại chỗ → phá hủy nặng.
+- *"γ có biến đổi nguyên tố không?"* KHÔNG — γ chỉ là photon năng lượng cao thoát ra khi hạt nhân hạ từ trạng thái kích thích về cơ bản. Không đổi p, n.
+
+⚠ **Lỗi thường gặp**
+
+- **Viết sai bảo toàn số khối/số hiệu khi cân bằng phản ứng.** Phải bảo toàn cả A (tổng trên) và Z (tổng dưới) ở hai vế. Vd ²³⁸₉₂U → ²³⁴₉₀Th + ⁴₂He: A: 238 = 234+4 ✓; Z: 92 = 90+2 ✓.
+- **Nghĩ γ "an toàn vì không có khối lượng".** Ngược lại — γ xuyên thấu mạnh nhất, nguy hiểm từ xa, cần chì/bê tông để chặn.
+- **Lẫn β⁻ làm Z giảm.** β⁻ làm Z TĂNG 1 (n→p), không giảm.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. ²²⁶₈₈Ra phát ra α. Viết sản phẩm con (số khối, số hiệu).
+2. Để che chắn nguồn γ mạnh, dùng tờ giấy, tấm nhôm hay khối chì? Vì sao?
+
+<details><summary>Đáp án</summary>
+
+1. α làm A giảm 4 (226→222), Z giảm 2 (88→86 = Rn). Sản phẩm: **²²²₈₆Rn** (radon). Phản ứng: ²²⁶₈₈Ra → ²²²₈₆Rn + ⁴₂He.
+2. Khối **chì** dày (hoặc bê tông). γ xuyên qua giấy và nhôm dễ dàng; chỉ vật liệu đặc, nguyên tử số cao như chì mới hấp thụ đáng kể.
+
+</details>
+
 ### 📝 Tóm tắt mục 2
 
 | Loại | Là gì | Đi xa | Chặn |
@@ -102,6 +158,13 @@ Phát ra khi hạt nhân từ trạng thái kích thích về trạng thái cơ 
 ## 3. Chu kỳ bán rã
 
 ### 3.1. Định nghĩa
+
+💡 **Trực giác — bán rã**: "một nửa biến mất sau mỗi chu kỳ". Cứ qua một chu kỳ, còn lại một nửa; qua hai chu kỳ còn 1/4; ba chu kỳ còn 1/8... không bao giờ về 0 hẳn, chỉ giảm theo cấp số nhân.
+
+**Định nghĩa đầy đủ — chu kỳ bán rã (half-life) t½**:
+- **(a) Là gì**: thời gian (đơn vị: giây, năm...) để LƯỢNG chất phóng xạ giảm còn đúng MỘT NỬA. Đặc trưng cho mỗi đồng vị, không phụ thuộc khối lượng ban đầu hay nhiệt độ.
+- **(b) Vì sao cần**: vì phân rã của từng hạt nhân là ngẫu nhiên, không dự đoán được cá thể nào. Nhưng t½ cho quy luật thống kê chắc chắn cho cả khối → tính được tuổi cổ vật, liều thuốc phóng xạ, thời gian lưu kho chất thải.
+- **(c) Ví dụ số kèm đơn vị**: C-14 có `t½ = 5730 năm`. Bắt đầu 8 g → sau 5730 năm còn 4 g → sau 11 460 năm còn 2 g → sau 17 190 năm còn 1 g.
 
 **Chu kỳ bán rã t½** = thời gian để **lượng chất phóng xạ giảm còn 1 nửa**.
 
@@ -135,6 +198,30 @@ Một mẫu xương có lượng C-14 còn lại 25% so với cây sống.
 - 25% = (1/2)^n → n = 2 chu kỳ bán rã.
 - t = 2 × 5730 = **11,460 năm**.
 
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Hai chu kỳ bán rã có cộng thành 'phân rã hết' không?"* KHÔNG. Sau 1 t½ còn 1/2, sau 2 t½ còn 1/4 (KHÔNG phải 0). Bán rã NHÂN nhau (×½ mỗi chu kỳ), không cộng tuyến tính. Sau n chu kỳ còn `(½)ⁿ`.
+- *"Vì sao C-14 chỉ định tuổi được tới ~50 000 năm?"* Sau ~9 chu kỳ (≈51 600 năm) lượng C-14 còn `(½)⁹ ≈ 0.2%` — quá ít để đo chính xác. Vật cổ hơn phải dùng đồng vị t½ dài (U-238, K-Ar).
+- *"t½ có đổi theo nhiệt độ/áp suất không?"* KHÔNG (với phân rã hạt nhân) — đó là hằng số nội tại của đồng vị, nên dùng làm "đồng hồ" tin cậy.
+
+⚠ **Lỗi thường gặp**
+
+- **Cộng tuyến tính: "2 chu kỳ → mất hết".** Sai. Mất một nửa, rồi một nửa của phần còn lại → còn 1/4. Mỗi chu kỳ chia đôi phần CÒN LẠI.
+- **Lẫn "còn lại 25%" với "đã phân rã 25%".** "Còn 25%" = `(½)² → 2 chu kỳ`. "Đã phân rã 25%" = còn 75% → chưa tới 1 chu kỳ.
+- **Đếm n không nguyên cũng đừng tròn vội.** `(½)ⁿ` với n có thể là số thực: vd còn 30% → `n = log(0.3)/log(0.5) ≈ 1.74` chu kỳ.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Mẫu Iodine-131 (t½ = 8 ngày) ban đầu 80 mg. Sau 24 ngày còn bao nhiêu?
+2. Một cổ vật còn 6.25% lượng C-14. Tuổi bằng bao nhiêu?
+
+<details><summary>Đáp án</summary>
+
+1. 24 ngày / 8 = 3 chu kỳ → còn `(½)³ = 1/8` → `80 × 1/8 = 10 mg`.
+2. `6.25% = (½)⁴` → 4 chu kỳ → `t = 4 × 5730 = 22 920 năm`.
+
+</details>
+
 ### 📝 Tóm tắt mục 3
 
 - N(t) = N₀ · (1/2)^(t/t½).
@@ -159,6 +246,31 @@ Một mẫu xương có lượng C-14 còn lại 25% so với cây sống.
 ### 4.3. Cảnh báo — Tác hại
 
 Phóng xạ cao → đột biến DNA → ung thư, sảy thai. Liều an toàn cho người: < 1 mSv/năm (millisievert). Tia X chụp 1 lần ≈ 0.1 mSv. Liều gây bệnh phóng xạ cấp: > 1 Sv (1000 mSv).
+
+💡 **Trực giác**: phóng xạ là "con dao hai lưỡi" — cùng khả năng ion hóa phá tế bào ung thư (xạ trị) cũng có thể gây ung thư nếu liều cao/không kiểm soát. Liều và vị trí quyết định lợi hay hại.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Vì sao chọn đồng vị t½ ngắn cho y tế (Tc-99m 6 giờ, I-131 8 ngày)?"* Để chất phóng xạ phân rã hết nhanh sau khi chẩn đoán/điều trị → giảm liều tích lũy cho bệnh nhân. Đồng vị t½ dài sẽ "ở lại" cơ thể gây hại lâu.
+- *"Định tuổi đá triệu/tỷ năm sao dùng được C-14?"* Không dùng được — C-14 t½ chỉ 5730 năm, sau ~50 000 năm là hết. Đá cổ dùng U-Pb hay K-Ar (t½ hàng tỷ năm).
+- *"1 lần chụp X-quang có nguy hiểm không?"* ~0.1 mSv, thấp hơn nhiều liều nền tự nhiên hằng năm (~2–3 mSv). Rủi ro rất nhỏ so với lợi ích chẩn đoán.
+
+⚠ **Lỗi thường gặp**
+
+- **Lẫn đơn vị liều.** Sv (sievert) đo tác hại sinh học, khác Bq (becquerel, đo số phân rã/giây) và Gy (gray, đo năng lượng hấp thụ). 1 Sv = 1000 mSv.
+- **Dùng C-14 cho mẫu quá cổ.** Giới hạn ~50 000 năm; vượt qua thì không đủ C-14 để đo.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Định tuổi một mẫu đá núi lửa ~2 tỷ năm tuổi — nên dùng C-14 hay U-Pb? Vì sao?
+2. Liều an toàn hằng năm cho người là bao nhiêu, và 1 lần chụp X-quang chiếm bao nhiêu phần trăm?
+
+<details><summary>Đáp án</summary>
+
+1. Dùng **U-Pb** (t½ hàng tỷ năm). C-14 (t½ 5730 năm) đã phân rã hết từ lâu ở thang tỷ năm → không đo được.
+2. < 1 mSv/năm (giới hạn nhân tạo); 1 lần X-quang ≈ 0.1 mSv → khoảng 10% giới hạn đó.
+
+</details>
 
 ### 📝 Tóm tắt mục 4
 

@@ -24,6 +24,13 @@ Sau bài này bạn sẽ:
 
 **Thấu kính phân kỳ (concave, lõm)**: mỏng giữa, dày mép. Phân tán tia. **f < 0**.
 
+💡 **Trực giác — tiêu cự (focal length) f**: f đo "độ hội tụ" của thấu kính.
+
+**Định nghĩa đầy đủ — tiêu cự f**:
+- **(a) Là gì**: khoảng cách (đơn vị độ dài, vd cm) từ thấu kính đến điểm mà chùm tia song song (đến từ vô cực) hội tụ lại = tiêu điểm F. f nhỏ → tia bị bẻ mạnh → hội tụ gần.
+- **(b) Vì sao cần**: f tóm gọn toàn bộ "sức mạnh quang học" của một thấu kính vào MỘT con số, để ta tính được vị trí ảnh cho mọi vị trí vật mà không cần biết hình dạng cong chi tiết của thấu kính. Độ tụ `P = 1/f` (đơn vị diop, m⁻¹) là cách kính cận/viễn được kê đơn.
+- **(c) Ví dụ số kèm đơn vị**: kính lúp `f = 10 cm`. Chùm nắng song song qua nó hội tụ thành điểm cháy cách kính đúng 10 cm. Độ tụ `P = 1/0.1 m = +10 diop`.
+
 ### 1.2. Phương trình thấu kính mỏng
 
 ```
@@ -65,6 +72,30 @@ m = h_i / h_o = −d_i / d_o
 - m = −(−10)/5 = **+2**. Ảnh **ảo**, **cùng chiều**, **gấp đôi**.
 - → Đây là kính lúp: đưa vật gần kính (trong khoảng f) → ảnh ảo phóng đại.
 
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Dấu của d_i nói lên điều gì?"* `d_i > 0` → ảnh ở phía bên kia thấu kính (cùng phía tia ló) → **ảnh thật**, chiếu được lên màn. `d_i < 0` → ảnh ở cùng phía vật → **ảnh ảo**, chỉ nhìn được bằng mắt, không hứng được lên màn.
+- *"Tại sao kính lúp lúc phóng to lúc lật ngược?"* Phụ thuộc vật ở trong hay ngoài tiêu cự. Vật trong khoảng f (d_o < f) → ảnh ảo cùng chiều, phóng to (dùng làm kính lúp). Vật ngoài 2f → ảnh thật ngược, thu nhỏ (như máy ảnh).
+- *"m âm nghĩa là gì?"* `m < 0` → ảnh **ngược chiều** vật (lộn ngược). `m > 0` → cùng chiều. `|m| > 1` phóng to, `|m| < 1` thu nhỏ.
+
+⚠ **Lỗi thường gặp**
+
+- **Quên quy ước dấu của f.** Thấu kính phân kỳ có `f < 0`. Thay `f = +20` cho thấu kính lõm sẽ ra ảnh sai loại. Lõm luôn cho ảnh ảo, thu nhỏ với vật thật.
+- **Cộng nhầm `1/f = 1/d_o − 1/d_i`.** Công thức đúng là `1/f = 1/d_o + 1/d_i` (cộng). Dấu âm chỉ xuất hiện qua việc d_i tự mang dấu âm khi ảnh ảo.
+- **Tưởng ảnh ảo "không có thật".** Ảnh ảo vẫn nhìn thấy rõ bằng mắt (ảnh trong gương, kính lúp) — chỉ là không hứng được lên màn vì tia sáng không thực sự hội tụ tại đó.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Thấu kính lồi f = 12 cm, vật ở d_o = 24 cm. Tính d_i và m. Ảnh thật hay ảo?
+2. Thấu kính phân kỳ f = −15 cm, vật ở d_o = 30 cm. d_i dương hay âm?
+
+<details><summary>Đáp án</summary>
+
+1. `1/d_i = 1/12 − 1/24 = 2/24 − 1/24 = 1/24 → d_i = 24 cm` (>0 → **ảnh thật**). `m = −24/24 = −1` → ảnh ngược chiều, cùng kích thước. (Vật ở đúng 2f → ảnh ở 2f, bằng vật, lộn ngược.)
+2. `1/d_i = 1/(−15) − 1/30 = −2/30 − 1/30 = −3/30 = −1/10 → d_i = −10 cm`. **Âm** → ảnh ảo (thấu kính phân kỳ luôn cho ảnh ảo với vật thật).
+
+</details>
+
 ### 📝 Tóm tắt mục 1
 
 - Hội tụ (f > 0) vs phân kỳ (f < 0).
@@ -88,6 +119,31 @@ Phương trình tương tự thấu kính: **1/f = 1/d_o + 1/d_i**. Tiêu cự l
 - **Gương lõm**: gương trang điểm phóng to khi gần, gương vệ tinh thu sóng.
 - **Gương lồi**: gương chiếu hậu xe (rộng tầm nhìn nhưng làm vật nhìn xa hơn), gương trong siêu thị.
 - **Kính viễn vọng**: gương lõm thu ánh sáng từ ngôi sao.
+
+💡 **Trực giác**: gương lõm "ôm lấy" ánh sáng và gom về một điểm (như chảo vệ tinh); gương lồi "đẩy" ánh sáng ra rộng → cho tầm nhìn rộng nhưng vật trông nhỏ và xa hơn.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Gương dùng cùng công thức `1/f = 1/d_o + 1/d_i` với thấu kính sao?"* Đúng, công thức giống hệt. Khác biệt: với gương, ảnh thật nằm cùng phía vật (phía trước gương, vì ánh sáng bị bật ngược lại); với thấu kính, ảnh thật nằm phía sau.
+- *"Vì sao gương chiếu hậu ghi 'vật ở gần hơn so với hình'?"* Vì gương lồi cho ảnh ảo thu nhỏ → não bộ tưởng vật ở xa, nhưng thực tế gần hơn. Đánh đổi để có tầm nhìn rộng.
+- *"f = R/2 từ đâu ra?"* Với gương cầu, tia song song gần trục phản xạ hội tụ tại điểm cách gương nửa bán kính cong. Nên `f = R/2`.
+
+⚠ **Lỗi thường gặp**
+
+- **Lẫn lồi/lõm giữa gương và thấu kính.** Gương LÕM (concave) hội tụ — như thấu kính LỒI. Tên gọi ngược nhau nhưng tác dụng (hội tụ, f>0) giống nhau. Đừng ghép "lõm = phân kỳ".
+- **Quên đổi R sang f.** Đề cho R = 40 cm thì f = 20 cm, KHÔNG phải 40 cm.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Gương cầu lõm có R = 30 cm. Tiêu cự bằng bao nhiêu?
+2. Gương chiếu hậu xe là loại gương cầu gì, và vì sao?
+
+<details><summary>Đáp án</summary>
+
+1. `f = R/2 = 30/2 = 15 cm` (dương vì gương lõm hội tụ).
+2. Gương **cầu lồi** (f < 0). Lý do: cho ảnh ảo thu nhỏ → trường nhìn rộng hơn, tài xế quan sát được nhiều làn đường phía sau.
+
+</details>
 
 ### 📝 Tóm tắt mục 2
 
@@ -125,6 +181,31 @@ Tương tự kính hiển vi nhưng cho vật rất xa.
 - Vật kính có f LỚN (để thu ánh sáng nhiều và tạo ảnh nhỏ rõ).
 - Thị kính f nhỏ (phóng to).
 - Độ phóng = f_vật kính / f_thị kính.
+
+💡 **Trực giác**: mọi dụng cụ quang đều là biến thể của "đặt vật ở đâu so với f để được ảnh mong muốn". Mắt/máy ảnh muốn ảnh thật trên võng mạc/cảm biến; kính lúp/hiển vi muốn ảnh ảo phóng to để mắt ngắm.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Cận thị đeo kính gì, viễn thị đeo kính gì — làm sao nhớ?"* Cận = ảnh hội tụ TRƯỚC võng mạc (hội tụ quá sớm) → cần kính PHÂN KỲ (f<0) để "đẩy lùi" tiêu điểm ra sau. Viễn = hội tụ SAU võng mạc (quá muộn) → cần kính HỘI TỤ (f>0) để kéo tiêu điểm về trước. Mẹo: cận-lõm, viễn-lồi.
+- *"Vì sao kính hiển vi cần 2 thấu kính, dùng 1 cái không được sao?"* 1 thấu kính cho độ phóng giới hạn (~20×). Ghép vật kính tạo ảnh thật phóng to, rồi thị kính phóng tiếp ảnh đó → tích hai độ phóng → tới 1000×.
+- *"Độ phóng đại kính hiển vi và viễn vọng tính khác nhau sao?"* Hiển vi: `m = m_vật × m_thị` (tích hai độ phóng tuyến tính). Viễn vọng: `M = f_vật / f_thị` (tỉ số hai tiêu cự) — vì vật ở vô cực nên đo độ phóng GÓC.
+
+⚠ **Lỗi thường gặp**
+
+- **Đảo ngược cận/viễn.** Cận thị nhìn GẦN rõ, nhìn XA mờ → đeo kính phân kỳ. Nhiều người nhầm "nhìn xa mờ thì đeo kính phóng to" (hội tụ) — sai.
+- **Tưởng kính viễn vọng dùng thị kính f lớn.** Ngược lại: vật kính f LỚN, thị kính f NHỎ → `M = f_vật/f_thị` lớn. Đặt ngược → M < 1 (thu nhỏ).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Một người nhìn gần (đọc sách) bị mờ, nhìn xa rõ. Bị tật gì, đeo kính loại nào?
+2. Kính viễn vọng có f_vật = 80 cm, f_thị = 4 cm. Độ phóng đại?
+
+<details><summary>Đáp án</summary>
+
+1. Nhìn gần mờ = **viễn thị (hyperopia)** → đeo kính **hội tụ** (f > 0).
+2. `M = f_vật/f_thị = 80/4 = 20×`.
+
+</details>
 
 ### 📝 Tóm tắt mục 3
 

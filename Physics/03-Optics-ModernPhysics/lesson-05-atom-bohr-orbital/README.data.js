@@ -25,6 +25,10 @@ Khi đun nóng khí Hydrogen rồi cho qua lăng kính, ta thấy **vạch phổ
 
 **Bí ẩn**: vì sao chỉ có một số λ "được phép"? Lý thuyết cổ điển không giải thích được — mô hình Rutherford (electron quay quanh hạt nhân) còn dự đoán electron rơi vào hạt nhân trong 10⁻¹¹ giây (đã đề cập ở Chemistry).
 
+💡 **Trực giác**: nếu năng lượng electron liên tục (đi đâu cũng được), phổ phải là dải màu liền (cầu vồng). Nhưng ta chỉ thấy vài VẠCH rời rạc → giống như chỉ một số "nốt nhạc" được phép vang lên. Điều đó gợi ý năng lượng electron bị "đóng bậc" — chính là ý tưởng mức năng lượng của Bohr.
+
+📝 **Tóm tắt mục 1**: phổ Hydrogen là các vạch rời rạc, không liên tục → vật lý cổ điển bó tay → cần một mô hình "lượng tử hóa năng lượng".
+
 ---
 
 ## 2. Mô hình Bohr (1913)
@@ -63,6 +67,37 @@ Ví dụ: electron nhảy từ n=3 xuống n=2 (vạch Hα đỏ trong phổ Hyd
 
 → Khớp chính xác vạch đỏ trong phổ Hydrogen! Bohr đoạt Nobel 1922.
 
+**Định nghĩa đầy đủ — mức năng lượng (energy level) E_n**:
+- **(a) Là gì**: tập các giá trị năng lượng "được phép" của electron, \`E_n = −13.6/n² eV\` (n = 1, 2, 3...). Dấu ÂM nghĩa là electron bị "buộc" vào hạt nhân — cần CẤP năng lượng để giải phóng. n càng lớn → E_n càng gần 0 (liên kết càng lỏng).
+- **(b) Vì sao cần**: vì năng lượng rời rạc nên electron chỉ "nhảy" giữa các mức bằng những bước nhảy năng lượng cố định → phát/hấp thụ photon có năng lượng cố định → tạo các VẠCH phổ rời rạc. Đây là lời giải cho bí ẩn ở mục 1.
+- **(c) Ví dụ số kèm đơn vị**: \`E_1 = −13.6/1² = −13.6 eV\` (mức cơ bản, bền nhất); \`E_2 = −13.6/4 = −3.4 eV\`. Khoảng cách \`E_2 − E_1 = 10.2 eV\` chính là năng lượng photon UV (vạch Lyman-α, λ ≈ 122 nm).
+
+💡 **Trực giác — mức năng lượng = bậc thang**: electron như người đứng trên cầu thang, chỉ có thể đứng ở các BẬC (mức), không lơ lửng giữa hai bậc. Lên bậc cao = nuốt photon; rơi xuống bậc thấp = nhả photon. Năng lượng photon = đúng độ chênh giữa hai bậc.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Vì sao E_n mang dấu ÂM?"* Quy ước: electron tự do (n=∞) có E = 0. Electron bị giữ trong nguyên tử có năng lượng THẤP HƠN 0 → âm. Càng âm = càng bị buộc chặt. Để bứt ra cần cấp đúng |E_n|.
+- *"Photon được phát ra khi electron lên hay xuống mức?"* PHÁT photon khi electron RƠI xuống mức thấp (nhả năng lượng); HẤP THỤ photon khi LÊN mức cao (nuốt năng lượng).
+- *"Vì sao mức cao xếp sát nhau (−3.4, −1.51, −0.85...)?"* Vì \`1/n²\` giảm nhanh: khoảng cách giữa các mức thu hẹp dần khi n tăng, tụ về 0 tại n = ∞ (giới hạn ion hóa).
+
+⚠ **Lỗi thường gặp**
+
+- **Quên dấu âm khi tính ΔE.** \`ΔE = E_cao − E_thấp\`. Vd n=3→2: \`(−1.51) − (−3.4) = +1.89 eV\` (dương, photon phát ra). Bỏ dấu âm → ra số sai.
+- **Lẫn eV và J khi tính λ.** Đổi \`1 eV = 1.6×10⁻¹⁹ J\` rồi mới dùng \`λ = hc/ΔE\`. Mẹo nhanh: \`λ(nm) = 1240/ΔE(eV)\`.
+- **Tưởng Bohr đúng cho mọi nguyên tử.** Chỉ đúng cho H và ion 1 electron (He⁺, Li²⁺). Nguyên tử nhiều electron có tương tác e–e → Bohr sai.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Tính E_3 của Hydrogen.
+2. Electron rơi từ n=2 xuống n=1. Photon phát ra có năng lượng và bước sóng bao nhiêu?
+
+<details><summary>Đáp án</summary>
+
+1. \`E_3 = −13.6/3² = −13.6/9 = −1.51 eV\`.
+2. \`ΔE = E_2 − E_1 = −3.4 − (−13.6) = 10.2 eV\`. \`λ = 1240/10.2 ≈ 122 nm\` (UV — vạch Lyman-α).
+
+</details>
+
 ### 📝 Tóm tắt mục 2
 
 - Bohr: electron ở mức rời rạc. E_n = −13.6/n² eV.
@@ -82,6 +117,37 @@ Mỗi "dãy" = tập hợp các vạch khi electron nhảy về 1 mức cuối c
 | **Brackett** | 4 | Hồng ngoại xa | 1922 |
 
 Dãy Balmer đặc biệt quan trọng — nó cho ánh sáng nhìn thấy, là cách thiên văn học **đo thành phần các sao** (mỗi nguyên tố có phổ vạch riêng).
+
+💡 **Trực giác**: mỗi "dãy" như một nhóm cầu thang cùng đáp xuống chung MỘT bậc đích. Lyman = mọi cú rơi về bậc 1 (năng lượng lớn → UV); Balmer = rơi về bậc 2 (năng lượng vừa → nhìn thấy); Paschen = về bậc 3 (nhỏ → IR).
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Vì sao chỉ dãy Balmer nhìn thấy được?"* Vì khoảng năng lượng các cú rơi về n=2 rơi đúng vào vùng ánh sáng khả kiến (1.9–3.4 eV ↔ 656–365 nm). Rơi về n=1 (Lyman) năng lượng quá lớn → UV; về n=3 (Paschen) quá nhỏ → hồng ngoại.
+- *"Làm sao thiên văn biết một ngôi sao có nguyên tố gì?"* Mỗi nguyên tố có "vân tay" phổ vạch riêng. Phân tích vạch hấp thụ/phát xạ trong ánh sáng sao → suy ra thành phần hóa học, dù cách hàng tỷ năm ánh sáng.
+- *"Cùng dãy thì vạch nào năng lượng lớn nhất?"* Cú rơi từ n=∞ về mức đích (giới hạn dãy) — chênh lệch năng lượng lớn nhất, bước sóng ngắn nhất.
+
+⚠ **Lỗi thường gặp**
+
+- **Nhầm n_cuối của dãy.** Lyman về n=1, Balmer về n=2, Paschen về n=3. Đặt nhầm n_cuối → tính sai vùng phổ.
+- **Tưởng dãy Balmer là tia tử ngoại.** Balmer nằm trong vùng NHÌN THẤY (đỏ Hα 656 nm, xanh Hβ 486 nm...). Lyman mới là UV.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Vạch Hα (n=3→2) ứng với dãy nào, nằm ở vùng phổ nào?
+2. Cú rơi n=5→3 thuộc dãy nào, vùng phổ nào?
+
+<details><summary>Đáp án</summary>
+
+1. Rơi về n=2 → dãy **Balmer** → vùng **nhìn thấy** (Hα đỏ, 656 nm).
+2. Rơi về n=3 → dãy **Paschen** → vùng **hồng ngoại**.
+
+</details>
+
+### 📝 Tóm tắt mục 3
+
+- Mỗi "dãy" = nhóm vạch cùng rơi về một mức đích cố định.
+- Lyman (về n=1, UV), Balmer (về n=2, nhìn thấy), Paschen (về n=3, IR), Brackett (về n=4, IR xa).
+- Balmer quan trọng cho thiên văn — phổ vạch là "vân tay" định danh nguyên tố trong sao.
 
 ---
 
@@ -109,6 +175,31 @@ Không thể đo đồng thời chính xác **vị trí** và **động lượng
 \`\`\`
 
 → Trong nguyên tử, không có "quỹ đạo" cố định — chỉ có **đám mây xác suất**. Bohr sai về "quỹ đạo" nhưng đúng về "mức năng lượng rời rạc".
+
+💡 **Trực giác — orbital**: đừng hình dung electron chạy trên đường ray (quỹ đạo Bohr). Hãy hình dung một "đám mây mờ" bao quanh hạt nhân — chỗ nào mây đậm thì xác suất bắt gặp electron ở đó cao. Đó là orbital.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Bohr sai hoàn toàn à?"* Không. Bohr ĐÚNG về mức năng lượng rời rạc và công thức \`E_n = −13.6/n²\` cho H — vẫn dùng tới ngày nay. Chỉ SAI ở hình ảnh "electron chạy trên quỹ đạo tròn xác định".
+- *"Vì sao không thể biết chính xác cả vị trí lẫn vận tốc electron?"* Nguyên lý bất định Heisenberg \`Δx·Δp ≥ ℏ/2\`: đo càng chính xác vị trí (Δx nhỏ) thì động lượng càng mờ (Δp lớn). Đây là giới hạn cơ bản của tự nhiên, không phải do dụng cụ kém.
+- *"Orbital s, p, d, f khác nhau ở đâu?"* Khác hình dạng đám mây xác suất: s (cầu), p (quả tạ), d (5 hình), f (7 hình). Quyết định cách nguyên tử liên kết hóa học.
+
+⚠ **Lỗi thường gặp**
+
+- **Vẽ electron như chấm chạy vòng tròn quanh hạt nhân.** Đó là hình Bohr đã lỗi thời. Mô hình đúng là đám mây xác suất (orbital), không có đường đi xác định.
+- **Tưởng Heisenberg là "đo không chuẩn vì máy yếu".** Sai — đó là giới hạn nguyên lý của tự nhiên, không thiết bị nào vượt qua được.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Mô hình Bohr đúng và sai ở điểm nào?
+2. Orbital s có hình dạng gì?
+
+<details><summary>Đáp án</summary>
+
+1. ĐÚNG: mức năng lượng rời rạc, \`E_n = −13.6/n²\` cho H. SAI: hình ảnh electron chạy trên quỹ đạo tròn cố định (thực tế là đám mây xác suất).
+2. Hình **cầu** (đối xứng quanh hạt nhân).
+
+</details>
 
 ### 📝 Tóm tắt mục 4
 

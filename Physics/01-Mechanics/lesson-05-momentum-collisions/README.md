@@ -59,6 +59,30 @@ p = m · v
 | **Phụ thuộc v** | Tuyến tính | Bình phương |
 | **Bảo toàn trong va chạm** | LUÔN (kín không ngoại lực) | Chỉ va chạm đàn hồi |
 
+### ⚠ Lỗi thường gặp
+
+- **Lẫn động lượng p = mv với động năng KE = ½mv²**: p (vector, ∝ v) đo "đà"; KE (scalar, ∝ v²) đo năng lượng. Trong va chạm mềm, p bảo toàn nhưng KE mất. Đừng dùng lẫn.
+- **Quên động lượng là vector (có hướng)**: hai vật cùng tốc độ ngược chiều có tổng động lượng nhỏ (triệt tiêu một phần). Phản ví dụ: A (2 kg, +5 m/s) và B (2 kg, −5 m/s) → tổng p = 10 − 10 = **0**, không phải 20.
+- **Dùng đơn vị sai**: p đơn vị kg·m/s, không phải N hay J. Phải dùng v bằng m/s (đổi km/h trước).
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Vì sao cần động lượng khi đã có động năng?"* Vì chúng bảo toàn trong các điều kiện khác nhau. Động lượng bảo toàn trong **mọi** va chạm (hệ kín); động năng chỉ bảo toàn trong va chạm đàn hồi. Để giải va chạm mềm (xe tông) phải dùng p, không dùng KE.
+- *"Viên đạn nhẹ vs xe tải nặng — cái nào động lượng lớn hơn?"* Tùy tốc độ. Đạn 10 g bay 800 m/s có p = 8 kg·m/s; xe tải 5000 kg chạy 20 m/s có p = 100,000 kg·m/s. Khối lượng lớn thường thắng vì p tỉ lệ thuận m.
+- *"Ánh sáng không có khối lượng sao có động lượng?"* Photon có p = E/c dù m = 0 (cơ học lượng tử/tương đối). Đó là vì sao ánh sáng "đẩy" được — cánh buồm mặt trời dùng áp suất bức xạ.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Tính động lượng của xe 1000 kg chạy 25 m/s.
+2. Hai vật: A (3 kg, +4 m/s) và B (2 kg, −6 m/s). Tổng động lượng của hệ?
+
+<details><summary>Đáp án</summary>
+
+1. p = m·v = 1000·25 = **25,000 kg·m/s**.
+2. p_tổng = 3·4 + 2·(−6) = 12 − 12 = **0 kg·m/s** (triệt tiêu vì ngược chiều).
+
+</details>
+
 ### 📝 Tóm tắt mục 1
 
 - p = m·v, vector, đơn vị kg·m/s.
@@ -101,6 +125,30 @@ b) **Có túi khí** (dừng trong 0.3 s do túi khí phồng và xẹp dần):
 
 → Túi khí **kéo dài thời gian va chạm 6 lần** → giảm lực 6 lần. Đó là cứu mạng.
 
+### ⚠ Lỗi thường gặp
+
+- **Quên dấu khi vật dội ngược**: bóng đập tường v=+10, dội v=−8 → Δv = −8 − 10 = −18 (không phải −2 hay +2). Δp = m·Δv = m·(−18). Nếu chỉ tính "10−8=2" → sai hoàn toàn, vì bỏ qua đổi hướng.
+- **Nghĩ "lực lớn = nguy hiểm" mà quên thời gian**: cùng Δp, lực phụ thuộc Δt (F = Δp/Δt). Va chạm cứng (Δt nhỏ) → F khổng lồ; có đệm (Δt lớn) → F nhỏ. Đây là chìa khóa an toàn.
+- **Lẫn xung lượng J (kg·m/s, = Δp) với lực F (N)**: J là lực **tích trong thời gian**, đơn vị khác lực.
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Túi khí, đệm xốp, gập gối khi tiếp đất — vì sao đều an toàn hơn?"* Tất cả **kéo dài thời gian dừng** Δt. Cùng động lượng cần triệt tiêu (Δp), Δt lớn → lực F = Δp/Δt nhỏ → ít chấn thương. Sàn cứng dừng trong khoảnh khắc → F cực lớn → gãy xương.
+- *"Vì sao bóng dội ngược 'đập' mạnh hơn bóng dính lại?"* Vì dội ngược đổi hướng vận tốc → Δp lớn hơn (từ +v đến −v', chênh v+v') so với dính lại (từ +v đến 0). Δp lớn hơn → xung lượng và lực lớn hơn.
+- *"Định lý xung lượng có phải định luật mới không?"* Không — chỉ là định luật II Newton viết lại: F = ma = m·Δv/Δt → F·Δt = m·Δv = Δp. Tiện hơn khi lực biến thiên nhanh trong thời gian ngắn (va chạm).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Bóng 0.2 kg bay vào tường v = 15 m/s, dội ngược v = 12 m/s. Tính độ biến thiên động lượng.
+2. Nếu va chạm trên kéo dài 0.02 s, lực trung bình tường tác dụng lên bóng?
+
+<details><summary>Đáp án</summary>
+
+1. Δp = m·(v_cuối − v_đầu) = 0.2·(−12 − 15) = 0.2·(−27) = **−5.4 kg·m/s**.
+2. F = Δp/Δt = −5.4/0.02 = **−270 N** (hướng ngược chiều bóng tới, tức đẩy ra).
+
+</details>
+
 ### 📝 Tóm tắt mục 2
 
 - J = F·Δt = Δp.
@@ -131,6 +179,30 @@ Tên lửa hoạt động nhờ bảo toàn động lượng. Trước khi phụ
 
 Không cần "đẩy vào không khí" — tên lửa hoạt động cả trong chân không. Đây là tại sao tàu vũ trụ bay được.
 
+### ⚠ Lỗi thường gặp
+
+- **Áp dụng bảo toàn p khi có ngoại lực đáng kể**: nếu hệ chịu ngoại lực (vd ma sát lớn với sàn, lực bên ngoài) thì p **không** bảo toàn cho riêng hệ đó. Bảo toàn chỉ đúng cho hệ **kín** (tổng ngoại lực = 0) hoặc trong thời gian va chạm rất ngắn (ngoại lực chưa kịp tác động).
+- **Quên dấu vận tốc trước/sau**: viết m₁v₁ + m₂v₂ = ... phải dùng dấu đúng. Vật đi ngược chiều mang v âm. Phản ví dụ: bỏ dấu của vật đi ngược → tổng p sai.
+- **Nghĩ p bảo toàn nghĩa là vận tốc không đổi**: không. Vận tốc từng vật thay đổi sau va chạm, chỉ **tổng** p của hệ giữ nguyên.
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Tên lửa đẩy vào cái gì trong chân không?"* Không đẩy vào gì cả — nó đẩy chính **khí phụt ra**. Khí bị đẩy xuống mang động lượng xuống; theo bảo toàn, tên lửa nhận động lượng lên bằng và ngược. Không cần không khí.
+- *"Vì sao súng giật ngược khi bắn?"* Trước khi bắn p = 0. Đạn bay tới mang động lượng dương → súng phải mang động lượng âm (giật ngược) để tổng p giữ = 0. Súng nặng hơn đạn nhiều nên vận tốc giật nhỏ.
+- *"Bảo toàn p và bảo toàn năng lượng — dùng cái nào?"* p luôn bảo toàn trong va chạm hệ kín → dùng trước tiên. Năng lượng (KE) chỉ bảo toàn nếu va chạm đàn hồi. Va chạm mềm: chỉ dùng p.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Súng 4 kg bắn đạn 0.01 kg với 500 m/s. Vận tốc giật của súng?
+2. Người 60 kg đứng yên trên ván trượt (không ma sát), ném quả bóng 2 kg về trước với 5 m/s. Người chuyển động thế nào?
+
+<details><summary>Đáp án</summary>
+
+1. Bảo toàn p: 0 = 0.01·500 + 4·v → v = −5/4 = **−1.25 m/s** (giật ngược).
+2. Trước: p = 0. Sau: bóng có p = 2·5 = +10 → người phải có p = −10 → v = −10/60 ≈ **−0.17 m/s** (lùi về sau).
+
+</details>
+
 ### 📝 Tóm tắt mục 3
 
 - Hệ kín: tổng p bảo toàn. p_trước = p_sau.
@@ -139,6 +211,8 @@ Không cần "đẩy vào không khí" — tên lửa hoạt động cả trong 
 ---
 
 ## 4. Va chạm
+
+💡 **Trực giác / Hình dung**: hình dung hai thái cực. Va chạm **đàn hồi** như hai quả bida bằng thép: chạm "cách" rồi bật ra, không méo mó, không nóng lên — năng lượng chuyển động được bảo toàn nguyên vẹn. Va chạm **mềm** như hai cục đất sét: chạm "bịch" rồi dính, méo mó, nóng lên — một phần năng lượng chuyển động "biến mất" thành biến dạng và nhiệt. Điểm chung: cả hai đều bảo toàn **động lượng**; chỉ khác ở chỗ động năng có còn nguyên hay không.
 
 ### 4.1. Hai loại va chạm
 
@@ -191,6 +265,30 @@ v_chung = (m₁v₁ + m₂v₂) / (m₁ + m₂)
 - v_chung = (0.02·400 + 4·0)/(0.02+4) = 8/4.02 ≈ **1.99 m/s**.
 - → Đạn + gỗ trượt với 1.99 m/s sau va chạm.
 - ΔKE_mất = 0.5·0.02·160000 − 0.5·4.02·3.96 ≈ 1600 − 7.96 = **~ 1592 J** mất (nhiệt, biến dạng).
+
+### ⚠ Lỗi thường gặp
+
+- **Dùng bảo toàn KE cho va chạm mềm**: SAI — va chạm mềm **mất** động năng (thành nhiệt, biến dạng). Chỉ va chạm đàn hồi mới bảo toàn KE. Phản ví dụ: xe tông dính nhau mà giả định KE bảo toàn → ra vận tốc sai.
+- **Nghĩ "bảo toàn động lượng" nghĩa là "bảo toàn năng lượng"**: hai cái khác nhau. p bảo toàn trong mọi va chạm hệ kín; KE chỉ bảo toàn khi đàn hồi. Va chạm mềm: p bảo toàn, KE giảm.
+- **Quên năng lượng mất không vi phạm bảo toàn năng lượng tổng**: KE "mất" chuyển thành nhiệt/âm thanh/biến dạng — tổng năng lượng vẫn bảo toàn, chỉ rời khỏi dạng động năng.
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Va chạm mềm mất năng lượng — vậy có vi phạm bảo toàn năng lượng không?"* Không. Động năng "mất" biến thành nhiệt (kim loại nóng lên), âm thanh ("rầm"), và biến dạng vĩnh viễn. Tổng năng lượng vẫn bảo toàn, chỉ là KE chuyển sang dạng khác.
+- *"Vì sao hai vật cùng khối lượng va chạm đàn hồi lại đổi vận tốc cho nhau?"* Giải hệ hai phương trình (bảo toàn p và KE) với m₁=m₂ ra đúng v₁'=v₂, v₂'=v₁. Trực giác: bida — bóng đang chạy đụng bóng đứng yên cùng cỡ → bóng chạy dừng lại, bóng đứng yên chạy đi (stun shot).
+- *"Khi nào va chạm là đàn hồi, khi nào mềm?"* Đàn hồi (xấp xỉ): vật cứng, bật ra không méo — bida, bóng cao su, hạt cơ bản. Mềm: vật biến dạng, dính, phát nhiệt — xe tông, đạn cắm gỗ, đất sét. Thực tế đa số va chạm thường có chút mất KE (không hoàn toàn đàn hồi).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Vật A (2 kg, 6 m/s) va chạm hoàn toàn mềm với B (4 kg, đứng yên), dính nhau. Vận tốc chung sau va chạm?
+2. Trong va chạm đàn hồi, A (1 kg, 8 m/s) đụng B (1 kg, đứng yên). Vận tốc của A và B sau va chạm?
+
+<details><summary>Đáp án</summary>
+
+1. v_chung = (m_A·v_A + m_B·v_B)/(m_A+m_B) = (2·6 + 4·0)/6 = 12/6 = **2 m/s**.
+2. Cùng khối lượng, đàn hồi → đổi vận tốc: A dừng (**0 m/s**), B chạy (**8 m/s**).
+
+</details>
 
 ### 📝 Tóm tắt mục 4
 

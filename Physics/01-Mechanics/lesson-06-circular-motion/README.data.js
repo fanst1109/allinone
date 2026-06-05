@@ -56,6 +56,30 @@ v = ω · r
 
 **Ví dụ 4 — Trạm vũ trụ ISS**: T = 92 phút = 5520 s. Quỹ đạo cách Trái Đất 400 km, r_quỹ_đạo = 6771 km. v = 2π·r/T ≈ **7,700 m/s**.
 
+### ⚠ Lỗi thường gặp
+
+- **Nghĩ chuyển động tròn đều không có gia tốc vì "tốc độ không đổi"**: SAI. Tốc độ |v| không đổi nhưng **hướng** vận tốc liên tục đổi → vector v thay đổi → có gia tốc (hướng tâm). Đây là sai lầm phổ biến nhất của mục này.
+- **Lẫn vận tốc dài v (m/s) với vận tốc góc ω (rad/s)**: hai đại lượng khác nhau, liên hệ v = ω·r. Cùng ω, vật ở r lớn có v lớn hơn.
+- **Quên đổi vòng/phút sang rad/s**: 1 vòng = 2π rad. 60 vòng/phút = 60·2π/60 = 2π rad/s, KHÔNG phải 60 rad/s.
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Vì sao 2 điểm trên cùng đĩa quay có cùng ω nhưng khác v?"* Vì v = ω·r. Mọi điểm quét cùng góc trong cùng thời gian (cùng ω), nhưng điểm xa tâm (r lớn) phải đi quãng đường dài hơn trong cùng thời gian → v lớn hơn. Mép đĩa nhanh hơn gần trục.
+- *"Chu kỳ và tần số khác nhau thế nào?"* Chu kỳ T = thời gian một vòng (giây); tần số f = số vòng mỗi giây (Hz). Chúng nghịch đảo: f = 1/T. Quay nhanh → T nhỏ, f lớn.
+- *"rad/s nghĩa là gì — radian là gì?"* Radian là cách đo góc: 1 vòng đầy = 2π rad ≈ 6.28 rad. ω tính bằng rad/s = số radian quét mỗi giây. Dùng radian (không phải độ) để công thức v = ω·r đúng.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Đĩa quay với chu kỳ T = 0.5 s. Tính ω và tần số f.
+2. Một điểm cách tâm 0.2 m trên đĩa quay ω = 10 rad/s. Vận tốc dài của nó?
+
+<details><summary>Đáp án</summary>
+
+1. ω = 2π/T = 2π/0.5 = **4π ≈ 12.57 rad/s**. f = 1/T = 1/0.5 = **2 Hz**.
+2. v = ω·r = 10·0.2 = **2 m/s**.
+
+</details>
+
 ### 📝 Tóm tắt mục 1
 
 - Chuyển động tròn đều: |v| hằng, nhưng vector v đổi hướng → có gia tốc.
@@ -92,6 +116,30 @@ Xét vật đi qua 2 điểm cách nhau góc Δθ rất nhỏ. Vận tốc đổ
 **Ví dụ 2 — Trạm ISS quay quanh Trái Đất**: a_c = v²/r = 7700²/(6.77×10⁶) ≈ **8.76 m/s²**. Chính bằng g ở độ cao đó! Đó là tại sao phi hành gia trên ISS "không trọng lực" — họ thật ra **đang rơi tự do liên tục**, chỉ có điều quỹ đạo cong theo bề mặt Trái Đất nên không bao giờ "tiếp đất".
 
 **Ví dụ 3 — Đu dây thừng vòng tròn**: Bạn cầm 1 vật buộc dây, quay tròn nhanh. Vật có a_c hướng vào tay. Sức căng dây = lực hướng tâm.
+
+### ⚠ Lỗi thường gặp
+
+- **Nghĩ gia tốc hướng tâm làm vật "nhanh dần"**: KHÔNG. a_c chỉ đổi **hướng** vận tốc, không đổi tốc độ. Tốc độ |v| giữ nguyên trong chuyển động tròn đều — a_c liên tục "bẻ lái" để giữ vật trên đường tròn.
+- **Cho a_c hướng ra ngoài**: a_c luôn hướng **vào tâm** (centripetal = "tìm tâm"). Cảm giác "bị đẩy ra" là quán tính, không phải gia tốc thật.
+- **Quên bình phương v trong a_c = v²/r**: tốc độ gấp đôi → a_c gấp **4 lần**. Phản ví dụ: v=10, r=5 → a_c = 100/5 = 20; v=20 → a_c = 400/5 = 80 (gấp 4, không gấp 2).
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Tốc độ không đổi sao lại có gia tốc?"* Vì gia tốc đo thay đổi của **vận tốc (vector)**, không phải tốc độ (số). Đi vòng tròn, hướng v luôn đổi → Δv ≠ 0 → a ≠ 0. Gia tốc này chỉ đổi hướng chứ không đổi độ lớn v.
+- *"a_c lớn khi nào?"* Khi v lớn (a_c ∝ v²) hoặc r nhỏ (cua gắt). Vào cua gắt tốc độ cao → a_c rất lớn → cần lực hướng tâm lớn → dễ trượt nếu ma sát không đủ.
+- *"Vì sao a_c = v²/r mà không phải v/r?"* Chứng minh hình học (§2.1): |Δv| = v·Δθ và Δθ = vΔt/r → ghép lại được a = v²/r. Bình phương v đến từ việc cả độ lớn vận tốc và tốc độ quét góc đều phụ thuộc v.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Xe vào cua bán kính 40 m với v = 12 m/s. Tính gia tốc hướng tâm.
+2. Nếu xe đó tăng tốc lên 24 m/s (gấp đôi) trên cùng cua, a_c thay đổi thế nào?
+
+<details><summary>Đáp án</summary>
+
+1. a_c = v²/r = 12²/40 = 144/40 = **3.6 m/s²** (hướng vào tâm cua).
+2. v gấp đôi → a_c gấp **4 lần** = 24²/40 = 576/40 = **14.4 m/s²**.
+
+</details>
 
 ### 📝 Tóm tắt mục 2
 
@@ -141,6 +189,24 @@ G · M_T · m / r² = m · v² / r
 
 → Để bay vũ trụ, tên lửa phải đạt **tốc độ vũ trụ cấp 1** ≈ 7.9 km/s. Dưới đó không đủ để "rơi vòng quanh" Trái Đất.
 
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Lực hướng tâm là lực gì — có công thức riêng không?"* KHÔNG phải lực mới. "Lực hướng tâm" chỉ là **tên gọi vai trò** của tổng các lực thực hướng về tâm. Với vệ tinh đó là hấp dẫn; với xe cua đó là ma sát; với vật buộc dây đó là lực căng. Bạn phải tìm lực thực nào đang đóng vai trò đó.
+- *"Lực ly tâm có thật không?"* Không trong hệ quy chiếu quán tính (đứng yên). Cảm giác "bị đẩy ra" là do quán tính — thân bạn muốn đi thẳng còn xe bẻ lái vào trong. "Lực ly tâm" chỉ là một thủ thuật toán học trong hệ quy chiếu quay.
+- *"Vì sao vệ tinh không rơi xuống đất?"* Nó **đang rơi** liên tục! Nhưng nó cũng đang bay ngang đủ nhanh nên mặt đất "cong đi" dưới chân nó đúng bằng tốc độ rơi → quỹ đạo cong song song bề mặt → không bao giờ chạm đất. Cần v ≈ 7.9 km/s.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Vật 0.5 kg buộc dây quay tròn r = 1 m với v = 4 m/s. Lực căng dây (= lực hướng tâm) bằng bao nhiêu?
+2. Ô tô 1000 kg vào cua r = 50 m với v = 10 m/s. Lực ma sát cần để giữ xe trên cua?
+
+<details><summary>Đáp án</summary>
+
+1. F_c = m·v²/r = 0.5·16/1 = **8 N**.
+2. F_c = m·v²/r = 1000·100/50 = **2000 N** (ma sát phải cung cấp ít nhất 2000 N, nếu không xe trượt ra).
+
+</details>
+
 ### 📝 Tóm tắt mục 3
 
 - F_c = m·v²/r. KHÔNG phải lực mới, mà là tên gọi cho tổng lực hướng tâm.
@@ -150,6 +216,8 @@ G · M_T · m / r² = m · v² / r
 ---
 
 ## 4. Quỹ đạo hành tinh và 3 định luật Kepler
+
+💡 **Trực giác / Hình dung**: Kepler giống như một thám tử nhìn dữ liệu vị trí hành tinh (do Tycho Brahe ghi suốt mấy chục năm) rồi đoán ra "luật chơi" mà không biết nguyên nhân: quỹ đạo là hình bầu dục (ellipse), hành tinh chạy nhanh khi gần Mặt Trời như con quay vào gần trục, và hành tinh xa thì "một năm" của nó dài hơn nhiều. Newton sau đó là nhà vật lý chỉ ra **vì sao**: tất cả chỉ là hệ quả của một công thức hấp dẫn F = GMm/r². Ba quy luật quan sát = một định luật nền tảng.
 
 ### 4.1. Ba định luật Kepler (1609-1619)
 
@@ -190,6 +258,30 @@ Cho hành tinh m quay tròn (xấp xỉ ellipse) quanh Mặt Trời M:
 (1 AU = 1.496 × 10¹¹ m = khoảng cách Trái Đất - Mặt Trời.)
 
 → T²/r³ ≈ 1 cho mọi hành tinh — Kepler III được xác nhận.
+
+### ⚠ Lỗi thường gặp
+
+- **Nghĩ quỹ đạo hành tinh là vòng tròn hoàn hảo**: là **ellipse** (Kepler I), Mặt Trời ở một tiêu điểm (không phải tâm). Đa số gần tròn nhưng vẫn là ellipse — đó là lý do có "điểm gần nhất" và "xa nhất".
+- **Dùng Kepler III với đơn vị tùy tiện**: T² = r³ chỉ "đẹp" khi T tính bằng **năm** và r bằng **AU** (cho hệ Mặt Trời). Dùng giây và mét thì T²/r³ = 4π²/(GM), một hằng số khác.
+- **Nghĩ hành tinh nặng hơn quay nhanh hơn**: chu kỳ chỉ phụ thuộc r (và khối lượng Mặt Trời), KHÔNG phụ thuộc khối lượng hành tinh (m triệt tiêu trong GMm/r² = mv²/r).
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Vì sao hành tinh đi nhanh hơn khi gần Mặt Trời?"* Đây là Kepler II (diện tích quét đều), biểu hiện của **bảo toàn momen động lượng**. Khi gần (r nhỏ), để quét cùng diện tích trong cùng thời gian, hành tinh phải đi nhanh hơn. Giống vận động viên trượt băng kéo tay vào quay nhanh hơn.
+- *"Làm sao Newton chứng minh được Kepler từ F = GMm/r²?"* Cho lực hấp dẫn đóng vai lực hướng tâm (GMm/r² = mv²/r), suy ra v² = GM/r, rồi T = 2πr/v → T² = 4π²r³/(GM) → T²/r³ = hằng số. Đúng Kepler III. Đây là chiến thắng hợp nhất "trời" và "đất".
+- *"Kepler III dùng để làm gì thực tế?"* Tính chu kỳ vệ tinh ở độ cao bất kỳ, thiết kế quỹ đạo địa tĩnh, ước lượng khối lượng sao/hành tinh từ chu kỳ của vật quay quanh nó.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Sao Hỏa cách Mặt Trời 1.52 AU. Dùng Kepler III (T²=r³, đơn vị năm/AU), tính chu kỳ quỹ đạo.
+2. Hai hành tinh quay quanh cùng một sao. Hành tinh xa gấp 4 lần có chu kỳ gấp mấy lần?
+
+<details><summary>Đáp án</summary>
+
+1. T = r^(3/2) = 1.52^1.5 ≈ **1.87 năm** (khớp giá trị thật 1.88).
+2. T² ∝ r³ → r gấp 4 → T² gấp 4³ = 64 → T gấp √64 = **8 lần**.
+
+</details>
 
 ### 📝 Tóm tắt mục 4
 

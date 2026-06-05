@@ -63,6 +63,30 @@ Bạn đi từ nhà (vị trí x = 0) ra cửa hàng cách 200 m (x = +200 m), r
 
 → Độ dịch chuyển = 0 dù bạn đã đi rất nhiều — vì đại lượng này chỉ quan tâm điểm đầu và điểm cuối. Quãng đường thì cộng dồn tất cả.
 
+### ⚠ Lỗi thường gặp
+
+- **Lẫn độ dịch chuyển với quãng đường**: nhiều người trả lời "đi 200 m rồi về thì đi được 0 m" — sai. Đi được (quãng đường) là **400 m**; chỉ **độ dịch chuyển** mới = 0. Đọc kỹ đề hỏi cái nào.
+- **Quên dấu của độ dịch chuyển**: đi từ x = +10 m về x = +3 m → Δx = 3 − 10 = **−7 m** (âm vì đi ngược chiều dương), KHÔNG phải +7 m. Quãng đường thì = 7 m (luôn dương).
+- **Nhầm gốc tọa độ**: nói "vật ở 50 m" mà chưa chọn gốc O thì vô nghĩa. Luôn nêu rõ gốc + chiều dương trước.
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Vì sao phải phân biệt độ dịch chuyển và quãng đường — chẳng phải đi đâu thì đi được bấy nhiêu sao?"* Chỉ đúng khi đi thẳng một chiều không quay lại. Hễ có đổi hướng, hai cái tách nhau ngay: chạy 1 vòng sân vận động 400 m rồi về chỗ cũ → quãng đường 400 m nhưng độ dịch chuyển 0 m. Vật lý cần độ dịch chuyển (có hướng) để tính vận tốc, gia tốc; cần quãng đường để tính nhiên liệu, mòn lốp...
+- *"Độ dịch chuyển có thể âm, vậy quãng đường có âm được không?"* Không bao giờ. Quãng đường là tổng độ dài đường đi — luôn ≥ 0. Chỉ độ dịch chuyển (vector) mới có dấu.
+- *"Khi nào |Δx| = s?"* Khi vật đi thẳng theo một chiều, không quay lại. Vd đi từ x=0 đến x=+30 m một mạch: Δx = +30 m, s = 30 m, |Δx| = s. Cứ đổi chiều là s > |Δx|.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Một người đi từ x = +2 m sang x = −5 m theo đường thẳng. Tính Δx và s.
+2. Người đó đi tiếp từ x = −5 m quay lại x = +1 m. Tính tổng quãng đường s và tổng độ dịch chuyển Δx cho cả hành trình (từ +2 m).
+
+<details><summary>Đáp án</summary>
+
+1. Δx = −5 − 2 = **−7 m** (đi theo chiều âm). Quãng đường s = |−7| = **7 m** (đoạn này đi thẳng nên |Δx| = s).
+2. Đoạn 2 dài |1 − (−5)| = 6 m → tổng s = 7 + 6 = **13 m**. Tổng độ dịch chuyển = vị trí cuối − đầu = 1 − 2 = **−1 m**. Thấy ngay s (13) > |Δx| (1) vì có quay lại.
+
+</details>
+
 ### 📝 Tóm tắt mục 1
 
 - **Vị trí x**: tọa độ vật so với gốc O.
@@ -127,6 +151,26 @@ b) **Tốc độ trung bình** (quãng đường ÷ thời gian):
 
 - **Nhầm vận tốc và tốc độ**: Vận tốc có hướng (vector); tốc độ chỉ là số (scalar). Khi học vật lý nghiêm túc, đừng dùng lẫn lộn.
 - **Quên dấu**: nếu vật đổi hướng, vận tốc đổi dấu. Δx có thể âm.
+- **Lẫn đơn vị km/h và m/s**: xe "chạy 72" — 72 km/h hay 72 m/s? Khác nhau 3.6 lần! 72 km/h = 72/3.6 = **20 m/s**. Trong mọi công thức vật lý SI phải đổi về m/s trước. Phản ví dụ: tính quãng đường phanh với v = 72 (hiểu nhầm là m/s) sẽ ra kết quả sai gấp ~13 lần (vì v vào bình phương).
+- **Lấy trung bình cộng vận tốc khi quãng đường bằng nhau**: đi 1 nửa đường 20 m/s, nửa sau 60 m/s → tốc độ trung bình KHÔNG phải (20+60)/2 = 40 m/s, mà là trung bình điều hòa = 2·20·60/(20+60) = **30 m/s** (vì đoạn chậm tốn nhiều thời gian hơn).
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Vận tốc trung bình và tốc độ trung bình khác nhau chỗ nào?"* Vận tốc trung bình = **độ dịch chuyển** / thời gian (có hướng, có thể âm hoặc 0). Tốc độ trung bình = **quãng đường** / thời gian (luôn ≥ 0). Ví dụ chạy 1 vòng về chỗ cũ: vận tốc tb = 0 (Δx=0), nhưng tốc độ tb > 0.
+- *"Tại sao cần vận tốc tức thời, đã có vận tốc trung bình rồi?"* Vì trung bình "làm phẳng" mọi biến động. Đi 100 km trong 2 giờ → v_tb = 50 km/h, nhưng có thể nửa giờ đầu kẹt xe đứng yên, sau đó chạy 80 km/h. Đồng hồ tốc độ hiển thị vận tốc **tức thời** (ngay lúc đó), thứ quyết định bạn có bị bắn tốc độ hay không.
+- *"v âm nghĩa là gì — đi lùi à?"* Nghĩa là đi theo **chiều âm** của trục đã chọn. Nếu chọn Đông là dương, v = −5 m/s nghĩa là đang đi về Tây với tốc độ 5 m/s. Dấu chỉ hướng, độ lớn |v| = 5 m/s là tốc độ.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Đổi 90 km/h ra m/s.
+2. Một xe đi 60 km về Đông trong 1 giờ, rồi 60 km về Tây trong 2 giờ. Tính vận tốc trung bình và tốc độ trung bình (km/h).
+
+<details><summary>Đáp án</summary>
+
+1. 90 km/h = 90/3.6 = **25 m/s**.
+2. Δx = 60 − 60 = 0 km → vận tốc tb = 0/3 = **0 km/h**. Quãng đường s = 120 km, thời gian 3 h → tốc độ tb = 120/3 = **40 km/h**. Hai con số khác hẳn vì xe quay lại.
+
+</details>
 
 ### 📝 Tóm tắt mục 2
 
@@ -183,6 +227,30 @@ a(t) = dv/dt   (gia tốc tức thời = đạo hàm vận tốc)
 | Gia tốc a | "Vận tốc đổi nhanh thế nào" | m/s² | 5 m/s² |
 | Quãng đường s | "Đi tổng bao xa" | m | 200 m (≥ 0) |
 
+### ⚠ Lỗi thường gặp
+
+- **Lẫn vận tốc với gia tốc**: "vật đi nhanh nên gia tốc lớn" — SAI. Một xe chạy đều 100 m/s có **vận tốc lớn nhưng gia tốc = 0** (vận tốc không đổi). Gia tốc đo sự **thay đổi** vận tốc, không phải vận tốc.
+- **Nghĩ a âm = chậm lại, a dương = nhanh lên**: chỉ đúng khi v dương. Nếu v âm (đi chiều âm) mà a âm (cùng chiều v) thì vật **tăng tốc** theo chiều âm. Quy tắc đúng: a **cùng chiều** v → tăng tốc; **ngược chiều** v → giảm tốc, bất kể dấu cụ thể.
+- **Nghĩ gia tốc 0 thì vật đứng yên**: a = 0 chỉ nghĩa là vận tốc **không đổi** — vật có thể đang chạy đều với v = 50 m/s.
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Vật đang đứng yên (v=0) thì gia tốc chắc chắn = 0?"* Không! Ngay lúc thả một quả bóng, v = 0 nhưng a = g = 9.8 m/s² (đang bắt đầu rơi). Tương tự, vật ở điểm cao nhất khi ném lên có v = 0 nhưng a = −9.8 m/s². v và a độc lập với nhau tại 1 thời điểm.
+- *"Gia tốc có thể đổi không, hay luôn là hằng?"* Đổi được. Bài này tập trung vào gia tốc **hằng** (rơi tự do, xe tăng tốc đều) vì giải được bằng 3 phương trình đơn giản ở mục 5. Thực tế a thường thay đổi (vd xe vào cua, lò xo dao động — học ở Lesson 08).
+- *"m/s² nghĩa là gì — sao lại 'giây bình phương'?"* Vì gia tốc = (m/s) thay đổi mỗi giây = (m/s)/s = m/s². Đọc là "mỗi giây, vận tốc thay đổi thêm bấy nhiêu m/s". Vd a = 4 m/s²: sau 1 s vận tốc tăng 4 m/s, sau 2 s tăng 8 m/s.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Xe đi với v = −12 m/s và có gia tốc a = −3 m/s². Xe đang nhanh lên hay chậm đi?
+2. Xe đạp tăng từ 4 m/s lên 10 m/s trong 3 giây. Tính gia tốc.
+
+<details><summary>Đáp án</summary>
+
+1. a và v **cùng dấu** (cùng âm = cùng chiều) → xe **nhanh lên** (theo chiều âm). Sau 1 s, v = −15 m/s (độ lớn tăng).
+2. a = Δv/Δt = (10 − 4)/3 = **2 m/s²**.
+
+</details>
+
 ### 📝 Tóm tắt mục 3
 
 - **Gia tốc** a = dv/dt (m/s²).
@@ -192,6 +260,8 @@ a(t) = dv/dt   (gia tốc tức thời = đạo hàm vận tốc)
 ---
 
 ## 4. Đồ thị x-t, v-t, a-t
+
+💡 **Trực giác / Hình dung**: hãy coi 3 đồ thị như "ba góc nhìn camera" cùng một chuyến đi. Đồ thị x-t là bản đồ GPS ghi "lúc nào ở đâu"; **độ dốc** của nó (lên dốc gắt hay thoải) cho biết đi nhanh hay chậm → đó là v-t. Tiếp tục lấy độ dốc của v-t được a-t. Đi ngược lại: **diện tích** dưới v-t cộng dồn lại cho biết đã dịch chuyển bao xa. "Độ dốc đi xuôi, diện tích đi ngược" là chìa khóa nhớ cả mục này.
 
 ### 4.1. Đồ thị x-t (Position vs Time)
 
@@ -237,6 +307,30 @@ Hoặc dạng đồ thị:
 - **Độ dốc** x-t → v; **độ dốc** v-t → a.
 - **Diện tích** v-t → Δx; **diện tích** a-t → Δv.
 
+### ⚠ Lỗi thường gặp
+
+- **Đọc đồ thị x-t như "đường đi thật" của vật**: đồ thị x-t đi lên rồi xuống KHÔNG có nghĩa vật bay lên rồi rơi xuống — nó chỉ nghĩa vật tiến (x tăng) rồi lùi (x giảm) trên đường thẳng. Trục dọc là vị trí, không phải độ cao.
+- **Lấy giá trị thay vì độ dốc**: trên đồ thị x-t, một điểm cao (x lớn) KHÔNG nghĩa là v lớn. v là **độ dốc** tại điểm đó. Vật có thể ở rất xa (x lớn) mà đứng yên (độ dốc = 0 → v = 0).
+- **Quên dấu của diện tích**: phần đồ thị v-t **nằm dưới trục** (v < 0) cho diện tích **âm** (Δx âm — vật lùi lại). Phải trừ chứ không cộng phần đó.
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Vì sao diện tích dưới đường v-t lại ra độ dịch chuyển — nghe chẳng liên quan?"* Vì độ dịch chuyển trong một khoảng nhỏ Δt là v·Δt — chính là diện tích của một cột mỏng chiều cao v, bề rộng Δt trên đồ thị v-t. Cộng hết các cột mỏng = tổng diện tích = tổng độ dịch chuyển. Ví dụ: chạy đều v = 5 m/s trong 4 s → diện tích = hình chữ nhật 5 × 4 = **20 m** = Δx.
+- *"Đồ thị x-t cong (parabola) nghĩa là gì?"* Nghĩa là độ dốc (v) đang thay đổi → vật có gia tốc. Parabola mở lên (cong úp xuống dần dốc hơn) là a > 0; cong xuống là a < 0. Đường **thẳng** mới là v không đổi (a = 0).
+- *"Nếu chỉ có đồ thị a-t, lấy lại x được không?"* Được nhưng cần thêm điều kiện đầu. Diện tích a-t cho Δv, nhưng phải biết v₀ để ra v(t); rồi diện tích v-t cho Δx, phải biết x₀ để ra x(t). Thiếu v₀, x₀ thì chỉ biết "thay đổi" chứ không biết giá trị tuyệt đối.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Đồ thị v-t là đường nằm ngang ở v = 6 m/s từ t = 0 đến t = 5 s. Vật đi được bao xa? Gia tốc bằng bao nhiêu?
+2. Đồ thị x-t là đường thẳng đi xuống. Vận tốc dương hay âm? Gia tốc bằng bao nhiêu?
+
+<details><summary>Đáp án</summary>
+
+1. Diện tích (hình chữ nhật) = 6 × 5 = **30 m** = Δx. Đường nằm ngang → độ dốc = 0 → **a = 0**.
+2. Đường thẳng **đi xuống** → độ dốc âm → **v < 0** (vật lùi). Đường thẳng → độ dốc không đổi → **a = 0**.
+
+</details>
+
 ### 📝 Tóm tắt mục 4
 
 3 đồ thị x-t, v-t, a-t liên hệ qua đạo hàm (độ dốc) và tích phân (diện tích).
@@ -244,6 +338,8 @@ Hoặc dạng đồ thị:
 ---
 
 ## 5. Ba phương trình chuyển động thẳng biến đổi đều
+
+💡 **Trực giác / Hình dung**: coi 3 phương trình như "3 công thức nấu ăn" cho cùng một nguyên liệu (v₀, a, t, x, v). Mỗi công thức bỏ ra một nguyên liệu khác nhau: (1) không có x, (2) không có v, (3) không có t. Khi giải bài, nhìn xem đề **không cho/không hỏi** đại lượng nào → chọn công thức thiếu đúng đại lượng đó. Không cần học thuộc cả ba một cách rời rạc — chúng đều suy ra từ định nghĩa "v = v₀ + at" cộng với "lấy trung bình".
 
 Khi gia tốc **không đổi** (vd rơi tự do, xe tăng tốc đều), có 3 phương trình quan trọng (chứng minh bên dưới):
 
@@ -295,6 +391,30 @@ c) Khi v = 20 m/s, xe đã đi được bao xa?
 
 - Dừng → v = 0. Áp (3): 0² = 30² + 2·(−6)·Δx → Δx = 900/12 = **75 m**.
 
+### ⚠ Lỗi thường gặp
+
+- **Dùng 3 phương trình khi a KHÔNG hằng**: chúng CHỈ đúng cho gia tốc không đổi. Xe vào cua, lò xo dao động, sức cản không khí đáng kể → a thay đổi → ba phương trình này SAI. Phải kiểm tra "a có hằng không?" trước khi dùng.
+- **Sai dấu của a khi phanh**: xe chạy chiều dương phanh thì a phải **âm** (ngược chiều v). Quên dấu âm → tính ra "quãng đường phanh âm" vô lý. Phản ví dụ: v₀=30, a=+6 (quên dấu), phương trình (3): 0 = 900 + 12·Δx → Δx = −75 m (vô nghĩa).
+- **Quên đổi km/h sang m/s**: thay v₀ = 72 (km/h) trực tiếp vào công thức SI → kết quả sai. Đổi 72 km/h = 20 m/s trước.
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Làm sao biết chọn phương trình nào?"* Liệt kê 5 đại lượng v₀, v, a, t, và Δx = x−x₀. Đề thường cho 3, hỏi 1. Đại lượng còn lại (không cho, không hỏi) cho biết bỏ phương trình nào: thiếu x → (1); thiếu v → (2); thiếu t → (3).
+- *"Phương trình (3) khác (1),(2) ở chỗ nào?"* (3) không chứa t — dùng khi đề không cho và không hỏi thời gian (vd "tính quãng đường phanh đến khi dừng"). Nếu dùng (1),(2) phải giải qua 2 bước (tìm t trước), còn (3) ra thẳng.
+- *"Hệ số 1/2 trong x = x₀+v₀t+½at² ở đâu ra?"* Vì trong thời gian t, vận tốc tăng đều từ v₀ đến v₀+at, **trung bình** = v₀ + ½at. Quãng đường = vận tốc trung bình × t = v₀t + ½at². Đó là lý do có ½ — nó là trung bình của phần tăng tốc.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Xe đứng yên (v₀=0) tăng tốc a = 2 m/s². Sau bao lâu đạt 30 m/s, và đã đi bao xa lúc đó?
+2. Xe chạy 40 m/s phanh với a = −8 m/s². Quãng đường phanh đến khi dừng?
+
+<details><summary>Đáp án</summary>
+
+1. (1): 30 = 0 + 2t → t = **15 s**. (2): x = 0 + 0 + ½·2·15² = **225 m** (hoặc dùng (3): 30² = 2·2·x → x = 225 m).
+2. Không hỏi t → dùng (3): 0² = 40² + 2·(−8)·Δx → Δx = 1600/16 = **100 m**.
+
+</details>
+
 ### 📝 Tóm tắt mục 5
 
 3 phương trình cho chuyển động a hằng. Chọn phương trình theo cái nào "cho-tìm" gọn nhất:
@@ -335,6 +455,30 @@ c) Cùng độ cao 20 m, nếu ném xuống với v₀ = 5 m/s thì thời gian 
 - Áp (2): 0 = 20 + (−5)·t + 0.5·(−9.8)·t² → 4.9t² + 5t − 20 = 0.
 - t = (−5 + √(25 + 392))/9.8 = (−5 + 20.42)/9.8 ≈ **1.57 giây** (nhanh hơn).
 
+### ⚠ Lỗi thường gặp
+
+- **Nghĩ vật nặng rơi nhanh hơn**: trong chân không, lông và búa rơi **cùng tốc độ** (đã được chứng minh trên Mặt Trăng, Apollo 15). Khối lượng m không vào kết quả vì a = F/m = mg/m = g (m tự triệt tiêu). Trong không khí thật, lông chậm hơn chỉ vì **sức cản**, không phải vì nhẹ.
+- **Lẫn dấu của g**: nếu chọn trục y dương hướng **lên**, thì a = **−9.8** m/s² (gia tốc hướng xuống). Quên dấu âm → vật "rơi lên trời". Nếu chọn y dương hướng xuống thì a = +9.8 — phải nhất quán suốt bài.
+- **Quên rằng vật ném lên vẫn có a = g suốt**: khi ném vật lên, ở điểm cao nhất v = 0 nhưng a vẫn = −9.8 m/s² (không phải 0). Gia tốc do trọng lực không bao giờ tắt khi vật còn trong không khí.
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Thời gian rơi có phụ thuộc khối lượng không?"* Không (bỏ qua sức cản). Từ h = ½gt² → t = √(2h/g), không có m. Hòn đá 1 kg và 10 kg thả cùng độ cao chạm đất cùng lúc.
+- *"Vì sao ném xuống với v₀=5 m/s lại rơi nhanh hơn (1.57 s so với 2.02 s)?"* Vì vật đã có sẵn vận tốc hướng xuống ngay từ đầu, cộng thêm vào vận tốc do trọng lực — nên đi hết quãng đường nhanh hơn so với thả nhẹ (v₀ = 0).
+- *"g = 9.8 hay 10 m/s²?"* Giá trị chính xác gần mặt biển ≈ 9.81 m/s². Nhiều bài làm tròn 10 m/s² cho dễ tính. Bài này dùng 9.8. Khác nhau ~2%, không ảnh hưởng ý nghĩa.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Thả một vật từ độ cao 5 m (v₀=0). Thời gian rơi? (dùng g = 9.8)
+2. Một vật được ném thẳng lên với v₀ = 19.6 m/s. Bao lâu thì nó đạt điểm cao nhất?
+
+<details><summary>Đáp án</summary>
+
+1. h = ½gt² → 5 = ½·9.8·t² → t² = 1.02 → t ≈ **1.01 s**.
+2. Tại điểm cao nhất v = 0. (1) với a = −9.8: 0 = 19.6 + (−9.8)t → t = **2 s**.
+
+</details>
+
 ### 📝 Tóm tắt mục 6
 
 - Rơi tự do: a = g = 9.8 m/s² (xuống).
@@ -344,6 +488,8 @@ c) Cùng độ cao 20 m, nếu ném xuống với v₀ = 5 m/s thì thời gian 
 ---
 
 ## 7. Chuyển động 2 chiều — Ném ngang
+
+💡 **Trực giác / Hình dung**: tưởng tượng cùng lúc bạn **thả** một viên bi từ tay (rơi thẳng xuống) và **bắn ngang** một viên khác từ cùng độ cao. Cả hai chạm đất **cùng một lúc**! Vì trục dọc (rơi) không "biết" gì về trục ngang (bay). Chuyển động 2D = ghép hai chuyển động 1D độc lập: ngang thì đều như xe chạy thẳng, dọc thì rơi tự do như thả bi. Giải riêng từng trục rồi ghép lại.
 
 ### 7.1. Nguyên lý độc lập
 
@@ -365,6 +511,30 @@ c) **Tốc độ chạm đất** (cả 2 thành phần):
 - v_x = 15 m/s (không đổi).
 - v_y = 0 − 9.8 × 3.03 ≈ −29.7 m/s.
 - |v| = √(15² + 29.7²) = √(225 + 882) ≈ **33.3 m/s**.
+
+### ⚠ Lỗi thường gặp
+
+- **Trộn lẫn vận tốc 2 trục vào một phương trình**: trục ngang dùng x = v_x·t (a=0); trục dọc dùng rơi tự do (a=g). KHÔNG được dùng v₀ = 15 m/s (ngang) trong phương trình rơi của trục dọc. Hai trục giải riêng.
+- **Nghĩ vận tốc ngang ảnh hưởng thời gian rơi**: SAI. Thời gian rơi chỉ phụ thuộc độ cao h và g: t = √(2h/g). Bắn ngang 15 m/s hay 150 m/s từ cùng vách núi đều **rơi hết cùng thời gian**, chỉ bay xa khác nhau.
+- **Cộng tốc độ 2 trục bằng phép cộng thường**: tốc độ chạm đất KHÔNG phải v_x + v_y = 15 + 29.7 = 44.7 m/s. Phải dùng **Pytago** (vì là vector vuông góc): |v| = √(v_x² + v_y²) = 33.3 m/s.
+
+### ❓ Câu hỏi tự nhiên của người đọc
+
+- *"Vì sao bắn ngang và thả rơi lại chạm đất cùng lúc?"* Vì trọng lực chỉ tác dụng theo phương dọc, kéo cả hai xuống với cùng a = g. Vận tốc ngang không tạo và không làm chậm chuyển động dọc. Trục dọc của cả hai giống hệt nhau → cùng thời gian rơi.
+- *"Quỹ đạo ném ngang có hình gì?"* Hình **parabola**. Vì x = v_x·t (tỉ lệ với t) còn y giảm theo t² → kết hợp ra y là hàm bậc 2 của x → parabola.
+- *"Nếu ném xiên (góc lên) thì sao?"* Tách v₀ thành v_x = v₀cosθ (ngang, đều) và v_y = v₀sinθ (dọc, chịu trọng lực). Cùng nguyên lý độc lập, chỉ khác là trục dọc có vận tốc đầu hướng lên.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Bi ném ngang v₀ = 8 m/s từ độ cao 20 m. Bao lâu chạm đất? Bay xa bao nhiêu theo phương ngang? (g=9.8)
+2. Hai viên bi từ cùng độ cao: A thả rơi, B bắn ngang 30 m/s. Viên nào chạm đất trước?
+
+<details><summary>Đáp án</summary>
+
+1. Trục dọc: 20 = ½·9.8·t² → t² = 4.08 → t ≈ **2.02 s**. Trục ngang: x = 8 × 2.02 ≈ **16.2 m**.
+2. **Cùng lúc** — thời gian rơi chỉ phụ thuộc độ cao, không phụ thuộc vận tốc ngang.
+
+</details>
 
 ### 📝 Tóm tắt mục 7
 

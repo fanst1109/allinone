@@ -37,7 +37,7 @@
 | Economics | Lộ trình học Kinh tế học — 4 tier từ tư duy nền tảng tới chuyên đề ứng dụng | [Economics/](./Economics/) |
 | Electronics | Điện tử thực hành — 3 tầng × 8 bài: linh kiện thụ động (Ohm, RC, RL, lọc) → bán dẫn (diode, BJT, MOSFET, op-amp) → số & vi điều khiển | [Electronics/](./Electronics/) |
 | English | Lộ trình học tiếng Anh — phát âm, từ vựng, ngữ pháp, kỹ năng | [English/](./English/) |
-| Math | Toán cổ điển — 6 tầng × 8 bài, số học → calculus → toán năm 1 đại học | [Math/](./Math/) |
+| Math | Toán cổ điển — 7 tầng × 8 bài, số học → calculus → toán năm 1 đại học → mô hình hóa | [Math/](./Math/) |
 | Music | Lý thuyết âm nhạc — 3 tầng × 8 bài: cao độ/nốt/gam/nhịp → hòa âm (hợp âm, tiến trình) → âm sắc, hình thức, jazz & sáng tác | [Music/](./Music/) |
 | Networking | Mạng máy tính — 3 tầng × 8 bài: mô hình phân tầng & IP/TCP → DNS/HTTP/TLS → an ninh/cloud/chẩn đoán | [Networking/](./Networking/) |
 | OperatingSystems | Hệ điều hành — 3 tầng × 8 bài: tiến trình & lập lịch → bộ nhớ ảo & lưu trữ → ảo hoá, container, vận hành | [OperatingSystems/](./OperatingSystems/) |

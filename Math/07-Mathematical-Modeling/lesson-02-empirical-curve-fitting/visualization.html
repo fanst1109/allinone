@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Hồi quy bình phương tối thiểu</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .lead { color: #475569; margin: 4px 0 16px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #334155; }
+  input[type="range"] { flex: 1; min-width: 160px; max-width: 300px; }
+  button { background: #94a3b8; color: white; border: none; padding: 9px 14px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .stat.warn strong { color: #b45309; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; line-height: 1.6; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 560px; height: auto; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-modeling-cycle/visualization.html">← L1: Chu trình & Thứ nguyên</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Hồi quy least squares</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-discrete-dynamical/visualization.html">L3: Mô hình rời rạc →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 02 — Hồi quy bình phương tối thiểu</h1>
+<p class="lead">Hai công cụ: kéo đường thẳng để thấy tổng bình phương sai số (SSE) &amp; R² thay đổi (và so với đường tối ưu), rồi xem cách logarit "duỗi thẳng" dữ liệu mũ để fit hằng số k.</p>
+
+<h2>1. Sân chơi bình phương tối thiểu</h2>
+<div class="card">
+  <p class="lead">Dữ liệu cố định (5 điểm như trong README). Kéo <strong>a</strong> (độ dốc) và <strong>b</strong> (tung độ gốc); các đoạn cam là phần dư, ô vuông cam là <em>bình phương</em> phần dư (diện tích = thứ ta cực tiểu hóa). Bấm "Khớp tối ưu" để nhảy tới đường least squares.</p>
+  <div class="row">
+    <label>a (độ dốc):</label>
+    <input type="range" id="a" min="-1" max="3" step="0.05" value="1.6" oninput="drawFit()">
+    <span class="stat">a = <strong id="vA">1.60</strong></span>
+    <label>b:</label>
+    <input type="range" id="b" min="-3" max="6" step="0.1" value="0" oninput="drawFit()">
+    <span class="stat">b = <strong id="vB">0.0</strong></span>
+  </div>
+  <div class="row">
+    <button onclick="bestFit()">🎯 Khớp tối ưu (least squares)</button>
+    <button id="sqBtn" class="active" onclick="toggleSq()">Hiện ô bình phương: BẬT</button>
+  </div>
+  <svg class="scene" id="fit" viewBox="0 0 480 420"></svg>
+  <div class="result" id="fitOut"></div>
+</div>
+
+<h2>2. Tuyến tính hóa: log "duỗi thẳng" dữ liệu mũ</h2>
+<div class="card">
+  <p class="lead">Dữ liệu cà phê nguội từ Lesson 01 (u = T − 25). Trên trục thường nó là đường <em>cong</em>; lấy ln(u) thì thành <em>thẳng</em> — fit đường thẳng đó cho ra k. Bấm để đổi trục.</p>
+  <div class="row">
+    <button id="axLin" class="active" onclick="setAxis('lin')">Trục thường (u theo t)</button>
+    <button id="axLog" onclick="setAxis('log')">Trục log (ln u theo t)</button>
+  </div>
+  <svg class="scene" id="lin" viewBox="0 0 480 360"></svg>
+  <div class="result" id="linOut"></div>
+</div>
+
+<script>
+/* ---------- Module 1: least squares ---------- */
+const PTS = [[1,2],[2,3],[3,5],[4,4],[5,6]];
+const BEST = {a:0.9, b:1.3};
+let showSq = true;
+const xmin=0, xmax=6, ymin=0, ymax=8;
+function P(){ const W=480,H=420, ml=44,mr=14,mt=14,mb=40;
+  return { W,H, x0:ml, x1:W-mr, y0:H-mb, y1:mt,
+    sx:x=>ml+(x-xmin)/(xmax-xmin)*(W-mr-ml),
+    sy:y=>(H-mb)+(y-ymin)/(ymax-ymin)*(mt-(H-mb)) }; }
+function stats(a,b){
+  let ssr=0, ybar=PTS.reduce((s,p)=>s+p[1],0)/PTS.length, sst=0;
+  PTS.forEach(([x,y])=>{ const e=y-(a*x+b); ssr+=e*e; sst+=(y-ybar)*(y-ybar); });
+  return { ssr, sst, r2: 1-ssr/sst, ybar };
+}
+function drawFit(){
+  const a=+document.getElementById("a").value, b=+document.getElementById("b").value;
+  document.getElementById("vA").textContent=a.toFixed(2);
+  document.getElementById("vB").textContent=b.toFixed(1);
+  const p=P(); let s="";
+  // grid
+  for(let gx=xmin;gx<=xmax;gx++){ const X=p.sx(gx); s+=`<line x1="${X}" y1="${p.y0}" x2="${X}" y2="${p.y1}" stroke="#eef2f7"/>`;
+    s+=`<text x="${X}" y="${p.y0+16}" text-anchor="middle" font-size="11" fill="#94a3b8">${gx}</text>`; }
+  for(let gy=ymin;gy<=ymax;gy+=2){ const Y=p.sy(gy); s+=`<line x1="${p.x0}" y1="${Y}" x2="${p.x1}" y2="${Y}" stroke="#eef2f7"/>`;
+    s+=`<text x="${p.x0-6}" y="${Y+4}" text-anchor="end" font-size="11" fill="#94a3b8">${gy}</text>`; }
+  // axes
+  s+=`<line x1="${p.x0}" y1="${p.y0}" x2="${p.x1}" y2="${p.y0}" stroke="#94a3b8"/>`;
+  s+=`<line x1="${p.x0}" y1="${p.y0}" x2="${p.x0}" y2="${p.y1}" stroke="#94a3b8"/>`;
+  // squares of residuals (area in y-units, drawn as square using x-scale length = |e|)
+  if(showSq){
+    PTS.forEach(([x,y])=>{ const yh=a*x+b; const e=y-yh;
+      const px=p.sx(x), pyData=p.sy(y), pyLine=p.sy(yh);
+      // square side in pixels = |residual| mapped on y; use same length horizontally
+      const sidePx = Math.abs(pyData-pyLine);
+      const top = Math.min(pyData,pyLine);
+      s+=`<rect x="${px}" y="${top}" width="${sidePx}" height="${sidePx}" fill="#fb923c" fill-opacity="0.18" stroke="#fb923c" stroke-opacity="0.5"/>`;
+    });
+  }
+  // line
+  const X0=p.sx(xmin), Y0=p.sy(a*xmin+b), X1=p.sx(xmax), Y1=p.sy(a*xmax+b);
+  s+=`<line x1="${X0}" y1="${Y0}" x2="${X1}" y2="${Y1}" stroke="#15803d" stroke-width="3"/>`;
+  // residual segments + points
+  PTS.forEach(([x,y])=>{ const yh=a*x+b; const px=p.sx(x);
+    s+=`<line x1="${px}" y1="${p.sy(y)}" x2="${px}" y2="${p.sy(yh)}" stroke="#ea580c" stroke-width="2"/>`;
+    s+=`<circle cx="${px}" cy="${p.sy(y)}" r="5" fill="#1d4ed8"/>`;
+  });
+  document.getElementById("fit").innerHTML=s;
+  const st=stats(a,b);
+  const isBest = Math.abs(a-BEST.a)<0.03 && Math.abs(b-BEST.b)<0.06;
+  document.getElementById("fitOut").innerHTML=
+    `<span class="stat">SSE = Σe² = <strong>${st.ssr.toFixed(2)}</strong></span>`+
+    `<span class="stat ${st.r2<0?'warn':''}">R² = <strong>${st.r2.toFixed(3)}</strong></span>`+
+    `<div style="margin-top:8px;color:#475569">`+
+    (isBest
+      ? `✓ Đây chính là đường <strong>least squares</strong> (a=0.9, b=1.3): SSE nhỏ nhất có thể = 1.90, R² = 0.81. Không đường thẳng nào cho SSE thấp hơn.`
+      : `Đang lệch khỏi đường tối ưu. SSE tối thiểu = <strong>1.90</strong> (tại a=0.9, b=1.3). Kéo để giảm tổng diện tích ô cam, hoặc bấm "Khớp tối ưu".`)+
+    `</div>`;
+}
+function bestFit(){ document.getElementById("a").value=BEST.a; document.getElementById("b").value=BEST.b; drawFit(); }
+function toggleSq(){ showSq=!showSq; document.getElementById("sqBtn").textContent="Hiện ô bình phương: "+(showSq?"BẬT":"TẮT"); document.getElementById("sqBtn").classList.toggle("active",showSq); drawFit(); }
+
+/* ---------- Module 2: linearization ---------- */
+const COOL = [[0,65],[5,45],[10,31],[15,21]]; // t, u
+const Kfit = 0.0752, Afit = 65.3;
+let axMode="lin";
+function setAxis(m){ axMode=m; document.getElementById("axLin").classList.toggle("active",m==="lin");
+  document.getElementById("axLog").classList.toggle("active",m==="log"); drawLin(); }
+function drawLin(){
+  const W=480,H=360, ml=48,mr=16,mt=16,mb=42;
+  const x0=ml,x1=W-mr,y0=H-mb,y1=mt, tMax=16;
+  let s="";
+  const sx=t=>x0+t/tMax*(x1-x0);
+  if(axMode==="lin"){
+    const vMax=70, sy=u=>y0+u/vMax*(y1-y0);
+    for(let g=0;g<=vMax;g+=10){ const Y=sy(g); s+=`<line x1="${x0}" y1="${Y}" x2="${x1}" y2="${Y}" stroke="#eef2f7"/>`;
+      s+=`<text x="${x0-6}" y="${Y+4}" text-anchor="end" font-size="11" fill="#94a3b8">${g}</text>`; }
+    // exp curve u = A e^{-k t}
+    let pth=""; for(let i=0;i<=160;i++){ const t=i/160*tMax; pth+=(i?"L":"M")+sx(t).toFixed(1)+" "+sy(Afit*Math.exp(-Kfit*t)).toFixed(1)+" "; }
+    s+=`<path d="${pth}" fill="none" stroke="#15803d" stroke-width="2.5"/>`;
+    COOL.forEach(([t,u])=>{ s+=`<circle cx="${sx(t)}" cy="${sy(u)}" r="5" fill="#1d4ed8"/>`; });
+    s+=`<text x="${(x0+x1)/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="#475569">t (phút)</text>`;
+    s+=`<text x="14" y="${(y0+y1)/2}" text-anchor="middle" font-size="12" fill="#475569" transform="rotate(-90 14 ${(y0+y1)/2})">u = T − 25 (°C)</text>`;
+    document.getElementById("lin").innerHTML=axesWrap(s,x0,x1,y0,y1);
+    document.getElementById("linOut").innerHTML=`Trên trục thường, dữ liệu nằm trên đường <strong>cong</strong> u = ${Afit.toFixed(0)}·e<sup>−${Kfit.toFixed(3)}·t</sup>. Khó fit trực tiếp. → Đổi sang trục log.`;
+  } else {
+    const lMin=2.8, lMax=4.4, sy=L=>y0+(L-lMin)/(lMax-lMin)*(y1-y0);
+    for(let g=3;g<=4.4;g+=0.4){ const Y=sy(g); s+=`<line x1="${x0}" y1="${Y}" x2="${x1}" y2="${Y}" stroke="#eef2f7"/>`;
+      s+=`<text x="${x0-6}" y="${Y+4}" text-anchor="end" font-size="11" fill="#94a3b8">${g.toFixed(1)}</text>`; }
+    // fitted line ln u = ln A - k t
+    const lnA=Math.log(Afit);
+    s+=`<line x1="${sx(0)}" y1="${sy(lnA)}" x2="${sx(tMax)}" y2="${sy(lnA-Kfit*tMax)}" stroke="#15803d" stroke-width="2.5"/>`;
+    COOL.forEach(([t,u])=>{ s+=`<circle cx="${sx(t)}" cy="${sy(Math.log(u))}" r="5" fill="#1d4ed8"/>`; });
+    s+=`<text x="${(x0+x1)/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="#475569">t (phút)</text>`;
+    s+=`<text x="14" y="${(y0+y1)/2}" text-anchor="middle" font-size="12" fill="#475569" transform="rotate(-90 14 ${(y0+y1)/2})">ln u</text>`;
+    document.getElementById("lin").innerHTML=axesWrap(s,x0,x1,y0,y1);
+    document.getElementById("linOut").innerHTML=`Trên trục log, các điểm gần như <strong>thẳng hàng</strong>! Fit least squares cho độ dốc = −k → <strong>k ≈ ${Kfit.toFixed(3)} phút⁻¹</strong> (khớp giá trị 0.074 ở Lesson 01) và tung độ gốc ln A → <strong>A ≈ ${Afit.toFixed(0)}</strong> = u₀ ban đầu ✓.`;
+  }
+  function axesWrap(inner,x0,x1,y0,y1){ return inner+`<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="#94a3b8"/><line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y1}" stroke="#94a3b8"/>`; }
+}
+
+drawFit();
+drawLin();
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

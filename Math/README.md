@@ -35,9 +35,9 @@ Hai track có thể đọc song song — Math có link chéo sang Vectors ở nh
 | 4 | [Calculus 1-var](./04-Calculus-1var/) | 🚧 Khung | Giới hạn, đạo hàm, ứng dụng, tích phân (1 biến) |
 | 5 | [Number Theory, Combinatorics, Logic](./05-NumberTheory-Combinatorics-Logic/) | 🚧 Khung | Chia hết, đồng dư, tổ hợp, quy nạp, chứng minh |
 | 6 | [Advanced (Freshman)](./06-Advanced/) | 🚧 Khung | Linear algebra, multivar calculus, ODE, chuỗi, xác suất nền |
-| 7 | [Mathematical Modeling](./07-Mathematical-Modeling/) | 🚧 L01 xong | Chu trình mô hình hóa, thứ nguyên, hồi quy, mô hình rời rạc/liên tục/ngẫu nhiên, tối ưu |
+| 7 | [Mathematical Modeling](./07-Mathematical-Modeling/) | 🚧 L01–03 xong | Chu trình mô hình hóa, thứ nguyên, hồi quy, mô hình rời rạc/liên tục/ngẫu nhiên, tối ưu |
 
-🚧 Khung = đã có cấu trúc folder + bảng lesson, chưa có nội dung từng lesson. Tầng 7 đã có Lesson 01 đầy đủ.
+🚧 Khung = đã có cấu trúc folder + bảng lesson, chưa có nội dung từng lesson. Tầng 7 đã có Lesson 01–03 đầy đủ.
 
 ## Cách học
 

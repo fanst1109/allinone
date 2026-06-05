@@ -1,4 +1,7 @@
-# Lesson 03 — Mô hình rời rạc (Phương trình sai phân)
+// AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
+// Source: Math/07-Mathematical-Modeling/lesson-03-discrete-dynamical/README.md
+// Chạy lại: go run tools/build-readme-data.go
+window.README_MD = `# Lesson 03 — Mô hình rời rạc (Phương trình sai phân)
 
 ## Mục tiêu
 
@@ -60,13 +63,13 @@ xₙ₊₁ = a·xₙ → nghiệm đóng **xₙ = x₀·aⁿ**.
 ### 2.2 Trường hợp tổng quát (b ≠ 0)
 
 xₙ₊₁ = a·xₙ + b (a ≠ 1). Tìm **điểm cân bằng** x* (giá trị không đổi: x* = a·x* + b):
-```
+\`\`\`
 x* = b / (1 − a)
-```
+\`\`\`
 Đặt yₙ = xₙ − x* (độ lệch khỏi cân bằng) → yₙ₊₁ = a·yₙ (thuần!) → yₙ = y₀·aⁿ. Suy ra **nghiệm đóng**:
-```
+\`\`\`
 xₙ = (x₀ − x*)·aⁿ + x* ,   với  x* = b/(1 − a)
-```
+\`\`\`
 
 **Walk-through — tiết kiệm có gửi thêm**: x₀ = 1000, lãi 5% và gửi thêm 100 mỗi năm → xₙ₊₁ = 1.05·xₙ + 100.
 - x* = 100/(1 − 1.05) = 100/(−0.05) = **−2000** (điểm cân bằng âm, không đạt được — chỉ là "mỏ neo" của công thức).
@@ -149,9 +152,9 @@ x* = b/(1−a) = (−1)/(1−1.2) = (−1)/(−0.2) = **5**. f′ = 1.2 > 1 → 
 💡 **Trực giác.** Mô hình mũ xₙ₊₁ = r·xₙ tăng vô hạn — phi thực tế (tài nguyên có hạn, đã bàn ở [L01](../lesson-01-modeling-cycle/)). Logistic thêm "phanh" khi đông đúc: nhân thêm (1 − xₙ), nhỏ dần khi xₙ tiến tới 1 (sức chứa chuẩn hóa). Đơn giản đến bất ngờ — nhưng sinh ra hành vi cực kỳ phong phú.
 
 **Mô hình** (x chuẩn hóa trong [0,1], r > 0):
-```
+\`\`\`
 xₙ₊₁ = r·xₙ·(1 − xₙ)
-```
+\`\`\`
 
 **Điểm cân bằng**: x* = r·x*(1−x*) → x* = 0 hoặc **x* = 1 − 1/r**.
 **Ổn định**: f′(x) = r(1 − 2x). Tại x* = 1−1/r: f′ = r(1 − 2(1−1/r)) = **2 − r**. Ổn định ⇔ |2−r| < 1 ⇔ **1 < r < 3**.
@@ -255,3 +258,4 @@ x* = 1 − 1/2.5 = 1 − 0.4 = **0.6**. f′(x*) = 2 − r = 2 − 2.5 = −0.5,
 4. **Logistic rời rạc** xₙ₊₁ = r·xₙ(1−xₙ): x* = 1−1/r, ổn định khi 1<r<3, rồi chu kỳ 2/4/... → hỗn loạn.
 5. **Hỗn loạn** = tất định + nhạy điều kiện đầu; khác hẳn logistic liên tục (luôn mượt).
 6. Rời rạc vs liên tục: chọn theo cách hệ cập nhật; mô phỏng ODE = rời rạc hóa (Euler).
+`;

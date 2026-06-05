@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Hệ tương tác (SIR, Lotka–Volterra)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .lead { color: #475569; margin: 4px 0 16px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #334155; }
+  input[type="range"] { flex: 1; min-width: 150px; max-width: 280px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .key { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:5px; vertical-align:middle; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; line-height: 1.7; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 640px; height: auto; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-continuous-ode-models/visualization.html">← L4: Mô hình ODE</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Hệ tương tác</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-optimization-models/visualization.html">L6: Tối ưu →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 05 — Hệ tương tác</h1>
+<p class="lead">Hai mô phỏng (tích phân Euler): dịch bệnh SIR — kéo β, γ để thấy R₀ điều khiển bùng dịch &amp; "làm phẳng đường cong"; và thú–mồi Lotka–Volterra — dao động lệch pha.</p>
+
+<h2>1. Dịch bệnh SIR</h2>
+<div class="card">
+  <p class="lead"><span class="key" style="background:#2563eb"></span>S (khỏe) · <span class="key" style="background:#dc2626"></span>I (nhiễm) · <span class="key" style="background:#15803d"></span>R (khỏi). R₀ = β/γ. Đỉnh dịch khi S = N/R₀.</p>
+  <div class="row">
+    <label>β (lây):</label><input type="range" id="beta" min="0.1" max="1" step="0.02" value="0.4" oninput="drawSIR()">
+    <span class="stat">β = <strong id="vB">0.40</strong></span>
+    <label>γ (khỏi):</label><input type="range" id="gam" min="0.05" max="0.5" step="0.01" value="0.1" oninput="drawSIR()">
+    <span class="stat">γ = <strong id="vG">0.10</strong></span>
+  </div>
+  <svg class="scene" id="sir" viewBox="0 0 640 360"></svg>
+  <div class="result" id="sirOut"></div>
+</div>
+
+<h2>2. Thú–mồi (Lotka–Volterra)</h2>
+<div class="card">
+  <p class="lead"><span class="key" style="background:#16a34a"></span>Mồi (thỏ) · <span class="key" style="background:#b45309"></span>Thú (cáo). Đỉnh thú trễ sau đỉnh mồi → dao động đuổi nhau quanh cân bằng (γ/δ, α/β).</p>
+  <div class="row">
+    <label>α (sinh mồi):</label><input type="range" id="al" min="0.4" max="1.4" step="0.05" value="1.0" oninput="drawLV()">
+    <span class="stat">α = <strong id="vAl">1.00</strong></span>
+    <label>γ (chết thú):</label><input type="range" id="ga2" min="0.4" max="1.4" step="0.05" value="1.0" oninput="drawLV()">
+    <span class="stat">γ = <strong id="vGa2">1.00</strong></span>
+  </div>
+  <svg class="scene" id="lv" viewBox="0 0 640 360"></svg>
+  <div class="result" id="lvOut"></div>
+</div>
+
+<script>
+function axes(s,x0,x1,y0,y1){ return s+`<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="#94a3b8"/><line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y1}" stroke="#94a3b8"/>`; }
+
+/* SIR */
+function drawSIR(){
+  const beta=+document.getElementById("beta").value, gam=+document.getElementById("gam").value;
+  document.getElementById("vB").textContent=beta.toFixed(2);
+  document.getElementById("vG").textContent=gam.toFixed(2);
+  const N=1000; let S=999,I=1,R=0; const dt=0.1, tMax=120;
+  let arr=[[0,S,I,R]], peakI=I, peakT=0;
+  for(let t=dt;t<=tMax;t+=dt){ const dS=-beta*S*I/N, dI=beta*S*I/N-gam*I, dR=gam*I;
+    S+=dS*dt; I+=dI*dt; R+=dR*dt; if(I>peakI){peakI=I;peakT=t;} arr.push([t,S,I,R]); }
+  const W=640,H=360, ml=48,mr=16,mt=16,mb=38;
+  const sx=t=>ml+t/tMax*(W-mr-ml), sy=y=>(H-mb)+y/N*(mt-(H-mb));
+  let s="";
+  for(let g=0;g<=1000;g+=250){ const Y=sy(g); s+=`<line x1="${ml}" y1="${Y}" x2="${W-mr}" y2="${Y}" stroke="#eef2f7"/><text x="${ml-6}" y="${Y+4}" text-anchor="end" font-size="10" fill="#94a3b8">${g}</text>`; }
+  for(let t=0;t<=tMax;t+=30) s+=`<text x="${sx(t)}" y="${H-mb+15}" text-anchor="middle" font-size="10" fill="#94a3b8">${t}</text>`;
+  const cols=["#2563eb","#dc2626","#15803d"];
+  for(let k=1;k<=3;k++){ let p=""; arr.forEach((a,i)=>{ p+=(i?"L":"M")+sx(a[0]).toFixed(1)+" "+sy(a[k]).toFixed(1)+" "; });
+    s+=`<path d="${p}" fill="none" stroke="${cols[k-1]}" stroke-width="2.5"/>`; }
+  // peak marker
+  s+=`<line x1="${sx(peakT)}" y1="${sy(0)}" x2="${sx(peakT)}" y2="${sy(peakI)}" stroke="#dc2626" stroke-width="1" stroke-dasharray="3 3"/>`;
+  s+=`<text x="${(ml+W-mr)/2}" y="${H-4}" text-anchor="middle" font-size="12" fill="#475569">ngày</text>`;
+  document.getElementById("sir").innerHTML=axes(s,ml,W-mr,H-mb,mt);
+  const R0=beta/gam;
+  const msg = R0>1
+    ? `Đỉnh dịch ngày <strong>${peakT.toFixed(0)}</strong>, tối đa <strong>${peakI.toFixed(0)}</strong> ca nhiễm cùng lúc. Đỉnh khi S = N/R₀ = ${(N/R0).toFixed(0)}.`
+    : `R₀ ≤ 1 → dịch <strong>không bùng</strong>, I giảm dần về 0.`;
+  document.getElementById("sirOut").innerHTML=
+    `<span class="stat">R₀ = β/γ = <strong>${R0.toFixed(2)}</strong></span>`+
+    `<span class="stat">Ngưỡng miễn dịch = 1−1/R₀ = <strong>${R0>1?((1-1/R0)*100).toFixed(0)+"%":"—"}</strong></span>`+
+    `<div style="margin-top:8px;color:#475569">${msg} Giảm β (khẩu trang, giãn cách) → R₀ nhỏ → đỉnh thấp &amp; muộn hơn ("làm phẳng đường cong").</div>`;
+}
+
+/* Lotka-Volterra */
+function drawLV(){
+  const al=+document.getElementById("al").value, gam=+document.getElementById("ga2").value;
+  const beta=0.1, delta=0.075;
+  document.getElementById("vAl").textContent=al.toFixed(2);
+  document.getElementById("vGa2").textContent=gam.toFixed(2);
+  let x=40, y=9; const dt=0.01, tMax=40;
+  let arr=[[0,x,y]], ymax=Math.max(x,y);
+  for(let t=dt;t<=tMax;t+=dt){ const dx=al*x-beta*x*y, dy=delta*x*y-gam*y;
+    x+=dx*dt; y+=dy*dt; if(x<0)x=0; if(y<0)y=0; ymax=Math.max(ymax,x,y); arr.push([t,x,y]); }
+  ymax*=1.05;
+  const W=640,H=360, ml=44,mr=16,mt=16,mb=38;
+  const sx=t=>ml+t/tMax*(W-mr-ml), sy=v=>(H-mb)+v/ymax*(mt-(H-mb));
+  let s="";
+  for(let g=0;g<=4;g++){ const vv=ymax*g/4, Y=sy(vv); s+=`<line x1="${ml}" y1="${Y}" x2="${W-mr}" y2="${Y}" stroke="#eef2f7"/><text x="${ml-6}" y="${Y+4}" text-anchor="end" font-size="10" fill="#94a3b8">${vv.toFixed(0)}</text>`; }
+  for(let t=0;t<=tMax;t+=10) s+=`<text x="${sx(t)}" y="${H-mb+15}" text-anchor="middle" font-size="10" fill="#94a3b8">${t}</text>`;
+  // equilibrium lines
+  const xs=gam/delta, ystar=al/beta;
+  s+=`<line x1="${ml}" y1="${sy(xs)}" x2="${W-mr}" y2="${sy(xs)}" stroke="#16a34a" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"/>`;
+  s+=`<line x1="${ml}" y1="${sy(ystar)}" x2="${W-mr}" y2="${sy(ystar)}" stroke="#b45309" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"/>`;
+  let px="",py=""; arr.forEach((a,i)=>{ px+=(i?"L":"M")+sx(a[0]).toFixed(1)+" "+sy(a[1]).toFixed(1)+" "; py+=(i?"L":"M")+sx(a[0]).toFixed(1)+" "+sy(a[2]).toFixed(1)+" "; });
+  s+=`<path d="${px}" fill="none" stroke="#16a34a" stroke-width="2.5"/>`;
+  s+=`<path d="${py}" fill="none" stroke="#b45309" stroke-width="2.5"/>`;
+  s+=`<text x="${(ml+W-mr)/2}" y="${H-4}" text-anchor="middle" font-size="12" fill="#475569">thời gian</text>`;
+  document.getElementById("lv").innerHTML=axes(s,ml,W-mr,H-mb,mt);
+  document.getElementById("lvOut").innerHTML=
+    `<span class="stat">Mồi cân bằng x* = γ/δ = <strong>${xs.toFixed(1)}</strong></span>`+
+    `<span class="stat">Thú cân bằng y* = α/β = <strong>${ystar.toFixed(1)}</strong></span>`+
+    `<div style="margin-top:8px;color:#475569">Hai đường (đứt = mức cân bằng) dao động tuần hoàn: đỉnh thú (cam) luôn <strong>trễ sau</strong> đỉnh mồi (xanh) — vòng đuổi nhau.</div>`;
+}
+
+drawSIR(); drawLV();
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

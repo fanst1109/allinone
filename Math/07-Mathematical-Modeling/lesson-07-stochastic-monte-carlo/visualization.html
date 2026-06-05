@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Mô hình ngẫu nhiên (Monte Carlo, Markov)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .lead { color: #475569; margin: 4px 0 16px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #334155; }
+  input[type="range"] { flex: 1; min-width: 150px; max-width: 280px; }
+  button { background: #94a3b8; color: white; border: none; padding: 9px 14px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button:hover { background: #64748b; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; line-height: 1.7; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 420px; height: auto; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-optimization-models/visualization.html">← L6: Tối ưu</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Mô hình ngẫu nhiên</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-capstone-modeling-project/visualization.html">L8: Capstone →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 07 — Mô hình ngẫu nhiên</h1>
+<p class="lead">Hai công cụ: Monte Carlo ước lượng π bằng cách gieo điểm ngẫu nhiên (sai số ~ 1/√N); và xích Markov thời tiết — tìm phân phối dừng độc lập điều kiện đầu.</p>
+
+<h2>1. Monte Carlo ước lượng π</h2>
+<div class="card">
+  <p class="lead">Gieo điểm ngẫu nhiên đều trong hình vuông. Điểm <span style="color:#15803d;font-weight:700">trong</span> cung tròn / tổng ≈ π/4 → π ≈ 4·tỉ lệ. Bấm để thêm điểm và xem ước lượng hội tụ.</p>
+  <div class="row">
+    <button onclick="addPts(200)">+200 điểm</button>
+    <button onclick="addPts(2000)">+2000 điểm</button>
+    <button onclick="resetMC()">Đặt lại</button>
+  </div>
+  <svg class="scene" id="mc" viewBox="0 0 360 360"></svg>
+  <div class="result" id="mcOut"></div>
+</div>
+
+<h2>2. Xích Markov — thời tiết</h2>
+<div class="card">
+  <p class="lead">2 trạng thái: Nắng (N), Mưa (M). Kéo xác suất chuyển. Cột = phân phối dừng π (tỉ lệ thời gian dài hạn), giải từ π·P = π — độc lập thời tiết hôm nay.</p>
+  <div class="row">
+    <label>P(N→N):</label><input type="range" id="pnn" min="0.05" max="0.95" step="0.05" value="0.8" oninput="drawMK()">
+    <span class="stat">P(N→N) = <strong id="vPnn">0.80</strong></span>
+    <label>P(M→N):</label><input type="range" id="pmn" min="0.05" max="0.95" step="0.05" value="0.4" oninput="drawMK()">
+    <span class="stat">P(M→N) = <strong id="vPmn">0.40</strong></span>
+  </div>
+  <svg class="scene" id="mk" viewBox="0 0 420 300" style="max-width:460px"></svg>
+  <div class="result" id="mkOut"></div>
+</div>
+
+<script>
+/* ---------- Monte Carlo ---------- */
+let inside=0, total=0;
+const MCW=360, pad=14, side=MCW-2*pad;
+function sxy(u,v){ return [pad+u*side, pad+(1-v)*side]; }
+let mcPts="";
+function resetMC(){ inside=0; total=0; mcPts=""; renderMC(); }
+function addPts(n){
+  let newPts="";
+  for(let i=0;i<n;i++){ const u=Math.random(), v=Math.random(); total++; const ins=(u*u+v*v)<=1; if(ins)inside++;
+    const [px,py]=sxy(u,v); newPts+=`<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="1.6" fill="${ins?'#15803d':'#cbd5e0'}"/>`;
+  }
+  // keep DOM light: cap stored markup
+  mcPts+=newPts; if(mcPts.length>600000) mcPts=mcPts.slice(-600000);
+  renderMC();
+}
+function renderMC(){
+  const [ox,oy]=sxy(0,0);
+  let s=`<rect x="${pad}" y="${pad}" width="${side}" height="${side}" fill="none" stroke="#94a3b8"/>`;
+  // quarter circle arc center (0,0) radius 1 -> from (1,0) to (0,1)
+  const [x1,y1]=sxy(1,0), [x2,y2]=sxy(0,1);
+  s+=`<path d="M ${x1} ${y1} A ${side} ${side} 0 0 0 ${x2} ${y2}" fill="none" stroke="#dc2626" stroke-width="2"/>`;
+  s+=mcPts;
+  document.getElementById("mc").innerHTML=s;
+  const est = total? 4*inside/total : 0;
+  const err = total? Math.abs(est-Math.PI) : 0;
+  document.getElementById("mcOut").innerHTML=
+    `<span class="stat">trong = <strong>${inside}</strong> / N = <strong>${total}</strong></span>`+
+    `<span class="stat">π ≈ 4·(trong/N) = <strong>${total?est.toFixed(4):"—"}</strong></span>`+
+    `<span class="stat">|sai| = <strong>${total?err.toFixed(4):"—"}</strong></span>`+
+    `<div style="margin-top:8px;color:#475569">π thật ≈ 3.14159. Càng nhiều điểm càng sát, nhưng sai số chỉ giảm ~ 1/√N — muốn chính xác gấp 10 phải gieo gấp 100.</div>`;
+}
+
+/* ---------- Markov ---------- */
+function drawMK(){
+  const pnn=+document.getElementById("pnn").value, pmn=+document.getElementById("pmn").value;
+  document.getElementById("vPnn").textContent=pnn.toFixed(2);
+  document.getElementById("vPmn").textContent=pmn.toFixed(2);
+  // stationary: piN = pnn*piN + pmn*piM, piN+piM=1
+  // piN = pnn piN + pmn(1-piN) -> piN(1-pnn+pmn)=pmn -> piN=pmn/(1-pnn+pmn)
+  const piN=pmn/(1-pnn+pmn), piM=1-piN;
+  // verify by iterating from "today sunny"
+  let d=[1,0]; for(let i=0;i<60;i++){ const nN=d[0]*pnn+d[1]*pmn; d=[nN,1-nN]; }
+  const W=420,H=300, ml=60, bw=90, gap=70, base=H-50, top=40;
+  const sh=p=>p*(base-top);
+  let s="";
+  s+=`<line x1="${ml-10}" y1="${base}" x2="${W-20}" y2="${base}" stroke="#94a3b8"/>`;
+  for(let g=0;g<=1;g+=0.25){ const Y=base-sh(g); s+=`<line x1="${ml-10}" y1="${Y}" x2="${W-20}" y2="${Y}" stroke="#eef2f7"/><text x="${ml-16}" y="${Y+4}" text-anchor="end" font-size="10" fill="#94a3b8">${g}</text>`; }
+  const bars=[["Nắng",piN,"#f59e0b"],["Mưa",piM,"#3b82f6"]];
+  bars.forEach((b,i)=>{ const x=ml+ i*(bw+gap); const h=sh(b[1]);
+    s+=`<rect x="${x}" y="${base-h}" width="${bw}" height="${h}" rx="4" fill="${b[2]}"/>`;
+    s+=`<text x="${x+bw/2}" y="${base-h-8}" text-anchor="middle" font-size="14" font-weight="700" fill="#334155">${(b[1]*100).toFixed(1)}%</text>`;
+    s+=`<text x="${x+bw/2}" y="${base+18}" text-anchor="middle" font-size="13" fill="#475569">${b[0]}</text>`;
+  });
+  document.getElementById("mk").innerHTML=s;
+  document.getElementById("mkOut").innerHTML=
+    `<span class="stat">π_N = <strong>${piN.toFixed(3)}</strong></span><span class="stat">π_M = <strong>${piM.toFixed(3)}</strong></span>`+
+    `<div style="margin-top:8px;color:#475569">Giải π·P = π: π_N = P(M→N)/(1−P(N→N)+P(M→N)). Lặp 60 bước từ "hôm nay nắng" → ${d[0].toFixed(3)} (khớp π_N) — <strong>quên điều kiện đầu</strong>, hội tụ về phân phối dừng.</div>`;
+}
+
+resetMC(); addPts(200); drawMK();
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

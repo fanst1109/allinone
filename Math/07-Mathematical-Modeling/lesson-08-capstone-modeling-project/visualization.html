@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Capstone: video lan truyền</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .lead { color: #475569; margin: 4px 0 16px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #334155; }
+  input[type="range"] { flex: 1; min-width: 150px; max-width: 280px; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 13px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .key { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:5px; vertical-align:middle; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; line-height: 1.7; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 660px; height: auto; background: #f8fafc; border-radius: 8px; }
+  .steps { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap:10px; margin-top:12px; }
+  .step { background:#f1f5f9; border-left:4px solid #15803d; border-radius:6px; padding:10px 12px; font-size:13px; color:#334155; }
+  .step b { color:#15803d; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-stochastic-monte-carlo/visualization.html">← L7: Mô hình ngẫu nhiên</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Capstone</span>
+  <span class="sep">·</span>
+  <span>🎓 Hoàn thành Tầng 7</span>
+</nav>
+
+<main>
+
+<h1>Lesson 08 — Capstone: video lan truyền (viral)</h1>
+<p class="lead">Dashboard phối hợp công cụ: mô hình logistic (L04) cho lượt xem tích lũy, fit r từ dữ liệu đầu (L02), đỉnh lan = lượt mới/ngày cực đại. Kéo tham số để khớp các điểm dữ liệu xanh.</p>
+
+<h2>Mô hình logistic lượt xem</h2>
+<div class="card">
+  <p class="lead"><span class="key" style="background:#15803d"></span>Tích lũy V(t) (chữ S, bão hòa ở K) · <span class="key" style="background:#ea580c"></span>Lượt mới/ngày dV/dt (chuông) · <span class="key" style="background:#1d4ed8"></span>dữ liệu đo. Đường đứt đỏ = ngày lan nhanh nhất.</p>
+  <div class="row">
+    <label>K (khán giả, ×10³):</label><input type="range" id="K" min="200" max="2000" step="50" value="1000" oninput="draw()">
+    <span class="stat">K = <strong id="vK">1000</strong>k</span>
+    <label>r:</label><input type="range" id="r" min="0.3" max="1.2" step="0.05" value="0.8" oninput="draw()">
+    <span class="stat">r = <strong id="vR">0.80</strong></span>
+    <label>V₀ (×10³):</label><input type="range" id="V0" min="0.5" max="10" step="0.5" value="1" oninput="draw()">
+    <span class="stat">V₀ = <strong id="vV0">1</strong>k</span>
+  </div>
+  <svg class="scene" id="plot" viewBox="0 0 660 380"></svg>
+  <div class="result" id="out"></div>
+  <div class="steps">
+    <div class="step"><b>1 Bài toán</b><br>Tối đa bao lượt? Ngày nào lan nhanh nhất?</div>
+    <div class="step"><b>2 Giả định</b><br>Truyền miệng, khán giả tối đa K.</div>
+    <div class="step"><b>3 Mô hình</b><br>Logistic dV/dt = rV(1−V/K).</div>
+    <div class="step"><b>4 Giải</b><br>Max = K; đỉnh tại V=K/2.</div>
+    <div class="step"><b>5 Kiểm chứng</b><br>Fit r từ dữ liệu đầu (L02).</div>
+    <div class="step"><b>6 Tinh chỉnh</b><br>Bọc Monte Carlo (L07) cho khoảng.</div>
+  </div>
+</div>
+
+<script>
+// data points (nghìn lượt) sinh từ tham số mặc định, cố định để fit
+const DATA=[[0,1],[2,4.95],[4,24],[6,103]]; // t(ngày), V(nghìn)
+function draw(){
+  const K=+document.getElementById("K").value, r=+document.getElementById("r").value, V0=+document.getElementById("V0").value;
+  document.getElementById("vK").textContent=K;
+  document.getElementById("vR").textContent=r.toFixed(2);
+  document.getElementById("vV0").textContent=V0;
+  const A=(K-V0)/V0, V=t=>K/(1+A*Math.exp(-r*t)), dV=t=>{ const v=V(t); return r*v*(1-v/K); };
+  const tMax=18, W=660,H=380, ml=58,mr=58,mt=20,mb=42;
+  const sx=t=>ml+t/tMax*(W-mr-ml);
+  const syV=v=>(H-mb)-v/K*(H-mb-mt);           // left axis: cumulative 0..K
+  const dMax=r*K/4*1.1;
+  const syD=d=>(H-mb)-d/dMax*(H-mb-mt);         // right axis: daily 0..rK/4
+  let s="";
+  // grid + left labels (cumulative)
+  for(let g=0;g<=1;g+=0.25){ const Y=(H-mb)-g*(H-mb-mt); s+=`<line x1="${ml}" y1="${Y}" x2="${W-mr}" y2="${Y}" stroke="#eef2f7"/>`;
+    s+=`<text x="${ml-6}" y="${Y+4}" text-anchor="end" font-size="10" fill="#15803d">${(g*K).toFixed(0)}k</text>`;
+    s+=`<text x="${W-mr+6}" y="${Y+4}" text-anchor="start" font-size="10" fill="#ea580c">${(g*dMax).toFixed(0)}k</text>`; }
+  for(let t=0;t<=tMax;t+=3) s+=`<text x="${sx(t)}" y="${H-mb+16}" text-anchor="middle" font-size="10" fill="#94a3b8">${t}</text>`;
+  // K line
+  s+=`<line x1="${ml}" y1="${syV(K)}" x2="${W-mr}" y2="${syV(K)}" stroke="#0891b2" stroke-width="1.2" stroke-dasharray="5 4"/>`;
+  // cumulative curve
+  let pc=""; for(let i=0;i<=240;i++){ const t=i/240*tMax; pc+=(i?"L":"M")+sx(t).toFixed(1)+" "+syV(V(t)).toFixed(1)+" "; }
+  s+=`<path d="${pc}" fill="none" stroke="#15803d" stroke-width="3"/>`;
+  // daily curve
+  let pd=""; for(let i=0;i<=240;i++){ const t=i/240*tMax; pd+=(i?"L":"M")+sx(t).toFixed(1)+" "+syD(dV(t)).toFixed(1)+" "; }
+  s+=`<path d="${pd}" fill="none" stroke="#ea580c" stroke-width="2.5"/>`;
+  // peak day
+  const tStar=Math.log(A)/r;
+  if(tStar>0&&tStar<tMax){ s+=`<line x1="${sx(tStar)}" y1="${mt}" x2="${sx(tStar)}" y2="${H-mb}" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 4"/>`;
+    s+=`<text x="${sx(tStar)}" y="${mt-6}" text-anchor="middle" font-size="11" fill="#dc2626">ngày ${tStar.toFixed(1)}</text>`; }
+  // data points (cumulative)
+  DATA.forEach(([t,v])=>{ s+=`<circle cx="${sx(t)}" cy="${syV(v*1000/1000* (1) )}" r="0" />`; }); // noop guard
+  DATA.forEach(([t,v])=>{ const vv=v; s+=`<circle cx="${sx(t)}" cy="${syV(vv)}" r="4.5" fill="#1d4ed8"/>`; });
+  // axes + titles
+  s+=`<line x1="${ml}" y1="${H-mb}" x2="${W-mr}" y2="${H-mb}" stroke="#94a3b8"/>`;
+  s+=`<line x1="${ml}" y1="${H-mb}" x2="${ml}" y2="${mt}" stroke="#94a3b8"/>`;
+  s+=`<line x1="${W-mr}" y1="${H-mb}" x2="${W-mr}" y2="${mt}" stroke="#94a3b8"/>`;
+  s+=`<text x="${(ml+W-mr)/2}" y="${H-4}" text-anchor="middle" font-size="12" fill="#475569">ngày</text>`;
+  s+=`<text x="16" y="${(mt+H-mb)/2}" text-anchor="middle" font-size="11" fill="#15803d" transform="rotate(-90 16 ${(mt+H-mb)/2})">tích lũy</text>`;
+  s+=`<text x="${W-14}" y="${(mt+H-mb)/2}" text-anchor="middle" font-size="11" fill="#ea580c" transform="rotate(-90 ${W-14} ${(mt+H-mb)/2})">lượt/ngày</text>`;
+  document.getElementById("plot").innerHTML=s;
+  // fit quality vs data (SSE)
+  let sse=0; DATA.forEach(([t,v])=>{ const e=V(t)-v; sse+=e*e; });
+  document.getElementById("out").innerHTML=
+    `<span class="stat">Tối đa = K = <strong>${K}k</strong></span>`+
+    `<span class="stat">Ngày lan nhanh nhất t* = ln(A)/r = <strong>${tStar>0?tStar.toFixed(1):"—"}</strong></span>`+
+    `<span class="stat">Đỉnh ≈ rK/4 = <strong>${(r*K/4).toFixed(0)}k</strong>/ngày</span>`+
+    `<span class="stat">Lệch dữ liệu (SSE) = <strong>${sse.toFixed(1)}</strong></span>`+
+    `<div style="margin-top:8px;color:#475569">Khớp dữ liệu xanh tốt nhất ở quanh K=1000, r=0.8, V₀=1 (SSE nhỏ nhất) — đúng giá trị fit trong README. Đường chuông cam = tốc độ lan, đỉnh đúng ngày t*.</div>`;
+}
+draw();
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

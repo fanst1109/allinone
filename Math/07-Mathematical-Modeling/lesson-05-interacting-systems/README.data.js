@@ -1,4 +1,7 @@
-# Lesson 05 — Hệ tương tác (Lotka–Volterra, SIR)
+// AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
+// Source: Math/07-Mathematical-Modeling/lesson-05-interacting-systems/README.md
+// Chạy lại: go run tools/build-readme-data.go
+window.README_MD = `# Lesson 05 — Hệ tương tác (Lotka–Volterra, SIR)
 
 ## Mục tiêu
 
@@ -19,10 +22,10 @@
 💡 **Trực giác.** Đến giờ mỗi mô hình chỉ có *một* biến (N, T, S). Nhưng thực tế các đại lượng **ảnh hưởng lẫn nhau**: số thú phụ thuộc số mồi, số người nhiễm phụ thuộc số người khỏe. Khi đó tốc độ thay đổi của mỗi biến phụ thuộc *cả những biến khác* → ta có **hệ ODE** (nhiều phương trình giải đồng thời).
 
 Dạng tổng quát 2 biến:
-```
+\`\`\`
 dx/dt = f(x, y)
 dy/dt = g(x, y)
-```
+\`\`\`
 Không gian (x, y) gọi là **mặt phẳng pha (phase plane)**; mỗi điều kiện đầu vẽ một **quỹ đạo** trong đó. Hành vi dài hạn = quỹ đạo tiến tới đâu (điểm cân bằng, vòng kín, hay phân kỳ).
 
 📝 **Tóm tắt mục 1**: hệ ODE mô tả nhiều biến tương tác; phân tích qua mặt phẳng pha và các điểm cân bằng.
@@ -34,10 +37,10 @@ Không gian (x, y) gọi là **mặt phẳng pha (phase plane)**; mỗi điều 
 💡 **Trực giác.** Thỏ (mồi x) và cáo (thú y). Không cáo → thỏ sinh sôi mũ. Có cáo → thỏ bị ăn (giảm theo số chạm thỏ×cáo). Cáo không thỏ → chết đói (giảm mũ); ăn được thỏ → sinh thêm. Kết quả: hai bên **đuổi nhau theo chu kỳ** — thỏ nhiều → cáo tăng → thỏ giảm → cáo đói giảm → thỏ lại tăng...
 
 **Mô hình**:
-```
+\`\`\`
 dx/dt = α·x − β·x·y      (mồi: sinh mũ − bị săn)
 dy/dt = δ·x·y − γ·y      (thú: sinh nhờ ăn − chết tự nhiên)
-```
+\`\`\`
 α: tốc độ sinh mồi; β: hiệu quả săn; δ: hiệu quả chuyển mồi thành thú; γ: tốc độ chết của thú. Số hạng **x·y** = tần suất "chạm nhau" (giả định trộn đều).
 
 **Điểm cân bằng** (cả hai đạo hàm = 0):
@@ -78,11 +81,11 @@ Cả hai đạo hàm = 0 → hệ **đứng yên** tại (20, 10) mãi (điểm 
 💡 **Trực giác.** Chia dân số thành 3 nhóm: **S** (Susceptible — chưa nhiễm, có thể nhiễm), **I** (Infected — đang nhiễm và lây), **R** (Recovered/Removed — đã khỏi/miễn dịch hoặc cách ly). Người dịch chuyển S → I → R. Dịch bùng khi mỗi ca lây cho hơn 1 người.
 
 **Mô hình** (dân số N = S + I + R không đổi):
-```
+\`\`\`
 dS/dt = −β·S·I / N           (khỏe → nhiễm)
 dI/dt =  β·S·I / N − γ·I      (nhiễm mới − khỏi)
 dR/dt =  γ·I                  (khỏi)
-```
+\`\`\`
 β: tốc độ lây (số tiếp xúc hiệu quả/người/ngày); γ: tốc độ khỏi (1/γ = số ngày nhiễm trung bình).
 
 > 📐 **Định nghĩa đầy đủ — Số sinh sản cơ bản R₀**
@@ -170,3 +173,4 @@ R₀ = β/γ = 0.2/0.1 = **2** > 1 → **dịch bùng**. Ngưỡng miễn dịch
 3. **SIR**: R₀ = β/γ quyết định bùng dịch (R₀ > 1); đỉnh khi S = N/R₀; ngưỡng miễn dịch 1 − 1/R₀.
 4. Giả định trộn đều/dân số kín — cho bức tranh định tính, cần mở rộng (SEIR, mạng) để chính xác.
 5. Ổn định của hệ xét qua trị riêng Jacobian.
+`;

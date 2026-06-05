@@ -1,4 +1,7 @@
-# Lesson 06 — Mô hình tối ưu (LP, Lagrange)
+// AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
+// Source: Math/07-Mathematical-Modeling/lesson-06-optimization-models/README.md
+// Chạy lại: go run tools/build-readme-data.go
+window.README_MD = `# Lesson 06 — Mô hình tối ưu (LP, Lagrange)
 
 ## Mục tiêu
 
@@ -159,3 +162,4 @@ Mọi bài toán tối ưu có 3 thành phần:
 2. **LP**: mục tiêu + ràng buộc tuyến tính → miền khả thi lồi; nghiệm ở **đỉnh** (đồ thị/simplex). Nhớ x,y ≥ 0.
 3. **Lagrange**: ràng buộc đẳng thức → ∇f = λ∇g *và* g = c.
 4. **λ = giá bóng** = df*/dc: giá trị cận biên của nới lỏng ràng buộc.
+`;

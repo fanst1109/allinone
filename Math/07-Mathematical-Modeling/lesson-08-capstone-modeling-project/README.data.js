@@ -1,4 +1,7 @@
-# Lesson 08 — Capstone: dự án mô hình hóa end-to-end
+// AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
+// Source: Math/07-Mathematical-Modeling/lesson-08-capstone-modeling-project/README.md
+// Chạy lại: go run tools/build-readme-data.go
+window.README_MD = `# Lesson 08 — Capstone: dự án mô hình hóa end-to-end
 
 ## Mục tiêu
 
@@ -46,9 +49,9 @@ Một video mới đăng. Quan sát lượt xem tích lũy vài ngày đầu. **
 
 ### Bước 3 — Lập mô hình
 Gọi V(t) = lượt xem tích lũy (ngày t). Mô hình logistic:
-```
+\`\`\`
 dV/dt = r·V·(1 − V/K)   →   V(t) = K / (1 + A·e^(−rt)),  A = (K − V₀)/V₀
-```
+\`\`\`
 Kiểm thứ nguyên (L01): [r] = ngày⁻¹, mũ −rt không thứ nguyên ✓; V và K cùng đơn vị "lượt" ✓.
 
 ### Bước 4 — Giải & phân tích
@@ -140,3 +143,4 @@ Tiếp theo, áp dụng vào các lĩnh vực: [Physics](../../../Physics/) (cơ
 2. **Bản đồ công cụ**: dữ liệu→hồi quy; theo bước→sai phân; liên tục→ODE; tương tác→hệ ODE; tối ưu→LP/Lagrange; may rủi→Monte Carlo/Markov.
 3. **Dự án mẫu (video viral)**: logistic + fit r từ dữ liệu đầu (tuyến tính hóa) + nêu hạn chế & bọc ngẫu nhiên — mẫu áp dụng cho mọi dự án.
 4. Luôn: câu hỏi rõ → giả định → kiểm thứ nguyên → fit → kiểm chứng → nêu hạn chế.
+`;

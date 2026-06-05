@@ -1,4 +1,7 @@
-# Lesson 04 — Mô hình liên tục (ODE)
+// AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
+// Source: Math/07-Mathematical-Modeling/lesson-04-continuous-ode-models/README.md
+// Chạy lại: go run tools/build-readme-data.go
+window.README_MD = `# Lesson 04 — Mô hình liên tục (ODE)
 
 ## Mục tiêu
 
@@ -178,3 +181,4 @@ N₀ = K = 500 là điểm cân bằng → dN/dt = 0 → **N(t) = 500 mãi mãi*
 3. **Logistic** dN/dt = rN(1−N/K) → N = K/(1+Ae^(−rt)); chữ S, bão hòa ở K, *luôn mượt* (khác bản rời rạc).
 4. **Nguội Newton & bể trộn**: ODE tuyến tính bậc 1, có cân bằng ổn định.
 5. **Euler** xₙ₊₁ = xₙ + h·g(xₙ): mô phỏng ODE = phương trình sai phân; h quá lớn → sai số/mất ổn định giả.
+`;

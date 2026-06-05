@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Mô hình tối ưu (LP, Lagrange)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .lead { color: #475569; margin: 4px 0 16px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #334155; }
+  input[type="range"] { flex: 1; min-width: 150px; max-width: 280px; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; line-height: 1.7; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 480px; height: auto; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-interacting-systems/visualization.html">← L5: Hệ tương tác</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Tối ưu</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-stochastic-monte-carlo/visualization.html">L7: Ngẫu nhiên →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 06 — Mô hình tối ưu</h1>
+<p class="lead">Hai công cụ: LP đồ thị — kéo hệ số lợi nhuận, xem đỉnh tối ưu nhảy giữa các góc miền khả thi; và Lagrange — đường mức tiếp xúc ràng buộc.</p>
+
+<h2>1. Quy hoạch tuyến tính (đồ thị)</h2>
+<div class="card">
+  <p class="lead">Bài: max P = c₁·x + c₂·y với 2x+y ≤ 40, x+3y ≤ 45, x,y ≥ 0. Vùng xanh = miền khả thi; chấm đỏ = đỉnh tối ưu; đường đứt = đường mục tiêu tại P tối đa. Kéo c₁, c₂ để thấy đỉnh tối ưu đổi.</p>
+  <div class="row">
+    <label>c₁ (lợi nhuận x):</label><input type="range" id="c1" min="10" max="80" step="5" value="40" oninput="drawLP()">
+    <span class="stat">c₁ = <strong id="vC1">40</strong></span>
+    <label>c₂ (lợi nhuận y):</label><input type="range" id="c2" min="10" max="80" step="5" value="30" oninput="drawLP()">
+    <span class="stat">c₂ = <strong id="vC2">30</strong></span>
+  </div>
+  <svg class="scene" id="lp" viewBox="0 0 460 460"></svg>
+  <div class="result" id="lpOut"></div>
+</div>
+
+<h2>2. Nhân tử Lagrange</h2>
+<div class="card">
+  <p class="lead">max f = x·y với ràng buộc x + y = S. Đường cong xám = đường mức x·y = const; đường đỏ = ràng buộc; chấm = điểm tối ưu (S/2, S/2) nơi đường mức <em>tiếp xúc</em> ràng buộc. Kéo S.</p>
+  <div class="row">
+    <label>S (tổng x+y):</label><input type="range" id="S" min="4" max="18" step="1" value="10" oninput="drawLag()">
+    <span class="stat">S = <strong id="vS">10</strong></span>
+  </div>
+  <svg class="scene" id="lag" viewBox="0 0 460 460"></svg>
+  <div class="result" id="lagOut"></div>
+</div>
+
+<script>
+/* ---------- LP ---------- */
+// constraints: 2x+y<=40, x+3y<=45, x>=0,y>=0
+const VERTS=[[0,0],[20,0],[15,10],[0,15]];
+function drawLP(){
+  const c1=+document.getElementById("c1").value, c2=+document.getElementById("c2").value;
+  document.getElementById("vC1").textContent=c1; document.getElementById("vC2").textContent=c2;
+  const W=460,H=460, ml=44,mr=20,mt=20,mb=40, vmax=24;
+  const sx=x=>ml+x/vmax*(W-mr-ml), sy=y=>(H-mb)-y/vmax*(H-mb-mt);
+  let s="";
+  for(let g=0;g<=20;g+=5){ s+=`<line x1="${sx(g)}" y1="${H-mb}" x2="${sx(g)}" y2="${mt}" stroke="#eef2f7"/><line x1="${ml}" y1="${sy(g)}" x2="${W-mr}" y2="${sy(g)}" stroke="#eef2f7"/>`;
+    s+=`<text x="${sx(g)}" y="${H-mb+15}" text-anchor="middle" font-size="10" fill="#94a3b8">${g}</text>`;
+    s+=`<text x="${ml-6}" y="${sy(g)+3}" text-anchor="end" font-size="10" fill="#94a3b8">${g}</text>`; }
+  // feasible polygon
+  let poly=VERTS.map(([x,y])=>`${sx(x)},${sy(y)}`).join(" ");
+  s+=`<polygon points="${poly}" fill="#15803d" fill-opacity="0.12" stroke="#15803d" stroke-width="1.5"/>`;
+  // optimum
+  let best=VERTS[0], bestP=-1; VERTS.forEach(([x,y])=>{ const P=c1*x+c2*y; if(P>bestP){bestP=P;best=[x,y];} });
+  // objective line c1 x + c2 y = bestP
+  const lineAt=(P)=>{ // two endpoints across box
+    let pts=[]; // intersect with x=0 and y=0 and box edges
+    const yx0=P/c2, xy0=P/c1; // at x=0 -> y, at y=0 -> x
+    return [[0,yx0],[xy0,0]]; };
+  const [[ax,ay],[bx,by]]=lineAt(bestP);
+  s+=`<line x1="${sx(ax)}" y1="${sy(ay)}" x2="${sx(bx)}" y2="${sy(by)}" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"/>`;
+  // vertices dots + labels
+  VERTS.forEach(([x,y])=>{ const isB=(x===best[0]&&y===best[1]);
+    s+=`<circle cx="${sx(x)}" cy="${sy(y)}" r="${isB?6:4}" fill="${isB?'#dc2626':'#1d4ed8'}"/>`;
+    s+=`<text x="${sx(x)+8}" y="${sy(y)-6}" font-size="11" fill="#334155">(${x},${y})</text>`; });
+  s+=`<text x="${(ml+W-mr)/2}" y="${H-4}" text-anchor="middle" font-size="12" fill="#475569">x (sản phẩm A)</text>`;
+  s+=`<text x="14" y="${(mt+H-mb)/2}" text-anchor="middle" font-size="12" fill="#475569" transform="rotate(-90 14 ${(mt+H-mb)/2})">y (sản phẩm B)</text>`;
+  s+=`<line x1="${ml}" y1="${H-mb}" x2="${W-mr}" y2="${H-mb}" stroke="#94a3b8"/><line x1="${ml}" y1="${H-mb}" x2="${ml}" y2="${mt}" stroke="#94a3b8"/>`;
+  document.getElementById("lp").innerHTML=s;
+  let lines=VERTS.map(([x,y])=>`(${x},${y})→P=${c1*x+c2*y}`).join("  ·  ");
+  document.getElementById("lpOut").innerHTML=
+    `<span class="stat">Tối ưu tại (<strong>${best[0]},${best[1]}</strong>)</span><span class="stat">P max = <strong>${bestP}</strong></span>`+
+    `<div style="margin-top:8px;color:#475569;font-size:13px">Giá trị tại các đỉnh: ${lines}. Nghiệm luôn ở một <strong>đỉnh</strong> — chỉ cần so hữu hạn góc.</div>`;
+}
+
+/* ---------- Lagrange ---------- */
+function drawLag(){
+  const S=+document.getElementById("S").value;
+  document.getElementById("vS").textContent=S;
+  const W=460,H=460, ml=44,mr=20,mt=20,mb=40, vmax=20;
+  const sx=x=>ml+x/vmax*(W-mr-ml), sy=y=>(H-mb)-y/vmax*(H-mb-mt);
+  let s="";
+  for(let g=0;g<=20;g+=5){ s+=`<line x1="${sx(g)}" y1="${H-mb}" x2="${sx(g)}" y2="${mt}" stroke="#eef2f7"/><line x1="${ml}" y1="${sy(g)}" x2="${W-mr}" y2="${sy(g)}" stroke="#eef2f7"/>`;
+    s+=`<text x="${sx(g)}" y="${H-mb+15}" text-anchor="middle" font-size="10" fill="#94a3b8">${g}</text>`;
+    s+=`<text x="${ml-6}" y="${sy(g)+3}" text-anchor="end" font-size="10" fill="#94a3b8">${g}</text>`; }
+  // contour curves xy = c for several c
+  const opt=(S/2)*(S/2);
+  [opt*0.4, opt*0.7, opt, opt*1.3].forEach((c,idx)=>{
+    let p=""; let first=true;
+    for(let xi=0.4;xi<=vmax;xi+=0.1){ const y=c/xi; if(y>vmax||y<0.2)continue; p+=(first?"M":"L")+sx(xi).toFixed(1)+" "+sy(y).toFixed(1)+" "; first=false; }
+    const isOpt=Math.abs(c-opt)<1e-6;
+    s+=`<path d="${p}" fill="none" stroke="${isOpt?'#15803d':'#94a3b8'}" stroke-width="${isOpt?2.5:1.2}" stroke-dasharray="${isOpt?'':'3 3'}"/>`;
+  });
+  // constraint x+y=S
+  s+=`<line x1="${sx(Math.max(0,S-vmax))}" y1="${sy(Math.min(vmax,S))}" x2="${sx(Math.min(vmax,S))}" y2="${sy(Math.max(0,S-vmax))}" stroke="#dc2626" stroke-width="2.5"/>`;
+  // optimum point
+  s+=`<circle cx="${sx(S/2)}" cy="${sy(S/2)}" r="6" fill="#dc2626"/>`;
+  s+=`<text x="${sx(S/2)+8}" y="${sy(S/2)-6}" font-size="11" fill="#334155">(${(S/2)}, ${(S/2)})</text>`;
+  s+=`<text x="${(ml+W-mr)/2}" y="${H-4}" text-anchor="middle" font-size="12" fill="#475569">x</text>`;
+  s+=`<text x="14" y="${(mt+H-mb)/2}" text-anchor="middle" font-size="12" fill="#475569" transform="rotate(-90 14 ${(mt+H-mb)/2})">y</text>`;
+  s+=`<line x1="${ml}" y1="${H-mb}" x2="${W-mr}" y2="${H-mb}" stroke="#94a3b8"/><line x1="${ml}" y1="${H-mb}" x2="${ml}" y2="${mt}" stroke="#94a3b8"/>`;
+  document.getElementById("lag").innerHTML=s;
+  document.getElementById("lagOut").innerHTML=
+    `<span class="stat">Tối ưu x=y=<strong>${S/2}</strong></span><span class="stat">f max = <strong>${opt}</strong></span><span class="stat">λ = <strong>${S/2}</strong></span>`+
+    `<div style="margin-top:8px;color:#475569">Đường mức x·y (xanh đậm) <strong>tiếp xúc</strong> ràng buộc tại (S/2, S/2): ∇f ∥ ∇g. λ = S/2 = giá bóng: nới S thêm 1 → f tăng ≈ ${(S/2)}.</div>`;
+}
+
+drawLP(); drawLag();
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

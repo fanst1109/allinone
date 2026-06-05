@@ -31,7 +31,7 @@ Tầng **ứng dụng** khép lại track Math. Sáu tầng trước xây *công
 | [Lesson 07](./lesson-07-stochastic-monte-carlo/) | Mô hình ngẫu nhiên | Mô phỏng Monte Carlo, xích Markov |
 | [Lesson 08](./lesson-08-capstone-modeling-project/) | Capstone | Một bài toán thực đi trọn chu trình end-to-end |
 
-🚧 **Trạng thái**: Lesson 01–03 đã có nội dung đầy đủ (README + visualization). Lesson 04–08 đang ở dạng khung (folder + README mục tiêu), sẽ bổ sung nội dung dần.
+✅ **Trạng thái**: Cả 8 lesson đã có nội dung đầy đủ (README + visualization tương tác).
 
 ## Kiến thức tiền đề
 

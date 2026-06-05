@@ -1,4 +1,7 @@
-# Lesson 07 — Mô hình ngẫu nhiên (Monte Carlo, Markov)
+// AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
+// Source: Math/07-Mathematical-Modeling/lesson-07-stochastic-monte-carlo/README.md
+// Chạy lại: go run tools/build-readme-data.go
+window.README_MD = `# Lesson 07 — Mô hình ngẫu nhiên (Monte Carlo, Markov)
 
 ## Mục tiêu
 
@@ -167,3 +170,4 @@ P(T→R) = 0.1, P(R→R) = 0.5. π_T = 0.9π_T + 0.5π_R, π_T + π_R = 1 → π
 2. **Monte Carlo**: lấy mẫu ngẫu nhiên + trung bình/tỉ lệ; sai số ~ 1/√N, mạnh ở nhiều chiều (π ≈ 4·tỉ lệ trong cung).
 3. **Xích Markov**: tương lai chỉ phụ thuộc hiện tại; ma trận P (hàng cộng = 1); phân phối dừng π·P = π độc lập điều kiện đầu.
 4. Chọn ngẫu nhiên/tất định theo bản chất bất định; có thể kết hợp (MCMC).
+`;

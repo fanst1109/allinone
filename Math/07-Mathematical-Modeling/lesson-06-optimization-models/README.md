@@ -37,8 +37,8 @@ Mọi bài toán tối ưu có 3 thành phần:
 >
 > **(b) Vì sao cần**: Vô số bài thực tế (sản xuất, vận tải, khẩu phần, phân bổ vốn) khớp dạng này. LP có lý thuyết đẹp (nghiệm ở đỉnh) và thuật toán hiệu quả (đơn hình — simplex, điểm trong) giải được bài hàng triệu biến — xương sống của *vận trù học (operations research)*.
 >
-> **(c) Ví dụ số**: Xưởng làm sản phẩm A (x cái, lời 40) và B (y cái, lời 30). Mỗi A tốn 2 gỗ + 1 công; mỗi B tốn 1 gỗ + 3 công. Có 40 gỗ, 45 công. Mô hình:
-> > Cực đại P = 40x + 30y; ràng buộc 2x + y ≤ 40, x + 3y ≤ 45, x ≥ 0, y ≥ 0.
+> **(c) Ví dụ số**: Xưởng mộc làm **bàn** (x cái, lời 40 nghìn) và **ghế** (y cái, lời 30 nghìn). Mỗi bàn tốn 2 tấm gỗ + 1 giờ công; mỗi ghế tốn 1 tấm gỗ + 3 giờ công. Trong tuần có 40 tấm gỗ, 45 giờ công. Làm bao nhiêu bàn, bao nhiêu ghế để lời nhất? Mô hình:
+> > Cực đại P = 40x + 30y; ràng buộc 2x + y ≤ 40 (gỗ), x + 3y ≤ 45 (công), x ≥ 0, y ≥ 0.
 
 ### 2.1 Giải bằng đồ thị (walk-through)
 
@@ -48,7 +48,7 @@ Mọi bài toán tối ưu có 3 thành phần:
 - (0, 15): chạm công 3y = 45; gỗ 15 ≤ 40 ✓. P = 30·15 = **450**.
 - Giao gỗ ∩ công: 2x + y = 40 và x + 3y = 45. Từ pt1: y = 40 − 2x. Thế: x + 3(40 − 2x) = 45 → x + 120 − 6x = 45 → −5x = −75 → **x = 15, y = 10**. Kiểm gỗ 30+10 = 40 ✓, công 15+30 = 45 ✓. P = 40·15 + 30·10 = 600 + 300 = **900**.
 
-**So các đỉnh**: P = 0, 800, 450, **900** → tối ưu tại **(15, 10), P = 900**.
+**So các đỉnh**: P = 0, 800, 450, **900** → tối ưu tại **(15, 10), P = 900**. Tức làm **15 bàn + 10 ghế** mỗi tuần thì lời nhất = **900 nghìn**, dùng hết cả 40 gỗ lẫn 45 công (cả hai ràng buộc đều "chặt").
 
 ### 2.2 Vì sao nghiệm luôn ở đỉnh?
 
@@ -63,11 +63,11 @@ Mọi bài toán tối ưu có 3 thành phần:
 
 🔁 **Dừng lại tự kiểm tra**
 
-1. Với bài trên, nếu lời mỗi A tăng lên 60 (P = 60x + 30y), đỉnh (20,0) cho P bao nhiêu? So với (15,10).
+1. Với bài trên, nếu lời mỗi **bàn** tăng lên 60 (P = 60x + 30y), đỉnh (20,0) cho P bao nhiêu? So với (15,10).
 
 <details><summary>Đáp án</summary>
 
-(20,0): P = 60·20 = **1200**. (15,10): P = 60·15 + 30·10 = 900 + 300 = **1200**. *Hòa nhau* → mục tiêu song song cạnh nối (20,0)–(15,10), cả cạnh đó tối ưu (mọi điểm trên cạnh cho P = 1200). Tăng lời A thêm nữa → (20,0) thắng.
+(20,0): P = 60·20 = **1200**. (15,10): P = 60·15 + 30·10 = 900 + 300 = **1200**. *Hòa nhau* → mục tiêu song song cạnh nối (20,0)–(15,10), cả cạnh đó tối ưu (mọi điểm trên cạnh cho P = 1200). Tăng lời bàn thêm nữa → (20,0) thắng (chỉ làm bàn).
 
 </details>
 
@@ -89,7 +89,7 @@ Mọi bài toán tối ưu có 3 thành phần:
 >
 > **(b) Vì sao cần — và λ nghĩa là gì**: Nó biến bài toán *có ràng buộc* thành giải hệ phương trình *không ràng buộc*. Quan trọng hơn, λ = **giá bóng (shadow price)**: tốc độ thay đổi giá trị tối ưu khi nới lỏng ràng buộc, df*/dc = λ. Tức "nếu có thêm 1 đơn vị nguồn lực c thì mục tiêu tăng λ" — cực kỳ hữu ích trong kinh tế (giá trị cận biên của tài nguyên).
 >
-> **(c) Ví dụ số**: Cực đại diện tích f = x·y của hình chữ nhật với chu vi cố định 2(x+y) = 20, tức g = x + y = 10. ∇f = (y, x), ∇g = (1, 1) → y = λ, x = λ → **x = y = 5**, diện tích = 25 (hình vuông!). λ = 5 = giá bóng: nới chu vi cho phép x+y = 11 thì diện tích tối ưu ≈ 30.25, tăng ~5 cho mỗi đơn vị (x+y). Kiểm: f*(c) = (c/2)² → df*/dc = c/2 = 5 tại c = 10 ✓.
+> **(c) Ví dụ số — rào mảnh vườn**: Bạn có **20 m hàng rào**, muốn quây một mảnh vườn hình chữ nhật (cạnh x, y) sao cho **diện tích lớn nhất**. Chu vi 2(x+y) = 20 → ràng buộc g = x + y = 10; mục tiêu f = x·y. ∇f = (y, x), ∇g = (1, 1) → y = λ, x = λ → **x = y = 5** → vườn **vuông 5×5**, diện tích = 25 m². λ = 5 = giá bóng: mua thêm hàng rào để x+y = 11 thì diện tích tối ưu ≈ 30.25 m², tức **thêm 1 m "tổng cạnh" (≈ 2 m rào) cho thêm ~5 m² vườn**. Kiểm: f*(c) = (c/2)² → df*/dc = c/2 = 5 tại c = 10 ✓.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -118,7 +118,7 @@ Mọi bài toán tối ưu có 3 thành phần:
 
 ## 4. Bài tập
 
-**Bài 1.** Cực đại P = 5x + 4y với x + y ≤ 10, 2x + y ≤ 16, x, y ≥ 0. Liệt kê các đỉnh và tìm tối ưu.
+**Bài 1.** Tiệm bánh làm bánh kem (x) lời 5, bánh mì (y) lời 4. Lò nướng tối đa 10 mẻ/ngày (x + y ≤ 10); bột đủ cho 2x + y ≤ 16. Cực đại P = 5x + 4y với x, y ≥ 0. Liệt kê các đỉnh và tìm tối ưu.
 
 **Bài 2.** Giải thích trong vài câu vì sao nghiệm LP luôn nằm ở một đỉnh của miền khả thi.
 
@@ -137,7 +137,7 @@ Mọi bài toán tối ưu có 3 thành phần:
 - (8,0): từ 2x ≤ 16 → x ≤ 8; x+y: 8 ≤ 10 ✓. P = 40.
 - (0,10): x+y = 10; 2x+y = 10 ≤ 16 ✓. P = 40.
 - Giao x+y=10 ∩ 2x+y=16: trừ → x = 6, y = 4. P = 5·6+4·4 = 30+16 = **46**.
-→ Tối ưu **(6,4), P = 46**.
+→ Tối ưu **(6,4), P = 46**: làm **6 bánh kem + 4 bánh mì**/ngày, lời 46.
 
 **Bài 2.** Hàm mục tiêu tuyến tính có gradient (hướng tăng) không đổi. Trong miền lồi, từ bất kỳ điểm trong nào còn có thể đi theo hướng gradient để tăng mục tiêu → cực đại không thể ở trong miền, phải ở biên; dọc biên (cũng tuyến tính) lại tiếp tục tăng tới một đỉnh. Vậy tối ưu đạt tại đỉnh (nơi hai ràng buộc cùng chặt). Hệ quả: chỉ cần kiểm tra hữu hạn đỉnh.
 

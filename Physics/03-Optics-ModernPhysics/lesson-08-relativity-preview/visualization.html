@@ -62,7 +62,8 @@
 
 <h2>3. Bảng so sánh Newton vs Einstein</h2>
 <div class="card">
-  <table style="width:100%; border-collapse:collapse">
+  <div style="overflow-x:auto">
+  <table style="width:100%; border-collapse:collapse; min-width:520px">
     <tr style="background:#dbeafe">
       <th style="padding:8px; border:1px solid #cbd5e0">v / c</th>
       <th style="padding:8px; border:1px solid #cbd5e0">γ</th>
@@ -79,6 +80,22 @@
     <tr style="background:#fee2e2"><td style="padding:6px 12px; border:1px solid #cbd5e0">0.99999 (electron máy gia tốc)</td><td>~ 224</td><td>—</td><td>LHC: proton đạt ~ 0.99999999c</td></tr>
     <tr style="background:#dcfce7"><td style="padding:6px 12px; border:1px solid #cbd5e0">1.0 (chỉ photon)</td><td>∞</td><td>—</td><td>Ánh sáng, không có khối lượng nghỉ</td></tr>
   </table>
+  </div>
+
+<h2>🌍 Đời sống thực tế — Vệ tinh GPS phải hiệu chỉnh tương đối</h2>
+<div class="card">
+  <p style="margin-top:0; font-size:14px">
+    GPS định vị bằng cách đo thời gian tín hiệu đi từ vệ tinh tới máy bạn — sai 1 µs là lệch ~300 m. Đồng hồ
+    trên vệ tinh chịu HAI hiệu ứng tương đối ngược chiều: bay nhanh (~3874 m/s) khiến nó <strong>chậm lại</strong>
+    (tương đối hẹp), nhưng ở cao 20200 km nơi hấp dẫn yếu hơn khiến nó <strong>nhanh lên</strong> (tương đối rộng).
+    Tổng cộng đồng hồ vệ tinh nhanh +38 µs/ngày. Kéo slider để xem sai số tích lũy nếu KHÔNG hiệu chỉnh.
+  </p>
+  <div class="row">
+    <label>Số ngày không hiệu chỉnh:</label>
+    <input type="range" id="gpsDays" min="1" max="30" step="1" value="1" oninput="updateGPS()">
+    <span class="stat">t = <strong id="gpsDaysVal">1</strong> ngày</span>
+  </div>
+  <div class="result" id="gpsResult"></div>
 </div>
 
 </main>
@@ -138,6 +155,50 @@ function calcEMC() {
 
 calcRel();
 calcEMC();
+
+// === 🌍 Đời sống thực tế: Hiệu chỉnh thời gian cho vệ tinh GPS ===
+function updateGPS() {
+  // Vệ tinh GPS bay ~14000 km/h (3874 m/s) → đồng hồ CHẠY CHẬM (tương đối hẹp).
+  // Đồng thời ở độ cao ~20200 km, hấp dẫn yếu hơn → đồng hồ CHẠY NHANH (tương đối rộng).
+  // Hiệu ứng rộng (gravitational) lớn hơn → tổng cộng đồng hồ vệ tinh NHANH ~38 µs/ngày.
+  const days = parseFloat(document.getElementById("gpsDays").value);
+  document.getElementById("gpsDaysVal").textContent = days;
+
+  // Số liệu chuẩn (đã biết): chậm do vận tốc ≈ −7 µs/ngày; nhanh do hấp dẫn ≈ +45 µs/ngày
+  const velEffect_us = -7.0;     // µs/ngày
+  const gravEffect_us = +45.0;   // µs/ngày
+  const net_us = velEffect_us + gravEffect_us;   // +38 µs/ngày
+
+  const totalDrift_us = net_us * days;            // µs
+  const totalDrift_s = totalDrift_us * 1e-6;      // s
+  const c = 3e8;
+  const posError_m = c * totalDrift_s;            // sai số vị trí nếu KHÔNG hiệu chỉnh
+  const posError_km = posError_m / 1000;
+
+  document.getElementById("gpsResult").innerHTML = `
+    <div class="row">
+      <span class="stat">Tương đối hẹp (v ≈ 3874 m/s): đồng hồ <strong>chậm ${velEffect_us} µs/ngày</strong></span>
+      <span class="stat">Tương đối rộng (cao 20200 km): đồng hồ <strong>nhanh +${gravEffect_us} µs/ngày</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat" style="background:#fef3c7">Tổng: đồng hồ vệ tinh <strong>nhanh +${net_us} µs/ngày</strong></span>
+    </div>
+    <div style="font-family:monospace; font-size:14px; margin-top:8px">
+      Sau ${days} ngày, lệch = ${net_us} µs/ngày × ${days} = <strong>${totalDrift_us.toFixed(1)} µs</strong>
+    </div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">
+      Sai số vị trí nếu KHÔNG hiệu chỉnh = c × Δt = 3×10⁸ × ${totalDrift_s.toExponential(2)} s = <strong>${posError_m.toFixed(0)} m ≈ ${posError_km.toFixed(2)} km</strong>
+    </div>
+    <div style="margin-top:8px; padding:10px; background:#dcfce7; border-radius:6px; font-size:13px">
+      GPS định vị bằng cách đo thời gian tín hiệu đi từ vệ tinh tới máy (sai 1 µs → lệch ~300 m). Hai hiệu ứng
+      tương đối làm đồng hồ vệ tinh nhanh +38 µs/ngày; nếu kỹ sư không hiệu chỉnh, sai số vị trí tích lũy
+      ~<strong>${(net_us * 1e-6 * c / 1000).toFixed(0)} km MỖI NGÀY</strong> — GPS sẽ vô dụng sau vài giờ. Vì thế đồng hồ nguyên tử trên vệ tinh
+      được chỉnh tần số sẵn để bù chính xác hiệu ứng này. Đây là bằng chứng đời thường rõ nhất của thuyết tương đối.
+    </div>
+  `;
+}
+
+document.addEventListener("DOMContentLoaded", updateGPS);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

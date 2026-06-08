@@ -64,6 +64,29 @@
   <div class="result" id="ysResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Cầu vồng trên mặt đĩa CD/DVD</h2>
+<div class="card">
+  <p style="margin-top:0; font-size:14px">
+    Vì sao mặt đĩa CD/DVD ánh lên đủ màu cầu vồng? Các rãnh ghi dữ liệu cách đều nhau (CD ~1.6 µm, DVD ~0.74 µm)
+    tạo thành một <strong>cách tử nhiễu xạ (diffraction grating)</strong>. Ánh sáng trắng phản xạ bị tách theo
+    bước sóng — mỗi màu lệch một góc theo công thức <code>d·sinθ = m·λ</code>. Chọn đĩa và bước sóng để xem góc tán sắc.
+  </p>
+  <div class="row">
+    <label>Loại đĩa:</label>
+    <select id="cdType" onchange="updateCD()">
+      <option value="CD">CD (rãnh d ≈ 1.6 µm)</option>
+      <option value="DVD">DVD (rãnh d ≈ 0.74 µm)</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Bước sóng λ (nm):</label>
+    <input type="range" id="cdLambda" min="400" max="700" step="10" value="650" oninput="updateCD()">
+    <span class="stat">λ = <strong id="cdLambdaVal">650</strong> nm</span>
+  </div>
+  <svg class="scene" id="cdSvg" viewBox="0 0 720 360"></svg>
+  <div class="result" id="cdResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -173,6 +196,101 @@ function updateYS() {
 }
 
 updateYS();
+
+// === 🌍 Đời sống thực tế: Đĩa CD/DVD như cách tử nhiễu xạ ===
+function updateCD() {
+  // Cách tử: d·sinθ = m·λ. CD rãnh cách nhau ~1.6 µm; DVD ~0.74 µm.
+  const discType = document.getElementById("cdType").value; // "CD" hoặc "DVD"
+  const d_um = discType === "CD" ? 1.6 : 0.74;
+  const d_m = d_um * 1e-6;
+  const lambda_nm = parseFloat(document.getElementById("cdLambda").value);
+  document.getElementById("cdLambdaVal").textContent = lambda_nm;
+  const lambda_m = lambda_nm * 1e-9;
+
+  // Tính góc nhiễu xạ bậc m=1: sinθ = λ/d
+  const sinT = lambda_m / d_m;
+  let angleHtml, valid = Math.abs(sinT) <= 1;
+  let theta = valid ? Math.asin(sinT) * 180 / Math.PI : null;
+
+  if (valid) {
+    angleHtml = `<span class="stat">Góc bậc 1: θ₁ = arcsin(λ/d) = <strong>${theta.toFixed(1)}°</strong></span>`;
+  } else {
+    angleHtml = `<span class="stat" style="background:#fee2e2">λ/d = ${sinT.toFixed(2)} &gt; 1 → bậc 1 không tồn tại ở góc này</span>`;
+  }
+
+  document.getElementById("cdResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">d·sinθ = m·λ &nbsp;(cách tử nhiễu xạ)</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">${discType}: d ≈ ${d_um} µm = ${d_m.toExponential(2)} m, λ = ${lambda_m.toExponential(2)} m</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">sinθ = m·λ/d = 1·${lambda_m.toExponential(2)}/${d_m.toExponential(2)} = <strong>${sinT.toFixed(3)}</strong></div>
+    <div class="row" style="margin-top:8px">${angleHtml}</div>
+    <div style="margin-top:8px; font-size:13px">
+      Các rãnh ghi dữ liệu trên CD/DVD cách đều nhau như một cách tử. Ánh sáng trắng chiếu vào bị
+      tách theo bước sóng (mỗi λ lệch một góc khác nhau) → bạn thấy cầu vồng lấp lánh trên mặt đĩa.
+      DVD rãnh sát nhau hơn (d nhỏ hơn) nên góc tán sắc LỚN hơn, màu trải rộng hơn CD.
+    </div>
+  `;
+  drawCD(lambda_nm, theta, valid);
+}
+
+function drawCD(lambda_nm, theta, valid) {
+  const svg = document.getElementById("cdSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 360;
+  const cx = 360, baseY = 320;
+  const color = wavelengthToColor(lambda_nm);
+
+  // Bề mặt đĩa (rãnh)
+  for (let i = 0; i < 24; i++) {
+    const x = 250 + i * 9;
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g.setAttribute("x1", x); g.setAttribute("y1", baseY); g.setAttribute("x2", x); g.setAttribute("y2", baseY + 25);
+    g.setAttribute("stroke", "#64748b"); g.setAttribute("stroke-width", 2);
+    svg.appendChild(g);
+  }
+  const surf = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  surf.setAttribute("x1", 60); surf.setAttribute("y1", baseY); surf.setAttribute("x2", W-60); surf.setAttribute("y2", baseY);
+  surf.setAttribute("stroke", "#94a3b8"); surf.setAttribute("stroke-width", 2);
+  svg.appendChild(surf);
+  const surfLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  surfLbl.setAttribute("x", cx); surfLbl.setAttribute("y", baseY + 45); surfLbl.setAttribute("text-anchor", "middle"); surfLbl.setAttribute("fill", "white"); surfLbl.setAttribute("font-size", "12"); surfLbl.setAttribute("font-weight", "700");
+  surfLbl.textContent = "Bề mặt đĩa (rãnh = cách tử)";
+  svg.appendChild(surfLbl);
+
+  // Tia tới trắng (từ trên xuống)
+  const inc = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  inc.setAttribute("x1", cx - 120); inc.setAttribute("y1", 40); inc.setAttribute("x2", cx); inc.setAttribute("y2", baseY);
+  inc.setAttribute("stroke", "white"); inc.setAttribute("stroke-width", 3);
+  svg.appendChild(inc);
+  const incLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  incLbl.setAttribute("x", cx - 130); incLbl.setAttribute("y", 35); incLbl.setAttribute("fill", "white"); incLbl.setAttribute("font-size", "12"); incLbl.setAttribute("font-weight", "700");
+  incLbl.textContent = "Ánh sáng trắng tới";
+  svg.appendChild(incLbl);
+
+  // Bậc 0 (phản xạ thẳng)
+  const m0 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  m0.setAttribute("x1", cx); m0.setAttribute("y1", baseY); m0.setAttribute("x2", cx + 120); m0.setAttribute("y2", 40);
+  m0.setAttribute("stroke", "#cbd5e0"); m0.setAttribute("stroke-width", 2); m0.setAttribute("stroke-dasharray", "4 4");
+  svg.appendChild(m0);
+
+  // Bậc 1: tia màu lệch theo góc theta so với pháp tuyến
+  if (valid && theta !== null) {
+    const len = 250;
+    const tr = theta * Math.PI / 180;
+    // Lệch về phía phải so với tia phản xạ thẳng (đơn giản hoá: từ pháp tuyến dựng đứng)
+    const ex = cx + len * Math.sin(tr);
+    const ey = baseY - len * Math.cos(tr);
+    const m1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    m1.setAttribute("x1", cx); m1.setAttribute("y1", baseY); m1.setAttribute("x2", ex); m1.setAttribute("y2", ey);
+    m1.setAttribute("stroke", color); m1.setAttribute("stroke-width", 4);
+    svg.appendChild(m1);
+    const m1Lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    m1Lbl.setAttribute("x", ex + 6); m1Lbl.setAttribute("y", ey); m1Lbl.setAttribute("fill", color); m1Lbl.setAttribute("font-size", "13"); m1Lbl.setAttribute("font-weight", "700");
+    m1Lbl.textContent = `Bậc 1 (${lambda_nm} nm, θ=${theta.toFixed(0)}°)`;
+    svg.appendChild(m1Lbl);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", updateCD);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

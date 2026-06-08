@@ -82,6 +82,29 @@
   <div class="result" id="dbResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Pin mặt trời chọn lọc bước sóng</h2>
+<div class="card">
+  <p style="margin-top:0; font-size:14px">
+    Pin mặt trời là hiệu ứng quang điện bên trong chất bán dẫn: một photon chỉ đẩy được electron
+    sinh dòng nếu năng lượng của nó <strong>≥ band gap E_g</strong> của vật liệu. Vì thế mỗi loại pin
+    có một <strong>bước sóng tới hạn λ_max = hc/E_g</strong>: ánh sáng đỏ/hồng ngoại dài hơn λ_max bị lãng phí,
+    còn photon xanh/tím dư năng lượng thì phần dư biến thành nhiệt. Chọn vật liệu và bước sóng để xem.
+  </p>
+  <div class="row">
+    <label>Vật liệu (E_g):</label>
+    <select id="solarMat" onchange="calcSolar()">
+      <option value="1.1,Si">Silicon (E_g = 1.1 eV)</option>
+      <option value="1.4,GaAs">GaAs (E_g = 1.4 eV)</option>
+      <option value="1.7,a-Si">Silicon vô định hình (E_g = 1.7 eV)</option>
+      <option value="0.67,Ge">Germanium (E_g = 0.67 eV)</option>
+    </select>
+    <label>Bước sóng λ (nm):</label>
+    <input type="range" id="solarL" min="300" max="2000" step="20" value="600" oninput="calcSolar()">
+    <span class="stat">λ = <strong id="solarLVal">600</strong> nm</span>
+  </div>
+  <div class="result" id="solarResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -162,6 +185,50 @@ function calcDB() {
 calcPhoton();
 calcPE();
 setDB();
+
+// === 🌍 Đời sống thực tế: Pin mặt trời & bước sóng tới hạn ===
+function calcSolar() {
+  // Pin mặt trời = hiệu ứng quang điện trong (photon đẩy electron qua band gap E_g).
+  // Photon chỉ tạo dòng nếu E_photon >= E_g. Bước sóng tới hạn: λ_max = hc/E_g.
+  const [Eg_str, mat] = document.getElementById("solarMat").value.split(",");
+  const Eg = parseFloat(Eg_str);                 // eV
+  const lambda_nm = parseFloat(document.getElementById("solarL").value);
+  document.getElementById("solarLVal").textContent = lambda_nm;
+  const lambda_m = lambda_nm * 1e-9;
+
+  const E_J = h * c / lambda_m;
+  const E_eV = E_J / eV;
+  const lambdaMax_nm = (h * c / (Eg * eV)) * 1e9;  // bước sóng tới hạn
+  const absorbed = E_eV >= Eg;
+
+  // Năng lượng dư bị mất thành nhiệt (thermalization) nếu hấp thụ
+  const wasteHeat = absorbed ? (E_eV - Eg) : 0;
+  const usefulFrac = absorbed ? (Eg / E_eV * 100) : 0;
+
+  let box;
+  if (absorbed) {
+    box = `<div style="margin-top:8px; padding:10px; background:#dcfce7; border-radius:6px">
+      <strong>✓ Photon được hấp thụ → sinh điện.</strong><br>
+      E_photon = ${E_eV.toFixed(2)} eV ≥ E_g = ${Eg} eV.
+      Chỉ ${Eg} eV biến thành điện; phần dư <strong>${wasteHeat.toFixed(2)} eV</strong> mất thành nhiệt
+      (chiếm ${(100-usefulFrac).toFixed(0)}%). Đây là một lý do hiệu suất pin Si lý thuyết bị giới hạn ~33% (giới hạn Shockley–Queisser).
+    </div>`;
+  } else {
+    box = `<div style="margin-top:8px; padding:10px; background:#fee2e2; border-radius:6px">
+      <strong>✗ Photon đi xuyên qua, KHÔNG sinh điện.</strong><br>
+      E_photon = ${E_eV.toFixed(2)} eV &lt; E_g = ${Eg} eV. Ánh sáng hồng ngoại bước sóng dài
+      (λ &gt; ${lambdaMax_nm.toFixed(0)} nm) không đủ năng lượng vượt band gap → bị lãng phí.
+    </div>`;
+  }
+
+  document.getElementById("solarResult").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">E_photon = hc/λ = ${E_eV.toFixed(2)} eV &nbsp;|&nbsp; Band gap E_g(${mat}) = ${Eg} eV</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">Bước sóng tới hạn λ_max = hc/E_g = <strong>${lambdaMax_nm.toFixed(0)} nm</strong> (chỉ λ ≤ λ_max sinh điện)</div>
+    ${box}
+  `;
+}
+
+document.addEventListener("DOMContentLoaded", calcSolar);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

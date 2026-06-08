@@ -72,6 +72,22 @@
   <div class="result" id="snResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Vì sao đáy hồ trông nông hơn thực?</h2>
+<div class="card">
+  <p style="margin-top:0; font-size:14px">
+    Khi bạn nhìn xuống bể bơi hay hồ trong, đáy trông nông hơn so với độ sâu thật. Lý do: tia sáng từ đáy
+    đi lên, ra khỏi mặt nước (đi từ môi trường đậm n=1.33 sang loãng n=1) bị khúc xạ <strong>bẻ xa pháp tuyến</strong>.
+    Mắt kéo dài thẳng tia khúc xạ nên thấy ảnh ở vị trí cao hơn. Kéo slider độ sâu thực để xem độ sâu biểu kiến.
+  </p>
+  <div class="row">
+    <label>Độ sâu thực d (cm):</label>
+    <input type="range" id="poolDepth" min="20" max="300" step="10" value="200" oninput="updatePool()">
+    <span class="stat">d = <strong id="poolDepthVal">200</strong> cm</span>
+  </div>
+  <svg class="scene" id="poolSvg" viewBox="0 0 720 360" style="background:linear-gradient(to bottom,#e0f2fe 0%,#e0f2fe 25%,#bae6fd 25%,#7dd3fc 100%)"></svg>
+  <div class="result" id="poolResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -187,6 +203,110 @@ function updateSnell() {
 
 // Init
 updateSnell();
+
+// === 🌍 Đời sống thực tế: Đáy hồ trông nông hơn thực ===
+function updatePool() {
+  // n1 = nước (môi trường vật ở dưới), n2 = không khí (mắt người nhìn từ trên)
+  const n_water = 1.33;
+  const realDepth = parseFloat(document.getElementById("poolDepth").value); // cm
+  document.getElementById("poolDepthVal").textContent = realDepth;
+  // Với tia gần pháp tuyến (nhìn thẳng xuống): depth_biểu_kiến = depth_thực · (n_không_khí / n_nước)
+  // = depth_thực / n_nước  (vì n_không_khí = 1)
+  const apparentDepth = realDepth / n_water;
+  const ratio = (apparentDepth / realDepth * 100);
+
+  document.getElementById("poolResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">d′ = d · (n₂/n₁) = d · (1 / 1.33)</div>
+    <div style="font-family:monospace; font-size:15px; margin-top:4px">d′ = ${realDepth} cm × (1 / 1.33) = <strong>${apparentDepth.toFixed(1)} cm</strong></div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat">Độ sâu thực d = <strong>${realDepth} cm</strong></span>
+      <span class="stat" style="background:#fef3c7">Độ sâu nhìn thấy d′ = <strong>${apparentDepth.toFixed(1)} cm</strong></span>
+      <span class="stat">d′/d ≈ <strong>${ratio.toFixed(0)}%</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Tia sáng từ đáy đi lên, khi ra khỏi mặt nước (đậm → loãng) bị bẻ XA pháp tuyến.
+      Mắt kéo dài ngược tia khúc xạ → thấy điểm ảnh CAO hơn vị trí thật → bể bơi/hồ trông
+      chỉ sâu khoảng ${ratio.toFixed(0)}% so với thực. Đây là vì sao cây gậy nhúng nước trông như gãy,
+      và vì sao nhiều người ước lượng sai độ sâu khi lội nước.
+      <em>(Công thức trên là xấp xỉ khi nhìn gần thẳng đứng; nhìn xiên thì lệch nhiều hơn.)</em>
+    </div>
+  `;
+  drawPool(realDepth, apparentDepth);
+}
+
+function drawPool(realDepth, apparentDepth) {
+  const svg = document.getElementById("poolSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 360;
+  const surfaceY = 90;
+  const cx = 360;
+  // px per cm theo độ sâu tối đa 300cm map xuống vùng nước cao (H - surfaceY - 20)
+  const pxPerCm = (H - surfaceY - 30) / 300;
+
+  // Mặt nước
+  const water = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  water.setAttribute("x", 0); water.setAttribute("y", surfaceY);
+  water.setAttribute("width", W); water.setAttribute("height", H - surfaceY);
+  water.setAttribute("fill", "#bae6fd"); water.setAttribute("opacity", "0.6");
+  svg.appendChild(water);
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  line.setAttribute("x1", 0); line.setAttribute("y1", surfaceY); line.setAttribute("x2", W); line.setAttribute("y2", surfaceY);
+  line.setAttribute("stroke", "#0284c7"); line.setAttribute("stroke-width", 2);
+  svg.appendChild(line);
+
+  const realY = surfaceY + realDepth * pxPerCm;
+  const appY = surfaceY + apparentDepth * pxPerCm;
+  const eyeX = 180, eyeY = 40;
+
+  // Vật thật ở đáy
+  const obj = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  obj.setAttribute("cx", cx); obj.setAttribute("cy", realY); obj.setAttribute("r", 9);
+  obj.setAttribute("fill", "#047857");
+  svg.appendChild(obj);
+  const objLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  objLbl.setAttribute("x", cx + 14); objLbl.setAttribute("y", realY + 5);
+  objLbl.setAttribute("fill", "#047857"); objLbl.setAttribute("font-weight", "700"); objLbl.setAttribute("font-size", "13");
+  objLbl.textContent = "Vật thật (đáy)";
+  svg.appendChild(objLbl);
+
+  // Ảnh biểu kiến (nông hơn)
+  const img = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  img.setAttribute("cx", cx); img.setAttribute("cy", appY); img.setAttribute("r", 8);
+  img.setAttribute("fill", "#dc2626"); img.setAttribute("opacity", "0.7");
+  svg.appendChild(img);
+  const imgLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  imgLbl.setAttribute("x", cx + 14); imgLbl.setAttribute("y", appY + 5);
+  imgLbl.setAttribute("fill", "#dc2626"); imgLbl.setAttribute("font-weight", "700"); imgLbl.setAttribute("font-size", "13");
+  imgLbl.textContent = "Ảnh nhìn thấy";
+  svg.appendChild(imgLbl);
+
+  // Mắt
+  const eye = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  eye.setAttribute("x", eyeX); eye.setAttribute("y", eyeY); eye.setAttribute("font-size", "24"); eye.setAttribute("text-anchor", "middle");
+  eye.textContent = "👁";
+  svg.appendChild(eye);
+
+  // Tia thật: vật → mặt nước (điểm tới) → khúc xạ → mắt
+  const surfX = 280; // điểm tia ra khỏi mặt nước
+  function ln(x1, y1, x2, y2, color, w, dash) {
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", x1); l.setAttribute("y1", y1); l.setAttribute("x2", x2); l.setAttribute("y2", y2);
+    l.setAttribute("stroke", color); l.setAttribute("stroke-width", w);
+    if (dash) l.setAttribute("stroke-dasharray", dash);
+    svg.appendChild(l);
+  }
+  ln(cx, realY, surfX, surfaceY, "#047857", 2);          // trong nước
+  ln(surfX, surfaceY, eyeX, eyeY + 6, "#047857", 2);     // ra không khí tới mắt
+  // Đường nhìn kéo dài ngược tới ảnh biểu kiến
+  ln(eyeX, eyeY + 6, cx, appY, "#dc2626", 1.5, "5 4");
+
+  const note = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  note.setAttribute("x", 20); note.setAttribute("y", surfaceY - 8); note.setAttribute("font-size", "12"); note.setAttribute("fill", "#0284c7"); note.setAttribute("font-weight", "700");
+  note.textContent = "Không khí (n=1)  —  Mặt nước  —  Nước (n=1.33)";
+  svg.appendChild(note);
+}
+
+document.addEventListener("DOMContentLoaded", updatePool);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

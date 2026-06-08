@@ -63,6 +63,21 @@
   <div class="result" id="decayResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Định tuổi Carbon-14 trong khảo cổ</h2>
+<div class="card">
+  <p style="margin-top:0; font-size:14px">
+    Sinh vật sống liên tục hấp thụ Carbon-14 nên giữ tỉ lệ C-14 cố định. Khi chết, nó ngừng nạp mới và C-14
+    chỉ phân rã (t½ = 5730 năm). Đo tỉ lệ C-14 còn lại trong mẫu (xương, than, gỗ) so với sinh vật sống →
+    suy ra đã chết bao lâu: <code>t = t½ · log₂(N₀/N)</code>. Kéo slider lượng C-14 còn lại để ước tính tuổi.
+  </p>
+  <div class="row">
+    <label>C-14 còn lại (% so với sinh vật sống):</label>
+    <input type="range" id="c14Pct" min="0.5" max="99" step="0.5" value="50" oninput="updateC14()">
+    <span class="stat">còn <strong id="c14PctVal">50</strong>%</span>
+  </div>
+  <div class="result" id="c14Result"></div>
+</div>
+
 </main>
 
 <script>
@@ -103,6 +118,44 @@ function updateDecay() {
 }
 
 setHalfLife();
+
+// === 🌍 Đời sống thực tế: Định tuổi bằng Carbon-14 ===
+function updateC14() {
+  // C-14 t½ = 5730 năm. Sinh vật sống có tỉ lệ C-14 không đổi (cân bằng với khí quyển).
+  // Khi chết, C-14 chỉ phân rã: N/N0 = (1/2)^(t/t½). Đo N/N0 → suy ra tuổi t.
+  const halfLifeC14 = 5730;
+  const remainingPct = parseFloat(document.getElementById("c14Pct").value);
+  document.getElementById("c14PctVal").textContent = remainingPct;
+  const frac = remainingPct / 100;
+  // t = t½ · log2(1/frac) = t½ · ln(1/frac)/ln2
+  const halves = Math.log(1 / frac) / Math.log(2);
+  const age = halves * halfLifeC14;
+
+  // Ví dụ mốc tham chiếu
+  let ref = "";
+  if (age < 1000) ref = "tương đương đồ vật vài thế kỷ gần đây.";
+  else if (age < 6000) ref = "cỡ thời đại đồ đá mới / kim tự tháp Ai Cập (~4500 năm).";
+  else if (age < 15000) ref = "cuối kỷ Băng Hà.";
+  else if (age < 50000) ref = "tiệm cận giới hạn của phương pháp C-14 (~50 000 năm).";
+  else ref = "VƯỢT giới hạn tin cậy của C-14 — quá ít C-14 còn lại để đo, phải dùng đồng vị khác (U-238, K-40).";
+
+  document.getElementById("c14Result").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">N/N₀ = (1/2)^(t/t½) → t = t½ · log₂(N₀/N)</div>
+    <div style="font-family:monospace; font-size:15px; margin-top:4px">t = 5730 · log₂(1/${frac.toFixed(3)}) = 5730 × ${halves.toFixed(3)} = <strong>${age.toFixed(0)} năm</strong></div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat">C-14 còn lại: <strong>${remainingPct}%</strong></span>
+      <span class="stat">Số chu kỳ bán rã: <strong>${halves.toFixed(2)}</strong></span>
+      <span class="stat" style="background:#fef3c7">Tuổi ≈ <strong>${age.toFixed(0)} năm</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Mẫu khảo cổ (xương, than, gỗ, vải) đo còn ${remainingPct}% C-14 so với sinh vật sống → ${ref}
+      Khi sinh vật chết, nó ngừng hấp thụ C-14 từ khí quyển; lượng C-14 chỉ giảm theo phân rã phóng xạ →
+      đếm tỉ lệ còn lại cho biết đã chết bao lâu. Đây là công cụ chuẩn xác định tuổi di vật trong khảo cổ học.
+    </div>
+  `;
+}
+
+document.addEventListener("DOMContentLoaded", updateC14);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

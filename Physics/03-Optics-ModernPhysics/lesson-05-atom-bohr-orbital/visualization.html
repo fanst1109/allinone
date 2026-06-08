@@ -55,6 +55,27 @@
   <div class="result" id="bohrResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Màu đèn neon &amp; biển quảng cáo</h2>
+<div class="card">
+  <p style="margin-top:0; font-size:14px">
+    Mỗi loại "đèn neon" có màu khác nhau vì chứa khí khác nhau. Dòng điện kích electron của khí lên mức cao;
+    khi rơi xuống chúng phát photon đúng bằng ΔE giữa các mức — chính là cơ chế Bohr ở trên. Mỗi nguyên tố có
+    bộ mức năng lượng riêng → bộ <strong>vạch phát xạ</strong> riêng → màu đặc trưng. Chọn khí để xem màu và các vạch phổ.
+  </p>
+  <div class="row">
+    <label>Khí trong ống:</label>
+    <select id="neonGas" onchange="updateNeon()">
+      <option value="Neon">Neon (đỏ-cam)</option>
+      <option value="Helium">Helium (vàng-trắng)</option>
+      <option value="Argon">Argon (tím-lam)</option>
+      <option value="Krypton">Krypton (trắng-lục)</option>
+      <option value="Sodium">Natri (đèn đường vàng cam)</option>
+    </select>
+  </div>
+  <svg class="scene" id="neonSvg" viewBox="0 0 600 400"></svg>
+  <div class="result" id="neonResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -162,6 +183,102 @@ function drawBohr(ni, nf) {
 }
 
 calcBohr();
+
+// === 🌍 Đời sống thực tế: Màu đèn neon & biển quảng cáo ===
+const neonGases = {
+  Neon:    { color: "#ff3b30", desc: "Đỏ-cam đặc trưng. Khí neon nguyên chất → màu đỏ cam quen thuộc của 'đèn neon'.", lines: [640, 614, 585] },
+  Helium:  { color: "#ffd60a", desc: "Vàng-trắng hồng. Dùng cho ánh sáng ấm.", lines: [587, 668, 706] },
+  Argon:   { color: "#7b61ff", desc: "Tím-lam nhạt. Thường trộn thủy ngân để cho lam sáng.", lines: [697, 451, 488] },
+  Krypton: { color: "#bfff7b", desc: "Trắng-lục nhạt. Phổ nhiều vạch.", lines: [557, 587, 446] },
+  Sodium:  { color: "#ffb300", desc: "Vàng cam rực — đèn đường natri áp suất thấp, vạch kép 589 nm.", lines: [589, 589.6] }
+};
+
+function updateNeon() {
+  const name = document.getElementById("neonGas").value;
+  const g = neonGases[name];
+  const linesStr = g.lines.map(l => l.toFixed(1) + " nm").join(", ");
+
+  document.getElementById("neonResult").innerHTML = `
+    <div class="row">
+      <span class="stat">Khí: <strong>${name}</strong></span>
+      <span class="stat">Vạch phát mạnh: <strong>${linesStr}</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      ${g.desc}<br>
+      Trong ống đèn, dòng điện kích electron của khí lên mức năng lượng cao; khi rơi xuống chúng phát photon
+      đúng bằng ΔE giữa các mức (xem mô phỏng Bohr ở trên). Mỗi nguyên tố có bộ mức năng lượng riêng →
+      bộ bước sóng riêng → màu đặc trưng. Đó là vì sao "đèn neon" đỏ, đèn đường natri vàng cam, biển quảng cáo
+      đủ màu dùng các khí khác nhau. Nhà thiên văn cũng dùng chính các vạch này để biết ngôi sao xa làm bằng nguyên tố gì.
+    </div>
+  `;
+  drawNeon(name);
+}
+
+function drawNeon(name) {
+  const g = neonGases[name];
+  const svg = document.getElementById("neonSvg");
+  svg.innerHTML = "";
+  const W = 600, H = 400;
+
+  // Ống đèn phát sáng
+  const tube = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  tube.setAttribute("x", 60); tube.setAttribute("y", 60); tube.setAttribute("width", 480); tube.setAttribute("height", 70);
+  tube.setAttribute("rx", 35); tube.setAttribute("fill", g.color); tube.setAttribute("opacity", "0.85");
+  svg.appendChild(tube);
+  const glow = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  glow.setAttribute("x", 60); glow.setAttribute("y", 60); glow.setAttribute("width", 480); glow.setAttribute("height", 70);
+  glow.setAttribute("rx", 35); glow.setAttribute("fill", "none"); glow.setAttribute("stroke", g.color); glow.setAttribute("stroke-width", 6); glow.setAttribute("opacity", "0.4");
+  svg.appendChild(glow);
+  const tubeLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  tubeLbl.setAttribute("x", 300); tubeLbl.setAttribute("y", 102); tubeLbl.setAttribute("text-anchor", "middle"); tubeLbl.setAttribute("fill", "#0f172a"); tubeLbl.setAttribute("font-weight", "700"); tubeLbl.setAttribute("font-size", "18");
+  tubeLbl.textContent = "ỐNG " + name.toUpperCase();
+  svg.appendChild(tubeLbl);
+
+  // Tiêu đề phổ
+  const specLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  specLbl.setAttribute("x", 300); specLbl.setAttribute("y", 185); specLbl.setAttribute("text-anchor", "middle"); specLbl.setAttribute("fill", "white"); specLbl.setAttribute("font-weight", "700"); specLbl.setAttribute("font-size", "14");
+  specLbl.textContent = "Phổ vạch phát xạ (380–700 nm)";
+  svg.appendChild(specLbl);
+
+  // Thanh phổ liên tục mờ làm nền
+  const specX = 60, specW = 480, specY = 210, specH = 60;
+  const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  bg.setAttribute("x", specX); bg.setAttribute("y", specY); bg.setAttribute("width", specW); bg.setAttribute("height", specH);
+  bg.setAttribute("fill", "#000"); bg.setAttribute("stroke", "#475569");
+  svg.appendChild(bg);
+
+  // Map nm → x
+  function nmToColor(nm) {
+    if (nm < 450) return "#7c3aed";
+    if (nm < 490) return "#3b82f6";
+    if (nm < 570) return "#22c55e";
+    if (nm < 590) return "#eab308";
+    if (nm < 620) return "#f97316";
+    return "#ef4444";
+  }
+  g.lines.forEach(nm => {
+    const x = specX + ((nm - 380) / (700 - 380)) * specW;
+    if (x < specX || x > specX + specW) return;
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    line.setAttribute("x", x - 1.5); line.setAttribute("y", specY); line.setAttribute("width", 3); line.setAttribute("height", specH);
+    line.setAttribute("fill", nmToColor(nm));
+    svg.appendChild(line);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x); t.setAttribute("y", specY + specH + 16); t.setAttribute("text-anchor", "middle"); t.setAttribute("fill", "#cbd5e0"); t.setAttribute("font-size", "10");
+    t.textContent = nm.toFixed(0);
+    svg.appendChild(t);
+  });
+  // Thang nm
+  [400, 500, 600, 700].forEach(nm => {
+    const x = specX + ((nm - 380) / (700 - 380)) * specW;
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x); t.setAttribute("y", specY + specH + 34); t.setAttribute("text-anchor", "middle"); t.setAttribute("fill", "#64748b"); t.setAttribute("font-size", "10");
+    t.textContent = nm + " nm";
+    svg.appendChild(t);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", updateNeon);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

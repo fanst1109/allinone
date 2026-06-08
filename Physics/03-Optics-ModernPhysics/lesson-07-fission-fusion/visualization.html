@@ -10,6 +10,8 @@
   h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
   .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
   .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; min-width: 130px; }
+  input[type="range"] { flex: 1; min-width: 200px; }
   .stat { display: inline-block; background: #dbeafe; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
   .stat strong { color: #1e40af; }
   .result { padding: 14px; background: #dbeafe; border-radius: 8px; margin-top: 12px; }
@@ -73,6 +75,21 @@
   <div style="margin-top:12px; font-size:13px">
     Phản ứng hạt nhân vượt xa mọi nhiên liệu hóa học. Đó là lý do năng lượng tương lai chỉ có thể là fusion (sạch + an toàn + vô tận).
   </div>
+</div>
+
+<h2>🌍 Đời sống thực tế — Mặt Trời chạy bằng nhiệt hạch</h2>
+<div class="card">
+  <p style="margin-top:0; font-size:14px">
+    Mặt Trời là một lò nhiệt hạch khổng lồ: nó hợp 4 hạt nhân hydro thành 1 hạt heli (chu trình proton–proton),
+    mỗi lần tỏa ~26.7 MeV. Công suất phát ra L = 3.8×10²⁶ W. Theo <code>E = mc²</code>, mỗi giây có một lượng khối
+    lượng "biến mất" thành năng lượng: <code>Δm/Δt = L/c²</code>. Kéo slider số năm để xem tổng khối lượng Mặt Trời mất đi.
+  </p>
+  <div class="row">
+    <label>Khoảng thời gian (năm):</label>
+    <input type="range" id="sunYears" min="1" max="1000000000" step="1" value="1" oninput="updateSun()">
+    <span class="stat">t = <strong id="sunYearsVal">1</strong> năm</span>
+  </div>
+  <div class="result" id="sunResult"></div>
 </div>
 
 </main>
@@ -191,6 +208,48 @@ function drawCurve() {
 }
 
 drawCurve();
+
+// === 🌍 Đời sống thực tế: Mặt Trời chạy bằng nhiệt hạch ===
+function updateSun() {
+  const c = 3e8;
+  // Mặt Trời: công suất phát ra (luminosity) L = 3.8e26 W.
+  // Mỗi chu trình p-p hợp 4 proton → 1 He-4, tỏa ~26.7 MeV; khối lượng hao hụt ~0.7%.
+  // E = mc² → khối lượng "biến mất" mỗi giây: dm = L / c².
+  // Người dùng chỉnh số năm để xem tổng khối lượng Mặt Trời mất.
+  const years = parseFloat(document.getElementById("sunYears").value);
+  document.getElementById("sunYearsVal").textContent = years;
+
+  const L = 3.8e26;                 // W (J/s)
+  const dm_per_s = L / (c * c);     // kg/s
+  const secPerYear = 3.156e7;
+  const seconds = years * secPerYear;
+  const massLost = dm_per_s * seconds;     // kg
+  const sunMass = 1.989e30;                // kg
+  const fracPct = massLost / sunMass * 100;
+
+  // So sánh: mỗi giây tương đương bao nhiêu quả bom Hiroshima (~6.3e13 J)
+  const hiroshima_J = 6.3e13;
+  const bombsPerSec = L / hiroshima_J;
+
+  document.getElementById("sunResult").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Công suất Mặt Trời L = 3.8×10²⁶ W</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">Khối lượng mất/giây = L/c² = 3.8×10²⁶ / (3×10⁸)² = <strong>${dm_per_s.toExponential(2)} kg/s ≈ 4.2 triệu tấn/s</strong></div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">Trong ${years.toLocaleString("vi-VN")} năm: Δm = ${dm_per_s.toExponential(2)} × ${seconds.toExponential(2)} s = <strong>${massLost.toExponential(2)} kg</strong></div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat">= ${(massLost / sunMass).toExponential(2)} lần khối lượng Mặt Trời</span>
+      <span class="stat" style="background:#fef3c7">= <strong>${fracPct.toExponential(2)}%</strong> khối lượng Mặt Trời</span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Mặt Trời hợp nhất 4 hạt nhân hydro thành 1 hạt heli (chu trình proton–proton), mỗi lần tỏa ~26.7 MeV.
+      Tổng cộng nó "đốt" ~600 triệu tấn hydro/giây, trong đó ~4.2 triệu tấn biến hẳn thành năng lượng theo E=mc².
+      Công suất đó tương đương <strong>≈ ${(bombsPerSec).toExponential(2)} quả bom Hiroshima mỗi giây</strong>.
+      Dù mất khối lượng khổng lồ, sau 1 năm Mặt Trời chỉ vơi đi ${(dm_per_s*secPerYear/sunMass).toExponential(1)} phần khối lượng —
+      đủ nhiên liệu để cháy thêm ~5 tỷ năm nữa. Đây là nguồn của mọi năng lượng Mặt Trời chiếu xuống Trái Đất.
+    </div>
+  `;
+}
+
+document.addEventListener("DOMContentLoaded", updateSun);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

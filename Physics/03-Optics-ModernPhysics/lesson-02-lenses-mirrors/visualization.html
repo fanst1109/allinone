@@ -64,6 +64,23 @@
   <div class="result" id="lensResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Kính cận hoạt động thế nào?</h2>
+<div class="card">
+  <p style="margin-top:0; font-size:14px">
+    Người cận thị (myopia) chỉ nhìn rõ vật ở gần; vật xa thì mờ vì ảnh hội tụ TRƯỚC võng mạc.
+    Khoảng cách xa nhất còn nhìn rõ gọi là <strong>điểm cực viễn (far point)</strong>. Kính cận là
+    <strong>thấu kính phân kỳ</strong> (f &lt; 0) đưa ảnh của vật ở vô cực về đúng điểm cực viễn để mắt nhìn rõ.
+    Kéo slider điểm cực viễn để xem số kính (độ tụ, diopter) cần dùng.
+  </p>
+  <div class="row">
+    <label>Điểm cực viễn (cm):</label>
+    <input type="range" id="glFar" min="15" max="200" step="5" value="50" oninput="updateGlasses()">
+    <span class="stat">cực viễn = <strong id="glFarVal">50</strong> cm</span>
+  </div>
+  <svg class="scene" id="glSvg" viewBox="0 0 720 360"></svg>
+  <div class="result" id="glResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -191,6 +208,97 @@ function drawLens(f, d_o, d_i, h_o, h_i) {
 
 // Init
 updateLens();
+
+// === 🌍 Đời sống thực tế: Kính cận (myopia) ===
+function updateGlasses() {
+  // Người cận: mắt chỉ nhìn rõ tới "điểm cực viễn" (far point) hữu hạn.
+  // Kính cận là thấu kính phân kỳ tạo ảnh ẢO của vật ở xa vô cực ngay tại điểm cực viễn.
+  // → tiêu cự kính f = −(điểm cực viễn) (vật ở ∞: 1/f = 1/d_i, d_i = −farPoint)
+  const farPoint_cm = parseFloat(document.getElementById("glFar").value);
+  document.getElementById("glFarVal").textContent = farPoint_cm;
+  const farPoint_m = farPoint_cm / 100;
+  const f_m = -farPoint_m;            // f âm → phân kỳ
+  const f_cm = f_m * 100;
+  const power_D = 1 / f_m;            // độ tụ (diopter), âm cho kính cận
+
+  document.getElementById("glResult").innerHTML = `
+    <div style="font-family:monospace; font-size:15px">Vật ở ∞ phải tạo ảnh ảo ngay tại cực viễn (${farPoint_cm} cm)</div>
+    <div style="font-family:monospace; font-size:15px; margin-top:4px">1/f = 1/d_i với d_i = −${farPoint_cm} cm → f = <strong>${f_cm.toFixed(1)} cm</strong></div>
+    <div style="font-family:monospace; font-size:15px; margin-top:4px">Độ tụ P = 1/f(m) = 1/(${f_m.toFixed(3)}) = <strong>${power_D.toFixed(2)} D (diopter)</strong></div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat" style="background:#fef3c7">Loại kính: <strong>phân kỳ (lõm), f &lt; 0</strong></span>
+      <span class="stat">Số kính (đơn): <strong>${power_D.toFixed(2)}</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Người cận chỉ nhìn rõ vật gần (trong vòng ${farPoint_cm} cm); vật xa hơn bị mờ vì ảnh hội tụ
+      TRƯỚC võng mạc. Kính cận (phân kỳ) "đẩy" ảnh của vật xa về đúng điểm cực viễn để mắt nhìn rõ.
+      Tiệm kính ghi số kính theo độ tụ: ví dụ ${power_D.toFixed(2)} D thường gọi là "cận ${Math.abs(power_D).toFixed(2)} độ".
+      Cực viễn càng gần (cận càng nặng) → |số kính| càng lớn.
+    </div>
+  `;
+  drawGlasses(farPoint_cm, power_D);
+}
+
+function drawGlasses(farPoint_cm, power_D) {
+  const svg = document.getElementById("glSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 360, cy = H/2;
+  const eyeX = 560, lensX = 470;
+
+  // Trục
+  const ax = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  ax.setAttribute("x1", 20); ax.setAttribute("y1", cy); ax.setAttribute("x2", W-20); ax.setAttribute("y2", cy);
+  ax.setAttribute("stroke", "#94a3b8"); ax.setAttribute("stroke-width", 1); ax.setAttribute("stroke-dasharray", "3 3");
+  svg.appendChild(ax);
+
+  // Mắt (hình tròn)
+  const eye = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  eye.setAttribute("cx", eyeX); eye.setAttribute("cy", cy); eye.setAttribute("r", 55);
+  eye.setAttribute("fill", "#fff"); eye.setAttribute("stroke", "#1e40af"); eye.setAttribute("stroke-width", 2);
+  svg.appendChild(eye);
+  const retina = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  retina.setAttribute("d", `M ${eyeX+30} ${cy-45} A 55 55 0 0 1 ${eyeX+30} ${cy+45}`);
+  retina.setAttribute("fill", "none"); retina.setAttribute("stroke", "#dc2626"); retina.setAttribute("stroke-width", 3);
+  svg.appendChild(retina);
+  const eyeLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  eyeLbl.setAttribute("x", eyeX); eyeLbl.setAttribute("y", cy + 80); eyeLbl.setAttribute("text-anchor", "middle"); eyeLbl.setAttribute("font-weight", "700"); eyeLbl.setAttribute("font-size", "12");
+  eyeLbl.textContent = "Mắt (võng mạc đỏ)";
+  svg.appendChild(eyeLbl);
+
+  // Kính cận (lõm) trước mắt
+  const lens = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+  lens.setAttribute("cx", lensX); lens.setAttribute("cy", cy); lens.setAttribute("rx", 7); lens.setAttribute("ry", 70);
+  lens.setAttribute("fill", "#dbeafe"); lens.setAttribute("stroke", "#1e40af"); lens.setAttribute("stroke-width", 2);
+  svg.appendChild(lens);
+  const lLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lLbl.setAttribute("x", lensX); lLbl.setAttribute("y", cy + 95); lLbl.setAttribute("text-anchor", "middle"); lLbl.setAttribute("font-weight", "700"); lLbl.setAttribute("font-size", "12"); lLbl.setAttribute("fill", "#1e40af");
+  lLbl.textContent = `Kính lõm ${power_D.toFixed(2)} D`;
+  svg.appendChild(lLbl);
+
+  // Tia từ vật xa (song song) tới kính → phân kỳ → vào mắt hội tụ đúng võng mạc
+  [cy - 40, cy + 40].forEach(y => {
+    const r1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    r1.setAttribute("x1", 40); r1.setAttribute("y1", y); r1.setAttribute("x2", lensX); r1.setAttribute("y2", y);
+    r1.setAttribute("stroke", "#047857"); r1.setAttribute("stroke-width", 2);
+    svg.appendChild(r1);
+    // sau kính phân kỳ rồi mắt hội tụ → vào tâm võng mạc
+    const r2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    r2.setAttribute("x1", lensX); r2.setAttribute("y1", y); r2.setAttribute("x2", eyeX + 50); r2.setAttribute("y2", cy);
+    r2.setAttribute("stroke", "#047857"); r2.setAttribute("stroke-width", 2);
+    svg.appendChild(r2);
+  });
+  const inLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  inLbl.setAttribute("x", 40); inLbl.setAttribute("y", cy - 50); inLbl.setAttribute("font-size", "12"); inLbl.setAttribute("fill", "#047857"); inLbl.setAttribute("font-weight", "700");
+  inLbl.textContent = "Tia từ vật rất xa (∞)";
+  svg.appendChild(inLbl);
+
+  const okLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  okLbl.setAttribute("x", eyeX); okLbl.setAttribute("y", cy - 65); okLbl.setAttribute("text-anchor", "middle"); okLbl.setAttribute("font-size", "13"); okLbl.setAttribute("fill", "#047857"); okLbl.setAttribute("font-weight", "700");
+  okLbl.textContent = "✓ Hội tụ đúng võng mạc";
+  svg.appendChild(okLbl);
+}
+
+document.addEventListener("DOMContentLoaded", updateGlasses);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

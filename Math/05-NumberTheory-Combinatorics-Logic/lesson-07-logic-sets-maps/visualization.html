@@ -176,7 +176,73 @@ function draw() {
 }
 
 draw();
+
+// ===== Module Đời sống thực tế =====
+// Cơ sở dữ liệu khách hàng giả lập
+const rlCustomers = [
+  { name: "An",   premium: true,  newsletter: true  },
+  { name: "Bình", premium: true,  newsletter: false },
+  { name: "Chi",  premium: false, newsletter: true  },
+  { name: "Dũng", premium: false, newsletter: false },
+  { name: "Em",   premium: true,  newsletter: true  },
+  { name: "Phúc", premium: false, newsletter: true  },
+  { name: "Giang",premium: true,  newsletter: false },
+  { name: "Hà",   premium: false, newsletter: false }
+];
+
+function rlQuery() {
+  const op = document.getElementById("rlOp").value;
+  const out = document.getElementById("rlQueryRes");
+  const P = rlCustomers.filter(c => c.premium);          // tập Premium
+  const N = rlCustomers.filter(c => c.newsletter);       // tập đăng ký bản tin
+  let result, sql, desc;
+  if (op === "and") {
+    result = rlCustomers.filter(c => c.premium && c.newsletter);
+    sql = "WHERE premium = 1 AND newsletter = 1";
+    desc = "Giao (∩): vừa Premium VỪA đăng ký bản tin.";
+  } else if (op === "or") {
+    result = rlCustomers.filter(c => c.premium || c.newsletter);
+    sql = "WHERE premium = 1 OR newsletter = 1";
+    desc = "Hợp (∪): Premium HOẶC đăng ký bản tin (hoặc cả hai).";
+  } else if (op === "diff") {
+    result = rlCustomers.filter(c => c.premium && !c.newsletter);
+    sql = "WHERE premium = 1 AND newsletter = 0";
+    desc = "Hiệu (∖): Premium NHƯNG chưa đăng ký bản tin (nhóm cần mời).";
+  } else { // not premium
+    result = rlCustomers.filter(c => !c.premium);
+    sql = "WHERE premium = 0";
+    desc = "Phần bù (¬): KHÔNG phải Premium.";
+  }
+  out.innerHTML = `
+    <div style="font-family:monospace; font-size:13px">Premium = {${P.map(c=>c.name).join(", ")}} · Bản tin = {${N.map(c=>c.name).join(", ")}}</div>
+    <div style="margin-top:6px">${desc}</div>
+    <div style="font-family:monospace; font-size:13px; margin-top:4px; padding:8px; background:#1e293b; color:#a7f3d0; border-radius:6px">SELECT name FROM customers ${sql};</div>
+    <div style="margin-top:6px; padding:8px; background:#dcfce7; border-radius:6px">Kết quả (<strong>${result.length}</strong> người): <strong>${result.length ? result.map(c=>c.name).join(", ") : "(trống)"}</strong></div>
+    <div style="margin-top:4px; font-size:13px; color:#475569">Mỗi điều kiện lọc = một tập; AND/OR/NOT trong SQL chính là ∩ / ∪ / phần bù trên các tập đó.</div>
+  `;
+}
+
+function initReal07() {
+  document.getElementById("rlOp").addEventListener("change", rlQuery);
+  rlQuery();
+}
+document.addEventListener("DOMContentLoaded", initReal07);
 </script>
+
+<h2>🌍 Đời sống thực tế — Truy vấn dữ liệu bằng phép toán tập hợp</h2>
+<div class="card">
+  <p>Mỗi bộ lọc tìm kiếm hay câu lệnh <code>WHERE</code> trong SQL chính là một phép toán tập hợp. Dưới đây là CSDL 8 khách hàng.</p>
+  <div class="row">
+    <label>Phép lọc:</label>
+    <select id="rlOp" style="padding:7px 11px; border:1px solid #cbd5e0; border-radius:4px; font-size:14px">
+      <option value="and">Premium ∩ Bản tin (AND)</option>
+      <option value="or">Premium ∪ Bản tin (OR)</option>
+      <option value="diff">Premium ∖ Bản tin (AND NOT)</option>
+      <option value="not">¬ Premium (NOT)</option>
+    </select>
+  </div>
+  <div class="result" id="rlQueryRes"></div>
+</div>
 
 </main>
 

@@ -92,7 +92,103 @@ function draw() {
 }
 
 draw();
+
+// ===== Module Đời sống thực tế =====
+let dominoTimer = null;
+function rlDominoDraw(fallen) {
+  const n = parseInt(document.getElementById("rlDomN").value);
+  const svg = document.getElementById("rlDomSvg");
+  const W = 480, H = 120;
+  const gap = W / (n + 1);
+  let s = "";
+  for (let i = 1; i <= n; i++) {
+    const x = gap * i;
+    const isFallen = i <= fallen;
+    // quân đổ: nghiêng (vẽ thành hình bình hành), quân đứng: chữ nhật
+    if (isFallen) {
+      s += `<rect x="${x-6}" y="70" width="40" height="14" rx="2" fill="#15803d" transform="rotate(8 ${x} 84)"/>`;
+    } else {
+      s += `<rect x="${x-6}" y="40" width="13" height="44" rx="2" fill="${i===fallen+1?'#d97706':'#94a3b8'}"/>`;
+    }
+  }
+  svg.innerHTML = s;
+  const out = document.getElementById("rlDomRes");
+  out.innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Đã đổ: <strong>${fallen}/${n}</strong> quân.</div>
+    <div style="margin-top:6px"><strong>Cơ sở:</strong> đẩy quân 1 (P(1) đúng). <strong>Bước quy nạp:</strong> quân k đổ làm quân k+1 đổ (P(k) ⟹ P(k+1)).</div>
+    <div style="margin-top:4px; font-size:13px; color:#475569">Hai điều kiện đó ⟹ TOÀN BỘ dây domino đổ — chính là nguyên lý quy nạp toán học.</div>
+  `;
+}
+function rlDominoRun() {
+  const n = parseInt(document.getElementById("rlDomN").value);
+  if (dominoTimer) clearInterval(dominoTimer);
+  let f = 0;
+  rlDominoDraw(0);
+  dominoTimer = setInterval(() => {
+    f++;
+    rlDominoDraw(f);
+    if (f >= n) { clearInterval(dominoTimer); dominoTimer = null; }
+  }, 220);
+}
+
+function rlInterest() {
+  const P = parseFloat(document.getElementById("rlPrin").value);
+  const rate = parseFloat(document.getElementById("rlRate").value);
+  const yrs = parseInt(document.getElementById("rlYears").value);
+  document.getElementById("rlYearsV").textContent = yrs;
+  const out = document.getElementById("rlIntRes");
+  const r = rate / 100;
+  let rows = "";
+  let bal = P;
+  for (let y = 1; y <= yrs; y++) {
+    const prev = bal;
+    bal = prev * (1 + r);
+    rows += `<tr><td>${y}</td><td>${Math.round(prev).toLocaleString()}</td><td>${Math.round(prev*r).toLocaleString()}</td><td>${Math.round(bal).toLocaleString()}</td></tr>`;
+  }
+  const formula = P * Math.pow(1 + r, yrs);
+  out.innerHTML = `
+    <div style="overflow-x:auto"><table style="text-align:right">
+      <tr><th>Năm</th><th>Đầu năm</th><th>Lãi</th><th>Cuối năm</th></tr>
+      ${rows}
+    </table></div>
+    <div style="font-family:monospace; font-size:14px; margin-top:6px">Công thức quy nạp: A(n) = P·(1+r)^n = ${P.toLocaleString()}·${(1+r).toFixed(2)}^${yrs} = <strong>${Math.round(formula).toLocaleString()}</strong></div>
+    <div style="margin-top:4px; font-size:13px; color:#475569">Chứng minh quy nạp: A(0)=P; nếu A(k)=P(1+r)^k thì A(k+1)=A(k)(1+r)=P(1+r)^(k+1). ✓ Bảng khớp công thức từng năm.</div>
+  `;
+}
+
+function initReal06() {
+  document.getElementById("rlDomRun").addEventListener("click", rlDominoRun);
+  document.getElementById("rlDomN").addEventListener("input", () => { if (dominoTimer) { clearInterval(dominoTimer); dominoTimer = null; } rlDominoDraw(0); });
+  ["rlPrin","rlRate","rlYears"].forEach(id => document.getElementById(id).addEventListener("input", rlInterest));
+  rlDominoDraw(0);
+  rlInterest();
+}
+document.addEventListener("DOMContentLoaded", initReal06);
 </script>
+
+<h2>🌍 Đời sống thực tế — Domino &amp; lãi kép</h2>
+<div class="card">
+  <p>Quy nạp không chỉ là toán: chuỗi domino và lãi kép đều "lan từ bước này sang bước kế tiếp".</p>
+
+  <h3>1. Dây domino đổ — trực giác của quy nạp</h3>
+  <div class="row">
+    <label>Số quân:</label>
+    <input type="range" id="rlDomN" min="3" max="20" step="1" value="10" style="flex:1; min-width:160px">
+    <button id="rlDomRun">▶ Đẩy quân đầu</button>
+  </div>
+  <svg id="rlDomSvg" viewBox="0 0 480 120" style="display:block; width:100%; max-width:480px; height:auto; margin:8px auto; background:#f8fafc; border-radius:8px"></svg>
+  <div class="result" id="rlDomRes"></div>
+
+  <h3>2. Lãi kép — chứng minh công thức bằng quy nạp</h3>
+  <div class="row">
+    <label>Vốn ban đầu:</label> <input type="number" id="rlPrin" value="10000000" style="width:130px; padding:7px 11px; border:1px solid #cbd5e0; border-radius:4px; font-family:monospace">
+    <label>Lãi suất %/năm:</label> <input type="number" id="rlRate" value="7" style="width:70px; padding:7px 11px; border:1px solid #cbd5e0; border-radius:4px; font-family:monospace">
+    <label>Số năm:</label>
+    <input type="range" id="rlYears" min="1" max="15" step="1" value="5" style="flex:1; min-width:120px">
+    <span class="stat">năm = <strong id="rlYearsV">5</strong></span>
+  </div>
+  <div class="result" id="rlIntRes"></div>
+</div>
 
 </main>
 

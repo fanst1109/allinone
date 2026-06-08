@@ -142,7 +142,79 @@ function ph() {
 
 calc();
 ph();
+
+// ===== Module Đời sống thực tế =====
+function rlBirthday() {
+  const k = parseInt(document.getElementById("rlPeople").value);
+  document.getElementById("rlPeopleV").textContent = k;
+  const out = document.getElementById("rlBdayRes");
+  // P(không trùng) = 365/365 · 364/365 · ... · (365-k+1)/365
+  let pNone = 1;
+  for (let i = 0; i < k; i++) pNone *= (365 - i) / 365;
+  const pSame = 1 - pNone;
+  // Vài mốc tham chiếu
+  out.innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Phòng có <strong>${k}</strong> người. Xác suất KHÔNG ai trùng sinh nhật:</div>
+    <div style="font-family:monospace; font-size:13px; margin-top:4px">P(khác hết) = 365/365 × 364/365 × … × ${366-k}/365 = <strong>${(pNone*100).toFixed(2)}%</strong></div>
+    <div style="margin-top:6px; padding:8px; border-radius:6px; background:${pSame>0.5?'#dcfce7':'#f1f5f9'}">
+      Xác suất CÓ ít nhất 2 người trùng sinh nhật = <strong>${(pSame*100).toFixed(2)}%</strong>
+    </div>
+    <div style="margin-top:4px; font-size:13px; color:#475569">Bất ngờ: chỉ cần <strong>23 người</strong> là đã > 50%. Với 70 người gần như chắc chắn (99.9%). Đây là vì số cặp tăng theo C(k,2), không phải theo k.</div>
+  `;
+}
+
+function rlHash() {
+  const out = document.getElementById("rlHashRes");
+  // Đụng độ hash: với n giá trị băm vào m=2^bits ô, xác suất có đụng độ
+  const bits = parseInt(document.getElementById("rlBits").value);
+  const items = parseInt(document.getElementById("rlItems").value);
+  document.getElementById("rlBitsV").textContent = bits;
+  document.getElementById("rlItemsV").textContent = items;
+  const m = Math.pow(2, bits);
+  // xấp xỉ P(đụng độ) = 1 - e^{-n(n-1)/(2m)}
+  const expo = -items * (items - 1) / (2 * m);
+  const pColl = 1 - Math.exp(expo);
+  out.innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Băm <strong>${items.toLocaleString()}</strong> khoá vào không gian 2^${bits} = <strong>${m.toLocaleString()}</strong> giá trị.</div>
+    <div style="font-family:monospace; font-size:13px; margin-top:4px">P(đụng độ) ≈ 1 − e^(−n(n−1)/2m) = <strong>${(pColl*100).toFixed(4)}%</strong></div>
+    <div style="margin-top:4px; font-size:13px; color:#475569">Cùng "nghịch lý ngày sinh": đụng độ hash (hai khoá cùng giá trị băm) xảy ra sớm hơn trực giác nhiều — đó là lý do hash an toàn cần rất nhiều bit.</div>
+  `;
+}
+
+function initReal05() {
+  document.getElementById("rlPeople").addEventListener("input", rlBirthday);
+  document.getElementById("rlBits").addEventListener("input", rlHash);
+  document.getElementById("rlItems").addEventListener("input", rlHash);
+  rlBirthday(); rlHash();
+}
+document.addEventListener("DOMContentLoaded", initReal05);
 </script>
+
+<h2>🌍 Đời sống thực tế — Nghịch lý ngày sinh &amp; đụng độ hash</h2>
+<div class="card">
+  <p>Pigeonhole nói "đủ đông thì chắc chắn trùng"; nghịch lý ngày sinh nói "trùng xảy ra sớm hơn ta tưởng rất nhiều".</p>
+
+  <h3>1. Nghịch lý ngày sinh</h3>
+  <div class="row">
+    <label>Số người trong phòng:</label>
+    <input type="range" id="rlPeople" min="2" max="80" step="1" value="23" style="flex:1; min-width:180px">
+    <span class="stat">k = <strong id="rlPeopleV">23</strong></span>
+  </div>
+  <div class="result" id="rlBdayRes"></div>
+
+  <h3>2. Đụng độ hash / trùng ID</h3>
+  <div class="row">
+    <label>Số bit của hash:</label>
+    <input type="range" id="rlBits" min="8" max="32" step="1" value="16" style="flex:1; min-width:160px">
+    <span class="stat">bits = <strong id="rlBitsV">16</strong></span>
+  </div>
+  <div class="row">
+    <label>Số khoá:</label>
+    <input type="range" id="rlItems" min="10" max="100000" step="10" value="1000" style="flex:1; min-width:160px">
+    <span class="stat">n = <strong id="rlItemsV">1000</strong></span>
+  </div>
+  <div class="result" id="rlHashRes"></div>
+</div>
 
 </main>
 

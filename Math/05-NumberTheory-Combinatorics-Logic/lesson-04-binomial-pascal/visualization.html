@@ -18,6 +18,11 @@
   .prow { display: flex; gap: 6px; margin: 2px 0; }
   .pcell { display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 36px; border: 1px solid #cbd5e0; border-radius: 4px; font-family: monospace; font-size: 13px; background: white; }
   .pcell.hl { background: #15803d; color: white; font-weight: 700; }
+  @media (max-width: 480px) {
+    .pascal { overflow-x: auto; align-items: flex-start; }
+    .prow { gap: 3px; }
+    .pcell { width: 28px; height: 28px; font-size: 11px; }
+  }
 </style>
 </head>
 <body>
@@ -120,7 +125,103 @@ function expand() {
 
 draw();
 expand();
+
+// ===== Module Đời sống thực tế =====
+function rlCoin() {
+  const n = parseInt(document.getElementById("rlN").value);
+  document.getElementById("rlNV").textContent = n;
+  const out = document.getElementById("rlCoinRes");
+  // Phân bố nhị thức p=0.5: P(k mặt ngửa) = C(n,k)/2^n
+  const total = Math.pow(2, n);
+  // Tìm max để scale bar
+  let maxP = 0;
+  const probs = [];
+  for (let k = 0; k <= n; k++) {
+    const p = C(n, k) / total;
+    probs.push(p);
+    if (p > maxP) maxP = p;
+  }
+  let bars = "";
+  for (let k = 0; k <= n; k++) {
+    const p = probs[k];
+    const h = Math.round(p / maxP * 100);
+    bars += `<div style="display:flex; flex-direction:column; align-items:center; justify-content:flex-end; flex:1; min-width:0">
+      <div style="font-size:10px; color:#475569">${(p*100).toFixed(1)}%</div>
+      <div style="width:70%; background:#15803d; border-radius:3px 3px 0 0; height:${h}px"></div>
+      <div style="font-size:11px; margin-top:2px">${k}</div>
+    </div>`;
+  }
+  const exactHalf = (n % 2 === 0) ? `<div style="margin-top:6px">Đúng ${n/2} mặt ngửa: C(${n},${n/2})/2^${n} = ${C(n,n/2)}/${total} = <strong>${(C(n,n/2)/total*100).toFixed(2)}%</strong>.</div>` : "";
+  out.innerHTML = `
+    <div style="font-family:monospace; font-size:13px">Tung ${n} đồng xu cân. P(k ngửa) = C(${n}, k)/2^${n}. Tổng = ${total} trường hợp.</div>
+    <div style="display:flex; align-items:flex-end; gap:2px; height:130px; margin:10px 0; border-bottom:1px solid #cbd5e0">${bars}</div>
+    <div style="font-size:12px; color:#475569">Trục ngang: số mặt ngửa k. Hình chuông — kết quả dồn về giữa.</div>
+    ${exactHalf}
+  `;
+}
+
+function rlTest() {
+  const prev = parseFloat(document.getElementById("rlPrev").value); // % mắc bệnh
+  const fp = parseFloat(document.getElementById("rlFP").value);     // % dương tính giả
+  document.getElementById("rlPrevV").textContent = prev;
+  document.getElementById("rlFPV").textContent = fp;
+  const out = document.getElementById("rlTestRes");
+  const N = 100000;
+  const sick = N * prev / 100;
+  const healthy = N - sick;
+  const sens = 0.99; // độ nhạy 99%
+  const truePos = sick * sens;
+  const falsePos = healthy * fp / 100;
+  const posTotal = truePos + falsePos;
+  const ppv = posTotal > 0 ? truePos / posTotal * 100 : 0;
+  out.innerHTML = `
+    <div style="font-family:monospace; font-size:13px">Mô phỏng ${N.toLocaleString()} người. Tỉ lệ mắc bệnh ${prev}%, độ nhạy test 99%, dương tính giả ${fp}%.</div>
+    <div style="overflow-x:auto"><table style="margin-top:8px">
+      <tr><th>Nhóm</th><th>Số người</th><th>Test dương</th></tr>
+      <tr><td>Thật sự bệnh</td><td>${Math.round(sick).toLocaleString()}</td><td>${Math.round(truePos).toLocaleString()} (đúng)</td></tr>
+      <tr><td>Khoẻ mạnh</td><td>${Math.round(healthy).toLocaleString()}</td><td>${Math.round(falsePos).toLocaleString()} (giả)</td></tr>
+    </table></div>
+    <div style="margin-top:8px; padding:8px; background:#fef3c7; border-radius:6px; font-size:13px">
+      Trong ${Math.round(posTotal).toLocaleString()} người test dương, chỉ <strong>${ppv.toFixed(1)}%</strong> thật sự mắc bệnh!
+    </div>
+    <div style="margin-top:4px; font-size:13px; color:#475569">Bệnh càng hiếm, dương tính giả càng "lấn át" → 1 lần test dương chưa đủ kết luận.</div>
+  `;
+}
+
+function initReal04() {
+  document.getElementById("rlN").addEventListener("input", rlCoin);
+  document.getElementById("rlPrev").addEventListener("input", rlTest);
+  document.getElementById("rlFP").addEventListener("input", rlTest);
+  rlCoin(); rlTest();
+}
+document.addEventListener("DOMContentLoaded", initReal04);
 </script>
+
+<h2>🌍 Đời sống thực tế — Tung xu &amp; xét nghiệm dương tính giả</h2>
+<div class="card">
+  <p>Hệ số nhị thức C(n,k) chính là phân bố xác suất khi lặp một phép thử nhiều lần.</p>
+
+  <h3>1. Tung n đồng xu — phân bố số mặt ngửa</h3>
+  <div class="row">
+    <label>Số đồng xu n:</label>
+    <input type="range" id="rlN" min="1" max="14" step="1" value="10">
+    <span class="stat">n = <strong id="rlNV">10</strong></span>
+  </div>
+  <div class="result" id="rlCoinRes"></div>
+
+  <h3>2. Nghịch lý xét nghiệm dương tính giả</h3>
+  <div class="row">
+    <label>Tỉ lệ mắc bệnh (%):</label>
+    <input type="range" id="rlPrev" min="0.1" max="20" step="0.1" value="1">
+    <span class="stat">prevalence = <strong id="rlPrevV">1</strong>%</span>
+  </div>
+  <div class="row">
+    <label>Dương tính giả (%):</label>
+    <input type="range" id="rlFP" min="0" max="20" step="0.5" value="5">
+    <span class="stat">false positive = <strong id="rlFPV">5</strong>%</span>
+  </div>
+  <div class="result" id="rlTestRes"></div>
+</div>
 
 </main>
 

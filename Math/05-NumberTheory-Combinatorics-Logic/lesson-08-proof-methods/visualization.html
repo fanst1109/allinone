@@ -131,7 +131,63 @@ function draw() {
 }
 
 draw();
+
+// ===== Module Đời sống thực tế =====
+// Câu đố: 3 nghi phạm An, Bình, Cường. Đúng 1 người trộm. Mỗi người nói 1 câu.
+// An: "Tôi không trộm."  Bình: "An trộm."  Cường: "Tôi không trộm."
+// Biết: đúng 1 người trộm, và đúng 1 người nói THẬT (2 người nói dối).
+function rlSolvePuzzle() {
+  const out = document.getElementById("rlPuzzleRes");
+  const people = ["An", "Bình", "Cường"];
+  // statements[thief] = mảng [stmtAn, stmtBinh, stmtCuong] đúng/sai khi 'thief' là kẻ trộm
+  const lines = [];
+  let answer = null;
+  for (let thief = 0; thief < 3; thief++) {
+    const stmtAn = (thief !== 0);     // "Tôi (An) không trộm" đúng khi An không phải thief
+    const stmtBinh = (thief === 0);   // "An trộm" đúng khi thief = An
+    const stmtCuong = (thief !== 2);  // "Tôi (Cường) không trộm"
+    const truths = [stmtAn, stmtBinh, stmtCuong].filter(x => x).length;
+    const ok = (truths === 1);
+    lines.push(`<tr style="${ok?'background:#dcfce7':''}">
+      <td>${people[thief]}</td>
+      <td>${stmtAn?'Thật':'Dối'}</td>
+      <td>${stmtBinh?'Thật':'Dối'}</td>
+      <td>${stmtCuong?'Thật':'Dối'}</td>
+      <td>${truths}</td>
+      <td>${ok?'✅ khớp':'✗'}</td>
+    </tr>`);
+    if (ok) answer = people[thief];
+  }
+  out.innerHTML = `
+    <div style="font-size:14px"><strong>Đề:</strong> Đúng 1 trong 3 người trộm; đúng 1 người nói THẬT (2 người nói dối).</div>
+    <ul style="font-size:14px; margin:8px 0 8px 18px">
+      <li>An: "Tôi không trộm."</li>
+      <li>Bình: "An trộm."</li>
+      <li>Cường: "Tôi không trộm."</li>
+    </ul>
+    <div style="font-size:13px; color:#475569">Vét cạn từng giả thiết "ai là kẻ trộm", đếm số câu nói thật; chỉ giả thiết cho ĐÚNG 1 câu thật mới hợp lệ:</div>
+    <div style="overflow-x:auto"><table style="margin-top:8px; font-size:13px">
+      <tr><th>Giả sử trộm</th><th>An nói</th><th>Bình nói</th><th>Cường nói</th><th>Số câu thật</th><th>Hợp lệ?</th></tr>
+      ${lines.join("")}
+    </table></div>
+    <div style="margin-top:8px; padding:10px; background:#dcfce7; border-radius:6px; font-weight:600">Kết luận: kẻ trộm là <strong>${answer}</strong> (giả thiết khác đều mâu thuẫn với "đúng 1 người nói thật").</div>
+    <div style="margin-top:4px; font-size:13px; color:#475569">Đây là phản chứng/vét cạn: loại bỏ mọi khả năng dẫn tới mâu thuẫn, còn lại đúng một đáp án.</div>
+  `;
+}
+
+function initReal08() {
+  document.getElementById("rlPuzzleBtn").addEventListener("click", rlSolvePuzzle);
+  rlSolvePuzzle();
+}
+document.addEventListener("DOMContentLoaded", initReal08);
 </script>
+
+<h2>🌍 Đời sống thực tế — Câu đố "ai nói dối"</h2>
+<div class="card">
+  <p>Phản chứng và vét cạn không chỉ dùng trong toán — chúng là cách ta phá án, gỡ lỗi và giải câu đố logic hằng ngày.</p>
+  <button id="rlPuzzleBtn">🔍 Giải câu đố</button>
+  <div class="result" id="rlPuzzleRes"></div>
+</div>
 
 </main>
 

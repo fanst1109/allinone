@@ -49,10 +49,12 @@
 
 <h2>So sánh tăng trưởng — n! vs n^k vs C(n,k)</h2>
 <div class="card">
+  <div style="overflow-x:auto">
   <table>
     <thead><tr><th>n</th><th>n!</th><th>2^n</th><th>n²</th><th>C(n, 2)</th><th>C(n, n/2)</th></tr></thead>
     <tbody id="tbl"></tbody>
   </table>
+  </div>
   <p style="font-size:13px; color:#64748b">Quan sát: n! tăng <strong>siêu nhanh</strong>. Đó là tại sao bài toán "duyệt tất cả hoán vị" thường không giải được khi n > 20.</p>
 </div>
 
@@ -113,7 +115,84 @@ function buildTable() {
 
 calc();
 buildTable();
+
+// ===== Module Đời sống thực tế =====
+function rlPass() {
+  const len = parseInt(document.getElementById("rlLen").value);
+  document.getElementById("rlLenV").textContent = len;
+  let pool = 0;
+  let parts = [];
+  if (document.getElementById("rlLower").checked) { pool += 26; parts.push("a-z (26)"); }
+  if (document.getElementById("rlUpper").checked) { pool += 26; parts.push("A-Z (26)"); }
+  if (document.getElementById("rlDigit").checked) { pool += 10; parts.push("0-9 (10)"); }
+  if (document.getElementById("rlSym").checked)   { pool += 32; parts.push("ký hiệu (32)"); }
+  const out = document.getElementById("rlPassRes");
+  if (pool === 0) { out.innerHTML = "<strong>Chọn ít nhất một nhóm ký tự.</strong>"; return; }
+  // Số tổ hợp = pool^len (chỉnh hợp có lặp)
+  const total = Math.pow(pool, len);
+  // Giả sử kẻ tấn công thử 10 tỉ mật khẩu/giây
+  const guessesPerSec = 1e10;
+  const secs = total / 2 / guessesPerSec; // trung bình tìm thấy ở nửa không gian
+  let timeStr;
+  if (secs < 1) timeStr = "< 1 giây";
+  else if (secs < 60) timeStr = secs.toFixed(1) + " giây";
+  else if (secs < 3600) timeStr = (secs/60).toFixed(1) + " phút";
+  else if (secs < 86400) timeStr = (secs/3600).toFixed(1) + " giờ";
+  else if (secs < 3.15e7) timeStr = (secs/86400).toFixed(1) + " ngày";
+  else if (secs < 3.15e10) timeStr = (secs/3.15e7).toFixed(1) + " năm";
+  else timeStr = (secs/3.15e7).toExponential(2) + " năm";
+  out.innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Bộ ký tự: ${parts.join(" + ")} → pool = <strong>${pool}</strong> ký tự.</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">Số mật khẩu khả dĩ = pool^độ_dài = ${pool}^${len} ≈ <strong>${total.toExponential(2)}</strong></div>
+    <div style="margin-top:6px">Giả sử brute-force 10 tỉ lần/giây, trung bình bẻ khoá mất: <strong>${timeStr}</strong>.</div>
+    <div style="margin-top:4px; font-size:13px; color:#475569">Thêm 1 ký tự nhân không gian lên ${pool} lần — độ dài quan trọng hơn độ phức tạp.</div>
+  `;
+}
+
+function rlLotto() {
+  const out = document.getElementById("rlLottoRes");
+  // Vietlott Mega 6/45: chọn 6 trong 45
+  const ways = C(45, 6);
+  const prob = 1 / ways;
+  // So sánh: xác suất bị sét đánh trong năm ~ 1/1.2 triệu
+  out.innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Vietlott Mega 6/45: chọn 6 số khác nhau từ 1..45 (thứ tự không quan trọng → tổ hợp).</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">Số vé khác nhau = C(45, 6) = <strong>${ways.toLocaleString()}</strong></div>
+    <div style="margin-top:6px">Xác suất trúng jackpot 1 vé = 1/${ways.toLocaleString()} ≈ <strong>${prob.toExponential(3)}</strong> (khoảng 1 phần 8 triệu).</div>
+    <div style="margin-top:4px; font-size:13px; color:#475569">Để chắc trúng phải mua hết ${ways.toLocaleString()} vé. Xác suất bị sét đánh trong đời (~1/15.000) còn cao hơn nhiều.</div>
+  `;
+}
+
+function initReal03() {
+  ["rlLen","rlLower","rlUpper","rlDigit","rlSym"].forEach(id => {
+    document.getElementById(id).addEventListener("input", rlPass);
+  });
+  rlPass(); rlLotto();
+}
+document.addEventListener("DOMContentLoaded", initReal03);
 </script>
+
+<h2>🌍 Đời sống thực tế — Mật khẩu &amp; xổ số</h2>
+<div class="card">
+  <p>Đếm số tổ hợp quyết định độ an toàn mật khẩu và xác suất trúng số.</p>
+
+  <h3>1. Độ mạnh mật khẩu = số tổ hợp khả dĩ</h3>
+  <div class="row">
+    <label>Độ dài:</label>
+    <input type="range" id="rlLen" min="4" max="20" step="1" value="10">
+    <span class="stat">độ dài = <strong id="rlLenV">10</strong></span>
+  </div>
+  <div class="row">
+    <label><input type="checkbox" id="rlLower" checked> chữ thường a-z</label>
+    <label><input type="checkbox" id="rlUpper" checked> chữ hoa A-Z</label>
+    <label><input type="checkbox" id="rlDigit" checked> chữ số 0-9</label>
+    <label><input type="checkbox" id="rlSym"> ký hiệu !@#…</label>
+  </div>
+  <div class="result" id="rlPassRes"></div>
+
+  <h3>2. Xác suất trúng Vietlott Mega 6/45</h3>
+  <div class="result" id="rlLottoRes"></div>
+</div>
 
 </main>
 

@@ -176,7 +176,70 @@ function drawLin(){
 
 drawFit();
 drawLin();
+
+/* ---------- Module 3: Đời sống — giá nhà theo diện tích ---------- */
+/* Dữ liệu 6 căn: diện tích (m2) -> giá (tỉ đồng). Least squares thật. */
+const HOUSE=[[40,2.1],[55,2.8],[70,3.6],[85,4.1],[100,5.2],[120,5.9]];
+function lsq(pts){
+  const n=pts.length;
+  let sx=0,sy=0,sxx=0,sxy=0;
+  pts.forEach(([x,y])=>{ sx+=x; sy+=y; sxx+=x*x; sxy+=x*y; });
+  const a=(n*sxy-sx*sy)/(n*sxx-sx*sx);
+  const b=(sy-a*sx)/n;
+  return {a,b};
+}
+const HFIT=lsq(HOUSE);
+function drawHouse(){
+  const area=+document.getElementById("hArea").value;
+  document.getElementById("vHArea").textContent=area;
+  const W=480,H=360, ml=52,mr=18,mt=16,mb=42;
+  const x0=ml,x1=W-mr,y0=H-mb,y1=mt;
+  const xmin=30,xmax=130,ymin=1.5,ymax=6.5;
+  const sx=x=>x0+(x-xmin)/(xmax-xmin)*(x1-x0);
+  const sy=y=>y0+(y-ymin)/(ymax-ymin)*(y1-y0);
+  let s="";
+  for(let g=2;g<=6;g+=1){ const Y=sy(g); s+=`<line x1="${x0}" y1="${Y}" x2="${x1}" y2="${Y}" stroke="#eef2f7"/>`;
+    s+=`<text x="${x0-6}" y="${Y+4}" text-anchor="end" font-size="11" fill="#94a3b8">${g}</text>`; }
+  for(let g=40;g<=120;g+=20){ const X=sx(g); s+=`<line x1="${X}" y1="${y0}" x2="${X}" y2="${y1}" stroke="#eef2f7"/>`;
+    s+=`<text x="${X}" y="${y0+16}" text-anchor="middle" font-size="11" fill="#94a3b8">${g}</text>`; }
+  s+=`<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="#94a3b8"/><line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y1}" stroke="#94a3b8"/>`;
+  s+=`<text x="${(x0+x1)/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="#475569">diện tích (m²)</text>`;
+  s+=`<text x="14" y="${(y0+y1)/2}" text-anchor="middle" font-size="12" fill="#475569" transform="rotate(-90 14 ${(y0+y1)/2})">giá (tỉ đồng)</text>`;
+  // fitted line
+  const yA=HFIT.a*xmin+HFIT.b, yB=HFIT.a*xmax+HFIT.b;
+  s+=`<line x1="${sx(xmin)}" y1="${sy(yA)}" x2="${sx(xmax)}" y2="${sy(yB)}" stroke="#15803d" stroke-width="3"/>`;
+  // data points
+  HOUSE.forEach(([x,y])=>{ s+=`<circle cx="${sx(x)}" cy="${sy(y)}" r="5" fill="#1d4ed8"/>`; });
+  // prediction at chosen area
+  const pred=HFIT.a*area+HFIT.b;
+  const PX=sx(area), PY=sy(pred);
+  s+=`<line x1="${PX}" y1="${y0}" x2="${PX}" y2="${PY}" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  s+=`<line x1="${x0}" y1="${PY}" x2="${PX}" y2="${PY}" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  s+=`<circle cx="${PX}" cy="${PY}" r="6" fill="#ea580c"/>`;
+  document.getElementById("house").innerHTML=s;
+  // R2
+  const ybar=HOUSE.reduce((q,p)=>q+p[1],0)/HOUSE.length;
+  let ssr=0,sst=0; HOUSE.forEach(([x,y])=>{ const e=y-(HFIT.a*x+HFIT.b); ssr+=e*e; sst+=(y-ybar)*(y-ybar); });
+  const r2=1-ssr/sst;
+  document.getElementById("houseOut").innerHTML=
+    `<span class="stat">Đường khớp: giá = <strong>${HFIT.a.toFixed(3)}</strong>·m² + <strong>${HFIT.b.toFixed(2)}</strong></span>`+
+    `<span class="stat">R² = <strong>${r2.toFixed(3)}</strong></span>`+
+    `<div style="margin-top:8px;color:#475569">Mỗi m² thêm khoảng <strong>${(HFIT.a*1000).toFixed(0)} triệu</strong>. Dự đoán căn <strong>${area} m²</strong>: giá ≈ ${HFIT.a.toFixed(3)}·${area} + ${HFIT.b.toFixed(2)} = <strong>${pred.toFixed(2)} tỉ</strong>. R² = ${r2.toFixed(3)} (gần 1) ⇒ diện tích giải thích gần hết biến động giá — nhưng nhớ: <strong>ngoại suy</strong> ra ngoài 40–120 m² rủi ro vì quan hệ có thể cong.</div>`;
+}
+document.addEventListener("DOMContentLoaded", drawHouse);
 </script>
+
+<h2>🌍 Đời sống thực tế — định giá nhà theo diện tích</h2>
+<div class="card">
+  <p class="lead">Một sàn môi giới có 6 căn đã bán (chấm xanh): diện tích (m²) và giá (tỉ đồng). Dùng <strong>least squares</strong> y hệt phần 1, máy tự khớp đường thẳng tối ưu. Kéo slider để chọn diện tích cần định giá — đường cam chỉ ra giá dự đoán.</p>
+  <div class="row">
+    <label>Diện tích cần định giá (m²):</label>
+    <input type="range" id="hArea" min="40" max="120" step="5" value="75" oninput="drawHouse()">
+    <span class="stat">diện tích = <strong id="vHArea">75</strong> m²</span>
+  </div>
+  <svg class="scene" id="house" viewBox="0 0 480 360"></svg>
+  <div class="result" id="houseOut"></div>
+</div>
 
 </main>
 

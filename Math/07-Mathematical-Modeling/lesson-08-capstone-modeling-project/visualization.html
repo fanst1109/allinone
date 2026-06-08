@@ -118,8 +118,72 @@ function draw(){
     `<span class="stat">Lệch dữ liệu (SSE) = <strong>${sse.toFixed(1)}</strong></span>`+
     `<div style="margin-top:8px;color:#475569">Khớp dữ liệu xanh tốt nhất ở quanh K=1000, r=0.8, V₀=1 (SSE nhỏ nhất) — đúng giá trị fit trong README. Đường chuông cam = tốc độ lan, đỉnh đúng ngày t*.</div>`;
 }
-draw();
+/* ---------- Module 2: Đời sống — lan truyền tin đồn (mô hình DK) ---------- */
+/* Mô hình tin đồn Daley-Kendall đơn giản hoá, 3 nhóm trên N người:
+   I = chưa biết (ignorant), S = đang lan (spreader), R = thôi lan (stifler).
+   dI/dt = -alpha*I*S/N
+   dS/dt =  alpha*I*S/N - beta*S*(S+R)/N
+   dR/dt =  beta*S*(S+R)/N
+   alpha = tốc độ lan, beta = tốc độ "chán/ngừng kể". Tích phân Euler. */
+function drawRumor(){
+  const alpha=+document.getElementById("ruA").value;
+  const beta=+document.getElementById("ruB").value;
+  document.getElementById("vRuA").textContent=alpha.toFixed(2);
+  document.getElementById("vRuB").textContent=beta.toFixed(2);
+  const N=1000; let I=999,S=1,R=0; const dt=0.05, tMax=30;
+  let arr=[[0,I,S,R]], peakS=S, peakT=0;
+  for(let t=dt;t<=tMax+1e-9;t+=dt){
+    const inf=alpha*I*S/N;
+    const stop=beta*S*(S+R)/N;
+    I+=(-inf)*dt; S+=(inf-stop)*dt; R+=(stop)*dt;
+    if(I<0)I=0; if(S<0)S=0;
+    if(S>peakS){peakS=S;peakT=t;}
+    arr.push([t,I,S,R]);
+  }
+  const finalR=arr[arr.length-1][3];   // tổng số từng nghe tin đồn
+  const neverHeard=arr[arr.length-1][1];
+
+  const W=660,H=380, ml=52,mr=20,mt=18,mb=42;
+  const x0=ml,x1=W-mr,y0=H-mb,y1=mt;
+  const sx=t=>x0+t/tMax*(x1-x0);
+  const sy=v=>y0-v/N*(y0-y1);
+  let s="";
+  for(let g=0;g<=1000;g+=250){ const Y=sy(g); s+=`<line x1="${x0}" y1="${Y}" x2="${x1}" y2="${Y}" stroke="#eef2f7"/>`;
+    s+=`<text x="${x0-6}" y="${Y+4}" text-anchor="end" font-size="10" fill="#94a3b8">${g}</text>`; }
+  for(let t=0;t<=tMax;t+=5) s+=`<text x="${sx(t)}" y="${y0+16}" text-anchor="middle" font-size="10" fill="#94a3b8">${t}</text>`;
+  const cols=["#2563eb","#dc2626","#15803d"]; // I, S, R
+  for(let k=1;k<=3;k++){ let p=""; arr.forEach((a,i)=>{ p+=(i?"L":"M")+sx(a[0]).toFixed(1)+" "+sy(a[k]).toFixed(1)+" "; });
+    s+=`<path d="${p}" fill="none" stroke="${cols[k-1]}" stroke-width="2.5"/>`; }
+  // đỉnh người đang lan
+  s+=`<line x1="${sx(peakT)}" y1="${y0}" x2="${sx(peakT)}" y2="${sy(peakS)}" stroke="#dc2626" stroke-width="1" stroke-dasharray="3 3"/>`;
+  s+=`<text x="${sx(peakT)}" y="${sy(peakS)-6}" text-anchor="middle" font-size="11" fill="#dc2626">đỉnh ngày ${peakT.toFixed(0)}</text>`;
+  s+=`<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="#94a3b8"/><line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y1}" stroke="#94a3b8"/>`;
+  s+=`<text x="${(x0+x1)/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="#475569">thời gian (giờ)</text>`;
+  s+=`<text x="14" y="${(y0+y1)/2}" text-anchor="middle" font-size="12" fill="#475569" transform="rotate(-90 14 ${(y0+y1)/2})">số người</text>`;
+  document.getElementById("rumor").innerHTML=s;
+  document.getElementById("rumorOut").innerHTML=
+    `<span class="stat">Đỉnh người đang kể = <strong>${peakS.toFixed(0)}</strong> (giờ ${peakT.toFixed(0)})</span>`+
+    `<span class="stat">Cuối cùng từng nghe = <strong>${finalR.toFixed(0)}</strong>/${N}</span>`+
+    `<span class="stat">Không bao giờ nghe = <strong>${neverHeard.toFixed(0)}</strong></span>`+
+    `<div style="margin-top:8px;color:#475569">Đi qua đúng chu trình mô hình hoá: <strong>(2)</strong> giả định cộng đồng kín N=1000, gặp ngẫu nhiên; <strong>(3)</strong> mô hình 3 nhóm I→S→R (giống SIR L05); <strong>(4)</strong> giải bằng Euler. α (lan) lớn / β (chán) nhỏ ⇒ tin đồn phủ gần hết cộng đồng. Khác logistic ở trên: nhóm "đang kể" (đỏ) <strong>dâng lên rồi tắt</strong> vì người ta chán kể, không phải bão hoà ở K.</div>`;
+}
+
+function initL08(){ draw(); drawRumor(); }
+document.addEventListener("DOMContentLoaded", initL08);
 </script>
+
+<h2>🌍 Đời sống thực tế — lan truyền tin đồn</h2>
+<div class="card">
+  <p class="lead">Một mô hình trọn vẹn khác: tin đồn lan trong cộng đồng N = 1000 người, chia 3 nhóm — <span class="key" style="background:#2563eb"></span>chưa biết (I) · <span class="key" style="background:#dc2626"></span>đang kể (S) · <span class="key" style="background:#15803d"></span>thôi kể (R). Người đang kể gặp người chưa biết thì lan thêm (tốc độ α); gặp người đã biết thì <strong>chán, thôi kể</strong> (tốc độ β). Đây là biến thể của SIR (L05). Kéo α, β để xem tin đồn phủ rộng hay tắt lịm.</p>
+  <div class="row">
+    <label>α — tốc độ lan:</label><input type="range" id="ruA" min="0.2" max="2" step="0.05" value="1.2" oninput="drawRumor()">
+    <span class="stat">α = <strong id="vRuA">1.20</strong></span>
+    <label>β — tốc độ chán kể:</label><input type="range" id="ruB" min="0.1" max="2" step="0.05" value="0.6" oninput="drawRumor()">
+    <span class="stat">β = <strong id="vRuB">0.60</strong></span>
+  </div>
+  <svg class="scene" id="rumor" viewBox="0 0 660 380"></svg>
+  <div class="result" id="rumorOut"></div>
+</div>
 
 </main>
 

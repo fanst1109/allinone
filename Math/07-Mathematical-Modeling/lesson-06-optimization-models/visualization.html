@@ -133,8 +133,101 @@ function drawLag(){
     `<div style="margin-top:8px;color:#475569">Đường mức x·y (xanh đậm) <strong>tiếp xúc</strong> ràng buộc tại (S/2, S/2): ∇f ∥ ∇g. λ = S/2 = giá bóng: nới S thêm 1 → f tăng ≈ ${(S/2)}.</div>`;
 }
 
-drawLP(); drawLag();
+/* ---------- Module 3: Đời sống — khẩu phần ăn rẻ nhất ---------- */
+/* x = phần cơm/gạo, y = phần đậu. Ràng buộc dinh dưỡng (>=):
+   Protein:  2x + 8y >= Pmin (g)
+   Calo:     90x + 60y >= Cmin (kcal, đơn vị 10)
+   x,y >= 0. Min chi phí = px*x + py*y. Nghiệm ở đỉnh miền (góc dưới-trái mở). */
+function drawDiet(){
+  const px=+document.getElementById("dtPx").value; // giá 1 phần cơm
+  const py=+document.getElementById("dtPy").value; // giá 1 phần đậu
+  document.getElementById("vDtPx").textContent=px;
+  document.getElementById("vDtPy").textContent=py;
+  // hằng số bài toán
+  const protX=2, protY=8, Pmin=20;     // 2x+8y>=20
+  const calX=9, calY=6, Cmin=54;       // 9x+6y>=54  (kcal/10)
+  // miền khả thi (>=) -> các đỉnh ứng viên: giao của các ràng buộc & trục
+  // ứng viên: giao 2 ràng buộc; giao protein với trục x; giao calo với trục x;...
+  function feasible(x,y){
+    return x>=-1e-6 && y>=-1e-6 && protX*x+protY*y>=Pmin-1e-6 && calX*x+calY*y>=Cmin-1e-6;
+  }
+  // các đỉnh: giải từng cặp đường
+  const cands=[];
+  // protein & calo
+  {
+    // 2x+8y=20 ; 9x+6y=54
+    const det=protX*calY-protY*calX; // 2*6 - 8*9 = 12-72=-60
+    const x=(Pmin*calY-protY*Cmin)/det;
+    const y=(protX*Cmin-Pmin*calX)/det;
+    cands.push([x,y]);
+  }
+  // protein & y-axis(x=0): 8y=20 -> y=2.5, x=0
+  cands.push([0, Pmin/protY]);
+  // calo & x-axis(y=0): 9x=54 -> x=6
+  cands.push([Cmin/calX, 0]);
+  // protein & x-axis: 2x=20 -> x=10
+  cands.push([Pmin/protX, 0]);
+  // calo & y-axis: 6y=54 -> y=9
+  cands.push([0, Cmin/calY]);
+  let best=null, bestC=Infinity;
+  cands.forEach(([x,y])=>{ if(feasible(x,y)){ const cost=px*x+py*y; if(cost<bestC-1e-9){bestC=cost;best=[x,y];} } });
+
+  const W=460,H=460, ml=44,mr=20,mt=20,mb=40, vmax=12;
+  const sx=x=>ml+x/vmax*(W-mr-ml), sy=y=>(H-mb)-y/vmax*(H-mb-mt);
+  let s="";
+  for(let g=0;g<=12;g+=2){ s+=`<line x1="${sx(g)}" y1="${H-mb}" x2="${sx(g)}" y2="${mt}" stroke="#eef2f7"/><line x1="${ml}" y1="${sy(g)}" x2="${W-mr}" y2="${sy(g)}" stroke="#eef2f7"/>`;
+    s+=`<text x="${sx(g)}" y="${H-mb+15}" text-anchor="middle" font-size="10" fill="#94a3b8">${g}</text>`;
+    s+=`<text x="${ml-6}" y="${sy(g)+3}" text-anchor="end" font-size="10" fill="#94a3b8">${g}</text>`; }
+  // miền khả thi: shade các điểm lưới thoả (đơn giản, nhẹ)
+  // vẽ 2 đường ràng buộc
+  // protein 2x+8y=20: tại x=0 y=2.5 ; tại y=0 x=10
+  s+=`<line x1="${sx(0)}" y1="${sy(Pmin/protY)}" x2="${sx(Pmin/protX)}" y2="${sy(0)}" stroke="#2563eb" stroke-width="2"/>`;
+  s+=`<text x="${sx(Pmin/protX)-4}" y="${sy(0)-6}" text-anchor="end" font-size="11" fill="#2563eb">protein ≥</text>`;
+  // calo 9x+6y=54: x=0 y=9 ; y=0 x=6
+  s+=`<line x1="${sx(0)}" y1="${sy(Cmin/calY)}" x2="${sx(Cmin/calX)}" y2="${sy(0)}" stroke="#b45309" stroke-width="2"/>`;
+  s+=`<text x="${sx(0)+6}" y="${sy(Cmin/calY)+12}" font-size="11" fill="#b45309">calo ≥</text>`;
+  // tô vùng khả thi bằng lưới chấm nhẹ
+  for(let gx=0;gx<=vmax;gx+=0.6){ for(let gy=0;gy<=vmax;gy+=0.6){ if(feasible(gx,gy)){ s+=`<circle cx="${sx(gx)}" cy="${sy(gy)}" r="1.1" fill="#15803d" fill-opacity="0.25"/>`; } } }
+  // đường đẳng phí qua best
+  if(best){
+    const cost=bestC;
+    // px*x+py*y=cost -> x=cost/px (y=0), y=cost/py (x=0)
+    s+=`<line x1="${sx(cost/px)}" y1="${sy(0)}" x2="${sx(0)}" y2="${sy(cost/py)}" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="6 4"/>`;
+    s+=`<circle cx="${sx(best[0])}" cy="${sy(best[1])}" r="6" fill="#dc2626"/>`;
+    s+=`<text x="${sx(best[0])+8}" y="${sy(best[1])-6}" font-size="11" fill="#334155">(${best[0].toFixed(1)}, ${best[1].toFixed(1)})</text>`;
+  }
+  s+=`<text x="${(ml+W-mr)/2}" y="${H-4}" text-anchor="middle" font-size="12" fill="#475569">x (phần cơm)</text>`;
+  s+=`<text x="14" y="${(mt+H-mb)/2}" text-anchor="middle" font-size="12" fill="#475569" transform="rotate(-90 14 ${(mt+H-mb)/2})">y (phần đậu)</text>`;
+  s+=`<line x1="${ml}" y1="${H-mb}" x2="${W-mr}" y2="${H-mb}" stroke="#94a3b8"/><line x1="${ml}" y1="${H-mb}" x2="${ml}" y2="${mt}" stroke="#94a3b8"/>`;
+  document.getElementById("diet").innerHTML=s;
+
+  if(best){
+    const prot=protX*best[0]+protY*best[1], cal=calX*best[0]+calY*best[1];
+    document.getElementById("dietOut").innerHTML=
+      `<span class="stat">Rẻ nhất: <strong>${best[0].toFixed(1)}</strong> phần cơm + <strong>${best[1].toFixed(1)}</strong> phần đậu</span>`+
+      `<span class="stat">Chi phí = <strong>${bestC.toFixed(1)}</strong> nghìn</span>`+
+      `<div style="margin-top:8px;color:#475569">Cần ≥ ${Pmin}g protein và ≥ ${Cmin*10} kcal mỗi bữa, giá cơm ${px}k, đậu ${py}k/phần. Nghiệm: protein đạt ${prot.toFixed(0)}g, calo ${(cal*10).toFixed(0)} kcal — vừa khít ràng buộc. Tăng giá đậu ⇒ đỉnh tối ưu nhảy sang chọn nhiều cơm hơn (góc khác của miền). Y như LP xưởng mộc nhưng đây là <strong>cực tiểu hoá chi phí</strong>, nghiệm vẫn ở đỉnh.</div>`;
+  } else {
+    document.getElementById("dietOut").innerHTML=`<div style="color:#b91c1c">Không tìm được nghiệm khả thi trong khung hiển thị.</div>`;
+  }
+}
+
+function initL06(){ drawLP(); drawLag(); drawDiet(); }
+document.addEventListener("DOMContentLoaded", initL06);
 </script>
+
+<h2>🌍 Đời sống thực tế — khẩu phần ăn rẻ nhất (bài toán dinh dưỡng)</h2>
+<div class="card">
+  <p class="lead">Bài toán LP kinh điển: ăn đủ chất với chi phí <strong>thấp nhất</strong>. x = phần cơm, y = phần đậu. Ràng buộc <strong>≥</strong> (phải đủ, không phải bị giới hạn): <span style="color:#2563eb">protein 2x + 8y ≥ 20 g</span>, <span style="color:#b45309">calo 9x + 6y ≥ 54 (×10 kcal)</span>. Vùng chấm xanh = khẩu phần đủ chất; đường đứt đỏ = mức chi phí tối thiểu. Kéo giá để xem đỉnh tối ưu chuyển.</p>
+  <div class="row">
+    <label>Giá cơm (nghìn/phần):</label><input type="range" id="dtPx" min="2" max="20" step="1" value="5" oninput="drawDiet()">
+    <span class="stat">cơm = <strong id="vDtPx">5</strong>k</span>
+    <label>Giá đậu (nghìn/phần):</label><input type="range" id="dtPy" min="2" max="20" step="1" value="12" oninput="drawDiet()">
+    <span class="stat">đậu = <strong id="vDtPy">12</strong>k</span>
+  </div>
+  <svg class="scene" id="diet" viewBox="0 0 460 460"></svg>
+  <div class="result" id="dietOut"></div>
+</div>
 
 </main>
 

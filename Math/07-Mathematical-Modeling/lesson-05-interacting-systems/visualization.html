@@ -16,6 +16,10 @@
   .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
   .stat strong { color: #15803d; }
   .key { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:5px; vertical-align:middle; }
+  .badge { display:inline-block; padding:4px 10px; border-radius:6px; font-weight:700; font-size:13px; }
+  .b-stable { background:#dcfce7; color:#15803d; }
+  .b-cycle  { background:#fef9c3; color:#a16207; }
+  .b-chaos  { background:#fee2e2; color:#b91c1c; }
   .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; line-height: 1.7; }
   svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 640px; height: auto; background: #f8fafc; border-radius: 8px; }
 </style>
@@ -130,8 +134,91 @@ function drawLV(){
     `<div style="margin-top:8px;color:#475569">Hai đường (đứt = mức cân bằng) dao động tuần hoàn: đỉnh thú (cam) luôn <strong>trễ sau</strong> đỉnh mồi (xanh) — vòng đuổi nhau.</div>`;
 }
 
-drawSIR(); drawLV();
+/* ---------- Module 3: Đời sống — cung cầu thị trường (cobweb) ---------- */
+/* Cầu: Qd = a - b*P (giá cao -> mua ít). Cung trễ 1 vụ: Qs(t) = c + d*P(t-1).
+   Cân bằng khi Qd = Qs. Giá lặp: P(t) = (a-c)/b - (d/b)*P(t-1).
+   Hệ số động lực = d/b: |d/b|<1 hội tụ, >1 phân kỳ (giống L03). */
+function drawMarket(){
+  const b=+document.getElementById("mkB").value;  // độ dốc cầu
+  const d=+document.getElementById("mkD").value;  // độ dốc cung
+  document.getElementById("vMkB").textContent=b.toFixed(2);
+  document.getElementById("vMkD").textContent=d.toFixed(2);
+  const a=100, c=10;                               // chặn cầu / cung
+  const Pstar=(a-c)/(b+d);                         // giá cân bằng
+  const ratio=d/b;                                 // hệ số hội tụ
+  // lặp cobweb từ P0
+  let P=Pstar*1.6;                                 // lệch khỏi cân bằng để thấy động lực
+  const seq=[P];
+  for(let n=0;n<24;n++){ P=(a-c)/b-(d/b)*P; if(!isFinite(P)||Math.abs(P)>1e6){seq.push(P);break;} seq.push(P); }
+
+  const W=640,H=360, ml=48,mr=16,mt=16,mb=40;
+  const x0=ml,x1=W-mr,y0=H-mb,y1=mt;
+  // trục giá: cố định 0..120
+  const Pmax=120;
+  const Qmax=110;
+  const sxQ=q=>x0+q/Qmax*(x1-x0);
+  const syP=p=>y0+Math.max(0,Math.min(p,Pmax))/Pmax*(y1-y0);
+  let s="";
+  for(let g=0;g<=Pmax;g+=30){ const Y=syP(g); s+=`<line x1="${x0}" y1="${Y}" x2="${x1}" y2="${Y}" stroke="#eef2f7"/>`;
+    s+=`<text x="${x0-6}" y="${Y+4}" text-anchor="end" font-size="10" fill="#94a3b8">${g}</text>`; }
+  for(let g=0;g<=Qmax;g+=20){ const X=sxQ(g); s+=`<line x1="${X}" y1="${y0}" x2="${X}" y2="${y1}" stroke="#eef2f7"/>`;
+    s+=`<text x="${X}" y="${y0+15}" text-anchor="middle" font-size="10" fill="#94a3b8">${g}</text>`; }
+  s+=`<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="#94a3b8"/><line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y1}" stroke="#94a3b8"/>`;
+  s+=`<text x="${(x0+x1)/2}" y="${H-4}" text-anchor="middle" font-size="12" fill="#475569">lượng Q</text>`;
+  s+=`<text x="14" y="${(y0+y1)/2}" text-anchor="middle" font-size="12" fill="#475569" transform="rotate(-90 14 ${(y0+y1)/2})">giá P</text>`;
+  // đường cầu: P = (a - Q)/b  -> tại Q: P. vẽ theo 2 điểm
+  // Qd = a - b P  => P = (a - Q)/b
+  const demP=q=>(a-q)/b; const supP=q=>(q-c)/d; // Qs = c + d P => P = (Q-c)/d
+  s+=`<line x1="${sxQ(0)}" y1="${syP(demP(0))}" x2="${sxQ(a)}" y2="${syP(demP(a))}" stroke="#2563eb" stroke-width="2"/>`;
+  s+=`<text x="${sxQ(a)-4}" y="${syP(demP(a))-6}" text-anchor="end" font-size="11" fill="#2563eb">cầu</text>`;
+  s+=`<line x1="${sxQ(c)}" y1="${syP(supP(c))}" x2="${sxQ(Qmax)}" y2="${syP(supP(Qmax))}" stroke="#b45309" stroke-width="2"/>`;
+  s+=`<text x="${sxQ(Qmax)-4}" y="${syP(supP(Qmax))-6}" text-anchor="end" font-size="11" fill="#b45309">cung</text>`;
+  // cobweb bậc thang giữa 2 đường
+  // tại giá P: cung cho Qs = c + d*P; giá kế tiếp đọc từ cầu Qd=Qs => P' = (a-Qs)/b
+  let cob=""; let first=true; let Pc=seq[0];
+  for(let n=0;n<seq.length-1 && n<18;n++){
+    const Pn=seq[n]; if(!isFinite(Pn)) break;
+    const Qn=c+d*Pn;                 // cung tại giá Pn
+    const Pn1=(a-Qn)/b;              // giá mới từ cầu
+    // bước: từ (Qn, Pn) trên đường cung sang ngang tới đường cầu (Qn, Pn1), rồi xuống?
+    cob+=(first?"M":"L")+sxQ(Qn).toFixed(1)+" "+syP(Pn).toFixed(1)+" "; first=false;
+    cob+="L"+sxQ(Qn).toFixed(1)+" "+syP(Pn1).toFixed(1)+" ";
+    const Qn1=c+d*Pn1;
+    cob+="L"+sxQ(Qn1).toFixed(1)+" "+syP(Pn1).toFixed(1)+" ";
+  }
+  s+=`<path d="${cob}" fill="none" stroke="#dc2626" stroke-width="1.3" stroke-opacity="0.85"/>`;
+  // điểm cân bằng
+  const Qstar=a-b*Pstar;
+  s+=`<circle cx="${sxQ(Qstar)}" cy="${syP(Pstar)}" r="5" fill="#15803d"/>`;
+  document.getElementById("market").innerHTML=s;
+
+  let cls,label;
+  if(Math.abs(ratio)<1){ cls="b-stable"; label="hội tụ về cân bằng"; }
+  else if(Math.abs(ratio-1)<1e-9){ cls="b-cycle"; label="dao động đều (chu kỳ 2)"; }
+  else { cls="b-chaos"; label="phân kỳ (giá nổ tung)"; }
+  document.getElementById("marketOut").innerHTML=
+    `<span class="stat">Giá cân bằng P* = (a−c)/(b+d) = <strong>${Pstar.toFixed(1)}</strong></span>`+
+    `<span class="stat">Hệ số động lực |d/b| = <strong>${Math.abs(ratio).toFixed(2)}</strong></span>`+
+    `<span class="badge ${cls}" style="margin-left:4px">${label}</span>`+
+    `<div style="margin-top:8px;color:#475569">Nông dân quyết định trồng bao nhiêu dựa trên <strong>giá vụ trước</strong> (cung trễ). Giá lặp Pₙ = (a−c)/b − (d/b)·Pₙ₋₁ — y hệt phương trình sai phân L03. |d/b| &lt; 1: giá ổn định về P*; &gt; 1: dao động ngày càng lớn (chu kỳ thịt heo "được mùa mất giá"). a=100, c=10, b=${b.toFixed(2)}, d=${d.toFixed(2)} ⇒ P* = 90/(${(b+d).toFixed(2)}) = ${Pstar.toFixed(1)}.</div>`;
+}
+
+function initL05(){ drawSIR(); drawLV(); drawMarket(); }
+document.addEventListener("DOMContentLoaded", initL05);
 </script>
+
+<h2>🌍 Đời sống thực tế — cung cầu thị trường (cobweb)</h2>
+<div class="card">
+  <p class="lead">Giá nông sản dao động "được mùa mất giá" cũng là một hệ tương tác. <span class="key" style="background:#2563eb"></span>Người mua: giá cao thì mua ít (cầu Qd = a − b·P). <span class="key" style="background:#b45309"></span>Nông dân: trồng theo <strong>giá vụ trước</strong> (cung trễ Qs = c + d·P₋₁). Đường đỏ = quá trình giá đuổi theo cân bằng (chấm xanh). Kéo độ dốc để vượt ngưỡng |d/b| = 1.</p>
+  <div class="row">
+    <label>b — độ nhạy cầu:</label><input type="range" id="mkB" min="0.3" max="2" step="0.05" value="1" oninput="drawMarket()">
+    <span class="stat">b = <strong id="vMkB">1.00</strong></span>
+    <label>d — độ nhạy cung:</label><input type="range" id="mkD" min="0.3" max="2" step="0.05" value="0.7" oninput="drawMarket()">
+    <span class="stat">d = <strong id="vMkD">0.70</strong></span>
+  </div>
+  <svg class="scene" id="market" viewBox="0 0 640 360"></svg>
+  <div class="result" id="marketOut"></div>
+</div>
 
 </main>
 

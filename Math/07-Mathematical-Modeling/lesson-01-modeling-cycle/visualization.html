@@ -269,12 +269,94 @@ function drawCool(){
   document.getElementById("coolOut").innerHTML=msg;
 }
 
-/* init */
-buildCycle();
-buildFormulaSelect();
-checkDim();
-drawCool();
+/* ---------- Module 4: Đời sống — hàng đợi quán cà phê ---------- */
+/* Mô hình M/M/1: khách đến với tỉ lệ lambda (khách/phút), một thu ngân
+   phục vụ với tỉ lệ mu (khách/phút). Đi qua đúng chu trình mô hình hoá. */
+function drawQueue(){
+  const lam=+document.getElementById("qLam").value;   // khách đến/phút
+  const mu =+document.getElementById("qMu").value;    // phục vụ được/phút
+  document.getElementById("vQLam").textContent=lam.toFixed(2);
+  document.getElementById("vQMu").textContent=mu.toFixed(2);
+  const rho=lam/mu;                                    // độ tải hệ thống
+  // M/M/1: L = rho/(1-rho) khách trung bình trong hệ, W = L/lambda thời gian chờ tổng
+  const stable = rho<1;
+  let L, W, Wq, Lq;
+  if(stable){
+    L = rho/(1-rho);
+    W = 1/(mu-lam);          // phút trong hệ (chờ + được phục vụ)
+    Wq = lam/(mu*(mu-lam));  // phút chỉ riêng chờ
+    Lq = rho*rho/(1-rho);
+  }
+
+  // Vẽ: trục ngang rho 0..1, đường W theo rho (bùng nổ khi rho->1)
+  const W2=700,H2=300, ml=56,mr=20,mt=18,mb=42;
+  const x0=ml,x1=W2-mr,y0=H2-mb,y1=mt;
+  const Wmax=20; // cap phút
+  const sx=r=>x0+r*(x1-x0);
+  const sy=w=>y0+Math.min(w,Wmax)/Wmax*(y1-y0);
+  let s="";
+  for(let g=0;g<=Wmax;g+=5){ const Y=sy(g); s+=`<line x1="${x0}" y1="${Y}" x2="${x1}" y2="${Y}" stroke="#e2e8f0"/>`;
+    s+=`<text x="${x0-8}" y="${Y+4}" text-anchor="end" font-size="11" fill="#64748b">${g}</text>`; }
+  for(let g=0;g<=1.0001;g+=0.25){ const X=sx(g); s+=`<text x="${X}" y="${y0+18}" text-anchor="middle" font-size="11" fill="#64748b">${g.toFixed(2)}</text>`; }
+  s+=`<text x="${(x0+x1)/2}" y="${H2-6}" text-anchor="middle" font-size="12" fill="#475569">độ tải ρ = λ/μ</text>`;
+  s+=`<text x="14" y="${(y0+y1)/2}" text-anchor="middle" font-size="12" fill="#475569" transform="rotate(-90 14 ${(y0+y1)/2})">thời gian ở quán W (phút)</text>`;
+  // đường W(rho) = 1/(mu*(1-rho)) với mu hiện tại
+  let pth="";
+  for(let i=0;i<=300;i++){ const r=i/300*0.99; const w=1/(mu*(1-r)); pth+=(i?"L":"M")+sx(r).toFixed(1)+" "+sy(w).toFixed(1)+" "; }
+  s+=`<path d="${pth}" fill="none" stroke="#15803d" stroke-width="3"/>`;
+  // đường tiệm cận rho=1
+  s+=`<line x1="${sx(1)}" y1="${y0}" x2="${sx(1)}" y2="${y1}" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  s+=`<text x="${sx(1)-4}" y="${y1+14}" text-anchor="end" font-size="11" fill="#dc2626">ρ = 1 (vỡ trận)</text>`;
+  // điểm hiện tại
+  if(stable){
+    const X=sx(rho), Y=sy(W);
+    s+=`<circle cx="${X}" cy="${Y}" r="6" fill="#dc2626"/>`;
+    s+=`<line x1="${X}" y1="${y0}" x2="${X}" y2="${Y}" stroke="#dc2626" stroke-width="1" stroke-dasharray="3 3"/>`;
+  }
+  document.getElementById("queue").innerHTML=s;
+
+  let msg;
+  if(!stable){
+    msg=`<div class="dim-line"><strong>ρ = λ/μ = ${lam.toFixed(2)}/${mu.toFixed(2)} = <span class="verdict-bad">${rho.toFixed(2)} ≥ 1</span></strong></div>`+
+        `<div style="margin-top:6px;color:#b91c1c">Khách đến nhanh hơn (hoặc bằng) tốc độ phục vụ → hàng <strong>dài vô hạn</strong>, thời gian chờ tăng không giới hạn. Kết luận của mô hình: phải <strong>thêm thu ngân</strong> (tăng μ) hoặc giảm khách giờ cao điểm (giảm λ).</div>`;
+  } else {
+    msg=`<div class="dim-line"><strong>ρ = λ/μ = ${lam.toFixed(2)}/${mu.toFixed(2)} = ${rho.toFixed(2)}</strong> (&lt; 1 nên ổn định)</div>`+
+        `<span class="stat">Số khách trong quán L = ρ/(1−ρ) = <strong>${L.toFixed(2)}</strong></span>`+
+        `<span class="stat">Chờ trung bình W_q = <strong>${Wq.toFixed(2)}</strong> phút</strong></span>`+
+        `<span class="stat">Tổng thời gian W = 1/(μ−λ) = <strong>${W.toFixed(2)}</strong> phút</span>`+
+        `<div style="margin-top:8px;color:#475569">Walk-through ρ=0.8 (λ=0.8, μ=1): L = 0.8/0.2 = <strong>4 khách</strong>, W = 1/(1−0.8) = <strong>5 phút</strong>. Tăng λ lên 0.95 → W = 1/0.05 = <strong>20 phút</strong>: tải tăng 19% mà chờ tăng 4 lần — đó là lý do quán đông giờ tan tầm "bỗng nhiên" kẹt cứng.</div>`;
+  }
+  document.getElementById("queueOut").innerHTML=msg;
+}
+
+/* init — tất cả qua DOMContentLoaded */
+function initL01(){
+  buildCycle();
+  buildFormulaSelect();
+  checkDim();
+  drawCool();
+  drawQueue();
+}
+document.addEventListener("DOMContentLoaded", initL01);
 </script>
+
+<h2>🌍 Đời sống thực tế — xếp hàng quán cà phê</h2>
+<div class="card">
+  <p class="lead">Áp dụng đúng <strong>chu trình mô hình hoá</strong> ở trên cho một câu hỏi đời thường: <em>"Phải chờ bao lâu ở quán cà phê?"</em>
+  <strong>(1) Bài toán:</strong> ước lượng thời gian chờ. <strong>(2) Giả định:</strong> khách đến ngẫu nhiên đều đặn, một thu ngân, bỏ qua khách bỏ về. <strong>(3) Mô hình:</strong> hàng đợi M/M/1 — khách đến tỉ lệ λ (người/phút), phục vụ tỉ lệ μ (người/phút). <strong>(4) Giải:</strong> độ tải ρ = λ/μ, thời gian trong quán W = 1/(μ−λ). <strong>(5) Kiểm chứng:</strong> ρ ≥ 1 ⇒ hàng vô hạn (đúng trực giác giờ cao điểm).</p>
+  <div class="row">
+    <label>λ — khách đến (người/phút):</label>
+    <input type="range" id="qLam" min="0.1" max="1.4" step="0.05" value="0.8" oninput="drawQueue()">
+    <span class="stat">λ = <strong id="vQLam">0.80</strong></span>
+  </div>
+  <div class="row">
+    <label>μ — phục vụ (người/phút):</label>
+    <input type="range" id="qMu" min="0.5" max="2" step="0.05" value="1" oninput="drawQueue()">
+    <span class="stat">μ = <strong id="vQMu">1.00</strong></span>
+  </div>
+  <svg class="scene" id="queue" viewBox="0 0 700 300" style="max-width:720px"></svg>
+  <div class="result" id="queueOut"></div>
+</div>
 
 </main>
 

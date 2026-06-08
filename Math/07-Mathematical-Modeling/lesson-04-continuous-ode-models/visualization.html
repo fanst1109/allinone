@@ -136,8 +136,91 @@ const vR=document.getElementById("vR"),vK=document.getElementById("vK"),vN0=docu
 const growth=document.getElementById("growth"),gOut=document.getElementById("gOut");
 const h_=document.getElementById("h"),er_=document.getElementById("er"),vH=document.getElementById("vH"),vER=document.getElementById("vER");
 const euler=document.getElementById("euler"),eOut=document.getElementById("eOut");
-drawG(); drawE();
+/* ---------- Module 3: Đời sống — nồng độ thuốc trong máu ---------- */
+/* dC/dt = -k*C giữa các liều; mỗi tau giờ uống thêm D (mg/L tương đương).
+   k = ln2 / halflife. Mô phỏng liên tục bằng nghiệm mũ từng đoạn. */
+function drawDrug(){
+  const D=+document.getElementById("dgDose").value;     // mg mỗi liều
+  const tau=+document.getElementById("dgTau").value;    // giờ giữa các liều
+  const half=+document.getElementById("dgHalf").value;  // bán rã (giờ)
+  document.getElementById("vDgDose").textContent=D;
+  document.getElementById("vDgTau").textContent=tau;
+  document.getElementById("vDgHalf").textContent=half;
+  const k=Math.log(2)/half;                             // hằng số thải trừ
+  const tMax=48;                                        // giờ mô phỏng
+  const dt=0.05;
+  // ngưỡng điều trị minh hoạ
+  const MEC=4, MTC=12; // tối thiểu hiệu quả / tối đa an toàn (mg/L)
+  let C=0; let nextDose=0; const arr=[];
+  let cmax=0, cmin=1e9, peakSS=0, troughSS=0;
+  for(let t=0;t<=tMax+1e-9;t+=dt){
+    if(t>=nextDose-1e-9){ C+=D; nextDose+=tau; }       // uống liều
+    arr.push([t,C]);
+    if(t>tMax-tau){ if(C>peakSS)peakSS=C; if(C<troughSS||troughSS===0)troughSS=C; } // chu kỳ cuối ~ steady state
+    C=C*Math.exp(-k*dt);                                // thải trừ liên tục
+  }
+  // steady-state lý thuyết (ngay sau liều / ngay trước liều)
+  const rdecay=Math.exp(-k*tau);
+  const ssPeak=D/(1-rdecay);
+  const ssTrough=ssPeak*rdecay;
+
+  const W=620,H=360, ml=52,mr=20,mt=18,mb=42;
+  const x0=ml,x1=W-mr,y0=H-mb,y1=mt;
+  const yMax=Math.max(ssPeak*1.15, MTC*1.1);
+  const sx=t=>x0+t/tMax*(x1-x0);
+  const sy=c=>y0+c/yMax*(y1-y0);
+  let s="";
+  for(let g=0;g<=4;g++){ const vv=yMax*g/4, Y=sy(vv); s+=`<line x1="${x0}" y1="${Y}" x2="${x1}" y2="${Y}" stroke="#eef2f7"/>`;
+    s+=`<text x="${x0-6}" y="${Y+4}" text-anchor="end" font-size="10" fill="#94a3b8">${vv.toFixed(1)}</text>`; }
+  for(let t=0;t<=tMax;t+=6) s+=`<text x="${sx(t)}" y="${y0+16}" text-anchor="middle" font-size="10" fill="#94a3b8">${t}</text>`;
+  // vùng cửa sổ điều trị
+  s+=`<rect x="${x0}" y="${sy(MTC)}" width="${x1-x0}" height="${sy(MEC)-sy(MTC)}" fill="#15803d" fill-opacity="0.08"/>`;
+  s+=`<line x1="${x0}" y1="${sy(MEC)}" x2="${x1}" y2="${sy(MEC)}" stroke="#0891b2" stroke-width="1.2" stroke-dasharray="5 4"/>`;
+  s+=`<text x="${x1-4}" y="${sy(MEC)-4}" text-anchor="end" font-size="10" fill="#0891b2">ngưỡng hiệu quả ${MEC}</text>`;
+  s+=`<line x1="${x0}" y1="${sy(MTC)}" x2="${x1}" y2="${sy(MTC)}" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="5 4"/>`;
+  s+=`<text x="${x1-4}" y="${sy(MTC)-4}" text-anchor="end" font-size="10" fill="#dc2626">ngưỡng độc ${MTC}</text>`;
+  s+=`<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="#94a3b8"/><line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y1}" stroke="#94a3b8"/>`;
+  s+=`<text x="${(x0+x1)/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="#475569">thời gian (giờ)</text>`;
+  s+=`<text x="14" y="${(y0+y1)/2}" text-anchor="middle" font-size="12" fill="#475569" transform="rotate(-90 14 ${(y0+y1)/2})">nồng độ (mg/L)</text>`;
+  let pth="";
+  arr.forEach(([t,c],i)=>{ pth+=(i?"L":"M")+sx(t).toFixed(1)+" "+sy(c).toFixed(1)+" "; });
+  s+=`<path d="${pth}" fill="none" stroke="#ea580c" stroke-width="2.5"/>`;
+  document.getElementById("drug").innerHTML=s;
+
+  const danger = ssPeak>MTC;
+  const weak = ssTrough<MEC;
+  let verdict;
+  if(danger) verdict=`<span style="color:#b91c1c"><strong>Đỉnh ổn định ${ssPeak.toFixed(1)} mg/L vượt ngưỡng độc ${MTC}</strong> — liều quá cao / uống quá dày. Giảm D hoặc tăng τ.</span>`;
+  else if(weak) verdict=`<span style="color:#b45309"><strong>Đáy ${ssTrough.toFixed(1)} mg/L dưới ngưỡng hiệu quả ${MEC}</strong> — thuốc "rớt" tác dụng giữa các liều. Uống dày hơn (giảm τ).</span>`;
+  else verdict=`<span style="color:#15803d"><strong>Nằm gọn trong cửa sổ điều trị</strong> (${MEC}–${MTC} mg/L) ở trạng thái ổn định — phác đồ hợp lý.</span>`;
+  document.getElementById("drugOut").innerHTML=
+    `<span class="stat">k = ln2/${half} = <strong>${k.toFixed(3)}</strong>/giờ</span>`+
+    `<span class="stat">Đỉnh ổn định = D/(1−e^(−kτ)) = <strong>${ssPeak.toFixed(1)}</strong></span>`+
+    `<span class="stat">Đáy ổn định = <strong>${ssTrough.toFixed(1)}</strong></span>`+
+    `<div style="margin-top:8px;color:#475569">Giữa hai liều: dC/dt = −k·C ⇒ C giảm theo e^(−kt) (cùng dạng cà phê nguội L01). Mỗi liều cộng thêm D, nồng độ <strong>tích tụ</strong> rồi đạt trạng thái ổn định. Walk-through D=5, τ=8h, bán rã 6h: r = e^(−0.1155·8) = ${Math.exp(-k*tau).toFixed(3)}, đỉnh = 5/(1−${Math.exp(-Math.log(2)/6*8).toFixed(3)}) ≈ ${(5/(1-Math.exp(-Math.log(2)/6*8))).toFixed(1)} mg/L. ${verdict}</div>`;
+}
+
+const dgIds=["dgDose","dgTau","dgHalf"];
+function initL04(){ drawG(); drawE(); drawDrug(); }
+document.addEventListener("DOMContentLoaded", initL04);
 </script>
+
+<h2>🌍 Đời sống thực tế — nồng độ thuốc trong máu</h2>
+<div class="card">
+  <p class="lead">Vì sao bác sĩ dặn "uống mỗi 8 tiếng"? Giữa hai liều, thuốc bị gan/thận thải theo ODE <code>dC/dt = −k·C</code> (k = ln2 / bán rã) — đúng dạng phân rã mũ. Mỗi liều cộng thêm D mg/L, nồng độ tích tụ tới <strong>trạng thái ổn định</strong>. Mục tiêu: nằm trong "cửa sổ điều trị" (vùng xanh) — đủ mạnh để hiệu quả, đủ thấp để không độc.</p>
+  <div class="row">
+    <label>D — liều mỗi lần (mg/L):</label><input type="range" id="dgDose" min="1" max="12" step="0.5" value="5" oninput="drawDrug()">
+    <span class="stat">D = <strong id="vDgDose">5</strong></span>
+    <label>τ — cách nhau (giờ):</label><input type="range" id="dgTau" min="2" max="24" step="1" value="8" oninput="drawDrug()">
+    <span class="stat">τ = <strong id="vDgTau">8</strong>h</span>
+  </div>
+  <div class="row">
+    <label>Bán rã (giờ):</label><input type="range" id="dgHalf" min="2" max="24" step="1" value="6" oninput="drawDrug()">
+    <span class="stat">t½ = <strong id="vDgHalf">6</strong>h</span>
+  </div>
+  <svg class="scene" id="drug" viewBox="0 0 620 360"></svg>
+  <div class="result" id="drugOut"></div>
+</div>
 
 </main>
 

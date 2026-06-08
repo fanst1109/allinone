@@ -125,8 +125,110 @@ function drawMK(){
     `<div style="margin-top:8px;color:#475569">Giải π·P = π: π_N = P(M→N)/(1−P(N→N)+P(M→N)). Lặp 60 bước từ "hôm nay nắng" → ${d[0].toFixed(3)} (khớp π_N) — <strong>quên điều kiện đầu</strong>, hội tụ về phân phối dừng.</div>`;
 }
 
-resetMC(); addPts(200); drawMK();
+/* ---------- Module 3: Đời sống — rủi ro bảo hiểm (Monte Carlo) ---------- */
+/* N khách, mỗi người đóng phí 'prem'. Mỗi người có xác suất q gặp sự cố,
+   bồi thường 'claim'. Mô phỏng nhiều năm -> phân phối lợi nhuận hãng. */
+let insRuns=[]; // lợi nhuận mỗi năm mô phỏng
+function resetIns(){ insRuns=[]; renderIns(); }
+function simIns(years){
+  const N=+document.getElementById("insN").value;
+  const prem=+document.getElementById("insPrem").value;
+  const q=+document.getElementById("insQ").value;
+  const claim=+document.getElementById("insClaim").value;
+  for(let yr=0;yr<years;yr++){
+    let nClaims=0;
+    for(let k=0;k<N;k++){ if(Math.random()<q) nClaims++; }
+    const revenue=N*prem;
+    const payout=nClaims*claim;
+    insRuns.push(revenue-payout); // lợi nhuận (nghìn)
+  }
+  if(insRuns.length>50000) insRuns=insRuns.slice(-50000);
+  renderIns();
+}
+function renderIns(){
+  const N=+document.getElementById("insN").value;
+  const prem=+document.getElementById("insPrem").value;
+  const q=+document.getElementById("insQ").value;
+  const claim=+document.getElementById("insClaim").value;
+  document.getElementById("vInsN").textContent=N;
+  document.getElementById("vInsPrem").textContent=prem;
+  document.getElementById("vInsQ").textContent=q.toFixed(3);
+  document.getElementById("vInsClaim").textContent=claim;
+  // phí công bằng (fair premium) = q*claim
+  const fair=q*claim;
+  const expProfit=N*(prem-fair);
+
+  // histogram
+  const W=420,H=300, ml=46,mr=14,mt=16,mb=42;
+  const x0=ml,x1=W-mr,y0=H-mb,y1=mt;
+  let s="";
+  if(insRuns.length===0){
+    s+=`<text x="${W/2}" y="${H/2}" text-anchor="middle" font-size="13" fill="#94a3b8">Bấm "mô phỏng" để gieo các năm</text>`;
+    document.getElementById("ins").innerHTML=s;
+  } else {
+    const lo=Math.min(...insRuns), hi=Math.max(...insRuns);
+    const nb=18; const span=(hi-lo)||1; const bw=span/nb;
+    const bins=new Array(nb).fill(0);
+    insRuns.forEach(v=>{ let b=Math.floor((v-lo)/bw); if(b>=nb)b=nb-1; if(b<0)b=0; bins[b]++; });
+    const bmax=Math.max(...bins);
+    const sx=v=>x0+(v-lo)/span*(x1-x0);
+    const syC=cnt=>y0-(cnt/bmax)*(y0-y1);
+    // trục
+    s+=`<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="#94a3b8"/>`;
+    // bins
+    for(let b=0;b<nb;b++){ const xL=sx(lo+b*bw), xR=sx(lo+(b+1)*bw); const h=y0-syC(bins[b]);
+      const center=lo+(b+0.5)*bw;
+      const col=center<0?'#dc2626':'#15803d';
+      s+=`<rect x="${xL+0.5}" y="${syC(bins[b])}" width="${Math.max(1,xR-xL-1)}" height="${h}" fill="${col}" fill-opacity="0.75"/>`;
+    }
+    // đường lợi nhuận = 0
+    if(lo<0 && hi>0){ const X=sx(0); s+=`<line x1="${X}" y1="${y0}" x2="${X}" y2="${y1}" stroke="#0f172a" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+      s+=`<text x="${X}" y="${y1+10}" text-anchor="middle" font-size="10" fill="#0f172a">hoà vốn</text>`; }
+    // nhãn trục x
+    s+=`<text x="${x0}" y="${y0+16}" text-anchor="start" font-size="10" fill="#94a3b8">${lo.toFixed(0)}</text>`;
+    s+=`<text x="${x1}" y="${y0+16}" text-anchor="end" font-size="10" fill="#94a3b8">${hi.toFixed(0)}</text>`;
+    s+=`<text x="${(x0+x1)/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="#475569">lợi nhuận một năm (nghìn)</text>`;
+    document.getElementById("ins").innerHTML=s;
+  }
+  // thống kê
+  const n=insRuns.length;
+  const mean=n? insRuns.reduce((a,b)=>a+b,0)/n : 0;
+  const lossProb=n? insRuns.filter(v=>v<0).length/n : 0;
+  document.getElementById("insOut").innerHTML=
+    `<span class="stat">Phí công bằng q·claim = <strong>${fair.toFixed(1)}</strong></span>`+
+    `<span class="stat">Lợi nhuận kỳ vọng/năm = <strong>${expProfit.toFixed(0)}</strong></span>`+
+    (n?`<span class="stat">TB mô phỏng (${n} năm) = <strong>${mean.toFixed(0)}</strong></span>`+
+        `<span class="stat">Xác suất lỗ = <strong>${(lossProb*100).toFixed(1)}%</strong></span>`:"")+
+    `<div style="margin-top:8px;color:#475569">Mỗi khách rủi ro độc lập với xác suất q = ${q.toFixed(3)}, bồi thường ${claim}k. Phí "công bằng" = q·claim = ${fair.toFixed(1)}k. Thu phí ${prem}k > ${fair.toFixed(1)}k ⇒ lãi kỳ vọng dương, nhưng vài năm xui (nhiều claim) vẫn lỗ. Càng nhiều khách N, phân phối càng <strong>hẹp quanh kỳ vọng</strong> (luật số lớn) ⇒ rủi ro lỗ giảm — đó là lý do bảo hiểm cần đông người tham gia.</div>`;
+}
+
+function initL07(){ resetMC(); addPts(200); drawMK(); renderIns(); }
+document.addEventListener("DOMContentLoaded", initL07);
 </script>
+
+<h2>🌍 Đời sống thực tế — rủi ro bảo hiểm</h2>
+<div class="card">
+  <p class="lead">Vì sao công ty bảo hiểm vẫn lãi dù thỉnh thoảng phải bồi thường lớn? Mỗi năm: N khách đóng phí, mỗi người có xác suất q gặp sự cố (bồi thường claim). Lợi nhuận = thu phí − tổng bồi thường. Bấm mô phỏng nhiều năm để xem <strong>phân phối</strong> lợi nhuận (đỏ = năm lỗ, xanh = năm lãi).</p>
+  <div class="row">
+    <button onclick="simIns(200)">+200 năm</button>
+    <button onclick="simIns(2000)">+2000 năm</button>
+    <button onclick="resetIns()">Đặt lại</button>
+  </div>
+  <div class="row">
+    <label>N khách:</label><input type="range" id="insN" min="50" max="2000" step="50" value="500" oninput="resetIns()">
+    <span class="stat">N = <strong id="vInsN">500</strong></span>
+    <label>Phí thu (nghìn):</label><input type="range" id="insPrem" min="5" max="40" step="1" value="15" oninput="resetIns()">
+    <span class="stat">phí = <strong id="vInsPrem">15</strong>k</span>
+  </div>
+  <div class="row">
+    <label>q — xác suất sự cố:</label><input type="range" id="insQ" min="0.01" max="0.2" step="0.005" value="0.05" oninput="resetIns()">
+    <span class="stat">q = <strong id="vInsQ">0.050</strong></span>
+    <label>Bồi thường (nghìn):</label><input type="range" id="insClaim" min="50" max="500" step="10" value="200" oninput="resetIns()">
+    <span class="stat">claim = <strong id="vInsClaim">200</strong>k</span>
+  </div>
+  <svg class="scene" id="ins" viewBox="0 0 420 300" style="max-width:460px"></svg>
+  <div class="result" id="insOut"></div>
+</div>
 
 </main>
 

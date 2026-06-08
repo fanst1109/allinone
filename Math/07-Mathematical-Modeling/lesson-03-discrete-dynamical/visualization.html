@@ -174,9 +174,89 @@ function drawTs(){
     `<span class="badge ${cls}">${label}</span> <span style="color:#475569">${xstarMsg}|a| = ${Math.abs(a).toFixed(2)} ${stable?"< 1 (ổn định)":"≥ 1 (không ổn định)"}. ${extra}</span>`;
 }
 
-drawCob();
-drawTs();
+/* ---------- Module 3: Đời sống — trả góp khoản vay ---------- */
+/* Dư nợ rời rạc: b(n+1) = (1+i)*b(n) - P
+   i = lãi suất tháng, P = số tiền trả mỗi tháng. */
+function drawLoan(){
+  const L0=+document.getElementById("lnAmt").value;   // triệu, dư nợ ban đầu
+  const apr=+document.getElementById("lnRate").value; // %/năm
+  const Pay=+document.getElementById("lnPay").value;  // triệu/tháng
+  document.getElementById("vLnAmt").textContent=L0;
+  document.getElementById("vLnRate").textContent=apr.toFixed(1);
+  document.getElementById("vLnPay").textContent=Pay;
+  const i=apr/100/12;                                  // lãi suất tháng
+  const Pmin=L0*i;                                     // trả tối thiểu để không tăng nợ
+  // chạy mô hình rời rạc
+  let bal=L0; const series=[bal]; let totalPaid=0, totalInterest=0; let months=0;
+  const MAXN=600;
+  while(bal>1e-6 && months<MAXN){
+    const interest=bal*i;
+    let pay=Pay;
+    if(pay>=bal+interest){ pay=bal+interest; } // tháng cuối trả vừa đủ
+    bal=bal+interest-pay;
+    totalPaid+=pay; totalInterest+=interest; months++;
+    series.push(Math.max(bal,0));
+    if(bal<0) bal=0;
+  }
+  const diverges = Pay<=Pmin+1e-9;
+
+  // vẽ chuỗi dư nợ
+  const N=Math.min(series.length-1, MAXN);
+  const W=520,H=340, ml=52,mr=16,mt=16,mb=42;
+  const x0=ml,x1=W-mr,y0=H-mb,y1=mt;
+  let hi=Math.max(...series.slice(0,Math.min(series.length, diverges?60:N+1)));
+  if(hi<=0) hi=L0;
+  const nShow=diverges?48:N;
+  const sx=n=>x0+(nShow?n/nShow:0)*(x1-x0);
+  const sy=v=>y0+v/hi*(y1-y0);
+  let s="";
+  for(let k=0;k<=4;k++){ const vv=hi*k/4, Y=sy(vv); s+=`<line x1="${x0}" y1="${Y}" x2="${x1}" y2="${Y}" stroke="#eef2f7"/>`;
+    s+=`<text x="${x0-6}" y="${Y+4}" text-anchor="end" font-size="10" fill="#94a3b8">${vv.toFixed(0)}</text>`; }
+  const tick=Math.max(1,Math.round(nShow/6));
+  for(let n=0;n<=nShow;n+=tick) s+=`<text x="${sx(n)}" y="${y0+16}" text-anchor="middle" font-size="10" fill="#94a3b8">${n}</text>`;
+  s+=`<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="#94a3b8"/><line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y1}" stroke="#94a3b8"/>`;
+  s+=`<text x="${(x0+x1)/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="#475569">tháng n</text>`;
+  s+=`<text x="14" y="${(y0+y1)/2}" text-anchor="middle" font-size="12" fill="#475569" transform="rotate(-90 14 ${(y0+y1)/2})">dư nợ (triệu)</text>`;
+  let pth="";
+  for(let n=0;n<=nShow && n<series.length;n++){ pth+=(n?"L":"M")+sx(n).toFixed(1)+" "+sy(series[n]).toFixed(1)+" "; }
+  s+=`<path d="${pth}" fill="none" stroke="${diverges?'#dc2626':'#15803d'}" stroke-width="2.5"/>`;
+  document.getElementById("loan").innerHTML=s;
+
+  let msg;
+  if(diverges){
+    msg=`<span class="badge b-chaos">nợ KHÔNG giảm</span> `+
+        `<span style="color:#475569">Lãi tháng = b·i = ${L0}·${(i).toFixed(4)} = <strong>${Pmin.toFixed(2)} triệu</strong>. Bạn trả ${Pay} triệu ≤ lãi ⇒ dư nợ đứng yên hoặc <strong>phình to</strong> mãi (bẫy nợ). Đây chính là điểm cân bằng không ổn định của phương trình sai phân.</span>`;
+  } else {
+    const yrs=Math.floor(months/12), rem=months%12;
+    msg=`<span class="badge b-stable">trả hết sau ${months} tháng</span> `+
+        `<span style="color:#475569">(${yrs} năm ${rem} tháng)</span>`+
+        `<div style="margin-top:8px"><span class="stat">Tổng đã trả = <strong>${totalPaid.toFixed(0)}</strong> triệu</span>`+
+        `<span class="stat">Trong đó lãi = <strong>${totalInterest.toFixed(0)}</strong> triệu</span></div>`+
+        `<div style="margin-top:8px;color:#475569">Mô hình rời rạc: bₙ₊₁ = (1+i)·bₙ − P, i = ${(apr).toFixed(1)}%/12 = ${(i*100).toFixed(3)}%/tháng. Walk-through tháng 1: lãi = ${L0}·${(i).toFixed(4)} = ${(L0*i).toFixed(2)} triệu, trả ${Pay} ⇒ dư nợ còn ${(L0+L0*i-Pay).toFixed(2)} triệu. Trả thêm mỗi tháng ⇒ hết sớm hơn nhiều, tiết kiệm lãi.</div>`;
+  }
+  document.getElementById("loanOut").innerHTML=msg;
+}
+
+function initL03(){ drawCob(); drawTs(); drawLoan(); }
+document.addEventListener("DOMContentLoaded", initL03);
 </script>
+
+<h2>🌍 Đời sống thực tế — lịch trả góp khoản vay</h2>
+<div class="card">
+  <p class="lead">Vay tiền mua xe/nhà cũng là một <strong>phương trình sai phân</strong>: mỗi tháng dư nợ sinh lãi rồi bị trừ đi khoản trả. <code>bₙ₊₁ = (1 + i)·bₙ − P</code> với i = lãi suất tháng, P = tiền trả/tháng. Kéo slider để xem dư nợ giảm dần (xanh) hay phình ra (đỏ) nếu trả quá ít.</p>
+  <div class="row">
+    <label>Dư nợ ban đầu (triệu):</label><input type="range" id="lnAmt" min="100" max="1000" step="50" value="500" oninput="drawLoan()">
+    <span class="stat">L₀ = <strong id="vLnAmt">500</strong> triệu</span>
+  </div>
+  <div class="row">
+    <label>Lãi suất (%/năm):</label><input type="range" id="lnRate" min="3" max="18" step="0.5" value="9" oninput="drawLoan()">
+    <span class="stat">lãi = <strong id="vLnRate">9.0</strong>%/năm</span>
+    <label>Trả mỗi tháng (triệu):</label><input type="range" id="lnPay" min="2" max="30" step="1" value="10" oninput="drawLoan()">
+    <span class="stat">P = <strong id="vLnPay">10</strong> triệu</span>
+  </div>
+  <svg class="scene" id="loan" viewBox="0 0 520 340" style="max-width:560px"></svg>
+  <div class="result" id="loanOut"></div>
+</div>
 
 </main>
 

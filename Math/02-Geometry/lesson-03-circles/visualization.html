@@ -138,7 +138,74 @@ function drawCircle() {
 }
 
 drawCircle();
+
+// ===== Module Đời sống thực tế: Bánh xe đạp — vòng quay & quãng đường =====
+function rl03Update() {
+  const dia = parseFloat(document.getElementById("rl03Dia").value); // đường kính bánh (cm)
+  const dist = parseFloat(document.getElementById("rl03Dist").value); // quãng đường (m)
+  document.getElementById("rl03DiaVal").textContent = dia;
+  document.getElementById("rl03DistVal").textContent = dist;
+  // Chu vi bánh xe = π·d. Đổi đường kính cm → m.
+  const dia_m = dia / 100;
+  const circ = Math.PI * dia_m; // mét mỗi vòng
+  // Số vòng quay = quãng đường / chu vi.
+  const turns = dist / circ;
+
+  const svg = document.getElementById("rl03Svg");
+  svg.innerHTML = "";
+  const cx = 300, cy = 230, R = 110;
+  const tire = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  tire.setAttribute("cx", cx); tire.setAttribute("cy", cy); tire.setAttribute("r", R);
+  tire.setAttribute("fill", "none"); tire.setAttribute("stroke", "#1a202c"); tire.setAttribute("stroke-width", 10);
+  svg.appendChild(tire);
+  for (let i = 0; i < 8; i++) {
+    const a = i * Math.PI / 4;
+    const sp = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    sp.setAttribute("x1", cx); sp.setAttribute("y1", cy);
+    sp.setAttribute("x2", cx + R * Math.cos(a)); sp.setAttribute("y2", cy + R * Math.sin(a));
+    sp.setAttribute("stroke", "#94a3b8"); sp.setAttribute("stroke-width", 2);
+    svg.appendChild(sp);
+  }
+  const hub = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  hub.setAttribute("cx", cx); hub.setAttribute("cy", cy); hub.setAttribute("r", 8); hub.setAttribute("fill","#15803d");
+  svg.appendChild(hub);
+  const dl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  dl.setAttribute("x1", cx - R); dl.setAttribute("y1", cy); dl.setAttribute("x2", cx + R); dl.setAttribute("y2", cy);
+  dl.setAttribute("stroke", "#dc2626"); dl.setAttribute("stroke-width", 2); dl.setAttribute("stroke-dasharray","4 3");
+  svg.appendChild(dl);
+  const dt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  dt.setAttribute("x", cx); dt.setAttribute("y", cy - 14); dt.setAttribute("text-anchor","middle");
+  dt.setAttribute("font-weight","700"); dt.setAttribute("fill","#dc2626"); dt.textContent = "d = " + dia + " cm";
+  svg.appendChild(dt);
+
+  document.getElementById("rl03Result").innerHTML = `
+    <div class="row">
+      <span class="stat">Chu vi = π·d = π·${dia_m.toFixed(2)} m: <strong>${circ.toFixed(3)} m/vòng</strong></span>
+      <span class="stat">Quãng đường: <strong>${dist} m</strong></span>
+      <span class="stat">Số vòng quay = ${dist}/${circ.toFixed(3)}: <strong>${turns.toFixed(1)} vòng</strong></span>
+    </div>
+    <div style="margin-top:8px">Bánh xe đường kính ${dia} cm có chu vi π·${dia_m.toFixed(2)} ≈ ${circ.toFixed(3)} m. Mỗi vòng lăn được đúng 1 chu vi, nên đi ${dist} m cần quay ${turns.toFixed(1)} vòng. (Đây cũng là cách công-tơ-mét xe đạp đếm quãng đường.)</div>
+  `;
+}
+document.addEventListener("DOMContentLoaded", rl03Update);
 </script>
+
+<h2>🌍 Đời sống thực tế — Bánh xe đạp lăn được bao xa?</h2>
+<div class="card">
+  <p>Mỗi vòng bánh xe quay, xe tiến đúng một chu vi <code>π·d</code>. Đây là nguyên lý công-tơ-mét đếm quãng đường. Đổi đường kính và quãng đường để xem số vòng quay.</p>
+  <div class="row">
+    <label>Đường kính bánh (cm):</label>
+    <input type="range" id="rl03Dia" min="40" max="80" step="1" value="68" oninput="rl03Update()">
+    <span class="stat">d = <strong id="rl03DiaVal">68</strong> cm</span>
+  </div>
+  <div class="row">
+    <label>Quãng đường (m):</label>
+    <input type="range" id="rl03Dist" min="100" max="5000" step="100" value="1000" oninput="rl03Update()">
+    <span class="stat">s = <strong id="rl03DistVal">1000</strong> m</span>
+  </div>
+  <svg class="scene" id="rl03Svg" viewBox="0 0 600 460"></svg>
+  <div class="result" id="rl03Result"></div>
+</div>
 
 </main>
 

@@ -177,7 +177,91 @@ function draw() {
 }
 
 draw();
+
+// ===== Module Đời sống thực tế: Chảo antenna parabol — tiêu điểm hội tụ sóng =====
+function rl06Update() {
+  const f = parseFloat(document.getElementById("rl06F").value); // tiêu cự (cm)
+  const width = parseFloat(document.getElementById("rl06W").value); // khẩu độ chảo (cm)
+  document.getElementById("rl06FVal").textContent = f;
+  document.getElementById("rl06WVal").textContent = width;
+  // Parabol chuẩn mở lên: y = x² / (4f). Tiêu điểm tại (0, f).
+  // Tia tới song song trục → phản xạ qua tiêu điểm (nguyên lý chảo thu sóng).
+  // Độ sâu chảo tại mép x = width/2: depth = (width/2)² / (4f).
+  const halfW = width / 2;
+  const depth = (halfW * halfW) / (4 * f);
+
+  const svg = document.getElementById("rl06Svg");
+  svg.innerHTML = "";
+  const ox = 300, oy = 420, sc = 1.4; // gốc đáy chảo, scale px/cm
+  // Trục
+  const axis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  axis.setAttribute("x1", ox); axis.setAttribute("y1", 40); axis.setAttribute("x2", ox); axis.setAttribute("y2", oy + 10);
+  axis.setAttribute("stroke", "#cbd5e0"); axis.setAttribute("stroke-width", 1); axis.setAttribute("stroke-dasharray","4 3");
+  svg.appendChild(axis);
+  // Parabol: lấy nhiều điểm từ -halfW..halfW
+  let d = "";
+  for (let xc = -halfW; xc <= halfW + 0.01; xc += halfW / 30) {
+    const yc = (xc * xc) / (4 * f); // chiều cao so với đáy
+    const px = ox + xc * sc;
+    const py = oy - yc * sc;
+    d += (d === "" ? "M" : "L") + px.toFixed(1) + "," + py.toFixed(1) + " ";
+  }
+  const dish = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  dish.setAttribute("d", d); dish.setAttribute("fill","none"); dish.setAttribute("stroke","#15803d"); dish.setAttribute("stroke-width",4);
+  svg.appendChild(dish);
+  // Tiêu điểm tại (0, f)
+  const fx = ox, fy = oy - f * sc;
+  const foc = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  foc.setAttribute("cx", fx); foc.setAttribute("cy", fy); foc.setAttribute("r", 7); foc.setAttribute("fill","#dc2626");
+  svg.appendChild(foc);
+  const ft = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  ft.setAttribute("x", fx + 12); ft.setAttribute("y", fy + 4); ft.setAttribute("font-weight","700"); ft.setAttribute("fill","#dc2626");
+  ft.textContent = "Tiêu điểm (đầu thu) f=" + f + "cm";
+  svg.appendChild(ft);
+  // Tia tới song song + phản xạ về tiêu điểm
+  [-halfW*0.7, -halfW*0.35, 0, halfW*0.35, halfW*0.7].forEach(xc => {
+    const yc = (xc * xc) / (4 * f);
+    const hitx = ox + xc * sc, hity = oy - yc * sc;
+    // Tia tới (từ trên xuống, song song trục)
+    const incoming = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    incoming.setAttribute("x1", hitx); incoming.setAttribute("y1", 45); incoming.setAttribute("x2", hitx); incoming.setAttribute("y2", hity);
+    incoming.setAttribute("stroke", "#3b82f6"); incoming.setAttribute("stroke-width", 1.5); incoming.setAttribute("opacity", 0.7);
+    svg.appendChild(incoming);
+    // Tia phản xạ về tiêu điểm
+    const refl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    refl.setAttribute("x1", hitx); refl.setAttribute("y1", hity); refl.setAttribute("x2", fx); refl.setAttribute("y2", fy);
+    refl.setAttribute("stroke", "#f59e0b"); refl.setAttribute("stroke-width", 1.5); refl.setAttribute("opacity", 0.8);
+    svg.appendChild(refl);
+  });
+
+  document.getElementById("rl06Result").innerHTML = `
+    <div class="row">
+      <span class="stat">Phương trình: <strong>y = x² / (4·${f}) = x² / ${4*f}</strong></span>
+      <span class="stat">Tiêu điểm: <strong>(0, ${f})</strong></span>
+      <span class="stat">Độ sâu chảo tại mép = (${halfW})²/(4·${f}): <strong>${depth.toFixed(1)} cm</strong></span>
+    </div>
+    <div style="margin-top:8px">Mọi tia sóng (xanh) tới song song trục chảo đều phản xạ (cam) hội tụ về <em>đúng một điểm</em> — tiêu điểm (0, ${f}). Vì thế đặt đầu thu LNB tại đó để gom tín hiệu vệ tinh mạnh nhất. Tiêu cự càng lớn, chảo càng nông (độ sâu mép chỉ ${depth.toFixed(1)} cm).</div>
+  `;
+}
+document.addEventListener("DOMContentLoaded", rl06Update);
 </script>
+
+<h2>🌍 Đời sống thực tế — Chảo antenna parabol gom sóng về tiêu điểm</h2>
+<div class="card">
+  <p>Chảo thu vệ tinh, đèn pin, gương kính thiên văn... đều dùng mặt parabol vì tính chất quý: mọi tia tới song song trục đều phản xạ về <strong>cùng một tiêu điểm</strong>. Với parabol <code>y = x²/(4f)</code>, tiêu điểm ở <code>(0, f)</code>. Kéo thanh trượt để xem tia hội tụ.</p>
+  <div class="row">
+    <label>Tiêu cự f (cm):</label>
+    <input type="range" id="rl06F" min="20" max="120" step="5" value="60" oninput="rl06Update()">
+    <span class="stat">f = <strong id="rl06FVal">60</strong> cm</span>
+  </div>
+  <div class="row">
+    <label>Khẩu độ chảo (cm):</label>
+    <input type="range" id="rl06W" min="60" max="300" step="10" value="200" oninput="rl06Update()">
+    <span class="stat">w = <strong id="rl06WVal">200</strong> cm</span>
+  </div>
+  <svg class="scene" id="rl06Svg" viewBox="0 0 600 500"></svg>
+  <div class="result" id="rl06Result"></div>
+</div>
 
 </main>
 

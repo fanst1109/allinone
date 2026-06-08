@@ -148,7 +148,73 @@ function pythag() {
 
 analyze();
 pythag();
+
+// ===== Module Đời sống thực tế: Thang dựa tường — góc an toàn =====
+function rl02Update() {
+  const ang = parseFloat(document.getElementById("rl02Ang").value); // góc thang với mặt đất
+  const len = 6; // chiều dài thang cố định 6 m
+  document.getElementById("rl02AngVal").textContent = ang;
+  const rad = ang * Math.PI / 180;
+  // Tam giác vuông: cạnh huyền = thang (len), góc với đất = ang.
+  // Chiều cao chạm tường = len·sin(ang); khoảng cách chân thang tới tường = len·cos(ang).
+  const height = len * Math.sin(rad);
+  const base = len * Math.cos(rad);
+  // Quy tắc 4:1 (an toàn OSHA): chân thang cách tường = 1/4 chiều cao chạm → góc ~75.5°.
+  let verdict, color;
+  if (ang < 70) { verdict = "Quá thoải → dễ trượt chân thang"; color = "#dc2626"; }
+  else if (ang <= 80) { verdict = "An toàn (gần quy tắc 4:1, ~75°)"; color = "#15803d"; }
+  else { verdict = "Quá dựng đứng → dễ ngã ngửa ra sau"; color = "#dc2626"; }
+
+  const svg = document.getElementById("rl02Svg");
+  svg.innerHTML = "";
+  const ox = 130, oy = 350, scale = 38; // gốc chân thang, scale px/m
+  // Mặt đất
+  const ground = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  ground.setAttribute("x1", 40); ground.setAttribute("y1", oy); ground.setAttribute("x2", 560); ground.setAttribute("y2", oy);
+  ground.setAttribute("stroke", "#92400e"); ground.setAttribute("stroke-width", 4);
+  svg.appendChild(ground);
+  // Tường (đứng tại x = ox + base*scale)
+  const wallX = ox + base * scale;
+  const wall = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  wall.setAttribute("x1", wallX); wall.setAttribute("y1", oy); wall.setAttribute("x2", wallX); wall.setAttribute("y2", oy - 280);
+  wall.setAttribute("stroke", "#64748b"); wall.setAttribute("stroke-width", 6);
+  svg.appendChild(wall);
+  // Thang: từ chân (ox, oy) tới đỉnh chạm tường (wallX, oy - height*scale)
+  const topY = oy - height * scale;
+  const ladder = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  ladder.setAttribute("x1", ox); ladder.setAttribute("y1", oy); ladder.setAttribute("x2", wallX); ladder.setAttribute("y2", topY);
+  ladder.setAttribute("stroke", color); ladder.setAttribute("stroke-width", 5);
+  svg.appendChild(ladder);
+  // Nhãn góc
+  const at = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  at.setAttribute("x", ox + 28); at.setAttribute("y", oy - 10);
+  at.setAttribute("font-weight","700"); at.setAttribute("fill", color); at.textContent = ang + "°";
+  svg.appendChild(at);
+
+  document.getElementById("rl02Result").innerHTML = `
+    <div class="row">
+      <span class="stat">Thang dài: <strong>6 m</strong></span>
+      <span class="stat">Cao chạm tường = 6·sin(${ang}°): <strong>${height.toFixed(2)} m</strong></span>
+      <span class="stat">Chân cách tường = 6·cos(${ang}°): <strong>${base.toFixed(2)} m</strong></span>
+    </div>
+    <div style="margin-top:8px;color:${color};font-weight:600">${verdict}</div>
+    <div style="margin-top:6px">Quy tắc 4:1 an toàn: cứ 4 đơn vị chiều cao thì chân thang ra 1 đơn vị → tỉ lệ base/height = ${(base/height).toFixed(2)} (lý tưởng ≈ 0.25, tức góc ≈ 75.5°).</div>
+  `;
+}
+document.addEventListener("DOMContentLoaded", rl02Update);
 </script>
+
+<h2>🌍 Đời sống thực tế — Thang dựa tường, góc an toàn</h2>
+<div class="card">
+  <p>Dựng thang lau cửa sổ: thang quá thoải dễ trượt chân, quá dựng dễ ngã ngửa. Tam giác vuông cho ta chính xác chiều cao chạm tường và khoảng cách chân thang. Kéo thanh trượt đổi góc dựng (thang dài cố định 6 m).</p>
+  <div class="row">
+    <label>Góc thang với mặt đất (°):</label>
+    <input type="range" id="rl02Ang" min="50" max="88" step="1" value="75" oninput="rl02Update()">
+    <span class="stat">α = <strong id="rl02AngVal">75</strong>°</span>
+  </div>
+  <svg class="scene" id="rl02Svg" viewBox="0 0 600 400"></svg>
+  <div class="result" id="rl02Result"></div>
+</div>
 
 </main>
 

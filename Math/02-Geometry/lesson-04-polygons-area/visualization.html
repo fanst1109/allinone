@@ -117,7 +117,101 @@ function drawPoly() {
 }
 
 drawPoly();
+
+// ===== Module Đời sống thực tế: Lát gạch nền nhà — diện tích & chi phí =====
+function rl04Update() {
+  const w = parseFloat(document.getElementById("rl04W").value) || 0; // chiều rộng phòng (m)
+  const h = parseFloat(document.getElementById("rl04H").value) || 0; // chiều dài phòng (m)
+  const tile = parseFloat(document.getElementById("rl04Tile").value) || 0; // cạnh viên gạch (cm)
+  const price = parseFloat(document.getElementById("rl04Price").value) || 0; // giá 1 viên (VND)
+  document.getElementById("rl04WVal").textContent = w;
+  document.getElementById("rl04HVal").textContent = h;
+  document.getElementById("rl04TileVal").textContent = tile;
+  document.getElementById("rl04PriceVal").textContent = price.toLocaleString("vi-VN");
+  // Diện tích phòng = w·h (hình chữ nhật).
+  const area = w * h;
+  // Diện tích 1 viên gạch (vuông, cạnh tile cm → m): (tile/100)².
+  const tile_m = tile / 100;
+  const tileArea = tile_m * tile_m;
+  // Số viên (chưa hao hụt) = diện tích phòng / diện tích viên, làm tròn lên.
+  const nTilesRaw = tileArea > 0 ? area / tileArea : 0;
+  // Cộng 10% hao hụt (cắt, vỡ) — thực tế thợ luôn dự trù.
+  const nTiles = Math.ceil(nTilesRaw * 1.1);
+  const cost = nTiles * price;
+
+  const svg = document.getElementById("rl04Svg");
+  svg.innerHTML = "";
+  // Vẽ phòng theo tỉ lệ, lưới gạch
+  const pad = 40, maxW = 520, maxH = 320;
+  const sc = Math.min(maxW / (w || 1), maxH / (h || 1));
+  const rw = w * sc, rh = h * sc;
+  const ox = (600 - rw) / 2, oy = (400 - rh) / 2;
+  const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  rect.setAttribute("x", ox); rect.setAttribute("y", oy); rect.setAttribute("width", rw); rect.setAttribute("height", rh);
+  rect.setAttribute("fill", "#dcfce7"); rect.setAttribute("stroke", "#15803d"); rect.setAttribute("stroke-width", 2);
+  svg.appendChild(rect);
+  // Lưới gạch
+  const tsc = tile_m * sc;
+  if (tsc > 4) {
+    for (let x = ox; x < ox + rw - 0.5; x += tsc) {
+      const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      l.setAttribute("x1", x); l.setAttribute("y1", oy); l.setAttribute("x2", x); l.setAttribute("y2", oy + rh);
+      l.setAttribute("stroke", "#86efac"); l.setAttribute("stroke-width", 1);
+      svg.appendChild(l);
+    }
+    for (let y = oy; y < oy + rh - 0.5; y += tsc) {
+      const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      l.setAttribute("x1", ox); l.setAttribute("y1", y); l.setAttribute("x2", ox + rw); l.setAttribute("y2", y);
+      l.setAttribute("stroke", "#86efac"); l.setAttribute("stroke-width", 1);
+      svg.appendChild(l);
+    }
+  }
+  const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lbl.setAttribute("x", ox + rw / 2); lbl.setAttribute("y", oy - 12); lbl.setAttribute("text-anchor","middle");
+  lbl.setAttribute("font-weight","700"); lbl.setAttribute("fill","#15803d");
+  lbl.textContent = w + " m × " + h + " m";
+  svg.appendChild(lbl);
+
+  const fmt = (x) => x.toLocaleString("vi-VN");
+  document.getElementById("rl04Result").innerHTML = `
+    <div class="row">
+      <span class="stat">Diện tích phòng = ${w}×${h}: <strong>${area.toFixed(2)} m²</strong></span>
+      <span class="stat">Diện tích 1 viên = (${tile}/100)²: <strong>${tileArea.toFixed(4)} m²</strong></span>
+      <span class="stat">Cần (×1.1 hao hụt): <strong>${nTiles} viên</strong></span>
+    </div>
+    <div style="margin-top:8px">Số viên lý thuyết = ${area.toFixed(2)} / ${tileArea.toFixed(4)} = ${nTilesRaw.toFixed(1)} viên. Cộng 10% hao hụt rồi làm tròn lên = <strong>${nTiles} viên</strong>.</div>
+    <div style="margin-top:6px;font-weight:600">Chi phí gạch ≈ ${nTiles} × ${fmt(price)}đ = <span style="color:#15803d">${fmt(cost)}đ</span></div>
+  `;
+}
+document.addEventListener("DOMContentLoaded", rl04Update);
 </script>
+
+<h2>🌍 Đời sống thực tế — Lát gạch nền nhà tốn bao nhiêu?</h2>
+<div class="card">
+  <p>Trước khi đi mua gạch, ta tính diện tích phòng (hình chữ nhật) rồi chia cho diện tích một viên gạch, cộng thêm 10% hao hụt do cắt/vỡ. Kéo các thanh trượt để ước tính số viên và chi phí.</p>
+  <div class="row">
+    <label>Chiều rộng phòng (m):</label>
+    <input type="range" id="rl04W" min="2" max="10" step="0.5" value="4" oninput="rl04Update()">
+    <span class="stat">w = <strong id="rl04WVal">4</strong> m</span>
+  </div>
+  <div class="row">
+    <label>Chiều dài phòng (m):</label>
+    <input type="range" id="rl04H" min="2" max="12" step="0.5" value="5" oninput="rl04Update()">
+    <span class="stat">h = <strong id="rl04HVal">5</strong> m</span>
+  </div>
+  <div class="row">
+    <label>Cạnh viên gạch (cm):</label>
+    <input type="range" id="rl04Tile" min="20" max="80" step="10" value="60" oninput="rl04Update()">
+    <span class="stat">a = <strong id="rl04TileVal">60</strong> cm</span>
+  </div>
+  <div class="row">
+    <label>Giá 1 viên (VND):</label>
+    <input type="range" id="rl04Price" min="20000" max="200000" step="5000" value="80000" oninput="rl04Update()">
+    <span class="stat">p = <strong id="rl04PriceVal">80000</strong> đ</span>
+  </div>
+  <svg class="scene" id="rl04Svg" viewBox="0 0 600 400"></svg>
+  <div class="result" id="rl04Result"></div>
+</div>
 
 </main>
 

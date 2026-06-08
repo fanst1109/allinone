@@ -272,7 +272,86 @@ function drawVec() {
 buildControls();
 drawT();
 drawVec();
+
+// ===== Module Đời sống thực tế: Xoay sprite trong game / app ảnh =====
+function rl08Update() {
+  const ang = parseFloat(document.getElementById("rl08Ang").value); // góc xoay (°)
+  const px = parseFloat(document.getElementById("rl08X").value); // toạ độ sprite x
+  const py = parseFloat(document.getElementById("rl08Y").value); // toạ độ sprite y
+  document.getElementById("rl08AngVal").textContent = ang;
+  document.getElementById("rl08XVal").textContent = px;
+  document.getElementById("rl08YVal").textContent = py;
+  const rad = ang * Math.PI / 180;
+  const cos = Math.cos(rad), sin = Math.sin(rad);
+  // Ma trận quay quanh gốc: x' = x·cosθ - y·sinθ ; y' = x·sinθ + y·cosθ.
+  const nx = px * cos - py * sin;
+  const ny = px * sin + py * cos;
+
+  const svg = document.getElementById("rl08Svg");
+  svg.innerHTML = "";
+  const scale = 18;
+  // Trục
+  ["x","y"].forEach(axis => {
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    if (axis === "x") { l.setAttribute("x1", -260); l.setAttribute("y1", 0); l.setAttribute("x2", 260); l.setAttribute("y2", 0); }
+    else { l.setAttribute("x1", 0); l.setAttribute("y1", -200); l.setAttribute("x2", 0); l.setAttribute("y2", 200); }
+    l.setAttribute("stroke", "#cbd5e0"); l.setAttribute("stroke-width", 1);
+    svg.appendChild(l);
+  });
+  // Sprite gốc (xanh) — trục SVG y hướng xuống nên đảo dấu y khi vẽ
+  const mkPt = (x, y, color, label) => {
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("cx", x * scale); c.setAttribute("cy", -y * scale); c.setAttribute("r", 7); c.setAttribute("fill", color);
+    svg.appendChild(c);
+    const ln = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    ln.setAttribute("x1", 0); ln.setAttribute("y1", 0); ln.setAttribute("x2", x * scale); ln.setAttribute("y2", -y * scale);
+    ln.setAttribute("stroke", color); ln.setAttribute("stroke-width", 2); ln.setAttribute("opacity", 0.7);
+    svg.appendChild(ln);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x * scale + 8); t.setAttribute("y", -y * scale - 8); t.setAttribute("font-weight","700"); t.setAttribute("fill", color);
+    t.textContent = label;
+    svg.appendChild(t);
+  };
+  mkPt(px, py, "#15803d", `gốc (${px}, ${py})`);
+  mkPt(nx, ny, "#dc2626", `xoay (${nx.toFixed(1)}, ${ny.toFixed(1)})`);
+
+  document.getElementById("rl08Result").innerHTML = `
+    <div class="row">
+      <span class="stat">cos ${ang}° = <strong>${cos.toFixed(3)}</strong></span>
+      <span class="stat">sin ${ang}° = <strong>${sin.toFixed(3)}</strong></span>
+    </div>
+    <div style="margin-top:8px">Ma trận quay quanh gốc cho điểm (${px}, ${py}):</div>
+    <div class="row" style="margin-top:4px">
+      <span class="stat">x' = x·cosθ − y·sinθ = ${px}·${cos.toFixed(3)} − ${py}·${sin.toFixed(3)} = <strong>${nx.toFixed(2)}</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat">y' = x·sinθ + y·cosθ = ${px}·${sin.toFixed(3)} + ${py}·${cos.toFixed(3)} = <strong>${ny.toFixed(2)}</strong></span>
+    </div>
+    <div style="margin-top:6px">Đây chính là phép xoay app ảnh / game dùng khi bạn xoay tấm hình hay quay nhân vật quanh tâm. Mỗi pixel/điểm áp cùng một ma trận.</div>
+  `;
+}
+document.addEventListener("DOMContentLoaded", rl08Update);
 </script>
+
+<h2>🌍 Đời sống thực tế — Xoay ảnh / quay nhân vật trong game</h2>
+<div class="card">
+  <p>Khi bạn xoay một tấm ảnh trong app chỉnh sửa, hay nhân vật game quay quanh tâm, máy áp <strong>ma trận quay</strong> lên mọi điểm: <code>x' = x·cosθ − y·sinθ</code>, <code>y' = x·sinθ + y·cosθ</code>. Kéo các thanh trượt để xem điểm gốc (xanh) biến thành điểm xoay (đỏ).</p>
+  <div class="row">
+    <label>Góc xoay θ (°):</label>
+    <input type="range" id="rl08Ang" min="0" max="360" step="5" value="90" oninput="rl08Update()">
+    <span class="stat">θ = <strong id="rl08AngVal">90</strong>°</span>
+  </div>
+  <div class="row">
+    <label>Sprite x:</label>
+    <input type="range" id="rl08X" min="-8" max="8" step="1" value="6" oninput="rl08Update()">
+    <span class="stat">x = <strong id="rl08XVal">6</strong></span>
+    <label>Sprite y:</label>
+    <input type="range" id="rl08Y" min="-8" max="8" step="1" value="2" oninput="rl08Update()">
+    <span class="stat">y = <strong id="rl08YVal">2</strong></span>
+  </div>
+  <svg class="scene" id="rl08Svg" viewBox="-300 -225 600 450"></svg>
+  <div class="result" id="rl08Result"></div>
+</div>
 
 </main>
 

@@ -141,7 +141,89 @@ function calcDot() {
 calc();
 calcDist();
 calcDot();
+
+// ===== Module Đời sống thực tế: Đường bay máy bay — khoảng cách 3D =====
+function rl07Update() {
+  const dx = parseFloat(document.getElementById("rl07Dx").value); // chênh lệch Đông-Tây (km)
+  const dy = parseFloat(document.getElementById("rl07Dy").value); // chênh lệch Bắc-Nam (km)
+  const alt = parseFloat(document.getElementById("rl07Alt").value); // độ cao bay (m)
+  document.getElementById("rl07DxVal").textContent = dx;
+  document.getElementById("rl07DyVal").textContent = dy;
+  document.getElementById("rl07AltVal").textContent = alt;
+  // Khoảng cách mặt đất (2D): √(dx² + dy²).
+  const ground = Math.sqrt(dx*dx + dy*dy);
+  // Độ cao đổi m → km.
+  const altKm = alt / 1000;
+  // Khoảng cách thẳng 3D: √(dx² + dy² + dz²) = √(ground² + altKm²).
+  const dist3d = Math.sqrt(ground*ground + altKm*altKm);
+
+  const svg = document.getElementById("rl07Svg");
+  svg.innerHTML = "";
+  // Trục giả 3D đơn giản: vẽ mặt đất (hình bình hành) + cột độ cao + đường bay
+  const ax = 120, ay = 320;
+  const sc = 0.18; // px/km cho mặt phẳng
+  const bx = ax + dx * sc + dy * sc * 0.5;
+  const by = ay - dy * sc * 0.5;
+  // Đường mặt đất
+  const gl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  gl.setAttribute("x1", ax); gl.setAttribute("y1", ay); gl.setAttribute("x2", bx); gl.setAttribute("y2", by);
+  gl.setAttribute("stroke", "#92400e"); gl.setAttribute("stroke-width", 2); gl.setAttribute("stroke-dasharray","5 4");
+  svg.appendChild(gl);
+  // Điểm đích trên không (nâng theo altKm)
+  const tx = bx, ty = by - altKm * 8;
+  const cl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  cl.setAttribute("x1", bx); cl.setAttribute("y1", by); cl.setAttribute("x2", tx); cl.setAttribute("y2", ty);
+  cl.setAttribute("stroke", "#94a3b8"); cl.setAttribute("stroke-width", 1.5); cl.setAttribute("stroke-dasharray","3 3");
+  svg.appendChild(cl);
+  // Đường bay 3D (A trên không thấp tới đích trên không) — vẽ từ A
+  const fly = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  fly.setAttribute("x1", ax); fly.setAttribute("y1", ay); fly.setAttribute("x2", tx); fly.setAttribute("y2", ty);
+  fly.setAttribute("stroke", "#dc2626"); fly.setAttribute("stroke-width", 3);
+  svg.appendChild(fly);
+  // Điểm A, B
+  [[ax,ay,"A (sân bay)"],[tx,ty,"B (máy bay)"]].forEach(([px,py,t]) => {
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("cx", px); c.setAttribute("cy", py); c.setAttribute("r", 6); c.setAttribute("fill","#15803d");
+    svg.appendChild(c);
+    const tx2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    tx2.setAttribute("x", px + 10); tx2.setAttribute("y", py - 8); tx2.setAttribute("font-weight","700"); tx2.setAttribute("fill","#15803d");
+    tx2.textContent = t;
+    svg.appendChild(tx2);
+  });
+
+  document.getElementById("rl07Result").innerHTML = `
+    <div class="row">
+      <span class="stat">Khoảng cách mặt đất = √(${dx}²+${dy}²): <strong>${ground.toFixed(2)} km</strong></span>
+      <span class="stat">Độ cao: <strong>${altKm.toFixed(1)} km</strong></span>
+      <span class="stat">Đường thẳng 3D: <strong>${dist3d.toFixed(2)} km</strong></span>
+    </div>
+    <div style="margin-top:8px">Công thức khoảng cách 3D: √(Δx² + Δy² + Δz²) = √(${dx}² + ${dy}² + ${altKm.toFixed(1)}²) = √(${(dx*dx).toFixed(0)} + ${(dy*dy).toFixed(0)} + ${(altKm*altKm).toFixed(2)}) = <strong>${dist3d.toFixed(2)} km</strong>. Ở độ cao bay thấp, phần Δz nhỏ nên đường thẳng ≈ khoảng cách mặt đất; càng lên cao chênh lệch càng rõ.</div>
+  `;
+}
+document.addEventListener("DOMContentLoaded", rl07Update);
 </script>
+
+<h2>🌍 Đời sống thực tế — Đường bay máy bay là khoảng cách 3D</h2>
+<div class="card">
+  <p>Hệ thống điều hành bay tính khoảng cách thẳng giữa máy bay và sân bay bằng công thức 3D <code>√(Δx² + Δy² + Δz²)</code>, trong đó Δz là độ cao. Kéo các thanh trượt để xem chênh lệch giữa khoảng cách mặt đất và đường thẳng thực sự.</p>
+  <div class="row">
+    <label>Chênh Đông-Tây Δx (km):</label>
+    <input type="range" id="rl07Dx" min="0" max="500" step="10" value="200" oninput="rl07Update()">
+    <span class="stat">Δx = <strong id="rl07DxVal">200</strong> km</span>
+  </div>
+  <div class="row">
+    <label>Chênh Bắc-Nam Δy (km):</label>
+    <input type="range" id="rl07Dy" min="0" max="500" step="10" value="150" oninput="rl07Update()">
+    <span class="stat">Δy = <strong id="rl07DyVal">150</strong> km</span>
+  </div>
+  <div class="row">
+    <label>Độ cao bay (m):</label>
+    <input type="range" id="rl07Alt" min="0" max="12000" step="500" value="10000" oninput="rl07Update()">
+    <span class="stat">alt = <strong id="rl07AltVal">10000</strong> m</span>
+  </div>
+  <svg id="rl07Svg" viewBox="0 0 600 380" style="display:block;margin:12px auto;width:100%;max-width:560px;height:auto;background:#f8fafc;border-radius:8px"></svg>
+  <div class="result" id="rl07Result"></div>
+</div>
 
 </main>
 

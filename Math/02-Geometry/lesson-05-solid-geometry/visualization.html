@@ -132,7 +132,93 @@ function calc() {
 }
 
 calc();
+
+// ===== Module Đời sống thực tế: Bồn nước hình trụ — dung tích & mức nước =====
+function rl05Update() {
+  const dia = parseFloat(document.getElementById("rl05Dia").value); // đường kính bồn (cm)
+  const hgt = parseFloat(document.getElementById("rl05Hgt").value); // chiều cao bồn (cm)
+  const fill = parseFloat(document.getElementById("rl05Fill").value); // mức nước (%)
+  document.getElementById("rl05DiaVal").textContent = dia;
+  document.getElementById("rl05HgtVal").textContent = hgt;
+  document.getElementById("rl05FillVal").textContent = fill;
+  // Thể tích hình trụ V = π·R²·h. Bán kính R = dia/2.
+  const R = dia / 2;
+  // V tính bằng cm³; 1 lít = 1000 cm³.
+  const Vcm3 = Math.PI * R * R * hgt;
+  const liters = Vcm3 / 1000;
+  // Nước hiện có = dung tích × phần trăm.
+  const curLiters = liters * fill / 100;
+
+  const svg = document.getElementById("rl05Svg");
+  svg.innerHTML = "";
+  // Vẽ bồn (hình chữ nhật + nắp ellipse), nước theo mức fill
+  const bx = 230, bw = 140, top = 50, bh = 300;
+  const ry = 18;
+  // Phần nước
+  const waterTop = top + bh * (1 - fill / 100);
+  const waterH = bh * fill / 100;
+  if (waterH > 0) {
+    const wrect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    wrect.setAttribute("x", bx); wrect.setAttribute("y", waterTop); wrect.setAttribute("width", bw); wrect.setAttribute("height", waterH);
+    wrect.setAttribute("fill", "#7dd3fc");
+    svg.appendChild(wrect);
+    const well = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+    well.setAttribute("cx", bx + bw/2); well.setAttribute("cy", waterTop); well.setAttribute("rx", bw/2); well.setAttribute("ry", ry);
+    well.setAttribute("fill", "#38bdf8");
+    svg.appendChild(well);
+  }
+  // Thành bồn
+  const body = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  body.setAttribute("x", bx); body.setAttribute("y", top); body.setAttribute("width", bw); body.setAttribute("height", bh);
+  body.setAttribute("fill", "none"); body.setAttribute("stroke", "#15803d"); body.setAttribute("stroke-width", 3);
+  svg.appendChild(body);
+  const topE = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+  topE.setAttribute("cx", bx + bw/2); topE.setAttribute("cy", top); topE.setAttribute("rx", bw/2); topE.setAttribute("ry", ry);
+  topE.setAttribute("fill", "#f8fafc"); topE.setAttribute("stroke", "#15803d"); topE.setAttribute("stroke-width", 3);
+  svg.appendChild(topE);
+  // Nhãn kích thước
+  const dt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  dt.setAttribute("x", bx + bw/2); dt.setAttribute("y", top - 26); dt.setAttribute("text-anchor","middle");
+  dt.setAttribute("font-weight","700"); dt.setAttribute("fill","#15803d"); dt.textContent = "d = " + dia + " cm";
+  svg.appendChild(dt);
+  const ht = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  ht.setAttribute("x", bx + bw + 14); ht.setAttribute("y", top + bh/2); ht.setAttribute("fill","#1a202c"); ht.setAttribute("font-weight","700");
+  ht.textContent = "h = " + hgt + " cm";
+  svg.appendChild(ht);
+
+  document.getElementById("rl05Result").innerHTML = `
+    <div class="row">
+      <span class="stat">R = d/2: <strong>${R} cm</strong></span>
+      <span class="stat">V = π·R²·h = π·${R}²·${hgt}: <strong>${Vcm3.toFixed(0)} cm³</strong></span>
+      <span class="stat">Dung tích: <strong>${liters.toFixed(1)} lít</strong></span>
+    </div>
+    <div style="margin-top:8px">Đổi cm³ → lít chia 1000: ${Vcm3.toFixed(0)} cm³ = <strong>${liters.toFixed(1)} lít</strong>. Ở mức ${fill}% bồn đang chứa ${liters.toFixed(1)} × ${fill}% = <strong>${curLiters.toFixed(1)} lít</strong>.</div>
+  `;
+}
+document.addEventListener("DOMContentLoaded", rl05Update);
 </script>
+
+<h2>🌍 Đời sống thực tế — Bồn nước hình trụ chứa bao nhiêu lít?</h2>
+<div class="card">
+  <p>Bồn nước, thùng phuy, bình gas mini... đều là hình trụ. Dung tích tính bằng <code>V = π·R²·h</code>, rồi đổi cm³ sang lít (chia 1000). Kéo các thanh trượt để xem dung tích và mức nước hiện tại.</p>
+  <div class="row">
+    <label>Đường kính bồn (cm):</label>
+    <input type="range" id="rl05Dia" min="40" max="160" step="5" value="80" oninput="rl05Update()">
+    <span class="stat">d = <strong id="rl05DiaVal">80</strong> cm</span>
+  </div>
+  <div class="row">
+    <label>Chiều cao bồn (cm):</label>
+    <input type="range" id="rl05Hgt" min="50" max="250" step="5" value="120" oninput="rl05Update()">
+    <span class="stat">h = <strong id="rl05HgtVal">120</strong> cm</span>
+  </div>
+  <div class="row">
+    <label>Mức nước (%):</label>
+    <input type="range" id="rl05Fill" min="0" max="100" step="5" value="60" oninput="rl05Update()">
+    <span class="stat">fill = <strong id="rl05FillVal">60</strong>%</span>
+  </div>
+  <svg id="rl05Svg" viewBox="0 0 600 400" style="display:block;margin:12px auto;width:100%;max-width:500px;height:auto;background:#f8fafc;border-radius:8px"></svg>
+  <div class="result" id="rl05Result"></div>
+</div>
 
 </main>
 

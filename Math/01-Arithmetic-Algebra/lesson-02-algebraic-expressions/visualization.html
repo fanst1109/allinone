@@ -74,6 +74,21 @@
   </ul>
 </div>
 
+<h2>🌍 Đời sống thực tế — Công thức tính tiền đơn hàng</h2>
+<div class="card">
+  <p>Hoá đơn của một shop online là một <strong>biểu thức đại số</strong> theo các biến: đơn giá <code>p</code>, số lượng <code>q</code>, thuế VAT <code>v%</code>, phí ship <code>s</code>. Công thức: <code>T = p·q·(1 + v/100) + s</code>. Đổi biến = đổi đơn hàng.</p>
+  <div class="row">
+    <span>Đơn giá (đ):</span><input type="number" id="invPrice" step="1000" value="120000">
+    <span>Số lượng:</span><input type="number" id="invQty" step="1" value="3">
+  </div>
+  <div class="row">
+    <span>VAT (%):</span><input type="number" id="invVat" step="1" value="8">
+    <span>Phí ship (đ):</span><input type="number" id="invShip" step="1000" value="25000">
+    <button onclick="lifeInvoice()">Tính tiền</button>
+  </div>
+  <div class="result" id="invResult"></div>
+</div>
+
 <h2>4. Phân tích tam thức x² + bx + c</h2>
 <div class="card">
   <p>Tìm p, q sao cho p + q = b và p·q = c. Khi đó x² + bx + c = (x + p)(x + q).</p>
@@ -153,6 +168,29 @@ function factorTrinomial() {
     </div>
   `;
 }
+
+// ===== Module Đời sống thực tế: công thức tính tiền (đơn giá × SL + VAT) =====
+function lifeInvoice() {
+  const price = parseFloat(document.getElementById("invPrice").value);
+  const qty = parseFloat(document.getElementById("invQty").value);
+  const vat = parseFloat(document.getElementById("invVat").value);
+  const ship = parseFloat(document.getElementById("invShip").value);
+  if ([price, qty, vat, ship].some(v => !isFinite(v))) return;
+  // Biểu thức đại số: T(p,q,v,s) = p*q*(1 + v/100) + s
+  const subtotal = price * qty;
+  const withVat = subtotal * (1 + vat / 100);
+  const total = withVat + ship;
+  const fmt = (n) => Math.round(n).toLocaleString("vi-VN");
+  document.getElementById("invResult").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Biểu thức: T = p·q·(1 + v/100) + s</div>
+    <div style="font-family:monospace; font-size:13px; margin-top:6px">Thành tiền = p·q = ${fmt(price)} × ${qty} = <strong>${fmt(subtotal)}</strong> đ</div>
+    <div style="font-family:monospace; font-size:13px">Sau VAT ${vat}% = ${fmt(subtotal)} × (1 + ${vat}/100) = ${fmt(subtotal)} × ${(1+vat/100).toFixed(2)} = <strong>${fmt(withVat)}</strong> đ</div>
+    <div style="font-family:monospace; font-size:13px">Cộng ship = ${fmt(withVat)} + ${fmt(ship)} = <strong style="font-size:16px">${fmt(total)}</strong> đ</div>
+    <div style="margin-top:8px; font-size:13px; background:#fef3c7; padding:8px; border-radius:4px">Bài học: hoá đơn của một shop là một <strong>biểu thức đại số</strong> theo các biến p, q, v, s. Thay biến = nhập số → ra kết quả, đúng như mục "Đánh giá biểu thức" ở trên.</div>
+  `;
+}
+
+document.addEventListener("DOMContentLoaded", lifeInvoice);
 
 evalExpr();
 expandBin();

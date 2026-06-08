@@ -48,6 +48,28 @@
   <div class="result" id="qResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Ném bóng (quỹ đạo parabola)</h2>
+<div class="card">
+  <p>Khi bạn ném/đá một quả bóng, nó bay theo <strong>quỹ đạo parabola</strong> y = ax² + bx + c với a &lt; 0. Hai câu hỏi đời thường đều là bài toán bậc 2: <em>bóng bay cao nhất bao nhiêu?</em> (đỉnh parabola) và <em>rơi xa bao nhiêu?</em> (nghiệm của y = 0).</p>
+  <div class="row">
+    <label>Vận tốc v₀ (m/s):</label>
+    <input type="range" id="thV" min="5" max="40" step="1" value="20" oninput="lifeThrow()" style="flex:1; min-width:160px">
+    <span class="stat">v₀ = <strong id="thVval">20</strong></span>
+  </div>
+  <div class="row">
+    <label>Góc ném (°):</label>
+    <input type="range" id="thA" min="10" max="80" step="1" value="45" oninput="lifeThrow()" style="flex:1; min-width:160px">
+    <span class="stat">θ = <strong id="thAval">45</strong>°</span>
+  </div>
+  <div class="row">
+    <label>Cao ban đầu h₀ (m):</label>
+    <input type="range" id="thH" min="0" max="5" step="0.5" value="1.5" oninput="lifeThrow()" style="flex:1; min-width:160px">
+    <span class="stat">h₀ = <strong id="thHval">1.5</strong></span>
+  </div>
+  <svg class="scene" id="thSvg" viewBox="0 0 600 320" style="height:auto"></svg>
+  <div class="result" id="thResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -132,6 +154,107 @@ function drawParabola(a, b, c, roots) {
     }
   });
 }
+
+// ===== Module Đời sống thực tế: ném bóng (quỹ đạo parabola) =====
+function lifeThrow() {
+  const v0 = parseFloat(document.getElementById("thV").value);    // vận tốc ném (m/s)
+  const ang = parseFloat(document.getElementById("thA").value);   // góc ném (độ)
+  const h0 = parseFloat(document.getElementById("thH").value);    // độ cao ban đầu (m)
+  document.getElementById("thVval").textContent = v0;
+  document.getElementById("thAval").textContent = ang;
+  document.getElementById("thHval").textContent = h0;
+  const g = 9.8;
+  const rad = ang * Math.PI / 180;
+  const vx = v0 * Math.cos(rad);
+  const vy = v0 * Math.sin(rad);
+  // y(x) = h0 + tan(θ)·x − g/(2·vx²)·x²  (quỹ đạo là parabola theo x)
+  const A = -g / (2 * vx * vx);  // hệ số a < 0 → parabola mở xuống
+  const B = Math.tan(rad);
+  const C = h0;
+  // Tầm xa: giải y(x)=0  ->  A x² + B x + C = 0, lấy nghiệm dương
+  const delta = B * B - 4 * A * C;
+  let range = 0;
+  if (delta >= 0) {
+    const xr1 = (-B + Math.sqrt(delta)) / (2 * A);
+    const xr2 = (-B - Math.sqrt(delta)) / (2 * A);
+    range = Math.max(xr1, xr2);
+  }
+  // Đỉnh: x = -B/(2A), y đỉnh = độ cao max
+  const xVertex = -B / (2 * A);
+  const yMaxHeight = C - B * B / (4 * A);
+  drawThrow(A, B, C, range, xVertex, yMaxHeight);
+  document.getElementById("thResult").innerHTML = `
+    <div style="font-family:monospace; font-size:13px">vₓ = v₀·cos θ = ${v0}·cos${ang}° = ${vx.toFixed(2)} m/s ; v_y = ${vy.toFixed(2)} m/s</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:6px">Quỹ đạo: y(x) = ${C} + ${B.toFixed(3)}·x ${A.toFixed(4)}·x²</div>
+    <div style="font-size:13px; margin-top:4px">→ Đúng dạng <strong>y = ax² + bx + c</strong> với a = ${A.toFixed(4)} < 0 (parabola mở xuống = "mặt buồn").</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:6px">Độ cao cực đại = đỉnh parabola ≈ <strong>${yMaxHeight.toFixed(2)} m</strong> tại x ≈ ${xVertex.toFixed(2)} m</div>
+    <div style="font-family:monospace; font-size:14px">Tầm xa (nghiệm y=0) ≈ <strong>${range.toFixed(2)} m</strong></div>
+    <div style="margin-top:8px; font-size:13px; background:#fef3c7; padding:8px; border-radius:4px">Bài học: tầm xa = <strong>nghiệm của phương trình bậc 2</strong> y(x)=0; điểm cao nhất = <strong>đỉnh parabola</strong> x = −b/(2a). Cùng công thức Δ, đỉnh đã học ở trên.</div>
+  `;
+}
+
+function drawThrow(A, B, C, range, xVertex, yMax) {
+  const svg = document.getElementById("thSvg");
+  svg.innerHTML = "";
+  const W = 600, H = 320, padL = 40, padB = 40;
+  const maxX = Math.max(range * 1.1, 5);
+  const maxY = Math.max(yMax * 1.2, 3);
+  const sx = (W - padL - 10) / maxX;
+  const sy = (H - padB - 20) / maxY;
+  const PX = (x) => padL + x * sx;
+  const PY = (y) => (H - padB) - y * sy;
+  // Mặt đất
+  const ground = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  ground.setAttribute("x1", padL); ground.setAttribute("y1", H - padB);
+  ground.setAttribute("x2", W - 10); ground.setAttribute("y2", H - padB);
+  ground.setAttribute("stroke", "#1a202c"); ground.setAttribute("stroke-width", 2);
+  svg.appendChild(ground);
+  // Trục Oy
+  const yaxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  yaxis.setAttribute("x1", padL); yaxis.setAttribute("y1", 20);
+  yaxis.setAttribute("x2", padL); yaxis.setAttribute("y2", H - padB);
+  yaxis.setAttribute("stroke", "#1a202c"); yaxis.setAttribute("stroke-width", 1.5);
+  svg.appendChild(yaxis);
+  // Quỹ đạo
+  let path = "";
+  let started = false;
+  for (let x = 0; x <= range + 0.01; x += range / 200 || 0.05) {
+    const y = A * x * x + B * x + C;
+    if (y < 0) break;
+    path += (started ? " L " : "M ") + PX(x) + " " + PY(y);
+    started = true;
+  }
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("d", path); p.setAttribute("fill", "none");
+  p.setAttribute("stroke", "#15803d"); p.setAttribute("stroke-width", 2.5);
+  svg.appendChild(p);
+  // Điểm đỉnh
+  if (xVertex > 0 && xVertex < range) {
+    const cv = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    cv.setAttribute("cx", PX(xVertex)); cv.setAttribute("cy", PY(yMax)); cv.setAttribute("r", 5);
+    cv.setAttribute("fill", "#7c3aed");
+    svg.appendChild(cv);
+    const tv = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    tv.setAttribute("x", PX(xVertex)); tv.setAttribute("y", PY(yMax) - 8);
+    tv.setAttribute("text-anchor", "middle"); tv.setAttribute("fill", "#7c3aed");
+    tv.setAttribute("font-size", "11"); tv.setAttribute("font-weight", "700");
+    tv.textContent = "đỉnh " + yMax.toFixed(1) + "m";
+    svg.appendChild(tv);
+  }
+  // Điểm chạm đất
+  const cl = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  cl.setAttribute("cx", PX(range)); cl.setAttribute("cy", PY(0)); cl.setAttribute("r", 5);
+  cl.setAttribute("fill", "#dc2626");
+  svg.appendChild(cl);
+  const tl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  tl.setAttribute("x", PX(range)); tl.setAttribute("y", H - padB + 16);
+  tl.setAttribute("text-anchor", "middle"); tl.setAttribute("fill", "#dc2626");
+  tl.setAttribute("font-size", "11"); tl.setAttribute("font-weight", "700");
+  tl.textContent = range.toFixed(1) + "m";
+  svg.appendChild(tl);
+}
+
+document.addEventListener("DOMContentLoaded", lifeThrow);
 
 solveQ();
 </script>

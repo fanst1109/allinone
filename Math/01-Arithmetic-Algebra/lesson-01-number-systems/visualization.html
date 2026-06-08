@@ -94,6 +94,19 @@
   <p style="text-align:center"><strong>ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ</strong></p>
 </div>
 
+<h2>🌍 Đời sống thực tế — Chia hoá đơn & tiền lẻ</h2>
+<div class="card">
+  <p>Bốn người đi ăn hết <strong>237.000đ</strong>. Chia đều mỗi người bao nhiêu? Phép chia cho ra số <strong>hữu tỉ (ℚ)</strong> nhưng tiền mặt chỉ có mệnh giá rời rạc → phải làm tròn. Đây là lúc lý thuyết tập số gặp đời thực.</p>
+  <div class="row">
+    <span>Tổng hoá đơn (đ):</span>
+    <input type="number" id="billTotal" step="1000" value="237000" style="width:120px">
+    <span>Số người:</span>
+    <input type="number" id="billPeople" step="1" value="4" style="width:70px">
+    <button onclick="lifeSplitBill()">Tính</button>
+  </div>
+  <div class="result" id="billResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -174,6 +187,31 @@ function calcFloat() {
     </div>
   `;
 }
+
+// ===== Module Đời sống thực tế: chia hoá đơn & tiền lẻ =====
+function lifeSplitBill() {
+  const total = parseFloat(document.getElementById("billTotal").value);
+  const people = parseInt(document.getElementById("billPeople").value);
+  if (!isFinite(total) || !isFinite(people) || people <= 0) return;
+  // Số tiền lý tưởng mỗi người (số thực, thường KHÔNG chia hết)
+  const ideal = total / people;
+  // Thực tế: làm tròn lên bội số 1000đ (không có tiền lẻ < 1000)
+  const unit = 1000;
+  const each = Math.ceil(ideal / unit) * unit;
+  const collected = each * people;
+  const change = collected - total;
+  const fmt = (n) => n.toLocaleString("vi-VN");
+  document.getElementById("billResult").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Mỗi người lý tưởng = ${fmt(total)} ÷ ${people} = <strong>${ideal.toFixed(4)}</strong> đ</div>
+    <div style="font-size:13px; margin-top:4px">→ Đây là số <strong>hữu tỉ ℚ</strong>, thường thập phân vô hạn → KHÔNG trả được chính xác bằng tiền mặt (mệnh giá nhỏ nhất 1.000đ).</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:8px">Làm tròn LÊN bội 1.000đ: mỗi người trả = <strong>${fmt(each)}</strong> đ</div>
+    <div style="font-family:monospace; font-size:14px">Tổng thu = ${fmt(each)} × ${people} = <strong>${fmt(collected)}</strong> đ</div>
+    <div style="font-family:monospace; font-size:14px">Thừa (tiền boa/dằn): ${fmt(collected)} − ${fmt(total)} = <strong>${fmt(change)}</strong> đ</div>
+    <div style="margin-top:8px; font-size:13px; background:#fef3c7; padding:8px; border-radius:4px">Bài học: đời thực dùng tập số <strong>rời rạc</strong> (bội của mệnh giá tiền) chứ không phải ℝ liên tục — nên luôn có phần dư phải xử lý.</div>
+  `;
+}
+
+document.addEventListener("DOMContentLoaded", lifeSplitBill);
 
 classify();
 calcFloat();

@@ -65,6 +65,23 @@
   <div class="result" id="sysResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Điểm hoà vốn của một quán/shop</h2>
+<div class="card">
+  <p>Mở một quán cà phê có <strong>chi phí cố định</strong> (thuê mặt bằng, lương) mỗi tháng, mỗi ly có <strong>biến phí</strong> (nguyên liệu) và bán ra một <strong>giá</strong>. Bán bao nhiêu ly mới <em>hoà vốn</em>? Đó là khi <strong>doanh thu = chi phí</strong> — một phương trình bậc 1 theo số lượng q.</p>
+  <div class="row">
+    <span>Chi phí cố định/tháng (đ):</span>
+    <input type="number" id="beFixed" step="100000" value="15000000" style="width:130px">
+  </div>
+  <div class="row">
+    <span>Biến phí/ly (đ):</span>
+    <input type="number" id="beVar" step="1000" value="12000" style="width:90px">
+    <span>Giá bán/ly (đ):</span>
+    <input type="number" id="bePrice" step="1000" value="35000" style="width:90px">
+    <button onclick="lifeBreakEven()">Tính hoà vốn</button>
+  </div>
+  <div class="result" id="beResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -176,6 +193,34 @@ function drawSystem(a1, b1, c1, a2, b2, c2, sol) {
     }
   }
 }
+
+// ===== Module Đời sống thực tế: điểm hoà vốn (break-even) =====
+function lifeBreakEven() {
+  const fixed = parseFloat(document.getElementById("beFixed").value);   // chi phí cố định
+  const varCost = parseFloat(document.getElementById("beVar").value);   // biến phí / sản phẩm
+  const price = parseFloat(document.getElementById("bePrice").value);   // giá bán / sản phẩm
+  if ([fixed, varCost, price].some(v => !isFinite(v))) return;
+  // Doanh thu R(q) = price*q ; Chi phí C(q) = fixed + varCost*q
+  // Hoà vốn: price*q = fixed + varCost*q  ->  q = fixed / (price - varCost)
+  let html = `
+    <div style="font-family:monospace; font-size:14px">Doanh thu: R(q) = ${price}·q</div>
+    <div style="font-family:monospace; font-size:14px">Chi phí: C(q) = ${fixed} + ${varCost}·q</div>
+    <div style="font-family:monospace; font-size:13px; margin-top:6px">Hoà vốn ⇔ R(q) = C(q) ⇔ ${price}q = ${fixed} + ${varCost}q</div>`;
+  const margin = price - varCost;
+  if (margin <= 0) {
+    html += `<div style="margin-top:8px"><strong style="color:#dc2626">Giá bán ≤ biến phí (lãi gộp/sp = ${margin}) → KHÔNG bao giờ hoà vốn.</strong> Mỗi sản phẩm bán ra càng lỗ thêm.</div>`;
+  } else {
+    const qStar = fixed / margin;
+    const revStar = price * qStar;
+    html += `<div style="font-family:monospace; font-size:13px; margin-top:6px">⇔ (${price} − ${varCost})q = ${fixed} ⇔ ${margin}q = ${fixed}</div>`;
+    html += `<div style="font-family:monospace; font-size:16px; margin-top:6px">q* = ${fixed} / ${margin} = <strong>${qStar.toFixed(2)}</strong> sản phẩm</div>`;
+    html += `<div style="font-size:13px; margin-top:4px">→ Phải bán <strong>${Math.ceil(qStar)}</strong> sản phẩm (làm tròn lên) để bắt đầu có lãi. Doanh thu hoà vốn ≈ ${Math.round(revStar).toLocaleString("vi-VN")} đ.</div>`;
+    html += `<div style="margin-top:8px; font-size:13px; background:#fef3c7; padding:8px; border-radius:4px">Bài học: hoà vốn chính là <strong>nghiệm của phương trình bậc 1</strong> R(q) = C(q) — đúng dạng ax = b ở mục 1.</div>`;
+  }
+  document.getElementById("beResult").innerHTML = html;
+}
+
+document.addEventListener("DOMContentLoaded", lifeBreakEven);
 
 solveLinear();
 solveSystem();

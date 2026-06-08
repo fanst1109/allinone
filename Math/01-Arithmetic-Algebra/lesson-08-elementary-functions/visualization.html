@@ -83,6 +83,22 @@
   <div class="result" id="quadRes"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Lan truyền tin đồn: tuyến tính vs mũ</h2>
+<div class="card">
+  <p>Một tin đồn lan theo 2 cách. <strong>Tuyến tính</strong>: mỗi ngày có thêm một số người cố định biết tin. <strong>Mũ</strong>: mỗi người biết lại kể cho 1 người mới ⇒ số người <em>gấp đôi</em> mỗi ngày (2ᵗ). Quan sát hàm mũ bùng nổ vượt xa tuyến tính — đúng thứ tự tăng trưởng ở mục đầu.</p>
+  <div class="row">
+    <label>Số ngày:</label>
+    <input type="range" id="ruDays" min="3" max="14" step="1" value="10" style="flex:1; min-width:160px">
+    <span class="stat">t = <strong id="ruDaysVal">10</strong> ngày</span>
+  </div>
+  <div class="row">
+    <label>Tuyến tính: mỗi ngày thêm</label>
+    <input type="range" id="ruLin" min="1" max="50" step="1" value="10" style="flex:1; min-width:160px">
+    <span class="stat"><strong id="ruLinVal">10</strong> người/ngày</span>
+  </div>
+  <div class="result" id="ruResult"></div>
+</div>
+
 <script>
 let active = {1: true, 2: true, 3: true, 4: true};
 
@@ -210,6 +226,41 @@ function updateQuad() {
 drawComp();
 updateLinear();
 updateQuad();
+
+// ===== Module Đời sống thực tế: lan truyền tin đồn (tuyến tính vs mũ) =====
+function lifeRumor() {
+  const days = parseInt(document.getElementById("ruDays").value);
+  const lin = parseInt(document.getElementById("ruLin").value);   // kiểu tuyến tính: mỗi ngày kể thêm L người MỚI cố định
+  document.getElementById("ruDaysVal").textContent = days;
+  document.getElementById("ruLinVal").textContent = lin;
+  // Mô hình tuyến tính: N_lin(t) = 1 + lin·t  (mỗi ngày thêm đúng 'lin' người)
+  // Mô hình mũ: mỗi người biết kể cho 1 người mới mỗi ngày -> gấp đôi: N_exp(t) = 2^t
+  let rows = "";
+  for (let t = 0; t <= days; t++) {
+    const nLin = 1 + lin * t;
+    const nExp = Math.pow(2, t);
+    rows += `<tr><td style="padding:3px 12px">Ngày ${t}</td><td style="padding:3px 12px">${nLin.toLocaleString("vi-VN")}</td><td style="padding:3px 12px"><strong>${nExp.toLocaleString("vi-VN")}</strong></td></tr>`;
+  }
+  const finalLin = 1 + lin * days;
+  const finalExp = Math.pow(2, days);
+  document.getElementById("ruResult").innerHTML = `
+    <div style="font-size:13px">So 2 cách lan truyền sau <strong>${days} ngày</strong>:</div>
+    <div style="font-family:monospace; font-size:13px; margin-top:4px">• Tuyến tính N(t) = 1 + ${lin}·t (mỗi ngày thêm cố định ${lin} người)</div>
+    <div style="font-family:monospace; font-size:13px">• Mũ N(t) = 2^t (mỗi người kể cho 1 người mới ⇒ số người gấp đôi mỗi ngày)</div>
+    <div style="overflow-x:auto; margin-top:8px"><table style="border-collapse:collapse; font-family:monospace; font-size:13px">
+      <tr><th style="padding:3px 12px; text-align:left">t</th><th style="padding:3px 12px; text-align:left">Tuyến tính</th><th style="padding:3px 12px; text-align:left">Mũ 2ᵗ</th></tr>
+      ${rows}
+    </table></div>
+    <div style="font-family:monospace; font-size:14px; margin-top:8px">Sau ${days} ngày: tuyến tính = ${finalLin.toLocaleString("vi-VN")} người, mũ = <strong>${finalExp.toLocaleString("vi-VN")}</strong> người (gấp ${(finalExp/finalLin).toFixed(0)}×)</div>
+    <div style="margin-top:8px; font-size:13px; background:#fef3c7; padding:8px; border-radius:4px">Bài học: hàm <strong>mũ</strong> bùng nổ vượt xa hàm <strong>tuyến tính</strong> — đúng như đồ thị "log &lt; tuyến tính &lt; bình phương &lt; mũ" ở mục đầu. Đây là lý do tin đồn / dịch bệnh / chia sẻ viral lan rất nhanh.</div>
+  `;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("ruDays").addEventListener("input", lifeRumor);
+  document.getElementById("ruLin").addEventListener("input", lifeRumor);
+  lifeRumor();
+});
 </script>
 
 </main>

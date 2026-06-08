@@ -111,7 +111,93 @@ function draw() {
 
 document.getElementById("funcInput").addEventListener("input", draw);
 draw();
+
+// ===== Module Đời sống thực tế: pin điện thoại xả theo thời gian =====
+function lifeBattery() {
+  const start = parseFloat(document.getElementById("batStart").value);  // % pin lúc bắt đầu
+  const rate = parseFloat(document.getElementById("batRate").value);    // % xả mỗi giờ
+  document.getElementById("batStartVal").textContent = start;
+  document.getElementById("batRateVal").textContent = rate;
+  // Hàm bậc 1: B(t) = start − rate·t  (đầu vào t = giờ, đầu ra = % pin)
+  // Pin = 0 khi start − rate·t = 0  ->  t = start/rate
+  const tEmpty = rate > 0 ? start / rate : Infinity;
+  drawBattery(start, rate, tEmpty);
+  // Bảng giá trị B(t) tại vài mốc
+  let rows = "";
+  for (const t of [0, 1, 2, 4, 6]) {
+    const b = Math.max(0, start - rate * t);
+    rows += `<tr><td style="padding:3px 10px">${t}h</td><td style="padding:3px 10px"><strong>${b.toFixed(0)}%</strong></td></tr>`;
+  }
+  document.getElementById("batResult").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Hàm pin theo thời gian: B(t) = ${start} − ${rate}·t</div>
+    <div style="font-size:13px; margin-top:4px">Đây là một <strong>hàm số</strong>: mỗi giá trị t (giờ) cho đúng MỘT giá trị B (% pin). Tập xác định t ∈ [0; ${isFinite(tEmpty) ? tEmpty.toFixed(1) : "∞"}].</div>
+    <div style="overflow-x:auto; margin-top:8px"><table style="border-collapse:collapse; font-family:monospace; font-size:13px"><tr><th style="padding:3px 10px; text-align:left">t</th><th style="padding:3px 10px; text-align:left">B(t)</th></tr>${rows}</table></div>
+    <div style="font-family:monospace; font-size:14px; margin-top:8px">Pin cạn (B = 0) khi t = ${start}/${rate} = <strong>${isFinite(tEmpty) ? tEmpty.toFixed(2) + " giờ" : "không bao giờ"}</strong></div>
+    <div style="margin-top:8px; font-size:13px; background:#fef3c7; padding:8px; border-radius:4px">Bài học: pin xả là một <strong>hàm số đầu vào → đầu ra</strong> (t → B). Đồ thị của hàm bậc 1 là đường thẳng dốc xuống; nghiệm B(t)=0 cho biết lúc hết pin.</div>
+  `;
+}
+
+function drawBattery(start, rate, tEmpty) {
+  const svg = document.getElementById("batSvg");
+  svg.innerHTML = "";
+  const W = 600, H = 300, padL = 45, padB = 35;
+  const maxT = 8;
+  const sx = (W - padL - 15) / maxT;
+  const sy = (H - padB - 15) / 100;
+  const PX = (t) => padL + t * sx;
+  const PY = (b) => (H - padB) - b * sy;
+  // Lưới ngang (mức %)
+  for (let b = 0; b <= 100; b += 20) {
+    const y = PY(b);
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    g.setAttribute("x1", padL); g.setAttribute("y1", y); g.setAttribute("x2", W - 15); g.setAttribute("y2", y);
+    g.setAttribute("stroke", "#e2e8f0"); g.setAttribute("stroke-width", 1);
+    svg.appendChild(g);
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("x", padL - 6); lbl.setAttribute("y", y + 4); lbl.setAttribute("text-anchor", "end"); lbl.setAttribute("font-size", "10");
+    lbl.textContent = b + "%";
+    svg.appendChild(lbl);
+  }
+  // Trục
+  const axes = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  axes.setAttribute("d", `M ${padL} 15 L ${padL} ${H-padB} L ${W-15} ${H-padB}`);
+  axes.setAttribute("fill", "none"); axes.setAttribute("stroke", "#1a202c"); axes.setAttribute("stroke-width", 1.5);
+  svg.appendChild(axes);
+  // Nhãn trục t
+  for (let t = 0; t <= maxT; t += 2) {
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("x", PX(t)); lbl.setAttribute("y", H - padB + 16); lbl.setAttribute("text-anchor", "middle"); lbl.setAttribute("font-size", "10");
+    lbl.textContent = t + "h";
+    svg.appendChild(lbl);
+  }
+  // Đường pin
+  const tEnd = Math.min(maxT, isFinite(tEmpty) ? tEmpty : maxT);
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  line.setAttribute("x1", PX(0)); line.setAttribute("y1", PY(Math.min(100, start)));
+  line.setAttribute("x2", PX(tEnd)); line.setAttribute("y2", PY(Math.max(0, start - rate * tEnd)));
+  line.setAttribute("stroke", "#15803d"); line.setAttribute("stroke-width", 2.5);
+  svg.appendChild(line);
+}
+
+document.addEventListener("DOMContentLoaded", lifeBattery);
 </script>
+
+<h2>🌍 Đời sống thực tế — Pin điện thoại xả theo thời gian</h2>
+<div class="card">
+  <p>Khi bạn dùng điện thoại, <strong>% pin là một hàm số theo thời gian</strong>: mỗi mốc thời gian t cho đúng một mức pin B. Nếu pin xả đều, đó là hàm bậc 1 B(t) = B₀ − r·t — đồ thị là đường thẳng dốc xuống, và nghiệm B(t)=0 cho biết khi nào hết pin.</p>
+  <div class="row">
+    <label>Pin ban đầu (%):</label>
+    <input type="range" id="batStart" min="10" max="100" step="5" value="80" oninput="lifeBattery()" style="flex:1; min-width:160px">
+    <span class="stat">B₀ = <strong id="batStartVal">80</strong>%</span>
+  </div>
+  <div class="row">
+    <label>Xả mỗi giờ (%/h):</label>
+    <input type="range" id="batRate" min="2" max="30" step="1" value="12" oninput="lifeBattery()" style="flex:1; min-width:160px">
+    <span class="stat">r = <strong id="batRateVal">12</strong>%/h</span>
+  </div>
+  <svg class="scene" id="batSvg" viewBox="0 0 600 300" style="height:auto"></svg>
+  <div class="result" id="batResult"></div>
+</div>
 
 </main>
 

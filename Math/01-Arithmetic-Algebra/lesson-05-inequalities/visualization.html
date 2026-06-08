@@ -55,6 +55,20 @@
   <div class="result" id="iResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Tải trọng thang máy</h2>
+<div class="card">
+  <p>Thang máy ghi "tải trọng tối đa 600kg". Trong thang đã có vài người. Còn vào được mấy người nữa cho an toàn? Đây là một <strong>bất phương trình bậc 1</strong>: <code>khối lượng hiện tại + (mỗi người)·n ≤ giới hạn</code>, nghiệm là một khoảng rồi cắt về số nguyên.</p>
+  <div class="row">
+    <span>Tải trọng tối đa (kg):</span><input type="number" id="evLimit" step="50" value="600" style="width:90px">
+    <span>Đã có sẵn (kg):</span><input type="number" id="evBase" step="10" value="210" style="width:90px">
+  </div>
+  <div class="row">
+    <span>Mỗi người thêm (kg):</span><input type="number" id="evEach" step="5" value="60" style="width:90px">
+    <button onclick="lifeElevator()">Tính</button>
+  </div>
+  <div class="result" id="evResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -184,6 +198,32 @@ function drawIneq(roots, intervals) {
     svg.appendChild(t);
   });
 }
+
+// ===== Module Đời sống thực tế: tải trọng thang máy (bất phương trình) =====
+function lifeElevator() {
+  const limit = parseFloat(document.getElementById("evLimit").value);   // tải trọng tối đa (kg)
+  const base = parseFloat(document.getElementById("evBase").value);     // khối lượng người lớn đã vào (kg)
+  const each = parseFloat(document.getElementById("evEach").value);     // khối lượng mỗi người thêm (kg)
+  if ([limit, base, each].some(v => !isFinite(v)) || each <= 0) return;
+  // Ràng buộc an toàn: base + each·n ≤ limit  ->  n ≤ (limit − base) / each
+  const remain = limit - base;
+  const nMaxReal = remain / each;
+  const nMax = Math.floor(nMaxReal);
+  let html = `
+    <div style="font-family:monospace; font-size:14px">Ràng buộc an toàn: ${base} + ${each}·n ≤ ${limit}</div>
+    <div style="font-family:monospace; font-size:13px; margin-top:6px">⇔ ${each}·n ≤ ${limit} − ${base} = ${remain}</div>`;
+  if (remain < 0) {
+    html += `<div style="margin-top:8px"><strong style="color:#dc2626">Đã quá tải!</strong> Khối lượng hiện tại ${base}kg > giới hạn ${limit}kg → n &lt; 0 vô nghĩa, phải bớt người ngay.</div>`;
+  } else {
+    html += `<div style="font-family:monospace; font-size:14px; margin-top:6px">⇔ n ≤ ${remain} / ${each} = ${nMaxReal.toFixed(2)}</div>`;
+    html += `<div style="font-size:14px; margin-top:6px">Vì n là <strong>số người (số nguyên ≥ 0)</strong> → lấy phần nguyên: <strong style="font-size:18px">n ≤ ${nMax}</strong></div>`;
+    html += `<div style="font-size:13px; margin-top:4px">→ Vào thêm tối đa <strong>${nMax}</strong> người. Tổng khi đó = ${base + each*nMax}kg ≤ ${limit}kg ✓. Thêm 1 người nữa = ${base + each*(nMax+1)}kg → vượt giới hạn.</div>`;
+    html += `<div style="margin-top:8px; font-size:13px; background:#fef3c7; padding:8px; border-radius:4px">Bài học: giới hạn tải trọng là một <strong>bất phương trình bậc 1</strong> theo n; nghiệm là một <strong>khoảng</strong> [0; ${nMaxReal.toFixed(2)}], rồi cắt về số nguyên vì số người rời rạc.</div>`;
+  }
+  document.getElementById("evResult").innerHTML = html;
+}
+
+document.addEventListener("DOMContentLoaded", lifeElevator);
 
 solveIneq();
 </script>

@@ -81,6 +81,18 @@
   <p style="margin-top:10px; font-size:13px; color:#9b2c2c">⚠ Cạm bẫy: <code>log(x + y) ≠ log(x) + log(y)</code>. Thử x=10, y=90, b=10 để thấy log(100)=2 nhưng tổng ≈ 2.95.</p>
 </div>
 
+<h2>🌍 Đời sống thực tế — Thang Richter (động đất)</h2>
+<div class="card">
+  <p>Độ lớn động đất theo thang <strong>Richter</strong> chính là một <strong>log cơ số 10</strong>: M = log₁₀(A/A₀). Vì là log, mỗi khi M tăng 1 bậc thì biên độ sóng <strong>×10</strong>. Cùng cơ chế với decibel (âm thanh) và pH (axit). So sánh 2 trận động đất:</p>
+  <div class="row">
+    <span>Động đất 1, độ lớn M₁:</span>
+    <input type="number" id="rqM1" step="0.1" value="5.0" style="width:90px">
+    <span>Động đất 2, độ lớn M₂:</span>
+    <input type="number" id="rqM2" step="0.1" value="7.0" style="width:90px">
+  </div>
+  <div class="result" id="rqResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -118,6 +130,28 @@ function update() {
 
 document.querySelectorAll("input").forEach(el => el.addEventListener("input", update));
 update();
+
+// ===== Module Đời sống thực tế: thang Richter (log cơ số 10) =====
+function lifeRichter() {
+  const m1 = parseFloat(document.getElementById("rqM1").value);
+  const m2 = parseFloat(document.getElementById("rqM2").value);
+  if (!isFinite(m1) || !isFinite(m2)) return;
+  // Biên độ A tỉ lệ 10^M (Richter là thang log10). Năng lượng E ~ 10^(1.5·M).
+  const ampRatio = Math.pow(10, m2 - m1);       // tỉ lệ biên độ sóng
+  const energyRatio = Math.pow(10, 1.5 * (m2 - m1)); // tỉ lệ năng lượng giải phóng
+  const dM = (m2 - m1).toFixed(1);
+  document.getElementById("rqResult").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Richter là thang <strong>log₁₀</strong>: độ lớn M = log₁₀(A / A₀)</div>
+    <div style="font-family:monospace; font-size:13px; margin-top:6px">Chênh lệch độ lớn: ΔM = ${m2} − ${m1} = ${dM}</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:6px">→ Biên độ sóng gấp: 10^(ΔM) = 10^${dM} = <strong>${ampRatio.toLocaleString("en-US", {maximumFractionDigits: 0})}×</strong></div>
+    <div style="font-family:monospace; font-size:14px">→ Năng lượng gấp: 10^(1.5·ΔM) = 10^${(1.5*(m2-m1)).toFixed(2)} = <strong>${energyRatio.toLocaleString("en-US", {maximumFractionDigits: 0})}×</strong></div>
+    <div style="margin-top:8px; font-size:13px; background:#fef3c7; padding:8px; border-radius:4px">Bài học: <strong>mỗi bậc Richter = biên độ ×10</strong> (và năng lượng ×≈31.6). Động đất 7.0 KHÔNG chỉ "mạnh gấp đôi" 5.0 — biên độ gấp 100 lần, năng lượng gấp ~1.000 lần. Đó là sức mạnh của thang log: nén dải khổng lồ về vài con số nhỏ.</div>
+  `;
+}
+
+document.getElementById("rqM1").addEventListener("input", lifeRichter);
+document.getElementById("rqM2").addEventListener("input", lifeRichter);
+lifeRichter();
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

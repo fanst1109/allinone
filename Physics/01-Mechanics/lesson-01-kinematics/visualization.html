@@ -137,6 +137,30 @@
   <div class="result" id="projResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Quãng đường phanh xe &amp; phản xạ tài xế</h2>
+<div class="card">
+  <p>Khi bạn lái xe và bất ngờ thấy người băng qua đường, xe <strong>không dừng ngay</strong>. Tổng quãng đường dừng = quãng đường trong lúc <em>phản xạ</em> (chân chưa đạp phanh) + quãng đường <em>phanh thực sự</em>. Kéo các thanh để xem mỗi yếu tố ảnh hưởng thế nào.</p>
+  <div class="row">
+    <label>Tốc độ xe (km/h):</label>
+    <input type="range" id="brkSpeed" min="20" max="120" step="5" value="60" oninput="updateBraking()">
+    <span class="stat">v = <strong id="brkSpeedVal">60</strong> km/h</span>
+  </div>
+  <div class="row">
+    <label>Thời gian phản xạ (s):</label>
+    <input type="range" id="brkReact" min="0.3" max="2" step="0.1" value="1" oninput="updateBraking()">
+    <span class="stat">t = <strong id="brkReactVal">1.0</strong> s</span>
+  </div>
+  <div class="row">
+    <label>Giảm tốc khi phanh (m/s²):</label>
+    <input type="range" id="brkDecel" min="3" max="9" step="0.5" value="7" oninput="updateBraking()">
+    <span class="stat">a = <strong id="brkDecelVal">7.0</strong> m/s²</span>
+  </div>
+
+  <svg class="motion-track" id="brkSvg" viewBox="0 0 720 130" style="height:130px"></svg>
+
+  <div class="result" id="brkResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -503,10 +527,128 @@ function drawProjectile() {
   `;
 }
 
+// ===== 🌍 Đời sống thực tế: Quãng đường phanh xe + phản xạ tài xế =====
+function updateBraking() {
+  const speedKmh = parseFloat(document.getElementById("brkSpeed").value);
+  const reactT = parseFloat(document.getElementById("brkReact").value);
+  const decel = parseFloat(document.getElementById("brkDecel").value); // m/s² (độ lớn giảm tốc)
+
+  const v = speedKmh / 3.6; // m/s
+  const dReaction = v * reactT; // quãng đường đi trong lúc phản xạ (chưa phanh)
+  const dBraking = (v * v) / (2 * decel); // quãng đường phanh (v² = 2·a·d)
+  const dTotal = dReaction + dBraking;
+  const tBraking = v / decel;
+  const tTotal = reactT + tBraking;
+
+  document.getElementById("brkSpeedVal").textContent = speedKmh.toFixed(0);
+  document.getElementById("brkReactVal").textContent = reactT.toFixed(1);
+  document.getElementById("brkDecelVal").textContent = decel.toFixed(1);
+
+  // Vẽ scene: con đường, vùng phản xạ (vàng) + vùng phanh (đỏ)
+  const svg = document.getElementById("brkSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 130;
+  const padL = 20, padR = 20;
+  const trackW = W - padL - padR;
+  // scale theo dTotal, tối thiểu 20 m để thấy rõ ở tốc độ thấp
+  const dMax = Math.max(20, dTotal * 1.08);
+  const sx = d => padL + (d / dMax) * trackW;
+  const roadY = 78;
+
+  // Mặt đường
+  const road = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  road.setAttribute("x", padL); road.setAttribute("y", roadY);
+  road.setAttribute("width", trackW); road.setAttribute("height", 22);
+  road.setAttribute("fill", "#475569"); road.setAttribute("rx", 3);
+  svg.appendChild(road);
+
+  // Vùng phản xạ (vàng)
+  const rReact = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  rReact.setAttribute("x", sx(0)); rReact.setAttribute("y", roadY);
+  rReact.setAttribute("width", sx(dReaction) - sx(0)); rReact.setAttribute("height", 22);
+  rReact.setAttribute("fill", "#facc15"); rReact.setAttribute("opacity", "0.75");
+  svg.appendChild(rReact);
+  // Vùng phanh (đỏ)
+  const rBrk = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  rBrk.setAttribute("x", sx(dReaction)); rBrk.setAttribute("y", roadY);
+  rBrk.setAttribute("width", sx(dTotal) - sx(dReaction)); rBrk.setAttribute("height", 22);
+  rBrk.setAttribute("fill", "#dc2626"); rBrk.setAttribute("opacity", "0.6");
+  svg.appendChild(rBrk);
+
+  // Xe ở vạch xuất phát
+  const car = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  car.setAttribute("x", sx(0)); car.setAttribute("y", roadY - 14);
+  car.setAttribute("width", 26); car.setAttribute("height", 14);
+  car.setAttribute("rx", 3); car.setAttribute("fill", "#1e40af");
+  svg.appendChild(car);
+
+  // Người đi bộ (vạch dừng cần thiết)
+  const ped = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  ped.setAttribute("x", sx(dTotal)); ped.setAttribute("y", roadY - 4);
+  ped.setAttribute("text-anchor", "middle"); ped.setAttribute("font-size", "16");
+  ped.textContent = "🚶";
+  svg.appendChild(ped);
+
+  // Nhãn các vùng
+  function addLbl(d0, d1, txt, fill) {
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", (sx(d0) + sx(d1)) / 2); t.setAttribute("y", roadY + 38);
+    t.setAttribute("text-anchor", "middle"); t.setAttribute("font", "11px sans-serif");
+    t.setAttribute("fill", fill); t.setAttribute("font-weight", "600");
+    t.textContent = txt;
+    svg.appendChild(t);
+  }
+  if (dReaction > 0) addLbl(0, dReaction, "phản xạ " + dReaction.toFixed(1) + " m", "#a16207");
+  addLbl(dReaction, dTotal, "phanh " + dBraking.toFixed(1) + " m", "#b91c1c");
+
+  // Nhãn tổng ở trên
+  const tot = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  tot.setAttribute("x", sx(dTotal) / 2 + padL / 2); tot.setAttribute("y", 22);
+  tot.setAttribute("text-anchor", "middle"); tot.setAttribute("font", "13px sans-serif");
+  tot.setAttribute("font-weight", "700"); tot.setAttribute("fill", "#1a202c");
+  tot.textContent = "Tổng quãng đường dừng: " + dTotal.toFixed(1) + " m";
+  svg.appendChild(tot);
+
+  // Khoảng cách an toàn 50 m (tham chiếu) nếu vừa khung
+  if (dMax >= 50) {
+    const ref = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    ref.setAttribute("x1", sx(50)); ref.setAttribute("y1", roadY - 18);
+    ref.setAttribute("x2", sx(50)); ref.setAttribute("y2", roadY + 26);
+    ref.setAttribute("stroke", "#16a34a"); ref.setAttribute("stroke-dasharray", "4 3");
+    svg.appendChild(ref);
+    const reflbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    reflbl.setAttribute("x", sx(50)); reflbl.setAttribute("y", roadY - 22);
+    reflbl.setAttribute("text-anchor", "middle"); reflbl.setAttribute("font", "10px sans-serif");
+    reflbl.setAttribute("fill", "#16a34a"); reflbl.textContent = "50 m";
+    svg.appendChild(reflbl);
+  }
+
+  document.getElementById("brkResult").innerHTML = `
+    <h3 style="margin-top:0">Walk-through số thật</h3>
+    <p>Đổi tốc độ: ${speedKmh.toFixed(0)} km/h = ${speedKmh}/3.6 = <strong>${v.toFixed(2)} m/s</strong>.</p>
+    <div class="row">
+      <span class="stat">Quãng phản xạ d₁ = v·t = ${v.toFixed(2)}·${reactT.toFixed(1)} = <strong>${dReaction.toFixed(2)} m</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat">Quãng phanh d₂ = v²/(2a) = ${v.toFixed(2)}²/(2·${decel.toFixed(1)}) = <strong>${dBraking.toFixed(2)} m</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat">Tổng dừng = d₁+d₂ = <strong>${dTotal.toFixed(2)} m</strong></span>
+      <span class="stat">Thời gian dừng = ${reactT.toFixed(1)} + ${tBraking.toFixed(2)} = <strong>${tTotal.toFixed(2)} s</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Lúc tài xế thấy chướng ngại, xe vẫn chạy <em>nguyên tốc</em> trong thời gian phản xạ (≈0,3–1,5 s) → đó là vùng vàng, hoàn toàn không giảm tốc.
+      Quãng phanh tỉ lệ với <strong>v²</strong>: gấp đôi tốc độ → quãng phanh gấp <strong>4 lần</strong>. Đây là lý do vật lý của giới hạn tốc độ.
+      <br>(Mô hình hoá: giảm tốc đều, bỏ qua thời gian xây dựng lực phanh và sức cản không khí.)
+    </div>
+  `;
+}
+
 // Init
 updateMotion();
 renderEqInputs();
 drawProjectile();
+addEventListener("DOMContentLoaded", updateBraking);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

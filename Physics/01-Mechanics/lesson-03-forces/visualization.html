@@ -134,6 +134,35 @@
   </table>
 </div>
 
+<h2>🌍 Đời sống thực tế — Kéo co: ma sát giày quyết định ai thắng</h2>
+<div class="card">
+  <p>Trong kéo co, lực căng dây bằng nhau ở 2 đầu (định luật III). Đội <em>không</em> thắng nhờ kéo mạnh hơn một chút — mà nhờ <strong>chân không bị trượt</strong>. Ma sát giày giữ chân tối đa f_max = μ·N (N = trọng lượng đội). Khi chênh lệch lực kéo vượt ma sát giữ chân đối phương, họ trượt và thua.</p>
+  <div class="row">
+    <label>Lực kéo đội A (N):</label>
+    <input type="range" id="tugPullA" min="200" max="1200" step="50" value="800" oninput="updateTugwar()">
+    <span class="stat">A = <strong id="tugPullAVal">800</strong> N</span>
+  </div>
+  <div class="row">
+    <label>Lực kéo đội B (N):</label>
+    <input type="range" id="tugPullB" min="200" max="1200" step="50" value="700" oninput="updateTugwar()">
+    <span class="stat">B = <strong id="tugPullBVal">700</strong> N</span>
+  </div>
+  <div class="row">
+    <label>Trọng lượng mỗi đội (N):</label>
+    <input type="range" id="tugW" min="1000" max="3000" step="100" value="2000" oninput="updateTugwar()">
+    <span class="stat">W = <strong id="tugWVal">2000</strong> N</span>
+  </div>
+  <div class="row">
+    <label>Hệ số ma sát giày μ:</label>
+    <input type="range" id="tugMu" min="0.2" max="1.0" step="0.05" value="0.5" oninput="updateTugwar()">
+    <span class="stat">μ = <strong id="tugMuVal">0.50</strong></span>
+  </div>
+
+  <svg class="scene" id="tugSvg" viewBox="0 0 720 200" style="height:200px"></svg>
+
+  <div class="result" id="tugResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -401,11 +430,112 @@ function drawAtwood(m1, m2) {
   svg.appendChild(defs);
 }
 
+// ===== 🌍 Đời sống thực tế: Kéo co — ma sát giày quyết định ai thắng =====
+function updateTugwar() {
+  const pullA = parseFloat(document.getElementById("tugPullA").value);  // lực kéo đội A (N)
+  const pullB = parseFloat(document.getElementById("tugPullB").value);  // lực kéo đội B (N)
+  const weightTeam = parseFloat(document.getElementById("tugW").value); // trọng lượng mỗi đội (N)
+  const mu = parseFloat(document.getElementById("tugMu").value);        // hệ số ma sát giày-đất
+  document.getElementById("tugPullAVal").textContent = pullA.toFixed(0);
+  document.getElementById("tugPullBVal").textContent = pullB.toFixed(0);
+  document.getElementById("tugWVal").textContent = weightTeam.toFixed(0);
+  document.getElementById("tugMuVal").textContent = mu.toFixed(2);
+
+  // Ma sát tĩnh tối đa mỗi đội (đế giày bám đất) = μ·N = μ·trọng lượng đội
+  const fMaxA = mu * weightTeam;
+  const fMaxB = mu * weightTeam;
+  // Theo định luật III, lực căng dây T bằng nhau ở 2 đầu. Đội nào trượt = đội có
+  // lực kéo của đối phương vượt quá ma sát giữ chân mình.
+  // Net "đẩy" giữa 2 đội = pullA - pullB; bên yếu hơn bị kéo nếu vượt ma sát của họ.
+  const netPull = pullA - pullB; // dương: A mạnh hơn, kéo B
+  let verdict, slip, winner;
+  const loserFmax = netPull > 0 ? fMaxB : fMaxA;
+  if (Math.abs(netPull) <= loserFmax) {
+    verdict = "Cân bằng — chưa ai trượt (ma sát giày đủ giữ chân).";
+    slip = 0; winner = "none";
+  } else {
+    winner = netPull > 0 ? "A" : "B";
+    slip = (Math.abs(netPull) - loserFmax); // lực dư làm đội thua trượt
+    verdict = "Đội " + winner + " THẮNG! Đội thua bị trượt vì lực dư vượt ma sát giày.";
+  }
+  const massLoser = weightTeam / g;
+  const accel = slip > 0 ? slip / massLoser : 0;
+
+  // Vẽ sân kéo co
+  const svg = document.getElementById("tugSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 200;
+  const midY = 110;
+  // mặt đất
+  const ground = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  ground.setAttribute("x", 0); ground.setAttribute("y", midY + 24);
+  ground.setAttribute("width", W); ground.setAttribute("height", 8);
+  ground.setAttribute("fill", "#92400e");
+  svg.appendChild(ground);
+  // vạch giữa
+  const centerLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  centerLine.setAttribute("x1", 360); centerLine.setAttribute("y1", midY - 30);
+  centerLine.setAttribute("x2", 360); centerLine.setAttribute("y2", midY + 24);
+  centerLine.setAttribute("stroke", "#dc2626"); centerLine.setAttribute("stroke-width", 2); centerLine.setAttribute("stroke-dasharray", "4 3");
+  svg.appendChild(centerLine);
+  // dây thừng + cờ giữa — lệch về phía đội thắng
+  const flagX = winner === "A" ? 360 - Math.min(120, slip / 10) : winner === "B" ? 360 + Math.min(120, slip / 10) : 360;
+  const rope = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  rope.setAttribute("x1", 120); rope.setAttribute("y1", midY);
+  rope.setAttribute("x2", 600); rope.setAttribute("y2", midY);
+  rope.setAttribute("stroke", "#a16207"); rope.setAttribute("stroke-width", 4);
+  svg.appendChild(rope);
+  const flag = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  flag.setAttribute("x", flagX); flag.setAttribute("y", midY - 6);
+  flag.setAttribute("text-anchor", "middle"); flag.setAttribute("font-size", "18");
+  flag.textContent = "🚩";
+  svg.appendChild(flag);
+  // đội A bên trái, đội B bên phải
+  function drawTeam(x, label, pull, fmax, col) {
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x); t.setAttribute("y", midY + 6);
+    t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "26");
+    t.textContent = "🧑‍🤝‍🧑";
+    svg.appendChild(t);
+    const lt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lt.setAttribute("x", x); lt.setAttribute("y", midY + 56);
+    lt.setAttribute("text-anchor", "middle"); lt.setAttribute("font", "bold 12px sans-serif"); lt.setAttribute("fill", col);
+    lt.textContent = label + ": kéo " + pull.toFixed(0) + " N";
+    svg.appendChild(lt);
+    const lf = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lf.setAttribute("x", x); lf.setAttribute("y", midY + 72);
+    lf.setAttribute("text-anchor", "middle"); lf.setAttribute("font", "11px sans-serif"); lf.setAttribute("fill", "#475569");
+    lf.textContent = "ma sát max " + fmax.toFixed(0) + " N";
+    svg.appendChild(lf);
+  }
+  drawTeam(90, "Đội A", pullA, fMaxA, "#1d4ed8");
+  drawTeam(630, "Đội B", pullB, fMaxB, "#dc2626");
+
+  document.getElementById("tugResult").innerHTML = `
+    <h3 style="margin-top:0">Walk-through số thật</h3>
+    <p>Mỗi đội bám đất bằng ma sát giày. Ma sát giữ chân tối đa: f_max = μ·N = μ·(trọng lượng đội) = ${mu.toFixed(2)}·${weightTeam.toFixed(0)} = <strong>${fMaxA.toFixed(0)} N</strong>.</p>
+    <div class="row">
+      <span class="stat">Lực kéo đội A = <strong>${pullA.toFixed(0)} N</strong></span>
+      <span class="stat">Lực kéo đội B = <strong>${pullB.toFixed(0)} N</strong></span>
+      <span class="stat">Chênh lệch = <strong>${Math.abs(netPull).toFixed(0)} N</strong></span>
+    </div>
+    <div style="margin-top:8px; padding:10px; border-radius:6px; background:${winner==='none' ? '#dcfce7' : '#fee2e2'}">
+      <strong>${verdict}</strong>
+      ${slip > 0 ? `<br>Lực dư = ${Math.abs(netPull).toFixed(0)} − ${loserFmax.toFixed(0)} = <strong>${slip.toFixed(0)} N</strong> → gia tốc trượt của đội thua a = lực dư / m = ${slip.toFixed(0)}/${massLoser.toFixed(1)} = <strong>${accel.toFixed(2)} m/s²</strong>.` : ""}
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Bí quyết kéo co không chỉ là "kéo mạnh" — mà là <strong>không bị trượt</strong>. Đội nào tăng ma sát giày (đế bám, ngả người để tăng N hướng xuống) sẽ giữ được chân. Khi chênh lệch lực kéo vượt ma sát giữ chân của đối phương, họ bắt đầu trượt và thua.
+      <br>(Mô hình hoá: coi mỗi đội là một khối, N = trọng lượng đội, bỏ qua góc ngả người.)
+    </div>
+  `;
+}
+
 // Init
 calcGravity();
 updateFriction();
 updateSpring();
 updateAtwood();
+addEventListener("DOMContentLoaded", updateTugwar);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

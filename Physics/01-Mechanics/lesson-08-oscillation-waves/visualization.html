@@ -96,6 +96,30 @@
   <div class="result" id="waveResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Dây đàn guitar: tần số theo độ căng &amp; chiều dài</h2>
+<div class="card">
+  <p>Dây đàn rung tạo sóng dừng với 2 đầu cố định. Tần số cơ bản (cao độ của nốt) tuân theo <strong>f = (1/2L)·√(T/μ)</strong>, với L = chiều dài dây rung, T = lực căng, μ = mật độ khối lượng dài (kg/m). Kéo các thanh để xem cao độ thay đổi — ba cách lên cao một nốt: căng hơn, bấm ngắn hơn, hoặc dây mảnh hơn.</p>
+  <div class="row">
+    <label>Chiều dài dây (cm):</label>
+    <input type="range" id="guiL" min="20" max="80" step="1" value="65" oninput="updateGuitar()">
+    <span class="stat">L = <strong id="guiLVal">65</strong> cm</span>
+  </div>
+  <div class="row">
+    <label>Lực căng dây (N):</label>
+    <input type="range" id="guiT" min="40" max="200" step="5" value="120" oninput="updateGuitar()">
+    <span class="stat">T = <strong id="guiTVal">120</strong> N</span>
+  </div>
+  <div class="row">
+    <label>Mật độ dây (g/m):</label>
+    <input type="range" id="guiMu" min="0.3" max="8" step="0.1" value="1.5" oninput="updateGuitar()">
+    <span class="stat">μ = <strong id="guiMuVal">1.5</strong> g/m</span>
+  </div>
+
+  <svg class="scene" id="guiSvg" viewBox="0 0 720 200" style="height:200px"></svg>
+
+  <div class="result" id="guiResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -317,10 +341,103 @@ function updateWave() {
   svg.appendChild(indLbl);
 }
 
+// ===== 🌍 Đời sống thực tế: Dây đàn guitar — tần số theo độ căng & chiều dài =====
+function noteName(freq) {
+  if (freq <= 0) return "";
+  // A4 = 440 Hz; nửa cung = 2^(1/12)
+  const names = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+  const n = Math.round(12 * Math.log2(freq / 440)); // số nửa cung so với A4
+  const idx = ((9 + n) % 12 + 12) % 12; // A là index 9
+  const octave = 4 + Math.floor((9 + n) / 12);
+  return names[idx] + octave;
+}
+
+function updateGuitar() {
+  const lengthCm = parseFloat(document.getElementById("guiL").value);   // chiều dài dây rung (cm)
+  const tension = parseFloat(document.getElementById("guiT").value);    // lực căng (N)
+  const muGramM = parseFloat(document.getElementById("guiMu").value);   // mật độ khối lượng (g/m)
+  document.getElementById("guiLVal").textContent = lengthCm.toFixed(0);
+  document.getElementById("guiTVal").textContent = tension.toFixed(0);
+  document.getElementById("guiMuVal").textContent = muGramM.toFixed(1);
+
+  const L = lengthCm / 100; // m
+  const mu = muGramM / 1000; // kg/m
+  // tần số cơ bản dây 2 đầu cố định: f = (1/2L)·√(T/μ)
+  const v = Math.sqrt(tension / mu); // tốc độ sóng trên dây
+  const f1 = v / (2 * L);
+  const note = noteName(f1);
+
+  // Vẽ dây + mode cơ bản (1 bụng sóng)
+  const svg = document.getElementById("guiSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 200, cy = 100;
+  const x0 = 60, x1 = 660;
+  // cần đàn
+  const neck = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  neck.setAttribute("x", 0); neck.setAttribute("y", cy + 50);
+  neck.setAttribute("width", W); neck.setAttribute("height", 30); neck.setAttribute("fill", "#92400e");
+  svg.appendChild(neck);
+  // 2 điểm cố định
+  [x0, x1].forEach(x => {
+    const nut = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    nut.setAttribute("x", x - 4); nut.setAttribute("y", cy - 50);
+    nut.setAttribute("width", 8); nut.setAttribute("height", 100); nut.setAttribute("fill", "#1a202c");
+    svg.appendChild(nut);
+  });
+  // dạng sóng cơ bản (nửa bước sóng giữa 2 điểm), biên độ tô đậm
+  const amp = 36;
+  let pathUp = "", pathDn = "";
+  for (let x = x0; x <= x1; x += 3) {
+    const frac = (x - x0) / (x1 - x0);
+    const y = cy - amp * Math.sin(Math.PI * frac);
+    pathUp += (x === x0 ? "M " : " L ") + x + " " + y;
+  }
+  for (let x = x0; x <= x1; x += 3) {
+    const frac = (x - x0) / (x1 - x0);
+    const y = cy + amp * Math.sin(Math.PI * frac);
+    pathDn += (x === x0 ? "M " : " L ") + x + " " + y;
+  }
+  [pathUp, pathDn].forEach((d, i) => {
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", d); p.setAttribute("fill", "none");
+    p.setAttribute("stroke", i === 0 ? "#1e40af" : "#93c5fd"); p.setAttribute("stroke-width", i === 0 ? 3 : 1.5);
+    svg.appendChild(p);
+  });
+  // nhãn L
+  const lLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  lLbl.setAttribute("x", (x0 + x1) / 2); lLbl.setAttribute("y", cy + 70);
+  lLbl.setAttribute("text-anchor", "middle"); lLbl.setAttribute("font", "bold 12px sans-serif"); lLbl.setAttribute("fill", "white");
+  lLbl.textContent = "L = " + lengthCm.toFixed(0) + " cm (½ bước sóng)";
+  svg.appendChild(lLbl);
+  // nhãn nốt
+  const nLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  nLbl.setAttribute("x", (x0 + x1) / 2); nLbl.setAttribute("y", 30);
+  nLbl.setAttribute("text-anchor", "middle"); nLbl.setAttribute("font", "bold 18px sans-serif"); nLbl.setAttribute("fill", "#1e40af");
+  nLbl.textContent = f1.toFixed(1) + " Hz ≈ nốt " + note;
+  svg.appendChild(nLbl);
+
+  document.getElementById("guiResult").innerHTML = `
+    <h3 style="margin-top:0">Walk-through số thật</h3>
+    <p>Dây 2 đầu cố định: bước sóng cơ bản λ = 2L = ${(2*L).toFixed(2)} m. Tốc độ sóng trên dây v = √(T/μ) = √(${tension.toFixed(0)}/${mu.toFixed(4)}) = <strong>${v.toFixed(1)} m/s</strong>.</p>
+    <div class="row">
+      <span class="stat">Tần số cơ bản f = v/(2L) = (1/2·${L.toFixed(2)})·${v.toFixed(1)} = <strong>${f1.toFixed(1)} Hz</strong></span>
+      <span class="stat">≈ nốt <strong>${note}</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Ba cách lên cao nốt nhạc, đọc thẳng từ công thức f = (1/2L)·√(T/μ):
+      <br>• <strong>Vặn căng dây hơn</strong> (T↑) → f tăng theo √T. Đó là việc bạn làm khi chỉnh dây (tuning).
+      <br>• <strong>Bấm phím</strong> để rút ngắn L → f tăng theo 1/L. Bấm ngắn nửa dây (L↓ một nửa) → f gấp đôi = cao đúng 1 quãng tám.
+      <br>• <strong>Dây mảnh hơn</strong> (μ↓) → f tăng. Đó là vì sao dây cao (E) mảnh, dây trầm (low E) to & nặng.
+      <br>(Mô hình hoá: dây lý tưởng, chỉ xét mode cơ bản; các họa âm bậc cao f₂=2f₁, f₃=3f₁ tạo nên âm sắc.)
+    </div>
+  `;
+}
+
 // Init
 resetSHM();
 calcPen();
 updateWave();
+addEventListener("DOMContentLoaded", updateGuitar);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

@@ -100,6 +100,25 @@
   <div class="result" id="leverResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Trượt băng thu tay: bảo toàn mômen động lượng</h2>
+<div class="card">
+  <p>Vận động viên trượt băng nghệ thuật đang xoay, khi <strong>thu tay sát người</strong> thì quay nhanh hẳn lên. Vì không có mômen lực ngoài, mômen động lượng L = I·ω được bảo toàn: thu tay làm mômen quán tính I giảm → ω (tốc độ quay) phải tăng. Kéo các thanh để xem.</p>
+  <div class="row">
+    <label>Độ dang tay ban đầu:</label>
+    <input type="range" id="skArm" min="0" max="1" step="0.05" value="1" oninput="updateSkater()">
+    <span class="stat">mức = <strong id="skArmVal">1.00</strong> (1 = dang rộng)</span>
+  </div>
+  <div class="row">
+    <label>Tốc độ quay lúc dang tay:</label>
+    <input type="range" id="skRpm" min="30" max="180" step="10" value="60" oninput="updateSkater()">
+    <span class="stat">ω = <strong id="skRpmVal">60</strong> vòng/phút</span>
+  </div>
+
+  <svg class="scene" id="skSvg" viewBox="0 0 600 320" style="height:320px"></svg>
+
+  <div class="result" id="skResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -302,10 +321,117 @@ function drawLever(m1, d1, m2, d2) {
   svg.appendChild(d2lbl);
 }
 
+// ===== 🌍 Đời sống thực tế: Trượt băng thu tay — bảo toàn mômen động lượng =====
+function updateSkater() {
+  const armRatio = parseFloat(document.getElementById("skArm").value); // 0=thu sát, 1=dang rộng
+  const rpmOpen = parseFloat(document.getElementById("skRpm").value);  // tốc độ quay khi dang tay (vòng/phút)
+  document.getElementById("skArmVal").textContent = armRatio.toFixed(2);
+  document.getElementById("skRpmVal").textContent = rpmOpen.toFixed(0);
+
+  // Mô hình hoá: thân = trụ I_body cố định; tay = 2 khối lượng điểm cách trục bán kính r.
+  // r thay đổi từ r_in (thu sát ~0.15 m) tới r_out (dang rộng ~0.8 m).
+  const rIn = 0.15, rOut = 0.8;
+  const mArm = 4;     // mỗi tay ~4 kg
+  const Ibody = 1.2;  // mômen quán tính thân+chân quanh trục dọc (kg·m²)
+  const rOpen = rIn + (rOut - rIn) * armRatio; // bán kính tay khi "dang" (trạng thái đầu)
+  // Trạng thái đầu (dang theo armRatio): I1 và ω1
+  const I1 = Ibody + 2 * mArm * rOpen * rOpen;
+  const omega1 = rpmOpen * 2 * Math.PI / 60; // rad/s
+  // Trạng thái sau: thu tay sát (rIn)
+  const I2 = Ibody + 2 * mArm * rIn * rIn;
+  // Bảo toàn L: I1·ω1 = I2·ω2
+  const L = I1 * omega1;
+  const omega2 = L / I2;
+  const rpm2 = omega2 * 60 / (2 * Math.PI);
+  // KE quay (tăng vì cơ bắp sinh công kéo tay vào)
+  const KE1 = 0.5 * I1 * omega1 * omega1;
+  const KE2 = 0.5 * I2 * omega2 * omega2;
+
+  // Vẽ 2 skater: trước (dang) và sau (thu)
+  const svg = document.getElementById("skSvg");
+  svg.innerHTML = "";
+  const W = 600, H = 320;
+  function drawSkater(cx, rArm, rpm, label, col) {
+    // đầu
+    const head = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    head.setAttribute("cx", cx); head.setAttribute("cy", 90); head.setAttribute("r", 14);
+    head.setAttribute("fill", "#fbbf24"); head.setAttribute("stroke", "#1a202c"); head.setAttribute("stroke-width", 2);
+    svg.appendChild(head);
+    // thân
+    const body = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    body.setAttribute("x1", cx); body.setAttribute("y1", 104); body.setAttribute("x2", cx); body.setAttribute("y2", 200);
+    body.setAttribute("stroke", "#1a202c"); body.setAttribute("stroke-width", 4);
+    svg.appendChild(body);
+    // tay (độ dài tỉ lệ rArm)
+    const armPx = 30 + (rArm - rIn) / (rOut - rIn) * 80;
+    [-1, 1].forEach(s => {
+      const arm = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      arm.setAttribute("x1", cx); arm.setAttribute("y1", 120);
+      arm.setAttribute("x2", cx + s * armPx); arm.setAttribute("y2", 120 + (rArm < 0.4 ? 30 : 0));
+      arm.setAttribute("stroke", col); arm.setAttribute("stroke-width", 4);
+      svg.appendChild(arm);
+    });
+    // chân
+    [-1, 1].forEach(s => {
+      const leg = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      leg.setAttribute("x1", cx); leg.setAttribute("y1", 200);
+      leg.setAttribute("x2", cx + s * 12); leg.setAttribute("y2", 250);
+      leg.setAttribute("stroke", "#1a202c"); leg.setAttribute("stroke-width", 4);
+      svg.appendChild(leg);
+    });
+    // mũi tên quay
+    const spin = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    spin.setAttribute("x", cx); spin.setAttribute("y", 70);
+    spin.setAttribute("text-anchor", "middle"); spin.setAttribute("font-size", "20");
+    spin.textContent = "🔄";
+    svg.appendChild(spin);
+    const lab = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lab.setAttribute("x", cx); lab.setAttribute("y", 280);
+    lab.setAttribute("text-anchor", "middle"); lab.setAttribute("font", "bold 13px sans-serif"); lab.setAttribute("fill", "#1a202c");
+    lab.textContent = label;
+    svg.appendChild(lab);
+    const rl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    rl.setAttribute("x", cx); rl.setAttribute("y", 298);
+    rl.setAttribute("text-anchor", "middle"); rl.setAttribute("font", "13px sans-serif"); rl.setAttribute("fill", col);
+    rl.textContent = rpm.toFixed(0) + " vòng/phút";
+    svg.appendChild(rl);
+  }
+  drawSkater(160, rOpen, rpmOpen, "Dang tay", "#1d4ed8");
+  drawSkater(440, rIn, rpm2, "Thu tay", "#dc2626");
+  // mũi tên chuyển
+  const tr = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  tr.setAttribute("x", 300); tr.setAttribute("y", 160);
+  tr.setAttribute("text-anchor", "middle"); tr.setAttribute("font-size", "24");
+  tr.textContent = "➡";
+  svg.appendChild(tr);
+
+  document.getElementById("skResult").innerHTML = `
+    <h3 style="margin-top:0">Walk-through số thật</h3>
+    <p>Không có mômen lực ngoài (bỏ qua ma sát băng) → <strong>mômen động lượng L = I·ω được bảo toàn</strong>. Thu tay làm I giảm → ω phải tăng để giữ L không đổi.</p>
+    <div class="row">
+      <span class="stat">Dang tay: I₁ = ${I1.toFixed(2)} kg·m², ω₁ = ${omega1.toFixed(2)} rad/s (${rpmOpen.toFixed(0)} vòng/ph)</span>
+    </div>
+    <div class="row">
+      <span class="stat">Thu sát: I₂ = ${I2.toFixed(2)} kg·m²</span>
+      <span class="stat">L = I₁·ω₁ = <strong>${L.toFixed(2)} kg·m²/s</strong> (giữ nguyên)</span>
+    </div>
+    <div class="row">
+      <span class="stat">ω₂ = L/I₂ = <strong>${omega2.toFixed(2)} rad/s</strong> = <strong>${rpm2.toFixed(0)} vòng/phút</strong></span>
+      <span class="stat">Quay nhanh gấp <strong>${(omega2/omega1).toFixed(2)}×</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Động năng quay <em>tăng</em> từ ${KE1.toFixed(1)} J lên ${KE2.toFixed(1)} J — không vi phạm bảo toàn năng lượng: <strong>cơ bắp tay sinh công</strong> khi kéo tay vào trục (kéo vào ngược lực ly tâm). L bảo toàn nhưng KE thì không, vì có công nội tại.
+      Đây là lý do vận động viên trượt băng nghệ thuật co tay sát người để xoay tít, rồi dang ra để hãm lại.
+      <br>(Mô hình hoá: tay là 2 khối điểm 4 kg, thân I = 1.2 kg·m².)
+    </div>
+  `;
+}
+
 // Init
 calcTorque();
 calcI();
 calcLever();
+addEventListener("DOMContentLoaded", updateSkater);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

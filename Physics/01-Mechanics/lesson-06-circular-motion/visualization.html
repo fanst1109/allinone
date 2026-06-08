@@ -98,6 +98,35 @@
   </div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Xe vào cua: tốc độ tối đa theo ma sát</h2>
+<div class="card">
+  <p>Khi xe vào cua, ma sát ngang của lốp đóng vai trò <strong>lực hướng tâm</strong> giữ xe đi theo đường cong. Nếu cần lực hướng tâm m·v²/r vượt quá ma sát tối đa μ·m·g, xe trượt ra ngoài. Kéo các thanh để tìm tốc độ tối đa an toàn (đường phẳng vs nghiêng).</p>
+  <div class="row">
+    <label>Tốc độ xe (km/h):</label>
+    <input type="range" id="corV" min="20" max="160" step="5" value="60" oninput="updateCorner()">
+    <span class="stat">v = <strong id="corVVal">60</strong> km/h</span>
+  </div>
+  <div class="row">
+    <label>Bán kính cua (m):</label>
+    <input type="range" id="corR" min="20" max="300" step="10" value="80" oninput="updateCorner()">
+    <span class="stat">r = <strong id="corRVal">80</strong> m</span>
+  </div>
+  <div class="row">
+    <label>Ma sát lốp μ:</label>
+    <input type="range" id="corMu" min="0.2" max="1.0" step="0.05" value="0.7" oninput="updateCorner()">
+    <span class="stat">μ = <strong id="corMuVal">0.70</strong></span>
+  </div>
+  <div class="row">
+    <label>Góc nghiêng cua (°):</label>
+    <input type="range" id="corBank" min="0" max="30" step="1" value="0" oninput="updateCorner()">
+    <span class="stat">θ = <strong id="corBankVal">0</strong>°</span>
+  </div>
+
+  <svg class="scene" id="corSvg" viewBox="0 0 600 360"></svg>
+
+  <div class="result" id="corResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -268,9 +297,98 @@ function calcSat() {
   `;
 }
 
+// ===== 🌍 Đời sống thực tế: Xe vào cua — tốc độ tối đa theo ma sát =====
+function updateCorner() {
+  const speedKmh = parseFloat(document.getElementById("corV").value);
+  const radius = parseFloat(document.getElementById("corR").value); // bán kính cua (m)
+  const mu = parseFloat(document.getElementById("corMu").value);    // hệ số ma sát lốp-đường
+  const bank = parseFloat(document.getElementById("corBank").value);// góc nghiêng mặt cua (độ)
+  document.getElementById("corVVal").textContent = speedKmh.toFixed(0);
+  document.getElementById("corRVal").textContent = radius.toFixed(0);
+  document.getElementById("corMuVal").textContent = mu.toFixed(2);
+  document.getElementById("corBankVal").textContent = bank.toFixed(0);
+
+  const g = 9.8;
+  const v = speedKmh / 3.6; // m/s
+  const acNeeded = v * v / radius; // gia tốc hướng tâm cần thiết
+  const gForce = acNeeded / g; // số 'g' ngang
+
+  // Tốc độ tối đa mặt phẳng: μ·g = v²/r → v_max = √(μ·g·r)
+  const vMaxFlat = Math.sqrt(mu * g * radius);
+  // Tốc độ tối đa mặt nghiêng (có ma sát): v_max = √(g·r·(tanθ+μ)/(1−μ·tanθ))
+  const bankRad = bank * Math.PI / 180;
+  const denom = 1 - mu * Math.tan(bankRad);
+  const vMaxBank = denom > 0 ? Math.sqrt(g * radius * (Math.tan(bankRad) + mu) / denom) : Infinity;
+
+  const safeFlat = v <= vMaxFlat;
+  const safeBank = v <= vMaxBank;
+
+  // Vẽ xe nhìn từ trên xuống vào cua
+  const svg = document.getElementById("corSvg");
+  svg.innerHTML = "";
+  const W = 600, H = 360;
+  const cx = 230, cy = 320;
+  const pxR = Math.min(260, 60 + radius * 1.0);
+  // cung đường (1/4 vòng)
+  const lane = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  lane.setAttribute("d", `M ${cx + pxR} ${cy} A ${pxR} ${pxR} 0 0 0 ${cx} ${cy - pxR}`);
+  lane.setAttribute("fill", "none"); lane.setAttribute("stroke", "#64748b"); lane.setAttribute("stroke-width", 34);
+  svg.appendChild(lane);
+  const laneC = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  laneC.setAttribute("d", `M ${cx + pxR} ${cy} A ${pxR} ${pxR} 0 0 0 ${cx} ${cy - pxR}`);
+  laneC.setAttribute("fill", "none"); laneC.setAttribute("stroke", "#fbbf24"); laneC.setAttribute("stroke-width", 2); laneC.setAttribute("stroke-dasharray", "10 10");
+  svg.appendChild(laneC);
+  // xe ở giữa cung (góc 45°)
+  const ang = Math.PI / 4;
+  const carX = cx + pxR * Math.cos(ang);
+  const carY = cy - pxR * Math.sin(ang);
+  const car = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  car.setAttribute("x", carX); car.setAttribute("y", carY + 8);
+  car.setAttribute("text-anchor", "middle"); car.setAttribute("font-size", "24");
+  car.textContent = (safeFlat || safeBank) ? "🚗" : "💥";
+  svg.appendChild(car);
+  // vector lực hướng tâm
+  const fl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  fl.setAttribute("x1", carX); fl.setAttribute("y1", carY);
+  fl.setAttribute("x2", cx); fl.setAttribute("y2", cy);
+  fl.setAttribute("stroke", "#22c55e"); fl.setAttribute("stroke-width", 2.5); fl.setAttribute("opacity", "0.6");
+  svg.appendChild(fl);
+  const flLbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  flLbl.setAttribute("x", (carX + cx)/2 + 6); flLbl.setAttribute("y", (carY + cy)/2);
+  flLbl.setAttribute("fill", "#22c55e"); flLbl.setAttribute("font", "bold 12px sans-serif");
+  flLbl.textContent = "F hướng tâm";
+  svg.appendChild(flLbl);
+  // nhãn bán kính & gforce
+  const info = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  info.setAttribute("x", 300); info.setAttribute("y", 40);
+  info.setAttribute("fill", "#e2e8f0"); info.setAttribute("font", "bold 14px sans-serif");
+  info.textContent = "a hướng tâm ≈ " + gForce.toFixed(2) + " g";
+  svg.appendChild(info);
+
+  document.getElementById("corResult").innerHTML = `
+    <h3 style="margin-top:0">Walk-through số thật</h3>
+    <p>Vào cua ${speedKmh.toFixed(0)} km/h = <strong>${v.toFixed(2)} m/s</strong>, bán kính ${radius.toFixed(0)} m. Gia tốc hướng tâm cần thiết a = v²/r = ${v.toFixed(2)}²/${radius.toFixed(0)} = <strong>${acNeeded.toFixed(2)} m/s²</strong> (≈ ${gForce.toFixed(2)} g ngang).</p>
+    <div class="row">
+      <span class="stat">Đường phẳng: v_max = √(μ·g·r) = √(${mu.toFixed(2)}·9.8·${radius.toFixed(0)}) = <strong>${(vMaxFlat*3.6).toFixed(0)} km/h</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat">Đường nghiêng ${bank.toFixed(0)}°: v_max = <strong>${vMaxBank===Infinity ? "∞" : (vMaxBank*3.6).toFixed(0)+" km/h"}</strong></span>
+    </div>
+    <div style="margin-top:8px; padding:10px; border-radius:6px; background:${safeFlat ? '#dcfce7' : (safeBank ? '#fef3c7' : '#fee2e2')}">
+      <strong>${safeFlat ? '✓ An toàn trên cả đường phẳng.' : (safeBank ? '⚠ Văng nếu đường phẳng — cần mặt nghiêng để giữ.' : '💥 Quá nhanh — xe trượt ra ngoài cua!')}</strong>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Lực giữ xe vào cua là <strong>ma sát ngang</strong> của lốp (đường phẳng), tối đa μ·m·g. Đặt bằng lực hướng tâm m·v²/r → m triệt tiêu, nên v_max = √(μ·g·r) <em>không phụ thuộc khối lượng</em>.
+      Vì v_max tỉ lệ √r, đường ướt (μ giảm) hay cua gấp (r nhỏ) đều hạ tốc độ an toàn. Mặt cua <strong>nghiêng</strong> (như đường đua, đường cao tốc) cho phép vào nhanh hơn vì thành phần trọng lực giúp hướng vào tâm.
+      <br>(Mô hình hoá: lốp coi như một điểm tiếp xúc, μ không đổi.)
+    </div>
+  `;
+}
+
 // Init
 updateCM();
 calcSat();
+addEventListener("DOMContentLoaded", updateCorner);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

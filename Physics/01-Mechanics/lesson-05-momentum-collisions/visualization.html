@@ -93,6 +93,30 @@
   <div class="result" id="impResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Nhảy từ độ cao: gập gối để giảm chấn</h2>
+<div class="card">
+  <p>Khi nhảy từ trên cao xuống, cơ thể bạn phải dừng từ tốc độ chạm đất về 0. Theo định lý xung lượng J = F·Δt = Δp, lực phụ thuộc vào <strong>quãng đường (và thời gian) dừng</strong>. Gập gối kéo dài quãng dừng → giảm mạnh lực lên xương. Kéo các thanh để so sánh "gập gối" vs "chân cứng".</p>
+  <div class="row">
+    <label>Khối lượng (kg):</label>
+    <input type="range" id="landM" min="40" max="100" step="5" value="70" oninput="updateLanding()">
+    <span class="stat">m = <strong id="landMVal">70</strong> kg</span>
+  </div>
+  <div class="row">
+    <label>Độ cao nhảy (m):</label>
+    <input type="range" id="landH" min="0.3" max="3" step="0.1" value="1.5" oninput="updateLanding()">
+    <span class="stat">h = <strong id="landHVal">1.50</strong> m</span>
+  </div>
+  <div class="row">
+    <label>Quãng gập gối (cm):</label>
+    <input type="range" id="landBend" min="10" max="60" step="5" value="40" oninput="updateLanding()">
+    <span class="stat">d = <strong id="landBendVal">40</strong> cm</span>
+  </div>
+
+  <svg class="scene" id="landSvg" viewBox="0 0 720 220" style="height:220px"></svg>
+
+  <div class="result" id="landResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -256,9 +280,91 @@ function calcImp() {
   `;
 }
 
+// ===== 🌍 Đời sống thực tế: Nhảy từ độ cao — gập gối để giảm chấn =====
+function updateLanding() {
+  const mass = parseFloat(document.getElementById("landM").value);
+  const height = parseFloat(document.getElementById("landH").value);
+  const bendCm = parseFloat(document.getElementById("landBend").value); // quãng đường dừng khi tiếp đất (cm)
+  document.getElementById("landMVal").textContent = mass.toFixed(0);
+  document.getElementById("landHVal").textContent = height.toFixed(2);
+  document.getElementById("landBendVal").textContent = bendCm.toFixed(0);
+
+  const G = 9.8;
+  const vLand = Math.sqrt(2 * G * height); // tốc độ chạm đất (rơi tự do)
+  const dStop = bendCm / 100; // m
+  // dừng đều từ vLand về 0 trong quãng dStop: v² = 2·a·d → a = v²/(2d)
+  const decel = (vLand * vLand) / (2 * dStop);
+  const dtStop = vLand / decel; // thời gian dừng
+  // Lực mặt đất lên người: N - m·g = m·a → N = m·(g + a)
+  const force = mass * (G + decel);
+  const forceWeights = force / (mass * G); // gấp bao nhiêu lần trọng lượng
+
+  // So sánh chân cứng (5 cm) — cố định để đối chiếu
+  const dStiff = 0.05;
+  const decelStiff = (vLand * vLand) / (2 * dStiff);
+  const forceStiff = mass * (G + decelStiff);
+  const wStiff = forceStiff / (mass * G);
+
+  // Vẽ: cột so sánh lực (gập gối vs chân cứng)
+  const svg = document.getElementById("landSvg");
+  svg.innerHTML = "";
+  const W = 720, H = 220, baseY = 170, padL = 70;
+  const maxF = Math.max(force, forceStiff);
+  const cols = [
+    { x: padL + 60, f: force, w: forceWeights, d: bendCm, col: "#16a34a", lab: "Gập gối " + bendCm.toFixed(0) + " cm" },
+    { x: padL + 60 + 200, f: forceStiff, w: wStiff, d: 5, col: "#dc2626", lab: "Chân cứng 5 cm" }
+  ];
+  const axis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  axis.setAttribute("x1", padL); axis.setAttribute("y1", baseY); axis.setAttribute("x2", W - 30); axis.setAttribute("y2", baseY);
+  axis.setAttribute("stroke", "#1a202c"); axis.setAttribute("stroke-width", 1.5);
+  svg.appendChild(axis);
+  cols.forEach(c => {
+    const h = (c.f / maxF) * (baseY - 40);
+    const bar = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    bar.setAttribute("x", c.x); bar.setAttribute("y", baseY - h);
+    bar.setAttribute("width", 130); bar.setAttribute("height", h);
+    bar.setAttribute("fill", c.col); bar.setAttribute("rx", 3);
+    svg.appendChild(bar);
+    const fl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    fl.setAttribute("x", c.x + 65); fl.setAttribute("y", baseY - h - 18);
+    fl.setAttribute("text-anchor", "middle"); fl.setAttribute("font", "bold 13px sans-serif"); fl.setAttribute("fill", c.col);
+    fl.textContent = (c.f / 1000).toFixed(1) + " kN";
+    svg.appendChild(fl);
+    const wl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    wl.setAttribute("x", c.x + 65);
+    wl.setAttribute("y", baseY - h - 4);
+    wl.setAttribute("text-anchor", "middle"); wl.setAttribute("font", "11px sans-serif"); wl.setAttribute("fill", "#475569");
+    wl.textContent = "≈ " + c.w.toFixed(1) + "× trọng lượng";
+    svg.appendChild(wl);
+    const lab = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lab.setAttribute("x", c.x + 65); lab.setAttribute("y", baseY + 18);
+    lab.setAttribute("text-anchor", "middle"); lab.setAttribute("font", "bold 12px sans-serif"); lab.setAttribute("fill", "#1a202c");
+    lab.textContent = c.lab;
+    svg.appendChild(lab);
+  });
+
+  document.getElementById("landResult").innerHTML = `
+    <h3 style="margin-top:0">Walk-through số thật</h3>
+    <p>Rơi từ ${height.toFixed(2)} m → tốc độ chạm đất v = √(2gh) = √(2·9.8·${height.toFixed(2)}) = <strong>${vLand.toFixed(2)} m/s</strong> (≈ ${(vLand*3.6).toFixed(0)} km/h).</p>
+    <div class="row">
+      <span class="stat">Gập gối ${bendCm.toFixed(0)} cm → giảm tốc a = v²/(2d) = ${vLand.toFixed(2)}²/(2·${dStop.toFixed(2)}) = <strong>${decel.toFixed(0)} m/s²</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat">Lực mặt đất N = m·(g+a) = ${mass}·(9.8+${decel.toFixed(0)}) = <strong>${(force/1000).toFixed(2)} kN</strong> (≈ ${forceWeights.toFixed(1)}× trọng lượng)</span>
+      <span class="stat">Thời gian dừng Δt = <strong>${(dtStop*1000).toFixed(0)} ms</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Cùng một tốc độ chạm đất, gập gối kéo dài quãng đường dừng d (và Δt) → lực giảm theo tỉ lệ nghịch: chân cứng (5 cm) chịu <strong>${(forceStiff/1000).toFixed(1)} kN</strong> (~${wStiff.toFixed(0)}× trọng lượng), dễ gãy xương; gập gối ${bendCm.toFixed(0)} cm chỉ còn <strong>${(force/1000).toFixed(1)} kN</strong>.
+      Đây là lý do bạn theo bản năng khuỵu gối khi nhảy xuống — cùng nguyên lý xung lượng J = F·Δt như túi khí ở mục 2.
+      <br>(Mô hình hoá: giảm tốc đều khi tiếp đất, bỏ qua nén của sàn/đệm.)
+    </div>
+  `;
+}
+
 // Init
 resetColl();
 calcImp();
+addEventListener("DOMContentLoaded", updateLanding);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

@@ -140,6 +140,30 @@
   </table>
 </div>
 
+<h2>🌍 Đời sống thực tế — Dây an toàn &amp; xung lực khi va chạm</h2>
+<div class="card">
+  <p>Khi xe đâm, cơ thể bạn phải dừng từ tốc độ xe về 0. Newton II viết theo động lượng: <strong>F·Δt = Δp = m·v</strong>. Lực ép lên người phụ thuộc vào <em>bạn dừng trong bao lâu</em> (Δt). Dây an toàn + túi khí kéo dài Δt → giảm mạnh lực. Kéo các thanh để so sánh "có dây" vs "không dây".</p>
+  <div class="row">
+    <label>Khối lượng người (kg):</label>
+    <input type="range" id="crashM" min="40" max="100" step="5" value="70" oninput="updateCrash()">
+    <span class="stat">m = <strong id="crashMVal">70</strong> kg</span>
+  </div>
+  <div class="row">
+    <label>Tốc độ xe (km/h):</label>
+    <input type="range" id="crashV" min="20" max="100" step="5" value="50" oninput="updateCrash()">
+    <span class="stat">v = <strong id="crashVVal">50</strong> km/h</span>
+  </div>
+  <div class="row">
+    <label>Δt dừng có dây (ms):</label>
+    <input type="range" id="crashT" min="50" max="300" step="10" value="150" oninput="updateCrash()">
+    <span class="stat">Δt = <strong id="crashTVal">150</strong> ms</span>
+  </div>
+
+  <svg class="fma" id="crashSvg" viewBox="0 0 560 240" style="height:240px"></svg>
+
+  <div class="result" id="crashResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -473,10 +497,102 @@ function drawElevator(a, ratio) {
   }
 }
 
+// ===== 🌍 Đời sống thực tế: Dây an toàn & xung lực khi va chạm =====
+function updateCrash() {
+  const mass = parseFloat(document.getElementById("crashM").value);
+  const speedKmh = parseFloat(document.getElementById("crashV").value);
+  const stopTime = parseFloat(document.getElementById("crashT").value); // ms
+  document.getElementById("crashMVal").textContent = mass.toFixed(0);
+  document.getElementById("crashVVal").textContent = speedKmh.toFixed(0);
+  document.getElementById("crashTVal").textContent = stopTime.toFixed(0);
+
+  const v = speedKmh / 3.6; // m/s
+  const dt = stopTime / 1000; // s
+  // F·Δt = Δp = m·v (dừng từ v về 0)
+  const force = mass * v / dt; // N
+  const accel = v / dt; // m/s²
+  const gFactor = accel / 9.8; // số 'g'
+
+  // So sánh 2 kịch bản: có dây an toàn (Δt dài hơn) vs không (Δt~rất ngắn)
+  const dtNo = 0.02; // không dây: dừng vào vô lăng/kính ~20 ms
+  const forceNo = mass * v / dtNo;
+  const gNo = (v / dtNo) / 9.8;
+
+  // Vẽ biểu đồ cột so sánh lực
+  const svg = document.getElementById("crashSvg");
+  svg.innerHTML = "";
+  const W = 560, H = 240;
+  const baseY = 200, padL = 60;
+  const maxF = Math.max(force, forceNo);
+  const barW = 110, gap = 90;
+  const cols = [
+    { x: padL + 30, f: force, g: gFactor, dtv: dt, col: "#16a34a", lab: "Có dây an toàn" },
+    { x: padL + 30 + barW + gap, f: forceNo, g: gNo, dtv: dtNo, col: "#dc2626", lab: "Không dây" }
+  ];
+  // trục
+  const axis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  axis.setAttribute("x1", padL); axis.setAttribute("y1", baseY);
+  axis.setAttribute("x2", W - 20); axis.setAttribute("y2", baseY);
+  axis.setAttribute("stroke", "#1a202c"); axis.setAttribute("stroke-width", 1.5);
+  svg.appendChild(axis);
+  cols.forEach(c => {
+    const h = (c.f / maxF) * (baseY - 40);
+    const bar = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    bar.setAttribute("x", c.x); bar.setAttribute("y", baseY - h);
+    bar.setAttribute("width", barW); bar.setAttribute("height", h);
+    bar.setAttribute("fill", c.col); bar.setAttribute("rx", 3);
+    svg.appendChild(bar);
+    const fl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    fl.setAttribute("x", c.x + barW / 2); fl.setAttribute("y", baseY - h - 8);
+    fl.setAttribute("text-anchor", "middle"); fl.setAttribute("font", "bold 13px sans-serif");
+    fl.setAttribute("fill", c.col);
+    fl.textContent = (c.f / 1000).toFixed(1) + " kN";
+    svg.appendChild(fl);
+    const gl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    gl.setAttribute("x", c.x + barW / 2); gl.setAttribute("y", baseY - h + 16);
+    gl.setAttribute("text-anchor", "middle"); gl.setAttribute("font", "11px sans-serif");
+    gl.setAttribute("fill", "white");
+    gl.textContent = "≈ " + c.g.toFixed(0) + " g";
+    svg.appendChild(gl);
+    const lab = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lab.setAttribute("x", c.x + barW / 2); lab.setAttribute("y", baseY + 18);
+    lab.setAttribute("text-anchor", "middle"); lab.setAttribute("font", "bold 12px sans-serif");
+    lab.setAttribute("fill", "#1a202c");
+    lab.textContent = c.lab;
+    svg.appendChild(lab);
+    const dtl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    dtl.setAttribute("x", c.x + barW / 2); dtl.setAttribute("y", baseY + 34);
+    dtl.setAttribute("text-anchor", "middle"); dtl.setAttribute("font", "11px sans-serif");
+    dtl.setAttribute("fill", "#475569");
+    dtl.textContent = "Δt = " + (c.dtv * 1000).toFixed(0) + " ms";
+    svg.appendChild(dtl);
+  });
+
+  document.getElementById("crashResult").innerHTML = `
+    <h3 style="margin-top:0">Walk-through số thật</h3>
+    <p>Đổi tốc độ: ${speedKmh.toFixed(0)} km/h = <strong>${v.toFixed(2)} m/s</strong>. Động lượng cần triệt tiêu: Δp = m·v = ${mass}·${v.toFixed(2)} = <strong>${(mass * v).toFixed(0)} kg·m/s</strong>.</p>
+    <div class="row">
+      <span class="stat">Định luật II dạng xung lực: F·Δt = Δp → F = m·v/Δt</span>
+    </div>
+    <div class="row">
+      <span class="stat">Có dây (Δt = ${stopTime.toFixed(0)} ms): F = ${mass}·${v.toFixed(2)}/${dt.toFixed(3)} = <strong>${(force/1000).toFixed(2)} kN</strong> (≈ ${gFactor.toFixed(0)} g)</span>
+    </div>
+    <div class="row">
+      <span class="stat">Không dây (Δt ≈ 20 ms): F = <strong>${(forceNo/1000).toFixed(1)} kN</strong> (≈ ${gNo.toFixed(0)} g)</span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Cùng một Δp phải triệt tiêu, nhưng dây an toàn (và túi khí) <strong>kéo dài thời gian dừng Δt</strong> → vì F = Δp/Δt, lực giảm theo tỉ lệ nghịch. Δt tăng 5 lần → lực giảm 5 lần.
+      Đây chính là Newton II viết theo động lượng: lực không phụ thuộc khối lượng dừng nhanh hay chậm — mà phụ thuộc bạn dừng <em>trong bao lâu</em>.
+      <br>(Mô hình hoá: giảm tốc đều, F là lực trung bình; bỏ qua biến dạng thân xe.)
+    </div>
+  `;
+}
+
 // Init
 calcFMA();
 setFBD("book");
 updateElevator();
+addEventListener("DOMContentLoaded", updateCrash);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

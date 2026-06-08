@@ -125,6 +125,31 @@
   <div id="solubilityNote" style="padding:10px; background:#fce7f3; border-radius:6px"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Pha cồn rửa tay 70% từ cồn 96%</h2>
+<div class="card">
+  <p>Cồn y tế bán ngoài tiệm thường là 96%, nhưng cồn DIỆT KHUẨN tốt nhất lại là khoảng 70% (đủ nước để cồn
+     thấm sâu phá màng tế bào vi khuẩn). Ta dùng đúng công thức pha loãng C₁·V₁ = C₂·V₂ ở module 2.
+     Chọn nồng độ đích và lượng cần pha:</p>
+  <div class="row">
+    <label>Nồng độ đích (%):</label>
+    <input type="range" id="snTarget" min="40" max="90" value="70" step="1">
+    <span class="stat">C₂ = <strong id="snTargetVal">70</strong>%</span>
+  </div>
+  <div class="row">
+    <label>Thể tích cần pha (mL):</label>
+    <input type="range" id="snVol" min="100" max="1000" value="500" step="50">
+    <span class="stat">V₂ = <strong id="snVolVal">500</strong> mL</span>
+  </div>
+
+  <div class="row" style="margin-top:10px">
+    <svg class="beaker" id="snBeaker" viewBox="0 0 240 240"></svg>
+  </div>
+
+  <div class="result" id="snResult"></div>
+  <div class="hint" style="margin-top:6px">Toy minh hoạ: dùng % v/v và giả định thể tích cộng tuyến tính
+     (thực tế cồn + nước co thể tích nhẹ). Cồn gốc lấy chuẩn 96%.</div>
+</div>
+
 </main>
 
 <script>
@@ -338,6 +363,83 @@ function drawSolubility() {
 
   document.getElementById("solubilityNote").innerHTML = `<strong>${d.label}:</strong> ${d.note}`;
 }
+
+// ===== Đời sống thực tế: pha cồn rửa tay 70% từ cồn 96% =====
+function initSanitizer() {
+  const cEl = document.getElementById("snTarget");
+  const vEl = document.getElementById("snVol");
+  const cVal = document.getElementById("snTargetVal");
+  const vVal = document.getElementById("snVolVal");
+  const out = document.getElementById("snResult");
+  const svg = document.getElementById("snBeaker");
+  if (!cEl) return;
+
+  const C1 = 96; // nồng độ cồn gốc (% v/v)
+
+  function update() {
+    const C2 = parseFloat(cEl.value);   // nồng độ đích (%)
+    const V2 = parseFloat(vEl.value);    // thể tích cần pha (mL)
+    cVal.textContent = C2.toFixed(0);
+    vVal.textContent = V2.toFixed(0);
+
+    // C1*V1 = C2*V2  (cùng kiểu công thức M1V1=M2V2 nhưng dùng % v/v)
+    const V1 = (C2 * V2) / C1;            // mL cồn 96% cần lấy
+    const water = V2 - V1;                // mL nước thêm vào
+
+    drawBeaker(V1, water, C2);
+    out.innerHTML =
+      "<strong>Vì sao 70% diệt khuẩn tốt hơn 96%?</strong> Cồn 96% làm protein vi khuẩn đông cứng lớp vỏ ngoài " +
+      "quá nhanh, \"bọc\" bảo vệ bên trong; 70% có đủ nước để cồn thấm sâu, phá màng tế bào triệt để hơn. " +
+      "Vậy ta phải PHA LOÃNG cồn 96% xuống 70%." +
+      "<div class='step'>Áp dụng C₁·V₁ = C₂·V₂ (dạng % v/v): " + C1 + " × V₁ = " + C2 + " × " + V2.toFixed(0) + "</div>" +
+      "<div class='step'>V₁ = (C₂·V₂)/C₁ = (" + C2 + " × " + V2.toFixed(0) + ") / " + C1 + " = <strong>" +
+        V1.toFixed(1) + " mL cồn 96%</strong></div>" +
+      "<div class='step' style='background:#dcfce7'>Nước cất thêm vào = V₂ − V₁ = " + V2.toFixed(0) + " − " +
+        V1.toFixed(1) + " = <strong>" + water.toFixed(1) + " mL</strong></div>" +
+      "<div style='margin-top:8px'><strong>Quy trình:</strong> Đong <strong>" + V1.toFixed(1) +
+        " mL</strong> cồn 96%, thêm nước cất cho đủ <strong>" + V2.toFixed(0) + " mL</strong> → được cồn " +
+        C2.toFixed(0) + "%.</div>";
+  }
+
+  function drawBeaker(vAlc, vWater, C2) {
+    svg.innerHTML = "";
+    const total = vAlc + vWater;
+    // Cốc
+    const glass = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    glass.setAttribute("d", "M 50 30 L 50 200 L 190 200 L 190 30");
+    glass.setAttribute("fill", "none"); glass.setAttribute("stroke", "#94a3b8"); glass.setAttribute("stroke-width", 2);
+    svg.appendChild(glass);
+    // Phần cồn (dưới) + phần nước (trên) — tỉ lệ theo thể tích
+    const fullH = 160;
+    const alcH = fullH * (vAlc / total);
+    const watH = fullH * (vWater / total);
+    const alc = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    alc.setAttribute("x", 51); alc.setAttribute("y", 200 - alcH);
+    alc.setAttribute("width", 138); alc.setAttribute("height", alcH);
+    alc.setAttribute("fill", "#fca5a5"); alc.setAttribute("opacity", "0.8");
+    svg.appendChild(alc);
+    const wat = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    wat.setAttribute("x", 51); wat.setAttribute("y", 200 - alcH - watH);
+    wat.setAttribute("width", 138); wat.setAttribute("height", watH);
+    wat.setAttribute("fill", "#93c5fd"); wat.setAttribute("opacity", "0.7");
+    svg.appendChild(wat);
+    function cap(x, y, txt, color) {
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", x); t.setAttribute("y", y); t.setAttribute("text-anchor", "middle");
+      t.setAttribute("font-size", "11"); t.setAttribute("fill", color); t.setAttribute("font-weight", "700");
+      t.textContent = txt;
+      svg.appendChild(t);
+    }
+    cap(120, 200 - alcH / 2 + 4, "cồn 96%: " + vAlc.toFixed(0) + " mL", "#7f1d1d");
+    if (watH > 14) cap(120, 200 - alcH - watH / 2 + 4, "nước: " + vWater.toFixed(0) + " mL", "#1e3a8a");
+    cap(120, 225, "→ cồn " + C2.toFixed(0) + "%", "#475569");
+  }
+
+  cEl.addEventListener("input", update);
+  vEl.addEventListener("input", update);
+  update();
+}
+document.addEventListener("DOMContentLoaded", initSanitizer);
 
 // Init
 calcConc();

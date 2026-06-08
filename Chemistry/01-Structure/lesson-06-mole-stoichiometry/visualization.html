@@ -102,6 +102,31 @@
   <div id="stoichSteps"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Mỗi ngày bạn cần bao nhiêu O₂ để hô hấp?</h2>
+<div class="card">
+  <p>Cơ thể "đốt" glucose để lấy năng lượng bằng đúng phản ứng hoá học: C₆H₁₂O₆ + 6 O₂ → 6 CO₂ + 6 H₂O.
+     Tỉ lệ mol O₂ : glucose = 6 : 1 (stoichiometry ở module 3). Nhập cân nặng và mức hoạt động để tính
+     lượng O₂ bạn phải hít vào mỗi ngày:</p>
+  <div class="row">
+    <label>Cân nặng (kg):</label>
+    <input type="range" id="brWeight" min="30" max="120" value="60" step="1">
+    <span class="stat">m = <strong id="brWeightVal">60</strong> kg</span>
+  </div>
+  <div class="row">
+    <label>Mức hoạt động:</label>
+    <select id="brActivity">
+      <option value="1.2">Nghỉ ngơi (×1.2)</option>
+      <option value="1.5" selected>Vận động nhẹ (×1.5)</option>
+      <option value="1.9">Vận động nặng (×1.9)</option>
+    </select>
+  </div>
+
+  <div class="result" id="brResult" style="margin-top:10px"></div>
+  <div class="hint" style="margin-top:6px">Toy minh hoạ: dùng mốc 24 kcal/kg/ngày và 686 kcal/mol glucose, thể tích
+     khí 22.4 L/mol ở đktc. Cơ thể thật còn dùng chất béo, protein và trao đổi khí ở áp suất/nhiệt độ cơ thể;
+     ở đây minh hoạ cách dùng tỉ lệ mol để ước lượng O₂.</div>
+</div>
+
 </main>
 
 <script>
@@ -318,6 +343,59 @@ function calcStoich() {
 
   document.getElementById("stoichSteps").innerHTML = html;
 }
+
+// ===== Đời sống thực tế: O₂ cần để hô hấp mỗi ngày =====
+function initBreathing() {
+  const wEl = document.getElementById("brWeight");
+  const aEl = document.getElementById("brActivity");
+  const wVal = document.getElementById("brWeightVal");
+  const out = document.getElementById("brResult");
+  if (!wEl) return;
+
+  // Phản ứng hô hấp tế bào: C6H12O6 + 6 O2 -> 6 CO2 + 6 H2O
+  // M(glucose)=180.16, M(O2)=32.00, M(CO2)=44.01.
+  // Nhu cầu năng lượng cơ bản ~ 24 kcal/kg/ngày (nghỉ); hệ số hoạt động nhân thêm.
+  // 1 mol glucose (180.16 g) cho ~ 686 kcal khi oxi hoá hoàn toàn.
+  const M_GLU = 180.16, M_O2 = 32.00, M_CO2 = 44.01;
+  const KCAL_PER_MOL_GLU = 686;          // năng lượng/ mol glucose
+  const KCAL_PER_KG_DAY = 24;            // chuyển hoá cơ bản (nghỉ)
+  const VOL_PER_MOL = 22.4;              // L/mol ở đktc (toy)
+
+  function update() {
+    const kg = parseFloat(wEl.value);
+    const act = parseFloat(aEl.value);   // 1.2 nghỉ, 1.5 vận động nhẹ, 1.9 nặng
+    wVal.textContent = kg.toFixed(0);
+
+    const kcal = kg * KCAL_PER_KG_DAY * act;       // kcal/ngày
+    const nGlu = kcal / KCAL_PER_MOL_GLU;          // mol glucose
+    const gGlu = nGlu * M_GLU;                     // g glucose
+    const nO2 = nGlu * 6;                          // tỉ lệ mol 1:6
+    const gO2 = nO2 * M_O2;                         // g O2
+    const litO2 = nO2 * VOL_PER_MOL;                // L O2
+    const nCO2 = nGlu * 6;
+    const gCO2 = nCO2 * M_CO2;
+
+    out.innerHTML =
+      "<strong>Hô hấp tế bào chính là \"đốt\" glucose:</strong> C₆H₁₂O₆ + 6 O₂ → 6 CO₂ + 6 H₂O. " +
+      "Tỉ lệ mol O₂ : glucose = 6 : 1. Từ năng lượng cần mỗi ngày, suy ra lượng O₂ phải hít vào." +
+      "<div class='step'>Bước 1: Năng lượng cần = " + kg.toFixed(0) + " kg × 24 kcal/kg × " + act.toFixed(1) +
+        " (hệ số hoạt động) = <strong>" + kcal.toFixed(0) + " kcal/ngày</strong></div>" +
+      "<div class='step'>Bước 2: n(glucose) = kcal / 686 = " + kcal.toFixed(0) + " / 686 = <strong>" +
+        nGlu.toFixed(2) + " mol</strong> (= " + gGlu.toFixed(0) + " g đường)</div>" +
+      "<div class='step'>Bước 3: tỉ lệ 1:6 → n(O₂) = " + nGlu.toFixed(2) + " × 6 = <strong>" +
+        nO2.toFixed(1) + " mol O₂</strong></div>" +
+      "<div class='step' style='background:#fef3c7'>Bước 4: m(O₂) = " + nO2.toFixed(1) + " × 32.00 = <strong>" +
+        gO2.toFixed(0) + " g ≈ " + (gO2 / 1000).toFixed(2) + " kg O₂/ngày</strong> (≈ " + litO2.toFixed(0) +
+        " L khí ở đktc)</div>" +
+      "<div class='step' style='background:#dcfce7'>Đồng thời thải ra n(CO₂) = " + nCO2.toFixed(1) + " mol = " +
+        gCO2.toFixed(0) + " g ≈ " + (gCO2 / 1000).toFixed(2) + " kg CO₂/ngày khi thở ra.</div>";
+  }
+
+  wEl.addEventListener("input", update);
+  aEl.addEventListener("change", update);
+  update();
+}
+document.addEventListener("DOMContentLoaded", initBreathing);
 
 // Init
 populateReactions();

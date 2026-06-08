@@ -125,7 +125,7 @@
 <h2>1. Bảng tuần hoàn tương tác</h2>
 <div class="card">
   <p>Click vào ô bất kỳ để xem chi tiết. 4 màu = 4 khối: <span class="leg-s" style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:3px">s</span> <span class="leg-p" style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:3px">p</span> <span class="leg-d" style="background:#dbeafe;color:#1e3a8a;padding:2px 8px;border-radius:3px">d</span> <span class="leg-f" style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:3px">f</span>.</p>
-  <div class="ptable" id="ptableGrid"></div>
+  <div style="overflow-x:auto"><div class="ptable" id="ptableGrid"></div></div>
 
   <div style="margin-top:18px" id="elementDetail"></div>
 </div>
@@ -182,6 +182,25 @@
   <svg class="trend" id="trendSvg" viewBox="0 0 800 280"></svg>
 
   <div id="trendNote" class="hint" style="padding:10px; background:#f0f9ff; border-radius:6px"></div>
+</div>
+
+<h2>🌍 Đời sống thực tế — Pin Li-ion trong điện thoại</h2>
+<div class="card">
+  <p>Pin điện thoại, laptop, xe điện đều là pin Lithium-ion. Vì sao chọn Li mà không phải kim loại khác?
+     Câu trả lời nằm ở cấu hình electron: Li là [He] 2s¹ — chỉ 1 electron lớp ngoài, dễ nhường (năng lượng
+     ion hoá nhỏ). Chọn kim loại nhóm 1 để so sánh:</p>
+  <div class="row">
+    <label>Kim loại:</label>
+    <button class="toggle active" data-li="Li">Li (Lithium)</button>
+    <button class="toggle" data-li="Na">Na (Sodium)</button>
+    <button class="toggle" data-li="K">K (Potassium)</button>
+  </div>
+
+  <svg id="liSvg" width="480" height="140" viewBox="0 0 480 140" style="display:block;width:100%;max-width:480px;height:auto;margin:8px auto"></svg>
+
+  <div class="result" id="liResult" style="margin-top:10px"></div>
+  <div class="hint" style="margin-top:6px">Toy minh hoạ: pin thật còn phụ thuộc điện thế chuẩn E°, vật liệu cực
+     (LiCoO₂, graphite), độ an toàn... Ở đây chỉ minh hoạ một yếu tố then chốt: kim loại nhóm 1 nhường electron rất dễ.</div>
 </div>
 
 </main>
@@ -489,6 +508,97 @@ function drawTrend() {
 
   document.getElementById("trendNote").textContent = t.note;
 }
+
+// ===== Đời sống thực tế: pin Li-ion =====
+function initLiBattery() {
+  const out = document.getElementById("liResult");
+  const svg = document.getElementById("liSvg");
+  const btns = document.querySelectorAll("[data-li]");
+  if (!out) return;
+
+  // I₁ (năng lượng ion hóa thứ nhất, kJ/mol) — số thật.
+  const METAL = {
+    Li: {name: "Lithium", config: "[He] 2s¹", ie1: 520, why: "chỉ có 1 electron 2s¹ ngoài lõi [He] bền → bứt rất dễ, nhường thành Li⁺."},
+    Na: {name: "Sodium",  config: "[Ne] 3s¹", ie1: 496, why: "1 electron 3s¹, ở xa hạt nhân hơn Li nên bứt còn dễ hơn — nhưng nguyên tử nặng & to."},
+    K:  {name: "Potassium", config:"[Ar] 4s¹", ie1: 419, why: "1 electron 4s¹ rất xa nhân, bứt dễ nhất — song quá nặng/cồng kềnh cho pin di động."}
+  };
+
+  function render(sym) {
+    btns.forEach(b => b.classList.toggle("active", b.dataset.li === sym));
+    const m = METAL[sym];
+    drawCell(sym);
+    out.innerHTML =
+      "<div><strong>Vì sao pin dùng Lithium?</strong> Pin sạc dựa trên việc kim loại NHƯỜNG electron " +
+      "(oxi hoá ở cực âm khi xả). Kim loại nhóm 1 (s¹) nhường electron lớp ngoài cùng cực dễ — " +
+      "năng lượng ion hoá I₁ nhỏ. Li nhẹ nhất (M = 6.94 g/mol) nên cho mật độ năng lượng/khối lượng cao nhất.</div>" +
+      "<div style='margin-top:8px'>" +
+      "<span class='stat'>" + m.name + ": <strong>" + m.config + "</strong></span>" +
+      "<span class='stat'>I₁ = <strong>" + m.ie1 + " kJ/mol</strong></span>" +
+      "</div>" +
+      "<div class='hint' style='margin-top:6px'>" + m.name + ": " + m.why + "</div>" +
+      "<div class='hint' style='margin-top:6px'>Walk-through (số thật): bứt 1 mol electron khỏi Li tốn " +
+      "I₁ = 520 kJ/mol; khỏi Na tốn 496; khỏi K tốn 419 kJ/mol — đều nhỏ hơn nhiều so với phi kim " +
+      "(vd O cần 1314, F cần 1681 kJ/mol) → chỉ kim loại kiềm mới \"xả\" electron rẻ như vậy. " +
+      "Trong 3 kim loại, K bứt dễ nhất nhưng Li nhẹ nhất; cân giữa \"dễ nhường\" và \"nhẹ\", Li thắng cho pin điện thoại.</div>";
+  }
+
+  function drawCell(sym) {
+    svg.innerHTML = "";
+    const W = 480, H = 140;
+    // 2 điện cực
+    function pole(x, label, color) {
+      const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      r.setAttribute("x", x); r.setAttribute("y", 30);
+      r.setAttribute("width", 60); r.setAttribute("height", 80); r.setAttribute("rx", 6);
+      r.setAttribute("fill", color); r.setAttribute("stroke", "#475569"); r.setAttribute("stroke-width", 1.5);
+      svg.appendChild(r);
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", x + 30); t.setAttribute("y", 75); t.setAttribute("text-anchor", "middle");
+      t.setAttribute("font-size", "12"); t.setAttribute("fill", "#1a202c"); t.setAttribute("font-weight", "700");
+      t.textContent = label;
+      svg.appendChild(t);
+    }
+    pole(40, "Cực (−)", "#fcd9a8");
+    pole(W - 100, "Cực (+)", "#dbeafe");
+    // Ion Li⁺ + electron di chuyển
+    for (let i = 0; i < 6; i++) {
+      const startX = 110, endX = W - 110;
+      const y = 50 + i * 12;
+      // Ion (đỏ) đi trong dung dịch
+      const ion = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      ion.setAttribute("cx", startX); ion.setAttribute("cy", y); ion.setAttribute("r", 5);
+      ion.setAttribute("fill", "#be185d");
+      const a1 = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+      a1.setAttribute("attributeName", "cx"); a1.setAttribute("from", startX); a1.setAttribute("to", endX);
+      a1.setAttribute("dur", "2s"); a1.setAttribute("repeatCount", "indefinite");
+      ion.appendChild(a1);
+      svg.appendChild(ion);
+    }
+    // Electron qua dây ngoài (xanh, đi vòng trên)
+    for (let i = 0; i < 4; i++) {
+      const e = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      e.setAttribute("cy", 18); e.setAttribute("r", 4); e.setAttribute("fill", "#1d4ed8");
+      const a = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+      a.setAttribute("attributeName", "cx"); a.setAttribute("from", 70); a.setAttribute("to", W - 70);
+      a.setAttribute("dur", "2s"); a.setAttribute("begin", (i * 0.5) + "s"); a.setAttribute("repeatCount", "indefinite");
+      e.appendChild(a);
+      svg.appendChild(e);
+    }
+    const wire = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    wire.setAttribute("x1", 70); wire.setAttribute("y1", 18); wire.setAttribute("x2", W - 70); wire.setAttribute("y2", 18);
+    wire.setAttribute("stroke", "#94a3b8"); wire.setAttribute("stroke-width", 1);
+    svg.insertBefore(wire, svg.firstChild);
+    const cap = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    cap.setAttribute("x", W / 2); cap.setAttribute("y", 132); cap.setAttribute("text-anchor", "middle");
+    cap.setAttribute("font-size", "11"); cap.setAttribute("fill", "#475569");
+    cap.textContent = "e⁻ (xanh) chạy qua dây ngoài · ion " + sym + "⁺ (hồng) khuếch tán trong dung dịch";
+    svg.appendChild(cap);
+  }
+
+  btns.forEach(b => b.addEventListener("click", () => render(b.dataset.li)));
+  render("Li");
+}
+document.addEventListener("DOMContentLoaded", initLiBattery);
 
 // ===== Init =====
 buildPTable();

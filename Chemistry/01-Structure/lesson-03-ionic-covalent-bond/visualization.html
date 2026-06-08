@@ -179,6 +179,24 @@
   <div class="molecule-info" id="moleculeInfo"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Vì sao nước hoà tan muối nhưng không hoà tan dầu?</h2>
+<div class="card">
+  <p>Bạn cho muối vào nước → tan biến mất; cho dầu vào nước → nổi thành lớp riêng. Khác biệt đến từ ĐỘ PHÂN CỰC
+     của liên kết (Δχ ở module 2). Nước là dung môi phân cực, chỉ hoà tan chất phân cực hoặc ion. Chọn chất tan:</p>
+  <div class="row">
+    <label>Cho vào nước:</label>
+    <button class="toggle active" data-ds="salt">Muối (NaCl)</button>
+    <button class="toggle" data-ds="sugar">Đường</button>
+    <button class="toggle" data-ds="oil">Dầu ăn</button>
+  </div>
+
+  <svg id="dsSvg" width="480" height="200" viewBox="0 0 480 200" style="display:block;width:100%;max-width:480px;height:auto;margin:8px auto"></svg>
+
+  <div class="result" id="dsResult" style="margin-top:10px"></div>
+  <div class="hint" style="margin-top:6px">Toy minh hoạ: thực tế độ tan còn phụ thuộc nhiệt độ, áp suất, cấu trúc
+     phân tử cụ thể. Ở đây minh hoạ nguyên tắc cốt lõi "giống tan trong giống" dựa trên độ phân cực.</div>
+</div>
+
 </main>
 
 <script>
@@ -605,6 +623,103 @@ function showMolecule() {
 }
 
 document.getElementById("moleculeSelect").addEventListener("change", showMolecule);
+
+// ===== Đời sống thực tế: hoà tan muối vs dầu =====
+function initDissolve() {
+  const out = document.getElementById("dsResult");
+  const svg = document.getElementById("dsSvg");
+  const btns = document.querySelectorAll("[data-ds]");
+  if (!out) return;
+
+  // Δχ giữa các nguyên tử để minh hoạ độ phân cực.
+  const SOLUTE = {
+    salt: {
+      name: "Muối ăn (NaCl)", polar: true,
+      detail: "NaCl là hợp chất ION. Δχ(Na,Cl) = |0.93 − 3.16| = 2.23 ≥ 1.7 → ion. " +
+              "Trong nước, đầu O (δ⁻) của H₂O kéo Na⁺, đầu H (δ⁺) kéo Cl⁻ → tách ion ra (hydrat hoá) → TAN."
+    },
+    sugar: {
+      name: "Đường (C₁₂H₂₂O₁₁)", polar: true,
+      detail: "Đường là phân tử CỘNG HOÁ TRỊ nhưng có nhiều nhóm −OH PHÂN CỰC (Δχ O−H = |3.44 − 2.20| = 1.24). " +
+              "Các nhóm −OH tạo liên kết hydro với nước → TAN tốt (\"giống tan trong giống\")."
+    },
+    oil: {
+      name: "Dầu ăn (chuỗi C−H)", polar: false,
+      detail: "Dầu chủ yếu là liên kết C−H. Δχ(C,H) = |2.55 − 2.20| = 0.35 < 0.4 → gần như KHÔNG cực. " +
+              "Phân tử không cực không hút được nước phân cực → KHÔNG tan, nổi thành lớp riêng."
+    }
+  };
+
+  function render(key) {
+    btns.forEach(b => b.classList.toggle("active", b.dataset.ds === key));
+    const s = SOLUTE[key];
+    drawScene(s.polar);
+    out.innerHTML =
+      "<div><strong>Quy tắc \"giống tan trong giống\":</strong> Nước là dung môi PHÂN CỰC " +
+      "(O hút electron mạnh → đầu O mang δ⁻, đầu H mang δ⁺). Chất tan phân cực/ion thì TAN; " +
+      "chất không cực thì KHÔNG.</div>" +
+      "<div style='margin-top:8px'>" +
+      "<span class='stat'>" + s.name + "</span>" +
+      "<span class='stat'>" + (s.polar ? "Phân cực/ion → TAN ✓" : "Không cực → KHÔNG tan ✗") + "</span>" +
+      "</div>" +
+      "<div class='hint' style='margin-top:6px'>" + s.detail + "</div>";
+  }
+
+  function drawScene(polar) {
+    svg.innerHTML = "";
+    const W = 480, H = 200;
+    // Nền nước
+    const water = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    water.setAttribute("x", 10); water.setAttribute("y", polar ? 10 : 70);
+    water.setAttribute("width", W - 20); water.setAttribute("height", polar ? H - 20 : H - 80);
+    water.setAttribute("rx", 8); water.setAttribute("fill", "#dbeafe"); water.setAttribute("opacity", "0.6");
+    svg.appendChild(water);
+    const wlbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    wlbl.setAttribute("x", 20); wlbl.setAttribute("y", polar ? 30 : 90);
+    wlbl.setAttribute("font-size", "12"); wlbl.setAttribute("fill", "#1e3a8a"); wlbl.setAttribute("font-weight", "700");
+    wlbl.textContent = "Nước (phân cực)";
+    svg.appendChild(wlbl);
+
+    if (polar) {
+      // Các hạt tan phân tán đều
+      for (let i = 0; i < 10; i++) {
+        const cx = 60 + (i % 5) * 80;
+        const cy = 70 + Math.floor(i / 5) * 70;
+        const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", 9);
+        c.setAttribute("fill", "#be185d");
+        svg.appendChild(c);
+      }
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", W / 2); t.setAttribute("y", H - 8); t.setAttribute("text-anchor", "middle");
+      t.setAttribute("font-size", "11"); t.setAttribute("fill", "#475569");
+      t.textContent = "Hạt chất tan (hồng) phân tán đều → dung dịch trong suốt";
+      svg.appendChild(t);
+    } else {
+      // Lớp dầu nổi trên
+      const oil = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      oil.setAttribute("x", 10); oil.setAttribute("y", 10);
+      oil.setAttribute("width", W - 20); oil.setAttribute("height", 55);
+      oil.setAttribute("rx", 8); oil.setAttribute("fill", "#fcd34d"); oil.setAttribute("opacity", "0.8");
+      svg.appendChild(oil);
+      for (let i = 0; i < 5; i++) {
+        const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        c.setAttribute("cx", 70 + i * 80); c.setAttribute("cy", 37); c.setAttribute("r", 10);
+        c.setAttribute("fill", "#b45309");
+        svg.appendChild(c);
+      }
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", W / 2); t.setAttribute("y", 33); t.setAttribute("text-anchor", "middle");
+      t.setAttribute("font-size", "12"); t.setAttribute("fill", "#7c2d12"); t.setAttribute("font-weight", "700");
+      t.textContent = "Lớp dầu nổi tách riêng — KHÔNG tan";
+      svg.appendChild(t);
+    }
+  }
+
+  btns.forEach(b => b.addEventListener("click", () => render(b.dataset.ds)));
+  render("salt");
+}
+document.addEventListener("DOMContentLoaded", initDissolve);
 
 // ===== Init =====
 drawStage(0);

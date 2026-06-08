@@ -96,7 +96,24 @@
 
 <h2>3. Bảng tra cứu hình học</h2>
 <div class="card">
-  <table class="summary-table" id="summaryTable"></table>
+  <div style="overflow-x:auto"><table class="summary-table" id="summaryTable"></table></div>
+</div>
+
+<h2>🌍 Đời sống thực tế — Hình học quyết định nước phân cực, CO₂ thì không</h2>
+<div class="card">
+  <p>Cả H₂O và CO₂ đều có liên kết phân cực (O hút electron mạnh). Nhưng nước thì PHÂN CỰC (hoà tan muối, mao dẫn,
+     sức căng bề mặt), còn CO₂ KHÔNG phân cực (ít tan, dễ xì khỏi nước ngọt). Khác biệt nằm ở HÌNH HỌC từ VSEPR. So sánh:</p>
+  <div class="row">
+    <label>Phân tử:</label>
+    <button data-sp="water" class="active">H₂O — gấp khúc</button>
+    <button data-sp="co2">CO₂ — thẳng</button>
+  </div>
+
+  <svg id="spSvg" width="480" height="200" viewBox="0 0 480 200" style="display:block;width:100%;max-width:480px;height:auto;margin:8px auto;background:linear-gradient(135deg,#f8fafc,#fce7f3);border-radius:8px"></svg>
+
+  <div class="result" id="spResult" style="margin-top:10px"></div>
+  <div class="hint" style="margin-top:6px">Mũi hồng = lưỡng cực từng liên kết (hướng về nguyên tử âm điện hơn).
+     Toy minh hoạ 2D: phân tử thật là 3D, nhưng nguyên tắc tổng vector vẫn đúng.</div>
 </div>
 
 </main>
@@ -335,6 +352,109 @@ function buildSummary() {
     return `<tr>${r.map(c => `<${tag}>${c}</${tag}>`).join("")}</tr>`;
   }).join("");
 }
+
+// ===== Đời sống thực tế: hình học quyết định phân cực =====
+function initShapePolar() {
+  const out = document.getElementById("spResult");
+  const svg = document.getElementById("spSvg");
+  const btns = document.querySelectorAll("[data-sp]");
+  if (!out) return;
+
+  const MOL = {
+    water: {
+      name: "H₂O (nước)", shape: "Gấp khúc 104.5°", polar: true,
+      reallife: "Hai liên kết O−H đều phân cực, nhưng phân tử GẤP KHÚC nên 2 vector lưỡng cực KHÔNG triệt tiêu " +
+                "→ tổng ≠ 0 → nước PHÂN CỰC. Vì vậy nước hoà tan muối/đường, dẫn tới mao dẫn (hút lên thân cây), " +
+                "sức căng bề mặt cao (nhện nước đi trên mặt nước)."
+    },
+    co2: {
+      name: "CO₂ (khí cacbonic)", shape: "Thẳng 180°", polar: false,
+      reallife: "Hai liên kết C=O cũng phân cực, nhưng phân tử THẲNG đối xứng nên 2 vector lưỡng cực ngược chiều " +
+                "TRIỆT TIÊU hết → tổng = 0 → CO₂ KHÔNG phân cực. Nên CO₂ ít tan trong nước (nước ngọt có ga phải nén áp suất " +
+                "để ép CO₂ tan; mở nắp → xì hết)."
+    }
+  };
+
+  function render(key) {
+    btns.forEach(b => b.classList.toggle("active", b.dataset.sp === key));
+    const m = MOL[key];
+    drawDipole(key);
+    out.innerHTML =
+      "<div><strong>Vì sao cùng có liên kết phân cực mà nước phân cực, CO₂ thì không?</strong> " +
+      "Phân cực của cả phân tử = TỔNG VECTOR các lưỡng cực liên kết. Tổng này phụ thuộc HÌNH HỌC (VSEPR ở trên).</div>" +
+      "<div style='margin-top:8px'>" +
+      "<span class='stat'>" + m.name + "</span>" +
+      "<span class='stat'>Hình học: <strong>" + m.shape + "</strong></span>" +
+      "<span class='stat'>" + (m.polar ? "Phân cực ✓" : "Không phân cực ✗") + "</span>" +
+      "</div>" +
+      "<div style='margin-top:6px;color:#475569;font-size:13px'>" + m.reallife + "</div>";
+  }
+
+  function drawDipole(key) {
+    svg.innerHTML = "";
+    const W = 480, H = 200, cy = 110;
+    function atom(x, y, label, color) {
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", 20);
+      c.setAttribute("fill", color); c.setAttribute("stroke", "#1a202c"); c.setAttribute("stroke-width", 1.5);
+      svg.appendChild(c);
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", x); t.setAttribute("y", y + 5); t.setAttribute("text-anchor", "middle");
+      t.setAttribute("font-size", "14"); t.setAttribute("font-weight", "700"); t.setAttribute("fill", "white");
+      t.textContent = label;
+      svg.appendChild(t);
+    }
+    function dipoleArrow(x1, y1, x2, y2) {
+      const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      l.setAttribute("x1", x1); l.setAttribute("y1", y1); l.setAttribute("x2", x2); l.setAttribute("y2", y2);
+      l.setAttribute("stroke", "#be185d"); l.setAttribute("stroke-width", 3);
+      l.setAttribute("marker-end", "url(#dipHead)");
+      svg.appendChild(l);
+    }
+    // arrow marker
+    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    defs.innerHTML = '<marker id="dipHead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#be185d"/></marker>';
+    svg.appendChild(defs);
+
+    if (key === "co2") {
+      atom(140, cy, "O", "#dc2626"); atom(240, cy, "C", "#475569"); atom(340, cy, "O", "#dc2626");
+      // 2 bond dipoles point toward O (more EN), opposite directions → cancel
+      dipoleArrow(240, cy - 35, 160, cy - 35);
+      dipoleArrow(240, cy - 35, 320, cy - 35);
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", W / 2); t.setAttribute("y", 185); t.setAttribute("text-anchor", "middle");
+      t.setAttribute("font-size", "12"); t.setAttribute("fill", "#1a202c"); t.setAttribute("font-weight", "700");
+      t.textContent = "2 lưỡng cực ngược chiều → TRIỆT TIÊU → tổng = 0 (không cực)";
+      svg.appendChild(t);
+    } else {
+      // water bent: O on top, 2 H below at angle
+      atom(240, 70, "O", "#dc2626"); atom(170, 150, "H", "#94a3b8"); atom(310, 150, "H", "#94a3b8");
+      // bond dipoles point toward O
+      dipoleArrow(170, 150, 226, 90);
+      dipoleArrow(310, 150, 254, 90);
+      // net dipole (downward... actually toward O i.e. up). Show resultant upward arrow from center
+      const net = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      net.setAttribute("x1", 240); net.setAttribute("y1", 130); net.setAttribute("x2", 240); net.setAttribute("y2", 60);
+      net.setAttribute("stroke", "#047857"); net.setAttribute("stroke-width", 4);
+      net.setAttribute("marker-end", "url(#dipHead)");
+      svg.appendChild(net);
+      const nlbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      nlbl.setAttribute("x", 270); nlbl.setAttribute("y", 95); nlbl.setAttribute("font-size", "12");
+      nlbl.setAttribute("fill", "#047857"); nlbl.setAttribute("font-weight", "700");
+      nlbl.textContent = "lưỡng cực tổng";
+      svg.appendChild(nlbl);
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", W / 2); t.setAttribute("y", 190); t.setAttribute("text-anchor", "middle");
+      t.setAttribute("font-size", "12"); t.setAttribute("fill", "#1a202c"); t.setAttribute("font-weight", "700");
+      t.textContent = "Gấp khúc → 2 lưỡng cực KHÔNG triệt tiêu → tổng ≠ 0 (phân cực)";
+      svg.appendChild(t);
+    }
+  }
+
+  btns.forEach(b => b.addEventListener("click", () => render(b.dataset.sp)));
+  render("water");
+}
+document.addEventListener("DOMContentLoaded", initShapePolar);
 
 // Init
 buildGallery();

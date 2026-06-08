@@ -272,6 +272,29 @@
   <div class="history-detail" id="historyDetail"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Vì sao dây đồng dẫn điện?</h2>
+<div class="card">
+  <p>Sợi dây điện trong nhà bạn là đồng (Cu, Z=29). Bí mật nằm ở 1 electron lớp ngoài cùng (4s¹)
+     của mỗi nguyên tử: nó tách ra thành "biển electron tự do" trôi nổi giữa các ion dương — chính lớp
+     electron này khiến kim loại dẫn điện. Chỉnh kích thước dây để xem số electron tự do và điện trở:</p>
+  <div class="row">
+    <label>Chiều dài dây (m):</label>
+    <input type="range" id="cuLen" min="0.5" max="10" value="2" step="0.5">
+    <span class="stat electron">L = <strong id="cuLenVal">2.0</strong> m</span>
+  </div>
+  <div class="row">
+    <label>Đường kính (mm):</label>
+    <input type="range" id="cuDia" min="0.5" max="5" value="1.5" step="0.1">
+    <span class="stat">d = <strong id="cuDiaVal">1.5</strong> mm</span>
+  </div>
+
+  <svg id="cuSvg" width="480" height="90" viewBox="0 0 480 90" style="display:block;width:100%;max-width:480px;height:auto;margin:8px auto"></svg>
+
+  <div class="result" id="cuResult" style="margin-top:10px"></div>
+  <div class="hint" style="margin-top:6px">Toy minh hoạ: bỏ qua nhiệt độ, độ tinh khiết, hiệu ứng bề mặt;
+     dùng mật độ electron tự do chuẩn của Cu (n ≈ 8.49×10²⁸ /m³) và điện trở suất ρ = 1.68×10⁻⁸ Ω·m ở 20°C.</div>
+</div>
+
 </main>
 
 <script>
@@ -820,6 +843,94 @@ function showModel(key) {
   `;
   m.svg(det.querySelector("svg"));
 }
+
+// ===== Đời sống thực tế: dây đồng dẫn điện =====
+function initCopperWire() {
+  const lenEl = document.getElementById("cuLen");
+  const diaEl = document.getElementById("cuDia");
+  const lenVal = document.getElementById("cuLenVal");
+  const diaVal = document.getElementById("cuDiaVal");
+  const out = document.getElementById("cuResult");
+  const svg = document.getElementById("cuSvg");
+  if (!lenEl) return;
+
+  // Hằng số: Cu có 1 electron tự do / nguyên tử (lớp 4s¹).
+  // Mật độ nguyên tử Cu ~ 8.49e28 / m³ → mật độ electron tự do n = 8.49e28 /m³.
+  const n = 8.49e28;          // electron tự do trên m³
+  const e = 1.602e-19;        // điện tích 1 electron (C)
+  const rho = 1.68e-8;        // điện trở suất Cu (Ω·m)
+
+  function update() {
+    const L = parseFloat(lenEl.value);      // mét
+    const d = parseFloat(diaEl.value);       // mm đường kính
+    lenVal.textContent = L.toFixed(1);
+    diaVal.textContent = d.toFixed(1);
+
+    const r = (d / 2) / 1000;                // bán kính (m)
+    const A = Math.PI * (r * r);             // tiết diện (m²)
+    const volume = A * L;                    // thể tích (m³)
+    const nFree = n * volume;                // tổng electron tự do
+    const R = rho * L / A;                   // điện trở (Ω)
+
+    // Animate electron dots in SVG
+    drawWire(d, L);
+
+    out.innerHTML =
+      "<div><strong>Vì sao đồng dẫn điện?</strong> Mỗi nguyên tử Cu (Z=29, cấu hình [Ar]3d¹⁰4s¹) " +
+      "nhường 1 electron lớp ngoài 4s¹ thành \"biển electron tự do\" trôi nổi giữa các ion Cu⁺. " +
+      "Đặt hiệu điện thế → biển electron này dịch chuyển → dòng điện.</div>" +
+      "<div style='margin-top:8px'>" +
+      "<span class='stat electron'>Tiết diện A = <strong>" + (A * 1e6).toFixed(2) + " mm²</strong></span>" +
+      "<span class='stat'>Thể tích = <strong>" + (volume * 1e6).toExponential(2) + " cm³</strong></span>" +
+      "<span class='stat electron'>Electron tự do ≈ <strong>" + nFree.toExponential(2) + "</strong></span>" +
+      "<span class='stat mass'>Điện trở R = <strong>" + R.toExponential(2) + " Ω</strong></span>" +
+      "</div>" +
+      "<div class='hint' style='margin-top:6px'>Walk-through (số thật): dây dài " + L.toFixed(1) +
+      " m, đường kính " + d.toFixed(1) + " mm → A = π·(" + r.toExponential(2) + " m)² = " +
+      (A * 1e6).toFixed(2) + " mm². Số e tự do = n·V = 8.49×10²⁸ /m³ × " + volume.toExponential(2) +
+      " m³ ≈ " + nFree.toExponential(2) + " electron. " +
+      "Điện trở R = ρ·L/A = 1.68×10⁻⁸ × " + L.toFixed(1) + " / " + A.toExponential(2) + " = " +
+      R.toExponential(2) + " Ω — dây càng to (A lớn) thì R càng nhỏ, dẫn điện càng tốt.</div>";
+  }
+
+  function drawWire(d, L) {
+    svg.innerHTML = "";
+    const W = 480, H = 90;
+    // Thân dây (độ dày scale theo đường kính)
+    const thick = Math.max(8, Math.min(40, d * 7));
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("x", 20); rect.setAttribute("y", (H - thick) / 2);
+    rect.setAttribute("width", W - 40); rect.setAttribute("height", thick);
+    rect.setAttribute("rx", thick / 2);
+    rect.setAttribute("fill", "#fcd9a8"); rect.setAttribute("stroke", "#b45309"); rect.setAttribute("stroke-width", 1.5);
+    svg.appendChild(rect);
+    // Electron tự do (số chấm tỉ lệ thô với chiều dài)
+    const count = Math.max(6, Math.min(28, Math.round(L * 2 + 6)));
+    for (let i = 0; i < count; i++) {
+      const cx = 30 + (i / (count - 1)) * (W - 60);
+      const cy = H / 2 + (Math.sin(i * 1.7) * (thick / 2 - 4));
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", 3.5);
+      c.setAttribute("fill", "#1d4ed8");
+      const an = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+      an.setAttribute("attributeName", "cx");
+      an.setAttribute("from", cx); an.setAttribute("to", cx + 30);
+      an.setAttribute("dur", "1.2s"); an.setAttribute("repeatCount", "indefinite");
+      c.appendChild(an);
+      svg.appendChild(c);
+    }
+    const lbl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    lbl.setAttribute("x", W / 2); lbl.setAttribute("y", H - 6);
+    lbl.setAttribute("text-anchor", "middle"); lbl.setAttribute("font-size", "11"); lbl.setAttribute("fill", "#475569");
+    lbl.textContent = "Biển electron tự do (xanh) trôi theo chiều dòng điện →";
+    svg.appendChild(lbl);
+  }
+
+  lenEl.addEventListener("input", update);
+  diaEl.addEventListener("input", update);
+  update();
+}
+document.addEventListener("DOMContentLoaded", initCopperWire);
 
 // ===== Init =====
 updateAtom();

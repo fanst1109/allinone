@@ -125,6 +125,25 @@
   <div id="leResult" style="margin-top:14px"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Vì sao để tủ lạnh thức ăn lâu hỏng?</h2>
+<div class="card">
+  <p>Thức ăn để ngoài hỏng trong ngày, nhưng trong tủ lạnh giữ được cả tuần, ngăn đá thì hàng tháng. Lý do là động
+     học: quá trình làm hỏng là phản ứng hoá học theo Arrhenius k = A·exp(−Eₐ/RT) (module 1). Hạ nhiệt độ → k giảm
+     theo hàm mũ → phản ứng hỏng chậm hẳn. Kéo nhiệt độ bảo quản:</p>
+  <div class="row">
+    <label>Nhiệt độ bảo quản:</label>
+    <input type="range" id="frTemp" min="-20" max="40" value="4" step="1">
+    <span class="stat">T = <strong id="frTempVal">4</strong> °C</span>
+  </div>
+
+  <svg id="frSvg" width="480" height="90" viewBox="0 0 480 90" style="display:block;width:100%;max-width:480px;height:auto;margin:8px auto"></svg>
+
+  <div class="result" id="frResult" style="margin-top:10px"></div>
+  <div class="hint" style="margin-top:6px">Toy minh hoạ: dùng Eₐ ≈ 50 kJ/mol đại diện cho phản ứng vi sinh/enzyme,
+     mốc "để ngoài 25°C hỏng sau 1 ngày". Thực phẩm thật phụ thuộc loại vi khuẩn, độ ẩm, đóng gói; ở đây minh hoạ
+     đúng quy luật Arrhenius: T thấp ⇒ k nhỏ ⇒ hỏng chậm.</div>
+</div>
+
 </main>
 
 <script>
@@ -388,6 +407,84 @@ function leCha(action) {
     </div>
   `;
 }
+
+// ===== Đời sống thực tế: vì sao tủ lạnh giữ thức ăn lâu hỏng =====
+function initFridge() {
+  const tEl = document.getElementById("frTemp");
+  const tVal = document.getElementById("frTempVal");
+  const out = document.getElementById("frResult");
+  const svg = document.getElementById("frSvg");
+  if (!tEl) return;
+
+  // Arrhenius: k = A·exp(-Ea/RT). So sánh tốc độ hỏng ở nhiệt độ T với mốc phòng 25°C.
+  // Ea ~ 50 kJ/mol cho phản ứng vi sinh/enzyme làm hỏng thức ăn (giá trị minh hoạ).
+  const Ea = 50;             // kJ/mol
+  const R = 8.314 / 1000;    // kJ/(mol·K)
+  const T_REF_C = 25;        // mốc nhiệt độ phòng
+  const SHELF_REF_DAYS = 1;  // thức ăn để ngoài ~ 1 ngày là hỏng (mốc)
+
+  function k(Tc) { return Math.exp(-Ea / (R * (Tc + 273.15))); }
+
+  function update() {
+    const Tc = parseFloat(tEl.value);
+    tVal.textContent = Tc.toFixed(0);
+
+    const ratio = k(Tc) / k(T_REF_C);    // tốc độ hỏng so với 25°C
+    const shelf = SHELF_REF_DAYS / ratio; // tuổi thọ tỉ lệ nghịch tốc độ
+    drawBar(ratio);
+
+    let place;
+    if (Tc <= -15) place = "ngăn đá (đông lạnh)";
+    else if (Tc <= 8) place = "ngăn mát tủ lạnh";
+    else if (Tc <= 30) place = "ngoài bàn (nhiệt độ phòng)";
+    else place = "trời nóng/để gần bếp";
+
+    out.innerHTML =
+      "<strong>Vì sao để tủ lạnh thức ăn lâu hỏng?</strong> Quá trình làm hỏng (vi khuẩn, enzyme) là phản ứng " +
+      "hoá học, tuân theo Arrhenius k = A·exp(−Eₐ/RT). Hạ nhiệt độ → k giảm rất nhanh (hàm mũ) → hỏng chậm hơn nhiều." +
+      "<div class='step'>Ở " + Tc.toFixed(0) + "°C (" + place + "): tốc độ hỏng so với 25°C = " +
+        "exp(−Eₐ/R·T) / exp(−Eₐ/R·298) = <strong>" + ratio.toFixed(2) + "×</strong></div>" +
+      "<div class='step' style='background:#dcfce7'>Tuổi thọ ước tính ≈ " + SHELF_REF_DAYS + " ngày ÷ " +
+        ratio.toFixed(2) + " = <strong>" + formatShelf(shelf) + "</strong></div>" +
+      "<div class='hint' style='margin-top:6px'>Quy luật kinh nghiệm: cứ giảm ~10°C thì tốc độ phản ứng giảm khoảng " +
+        "2–3 lần. Đó là vì sao chuyển từ bàn (25°C) xuống ngăn mát (4°C) kéo dài hạn dùng gấp nhiều lần, " +
+        "còn ngăn đá (−18°C) gần như \"đóng băng\" quá trình hỏng.</div>";
+  }
+
+  function formatShelf(days) {
+    if (days < 1) return (days * 24).toFixed(1) + " giờ";
+    if (days < 60) return days.toFixed(1) + " ngày";
+    return (days / 30).toFixed(1) + " tháng";
+  }
+
+  function drawBar(ratio) {
+    svg.innerHTML = "";
+    const W = 480, H = 90;
+    // thanh tốc độ (log scale để thấy được)
+    const maxLog = 2;  // 100x
+    const frac = Math.min(1, Math.max(0.02, (Math.log10(ratio) + maxLog) / (2 * maxLog)));
+    const track = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    track.setAttribute("x", 20); track.setAttribute("y", 30);
+    track.setAttribute("width", W - 40); track.setAttribute("height", 24); track.setAttribute("rx", 12);
+    track.setAttribute("fill", "#e2e8f0");
+    svg.appendChild(track);
+    const fill = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    fill.setAttribute("x", 20); fill.setAttribute("y", 30);
+    fill.setAttribute("width", (W - 40) * frac); fill.setAttribute("height", 24); fill.setAttribute("rx", 12);
+    fill.setAttribute("fill", ratio > 1 ? "#dc2626" : "#047857");
+    svg.appendChild(fill);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", W / 2); t.setAttribute("y", 75); t.setAttribute("text-anchor", "middle");
+    t.setAttribute("font-size", "12"); t.setAttribute("fill", "#475569");
+    t.textContent = "Tốc độ hỏng (so với 25°C): " + ratio.toFixed(2) + "× — " +
+      (ratio > 1 ? "nhanh hơn (hỏng sớm)" : "chậm hơn (giữ lâu)");
+    svg.appendChild(t);
+  }
+
+  tEl.addEventListener("input", update);
+  update();
+}
+document.addEventListener("DOMContentLoaded", initFridge);
 
 // Init
 drawActivation();

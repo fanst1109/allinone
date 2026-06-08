@@ -52,6 +52,7 @@
   table.compare {
     width: 100%; border-collapse: collapse; margin-top: 12px;
     font-size: 14px;
+    display: block; overflow-x: auto;
   }
   table.compare th, table.compare td {
     border: 1px solid #e2e8f0; padding: 8px 12px;
@@ -186,6 +187,24 @@
       <td>H + O hoặc F, 2-4 H-bond/phân tử</td>
     </tr>
   </table>
+</div>
+
+<h2>🌍 Đời sống thực tế — Vì sao nước hoa bay mùi nhanh, vũng nước lại lâu khô?</h2>
+<div class="card">
+  <p>Xịt nước hoa, mùi lan ngay rồi nhạt dần; còn vũng nước trên sàn thì cả buổi mới khô. Lý do: chất lỏng bay hơi
+     khi phân tử thoát khỏi bề mặt, mà lực liên phân tử CÀNG YẾU thì phân tử CÀNG dễ thoát → bay hơi nhanh. Chọn chất lỏng:</p>
+  <div class="row">
+    <label>Chất lỏng:</label>
+    <button class="muted active" data-evap="ether">Cồn/nước hoa</button>
+    <button class="muted" data-evap="acetone">Acetone (tẩy móng)</button>
+    <button class="muted" data-evap="water">Nước</button>
+  </div>
+
+  <svg id="evapSvg" width="480" height="180" viewBox="0 0 480 180" style="display:block;width:100%;max-width:480px;height:auto;margin:8px auto"></svg>
+
+  <div class="force-card" id="evapResult" style="margin-top:10px"></div>
+  <div class="hint" style="margin-top:6px">Toy minh hoạ: tốc độ bay hơi thật còn phụ thuộc nhiệt độ, độ ẩm, diện tích
+     bề mặt, gió. Ở đây minh hoạ yếu tố chính: lực liên phân tử (qua T_sôi) quyết định tốc độ bay hơi.</div>
 </div>
 
 </main>
@@ -490,6 +509,85 @@ function showForce() {
 }
 
 document.getElementById("forcePicker").addEventListener("change", showForce);
+
+// ===== Đời sống thực tế: nước hoa bay hơi nhanh/chậm =====
+function initEvap() {
+  const out = document.getElementById("evapResult");
+  const svg = document.getElementById("evapSvg");
+  const btns = document.querySelectorAll("[data-evap]");
+  if (!out) return;
+
+  // T_sôi (°C) đại diện cho độ mạnh lực liên phân tử: thấp → bay hơi nhanh.
+  // "rank" 1 = bay hơi nhanh nhất.
+  const LIQUID = {
+    ether: {name: "Cồn / dung môi nhẹ trong nước hoa (ethanol)", Tboil: 78, force: "London + H-bond yếu hơn nước",
+            note: "Ethanol có −OH (H-bond) nhưng phân tử nhỏ → lực tổng yếu hơn nước → bay hơi nhanh, mang mùi đi liền."},
+    water:  {name: "Nước (dung môi nền)", Tboil: 100, force: "H-bond MẠNH (4 cầu/phân tử)",
+             note: "Nước giữ nhau bằng mạng H-bond dày → tốn nhiều năng lượng để thoát ra → bay hơi chậm."},
+    acetone:{name: "Acetone (chất tẩy sơn móng)", Tboil: 56, force: "Dipole-dipole, KHÔNG H-bond",
+             note: "Acetone không tạo H-bond (không có H gắn N/O/F) → lực yếu → bay hơi rất nhanh, lạnh tay khi bốc hơi."}
+  };
+  // Tốc độ bay hơi tương đối, lấy mốc nước = 1. Xấp xỉ thô: nhiệt độ sôi thấp → nhanh.
+  const RATE = {ether: 3.0, water: 1.0, acetone: 6.0};
+
+  function render(key) {
+    btns.forEach(b => b.classList.toggle("active", b.dataset.evap === key));
+    const L = LIQUID[key];
+    animate(RATE[key]);
+    out.innerHTML =
+      "<div><strong>Vì sao nước hoa bay mùi nhanh còn vũng nước lâu khô?</strong> " +
+      "Chất lỏng bay hơi khi phân tử thoát khỏi bề mặt — lực liên phân tử CÀNG YẾU thì càng dễ thoát, bay hơi càng nhanh.</div>" +
+      "<div style='margin-top:8px'>" +
+      "<span class='stat'>" + L.name + "</span>" +
+      "<span class='stat'>T_sôi = <strong>" + L.Tboil + "°C</strong></span>" +
+      "<span class='stat'>Lực: <strong>" + L.force + "</strong></span>" +
+      "</div>" +
+      "<div class='hint' style='margin-top:6px'>" + L.note + "</div>" +
+      "<div class='hint' style='margin-top:6px'>Walk-through (số thật): so 3 chất — acetone (T_sôi 56°C, không H-bond) " +
+      "bay hơi nhanh nhất; ethanol (78°C, H-bond yếu) trung bình; nước (100°C, H-bond mạnh nhất) chậm nhất. " +
+      "Quy luật: T_sôi cao ⇒ lực liên phân tử mạnh ⇒ bay hơi chậm. Tốc độ bay hơi tương đối (mốc nước = 1): " +
+      "acetone ≈ 6×, ethanol ≈ 3×, nước = 1×.</div>";
+  }
+
+  function animate(rate) {
+    svg.innerHTML = "";
+    const W = 480, H = 180;
+    // Mặt thoáng chất lỏng
+    const liq = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    liq.setAttribute("x", 40); liq.setAttribute("y", 110);
+    liq.setAttribute("width", W - 80); liq.setAttribute("height", 50);
+    liq.setAttribute("rx", 6); liq.setAttribute("fill", "#dbeafe");
+    svg.appendChild(liq);
+    // Số phân tử thoát ra tỉ lệ với tốc độ
+    const count = Math.round(rate * 3);
+    for (let i = 0; i < count; i++) {
+      const cx = 60 + Math.random() * (W - 120);
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      c.setAttribute("cx", cx); c.setAttribute("cy", 110); c.setAttribute("r", 4);
+      c.setAttribute("fill", "#be185d"); c.setAttribute("opacity", "0.85");
+      const ay = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+      ay.setAttribute("attributeName", "cy"); ay.setAttribute("from", 110); ay.setAttribute("to", 15);
+      ay.setAttribute("dur", (3 / rate).toFixed(2) + "s");
+      ay.setAttribute("begin", (i * 0.2).toFixed(2) + "s"); ay.setAttribute("repeatCount", "indefinite");
+      c.appendChild(ay);
+      const ao = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+      ao.setAttribute("attributeName", "opacity"); ao.setAttribute("from", "0.85"); ao.setAttribute("to", "0");
+      ao.setAttribute("dur", (3 / rate).toFixed(2) + "s");
+      ao.setAttribute("begin", (i * 0.2).toFixed(2) + "s"); ao.setAttribute("repeatCount", "indefinite");
+      c.appendChild(ao);
+      svg.appendChild(c);
+    }
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", W / 2); t.setAttribute("y", 175); t.setAttribute("text-anchor", "middle");
+    t.setAttribute("font-size", "11"); t.setAttribute("fill", "#475569");
+    t.textContent = "Phân tử (hồng) thoát khỏi mặt thoáng → bay hơi (nhiều/nhanh = lực yếu)";
+    svg.appendChild(t);
+  }
+
+  btns.forEach(b => b.addEventListener("click", () => render(b.dataset.evap)));
+  render("ether");
+}
+document.addEventListener("DOMContentLoaded", initEvap);
 
 // Init
 drawChart();

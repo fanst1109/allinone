@@ -200,7 +200,88 @@ function drawNorm() {
 
 drawBin();
 drawNorm();
+
+// ===== Module Đời sống thực tế: xét nghiệm dương tính giả (định lý Bayes) =====
+function rlInit() {
+  ["rlPrev","rlSens","rlSpec"].forEach(id => document.getElementById(id).addEventListener("input", rlDraw));
+  function rlDraw() {
+    const prev = +document.getElementById("rlPrev").value / 100;  // tỉ lệ mắc bệnh trong dân số
+    const sens = +document.getElementById("rlSens").value / 100;  // độ nhạy P(+|bệnh)
+    const spec = +document.getElementById("rlSpec").value / 100;  // độ đặc hiệu P(-|khoẻ)
+    document.getElementById("rlPrevV").textContent = (+document.getElementById("rlPrev").value).toFixed(1);
+    document.getElementById("rlSensV").textContent = (+document.getElementById("rlSens").value);
+    document.getElementById("rlSpecV").textContent = (+document.getElementById("rlSpec").value);
+
+    const N = 100000;
+    const sick = N * prev;
+    const healthy = N - sick;
+    const truePos = sick * sens;
+    const falseNeg = sick * (1 - sens);
+    const falsePos = healthy * (1 - spec);
+    const trueNeg = healthy * spec;
+    // P(bệnh | dương tính) = TP / (TP + FP)
+    const post = truePos / (truePos + falsePos + 1e-12);
+
+    // SVG: ô vuông 100k người, tô nhóm
+    const svg = document.getElementById("rlSvg");
+    svg.innerHTML = "";
+    const ns = "http://www.w3.org/2000/svg";
+    const W = 700, barX = 60, barW = 580, y0 = 60, barH = 70, gap = 40;
+    function bar(y, segs, label) {
+      let xx = barX;
+      segs.forEach(([frac, color, txt]) => {
+        const w = frac * barW;
+        if (w > 0.5) {
+          const r = document.createElementNS(ns, "rect");
+          r.setAttribute("x", xx); r.setAttribute("y", y); r.setAttribute("width", w); r.setAttribute("height", barH);
+          r.setAttribute("fill", color); r.setAttribute("fill-opacity", 0.8);
+          svg.appendChild(r);
+          if (w > 40) { const t = document.createElementNS(ns, "text"); t.setAttribute("x", xx + w/2); t.setAttribute("y", y + barH/2 + 4); t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "12"); t.setAttribute("fill", "white"); t.setAttribute("font-weight", "700"); t.textContent = txt; svg.appendChild(t); }
+        }
+        xx += w;
+      });
+      const lb = document.createElementNS(ns, "text"); lb.setAttribute("x", barX); lb.setAttribute("y", y - 6); lb.setAttribute("font-size", "13"); lb.setAttribute("font-weight", "700"); lb.textContent = label; svg.appendChild(lb);
+    }
+    bar(y0, [[prev, "#dc2626", `Bệnh ${Math.round(sick)}`], [1-prev, "#94a3b8", `Khoẻ ${Math.round(healthy)}`]], `Dân số ${N.toLocaleString("vi")} người`);
+    const totalPos = truePos + falsePos;
+    bar(y0 + barH + gap, [
+      [truePos/totalPos, "#dc2626", `TP ${Math.round(truePos)}`],
+      [falsePos/totalPos, "#f59e0b", `FP ${Math.round(falsePos)}`]
+    ], `Trong số người DƯƠNG TÍNH (${Math.round(totalPos)} người)`);
+
+    document.getElementById("rlRes").innerHTML = `
+      <div style="font-family:monospace; font-size:14px">Dân số ${N.toLocaleString("vi")}: bệnh = ${Math.round(sick)}, khoẻ = ${Math.round(healthy)}</div>
+      <div style="font-family:monospace; font-size:14px; margin-top:4px">Dương thật (TP) = ${Math.round(sick)}·${sens.toFixed(2)} = <strong>${Math.round(truePos)}</strong>; Dương giả (FP) = ${Math.round(healthy)}·${(1-spec).toFixed(3)} = <strong>${Math.round(falsePos)}</strong></div>
+      <div style="font-family:monospace; font-size:15px; margin-top:6px">P(bệnh | dương tính) = TP/(TP+FP) = ${Math.round(truePos)}/${Math.round(totalPos)} = <strong>${(post*100).toFixed(1)}%</strong></div>
+      <div style="margin-top:6px; font-size:13px; color:#64748b">${post < 0.5
+        ? `Bất ngờ: xét nghiệm rất chính xác (nhạy ${(sens*100).toFixed(0)}%, đặc hiệu ${(spec*100).toFixed(0)}%) nhưng vì bệnh hiếm (${(prev*100).toFixed(1)}%), <strong>đa số ca dương tính vẫn là dương giả</strong>. Đây là nghịch lý xét nghiệm — định lý Bayes giải thích vì sao cần xét nghiệm lại.`
+        : `Khi bệnh phổ biến hơn, một kết quả dương tính đáng tin hơn (${(post*100).toFixed(1)}% thực sự mắc bệnh).`}</div>
+    `;
+  }
+  rlDraw();
+}
+document.addEventListener("DOMContentLoaded", rlInit);
 </script>
+
+<h2>🌍 Đời sống thực tế — Xét nghiệm dương tính giả (định lý Bayes)</h2>
+<div class="card">
+  <p>Một xét nghiệm bệnh có <strong>độ nhạy</strong> (phát hiện đúng người bệnh) và <strong>độ đặc hiệu</strong> (loại đúng người khoẻ) rất cao. Nhưng nếu bệnh <strong>hiếm</strong>, phần lớn kết quả dương tính lại là <em>dương giả</em>. Định lý Bayes cho biết xác suất thực sự mắc bệnh khi nhận kết quả dương tính: P(bệnh | +) = TP / (TP + FP). Kéo các thanh để thấy nghịch lý.</p>
+  <div class="row">
+    <label>Tỉ lệ mắc bệnh:</label>
+    <input type="range" id="rlPrev" min="0.1" max="50" step="0.1" value="1" style="flex:1; min-width:120px">
+    <span class="stat">prevalence = <strong id="rlPrevV">1.0</strong>%</span>
+  </div>
+  <div class="row">
+    <label>Độ nhạy:</label>
+    <input type="range" id="rlSens" min="50" max="100" step="1" value="99" style="flex:1; min-width:120px">
+    <span class="stat">sens = <strong id="rlSensV">99</strong>%</span>
+    <label>Độ đặc hiệu:</label>
+    <input type="range" id="rlSpec" min="50" max="100" step="1" value="95" style="flex:1; min-width:120px">
+    <span class="stat">spec = <strong id="rlSpecV">95</strong>%</span>
+  </div>
+  <svg class="scene" id="rlSvg" viewBox="0 0 700 260" style="height:auto"></svg>
+  <div class="result" id="rlRes"></div>
+</div>
 
 </main>
 

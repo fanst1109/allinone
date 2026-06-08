@@ -140,7 +140,85 @@ function draw() {
 }
 
 draw();
+
+// ===== Module Đời sống thực tế: khối lượng tấm kim loại có mật độ thay đổi =====
+function rlInit() {
+  ["rlD0","rlKx","rlKy","rlN"].forEach(id => document.getElementById(id).addEventListener("input", rlDraw));
+  // Tấm vuông [0,2]×[0,2] m. Mật độ mặt ρ(x,y) = d0 + kx·x + ky·y  (kg/m²)
+  // Khối lượng m = ∫∫ ρ dA. Giá trị thật trên [0,2]²:
+  //   ∫∫ d0 = 4·d0 ;  ∫∫ kx·x = kx·(∫0..2 x dx)·(∫0..2 dy) = kx·2·2 = 4·kx ;  tương tự 4·ky
+  //   => m_thật = 4·d0 + 4·kx + 4·ky
+  function rlDraw() {
+    const d0 = +document.getElementById("rlD0").value;
+    const kx = +document.getElementById("rlKx").value;
+    const ky = +document.getElementById("rlKy").value;
+    const n = +document.getElementById("rlN").value;
+    document.getElementById("rlD0V").textContent = d0;
+    document.getElementById("rlKxV").textContent = kx;
+    document.getElementById("rlKyV").textContent = ky;
+    document.getElementById("rlNV").textContent = n;
+    const rho = (x, y) => d0 + kx*x + ky*y;
+    const L = 2; // cạnh tấm (m)
+    const dA = (L / n) * (L / n);
+
+    const svg = document.getElementById("rlSvg");
+    svg.innerHTML = "";
+    const ns = "http://www.w3.org/2000/svg";
+    const off = 60, plot = 320, cell = plot / n;
+    // tìm min/max ρ để tô màu
+    let rMin = Infinity, rMax = -Infinity;
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { const v = rho((i+0.5)*L/n, (j+0.5)*L/n); rMin = Math.min(rMin, v); rMax = Math.max(rMax, v); }
+    let mass = 0;
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+      const x = (i+0.5)*L/n, y = (j+0.5)*L/n;
+      const v = rho(x, y);
+      mass += v * dA;
+      const t = (v - rMin) / (rMax - rMin + 1e-9);
+      const r = document.createElementNS(ns, "rect");
+      r.setAttribute("x", off + i*cell); r.setAttribute("y", off + (n-1-j)*cell); r.setAttribute("width", cell); r.setAttribute("height", cell);
+      r.setAttribute("fill", `hsl(${(50 - t*50).toFixed(0)}, 75%, ${(70 - t*30).toFixed(0)}%)`);
+      r.setAttribute("stroke", "white"); r.setAttribute("stroke-width", 0.4);
+      svg.appendChild(r);
+    }
+    const exact = 4*d0 + 4*kx + 4*ky;
+    // nhãn trục
+    const xl=document.createElementNS(ns,"text"); xl.setAttribute("x",off+plot/2); xl.setAttribute("y",off+plot+30); xl.setAttribute("text-anchor","middle"); xl.setAttribute("font-weight","700"); xl.textContent="Tấm 2m × 2m (tối = nặng)"; svg.appendChild(xl);
+
+    document.getElementById("rlRes").innerHTML = `
+      <div style="font-family:monospace; font-size:14px">ρ(x, y) = ${d0} + ${kx}·x + ${ky}·y  (kg/m²), tấm [0,2]×[0,2] m</div>
+      <div style="font-family:monospace; font-size:14px; margin-top:4px">m ≈ Σ ρ(xᵢ,yⱼ)·ΔA với ${n}×${n} = ${n*n} ô, ΔA = ${dA.toFixed(4)} m²</div>
+      <div style="font-family:monospace; font-size:15px; margin-top:6px"><strong>Khối lượng xấp xỉ m ≈ ${mass.toFixed(4)} kg</strong></div>
+      <div style="font-family:monospace; font-size:14px">Giá trị thật ∫∫ρ dA = 4·${d0} + 4·${kx} + 4·${ky} = <strong>${exact.toFixed(4)} kg</strong>. Sai số = ${Math.abs(mass-exact).toFixed(4)}</div>
+      <div style="margin-top:6px; font-size:13px; color:#64748b">Tích phân kép = cộng dồn khối lượng từng ô nhỏ (mật độ × diện tích). Tăng n để xấp xỉ chính xác hơn.</div>
+    `;
+  }
+  rlDraw();
+}
+document.addEventListener("DOMContentLoaded", rlInit);
 </script>
+
+<h2>🌍 Đời sống thực tế — Khối lượng tấm kim loại mật độ không đều</h2>
+<div class="card">
+  <p>Một tấm kim loại vuông 2m × 2m có <strong>mật độ mặt thay đổi</strong> ρ(x, y) = d₀ + kₓ·x + k_y·y (kg/m²) — ví dụ tấm bị ăn mòn dày mỏng khác nhau. Khối lượng = <strong>tích phân kép</strong> m = ∫∫ ρ dA, tính bằng cách cộng dồn (mật độ × diện tích) từng ô nhỏ. Tăng số ô n để tổng Riemann hội tụ về giá trị thật.</p>
+  <div class="row">
+    <label>d₀:</label>
+    <input type="range" id="rlD0" min="1" max="10" step="1" value="3" style="flex:1; min-width:90px">
+    <span class="stat">d₀ = <strong id="rlD0V">3</strong></span>
+    <label>kₓ:</label>
+    <input type="range" id="rlKx" min="0" max="8" step="1" value="2" style="flex:1; min-width:90px">
+    <span class="stat">kₓ = <strong id="rlKxV">2</strong></span>
+    <label>k_y:</label>
+    <input type="range" id="rlKy" min="0" max="8" step="1" value="1" style="flex:1; min-width:90px">
+    <span class="stat">k_y = <strong id="rlKyV">1</strong></span>
+  </div>
+  <div class="row">
+    <label>Số ô mỗi chiều n:</label>
+    <input type="range" id="rlN" min="2" max="30" step="1" value="8" style="flex:1; min-width:200px">
+    <span class="stat">n = <strong id="rlNV">8</strong></span>
+  </div>
+  <svg class="scene" id="rlSvg" viewBox="0 0 440 420" style="height:auto"></svg>
+  <div class="result" id="rlRes"></div>
+</div>
 
 </main>
 

@@ -130,7 +130,91 @@ function calc() {
 }
 
 calc();
+
+// ===== Module Đời sống thực tế: xoay điểm bằng ma trận quay (đồ hoạ 2D) =====
+function rlInit() {
+  const deg = document.getElementById("rlDeg");
+  const sx = document.getElementById("rlSx");
+  const sy = document.getElementById("rlSy");
+  function rlDraw() {
+    const theta = (+deg.value) * Math.PI / 180;
+    const px = +sx.value, py = +sy.value;
+    const cos = Math.cos(theta), sin = Math.sin(theta);
+    // Ma trận quay R = [[cos, -sin], [sin, cos]] · điểm (px, py)
+    const nx = cos*px - sin*py;
+    const ny = sin*px + cos*py;
+    document.getElementById("rlDegV").textContent = (+deg.value);
+    document.getElementById("rlSxV").textContent = px;
+    document.getElementById("rlSyV").textContent = py;
+
+    const svg = document.getElementById("rlSvg");
+    svg.innerHTML = "";
+    const SC = 30, ns = "http://www.w3.org/2000/svg";
+    for (let i = -8; i <= 8; i++) {
+      const v = document.createElementNS(ns, "line");
+      v.setAttribute("x1", i*SC); v.setAttribute("y1", -250); v.setAttribute("x2", i*SC); v.setAttribute("y2", 250);
+      v.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); v.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+      svg.appendChild(v);
+      const h = document.createElementNS(ns, "line");
+      h.setAttribute("x1", -250); h.setAttribute("y1", i*SC); h.setAttribute("x2", 250); h.setAttribute("y2", i*SC);
+      h.setAttribute("stroke", i === 0 ? "#1a202c" : "#e2e8f0"); h.setAttribute("stroke-width", i === 0 ? 1.5 : 0.5);
+      svg.appendChild(h);
+    }
+    function dot(x, y, color, label) {
+      const c = document.createElementNS(ns, "circle");
+      c.setAttribute("cx", x*SC); c.setAttribute("cy", -(y*SC)); c.setAttribute("r", 6);
+      c.setAttribute("fill", color);
+      svg.appendChild(c);
+      const ln = document.createElementNS(ns, "line");
+      ln.setAttribute("x1", 0); ln.setAttribute("y1", 0); ln.setAttribute("x2", x*SC); ln.setAttribute("y2", -(y*SC));
+      ln.setAttribute("stroke", color); ln.setAttribute("stroke-width", 2); ln.setAttribute("stroke-opacity", 0.6);
+      svg.appendChild(ln);
+      const t = document.createElementNS(ns, "text");
+      t.setAttribute("x", x*SC + 8); t.setAttribute("y", -(y*SC) - 6); t.setAttribute("fill", color);
+      t.setAttribute("font-weight", "700"); t.setAttribute("font-size", "13");
+      t.textContent = label;
+      svg.appendChild(t);
+    }
+    dot(px, py, "#1d4ed8", `gốc (${px}, ${py})`);
+    dot(nx, ny, "#dc2626", `xoay (${nx.toFixed(2)}, ${ny.toFixed(2)})`);
+
+    document.getElementById("rlRes").innerHTML = `
+      <div style="font-family:monospace; font-size:14px">Ma trận quay R(${+deg.value}°) = [[cos, -sin],[sin, cos]] = [[${cos.toFixed(3)}, ${(-sin).toFixed(3)}],[${sin.toFixed(3)}, ${cos.toFixed(3)}]]</div>
+      <div style="font-family:monospace; font-size:14px; margin-top:4px">x' = cos·x − sin·y = ${cos.toFixed(3)}·${px} − ${sin.toFixed(3)}·${py} = <strong>${nx.toFixed(3)}</strong></div>
+      <div style="font-family:monospace; font-size:14px">y' = sin·x + cos·y = ${sin.toFixed(3)}·${px} + ${cos.toFixed(3)}·${py} = <strong>${ny.toFixed(3)}</strong></div>
+      <div class="row" style="margin-top:6px">
+        <span class="stat">|gốc| = ${Math.sqrt(px*px+py*py).toFixed(3)}</span>
+        <span class="stat">|xoay| = <strong>${Math.sqrt(nx*nx+ny*ny).toFixed(3)}</strong> (quay không đổi độ dài)</span>
+      </div>
+    `;
+  }
+  deg.addEventListener("input", rlDraw);
+  sx.addEventListener("input", rlDraw);
+  sy.addEventListener("input", rlDraw);
+  rlDraw();
+}
+document.addEventListener("DOMContentLoaded", rlInit);
 </script>
+
+<h2>🌍 Đời sống thực tế — Xoay sprite trong game/đồ hoạ 2D</h2>
+<div class="card">
+  <p>Game engine (Unity, Godot...) xoay một sprite quanh gốc bằng <strong>ma trận quay</strong> R(θ). Một nhân vật ở toạ độ (x, y) khi xoay góc θ chuyển sang (x', y') = R(θ)·(x, y). Kéo thanh trượt góc và xem điểm gốc (xanh) quay thành điểm mới (đỏ) — độ dài không đổi vì quay là phép biến đổi bảo toàn khoảng cách.</p>
+  <div class="row">
+    <label>Góc quay θ (°):</label>
+    <input type="range" id="rlDeg" min="0" max="360" step="5" value="45" style="flex:1; min-width:160px">
+    <span class="stat">θ = <strong id="rlDegV">45</strong>°</span>
+  </div>
+  <div class="row">
+    <label>Điểm x:</label>
+    <input type="range" id="rlSx" min="-6" max="6" step="1" value="4" style="flex:1; min-width:120px">
+    <span class="stat">x = <strong id="rlSxV">4</strong></span>
+    <label>Điểm y:</label>
+    <input type="range" id="rlSy" min="-6" max="6" step="1" value="1" style="flex:1; min-width:120px">
+    <span class="stat">y = <strong id="rlSyV">1</strong></span>
+  </div>
+  <svg class="scene" id="rlSvg" viewBox="-250 -250 500 500"></svg>
+  <div class="result" id="rlRes"></div>
+</div>
 
 </main>
 

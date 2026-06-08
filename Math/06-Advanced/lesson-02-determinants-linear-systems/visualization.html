@@ -129,7 +129,72 @@ function solve3() {
 
 solve();
 solve3();
+
+// ===== Module Đời sống thực tế: pha trộn 2 loại nước để đạt nồng độ mục tiêu =====
+function rlInit() {
+  const ids = ["rlC1", "rlC2", "rlCt", "rlVt"];
+  ids.forEach(id => document.getElementById(id).addEventListener("input", rlSolve));
+  function rlSolve() {
+    const c1 = +document.getElementById("rlC1").value; // % đường loại A
+    const c2 = +document.getElementById("rlC2").value; // % đường loại B
+    const ct = +document.getElementById("rlCt").value; // % đường mong muốn
+    const Vt = +document.getElementById("rlVt").value; // tổng thể tích (lít)
+    document.getElementById("rlC1V").textContent = c1;
+    document.getElementById("rlC2V").textContent = c2;
+    document.getElementById("rlCtV").textContent = ct;
+    document.getElementById("rlVtV").textContent = Vt;
+
+    // Hệ:  x + y = Vt   (tổng thể tích)
+    //      c1·x + c2·y = ct·Vt  (tổng lượng đường)
+    // Ma trận A = [[1, 1], [c1, c2]], vế phải b = [Vt, ct·Vt]
+    const det = 1*c2 - 1*c1; // = c2 - c1
+    let html;
+    if (Math.abs(det) < 1e-9) {
+      html = `<div style="font-family:monospace; font-size:14px"><strong>c1 = c2 → det = 0.</strong> Hai loại cùng nồng độ, không pha ra nồng độ khác được (trừ khi đúng bằng nó).</div>`;
+    } else {
+      // Cramer
+      const detX = Vt*c2 - 1*(ct*Vt);   // thay cột 1 bằng b
+      const detY = 1*(ct*Vt) - c1*Vt;   // thay cột 2 bằng b
+      const x = detX / det;
+      const y = detY / det;
+      const valid = x >= -1e-9 && y >= -1e-9;
+      html = `
+        <div style="font-family:monospace; font-size:14px">Hệ: x + y = ${Vt}  &nbsp;|&nbsp;  ${c1}x + ${c2}y = ${ct}·${Vt} = ${(ct*Vt).toFixed(1)}</div>
+        <div style="font-family:monospace; font-size:14px; margin-top:4px">det(A) = c₂ − c₁ = ${c2} − ${c1} = <strong>${det}</strong></div>
+        <div style="font-family:monospace; font-size:15px; margin-top:6px"><strong>Loại A: x = ${x.toFixed(3)} lít, Loại B: y = ${y.toFixed(3)} lít</strong></div>
+        ${valid
+          ? `<div style="margin-top:6px; color:#15803d">Kiểm tra: ${x.toFixed(2)}+${y.toFixed(2)} = ${(x+y).toFixed(2)} lít ✓; đường = ${c1}·${x.toFixed(2)}+${c2}·${y.toFixed(2)} = ${(c1*x+c2*y).toFixed(2)} = ${ct}%·${Vt} ✓</div>`
+          : `<div style="margin-top:6px; color:#dc2626">⚠ Nghiệm âm → không pha được: nồng độ mong muốn ${ct}% nằm ngoài khoảng [${Math.min(c1,c2)}%, ${Math.max(c1,c2)}%].</div>`}
+      `;
+    }
+    document.getElementById("rlRes").innerHTML = html;
+  }
+  rlSolve();
+}
+document.addEventListener("DOMContentLoaded", rlInit);
 </script>
+
+<h2>🌍 Đời sống thực tế — Pha trộn 2 dung dịch đạt nồng độ mục tiêu</h2>
+<div class="card">
+  <p>Bài toán pha chế (nước trái cây, hoá chất, nhiên liệu): có loại A nồng độ đường <strong>c₁%</strong> và loại B nồng độ <strong>c₂%</strong>. Cần pha tổng <strong>V lít</strong> đạt nồng độ <strong>cₜ%</strong>. Lập hệ 2 phương trình (tổng thể tích + tổng lượng đường) và giải bằng <strong>quy tắc Cramer</strong> đúng như ví dụ phía trên.</p>
+  <div class="row">
+    <label>Loại A c₁ (%):</label>
+    <input type="range" id="rlC1" min="0" max="100" step="5" value="10" style="flex:1; min-width:120px">
+    <span class="stat">c₁ = <strong id="rlC1V">10</strong>%</span>
+    <label>Loại B c₂ (%):</label>
+    <input type="range" id="rlC2" min="0" max="100" step="5" value="40" style="flex:1; min-width:120px">
+    <span class="stat">c₂ = <strong id="rlC2V">40</strong>%</span>
+  </div>
+  <div class="row">
+    <label>Mong muốn cₜ (%):</label>
+    <input type="range" id="rlCt" min="0" max="100" step="5" value="25" style="flex:1; min-width:120px">
+    <span class="stat">cₜ = <strong id="rlCtV">25</strong>%</span>
+    <label>Tổng V (lít):</label>
+    <input type="range" id="rlVt" min="1" max="20" step="1" value="10" style="flex:1; min-width:120px">
+    <span class="stat">V = <strong id="rlVtV">10</strong> lít</span>
+  </div>
+  <div class="result" id="rlRes"></div>
+</div>
 
 </main>
 

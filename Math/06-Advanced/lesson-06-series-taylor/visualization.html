@@ -169,7 +169,74 @@ function draw() {
 }
 
 draw();
+
+// ===== Module Đời sống thực tế: máy tính bỏ túi tính sin/cos/e^x bằng chuỗi Taylor =====
+function rlInit() {
+  ["rlFn","rlX","rlTerms"].forEach(id => document.getElementById(id).addEventListener("input", rlCompute));
+  function rlFact(n) { let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }
+  function rlCompute() {
+    const fn = document.getElementById("rlFn").value;
+    const x = +document.getElementById("rlX").value;
+    const terms = +document.getElementById("rlTerms").value;
+    document.getElementById("rlXV").textContent = x.toFixed(2);
+    document.getElementById("rlTermsV").textContent = terms;
+
+    let sum = 0, exact, rows = "";
+    for (let k = 0; k < terms; k++) {
+      let term;
+      if (fn === "exp")      term = Math.pow(x, k) / rlFact(k);
+      else if (fn === "sin") term = Math.pow(-1, k) * Math.pow(x, 2*k+1) / rlFact(2*k+1);
+      else                   term = Math.pow(-1, k) * Math.pow(x, 2*k) / rlFact(2*k); // cos
+      sum += term;
+      rows += `<tr><td style="padding:2px 10px">k=${k}</td><td style="padding:2px 10px">${term.toExponential(4)}</td><td style="padding:2px 10px">${sum.toFixed(8)}</td></tr>`;
+    }
+    if (fn === "exp") exact = Math.exp(x);
+    else if (fn === "sin") exact = Math.sin(x);
+    else exact = Math.cos(x);
+    const label = fn === "exp" ? "e^x" : fn === "sin" ? "sin x" : "cos x";
+
+    document.getElementById("rlRes").innerHTML = `
+      <div style="font-family:monospace; font-size:14px">Tính <strong>${label}</strong> tại x = ${x.toFixed(2)} bằng ${terms} số hạng đầu của chuỗi Taylor:</div>
+      <div style="overflow-x:auto; margin-top:6px">
+        <table style="font-family:monospace; font-size:13px; border-collapse:collapse; min-width:340px">
+          <tr style="font-weight:700; border-bottom:1px solid #cbd5e0"><td style="padding:2px 10px">Số hạng</td><td style="padding:2px 10px">Giá trị</td><td style="padding:2px 10px">Tổng tích luỹ</td></tr>
+          ${rows}
+        </table>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <span class="stat">Chuỗi cho: <strong>${sum.toFixed(8)}</strong></span>
+        <span class="stat">Math.${fn}: <strong>${exact.toFixed(8)}</strong></span>
+        <span class="stat">Sai số: <strong>${Math.abs(sum - exact).toExponential(3)}</strong></span>
+      </div>
+      <div style="margin-top:6px; font-size:13px; color:#64748b">CPU/máy tính bỏ túi không có "phép sin" sẵn — nó cộng vài số hạng Taylor (sau khi rút x về khoảng nhỏ). Vài số hạng đã đủ chính xác tới 8 chữ số.</div>
+    `;
+  }
+  rlCompute();
+}
+document.addEventListener("DOMContentLoaded", rlInit);
 </script>
+
+<h2>🌍 Đời sống thực tế — Máy tính bỏ túi tính sin/cos/e^x thế nào?</h2>
+<div class="card">
+  <p>Bộ vi xử lý không có sẵn "phép tính sin". Khi bạn bấm <code>sin(0.5)</code>, nó <strong>cộng vài số hạng đầu của chuỗi Taylor</strong> (sau khi đưa góc về khoảng nhỏ). Chọn hàm, nhập x, tăng số số hạng và xem tổng tích luỹ hội tụ về giá trị thật — chỉ vài số hạng đã chính xác tới 8 chữ số.</p>
+  <div class="row">
+    <label>Hàm:</label>
+    <select id="rlFn" style="padding:6px 8px; border:1px solid #cbd5e0; border-radius:4px; font-size:14px">
+      <option value="exp">e^x</option>
+      <option value="sin" selected>sin x</option>
+      <option value="cos">cos x</option>
+    </select>
+    <label>x =</label>
+    <input type="range" id="rlX" min="-3" max="3" step="0.1" value="0.5" style="flex:1; min-width:140px">
+    <span class="stat">x = <strong id="rlXV">0.50</strong></span>
+  </div>
+  <div class="row">
+    <label>Số số hạng:</label>
+    <input type="range" id="rlTerms" min="1" max="12" step="1" value="4" style="flex:1; min-width:200px">
+    <span class="stat">terms = <strong id="rlTermsV">4</strong></span>
+  </div>
+  <div class="result" id="rlRes"></div>
+</div>
 
 </main>
 

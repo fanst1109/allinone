@@ -174,7 +174,97 @@ function draw() {
 }
 
 draw();
+
+// ===== Module Đời sống thực tế: lợi nhuận theo 2 sản phẩm, gradient = hướng tăng lãi =====
+function rlInit() {
+  ["rlX","rlY"].forEach(id => document.getElementById(id).addEventListener("input", rlDraw));
+  // Lợi nhuận (nghìn $): P(x,y) = 60x + 80y − x² − 2y² − xy   (x, y = nghìn sản phẩm A, B)
+  // ∂P/∂x = 60 − 2x − y ;  ∂P/∂y = 80 − 4y − x
+  // Cực đại: 2x + y = 60 ; x + 4y = 80 → giải: x = 160/7 ≈ 22.857, y = 100/7 ≈ 14.286
+  const P  = (x, y) => 60*x + 80*y - x*x - 2*y*y - x*y;
+  const Px = (x, y) => 60 - 2*x - y;
+  const Py = (x, y) => 80 - 4*y - x;
+  function rlDraw() {
+    const x = +document.getElementById("rlX").value;
+    const y = +document.getElementById("rlY").value;
+    document.getElementById("rlXV").textContent = x;
+    document.getElementById("rlYV").textContent = y;
+    const p = P(x, y);
+    const gx = Px(x, y), gy = Py(x, y);
+    const gnorm = Math.sqrt(gx*gx + gy*gy);
+
+    // SVG: heatmap lợi nhuận + điểm hiện tại + mũi tên gradient
+    const svg = document.getElementById("rlSvg");
+    svg.innerHTML = "";
+    const ns = "http://www.w3.org/2000/svg";
+    const off = 50, plot = 400, xMax = 40, yMax = 30;
+    const toPx = vx => off + (vx / xMax) * plot;
+    const toPy = vy => off + plot - (vy / yMax) * plot;
+    // heatmap
+    let pMin = Infinity, pMax = -Infinity;
+    for (let i = 0; i <= xMax; i += 2) for (let j = 0; j <= yMax; j += 2) { const v = P(i, j); pMin = Math.min(pMin, v); pMax = Math.max(pMax, v); }
+    const cell = 20;
+    for (let i = 0; i < xMax; i += 2) for (let j = 0; j < yMax; j += 2) {
+      const v = P(i + 1, j + 1);
+      const t = (v - pMin) / (pMax - pMin + 1e-9);
+      const r = document.createElementNS(ns, "rect");
+      r.setAttribute("x", toPx(i)); r.setAttribute("y", toPy(j + 2)); r.setAttribute("width", cell); r.setAttribute("height", cell);
+      r.setAttribute("fill", `hsl(${(240 - t*150).toFixed(0)}, 70%, 55%)`); r.setAttribute("fill-opacity", 0.85);
+      svg.appendChild(r);
+    }
+    // điểm hiện tại
+    const cx = toPx(x), cy = toPy(y);
+    const dot = document.createElementNS(ns, "circle");
+    dot.setAttribute("cx", cx); dot.setAttribute("cy", cy); dot.setAttribute("r", 7); dot.setAttribute("fill", "#fff"); dot.setAttribute("stroke", "#1a202c"); dot.setAttribute("stroke-width", 2);
+    svg.appendChild(dot);
+    // mũi tên gradient (hướng tăng lãi nhanh nhất)
+    if (gnorm > 1e-6) {
+      const sc = 60 / gnorm;
+      const ex = cx + gx * sc * (plot / xMax) / 10;
+      const ey = cy - gy * sc * (plot / yMax) / 10;
+      const ln = document.createElementNS(ns, "line");
+      ln.setAttribute("x1", cx); ln.setAttribute("y1", cy); ln.setAttribute("x2", ex); ln.setAttribute("y2", ey);
+      ln.setAttribute("stroke", "#dc2626"); ln.setAttribute("stroke-width", 3);
+      svg.appendChild(ln);
+      const ang = Math.atan2(ey - cy, ex - cx);
+      const ah = document.createElementNS(ns, "polygon");
+      ah.setAttribute("points", `${ex},${ey} ${ex-10*Math.cos(ang-0.4)},${ey-10*Math.sin(ang-0.4)} ${ex-10*Math.cos(ang+0.4)},${ey-10*Math.sin(ang+0.4)}`);
+      ah.setAttribute("fill", "#dc2626");
+      svg.appendChild(ah);
+    }
+    // trục
+    [[0,"0"],[xMax,xMax+""]].forEach(([vx,lbl]) => { const t=document.createElementNS(ns,"text"); t.setAttribute("x",toPx(vx)); t.setAttribute("y",off+plot+18); t.setAttribute("text-anchor","middle"); t.setAttribute("font-size","11"); t.textContent=lbl; svg.appendChild(t); });
+    const xl=document.createElementNS(ns,"text"); xl.setAttribute("x",off+plot/2); xl.setAttribute("y",off+plot+34); xl.setAttribute("text-anchor","middle"); xl.setAttribute("font-weight","700"); xl.textContent="x = SP A (nghìn cái)"; svg.appendChild(xl);
+
+    const atMax = Math.abs(gx) < 0.5 && Math.abs(gy) < 0.5;
+    document.getElementById("rlRes").innerHTML = `
+      <div style="font-family:monospace; font-size:14px">P(x, y) = 60x + 80y − x² − 2y² − xy &nbsp;(nghìn $)</div>
+      <div style="font-family:monospace; font-size:15px; margin-top:4px">Tại (x=${x}, y=${y}): lợi nhuận P = <strong>${p.toFixed(1)} nghìn $</strong></div>
+      <div style="font-family:monospace; font-size:14px; margin-top:4px">∇P = (∂P/∂x, ∂P/∂y) = (60−2x−y, 80−4y−x) = (<strong>${gx.toFixed(1)}</strong>, <strong>${gy.toFixed(1)}</strong>)</div>
+      <div style="margin-top:6px; font-size:13px">${atMax
+        ? `🎯 ∇P ≈ 0 → đây là <strong>điểm tối ưu</strong> (x ≈ 22.86, y ≈ 14.29, P ≈ ${P(160/7,100/7).toFixed(1)} nghìn $).`
+        : `Mũi tên đỏ = ∇P chỉ hướng <strong>tăng lãi nhanh nhất</strong>: tăng SP A thêm ${gx>0?"+":""}${gx.toFixed(1)}, SP B ${gy>0?"+":""}${gy.toFixed(1)} đơn vị tỉ lệ. Kéo điểm tới khi ∇P ≈ 0 để đạt lãi tối đa.`}</div>
+    `;
+  }
+  rlDraw();
+}
+document.addEventListener("DOMContentLoaded", rlInit);
 </script>
+
+<h2>🌍 Đời sống thực tế — Tối ưu lợi nhuận theo 2 sản phẩm</h2>
+<div class="card">
+  <p>Một nhà máy sản xuất 2 sản phẩm A và B (đơn vị: nghìn cái). Lợi nhuận (nghìn $) là hàm 2 biến <strong>P(x, y) = 60x + 80y − x² − 2y² − xy</strong> (chi phí tăng theo bình phương + cạnh tranh nguồn lực qua số hạng −xy). <strong>Gradient ∇P</strong> chỉ hướng tăng lãi nhanh nhất; nơi ∇P = 0 là sản lượng tối ưu. Kéo (x, y) và lần theo mũi tên đỏ tới đỉnh.</p>
+  <div class="row">
+    <label>SP A: x =</label>
+    <input type="range" id="rlX" min="0" max="40" step="1" value="10" style="flex:1; min-width:140px">
+    <span class="stat">x = <strong id="rlXV">10</strong></span>
+    <label>SP B: y =</label>
+    <input type="range" id="rlY" min="0" max="30" step="1" value="5" style="flex:1; min-width:140px">
+    <span class="stat">y = <strong id="rlYV">5</strong></span>
+  </div>
+  <svg class="scene" id="rlSvg" viewBox="0 0 500 500"></svg>
+  <div class="result" id="rlRes"></div>
+</div>
 
 </main>
 

@@ -171,7 +171,88 @@ function draw() {
 
 buildParams();
 draw();
+
+// ===== Module Đời sống thực tế: thuốc đào thải khỏi máu (ODE C' = -k·C) + uống lặp =====
+function rlInit() {
+  ["rlDose","rlHalf","rlInterval"].forEach(id => document.getElementById(id).addEventListener("input", rlDraw));
+  function rlDraw() {
+    const dose = +document.getElementById("rlDose").value;      // mg mỗi liều
+    const half = +document.getElementById("rlHalf").value;      // chu kỳ bán thải (giờ)
+    const interval = +document.getElementById("rlInterval").value; // giờ giữa các liều
+    document.getElementById("rlDoseV").textContent = dose;
+    document.getElementById("rlHalfV").textContent = half.toFixed(1);
+    document.getElementById("rlIntervalV").textContent = interval;
+    // C'(t) = -k·C, nghiệm C = C0·e^{-kt}, với k = ln2 / half
+    const k = Math.log(2) / half;
+    const tMax = 48; // giờ
+    // mô phỏng nhiều liều: cộng dồn các đường mũ
+    const doses = [];
+    for (let td = 0; td <= tMax; td += interval) doses.push(td);
+    const conc = t => doses.reduce((acc, td) => acc + (t >= td ? dose * Math.exp(-k*(t - td)) : 0), 0);
+
+    const svg = document.getElementById("rlSvg");
+    svg.innerHTML = "";
+    const ns = "http://www.w3.org/2000/svg";
+    const W = 700, H = 400, ox = 55, oy = 360, plotW = 600, plotH = 320;
+    // tìm Cmax
+    let cMax = 0; for (let t = 0; t <= tMax; t += 0.2) cMax = Math.max(cMax, conc(t));
+    cMax = Math.max(cMax, dose);
+    const toPx = t => ox + (t / tMax) * plotW;
+    const toPy = c => oy - (c / cMax) * plotH;
+    // trục
+    [["x",ox,oy,ox+plotW,oy],["y",ox,oy,ox,oy-plotH]].forEach(([_,x1,y1,x2,y2]) => {
+      const l=document.createElementNS(ns,"line"); l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2); l.setAttribute("stroke","#1a202c");l.setAttribute("stroke-width",1.5); svg.appendChild(l);
+    });
+    // đường nồng độ
+    let path = "";
+    for (let t = 0; t <= tMax; t += 0.1) { path += (t === 0 ? "M" : "L") + toPx(t) + " " + toPy(conc(t)) + " "; }
+    const p = document.createElementNS(ns, "path");
+    p.setAttribute("d", path); p.setAttribute("fill", "none"); p.setAttribute("stroke", "#1d4ed8"); p.setAttribute("stroke-width", 2.5);
+    svg.appendChild(p);
+    // mốc thời gian uống
+    doses.forEach(td => {
+      const l = document.createElementNS(ns, "line");
+      l.setAttribute("x1", toPx(td)); l.setAttribute("y1", oy); l.setAttribute("x2", toPx(td)); l.setAttribute("y2", oy - 8);
+      l.setAttribute("stroke", "#15803d"); l.setAttribute("stroke-width", 2);
+      svg.appendChild(l);
+    });
+    // nhãn
+    [["0",0],["24h",24],["48h",48]].forEach(([lbl,t]) => { const tx=document.createElementNS(ns,"text"); tx.setAttribute("x",toPx(t)); tx.setAttribute("y",oy+18); tx.setAttribute("text-anchor","middle"); tx.setAttribute("font-size","11"); tx.textContent=lbl; svg.appendChild(tx); });
+    const yl=document.createElementNS(ns,"text"); yl.setAttribute("x",ox-8); yl.setAttribute("y",oy-plotH-6); yl.setAttribute("text-anchor","middle"); yl.setAttribute("font-size","11"); yl.textContent="mg"; svg.appendChild(yl);
+
+    // nồng độ một liều đơn sau 1 chu kỳ bán thải để minh hoạ
+    const after1 = dose * Math.exp(-k*half);
+    document.getElementById("rlRes").innerHTML = `
+      <div style="font-family:monospace; font-size:14px">ODE: C'(t) = −k·C, k = ln2 / t½ = 0.693 / ${half.toFixed(1)} = <strong>${k.toFixed(4)} /giờ</strong></div>
+      <div style="font-family:monospace; font-size:14px; margin-top:4px">Một liều ${dose} mg sau đúng 1 chu kỳ bán thải (${half.toFixed(1)}h) còn: ${dose}·e^(−k·${half.toFixed(1)}) = <strong>${after1.toFixed(1)} mg</strong> (≈ một nửa ✓)</div>
+      <div style="font-family:monospace; font-size:14px; margin-top:4px">Uống ${dose} mg mỗi ${interval}h: nồng độ đỉnh ổn định ≈ <strong>${cMax.toFixed(1)} mg</strong></div>
+      <div style="margin-top:6px; font-size:13px; color:#64748b">Đường xanh = nồng độ thuốc trong máu; vạch xanh lá = thời điểm uống. Khoảng cách liều quá ngắn → tích luỹ cao (nguy cơ quá liều); quá dài → nồng độ tụt dưới ngưỡng hiệu quả.</div>
+    `;
+  }
+  rlDraw();
+}
+document.addEventListener("DOMContentLoaded", rlInit);
 </script>
+
+<h2>🌍 Đời sống thực tế — Nồng độ thuốc trong máu theo liều</h2>
+<div class="card">
+  <p>Thuốc đào thải khỏi máu tuân theo ODE phân rã <strong>C'(t) = −k·C</strong> với k = ln2 / t½ (t½ là chu kỳ bán thải). Nghiệm là C(t) = C₀·e^(−kt). Khi uống lặp lại đúng liều cách đều, các đường mũ cộng dồn lại → nồng độ dao động quanh mức ổn định. Đây là cơ sở để bác sĩ chọn liều và khoảng cách uống.</p>
+  <div class="row">
+    <label>Liều (mg):</label>
+    <input type="range" id="rlDose" min="50" max="500" step="50" value="200" style="flex:1; min-width:120px">
+    <span class="stat">liều = <strong id="rlDoseV">200</strong> mg</span>
+    <label>Bán thải t½ (h):</label>
+    <input type="range" id="rlHalf" min="1" max="12" step="0.5" value="6" style="flex:1; min-width:120px">
+    <span class="stat">t½ = <strong id="rlHalfV">6.0</strong> h</span>
+  </div>
+  <div class="row">
+    <label>Uống mỗi (h):</label>
+    <input type="range" id="rlInterval" min="2" max="24" step="2" value="8" style="flex:1; min-width:200px">
+    <span class="stat">mỗi <strong id="rlIntervalV">8</strong> giờ</span>
+  </div>
+  <svg class="scene" id="rlSvg" viewBox="0 0 700 400"></svg>
+  <div class="result" id="rlRes"></div>
+</div>
 
 </main>
 

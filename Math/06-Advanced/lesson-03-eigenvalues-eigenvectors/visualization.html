@@ -157,7 +157,88 @@ function calc() {
 }
 
 calc();
+
+// ===== Module Đời sống thực tế: PageRank = vector riêng của ma trận liên kết =====
+function rlInit() {
+  document.getElementById("rlStep").addEventListener("input", rlDraw);
+  // Đồ thị 4 trang: A->B, A->C, B->C, C->A, D->C   (đơn giản hoá, damping d=0.85)
+  // Ma trận chuyển M[i][j] = 1/outdeg(j) nếu j->i, ngược lại 0
+  const out = { A: ["B","C"], B: ["C"], C: ["A"], D: ["C"] };
+  const pages = ["A","B","C","D"];
+  const idx = { A:0, B:1, C:2, D:3 };
+  const N = 4, d = 0.85;
+  // Xây ma trận Google G = d·M + (1-d)/N
+  const M = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+  pages.forEach(j => {
+    const links = out[j];
+    links.forEach(i => { M[idx[i]][idx[j]] += 1 / links.length; });
+  });
+  const G = M.map(row => row.map(v => d*v + (1-d)/N));
+
+  function rlDraw() {
+    const steps = +document.getElementById("rlStep").value;
+    document.getElementById("rlStepV").textContent = steps;
+    // Power iteration từ vector đều
+    let r = [0.25, 0.25, 0.25, 0.25];
+    const history = [r.slice()];
+    for (let s = 0; s < steps; s++) {
+      const nr = [0,0,0,0];
+      for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) nr[i] += G[i][j]*r[j];
+      r = nr;
+      history.push(r.slice());
+    }
+    // Vẽ bar chart rank hiện tại
+    const svg = document.getElementById("rlSvg");
+    svg.innerHTML = "";
+    const ns = "http://www.w3.org/2000/svg";
+    const W = 500, baseY = 300, barW = 70, gap = 40, x0 = 80;
+    const maxR = Math.max(...r);
+    const colors = ["#1d4ed8","#15803d","#dc2626","#d97706"];
+    const xax = document.createElementNS(ns, "line");
+    xax.setAttribute("x1", 40); xax.setAttribute("y1", baseY); xax.setAttribute("x2", 460); xax.setAttribute("y2", baseY);
+    xax.setAttribute("stroke", "#1a202c"); xax.setAttribute("stroke-width", 1.5);
+    svg.appendChild(xax);
+    pages.forEach((pg, i) => {
+      const h = (r[i] / maxR) * 220;
+      const x = x0 + i*(barW+gap);
+      const rect = document.createElementNS(ns, "rect");
+      rect.setAttribute("x", x); rect.setAttribute("y", baseY - h); rect.setAttribute("width", barW); rect.setAttribute("height", h);
+      rect.setAttribute("fill", colors[i]); rect.setAttribute("fill-opacity", 0.75);
+      svg.appendChild(rect);
+      const tv = document.createElementNS(ns, "text");
+      tv.setAttribute("x", x + barW/2); tv.setAttribute("y", baseY - h - 6); tv.setAttribute("text-anchor", "middle"); tv.setAttribute("font-size", "13"); tv.setAttribute("font-weight", "700");
+      tv.textContent = r[i].toFixed(3);
+      svg.appendChild(tv);
+      const tl = document.createElementNS(ns, "text");
+      tl.setAttribute("x", x + barW/2); tl.setAttribute("y", baseY + 18); tl.setAttribute("text-anchor", "middle"); tl.setAttribute("font-size", "14"); tl.setAttribute("font-weight", "700");
+      tl.textContent = "Trang " + pg;
+      svg.appendChild(tl);
+    });
+
+    const ranked = pages.map((pg, i) => [pg, r[i]]).sort((a, b) => b[1] - a[1]);
+    document.getElementById("rlRes").innerHTML = `
+      <div style="font-family:monospace; font-size:14px">Liên kết: A→B, A→C, B→C, C→A, D→C (damping d = 0.85)</div>
+      <div style="font-family:monospace; font-size:14px; margin-top:4px">Sau ${steps} bước lặp r ← G·r: r = (${r.map(v => v.toFixed(4)).join(", ")}), tổng = ${r.reduce((a,b)=>a+b,0).toFixed(3)}</div>
+      <div style="font-family:monospace; font-size:15px; margin-top:6px"><strong>Xếp hạng: ${ranked.map(([pg,v]) => pg + " (" + v.toFixed(3) + ")").join(" > ")}</strong></div>
+      <div style="margin-top:6px; font-size:13px; color:#64748b">PageRank chính là <strong>vector riêng ứng với λ = 1</strong> của ma trận Google G. Power iteration hội tụ về nó: r* = G·r*. Trang C được nhiều liên kết trỏ tới nên rank cao nhất.</div>
+    `;
+  }
+  rlDraw();
+}
+document.addEventListener("DOMContentLoaded", rlInit);
 </script>
+
+<h2>🌍 Đời sống thực tế — PageRank của Google là vector riêng</h2>
+<div class="card">
+  <p>Google xếp hạng trang web bằng <strong>vector riêng ứng với trị riêng λ = 1</strong> của ma trận liên kết G. Mỗi trang chia đều "phiếu bầu" cho các trang nó trỏ tới; lặp r ← G·r đủ nhiều lần sẽ hội tụ về rank ổn định (đây là <em>power iteration</em>). Kéo số bước lặp để xem rank của 4 trang A, B, C, D hội tụ về vector riêng.</p>
+  <div class="row">
+    <label>Số bước lặp:</label>
+    <input type="range" id="rlStep" min="0" max="40" step="1" value="20" style="flex:1; min-width:200px">
+    <span class="stat">bước = <strong id="rlStepV">20</strong></span>
+  </div>
+  <svg class="scene" id="rlSvg" viewBox="0 0 500 340" style="height:auto"></svg>
+  <div class="result" id="rlRes"></div>
+</div>
 
 </main>
 

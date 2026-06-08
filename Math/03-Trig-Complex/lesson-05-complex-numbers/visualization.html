@@ -167,7 +167,82 @@ function calc() {
 }
 
 calc();
+
+// ===== Đời sống thực tế: trở kháng mạch điện xoay chiều =====
+function rlc() {
+  const R = parseFloat(document.getElementById("zR").value);
+  const L = parseFloat(document.getElementById("zL").value)/1000;     // mH → H
+  const C = parseFloat(document.getElementById("zC").value)*1e-6;     // µF → F
+  const f = parseFloat(document.getElementById("zF").value);
+  document.getElementById("zRv").textContent = R;
+  document.getElementById("zLv").textContent = (L*1000).toFixed(0);
+  document.getElementById("zCv").textContent = (C*1e6).toFixed(0);
+  document.getElementById("zFv").textContent = f;
+
+  const w = 2*Math.PI*f;
+  const XL = w*L;            // cảm kháng
+  const XC = 1/(w*C);        // dung kháng
+  const X = XL - XC;         // phần ảo của Z
+  const Zmag = Math.sqrt(R*R + X*X);
+  const phi = Math.atan2(X, R);   // độ lệch pha u so với i
+  const I = 220 / Zmag;           // dòng hiệu dụng trên lưới 220V
+  const f0 = 1/(2*Math.PI*Math.sqrt(L*C));  // tần số cộng hưởng
+
+  // Argand: vẽ Z = R + jX
+  const svg = document.getElementById("zSvg");
+  svg.innerHTML = "";
+  const SC = Math.min(180/Math.max(R,Math.abs(X),1), 0.6);
+  const O = {x:0,y:0};
+  // trục
+  [["#1a202c",-200,0,200,0],["#1a202c",0,-180,0,180]].forEach(([col,x1,y1,x2,y2])=>{
+    const l=document.createElementNS("http://www.w3.org/2000/svg","line");
+    l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);
+    l.setAttribute("stroke",col);l.setAttribute("stroke-width",1.2);svg.appendChild(l);
+  });
+  const reLbl=document.createElementNS("http://www.w3.org/2000/svg","text");reLbl.setAttribute("x",185);reLbl.setAttribute("y",16);reLbl.setAttribute("font-size","12");reLbl.setAttribute("fill","#64748b");reLbl.textContent="R (Ω)";svg.appendChild(reLbl);
+  const imLbl=document.createElementNS("http://www.w3.org/2000/svg","text");imLbl.setAttribute("x",6);imLbl.setAttribute("y",-165);imLbl.setAttribute("font-size","12");imLbl.setAttribute("fill","#64748b");imLbl.textContent="X (Ω)";svg.appendChild(imLbl);
+  // tam giác trở kháng
+  const zx=R*SC, zy=-X*SC;
+  [["#1d4ed8",0,0,zx,0],["#15803d",zx,0,zx,zy],["#dc2626",0,0,zx,zy]].forEach(([col,x1,y1,x2,y2])=>{
+    const l=document.createElementNS("http://www.w3.org/2000/svg","line");
+    l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);
+    l.setAttribute("stroke",col);l.setAttribute("stroke-width",2.5);svg.appendChild(l);
+  });
+  const dot=document.createElementNS("http://www.w3.org/2000/svg","circle");dot.setAttribute("cx",zx);dot.setAttribute("cy",zy);dot.setAttribute("r",6);dot.setAttribute("fill","#dc2626");svg.appendChild(dot);
+  const zl=document.createElementNS("http://www.w3.org/2000/svg","text");zl.setAttribute("x",zx+8);zl.setAttribute("y",zy-8);zl.setAttribute("fill","#dc2626");zl.setAttribute("font-weight","700");zl.setAttribute("font-size","13");zl.textContent="Z";svg.appendChild(zl);
+
+  const kind = Math.abs(X) < 0.5 ? "cộng hưởng (thuần trở)" : X > 0 ? "tính cảm (u sớm pha hơn i)" : "tính dung (u trễ pha hơn i)";
+  document.getElementById("zRes").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Z = R + j(ωL − 1/ωC) = ${R} + j(${XL.toFixed(1)} − ${XC.toFixed(1)}) = <strong>${R} ${X>=0?"+":"−"} ${Math.abs(X).toFixed(1)}j Ω</strong></div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat">Cảm kháng X_L = ωL = <strong>${XL.toFixed(1)} Ω</strong></span>
+      <span class="stat">Dung kháng X_C = 1/ωC = <strong>${XC.toFixed(1)} Ω</strong></span>
+    </div>
+    <div class="row">
+      <span class="stat">|Z| = √(R²+X²) = <strong>${Zmag.toFixed(1)} Ω</strong></span>
+      <span class="stat">Dòng I = 220/|Z| = <strong>${I.toFixed(3)} A</strong></span>
+      <span class="stat">Lệch pha φ = <strong>${(phi*180/Math.PI).toFixed(1)}°</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px; color:#475569">Mạch đang <strong>${kind}</strong>. Tần số cộng hưởng f₀ = 1/(2π√(LC)) = <strong>${f0.toFixed(1)} Hz</strong> — chỉnh f về đúng f₀ thì X_L = X_C triệt tiêu, |Z| nhỏ nhất (= R) nên dòng lớn nhất. Đây chính là cách <strong>radio dò đài</strong>: xoay tụ C để f₀ trùng tần số đài muốn nghe.</div>
+  `;
+}
+addEventListener("DOMContentLoaded", rlc);
 </script>
+
+<h2>🌍 Đời sống thực tế — Số phức trong mạch điện xoay chiều</h2>
+<div class="card">
+  <p style="margin-top:0; color:#475569">Đây là <strong>ứng dụng số 1</strong> của số phức ngoài đời. Với dòng xoay chiều, điện trở thuần (R), cuộn cảm (L) và tụ điện (C) cản dòng <em>khác nhau và lệch pha nhau</em>. Gộp lại thành một số phức gọi là <strong>trở kháng</strong> <code>Z = R + j(ωL − 1/ωC)</code>: phần thực = điện trở, phần ảo = "kháng". Độ lớn |Z| quyết định dòng, còn argument cho biết điện áp và dòng lệch pha bao nhiêu.</p>
+  <div class="row">
+    <label>R (Ω):</label><input type="range" id="zR" min="1" max="200" step="1" value="50" oninput="rlc()"><span class="stat">R=<strong id="zRv">50</strong></span>
+    <label>L (mH):</label><input type="range" id="zL" min="1" max="500" step="1" value="100" oninput="rlc()"><span class="stat">L=<strong id="zLv">100</strong></span>
+  </div>
+  <div class="row">
+    <label>C (µF):</label><input type="range" id="zC" min="1" max="100" step="1" value="10" oninput="rlc()"><span class="stat">C=<strong id="zCv">10</strong></span>
+    <label>f (Hz):</label><input type="range" id="zF" min="20" max="400" step="1" value="50" oninput="rlc()"><span class="stat">f=<strong id="zFv">50</strong></span>
+  </div>
+  <svg class="scene" id="zSvg" viewBox="-210 -200 420 400" style="max-width:420px; height:400px"></svg>
+  <div class="result" id="zRes"></div>
+</div>
 
 </main>
 

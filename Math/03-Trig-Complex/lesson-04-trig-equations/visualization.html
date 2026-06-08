@@ -173,7 +173,80 @@ function draw() {
 }
 
 draw();
+
+// ===== Đời sống thực tế: vòng quay (Ferris wheel) =====
+const FW = { axis: 5, R: 40, T: 20 };  // trục cao 5m, bán kính 40m, chu kỳ 20 phút
+function ferris() {
+  const target = parseFloat(document.getElementById("fwH").value);
+  document.getElementById("fwHv").textContent = target;
+  const { axis, R, T } = FW;
+  const hMin = axis, hMax = axis + 2*R;     // 5m .. 85m
+  // h(t) = axis + R − R·cos(2π t / T), bắt đầu từ đáy (t=0 → h=5)
+  const c = (axis + R - target) / R;        // cos(2π t/T) = c
+  let times = [], note;
+  if (target < hMin - 0.01 || target > hMax + 0.01) {
+    note = `Độ cao ${target}m nằm ngoài tầm của vòng quay (chỉ từ ${hMin}m đến ${hMax}m) → <strong>vô nghiệm</strong>.`;
+  } else {
+    const t1 = T/(2*Math.PI) * Math.acos(Math.max(-1, Math.min(1, c)));
+    const t2 = T - t1;
+    times = [t1, t2].filter(t => t >= 0 && t <= T);
+    note = `Giải <code>45 − 40·cos(2π·t/20) = ${target}</code> → <code>cos(2π·t/20) = ${c.toFixed(3)}</code> → trong một vòng (20 phút), cabin đạt đúng ${target}m vào <strong>${times.map(t=>t.toFixed(2)+" phút").join(" và ")}</strong>. Giữa hai mốc đó bạn ở <em>cao hơn</em> ${target}m.`;
+  }
+
+  const svg = document.getElementById("fwSvg");
+  svg.innerHTML = "";
+  const W_PX=700, H_PX=320, cx=50, cy=H_PX-40;
+  const tMax = 1.5*T;
+  const sx = (W_PX-80)/tMax;
+  const sy = (H_PX-70)/hMax;
+  // trục
+  const ax=document.createElementNS("http://www.w3.org/2000/svg","line");
+  ax.setAttribute("x1",cx);ax.setAttribute("y1",cy);ax.setAttribute("x2",W_PX-20);ax.setAttribute("y2",cy);
+  ax.setAttribute("stroke","#1a202c");ax.setAttribute("stroke-width",1.5);svg.appendChild(ax);
+  const ay=document.createElementNS("http://www.w3.org/2000/svg","line");
+  ay.setAttribute("x1",cx);ay.setAttribute("y1",20);ay.setAttribute("x2",cx);ay.setAttribute("y2",cy);
+  ay.setAttribute("stroke","#1a202c");ay.setAttribute("stroke-width",1.5);svg.appendChild(ay);
+  // mốc thời gian
+  for(let m=0;m<=tMax;m+=5){const x=cx+m*sx;const t=document.createElementNS("http://www.w3.org/2000/svg","text");t.setAttribute("x",x);t.setAttribute("y",cy+16);t.setAttribute("text-anchor","middle");t.setAttribute("font-size","11");t.textContent=m+"′";svg.appendChild(t);}
+  // đường h(t)
+  let path="";
+  for(let i=0;i<=600;i++){const t=i/600*tMax;const h=axis+R-R*Math.cos(2*Math.PI*t/T);path+=(i===0?"M":"L")+(cx+t*sx).toFixed(1)+" "+(cy-h*sy).toFixed(1)+" ";}
+  const p=document.createElementNS("http://www.w3.org/2000/svg","path");
+  p.setAttribute("d",path);p.setAttribute("fill","none");p.setAttribute("stroke","#1d4ed8");p.setAttribute("stroke-width",2.5);svg.appendChild(p);
+  // đường target
+  const yt=cy-target*sy;
+  const tl=document.createElementNS("http://www.w3.org/2000/svg","line");
+  tl.setAttribute("x1",cx);tl.setAttribute("y1",yt);tl.setAttribute("x2",W_PX-20);tl.setAttribute("y2",yt);
+  tl.setAttribute("stroke","#dc2626");tl.setAttribute("stroke-width",2);tl.setAttribute("stroke-dasharray","5,3");svg.appendChild(tl);
+  const tt=document.createElementNS("http://www.w3.org/2000/svg","text");
+  tt.setAttribute("x",W_PX-22);tt.setAttribute("y",yt-4);tt.setAttribute("text-anchor","end");tt.setAttribute("fill","#dc2626");tt.setAttribute("font-size","12");tt.setAttribute("font-weight","700");tt.textContent=target+"m";svg.appendChild(tt);
+  // nghiệm
+  times.forEach(t=>{const dot=document.createElementNS("http://www.w3.org/2000/svg","circle");dot.setAttribute("cx",cx+t*sx);dot.setAttribute("cy",yt);dot.setAttribute("r",6);dot.setAttribute("fill","#15803d");svg.appendChild(dot);});
+
+  document.getElementById("fwRes").innerHTML = `
+    <div class="row">
+      <span class="stat">Độ cao thấp nhất: <strong>${hMin}m</strong></span>
+      <span class="stat">cao nhất: <strong>${hMax}m</strong></span>
+      <span class="stat">chu kỳ T = <strong>${T} phút</strong></span>
+      <span class="stat">số nghiệm/vòng: <strong>${times.length}</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px; color:#475569">${note}</div>
+  `;
+}
+addEventListener("DOMContentLoaded", ferris);
 </script>
+
+<h2>🌍 Đời sống thực tế — "Khi nào cabin lên tới độ cao đó?"</h2>
+<div class="card">
+  <p style="margin-top:0; color:#475569">Một vòng quay khổng lồ (như Sun Wheel) nâng cabin lên rồi hạ xuống tuần hoàn. Độ cao theo thời gian là hàm cosin: <code>h(t) = 45 − 40·cos(2π·t/20)</code> (trục cao 5m, bán kính 40m, mỗi vòng 20 phút). Hỏi "lúc nào tôi ngắm được cảnh ở độ cao X?" chính là <strong>giải một phương trình lượng giác</strong> — và vì tuần hoàn, mỗi vòng có 2 thời điểm.</p>
+  <div class="row">
+    <label>Độ cao muốn tới (m):</label>
+    <input type="range" id="fwH" min="5" max="85" step="1" value="65" oninput="ferris()">
+    <span class="stat">h = <strong id="fwHv">65</strong> m</span>
+  </div>
+  <svg class="scene" id="fwSvg" viewBox="0 0 700 320" style="height:320px"></svg>
+  <div class="result" id="fwRes"></div>
+</div>
 
 </main>
 

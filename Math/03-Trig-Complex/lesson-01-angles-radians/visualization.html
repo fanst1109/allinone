@@ -173,6 +173,103 @@ function draw() {
 draw();
 </script>
 
+<h2>🌍 Đời sống thực tế</h2>
+<div class="card">
+  <p style="margin-top:0; color:#475569">Radian không phải khái niệm "trên giấy" — nó là đơn vị tự nhiên cho <strong>mọi thứ quay</strong>: bánh xe, động cơ, đĩa cứng, kim đồng hồ. Hai máy tính dưới đây dùng đúng góc thật ngoài đời.</p>
+
+  <h3 style="margin-bottom:6px">① Vòng tua máy → tốc độ góc → tốc độ dài</h3>
+  <p style="margin-top:0; font-size:13px; color:#64748b">Vòng/phút (RPM) là cách đời thường đo tốc độ quay (đồng hồ tua máy xe, máy giặt vắt, mũi khoan). Muốn biết một điểm trên vành đi nhanh bao nhiêu m/s, phải đổi qua radian: <code>ω = RPM · 2π / 60</code> rad/s, rồi <code>v = ω · r</code>.</p>
+  <div class="row">
+    <label>Vòng tua (RPM):</label>
+    <input type="range" id="rpm" min="0" max="6000" step="10" value="600" oninput="spin()">
+    <span class="stat"><strong id="rpmVal">600</strong> vòng/phút</span>
+  </div>
+  <div class="row">
+    <label>Bán kính r (m):</label>
+    <input type="range" id="rad-r" min="0.05" max="1" step="0.01" value="0.30" oninput="spin()">
+    <span class="stat">r = <strong id="rVal2">0.30</strong> m</span>
+  </div>
+  <div class="result" id="spinRes"></div>
+
+  <h3 style="margin-bottom:6px; margin-top:24px">② Góc giữa hai kim đồng hồ</h3>
+  <p style="margin-top:0; font-size:13px; color:#64748b">Kim phút quay 360° mỗi giờ (6°/phút); kim giờ chỉ 30° mỗi giờ (0.5°/phút). Góc giữa hai kim là bài lượng giác quen thuộc — và đáp số luôn lấy phần ≤ 180°.</p>
+  <div class="row">
+    <label>Giờ:</label>
+    <input type="range" id="hh" min="0" max="11" step="1" value="3" oninput="clock()">
+    <span class="stat"><strong id="hhVal">3</strong> giờ</span>
+    <label>Phút:</label>
+    <input type="range" id="mm" min="0" max="59" step="1" value="0" oninput="clock()">
+    <span class="stat"><strong id="mmVal">00</strong> phút</span>
+  </div>
+  <svg class="scene" id="clockSvg" viewBox="-120 -120 240 240" style="max-width:260px; height:260px"></svg>
+  <div class="result" id="clockRes"></div>
+</div>
+
+<script>
+function spin() {
+  const rpm = parseFloat(document.getElementById("rpm").value);
+  const r = parseFloat(document.getElementById("rad-r").value);
+  document.getElementById("rpmVal").textContent = rpm;
+  document.getElementById("rVal2").textContent = r.toFixed(2);
+  const omega = rpm * 2 * Math.PI / 60;       // rad/s
+  const v = omega * r;                          // m/s
+  const kmh = v * 3.6;
+  document.getElementById("spinRes").innerHTML = `
+    <div class="row">
+      <span class="stat">ω = ${rpm} · 2π / 60 = <strong>${omega.toFixed(2)} rad/s</strong></span>
+      <span class="stat">v = ω·r = <strong>${v.toFixed(2)} m/s</strong></span>
+      <span class="stat">≈ <strong>${kmh.toFixed(1)} km/h</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px; color:#475569">Vành quay được <strong>${(omega).toFixed(2)} rad</strong> mỗi giây — tức ${(rpm/60).toFixed(2)} vòng/giây. Ví dụ bánh xe máy r = 0.30 m ở 600 RPM: điểm ngoài vành chạy ≈ 18.8 m/s (~68 km/h).</div>
+  `;
+}
+function clock() {
+  const h = parseInt(document.getElementById("hh").value);
+  const m = parseInt(document.getElementById("mm").value);
+  document.getElementById("hhVal").textContent = h === 0 ? 12 : h;
+  document.getElementById("mmVal").textContent = String(m).padStart(2, "0");
+  // Góc đo từ 12h theo chiều kim đồng hồ
+  const minAng = m * 6;                 // 6°/phút
+  const hourAng = (h % 12) * 30 + m * 0.5; // 30°/giờ + 0.5°/phút
+  let diff = Math.abs(hourAng - minAng);
+  if (diff > 180) diff = 360 - diff;
+
+  const svg = document.getElementById("clockSvg");
+  svg.innerHTML = "";
+  const face = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  face.setAttribute("cx",0); face.setAttribute("cy",0); face.setAttribute("r",100);
+  face.setAttribute("fill","#f8fafc"); face.setAttribute("stroke","#cbd5e0"); face.setAttribute("stroke-width",2);
+  svg.appendChild(face);
+  for (let i=0;i<12;i++){
+    const a=(i*30-90)*Math.PI/180;
+    const t=document.createElementNS("http://www.w3.org/2000/svg","text");
+    t.setAttribute("x",85*Math.cos(a)); t.setAttribute("y",85*Math.sin(a)+5);
+    t.setAttribute("text-anchor","middle"); t.setAttribute("font-size","13"); t.setAttribute("fill","#64748b");
+    t.textContent = i===0?12:i; svg.appendChild(t);
+  }
+  // Hands (góc đo từ 12h, SVG: 12h hướng lên = -90°)
+  const hand=(ang,len,col,w)=>{
+    const a=(ang-90)*Math.PI/180;
+    const l=document.createElementNS("http://www.w3.org/2000/svg","line");
+    l.setAttribute("x1",0); l.setAttribute("y1",0);
+    l.setAttribute("x2",len*Math.cos(a)); l.setAttribute("y2",len*Math.sin(a));
+    l.setAttribute("stroke",col); l.setAttribute("stroke-width",w); l.setAttribute("stroke-linecap","round");
+    svg.appendChild(l);
+  };
+  hand(hourAng,50,"#dc2626",5);
+  hand(minAng,75,"#1d4ed8",3);
+  document.getElementById("clockRes").innerHTML = `
+    <div class="row">
+      <span class="stat">Kim giờ: <strong>${hourAng.toFixed(1)}°</strong></span>
+      <span class="stat">Kim phút: <strong>${minAng.toFixed(1)}°</strong></span>
+      <span class="stat">Góc giữa: <strong>${diff.toFixed(1)}°</strong> = <strong>${(diff*Math.PI/180).toFixed(3)} rad</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px; color:#475569">Lúc 3:00 đúng → góc 90° (π/2). Lúc 6:00 → 180° (π). Kim phút "vượt" kim giờ 5.5° mỗi phút, nên hai kim trùng nhau ~65 phút một lần, không phải đúng 60.</div>
+  `;
+}
+spin(); clock();
+</script>
+
 </main>
 
 <script src="../../../tools/marked.min.js"></script>

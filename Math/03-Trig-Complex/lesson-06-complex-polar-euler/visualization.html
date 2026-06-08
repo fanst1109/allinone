@@ -194,7 +194,65 @@ function drawE() {
 
 draw();
 drawE();
+
+// ===== Đời sống thực tế: xoay & co giãn hình bằng phép nhân số phức =====
+const SHAPE = [[0,0],[0,2],[0.6,2],[0.6,0.6],[1.8,0.6],[1.8,0]]; // chữ "L"
+function drawRot() {
+  const ang = parseFloat(document.getElementById("rotA").value);
+  const sc  = parseFloat(document.getElementById("rotS").value);
+  document.getElementById("rotAv").textContent = (ang*180/Math.PI).toFixed(0);
+  document.getElementById("rotSv").textContent = sc.toFixed(1);
+  const mRe = sc*Math.cos(ang), mIm = sc*Math.sin(ang); // số nhân m = r·e^(iθ)
+
+  const svg = document.getElementById("rotSvg");
+  svg.innerHTML = "";
+  const SC = 55;
+  // lưới + trục
+  for (let i=-4;i<=4;i++){
+    [["v",i*SC,-220,i*SC,220],["h",-220,i*SC,220,i*SC]].forEach(([t,x1,y1,x2,y2])=>{
+      const l=document.createElementNS("http://www.w3.org/2000/svg","line");
+      l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);
+      l.setAttribute("stroke",i===0?"#1a202c":"#e2e8f0");l.setAttribute("stroke-width",i===0?1.5:0.5);svg.appendChild(l);
+    });
+  }
+  const poly=(pts,col,w,dash)=>{
+    let d="";
+    pts.forEach(([x,y],i)=>{ d+=(i===0?"M":"L")+(x*SC).toFixed(1)+" "+(-y*SC).toFixed(1)+" "; });
+    d+="Z";
+    const p=document.createElementNS("http://www.w3.org/2000/svg","path");
+    p.setAttribute("d",d);p.setAttribute("fill",col+"22");p.setAttribute("stroke",col);p.setAttribute("stroke-width",w);
+    if(dash)p.setAttribute("stroke-dasharray",dash);
+    svg.appendChild(p);
+  };
+  poly(SHAPE,"#94a3b8",1.5,"5,3");          // hình gốc (mờ)
+  const rotated = SHAPE.map(([x,y])=>[x*mRe - y*mIm, x*mIm + y*mRe]); // (x+yi)·m
+  poly(rotated,"#15803d",2.5,null);          // hình sau biến đổi
+
+  document.getElementById("rotRes").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Số nhân m = ${sc.toFixed(1)}·e^(i·${ang.toFixed(2)}) = ${mRe.toFixed(3)} + ${mIm.toFixed(3)}i</div>
+    <div style="font-family:monospace; font-size:13px; margin-top:4px">Đỉnh (1.8, 0) → (1.8·${mRe.toFixed(2)} − 0, 1.8·${mIm.toFixed(2)} + 0) = (${(1.8*mRe).toFixed(2)}, ${(1.8*mIm).toFixed(2)})</div>
+    <div style="margin-top:8px; font-size:13px; color:#475569">Nhân <em>mọi</em> đỉnh của hình (xem như số phức x + yi) với cùng một số m → hình <strong>xoay ${(ang*180/Math.PI).toFixed(0)}°</strong> và <strong>phóng ×${sc.toFixed(1)}</strong> quanh gốc. Đây đúng là phép app ảnh / game engine làm khi bạn xoay và zoom một đối tượng: mỗi điểm ảnh là một số phức được nhân với e^(iθ). Hình xám = gốc, xanh = sau biến đổi.</div>
+  `;
+}
+addEventListener("DOMContentLoaded", drawRot);
 </script>
+
+<h2>🌍 Đời sống thực tế — Xoay ảnh = nhân với e^(iθ)</h2>
+<div class="card">
+  <p style="margin-top:0; color:#475569">Khi bạn xoay một tấm ảnh trong app điện thoại, hay game xoay một nhân vật, máy đang làm đúng phép <strong>nhân số phức</strong>: coi mỗi điểm là <code>x + yi</code>, nhân với <code>m = r·e^(iθ)</code> thì toàn bộ hình <strong>quay góc θ</strong> (cộng argument) và <strong>phóng/thu tỷ lệ r</strong> (nhân môđun) — đúng quy tắc ở mục trên, giờ áp lên cả một hình.</p>
+  <div class="row">
+    <label>Góc xoay θ:</label>
+    <input type="range" id="rotA" min="0" max="6.28" step="0.05" value="0.6" oninput="drawRot()">
+    <span class="stat">θ = <strong id="rotAv">34</strong>°</span>
+  </div>
+  <div class="row">
+    <label>Tỷ lệ r:</label>
+    <input type="range" id="rotS" min="0.4" max="2" step="0.1" value="1.2" oninput="drawRot()">
+    <span class="stat">r = <strong id="rotSv">1.2</strong></span>
+  </div>
+  <svg class="scene" id="rotSvg" viewBox="-220 -220 440 440" style="max-width:420px; height:420px"></svg>
+  <div class="result" id="rotRes"></div>
+</div>
 
 </main>
 

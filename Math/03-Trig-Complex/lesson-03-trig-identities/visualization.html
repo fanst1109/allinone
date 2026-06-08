@@ -152,7 +152,82 @@ function check() {
 
 draw();
 check();
+
+// ===== Đời sống thực tế: hiện tượng phách khi lên dây đàn =====
+function beats() {
+  const f1 = parseFloat(document.getElementById("bf1").value);
+  const f2 = parseFloat(document.getElementById("bf2").value);
+  document.getElementById("bf1v").textContent = f1;
+  document.getElementById("bf2v").textContent = f2;
+  const beat = Math.abs(f1 - f2);
+  const favg = (f1 + f2) / 2;
+
+  const svg = document.getElementById("beatSvg");
+  svg.innerHTML = "";
+  const W_PX = 700, H_PX = 260, cx = 20, cy = H_PX/2;
+  const yS = 90;
+  // Số chu kỳ "thu nhỏ" để nhìn được: envelope 1 chu kỳ cos = 2 phách nghe được; carrier 30 chu kỳ
+  const drawEnv = 1, drawCar = 30;
+  const fullW = W_PX - cx - 20;
+  // tổng hai sóng (đã thu nhỏ tần số) = 2·cos(env)·sin(carrier)
+  let sumP = "", envT = "", envB = "";
+  for (let i=0;i<=1000;i++){
+    const u = i/1000;
+    const env = Math.cos(2*Math.PI*drawEnv*u);     // bao hình
+    const s = env * Math.sin(2*Math.PI*drawCar*u); // sóng tổng
+    const px = cx + u*fullW;
+    sumP += (i===0?"M":"L") + px.toFixed(1) + " " + (cy - s*yS).toFixed(1) + " ";
+    envT += (i===0?"M":"L") + px.toFixed(1) + " " + (cy - Math.abs(env)*yS).toFixed(1) + " ";
+    envB += (i===0?"M":"L") + px.toFixed(1) + " " + (cy + Math.abs(env)*yS).toFixed(1) + " ";
+  }
+  [["#e2e8f0",envT,2,"6,4"],["#e2e8f0",envB,2,"6,4"],["#1d4ed8",sumP,1.5,null]].forEach(([col,d,w,dash])=>{
+    const p=document.createElementNS("http://www.w3.org/2000/svg","path");
+    p.setAttribute("d",d); p.setAttribute("fill","none"); p.setAttribute("stroke",col); p.setAttribute("stroke-width",w);
+    if(dash) p.setAttribute("stroke-dasharray",dash);
+    svg.appendChild(p);
+  });
+  // bao hình màu cam (đường biên độ "to-nhỏ" tai nghe được)
+  const env2=document.createElementNS("http://www.w3.org/2000/svg","path");
+  let e2="";
+  for (let i=0;i<=1000;i++){const u=i/1000;e2+=(i===0?"M":"L")+(cx+u*fullW).toFixed(1)+" "+(cy-Math.abs(Math.cos(2*Math.PI*drawEnv*u))*yS).toFixed(1)+" ";}
+  env2.setAttribute("d",e2);env2.setAttribute("fill","none");env2.setAttribute("stroke","#ea580c");env2.setAttribute("stroke-width",2.5);svg.appendChild(env2);
+  const cap=document.createElementNS("http://www.w3.org/2000/svg","text");
+  cap.setAttribute("x",cx); cap.setAttribute("y",18); cap.setAttribute("font-size","12"); cap.setAttribute("fill","#ea580c");
+  cap.textContent="Cam = bao hình (độ to mà tai nghe được) · xanh = sóng tổng · (tần số thu nhỏ để thấy dạng)"; svg.appendChild(cap);
+
+  document.getElementById("beatRes").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">sin(2π·${f1}·t) + sin(2π·${f2}·t) = 2·cos(2π·<strong>${(beat/2)}</strong>·t)·sin(2π·<strong>${favg}</strong>·t)</div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">Tần số phách = |f₁−f₂| = <strong>${beat} Hz</strong></span>
+      <span class="stat">Nghe thấy: âm to–nhỏ <strong>${beat}</strong> lần/giây</span>
+      <span class="stat">Cao độ trung bình: <strong>${favg} Hz</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px; color:#475569">${
+      beat === 0
+      ? "Hai dây <strong>khớp hoàn hảo</strong> — không còn nhịp to-nhỏ. Đây chính là lúc thợ đàn dừng vặn khoá."
+      : `Khi lên dây, ta gảy dây cần chỉnh cùng âm chuẩn ${f1}Hz và nghe tiếng "wah–wah" lặp <strong>${beat} lần/giây</strong>. Vặn khoá cho nhịp này chậm dần về 0 → hai dây trùng cao độ. Công thức tổng-thành-tích giải thích vì sao: hiệu tần số sinh ra bao hình dao động chậm |f₁−f₂|.`
+    }</div>
+  `;
+}
+addEventListener("DOMContentLoaded", beats);
 </script>
+
+<h2>🌍 Đời sống thực tế — Lên dây đàn bằng hiện tượng phách</h2>
+<div class="card">
+  <p style="margin-top:0; color:#475569">Đồng nhất thức <code>sin A + sin B = 2·cos(½(A−B))·sin(½(A+B))</code> không chỉ là biến đổi đại số. Khi hai nốt <strong>gần bằng nhau</strong> vang lên cùng lúc, tai nghe thấy âm lượng <em>to–nhỏ–to–nhỏ</em> đều đặn — gọi là <strong>phách (beats)</strong>. Thợ đàn dùng đúng hiện tượng này để lên dây.</p>
+  <div class="row">
+    <label>Dây chuẩn f₁ (Hz):</label>
+    <input type="range" id="bf1" min="435" max="445" step="1" value="440" oninput="beats()">
+    <span class="stat">f₁ = <strong id="bf1v">440</strong> Hz</span>
+  </div>
+  <div class="row">
+    <label>Dây cần chỉnh f₂ (Hz):</label>
+    <input type="range" id="bf2" min="435" max="445" step="1" value="443" oninput="beats()">
+    <span class="stat">f₂ = <strong id="bf2v">443</strong> Hz</span>
+  </div>
+  <svg class="scene" id="beatSvg" viewBox="0 0 700 260" style="height:260px"></svg>
+  <div class="result" id="beatRes"></div>
+</div>
 
 </main>
 

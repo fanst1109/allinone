@@ -215,7 +215,91 @@ function draw3() {
 
 draw();
 draw3();
+
+// ===== Đời sống thực tế =====
+const realCases = {
+  ac: {
+    name: "Điện lưới Việt Nam (220V – 50Hz)",
+    desc: "Ổ cắm trong nhà cho hiệu điện thế biến thiên hình sin. \"220V\" là giá trị hiệu dụng (RMS); đỉnh thật là 220·√2 ≈ <strong>311V</strong>. Tần số 50Hz nghĩa là dòng đảo chiều 100 lần mỗi giây.",
+    A: 311, unit: "V", f: 50, tUnit: "ms", tScale: 1000,
+    cycles: 3, formula: "u(t) = 311·sin(2π·50·t)",
+    note: "Bóng đèn sợi đốt thực ra nhấp nháy 100 lần/giây — mắt người không kịp thấy. Đỉnh 311V là lý do thiết bị phải chịu được điện áp cao hơn con số 220 ghi trên nhãn."
+  },
+  note: {
+    name: "Nốt La chuẩn (A4 – 440Hz)",
+    desc: "Khi đàn phát nốt La, màng loa/dây đàn làm áp suất không khí dao động hình sin <strong>440 lần mỗi giây</strong>. Tai ta nghe được vì màng nhĩ rung theo đúng sóng này.",
+    A: 1, unit: "(áp suất chuẩn hoá)", f: 440, tUnit: "ms", tScale: 1000,
+    cycles: 5, formula: "p(t) = A·sin(2π·440·t)",
+    note: "Nốt La quãng tám cao hơn (A5) có f = 880Hz — gấp đôi tần số, chu kỳ giảm một nửa. Đó là vì sao 'cao quãng tám' = nhân đôi tần số."
+  },
+  day: {
+    name: "Độ dài ngày ở Hà Nội theo mùa",
+    desc: "Số giờ có nắng mỗi ngày dao động hình sin quanh 12 giờ, biên độ ≈ <strong>2.4 giờ</strong>, chu kỳ <strong>365 ngày</strong>. Hạ chí (≈ngày 172) dài nhất, đông chí (≈ngày 355) ngắn nhất.",
+    A: 2.4, unit: "giờ (lệch khỏi 12h)", f: 1/365, tUnit: "ngày", tScale: 1,
+    cycles: 1, formula: "L(d) = 12 + 2.4·sin(2π/365·(d − 80))",
+    note: "Càng gần xích đạo biên độ càng nhỏ (ngày-đêm gần như bằng nhau quanh năm); càng về cực biên độ càng lớn, tới mức có ngày trắng / đêm trắng."
+  }
+};
+function showReal(key) {
+  const c = realCases[key];
+  document.querySelectorAll(".rc-btn").forEach(b => b.style.background = b.dataset.k === key ? "#15803d" : "#94a3b8");
+  const svg = document.getElementById("svgReal");
+  svg.innerHTML = "";
+  const W_PX = 700, H_PX = 300, cx = 50, cy = H_PX/2;
+  const T = 1 / c.f;                       // chu kỳ (giây hoặc ngày)
+  const tMax = c.cycles * T;
+  const scale = (W_PX - 80) / tMax;
+  const yScale = (H_PX/2 - 40) / c.A;
+  // trục
+  const xax = document.createElementNS("http://www.w3.org/2000/svg","line");
+  xax.setAttribute("x1",cx); xax.setAttribute("y1",cy); xax.setAttribute("x2",W_PX-20); xax.setAttribute("y2",cy);
+  xax.setAttribute("stroke","#1a202c"); xax.setAttribute("stroke-width",1.5); svg.appendChild(xax);
+  // đường cong
+  let path = "";
+  for (let i=0;i<=600;i++){
+    const t = i/600 * tMax;
+    const y = (key === "day") ? c.A*Math.sin(2*Math.PI*c.f*t) : c.A*Math.sin(2*Math.PI*c.f*t);
+    const px = cx + t*scale, py = cy - y*yScale;
+    path += (i===0?"M":"L") + px.toFixed(1) + " " + py.toFixed(1) + " ";
+  }
+  const p = document.createElementNS("http://www.w3.org/2000/svg","path");
+  p.setAttribute("d",path); p.setAttribute("fill","none"); p.setAttribute("stroke","#1d4ed8"); p.setAttribute("stroke-width",2.5);
+  svg.appendChild(p);
+  // mốc 1 chu kỳ
+  const Tpx = cx + T*scale;
+  const tl = document.createElementNS("http://www.w3.org/2000/svg","line");
+  tl.setAttribute("x1",Tpx); tl.setAttribute("y1",30); tl.setAttribute("x2",Tpx); tl.setAttribute("y2",H_PX-20);
+  tl.setAttribute("stroke","#dc2626"); tl.setAttribute("stroke-width",1.2); tl.setAttribute("stroke-dasharray","4,3"); svg.appendChild(tl);
+  const ttl = document.createElementNS("http://www.w3.org/2000/svg","text");
+  ttl.setAttribute("x",Tpx+4); ttl.setAttribute("y",44); ttl.setAttribute("font-size","12"); ttl.setAttribute("fill","#dc2626");
+  ttl.textContent = "1 chu kỳ T"; svg.appendChild(ttl);
+
+  const Tdisp = (T * c.tScale);
+  document.getElementById("realRes").innerHTML = `
+    <p style="margin:0 0 8px">${c.desc}</p>
+    <div style="font-family:monospace; font-size:15px">${c.formula}</div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">Biên độ A = <strong>${c.A} ${c.unit}</strong></span>
+      <span class="stat">Tần số f = <strong>${c.f >= 1 ? c.f : c.f.toFixed(5)} ${c.tUnit==="ngày"?"chu kỳ/ngày":"Hz"}</strong></span>
+      <span class="stat">Chu kỳ T = 1/f = <strong>${Tdisp >= 1 ? Tdisp.toFixed(2) : Tdisp.toFixed(3)} ${c.tUnit}</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px; color:#475569">${c.note}</div>
+  `;
+}
+addEventListener("DOMContentLoaded", () => showReal("ac"));
 </script>
+
+<h2>🌍 Đời sống thực tế — sóng sin ở khắp nơi</h2>
+<div class="card">
+  <p style="margin-top:0; color:#475569">Hàm <code>A·sin(2π·f·t)</code> không chỉ là đồ thị đẹp: điện trong nhà, mọi âm thanh, kể cả độ dài ngày đều là sóng sin với <strong>biên độ A</strong> và <strong>tần số f</strong> khác nhau. Chọn một hiện tượng để xem sóng thật:</p>
+  <div class="row">
+    <button class="rc-btn" data-k="ac" onclick="showReal('ac')">⚡ Điện lưới 220V</button>
+    <button class="rc-btn" data-k="note" onclick="showReal('note')">🎵 Nốt La 440Hz</button>
+    <button class="rc-btn" data-k="day" onclick="showReal('day')">🌅 Độ dài ngày</button>
+  </div>
+  <svg class="scene" id="svgReal" viewBox="0 0 700 300" style="height:300px"></svg>
+  <div class="result" id="realRes"></div>
+</div>
 
 </main>
 

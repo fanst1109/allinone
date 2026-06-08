@@ -232,7 +232,57 @@ function drawV() {
 
 drawP();
 drawV();
+
+// ===== Đời sống thực tế: dung tích ly/bình bằng thể tích tròn xoay =====
+const vessels = {
+  glass:  {H:12, r:y=>3.5+0.05*y,                         name:"Ly nước (hơi loe miệng)"},
+  vase:   {H:18, r:y=>3+2*Math.sin(Math.PI*y/18),         name:"Bình hoa (phình giữa)"},
+  bottle: {H:20, r:y=> y<14 ? 4 : 4-(y-14)/6*2.6,         name:"Chai (cổ hẹp)"}
+};
+let curVes="glass";
+function vesselVol(key){
+  const v = vessels[key||curVes]; if(key) curVes=key;
+  document.querySelectorAll(".ves-btn").forEach(b=>b.classList.toggle("active", b.dataset.k===curVes));
+  // V = π∫₀ᴴ r(y)² dy  (cm³ = mL)
+  const n=2000, dy=v.H/n; let V=0;
+  for(let i=0;i<n;i++){const y=(i+0.5)*dy; V+=Math.PI*v.r(y)**2*dy;}
+
+  const svg=document.getElementById("vesSvg");svg.innerHTML="";
+  const W=300,H=360, cx=W/2, top=30, bottom=H-30, pxPerCm=(bottom-top)/v.H;
+  // hứng các đĩa (mặt cắt ngang) — vẽ profile đối xứng
+  const N=18, ddy=v.H/N;
+  for(let i=0;i<N;i++){
+    const y=(i+0.5)*ddy, r=v.r(y);
+    const yy=bottom - y*pxPerCm;
+    const rect=document.createElementNS("http://www.w3.org/2000/svg","rect");
+    rect.setAttribute("x",cx-r*pxPerCm);rect.setAttribute("y",yy-ddy*pxPerCm/2);
+    rect.setAttribute("width",2*r*pxPerCm);rect.setAttribute("height",ddy*pxPerCm);
+    rect.setAttribute("fill","#bfdbfe");rect.setAttribute("stroke","#1d4ed8");rect.setAttribute("stroke-width",0.5);rect.setAttribute("fill-opacity",0.6);svg.appendChild(rect);
+  }
+  // đường viền
+  let dl="",dr="";
+  for(let i=0;i<=200;i++){const y=i/200*v.H;const r=v.r(y);const yy=bottom-y*pxPerCm;dl+=(i===0?"M":"L")+(cx-r*pxPerCm).toFixed(1)+" "+yy.toFixed(1)+" ";dr+=(i===0?"M":"L")+(cx+r*pxPerCm).toFixed(1)+" "+yy.toFixed(1)+" ";}
+  [dl,dr].forEach(d=>{const p=document.createElementNS("http://www.w3.org/2000/svg","path");p.setAttribute("d",d);p.setAttribute("fill","none");p.setAttribute("stroke","#dc2626");p.setAttribute("stroke-width",2.5);svg.appendChild(p);});
+
+  document.getElementById("vesRes").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Dung tích = π·∫₀<sup>${v.H}</sup> r(y)² dy ≈ <strong>${V.toFixed(0)} cm³ = ${V.toFixed(0)} mL</strong> ≈ ${(V/1000).toFixed(2)} lít</div>
+    <div style="margin-top:8px; font-size:13px; color:#475569">Một cái ly hay bình hoa <em>không phải</em> hình trụ đều, nên không có công thức "đáy × cao". Nhưng nếu biết đường viền r(y) (đo từ ảnh chụp nghiêng), <strong>phương pháp đĩa cho dung tích chính xác</strong>: cắt thành lát mỏng dày dy, mỗi lát là đĩa π·r²·dy, cộng lại = tích phân. Đây đúng là cách kỹ sư tính dung tích bao bì, bình xăng, bồn chứa có thành cong.</div>
+  `;
+}
+addEventListener("DOMContentLoaded", () => vesselVol());
 </script>
+
+<h2>🌍 Đời sống thực tế — Cái ly cong này chứa bao nhiêu ml?</h2>
+<div class="card">
+  <p style="margin-top:0; color:#475569">Thể tích tròn xoay không chỉ để tính cầu/nón. Một cái ly, bình hoa hay chai nước có thành <strong>cong</strong> — không dùng được "diện tích đáy × chiều cao". Nhưng nếu biết bán kính theo chiều cao r(y), <strong>phương pháp đĩa</strong> <code>V = π∫r(y)²dy</code> cho ngay dung tích (cm³ = mL).</p>
+  <div class="row">
+    <button class="ves-btn active" data-k="glass" onclick="vesselVol('glass')">🥛 Ly nước</button>
+    <button class="ves-btn" data-k="vase" onclick="vesselVol('vase')">🏺 Bình hoa</button>
+    <button class="ves-btn" data-k="bottle" onclick="vesselVol('bottle')">🍾 Chai</button>
+  </div>
+  <svg id="vesSvg" viewBox="0 0 300 360" style="display:block; margin:12px auto; width:100%; max-width:300px; height:360px; background:#f8fafc; border-radius:8px"></svg>
+  <div class="result" id="vesRes"></div>
+</div>
 
 </main>
 

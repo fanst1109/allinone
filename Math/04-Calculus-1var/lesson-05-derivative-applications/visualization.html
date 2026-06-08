@@ -159,7 +159,55 @@ function draw() {
 }
 
 draw();
+
+// ===== Đời sống thực tế: định giá tối đa hoá lợi nhuận =====
+// Quán cà phê: giá vốn 15k/ly. Cầu: q = 200 − 4p (ly/ngày). Lợi nhuận Π(p)=(p−15)(200−4p)
+const COST=15, A_DEM=200, B_DEM=4;
+function profit() {
+  const p = parseFloat(document.getElementById("prP").value);
+  document.getElementById("prPv").textContent = p;
+  const q = Math.max(0, A_DEM - B_DEM*p);
+  const Pi = (p - COST) * q;
+  const pOpt = (A_DEM + B_DEM*COST) / (2*B_DEM);   // nghiệm Π'(p)=0
+  const qOpt = A_DEM - B_DEM*pOpt;
+  const PiOpt = (pOpt - COST) * qOpt;
+
+  const svg=document.getElementById("prSvg");svg.innerHTML="";
+  const W=700,H=320,ox=55,oy=H-40, pMin=15,pMax=50;
+  const sx=(W-90)/(pMax-pMin), sy=(H-70)/PiOpt;
+  [["x",ox,oy,W-20,oy],["y",ox,20,ox,oy]].forEach(([_,x1,y1,x2,y2])=>{const l=document.createElementNS("http://www.w3.org/2000/svg","line");l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);l.setAttribute("stroke","#1a202c");l.setAttribute("stroke-width",1.5);svg.appendChild(l);});
+  for(let pp=15;pp<=50;pp+=5){const x=ox+(pp-pMin)*sx;const tx=document.createElementNS("http://www.w3.org/2000/svg","text");tx.setAttribute("x",x);tx.setAttribute("y",oy+16);tx.setAttribute("text-anchor","middle");tx.setAttribute("font-size","11");tx.textContent=pp+"k";svg.appendChild(tx);}
+  const X=pp=>ox+(pp-pMin)*sx, Y=v=>oy-v*sy;
+  let d="";for(let pp=pMin;pp<=pMax;pp+=0.2){const v=(pp-COST)*(A_DEM-B_DEM*pp);d+=(pp===pMin?"M":"L")+X(pp).toFixed(1)+" "+Y(v).toFixed(1)+" ";}
+  const pa=document.createElementNS("http://www.w3.org/2000/svg","path");pa.setAttribute("d",d);pa.setAttribute("fill","none");pa.setAttribute("stroke","#1d4ed8");pa.setAttribute("stroke-width",2.5);svg.appendChild(pa);
+  // optimum
+  const o=document.createElementNS("http://www.w3.org/2000/svg","circle");o.setAttribute("cx",X(pOpt));o.setAttribute("cy",Y(PiOpt));o.setAttribute("r",6);o.setAttribute("fill","#15803d");svg.appendChild(o);
+  const ot=document.createElementNS("http://www.w3.org/2000/svg","text");ot.setAttribute("x",X(pOpt));ot.setAttribute("y",Y(PiOpt)-10);ot.setAttribute("text-anchor","middle");ot.setAttribute("fill","#15803d");ot.setAttribute("font-weight","700");ot.setAttribute("font-size","12");ot.textContent="p* = "+pOpt+"k";svg.appendChild(ot);
+  // current
+  if(Pi>=0){const c=document.createElementNS("http://www.w3.org/2000/svg","circle");c.setAttribute("cx",X(p));c.setAttribute("cy",Y(Pi));c.setAttribute("r",6);c.setAttribute("fill","#dc2626");svg.appendChild(c);
+    const gl=document.createElementNS("http://www.w3.org/2000/svg","line");gl.setAttribute("x1",X(p));gl.setAttribute("y1",Y(Pi));gl.setAttribute("x2",X(p));gl.setAttribute("y2",oy);gl.setAttribute("stroke","#dc2626");gl.setAttribute("stroke-width",1);gl.setAttribute("stroke-dasharray","3,3");svg.appendChild(gl);}
+  const yl=document.createElementNS("http://www.w3.org/2000/svg","text");yl.setAttribute("x",ox+4);yl.setAttribute("y",30);yl.setAttribute("font-size","11");yl.setAttribute("fill","#64748b");yl.textContent="Lợi nhuận/ngày";svg.appendChild(yl);
+
+  document.getElementById("prRes").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Π(p) = (p − 15)·(200 − 4p) &nbsp;·&nbsp; tại p = ${p}k: bán <strong>${q} ly</strong>, lãi <strong>${Pi.toLocaleString("vi-VN")}k₫/ngày</strong></div>
+    <div style="font-family:monospace; font-size:14px; margin-top:6px">Π'(p) = 200 − 4p − 4(p − 15) = 260 − 8p = 0 → <strong>p* = ${pOpt}k</strong></div>
+    <div style="margin-top:8px; font-size:13px; color:#475569">Giá tối ưu (chấm xanh) là nơi <strong>đạo hàm lợi nhuận = 0</strong>: ${pOpt}k/ly → bán ${qOpt} ly → lãi <strong>${PiOpt.toLocaleString("vi-VN")}k₫/ngày</strong>. Bán rẻ hơn thì đông khách nhưng lãi mỏng; bán đắt hơn thì lãi/ly cao nhưng mất khách. Đạo hàm chỉ ra điểm cân bằng vàng — đây là cách định giá trong kinh doanh thực.</div>
+  `;
+}
+addEventListener("DOMContentLoaded", profit);
 </script>
+
+<h2>🌍 Đời sống thực tế — Quán cà phê nên bán giá nào để lãi nhất?</h2>
+<div class="card">
+  <p style="margin-top:0; color:#475569">Bài tối ưu hộp ở trên là hình học; đây là tối ưu trong <strong>kinh doanh</strong>. Một ly cà phê vốn 15k. Bán càng đắt thì lãi mỗi ly cao nhưng ít khách: ước lượng số ly bán được mỗi ngày <code>q = 200 − 4p</code> (p tính nghìn đồng). Lợi nhuận <code>Π(p) = (p − 15)·(200 − 4p)</code> — tìm giá p để Π lớn nhất bằng cách giải <strong>Π'(p) = 0</strong>.</p>
+  <div class="row">
+    <label>Giá bán p (nghìn đ/ly):</label>
+    <input type="range" id="prP" min="15" max="50" step="1" value="25" oninput="profit()">
+    <span class="stat">p = <strong id="prPv">25</strong>k</span>
+  </div>
+  <svg class="scene" id="prSvg" viewBox="0 0 700 320" style="height:320px"></svg>
+  <div class="result" id="prRes"></div>
+</div>
 
 </main>
 

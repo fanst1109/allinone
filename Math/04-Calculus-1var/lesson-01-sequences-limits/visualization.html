@@ -49,7 +49,7 @@
     <button id="b5" onclick="setDay('sqrt')">a_n = √(n²+1)-n → 0</button>
   </div>
   <svg class="scene" id="svg" viewBox="0 0 700 350"></svg>
-  <div id="tab"></div>
+  <div id="tab" style="overflow-x:auto"></div>
   <div class="result" id="res"></div>
 </div>
 
@@ -145,7 +145,54 @@ function draw() {
 }
 
 draw();
+
+// ===== Đời sống thực tế: ghép lãi càng dày → tiến tới lãi liên tục =====
+const freqs = [[1,"mỗi năm"],[2,"nửa năm"],[4,"mỗi quý"],[12,"mỗi tháng"],[52,"mỗi tuần"],[365,"mỗi ngày"],[8760,"mỗi giờ"]];
+function compound() {
+  const P = parseFloat(document.getElementById("cP").value);
+  const r = parseFloat(document.getElementById("cR").value)/100;
+  const t = parseFloat(document.getElementById("cT").value);
+  document.getElementById("cPv").textContent = P.toLocaleString("vi-VN");
+  document.getElementById("cRv").textContent = (r*100).toFixed(1);
+  document.getElementById("cTv").textContent = t;
+  const cont = P * Math.exp(r*t);   // giới hạn lãi liên tục
+
+  const fmt = x => Math.round(x).toLocaleString("vi-VN");
+  let rows = freqs.map(([n,lbl]) => {
+    const A = P * Math.pow(1 + r/n, n*t);
+    const gap = cont - A;
+    return `<tr><td style="text-align:left">${lbl} (n=${n})</td><td>${fmt(A)}</td><td>${fmt(gap)}</td></tr>`;
+  }).join("");
+  document.getElementById("cTab").innerHTML = `
+    <table><thead><tr><th style="text-align:left">Ghép lãi</th><th>Số tiền sau ${t} năm (₫)</th><th>Còn cách giới hạn (₫)</th></tr></thead>
+    <tbody>${rows}<tr style="background:#dcfce7;font-weight:700"><td style="text-align:left">liên tục (n→∞)</td><td>${fmt(cont)}</td><td>0</td></tr></tbody></table>`;
+  document.getElementById("cRes").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">A_n = P·(1 + r/n)^(n·t) &nbsp;→&nbsp; <strong>P·e^(r·t) = ${fmt(cont)} ₫</strong> khi n → ∞</div>
+    <div style="margin-top:8px; font-size:13px; color:#475569">Đây chính là dãy <code>(1+1/n)ⁿ → e</code> ở mục trên, mặc áo tiền bạc. Tăng số lần ghép lãi mỗi năm (n) thì tiền lãi nhích lên — <strong>nhưng không vô hạn</strong>: nó hội tụ về mức lãi kép liên tục P·e^(rt). Cột phải cho thấy khoảng cách tới giới hạn co về 0. Vì sao ngân hàng không "ghép lãi từng giây để giàu hơn"? Vì giới hạn chặn lại — chênh lệch giữa ghép theo ngày và ghép liên tục đã gần như bằng 0.</div>
+  `;
+}
+addEventListener("DOMContentLoaded", compound);
 </script>
+
+<h2>🌍 Đời sống thực tế — Ghép lãi càng dày, tiền có tăng mãi không?</h2>
+<div class="card">
+  <p style="margin-top:0; color:#475569">Gửi tiết kiệm, nếu lãi được "ghép" (nhập gốc) nhiều lần trong năm thì cuối kỳ nhận nhiều hơn. Câu hỏi: ghép <em>vô hạn lần</em> thì giàu vô hạn? Không — số tiền là một <strong>dãy hội tụ</strong> về giới hạn lãi liên tục <code>P·e^(rt)</code>.</p>
+  <div class="row">
+    <label>Tiền gửi P (₫):</label>
+    <input type="range" id="cP" min="1000000" max="100000000" step="1000000" value="10000000" oninput="compound()">
+    <span class="stat">P = <strong id="cPv">10.000.000</strong></span>
+  </div>
+  <div class="row">
+    <label>Lãi suất r (%/năm):</label>
+    <input type="range" id="cR" min="1" max="15" step="0.5" value="6" oninput="compound()">
+    <span class="stat">r = <strong id="cRv">6.0</strong>%</span>
+    <label>Số năm t:</label>
+    <input type="range" id="cT" min="1" max="30" step="1" value="10" oninput="compound()">
+    <span class="stat">t = <strong id="cTv">10</strong></span>
+  </div>
+  <div id="cTab" style="overflow-x:auto"></div>
+  <div class="result" id="cRes"></div>
+</div>
 
 </main>
 

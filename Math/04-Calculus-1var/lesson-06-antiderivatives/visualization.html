@@ -145,7 +145,50 @@ function draw() {
 }
 
 draw();
+
+// ===== Đời sống thực tế: suy vị trí từ vận tốc — C = nơi xuất phát =====
+// v(t) = 2t (m/s) → s(t) = ∫v dt = t² + C, với C = vị trí ban đầu (mốc mét)
+function motion() {
+  const s0 = parseFloat(document.getElementById("mtC").value);
+  document.getElementById("mtCv").textContent = s0;
+  const tMax=5;
+  const svg=document.getElementById("mtSvg");svg.innerHTML="";
+  const W=700,H=320,ox=55,oy=H-40, sMax=60;
+  const sx=(W-90)/tMax, sy=(H-70)/sMax;
+  [["x",ox,oy,W-20,oy],["y",ox,20,ox,oy]].forEach(([_,x1,y1,x2,y2])=>{const l=document.createElementNS("http://www.w3.org/2000/svg","line");l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);l.setAttribute("stroke","#1a202c");l.setAttribute("stroke-width",1.5);svg.appendChild(l);});
+  for(let k=0;k<=5;k++){const x=ox+k*sx;const tx=document.createElementNS("http://www.w3.org/2000/svg","text");tx.setAttribute("x",x);tx.setAttribute("y",oy+16);tx.setAttribute("text-anchor","middle");tx.setAttribute("font-size","11");tx.textContent=k+"s";svg.appendChild(tx);}
+  const X=t=>ox+t*sx, Y=s=>oy-s*sy;
+  // họ nguyên hàm mờ
+  [0,10,20,30].forEach(C=>{
+    let d="";for(let i=0;i<=200;i++){const t=i/200*tMax;const s=t*t+C;if(s>sMax)break;d+=(i===0?"M":"L")+X(t).toFixed(1)+" "+Y(s).toFixed(1)+" ";}
+    const p=document.createElementNS("http://www.w3.org/2000/svg","path");p.setAttribute("d",d);p.setAttribute("fill","none");p.setAttribute("stroke","#cbd5e0");p.setAttribute("stroke-width",1.5);p.setAttribute("stroke-dasharray","4,3");svg.appendChild(p);
+  });
+  // đường được chọn
+  let d="";for(let i=0;i<=200;i++){const t=i/200*tMax;const s=t*t+s0;if(s>sMax)break;d+=(i===0?"M":"L")+X(t).toFixed(1)+" "+Y(s).toFixed(1)+" ";}
+  const p=document.createElementNS("http://www.w3.org/2000/svg","path");p.setAttribute("d",d);p.setAttribute("fill","none");p.setAttribute("stroke","#15803d");p.setAttribute("stroke-width",3);svg.appendChild(p);
+  const dot=document.createElementNS("http://www.w3.org/2000/svg","circle");dot.setAttribute("cx",X(0));dot.setAttribute("cy",Y(s0));dot.setAttribute("r",6);dot.setAttribute("fill","#dc2626");svg.appendChild(dot);
+  const yl=document.createElementNS("http://www.w3.org/2000/svg","text");yl.setAttribute("x",ox+4);yl.setAttribute("y",30);yl.setAttribute("font-size","11");yl.setAttribute("fill","#64748b");yl.textContent="vị trí s (m)";svg.appendChild(yl);
+
+  document.getElementById("mtRes").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Biết vận tốc v(t) = 2t (m/s) → vị trí s(t) = ∫2t dt = t² + C</div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">Xuất phát ở mốc <strong>${s0} m</strong> → C = ${s0} → s(t) = t² + ${s0}. Sau 5s ở mét thứ <strong>${25+s0}</strong>.</div>
+    <div style="margin-top:8px; font-size:13px; color:#475569">Tất cả đường (xám) có <strong>cùng vận tốc</strong> ở mọi thời điểm — đạo hàm của chúng đều là 2t, hằng số C đã bị xoá khi lấy đạo hàm. Vì vậy <strong>chỉ biết vận tốc thì chưa đủ để biết đang ở đâu</strong>: phải có thêm <em>vị trí xuất phát</em> (chính là C). Đây là lý do GPS cần một điểm mốc ban đầu, và vì sao mọi bài "tìm quãng đường từ vận tốc" đều kèm điều kiện đầu.</div>
+  `;
+}
+addEventListener("DOMContentLoaded", motion);
 </script>
+
+<h2>🌍 Đời sống thực tế — Biết vận tốc, vẫn chưa biết đang ở đâu</h2>
+<div class="card">
+  <p style="margin-top:0; color:#475569">Hằng số <strong>+C</strong> không phải chi tiết hình thức. Giả sử ta biết vận tốc của một người đi bộ là <code>v(t) = 2t</code> (m/s). Vị trí là nguyên hàm <code>s(t) = t² + C</code> — nhưng <strong>C chính là nơi xuất phát</strong>. Hai người chạy <em>y hệt</em> kiểu tốc độ nhưng bắt đầu ở mốc mét khác nhau sẽ luôn cách nhau đúng khoảng đó: các đường vị trí song song, đúng là họ nguyên hàm +C ở trên.</p>
+  <div class="row">
+    <label>Vị trí xuất phát C (m):</label>
+    <input type="range" id="mtC" min="0" max="30" step="5" value="10" oninput="motion()">
+    <span class="stat">C = <strong id="mtCv">10</strong> m</span>
+  </div>
+  <svg class="scene" id="mtSvg" viewBox="0 0 700 320" style="height:320px"></svg>
+  <div class="result" id="mtRes"></div>
+</div>
 
 </main>
 

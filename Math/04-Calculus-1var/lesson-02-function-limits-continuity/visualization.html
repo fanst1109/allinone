@@ -193,7 +193,62 @@ function draw() {
 }
 
 draw();
+
+// ===== Đời sống thực tế: phí gửi xe theo bậc = hàm gián đoạn nhảy =====
+const RATE = 5000; // mỗi giờ (bắt đầu) tính 5.000đ
+function park() {
+  const t = parseFloat(document.getElementById("pkT").value);
+  document.getElementById("pkTv").textContent = t.toFixed(2);
+  const fee = t <= 0 ? 0 : RATE * Math.ceil(t);
+
+  const svg = document.getElementById("pkSvg");
+  svg.innerHTML = "";
+  const W=700,H=320,ox=50,oy=H-40, sx=(W-90)/6, sy=(H-70)/35000;
+  // trục
+  [["x",ox,oy,W-20,oy],["y",ox,20,ox,oy]].forEach(([_,x1,y1,x2,y2])=>{const l=document.createElementNS("http://www.w3.org/2000/svg","line");l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);l.setAttribute("stroke","#1a202c");l.setAttribute("stroke-width",1.5);svg.appendChild(l);});
+  for(let h=0;h<=6;h++){const x=ox+h*sx;const tx=document.createElementNS("http://www.w3.org/2000/svg","text");tx.setAttribute("x",x);tx.setAttribute("y",oy+16);tx.setAttribute("text-anchor","middle");tx.setAttribute("font-size","11");tx.textContent=h+"h";svg.appendChild(tx);}
+  for(let k=0;k<=30000;k+=5000){const y=oy-k*sy;const tx=document.createElementNS("http://www.w3.org/2000/svg","text");tx.setAttribute("x",ox-6);tx.setAttribute("y",y+4);tx.setAttribute("text-anchor","end");tx.setAttribute("font-size","10");tx.setAttribute("fill","#64748b");tx.textContent=(k/1000)+"k";svg.appendChild(tx);}
+  // các bậc: trên (h-1, h], phí = RATE·h
+  for(let h=1;h<=6;h++){
+    const y=oy-RATE*h*sy, x1=ox+(h-1)*sx, x2=ox+h*sx;
+    const seg=document.createElementNS("http://www.w3.org/2000/svg","line");
+    seg.setAttribute("x1",x1);seg.setAttribute("y1",y);seg.setAttribute("x2",x2);seg.setAttribute("y2",y);seg.setAttribute("stroke","#1d4ed8");seg.setAttribute("stroke-width",3);svg.appendChild(seg);
+    // đầu trái: hở (không gồm mốc h-1) — trừ bậc đầu
+    const oc=document.createElementNS("http://www.w3.org/2000/svg","circle");oc.setAttribute("cx",x1);oc.setAttribute("cy",y);oc.setAttribute("r",5);oc.setAttribute("fill","white");oc.setAttribute("stroke","#1d4ed8");oc.setAttribute("stroke-width",2);svg.appendChild(oc);
+    // đầu phải: đặc (gồm mốc h)
+    const fc=document.createElementNS("http://www.w3.org/2000/svg","circle");fc.setAttribute("cx",x2);fc.setAttribute("cy",y);fc.setAttribute("r",5);fc.setAttribute("fill","#1d4ed8");svg.appendChild(fc);
+  }
+  // vạch thời gian hiện tại
+  const xt=ox+t*sx;
+  const vl=document.createElementNS("http://www.w3.org/2000/svg","line");vl.setAttribute("x1",xt);vl.setAttribute("y1",20);vl.setAttribute("x2",xt);vl.setAttribute("y2",oy);vl.setAttribute("stroke","#dc2626");vl.setAttribute("stroke-width",1.5);vl.setAttribute("stroke-dasharray","4,3");svg.appendChild(vl);
+  if(t>0){const d=document.createElementNS("http://www.w3.org/2000/svg","circle");d.setAttribute("cx",xt);d.setAttribute("cy",oy-fee*sy);d.setAttribute("r",6);d.setAttribute("fill","#dc2626");svg.appendChild(d);}
+
+  // phân tích mốc giờ gần nhất
+  const hb = Math.round(t);
+  let jumpNote = "";
+  if (hb >= 1 && hb <= 5 && Math.abs(t-hb) < 0.5) {
+    const left = RATE*hb, right = RATE*(hb+1);
+    jumpNote = `Tại đúng mốc <strong>${hb}h00</strong>: phí = ${left.toLocaleString("vi-VN")}đ. Nhưng chỉ cần quá <em>một giây</em> (t → ${hb}h⁺) phí nhảy lên ${right.toLocaleString("vi-VN")}đ. Giới hạn trái (${left.toLocaleString("vi-VN")}đ) ≠ giới hạn phải (${right.toLocaleString("vi-VN")}đ) → <strong>gián đoạn nhảy</strong>, và giá trị tại mốc bằng giới hạn trái (chấm đặc bên trái mỗi bậc).`;
+  }
+  document.getElementById("pkRes").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">phí(t) = 5.000 × ⌈t⌉ &nbsp;→&nbsp; gửi ${t.toFixed(2)}h phải trả <strong>${fee.toLocaleString("vi-VN")}đ</strong></div>
+    <div style="margin-top:8px; font-size:13px; color:#475569">${jumpNote || "Trong mỗi khoảng giờ, phí giữ nguyên (hàm hằng từng đoạn). Kéo con trượt tới sát một mốc giờ tròn để thấy điểm gián đoạn nhảy."} Đây là vì sao gửi xe 2h01 bị tính tiền như 3 tiếng — bài học "lim trái ≠ lim phải" hiện ra ngay ở bãi giữ xe.</div>
+  `;
+}
+addEventListener("DOMContentLoaded", park);
 </script>
+
+<h2>🌍 Đời sống thực tế — Phí gửi xe là hàm gián đoạn nhảy</h2>
+<div class="card">
+  <p style="margin-top:0; color:#475569">Biểu phí gửi xe "mỗi giờ (hoặc phần của giờ) tính 5.000đ" là một <strong>hàm bậc thang</strong>: trong mỗi khoảng giờ thì phí phẳng, nhưng tại mỗi mốc giờ tròn nó <strong>nhảy bậc</strong> — đúng định nghĩa gián đoạn nhảy (giới hạn trái ≠ giới hạn phải). Cước ship theo cân nặng, bậc thuế thu nhập cũng cùng dạng.</p>
+  <div class="row">
+    <label>Thời gian gửi (giờ):</label>
+    <input type="range" id="pkT" min="0" max="6" step="0.05" value="2.3" oninput="park()">
+    <span class="stat">t = <strong id="pkTv">2.30</strong> h</span>
+  </div>
+  <svg class="scene" id="pkSvg" viewBox="0 0 700 320" style="height:320px"></svg>
+  <div class="result" id="pkRes"></div>
+</div>
 
 </main>
 

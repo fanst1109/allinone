@@ -146,7 +146,53 @@ function draw() {
 }
 
 draw();
+
+// ===== Đời sống thực tế: gợn sóng nước — chain rule (related rates) =====
+const RIPPLE_V = 0.4; // bán kính lan 0.4 m/s
+function ripple() {
+  const t = parseFloat(document.getElementById("rpT").value);
+  document.getElementById("rpTv").textContent = t.toFixed(1);
+  const r = RIPPLE_V * t;             // r(t) = v·t
+  const A = Math.PI * r * r;          // A = πr²
+  const dAdt = 2 * Math.PI * r * RIPPLE_V; // chain rule: dA/dt = 2πr · dr/dt
+
+  const svg = document.getElementById("rpSvg");
+  svg.innerHTML="";
+  const cx=130, cy=130, pxPerM = 110/ (RIPPLE_V*5); // scale: tối đa ~5s
+  // mặt nước
+  const bg=document.createElementNS("http://www.w3.org/2000/svg","rect");bg.setAttribute("x",10);bg.setAttribute("y",10);bg.setAttribute("width",240);bg.setAttribute("height",240);bg.setAttribute("fill","#e0f2fe");bg.setAttribute("rx",8);svg.appendChild(bg);
+  // các vòng sóng
+  for(let k=1;k<=3;k++){
+    const rr=r*k/3;
+    const c=document.createElementNS("http://www.w3.org/2000/svg","circle");
+    c.setAttribute("cx",cx);c.setAttribute("cy",cy);c.setAttribute("r",Math.max(1,rr*pxPerM));
+    c.setAttribute("fill","none");c.setAttribute("stroke","#0284c7");c.setAttribute("stroke-width",k===3?2.5:1.2);c.setAttribute("opacity",k===3?1:0.5);svg.appendChild(c);
+  }
+  const dot=document.createElementNS("http://www.w3.org/2000/svg","circle");dot.setAttribute("cx",cx);dot.setAttribute("cy",cy);dot.setAttribute("r",3);dot.setAttribute("fill","#1a202c");svg.appendChild(dot);
+
+  document.getElementById("rpRes").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">r(t) = v·t = ${RIPPLE_V}·${t.toFixed(1)} = <strong>${r.toFixed(2)} m</strong> &nbsp;·&nbsp; A = πr² = <strong>${A.toFixed(2)} m²</strong></div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">dr/dt = <strong>${RIPPLE_V} m/s</strong> (không đổi)</span>
+      <span class="stat">dA/dt = 2πr·(dr/dt) = 2π·${r.toFixed(2)}·${RIPPLE_V} = <strong>${dAdt.toFixed(2)} m²/s</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px; color:#475569"><strong>Quy tắc chuỗi (chain rule)</strong> tại nơi làm việc: A phụ thuộc r, r phụ thuộc t, nên <code>dA/dt = (dA/dr)·(dr/dt) = 2πr · v</code>. Bán kính lan <em>đều</em> (dr/dt cố định), nhưng vì có thừa số r, <strong>diện tích loang ngày càng nhanh</strong> — sóng càng lớn càng "nuốt" mặt nước nhanh hơn. Cùng cơ chế: vết dầu loang, bong bóng phồng, ảnh zoom.</div>
+  `;
+}
+addEventListener("DOMContentLoaded", ripple);
 </script>
+
+<h2>🌍 Đời sống thực tế — Gợn sóng nước & quy tắc chuỗi</h2>
+<div class="card">
+  <p style="margin-top:0; color:#475569">Thả một viên sỏi xuống hồ, gợn sóng tròn lan ra với bán kính tăng <strong>đều</strong> (dr/dt = 0.4 m/s). Hỏi diện tích vùng sóng tăng nhanh thế nào? Diện tích A = πr² phụ thuộc r, mà r phụ thuộc t — đúng tình huống dùng <strong>quy tắc chuỗi</strong>: <code>dA/dt = (dA/dr)·(dr/dt)</code>.</p>
+  <div class="row">
+    <label>Thời gian t (s):</label>
+    <input type="range" id="rpT" min="0" max="5" step="0.1" value="2" oninput="ripple()">
+    <span class="stat">t = <strong id="rpTv">2.0</strong> s</span>
+  </div>
+  <svg id="rpSvg" viewBox="0 0 260 260" style="display:block; margin:12px auto; width:100%; max-width:260px; height:260px; background:#f8fafc; border-radius:8px"></svg>
+  <div class="result" id="rpRes"></div>
+</div>
 
 </main>
 

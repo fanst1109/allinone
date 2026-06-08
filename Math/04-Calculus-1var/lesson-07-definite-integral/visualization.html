@@ -167,7 +167,56 @@ function draw() {
 }
 
 draw();
+
+// ===== Đời sống thực tế: hoá đơn tiền điện = tích phân công suất theo giờ =====
+const PRICE = 3000; // đồng/kWh
+function powerFn(t){ return 0.4 + 1.2*Math.exp(-Math.pow((t-7)/2,2)) + 1.8*Math.exp(-Math.pow((t-19)/2.5,2)); } // kW theo giờ
+function energy() {
+  const n = parseInt(document.getElementById("enN").value);
+  document.getElementById("enNv").textContent = n;
+  // tổng Riemann (đọc công-tơ n lần/ngày, lấy điểm giữa)
+  const dx = 24/n; let Sn=0;
+  for(let i=0;i<n;i++) Sn += powerFn((i+0.5)*dx)*dx;
+  // giá trị thật
+  let exact=0; const fn=24/2000; for(let i=0;i<2000;i++) exact += powerFn((i+0.5)*fn)*fn;
+
+  const svg=document.getElementById("enSvg");svg.innerHTML="";
+  const W=700,H=320,ox=45,oy=H-40, pMax=2.6;
+  const sx=(W-70)/24, sy=(H-70)/pMax;
+  [["x",ox,oy,W-20,oy],["y",ox,20,ox,oy]].forEach(([_,x1,y1,x2,y2])=>{const l=document.createElementNS("http://www.w3.org/2000/svg","line");l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);l.setAttribute("stroke","#1a202c");l.setAttribute("stroke-width",1.5);svg.appendChild(l);});
+  for(let h=0;h<=24;h+=4){const x=ox+h*sx;const tx=document.createElementNS("http://www.w3.org/2000/svg","text");tx.setAttribute("x",x);tx.setAttribute("y",oy+16);tx.setAttribute("text-anchor","middle");tx.setAttribute("font-size","11");tx.textContent=h+"h";svg.appendChild(tx);}
+  const X=t=>ox+t*sx, Y=p=>oy-p*sy;
+  // chữ nhật Riemann
+  for(let i=0;i<n;i++){const mid=(i+0.5)*dx;const p=powerFn(mid);const r=document.createElementNS("http://www.w3.org/2000/svg","rect");r.setAttribute("x",X(i*dx));r.setAttribute("y",Y(p));r.setAttribute("width",dx*sx);r.setAttribute("height",p*sy);r.setAttribute("fill","#bfdbfe");r.setAttribute("stroke","#1d4ed8");r.setAttribute("stroke-width",0.6);r.setAttribute("fill-opacity",0.6);svg.appendChild(r);}
+  // đường công suất
+  let d="";for(let i=0;i<=480;i++){const t=i/480*24;d+=(i===0?"M":"L")+X(t).toFixed(1)+" "+Y(powerFn(t)).toFixed(1)+" ";}
+  const pa=document.createElementNS("http://www.w3.org/2000/svg","path");pa.setAttribute("d",d);pa.setAttribute("fill","none");pa.setAttribute("stroke","#dc2626");pa.setAttribute("stroke-width",2.5);svg.appendChild(pa);
+  const yl=document.createElementNS("http://www.w3.org/2000/svg","text");yl.setAttribute("x",ox+4);yl.setAttribute("y",30);yl.setAttribute("font-size","11");yl.setAttribute("fill","#64748b");yl.textContent="Công suất (kW)";svg.appendChild(yl);
+
+  document.getElementById("enRes").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Điện năng = ∫₀²⁴ P(t) dt ≈ <strong>${Sn.toFixed(3)} kWh</strong> (đọc công-tơ ${n} lần/ngày)</div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">Giá trị thật: <strong>${exact.toFixed(3)} kWh</strong></span>
+      <span class="stat">Sai số: <strong>${Math.abs(Sn-exact).toFixed(3)} kWh</strong></span>
+      <span class="stat">Tiền điện ≈ <strong>${Math.round(Sn*PRICE).toLocaleString("vi-VN")} ₫/ngày</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px; color:#475569">Công suất tiêu thụ thay đổi suốt ngày (thấp ban đêm, đỉnh sáng & tối). Số <strong>kWh trên hoá đơn = diện tích dưới đường công suất</strong> = tích phân ∫P dt. Công-tơ điện thực chất cộng dồn các "chữ nhật" rất nhỏ (đọc liên tục). Kéo n lên: đọc càng nhiều lần, tổng Riemann càng sát con số thật — đúng tinh thần tích phân là giới hạn của tổng.</div>
+  `;
+}
+addEventListener("DOMContentLoaded", energy);
 </script>
+
+<h2>🌍 Đời sống thực tế — Hoá đơn tiền điện là một tích phân</h2>
+<div class="card">
+  <p style="margin-top:0; color:#475569">Công suất điện cả nhà tiêu thụ (kW) thay đổi từng giờ. Thứ bạn <strong>trả tiền</strong> là điện năng (kWh) = <strong>diện tích dưới đường công suất</strong> theo thời gian, tức <code>∫₀²⁴ P(t) dt</code>. Công-tơ điện chính là máy tính tích phân: nó cộng dồn vô số "chữ nhật" nhỏ. Chỉnh số lần đọc công-tơ n để xem tổng Riemann tiến về giá trị thật.</p>
+  <div class="row">
+    <label>Số lần đọc công-tơ/ngày (n):</label>
+    <input type="range" id="enN" min="2" max="48" step="1" value="6" oninput="energy()">
+    <span class="stat">n = <strong id="enNv">6</strong></span>
+  </div>
+  <svg class="scene" id="enSvg" viewBox="0 0 700 320" style="height:320px"></svg>
+  <div class="result" id="enRes"></div>
+</div>
 
 </main>
 

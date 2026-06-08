@@ -113,6 +113,17 @@
   <div class="result" id="vrmsResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Vì sao thợ lặn càng sâu càng nhanh hết bình khí?</h2>
+<div class="card">
+  <p>Bình khí lặn nén ~12 L khí tới ~200 bar. Tưởng chừng đủ thở rất lâu, nhưng càng lặn sâu càng hết nhanh. Lý do nằm ở <strong>định luật Boyle</strong>: mỗi 10 m nước thêm 1 atm, nên khí thở vào bị nén lại — cùng một hơi thở lại tiêu tốn nhiều phân tử khí hơn. Kéo thanh trượt để xem độ sâu ảnh hưởng thời gian lặn.</p>
+  <div class="row">
+    <label>Độ sâu:</label>
+    <input type="range" id="dvDepth" min="0" max="40" step="1" value="20" oninput="calcDive()">
+    <span class="stat" id="dvDepthVal">20 m</span>
+  </div>
+  <div class="result" id="dvResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -209,10 +220,43 @@ function calcVrms() {
   `;
 }
 
+// ===== Đời sống thực tế: bình khí lặn dưới nước =====
+function calcDive() {
+  const depth = parseFloat(document.getElementById("dvDepth").value);
+  document.getElementById("dvDepthVal").textContent = depth + " m";
+  // Áp suất tuyệt đối: P = 1 atm (khí quyển) + cứ 10 m nước thêm 1 atm
+  const Pabs = 1 + depth / 10; // atm
+  // Bình thường: dung tích 12 L nén tới 200 bar (≈ 197 atm) → thể tích khí ở 1 atm
+  const tankVol = 12;     // L (dung tích vật lý của bình)
+  const tankP = 197;      // atm (áp suất nạp)
+  const V_surface = tankVol * tankP; // L khí quy về 1 atm (Boyle)
+  // Tốc độ thở quy về bề mặt ~ 20 L/phút; dưới sâu phổi nén khí ở Pabs nên tiêu hao nhanh hơn Pabs lần
+  const breathSurface = 20; // L/phút (thể tích ở 1 atm)
+  const consumption = breathSurface * Pabs; // L (đo theo khí 1 atm) tiêu mỗi phút
+  const usable = V_surface - tankVol * 50; // trừ phần dự trữ 50 atm (an toàn)
+  const minutes = usable / consumption;
+  document.getElementById("dvResult").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Áp suất tuyệt đối ở ${depth} m: P = 1 + ${depth}/10 = <strong>${Pabs.toFixed(1)} atm</strong></div>
+    <div style="font-family:monospace; font-size:14px; margin-top:4px">Khí trong bình (Boyle): V = ${tankVol} L × ${tankP} atm = <strong>${V_surface.toFixed(0)} L</strong> (quy về 1 atm)</div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat">Tiêu hao: <strong>${consumption.toFixed(0)} L/phút</strong></span>
+      <span class="stat">Thời gian dùng được: <strong>≈ ${minutes.toFixed(0)} phút</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Mỗi 10 m nước thêm 1 atm, nên ở ${depth} m phổi hít vào khí đã bị nén tới ${Pabs.toFixed(1)} atm.
+      Cùng một hơi thở (thể tích phổi không đổi) lại "ngốn" gấp ${Pabs.toFixed(1)} lần số phân tử khí so với
+      trên mặt nước (định luật Boyle: P↑ thì cùng V chứa nhiều mol hơn). Đó là lý do thợ lặn càng xuống sâu
+      thì bình khí càng hết nhanh.
+      ${depth >= 30 ? " ⚠ Sâu trên 30 m còn rủi ro say nitơ — cần khí trộn chuyên dụng." : ""}
+    </div>
+  `;
+}
+
 // Init
 calcPV();
 setProc('boyle');
 calcVrms();
+document.addEventListener("DOMContentLoaded", calcDive);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

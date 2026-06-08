@@ -81,6 +81,25 @@
   <div class="result" id="cbResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Vì sao bật nhiều thiết bị lại "nhảy aptomat"?</h2>
+<div class="card">
+  <p>Các ổ điện trong nhà mắc <strong>song song</strong> ở 220 V, nên dòng điện tổng bằng tổng dòng của từng thiết bị (I = P/U). Aptomat (cầu dao tự động) mắc nối tiếp với cả mạch sẽ ngắt khi dòng tổng vượt mức định mức, tránh cháy dây. Tick các thiết bị và chỉnh mức aptomat để xem khi nào bị ngắt.</p>
+  <div class="row" id="apList" style="gap:14px">
+    <label style="min-width:auto"><input type="checkbox" id="apAircon" onchange="calcBreaker()" checked> Máy lạnh 1 HP (900 W)</label>
+    <label style="min-width:auto"><input type="checkbox" id="apHeater" onchange="calcBreaker()"> Bình nóng lạnh (2500 W)</label>
+    <label style="min-width:auto"><input type="checkbox" id="apKettle" onchange="calcBreaker()"> Ấm siêu tốc (1800 W)</label>
+    <label style="min-width:auto"><input type="checkbox" id="apMicro" onchange="calcBreaker()"> Lò vi sóng (1200 W)</label>
+    <label style="min-width:auto"><input type="checkbox" id="apIron" onchange="calcBreaker()"> Bàn ủi (1100 W)</label>
+    <label style="min-width:auto"><input type="checkbox" id="apFridge" onchange="calcBreaker()" checked> Tủ lạnh (150 W)</label>
+  </div>
+  <div class="row">
+    <label>Mức aptomat:</label>
+    <input type="range" id="apRating" min="10" max="40" step="1" value="20" oninput="calcBreaker()">
+    <span class="stat" id="apRatingVal">20 A</span>
+  </div>
+  <div class="result" id="apResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -232,9 +251,54 @@ function drawR(svg, cx, cy, label, orient = 'horizontal') {
   svg.appendChild(t);
 }
 
+// ===== Đời sống thực tế: aptomat ngắt khi quá tải =====
+const breakerAppliances = [
+  {id: "apAircon", name: "Máy lạnh 1 HP", P: 900},
+  {id: "apHeater", name: "Bình nóng lạnh", P: 2500},
+  {id: "apKettle", name: "Ấm siêu tốc", P: 1800},
+  {id: "apMicro", name: "Lò vi sóng", P: 1200},
+  {id: "apIron", name: "Bàn ủi", P: 1100},
+  {id: "apFridge", name: "Tủ lạnh", P: 150}
+];
+
+function calcBreaker() {
+  const Vmains = 220; // V lưới điện VN
+  const rating = parseFloat(document.getElementById("apRating").value); // A
+  document.getElementById("apRatingVal").textContent = rating + " A";
+  let totalP = 0;
+  let lines = "";
+  breakerAppliances.forEach(a => {
+    const on = document.getElementById(a.id).checked;
+    if (on) {
+      totalP += a.P;
+      const I = a.P / Vmains;
+      lines += `<div style="padding:5px 12px; background:#f1f5f9; margin:3px 0; border-left:3px solid #1e40af; font-family:monospace; font-size:13px">${a.name}: I = P/U = ${a.P}/${Vmains} = ${I.toFixed(2)} A</div>`;
+    }
+  });
+  const Itotal = totalP / Vmains;
+  const tripped = Itotal > rating;
+  document.getElementById("apResult").innerHTML = `
+    ${lines || '<div style="font-size:13px">Chưa bật thiết bị nào.</div>'}
+    <div class="row" style="margin-top:8px">
+      <span class="stat">Tổng công suất: <strong>${totalP} W</strong></span>
+      <span class="stat">Tổng dòng: I = P/U = ${totalP}/${Vmains} = <strong>${Itotal.toFixed(2)} A</strong></span>
+    </div>
+    <div style="margin-top:8px; padding:12px; background:${tripped ? '#fee2e2' : '#dcfce7'}; border-radius:6px; font-weight:700; color:${tripped ? '#dc2626' : '#047857'}">
+      ${tripped ? `⚡ I = ${Itotal.toFixed(1)} A > ${rating} A → APTOMAT NGẮT! Cúp điện cả mạch.` : `✓ I = ${Itotal.toFixed(1)} A ≤ ${rating} A → an toàn, aptomat không ngắt.`}
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Các thiết bị trong nhà mắc <strong>song song</strong> nên dòng tổng = tổng dòng từng nhánh (I = P/U cho mỗi máy).
+      Aptomat đặt nối tiếp với cả mạch, "cảm nhận" dòng tổng này. Khi tổng dòng vượt mức định mức (${rating} A),
+      thanh lưỡng kim trong aptomat nóng lên và bật ngắt, cắt điện trước khi dây dẫn quá nóng gây cháy. Đó là lý do
+      bật ấm siêu tốc + bình nóng lạnh + máy lạnh cùng lúc hay "nhảy aptomat".
+    </div>
+  `;
+}
+
 // Init
 calcOhm();
 calcCircuit();
+document.addEventListener("DOMContentLoaded", calcBreaker);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

@@ -98,6 +98,17 @@
   <div class="result" id="threeResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Vì sao chạm tay nắm cửa lại bị "giật tách"?</h2>
+<div class="card">
+  <p>Mùa khô đi giày trên thảm rồi chạm tay nắm cửa kim loại, bạn bị giật nhẹ kèm tiếng "tách". Đây chính là <strong>lực Coulomb</strong> ở quy mô đời thường: ma sát làm cơ thể tích một ít điện tích, dồn lên điện áp hàng nghìn volt. Kéo thanh trượt để xem điện tích tích lũy biến thành tia lửa thế nào.</p>
+  <div class="row">
+    <label>Điện tích tích lũy:</label>
+    <input type="range" id="stCharge" min="10" max="1500" step="10" value="450" oninput="calcStatic()">
+    <span class="stat" id="stChargeVal">450 nC</span>
+  </div>
+  <div class="result" id="stResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -267,9 +278,45 @@ function calc3Charge() {
   });
 }
 
+// ===== Đời sống thực tế: giật tĩnh điện khi chạm tay nắm cửa =====
+function calcStatic() {
+  // Số lần "ma sát" giày-thảm gom electron — quy đổi thành điện tích tích trên người (nC)
+  const charge_nC = parseFloat(document.getElementById("stCharge").value); // nC
+  document.getElementById("stChargeVal").textContent = charge_nC + " nC";
+  const Q = charge_nC * 1e-9; // C
+  // Mô hình: cơ thể như tụ điện C ~ 150 pF so với đất. V = Q/C
+  const C_body = 150e-12; // F
+  const V = Q / C_body; // volt
+  // Năng lượng tích trữ E = Q^2/(2C)
+  const E = (Q*Q) / (2 * C_body); // J
+  // Không khí phóng điện khi điện trường > ~3e6 V/m. Khoảng cách tia lửa nhảy được:
+  const Ebreak = 3e6; // V/m
+  const gap_mm = (V / Ebreak) * 1000; // mm
+  const feel = V > 3000 ? "Bạn sẽ thấy tia lửa và nghe tiếng 'tách', đôi khi đau nhói." :
+               V > 1000 ? "Cảm giác giật nhẹ khi chạm vật kim loại." :
+               "Hầu như không cảm nhận được.";
+  document.getElementById("stResult").innerHTML = `
+    <div style="font-family:monospace; font-size:14px">Cơ thể ≈ tụ điện C ≈ 150 pF. Điện áp: V = Q/C = ${Q.toExponential(2)}/${C_body.toExponential(2)} = <strong>${(V/1000).toFixed(2)} kV</strong></div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat">Điện tích: <strong>${charge_nC} nC</strong></span>
+      <span class="stat">Điện áp người: <strong>${V.toFixed(0)} V</strong></span>
+      <span class="stat">Năng lượng: <strong>${(E*1000).toFixed(3)} mJ</strong></span>
+      <span class="stat">Tia lửa nhảy: <strong>${gap_mm.toFixed(2)} mm</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Đi giày trên thảm khô, các phân tử ở 2 bề mặt cọ xát "giật" electron của nhau (hiệu ứng <em>triboelectric</em>),
+      khiến cơ thể tích điện tới vài kV. Vì cơ thể như một tụ điện nhỏ (~150 pF), điện áp lên rất cao dù điện tích chỉ
+      cỡ <strong>nano-coulomb</strong>. Khi tay tới gần tay nắm kim loại, điện trường vượt ngưỡng ~3 MV/m làm không khí
+      dẫn điện → tia lửa phóng qua khe ${gap_mm.toFixed(2)} mm. ${feel} Năng lượng nhỏ (cỡ mJ) nên vô hại với người,
+      nhưng đủ làm hỏng vi mạch — đó là lý do kỹ thuật viên đeo vòng nối đất chống tĩnh điện.
+    </div>
+  `;
+}
+
 // Init
 calcCoul();
 calc3Charge();
+document.addEventListener("DOMContentLoaded", calcStatic);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

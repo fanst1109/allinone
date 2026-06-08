@@ -81,6 +81,22 @@
   <svg class="scene" id="carnotSvg" viewBox="0 0 720 280" style="background:white"></svg>
 </div>
 
+<h2>🌍 Đời sống thực tế — Máy lạnh tốn bao nhiêu điện? (COP)</h2>
+<div class="card">
+  <p>Định luật II nói nhiệt tự chảy từ nóng sang lạnh. Máy lạnh làm ngược lại — bơm nhiệt từ trong phòng (lạnh) ra ngoài trời (nóng) — nên phải tốn công điện. Hiệu quả của nó đo bằng <strong>COP (Coefficient of Performance)</strong> = nhiệt hút ra / điện tiêu thụ. Kéo 2 thanh trượt để xem chênh lệch nhiệt độ ảnh hưởng tiền điện thế nào.</p>
+  <div class="row">
+    <label>Trong phòng:</label>
+    <input type="range" id="copTin" min="16" max="30" step="1" value="25" oninput="calcCOP()">
+    <span class="stat" id="copTinVal">25 °C</span>
+  </div>
+  <div class="row">
+    <label>Ngoài trời:</label>
+    <input type="range" id="copTout" min="20" max="45" step="1" value="38" oninput="calcCOP()">
+    <span class="stat" id="copToutVal">38 °C</span>
+  </div>
+  <div class="result" id="copResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -348,10 +364,48 @@ function drawCarnot() {
   svg.appendChild(yLbl);
 }
 
+// ===== Đời sống thực tế: máy lạnh / điều hòa — COP =====
+function calcCOP() {
+  const Tin = parseFloat(document.getElementById("copTin").value);   // °C trong phòng (nguồn lạnh)
+  const Tout = parseFloat(document.getElementById("copTout").value); // °C ngoài trời (nguồn nóng)
+  document.getElementById("copTinVal").textContent = Tin + " °C";
+  document.getElementById("copToutVal").textContent = Tout + " °C";
+  const TinK = Tin + 273.15;
+  const ToutK = Tout + 273.15;
+  // COP làm lạnh lý tưởng (Carnot) = T_c / (T_h - T_c)
+  let html;
+  if (ToutK <= TinK) {
+    html = `<div style="color:#dc2626">Ngoài trời phải nóng hơn trong phòng thì máy lạnh mới có việc để làm. Tăng nhiệt độ ngoài trời.</div>`;
+  } else {
+    const COP = TinK / (ToutK - TinK);
+    // Ví dụ: muốn hút Q_c = 3500 W (1 HP ~ 9000 BTU) ra khỏi phòng
+    const Qc = 3500; // W nhiệt cần hút ra
+    const Wideal = Qc / COP; // công điện lý tưởng
+    const Wreal = Wideal / 0.4; // máy thực ~40% hiệu suất Carnot
+    html = `
+      <div style="font-family:monospace; font-size:14px">COP_Carnot = T_c/(T_h−T_c) = ${TinK.toFixed(0)}/(${ToutK.toFixed(0)}−${TinK.toFixed(0)}) = <strong>${COP.toFixed(2)}</strong></div>
+      <div class="row" style="margin-top:8px">
+        <span class="stat">Nhiệt hút ra: <strong>${Qc} W</strong></span>
+        <span class="stat">Điện tối thiểu (lý tưởng): <strong>${Wideal.toFixed(0)} W</strong></span>
+        <span class="stat">Điện thực tế (~40% Carnot): <strong>${Wreal.toFixed(0)} W</strong></span>
+      </div>
+      <div style="margin-top:8px; font-size:13px">
+        COP = ${COP.toFixed(2)} nghĩa là mỗi 1 J điện bơm được ${COP.toFixed(2)} J nhiệt ra khỏi phòng — nhiều hơn 1!
+        Máy lạnh không "tạo lạnh" mà <strong>bơm nhiệt ngược chiều tự nhiên</strong> (từ lạnh ra nóng), việc này
+        không vi phạm Định luật II vì ta trả giá bằng công điện và entropy tổng vẫn tăng.
+        Càng chênh lệch nhiệt độ trong–ngoài lớn (${(ToutK-TinK).toFixed(0)} K), COP càng tụt → cùng làm mát một
+        phòng nhưng ngày 40 °C tốn điện hơn ngày 30 °C nhiều.
+      </div>
+    `;
+  }
+  document.getElementById("copResult").innerHTML = html;
+}
+
 // Init
 resetDiff();
 calcEngine();
 drawCarnot();
+document.addEventListener("DOMContentLoaded", calcCOP);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

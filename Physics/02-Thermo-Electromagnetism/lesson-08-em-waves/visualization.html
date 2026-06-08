@@ -102,6 +102,17 @@
   <div class="result" id="photonResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Lò vi sóng và WiFi cùng tần số, sao WiFi không nấu chín bạn?</h2>
+<div class="card">
+  <p>Cả lò vi sóng lẫn WiFi 2.4 GHz đều dùng dải tần ~2.45 GHz. Sóng này có bước sóng cỡ 12 cm và làm các phân tử nước "quay" sinh nhiệt. Khác biệt nằm ở <strong>công suất</strong> chứ không phải bản chất sóng. Chỉnh công suất lò để xem thời gian đun cốc nước và so sánh với router.</p>
+  <div class="row">
+    <label>Công suất lò:</label>
+    <input type="range" id="mwPower" min="600" max="1200" step="50" value="800" oninput="calcMicrowave()">
+    <span class="stat" id="mwPowerVal">800 W</span>
+  </div>
+  <div class="result" id="mwResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -163,9 +174,42 @@ function calcPhoton() {
   `;
 }
 
+// ===== Đời sống thực tế: lò vi sóng vs WiFi (cùng 2.45 GHz) =====
+function calcMicrowave() {
+  const power = parseFloat(document.getElementById("mwPower").value); // W
+  document.getElementById("mwPowerVal").textContent = power + " W";
+  const f = 2.45e9; // Hz
+  const lambda = c / f; // m
+  // Đun m = 0.25 kg nước tăng ΔT = 60 K (cốc nước 25 -> 85 °C). Q = mcΔT
+  const m = 0.25, cw = 4186, dT = 60;
+  const Q = m * cw * dT; // J
+  // Giả sử ~60% công suất chuyển vào nước
+  const usable = power * 0.6;
+  const time = usable > 0 ? Q / usable : Infinity; // s
+  const wifiPower = 0.1; // W (~20 dBm router)
+  const ratio = power / wifiPower;
+  document.getElementById("mwResult").innerHTML = `
+    <div style="font-family:monospace; font-size:13px">λ = c/f = 3·10⁸ / 2.45·10⁹ = <strong>${(lambda*100).toFixed(1)} cm</strong> (cùng tần số với WiFi 2.4 GHz)</div>
+    <div style="font-family:monospace; font-size:13px; margin-top:4px">Q đun cốc nước = m·c·ΔT = 0.25·4186·60 = <strong>${(Q/1000).toFixed(1)} kJ</strong> → thời gian ≈ <strong>${time.toFixed(0)} s</strong></div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat">Công suất lò: <strong>${power} W</strong></span>
+      <span class="stat">Router WiFi: <strong>~0.1 W</strong></span>
+      <span class="stat">Lò mạnh hơn: <strong>${ratio.toFixed(0)}×</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Điều bất ngờ: lò vi sóng và WiFi dùng <strong>cùng dải tần ~2.45 GHz</strong>, bước sóng ${(lambda*100).toFixed(0)} cm.
+      Vậy sao WiFi không nấu chín bạn? Khác biệt là ở <strong>công suất</strong>: lò phát ${power} W tập trung trong hộp kim loại kín
+      (lưới cửa chặn sóng thoát ra), còn router chỉ ~0.1 W tỏa ra mọi hướng — yếu hơn ${ratio.toFixed(0)} lần.
+      Photon 2.45 GHz có năng lượng cực nhỏ (~10⁻⁵ eV, không ion hóa), nên sóng này chỉ làm <em>quay phân tử nước</em> sinh nhiệt,
+      không phá liên kết hóa học như tia UV/X. Mức WiFi quá yếu để tạo nhiệt đáng kể.
+    </div>
+  `;
+}
+
 // Init
 calcEM('f');
 calcPhoton();
+document.addEventListener("DOMContentLoaded", calcMicrowave);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

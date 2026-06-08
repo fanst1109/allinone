@@ -80,6 +80,22 @@
   <div class="result" id="genResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Sạc không dây điện thoại hoạt động thế nào?</h2>
+<div class="card">
+  <p>Đặt điện thoại lên đế sạc, không cần cắm dây mà pin vẫn đầy. Đây là <strong>cảm ứng điện từ</strong> (định luật Faraday) đời thường: cuộn dây trong đế tạo từ trường biến thiên tần số cao, móc qua cuộn dây trong máy và cảm ứng ra điện. Chỉnh tần số và khoảng cách để xem sđđ thu được thay đổi ra sao.</p>
+  <div class="row">
+    <label>Tần số:</label>
+    <input type="range" id="wlFreq" min="50" max="300" step="10" value="150" oninput="calcWireless()">
+    <span class="stat" id="wlFreqVal">150 kHz</span>
+  </div>
+  <div class="row">
+    <label>Khoảng cách 2 cuộn:</label>
+    <input type="range" id="wlGap" min="1" max="20" step="1" value="3" oninput="calcWireless()">
+    <span class="stat" id="wlGapVal">3 mm</span>
+  </div>
+  <div class="result" id="wlResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -200,9 +216,44 @@ function updateGen() {
   svg.appendChild(eLbl);
 }
 
+// ===== Đời sống thực tế: sạc không dây điện thoại =====
+function calcWireless() {
+  const freqKHz = parseFloat(document.getElementById("wlFreq").value); // kHz
+  const gap_mm = parseFloat(document.getElementById("wlGap").value);   // mm khoảng cách 2 cuộn
+  document.getElementById("wlFreqVal").textContent = freqKHz + " kHz";
+  document.getElementById("wlGapVal").textContent = gap_mm + " mm";
+  const f = freqKHz * 1000; // Hz
+  const w = 2 * Math.PI * f;
+  // Cuộn phát: N1 vòng, dòng I1 biên độ, bán kính cuộn a → từ trường tâm B = mu0*N1*I1/(2a)
+  const N1 = 20, I1 = 1.0, a = 0.02; // 2 cm
+  const Bcenter = mu0 * N1 * I1 / (2 * a);
+  // Hệ số ghép giảm theo khoảng cách: k ~ a^3/(a^2+d^2)^1.5 (trục cuộn tròn)
+  const d = gap_mm / 1000;
+  const coupling = Math.pow(a, 3) / Math.pow(a*a + d*d, 1.5);
+  // Cuộn thu: N2 vòng, diện tích A2; sđđ cảm ứng đỉnh = N2 * A2 * (B*coupling) * w
+  const N2 = 20, A2 = Math.PI * a * a;
+  const Bthu = Bcenter * coupling;
+  const emf = N2 * A2 * Bthu * w; // V (biên độ sđđ cảm ứng)
+  document.getElementById("wlResult").innerHTML = `
+    <div style="font-family:monospace; font-size:13px">B tại cuộn thu ≈ ${Bthu.toExponential(2)} T · ε = N₂·A₂·B·ω = <strong>${emf.toFixed(2)} V</strong> (biên độ)</div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat">Tần số: <strong>${freqKHz} kHz</strong></span>
+      <span class="stat">Hệ số ghép: <strong>${(coupling*100).toFixed(1)}%</strong></span>
+      <span class="stat">Sđđ thu: <strong>${emf.toFixed(2)} V</strong></span>
+    </div>
+    <div style="margin-top:8px; font-size:13px">
+      Sạc không dây dùng <strong>định luật Faraday</strong>: cuộn dây trong đế sạc tạo từ trường biến thiên ở tần số cao
+      (~100–200 kHz, chuẩn Qi), từ thông biến thiên này móc qua cuộn dây trong điện thoại và cảm ứng ra sđđ ε = −N·dΦ/dt.
+      Vì ε tỉ lệ với tần số ω, người ta dùng tần số cao để thu được điện áp đủ lớn dù từ trường nhỏ. Càng để xa
+      (${gap_mm} mm) thì hệ số ghép tụt nhanh (~1/d³) → sạc yếu đi và hao phí nhiều hơn, nên phải đặt máy sát đế sạc.
+    </div>
+  `;
+}
+
 // Init
 calcB();
 updateGen();
+document.addEventListener("DOMContentLoaded", calcWireless);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

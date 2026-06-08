@@ -107,6 +107,25 @@
   <div class="result" id="calc3Result"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Túi chườm nóng / lạnh tức thì</h2>
+<div class="card">
+  <p>Các mục trên tính ΔH của phản ứng cháy và xét dấu ΔG. Ở đây là một ΔH "sờ được": túi chườm trong tủ thuốc. Bẻ một cái là túi tự lạnh (chườm bong gân) hoặc tự nóng (giữ ấm) — không cần tủ đá hay lò vi sóng. Bí mật chỉ là <strong>nhiệt hoà tan (ΔH solution)</strong>: muối tan trong nước có thể thu nhiệt (ΔH &gt; 0, túi lạnh) hoặc toả nhiệt (ΔH &lt; 0, túi nóng).</p>
+  <div class="row">
+    <label>Loại túi:</label>
+    <select id="packType">
+      <option value="cold">Túi LẠNH — NH₄NO₃ (ΔH = +25.7 kJ/mol, thu nhiệt)</option>
+      <option value="hot">Túi NÓNG — CaCl₂ (ΔH = −82.8 kJ/mol, toả nhiệt)</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Khối lượng muối (g/100 mL nước):</label>
+    <input type="range" id="packMass" min="5" max="60" step="5" value="30">
+    <span class="stat"><strong id="packMassVal">30</strong> g</span>
+  </div>
+  <div class="result" id="packResult"></div>
+  <p style="margin-top:10px; font-size:13px; color:#475569">💡 Cùng là "muối tan trong nước" nhưng dấu ΔH ngược nhau: NH₄NO₃ phải hút năng lượng để tách ion (thu nhiệt), còn CaCl₂ giải phóng nhiều năng lượng hydrat hoá hơn (toả nhiệt). Dấu của ΔH quyết định túi nóng hay lạnh.</p>
+</div>
+
 </main>
 
 <script>
@@ -367,6 +386,55 @@ function calc3() {
 calcH();
 drawGibbs();
 calc3();
+
+// ===== Đời sống: túi chườm nóng / túi chườm lạnh tức thì =====
+function updatePack() {
+  const type = document.getElementById("packType").value;
+  const grams = parseFloat(document.getElementById("packMass").value);
+  document.getElementById("packMassVal").textContent = grams;
+
+  // Lượng nước trong túi ~ 100 mL = 100 g; nhiệt dung riêng nước 4.18 J/(g·K)
+  const waterMass = 100;
+  const cWater = 4.18;
+  const T0 = 25; // nhiệt độ phòng
+
+  let M, dHsol, name, sign, reaction;
+  if (type === "cold") {
+    // NH4NO3 hoà tan THU nhiệt: +25.7 kJ/mol
+    M = 80.04; dHsol = 25.7; name = "NH₄NO₃ (amoni nitrat)";
+    reaction = "NH₄NO₃(r) + H₂O → NH₄⁺(aq) + NO₃⁻(aq)  &nbsp; ΔH = +25.7 kJ/mol";
+  } else {
+    // CaCl2 hoà tan TOẢ nhiệt: -82.8 kJ/mol
+    M = 110.98; dHsol = -82.8; name = "CaCl₂ (canxi clorua)";
+    reaction = "CaCl₂(r) + H₂O → Ca²⁺(aq) + 2Cl⁻(aq)  &nbsp; ΔH = −82.8 kJ/mol";
+  }
+
+  const nMol = grams / M;             // mol chất tan
+  const q_kJ = dHsol * nMol;          // kJ hệ hấp thụ (>0 thu) hoặc nhả (<0)
+  // Nước nhận nhiệt = −q_phản_ứng (định luật bảo toàn). Thu nhiệt → nước lạnh đi.
+  const dT = -(q_kJ * 1000) / (waterMass * cWater);
+  const Tfinal = T0 + dT;
+
+  let verdict;
+  if (type === "cold") {
+    verdict = `<div style="margin-top:6px; color:#1d4ed8"><strong>❄ Thu nhiệt (endothermic):</strong> hoà tan hút nhiệt từ nước → túi LẠNH đi, dùng chườm bong gân. Bẻ vách ngăn để nước trộn muối là túi lạnh ngay, không cần tủ đá.</div>`;
+  } else {
+    verdict = `<div style="margin-top:6px; color:#dc2626"><strong>🔥 Toả nhiệt (exothermic):</strong> hoà tan nhả nhiệt → túi NÓNG lên, dùng chườm ấm/giữ ấm tay.</div>`;
+  }
+
+  document.getElementById("packResult").innerHTML = `
+    <div><strong>Hoạt chất:</strong> ${name}</div>
+    <div style="font-family:monospace; padding:8px; background:#f8fafc; margin:6px 0">${reaction}</div>
+    <div class="step">mol = ${grams}/${M.toFixed(2)} = <strong>${nMol.toFixed(3)} mol</strong></div>
+    <div class="step">q = ΔH × mol = ${dHsol} × ${nMol.toFixed(3)} = <strong>${q_kJ.toFixed(2)} kJ</strong></div>
+    <div class="step">ΔT nước = −q/(m·c) = ${(-q_kJ).toFixed(2)}×1000 / (${waterMass}×${cWater}) = <strong>${dT.toFixed(1)} °C</strong></div>
+    <div class="step" style="background:#dcfce7; font-size:15px"><strong>Nhiệt độ túi: 25 °C → ${Tfinal.toFixed(1)} °C</strong></div>
+    ${verdict}
+  `;
+}
+document.getElementById("packType").addEventListener("change", updatePack);
+document.getElementById("packMass").addEventListener("input", updatePack);
+document.addEventListener("DOMContentLoaded", updatePack);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

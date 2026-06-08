@@ -102,6 +102,21 @@
   <svg class="molecule" id="moleculeGallery" viewBox="0 0 600 280"></svg>
 </div>
 
+<h2>🌍 Đời sống thực tế — Chỉ số octane (A92/A95) và hiện tượng kích nổ</h2>
+<div class="card">
+  <p>Ở cây xăng có A92, A95... Con số đó chính là <strong>chỉ số octane</strong> — và nó là một câu chuyện về hình dạng hydrocarbon, đúng chủ đề bài này. Mục trên cho thấy alkane mạch thẳng và phân nhánh; ở đây ta thấy <em>vì sao</em> điều đó quan trọng với động cơ.</p>
+  <div class="row">
+    <label>Chỉ số octane:</label>
+    <input type="range" id="octRating" min="80" max="98" step="1" value="92">
+    <span class="stat">RON = <strong id="octRatingVal">92</strong></span>
+  </div>
+  <div style="background:#e2e8f0; border-radius:6px; height:18px; overflow:hidden; margin:8px 0">
+    <div id="octBar" style="height:100%; width:92%; background:#f59e0b; transition:width .2s,background .2s"></div>
+  </div>
+  <div class="result" id="octResult"></div>
+  <p style="margin-top:10px; font-size:13px; color:#475569">💡 Mạch <strong>phân nhánh</strong> (isooctane) khó tự bốc cháy hơn mạch thẳng (n-heptane) → chống kích nổ tốt → octane cao. Động cơ tỉ số nén cao (xe đời mới) nén xăng nóng hơn nên cần A95; đổ A92 vào sẽ dễ knocking.</p>
+</div>
+
 </main>
 
 <script>
@@ -461,6 +476,47 @@ document.getElementById("moleculePicker").addEventListener("change", showMolecul
 buildTable();
 updateSeries();
 showMolecule();
+
+// ===== Đời sống: chỉ số octane (A92/A95) & hiện tượng kích nổ =====
+function updateOctane() {
+  const oct = parseFloat(document.getElementById("octRating").value);
+  document.getElementById("octRatingVal").textContent = oct;
+
+  // Octane number = % isooctane (rất bền, chống kích nổ) trong hỗn hợp với n-heptane (=0, dễ kích nổ).
+  const isooctanePct = oct;       // %
+  const heptanePct = 100 - oct;
+
+  // Mô phỏng "xác suất kích nổ" giảm khi octane tăng.
+  const knockRisk = Math.max(0, Math.min(100, (95 - oct) * 4 + 20 - (oct - 80) * 0.5));
+  const risk = Math.max(0, Math.min(100, (100 - oct) * 2.2));
+
+  let grade;
+  if (oct >= 95) grade = "A95 — xe phun xăng điện tử, tỉ số nén cao";
+  else if (oct >= 92) grade = "A92 — xe phổ thông";
+  else grade = "thấp — dễ kích nổ trên động cơ hiện đại";
+
+  // Đổ đầy thanh "an toàn"
+  document.getElementById("octBar").style.width = oct + "%";
+  document.getElementById("octBar").style.background = oct >= 95 ? "#22c55e" : (oct >= 92 ? "#f59e0b" : "#dc2626");
+
+  let verdict;
+  if (risk < 20) {
+    verdict = `<div style="margin-top:6px; color:#047857"><strong>✓ Cháy êm:</strong> xăng chỉ bốc cháy khi bugi đánh lửa, đúng thời điểm → máy chạy mượt, không gõ lạch cạch.</div>`;
+  } else {
+    verdict = `<div style="margin-top:6px; color:#dc2626"><strong>⚠ Nguy cơ kích nổ (knocking):</strong> xăng octane thấp tự bốc cháy SỚM do bị nén nóng, trước khi bugi đánh lửa → tiếng gõ "lạch cạch", hại piston.</div>`;
+  }
+
+  document.getElementById("octResult").innerHTML = `
+    <div><strong>Phân loại:</strong> ${grade}</div>
+    <div class="stat">Tương đương <strong>${isooctanePct}%</strong> isooctane (2,2,4-trimethylpentane)</div>
+    <div class="stat"><strong>${heptanePct}%</strong> n-heptane</div>
+    <div class="stat">Nguy cơ kích nổ ≈ <strong>${risk.toFixed(0)}%</strong></div>
+    <div style="margin-top:6px">Isooctane là hydrocarbon <strong>phân nhánh</strong> (C₈H₁₈ mạch nhánh) → rất bền, khó tự cháy → quy ước octane = 100. n-heptane mạch thẳng dễ tự cháy → octane = 0. Octane number = % isooctane trong hỗn hợp chuẩn cho cùng độ chống kích nổ.</div>
+    ${verdict}
+  `;
+}
+document.getElementById("octRating").addEventListener("input", updateOctane);
+document.addEventListener("DOMContentLoaded", updateOctane);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

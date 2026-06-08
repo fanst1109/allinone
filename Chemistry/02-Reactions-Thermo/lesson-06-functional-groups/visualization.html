@@ -89,6 +89,19 @@
   <table class="summary" id="summaryTable"></table>
 </div>
 
+<h2>🌍 Đời sống thực tế — Vì sao xà phòng tẩy được dầu mỡ?</h2>
+<div class="card">
+  <p>Nước lã không rửa nổi vết dầu mỡ vì "dầu không tan trong nước". Nhưng thêm xà phòng thì sạch. Bí mật nằm ở <strong>nhóm chức carboxylate (−COO⁻)</strong> — chính nhóm chức ta học ở bảng trên — gắn ở một đầu phân tử xà phòng. Kéo thanh trượt để thêm xà phòng và xem nó bọc giọt mỡ.</p>
+  <div class="row">
+    <label>Lượng xà phòng:</label>
+    <input type="range" id="soapAmount" min="0" max="5" step="1" value="2" style="flex:1; min-width:200px">
+    <span class="stat"><strong id="soapAmountVal">2</strong>/5</span>
+  </div>
+  <svg id="soapSvg" width="480" height="200" viewBox="0 0 480 200" style="display:block; width:100%; max-width:480px; margin:8px auto; border-radius:8px"></svg>
+  <div class="detail" id="soapResult"></div>
+  <p style="margin-top:10px; font-size:13px; color:#475569">💡 Đặc tính "một đầu ưa nước, một đầu kỵ nước" gọi là <em>lưỡng cực (amphiphilic)</em>. Cùng nguyên lý này hoạt động trong sữa rửa mặt, nước rửa chén, và cả màng tế bào (phospholipid).</p>
+</div>
+
 </main>
 
 <script>
@@ -339,6 +352,58 @@ function buildSummary() {
 buildGrid();
 buildSummary();
 selectGroup("alcohol");
+
+// ===== Đời sống: vì sao xà phòng tẩy được dầu mỡ =====
+function updateSoap() {
+  const n = parseInt(document.getElementById("soapAmount").value, 10);
+  document.getElementById("soapAmountVal").textContent = n;
+
+  const svg = document.getElementById("soapSvg");
+  svg.innerHTML = "";
+  const NS = "http://www.w3.org/2000/svg";
+  const mk = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+
+  const cx = 240, cy = 100, R = 42; // giọt dầu mỡ
+  // nước nền
+  svg.appendChild(mk("rect", { x: 0, y: 0, width: 480, height: 200, fill: "#dbeafe" }));
+  const wlbl = mk("text", { x: 12, y: 24, "text-anchor": "start", "font-size": 13, fill: "#1e3a8a" }); wlbl.textContent = "Nước (phân cực)"; svg.appendChild(wlbl);
+  // giọt mỡ
+  svg.appendChild(mk("circle", { cx, cy, r: R, fill: "#facc15", stroke: "#a16207", "stroke-width": 2 }));
+  const glbl = mk("text", { x: cx, y: cy + 5, "text-anchor": "middle", "font-size": 13, fill: "#713f12" }); glbl.textContent = "Dầu mỡ"; svg.appendChild(glbl);
+
+  // các phân tử xà phòng: đuôi (kỵ nước) cắm vào mỡ, đầu (ưa nước) hướng ra nước
+  const total = 16;
+  const shown = Math.round(total * n / 5);
+  for (let i = 0; i < shown; i++) {
+    const ang = (i / total) * 2 * Math.PI - Math.PI / 2;
+    const headX = cx + Math.cos(ang) * (R + 26);
+    const headY = cy + Math.sin(ang) * (R + 26);
+    const tailX = cx + Math.cos(ang) * (R - 4);
+    const tailY = cy + Math.sin(ang) * (R - 4);
+    // đuôi hydrocarbon kỵ nước
+    svg.appendChild(mk("line", { x1: headX, y1: headY, x2: tailX, y2: tailY, stroke: "#475569", "stroke-width": 2 }));
+    // đầu ưa nước (-COO⁻)
+    svg.appendChild(mk("circle", { cx: headX, cy: headY, r: 6, fill: "#2563eb", stroke: "#1e3a8a", "stroke-width": 1.5 }));
+  }
+
+  const wrapped = n >= 5;
+  let html = `
+    <h3 style="margin-top:0">Phân tử xà phòng = đầu ưa nước + đuôi kỵ nước</h3>
+    <div>Xà phòng là muối của axit béo, ví dụ <strong>C₁₇H₃₅COONa</strong>. Nó có 2 phần tính cách trái ngược:</div>
+    <div class="ex-list">
+      <div class="ex-item"><strong>Đuôi</strong> hydrocarbon dài (C₁₇H₃₅−) — KỴ nước, ƯA dầu mỡ → cắm vào giọt mỡ.</div>
+      <div class="ex-item"><strong>Đầu</strong> nhóm chức −COO⁻ (carboxylate) — ƯA nước → hướng ra ngoài, bám vào nước.</div>
+    </div>
+    <div style="margin-top:8px" class="stat">Số phân tử xà phòng bao quanh: <strong>${shown}/${total}</strong></div>`;
+  if (wrapped) {
+    html += `<div style="margin-top:6px; color:#047857"><strong>✓ Tạo "micelle":</strong> đủ xà phòng bọc kín giọt mỡ, đầu −COO⁻ quay ra ngoài → giọt mỡ "mặc áo ưa nước", trôi theo nước khi xả → sạch dầu mỡ. Đó là lý do nước lã không rửa được mỡ nhưng có xà phòng thì được.</div>`;
+  } else {
+    html += `<div style="margin-top:6px; color:#92400e">⚠ Chưa đủ xà phòng — giọt mỡ vẫn còn mảng tiếp xúc trực tiếp với nước, chưa bị cuốn đi. Tăng lượng xà phòng lên.</div>`;
+  }
+  document.getElementById("soapResult").innerHTML = html;
+}
+document.getElementById("soapAmount").addEventListener("input", updateSoap);
+document.addEventListener("DOMContentLoaded", updateSoap);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

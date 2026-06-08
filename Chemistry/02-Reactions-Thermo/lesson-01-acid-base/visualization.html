@@ -140,6 +140,25 @@
   <div id="titrationNote" style="padding:10px; background:#fce7f3; border-radius:6px"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Thuốc kháng axit dạ dày</h2>
+<div class="card">
+  <p>Khi ăn quá no hoặc stress, dạ dày tiết HCl quá mức → ợ chua, nóng rát. Thuốc kháng axit (antacid) là một <strong>base yếu</strong> trung hoà bớt HCl đó. Hai hoạt chất phổ biến: <strong>NaHCO₃</strong> (muối nở) và <strong>CaCO₃</strong>. Khác với mục pH ở trên (tính pH của một dung dịch đơn lẻ), đây là phản ứng trung hoà acid–base thực tế trong cơ thể.</p>
+  <div class="row">
+    <label>Hoạt chất:</label>
+    <select id="antDrug">
+      <option value="nahco3">NaHCO₃ — 1 mol trung hoà 1 mol HCl</option>
+      <option value="caco3">CaCO₃ — 1 mol trung hoà 2 mol HCl</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Số viên (0.5 g/viên):</label>
+    <input type="range" id="antTablets" min="1" max="6" step="1" value="2">
+    <span class="stat"><strong id="antTabletsVal">2</strong> viên</span>
+  </div>
+  <div class="result" id="antResult"></div>
+  <p style="margin-top:10px; font-size:13px; color:#475569">💡 CaCO₃ "mạnh" gấp đôi NaHCO₃ cho mỗi mol vì nhả được 2 H⁺ tương đương — nhưng cũng sinh CO₂ gây đầy hơi. Đó là lý do nhiều thuốc dùng hỗn hợp hydroxit (Al(OH)₃, Mg(OH)₂) không sinh khí.</p>
+</div>
+
 </main>
 
 <script>
@@ -357,6 +376,63 @@ function drawTitration() {
 calcPH();
 calcBuffer();
 drawTitration();
+
+// ===== Đời sống: thuốc kháng axit dạ dày =====
+function calcAntacid() {
+  // Dạ dày: HCl. Antacid NaHCO3 hoặc CaCO3 trung hoà.
+  const tablets = parseFloat(document.getElementById("antTablets").value);
+  const drug = document.getElementById("antDrug").value;
+  document.getElementById("antTabletsVal").textContent = tablets;
+
+  // Mỗi viên ~ 0.5 g hoạt chất
+  const massPerTab = 0.5; // g
+  const totalMass = tablets * massPerTab;
+
+  let M, name, reaction, perMol;
+  if (drug === "nahco3") {
+    M = 84;   // NaHCO3 g/mol
+    name = "NaHCO₃ (baking soda)";
+    reaction = "NaHCO₃ + HCl → NaCl + H₂O + CO₂↑";
+    perMol = 1; // 1 mol thuốc trung hoà 1 mol HCl
+  } else {
+    M = 100;  // CaCO3 g/mol
+    name = "CaCO₃ (canxi cacbonat)";
+    reaction = "CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂↑";
+    perMol = 2; // 1 mol thuốc trung hoà 2 mol HCl
+  }
+
+  const nDrug = totalMass / M;          // mol thuốc
+  const nHCl = nDrug * perMol;          // mol HCl trung hoà được
+
+  // Dịch vị dạ dày: ~0.16 M HCl, thể tích dịch tiết ra khi acid dư ~ giả định 200 mL
+  const stomachM = 0.16;
+  const stomachV = 0.2; // L
+  const nHClStomach = stomachM * stomachV; // mol HCl có sẵn
+
+  const neutralizedPct = Math.min(100, nHCl / nHClStomach * 100);
+  const co2_L = nDrug * (perMol >= 2 ? 1 : 1) * 24.5; // mỗi mol thuốc sinh 1 mol CO2; 24.5 L/mol ở 25°C
+
+  let verdict;
+  if (neutralizedPct >= 100) {
+    verdict = `<div style="margin-top:6px; color:#047857"><strong>✓ Đủ trung hoà</strong> toàn bộ HCl dư trong dạ dày — hết ợ chua. Lượng thừa làm pH nhích lên nhẹ.</div>`;
+  } else {
+    verdict = `<div style="margin-top:6px; color:#dc2626"><strong>⚠ Chưa đủ</strong> — mới trung hoà ${neutralizedPct.toFixed(0)}% lượng HCl, cần thêm viên.</div>`;
+  }
+
+  document.getElementById("antResult").innerHTML = `
+    <div><strong>Hoạt chất:</strong> ${name}</div>
+    <div style="font-family:monospace; padding:8px; background:#f8fafc; margin:6px 0">${reaction}</div>
+    <div class="stat">Khối lượng thuốc: <strong>${totalMass.toFixed(2)} g</strong></div>
+    <div class="stat">mol thuốc = ${totalMass.toFixed(2)}/${M} = <strong>${nDrug.toFixed(4)} mol</strong></div>
+    <div class="stat">Trung hoà được: <strong>${nHCl.toFixed(4)} mol HCl</strong></div>
+    <div class="stat">CO₂ sinh ra ≈ <strong>${co2_L.toFixed(2)} L</strong> (đó là tiếng "ợ" sau khi uống!)</div>
+    <div style="margin-top:6px">Dạ dày có sẵn ≈ ${stomachM} M × ${stomachV*1000} mL = <strong>${nHClStomach.toFixed(4)} mol HCl</strong> dư.</div>
+    ${verdict}
+  `;
+}
+document.getElementById("antTablets").addEventListener("input", calcAntacid);
+document.getElementById("antDrug").addEventListener("change", calcAntacid);
+document.addEventListener("DOMContentLoaded", calcAntacid);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

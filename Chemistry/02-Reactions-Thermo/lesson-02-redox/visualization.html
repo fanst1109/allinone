@@ -113,6 +113,34 @@
   <div id="halfResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Vì sao táo/bơ cắt ra bị thâm?</h2>
+<div class="card">
+  <p>Cắt quả táo (hoặc bơ, chuối, khoai tây) để ngoài không khí vài phút, mặt cắt chuyển nâu. Đó không phải "bẩn" — đó là một phản ứng <strong>oxy hoá</strong> thật sự, đúng chủ đề redox của bài này. Khác với thư viện phản ứng vô cơ ở trên, đây là redox trong thực phẩm.</p>
+  <div class="row" style="align-items:flex-start">
+    <svg width="160" height="160" viewBox="0 0 160 160" style="flex:0 0 auto">
+      <circle cx="80" cy="80" r="62" fill="#c0392b" stroke="#7b241c" stroke-width="3"/>
+      <ellipse id="brSlice" cx="80" cy="80" rx="44" ry="58" fill="#f5e9c8"/>
+      <ellipse cx="80" cy="80" rx="7" ry="11" fill="#5b3a1a"/>
+      <ellipse cx="62" cy="64" rx="4" ry="7" fill="#3b2410"/>
+      <ellipse cx="98" cy="64" rx="4" ry="7" fill="#3b2410"/>
+      <ellipse cx="62" cy="96" rx="4" ry="7" fill="#3b2410"/>
+      <ellipse cx="98" cy="96" rx="4" ry="7" fill="#3b2410"/>
+      <rect x="76" y="14" width="8" height="14" rx="3" fill="#5b3a1a"/>
+    </svg>
+    <div style="flex:1; min-width:0">
+      <div class="row">
+        <label>Thời gian để hở:</label>
+        <input type="range" id="brTime" min="0" max="40" step="1" value="12">
+        <span class="stat"><strong id="brTimeVal">12</strong> phút</span>
+      </div>
+      <div class="row">
+        <label style="min-width:auto"><input type="checkbox" id="brLemon"> Vắt chanh lên mặt cắt</label>
+      </div>
+    </div>
+  </div>
+  <div class="result" id="brResult"></div>
+</div>
+
 </main>
 
 <script>
@@ -373,6 +401,40 @@ document.getElementById("halfPicker").addEventListener("change", showHalfReactio
 calcOxState();
 showReaction();
 showHalfReaction();
+
+// ===== Đời sống: táo/bơ cắt ra bị thâm (oxy hoá) =====
+function updateBrowning() {
+  const minutes = parseFloat(document.getElementById("brTime").value);
+  const lemon = document.getElementById("brLemon").checked;
+  document.getElementById("brTimeVal").textContent = minutes;
+
+  // Vitamin C (chanh) là chất KHỬ — bị oxy hoá thay cho thịt quả, làm chậm thâm.
+  // Tốc độ thâm: không chanh ~ 1/8 phút; có chanh ~ chậm 4 lần.
+  const rate = lemon ? 1 / 32 : 1 / 8;
+  let brown = Math.min(1, minutes * rate); // 0 = trắng, 1 = thâm hết
+
+  // Màu thịt quả: nội suy từ trắng-ngà (#f5e9c8) sang nâu (#7a4a1e)
+  const c1 = [245, 233, 200], c2 = [122, 74, 30];
+  const mix = c1.map((v, i) => Math.round(v + (c2[i] - v) * brown));
+  const fill = `rgb(${mix[0]},${mix[1]},${mix[2]})`;
+
+  document.getElementById("brSlice").setAttribute("fill", fill);
+
+  let html = `
+    <div><strong>Cơ chế:</strong> dao cắt làm vỡ tế bào → enzyme PPO + O₂ trong không khí oxy hoá hợp chất phenol trong thịt quả thành <em>melanin</em> nâu. Đây là phản ứng <strong>oxy hoá</strong> thực thụ — quả "mất electron" cho O₂.</div>
+    <div style="font-family:monospace; padding:8px; background:#f8fafc; margin:6px 0">phenol (không màu) + O₂ &nbsp;--PPO--&gt;&nbsp; quinone &nbsp;→&nbsp; melanin (nâu)</div>
+    <div class="stat">Sau ${minutes} phút, mức thâm: <strong>${(brown * 100).toFixed(0)}%</strong></div>`;
+  if (lemon) {
+    html += `<div class="stat">Có vắt chanh: thâm chậm <strong>~4 lần</strong></div>
+      <div style="margin-top:6px; color:#047857"><strong>✓ Vì sao chanh chống thâm?</strong> Vitamin C (acid ascorbic) là chất KHỬ mạnh — nó "hy sinh" bị oxy hoá trước, đẩy quinone trở lại phenol không màu. Acid của chanh còn hạ pH làm enzyme PPO yếu đi.</div>`;
+  } else {
+    html += `<div style="margin-top:6px; color:#dc2626"><strong>⚠ Không bảo vệ</strong> — để hở trong không khí, thịt quả thâm nhanh. Thử bật "vắt chanh" để so sánh.</div>`;
+  }
+  document.getElementById("brResult").innerHTML = html;
+}
+document.getElementById("brTime").addEventListener("input", updateBrowning);
+document.getElementById("brLemon").addEventListener("change", updateBrowning);
+document.addEventListener("DOMContentLoaded", updateBrowning);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

@@ -132,6 +132,33 @@
   </table>
 </div>
 
+<h2>🌍 Đời sống thực tế — Nhựa sinh học PLA từ ngô (phân huỷ được)</h2>
+<div class="card">
+  <p>Cốc, ống hút "phân huỷ sinh học" ngày càng phổ biến — phần lớn làm từ <strong>PLA (polylactic acid)</strong> đi từ tinh bột ngô/mía thay vì dầu mỏ. Khác PE/PVC ở Mục 1 (khung C−C bền vĩnh viễn), PLA là polymer <em>ngưng tụ</em> với liên kết ester −COO− nên thuỷ phân được. Nhưng "phân huỷ" còn tuỳ môi trường — kéo thanh trượt để xem.</p>
+  <div class="row">
+    <label>Môi trường:</label>
+    <select id="plaEnv">
+      <option value="compost">Ủ phân công nghiệp (58 °C) — ~3 tháng</option>
+      <option value="soil">Đất vườn thường — ~2 năm</option>
+      <option value="ocean">Nước biển — ~5 năm</option>
+      <option value="landfill">Bãi rác chôn lấp — rất lâu</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Thời gian (tháng):</label>
+    <input type="range" id="plaTime" min="1" max="60" step="1" value="3">
+    <span class="stat"><strong id="plaTimeVal">3</strong> tháng</span>
+  </div>
+  <div style="margin:8px 0">
+    <div style="font-size:13px; margin-bottom:2px">PLA (nhựa ngô)</div>
+    <div style="background:#e2e8f0; border-radius:6px; height:16px; overflow:hidden"><div id="plaBar" style="height:100%; width:50%; background:#22c55e; transition:width .2s"></div></div>
+    <div style="font-size:13px; margin:6px 0 2px">PET (nhựa dầu mỏ — so sánh)</div>
+    <div style="background:#e2e8f0; border-radius:6px; height:16px; overflow:hidden"><div id="petBar" style="height:100%; width:1%; background:#dc2626; transition:width .2s"></div></div>
+  </div>
+  <div class="detail" id="plaResult"></div>
+  <p style="margin-top:10px; font-size:13px; color:#475569">💡 "Tái chế PET dễ hơn PVC" vì PET nung chảy sạch và đồng nhất, còn PVC chứa clo sinh khí độc khi nung. PLA thì không tái chế chung với PET — phải ủ riêng, vứt nhầm vào thùng rác thường sẽ tồn rất lâu.</p>
+</div>
+
 </main>
 
 <script>
@@ -328,6 +355,47 @@ function showRecycle(code) {
 buildRecycle();
 showRecycle(1);
 drawChain();
+
+// ===== Đời sống: nhựa sinh học PLA từ ngô (phân huỷ) =====
+function updatePLA() {
+  const env = document.getElementById("plaEnv").value;
+  const months = parseFloat(document.getElementById("plaTime").value);
+  document.getElementById("plaTimeVal").textContent = months;
+
+  // Thời gian phân huỷ ước lượng (tháng) để tan ~100%
+  const fullTime = { compost: 3, soil: 24, ocean: 60, landfill: 1200 };
+  const ratePet = 6000; // PET ~ 500 năm = 6000 tháng (so sánh)
+  const ft = fullTime[env];
+
+  const plaPct = Math.min(100, months / ft * 100);
+  const petPct = Math.min(100, months / ratePet * 100);
+
+  document.getElementById("plaBar").style.width = plaPct + "%";
+  document.getElementById("petBar").style.width = Math.max(0.5, petPct) + "%";
+
+  const envName = { compost: "Ủ phân công nghiệp (58 °C, ẩm, vi sinh)", soil: "Đất vườn thường", ocean: "Nước biển", landfill: "Bãi rác chôn lấp (yếm khí)" };
+
+  let note;
+  if (env === "compost") {
+    note = `<div style="color:#047857"><strong>✓ Môi trường lý tưởng:</strong> ở 58 °C cùng độ ẩm và vi sinh vật, liên kết <strong>ester</strong> trong PLA bị thuỷ phân (ngược của phản ứng ngưng tụ ở Mục 3) → tan thành CO₂ + nước + sinh khối trong ~3 tháng.</div>`;
+  } else if (env === "landfill") {
+    note = `<div style="color:#b91c1c"><strong>⚠ Bãi chôn lấp:</strong> thiếu oxy + nhiệt + vi sinh, PLA phân huỷ rất chậm — gần như PET. "Phân huỷ sinh học" chỉ đúng khi ủ đúng cách, không phải vứt bãi rác.</div>`;
+  } else {
+    note = `<div style="color:#92400e">PLA phân huỷ chậm hơn nhiều ngoài điều kiện ủ chuẩn, nhưng vẫn nhanh hơn PET hàng trăm lần.</div>`;
+  }
+
+  document.getElementById("plaResult").innerHTML = `
+    <h3 style="margin-top:0">PLA — Polylactic acid, làm từ tinh bột NGÔ/mía</h3>
+    <div>Đường ngô → lên men thành axit lactic → polymer hoá ngưng tụ thành chuỗi PLA (liên kết ester −COO−). Vì khung là ester chứ C−C bền như PE/PET nên nó <strong>thuỷ phân được</strong>.</div>
+    <div style="margin-top:6px" class="stat">Môi trường: <strong>${envName[env]}</strong></div>
+    <div class="stat">Sau ${months} tháng, PLA đã phân huỷ <strong>${plaPct.toFixed(0)}%</strong></div>
+    <div class="stat">Cùng thời gian đó, PET mới phân huỷ <strong>${petPct.toFixed(2)}%</strong></div>
+    <div style="margin-top:6px">${note}</div>
+  `;
+}
+document.getElementById("plaEnv").addEventListener("change", updatePLA);
+document.getElementById("plaTime").addEventListener("input", updatePLA);
+document.addEventListener("DOMContentLoaded", updatePLA);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

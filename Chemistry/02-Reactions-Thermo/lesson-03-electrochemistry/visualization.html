@@ -109,6 +109,22 @@
   <div class="result" id="faradayResult"></div>
 </div>
 
+<h2>🌍 Đời sống thực tế — Anode hy sinh chống gỉ (tôn mạ kẽm, vỏ tàu biển)</h2>
+<div class="card">
+  <p>Mục Faraday ở trên dùng dòng điện ngoài để <em>mạ kim loại lên bề mặt</em>. Ở đây là chuyện ngược lại và không cần nguồn điện: ta gắn một khối kim loại <strong>dễ bị oxy hoá hơn sắt</strong> vào khối thép. Khối đó tự nguyện mòn trước, "hy sinh" để dòng electron luôn chảy về phía sắt — nên sắt không gỉ. Đây là lý do tôn lợp mái được mạ kẽm, và tàu biển/chân cầu thép gắn các khối Zn hoặc Mg.</p>
+  <div class="row">
+    <label>Kim loại bảo vệ:</label>
+    <select id="sacMetal">
+      <option value="Zn">Kẽm (Zn) — dùng cho tôn mạ kẽm</option>
+      <option value="Mg">Magie (Mg) — bảo vệ mạnh nhất, dùng cho tàu</option>
+      <option value="Al">Nhôm (Al)</option>
+    </select>
+  </div>
+  <svg id="sacSvg" width="360" height="180" viewBox="0 0 360 180" style="display:block; width:100%; max-width:360px; margin:8px auto; background:linear-gradient(135deg,#f8fafc,#fef3c7); border-radius:8px"></svg>
+  <div class="result" id="sacResult"></div>
+  <p style="margin-top:10px; font-size:13px; color:#475569">💡 Càng âm điện thế (Mg = −2.37 V), kim loại càng "nhiệt tình" hy sinh → bảo vệ mạnh nhưng mòn nhanh, phải thay định kỳ. Đó là sự đánh đổi khi chọn vật liệu chống ăn mòn.</p>
+</div>
+
 </main>
 
 <script>
@@ -313,6 +329,47 @@ populateSelectors();
 buildTable();
 updateCell();
 calcFaraday();
+
+// ===== Đời sống: anode hy sinh chống gỉ (mạ kẽm, tàu biển) =====
+const SAC_E = { Fe: -0.44, Zn: -0.76, Mg: -2.37, Al: -1.66 };
+function updateSacrificial() {
+  const metal = document.getElementById("sacMetal").value;
+  const Eprot = SAC_E[metal];   // E° kim loại bảo vệ
+  const Efe = SAC_E.Fe;         // E° sắt
+  const names = { Zn: "Kẽm (Zn)", Mg: "Magie (Mg)", Al: "Nhôm (Al)" };
+  const diff = Efe - Eprot;     // > 0 nghĩa là kim loại kia âm hơn → bảo vệ được
+
+  let html = "";
+  if (diff > 0) {
+    html = `
+      <div class="step" style="background:#dbeafe">${names[metal]} có E° = ${Eprot} V, âm hơn Fe (E° = ${Efe} V) → nó "thèm" nhường electron hơn.</div>
+      <div class="step">Anode (bị ăn mòn thay sắt): ${metal} → ${metal === "Al" ? "Al³⁺ + 3e⁻" : metal + "²⁺ + 2e⁻"}</div>
+      <div class="step">Cathode (sắt được bảo vệ): O₂ + 2H₂O + 4e⁻ → 4OH⁻ — sắt KHÔNG mất electron nên không gỉ.</div>
+      <div class="step">Chênh lệch thế đẩy ăn mòn về phía ${metal}: ΔE = ${Efe} − (${Eprot}) = <strong>${diff.toFixed(2)} V</strong></div>
+      <div class="step" style="background:#dcfce7; font-size:15px"><strong>✓ ${names[metal]} là "anode hy sinh"</strong> — tự mòn dần để cứu khối sắt thép. Đây chính là tôn mạ kẽm trên mái nhà và khối Zn/Mg gắn vào vỏ tàu biển, chân cầu thép.</div>`;
+  }
+  document.getElementById("sacResult").innerHTML = html;
+
+  // Vẽ: thanh sắt + khối kim loại hy sinh đang mòn
+  const svg = document.getElementById("sacSvg");
+  svg.innerHTML = "";
+  const NS = "http://www.w3.org/2000/svg";
+  const mk = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  // môi trường (nước biển)
+  svg.appendChild(mk("rect", { x: 0, y: 70, width: 360, height: 110, fill: "#93c5fd", opacity: 0.4 }));
+  // thanh thép
+  svg.appendChild(mk("rect", { x: 60, y: 95, width: 240, height: 30, fill: "#94a3b8", stroke: "#1a202c", "stroke-width": 2, rx: 4 }));
+  const sFe = mk("text", { x: 180, y: 115, "text-anchor": "middle", font: "bold 13px sans-serif", fill: "#1a202c" }); sFe.textContent = "Thép (Fe) — được bảo vệ"; svg.appendChild(sFe);
+  // khối kim loại hy sinh (mòn theo độ chênh thế)
+  const erode = Math.min(0.6, diff / 4);
+  const w = 56 * (1 - erode);
+  svg.appendChild(mk("rect", { x: 150 - w / 2, y: 40, width: w, height: 34, fill: "#22c55e", stroke: "#166534", "stroke-width": 2, rx: 4 }));
+  const sM = mk("text", { x: 150, y: 30, "text-anchor": "middle", font: "bold 13px sans-serif", fill: "#166534" }); sM.textContent = metal + " (anode hy sinh, đang mòn)"; svg.appendChild(sM);
+  // dây nối
+  svg.appendChild(mk("line", { x1: 150, y1: 74, x2: 150, y2: 95, stroke: "#1a202c", "stroke-width": 2 }));
+}
+document.getElementById("sacMetal").addEventListener("change", updateSacrificial);
+document.addEventListener("DOMContentLoaded", updateSacrificial);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

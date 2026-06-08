@@ -85,11 +85,23 @@
   <p>Nhập chuỗi DNA (chỉ A, T, G, C). Viz sẽ phiên mã thành mRNA và dịch ra chuỗi amino acid.</p>
   <div class="row">
     <label>DNA template:</label>
-    <input type="text" id="dnaInput" value="TACCGATCCATTT" oninput="translate()">
-    <button onclick="document.getElementById('dnaInput').value='TACGGAACGTAAATT'; translate()">Ví dụ 1</button>
-    <button onclick="document.getElementById('dnaInput').value='TACAGCTACAAGCAT'; translate()">Ví dụ 2</button>
+    <input type="text" id="dnaInput" value="TACCGATCCATTT" oninput="translateDNA()">
+    <button onclick="document.getElementById('dnaInput').value='TACGGAACGTAAATT'; translateDNA()">Ví dụ 1</button>
+    <button onclick="document.getElementById('dnaInput').value='TACAGCTACAAGCAT'; translateDNA()">Ví dụ 2</button>
   </div>
   <div class="result" id="translateResult"></div>
+</div>
+
+<h2>🌍 Đời sống thực tế — Vaccine mRNA hoạt động thế nào?</h2>
+<div class="card">
+  <p>Vaccine COVID-19 (Pfizer, Moderna) là <strong>vaccine mRNA</strong> — ứng dụng trực tiếp của central dogma học ở Mục 3 (DNA → mRNA → protein). Thay vì tiêm virus, người ta tiêm một đoạn mRNA "dạy" tế bào tự làm một mảnh protein vô hại để hệ miễn dịch tập dượt. Kéo thanh trượt để xem từng bước.</p>
+  <div class="row">
+    <label>Bước:</label>
+    <input type="range" id="vaxStep" min="1" max="5" step="1" value="1" style="flex:1; min-width:200px">
+    <span class="stat">Bước <strong id="vaxStepVal">1</strong>/5</span>
+  </div>
+  <div class="result" id="vaxResult"></div>
+  <p style="margin-top:10px; font-size:13px; color:#475569">💡 Hiểu lầm phổ biến: "mRNA sửa DNA của tôi". Sai — mRNA chỉ là bản sao tạm ở bào tương, không vào nhân, không có enzyme ghi ngược về DNA, và bị phân huỷ sau vài ngày. Đúng chiều một chiều của central dogma.</p>
 </div>
 
 </main>
@@ -274,7 +286,7 @@ const CODON_TABLE = {
   "AUU":"Ile", "AUC":"Ile", "AUA":"Ile"
 };
 
-function translate() {
+function translateDNA() {
   const dna = document.getElementById("dnaInput").value.toUpperCase().replace(/[^ATGC]/g, "");
   // DNA → mRNA: complementary + T→U
   const mRNA = dna.split("").map(b => ({A:"U", T:"A", G:"C", C:"G"}[b])).join("");
@@ -321,7 +333,52 @@ function translate() {
 buildGrid();
 selectBiomol("carb");
 drawDNA();
-translate();
+translateDNA();
+
+// ===== Đời sống: vaccine mRNA hoạt động thế nào =====
+const VAX_STEPS = [
+  {
+    t: "1. Tiêm mRNA bọc trong hạt lipid (LNP)",
+    d: "Vaccine chứa một đoạn mRNA tổng hợp — chính là phân tử ở Mục 2-3. mRNA rất mong manh nên được bọc trong lớp vỏ lipid nano (giống màng tế bào) để vào được trong tế bào cơ.",
+    icon: "💉"
+  },
+  {
+    t: "2. Ribosome dịch mã mRNA → protein gai (spike)",
+    d: "Vào trong tế bào, ribosome đọc mRNA theo từng codon (3 base = 1 amino acid) — đúng cơ chế Codon Translator ở Mục 3 — và lắp ráp ra protein gai của virus. Tế bào KHÔNG sao chép mRNA, dùng xong là phân huỷ.",
+    icon: "🧬"
+  },
+  {
+    t: "3. Protein gai trồi ra mặt tế bào",
+    d: "Protein gai vừa tạo được đẩy lên bề mặt tế bào. Đây chỉ là 'mảnh nhận dạng' của virus, hoàn toàn vô hại — không có bộ gen virus nên không gây bệnh.",
+    icon: "🔺"
+  },
+  {
+    t: "4. Hệ miễn dịch học mặt 'kẻ địch'",
+    d: "Tế bào miễn dịch thấy protein lạ → tạo kháng thể và tế bào nhớ. Lần sau gặp virus thật mang đúng protein gai đó, cơ thể nhận ra và tiêu diệt ngay.",
+    icon: "🛡"
+  },
+  {
+    t: "5. mRNA tự tiêu, không vào DNA",
+    d: "mRNA chỉ tồn tại vài ngày rồi bị enzyme phân huỷ. Nó nằm ở bào tương, KHÔNG đi vào nhân nên KHÔNG chỉnh sửa DNA của bạn. Thông tin đi một chiều DNA→mRNA→protein, không có chiều ngược lại.",
+    icon: "♻"
+  }
+];
+function showVax() {
+  const step = parseInt(document.getElementById("vaxStep").value, 10);
+  document.getElementById("vaxStepVal").textContent = step;
+  const list = VAX_STEPS.slice(0, step).map((s, i) => `
+    <div style="display:flex; gap:10px; padding:10px; background:${i === step - 1 ? '#dcfce7' : '#f8fafc'}; border-left:3px solid #be185d; border-radius:4px; margin:6px 0">
+      <div style="font-size:22px">${s.icon}</div>
+      <div><strong>${s.t}</strong><div style="font-size:13px; margin-top:3px">${s.d}</div></div>
+    </div>`).join("");
+  let extra = "";
+  if (step >= 5) {
+    extra = `<div style="margin-top:8px; color:#047857"><strong>✓ Tóm lại:</strong> vaccine mRNA chỉ là 'bản hướng dẫn' tạm thời dạy tế bào làm một mảnh protein vô hại để tập dượt miễn dịch — ứng dụng trực tiếp của central dogma học ở Mục 3.</div>`;
+  }
+  document.getElementById("vaxResult").innerHTML = list + extra;
+}
+document.getElementById("vaxStep").addEventListener("input", showVax);
+document.addEventListener("DOMContentLoaded", showVax);
 </script>
 
 <script src="../../../tools/marked.min.js"></script>

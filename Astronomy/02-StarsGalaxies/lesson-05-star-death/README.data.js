@@ -55,9 +55,9 @@ Sau bài này bạn sẽ:
 
 - **(a) Là gì** — Là áp suất sinh ra do **nguyên lý loại trừ Pauli (Pauli exclusion principle)**: không hai electron nào được ở cùng một trạng thái lượng tử. Khi vật chất bị nén cực mạnh, các electron bị ép sát buộc phải chiếm các mức năng lượng cao → chúng "đẩy lại" tạo áp suất, **không phụ thuộc nhiệt độ**.
 - **(b) Vì sao cần** — Lùn trắng đã nguội, không còn áp suất nhiệt từ phản ứng hạt nhân. Nếu chỉ có áp suất nhiệt thì nó sụp ngay. Áp suất suy biến electron là "phanh" lượng tử giữ nó ổn định mà không cần nhiệt.
-- **(c) Ví dụ trực giác bằng số** — Một lùn trắng 0.6 M☉ có bán kính ~9.000 km (cỡ Trái Đất, R⊕ ≈ 6.371 km), mật độ ~10⁶ g/cm³: một thìa cà phê vật chất lùn trắng nặng cỡ vài tấn.
+- **(c) Ví dụ trực giác bằng số** — Một lùn trắng $0{,}6 \\ M_\\odot$ có bán kính ~9.000 km (cỡ Trái Đất, $R_\\oplus \\approx 6371 \\ \\text{km}$), mật độ $\\sim 10^6 \\ \\text{g/cm}^3$: một thìa cà phê vật chất lùn trắng nặng cỡ vài tấn.
 
-> 📐 **Giới hạn Chandrasekhar = 1.4 M☉.** Áp suất suy biến electron chỉ chống đỡ được tới một khối lượng tối đa. Vượt quá \`M_Ch ≈ 1.4 M☉\`, áp suất suy biến **không còn đủ** → lõi sụp tiếp. Đây là một trong những con số nổi tiếng nhất của vật lý thiên văn (Subrahmanyan Chandrasekhar, 1930, Nobel 1983).
+> 📐 **Giới hạn Chandrasekhar $= 1{,}4 \\ M_\\odot$.** Áp suất suy biến electron chỉ chống đỡ được tới một khối lượng tối đa. Vượt quá $M_{Ch} \\approx 1{,}4 \\ M_\\odot$, áp suất suy biến **không còn đủ** → lõi sụp tiếp. Đây là một trong những con số nổi tiếng nhất của vật lý thiên văn (Subrahmanyan Chandrasekhar, 1930, Nobel 1983).
 
 **4 ví dụ số (lùn trắng / Chandrasekhar):**
 
@@ -87,7 +87,7 @@ Sau bài này bạn sẽ:
 
 ### 3.2 Supernova loại II (core-collapse)
 
-> 💡 **Trực giác.** Lõi sắt vượt giới hạn Chandrasekhar → sụp đổ. Electron bị ép vào proton tạo neutron + neutrino (\`p + e⁻ → n + ν\`). Lõi nén tới mật độ hạt nhân rồi **nảy ngược (bounce)** như lò xo nén cực hạn, tạo sóng xung kích thổi tung toàn bộ lớp vỏ ngoài: đó là **supernova loại II**.
+> 💡 **Trực giác.** Lõi sắt vượt giới hạn Chandrasekhar → sụp đổ. Electron bị ép vào proton tạo neutron + neutrino ($p + e^- \\to n + \\nu$). Lõi nén tới mật độ hạt nhân rồi **nảy ngược (bounce)** như lò xo nén cực hạn, tạo sóng xung kích thổi tung toàn bộ lớp vỏ ngoài: đó là **supernova loại II**.
 
 - **Supernova loại II** = sụp đổ lõi của sao khối lượng lớn còn vỏ hydro. Độ sáng đỉnh ~10⁹–10¹⁰ L☉ — sáng ngang cả một thiên hà nhỏ trong vài tuần.
 - **Năng lượng**: phần lớn (~99%) thoát ra dưới dạng **neutrino**; chỉ ~1% thành động năng vỏ và ~0.01% thành ánh sáng.
@@ -99,15 +99,15 @@ Sau bài này bạn sẽ:
 
 - **(a) Là gì** — Tàn dư lõi sau supernova, khi khối lượng lõi nằm khoảng **1.4–~3 M☉**. Trọng lực ép electron vào proton thành neutron; cả lõi trở thành một "hạt nhân khổng lồ" gồm gần như toàn neutron, được giữ bởi **áp suất suy biến neutron (neutron degeneracy pressure)**.
 - **(b) Vì sao tồn tại** — Khi lõi vượt giới hạn Chandrasekhar, áp suất suy biến electron thua, nhưng nếu chưa quá nặng thì áp suất suy biến neutron (phanh mạnh hơn) chặn được cú sụp ở mật độ hạt nhân.
-- **(c) Ví dụ trực giác bằng số** — Bán kính chỉ ~10–12 km nhưng nặng ~1.4 M☉. Mật độ ~10¹⁴ g/cm³ — bằng mật độ hạt nhân nguyên tử. Một thìa cà phê vật chất sao neutron nặng ~10⁹ tấn (cỡ một ngọn núi).
+- **(c) Ví dụ trực giác bằng số** — Bán kính chỉ ~10–12 km nhưng nặng $\\sim 1{,}4 \\ M_\\odot$. Mật độ $\\sim 10^{14} \\ \\text{g/cm}^3$ — bằng mật độ hạt nhân nguyên tử. Một thìa cà phê vật chất sao neutron nặng $\\sim 10^9$ tấn (cỡ một ngọn núi).
 
-> 📐 **Walk-through mật độ sao neutron (verify bằng số thật).** Lấy \`M = 1.4 M☉ = 1.4 × 1.989×10³⁰ kg ≈ 2.78×10³⁰ kg\`, bán kính \`R = 11 km = 1.1×10⁴ m\`.
+> 📐 **Walk-through mật độ sao neutron (verify bằng số thật).** Lấy $M = 1{,}4 \\ M_\\odot = 1{,}4 \\times 1{,}989 \\times 10^{30} \\ \\text{kg} \\approx 2{,}78 \\times 10^{30} \\ \\text{kg}$, bán kính $R = 11 \\ \\text{km} = 1{,}1 \\times 10^4 \\ \\text{m}$.
 >
-> Thể tích: \`V = (4/3)πR³ = (4/3)π(1.1×10⁴)³ ≈ 5.58×10¹² m³\`.
+> Thể tích: $V = \\dfrac{4}{3}\\pi R^3 = \\dfrac{4}{3}\\pi (1{,}1 \\times 10^4)^3 \\approx 5{,}58 \\times 10^{12} \\ \\text{m}^3$.
 >
-> Mật độ: \`ρ = M/V = 2.78×10³⁰ / 5.58×10¹² ≈ 4.98×10¹⁷ kg/m³ = 4.98×10¹⁴ g/cm³\`.
+> Mật độ: $\\rho = \\dfrac{M}{V} = \\dfrac{2{,}78 \\times 10^{30}}{5{,}58 \\times 10^{12}} \\approx 4{,}98 \\times 10^{17} \\ \\text{kg/m}^3 = 4{,}98 \\times 10^{14} \\ \\text{g/cm}^3$.
 >
-> → Cỡ **5×10¹⁴ g/cm³**, đúng bậc của mật độ hạt nhân (~2.3×10¹⁴ g/cm³). So với nước (1 g/cm³): đặc hơn ~5×10¹⁴ lần.
+> → Cỡ **$5 \\times 10^{14} \\ \\text{g/cm}^3$**, đúng bậc của mật độ hạt nhân ($\\sim 2{,}3 \\times 10^{14} \\ \\text{g/cm}^3$). So với nước ($1 \\ \\text{g/cm}^3$): đặc hơn $\\sim 5 \\times 10^{14}$ lần.
 
 - Nếu khối lượng lõi tàn dư **vượt ~3 M☉** (giới hạn Tolman–Oppenheimer–Volkoff, TOV), ngay cả áp suất suy biến neutron cũng thua → không gì chặn được → **lỗ đen** (học kỹ ở [Lesson 08](../lesson-08-black-holes/)).
 
@@ -149,7 +149,7 @@ Sau bài này bạn sẽ:
 > 📝 **Tóm tắt toàn bài.**
 > - **Khối lượng ban đầu quyết định số phận**, ngưỡng phân nhánh ~8 M☉.
 > - **Sao nhỏ-trung bình (≲8 M☉):** khổng lồ đỏ → tinh vân hành tinh → **lùn trắng**, chống đỡ bởi **áp suất suy biến electron**, bền tới **giới hạn Chandrasekhar 1.4 M☉**.
-> - **Sao lớn (≳8 M☉):** lõi sắt sụp → **supernova loại II** → **sao neutron** (1.4–3 M☉, mật độ ~5×10¹⁴ g/cm³) hoặc **lỗ đen** (> 3 M☉).
+> - **Sao lớn (≳8 M☉):** lõi sắt sụp → **supernova loại II** → **sao neutron** (1,4–3 M☉, mật độ $\\sim 5 \\times 10^{14} \\ \\text{g/cm}^3$) hoặc **lỗ đen** (> 3 M☉).
 > - **Sắt** là ngõ cụt của fusion (năng lượng liên kết/nucleon cao nhất).
 > - Nguyên tố **nặng hơn sắt** (vàng, uranium) sinh trong **supernova** (r-process), rồi phát tán làm giàu môi trường liên sao.
 
@@ -159,11 +159,11 @@ Sau bài này bạn sẽ:
 
 1. **Phân nhánh số phận.** Cho 4 sao với khối lượng ban đầu: 0.8 M☉, 6 M☉, 12 M☉, 30 M☉. Với mỗi sao, nêu con đường tiến hóa cuối và tàn dư dự kiến.
 
-2. **Giới hạn Chandrasekhar.** Một lùn trắng đang ở 1.2 M☉ trong hệ đôi, hút thêm vật chất từ sao bạn đồng hành với tốc độ 10⁻⁸ M☉/năm. Sau bao lâu nó đạt giới hạn Chandrasekhar? Khi đạt thì điều gì xảy ra?
+2. **Giới hạn Chandrasekhar.** Một lùn trắng đang ở $1{,}2 \\ M_\\odot$ trong hệ đôi, hút thêm vật chất từ sao bạn đồng hành với tốc độ $10^{-8} \\ M_\\odot/\\text{năm}$. Sau bao lâu nó đạt giới hạn Chandrasekhar? Khi đạt thì điều gì xảy ra?
 
-3. **Mật độ sao neutron.** Tính mật độ trung bình của một sao neutron có \`M = 2.0 M☉\`, \`R = 12 km\`. So sánh với mật độ Trái Đất (~5.5 g/cm³) bằng tỉ số.
+3. **Mật độ sao neutron.** Tính mật độ trung bình của một sao neutron có $M = 2{,}0 \\ M_\\odot$, $R = 12 \\ \\text{km}$. So sánh với mật độ Trái Đất ($\\sim 5{,}5 \\ \\text{g/cm}^3$) bằng tỉ số.
 
-4. **Năng lượng supernova.** Một supernova loại II giải phóng tổng năng lượng ~10⁴⁶ J, trong đó ~99% là neutrino. Ước lượng năng lượng dưới dạng động năng vỏ + ánh sáng (~1%). So sánh với năng lượng Mặt Trời phát ra trong cả đời (~1.2×10⁴⁴ J).
+4. **Năng lượng supernova.** Một supernova loại II giải phóng tổng năng lượng $\\sim 10^{46} \\ \\text{J}$, trong đó ~99% là neutrino. Ước lượng năng lượng dưới dạng động năng vỏ + ánh sáng (~1%). So sánh với năng lượng Mặt Trời phát ra trong cả đời ($\\sim 1{,}2 \\times 10^{44} \\ \\text{J}$).
 
 5. **Nguồn gốc nguyên tố.** Bạn đeo một chiếc nhẫn vàng. Giải thích bằng các bước nơi nào trong vũ trụ đã tạo ra số vàng đó, và vì sao không phải bên trong một sao dãy chính bình thường.
 
@@ -182,40 +182,32 @@ Sau bài này bạn sẽ:
 
 ### Bài 2 — Thời gian đạt giới hạn Chandrasekhar
 
-**Cách tiếp cận:** khối lượng cần thêm = 1.4 − 1.2 = 0.2 M☉; chia cho tốc độ bồi tụ.
+**Cách tiếp cận:** khối lượng cần thêm $= 1{,}4 - 1{,}2 = 0{,}2 \\ M_\\odot$; chia cho tốc độ bồi tụ.
 
-\`\`\`
-Δt = ΔM / (dM/dt) = 0.2 M☉ / (10⁻⁸ M☉/năm) = 2×10⁷ năm = 20 triệu năm.
-\`\`\`
+$$\\Delta t = \\frac{\\Delta M}{dM/dt} = \\frac{0{,}2 \\ M_\\odot}{10^{-8} \\ M_\\odot/\\text{năm}} = 2 \\times 10^7 \\text{ năm} = 20 \\text{ triệu năm}$$
 
 Khi đạt 1.4 M☉, áp suất suy biến electron không đủ → lùn trắng (vốn là carbon-oxygen) bị nén, nhiệt độ vọt lên đốt carbon mất kiểm soát → **supernova loại Ia** (phản ứng nhiệt hạch chạy trốn làm nổ tung cả lùn trắng, không để lại tàn dư). (Đây là loại Ia, khác core-collapse loại II ở mục 3; loại Ia rất quan trọng vì độ sáng đỉnh chuẩn → dùng làm "nến chuẩn" đo khoảng cách vũ trụ, sẽ gặp ở Tầng 3.)
 
 ### Bài 3 — Mật độ sao neutron
 
-\`M = 2.0 × 1.989×10³⁰ = 3.978×10³⁰ kg\`. \`R = 12 km = 1.2×10⁴ m\`.
+$M = 2{,}0 \\times 1{,}989 \\times 10^{30} = 3{,}978 \\times 10^{30} \\ \\text{kg}$. $R = 12 \\ \\text{km} = 1{,}2 \\times 10^4 \\ \\text{m}$.
 
-\`\`\`
-V = (4/3)π R³ = (4/3)π (1.2×10⁴)³ = (4/3)π (1.728×10¹²) ≈ 7.24×10¹² m³
-ρ = M/V = 3.978×10³⁰ / 7.24×10¹² ≈ 5.49×10¹⁷ kg/m³ = 5.49×10¹⁴ g/cm³
-\`\`\`
+$$\\begin{aligned}
+V &= \\frac{4}{3}\\pi R^3 = \\frac{4}{3}\\pi (1{,}2 \\times 10^4)^3 = \\frac{4}{3}\\pi (1{,}728 \\times 10^{12}) \\approx 7{,}24 \\times 10^{12} \\ \\text{m}^3 \\\\
+\\rho &= \\frac{M}{V} = \\frac{3{,}978 \\times 10^{30}}{7{,}24 \\times 10^{12}} \\approx 5{,}49 \\times 10^{17} \\ \\text{kg/m}^3 = 5{,}49 \\times 10^{14} \\ \\text{g/cm}^3
+\\end{aligned}$$
 
-So với Trái Đất (5.5 g/cm³):
-\`\`\`
-tỉ số = 5.49×10¹⁴ / 5.5 ≈ 1.0×10¹⁴ lần.
-\`\`\`
-→ Sao neutron đặc hơn Trái Đất khoảng **10¹⁴ lần** (một trăm nghìn tỉ lần).
+So với Trái Đất ($5{,}5 \\ \\text{g/cm}^3$):
+$$\\text{tỉ số} = \\frac{5{,}49 \\times 10^{14}}{5{,}5} \\approx 1{,}0 \\times 10^{14} \\text{ lần}$$
+→ Sao neutron đặc hơn Trái Đất khoảng **$10^{14}$ lần** (một trăm nghìn tỉ lần).
 
 ### Bài 4 — Năng lượng supernova
 
-Năng lượng "nhìn thấy" (động năng vỏ + ánh sáng) ≈ 1% của 10⁴⁶ J:
-\`\`\`
-E_visible ≈ 0.01 × 10⁴⁶ = 10⁴⁴ J.
-\`\`\`
-So với cả đời Mặt Trời (~1.2×10⁴⁴ J):
-\`\`\`
-tỉ số = 10⁴⁴ / 1.2×10⁴⁴ ≈ 0.83.
-\`\`\`
-→ Chỉ riêng phần "1% nhìn thấy" của một supernova đã **xấp xỉ toàn bộ năng lượng Mặt Trời phát ra trong ~10 tỉ năm** — phát ra trong vài tuần. (Tổng năng lượng 10⁴⁶ J còn lớn hơn ~100 lần, nhưng hầu hết thoát theo neutrino vô hình.)
+Năng lượng "nhìn thấy" (động năng vỏ + ánh sáng) $\\approx 1\\%$ của $10^{46} \\ \\text{J}$:
+$$E_{visible} \\approx 0{,}01 \\times 10^{46} = 10^{44} \\ \\text{J}$$
+So với cả đời Mặt Trời ($\\sim 1{,}2 \\times 10^{44} \\ \\text{J}$):
+$$\\text{tỉ số} = \\frac{10^{44}}{1{,}2 \\times 10^{44}} \\approx 0{,}83$$
+→ Chỉ riêng phần "1% nhìn thấy" của một supernova đã **xấp xỉ toàn bộ năng lượng Mặt Trời phát ra trong ~10 tỉ năm** — phát ra trong vài tuần. (Tổng năng lượng $10^{46} \\ \\text{J}$ còn lớn hơn ~100 lần, nhưng hầu hết thoát theo neutrino vô hình.)
 
 ### Bài 5 — Nguồn gốc vàng
 

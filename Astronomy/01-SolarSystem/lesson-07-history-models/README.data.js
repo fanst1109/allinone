@@ -74,15 +74,15 @@ Mọi mô hình vũ trụ phải trả lời được 2 câu:
 **Cơ chế bằng số (chu kỳ thật):**
 
 - Trái Đất: chu kỳ quanh Mặt Trời = **1 năm** (vận tốc góc nhanh).
-- Sao Hỏa: chu kỳ = **1.88 năm** (chậm hơn).
+- Sao Hỏa: chu kỳ = **1,88 năm** (chậm hơn).
 - Trái Đất "vượt" Sao Hỏa mỗi **chu kỳ giao hội (synodic period)**:
 
-\`\`\`
-1/T_syn = 1/T_Đất − 1/T_Hỏa = 1/1 − 1/1.88 = 1 − 0.532 = 0.468
-T_syn = 1/0.468 ≈ 2.14 năm  (≈ 780 ngày)
-\`\`\`
+$$\\begin{aligned}
+\\frac{1}{T_{syn}} &= \\frac{1}{T_{\\text{Đất}}} - \\frac{1}{T_{\\text{Hỏa}}} = \\frac{1}{1} - \\frac{1}{1{,}88} = 1 - 0{,}532 = 0{,}468 \\\\
+T_{syn} &= \\frac{1}{0{,}468} \\approx 2{,}14 \\ \\text{năm} \\quad (\\approx 780 \\ \\text{ngày})
+\\end{aligned}$$
 
-→ Cứ ~26 tháng (≈ 2.14 năm) Sao Hỏa lại nghịch hành một lần, kéo dài khoảng **2–2.5 tháng**. Con số này khớp với quan sát thực tế.
+→ Cứ ~26 tháng (≈ 2,14 năm) Sao Hỏa lại nghịch hành một lần, kéo dài khoảng **2–2,5 tháng**. Con số này khớp với quan sát thực tế.
 
 > ⚠ **Lỗi thường gặp.** "Sao Hỏa thật sự đi lùi trên quỹ đạo." **Sai.** Sao Hỏa luôn tiến đều quanh Mặt Trời. Cái "lùi" chỉ là **biểu kiến** (apparent), do thay đổi góc nhìn từ Trái Đất đang chuyển động nhanh hơn.
 
@@ -90,10 +90,10 @@ T_syn = 1/0.468 ≈ 2.14 năm  (≈ 780 ngày)
 > - *"Vì sao địa tâm cần ngoại luân mà nhật tâm thì không?"* — Vì nghịch hành trong nhật tâm là hệ quả **tự động** của hai hành tinh chuyển động với tốc độ khác nhau. Địa tâm đặt Trái Đất đứng yên, mất đi nguồn gốc tự nhiên này, nên phải bịa thêm vòng (ngoại luân) để tạo hiệu ứng.
 > - *"Sao Kim (hành tinh trong) có nghịch hành không?"* — Có, nhưng cơ chế ngược: Sao Kim đi **nhanh hơn** Trái Đất và vượt Trái Đất, nên nó nghịch hành khi ở giữa Trái Đất và Mặt Trời.
 
-> 🔁 **Dừng lại tự kiểm tra.** Tính chu kỳ giao hội của Sao Mộc (T = 11.86 năm) — sau bao lâu Trái Đất lại "vượt" Sao Mộc một lần?
-> <details><summary>Đáp án</summary>\`1/T_syn = 1/1 − 1/11.86 = 1 − 0.0843 = 0.9157\` → \`T_syn ≈ 1.09 năm\` (≈ 399 ngày). Vì Sao Mộc đi rất chậm, Trái Đất gần như vượt nó mỗi năm một lần.</details>
+> 🔁 **Dừng lại tự kiểm tra.** Tính chu kỳ giao hội của Sao Mộc ($T = 11{,}86$ năm) — sau bao lâu Trái Đất lại "vượt" Sao Mộc một lần?
+> <details><summary>Đáp án</summary>$\\dfrac{1}{T_{syn}} = \\dfrac{1}{1} - \\dfrac{1}{11{,}86} = 1 - 0{,}0843 = 0{,}9157$ → $T_{syn} \\approx 1{,}09 \\ \\text{năm}$ (≈ 399 ngày). Vì Sao Mộc đi rất chậm, Trái Đất gần như vượt nó mỗi năm một lần.</details>
 
-> 📝 **Tóm tắt mục 3.** Nhật tâm (Copernicus, 1543) đặt Mặt Trời ở tâm. Nghịch hành = ảo giác do Trái Đất vượt hành tinh ngoài, không cần ngoại luân. Chu kỳ giao hội Sao Hỏa ~2.14 năm.
+> 📝 **Tóm tắt mục 3.** Nhật tâm (Copernicus, 1543) đặt Mặt Trời ở tâm. Nghịch hành = ảo giác do Trái Đất vượt hành tinh ngoài, không cần ngoại luân. Chu kỳ giao hội Sao Hỏa ~2,14 năm.
 
 ---
 
@@ -112,18 +112,18 @@ Học trò của Tycho, **Johannes Kepler** (1571–1630), dùng dữ liệu Sao
 
 1. Quỹ đạo elip, Mặt Trời ở một tiêu điểm.
 2. Đường nối hành tinh–Mặt Trời quét diện tích bằng nhau trong thời gian bằng nhau.
-3. \`T² = a³\` (T năm, a AU).
+3. $T^2 = a^3$ (T năm, a AU).
 
 **Walk-through số (verify Kepler 3, 4 hành tinh):**
 
-| Hành tinh | a (AU) | a³ | T (năm) thực | √(a³) |
+| Hành tinh | a (AU) | $a^3$ | T (năm) thực | $\\sqrt{a^3}$ |
 |---|---|---|---|---|
-| Trái Đất | 1.00 | 1.00 | 1.00 | 1.00 ✓ |
-| Sao Hỏa | 1.524 | 3.54 | 1.88 | 1.88 ✓ |
-| Sao Mộc | 5.20 | 140.6 | 11.86 | 11.86 ✓ |
-| Sao Thổ | 9.54 | 868.3 | 29.46 | 29.47 ✓ |
+| Trái Đất | 1,00 | 1,00 | 1,00 | 1,00 ✓ |
+| Sao Hỏa | 1,524 | 3,54 | 1,88 | 1,88 ✓ |
+| Sao Mộc | 5,20 | 140,6 | 11,86 | 11,86 ✓ |
+| Sao Thổ | 9,54 | 868,3 | 29,46 | 29,47 ✓ |
 
-→ Mỗi dòng \`√(a³) ≈ T\` thực — định luật 3 khớp dữ liệu thật.
+→ Mỗi dòng $\\sqrt{a^3} \\approx T$ thực — định luật 3 khớp dữ liệu thật.
 
 ### 4.3 Galileo — bằng chứng quan sát qua kính (1609–1610)
 
@@ -150,7 +150,7 @@ Hai quan sát then chốt:
 
 ### 4.4 Newton — tổng hợp tất cả (1687)
 
-**Isaac Newton** (*Principia*, 1687) chỉ ra: cả ba định luật Kepler là **hệ quả** của một nguyên lý duy nhất — **định luật vạn vật hấp dẫn** \`F = G·m₁·m₂/r²\` (xem [Lesson 05](../lesson-05-gravity-orbits/)). Cùng một lực kéo quả táo rơi cũng giữ Mặt Trăng trên quỹ đạo. Đây là lần đầu vật lý mặt đất và vật lý bầu trời **thống nhất**.
+**Isaac Newton** (*Principia*, 1687) chỉ ra: cả ba định luật Kepler là **hệ quả** của một nguyên lý duy nhất — **định luật vạn vật hấp dẫn** $F = \\dfrac{G \\cdot m_1 \\cdot m_2}{r^2}$ (xem [Lesson 05](../lesson-05-gravity-orbits/)). Cùng một lực kéo quả táo rơi cũng giữ Mặt Trăng trên quỹ đạo. Đây là lần đầu vật lý mặt đất và vật lý bầu trời **thống nhất**.
 
 > 📝 **Tóm tắt mục 4.** Tycho (số liệu ~1′) → Kepler (elip, 3 định luật) → Galileo (vệ tinh Mộc, pha Sao Kim — bằng chứng quan sát) → Newton (hấp dẫn giải thích vì sao Kepler đúng). Chuỗi này biến nhật tâm từ "ý tưởng đẹp" thành "khoa học có nền tảng".
 
@@ -165,7 +165,7 @@ Hai quan sát then chốt:
 | 1546–1601 | Tycho Brahe | Số liệu chính xác ~1–2′ |
 | 1609 | Kepler | Định luật 1 & 2 (elip, diện tích) |
 | 1609–1610 | Galileo | Kính: 4 vệ tinh Mộc, pha Sao Kim |
-| 1619 | Kepler | Định luật 3 (\`T² = a³\`) |
+| 1619 | Kepler | Định luật 3 ($T^2 = a^3$) |
 | 1687 | Newton | Hấp dẫn thống nhất tất cả |
 
 > 📝 **Tóm tắt toàn bài.**
@@ -177,11 +177,11 @@ Hai quan sát then chốt:
 
 ## Bài tập
 
-1. **Chu kỳ giao hội Sao Hỏa.** Trái Đất \`T = 1\` năm, Sao Hỏa \`T = 1.88\` năm. Tính chu kỳ giao hội (bao lâu Sao Hỏa nghịch hành một lần). Đổi ra ngày.
+1. **Chu kỳ giao hội Sao Hỏa.** Trái Đất $T = 1$ năm, Sao Hỏa $T = 1{,}88$ năm. Tính chu kỳ giao hội (bao lâu Sao Hỏa nghịch hành một lần). Đổi ra ngày.
 
-2. **Hành tinh trong.** Sao Kim có \`T = 0.615\` năm. Tính chu kỳ giao hội với Trái Đất. (Lưu ý: với hành tinh trong, công thức là \`1/T_syn = 1/T_trong − 1/T_Đất\`.)
+2. **Hành tinh trong.** Sao Kim có $T = 0{,}615$ năm. Tính chu kỳ giao hội với Trái Đất. (Lưu ý: với hành tinh trong, công thức là $\\dfrac{1}{T_{syn}} = \\dfrac{1}{T_{\\text{trong}}} - \\dfrac{1}{T_{\\text{Đất}}}$.)
 
-3. **Kepler 3 ngược.** Một tiểu hành tinh có chu kỳ \`T = 4\` năm. Tính bán trục lớn \`a\`. Nó nằm trong vành đai chính (2.2–3.3 AU) không?
+3. **Kepler 3 ngược.** Một tiểu hành tinh có chu kỳ $T = 4$ năm. Tính bán trục lớn $a$. Nó nằm trong vành đai chính (2,2–3,3 AU) không?
 
 4. **Đếm vòng địa tâm vs nhật tâm.** Giải thích định tính: vì sao khi đo càng chính xác, mô hình địa tâm càng phải thêm ngoại luân, còn nhật tâm + elip thì không? (≤ 5 câu.)
 
@@ -193,35 +193,33 @@ Hai quan sát then chốt:
 
 ### Bài 1 — Chu kỳ giao hội Sao Hỏa
 
-**Cách tiếp cận:** với hành tinh ngoài, \`1/T_syn = 1/T_Đất − 1/T_ngoài\`.
+**Cách tiếp cận:** với hành tinh ngoài, $\\dfrac{1}{T_{syn}} = \\dfrac{1}{T_{\\text{Đất}}} - \\dfrac{1}{T_{\\text{ngoài}}}$.
 
-\`\`\`
-1/T_syn = 1/1 − 1/1.88 = 1 − 0.5319 = 0.4681
-T_syn = 1/0.4681 ≈ 2.136 năm
-\`\`\`
+$$\\begin{aligned}
+\\frac{1}{T_{syn}} &= \\frac{1}{1} - \\frac{1}{1{,}88} = 1 - 0{,}5319 = 0{,}4681 \\\\
+T_{syn} &= \\frac{1}{0{,}4681} \\approx 2{,}136 \\ \\text{năm}
+\\end{aligned}$$
 
-Đổi ra ngày: \`2.136 × 365.25 ≈ 780 ngày\`. → Sao Hỏa nghịch hành khoảng mỗi **780 ngày (≈ 26 tháng)**, khớp quan sát.
+Đổi ra ngày: $2{,}136 \\times 365{,}25 \\approx 780 \\ \\text{ngày}$. → Sao Hỏa nghịch hành khoảng mỗi **780 ngày (≈ 26 tháng)**, khớp quan sát.
 
 ### Bài 2 — Chu kỳ giao hội Sao Kim
 
-**Hành tinh trong** → \`1/T_syn = 1/T_trong − 1/T_Đất\`.
+**Hành tinh trong** → $\\dfrac{1}{T_{syn}} = \\dfrac{1}{T_{\\text{trong}}} - \\dfrac{1}{T_{\\text{Đất}}}$.
 
-\`\`\`
-1/T_syn = 1/0.615 − 1/1 = 1.626 − 1 = 0.626
-T_syn = 1/0.626 ≈ 1.598 năm
-\`\`\`
+$$\\begin{aligned}
+\\frac{1}{T_{syn}} &= \\frac{1}{0{,}615} - \\frac{1}{1} = 1{,}626 - 1 = 0{,}626 \\\\
+T_{syn} &= \\frac{1}{0{,}626} \\approx 1{,}598 \\ \\text{năm}
+\\end{aligned}$$
 
-Đổi ra ngày: \`1.598 × 365.25 ≈ 584 ngày\`. → Khớp với chu kỳ giao hội thực của Sao Kim ~584 ngày ✓ (đúng con số trong bảng pha Galileo).
+Đổi ra ngày: $1{,}598 \\times 365{,}25 \\approx 584 \\ \\text{ngày}$. → Khớp với chu kỳ giao hội thực của Sao Kim ~584 ngày ✓ (đúng con số trong bảng pha Galileo).
 
 ### Bài 3 — Kepler 3 ngược
 
-\`T² = a³\` ⇒ \`a = T^(2/3)\`.
+$T^2 = a^3$ ⇒ $a = T^{2/3}$.
 
-\`\`\`
-a = 4^(2/3) = (4²)^(1/3) = 16^(1/3) ≈ 2.52 AU
-\`\`\`
+$$a = 4^{2/3} = (4^2)^{1/3} = 16^{1/3} \\approx 2{,}52 \\ \\text{AU}$$
 
-\`a ≈ 2.52 AU\` nằm trong khoảng 2.2–3.3 AU → **đúng là vành đai chính**.
+$a \\approx 2{,}52 \\ \\text{AU}$ nằm trong khoảng 2,2–3,3 AU → **đúng là vành đai chính**.
 
 ### Bài 4 — Vì sao địa tâm phải thêm vòng
 

@@ -15,7 +15,7 @@ Sau bài này bạn sẽ:
 ## Kiến thức tiền đề
 
 - [Lesson 01: Loại dữ liệu & tổng quan](../lesson-01-data-types-overview/README.md) — thang đo NOIR, phân biệt population/sample.
-- Ký hiệu sigma (Σ) và phép trung bình: `x̄ = (Σxᵢ) / n`.
+- Ký hiệu sigma ($\sum$) và phép trung bình: $\bar{x} = \dfrac{\sum x_i}{n}$.
 
 ---
 
@@ -43,49 +43,47 @@ Ba thước đo phổ biến nhất:
 
 **(b) Vì sao cần:** Mean là thước đo tối ưu khi phân phối đối xứng, không có outlier mạnh — nó dùng toàn bộ thông tin từ mọi điểm dữ liệu.
 
-**(c) Ví dụ trực giác:** 5 học sinh có điểm [7, 8, 9, 8, 8]. Bạn muốn biết "điểm trung bình lớp". Mean = (7+8+9+8+8)/5 = 40/5 = 8.
+**(c) Ví dụ trực giác:** 5 học sinh có điểm $[7, 8, 9, 8, 8]$. Bạn muốn biết "điểm trung bình lớp". Mean $= \dfrac{7+8+9+8+8}{5} = \dfrac{40}{5} = 8$.
 
 **Công thức:**
-```
-Mẫu:      x̄ = (x₁ + x₂ + ... + xₙ) / n  = (Σxᵢ) / n
-Tổng thể: µ = (Σxᵢ) / N
-```
+
+$$\bar{x} = \dfrac{x_1 + x_2 + \cdots + x_n}{n} = \dfrac{\sum x_i}{n} \quad \text{(mẫu)} \qquad \mu = \dfrac{\sum x_i}{N} \quad \text{(tổng thể)}$$
 
 **Walk-through với số cụ thể — 4 ví dụ:**
 
 **Ví dụ 1 — Dataset nhỏ:**
 Dataset: `[4, 7, 13, 2, 9]`
-- Tổng: 4 + 7 + 13 + 2 + 9 = 35
-- n = 5
-- x̄ = 35 / 5 = **7**
-- Verify: 7 là "điểm cân bằng" — tổng độ lệch âm = (7-4)+(7-2) = 8; tổng độ lệch dương = (13-7)+(9-7)+(7-7) = 8. Cân bằng ✓
+- Tổng: $4 + 7 + 13 + 2 + 9 = 35$
+- $n = 5$
+- $\bar{x} = \dfrac{35}{5} = \mathbf{7}$
+- Verify: $7$ là "điểm cân bằng" — tổng độ lệch âm $= (7-4)+(7-2) = 8$; tổng độ lệch dương $= (13-7)+(9-7)+(7-7) = 8$. Cân bằng ✓
 
 **Ví dụ 2 — Lương 5 nhân viên:**
 Dataset: `[12M, 15M, 13M, 14M, 16M]` (triệu VND/tháng)
-- Tổng: 70M
-- x̄ = 70M / 5 = **14M**
+- Tổng: $70M$
+- $\bar{x} = \dfrac{70M}{5} = \mathbf{14M}$
 - Ý nghĩa: nếu tổng lương chia đều cho 5 người, mỗi người nhận 14M.
 
 **Ví dụ 3 — Dataset với số âm (nhiệt độ):**
 Dataset: `[-3, 1, 4, -1, 5, 2, 0]` (°C, nhiệt độ 7 ngày mùa đông)
-- Tổng: -3+1+4+(-1)+5+2+0 = 8
-- n = 7
-- x̄ = 8/7 ≈ **1.14°C**
-- Nhiệt độ trung bình tuần là 1.14°C — gần mức đóng băng.
+- Tổng: $-3+1+4+(-1)+5+2+0 = 8$
+- $n = 7$
+- $\bar{x} = \dfrac{8}{7} \approx \mathbf{1{,}14}$°C
+- Nhiệt độ trung bình tuần là $1{,}14$°C — gần mức đóng băng.
 
 **Ví dụ 4 — Dataset lớn với outlier:**
 Dataset lương phòng marketing 6 người: `[12M, 13M, 11M, 14M, 12M, 150M]`
 - Người cuối là Giám đốc Marketing.
-- Tổng: 12+13+11+14+12+150 = 212M
-- x̄ = 212M / 6 ≈ **35.3M**
-- Kết quả: "lương trung bình phòng = 35.3M" — mọi người sẽ ngạc nhiên vì 5/6 người nhận dưới 14M.
+- Tổng: $12+13+11+14+12+150 = 212M$
+- $\bar{x} = \dfrac{212M}{6} \approx \mathbf{35{,}3M}$
+- Kết quả: "lương trung bình phòng $= 35{,}3M$" — mọi người sẽ ngạc nhiên vì 5/6 người nhận dưới 14M.
 
 > ⚠ **Lỗi thường gặp**: Báo cáo mean mà không kiểm tra outlier. Ví dụ 4 là minh họa kinh điển — một outlier cực đoan (150M) kéo mean lên hơn gấp đôi giá trị "điển hình". Trong dữ liệu lệch (skewed distribution), **mean không đại diện cho "người điển hình"**.
 
 > ❓ **Câu hỏi tự nhiên của người đọc**
 > - "Mean có nhạy cảm với outlier bao nhiêu?" → Rất nhạy. Một outlier cực đoan có thể kéo mean ra khỏi phạm vi 99% dữ liệu còn lại (ví dụ Bill Gates bước vào một quán cà phê bình dân, mean tài sản của quán đó nhảy vọt lên hàng tỉ USD).
-> - "Mean của population (µ) và mean của sample (x̄) khác nhau gì?" → Cùng công thức, nhưng µ tính từ toàn bộ population (thường không biết); x̄ tính từ sample (thường dùng để ước lượng µ).
-> - "Khi nào mean âm?" → Khi tổng dữ liệu âm. Ví dụ lợi nhuận kinh doanh: [-5M, -2M, -8M, 3M] → x̄ = -12M/4 = -3M (lỗ trung bình 3M/tháng).
+> - "Mean của population ($\mu$) và mean của sample ($\bar{x}$) khác nhau gì?" → Cùng công thức, nhưng $\mu$ tính từ toàn bộ population (thường không biết); $\bar{x}$ tính từ sample (thường dùng để ước lượng $\mu$).
+> - "Khi nào mean âm?" → Khi tổng dữ liệu âm. Ví dụ lợi nhuận kinh doanh: $[-5M, -2M, -8M, 3M] \to \bar{x} = \dfrac{-12M}{4} = -3M$ (lỗ trung bình 3M/tháng).
 
 ---
 
@@ -97,44 +95,42 @@ Dataset lương phòng marketing 6 người: `[12M, 13M, 11M, 14M, 12M, 150M]`
 
 **(b) Vì sao cần:** Median không bị kéo bởi outlier. Khi phân phối lệch hoặc có outlier cực đoan, median mô tả "điển hình" tốt hơn mean nhiều.
 
-**(c) Ví dụ trực giác:** 5 ngôi nhà trên một phố có giá `[500M, 600M, 550M, 580M, 5000M]`. Mean = 1 446M — bị ngôi nhà biệt thự kéo lên. Median = 580M — phản ánh "nhà điển hình" trên phố này.
+**(c) Ví dụ trực giác:** 5 ngôi nhà trên một phố có giá `[500M, 600M, 550M, 580M, 5000M]`. Mean $= 1\,446M$ — bị ngôi nhà biệt thự kéo lên. Median $= 580M$ — phản ánh "nhà điển hình" trên phố này.
 
 **Công thức:**
-```
-Sắp xếp data: x₍₁₎ ≤ x₍₂₎ ≤ ... ≤ x₍ₙ₎
 
-Nếu n lẻ:  Median = x₍(n+1)/2₎
-Nếu n chẵn: Median = (x₍n/2₎ + x₍n/2+1₎) / 2
-```
+Sắp xếp data: $x_{(1)} \leq x_{(2)} \leq \cdots \leq x_{(n)}$
+
+$$\text{Median} = \begin{cases} x_{((n+1)/2)} & \text{nếu } n \text{ lẻ} \\[4pt] \dfrac{x_{(n/2)} + x_{(n/2+1)}}{2} & \text{nếu } n \text{ chẵn} \end{cases}$$
 
 **Walk-through — 4 ví dụ:**
 
 **Ví dụ 1 — n lẻ:**
 Dataset: `[3, 1, 7, 4, 9]`
 - Sắp xếp: `[1, 3, **4**, 7, 9]`
-- n = 5, vị trí giữa = (5+1)/2 = 3
-- Median = x₍₃₎ = **4**
+- $n = 5$, vị trí giữa $= \dfrac{5+1}{2} = 3$
+- Median $= x_{(3)} = \mathbf{4}$
 - Verify: 2 phần tử nhỏ hơn (1, 3), 2 phần tử lớn hơn (7, 9).
 
 **Ví dụ 2 — n chẵn:**
 Dataset: `[2, 5, 8, 11]`
 - Đã sắp xếp: `[2, **5**, **8**, 11]`
-- n = 4, hai phần tử giữa: x₍₂₎ = 5 và x₍₃₎ = 8
-- Median = (5 + 8) / 2 = **6.5**
-- Verify: 6.5 không có trong dataset — điều này bình thường.
+- $n = 4$, hai phần tử giữa: $x_{(2)} = 5$ và $x_{(3)} = 8$
+- Median $= \dfrac{5 + 8}{2} = \mathbf{6{,}5}$
+- Verify: $6{,}5$ không có trong dataset — điều này bình thường.
 
 **Ví dụ 3 — Lương với outlier (so sánh vs mean):**
 Dataset lương: `[12M, 13M, 11M, 14M, 12M, 150M]`
 - Sắp xếp: `[11, 12, **12**, **13**, 14, 150]` (M)
-- n = 6 (chẵn), hai phần tử giữa: 12 và 13
-- Median = (12 + 13) / 2 = **12.5M**
-- So sánh: Mean = 35.3M vs Median = 12.5M. Median phản ánh đúng hơn mức lương của "nhân viên điển hình".
+- $n = 6$ (chẵn), hai phần tử giữa: 12 và 13
+- Median $= \dfrac{12 + 13}{2} = \mathbf{12{,}5M}$
+- So sánh: Mean $= 35{,}3M$ vs Median $= 12{,}5M$. Median phản ánh đúng hơn mức lương của "nhân viên điển hình".
 
 **Ví dụ 4 — Dataset với nhiều giá trị bằng nhau:**
 Điểm thi: `[7, 8, 8, 8, 9, 9, 10]`
-- Đã sắp xếp, n = 7, vị trí giữa = 4
-- Median = x₍₄₎ = **8**
-- Mean = (7+8+8+8+9+9+10)/7 = 59/7 ≈ 8.43
+- Đã sắp xếp, $n = 7$, vị trí giữa $= 4$
+- Median $= x_{(4)} = \mathbf{8}$
+- Mean $= \dfrac{7+8+8+8+9+9+10}{7} = \dfrac{59}{7} \approx 8{,}43$
 - Ở đây mean và median gần nhau vì không có outlier mạnh.
 
 > ⚠ **Lỗi thường gặp**: Quên sắp xếp trước khi tìm median. Dataset `[3, 7, 1, 5]` không phải "median = (7+1)/2 = 4". Phải sắp xếp: `[1, 3, 5, 7]` → median = (3+5)/2 = 4 (trùng hợp trong ví dụ này, nhưng không phải luôn luôn).
@@ -142,12 +138,12 @@ Dataset lương: `[12M, 13M, 11M, 14M, 12M, 150M]`
 > 🔁 **Dừng lại tự kiểm tra**:
 > 1. Dataset: `[15, 3, 20, 7, 11]`. Tính mean và median.
 > <details><summary>Đáp án</summary>
-> Mean = (15+3+20+7+11)/5 = 56/5 = 11.2. Sắp xếp: [3, 7, 11, 15, 20], Median = 11 (vị trí 3). Mean và median gần nhau — dataset khá đối xứng.
+> Mean $= \dfrac{15+3+20+7+11}{5} = \dfrac{56}{5} = 11{,}2$. Sắp xếp: $[3, 7, 11, 15, 20]$, Median $= 11$ (vị trí 3). Mean và median gần nhau — dataset khá đối xứng.
 > </details>
 >
 > 2. Dataset lương: `[8M, 9M, 10M, 9M, 200M]`. Median hay mean đại diện tốt hơn cho "lương điển hình"?
 > <details><summary>Đáp án</summary>
-> Median tốt hơn. Mean = (8+9+10+9+200)/5 = 236/5 = 47.2M — bị kéo bởi 200M. Median: sắp xếp [8, 9, 9, 10, 200], median = 9M — phản ánh đúng lương của 3/5 người thực tế.
+> Median tốt hơn. Mean $= \dfrac{8+9+10+9+200}{5} = \dfrac{236}{5} = 47{,}2M$ — bị kéo bởi 200M. Median: sắp xếp $[8, 9, 9, 10, 200]$, median $= 9M$ — phản ánh đúng lương của 3/5 người thực tế.
 > </details>
 
 ---
@@ -202,25 +198,24 @@ Màu sắc yêu thích: `[Đỏ, Xanh, Xanh, Vàng, Xanh, Đỏ, Xanh]`
 ### 5.1. Bất đẳng thức vàng (Pearson's Rule)
 
 Với phân phối lệch phải (right-skewed, đuôi dài bên phải — điển hình của thu nhập):
-```
-Mode < Median < Mean
-```
+
+$$\text{Mode} < \text{Median} < \text{Mean}$$
+
 Với phân phối lệch trái (left-skewed, đuôi dài bên trái — điển hình của điểm thi dễ):
-```
-Mean < Median < Mode
-```
+
+$$\text{Mean} < \text{Median} < \text{Mode}$$
+
 Với phân phối đối xứng (normal distribution):
-```
-Mean ≈ Median ≈ Mode
-```
+
+$$\text{Mean} \approx \text{Median} \approx \text{Mode}$$
 
 Ví dụ cụ thể với dataset `[1, 2, 3, 4, 100]`:
 - Mode = 1 (mỗi giá trị xuất hiện 1 lần — thực tế không có mode rõ, dùng giá trị nhỏ nhất hay nói "no mode").
 - Median: sắp xếp `[1, 2, **3**, 4, 100]` → Median = 3.
-- Mean = (1+2+3+4+100)/5 = 110/5 = 22.
+- Mean $= \dfrac{1+2+3+4+100}{5} = \dfrac{110}{5} = 22$.
 - Ta thấy rõ: Mean (22) bị kéo xa khỏi phần lớn dữ liệu (1–4). Median (3) mô tả "giữa" tốt hơn.
 
-> ⚠ **Lỗi cực phổ biến**: Báo "lương trung bình" của một đơn vị mà không nói rõ là arithmetic mean hay median. Bill Gates bước vào quán cà phê với 5 khách khác: lương 5 người = [8M, 10M, 9M, 11M, 12M]; Gates = 200 000M → mean "lương" của 6 người = 200 050M/6 ≈ 33 342M. Median = (10+11)/2 = 10.5M. Hỏi "lương trung bình quán cà phê này bao nhiêu?" → ý nghĩa hoàn toàn khác nhau.
+> ⚠ **Lỗi cực phổ biến**: Báo "lương trung bình" của một đơn vị mà không nói rõ là arithmetic mean hay median. Bill Gates bước vào quán cà phê với 5 khách khác: lương 5 người = [8M, 10M, 9M, 11M, 12M]; Gates = 200 000M → mean "lương" của 6 người $= 200\,050M/6 \approx 33\,342M$. Median $= \dfrac{10+11}{2} = 10{,}5M$. Hỏi "lương trung bình quán cà phê này bao nhiêu?" → ý nghĩa hoàn toàn khác nhau.
 
 > 📝 **Tóm tắt mục 5**:
 > - Mean: tốt nhất khi phân phối đối xứng, không outlier.
@@ -238,12 +233,12 @@ Ví dụ cụ thể với dataset `[1, 2, 3, 4, 100]`:
 
 **(b) Vì sao cần:** Dùng khi dữ liệu là **tốc độ tăng trưởng (rates)** hay **nhân tử (multipliers)** — khi các giá trị được *nhân* với nhau, không *cộng* lại.
 
-**(c) Công thức:** `G = (x₁ × x₂ × ... × xₙ)^(1/n)`
+**(c) Công thức:** $G = (x_1 \times x_2 \times \cdots \times x_n)^{1/n}$
 
-**Ví dụ:** Cổ phiếu tăng 3 năm liên tiếp với tỉ lệ: +50% (×1.5), −20% (×0.8), +30% (×1.3).
-- Nếu dùng arithmetic mean: (1.5+0.8+1.3)/3 = 1.2 → "tăng 20%/năm" → sai.
-- Geometric mean: (1.5 × 0.8 × 1.3)^(1/3) = (1.56)^(1/3) ≈ 1.159 → tăng **15.9%/năm** → đúng.
-- Verify: 100 × 1.5 × 0.8 × 1.3 = 156; 100 × 1.159³ ≈ 156 ✓
+**Ví dụ:** Cổ phiếu tăng 3 năm liên tiếp với tỉ lệ: $+50\%$ ($\times 1{,}5$), $-20\%$ ($\times 0{,}8$), $+30\%$ ($\times 1{,}3$).
+- Nếu dùng arithmetic mean: $\dfrac{1{,}5+0{,}8+1{,}3}{3} = 1{,}2 \to$ "tăng $20\%$/năm" → sai.
+- Geometric mean: $(1{,}5 \times 0{,}8 \times 1{,}3)^{1/3} = (1{,}56)^{1/3} \approx 1{,}159 \to$ tăng $\mathbf{15{,}9\%}$/năm → đúng.
+- Verify: $100 \times 1{,}5 \times 0{,}8 \times 1{,}3 = 156$; $100 \times 1{,}159^3 \approx 156$ ✓
 
 ### 6.2. Harmonic Mean — trung bình điều hòa
 
@@ -251,12 +246,12 @@ Ví dụ cụ thể với dataset `[1, 2, 3, 4, 100]`:
 
 **(b) Vì sao cần:** Dùng khi dữ liệu là **tốc độ (rates)** hay **mật độ** — ví dụ km/h khi tổng quãng đường cố định.
 
-**(c) Công thức:** `H = n / (1/x₁ + 1/x₂ + ... + 1/xₙ)`
+**(c) Công thức:** $H = \dfrac{n}{\frac{1}{x_1} + \frac{1}{x_2} + \cdots + \frac{1}{x_n}}$
 
 **Ví dụ:** Bạn đi 100 km với tốc độ 60 km/h, rồi 100 km tiếp theo với 40 km/h. Tốc độ trung bình?
-- Arithmetic mean sai: (60+40)/2 = 50 km/h.
-- Harmonic mean đúng: H = 2 / (1/60 + 1/40) = 2 / (0.0167 + 0.025) = 2 / 0.0417 ≈ **48 km/h**.
-- Verify: Tổng thời gian = 100/60 + 100/40 = 1.667 + 2.5 = 4.167 giờ. Tổng quãng đường = 200 km. Tốc độ thật = 200/4.167 ≈ 48 km/h ✓.
+- Arithmetic mean sai: $\dfrac{60+40}{2} = 50$ km/h.
+- Harmonic mean đúng: $H = \dfrac{2}{\frac{1}{60} + \frac{1}{40}} = \dfrac{2}{0{,}0167 + 0{,}025} = \dfrac{2}{0{,}0417} \approx \mathbf{48}$ km/h.
+- Verify: Tổng thời gian $= \dfrac{100}{60} + \dfrac{100}{40} = 1{,}667 + 2{,}5 = 4{,}167$ giờ. Tổng quãng đường = 200 km. Tốc độ thật $= \dfrac{200}{4{,}167} \approx 48$ km/h ✓.
 
 ---
 
@@ -276,12 +271,12 @@ Ví dụ cụ thể với dataset `[1, 2, 3, 4, 100]`:
 > 🔁 **Dừng lại tự kiểm tra**:
 > 1. Dataset: `[2, 3, 5, 7, 8, 9, 1000]`. Tính mean và median. Thước đo nào phản ánh "trung tâm" của 6 giá trị đầu tốt hơn?
 > <details><summary>Đáp án</summary>
-> Mean = (2+3+5+7+8+9+1000)/7 = 1034/7 ≈ 147.7. Median: sắp xếp [2, 3, 5, 7, 8, 9, 1000], median = 7 (vị trí 4). Median (7) phản ánh tốt hơn — nó nằm trong phạm vi 6 giá trị thực tế, còn mean (147.7) bị kéo xa bởi 1000.
+> Mean $= \dfrac{2+3+5+7+8+9+1000}{7} = \dfrac{1034}{7} \approx 147{,}7$. Median: sắp xếp [2, 3, 5, 7, 8, 9, 1000], median = 7 (vị trí 4). Median (7) phản ánh tốt hơn — nó nằm trong phạm vi 6 giá trị thực tế, còn mean ($147{,}7$) bị kéo xa bởi 1000.
 > </details>
 >
 > 2. Một lớp có điểm thi: [5, 6, 7, 7, 8, 8, 8, 9, 10]. Tính cả ba: mean, median, mode.
 > <details><summary>Đáp án</summary>
-> Mean = (5+6+7+7+8+8+8+9+10)/9 = 68/9 ≈ 7.56. Median: n=9, vị trí 5, sắp xếp đã xong → median = 8. Mode = 8 (xuất hiện 3 lần). Lưu ý: Mode = Median ở đây, và cả ba đều gần nhau → phân phối khá đối xứng và gần Normal.
+> Mean $= \dfrac{5+6+7+7+8+8+8+9+10}{9} = \dfrac{68}{9} \approx 7{,}56$. Median: $n=9$, vị trí 5, sắp xếp đã xong → median = 8. Mode = 8 (xuất hiện 3 lần). Lưu ý: Mode = Median ở đây, và cả ba đều gần nhau → phân phối khá đối xứng và gần Normal.
 > </details>
 
 ---
@@ -314,12 +309,12 @@ Ví dụ cụ thể với dataset `[1, 2, 3, 4, 100]`:
 ### Bài 1
 
 **Tính:**
-- Mean = (6+7+8+9+7+8+9+10+7+85)/10 = 156/10 = **15.6**
-- Sắp xếp: [6, 7, 7, 7, 8, 8, 9, 9, 10, 85]. n = 10. Median = (x₍₅₎ + x₍₆₎)/2 = (8+8)/2 = **8**
+- Mean $= \dfrac{6+7+8+9+7+8+9+10+7+85}{10} = \dfrac{156}{10} = \mathbf{15{,}6}$
+- Sắp xếp: [6, 7, 7, 7, 8, 8, 9, 9, 10, 85]. $n = 10$. Median $= \dfrac{x_{(5)} + x_{(6)}}{2} = \dfrac{8+8}{2} = \mathbf{8}$
 - Mode = **7** (xuất hiện 3 lần)
 
 **Phân tích ảnh hưởng:**
-- Mean bị ảnh hưởng nặng nhất: tăng từ ~7.7 (không có outlier 85) lên 15.6 — tăng hơn 2×.
+- Mean bị ảnh hưởng nặng nhất: tăng từ $\approx 7{,}7$ (không có outlier 85) lên $15{,}6$ — tăng hơn 2×.
 - Median không bị ảnh hưởng đáng kể: dù bỏ 85 đi, median của 9 số [6,7,7,7,8,8,9,9,10] = 8 (không đổi).
 - Mode không bị ảnh hưởng: 7 vẫn là giá trị phổ biến nhất.
 
@@ -328,7 +323,7 @@ Ví dụ cụ thể với dataset `[1, 2, 3, 4, 100]`:
 ### Bài 2
 
 **(a) Ước tính median:**
-Tổng 85+5 = 90 nhân viên. Sắp xếp theo lương, vị trí giữa là khoảng thứ 45 và 46. Hầu hết 90 nhân viên nhận 15–25M (80 người), nên vị trí 45 và 46 đều nằm trong nhóm này. Median ≈ **18–22M** (ước tính).
+Tổng $85+5 = 90$ nhân viên. Sắp xếp theo lương, vị trí giữa là khoảng thứ 45 và 46. Hầu hết 90 nhân viên nhận 15–25M (80 người), nên vị trí 45 và 46 đều nằm trong nhóm này. Median $\approx$ **18–22M** (ước tính).
 
 **(b) Tại sao "45M" gây hiểu lầm:**
 Con số 45M là arithmetic mean, bị kéo mạnh bởi CEO (500M). Ứng viên nghe "lương trung bình 45M" sẽ kỳ vọng vào khoảng đó, nhưng thực tế 80/85 nhân viên (94%) nhận 15–25M — chỉ bằng một nửa. Đây là ví dụ điển hình "thống kê đúng nhưng gây hiểu lầm" (technically correct, practically misleading). Câu đúng phải là: "Lương trung vị (median) khoảng 20M; mean bị kéo bởi lương CEO".
@@ -336,33 +331,32 @@ Con số 45M là arithmetic mean, bị kéo mạnh bởi CEO (500M). Ứng viên
 ### Bài 3
 
 **(a) Arithmetic mean của tỉ lệ tăng trưởng:**
-Nhân tử hàng năm: 1.3, 0.9, 1.25, 1.05
-Arithmetic mean = (1.3 + 0.9 + 1.25 + 1.05) / 4 = 4.5 / 4 = **1.125** → "tăng 12.5%/năm"
+Nhân tử hàng năm: $1{,}3$, $0{,}9$, $1{,}25$, $1{,}05$
+
+$$\text{Arithmetic mean} = \dfrac{1{,}3 + 0{,}9 + 1{,}25 + 1{,}05}{4} = \dfrac{4{,}5}{4} = \mathbf{1{,}125} \to \text{"tăng } 12{,}5\%\text{/năm"}$$
 
 **(b) Geometric mean:**
-G = (1.3 × 0.9 × 1.25 × 1.05)^(1/4)
-= (1.3 × 0.9 × 1.25 × 1.05)^(1/4)
-= (1.22...) ^(1/4)
 
-Tính từng bước: 1.3 × 0.9 = 1.17; 1.17 × 1.25 = 1.4625; 1.4625 × 1.05 = 1.535625
-G = (1.535625)^(1/4) ≈ **1.1127** → "tăng 11.27%/năm"
+Tính từng bước: $1{,}3 \times 0{,}9 = 1{,}17$; $1{,}17 \times 1{,}25 = 1{,}4625$; $1{,}4625 \times 1{,}05 = 1{,}535625$
 
-**Verify geometric mean:** 1 × 1.3 × 0.9 × 1.25 × 1.05 = 1.535625. Và 1.1127^4 ≈ 1.5356 ✓
+$$G = (1{,}3 \times 0{,}9 \times 1{,}25 \times 1{,}05)^{1/4} = (1{,}535625)^{1/4} \approx \mathbf{1{,}1127} \to \text{"tăng } 11{,}27\%\text{/năm"}$$
 
-**Kết quả nào đúng:** Geometric mean (11.27%) đúng. Arithmetic mean (12.5%) sai.
+**Verify geometric mean:** $1 \times 1{,}3 \times 0{,}9 \times 1{,}25 \times 1{,}05 = 1{,}535625$. Và $1{,}1127^4 \approx 1{,}5356$ ✓
 
-Lý do: Nếu bạn đầu tư 100 triệu, sau 4 năm nhân với các tỉ lệ này, bạn có 100 × 1.535625 = 153.5 triệu. Tăng trưởng CAGR (Compound Annual Growth Rate) = (153.5/100)^(1/4) - 1 = 11.27%. Arithmetic mean không capture được hiệu ứng lãi kép.
+**Kết quả nào đúng:** Geometric mean ($11{,}27\%$) đúng. Arithmetic mean ($12{,}5\%$) sai.
+
+Lý do: Nếu bạn đầu tư 100 triệu, sau 4 năm nhân với các tỉ lệ này, bạn có $100 \times 1{,}535625 = 153{,}5$ triệu. Tăng trưởng CAGR (Compound Annual Growth Rate) $= (153{,}5/100)^{1/4} - 1 = 11{,}27\%$. Arithmetic mean không capture được hiệu ứng lãi kép.
 
 ### Bài 4
 
 **(a) Thời gian giao hàng:**
-**Dùng Median.** Dataset: [25, 27, 28, 30, 32, 350]. Median = (28+30)/2 = 29 phút. Mean = 492/6 = 82 phút — bị kéo bởi 350 (xe hỏng, outlier). Median (29 phút) phản ánh trải nghiệm thực tế của hầu hết khách hàng.
+**Dùng Median.** Dataset: [25, 27, 28, 30, 32, 350]. Median $= \dfrac{28+30}{2} = 29$ phút. Mean $= \dfrac{492}{6} = 82$ phút — bị kéo bởi 350 (xe hỏng, outlier). Median (29 phút) phản ánh trải nghiệm thực tế của hầu hết khách hàng.
 
 **(b) Nhóm máu:**
-**Dùng Mode.** Nhóm máu là biến Nominal — không có mean hay median. Mode = nhóm A (45/100 = 45% — phổ biến nhất). Báo cáo: bảng tần số + tỉ lệ phần trăm.
+**Dùng Mode.** Nhóm máu là biến Nominal — không có mean hay median. Mode = nhóm A ($45/100 = 45\%$ — phổ biến nhất). Báo cáo: bảng tần số + tỉ lệ phần trăm.
 
 **(c) Nhiệt độ tháng 7 Hà Nội:**
-**Dùng Mean.** Nhiệt độ tháng 7 qua 30 năm là biến Interval/Ratio (Kelvin thì Ratio), phân phối thường đối xứng và không có outlier cực đoan. Mean + SD là bộ tối ưu. Ví dụ: "Nhiệt độ tối cao tháng 7 trung bình = 35.2°C, SD = 1.8°C".
+**Dùng Mean.** Nhiệt độ tháng 7 qua 30 năm là biến Interval/Ratio (Kelvin thì Ratio), phân phối thường đối xứng và không có outlier cực đoan. Mean + SD là bộ tối ưu. Ví dụ: "Nhiệt độ tối cao tháng 7 trung bình $= 35{,}2$°C, SD $= 1{,}8$°C".
 
 **(d) Giá bất động sản Q1:**
 **Dùng Median.** Giá bất động sản luôn có phân phối lệch phải mạnh — một vài căn hộ triệu đô kéo mean lên rất cao. Median phản ánh "giá điển hình" tốt hơn. (Thực tế, báo cáo bất động sản uy tín luôn dùng median price.)

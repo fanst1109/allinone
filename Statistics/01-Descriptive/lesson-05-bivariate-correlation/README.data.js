@@ -70,20 +70,18 @@ Bài học: **r = 0 KHÔNG có nghĩa "không quan hệ"**, chỉ có nghĩa "kh
 ### 2.2. Công thức
 
 **Population covariance:**
-\`\`\`
-Cov(X, Y) = (1/N) · Σ (xᵢ − μ_X)(yᵢ − μ_Y)
-\`\`\`
 
-**Sample covariance** (chia n−1 — Bessel's correction):
-\`\`\`
-s_XY = (1/(n−1)) · Σ (xᵢ − x̄)(yᵢ − ȳ)
-\`\`\`
+$$\\text{Cov}(X, Y) = \\dfrac{1}{N} \\sum (x_i - \\mu_X)(y_i - \\mu_Y)$$
+
+**Sample covariance** (chia $n-1$ — Bessel's correction):
+
+$$s_{XY} = \\dfrac{1}{n-1} \\sum (x_i - \\bar{x})(y_i - \\bar{y})$$
 
 ### 2.3. Walk-through số — 4 ví dụ
 
 **Ví dụ 1: tương quan dương mạnh**
 
-| i | x | y | x−x̄ | y−ȳ | tích |
+| i | x | y | $x-\\bar{x}$ | $y-\\bar{y}$ | tích |
 |---|---|---|-----|-----|------|
 | 1 | 1 | 2 | −2 | −4 | 8 |
 | 2 | 2 | 4 | −1 | −2 | 2 |
@@ -91,7 +89,7 @@ s_XY = (1/(n−1)) · Σ (xᵢ − x̄)(yᵢ − ȳ)
 | 4 | 4 | 8 | 1 | 2 | 2 |
 | 5 | 5 | 10 | 2 | 4 | 8 |
 
-x̄=3, ȳ=6. Σ tích = 20. s_XY = 20/(5−1) = **5**.
+$\\bar{x}=3$, $\\bar{y}=6$. $\\sum \\text{tích} = 20$. $s_{XY} = \\dfrac{20}{5-1} = \\mathbf{5}$.
 
 Quan hệ hoàn hảo dương: y = 2x, mọi điểm trên đường thẳng.
 
@@ -105,19 +103,19 @@ Quan hệ hoàn hảo dương: y = 2x, mọi điểm trên đường thẳng.
 | 4 | 4 | 4 |
 | 5 | 5 | 2 |
 
-x̄=3, ȳ=6. Tích: (−2)(4)=−8, (−1)(2)=−2, 0·0=0, 1·(−2)=−2, 2·(−4)=−8. Σ = −20. s_XY = −20/4 = **−5**.
+$\\bar{x}=3$, $\\bar{y}=6$. Tích: $(-2)(4)=-8$, $(-1)(2)=-2$, $0 \\cdot 0=0$, $1 \\cdot (-2)=-2$, $2 \\cdot (-4)=-8$. $\\sum = -20$. $s_{XY} = \\dfrac{-20}{4} = \\mathbf{-5}$.
 
 **Ví dụ 3: không tương quan**
 
-Data: (1,5), (2,3), (3,7), (4,2), (5,8). x̄=3, ȳ=5.
+Data: (1,5), (2,3), (3,7), (4,2), (5,8). $\\bar{x}=3$, $\\bar{y}=5$.
 
-Tích: (−2)(0)=0, (−1)(−2)=2, 0·2=0, 1·(−3)=−3, 2·3=6. Σ = 5. s_XY = 5/4 = **1.25**.
+Tích: $(-2)(0)=0$, $(-1)(-2)=2$, $0 \\cdot 2=0$, $1 \\cdot (-3)=-3$, $2 \\cdot 3=6$. $\\sum = 5$. $s_{XY} = \\dfrac{5}{4} = \\mathbf{1{,}25}$.
 
 Nhỏ so với scale dữ liệu → tương quan yếu.
 
 **Ví dụ 4: đổi đơn vị → cov đổi**
 
-Lấy lại ví dụ 1 nhưng đổi y thành mét (chia 100): y mới = [0.02, 0.04, 0.06, 0.08, 0.10]. Cov mới = 5/100 = 0.05.
+Lấy lại ví dụ 1 nhưng đổi y thành mét (chia 100): y mới = [0.02, 0.04, 0.06, 0.08, 0.10]. Cov mới $= \\dfrac{5}{100} = 0{,}05$.
 
 Vẫn cùng quan hệ tuyến tính, nhưng cov nhỏ hơn 100 lần. Đây là vấn đề.
 
@@ -142,10 +140,7 @@ Vẫn cùng quan hệ tuyến tính, nhưng cov nhỏ hơn 100 lần. Đây là 
 
 ### 3.2. Công thức
 
-\`\`\`
-r = s_XY / (s_X · s_Y)
-  = Σ(xᵢ−x̄)(yᵢ−ȳ) / √[Σ(xᵢ−x̄)² · Σ(yᵢ−ȳ)²]
-\`\`\`
+$$r = \\dfrac{s_{XY}}{s_X \\cdot s_Y} = \\dfrac{\\sum (x_i - \\bar{x})(y_i - \\bar{y})}{\\sqrt{\\sum (x_i - \\bar{x})^2 \\cdot \\sum (y_i - \\bar{y})^2}}$$
 
 ### 3.3. Diễn giải |r|
 
@@ -163,23 +158,23 @@ r = s_XY / (s_X · s_Y)
 
 **Ví dụ 1: tương quan hoàn hảo dương**
 
-Data ví dụ 1 ở trên. s_XY = 5. SD x: √((4+1+0+1+4)/4) = √2.5 ≈ 1.581. SD y: √((16+4+0+4+16)/4) = √10 ≈ 3.162.
+Data ví dụ 1 ở trên. $s_{XY} = 5$. SD x: $\\sqrt{\\dfrac{4+1+0+1+4}{4}} = \\sqrt{2{,}5} \\approx 1{,}581$. SD y: $\\sqrt{\\dfrac{16+4+0+4+16}{4}} = \\sqrt{10} \\approx 3{,}162$.
 
-r = 5/(1.581 × 3.162) = 5/5.0 = **1.000** ✓
+$r = \\dfrac{5}{1{,}581 \\times 3{,}162} = \\dfrac{5}{5{,}0} = \\mathbf{1{,}000}$ ✓
 
 **Ví dụ 2: tương quan âm hoàn hảo**
 
-Data ví dụ 2. s_XY = −5. s_X = √2.5 ≈ 1.581. s_Y = √(((4²+2²+0²+2²+4²)/4)) = √10 ≈ 3.162.
+Data ví dụ 2. $s_{XY} = -5$. $s_X = \\sqrt{2{,}5} \\approx 1{,}581$. $s_Y = \\sqrt{\\dfrac{4^2+2^2+0^2+2^2+4^2}{4}} = \\sqrt{10} \\approx 3{,}162$.
 
-r = −5/(1.581 × 3.162) = **−1.000** ✓
+$r = \\dfrac{-5}{1{,}581 \\times 3{,}162} = \\mathbf{-1{,}000}$ ✓
 
 **Ví dụ 3: thực tế — chiều cao vs cân nặng**
 
 5 người: (160, 55), (165, 60), (170, 68), (175, 72), (180, 80).
 
-x̄=170, ȳ=67.
+$\\bar{x}=170$, $\\bar{y}=67$.
 
-| x | y | x−x̄ | y−ȳ | tích | (x−x̄)² | (y−ȳ)² |
+| x | y | $x-\\bar{x}$ | $y-\\bar{y}$ | tích | $(x-\\bar{x})^2$ | $(y-\\bar{y})^2$ |
 |---|---|-----|-----|------|---------|---------|
 | 160 | 55 | −10 | −12 | 120 | 100 | 144 |
 | 165 | 60 | −5 | −7 | 35 | 25 | 49 |
@@ -188,21 +183,21 @@ x̄=170, ȳ=67.
 | 180 | 80 | 10 | 13 | 130 | 100 | 169 |
 | Σ | | | | 310 | 250 | 388 |
 
-r = 310 / √(250 × 388) = 310 / √97000 = 310 / 311.45 = **0.995**.
+$r = \\dfrac{310}{\\sqrt{250 \\times 388}} = \\dfrac{310}{\\sqrt{97000}} = \\dfrac{310}{311{,}45} = \\mathbf{0{,}995}$.
 
 Tương quan rất mạnh, dương.
 
 **Ví dụ 4: lưu ý đơn vị KHÔNG đổi r**
 
-Đổi cân nặng sang gram (×1000): y mới = [55000, 60000, …]. Mọi thứ (x−x̄)(y−ȳ) ×1000, nhưng SD y cũng ×1000 → r vẫn = 0.995.
+Đổi cân nặng sang gram (×1000): y mới = [55000, 60000, …]. Mọi thứ $(x-\\bar{x})(y-\\bar{y})$ ×1000, nhưng SD y cũng ×1000 → r vẫn $= 0{,}995$.
 
 > ⚠ **Lỗi thường gặp**:
 > - **"r = 0 → biến độc lập"** — SAI! r đo *tuyến tính*. Quan hệ y = x² trên [−1,1] có r = 0 nhưng X và Y phụ thuộc chặt chẽ.
 > - **"r cao → X gây Y"** — SAI! Correlation ≠ causation. Có thể do confounder (vd ăn kem ↔ đuối nước, do mùa hè).
-> - **"r ≈ 0.7 mạnh hơn r ≈ 0.5 cỡ 0.2"** — không tuyến tính. Nên so sánh r² (xem dưới).
+> - **"$r \\approx 0{,}7$ mạnh hơn $r \\approx 0{,}5$ cỡ $0{,}2$"** — không tuyến tính. Nên so sánh $r^2$ (xem dưới).
 
 > ❓ **Câu hỏi tự nhiên**:
-> - "r² nghĩa là gì?" → R² = r² là tỉ lệ phương sai của Y giải thích được bằng X qua đường hồi quy tuyến tính. r = 0.7 → r² = 0.49 — giải thích 49% phương sai. r = 0.5 → 25%. Khoảng cách thực = 24%, lớn hơn cảm giác.
+> - "$r^2$ nghĩa là gì?" → $R^2 = r^2$ là tỉ lệ phương sai của Y giải thích được bằng X qua đường hồi quy tuyến tính. $r = 0{,}7 \\to r^2 = 0{,}49$ — giải thích 49% phương sai. $r = 0{,}5 \\to 25\\%$. Khoảng cách thực $= 24\\%$, lớn hơn cảm giác.
 > - "r có robust với outlier không?" → KHÔNG. 1 outlier có thể kéo r từ 0 sang 0.5. Dùng Spearman nếu lo outlier.
 
 ---
@@ -213,29 +208,25 @@ Tương quan rất mạnh, dương.
 
 **Ý tưởng**: thay vì dùng giá trị thật, dùng **hạng (rank)** của giá trị. Sau đó tính Pearson trên rank.
 
-\`\`\`
-ρ = Pearson(rank_X, rank_Y)
-\`\`\`
+$$\\rho = \\text{Pearson}(\\text{rank}_X, \\text{rank}_Y)$$
 
 Lợi ích:
 - Robust với outlier (1 giá trị quái dị chỉ đổi 1 hạng).
 - Bắt được mọi quan hệ **monotonic** (đơn điệu), không cần tuyến tính.
 
-**Ví dụ**: Data (1, 1), (2, 4), (3, 9), (4, 16), (5, 25) — y = x².
+**Ví dụ**: Data (1, 1), (2, 4), (3, 9), (4, 16), (5, 25) — $y = x^2$.
 
-Pearson r ≈ 0.96 (rất cao nhưng không hoàn hảo vì quan hệ là cong).
-Spearman ρ = **1.000** (hoàn hảo — vì khi x tăng thì y tăng đúng monotonic).
+Pearson $r \\approx 0{,}96$ (rất cao nhưng không hoàn hảo vì quan hệ là cong).
+Spearman $\\rho = \\mathbf{1{,}000}$ (hoàn hảo — vì khi x tăng thì y tăng đúng monotonic).
 
 ### 4.2. Kendall τ
 
 **Ý tưởng**: đếm tỉ lệ **concordant pair** so với tổng cặp.
 
-- 1 cặp (i, j) là concordant nếu (xᵢ < xⱼ và yᵢ < yⱼ) hoặc (xᵢ > xⱼ và yᵢ > yⱼ).
+- 1 cặp $(i, j)$ là concordant nếu $(x_i < x_j$ và $y_i < y_j)$ hoặc $(x_i > x_j$ và $y_i > y_j)$.
 - Discordant nếu ngược chiều.
 
-\`\`\`
-τ = (#concordant − #discordant) / C(n, 2)
-\`\`\`
+$$\\tau = \\dfrac{\\#\\text{concordant} - \\#\\text{discordant}}{\\binom{n}{2}}$$
 
 **Ví dụ 4 điểm**: (1,2), (2,5), (3,4), (4,7).
 
@@ -246,7 +237,7 @@ Cặp (2,3): x↑ y↓ → discordant.
 Cặp (2,4): x↑ y↑ → concordant.  
 Cặp (3,4): x↑ y↑ → concordant.
 
-#concordant = 5, #discordant = 1, total = 6. τ = (5−1)/6 = **0.667**.
+$\\#\\text{concordant} = 5$, $\\#\\text{discordant} = 1$, total = 6. $\\tau = \\dfrac{5-1}{6} = \\mathbf{0{,}667}$.
 
 ### 4.3. Khi nào dùng cái nào?
 
@@ -265,10 +256,10 @@ Cặp (3,4): x↑ y↑ → concordant.
 > 1. Cho data (1, 10), (2, 8), (3, 3), (4, 5), (5, 1). Tính rank của y và xác định ρ Spearman dấu gì?
 > <details><summary>Đáp án</summary>
 > 
-> Rank y (từ nhỏ tới lớn): y=1→1, y=3→2, y=5→3, y=8→4, y=10→5.  
-> Theo thứ tự X: rank_Y = [5, 4, 2, 3, 1].  
-> Rank_X = [1, 2, 3, 4, 5].  
-> Pearson trên rank: 5 cặp, gần như tuyến tính giảm → ρ ≈ −0.9. **Âm mạnh**.
+> Rank y (từ nhỏ tới lớn): $y=1 \\to 1$, $y=3 \\to 2$, $y=5 \\to 3$, $y=8 \\to 4$, $y=10 \\to 5$.  
+> Theo thứ tự X: $\\text{rank}_Y = [5, 4, 2, 3, 1]$.  
+> $\\text{rank}_X = [1, 2, 3, 4, 5]$.  
+> Pearson trên rank: 5 cặp, gần như tuyến tính giảm → $\\rho \\approx -0{,}9$. **Âm mạnh**.
 > </details>
 > 
 > 2. Hai biến có r = 0. Có thể kết luận chúng độc lập không?
@@ -283,7 +274,7 @@ Cặp (3,4): x↑ y↑ → concordant.
 
 Năm 1973 Francis Anscombe đưa ra 4 dataset, mỗi dataset 11 điểm, với các đặc tính:
 
-| Dataset | x̄ | ȳ | s_X² | s_Y² | r |
+| Dataset | $\\bar{x}$ | $\\bar{y}$ | $s_X^2$ | $s_Y^2$ | r |
 |---------|----|----|------|------|---|
 | I | 9 | 7.5 | 11 | 4.12 | 0.816 |
 | II | 9 | 7.5 | 11 | 4.12 | 0.816 |
@@ -332,7 +323,7 @@ Vậy ăn kem gây chết đuối? Tất nhiên KHÔNG. Có **biến thứ ba** 
 
 ## Bài tập
 
-1. **Tính Pearson r bằng tay**: Cho data (2, 3), (4, 7), (6, 5), (8, 11), (10, 9). Tính x̄, ȳ, cov, s_X, s_Y, r. (Làm tròn 3 chữ số.)
+1. **Tính Pearson r bằng tay**: Cho data (2, 3), (4, 7), (6, 5), (8, 11), (10, 9). Tính $\\bar{x}$, $\\bar{y}$, cov, $s_X$, $s_Y$, $r$. (Làm tròn 3 chữ số.)
 
 2. **Spearman**: Cho data (1, 100), (2, 90), (3, 80), (4, 70), (5, 60). Tính Spearman ρ. So sánh với Pearson r — bạn dự đoán gì?
 
@@ -346,9 +337,9 @@ Vậy ăn kem gây chết đuối? Tất nhiên KHÔNG. Có **biến thứ ba** 
 
 ### Bài 1
 
-x̄ = (2+4+6+8+10)/5 = **6**. ȳ = (3+7+5+11+9)/5 = **7**.
+$\\bar{x} = \\dfrac{2+4+6+8+10}{5} = \\mathbf{6}$. $\\bar{y} = \\dfrac{3+7+5+11+9}{5} = \\mathbf{7}$.
 
-| x | y | x−x̄ | y−ȳ | tích | (x−x̄)² | (y−ȳ)² |
+| x | y | $x-\\bar{x}$ | $y-\\bar{y}$ | tích | $(x-\\bar{x})^2$ | $(y-\\bar{y})^2$ |
 |---|---|-----|-----|------|---------|---------|
 | 2 | 3 | −4 | −4 | 16 | 16 | 16 |
 | 4 | 7 | −2 | 0 | 0 | 4 | 0 |
@@ -357,26 +348,26 @@ x̄ = (2+4+6+8+10)/5 = **6**. ȳ = (3+7+5+11+9)/5 = **7**.
 | 10 | 9 | 4 | 2 | 8 | 16 | 4 |
 | Σ | | | | **32** | **40** | **40** |
 
-cov = 32/(5−1) = **8**.  
-s_X = √(40/4) = **√10 ≈ 3.162**.  
-s_Y = √(40/4) = **√10 ≈ 3.162**.  
-r = 8 / (3.162 × 3.162) = 8/10 = **0.800**.
+$\\text{cov} = \\dfrac{32}{5-1} = \\mathbf{8}$.  
+$s_X = \\sqrt{40/4} = \\mathbf{\\sqrt{10} \\approx 3{,}162}$.  
+$s_Y = \\sqrt{40/4} = \\mathbf{\\sqrt{10} \\approx 3{,}162}$.  
+$r = \\dfrac{8}{3{,}162 \\times 3{,}162} = \\dfrac{8}{10} = \\mathbf{0{,}800}$.
 
 Tương quan dương mạnh.
 
 ### Bài 2
 
-Pearson: data hoàn toàn tuyến tính (y = 110 − 10x). r = **−1.000** chính xác.
+Pearson: data hoàn toàn tuyến tính ($y = 110 - 10x$). $r = \\mathbf{-1{,}000}$ chính xác.
 
-Spearman: rank_X = [1,2,3,4,5], rank_Y = [5,4,3,2,1]. Pearson trên rank → ρ = **−1.000**.
+Spearman: $\\text{rank}_X = [1,2,3,4,5]$, $\\text{rank}_Y = [5,4,3,2,1]$. Pearson trên rank → $\\rho = \\mathbf{-1{,}000}$.
 
 Hai chỉ số bằng nhau vì quan hệ vừa tuyến tính vừa monotonic hoàn hảo. Khi đó Pearson = Spearman.
 
 ### Bài 3
 
-Pearson r chỉ là **một con số tóm tắt**. Hai dataset có thể có cùng (x̄, ȳ, s_X, s_Y, Σ(x−x̄)(y−ȳ)) nhưng phân bố điểm hoàn toàn khác.
+Pearson r chỉ là **một con số tóm tắt**. Hai dataset có thể có cùng $(\\bar{x}, \\bar{y}, s_X, s_Y, \\sum (x-\\bar{x})(y-\\bar{y}))$ nhưng phân bố điểm hoàn toàn khác.
 
-Ví dụ dataset Anscombe II: y = a + bx + cx² (parabol). Khi tính cov, các điểm trên nhánh trái và nhánh phải của parabol có thể "trung bình hoá" thành đúng cov như dataset linear. Tóm tắt số không phân biệt được hình dạng.
+Ví dụ dataset Anscombe II: $y = a + bx + cx^2$ (parabol). Khi tính cov, các điểm trên nhánh trái và nhánh phải của parabol có thể "trung bình hoá" thành đúng cov như dataset linear. Tóm tắt số không phân biệt được hình dạng.
 
 → **Bài học**: Luôn vẽ scatter. Một con số không bao giờ thay thế được hình ảnh.
 

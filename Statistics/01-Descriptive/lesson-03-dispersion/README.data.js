@@ -42,7 +42,7 @@ Ví dụ tài chính: Hai khoản đầu tư cùng lợi nhuận kỳ vọng 10%
 
 **(b) Vì sao cần:** Đơn giản, trực quan, tính nhanh. Nhưng chỉ dùng 2 giá trị cực đoan, bỏ qua phân phối bên trong.
 
-**(c) Công thức:** \`Range = x_max − x_min\`
+**(c) Công thức:** $\\text{Range} = x_{\\max} - x_{\\min}$
 
 **Walk-through — 4 ví dụ:**
 
@@ -63,19 +63,15 @@ Nhưng 5/6 giá trị nằm trong [5, 7] — range 95 hoàn toàn bị kéo bở
 
 ### 3.1. Định nghĩa — "Khoảng cách trung bình từ trung tâm"
 
-> 💡 **Trực giác**: Bạn muốn biết "trung bình mỗi điểm dữ liệu lệch khỏi mean bao nhiêu?". Cách ngây thơ nhất: lấy trung bình của \`(xᵢ − x̄)\`. Nhưng điều kỳ lạ: tổng của \`(xᵢ − x̄)\` **luôn = 0** (vì mean là điểm cân bằng). Giải pháp: bình phương sai lệch trước khi cộng.
+> 💡 **Trực giác**: Bạn muốn biết "trung bình mỗi điểm dữ liệu lệch khỏi mean bao nhiêu?". Cách ngây thơ nhất: lấy trung bình của $(x_i - \\bar{x})$. Nhưng điều kỳ lạ: tổng của $(x_i - \\bar{x})$ **luôn = 0** (vì mean là điểm cân bằng). Giải pháp: bình phương sai lệch trước khi cộng.
 
 **Variance (phương sai):**
-\`\`\`
-Population: σ² = Σ(xᵢ − µ)² / N
-Sample:     s² = Σ(xᵢ − x̄)² / (n−1)
-\`\`\`
+
+$$\\sigma^2 = \\dfrac{\\sum (x_i - \\mu)^2}{N} \\quad \\text{(population)} \\qquad s^2 = \\dfrac{\\sum (x_i - \\bar{x})^2}{n-1} \\quad \\text{(sample)}$$
 
 **Standard Deviation (độ lệch chuẩn):**
-\`\`\`
-σ = √σ²   (population)
-s = √s²   (sample)
-\`\`\`
+
+$$\\sigma = \\sqrt{\\sigma^2} \\quad \\text{(population)} \\qquad s = \\sqrt{s^2} \\quad \\text{(sample)}$$
 
 SD có cùng đơn vị với dữ liệu gốc → dễ diễn giải hơn variance.
 
@@ -84,10 +80,10 @@ SD có cùng đơn vị với dữ liệu gốc → dễ diễn giải hơn vari
 **Ví dụ 1 — Tính từng bước (population):**
 Dataset: \`[2, 4, 4, 4, 5, 5, 7, 9]\` (N = 8)
 
-Bước 1 — Tính µ: (2+4+4+4+5+5+7+9)/8 = 40/8 = **5**
+Bước 1 — Tính $\\mu$: $\\dfrac{2+4+4+4+5+5+7+9}{8} = \\dfrac{40}{8} = \\mathbf{5}$
 
 Bước 2 — Tính sai lệch và bình phương:
-| xᵢ | xᵢ − µ | (xᵢ − µ)² |
+| $x_i$ | $x_i - \\mu$ | $(x_i - \\mu)^2$ |
 |----|--------|-----------|
 | 2  | −3     | 9         |
 | 4  | −1     | 1         |
@@ -99,36 +95,36 @@ Bước 2 — Tính sai lệch và bình phương:
 | 9  | +4     | 16        |
 | **Tổng** | 0 | **32** |
 
-Bước 3 — Variance: σ² = 32/8 = **4**
+Bước 3 — Variance: $\\sigma^2 = \\dfrac{32}{8} = \\mathbf{4}$
 
-Bước 4 — SD: σ = √4 = **2**
+Bước 4 — SD: $\\sigma = \\sqrt{4} = \\mathbf{2}$
 
 Verify: "Trung bình mỗi điểm cách mean 2 đơn vị" — nhìn vào data: nhiều điểm quanh 4-5, vài điểm xa (2 và 9). SD = 2 hợp lý.
 
 **Ví dụ 2 — Sample variance (chia n−1):**
 Sample: \`[6, 8, 10, 12]\` (n = 4)
 
-x̄ = (6+8+10+12)/4 = 36/4 = 9
+$\\bar{x} = \\dfrac{6+8+10+12}{4} = \\dfrac{36}{4} = 9$
 
-Sai lệch: (6−9)²=9, (8−9)²=1, (10−9)²=1, (12−9)²=9. Tổng = 20.
+Sai lệch: $(6-9)^2=9$, $(8-9)^2=1$, $(10-9)^2=1$, $(12-9)^2=9$. Tổng = 20.
 
-s² = 20/(4−1) = 20/3 ≈ **6.67** (sample variance)
+$s^2 = \\dfrac{20}{4-1} = \\dfrac{20}{3} \\approx \\mathbf{6{,}67}$ (sample variance)
 
-s = √6.67 ≈ **2.58** (sample SD)
+$s = \\sqrt{6{,}67} \\approx \\mathbf{2{,}58}$ (sample SD)
 
-Nếu chia n thay vì n−1: σ² = 20/4 = 5, σ = 2.24 (sẽ underestimate phân tán thật).
+Nếu chia $n$ thay vì $n-1$: $\\sigma^2 = \\dfrac{20}{4} = 5$, $\\sigma = 2{,}24$ (sẽ underestimate phân tán thật).
 
 **Ví dụ 3 — So sánh hai class:**
-Lớp A điểm thi: \`[7, 7.5, 8, 7.5, 7]\` → x̄ = 7.4, s ≈ 0.41
-Lớp B điểm thi: \`[2, 5, 10, 10, 9]\` → x̄ = 7.2, s ≈ 3.35
+Lớp A điểm thi: \`[7, 7.5, 8, 7.5, 7]\` → $\\bar{x} = 7{,}4$, $s \\approx 0{,}41$
+Lớp B điểm thi: \`[2, 5, 10, 10, 9]\` → $\\bar{x} = 7{,}2$, $s \\approx 3{,}35$
 
-Mean gần bằng nhau (7.4 vs 7.2). SD nói lên sự khác biệt thật: Lớp A đồng đều (s = 0.41), Lớp B cực kỳ phân tán (s = 3.35).
+Mean gần bằng nhau ($7{,}4$ vs $7{,}2$). SD nói lên sự khác biệt thật: Lớp A đồng đều ($s = 0{,}41$), Lớp B cực kỳ phân tán ($s = 3{,}35$).
 
 **Ví dụ 4 — Dataset với outlier:**
-\`[5, 6, 7, 6, 5, 100]\`: x̄ = 21.5, s ≈ 38.5
-\`[5, 6, 7, 6, 5]\` (bỏ outlier): x̄ = 5.8, s ≈ 0.84
+\`[5, 6, 7, 6, 5, 100]\`: $\\bar{x} = 21{,}5$, $s \\approx 38{,}5$
+\`[5, 6, 7, 6, 5]\` (bỏ outlier): $\\bar{x} = 5{,}8$, $s \\approx 0{,}84$
 
-Outlier duy nhất (100) làm SD tăng từ 0.84 lên 38.5 — gần 46×! SD không robust trước outlier.
+Outlier duy nhất (100) làm SD tăng từ $0{,}84$ lên $38{,}5$ — gần 46×! SD không robust trước outlier.
 
 > ❓ **Câu hỏi tự nhiên của người đọc**
 > - "Tại sao bình phương thay vì lấy giá trị tuyệt đối?" → Bình phương làm nổi bật outlier (sai lệch lớn bị penalize nhiều hơn), và có tính chất toán học đẹp hơn (khả vi ở mọi điểm). Trung bình sai lệch tuyệt đối = MAD, học ở mục 5.
@@ -139,14 +135,14 @@ Outlier duy nhất (100) làm SD tăng từ 0.84 lên 38.5 — gần 46×! SD kh
 
 > 💡 **Trực giác**: Khi lấy sample ngẫu nhiên, các điểm trong sample có xu hướng **gần mean sample hơn** mean thật của population. Do đó, nếu chia n, bạn sẽ *underestimate* variance thật. Chia n−1 là cách điều chỉnh bias này.
 
-**Ví dụ trực quan:** Population = {1, 2, 3, 4, 5}. µ = 3. σ² = [(1-3)²+(2-3)²+(3-3)²+(4-3)²+(5-3)²]/5 = 10/5 = 2.
+**Ví dụ trực quan:** Population $= \\{1, 2, 3, 4, 5\\}$. $\\mu = 3$. $\\sigma^2 = \\dfrac{(1-3)^2+(2-3)^2+(3-3)^2+(4-3)^2+(5-3)^2}{5} = \\dfrac{10}{5} = 2$.
 
-Lấy sample 2 phần tử: {1, 5}. x̄ = 3.
-- Chia n=2: s² = [(1-3)²+(5-3)²]/2 = 8/2 = 4. (Overestimate! 4 > 2)
-- Nhưng lấy sample {2, 4}: x̄ = 3. s² chia n=2 → [(2-3)²+(4-3)²]/2 = 1. (Underestimate! 1 < 2)
-- Trung bình nhiều lần lấy mẫu, chia n có bias systematic downward (underestimate). Chia n−1 khắc phục.
+Lấy sample 2 phần tử: $\\{1, 5\\}$. $\\bar{x} = 3$.
+- Chia $n=2$: $s^2 = \\dfrac{(1-3)^2+(5-3)^2}{2} = \\dfrac{8}{2} = 4$. (Overestimate! $4 > 2$)
+- Nhưng lấy sample $\\{2, 4\\}$: $\\bar{x} = 3$. $s^2$ chia $n=2 \\to \\dfrac{(2-3)^2+(4-3)^2}{2} = 1$. (Underestimate! $1 < 2$)
+- Trung bình nhiều lần lấy mẫu, chia $n$ có bias systematic downward (underestimate). Chia $n-1$ khắc phục.
 
-**Nói chính xác hơn:** Chứng minh bằng kỳ vọng: E[s²] = σ² khi s² = Σ(xᵢ−x̄)²/(n−1). Đây gọi là **unbiased estimator**. (Chứng minh đầy đủ ở môn Mathematical Statistics — nằm ngoài phạm vi bài này.)
+**Nói chính xác hơn:** Chứng minh bằng kỳ vọng: $E[s^2] = \\sigma^2$ khi $s^2 = \\dfrac{\\sum (x_i - \\bar{x})^2}{n-1}$. Đây gọi là **unbiased estimator**. (Chứng minh đầy đủ ở môn Mathematical Statistics — nằm ngoài phạm vi bài này.)
 
 **Quy tắc thực hành:**
 - Python \`np.std(arr)\`: mặc định chia N → population SD.
@@ -158,7 +154,7 @@ Lấy sample 2 phần tử: {1, 5}. x̄ = 3.
 > 🔁 **Dừng lại tự kiểm tra**:
 > 1. Dataset: \`[3, 5, 5, 7]\`. Tính sample variance s² và sample SD s từng bước.
 > <details><summary>Đáp án</summary>
-> x̄ = (3+5+5+7)/4 = 20/4 = 5. Sai lệch: (3−5)²=4, (5−5)²=0, (5−5)²=0, (7−5)²=4. Tổng = 8. s² = 8/(4−1) = 8/3 ≈ 2.67. s = √(8/3) ≈ 1.63.
+> $\\bar{x} = \\dfrac{3+5+5+7}{4} = \\dfrac{20}{4} = 5$. Sai lệch: $(3-5)^2=4$, $(5-5)^2=0$, $(5-5)^2=0$, $(7-5)^2=4$. Tổng = 8. $s^2 = \\dfrac{8}{4-1} = \\dfrac{8}{3} \\approx 2{,}67$. $s = \\sqrt{8/3} \\approx 1{,}63$.
 > </details>
 >
 > 2. Khi n rất lớn (vd n = 10 000), sự khác biệt giữa chia n và n−1 có lớn không?
@@ -178,39 +174,35 @@ Lấy sample 2 phần tử: {1, 5}. x̄ = 3.
 
 **(b) Vì sao cần:** IQR robust — không bị ảnh hưởng bởi outlier ở hai đầu. Dùng cùng median (cũng robust).
 
-**(c) Công thức:**
-\`\`\`
-Sắp xếp data → tìm Q1, Q2 (median), Q3
-IQR = Q3 − Q1
-\`\`\`
+**(c) Công thức:** Sắp xếp data → tìm $Q_1$, $Q_2$ (median), $Q_3$, rồi $\\text{IQR} = Q_3 - Q_1$.
 
 **Walk-through — 4 ví dụ:**
 
 **Ví dụ 1 — n = 8:**
 \`[1, 3, 5, 7, 9, 11, 13, 15]\`
-- Q1 = median của nửa dưới [1,3,5,7] = (3+5)/2 = **4**
-- Q3 = median của nửa trên [9,11,13,15] = (11+13)/2 = **12**
-- IQR = 12 − 4 = **8**
+- $Q_1$ = median của nửa dưới [1,3,5,7] $= \\dfrac{3+5}{2} = \\mathbf{4}$
+- $Q_3$ = median của nửa trên [9,11,13,15] $= \\dfrac{11+13}{2} = \\mathbf{12}$
+- $\\text{IQR} = 12 - 4 = \\mathbf{8}$
 
 **Ví dụ 2 — n = 5:**
 \`[2, 4, 6, 8, 10]\`
-- Median = 6 (Q2)
-- Q1 = median của [2, 4] = 3
-- Q3 = median của [8, 10] = 9
-- IQR = 9 − 3 = **6**
+- Median = 6 ($Q_2$)
+- $Q_1$ = median của [2, 4] = 3
+- $Q_3$ = median của [8, 10] = 9
+- $\\text{IQR} = 9 - 3 = \\mathbf{6}$
 
 **Ví dụ 3 — So sánh với Range khi có outlier:**
 \`[5, 6, 7, 6, 5, 100]\`
 - Sắp xếp: [5, 5, 6, 6, 7, 100]
-- Q1 = (5+5)/2 = 5, Q3 = (7+100)/2 = 53.5... (hm, với n=6, Q1 = phần tử 1.75th)
-- Dùng phương pháp đơn giản: nửa dưới [5,5,6], Q1=5; nửa trên [6,7,100], Q3=7
-- IQR = 7 − 5 = **2** (robust!) vs Range = 95 (bị kéo bởi outlier).
+- $Q_1 = \\dfrac{5+5}{2} = 5$, $Q_3 = \\dfrac{7+100}{2} = 53{,}5...$ (hm, với $n=6$, $Q_1$ = phần tử 1.75th)
+- Dùng phương pháp đơn giản: nửa dưới [5,5,6], $Q_1=5$; nửa trên [6,7,100], $Q_3=7$
+- $\\text{IQR} = 7 - 5 = \\mathbf{2}$ (robust!) vs Range = 95 (bị kéo bởi outlier).
 
 **Ví dụ 4 — Lương nhân viên:**
 \`[11M, 12M, 12M, 13M, 14M, 15M, 150M]\` (M VND)
-- Q1 = 12M, Q3 = 15M
-- IQR = 15 − 12 = **3M** — phản ánh phân tán thật của hầu hết nhân viên.
-- SD ≈ 51.6M — bị kéo bởi 150M, không đại diện.
+- $Q_1 = 12M$, $Q_3 = 15M$
+- $\\text{IQR} = 15 - 12 = \\mathbf{3M}$ — phản ánh phân tán thật của hầu hết nhân viên.
+- SD $\\approx 51{,}6M$ — bị kéo bởi 150M, không đại diện.
 
 > ❓ **Câu hỏi tự nhiên của người đọc**
 > - "Có nhiều cách tính Q1/Q3 khác nhau — phần mềm nào dùng cách nào?" → Đúng, có ít nhất 9 phương pháp tính quartile (Excel, R, NumPy đều dùng cách khác nhau). Nhưng kết quả thường gần nhau, và sự khác biệt nhỏ không ảnh hưởng kết luận. Bài này dùng phương pháp "inclusive median" cho đơn giản.
@@ -220,26 +212,25 @@ IQR = Q3 − Q1
 
 ## 5. MAD — Median Absolute Deviation
 
-**(a) Là gì:** MAD = median của |xᵢ − median(x)| — trung vị của các sai lệch tuyệt đối quanh median.
+**(a) Là gì:** MAD = median của $|x_i - \\text{median}(x)|$ — trung vị của các sai lệch tuyệt đối quanh median.
 
 **(b) Vì sao cần:** Robust nhất trong tất cả các thước đo phân tán — không nhạy cảm cả với outlier lẫn phân phối lệch. Khi dữ liệu "dirty" (nhiều noise), MAD ổn định nhất.
 
 **(c) Công thức:**
-\`\`\`
-MAD = median(|x₁ − median|, |x₂ − median|, ..., |xₙ − median|)
-\`\`\`
+
+$$\\text{MAD} = \\text{median}\\big(|x_1 - \\text{median}|, |x_2 - \\text{median}|, \\ldots, |x_n - \\text{median}|\\big)$$
 
 **Walk-through:**
 Dataset: \`[1, 1, 2, 2, 4, 6, 9]\`
 - Median = 2
-- Sai lệch tuyệt đối: |1−2|=1, |1−2|=1, |2−2|=0, |2−2|=0, |4−2|=2, |6−2|=4, |9−2|=7
+- Sai lệch tuyệt đối: $|1-2|=1$, $|1-2|=1$, $|2-2|=0$, $|2-2|=0$, $|4-2|=2$, $|6-2|=4$, $|9-2|=7$
 - Sắp xếp: [0, 0, 1, 1, 2, 4, 7]
 - MAD = median = **1**
 
 Với outlier \`[1, 1, 2, 2, 4, 6, 1000]\`:
 - Median = 2 (không đổi so với trước)
 - MAD = median([0, 0, 1, 1, 2, 4, 998]) = **1** (không đổi!)
-- SD thì thay đổi mạnh từ ≈3 lên ≈374.
+- SD thì thay đổi mạnh từ $\\approx 3$ lên $\\approx 374$.
 
 **So sánh các thước đo:**
 | Thước đo | Sử dụng | Robust? | Outlier ảnh hưởng? |
@@ -257,32 +248,29 @@ Với outlier \`[1, 1, 2, 2, 4, 6, 1000]\`:
 
 **(b) Vì sao cần:** Cho phép so sánh độ phân tán giữa các dataset có đơn vị hoặc scale khác nhau. "SD = 5 kg" vs "SD = 5 triệu VND" — không so sánh được trực tiếp. CV chuẩn hóa.
 
-**(c) Công thức:**
-\`\`\`
-CV = s / x̄  (thường biểu diễn dưới dạng %)
-\`\`\`
+**(c) Công thức:** $CV = \\dfrac{s}{\\bar{x}}$ (thường biểu diễn dưới dạng %)
 
 **(d) Chỉ hợp lệ với thang đo Ratio** — vì cần zero tuyệt đối để mean có nghĩa về mặt tỉ lệ.
 
 **Walk-through — 4 ví dụ:**
 
 **Ví dụ 1 — Chiều cao vs Cân nặng:**
-- Chiều cao: x̄ = 170 cm, s = 8 cm → CV = 8/170 = **4.7%**
-- Cân nặng: x̄ = 65 kg, s = 12 kg → CV = 12/65 = **18.5%**
+- Chiều cao: $\\bar{x} = 170$ cm, $s = 8$ cm → $CV = \\dfrac{8}{170} = \\mathbf{4{,}7\\%}$
+- Cân nặng: $\\bar{x} = 65$ kg, $s = 12$ kg → $CV = \\dfrac{12}{65} = \\mathbf{18{,}5\\%}$
 - Kết luận: Cân nặng phân tán *tương đối* nhiều hơn chiều cao trong nhóm người này.
 
 **Ví dụ 2 — So sánh độ ổn định đầu tư:**
-- Cổ phiếu A: return trung bình 12%/năm, SD = 3% → CV = 3/12 = **25%** (ổn định)
-- Cổ phiếu B: return trung bình 20%/năm, SD = 15% → CV = 15/20 = **75%** (rủi ro cao)
+- Cổ phiếu A: return trung bình 12%/năm, SD = 3% → $CV = \\dfrac{3}{12} = \\mathbf{25\\%}$ (ổn định)
+- Cổ phiếu B: return trung bình 20%/năm, SD = 15% → $CV = \\dfrac{15}{20} = \\mathbf{75\\%}$ (rủi ro cao)
 - Dù B có return cao hơn, rủi ro tương đối gấp 3× A.
 
 **Ví dụ 3 — Sản xuất (quality control):**
-- Máy A sản xuất vít, đường kính mục tiêu 5mm. x̄ = 5.01mm, s = 0.02mm → CV = 0.02/5.01 = **0.4%** (rất đồng đều)
-- Máy B: x̄ = 4.98mm, s = 0.15mm → CV = 0.15/4.98 = **3.0%** (không đồng đều, cần kiểm tra)
+- Máy A sản xuất vít, đường kính mục tiêu 5mm. $\\bar{x} = 5{,}01$mm, $s = 0{,}02$mm → $CV = \\dfrac{0{,}02}{5{,}01} = \\mathbf{0{,}4\\%}$ (rất đồng đều)
+- Máy B: $\\bar{x} = 4{,}98$mm, $s = 0{,}15$mm → $CV = \\dfrac{0{,}15}{4{,}98} = \\mathbf{3{,}0\\%}$ (không đồng đều, cần kiểm tra)
 
 **Ví dụ 4 — CV cho thấy context quan trọng:**
-- Lớp học điểm số: x̄ = 7, s = 2 → CV = 28.6%
-- Nhiệt độ phòng (°C): x̄ = 25, s = 2 → CV = 8%
+- Lớp học điểm số: $\\bar{x} = 7$, $s = 2$ → $CV = 28{,}6\\%$
+- Nhiệt độ phòng (°C): $\\bar{x} = 25$, $s = 2$ → $CV = 8\\%$
 - SD bằng nhau (2) nhưng ý nghĩa khác: điểm số có phân tán tương đối cao; nhiệt độ khá ổn định.
 
 > ⚠ **Lỗi thường gặp**: Tính CV cho dữ liệu Interval (nhiệt độ °C). Nếu mean gần 0 hoặc có thể âm, CV có thể vô nghĩa (âm, vô cùng, hoặc cực lớn). CV chỉ hợp lệ khi mean > 0 và zero có nghĩa thật.
@@ -293,37 +281,38 @@ CV = s / x̄  (thường biểu diễn dưới dạng %)
 
 > 💡 **Trực giác**: Nếu dữ liệu phân phối Normal (hình chuông đối xứng), SD cho ta biết "bao nhiêu phần trăm dữ liệu nằm trong phạm vi ±k×SD quanh mean". Ba con số vàng: 68%, 95%, 99.7%.
 
-Với phân phối **Normal(µ, σ)**:
-\`\`\`
-P(µ − σ ≤ X ≤ µ + σ)   ≈ 68%  (±1 SD)
-P(µ − 2σ ≤ X ≤ µ + 2σ) ≈ 95%  (±2 SD)
-P(µ − 3σ ≤ X ≤ µ + 3σ) ≈ 99.7% (±3 SD)
-\`\`\`
+Với phân phối **Normal$(\\mu, \\sigma)$**:
+
+$$\\begin{aligned}
+P(\\mu - \\sigma \\leq X \\leq \\mu + \\sigma) &\\approx 68\\% \\quad (\\pm 1\\,\\text{SD}) \\\\
+P(\\mu - 2\\sigma \\leq X \\leq \\mu + 2\\sigma) &\\approx 95\\% \\quad (\\pm 2\\,\\text{SD}) \\\\
+P(\\mu - 3\\sigma \\leq X \\leq \\mu + 3\\sigma) &\\approx 99{,}7\\% \\quad (\\pm 3\\,\\text{SD})
+\\end{aligned}$$
 
 **Ví dụ 1 — Chiều cao nam Việt Nam (ước tính):**
-µ = 164 cm, σ = 6 cm
-- 68% nam Việt Nam cao từ 158–170 cm (±1σ)
-- 95% cao từ 152–176 cm (±2σ)
-- 99.7% cao từ 146–182 cm (±3σ)
+$\\mu = 164$ cm, $\\sigma = 6$ cm
+- 68% nam Việt Nam cao từ 158–170 cm ($\\pm 1\\sigma$)
+- 95% cao từ 152–176 cm ($\\pm 2\\sigma$)
+- 99.7% cao từ 146–182 cm ($\\pm 3\\sigma$)
 
 **Ví dụ 2 — IQ:**
-µ = 100, σ = 15
-- 68%: IQ ∈ [85, 115]
-- 95%: IQ ∈ [70, 130]
-- 99.7%: IQ ∈ [55, 145]
-- "Thiên tài" IQ > 145 ≈ 0.15% dân số (3σ từ mean).
+$\\mu = 100$, $\\sigma = 15$
+- 68%: $\\text{IQ} \\in [85, 115]$
+- 95%: $\\text{IQ} \\in [70, 130]$
+- 99.7%: $\\text{IQ} \\in [55, 145]$
+- "Thiên tài" $\\text{IQ} > 145 \\approx 0{,}15\\%$ dân số ($3\\sigma$ từ mean).
 
 **Ví dụ 3 — Thời gian giao hàng:**
-µ = 30 phút, σ = 5 phút
-- Nếu phân phối Normal: 95% đơn hàng giao trong [20, 40] phút (±2σ).
-- Giao >40 phút = ngoài 2σ = khoảng 2.5% đơn hàng → đây là service level agreement (SLA) tiêu chuẩn của nhiều công ty giao hàng.
+$\\mu = 30$ phút, $\\sigma = 5$ phút
+- Nếu phân phối Normal: 95% đơn hàng giao trong [20, 40] phút ($\\pm 2\\sigma$).
+- Giao >40 phút = ngoài $2\\sigma$ = khoảng 2.5% đơn hàng → đây là service level agreement (SLA) tiêu chuẩn của nhiều công ty giao hàng.
 
 **Ví dụ 4 — Phát hiện bất thường (anomaly detection):**
-Lưu lượng truy cập web: µ = 10 000 requests/phút, σ = 500.
-- Ngưỡng cảnh báo tự động: ngoài ±3σ → dưới 8 500 hoặc trên 11 500 req/min.
+Lưu lượng truy cập web: $\\mu = 10\\,000$ requests/phút, $\\sigma = 500$.
+- Ngưỡng cảnh báo tự động: ngoài $\\pm 3\\sigma$ → dưới 8 500 hoặc trên 11 500 req/min.
 - Xác suất cảnh báo sai (false alarm) nếu dữ liệu Normal: 0.3%.
 
-> ⚠ **Điều kiện quan trọng**: Empirical rule **chỉ áp dụng cho Normal distribution** (hoặc xấp xỉ Normal). Với phân phối lệch mạnh (thu nhập, giá nhà), quy tắc này không đúng. Chebyshev's inequality là thay thế non-parametric: ít nhất \`1 − 1/k²\` dữ liệu nằm trong ±k×SD, với bất kỳ phân phối nào.
+> ⚠ **Điều kiện quan trọng**: Empirical rule **chỉ áp dụng cho Normal distribution** (hoặc xấp xỉ Normal). Với phân phối lệch mạnh (thu nhập, giá nhà), quy tắc này không đúng. Chebyshev's inequality là thay thế non-parametric: ít nhất $1 - \\dfrac{1}{k^2}$ dữ liệu nằm trong $\\pm k \\times \\text{SD}$, với bất kỳ phân phối nào.
 
 > 📝 **Tóm tắt bài**:
 > - **Range**: max − min, đơn giản nhưng nhạy với outlier.
@@ -358,86 +347,86 @@ Lưu lượng truy cập web: µ = 10 000 requests/phút, σ = 500.
 Dataset: \`[4, 8, 6, 5, 3, 2, 8, 9, 2, 5]\`, n = 10
 
 **(a) Range:**
-Max = 9, Min = 2 → Range = 9 − 2 = **7**
+Max = 9, Min = 2 → $\\text{Range} = 9 - 2 = \\mathbf{7}$
 
-**(b) Sample variance s²:**
-x̄ = (4+8+6+5+3+2+8+9+2+5)/10 = 52/10 = 5.2
+**(b) Sample variance $s^2$:**
+$\\bar{x} = \\dfrac{4+8+6+5+3+2+8+9+2+5}{10} = \\dfrac{52}{10} = 5{,}2$
 
 Sai lệch bình phương:
-(4−5.2)²=1.44, (8−5.2)²=7.84, (6−5.2)²=0.64, (5−5.2)²=0.04, (3−5.2)²=4.84,
-(2−5.2)²=10.24, (8−5.2)²=7.84, (9−5.2)²=14.44, (2−5.2)²=10.24, (5−5.2)²=0.04
+$(4-5{,}2)^2=1{,}44$, $(8-5{,}2)^2=7{,}84$, $(6-5{,}2)^2=0{,}64$, $(5-5{,}2)^2=0{,}04$, $(3-5{,}2)^2=4{,}84$,
+$(2-5{,}2)^2=10{,}24$, $(8-5{,}2)^2=7{,}84$, $(9-5{,}2)^2=14{,}44$, $(2-5{,}2)^2=10{,}24$, $(5-5{,}2)^2=0{,}04$
 
-Tổng = 1.44+7.84+0.64+0.04+4.84+10.24+7.84+14.44+10.24+0.04 = **57.6**
+Tổng $= 1{,}44+7{,}84+0{,}64+0{,}04+4{,}84+10{,}24+7{,}84+14{,}44+10{,}24+0{,}04 = \\mathbf{57{,}6}$
 
-s² = 57.6 / (10−1) = 57.6/9 = **6.4**
+$s^2 = \\dfrac{57{,}6}{10-1} = \\dfrac{57{,}6}{9} = \\mathbf{6{,}4}$
 
-**(c) Sample SD s:**
-s = √6.4 ≈ **2.53**
+**(c) Sample SD $s$:**
+$s = \\sqrt{6{,}4} \\approx \\mathbf{2{,}53}$
 
 **(d) IQR:**
 Sắp xếp: [2, 2, 3, 4, 5, 5, 6, 8, 8, 9]
-Q1 = median nửa dưới [2,2,3,4,5] = **3**
-Q3 = median nửa trên [5,6,8,8,9] = **8**
-IQR = 8 − 3 = **5**
+$Q_1$ = median nửa dưới [2,2,3,4,5] = **3**
+$Q_3$ = median nửa trên [5,6,8,8,9] = **8**
+$\\text{IQR} = 8 - 3 = \\mathbf{5}$
 
 **(e) MAD:**
-Median của dataset [2,2,3,4,5,5,6,8,8,9] = (5+5)/2 = 5
+Median của dataset [2,2,3,4,5,5,6,8,8,9] $= \\dfrac{5+5}{2} = 5$
 
-Sai lệch tuyệt đối: |2−5|=3, |2−5|=3, |3−5|=2, |4−5|=1, |5−5|=0, |5−5|=0, |6−5|=1, |8−5|=3, |8−5|=3, |9−5|=4
+Sai lệch tuyệt đối: $|2-5|=3$, $|2-5|=3$, $|3-5|=2$, $|4-5|=1$, $|5-5|=0$, $|5-5|=0$, $|6-5|=1$, $|8-5|=3$, $|8-5|=3$, $|9-5|=4$
 
 Sắp xếp: [0, 0, 1, 1, 2, 3, 3, 3, 3, 4]
 
-MAD = (2+3)/2 = **2.5**
+$\\text{MAD} = \\dfrac{2+3}{2} = \\mathbf{2{,}5}$
 
 ### Bài 2
 
 **(a) Sample mean:**
-x̄ = (12.1+15.3+13.7+11.9+14.2)/5 = 67.2/5 = **13.44 pg/mL**
+$\\bar{x} = \\dfrac{12{,}1+15{,}3+13{,}7+11{,}9+14{,}2}{5} = \\dfrac{67{,}2}{5} = \\mathbf{13{,}44}$ pg/mL
 
-**(b) Sample variance (n−1):**
-Sai lệch: (12.1−13.44)²=1.7956, (15.3−13.44)²=3.4596, (13.7−13.44)²=0.0676, (11.9−13.44)²=2.3716, (14.2−13.44)²=0.5776
+**(b) Sample variance ($n-1$):**
+Sai lệch: $(12{,}1-13{,}44)^2=1{,}7956$, $(15{,}3-13{,}44)^2=3{,}4596$, $(13{,}7-13{,}44)^2=0{,}0676$, $(11{,}9-13{,}44)^2=2{,}3716$, $(14{,}2-13{,}44)^2=0{,}5776$
 
-Tổng = 1.7956+3.4596+0.0676+2.3716+0.5776 = **8.272**
+Tổng $= 1{,}7956+3{,}4596+0{,}0676+2{,}3716+0{,}5776 = \\mathbf{8{,}272}$
 
-s² = 8.272 / (5−1) = 8.272/4 = **2.068 pg²/mL²**; s = √2.068 ≈ **1.438 pg/mL**
+$s^2 = \\dfrac{8{,}272}{5-1} = \\dfrac{8{,}272}{4} = \\mathbf{2{,}068}$ pg²/mL²; $s = \\sqrt{2{,}068} \\approx \\mathbf{1{,}438}$ pg/mL
 
-**(c) Nếu chia n:**
-s²_biased = 8.272/5 = 1.6544 pg²/mL²; s_biased = 1.286 pg/mL
+**(c) Nếu chia $n$:**
+$s^2_{\\text{biased}} = \\dfrac{8{,}272}{5} = 1{,}6544$ pg²/mL²; $s_{\\text{biased}} = 1{,}286$ pg/mL
 
-Sai khác: 1.438 vs 1.286 → **underestimate ~10.6%** khi chia n. Với n nhỏ (n=5), Bessel's correction quan trọng.
+Sai khác: $1{,}438$ vs $1{,}286$ → **underestimate ~10.6%** khi chia $n$. Với $n$ nhỏ ($n=5$), Bessel's correction quan trọng.
 
 ### Bài 3
 
 **Cổ phiếu X** \`[8, 10, 9, 11, 7]\` (% lợi nhuận):
-x̄ = (8+10+9+11+7)/5 = 45/5 = **9%**
-s² = [(8-9)²+(10-9)²+(9-9)²+(11-9)²+(7-9)²]/(5-1) = [1+1+0+4+4]/4 = 10/4 = 2.5
-s = √2.5 ≈ **1.58%**
-CV_X = 1.58/9 = **17.6%**
+$\\bar{x} = \\dfrac{8+10+9+11+7}{5} = \\dfrac{45}{5} = \\mathbf{9\\%}$
+$s^2 = \\dfrac{(8-9)^2+(10-9)^2+(9-9)^2+(11-9)^2+(7-9)^2}{5-1} = \\dfrac{1+1+0+4+4}{4} = \\dfrac{10}{4} = 2{,}5$
+$s = \\sqrt{2{,}5} \\approx \\mathbf{1{,}58\\%}$
+$CV_X = \\dfrac{1{,}58}{9} = \\mathbf{17{,}6\\%}$
 
 **Cổ phiếu Y** \`[15, -5, 25, 2, 18]\` (% lợi nhuận):
-x̄ = (15-5+25+2+18)/5 = 55/5 = **11%**
-s² = [(15-11)²+(-5-11)²+(25-11)²+(2-11)²+(18-11)²]/(5-1) = [16+256+196+81+49]/4 = 598/4 = 149.5
-s = √149.5 ≈ **12.23%**
-CV_Y = 12.23/11 = **111.2%**
+$\\bar{x} = \\dfrac{15-5+25+2+18}{5} = \\dfrac{55}{5} = \\mathbf{11\\%}$
+$s^2 = \\dfrac{(15-11)^2+(-5-11)^2+(25-11)^2+(2-11)^2+(18-11)^2}{5-1} = \\dfrac{16+256+196+81+49}{4} = \\dfrac{598}{4} = 149{,}5$
+$s = \\sqrt{149{,}5} \\approx \\mathbf{12{,}23\\%}$
+$CV_Y = \\dfrac{12{,}23}{11} = \\mathbf{111{,}2\\%}$
 
 **Kết luận:** Y có mean cao hơn (11% vs 9%) nhưng CV cao hơn rất nhiều (111% vs 18%). Rủi ro tương đối của Y gấp ~6× X. Một nhà đầu tư risk-averse sẽ chọn X; risk-seeking mới chọn Y.
 
 ### Bài 4
 
-µ = 500, σ = 100 (phân phối Normal)
+$\\mu = 500$, $\\sigma = 100$ (phân phối Normal)
 
-**(a) 68% nằm trong:** µ ± σ = 500 ± 100 → **[400, 600]**
+**(a) 68% nằm trong:** $\\mu \\pm \\sigma = 500 \\pm 100 \\to$ **[400, 600]**
 
 **(b) Điểm 720 — thuộc top bao nhiêu?**
-720 = 500 + 2.2×100 → 2.2 SD trên mean.
-Dùng Normal table: P(X < 720) = P(Z < 2.2) ≈ 98.6%.
+$720 = 500 + 2{,}2 \\times 100 \\to 2{,}2$ SD trên mean.
+Dùng Normal table: $P(X < 720) = P(Z < 2{,}2) \\approx 98{,}6\\%$.
 → Bạn thuộc **top 1.4%** (tốt hơn 98.6% thí sinh).
 
 **(c) Top 2.5% — cần điểm bao nhiêu?**
-Top 2.5% ↔ P(X > x) = 0.025 ↔ z = 1.96 (from Normal table).
-x = µ + z×σ = 500 + 1.96×100 = **696**
+Top 2.5% $\\leftrightarrow P(X > x) = 0{,}025 \\leftrightarrow z = 1{,}96$ (from Normal table).
+$x = \\mu + z \\times \\sigma = 500 + 1{,}96 \\times 100 = \\mathbf{696}$
 
-Verify: ±2σ từ mean → [300, 700] chứa 95% → 2.5% trên 700. Ngưỡng 696 ≈ 700, hợp lý.
+Verify: $\\pm 2\\sigma$ từ mean → [300, 700] chứa 95% → 2.5% trên 700. Ngưỡng 696 ≈ 700, hợp lý.
 
 ---
 

@@ -5,16 +5,16 @@
 Sau bài này bạn sẽ:
 
 - Hiểu **bức xạ vật đen (blackbody radiation)** là gì và vì sao mọi sao gần đúng là một vật đen.
-- Dùng **định luật Wien** để suy nhiệt độ bề mặt sao từ màu (bước sóng đỉnh `λ_max`).
+- Dùng **định luật Wien** để suy nhiệt độ bề mặt sao từ màu (bước sóng đỉnh $\lambda_{max}$).
 - Dùng **định luật Stefan–Boltzmann** để liên hệ độ trưng (luminosity) với bán kính và nhiệt độ.
 - Phân biệt **3 loại phổ** (liên tục, phát xạ, hấp thụ) và phát biểu **định luật Kirchhoff**.
 - Giải thích **vạch phổ** sinh ra từ chuyển mức năng lượng của electron trong nguyên tử.
 
 ## Kiến thức tiền đề
 
-- Sóng điện từ, photon, năng lượng `E = hf` — quang học & vật lý hiện đại: [`../../../Physics/03-Optics-ModernPhysics/`](../../../Physics/03-Optics-ModernPhysics/).
+- Sóng điện từ, photon, năng lượng $E = hf$ — quang học & vật lý hiện đại: [`../../../Physics/03-Optics-ModernPhysics/`](../../../Physics/03-Optics-ModernPhysics/).
 - Cấu trúc nguyên tử, mức năng lượng electron — hóa học cấu tạo chất: [`../../../Chemistry/01-Structure/`](../../../Chemistry/01-Structure/).
-- Lũy thừa và cấp số mũ cơ bản (cho công thức `T⁴`).
+- Lũy thừa và cấp số mũ cơ bản (cho công thức $T^4$).
 
 ---
 
@@ -26,7 +26,7 @@ Sau bài này bạn sẽ:
 
 - **(a) Là gì** — **Vật đen** là vật hấp thụ hoàn toàn mọi bức xạ chiếu tới (không phản xạ gì) và, khi ở cân bằng nhiệt, **phát xạ lại** theo một đường cong cường độ–bước sóng *chỉ phụ thuộc vào nhiệt độ T*, không phụ thuộc vật liệu. Đường cong đó gọi là **đường cong Planck**.
 - **(b) Vì sao tồn tại / cần** — Sao là khối khí dày đặc, photon bên trong bị hấp thụ và phát lại vô số lần trước khi thoát ra → đạt gần cân bằng nhiệt → phổ phát ra **rất giống vật đen lý tưởng**. Nhờ đó ta đo được nhiệt độ và (gián tiếp) bán kính của sao cách xa hàng nghìn năm ánh sáng chỉ bằng ánh sáng nó gửi tới.
-- **(c) Ví dụ trực giác bằng số** — Mặt Trời `T ≈ 5778 K` phát đỉnh ở ánh sáng lục–vàng nên trông trắng-vàng; ngọn lửa nến `T ≈ 1800 K` đỏ cam; lò nung gốm `T ≈ 1300 K` đỏ tối; còn cơ thể người `T ≈ 310 K` chỉ phát hồng ngoại (camera nhiệt nhìn thấy).
+- **(c) Ví dụ trực giác bằng số** — Mặt Trời $T \approx 5778 \ \text{K}$ phát đỉnh ở ánh sáng lục–vàng nên trông trắng-vàng; ngọn lửa nến $T \approx 1800 \ \text{K}$ đỏ cam; lò nung gốm $T \approx 1300 \ \text{K}$ đỏ tối; còn cơ thể người $T \approx 310 \ \text{K}$ chỉ phát hồng ngoại (camera nhiệt nhìn thấy).
 
 **4 ví dụ số về màu ↔ nhiệt độ:**
 
@@ -51,46 +51,38 @@ Sau bài này bạn sẽ:
 **Định nghĩa (3 phần):**
 
 - **(a) Là gì** — Định luật Wien cho biết bước sóng tại đỉnh phát xạ tỉ lệ **nghịch** với nhiệt độ:
-  `λ_max = b / T`, với hằng số Wien `b = 2.9 × 10⁻³ m·K`.
-- **(b) Vì sao cần** — Ta không bay tới sao cắm nhiệt kế được. Nhưng *màu* (tức `λ_max`) thì đo từ Trái Đất được. Wien biến phép đo màu thành phép đo nhiệt độ — một trong những công cụ mạnh nhất của thiên văn.
-- **(c) Ví dụ trực giác bằng số** — Mặt Trời `T = 5778 K` → `λ_max ≈ 502 nm` (ánh sáng lục). Nếu một sao chỉ ấm bằng nửa Mặt Trời thì `λ_max` dài gấp đôi → trượt sang đỏ/hồng ngoại.
+  $\lambda_{max} = \dfrac{b}{T}$, với hằng số Wien $b = 2{,}9 \times 10^{-3} \ \text{m·K}$.
+- **(b) Vì sao cần** — Ta không bay tới sao cắm nhiệt kế được. Nhưng *màu* (tức $\lambda_{max}$) thì đo từ Trái Đất được. Wien biến phép đo màu thành phép đo nhiệt độ — một trong những công cụ mạnh nhất của thiên văn.
+- **(c) Ví dụ trực giác bằng số** — Mặt Trời $T = 5778 \ \text{K}$ → $\lambda_{max} \approx 502 \ \text{nm}$ (ánh sáng lục). Nếu một sao chỉ ấm bằng nửa Mặt Trời thì $\lambda_{max}$ dài gấp đôi → trượt sang đỏ/hồng ngoại.
 
-> 📐 **Công thức:** `λ_max = 2.9 × 10⁻³ / T` (đơn vị: λ tính bằng **mét**, T bằng **Kelvin**). Nhân `λ` với `10⁹` để ra **nanomet (nm)**.
+> 📐 **Công thức:** $\lambda_{max} = \dfrac{2{,}9 \times 10^{-3}}{T}$ (đơn vị: $\lambda$ tính bằng $\text{m}$, $T$ bằng $\text{K}$). Nhân $\lambda$ với $10^9$ để ra $\text{nm}$.
 
 **Walk-through bằng số thật (verify cả 2 vế):**
 
 1. **Mặt Trời, T = 5778 K:**
-   ```
-   λ_max = 2.9e−3 / 5778 = 5.018e−7 m = 502 nm
-   ```
+   $$\lambda_{max} = \frac{2{,}9 \times 10^{-3}}{5778} = 5{,}018 \times 10^{-7} \ \text{m} = 502 \ \text{nm}$$
    502 nm nằm trong vùng **lục** → khớp với việc Mặt Trời phát mạnh nhất ở lục (mắt người tiến hóa nhạy nhất ở ~555 nm — không trùng hợp!).
 
 2. **Sao nóng, T = 10000 K:**
-   ```
-   λ_max = 2.9e−3 / 10000 = 2.9e−7 m = 290 nm
-   ```
+   $$\lambda_{max} = \frac{2{,}9 \times 10^{-3}}{10000} = 2{,}9 \times 10^{-7} \ \text{m} = 290 \ \text{nm}$$
    290 nm là **tử ngoại (UV)** → đỉnh nằm ngoài vùng nhìn thấy, sao trông xanh-trắng.
 
 3. **Sao lạnh, T = 3000 K:**
-   ```
-   λ_max = 2.9e−3 / 3000 = 9.67e−7 m = 966 nm
-   ```
+   $$\lambda_{max} = \frac{2{,}9 \times 10^{-3}}{3000} = 9{,}67 \times 10^{-7} \ \text{m} = 966 \ \text{nm}$$
    966 nm là **hồng ngoại gần** → sao đỏ (như Betelgeuse, Antares).
 
-4. **Kiểm tra ngược:** một sao có `λ_max = 400 nm = 4e−7 m`. Nhiệt độ?
-   ```
-   T = 2.9e−3 / 4e−7 = 7250 K
-   ```
-   → sao trắng (loại A, như Sirius). Verify: ngược lại `λ_max = 2.9e−3/7250 = 4.0e−7 m = 400 nm` ✓.
+4. **Kiểm tra ngược:** một sao có $\lambda_{max} = 400 \ \text{nm} = 4 \times 10^{-7} \ \text{m}$. Nhiệt độ?
+   $$T = \frac{2{,}9 \times 10^{-3}}{4 \times 10^{-7}} = 7250 \ \text{K}$$
+   → sao trắng (loại A, như Sirius). Verify: ngược lại $\lambda_{max} = \dfrac{2{,}9 \times 10^{-3}}{7250} = 4{,}0 \times 10^{-7} \ \text{m} = 400 \ \text{nm}$ ✓.
 
 > ❓ **Câu hỏi tự nhiên của người đọc.**
-> - *"Sao 10000 K đỉnh ở UV (vô hình) thì sao ta thấy nó xanh?"* — Vì đường cong Planck rộng: dù đỉnh ở UV, sao vẫn phát rất mạnh khắp vùng nhìn thấy, và phần **xanh** mạnh hơn phần đỏ → mắt trộn ra xanh-trắng.
-> - *"Đo `λ_max` thực tế thế nào?"* — Dùng máy quang phổ tách ánh sáng sao thành dải, đo cường độ theo bước sóng, tìm đỉnh. Hoặc gián tiếp qua tỉ số sáng ở các bộ lọc màu khác nhau (chỉ số màu B−V).
+> - *"Sao $10000 \ \text{K}$ đỉnh ở UV (vô hình) thì sao ta thấy nó xanh?"* — Vì đường cong Planck rộng: dù đỉnh ở UV, sao vẫn phát rất mạnh khắp vùng nhìn thấy, và phần **xanh** mạnh hơn phần đỏ → mắt trộn ra xanh-trắng.
+> - *"Đo $\lambda_{max}$ thực tế thế nào?"* — Dùng máy quang phổ tách ánh sáng sao thành dải, đo cường độ theo bước sóng, tìm đỉnh. Hoặc gián tiếp qua tỉ số sáng ở các bộ lọc màu khác nhau (chỉ số màu B−V).
 
-> ⚠ **Lỗi thường gặp.** Nhầm đơn vị: nếu để `λ` bằng nm trong công thức (`λ_max = 2.9e−3/T`) sẽ ra số vô lý. Hằng số `b = 2.9×10⁻³` chỉ đúng khi `λ` tính bằng **mét**. Tính ra mét rồi mới đổi sang nm.
+> ⚠ **Lỗi thường gặp.** Nhầm đơn vị: nếu để $\lambda$ bằng nm trong công thức ($\lambda_{max} = 2{,}9 \times 10^{-3}/T$) sẽ ra số vô lý. Hằng số $b = 2{,}9 \times 10^{-3}$ chỉ đúng khi $\lambda$ tính bằng $\text{m}$. Tính ra mét rồi mới đổi sang nm.
 
-> 🔁 **Dừng lại tự kiểm tra.** Sao Betelgeuse có `T ≈ 3500 K`. Ước lượng `λ_max` và cho biết vùng phổ.
-> <details><summary>Đáp án</summary>`λ_max = 2.9e−3/3500 = 8.29e−7 m = 829 nm` → hồng ngoại gần → sao đỏ. Khớp: Betelgeuse là siêu khổng lồ đỏ.</details>
+> 🔁 **Dừng lại tự kiểm tra.** Sao Betelgeuse có $T \approx 3500 \ \text{K}$. Ước lượng $\lambda_{max}$ và cho biết vùng phổ.
+> <details><summary>Đáp án</summary>$\lambda_{max} = \dfrac{2{,}9 \times 10^{-3}}{3500} = 8{,}29 \times 10^{-7} \ \text{m} = 829 \ \text{nm}$ → hồng ngoại gần → sao đỏ. Khớp: Betelgeuse là siêu khổng lồ đỏ.</details>
 
 ---
 
@@ -100,50 +92,44 @@ Sau bài này bạn sẽ:
 
 **Định nghĩa (3 phần):**
 
-- **(a) Là gì** — **Độ trưng (luminosity) L** là tổng công suất bức xạ của sao (đơn vị W). Stefan–Boltzmann nói: công suất trên mỗi mét vuông bề mặt là `σT⁴`; nhân với diện tích cầu `4πR²` ra:
-  `L = 4πR²σT⁴`, với `σ = 5.67 × 10⁻⁸ W·m⁻²·K⁻⁴`.
+- **(a) Là gì** — **Độ trưng (luminosity) L** là tổng công suất bức xạ của sao (đơn vị $\text{W}$). Stefan–Boltzmann nói: công suất trên mỗi mét vuông bề mặt là $\sigma T^4$; nhân với diện tích cầu $4\pi R^2$ ra:
+  $L = 4\pi R^2 \sigma T^4$, với $\sigma = 5{,}67 \times 10^{-8} \ \text{W·m}^{-2}\text{·K}^{-4}$.
 - **(b) Vì sao cần** — Nó nối **3 đại lượng cốt lõi** của một sao: độ trưng L, bán kính R, nhiệt độ T. Biết 2 trong 3 là tính được cái thứ 3. Đặc biệt: đo được L (từ độ sáng + khoảng cách) và T (từ Wien) → suy ra **bán kính R** của sao mà không cần nhìn thấy đĩa của nó.
-- **(c) Ví dụ trực giác bằng số** — Tăng nhiệt độ gấp đôi → độ trưng tăng `2⁴ = 16` lần (vì mũ 4 rất "nhạy"). Đây là lý do các sao nóng cực kỳ sáng.
+- **(c) Ví dụ trực giác bằng số** — Tăng nhiệt độ gấp đôi → độ trưng tăng $2^4 = 16$ lần (vì mũ 4 rất "nhạy"). Đây là lý do các sao nóng cực kỳ sáng.
 
-> 📐 **Công thức:** `L = 4 π R² σ T⁴`. Để so sánh với Mặt Trời tiện hơn, dùng dạng tỉ số (bỏ hết hằng số):
-> `L/L☉ = (R/R☉)² × (T/T☉)⁴`.
+> 📐 **Công thức:** $L = 4\pi R^2 \sigma T^4$. Để so sánh với Mặt Trời tiện hơn, dùng dạng tỉ số (bỏ hết hằng số):
+> $$\frac{L}{L_\odot} = \left(\frac{R}{R_\odot}\right)^2 \times \left(\frac{T}{T_\odot}\right)^4$$
 
 **Walk-through bằng số thật (verify):**
 
-1. **Mặt Trời** (`R☉ = 6.96×10⁸ m`, `T = 5778 K`):
-   ```
-   L = 4π (6.96e8)² × 5.67e−8 × 5778⁴
-     = 4π × 4.844e17 × 5.67e−8 × 1.115e15
-     ≈ 3.85e26 W
-   ```
-   Khớp với giá trị chuẩn `L☉ ≈ 3.83×10²⁶ W` ✓.
+1. **Mặt Trời** ($R_\odot = 6{,}96 \times 10^{8} \ \text{m}$, $T = 5778 \ \text{K}$):
+   $$\begin{aligned}
+   L &= 4\pi (6{,}96 \times 10^{8})^2 \times 5{,}67 \times 10^{-8} \times 5778^4 \\
+     &= 4\pi \times 4{,}844 \times 10^{17} \times 5{,}67 \times 10^{-8} \times 1{,}115 \times 10^{15} \\
+     &\approx 3{,}85 \times 10^{26} \ \text{W}
+   \end{aligned}$$
+   Khớp với giá trị chuẩn $L_\odot \approx 3{,}83 \times 10^{26} \ \text{W}$ ✓.
 
-2. **Sirius A** (`R ≈ 1.71 R☉`, `T ≈ 9940 K`) — dùng dạng tỉ số:
-   ```
-   L/L☉ = (1.71)² × (9940/5778)⁴ = 2.92 × (1.720)⁴ = 2.92 × 8.75 ≈ 25.6
-   ```
+2. **Sirius A** ($R \approx 1{,}71 \ R_\odot$, $T \approx 9940 \ \text{K}$) — dùng dạng tỉ số:
+   $$\frac{L}{L_\odot} = (1{,}71)^2 \times \left(\frac{9940}{5778}\right)^4 = 2{,}92 \times (1{,}720)^4 = 2{,}92 \times 8{,}75 \approx 25{,}6$$
    → Sirius sáng gấp ~25 lần Mặt Trời. Khớp giá trị quan trắc (~25 L☉) ✓.
 
-3. **Sao khổng lồ đỏ** (`R = 100 R☉`, `T = 3500 K`):
-   ```
-   L/L☉ = 100² × (3500/5778)⁴ = 10000 × (0.6058)⁴ = 10000 × 0.1347 ≈ 1347
-   ```
+3. **Sao khổng lồ đỏ** ($R = 100 \ R_\odot$, $T = 3500 \ \text{K}$):
+   $$\frac{L}{L_\odot} = 100^2 \times \left(\frac{3500}{5778}\right)^4 = 10000 \times (0{,}6058)^4 = 10000 \times 0{,}1347 \approx 1347$$
    → dù *lạnh* (3500 K), nó vẫn sáng hơn Mặt Trời ~1300 lần nhờ **bán kính khổng lồ**.
 
-4. **Sao lùn trắng** (`R = 0.01 R☉`, `T = 25000 K`):
-   ```
-   L/L☉ = 0.01² × (25000/5778)⁴ = 1e−4 × (4.327)⁴ = 1e−4 × 350.5 ≈ 0.035
-   ```
+4. **Sao lùn trắng** ($R = 0{,}01 \ R_\odot$, $T = 25000 \ \text{K}$):
+   $$\frac{L}{L_\odot} = 0{,}01^2 \times \left(\frac{25000}{5778}\right)^4 = 10^{-4} \times (4{,}327)^4 = 10^{-4} \times 350{,}5 \approx 0{,}035$$
    → dù *rất nóng*, nó mờ hơn Mặt Trời ~30 lần vì **quá nhỏ**.
 
 > ❓ **Câu hỏi tự nhiên.**
-> - *"Nóng hơn mà mờ hơn (lùn trắng) được à?"* — Được, vì L phụ thuộc cả R². Nhiệt độ nâng L theo `T⁴`, nhưng bán kính bé tí (R²) kéo L xuống mạnh hơn. Hai sao cùng nhiệt độ nhưng khác kích thước → khác độ trưng → đây là chìa khóa của biểu đồ H-R (Lesson 03).
-> - *"Vì sao mũ 4 chứ không phải mũ 2?"* — Năng lượng bức xạ tích phân đường cong Planck trên mọi bước sóng cho ra `∝ T⁴` (kết quả của vật lý thống kê). Hệ quả: nhiệt độ là "đòn bẩy" cực mạnh cho độ trưng.
+> - *"Nóng hơn mà mờ hơn (lùn trắng) được à?"* — Được, vì L phụ thuộc cả $R^2$. Nhiệt độ nâng L theo $T^4$, nhưng bán kính bé tí ($R^2$) kéo L xuống mạnh hơn. Hai sao cùng nhiệt độ nhưng khác kích thước → khác độ trưng → đây là chìa khóa của biểu đồ H-R (Lesson 03).
+> - *"Vì sao mũ 4 chứ không phải mũ 2?"* — Năng lượng bức xạ tích phân đường cong Planck trên mọi bước sóng cho ra $\propto T^4$ (kết quả của vật lý thống kê). Hệ quả: nhiệt độ là "đòn bẩy" cực mạnh cho độ trưng.
 
-> ⚠ **Lỗi thường gặp.** Quên mũ 4 khi dùng tỉ số nhiệt độ — viết `(T/T☉)` thay vì `(T/T☉)⁴`. Sai số khổng lồ. Luôn nhớ: **R bình phương, T mũ bốn**.
+> ⚠ **Lỗi thường gặp.** Quên mũ 4 khi dùng tỉ số nhiệt độ — viết $\left(\dfrac{T}{T_\odot}\right)$ thay vì $\left(\dfrac{T}{T_\odot}\right)^4$. Sai số khổng lồ. Luôn nhớ: **R bình phương, T mũ bốn**.
 
-> 🔁 **Dừng lại tự kiểm tra.** Hai sao cùng bán kính, sao A có T = 6000 K, sao B có T = 12000 K. Sao B sáng gấp mấy lần A?
-> <details><summary>Đáp án</summary>Cùng R nên `L_B/L_A = (12000/6000)⁴ = 2⁴ = 16` lần. Nhiệt độ gấp đôi → sáng gấp 16 lần.</details>
+> 🔁 **Dừng lại tự kiểm tra.** Hai sao cùng bán kính, sao A có $T = 6000 \ \text{K}$, sao B có $T = 12000 \ \text{K}$. Sao B sáng gấp mấy lần A?
+> <details><summary>Đáp án</summary>Cùng R nên $\dfrac{L_B}{L_A} = \left(\dfrac{12000}{6000}\right)^4 = 2^4 = 16$ lần. Nhiệt độ gấp đôi → sáng gấp 16 lần.</details>
 
 ---
 
@@ -186,31 +172,31 @@ Sau bài này bạn sẽ:
 
 **Định nghĩa (3 phần):**
 
-- **(a) Là gì** — Mỗi vạch phổ ứng với một **chuyển mức (transition)** của electron giữa hai mức năng lượng `E_cao` và `E_thấp`. Năng lượng photon: `ΔE = E_cao − E_thấp = hf = hc/λ`.
+- **(a) Là gì** — Mỗi vạch phổ ứng với một **chuyển mức (transition)** của electron giữa hai mức năng lượng $E_{cao}$ và $E_{thấp}$. Năng lượng photon: $\Delta E = E_{cao} - E_{thấp} = hf = \dfrac{hc}{\lambda}$.
 - **(b) Vì sao cần** — Mỗi nguyên tố có bộ mức năng lượng **riêng biệt** → bộ bước sóng vạch riêng → *vân tay hóa học*. Nhờ vạch phổ ta biết thành phần của sao, đo vận tốc qua dịch Doppler, suy ra mật độ và nhiệt độ.
-- **(c) Ví dụ trực giác bằng số** — Hydro nhảy từ mức n=3 xuống n=2 nhả photon `656 nm` (vạch **Hα**, đỏ). Đây là vạch nổi tiếng nhất trong thiên văn.
+- **(c) Ví dụ trực giác bằng số** — Hydro nhảy từ mức $n=3$ xuống $n=2$ nhả photon $656 \ \text{nm}$ (vạch **Hα**, đỏ). Đây là vạch nổi tiếng nhất trong thiên văn.
 
-> 📐 **Tính bước sóng từ ΔE** (`h = 6.63×10⁻³⁴ J·s`, `c = 3×10⁸ m/s`):
-> `λ = hc / ΔE`.
+> 📐 **Tính bước sóng từ $\Delta E$** ($h = 6{,}63 \times 10^{-34} \ \text{J·s}$, $c = 3 \times 10^8 \ \text{m/s}$):
+> $$\lambda = \dfrac{hc}{\Delta E}$$
 
 **Walk-through số thật (Hα của hydro):**
 
-Chênh năng lượng mức n=3 → n=2 của hydro: `ΔE ≈ 1.89 eV = 1.89 × 1.602×10⁻¹⁹ = 3.03×10⁻¹⁹ J`.
-```
-λ = (6.63e−34 × 3e8) / 3.03e−19
-  = 1.989e−25 / 3.03e−19
-  = 6.56e−7 m = 656 nm
-```
-→ đúng vạch **Hα đỏ** ✓. Verify ngược: `ΔE = hc/λ = 1.989e−25 / 6.56e−7 = 3.03e−19 J = 1.89 eV` ✓.
+Chênh năng lượng mức $n=3 \to n=2$ của hydro: $\Delta E \approx 1{,}89 \ \text{eV} = 1{,}89 \times 1{,}602 \times 10^{-19} = 3{,}03 \times 10^{-19} \ \text{J}$.
+$$\begin{aligned}
+\lambda &= \frac{6{,}63 \times 10^{-34} \times 3 \times 10^8}{3{,}03 \times 10^{-19}} \\
+  &= \frac{1{,}989 \times 10^{-25}}{3{,}03 \times 10^{-19}} \\
+  &= 6{,}56 \times 10^{-7} \ \text{m} = 656 \ \text{nm}
+\end{aligned}$$
+→ đúng vạch **Hα đỏ** ✓. Verify ngược: $\Delta E = \dfrac{hc}{\lambda} = \dfrac{1{,}989 \times 10^{-25}}{6{,}56 \times 10^{-7}} = 3{,}03 \times 10^{-19} \ \text{J} = 1{,}89 \ \text{eV}$ ✓.
 
 **4 ví dụ vạch thật:**
 
 | Vạch | Chuyển mức (Hydro) | λ (nm) | Màu/vùng |
 |---|---|---|---|
-| Hα | n=3 → n=2 | 656 | Đỏ |
-| Hβ | n=4 → n=2 | 486 | Lam-lục |
-| Hγ | n=5 → n=2 | 434 | Tím |
-| Lyman-α | n=2 → n=1 | 122 | Tử ngoại |
+| Hα | $n=3 \to n=2$ | 656 | Đỏ |
+| Hβ | $n=4 \to n=2$ | 486 | Lam-lục |
+| Hγ | $n=5 \to n=2$ | 434 | Tím |
+| Lyman-α | $n=2 \to n=1$ | 122 | Tử ngoại |
 
 > ❓ **Câu hỏi tự nhiên.**
 > - *"Vì sao mức năng lượng lại rời rạc?"* — Hệ quả của cơ học lượng tử: electron quanh hạt nhân chỉ tồn tại ở các trạng thái dừng nhất định (xem [`Chemistry/01-Structure`](../../../Chemistry/01-Structure/)). Không có "nửa bậc".
@@ -218,7 +204,7 @@ Chênh năng lượng mức n=3 → n=2 của hydro: `ΔE ≈ 1.89 eV = 1.89 × 
 
 > ⚠ **Lỗi thường gặp.** Tưởng "màu của sao do thành phần hóa học". Sai — **màu** (đỉnh Planck) do **nhiệt độ** (Wien). **Vạch** mới do thành phần hóa học. Hai thông tin tách bạch: nền liên tục → nhiệt độ; vạch trên nền → thành phần.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một vạch hấp thụ ở 589 nm (vàng) xuất hiện trong phổ sao. Nó cho biết điều gì?
+> 🔁 **Dừng lại tự kiểm tra.** Một vạch hấp thụ ở $589 \ \text{nm}$ (vàng) xuất hiện trong phổ sao. Nó cho biết điều gì?
 > <details><summary>Đáp án</summary>Có **natri (Na)** trong khí quyển sao — 589 nm là vạch đôi đặc trưng của natri (giống màu vàng đèn đường natri). Nó cho biết *thành phần*, không phải nhiệt độ.</details>
 
 ---
@@ -227,27 +213,27 @@ Chênh năng lượng mức n=3 → n=2 của hydro: `ΔE ≈ 1.89 eV = 1.89 × 
 
 > 📝 **Tóm tắt toàn bài.**
 > - **Vật đen**: phổ phát xạ chỉ phụ thuộc T; sao gần đúng là vật đen.
-> - **Wien**: `λ_max = 2.9×10⁻³ / T` → màu cho biết nhiệt độ (Mặt Trời 5778 K → 502 nm lục).
-> - **Stefan–Boltzmann**: `L = 4πR²σT⁴` → nối L, R, T. Dạng tỉ số: `L/L☉ = (R/R☉)²(T/T☉)⁴`. **R bình phương, T mũ bốn.**
+> - **Wien**: $\lambda_{max} = \dfrac{2{,}9 \times 10^{-3}}{T}$ → màu cho biết nhiệt độ (Mặt Trời $5778 \ \text{K}$ → $502 \ \text{nm}$ lục).
+> - **Stefan–Boltzmann**: $L = 4\pi R^2 \sigma T^4$ → nối L, R, T. Dạng tỉ số: $\dfrac{L}{L_\odot} = \left(\dfrac{R}{R_\odot}\right)^2 \left(\dfrac{T}{T_\odot}\right)^4$. **R bình phương, T mũ bốn.**
 > - **3 loại phổ + Kirchhoff**: liên tục (vật đặc nóng), phát xạ (khí loãng nóng), hấp thụ (khí loãng nguội chắn trước nguồn nóng).
-> - **Vạch phổ**: từ chuyển mức năng lượng electron; `λ = hc/ΔE`; là vân tay hóa học. Hα = 656 nm (n=3→2).
+> - **Vạch phổ**: từ chuyển mức năng lượng electron; $\lambda = \dfrac{hc}{\Delta E}$; là vân tay hóa học. Hα $= 656 \ \text{nm}$ ($n=3 \to 2$).
 > - **Tách bạch**: nền liên tục → nhiệt độ; vạch → thành phần.
 
 ---
 
 ## Bài tập
 
-1. **Wien thuận.** Sao Vega có `T ≈ 9600 K`. Tính `λ_max` (nm) và cho biết vùng phổ + màu thấy được.
+1. **Wien thuận.** Sao Vega có $T \approx 9600 \ \text{K}$. Tính $\lambda_{max}$ (nm) và cho biết vùng phổ + màu thấy được.
 
-2. **Wien ngược.** Một sao có `λ_max = 700 nm`. Tính nhiệt độ bề mặt. Sao này nóng hay lạnh so với Mặt Trời?
+2. **Wien ngược.** Một sao có $\lambda_{max} = 700 \ \text{nm}$. Tính nhiệt độ bề mặt. Sao này nóng hay lạnh so với Mặt Trời?
 
-3. **Stefan–Boltzmann tỉ số.** Sao Aldebaran có `R ≈ 44 R☉`, `T ≈ 3900 K`. Tính độ trưng `L/L☉`. Vì sao một sao "lạnh" lại sáng đến vậy?
+3. **Stefan–Boltzmann tỉ số.** Sao Aldebaran có $R \approx 44 \ R_\odot$, $T \approx 3900 \ \text{K}$. Tính độ trưng $\dfrac{L}{L_\odot}$. Vì sao một sao "lạnh" lại sáng đến vậy?
 
-4. **Suy bán kính.** Một sao có `L = 100 L☉` và `T = 5778 K` (bằng Mặt Trời). Bán kính của nó bằng mấy lần `R☉`?
+4. **Suy bán kính.** Một sao có $L = 100 \ L_\odot$ và $T = 5778 \ \text{K}$ (bằng Mặt Trời). Bán kính của nó bằng mấy lần $R_\odot$?
 
 5. **Loại phổ.** Với mỗi nguồn sau, cho biết loại phổ: (a) dây tóc bóng đèn; (b) tinh vân khí ion hóa phát sáng; (c) ánh sáng Mặt Trời sau khi qua khí quyển sao. Giải thích bằng định luật Kirchhoff.
 
-6. **Vạch phổ.** Chuyển mức Hβ của hydro (n=4 → n=2) có `ΔE ≈ 2.55 eV`. Tính bước sóng (nm) và so với giá trị 486 nm trong bảng.
+6. **Vạch phổ.** Chuyển mức Hβ của hydro ($n=4 \to n=2$) có $\Delta E \approx 2{,}55 \ \text{eV}$. Tính bước sóng (nm) và so với giá trị $486 \ \text{nm}$ trong bảng.
 
 ---
 
@@ -255,36 +241,33 @@ Chênh năng lượng mức n=3 → n=2 của hydro: `ΔE ≈ 1.89 eV = 1.89 × 
 
 ### Bài 1 — Wien thuận
 
-`λ_max = 2.9×10⁻³ / 9600 = 3.02×10⁻⁷ m = 302 nm`.
-302 nm thuộc **tử ngoại (UV)** → đỉnh nằm ngoài vùng nhìn thấy. Dù đỉnh ở UV, Vega vẫn phát mạnh ở vùng nhìn thấy với phần xanh trội hơn → trông **trắng-xanh** (Vega là sao loại A chuẩn).
+$$\lambda_{max} = \frac{2{,}9 \times 10^{-3}}{9600} = 3{,}02 \times 10^{-7} \ \text{m} = 302 \ \text{nm}$$
+$302 \ \text{nm}$ thuộc **tử ngoại (UV)** → đỉnh nằm ngoài vùng nhìn thấy. Dù đỉnh ở UV, Vega vẫn phát mạnh ở vùng nhìn thấy với phần xanh trội hơn → trông **trắng-xanh** (Vega là sao loại A chuẩn).
 
 ### Bài 2 — Wien ngược
 
-`T = 2.9×10⁻³ / λ_max`. Đổi `700 nm = 7×10⁻⁷ m`:
-```
-T = 2.9e−3 / 7e−7 = 4143 K
-```
-4143 K < 5778 K → sao **lạnh hơn** Mặt Trời, đỉnh ở đỏ → màu cam-đỏ. Verify ngược: `λ_max = 2.9e−3/4143 = 7.0e−7 m = 700 nm` ✓.
+$T = \dfrac{2{,}9 \times 10^{-3}}{\lambda_{max}}$. Đổi $700 \ \text{nm} = 7 \times 10^{-7} \ \text{m}$:
+$$T = \frac{2{,}9 \times 10^{-3}}{7 \times 10^{-7}} = 4143 \ \text{K}$$
+$4143 \ \text{K} < 5778 \ \text{K}$ → sao **lạnh hơn** Mặt Trời, đỉnh ở đỏ → màu cam-đỏ. Verify ngược: $\lambda_{max} = \dfrac{2{,}9 \times 10^{-3}}{4143} = 7{,}0 \times 10^{-7} \ \text{m} = 700 \ \text{nm}$ ✓.
 
 ### Bài 3 — Stefan–Boltzmann tỉ số (Aldebaran)
 
-```
-L/L☉ = (R/R☉)² × (T/T☉)⁴
-     = 44² × (3900/5778)⁴
-     = 1936 × (0.6750)⁴
-     = 1936 × 0.2076
-     ≈ 402
-```
-→ Aldebaran sáng ~**400 lần** Mặt Trời. Dù nhiệt độ thấp (3900 K kéo `(T/T☉)⁴` xuống còn 0.21), **bán kính 44 lần** (bình phương = 1936) áp đảo → tổng vẫn rất sáng. Đây là đặc trưng của **sao khổng lồ** (Lesson 03).
+$$\begin{aligned}
+\frac{L}{L_\odot} &= \left(\frac{R}{R_\odot}\right)^2 \times \left(\frac{T}{T_\odot}\right)^4 \\
+     &= 44^2 \times \left(\frac{3900}{5778}\right)^4 \\
+     &= 1936 \times (0{,}6750)^4 \\
+     &= 1936 \times 0{,}2076 \approx 402
+\end{aligned}$$
+→ Aldebaran sáng ~**400 lần** Mặt Trời. Dù nhiệt độ thấp ($3900 \ \text{K}$ kéo $\left(\dfrac{T}{T_\odot}\right)^4$ xuống còn $0{,}21$), **bán kính 44 lần** (bình phương $= 1936$) áp đảo → tổng vẫn rất sáng. Đây là đặc trưng của **sao khổng lồ** (Lesson 03).
 
 ### Bài 4 — Suy bán kính
 
-Từ `L/L☉ = (R/R☉)²(T/T☉)⁴` với `T = T☉` → `(T/T☉)⁴ = 1`:
-```
-100 = (R/R☉)² × 1
-R/R☉ = √100 = 10
-```
-→ sao có bán kính **10 lần** Mặt Trời. (Cùng nhiệt độ, muốn sáng gấp 100 chỉ còn cách to lên: R² = 100 → R = 10.)
+Từ $\dfrac{L}{L_\odot} = \left(\dfrac{R}{R_\odot}\right)^2 \left(\dfrac{T}{T_\odot}\right)^4$ với $T = T_\odot$ → $\left(\dfrac{T}{T_\odot}\right)^4 = 1$:
+$$\begin{aligned}
+100 &= \left(\frac{R}{R_\odot}\right)^2 \times 1 \\
+\frac{R}{R_\odot} &= \sqrt{100} = 10
+\end{aligned}$$
+→ sao có bán kính **10 lần** Mặt Trời. (Cùng nhiệt độ, muốn sáng gấp 100 chỉ còn cách to lên: $R^2 = 100 \to R = 10$.)
 
 ### Bài 5 — Loại phổ (Kirchhoff)
 
@@ -294,13 +277,13 @@ R/R☉ = √100 = 10
 
 ### Bài 6 — Vạch Hβ
 
-`ΔE = 2.55 eV = 2.55 × 1.602×10⁻¹⁹ = 4.085×10⁻¹⁹ J`.
-```
-λ = hc/ΔE = (6.63e−34 × 3e8) / 4.085e−19
-  = 1.989e−25 / 4.085e−19
-  = 4.87e−7 m = 487 nm
-```
-→ ≈ **486–487 nm**, khớp giá trị bảng (Hβ = 486 nm, lam-lục) ✓. Sai lệch nhỏ do làm tròn `ΔE`.
+$\Delta E = 2{,}55 \ \text{eV} = 2{,}55 \times 1{,}602 \times 10^{-19} = 4{,}085 \times 10^{-19} \ \text{J}$.
+$$\begin{aligned}
+\lambda = \frac{hc}{\Delta E} &= \frac{6{,}63 \times 10^{-34} \times 3 \times 10^8}{4{,}085 \times 10^{-19}} \\
+  &= \frac{1{,}989 \times 10^{-25}}{4{,}085 \times 10^{-19}} \\
+  &= 4{,}87 \times 10^{-7} \ \text{m} = 487 \ \text{nm}
+\end{aligned}$$
+→ ≈ **486–487 nm**, khớp giá trị bảng (Hβ $= 486 \ \text{nm}$, lam-lục) ✓. Sai lệch nhỏ do làm tròn $\Delta E$.
 
 ---
 

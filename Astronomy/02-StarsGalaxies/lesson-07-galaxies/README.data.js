@@ -51,28 +51,26 @@ Sau bài này bạn sẽ:
 
 | Ký hiệu | Loại | Đặc điểm | Ví dụ |
 |---|---|---|---|
-| **E0–E7** | Elip | Hình cầu (E0) → dẹt (E7); số = \`10·(1−b/a)\`, làm tròn | M87 (E1), M49 (E4) |
+| **E0–E7** | Elip | Hình cầu (E0) → dẹt (E7); số $= 10(1 - b/a)$, làm tròn | M87 (E1), M49 (E4) |
 | **S0** | Thấu kính (lenticular) | Có đĩa nhưng không nhánh xoắn rõ | NGC 5866 |
 | **Sa–Sc** | Xoắn ốc | Sa: chỗ phình to, nhánh chặt; Sc: phình nhỏ, nhánh xòe | Sombrero (Sa), M33 (Sc) |
 | **SBa–SBc** | Xoắn có thanh | Như Sa–Sc nhưng có thanh thẳng qua tâm | Ngân Hà (SBbc), NGC 1300 (SBbc) |
 | **Irr** | Bất định | Không hình dạng đối xứng rõ | LMC, SMC |
 
-> 📐 **Cách đọc số elip:** \`En\` với \`n = round[10·(1 − b/a)]\`, \`a\` = trục dài, \`b\` = trục ngắn.
-> - Tròn hoàn hảo \`b/a = 1\` → \`n = 0\` → E0.
-> - Dẹt \`b/a = 0.3\` → \`n = round[10·0.7] = 7\` → E7.
+> 📐 **Cách đọc số elip:** $\\text{E}n$ với $n = \\text{round}[10(1 - b/a)]$, $a$ = trục dài, $b$ = trục ngắn.
+> - Tròn hoàn hảo $b/a = 1$ → $n = 0$ → E0.
+> - Dẹt $b/a = 0{,}3$ → $n = \\text{round}[10 \\cdot 0{,}7] = 7$ → E7.
 
-**Walk-through số thật (verify):** Một thiên hà elip có \`a = 100″\`, \`b = 60″\`.
-\`\`\`
-n = round[10·(1 − 60/100)] = round[10·0.4] = round[4] = 4 → E4.
-\`\`\`
+**Walk-through số thật (verify):** Một thiên hà elip có $a = 100''$, $b = 60''$.
+$$n = \\text{round}[10(1 - 60/100)] = \\text{round}[10 \\cdot 0{,}4] = \\text{round}[4] = 4 \\to \\text{E4}$$
 → Phân loại E4. (Lưu ý: con số chỉ mô tả **hình chiếu** trên trời, không phải hình dạng 3D thật — một E0 có thể là cầu thật, hoặc đĩa dẹt nhìn chính diện.)
 
 > ❓ **Câu hỏi tự nhiên của người đọc.**
 > - *"Sa khác Sc ở đâu?"* — Theo trục \`a → c\`: chỗ phình (bulge) **nhỏ dần**, nhánh xoắn **xòe và rời rạc hơn**, và lượng khí + sao trẻ **tăng dần**. Sa = phình to, nhánh chặt; Sc = phình nhỏ, nhánh lỏng.
 > - *"Âm thoa Hubble có phải là chuỗi tiến hóa không?"* — **Không.** Hubble gọi nhầm elip là "early-type", xoắn là "late-type" (tên gọi vẫn dùng tới nay) nhưng thiên hà **không** đi theo chuỗi đó. Thực tế nhiều elip lớn hình thành do **sáp nhập (merger)** các thiên hà xoắn.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một thiên hà elip có \`b/a = 0.5\`. Ký hiệu Hubble?
-> <details><summary>Đáp án</summary>\`n = round[10·(1 − 0.5)] = round[5] = 5\` → **E5**.</details>
+> 🔁 **Dừng lại tự kiểm tra.** Một thiên hà elip có $b/a = 0{,}5$. Ký hiệu Hubble?
+> <details><summary>Đáp án</summary>$n = \\text{round}[10(1 - 0{,}5)] = \\text{round}[5] = 5$ → **E5**.</details>
 
 ---
 
@@ -106,7 +104,7 @@ n = round[10·(1 − 60/100)] = round[10·0.4] = round[4] = 4 → E4.
 > ⚠ **Lỗi thường gặp.** Nghĩ Mặt Trời ở **tâm** Ngân Hà. Không — ta cách tâm ~26.000 ly, ở khoảng giữa-ngoài của đĩa. Quan niệm "ta ở trung tâm" là sai lầm địa tâm phiên bản thiên hà.
 
 > 🔁 **Dừng lại tự kiểm tra.** Mặt Trời cách tâm Ngân Hà ~26.000 ly; đĩa rộng ~100.000 ly (bán kính ~50.000 ly). Mặt Trời ở gần tâm hay gần mép?
-> <details><summary>Đáp án</summary>Khoảng giữa, hơi lệch ngoài: 26.000 / 50.000 ≈ 0.52 bán kính → khoảng nửa đường ra mép, không phải tâm cũng không phải rìa.</details>
+> <details><summary>Đáp án</summary>Khoảng giữa, hơi lệch ngoài: $\\dfrac{26000}{50000} \\approx 0{,}52$ bán kính → khoảng nửa đường ra mép, không phải tâm cũng không phải rìa.</details>
 
 ---
 
@@ -149,7 +147,7 @@ n = round[10·(1 − 60/100)] = round[10·0.4] = round[4] = 4 → E4.
 
 1. **Thang quy mô.** Sắp xếp từ nhỏ tới lớn: thiên hà, hệ Mặt Trời, Nhóm Địa phương, cụm sao cầu, sao.
 
-2. **Phân loại elip.** Một thiên hà elip có trục dài \`a = 80″\`, trục ngắn \`b = 24″\`. Tính ký hiệu Hubble En.
+2. **Phân loại elip.** Một thiên hà elip có trục dài $a = 80''$, trục ngắn $b = 24''$. Tính ký hiệu Hubble $\\text{E}n$.
 
 3. **Phân loại xoắn.** Mô tả khác biệt giữa Sa và Sc về (a) kích thước chỗ phình, (b) độ chặt của nhánh xoắn, (c) lượng khí và sao trẻ. Ngân Hà SBbc thuộc khoảng nào?
 
@@ -171,10 +169,10 @@ sao  <  hệ Mặt Trời  <  cụm sao cầu  <  thiên hà  <  Nhóm Địa ph
 
 ### Bài 2 — Phân loại elip
 
-\`\`\`
-b/a = 24/80 = 0.30
-n = round[10·(1 − 0.30)] = round[10·0.70] = round[7.0] = 7
-\`\`\`
+$$\\begin{aligned}
+b/a &= 24/80 = 0{,}30 \\\\
+n &= \\text{round}[10(1 - 0{,}30)] = \\text{round}[10 \\cdot 0{,}70] = \\text{round}[7{,}0] = 7
+\\end{aligned}$$
 → **E7** (thiên hà elip dẹt nhất trong dãy E). Lưu ý đây là độ dẹt của **hình chiếu** trên bầu trời, không nhất thiết là hình dạng 3D thật.
 
 ### Bài 3 — Sa vs Sc
@@ -189,11 +187,10 @@ n = round[10·(1 − 0.30)] = round[10·0.70] = round[7.0] = 7
 
 ### Bài 4 — Số vòng quay của Mặt Trời
 
-\`\`\`
-số vòng = tuổi Hệ Mặt Trời / chu kỳ quay
-        = 4.6×10⁹ năm / 2.25×10⁸ năm/vòng
-        ≈ 20.4 vòng.
-\`\`\`
+$$\\begin{aligned}
+\\text{số vòng} &= \\frac{\\text{tuổi Hệ Mặt Trời}}{\\text{chu kỳ quay}} \\\\
+        &= \\frac{4{,}6 \\times 10^9 \\text{ năm}}{2{,}25 \\times 10^8 \\text{ năm/vòng}} \\approx 20{,}4 \\text{ vòng}
+\\end{aligned}$$
 → Mặt Trời đã quay quanh tâm Ngân Hà khoảng **20 vòng** kể từ khi hình thành. (Mỗi vòng gọi là một "năm thiên hà".)
 
 ### Bài 5 — Nghịch lý Andromeda tiến lại

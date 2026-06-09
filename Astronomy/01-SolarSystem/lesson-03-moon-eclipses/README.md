@@ -26,7 +26,7 @@ Sau bài này bạn sẽ:
 
 - **(a) Là gì** — Pha là phần đĩa Mặt Trăng được chiếu sáng mà ta thấy từ Trái Đất, quyết định bởi **góc pha** = góc Mặt Trời–Trăng nhìn từ Trái Đất (góc giãn cách *elongation*).
 - **(b) Vì sao cần** — Pha cho biết vị trí tương đối Mặt Trời–Trái Đất–Trăng, từ đó suy ra thời điểm trong tháng âm và điều kiện có thể xảy ra thực.
-- **(c) Ví dụ trực giác bằng số** — Elongation `0°` → trăng non (new moon); `90°` → bán nguyệt (quarter); `180°` → trăng tròn (full moon). Phần sáng nhìn thấy `≈ (1 − cos(elongation)) / 2`: tại `90°` cho `(1−0)/2 = 0.5` = đúng nửa đĩa ✓.
+- **(c) Ví dụ trực giác bằng số** — Elongation $0^\circ$ → trăng non (new moon); $90^\circ$ → bán nguyệt (quarter); $180^\circ$ → trăng tròn (full moon). Phần sáng nhìn thấy $\approx \dfrac{1 - \cos(\text{elongation})}{2}$: tại $90^\circ$ cho $(1-0)/2 = 0{,}5$ = đúng nửa đĩa ✓.
 
 **Chu kỳ 8 pha (theo elongation tăng dần):**
 
@@ -45,10 +45,10 @@ Sau bài này bạn sẽ:
 
 ### 1.1 Tháng giao hội vs tháng sao
 
-- **Tháng sao (sidereal month) = 27.3 ngày**: thời gian Trăng quay đúng `360°` quanh Trái Đất so với nền sao.
-- **Tháng giao hội (synodic month) = 29.5 ngày**: thời gian giữa hai lần cùng pha (vd trăng non → trăng non).
+- **Tháng sao (sidereal month) = 27,3 ngày**: thời gian Trăng quay đúng $360^\circ$ quanh Trái Đất so với nền sao.
+- **Tháng giao hội (synodic month) = 29,5 ngày**: thời gian giữa hai lần cùng pha (vd trăng non → trăng non).
 
-> 💡 **Vì sao 29.5 > 27.3?** Trong lúc Trăng quay quanh Trái Đất, **Trái Đất cũng đi quanh Mặt Trời**, nên Trăng phải quay thêm ~2 ngày nữa mới "đuổi kịp" để lại thẳng hàng Mặt Trời–Trái Đất–Trăng (cùng pha). Walk-through: Trái Đất đi `360°/365.25 ≈ 0.986°/ngày`. Trong 27.3 ngày Trái Đất đã dịch `27.3 × 0.986 ≈ 26.9°`. Trăng đi `360°/27.3 ≈ 13.18°/ngày`, cần thêm `26.9 / (13.18 − 0.986) ≈ 2.2` ngày để bù → `27.3 + 2.2 ≈ 29.5` ngày ✓.
+> 💡 **Vì sao 29,5 > 27,3?** Trong lúc Trăng quay quanh Trái Đất, **Trái Đất cũng đi quanh Mặt Trời**, nên Trăng phải quay thêm ~2 ngày nữa mới "đuổi kịp" để lại thẳng hàng Mặt Trời–Trái Đất–Trăng (cùng pha). Walk-through: Trái Đất đi $360^\circ/365{,}25 \approx 0{,}986^\circ$/ngày. Trong 27,3 ngày Trái Đất đã dịch $27{,}3 \times 0{,}986 \approx 26{,}9^\circ$. Trăng đi $360^\circ/27{,}3 \approx 13{,}18^\circ$/ngày, cần thêm $26{,}9 / (13{,}18 - 0{,}986) \approx 2{,}2$ ngày để bù → $27{,}3 + 2{,}2 \approx 29{,}5$ ngày ✓.
 
 > 🔁 **Dừng lại tự kiểm tra.** Trăng tròn mọc vào lúc nào trong ngày?
 > <details><summary>Đáp án</summary>Lúc hoàng hôn (~18h). Vì trăng tròn ở elongation 180° (đối diện Mặt Trời) — khi Mặt Trời lặn ở tây thì Trăng mọc ở đông, và lặn lúc bình minh.</details>
@@ -64,8 +64,8 @@ Sau bài này bạn sẽ:
 **Định nghĩa nhật thực (3 phần):**
 
 - **(a) Là gì** — Mặt Trăng che khuất (một phần hoặc toàn phần) Mặt Trời khi nhìn từ Trái Đất. Cần Mặt Trời–Trăng–Trái Đất gần thẳng hàng, Trăng ở giữa.
-- **(b) Vì sao xảy ra được dù Trăng nhỏ hơn Mặt Trời rất nhiều** — Trùng hợp kỳ diệu: Mặt Trời to gấp ~400 lần Mặt Trăng nhưng cũng xa gấp ~400 lần → **đường kính góc của hai cái gần bằng nhau (~0.5°)** → Trăng vừa khít che được Mặt Trời (nhật thực toàn phần).
-- **(c) Ví dụ số** — Mặt Trời đường kính ~1.39 triệu km ở ~150 triệu km → góc `≈ 0.53°`. Mặt Trăng ~3474 km ở ~384400 km → góc `≈ 0.52°`. Hai con số gần trùng → toàn phần khi Trăng ở cận điểm, "hình khuyên" khi Trăng ở viễn điểm.
+- **(b) Vì sao xảy ra được dù Trăng nhỏ hơn Mặt Trời rất nhiều** — Trùng hợp kỳ diệu: Mặt Trời to gấp ~400 lần Mặt Trăng nhưng cũng xa gấp ~400 lần → **đường kính góc của hai cái gần bằng nhau ($\approx 0{,}5^\circ$)** → Trăng vừa khít che được Mặt Trời (nhật thực toàn phần).
+- **(c) Ví dụ số** — Mặt Trời đường kính ~1,39 triệu km ở ~150 triệu km → góc $\approx 0{,}53^\circ$. Mặt Trăng ~3474 km ở ~384400 km → góc $\approx 0{,}52^\circ$. Hai con số gần trùng → toàn phần khi Trăng ở cận điểm, "hình khuyên" khi Trăng ở viễn điểm.
 
 **Bảng so sánh:**
 
@@ -89,13 +89,13 @@ Sau bài này bạn sẽ:
 
 - **(a) Là gì** — Hai điểm mà quỹ đạo nghiêng của Mặt Trăng cắt mặt phẳng hoàng đạo: nút lên (ascending) và nút xuống (descending).
 - **(b) Vì sao quan trọng** — Thực chỉ xảy ra khi trăng non/tròn rơi vào **gần một nút** (gọi là "mùa thực" *eclipse season*). Ngoài mùa thực, Trăng lệch quá nhiều, bóng không trúng.
-- **(c) Ví dụ số** — Độ lệch của Trăng so với hoàng đạo lúc xa nút nhất `≈ 5.1°`. Ở khoảng cách Trăng, `5.1°` tương ứng lệch ~`384400 × tan 5.1° ≈ 34000 km` — lớn hơn bán kính bóng/đĩa rất nhiều → trượt qua.
+- **(c) Ví dụ số** — Độ lệch của Trăng so với hoàng đạo lúc xa nút nhất $\approx 5{,}1^\circ$. Ở khoảng cách Trăng, $5{,}1^\circ$ tương ứng lệch $\approx 384400 \times \tan 5{,}1^\circ \approx 34000 \ \text{km}$ — lớn hơn bán kính bóng/đĩa rất nhiều → trượt qua.
 
 **Hệ quả số:** vì mặt phẳng quỹ đạo Trăng cũng **tiến động** (nút quay ~1 vòng/18.6 năm), "mùa thực" xảy ra ~2 lần/năm, mỗi năm thường có **2–5 lần thực** (cả nhật + nguyệt). Không phải 24 lần như "mỗi tháng một lần".
 
 > ⚠ **Lỗi thường gặp.** Nghĩ "nếu quỹ đạo Trăng phẳng trùng hoàng đạo thì sẽ thực mỗi tháng" — đúng về định tính, và đó chính là lý do thực hiếm: chỉ vì cái nghiêng 5° nhỏ bé. Đừng bỏ qua góc nghiêng này khi giải thích.
 
-> 🔁 **Dừng lại tự kiểm tra.** Nếu quỹ đạo Trăng nghiêng `0°` (trùng hoàng đạo), một năm có bao nhiêu lần nhật thực?
+> 🔁 **Dừng lại tự kiểm tra.** Nếu quỹ đạo Trăng nghiêng $0^\circ$ (trùng hoàng đạo), một năm có bao nhiêu lần nhật thực?
 > <details><summary>Đáp án</summary>12 (mỗi trăng non đều thẳng hàng → mỗi tháng 1 nhật thực) + 12 nguyệt thực. Chính góc nghiêng 5° làm con số tụt xuống còn 2–5/năm.</details>
 
 ---
@@ -118,16 +118,18 @@ Sau bài này bạn sẽ:
 
 **Định nghĩa lực triều (tidal force, 3 phần):**
 
-- **(a) Là gì** — Hiệu lực hấp dẫn giữa hai điểm cách nhau (gradient của lực). Lực hấp dẫn `∝ 1/r²` nên chênh lệch (lực triều) `∝ 1/r³`.
-- **(b) Vì sao quan trọng** — Chính chênh lệch (không phải lực tổng) tạo triều. Vì `∝ 1/r³`, vật **gần** quan trọng hơn vật **to-mà-xa**.
-- **(c) Ví dụ số (vì sao Mặt Trăng thắng Mặt Trời dù Mặt Trời nặng hơn cực nhiều):** Mặt Trời nặng gấp ~`2.7×10⁷` lần Mặt Trăng, nhưng xa gấp ~`389` lần. Lực triều `∝ M/r³`:
-  ```
-  Tỉ lệ triều Trăng/Mặt Trời = (M_trăng/M_trời) × (r_trời/r_trăng)³
-                             ≈ (1/2.7e7) × (389)³
-                             ≈ (3.7e−8) × (5.89e7)
-                             ≈ 2.2
-  ```
-  → Triều Mặt Trăng mạnh gấp **~2.2 lần** triều Mặt Trời. Mặt Trăng thắng nhờ ở gần (lũy thừa 3).
+- **(a) Là gì** — Hiệu lực hấp dẫn giữa hai điểm cách nhau (gradient của lực). Lực hấp dẫn $\propto 1/r^2$ nên chênh lệch (lực triều) $\propto 1/r^3$.
+- **(b) Vì sao quan trọng** — Chính chênh lệch (không phải lực tổng) tạo triều. Vì $\propto 1/r^3$, vật **gần** quan trọng hơn vật **to-mà-xa**.
+- **(c) Ví dụ số (vì sao Mặt Trăng thắng Mặt Trời dù Mặt Trời nặng hơn cực nhiều):** Mặt Trời nặng gấp $\approx 2{,}7 \times 10^7$ lần Mặt Trăng, nhưng xa gấp $\approx 389$ lần. Lực triều $\propto M/r^3$:
+
+  $$\begin{aligned}
+  \text{Tỉ lệ triều Trăng/Mặt Trời} &= \frac{M_{\text{trăng}}}{M_{\text{trời}}} \times \left(\frac{r_{\text{trời}}}{r_{\text{trăng}}}\right)^3 \\
+  &\approx \frac{1}{2{,}7 \times 10^7} \times (389)^3 \\
+  &\approx (3{,}7 \times 10^{-8}) \times (5{,}89 \times 10^7) \\
+  &\approx 2{,}2
+  \end{aligned}$$
+
+  → Triều Mặt Trăng mạnh gấp **~2,2 lần** triều Mặt Trời. Mặt Trăng thắng nhờ ở gần (lũy thừa 3).
 
 ### 5.1 Triều cường & triều kém
 
@@ -140,23 +142,23 @@ Sau bài này bạn sẽ:
 > <details><summary>Đáp án</summary>Trăng non và trăng tròn (Mặt Trời–Trái Đất–Trăng thẳng hàng, elongation 0° và 180°). Triều kém vào thượng huyền và hạ huyền (90°, 270°).</details>
 
 > 📝 **Tóm tắt toàn bài.**
-> - **Pha**: do góc nhìn vào nửa-sáng của Trăng (KHÔNG do bóng Trái Đất). Tháng giao hội 29.5 ngày > tháng sao 27.3 ngày vì Trái Đất cũng đi quanh Mặt Trời.
+> - **Pha**: do góc nhìn vào nửa-sáng của Trăng (KHÔNG do bóng Trái Đất). Tháng giao hội 29,5 ngày > tháng sao 27,3 ngày vì Trái Đất cũng đi quanh Mặt Trời.
 > - **Nhật thực**: trăng non, Trăng che Mặt Trời. **Nguyệt thực**: trăng tròn, Trái Đất che Trăng.
 > - **Không thực mỗi tháng** vì quỹ đạo Trăng nghiêng ~5° → chỉ thực khi trăng non/tròn gần **nút**. ~2–5 lần/năm.
 > - **Umbra** (toàn phần) / **penumbra** (một phần) / antumbra (hình khuyên).
-> - **Triều** từ gradient hấp dẫn `∝ M/r³`; Trăng thắng Mặt Trời (~2.2×). Triều cường (thẳng hàng) / triều kém (vuông góc).
+> - **Triều** từ gradient hấp dẫn $\propto M/r^3$; Trăng thắng Mặt Trời (~2,2×). Triều cường (thẳng hàng) / triều kém (vuông góc).
 
 ---
 
 ## Bài tập
 
-1. **Pha & elongation.** Mặt Trăng có elongation `90°` (thượng huyền). Bao nhiêu % đĩa được chiếu sáng? Trăng mọc/lặn lúc nào?
+1. **Pha & elongation.** Mặt Trăng có elongation $90^\circ$ (thượng huyền). Bao nhiêu % đĩa được chiếu sáng? Trăng mọc/lặn lúc nào?
 
 2. **Tháng giao hội.** Giải thích bằng số vì sao tháng giao hội (29.5 ngày) dài hơn tháng sao (27.3 ngày).
 
 3. **Điều kiện thực.** Đêm nay là trăng tròn nhưng không có nguyệt thực. Nêu lý do hình học.
 
-4. **Lực triều.** Tính tỉ lệ lực triều của Mặt Trăng so với Mặt Trời (dùng `M_trời/M_trăng ≈ 2.7×10⁷`, `r_trời/r_trăng ≈ 389`). Vì sao Trăng thắng dù nhẹ hơn nhiều?
+4. **Lực triều.** Tính tỉ lệ lực triều của Mặt Trăng so với Mặt Trời (dùng $M_{\text{trời}}/M_{\text{trăng}} \approx 2{,}7 \times 10^7$, $r_{\text{trời}}/r_{\text{trăng}} \approx 389$). Vì sao Trăng thắng dù nhẹ hơn nhiều?
 
 5. **Triều cường/kém.** Một ngư dân thấy hôm nay trăng tròn. Hôm nay triều cường hay triều kém? Còn 1 tuần sau (thượng/hạ huyền)?
 
@@ -166,41 +168,44 @@ Sau bài này bạn sẽ:
 
 ### Bài 1 — Pha tại elongation 90°
 
-Phần sáng `≈ (1 − cos(elongation))/2 = (1 − cos 90°)/2 = (1 − 0)/2 = 0.5 = 50%`.
+Phần sáng $\approx \dfrac{1 - \cos(\text{elongation})}{2} = \dfrac{1 - \cos 90^\circ}{2} = \dfrac{1 - 0}{2} = 0{,}5 = 50\%$.
 
-→ Đúng một nửa đĩa sáng = thượng huyền (first quarter). Thượng huyền mọc khoảng giữa trưa (~12h) và lặn khoảng nửa đêm (~24h) — vì nó "đi sau" Mặt Trời 90° (≈ 6 giờ).
+→ Đúng một nửa đĩa sáng = thượng huyền (first quarter). Thượng huyền mọc khoảng giữa trưa (~12h) và lặn khoảng nửa đêm (~24h) — vì nó "đi sau" Mặt Trời $90^\circ$ ($\approx$ 6 giờ).
 
 ### Bài 2 — Tháng giao hội dài hơn tháng sao
 
-Trong một tháng sao (27.3 ngày) Trăng quay đúng `360°` so với nền sao. Nhưng Trái Đất cũng đi quanh Mặt Trời `360°/365.25 ≈ 0.986°/ngày`:
-```
-Trái Đất dịch trong 27.3 ngày: 27.3 × 0.986 ≈ 26.9°
-```
-Để Mặt Trời–Trái Đất–Trăng lại thẳng hàng (cùng pha), Trăng phải quay thêm `26.9°`. Tốc độ tương đối Trăng so với hướng Mặt Trời `≈ 13.18° − 0.986° = 12.19°/ngày`:
-```
-Thời gian bù = 26.9 / 12.19 ≈ 2.2 ngày
-Tháng giao hội ≈ 27.3 + 2.2 ≈ 29.5 ngày ✓
-```
+Trong một tháng sao (27,3 ngày) Trăng quay đúng $360^\circ$ so với nền sao. Nhưng Trái Đất cũng đi quanh Mặt Trời $360^\circ/365{,}25 \approx 0{,}986^\circ$/ngày:
+
+$$\text{Trái Đất dịch trong 27,3 ngày} = 27{,}3 \times 0{,}986 \approx 26{,}9^\circ$$
+
+Để Mặt Trời–Trái Đất–Trăng lại thẳng hàng (cùng pha), Trăng phải quay thêm $26{,}9^\circ$. Tốc độ tương đối Trăng so với hướng Mặt Trời $\approx 13{,}18^\circ - 0{,}986^\circ = 12{,}19^\circ$/ngày:
+
+$$\begin{aligned}
+\text{Thời gian bù} &= 26{,}9 / 12{,}19 \approx 2{,}2 \ \text{ngày} \\
+\text{Tháng giao hội} &\approx 27{,}3 + 2{,}2 \approx 29{,}5 \ \text{ngày} ✓
+\end{aligned}$$
 
 ### Bài 3 — Trăng tròn nhưng không nguyệt thực
 
-Vì quỹ đạo Mặt Trăng nghiêng ~5.1° so với hoàng đạo. Đêm nay tuy là trăng tròn (Trái Đất giữa Mặt Trời và Trăng về kinh độ), nhưng Trăng đang ở **xa nút** → nằm lệch lên trên (hoặc xuống dưới) mặt phẳng hoàng đạo tới ~34000 km → bóng (umbra) của Trái Đất trượt qua phía dưới/trên, không trùm lên Trăng → không có nguyệt thực. Chỉ khi trăng tròn rơi gần một nút mới có thực.
+Vì quỹ đạo Mặt Trăng nghiêng $\approx 5{,}1^\circ$ so với hoàng đạo. Đêm nay tuy là trăng tròn (Trái Đất giữa Mặt Trời và Trăng về kinh độ), nhưng Trăng đang ở **xa nút** → nằm lệch lên trên (hoặc xuống dưới) mặt phẳng hoàng đạo tới ~34000 km → bóng (umbra) của Trái Đất trượt qua phía dưới/trên, không trùm lên Trăng → không có nguyệt thực. Chỉ khi trăng tròn rơi gần một nút mới có thực.
 
 ### Bài 4 — Tỉ lệ lực triều
 
-Lực triều `∝ M/r³`:
-```
-Tỉ lệ = (M_trăng/M_trời) × (r_trời/r_trăng)³
-      = (1/2.7×10⁷) × (389)³
-      = (3.70×10⁻⁸) × (5.886×10⁷)
-      = 2.18
-```
-→ Triều Mặt Trăng mạnh gấp ~**2.2 lần** triều Mặt Trời. Mặc dù Mặt Trời nặng hơn `2.7×10⁷` lần, nó xa hơn `389` lần và lực triều phụ thuộc `1/r³` → `389³ ≈ 5.9×10⁷` lấn át tỉ số khối lượng. Bài học: với triều, **gần** quan trọng hơn **nặng**.
+Lực triều $\propto M/r^3$:
+
+$$\begin{aligned}
+\text{Tỉ lệ} &= \frac{M_{\text{trăng}}}{M_{\text{trời}}} \times \left(\frac{r_{\text{trời}}}{r_{\text{trăng}}}\right)^3 \\
+&= \frac{1}{2{,}7 \times 10^7} \times (389)^3 \\
+&= (3{,}70 \times 10^{-8}) \times (5{,}886 \times 10^7) \\
+&= 2{,}18
+\end{aligned}$$
+
+→ Triều Mặt Trăng mạnh gấp ~**2,2 lần** triều Mặt Trời. Mặc dù Mặt Trời nặng hơn $2{,}7 \times 10^7$ lần, nó xa hơn $389$ lần và lực triều phụ thuộc $1/r^3$ → $389^3 \approx 5{,}9 \times 10^7$ lấn át tỉ số khối lượng. Bài học: với triều, **gần** quan trọng hơn **nặng**.
 
 ### Bài 5 — Triều cường/kém theo pha
 
 - **Hôm nay trăng tròn** → Mặt Trời–Trái Đất–Trăng thẳng hàng → triều Mặt Trời và Mặt Trăng cộng dồn → **triều cường (spring tide)**, biên độ lớn nhất.
-- **1 tuần sau** → Trăng tới thượng/hạ huyền (elongation 90°/270°), Mặt Trời và Trăng vuông góc → hai triều triệt tiêu một phần → **triều kém (neap tide)**, biên độ nhỏ nhất.
+- **1 tuần sau** → Trăng tới thượng/hạ huyền (elongation $90^\circ/270^\circ$), Mặt Trời và Trăng vuông góc → hai triều triệt tiêu một phần → **triều kém (neap tide)**, biên độ nhỏ nhất.
 
 ---
 
@@ -214,6 +219,6 @@ Tỉ lệ = (M_trăng/M_trời) × (r_trời/r_trăng)³
 
 ## Bài tiếp theo
 
-→ [Lesson 04 — Định luật Kepler](../lesson-04-kepler-laws/): hình dạng elip của quỹ đạo, định luật diện tích, và `T² = a³`. Ta sẽ hiểu vì sao Trăng (và mọi vật) chuyển động nhanh-chậm khác nhau trên quỹ đạo.
+→ [Lesson 04 — Định luật Kepler](../lesson-04-kepler-laws/): hình dạng elip của quỹ đạo, định luật diện tích, và $T^2 = a^3$. Ta sẽ hiểu vì sao Trăng (và mọi vật) chuyển động nhanh-chậm khác nhau trên quỹ đạo.
 
 **Tham khảo chéo:** lực hấp dẫn nền tảng của triều sẽ học kỹ ở [Lesson 05 — Hấp dẫn & quỹ đạo](../lesson-05-gravity-orbits/).

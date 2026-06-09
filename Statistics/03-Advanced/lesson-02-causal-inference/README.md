@@ -315,7 +315,7 @@ Khi không thể làm RCT (vô đạo đức, không khả thi), ta dùng observ
 > A: Về kỳ vọng thì có, nhưng với mẫu nhỏ vẫn có thể có imbalance ngẫu nhiên. Đó là lý do cần kiểm tra baseline balance table (so sánh đặc điểm nhóm trước can thiệp). Với mẫu lớn, imbalance ngẫu nhiên rất nhỏ.
 >
 > **Q: NHÓM NÀO là "treatment" trong RCT là giả định của tôi, vậy kết quả RCT có khách quan không?**
-> A: RCT đo Average Treatment Effect (ATE) = E[Y(1) - Y(0)]. Câu hỏi "điều trị gì" do nhà nghiên cứu quyết định (subjective). Nhưng khi đã xác định treatment, RCT đo nhân quả của treatment đó một cách khách quan.
+> A: RCT đo Average Treatment Effect (ATE) $= E[Y(1) - Y(0)]$. Câu hỏi "điều trị gì" do nhà nghiên cứu quyết định (subjective). Nhưng khi đã xác định treatment, RCT đo nhân quả của treatment đó một cách khách quan.
 
 ---
 
@@ -325,18 +325,18 @@ Khi không thể làm RCT (vô đạo đức, không khả thi), ta dùng observ
 
 Judea Pearl (2018 Turing Award) phát triển do-calculus để phân biệt:
 
-- **Quan sát**: P(Y | X = x) — "Biết X = x, Y là gì?"
-- **Can thiệp**: P(Y | do(X = x)) — "Nếu ta **ép** X = x (bất kể confounders), Y là gì?"
+- **Quan sát**: $P(Y \mid X = x)$ — "Biết $X = x$, Y là gì?"
+- **Can thiệp**: $P(Y \mid do(X = x))$ — "Nếu ta **ép** $X = x$ (bất kể confounders), Y là gì?"
 
 **Sự khác biệt sống còn**:
 
-P(Y | X = x): khi ta thấy người uống thuốc (X=1), họ có thể đã uống vì bệnh nặng (confounder). P(Y | X=1) bị confound.
+$P(Y \mid X = x)$: khi ta thấy người uống thuốc ($X=1$), họ có thể đã uống vì bệnh nặng (confounder). $P(Y \mid X=1)$ bị confound.
 
-P(Y | do(X = 1)): ta **can thiệp**, ép ngẫu nhiên mọi người uống thuốc bất kể bệnh nặng hay không. Đây là điều RCT làm.
+$P(Y \mid do(X = 1))$: ta **can thiệp**, ép ngẫu nhiên mọi người uống thuốc bất kể bệnh nặng hay không. Đây là điều RCT làm.
 
 ### 5.2. Backdoor criterion
 
-Để tính P(Y | do(X)) từ dữ liệu quan sát (không có RCT), cần kiểm soát tập biến Z sao cho Z "block tất cả backdoor paths" từ X đến Y (các đường từ X đến Y đi "ngược" qua confounders, không đi xuôi chiều nhân quả).
+Để tính $P(Y \mid do(X))$ từ dữ liệu quan sát (không có RCT), cần kiểm soát tập biến Z sao cho Z "block tất cả backdoor paths" từ X đến Y (các đường từ X đến Y đi "ngược" qua confounders, không đi xuôi chiều nhân quả).
 
 **Ví dụ**:
 
@@ -347,20 +347,20 @@ DAG:
   Điều trị (X) → Kết quả (Y)
 ```
 
-Backdoor path: X ← C → Y. Kiểm soát C → block backdoor path → có thể ước lượng P(Y | do(X)).
+Backdoor path: X ← C → Y. Kiểm soát C → block backdoor path → có thể ước lượng $P(Y \mid do(X))$.
 
 **Backdoor formula**:
-```
-P(Y | do(X)) = Σ_c P(Y | X, C=c) × P(C=c)
-```
+
+$$P(Y \mid do(X)) = \sum_c P(Y \mid X, C=c) \times P(C=c)$$
+
 (Tổng trọng số theo phân phối của confounder C, lấy trung bình trên toàn dân số)
 
 Đây là cơ sở lý thuyết của **regression adjustment** và **stratified analysis** trong observational study.
 
 > 📝 **Tóm tắt mục 5**:
-> - Quan sát P(Y|X) ≠ Can thiệp P(Y|do(X)) khi có confounders.
-> - RCT thực hiện do(X) trực tiếp bằng randomization.
-> - Observational study cần DAG + kiểm soát đúng confounders để xấp xỉ do(X).
+> - Quan sát $P(Y \mid X) \neq$ Can thiệp $P(Y \mid do(X))$ khi có confounders.
+> - RCT thực hiện $do(X)$ trực tiếp bằng randomization.
+> - Observational study cần DAG + kiểm soát đúng confounders để xấp xỉ $do(X)$.
 
 ---
 
@@ -374,7 +374,7 @@ P(Y | do(X)) = Σ_c P(Y | X, C=c) × P(C=c)
 
 3. **RCT design**: Một công ty muốn biết liệu thêm chat box vào trang web (A) có tăng conversion rate (Y) không. Mô tả cách thiết kế A/B test đúng cách: (a) đơn vị phân ngẫu nhiên, (b) outcome chính, (c) biến nào có thể gây confounding nếu không randomize.
 
-4. **Do-calculus**: Dữ liệu quan sát cho thấy: P(Y=1 | X=1) = 0.8, P(Y=1 | X=0) = 0.3. Biết confounder C (P(C=1)=0.4) và P(Y=1|X=1,C=1)=0.9, P(Y=1|X=1,C=0)=0.7, P(Y=1|X=0,C=1)=0.5, P(Y=1|X=0,C=0)=0.2. Tính P(Y=1|do(X=1)) và P(Y=1|do(X=0)) bằng backdoor formula.
+4. **Do-calculus**: Dữ liệu quan sát cho thấy: $P(Y=1 \mid X=1) = 0{,}8$, $P(Y=1 \mid X=0) = 0{,}3$. Biết confounder C ($P(C=1)=0{,}4$) và $P(Y=1 \mid X=1,C=1)=0{,}9$, $P(Y=1 \mid X=1,C=0)=0{,}7$, $P(Y=1 \mid X=0,C=1)=0{,}5$, $P(Y=1 \mid X=0,C=0)=0{,}2$. Tính $P(Y=1 \mid do(X=1))$ và $P(Y=1 \mid do(X=0))$ bằng backdoor formula.
 
 ---
 
@@ -407,33 +407,30 @@ P(Y | do(X)) = Σ_c P(Y | X, C=c) × P(C=c)
 
 ### Bài 4
 
-**Backdoor formula**: P(Y=1 | do(X=x)) = Σ_c P(Y=1 | X=x, C=c) × P(C=c)
+**Backdoor formula**: $P(Y=1 \mid do(X=x)) = \sum_c P(Y=1 \mid X=x, C=c) \times P(C=c)$
 
-**P(Y=1 | do(X=1))**:
-```
-= P(Y=1|X=1,C=1) × P(C=1) + P(Y=1|X=1,C=0) × P(C=0)
-= 0.9 × 0.4 + 0.7 × 0.6
-= 0.36 + 0.42
-= 0.78
-```
+**$P(Y=1 \mid do(X=1))$**:
 
-**P(Y=1 | do(X=0))**:
-```
-= P(Y=1|X=0,C=1) × P(C=1) + P(Y=1|X=0,C=0) × P(C=0)
-= 0.5 × 0.4 + 0.2 × 0.6
-= 0.20 + 0.12
-= 0.32
-```
+$$\begin{aligned}
+&= P(Y=1 \mid X=1,C=1) \times P(C=1) + P(Y=1 \mid X=1,C=0) \times P(C=0) \\
+&= 0{,}9 \times 0{,}4 + 0{,}7 \times 0{,}6 = 0{,}36 + 0{,}42 = 0{,}78
+\end{aligned}$$
+
+**$P(Y=1 \mid do(X=0))$**:
+
+$$\begin{aligned}
+&= P(Y=1 \mid X=0,C=1) \times P(C=1) + P(Y=1 \mid X=0,C=0) \times P(C=0) \\
+&= 0{,}5 \times 0{,}4 + 0{,}2 \times 0{,}6 = 0{,}20 + 0{,}12 = 0{,}32
+\end{aligned}$$
 
 **Average Treatment Effect (ATE)**:
-```
-ATE = P(Y=1|do(X=1)) - P(Y=1|do(X=0)) = 0.78 - 0.32 = 0.46
-```
+
+$$\text{ATE} = P(Y=1 \mid do(X=1)) - P(Y=1 \mid do(X=0)) = 0{,}78 - 0{,}32 = 0{,}46$$
 
 **So sánh với naive estimate từ quan sát**:
-- P(Y=1|X=1) - P(Y=1|X=0) = 0.8 - 0.3 = 0.5
+- $P(Y=1 \mid X=1) - P(Y=1 \mid X=0) = 0{,}8 - 0{,}3 = 0{,}5$
 
-Naive estimate (0.5) lớn hơn ATE thật (0.46) — sai số do confounding. Người nhận X=1 trong quan sát có xu hướng có C=1 nhiều hơn → confounding làm overestimate hiệu ứng nhân quả.
+Naive estimate ($0{,}5$) lớn hơn ATE thật ($0{,}46$) — sai số do confounding. Người nhận $X=1$ trong quan sát có xu hướng có $C=1$ nhiều hơn → confounding làm overestimate hiệu ứng nhân quả.
 
 ---
 

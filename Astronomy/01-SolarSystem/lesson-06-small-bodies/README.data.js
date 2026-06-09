@@ -47,7 +47,7 @@ Ba nhóm chính, phân biệt **trước hết bằng nơi sinh ra** (quyết đ
 - **(b) Vì sao tồn tại** — Lực hấp dẫn của Sao Mộc khổng lồ ở ngay bên cạnh **khuấy động** vùng này, ngăn vật liệu kết tụ thành một hành tinh thực thụ. Vì thế nó "mắc kẹt" mãi ở dạng vụn.
 - **(c) Ví dụ số** — Tổng khối lượng cả vành đai chỉ ~4% khối lượng Mặt Trăng. Tức là gom hết "bãi mìn" lại còn chưa bằng nửa Mặt Trăng.
 
-**Vị trí vành đai chính:** bán trục lớn \`a ≈ 2.2 – 3.3 AU\` (xen giữa Sao Hỏa \`a ≈ 1.52 AU\` và Sao Mộc \`a ≈ 5.2 AU\`).
+**Vị trí vành đai chính:** bán trục lớn $a \\approx 2{,}2 - 3{,}3 \\ \\text{AU}$ (xen giữa Sao Hỏa $a \\approx 1{,}52 \\ \\text{AU}$ và Sao Mộc $a \\approx 5{,}2 \\ \\text{AU}$).
 
 **4 ví dụ số cụ thể (tiểu hành tinh & vị trí):**
 
@@ -61,11 +61,11 @@ Ba nhóm chính, phân biệt **trước hết bằng nơi sinh ra** (quyết đ
 > ⚠ **Lỗi thường gặp.** "Vành đai tiểu hành tinh là tàn dư của một hành tinh đã nổ." **Sai.** Tổng khối lượng quá nhỏ (~4% Mặt Trăng) để từng là một hành tinh; đúng hơn là vật liệu **chưa bao giờ** kịp kết tụ thành hành tinh do Sao Mộc cản trở.
 
 > ❓ **Câu hỏi tự nhiên của người đọc.**
-> - *"Tại sao chu kỳ của tiểu hành tinh vành đai chính rơi vào khoảng 3–6 năm?"* — Dùng Kepler 3: \`T² = a³\` (T tính bằng năm, a bằng AU). Với \`a = 2.77\`: \`T = √(2.77³) = √21.3 ≈ 4.6 năm\`. Khớp với chu kỳ của Ceres (~4.6 năm).
+> - *"Tại sao chu kỳ của tiểu hành tinh vành đai chính rơi vào khoảng 3–6 năm?"* — Dùng Kepler 3: $T^2 = a^3$ (T tính bằng năm, a bằng AU). Với $a = 2{,}77$: $T = \\sqrt{2{,}77^3} = \\sqrt{21{,}3} \\approx 4{,}6 \\ \\text{năm}$. Khớp với chu kỳ của Ceres (~4,6 năm).
 > - *"Tàu vũ trụ qua vành đai có nguy hiểm không?"* — Gần như không. Mật độ quá thưa; tới nay chưa tàu nào va phải tiểu hành tinh khi băng qua.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một tiểu hành tinh có \`a = 3.0 AU\`. Chu kỳ quỹ đạo của nó khoảng bao nhiêu năm?
-> <details><summary>Đáp án</summary>Kepler 3: \`T = √(a³) = √(27) ≈ 5.2 năm\`.</details>
+> 🔁 **Dừng lại tự kiểm tra.** Một tiểu hành tinh có $a = 3{,}0 \\ \\text{AU}$. Chu kỳ quỹ đạo của nó khoảng bao nhiêu năm?
+> <details><summary>Đáp án</summary>Kepler 3: $T = \\sqrt{a^3} = \\sqrt{27} \\approx 5{,}2 \\ \\text{năm}$.</details>
 
 ---
 
@@ -94,7 +94,7 @@ Ba nhóm chính, phân biệt **trước hết bằng nơi sinh ra** (quyết đ
 > ⚠ **Lỗi thường gặp.** "Đuôi sao chổi luôn ở phía sau theo hướng chuyển động." Sai như giải thích trên. Mốc đúng là **Mặt Trời**, không phải hướng bay.
 
 > ❓ **Câu hỏi tự nhiên.**
-> - *"Vì sao quỹ đạo sao chổi rất dẹt (lệch tâm cao)?"* — Vì chúng sinh ra ở rất xa (Kuiper/Oort) rồi bị nhiễu loạn rơi vào trong. Quỹ đạo elip cực dẹt: điểm cận nhật gần Mặt Trời, điểm viễn nhật xa tít. Halley có **độ lệch tâm e ≈ 0.967** (gần 1 = rất dẹt; tròn = 0).
+> - *"Vì sao quỹ đạo sao chổi rất dẹt (lệch tâm cao)?"* — Vì chúng sinh ra ở rất xa (Kuiper/Oort) rồi bị nhiễu loạn rơi vào trong. Quỹ đạo elip cực dẹt: điểm cận nhật gần Mặt Trời, điểm viễn nhật xa tít. Halley có **độ lệch tâm $e \\approx 0{,}967$** (gần 1 = rất dẹt; tròn = 0).
 > - *"Khi nào sao chổi sáng nhất?"* — Gần **điểm cận nhật (perihelion)**, vì gần Mặt Trời nhất → băng thăng hoa mạnh nhất → coma và đuôi lớn nhất.
 
 **4 ví dụ số (sao chổi thật):**
@@ -106,7 +106,7 @@ Ba nhóm chính, phân biệt **trước hết bằng nơi sinh ra** (quyết đ
 | Encke | 3.3 năm | 0.336 | 0.848 |
 | NEOWISE | ~6800 năm | 0.295 | 0.999 |
 
-**Walk-through số (verify Kepler 3 cho Halley):** \`a = q/(1−e) = 0.586/(1−0.967) = 0.586/0.033 ≈ 17.8 AU\`. Chu kỳ \`T = √(a³) = √(17.8³) = √5640 ≈ 75 năm\`. Khớp với chu kỳ thực ~76 năm.
+**Walk-through số (verify Kepler 3 cho Halley):** $a = \\dfrac{q}{1-e} = \\dfrac{0{,}586}{1-0{,}967} = \\dfrac{0{,}586}{0{,}033} \\approx 17{,}8 \\ \\text{AU}$. Chu kỳ $T = \\sqrt{a^3} = \\sqrt{17{,}8^3} = \\sqrt{5640} \\approx 75 \\ \\text{năm}$. Khớp với chu kỳ thực ~76 năm.
 
 > 🔁 **Dừng lại tự kiểm tra.** Sao chổi đang rời điểm cận nhật, bay ra xa Mặt Trời. Đuôi của nó chỉ về hướng nào so với chuyển động?
 > <details><summary>Đáp án</summary>Đuôi hướng **ra xa Mặt Trời**, tức là chỉ về **phía trước** chuyển động (đuôi đi trước nhân). Vì lực đẩy của Mặt Trời luôn hướng ra ngoài, không liên quan hướng bay.</details>
@@ -167,9 +167,9 @@ Ba nhóm chính, phân biệt **trước hết bằng nơi sinh ra** (quyết đ
 
 - **(a) Là gì** — Vùng dạng đĩa chứa thiên thể băng giá ngay ngoài quỹ đạo Sao Hải Vương, từ ~30 đến ~50 AU. Pluto là cư dân nổi tiếng nhất.
 - **(b) Vì sao tồn tại** — Vật liệu băng ở vùng ngoài quá thưa và quá xa để kết tụ thành hành tinh lớn → đọng lại thành vô số thiên thể nhỏ.
-- **(c) Ví dụ số** — Pluto: \`a ≈ 39.5 AU\`. Sao chổi chu kỳ ngắn (như Halley, T < 200 năm) phần lớn đến từ đây.
+- **(c) Ví dụ số** — Pluto: $a \\approx 39{,}5 \\ \\text{AU}$. Sao chổi chu kỳ ngắn (như Halley, $T < 200$ năm) phần lớn đến từ đây.
 
-**Đám mây Oort:** vỏ cầu giả thuyết bao quanh hệ Mặt Trời ở khoảng **~2000 đến ~100 000 AU** (gần tới khoảng cách sao gần nhất). Là nguồn của sao chổi chu kỳ dài (T > 200 năm, như Hale-Bopp ~2530 năm).
+**Đám mây Oort:** vỏ cầu giả thuyết bao quanh hệ Mặt Trời ở khoảng **~2000 đến ~100 000 AU** (gần tới khoảng cách sao gần nhất). Là nguồn của sao chổi chu kỳ dài ($T > 200$ năm, như Hale-Bopp ~2530 năm).
 
 **4 ví dụ số (so sánh khoảng cách):**
 
@@ -191,9 +191,9 @@ Ba nhóm chính, phân biệt **trước hết bằng nơi sinh ra** (quyết đ
 
 ## Bài tập
 
-1. **Chu kỳ tiểu hành tinh.** Tiểu hành tinh Hygiea có \`a = 3.14 AU\`. Tính chu kỳ quỹ đạo (năm) bằng Kepler 3. Nó nằm trong khoảng vành đai chính (2.2–3.3 AU) không?
+1. **Chu kỳ tiểu hành tinh.** Tiểu hành tinh Hygiea có $a = 3{,}14 \\ \\text{AU}$. Tính chu kỳ quỹ đạo (năm) bằng Kepler 3. Nó nằm trong khoảng vành đai chính (2,2–3,3 AU) không?
 
-2. **Bán trục lớn của sao chổi.** Sao chổi Encke có cận nhật \`q = 0.336 AU\` và độ lệch tâm \`e = 0.848\`. Tính bán trục lớn \`a\` và chu kỳ \`T\`. (Dùng \`a = q/(1−e)\`, \`T = √(a³)\`.)
+2. **Bán trục lớn của sao chổi.** Sao chổi Encke có cận nhật $q = 0{,}336 \\ \\text{AU}$ và độ lệch tâm $e = 0{,}848$. Tính bán trục lớn $a$ và chu kỳ $T$. (Dùng $a = q/(1-e)$, $T = \\sqrt{a^3}$.)
 
 3. **Hướng đuôi sao chổi.** Một sao chổi đang ở điểm viễn nhật (xa Mặt Trời nhất, gần như đứng yên) rồi bắt đầu rơi vào trong. Mô tả hướng đuôi tại: (a) điểm viễn nhật, (b) đang lao tới cận nhật, (c) đang rời cận nhật đi ra. So sánh với hướng chuyển động ở mỗi giai đoạn.
 
@@ -207,27 +207,23 @@ Ba nhóm chính, phân biệt **trước hết bằng nơi sinh ra** (quyết đ
 
 ### Bài 1 — Chu kỳ Hygiea
 
-**Cách tiếp cận:** Kepler 3 dạng \`T² = a³\` (T năm, a AU).
+**Cách tiếp cận:** Kepler 3 dạng $T^2 = a^3$ (T năm, a AU).
 
-\`\`\`
-T = √(a³) = √(3.14³) = √(30.96) ≈ 5.56 năm
-\`\`\`
+$$T = \\sqrt{a^3} = \\sqrt{3{,}14^3} = \\sqrt{30{,}96} \\approx 5{,}56 \\ \\text{năm}$$
 
-\`a = 3.14 AU\` nằm trong khoảng 2.2–3.3 AU → **đúng là cư dân vành đai chính** (Hygiea là một trong 4 tiểu hành tinh lớn nhất).
+$a = 3{,}14 \\ \\text{AU}$ nằm trong khoảng 2,2–3,3 AU → **đúng là cư dân vành đai chính** (Hygiea là một trong 4 tiểu hành tinh lớn nhất).
 
 ### Bài 2 — Bán trục lớn & chu kỳ Encke
 
-**Bước 1 — bán trục lớn:** từ quan hệ \`q = a(1−e)\` ⇒ \`a = q/(1−e)\`.
-\`\`\`
-a = 0.336 / (1 − 0.848) = 0.336 / 0.152 ≈ 2.21 AU
-\`\`\`
+**Bước 1 — bán trục lớn:** từ quan hệ $q = a(1-e)$ ⇒ $a = q/(1-e)$.
 
-**Bước 2 — chu kỳ:** \`T = √(a³)\`.
-\`\`\`
-T = √(2.21³) = √(10.79) ≈ 3.28 năm
-\`\`\`
+$$a = \\frac{0{,}336}{1 - 0{,}848} = \\frac{0{,}336}{0{,}152} \\approx 2{,}21 \\ \\text{AU}$$
 
-Khớp với chu kỳ thực của Encke (~3.3 năm) ✓. (Đáng chú ý: bán trục lớn của Encke ~2.2 AU rơi vào rìa trong vành đai chính, dù nó là sao chổi.)
+**Bước 2 — chu kỳ:** $T = \\sqrt{a^3}$.
+
+$$T = \\sqrt{2{,}21^3} = \\sqrt{10{,}79} \\approx 3{,}28 \\ \\text{năm}$$
+
+Khớp với chu kỳ thực của Encke (~3,3 năm) ✓. (Đáng chú ý: bán trục lớn của Encke ~2,2 AU rơi vào rìa trong vành đai chính, dù nó là sao chổi.)
 
 ### Bài 3 — Hướng đuôi sao chổi qua 3 giai đoạn
 
@@ -249,8 +245,8 @@ Quy tắc cốt lõi: **đuôi LUÔN hướng ra xa Mặt Trời**, do áp suấ
 
 **Số sao băng ước lượng:**
 - ZHR lý tưởng = 120/giờ.
-- Hiệu suất thực tế 40% → \`120 × 0.40 = 48\` sao băng/giờ.
-- Trong 30 phút (= 0.5 giờ): \`48 × 0.5 = 24\` sao băng.
+- Hiệu suất thực tế 40% → $120 \\times 0{,}40 = 48$ sao băng/giờ.
+- Trong 30 phút ($= 0{,}5$ giờ): $48 \\times 0{,}5 = 24$ sao băng.
 
 → Ước lượng bạn thấy **khoảng 24 sao băng** trong nửa giờ.
 
@@ -262,7 +258,7 @@ Quy tắc cốt lõi: **đuôi LUÔN hướng ra xa Mặt Trời**, do áp suấ
 
 - **Visualization tương tác**: [visualization.html](./visualization.html) — gồm:
   - **Quỹ đạo sao chổi**: mô phỏng sao chổi chạy trên quỹ đạo elip lệch tâm quanh Mặt Trời; đuôi tự cập nhật **luôn hướng ra xa Mặt Trời** theo từng vị trí — thấy rõ đuôi "đi trước" khi sao chổi rời cận nhật. Chỉnh được độ lệch tâm.
-  - **Máy tính quỹ đạo nhỏ**: nhập \`q\`, \`e\` → tính \`a\`, \`T\` (Kepler 3) cho tiểu hành tinh/sao chổi.
+  - **Máy tính quỹ đạo nhỏ**: nhập $q$, $e$ → tính $a$, $T$ (Kepler 3) cho tiểu hành tinh/sao chổi.
   - **Radiant mưa sao băng**: minh họa các vệt song song hội tụ về một điểm radiant do hiệu ứng phối cảnh.
 
 ---

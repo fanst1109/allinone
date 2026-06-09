@@ -10,7 +10,7 @@ Sau bài này bạn sẽ:
 - Thực hiện **paired t-test** (before/after, matched pairs) và phân biệt với independent t-test.
 - Áp dụng hai test này vào **A/B testing** thực tế.
 - Kiểm tra **assumption** của t-test (normality, independence, variance equality).
-- Tính CI cho sự khác biệt giữa hai mean: μ₁ - μ₂.
+- Tính CI cho sự khác biệt giữa hai mean: $\mu_1 - \mu_2$.
 
 ## Kiến thức tiền đề
 
@@ -39,66 +39,63 @@ Nhầm lẫn hai test này là lỗi rất phổ biến và dẫn tới kết qu
 
 ### 2.1. H₀ và H₁
 
-```
-H₀: μ₁ - μ₂ = 0  (hai nhóm có mean bằng nhau)
-H₁: μ₁ - μ₂ ≠ 0  (two-sided)  hoặc  > 0 / < 0 (one-sided)
-```
+$$\begin{aligned}
+H_0&: \mu_1 - \mu_2 = 0 \quad \text{(hai nhóm có mean bằng nhau)} \\
+H_1&: \mu_1 - \mu_2 \neq 0 \quad \text{(two-sided)} \quad \text{hoặc} \quad > 0 \ /\ < 0 \ \text{(one-sided)}
+\end{aligned}$$
 
 ### 2.2. Hai phiên bản: Pooled vs Welch
 
-**Pooled t-test** (Student's t): Giả định variance hai nhóm bằng nhau (σ₁² = σ₂²).
+**Pooled t-test** (Student's t): Giả định variance hai nhóm bằng nhau ($\sigma_1^2 = \sigma_2^2$).
 
-```
-Pooled variance: sp² = [(n₁-1)s₁² + (n₂-1)s₂²] / (n₁+n₂-2)
-
-SE_pooled = sp × √(1/n₁ + 1/n₂)
-
-t = (x̄₁ - x̄₂) / SE_pooled,  df = n₁+n₂-2
-```
+$$\begin{aligned}
+\text{Pooled variance:} \quad s_p^2 &= \dfrac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1+n_2-2} \\
+\text{SE}_{pooled} &= s_p \sqrt{\dfrac{1}{n_1} + \dfrac{1}{n_2}} \\
+t &= \dfrac{\bar{x}_1 - \bar{x}_2}{\text{SE}_{pooled}}, \quad \text{df} = n_1+n_2-2
+\end{aligned}$$
 
 **Welch's t-test**: Không giả định variance bằng nhau. **Đây là lựa chọn mặc định và an toàn hơn**.
 
-```
-SE_welch = √(s₁²/n₁ + s₂²/n₂)
+$$\begin{aligned}
+\text{SE}_{welch} &= \sqrt{\dfrac{s_1^2}{n_1} + \dfrac{s_2^2}{n_2}} \\
+t &= \dfrac{\bar{x}_1 - \bar{x}_2}{\text{SE}_{welch}} \\
+\text{df} &\approx \dfrac{\left(\dfrac{s_1^2}{n_1} + \dfrac{s_2^2}{n_2}\right)^2}{\dfrac{(s_1^2/n_1)^2}{n_1-1} + \dfrac{(s_2^2/n_2)^2}{n_2-1}}
+\end{aligned}$$
 
-t = (x̄₁ - x̄₂) / SE_welch
-
-df ≈ (s₁²/n₁ + s₂²/n₂)² / [(s₁²/n₁)²/(n₁-1) + (s₂²/n₂)²/(n₂-1)]
-    (Welch-Satterthwaite approximation, thường không phải số nguyên)
-```
+(Welch-Satterthwaite approximation, thường không phải số nguyên)
 
 > 💡 **Khi nào dùng gì**: Trong thực tế, luôn dùng **Welch's t** (mặc định trong R là `var.equal=FALSE`, Python scipy là mặc định). Pooled chỉ dùng khi có lý thuyết rõ ràng rằng variance bằng nhau, hoặc đề bài yêu cầu. Welch's không kém hơn pooled khi variance thực sự bằng nhau, nhưng tốt hơn hẳn khi variance khác nhau.
 
 ### 2.3. Walk-through bằng số — 4 ví dụ
 
 **Ví dụ 1 — A/B test session time (Welch)**:
-- Group A (control): n₁=100, x̄₁=4.2, s₁=1.5
-- Group B (treatment): n₂=100, x̄₂=4.8, s₂=1.8
-- H₀: μ₁=μ₂, H₁: μ₁≠μ₂, α=0.05
-- SE_welch = √(1.5²/100 + 1.8²/100) = √(0.0225+0.0324) = √0.0549 ≈ **0.2343**
-- t = (4.2-4.8)/0.2343 = **-2.561**
-- df ≈ (0.0225+0.0324)² / [(0.0225)²/99 + (0.0324)²/99] ≈ 193
-- t*(193, two-sided, 0.05) ≈ 1.972. |t|=2.561 > 1.972 → **Reject H₀**.
-- p ≈ 0.011. "Tính năng mới tăng session time có ý nghĩa thống kê (p=0.011)."
+- Group A (control): $n_1=100$, $\bar{x}_1=4{,}2$, $s_1=1{,}5$
+- Group B (treatment): $n_2=100$, $\bar{x}_2=4{,}8$, $s_2=1{,}8$
+- $H_0: \mu_1=\mu_2$, $H_1: \mu_1 \neq \mu_2$, $\alpha=0{,}05$
+- $\text{SE}_{welch} = \sqrt{\dfrac{1{,}5^2}{100} + \dfrac{1{,}8^2}{100}} = \sqrt{0{,}0225+0{,}0324} = \sqrt{0{,}0549} \approx \mathbf{0{,}2343}$
+- $t = \dfrac{4{,}2-4{,}8}{0{,}2343} = \mathbf{-2{,}561}$
+- $\text{df} \approx \dfrac{(0{,}0225+0{,}0324)^2}{(0{,}0225)^2/99 + (0{,}0324)^2/99} \approx 193$
+- $t^*(193,\ \text{two-sided},\ 0{,}05) \approx 1{,}972$. $|t|=2{,}561 > 1{,}972 \to$ **Reject $H_0$**.
+- $p \approx 0{,}011$. "Tính năng mới tăng session time có ý nghĩa thống kê (p=0,011)."
 
 **Ví dụ 2 — So sánh điểm thi hai lớp (pooled, variance bằng nhau)**:
-- Lớp A: n₁=20, x̄₁=72, s₁=10. Lớp B: n₂=25, x̄₂=76, s₂=9.
-- sp² = [(20-1)×100 + (25-1)×81]/(20+25-2) = [1900+1944]/43 = 3844/43 ≈ 89.4 → sp ≈ 9.455
-- SE = 9.455 × √(1/20+1/25) = 9.455 × √(0.09) = 9.455 × 0.3 = **2.836**
-- t = (72-76)/2.836 ≈ **-1.411**. df = 43.
-- t*(43, two-sided, 0.05) ≈ 2.017. |t| = 1.411 < 2.017 → **Fail to reject H₀**.
+- Lớp A: $n_1=20$, $\bar{x}_1=72$, $s_1=10$. Lớp B: $n_2=25$, $\bar{x}_2=76$, $s_2=9$.
+- $s_p^2 = \dfrac{(20-1)\times 100 + (25-1)\times 81}{20+25-2} = \dfrac{1900+1944}{43} = \dfrac{3844}{43} \approx 89{,}4 \to s_p \approx 9{,}455$
+- $\text{SE} = 9{,}455 \times \sqrt{\dfrac{1}{20}+\dfrac{1}{25}} = 9{,}455 \times \sqrt{0{,}09} = 9{,}455 \times 0{,}3 = \mathbf{2{,}836}$
+- $t = \dfrac{72-76}{2{,}836} \approx \mathbf{-1{,}411}$. df $= 43$.
+- $t^*(43,\ \text{two-sided},\ 0{,}05) \approx 2{,}017$. $|t| = 1{,}411 < 2{,}017 \to$ **Fail to reject $H_0$**.
 
 **Ví dụ 3 — One-sided (thuốc hạ đường huyết)**:
-- Nhóm điều trị: n₁=30, x̄₁=120, s₁=15. Nhóm chứng: n₂=30, x̄₂=130, s₂=18.
-- H₀: μ₁≥μ₂, H₁: μ₁<μ₂ (thuốc giảm HA).
-- SE_welch = √(225/30+324/30) = √(7.5+10.8) = √18.3 ≈ 4.278
-- t = (120-130)/4.278 ≈ **-2.338**
-- One-sided left p ≈ 0.012 < 0.05 → **Reject H₀**. Thuốc có hiệu quả hạ HA.
+- Nhóm điều trị: $n_1=30$, $\bar{x}_1=120$, $s_1=15$. Nhóm chứng: $n_2=30$, $\bar{x}_2=130$, $s_2=18$.
+- $H_0: \mu_1 \geq \mu_2$, $H_1: \mu_1 < \mu_2$ (thuốc giảm HA).
+- $\text{SE}_{welch} = \sqrt{\dfrac{225}{30}+\dfrac{324}{30}} = \sqrt{7{,}5+10{,}8} = \sqrt{18{,}3} \approx 4{,}278$
+- $t = \dfrac{120-130}{4{,}278} \approx \mathbf{-2{,}338}$
+- One-sided left $p \approx 0{,}012 < 0{,}05 \to$ **Reject $H_0$**. Thuốc có hiệu quả hạ HA.
 
-**Ví dụ 4 — CI cho μ₁-μ₂**:
-- Dùng ví dụ 1: x̄₁-x̄₂ = -0.6, SE_welch = 0.2343, df≈193, t* ≈ 1.972.
-- 95% CI: -0.6 ± 1.972 × 0.2343 = -0.6 ± 0.462 = **[-1.062, -0.138]**
-- Diễn giải: Ta ước lượng Group B cao hơn A từ 0.14 đến 1.06 phút (95% CI không chứa 0 → reject H₀ ✓).
+**Ví dụ 4 — CI cho μ₁−μ₂**:
+- Dùng ví dụ 1: $\bar{x}_1-\bar{x}_2 = -0{,}6$, $\text{SE}_{welch} = 0{,}2343$, df$\approx 193$, $t^* \approx 1{,}972$.
+- 95% CI: $-0{,}6 \pm 1{,}972 \times 0{,}2343 = -0{,}6 \pm 0{,}462 = \mathbf{[-1{,}062;\ -0{,}138]}$
+- Diễn giải: Ta ước lượng Group B cao hơn A từ 0,14 đến 1,06 phút (95% CI không chứa 0 $\to$ reject $H_0$ ✓).
 
 ---
 
@@ -114,14 +111,11 @@ df ≈ (s₁²/n₁ + s₂²/n₂)² / [(s₁²/n₁)²/(n₁-1) + (s₂²/n₂)
 
 ### 3.2. Quy trình
 
-1. Tính **difference** dᵢ = x₁ᵢ - x₂ᵢ cho mỗi cặp.
-2. Tính d̄ = mean của các dᵢ, sᵈ = SD của các dᵢ.
-3. Thực hiện **one-sample t-test** trên dᵢ với H₀: μᵈ = 0.
+1. Tính **difference** $d_i = x_{1i} - x_{2i}$ cho mỗi cặp.
+2. Tính $\bar{d}$ = mean của các $d_i$, $s_d$ = SD của các $d_i$.
+3. Thực hiện **one-sample t-test** trên $d_i$ với $H_0: \mu_d = 0$.
 
-```
-t = d̄ / (sᵈ / √n)
-df = n - 1   (n là số cặp)
-```
+$$t = \dfrac{\bar{d}}{s_d/\sqrt{n}}, \quad \text{df} = n - 1 \quad (n \text{ là số cặp})$$
 
 ### 3.3. Walk-through bằng số — 3 ví dụ
 
@@ -139,31 +133,38 @@ df = n - 1   (n là số cặp)
 | 7 | 78 | 75 | 3 |
 | 8 | 95 | 92 | 3 |
 
-d̄ = (2+3+2+4+1+4+3+3)/8 = 22/8 = **2.75 kg**
+$\bar{d} = \dfrac{2+3+2+4+1+4+3+3}{8} = \dfrac{22}{8} = \mathbf{2{,}75 \text{ kg}}$
 
-Variance của d: s²ᵈ = Σ(dᵢ-d̄)²/(n-1) = [(0.75²)+(0.25²)+(0.75²)+(1.25²)+(1.75²)+(1.25²)+(0.25²)+(0.25²)] / 7 = [0.5625+0.0625+0.5625+1.5625+3.0625+1.5625+0.0625+0.0625]/7 = 7.5/7 ≈ 1.071 → sᵈ ≈ 1.035.
+Variance của $d$:
 
-SE = 1.035/√8 ≈ 0.366.
+$$\begin{aligned}
+s_d^2 &= \dfrac{\sum (d_i-\bar{d})^2}{n-1} \\
+&= \dfrac{0{,}75^2 + 0{,}25^2 + 0{,}75^2 + 1{,}25^2 + 1{,}75^2 + 1{,}25^2 + 0{,}25^2 + 0{,}25^2}{7} \\
+&= \dfrac{0{,}5625 + 0{,}0625 + 0{,}5625 + 1{,}5625 + 3{,}0625 + 1{,}5625 + 0{,}0625 + 0{,}0625}{7} \\
+&= \dfrac{7{,}5}{7} \approx 1{,}071 \to s_d \approx 1{,}035
+\end{aligned}$$
 
-H₀: μᵈ = 0, H₁: μᵈ > 0 (one-sided: chứng minh giảm cân). α = 0.05.
+$\text{SE} = \dfrac{1{,}035}{\sqrt{8}} \approx 0{,}366$.
 
-t = 2.75/0.366 ≈ **7.51**. df = 7. t*(7, one-sided, 0.05) = 1.895.
+$H_0: \mu_d = 0$, $H_1: \mu_d > 0$ (one-sided: chứng minh giảm cân). $\alpha = 0{,}05$.
 
-t = 7.51 >> 1.895 → **Reject H₀**. p << 0.001. Chương trình có hiệu quả giảm cân rõ rệt.
+$t = \dfrac{2{,}75}{0{,}366} \approx \mathbf{7{,}51}$. df $= 7$. $t^*(7,\ \text{one-sided},\ 0{,}05) = 1{,}895$.
+
+$t = 7{,}51 \gg 1{,}895 \to$ **Reject $H_0$**. $p \ll 0{,}001$. Chương trình có hiệu quả giảm cân rõ rệt.
 
 **Ví dụ 2 — So sánh paired vs independent để thấy sự khác biệt**:
 - Cùng dữ liệu ví dụ 1, nếu nhầm dùng independent t-test:
-- Group 1 (Trước): x̄=80.5, s₁=9.02. Group 2 (Sau): x̄=77.75, s₂=8.60.
-- SE_welch ≈ √(9.02²/8+8.60²/8) ≈ √(10.17+9.25) ≈ √19.42 ≈ 4.406.
-- t = (80.5-77.75)/4.406 ≈ **0.624**. df ≈ 14. p ≈ 0.54.
-- Kết quả: **Fail to reject H₀** (!!) — ngược với kết quả paired!
-- Lý do: Independent test không loại bỏ variability giữa người (người cao vs thấp). Paired test chỉ nhìn vào sự thay đổi dᵢ → test mạnh hơn nhiều.
+- Group 1 (Trước): $\bar{x}=80{,}5$, $s_1=9{,}02$. Group 2 (Sau): $\bar{x}=77{,}75$, $s_2=8{,}60$.
+- $\text{SE}_{welch} \approx \sqrt{\dfrac{9{,}02^2}{8}+\dfrac{8{,}60^2}{8}} \approx \sqrt{10{,}17+9{,}25} \approx \sqrt{19{,}42} \approx 4{,}406$.
+- $t = \dfrac{80{,}5-77{,}75}{4{,}406} \approx \mathbf{0{,}624}$. df $\approx 14$. $p \approx 0{,}54$.
+- Kết quả: **Fail to reject $H_0$** (!!) — ngược với kết quả paired!
+- Lý do: Independent test không loại bỏ variability giữa người (người cao vs thấp). Paired test chỉ nhìn vào sự thay đổi $d_i \to$ test mạnh hơn nhiều.
 
 **Ví dụ 3 — Two-sided paired**:
-- 6 thiết bị, đo bằng 2 phương pháp A và B. d̄ = 0.8, sᵈ = 1.5, n = 6.
-- H₀: μᵈ = 0, H₁: μᵈ ≠ 0. α = 0.05.
-- t = 0.8/(1.5/√6) = 0.8/0.612 ≈ 1.307. df = 5. t*(5) = 2.571.
-- p ≈ 0.25 > 0.05 → Fail to reject H₀. Hai phương pháp đo không khác nhau.
+- 6 thiết bị, đo bằng 2 phương pháp A và B. $\bar{d} = 0{,}8$, $s_d = 1{,}5$, $n = 6$.
+- $H_0: \mu_d = 0$, $H_1: \mu_d \neq 0$. $\alpha = 0{,}05$.
+- $t = \dfrac{0{,}8}{1{,}5/\sqrt{6}} = \dfrac{0{,}8}{0{,}612} \approx 1{,}307$. df $= 5$. $t^*(5) = 2{,}571$.
+- $p \approx 0{,}25 > 0{,}05 \to$ Fail to reject $H_0$. Hai phương pháp đo không khác nhau.
 
 > ⚠ **Lỗi thường gặp**: Dùng independent t-test thay vì paired khi có matched pairs.
 > - Hậu quả: **Power giảm** (khó phát hiện hiệu ứng thật) vì không loại bỏ variability giữa các cá thể.
@@ -197,25 +198,25 @@ t = 7.51 >> 1.895 → **Reject H₀**. p << 0.001. Chương trình có hiệu qu
 5. Sau test: báo cáo effect size + CI, không chỉ p-value.
 
 **Ví dụ thực tế**:
-- Metric: conversion rate (tỷ lệ click → mua).
-- A: 500 user, 45 conversions → p̂_A = 0.09.
-- B: 500 user, 62 conversions → p̂_B = 0.124.
-- H₀: p_A = p_B. Two-sample z-test cho proportion:
-  - p̂_pooled = (45+62)/1000 = 0.107.
-  - SE = √(0.107×0.893×(1/500+1/500)) = √(0.107×0.893×0.004) ≈ 0.0195.
-  - z = (0.09-0.124)/0.0195 ≈ -1.744. p ≈ 0.081.
-  - Với α=0.05 → **Fail to reject** (p=0.081). Với α=0.10 → Reject.
-  - Kết luận: "Chưa đủ bằng chứng tại α=0.05; nếu dùng α=0.10 thì B tốt hơn. Cần thêm dữ liệu hoặc quyết định theo business judgment."
+- Metric: conversion rate (tỷ lệ click $\to$ mua).
+- A: 500 user, 45 conversions $\to \hat{p}_A = 0{,}09$.
+- B: 500 user, 62 conversions $\to \hat{p}_B = 0{,}124$.
+- $H_0: p_A = p_B$. Two-sample z-test cho proportion:
+  - $\hat{p}_{pooled} = \dfrac{45+62}{1000} = 0{,}107$.
+  - $\text{SE} = \sqrt{0{,}107 \times 0{,}893 \times \left(\dfrac{1}{500}+\dfrac{1}{500}\right)} = \sqrt{0{,}107 \times 0{,}893 \times 0{,}004} \approx 0{,}0195$.
+  - $z = \dfrac{0{,}09-0{,}124}{0{,}0195} \approx -1{,}744$. $p \approx 0{,}081$.
+  - Với $\alpha=0{,}05 \to$ **Fail to reject** ($p=0{,}081$). Với $\alpha=0{,}10 \to$ Reject.
+  - Kết luận: "Chưa đủ bằng chứng tại $\alpha=0{,}05$; nếu dùng $\alpha=0{,}10$ thì B tốt hơn. Cần thêm dữ liệu hoặc quyết định theo business judgment."
 
 ---
 
 ## Bài tập
 
-1. Hai nhóm học sinh: nhóm A (n=15, x̄=78, s=10) và nhóm B (n=18, x̄=83, s=12). Dùng Welch's t-test, kiểm tra xem hai nhóm có khác nhau không (α=0.05, two-sided). [Dùng df ≈ 29.]
+1. Hai nhóm học sinh: nhóm A ($n=15$, $\bar{x}=78$, $s=10$) và nhóm B ($n=18$, $\bar{x}=83$, $s=12$). Dùng Welch's t-test, kiểm tra xem hai nhóm có khác nhau không ($\alpha=0{,}05$, two-sided). [Dùng df $\approx 29$.]
 
-2. Dữ liệu trước/sau điều trị cho 5 bệnh nhân (điểm đau 0-10): Trước: {7,8,6,9,7}, Sau: {5,6,4,7,5}. Kiểm tra điều trị có giảm đau không (α=0.05, one-sided).
+2. Dữ liệu trước/sau điều trị cho 5 bệnh nhân (điểm đau 0-10): Trước: {7,8,6,9,7}, Sau: {5,6,4,7,5}. Kiểm tra điều trị có giảm đau không ($\alpha=0{,}05$, one-sided).
 
-3. A/B test: Group A 300 user, 42 conversions; Group B 300 user, 57 conversions. Dùng two-sample z-test cho proportion (α=0.05, two-sided).
+3. A/B test: Group A 300 user, 42 conversions; Group B 300 user, 57 conversions. Dùng two-sample z-test cho proportion ($\alpha=0{,}05$, two-sided).
 
 4. (Tư duy) Bạn có dữ liệu: IQ của 30 cặp sinh đôi (twin) — một người được giáo dục nâng cao, một người không. Nên dùng paired hay independent t-test? Giải thích.
 
@@ -223,45 +224,45 @@ t = 7.51 >> 1.895 → **Reject H₀**. p << 0.001. Chương trình có hiệu qu
 
 ### Bài 1
 
-H₀: μ_A = μ_B, H₁: μ_A ≠ μ_B. α=0.05.
+$H_0: \mu_A = \mu_B$, $H_1: \mu_A \neq \mu_B$. $\alpha=0{,}05$.
 
-SE_welch = √(10²/15 + 12²/18) = √(100/15 + 144/18) = √(6.667 + 8.0) = √14.667 ≈ 3.830.
+$\text{SE}_{welch} = \sqrt{\dfrac{10^2}{15} + \dfrac{12^2}{18}} = \sqrt{\dfrac{100}{15} + \dfrac{144}{18}} = \sqrt{6{,}667 + 8{,}0} = \sqrt{14{,}667} \approx 3{,}830$.
 
-t = (78-83)/3.830 ≈ **-1.306**. df ≈ 29.
+$t = \dfrac{78-83}{3{,}830} \approx \mathbf{-1{,}306}$. df $\approx 29$.
 
-t*(29, two-sided, 0.05) = 2.045. |t| = 1.306 < 2.045 → **Fail to reject H₀**.
+$t^*(29,\ \text{two-sided},\ 0{,}05) = 2{,}045$. $|t| = 1{,}306 < 2{,}045 \to$ **Fail to reject $H_0$**.
 
-p ≈ 0.201. "Hai nhóm không khác nhau có ý nghĩa thống kê (p=0.20)."
+$p \approx 0{,}201$. "Hai nhóm không khác nhau có ý nghĩa thống kê (p=0,20)."
 
 ### Bài 2
 
-d = Trước - Sau: {2, 2, 2, 2, 2}. d̄ = 2. sᵈ = 0 (!).
+$d = $ Trước $-$ Sau: {2, 2, 2, 2, 2}. $\bar{d} = 2$. $s_d = 0$ (!).
 
-SE = 0/√5 = 0. t → ∞.
+$\text{SE} = \dfrac{0}{\sqrt{5}} = 0$. $t \to \infty$.
 
-Thực tế: p → 0, reject H₀ rõ ràng. Nhưng data này có vấn đề — tất cả difference đều bằng 2, SD = 0 là không thực tế (hoặc dữ liệu quá "sạch"). Trong thực tế sᵈ = 0 → cần xem lại dữ liệu.
+Thực tế: $p \to 0$, reject $H_0$ rõ ràng. Nhưng data này có vấn đề — tất cả difference đều bằng 2, SD $= 0$ là không thực tế (hoặc dữ liệu quá "sạch"). Trong thực tế $s_d = 0 \to$ cần xem lại dữ liệu.
 
-Nếu điều chỉnh giả sử sᵈ = 0.7: SE = 0.7/√5 ≈ 0.313. t = 2/0.313 ≈ 6.39. df = 4. t*(4, one-sided, 0.05) = 2.132. t >> t* → **Reject H₀**. Điều trị giảm đau có ý nghĩa.
+Nếu điều chỉnh giả sử $s_d = 0{,}7$: $\text{SE} = \dfrac{0{,}7}{\sqrt{5}} \approx 0{,}313$. $t = \dfrac{2}{0{,}313} \approx 6{,}39$. df $= 4$. $t^*(4,\ \text{one-sided},\ 0{,}05) = 2{,}132$. $t \gg t^* \to$ **Reject $H_0$**. Điều trị giảm đau có ý nghĩa.
 
 ### Bài 3
 
-p̂_A = 42/300 = 0.14, p̂_B = 57/300 = 0.19.
+$\hat{p}_A = \dfrac{42}{300} = 0{,}14$, $\hat{p}_B = \dfrac{57}{300} = 0{,}19$.
 
-p̂_pooled = (42+57)/600 = 99/600 = 0.165.
+$\hat{p}_{pooled} = \dfrac{42+57}{600} = \dfrac{99}{600} = 0{,}165$.
 
-SE = √(0.165×0.835×(1/300+1/300)) = √(0.165×0.835×0.00667) = √0.000919 ≈ 0.0303.
+$\text{SE} = \sqrt{0{,}165 \times 0{,}835 \times \left(\dfrac{1}{300}+\dfrac{1}{300}\right)} = \sqrt{0{,}165 \times 0{,}835 \times 0{,}00667} = \sqrt{0{,}000919} \approx 0{,}0303$.
 
-z = (0.14-0.19)/0.0303 ≈ **-1.65**.
+$z = \dfrac{0{,}14-0{,}19}{0{,}0303} \approx \mathbf{-1{,}65}$.
 
-p = 2 × P(Z < -1.65) ≈ 2 × 0.0495 ≈ **0.099**.
+$p = 2 \times P(Z < -1{,}65) \approx 2 \times 0{,}0495 \approx \mathbf{0{,}099}$.
 
-α=0.05: p=0.099 > 0.05 → **Fail to reject H₀**. Sự khác biệt chưa có ý nghĩa thống kê.
+$\alpha=0{,}05$: $p=0{,}099 > 0{,}05 \to$ **Fail to reject $H_0$**. Sự khác biệt chưa có ý nghĩa thống kê.
 
 ### Bài 4
 
-Nên dùng **paired t-test**. Lý do: Mỗi cặp sinh đôi chia sẻ gen giống nhau — biến động trong cặp (genetic effect) cần được loại bỏ để thấy rõ hiệu ứng của giáo dục. Dùng independent test sẽ nhầm genetic variability vào "noise" → giảm power → khó phát hiện hiệu ứng giáo dục thật.
+Nên dùng **paired t-test**. Lý do: Mỗi cặp sinh đôi chia sẻ gen giống nhau — biến động trong cặp (genetic effect) cần được loại bỏ để thấy rõ hiệu ứng của giáo dục. Dùng independent test sẽ nhầm genetic variability vào "noise" $\to$ giảm power $\to$ khó phát hiện hiệu ứng giáo dục thật.
 
-Đây chính xác là thiết kế **matched pairs**: cặp 1 = {sinh đôi số 1A và 1B}, v.v. Paired test tính dᵢ = IQ(giáo dục nâng cao)ᵢ − IQ(bình thường)ᵢ rồi test H₀: μᵈ = 0.
+Đây chính xác là thiết kế **matched pairs**: cặp 1 = {sinh đôi số 1A và 1B}, v.v. Paired test tính $d_i = \text{IQ(giáo dục nâng cao)}_i - \text{IQ(bình thường)}_i$ rồi test $H_0: \mu_d = 0$.
 
 ---
 

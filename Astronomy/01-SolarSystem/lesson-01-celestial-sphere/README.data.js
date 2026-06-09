@@ -61,7 +61,7 @@ Sau bài này bạn sẽ:
 
 > ⚠ **Lỗi thường gặp.** Nhầm phương vị bắt đầu từ hướng Bắc với bắt đầu từ hướng Nam. Có tài liệu (đặc biệt cũ) lấy Nam = 0°. Bài này theo chuẩn phổ biến hiện nay: **Bắc = 0°, theo chiều kim đồng hồ.**
 
-> 🔁 **Dừng lại tự kiểm tra.** Một sao có \`alt = −5°\`. Bạn có nhìn thấy nó không?
+> 🔁 **Dừng lại tự kiểm tra.** Một sao có $\\text{alt} = -5^\\circ$. Bạn có nhìn thấy nó không?
 > <details><summary>Đáp án</summary>Không. Độ cao âm nghĩa là sao nằm dưới đường chân trời (bị Trái Đất che). Phải đợi nó "mọc" lên alt > 0.</details>
 
 ---
@@ -78,7 +78,7 @@ Bầu trời quay quanh một trục: trục quay của Trái Đất kéo dài r
 
 > 📐 **Liên hệ then chốt:** **Độ cao của thiên cực = vĩ độ nơi quan sát.**
 >
-> Nếu bạn ở vĩ độ \`φ\` (phía bắc), thiên cực bắc nằm ở độ cao \`alt = φ\` về hướng chính bắc.
+> Nếu bạn ở vĩ độ $\\varphi$ (phía bắc), thiên cực bắc nằm ở độ cao $\\text{alt} = \\varphi$ về hướng chính bắc.
 
 **4 ví dụ số:**
 
@@ -104,7 +104,7 @@ Tọa độ chân trời tiện nhưng thay đổi từng phút và khác nhau t
 > - **Xích vĩ (Declination, Dec, δ)** = "vĩ độ trên trời": góc từ xích đạo trời, \`+90°\` ở thiên cực bắc, \`−90°\` ở nam, \`0°\` ở xích đạo trời.
 > - **Xích kinh (Right Ascension, RA, α)** = "kinh độ trên trời": đo dọc theo xích đạo trời, nhưng tính bằng **giờ** (0h → 24h) thay vì độ, từ một mốc gọi là **điểm xuân phân (vernal equinox)**.
 
-**Vì sao RA tính bằng giờ?** Vì bầu trời quay đúng \`360°\` trong ~24 giờ → \`360° / 24 = 15°\` mỗi giờ. Dùng đơn vị giờ giúp tính ngay sao nào sắp lên "đỉnh trời": \`1h RA = 15°\`.
+**Vì sao RA tính bằng giờ?** Vì bầu trời quay đúng $360^\\circ$ trong ~24 giờ → $360^\\circ / 24 = 15^\\circ$ mỗi giờ. Dùng đơn vị giờ giúp tính ngay sao nào sắp lên "đỉnh trời": $1\\text{h RA} = 15^\\circ$.
 
 **4 ví dụ số (sao thật):**
 
@@ -121,25 +121,25 @@ Tọa độ chân trời tiện nhưng thay đổi từng phút và khác nhau t
 
 > 📐 **Công thức độ cao cực đại (transit).** Khi một sao lên cao nhất (qua kinh tuyến trời, gọi là *culmination*), độ cao của nó là:
 >
-> \`alt_max = 90° − |φ − δ|\`
+> $$\\text{alt}_{max} = 90^\\circ - |\\varphi - \\delta|$$
 >
-> với \`φ\` = vĩ độ người quan sát, \`δ\` = xích vĩ của sao.
+> với $\\varphi$ = vĩ độ người quan sát, $\\delta$ = xích vĩ của sao.
 
-**Walk-through bằng số thật (verify):** Quan sát **Sirius** (\`δ = −16.7°\`) từ **Hà Nội** (\`φ = 21°\`):
+**Walk-through bằng số thật (verify):** Quan sát **Sirius** ($\\delta = -16{,}7^\\circ$) từ **Hà Nội** ($\\varphi = 21^\\circ$):
 
-\`\`\`
-alt_max = 90° − |21° − (−16.7°)|
-        = 90° − |21° + 16.7°|
-        = 90° − 37.7°
-        = 52.3°
-\`\`\`
+$$\\begin{aligned}
+\\text{alt}_{max} &= 90^\\circ - |21^\\circ - (-16{,}7^\\circ)| \\\\
+&= 90^\\circ - |21^\\circ + 16{,}7^\\circ| \\\\
+&= 90^\\circ - 37{,}7^\\circ \\\\
+&= 52{,}3^\\circ
+\\end{aligned}$$
 
 → Sirius lên cao nhất khoảng **52°** trên chân trời nam ở Hà Nội. (Kiểm chứng hợp lý: Sirius ở nam thiên xích đạo, người ở bắc bán cầu thấy nó về phía nam, không quá cao — khớp.)
 
-> ⚠ **Lỗi thường gặp.** Quên dấu trị tuyệt đối \`| |\`. Nếu bỏ dấu, với sao Dec âm bạn sẽ ra độ cao > 90° (vô lý). Trị tuyệt đối đảm bảo \`alt_max ≤ 90°\`.
+> ⚠ **Lỗi thường gặp.** Quên dấu trị tuyệt đối \`| |\`. Nếu bỏ dấu, với sao Dec âm bạn sẽ ra độ cao > 90° (vô lý). Trị tuyệt đối đảm bảo $\\text{alt}_{max} \\leq 90^\\circ$.
 
-> 🔁 **Dừng lại tự kiểm tra.** Một sao có \`δ = +21°\` quan sát từ Hà Nội \`φ = 21°\`. Độ cao cực đại?
-> <details><summary>Đáp án</summary>\`alt_max = 90° − |21° − 21°| = 90° − 0° = 90°\`. Sao đi **ngay qua thiên đỉnh** — vì xích vĩ của nó bằng đúng vĩ độ người quan sát.</details>
+> 🔁 **Dừng lại tự kiểm tra.** Một sao có $\\delta = +21^\\circ$ quan sát từ Hà Nội $\\varphi = 21^\\circ$. Độ cao cực đại?
+> <details><summary>Đáp án</summary>$\\text{alt}_{max} = 90^\\circ - |21^\\circ - 21^\\circ| = 90^\\circ - 0^\\circ = 90^\\circ$. Sao đi **ngay qua thiên đỉnh** — vì xích vĩ của nó bằng đúng vĩ độ người quan sát.</details>
 
 ---
 
@@ -157,22 +157,22 @@ alt_max = 90° − |21° − (−16.7°)|
 > - **Thiên cầu**: mặt cầu quy ước, định vị thiên thể bằng 2 góc (bỏ qua khoảng cách).
 > - **alt/az**: trực quan, địa phương, đổi theo giờ.
 > - **Nhật động**: bầu trời "quay" do Trái Đất quay; độ cao thiên cực = vĩ độ.
-> - **RA/Dec**: hệ tuyệt đối dán vào sao; RA tính bằng giờ (15°/h).
-> - **Độ cao cực đại**: \`alt_max = 90° − |φ − δ|\`.
+> - **RA/Dec**: hệ tuyệt đối dán vào sao; RA tính bằng giờ ($15^\\circ$/h).
+> - **Độ cao cực đại**: $\\text{alt}_{max} = 90^\\circ - |\\varphi - \\delta|$.
 
 ---
 
 ## Bài tập
 
-1. **Độ cao thiên cực.** Bạn quan sát từ thành phố Đà Lạt, vĩ độ \`φ = 11.9°\` Bắc. Polaris (gần thiên cực bắc) xuất hiện ở độ cao bao nhiêu, về hướng nào?
+1. **Độ cao thiên cực.** Bạn quan sát từ thành phố Đà Lạt, vĩ độ $\\varphi = 11{,}9^\\circ$ Bắc. Polaris (gần thiên cực bắc) xuất hiện ở độ cao bao nhiêu, về hướng nào?
 
-2. **Sao quanh cực.** Vẫn ở Đà Lạt (\`φ = 11.9°\`). Một sao có \`δ = +85°\`. Hãy lập luận xem sao này có phải sao quanh cực (không bao giờ lặn) với người ở Đà Lạt không. *(Gợi ý: sao không lặn khi độ cao cực tiểu của nó vẫn ≥ 0. Độ cao cực tiểu khi qua kinh tuyến phía dưới cực là \`alt_min = δ + φ − 90°\` cho sao gần thiên cực bắc.)*
+2. **Sao quanh cực.** Vẫn ở Đà Lạt ($\\varphi = 11{,}9^\\circ$). Một sao có $\\delta = +85^\\circ$. Hãy lập luận xem sao này có phải sao quanh cực (không bao giờ lặn) với người ở Đà Lạt không. *(Gợi ý: sao không lặn khi độ cao cực tiểu của nó vẫn ≥ 0. Độ cao cực tiểu khi qua kinh tuyến phía dưới cực là $\\text{alt}_{min} = \\delta + \\varphi - 90^\\circ$ cho sao gần thiên cực bắc.)*
 
-3. **Độ cao cực đại.** Tính độ cao cực đại của Vega (\`δ = +38.8°\`) khi quan sát từ Hà Nội (\`φ = 21°\`) và từ Sydney (\`φ = −34°\`). Vega ở phía bắc hay nam bầu trời với mỗi người?
+3. **Độ cao cực đại.** Tính độ cao cực đại của Vega ($\\delta = +38{,}8^\\circ$) khi quan sát từ Hà Nội ($\\varphi = 21^\\circ$) và từ Sydney ($\\varphi = -34^\\circ$). Vega ở phía bắc hay nam bầu trời với mỗi người?
 
-4. **Đổi RA sang độ.** Sirius có \`RA = 6h 45m\`. Đổi sang độ. Sau bao lâu (xấp xỉ) kể từ khi điểm xuân phân qua kinh tuyến, Sirius sẽ qua kinh tuyến?
+4. **Đổi RA sang độ.** Sirius có $\\text{RA} = 6\\text{h } 45\\text{m}$. Đổi sang độ. Sau bao lâu (xấp xỉ) kể từ khi điểm xuân phân qua kinh tuyến, Sirius sẽ qua kinh tuyến?
 
-5. **Phân biệt hệ tọa độ.** Bạn đọc trong catalog: "M42 (tinh vân Orion): RA 5h 35m, Dec −5.4°". Vì sao catalog dùng RA/Dec mà không dùng alt/az? Nêu 2 lý do.
+5. **Phân biệt hệ tọa độ.** Bạn đọc trong catalog: "M42 (tinh vân Orion): RA 5h 35m, Dec $-5{,}4^\\circ$". Vì sao catalog dùng RA/Dec mà không dùng alt/az? Nêu 2 lý do.
 
 ---
 
@@ -182,7 +182,7 @@ alt_max = 90° − |21° − (−16.7°)|
 
 **Cách tiếp cận:** dùng quy tắc *độ cao thiên cực = vĩ độ người quan sát*, hướng về chính bắc (với thiên cực bắc).
 
-\`alt(Polaris) ≈ φ = 11.9°\`, về hướng **chính bắc** (az = 0°).
+$\\text{alt(Polaris)} \\approx \\varphi = 11{,}9^\\circ$, về hướng **chính bắc** ($\\text{az} = 0^\\circ$).
 
 → Ở Đà Lạt, Polaris chỉ cao gần **12°** trên chân trời bắc — khá thấp, dễ bị nhà cửa/cây che. (Càng về xích đạo Polaris càng sát chân trời.)
 
@@ -191,41 +191,42 @@ alt_max = 90° − |21° − (−16.7°)|
 **Cách tiếp cận:** Sao quanh cực ⇔ độ cao **cực tiểu** (lúc qua kinh tuyến dưới) vẫn ≥ 0°.
 
 Công thức độ cao cực tiểu cho sao gần thiên cực bắc:
-\`\`\`
-alt_min = δ + φ − 90°
-        = 85° + 11.9° − 90°
-        = 6.9°
-\`\`\`
-\`alt_min = 6.9° > 0°\` → sao **không bao giờ lặn** ⇒ **đúng là sao quanh cực** với người ở Đà Lạt.
 
-**Kiểm tra trực giác:** điều kiện quanh cực rút gọn là \`δ ≥ 90° − φ = 90° − 11.9° = 78.1°\`. Vì \`85° ≥ 78.1°\` nên thỏa — khớp.
+$$\\begin{aligned}
+\\text{alt}_{min} &= \\delta + \\varphi - 90^\\circ \\\\
+&= 85^\\circ + 11{,}9^\\circ - 90^\\circ \\\\
+&= 6{,}9^\\circ
+\\end{aligned}$$
+
+$\\text{alt}_{min} = 6{,}9^\\circ > 0^\\circ$ → sao **không bao giờ lặn** ⇒ **đúng là sao quanh cực** với người ở Đà Lạt.
+
+**Kiểm tra trực giác:** điều kiện quanh cực rút gọn là $\\delta \\geq 90^\\circ - \\varphi = 90^\\circ - 11{,}9^\\circ = 78{,}1^\\circ$. Vì $85^\\circ \\geq 78{,}1^\\circ$ nên thỏa — khớp.
 
 ### Bài 3 — Độ cao cực đại của Vega
 
-Dùng \`alt_max = 90° − |φ − δ|\`, \`δ = +38.8°\`.
+Dùng $\\text{alt}_{max} = 90^\\circ - |\\varphi - \\delta|$, $\\delta = +38{,}8^\\circ$.
 
-- **Hà Nội** (\`φ = 21°\`):
-  \`\`\`
-  alt_max = 90° − |21° − 38.8°| = 90° − 17.8° = 72.2°
-  \`\`\`
-  \`φ < δ\` nên sao qua kinh tuyến ở phía **bắc** thiên đỉnh → Vega ở **phía bắc** bầu trời, rất cao (72°).
+- **Hà Nội** ($\\varphi = 21^\\circ$):
 
-- **Sydney** (\`φ = −34°\`):
-  \`\`\`
-  alt_max = 90° − |−34° − 38.8°| = 90° − 72.8° = 17.2°
-  \`\`\`
+  $$\\text{alt}_{max} = 90^\\circ - |21^\\circ - 38{,}8^\\circ| = 90^\\circ - 17{,}8^\\circ = 72{,}2^\\circ$$
+
+  $\\varphi < \\delta$ nên sao qua kinh tuyến ở phía **bắc** thiên đỉnh → Vega ở **phía bắc** bầu trời, rất cao (72°).
+
+- **Sydney** ($\\varphi = -34^\\circ$):
+
+  $$\\text{alt}_{max} = 90^\\circ - |-34^\\circ - 38{,}8^\\circ| = 90^\\circ - 72{,}8^\\circ = 17{,}2^\\circ$$
+
   Vega chỉ cao **17°**, ở phía **bắc** chân trời (vì δ dương, người ở nam bán cầu nhìn lên phía bắc). Thấp và khó quan sát — đó là lý do "tam giác mùa hè" là đặc sản bầu trời **bắc** bán cầu.
 
 ### Bài 4 — Đổi RA sang độ
 
-**Đổi giờ-phút sang giờ thập phân:** \`6h 45m = 6 + 45/60 = 6.75h\`.
+**Đổi giờ-phút sang giờ thập phân:** $6\\text{h } 45\\text{m} = 6 + 45/60 = 6{,}75\\text{h}$.
 
 **Đổi sang độ:** mỗi giờ = 15°:
-\`\`\`
-6.75h × 15°/h = 101.25°
-\`\`\`
 
-**Thời gian sau xuân phân:** RA đo trực tiếp "độ trễ" so với điểm xuân phân tính theo thời gian sao. Sirius có RA = 6.75h ⇒ qua kinh tuyến **≈ 6 giờ 45 phút (thời gian sao)** sau khi điểm xuân phân qua kinh tuyến. (Đây chính là ý nghĩa "right ascension" — *thăng thiên về bên phải*: thời điểm thiên thể lên đỉnh trời.)
+$$6{,}75\\text{h} \\times 15^\\circ/\\text{h} = 101{,}25^\\circ$$
+
+**Thời gian sau xuân phân:** RA đo trực tiếp "độ trễ" so với điểm xuân phân tính theo thời gian sao. Sirius có $\\text{RA} = 6{,}75\\text{h}$ ⇒ qua kinh tuyến **≈ 6 giờ 45 phút (thời gian sao)** sau khi điểm xuân phân qua kinh tuyến. (Đây chính là ý nghĩa "right ascension" — *thăng thiên về bên phải*: thời điểm thiên thể lên đỉnh trời.)
 
 ### Bài 5 — Vì sao catalog dùng RA/Dec
 
@@ -242,7 +243,7 @@ Hai lý do (chọn 2 trong số):
 - **Visualization tương tác**: [visualization.html](./visualization.html) — gồm:
   - **Sky Dome**: bán cầu trời nhìn từ người quan sát; kéo slider **vĩ độ** và **giờ** để thấy thiên cực dâng/hạ và sao quay quanh cực.
   - **Coordinate Converter**: nhập RA/Dec + vĩ độ + giờ → hiển thị alt/az tương ứng (minh họa mục 4).
-  - **Transit Calculator**: nhập \`φ\` và \`δ\`, hiện ngay \`alt_max = 90° − |φ − δ|\` kèm hình.
+  - **Transit Calculator**: nhập $\\varphi$ và $\\delta$, hiện ngay $\\text{alt}_{max} = 90^\\circ - |\\varphi - \\delta|$ kèm hình.
 
 ---
 

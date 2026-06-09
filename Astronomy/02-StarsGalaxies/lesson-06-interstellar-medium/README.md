@@ -24,9 +24,9 @@ Sau bài này bạn sẽ:
 
 **Định nghĩa (3 phần) — môi trường liên sao (ISM):**
 
-- **(a) Là gì** — Là vật chất nằm giữa các sao trong một thiên hà: ~99% là **khí** (chủ yếu hydro + heli) và ~1% là **bụi** (hạt rắn cỡ µm). Mật độ điển hình ~1 nguyên tử/cm³ (so với không khí Trái Đất ~2.5×10¹⁹ phân tử/cm³).
+- **(a) Là gì** — Là vật chất nằm giữa các sao trong một thiên hà: ~99% là **khí** (chủ yếu hydro + heli) và ~1% là **bụi** (hạt rắn cỡ µm). Mật độ điển hình ~1 nguyên tử/cm³ (so với không khí Trái Đất $\sim 2{,}5 \times 10^{19}$ phân tử/cm³).
 - **(b) Vì sao cần / quan trọng** — Sao không sinh ra từ hư vô; chúng ngưng tụ từ ISM. Sao chết (gió sao, tinh vân hành tinh, supernova) trả khí giàu nguyên tố nặng về ISM. Vòng tuần hoàn ISM ↔ sao là động cơ tiến hóa hóa học của thiên hà.
-- **(c) Ví dụ trực giác bằng số** — Một đám mây phân tử dày đặc có ~10⁴ phân tử/cm³ — vẫn loãng hơn chân không phòng thí nghiệm (~10⁹–10¹⁰ phân tử/cm³), nhưng đủ đặc để hấp dẫn thắng và sinh sao.
+- **(c) Ví dụ trực giác bằng số** — Một đám mây phân tử dày đặc có $\sim 10^4$ phân tử/cm³ — vẫn loãng hơn chân không phòng thí nghiệm ($\sim 10^9$–$10^{10}$ phân tử/cm³), nhưng đủ đặc để hấp dẫn thắng và sinh sao.
 
 > ⚠ **Lỗi thường gặp.** Nghĩ "không gian giữa sao là chân không tuyệt đối". Sai — nó cực loãng nhưng không trống. Chính lượng bụi nhỏ bé này gây hiệu ứng quan sát rõ rệt (làm đỏ, tắt sáng) trên quãng đường hàng nghìn năm ánh sáng.
 
@@ -75,12 +75,12 @@ Sau bài này bạn sẽ:
 **Định nghĩa (3 phần) — extinction (sự tắt sáng) & reddening (sự làm đỏ):**
 
 - **(a) Là gì:**
-  - **Extinction (tắt sáng):** tổng độ giảm sáng của sao do bụi hấp thụ + tán xạ. Đo bằng độ richter (magnitude) cộng thêm: `A_λ` (số magnitude bị mất ở bước sóng λ).
-  - **Reddening (làm đỏ):** vì bụi tắt ánh xanh mạnh hơn ánh đỏ (`A_xanh > A_đỏ`), sao trông đỏ hơn màu thật. Đo bằng **color excess** `E(B−V) = A_B − A_V`.
+  - **Extinction (tắt sáng):** tổng độ giảm sáng của sao do bụi hấp thụ + tán xạ. Đo bằng độ richter (magnitude) cộng thêm: $A_\lambda$ (số magnitude bị mất ở bước sóng $\lambda$).
+  - **Reddening (làm đỏ):** vì bụi tắt ánh xanh mạnh hơn ánh đỏ ($A_{xanh} > A_{đỏ}$), sao trông đỏ hơn màu thật. Đo bằng **color excess** $E(B-V) = A_B - A_V$.
 - **(b) Vì sao quan trọng** — Nếu không hiệu chỉnh, ta sẽ tưởng một sao xa/mờ hơn thật (đo sai khoảng cách) và đỏ hơn thật (đoán sai nhiệt độ). Mọi phép đo độ sáng/màu sao trong đĩa thiên hà phải trừ extinction.
-- **(c) Ví dụ trực giác bằng số** — Tâm Ngân Hà bị bụi che tới `A_V ≈ 30` magnitude trong ánh sáng nhìn thấy: tức ánh sáng bị giảm `2.512³⁰ ≈ 10¹²` lần — gần như không thể quan sát ở bước sóng nhìn thấy, phải dùng hồng ngoại / radio.
+- **(c) Ví dụ trực giác bằng số** — Tâm Ngân Hà bị bụi che tới $A_V \approx 30$ magnitude trong ánh sáng nhìn thấy: tức ánh sáng bị giảm $2{,}512^{30} \approx 10^{12}$ lần — gần như không thể quan sát ở bước sóng nhìn thấy, phải dùng hồng ngoại / radio.
 
-> 📐 **Vì sao xanh bị chặn nhiều hơn đỏ?** Hạt bụi cỡ ~0.1 µm, gần bước sóng ánh sáng xanh (~0.45 µm) hơn ánh đỏ (~0.65 µm). Tán xạ mạnh hơn khi bước sóng gần kích thước hạt (xấp xỉ tán xạ Rayleigh `∝ 1/λ⁴` ở giới hạn hạt nhỏ) → ánh xanh ngắn bị tán xạ/chặn mạnh hơn → còn lại ánh đỏ.
+> 📐 **Vì sao xanh bị chặn nhiều hơn đỏ?** Hạt bụi cỡ ~0,1 µm, gần bước sóng ánh sáng xanh (~0,45 µm) hơn ánh đỏ (~0,65 µm). Tán xạ mạnh hơn khi bước sóng gần kích thước hạt (xấp xỉ tán xạ Rayleigh $\propto \dfrac{1}{\lambda^4}$ ở giới hạn hạt nhỏ) → ánh xanh ngắn bị tán xạ/chặn mạnh hơn → còn lại ánh đỏ.
 
 **4 ví dụ số (extinction theo lượng bụi):**
 
@@ -124,19 +124,17 @@ Sau bài này bạn sẽ:
 
 **Định nghĩa (3 phần) — khối lượng Jeans (Jeans mass, M_J):**
 
-- **(a) Là gì** — Khối lượng tối thiểu mà một đám khí phải có để **trọng lực tự thắng áp suất** và sụp đổ. Trên `M_J` đám sụp (sinh sao); dưới `M_J` đám bền (áp suất đỡ được).
-- **(b) Vì sao tồn tại** — Vì có cuộc giằng co giữa trọng lực (`∝` khối lượng) và áp suất nhiệt (`∝` nhiệt độ). Ngưỡng cân bằng cho ra một khối lượng tới hạn, gọi theo tên James Jeans.
-- **(c) Ví dụ trực giác bằng số** — `M_J` **giảm** khi đám **lạnh hơn** (áp suất yếu) và **đặc hơn** (trọng lực mạnh). Một đám phân tử lạnh ~10 K, đặc ~10⁴ cm⁻³ có `M_J` cỡ vài chục M☉ → dễ sụp; cùng đám đó nếu nóng 100 K thì `M_J` lớn hơn nhiều → khó sụp.
+- **(a) Là gì** — Khối lượng tối thiểu mà một đám khí phải có để **trọng lực tự thắng áp suất** và sụp đổ. Trên $M_J$ đám sụp (sinh sao); dưới $M_J$ đám bền (áp suất đỡ được).
+- **(b) Vì sao tồn tại** — Vì có cuộc giằng co giữa trọng lực ($\propto$ khối lượng) và áp suất nhiệt ($\propto$ nhiệt độ). Ngưỡng cân bằng cho ra một khối lượng tới hạn, gọi theo tên James Jeans.
+- **(c) Ví dụ trực giác bằng số** — $M_J$ **giảm** khi đám **lạnh hơn** (áp suất yếu) và **đặc hơn** (trọng lực mạnh). Một đám phân tử lạnh ~10 K, đặc $\sim 10^4 \ \text{cm}^{-3}$ có $M_J$ cỡ vài chục $M_\odot$ → dễ sụp; cùng đám đó nếu nóng 100 K thì $M_J$ lớn hơn nhiều → khó sụp.
 
-> 📐 **Xu hướng định tính (không cần thuộc công thức đầy đủ):** `M_J ∝ T^(3/2) / √ρ`. Tức:
-> - Lạnh hơn (T ↓) → `M_J` nhỏ → dễ sinh sao.
-> - Đặc hơn (ρ ↑) → `M_J` nhỏ → dễ sinh sao.
+> 📐 **Xu hướng định tính (không cần thuộc công thức đầy đủ):** $M_J \propto \dfrac{T^{3/2}}{\sqrt{\rho}}$. Tức:
+> - Lạnh hơn (T ↓) → $M_J$ nhỏ → dễ sinh sao.
+> - Đặc hơn (ρ ↑) → $M_J$ nhỏ → dễ sinh sao.
 > Đó là lý do các đám phân tử **lạnh và đặc** (~10 K, giàu H₂ + bụi) là **vườn ươm sao**.
 
 **Walk-through xu hướng (verify bằng tỉ số):** Đám A (T = 10 K) và đám B (T = 40 K) cùng mật độ.
-```
-M_J(B) / M_J(A) = (40/10)^(3/2) = 4^(3/2) = 4·√4 = 4·2 = 8.
-```
+$$\frac{M_J(B)}{M_J(A)} = \left(\frac{40}{10}\right)^{3/2} = 4^{3/2} = 4 \cdot \sqrt{4} = 4 \cdot 2 = 8$$
 → Đám nóng gấp 4 cần khối lượng tới hạn gấp **8 lần** mới sụp được — đám lạnh dễ sinh sao hơn hẳn.
 
 > ❓ **Câu hỏi tự nhiên.**
@@ -144,7 +142,7 @@ M_J(B) / M_J(A) = (40/10)^(3/2) = 4^(3/2) = 4·√4 = 4·2 = 8.
 > - *"Sinh ra một sao hay nhiều sao?"* — Thường **nhiều**: một đám lớn vỡ thành nhiều mảnh (fragmentation), mỗi mảnh thành một sao → sao thường sinh theo **cụm (cluster)**.
 
 > 🔁 **Dừng lại tự kiểm tra.** Hai đám cùng khối lượng và mật độ, một ở 10 K, một ở 100 K. Đám nào dễ sụp đổ sinh sao?
-> <details><summary>Đáp án</summary>Đám 10 K. Vì `M_J ∝ T^(3/2)`, đám lạnh có khối lượng Jeans nhỏ hơn → khối lượng thật dễ vượt ngưỡng → dễ sụp.</details>
+> <details><summary>Đáp án</summary>Đám 10 K. Vì $M_J \propto T^{3/2}$, đám lạnh có khối lượng Jeans nhỏ hơn → khối lượng thật dễ vượt ngưỡng → dễ sụp.</details>
 
 ---
 
@@ -155,7 +153,7 @@ M_J(B) / M_J(A) = (40/10)^(3/2) = 4^(3/2) = 4·√4 = 4·2 = 8.
 > - **3 trạng thái hydro:** HI trung hòa (vạch 21 cm), HII ion hóa (Hα 656 nm, gần sao O/B), H₂ phân tử (lạnh, sinh sao, dò qua CO).
 > - **Bụi:** gây **extinction** (tắt sáng) và **reddening** (làm đỏ, vì chặn xanh mạnh hơn đỏ). Hồng ngoại/radio xuyên bụi tốt.
 > - **4 loại tinh vân:** phát xạ (đỏ), phản xạ (xanh), tối (che), hành tinh (sao nhỏ chết).
-> - **Sinh sao:** đám phân tử lạnh-đặc sụp khi vượt **khối lượng Jeans** `M_J ∝ T^(3/2)/√ρ` — lạnh & đặc thì dễ sụp.
+> - **Sinh sao:** đám phân tử lạnh-đặc sụp khi vượt **khối lượng Jeans** $M_J \propto \dfrac{T^{3/2}}{\sqrt{\rho}}$ — lạnh & đặc thì dễ sụp.
 
 ---
 
@@ -163,13 +161,13 @@ M_J(B) / M_J(A) = (40/10)^(3/2) = 4^(3/2) = 4·√4 = 4·2 = 8.
 
 1. **Nhận diện trạng thái hydro.** Với mỗi dấu hiệu, cho biết trạng thái hydro: (a) phát vạch radio 21 cm; (b) phát Hα 656 nm đỏ quanh một sao O; (c) lạnh ~15 K, dò qua phát xạ CO.
 
-2. **Extinction.** Một sao bị `A_V = 3` magnitude do bụi. Ánh sáng quan sát được giảm bao nhiêu lần so với khi không có bụi? (Mỗi 1 magnitude = giảm 2.512 lần.)
+2. **Extinction.** Một sao bị $A_V = 3$ magnitude do bụi. Ánh sáng quan sát được giảm bao nhiêu lần so với khi không có bụi? (Mỗi 1 magnitude = giảm $2{,}512$ lần.)
 
-3. **Reddening.** Một sao loại B (thật rất xanh) quan sát thấy có `B−V = +0.4`, trong khi màu thật của nó là `(B−V)₀ = −0.1`. Tính color excess `E(B−V)`. Bụi nhiều hay ít trên đường ngắm?
+3. **Reddening.** Một sao loại B (thật rất xanh) quan sát thấy có $B - V = +0{,}4$, trong khi màu thật của nó là $(B-V)_0 = -0{,}1$. Tính color excess $E(B-V)$. Bụi nhiều hay ít trên đường ngắm?
 
 4. **Phân loại tinh vân.** Phân loại 4 trường hợp: (a) đám đỏ hồng quanh các sao trẻ nóng; (b) đám xanh quanh chùm Pleiades; (c) vệt đen che dải Ngân Hà; (d) vòng tròn quanh một sao sắp thành lùn trắng.
 
-5. **Khối lượng Jeans.** Đám A (T = 20 K, ρ) và đám B (T = 20 K, 4ρ) — cùng nhiệt độ, B đặc gấp 4. Tính tỉ số `M_J(B)/M_J(A)`. Đám nào dễ sụp hơn?
+5. **Khối lượng Jeans.** Đám A ($T = 20 \ \text{K}$, $\rho$) và đám B ($T = 20 \ \text{K}$, $4\rho$) — cùng nhiệt độ, B đặc gấp 4. Tính tỉ số $\dfrac{M_J(B)}{M_J(A)}$. Đám nào dễ sụp hơn?
 
 ---
 
@@ -183,20 +181,16 @@ M_J(B) / M_J(A) = (40/10)^(3/2) = 4^(3/2) = 4·√4 = 4·2 = 8.
 
 ### Bài 2 — Extinction
 
-Mỗi magnitude giảm sáng 2.512 lần. Với `A_V = 3`:
-```
-hệ số giảm = 2.512^3 = 2.512 × 2.512 × 2.512 ≈ 15.85 lần.
-```
-(Kiểm tra: theo định nghĩa magnitude, `A = 2.5·log₁₀(F₀/F)` ⇒ `F₀/F = 10^(A/2.5) = 10^(3/2.5) = 10^1.2 ≈ 15.8`. ✓)
+Mỗi magnitude giảm sáng $2{,}512$ lần. Với $A_V = 3$:
+$$\text{hệ số giảm} = 2{,}512^3 = 2{,}512 \times 2{,}512 \times 2{,}512 \approx 15{,}85 \text{ lần}$$
+(Kiểm tra: theo định nghĩa magnitude, $A = 2{,}5\log_{10}\left(\dfrac{F_0}{F}\right)$ ⇒ $\dfrac{F_0}{F} = 10^{A/2{,}5} = 10^{3/2{,}5} = 10^{1{,}2} \approx 15{,}8$. ✓)
 
-→ Ánh sáng quan sát chỉ còn **~1/15.85 ≈ 6.3%** so với khi không có bụi.
+→ Ánh sáng quan sát chỉ còn **$\sim \dfrac{1}{15{,}85} \approx 6{,}3\%$** so với khi không có bụi.
 
 ### Bài 3 — Reddening
 
-```
-E(B−V) = (B−V)_quan_sát − (B−V)₀ = (+0.4) − (−0.1) = +0.5.
-```
-`E(B−V) = +0.5` là dương và khá lớn → màu bị dịch về đỏ nhiều → **nhiều bụi** trên đường ngắm. (Cực thiên hà điển hình `E(B−V) ~ 0.02`; 0.5 là đáng kể, hướng qua đĩa giàu bụi.)
+$$E(B-V) = (B-V)_{quan sát} - (B-V)_0 = (+0{,}4) - (-0{,}1) = +0{,}5$$
+$E(B-V) = +0{,}5$ là dương và khá lớn → màu bị dịch về đỏ nhiều → **nhiều bụi** trên đường ngắm. (Cực thiên hà điển hình $E(B-V) \sim 0{,}02$; $0{,}5$ là đáng kể, hướng qua đĩa giàu bụi.)
 
 ### Bài 4 — Phân loại tinh vân
 
@@ -207,11 +201,9 @@ E(B−V) = (B−V)_quan_sát − (B−V)₀ = (+0.4) − (−0.1) = +0.5.
 
 ### Bài 5 — Khối lượng Jeans
 
-`M_J ∝ T^(3/2) / √ρ`. Cùng `T`, B đặc gấp 4:
-```
-M_J(B)/M_J(A) = √(ρ_A / ρ_B) = √(ρ / 4ρ) = √(1/4) = 1/2 = 0.5.
-```
-→ `M_J(B)` chỉ bằng **một nửa** `M_J(A)`. Khối lượng tới hạn của B nhỏ hơn → **B (đặc hơn) dễ sụp đổ sinh sao hơn**. (Khớp trực giác: nén đặc đám mây → dễ sinh sao, đó là lý do sóng xung kích supernova kích thích sinh sao.)
+$M_J \propto \dfrac{T^{3/2}}{\sqrt{\rho}}$. Cùng $T$, B đặc gấp 4:
+$$\frac{M_J(B)}{M_J(A)} = \sqrt{\frac{\rho_A}{\rho_B}} = \sqrt{\frac{\rho}{4\rho}} = \sqrt{\frac{1}{4}} = \frac{1}{2} = 0{,}5$$
+→ $M_J(B)$ chỉ bằng **một nửa** $M_J(A)$. Khối lượng tới hạn của B nhỏ hơn → **B (đặc hơn) dễ sụp đổ sinh sao hơn**. (Khớp trực giác: nén đặc đám mây → dễ sinh sao, đó là lý do sóng xung kích supernova kích thích sinh sao.)
 
 ---
 

@@ -268,7 +268,7 @@
     /* ── Content area ── */
     .rm-panel .rm-content {
       overflow-y: auto; padding: 24px 28px;
-      font-size: 17px; line-height: 1.65; color: #1f2328;
+      font-size: 16px; line-height: 1.65; color: #1f2328;
       /* Đổi font: thay tên đầu tiên bằng 'Inter Variable' hoặc 'Manrope Variable'
          (cả 3 đã bundle ở tools/fonts/ + khai báo @font-face trong viz-base.css). */
       font-family: 'Roboto Flex Variable', 'Helvetica Neue', Arial, sans-serif;
@@ -297,7 +297,7 @@
     .rm-content a { color: #2c5282; text-decoration: none; }
     .rm-content a:hover { text-decoration: underline; }
     /* KaTeX: cho phép cuộn ngang công thức dài trên mobile thay vì tràn trang */
-    .rm-content .katex-display { margin: 14px 0; overflow-x: auto; overflow-y: hidden; padding: 2px 0; font-size: 24px; }
+    .rm-content .katex-display { margin: 14px 0; overflow-x: auto; overflow-y: hidden; padding: 2px 0; font-size: 22px; }
     .rm-content .katex-display > .katex { font-size: 1em; }
     .rm-content .katex { font-size: 1em; }
     .rm-content .rm-math-fallback { color: #b83280; }
@@ -305,9 +305,11 @@
       border-left: 4px solid #cbd5e0; padding: 4px 14px;
       color: #4a5568; margin: 10px 0; background: #f7fafc;
     }
-    .rm-content table { border-collapse: collapse; margin: 12px 0; width: 100%; }
+    /* font-size: inherit để bảng lấy 16px của .rm-content, chặn rule table font-size
+       rò rỉ từ style nội bộ của viz (trước đây phải ép td/th = 13px vì lý do này). */
+    .rm-content table { border-collapse: collapse; margin: 12px 0; width: 100%; display: block; overflow-x: auto; font-size: inherit; }
     .rm-content th, .rm-content td {
-      border: 1px solid #e2e8f0; padding: 6px 10px; font-size: 13px;
+      border: 1px solid #e2e8f0; padding: 6px 10px; font-size: 1em;
       text-align: left; vertical-align: top;
     }
     .rm-content th { background: #edf2f7; font-weight: 700; }
@@ -340,13 +342,13 @@
       .rm-panel .rm-header { padding: 8px 10px; gap: 6px; }
       .rm-panel .rm-title { font-size: 14px; }
       .rm-mode-toggle button, .rm-toc-toggle { padding: 4px 8px; font-size: 11.5px; }
-      .rm-panel .rm-content { padding: 16px 18px; font-size: 17px; }
+      .rm-panel .rm-content { padding: 16px 18px; font-size: 16px; }
       .rm-content h1 { font-size: 22px; }
       .rm-content h2 { font-size: 18px; }
       .rm-content h3 { font-size: 16px; }
       .rm-content code { font-size: 13.5px; }
       .rm-content pre code { font-size: 13px; }
-      .rm-content th, .rm-content td { font-size: 13px; padding: 5px 8px; }
+      .rm-content th, .rm-content td { font-size: 1em; padding: 5px 8px; }
     }
   `;
 

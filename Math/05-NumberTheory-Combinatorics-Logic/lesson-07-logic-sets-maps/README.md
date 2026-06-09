@@ -2,8 +2,8 @@
 
 ## Mục tiêu
 
-- Hiểu **logic mệnh đề**: ∧, ∨, ¬, →, ↔.
-- **Lượng từ**: ∀ (forall), ∃ (exists). Phủ định.
+- Hiểu **logic mệnh đề**: $\land$, $\lor$, $\neg$, $\to$, $\leftrightarrow$.
+- **Lượng từ**: $\forall$ (forall), $\exists$ (exists). Phủ định.
 - **Tập hợp**: phép toán hợp, giao, hiệu, phần bù, tích Descartes.
 - **Ánh xạ**: đơn ánh (injective), toàn ánh (surjective), song ánh (bijective).
 
@@ -15,103 +15,103 @@
 
 ## 1. Logic mệnh đề
 
-💡 **Trực giác / Hình dung**: mệnh đề là câu "đúng/sai dứt khoát" — như công tắc chỉ có BẬT (T) hoặc TẮT (F). Các phép logic (∧, ∨, ¬...) là "mạch điện" ghép các công tắc lại: AND như 2 công tắc nối tiếp (cả 2 bật mới thông), OR như 2 công tắc song song (1 cái bật là thông).
+💡 **Trực giác / Hình dung**: mệnh đề là câu "đúng/sai dứt khoát" — như công tắc chỉ có BẬT (T) hoặc TẮT (F). Các phép logic ($\land$, $\lor$, $\neg$...) là "mạch điện" ghép các công tắc lại: AND như 2 công tắc nối tiếp (cả 2 bật mới thông), OR như 2 công tắc song song (1 cái bật là thông).
 
 **Mệnh đề** = phát biểu **đúng** hoặc **sai** (không cả 2).
 
 **4 ví dụ số đa dạng**:
-- "2+2 = 4" → mệnh đề **đúng**.
+- "$2+2 = 4$" → mệnh đề **đúng**.
 - "7 là số chẵn" → mệnh đề **sai**.
-- "x + 1 = 5" → KHÔNG phải mệnh đề (đúng/sai tùy x — gọi là vị từ).
+- "$x + 1 = 5$" → KHÔNG phải mệnh đề (đúng/sai tùy x — gọi là vị từ).
 - "Bạn khỏe không?" → KHÔNG phải mệnh đề (câu hỏi, không có giá trị đúng/sai).
 
 ### Phép toán logic
 
 | Ký hiệu | Tên | Ý nghĩa |
 |---------|-----|---------|
-| ¬p | phủ định | "không p" |
-| p ∧ q | và (AND) | "p và q" |
-| p ∨ q | hoặc (OR) | "p hoặc q" |
-| p → q | suy ra | "nếu p thì q" |
-| p ↔ q | tương đương | "p khi và chỉ khi q" |
+| $\neg p$ | phủ định | "không p" |
+| $p \land q$ | và (AND) | "p và q" |
+| $p \lor q$ | hoặc (OR) | "p hoặc q" |
+| $p \to q$ | suy ra | "nếu p thì q" |
+| $p \leftrightarrow q$ | tương đương | "p khi và chỉ khi q" |
 
 ### Bảng chân trị
 
-| p | q | ¬p | p∧q | p∨q | p→q | p↔q |
+| p | q | $\neg p$ | $p \land q$ | $p \lor q$ | $p \to q$ | $p \leftrightarrow q$ |
 |---|---|----|-----|-----|-----|-----|
 | T | T | F  | T   | T   | T   | T   |
 | T | F | F  | F   | T   | F   | F   |
 | F | T | T  | F   | T   | T   | F   |
 | F | F | T  | F   | F   | T   | T   |
 
-⚠ **p → q**: khi p sai, q gì cũng đúng ("ex falso quodlibet"). 
+⚠ **$p \to q$**: khi p sai, q gì cũng đúng ("ex falso quodlibet"). 
 
 **Ví dụ**: "Nếu 1 = 2 thì tôi là Vua Anh" — về mặt logic là **đúng** (vì p sai).
 
 ### Quy luật De Morgan
 
-```
-¬(p ∧ q) = ¬p ∨ ¬q
-¬(p ∨ q) = ¬p ∧ ¬q
-```
+$$\begin{aligned}
+\neg(p \land q) &= \neg p \lor \neg q \\
+\neg(p \lor q) &= \neg p \land \neg q
+\end{aligned}$$
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
-- *"Vì sao `p → q` đúng khi p sai?"* Vì `p → q` chỉ "hứa hẹn": *nếu* p thì q. Khi p không xảy ra, lời hứa không bị vi phạm → mặc định đúng. Vd "nếu trời mưa thì tôi mang ô" — hôm trời không mưa, dù tôi có mang ô hay không, lời hứa vẫn không sai.
-- *"`p → q` và `q → p` có giống nhau không?"* **Không**. `p → q` (thuận) khác `q → p` (đảo). Vd "mưa → ướt đường" đúng, nhưng "ướt đường → mưa" sai (có thể do tưới cây).
+- *"Vì sao $p \to q$ đúng khi p sai?"* Vì $p \to q$ chỉ "hứa hẹn": *nếu* p thì q. Khi p không xảy ra, lời hứa không bị vi phạm → mặc định đúng. Vd "nếu trời mưa thì tôi mang ô" — hôm trời không mưa, dù tôi có mang ô hay không, lời hứa vẫn không sai.
+- *"$p \to q$ và $q \to p$ có giống nhau không?"* **Không**. $p \to q$ (thuận) khác $q \to p$ (đảo). Vd "mưa → ướt đường" đúng, nhưng "ướt đường → mưa" sai (có thể do tưới cây).
 
-⚠ **Lỗi thường gặp — lẫn `p → q` với chiều đảo `q → p`**. Chúng KHÔNG tương đương. Cái tương đương với `p → q` là **phản đảo** `¬q → ¬p`. Phản ví dụ kiểm bảng chân trị: với p=F, q=T: `p→q = T` nhưng `q→p = F` → khác nhau.
+⚠ **Lỗi thường gặp — lẫn $p \to q$ với chiều đảo $q \to p$**. Chúng KHÔNG tương đương. Cái tương đương với $p \to q$ là **phản đảo** $\neg q \to \neg p$. Phản ví dụ kiểm bảng chân trị: với p=F, q=T: $p \to q = T$ nhưng $q \to p = F$ → khác nhau.
 
 🔁 **Dừng lại tự kiểm tra**
 
-1. Dùng De Morgan, viết lại `¬(p ∧ ¬q)`.
+1. Dùng De Morgan, viết lại $\neg(p \land \neg q)$.
 2. Mệnh đề "Nếu 2 > 3 thì mặt trời lạnh" đúng hay sai?
 
 <details><summary>Đáp án</summary>
 
-1. `¬p ∨ ¬(¬q) = ¬p ∨ q`.
-2. **Đúng** — vì p ("2 > 3") sai, nên `p → q` đúng bất kể q.
+1. $\neg p \lor \neg(\neg q) = \neg p \lor q$.
+2. **Đúng** — vì p ("2 > 3") sai, nên $p \to q$ đúng bất kể q.
 
 </details>
 
 ### 📝 Tóm tắt mục 1
 
 - Mệnh đề = câu đúng/sai dứt khoát (công tắc T/F).
-- `p → q` chỉ sai khi p đúng & q sai; p sai thì luôn đúng.
-- De Morgan: `¬(p∧q) = ¬p∨¬q`. `p→q` tương đương phản đảo `¬q→¬p`, KHÔNG phải đảo `q→p`.
+- $p \to q$ chỉ sai khi p đúng & q sai; p sai thì luôn đúng.
+- De Morgan: $\neg(p \land q) = \neg p \lor \neg q$. $p \to q$ tương đương phản đảo $\neg q \to \neg p$, KHÔNG phải đảo $q \to p$.
 
 ---
 
 ## 2. Lượng từ
 
-💡 **Trực giác / Hình dung**: ∀ ("với mọi") là lời khẳng định mạnh — phải đúng cho **toàn bộ**, chỉ cần 1 phản ví dụ là sập. ∃ ("tồn tại") là khẳng định yếu — chỉ cần **1 trường hợp** đúng là xong. Phủ định đảo vai: phá vỡ "mọi" = chỉ ra 1 ngoại lệ (∃ phản ví dụ); phá vỡ "tồn tại" = chứng minh không cái nào (∀ đều không).
+💡 **Trực giác / Hình dung**: $\forall$ ("với mọi") là lời khẳng định mạnh — phải đúng cho **toàn bộ**, chỉ cần 1 phản ví dụ là sập. $\exists$ ("tồn tại") là khẳng định yếu — chỉ cần **1 trường hợp** đúng là xong. Phủ định đảo vai: phá vỡ "mọi" = chỉ ra 1 ngoại lệ ($\exists$ phản ví dụ); phá vỡ "tồn tại" = chứng minh không cái nào ($\forall$ đều không).
 
-- **∀x** = "với mọi x" (forall).
-- **∃x** = "tồn tại x" (exists).
+- **$\forall x$** = "với mọi x" (forall).
+- **$\exists x$** = "tồn tại x" (exists).
 
 **4 ví dụ số đa dạng**:
-- `∀x ∈ ℝ: x² ≥ 0` — **đúng** (mọi số thực bình phương không âm).
-- `∃x ∈ ℝ: x² = 4` — **đúng** (x = 2 hoặc −2).
-- `∀x ∈ ℝ: x² > 0` — **sai** (phản ví dụ x = 0 cho 0).
-- `∃x ∈ ℝ: x² = −1` — **sai** (không số thực nào bình phương ra âm).
+- $\forall x \in \mathbb{R}: x^2 \ge 0$ — **đúng** (mọi số thực bình phương không âm).
+- $\exists x \in \mathbb{R}: x^2 = 4$ — **đúng** (x = 2 hoặc −2).
+- $\forall x \in \mathbb{R}: x^2 > 0$ — **sai** (phản ví dụ x = 0 cho 0).
+- $\exists x \in \mathbb{R}: x^2 = -1$ — **sai** (không số thực nào bình phương ra âm).
 
 ### Phủ định lượng từ
 
-```
-¬(∀x: P(x)) = ∃x: ¬P(x)
-¬(∃x: P(x)) = ∀x: ¬P(x)
-```
+$$\begin{aligned}
+\neg(\forall x: P(x)) &= \exists x: \neg P(x) \\
+\neg(\exists x: P(x)) &= \forall x: \neg P(x)
+\end{aligned}$$
 
-💡 **Mẹo**: đổi ∀ ↔ ∃, và phủ định P.
+💡 **Mẹo**: đổi $\forall \leftrightarrow \exists$, và phủ định P.
 
 **Ví dụ**: Phủ định "mọi hoa đều đẹp" = "tồn tại 1 hoa không đẹp".
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
-- *"Phủ định mệnh đề có nhiều lượng từ thế nào?"* Đảo từng cái từ ngoài vào trong và phủ định lõi. Vd `¬(∀x ∃y: P(x,y)) = ∃x ∀y: ¬P(x,y)`. Mỗi ∀ thành ∃, mỗi ∃ thành ∀.
-- *"Để bác bỏ '∀x: P(x)' tôi cần làm gì?"* Chỉ cần **1 phản ví dụ** (1 x làm P(x) sai). Vd bác bỏ "mọi số nguyên tố là lẻ" bằng p = 2.
+- *"Phủ định mệnh đề có nhiều lượng từ thế nào?"* Đảo từng cái từ ngoài vào trong và phủ định lõi. Vd $\neg(\forall x\ \exists y: P(x,y)) = \exists x\ \forall y: \neg P(x,y)$. Mỗi $\forall$ thành $\exists$, mỗi $\exists$ thành $\forall$.
+- *"Để bác bỏ '$\forall x: P(x)$' tôi cần làm gì?"* Chỉ cần **1 phản ví dụ** (1 x làm P(x) sai). Vd bác bỏ "mọi số nguyên tố là lẻ" bằng p = 2.
 
-⚠ **Lỗi thường gặp — phủ định lượng từ sai (không đổi ∀↔∃)**. Phủ định "mọi sinh viên đều đậu" KHÔNG phải "mọi sinh viên đều rớt", mà là "**tồn tại** 1 sinh viên rớt". Phản ví dụ minh hoạ: lớp 10 người, 9 đậu 1 rớt → "mọi người đậu" sai, "mọi người rớt" cũng sai, chỉ "tồn tại người rớt" mới đúng là phủ định.
+⚠ **Lỗi thường gặp — phủ định lượng từ sai (không đổi $\forall \leftrightarrow \exists$)**. Phủ định "mọi sinh viên đều đậu" KHÔNG phải "mọi sinh viên đều rớt", mà là "**tồn tại** 1 sinh viên rớt". Phản ví dụ minh hoạ: lớp 10 người, 9 đậu 1 rớt → "mọi người đậu" sai, "mọi người rớt" cũng sai, chỉ "tồn tại người rớt" mới đúng là phủ định.
 
 🔁 **Dừng lại tự kiểm tra**
 
@@ -127,71 +127,71 @@
 
 ### 📝 Tóm tắt mục 2
 
-- ∀ = "với mọi" (1 phản ví dụ là sập); ∃ = "tồn tại" (1 trường hợp đủ).
-- Phủ định: đổi `∀↔∃` và phủ định lõi P.
-- Bác bỏ `∀x:P(x)` chỉ cần 1 phản ví dụ.
+- $\forall$ = "với mọi" (1 phản ví dụ là sập); $\exists$ = "tồn tại" (1 trường hợp đủ).
+- Phủ định: đổi $\forall \leftrightarrow \exists$ và phủ định lõi P.
+- Bác bỏ $\forall x: P(x)$ chỉ cần 1 phản ví dụ.
 
 ---
 
 ## 3. Tập hợp
 
-💡 **Trực giác / Hình dung**: tập hợp là 1 "cái túi" chứa các phần tử phân biệt, không quan tâm thứ tự, không lặp. Các phép toán tập hợp tương ứng phép logic: **giao (∩)** = "và" (∧), **hợp (∪)** = "hoặc" (∨), **phần bù** = "không" (¬). Vẽ biểu đồ Venn (vòng tròn chồng nhau) để "thấy" được.
+💡 **Trực giác / Hình dung**: tập hợp là 1 "cái túi" chứa các phần tử phân biệt, không quan tâm thứ tự, không lặp. Các phép toán tập hợp tương ứng phép logic: **giao ($\cap$)** = "và" ($\land$), **hợp ($\cup$)** = "hoặc" ($\lor$), **phần bù** = "không" ($\neg$). Vẽ biểu đồ Venn (vòng tròn chồng nhau) để "thấy" được.
 
 ### Định nghĩa & ký hiệu
 
-- **a ∈ A**: a là phần tử của A.
-- **A ⊂ B**: A là tập con của B.
-- **∅**: tập rỗng.
+- **$a \in A$**: a là phần tử của A.
+- **$A \subset B$**: A là tập con của B.
+- **$\emptyset$**: tập rỗng.
 
 ### Phép toán
 
 | Ký hiệu | Tên | Định nghĩa |
 |---------|-----|------------|
-| A ∪ B | Hợp | {x : x ∈ A ∨ x ∈ B} |
-| A ∩ B | Giao | {x : x ∈ A ∧ x ∈ B} |
-| A \\ B | Hiệu | {x : x ∈ A ∧ x ∉ B} |
-| A^c | Phần bù | U \\ A (U = tập vũ trụ) |
-| A × B | Tích Descartes | {(a, b) : a∈A, b∈B} |
+| $A \cup B$ | Hợp | $\{x : x \in A \lor x \in B\}$ |
+| $A \cap B$ | Giao | $\{x : x \in A \land x \in B\}$ |
+| $A \setminus B$ | Hiệu | $\{x : x \in A \land x \notin B\}$ |
+| $A^c$ | Phần bù | $U \setminus A$ (U = tập vũ trụ) |
+| $A \times B$ | Tích Descartes | $\{(a, b) : a \in A, b \in B\}$ |
 
 ### Quan hệ De Morgan cho tập
 
-```
-(A ∪ B)^c = A^c ∩ B^c
-(A ∩ B)^c = A^c ∪ B^c
-```
+$$\begin{aligned}
+(A \cup B)^c &= A^c \cap B^c \\
+(A \cap B)^c &= A^c \cup B^c
+\end{aligned}$$
 
-⟶ **Tương đồng với logic**: ∪ ↔ ∨, ∩ ↔ ∧, c ↔ ¬.
+⟶ **Tương đồng với logic**: $\cup \leftrightarrow \lor$, $\cap \leftrightarrow \land$, $c \leftrightarrow \neg$.
 
-**4 ví dụ số đa dạng** (A = {1,2,3}, B = {2,3,4}):
-- `A ∪ B = {1,2,3,4}` (hợp = gộp, không lặp).
-- `A ∩ B = {2,3}` (giao = chung).
-- `A \ B = {1}` (hiệu = ở A nhưng không ở B).
-- `|A × B| = 3·3 = 9` (tích Descartes có 9 cặp).
+**4 ví dụ số đa dạng** ($A = \{1,2,3\}$, $B = \{2,3,4\}$):
+- $A \cup B = \{1,2,3,4\}$ (hợp = gộp, không lặp).
+- $A \cap B = \{2,3\}$ (giao = chung).
+- $A \setminus B = \{1\}$ (hiệu = ở A nhưng không ở B).
+- $|A \times B| = 3\cdot 3 = 9$ (tích Descartes có 9 cặp).
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
-- *"`A ⊂ B` và `A ∈ B` khác nhau thế nào?"* `⊂` là "tập con" (mọi phần tử của A đều ở B); `∈` là "phần tử". Vd với `B = {1, {1,2}}`: `{1,2} ∈ B` (là 1 phần tử), nhưng `{1,2} ⊂ B` thì sai (2 không ∈ B).
-- *"Tập n phần tử có bao nhiêu tập con?"* `2^n` (mỗi phần tử "có hoặc không" trong tập con) — liên hệ L04. Vd {1,2,3} có 2³ = 8 tập con.
+- *"$A \subset B$ và $A \in B$ khác nhau thế nào?"* $\subset$ là "tập con" (mọi phần tử của A đều ở B); $\in$ là "phần tử". Vd với $B = \{1, \{1,2\}\}$: $\{1,2\} \in B$ (là 1 phần tử), nhưng $\{1,2\} \subset B$ thì sai ($2 \notin B$).
+- *"Tập n phần tử có bao nhiêu tập con?"* $2^n$ (mỗi phần tử "có hoặc không" trong tập con) — liên hệ L04. Vd $\{1,2,3\}$ có $2^3 = 8$ tập con.
 
-⚠ **Lỗi thường gặp — lẫn `∈` (phần tử) và `⊂` (tập con)**. Phản ví dụ: với A = {1,2,3}, viết `1 ⊂ A` là SAI (1 không phải tập), phải `1 ∈ A` hoặc `{1} ⊂ A`. Phần tử dùng ∈, tập con dùng ⊂.
+⚠ **Lỗi thường gặp — lẫn $\in$ (phần tử) và $\subset$ (tập con)**. Phản ví dụ: với $A = \{1,2,3\}$, viết $1 \subset A$ là SAI (1 không phải tập), phải $1 \in A$ hoặc $\{1\} \subset A$. Phần tử dùng $\in$, tập con dùng $\subset$.
 
 🔁 **Dừng lại tự kiểm tra**
 
-1. Cho A = {1,2,3,4}, B = {3,4,5}. Tính A ∩ B, A ∪ B, A \ B.
-2. `∅` có bao nhiêu tập con?
+1. Cho $A = \{1,2,3,4\}$, $B = \{3,4,5\}$. Tính $A \cap B$, $A \cup B$, $A \setminus B$.
+2. $\emptyset$ có bao nhiêu tập con?
 
 <details><summary>Đáp án</summary>
 
-1. `A ∩ B = {3,4}`; `A ∪ B = {1,2,3,4,5}`; `A \ B = {1,2}`.
-2. `2^0 = 1` (chỉ có chính nó — tập rỗng là tập con của mọi tập).
+1. $A \cap B = \{3,4\}$; $A \cup B = \{1,2,3,4,5\}$; $A \setminus B = \{1,2\}$.
+2. $2^0 = 1$ (chỉ có chính nó — tập rỗng là tập con của mọi tập).
 
 </details>
 
 ### 📝 Tóm tắt mục 3
 
-- Tập = túi phần tử phân biệt, không thứ tự; ∪/∩/bù tương ứng ∨/∧/¬.
-- De Morgan cho tập: `(A∪B)^c = A^c ∩ B^c`.
-- `∈` (phần tử) ≠ `⊂` (tập con); tập n phần tử có `2^n` tập con.
+- Tập = túi phần tử phân biệt, không thứ tự; $\cup/\cap/$bù tương ứng $\lor/\land/\neg$.
+- De Morgan cho tập: $(A \cup B)^c = A^c \cap B^c$.
+- $\in$ (phần tử) $\neq \subset$ (tập con); tập n phần tử có $2^n$ tập con.
 
 ---
 
@@ -199,27 +199,27 @@
 
 ### Định nghĩa
 
-Ánh xạ **f: A → B** = quy tắc gán mỗi phần tử a ∈ A với **đúng 1** phần tử b ∈ B. Viết b = f(a).
+Ánh xạ **$f: A \to B$** = quy tắc gán mỗi phần tử $a \in A$ với **đúng 1** phần tử $b \in B$. Viết $b = f(a)$.
 
 - **Tập nguồn** (domain): A.
 - **Tập đích** (codomain): B.
-- **Ảnh** (image): f(A) = {f(a) : a ∈ A} ⊂ B.
+- **Ảnh** (image): $f(A) = \{f(a) : a \in A\} \subset B$.
 
 ### 3 loại ánh xạ đặc biệt
 
 | Loại | Định nghĩa | Hình ảnh |
 |------|------------|----------|
-| **Đơn ánh** (injective, 1-1) | f(a₁)=f(a₂) ⟹ a₁=a₂ | Mỗi b ∈ Ảnh ứng với ≤1 a |
-| **Toàn ánh** (surjective, onto) | ∀b ∈ B, ∃a: f(a)=b | Ảnh = B |
-| **Song ánh** (bijective, 1-1 onto) | Cả đơn ánh và toàn ánh | Mỗi b ∈ B ứng với đúng 1 a |
+| **Đơn ánh** (injective, 1-1) | $f(a_1)=f(a_2) \implies a_1=a_2$ | Mỗi $b \in$ Ảnh ứng với $\le 1$ a |
+| **Toàn ánh** (surjective, onto) | $\forall b \in B, \exists a: f(a)=b$ | Ảnh = B |
+| **Song ánh** (bijective, 1-1 onto) | Cả đơn ánh và toàn ánh | Mỗi $b \in B$ ứng với đúng 1 a |
 
 > 📐 **Định nghĩa đầy đủ — Đơn ánh / Toàn ánh / Song ánh**
 >
-> **(a) Là gì**: 3 mức độ "tốt" của ánh xạ f: A → B. **Đơn ánh** = không có 2 đầu vào ra cùng đầu ra (mỗi a có ảnh riêng). **Toàn ánh** = mọi b ∈ B đều có ít nhất 1 a "tạo ra" nó (ảnh = B). **Song ánh** = vừa đơn ánh vừa toàn ánh = tương ứng 1-1 hoàn hảo.
+> **(a) Là gì**: 3 mức độ "tốt" của ánh xạ $f: A \to B$. **Đơn ánh** = không có 2 đầu vào ra cùng đầu ra (mỗi a có ảnh riêng). **Toàn ánh** = mọi $b \in B$ đều có ít nhất 1 a "tạo ra" nó (ảnh = B). **Song ánh** = vừa đơn ánh vừa toàn ánh = tương ứng 1-1 hoàn hảo.
 >
-> **(b) Vì sao cần**: Song ánh là điều kiện CẦN và ĐỦ để f có **hàm ngược** f⁻¹. Trong mã hoá, nén dữ liệu: phải song ánh (mã hoá ngược được). Trong toán: dùng để định nghĩa "đếm được" (tập đếm được = có song ánh với ℕ → ℕ, ℤ, ℚ đếm được; ℝ KHÔNG đếm được — chứng minh Cantor). Trong AI: muốn invert layer của neural network → cần song ánh (lưu lượng thông tin).
+> **(b) Vì sao cần**: Song ánh là điều kiện CẦN và ĐỦ để f có **hàm ngược** $f^{-1}$. Trong mã hoá, nén dữ liệu: phải song ánh (mã hoá ngược được). Trong toán: dùng để định nghĩa "đếm được" (tập đếm được = có song ánh với $\mathbb{N}$ → $\mathbb{N}, \mathbb{Z}, \mathbb{Q}$ đếm được; $\mathbb{R}$ KHÔNG đếm được — chứng minh Cantor). Trong AI: muốn invert layer của neural network → cần song ánh (lưu lượng thông tin).
 >
-> **(c) Ví dụ số**: f: ℕ → ℕ, f(n) = 2n. Đơn ánh ✓ (n₁≠n₂ → 2n₁≠2n₂). Toàn ánh ✗ (số lẻ không có nguồn). f: ℝ → ℝ, f(x) = x². Đơn ánh ✗ (f(2)=f(-2)=4). Toàn ánh ✗ (số âm không có nguồn). f: ℝ → ℝ, f(x) = x³. Đơn ✓ (tăng nghiêm ngặt), Toàn ✓ → **song ánh**. Ngược f⁻¹(y) = ∛y. f: ℝ → ℝ, f(x) = 2x+1: song ánh (mọi đường thẳng a≠0), f⁻¹(y) = (y−1)/2.
+> **(c) Ví dụ số**: $f: \mathbb{N} \to \mathbb{N}$, $f(n) = 2n$. Đơn ánh ✓ ($n_1 \neq n_2 \to 2n_1 \neq 2n_2$). Toàn ánh ✗ (số lẻ không có nguồn). $f: \mathbb{R} \to \mathbb{R}$, $f(x) = x^2$. Đơn ánh ✗ ($f(2)=f(-2)=4$). Toàn ánh ✗ (số âm không có nguồn). $f: \mathbb{R} \to \mathbb{R}$, $f(x) = x^3$. Đơn ✓ (tăng nghiêm ngặt), Toàn ✓ → **song ánh**. Ngược $f^{-1}(y) = \sqrt[3]{y}$. $f: \mathbb{R} \to \mathbb{R}$, $f(x) = 2x+1$: song ánh (mọi đường thẳng $a \neq 0$), $f^{-1}(y) = (y-1)/2$.
 
 💡 **Trực giác**:
 - Đơn ánh = "không có 2 đầu vào ra cùng đầu ra".
@@ -228,33 +228,33 @@
 
 ### Ví dụ
 
-- f: ℝ → ℝ, f(x) = x² → **không** đơn ánh (f(2) = f(-2)), **không** toàn ánh (không có x: f(x) = -1).
-- f: ℝ → [0,∞), f(x) = x² → **không** đơn ánh, **toàn** ánh.
-- f: [0,∞) → [0,∞), f(x) = x² → **song** ánh.
-- f: ℝ → ℝ, f(x) = e^x → đơn ánh nhưng không toàn ánh.
-- f: ℝ → ℝ, f(x) = 2x + 3 → **song ánh** (mọi hàm bậc 1 với a ≠ 0).
+- $f: \mathbb{R} \to \mathbb{R}$, $f(x) = x^2$ → **không** đơn ánh ($f(2) = f(-2)$), **không** toàn ánh (không có x: $f(x) = -1$).
+- $f: \mathbb{R} \to [0,\infty)$, $f(x) = x^2$ → **không** đơn ánh, **toàn** ánh.
+- $f: [0,\infty) \to [0,\infty)$, $f(x) = x^2$ → **song** ánh.
+- $f: \mathbb{R} \to \mathbb{R}$, $f(x) = e^x$ → đơn ánh nhưng không toàn ánh.
+- $f: \mathbb{R} \to \mathbb{R}$, $f(x) = 2x + 3$ → **song ánh** (mọi hàm bậc 1 với $a \neq 0$).
 
 ### Hàm hợp & hàm ngược
 
-- **Hàm hợp** (g ∘ f)(x) = g(f(x)).
-- **Hàm ngược**: chỉ tồn tại khi f là **song ánh**. f⁻¹(b) = a ⟺ f(a) = b.
+- **Hàm hợp** $(g \circ f)(x) = g(f(x))$.
+- **Hàm ngược**: chỉ tồn tại khi f là **song ánh**. $f^{-1}(b) = a \iff f(a) = b$.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
-- *"Cùng công thức `f(x) = x²` sao khi đơn ánh khi không?"* Phụ thuộc **tập nguồn**. Trên ℝ: không đơn ánh (f(2)=f(−2)). Trên [0,∞): đơn ánh (chỉ phần x ≥ 0). Định nghĩa ánh xạ gồm cả công thức LẪN tập nguồn/đích.
-- *"Tính toàn ánh phụ thuộc gì?"* Phụ thuộc **tập đích B**. `f(x)=x²` lên ℝ không toàn ánh (số âm thiếu nguồn); lên [0,∞) thì toàn ánh (ảnh phủ kín đích).
+- *"Cùng công thức $f(x) = x^2$ sao khi đơn ánh khi không?"* Phụ thuộc **tập nguồn**. Trên $\mathbb{R}$: không đơn ánh ($f(2)=f(-2)$). Trên $[0,\infty)$: đơn ánh (chỉ phần $x \ge 0$). Định nghĩa ánh xạ gồm cả công thức LẪN tập nguồn/đích.
+- *"Tính toàn ánh phụ thuộc gì?"* Phụ thuộc **tập đích B**. $f(x)=x^2$ lên $\mathbb{R}$ không toàn ánh (số âm thiếu nguồn); lên $[0,\infty)$ thì toàn ánh (ảnh phủ kín đích).
 
-⚠ **Lỗi thường gặp — kết luận song ánh chỉ nhìn công thức, bỏ qua tập nguồn/đích**. Phản ví dụ: `f(x) = x²` "có vẻ" 1-1 nhưng trên ℝ thì KHÔNG đơn ánh (f(3)=f(−3)=9) và KHÔNG toàn ánh (f(x)=−4 vô nghiệm). Phải xét rõ A và B mới kết luận được.
+⚠ **Lỗi thường gặp — kết luận song ánh chỉ nhìn công thức, bỏ qua tập nguồn/đích**. Phản ví dụ: $f(x) = x^2$ "có vẻ" 1-1 nhưng trên $\mathbb{R}$ thì KHÔNG đơn ánh ($f(3)=f(-3)=9$) và KHÔNG toàn ánh ($f(x)=-4$ vô nghiệm). Phải xét rõ A và B mới kết luận được.
 
 🔁 **Dừng lại tự kiểm tra**
 
-1. `f: ℝ → ℝ, f(x) = x + 5`. Song ánh không? Hàm ngược?
-2. `f: ℕ → ℕ, f(n) = n + 1`. Đơn ánh? Toàn ánh?
+1. $f: \mathbb{R} \to \mathbb{R}, f(x) = x + 5$. Song ánh không? Hàm ngược?
+2. $f: \mathbb{N} \to \mathbb{N}, f(n) = n + 1$. Đơn ánh? Toàn ánh?
 
 <details><summary>Đáp án</summary>
 
-1. **Song ánh** (hàm bậc 1, hệ số ≠ 0). `f⁻¹(y) = y − 5`.
-2. Đơn ánh ✓ (n₁≠n₂ → n₁+1≠n₂+1). Toàn ánh ✗ (số 0 không có nguồn: không n∈ℕ nào cho f(n)=0).
+1. **Song ánh** (hàm bậc 1, hệ số $\neq 0$). $f^{-1}(y) = y - 5$.
+2. Đơn ánh ✓ ($n_1 \neq n_2 \to n_1+1 \neq n_2+1$). Toàn ánh ✗ (số 0 không có nguồn: không $n \in \mathbb{N}$ nào cho $f(n)=0$).
 
 </details>
 
@@ -262,7 +262,7 @@
 
 - Ánh xạ gồm công thức + tập nguồn A + tập đích B.
 - Đơn ánh (1-1), toàn ánh (ảnh = B), song ánh (cả hai).
-- Hàm ngược tồn tại ⟺ song ánh. Đơn/toàn phụ thuộc A và B, không chỉ công thức.
+- Hàm ngược tồn tại $\iff$ song ánh. Đơn/toàn phụ thuộc A và B, không chỉ công thức.
 
 ---
 
@@ -270,36 +270,36 @@
 
 ### Bài tập
 
-**Bài 1**: Lập bảng chân trị cho p ∧ (¬q ∨ p).
+**Bài 1**: Lập bảng chân trị cho $p \land (\neg q \lor p)$.
 
 **Bài 2**: Phủ định "Mọi sinh viên đều có máy tính".
 
-**Bài 3**: Cho A = {1, 2, 3}, B = {3, 4}. Tính A ∪ B, A ∩ B, A \\ B, A × B.
+**Bài 3**: Cho $A = \{1, 2, 3\}$, $B = \{3, 4\}$. Tính $A \cup B$, $A \cap B$, $A \setminus B$, $A \times B$.
 
-**Bài 4**: f: ℝ → ℝ, f(x) = x³. Có đơn ánh không? Toàn ánh? Song ánh?
+**Bài 4**: $f: \mathbb{R} \to \mathbb{R}$, $f(x) = x^3$. Có đơn ánh không? Toàn ánh? Song ánh?
 
-**Bài 5**: f: ℕ → ℕ, f(n) = 2n. Đơn ánh? Toàn ánh?
+**Bài 5**: $f: \mathbb{N} \to \mathbb{N}$, $f(n) = 2n$. Đơn ánh? Toàn ánh?
 
 ### Lời giải
 
 **Bài 1**: 
 
-| p | q | ¬q | ¬q∨p | p∧(¬q∨p) |
+| p | q | $\neg q$ | $\neg q \lor p$ | $p \land (\neg q \lor p)$ |
 |---|---|----|------|----------|
 | T | T | F  | T    | T        |
 | T | F | T  | T    | T        |
 | F | T | F  | F    | F        |
 | F | F | T  | T    | F        |
 
-⟶ = p (đơn giản hơn).
+⟶ $= p$ (đơn giản hơn).
 
 **Bài 2**: "Tồn tại 1 sinh viên không có máy tính".
 
-**Bài 3**: A ∪ B = {1,2,3,4}. A ∩ B = {3}. A \\ B = {1, 2}. A × B = {(1,3),(1,4),(2,3),(2,4),(3,3),(3,4)} — 6 cặp.
+**Bài 3**: $A \cup B = \{1,2,3,4\}$. $A \cap B = \{3\}$. $A \setminus B = \{1, 2\}$. $A \times B = \{(1,3),(1,4),(2,3),(2,4),(3,3),(3,4)\}$ — 6 cặp.
 
-**Bài 4**: f(x) = x³ tăng nghiêm ngặt → đơn ánh ✓. f(ℝ) = ℝ → toàn ánh ✓. → **Song ánh**. Hàm ngược: f⁻¹(y) = ∛y.
+**Bài 4**: $f(x) = x^3$ tăng nghiêm ngặt → đơn ánh ✓. $f(\mathbb{R}) = \mathbb{R}$ → toàn ánh ✓. → **Song ánh**. Hàm ngược: $f^{-1}(y) = \sqrt[3]{y}$.
 
-**Bài 5**: Đơn ánh ✓ (n₁ ≠ n₂ → 2n₁ ≠ 2n₂). Toàn ánh ✗ (số lẻ không có nghịch ảnh).
+**Bài 5**: Đơn ánh ✓ ($n_1 \neq n_2 \to 2n_1 \neq 2n_2$). Toàn ánh ✗ (số lẻ không có nghịch ảnh).
 
 ---
 
@@ -309,8 +309,8 @@
 
 ## 📝 Tổng kết
 
-1. **Logic**: ¬, ∧, ∨, →, ↔. De Morgan: ¬(p∧q) = ¬p∨¬q.
-2. **Lượng từ**: ¬∀ = ∃¬, ¬∃ = ∀¬.
-3. **Tập hợp**: ∪, ∩, \\, c, ×. Tương đồng với logic.
+1. **Logic**: $\neg, \land, \lor, \to, \leftrightarrow$. De Morgan: $\neg(p \land q) = \neg p \lor \neg q$.
+2. **Lượng từ**: $\neg\forall = \exists\neg$, $\neg\exists = \forall\neg$.
+3. **Tập hợp**: $\cup, \cap, \setminus, c, \times$. Tương đồng với logic.
 4. **Ánh xạ**: đơn ánh (1-1), toàn ánh (onto), song ánh (1-1 onto).
 5. Hàm ngược **chỉ tồn tại** khi f là song ánh.

@@ -4,7 +4,7 @@
 
 - Hiểu khái niệm **tập hợp rời rạc (disjoint set)** và bài toán liên thông động.
 - Cài đặt `find` và `union` với hai tối ưu **union by rank** và **path compression**.
-- Hiểu độ phức tạp gần như `O(1)` thực tế.
+- Hiểu độ phức tạp gần như $O(1)$ thực tế.
 - Biết các bài toán thường dùng Union-Find.
 
 ## Kiến thức tiền đề
@@ -13,7 +13,7 @@
 
 ## 1. Bài toán
 
-Cho `n` phần tử ban đầu mỗi cái thuộc một tập riêng. Hỗ trợ hai thao tác:
+Cho $n$ phần tử ban đầu mỗi cái thuộc một tập riêng. Hỗ trợ hai thao tác:
 
 - `union(a, b)`: gộp tập chứa `a` và tập chứa `b`.
 - `find(a)`: trả về **đại diện (representative)** của tập chứa `a`.
@@ -42,7 +42,7 @@ Cấu trúc nội bộ là **rừng (forest) các cây có gốc**, mỗi cây =
 
 ### 1.2. ❓ Câu hỏi tự nhiên trước khi vào cài đặt
 
-- **"Sao không lưu thẳng `group[i] = id_nhóm` rồi `find` là `O(1)`?"** — Được, nhưng `union` sẽ tốn `O(n)` (phải đổi `group` của mọi phần tử trong nhóm nhỏ). Tổng `n` lần union → `O(n²)`. Cấu trúc cây cho phép `union` lẫn `find` đều "gần `O(1)`" amortized.
+- **"Sao không lưu thẳng `group[i] = id_nhóm` rồi `find` là $O(1)$?"** — Được, nhưng `union` sẽ tốn $O(n)$ (phải đổi `group` của mọi phần tử trong nhóm nhỏ). Tổng $n$ lần union → $O(n^2)$. Cấu trúc cây cho phép `union` lẫn `find` đều "gần $O(1)$" amortized.
 - **"Có cách nào support `disconnect` / `split` không?"** — Khó. Union-Find tối ưu cho thao tác **chỉ thêm cạnh, không bớt**. Bớt cạnh cần cấu trúc khác (offline + link-cut tree).
 - **"Đại diện có ý nghĩa cụ thể không?"** — Không. Nó chỉ là **một node bất kỳ** trong nhóm, được chọn làm "đại diện". Nhưng cùng một nhóm thì mọi `find` đều trả về cùng một đại diện.
 
@@ -91,7 +91,7 @@ Trạng thái sau từng thao tác:
 | `union(1, 3)` → `find(1)=1`, `find(3)=3` → `parent[1] = 3` | `[1, 3, 3, 3, 4]` | `0→1→3`, `2→3`, `4` mồ côi |
 | `union(0, 4)` → `find(0)=3` (đi 0→1→3), `find(4)=4` → `parent[3] = 4` | `[1, 3, 3, 4, 4]` | `0→1→3→4`, `2→3→4` |
 
-Kiểm tra: `find(0)`? Đi `0 → 1 → 3 → 4`. Vậy `parent[4] = 4` → đại diện = `4`. Mất **3 bước** chỉ với 5 phần tử. Nếu các thao tác cứ nối kiểu này (linked-list hóa) thì `find` thành `O(n)` — đúng là vấn đề.
+Kiểm tra: `find(0)`? Đi `0 → 1 → 3 → 4`. Vậy `parent[4] = 4` → đại diện = `4`. Mất **3 bước** chỉ với 5 phần tử. Nếu các thao tác cứ nối kiểu này (linked-list hóa) thì `find` thành $O(n)$ — đúng là vấn đề.
 
 ## 3. Tối ưu 1 — Union by rank/size
 
@@ -110,7 +110,7 @@ function union(a, b):
         rank[ra] += 1
 ```
 
-Chiều cao trở thành `O(log n)`.
+Chiều cao trở thành $O(\log n)$.
 
 ### 3.1. Walk-through — union by rank trên 5 phần tử
 
@@ -129,7 +129,7 @@ Cây cuối: `0` là gốc, các con trực tiếp `1, 2, 4`; `3` qua `2 → 0`.
 
 Hình dung **kim tự tháp**: nếu bạn xếp tháp nhỏ lên đỉnh tháp lớn, chiều cao toàn cụm tăng đúng bằng tháp nhỏ. Nhưng nếu xếp tháp lớn lên tháp nhỏ → toàn bộ tháp lớn "ngất ngưởng" trên đỉnh → chiều cao tăng vọt.
 
-Quy tắc "thấp gắn vào cao" giữ chiều cao không tăng (trừ khi hai cây **bằng** chiều cao → mới tăng `+1`). Chứng minh được chiều cao ≤ `log₂ n`.
+Quy tắc "thấp gắn vào cao" giữ chiều cao không tăng (trừ khi hai cây **bằng** chiều cao → mới tăng $+1$). Chứng minh được chiều cao $\leq \log_2 n$.
 
 ## 4. Tối ưu 2 — Path compression
 
@@ -197,9 +197,9 @@ Lần `find(0)` tiếp theo? Đi `0 → 4` — **1 bước**. Cây "ép phẳng"
 
 | Lỗi | Hậu quả | Cách sửa |
 |------|---------|----------|
-| Quên gán `parent[x] = ...` (chỉ `return find(parent[x])`) | Không có nén — `find` vẫn `O(log n)` thay vì `O(α)` | Phải có `parent[x] = find(parent[x])` |
+| Quên gán `parent[x] = ...` (chỉ `return find(parent[x])`) | Không có nén — `find` vẫn $O(\log n)$ thay vì $O(\alpha)$ | Phải có `parent[x] = find(parent[x])` |
 | Dùng `parent[x] = parent[parent[x]]` (chỉ "halving") | Vẫn cải thiện được, nhưng yếu hơn nén toàn bộ | Dùng đệ quy nén full hoặc 2-pass iterative |
-| Đệ quy quá sâu trên đồ thị `10⁶` phần tử | Stack overflow | Dùng iterative path compression (2 pass) |
+| Đệ quy quá sâu trên đồ thị $10^6$ phần tử | Stack overflow | Dùng iterative path compression (2 pass) |
 
 ```go
 // Iterative path compression (an toàn với n lớn)
@@ -217,43 +217,43 @@ func (u *UF) Find(x int) int {
 
 ## 5. Độ phức tạp khi kết hợp cả hai
 
-Mỗi thao tác có độ phức tạp **amortized `O(α(n))`**, với `α` là hàm Ackermann ngược — **gần như là hằng số** (`α(n) < 5` cho mọi `n` thực tế).
+Mỗi thao tác có độ phức tạp **amortized $O(\alpha(n))$**, với $\alpha$ là hàm Ackermann ngược — **gần như là hằng số** ($\alpha(n) < 5$ cho mọi $n$ thực tế).
 
-→ Coi như `O(1)` trong thực hành.
+→ Coi như $O(1)$ trong thực hành.
 
-### 5.1. ❓ Câu hỏi tự nhiên — `α(n)` là gì, vì sao "gần hằng số"?
+### 5.1. ❓ Câu hỏi tự nhiên — $\alpha(n)$ là gì, vì sao "gần hằng số"?
 
-**`α(n)` là nghịch đảo của hàm Ackermann `A(k, k)`** — một hàm tăng cực chậm. Bảng giá trị thực tế:
+**$\alpha(n)$ là nghịch đảo của hàm Ackermann $A(k, k)$** — một hàm tăng cực chậm. Bảng giá trị thực tế:
 
-| `n` | `α(n)` |
+| $n$ | $\alpha(n)$ |
 |-----|--------|
-| `n ≤ 2` | `0` |
-| `n ≤ 3` | `1` |
-| `n ≤ 7` | `2` |
-| `n ≤ 2047` | `3` |
-| `n ≤ 2^(2^16) - 1 ≈ 10^19728` | `4` |
-| Số nguyên tử trong vũ trụ quan sát được (`~10⁸⁰`) | `4` |
+| $n \leq 2$ | $0$ |
+| $n \leq 3$ | $1$ |
+| $n \leq 7$ | $2$ |
+| $n \leq 2047$ | $3$ |
+| $n \leq 2^{2^{16}} - 1 \approx 10^{19728}$ | $4$ |
+| Số nguyên tử trong vũ trụ quan sát được ($\sim 10^{80}$) | $4$ |
 
-Tóm lại: với mọi `n` "có thật trên Trái Đất", `α(n) ≤ 4` — coi như hằng số. Bạn không bao giờ thấy `α(n) = 5` trong đời.
+Tóm lại: với mọi $n$ "có thật trên Trái Đất", $\alpha(n) \leq 4$ — coi như hằng số. Bạn không bao giờ thấy $\alpha(n) = 5$ trong đời.
 
-**Vì sao chỉ amortized?** Một thao tác **lẻ** vẫn có thể mất `O(log n)` (lần đầu `find` trên cây dài). Nhưng **trung bình trên m thao tác**, tổng chi phí là `O(m · α(n))`. Path compression "trả trước" công sức cho các lần `find` sau.
+**Vì sao chỉ amortized?** Một thao tác **lẻ** vẫn có thể mất $O(\log n)$ (lần đầu `find` trên cây dài). Nhưng **trung bình trên m thao tác**, tổng chi phí là $O(m \cdot \alpha(n))$. Path compression "trả trước" công sức cho các lần `find` sau.
 
 ### 5.2. ⚠ Lỗi thường gặp — kết hợp tối ưu sai cách
 
 | Lỗi | Hậu quả | Cách sửa |
 |------|---------|----------|
-| Dùng path compression **không kèm** union by rank | Chiều cao có thể không bị giới hạn ngắn, vẫn ổn `O(log n)` amortized | Dùng cả hai → `O(α(n))` |
-| Dùng union by rank **không kèm** path compression | `O(log n)` mỗi thao tác, không gần hằng số | Bật thêm path compression |
+| Dùng path compression **không kèm** union by rank | Chiều cao có thể không bị giới hạn ngắn, vẫn ổn $O(\log n)$ amortized | Dùng cả hai → $O(\alpha(n))$ |
+| Dùng union by rank **không kèm** path compression | $O(\log n)$ mỗi thao tác, không gần hằng số | Bật thêm path compression |
 | Quên giảm rank khi gộp | Rank chỉ tăng, không sai nhưng tốn bộ nhớ debug | Không cần giảm — rank là "upper bound", giữ tăng đúng quy tắc |
 | Reset `rank` về 0 sau union | Sai luôn — phá cấu trúc cây | Không bao giờ reset |
 
 ### 5.3. 📝 Tóm tắt mục 2-5
 
-- Cài ngây thơ: `find` có thể `O(n)` (cây "linked-list").
-- **Union by rank**: thấp gắn vào cao → chiều cao `O(log n)`.
-- **Path compression**: ép cây phẳng sau mỗi `find` → các lần sau gần `O(1)`.
-- Kết hợp cả hai: **amortized `O(α(n)) ≈ O(1)`** thực tế.
-- Bộ nhớ: `O(n)` cho `parent[]` + `rank[]`.
+- Cài ngây thơ: `find` có thể $O(n)$ (cây "linked-list").
+- **Union by rank**: thấp gắn vào cao → chiều cao $O(\log n)$.
+- **Path compression**: ép cây phẳng sau mỗi `find` → các lần sau gần $O(1)$.
+- Kết hợp cả hai: **amortized $O(\alpha(n)) \approx O(1)$** thực tế.
+- Bộ nhớ: $O(n)$ cho `parent[]` + `rank[]`.
 
 ## 6. Ứng dụng
 
@@ -285,29 +285,29 @@ function kruskal(edges, n):
     return mst
 ```
 
-`O(E log E)`.
+$O(E \log E)$.
 
 ### 7.1. ❓ Câu hỏi tự nhiên về ứng dụng
 
 - **"UF có dùng cho đồ thị có hướng?"** — **Không**. UF gom phần tử có quan hệ **đối xứng** (cùng tập). Đồ thị có hướng `a → b` không suy ra `b → a`. Phát hiện chu trình trên đồ thị có hướng cần DFS với 3 màu (xem lesson 11, bài 2).
 - **"Có thể dùng UF để tách (split) tập không?"** — Không trực tiếp. Bạn phải xây lại UF, hoặc dùng **offline**: xử lý ngược các thao tác `split` thành `union` từ trạng thái cuối.
-- **"Kruskal vs Prim — khi nào dùng cái nào?"** — Kruskal (UF) tốt khi cạnh thưa, có thể sort cạnh dễ. Prim (heap) tốt khi đồ thị dày, phù hợp adjacency list/matrix sẵn. Cùng `O(E log V)`.
+- **"Kruskal vs Prim — khi nào dùng cái nào?"** — Kruskal (UF) tốt khi cạnh thưa, có thể sort cạnh dễ. Prim (heap) tốt khi đồ thị dày, phù hợp adjacency list/matrix sẵn. Cùng $O(E \log V)$.
 
 ### 7.2. 🔁 Tự kiểm tra
 
 1. Sau chuỗi `union(0,1), union(2,3), union(1,2)` với union by rank trên 5 phần tử, `find(3)` ra gì?
    <details><summary>Đáp án</summary>Sau `union(0,1)`: rank `[1,0,0,0,0]`, `parent[1]=0`. Sau `union(2,3)`: rank `[1,0,1,0,0]`, `parent[3]=2`. `union(1,2)`: `find(1)=0`, `find(2)=2`, `rank[0]==rank[2]==1` → `parent[2]=0`, `rank[0]=2`. Vậy `find(3)`: `3 → 2 → 0`, trả về `0`.</details>
 2. Nếu lưu `size` thay vì `rank` (`union by size`), kết quả cuối có giống không?
-   <details><summary>Đáp án</summary>Cùng đạt `O(α)` amortized. Lựa chọn cụ thể (kích thước nhóm vs chiều cao) thường giống nhau khi cây thấp, nhưng size có lợi thế: trả lời được "nhóm a có bao nhiêu người" trong `O(α)`.</details>
+   <details><summary>Đáp án</summary>Cùng đạt $O(\alpha)$ amortized. Lựa chọn cụ thể (kích thước nhóm vs chiều cao) thường giống nhau khi cây thấp, nhưng size có lợi thế: trả lời được "nhóm a có bao nhiêu người" trong $O(\alpha)$.</details>
 3. UF có dùng được cho **tính số đảo** trong mảng (LeetCode 493 — Reverse Pairs) không?
    <details><summary>Đáp án</summary>Không phù hợp. Đảo cần thứ tự tổng, UF chỉ quản lý quan hệ tương đương. Dùng merge sort hoặc BIT (lesson 13).</details>
 
 ## Bài tập
 
 1. Cài đặt Union-Find với cả hai tối ưu. So sánh tốc độ với phiên bản ngây thơ.
-2. Cho `n` người và một danh sách cặp bạn bè. Tính số nhóm bạn (thành phần liên thông).
+2. Cho $n$ người và một danh sách cặp bạn bè. Tính số nhóm bạn (thành phần liên thông).
 3. Cho đồ thị có hướng, Union-Find có dùng được để phát hiện chu trình không? Vì sao?
-4. Mở rộng Union-Find để hỗ trợ truy vấn **kích thước tập** chứa một phần tử trong `O(α)`.
+4. Mở rộng Union-Find để hỗ trợ truy vấn **kích thước tập** chứa một phần tử trong $O(\alpha)$.
 5. Cài đặt Kruskal dùng Union-Find.
 
 ## Lời giải chi tiết
@@ -333,10 +333,10 @@ func (u *UF) Union(a, b int) bool {
     return true
 }
 ```
-Mỗi thao tác amortized `O(α(n)) ≈ O(1)`.
+Mỗi thao tác amortized $O(\alpha(n)) \approx O(1)$.
 
 ### Bài 2 — Đếm nhóm bạn
-Khởi tạo UF với `n` người. Với mỗi cặp `(a, b)` là bạn: `Union(a, b)`. Cuối cùng đếm số đại diện khác nhau (số `i` mà `Find(i) == i`).
+Khởi tạo UF với $n$ người. Với mỗi cặp `(a, b)` là bạn: `Union(a, b)`. Cuối cùng đếm số đại diện khác nhau (số $i$ mà `Find(i) == i`).
 
 ```go
 func friendGroups(n int, pairs [][2]int) int {
@@ -360,7 +360,7 @@ type UF struct{ parent, rank, size []int }
 // trong Union: size[ra] += size[rb]
 // SizeOf(x) := size[Find(x)]
 ```
-`O(α)`.
+$O(\alpha)$.
 
 ### Bài 5 — Kruskal dùng Union-Find
 ```go
@@ -378,7 +378,7 @@ func kruskal(n int, edges []Edge) []Edge {
     return mst
 }
 ```
-`O(E log E)`.
+$O(E \log E)$.
 
 ## Code & Minh họa
 

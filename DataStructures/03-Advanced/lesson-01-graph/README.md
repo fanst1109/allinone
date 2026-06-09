@@ -15,10 +15,10 @@
 ## 1. Đồ thị là gì?
 
 **Đồ thị (graph)** gồm:
-- Tập **đỉnh (vertices/nodes)**: `V`.
-- Tập **cạnh (edges)**: `E`, mỗi cạnh nối hai đỉnh.
+- Tập **đỉnh (vertices/nodes)**: $V$.
+- Tập **cạnh (edges)**: $E$, mỗi cạnh nối hai đỉnh.
 
-Ký hiệu: `G = (V, E)`.
+Ký hiệu: $G = (V, E)$.
 
 ```
       A --- B
@@ -35,7 +35,7 @@ Hình dung **bản đồ thành phố**: mỗi địa điểm (nhà bạn, quán
 - "Có thể đi từ A tới B không?" → kiểm tra liên thông.
 - "Nếu một đường bị tắc, còn đường khác không?" → tìm cầu (bridge).
 
-Các ví dụ thực tế ánh xạ thẳng vào mô hình `G = (V, E)`:
+Các ví dụ thực tế ánh xạ thẳng vào mô hình $G = (V, E)$:
 
 | Bối cảnh | Đỉnh (V) | Cạnh (E) |
 |----------|----------|----------|
@@ -50,9 +50,10 @@ Mọi thuật toán đồ thị đều là cách trả lời một câu hỏi tr
 ### 1.2. ❓ Câu hỏi tự nhiên
 
 - **"Khi nào một bài toán nên mô hình bằng đồ thị?"** — Khi bài có **đối tượng + quan hệ hai-bên** (a có liên kết với b). Nếu quan hệ đa-bên (3 đối tượng cùng lúc) → cân nhắc hypergraph hoặc tách thành cạnh đôi.
-- **"Đồ thị vô hướng có phải là trường hợp đặc biệt của đồ thị có hướng?"** — Có. Cạnh `u-v` vô hướng = hai cạnh có hướng `u→v` và `v→u`. Trong code, vô hướng thường implement bằng cách push vào cả `adj[u]` và `adj[v]`.
+- **"Đồ thị vô hướng có phải là trường hợp đặc biệt của đồ thị có hướng?"** — Có. Cạnh $u\text{-}v$ vô hướng = hai cạnh có hướng $u \to v$ và $v \to u$. Trong code, vô hướng thường implement bằng cách push vào cả `adj[u]` và `adj[v]`.
+
 - **"Một node có thể tự nối với chính nó?"** — Có, gọi là **self-loop** (khuyên). Đồ thị "đơn" (simple) cấm self-loop và multi-edge.
-- **"Cây có phải đồ thị không?"** — Có. Cây là đồ thị vô hướng, liên thông, không chu trình, có đúng `n-1` cạnh. Lesson 06 là một trường hợp riêng của lesson 11.
+- **"Cây có phải đồ thị không?"** — Có. Cây là đồ thị vô hướng, liên thông, không chu trình, có đúng $n-1$ cạnh. Lesson 06 là một trường hợp riêng của lesson 11.
 
 ## 2. Phân loại
 
@@ -65,7 +66,7 @@ Mọi thuật toán đồ thị đều là cách trả lời một câu hỏi tr
 | **Đa đồ thị (multigraph)** | Cho phép cạnh lặp |
 | **DAG** | Đồ thị có hướng, không chu trình (Directed Acyclic Graph) |
 | **Liên thông (connected)** | Có đường đi giữa mọi cặp đỉnh |
-| **Cây (tree)** | Đồ thị vô hướng, liên thông, không chu trình; có `n-1` cạnh |
+| **Cây (tree)** | Đồ thị vô hướng, liên thông, không chu trình; có $n-1$ cạnh |
 
 ### 2.1. ⚠ Lỗi thường gặp khi phân loại
 
@@ -81,14 +82,14 @@ Mọi thuật toán đồ thị đều là cách trả lời một câu hỏi tr
 - **Vô hướng vs có hướng**: quan hệ đối xứng vs không đối xứng.
 - **Có trọng số**: cạnh kèm số (khoảng cách, chi phí, dung lượng).
 - **DAG = có hướng + không chu trình** — nền tảng cho topological sort, dynamic programming trên đồ thị.
-- **Cây = đồ thị vô hướng, liên thông, `n-1` cạnh, không chu trình** — trường hợp tối thiểu của đồ thị liên thông.
+- **Cây = đồ thị vô hướng, liên thông, $n-1$ cạnh, không chu trình** — trường hợp tối thiểu của đồ thị liên thông.
 - Xác định **đúng loại** trước khi chọn thuật toán: dùng nhầm thuật toán cho loại sai → sai kết quả.
 
 ## 3. Biểu diễn
 
 ### 3.1. Adjacency Matrix
 
-Ma trận `n × n`. `M[i][j] = 1` nếu có cạnh `i → j`, ngược lại 0 (hoặc trọng số).
+Ma trận $n \times n$. `M[i][j] = 1` nếu có cạnh $i \to j$, ngược lại 0 (hoặc trọng số).
 
 ```
      A B C D
@@ -98,9 +99,9 @@ Ma trận `n × n`. `M[i][j] = 1` nếu có cạnh `i → j`, ngược lại 0 (
    D 0 1 1 0
 ```
 
-- Kiểm tra cạnh: `O(1)`.
-- Duyệt hàng xóm: `O(n)`.
-- Bộ nhớ: `O(n²)` — lãng phí nếu đồ thị thưa (sparse).
+- Kiểm tra cạnh: $O(1)$.
+- Duyệt hàng xóm: $O(n)$.
+- Bộ nhớ: $O(n^2)$ — lãng phí nếu đồ thị thưa (sparse).
 
 ### 3.2. Adjacency List
 
@@ -113,34 +114,34 @@ C -> [A, D]
 D -> [B, C]
 ```
 
-- Kiểm tra cạnh: `O(deg(v))`.
-- Duyệt hàng xóm: `O(deg(v))`.
-- Bộ nhớ: `O(V + E)` — phù hợp đồ thị thưa.
+- Kiểm tra cạnh: $O(\deg(v))$.
+- Duyệt hàng xóm: $O(\deg(v))$.
+- Bộ nhớ: $O(V + E)$ — phù hợp đồ thị thưa.
 
 | Tiêu chí | Matrix | List |
 | --- | --- | --- |
-| Bộ nhớ | `O(V²)` | `O(V + E)` |
-| Kiểm tra cạnh | `O(1)` | `O(deg)` |
+| Bộ nhớ | $O(V^2)$ | $O(V + E)$ |
+| Kiểm tra cạnh | $O(1)$ | $O(\deg)$ |
 | Phù hợp | Dày (dense) | Thưa (sparse) |
 
 ### 3.3. 💡 Trực giác — chọn cách biểu diễn bằng phép tính bộ nhớ
 
-Hãy ước lượng cụ thể với `V = 1000` đỉnh:
+Hãy ước lượng cụ thể với $V = 1000$ đỉnh:
 
-| Số cạnh `E` | Matrix `V²` (int 4B) | List `V + 2E` (int 4B) | Nên chọn |
+| Số cạnh $E$ | Matrix $V^2$ (int 4B) | List $V + 2E$ (int 4B) | Nên chọn |
 |-------------|----------------------|------------------------|----------|
-| `E = 1000` (thưa) | `10⁶ × 4B = 4 MB` | `(1000 + 2000) × 4B = 12 KB` | **List** — tiết kiệm gấp 333 lần |
-| `E = 10 000` (vừa) | `4 MB` | `(1000 + 20000) × 4B = 84 KB` | **List** — vẫn nhỏ hơn 50 lần |
-| `E = 100 000` (khá dày) | `4 MB` | `(1000 + 200000) × 4B = 804 KB` | **List** — vẫn ít hơn |
-| `E ≈ 500 000` (gần dày tối đa = `V²/2`) | `4 MB` | `(1000 + 10⁶) × 4B = 4 MB` | Tương đương, Matrix có thêm lợi thế kiểm tra cạnh `O(1)` |
+| $E = 1000$ (thưa) | $10^6 \times 4B = 4$ MB | $(1000 + 2000) \times 4B = 12$ KB | **List** — tiết kiệm gấp 333 lần |
+| $E = 10\,000$ (vừa) | $4$ MB | $(1000 + 20000) \times 4B = 84$ KB | **List** — vẫn nhỏ hơn 50 lần |
+| $E = 100\,000$ (khá dày) | $4$ MB | $(1000 + 200000) \times 4B = 804$ KB | **List** — vẫn ít hơn |
+| $E \approx 500\,000$ (gần dày tối đa $= V^2/2$) | $4$ MB | $(1000 + 10^6) \times 4B = 4$ MB | Tương đương, Matrix có thêm lợi thế kiểm tra cạnh $O(1)$ |
 
-Quy tắc thực hành: nếu `E ≪ V²/2` (đa số trường hợp thực tế) → **adjacency list**. Chỉ khi đồ thị **gần dày đặc** và cần kiểm tra cạnh nhanh → matrix.
+Quy tắc thực hành: nếu $E \ll V^2/2$ (đa số trường hợp thực tế) → **adjacency list**. Chỉ khi đồ thị **gần dày đặc** và cần kiểm tra cạnh nhanh → matrix.
 
 ### 3.4. ❓ Câu hỏi tự nhiên
 
-- **"Khi nào dùng matrix?"** — Khi (a) đồ thị dày `E ≈ V²`, (b) `V` đủ nhỏ để `V²` chứa được trong RAM (`V ≤ ~10⁴` ổn, `V = 10⁵` cần `40 GB` — không khả thi), và (c) thao tác chủ yếu là **"có cạnh u-v không?"**.
-- **"Matrix có lợi gì ngoài kiểm tra cạnh `O(1)`?"** — Phép nhân ma trận `M^k` cho biết số đường đi độ dài đúng `k` giữa các đỉnh. Hữu ích cho lý thuyết / bài toán đếm.
-- **"List có hỗ trợ kiểm tra cạnh `O(1)` không?"** — Nếu thay `[]int` bằng `[]map[int]bool`, kiểm tra cạnh là `O(1)` trung bình nhưng tốn thêm bộ nhớ hash. Một biến thể "hybrid".
+- **"Khi nào dùng matrix?"** — Khi (a) đồ thị dày $E \approx V^2$, (b) $V$ đủ nhỏ để $V^2$ chứa được trong RAM ($V \leq {\sim}10^4$ ổn, $V = 10^5$ cần $40$ GB — không khả thi), và (c) thao tác chủ yếu là **"có cạnh u-v không?"**.
+- **"Matrix có lợi gì ngoài kiểm tra cạnh $O(1)$?"** — Phép nhân ma trận $M^k$ cho biết số đường đi độ dài đúng $k$ giữa các đỉnh. Hữu ích cho lý thuyết / bài toán đếm.
+- **"List có hỗ trợ kiểm tra cạnh $O(1)$ không?"** — Nếu thay `[]int` bằng `[]map[int]bool`, kiểm tra cạnh là $O(1)$ trung bình nhưng tốn thêm bộ nhớ hash. Một biến thể "hybrid".
 - **"Đồ thị có trọng số biểu diễn thế nào?"** — Matrix: `M[i][j] = w` (hoặc `+∞` nếu không có cạnh). List: lưu `(neighbor, weight)` cặp, thường là `[]struct{V, W int}`.
 
 ## 4. Duyệt đồ thị
@@ -167,7 +168,7 @@ function bfs(graph, start):
 - Tìm liên thông.
 - Web crawler.
 
-`O(V + E)`.
+$O(V + E)$.
 
 ### 4.2. DFS (Depth-First Search)
 
@@ -188,7 +189,7 @@ function dfs(graph, u, visited):
 - Topological sort (trên DAG).
 - Tìm cầu (bridge), khớp (articulation point).
 
-`O(V + E)`.
+$O(V + E)$.
 
 ### 4.3. Walk-through — BFS và DFS trên cùng một đồ thị
 
@@ -217,7 +218,7 @@ function dfs(graph, u, visited):
 | 6 | 5 | — | `[6]` | 5 |
 | 7 | 6 | — | `[]` | 6 |
 
-Thứ tự BFS: **0, 1, 2, 3, 4, 5, 6** — đúng theo khoảng cách `0, 1, 2, 3, 3, 4, 4` từ 0.
+Thứ tự BFS: **0, 1, 2, 3, 4, 5, 6** — đúng theo khoảng cách $0, 1, 2, 3, 3, 4, 4$ từ 0.
 
 **DFS từ 0** — stack đệ quy:
 
@@ -236,8 +237,8 @@ Thứ tự DFS: **0, 1, 2, 3, 5, 6, 4** — đi sâu xuống cuối nhánh rồi
 
 ### 4.4. ❓ Câu hỏi tự nhiên
 
-- **"BFS với DFS, cái nào nhanh hơn?"** — Cả hai đều `O(V + E)`. Khác biệt nằm ở **thứ tự thăm**, không phải tốc độ. Chọn dựa trên bài toán: cần đường ngắn nhất → BFS; cần đi sâu, phát hiện chu trình, topological → DFS.
-- **"DFS đệ quy có nguy hiểm gì?"** — Stack overflow nếu đồ thị có nhánh sâu (vd `10⁶` đỉnh nối thành chuỗi). Giải pháp: dùng stack thủ công, hoặc tăng giới hạn stack.
+- **"BFS với DFS, cái nào nhanh hơn?"** — Cả hai đều $O(V + E)$. Khác biệt nằm ở **thứ tự thăm**, không phải tốc độ. Chọn dựa trên bài toán: cần đường ngắn nhất → BFS; cần đi sâu, phát hiện chu trình, topological → DFS.
+- **"DFS đệ quy có nguy hiểm gì?"** — Stack overflow nếu đồ thị có nhánh sâu (vd $10^6$ đỉnh nối thành chuỗi). Giải pháp: dùng stack thủ công, hoặc tăng giới hạn stack.
 - **"Đánh dấu `visited` ở DFS khi nào?"** — Ngay khi **enter** node, trước khi đệ quy vào con. Nếu trì hoãn → có thể đệ quy vào cùng một node nhiều lần.
 - **"BFS có cần `visited` riêng không?"** — Có (tránh re-enqueue khi đồ thị có chu trình). Trên cây thì không cần vì không có chu trình.
 
@@ -247,7 +248,7 @@ Thứ tự DFS: **0, 1, 2, 3, 5, 6, 4** — đi sâu xuống cuối nhánh rồi
 |------|---------|----------|
 | Đánh dấu visited **lúc dequeue** trong BFS | Node bị enqueue nhiều lần → queue phình, sai output | Đánh dấu **ngay khi enqueue** |
 | Đệ quy DFS không có base case `if visited` | Loop vô tận trên đồ thị có chu trình | Check `if !visited[v]` trước khi gọi đệ quy |
-| Dùng `list.pop(0)` ở Python cho queue trong BFS | `O(n)` mỗi lần → BFS thành `O(V·(V+E))` | Dùng `collections.deque` |
+| Dùng `list.pop(0)` ở Python cho queue trong BFS | $O(n)$ mỗi lần → BFS thành $O(V \cdot (V+E))$ | Dùng `collections.deque` |
 | Trên đồ thị vô hướng, DFS lại quay lại bố mẹ → tưởng là chu trình | Detect nhầm chu trình | Truyền `parent` xuống đệ quy, skip `v == parent` |
 
 ### 4.6. 🔁 Tự kiểm tra
@@ -263,7 +264,7 @@ Thứ tự DFS: **0, 1, 2, 3, 5, 6, 4** — đi sâu xuống cuối nhánh rồi
 
 - **BFS** dùng queue (FIFO), duyệt theo **tầng** — đảm bảo đường ngắn nhất trên đồ thị không trọng số.
 - **DFS** dùng đệ quy hoặc stack (LIFO), đi **sâu** trước khi rộng — phù hợp tìm chu trình, topological sort, tarjan SCC.
-- Cả hai đều `O(V + E)` thời gian, `O(V)` bộ nhớ.
+- Cả hai đều $O(V + E)$ thời gian, $O(V)$ bộ nhớ.
 - **Đánh dấu visited NGAY khi enter / enqueue**, không phải khi dequeue / leave.
 - Đồ thị vô hướng: DFS truyền `parent` để không detect nhầm "back-edge bố mẹ" thành chu trình.
 
@@ -299,33 +300,33 @@ function dijkstra(graph, source):
     return dist
 ```
 
-Độ phức tạp: `O((V + E) log V)` với heap nhị phân.
+Độ phức tạp: $O((V + E) \log V)$ với heap nhị phân.
 
 ## 7. Cạm bẫy
 
 - Quên `visited` → vòng lặp vô tận trên đồ thị có chu trình.
 - Đồ thị **có hướng** vs **vô hướng** → thuật toán có thể khác.
 - Trọng số âm → Dijkstra sai, phải dùng Bellman-Ford.
-- Cài đặt adjacency matrix cho đồ thị `V = 10⁶` → tràn bộ nhớ.
+- Cài đặt adjacency matrix cho đồ thị $V = 10^6$ → tràn bộ nhớ.
 
 ### 7.1. ❓ Câu hỏi tự nhiên trước khi vào bài tập
 
-- **"Khi nào dùng Bellman-Ford thay vì Dijkstra?"** — Khi có **cạnh trọng số âm** (vd dòng tiền có lãi/lỗ, phản ứng phụ làm giảm chi phí). Bellman-Ford chạy `O(V·E)`, chậm hơn Dijkstra `O((V+E) log V)` nhưng đúng với trọng số âm và phát hiện được chu trình âm.
-- **"Floyd-Warshall thay được cả hai không?"** — Có, nhưng `O(V³)` → chỉ dùng khi `V ≤ ~500` và cần khoảng cách **mọi cặp**. Nếu chỉ cần từ 1 nguồn → Dijkstra/Bellman-Ford nhanh hơn nhiều.
+- **"Khi nào dùng Bellman-Ford thay vì Dijkstra?"** — Khi có **cạnh trọng số âm** (vd dòng tiền có lãi/lỗ, phản ứng phụ làm giảm chi phí). Bellman-Ford chạy $O(V \cdot E)$, chậm hơn Dijkstra $O((V+E) \log V)$ nhưng đúng với trọng số âm và phát hiện được chu trình âm.
+- **"Floyd-Warshall thay được cả hai không?"** — Có, nhưng $O(V^3)$ → chỉ dùng khi $V \leq {\sim}500$ và cần khoảng cách **mọi cặp**. Nếu chỉ cần từ 1 nguồn → Dijkstra/Bellman-Ford nhanh hơn nhiều.
 - **"Topological sort đòi hỏi gì?"** — Đồ thị phải là **DAG**. Có chu trình → không tồn tại topological order. DFS topological có thể tận dụng để **phát hiện** chu trình luôn.
 
 ### 7.2. 📝 Tóm tắt — checklist tránh cạm bẫy
 
 - Trước khi code: xác định **vô hướng hay có hướng**, **có/không trọng số**, **có/không cạnh âm**, **có chu trình không**.
-- Chọn biểu diễn: **adjacency list** cho đa số (thưa); matrix chỉ khi `V` nhỏ + dày.
+- Chọn biểu diễn: **adjacency list** cho đa số (thưa); matrix chỉ khi $V$ nhỏ + dày.
 - Luôn dùng `visited` (BFS/DFS), trừ khi chắc chắn là cây.
-- Trọng số `≥ 0` → Dijkstra; có âm → Bellman-Ford; mọi cặp + `V` nhỏ → Floyd-Warshall.
+- Trọng số $\geq 0$ → Dijkstra; có âm → Bellman-Ford; mọi cặp + $V$ nhỏ → Floyd-Warshall.
 
 ## Bài tập
 
 1. Cho đồ thị vô hướng, viết hàm đếm số thành phần liên thông.
 2. Phát hiện chu trình trong đồ thị có hướng.
-3. Cài đặt BFS để tìm đường đi ngắn nhất từ `s` đến `t` trong đồ thị không trọng số, in ra path.
+3. Cài đặt BFS để tìm đường đi ngắn nhất từ $s$ đến $t$ trong đồ thị không trọng số, in ra path.
 4. Cài đặt topological sort dùng DFS.
 5. So sánh khi nào nên dùng adjacency matrix, khi nào nên dùng adjacency list.
 
@@ -348,7 +349,7 @@ func components(g [][]int) int {
     return count
 }
 ```
-`O(V + E)`.
+$O(V + E)$.
 
 ### Bài 2 — Chu trình trong đồ thị có hướng (3 màu)
 - 0 = trắng (chưa thăm), 1 = xám (trong stack đệ quy), 2 = đen (đã xong).
@@ -373,10 +374,10 @@ func hasCycleDirected(g [][]int) bool {
     return false
 }
 ```
-`O(V + E)`.
+$O(V + E)$.
 
 ### Bài 3 — BFS shortest path + in path
-Lưu `parent[v] = u` khi enqueue. Sau khi BFS xong, truy ngược từ `t` về `s` theo `parent`.
+Lưu `parent[v] = u` khi enqueue. Sau khi BFS xong, truy ngược từ $t$ về $s$ theo `parent`.
 
 ```go
 func bfsPath(g [][]int, s, t int) []int {
@@ -423,8 +424,8 @@ func topoSort(g [][]int) []int {
 ### Bài 5 — Matrix vs List
 | Tình huống | Chọn |
 | --- | --- |
-| Đồ thị **dày** (`E ≈ V²`), `V` nhỏ (≤ vài nghìn) | Matrix — kiểm tra cạnh `O(1)` |
-| Đồ thị **thưa** (`E ≪ V²`), thường gặp | List — tiết kiệm bộ nhớ, duyệt hàng xóm nhanh |
+| Đồ thị **dày** ($E \approx V^2$), $V$ nhỏ ($\leq$ vài nghìn) | Matrix — kiểm tra cạnh $O(1)$ |
+| Đồ thị **thưa** ($E \ll V^2$), thường gặp | List — tiết kiệm bộ nhớ, duyệt hàng xóm nhanh |
 | Cần **kiểm tra cạnh nhiều lần** | Matrix |
 | Cần **duyệt toàn bộ hàng xóm** lặp đi lặp lại | List |
 | Đồ thị có **vài triệu đỉnh** | Bắt buộc List (matrix tràn RAM) |

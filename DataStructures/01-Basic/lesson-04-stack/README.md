@@ -57,11 +57,11 @@ Thứ tự pop ra: `2, 7, 8` — **đảo ngược** thứ tự push (trong cùn
 
 | Thao tác | Mô tả | Big-O |
 | --- | --- | --- |
-| `push(x)` | Thêm `x` vào đỉnh | `O(1)` |
-| `pop()` | Lấy ra phần tử ở đỉnh | `O(1)` |
-| `peek()` / `top()` | Xem phần tử đỉnh (không lấy ra) | `O(1)` |
-| `isEmpty()` | Stack có rỗng không | `O(1)` |
-| `size()` | Số phần tử hiện tại | `O(1)` |
+| `push(x)` | Thêm `x` vào đỉnh | $O(1)$ |
+| `pop()` | Lấy ra phần tử ở đỉnh | $O(1)$ |
+| `peek()` / `top()` | Xem phần tử đỉnh (không lấy ra) | $O(1)$ |
+| `isEmpty()` | Stack có rỗng không | $O(1)$ |
+| `size()` | Số phần tử hiện tại | $O(1)$ |
 
 ## 3. Cài đặt
 
@@ -76,8 +76,9 @@ class Stack:
     isEmpty(): return len(arr) == 0
 ```
 
-- Tất cả `O(1)` amortized.
+- Tất cả $O(1)$ amortized.
 - Đơn giản, cache-friendly.
+
 
 ### 3.2. Dùng linked list
 
@@ -92,7 +93,7 @@ class Stack:
         return head.value
 ```
 
-- Tất cả `O(1)` thật sự (không cần resize).
+- Tất cả $O(1)$ thật sự (không cần resize).
 - Tốn thêm bộ nhớ cho con trỏ.
 
 ## 4. Ứng dụng tiêu biểu
@@ -115,7 +116,7 @@ function isBalanced(s):
                 return false
     return stack.isEmpty()
 ```
-`O(n)`.
+$O(n)$.
 
 ### 4.3. Đảo ngược chuỗi / mảng
 Push từng phần tử rồi pop → thứ tự ngược lại.
@@ -184,13 +185,13 @@ Ngược lại, với `"([)]"`:
    <details><summary>Đáp án</summary>Trace: `[]` → `[1]` → `[1,2]` → `[1]` (pop=2) → `[1,3]` → `[1]` (pop=3) → `[]` (pop=1). Stack cuối rỗng. Thứ tự pop: **2, 3, 1**.</details>
 2. Chuỗi `"({[}])"` có hợp lệ không? Trace bằng stack.
    <details><summary>Đáp án</summary>`(` push → `[(]`. `{` push → `[(, {]`. `[` push → `[(, {, []`. Gặp `}` → pop đỉnh `[`, so với `pairs[}] = {` → **không khớp** → `false`. Chuỗi không hợp lệ vì các ngoặc lồng chéo nhau.</details>
-3. Vì sao đệ quy fibonacci `fib(n) = fib(n-1) + fib(n-2)` với `n = 10000` gây stack overflow, trong khi vòng for tính được dễ dàng?
-   <details><summary>Đáp án</summary>Mỗi lần gọi đệ quy đẩy 1 frame vào **call stack** của runtime. Với `n = 10000`, độ sâu đệ quy ~10000 frame, vượt giới hạn call stack (~10000 trong Java/Go, ~1000 trong Python). Vòng for chỉ dùng 1 frame + vài biến local → không phụ thuộc `n`.</details>
+3. Vì sao đệ quy fibonacci `fib(n) = fib(n-1) + fib(n-2)` với $n = 10000$ gây stack overflow, trong khi vòng for tính được dễ dàng?
+   <details><summary>Đáp án</summary>Mỗi lần gọi đệ quy đẩy 1 frame vào **call stack** của runtime. Với $n = 10000$, độ sâu đệ quy ~10000 frame, vượt giới hạn call stack (~10000 trong Java/Go, ~1000 trong Python). Vòng for chỉ dùng 1 frame + vài biến local → không phụ thuộc $n$.</details>
 
 ### 5.3. 📝 Tóm tắt mục — Stack
 
-- Stack là **ADT** theo nguyên tắc **LIFO**; thao tác chính: `push`, `pop`, `peek`, `isEmpty` — tất cả `O(1)`.
-- Cài đặt: **dynamic array** (cache-friendly, `O(1)` amortized) hoặc **linked list** (`O(1)` thật, tốn thêm con trỏ).
+- Stack là **ADT** theo nguyên tắc **LIFO**; thao tác chính: `push`, `pop`, `peek`, `isEmpty` — tất cả $O(1)$.
+- Cài đặt: **dynamic array** (cache-friendly, $O(1)$ amortized) hoặc **linked list** ($O(1)$ thật, tốn thêm con trỏ).
 - Ứng dụng cốt lõi: **call stack** runtime, **kiểm tra ngoặc cân bằng**, **postfix evaluation**, **undo/redo**, **DFS**, khử đệ quy.
 - Bẫy thường gặp: pop trên rỗng, stack overflow do đệ quy, quên check rỗng cuối hàm kiểm tra ngoặc, tràn array tĩnh.
 - Quy luật: bất cứ khi nào bài toán có cấu trúc "lồng nhau" hoặc "việc bắt đầu sau phải xong trước" → nghĩ tới stack.
@@ -198,7 +199,7 @@ Ngược lại, với `"([)]"`:
 ## Bài tập
 
 1. Viết hàm kiểm tra một chuỗi ngoặc `()[]{}` có hợp lệ không.
-2. Cài đặt một stack hỗ trợ `getMin()` trả về phần tử nhỏ nhất trong `O(1)` (gợi ý: dùng stack phụ).
+2. Cài đặt một stack hỗ trợ `getMin()` trả về phần tử nhỏ nhất trong $O(1)$ (gợi ý: dùng stack phụ).
 3. Tính giá trị một biểu thức postfix (RPN). Ví dụ `"2 3 + 4 *"` = 20.
 4. Chuyển biểu thức infix `(a + b) * c` sang postfix dùng stack (thuật toán Shunting-yard, mức ý tưởng).
 5. Vì sao đệ quy có thể được "khử" (chuyển thành lặp) bằng stack tường minh?
@@ -224,9 +225,9 @@ func isBalanced(s string) bool {
     return len(stack) == 0
 }
 ```
-`O(n)`.
+$O(n)$.
 
-### Bài 2 — Min stack với `getMin()` `O(1)`
+### Bài 2 — Min stack với `getMin()` $O(1)$
 Duy trì stack phụ chỉ chứa **giá trị min hiện tại** ứng với mỗi vị trí.
 
 ```go
@@ -242,7 +243,7 @@ func (s *MinStack) Push(x int) {
 func (s *MinStack) Pop() int { /* pop cả hai */ ... }
 func (s *MinStack) GetMin() int { return s.mins[len(s.mins)-1] }
 ```
-Tất cả `O(1)`. Bộ nhớ phụ `O(n)`.
+Tất cả $O(1)$. Bộ nhớ phụ $O(n)$.
 
 ### Bài 3 — Tính biểu thức postfix
 Gặp số: push. Gặp toán tử: pop 2 số, tính, push lại.

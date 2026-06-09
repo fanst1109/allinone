@@ -23,35 +23,35 @@ Cho mảng \`a[0..n-1]\`. Hỗ trợ:
 - **Cập nhật**: thay đổi \`a[i]\`, hoặc cộng \`x\` vào mọi phần tử trong \`[l, r]\`.
 
 Cách ngây thơ:
-- Tính tổng đoạn: \`O(n)\` mỗi truy vấn.
-- Cập nhật điểm: \`O(1)\`.
-- Với \`q\` truy vấn → \`O(nq)\` — quá chậm khi \`n, q ≈ 10⁵\`.
+- Tính tổng đoạn: $O(n)$ mỗi truy vấn.
+- Cập nhật điểm: $O(1)$.
+- Với $q$ truy vấn → $O(nq)$ — quá chậm khi $n, q \\approx 10^5$.
 
-**Mục tiêu**: cả hai thao tác trong \`O(log n)\`.
+**Mục tiêu**: cả hai thao tác trong $O(\\log n)$.
 
 ### 1.1. 💡 Trực giác — "chia đôi mảng đệ quy, tổng được tích sẵn"
 
 Hình dung **cây gia phả** dựng ngược: đáy là \`n\` phần tử của mảng; mỗi tầng trên là các "cha" lưu **tổng của hai con**. Đỉnh là tổng toàn bộ.
 
-Khi cần tổng đoạn \`[l, r]\`, ta **không** đi qua từng phần tử mà **leo cây**: tìm tập tối thiểu các node "phủ vừa khít" \`[l, r]\`, lấy tổng đã tích sẵn ở đó. Vì cây cao \`log n\`, ta chỉ chạm \`O(log n)\` node.
+Khi cần tổng đoạn \`[l, r]\`, ta **không** đi qua từng phần tử mà **leo cây**: tìm tập tối thiểu các node "phủ vừa khít" \`[l, r]\`, lấy tổng đã tích sẵn ở đó. Vì cây cao $\\log n$, ta chỉ chạm $O(\\log n)$ node.
 
-Khi cập nhật \`a[i]\`, ta chỉ cần đi từ lá \`i\` lên gốc, sửa các tổng trên đường — cũng \`O(log n)\`.
+Khi cập nhật \`a[i]\`, ta chỉ cần đi từ lá $i$ lên gốc, sửa các tổng trên đường — cũng $O(\\log n)$.
 
 Tương phản với 3 cách quen thuộc:
 
 | Cấu trúc | Range sum | Point update | Range update | Bộ nhớ |
 |----------|-----------|--------------|--------------|--------|
-| Mảng thường | \`O(n)\` | \`O(1)\` | \`O(n)\` | \`n\` |
-| Prefix sum | \`O(1)\` | \`O(n)\` rebuild | không tốt | \`n\` |
-| **Segment tree** | \`O(log n)\` | \`O(log n)\` | \`O(log n)\` (lazy) | \`~4n\` |
-| Fenwick (BIT) | \`O(log n)\` | \`O(log n)\` | khó | \`n\` |
+| Mảng thường | $O(n)$ | $O(1)$ | $O(n)$ | $n$ |
+| Prefix sum | $O(1)$ | $O(n)$ rebuild | không tốt | $n$ |
+| **Segment tree** | $O(\\log n)$ | $O(\\log n)$ | $O(\\log n)$ (lazy) | $\\sim 4n$ |
+| Fenwick (BIT) | $O(\\log n)$ | $O(\\log n)$ | khó | $n$ |
 
-Segment tree là **trade-off**: hi sinh ~4× bộ nhớ và code dài hơn để có **cả** query lẫn update đều \`O(log n)\`.
+Segment tree là **trade-off**: hi sinh $\\sim 4\\times$ bộ nhớ và code dài hơn để có **cả** query lẫn update đều $O(\\log n)$.
 
 ### 1.2. ❓ Câu hỏi tự nhiên trước khi vào chi tiết
 
-- **"Vì sao prefix sum không đủ?"** — Prefix sum chỉ tốt khi mảng **không đổi**. Mỗi \`update(i, v)\` cần rebuild toàn bộ prefix \`O(n)\`. Với \`10⁵\` update → \`10¹⁰\` thao tác → TLE.
-- **"Sao không dùng mảng thường, chấp nhận query \`O(n)\`?"** — Với \`n = q = 10⁵\`, \`nq = 10¹⁰\`. Máy hiện đại làm ~\`10⁸-10⁹\` thao tác/giây → mất \`10-100\` giây. Quá chậm cho hệ thống thời gian thực.
+- **"Vì sao prefix sum không đủ?"** — Prefix sum chỉ tốt khi mảng **không đổi**. Mỗi \`update(i, v)\` cần rebuild toàn bộ prefix $O(n)$. Với $10^5$ update → $10^{10}$ thao tác → TLE.
+- **"Sao không dùng mảng thường, chấp nhận query $O(n)$?"** — Với $n = q = 10^5$, $nq = 10^{10}$. Máy hiện đại làm $\\sim 10^8\\text{-}10^9$ thao tác/giây → mất $10\\text{-}100$ giây. Quá chậm cho hệ thống thời gian thực.
 - **"Segment tree có làm được min/max/gcd không?"** — Có. Chỉ cần thay phép cộng bằng phép kết hợp (associative) tương ứng. Đó là sức mạnh của segment tree so với BIT.
 
 ## 2. Segment Tree
@@ -63,7 +63,7 @@ Cây nhị phân, mỗi node lưu thông tin của một **đoạn \`[l, r]\`**:
 - Mỗi node có 2 con chia đoạn ra hai nửa.
 - Lá: đoạn \`[i, i]\` ứng với phần tử.
 
-Dùng mảng cỡ \`4n\` để chắc chắn đủ chỗ.
+Dùng mảng cỡ $4n$ để chắc chắn đủ chỗ.
 
 \`\`\`
 mảng a = [1, 3, 5, 7, 9, 11]
@@ -170,7 +170,7 @@ node 1 [0,5]: KHÔNG nằm trọn → đi tiếp
 
 Kiểm tra: \`a[1]+a[2]+a[3]+a[4] = 3+5+7+9 = 24\` ✓.
 
-Số node ghé thăm: **8 node** (1, 2, 4, 8, 9, 5, 3, 6, 7) trên cây cao 4. Vẫn \`O(log n)\`, không phải 5 node \`a[1..4]\`.
+Số node ghé thăm: **8 node** (1, 2, 4, 8, 9, 5, 3, 6, 7) trên cây cao 4. Vẫn $O(\\log n)$, không phải 5 node \`a[1..4]\`.
 
 ### 2.7. Walk-through — update \`a[2] += 10\`
 
@@ -188,7 +188,7 @@ Chỉ **3 node** trên đường được sửa: 5, 2, 1 — đúng chiều cao 
 
 ### 2.8. ❓ Câu hỏi tự nhiên
 
-- **"Sao phải \`4n\` chứ không phải \`2n\`?"** — Nếu \`n\` là lũy thừa của 2, \`2n\` đủ. Nhưng với \`n = 5\` (vd ở trên), cây không cân hoàn hảo → các node "ảo" làm tăng index lên đến \`~4n\`. An toàn nhất: cấp \`4n\`. Có cách dùng \`2^⌈log n⌉ × 2\` chính xác hơn nhưng phức tạp hơn.
+- **"Sao phải $4n$ chứ không phải $2n$?"** — Nếu $n$ là lũy thừa của 2, $2n$ đủ. Nhưng với $n = 5$ (vd ở trên), cây không cân hoàn hảo → các node "ảo" làm tăng index lên đến $\\sim 4n$. An toàn nhất: cấp $4n$. Có cách dùng $2^{\\lceil \\log n \\rceil} \\times 2$ chính xác hơn nhưng phức tạp hơn.
 - **"Tại sao dùng \`2*node\` và \`2*node+1\` cho con?"** — Cùng kỹ thuật như heap (lesson 08): mảng biểu diễn cây nhị phân hoàn chỉnh, con trái = \`2i\`, con phải = \`2i+1\`, cha = \`i/2\`. Tránh phải lưu con trỏ.
 - **"Khác gì so với cây nhị phân thông thường (lesson 06)?"** — Segment tree **luôn cân**, **mỗi node lưu thông tin tổng hợp** của một đoạn (không phải 1 giá trị), **lá tương ứng phần tử mảng**. Cây nhị phân thông thường tự do cấu trúc.
 - **"Có thể tổng hợp gì khác ngoài sum?"** — Bất kỳ phép kết hợp associative: \`min\`, \`max\`, \`gcd\`, \`xor\`, \`product mod p\`, "có bao nhiêu phần tử lẻ", thậm chí lưu matrix nhỏ (Lazy on matrix mul).
@@ -197,19 +197,19 @@ Chỉ **3 node** trên đường được sửa: 5, 2, 1 — đúng chiều cao 
 
 | Lỗi | Hậu quả | Cách sửa |
 |------|---------|----------|
-| Cấp \`tree\` size = \`n\` thay vì \`4n\` | \`index out of range\` với \`n\` lẻ / không phải lũy thừa 2 | Luôn cấp \`4*n\` (hoặc dùng size động) |
+| Cấp \`tree\` size = $n$ thay vì $4n$ | \`index out of range\` với $n$ lẻ / không phải lũy thừa 2 | Luôn cấp \`4*n\` (hoặc dùng size động) |
 | Trong query, không xử lý "không giao" → trả \`tree[node]\` luôn | Cộng nhầm các đoạn ngoài \`[ql, qr]\` | Phải check \`qr < l || r < ql\` → return 0 |
 | Update xong quên cập nhật node cha (\`tree[node] = tree[2n] + tree[2n+1]\`) | Cha không đồng bộ → query sai | Bổ sung dòng "merge from children" sau khi đệ quy |
 | Off-by-one \`mid+1\` thành \`mid\` trong nhánh phải | Đoạn \`[mid, r]\` đè lên \`[l, mid]\` → duplicate / vô hạn | Cẩn thận: trái \`[l, mid]\`, phải \`[mid+1, r]\` |
 
 ## 3. Lazy Propagation
 
-Khi cập nhật **cả đoạn \`[ql, qr]\`** (chứ không phải một điểm), nếu update từng phần tử thì tốn \`O(n log n)\`. **Lazy** giải quyết:
+Khi cập nhật **cả đoạn \`[ql, qr]\`** (chứ không phải một điểm), nếu update từng phần tử thì tốn $O(n \\log n)$. **Lazy** giải quyết:
 
 - Khi gặp node nằm trọn trong \`[ql, qr]\`, **đánh dấu lazy** thay vì đi sâu.
 - Lần sau khi cần đi vào node đó, **đẩy lazy** xuống con trước.
 
-Cho phép range update + range query đều \`O(log n)\`.
+Cho phép range update + range query đều $O(\\log n)$.
 
 \`\`\`
 lazy = mảng cùng kích thước tree, mặc định 0
@@ -262,7 +262,7 @@ Kết quả query \`[2,3]\` = \`7 + 20 - 11 = ...\` — đợi, \`[3,4]\` chứa
 
 - **"Khi nào phải pushDown?"** — **Trước khi đi sâu vào con** (cả trong update lẫn query). Nếu không pushDown, con có giá trị cũ → query/update sai.
 - **"\`lazy\` có cộng dồn được không?"** — Với phép \`add\` thì có (\`lazy += v\`). Với phép \`assign\` (gán hẳn) thì lazy đè lên (\`lazy = v\`), cần thêm flag "đã có lazy hay chưa" để phân biệt "lazy = 0 do chưa set" và "lazy = 0 do gán 0".
-- **"Pushdown có làm tăng độ phức tạp?"** — Không, vẫn \`O(log n)\` mỗi thao tác. Pushdown chỉ chạm node trên đường truy vấn, mà đường này dài tối đa \`log n\`.
+- **"Pushdown có làm tăng độ phức tạp?"** — Không, vẫn $O(\\log n)$ mỗi thao tác. Pushdown chỉ chạm node trên đường truy vấn, mà đường này dài tối đa $\\log n$.
 - **"Lazy cho range assign + range sum khác lazy cho range add?"** — Phải lưu thêm flag \`has_lazy\` hoặc dùng giá trị "sentinel" (vd \`INT_MIN\`) để phân biệt "chưa có lazy" và "lazy = 0".
 
 ### 3.4. ⚠ Lỗi thường gặp với lazy propagation
@@ -299,8 +299,8 @@ function rangeSum(l, r):
     return prefixSum(r) - prefixSum(l - 1)
 \`\`\`
 
-- \`update\`, \`query\`: \`O(log n)\`.
-- Code ngắn, bộ nhớ chỉ \`n\`, không phải \`4n\`.
+- \`update\`, \`query\`: $O(\\log n)$.
+- Code ngắn, bộ nhớ chỉ $n$, không phải $4n$.
 
 ### 4.2. Hạn chế
 
@@ -311,7 +311,7 @@ function rangeSum(l, r):
 
 | Tiêu chí | Segment Tree | Fenwick (BIT) |
 | --- | --- | --- |
-| Bộ nhớ | \`~4n\` | \`n\` |
+| Bộ nhớ | $\\sim 4n$ | $n$ |
 | Code | Dài | Ngắn |
 | Tổng quát | Cao (min/max/gcd...) | Chỉ cộng/trừ |
 | Lazy / range update | Hỗ trợ tốt | Khó |
@@ -328,14 +328,14 @@ function rangeSum(l, r):
   - Cần **truy vấn phức tạp** (vd "tìm chỉ số đầu tiên có giá trị ≥ k" — descend tree).
   - Cần các biến thể: persistent, 2D đầy đủ, implicit (dynamic).
 - **Cả hai không phù hợp khi**:
-  - Mảng **không đổi** → prefix sum / sparse table tốt hơn (\`O(1)\` query).
-  - \`n\` rất nhỏ (\`< 100\`) → mảng thường vẫn ổn, viết segtree thừa.
+  - Mảng **không đổi** → prefix sum / sparse table tốt hơn ($O(1)$ query).
+  - $n$ rất nhỏ ($< 100$) → mảng thường vẫn ổn, viết segtree thừa.
 
 ### 5.2. 💡 Trực giác — BIT hoạt động sao mà ngắn vậy?
 
 BIT lợi dụng **biểu diễn nhị phân**: \`bit[i]\` lưu tổng đoạn có độ dài là **bit thấp nhất của \`i\`** (gọi là \`lowbit(i) = i & -i\`).
 
-Vd \`n = 8\`:
+Vd $n = 8$:
 
 | \`i\` (bin) | \`lowbit\` | \`bit[i]\` lưu tổng đoạn |
 |-----------|----------|------------------------|
@@ -348,9 +348,9 @@ Vd \`n = 8\`:
 | 7 = \`111\` | 1 | \`a[7..7]\` |
 | 8 = \`1000\` | 8 | \`a[1..8]\` |
 
-\`prefixSum(7)\` = \`bit[7] + bit[6] + bit[4]\` = \`a[7] + (a[5]+a[6]) + (a[1]+a[2]+a[3]+a[4])\` = \`a[1..7]\` ✓. Chỉ **3 lần cộng** thay vì 7. Tổng quát \`O(log n)\`.
+\`prefixSum(7)\` = \`bit[7] + bit[6] + bit[4]\` = \`a[7] + (a[5]+a[6]) + (a[1]+a[2]+a[3]+a[4])\` = \`a[1..7]\` ✓. Chỉ **3 lần cộng** thay vì 7. Tổng quát $O(\\log n)$.
 
-\`update(5, +x)\` chạm \`bit[5], bit[6], bit[8]\` — các index mà \`lowbit\` "bao phủ" vị trí 5. Cũng \`O(log n)\`.
+\`update(5, +x)\` chạm \`bit[5], bit[6], bit[8]\` — các index mà \`lowbit\` "bao phủ" vị trí 5. Cũng $O(\\log n)$.
 
 ## 6. Ứng dụng
 
@@ -371,18 +371,18 @@ Vd \`n = 8\`:
 1. Trên mảng \`[1, 3, 5, 7, 9, 11]\` (segtree build sẵn ở mục 2.5), tính \`query(0, 3)\`.
    <details><summary>Đáp án</summary>\`a[0]+a[1]+a[2]+a[3] = 1+3+5+7 = 16\`. Đi node 1[0,5]→node 2[0,2] nằm trọn (=9)→node 3[3,5]→node 6[3,4]→node 12[3,3] nằm trọn (=7), node 13[4,4] không giao. Tổng \`9 + 7 = 16\` ✓.</details>
 2. Sau \`update(a[4], +5)\` trên mảng \`[1,3,5,7,9,11]\`, các node nào thay đổi giá trị?
-   <details><summary>Đáp án</summary>Node 13 [4,4]: 9 → 14. Node 6 [3,4]: 16 → 21. Node 3 [3,5]: 27 → 32. Node 1 [0,5]: 36 → 41. Đúng 4 node trên đường từ lá lên gốc, chiều cao log₂6 ≈ 3.</details>
+   <details><summary>Đáp án</summary>Node 13 [4,4]: 9 → 14. Node 6 [3,4]: 16 → 21. Node 3 [3,5]: 27 → 32. Node 1 [0,5]: 36 → 41. Đúng 4 node trên đường từ lá lên gốc, chiều cao $\\log_2 6 \\approx 3$.</details>
 3. Lazy propagation cho phép range max query + range assign không?
    <details><summary>Đáp án</summary>Có. \`tree[node]\` lưu max của đoạn, \`lazy[node]\` lưu giá trị gán (cộng flag \`has_lazy\`). Khi pushDown, ép con max = lazy. Khi merge từ con, \`tree[node] = max(left, right)\`.</details>
 
 ### 7.2. 📝 Tóm tắt cuối lesson
 
 - **Segment tree** = cây nhị phân chia đôi mảng, mỗi node lưu tổng hợp (sum/min/max/gcd...) một đoạn.
-- **Build** \`O(n)\`, **point update** \`O(log n)\`, **range query** \`O(log n)\`.
-- **Lazy propagation** mở rộng cho **range update** trong \`O(log n)\` — phải nhớ pushDown trước khi đi sâu.
-- **Fenwick (BIT)** = phiên bản gọn hơn, chỉ cho cộng/trừ, code ngắn, \`n\` bộ nhớ.
+- **Build** $O(n)$, **point update** $O(\\log n)$, **range query** $O(\\log n)$.
+- **Lazy propagation** mở rộng cho **range update** trong $O(\\log n)$ — phải nhớ pushDown trước khi đi sâu.
+- **Fenwick (BIT)** = phiên bản gọn hơn, chỉ cho cộng/trừ, code ngắn, $n$ bộ nhớ.
 - Chọn: BIT cho tổng đơn giản; segtree khi cần min/max/gcd, lazy, hoặc truy vấn descend phức tạp.
-- Cảnh báo: cấp **\`4n\`** cho mảng \`tree\`, không phải \`n\` hay \`2n\`.
+- Cảnh báo: cấp **$4n$** cho mảng \`tree\`, không phải $n$ hay $2n$.
 
 ## Bài tập
 
@@ -390,14 +390,14 @@ Vd \`n = 8\`:
 2. Mở rộng segment tree thành **range min query**.
 3. Cài đặt segment tree với **lazy propagation** cho range add + range sum.
 4. Đếm số nghịch thế của mảng bằng Fenwick tree.
-5. Cho 10⁵ truy vấn dạng "trung bình các phần tử trong \`[l, r]\`", chọn cấu trúc nào và vì sao.
+5. Cho $10^5$ truy vấn dạng "trung bình các phần tử trong \`[l, r]\`", chọn cấu trúc nào và vì sao.
 
 ## Lời giải chi tiết
 
 ### Bài 1 — Segment tree range sum, point update
-Mảng \`tree\` kích thước \`4n\`. Mỗi node lưu tổng của đoạn nó phụ trách.
+Mảng \`tree\` kích thước $4n$. Mỗi node lưu tổng của đoạn nó phụ trách.
 
-Build, query, update đều như pseudocode trong phần lý thuyết. Tất cả \`O(log n)\` (query/update) hoặc \`O(n)\` (build).
+Build, query, update đều như pseudocode trong phần lý thuyết. Tất cả $O(\\log n)$ (query/update) hoặc $O(n)$ (build).
 
 ### Bài 2 — Range min query
 Cùng cấu trúc, đổi phép tổng thành \`min\`:
@@ -411,12 +411,12 @@ Mảng \`lazy[]\` lưu giá trị chưa được "đẩy" xuống con.
 - Khi update \`[ql, qr] += v\` chạm node nằm trọn: \`tree[node] += (r-l+1)*v\`, \`lazy[node] += v\`, không đi sâu.
 - Trước khi đi sâu vào node, gọi \`pushDown\` để đẩy \`lazy\` xuống hai con.
 
-Cả update và query đều \`O(log n)\`.
+Cả update và query đều $O(\\log n)$.
 
 ### Bài 4 — Đếm nghịch thế bằng Fenwick
-**Nghịch thế**: cặp \`(i, j)\` với \`i < j\` nhưng \`a[i] > a[j]\`.
+**Nghịch thế**: cặp $(i, j)$ với $i < j$ nhưng \`a[i] > a[j]\`.
 
-Ý tưởng: duyệt từ phải sang trái, với mỗi \`a[i]\` đếm bao nhiêu phần tử **đã thấy ở bên phải** có giá trị \`< a[i]\` → đó là số nghịch thế đóng góp bởi \`i\`.
+Ý tưởng: duyệt từ phải sang trái, với mỗi \`a[i]\` đếm bao nhiêu phần tử **đã thấy ở bên phải** có giá trị \`< a[i]\` → đó là số nghịch thế đóng góp bởi $i$.
 
 Dùng BIT trên không gian giá trị (sau khi compress giá trị):
 \`\`\`
@@ -424,13 +424,13 @@ for i from n-1 down to 0:
     inv += bit.PrefixSum(a[i] - 1)
     bit.Update(a[i], +1)
 \`\`\`
-\`O(n log n)\`.
+$O(n \\log n)$.
 
-### Bài 5 — Trung bình \`[l, r]\` qua 10⁵ truy vấn
-Cần tổng nhanh + đếm phần tử = \`r - l + 1\`. **Segment tree range sum** (hoặc **prefix sum** nếu không có update) — cả hai cho tổng \`O(log n)\` hoặc \`O(1)\`. Trung bình = \`sum / (r - l + 1)\`.
+### Bài 5 — Trung bình \`[l, r]\` qua $10^5$ truy vấn
+Cần tổng nhanh + đếm phần tử = $r - l + 1$. **Segment tree range sum** (hoặc **prefix sum** nếu không có update) — cả hai cho tổng $O(\\log n)$ hoặc $O(1)$. Trung bình = $\\text{sum} / (r - l + 1)$.
 
-Nếu mảng **không thay đổi**: dùng prefix sum đơn giản, \`O(1)\` mỗi query.
-Nếu có **point update**: Fenwick tree, \`O(log n)\`.
+Nếu mảng **không thay đổi**: dùng prefix sum đơn giản, $O(1)$ mỗi query.
+Nếu có **point update**: Fenwick tree, $O(\\log n)$.
 
 ## Code & Minh họa
 

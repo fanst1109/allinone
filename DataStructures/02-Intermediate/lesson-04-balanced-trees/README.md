@@ -2,7 +2,7 @@
 
 ## 1. Vì sao cần cây cân bằng?
 
-BST có thể suy biến thành dãy → `O(n)`. Cây cân bằng đảm bảo chiều cao luôn `O(log n)`, do đó **mọi thao tác `O(log n)` thực sự**.
+BST có thể suy biến thành dãy → $O(n)$. Cây cân bằng đảm bảo chiều cao luôn $O(\log n)$, do đó **mọi thao tác $O(\log n)$ thực sự**.
 
 Có nhiều biến thể: **AVL**, **Red-Black**, **Splay**, **Treap**, **B-tree**... Bài này tập trung vào AVL và Red-Black.
 
@@ -19,7 +19,7 @@ balance(node) = height(left) - height(right)
 balance ∈ {-1, 0, 1}
 ```
 
-Nếu sau insert/delete, `|balance| > 1` → mất cân bằng → cần **rotation** để sửa.
+Nếu sau insert/delete, $|balance| > 1$ → mất cân bằng → cần **rotation** để sửa.
 
 ### 2.2. Bốn phép rotation
 
@@ -45,9 +45,9 @@ Ví dụ **rotate right**:
 
 | Thao tác | Big-O |
 | --- | --- |
-| Search | `O(log n)` |
-| Insert | `O(log n)` (gồm tối đa 2 rotation) |
-| Delete | `O(log n)` (gồm tối đa `O(log n)` rotation) |
+| Search | $O(\log n)$ |
+| Insert | $O(\log n)$ (gồm tối đa 2 rotation) |
+| Delete | $O(\log n)$ (gồm tối đa $O(\log n)$ rotation) |
 
 AVL **cân bằng nghiêm ngặt hơn** Red-Black → search nhanh hơn một chút, nhưng insert/delete tốn nhiều rotation hơn.
 
@@ -55,14 +55,14 @@ AVL **cân bằng nghiêm ngặt hơn** Red-Black → search nhanh hơn một ch
 
 ### 2.4. 💡 Trực giác — Vì sao phải rotate?
 
-Hình dung **bập bênh (seesaw)**: BST cân bằng = bập bênh thăng bằng. Sau khi insert một giá trị vào subtree trái, bên trái nặng thêm → bập bênh nghiêng trái. Nếu lệch quá 1 đơn vị (`balance > 1`) → ta phải **chuyển một "chân" (subtree) sang bên kia** để cân lại. "Chuyển chân" chính là rotation.
+Hình dung **bập bênh (seesaw)**: BST cân bằng = bập bênh thăng bằng. Sau khi insert một giá trị vào subtree trái, bên trái nặng thêm → bập bênh nghiêng trái. Nếu lệch quá 1 đơn vị ($balance > 1$) → ta phải **chuyển một "chân" (subtree) sang bên kia** để cân lại. "Chuyển chân" chính là rotation.
 
 Mục tiêu rotation:
 
 1. **Bảo toàn thứ tự BST** (in-order không đổi).
 2. **Giảm chiều cao** ở chỗ mất cân bằng.
 
-Vì rotation chỉ động đến 2-3 node, nó là `O(1)` — đây là lý do AVL/RB tree giữ được `O(log n)` cho insert/delete.
+Vì rotation chỉ động đến 2-3 node, nó là $O(1)$ — đây là lý do AVL/RB tree giữ được $O(\log n)$ cho insert/delete.
 
 ### 2.5. Rotate right — phân rã 5 bước
 
@@ -96,7 +96,7 @@ Cho cây mất cân bằng LL tại `z`:
      T1 T2 T3 T4
 ```
 
-**Bảo toàn in-order**: trước rotate `T1 < x < T2 < y < T3 < z < T4`; sau rotate vẫn `T1 < x < T2 < y < T3 < z < T4`. ✓
+**Bảo toàn in-order**: trước rotate $T_1 < x < T_2 < y < T_3 < z < T_4$; sau rotate vẫn $T_1 < x < T_2 < y < T_3 < z < T_4$. ✓
 
 ### 2.6. Bốn case với ví dụ số cụ thể
 
@@ -217,10 +217,10 @@ Một lần rotate right ở `30` KHÔNG đủ — vì sau khi xoay, `20` sẽ t
 
 | `balance(z)` | `balance(z.child)` | Case | Hành động |
 |--------------|--------------------|------|-----------|
-| `> 1` (lệch trái) | `≥ 0` (cháu cũng lệch trái) | **LL** | Rotate right tại `z` |
-| `> 1` (lệch trái) | `< 0` (cháu lệch phải) | **LR** | Rotate left tại `z.left`, rồi rotate right tại `z` |
-| `< -1` (lệch phải) | `≤ 0` (cháu cũng lệch phải) | **RR** | Rotate left tại `z` |
-| `< -1` (lệch phải) | `> 0` (cháu lệch trái) | **RL** | Rotate right tại `z.right`, rồi rotate left tại `z` |
+| $> 1$ (lệch trái) | $\geq 0$ (cháu cũng lệch trái) | **LL** | Rotate right tại `z` |
+| $> 1$ (lệch trái) | $< 0$ (cháu lệch phải) | **LR** | Rotate left tại `z.left`, rồi rotate right tại `z` |
+| $< -1$ (lệch phải) | $\leq 0$ (cháu cũng lệch phải) | **RR** | Rotate left tại `z` |
+| $< -1$ (lệch phải) | $> 0$ (cháu lệch trái) | **RL** | Rotate right tại `z.right`, rồi rotate left tại `z` |
 
 **Mẹo nhớ**: tên case = đường đi từ `z` xuống cháu (con của con) trong vùng "nặng" — vd LR = trái-rồi-phải = phải xoay 2 lần để "uốn" về dạng LL.
 
@@ -319,13 +319,13 @@ Bước RL.2 — rotate left tại 20 (`z=20`, `y=30`, `T3 = 25`):
    /
   5(0)
 ```
-BF tất cả node đều trong `[-1, 1]` → không rotation cần thiết. ✓
+BF tất cả node đều trong $[-1, 1]$ → không rotation cần thiết. ✓
 
 ### 2.9. ❓ Câu hỏi tự nhiên
 
 - **"Sau rotation phải update height ở đâu?"** — Chỉ ở 2 node tham gia: `z` và `y` (con cũ). Các subtree T1..T4 không thay đổi chiều cao. **Thứ tự**: update `z` trước (vì giờ ở dưới), rồi `y` (ở trên), vì height của cha phụ thuộc height của con.
 - **"Insert có thể cần nhiều rotation cùng lúc không?"** — Không, AVL insert tối đa 1 lần xử lý mất cân bằng (1 rotation đơn cho LL/RR, hoặc 1 double rotation cho LR/RL). Sau đó toàn bộ cây cân bằng lại.
-- **"Còn delete?"** — Delete có thể cần `O(log n)` rotation (lan từ chỗ xóa lên tới root) vì việc giảm chiều cao một bên có thể đẩy mất cân bằng lan ngược.
+- **"Còn delete?"** — Delete có thể cần $O(\log n)$ rotation (lan từ chỗ xóa lên tới root) vì việc giảm chiều cao một bên có thể đẩy mất cân bằng lan ngược.
 - **"Vì sao LR/RL cần 2 rotation chứ không 1?"** — Nếu chỉ rotate right tại `z` cho case LR, cây mới sẽ có `y` ở root nhưng vẫn lệch trái-phải dạng zigzag → vẫn không cân bằng. Bước rotate trung gian "duỗi thẳng" zigzag thành LL trước.
 - **"`balance(z.left) = 0` thì sao — LL hay LR?"** — Cả hai đều đúng, nhưng AVL chuẩn dùng LL (rotate right đơn) vì nhanh hơn. Trường hợp này chỉ xảy ra khi delete, không xảy ra khi insert vào cây cân bằng.
 
@@ -355,7 +355,7 @@ BF tất cả node đều trong `[-1, 1]` → không rotation cần thiết. ✓
 - **Quyết định case**: dấu của `balance(z)` (lệch trái/phải) kết hợp `balance(z.child)` (cháu cùng hay khác chiều).
 - **In-order bất biến** sau rotation → vẫn là BST.
 - **Update height theo thứ tự dưới-lên** (`z` trước `y`).
-- **Insert tối đa 1 lần xử lý** mất cân bằng; **delete tối đa `O(log n)` rotation**.
+- **Insert tối đa 1 lần xử lý** mất cân bằng; **delete tối đa $O(\log n)$ rotation**.
 - AVL phù hợp **read-heavy**; Red-Black phù hợp **write-heavy** vì ít rotation hơn.
 
 ## 3. Red-Black Tree
@@ -372,7 +372,7 @@ Mỗi node có **màu đỏ** hoặc **đen**, thỏa năm tính chất:
 4. Node đỏ **không có con đỏ** (không có hai đỏ liên tiếp).
 5. Mọi đường từ một node tới bất kỳ leaf null nào có cùng **số node đen**.
 
-Hệ quả: chiều cao ≤ `2 log(n+1)`. Không cân bằng "chặt" như AVL nhưng vẫn `O(log n)`.
+Hệ quả: chiều cao $\leq 2 \log(n+1)$. Không cân bằng "chặt" như AVL nhưng vẫn $O(\log n)$.
 
 ### 3.2. Khi mất tính chất
 
@@ -391,7 +391,7 @@ Sau insert/delete, có thể vi phạm — cần kết hợp **rotation** và **
 
 | Tiêu chí | AVL | Red-Black |
 | --- | --- | --- |
-| Cân bằng | Nghiêm ngặt (`balance ≤ 1`) | Lỏng hơn (chiều cao ≤ `2 log n`) |
+| Cân bằng | Nghiêm ngặt ($balance \leq 1$) | Lỏng hơn (chiều cao $\leq 2 \log n$) |
 | Search | Nhanh hơn chút | Nhanh |
 | Insert/Delete | Nhiều rotation hơn | Ít rotation hơn |
 | Dùng cho | Workload đọc nhiều | Workload đọc/ghi cân bằng |
@@ -402,19 +402,19 @@ Sau insert/delete, có thể vi phạm — cần kết hợp **rotation** và **
 - **Splay tree**: tự "kéo" phần tử mới truy cập về gần root. Tốt cho truy cập có cục bộ (locality).
 - **Treap**: kết hợp BST + heap với priority ngẫu nhiên.
 - **B-tree, B+ tree**: cây cân bằng nhiều con, dùng cho cơ sở dữ liệu, hệ thống file.
-- **Skip list**: không phải cây, nhưng cho `O(log n)` xác suất; dễ cài đặt hơn balanced tree.
+- **Skip list**: không phải cây, nhưng cho $O(\log n)$ xác suất; dễ cài đặt hơn balanced tree.
 
 ## 6. Khi nào nên dùng?
 
 - Cần **tìm kiếm + thứ tự + range query** → balanced tree.
-- Không cần thứ tự, chỉ cần `O(1)` trung bình → **hash table**.
+- Không cần thứ tự, chỉ cần $O(1)$ trung bình → **hash table**.
 - Dữ liệu rất lớn, lưu đĩa → **B-tree / B+ tree**.
 
 ## Bài tập
 
 1. Vẽ AVL tree khi chèn lần lượt: `10, 20, 30, 40, 50, 25`. Chỉ ra rotation nào được dùng.
 2. Cho một AVL tree, viết hàm tính `balance(node)`. Tính Big-O.
-3. Liệt kê 5 tính chất của Red-Black tree và giải thích vì sao chúng đảm bảo `O(log n)`.
+3. Liệt kê 5 tính chất của Red-Black tree và giải thích vì sao chúng đảm bảo $O(\log n)$.
 4. Vì sao Java chọn Red-Black cho `TreeMap` mà không phải AVL?
 5. So sánh khi nào nên dùng HashMap, TreeMap, và LinkedHashMap.
 
@@ -434,7 +434,7 @@ Sau insert/delete, có thể vi phạm — cần kết hợp **rotation** và **
 func height(n *Node) int { if n == nil { return -1 }; return n.h }
 func balance(n *Node) int { return height(n.left) - height(n.right) }
 ```
-`O(1)` vì mỗi node đã lưu sẵn `h`. Nếu không lưu thì tính `O(n)` mỗi lần.
+$O(1)$ vì mỗi node đã lưu sẵn `h`. Nếu không lưu thì tính $O(n)$ mỗi lần.
 
 ### Bài 3 — 5 tính chất Red-Black và lý do `O(log n)`
 1. Mỗi node đỏ hoặc đen.
@@ -444,7 +444,7 @@ func balance(n *Node) int { return height(n.left) - height(n.right) }
 5. Mọi đường từ một node tới các leaf null có cùng số node đen ("black height").
 
 → Đường dài nhất ≤ 2 × đường ngắn nhất (vì đường dài chỉ thêm node đỏ giữa các đen, mà không có 2 đỏ liên tiếp).
-→ Chiều cao ≤ `2 log₂(n+1)` ⇒ `O(log n)`.
+→ Chiều cao $\leq 2 \log_2(n+1) \Rightarrow O(\log n)$.
 
 ### Bài 4 — Vì sao Java chọn Red-Black cho TreeMap?
 - Insert/delete cần ít rotation hơn AVL → tốc độ ghi tốt hơn (Java workload trộn đọc/ghi).
@@ -454,9 +454,9 @@ func balance(n *Node) int { return height(n.left) - height(n.right) }
 ### Bài 5 — HashMap vs TreeMap vs LinkedHashMap
 | Yêu cầu | Chọn |
 | --- | --- |
-| Tra cứu nhanh nhất, không cần thứ tự | HashMap (`O(1)`) |
-| Cần duyệt theo thứ tự key tăng dần / range query | TreeMap (`O(log n)`, dựa trên Red-Black) |
-| Cần duyệt theo **thứ tự chèn** (insertion order) | LinkedHashMap (`O(1)` như HashMap + LinkedList) |
+| Tra cứu nhanh nhất, không cần thứ tự | HashMap ($O(1)$) |
+| Cần duyệt theo thứ tự key tăng dần / range query | TreeMap ($O(\log n)$, dựa trên Red-Black) |
+| Cần duyệt theo **thứ tự chèn** (insertion order) | LinkedHashMap ($O(1)$ như HashMap + LinkedList) |
 | LRU cache | LinkedHashMap với access-order |
 
 ## Code & Minh họa

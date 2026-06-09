@@ -31,11 +31,11 @@ Hai đầu của queue:
 
 | Thao tác | Mô tả | Big-O |
 | --- | --- | --- |
-| `enqueue(x)` | Thêm vào cuối | `O(1)` |
-| `dequeue()` | Lấy ra ở đầu | `O(1)` |
-| `front()` | Xem phần tử đầu | `O(1)` |
-| `isEmpty()` | Queue rỗng? | `O(1)` |
-| `size()` | Số phần tử | `O(1)` |
+| `enqueue(x)` | Thêm vào cuối | $O(1)$ |
+| `dequeue()` | Lấy ra ở đầu | $O(1)$ |
+| `front()` | Xem phần tử đầu | $O(1)$ |
+| `isEmpty()` | Queue rỗng? | $O(1)$ |
+| `size()` | Số phần tử | $O(1)$ |
 
 ## 3. Cài đặt
 
@@ -45,11 +45,11 @@ Giữ con trỏ `head` (front) và `tail` (rear).
 - `enqueue`: thêm vào `tail.next`, cập nhật `tail`.
 - `dequeue`: lấy `head.value`, dịch `head = head.next`.
 
-Tất cả `O(1)`.
+Tất cả $O(1)$.
 
 ### 3.2. Dùng array thường (kém)
 
-Nếu chỉ dùng mảng và `dequeue` bằng cách xóa phần tử đầu → tốn `O(n)` mỗi lần (phải dịch toàn bộ).
+Nếu chỉ dùng mảng và `dequeue` bằng cách xóa phần tử đầu → tốn $O(n)$ mỗi lần (phải dịch toàn bộ).
 
 ### 3.3. Circular queue (mảng vòng)
 
@@ -66,7 +66,7 @@ dequeue():
     return v
 ```
 
-- `O(1)` mọi thao tác.
+- $O(1)$ mọi thao tác.
 - Tiết kiệm bộ nhớ.
 - Phải xử lý case "đầy" / "rỗng" (thường dùng biến `size` để phân biệt).
 
@@ -74,7 +74,7 @@ dequeue():
 
 ### 4.1. Deque (Double-Ended Queue)
 
-Thêm/xóa ở **cả hai đầu** trong `O(1)`. Cài bằng doubly linked list hoặc circular buffer.
+Thêm/xóa ở **cả hai đầu** trong $O(1)$. Cài bằng doubly linked list hoặc circular buffer.
 
 Thao tác: `pushFront`, `pushBack`, `popFront`, `popBack`.
 
@@ -83,7 +83,7 @@ Thao tác: `pushFront`, `pushBack`, `popFront`, `popBack`.
 **Không tuân theo FIFO**. Mỗi phần tử có **độ ưu tiên (priority)**, `dequeue` luôn lấy phần tử ưu tiên cao nhất.
 
 Cài đặt phổ biến: **heap** (sẽ học ở [Lesson 03](../../02-Intermediate/lesson-03-heap-priority-queue/)).
-- `enqueue`, `dequeue`: `O(log n)`.
+- `enqueue`, `dequeue`: $O(\log n)$.
 
 ### 4.3. Blocking Queue
 
@@ -117,10 +117,10 @@ function bfs(graph, start):
 
 Hình dung **cháy lan trên giấy**: bạn châm lửa ở node `start`. Mỗi giây, lửa lan đều từ những điểm đang cháy sang **tất cả** hàng xóm chưa cháy. Sau giây 1, lửa ở các node cách `start` đúng 1 cạnh. Sau giây 2, ở các node cách 2 cạnh. Cứ thế.
 
-Để mô phỏng "lan đều", ta **phải xử lý xong toàn bộ node ở khoảng cách `d` trước khi đụng tới node ở khoảng cách `d+1`**. Đây chính xác là tính chất **FIFO** của queue:
+Để mô phỏng "lan đều", ta **phải xử lý xong toàn bộ node ở khoảng cách $d$ trước khi đụng tới node ở khoảng cách $d+1$**. Đây chính xác là tính chất **FIFO** của queue:
 
-- Khi `dequeue` ra node `u` ở khoảng cách `d`, mọi node `d` còn lại đã ở trong queue trước các node `d+1` (vì chúng được `enqueue` từ trước, do thăm bố mẹ ở khoảng cách `d-1` xảy ra trước).
-- Các node `d+1` thêm vào sẽ ngồi ở **đuôi queue**, chỉ được xử lý sau khi hết tầng `d`.
+- Khi `dequeue` ra node `u` ở khoảng cách $d$, mọi node $d$ còn lại đã ở trong queue trước các node $d+1$ (vì chúng được `enqueue` từ trước, do thăm bố mẹ ở khoảng cách $d-1$ xảy ra trước).
+- Các node $d+1$ thêm vào sẽ ngồi ở **đuôi queue**, chỉ được xử lý sau khi hết tầng $d$.
 
 Nếu thay queue bằng **stack** (LIFO): node mới đẩy vào sẽ được xử lý ngay → đi sâu trước khi xử lý xong tầng hiện tại → đó chính là **DFS**, không phải BFS.
 
@@ -148,7 +148,7 @@ Trạng thái queue và visited tại MỖI bước, BFS từ `A`:
 | 5 | dequeue E, enqueue F (B,C đã visited) | `[F]` | `{A,B,C,D,E,F}` | E |
 | 6 | dequeue F (E đã visited) | `[]` | `{A,B,C,D,E,F}` | F |
 
-Thứ tự thăm: **A, B, C, D, E, F** — đúng thứ tự khoảng cách `0, 1, 1, 2, 2, 3`.
+Thứ tự thăm: **A, B, C, D, E, F** — đúng thứ tự khoảng cách $0, 1, 1, 2, 2, 3$.
 
 Để ý: B và C cùng khoảng cách 1, B được thăm trước **chỉ vì** thứ tự enqueue ở bước 1 (B trước C, do `adj[A]` liệt kê B trước). BFS không cam kết thứ tự **trong cùng một tầng**, chỉ cam kết "tầng trước → tầng sau".
 
@@ -201,7 +201,7 @@ Mẹo: snapshot `size` **trước** khi xử lý tầng. Trong vòng `for`, queu
 
 **(b) Multi-source BFS** — nhiều nguồn xuất phát cùng lúc, tính khoảng cách đến nguồn **gần nhất**: đẩy hết các nguồn vào queue ban đầu với `dist = 0`, rồi BFS như thường. Ứng dụng: ma trận `01-matrix` (LeetCode 542), nhiệt độ lan từ nhiều ổ lửa, v.v.
 
-**(c) 0-1 BFS** — đồ thị có trọng số ∈ {0, 1}: thay queue bằng **deque**, cạnh trọng số 0 → `pushFront`, cạnh trọng số 1 → `pushBack`. Vẫn `O(V+E)`. (Trọng số bất kỳ → phải dùng Dijkstra ở lesson 11.)
+**(c) 0-1 BFS** — đồ thị có trọng số ∈ {0, 1}: thay queue bằng **deque**, cạnh trọng số 0 → `pushFront`, cạnh trọng số 1 → `pushBack`. Vẫn $O(V+E)$. (Trọng số bất kỳ → phải dùng Dijkstra ở lesson 11.)
 
 ### 6.5. ❓ Câu hỏi tự nhiên
 
@@ -209,7 +209,7 @@ Mẹo: snapshot `size` **trước** khi xử lý tầng. Trong vòng `for`, queu
 - **"Đánh dấu visited LÚC enqueue hay LÚC dequeue?"** — **Lúc enqueue** mới đúng. Nếu đánh dấu lúc dequeue, một node có thể bị enqueue **nhiều lần** trước khi được xử lý → queue phình to + duplicate output. Đây là lỗi rất phổ biến.
 - **"BFS có hoạt động trên đồ thị có chu trình?"** — Có, miễn là check `visited` để không quay lại. Đó là tác dụng chính của `visited`.
 - **"Đồ thị vô hướng và có hướng khác gì khi BFS?"** — Code y hệt; khác biệt chỉ là `adj[u]` cấu thành thế nào (vô hướng: cạnh `u-v` xuất hiện ở cả `adj[u]` và `adj[v]`; có hướng: chỉ một chiều).
-- **"Độ phức tạp?"** — `O(V + E)` thời gian, `O(V)` bộ nhớ (queue + visited). Mỗi đỉnh enqueue/dequeue đúng 1 lần (do visited); mỗi cạnh xét đúng 1-2 lần (vô hướng).
+- **"Độ phức tạp?"** — $O(V + E)$ thời gian, $O(V)$ bộ nhớ (queue + visited). Mỗi đỉnh enqueue/dequeue đúng 1 lần (do visited); mỗi cạnh xét đúng 1-2 lần (vô hướng).
 
 ### 6.6. ⚠ Lỗi thường gặp
 
@@ -217,7 +217,7 @@ Mẹo: snapshot `size` **trước** khi xử lý tầng. Trong vòng `for`, queu
 |------|---------|----------|
 | Đánh dấu visited **lúc dequeue** thay vì lúc enqueue | Một node bị enqueue nhiều lần, queue phình, có thể TLE/OOM | Đánh dấu **ngay khi enqueue** |
 | Quên đánh dấu `start` là visited ban đầu | `start` có thể bị enqueue lại qua hàng xóm → vòng lặp lãng phí | `visited.add(start)` trước vòng while |
-| Dùng `list.pop(0)` ở Python để dequeue | `O(n)` mỗi lần → BFS chậm thành `O(V·(V+E))` | Dùng `collections.deque` (`popleft()` là `O(1)`) |
+| Dùng `list.pop(0)` ở Python để dequeue | $O(n)$ mỗi lần → BFS chậm thành $O(V\cdot(V+E))$ | Dùng `collections.deque` (`popleft()` là $O(1)$) |
 | BFS trên đồ thị có **trọng số khác nhau** rồi kết luận đường ngắn nhất | Sai kết quả — BFS chỉ đúng cho trọng số bằng nhau | Dùng Dijkstra (lesson 11) |
 | Trong level-by-level, đọc `queue.size()` **trong** vòng for thay vì snapshot trước | Sang nhầm tầng do queue phình | Chốt `size = queue.size()` trước `for` |
 
@@ -236,7 +236,7 @@ Mẹo: snapshot `size` **trước** khi xử lý tầng. Trong vòng `for`, queu
 - **Queue (FIFO) là cấu trúc đúng** vì giữ thứ tự "tầng trước hết sạch rồi mới sang tầng sau".
 - **Đánh dấu visited lúc enqueue**, không phải lúc dequeue.
 - BFS tính **đường ngắn nhất theo số cạnh** trong đồ thị **không trọng số**. Có trọng số → Dijkstra.
-- Complexity: `O(V + E)` thời gian, `O(V)` bộ nhớ.
+- Complexity: $O(V + E)$ thời gian, $O(V)$ bộ nhớ.
 - Biến thể quan trọng: level-by-level (snapshot size), multi-source (push hết nguồn vào queue ban đầu), 0-1 BFS (deque).
 
 ## Bài tập
@@ -244,7 +244,7 @@ Mẹo: snapshot `size` **trước** khi xử lý tầng. Trong vòng `for`, queu
 1. Cài đặt một circular queue dùng mảng kích thước cố định.
 2. Cài đặt queue bằng **hai stack** — tham khảo kỹ thuật cổ điển.
 3. Cài đặt stack bằng **hai queue** — chiều ngược lại.
-4. Cho luồng số đến liên tiếp, viết một cấu trúc tính **trung bình của 5 số gần nhất** trong `O(1)` mỗi thao tác (gợi ý: queue + biến tổng).
+4. Cho luồng số đến liên tiếp, viết một cấu trúc tính **trung bình của 5 số gần nhất** trong $O(1)$ mỗi thao tác (gợi ý: queue + biến tổng).
 5. Mô phỏng BFS trên một đồ thị nhỏ bằng tay, ghi lại trạng thái queue tại mỗi bước.
 
 ## Lời giải chi tiết
@@ -272,27 +272,27 @@ func (q *CircQueue) Dequeue() (int, bool) {
     return x, true
 }
 ```
-Tất cả `O(1)`.
+Tất cả $O(1)$.
 
 ### Bài 2 — Queue bằng 2 stack
 Hai stack: `in` (cho enqueue) và `out` (cho dequeue).
 - `enqueue(x)`: push vào `in`.
 - `dequeue()`: nếu `out` rỗng → đổ toàn bộ `in` sang `out` (đảo thứ tự, đầu thành đỉnh). Pop `out`.
 
-Amortized `O(1)` mỗi thao tác (mỗi phần tử chuyển sang `out` đúng một lần trong đời).
+Amortized $O(1)$ mỗi thao tác (mỗi phần tử chuyển sang `out` đúng một lần trong đời).
 
 ### Bài 3 — Stack bằng 2 queue
 Cách phổ biến: dùng `q1` là chính, `q2` phụ.
 - `push(x)`: thêm vào `q2`, đổ toàn bộ `q1` vào `q2`, swap `q1, q2`.
 - `pop()`: dequeue từ `q1`.
 
-Push: `O(n)`. Pop/Top: `O(1)`. Có biến thể tốn ngược lại.
+Push: $O(n)$. Pop/Top: $O(1)$. Có biến thể tốn ngược lại.
 
-### Bài 4 — Trung bình 5 số gần nhất, `O(1)` mỗi lần
+### Bài 4 — Trung bình 5 số gần nhất, $O(1)$ mỗi lần
 Queue kích thước cố định 5 + biến `sum`.
 - Khi thêm `x`: nếu đủ 5 → dequeue đầu (`sum -= old`); enqueue `x`, `sum += x`; trung bình = `sum / size`.
 
-Mỗi thao tác `O(1)`.
+Mỗi thao tác $O(1)$.
 
 ### Bài 5 — Mô phỏng BFS bằng tay
 Đồ thị:

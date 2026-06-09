@@ -45,7 +45,7 @@ t   r     ← prefix "cat" và "car"
         * ← "card" kết thúc
 ```
 
-Lợi ích "chia sẻ prefix" cụ thể: 3 từ với tổng `3+3+4 = 10` ký tự chỉ cần **5 node** (`c, a, t, r, d`) thay vì 10 — vì 3 ký tự đầu của `card`/`car` dùng chung node với `cat`.
+Lợi ích "chia sẻ prefix" cụ thể: 3 từ với tổng $3+3+4 = 10$ ký tự chỉ cần **5 node** (`c, a, t, r, d`) thay vì 10 — vì 3 ký tự đầu của `card`/`car` dùng chung node với `cat`.
 
 ## 2. Cấu trúc node
 
@@ -67,7 +67,7 @@ function insert(root, word):
         node = node.children[c]
     node.isEnd = true
 ```
-- Thời gian: `O(L)` với `L` = độ dài chuỗi.
+- Thời gian: $O(L)$ với $L$ = độ dài chuỗi.
 
 ### 3.2. Search (toàn bộ chuỗi)
 ```
@@ -89,7 +89,7 @@ function startsWith(root, prefix):
     return true
 ```
 
-Cả ba đều `O(L)` — **không phụ thuộc số chuỗi đã lưu**.
+Cả ba đều $O(L)$ — **không phụ thuộc số chuỗi đã lưu**.
 
 ### 3.4. Walk-through insert step-by-step
 
@@ -186,8 +186,8 @@ Search `"cup"` — không tồn tại:
 
 | Tiêu chí | Trie | HashSet |
 | --- | --- | --- |
-| Tìm chuỗi | `O(L)` | `O(L)` trung bình |
-| Tìm theo tiền tố | **`O(L)`** | Phải duyệt hết |
+| Tìm chuỗi | $O(L)$ | $O(L)$ trung bình |
+| Tìm theo tiền tố | **$O(L)$** | Phải duyệt hết |
 | Liệt kê các chuỗi bắt đầu bằng prefix | Dễ | Khó |
 | Bộ nhớ | Lớn (mỗi ký tự một node) | Gọn hơn |
 | Có thứ tự | Có (theo lexicographic) | Không |
@@ -196,28 +196,28 @@ Search `"cup"` — không tồn tại:
 
 ### 4.1. So sánh memory: Trie vs Hash Table với 1 triệu từ ngắn
 
-Giả định: 1 triệu từ tiếng Anh trung bình `8` ký tự, alphabet a-z.
+Giả định: 1 triệu từ tiếng Anh trung bình $8$ ký tự, alphabet a-z.
 
 **Phương án 1 — HashSet of String**:
-- Mỗi `string`: header ~16 byte + data `8` byte = ~24 byte.
-- Hash table với load factor 0.75: ~`1.33 × 10⁶` slot × 8 byte/pointer = ~10.6 MB cho bucket array.
-- Tổng: ~`24 × 10⁶ + 10.6 × 10⁶ ≈ 34.6 MB`.
+- Mỗi `string`: header ~16 byte + data $8$ byte = ~24 byte.
+- Hash table với load factor 0.75: ~$1{,}33 \times 10^6$ slot × 8 byte/pointer = ~10.6 MB cho bucket array.
+- Tổng: ~$24 \times 10^6 + 10{,}6 \times 10^6 \approx 34{,}6$ MB.
 
 **Phương án 2 — Trie dùng mảng 26 con**:
 - Mỗi node = 26 pointer × 8 byte + 1 byte `isEnd` + padding ≈ **216 byte/node**.
-- Số node trong trie 1 triệu từ tiếng Anh: theo thực nghiệm, ~`3 × 10⁶` node (do từ ngắn chia sẻ prefix rất tốt — tầng 1 có ≤ 26 node, tầng 2 ≤ 676, càng sâu càng đầy).
-- Tổng: ~`216 × 3 × 10⁶ ≈ 648 MB`. **Lớn gấp ~19 lần HashSet!**
+- Số node trong trie 1 triệu từ tiếng Anh: theo thực nghiệm, ~$3 \times 10^6$ node (do từ ngắn chia sẻ prefix rất tốt — tầng 1 có ≤ 26 node, tầng 2 ≤ 676, càng sâu càng đầy).
+- Tổng: ~$216 \times 3 \times 10^6 \approx 648$ MB. **Lớn gấp ~19 lần HashSet!**
 
 **Phương án 3 — Trie dùng `map[byte]*Node`**:
-- Mỗi node: 1 map (overhead ~48 byte cho map rỗng) + entry trung bình. Nếu mỗi node trung bình 3 con: ~`48 + 3 × 24 = 120` byte/node.
-- Tổng: ~`120 × 3 × 10⁶ ≈ 360 MB`. Vẫn lớn hơn HashSet ~10 lần.
+- Mỗi node: 1 map (overhead ~48 byte cho map rỗng) + entry trung bình. Nếu mỗi node trung bình 3 con: ~$48 + 3 \times 24 = 120$ byte/node.
+- Tổng: ~$120 \times 3 \times 10^6 \approx 360$ MB. Vẫn lớn hơn HashSet ~10 lần.
 
 **Phương án 4 — Compressed trie (Radix tree)**:
 - Gộp các chuỗi node đơn (chỉ có 1 con) thành 1 cạnh nhãn nhiều ký tự.
-- Số node giảm xuống ~`5 × 10⁵` (chỉ giữ các điểm phân nhánh thật).
-- Tổng: ~`5 × 10⁵ × 100 ≈ 50 MB`. Cạnh tranh với HashSet, lại **hỗ trợ prefix query**.
+- Số node giảm xuống ~$5 \times 10^5$ (chỉ giữ các điểm phân nhánh thật).
+- Tổng: ~$5 \times 10^5 \times 100 \approx 50$ MB. Cạnh tranh với HashSet, lại **hỗ trợ prefix query**.
 
-**Kết luận**: Trie dạng "ngây thơ" tốn bộ nhớ gấp 10-20 lần hash. Đổi lại được prefix query `O(L)`. Khi memory là bottleneck → compressed trie.
+**Kết luận**: Trie dạng "ngây thơ" tốn bộ nhớ gấp 10-20 lần hash. Đổi lại được prefix query $O(L)$. Khi memory là bottleneck → compressed trie.
 
 ## 5. Ứng dụng
 
@@ -239,11 +239,11 @@ Giả định: 1 triệu từ tiếng Anh trung bình `8` ký tự, alphabet a-z
 
 ### 7.1. ❓ Câu hỏi tự nhiên
 
-- **"Trie nhanh hơn HashSet ở chỗ nào?"** — Cùng tìm chuỗi cả hai đều `O(L)` (hash cần tính `O(L)` để hash, trie cần `O(L)` để đi xuống). **Trie thắng tuyệt đối ở prefix query** — liệt kê tất cả từ bắt đầu bằng `"pre"` mất `O(L + K)` (K = tổng độ dài kết quả), trong khi HashSet phải duyệt toàn bộ `n` phần tử → `O(n × L)`.
-- **"Tại sao tôi nên chọn `map<char, Node>` thay vì mảng `[26]Node*`?"** — Mảng 26 cố định: truy cập `O(1)` (`children[c-'a']`), nhưng lãng phí khi node có ít con (vd node sâu chỉ có 1 con phải dành 26 ô = 208 byte). Map: tốn overhead constant lớn hơn nhưng chỉ chứa con thực sự có. Quy tắc: **alphabet nhỏ + node dày (gần root)** dùng mảng; **alphabet lớn (Unicode) hoặc node thưa** dùng map.
+- **"Trie nhanh hơn HashSet ở chỗ nào?"** — Cùng tìm chuỗi cả hai đều $O(L)$ (hash cần tính $O(L)$ để hash, trie cần $O(L)$ để đi xuống). **Trie thắng tuyệt đối ở prefix query** — liệt kê tất cả từ bắt đầu bằng `"pre"` mất $O(L + K)$ (K = tổng độ dài kết quả), trong khi HashSet phải duyệt toàn bộ $n$ phần tử → $O(n \times L)$.
+- **"Tại sao tôi nên chọn `map<char, Node>` thay vì mảng `[26]Node*`?"** — Mảng 26 cố định: truy cập $O(1)$ (`children[c-'a']`), nhưng lãng phí khi node có ít con (vd node sâu chỉ có 1 con phải dành 26 ô = 208 byte). Map: tốn overhead constant lớn hơn nhưng chỉ chứa con thực sự có. Quy tắc: **alphabet nhỏ + node dày (gần root)** dùng mảng; **alphabet lớn (Unicode) hoặc node thưa** dùng map.
 - **"Compressed trie là gì cụ thể?"** — Trong trie chuẩn, một chuỗi không phân nhánh dài tạo ra một dây node lãng phí. Radix tree gộp dây đó thành 1 node với nhãn chuỗi. Vd `{"romanus", "romulus"}` chuẩn cần 12 node, radix chỉ cần 5 node (root → "rom" → split: "anus" / "ulus").
 - **"Có thể xóa khỏi trie không?"** — Có, nhưng phải cẩn thận: chỉ xóa node nếu (1) `isEnd == false` sau khi unset, (2) không có con nào khác. Nếu node là prefix của từ khác → chỉ set `isEnd = false`, KHÔNG xóa cấu trúc.
-- **"Lúc nào trie thua hash table hoàn toàn?"** — Khi (1) không cần prefix query, và (2) memory là bottleneck. Vd lưu hash của file (chuỗi hex `64` ký tự) → dùng hash table; lưu IP routing → dùng trie nhị phân (cần longest-prefix).
+- **"Lúc nào trie thua hash table hoàn toàn?"** — Khi (1) không cần prefix query, và (2) memory là bottleneck. Vd lưu hash của file (chuỗi hex $64$ ký tự) → dùng hash table; lưu IP routing → dùng trie nhị phân (cần longest-prefix).
 
 ### 7.2. ⚠ Lỗi thường gặp
 
@@ -269,8 +269,8 @@ Giả định: 1 triệu từ tiếng Anh trung bình `8` ký tự, alphabet a-z
 ### 7.4. 📝 Tóm tắt toàn lesson
 
 - Trie = cây chữ cái, **đường đi từ root = prefix**, node có thể đánh dấu kết thúc từ (`isEnd`).
-- Insert/Search/StartsWith đều `O(L)`, **không phụ thuộc số từ đã lưu**.
-- Lợi thế chính: **prefix query** — liệt kê từ bắt đầu bằng prefix `O(L + K)`.
+- Insert/Search/StartsWith đều $O(L)$, **không phụ thuộc số từ đã lưu**.
+- Lợi thế chính: **prefix query** — liệt kê từ bắt đầu bằng prefix $O(L + K)$.
 - Trade-off bộ nhớ: trie ngây thơ tốn gấp 10-20 lần hash; compressed trie thu hẹp được khoảng cách.
 - Lưu ý cài đặt: **isEnd**, alphabet, **xóa cẩn thận** khi từ là prefix của từ khác.
 - Mảng `[26]` cho alphabet nhỏ + dày; `map` cho alphabet lớn + thưa.
@@ -298,25 +298,25 @@ func (t *Trie) Search(w string) bool { /* tìm node + isEnd */ }
 func (t *Trie) StartsWith(p string) bool { /* tìm node, không cần isEnd */ }
 ```
 
-Cả ba `O(L)` với `L` = độ dài chuỗi.
+Cả ba $O(L)$ với $L$ = độ dài chuỗi.
 
 ### Bài 2 — Đếm số chuỗi bắt đầu bằng prefix
 Thêm trường `count` vào mỗi node: số lượng từ đi qua node này. Khi insert, tăng `count++` ở mỗi node trên đường.
 
-Truy vấn `countPrefix(p)`: đi xuống đến node ứng với cuối prefix, trả về `count` của node đó. `O(L)`.
+Truy vấn `countPrefix(p)`: đi xuống đến node ứng với cuối prefix, trả về `count` của node đó. $O(L)$.
 
 ### Bài 3 — Liệt kê tất cả từ bắt đầu bằng prefix
-1. Đi xuống đến node của prefix → `O(L)`.
+1. Đi xuống đến node của prefix → $O(L)$.
 2. DFS toàn bộ subtree, ghép `prefix + đường đi` tại các `isEnd`.
 
-`O(L + K)` với `K` = tổng độ dài các kết quả. Không thể nhanh hơn vì phải in ra `K` ký tự.
+$O(L + K)$ với $K$ = tổng độ dài các kết quả. Không thể nhanh hơn vì phải in ra $K$ ký tự.
 
 ### Bài 4 — Xóa một từ
 - Đi xuống tới node cuối, set `isEnd = false`.
 - Trên đường quay lên, nếu node con vừa xử lý không có `isEnd` và không có con khác → xóa node con (gán nil).
 - Dừng khi gặp node được chia sẻ.
 
-`O(L)`.
+$O(L)$.
 
 ### Bài 5 — So sánh dung lượng: 10.000 từ trong HashSet vs Trie
 - **HashSet**: lưu toàn bộ chuỗi + overhead hash table. Trung bình mỗi chuỗi tốn `len + ~20-30 byte` overhead.

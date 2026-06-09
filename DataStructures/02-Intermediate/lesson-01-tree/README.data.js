@@ -128,9 +128,9 @@ Trên cây ví dụ: \`1 2 3 4 5\`.
 
 | Thao tác | Big-O |
 | --- | --- |
-| Duyệt toàn bộ | \`O(n)\` |
-| Tính chiều cao | \`O(n)\` |
-| Tìm trong cây tổng quát | \`O(n)\` |
+| Duyệt toàn bộ | $O(n)$ |
+| Tính chiều cao | $O(n)$ |
+| Tìm trong cây tổng quát | $O(n)$ |
 
 Đối với các cây **có cấu trúc đặc biệt** (BST, heap, balanced tree), độ phức tạp tốt hơn nhiều — sẽ học ở các bài sau.
 
@@ -148,7 +148,7 @@ function height(node):
     if node == null: return -1
     return 1 + max(height(node.left), height(node.right))
 \`\`\`
-\`O(n)\`.
+$O(n)$.
 
 ## 8. Tổ chức bộ nhớ: cách 1 — Pointer-based
 
@@ -228,7 +228,7 @@ Trong đó **chỉ 20 byte chứa dữ liệu thật (\`value\`)**. 100 byte cò
 - **"Trên máy 32-bit thì sao?"** — Pointer 4 byte → một Node = \`4 (value) + 4 (left) + 4 (right) = 12 byte\`. Không cần padding nữa.
 - **"Trong Go, struct \`Node{ Value int; Left, Right *Node }\` chiếm bao nhiêu?"** — \`int\` Go là 8 byte trên 64-bit + 2 pointer 8 byte = **24 byte**, không cần padding vì đã sẵn aligned 8-byte. Dùng \`unsafe.Sizeof(Node{})\` để verify.
 - **"Sao không lưu cả parent pointer?"** — Một số cây cần (vd Splay, để rotate); đổi lại tốn thêm 8 byte/node và phải đồng bộ khi chỉnh cây.
-- **"Tại sao cây hay chậm hơn array dù cùng \`O(n)\`?"** — Mỗi pointer có thể nhảy tới địa chỉ xa → **cache miss**. Array cùng số phần tử nằm liên tiếp → CPU prefetch hiệu quả. Đây là động lực cho cách 2 (array-based) sẽ học ở lesson 8.
+- **"Tại sao cây hay chậm hơn array dù cùng $O(n)$?"** — Mỗi pointer có thể nhảy tới địa chỉ xa → **cache miss**. Array cùng số phần tử nằm liên tiếp → CPU prefetch hiệu quả. Đây là động lực cho cách 2 (array-based) sẽ học ở lesson 8.
 
 ### 8.6. ⚠ Lỗi thường gặp
 
@@ -242,8 +242,8 @@ Trong đó **chỉ 20 byte chứa dữ liệu thật (\`value\`)**. 100 byte cò
 ### 8.7. 🔁 Tự kiểm tra
 
 1. Một cây có 1 triệu node, pointer-based trên máy 64-bit, dữ liệu là \`int32\`. Tốn bao nhiêu MB chỉ để LƯU?
-   <details><summary>Đáp án</summary>\`10⁶ × 24 byte = 24 MB\`. Chỉ 4 MB là \`value\`, 20 MB là metadata.</details>
-2. Vì sao đi từ root xuống node độ sâu \`h\` thực sự có thể chậm hơn \`O(h)\` ở mức "phép toán thuần"?
+   <details><summary>Đáp án</summary>$10^6 \\times 24$ byte $= 24$ MB. Chỉ 4 MB là \`value\`, 20 MB là metadata.</details>
+2. Vì sao đi từ root xuống node độ sâu $h$ thực sự có thể chậm hơn $O(h)$ ở mức "phép toán thuần"?
    <details><summary>Đáp án</summary>Mỗi node có thể nằm ở vùng RAM khác → cache miss. CPU đọc RAM ~100 ns vs cache L1 ~1 ns. Big-O bỏ qua hằng số này nhưng thực tế quan trọng.</details>
 
 ### 8.8. 📝 Tóm tắt mục 8
@@ -271,7 +271,7 @@ func countNodes(n *Node) int {
     return 1 + countNodes(n.left) + countNodes(n.right)
 }
 \`\`\`
-\`O(n)\`.
+$O(n)$.
 
 ### Bài 2 — Cây đối xứng
 Một cây đối xứng (mirror) nếu subtree trái và phải là **gương** của nhau. Dùng hai con trỏ:
@@ -287,7 +287,7 @@ func isSymmetric(root *Node) bool {
     return mirror(root.left, root.right)
 }
 \`\`\`
-\`O(n)\`.
+$O(n)$.
 
 ### Bài 3 — Level-order, mỗi tầng một dòng
 Dùng queue + đếm số node trong tầng hiện tại.
@@ -310,10 +310,10 @@ func levelOrderByLines(root *Node) [][]int {
     return out
 }
 \`\`\`
-\`O(n)\`.
+$O(n)$.
 
 ### Bài 4 — Đường kính cây
-Đường kính = đường đi dài nhất giữa hai node bất kỳ = \`max(height(left) + height(right) + 2)\` trên mọi node.
+Đường kính = đường đi dài nhất giữa hai node bất kỳ = $\\max(\\text{height(left)} + \\text{height(right)} + 2)$ trên mọi node.
 
 Tính chiều cao + cập nhật đường kính trong cùng một lần đệ quy:
 \`\`\`go
@@ -330,7 +330,7 @@ func diameter(root *Node) int {
     return best
 }
 \`\`\`
-\`O(n)\`.
+$O(n)$.
 
 ### Bài 5 — Tự vẽ và trace 4 cách duyệt
 Lấy cây:

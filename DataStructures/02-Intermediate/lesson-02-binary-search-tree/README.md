@@ -41,7 +41,7 @@ Hình dung từ điển 1.000 trang. Tìm từ `"orange"`:
 
 BST chính là từ điển này được "đông cứng" thành cây: root = trang 500, child trái = trang 250, child phải = trang 750, ... Tính chất "trái nhỏ, phải lớn" cho phép tại MỌI node biết ngay phải đi đâu — vứt nửa kia.
 
-Cây có `n` node, cân bằng → chiều cao `log₂ n`. `n = 10^6` → chỉ ~20 bước so sánh. Cùng cơ chế binary search trên mảng sắp xếp, nhưng cho phép **insert/delete động** (mảng sắp xếp insert tốn `O(n)` dồn).
+Cây có $n$ node, cân bằng → chiều cao $\log_2 n$. $n = 10^6$ → chỉ ~20 bước so sánh. Cùng cơ chế binary search trên mảng sắp xếp, nhưng cho phép **insert/delete động** (mảng sắp xếp insert tốn $O(n)$ dồn).
 
 ### 1.2. Walk-through inorder bằng số cụ thể
 
@@ -76,7 +76,7 @@ Tiếp tục subtree phải → ra `10, 13, 14`. Kết quả cuối: `1 3 4 6 7 
 
 - **"BST có cho phép giá trị trùng (duplicate) không?"** — Tuỳ quy ước. Hai cách phổ biến: (1) cấm duplicate; (2) đẩy duplicate sang phải (hoặc trái) nhất quán. Lưu ý: nếu cho phép cả hai phía, định nghĩa BST bị phá (`x` trùng có thể ở cả nhánh trái và phải) → mất tính chất "inorder = sorted". Mục 3 chọn cách "bỏ qua duplicate" qua nhánh `else if`.
 - **"Tính chất 'trái nhỏ, phải lớn' chỉ so với BỐ TRỰC TIẾP hay với MỌI tổ tiên?"** — Với MỌI tổ tiên. Đây là sai lầm hay gặp lúc validate (xem Bài tập 2). Vd: ở subtree phải của root=8, node 7 vẫn phải > 8 → sai BST! Nhưng ở cây mẫu, node 7 là con trái của 6, mà 6 < 8 nên cả nhánh đó cũng < 8 — đúng. So sánh phải truyền `[lo, hi]` xuống, không chỉ so cha.
-- **"Sao không dùng `sort([])` rồi binary search luôn?"** — Mảng sắp xếp tốt cho **read-only**. Khi cần insert/delete động, mảng tốn `O(n)` dịch. BST insert/delete `O(log n)` nếu cân bằng — đó là ưu thế.
+- **"Sao không dùng `sort([])` rồi binary search luôn?"** — Mảng sắp xếp tốt cho **read-only**. Khi cần insert/delete động, mảng tốn $O(n)$ dịch. BST insert/delete $O(\log n)$ nếu cân bằng — đó là ưu thế.
 
 ## 2. Tìm kiếm — `search(root, key)`
 
@@ -90,8 +90,8 @@ function search(node, key):
     else:                  return search(node.right, key)
 ```
 
-- Cây cân bằng: `O(log n)`.
-- Cây xấu (lệch): `O(n)`.
+- Cây cân bằng: $O(\log n)$.
+- Cây xấu (lệch): $O(n)$.
 
 ## 3. Thêm — `insert(root, key)`
 
@@ -242,9 +242,9 @@ Vẫn là BST hợp lệ. Inorder: 3, 4, 9. ✓
 
 | Thao tác | Trung bình | Xấu nhất |
 | --- | --- | --- |
-| Search | `O(log n)` | `O(n)` |
-| Insert | `O(log n)` | `O(n)` |
-| Delete | `O(log n)` | `O(n)` |
+| Search | $O(\log n)$ | $O(n)$ |
+| Insert | $O(\log n)$ | $O(n)$ |
+| Delete | $O(\log n)$ | $O(n)$ |
 
 **Xấu nhất** xảy ra khi cây bị **suy biến thành dãy** (chèn dãy đã sắp xếp `1, 2, 3, ...` → cây thành linked list).
 
@@ -271,12 +271,12 @@ Cùng tập `{1, 2, 3, 4, 5}`, 4 thứ tự khác nhau:
 | `3, 1, 5, 2, 4` (root giữa) | 2 | Cân bằng đẹp |
 | `3, 2, 5, 1, 4` | 2 | Cân bằng |
 
-→ Cùng 5 phần tử, search có thể tốn 4 bước (`O(n)`) hoặc 2 bước (`O(log n)`) tuỳ thứ tự insert. Đây là **động lực thực tế** cho cây cân bằng: ép chiều cao về `log n` bất kể thứ tự insert.
+→ Cùng 5 phần tử, search có thể tốn 4 bước ($O(n)$) hoặc 2 bước ($O(\log n)$) tuỳ thứ tự insert. Đây là **động lực thực tế** cho cây cân bằng: ép chiều cao về $\log n$ bất kể thứ tự insert.
 
 ### 5.2. ❓ Câu hỏi tự nhiên
 
-- **"Trung bình `O(log n)` từ đâu ra nếu cây có thể tệ?"** — Phân tích: nếu các key được insert theo thứ tự **ngẫu nhiên đồng đều**, chiều cao trung bình kỳ vọng là `O(log n)` (~`2.99 log n`). Nhưng dữ liệu thực thường không ngẫu nhiên (vd log timestamp tăng dần) → cần cây tự cân bằng để đảm bảo bất kể input.
-- **"Khi nào tôi BẮT BUỘC phải dùng balanced BST thay vì BST thường?"** — Khi không kiểm soát thứ tự insert và cần đảm bảo worst-case `O(log n)`: database index, scheduler theo deadline, interval tree, ... Khi chỉ cần lookup không cần thứ tự → HashMap đơn giản hơn và nhanh hơn (`O(1)`).
+- **"Trung bình $O(\log n)$ từ đâu ra nếu cây có thể tệ?"** — Phân tích: nếu các key được insert theo thứ tự **ngẫu nhiên đồng đều**, chiều cao trung bình kỳ vọng là $O(\log n)$ (~$2{,}99 \log n$). Nhưng dữ liệu thực thường không ngẫu nhiên (vd log timestamp tăng dần) → cần cây tự cân bằng để đảm bảo bất kể input.
+- **"Khi nào tôi BẮT BUỘC phải dùng balanced BST thay vì BST thường?"** — Khi không kiểm soát thứ tự insert và cần đảm bảo worst-case $O(\log n)$: database index, scheduler theo deadline, interval tree, ... Khi chỉ cần lookup không cần thứ tự → HashMap đơn giản hơn và nhanh hơn ($O(1)$).
 - **"Trộn ngẫu nhiên trước khi insert có giải quyết hẳn không?"** — Cho 1 lần build từ tập biết trước thì có. Nhưng dữ liệu đến online, không trộn được — vẫn cần cây cân bằng (AVL, RB-tree, Treap).
 
 ### 5.3. 🔁 Tự kiểm tra
@@ -287,14 +287,14 @@ Cùng tập `{1, 2, 3, 4, 5}`, 4 thứ tự khác nhau:
    <details><summary>Đáp án</summary>Chiều cao **2** (root=4, level 1 có 2 và 6, level 2 có 1,3,5,7). Cây cân bằng hoàn hảo cho 7 node.</details>
 3. Cho cây ở câu 1, xoá node 10. Cây mới có root là gì?
    <details><summary>Đáp án</summary>**15** (successor của 10 = min subtree phải = 15, vì 15 không có con). Cây mới: root=15, trái=5 (5 có con 2, 7).</details>
-4. Vì sao cây sau khi chèn `1,2,3,...,n` theo thứ tự có chiều cao `n-1` mà không phải `log n`?
-   <details><summary>Đáp án</summary>Mỗi key mới đều > mọi key đã có → luôn đi sang phải, không bao giờ rẽ trái. Cây thành chuỗi phải dài `n-1`. Đây là worst case của BST không cân bằng.</details>
+4. Vì sao cây sau khi chèn `1,2,3,...,n` theo thứ tự có chiều cao $n-1$ mà không phải $\log n$?
+   <details><summary>Đáp án</summary>Mỗi key mới đều > mọi key đã có → luôn đi sang phải, không bao giờ rẽ trái. Cây thành chuỗi phải dài $n-1$. Đây là worst case của BST không cân bằng.</details>
 
 ### 5.4. 📝 Tóm tắt mục 1-5
 
 - BST: cây nhị phân thỏa "trái < gốc < phải" áp dụng với mọi tổ tiên (không chỉ cha trực tiếp).
 - **Inorder** cho dãy sắp xếp — đặc tính độc nhất của BST.
-- Search/Insert/Delete: `O(log n)` trung bình khi cây cân bằng; `O(n)` xấu nhất khi cây bị lệch (insert theo thứ tự sắp xếp).
+- Search/Insert/Delete: $O(\log n)$ trung bình khi cây cân bằng; $O(n)$ xấu nhất khi cây bị lệch (insert theo thứ tự sắp xếp).
 - Delete có 3 case: leaf (xoá trực tiếp), 1 con (nâng con lên), 2 con (thay bằng in-order successor rồi xoá successor).
 - Cùng tập key, **thứ tự insert quyết định hình dạng cây** → quyết định performance.
 - Khắc phục lệch: trộn ngẫu nhiên, hoặc dùng cây tự cân bằng (AVL, Red-Black) ở Lesson 09.
@@ -303,10 +303,10 @@ Cùng tập `{1, 2, 3, 4, 5}`, 4 thứ tự khác nhau:
 
 | Tiêu chí | BST | Hash Table |
 | --- | --- | --- |
-| Tìm trung bình | `O(log n)` (nếu cân bằng) | `O(1)` |
-| Duyệt theo thứ tự | `O(n)`, có thứ tự sẵn | Không thứ tự |
+| Tìm trung bình | $O(\log n)$ (nếu cân bằng) | $O(1)$ |
+| Duyệt theo thứ tự | $O(n)$, có thứ tự sẵn | Không thứ tự |
 | Tìm khoảng (range query) | Hỗ trợ tốt | Không hỗ trợ |
-| Tìm min/max | `O(log n)` | `O(n)` |
+| Tìm min/max | $O(\log n)$ | $O(n)$ |
 
 → BST phù hợp khi cần **thứ tự** hoặc **truy vấn khoảng**.
 
@@ -372,7 +372,7 @@ func isValidBST(root *Node) bool {
     return ok(root, nil, nil)
 }
 ```
-`O(n)`.
+$O(n)$.
 
 ### Bài 3 — In-order successor của `k`
 Successor: phần tử **nhỏ nhất lớn hơn `k`** trong BST.
@@ -387,7 +387,7 @@ func successor(root *Node, k int) *Node {
     return s
 }
 ```
-`O(h)`.
+$O(h)$.
 
 ### Bài 4 — BST → mảng đã sắp xếp
 Duyệt **in-order** → cho ra dãy đã sắp.
@@ -399,10 +399,10 @@ func toSorted(n *Node, out *[]int) {
     toSorted(n.right, out)
 }
 ```
-`O(n)`.
+$O(n)$.
 
 ### Bài 5 — Vì sao dãy `1, 2, 3, 4, 5` tạo cây tệ?
-Mỗi lần chèn, phần tử mới đều **lớn hơn mọi node đã có** → đi sang phải mãi → cây trở thành dãy thẳng (chiều cao `n-1`). Mọi thao tác trở thành `O(n)`.
+Mỗi lần chèn, phần tử mới đều **lớn hơn mọi node đã có** → đi sang phải mãi → cây trở thành dãy thẳng (chiều cao $n-1$). Mọi thao tác trở thành $O(n)$.
 
 **Khắc phục**:
 1. **Trộn ngẫu nhiên** dữ liệu trước khi chèn (nếu được).

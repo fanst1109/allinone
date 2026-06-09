@@ -301,19 +301,19 @@ trong đó:
 
 🔁 **Dừng lại tự kiểm tra**
 
-1. Lò xo k = 150 N/m bị kéo giãn 8 cm. Lực đàn hồi bằng bao nhiêu?
-2. Treo vật 1 kg vào lò xo thì giãn 4 cm. Tính k. (g=9.8)
+1. Lò xo $k = 150$ N/m bị kéo giãn 8 cm. Lực đàn hồi bằng bao nhiêu?
+2. Treo vật 1 kg vào lò xo thì giãn 4 cm. Tính $k$. ($g=9{,}8$)
 
 <details><summary>Đáp án</summary>
 
-1. x = 8 cm = 0.08 m. F = k·x = 150·0.08 = **12 N**.
-2. Cân bằng: k·x = m·g → k = m·g/x = 1·9.8/0.04 = **245 N/m**.
+1. $x = 8$ cm $= 0{,}08$ m. $F = k\cdot x = 150\cdot 0{,}08 = $ **12 N**.
+2. Cân bằng: $k\cdot x = m\cdot g \to k = \frac{m\cdot g}{x} = \frac{1\cdot 9{,}8}{0{,}04} = $ **245 N/m**.
 
 </details>
 
 ### 📝 Tóm tắt mục 4
 
-- Hooke: F = −k·x. Tuyến tính, ngược chiều biến dạng.
+- Hooke: $F = -k\cdot x$. Tuyến tính, ngược chiều biến dạng.
 - Chỉ đúng với biến dạng nhỏ.
 
 ---
@@ -330,36 +330,36 @@ trong đó:
 
 ### 5.2. Walk-through — Bài toán Atwood (2 vật treo qua ròng rọc)
 
-Hai vật m₁ = 3 kg, m₂ = 5 kg treo qua một ròng rọc, nối bằng dây. Tính gia tốc và lực căng.
+Hai vật $m_1 = 3$ kg, $m_2 = 5$ kg treo qua một ròng rọc, nối bằng dây. Tính gia tốc và lực căng.
 
-- m₂ nặng hơn → m₂ đi xuống, m₁ đi lên. Gọi gia tốc của hệ = a.
-- FBD m₁ (đi lên với gia tốc a): T − m₁·g = m₁·a.
-- FBD m₂ (đi xuống với gia tốc a): m₂·g − T = m₂·a.
-- Cộng 2 phương trình: (m₂ − m₁)·g = (m₁ + m₂)·a.
-- a = (5 − 3)·9.8 / (3 + 5) = **2.45 m/s²**.
-- T = m₁·(g + a) = 3·(9.8 + 2.45) = **36.75 N**.
+- $m_2$ nặng hơn $\to m_2$ đi xuống, $m_1$ đi lên. Gọi gia tốc của hệ $= a$.
+- FBD $m_1$ (đi lên với gia tốc $a$): $T - m_1\cdot g = m_1\cdot a$.
+- FBD $m_2$ (đi xuống với gia tốc $a$): $m_2\cdot g - T = m_2\cdot a$.
+- Cộng 2 phương trình: $(m_2 - m_1)\cdot g = (m_1 + m_2)\cdot a$.
+- $a = \frac{(5 - 3)\cdot 9{,}8}{3 + 5} = $ **2,45 m/s²**.
+- $T = m_1\cdot(g + a) = 3\cdot(9{,}8 + 2{,}45) = $ **36,75 N**.
 
 ### ⚠ Lỗi thường gặp
 
-- **Nghĩ dây "đẩy" được**: dây chỉ **kéo**, không đẩy. Khi vật bị đẩy về phía dây, dây chùng (T = 0), không tạo lực đẩy ngược.
-- **Coi T = trọng lượng vật treo trong mọi trường hợp**: chỉ đúng khi vật **đứng yên** hoặc chuyển động đều. Khi hệ gia tốc (như Atwood), T = m(g±a) ≠ mg. Phản ví dụ trên: T = 36.75 N ≠ trọng lượng m₁ = 29.4 N.
-- **Quên T bằng nhau hai đầu chỉ với dây lý tưởng**: dây có khối lượng đáng kể hoặc ròng rọc có ma sát → T khác nhau hai đầu.
+- **Nghĩ dây "đẩy" được**: dây chỉ **kéo**, không đẩy. Khi vật bị đẩy về phía dây, dây chùng ($T = 0$), không tạo lực đẩy ngược.
+- **Coi T = trọng lượng vật treo trong mọi trường hợp**: chỉ đúng khi vật **đứng yên** hoặc chuyển động đều. Khi hệ gia tốc (như Atwood), $T = m(g\pm a) \neq mg$. Phản ví dụ trên: $T = 36{,}75$ N $\neq$ trọng lượng $m_1 = 29{,}4$ N.
+- **Quên T bằng nhau hai đầu chỉ với dây lý tưởng**: dây có khối lượng đáng kể hoặc ròng rọc có ma sát $\to T$ khác nhau hai đầu.
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
-- *"Vì sao trong dây lý tưởng lực căng bằng nhau ở mọi điểm?"* Vì dây không khối lượng → mỗi đoạn dây có m = 0 → theo F = m·a = 0, tổng lực trên mỗi đoạn = 0 → lực kéo hai phía mỗi đoạn phải bằng nhau → T đồng đều suốt dây.
-- *"Trong bài Atwood, vì sao m₂ nặng hơn lại đi xuống?"* Vì trọng lực kéo m₂ xuống (m₂·g) lớn hơn kéo m₁ xuống (m₁·g). Hệ "nghiêng" về phía nặng → m₂ xuống, kéo m₁ lên qua dây.
-- *"Lực căng có thể lớn hơn trọng lượng không?"* Có — khi vật được kéo lên có gia tốc: T = m(g+a) > mg. Vd nâng vật bằng cáp với gia tốc lên, cáp chịu lực lớn hơn trọng lượng tĩnh.
+- *"Vì sao trong dây lý tưởng lực căng bằng nhau ở mọi điểm?"* Vì dây không khối lượng $\to$ mỗi đoạn dây có $m = 0 \to$ theo $F = m\cdot a = 0$, tổng lực trên mỗi đoạn $= 0 \to$ lực kéo hai phía mỗi đoạn phải bằng nhau $\to T$ đồng đều suốt dây.
+- *"Trong bài Atwood, vì sao $m_2$ nặng hơn lại đi xuống?"* Vì trọng lực kéo $m_2$ xuống ($m_2\cdot g$) lớn hơn kéo $m_1$ xuống ($m_1\cdot g$). Hệ "nghiêng" về phía nặng $\to m_2$ xuống, kéo $m_1$ lên qua dây.
+- *"Lực căng có thể lớn hơn trọng lượng không?"* Có — khi vật được kéo lên có gia tốc: $T = m(g+a) > mg$. Vd nâng vật bằng cáp với gia tốc lên, cáp chịu lực lớn hơn trọng lượng tĩnh.
 
 🔁 **Dừng lại tự kiểm tra**
 
-1. Một vật 5 kg treo đứng yên trên dây. Lực căng dây bằng bao nhiêu? (g=9.8)
-2. Bài Atwood với m₁ = 2 kg, m₂ = 8 kg. Tính gia tốc hệ.
+1. Một vật 5 kg treo đứng yên trên dây. Lực căng dây bằng bao nhiêu? ($g=9{,}8$)
+2. Bài Atwood với $m_1 = 2$ kg, $m_2 = 8$ kg. Tính gia tốc hệ.
 
 <details><summary>Đáp án</summary>
 
-1. Đứng yên → T = trọng lượng = m·g = 5·9.8 = **49 N**.
-2. a = (m₂−m₁)·g/(m₁+m₂) = (8−2)·9.8/(2+8) = 6·9.8/10 = **5.88 m/s²**.
+1. Đứng yên $\to T = $ trọng lượng $= m\cdot g = 5\cdot 9{,}8 = $ **49 N**.
+2. $a = \frac{(m_2-m_1)\cdot g}{m_1+m_2} = \frac{(8-2)\cdot 9{,}8}{2+8} = \frac{6\cdot 9{,}8}{10} = $ **5,88 m/s²**.
 
 </details>
 
@@ -376,49 +376,49 @@ Hai vật m₁ = 3 kg, m₂ = 5 kg treo qua một ròng rọc, nối bằng dây
 
 ### Walk-through — Vật trên mặt phẳng nghiêng có ma sát
 
-Vật 5 kg trên mặt nghiêng 30°, μ_k = 0.2. Tính gia tốc trượt xuống.
+Vật 5 kg trên mặt nghiêng 30°, $\mu_k = 0{,}2$. Tính gia tốc trượt xuống.
 
 **FBD**:
-- W = 5·9.8 = 49 N (xuống thẳng đứng).
-- N = W·cosθ = 49·cos30° = 42.4 N (vuông góc mặt).
-- f_k = μ_k·N = 0.2·42.4 = 8.48 N (ngược chiều trượt, tức hướng lên dốc).
-- W·sinθ = 49·sin30° = 24.5 N (kéo xuống dốc).
+- $W = 5\cdot 9{,}8 = 49$ N (xuống thẳng đứng).
+- $N = W\cdot\cos\theta = 49\cdot\cos 30^\circ = 42{,}4$ N (vuông góc mặt).
+- $f_k = \mu_k\cdot N = 0{,}2\cdot 42{,}4 = 8{,}48$ N (ngược chiều trượt, tức hướng lên dốc).
+- $W\cdot\sin\theta = 49\cdot\sin 30^\circ = 24{,}5$ N (kéo xuống dốc).
 
-**Áp dụng F = m·a theo trục song song dốc** (chiều xuống dốc dương):
-- m·a = W·sinθ − f_k = 24.5 − 8.48 = 16.02 N.
-- **a = 16.02/5 = 3.2 m/s²**.
+**Áp dụng $F = m\cdot a$ theo trục song song dốc** (chiều xuống dốc dương):
+- $m\cdot a = W\cdot\sin\theta - f_k = 24{,}5 - 8{,}48 = 16{,}02$ N.
+- **$a = \frac{16{,}02}{5} = 3{,}2\ \text{m/s}^2$**.
 
-Nếu không có ma sát (μ = 0): a = g·sinθ = 4.9 m/s² (lớn hơn, đúng).
+Nếu không có ma sát ($\mu = 0$): $a = g\cdot\sin\theta = 4{,}9\ \text{m/s}^2$ (lớn hơn, đúng).
 
 ### ⚠ Lỗi thường gặp
 
-- **Dùng N = m·g để tính ma sát trên dốc**: SAI. Trên dốc N = m·g·cosθ. Phản ví dụ: ở 30°, dùng N = mg cho f_k = μ·mg = 0.2·49 = 9.8 N, trong khi đúng là μ·mg·cosθ = 8.48 N.
-- **Cho ma sát hướng "xuống dốc"**: ma sát luôn **chống lại** chuyển động/xu hướng. Vật trượt xuống → ma sát hướng **lên dốc**. Phải xác định chiều chuyển động trước.
-- **Cộng các lực không cùng trục**: mg·sinθ (dọc dốc) và N (vuông góc dốc) ở hai trục khác nhau — không cộng trực tiếp. Áp F = m·a riêng từng trục.
+- **Dùng N = m·g để tính ma sát trên dốc**: SAI. Trên dốc $N = m\cdot g\cdot\cos\theta$. Phản ví dụ: ở 30°, dùng $N = mg$ cho $f_k = \mu\cdot mg = 0{,}2\cdot 49 = 9{,}8$ N, trong khi đúng là $\mu\cdot mg\cdot\cos\theta = 8{,}48$ N.
+- **Cho ma sát hướng "xuống dốc"**: ma sát luôn **chống lại** chuyển động/xu hướng. Vật trượt xuống $\to$ ma sát hướng **lên dốc**. Phải xác định chiều chuyển động trước.
+- **Cộng các lực không cùng trục**: $mg\cdot\sin\theta$ (dọc dốc) và $N$ (vuông góc dốc) ở hai trục khác nhau — không cộng trực tiếp. Áp $F = m\cdot a$ riêng từng trục.
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
-- *"Làm sao biết vật có trượt hay đứng yên trên dốc?"* So sánh thành phần kéo xuống (mg·sinθ) với ma sát tĩnh tối đa (μ_s·mg·cosθ). Nếu mg·sinθ > μ_s·mg·cosθ (tức tanθ > μ_s) → trượt; ngược lại đứng yên.
-- *"Vì sao có ma sát thì gia tốc nhỏ hơn?"* Vì ma sát hướng lên dốc, chống lại thành phần kéo xuống → hợp lực dọc dốc nhỏ hơn → a nhỏ hơn. Không ma sát: a = g·sinθ = 4.9; có ma sát: chỉ 3.2 m/s².
-- *"Nếu dốc đứng (θ = 90°) thì sao?"* sinθ = 1, cosθ = 0 → N = 0, không còn ma sát, a = g = 9.8 m/s² (rơi tự do). Hợp lý: dốc thẳng đứng = rơi tự do.
+- *"Làm sao biết vật có trượt hay đứng yên trên dốc?"* So sánh thành phần kéo xuống ($mg\cdot\sin\theta$) với ma sát tĩnh tối đa ($\mu_s\cdot mg\cdot\cos\theta$). Nếu $mg\cdot\sin\theta > \mu_s\cdot mg\cdot\cos\theta$ (tức $\tan\theta > \mu_s$) $\to$ trượt; ngược lại đứng yên.
+- *"Vì sao có ma sát thì gia tốc nhỏ hơn?"* Vì ma sát hướng lên dốc, chống lại thành phần kéo xuống $\to$ hợp lực dọc dốc nhỏ hơn $\to a$ nhỏ hơn. Không ma sát: $a = g\cdot\sin\theta = 4{,}9$; có ma sát: chỉ $3{,}2\ \text{m/s}^2$.
+- *"Nếu dốc đứng ($\theta = 90^\circ$) thì sao?"* $\sin\theta = 1$, $\cos\theta = 0 \to N = 0$, không còn ma sát, $a = g = 9{,}8\ \text{m/s}^2$ (rơi tự do). Hợp lý: dốc thẳng đứng = rơi tự do.
 
 🔁 **Dừng lại tự kiểm tra**
 
-1. Vật trên dốc 37°, μ_s = 0.5. Vật có tự trượt không? (cho tan37° ≈ 0.75)
-2. Vật 4 kg trên dốc 30°, μ_k = 0.1, đang trượt xuống. Tính gia tốc. (g=9.8)
+1. Vật trên dốc 37°, $\mu_s = 0{,}5$. Vật có tự trượt không? (cho $\tan 37^\circ \approx 0{,}75$)
+2. Vật 4 kg trên dốc 30°, $\mu_k = 0{,}1$, đang trượt xuống. Tính gia tốc. ($g=9{,}8$)
 
 <details><summary>Đáp án</summary>
 
-1. tanθ = 0.75 > μ_s = 0.5 → mg·sinθ > μ_s·mg·cosθ → **vật tự trượt**.
-2. mg·sinθ = 4·9.8·0.5 = 19.6 N; N = 4·9.8·cos30° = 33.95 N; f_k = 0.1·33.95 = 3.4 N. a = (19.6−3.4)/4 = **4.05 m/s²**.
+1. $\tan\theta = 0{,}75 > \mu_s = 0{,}5 \to mg\cdot\sin\theta > \mu_s\cdot mg\cdot\cos\theta \to$ **vật tự trượt**.
+2. $mg\cdot\sin\theta = 4\cdot 9{,}8\cdot 0{,}5 = 19{,}6$ N; $N = 4\cdot 9{,}8\cdot\cos 30^\circ = 33{,}95$ N; $f_k = 0{,}1\cdot 33{,}95 = 3{,}4$ N. $a = \frac{19{,}6-3{,}4}{4} = $ **4,05 m/s²**.
 
 </details>
 
 ### 📝 Tóm tắt mục 6
 
-- Bài nhiều lực: chọn trục → tách trọng lực thành phần (dọc + vuông góc dốc) → áp F = m·a từng trục.
-- Trên dốc: kéo xuống = mg·sinθ, ép vào mặt = mg·cosθ → N = mg·cosθ, f_k = μ_k·mg·cosθ.
-- Ma sát luôn ngược chiều chuyển động → vật trượt xuống thì ma sát hướng lên dốc.
+- Bài nhiều lực: chọn trục $\to$ tách trọng lực thành phần (dọc + vuông góc dốc) $\to$ áp $F = m\cdot a$ từng trục.
+- Trên dốc: kéo xuống $= mg\cdot\sin\theta$, ép vào mặt $= mg\cdot\cos\theta \to N = mg\cdot\cos\theta$, $f_k = \mu_k\cdot mg\cdot\cos\theta$.
+- Ma sát luôn ngược chiều chuyển động $\to$ vật trượt xuống thì ma sát hướng lên dốc.
 
 ---
 
@@ -426,39 +426,39 @@ Nếu không có ma sát (μ = 0): a = g·sinθ = 4.9 m/s² (lớn hơn, đúng)
 
 ### Bài tập
 
-**Bài 1**: Tính lực hấp dẫn giữa Trái Đất (5.97 × 10²⁴ kg) và Mặt Trăng (7.35 × 10²² kg) cách nhau 3.84 × 10⁸ m.
+**Bài 1**: Tính lực hấp dẫn giữa Trái Đất ($5{,}97 \times 10^{24}$ kg) và Mặt Trăng ($7{,}35 \times 10^{22}$ kg) cách nhau $3{,}84 \times 10^8$ m.
 
-**Bài 2**: Hộp 20 kg trên sàn, μ_s = 0.5, μ_k = 0.3. Tính:
+**Bài 2**: Hộp 20 kg trên sàn, $\mu_s = 0{,}5$, $\mu_k = 0{,}3$. Tính:
 a) Lực ngang tối thiểu để hộp bắt đầu trượt.
-b) Sau khi trượt, nếu lực đẩy = 80 N, gia tốc bằng bao nhiêu?
+b) Sau khi trượt, nếu lực đẩy $= 80$ N, gia tốc bằng bao nhiêu?
 
-**Bài 3**: Lò xo có k = 200 N/m. Treo vật 2 kg vào, lò xo giãn bao nhiêu?
+**Bài 3**: Lò xo có $k = 200$ N/m. Treo vật 2 kg vào, lò xo giãn bao nhiêu?
 
-**Bài 4**: Bài toán Atwood với m₁ = 4 kg, m₂ = 6 kg. Tính a và T.
+**Bài 4**: Bài toán Atwood với $m_1 = 4$ kg, $m_2 = 6$ kg. Tính $a$ và $T$.
 
-**Bài 5**: Vật 10 kg trên mặt nghiêng 45° có μ_k = 0.1. Tính gia tốc trượt xuống.
+**Bài 5**: Vật 10 kg trên mặt nghiêng 45° có $\mu_k = 0{,}1$. Tính gia tốc trượt xuống.
 
 **Bài 6**: Vì sao xe hơi đi trên đường ướt phanh kém hơn đường khô?
 
 ### Lời giải
 
-**Bài 1**: F = 6.674 × 10⁻¹¹ × 5.97 × 10²⁴ × 7.35 × 10²² / (3.84 × 10⁸)² ≈ **1.98 × 10²⁰ N**. (Lực này giữ Mặt Trăng quay quanh Trái Đất.)
+**Bài 1**: $F = \frac{6{,}674 \times 10^{-11} \times 5{,}97 \times 10^{24} \times 7{,}35 \times 10^{22}}{(3{,}84 \times 10^8)^2} \approx$ **$1{,}98 \times 10^{20}$ N**. (Lực này giữ Mặt Trăng quay quanh Trái Đất.)
 
 **Bài 2**:
-- a) N = m·g = 196 N. f_s_max = 0.5 × 196 = **98 N**. Cần đẩy ít nhất 98 N.
-- b) Khi đang trượt: f_k = 0.3 × 196 = 58.8 N. Tổng lực = 80 − 58.8 = 21.2 N. **a = 21.2/20 = 1.06 m/s²**.
+- a) $N = m\cdot g = 196$ N. $f_{s,\max} = 0{,}5 \times 196 = $ **98 N**. Cần đẩy ít nhất 98 N.
+- b) Khi đang trượt: $f_k = 0{,}3 \times 196 = 58{,}8$ N. Tổng lực $= 80 - 58{,}8 = 21{,}2$ N. **$a = \frac{21{,}2}{20} = 1{,}06\ \text{m/s}^2$**.
 
-**Bài 3**: Cân bằng: k·x = m·g → x = 2·9.8/200 = 0.098 m = **9.8 cm**.
+**Bài 3**: Cân bằng: $k\cdot x = m\cdot g \to x = \frac{2\cdot 9{,}8}{200} = 0{,}098$ m $= $ **9,8 cm**.
 
-**Bài 4**: a = (6 − 4)·9.8 / (4 + 6) = **1.96 m/s²**. T = 4·(9.8 + 1.96) = **47.04 N**.
+**Bài 4**: $a = \frac{(6 - 4)\cdot 9{,}8}{4 + 6} = $ **1,96 m/s²**. $T = 4\cdot(9{,}8 + 1{,}96) = $ **47,04 N**.
 
 **Bài 5**: 
-- W·sinθ = 10·9.8·sin45° = 69.3 N.
-- N = W·cosθ = 69.3 N (cos45° = sin45°).
-- f_k = 0.1·69.3 = 6.93 N.
-- a = (69.3 − 6.93)/10 = **6.24 m/s²**.
+- $W\cdot\sin\theta = 10\cdot 9{,}8\cdot\sin 45^\circ = 69{,}3$ N.
+- $N = W\cdot\cos\theta = 69{,}3$ N ($\cos 45^\circ = \sin 45^\circ$).
+- $f_k = 0{,}1\cdot 69{,}3 = 6{,}93$ N.
+- $a = \frac{69{,}3 - 6{,}93}{10} = $ **6,24 m/s²**.
 
-**Bài 6**: Hệ số ma sát μ giữa lốp xe và bê tông ướt (~ 0.5) nhỏ hơn bê tông khô (~ 0.8). Lực ma sát phanh xe = μ·N → nhỏ hơn khi đường ướt → quãng đường phanh dài hơn → khó dừng đột ngột. Đó là lý do trời mưa lái xe phải giảm tốc, giữ khoảng cách an toàn lớn hơn.
+**Bài 6**: Hệ số ma sát $\mu$ giữa lốp xe và bê tông ướt (~ 0,5) nhỏ hơn bê tông khô (~ 0,8). Lực ma sát phanh xe $= \mu\cdot N \to$ nhỏ hơn khi đường ướt $\to$ quãng đường phanh dài hơn $\to$ khó dừng đột ngột. Đó là lý do trời mưa lái xe phải giảm tốc, giữ khoảng cách an toàn lớn hơn.
 
 ---
 
@@ -470,10 +470,10 @@ b) Sau khi trượt, nếu lực đẩy = 80 N, gia tốc bằng bao nhiêu?
 
 ## 📝 Tổng kết Lesson 03
 
-1. **Trọng lực F_g = m·g** = m·G·M/r² (định luật vạn vật hấp dẫn).
+1. **Trọng lực $F_g = m\cdot g = \frac{m\cdot G\cdot M}{r^2}$** (định luật vạn vật hấp dẫn).
 2. **Phản lực N** vuông góc bề mặt, tự điều chỉnh để giữ cân bằng.
-3. **Ma sát**: f_s ≤ μ_s·N (tĩnh, chỉ đủ giữ yên); f_k = μ_k·N (động, hằng số). μ_k < μ_s.
-4. **Hooke**: F = −k·x, chỉ tuyến tính ở biến dạng nhỏ.
+3. **Ma sát**: $f_s \leq \mu_s\cdot N$ (tĩnh, chỉ đủ giữ yên); $f_k = \mu_k\cdot N$ (động, hằng số). $\mu_k < \mu_s$.
+4. **Hooke**: $F = -k\cdot x$, chỉ tuyến tính ở biến dạng nhỏ.
 5. **Lực căng dây T**: dọc dây, chỉ kéo. Dây lý tưởng có T đều.
 
 **Tiếp theo**: [Lesson 04 — Công &amp; năng lượng](../lesson-04-work-energy/)

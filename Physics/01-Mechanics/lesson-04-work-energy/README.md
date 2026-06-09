@@ -4,11 +4,11 @@
 
 Sau bài này bạn sẽ:
 
-- Hiểu **công cơ học** W = F·d·cos(θ) — không phải lực cũng không phải khoảng cách, mà là cách lực "chuyển" năng lượng vào hệ.
+- Hiểu **công cơ học** $W = F\cdot d\cdot\cos(\theta)$ — không phải lực cũng không phải khoảng cách, mà là cách lực "chuyển" năng lượng vào hệ.
 - Phân biệt 2 dạng năng lượng cơ bản: **động năng (KE)** và **thế năng (PE)**.
-- Biết **định lý động năng-công**: tổng công = ΔKE.
+- Biết **định lý động năng-công**: tổng công $= \Delta KE$.
 - Áp dụng **định luật bảo toàn năng lượng** cho các bài toán cơ học (con lắc, vật trượt mặt nghiêng, lò xo).
-- Hiểu **công suất (P)** = năng lượng/thời gian = F·v, đơn vị Watt.
+- Hiểu **công suất (P)** = năng lượng/thời gian $= F\cdot v$, đơn vị Watt.
 
 ## Kiến thức tiền đề
 
@@ -22,16 +22,14 @@ Sau bài này bạn sẽ:
 
 **Công cơ học** W = lượng năng lượng được chuyển bởi một lực khi vật dịch chuyển:
 
-```
-W = F · d · cos(θ)
-```
+$$W = F \cdot d \cdot \cos(\theta)$$
 
 trong đó:
-- **F** = độ lớn lực (N).
-- **d** = độ dịch chuyển (m).
-- **θ** = góc giữa F và d.
+- **$F$** = độ lớn lực (N).
+- **$d$** = độ dịch chuyển (m).
+- **$\theta$** = góc giữa $F$ và $d$.
 
-Đơn vị: **Joule (J)**. 1 J = 1 N·m.
+Đơn vị: **Joule (J)**. $1\ \text{J} = 1\ \text{N}\cdot\text{m}$.
 
 💡 **Ý nghĩa cụ thể**: công là "ai làm gì cho ai". Khi bạn nâng quả tạ lên cao, **bạn làm công lên tạ** = năng lượng được chuyển từ cơ bắp bạn sang tạ (dưới dạng thế năng).
 
@@ -44,58 +42,58 @@ trong đó:
 
 ### 1.2. Phân tích cos(θ) — 4 trường hợp
 
-| θ | cos(θ) | W | Ý nghĩa |
+| $\theta$ | $\cos(\theta)$ | $W$ | Ý nghĩa |
 |---|--------|---|----------|
-| 0° | 1 | F·d (max) | Lực cùng chiều chuyển động: dồn toàn lực vào việc tăng tốc |
+| 0° | 1 | $F\cdot d$ (max) | Lực cùng chiều chuyển động: dồn toàn lực vào việc tăng tốc |
 | 90° | 0 | 0 | Lực vuông góc chuyển động: không công |
-| 180° | −1 | −F·d | Lực ngược chiều: lấy năng lượng đi (vd ma sát) |
-| 60° | 0.5 | F·d/2 | Một nửa lực có ích |
+| 180° | −1 | $-F\cdot d$ | Lực ngược chiều: lấy năng lượng đi (vd ma sát) |
+| 60° | 0,5 | $F\cdot d/2$ | Một nửa lực có ích |
 
 ### 1.3. Bốn ví dụ số
 
 **Ví dụ 1 — Đẩy hộp 50 N đi 10 m cùng chiều**:
-- W = 50 × 10 × cos(0°) = **500 J**.
+- $W = 50 \times 10 \times \cos(0^\circ) = $ **500 J**.
 
 **Ví dụ 2 — Mang vali nặng 100 N đi ngang 20 m**:
-- Lực nâng (lên) ⊥ chuyển động (ngang) → θ = 90° → W = **0 J**.
+- Lực nâng (lên) $\perp$ chuyển động (ngang) $\to \theta = 90^\circ \to W = $ **0 J**.
 - Cảm giác mệt vì cơ bắp dùng ATP (sinh học), nhưng cơ học không có công.
 
 **Ví dụ 3 — Kéo xe đẩy với dây nghiêng 30° so với mặt đất, F = 100 N, đi 5 m**:
-- W = 100 × 5 × cos(30°) = 100 × 5 × 0.866 = **433 J**.
+- $W = 100 \times 5 \times \cos(30^\circ) = 100 \times 5 \times 0{,}866 = $ **433 J**.
 
-**Ví dụ 4 — Ma sát chống chuyển động**: hộp trượt 10 m, f_k = 20 N (ngược chiều chuyển động).
-- W_ma_sát = 20 × 10 × cos(180°) = **−200 J**.
+**Ví dụ 4 — Ma sát chống chuyển động**: hộp trượt 10 m, $f_k = 20$ N (ngược chiều chuyển động).
+- $W_{\text{ma sát}} = 20 \times 10 \times \cos(180^\circ) = $ **−200 J**.
 - Năng lượng này biến thành nhiệt — không lấy lại được.
 
 ### ⚠ Lỗi thường gặp
 
 - **Nghĩ "có lực + có mệt = có công"**: đẩy tường đứng yên với 1000 N → W = 0 (vì d = 0), dù cơ bắp mỏi. Công cơ học cần **dịch chuyển theo hướng lực**. Cảm giác mệt là sinh học, khác công vật lý.
-- **Quên cos(θ) khi lực không cùng chiều chuyển động**: kéo vali bằng dây nghiêng 30° → chỉ thành phần ngang sinh công. Phản ví dụ: F=100 N, d=5 m, nếu quên cos thì W = 500 J, đúng phải là 100·5·cos30° = 433 J.
+- **Quên cos(θ) khi lực không cùng chiều chuyển động**: kéo vali bằng dây nghiêng 30° $\to$ chỉ thành phần ngang sinh công. Phản ví dụ: $F=100$ N, $d=5$ m, nếu quên cos thì $W = 500$ J, đúng phải là $100\cdot 5\cdot\cos 30^\circ = 433$ J.
 - **Bỏ qua dấu âm của công cản**: ma sát ngược chiều → W < 0 (lấy năng lượng đi). Cộng nhầm thành dương → sai cân bằng năng lượng.
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
 - *"Mang vali đi ngang 100 m mà bảo công = 0 — vô lý, tôi mệt thật mà?"* Công cơ học = 0 vì lực nâng (thẳng đứng) vuông góc với chuyển động (ngang). Cơ thể bạn tốn năng lượng sinh học (giữ cơ căng liên tục) nhưng không "chuyển năng lượng vào vali" theo nghĩa cơ học. Hai khái niệm khác nhau.
 - *"Công âm nghĩa là gì?"* Nghĩa là lực **lấy năng lượng ra** khỏi vật thay vì cho vào. Ma sát làm công âm → biến động năng thành nhiệt. Trọng lực làm công âm khi vật đi lên (lấy động năng, tích thành thế năng).
-- *"Joule lớn hay nhỏ?"* 1 J khá nhỏ: nâng quả táo 100 g lên 1 m tốn ~1 J. Một thanh sô-cô-la chứa ~10⁶ J (1 MJ). Đun sôi 1 lít nước ~ 3×10⁵ J.
+- *"Joule lớn hay nhỏ?"* 1 J khá nhỏ: nâng quả táo 100 g lên 1 m tốn ~1 J. Một thanh sô-cô-la chứa $\sim 10^6$ J (1 MJ). Đun sôi 1 lít nước $\sim 3\times 10^5$ J.
 
 🔁 **Dừng lại tự kiểm tra**
 
 1. Đẩy hộp 40 N đi 6 m theo đúng chiều lực. Công bằng bao nhiêu?
-2. Kéo xe bằng dây nghiêng 60° so với mặt đất, F = 50 N, đi 10 m. Công bằng bao nhiêu? (cos60° = 0.5)
+2. Kéo xe bằng dây nghiêng 60° so với mặt đất, $F = 50$ N, đi 10 m. Công bằng bao nhiêu? ($\cos 60^\circ = 0{,}5$)
 
 <details><summary>Đáp án</summary>
 
-1. W = 40·6·cos0° = **240 J**.
-2. W = 50·10·cos60° = 50·10·0.5 = **250 J** (chỉ thành phần ngang của lực sinh công).
+1. $W = 40\cdot 6\cdot\cos 0^\circ = $ **240 J**.
+2. $W = 50\cdot 10\cdot\cos 60^\circ = 50\cdot 10\cdot 0{,}5 = $ **250 J** (chỉ thành phần ngang của lực sinh công).
 
 </details>
 
 ### 📝 Tóm tắt mục 1
 
-- W = F·d·cos(θ), đơn vị J.
-- Lực ⊥ chuyển động → W = 0.
-- Lực ngược chiều → W < 0 (lấy năng lượng).
+- $W = F\cdot d\cdot\cos(\theta)$, đơn vị J.
+- Lực $\perp$ chuyển động $\to W = 0$.
+- Lực ngược chiều $\to W < 0$ (lấy năng lượng).
 
 ---
 
@@ -105,9 +103,7 @@ trong đó:
 
 **Động năng KE** = năng lượng do vật **chuyển động** mà có:
 
-```
-KE = (1/2) · m · v²
-```
+$$KE = \frac{1}{2} \cdot m \cdot v^2$$
 
 Đơn vị: J.
 

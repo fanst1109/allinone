@@ -22,7 +22,7 @@ Sau bài này bạn sẽ:
 
 ### 1.1. Phân loại
 
-- **Monosaccharide** (đường đơn): glucose, fructose, ribose. Công thức chung **CₙH₂ₙOₙ** (vd C₆H₁₂O₆).
+- **Monosaccharide** (đường đơn): glucose, fructose, ribose. Công thức chung $\text{C}_n\text{H}_{2n}\text{O}_n$ (vd $\text{C}_6\text{H}_{12}\text{O}_6$).
 - **Disaccharide** (2 đơn vị): sucrose (đường mía = glucose + fructose), lactose (sữa = glucose + galactose), maltose (mạch nha = 2 glucose).
 - **Polysaccharide** (nhiều đơn vị):
   - **Tinh bột (starch)**: chuỗi glucose α-1,4 → tiêu hóa được.
@@ -31,7 +31,7 @@ Sau bài này bạn sẽ:
 
 ### 1.2. Glucose — đường quan trọng nhất
 
-Công thức C₆H₁₂O₆. Tồn tại ở dạng vòng (95%) hoặc mạch thẳng (5%) trong nước:
+Công thức $\text{C}_6\text{H}_{12}\text{O}_6$. Tồn tại ở dạng vòng (95%) hoặc mạch thẳng (5%) trong nước:
 
 ```
    CHO
@@ -47,7 +47,11 @@ Công thức C₆H₁₂O₆. Tồn tại ở dạng vòng (95%) hoặc mạch t
    CH₂OH
 ```
 
-Vai trò: **nhiên liệu chính** của tế bào. Glucose + 6O₂ → 6CO₂ + 6H₂O + 2870 kJ/mol. Sản phẩm năng lượng: **ATP** (adenosine triphosphate, ~ 30 phân tử ATP / 1 glucose).
+Vai trò: **nhiên liệu chính** của tế bào.
+
+$$\text{C}_6\text{H}_{12}\text{O}_6 + 6\text{O}_2 \rightarrow 6\text{CO}_2 + 6\text{H}_2\text{O} + 2870\ \text{kJ/mol}$$
+
+Sản phẩm năng lượng: **ATP** (adenosine triphosphate, ~ 30 phân tử ATP / 1 glucose).
 
 ### 📝 Tóm tắt mục 1
 
@@ -74,7 +78,7 @@ Vai trò: **nhiên liệu chính** của tế bào. Glucose + 6O₂ → 6CO₂ +
 ### 2.2. Phân biệt acid béo
 
 - **Bão hòa (saturated)**: chỉ liên kết đơn C-C → mạch thẳng → xếp khít → chất béo **rắn** ở nhiệt độ phòng. Vd mỡ động vật. **Không tốt** cho sức khỏe (tăng cholesterol xấu).
-- **Không bão hòa (unsaturated)**: có ≥ 1 liên kết đôi C=C → mạch gấp khúc → khó xếp khít → **lỏng**. Vd dầu thực vật, dầu cá. **Tốt** hơn cho sức khỏe.
+- **Không bão hòa (unsaturated)**: có $\geq$ 1 liên kết đôi $\text{C}{=}\text{C}$ → mạch gấp khúc → khó xếp khít → **lỏng**. Vd dầu thực vật, dầu cá. **Tốt** hơn cho sức khỏe.
   - **Cis** (2 H cùng phía): tự nhiên, tốt.
   - **Trans** (2 H đối phía): nhân tạo (từ hydrogen hóa một phần), **rất xấu** cho sức khỏe.
 
@@ -105,22 +109,19 @@ Mỗi amino acid có cấu trúc chung:
        R    (nhóm bên — đặc trưng từng amino acid)
 ```
 
-Có **20 amino acid chuẩn** trong protein. Khác nhau ở nhóm R: hidrophilic (ưa nước), hydrophobic (kỵ nước), acidic (R có −COOH), basic (R có −NH₂).
+Có **20 amino acid chuẩn** trong protein. Khác nhau ở nhóm R: hidrophilic (ưa nước), hydrophobic (kỵ nước), acidic (R có $-\text{COOH}$), basic (R có $-\text{NH}_2$).
 
 Một số amino acid:
 - Glycine: R = H (đơn giản nhất).
-- Alanine: R = CH₃.
-- Cysteine: R = CH₂-SH (S quan trọng cho cấu trúc).
-- Lysine: R = (CH₂)₄-NH₂ (basic, ưa nước).
+- Alanine: R = $\text{CH}_3$.
+- Cysteine: R = $\text{CH}_2{-}\text{SH}$ (S quan trọng cho cấu trúc).
+- Lysine: R = $(\text{CH}_2)_4{-}\text{NH}_2$ (basic, ưa nước).
 
 ### 3.2. Liên kết peptide
 
-2 amino acid nối qua liên kết peptide (−CO−NH−) bằng phản ứng ngưng tụ, mất H₂O (giống polymer hóa ngưng tụ).
+2 amino acid nối qua liên kết peptide ($-\text{CO}{-}\text{NH}-$) bằng phản ứng ngưng tụ, mất $\text{H}_2\text{O}$ (giống polymer hóa ngưng tụ).
 
-```
-H₂N-CHR₁-COOH + H₂N-CHR₂-COOH 
-   → H₂N-CHR₁-CO-NH-CHR₂-COOH + H₂O
-```
+$$\text{H}_2\text{N}{-}\text{CHR}_1{-}\text{COOH} + \text{H}_2\text{N}{-}\text{CHR}_2{-}\text{COOH} \rightarrow \text{H}_2\text{N}{-}\text{CHR}_1{-}\text{CO}{-}\text{NH}{-}\text{CHR}_2{-}\text{COOH} + \text{H}_2\text{O}$$
 
 Chuỗi nhiều amino acid → **polypeptide** → khi đủ dài và gấp thành 3D → **protein**.
 
@@ -129,17 +130,17 @@ Chuỗi nhiều amino acid → **polypeptide** → khi đủ dài và gấp thà
 | Cấp | Mô tả | Liên kết |
 |-----|-------|----------|
 | **Primary (1°)** | Trình tự amino acid trên chuỗi | Peptide (cộng hóa trị) |
-| **Secondary (2°)** | Cuộn xoắn (alpha helix) hoặc gấp nếp (beta sheet) | H-bond giữa nhóm C=O và N-H |
-| **Tertiary (3°)** | Cấu trúc 3D toàn chuỗi | H-bond, S-S bridge (cysteine), tương tác kỵ nước/ion |
+| **Secondary (2°)** | Cuộn xoắn (alpha helix) hoặc gấp nếp (beta sheet) | H-bond giữa nhóm $\text{C}{=}\text{O}$ và $\text{N}{-}\text{H}$ |
+| **Tertiary (3°)** | Cấu trúc 3D toàn chuỗi | H-bond, cầu $\text{S}{-}\text{S}$ (cysteine), tương tác kỵ nước/ion |
 | **Quaternary (4°)** | Nhiều chuỗi ghép lại (nếu có) | Tương tác giữa các chuỗi |
 
-**Ví dụ**: hemoglobin (vận chuyển O₂ trong máu) gồm 4 chuỗi polypeptide → cấp 4. Insulin gồm 2 chuỗi → cấp 4.
+**Ví dụ**: hemoglobin (vận chuyển $\text{O}_2$ trong máu) gồm 4 chuỗi polypeptide → cấp 4. Insulin gồm 2 chuỗi → cấp 4.
 
 ### 3.4. Vai trò protein
 
 - **Enzyme** (xúc tác sinh học): amylase, pepsin, ATP synthase...
 - **Cấu trúc**: collagen (da, xương), keratin (tóc, móng), actin/myosin (cơ).
-- **Vận chuyển**: hemoglobin (O₂), transferrin (Fe).
+- **Vận chuyển**: hemoglobin ($\text{O}_2$), transferrin (Fe).
 - **Hormone**: insulin, growth hormone.
 - **Kháng thể**: antibody chống bệnh.
 - **Lưu trữ**: ferritin (Fe trong gan).
@@ -164,7 +165,7 @@ Chuỗi nhiều amino acid → **polypeptide** → khi đủ dài và gấp thà
 
 ### 4.2. Tính chất quan trọng
 
-- **Tăng tốc độ** lên 10⁶ - 10¹² lần so với không xúc tác.
+- **Tăng tốc độ** lên $10^6$ - $10^{12}$ lần so với không xúc tác.
 - **Tính chọn lọc cực cao**: 1 enzyme thường chỉ xúc tác cho 1 phản ứng cụ thể.
 - **Hoạt động trong điều kiện ôn hòa**: 37°C, pH ~ 7. (Hóa học công nghiệp cần T cao + P cao + xúc tác kim loại.)
 - **Bị ức chế** khi T quá cao (denature — protein gấp lại sai) hoặc pH xa optimum.
@@ -174,13 +175,13 @@ Chuỗi nhiều amino acid → **polypeptide** → khi đủ dài và gấp thà
 - **Amylase** (trong nước bọt và tụy): phân giải tinh bột → glucose. Đó là lý do nhai cơm lâu thấy ngọt.
 - **Pepsin** (trong dạ dày, pH ~ 2): phân giải protein.
 - **DNA polymerase**: sao chép DNA.
-- **ATP synthase**: tổng hợp ATP từ ADP + Pᵢ trong ti thể.
-- **Catalase**: phân hủy H₂O₂ thành H₂O + O₂. Nhanh nhất trong các enzyme (10⁵ phản ứng/giây).
+- **ATP synthase**: tổng hợp ATP từ ADP + $\text{P}_i$ trong ti thể.
+- **Catalase**: phân hủy $\text{H}_2\text{O}_2$ thành $\text{H}_2\text{O}$ + $\text{O}_2$. Nhanh nhất trong các enzyme ($10^5$ phản ứng/giây).
 
 ### 📝 Tóm tắt mục 4
 
 - Enzyme = protein xúc tác sinh học. Cơ chế lock-and-key.
-- Tốc độ × 10⁶-10¹², tính chọn lọc cao, hoạt ở 37°C.
+- Tốc độ $\times\ 10^6$-$10^{12}$, tính chọn lọc cao, hoạt ở 37°C.
 - Mỗi loại có chức năng cụ thể (amylase, pepsin, DNA polymerase...).
 
 ---
@@ -194,7 +195,7 @@ Mỗi nucleotide gồm 3 phần:
 2. **Base nitrogen**: 4 loại.
    - DNA: A (adenine), T (thymine), G (guanine), C (cytosine).
    - RNA: A, U (uracil thay T), G, C.
-3. **Nhóm phosphate**: -PO₄³⁻ (mang điện âm, làm DNA/RNA mang điện âm tổng thể).
+3. **Nhóm phosphate**: $-\text{PO}_4^{3-}$ (mang điện âm, làm DNA/RNA mang điện âm tổng thể).
 
 ### 5.2. Cấu trúc DNA
 
@@ -203,7 +204,7 @@ Mỗi nucleotide gồm 3 phần:
 - Nối bằng **liên kết hydrogen** giữa các base:
   - **A-T**: 2 H-bond.
   - **G-C**: 3 H-bond.
-- Mỗi vòng xoắn ~ 10 base pair, dài ~ 3.4 nm.
+- Mỗi vòng xoắn ~ 10 base pair, dài ~ 3,4 nm.
 
 DNA con người dài tổng cộng ~ 2 mét, gập gọn vào nhân tế bào đường kính ~ 6 μm.
 
@@ -231,11 +232,9 @@ Mã di truyền: 64 codon → 20 amino acid (có dư thừa, gọi là degenerac
 
 ### 6.1. Bức tranh tổng thể
 
-```
-Glucose (C₆H₁₂O₆) + 6 O₂ → 6 CO₂ + 6 H₂O + ~ 30 ATP
-```
+$$\text{Glucose }(\text{C}_6\text{H}_{12}\text{O}_6) + 6\,\text{O}_2 \rightarrow 6\,\text{CO}_2 + 6\,\text{H}_2\text{O} + {\sim}30\ \text{ATP}$$
 
-Phản ứng tỏa nhiệt (ΔH ≈ −2870 kJ/mol). Năng lượng được "đóng gói" thành **ATP** — đơn vị năng lượng tế bào.
+Phản ứng tỏa nhiệt ($\Delta H \approx -2870$ kJ/mol). Năng lượng được "đóng gói" thành **ATP** — đơn vị năng lượng tế bào.
 
 ### 6.2. 3 giai đoạn chính
 
@@ -245,20 +244,20 @@ Phản ứng tỏa nhiệt (ΔH ≈ −2870 kJ/mol). Năng lượng được "đ
 
 2. **Chu trình Krebs (Citric Acid Cycle)** — trong ti thể (mitochondria):
    - Pyruvate → acetyl-CoA → vào chu trình.
-   - Tạo 2 ATP + 6 NADH + 2 FADH₂ + 4 CO₂ (cho 1 glucose).
+   - Tạo 2 ATP + 6 NADH + 2 $\text{FADH}_2$ + 4 $\text{CO}_2$ (cho 1 glucose).
 
 3. **Chuỗi vận chuyển electron + tổng hợp ATP (ETC + ATP synthase)** — màng ti thể:
-   - NADH/FADH₂ "trao" e cho chuỗi protein.
-   - Năng lượng từ e đẩy H⁺ qua màng → tạo gradient.
-   - ATP synthase dùng gradient này tổng hợp ATP từ ADP + Pᵢ.
-   - Cuối cùng e + H⁺ + O₂ → H₂O.
+   - NADH/$\text{FADH}_2$ "trao" e cho chuỗi protein.
+   - Năng lượng từ e đẩy $\text{H}^+$ qua màng → tạo gradient.
+   - ATP synthase dùng gradient này tổng hợp ATP từ ADP + $\text{P}_i$.
+   - Cuối cùng e + $\text{H}^+$ + $\text{O}_2 \rightarrow \text{H}_2\text{O}$.
    - Tạo ~ 26 ATP.
 
 **Tổng**: ~ 30-32 ATP / 1 glucose. Năng lượng "nén" gọn gàng để dùng dần.
 
 ### 📝 Tóm tắt mục 6
 
-- Glucose oxy hóa hoàn toàn → CO₂ + H₂O + 30 ATP.
+- Glucose oxy hóa hoàn toàn → $\text{CO}_2$ + $\text{H}_2\text{O}$ + 30 ATP.
 - 3 giai đoạn: glycolysis → Krebs → ETC.
 - Ti thể là "nhà máy điện" của tế bào.
 
@@ -307,12 +306,12 @@ Phản ứng tỏa nhiệt (ΔH ≈ −2870 kJ/mol). Năng lượng được "đ
 
 Chuỗi amino acid: **Met-Ala-Asp** (sau đó dừng).
 
-**Bài 5**: ATP synthase nằm trên màng trong ti thể. Có gradient H⁺ (proton) từ ngoài vào trong (do chuỗi vận chuyển electron bơm). H⁺ chảy qua **kênh xoay** của ATP synthase → làm xoay → cơ chế xoay này **đẩy ADP + Pᵢ vào với nhau → tạo ATP**. Giống tuabin nước: nước chảy → quay → tạo điện. Ở đây "nước" là H⁺, "điện" là ATP.
+**Bài 5**: ATP synthase nằm trên màng trong ti thể. Có gradient $\text{H}^+$ (proton) từ ngoài vào trong (do chuỗi vận chuyển electron bơm). $\text{H}^+$ chảy qua **kênh xoay** của ATP synthase → làm xoay → cơ chế xoay này **đẩy ADP + $\text{P}_i$ vào với nhau → tạo ATP**. Giống tuabin nước: nước chảy → quay → tạo điện. Ở đây "nước" là $\text{H}^+$, "điện" là ATP.
 
-**Bài 6**: Acid béo có **chuỗi C dài và rất nhiều liên kết C-H**. Khi oxy hóa, mỗi C và H đều tỏa nhiều năng lượng (~ 38 kJ/mol cho C-H). Carbohydrate đã có sẵn nhiều O nối với C → một phần đã "oxy hóa rồi" → khi cháy tỏa ít hơn. Cụ thể:
+**Bài 6**: Acid béo có **chuỗi C dài và rất nhiều liên kết $\text{C}{-}\text{H}$**. Khi oxy hóa, mỗi C và H đều tỏa nhiều năng lượng (~ 38 kJ/mol cho $\text{C}{-}\text{H}$). Carbohydrate đã có sẵn nhiều O nối với C → một phần đã "oxy hóa rồi" → khi cháy tỏa ít hơn. Cụ thể:
 - 1 g carbohydrate: 4 kcal
 - 1 g protein: 4 kcal  
-- 1 g lipid: **9 kcal** (gấp 2.25 lần)
+- 1 g lipid: **9 kcal** (gấp 2,25 lần)
 
 → Đó là lý do mỡ dự trữ năng lượng hiệu quả hơn glycogen — cùng năng lượng nhưng nhẹ hơn ~ 6 lần (tính cả nước đi kèm glycogen).
 
@@ -321,8 +320,8 @@ Chuỗi amino acid: **Met-Ala-Asp** (sau đó dừng).
 ## 8. Liên kết với các môn khác và bài tiếp theo
 
 - **Tiếp theo (Chemistry)**: Hết Tier 2 — **HOÀN THÀNH CHEMISTRY** 🎉.
-- **Liên kết Vật lý**: ATP synthase ↔ thủy điện (gradient H⁺ ↔ thế năng nước).
-- **Liên kết Math**: 4 cấp cấu trúc protein, mã hóa codon → tổ hợp 4³ = 64 codon → 20 amino acid (degeneracy).
+- **Liên kết Vật lý**: ATP synthase ↔ thủy điện (gradient $\text{H}^+$ ↔ thế năng nước).
+- **Liên kết Math**: 4 cấp cấu trúc protein, mã hóa codon → tổ hợp $4^3 = 64$ codon → 20 amino acid (degeneracy).
 - **Tiếp theo trong Sự sống**: Sinh học phân tử — replication, transcription, translation chi tiết; sinh học tế bào; di truyền học.
 
 ---
@@ -338,7 +337,7 @@ Chuỗi amino acid: **Met-Ala-Asp** (sau đó dừng).
 3. **Enzyme**: xúc tác sinh học, lock-and-key, hoạt ở 37°C.
 4. **DNA**: xoắn kép, A-T (2 H-bond), G-C (3 H-bond).
 5. **Dogma**: DNA → mRNA → protein. Codon (3 base/amino acid).
-6. **Trao đổi chất**: Glucose + O₂ → ATP qua glycolysis → Krebs → ETC.
+6. **Trao đổi chất**: Glucose + $\text{O}_2$ → ATP qua glycolysis → Krebs → ETC.
 
 ---
 

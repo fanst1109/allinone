@@ -269,9 +269,11 @@
     .rm-panel .rm-content {
       overflow-y: auto; padding: 24px 28px;
       font-size: 16px; line-height: 1.65; color: #1f2328;
-      /* Đổi font: thay tên đầu tiên bằng 'Inter Variable' hoặc 'Manrope Variable'
-         (cả 3 đã bundle ở tools/fonts/ + khai báo @font-face trong viz-base.css). */
-      font-family: 'Roboto Flex Variable', 'Helvetica Neue', Arial, sans-serif;
+      /* Đổi font: thay tên đầu tiên bằng 1 trong các font đã bundle (tools/fonts/ +
+         @font-face ở viz-base.css): 'Be Vietnam Pro' (đang dùng, tối ưu tiếng Việt),
+         'Plus Jakarta Sans Variable', 'Lexend Variable', 'Roboto Flex Variable',
+         'Inter Variable', 'Manrope Variable'. */
+      font-family: 'Be Vietnam Pro', 'Helvetica Neue', Arial, sans-serif;
       flex: 1;
     }
 

@@ -31,6 +31,7 @@
   var LS_TEXT_KEY = 'zhReaderText';
   var LS_VAR_KEY  = 'zhVariant';      // 'zh-CN' (default) hoặc 'zh-TW'
   var LS_RATE_KEY = 'zhReaderRate';
+  var LS_OPEN_KEY = 'zhReaderOpen';   // '1' nếu panel đang mở — để khôi phục khi sang lesson khác
 
   // ============================================================
   // Pinyin dict tối giản — ~300 ký tự thường gặp.
@@ -397,16 +398,21 @@
   function openPanel() {
     panel.classList.add('zh-open');
     btn.classList.add('zh-hidden');
+    try { localStorage.setItem(LS_OPEN_KEY, '1'); } catch (e) {}
   }
   function closePanel() {
     panel.classList.remove('zh-open');
     btn.classList.remove('zh-hidden');
     stopSpeaking();
+    try { localStorage.setItem(LS_OPEN_KEY, '0'); } catch (e) {}
   }
 
   btn.addEventListener('click', openPanel);
   btnClose.addEventListener('click', closePanel);
   btnMin.addEventListener('click', closePanel);
+
+  // Khôi phục trạng thái mở khi sang lesson khác (giống sidebar README).
+  if (localStorage.getItem(LS_OPEN_KEY) === '1') openPanel();
 
   // ============================================================
   // Drag header
@@ -609,7 +615,11 @@
       setStatus('Trình duyệt không hỗ trợ Web Speech API.', true);
       return;
     }
-    window.speechSynthesis.cancel();
+    // Chỉ cancel khi engine đang bận — cancel() rồi speak() ngay lúc rảnh khiến
+    // Chrome trễ/bỏ qua lần phát đầu (cảm giác "đọc chậm").
+    if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+      window.speechSynthesis.cancel();
+    }
     if (speakingToken) speakingToken.classList.remove('zh-playing');
 
     var u = new SpeechSynthesisUtterance(text);
@@ -651,10 +661,14 @@
 
   // Preload voices (một số browser chỉ trả về sau voiceschanged)
   if (window.speechSynthesis) {
+    // Dọn hàng đợi còn sót từ trang trước → audio không "rớt" sang lesson mới.
+    window.speechSynthesis.cancel();
     window.speechSynthesis.getVoices();
     window.speechSynthesis.onvoiceschanged = function () {
       window.speechSynthesis.getVoices();
     };
+    // Bấm Next/Prev sang lesson khác → dừng mọi audio đang phát.
+    window.addEventListener('pagehide', stopSpeaking);
   }
 
   // Re-position khi resize cửa sổ

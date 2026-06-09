@@ -39,6 +39,7 @@
   var LS_TEXT_KEY    = 'ipaReaderText';
   var LS_VAR_KEY     = 'audioVariant'; // dùng chung với các viz English khác
   var LS_RATE_KEY    = 'ipaReaderRate';
+  var LS_OPEN_KEY    = 'ipaReaderOpen'; // '1' nếu panel đang mở — khôi phục khi sang lesson khác
 
   // Đường dẫn tới ipa-dict.js: cùng thư mục với script này.
   // Lấy bằng cách đọc currentScript src.
@@ -294,7 +295,11 @@
       if (onEnd) onEnd();
       return null;
     }
-    window.speechSynthesis.cancel();
+    // Chỉ cancel khi engine đang bận — cancel() rồi speak() ngay lúc rảnh khiến
+    // Chrome trễ/bỏ qua lần phát đầu (cảm giác "đọc chậm").
+    if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+      window.speechSynthesis.cancel();
+    }
     var u = new SpeechSynthesisUtterance(text);
     u.lang = variant === 'uk' ? 'en-GB' : 'en-US';
     u.rate = rate || 1.0;
@@ -552,6 +557,7 @@
       panel.classList.add('ipa-open');
       btn.classList.add('ipa-hidden');
       restorePos(panel);
+      try { localStorage.setItem(LS_OPEN_KEY, '1'); } catch (e) {}
     }
     function close() {
       panel.classList.remove('ipa-open');
@@ -560,6 +566,7 @@
         window.speechSynthesis.cancel();
         setSpeakingUI(false);
       }
+      try { localStorage.setItem(LS_OPEN_KEY, '0'); } catch (e) {}
     }
     btn.addEventListener('click', open);
     minBtn.addEventListener('click', close);
@@ -572,10 +579,19 @@
       status.textContent = '';
     });
 
+    // Khôi phục trạng thái mở khi sang lesson khác (giống sidebar README).
+    if (localStorage.getItem(LS_OPEN_KEY) === '1') open();
+
     // Warm-up voices (một số browser cần kích hoạt)
     if (window.speechSynthesis && typeof window.speechSynthesis.getVoices === 'function') {
+      // Dọn hàng đợi còn sót từ trang trước → audio không "rớt" sang lesson mới.
+      window.speechSynthesis.cancel();
       window.speechSynthesis.getVoices();
       window.speechSynthesis.onvoiceschanged = function () { /* trigger cache */ };
+      // Bấm Next/Prev sang lesson khác → dừng mọi audio đang phát.
+      window.addEventListener('pagehide', function () {
+        window.speechSynthesis.cancel();
+      });
     }
   }
 

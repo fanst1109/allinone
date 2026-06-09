@@ -237,7 +237,7 @@
   <!-- Module 2: Hanzi Writer Stroke Order -->
   <section class="module">
     <h2>Module 2: Animation thứ tự nét — chữ thường gặp</h2>
-    <p>Nhập chữ Hán hoặc chọn từ danh sách để xem animation. Dùng <a href="https://hanziwriter.org" target="_blank">hanzi-writer</a> (lazy-load từ CDN).</p>
+    <p>Nhập chữ Hán hoặc chọn từ danh sách để xem animation. Dùng <a href="https://hanziwriter.org" target="_blank">hanzi-writer</a> (lazy-load bản local).</p>
 
     <div class="writer-input">
       <input type="text" id="hz-input" value="好" maxlength="1" placeholder="Nhập 1 chữ">
@@ -423,7 +423,11 @@ function clearPlaying() {
 }
 function speak(text, el) {
   if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
+  // Chỉ cancel khi đang phát/đang chờ — cancel() rồi speak() ngay khi engine
+  // rảnh khiến Chrome trễ hoặc bỏ qua lần phát đầu (cảm giác "đọc chậm").
+  if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+    window.speechSynthesis.cancel();
+  }
   clearPlaying();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = localStorage.getItem('zhVariant') || 'zh-CN';
@@ -442,22 +446,33 @@ document.addEventListener('click', e => {
 });
 
 // ============================================================
-// Hanzi Writer (lazy CDN load)
+// Hanzi Writer (lazy-load từ bản local trong tools/)
+// LƯU Ý: KHÔNG khai báo `let/const/var HanziWriter` ở global scope.
+// Thư viện hanzi-writer.min.js định nghĩa `var HanziWriter = ...` ở
+// global scope; nếu trang cũng có một lexical binding cùng tên ở global
+// thì engine ném "Identifier 'HanziWriter' has already been declared".
+// Vì vậy luôn tham chiếu qua window.HanziWriter.
 // ============================================================
-let HanziWriter = null;
 let currentWriter = null;
 const statusEl = document.getElementById('hz-status');
 
+let hzwPromise = null;
 function loadHanziWriter() {
-  return new Promise((resolve, reject) => {
-    if (window.HanziWriter) { HanziWriter = window.HanziWriter; resolve(); return; }
+  if (window.HanziWriter) return Promise.resolve();
+  if (hzwPromise) return hzwPromise;          // chống append script 2 lần (race)
+  hzwPromise = new Promise((resolve, reject) => {
     statusEl.textContent = 'Đang tải thư viện hanzi-writer...';
     const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js';
-    s.onload = () => { HanziWriter = window.HanziWriter; statusEl.textContent = ''; resolve(); };
-    s.onerror = () => { statusEl.textContent = '❌ Không tải được hanzi-writer (cần internet). Bạn vẫn xem được nội dung khác.'; reject(); };
+    s.src = '../../../tools/hanzi-writer.min.js';
+    s.onload = () => { statusEl.textContent = ''; resolve(); };
+    s.onerror = () => {
+      hzwPromise = null;
+      statusEl.textContent = '❌ Không tải được hanzi-writer. Bạn vẫn xem được nội dung khác.';
+      reject();
+    };
     document.head.appendChild(s);
   });
+  return hzwPromise;
 }
 
 function loadChar(ch) {
@@ -466,7 +481,7 @@ function loadChar(ch) {
     const target = document.getElementById('hz-writer-target');
     target.innerHTML = '';
     try {
-      currentWriter = HanziWriter.create('hz-writer-target', ch, {
+      currentWriter = window.HanziWriter.create('hz-writer-target', ch, {
         width: 220, height: 220, padding: 8,
         strokeColor: '#c8102e',
         radicalColor: '#7f1d1d',
@@ -525,8 +540,12 @@ document.querySelectorAll('.hz-suggest').forEach(b => {
 loadChar('好');
 
 if (window.speechSynthesis) {
+  // Dọn hàng đợi còn sót từ trang trước (audio không "rớt" sang lesson mới).
+  window.speechSynthesis.cancel();
   window.speechSynthesis.getVoices();
   window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+  // Khi rời trang (bấm Next/Prev sang lesson khác) → dừng mọi audio đang phát.
+  window.addEventListener('pagehide', () => window.speechSynthesis.cancel());
 }
 </script>
 

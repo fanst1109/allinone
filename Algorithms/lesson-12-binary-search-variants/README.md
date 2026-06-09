@@ -16,7 +16,7 @@ Sau bài này bạn sẽ:
 ## Kiến thức tiền đề
 
 - [Lesson 01 — Big-O & tiệm cận](../lesson-01-bigo-asymptotic/) — hiểu O(log n) nghĩa là gì.
-- [Lesson 03 — Đệ quy & Recurrence](../lesson-03-recursion-recurrence/) — binary search dạng đệ quy là `T(n) = T(n/2) + O(1)`.
+- [Lesson 03 — Đệ quy & Recurrence](../lesson-03-recursion-recurrence/) — binary search dạng đệ quy là $T(n) = T(n/2) + O(1)$.
 - [Lesson 04 — Tính đúng đắn & bất biến (invariant)](../lesson-04-correctness-invariant/) — chứng minh binary search đúng dựa trên loop invariant.
 - [Tier 1 — Sorting](../tier-1-sorting/index.html) — binary search yêu cầu dữ liệu **đã sorted**.
 
@@ -24,7 +24,7 @@ Sau bài này bạn sẽ:
 
 ## 1. Binary search cơ bản
 
-> 💡 **Trực giác / Hình dung.** Bạn tra từ điển giấy tìm từ "monotonic". Bạn không lật từ trang 1. Bạn mở *giữa* quyển, thấy chữ "M" — à, "monotonic" nằm sau, vứt nửa đầu. Mở giữa nửa sau, thấy "P" — quá xa, vứt nửa sau. Cứ thế mỗi lần **vứt một nửa**. 1000 trang → tìm ra trong ~10 lần mở (`log₂ 1000 ≈ 10`), thay vì lật 1000 trang. Đó chính xác là binary search. Điều kiện *bắt buộc*: từ điển đã được **sắp xếp** — nếu các từ xếp lung tung, mở giữa chẳng cho biết nên vứt nửa nào.
+> 💡 **Trực giác / Hình dung.** Bạn tra từ điển giấy tìm từ "monotonic". Bạn không lật từ trang 1. Bạn mở *giữa* quyển, thấy chữ "M" — à, "monotonic" nằm sau, vứt nửa đầu. Mở giữa nửa sau, thấy "P" — quá xa, vứt nửa sau. Cứ thế mỗi lần **vứt một nửa**. 1000 trang → tìm ra trong ~10 lần mở ($\log_2 1000 \approx 10$), thay vì lật 1000 trang. Đó chính xác là binary search. Điều kiện *bắt buộc*: từ điển đã được **sắp xếp** — nếu các từ xếp lung tung, mở giữa chẳng cho biết nên vứt nửa nào.
 
 **Định nghĩa.** Cho mảng `a` đã sorted tăng dần và một giá trị `target`. Binary search trả về index của `target` nếu tồn tại, ngược lại trả `-1`. Ta giữ một khoảng `[lo, hi]` chứa vùng *có thể* chứa target. Mỗi bước lấy `mid` ở giữa, so sánh `a[mid]` với `target`:
 
@@ -44,7 +44,7 @@ Mảng có 8 phần tử, index 0..7. `target = 13`.
 | 2 | 4 | 7 | 4+(7-4)/2 = **5** | a[5]=11 | 11 < 13 | lo = 5+1 = 6 |
 | 3 | 6 | 7 | 6+(7-6)/2 = **6** | a[6]=13 | 13 == 13 | **trả về 6** ✓ |
 
-Tìm ra sau **3 bước**. Kiểm tra: `log₂ 8 = 3` — đúng đúng số bước tối đa. Nếu duyệt tuyến tính, 13 ở index 6 sẽ tốn 7 phép so sánh.
+Tìm ra sau **3 bước**. Kiểm tra: $\log_2 8 = 3$ — đúng đúng số bước tối đa. Nếu duyệt tuyến tính, 13 ở index 6 sẽ tốn 7 phép so sánh.
 
 ### 1.2 Thêm 3 ví dụ số (đa dạng edge case)
 
@@ -93,7 +93,7 @@ Binary search nổi tiếng là *dễ hiểu, khó viết đúng*. Một nghiên
 
 > ⚠ **Lỗi thường gặp.** Viết `mid := (lo + hi) / 2`.
 
-Trong nhiều ngôn ngữ (Java, C/C++) với `int` 32-bit, nếu `lo + hi` vượt `2^31 - 1 ≈ 2.1 tỉ` thì **tràn số** → `mid` thành số âm → truy cập mảng ngoài biên → crash. Đây chính là bug nằm im **9 năm** trong `java.util.Arrays.binarySearch` của JDK (Joshua Bloch công bố 2006). Mảng cỡ tỉ phần tử nghe xa vời, nhưng nó *đã* xảy ra trong các hệ thống thật.
+Trong nhiều ngôn ngữ (Java, C/C++) với `int` 32-bit, nếu `lo + hi` vượt $2^{31} - 1 \approx 2{,}1$ tỉ thì **tràn số** → `mid` thành số âm → truy cập mảng ngoài biên → crash. Đây chính là bug nằm im **9 năm** trong `java.util.Arrays.binarySearch` của JDK (Joshua Bloch công bố 2006). Mảng cỡ tỉ phần tử nghe xa vời, nhưng nó *đã* xảy ra trong các hệ thống thật.
 
 **Cách đúng:** `mid := lo + (hi - lo) / 2`.
 
@@ -273,7 +273,7 @@ func lastOccurrence(a []int, target int) int {
 
 **Điều kiện áp dụng:** tồn tại hàm `check(x)` (predicate) **đơn điệu**: nếu `check(x)` đúng thì mọi `x' > x` (hoặc `< x`, tùy bài) cũng đúng. Khi đó các giá trị `check` tạo thành `F...F T...T`, và ta tìm **biên** (T đầu hoặc F cuối) bằng binary search trên khoảng `[lo, hi]` của *giá trị đáp án*, không phải index mảng.
 
-Độ phức tạp: `O(log(range) × cost_check)` với `range = hi - lo` là độ rộng không gian đáp án.
+Độ phức tạp: $O(\log(\text{range}) \times \text{cost\_check})$ với `range = hi - lo` là độ rộng không gian đáp án.
 
 ### 5.1 Bài toán 1 — Ship trong D ngày, capacity nhỏ nhất (LeetCode 1011)
 
@@ -349,7 +349,7 @@ func shipWithinDays(weights []int, D int) int {
 
 **Khoảng:** `lo = 1` (tốc độ tối thiểu), `hi = max(piles) = 11` (ăn nhanh nhất hợp lý — k > max không nhanh hơn vì mỗi giờ chỉ 1 đống).
 
-**Giờ cần với tốc độ k:** `Σ ceil(pile / k)`.
+**Giờ cần với tốc độ k:** $\sum \lceil \text{pile} / k \rceil$.
 
 **Walk-through** (`piles=[3,6,7,11]`, H=8):
 
@@ -397,7 +397,7 @@ func minEatingSpeed(piles []int, H int) int {
 
 > ❓ **Câu hỏi tự nhiên.**
 > - *"Sao biết bài nào dùng binary search on answer?"* Tín hiệu: đề hỏi **"nhỏ nhất/lớn nhất X sao cho Y thỏa"**, và khi X tăng thì Y "dễ thỏa hơn" (đơn điệu). Lúc đó X là không gian đáp án để search.
-> - *"`check` đắt thì sao?"* Mỗi check ở đây O(n) (duyệt mảng). Tổng = `O(n log(range))`. Với range ~ tổng giá trị (cỡ 10⁹), `log` ~ 30 → cực nhanh.
+> - *"`check` đắt thì sao?"* Mỗi check ở đây $O(n)$ (duyệt mảng). Tổng = $O(n \log(\text{range}))$. Với range ~ tổng giá trị (cỡ $10^9$), $\log$ ~ 30 → cực nhanh.
 
 ---
 
@@ -580,7 +580,7 @@ func shipWithinDaysT(w []int, D int) int {
 }
 ```
 
-> 💡 **Vì sao template này không bao giờ treo?** Mỗi vòng: nhánh `pred` đúng làm `hi = mid` (và `mid < hi` vì `mid = lo+(hi-lo)/2 < hi` khi `lo < hi`), nhánh sai làm `lo = mid+1 > lo`. Khoảng *luôn* co lại ít nhất 1 → kết thúc sau `O(log(hi-lo))` bước. Không có cách viết `lo = mid` gây treo.
+> 💡 **Vì sao template này không bao giờ treo?** Mỗi vòng: nhánh `pred` đúng làm `hi = mid` (và `mid < hi` vì `mid = lo+(hi-lo)/2 < hi` khi `lo < hi`), nhánh sai làm `lo = mid+1 > lo`. Khoảng *luôn* co lại ít nhất 1 → kết thúc sau $O(\log(hi-lo))$ bước. Không có cách viết `lo = mid` gây treo.
 
 > 🔁 **Dừng lại tự kiểm tra.** Viết "tìm last occurrence" qua `firstTrue`?
 >
@@ -602,13 +602,13 @@ func shipWithinDaysT(w []int, D int) int {
 | searchMatrix (row-nối tiếp) | O(log(m·n)) = O(log m + log n) | O(1) | |
 | binary search on answer | O(log(range) × cost_check) | O(1) | range = độ rộng không gian đáp án |
 
-**Vì sao O(log n)?** Mỗi bước loại bỏ một nửa. Sau `k` bước còn `n / 2^k` phần tử; dừng khi còn 1 → `n/2^k = 1` → `k = log₂ n`. Recurrence: `T(n) = T(n/2) + O(1) = O(log n)` ([Lesson 03](../lesson-03-recursion-recurrence/), Master Theorem trường hợp `a=1, b=2`).
+**Vì sao O(log n)?** Mỗi bước loại bỏ một nửa. Sau $k$ bước còn $n / 2^k$ phần tử; dừng khi còn 1 → $n/2^k = 1$ → $k = \log_2 n$. Recurrence: $T(n) = T(n/2) + O(1) = O(\log n)$ ([Lesson 03](../lesson-03-recursion-recurrence/), Master Theorem trường hợp $a=1, b=2$).
 
-**Binary search on answer:** số bước = `log₂(hi − lo)`, mỗi bước gọi `check` tốn `cost_check` (thường O(n)). Ví dụ ship: range = sum ~ tối đa ~5×10⁸, `log₂ ≈ 29`, mỗi check O(n) → tổng `O(29n)` — gần như tuyến tính, nhanh hơn nhiều brute-force thử mọi capacity O(range × n).
+**Binary search on answer:** số bước = $\log_2(hi - lo)$, mỗi bước gọi `check` tốn `cost_check` (thường $O(n)$). Ví dụ ship: range = sum ~ tối đa ~$5 \times 10^8$, $\log_2 \approx 29$, mỗi check $O(n)$ → tổng $O(29n)$ — gần như tuyến tính, nhanh hơn nhiều brute-force thử mọi capacity $O(\text{range} \times n)$.
 
 > 📝 **Tóm tắt mục 10.**
 > - Search trên mảng: O(log n).
-> - Search on answer: O(log(range) × check). `log(range)` thường ~30-60 → coi như hằng nhỏ.
+> - Search on answer: O(log(range) × check). $\log(\text{range})$ thường ~30-60 → coi như hằng nhỏ.
 > - Bộ nhớ luôn O(1) (bản lặp).
 
 ---
@@ -635,7 +635,7 @@ func shipWithinDaysT(w []int, D int) int {
 
 1. **First & last occurrence.** Cho mảng sorted có trùng và `target`, trả `[first, last]` index. Nếu không có, trả `[-1, -1]`. Ví dụ `[5,7,7,8,8,10]`, target=8 → `[3,4]`.
 2. **Insertion position.** Cho mảng sorted *không trùng* và `target`, trả index nơi chèn target để giữ sorted (LeetCode 35). Ví dụ `[1,3,5,6]`, target=2 → 1; target=7 → 4.
-3. **Sqrt nguyên (binary search on answer).** Cho `x` không âm, trả `⌊√x⌋` (phần nguyên của căn) **không dùng** hàm sqrt có sẵn (LeetCode 69). Ví dụ x=8 → 2 (vì 2²=4≤8<9=3²).
+3. **Sqrt nguyên (binary search on answer).** Cho $x$ không âm, trả $\lfloor \sqrt{x} \rfloor$ (phần nguyên của căn) **không dùng** hàm sqrt có sẵn (LeetCode 69). Ví dụ x=8 → 2 (vì $2^2=4 \leq 8 < 9=3^2$).
 4. **Koko ăn chuối.** Cài `minEatingSpeed(piles, H)` (đã có walk-through ở mục 5.3) và giải thích vì sao monotonic.
 5. **Search rotated.** Cài `searchRotated` và trả lời: nếu mảng có **trùng** (LeetCode 81) thì độ phức tạp worst case là bao nhiêu? Vì sao?
 6. **Minimize max — Split Array Largest Sum (binary search on answer).** Chia mảng `nums` thành `k` đoạn liên tiếp sao cho **tổng lớn nhất của một đoạn là nhỏ nhất** (LeetCode 410). Ví dụ `nums=[7,2,5,10,8]`, k=2 → 18 (chia `[7,2,5]=14` và `[10,8]=18`).
@@ -694,7 +694,7 @@ func mySqrt(x int) int {
 
 **Walk-through** x=8: tìm k đầu mà `k²>8`. k=0→0>8?F; ... binary search: lo=0,hi=9,mid=4,16>8?T→hi=4. mid=2,4>8?F→lo=3. mid=3,9>8?T→hi=3. lo=3,hi=3 dừng→firstTrue=3, đáp án 3−1=**2** ✓. (Kiểm tra 4 ví dụ: x=0→0, x=1→1, x=4→2, x=15→3 vì 3²=9≤15<16.)
 
-**Lưu ý overflow:** `k*k` với `k` lớn có thể tràn — trong Go int64 ổn tới ~3×10⁹; ngôn ngữ khác nên so `k <= x/k`.
+**Lưu ý overflow:** `k*k` với `k` lớn có thể tràn — trong Go int64 ổn tới $\approx 3 \times 10^9$; ngôn ngữ khác nên so `k <= x/k`.
 
 **Big-O:** O(log x), O(1).
 
@@ -702,7 +702,7 @@ func mySqrt(x int) int {
 
 **Cách tiếp cận & code:** đã trình bày đầy đủ ở mục 5.3. 
 
-**Vì sao monotonic:** với tốc độ `k`, giờ cần = `Σ ⌈pile/k⌉`. Khi `k` tăng, mỗi `⌈pile/k⌉` **không tăng** (chia cho số lớn hơn) → tổng giờ **không tăng** → nếu `k` thỏa `≤ H` thì mọi `k' > k` cũng thỏa. Đó là `F...F T...T` → binary search hợp lệ.
+**Vì sao monotonic:** với tốc độ $k$, giờ cần = $\sum \lceil \text{pile}/k \rceil$. Khi $k$ tăng, mỗi $\lceil \text{pile}/k \rceil$ **không tăng** (chia cho số lớn hơn) → tổng giờ **không tăng** → nếu $k$ thỏa $\leq H$ thì mọi $k' > k$ cũng thỏa. Đó là `F...F T...T` → binary search hợp lệ.
 
 **Walk-through:** xem bảng mục 5.3, đáp án k=4 cho `piles=[3,6,7,11]`, H=8.
 
@@ -710,7 +710,7 @@ func mySqrt(x int) int {
 
 ### Bài 5 — Search rotated (có/không trùng)
 
-**Không trùng:** `searchRotated` ở mục 6.3 — **O(log n)**, vì luôn xác định được nửa nào sorted nhờ so sánh `a[lo]` với `a[mid]`.
+**Không trùng:** `searchRotated` ở mục 6.3 — **$O(\log n)$**, vì luôn xác định được nửa nào sorted nhờ so sánh `a[lo]` với `a[mid]`.
 
 **Có trùng (LeetCode 81):** khi `a[lo] == a[mid] == a[hi]` (ví dụ `[1,1,1,2,1]`), ta **không biết** nửa nào sorted → phải bỏ qua từng phần tử ở biên (`lo++; hi--`). Worst case mọi phần tử bằng nhau (`[2,2,2,2,2]` tìm 3) → suy biến thành **O(n)** tuyến tính.
 
@@ -792,7 +792,7 @@ func splitArray(nums []int, k int) int {
 
 - Mọi code Go ở trên **inline trong README** — copy vào file `main.go` cùng một `package main` là chạy được (cần thêm `import "math"`/`"fmt"` khi dùng). Bài này **không** kèm `solutions.go` riêng.
 - [visualization.html](./visualization.html) — 3 module tương tác:
-  1. **Binary search animator** — nhập mảng + target, xem `lo/hi/mid` highlight, vùng bị loại mờ dần, đếm số bước so với `⌈log₂ n⌉`.
+  1. **Binary search animator** — nhập mảng + target, xem `lo/hi/mid` highlight, vùng bị loại mờ dần, đếm số bước so với $\lceil \log_2 n \rceil$.
   2. **Lower/Upper bound** — mảng có phần tử trùng, animate tìm biên trái (lower) và biên phải (upper).
   3. **Binary search on answer** — bài ship capacity: trượt số ngày D, xem dãy predicate `F → T` theo capacity và quá trình search trên không gian đáp án.
 
@@ -804,5 +804,5 @@ func splitArray(nums []int, k int) int {
 
 **Tham khảo chéo:**
 - [Tier 1 — Sorting](../tier-1-sorting/index.html) — để binary search được, dữ liệu phải sorted.
-- [Lesson 03 — Đệ quy & Recurrence](../lesson-03-recursion-recurrence/) — `T(n)=T(n/2)+O(1)`.
+- [Lesson 03 — Đệ quy & Recurrence](../lesson-03-recursion-recurrence/) — $T(n)=T(n/2)+O(1)$.
 - [Lesson 17 — Divide & Conquer](../lesson-17-divide-and-conquer/) — binary search là D&C đơn giản nhất (chỉ 1 nhánh đệ quy).

@@ -8,7 +8,7 @@ Sau bài này bạn sẽ:
 
 1. Phát biểu được **3 bước** của Divide & Conquer (D&C): **Divide → Conquer → Combine**, và nhận ra chúng trong mọi thuật toán D&C.
 2. Viết được **khung tổng quát (template) Go** cho một thuật toán D&C bất kỳ.
-3. Lập được **recurrence** `T(n) = a·T(n/b) + f(n)` cho thuật toán của mình và dùng **Master Theorem** để suy ra Big-O.
+3. Lập được **recurrence** $T(n) = a \cdot T(n/b) + f(n)$ cho thuật toán của mình và dùng **Master Theorem** để suy ra Big-O.
 4. Walk-through chi tiết 8 ví dụ kinh điển: binary search, merge sort, quicksort, count inversions, maximum subarray, closest pair, Karatsuba, fast exponentiation.
 5. Phân biệt **D&C** (subproblem độc lập) với **Quy hoạch động — DP** (subproblem chồng lấp) — biết khi nào dùng cái nào.
 6. Hiểu vì sao D&C **dễ song song hoá** và biết các **cạm bẫy** thường gặp.
@@ -132,49 +132,49 @@ Nếu thuật toán D&C chia thành `a` bài con, mỗi bài kích thước `n/b
 
 $$T(n) = a \cdot T(n/b) + f(n)$$
 
-- `a` = số bài con **được giải đệ quy** (binary search `a=1`, merge sort `a=2`, Karatsuba `a=3`, Strassen `a=7`).
-- `b` = bài con nhỏ đi bao nhiêu lần (`b=2` nghĩa là mỗi bài con bằng nửa).
-- `f(n)` = chi phí chia + gộp ở mỗi mức.
+- $a$ = số bài con **được giải đệ quy** (binary search $a=1$, merge sort $a=2$, Karatsuba $a=3$, Strassen $a=7$).
+- $b$ = bài con nhỏ đi bao nhiêu lần ($b=2$ nghĩa là mỗi bài con bằng nửa).
+- $f(n)$ = chi phí chia + gộp ở mỗi mức.
 
 ### Master Theorem (recap [L03](../lesson-03-recursion-recurrence/))
 
-So sánh `f(n)` với `n^(log_b a)`. Đặt `c = log_b a`:
+So sánh $f(n)$ với $n^{\log_b a}$. Đặt $c = \log_b a$:
 
 | Trường hợp | Điều kiện | Kết quả | Trực giác |
 |---|---|---|---|
-| **1** | `f(n) = O(n^(c−ε))` (combine *rẻ* hơn) | `T(n) = Θ(n^c)` | Tổng chi phí dồn ở **lá** |
-| **2** | `f(n) = Θ(n^c)` (combine *cân* với chia) | `T(n) = Θ(n^c · log n)` | Mỗi mức tốn như nhau |
-| **3** | `f(n) = Ω(n^(c+ε))` (combine *đắt* hơn) | `T(n) = Θ(f(n))` | Tổng chi phí dồn ở **gốc** |
+| **1** | $f(n) = O(n^{c-\varepsilon})$ (combine *rẻ* hơn) | $T(n) = \Theta(n^c)$ | Tổng chi phí dồn ở **lá** |
+| **2** | $f(n) = \Theta(n^c)$ (combine *cân* với chia) | $T(n) = \Theta(n^c \log n)$ | Mỗi mức tốn như nhau |
+| **3** | $f(n) = \Omega(n^{c+\varepsilon})$ (combine *đắt* hơn) | $T(n) = \Theta(f(n))$ | Tổng chi phí dồn ở **gốc** |
 
-### ≥4 ví dụ số cụ thể (tính `c = log_b a` rồi tra bảng)
+### ≥4 ví dụ số cụ thể (tính $c = \log_b a$ rồi tra bảng)
 
-1. **Merge sort**: `a=2, b=2, f(n)=Θ(n)`. `c = log_2 2 = 1`. So `f(n)=Θ(n)=Θ(n^1)=Θ(n^c)` → **Case 2** → `T(n)=Θ(n log n)`. ✓ (khớp với điều đã biết ở [L07](../lesson-07-merge-sort/))
-2. **Binary search**: `a=1, b=2, f(n)=Θ(1)`. `c = log_2 1 = 0`. So `f(n)=Θ(1)=Θ(n^0)=Θ(n^c)` → **Case 2** → `T(n)=Θ(n^0 · log n)=Θ(log n)`. ✓
-3. **Karatsuba**: `a=3, b=2, f(n)=Θ(n)`. `c = log_2 3 ≈ 1.585`. So `f(n)=Θ(n)=O(n^(1.585−ε))` → **Case 1** → `T(n)=Θ(n^1.585)`. ✓ (nhanh hơn `n²` của nhân thường)
-4. **Strassen**: `a=7, b=2, f(n)=Θ(n²)`. `c = log_2 7 ≈ 2.807`. So `f(n)=Θ(n²)=O(n^(2.807−ε))` → **Case 1** → `T(n)=Θ(n^2.807)`. ✓
-5. **Max subarray (D&C)**: `a=2, b=2, f(n)=Θ(n)` (quét xuyên giữa). `c=1`, `f=Θ(n^1)` → **Case 2** → `Θ(n log n)`.
-6. **"Naive" matrix multiply đệ quy**: `a=8, b=2, f(n)=Θ(n²)`. `c=log_2 8=3`. `f(n)=Θ(n²)=O(n^(3−ε))` → **Case 1** → `Θ(n³)` (đúng là không cải thiện gì so với 3 vòng lặp — vì sao Strassen giảm 8→7 mới ăn tiền).
+1. **Merge sort**: $a=2, b=2, f(n)=\Theta(n)$. $c = \log_2 2 = 1$. So $f(n)=\Theta(n)=\Theta(n^1)=\Theta(n^c)$ → **Case 2** → $T(n)=\Theta(n \log n)$. ✓ (khớp với điều đã biết ở [L07](../lesson-07-merge-sort/))
+2. **Binary search**: $a=1, b=2, f(n)=\Theta(1)$. $c = \log_2 1 = 0$. So $f(n)=\Theta(1)=\Theta(n^0)=\Theta(n^c)$ → **Case 2** → $T(n)=\Theta(n^0 \log n)=\Theta(\log n)$. ✓
+3. **Karatsuba**: $a=3, b=2, f(n)=\Theta(n)$. $c = \log_2 3 \approx 1{,}585$. So $f(n)=\Theta(n)=O(n^{1{,}585-\varepsilon})$ → **Case 1** → $T(n)=\Theta(n^{1{,}585})$. ✓ (nhanh hơn $n^2$ của nhân thường)
+4. **Strassen**: $a=7, b=2, f(n)=\Theta(n^2)$. $c = \log_2 7 \approx 2{,}807$. So $f(n)=\Theta(n^2)=O(n^{2{,}807-\varepsilon})$ → **Case 1** → $T(n)=\Theta(n^{2{,}807})$. ✓
+5. **Max subarray (D&C)**: $a=2, b=2, f(n)=\Theta(n)$ (quét xuyên giữa). $c=1$, $f=\Theta(n^1)$ → **Case 2** → $\Theta(n \log n)$.
+6. **"Naive" matrix multiply đệ quy**: $a=8, b=2, f(n)=\Theta(n^2)$. $c=\log_2 8=3$. $f(n)=\Theta(n^2)=O(n^{3-\varepsilon})$ → **Case 1** → $\Theta(n^3)$ (đúng là không cải thiện gì so với 3 vòng lặp — vì sao Strassen giảm 8→7 mới ăn tiền).
 
 ### ❓ Câu hỏi tự nhiên
 
-- **"Vì sao giảm số bài con từ 4→3 (Karatsuba) lại quan trọng thế?"** — Vì `a` nằm trong **số mũ** `log_b a`. Với `b=2`: `a=4 → c=2` (giống `n²`, vô ích), `a=3 → c≈1.585` (ăn tiền). Mỗi bài con cắt bớt là mỗi lần tụt số mũ — hiệu ứng cấp số nhân khi `n` lớn.
-- **"f(n) là divide hay combine?"** — Là **tổng** chi phí của divide + combine ở MỘT mức, *không* tính thời gian gọi đệ quy (cái đó là `a·T(n/b)`).
+- **"Vì sao giảm số bài con từ 4→3 (Karatsuba) lại quan trọng thế?"** — Vì $a$ nằm trong **số mũ** $\log_b a$. Với $b=2$: $a=4 \to c=2$ (giống $n^2$, vô ích), $a=3 \to c \approx 1{,}585$ (ăn tiền). Mỗi bài con cắt bớt là mỗi lần tụt số mũ — hiệu ứng cấp số nhân khi $n$ lớn.
+- **"f(n) là divide hay combine?"** — Là **tổng** chi phí của divide + combine ở MỘT mức, *không* tính thời gian gọi đệ quy (cái đó là $a \cdot T(n/b)$).
 
 ### 🔁 Dừng lại tự kiểm tra
 
-Một thuật toán có `T(n) = 2T(n/2) + n²`. Big-O là gì?
+Một thuật toán có $T(n) = 2T(n/2) + n^2$. Big-O là gì?
 
 <details><summary>Đáp án</summary>
 
-`a=2, b=2 → c=log_2 2 = 1`. `f(n)=n² = Ω(n^(1+ε))` (với ε=1) → **Case 3** → `T(n)=Θ(f(n))=Θ(n²)`. Combine đắt quá → toàn bộ chi phí dồn ở gốc.
+$a=2, b=2 \to c=\log_2 2 = 1$. $f(n)=n^2 = \Omega(n^{1+\varepsilon})$ (với $\varepsilon=1$) → **Case 3** → $T(n)=\Theta(f(n))=\Theta(n^2)$. Combine đắt quá → toàn bộ chi phí dồn ở gốc.
 
 </details>
 
 ### 📝 Tóm tắt mục 3
 
-- Recurrence D&C: `T(n) = a·T(n/b) + f(n)`.
-- So `f(n)` với `n^(log_b a)` → 3 case Master Theorem.
-- Giảm `a` (số bài con) ăn tiền nhất vì nó nằm trong số mũ.
+- Recurrence D&C: $T(n) = a \cdot T(n/b) + f(n)$.
+- So $f(n)$ với $n^{\log_b a}$ → 3 case Master Theorem.
+- Giảm $a$ (số bài con) ăn tiền nhất vì nó nằm trong số mũ.
 
 ---
 
@@ -188,7 +188,7 @@ Một thuật toán có `T(n) = 2T(n/2) + n²`. Big-O là gì?
 - **Conquer**: chỉ đệ quy vào **một** nửa (nửa kia chắc chắn không chứa target).
 - **Combine**: rỗng.
 
-`T(n)=1·T(n/2)+O(1)` → `Θ(log n)`. Đây là D&C "tiết kiệm" nhất vì vứt hẳn 1 nửa bài.
+$T(n)=1 \cdot T(n/2)+O(1)$ → $\Theta(\log n)$. Đây là D&C "tiết kiệm" nhất vì vứt hẳn 1 nửa bài.
 
 **Walk-through số** — tìm `target=7` trong `[1, 3, 5, 7, 9, 11, 13]` (sorted, 7 phần tử):
 
@@ -205,7 +205,7 @@ Tìm `target=4` (không có):
 - `[0,2]`, `mid=1`, `arr[1]=3 < 4` → nửa phải `[2,2]`.
 - `[2,2]`, `mid=2`, `arr[2]=5 ≠ 4`, `lo==hi` → **không tìm thấy**. 3 bước.
 
-Với `n=7` ta cần ≤ `⌈log₂7⌉ = 3` bước — đúng. So brute force quét tuyến tính 7 bước → D&C vứt nửa mỗi lần là chìa khoá.
+Với $n=7$ ta cần $\leq \lceil \log_2 7 \rceil = 3$ bước — đúng. So brute force quét tuyến tính 7 bước → D&C vứt nửa mỗi lần là chìa khoá.
 
 ```go
 // binarySearch dưới góc D&C: chỉ đệ quy 1 nửa (a=1). T(n)=T(n/2)+O(1)=O(log n).
@@ -232,16 +232,16 @@ func binarySearch(a []int, target, lo, hi int) int {
 | Divide | cắt giữa (O(1)) | partition quanh pivot (O(n)) |
 | Conquer | sort 2 nửa | sort 2 phần |
 | Combine | **merge** (O(n)) | rỗng |
-| Recurrence | `2T(n/2)+O(n)` | trung bình `2T(n/2)+O(n)` |
-| Big-O | `Θ(n log n)` luôn | `O(n log n)` TB, `O(n²)` xấu |
+| Recurrence | $2T(n/2)+O(n)$ | trung bình $2T(n/2)+O(n)$ |
+| Big-O | $\Theta(n \log n)$ luôn | $O(n \log n)$ TB, $O(n^2)$ xấu |
 
 Chi tiết ở [L07](../lesson-07-merge-sort/) và [L08](../lesson-08-quicksort/).
 
 ### 4.3 Count inversions — đếm cặp đảo trong O(n log n)
 
-**Bài toán**: cho mảng `a`, đếm số cặp `(i, j)` với `i < j` nhưng `a[i] > a[j]` (cặp "đảo ngược"). Inversion đo mức độ "lộn xộn" của mảng — mảng đã sort có 0 inversion; mảng sort ngược có `n(n−1)/2` (tối đa).
+**Bài toán**: cho mảng `a`, đếm số cặp `(i, j)` với `i < j` nhưng `a[i] > a[j]` (cặp "đảo ngược"). Inversion đo mức độ "lộn xộn" của mảng — mảng đã sort có 0 inversion; mảng sort ngược có $n(n-1)/2$ (tối đa).
 
-**Brute force**: 2 vòng lặp, O(n²). **D&C**: tận dụng merge sort, O(n log n).
+**Brute force**: 2 vòng lặp, $O(n^2)$. **D&C**: tận dụng merge sort, $O(n \log n)$.
 
 💡 **Ý tưởng**: chia mảng đôi. Inversion gồm 3 loại: (a) cả `i, j` ở nửa trái, (b) cả ở nửa phải, (c) `i` trái – `j` phải (chéo). (a) và (b) đếm đệ quy. (c) đếm **trong lúc merge**: khi lấy phần tử từ nửa phải ra trước một loạt phần tử nửa trái, mọi phần tử trái còn lại đều tạo inversion với nó.
 
@@ -350,42 +350,42 @@ func max3(a, b, c int) int {
 
 **Bài toán**: cho `n` điểm trong mặt phẳng, tìm 2 điểm gần nhau nhất (khoảng cách Euclid). Brute force so mọi cặp: O(n²).
 
-💡 **Ý tưởng strip**: sort theo `x`, cắt đôi bằng đường thẳng đứng `x = mid`. Khoảng cách nhỏ nhất `δ` = `min(δ_trái, δ_phải)` (đệ quy). **Combine**: cặp gần nhất có thể *xuyên* qua đường chia — nhưng chỉ cần xét các điểm nằm trong **dải (strip)** rộng `2δ` quanh đường chia. Điều kỳ diệu: trong strip đó, mỗi điểm chỉ cần so với **tối đa 7 điểm kế tiếp** (sort theo `y`) — vì hình học ép không thể nhồi nhiều hơn 8 điểm cách nhau ≥ δ vào một hình chữ nhật `δ × 2δ`. Nhờ vậy combine chỉ O(n).
+💡 **Ý tưởng strip**: sort theo $x$, cắt đôi bằng đường thẳng đứng $x = \text{mid}$. Khoảng cách nhỏ nhất $\delta$ = $\min(\delta_{\text{trái}}, \delta_{\text{phải}})$ (đệ quy). **Combine**: cặp gần nhất có thể *xuyên* qua đường chia — nhưng chỉ cần xét các điểm nằm trong **dải (strip)** rộng $2\delta$ quanh đường chia. Điều kỳ diệu: trong strip đó, mỗi điểm chỉ cần so với **tối đa 7 điểm kế tiếp** (sort theo $y$) — vì hình học ép không thể nhồi nhiều hơn 8 điểm cách nhau $\geq \delta$ vào một hình chữ nhật $\delta \times 2\delta$. Nhờ vậy combine chỉ O(n).
 
 **Walk-through ý tưởng** (4 điểm `A(0,0), B(1,1), C(5,0), D(6,1)`):
 - Sort theo x → `A, B | C, D` (mid giữa B và C).
-- Trái `{A,B}`: `δ_L = dist(A,B) = √2 ≈ 1.41`.
-- Phải `{C,D}`: `δ_R = dist(C,D) = √2 ≈ 1.41`.
-- `δ = 1.41`. Strip = các điểm có `|x − mid| < 1.41`. Mid ≈ 3, không điểm nào trong strip rộng quá → không có cặp chéo gần hơn.
-- Kết quả: cặp gần nhất `(A,B)` hoặc `(C,D)`, `δ = √2`. ✓
+- Trái $\{A,B\}$: $\delta_L = \mathrm{dist}(A,B) = \sqrt{2} \approx 1{,}41$.
+- Phải $\{C,D\}$: $\delta_R = \mathrm{dist}(C,D) = \sqrt{2} \approx 1{,}41$.
+- $\delta = 1{,}41$. Strip = các điểm có $|x - \text{mid}| < 1{,}41$. Mid $\approx 3$, không điểm nào trong strip rộng quá → không có cặp chéo gần hơn.
+- Kết quả: cặp gần nhất $(A,B)$ hoặc $(C,D)$, $\delta = \sqrt{2}$. ✓
 
-Recurrence: `T(n)=2T(n/2)+O(n)` → **O(n log n)** (combine strip O(n) nhờ giới hạn 7 điểm). Code đầy đủ dài, ý tưởng quan trọng hơn — xem bài tập 6.
+Recurrence: $T(n)=2T(n/2)+O(n)$ → **$O(n \log n)$** (combine strip $O(n)$ nhờ giới hạn 7 điểm). Code đầy đủ dài, ý tưởng quan trọng hơn — xem bài tập 6.
 
 ### 4.6 Karatsuba — nhân số lớn O(n^1.585)
 
 **Vấn đề**: nhân 2 số `n` chữ số kiểu "tay" (như học tiểu học) tốn O(n²) phép nhân chữ số. Với số 10.000 chữ số (mật mã RSA), n² là khổng lồ.
 
-💡 **Mẹo Karatsuba**: tách mỗi số làm 2 nửa. Cho `x = x_H·10^m + x_L`, `y = y_H·10^m + y_L` (m = nửa số chữ số). Tích:
+💡 **Mẹo Karatsuba**: tách mỗi số làm 2 nửa. Cho $x = x_H \cdot 10^m + x_L$, $y = y_H \cdot 10^m + y_L$ ($m$ = nửa số chữ số). Tích:
 
 ```
 x·y = x_H·y_H·10^(2m) + (x_H·y_L + x_L·y_H)·10^m + x_L·y_L
 ```
 
-Nhìn qua cần **4** phép nhân con (`x_H·y_H`, `x_H·y_L`, `x_L·y_H`, `x_L·y_L`) → `T(n)=4T(n/2)+O(n)` → `O(n²)`, vô ích. **Mẹo**: hạng giữa `x_H·y_L + x_L·y_H` tính được từ **1** phép nhân thay vì 2:
+Nhìn qua cần **4** phép nhân con ($x_H \cdot y_H$, $x_H \cdot y_L$, $x_L \cdot y_H$, $x_L \cdot y_L$) → $T(n)=4T(n/2)+O(n)$ → $O(n^2)$, vô ích. **Mẹo**: hạng giữa $x_H \cdot y_L + x_L \cdot y_H$ tính được từ **1** phép nhân thay vì 2:
 
 ```
 gọi: P1 = x_H·y_H,  P2 = x_L·y_L,  P3 = (x_H + x_L)·(y_H + y_L)
 thì: hạng giữa = P3 − P1 − P2
 ```
 
-Chỉ còn **3** phép nhân con! `T(n)=3T(n/2)+O(n)` → `O(n^log₂3) = O(n^1.585)`.
+Chỉ còn **3** phép nhân con! $T(n)=3T(n/2)+O(n)$ → $O(n^{\log_2 3}) = O(n^{1{,}585})$.
 
 **Walk-through số**: `x=12, y=34` (n=2, m=1). `x_H=1, x_L=2, y_H=3, y_L=4`.
-- `P1 = 1·3 = 3`
-- `P2 = 2·4 = 8`
-- `P3 = (1+2)·(3+4) = 3·7 = 21`
-- hạng giữa = `21 − 3 − 8 = 10`
-- `x·y = 3·10² + 10·10¹ + 8 = 300 + 100 + 8 = 408`. Kiểm: `12·34 = 408`. ✓
+- $P_1 = 1 \cdot 3 = 3$
+- $P_2 = 2 \cdot 4 = 8$
+- $P_3 = (1+2) \cdot (3+4) = 3 \cdot 7 = 21$
+- hạng giữa = $21 - 3 - 8 = 10$
+- $x \cdot y = 3 \cdot 10^2 + 10 \cdot 10^1 + 8 = 300 + 100 + 8 = 408$. Kiểm: $12 \cdot 34 = 408$. ✓
 
 ```go
 // karatsuba nhân 2 số nguyên không âm bằng D&C 3 phép nhân con.
@@ -413,19 +413,19 @@ func karatsuba(x, y int) int {
 
 ### 4.7 Fast exponentiation — `pow(x, n)` trong O(log n)
 
-**Bài toán**: tính `x^n`. Nhân ngây thơ `x·x·...·x` tốn `n−1` phép nhân, O(n).
+**Bài toán**: tính $x^n$. Nhân ngây thơ $x \cdot x \cdots x$ tốn $n-1$ phép nhân, $O(n)$.
 
-💡 **Chia đôi mũ**: `x^n = (x^(n/2))²` nếu `n` chẵn; `= x·(x^((n−1)/2))²` nếu `n` lẻ. Mỗi bước **chia đôi** số mũ → chỉ O(log n) phép nhân.
+💡 **Chia đôi mũ**: $x^n = (x^{n/2})^2$ nếu $n$ chẵn; $= x \cdot (x^{(n-1)/2})^2$ nếu $n$ lẻ. Mỗi bước **chia đôi** số mũ → chỉ $O(\log n)$ phép nhân.
 
-**Walk-through** `x^13` (n=13, nhị phân `1101`):
-- `13` lẻ → `x^13 = x · (x^6)²`
-- `6` chẵn → `x^6 = (x^3)²`
-- `3` lẻ → `x^3 = x · (x^1)²`
-- `1` lẻ → `x^1 = x · (x^0)² = x`
+**Walk-through** $x^{13}$ ($n=13$, nhị phân $1101$):
+- $13$ lẻ → $x^{13} = x \cdot (x^6)^2$
+- $6$ chẵn → $x^6 = (x^3)^2$
+- $3$ lẻ → $x^3 = x \cdot (x^1)^2$
+- $1$ lẻ → $x^1 = x \cdot (x^0)^2 = x$
 
-Đi ngược lên: `x^1 = x`; `x^3 = x·x² = x³`; `x^6 = (x³)² = x⁶`; `x^13 = x·(x⁶)² = x·x¹² = x¹³`. ✓ Tổng số phép nhân ~ `2·log₂13 ≈ 8` thay vì 12.
+Đi ngược lên: $x^1 = x$; $x^3 = x \cdot x^2 = x^3$; $x^6 = (x^3)^2 = x^6$; $x^{13} = x \cdot (x^6)^2 = x \cdot x^{12} = x^{13}$. ✓ Tổng số phép nhân ~ $2 \cdot \log_2 13 \approx 8$ thay vì 12.
 
-Cách nhìn nhị phân: `13 = 1101₂ = 8+4+1` → `x^13 = x^8 · x^4 · x^1`. Bình phương liên tiếp cho `x, x², x⁴, x⁸`, nhân các lũy thừa ứng với bit `1`.
+Cách nhìn nhị phân: $13 = 1101_2 = 8+4+1$ → $x^{13} = x^8 \cdot x^4 \cdot x^1$. Bình phương liên tiếp cho $x, x^2, x^4, x^8$, nhân các lũy thừa ứng với bit $1$.
 
 ```go
 // fastPow tính x^n bằng chia đôi mũ. O(log n) phép nhân.
@@ -460,11 +460,11 @@ func powMod(x, n, mod int64) int64 {
 }
 ```
 
-> **Lưu ý recurrence**: `fastPow` có `T(n)=T(n/2)+O(1)` → `a=1, b=2, f=O(1)` → giống binary search → `O(log n)`. (Đây là "n" theo *giá trị mũ*, không phải kích thước mảng.)
+> **Lưu ý recurrence**: `fastPow` có $T(n)=T(n/2)+O(1)$ → $a=1, b=2, f=O(1)$ → giống binary search → $O(\log n)$. (Đây là "n" theo *giá trị mũ*, không phải kích thước mảng.)
 
 ### 4.8 Strassen — nhân ma trận O(n^2.81)
 
-Nhân 2 ma trận `n×n` kiểu 3 vòng lặp tốn O(n³). Chia mỗi ma trận thành 4 block `n/2 × n/2`; cách ngây thơ cần **8** phép nhân block con → `T(n)=8T(n/2)+O(n²)` → vẫn O(n³). **Strassen** dùng 7 phép nhân khéo léo (như Karatsuba giảm 4→3) → `T(n)=7T(n/2)+O(n²)` → `O(n^log₂7) = O(n^2.807)`. Thực tế chỉ ăn tiền với ma trận rất lớn vì hằng số ẩn lớn và độ ổn định số kém hơn. Nhắc qua để bạn thấy cùng một mẹo "giảm số bài con" tái xuất hiện.
+Nhân 2 ma trận $n \times n$ kiểu 3 vòng lặp tốn O(n³). Chia mỗi ma trận thành 4 block $n/2 \times n/2$; cách ngây thơ cần **8** phép nhân block con → $T(n)=8T(n/2)+O(n^2)$ → vẫn O(n³). **Strassen** dùng 7 phép nhân khéo léo (như Karatsuba giảm 4→3) → $T(n)=7T(n/2)+O(n^2)$ → $O(n^{\log_2 7}) = O(n^{2{,}807})$. Thực tế chỉ ăn tiền với ma trận rất lớn vì hằng số ẩn lớn và độ ổn định số kém hơn. Nhắc qua để bạn thấy cùng một mẹo "giảm số bài con" tái xuất hiện.
 
 ### 📝 Tóm tắt mục 4
 
@@ -609,20 +609,20 @@ Bài con thứ 2 là `[mid, hi]` — chứa `mid` trùng với bài con thứ 1,
        T(1) T(1) ... T(1)            <- lá: n lá
 ```
 
-- Chiều cao cây = `log_b n` (mỗi mức chia n cho b). Quá sâu → stack overflow.
-- Tổng chi phí một mức `i` = `a^i · f(n/b^i)`. So tổng các mức → quyết định Case nào của Master.
+- Chiều cao cây = $\log_b n$ (mỗi mức chia n cho b). Quá sâu → stack overflow.
+- Tổng chi phí một mức $i$ = $a^i \cdot f(n/b^i)$. So tổng các mức → quyết định Case nào của Master.
 - **Lá lặp lại cùng tham số** → đó là dấu hiệu overlap (DP), không phải D&C.
 
-**Ví dụ số chẩn đoán** với `T(n)=2T(n/2)+n` (merge sort), `n=8`:
-- mức 0: `8` (1 node × cost 8)
-- mức 1: `4+4 = 8` (2 node × cost 4)
-- mức 2: `2+2+2+2 = 8` (4 node × cost 2)
-- mức 3 (lá): `1×8 = 8` (8 node × cost 1)
-- Tổng = `8 × 4 mức = 8 × log₂8 = n·log n`. Đúng `Θ(n log n)`. ✓ Mỗi mức tốn như nhau (`n`) là đặc trưng Case 2.
+**Ví dụ số chẩn đoán** với $T(n)=2T(n/2)+n$ (merge sort), $n=8$:
+- mức 0: $8$ (1 node × cost 8)
+- mức 1: $4+4 = 8$ (2 node × cost 4)
+- mức 2: $2+2+2+2 = 8$ (4 node × cost 2)
+- mức 3 (lá): $1 \times 8 = 8$ (8 node × cost 1)
+- Tổng = $8 \times 4$ mức $= 8 \times \log_2 8 = n \cdot \log n$. Đúng $\Theta(n \log n)$. ✓ Mỗi mức tốn như nhau ($n$) là đặc trưng Case 2.
 
 ### 📝 Tóm tắt mục 8
 
-Bốn bug chí mạng: base case, bài con không nhỏ đi, combine quá đắt, overlap không nhận ra. Lập recurrence + vẽ cây đệ quy trước khi code. Mỗi mức của cây tốn `a^i·f(n/b^i)` — cộng lại ra Big-O.
+Bốn bug chí mạng: base case, bài con không nhỏ đi, combine quá đắt, overlap không nhận ra. Lập recurrence + vẽ cây đệ quy trước khi code. Mỗi mức của cây tốn $a^i \cdot f(n/b^i)$ — cộng lại ra Big-O.
 
 ---
 
@@ -632,9 +632,9 @@ Bốn bug chí mạng: base case, bài con không nhỏ đi, combine quá đắt
 
 1. **Maximum subarray (D&C) vs Kadane**: cài `maxSubarrayDC` (mục 4.4). Sau đó cài Kadane O(n). So sánh recurrence và Big-O của hai cách.
 2. **Count inversions**: cài hàm đếm cặp đảo O(n log n) (mục 4.3). Test với `[5,4,3,2,1]` (kỳ vọng max inversion).
-3. **Fast power**: cài `pow(x, n)` O(log n) cho mũ nguyên (cả âm). Đếm số phép nhân khi tính `x^100`.
+3. **Fast power**: cài `pow(x, n)` O(log n) cho mũ nguyên (cả âm). Đếm số phép nhân khi tính $x^{100}$.
 4. **Majority element**: tìm phần tử xuất hiện > n/2 lần. So sánh **Boyer-Moore O(n)** với **D&C O(n log n)**. Cài cả hai, nêu recurrence D&C.
-5. **Pow với mod**: cài `powMod(x, n, m) = x^n mod m` O(log n). Tính `3^45 mod 7`.
+5. **Pow với mod**: cài `powMod(x, n, m)` tính $x^n \bmod m$, $O(\log n)$. Tính $3^{45} \bmod 7$.
 6. **Closest pair — ý tưởng**: mô tả thuật toán closest pair O(n log n) bằng lời (không cần code đầy đủ), giải thích vì sao combine chỉ O(n) (giới hạn 7 điểm trong strip), và nêu recurrence.
 
 ---
@@ -643,7 +643,7 @@ Bốn bug chí mạng: base case, bài con không nhỏ đi, combine quá đắt
 
 ### Bài 1 — Max subarray: D&C vs Kadane
 
-**D&C** (`maxSubarrayDC`, mục 4.4): `T(n)=2T(n/2)+O(n)`. Master: `a=2,b=2,c=log₂2=1`, `f(n)=Θ(n^1)=Θ(n^c)` → **Case 2** → **Θ(n log n)**.
+**D&C** (`maxSubarrayDC`, mục 4.4): $T(n)=2T(n/2)+O(n)$. Master: $a=2, b=2, c=\log_2 2=1$, $f(n)=\Theta(n^1)=\Theta(n^c)$ → **Case 2** → **$\Theta(n \log n)$**.
 
 **Kadane** (DP tuyến tính): duy trì `cur` = tổng đoạn tốt nhất KẾT THÚC tại `i`; nếu `cur` âm thì vứt (bắt đầu lại). `best` = max toàn cục.
 
@@ -663,19 +663,19 @@ func kadane(a []int) int {
 }
 ```
 
-`T(n)=O(n)` — một lượt quét, không đệ quy. **Kết luận**: cùng kết quả, Kadane (O(n)) nhanh hơn D&C (O(n log n)). Đây là minh chứng D&C không luôn tối ưu (mục 7). Với `[-2,1,-3,4,-1,2,1,-5,4]` cả hai cho **6**.
+$T(n)=O(n)$ — một lượt quét, không đệ quy. **Kết luận**: cùng kết quả, Kadane (O(n)) nhanh hơn D&C (O(n log n)). Đây là minh chứng D&C không luôn tối ưu (mục 7). Với `[-2,1,-3,4,-1,2,1,-5,4]` cả hai cho **6**.
 
 ### Bài 2 — Count inversions
 
-Dùng `countInversions` (mục 4.3). `T(n)=2T(n/2)+O(n)` → **Case 2** → **Θ(n log n)**.
+Dùng `countInversions` (mục 4.3). $T(n)=2T(n/2)+O(n)$ → **Case 2** → **$\Theta(n \log n)$**.
 
-Với `[5,4,3,2,1]`: mảng sort ngược hoàn toàn → mọi cặp đều đảo → `C(5,2)=5·4/2 = 10` inversion (giá trị tối đa). Walk-through ngắn: chia `[5,4]` (1 inv) + `[3,2,1]` (3 inv) + merge chéo (6 inv) = 10. ✓
+Với `[5,4,3,2,1]`: mảng sort ngược hoàn toàn → mọi cặp đều đảo → $C(5,2)=5 \cdot 4/2 = 10$ inversion (giá trị tối đa). Walk-through ngắn: chia `[5,4]` (1 inv) + `[3,2,1]` (3 inv) + merge chéo (6 inv) = 10. ✓
 
 ### Bài 3 — Fast power, đếm phép nhân `x^100`
 
-Dùng `fastPow` (mục 4.7). `T(n)=T(n/2)+O(1)` → `a=1,b=2,c=0`, `f=Θ(1)=Θ(n^0)` → **Case 2** → **Θ(log n)**.
+Dùng `fastPow` (mục 4.7). $T(n)=T(n/2)+O(1)$ → $a=1, b=2, c=0$, $f=\Theta(1)=\Theta(n^0)$ → **Case 2** → **$\Theta(\log n)$**.
 
-Số phép nhân cho `x^100`: `100 = 1100100₂` (7 bit, 3 bit '1'). Phương pháp bình phương-và-nhân: `7−1 = 6` phép bình phương + `(3−1) = 2` phép nhân = **~8 phép nhân**, thay vì 99 phép của cách ngây thơ. (Hằng số chính xác tuỳ cài đặt; bậc là `Θ(log n)`.)
+Số phép nhân cho $x^{100}$: $100 = 1100100_2$ (7 bit, 3 bit '1'). Phương pháp bình phương-và-nhân: $7-1 = 6$ phép bình phương + $(3-1) = 2$ phép nhân = **~8 phép nhân**, thay vì 99 phép của cách ngây thơ. (Hằng số chính xác tuỳ cài đặt; bậc là $\Theta(\log n)$.)
 
 ### Bài 4 — Majority element: Boyer-Moore vs D&C
 
@@ -696,13 +696,13 @@ Trực giác: mỗi phần tử "khác" triệt tiêu một phần tử majority
 
 **D&C — O(n log n)**: chia đôi, tìm majority mỗi nửa (đệ quy). Combine: nếu 2 nửa cùng majority → đó là kết quả; nếu khác → đếm số lần xuất hiện của *cả hai* ứng viên trong toàn đoạn (O(n)), chọn cái > nửa.
 
-`T(n)=2T(n/2)+O(n)` → **Case 2** → **Θ(n log n)**.
+$T(n)=2T(n/2)+O(n)$ → **Case 2** → **$\Theta(n \log n)$**.
 
 **Kết luận**: Boyer-Moore (O(n), O(1) bộ nhớ) thắng tuyệt đối. D&C ở đây là bài tập tư duy combine.
 
 ### Bài 5 — `powMod(3, 45, 7)`
 
-Dùng `powMod` (mục 4.7). `45 = 101101₂`. Bình phương-và-nhân với `%7`:
+Dùng `powMod` (mục 4.7). $45 = 101101_2$. Bình phương-và-nhân với `%7`:
 
 | bước | bit | x (mod 7) | result (mod 7) |
 |---|---|---|---|
@@ -715,16 +715,16 @@ Dùng `powMod` (mục 4.7). `45 = 101101₂`. Bình phương-và-nhân với `%7
 | bit=0 | 0 | 4²=16≡2 | 3 |
 | bit=1 | 1 | — | 3·2=6 |
 
-Kết quả `3^45 mod 7 = 6`. **Kiểm tra**: `3^6 ≡ 1 (mod 7)` (Fermat), `45 = 6·7 + 3`, nên `3^45 ≡ 3^3 = 27 ≡ 6 (mod 7)`. ✓ `T = Θ(log n)`.
+Kết quả $3^{45} \bmod 7 = 6$. **Kiểm tra**: $3^6 \equiv 1 \pmod 7$ (Fermat), $45 = 6 \cdot 7 + 3$, nên $3^{45} \equiv 3^3 = 27 \equiv 6 \pmod 7$. ✓ $T = \Theta(\log n)$.
 
 ### Bài 6 — Closest pair (ý tưởng) & recurrence
 
 1. **Sort** điểm theo `x` (một lần, O(n log n)).
 2. **Divide**: cắt tại đường `x = mid`, hai nửa `L`, `R` cỡ n/2.
-3. **Conquer**: `δ = min(closest(L), closest(R))` đệ quy.
-4. **Combine**: cặp gần nhất *xuyên* đường chia phải nằm trong **strip** rộng `2δ` quanh đường. Sort các điểm strip theo `y`; với mỗi điểm chỉ so **tối đa 7 điểm kế tiếp** theo `y`. Lý do giới hạn 7: trong hình chữ nhật `δ × 2δ`, hai điểm cùng phía cách nhau ≥ δ → nhồi tối đa 8 điểm → mỗi điểm chỉ cần xét 7 điểm sau. Combine = **O(n)**.
+3. **Conquer**: $\delta = \min(\mathrm{closest}(L), \mathrm{closest}(R))$ đệ quy.
+4. **Combine**: cặp gần nhất *xuyên* đường chia phải nằm trong **strip** rộng $2\delta$ quanh đường. Sort các điểm strip theo `y`; với mỗi điểm chỉ so **tối đa 7 điểm kế tiếp** theo `y`. Lý do giới hạn 7: trong hình chữ nhật $\delta \times 2\delta$, hai điểm cùng phía cách nhau $\geq \delta$ → nhồi tối đa 8 điểm → mỗi điểm chỉ cần xét 7 điểm sau. Combine = **O(n)**.
 
-**Recurrence**: `T(n)=2T(n/2)+O(n)` → `a=2,b=2,c=1,f=Θ(n^1)` → **Case 2** → **Θ(n log n)**. Nhanh hơn hẳn brute force O(n²).
+**Recurrence**: $T(n)=2T(n/2)+O(n)$ → $a=2, b=2, c=1, f=\Theta(n^1)$ → **Case 2** → **$\Theta(n \log n)$**. Nhanh hơn hẳn brute force O(n²).
 
 ---
 
@@ -733,7 +733,7 @@ Kết quả `3^45 mod 7 = 6`. **Kiểm tra**: `3^6 ≡ 1 (mod 7)` (Fermat), `45 
 - Toàn bộ code Go ở trên là **inline trong README** (lesson này không có `solutions.go` riêng).
 - [visualization.html](./visualization.html) — 3 module tương tác:
   1. **Cây D&C — Max subarray**: animate chia đôi mảng + combine 3 trường hợp (trái / phải / xuyên giữa).
-  2. **Fast power**: animate chia đôi mũ `x^13 = x^8·x^4·x^1`, đếm số phép nhân ~ log n.
+  2. **Fast power**: animate chia đôi mũ $x^{13} = x^8 \cdot x^4 \cdot x^1$, đếm số phép nhân ~ log n.
   3. **D&C vs DP**: visualize cây đệ quy subproblem **độc lập** (merge sort) vs **chồng lấp** (fibonacci cần memo).
 
 ---

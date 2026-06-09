@@ -8,7 +8,7 @@ Sau bài này bạn sẽ:
 
 - Hiểu cấu trúc bit của IEEE 754 binary32 (float) và binary64 (double).
 - Encode/decode số thực theo chuẩn IEEE 754 bằng tay.
-- Giải thích tại sao `0.1 + 0.2 ≠ 0.3` trong mọi ngôn ngữ lập trình.
+- Giải thích tại sao $0{,}1 + 0{,}2 \neq 0{,}3$ trong mọi ngôn ngữ lập trình.
 - Nhận biết và tránh các bẫy về độ chính xác: catastrophic cancellation, so sánh float bằng `==`.
 - Hiểu các giá trị đặc biệt: ±0, ±Inf, NaN, số denormal.
 
@@ -21,9 +21,9 @@ Sau bài này bạn sẽ:
 
 ## 1. Vấn đề: sao không dùng số nguyên cho tất cả?
 
-💡 **Trực giác**: Số nguyên 32-bit chứa khoảng 4 tỷ giá trị, nhưng phân bố **đều đặn** từ 0 đến 4,294,967,295. Để biểu diễn `0.000001` hay `1.5 × 10³⁸` thì không đủ vì range quá hẹp hoặc precision quá thô.
+💡 **Trực giác**: Số nguyên 32-bit chứa khoảng 4 tỷ giá trị, nhưng phân bố **đều đặn** từ 0 đến 4,294,967,295. Để biểu diễn $0{,}000001$ hay $1{,}5 \times 10^{38}$ thì không đủ vì range quá hẹp hoặc precision quá thô.
 
-Giải pháp: dùng **dấu phẩy động (floating-point)** — đổi trao đổi giữa range và precision. Giống ký hiệu khoa học: `1.23456789 × 10⁷` chứa **mantissa** (1.23456789) và **exponent** (7). Khi exponent lớn thì range rộng nhưng mỗi "bước" cũng to; khi exponent nhỏ thì giá trị nhỏ được nhưng resolution cao hơn.
+Giải pháp: dùng **dấu phẩy động (floating-point)** — đổi trao đổi giữa range và precision. Giống ký hiệu khoa học: $1{,}23456789 \times 10^7$ chứa **mantissa** (1.23456789) và **exponent** (7). Khi exponent lớn thì range rộng nhưng mỗi "bước" cũng to; khi exponent nhỏ thì giá trị nhỏ được nhưng resolution cao hơn.
 
 ---
 

@@ -39,11 +39,11 @@ Ta chỉ cần nhớ **hợp đồng (contract)** sau, KHÔNG cần biết bên 
 
 | Thao tác | Code Go | Chi phí trung bình | Chi phí xấu nhất |
 |----------|---------|:---:|:---:|
-| Thêm / cập nhật | \`m[k] = v\` | O(1) | O(n) (collision dồn) |
-| Tra cứu | \`v, ok := m[k]\` | O(1) | O(n) |
-| Xóa | \`delete(m, k)\` | O(1) | O(n) |
-| Kiểm tra tồn tại | \`_, ok := m[k]\` | O(1) | O(n) |
-| Số phần tử | \`len(m)\` | O(1) | O(1) |
+| Thêm / cập nhật | \`m[k] = v\` | $O(1)$ | $O(n)$ (collision dồn) |
+| Tra cứu | \`v, ok := m[k]\` | $O(1)$ | $O(n)$ |
+| Xóa | \`delete(m, k)\` | $O(1)$ | $O(n)$ |
+| Kiểm tra tồn tại | \`_, ok := m[k]\` | $O(1)$ | $O(n)$ |
+| Số phần tử | \`len(m)\` | $O(1)$ | $O(1)$ |
 
 **"Xấu nhất O(n)"** chỉ xảy ra khi mọi key đụng độ (collision) vào cùng một bucket — cực hiếm với hàm
 băm tốt như của Go runtime. Trong phân tích thuật toán ta dùng **trung bình O(1)** (xem chi tiết lý do

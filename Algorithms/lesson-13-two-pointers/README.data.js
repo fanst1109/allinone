@@ -45,11 +45,11 @@ func twoSumBrute(a []int, target int) (int, int) {
 }
 \`\`\`
 
-Với \`n = 4\` cặp phải thử là \`C(4,2) = 6\`. Với \`n = 1.000.000\` thì là \`~5·10¹¹\` phép — không chạy nổi.
+Với $n = 4$ cặp phải thử là $C(4,2) = 6$. Với $n = 1.000.000$ thì là $\\approx 5 \\cdot 10^{11}$ phép — không chạy nổi.
 
 ### 1.2 Trực giác hai con trỏ
 
-> **💡 Trực giác / Hình dung.** Tưởng tượng bạn đứng hai đầu một hàng người **đã xếp theo chiều cao** và muốn tìm hai người có tổng chiều cao đúng bằng \`T\`. Bạn nhìn người **thấp nhất** (đầu trái) và **cao nhất** (đầu phải). Nếu tổng **quá lớn** → chắc chắn không cần người cao nhất nữa (vì ghép với ai cũng thừa) → bỏ người phải, lùi vào. Nếu tổng **quá nhỏ** → bỏ người thấp nhất, tiến từ trái. Mỗi bước **loại hẳn một người**, nên chỉ cần \`n\` bước thay vì \`n²\`.
+> **💡 Trực giác / Hình dung.** Tưởng tượng bạn đứng hai đầu một hàng người **đã xếp theo chiều cao** và muốn tìm hai người có tổng chiều cao đúng bằng $T$. Bạn nhìn người **thấp nhất** (đầu trái) và **cao nhất** (đầu phải). Nếu tổng **quá lớn** → chắc chắn không cần người cao nhất nữa (vì ghép với ai cũng thừa) → bỏ người phải, lùi vào. Nếu tổng **quá nhỏ** → bỏ người thấp nhất, tiến từ trái. Mỗi bước **loại hẳn một người**, nên chỉ cần $n$ bước thay vì $n^2$.
 
 Điều kỳ diệu nằm ở chữ **"đã xếp"**: vì mảng sorted, mỗi lần so sánh ta biết chắc nên dịch trái hay dịch phải, không bao giờ phải quay lại. Đây là cốt lõi: **two pointers loại bỏ vùng tìm kiếm một cách đơn điệu (monotonic)**, mỗi phần tử được "thăm" tối đa một lần.
 
@@ -189,7 +189,7 @@ func min(a, b int) int { if a < b { return a }; return b }
 | 7 | 1 | 3 | 8 | 2 | 2 | 2 | 4  | 49 | \`r--\` |
 | 8 | 1 | 2 | 8 | 6 | 6 | 1 | 6  | 49 | \`r--\` → \`l==r\` dừng |
 
-Kết quả **best = 49** (giữa thanh chỉ số 1 cao 8 và chỉ số 8 cao 7: \`7 × 7 = 49\`). Brute-force phải thử \`C(9,2)=36\` cặp; two pointers chỉ 8 bước.
+Kết quả **best = 49** (giữa thanh chỉ số 1 cao 8 và chỉ số 8 cao 7: $7 \\times 7 = 49$). Brute-force phải thử $C(9,2)=36$ cặp; two pointers chỉ 8 bước.
 
 > **⚠ Lỗi thường gặp.** Dịch nhầm con trỏ ở thanh **cao hơn** thì có thể bỏ sót nghiệm. Phải luôn dịch con trỏ ở thanh **thấp hơn** — đó là cái duy nhất có cơ hội cải thiện diện tích.
 
@@ -354,7 +354,7 @@ Sau khi \`slow\` và \`fast\` gặp nhau, có một mẹo toán học đẹp: **
 > - \`b\` = khoảng cách từ điểm bắt đầu cycle tới điểm gặp (theo chiều đi).
 > - \`c\` = phần còn lại của vòng (\`b + c = C\`, chu vi cycle).
 >
-> Khi gặp nhau: \`slow\` đã đi \`a + b\`; \`fast\` đã đi \`a + b + k·C\` (đi thêm \`k\` vòng). Vì \`fast\` đi gấp đôi: \`2(a+b) = a + b + k·C\` → \`a + b = k·C\` → **\`a = k·C − b = (k−1)·C + (C − b) = (k−1)·C + c\`**.
+> Khi gặp nhau: \`slow\` đã đi $a + b$; \`fast\` đã đi $a + b + k \\cdot C$ (đi thêm $k$ vòng). Vì \`fast\` đi gấp đôi: $2(a+b) = a + b + k \\cdot C$ → $a + b = k \\cdot C$ → **$a = k \\cdot C - b = (k-1) \\cdot C + (C - b) = (k-1) \\cdot C + c$**.
 >
 > Nghĩa là: đi từ \`head\` \`a\` bước **đồng nghĩa** với đi từ điểm gặp \`c\` bước (cộng vài vòng nguyên). Vậy đặt một con trỏ ở \`head\`, một ở điểm gặp, cùng đi 1 bước/lần → chúng gặp đúng tại **điểm bắt đầu cycle**.
 
@@ -405,10 +405,10 @@ Vd list \`1→2→3→4→5\` (lẻ): khi \`fast\` đi 1→3→5 (chạm cuối)
 > <details><summary>Đáp án</summary>
 >
 > 1. Vì \`fast\` nhảy 2 bước (\`fast.Next.Next\`). Nếu \`fast.Next == nil\` mà ta vẫn truy cập \`fast.Next.Next\` → nil panic. Cần đảm bảo cả \`fast\` lẫn \`fast.Next\` không nil trước khi nhảy.
-> 2. Đặt một con trỏ về \`head\`, giữ con trỏ kia ở **điểm gặp**, cùng đi 1 bước/lần — chúng gặp tại điểm bắt đầu cycle (vì \`a = (k−1)·C + c\`).
+> 2. Đặt một con trỏ về \`head\`, giữ con trỏ kia ở **điểm gặp**, cùng đi 1 bước/lần — chúng gặp tại điểm bắt đầu cycle (vì $a = (k-1) \\cdot C + c$).
 > </details>
 
-> **📝 Tóm tắt mục 4.** Fast-slow: \`slow += 1\`, \`fast += 2\`. Gặp nhau → có cycle; \`fast\` chạm \`nil\` → không. Mẹo \`a = k·C − b\` cho phép tìm điểm bắt đầu cycle. Cùng kỹ thuật còn tìm được **middle**. Luôn null-check \`fast\` và \`fast.Next\`.
+> **📝 Tóm tắt mục 4.** Fast-slow: \`slow += 1\`, \`fast += 2\`. Gặp nhau → có cycle; \`fast\` chạm \`nil\` → không. Mẹo $a = k \\cdot C - b$ cho phép tìm điểm bắt đầu cycle. Cùng kỹ thuật còn tìm được **middle**. Luôn null-check \`fast\` và \`fast.Next\`.
 
 ---
 

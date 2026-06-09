@@ -94,7 +94,7 @@ Bucket[2]: → null
 
 Không có list ngoài. Khi collision, **tìm slot trống kế tiếp** theo probe sequence.
 
-**Linear Probing**: \`probe(k, i) = (h(k) + i) mod m\`
+**Linear Probing**: $\\text{probe}(k, i) = (h(k) + i) \\bmod m$
 
 Insert \`{22, 15, 8}\` vào table size 7:
 \`\`\`
@@ -111,9 +111,9 @@ Value: [  ][22 ][15 ][ 8 ][ ][ ][ ]
 
 ⚠ **Primary clustering**: linear probing tạo cụm (cluster) dài → probe sequence tăng theo cụm. Với α cao, insert/lookup chậm hơn nhiều.
 
-**Quadratic Probing**: \`probe(k, i) = (h(k) + i²) mod m\` — giảm clustering nhưng không cover hết table nếu m không phải prime.
+**Quadratic Probing**: $\\text{probe}(k, i) = (h(k) + i^2) \\bmod m$ — giảm clustering nhưng không cover hết table nếu m không phải prime.
 
-**Double Hashing**: \`probe(k, i) = (h₁(k) + i × h₂(k)) mod m\` — phân tán tốt nhất, ít clustering. h₂ thường là \`h₂(k) = q − (k mod q)\` với q là số nguyên tố < m.
+**Double Hashing**: $\\text{probe}(k, i) = (h_1(k) + i \\times h_2(k)) \\bmod m$ — phân tán tốt nhất, ít clustering. $h_2$ thường là $h_2(k) = q - (k \\bmod q)$ với q là số nguyên tố < m.
 
 ### 3.3. So sánh
 
@@ -137,8 +137,8 @@ Value: [  ][22 ][15 ][ 8 ][ ][ ][ ]
 
 **Open addressing**:
 - Cần α < 1 (không thể có nhiều key hơn slot).
-- Expected probes for successful search ≈ \`½ × (1 + 1/(1−α))\`.
-- Expected probes for unsuccessful ≈ \`½ × (1 + 1/(1−α)²)\`.
+- Expected probes for successful search $\\approx \\frac{1}{2}\\left(1 + \\frac{1}{1-\\alpha}\\right)$.
+- Expected probes for unsuccessful $\\approx \\frac{1}{2}\\left(1 + \\frac{1}{(1-\\alpha)^2}\\right)$.
 
 **Ví dụ số**: m=10, n=8 → α = 0.8:
 - Successful lookup: ≈ 3.0 probes.
@@ -301,7 +301,7 @@ Bảng: \`[13, 6, 48, _, _, 5, 27]\` (index 0–6)
 
 Khi α tăng:
 - **Chaining**: average chain length = α → lookup từ O(1) → O(α). Với 1M keys và m=100 buckets, chain length ~10,000 → effectively O(n).
-- **Open addressing**: expected probes ≈ \`½(1+1/(1−α)²)\`. Khi α→1, probes → ∞.
+- **Open addressing**: expected probes $\\approx \\frac{1}{2}\\left(1 + \\frac{1}{(1-\\alpha)^2}\\right)$. Khi α→1, probes → ∞.
 
 Nếu không resize:
 - Performance giảm từ O(1) → O(n).

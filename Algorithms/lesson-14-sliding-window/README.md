@@ -1,6 +1,6 @@
 # Lesson 14 — Sliding Window (Cửa sổ trượt)
 
-> **Tier 2 — Tìm kiếm & kỹ thuật cốt lõi.** Kỹ thuật biến nhiều bài toán về **đoạn con liên tục** (contiguous subarray/substring) từ `O(n²)` hoặc `O(n³)` xuống `O(n)`, bằng cách **tái dùng** kết quả của cửa sổ trước thay vì tính lại từ đầu.
+> **Tier 2 — Tìm kiếm & kỹ thuật cốt lõi.** Kỹ thuật biến nhiều bài toán về **đoạn con liên tục** (contiguous subarray/substring) từ $O(n^2)$ hoặc $O(n^3)$ xuống $O(n)$, bằng cách **tái dùng** kết quả của cửa sổ trước thay vì tính lại từ đầu.
 
 ---
 
@@ -8,17 +8,17 @@
 
 Sau bài này bạn sẽ:
 
-1. Hiểu **ý tưởng cốt lõi** của sliding window: vì sao tái dùng kết quả lại cho `O(n)`.
-2. Phân biệt **fixed window** (kích thước `k` cố định) và **variable window** (co giãn theo điều kiện).
+1. Hiểu **ý tưởng cốt lõi** của sliding window: vì sao tái dùng kết quả lại cho $O(n)$.
+2. Phân biệt **fixed window** (kích thước $k$ cố định) và **variable window** (co giãn theo điều kiện).
 3. Thuộc **template chuẩn**: mở rộng `r`, thu nhỏ `l` khi vi phạm, cập nhật đáp án.
-4. Giải được 4 bài kinh điển: longest substring no-repeat, minimum window substring, max sum size `k`, longest subarray sum ≤ target.
+4. Giải được 4 bài kinh điển: longest substring no-repeat, minimum window substring, max sum size $k$, longest subarray sum ≤ target.
 5. Nhận ra **khi nào KHÔNG dùng được** sliding window (điều kiện không monotonic).
-6. Hiểu **sliding window maximum** dùng **deque đơn điệu** (monotonic deque) cho `O(n)`.
+6. Hiểu **sliding window maximum** dùng **deque đơn điệu** (monotonic deque) cho $O(n)$.
 
 ## Kiến thức tiền đề
 
-- **Big-O & phân tích tiệm cận** — [Lesson 01](../lesson-01-bigo-asymptotic/). Cần để hiểu vì sao `O(n)` thắng `O(n·k)`.
-- **Amortized analysis** — [Lesson 02](../lesson-02-amortized-analysis/). Mỗi phần tử vào/ra window đúng 1 lần → tổng `O(n)` dù vòng `while` lồng trong `for`.
+- **Big-O & phân tích tiệm cận** — [Lesson 01](../lesson-01-bigo-asymptotic/). Cần để hiểu vì sao $O(n)$ thắng $O(n \cdot k)$.
+- **Amortized analysis** — [Lesson 02](../lesson-02-amortized-analysis/). Mỗi phần tử vào/ra window đúng 1 lần → tổng $O(n)$ dù vòng `while` lồng trong `for`.
 - **Two pointers** — [Lesson 13](../lesson-13-two-pointers/). Sliding window là một dạng đặc biệt của two pointers (hai con trỏ **cùng chiều**).
 - Quen với **hash map** (`map[byte]int`) và **slice** trong Go.
 
@@ -32,7 +32,7 @@ Sau bài này bạn sẽ:
 
 Đoạn con liên tục độ dài 3 gồm: `[2,1,5]=8`, `[1,5,1]=7`, `[5,1,3]=9`, `[1,3,2]=6`. Đáp án là **9**.
 
-**Cách ngây thơ (brute-force):** với mỗi vị trí bắt đầu `i`, cộng `k` phần tử. Có `n−k+1` vị trí, mỗi vị trí cộng `k` số → `O(n·k)`. Với `k ≈ n/2` thì đây là `O(n²)`.
+**Cách ngây thơ (brute-force):** với mỗi vị trí bắt đầu `i`, cộng $k$ phần tử. Có $n-k+1$ vị trí, mỗi vị trí cộng $k$ số → $O(n \cdot k)$. Với $k \approx n/2$ thì đây là $O(n^2)$.
 
 > 💡 **Trực giác / Hình dung.** Hãy tưởng tượng bạn cầm một khung cửa sổ rộng đúng 3 ô, đặt lên mảng. Khi **trượt khung sang phải 1 ô**: một phần tử **rơi ra** ở mép trái, một phần tử mới **lọt vào** ở mép phải. Phần ở giữa (`k−2` phần tử) **không đổi**. Vậy tại sao phải cộng lại toàn bộ? Chỉ cần lấy tổng cũ, **trừ phần rơi ra, cộng phần lọt vào**:
 >
@@ -40,7 +40,7 @@ Sau bài này bạn sẽ:
 > sum_mới = sum_cũ − nums[trái] + nums[phải_mới]
 > ```
 >
-> Mỗi lần trượt chỉ tốn `O(1)` thay vì `O(k)`. Trượt `n` lần → `O(n)`.
+> Mỗi lần trượt chỉ tốn $O(1)$ thay vì $O(k)$. Trượt $n$ lần → $O(n)$.
 
 ### 1.2 Walk-through số cụ thể
 
@@ -53,20 +53,20 @@ Trượt window `k=3` trên `[2, 1, 5, 1, 3, 2]`:
 | Trượt → 2 | `[5,1,3]` | `7 − 1 + 3` | 9 | **9** |
 | Trượt → 3 | `[1,3,2]` | `9 − 5 + 2` | 6 | 9 |
 
-Tổng số phép cộng/trừ: 2 (khởi tạo) + 3×2 = 8, thay vì brute-force `4×3 = 12`. Với `n` lớn khác biệt thành `O(n)` vs `O(n²)`.
+Tổng số phép cộng/trừ: 2 (khởi tạo) + 3×2 = 8, thay vì brute-force $4 \times 3 = 12$. Với $n$ lớn khác biệt thành $O(n)$ vs $O(n^2)$.
 
 ### 1.3 So sánh độ phức tạp bằng số thật
 
 Để thấy "tái dùng" tiết kiệm bao nhiêu, đếm số phép cộng cho cả hai cách với `k = n/2`:
 
-| `n` | `k=n/2` | Brute-force `(n−k+1)·k` | Sliding window `≈ 2n` | Tỉ lệ tiết kiệm |
+| $n$ | $k=n/2$ | Brute-force $(n-k+1) \cdot k$ | Sliding window $\approx 2n$ | Tỉ lệ tiết kiệm |
 |----:|--------:|------------------------:|----------------------:|----------------:|
-| 10 | 5 | `6 × 5 = 30` | `20` | 1.5× |
-| 100 | 50 | `51 × 50 = 2 550` | `200` | ~13× |
-| 1 000 | 500 | `501 × 500 = 250 500` | `2 000` | ~125× |
-| 1 000 000 | 500 000 | `~2.5 × 10¹¹` | `2 000 000` | ~125 000× |
+| 10 | 5 | $6 \times 5 = 30$ | $20$ | 1.5× |
+| 100 | 50 | $51 \times 50 = 2\,550$ | $200$ | ~13× |
+| 1 000 | 500 | $501 \times 500 = 250\,500$ | $2\,000$ | ~125× |
+| 1 000 000 | 500 000 | $\approx 2.5 \times 10^{11}$ | $2\,000\,000$ | ~125 000× |
 
-Khoảng cách càng lớn khi `n` tăng — đây là khác biệt `O(n²)` vs `O(n)` thể hiện bằng con số.
+Khoảng cách càng lớn khi $n$ tăng — đây là khác biệt $O(n^2)$ vs $O(n)$ thể hiện bằng con số.
 
 ### 1.4 Ba "trục" phân loại bài toán sliding window
 
@@ -90,7 +90,7 @@ Ba câu hỏi cần trả lời trước khi code mọi bài:
 
 > 🔁 **Dừng lại tự kiểm tra.** Với `nums=[4,2,1,7,8,1,2,8,1,0]`, `k=2`, sum max bằng bao nhiêu?
 > <details><summary>Đáp án</summary>
-> Các tổng: `6,3,8,15,9,3,10,9,1`. Max = **15** (cặp `[7,8]`). Trượt: khởi tạo `4+2=6`; rồi `6−4+1=3`; `3−2+7=8`; `8−1+8=15`; ... mỗi bước `O(1)`.
+> Các tổng: `6,3,8,15,9,3,10,9,1`. Max = **15** (cặp `[7,8]`). Trượt: khởi tạo $4+2=6$; rồi $6-4+1=3$; $3-2+7=8$; $8-1+8=15$; ... mỗi bước $O(1)$.
 > </details>
 
 ---
@@ -150,13 +150,13 @@ Chỉ là `maxSumK` nhưng lưu cả mảng `windowSum/k`. Vd `[1,3,2,6,-1,4,1,8
 - Window đầu `[1,3,2,6,-1]` sum = 11 → avg 2.2.
 - `r=5`: sum `11 + 4 − 1 = 14` → avg 2.8.
 - `r=6`: sum `14 + 1 − 3 = 12` → avg 2.4.
-- ... mỗi bước `O(1)`.
+- ... mỗi bước $O(1)$.
 
 > ⚠ **Lỗi thường gặp.**
 > - **Off-by-one chỉ số rơi ra.** Phần tử rơi ra khi `r` lọt vào là `nums[r−k]`, **không** phải `nums[r−k−1]` hay `nums[r−k+1]`. Kiểm chứng: khi `r=k`, window mới là `[1..k]`, phần rơi ra là `nums[0] = nums[k−k]` ✓.
 > - **Quên warm-up.** Nếu vào thẳng vòng trượt từ `r=0` mà chưa cộng `k` phần tử đầu, công thức `nums[r−k]` truy cập chỉ số âm.
 
-> 📝 **Tóm tắt §2.** Fixed window: warm-up `k` phần tử → trượt, mỗi bước cập nhật `O(1)` bằng `+nums[r] −nums[r−k]`. Tổng `O(n)`, bộ nhớ `O(1)`.
+> 📝 **Tóm tắt §2.** Fixed window: warm-up $k$ phần tử → trượt, mỗi bước cập nhật $O(1)$ bằng `+nums[r] −nums[r−k]`. Tổng $O(n)$, bộ nhớ $O(1)$.
 
 ---
 
@@ -164,7 +164,7 @@ Chỉ là `maxSumK` nhưng lưu cả mảng `windowSum/k`. Vd `[1,3,2,6,-1,4,1,8
 
 Nhiều bài không cho sẵn `k` mà hỏi *"đoạn con DÀI NHẤT / NGẮN NHẤT thỏa điều kiện X"*. Khi đó cửa sổ **co giãn**.
 
-> 💡 **Trực giác / Hình dung.** Tưởng tượng một con sâu đo: **đầu (`r`) bò tới** ăn thêm phần tử mới (mở rộng window). Nếu ăn quá no đến mức vi phạm điều kiện, **đuôi (`l`) co lại** nhả bớt phần tử ở mép trái cho tới khi hợp lệ trở lại. Cả hai đầu **chỉ tiến về phải, không bao giờ lùi** — đó là chìa khóa cho `O(n)`.
+> 💡 **Trực giác / Hình dung.** Tưởng tượng một con sâu đo: **đầu (`r`) bò tới** ăn thêm phần tử mới (mở rộng window). Nếu ăn quá no đến mức vi phạm điều kiện, **đuôi (`l`) co lại** nhả bớt phần tử ở mép trái cho tới khi hợp lệ trở lại. Cả hai đầu **chỉ tiến về phải, không bao giờ lùi** — đó là chìa khóa cho $O(n)$.
 
 ### 3.1 Pattern chung
 
@@ -182,13 +182,13 @@ for r := 0; r < n; r++ {
 
 ### 3.2 Vì sao vẫn là `O(n)` dù có `while` lồng trong `for`?
 
-> ❓ **Câu hỏi tự nhiên.** *"For trong while trông như `O(n²)` — sao lại `O(n)`?"*
+> ❓ **Câu hỏi tự nhiên.** *"For trong while trông như $O(n^2)$ — sao lại $O(n)$?"*
 >
-> Vì `l` **chỉ tăng**, không bao giờ giảm. Trong toàn bộ chạy, `l` đi từ `0` tới `n` — tức tổng số lần thực thi thân `while` (trên TẤT CẢ các vòng `for`) tối đa là `n`. Cộng với `n` lần vòng `for` → tổng `2n` thao tác = `O(n)`. Đây chính là **amortized analysis** ([Lesson 02](../lesson-02-amortized-analysis/)): mỗi phần tử vào window 1 lần (`r++`) và ra khỏi window tối đa 1 lần (`l++`).
+> Vì `l` **chỉ tăng**, không bao giờ giảm. Trong toàn bộ chạy, `l` đi từ $0$ tới $n$ — tức tổng số lần thực thi thân `while` (trên TẤT CẢ các vòng `for`) tối đa là $n$. Cộng với $n$ lần vòng `for` → tổng $2n$ thao tác = $O(n)$. Đây chính là **amortized analysis** ([Lesson 02](../lesson-02-amortized-analysis/)): mỗi phần tử vào window 1 lần (`r++`) và ra khỏi window tối đa 1 lần (`l++`).
 
 > 🔁 **Dừng lại tự kiểm tra.** Nếu thay `l++` bằng `l = 0` (reset về đầu mỗi lần shrink), độ phức tạp đổi thành gì?
 > <details><summary>Đáp án</summary>
-> Thành `O(n²)` (tệ hơn). Reset `l` phá vỡ tính chất "mỗi phần tử ra khỏi window ≤ 1 lần". Đây là lỗi phổ biến biến sliding window thành brute-force.
+> Thành $O(n^2)$ (tệ hơn). Reset `l` phá vỡ tính chất "mỗi phần tử ra khỏi window ≤ 1 lần". Đây là lỗi phổ biến biến sliding window thành brute-force.
 > </details>
 
 ---
@@ -387,7 +387,7 @@ Trả về **4** (`[4,2,1,1]`) ✓.
 
 > ⚠ **Lỗi thường gặp — điều kiện không monotonic.** Kỹ thuật co-trái này **chỉ đúng với số không âm**. Nếu có số âm, mở rộng window **không** làm tổng tăng đơn điệu (thêm một số âm có thể GIẢM tổng), nên "co trái để hạ tổng" mất ý nghĩa. Bài "longest subarray sum ≤ k" với số âm phải dùng **prefix sum + cấu trúc dữ liệu** ([Lesson 15](../lesson-15-prefix-sum-difference/)), không phải sliding window.
 
-> 📝 **Tóm tắt §5.** No-repeat: map vị trí cuối + nhảy `l`. Min window: `need` map + `missing`, co trái khi đủ. Sum ≤ target: co trái khi tràn (chỉ số không âm). Mọi bài đều `O(n)` nhờ `l` chỉ tiến.
+> 📝 **Tóm tắt §5.** No-repeat: map vị trí cuối + nhảy `l`. Min window: `need` map + `missing`, co trái khi đủ. Sum ≤ target: co trái khi tràn (chỉ số không âm). Mọi bài đều $O(n)$ nhờ `l` chỉ tiến.
 
 ---
 
@@ -418,7 +418,7 @@ Sliding window áp dụng được khi **CẢ HAI** điều sau đúng:
 | Ví dụ | two-sum sorted, reverse, palindrome | longest no-repeat, min window |
 | Bất biến | `nums[l]+nums[r]` so target | window `[l..r]` thỏa/vi phạm điều kiện |
 
-Cả hai cùng đạt `O(n)` nhờ mỗi con trỏ duyệt mảng **một lần**. Xem chi tiết two-pointer ở [Lesson 13](../lesson-13-two-pointers/).
+Cả hai cùng đạt $O(n)$ nhờ mỗi con trỏ duyệt mảng **một lần**. Xem chi tiết two-pointer ở [Lesson 13](../lesson-13-two-pointers/).
 
 ---
 
@@ -480,7 +480,7 @@ func maxSlidingWindow(nums []int, k int) []int {
 
 Output `[3,3,5,5,6,7]` ✓.
 
-> ❓ **Câu hỏi tự nhiên.** *"Sao lại `O(n)` khi có `for` lồng `for`?"* — Mỗi chỉ số được `append` vào `dq` đúng **một lần** và bị xóa khỏi `dq` tối đa **một lần**. Tổng số thao tác push+pop ≤ `2n` → `O(n)` amortized (lại là [Lesson 02](../lesson-02-amortized-analysis/)).
+> ❓ **Câu hỏi tự nhiên.** *"Sao lại $O(n)$ khi có `for` lồng `for`?"* — Mỗi chỉ số được `append` vào `dq` đúng **một lần** và bị xóa khỏi `dq` tối đa **một lần**. Tổng số thao tác push+pop ≤ $2n$ → $O(n)$ amortized (lại là [Lesson 02](../lesson-02-amortized-analysis/)).
 
 > ⚠ **Lỗi thường gặp.** Lưu **giá trị** thay vì **chỉ số** trong deque → không biết phần tử front đã trôi ra ngoài window chưa (bước 2 cần so chỉ số với `r-k`). Luôn lưu chỉ số.
 
@@ -495,7 +495,7 @@ Output `[3,3,5,5,6,7]` ✓.
 
 Đối xứng hoàn toàn: giữ deque **tăng dần** (front = min), khi push bỏ các back **lớn hơn hoặc bằng** giá trị mới. Đổi đúng một dấu so sánh `<=` thành `>=` trong code §8.2. Vd `nums=[1,3,-1,-3,5,3,6,7]`, `k=3` → min mỗi window `[-1,-3,-3,-3,3,3]`.
 
-> 📝 **Tóm tắt §8.** Sliding window maximum dùng **deque đơn điệu giảm dần**: front = max. Push bỏ back nhỏ hơn, bỏ front trôi ra ngoài. `O(n)` thời gian, `O(k)` bộ nhớ. Min đối xứng (đảo dấu so sánh).
+> 📝 **Tóm tắt §8.** Sliding window maximum dùng **deque đơn điệu giảm dần**: front = max. Push bỏ back nhỏ hơn, bỏ front trôi ra ngoài. $O(n)$ thời gian, $O(k)$ bộ nhớ. Min đối xứng (đảo dấu so sánh).
 
 ---
 
@@ -503,16 +503,16 @@ Output `[3,3,5,5,6,7]` ✓.
 
 | Bài toán | Kỹ thuật | Thời gian | Bộ nhớ |
 |----------|----------|:---------:|:------:|
-| Max sum size `k` (§2.1) | fixed window, biến `sum` | `O(n)` | `O(1)` |
-| Average size `k` (§2.2) | fixed window | `O(n)` | `O(n)` (lưu kết quả) |
-| Longest no-repeat (§5.1) | variable + map vị trí | `O(n)` | `O(min(n,Σ))` |
-| Minimum window substring (§5.2) | variable + `need`/`missing` | `O(|s|+|t|)` | `O(|t|)` |
-| Longest sum ≤ target, ≥0 (§5.4) | variable + biến `sum` | `O(n)` | `O(1)` |
-| Fruit baskets ≤2 loại (Bài 5) | variable + map `count` | `O(n)` | `O(1)` (map ≤3) |
-| Sliding window maximum (§8) | deque đơn điệu | `O(n)` | `O(k)` |
-| Longest sum = `k`, có âm (Bài 4) | **prefix sum + hash** (KHÔNG sliding window) | `O(n)` | `O(n)` |
+| Max sum size $k$ (§2.1) | fixed window, biến `sum` | $O(n)$ | $O(1)$ |
+| Average size $k$ (§2.2) | fixed window | $O(n)$ | $O(n)$ (lưu kết quả) |
+| Longest no-repeat (§5.1) | variable + map vị trí | $O(n)$ | $O(\min(n,\Sigma))$ |
+| Minimum window substring (§5.2) | variable + `need`/`missing` | $O(|s|+|t|)$ | $O(|t|)$ |
+| Longest sum ≤ target, ≥0 (§5.4) | variable + biến `sum` | $O(n)$ | $O(1)$ |
+| Fruit baskets ≤2 loại (Bài 5) | variable + map `count` | $O(n)$ | $O(1)$ (map ≤3) |
+| Sliding window maximum (§8) | deque đơn điệu | $O(n)$ | $O(k)$ |
+| Longest sum = $k$, có âm (Bài 4) | **prefix sum + hash** (KHÔNG sliding window) | $O(n)$ | $O(n)$ |
 
-Điểm chung của mọi biến thể sliding window: mỗi phần tử **vào** vùng làm việc 1 lần và **ra** tối đa 1 lần → tổng `O(n)` amortized, bất kể trông như có vòng lặp lồng nhau.
+Điểm chung của mọi biến thể sliding window: mỗi phần tử **vào** vùng làm việc 1 lần và **ra** tối đa 1 lần → tổng $O(n)$ amortized, bất kể trông như có vòng lặp lồng nhau.
 
 ---
 
@@ -524,7 +524,7 @@ Output `[3,3,5,5,6,7]` ✓.
 | 2 | **Điều kiện shrink sai** (vd dùng `if` thay `while`) | Co không đủ → window còn vi phạm | Dùng `for/while` để co tới khi hợp lệ |
 | 3 | **Window không monotonic** (tổng có số âm) | Co trái không hạ được điều kiện | Nhận diện ở §6; chuyển sang prefix sum (L15) |
 | 4 | **Off-by-one kích thước window** | Lệch 1 phần tử | Độ dài = `r − l + 1`; phần rơi ra fixed = `nums[r−k]` |
-| 5 | **Reset `l` về 0 khi shrink** | `O(n²)` thay vì `O(n)` | `l` chỉ `++`, không bao giờ lùi/reset |
+| 5 | **Reset `l` về 0 khi shrink** | $O(n^2)$ thay vì $O(n)$ | `l` chỉ `++`, không bao giờ lùi/reset |
 | 6 | **Cập nhật `best` sai chỗ** | "longest" cập nhật trong shrink, "shortest" cập nhật ngoài → sai | longest: ngoài vòng shrink; shortest: trong vòng shrink |
 | 7 | **Deque lưu giá trị thay vì chỉ số** | Không biết front đã hết hạn | Lưu chỉ số, so `dq[0] <= r-k` |
 
@@ -539,12 +539,12 @@ Output `[3,3,5,5,6,7]` ✓.
 
 > Làm trước khi xem lời giải. Mỗi bài ghi rõ độ phức tạp mục tiêu.
 
-1. **Max sum size k.** Cho `nums=[2,3,4,1,5]`, `k=2`. Tìm tổng lớn nhất của đoạn con liên tục dài 2. Mục tiêu `O(n)`.
-2. **Longest substring no repeat.** Cho `s="pwwkew"`. Tìm độ dài đoạn con không lặp dài nhất. `O(n)`.
-3. **Minimum window substring.** Cho `s="a"`, `t="aa"`. Trả về đoạn con ngắn nhất của `s` chứa đủ `t`. `O(|s|+|t|)`.
-4. **Longest subarray sum = k (số nguyên, có âm).** Cho `nums=[1,-1,5,-2,3]`, `k=3`. Tìm đoạn con liên tục **dài nhất** có tổng **đúng bằng** `k`. (Gợi ý: vì sao sliding window **không** dùng được? Dùng prefix sum + hash.) `O(n)`.
-5. **Fruit into baskets.** Cho mảng loại cây `fruits` (mỗi số là một loại), hái liên tục nhưng giỏ chỉ chứa **tối đa 2 loại**. Tìm số cây hái được nhiều nhất = đoạn con dài nhất có ≤ 2 loại khác nhau. Vd `[1,2,1,2,3,2,2]` → 4 (`[2,1,2,...]`? kiểm tra). `O(n)`.
-6. **Sliding window maximum.** Cho `nums=[9,11,8,5,7,10]`, `k=3`. Trả về max mỗi window. `O(n)` dùng deque.
+1. **Max sum size k.** Cho `nums=[2,3,4,1,5]`, `k=2`. Tìm tổng lớn nhất của đoạn con liên tục dài 2. Mục tiêu $O(n)$.
+2. **Longest substring no repeat.** Cho `s="pwwkew"`. Tìm độ dài đoạn con không lặp dài nhất. $O(n)$.
+3. **Minimum window substring.** Cho `s="a"`, `t="aa"`. Trả về đoạn con ngắn nhất của `s` chứa đủ `t`. $O(|s|+|t|)$.
+4. **Longest subarray sum = k (số nguyên, có âm).** Cho `nums=[1,-1,5,-2,3]`, `k=3`. Tìm đoạn con liên tục **dài nhất** có tổng **đúng bằng** `k`. (Gợi ý: vì sao sliding window **không** dùng được? Dùng prefix sum + hash.) $O(n)$.
+5. **Fruit into baskets.** Cho mảng loại cây `fruits` (mỗi số là một loại), hái liên tục nhưng giỏ chỉ chứa **tối đa 2 loại**. Tìm số cây hái được nhiều nhất = đoạn con dài nhất có ≤ 2 loại khác nhau. Vd `[1,2,1,2,3,2,2]` → 4 (`[2,1,2,...]`? kiểm tra). $O(n)$.
+6. **Sliding window maximum.** Cho `nums=[9,11,8,5,7,10]`, `k=3`. Trả về max mỗi window. $O(n)$ dùng deque.
 
 ---
 
@@ -558,7 +558,7 @@ Output `[3,3,5,5,6,7]` ✓.
 func solve1() int { return maxSumK([]int{2, 3, 4, 1, 5}, 2) }
 ```
 
-**Walk-through:** warm-up `2+3=5`, best 5. `r=2`: `5+4−2=7`, best 7. `r=3`: `7+1−3=5`. `r=4`: `5+5−4=6`. Đáp án **7** (`[3,4]`). **Big-O:** `O(n)` thời gian, `O(1)` bộ nhớ.
+**Walk-through:** warm-up $2+3=5$, best 5. `r=2`: $5+4-2=7$, best 7. `r=3`: $7+1-3=5$. `r=4`: $5+5-4=6$. Đáp án **7** (`[3,4]`). **Big-O:** $O(n)$ thời gian, $O(1)$ bộ nhớ.
 
 ### Bài 2 — Longest substring no repeat
 
@@ -575,7 +575,7 @@ func solve1() int { return maxSumK([]int{2, 3, 4, 1, 5}, 2) }
 | 4 | e | 2 | `wke` | 3 |
 | 5 | w | 3 (`last[w]=2≥2`→l=3) | `kew` | 3 |
 
-Đáp án **3** (`"wke"` hoặc `"kew"`). **Big-O:** `O(n)`.
+Đáp án **3** (`"wke"` hoặc `"kew"`). **Big-O:** $O(n)$.
 
 ### Bài 3 — Minimum window substring (`s="a"`, `t="aa"`)
 
@@ -583,7 +583,7 @@ func solve1() int { return maxSumK([]int{2, 3, 4, 1, 5}, 2) }
 
 **Walk-through:** `r=0` (`a`): `need[a]=2>0`→`missing=1`, `need[a]=1`. Vòng `for missing==0` không vào (missing=1). Hết mảng. `bestLen` vẫn `len(s)+1=2` → trả về `""`. 
 
-Lý do: `s` chỉ có một `a`, không đủ hai `a` mà `t` cần. **Đáp án `""`** ✓. **Big-O:** `O(|s|+|t|)`.
+Lý do: `s` chỉ có một `a`, không đủ hai `a` mà `t` cần. **Đáp án `""`** ✓. **Big-O:** $O(|s|+|t|)$.
 
 ### Bài 4 — Longest subarray sum = k (có số âm) → prefix sum + hash
 
@@ -622,7 +622,7 @@ func longestSubarrayEqualK(nums []int, k int) int {
 - `i=3` v=-2: prefix=3. tìm `3−3=0`? có, `first[0]=−1` → độ dài `3−(−1)=4`. best=**4**. lưu `first[3]=3`.
 - `i=4` v=3: prefix=6. tìm `6−3=3`? có, `first[3]=3` → độ dài `4−3=1`. best vẫn 4. lưu `first[6]=4`.
 
-Đáp án **4** (đoạn `[1,-1,5,-2]` tổng `=3`) ✓. **Big-O:** `O(n)` thời gian, `O(n)` bộ nhớ. Sẽ học kỹ prefix sum ở [Lesson 15](../lesson-15-prefix-sum-difference/).
+Đáp án **4** (đoạn `[1,-1,5,-2]` tổng $=3$) ✓. **Big-O:** $O(n)$ thời gian, $O(n)$ bộ nhớ. Sẽ học kỹ prefix sum ở [Lesson 15](../lesson-15-prefix-sum-difference/).
 
 ### Bài 5 — Fruit into baskets (≤ 2 loại)
 
@@ -666,7 +666,7 @@ Khi `r=4`: count có 3 loại `{1,2,3}`. Co trái: bỏ `fruits[0]=1`→`{1:1,2:
 
 Tiếp `r=5,6` (`2,2`): count `{2:3,3:1}` rồi `{2:4,3:1}`? — không, sau l=3 window từ idx3: `[2,3,2,2]` → count `{2:3,3:1}` 2 loại, dài 4. best = max(4,4)=4. 
 
-Đáp án **4**. **Big-O:** `O(n)` (map ≤ 3 phần tử nên thao tác `O(1)`).
+Đáp án **4**. **Big-O:** $O(n)$ (map ≤ 3 phần tử nên thao tác $O(1)$).
 
 ### Bài 6 — Sliding window maximum (deque)
 
@@ -683,7 +683,7 @@ Tiếp `r=5,6` (`2,2`): count `{2:3,3:1}` rồi `{2:4,3:1}`? — không, sau l=3
 | 4 | 7 | bỏ 5≤7, push; front idx1 ≤ 1? không | `[11,8,7]` | **11** |
 | 5 | 10 | bỏ 7≤10, bỏ 8≤10, push; front idx1 ≤ 2? **có** → bỏ 11 | `[10]` | **10** |
 
-Output `[11,11,11,10]` ✓. **Big-O:** `O(n)` thời gian, `O(k)` bộ nhớ.
+Output `[11,11,11,10]` ✓. **Big-O:** $O(n)$ thời gian, $O(k)$ bộ nhớ.
 
 ---
 
@@ -694,5 +694,5 @@ Output `[11,11,11,10]` ✓. **Big-O:** `O(n)` thời gian, `O(k)` bộ nhớ.
 
 ## Bài tiếp theo
 
-- **[Lesson 15 — Prefix Sum & Difference Array](../lesson-15-prefix-sum-difference/)**: kỹ thuật bổ trợ cho sliding window khi điều kiện **không monotonic** (vd tổng có số âm — Bài 4). Prefix sum cho phép tính tổng đoạn bất kỳ `O(1)` sau tiền xử lý `O(n)`.
+- **[Lesson 15 — Prefix Sum & Difference Array](../lesson-15-prefix-sum-difference/)**: kỹ thuật bổ trợ cho sliding window khi điều kiện **không monotonic** (vd tổng có số âm — Bài 4). Prefix sum cho phép tính tổng đoạn bất kỳ $O(1)$ sau tiền xử lý $O(n)$.
 - Ôn lại **[Lesson 13 — Two Pointers](../lesson-13-two-pointers/)** để thấy sliding window là trường hợp đặc biệt (hai con trỏ cùng chiều).

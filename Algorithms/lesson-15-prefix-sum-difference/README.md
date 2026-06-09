@@ -1,15 +1,15 @@
 # Lesson 15 — Prefix Sum & Difference Array
 
-> **Tier 2 — Tìm kiếm & kỹ thuật cốt lõi.** Kỹ thuật tiền xử lý (precompute) biến truy vấn tổng đoạn từ O(n) mỗi lần xuống O(1) mỗi lần, và biến cập nhật một đoạn từ O(n) xuống O(1).
+> **Tier 2 — Tìm kiếm & kỹ thuật cốt lõi.** Kỹ thuật tiền xử lý (precompute) biến truy vấn tổng đoạn từ $O(n)$ mỗi lần xuống $O(1)$ mỗi lần, và biến cập nhật một đoạn từ $O(n)$ xuống $O(1)$.
 
 ## Mục tiêu học tập
 
 Sau bài này bạn sẽ:
 
-- Hiểu **prefix sum (tổng tiền tố)** 1D: xây mảng `P` để trả lời range sum query trong O(1).
-- Nắm **difference array (mảng hiệu)** — kỹ thuật "ngược" của prefix sum — để cập nhật một đoạn `[l, r]` trong O(1) rồi dựng lại mảng cuối bằng prefix.
+- Hiểu **prefix sum (tổng tiền tố)** 1D: xây mảng `P` để trả lời range sum query trong $O(1)$.
+- Nắm **difference array (mảng hiệu)** — kỹ thuật "ngược" của prefix sum — để cập nhật một đoạn `[l, r]` trong $O(1)$ rồi dựng lại mảng cuối bằng prefix.
 - Mở rộng prefix sum lên **2D** với inclusion-exclusion (bù trừ) để truy vấn tổng vùng chữ nhật.
-- Kết hợp prefix sum với **hash map** đếm subarray có tổng bằng `k`.
+- Kết hợp prefix sum với **hash map** đếm subarray có tổng bằng $k$.
 - Biết các biến thể: **prefix XOR, prefix product, prefix max** và khi nào dùng cái nào.
 - Phân biệt rõ: khi nào dùng prefix/difference (mảng tĩnh, query/update offline) vs khi nào phải nâng cấp lên Fenwick / segment tree (update + query xen kẽ).
 
@@ -17,16 +17,16 @@ Sau bài này bạn sẽ:
 
 - [Lesson 13 — Two Pointers](../lesson-13-two-pointers/) và [Lesson 14 — Sliding Window](../lesson-14-sliding-window/): cũng là kỹ thuật xử lý mảng tuyến tính; sliding window xử lý cửa sổ **liền kề**, còn prefix sum cho phép hỏi **bất kỳ đoạn nào** trong O(1).
 - [Lesson 16 — Hashing](../lesson-16-hashing-techniques/): mục 5 (subarray sum = k) dùng hash map; sẽ học kỹ hash ở Lesson 16.
-- [Lesson 01 — Big-O](../lesson-01-bigo-asymptotic/): để so sánh O(qn) brute-force vs O(n + q) sau precompute.
+- [Lesson 01 — Big-O](../lesson-01-bigo-asymptotic/): để so sánh $O(qn)$ brute-force vs $O(n + q)$ sau precompute.
 - Nếu cần update + query **xen kẽ** real-time → cấu trúc cây: [DataStructures — Fenwick / Segment Tree](../../DataStructures/index.html).
 
 ---
 
 ## 1. Vấn đề: trả lời nhiều range sum query
 
-> **💡 Trực giác.** Hình dung bạn có một dãy doanh thu 365 ngày trong năm. Sếp hỏi liên tục: "tổng doanh thu từ ngày 50 đến 120?", "từ 200 đến 240?"... mỗi câu hỏi nếu cộng lại từ đầu thì tốn công. Thay vào đó bạn ghi sẵn một sổ cái: "tổng dồn từ đầu năm đến hết ngày X". Khi đó tổng đoạn `[l, r]` = (dồn đến `r`) − (dồn đến `l−1`) — chỉ một phép trừ.
+> **💡 Trực giác.** Hình dung bạn có một dãy doanh thu 365 ngày trong năm. Sếp hỏi liên tục: "tổng doanh thu từ ngày 50 đến 120?", "từ 200 đến 240?"... mỗi câu hỏi nếu cộng lại từ đầu thì tốn công. Thay vào đó bạn ghi sẵn một sổ cái: "tổng dồn từ đầu năm đến hết ngày X". Khi đó tổng đoạn `[l, r]` = (dồn đến $r$) − (dồn đến $l-1$) — chỉ một phép trừ.
 
-Cho mảng `a` có `n` phần tử và `q` truy vấn, mỗi truy vấn `(l, r)` hỏi tổng `a[l] + a[l+1] + ... + a[r]`.
+Cho mảng `a` có $n$ phần tử và $q$ truy vấn, mỗi truy vấn `(l, r)` hỏi tổng `a[l] + a[l+1] + ... + a[r]`.
 
 **Cách brute-force**: mỗi query cộng dồn từ `l` đến `r`.
 
@@ -41,25 +41,25 @@ func rangeSumBrute(a []int, l, r int) int {
 }
 ```
 
-Với `n = 10^5` và `q = 10^5`, tổng chi phí `q·n = 10^{10}` phép cộng — quá chậm (vài chục giây).
+Với $n = 10^5$ và $q = 10^5$, tổng chi phí $q \cdot n = 10^{10}$ phép cộng — quá chậm (vài chục giây).
 
-**Ý tưởng tiền xử lý (precompute)**: bỏ một lần O(n) để dựng mảng `P` các tổng tiền tố. Sau đó **mỗi** query chỉ tốn O(1):
+**Ý tưởng tiền xử lý (precompute)**: bỏ một lần $O(n)$ để dựng mảng `P` các tổng tiền tố. Sau đó **mỗi** query chỉ tốn $O(1)$:
 
-| Cách | Tiền xử lý | Mỗi query | Tổng `q` query |
+| Cách | Tiền xử lý | Mỗi query | Tổng $q$ query |
 |------|-----------|-----------|----------------|
-| Brute-force | 0 | O(n) | **O(q·n)** |
-| Prefix sum | O(n) | O(1) | **O(n + q)** |
+| Brute-force | 0 | $O(n)$ | **$O(q \cdot n)$** |
+| Prefix sum | $O(n)$ | $O(1)$ | **$O(n + q)$** |
 
-Với `n = q = 10^5`: brute `~10^{10}` vs prefix `~2·10^5` → nhanh hơn ~50000 lần.
+Với $n = q = 10^5$: brute $\approx 10^{10}$ vs prefix $\approx 2 \cdot 10^5$ → nhanh hơn ~50000 lần.
 
 > **❓ Câu hỏi tự nhiên của người đọc.**
-> - *"Precompute có đáng không nếu chỉ 1 query?"* — Không. Nếu chỉ hỏi 1 lần thì O(n) brute đã tối ưu. Prefix sum thắng khi **số query lớn** (amortize chi phí dựng `P` qua nhiều query).
-> - *"Mảng có thay đổi giữa chừng không?"* — Prefix sum giả định mảng **tĩnh** (immutable). Nếu `a` bị sửa, phải dựng lại `P` (O(n)). Update + query xen kẽ → xem mục 8.
+> - *"Precompute có đáng không nếu chỉ 1 query?"* — Không. Nếu chỉ hỏi 1 lần thì $O(n)$ brute đã tối ưu. Prefix sum thắng khi **số query lớn** (amortize chi phí dựng `P` qua nhiều query).
+> - *"Mảng có thay đổi giữa chừng không?"* — Prefix sum giả định mảng **tĩnh** (immutable). Nếu `a` bị sửa, phải dựng lại `P` ($O(n)$). Update + query xen kẽ → xem mục 8.
 
 📝 **Tóm tắt mục 1**
 - Nhiều range sum query trên mảng tĩnh → đừng cộng lại mỗi lần.
-- Bỏ O(n) tiền xử lý một lần, đổi lấy O(1) mỗi query.
-- Tổng O(n + q) thay vì O(q·n).
+- Bỏ $O(n)$ tiền xử lý một lần, đổi lấy $O(1)$ mỗi query.
+- Tổng $O(n + q)$ thay vì $O(q \cdot n)$.
 
 ---
 
@@ -69,7 +69,7 @@ Với `n = q = 10^5`: brute `~10^{10}` vs prefix `~2·10^5` → nhanh hơn ~5000
 
 ### 2.1 Định nghĩa và công thức
 
-Định nghĩa `P` có độ dài `n+1`:
+Định nghĩa `P` có độ dài $n+1$:
 
 ```
 P[0] = 0
@@ -143,9 +143,9 @@ func rangeSum(P []int, l, r int) int {
 > </details>
 
 📝 **Tóm tắt mục 2**
-- `P` dài `n+1`, `P[0]=0`, `P[i] = P[i-1] + a[i-1]`.
+- `P` dài $n+1$, `P[0]=0`, `P[i] = P[i-1] + a[i-1]`.
 - `sum(l, r) = P[r+1] − P[l]` — luôn nhớ `r+1`.
-- Dựng O(n), mỗi query O(1).
+- Dựng $O(n)$, mỗi query $O(1)$.
 
 ---
 
@@ -157,9 +157,9 @@ func rangeSum(P []int, l, r int) int {
 
 Cho mảng `a` (ban đầu toàn 0, độ dài `n`). Có `q` thao tác `(l, r, v)`: cộng `v` vào mọi phần tử `a[l..r]`. Cuối cùng in ra mảng `a`.
 
-**Brute-force**: mỗi update quét đoạn `[l, r]` → O(n) mỗi update → O(q·n) tổng. Chậm.
+**Brute-force**: mỗi update quét đoạn `[l, r]` → $O(n)$ mỗi update → $O(q \cdot n)$ tổng. Chậm.
 
-**Difference array** `d` (độ dài `n+1`): mỗi update chỉ chạm 2 vị trí:
+**Difference array** `d` (độ dài $n+1$): mỗi update chỉ chạm 2 vị trí:
 
 ```
 d[l]   += v
@@ -172,10 +172,10 @@ Sau khi áp hết update, **prefix sum của `d`** chính là mảng `a` cuối:
 a[i] = d[0] + d[1] + ... + d[i]
 ```
 
-| Cách | Mỗi update | `q` update | Dựng kết quả |
+| Cách | Mỗi update | $q$ update | Dựng kết quả |
 |------|-----------|-----------|--------------|
-| Brute | O(n) | O(q·n) | — |
-| Difference array | O(1) | O(q) | O(n) |
+| Brute | $O(n)$ | $O(q \cdot n)$ | — |
+| Difference array | $O(1)$ | $O(q)$ | $O(n)$ |
 
 ### 3.2 Walk-through bằng số
 
@@ -243,7 +243,7 @@ func rangeUpdate(n int, ops [][3]int) []int {
 
 > **⚠ Lỗi thường gặp.**
 > - **Quên prefix sum cuối**: nhiều người dừng ở mảng `d` rồi tưởng đó là kết quả. `d` chỉ là "delta"; phải prefix sum mới ra `a`.
-> - **`d[r+1]` tràn**: nếu `d` chỉ dài `n` thì `d[r+1]` với `r=n-1` lỗi index. Luôn để `d` dài `n+1`.
+> - **`d[r+1]` tràn**: nếu `d` chỉ dài $n$ thì `d[r+1]` với `r=n-1` lỗi index. Luôn để `d` dài $n+1$.
 > - Difference array chỉ đúng cho update kiểu **cộng vào đoạn** rồi query **một lần ở cuối**. Nếu query xen kẽ update → xem mục 8.
 
 > **🔁 Dừng lại tự kiểm tra.** `n=4`, update `(0,1,+3)` và `(1,3,+2)`. Mảng `a` cuối?
@@ -508,7 +508,7 @@ result[i] = left[i] * right[i]
 ## 9. Cạm bẫy thường gặp (tổng hợp)
 
 1. **Off-by-one `P[i]` vs `P[i+1]`**: `sum(l,r) = P[r+1] − P[l]`, không phải `P[r] − P[l]`. Luôn nhớ `P` lệch 1.
-2. **Overflow**: tổng nhiều phần tử lớn có thể vượt `int32`. Trong Go, `int` thường 64-bit nên an toàn hơn, nhưng khi tổng > `9.2×10^{18}` vẫn tràn `int64` → cân nhắc `big.Int`. Với C++/Java luôn cân nhắc `int64`/`long`.
+2. **Overflow**: tổng nhiều phần tử lớn có thể vượt `int32`. Trong Go, `int` thường 64-bit nên an toàn hơn, nhưng khi tổng > $9{,}2 \times 10^{18}$ vẫn tràn `int64` → cân nhắc `big.Int`. Với C++/Java luôn cân nhắc `int64`/`long`.
 3. **2D inclusion-exclusion sai dấu**: query là `lớn − trên − trái + góc`; quên dấu `+` ở góc (hoặc nhầm thành `−`) cho kết quả sai.
 4. **Difference array quên prefix cuối**: mảng `d` không phải kết quả — phải prefix sum mới ra mảng cuối.
 5. **`d[r+1]` index out of range**: để `d` dài `n+1`.

@@ -86,7 +86,7 @@ a << 3 = 0b10110000   (= 176)  ← tương đương a * 8 (= 2^3)
 a >> 1 = 0b00001011   (= 11)   ← tương đương a / 2 (làm tròn xuống)
 ```
 
-**Quy tắc**: `x << k = x · 2^k`, `x >> k = floor(x / 2^k)` (với unsigned).
+**Quy tắc**: `x << k` $= x \cdot 2^k$, `x >> k` $= \lfloor x / 2^k \rfloor$ (với unsigned).
 
 Với số **âm** (signed) trong Go, `>>` là *arithmetic shift* — bit dấu được nhân bản:
 
@@ -148,7 +148,7 @@ isOdd := x & 1 == 1
 isEven := x & 1 == 0
 ```
 
-Vì bit 0 là `2⁰ = 1` — số lẻ ↔ bit 0 bằng 1. Nhanh hơn `x % 2 != 0` ở mức compiler (mặc dù modern compiler tự optimize).
+Vì bit 0 là $2^0 = 1$ — số lẻ ↔ bit 0 bằng 1. Nhanh hơn `x % 2 != 0` ở mức compiler (mặc dù modern compiler tự optimize).
 
 ### 4.2. Kiểm tra power-of-2
 
@@ -280,7 +280,7 @@ Ví dụ `[4, 1, 2, 1, 2]`:
 
 ### 5.1. Ý tưởng
 
-Với `n` phần tử (n ≤ 64), mỗi **tập con** ↔ một số `n`-bit. Bit thứ `i` = 1 nếu phần tử `i` có trong tập, = 0 nếu không.
+Với $n$ phần tử ($n \leq 64$), mỗi **tập con** ↔ một số $n$-bit. Bit thứ $i$ = 1 nếu phần tử $i$ có trong tập, = 0 nếu không.
 
 Ví dụ `n = 4` phần tử `{a, b, c, d}` (đánh số 0..3):
 
@@ -293,7 +293,7 @@ Ví dụ `n = 4` phần tử `{a, b, c, d}` (đánh số 0..3):
 | `0101` | 0x5 | {a, c} |
 | `1111` | 0xF | {a, b, c, d} |
 
-Với `n` phần tử, có đúng `2^n` tập con — khớp với số có thể biểu diễn bằng `n` bit.
+Với $n$ phần tử, có đúng $2^n$ tập con — khớp với số có thể biểu diễn bằng $n$ bit.
 
 ### 5.2. Duyệt mọi tập con
 
@@ -540,7 +540,7 @@ func (b *Bitset) Count() int {
 }
 ```
 
-> ⚠ **Tại sao `i>>6` thay vì `i/64`?** Compiler hiện đại đã tự chuyển `i/64` thành `i>>6` (vì 64 là power of 2). Code sản xuất viết `i/64` đọc dễ hơn. Nhưng để học bitwise: nhớ `i / 2^k ≡ i >> k` cho số dương.
+> ⚠ **Tại sao `i>>6` thay vì `i/64`?** Compiler hiện đại đã tự chuyển `i/64` thành `i>>6` (vì 64 là power of 2). Code sản xuất viết `i/64` đọc dễ hơn. Nhưng để học bitwise: nhớ $i / 2^k \equiv$ `i >> k` cho số dương.
 
 #### Ứng dụng thực tế của bitset:
 
@@ -991,8 +991,8 @@ x = `0b10110100` = 180.
 
 - **bit 3** (tính từ phải, 0-indexed): nhìn vào dãy `10110100`, đếm từ phải: bit 0 = 0, bit 1 = 0, bit 2 = 1, **bit 3 = 0**. Tính bằng công thức: `(180 >> 3) & 1 = 0b10110 & 1 = 0`.
 - **set bit 0**: `180 | 0b00000001 = 0b10110101 = 181`.
-- **clear bit 5**: bit 5 = `2⁵ = 32`. `180 &^ 32 = 0b10110100 &^ 0b00100000 = 0b10010100 = 148`.
-- **toggle bit 7**: bit 7 = `2⁷ = 128`. `180 ^ 128 = 0b00110100 = 52`.
+- **clear bit 5**: bit 5 = $2^5 = 32$. `180 &^ 32 = 0b10110100 &^ 0b00100000 = 0b10010100 = 148`.
+- **toggle bit 7**: bit 7 = $2^7 = 128$. `180 ^ 128 = 0b00110100 = 52`.
 
 ### Bài 3
 

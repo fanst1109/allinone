@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 10 — Tham số &amp; Toạ độ cực</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 180px; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  .formula { font-family: monospace; font-size: 15px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 460px; height: 400px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-09-integration-techniques/visualization.html">← L9: Kỹ thuật tích phân</a>
+  <span class="sep">·</span>
+  <span class="current">L10: Tham số &amp; cực</span>
+  <span class="sep">·</span>
+  <a href="../../05-NumberTheory-Combinatorics-Logic/lesson-01-divisibility-gcd/visualization.html">T5-L1: GCD →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 10 (T4) — Giải tích tham số &amp; toạ độ cực</h1>
+<p style="color:#475569">Đường cong khó viết <code>y = f(x)</code> trở nên gọn gàng dưới dạng tham số <code>(x(t), y(t))</code> hoặc cực <code>r(θ)</code>. Độ dài cung &amp; diện tích đều tính bằng tích phân, kiểm chứng bằng tích phân số.</p>
+
+<h2>1. Đường cong tham số — độ dốc &amp; độ dài cung</h2>
+<div class="card">
+  <p>Coi t là thời gian, điểm (x(t), y(t)) đang "vẽ" đường cong. Chọn đường cong, kéo t để thấy điểm chạy và tiếp tuyến; độ dốc <code>dy/dx = (dy/dt)/(dx/dt)</code>.</p>
+  <div class="row" id="paBtns"></div>
+  <div class="row">
+    <label>t:</label>
+    <input type="range" id="paT" min="0" max="1" step="0.005" value="0.13" oninput="paDraw()">
+    <span class="stat">t = <strong id="paTv">—</strong></span>
+  </div>
+  <svg class="scene" id="paSvg" viewBox="0 0 460 400"></svg>
+  <div class="result" id="paRes"></div>
+</div>
+
+<h2>2. Diện tích trong toạ độ cực — A = ½∫r²dθ</h2>
+<div class="card">
+  <p>Hệ cực cộng các <strong>hình quạt mảnh</strong> ½r²dθ (không phải chữ nhật). Chọn đường cong cực; vùng tô là diện tích, so với công thức đóng khi có.</p>
+  <div class="row" id="poBtns"></div>
+  <svg class="scene" id="poSvg" viewBox="0 0 460 400" style="max-width:400px"></svg>
+  <div class="result" id="poRes"></div>
+</div>
+
+<script>
+function nint(f, a, b, n) { n = n || 4000; const h=(b-a)/n; let s=0; for(let i=0;i<n;i++) s+=f(a+(i+0.5)*h); return s*h; }
+
+// ===== 1. Tham số =====
+const paCurves = {
+  circle: { name:"Đường tròn  x=cos t, y=sin t", x:t=>Math.cos(t), y:t=>Math.sin(t), t0:0, t1:2*Math.PI, exact:"2π ≈ 6.2832" },
+  ellipse:{ name:"Ellipse  x=2cos t, y=sin t",   x:t=>2*Math.cos(t), y:t=>Math.sin(t), t0:0, t1:2*Math.PI, exact:"≈ 9.6884 (tích phân elliptic, không sơ cấp)" },
+  cycloid:{ name:"Cycloid  x=t−sin t, y=1−cos t", x:t=>t-Math.sin(t), y:t=>1-Math.cos(t), t0:0, t1:2*Math.PI, exact:"8 (chính xác!)" },
+  liss:   { name:"Lissajous  x=sin 3t, y=sin 2t", x:t=>Math.sin(3*t), y:t=>Math.sin(2*t), t0:0, t1:2*Math.PI, exact:"≈ 13.74 (tính số)" }
+};
+let paCur = "circle";
+function buildPa() {
+  document.getElementById("paBtns").innerHTML = Object.keys(paCurves).map(k =>
+    `<button class="pa-btn" data-k="${k}" onclick="paSel('${k}')">${paCurves[k].name.split("  ")[0]}</button>`).join("");
+  paSel("circle");
+}
+function paSel(k){ paCur=k; document.querySelectorAll(".pa-btn").forEach(b=>b.classList.toggle("active",b.dataset.k===k)); paDraw(); }
+function paDraw() {
+  const c = paCurves[paCur];
+  const u = parseFloat(document.getElementById("paT").value);
+  const t = c.t0 + u*(c.t1 - c.t0);
+  document.getElementById("paTv").textContent = t.toFixed(2);
+  // mẫu điểm + bbox
+  const N=600, pts=[];
+  let xmin=1e9,xmax=-1e9,ymin=1e9,ymax=-1e9;
+  for(let i=0;i<=N;i++){const tt=c.t0+(c.t1-c.t0)*i/N;const X=c.x(tt),Y=c.y(tt);pts.push([X,Y]);xmin=Math.min(xmin,X);xmax=Math.max(xmax,X);ymin=Math.min(ymin,Y);ymax=Math.max(ymax,Y);}
+  const W=460,H=400,pad=40;
+  const sx=(W-2*pad)/((xmax-xmin)||1), sy=(H-2*pad)/((ymax-ymin)||1), s=Math.min(sx,sy);
+  const cx0=(xmin+xmax)/2, cy0=(ymin+ymax)/2;
+  const PX=X=>W/2+(X-cx0)*s, PY=Y=>H/2-(Y-cy0)*s;
+  const svg=document.getElementById("paSvg"); svg.innerHTML="";
+  // trục
+  [[PX(Math.max(xmin,0)*0),0,0],[0,0,0]];
+  const ax=document.createElementNS("http://www.w3.org/2000/svg","line");ax.setAttribute("x1",pad/2);ax.setAttribute("y1",PY(0));ax.setAttribute("x2",W-pad/2);ax.setAttribute("y2",PY(0));ax.setAttribute("stroke","#cbd5e0");ax.setAttribute("stroke-width",1);svg.appendChild(ax);
+  const ay=document.createElementNS("http://www.w3.org/2000/svg","line");ay.setAttribute("x1",PX(0));ay.setAttribute("y1",pad/2);ay.setAttribute("x2",PX(0));ay.setAttribute("y2",H-pad/2);ay.setAttribute("stroke","#cbd5e0");ay.setAttribute("stroke-width",1);svg.appendChild(ay);
+  // đường cong
+  let d="";pts.forEach((p,i)=>{d+=(i===0?"M":"L")+PX(p[0]).toFixed(1)+" "+PY(p[1]).toFixed(1)+" ";});
+  const path=document.createElementNS("http://www.w3.org/2000/svg","path");path.setAttribute("d",d);path.setAttribute("fill","none");path.setAttribute("stroke","#15803d");path.setAttribute("stroke-width",2.5);svg.appendChild(path);
+  // điểm hiện tại + tiếp tuyến (sai phân)
+  const dt=1e-4;const dxdt=(c.x(t+dt)-c.x(t-dt))/(2*dt), dydt=(c.y(t+dt)-c.y(t-dt))/(2*dt);
+  const px=c.x(t),py=c.y(t);
+  const tl=document.createElementNS("http://www.w3.org/2000/svg","line");const ln=0.6;
+  tl.setAttribute("x1",PX(px-ln*dxdt));tl.setAttribute("y1",PY(py-ln*dydt));tl.setAttribute("x2",PX(px+ln*dxdt));tl.setAttribute("y2",PY(py+ln*dydt));tl.setAttribute("stroke","#dc2626");tl.setAttribute("stroke-width",2);svg.appendChild(tl);
+  const dot=document.createElementNS("http://www.w3.org/2000/svg","circle");dot.setAttribute("cx",PX(px));dot.setAttribute("cy",PY(py));dot.setAttribute("r",6);dot.setAttribute("fill","#dc2626");svg.appendChild(dot);
+  // độ dài cung số
+  const L=nint(tt=>{const a=(c.x(tt+dt)-c.x(tt-dt))/(2*dt),b=(c.y(tt+dt)-c.y(tt-dt))/(2*dt);return Math.sqrt(a*a+b*b);}, c.t0+1e-3, c.t1-1e-3, 3000);
+  const slope = Math.abs(dxdt)<1e-9 ? "∞ (tiếp tuyến đứng)" : (dydt/dxdt).toFixed(3);
+  document.getElementById("paRes").innerHTML = `
+    <div class="formula">${c.name}</div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">tại t=${t.toFixed(2)}: dy/dx = <strong>${slope}</strong></span>
+      <span class="stat">độ dài cung L = ∫√(x'²+y'²)dt = <strong>${L.toFixed(4)}</strong></span>
+      <span class="stat">lý thuyết: ${c.exact}</span>
+    </div>`;
+}
+
+// ===== 2. Cực =====
+const poCurves = {
+  circle:  { name:"Đường tròn r = 2", r:_=>2, t0:0, t1:2*Math.PI, exact:"πr² = 4π ≈ 12.566" },
+  cardioid:{ name:"Cardioid r = 1 + cosθ", r:t=>1+Math.cos(t), t0:0, t1:2*Math.PI, exact:"3π/2 ≈ 4.712" },
+  rose:    { name:"Hoa hồng r = cos 2θ", r:t=>Math.cos(2*t), t0:0, t1:2*Math.PI, exact:"π/2 ≈ 1.571 (4 cánh)" },
+  spiral:  { name:"Xoắn ốc r = θ", r:t=>t, t0:0, t1:2*Math.PI, exact:"4π³/3 ≈ 41.34" }
+};
+let poCur = "cardioid";
+function buildPo() {
+  document.getElementById("poBtns").innerHTML = Object.keys(poCurves).map(k =>
+    `<button class="po-btn" data-k="${k}" onclick="poSel('${k}')">${poCurves[k].name.split(" r")[0]}</button>`).join("");
+  poSel("cardioid");
+}
+function poSel(k){ poCur=k; document.querySelectorAll(".po-btn").forEach(b=>b.classList.toggle("active",b.dataset.k===k)); poDraw(); }
+function poDraw() {
+  const c = poCurves[poCur];
+  const N=720, pts=[];
+  let rmax=0;
+  for(let i=0;i<=N;i++){const th=c.t0+(c.t1-c.t0)*i/N;const r=c.r(th);const X=r*Math.cos(th),Y=r*Math.sin(th);pts.push([X,Y]);rmax=Math.max(rmax,Math.abs(X),Math.abs(Y));}
+  const W=460,H=400,pad=30;
+  const s=(Math.min(W,H)/2-pad)/(rmax||1);
+  const PX=X=>W/2+X*s, PY=Y=>H/2-Y*s;
+  const svg=document.getElementById("poSvg"); svg.innerHTML="";
+  // trục
+  [["x",pad,H/2,W-pad,H/2],["y",W/2,pad,W/2,H-pad]].forEach(([_,x1,y1,x2,y2])=>{const l=document.createElementNS("http://www.w3.org/2000/svg","line");l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);l.setAttribute("stroke","#cbd5e0");l.setAttribute("stroke-width",1);svg.appendChild(l);});
+  // vùng tô (quạt từ gốc)
+  let d=`M ${PX(0)} ${PY(0)} `;
+  pts.forEach(p=>{d+=`L ${PX(p[0]).toFixed(1)} ${PY(p[1]).toFixed(1)} `;});
+  d+="Z";
+  const area=document.createElementNS("http://www.w3.org/2000/svg","path");area.setAttribute("d",d);area.setAttribute("fill","#86efac");area.setAttribute("fill-opacity",0.5);area.setAttribute("stroke","none");svg.appendChild(area);
+  // đường cong
+  let dc="";pts.forEach((p,i)=>{dc+=(i===0?"M":"L")+PX(p[0]).toFixed(1)+" "+PY(p[1]).toFixed(1)+" ";});
+  const path=document.createElementNS("http://www.w3.org/2000/svg","path");path.setAttribute("d",dc);path.setAttribute("fill","none");path.setAttribute("stroke","#15803d");path.setAttribute("stroke-width",2.5);svg.appendChild(path);
+  // diện tích số
+  const A=0.5*nint(th=>{const r=c.r(th);return r*r;}, c.t0, c.t1, 5000);
+  document.getElementById("poRes").innerHTML = `
+    <div class="formula">${c.name}</div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">A = ½∫₀^{2π} r²dθ = <strong>${A.toFixed(4)}</strong></span>
+      <span class="stat">công thức: ${c.exact}</span>
+    </div>
+    <div style="margin-top:6px; font-size:13px; color:#475569">${poCur==="rose"
+      ? "r đổi dấu khi quét → 4 cánh; ô vuông r² triệt tiêu dấu nên diện tích tính đúng cả 4 cánh."
+      : "Vùng xanh được ghép từ vô số hình quạt mảnh ½r²dθ — đó là vì sao công thức có hệ số ½."}</div>`;
+}
+
+addEventListener("DOMContentLoaded", () => { buildPa(); buildPo(); });
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

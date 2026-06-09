@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 09 — Kỹ thuật tính tích phân</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #1a202c; }
+  h2 { color: #2d3748; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #cbd5e0; }
+  h3 { color: #15803d; margin-bottom: 6px; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  input[type="range"] { flex: 1; min-width: 180px; }
+  button { background: #94a3b8; color: white; border: none; padding: 8px 14px; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 600; }
+  button.active { background: #15803d; }
+  .stat { display: inline-block; background: #dcfce7; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #15803d; }
+  .result { padding: 14px; background: #dcfce7; border-radius: 8px; margin-top: 12px; }
+  .formula { font-family: monospace; font-size: 15px; }
+  svg.scene { display: block; margin: 12px auto; width: 100%; max-width: 560px; height: 340px; background: #f8fafc; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Math</a>
+  <span class="sep">·</span>
+  <a href="../lesson-08-integral-applications/visualization.html">← L8: Ứng dụng tích phân</a>
+  <span class="sep">·</span>
+  <span class="current">L9: Kỹ thuật tích phân</span>
+  <span class="sep">·</span>
+  <a href="../lesson-10-parametric-polar-calculus/visualization.html">L10: Tham số &amp; cực →</a>
+</nav>
+
+<main>
+
+<h1>Lesson 09 (T4) — Kỹ thuật tính tích phân</h1>
+<p style="color:#475569">Bốn cách "biến tích phân lạ về tích phân quen". Mọi kết quả đều được <strong>kiểm chứng bằng tích phân số</strong> (tổng điểm giữa, n=2000) để bạn thấy công thức đúng.</p>
+
+<h2>1. Tích phân từng phần — ∫u dv = uv − ∫v du</h2>
+<div class="card">
+  <p>Chọn một tích phân; xem cách chọn u, dv theo <strong>LIATE</strong> và nguyên hàm thu được. Cột "số" so nguyên hàm F(b)−F(a) với tích phân số.</p>
+  <div class="row" id="bpBtns"></div>
+  <div class="result" id="bpRes"></div>
+</div>
+
+<h2>2. Đổi biến lượng giác — diện tích dưới cung tròn</h2>
+<div class="card">
+  <p><code>∫₀ᵃ √(1−x²) dx</code> tính bằng đặt x = sinθ, ra <code>½(a·√(1−a²) + arcsin a)</code>. Đó chính là diện tích vùng tô dưới cung tròn đơn vị. Tại a=1 → π/4 (¼ hình tròn).</p>
+  <div class="row">
+    <label>a:</label>
+    <input type="range" id="tsA" min="0" max="1" step="0.01" value="1" oninput="trigSub()">
+    <span class="stat">a = <strong id="tsAv">1.00</strong></span>
+  </div>
+  <svg class="scene" id="tsSvg" viewBox="0 0 560 340" style="max-width:420px; height:340px"></svg>
+  <div class="result" id="tsRes"></div>
+</div>
+
+<h2>3. Phân tích thành phân thức đơn giản</h2>
+<div class="card">
+  <p>Phân thức hữu tỉ tách thành tổng các mảnh <code>A/(x−r)</code>, mỗi mảnh tích phân ra <code>A·ln|x−r|</code>.</p>
+  <div class="row" id="pfBtns"></div>
+  <div class="result" id="pfRes"></div>
+</div>
+
+<h2>4. Tích phân suy rộng — tiêu chí p</h2>
+<div class="card">
+  <p><code>∫₁^b x^(−p) dx</code> khi b→∞: <strong>hội tụ ⇔ p &gt; 1</strong> (giá trị 1/(p−1)); p ≤ 1 phân kỳ. Kéo p và cận trên b để xem tổng tiến tới giới hạn hay vọt lên.</p>
+  <div class="row">
+    <label>p:</label>
+    <input type="range" id="ipP" min="0.3" max="3" step="0.1" value="2" oninput="improper()">
+    <span class="stat">p = <strong id="ipPv">2.0</strong></span>
+    <label>cận trên b:</label>
+    <input type="range" id="ipB" min="2" max="60" step="1" value="20" oninput="improper()">
+    <span class="stat">b = <strong id="ipBv">20</strong></span>
+  </div>
+  <svg class="scene" id="ipSvg" viewBox="0 0 560 320" style="max-width:560px; height:320px"></svg>
+  <div class="result" id="ipRes"></div>
+</div>
+
+<script>
+// ---- tích phân số: tổng điểm giữa ----
+function nint(f, a, b, n) {
+  n = n || 2000;
+  const h = (b - a) / n;
+  let s = 0;
+  for (let i = 0; i < n; i++) s += f(a + (i + 0.5) * h);
+  return s * h;
+}
+
+// ===== 1. Tích phân từng phần =====
+const bpCases = [
+  { key:"xex",  label:"∫ x·eˣ dx", f:x=>x*Math.exp(x), F:x=>Math.exp(x)*(x-1),
+    u:"x (Đại số)", dv:"eˣ dx", line:"x·eˣ − ∫eˣ dx = eˣ(x−1) + C", a:0, b:1 },
+  { key:"lnx",  label:"∫ ln x dx", f:x=>Math.log(x), F:x=>x*Math.log(x)-x,
+    u:"ln x (Logarit)", dv:"dx", line:"x·ln x − ∫x·(1/x) dx = x·ln x − x + C", a:1, b:Math.E },
+  { key:"xsin", label:"∫ x·sin x dx", f:x=>x*Math.sin(x), F:x=>-x*Math.cos(x)+Math.sin(x),
+    u:"x (Đại số)", dv:"sin x dx", line:"−x·cos x + ∫cos x dx = −x·cos x + sin x + C", a:0, b:Math.PI },
+  { key:"x2ex", label:"∫ x²·eˣ dx", f:x=>x*x*Math.exp(x), F:x=>Math.exp(x)*(x*x-2*x+2),
+    u:"x² (Đại số)", dv:"eˣ dx", line:"từng phần 2 lần ⇒ eˣ(x² − 2x + 2) + C", a:0, b:1 }
+];
+let bpCur = "xex";
+function buildBp() {
+  document.getElementById("bpBtns").innerHTML = bpCases.map(c =>
+    `<button class="bp-btn" data-k="${c.key}" onclick="bpSel('${c.key}')">${c.label}</button>`).join("");
+  bpSel("xex");
+}
+function bpSel(k) {
+  bpCur = k;
+  document.querySelectorAll(".bp-btn").forEach(b => b.classList.toggle("active", b.dataset.k === k));
+  const c = bpCases.find(x => x.key === k);
+  const exact = c.F(c.b) - c.F(c.a);
+  const num = nint(c.f, c.a, c.b);
+  document.getElementById("bpRes").innerHTML = `
+    <div class="formula"><strong>${c.label}</strong></div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">u = ${c.u}</span>
+      <span class="stat">dv = ${c.dv}</span>
+    </div>
+    <div class="formula" style="margin-top:4px">⇒ ${c.line}</div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat">Cận [${c.a===0?"0":(Math.abs(c.a-Math.E)<1e-9?"1":c.a)}, ${Math.abs(c.b-Math.PI)<1e-9?"π":(Math.abs(c.b-Math.E)<1e-9?"e":c.b)}]</span>
+      <span class="stat">F(b)−F(a) = <strong>${exact.toFixed(5)}</strong></span>
+      <span class="stat">Tích phân số = <strong>${num.toFixed(5)}</strong></span>
+      <span class="stat">khớp ✓ (lệch ${Math.abs(exact-num).toExponential(1)})</span>
+    </div>`;
+}
+
+// ===== 2. Đổi biến lượng giác =====
+function trigSub() {
+  const a = parseFloat(document.getElementById("tsA").value);
+  document.getElementById("tsAv").textContent = a.toFixed(2);
+  const exact = 0.5 * (a * Math.sqrt(1 - a*a) + Math.asin(a));
+  const num = nint(x => Math.sqrt(Math.max(0, 1 - x*x)), 0, a, 3000);
+
+  const svg = document.getElementById("tsSvg");
+  svg.innerHTML = "";
+  const W=560, H=340, ox=40, oy=H-40, sc=260;
+  // trục
+  [["x",ox,oy,ox+sc+30,oy],["y",ox,oy,ox,oy-sc-30]].forEach(([_,x1,y1,x2,y2])=>{const l=document.createElementNS("http://www.w3.org/2000/svg","line");l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);l.setAttribute("stroke","#1a202c");l.setAttribute("stroke-width",1.5);svg.appendChild(l);});
+  const X=x=>ox+x*sc, Y=y=>oy-y*sc;
+  // vùng tô [0,a]
+  let d=`M ${X(0)} ${oy} `;
+  for(let i=0;i<=200;i++){const x=a*i/200; d+=`L ${X(x).toFixed(1)} ${Y(Math.sqrt(1-x*x)).toFixed(1)} `;}
+  d+=`L ${X(a).toFixed(1)} ${oy} Z`;
+  const area=document.createElementNS("http://www.w3.org/2000/svg","path");area.setAttribute("d",d);area.setAttribute("fill","#86efac");area.setAttribute("fill-opacity",0.6);area.setAttribute("stroke","none");svg.appendChild(area);
+  // cung tròn đầy đủ
+  let dc="";for(let i=0;i<=200;i++){const x=i/200;dc+=(i===0?"M":"L")+X(x).toFixed(1)+" "+Y(Math.sqrt(1-x*x)).toFixed(1)+" ";}
+  const cv=document.createElementNS("http://www.w3.org/2000/svg","path");cv.setAttribute("d",dc);cv.setAttribute("fill","none");cv.setAttribute("stroke","#15803d");cv.setAttribute("stroke-width",2.5);svg.appendChild(cv);
+  // vạch x=a
+  const vl=document.createElementNS("http://www.w3.org/2000/svg","line");vl.setAttribute("x1",X(a));vl.setAttribute("y1",oy);vl.setAttribute("x2",X(a));vl.setAttribute("y2",Y(Math.sqrt(Math.max(0,1-a*a))));vl.setAttribute("stroke","#dc2626");vl.setAttribute("stroke-width",1.5);vl.setAttribute("stroke-dasharray","4,3");svg.appendChild(vl);
+  [["1",X(1),oy+16],["1",ox-12,Y(1)],["a",X(a),oy+16]].forEach(([t,x,y])=>{const tx=document.createElementNS("http://www.w3.org/2000/svg","text");tx.setAttribute("x",x);tx.setAttribute("y",y);tx.setAttribute("text-anchor","middle");tx.setAttribute("font-size","12");tx.setAttribute("fill","#64748b");tx.textContent=t;svg.appendChild(tx);});
+
+  document.getElementById("tsRes").innerHTML = `
+    <div class="formula">∫₀^${a.toFixed(2)} √(1−x²) dx = ½(a·√(1−a²) + arcsin a)</div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">Công thức = <strong>${exact.toFixed(5)}</strong></span>
+      <span class="stat">Tích phân số = <strong>${num.toFixed(5)}</strong></span>
+      ${Math.abs(a-1)<1e-6?`<span class="stat">= π/4 = <strong>${(Math.PI/4).toFixed(5)}</strong> (¼ hình tròn) ✓</span>`:""}
+    </div>`;
+}
+
+// ===== 3. Phân thức =====
+const pfCases = [
+  { key:"a", label:"∫ 1/(x²−1) dx", decomp:"1/(x²−1) = ½·1/(x−1) − ½·1/(x+1)",
+    F:x=>0.5*Math.log(Math.abs((x-1)/(x+1))), res:"½·ln|（x−1)/(x+1)| + C", f:x=>1/(x*x-1), a:2, b:4 },
+  { key:"b", label:"∫ 1/[x(x+1)] dx", decomp:"1/[x(x+1)] = 1/x − 1/(x+1)",
+    F:x=>Math.log(Math.abs(x/(x+1))), res:"ln|x/(x+1)| + C", f:x=>1/(x*(x+1)), a:1, b:3 },
+  { key:"c", label:"∫ (x+3)/[x(x−1)] dx", decomp:"(x+3)/[x(x−1)] = −3/x + 4/(x−1)",
+    F:x=>-3*Math.log(Math.abs(x))+4*Math.log(Math.abs(x-1)), res:"−3·ln|x| + 4·ln|x−1| + C", f:x=>(x+3)/(x*(x-1)), a:2, b:4 }
+];
+let pfCur = "a";
+function buildPf() {
+  document.getElementById("pfBtns").innerHTML = pfCases.map(c =>
+    `<button class="pf-btn" data-k="${c.key}" onclick="pfSel('${c.key}')">${c.label}</button>`).join("");
+  pfSel("a");
+}
+function pfSel(k) {
+  pfCur = k;
+  document.querySelectorAll(".pf-btn").forEach(b => b.classList.toggle("active", b.dataset.k === k));
+  const c = pfCases.find(x => x.key === k);
+  const exact = c.F(c.b) - c.F(c.a);
+  const num = nint(c.f, c.a, c.b);
+  document.getElementById("pfRes").innerHTML = `
+    <div class="formula"><strong>${c.label}</strong></div>
+    <div class="formula" style="margin-top:4px">Tách: ${c.decomp}</div>
+    <div class="formula" style="margin-top:4px">⇒ ${c.res}</div>
+    <div class="row" style="margin-top:8px">
+      <span class="stat">Cận [${c.a}, ${c.b}]: công thức = <strong>${exact.toFixed(5)}</strong></span>
+      <span class="stat">tích phân số = <strong>${num.toFixed(5)}</strong></span>
+      <span class="stat">khớp ✓</span>
+    </div>`;
+}
+
+// ===== 4. Suy rộng p-test =====
+function improper() {
+  const p = parseFloat(document.getElementById("ipP").value);
+  const b = parseFloat(document.getElementById("ipB").value);
+  document.getElementById("ipPv").textContent = p.toFixed(1);
+  document.getElementById("ipBv").textContent = b;
+  const partial = nint(x => Math.pow(x, -p), 1, b, 4000);
+  const conv = p > 1;
+  const limit = conv ? 1/(p-1) : Infinity;
+
+  const svg = document.getElementById("ipSvg");
+  svg.innerHTML = "";
+  const W=560,H=320,ox=45,oy=H-40, plotW=W-70, plotH=H-70;
+  const xMax=Math.min(b,60), yMax=1.05;
+  const X=x=>ox+(x-1)/(xMax-1)*plotW, Y=y=>oy-y/yMax*plotH;
+  [["x",ox,oy,W-15,oy],["y",ox,oy,ox,20]].forEach(([_,x1,y1,x2,y2])=>{const l=document.createElementNS("http://www.w3.org/2000/svg","line");l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);l.setAttribute("stroke","#1a202c");l.setAttribute("stroke-width",1.5);svg.appendChild(l);});
+  // vùng tô dưới đường tới b
+  let d=`M ${X(1)} ${oy} `;
+  for(let i=0;i<=300;i++){const x=1+(Math.min(b,xMax)-1)*i/300; d+=`L ${X(x).toFixed(1)} ${Y(Math.min(yMax,Math.pow(x,-p))).toFixed(1)} `;}
+  d+=`L ${X(Math.min(b,xMax)).toFixed(1)} ${oy} Z`;
+  const area=document.createElementNS("http://www.w3.org/2000/svg","path");area.setAttribute("d",d);area.setAttribute("fill",conv?"#86efac":"#fecaca");area.setAttribute("fill-opacity",0.6);svg.appendChild(area);
+  // đường 1/x^p
+  let dc="";for(let i=0;i<=400;i++){const x=1+(xMax-1)*i/400;const y=Math.pow(x,-p);dc+=(i===0?"M":"L")+X(x).toFixed(1)+" "+Y(Math.min(yMax,y)).toFixed(1)+" ";}
+  const cv=document.createElementNS("http://www.w3.org/2000/svg","path");cv.setAttribute("d",dc);cv.setAttribute("fill","none");cv.setAttribute("stroke",conv?"#15803d":"#dc2626");cv.setAttribute("stroke-width",2.5);svg.appendChild(cv);
+  const lbl=document.createElementNS("http://www.w3.org/2000/svg","text");lbl.setAttribute("x",ox+6);lbl.setAttribute("y",30);lbl.setAttribute("font-size","13");lbl.setAttribute("fill","#64748b");lbl.textContent="y = 1/x^"+p.toFixed(1);svg.appendChild(lbl);
+
+  document.getElementById("ipRes").innerHTML = `
+    <div class="formula">∫₁^${b} x^(−${p.toFixed(1)}) dx = <strong>${partial.toFixed(4)}</strong></div>
+    <div class="row" style="margin-top:6px">
+      <span class="stat">p = ${p.toFixed(1)} ${conv?"&gt; 1":"≤ 1"}</span>
+      <span class="stat" style="background:${conv?'#dcfce7':'#fee2e2'}"><strong style="color:${conv?'#15803d':'#b91c1c'}">${conv?"HỘI TỤ":"PHÂN KỲ"}</strong></span>
+      ${conv?`<span class="stat">giới hạn (b→∞) = 1/(p−1) = <strong>${limit.toFixed(4)}</strong></span>`:`<span class="stat">tổng → ∞ khi b tăng</span>`}
+    </div>
+    <div style="margin-top:8px; font-size:13px; color:#475569">${conv
+      ? `Tăng b: tổng ${partial.toFixed(3)} đang tiến dần tới ${limit.toFixed(3)} và <strong>chững lại</strong> — diện tích vô hạn bề ngang nhưng hữu hạn.`
+      : `Tăng b: tổng cứ lớn mãi không có trần — diện tích vô hạn. (p=1 là ranh giới: ∫1/x = ln b → ∞.)`}</div>`;
+}
+
+addEventListener("DOMContentLoaded", () => { buildBp(); trigSub(); buildPf(); improper(); });
+</script>
+
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

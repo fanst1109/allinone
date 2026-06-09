@@ -10,7 +10,7 @@
 - Hiểu nguyên hàm là gì và sử dụng các phương pháp tính tích phân chính.
 - Áp dụng tích phân để tính diện tích, thể tích vật thể tròn xoay, độ dài cung.
 
-## Lộ trình 8 bài
+## Lộ trình 10 bài
 
 | Bài | Chủ đề | Khái niệm chính |
 |-----|--------|-----------------|
@@ -22,6 +22,8 @@
 | [Lesson 06](./lesson-06-antiderivatives/) | Nguyên hàm | Tích phân bất định, đổi biến, từng phần, phân thức |
 | [Lesson 07](./lesson-07-definite-integral/) | Tích phân xác định | Định nghĩa Riemann, định lý cơ bản giải tích |
 | [Lesson 08](./lesson-08-integral-applications/) | Ứng dụng tích phân | Diện tích, thể tích, độ dài cung |
+| [Lesson 09](./lesson-09-integration-techniques/) | Kỹ thuật tính tích phân | Đổi biến, từng phần, lượng giác hoá, phân thức, suy rộng (p-test) |
+| [Lesson 10](./lesson-10-parametric-polar-calculus/) | Tham số & toạ độ cực | dy/dx & độ dài cung tham số; diện tích ½∫r²dθ |
 
 ## Sau tầng này
 

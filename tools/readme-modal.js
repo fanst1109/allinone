@@ -37,6 +37,18 @@
     document.head.appendChild(fav);
   })();
 
+  // Đường dẫn tới thư mục tools/ (suy ra từ src của chính script này) — dùng để
+  // lazy-load KaTeX khi render công thức trong README. Hoạt động ở mọi độ sâu.
+  var TOOLS_BASE = (function () {
+    var s = document.getElementsByTagName('script');
+    for (var i = s.length - 1; i >= 0; i--) {
+      if (s[i].src && /readme-modal\.js(\?|$)/.test(s[i].src)) {
+        return s[i].src.replace(/readme-modal\.js(\?.*)?$/, '');
+      }
+    }
+    return '';
+  })();
+
   var LS_MODE_KEY   = 'rmViewMode';
   var LS_WIDTH_KEY  = 'rmSidebarWidth';
   var LS_TOC_KEY    = 'rmTocVisible';
@@ -281,6 +293,10 @@
     .rm-content pre code { background: transparent; color: inherit; padding: 0; font-size: 12.5px; }
     .rm-content a { color: #2c5282; text-decoration: none; }
     .rm-content a:hover { text-decoration: underline; }
+    /* KaTeX: cho phép cuộn ngang công thức dài trên mobile thay vì tràn trang */
+    .rm-content .katex-display { margin: 14px 0; overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
+    .rm-content .katex { font-size: 1.05em; }
+    .rm-content .rm-math-fallback { color: #b83280; }
     .rm-content blockquote {
       border-left: 4px solid #cbd5e0; padding: 4px 14px;
       color: #4a5568; margin: 10px 0; background: #f7fafc;
@@ -570,6 +586,130 @@
       });
     }
 
+    // ─────────────────────────────────────────────────────────────────────
+    // KaTeX — render công thức toán trong README.
+    //
+    // Vì sao phải "bảo vệ" công thức trước khi marked.parse(): marked coi `_`
+    // là in nghiêng, nuốt `\`, escape `<`… → cú pháp LaTeX bị phá. Giải pháp:
+    // tách mọi đoạn $...$ / $$...$$ / \(...\) / \[...\] ra placeholder TRƯỚC
+    // khi parse markdown, parse xong mới render KaTeX rồi ghép lại. Đoạn code
+    // (``` fenced ``` và `inline`) được bỏ qua để $ trong code không bị bắt.
+    // ─────────────────────────────────────────────────────────────────────
+    var katexLoading = null;          // mảng callback đang chờ; null = chưa khởi động / đã xong
+    function ensureKatex(cb) {
+      if (window.katex) { cb(); return; }
+      if (katexLoading) { katexLoading.push(cb); return; }
+      katexLoading = [cb];
+      function flush() {
+        var q = katexLoading; katexLoading = null;
+        q.forEach(function (f) { try { f(); } catch (e) {} });
+      }
+      if (!document.querySelector('link[data-katex]')) {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = TOOLS_BASE + 'katex/katex.min.css';
+        link.setAttribute('data-katex', '1');
+        document.head.appendChild(link);
+      }
+      var sc = document.createElement('script');
+      sc.src = TOOLS_BASE + 'katex/katex.min.js';
+      sc.onload = flush;
+      sc.onerror = function () {
+        console.warn('[readme-modal] Không tải được KaTeX (' + sc.src + ') — công thức sẽ hiển thị dạng text.');
+        flush();
+      };
+      document.head.appendChild(sc);
+    }
+
+    function mathPlaceholder(i) { return 'XKATEXMATH' + i + 'ENDX'; }
+
+    // Tách công thức ra khỏi markdown, trả về { text, math }.
+    function protectMath(src) {
+      var math = [];
+      var out = '';
+      var n = src.length;
+      var i = 0;
+      function push(tex, display) {
+        var idx = math.length;
+        math.push({ tex: tex, display: display });
+        return mathPlaceholder(idx);
+      }
+      while (i < n) {
+        var c = src[i];
+        // Fenced code block ```...``` — copy nguyên văn, không bắt $ bên trong.
+        if (src.startsWith('```', i)) {
+          var end = src.indexOf('```', i + 3);
+          if (end === -1) { out += src.slice(i); break; }
+          out += src.slice(i, end + 3); i = end + 3; continue;
+        }
+        // Inline code `...` — copy nguyên văn.
+        if (c === '`') {
+          var run = 1; while (src[i + run] === '`') run++;
+          var ticks = src.slice(i, i + run);
+          var close = src.indexOf(ticks, i + run);
+          if (close === -1) { out += src.slice(i); break; }
+          out += src.slice(i, close + run); i = close + run; continue;
+        }
+        // Display math $$...$$
+        if (src.startsWith('$$', i)) {
+          var de = src.indexOf('$$', i + 2);
+          if (de !== -1) { out += push(src.slice(i + 2, de), true); i = de + 2; continue; }
+        }
+        // Display math \[...\]
+        if (src.startsWith('\\[', i)) {
+          var be = src.indexOf('\\]', i + 2);
+          if (be !== -1) { out += push(src.slice(i + 2, be), true); i = be + 2; continue; }
+        }
+        // Inline math \(...\)
+        if (src.startsWith('\\(', i)) {
+          var pe = src.indexOf('\\)', i + 2);
+          if (pe !== -1) { out += push(src.slice(i + 2, pe), false); i = pe + 2; continue; }
+        }
+        // Inline math $...$ — bỏ qua \$ (escape) và $ đứng lẻ (tiền tệ).
+        if (c === '$' && src[i - 1] !== '\\' && src[i + 1] !== '$' && src[i + 1] !== ' ') {
+          var j = i + 1, found = -1;
+          while (j < n) {
+            if (src[j] === '$' && src[j - 1] !== '\\') { found = j; break; }
+            if (src[j] === '\n' && src[j + 1] === '\n') break; // không vượt đoạn
+            j++;
+          }
+          if (found !== -1 && found > i + 1) {
+            out += push(src.slice(i + 1, found), false); i = found + 1; continue;
+          }
+        }
+        out += c; i++;
+      }
+      return { text: out, math: math };
+    }
+
+    function renderOneMath(tex, display) {
+      if (window.katex) {
+        try {
+          return window.katex.renderToString(tex, {
+            displayMode: display, throwOnError: false, output: 'html'
+          });
+        } catch (e) { /* rơi xuống fallback */ }
+      }
+      var inner = escapeHtml(tex);
+      return display ? '<pre class="rm-math-fallback"><code>' + inner + '</code></pre>'
+                     : '<code class="rm-math-fallback">' + inner + '</code>';
+    }
+
+    // Ghép công thức đã render trở lại HTML do marked sinh ra.
+    function restoreMath(html, math) {
+      for (var i = 0; i < math.length; i++) {
+        var rendered = renderOneMath(math[i].tex, math[i].display);
+        var ph = mathPlaceholder(i);
+        if (math[i].display) {
+          // marked bọc placeholder đứng riêng trong <p> → thay cả <p> để KaTeX
+          // display (block) không nằm trong thẻ đoạn.
+          html = html.split('<p>' + ph + '</p>').join(rendered);
+        }
+        html = html.split(ph).join(rendered);
+      }
+      return html;
+    }
+
     // Rewrite href trong README markdown đã render: link tới directory hoặc
     // README.md không click thẳng được trên web (folder listing / raw markdown).
     // Tự suy ra đích đúng:
@@ -643,15 +783,22 @@
 
     function open() {
       if (!rendered) {
+        rendered = true;
         try {
-          contentEl.innerHTML = window.marked.parse(window.README_MD);
-          rewriteReadmeLinks(contentEl);
-          buildToc();
+          var protectedDoc = protectMath(window.README_MD);
+          var parsedHtml = window.marked.parse(protectedDoc.text);
+          function paint() {
+            contentEl.innerHTML = restoreMath(parsedHtml, protectedDoc.math);
+            rewriteReadmeLinks(contentEl);
+            buildToc();
+          }
+          // Nếu có công thức → lazy-load KaTeX rồi mới vẽ; không có thì vẽ ngay.
+          if (protectedDoc.math.length) ensureKatex(paint);
+          else paint();
         } catch (e) {
           console.error('[readme-modal] render lỗi:', e);
           contentEl.textContent = 'Lỗi render markdown: ' + e.message;
         }
-        rendered = true;
       }
 
       applyMode(currentMode);

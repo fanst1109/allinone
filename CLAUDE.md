@@ -125,7 +125,8 @@ Thư mục `tools/` ở cấp gốc chứa các file dùng chung cho toàn bộ 
 |------|----------|
 | `tools/viz-base.css` | Chrome chung cho mọi **viz lẫn index.html**: body/token màu/box-sizing, sticky nav `nav.viz-nav`, **layout index** (`.container`, `header h1`, `.intro`, `.branch-title`, `.card-grid`, `.card`, footer). Load qua `<link>` |
 | `tools/marked.min.js` | Markdown parser (marked v12, local copy — không fetch CDN để hoạt động được với `file://`) |
-| `tools/readme-modal.js` | Script tự inject nút "📖 Đọc README" + panel hiển thị README với 3 chế độ Modal / Sidebar / Full, kèm TOC sidebar bên trong panel |
+| `tools/readme-modal.js` | Script tự inject nút "📖 Đọc README" + panel hiển thị README với 3 chế độ Modal / Sidebar / Full, kèm TOC sidebar bên trong panel. **Tự render công thức toán LaTeX bằng KaTeX**: bảo vệ các đoạn `$...$` / `$$...$$` / `\(...\)` / `\[...\]` khỏi marked (tránh `_`/`\` bị phá), parse markdown xong mới render KaTeX rồi ghép lại; lazy-load `tools/katex/` lần đầu README có công thức |
+| `tools/katex/` | Bộ render công thức toán **KaTeX (local, woff2-only)** dùng cho readme-modal: `katex.min.js` + `katex.min.css` + `fonts/*.woff2` + `auto-render.min.js`. Local copy — không fetch CDN để chạy được với `file://`. Auto-generated từ npm — KHÔNG sửa tay |
 | `tools/viz-toc.js` | Script tự sinh **Table of Contents** cho viz: scan `<h2>/<h3>` trong `<main>`, inject nút "📑 Mục lục" floating bên trái, popup panel với scroll-spy. Tự skip nếu < 2 h2 |
 | `tools/build-readme-data.go` | Go script sinh `README.data.js` cạnh mỗi cặp `README.md + visualization.html`. Chạy: `go run tools/build-readme-data.go` |
 | `tools/ipa-reader.js` | Floating IPA Reader widget — nút "🔤 IPA" góc dưới-trái cho phép nhập text, hiển thị phiên âm IPA từng từ, click nghe TTS (Web Speech API). Chỉ tự inject khi path chứa `/English/`. Lazy-load `ipa-dict.js` lần đầu user mở panel |
@@ -134,7 +135,8 @@ Thư mục `tools/` ở cấp gốc chứa các file dùng chung cho toàn bộ 
 | `tools/favicon.js` | Favicon dùng chung: nhúng SVG mũ tốt nghiệp dưới dạng **data-URI** rồi inject `<link rel="icon">` lúc runtime — không phụ thuộc đường dẫn, chạy đúng ở mọi độ sâu. `readme-modal.js` tự nạp file này nên **mọi `visualization.html` có favicon mà không cần sửa**. `index.html` cần thêm 1 dòng `<script src="<độ-sâu>/tools/favicon.js"></script>`. Single source of truth cho hình favicon (đồng bộ với `/favicon.svg`) |
 
 **Quy tắc bắt buộc:**
-- Không sửa `tools/marked.min.js` (file thư viện, không tự viết).
+- Không sửa `tools/marked.min.js` và `tools/katex/` (file thư viện, không tự viết).
+- **Viết công thức toán trong `README.md` bằng LaTeX**: inline dùng `$...$`, display (căn giữa, xuống dòng) dùng `$$...$$`; derivation nhiều bước dùng `$$\begin{aligned} ... \\ ... \end{aligned}$$`. readme-modal sẽ render đẹp như sách. KHÔNG còn cần đặt công thức trong block ``` ``` text thô. Dấu `$` trong code (`` `giá $5` `` / fenced code) không bị bắt nên vẫn an toàn.
 - Khi sửa `tools/viz-base.css`, `tools/readme-modal.js` hoặc `tools/build-readme-data.go`, thay đổi có hiệu lực ngay cho toàn bộ viz trong repo — kiểm tra kỹ trước khi commit.
 - Mỗi khi tạo `visualization.html` mới: **luôn** thêm `<link rel="stylesheet" href="../../tools/viz-base.css">` vào `<head>` (chrome chuẩn), chạy `go run tools/build-readme-data.go` để sinh `README.data.js`, rồi thêm 3 script tags readme-modal vào cuối `<body>` (xem mục 5 ở trên).
 - **Mỗi khi sửa `README.md` của một lesson đã có `visualization.html`, BẮT BUỘC chạy lại `go run tools/build-readme-data.go` (hoặc giới hạn phạm vi `go run tools/build-readme-data.go <Lĩnh vực>`) để regenerate `README.data.js` tương ứng**, rồi commit cả `README.md` và `README.data.js` trong cùng một commit. `README.data.js` là file auto-generated — nếu quên sync, readme-modal sẽ hiển thị nội dung cũ. Không bao giờ sửa `README.data.js` bằng tay.

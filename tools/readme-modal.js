@@ -309,7 +309,7 @@
     }
     /* font-size: inherit để bảng lấy 16px của .rm-content, chặn rule table font-size
        rò rỉ từ style nội bộ của viz (trước đây phải ép td/th = 13px vì lý do này). */
-    .rm-content table { border-collapse: collapse; margin: 12px 0; width: 100%; display: block; overflow-x: auto; font-size: inherit; }
+    .rm-content table { border-collapse: collapse; margin: 12px 0; width: 100%; font-size: inherit; }
     .rm-content th, .rm-content td {
       border: 1px solid #e2e8f0; padding: 6px 10px; font-size: 1em;
       text-align: left; vertical-align: top;

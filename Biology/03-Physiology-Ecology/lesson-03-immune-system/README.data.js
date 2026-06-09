@@ -349,7 +349,7 @@ Hầu hết vaccine cần **≥ 2 mũi**:
 
 **Ví dụ 3 — vaccine cúm**: hiệu lực thay đổi 20–60% mỗi năm tùy mức "khớp" giữa chủng vaccine và chủng lưu hành thực tế. Vì cúm đột biến epitope nhanh, nên phải dự đoán và sản xuất lại mỗi năm.
 
-**Ví dụ 4 — Miễn dịch cộng đồng (herd immunity)**: với sởi (R₀ ≈ 12–18), cần ~95% dân số có miễn dịch để chặn lây lan. Công thức ngưỡng = 1 − 1/R₀ ≈ 1 − 1/15 ≈ 93%. Nếu tỉ lệ tiêm tụt xuống 80%, sởi bùng phát trở lại — điều đã xảy ra ở vài nước châu Âu 2017–2019.
+**Ví dụ 4 — Miễn dịch cộng đồng (herd immunity)**: với sởi ($R_0 \\approx 12\\text{–}18$), cần ~95% dân số có miễn dịch để chặn lây lan. Công thức ngưỡng $= 1 - \\frac{1}{R_0} \\approx 1 - \\frac{1}{15} \\approx 93\\%$. Nếu tỉ lệ tiêm tụt xuống 80%, sởi bùng phát trở lại — điều đã xảy ra ở vài nước châu Âu 2017–2019.
 
 ### ⚠ Lỗi thường gặp
 
@@ -382,7 +382,7 @@ A: Vì tiêm vaccine khiến cơ thể *tự sản xuất* kháng thể và tế
 - Vaccine = đưa kháng nguyên không gây bệnh vào → kích hoạt sơ cấp → tạo tế bào nhớ → khi gặp thật, đáp ứng thứ cấp dập tắt nhanh.
 - Nhiều dạng: bất hoạt, suy yếu, subunit, toxoid, mRNA, vector — mỗi loại có ưu điểm và đối tượng phù hợp khác nhau.
 - Cần ≥2 mũi vì mũi 1 mới sơ cấp, mũi 2 mới thứ cấp; tiêm nhắc vì tế bào nhớ giảm theo năm.
-- Miễn dịch cộng đồng cần ngưỡng tiêm cao (≈ 1 − 1/R₀) — tụt xuống thì bùng phát.
+- Miễn dịch cộng đồng cần ngưỡng tiêm cao ($\\approx 1 - \\frac{1}{R_0}$) — tụt xuống thì bùng phát.
 
 ---
 
@@ -537,7 +537,7 @@ A: Tạng người khác có MHC khác → hệ miễn dịch người nhận co
 2. **Bẩm sinh**: da/niêm mạc, thực bào (macrophage, neutrophil), NK, bổ thể, interferon, viêm (đỏ-nóng-sưng-đau), sốt.
 3. **Thích ứng**: tế bào B → kháng thể (5 lớp Ig); tế bào T helper điều phối; T gây độc giết tế bào nhiễm. Kháng thể hình Y, 2 đầu gắn antigen.
 4. **Đáp ứng thứ cấp** nhanh hơn (~2–3 ngày vs 5–10 ngày) và mạnh hơn (10–100 lần) sơ cấp nhờ **tế bào nhớ** — lõi của vaccine.
-5. **Vaccine** = "diễn tập" miễn dịch: đưa kháng nguyên không gây bệnh vào → tạo tế bào nhớ → khi gặp thật, dập nhanh. Cần ≥ 2 mũi; tiêm nhắc khi tế bào nhớ giảm; miễn dịch cộng đồng cần ≈ 1 − 1/R₀.
+5. **Vaccine** = "diễn tập" miễn dịch: đưa kháng nguyên không gây bệnh vào → tạo tế bào nhớ → khi gặp thật, dập nhanh. Cần ≥ 2 mũi; tiêm nhắc khi tế bào nhớ giảm; miễn dịch cộng đồng cần $\\approx 1 - \\frac{1}{R_0}$.
 6. **Trục trặc miễn dịch**: tự miễn (đánh nhầm self), dị ứng (IgE quá mức → histamine), AIDS (HIV phá CD4⁺ → tê liệt thích ứng).
 
 **Tiếp theo**: [Lesson 04 — Nội tiết & nội môi](../lesson-04-endocrine-homeostasis/)

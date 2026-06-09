@@ -271,7 +271,7 @@ Vì sao 2 anh em ruột (cùng bố cùng mẹ) lại khác nhau? Vì mỗi giao
 
 ### 5.2. Công thức 2ⁿ và walk-through bằng số
 
-Với **n cặp NST**, số kiểu giao tử do phân ly độc lập = **2ⁿ**. Vì sao là 2 mũ n? Mỗi cặp có **2 cách** sắp (NST bố lên trên hay NST mẹ lên trên); n cặp độc lập → nhân các lựa chọn: `2 × 2 × ... × 2` (n lần) = 2ⁿ.
+Với **n cặp NST**, số kiểu giao tử do phân ly độc lập = $\mathbf{2^n}$. Vì sao là 2 mũ n? Mỗi cặp có **2 cách** sắp (NST bố lên trên hay NST mẹ lên trên); n cặp độc lập → nhân các lựa chọn: $\underbrace{2 \times 2 \times \cdots \times 2}_{n\ \text{lần}} = 2^n$.
 
 | n (số cặp NST) | 2ⁿ = số kiểu giao tử | Cách tính |
 |:---:|:---:|---|

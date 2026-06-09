@@ -424,7 +424,7 @@ A: Tủ lạnh ức chế tổng hợp ethylene (enzyme cần nhiệt độ ấm
 
 **Bài 1**: Phân biệt 2 đường nước đi vào rễ (apoplast vs symplast). Đai Caspary buộc nước đi theo đường nào trước khi vào mạch gỗ? Vì sao điều này có lợi cho cây?
 
-**Bài 2**: Một cây sồi trưởng thành thoát ~**150 L nước/ngày** vào ngày nắng. Biết 1 phân tử nước (H₂O) có khối lượng mol 18 g/mol và 1 mol = 6.022 × 10²³ phân tử. Tính số phân tử nước thoát ra mỗi giây ở cây sồi đó.
+**Bài 2**: Một cây sồi trưởng thành thoát ~**150 L nước/ngày** vào ngày nắng. Biết 1 phân tử nước ($\\text{H}_2\\text{O}$) có khối lượng mol 18 g/mol và $1 \\text{ mol} = 6{,}022 \\times 10^{23}$ phân tử. Tính số phân tử nước thoát ra mỗi giây ở cây sồi đó.
 
 **Bài 3**: Một cây ngô cao 2 m thoát ~200 mL nước/ngày qua 1 lá đầy đủ ánh sáng. Lá có ~10⁷ khí khổng. Tính lượng nước trung bình thoát qua 1 khí khổng trong 1 giờ. So sánh với "lưu lượng" của một vòi nước nhà bếp (~10 L/phút). Bao nhiêu khí khổng mở cùng lúc mới ngang vòi nước?
 
@@ -434,7 +434,7 @@ A: Tủ lạnh ức chế tổng hợp ethylene (enzyme cần nhiệt độ ấm
 
 **Bài 6**: Một người nông dân muốn cho buồng chuối xanh chín đồng loạt để xuất ra chợ. Đề xuất 2 cách dựa trên kiến thức về hormone, kèm cơ chế.
 
-**Bài 7**: Cây sequoia cao 115 m. Áp suất cần để đẩy cột nước cao 115 m (không tính ma sát) bằng bao nhiêu? Biết khối lượng riêng nước = 1000 kg/m³ và g = 9.8 m/s². So sánh với áp suất khí quyển (~0.1 MPa) — vì sao bơm hút thường không kéo nước lên cao hơn 10 m nhưng cây sequoia làm được?
+**Bài 7**: Cây sequoia cao 115 m. Áp suất cần để đẩy cột nước cao 115 m (không tính ma sát) bằng bao nhiêu? Biết khối lượng riêng nước = 1000 kg/m³ và $g = 9{,}8$ m/s². So sánh với áp suất khí quyển (~0,1 MPa) — vì sao bơm hút thường không kéo nước lên cao hơn 10 m nhưng cây sequoia làm được?
 
 ### Lời giải
 
@@ -445,16 +445,16 @@ A: Tủ lạnh ức chế tổng hợp ethylene (enzyme cần nhiệt độ ấm
 - **Lợi ích**: cây kiểm soát được ion/chất gì cho vào (qua kênh chuyên biệt trên màng), chặn được ion độc và vi khuẩn không có "vé" qua màng. Nếu không có đai Caspary, mọi thứ trong đất sẽ trực tiếp xông vào xylem.
 
 **Bài 2**:
-- 150 L = 150,000 g = 150,000 / 18 ≈ **8,333 mol** nước/ngày.
-- Số phân tử: 8,333 × 6.022 × 10²³ ≈ **5.02 × 10²⁷ phân tử/ngày**.
-- 1 ngày = 86,400 giây → ≈ 5.02 × 10²⁷ / 86,400 ≈ **5.8 × 10²² phân tử/giây**.
+- $150 \\text{ L} = 150\\,000 \\text{ g} = 150\\,000 / 18 \\approx \\mathbf{8\\,333}$ **mol** nước/ngày.
+- Số phân tử: $8\\,333 \\times 6{,}022 \\times 10^{23} \\approx \\mathbf{5{,}02 \\times 10^{27}}$ **phân tử/ngày**.
+- $1 \\text{ ngày} = 86\\,400$ giây → $\\approx 5{,}02 \\times 10^{27} / 86\\,400 \\approx \\mathbf{5{,}8 \\times 10^{22}}$ **phân tử/giây**.
 - So sánh trực giác: một dòng nước hàng tỷ tỷ phân tử/giây len qua hàng triệu khí khổng — đó là quy mô của thoát hơi nước.
 
 **Bài 3**:
-- 200 mL / ngày / 10⁷ khí khổng = 2 × 10⁻⁵ mL = **2 × 10⁻⁵ mL/ngày/khí khổng**.
-- 1 ngày ~ 24 giờ (nhưng khí khổng chỉ mở ban ngày ~12 giờ) → trong giờ mở: 2 × 10⁻⁵ / 12 ≈ **1.7 × 10⁻⁶ mL/giờ/khí khổng** = 1.7 nL/giờ.
-- Vòi nước nhà bếp 10 L/phút = 600 L/giờ = 6 × 10⁵ mL/giờ.
-- Số khí khổng cần để ngang vòi nước = 6 × 10⁵ / (1.7 × 10⁻⁶) ≈ **3.5 × 10¹¹ khí khổng** (350 tỷ).
+- $200 \\text{ mL} / \\text{ngày} / 10^7 \\text{ khí khổng} = 2 \\times 10^{-5} \\text{ mL} = \\mathbf{2 \\times 10^{-5}}$ **mL/ngày/khí khổng**.
+- 1 ngày ~ 24 giờ (nhưng khí khổng chỉ mở ban ngày ~12 giờ) → trong giờ mở: $2 \\times 10^{-5} / 12 \\approx \\mathbf{1{,}7 \\times 10^{-6}}$ **mL/giờ/khí khổng** = 1,7 nL/giờ.
+- Vòi nước nhà bếp 10 L/phút = 600 L/giờ = $6 \\times 10^5$ mL/giờ.
+- Số khí khổng cần để ngang vòi nước $= 6 \\times 10^5 / (1{,}7 \\times 10^{-6}) \\approx \\mathbf{3{,}5 \\times 10^{11}}$ **khí khổng** (350 tỷ).
 - Tương đương ~35,000 cây ngô cùng thoát hơi nước cùng lúc mới ngang 1 vòi nước nhà bếp. Cho thấy mỗi khí khổng cá nhân là vi mô, nhưng **tổng cộng cả rừng lá rất đáng kể**.
 
 **Bài 4**:
@@ -491,9 +491,9 @@ Cách 2 — **Xếp buồng chuối kín với quả chín (vd táo)**:
 Cả 2 cách đều dùng nguyên lý **ethylene = hormone chín quả, là khí, có phản hồi dương**.
 
 **Bài 7**:
-- Áp suất thủy tĩnh của cột nước cao h: P = ρgh = 1000 × 9.8 × 115 = **1,127,000 Pa ≈ 1.13 MPa**.
-- Áp suất khí quyển = **0.101 MPa**.
-- Bơm hút (suck pump) chỉ kéo được cột nước cao tối đa = P_atm / (ρg) = 101,300 / (1000 × 9.8) ≈ **10.3 m** — vì bơm hút thực ra là tạo chân không, và áp suất khí quyển đẩy nước lên. Trên 10 m, dù chân không tuyệt đối, áp suất khí quyển không đủ.
+- Áp suất thủy tĩnh của cột nước cao $h$: $P = \\rho g h = 1000 \\times 9{,}8 \\times 115 = \\mathbf{1\\,127\\,000}$ **Pa** $\\approx 1{,}13$ **MPa**.
+- Áp suất khí quyển = **0,101 MPa**.
+- Bơm hút (suck pump) chỉ kéo được cột nước cao tối đa $= P_{atm} / (\\rho g) = 101\\,300 / (1000 \\times 9{,}8) \\approx \\mathbf{10{,}3}$ **m** — vì bơm hút thực ra là tạo chân không, và áp suất khí quyển đẩy nước lên. Trên 10 m, dù chân không tuyệt đối, áp suất khí quyển không đủ.
 - Cây sequoia làm được vì **không dùng áp suất khí quyển đẩy**, mà dùng **tension âm** (lực kéo căng cột nước qua liên kết hydrogen). Tension âm trong xylem có thể đạt **−2 MPa**, đủ kéo cột nước cao 115 m. Đây là điểm tinh tế: cây không "bơm" nước lên, cây "kéo" nước lên — và liên kết hydrogen của nước đủ mạnh để chịu lực kéo này mà không đứt cột.
 - Bài này minh họa rõ **sức mạnh cohesion-tension theory** — một cơ chế "kéo thay vì đẩy" mà tiến hóa "phát kiến" hàng trăm triệu năm trước con người.
 

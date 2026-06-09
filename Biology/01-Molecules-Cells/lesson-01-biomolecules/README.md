@@ -80,9 +80,7 @@ A: Phân tử sinh học là phân tử hữu cơ do **cơ thể sống tổng h
 
 Nối 2 monomer = tạo 1 liên kết cộng hóa trị, đồng thời **tách ra 1 phân tử H₂O** (một monomer cho –OH, monomer kia cho –H).
 
-```
-monomer–OH  +  H–monomer  →  monomer–monomer  +  H₂O
-```
+$$\text{monomer–OH} + \text{H–monomer} \rightarrow \text{monomer–monomer} + \text{H}_2\text{O}$$
 
 Quy luật đếm: nối **n monomer** thành 1 chuỗi cần **(n − 1)** liên kết → tách **(n − 1)** phân tử nước.
 
@@ -90,9 +88,7 @@ Quy luật đếm: nối **n monomer** thành 1 chuỗi cần **(n − 1)** liê
 
 Phản ứng ngược: **thêm 1 phân tử H₂O** để cắt 1 liên kết. Đây là cách cơ thể tiêu hóa thức ăn (cắt tinh bột, protein thành đơn phân để hấp thụ).
 
-```
-monomer–monomer  +  H₂O  →  monomer–OH  +  H–monomer
-```
+$$\text{monomer–monomer} + \text{H}_2\text{O} \rightarrow \text{monomer–OH} + \text{H–monomer}$$
 
 ### 2.4. Bốn ví dụ số cụ thể
 
@@ -127,7 +123,7 @@ monomer–monomer  +  H₂O  →  monomer–OH  +  H–monomer
 <summary>Đáp án</summary>
 
 1. 250 − 1 = **249 phân tử nước**.
-2. Cần **1 phân tử nước**. Kiểm tra: `C₁₂H₂₂O₁₁ + H₂O → 2 C₆H₁₂O₆`. Vế trái: C12, H 22+2=24, O 11+1=12. Vế phải: C 2×6=12, H 2×12=24, O 2×6=12. Cân bằng ✓.
+2. Cần **1 phân tử nước**. Kiểm tra: $\text{C}_{12}\text{H}_{22}\text{O}_{11} + \text{H}_2\text{O} \rightarrow 2\,\text{C}_6\text{H}_{12}\text{O}_6$. Vế trái: C12, H 22+2=24, O 11+1=12. Vế phải: C 2×6=12, H 2×12=24, O 2×6=12. Cân bằng ✓.
 </details>
 
 ### 📝 Tóm tắt mục 2

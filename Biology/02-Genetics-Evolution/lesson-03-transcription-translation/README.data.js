@@ -195,7 +195,7 @@ A: Intron không phải "rác". (1) Cho phép **alternative splicing** — 1 gen
 
 ### 💡 Trực giác / Hình dung
 
-Mã di truyền giống **bảng chữ cái Morse**: mỗi cụm 3 dấu chấm/gạch tương ứng với 1 chữ cái. Ở đây, **mỗi 3 nucleotide (1 codon) → 1 amino acid**. Có 4 ký tự (A, U, G, C), cụm 3 ký tự → **4³ = 64 codon** khả dĩ, dư thừa để mã hoá 20 amino acid → một số amino acid được mã hoá bởi nhiều codon (gọi là **thoái hoá / degenerate**).
+Mã di truyền giống **bảng chữ cái Morse**: mỗi cụm 3 dấu chấm/gạch tương ứng với 1 chữ cái. Ở đây, **mỗi 3 nucleotide (1 codon) → 1 amino acid**. Có 4 ký tự (A, U, G, C), cụm 3 ký tự → $4^3 = 64$ **codon** khả dĩ, dư thừa để mã hoá 20 amino acid → một số amino acid được mã hoá bởi nhiều codon (gọi là **thoái hoá / degenerate**).
 
 ### 3.1. Quy ước đếm codon
 
@@ -259,7 +259,7 @@ mRNA:     5'- ... A U G | C G U | A A A | G G C | U A A | ... -3'
 ### ❓ Câu hỏi tự nhiên của người đọc
 
 **Q: Vì sao là 3 nucleotide/codon, không phải 2 hay 4?**
-A: Tính toán đơn giản. (1) 2 nucleotide: 4² = 16 tổ hợp < 20 amino acid → KHÔNG đủ. (2) 3 nucleotide: 4³ = 64 ≥ 20 → ĐỦ (và còn dư để có codon stop + thoái hoá làm "đệm" chống đột biến). (3) 4 nucleotide: 4⁴ = 256 → đủ nhưng phí phạm thông tin. Tự nhiên chọn 3 — tối thiểu mà vẫn đủ.
+A: Tính toán đơn giản. (1) 2 nucleotide: $4^2 = 16$ tổ hợp < 20 amino acid → KHÔNG đủ. (2) 3 nucleotide: $4^3 = 64 \\geq 20$ → ĐỦ (và còn dư để có codon stop + thoái hoá làm "đệm" chống đột biến). (3) 4 nucleotide: $4^4 = 256$ → đủ nhưng phí phạm thông tin. Tự nhiên chọn 3 — tối thiểu mà vẫn đủ.
 
 **Q: Có mã di truyền nào ngoại lệ không?**
 A: Có vài ngoại lệ nhỏ:
@@ -288,7 +288,7 @@ A: Mã thoái hoá thường thoái hoá ở **vị trí thứ 3 của codon** (
 
 ### 📝 Tóm tắt mục 3
 
-- 1 codon = 3 nucleotide; 4³ = 64 codon; mã hoá 20 amino acid + 3 stop (UAA, UAG, UGA).
+- 1 codon = 3 nucleotide; $4^3 = 64$ codon; mã hoá 20 amino acid + 3 stop (UAA, UAG, UGA).
 - AUG vừa là codon khởi đầu vừa mã hoá Met.
 - Đặc tính: phổ thông, không gối, liên tục, thoái hoá.
 - Đọc đúng khung (reading frame) là tối quan trọng — lệch 1 base = peptide hoàn toàn khác.
@@ -580,7 +580,7 @@ Gốc: AUG | GCU | AGU | CCG | UAA = Met-Ala-Ser-Pro-STOP. Peptide gốc = **Met
 1. **Luận đề trung tâm**: DNA → (phiên mã) → RNA → (dịch mã) → Protein. Ngoại lệ: retrovirus (phiên mã ngược).
 2. **Phiên mã**: RNA polymerase đọc mạch khuôn 3'→5', tổng hợp mRNA 5'→3'; A–U, T–A, G–C, C–G. mRNA giống mạch mã, chỉ T→U.
 3. **Xử lý pre-mRNA (chỉ eukaryote)**: cap 5' + poly-A 3' + cắt intron, nối exon.
-4. **Mã di truyền**: 4³ = 64 codon; mã hoá 20 amino acid + 3 stop (UAA/UAG/UGA); AUG = Met = start. Đặc tính: phổ thông, không gối, liên tục, thoái hoá.
+4. **Mã di truyền**: $4^3 = 64$ codon; mã hoá 20 amino acid + 3 stop (UAA/UAG/UGA); AUG = Met = start. Đặc tính: phổ thông, không gối, liên tục, thoái hoá.
 5. **Dịch mã**: ribosome (A/P/E) + mRNA + tRNA. 3 pha: initiation → elongation (codon recognition → peptide bond → translocation) → termination. ~5 aa/giây.
 6. **Đột biến điểm**: silent (vô hại) / missense (đổi aa, vd sickle cell) / nonsense (stop sớm) / frameshift (chèn-xoá lệch khung, thảm hoạ). Mã thoái hoá → ~30% silent → đệm chống đột biến.
 

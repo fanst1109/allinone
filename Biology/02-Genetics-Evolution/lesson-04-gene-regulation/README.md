@@ -349,7 +349,7 @@ A: Đúng. Đây là lý do bộ gen người chỉ có ~20.000 gen mã hóa pro
 <summary>Đáp án</summary>
 
 1. **Nhanh nhất**: cấp 5 (sau dịch mã) — phosphoryl hóa/dephosphoryl hóa protein xảy ra trong **mili giây đến giây**. **Dài hạn nhất**: cấp 1 (chromatin / biểu sinh) — methylation có thể duy trì qua nhiều thế hệ tế bào, thậm chí thế hệ cơ thể.
-2. Với 5 exon, mỗi exon "có/không" → tối đa **2⁵ = 32** tổ hợp. Trừ trường hợp tất cả đều bỏ (không còn mRNA) → 31. Trên thực tế bị giới hạn bởi các trình tự nhận biết splice site, nên không bao giờ đạt mức tối đa lý thuyết, nhưng vẫn tạo được hàng chục biến thể.
+2. Với 5 exon, mỗi exon "có/không" → tối đa $2^5 =$ **32** tổ hợp. Trừ trường hợp tất cả đều bỏ (không còn mRNA) → 31. Trên thực tế bị giới hạn bởi các trình tự nhận biết splice site, nên không bao giờ đạt mức tối đa lý thuyết, nhưng vẫn tạo được hàng chục biến thể.
 </details>
 
 ### 📝 Tóm tắt mục 4
@@ -402,7 +402,7 @@ Một số pattern biểu sinh có thể truyền **qua thế hệ** (transgener
 
 **Ví dụ 1 — Mức methylation ở promoter gen ức chế khối u p16**: Ở tế bào bình thường: ~5% CpG bị methyl → p16 biểu hiện đầy đủ, kiểm soát chu kỳ tế bào. Ở tế bào ung thư phổi: ~75% CpG methyl → p16 TẮT → mất kiểm soát phân chia → ung thư phát triển.
 
-**Ví dụ 2 — Tỉ lệ giảm biểu hiện theo methylation**: Một nghiên cứu cho thấy biểu hiện gen GSTP1 (gen giải độc) giảm theo công thức xấp xỉ: `Expression ≈ E₀ × exp(−k × M)` với M = % methyl. Ở M=0%: 100%. Ở M=25%: ~50%. Ở M=50%: ~25%. Ở M=75%: ~12%.
+**Ví dụ 2 — Tỉ lệ giảm biểu hiện theo methylation**: Một nghiên cứu cho thấy biểu hiện gen GSTP1 (gen giải độc) giảm theo công thức xấp xỉ: $\text{Expression} \approx E_0 \times e^{-k \cdot M}$ với M = % methyl. Ở M=0%: 100%. Ở M=25%: ~50%. Ở M=50%: ~25%. Ở M=75%: ~12%.
 
 **Ví dụ 3 — In dấu di truyền (genomic imprinting)**: Khoảng **150 gen** ở người có hiện tượng "in dấu" — chỉ allele từ mẹ HOẶC từ cha được biểu hiện, allele còn lại bị methyl hóa câm. Vd gen IGF2: chỉ allele cha hoạt động. Đột biến/mất gen này gây hội chứng Beckwith-Wiedemann.
 
@@ -434,7 +434,7 @@ A: Có. **5-azacytidine** (DNMT inhibitor) và **vorinostat** (HDAC inhibitor) l
 <summary>Đáp án</summary>
 
 1. Vì pattern biểu sinh (methylation DNA, sửa đổi histone) khác nhau → các gen "tế bào gan" mở ở tế bào gan và đóng ở tế bào thần kinh, ngược lại. Pattern này được thiết lập trong phát triển phôi và duy trì qua phân chia tế bào.
-2. Dùng `Expression = exp(−k × M)`. Từ ví dụ: M=25% → 50%, suy ra k ≈ ln(2)/25 ≈ 0.0277. Ở M=60%: `exp(−0.0277 × 60) = exp(−1.66) ≈ 0.19` → biểu hiện ~**19%** mức gốc. (Đây là mô hình đơn giản hóa; thực tế phụ thuộc từng gen.)
+2. Dùng $\text{Expression} = e^{-k \cdot M}$. Từ ví dụ: M=25% → 50%, suy ra $k \approx \ln(2)/25 \approx 0{,}0277$. Ở M=60%: $e^{-0{,}0277 \times 60} = e^{-1{,}66} \approx 0{,}19$ → biểu hiện ~**19%** mức gốc. (Đây là mô hình đơn giản hóa; thực tế phụ thuộc từng gen.)
 </details>
 
 ### 📝 Tóm tắt mục 5
@@ -465,7 +465,7 @@ Giải thích cơ chế cho mỗi trường hợp (trạng thái LacI, CAP, RNA 
 
 **Bài 3**: So sánh operon Lac và operon Trp về (a) mặc định, (b) tín hiệu môi trường, (c) cơ chế tín hiệu tác động lên repressor, (d) loại chuyển hóa (dị hóa/đồng hóa). Vì sao 2 operon "ngược nhau" như vậy lại hợp lý sinh học?
 
-**Bài 4**: Một promoter của gen X ở người được methyl hóa theo thời gian: lúc 20 tuổi M=10%, lúc 50 tuổi M=40%, lúc 80 tuổi M=70%. Dùng công thức `Expression = exp(−0.0277 × M)`, tính mức biểu hiện gen X ở mỗi độ tuổi (so với M=0%). Hiện tượng này có ý nghĩa gì với lão hóa?
+**Bài 4**: Một promoter của gen X ở người được methyl hóa theo thời gian: lúc 20 tuổi M=10%, lúc 50 tuổi M=40%, lúc 80 tuổi M=70%. Dùng công thức $\text{Expression} = e^{-0{,}0277 \cdot M}$, tính mức biểu hiện gen X ở mỗi độ tuổi (so với M=0%). Hiện tượng này có ý nghĩa gì với lão hóa?
 
 **Bài 5**: Bộ gen của một sinh vật giả định có 25.000 gen. Trong tế bào loại A, có 12.000 gen biểu hiện; trong tế bào loại B có 14.000 gen biểu hiện. Có 8.000 gen biểu hiện ở cả 2 loại tế bào. Tính: (a) số gen chỉ biểu hiện ở A, (b) chỉ ở B, (c) không biểu hiện ở cả hai. Vì sao có thể có "gen không biểu hiện ở bất kỳ tế bào nào" trong sinh vật này?
 
@@ -511,13 +511,13 @@ Logic chung: tế bào không bao giờ làm việc thừa. Hai loại operon ng
 
 **Bài 4**:
 
-Dùng `Expression = exp(−0.0277 × M)`:
+Dùng $\text{Expression} = e^{-0{,}0277 \cdot M}$:
 
 | Tuổi | M | Expression |
 |------|---|------------|
-| 20 | 10% | exp(−0.277) ≈ **75.8%** |
-| 50 | 40% | exp(−1.108) ≈ **33.0%** |
-| 80 | 70% | exp(−1.939) ≈ **14.4%** |
+| 20 | 10% | $e^{-0{,}277} \approx$ **75,8%** |
+| 50 | 40% | $e^{-1{,}108} \approx$ **33,0%** |
+| 80 | 70% | $e^{-1{,}939} \approx$ **14,4%** |
 
 Ý nghĩa: nhiều gen "ổn định" ở tuổi trẻ bị methyl hóa dần theo thời gian → biểu hiện giảm → đóng góp vào quá trình lão hóa. Đặc biệt nguy hiểm khi gen bị tắt là gen ức chế khối u (như p16) → tăng nguy cơ ung thư theo tuổi. Đây là một trong các cơ chế của **đồng hồ biểu sinh (epigenetic clock)** — có thể dự đoán tuổi sinh học từ pattern methyl.
 
@@ -543,7 +543,7 @@ Dùng `Expression = exp(−0.0277 × M)`:
 | 3 | Bỏ 2, giữ 3 | E1–E3–E4 |
 | 4 | Bỏ 2, bỏ 3 | E1–E4 |
 
-Mỗi mRNA dịch thành 1 protein khác nhau → 1 gen tạo 4 protein. Tổng quát: gen có k exon thay đổi được → tối đa 2^k tổ hợp (trong điều kiện không có ràng buộc khác).
+Mỗi mRNA dịch thành 1 protein khác nhau → 1 gen tạo 4 protein. Tổng quát: gen có k exon thay đổi được → tối đa $2^k$ tổ hợp (trong điều kiện không có ràng buộc khác).
 
 ---
 

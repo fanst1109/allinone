@@ -388,7 +388,7 @@ Tiểu đường = van bị hỏng:
 | 2 giờ sau ăn | < 140 | < 7.8 |
 | Trước khi đi ngủ | 100–140 | 5.6–7.8 |
 
-Chuyển đổi: **mg/dL ÷ 18 ≈ mmol/L** (vì khối lượng mol glucose = 180 g/mol; 1 dL = 100 mL → 1 mg/dL = 10 mg/L = 0.01 g/L = 0.0556 mmol/L ≈ 1/18).
+Chuyển đổi: $\\textbf{mg/dL} \\div 18 \\approx \\textbf{mmol/L}$ (vì khối lượng mol glucose = 180 g/mol; 1 dL = 100 mL → 1 mg/dL = 10 mg/L = 0,01 g/L = 0,0556 mmol/L ≈ 1/18).
 
 ### 6.2. Cơ chế insulin (đầy đủ)
 
@@ -417,7 +417,7 @@ Chuyển đổi: **mg/dL ÷ 18 ≈ mmol/L** (vì khối lượng mol glucose = 1
 
 **Ví dụ 3 — Tiểu đường type 2** (kháng insulin): T=0 ~115 → T=30 lên 180 → T=60 lên 200 → T=120 lên 170 → T=180 còn 145. Insulin vẫn được tiết (thậm chí nhiều hơn) nhưng tế bào "điếc" → phản ứng chậm hơn.
 
-**Ví dụ 4 — Tính HbA1c**: HbA1c đo % hemoglobin bị glycation (gắn glucose). Quy tắc gần đúng: **HbA1c (%) × 28.7 − 46.7 = đường huyết trung bình mg/dL**. Vd HbA1c 7% → đường huyết TB 154 mg/dL (bình thường < 5.7% ≈ 117 mg/dL).
+**Ví dụ 4 — Tính HbA1c**: HbA1c đo % hemoglobin bị glycation (gắn glucose). Quy tắc gần đúng: $\\textbf{HbA1c (\\%)} \\times 28{,}7 - 46{,}7 = \\text{đường huyết trung bình (mg/dL)}$. Vd HbA1c 7% → đường huyết TB 154 mg/dL (bình thường < 5,7% ≈ 117 mg/dL).
 
 ### 6.5. Phân biệt 3 loại tiểu đường
 
@@ -460,7 +460,7 @@ A: Không. Glucagon kích hoạt gan giải phóng glycogen (đủ cho ~12–24 
 **Bài 2**: Một người có đường huyết lúc đói = 145 mg/dL, sau 2 giờ uống 75g glucose đo lại = 215 mg/dL.
 (a) Người này có bị tiểu đường không? Dựa vào tiêu chuẩn nào?
 (b) Quy đổi 145 mg/dL và 215 mg/dL ra mmol/L.
-(c) Nếu HbA1c đo được 8.5%, tính đường huyết trung bình theo công thức 28.7×HbA1c − 46.7.
+(c) Nếu HbA1c đo được 8,5%, tính đường huyết trung bình theo công thức $28{,}7 \\times \\text{HbA1c} - 46{,}7$.
 
 **Bài 3**: Vẽ vòng phản hồi âm cho điều hòa Ca²⁺ máu (điểm đặt ~10 mg/dL, hormone PTH từ tuyến cận giáp). Liệt kê 4 thành phần (đại lượng, cảm biến, trung tâm, hiệu ứng).
 
@@ -498,10 +498,10 @@ Lưu ý: Adrenaline và T4 cùng là amine từ tyrosine, nhưng adrenaline tan 
 Cả 2 tiêu chuẩn đều dương tính → **có tiểu đường**.
 
 (b) Quy đổi (chia cho 18):
-- 145 mg/dL ÷ 18 = **8.06 mmol/L**.
-- 215 mg/dL ÷ 18 = **11.94 mmol/L**.
+- 145 mg/dL $\\div$ 18 = **8,06 mmol/L**.
+- 215 mg/dL $\\div$ 18 = **11,94 mmol/L**.
 
-(c) HbA1c 8.5% → đường huyết TB = 28.7 × 8.5 − 46.7 = 243.95 − 46.7 = **197.25 mg/dL** ≈ 11 mmol/L. Mức này rất cao (bình thường HbA1c < 5.7% → đường huyết TB ~117 mg/dL). Cần kiểm soát tích cực.
+(c) HbA1c 8,5% → đường huyết TB $= 28{,}7 \\times 8{,}5 - 46{,}7 = 243{,}95 - 46{,}7 = \\mathbf{197{,}25}$ **mg/dL** ≈ 11 mmol/L. Mức này rất cao (bình thường HbA1c < 5,7% → đường huyết TB ~117 mg/dL). Cần kiểm soát tích cực.
 
 **Bài 3**:
 

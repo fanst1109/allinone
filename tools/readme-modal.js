@@ -295,7 +295,7 @@
     .rm-content a:hover { text-decoration: underline; }
     /* KaTeX: cho phép cuộn ngang công thức dài trên mobile thay vì tràn trang */
     .rm-content .katex-display { margin: 14px 0; overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
-    .rm-content .katex { font-size: 1.05em; }
+    .rm-content .katex { font-size: 1.2em; }
     .rm-content .rm-math-fallback { color: #b83280; }
     .rm-content blockquote {
       border-left: 4px solid #cbd5e0; padding: 4px 14px;

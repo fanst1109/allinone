@@ -43,45 +43,43 @@ window.README_MD = `# Lesson 08 — Capstone: dự án mô hình hóa end-to-end
 Một video mới đăng. Quan sát lượt xem tích lũy vài ngày đầu. **Câu hỏi**: video sẽ đạt tối đa bao nhiêu lượt? Ngày nào lan nhanh nhất (để canh chạy quảng cáo)?
 
 ### Bước 2 — Giả định
-- Có một "khán giả tiềm năng" tối đa K (người có thể xem).
+- Có một "khán giả tiềm năng" tối đa $K$ (người có thể xem).
 - Lan truyền kiểu *truyền miệng*: người đã xem giới thiệu người chưa xem → tốc độ lan tỉ lệ *cả* số đã xem *và* số chưa xem còn lại → đúng dạng **logistic** (L04).
 - Bỏ qua biến động ngẫu nhiên ngày-qua-ngày ở bước đầu (sẽ bàn ở bước 6).
 
 ### Bước 3 — Lập mô hình
-Gọi V(t) = lượt xem tích lũy (ngày t). Mô hình logistic:
-\`\`\`
-dV/dt = r·V·(1 − V/K)   →   V(t) = K / (1 + A·e^(−rt)),  A = (K − V₀)/V₀
-\`\`\`
-Kiểm thứ nguyên (L01): [r] = ngày⁻¹, mũ −rt không thứ nguyên ✓; V và K cùng đơn vị "lượt" ✓.
+Gọi $V(t) = $ lượt xem tích lũy (ngày $t$). Mô hình logistic:
+$$\\frac{dV}{dt} = r \\cdot V \\cdot \\left(1 - \\frac{V}{K}\\right) \\quad\\to\\quad V(t) = \\frac{K}{1 + A \\cdot e^{-rt}}, \\quad A = \\frac{K - V_0}{V_0}$$
+Kiểm thứ nguyên (L01): $[r] = $ ngày$^{-1}$, mũ $-rt$ không thứ nguyên ✓; $V$ và $K$ cùng đơn vị "lượt" ✓.
 
 ### Bước 4 — Giải & phân tích
 Đặc trưng logistic ([L04 mục 3](../lesson-04-continuous-ode-models/)):
-- **Tối đa** lượt xem = K (bão hòa khi t → ∞).
-- **Lan nhanh nhất** (lượt xem mới/ngày đạt đỉnh) tại điểm uốn V = K/2, thời điểm t* = ln(A)/r; lượt xem mới/ngày cực đại = r·K/4.
+- **Tối đa** lượt xem $= K$ (bão hòa khi $t \\to \\infty$).
+- **Lan nhanh nhất** (lượt xem mới/ngày đạt đỉnh) tại điểm uốn $V = K/2$, thời điểm $t^* = \\ln(A)/r$; lượt xem mới/ngày cực đại $= r \\cdot K/4$.
 
 ### Bước 5 — Kiểm chứng (fit tham số từ dữ liệu — L02)
-Giả sử K ≈ 1 000 000 (ước lượng quy mô kênh) và đo được vài ngày đầu (khi V ≪ K, logistic ≈ mũ V ≈ V₀·e^(rt)):
+Giả sử $K \\approx 1\\,000\\,000$ (ước lượng quy mô kênh) và đo được vài ngày đầu (khi $V \\ll K$, logistic $\\approx$ mũ $V \\approx V_0 \\cdot e^{rt}$):
 
-| t (ngày) | V (lượt) | ln V |
+| $t$ (ngày) | $V$ (lượt) | $\\ln V$ |
 |----------|----------|------|
 | 0 | 1 000 | 6.91 |
 | 2 | 4 950 | 8.51 |
 | 4 | 24 000 | 10.09 |
 
-Fit tuyến tính ln V theo t (tuyến tính hóa, L02): độ dốc ≈ (10.09 − 6.91)/4 = 3.18/4 ≈ **0.80** → **r ≈ 0.8/ngày**; V₀ = e^6.91 ≈ 1000.
-- A = (1 000 000 − 1000)/1000 = 999.
-- **V(t) = 1 000 000 / (1 + 999·e^(−0.8t))**.
-- Điểm lan nhanh nhất: t* = ln(999)/0.8 = 6.907/0.8 ≈ **8.6 ngày**; lượt mới/ngày đỉnh ≈ rK/4 = 0.8·10⁶/4 = **200 000 lượt/ngày**.
-- Kiểm: V(0) = 10⁶/1000 = 1000 ✓; t = 4 → 999·e^(−3.2) = 40.7 → V ≈ 24 000 ✓ (khớp dữ liệu).
+Fit tuyến tính $\\ln V$ theo $t$ (tuyến tính hóa, L02): độ dốc $\\approx (10.09 - 6.91)/4 = 3.18/4 \\approx$ **0.80** → **$r \\approx 0.8$/ngày**; $V_0 = e^{6.91} \\approx 1000$.
+- $A = (1\\,000\\,000 - 1000)/1000 = 999$.
+- **$V(t) = \\dfrac{1\\,000\\,000}{1 + 999 \\cdot e^{-0.8t}}$**.
+- Điểm lan nhanh nhất: $t^* = \\ln(999)/0.8 = 6.907/0.8 \\approx$ **8.6 ngày**; lượt mới/ngày đỉnh $\\approx rK/4 = 0.8 \\cdot 10^6/4 = $ **200 000 lượt/ngày**.
+- Kiểm: $V(0) = 10^6/1000 = 1000$ ✓; $t = 4 \\to 999 \\cdot e^{-3.2} = 40.7 \\to V \\approx 24\\,000$ ✓ (khớp dữ liệu).
 
 → **Trả lời**: tối đa ~1 triệu lượt; lan mạnh nhất quanh **ngày 8–9** → nên dồn quảng cáo trước mốc đó để khuếch đại.
 
 ### Bước 6 — Tinh chỉnh & hạn chế
-- K chỉ là *ước lượng*; nếu sai, dự báo đỉnh lệch. Nên fit lại K khi có thêm dữ liệu (fit logistic đầy đủ, không chỉ đoạn mũ đầu).
-- Thực tế lượt xem có **biến động ngẫu nhiên** (thuật toán đề xuất, sự kiện) → bọc mô hình bằng **Monte Carlo** (L07): chạy nhiều kịch bản r, K để ra *khoảng* dự báo thay vì một đường.
-- Nếu xét theo **ngày rời rạc**, dùng phiên bản sai phân (L03) Vₙ₊₁ = Vₙ + r·Vₙ(1 − Vₙ/K) — nhớ cảnh báo bước lớn gây dao động giả (L04 mục 5).
+- $K$ chỉ là *ước lượng*; nếu sai, dự báo đỉnh lệch. Nên fit lại $K$ khi có thêm dữ liệu (fit logistic đầy đủ, không chỉ đoạn mũ đầu).
+- Thực tế lượt xem có **biến động ngẫu nhiên** (thuật toán đề xuất, sự kiện) → bọc mô hình bằng **Monte Carlo** (L07): chạy nhiều kịch bản $r, K$ để ra *khoảng* dự báo thay vì một đường.
+- Nếu xét theo **ngày rời rạc**, dùng phiên bản sai phân (L03) $V_{n+1} = V_n + r \\cdot V_n(1 - V_n/K)$ — nhớ cảnh báo bước lớn gây dao động giả (L04 mục 5).
 
-📝 Toàn bộ chu trình: câu hỏi cụ thể → giả định truyền miệng → logistic → đặc trưng K, đỉnh → fit r từ dữ liệu đầu (tuyến tính hóa) → kiểm chứng khớp → nêu hạn chế & hướng bọc ngẫu nhiên. *Đây là mẫu cho dự án của bạn.*
+📝 Toàn bộ chu trình: câu hỏi cụ thể → giả định truyền miệng → logistic → đặc trưng $K$, đỉnh → fit $r$ từ dữ liệu đầu (tuyến tính hóa) → kiểm chứng khớp → nêu hạn chế & hướng bọc ngẫu nhiên. *Đây là mẫu cho dự án của bạn.*
 
 ---
 
@@ -91,7 +89,7 @@ Fit tuyến tính ln V theo t (tuyến tính hóa, L02): độ dốc ≈ (10.09 
 - [ ] **Giả định liệt kê đầy đủ** + lý do bỏ qua từng yếu tố.
 - [ ] **Chọn loại mô hình** đúng theo bản đồ mục 1 (rời rạc/liên tục/hệ/tối ưu/ngẫu nhiên).
 - [ ] **Kiểm thứ nguyên** hai vế mọi phương trình (L01).
-- [ ] **Fit tham số từ dữ liệu** nếu có (L02), nêu R²/sai số.
+- [ ] **Fit tham số từ dữ liệu** nếu có (L02), nêu $R^2$/sai số.
 - [ ] **Giải/mô phỏng** và rút đại lượng cần trả lời.
 - [ ] **Kiểm chứng**: giới hạn (t→0, t→∞), so dữ liệu/trực giác, đơn vị hợp lý.
 - [ ] **Nêu hạn chế** rõ ràng + hướng tinh chỉnh.
@@ -113,19 +111,19 @@ Fit tuyến tính ln V theo t (tuyến tính hóa, L02): độ dốc ≈ (10.09 
 ## 5. Lời giải / gợi ý
 
 **Bài 1.**
-1. *Bài toán*: T(t) = nhiệt độ trà sữa; hỏi bao lâu xuống mức uống được (vd 40°C).
+1. *Bài toán*: $T(t) = $ nhiệt độ trà sữa; hỏi bao lâu xuống mức uống được (vd 40°C).
 2. *Giả định*: phòng 20°C không đổi; trà sữa trộn đều một nhiệt độ; tốc độ mất nhiệt tỉ lệ chênh lệch (Newton); bỏ qua bay hơi.
-3. *Mô hình* (L04): dT/dt = −k(T − 20) → T(t) = 20 + (80 − 20)e^(−kt) = 20 + 60e^(−kt). Kiểm thứ nguyên [k] = thời gian⁻¹.
-4. *Cần đo để fit k* (L02): một (hoặc vài) điểm (t, T) — vd "sau 10 phút còn 50°C" → 50 = 20 + 60e^(−10k) → e^(−10k) = 1/2 → k = ln2/10 ≈ 0.069/phút. Nhiều điểm thì fit tuyến tính ln(T−20) theo t.
-5. *Giải*: thời gian đạt 40°C: 40 = 20 + 60e^(−kt) → e^(−kt) = 1/3 → t = ln3/k ≈ 1.0986/0.069 ≈ **16 phút**.
-6. *Kiểm chứng & hạn chế*: T(0) = 80 ✓, t→∞ → 20 ✓; hạn chế: bỏ qua bay hơi (làm nguội nhanh hơn lúc rất nóng), trà sữa có đá thì mô hình khác hẳn (pha rắn–lỏng).
+3. *Mô hình* (L04): $\\frac{dT}{dt} = -k(T - 20) \\to T(t) = 20 + (80 - 20)e^{-kt} = 20 + 60e^{-kt}$. Kiểm thứ nguyên $[k] = $ thời gian$^{-1}$.
+4. *Cần đo để fit $k$* (L02): một (hoặc vài) điểm $(t, T)$ — vd "sau 10 phút còn 50°C" → $50 = 20 + 60e^{-10k} \\to e^{-10k} = 1/2 \\to k = \\ln 2/10 \\approx 0.069$/phút. Nhiều điểm thì fit tuyến tính $\\ln(T-20)$ theo $t$.
+5. *Giải*: thời gian đạt 40°C: $40 = 20 + 60e^{-kt} \\to e^{-kt} = 1/3 \\to t = \\ln 3/k \\approx 1.0986/0.069 \\approx$ **16 phút**.
+6. *Kiểm chứng & hạn chế*: $T(0) = 80$ ✓, $t \\to \\infty \\to 20$ ✓; hạn chế: bỏ qua bay hơi (làm nguội nhanh hơn lúc rất nóng), trà sữa có đá thì mô hình khác hẳn (pha rắn–lỏng).
 
 **Bài 2 — mẫu cho (b) tin đồn trong lớp 40 người:**
 - *Câu hỏi*: sau bao lâu cả lớp biết tin; ngày/giờ nào lan nhanh nhất.
 - *Giả định chính*: lan truyền miệng (người biết kể người chưa biết); lớp kín 40 người; ai cũng tiếp xúc đều (trộn đều).
-- *Loại mô hình*: **logistic** (L04) hoặc **SIR không hồi phục** (L05) với K = 40 — vì tốc độ lan tỉ lệ (số biết)×(số chưa biết). Có thể rời rạc theo giờ (L03).
-- *Dữ liệu kiểm chứng*: đếm số người biết tại vài mốc thời gian → fit r.
-- *Hạn chế*: "trộn đều" sai (lớp có nhóm bạn thân lan nhanh, người ngồi xa lan chậm); một số người không kể lại → cần hệ số lan thực tế < lý thuyết.
+- *Loại mô hình*: **logistic** (L04) hoặc **SIR không hồi phục** (L05) với $K = 40$ — vì tốc độ lan tỉ lệ (số biết)$\\times$(số chưa biết). Có thể rời rạc theo giờ (L03).
+- *Dữ liệu kiểm chứng*: đếm số người biết tại vài mốc thời gian → fit $r$.
+- *Hạn chế*: "trộn đều" sai (lớp có nhóm bạn thân lan nhanh, người ngồi xa lan chậm); một số người không kể lại → cần hệ số lan thực tế $<$ lý thuyết.
 
 (Các đề khác: (a) phân rã/tuyến tính giảm dần — đo % pin theo phút; (c) **LP** L06 — max lợi nhuận với ràng buộc gỗ/công; (d) **hàng đợi ngẫu nhiên / Markov** L07 — khách đến Poisson, mô phỏng Monte Carlo thời gian chờ.)
 
@@ -141,6 +139,6 @@ Tiếp theo, áp dụng vào các lĩnh vực: [Physics](../../../Physics/) (cơ
 
 1. **Capstone** = phối hợp công cụ L01–L07 trên một bài thực, đi trọn chu trình 6 bước.
 2. **Bản đồ công cụ**: dữ liệu→hồi quy; theo bước→sai phân; liên tục→ODE; tương tác→hệ ODE; tối ưu→LP/Lagrange; may rủi→Monte Carlo/Markov.
-3. **Dự án mẫu (video viral)**: logistic + fit r từ dữ liệu đầu (tuyến tính hóa) + nêu hạn chế & bọc ngẫu nhiên — mẫu áp dụng cho mọi dự án.
+3. **Dự án mẫu (video viral)**: logistic + fit $r$ từ dữ liệu đầu (tuyến tính hóa) + nêu hạn chế & bọc ngẫu nhiên — mẫu áp dụng cho mọi dự án.
 4. Luôn: câu hỏi rõ → giả định → kiểm thứ nguyên → fit → kiểm chứng → nêu hạn chế.
 `;

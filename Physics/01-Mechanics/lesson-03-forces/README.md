@@ -6,13 +6,13 @@ Sau bài này bạn sẽ:
 
 - Hiểu **5 loại lực thường gặp** trong cơ học: trọng lực, phản lực pháp tuyến, ma sát, lực đàn hồi, lực căng dây.
 - Phân biệt **ma sát tĩnh** vs **ma sát động** và tính lực ma sát cho cả 2 trường hợp.
-- Biết **định luật Hooke** F = −kx cho lò xo và áp dụng.
-- Hiểu **định luật vạn vật hấp dẫn Newton** F = G·m₁·m₂/r² và lý do trên Trái Đất F = m·g.
+- Biết **định luật Hooke** $F = -kx$ cho lò xo và áp dụng.
+- Hiểu **định luật vạn vật hấp dẫn Newton** $F = \frac{G\cdot m_1\cdot m_2}{r^2}$ và lý do trên Trái Đất $F = m\cdot g$.
 - Áp dụng nhiều lực cùng lúc vào bài toán FBD phức tạp (vật trên mặt nghiêng có ma sát, vật treo lò xo...).
 
 ## Kiến thức tiền đề
 
-- [Lesson 02 — 3 định luật Newton](../lesson-02-newton-laws/) — F = m·a và FBD.
+- [Lesson 02 — 3 định luật Newton](../lesson-02-newton-laws/) — $F = m\cdot a$ và FBD.
 
 ---
 
@@ -28,13 +28,11 @@ Sau bài này bạn sẽ:
 
 ### 1.2. Công thức trên Trái Đất
 
-```
-F_g = m · g
-```
+$$F_g = m \cdot g$$
 
 trong đó:
-- **m** = khối lượng vật (kg).
-- **g** = gia tốc trọng trường = **9.8 m/s²** (gần mặt đất).
+- **$m$** = khối lượng vật (kg).
+- **$g$** = gia tốc trọng trường = **9,8 m/s²** (gần mặt đất).
 
 → Trọng lực luôn hướng **xuống** (về tâm Trái Đất).
 
@@ -42,14 +40,12 @@ trong đó:
 
 Tại sao g = 9.8 m/s² gần mặt đất? Là hệ quả của một định luật tổng quát hơn:
 
-```
-F = G · m₁ · m₂ / r²
-```
+$$F = \frac{G \cdot m_1 \cdot m_2}{r^2}$$
 
 trong đó:
-- **G** = hằng số hấp dẫn = **6.674 × 10⁻¹¹ N·m²/kg²**.
-- **m₁, m₂** = khối lượng 2 vật.
-- **r** = khoảng cách giữa 2 tâm khối lượng.
+- **$G$** = hằng số hấp dẫn = **$6{,}674 \times 10^{-11}\ \text{N}\cdot\text{m}^2/\text{kg}^2$**.
+- **$m_1, m_2$** = khối lượng 2 vật.
+- **$r$** = khoảng cách giữa 2 tâm khối lượng.
 
 💡 **Ý nghĩa**: 2 vật bất kỳ trong vũ trụ đều **hút nhau** với lực tỉ lệ thuận với 2 khối lượng và tỉ lệ nghịch với bình phương khoảng cách.
 
@@ -59,64 +55,62 @@ trong đó:
 
 ### 1.4. Suy ra g = 9.8 m/s² từ định luật vạn vật hấp dẫn
 
-Vật m trên bề mặt Trái Đất (khối lượng M_T = 5.97 × 10²⁴ kg, bán kính R_T = 6.371 × 10⁶ m):
+Vật $m$ trên bề mặt Trái Đất (khối lượng $M_T = 5{,}97 \times 10^{24}$ kg, bán kính $R_T = 6{,}371 \times 10^6$ m):
 
-```
-F_g = G · M_T · m / R_T²
+$$\begin{aligned}
+F_g &= \frac{G \cdot M_T \cdot m}{R_T^2} \\
+&= \frac{(6{,}674 \times 10^{-11}) \cdot (5{,}97 \times 10^{24}) \cdot m}{(6{,}371 \times 10^6)^2} \\
+&= 9{,}8 \cdot m \quad (\text{N})
+\end{aligned}$$
 
-= (6.674 × 10⁻¹¹) · (5.97 × 10²⁴) · m / (6.371 × 10⁶)²
-
-= 9.8 · m  (N)
-```
-
-→ F_g = m · g với g = 9.8 m/s². Trên Mặt Trăng (M nhỏ hơn 81 lần, R nhỏ hơn 3.7 lần): g_Moon ≈ 1.62 m/s².
+→ $F_g = m \cdot g$ với $g = 9{,}8\ \text{m/s}^2$. Trên Mặt Trăng ($M$ nhỏ hơn 81 lần, $R$ nhỏ hơn 3,7 lần): $g_{\text{Moon}} \approx 1{,}62\ \text{m/s}^2$.
 
 ### 1.5. Bốn ví dụ số
 
 **Ví dụ 1**: Trọng lực của người 70 kg trên Trái Đất.
-- F_g = 70 × 9.8 = **686 N**.
+- $F_g = 70 \times 9{,}8 = $ **686 N**.
 
 **Ví dụ 2**: Trọng lực của cùng người trên Mặt Trăng.
-- F_g = 70 × 1.62 = **113 N** (≈ 1/6 trên Trái Đất).
+- $F_g = 70 \times 1{,}62 = $ **113 N** (≈ 1/6 trên Trái Đất).
 
 **Ví dụ 3**: Lực hấp dẫn giữa 2 người 60 kg cách nhau 1 m.
-- F = 6.674 × 10⁻¹¹ × 60 × 60 / 1² = **2.4 × 10⁻⁷ N**.
-- Rất nhỏ — không cảm nhận được. Đó là vì G cực nhỏ.
+- $F = \frac{6{,}674 \times 10^{-11} \times 60 \times 60}{1^2} = $ **$2{,}4 \times 10^{-7}$ N**.
+- Rất nhỏ — không cảm nhận được. Đó là vì $G$ cực nhỏ.
 
-**Ví dụ 4**: Trên đỉnh Everest (cao 8.8 km so với mặt biển), g giảm bao nhiêu?
-- r = R_T + 8.8 km = 6371 + 8.8 = 6379.8 km.
-- g_Everest / g_đất = (6371/6379.8)² ≈ 0.9972.
-- → g_Everest ≈ 9.77 m/s² (giảm 0.3%, không đáng kể trong tính toán thường).
+**Ví dụ 4**: Trên đỉnh Everest (cao 8,8 km so với mặt biển), $g$ giảm bao nhiêu?
+- $r = R_T + 8{,}8\ \text{km} = 6371 + 8{,}8 = 6379{,}8$ km.
+- $\frac{g_{\text{Everest}}}{g_{\text{đất}}} = \left(\frac{6371}{6379{,}8}\right)^2 \approx 0{,}9972$.
+- $\to g_{\text{Everest}} \approx 9{,}77\ \text{m/s}^2$ (giảm 0,3%, không đáng kể trong tính toán thường).
 
 ### ⚠ Lỗi thường gặp
 
-- **Nghĩ "ngoài vũ trụ không có trọng lực"**: sai. Ở quỹ đạo ISS (400 km), g vẫn ≈ 8.8 m/s² (chỉ giảm ~10%). Phi hành gia "không trọng lượng" vì đang **rơi tự do**, không phải vì hết trọng lực (chi tiết Lesson 06).
-- **Dùng r là khoảng cách từ mặt đất thay vì từ tâm**: trong F = GMm/r², r là khoảng cách giữa **hai tâm khối lượng**. Vật trên mặt đất có r = bán kính Trái Đất (6371 km), không phải 0.
-- **Quên g phụ thuộc thiên thể**: dùng g = 9.8 cho bài toán trên Mặt Trăng → sai 6 lần. Mặt Trăng g = 1.62, Sao Hỏa g = 3.7.
+- **Nghĩ "ngoài vũ trụ không có trọng lực"**: sai. Ở quỹ đạo ISS (400 km), $g$ vẫn $\approx 8{,}8\ \text{m/s}^2$ (chỉ giảm ~10%). Phi hành gia "không trọng lượng" vì đang **rơi tự do**, không phải vì hết trọng lực (chi tiết Lesson 06).
+- **Dùng r là khoảng cách từ mặt đất thay vì từ tâm**: trong $F = \frac{GMm}{r^2}$, $r$ là khoảng cách giữa **hai tâm khối lượng**. Vật trên mặt đất có $r = $ bán kính Trái Đất (6371 km), không phải 0.
+- **Quên g phụ thuộc thiên thể**: dùng $g = 9{,}8$ cho bài toán trên Mặt Trăng $\to$ sai 6 lần. Mặt Trăng $g = 1{,}62$, Sao Hỏa $g = 3{,}7$.
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
-- *"Nếu mọi vật hút nhau, sao tôi không bị hút dính vào người bên cạnh?"* Vì G cực nhỏ (6.67×10⁻¹¹). Lực giữa 2 người 60 kg cách 1 m chỉ ~2.4×10⁻⁷ N — nhỏ hơn trọng lượng một hạt bụi. Chỉ vật khối lượng khổng lồ (hành tinh, sao) mới tạo lực hấp dẫn đáng kể.
-- *"Vì sao g lại đúng bằng 9.8 — con số này từ đâu?"* Không phải con số tùy ý: nó là kết quả của G·M_TĐ/R_TĐ² (đã tính ở 1.4). Thay khối lượng và bán kính Trái Đất vào ra đúng 9.8 m/s². Hành tinh khác khối lượng/bán kính khác → g khác.
-- *"Lên cao thì nhẹ hơn — leo núi có giảm cân không?"* Trọng lượng giảm rất ít: trên đỉnh Everest chỉ giảm ~0.3%. Khối lượng (kg) thì không đổi. Không đủ để "giảm cân" theo nghĩa thông thường.
+- *"Nếu mọi vật hút nhau, sao tôi không bị hút dính vào người bên cạnh?"* Vì $G$ cực nhỏ ($6{,}67\times 10^{-11}$). Lực giữa 2 người 60 kg cách 1 m chỉ $\sim 2{,}4\times 10^{-7}$ N — nhỏ hơn trọng lượng một hạt bụi. Chỉ vật khối lượng khổng lồ (hành tinh, sao) mới tạo lực hấp dẫn đáng kể.
+- *"Vì sao g lại đúng bằng 9,8 — con số này từ đâu?"* Không phải con số tùy ý: nó là kết quả của $\frac{G\cdot M_{TĐ}}{R_{TĐ}^2}$ (đã tính ở 1.4). Thay khối lượng và bán kính Trái Đất vào ra đúng $9{,}8\ \text{m/s}^2$. Hành tinh khác khối lượng/bán kính khác $\to g$ khác.
+- *"Lên cao thì nhẹ hơn — leo núi có giảm cân không?"* Trọng lượng giảm rất ít: trên đỉnh Everest chỉ giảm ~0,3%. Khối lượng (kg) thì không đổi. Không đủ để "giảm cân" theo nghĩa thông thường.
 
 🔁 **Dừng lại tự kiểm tra**
 
-1. Một vật có trọng lượng 100 N trên Trái Đất. Trọng lượng của nó trên Mặt Trăng (g=1.62) là bao nhiêu? Khối lượng có đổi không?
+1. Một vật có trọng lượng 100 N trên Trái Đất. Trọng lượng của nó trên Mặt Trăng ($g=1{,}62$) là bao nhiêu? Khối lượng có đổi không?
 2. Nếu khoảng cách giữa 2 vật tăng gấp đôi, lực hấp dẫn giữa chúng thay đổi thế nào?
 
 <details><summary>Đáp án</summary>
 
-1. Khối lượng m = W/g = 100/9.8 ≈ 10.2 kg (không đổi). Trọng lượng Mặt Trăng = m·g_Moon = 10.2·1.62 ≈ **16.5 N** (≈ 1/6).
-2. F ∝ 1/r². r gấp đôi → F giảm còn **1/4** (vì 2² = 4).
+1. Khối lượng $m = \frac{W}{g} = \frac{100}{9{,}8} \approx 10{,}2$ kg (không đổi). Trọng lượng Mặt Trăng $= m\cdot g_{\text{Moon}} = 10{,}2\cdot 1{,}62 \approx$ **16,5 N** (≈ 1/6).
+2. $F \propto \frac{1}{r^2}$. $r$ gấp đôi $\to F$ giảm còn **1/4** (vì $2^2 = 4$).
 
 </details>
 
 ### 📝 Tóm tắt mục 1
 
-- Trọng lực: F_g = m·g, hướng xuống.
-- Gốc: định luật vạn vật hấp dẫn F = G·m₁·m₂/r².
-- g ≈ 9.8 m/s² gần mặt đất; thay đổi rất ít theo độ cao.
+- Trọng lực: $F_g = m\cdot g$, hướng xuống.
+- Gốc: định luật vạn vật hấp dẫn $F = \frac{G\cdot m_1\cdot m_2}{r^2}$.
+- $g \approx 9{,}8\ \text{m/s}^2$ gần mặt đất; thay đổi rất ít theo độ cao.
 
 ---
 
@@ -135,36 +129,36 @@ F_g = G · M_T · m / R_T²
 N **KHÔNG** phải hằng số — nó **tự điều chỉnh** để giữ vật không chìm xuống. Ta tính N từ điều kiện cân bằng theo trục vuông góc bề mặt.
 
 **Trường hợp 1 — Vật trên mặt phẳng nằm ngang, đứng yên**: 
-- Trục y: N − W = 0 → **N = W = m·g**.
+- Trục y: $N - W = 0 \to$ **$N = W = m\cdot g$**.
 
-**Trường hợp 2 — Mặt phẳng nghiêng góc θ**:
-- W phân thành W·sinθ (song song dốc) + W·cosθ (vuông góc dốc).
-- Trục vuông góc: **N = W·cosθ = m·g·cosθ** (luôn < W).
+**Trường hợp 2 — Mặt phẳng nghiêng góc $\theta$**:
+- $W$ phân thành $W\cdot\sin\theta$ (song song dốc) $+ W\cdot\cos\theta$ (vuông góc dốc).
+- Trục vuông góc: **$N = W\cdot\cos\theta = m\cdot g\cdot\cos\theta$** (luôn $< W$).
 
 **Trường hợp 3 — Trong thang máy tăng tốc lên với a**:
-- N − W = m·a → **N = m·(g + a)** (lớn hơn W bình thường, vd thang máy lên).
+- $N - W = m\cdot a \to$ **$N = m\cdot(g + a)$** (lớn hơn $W$ bình thường, vd thang máy lên).
 
 ### ⚠ Lỗi thường gặp
 
-- **Mặc định N = m·g trong mọi trường hợp**: chỉ đúng trên mặt ngang, đứng yên, không lực dọc khác. Trên dốc N = m·g·cosθ < m·g. Có người ngồi đè lên → N tăng. Thang máy gia tốc → N đổi.
+- **Mặc định N = m·g trong mọi trường hợp**: chỉ đúng trên mặt ngang, đứng yên, không lực dọc khác. Trên dốc $N = m\cdot g\cdot\cos\theta < m\cdot g$. Có người ngồi đè lên $\to N$ tăng. Thang máy gia tốc $\to N$ đổi.
 - **Vẽ N hướng thẳng đứng trên mặt nghiêng**: SAI. N luôn **vuông góc với bề mặt** — trên dốc N nghiêng theo dốc, không thẳng đứng.
 - **Coi N là cặp định luật III của trọng lực**: không phải. N (bàn đẩy vật) và W (Trái Đất hút vật) cùng tác dụng lên vật → là hai lực cân bằng, không phải cặp định luật III (xem Lesson 02 §4.2).
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
 - *"Bàn là vật vô tri, sao biết 'đẩy lại' đúng bằng trọng lượng vật?"* Bàn không "biết" gì — N là lực đàn hồi do bàn bị nén nhẹ. Vật càng nặng, bàn nén càng nhiều, đẩy lại càng mạnh, tự động cân bằng đến khi vật không lún thêm. N "tự điều chỉnh" theo cơ chế vật lý, không phải ý thức.
-- *"Vì sao trên dốc N < trọng lượng?"* Vì trên dốc, chỉ thành phần trọng lực **vuông góc mặt** (mg·cosθ) ép vào mặt, phần còn lại (mg·sinθ) kéo dọc dốc. N chỉ cần cân bằng phần vuông góc → N = mg·cosθ < mg.
-- *"Trong thang máy đi lên tôi nặng hơn — cân lò xo chỉ số lớn hơn thật à?"* Đúng. Cân lò xo đo chính N (lực sàn đẩy). Thang gia tốc lên → N = m(g+a) > mg → cân chỉ số lớn hơn → "trọng lượng biểu kiến" tăng.
+- *"Vì sao trên dốc N < trọng lượng?"* Vì trên dốc, chỉ thành phần trọng lực **vuông góc mặt** ($mg\cdot\cos\theta$) ép vào mặt, phần còn lại ($mg\cdot\sin\theta$) kéo dọc dốc. N chỉ cần cân bằng phần vuông góc $\to N = mg\cdot\cos\theta < mg$.
+- *"Trong thang máy đi lên tôi nặng hơn — cân lò xo chỉ số lớn hơn thật à?"* Đúng. Cân lò xo đo chính N (lực sàn đẩy). Thang gia tốc lên $\to N = m(g+a) > mg \to$ cân chỉ số lớn hơn $\to$ "trọng lượng biểu kiến" tăng.
 
 🔁 **Dừng lại tự kiểm tra**
 
-1. Vật 10 kg trên mặt nghiêng 60°. Tính N. (g=9.8)
-2. Người 70 kg trong thang máy gia tốc lên a = 3 m/s². Phản lực sàn N bằng bao nhiêu?
+1. Vật 10 kg trên mặt nghiêng 60°. Tính N. ($g=9{,}8$)
+2. Người 70 kg trong thang máy gia tốc lên $a = 3\ \text{m/s}^2$. Phản lực sàn N bằng bao nhiêu?
 
 <details><summary>Đáp án</summary>
 
-1. N = m·g·cosθ = 10·9.8·cos60° = 10·9.8·0.5 = **49 N** (nhỏ hơn trọng lượng 98 N).
-2. N = m(g+a) = 70·(9.8+3) = 70·12.8 = **896 N** (lớn hơn trọng lượng 686 N).
+1. $N = m\cdot g\cdot\cos\theta = 10\cdot 9{,}8\cdot\cos 60^\circ = 10\cdot 9{,}8\cdot 0{,}5 = $ **49 N** (nhỏ hơn trọng lượng 98 N).
+2. $N = m(g+a) = 70\cdot(9{,}8+3) = 70\cdot 12{,}8 = $ **896 N** (lớn hơn trọng lượng 686 N).
 
 </details>
 

@@ -8,8 +8,8 @@ window.README_MD = `# Lesson 04 (T2) — Điện tích & Định luật Coulomb
 Sau bài này bạn sẽ:
 
 - Hiểu **điện tích** là gì — thuộc tính cơ bản của vật chất, có 2 loại (+ và −).
-- Biết **định luật Coulomb F = k·q₁·q₂/r²** — và so sánh với định luật vạn vật hấp dẫn.
-- Hiểu **đơn vị điện tích cơ bản e** = 1.6 × 10⁻¹⁹ C — mọi điện tích là bội số của e.
+- Biết **định luật Coulomb $F = k \\dfrac{q_1 q_2}{r^2}$** — và so sánh với định luật vạn vật hấp dẫn.
+- Hiểu **đơn vị điện tích cơ bản $e = 1{,}6 \\times 10^{-19} \\text{ C}$** — mọi điện tích là bội số của $e$.
 - Áp dụng **nguyên lý chồng chất** cho hệ nhiều điện tích.
 - Phân biệt **vật dẫn điện** và **vật cách điện** ở mức vi mô.
 
@@ -51,21 +51,21 @@ Quy luật cơ bản:
 
 Đơn vị: **Coulomb (C)** trong hệ SI. 
 
-**Điện tích cơ bản e = 1.602 × 10⁻¹⁹ C** — đây là điện tích nhỏ nhất có thể tồn tại tự do (proton +e, electron −e).
+**Điện tích cơ bản $e = 1{,}602 \\times 10^{-19} \\text{ C}$** — đây là điện tích nhỏ nhất có thể tồn tại tự do (proton $+e$, electron $-e$).
 
-💡 **Quan sát quan trọng**: mọi điện tích đo được trong tự nhiên đều là **bội số nguyên** của e. Không thể có 1.5 e — đó là **quantization** của điện tích.
+💡 **Quan sát quan trọng**: mọi điện tích đo được trong tự nhiên đều là **bội số nguyên** của $e$. Không thể có $1{,}5 e$ — đó là **quantization** của điện tích.
 
-(Quark có điện tích phân số ±1/3 hoặc ±2/3 e, nhưng quark **không tồn tại tự do** — luôn kẹt trong proton/neutron.)
+(Quark có điện tích phân số $\\pm 1/3$ hoặc $\\pm 2/3\\, e$, nhưng quark **không tồn tại tự do** — luôn kẹt trong proton/neutron.)
 
 ### 1.4. Bốn ví dụ con số
 
 | Đối tượng | Điện tích | Ghi chú |
 |-----------|------------|---------|
-| 1 electron | −1.602 × 10⁻¹⁹ C = −e | Đơn vị cơ bản |
-| 1 proton | +1.602 × 10⁻¹⁹ C = +e | |
-| 1 Coulomb | 6.24 × 10¹⁸ electron | Rất lớn — không phổ biến |
-| Sét tia | ~ 5-20 C | Năng lượng khổng lồ |
-| Bóng đèn LED 1 mA | 0.001 C/s = 10⁻³ A | Dòng điện = điện tích/thời gian |
+| 1 electron | $-1{,}602 \\times 10^{-19} \\text{ C} = -e$ | Đơn vị cơ bản |
+| 1 proton | $+1{,}602 \\times 10^{-19} \\text{ C} = +e$ | |
+| 1 Coulomb | $6{,}24 \\times 10^{18}$ electron | Rất lớn — không phổ biến |
+| Sét tia | $\\approx 5\\text{-}20 \\text{ C}$ | Năng lượng khổng lồ |
+| Bóng đèn LED 1 mA | $0{,}001 \\text{ C/s} = 10^{-3} \\text{ A}$ | Dòng điện = điện tích/thời gian |
 
 ### 1.5. Bảo toàn điện tích
 
@@ -76,22 +76,22 @@ Ví dụ: cọ thanh nhựa vào tóc → một số electron chuyển từ tóc
 ### ❓ Câu hỏi tự nhiên của người đọc
 
 - *"Cọ xát có 'tạo ra' điện tích không?"* Không. Điện tích được **chuyển** (electron đi từ vật này sang vật kia), không sinh ra mới. Tổng vẫn bảo toàn.
-- *"Vì sao điện tích lại lượng tử hóa (bội nguyên của e)?"* Vì hạt mang điện tự do nhỏ nhất là electron/proton, mỗi cái mang đúng ±e. Mọi vật tích điện là do thừa/thiếu một số nguyên electron.
+- *"Vì sao điện tích lại lượng tử hóa (bội nguyên của $e$)?"* Vì hạt mang điện tự do nhỏ nhất là electron/proton, mỗi cái mang đúng $\\pm e$. Mọi vật tích điện là do thừa/thiếu một số nguyên electron.
 - *"Điện tích có giống khối lượng không?"* Giống ở chỗ đều là thuộc tính bẩm sinh của vật chất. Khác: khối lượng chỉ "dương" (luôn hút), điện tích có 2 dấu (hút và đẩy).
 
 ⚠ **Lỗi thường gặp**
 
-- **Nhầm điện tích với dòng điện**. Điện tích q (đơn vị Coulomb, C) là "lượng điện"; dòng điện I (Ampere, A = C/s) là "điện tích chảy mỗi giây". Phản ví dụ: "bóng đèn dùng 2 C" sai nghĩa nếu ý là dòng — phải nói "2 A" (2 C mỗi giây).
-- **Tưởng có thể có điện tích 1.5e**. Không — điện tích tự do luôn là bội nguyên của e (quark phân số không tồn tại tự do).
+- **Nhầm điện tích với dòng điện**. Điện tích $q$ (đơn vị Coulomb, C) là "lượng điện"; dòng điện $I$ (Ampere, $\\text{A} = \\text{C/s}$) là "điện tích chảy mỗi giây". Phản ví dụ: "bóng đèn dùng 2 C" sai nghĩa nếu ý là dòng — phải nói "2 A" (2 C mỗi giây).
+- **Tưởng có thể có điện tích $1{,}5 e$**. Không — điện tích tự do luôn là bội nguyên của $e$ (quark phân số không tồn tại tự do).
 
 🔁 **Dừng lại tự kiểm tra**
 
-1. Một vật mang điện tích −3.2 × 10⁻¹⁹ C. Nó thừa hay thiếu bao nhiêu electron?
+1. Một vật mang điện tích $-3{,}2 \\times 10^{-19} \\text{ C}$. Nó thừa hay thiếu bao nhiêu electron?
 2. Cọ bóng bay vào tóc, bóng nhận thêm electron. Tóc mang điện gì?
 
 <details><summary>Đáp án</summary>
 
-1. q = −3.2×10⁻¹⁹ / (−1.6×10⁻¹⁹) = thừa **2 electron** (dấu âm → thừa electron).
+1. $q = -3{,}2 \\times 10^{-19} / (-1{,}6 \\times 10^{-19}) = $ thừa **2 electron** (dấu âm → thừa electron).
 2. Tóc **mất** electron → mang điện **dương** (+). Tổng (bóng + tóc) vẫn trung hòa.
 
 </details>
@@ -100,7 +100,7 @@ Ví dụ: cọ thanh nhựa vào tóc → một số electron chuyển từ tóc
 
 - Điện tích = thuộc tính cơ bản, đơn vị Coulomb.
 - 2 loại + và −. Cùng dấu đẩy, trái dấu hút.
-- Bội nguyên của e = 1.6 × 10⁻¹⁹ C (quantization).
+- Bội nguyên của $e = 1{,}6 \\times 10^{-19} \\text{ C}$ (quantization).
 - Bảo toàn điện tích.
 
 ---
@@ -109,52 +109,50 @@ Ví dụ: cọ thanh nhựa vào tóc → một số electron chuyển từ tóc
 
 ### 2.1. Phát biểu
 
-**Lực giữa 2 điện tích điểm** q₁, q₂ cách nhau khoảng r:
+**Lực giữa 2 điện tích điểm** $q_1$, $q_2$ cách nhau khoảng $r$:
 
-\`\`\`
-F = k · |q₁| · |q₂| / r²
-\`\`\`
+$$F = k \\cdot \\frac{|q_1| \\cdot |q_2|}{r^2}$$
 
-trong đó **k** = hằng số Coulomb = **8.99 × 10⁹ N·m²/C²** ≈ 9 × 10⁹.
+trong đó $k$ = hằng số Coulomb = **8,99 × 10⁹ N·m²/C²** $\\approx 9 \\times 10^9$.
 
 Hướng: theo đường nối 2 điện tích. Đẩy nếu cùng dấu, hút nếu trái dấu.
 
-💡 **Ý nghĩa**: lực điện rất giống lực hấp dẫn về dạng (∝ 1/r²) nhưng khác về độ lớn và dấu.
+💡 **Ý nghĩa**: lực điện rất giống lực hấp dẫn về dạng ($\\propto 1/r^2$) nhưng khác về độ lớn và dấu.
 
 ### 2.2. So sánh với hấp dẫn
 
 | | Lực hấp dẫn | Lực Coulomb |
 |---|------------|---------------|
-| Công thức | G·m₁·m₂/r² | k·q₁·q₂/r² |
-| Hằng số | G = 6.67 × 10⁻¹¹ | k = 8.99 × 10⁹ |
+| Công thức | $G \\dfrac{m_1 m_2}{r^2}$ | $k \\dfrac{q_1 q_2}{r^2}$ |
+| Hằng số | $G = 6{,}67 \\times 10^{-11}$ | $k = 8{,}99 \\times 10^9$ |
 | Dấu | Luôn hút | Hút hoặc đẩy |
-| Tỉ lệ lực giữa 2 e (cách 1 m) | F_G ≈ 5 × 10⁻⁷¹ N | F_E ≈ 2.3 × 10⁻²⁸ N |
+| Tỉ lệ lực giữa 2 e (cách 1 m) | $F_G \\approx 5 \\times 10^{-71} \\text{ N}$ | $F_E \\approx 2{,}3 \\times 10^{-28} \\text{ N}$ |
 
-→ **Lực điện giữa 2 electron mạnh hơn lực hấp dẫn 10⁴²-10⁴³ lần!** Đó là tại sao trong nguyên tử, lực điện chi phối hoàn toàn — lực hấp dẫn không đáng kể.
+→ **Lực điện giữa 2 electron mạnh hơn lực hấp dẫn $10^{42}\\text{-}10^{43}$ lần!** Đó là tại sao trong nguyên tử, lực điện chi phối hoàn toàn — lực hấp dẫn không đáng kể.
 
 ### 2.3. Bốn ví dụ số
 
-**Ví dụ 1 — Lực giữa 1 proton và 1 electron trong nguyên tử H** (cách r = 5.3 × 10⁻¹¹ m):
-- F = 9e9 × (1.6e-19)² / (5.3e-11)² = 9e9 × 2.56e-38 / 2.81e-21 ≈ **8.2 × 10⁻⁸ N**. (Lực giữ electron quay quanh.)
+**Ví dụ 1 — Lực giữa 1 proton và 1 electron trong nguyên tử H** (cách $r = 5{,}3 \\times 10^{-11} \\text{ m}$):
+- $F = 9 \\times 10^9 \\times (1{,}6 \\times 10^{-19})^2 / (5{,}3 \\times 10^{-11})^2 = 9 \\times 10^9 \\times 2{,}56 \\times 10^{-38} / 2{,}81 \\times 10^{-21} \\approx$ **8,2 × 10⁻⁸ N**. (Lực giữ electron quay quanh.)
 
-**Ví dụ 2 — Hai quả cầu mang điện**: Mỗi quả 1 μC = 10⁻⁶ C, cách 10 cm.
-- F = 9e9 × (1e-6)² / 0.01 = 9e9 × 1e-12 / 0.01 = **0.9 N**.
+**Ví dụ 2 — Hai quả cầu mang điện**: Mỗi quả $1 \\text{ μC} = 10^{-6} \\text{ C}$, cách 10 cm.
+- $F = 9 \\times 10^9 \\times (10^{-6})^2 / 0{,}01 = 9 \\times 10^9 \\times 10^{-12} / 0{,}01 = $ **0,9 N**.
 
 **Ví dụ 3 — Lực giữa 2 người** giả sử mỗi người mang +1% điện thừa của số electron trong cơ thể: cực kỳ lớn.
 - Nhưng trong thực tế, cơ thể luôn xấp xỉ trung hòa — sai số rất nhỏ. Đó là tại sao ta không bay đi vì lực điện.
 
-**Ví dụ 4 — Sét**: Mây có khoảng 5-20 C tích lũy ở đáy. Khi phóng xuống đất qua không khí (r ~ 1 km), điện trường mạnh đến mức ion hóa không khí → tia chớp.
+**Ví dụ 4 — Sét**: Mây có khoảng 5-20 C tích lũy ở đáy. Khi phóng xuống đất qua không khí ($r \\approx 1 \\text{ km}$), điện trường mạnh đến mức ion hóa không khí → tia chớp.
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
-- *"Khoảng cách gấp đôi thì lực giảm bao nhiêu?"* Giảm **4 lần** (vì F ∝ 1/r²). Gấp 3 lần khoảng cách → lực giảm 9 lần. Đây là điểm khác với F ∝ 1/r.
+- *"Khoảng cách gấp đôi thì lực giảm bao nhiêu?"* Giảm **4 lần** (vì $F \\propto 1/r^2$). Gấp 3 lần khoảng cách → lực giảm 9 lần. Đây là điểm khác với $F \\propto 1/r$.
 - *"Vì sao lực điện mạnh hơn hấp dẫn nhiều vậy nhưng đời thường ta không 'dính' nhau vì lực điện?"* Vì vật thường **trung hòa** (số + ≈ số −) → lực điện gần như triệt tiêu. Chỉ khi mất cân bằng nhỏ (cọ xát) mới thấy hiệu ứng.
 - *"r trong công thức đo từ đâu tới đâu?"* Từ **tâm điện tích này tới tâm điện tích kia** (với điện tích điểm). Không phải khoảng cách bề mặt.
 
 ⚠ **Lỗi thường gặp**
 
-- **Quên bình phương r**. Phản ví dụ: 2 điện tích 1 μC cách 0.1 m → F = 9e9·(1e-6)²/(0.1)² = 9e9·1e-12/0.01 = **0.9 N**. Nếu quên bình phương (chia 0.1): được 0.09 N — sai 10 lần.
-- **Dùng đơn vị μC trực tiếp mà không đổi sang C**: 5 μC = 5×10⁻⁶ C, không phải 5.
+- **Quên bình phương $r$**. Phản ví dụ: 2 điện tích 1 μC cách 0.1 m $\\to F = 9 \\times 10^9 \\cdot (10^{-6})^2/(0{,}1)^2 = 9 \\times 10^9 \\cdot 10^{-12}/0{,}01 = $ **0,9 N**. Nếu quên bình phương (chia 0.1): được 0.09 N — sai 10 lần.
+- **Dùng đơn vị μC trực tiếp mà không đổi sang C**: $5 \\text{ μC} = 5 \\times 10^{-6} \\text{ C}$, không phải 5.
 
 🔁 **Dừng lại tự kiểm tra**
 
@@ -163,15 +161,15 @@ Hướng: theo đường nối 2 điện tích. Đẩy nếu cùng dấu, hút n
 
 <details><summary>Đáp án</summary>
 
-1. r gấp đôi → F giảm 4 lần → còn **2 N** (F ∝ 1/r²).
-2. F = 9e9·(2e-6)²/(0.1)² = 9e9·4e-12/0.01 = 0.036/0.01 = **3.6 N** (đẩy nhau, cùng dấu).
+1. $r$ gấp đôi → $F$ giảm 4 lần → còn **2 N** ($F \\propto 1/r^2$).
+2. $F = 9 \\times 10^9 \\cdot (2 \\times 10^{-6})^2/(0{,}1)^2 = 9 \\times 10^9 \\cdot 4 \\times 10^{-12}/0{,}01 = 0{,}036/0{,}01 = $ **3,6 N** (đẩy nhau, cùng dấu).
 
 </details>
 
 ### 📝 Tóm tắt mục 2
 
-- F = k·|q₁q₂|/r², k = 9 × 10⁹ N·m²/C².
-- Tương tự dạng hấp dẫn nhưng mạnh hơn ~ 10⁴² lần.
+- $F = k \\dfrac{|q_1 q_2|}{r^2}$, $k = 9 \\times 10^9 \\text{ N·m}^2/\\text{C}^2$.
+- Tương tự dạng hấp dẫn nhưng mạnh hơn $\\approx 10^{42}$ lần.
 
 ---
 
@@ -181,19 +179,17 @@ Hướng: theo đường nối 2 điện tích. Đẩy nếu cùng dấu, hút n
 
 Khi có nhiều điện tích, lực tổng tác dụng lên 1 điện tích = **tổng vector** các lực từ từng cái:
 
-\`\`\`
-F_tổng = F₁ + F₂ + F₃ + ...
-\`\`\`
+$$\\vec{F}_{\\text{tổng}} = \\vec{F}_1 + \\vec{F}_2 + \\vec{F}_3 + \\dots$$
 
 💡 **Ý nghĩa**: mỗi cặp điện tích tương tác **độc lập** với nhau, không bị "đè" bởi sự có mặt của điện tích khác. Đó là nguyên lý đơn giản nhưng mạnh — giúp giải mọi bài toán nhiều điện tích.
 
 ### 3.2. Ví dụ — 3 điện tích thẳng hàng
 
-3 điện tích +1 μC ở vị trí x = 0, 1 m, 2 m. Tính lực tổng lên điện tích ở giữa.
+3 điện tích +1 μC ở vị trí $x = 0$, 1 m, 2 m. Tính lực tổng lên điện tích ở giữa.
 
-- Lực từ trái (q ở x=0) lên giữa: đẩy về bên phải, F₁ = k·1e-6·1e-6/1 = 9 × 10⁻³ N (+).
-- Lực từ phải (q ở x=2) lên giữa: đẩy về bên trái, F₂ = 9 × 10⁻³ N (−).
-- F_tổng = F₁ + F₂ = **0** (cân bằng).
+- Lực từ trái ($q$ ở $x=0$) lên giữa: đẩy về bên phải, $F_1 = k \\cdot 10^{-6} \\cdot 10^{-6}/1 = 9 \\times 10^{-3} \\text{ N}$ (+).
+- Lực từ phải ($q$ ở $x=2$) lên giữa: đẩy về bên trái, $F_2 = 9 \\times 10^{-3} \\text{ N}$ (−).
+- $F_{\\text{tổng}} = F_1 + F_2 = $ **0** (cân bằng).
 
 (Hệ đối xứng → điện tích giữa cân bằng. Nếu lệch nhẹ → đẩy ra xa, không tự lấy lại trạng thái cũ.)
 
@@ -205,7 +201,7 @@ F_tổng = F₁ + F₂ + F₃ + ...
 
 ⚠ **Lỗi thường gặp**
 
-- **Cộng độ lớn các lực như số vô hướng**. Phản ví dụ: 2 lực 3 N vuông góc → tổng KHÔNG phải 6 N mà là √(3²+3²) = √18 ≈ **4.24 N**. Phải cộng vector.
+- **Cộng độ lớn các lực như số vô hướng**. Phản ví dụ: 2 lực 3 N vuông góc → tổng KHÔNG phải 6 N mà là $\\sqrt{3^2+3^2} = \\sqrt{18} \\approx$ **4,24 N**. Phải cộng vector.
 - **Quên hướng (dấu) khi cộng trên cùng một trục**: lực đẩy về phải (+) và lực đẩy về trái (−) phải trừ nhau.
 
 🔁 **Dừng lại tự kiểm tra**
@@ -215,7 +211,7 @@ F_tổng = F₁ + F₂ + F₃ + ...
 
 <details><summary>Đáp án</summary>
 
-1. F = √(4² + 3²) = √25 = **5 N** (Pythagore cho 2 lực vuông góc).
+1. $F = \\sqrt{4^2 + 3^2} = \\sqrt{25} = $ **5 N** (Pythagore cho 2 lực vuông góc).
 2. **0** — 2 lực đẩy ngược chiều, cùng độ lớn (đối xứng) → triệt tiêu.
 
 </details>
@@ -285,9 +281,9 @@ F_tổng = F₁ + F₂ + F₃ + ...
 
 **Bài 1**: Tính lực giữa 2 điện tích +5 μC và −3 μC cách nhau 20 cm.
 
-**Bài 2**: Một quả cầu mang điện được cọ vào tóc → mang điện tích +6.4 × 10⁻¹⁸ C. Đây tương đương bao nhiêu electron đã được lấy đi?
+**Bài 2**: Một quả cầu mang điện được cọ vào tóc → mang điện tích $+6{,}4 \\times 10^{-18} \\text{ C}$. Đây tương đương bao nhiêu electron đã được lấy đi?
 
-**Bài 3**: 2 điện tích +q và −q cách nhau d. Khoảng cách phải tăng bao nhiêu lần để lực giảm 4 lần?
+**Bài 3**: 2 điện tích $+q$ và $-q$ cách nhau $d$. Khoảng cách phải tăng bao nhiêu lần để lực giảm 4 lần?
 
 **Bài 4**: Vì sao trong nguyên tử, lực giữa proton và electron là lực điện mà không phải hấp dẫn?
 
@@ -297,22 +293,22 @@ F_tổng = F₁ + F₂ + F₃ + ...
 
 ### Lời giải
 
-**Bài 1**: F = 9e9 × (5e-6)·(3e-6) / 0.04 = 9e9 × 15e-12/0.04 = **3.375 N**. Lực hút (trái dấu).
+**Bài 1**: $F = 9 \\times 10^9 \\times (5 \\times 10^{-6}) \\cdot (3 \\times 10^{-6}) / 0{,}04 = 9 \\times 10^9 \\times 15 \\times 10^{-12}/0{,}04 = $ **3,375 N**. Lực hút (trái dấu).
 
-**Bài 2**: Số e đã lấy đi = 6.4e-18 / 1.6e-19 = **40 electron**.
+**Bài 2**: Số e đã lấy đi $= 6{,}4 \\times 10^{-18} / 1{,}6 \\times 10^{-19} = $ **40 electron**.
 
-**Bài 3**: F ∝ 1/r² → để F giảm 4 lần thì r² tăng 4 lần → r tăng **2 lần**.
+**Bài 3**: $F \\propto 1/r^2 \\to$ để $F$ giảm 4 lần thì $r^2$ tăng 4 lần $\\to r$ tăng **2 lần**.
 
-**Bài 4**: So sánh lực điện và lực hấp dẫn giữa proton (m = 1.67×10⁻²⁷ kg, +e) và electron (m = 9.11×10⁻³¹, −e) cách r tùy ý:
-- F_E / F_G = (k·e²) / (G·m_p·m_e).
-- = (9e9 × (1.6e-19)²) / (6.67e-11 × 1.67e-27 × 9.11e-31).
-- = 2.3e-28 / 1.01e-67 ≈ **2.3 × 10³⁹**.
-→ Lực điện mạnh hơn hấp dẫn ~ 10³⁹ lần. Đó là tại sao trong nguyên tử có thể "bỏ qua" hấp dẫn.
+**Bài 4**: So sánh lực điện và lực hấp dẫn giữa proton ($m = 1{,}67 \\times 10^{-27} \\text{ kg}$, $+e$) và electron ($m = 9{,}11 \\times 10^{-31}$, $-e$) cách $r$ tùy ý:
+- $F_E / F_G = (k \\cdot e^2) / (G \\cdot m_p \\cdot m_e)$.
+- $= (9 \\times 10^9 \\times (1{,}6 \\times 10^{-19})^2) / (6{,}67 \\times 10^{-11} \\times 1{,}67 \\times 10^{-27} \\times 9{,}11 \\times 10^{-31})$.
+- $= 2{,}3 \\times 10^{-28} / 1{,}01 \\times 10^{-67} \\approx$ **2,3 × 10³⁹**.
+→ Lực điện mạnh hơn hấp dẫn $\\approx 10^{39}$ lần. Đó là tại sao trong nguyên tử có thể "bỏ qua" hấp dẫn.
 
 **Bài 5**: 3 điện tích ở 3 đỉnh tam giác đều cạnh 0.1 m. 
-- Lực từ +q₁ lên −q (hút): F₁ = 9e9 × 1e-6·2e-6/0.01 = 1.8 N (hướng vào +q₁).
-- Lực từ +q₂ tương tự: F₂ = 1.8 N (hướng vào +q₂).
-- 2 lực này hợp lực: gốc tại đỉnh (−q), hợp góc 60°. Hợp lực = 2·F·cos(30°) = 2·1.8·(√3/2) = **3.12 N**, hướng vào trung điểm cạnh (+q₁)(+q₂).
+- Lực từ $+q_1$ lên $-q$ (hút): $F_1 = 9 \\times 10^9 \\times 10^{-6} \\cdot 2 \\times 10^{-6}/0{,}01 = 1{,}8 \\text{ N}$ (hướng vào $+q_1$).
+- Lực từ $+q_2$ tương tự: $F_2 = 1{,}8 \\text{ N}$ (hướng vào $+q_2$).
+- 2 lực này hợp lực: gốc tại đỉnh ($-q$), hợp góc 60°. Hợp lực $= 2 \\cdot F \\cdot \\cos(30^\\circ) = 2 \\cdot 1{,}8 \\cdot (\\sqrt{3}/2) = $ **3,12 N**, hướng vào trung điểm cạnh $(+q_1)(+q_2)$.
 
 **Bài 6**: Thanh nhựa (−) đến gần giấy → các electron trong giấy bị đẩy ra xa thanh → bên gần thanh: ít electron → tích điện dương cục bộ. Bên xa: nhiều electron → âm cục bộ. Đây là **cảm ứng điện** (polarization). Lực hút giữa thanh (−) và phần (+) của giấy MẠNH HƠN lực đẩy với phần (−) (vì r gần hơn) → tổng → hút. Giấy "không có điện" nhưng vẫn bị hút.
 
@@ -327,8 +323,8 @@ F_tổng = F₁ + F₂ + F₃ + ...
 ## 📝 Tổng kết Lesson 04 (T2)
 
 1. **Điện tích**: thuộc tính cơ bản, 2 loại + và −, đơn vị Coulomb.
-2. **Điện tích cơ bản** e = 1.6 × 10⁻¹⁹ C. Mọi điện tích là bội nguyên của e.
-3. **Định luật Coulomb**: F = k·q₁q₂/r², k = 9 × 10⁹ N·m²/C². Mạnh hơn hấp dẫn ~ 10³⁹ lần.
+2. **Điện tích cơ bản** $e = 1{,}6 \\times 10^{-19} \\text{ C}$. Mọi điện tích là bội nguyên của $e$.
+3. **Định luật Coulomb**: $F = k \\dfrac{q_1 q_2}{r^2}$, $k = 9 \\times 10^9 \\text{ N·m}^2/\\text{C}^2$. Mạnh hơn hấp dẫn $\\approx 10^{39}$ lần.
 4. **Nguyên lý chồng chất**: lực tổng = tổng vector từng cặp.
 5. **Dẫn / cách / bán dẫn**: tùy electron có tự do hay không.
 

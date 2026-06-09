@@ -11,7 +11,7 @@ Sau bài này bạn sẽ:
 - Phát biểu **định luật II nhiệt động**: entropy của vũ trụ luôn tăng.
 - Giải thích **mũi tên thời gian** (arrow of time) — vì sao thời gian "đi 1 chiều".
 - Hiểu **máy nhiệt** (heat engine) và **hiệu suất tối đa** (Carnot).
-- Tính được hiệu suất máy nhiệt: η = 1 − T_lạnh/T_nóng.
+- Tính được hiệu suất máy nhiệt: $\\eta = 1 - T_{\\text{lạnh}}/T_{\\text{nóng}}$.
 
 ## Kiến thức tiền đề
 
@@ -25,22 +25,20 @@ Sau bài này bạn sẽ:
 
 **Entropy S** = đại lượng đo **số cách (vi mô) một hệ có thể sắp xếp** các phân tử mà vẫn giữ cùng trạng thái vĩ mô. Công thức Boltzmann:
 
-\`\`\`
-S = k_B · ln(W)
-\`\`\`
+$$S = k_B \\cdot \\ln(W)$$
 
-trong đó **W** = số "microstates" tương ứng với cùng "macrostate".
+trong đó $W$ = số "microstates" tương ứng với cùng "macrostate".
 
 💡 **Hình dung cụ thể**: hãy tưởng tượng 4 phân tử khí trong một hộp.
-- **Trạng thái "đều"** (2 phân tử bên trái + 2 bên phải): có **6 cách** sắp xếp (C(4,2) = 6) → W = 6.
-- **Trạng thái "lệch"** (cả 4 ở bên trái): chỉ có **1 cách** → W = 1.
+- **Trạng thái "đều"** (2 phân tử bên trái + 2 bên phải): có **6 cách** sắp xếp ($C(4,2) = 6$) → $W = 6$.
+- **Trạng thái "lệch"** (cả 4 ở bên trái): chỉ có **1 cách** → $W = 1$.
 - → Khi quan sát ngẫu nhiên, khả năng thấy "đều" cao hơn 6 lần "lệch". Với hàng tỉ tỉ phân tử, sự chênh lệch trở thành thiên văn — trạng thái "đều" gần như chắc chắn.
 
 **Vì sao cần khái niệm này (không chỉ dùng "hỗn loạn" tổng quát)?** Vì cách định nghĩa qua W cho phép **đo được**, **tính được**, và liên kết với xác suất. Câu nói "hỗn loạn tăng" trở thành **định lý xác suất**: hệ tự đi về trạng thái có nhiều cấu hình hơn.
 
 ### 1.2. Đơn vị
 
-Entropy có đơn vị **J/K** (giống nhiệt lượng chia cho nhiệt độ). Trong nhiệt động cổ điển: ΔS = Q/T (cho quá trình thuận nghịch).
+Entropy có đơn vị **J/K** (giống nhiệt lượng chia cho nhiệt độ). Trong nhiệt động cổ điển: $\\Delta S = Q/T$ (cho quá trình thuận nghịch).
 
 ### 1.3. Ví dụ trực giác
 
@@ -56,30 +54,30 @@ Entropy có đơn vị **J/K** (giống nhiệt lượng chia cho nhiệt độ)
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
-- *"Entropy có phải 'độ bẩn' hay 'độ lộn xộn' theo nghĩa thường không?"* Gần đúng nhưng dễ gây hiểu lầm. Chính xác: entropy đếm **số cách sắp xếp vi mô (W)** cho cùng một trạng thái vĩ mô. Trạng thái "nhiều cách sắp xếp" được gọi là "hỗn loạn", nhưng định nghĩa là về số đếm W, không phải cảm giác bừa bộn.
+- *"Entropy có phải 'độ bẩn' hay 'độ lộn xộn' theo nghĩa thường không?"* Gần đúng nhưng dễ gây hiểu lầm. Chính xác: entropy đếm **số cách sắp xếp vi mô ($W$)** cho cùng một trạng thái vĩ mô. Trạng thái "nhiều cách sắp xếp" được gọi là "hỗn loạn", nhưng định nghĩa là về số đếm W, không phải cảm giác bừa bộn.
 - *"Vì sao hệ tự đi về S cao mà không ngược lại?"* Vì trạng thái S cao có **nhiều cấu hình hơn** áp đảo → khi chọn ngẫu nhiên, gần như chắc chắn rơi vào nhóm đông. Đây là xác suất thuần, không phải "lực" đẩy.
 - *"Hệ có thể tự giảm entropy không?"* Một hệ con có thể (nếu môi trường bù lại nhiều hơn). Nhưng hệ **cô lập** thì không — S chỉ tăng hoặc giữ nguyên.
 
 ⚠ **Lỗi thường gặp**
 
 - **Tưởng entropy luôn tăng cho MỌI hệ**. Sai — chỉ đúng cho hệ **cô lập** (hoặc tổng vũ trụ). Tủ lạnh làm giảm entropy bên trong, nhưng tăng entropy môi trường nhiều hơn. Phản ví dụ: nước đông thành đá trong tủ lạnh → S của nước giảm, không vi phạm gì vì S môi trường tăng nhiều hơn.
-- **Lẫn entropy (J/K) với năng lượng (J)**: chúng khác đơn vị; ΔS = Q/T chia cho nhiệt độ.
+- **Lẫn entropy (J/K) với năng lượng (J)**: chúng khác đơn vị; $\\Delta S = Q/T$ chia cho nhiệt độ.
 
 🔁 **Dừng lại tự kiểm tra**
 
-1. Hộp 2 ngăn, 4 phân tử. Trạng thái "3 trái + 1 phải" có bao nhiêu cách sắp xếp (W)?
+1. Hộp 2 ngăn, 4 phân tử. Trạng thái "3 trái + 1 phải" có bao nhiêu cách sắp xếp ($W$)?
 2. Mở chai nước hoa trong phòng — entropy của hệ (phòng + hơi nước hoa) tăng hay giảm?
 
 <details><summary>Đáp án</summary>
 
-1. W = C(4,1) = 4 cách (chọn 1 trong 4 phân tử sang ngăn phải). So với "2 trái + 2 phải" có W = 6 (nhiều hơn → entropy cao hơn).
+1. $W = C(4,1) = 4$ cách (chọn 1 trong 4 phân tử sang ngăn phải). So với "2 trái + 2 phải" có $W = 6$ (nhiều hơn → entropy cao hơn).
 2. Tăng — hơi nước hoa khuếch tán khắp phòng (nhiều cấu hình hơn). Không bao giờ tự thu lại vào chai.
 
 </details>
 
 ### 📝 Tóm tắt mục 1
 
-- S = k_B·ln(W). Càng nhiều cấu hình → S càng lớn.
+- $S = k_B \\cdot \\ln(W)$. Càng nhiều cấu hình → $S$ càng lớn.
 - Quá trình tự nhiên: S tăng (theo xác suất).
 - Đơn vị: J/K.
 
@@ -91,17 +89,15 @@ Entropy có đơn vị **J/K** (giống nhiệt lượng chia cho nhiệt độ)
 
 **Định luật II**: trong mọi quá trình tự nhiên, **tổng entropy của vũ trụ luôn TĂNG**:
 
-\`\`\`
-ΔS_vũ_trụ = ΔS_hệ + ΔS_môi_trường ≥ 0
-\`\`\`
+$$\\Delta S_{\\text{vũ trụ}} = \\Delta S_{\\text{hệ}} + \\Delta S_{\\text{môi trường}} \\geq 0$$
 
 Dấu "=" chỉ xảy ra trong **quá trình thuận nghịch lý tưởng** (không tồn tại trong thực tế — luôn có ma sát, nhiệt mất).
 
 ### 2.2. Hệ quả — Mũi tên thời gian
 
-Định luật II là **lý do duy nhất giải thích sự khác nhau giữa quá khứ và tương lai**. Mọi định luật vật lý khác (Newton, Maxwell, Schrödinger) đều đối xứng theo thời gian — nếu xem ngược video thì vẫn đúng định luật. Chỉ định luật II "biết" hướng thời gian: S tăng theo thời gian.
+Định luật II là **lý do duy nhất giải thích sự khác nhau giữa quá khứ và tương lai**. Mọi định luật vật lý khác (Newton, Maxwell, Schrödinger) đều đối xứng theo thời gian — nếu xem ngược video thì vẫn đúng định luật. Chỉ định luật II "biết" hướng thời gian: $S$ tăng theo thời gian.
 
-💡 **Tại sao đập trứng không bao giờ tự ráp lại?** Vì đó sẽ là quá trình S giảm — vi phạm định luật II. Không phải không thể về mặt cơ học (mỗi va chạm đảo ngược được), mà **về xác suất quá nhỏ** (gần 0) để xảy ra ngẫu nhiên.
+💡 **Tại sao đập trứng không bao giờ tự ráp lại?** Vì đó sẽ là quá trình $S$ giảm — vi phạm định luật II. Không phải không thể về mặt cơ học (mỗi va chạm đảo ngược được), mà **về xác suất quá nhỏ** (gần 0) để xảy ra ngẫu nhiên.
 
 ### 2.3. Phát biểu Kelvin và Clausius (tương đương)
 
@@ -117,8 +113,8 @@ Dấu "=" chỉ xảy ra trong **quá trình thuận nghịch lý tưởng** (kh
 
 ⚠ **Lỗi thường gặp**
 
-- **Tưởng entropy luôn tăng cho mọi vật**. Lại nhắc: chỉ tổng (hệ + môi trường) mới luôn ≥ 0. Phản ví dụ: nước trong khay đông thành đá → S nước giảm, nhưng dàn nóng tủ lạnh thải nhiệt làm S phòng tăng hơn.
-- **Nghĩ có thể đạt ΔS = 0 trong thực tế**. Dấu "=" chỉ ở quá trình thuận nghịch lý tưởng (không ma sát, vô cùng chậm) — không tồn tại thực tế.
+- **Tưởng entropy luôn tăng cho mọi vật**. Lại nhắc: chỉ tổng (hệ + môi trường) mới luôn $\\geq 0$. Phản ví dụ: nước trong khay đông thành đá → $S$ nước giảm, nhưng dàn nóng tủ lạnh thải nhiệt làm $S$ phòng tăng hơn.
+- **Nghĩ có thể đạt $\\Delta S = 0$ trong thực tế**. Dấu "=" chỉ ở quá trình thuận nghịch lý tưởng (không ma sát, vô cùng chậm) — không tồn tại thực tế.
 
 🔁 **Dừng lại tự kiểm tra**
 
@@ -128,13 +124,13 @@ Dấu "=" chỉ xảy ra trong **quá trình thuận nghịch lý tưởng** (kh
 <details><summary>Đáp án</summary>
 
 1. Phát biểu Kelvin — không thể lấy nhiệt từ 1 nguồn và biến hoàn toàn thành công mà không thải nhiệt ra nguồn lạnh hơn.
-2. Vì đó là quá trình giảm entropy (khói tập trung lại có W nhỏ hơn khói lan tỏa). Vi phạm định luật II → mắt ta nhận ra "thời gian chạy ngược".
+2. Vì đó là quá trình giảm entropy (khói tập trung lại có $W$ nhỏ hơn khói lan tỏa). Vi phạm định luật II → mắt ta nhận ra "thời gian chạy ngược".
 
 </details>
 
 ### 📝 Tóm tắt mục 2
 
-- ΔS_vũ_trụ ≥ 0 (luôn).
+- $\\Delta S_{\\text{vũ trụ}} \\geq 0$ (luôn).
 - Mũi tên thời gian = entropy tăng.
 - Kelvin: nhiệt không hoàn toàn → công. Clausius: nhiệt tự đi từ nóng → lạnh.
 
@@ -155,73 +151,69 @@ Q_h (nhiệt nhận từ nguồn nóng T_h)
 Q_c (nhiệt thải ra nguồn lạnh T_c)
 \`\`\`
 
-Bảo toàn năng lượng (định luật I): Q_h = W + Q_c.
+Bảo toàn năng lượng (định luật I): $Q_h = W + Q_c$.
 
-### 3.2. Hiệu suất η (efficiency)
+### 3.2. Hiệu suất $\\eta$ (efficiency)
 
-\`\`\`
-η = W / Q_h = 1 − Q_c / Q_h
-\`\`\`
+$$\\eta = \\frac{W}{Q_h} = 1 - \\frac{Q_c}{Q_h}$$
 
-💡 **Ý nghĩa**: η đo "bao nhiêu phần trăm nhiệt nhận vào trở thành công có ích". 100% nghĩa là **tất cả** nhiệt thành công (Q_c = 0). Nhưng định luật II nói **không thể** đạt η = 100%.
+💡 **Ý nghĩa**: $\\eta$ đo "bao nhiêu phần trăm nhiệt nhận vào trở thành công có ích". 100% nghĩa là **tất cả** nhiệt thành công ($Q_c = 0$). Nhưng định luật II nói **không thể** đạt $\\eta = 100\\%$.
 
 ### 3.3. Máy nhiệt Carnot — Hiệu suất tối đa
 
-Sadi Carnot (1824) chứng minh: máy nhiệt **lý tưởng nhất có thể** chạy giữa 2 nguồn nhiệt T_h và T_c có hiệu suất:
+Sadi Carnot (1824) chứng minh: máy nhiệt **lý tưởng nhất có thể** chạy giữa 2 nguồn nhiệt $T_h$ và $T_c$ có hiệu suất:
 
-\`\`\`
-η_Carnot = 1 − T_c / T_h
-\`\`\`
+$$\\eta_{\\text{Carnot}} = 1 - \\frac{T_c}{T_h}$$
 
-(T phải tính bằng Kelvin!)
+($T$ phải tính bằng Kelvin!)
 
-💡 **Ý nghĩa**: bất kỳ máy nhiệt thực nào cũng có η ≤ η_Carnot. Để tăng η, phải:
-- Tăng T_h (làm nguồn nóng nóng hơn) — bị giới hạn bởi vật liệu.
-- Giảm T_c (làm nguồn lạnh lạnh hơn) — bị giới hạn bởi môi trường (thường là không khí ~ 300 K).
+💡 **Ý nghĩa**: bất kỳ máy nhiệt thực nào cũng có $\\eta \\leq \\eta_{\\text{Carnot}}$. Để tăng $\\eta$, phải:
+- Tăng $T_h$ (làm nguồn nóng nóng hơn) — bị giới hạn bởi vật liệu.
+- Giảm $T_c$ (làm nguồn lạnh lạnh hơn) — bị giới hạn bởi môi trường (thường là không khí $\\approx 300 \\text{ K}$).
 
 ### 3.4. Ba ví dụ số
 
-**Ví dụ 1 — Nhà máy điện hơi nước**: T_h = 500°C = 773 K. T_c = 30°C = 303 K (nước làm mát).
-- η_Carnot = 1 − 303/773 = **60.8%**.
-- Thực tế: ~ 35-40% (do mất nhiệt, ma sát).
+**Ví dụ 1 — Nhà máy điện hơi nước**: $T_h = 500°\\text{C} = 773 \\text{ K}$. $T_c = 30°\\text{C} = 303 \\text{ K}$ (nước làm mát).
+- $\\eta_{\\text{Carnot}} = 1 - 303/773 = $ **60,8%**.
+- Thực tế: $\\approx 35\\text{-}40\\%$ (do mất nhiệt, ma sát).
 - Đó là tại sao "đốt 100 J nhiên liệu mới có 35 J điện".
 
-**Ví dụ 2 — Động cơ ô tô**: T_h ≈ 2000 K (đốt nhiên liệu). T_c ≈ 800 K (khí thải).
-- η_Carnot = 1 − 800/2000 = **60%**.
-- Thực tế: ~ 25-35% (do nhiều mất mát).
+**Ví dụ 2 — Động cơ ô tô**: $T_h \\approx 2000 \\text{ K}$ (đốt nhiên liệu). $T_c \\approx 800 \\text{ K}$ (khí thải).
+- $\\eta_{\\text{Carnot}} = 1 - 800/2000 = $ **60%**.
+- Thực tế: $\\approx 25\\text{-}35\\%$ (do nhiều mất mát).
 
-**Ví dụ 3 — Tủ lạnh** (máy nhiệt ngược): Tủ lạnh "lấy" nhiệt từ trong (T_c lạnh) và "thải" ra môi trường (T_h ấm). Cần cấp công W (điện). Hệ số làm lạnh:
-- COP = Q_c / W. Với T_h = 25°C = 298 K, T_c = 5°C = 278 K → COP_max = T_c/(T_h − T_c) = 278/20 = **13.9**.
-- Thực tế ~ 2-4.
+**Ví dụ 3 — Tủ lạnh** (máy nhiệt ngược): Tủ lạnh "lấy" nhiệt từ trong ($T_c$ lạnh) và "thải" ra môi trường ($T_h$ ấm). Cần cấp công $W$ (điện). Hệ số làm lạnh:
+- $COP = Q_c / W$. Với $T_h = 25°\\text{C} = 298 \\text{ K}$, $T_c = 5°\\text{C} = 278 \\text{ K} \\to COP_{\\text{max}} = T_c/(T_h - T_c) = 278/20 = $ **13,9**.
+- Thực tế $\\approx 2\\text{-}4$.
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
-- *"Vì sao không thể đạt η = 100%?"* Vì để biến HẾT nhiệt thành công, máy phải có Q_c = 0 (không thải nhiệt). Điều này đòi T_c = 0 K (không tuyệt đối, không đạt được) trong công thức Carnot. Định luật II cấm η = 100%.
-- *"T trong η_Carnot dùng °C hay K?"* BẮT BUỘC Kelvin. Phản ví dụ: T_h = 100°C, T_c = 0°C → nếu dùng °C: 1 − 0/100 = 100% (sai!). Dùng K: 1 − 273/373 = 26.8%.
-- *"Vì sao tăng T_h và giảm T_c đều tăng η?"* Vì η = 1 − T_c/T_h. T_h lớn hơn hoặc T_c nhỏ hơn → tỉ số T_c/T_h nhỏ hơn → η lớn hơn.
+- *"Vì sao không thể đạt $\\eta = 100\\%$?"* Vì để biến HẾT nhiệt thành công, máy phải có $Q_c = 0$ (không thải nhiệt). Điều này đòi $T_c = 0 \\text{ K}$ (không tuyệt đối, không đạt được) trong công thức Carnot. Định luật II cấm $\\eta = 100\\%$.
+- *"$T$ trong $\\eta_{\\text{Carnot}}$ dùng °C hay K?"* BẮT BUỘC Kelvin. Phản ví dụ: $T_h = 100°\\text{C}$, $T_c = 0°\\text{C} \\to$ nếu dùng °C: $1 - 0/100 = 100\\%$ (sai!). Dùng K: $1 - 273/373 = 26{,}8\\%$.
+- *"Vì sao tăng $T_h$ và giảm $T_c$ đều tăng $\\eta$?"* Vì $\\eta = 1 - T_c/T_h$. $T_h$ lớn hơn hoặc $T_c$ nhỏ hơn → tỉ số $T_c/T_h$ nhỏ hơn → $\\eta$ lớn hơn.
 
 ⚠ **Lỗi thường gặp**
 
-- **Dùng °C trong η_Carnot**. Đây là lỗi #1. Luôn đổi sang Kelvin trước. Phản ví dụ ở trên: 100% vs 26.8% — sai hoàn toàn.
-- **Tưởng máy thực có thể đạt η_Carnot**. Carnot là **giới hạn trên lý thuyết**; máy thực luôn thấp hơn (ma sát, mất nhiệt). Nhà máy điện thực ~35-40% dù Carnot cho ~60%.
+- **Dùng °C trong $\\eta_{\\text{Carnot}}$**. Đây là lỗi #1. Luôn đổi sang Kelvin trước. Phản ví dụ ở trên: 100% vs 26.8% — sai hoàn toàn.
+- **Tưởng máy thực có thể đạt $\\eta_{\\text{Carnot}}$**. Carnot là **giới hạn trên lý thuyết**; máy thực luôn thấp hơn (ma sát, mất nhiệt). Nhà máy điện thực $\\approx 35\\text{-}40\\%$ dù Carnot cho $\\approx 60\\%$.
 
 🔁 **Dừng lại tự kiểm tra**
 
-1. Máy nhiệt chạy giữa T_h = 600 K và T_c = 300 K. Hiệu suất Carnot tối đa?
-2. Máy nhận 2000 J từ nguồn nóng, sinh 700 J công. Q_c thải ra và η thực bằng bao nhiêu?
+1. Máy nhiệt chạy giữa $T_h = 600 \\text{ K}$ và $T_c = 300 \\text{ K}$. Hiệu suất Carnot tối đa?
+2. Máy nhận 2000 J từ nguồn nóng, sinh 700 J công. $Q_c$ thải ra và $\\eta$ thực bằng bao nhiêu?
 
 <details><summary>Đáp án</summary>
 
-1. η_Carnot = 1 − T_c/T_h = 1 − 300/600 = **0.5 = 50%**.
-2. Q_c = Q_h − W = 2000 − 700 = **1300 J**. η = W/Q_h = 700/2000 = **35%**.
+1. $\\eta_{\\text{Carnot}} = 1 - T_c/T_h = 1 - 300/600 = $ **0,5 = 50%**.
+2. $Q_c = Q_h - W = 2000 - 700 = $ **1300 J**. $\\eta = W/Q_h = 700/2000 = $ **35%**.
 
 </details>
 
 ### 📝 Tóm tắt mục 3
 
-- Máy nhiệt: Q_h = W + Q_c. η = W/Q_h.
-- **η_Carnot = 1 − T_c/T_h** (T bằng Kelvin).
-- Không thể vượt Carnot. Để tăng η: tăng T_h, giảm T_c.
+- Máy nhiệt: $Q_h = W + Q_c$. $\\eta = W/Q_h$.
+- **$\\eta_{\\text{Carnot}} = 1 - T_c/T_h$** ($T$ bằng Kelvin).
+- Không thể vượt Carnot. Để tăng $\\eta$: tăng $T_h$, giảm $T_c$.
 
 ---
 
@@ -231,14 +223,14 @@ Sadi Carnot (1824) chứng minh: máy nhiệt **lý tưởng nhất có thể** 
 
 **Bài 1**: Vì sao đập 1 quả trứng không bao giờ tự ráp lại, dù mọi va chạm giữa các phân tử đảo ngược được?
 
-**Bài 2**: Nhà máy điện vận hành ở T_h = 600°C, T_c = 50°C. Tính η_Carnot.
+**Bài 2**: Nhà máy điện vận hành ở $T_h = 600°\\text{C}$, $T_c = 50°\\text{C}$. Tính $\\eta_{\\text{Carnot}}$.
 
 **Bài 3**: Một máy nhiệt nhận 1000 J từ nguồn nóng, sinh ra 350 J công. Tính:
-a) Q_c thải ra.
-b) η thực tế.
-c) Nếu T_h = 500 K, T_c = 300 K, máy này có thể đạt η lý tưởng bao nhiêu?
+a) $Q_c$ thải ra.
+b) $\\eta$ thực tế.
+c) Nếu $T_h = 500 \\text{ K}$, $T_c = 300 \\text{ K}$, máy này có thể đạt $\\eta$ lý tưởng bao nhiêu?
 
-**Bài 4**: Một động cơ Carnot lý tưởng có T_h = 800 K, η = 60%. T_c bằng bao nhiêu?
+**Bài 4**: Một động cơ Carnot lý tưởng có $T_h = 800 \\text{ K}$, $\\eta = 60\\%$. $T_c$ bằng bao nhiêu?
 
 **Bài 5**: Vì sao không thể chế tạo máy "perpetual motion" (chuyển động vĩnh cửu) loại 2 (lấy nhiệt từ đại dương → công)?
 
@@ -248,18 +240,18 @@ c) Nếu T_h = 500 K, T_c = 300 K, máy này có thể đạt η lý tưởng ba
 
 **Bài 1**: Về mặt cơ học, mỗi va chạm giữa các phân tử có thể đảo ngược → về mặt lý thuyết, "đập trứng đảo ngược" KHÔNG vi phạm định luật I (bảo toàn năng lượng) hay Newton. Nhưng nó CỰC KỲ kém xác suất: số cấu hình "trứng nguyên" rất nhỏ so với "trứng vỡ tung tóe". Bạn phải đợi thời gian **lớn hơn nhiều tuổi vũ trụ** mới có 1 cơ hội thấy nó tự ráp. Định luật II = quy luật xác suất, không phải định luật cơ bản tuyệt đối — nhưng thực dụng tuyệt đối.
 
-**Bài 2**: T_h = 873 K, T_c = 323 K. η = 1 − 323/873 = **63.0%**.
+**Bài 2**: $T_h = 873 \\text{ K}$, $T_c = 323 \\text{ K}$. $\\eta = 1 - 323/873 = $ **63,0%**.
 
 **Bài 3**: 
-- a) Q_c = Q_h − W = 1000 − 350 = **650 J**.
-- b) η = 350/1000 = **35%**.
-- c) η_Carnot = 1 − 300/500 = **40%**. Máy này dùng 35/40 = 87.5% hiệu quả lý thuyết — khá tốt.
+- a) $Q_c = Q_h - W = 1000 - 350 = $ **650 J**.
+- b) $\\eta = 350/1000 = $ **35%**.
+- c) $\\eta_{\\text{Carnot}} = 1 - 300/500 = $ **40%**. Máy này dùng $35/40 = 87{,}5\\%$ hiệu quả lý thuyết — khá tốt.
 
-**Bài 4**: 0.6 = 1 − T_c/800 → T_c/800 = 0.4 → **T_c = 320 K = 47°C**.
+**Bài 4**: $0{,}6 = 1 - T_c/800 \\to T_c/800 = 0{,}4 \\to$ **$T_c = 320 \\text{ K} = 47°\\text{C}$**.
 
-**Bài 5**: Đại dương có rất nhiều nhiệt. Nếu lấy chỉ Q_h từ 1 nguồn (đại dương) và biến hoàn toàn thành W không có nguồn lạnh → vi phạm phát biểu Kelvin của định luật II → không thể. Máy này nếu tồn tại sẽ làm giảm entropy đại dương mà không tăng entropy ở đâu khác — vi phạm S_vũ_trụ ≥ 0.
+**Bài 5**: Đại dương có rất nhiều nhiệt. Nếu lấy chỉ $Q_h$ từ 1 nguồn (đại dương) và biến hoàn toàn thành $W$ không có nguồn lạnh → vi phạm phát biểu Kelvin của định luật II → không thể. Máy này nếu tồn tại sẽ làm giảm entropy đại dương mà không tăng entropy ở đâu khác — vi phạm $S_{\\text{vũ trụ}} \\geq 0$.
 
-**Bài 6**: KHÔNG (tổng entropy). Vũ trụ là hệ kín → ΔS_vũ_trụ ≥ 0 luôn. Tuy nhiên, **một phần** của vũ trụ có thể giảm entropy (vd sinh vật sống tổ chức cấu trúc có thứ tự). Nhưng phải đổi lại: phần khác (môi trường xung quanh) tăng entropy nhiều hơn để bù lại. Đây là cách sự sống tồn tại — tạo trật tự cục bộ bằng cách "thải" hỗn loạn ra ngoài (nhiệt + chất thải).
+**Bài 6**: KHÔNG (tổng entropy). Vũ trụ là hệ kín → $\\Delta S_{\\text{vũ trụ}} \\geq 0$ luôn. Tuy nhiên, **một phần** của vũ trụ có thể giảm entropy (vd sinh vật sống tổ chức cấu trúc có thứ tự). Nhưng phải đổi lại: phần khác (môi trường xung quanh) tăng entropy nhiều hơn để bù lại. Đây là cách sự sống tồn tại — tạo trật tự cục bộ bằng cách "thải" hỗn loạn ra ngoài (nhiệt + chất thải).
 
 ---
 
@@ -271,10 +263,10 @@ c) Nếu T_h = 500 K, T_c = 300 K, máy này có thể đạt η lý tưởng ba
 
 ## 📝 Tổng kết Lesson 03 (T2)
 
-1. **S = k_B·ln(W)** — entropy đo số cấu hình. J/K.
-2. **Định luật II**: ΔS_vũ_trụ ≥ 0. Mũi tên thời gian.
-3. **Máy nhiệt**: Q_h = W + Q_c. η = W/Q_h.
-4. **Carnot**: η_max = 1 − T_c/T_h (Kelvin). Không thể vượt.
+1. **$S = k_B \\cdot \\ln(W)$** — entropy đo số cấu hình. J/K.
+2. **Định luật II**: $\\Delta S_{\\text{vũ trụ}} \\geq 0$. Mũi tên thời gian.
+3. **Máy nhiệt**: $Q_h = W + Q_c$. $\\eta = W/Q_h$.
+4. **Carnot**: $\\eta_{\\text{max}} = 1 - T_c/T_h$ (Kelvin). Không thể vượt.
 5. **Tủ lạnh**: lấy nhiệt từ lạnh đẩy ra ấm, cần tốn công.
 
 **Tiếp theo**: [Lesson 04 — Điện tích &amp; Coulomb](../lesson-04-coulomb-charge/)

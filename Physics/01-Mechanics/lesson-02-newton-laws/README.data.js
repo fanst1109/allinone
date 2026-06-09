@@ -10,7 +10,7 @@ Sau bài này bạn sẽ:
 - Hiểu **lực** là gì, đơn vị (Newton, N), và vì sao đây là khái niệm nền tảng của cơ học.
 - Phát biểu và hiểu **3 định luật Newton**:
   - **Định luật I (Quán tính)**: vật không chịu lực → trạng thái chuyển động không đổi.
-  - **Định luật II**: **F = m·a** — lực tỉ lệ thuận với gia tốc.
+  - **Định luật II**: **$F = m\\cdot a$** — lực tỉ lệ thuận với gia tốc.
   - **Định luật III**: lực và phản lực bằng nhau, ngược chiều, tác dụng lên 2 vật khác nhau.
 - Phân biệt **khối lượng (mass, kg)** và **trọng lượng (weight, N)**.
 - Vẽ được **sơ đồ vật tự do (Free Body Diagram, FBD)** cho các tình huống cơ học cơ bản.
@@ -32,7 +32,7 @@ Sau bài này bạn sẽ:
 
 **Vì sao cần khái niệm này?** Vì nếu không có lực, mọi vật sẽ chuyển động đều mãi (định luật I). Lực là **nguyên nhân** làm vận tốc thay đổi (= sinh gia tốc). Không có lực thì không có gia tốc, không có gia tốc thì không có hiện tượng cơ học thú vị nào.
 
-**Đơn vị**: **Newton (N)**. 1 N = lực cần để gia tốc một vật 1 kg với gia tốc 1 m/s². Theo định nghĩa SI: \`1 N = 1 kg·m/s²\`.
+**Đơn vị**: **Newton (N)**. 1 N = lực cần để gia tốc một vật 1 kg với gia tốc 1 m/s². Theo định nghĩa SI: $1\\ \\text{N} = 1\\ \\text{kg}\\cdot\\text{m/s}^2$.
 
 **Có hướng (vector)**: lực luôn có hướng. Khi viết F = 10 N, ta cần biết "theo hướng nào".
 
@@ -53,18 +53,18 @@ Sau bài này bạn sẽ:
 
 | Loại lực | Nguồn gốc | Ký hiệu |
 |----------|-----------|---------|
-| Trọng lực | Hấp dẫn của Trái Đất | **W** hoặc **F_g** = m·g |
-| Lực căng | Dây kéo | **T** |
-| Lực ma sát | Giữa 2 bề mặt tiếp xúc | **f** |
-| Lực đàn hồi | Lò xo, vật biến dạng | **F_đh** = k·x |
-| Phản lực pháp tuyến | Mặt phẳng đẩy vật vuông góc | **N** |
-| Lực điện | Giữa các điện tích | **F_e** |
+| Trọng lực | Hấp dẫn của Trái Đất | $W$ hoặc $F_g = m\\cdot g$ |
+| Lực căng | Dây kéo | $T$ |
+| Lực ma sát | Giữa 2 bề mặt tiếp xúc | $f$ |
+| Lực đàn hồi | Lò xo, vật biến dạng | $F_{đh} = k\\cdot x$ |
+| Phản lực pháp tuyến | Mặt phẳng đẩy vật vuông góc | $N$ |
+| Lực điện | Giữa các điện tích | $F_e$ |
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
 - *"1 Newton lớn hay nhỏ?"* Khá nhỏ trong đời thường: 1 N ≈ trọng lượng quả táo 100 g. Cầm chai nước 1 lít → bạn đang chống lại ~10 N. Lực phanh gấp một ô tô con khoảng vài nghìn N.
-- *"Vì sao đơn vị lực lại là kg·m/s²?"* Vì từ F = m·a: m tính bằng kg, a bằng m/s² → tích là kg·m/s². Người ta gọi gọn cụm này là "Newton" để tiện. Nó không phải đơn vị bịa ra mà là hệ quả trực tiếp của định luật II.
-- *"Có lực 'âm' không?"* Lực là vector nên có dấu **theo trục đã chọn**: F = −5 N nghĩa là lực 5 N hướng theo chiều âm. "Âm" chỉ hướng, không phải lực "nhỏ hơn 0".
+- *"Vì sao đơn vị lực lại là kg·m/s²?"* Vì từ $F = m\\cdot a$: $m$ tính bằng kg, $a$ bằng m/s² $\\to$ tích là $\\text{kg}\\cdot\\text{m/s}^2$. Người ta gọi gọn cụm này là "Newton" để tiện. Nó không phải đơn vị bịa ra mà là hệ quả trực tiếp của định luật II.
+- *"Có lực 'âm' không?"* Lực là vector nên có dấu **theo trục đã chọn**: $F = -5$ N nghĩa là lực 5 N hướng theo chiều âm. "Âm" chỉ hướng, không phải lực "nhỏ hơn 0".
 
 🔁 **Dừng lại tự kiểm tra**
 
@@ -73,15 +73,15 @@ Sau bài này bạn sẽ:
 
 <details><summary>Đáp án</summary>
 
-1. Cùng chiều: 80 + 80 = **160 N**. Ngược chiều (bằng nhau): 80 − 80 = **0 N** (thùng không gia tốc).
-2. F = m·a = 3·4 = **12 N**. Vì 10 N ≈ trọng lượng 1 kg gạo → 12 N ≈ trọng lượng **1.2 kg gạo**.
+1. Cùng chiều: $80 + 80 = $ **160 N**. Ngược chiều (bằng nhau): $80 - 80 = $ **0 N** (thùng không gia tốc).
+2. $F = m\\cdot a = 3\\cdot 4 = $ **12 N**. Vì 10 N ≈ trọng lượng 1 kg gạo $\\to$ 12 N ≈ trọng lượng **1,2 kg gạo**.
 
 </details>
 
 ### 📝 Tóm tắt mục 1
 
 - **Lực** = tương tác giữa các vật, gây gia tốc hoặc biến dạng.
-- Đơn vị: Newton (N). 1 N = 1 kg·m/s².
+- Đơn vị: Newton (N). $1\\ \\text{N} = 1\\ \\text{kg}\\cdot\\text{m/s}^2$.
 - Lực có hướng (vector).
 
 ---
@@ -116,7 +116,7 @@ Sau bài này bạn sẽ:
 
 - *"Nếu lực không cần để duy trì chuyển động, sao xe tắt máy lại dừng?"* Vì có ma sát và sức cản không khí — đó là các lực **cản** làm xe giảm tốc. Trong không gian không ma sát (Voyager) thì xe chạy mãi. Định luật I nói về trường hợp lý tưởng không lực cản.
 - *"Quán tính có phải là một loại lực không?"* Không. Quán tính là **xu hướng** của vật giữ nguyên trạng thái — một thuộc tính, không phải lực. Khối lượng m chính là thước đo định lượng của quán tính.
-- *"Vật càng nặng quán tính càng lớn?"* Đúng. m lớn → khó thay đổi vận tốc hơn (cần lực lớn hơn để cùng a, theo F = m·a). Đẩy xe tải khó hơn đẩy xe đạp vì quán tính lớn hơn.
+- *"Vật càng nặng quán tính càng lớn?"* Đúng. $m$ lớn $\\to$ khó thay đổi vận tốc hơn (cần lực lớn hơn để cùng $a$, theo $F = m\\cdot a$). Đẩy xe tải khó hơn đẩy xe đạp vì quán tính lớn hơn.
 
 🔁 **Dừng lại tự kiểm tra**
 
@@ -144,14 +144,12 @@ Sau bài này bạn sẽ:
 
 **Gia tốc của một vật tỉ lệ thuận với tổng lực tác dụng, tỉ lệ nghịch với khối lượng**:
 
-\`\`\`
-F = m · a
-\`\`\`
+$$F = m \\cdot a$$
 
 Trong đó:
-- **F** = tổng lực (vector), đơn vị N.
-- **m** = khối lượng vật, đơn vị kg.
-- **a** = gia tốc (vector), đơn vị m/s².
+- **$F$** = tổng lực (vector), đơn vị N.
+- **$m$** = khối lượng vật, đơn vị kg.
+- **$a$** = gia tốc (vector), đơn vị m/s².
 
 💡 **Ý nghĩa cốt lõi**: đây là **liên hệ định lượng** giữa nguyên nhân (lực) và kết quả (gia tốc). Nếu định luật I cho biết "không có lực thì không có gia tốc", thì định luật II cho biết **lực bao nhiêu sẽ gây gia tốc bao nhiêu**.
 
@@ -159,23 +157,23 @@ Trong đó:
 
 ### 3.2. Diễn dịch quan trọng
 
-Khi tổng các lực = 0 → a = 0 → vật đứng yên hoặc chuyển động đều (= định luật I là **trường hợp đặc biệt** của định luật II với F = 0).
+Khi tổng các lực $= 0 \\to a = 0 \\to$ vật đứng yên hoặc chuyển động đều (= định luật I là **trường hợp đặc biệt** của định luật II với $F = 0$).
 
 ### 3.3. Ba ví dụ số cụ thể
 
-**Ví dụ 1 — Đẩy hộp trên sàn không ma sát**: Đẩy hộp 5 kg với F = 20 N. Tính a.
-- a = F/m = 20/5 = **4 m/s²**.
+**Ví dụ 1 — Đẩy hộp trên sàn không ma sát**: Đẩy hộp 5 kg với $F = 20$ N. Tính $a$.
+- $a = \\frac{F}{m} = \\frac{20}{5} = $ **4 m/s²**.
 - Mỗi giây vận tốc tăng 4 m/s.
 
 **Ví dụ 2 — Quả táo rơi**: Trọng lực kéo táo 100 g xuống. Tính gia tốc.
-- F_g = m·g = 0.1·9.8 = 0.98 N.
-- a = F/m = 0.98/0.1 = **9.8 m/s²** = g.
-- → Đúng quy luật rơi tự do: mọi vật rơi với cùng gia tốc g (đã thấy ở Lesson 01).
-- Vì sao? Vì F_g = m·g và a = F/m → a = g (m hủy lẫn nhau).
+- $F_g = m\\cdot g = 0{,}1\\cdot 9{,}8 = 0{,}98$ N.
+- $a = \\frac{F}{m} = \\frac{0{,}98}{0{,}1} = $ **9,8 m/s²** $= g$.
+- $\\to$ Đúng quy luật rơi tự do: mọi vật rơi với cùng gia tốc $g$ (đã thấy ở Lesson 01).
+- Vì sao? Vì $F_g = m\\cdot g$ và $a = \\frac{F}{m} \\to a = g$ ($m$ hủy lẫn nhau).
 
 **Ví dụ 3 — Xe ô tô tăng tốc**: Ô tô 1500 kg, từ 0 lên 30 m/s trong 6 giây. Tính lực động cơ.
-- a = (30 − 0)/6 = 5 m/s².
-- F = m·a = 1500·5 = **7,500 N = 7.5 kN**.
+- $a = \\frac{30 - 0}{6} = 5\\ \\text{m/s}^2$.
+- $F = m\\cdot a = 1500\\cdot 5 = $ **7 500 N = 7,5 kN**.
 
 ### 3.4. Trọng lượng vs Khối lượng
 
@@ -185,45 +183,45 @@ Khi tổng các lực = 0 → a = 0 → vật đứng yên hoặc chuyển độ
 |---|----------------------|--------------------------|
 | **Ý nghĩa** | Lượng vật chất trong vật, "khó di chuyển thế nào" | Lực hấp dẫn Trái Đất tác dụng lên vật |
 | **Đơn vị** | kg | N (Newton) |
-| **Phụ thuộc nơi?** | KHÔNG (m luôn như nhau ở Trái Đất, Mặt Trăng, ngoài vũ trụ) | CÓ (W = m·g, g khác nhau ở mỗi nơi) |
+| **Phụ thuộc nơi?** | KHÔNG ($m$ luôn như nhau ở Trái Đất, Mặt Trăng, ngoài vũ trụ) | CÓ ($W = m\\cdot g$, $g$ khác nhau ở mỗi nơi) |
 | **Đo bằng** | Cân thăng bằng | Cân lò xo |
 
 **Ví dụ**: Một người 60 kg.
-- Ở Trái Đất (g = 9.8 m/s²): W = 60 × 9.8 = **588 N**.
-- Ở Mặt Trăng (g = 1.6 m/s²): W = 60 × 1.6 = **96 N**.
-- Ngoài không gian (g ≈ 0): W ≈ **0 N**. Nhưng khối lượng m vẫn = **60 kg**.
+- Ở Trái Đất ($g = 9{,}8\\ \\text{m/s}^2$): $W = 60 \\times 9{,}8 = $ **588 N**.
+- Ở Mặt Trăng ($g = 1{,}6\\ \\text{m/s}^2$): $W = 60 \\times 1{,}6 = $ **96 N**.
+- Ngoài không gian ($g \\approx 0$): $W \\approx$ **0 N**. Nhưng khối lượng $m$ vẫn $= $ **60 kg**.
 
-→ Khi nói "tôi nặng 60 kg" — chính xác phải nói "khối lượng tôi là 60 kg". "Trọng lượng" của bạn = 588 N (ở Trái Đất).
+→ Khi nói "tôi nặng 60 kg" — chính xác phải nói "khối lượng tôi là 60 kg". "Trọng lượng" của bạn $= 588$ N (ở Trái Đất).
 
 ### ⚠ Lỗi thường gặp
 
 - **Nhầm khối lượng (kg) với trọng lượng (N)**: cân hiển thị "60 kg" thật ra đang đo trọng lượng rồi chia cho g. Lên Mặt Trăng khối lượng vẫn 60 kg nhưng trọng lượng chỉ 96 N (≈ cảm giác nhẹ như 9.8 kg ở Trái Đất). Trong F = m·a phải dùng **khối lượng** (kg), không dùng kg như đơn vị lực.
-- **Dùng F là một lực riêng lẻ thay vì TỔNG lực**: F trong F = m·a là **tổng (hợp) lực** (net force). Nếu vật chịu 50 N kéo và 20 N ma sát ngược, thì a = (50−20)/m, KHÔNG phải 50/m.
+- **Dùng F là một lực riêng lẻ thay vì TỔNG lực**: $F$ trong $F = m\\cdot a$ là **tổng (hợp) lực** (net force). Nếu vật chịu 50 N kéo và 20 N ma sát ngược, thì $a = \\frac{50-20}{m}$, KHÔNG phải $\\frac{50}{m}$.
 - **Quên rằng a cùng hướng với hợp lực**: gia tốc luôn theo hướng của tổng lực, không phải hướng vận tốc. Xe đang chạy tới nhưng phanh → tổng lực hướng lùi → a hướng lùi (xe chậm dần).
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
-- *"Vì sao mọi vật rơi với cùng gia tốc g dù khác khối lượng?"* Vì trọng lực F_g = m·g tỉ lệ với m, mà gia tốc a = F/m = mg/m = g — m triệt tiêu. Vật nặng chịu lực kéo lớn hơn, nhưng cũng "ì" hơn đúng tỉ lệ → cùng a.
-- *"F = m·a hay a = F/m — cái nào đúng?"* Cùng một phương trình, chỉ viết khác. Dùng F = m·a khi tìm lực (biết m, a); dùng a = F/m khi tìm gia tốc (biết lực, m).
-- *"Trên Mặt Trăng tôi nhảy cao hơn vì nhẹ hơn — khối lượng giảm à?"* Không, khối lượng giữ nguyên. Bạn nhảy cao hơn vì **trọng lượng** (lực kéo xuống) nhỏ hơn (g chỉ 1.6 m/s²), nên cùng lực đạp chân tạo gia tốc lên lớn hơn và rơi xuống chậm hơn.
+- *"Vì sao mọi vật rơi với cùng gia tốc g dù khác khối lượng?"* Vì trọng lực $F_g = m\\cdot g$ tỉ lệ với $m$, mà gia tốc $a = \\frac{F}{m} = \\frac{mg}{m} = g$ — $m$ triệt tiêu. Vật nặng chịu lực kéo lớn hơn, nhưng cũng "ì" hơn đúng tỉ lệ $\\to$ cùng $a$.
+- *"$F = m\\cdot a$ hay $a = \\frac{F}{m}$ — cái nào đúng?"* Cùng một phương trình, chỉ viết khác. Dùng $F = m\\cdot a$ khi tìm lực (biết $m$, $a$); dùng $a = \\frac{F}{m}$ khi tìm gia tốc (biết lực, $m$).
+- *"Trên Mặt Trăng tôi nhảy cao hơn vì nhẹ hơn — khối lượng giảm à?"* Không, khối lượng giữ nguyên. Bạn nhảy cao hơn vì **trọng lượng** (lực kéo xuống) nhỏ hơn ($g$ chỉ $1{,}6\\ \\text{m/s}^2$), nên cùng lực đạp chân tạo gia tốc lên lớn hơn và rơi xuống chậm hơn.
 
 🔁 **Dừng lại tự kiểm tra**
 
 1. Vật 4 kg chịu lực kéo 30 N và lực ma sát 6 N ngược chiều. Tính gia tốc.
-2. Một người có khối lượng 50 kg. Trọng lượng trên Trái Đất (g=9.8)? Trên Sao Hỏa (g=3.7)?
+2. Một người có khối lượng 50 kg. Trọng lượng trên Trái Đất ($g=9{,}8$)? Trên Sao Hỏa ($g=3{,}7$)?
 
 <details><summary>Đáp án</summary>
 
-1. Hợp lực = 30 − 6 = 24 N. a = F/m = 24/4 = **6 m/s²**.
-2. Trái Đất: W = 50·9.8 = **490 N**. Sao Hỏa: W = 50·3.7 = **185 N**. Khối lượng vẫn 50 kg ở cả hai.
+1. Hợp lực $= 30 - 6 = 24$ N. $a = \\frac{F}{m} = \\frac{24}{4} = $ **6 m/s²**.
+2. Trái Đất: $W = 50\\cdot 9{,}8 = $ **490 N**. Sao Hỏa: $W = 50\\cdot 3{,}7 = $ **185 N**. Khối lượng vẫn 50 kg ở cả hai.
 
 </details>
 
 ### 📝 Tóm tắt mục 3
 
-- **F = m·a** — định luật trung tâm của cơ học cổ điển.
-- m tỉ lệ nghịch a: vật càng nặng càng khó tăng tốc.
-- Trọng lượng W = m·g, khác khối lượng m.
+- **$F = m\\cdot a$** — định luật trung tâm của cơ học cổ điển.
+- $m$ tỉ lệ nghịch $a$: vật càng nặng càng khó tăng tốc.
+- Trọng lượng $W = m\\cdot g$, khác khối lượng $m$.
 
 ---
 
@@ -233,9 +231,7 @@ Khi tổng các lực = 0 → a = 0 → vật đứng yên hoặc chuyển độ
 
 **Nếu vật A tác dụng lực F lên vật B, thì vật B đồng thời tác dụng ngược lại lên A một lực có ĐỘ LỚN BẰNG NHAU và HƯỚNG NGƯỢC CHIỀU**:
 
-\`\`\`
-F(A→B) = −F(B→A)
-\`\`\`
+$$F_{(A\\to B)} = -F_{(B\\to A)}$$
 
 💡 **Ý nghĩa cốt lõi**: lực luôn **đi theo cặp** — không bao giờ có "lực một chiều". Khi bạn đẩy tường, tường cũng đẩy bạn (đó là lý do bạn cảm thấy áp lực ở tay).
 
@@ -272,18 +268,18 @@ Nếu 2 lực cùng tác dụng lên CÙNG 1 vật, đó **KHÔNG** phải cặp
 ### ❓ Câu hỏi tự nhiên của người đọc
 
 - *"Nếu lực và phản lực bằng nhau và ngược chiều, sao chúng không triệt tiêu, vật vẫn chuyển động được?"* Vì hai lực tác dụng lên **hai vật khác nhau**, không lên cùng một vật → không cộng vào nhau để triệt tiêu. Lực bạn đẩy đất tác dụng lên đất; phản lực đất đẩy tác dụng lên bạn → chính phản lực này làm bạn tiến.
-- *"Trái Đất hút tôi và tôi hút Trái Đất bằng nhau — sao chỉ tôi rơi mà Trái Đất không nhúc nhích?"* Lực bằng nhau, nhưng gia tốc a = F/m. Trái Đất có m khổng lồ (≈ 6×10²⁴ kg) → a của nó ≈ 0; còn bạn m nhỏ → a = g lớn. Cùng lực, vật nặng hơn gia tốc nhỏ hơn.
+- *"Trái Đất hút tôi và tôi hút Trái Đất bằng nhau — sao chỉ tôi rơi mà Trái Đất không nhúc nhích?"* Lực bằng nhau, nhưng gia tốc $a = \\frac{F}{m}$. Trái Đất có $m$ khổng lồ ($\\approx 6\\times 10^{24}$ kg) $\\to a$ của nó $\\approx 0$; còn bạn $m$ nhỏ $\\to a = g$ lớn. Cùng lực, vật nặng hơn gia tốc nhỏ hơn.
 - *"Làm sao phân biệt cặp định luật III với hai lực cân bằng?"* Cặp định luật III: cùng **loại** lực, trên **hai vật khác nhau**, luôn bằng nhau (kể cả khi vật đang gia tốc). Hai lực cân bằng: trên **cùng một vật**, có thể khác loại, chỉ bằng nhau khi vật cân bằng.
 
 🔁 **Dừng lại tự kiểm tra**
 
 1. Bạn đẩy tường với lực 200 N. Tường đẩy lại bạn bao nhiêu? Theo hướng nào?
-2. Quả táo (m = 0.1 kg) rơi, Trái Đất hút nó với F = 0.98 N. Táo hút Trái Đất với lực bao nhiêu? Gia tốc của Trái Đất do lực này (m_TĐ ≈ 6×10²⁴ kg)?
+2. Quả táo ($m = 0{,}1$ kg) rơi, Trái Đất hút nó với $F = 0{,}98$ N. Táo hút Trái Đất với lực bao nhiêu? Gia tốc của Trái Đất do lực này ($m_{TĐ} \\approx 6\\times 10^{24}$ kg)?
 
 <details><summary>Đáp án</summary>
 
 1. **200 N**, hướng **ngược lại** (từ tường ra phía bạn). Đó là lý do tay bạn cảm thấy áp lực.
-2. Cũng **0.98 N** (cặp định luật III). a của Trái Đất = 0.98 / (6×10²⁴) ≈ **1.6×10⁻²⁵ m/s²** — nhỏ đến mức không đo nổi, nên ta coi Trái Đất "đứng yên".
+2. Cũng **0,98 N** (cặp định luật III). $a$ của Trái Đất $= \\frac{0{,}98}{6\\times 10^{24}} \\approx$ **1,6×10⁻²⁵ m/s²** — nhỏ đến mức không đo nổi, nên ta coi Trái Đất "đứng yên".
 
 </details>
 
@@ -318,7 +314,7 @@ Free Body Diagram = sơ đồ biểu diễn **tất cả các lực tác dụng 
         ↓
         W (xuống)
 \`\`\`
-- Tổng lực: F = N − W = m·a. Sách đứng yên → a = 0 → N = W = m·g.
+- Tổng lực: $F = N - W = m\\cdot a$. Sách đứng yên $\\to a = 0 \\to N = W = m\\cdot g$.
 
 **Ví dụ 2 — Kéo hộp trên sàn (có ma sát)**:
 \`\`\`
@@ -328,10 +324,10 @@ Free Body Diagram = sơ đồ biểu diễn **tất cả các lực tác dụng 
               ↓
               W
 \`\`\`
-- Trục y: N − W = 0 → N = W = m·g.
-- Trục x: T − f = m·a → a = (T − f)/m.
+- Trục y: $N - W = 0 \\to N = W = m\\cdot g$.
+- Trục x: $T - f = m\\cdot a \\to a = \\frac{T - f}{m}$.
 
-**Ví dụ 3 — Vật trên mặt phẳng nghiêng góc θ**:
+**Ví dụ 3 — Vật trên mặt phẳng nghiêng góc $\\theta$**:
 \`\`\`
          N
          ↑ (vuông góc mặt nghiêng)
@@ -342,39 +338,39 @@ Free Body Diagram = sơ đồ biểu diễn **tất cả các lực tác dụng 
          W (luôn xuống thẳng đứng)
 \`\`\`
 Phân tích W theo trục song song và vuông góc mặt nghiêng:
-- W_song song = W·sinθ = m·g·sinθ (kéo vật xuống dốc).
-- W_vuông góc = W·cosθ = m·g·cosθ (ép vật vào mặt nghiêng).
-- N = W·cosθ (cân bằng theo trục vuông góc).
-- Gia tốc trượt xuống dốc (nếu không ma sát): a = g·sinθ.
+- $W_{\\text{song song}} = W\\cdot\\sin\\theta = m\\cdot g\\cdot\\sin\\theta$ (kéo vật xuống dốc).
+- $W_{\\text{vuông góc}} = W\\cdot\\cos\\theta = m\\cdot g\\cdot\\cos\\theta$ (ép vật vào mặt nghiêng).
+- $N = W\\cdot\\cos\\theta$ (cân bằng theo trục vuông góc).
+- Gia tốc trượt xuống dốc (nếu không ma sát): $a = g\\cdot\\sin\\theta$.
 
 ### ⚠ Lỗi thường gặp khi vẽ FBD
 
 - **Vẽ cả lực mà vật tác dụng lên vật khác**: FBD chỉ chứa lực **tác dụng LÊN** vật đang xét. Vd với cuốn sách, KHÔNG vẽ "lực sách đè bàn" trong FBD của sách — lực đó tác dụng lên bàn.
 - **Bịa ra "lực chuyển động" theo hướng vật đi**: nhiều người vẽ một mũi tên về phía trước "vì vật đang đi tới". Không có lực như vậy. Chỉ vẽ các lực thực: trọng lực, phản lực, ma sát, lực kéo... Vật đang đi tới là do quán tính, không cần lực.
-- **Quên N = m·g luôn đúng**: trên mặt nghiêng N = m·g·cosθ (nhỏ hơn); trong thang máy tăng tốc N = m(g+a). N tự điều chỉnh, KHÔNG cố định bằng trọng lượng.
+- **Quên N = m·g luôn đúng**: trên mặt nghiêng $N = m\\cdot g\\cdot\\cos\\theta$ (nhỏ hơn); trong thang máy tăng tốc $N = m(g+a)$. N tự điều chỉnh, KHÔNG cố định bằng trọng lượng.
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
-- *"Vì sao trên mặt nghiêng phải tách trọng lực thành 2 thành phần?"* Vì gia tốc xảy ra **dọc mặt nghiêng**, nên ta chọn trục theo mặt nghiêng. Trọng lực thẳng đứng phải tách thành phần song song dốc (mg·sinθ, gây trượt) và vuông góc dốc (mg·cosθ, bị N cân bằng) để áp F = m·a đúng trục.
-- *"Phản lực N có luôn bằng trọng lượng không?"* Không. Chỉ khi mặt phẳng nằm ngang và không có lực dọc khác. Trên dốc N = mg·cosθ; có ai đè thêm lên thì N tăng; thang máy gia tốc thì N đổi theo.
+- *"Vì sao trên mặt nghiêng phải tách trọng lực thành 2 thành phần?"* Vì gia tốc xảy ra **dọc mặt nghiêng**, nên ta chọn trục theo mặt nghiêng. Trọng lực thẳng đứng phải tách thành phần song song dốc ($mg\\cdot\\sin\\theta$, gây trượt) và vuông góc dốc ($mg\\cdot\\cos\\theta$, bị N cân bằng) để áp $F = m\\cdot a$ đúng trục.
+- *"Phản lực N có luôn bằng trọng lượng không?"* Không. Chỉ khi mặt phẳng nằm ngang và không có lực dọc khác. Trên dốc $N = mg\\cdot\\cos\\theta$; có ai đè thêm lên thì N tăng; thang máy gia tốc thì N đổi theo.
 - *"Tại sao cần chọn hệ tọa độ — vẽ lực là đủ rồi mà?"* Vì để cộng vector lực phải chiếu chúng lên trục. Chọn trục khéo (vd song song mặt nghiêng) làm phương trình gọn nhất, ít phải tách lực.
 
 🔁 **Dừng lại tự kiểm tra**
 
-1. Vật 2 kg nằm yên trên mặt ngang. Liệt kê các lực trong FBD và tính phản lực N. (g=9.8)
+1. Vật 2 kg nằm yên trên mặt ngang. Liệt kê các lực trong FBD và tính phản lực N. ($g=9{,}8$)
 2. Vật 3 kg trên mặt nghiêng 30° không ma sát. Thành phần trọng lực kéo vật xuống dốc bằng bao nhiêu? Gia tốc trượt?
 
 <details><summary>Đáp án</summary>
 
-1. Hai lực: trọng lực W = 2·9.8 = 19.6 N (xuống) và phản lực N (lên). Vật yên → N = W = **19.6 N**.
-2. mg·sinθ = 3·9.8·sin30° = 3·9.8·0.5 = **14.7 N**. Gia tốc a = g·sinθ = 9.8·0.5 = **4.9 m/s²** (xuống dốc).
+1. Hai lực: trọng lực $W = 2\\cdot 9{,}8 = 19{,}6$ N (xuống) và phản lực N (lên). Vật yên $\\to N = W = $ **19,6 N**.
+2. $mg\\cdot\\sin\\theta = 3\\cdot 9{,}8\\cdot\\sin 30^\\circ = 3\\cdot 9{,}8\\cdot 0{,}5 = $ **14,7 N**. Gia tốc $a = g\\cdot\\sin\\theta = 9{,}8\\cdot 0{,}5 = $ **4,9 m/s²** (xuống dốc).
 
 </details>
 
 ### 📝 Tóm tắt mục 5
 
 - FBD = mọi lực TRÊN 1 vật, vẽ như mũi tên.
-- Chọn hệ tọa độ → phân tích lực theo trục → áp dụng F = m·a riêng mỗi trục.
+- Chọn hệ tọa độ $\\to$ phân tích lực theo trục $\\to$ áp dụng $F = m\\cdot a$ riêng mỗi trục.
 
 ---
 
@@ -382,61 +378,61 @@ Phân tích W theo trục song song và vuông góc mặt nghiêng:
 
 ### Bài tập
 
-**Bài 1**: Một vật 10 kg chịu lực F = 50 N theo phương ngang (không ma sát). Tính gia tốc.
+**Bài 1**: Một vật 10 kg chịu lực $F = 50$ N theo phương ngang (không ma sát). Tính gia tốc.
 
 **Bài 2**: Một người 70 kg đứng trong thang máy. Tính lực thang máy tác dụng lên người trong các trường hợp:
 a) Thang máy đứng yên.
-b) Thang máy đi lên với a = 2 m/s² (tăng tốc).
-c) Thang máy đi xuống với a = 2 m/s² (giảm tốc, tức gia tốc hướng lên).
+b) Thang máy đi lên với $a = 2\\ \\text{m/s}^2$ (tăng tốc).
+c) Thang máy đi xuống với $a = 2\\ \\text{m/s}^2$ (giảm tốc, tức gia tốc hướng lên).
 
-**Bài 3**: Hai vật m₁ = 2 kg và m₂ = 3 kg nối với nhau bằng dây, kéo m₁ bằng lực F = 25 N (không ma sát). Tính gia tốc cả hệ và lực căng dây.
+**Bài 3**: Hai vật $m_1 = 2$ kg và $m_2 = 3$ kg nối với nhau bằng dây, kéo $m_1$ bằng lực $F = 25$ N (không ma sát). Tính gia tốc cả hệ và lực căng dây.
 
 **Bài 4**: Vật 5 kg trượt trên mặt phẳng nghiêng 30° (không ma sát). Tính gia tốc.
 
-**Bài 5**: Một quả bóng 0.4 kg đập vào tường với v = 10 m/s, dội ngược lại với v = 8 m/s trong 0.05 giây. Tính lực trung bình mà tường tác dụng lên bóng.
+**Bài 5**: Một quả bóng 0,4 kg đập vào tường với $v = 10$ m/s, dội ngược lại với $v = 8$ m/s trong 0,05 giây. Tính lực trung bình mà tường tác dụng lên bóng.
 
 **Bài 6**: Vì sao khi đi thang máy đang tăng tốc đi lên, bạn cảm thấy **nặng hơn**?
 
 ### Lời giải
 
-**Bài 1**: a = F/m = 50/10 = **5 m/s²**.
+**Bài 1**: $a = \\frac{F}{m} = \\frac{50}{10} = $ **5 m/s²**.
 
-**Bài 2**: W = 70 × 9.8 = 686 N (lực Trái Đất kéo người xuống). Gọi N = lực thang máy đẩy người lên.
-- a) Đứng yên: a = 0. N − W = 0 → **N = 686 N** (cảm giác "nặng đúng").
-- b) Tăng tốc lên: a = +2 m/s² (lên). N − W = m·a → N = W + m·a = 686 + 70·2 = **826 N** (cảm thấy nặng hơn).
-- c) Giảm tốc khi đi xuống = gia tốc lên 2 m/s². Cùng như (b): N = **826 N**.
+**Bài 2**: $W = 70 \\times 9{,}8 = 686$ N (lực Trái Đất kéo người xuống). Gọi $N = $ lực thang máy đẩy người lên.
+- a) Đứng yên: $a = 0$. $N - W = 0 \\to$ **N = 686 N** (cảm giác "nặng đúng").
+- b) Tăng tốc lên: $a = +2\\ \\text{m/s}^2$ (lên). $N - W = m\\cdot a \\to N = W + m\\cdot a = 686 + 70\\cdot 2 = $ **826 N** (cảm thấy nặng hơn).
+- c) Giảm tốc khi đi xuống = gia tốc lên $2\\ \\text{m/s}^2$. Cùng như (b): $N = $ **826 N**.
 
-**Bài 3**: Hệ chung: F = (m₁ + m₂)·a → 25 = 5·a → **a = 5 m/s²**.
-Cô lập m₂: lực căng dây T kéo m₂ → T = m₂·a = 3·5 = **15 N**.
+**Bài 3**: Hệ chung: $F = (m_1 + m_2)\\cdot a \\to 25 = 5\\cdot a \\to$ **a = 5 m/s²**.
+Cô lập $m_2$: lực căng dây $T$ kéo $m_2 \\to T = m_2\\cdot a = 3\\cdot 5 = $ **15 N**.
 
-**Bài 4**: a = g·sin(30°) = 9.8·0.5 = **4.9 m/s²** (xuống dốc).
+**Bài 4**: $a = g\\cdot\\sin(30^\\circ) = 9{,}8\\cdot 0{,}5 = $ **4,9 m/s²** (xuống dốc).
 
-**Bài 5**: 
-- Vận tốc trước: +10 m/s (vào tường). Vận tốc sau: −8 m/s (dội ra). Δv = −8 − 10 = −18 m/s.
-- Gia tốc trung bình: a = Δv/Δt = −18/0.05 = −360 m/s² (hướng xa tường).
-- Lực: F = m·a = 0.4·(−360) = **−144 N**. Lực tường tác dụng lên bóng = 144 N (hướng xa tường).
+**Bài 5**:
+- Vận tốc trước: +10 m/s (vào tường). Vận tốc sau: −8 m/s (dội ra). $\\Delta v = -8 - 10 = -18$ m/s.
+- Gia tốc trung bình: $a = \\frac{\\Delta v}{\\Delta t} = \\frac{-18}{0{,}05} = -360\\ \\text{m/s}^2$ (hướng xa tường).
+- Lực: $F = m\\cdot a = 0{,}4\\cdot (-360) = $ **−144 N**. Lực tường tác dụng lên bóng $= 144$ N (hướng xa tường).
 
-**Bài 6**: Khi thang máy tăng tốc đi lên (a hướng lên), theo F = m·a phải có **tổng lực hướng lên** lên người. Phân tích lực trên người: N (sàn thang đẩy lên) − W (Trái Đất kéo xuống) = m·a → **N = W + m·a > W**. Tức là sàn thang phải đẩy bạn mạnh hơn bình thường → cảm giác như bạn nặng hơn. Lực này gọi là "trọng lượng biểu kiến (apparent weight)". 
+**Bài 6**: Khi thang máy tăng tốc đi lên ($a$ hướng lên), theo $F = m\\cdot a$ phải có **tổng lực hướng lên** lên người. Phân tích lực trên người: $N$ (sàn thang đẩy lên) $- W$ (Trái Đất kéo xuống) $= m\\cdot a \\to$ **$N = W + m\\cdot a > W$**. Tức là sàn thang phải đẩy bạn mạnh hơn bình thường → cảm giác như bạn nặng hơn. Lực này gọi là "trọng lượng biểu kiến (apparent weight)". 
 
-Ngược lại, khi thang máy đi xuống (gia tốc hướng xuống) hoặc cuối hành trình lên (giảm tốc), N < W → cảm giác nhẹ. Nếu thang máy rơi tự do (a = g), N = 0 → cảm giác "không trọng lực".
+Ngược lại, khi thang máy đi xuống (gia tốc hướng xuống) hoặc cuối hành trình lên (giảm tốc), $N < W \\to$ cảm giác nhẹ. Nếu thang máy rơi tự do ($a = g$), $N = 0 \\to$ cảm giác "không trọng lực".
 
 ---
 
 ## 7. Liên kết và bài tiếp theo
 
 - **Bài tiếp theo**: [Lesson 03 — Các loại lực](../lesson-03-forces/) — chi tiết ma sát, đàn hồi, hấp dẫn.
-- **Liên kết Lesson 01**: F → a → v → x (chuỗi liên kết của cơ học cổ điển).
+- **Liên kết Lesson 01**: $F \\to a \\to v \\to x$ (chuỗi liên kết của cơ học cổ điển).
 
 ---
 
 ## 📝 Tổng kết Lesson 02
 
-1. **Lực** = tương tác gây gia tốc/biến dạng. Đơn vị Newton (N = kg·m/s²).
-2. **Định luật I**: F = 0 → v không đổi (quán tính).
-3. **Định luật II**: **F = m·a** — liên hệ định lượng lực và gia tốc.
+1. **Lực** = tương tác gây gia tốc/biến dạng. Đơn vị Newton ($\\text{N} = \\text{kg}\\cdot\\text{m/s}^2$).
+2. **Định luật I**: $F = 0 \\to v$ không đổi (quán tính).
+3. **Định luật II**: **$F = m\\cdot a$** — liên hệ định lượng lực và gia tốc.
 4. **Định luật III**: lực đi theo cặp, bằng nhau, ngược chiều, trên **2 vật khác nhau**.
-5. **Khối lượng (kg)** ≠ **trọng lượng (N)**. W = m·g.
-6. **FBD**: vẽ mọi lực trên 1 vật → phân tích trục x, y → áp F = m·a riêng từng trục.
+5. **Khối lượng (kg)** ≠ **trọng lượng (N)**. $W = m\\cdot g$.
+6. **FBD**: vẽ mọi lực trên 1 vật $\\to$ phân tích trục x, y $\\to$ áp $F = m\\cdot a$ riêng từng trục.
 
 **Tiếp theo**: [Lesson 03 — Các loại lực](../lesson-03-forces/)
 `;

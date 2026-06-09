@@ -8,12 +8,12 @@ window.README_MD = `# Lesson 08 — Dao động & Sóng cơ
 Sau bài này bạn sẽ:
 
 - Hiểu **dao động điều hòa (Simple Harmonic Motion, SHM)** — chuyển động tuần hoàn cơ bản nhất.
-- Biết phương trình SHM: x(t) = A·cos(ω·t + φ), và các đại lượng A, ω, φ, T, f.
+- Biết phương trình SHM: $x(t) = A \\cdot \\cos(\\omega \\cdot t + \\varphi)$, và các đại lượng $A, \\omega, \\varphi, T, f$.
 - Tính chu kỳ của 2 hệ dao động cơ bản:
-  - **Con lắc lò xo**: T = 2π·√(m/k).
-  - **Con lắc đơn**: T = 2π·√(L/g).
+  - **Con lắc lò xo**: $T = 2\\pi \\cdot \\sqrt{\\frac{m}{k}}$.
+  - **Con lắc đơn**: $T = 2\\pi \\cdot \\sqrt{\\frac{L}{g}}$.
 - Phân biệt **sóng ngang** (transverse) và **sóng dọc** (longitudinal).
-- Áp dụng công thức cơ bản của sóng: **v = λ·f** (vận tốc = bước sóng × tần số).
+- Áp dụng công thức cơ bản của sóng: **$v = \\lambda \\cdot f$** (vận tốc = bước sóng × tần số).
 - Hiểu giao thoa sóng cơ bản (chồng chất, sóng đứng).
 
 ## Kiến thức tiền đề
@@ -28,9 +28,7 @@ Sau bài này bạn sẽ:
 
 **Dao động điều hòa SHM** = chuyển động tuần hoàn trong đó **lực kéo về** tỉ lệ với độ lệch khỏi vị trí cân bằng và **luôn hướng về** vị trí đó:
 
-\`\`\`
-F = −k · x
-\`\`\`
+$$F = -k \\cdot x$$
 
 (Tương tự định luật Hooke ở Lesson 03.)
 
@@ -47,65 +45,62 @@ F = −k · x
 
 ### 1.2. Phương trình SHM
 
-Nghiệm của F = −kx (kết hợp F = m·a) là:
-\`\`\`
-x(t) = A · cos(ω·t + φ)
-\`\`\`
+Nghiệm của $F = -kx$ (kết hợp $F = m \\cdot a$) là:
+
+$$x(t) = A \\cdot \\cos(\\omega \\cdot t + \\varphi)$$
 
 trong đó:
 - **A** = biên độ (amplitude) — độ lệch tối đa khỏi cân bằng (đơn vị m).
-- **ω** = tần số góc (rad/s) — quyết định nhanh chậm.
-- **φ** = pha ban đầu (phase) — vị trí lúc t = 0.
+- **$\\omega$** = tần số góc (rad/s) — quyết định nhanh chậm.
+- **$\\varphi$** = pha ban đầu (phase) — vị trí lúc $t = 0$.
 
 Liên hệ tần số:
-- **Chu kỳ T** = thời gian 1 dao động: T = 2π/ω.
-- **Tần số f** = số dao động/giây: f = 1/T = ω/(2π).
+- **Chu kỳ T** = thời gian 1 dao động: $T = \\frac{2\\pi}{\\omega}$.
+- **Tần số f** = số dao động/giây: $f = \\frac{1}{T} = \\frac{\\omega}{2\\pi}$.
 
 Vận tốc và gia tốc (đạo hàm):
-- v(t) = dx/dt = −A·ω·sin(ω·t + φ).
-- a(t) = d²x/dt² = −A·ω²·cos(ω·t + φ) = −ω²·x.
+- $v(t) = \\frac{dx}{dt} = -A \\cdot \\omega \\cdot \\sin(\\omega \\cdot t + \\varphi)$.
+- $a(t) = \\frac{d^2 x}{dt^2} = -A \\cdot \\omega^2 \\cdot \\cos(\\omega \\cdot t + \\varphi) = -\\omega^2 \\cdot x$.
 
-→ **a = −ω²·x** — đây là đặc trưng của SHM: gia tốc luôn ngược chiều và tỉ lệ với vị trí.
+→ **$a = -\\omega^2 \\cdot x$** — đây là đặc trưng của SHM: gia tốc luôn ngược chiều và tỉ lệ với vị trí.
 
 ### 1.3. Năng lượng SHM
 
-\`\`\`
-E_tổng = (1/2) · k · A² = const
-\`\`\`
+$$E_{tổng} = \\frac{1}{2} \\cdot k \\cdot A^2 = \\text{const}$$
 
 Năng lượng dao động giữa KE và PE, nhưng **tổng không đổi**:
-- Tại vị trí cân bằng (x = 0): KE max, PE = 0. v = A·ω.
-- Tại biên (x = ±A): v = 0, KE = 0, PE max = (1/2)·k·A².
+- Tại vị trí cân bằng ($x = 0$): KE max, PE = 0. $v = A \\cdot \\omega$.
+- Tại biên ($x = \\pm A$): $v = 0$, KE = 0, PE max $= \\frac{1}{2} \\cdot k \\cdot A^2$.
 
 ### ⚠ Lỗi thường gặp
 
-- **Nghĩ gia tốc lớn nhất ở vị trí cân bằng**: ngược lại. a = −ω²·x → a lớn nhất tại **biên** (x = ±A, lực kéo về mạnh nhất); a = 0 tại cân bằng (x = 0). Còn **vận tốc** thì lớn nhất ở cân bằng, bằng 0 ở biên.
-- **Lẫn tần số f (Hz) với tần số góc ω (rad/s)**: ω = 2πf. Quên hệ số 2π → sai 6.28 lần. Phản ví dụ: ω = 10 rad/s thì f = 10/(2π) ≈ 1.59 Hz, KHÔNG phải 10 Hz.
+- **Nghĩ gia tốc lớn nhất ở vị trí cân bằng**: ngược lại. $a = -\\omega^2 \\cdot x \\to a$ lớn nhất tại **biên** ($x = \\pm A$, lực kéo về mạnh nhất); $a = 0$ tại cân bằng ($x = 0$). Còn **vận tốc** thì lớn nhất ở cân bằng, bằng 0 ở biên.
+- **Lẫn tần số f (Hz) với tần số góc $\\omega$ (rad/s)**: $\\omega = 2\\pi f$. Quên hệ số $2\\pi$ → sai 6.28 lần. Phản ví dụ: $\\omega = 10$ rad/s thì $f = \\frac{10}{2\\pi} \\approx 1{,}59$ Hz, KHÔNG phải 10 Hz.
 - **Nghĩ chu kỳ phụ thuộc biên độ**: với SHM, T độc lập với A. Kéo lò xo xa hơn → dao động rộng hơn nhưng **cùng chu kỳ**. Đó là lý do đồng hồ con lắc chính xác.
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
 - *"Vì sao SHM lại quan trọng đến vậy?"* Vì bất kỳ hệ nào gần điểm cân bằng ổn định đều dao động xấp xỉ SHM (lực kéo về ≈ tỉ lệ độ lệch). Lò xo, con lắc, phân tử trong vật rắn, mạch điện LC, thậm chí sóng âm/ánh sáng — tất cả là SHM hoặc tổ hợp SHM. Học một mô hình, hiểu vô số hiện tượng.
-- *"a = −ω²·x nghĩa là gì?"* Gia tốc luôn **ngược dấu** với vị trí (dấu −) và tỉ lệ với độ lệch. Lệch phải → bị kéo trái; lệch xa → kéo mạnh. Đây chính là đặc trưng nhận diện SHM.
-- *"Năng lượng dao động ra sao trong một chu kỳ?"* Liên tục chuyển qua lại giữa động năng và thế năng, nhưng **tổng = ½kA² không đổi**. Ở biên: toàn thế năng (v=0). Ở cân bằng: toàn động năng (x=0, v max).
+- *"$a = -\\omega^2 \\cdot x$ nghĩa là gì?"* Gia tốc luôn **ngược dấu** với vị trí (dấu −) và tỉ lệ với độ lệch. Lệch phải → bị kéo trái; lệch xa → kéo mạnh. Đây chính là đặc trưng nhận diện SHM.
+- *"Năng lượng dao động ra sao trong một chu kỳ?"* Liên tục chuyển qua lại giữa động năng và thế năng, nhưng **tổng $= \\frac{1}{2}kA^2$ không đổi**. Ở biên: toàn thế năng ($v = 0$). Ở cân bằng: toàn động năng ($x = 0$, v max).
 
 🔁 **Dừng lại tự kiểm tra**
 
-1. Vật dao động với ω = 5 rad/s, biên độ A = 0.1 m. Tần số f và chu kỳ T?
+1. Vật dao động với $\\omega = 5$ rad/s, biên độ $A = 0{,}1$ m. Tần số f và chu kỳ T?
 2. Tại vị trí nào (cân bằng hay biên) thì vận tốc lớn nhất? Gia tốc lớn nhất?
 
 <details><summary>Đáp án</summary>
 
-1. T = 2π/ω = 2π/5 ≈ **1.26 s**. f = 1/T = ω/(2π) = 5/(2π) ≈ **0.80 Hz**.
-2. Vận tốc lớn nhất ở **vị trí cân bằng** (x=0); gia tốc lớn nhất ở **biên** (x=±A, vì a = −ω²x).
+1. $T = \\frac{2\\pi}{\\omega} = \\frac{2\\pi}{5} \\approx$ **1.26 s**. $f = \\frac{1}{T} = \\frac{\\omega}{2\\pi} = \\frac{5}{2\\pi} \\approx$ **0.80 Hz**.
+2. Vận tốc lớn nhất ở **vị trí cân bằng** ($x = 0$); gia tốc lớn nhất ở **biên** ($x = \\pm A$, vì $a = -\\omega^2 x$).
 
 </details>
 
 ### 📝 Tóm tắt mục 1
 
-- SHM: F = −kx. Nghiệm x(t) = A·cos(ωt + φ).
-- a = −ω²·x. T = 2π/ω.
-- E = (1/2)kA², bảo toàn giữa KE và PE.
+- SHM: $F = -kx$. Nghiệm $x(t) = A \\cdot \\cos(\\omega t + \\varphi)$.
+- $a = -\\omega^2 \\cdot x$. $T = \\frac{2\\pi}{\\omega}$.
+- $E = \\frac{1}{2}kA^2$, bảo toàn giữa KE và PE.
 
 ---
 
@@ -113,29 +108,28 @@ Năng lượng dao động giữa KE và PE, nhưng **tổng không đổi**:
 
 ### 2.1. Chu kỳ
 
-Cho vật m gắn lò xo k. Từ định luật Hooke F = −kx và F = m·a = m·(−ω²·x):
-\`\`\`
-m·ω² = k → ω = √(k/m) → T = 2π·√(m/k)
-\`\`\`
+Cho vật m gắn lò xo k. Từ định luật Hooke $F = -kx$ và $F = m \\cdot a = m \\cdot (-\\omega^2 \\cdot x)$:
+
+$$m \\cdot \\omega^2 = k \\to \\omega = \\sqrt{\\frac{k}{m}} \\to T = 2\\pi \\cdot \\sqrt{\\frac{m}{k}}$$
 
 💡 **Quan sát quan trọng**: T phụ thuộc m và k, KHÔNG phụ thuộc A (biên độ). Đó là tại sao con lắc đồng hồ giữ thời gian chính xác — biên độ thay đổi (mỏi dần) nhưng chu kỳ không đổi.
 
 ### 2.2. Ví dụ số
 
 **Ví dụ**: Lò xo k = 200 N/m gắn vật 0.5 kg.
-- T = 2π·√(0.5/200) = 2π·√(0.0025) = 2π × 0.05 = **0.314 s**.
-- f = 1/T ≈ **3.18 Hz** (dao động ~3 lần/giây).
-- ω = 2π/T ≈ **20 rad/s**.
+- $T = 2\\pi \\cdot \\sqrt{\\frac{0{,}5}{200}} = 2\\pi \\cdot \\sqrt{0{,}0025} = 2\\pi \\times 0{,}05 = $ **0.314 s**.
+- $f = \\frac{1}{T} \\approx$ **3.18 Hz** (dao động ~3 lần/giây).
+- $\\omega = \\frac{2\\pi}{T} \\approx$ **20 rad/s**.
 
 ### ⚠ Lỗi thường gặp
 
-- **Đảo m và k trong công thức**: T = 2π√(m/k) — khối lượng ở **tử**, độ cứng ở **mẫu** dưới căn. Đảo lại → sai. Trực giác kiểm tra: m lớn (nặng) → dao động chậm → T lớn (m ở tử là đúng); k lớn (cứng) → dao động nhanh → T nhỏ (k ở mẫu đúng).
+- **Đảo m và k trong công thức**: $T = 2\\pi\\sqrt{\\frac{m}{k}}$ — khối lượng ở **tử**, độ cứng ở **mẫu** dưới căn. Đảo lại → sai. Trực giác kiểm tra: m lớn (nặng) → dao động chậm → T lớn (m ở tử là đúng); k lớn (cứng) → dao động nhanh → T nhỏ (k ở mẫu đúng).
 - **Nghĩ T phụ thuộc biên độ**: KHÔNG. T chỉ phụ thuộc m và k. Kéo xa hay gần → cùng T.
-- **Quên căn bậc hai**: T ∝ √(m/k), không phải m/k. Khối lượng gấp 4 → T gấp **2** (√4), không gấp 4.
+- **Quên căn bậc hai**: $T \\propto \\sqrt{\\frac{m}{k}}$, không phải $\\frac{m}{k}$. Khối lượng gấp 4 → T gấp **2** ($\\sqrt{4}$), không gấp 4.
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
-- *"Vì sao vật nặng dao động chậm hơn?"* Vì m lớn → quán tính lớn → khó đổi chiều chuyển động → mỗi dao động lâu hơn → T lớn. Công thức T = 2π√(m/k) phản ánh: m ở tử.
+- *"Vì sao vật nặng dao động chậm hơn?"* Vì m lớn → quán tính lớn → khó đổi chiều chuyển động → mỗi dao động lâu hơn → T lớn. Công thức $T = 2\\pi\\sqrt{\\frac{m}{k}}$ phản ánh: m ở tử.
 - *"Lò xo cứng hơn (k lớn) thì sao?"* Dao động **nhanh hơn** (T nhỏ). Lực kéo về mạnh hơn → vật bị "giật" về cân bằng nhanh hơn. k ở mẫu nên k lớn → T nhỏ.
 - *"Vì sao đồng hồ con lắc giữ giờ chính xác dù biên độ giảm dần?"* Vì chu kỳ độc lập với biên độ. Khi đồng hồ "yếu" dần, biên độ nhỏ lại nhưng mỗi dao động vẫn mất đúng bấy nhiêu thời gian → giờ vẫn chính xác.
 
@@ -146,14 +140,14 @@ m·ω² = k → ω = √(k/m) → T = 2π·√(m/k)
 
 <details><summary>Đáp án</summary>
 
-1. T = 2π√(m/k) = 2π√(1/100) = 2π·0.1 = **0.628 s**.
-2. m gấp 4 → T gấp √4 = **2 lần** = 1.257 s.
+1. $T = 2\\pi\\sqrt{\\frac{m}{k}} = 2\\pi\\sqrt{\\frac{1}{100}} = 2\\pi \\cdot 0{,}1 = $ **0.628 s**.
+2. m gấp 4 → T gấp $\\sqrt{4} = $ **2 lần** = 1.257 s.
 
 </details>
 
 ### 📝 Tóm tắt mục 2
 
-- T = 2π·√(m/k) cho con lắc lò xo.
+- $T = 2\\pi \\cdot \\sqrt{\\frac{m}{k}}$ cho con lắc lò xo.
 - T độc lập với biên độ A.
 
 ---
@@ -162,47 +156,46 @@ m·ω² = k → ω = √(k/m) → T = 2π·√(m/k)
 
 ### 3.1. Chu kỳ
 
-Cho con lắc dài L (vật treo dây). Với biên độ nhỏ (góc < 15°):
-\`\`\`
-T = 2π · √(L / g)
-\`\`\`
+Cho con lắc dài L (vật treo dây). Với biên độ nhỏ (góc $< 15^\\circ$):
 
-**Chứng minh**: lực kéo về tại góc θ là F = −m·g·sin(θ) ≈ −m·g·θ (xấp xỉ góc nhỏ). Tương đương Hooke với k_tương_đương = m·g/L. → T = 2π·√(m/k) = 2π·√(L/g).
+$$T = 2\\pi \\cdot \\sqrt{\\frac{L}{g}}$$
+
+**Chứng minh**: lực kéo về tại góc $\\theta$ là $F = -m \\cdot g \\cdot \\sin(\\theta) \\approx -m \\cdot g \\cdot \\theta$ (xấp xỉ góc nhỏ). Tương đương Hooke với $k_{tương\\_đương} = \\frac{m \\cdot g}{L}$. $\\to T = 2\\pi \\cdot \\sqrt{\\frac{m}{k}} = 2\\pi \\cdot \\sqrt{\\frac{L}{g}}$.
 
 💡 **Quan sát**: T phụ thuộc L và g, KHÔNG phụ thuộc m. Con lắc nặng và nhẹ có cùng chu kỳ! (Khám phá bởi Galileo qua thí nghiệm ở Tháp Pisa.)
 
 ### 3.2. Ví dụ số
 
-**Ví dụ — Đồng hồ con lắc**: cần T = 1 s. Tính L.
-- T = 2π·√(L/g) → 1 = 2π·√(L/9.8) → L/9.8 = 1/(4π²) → **L = 0.248 m ≈ 25 cm**.
+**Ví dụ — Đồng hồ con lắc**: cần $T = 1$ s. Tính L.
+- $T = 2\\pi \\cdot \\sqrt{\\frac{L}{g}} \\to 1 = 2\\pi \\cdot \\sqrt{\\frac{L}{9{,}8}} \\to \\frac{L}{9{,}8} = \\frac{1}{4\\pi^2} \\to$ **L = 0.248 m ≈ 25 cm**.
 
 ### ⚠ Lỗi thường gặp
 
-- **Dùng công thức cho biên độ lớn**: T = 2π√(L/g) chỉ đúng với góc nhỏ (< ~15°), nơi sin(θ) ≈ θ. Góc lớn → chu kỳ thực dài hơn công thức cho.
-- **Nghĩ con lắc nặng dao động khác con lắc nhẹ**: SAI. T = 2π√(L/g) **không** chứa khối lượng. Con lắc nặng và nhẹ cùng chiều dài có cùng chu kỳ (Galileo phát hiện).
+- **Dùng công thức cho biên độ lớn**: $T = 2\\pi\\sqrt{\\frac{L}{g}}$ chỉ đúng với góc nhỏ ($< {\\sim}15^\\circ$), nơi $\\sin(\\theta) \\approx \\theta$. Góc lớn → chu kỳ thực dài hơn công thức cho.
+- **Nghĩ con lắc nặng dao động khác con lắc nhẹ**: SAI. $T = 2\\pi\\sqrt{\\frac{L}{g}}$ **không** chứa khối lượng. Con lắc nặng và nhẹ cùng chiều dài có cùng chu kỳ (Galileo phát hiện).
 - **Lẫn L (chiều dài dây) với biên độ**: L là chiều dài con lắc; biên độ là góc/khoảng lệch tối đa. T phụ thuộc L, không phụ thuộc biên độ.
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
-- *"Vì sao chu kỳ con lắc không phụ thuộc khối lượng?"* Vì cả lực kéo về (mg·sinθ) và quán tính (m) đều tỉ lệ với m → m triệt tiêu khi tính gia tốc, giống như rơi tự do. Kết quả T = 2π√(L/g) không có m.
-- *"Vì sao chỉ đúng với góc nhỏ?"* Vì chứng minh dùng xấp xỉ sin(θ) ≈ θ (chỉ đúng khi θ nhỏ, tính bằng radian). Góc lớn → xấp xỉ sai → SHM không còn chính xác → chu kỳ dài hơn.
-- *"Đưa đồng hồ con lắc lên núi cao thì chạy nhanh hay chậm?"* g giảm theo độ cao → T = 2π√(L/g) tăng → mỗi dao động lâu hơn → đồng hồ chạy **chậm** hơn. (Tương tự lên Mặt Trăng chậm hơn nhiều vì g nhỏ.)
+- *"Vì sao chu kỳ con lắc không phụ thuộc khối lượng?"* Vì cả lực kéo về ($mg \\cdot \\sin\\theta$) và quán tính (m) đều tỉ lệ với m → m triệt tiêu khi tính gia tốc, giống như rơi tự do. Kết quả $T = 2\\pi\\sqrt{\\frac{L}{g}}$ không có m.
+- *"Vì sao chỉ đúng với góc nhỏ?"* Vì chứng minh dùng xấp xỉ $\\sin(\\theta) \\approx \\theta$ (chỉ đúng khi $\\theta$ nhỏ, tính bằng radian). Góc lớn → xấp xỉ sai → SHM không còn chính xác → chu kỳ dài hơn.
+- *"Đưa đồng hồ con lắc lên núi cao thì chạy nhanh hay chậm?"* g giảm theo độ cao → $T = 2\\pi\\sqrt{\\frac{L}{g}}$ tăng → mỗi dao động lâu hơn → đồng hồ chạy **chậm** hơn. (Tương tự lên Mặt Trăng chậm hơn nhiều vì g nhỏ.)
 
 🔁 **Dừng lại tự kiểm tra**
 
-1. Con lắc đơn dài 2 m trên Trái Đất. Tính chu kỳ. (g=9.8)
+1. Con lắc đơn dài 2 m trên Trái Đất. Tính chu kỳ. ($g = 9{,}8$)
 2. Cùng con lắc đó nhưng treo vật nặng gấp đôi. Chu kỳ thay đổi không?
 
 <details><summary>Đáp án</summary>
 
-1. T = 2π√(L/g) = 2π√(2/9.8) = 2π√0.204 = 2π·0.452 ≈ **2.84 s**.
+1. $T = 2\\pi\\sqrt{\\frac{L}{g}} = 2\\pi\\sqrt{\\frac{2}{9{,}8}} = 2\\pi\\sqrt{0{,}204} = 2\\pi \\cdot 0{,}452 \\approx$ **2.84 s**.
 2. **Không đổi** — T không phụ thuộc khối lượng, chỉ phụ thuộc L và g.
 
 </details>
 
 ### 📝 Tóm tắt mục 3
 
-- T = 2π·√(L/g) (góc nhỏ).
+- $T = 2\\pi \\cdot \\sqrt{\\frac{L}{g}}$ (góc nhỏ).
 - Độc lập với m.
 
 ---
@@ -228,39 +221,38 @@ T = 2π · √(L / g)
 | Đại lượng | Ký hiệu | Đơn vị | Ý nghĩa |
 |-----------|---------|--------|---------|
 | Biên độ | A | m | Độ lệch tối đa |
-| Bước sóng | λ | m | Khoảng cách 2 đỉnh liên tiếp |
+| Bước sóng | $\\lambda$ | m | Khoảng cách 2 đỉnh liên tiếp |
 | Tần số | f | Hz | Số dao động/giây |
-| Chu kỳ | T = 1/f | s | Thời gian 1 dao động |
+| Chu kỳ | $T = \\frac{1}{f}$ | s | Thời gian 1 dao động |
 | Vận tốc truyền | v | m/s | Tốc độ pha lan truyền |
 
 **Công thức cơ bản**:
-\`\`\`
-v = λ · f
-\`\`\`
 
-💡 **Ý nghĩa**: trong 1 chu kỳ T, sóng tiến được 1 bước sóng λ → v = λ/T = λ·f.
+$$v = \\lambda \\cdot f$$
+
+💡 **Ý nghĩa**: trong 1 chu kỳ T, sóng tiến được 1 bước sóng $\\lambda \\to v = \\frac{\\lambda}{T} = \\lambda \\cdot f$.
 
 ### 4.4. Bốn ví dụ số
 
-**Ví dụ 1 — Sóng âm trong không khí**: v ≈ 343 m/s ở 20°C. Tần số tiếng nói ~ 200-500 Hz. λ = v/f = 343/300 ≈ **1.14 m**.
+**Ví dụ 1 — Sóng âm trong không khí**: $v \\approx 343$ m/s ở $20^\\circ$C. Tần số tiếng nói ~ 200-500 Hz. $\\lambda = \\frac{v}{f} = \\frac{343}{300} \\approx$ **1.14 m**.
 
-**Ví dụ 2 — Sóng radio FM**: f = 100 MHz = 10⁸ Hz. v = c = 3×10⁸ m/s. λ = c/f = **3 m**. (Đó là tại sao anten radio FM dài ~ 1 m, không cần dài hơn.)
+**Ví dụ 2 — Sóng radio FM**: $f = 100$ MHz $= 10^8$ Hz. $v = c = 3 \\times 10^8$ m/s. $\\lambda = \\frac{c}{f} = $ **3 m**. (Đó là tại sao anten radio FM dài ~ 1 m, không cần dài hơn.)
 
-**Ví dụ 3 — Sóng âm trong nước**: v ≈ 1500 m/s (nhanh gấp 4 lần không khí). Cùng tần số 1000 Hz → λ ≈ **1.5 m** (gấp 4 lần trong không khí).
+**Ví dụ 3 — Sóng âm trong nước**: $v \\approx 1500$ m/s (nhanh gấp 4 lần không khí). Cùng tần số 1000 Hz $\\to \\lambda \\approx$ **1.5 m** (gấp 4 lần trong không khí).
 
-**Ví dụ 4 — Sóng siêu âm y tế**: f = 5 MHz. v ≈ 1500 m/s trong nước (xấp xỉ mô người). λ ≈ **0.3 mm**. Đủ nhỏ để "thấy" chi tiết trong cơ thể.
+**Ví dụ 4 — Sóng siêu âm y tế**: $f = 5$ MHz. $v \\approx 1500$ m/s trong nước (xấp xỉ mô người). $\\lambda \\approx$ **0.3 mm**. Đủ nhỏ để "thấy" chi tiết trong cơ thể.
 
 ### ⚠ Lỗi thường gặp
 
 - **Nghĩ vật chất "chạy theo" sóng**: SAI. Trong sóng, mỗi phần tử môi trường chỉ **dao động tại chỗ** — chỉ năng lượng và pha lan truyền. Mẩu gỗ trên mặt nước nhấp nhô lên xuống, không bị sóng cuốn đi.
-- **Nghĩ tần số đổi khi sóng chuyển môi trường**: khi sóng âm đi từ không khí sang nước, **tần số giữ nguyên** (do nguồn quyết định), nhưng v đổi → λ đổi theo v = λf. Nhiều người nhầm tưởng f đổi.
+- **Nghĩ tần số đổi khi sóng chuyển môi trường**: khi sóng âm đi từ không khí sang nước, **tần số giữ nguyên** (do nguồn quyết định), nhưng v đổi → $\\lambda$ đổi theo $v = \\lambda f$. Nhiều người nhầm tưởng f đổi.
 - **Lẫn sóng ngang và sóng dọc**: sóng ngang dao động **vuông góc** chiều truyền (sóng dây); sóng dọc dao động **cùng** chiều truyền (sóng âm, nén-giãn).
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
 - *"Sóng truyền năng lượng mà không truyền vật chất — sao có thể?"* Mỗi phần tử dao động tại chỗ và "kéo" phần tử kế bên dao động theo, trễ một chút. Pha (lúc đỉnh/đáy) lan đi từ phần tử này sang phần tử khác, mang theo năng lượng, nhưng bản thân vật chất chỉ dao động quanh chỗ cũ.
-- *"v = λf nghĩa là gì trực giác?"* Trong một chu kỳ T, sóng tiến được đúng một bước sóng λ. Vậy tốc độ = quãng đường/thời gian = λ/T = λf. Tần số cao + bước sóng dài → sóng nhanh.
-- *"Vì sao siêu âm dùng tần số cao?"* Vì λ nhỏ (λ = v/f). Bước sóng nhỏ "nhìn thấy" được chi tiết nhỏ trong cơ thể (phân giải tốt). Tần số thấp → λ lớn → chỉ thấy được vật to.
+- *"$v = \\lambda f$ nghĩa là gì trực giác?"* Trong một chu kỳ T, sóng tiến được đúng một bước sóng $\\lambda$. Vậy tốc độ = quãng đường/thời gian $= \\frac{\\lambda}{T} = \\lambda f$. Tần số cao + bước sóng dài → sóng nhanh.
+- *"Vì sao siêu âm dùng tần số cao?"* Vì $\\lambda$ nhỏ ($\\lambda = \\frac{v}{f}$). Bước sóng nhỏ "nhìn thấy" được chi tiết nhỏ trong cơ thể (phân giải tốt). Tần số thấp → $\\lambda$ lớn → chỉ thấy được vật to.
 
 🔁 **Dừng lại tự kiểm tra**
 
@@ -269,8 +261,8 @@ v = λ · f
 
 <details><summary>Đáp án</summary>
 
-1. v = λ·f = 0.5·680 = **340 m/s** (xấp xỉ tốc độ âm thanh — đây là sóng âm).
-2. λ = v/f = 343/256 ≈ **1.34 m**.
+1. $v = \\lambda \\cdot f = 0{,}5 \\cdot 680 = $ **340 m/s** (xấp xỉ tốc độ âm thanh — đây là sóng âm).
+2. $\\lambda = \\frac{v}{f} = \\frac{343}{256} \\approx$ **1.34 m**.
 
 </details>
 
@@ -278,7 +270,7 @@ v = λ · f
 
 - Sóng cơ: dao động lan truyền, không phải vật chất di chuyển dài.
 - Ngang vs dọc tùy hướng dao động.
-- v = λ·f.
+- $v = \\lambda \\cdot f$.
 
 ---
 
@@ -288,11 +280,11 @@ v = λ · f
 
 **Bài 1**: Lò xo k = 400 N/m gắn vật 0.2 kg. Tính T, f, ω.
 
-**Bài 2**: Con lắc đơn dài 1 m trên Trái Đất. Tính T. Trên Mặt Trăng (g = 1.6 m/s²) thì T bằng bao nhiêu?
+**Bài 2**: Con lắc đơn dài 1 m trên Trái Đất. Tính T. Trên Mặt Trăng ($g = 1{,}6$ m/s²) thì T bằng bao nhiêu?
 
-**Bài 3**: Vật dao động x = 0.05·cos(10t + π/4). Xác định A, ω, T, f.
+**Bài 3**: Vật dao động $x = 0{,}05 \\cdot \\cos(10t + \\frac{\\pi}{4})$. Xác định $A, \\omega, T, f$.
 
-**Bài 4**: Sóng âm trong không khí có f = 440 Hz (nốt A4). Tính bước sóng. (v = 343 m/s.)
+**Bài 4**: Sóng âm trong không khí có $f = 440$ Hz (nốt A4). Tính bước sóng. ($v = 343$ m/s.)
 
 **Bài 5**: Vì sao đồng hồ quả lắc (con lắc đơn) chạy chậm hơn vào mùa hè?
 
@@ -301,22 +293,22 @@ v = λ · f
 ### Lời giải
 
 **Bài 1**: 
-- ω = √(k/m) = √(400/0.2) = √2000 ≈ **44.7 rad/s**.
-- T = 2π/ω ≈ **0.141 s**.
-- f = 1/T ≈ **7.12 Hz**.
+- $\\omega = \\sqrt{\\frac{k}{m}} = \\sqrt{\\frac{400}{0{,}2}} = \\sqrt{2000} \\approx$ **44.7 rad/s**.
+- $T = \\frac{2\\pi}{\\omega} \\approx$ **0.141 s**.
+- $f = \\frac{1}{T} \\approx$ **7.12 Hz**.
 
 **Bài 2**: 
-- Trái Đất: T = 2π√(1/9.8) = **2.01 s**.
-- Mặt Trăng: T = 2π√(1/1.6) = **4.97 s** (gấp ~2.47 lần). 
+- Trái Đất: $T = 2\\pi\\sqrt{\\frac{1}{9{,}8}} = $ **2.01 s**.
+- Mặt Trăng: $T = 2\\pi\\sqrt{\\frac{1}{1{,}6}} = $ **4.97 s** (gấp ~2.47 lần). 
 - Đồng hồ quả lắc trên Mặt Trăng chạy chậm hơn 2.47 lần.
 
-**Bài 3**: A = 0.05 m, ω = 10 rad/s, T = 2π/10 ≈ **0.628 s**, f = **1.59 Hz**, φ = π/4.
+**Bài 3**: $A = 0{,}05$ m, $\\omega = 10$ rad/s, $T = \\frac{2\\pi}{10} \\approx$ **0.628 s**, $f = $ **1.59 Hz**, $\\varphi = \\frac{\\pi}{4}$.
 
-**Bài 4**: λ = v/f = 343/440 = **0.78 m** = 78 cm. (Đây là kích thước "tự nhiên" của tiếng nốt A. Đó là tại sao ống sáo, dây đàn có kích cỡ centimét đến mét.)
+**Bài 4**: $\\lambda = \\frac{v}{f} = \\frac{343}{440} = $ **0.78 m** = 78 cm. (Đây là kích thước "tự nhiên" của tiếng nốt A. Đó là tại sao ống sáo, dây đàn có kích cỡ centimét đến mét.)
 
-**Bài 5**: Mùa hè, thanh treo của đồng hồ giãn nở do nhiệt → L tăng nhẹ → T = 2π√(L/g) tăng → mỗi dao động lâu hơn → đồng hồ chạy chậm hơn. Sai số nhỏ nhưng tích lũy theo tháng. Đồng hồ chính xác dùng vật liệu ít giãn nở (Invar) hoặc bù bằng cơ chế nhiệt.
+**Bài 5**: Mùa hè, thanh treo của đồng hồ giãn nở do nhiệt → L tăng nhẹ → $T = 2\\pi\\sqrt{\\frac{L}{g}}$ tăng → mỗi dao động lâu hơn → đồng hồ chạy chậm hơn. Sai số nhỏ nhưng tích lũy theo tháng. Đồng hồ chính xác dùng vật liệu ít giãn nở (Invar) hoặc bù bằng cơ chế nhiệt.
 
-**Bài 6**: v = λ/T = 2/0.5 = **4 m/s**.
+**Bài 6**: $v = \\frac{\\lambda}{T} = \\frac{2}{0{,}5} = $ **4 m/s**.
 
 ---
 
@@ -330,11 +322,11 @@ v = λ · f
 
 ## 📝 Tổng kết Lesson 08
 
-1. **SHM**: F = −kx, x(t) = A·cos(ωt + φ). Đặc trưng: a = −ω²·x.
-2. **Năng lượng SHM** = (1/2)kA², bảo toàn giữa KE và PE.
-3. **Con lắc lò xo**: T = 2π·√(m/k) (độc lập biên độ).
-4. **Con lắc đơn**: T = 2π·√(L/g) (độc lập khối lượng, góc nhỏ).
-5. **Sóng cơ**: dao động lan truyền. v = λ·f.
+1. **SHM**: $F = -kx$, $x(t) = A \\cdot \\cos(\\omega t + \\varphi)$. Đặc trưng: $a = -\\omega^2 \\cdot x$.
+2. **Năng lượng SHM** $= \\frac{1}{2}kA^2$, bảo toàn giữa KE và PE.
+3. **Con lắc lò xo**: $T = 2\\pi \\cdot \\sqrt{\\frac{m}{k}}$ (độc lập biên độ).
+4. **Con lắc đơn**: $T = 2\\pi \\cdot \\sqrt{\\frac{L}{g}}$ (độc lập khối lượng, góc nhỏ).
+5. **Sóng cơ**: dao động lan truyền. $v = \\lambda \\cdot f$.
 6. **Ngang vs dọc**: theo hướng dao động so với hướng truyền.
 
 🎉 **Hoàn thành Tier 1 Mechanics!** (8/8) Tiếp theo: **Tier 2 — Thermo & Electromagnetism**.

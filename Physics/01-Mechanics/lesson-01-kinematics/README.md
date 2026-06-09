@@ -8,7 +8,7 @@ Sau bài này bạn sẽ:
 - Phân biệt **độ dịch chuyển (displacement)** và **quãng đường (distance)**, **vận tốc** và **tốc độ**.
 - Đọc và vẽ được 3 loại đồ thị chuyển động: **x-t**, **v-t**, **a-t** — và biết mối liên hệ "diện tích/độ dốc" giữa chúng.
 - Áp dụng được **3 phương trình chuyển động thẳng biến đổi đều** (gia tốc hằng) để giải bài toán.
-- Tính được chuyển động **rơi tự do** (g = 9.8 m/s²) và chuyển động **ném ngang/ném xiên** (đến cuối bài).
+- Tính được chuyển động **rơi tự do** ($g = 9{,}8\ \text{m/s}^2$) và chuyển động **ném ngang/ném xiên** (đến cuối bài).
 - Phân biệt chuyển động **1 chiều** (đường thẳng) và **2 chiều** (mặt phẳng — vd ném xiên).
 
 ## Kiến thức tiền đề
@@ -231,7 +231,7 @@ a(t) &= \frac{dv}{dt} \quad &&\text{(gia tốc tức thời = đạo hàm vận 
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 
-- *"Vật đang đứng yên (v=0) thì gia tốc chắc chắn = 0?"* Không! Ngay lúc thả một quả bóng, v = 0 nhưng a = g = 9.8 m/s² (đang bắt đầu rơi). Tương tự, vật ở điểm cao nhất khi ném lên có v = 0 nhưng a = −9.8 m/s². v và a độc lập với nhau tại 1 thời điểm.
+- *"Vật đang đứng yên ($v=0$) thì gia tốc chắc chắn $= 0$?"* Không! Ngay lúc thả một quả bóng, $v = 0$ nhưng $a = g = 9{,}8\ \text{m/s}^2$ (đang bắt đầu rơi). Tương tự, vật ở điểm cao nhất khi ném lên có $v = 0$ nhưng $a = -9{,}8\ \text{m/s}^2$. $v$ và $a$ độc lập với nhau tại 1 thời điểm.
 - *"Gia tốc có thể đổi không, hay luôn là hằng?"* Đổi được. Bài này tập trung vào gia tốc **hằng** (rơi tự do, xe tăng tốc đều) vì giải được bằng 3 phương trình đơn giản ở mục 5. Thực tế a thường thay đổi (vd xe vào cua, lò xo dao động — học ở Lesson 08).
 - *"m/s² nghĩa là gì — sao lại 'giây bình phương'?"* Vì gia tốc = (m/s) thay đổi mỗi giây = (m/s)/s = m/s². Đọc là "mỗi giây, vận tốc thay đổi thêm bấy nhiêu m/s". Vd a = 4 m/s²: sau 1 s vận tốc tăng 4 m/s, sau 2 s tăng 8 m/s.
 

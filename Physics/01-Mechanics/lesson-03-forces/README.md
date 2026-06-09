@@ -38,7 +38,7 @@ trong đó:
 
 ### 1.3. Định luật vạn vật hấp dẫn Newton (1687)
 
-Tại sao g = 9.8 m/s² gần mặt đất? Là hệ quả của một định luật tổng quát hơn:
+Tại sao $g = 9{,}8\ \text{m/s}^2$ gần mặt đất? Là hệ quả của một định luật tổng quát hơn:
 
 $$F = \frac{G \cdot m_1 \cdot m_2}{r^2}$$
 

@@ -21,16 +21,15 @@ window.README_MD = `# Lesson 03 — Phương trình bậc 1
 ### 1.1. Định nghĩa
 
 **Phương trình** = đẳng thức chứa **biến chưa biết**, dạng tổng quát:
-\`\`\`
-ax + b = 0   (a ≠ 0)
-\`\`\`
 
-trong đó **x là ẩn cần tìm**, a và b là hằng số.
+$$ax + b = 0 \\quad (a \\neq 0)$$
+
+trong đó **x là ẩn cần tìm**, $a$ và $b$ là hằng số.
 
 💡 **Là gì**: phương trình là "câu hỏi" — hỏi giá trị x nào sẽ làm đẳng thức đúng.
 
 **Vì sao cần?** Vì rất nhiều bài toán đời thực có dạng "tìm giá trị x sao cho...":
-- Tìm x để 2x + 10 = 30 (tốc độ chạy + thời gian = quãng đường).
+- Tìm $x$ để $2x + 10 = 30$ (tốc độ chạy + thời gian = quãng đường).
 - Tìm số tuổi anh nếu tổng tuổi 3 anh em = 60.
 
 **Nghiệm** = giá trị x làm phương trình đúng.
@@ -40,47 +39,47 @@ trong đó **x là ẩn cần tìm**, a và b là hằng số.
 **2 quy tắc cơ bản**:
 
 1. **Quy tắc chuyển vế**: chuyển 1 số sang vế kia, **đổi dấu**.
-   - \`x + 3 = 10 → x = 10 − 3 = 7\`.
+   - $x + 3 = 10 \\to x = 10 - 3 = 7$.
 
-2. **Quy tắc nhân/chia**: nhân/chia cả 2 vế cùng số (≠ 0).
-   - \`3x = 12 → x = 12/3 = 4\`.
+2. **Quy tắc nhân/chia**: nhân/chia cả 2 vế cùng số ($\\neq 0$).
+   - $3x = 12 \\to x = 12/3 = 4$.
 
-**Quy trình giải \`ax + b = 0\`**:
-1. Chuyển b sang vế phải: \`ax = −b\`.
-2. Chia 2 vế cho a: \`x = −b/a\`.
+**Quy trình giải $ax + b = 0$**:
+1. Chuyển b sang vế phải: $ax = -b$.
+2. Chia 2 vế cho a: $x = -b/a$.
 
 ### 1.3. Bốn ví dụ
 
-**Ví dụ 1**: \`2x + 3 = 11\`. Chuyển 3: 2x = 8. Chia 2: **x = 4**.
+**Ví dụ 1**: $2x + 3 = 11$. Chuyển 3: $2x = 8$. Chia 2: **$x = 4$**.
 
-**Ví dụ 2**: \`5(x − 1) = 3x + 7\`. Khai triển: 5x − 5 = 3x + 7. Chuyển: 5x − 3x = 7 + 5 → 2x = 12 → **x = 6**.
+**Ví dụ 2**: $5(x - 1) = 3x + 7$. Khai triển: $5x - 5 = 3x + 7$. Chuyển: $5x - 3x = 7 + 5 \\to 2x = 12 \\to$ **$x = 6$**.
 
-**Ví dụ 3 (vô số nghiệm)**: \`2x + 4 = 2(x + 2)\`. Khai triển: 2x + 4 = 2x + 4. Luôn đúng → **x là bất kỳ**.
+**Ví dụ 3 (vô số nghiệm)**: $2x + 4 = 2(x + 2)$. Khai triển: $2x + 4 = 2x + 4$. Luôn đúng → **x là bất kỳ**.
 
-**Ví dụ 4 (vô nghiệm)**: \`x + 3 = x + 5\`. Chuyển: 3 = 5. Sai → **KHÔNG nghiệm**.
+**Ví dụ 4 (vô nghiệm)**: $x + 3 = x + 5$. Chuyển: $3 = 5$. Sai → **KHÔNG nghiệm**.
 
 ### 1.4. Verify nghiệm bằng cách thế lại
 
-Giải xong **luôn thế nghiệm vào phương trình gốc** để chắc. Vd 1: \`x=4\` → \`2·4+3 = 11\` ✓ (đúng vế phải). Đây là cách bắt lỗi rẻ nhất.
+Giải xong **luôn thế nghiệm vào phương trình gốc** để chắc. Vd 1: $x=4$ → $2\\cdot 4+3 = 11$ ✓ (đúng vế phải). Đây là cách bắt lỗi rẻ nhất.
 
-⚠ **Lỗi thường gặp**: chuyển vế mà **quên đổi dấu**. \`x + 3 = 10\` → \`x = 10 − 3 = 7\` (đổi \`+3\` thành \`−3\`), **không** phải \`x = 10 + 3\`. Quy tắc: số đổi bên thì đổi dấu.
+⚠ **Lỗi thường gặp**: chuyển vế mà **quên đổi dấu**. $x + 3 = 10 \\to x = 10 - 3 = 7$ (đổi $+3$ thành $-3$), **không** phải $x = 10 + 3$. Quy tắc: số đổi bên thì đổi dấu.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
-- *"Vì sao chuyển vế lại đổi dấu?"* Vì thực chất là **trừ cùng một số ở cả 2 vế**. \`x+3=10\` ⟺ trừ 3 hai vế ⟺ \`x = 10−3\`. "Đổi dấu" chỉ là cách nói gọn.
-- *"Khi nào PT vô nghiệm / vô số nghiệm?"* Khi ẩn \`x\` **triệt tiêu hết**: còn lại đẳng thức số sai (\`3=5\`) → vô nghiệm; còn lại đẳng thức đúng (\`4=4\`) → vô số nghiệm.
+- *"Vì sao chuyển vế lại đổi dấu?"* Vì thực chất là **trừ cùng một số ở cả 2 vế**. $x+3=10 \\iff$ trừ 3 hai vế $\\iff x = 10-3$. "Đổi dấu" chỉ là cách nói gọn.
+- *"Khi nào PT vô nghiệm / vô số nghiệm?"* Khi ẩn $x$ **triệt tiêu hết**: còn lại đẳng thức số sai ($3=5$) → vô nghiệm; còn lại đẳng thức đúng ($4=4$) → vô số nghiệm.
 
-🔁 **Dừng lại tự kiểm tra**: giải \`3x − 5 = x + 7\`.
+🔁 **Dừng lại tự kiểm tra**: giải $3x - 5 = x + 7$.
 
 <details><summary>Đáp án</summary>
 
-\`3x − x = 7 + 5\` → \`2x = 12\` → \`x = 6\`. Thế lại: \`3·6−5 = 13\`, \`6+7 = 13\` ✓.
+$3x - x = 7 + 5 \\to 2x = 12 \\to x = 6$. Thế lại: $3\\cdot 6-5 = 13$, $6+7 = 13$ ✓.
 
 </details>
 
 ### 📝 Tóm tắt mục 1
 
-- PT bậc 1: \`ax+b=0\` → \`x = −b/a\` (\`a≠0\`).
+- PT bậc 1: $ax+b=0 \\to x = -b/a$ ($a\\neq 0$).
 - 2 quy tắc: chuyển vế (đổi dấu), nhân/chia 2 vế cùng số ≠ 0.
 - Ẩn triệt tiêu → vô nghiệm (số sai) hoặc vô số nghiệm (số đúng).
 
@@ -91,12 +90,10 @@ Giải xong **luôn thế nghiệm vào phương trình gốc** để chắc. Vd
 ### 2.1. Định nghĩa
 
 Hệ 2 phương trình, mỗi cái bậc 1, có 2 ẩn (thường x và y):
-\`\`\`
-a₁x + b₁y = c₁
-a₂x + b₂y = c₂
-\`\`\`
 
-**Nghiệm của hệ** = cặp (x, y) thỏa mãn CẢ HAI phương trình.
+$$\\begin{cases} a_1 x + b_1 y = c_1 \\\\ a_2 x + b_2 y = c_2 \\end{cases}$$
+
+**Nghiệm của hệ** = cặp $(x, y)$ thỏa mãn CẢ HAI phương trình.
 
 ### 2.2. Phương pháp thế (Substitution)
 
@@ -105,12 +102,10 @@ a₂x + b₂y = c₂
 3. Thay ngược lại tìm ẩn còn lại.
 
 **Ví dụ**: 
-\`\`\`
-x + y = 10    (1)
-2x − y = 5    (2)
-\`\`\`
 
-Từ (1): y = 10 − x. Thay vào (2): 2x − (10 − x) = 5 → 3x = 15 → **x = 5**. Thay lại: **y = 5**.
+$$\\begin{cases} x + y = 10 & (1) \\\\ 2x - y = 5 & (2) \\end{cases}$$
+
+Từ (1): $y = 10 - x$. Thay vào (2): $2x - (10 - x) = 5 \\to 3x = 15 \\to$ **$x = 5$**. Thay lại: **$y = 5$**.
 
 ### 2.3. Phương pháp cộng đại số (Elimination)
 
@@ -118,15 +113,15 @@ Từ (1): y = 10 − x. Thay vào (2): 2x − (10 − x) = 5 → 3x = 15 → **x
 2. Cộng 2 phương trình → triệt tiêu ẩn đó → còn 1 ẩn → giải.
 
 **Cùng ví dụ trên**:
-- (1) + (2): (x + y) + (2x − y) = 10 + 5 → 3x = 15 → **x = 5**.
+- (1) + (2): $(x + y) + (2x - y) = 10 + 5 \\to 3x = 15 \\to$ **$x = 5$**.
 
 ### 2.4. Ba trường hợp nghiệm
 
-Đường thẳng a₁x + b₁y = c₁ và a₂x + b₂y = c₂ trên mặt phẳng:
+Đường thẳng $a_1 x + b_1 y = c_1$ và $a_2 x + b_2 y = c_2$ trên mặt phẳng:
 
 1. **Cắt nhau**: 1 nghiệm duy nhất.
-2. **Song song** (a₁/a₂ = b₁/b₂ ≠ c₁/c₂): vô nghiệm.
-3. **Trùng nhau** (a₁/a₂ = b₁/b₂ = c₁/c₂): vô số nghiệm.
+2. **Song song** ($a_1/a_2 = b_1/b_2 \\neq c_1/c_2$): vô nghiệm.
+3. **Trùng nhau** ($a_1/a_2 = b_1/b_2 = c_1/c_2$): vô số nghiệm.
 
 💡 **Trực giác / Hình dung**: mỗi phương trình bậc 1 hai ẩn là **một đường thẳng** trên mặt phẳng. Nghiệm của hệ = **giao điểm**. Hai đường cắt nhau → 1 giao điểm (1 nghiệm); song song → không gặp (vô nghiệm); trùng nhau → gặp khắp nơi (vô số nghiệm).
 
@@ -135,13 +130,13 @@ Từ (1): y = 10 − x. Thay vào (2): 2x − (10 − x) = 5 → 3x = 15 → **x
 ❓ **Câu hỏi tự nhiên của người đọc**
 
 - *"Thế hay cộng đại số tốt hơn?"* Khi một ẩn đã có hệ số 1 (dễ rút) → **thế** nhanh. Khi hệ số "lệch" khó rút → **cộng đại số** gọn hơn. Kết quả như nhau.
-- *"Làm sao biết hệ vô nghiệm mà không vẽ?"* So tỉ lệ hệ số: nếu \`a₁/a₂ = b₁/b₂\` nhưng \`≠ c₁/c₂\` → song song → vô nghiệm.
+- *"Làm sao biết hệ vô nghiệm mà không vẽ?"* So tỉ lệ hệ số: nếu $a_1/a_2 = b_1/b_2$ nhưng $\\neq c_1/c_2$ → song song → vô nghiệm.
 
-🔁 **Dừng lại tự kiểm tra**: giải hệ \`x + y = 5\`, \`x − y = 1\`.
+🔁 **Dừng lại tự kiểm tra**: giải hệ $x + y = 5$, $x - y = 1$.
 
 <details><summary>Đáp án</summary>
 
-Cộng 2 PT: \`2x = 6\` → \`x = 3\`. Thế: \`y = 5 − 3 = 2\`. → \`(3, 2)\`. Kiểm: \`3−2 = 1\` ✓.
+Cộng 2 PT: $2x = 6 \\to x = 3$. Thế: $y = 5 - 3 = 2$. → $(3, 2)$. Kiểm: $3-2 = 1$ ✓.
 
 </details>
 
@@ -157,18 +152,18 @@ Cộng 2 PT: \`2x = 6\` → \`x = 3\`. Thế: \`y = 5 − 3 = 2\`. → \`(3, 2)\
 
 ### Ví dụ 1 — Bài toán tốc độ
 
-Xe đi từ A đến B với v = 60 km/h trong 2 giờ, sau đó từ B về A với v khác trong 3 giờ. Tổng quãng đường = 240 km. Tính v lúc về.
+Xe đi từ A đến B với $v = 60$ km/h trong 2 giờ, sau đó từ B về A với v khác trong 3 giờ. Tổng quãng đường = 240 km. Tính v lúc về.
 
-- Đi: 60 × 2 = 120 km.
-- Về: 3 × v = 240 − 120 = 120 km → v = **40 km/h**.
+- Đi: $60 \\times 2 = 120$ km.
+- Về: $3 \\times v = 240 - 120 = 120$ km $\\to v =$ **40 km/h**.
 
 ### Ví dụ 2 — Bài toán tuổi
 
 Tuổi anh hiện tại gấp 3 lần tuổi em. 5 năm nữa, tuổi anh gấp 2 lần tuổi em. Tính tuổi hiện tại.
 
-- Gọi tuổi em hiện tại = x, anh = 3x.
-- 5 năm nữa: anh = 3x + 5, em = x + 5.
-- Điều kiện: 3x + 5 = 2(x + 5) → 3x + 5 = 2x + 10 → x = 5.
+- Gọi tuổi em hiện tại = $x$, anh = $3x$.
+- 5 năm nữa: anh = $3x + 5$, em = $x + 5$.
+- Điều kiện: $3x + 5 = 2(x + 5) \\to 3x + 5 = 2x + 10 \\to x = 5$.
 - Em 5 tuổi, anh **15 tuổi**.
 
 ---
@@ -177,47 +172,43 @@ Tuổi anh hiện tại gấp 3 lần tuổi em. 5 năm nữa, tuổi anh gấp 
 
 ### Bài tập
 
-**Bài 1**: Giải \`3x − 7 = 2x + 5\`.
+**Bài 1**: Giải $3x - 7 = 2x + 5$.
 
-**Bài 2**: Giải \`4(x + 2) − 3 = 2x + 9\`.
+**Bài 2**: Giải $4(x + 2) - 3 = 2x + 9$.
 
 **Bài 3**: Giải hệ:
-\`\`\`
-2x + y = 7
-x − y = 2
-\`\`\`
+
+$$\\begin{cases} 2x + y = 7 \\\\ x - y = 2 \\end{cases}$$
 
 **Bài 4**: Giải hệ:
-\`\`\`
-3x + 2y = 12
-2x − y = 1
-\`\`\`
+
+$$\\begin{cases} 3x + 2y = 12 \\\\ 2x - y = 1 \\end{cases}$$
 
 **Bài 5**: Tổng 2 số bằng 20, hiệu của chúng bằng 4. Tìm 2 số.
 
-**Bài 6**: Một người đi xe máy từ A → B với v = 40 km/h, lúc về v = 60 km/h. Tổng thời gian 5 giờ. Tính quãng đường AB.
+**Bài 6**: Một người đi xe máy từ A → B với $v = 40$ km/h, lúc về $v = 60$ km/h. Tổng thời gian 5 giờ. Tính quãng đường AB.
 
 ### Lời giải
 
-**Bài 1**: 3x − 2x = 5 + 7 → **x = 12**.
+**Bài 1**: $3x - 2x = 5 + 7 \\to$ **$x = 12$**.
 
-**Bài 2**: 4x + 8 − 3 = 2x + 9 → 4x + 5 = 2x + 9 → 2x = 4 → **x = 2**.
+**Bài 2**: $4x + 8 - 3 = 2x + 9 \\to 4x + 5 = 2x + 9 \\to 2x = 4 \\to$ **$x = 2$**.
 
 **Bài 3**:
-- (1): 2x + y = 7; (2): x − y = 2.
-- Cộng (1)+(2): 3x = 9 → x = 3.
-- Từ (2): y = x − 2 = 1.
-- Kiểm tra (1): 2·3 + 1 = 7 ✓; (2): 3 − 1 = 2 ✓.
-- → **(x, y) = (3, 1)**.
+- (1): $2x + y = 7$; (2): $x - y = 2$.
+- Cộng (1)+(2): $3x = 9 \\to x = 3$.
+- Từ (2): $y = x - 2 = 1$.
+- Kiểm tra (1): $2\\cdot 3 + 1 = 7$ ✓; (2): $3 - 1 = 2$ ✓.
+- → **$(x, y) = (3, 1)$**.
 
 **Bài 4**: 
-- (1) + 2·(2): 3x + 2y + 4x − 2y = 12 + 2 → 7x = 14 → x = 2.
-- (2): y = 2x − 1 = 3.
-- → **(x, y) = (2, 3)**.
+- (1) + 2·(2): $3x + 2y + 4x - 2y = 12 + 2 \\to 7x = 14 \\to x = 2$.
+- (2): $y = 2x - 1 = 3$.
+- → **$(x, y) = (2, 3)$**.
 
-**Bài 5**: Gọi 2 số là a, b. a + b = 20, a − b = 4. Cộng: 2a = 24 → a = 12. b = 8. → **(12, 8)**.
+**Bài 5**: Gọi 2 số là $a, b$. $a + b = 20, a - b = 4$. Cộng: $2a = 24 \\to a = 12$. $b = 8$. → **$(12, 8)$**.
 
-**Bài 6**: Gọi AB = d. t_đi = d/40, t_về = d/60. Tổng: d/40 + d/60 = 5 → 3d/120 + 2d/120 = 5 → 5d/120 = 5 → d = **120 km**.
+**Bài 6**: Gọi $AB = d$. $t_{đi} = d/40, t_{về} = d/60$. Tổng: $d/40 + d/60 = 5 \\to 3d/120 + 2d/120 = 5 \\to 5d/120 = 5 \\to d =$ **120 km**.
 
 ---
 
@@ -227,7 +218,7 @@ x − y = 2
 
 ## 📝 Tổng kết
 
-1. **PT bậc 1**: ax + b = 0 → x = −b/a (a ≠ 0).
+1. **PT bậc 1**: $ax + b = 0 \\to x = -b/a$ ($a \\neq 0$).
 2. **2 quy tắc**: chuyển vế (đổi dấu), nhân/chia (cả 2 vế).
 3. **Hệ 2 PT 2 ẩn**: thế hoặc cộng đại số.
 4. **3 trường hợp**: 1 nghiệm / vô nghiệm / vô số nghiệm.

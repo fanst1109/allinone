@@ -1,6 +1,6 @@
 # From zero to hero
 
-Đây là repository tổng hợp các dự án học thuật cá nhân. Mỗi thư mục con là một lĩnh vực hoặc môn học riêng (ví dụ: `Java` cho ngôn ngữ lập trình Java, `English` cho tiếng Anh, `Math` cho toán học...). Bên trong mỗi thư mục lĩnh vực sẽ có các subfolder dạng `lesson` hoặc `tutorial` đi sâu vào một khái niệm hoặc bài học cụ thể.
+Đây là repository tổng hợp lý thuyết - học thuật. Mỗi thư mục con là một lĩnh vực hoặc môn học riêng (ví dụ: `Java` cho ngôn ngữ lập trình Java, `English` cho tiếng Anh, `Math` cho toán học...). Bên trong mỗi thư mục lĩnh vực sẽ có các subfolder dạng `lesson` hoặc `tutorial` đi sâu vào một khái niệm hoặc bài học cụ thể.
 
 ## Quy ước chung
 

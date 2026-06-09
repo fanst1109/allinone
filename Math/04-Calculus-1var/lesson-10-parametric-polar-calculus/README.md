@@ -2,51 +2,51 @@
 
 ## Mục tiêu
 
-- Làm giải tích trên đường cong cho dưới dạng **tham số** `(x(t), y(t))`: tính độ dốc `dy/dx` và **độ dài cung**.
-- Làm giải tích trong **toạ độ cực** `r = r(θ)`: tính **diện tích** `½∫r²dθ` và độ dài cung cực.
-- Hiểu vì sao nhiều đường cong (đường tròn, cycloid, cardioid, hoa hồng) *dễ mô tả* bằng tham số/cực hơn bằng `y = f(x)`.
+- Làm giải tích trên đường cong cho dưới dạng **tham số** $(x(t), y(t))$: tính độ dốc $\frac{dy}{dx}$ và **độ dài cung**.
+- Làm giải tích trong **toạ độ cực** $r = r(\theta)$: tính **diện tích** $\frac{1}{2}\int r^2\,d\theta$ và độ dài cung cực.
+- Hiểu vì sao nhiều đường cong (đường tròn, cycloid, cardioid, hoa hồng) *dễ mô tả* bằng tham số/cực hơn bằng $y = f(x)$.
 
 ## Kiến thức tiền đề
 
-- [Lesson 08 — Ứng dụng tích phân](../lesson-08-integral-applications/) (độ dài cung `∫√(1+(dy/dx)²)dx`).
+- [Lesson 08 — Ứng dụng tích phân](../lesson-08-integral-applications/) (độ dài cung $\int \sqrt{1+\left(\frac{dy}{dx}\right)^2}\,dx$).
 - [Lesson 09 — Kỹ thuật tính tích phân](../lesson-09-integration-techniques/) (để tính các tích phân nảy sinh).
 - Toạ độ cực & dạng lượng giác: [Math/03-Trig-Complex/lesson-06-complex-polar-euler](../../03-Trig-Complex/lesson-06-complex-polar-euler/); conic: [Math/02-Geometry/lesson-06-coordinate-plane-conics](../../02-Geometry/lesson-06-coordinate-plane-conics/).
 
-> 💡 **Vì sao cần bài này?** Không phải đường cong nào cũng là đồ thị `y = f(x)`. Đường tròn fail "test đường thẳng đứng" (mỗi x có 2 y). Quỹ đạo một hạt theo *thời gian*, cánh hoa, hình trái tim... mô tả tự nhiên hơn bằng **tham số** (x, y đều phụ thuộc một biến chạy t) hoặc **toạ độ cực** (khoảng cách r theo góc θ). Bài này đưa đạo hàm/tích phân vào hai ngôn ngữ đó.
+> 💡 **Vì sao cần bài này?** Không phải đường cong nào cũng là đồ thị $y = f(x)$. Đường tròn fail "test đường thẳng đứng" (mỗi x có 2 y). Quỹ đạo một hạt theo *thời gian*, cánh hoa, hình trái tim... mô tả tự nhiên hơn bằng **tham số** (x, y đều phụ thuộc một biến chạy t) hoặc **toạ độ cực** (khoảng cách r theo góc θ). Bài này đưa đạo hàm/tích phân vào hai ngôn ngữ đó.
 
 ---
 
 ## 1. Đường cong tham số — độ dốc dy/dx
 
-💡 **Trực giác.** Coi `t` là *thời gian*; `(x(t), y(t))` là vị trí một điểm đang vẽ nên đường cong. Vận tốc ngang `dx/dt`, vận tốc dọc `dy/dt`. Độ dốc đường đi (hình học) = "dọc chia ngang":
+💡 **Trực giác.** Coi $t$ là *thời gian*; $(x(t), y(t))$ là vị trí một điểm đang vẽ nên đường cong. Vận tốc ngang $\frac{dx}{dt}$, vận tốc dọc $\frac{dy}{dt}$. Độ dốc đường đi (hình học) = "dọc chia ngang":
 
 $$\frac{dy}{dx} = \frac{dy/dt}{dx/dt} \quad (dx/dt \neq 0)$$
 
 **Ví dụ số cụ thể (4 cái):**
 
-1. Đường tròn `x = cos t, y = sin t`: `dy/dx = cos t / (−sin t) = −cot t`. Tại `t = π/4`: `dy/dx = −1` (tiếp tuyến nghiêng −45°).
-2. Parabola `x = t, y = t²`: `dy/dx = 2t/1 = 2t` — đúng bằng `2x` như mong đợi.
-3. Ellipse `x = 2cos t, y = sin t`: `dy/dx = cos t / (−2sin t)`. Tại `t = π/2` (đỉnh trên): `dy/dx = 0` (tiếp tuyến ngang).
-4. Cycloid `x = t − sin t, y = 1 − cos t`: `dy/dx = sin t/(1 − cos t)`. Tại `t = π` (đỉnh vòm): `= 0`.
+1. Đường tròn $x = \cos t, y = \sin t$: $\frac{dy}{dx} = \cos t / (-\sin t) = -\cot t$. Tại $t = \frac{\pi}{4}$: $\frac{dy}{dx} = -1$ (tiếp tuyến nghiêng $-45^\circ$).
+2. Parabola $x = t, y = t^2$: $\frac{dy}{dx} = 2t/1 = 2t$ — đúng bằng $2x$ như mong đợi.
+3. Ellipse $x = 2\cos t, y = \sin t$: $\frac{dy}{dx} = \cos t / (-2\sin t)$. Tại $t = \frac{\pi}{2}$ (đỉnh trên): $\frac{dy}{dx} = 0$ (tiếp tuyến ngang).
+4. Cycloid $x = t - \sin t, y = 1 - \cos t$: $\frac{dy}{dx} = \sin t/(1 - \cos t)$. Tại $t = \pi$ (đỉnh vòm): $= 0$.
 
-> ⚠ **Lỗi thường gặp.** `dy/dx ≠ (d²y/dt²)/(d²x/dt²)`. Chỉ chia đạo hàm *bậc một*. Với đạo hàm bậc hai phải dùng `d²y/dx² = d/dt(dy/dx) ÷ (dx/dt)`.
+> ⚠ **Lỗi thường gặp.** $\frac{dy}{dx} \neq (d^2y/dt^2)/(d^2x/dt^2)$. Chỉ chia đạo hàm *bậc một*. Với đạo hàm bậc hai phải dùng $\frac{d^2y}{dx^2} = \frac{d}{dt}\left(\frac{dy}{dx}\right) \div \frac{dx}{dt}$.
 
 ---
 
 ## 2. Độ dài cung của đường cong tham số
 
-💡 **Trực giác.** Quãng đường = tốc độ × thời gian, cộng dồn. Tốc độ tức thời (định lý Pythagoras cho vận tốc) là `√((dx/dt)² + (dy/dt)²)`. Cộng dồn từ `t=α` tới `t=β`:
+💡 **Trực giác.** Quãng đường = tốc độ $\times$ thời gian, cộng dồn. Tốc độ tức thời (định lý Pythagoras cho vận tốc) là $\sqrt{\left(\frac{dx}{dt}\right)^2 + \left(\frac{dy}{dt}\right)^2}$. Cộng dồn từ $t=\alpha$ tới $t=\beta$:
 
 $$L = \int_{\alpha}^{\beta} \sqrt{\left(\tfrac{dx}{dt}\right)^2 + \left(\tfrac{dy}{dt}\right)^2}\,dt$$
 
 **Ví dụ số cụ thể (verify):**
 
-1. Đường tròn đơn vị `x=cos t, y=sin t`, `t∈[0,2π]`: `x'=−sin t, y'=cos t`, `√(sin²+cos²)=1`. ⇒ `L = ∫₀^{2π}1\,dt = 2π ≈ 6.283` — đúng chu vi ✓.
-2. **Cycloid** `x=t−sin t, y=1−cos t`, `t∈[0,2π]` (vết một điểm trên vành bánh xe lăn): `x'=1−cos t, y'=sin t`. `x'²+y'² = 2−2cos t = 4sin²(t/2)`. ⇒ `L = ∫₀^{2π}2|sin(t/2)|\,dt = 8` — kết quả kinh điển, *không cần π* ✓.
-3. Đoạn thẳng `x=3t, y=4t`, `t∈[0,1]`: `√(9+16)=5` ⇒ `L = 5` (đúng `√(3²+4²)`).
-4. Ellipse `x=2cos t, y=sin t`: `L = ∫₀^{2π}√(4sin²t+cos²t)\,dt ≈ 9.6884` — **không có công thức sơ cấp** (tích phân elliptic), phải tính số.
+1. Đường tròn đơn vị $x=\cos t, y=\sin t$, $t\in[0,2\pi]$: $x'=-\sin t, y'=\cos t$, $\sqrt{\sin^2+\cos^2}=1$. $\Rightarrow L = \int_0^{2\pi}1\,dt = 2\pi \approx 6.283$ — đúng chu vi ✓.
+2. **Cycloid** $x=t-\sin t, y=1-\cos t$, $t\in[0,2\pi]$ (vết một điểm trên vành bánh xe lăn): $x'=1-\cos t, y'=\sin t$. $x'^2+y'^2 = 2-2\cos t = 4\sin^2(t/2)$. $\Rightarrow L = \int_0^{2\pi}2|\sin(t/2)|\,dt = 8$ — kết quả kinh điển, *không cần $\pi$* ✓.
+3. Đoạn thẳng $x=3t, y=4t$, $t\in[0,1]$: $\sqrt{9+16}=5$ $\Rightarrow L = 5$ (đúng $\sqrt{3^2+4^2}$).
+4. Ellipse $x=2\cos t, y=\sin t$: $L = \int_0^{2\pi}\sqrt{4\sin^2 t+\cos^2 t}\,dt \approx 9.6884$ — **không có công thức sơ cấp** (tích phân elliptic), phải tính số.
 
-> ❓ **"Vì sao cycloid lại đúng bằng 8 mà không dính π?"** Vì `√(2−2cos t)` rút gọn được thành `2|sin(t/2)|` nhờ công thức hạ bậc (xem [Trig L3](../../03-Trig-Complex/lesson-03-trig-identities/)) — tích phân ra số nguyên. Còn ellipse thì căn không rút gọn được → kẹt ở tích phân elliptic.
+> ❓ **"Vì sao cycloid lại đúng bằng 8 mà không dính π?"** Vì $\sqrt{2-2\cos t}$ rút gọn được thành $2|\sin(t/2)|$ nhờ công thức hạ bậc (xem [Trig L3](../../03-Trig-Complex/lesson-03-trig-identities/)) — tích phân ra số nguyên. Còn ellipse thì căn không rút gọn được → kẹt ở tích phân elliptic.
 
 ---
 
@@ -58,70 +58,70 @@ $$x = r\cos\theta, \quad y = r\sin\theta, \qquad r = \sqrt{x^2+y^2},\ \ \theta =
 
 **Ví dụ số cụ thể (4 cái):**
 
-1. `r = 2` (hằng): mọi điểm cách gốc 2 → **đường tròn** bán kính 2.
-2. `θ = π/4` (hằng): mọi điểm cùng góc → **tia** nghiêng 45°.
-3. `r = 1 + cosθ`: **cardioid** (hình trái tim) — `θ=0 → r=2`, `θ=π → r=0`.
-4. `r = cos(2θ)`: **hoa hồng 4 cánh** — `r` dao động dương/âm tạo các cánh.
+1. $r = 2$ (hằng): mọi điểm cách gốc 2 → **đường tròn** bán kính 2.
+2. $\theta = \frac{\pi}{4}$ (hằng): mọi điểm cùng góc → **tia** nghiêng 45°.
+3. $r = 1 + \cos\theta$: **cardioid** (hình trái tim) — $\theta=0 \to r=2$, $\theta=\pi \to r=0$.
+4. $r = \cos(2\theta)$: **hoa hồng 4 cánh** — $r$ dao động dương/âm tạo các cánh.
 
-> ⚠ **Lỗi thường gặp.** Cùng một điểm có **nhiều** cặp `(r, θ)` (vì θ cộng 2π, hoặc r âm + θ thêm π). Khi vẽ đường cong cực, cho θ chạy đủ một chu kỳ của `r(θ)` để không vẽ thiếu/thừa cánh.
+> ⚠ **Lỗi thường gặp.** Cùng một điểm có **nhiều** cặp $(r, \theta)$ (vì $\theta$ cộng $2\pi$, hoặc $r$ âm + $\theta$ thêm $\pi$). Khi vẽ đường cong cực, cho $\theta$ chạy đủ một chu kỳ của $r(\theta)$ để không vẽ thiếu/thừa cánh.
 
 ---
 
 ## 4. Diện tích trong toạ độ cực
 
-💡 **Trực giác.** Trong hệ Descartes ta cộng các *chữ nhật mảnh*; trong hệ cực ta cộng các **hình quạt mảnh**. Quạt góc `dθ`, bán kính `r` có diện tích `½r²dθ` (diện tích quạt = ½ bán kính² × góc). Cộng dồn:
+💡 **Trực giác.** Trong hệ Descartes ta cộng các *chữ nhật mảnh*; trong hệ cực ta cộng các **hình quạt mảnh**. Quạt góc $d\theta$, bán kính $r$ có diện tích $\frac{1}{2}r^2\,d\theta$ (diện tích quạt = $\frac{1}{2}$ bán kính$^2 \times$ góc). Cộng dồn:
 
 $$A = \frac{1}{2}\int_{\alpha}^{\beta} r(\theta)^2 \, d\theta$$
 
 **Ví dụ số cụ thể (verify):**
 
-1. Đường tròn `r = a`: `A = ½∫₀^{2π}a²\,dθ = ½a²·2π = πa²` — đúng diện tích hình tròn ✓.
-2. **Cardioid** `r = 1 + cosθ`: `A = ½∫₀^{2π}(1+cosθ)²\,dθ = ½∫(1 + 2cosθ + cos²θ)\,dθ = ½(2π + 0 + π) = 3π/2 ≈ 4.712` ✓.
-3. **Một cánh hoa hồng** `r = cos2θ` (cánh khi `θ∈[−π/4, π/4]`): `A = ½∫_{−π/4}^{π/4}cos²2θ\,dθ = π/8 ≈ 0.3927`. Bốn cánh → `π/2`.
-4. Xoắn ốc `r = θ`, `θ∈[0, 2π]`: `A = ½∫₀^{2π}θ²\,dθ = ½·(2π)³/3 = 4π³/3 ≈ 41.34`.
+1. Đường tròn $r = a$: $A = \frac{1}{2}\int_0^{2\pi}a^2\,d\theta = \frac{1}{2}a^2\cdot 2\pi = \pi a^2$ — đúng diện tích hình tròn ✓.
+2. **Cardioid** $r = 1 + \cos\theta$: $A = \frac{1}{2}\int_0^{2\pi}(1+\cos\theta)^2\,d\theta = \frac{1}{2}\int(1 + 2\cos\theta + \cos^2\theta)\,d\theta = \frac{1}{2}(2\pi + 0 + \pi) = 3\pi/2 \approx 4.712$ ✓.
+3. **Một cánh hoa hồng** $r = \cos 2\theta$ (cánh khi $\theta\in[-\pi/4, \pi/4]$): $A = \frac{1}{2}\int_{-\pi/4}^{\pi/4}\cos^2 2\theta\,d\theta = \pi/8 \approx 0.3927$. Bốn cánh $\to \pi/2$.
+4. Xoắn ốc $r = \theta$, $\theta\in[0, 2\pi]$: $A = \frac{1}{2}\int_0^{2\pi}\theta^2\,d\theta = \frac{1}{2}\cdot(2\pi)^3/3 = 4\pi^3/3 \approx 41.34$.
 
-> ❓ **"Sao là ½r² chứ không phải r²?"** Vì diện tích một hình quạt bán kính r, góc nhỏ dθ là `½r²dθ` (giống ½·đáy·cao của tam giác hẹp), không phải `r·dθ` (cái đó là *độ dài cung*). Nhầm hai cái là lỗi phổ biến nhất ở phần này.
+> ❓ **"Sao là ½r² chứ không phải r²?"** Vì diện tích một hình quạt bán kính r, góc nhỏ dθ là $\frac{1}{2}r^2\,d\theta$ (giống $\frac{1}{2}\cdot$đáy$\cdot$cao của tam giác hẹp), không phải $r\,d\theta$ (cái đó là *độ dài cung*). Nhầm hai cái là lỗi phổ biến nhất ở phần này.
 
 ---
 
 ## 5. Độ dài cung trong toạ độ cực
 
-Từ `x=r cosθ, y=r sinθ` rồi áp công thức độ dài cung tham số (biến θ), rút gọn được:
+Từ $x=r\cos\theta, y=r\sin\theta$ rồi áp công thức độ dài cung tham số (biến θ), rút gọn được:
 
 $$L = \int_{\alpha}^{\beta} \sqrt{r^2 + \left(\tfrac{dr}{d\theta}\right)^2}\,d\theta$$
 
-**Ví dụ:** cardioid `r = 1 + cosθ`: `dr/dθ = −sinθ`, `r² + r'² = (1+cosθ)² + sin²θ = 2 + 2cosθ = 4cos²(θ/2)`. ⇒ `L = ∫₀^{2π}2|cos(θ/2)|\,dθ = 8`.
+**Ví dụ:** cardioid $r = 1 + \cos\theta$: $\frac{dr}{d\theta} = -\sin\theta$, $r^2 + r'^2 = (1+\cos\theta)^2 + \sin^2\theta = 2 + 2\cos\theta = 4\cos^2(\theta/2)$. $\Rightarrow L = \int_0^{2\pi}2|\cos(\theta/2)|\,d\theta = 8$.
 
-> 📝 **Tóm tắt.** Tham số: `dy/dx = (dy/dt)/(dx/dt)`, `L = ∫√(x'²+y'²)dt`. Cực: `A = ½∫r²dθ`, `L = ∫√(r²+r'²)dθ`. Đường tròn/cycloid/cardioid/hoa hồng — thứ khó viết `y=f(x)` — đều gọn gàng trong hai ngôn ngữ này.
+> 📝 **Tóm tắt.** Tham số: $\frac{dy}{dx} = (dy/dt)/(dx/dt)$, $L = \int\sqrt{x'^2+y'^2}\,dt$. Cực: $A = \frac{1}{2}\int r^2\,d\theta$, $L = \int\sqrt{r^2+r'^2}\,d\theta$. Đường tròn/cycloid/cardioid/hoa hồng — thứ khó viết $y=f(x)$ — đều gọn gàng trong hai ngôn ngữ này.
 
 ---
 
 ## 6. Bài tập
 
-1. Đường cong `x = t², y = t³`. Tính `dy/dx` tại `t = 2`.
-2. Tính độ dài đoạn `x = cos t, y = sin t` với `t ∈ [0, π/2]` (¼ đường tròn). Có khớp `2π/4` không?
-3. Tính diện tích hình tròn `r = 3` bằng công thức cực.
-4. Tính diện tích **một cánh** hoa hồng `r = cos2θ`.
-5. Điểm Descartes `(−1, 1)` có toạ độ cực `(r, θ)` là gì?
+1. Đường cong $x = t^2, y = t^3$. Tính $\frac{dy}{dx}$ tại $t = 2$.
+2. Tính độ dài đoạn $x = \cos t, y = \sin t$ với $t \in [0, \pi/2]$ (¼ đường tròn). Có khớp $2\pi/4$ không?
+3. Tính diện tích hình tròn $r = 3$ bằng công thức cực.
+4. Tính diện tích **một cánh** hoa hồng $r = \cos 2\theta$.
+5. Điểm Descartes $(-1, 1)$ có toạ độ cực $(r, \theta)$ là gì?
 
 ## Lời giải chi tiết
 
-**Bài 1.** `dx/dt = 2t`, `dy/dt = 3t²` ⇒ `dy/dx = 3t²/(2t) = 3t/2`. Tại `t=2`: `= 3`.
-*(Kiểm tra: khử t — `t = √x`, `y = x^{3/2}`, `dy/dx = (3/2)√x = (3/2)·t = 3t/2` ✓.)*
+**Bài 1.** $\frac{dx}{dt} = 2t$, $\frac{dy}{dt} = 3t^2$ $\Rightarrow \frac{dy}{dx} = 3t^2/(2t) = 3t/2$. Tại $t=2$: $= 3$.
+*(Kiểm tra: khử t — $t = \sqrt{x}$, $y = x^{3/2}$, $\frac{dy}{dx} = (3/2)\sqrt{x} = (3/2)\cdot t = 3t/2$ ✓.)*
 
-**Bài 2.** `x'=−sin t, y'=cos t`, `√(sin²+cos²)=1` ⇒ `L = ∫₀^{π/2}1\,dt = π/2 ≈ 1.5708`. Đúng bằng `2π/4 = π/2` ✓ (¼ chu vi đường tròn đơn vị).
+**Bài 2.** $x'=-\sin t, y'=\cos t$, $\sqrt{\sin^2+\cos^2}=1$ $\Rightarrow L = \int_0^{\pi/2}1\,dt = \pi/2 \approx 1.5708$. Đúng bằng $2\pi/4 = \pi/2$ ✓ (¼ chu vi đường tròn đơn vị).
 
-**Bài 3.** `A = ½∫₀^{2π}3²\,dθ = ½·9·2π = 9π ≈ 28.27`. Đúng `πr² = π·9` ✓.
+**Bài 3.** $A = \frac{1}{2}\int_0^{2\pi}3^2\,d\theta = \frac{1}{2}\cdot 9\cdot 2\pi = 9\pi \approx 28.27$. Đúng $\pi r^2 = \pi\cdot 9$ ✓.
 
-**Bài 4.** Một cánh ứng với `θ ∈ [−π/4, π/4]` (nơi `cos2θ ≥ 0`). `A = ½∫_{−π/4}^{π/4}cos²2θ\,dθ`. Dùng `cos²u = (1+cos2u)/2` với `u=2θ`: `= ¼∫_{−π/4}^{π/4}(1+cos4θ)\,dθ = ¼[θ + ¼sin4θ]_{−π/4}^{π/4} = ¼[(π/4 + 0) − (−π/4 + 0)] = ¼·(π/2) = π/8 ≈ 0.3927`.
+**Bài 4.** Một cánh ứng với $\theta \in [-\pi/4, \pi/4]$ (nơi $\cos 2\theta \ge 0$). $A = \frac{1}{2}\int_{-\pi/4}^{\pi/4}\cos^2 2\theta\,d\theta$. Dùng $\cos^2 u = (1+\cos 2u)/2$ với $u=2\theta$: $= \frac{1}{4}\int_{-\pi/4}^{\pi/4}(1+\cos 4\theta)\,d\theta = \frac{1}{4}[\theta + \frac{1}{4}\sin 4\theta]_{-\pi/4}^{\pi/4} = \frac{1}{4}[(\pi/4 + 0) - (-\pi/4 + 0)] = \frac{1}{4}\cdot(\pi/2) = \pi/8 \approx 0.3927$.
 
-**Bài 5.** `r = √((−1)² + 1²) = √2`. `θ = atan2(1, −1) = 3π/4` (góc phần tư thứ II). Vậy `(√2, 3π/4)`.
+**Bài 5.** $r = \sqrt{(-1)^2 + 1^2} = \sqrt{2}$. $\theta = \operatorname{atan2}(1, -1) = 3\pi/4$ (góc phần tư thứ II). Vậy $(\sqrt{2}, 3\pi/4)$.
 
 ---
 
 ## 7. Code & Minh họa
 
-- [visualization.html](./visualization.html) — 2 module tương tác: **vẽ đường cong tham số** (chọn đường tròn/ellipse/cycloid/Lissajous, animation theo t, hiện độ dài cung số & dy/dx tại điểm), và **diện tích cực** (chọn r(θ): tròn/cardioid/hoa hồng/xoắn ốc, tô vùng + so A = ½∫r²dθ với công thức).
+- [visualization.html](./visualization.html) — 2 module tương tác: **vẽ đường cong tham số** (chọn đường tròn/ellipse/cycloid/Lissajous, animation theo t, hiện độ dài cung số & $\frac{dy}{dx}$ tại điểm), và **diện tích cực** (chọn $r(\theta)$: tròn/cardioid/hoa hồng/xoắn ốc, tô vùng + so $A = \frac{1}{2}\int r^2\,d\theta$ với công thức).
 
 ## 8. Kết thúc Tầng 4
 

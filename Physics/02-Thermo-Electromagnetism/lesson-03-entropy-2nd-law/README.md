@@ -150,7 +150,7 @@ Q_c (nhiệt thải ra nguồn lạnh T_c)
 
 Bảo toàn năng lượng (định luật I): $Q_h = W + Q_c$.
 
-### 3.2. Hiệu suất η (efficiency)
+### 3.2. Hiệu suất $\eta$ (efficiency)
 
 $$\eta = \frac{W}{Q_h} = 1 - \frac{Q_c}{Q_h}$$
 

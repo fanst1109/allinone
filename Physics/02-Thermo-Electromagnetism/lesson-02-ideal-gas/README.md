@@ -41,7 +41,7 @@ Sau bài này bạn sẽ:
 
 ⚠ **Lỗi thường gặp**
 
-- **Áp dụng mô hình lý tưởng cho mọi điều kiện**. Phản ví dụ: CO₂ ở 50 atm và 0°C lệch khá xa lý tưởng (gần hóa lỏng) — tính PV = nRT sẽ sai vài %. Hơi nước gần điểm sôi cũng lệch.
+- **Áp dụng mô hình lý tưởng cho mọi điều kiện**. Phản ví dụ: CO₂ ở 50 atm và 0°C lệch khá xa lý tưởng (gần hóa lỏng) — tính $PV = nRT$ sẽ sai vài %. Hơi nước gần điểm sôi cũng lệch.
 - **Tưởng "khí lý tưởng" là một loại khí cụ thể**. Không — nó là mô hình toán học mọi khí tuân theo gần đúng, không phải một chất.
 
 🔁 **Dừng lại tự kiểm tra**
@@ -63,7 +63,7 @@ Sau bài này bạn sẽ:
 
 ---
 
-## 2. Phương trình trạng thái — PV = nRT
+## 2. Phương trình trạng thái — $PV = nRT$
 
 ### 2.1. Phương trình
 
@@ -104,7 +104,7 @@ Gộp lại → $P \cdot V/T = $ const $= n \cdot R$ cho mọi khí lý tưởng
 **Ví dụ 3 — Khí trong động cơ ô tô**: $V = 500 \text{ cm}^3 = 5 \times 10^{-4} \text{ m}^3$, $T = 500°\text{C} = 773 \text{ K}$, $n = 0{,}02 \text{ mol}$. Tính $P$.
 - $P = nRT/V = 0{,}02 \cdot 8{,}314 \cdot 773/(5 \times 10^{-4}) \approx$ **257 180 Pa = 2,54 atm**.
 
-**Ví dụ 4 — Khí quyển**: ở mặt biển, P ≈ 1 atm. Lên Everest (8848 m), P ≈ 0.33 atm. Nếu T không đổi (đơn giản hóa), thì mật độ phân tử ở Everest = 1/3 mặt biển → khó thở.
+**Ví dụ 4 — Khí quyển**: ở mặt biển, $P \approx 1 \text{ atm}$. Lên Everest (8848 m), $P \approx 0{,}33 \text{ atm}$. Nếu $T$ không đổi (đơn giản hóa), thì mật độ phân tử ở Everest = 1/3 mặt biển → khó thở.
 
 ### ❓ Câu hỏi tự nhiên của người đọc
 

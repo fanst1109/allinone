@@ -351,22 +351,22 @@ Cho người thứ hai 40 kg.
 
 ### Lời giải
 
-**Bài 1**: τ = r·F·sin(90°) = 0.8 × 30 × 1 = **24 N·m**.
+**Bài 1**: $\tau = r \cdot F \cdot \sin(90^\circ) = 0{,}8 \times 30 \times 1 = $ **24 N·m**.
 
 **Bài 2**:
-- I = (1/2)·m·r² = 0.5·5·0.09 = 0.225 kg·m².
-- KE_quay = (1/2)·I·ω² = 0.5·0.225·400 = **45 J**.
-- L = I·ω = 0.225·20 = **4.5 kg·m²/s**.
+- $I = \frac{1}{2} \cdot m \cdot r^2 = 0{,}5 \cdot 5 \cdot 0{,}09 = 0{,}225$ kg·m².
+- $KE_{quay} = \frac{1}{2} \cdot I \cdot \omega^2 = 0{,}5 \cdot 0{,}225 \cdot 400 = $ **45 J**.
+- $L = I \cdot \omega = 0{,}225 \cdot 20 = $ **4.5 kg·m²/s**.
 
-**Bài 3**: τ = 0.4 × 100 × sin(60°) = 0.4 × 100 × 0.866 = **34.6 N·m**.
+**Bài 3**: $\tau = 0{,}4 \times 100 \times \sin(60^\circ) = 0{,}4 \times 100 \times 0{,}866 = $ **34.6 N·m**.
 
-**Bài 4**: a = 6.53 m/s², khởi đầu v₀ = 0.
-- v = a·t = 6.53 m/s.
-- d = (1/2)·a·t² = 0.5·6.53·1 = **3.27 m**.
+**Bài 4**: $a = 6{,}53$ m/s², khởi đầu $v_0 = 0$.
+- $v = a \cdot t = 6{,}53$ m/s.
+- $d = \frac{1}{2} \cdot a \cdot t^2 = 0{,}5 \cdot 6{,}53 \cdot 1 = $ **3.27 m**.
 
-**Bài 5**: Cân bằng momen: 30·2 = 70·d → d = 60/70 ≈ **0.857 m**.
+**Bài 5**: Cân bằng momen: $30 \cdot 2 = 70 \cdot d \to d = \frac{60}{70} \approx$ **0.857 m**.
 
-**Bài 6**: Khi kéo tay vào → khối lượng tay (m) lại gần trục quay (r giảm) → **I giảm** (vì I ∝ r²). Momen động lượng L = I·ω được bảo toàn (không có momen lực ngoại). I giảm → ω phải tăng để giữ L = const → quay nhanh hơn. Đó là một ứng dụng đẹp của bảo toàn L.
+**Bài 6**: Khi kéo tay vào → khối lượng tay (m) lại gần trục quay (r giảm) → **I giảm** (vì $I \propto r^2$). Momen động lượng $L = I \cdot \omega$ được bảo toàn (không có momen lực ngoại). I giảm → $\omega$ phải tăng để giữ $L = \text{const}$ → quay nhanh hơn. Đó là một ứng dụng đẹp của bảo toàn L.
 
 ---
 
@@ -379,11 +379,11 @@ Cho người thứ hai 40 kg.
 ## 📝 Tổng kết Lesson 07
 
 1. **Vật rắn**: có kích thước, có thể quay (ngược chất điểm).
-2. **Momen lực τ = r·F·sinθ** (N·m) — đo khả năng làm quay.
-3. **Momen quán tính I = Σ m·r²** (kg·m²) — "khối lượng" cho quay.
-4. **τ = I·α** (định luật II cho quay).
-5. **Bảng đối ngẫu** tịnh tiến ↔ quay (x↔θ, v↔ω, F↔τ, m↔I).
-6. **Cân bằng tĩnh**: ΣF = 0 VÀ Στ = 0.
-7. **Bảo toàn L** = I·ω → kéo tay vào → ω tăng (trượt băng).
+2. **Momen lực $\tau = r \cdot F \cdot \sin\theta$** (N·m) — đo khả năng làm quay.
+3. **Momen quán tính $I = \sum m \cdot r^2$** (kg·m²) — "khối lượng" cho quay.
+4. **$\tau = I \cdot \alpha$** (định luật II cho quay).
+5. **Bảng đối ngẫu** tịnh tiến ↔ quay ($x \leftrightarrow \theta$, $v \leftrightarrow \omega$, $F \leftrightarrow \tau$, $m \leftrightarrow I$).
+6. **Cân bằng tĩnh**: $\sum F = 0$ VÀ $\sum \tau = 0$.
+7. **Bảo toàn $L = I \cdot \omega$** → kéo tay vào → $\omega$ tăng (trượt băng).
 
 **Tiếp theo**: [Lesson 08 — Dao động & Sóng cơ](../lesson-08-oscillation-waves/)

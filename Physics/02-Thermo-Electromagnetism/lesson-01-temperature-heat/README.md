@@ -173,8 +173,8 @@ trong đó:
 ### ❓ Câu hỏi tự nhiên của người đọc
 
 - *"U và Q khác nhau thế nào? Cả hai đều là năng lượng mà?"* U là **trạng thái** (hệ đang chứa bao nhiêu năng lượng — như số dư tài khoản). Q là **dòng truyền** (đã nhận/mất bao nhiêu — như một giao dịch). Nói "hệ có bao nhiêu Q" là sai; chỉ nói "hệ có bao nhiêu U" và "đã truyền bao nhiêu Q".
-- *"Dấu của W theo quy ước nào?"* Bài này dùng quy ước **W = công môi trường làm VÀO hệ** (nén khí → W > 0). Có sách dùng ΔU = Q − W với W = công hệ làm RA. Hai quy ước chỉ khác dấu W — luôn kiểm tra sách đang dùng quy ước nào.
-- *"Hệ cô lập (không Q, không W) thì U thế nào?"* Q = 0, W = 0 → ΔU = 0 → U bảo toàn. Năng lượng bên trong không tự sinh tự mất.
+- *"Dấu của W theo quy ước nào?"* Bài này dùng quy ước **$W$ = công môi trường làm VÀO hệ** (nén khí $\to W > 0$). Có sách dùng $\Delta U = Q - W$ với $W$ = công hệ làm RA. Hai quy ước chỉ khác dấu $W$ — luôn kiểm tra sách đang dùng quy ước nào.
+- *"Hệ cô lập (không Q, không W) thì U thế nào?"* $Q = 0$, $W = 0 \to \Delta U = 0 \to U$ bảo toàn. Năng lượng bên trong không tự sinh tự mất.
 
 ⚠ **Lỗi thường gặp**
 
@@ -219,7 +219,7 @@ trong đó:
 
 ### 4.2. Bảng nhiệt dung riêng
 
-| Chất | c (J/(kg·K)) |
+| Chất | $c$ (J/(kg·K)) |
 |------|----------------|
 | **Nước (lỏng)** | **4186** |
 | Nước đá | 2090 |
@@ -302,12 +302,12 @@ trong đó $L$ = **nhiệt ẩn (latent heat)**:
 
 ### 5.2. Ví dụ — Làm tan 1 kg nước đá ở 0°C thành nước 100°C
 
-| Giai đoạn | ΔT | Q |
+| Giai đoạn | $\Delta T$ | $Q$ |
 |-----------|-----|----|
 | Đá → nước (chuyển pha, 0°C → 0°C) | 0 | $m \cdot L_f = 334\,000 \text{ J}$ |
 | Nước 0°C → 100°C | 100 | $m \cdot c \cdot \Delta T = 418\,600 \text{ J}$ |
 | Nước → hơi (chuyển pha, 100°C → 100°C) | 0 | $m \cdot L_v = 2\,260\,000 \text{ J}$ |
-| **Tổng** | | **3 012 600 J ≈ 3 MJ** |
+| **Tổng** | | **$3\,012\,600 \text{ J} \approx 3 \text{ MJ}$** |
 
 → Phần lớn năng lượng (75%) dành cho **bốc hơi**, không phải làm nóng. Đó là tại sao sôi nước chậm hơn nhiều người tưởng.
 

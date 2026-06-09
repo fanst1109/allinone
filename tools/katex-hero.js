@@ -1,22 +1,22 @@
 /*
- * katex-hero.js — render công thức "hero" tĩnh trong THÂN visualization.html bằng KaTeX.
+ * katex-hero.js — render công thức "hero" bằng KaTeX trong THÂN visualization.html.
  *
- * Dùng có chủ đích (opt-in), KHÔNG đại trà: chỉ render các phần tử được đánh dấu
- * sẵn class "katex-hero" (theo ngoại lệ "hero formula" trong CLAUDE.md). Readout
- * động (số đổi theo slider) KHÔNG đánh dấu class này → vẫn để unicode.
+ * Hai cách dùng:
+ *  1) TĨNH (opt-in): đánh dấu phần tử sẵn có class "katex-hero" → tự render lúc load.
+ *       <div class="katex-hero">$$i^2 = -1$$</div>
+ *  2) ĐỘNG: với readout do JS sinh lại (đổi theo slider/input), gọi:
+ *       el.innerHTML = `... $$t = \\dfrac{\\log 2}{\\log(1+${r}\\%)}$$ ...`;
+ *       window.katexHero.render(el);   // render lại sau mỗi lần cập nhật
  *
- * Cách dùng trong viz:
- *   <div class="katex-hero">$$i^2 = -1$$</div>           // display, căn giữa
- *   <span class="katex-hero">$z = a + bi$</span>          // inline
- *   <script src="../../../tools/katex-hero.js"></script>  // thêm ở cuối <body>
+ * Theo CLAUDE.md, KaTeX thân viz dùng "làm điểm, không đại trà": chỉ áp cho công
+ * thức thực sự đẹp hơn khi stacked (phân số/căn/mũ), không áp cho số đơn.
  *
- * Script tự lazy-load tools/katex/ (css + js + auto-render) suy từ src của chính nó,
- * nên chạy đúng ở mọi độ sâu. Nếu trang không có .katex-hero nào → không tải gì.
+ * Tự lazy-load tools/katex/ (css + js + auto-render) suy từ src của chính script,
+ * nên chạy đúng ở mọi độ sâu. Không có .katex-hero và không gọi render() → không tải gì.
  */
 (function () {
   'use strict';
 
-  // Suy ra thư mục tools/ từ src của chính script này (giống readme-modal.js) → chạy mọi độ sâu.
   var TOOLS_BASE = (function () {
     var me = document.currentScript;
     if (!me) {
@@ -26,14 +26,33 @@
       }
     }
     if (me && me.src) return me.src.replace(/katex-hero\.js(\?.*)?$/, 'katex/');
-    return '../../../tools/katex/'; // fallback cho cấu trúc <Lĩnh vực>/<Tier>/lesson-XX/
+    return '../../../tools/katex/';
   })();
 
-  function run() {
-    var heroes = document.querySelectorAll('.katex-hero');
-    if (!heroes.length) return; // không có công thức hero → không tải KaTeX
+  var KOPTS = {
+    delimiters: [
+      { left: '$$', right: '$$', display: true },
+      { left: '\\[', right: '\\]', display: true },
+      { left: '$', right: '$', display: false },
+      { left: '\\(', right: '\\)', display: false }
+    ],
+    throwOnError: false
+  };
 
-    // CSS (một lần)
+  var ready = false;     // KaTeX + auto-render đã sẵn sàng
+  var loading = false;
+  var queue = [];        // callback chờ KaTeX tải xong
+
+  function flush() {
+    ready = true;
+    var q = queue; queue = [];
+    for (var i = 0; i < q.length; i++) { try { q[i](); } catch (e) { /* noop */ } }
+  }
+
+  function load() {
+    if (loading) return;
+    loading = true;
+
     if (!document.querySelector('link[data-katex]')) {
       var link = document.createElement('link');
       link.rel = 'stylesheet';
@@ -42,36 +61,39 @@
       document.head.appendChild(link);
     }
 
-    var render = function () {
-      var opts = {
-        delimiters: [
-          { left: '$$', right: '$$', display: true },
-          { left: '\\[', right: '\\]', display: true },
-          { left: '$', right: '$', display: false },
-          { left: '\\(', right: '\\)', display: false }
-        ],
-        throwOnError: false
-      };
-      for (var i = 0; i < heroes.length; i++) {
-        try { window.renderMathInElement(heroes[i], opts); } catch (e) { /* giữ nguyên text nếu lỗi */ }
-      }
-    };
-
-    var loadAutoRender = function () {
-      if (window.renderMathInElement) { render(); return; }
+    function afterKatex() {
+      if (window.renderMathInElement) { flush(); return; }
       var ar = document.createElement('script');
       ar.src = TOOLS_BASE + 'auto-render.min.js';
-      ar.onload = render;
+      ar.onload = flush;
       ar.onerror = function () { console.warn('[katex-hero] Không tải được auto-render (' + ar.src + ')'); };
       document.head.appendChild(ar);
-    };
+    }
 
-    if (window.katex) { loadAutoRender(); return; }
+    if (window.katex) { afterKatex(); return; }
     var sc = document.createElement('script');
     sc.src = TOOLS_BASE + 'katex.min.js';
-    sc.onload = loadAutoRender;
+    sc.onload = afterKatex;
     sc.onerror = function () { console.warn('[katex-hero] Không tải được KaTeX (' + sc.src + ') — công thức giữ dạng text.'); };
     document.head.appendChild(sc);
+  }
+
+  // Render công thức trong 1 phần tử. An toàn gọi nhiều lần (readout động).
+  function render(el) {
+    if (!el) return;
+    if (ready && window.renderMathInElement) {
+      try { window.renderMathInElement(el, KOPTS); } catch (e) { /* giữ text */ }
+      return;
+    }
+    queue.push(function () { try { window.renderMathInElement(el, KOPTS); } catch (e) { /* giữ text */ } });
+    load();
+  }
+
+  window.katexHero = { render: render };
+
+  function run() {
+    var heroes = document.querySelectorAll('.katex-hero');
+    for (var i = 0; i < heroes.length; i++) render(heroes[i]);
   }
 
   if (document.readyState === 'loading') {

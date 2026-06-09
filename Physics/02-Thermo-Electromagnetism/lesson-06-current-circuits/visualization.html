@@ -57,7 +57,7 @@
     <label>R (Ω):</label>
     <input type="number" id="ohR" step="10" value="806" oninput="calcOhm()">
   </div>
-  <div class="result" id="ohmResult"></div>
+  <div class="result katex-hero" id="ohmResult"></div>
 </div>
 
 <h2>2. Circuit Builder — 3 điện trở</h2>
@@ -78,7 +78,7 @@
     <input type="number" id="cbV" step="1" value="12" oninput="calcCircuit()">
   </div>
   <svg class="scene" id="cbSvg" viewBox="0 0 720 300"></svg>
-  <div class="result" id="cbResult"></div>
+  <div class="result katex-hero" id="cbResult"></div>
 </div>
 
 <h2>🌍 Đời sống thực tế — Vì sao bật nhiều thiết bị lại "nhảy aptomat"?</h2>
@@ -97,7 +97,7 @@
     <input type="range" id="apRating" min="10" max="40" step="1" value="20" oninput="calcBreaker()">
     <span class="stat" id="apRatingVal">20 A</span>
   </div>
-  <div class="result" id="apResult"></div>
+  <div class="result katex-hero" id="apResult"></div>
 </div>
 
 </main>
@@ -109,14 +109,16 @@ function calcOhm() {
   let R = parseFloat(document.getElementById("ohR").value);
   let result = "";
   if (V === 0 && I && R) { V = I * R; result = `V = I·R = ${I} × ${R} = <strong>${V.toFixed(2)} V</strong>`; }
-  else if (I === 0 && V && R) { I = V / R; result = `I = V/R = ${V}/${R} = <strong>${I.toFixed(3)} A</strong>`; }
-  else if (R === 0 && V && I) { R = V / I; result = `R = V/I = ${V}/${I} = <strong>${R.toFixed(2)} Ω</strong>`; }
-  else { I = V / R; result = `I = V/R = ${V}/${R} = <strong>${I.toFixed(3)} A</strong> (cả 3 đều có, tính I)`; }
+  else if (I === 0 && V && R) { I = V / R; result = `$I = \\dfrac{V}{R} = \\dfrac{${V}}{${R}}$ = <strong>${I.toFixed(3)} A</strong>`; }
+  else if (R === 0 && V && I) { R = V / I; result = `$R = \\dfrac{V}{I} = \\dfrac{${V}}{${I}}$ = <strong>${R.toFixed(2)} Ω</strong>`; }
+  else { I = V / R; result = `$I = \\dfrac{V}{R} = \\dfrac{${V}}{${R}}$ = <strong>${I.toFixed(3)} A</strong> (cả 3 đều có, tính I)`; }
   const P = V * I;
-  document.getElementById("ohmResult").innerHTML = `
+  const ohmEl = document.getElementById("ohmResult");
+  ohmEl.innerHTML = `
     ${result}
     <div style="margin-top:8px; font-family:monospace; font-size:14px">P = V·I = ${V.toFixed(1)}·${I.toFixed(3)} = <strong>${P.toFixed(2)} W</strong></div>
   `;
+  if (window.katexHero) window.katexHero.render(ohmEl);
 }
 
 let circuitMode = 'series';
@@ -145,7 +147,7 @@ function calcCircuit() {
         `R_tổng = R₁ + R₂ + R₃ = ${R1} + ${R2} + ${R3} = <strong>${Rtotal.toFixed(2)} Ω</strong>` :
         `1/R_tổng = 1/${R1} + 1/${R2} + 1/${R3} → R_tổng = <strong>${Rtotal.toFixed(2)} Ω</strong>`}
     </div>
-    <div style="margin-top:8px; font-family:monospace; font-size:15px">I_tổng = V / R_tổng = ${V} / ${Rtotal.toFixed(2)} = <strong>${Itotal.toFixed(3)} A</strong></div>
+    <div style="margin-top:8px; font-size:15px">I_tổng = V / R_tổng = $\\dfrac{${V}}{${Rtotal.toFixed(2)}}$ = <strong>${Itotal.toFixed(3)} A</strong></div>
   `;
   // Per-resistor
   if (circuitMode === 'series') {
@@ -156,10 +158,12 @@ function calcCircuit() {
   } else {
     [R1, R2, R3].forEach((R, i) => {
       const IR = V / R;
-      html += `<div class="step" style="padding:6px 12px; background:#f1f5f9; margin:4px 0; border-left:3px solid #1e40af; font-family:monospace; font-size:13px">R${i+1}: I = V/R = ${V}/${R} = <strong>${IR.toFixed(3)} A</strong></div>`;
+      html += `<div class="step" style="padding:6px 12px; background:#f1f5f9; margin:4px 0; border-left:3px solid #1e40af; font-size:13px">R${i+1}: I = V/R = $\\dfrac{${V}}{${R}}$ = <strong>${IR.toFixed(3)} A</strong></div>`;
     });
   }
-  document.getElementById("cbResult").innerHTML = html;
+  const cbEl = document.getElementById("cbResult");
+  cbEl.innerHTML = html;
+  if (window.katexHero) window.katexHero.render(cbEl);
   drawCircuit(R1, R2, R3, V);
 }
 
@@ -272,16 +276,17 @@ function calcBreaker() {
     if (on) {
       totalP += a.P;
       const I = a.P / Vmains;
-      lines += `<div style="padding:5px 12px; background:#f1f5f9; margin:3px 0; border-left:3px solid #1e40af; font-family:monospace; font-size:13px">${a.name}: I = P/U = ${a.P}/${Vmains} = ${I.toFixed(2)} A</div>`;
+      lines += `<div style="padding:5px 12px; background:#f1f5f9; margin:3px 0; border-left:3px solid #1e40af; font-size:13px">${a.name}: I = P/U = $\\dfrac{${a.P}}{${Vmains}}$ = ${I.toFixed(2)} A</div>`;
     }
   });
   const Itotal = totalP / Vmains;
   const tripped = Itotal > rating;
-  document.getElementById("apResult").innerHTML = `
+  const apEl = document.getElementById("apResult");
+  apEl.innerHTML = `
     ${lines || '<div style="font-size:13px">Chưa bật thiết bị nào.</div>'}
     <div class="row" style="margin-top:8px">
       <span class="stat">Tổng công suất: <strong>${totalP} W</strong></span>
-      <span class="stat">Tổng dòng: I = P/U = ${totalP}/${Vmains} = <strong>${Itotal.toFixed(2)} A</strong></span>
+      <span class="stat">Tổng dòng: I = P/U = $\\dfrac{${totalP}}{${Vmains}}$ = <strong>${Itotal.toFixed(2)} A</strong></span>
     </div>
     <div style="margin-top:8px; padding:12px; background:${tripped ? '#fee2e2' : '#dcfce7'}; border-radius:6px; font-weight:700; color:${tripped ? '#dc2626' : '#047857'}">
       ${tripped ? `⚡ I = ${Itotal.toFixed(1)} A > ${rating} A → APTOMAT NGẮT! Cúp điện cả mạch.` : `✓ I = ${Itotal.toFixed(1)} A ≤ ${rating} A → an toàn, aptomat không ngắt.`}
@@ -293,6 +298,7 @@ function calcBreaker() {
       bật ấm siêu tốc + bình nóng lạnh + máy lạnh cùng lúc hay "nhảy aptomat".
     </div>
   `;
+  if (window.katexHero) window.katexHero.render(apEl);
 }
 
 // Init
@@ -301,6 +307,7 @@ calcCircuit();
 document.addEventListener("DOMContentLoaded", calcBreaker);
 </script>
 
+<script src="../../../tools/katex-hero.js"></script>
 <script src="../../../tools/marked.min.js"></script>
 <script src="./README.data.js"></script>
 <script src="../../../tools/readme-modal.js"></script>

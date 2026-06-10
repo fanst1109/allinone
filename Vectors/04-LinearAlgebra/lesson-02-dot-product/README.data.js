@@ -13,19 +13,19 @@ window.README_MD = `# Lesson 02 — Dot product và Cosine similarity
 
 Sau bài này, bạn sẽ:
 
-1. **Tính được dot product** \`u · v\` bằng cả định nghĩa đại số (\`Σ uᵢvᵢ\`) và định nghĩa hình học (\`|u|·|v|·cosθ\`).
+1. **Tính được dot product** $\\mathbf{u} \\cdot \\mathbf{v}$ bằng cả định nghĩa đại số ($\\sum_i u_i v_i$) và định nghĩa hình học ($\\lVert u \\rVert \\lVert v \\rVert \\cos\\theta$).
 2. **Chứng minh hai định nghĩa bằng nhau** thông qua định lý cosin (đã học Tầng 2).
 3. **Tính cosine similarity** giữa hai vector và đọc đúng ý nghĩa: cùng hướng / vuông góc / ngược hướng.
-4. **Tính projection** \`proj_v(u)\` của vector này lên vector khác.
-5. **Hiểu Cauchy-Schwarz**: tại sao \`|u·v| ≤ |u|·|v|\`.
+4. **Tính projection** $\\operatorname{proj}_v(u)$ của vector này lên vector khác.
+5. **Hiểu Cauchy-Schwarz**: tại sao $\\lvert \\mathbf{u} \\cdot \\mathbf{v} \\rvert \\leq \\lVert u \\rVert \\lVert v \\rVert$.
 6. **Áp dụng cosine similarity** cho embedding 4D, hình dung được pipeline RAG đầu-cuối.
-7. **Nối tới Transformer**: hiểu vì sao attention score = scaled dot product \`q·k / √d\`.
+7. **Nối tới Transformer**: hiểu vì sao attention score = scaled dot product $\\mathbf{q} \\cdot \\mathbf{k} / \\sqrt{d}$.
 
 ## Kiến thức tiền đề
 
-- [Lesson 01 — Vector chính thức](../lesson-01-vectors/) (Tầng 4): cộng vector, scalar multiply, norm \`|v| = √(Σ vᵢ²)\`.
-- [Tầng 2 Lesson 05 — Identities + Định lý cosin](../../02-Trigonometry/lesson-05-identities-cosine-law/): chính thức công thức \`c² = a² + b² − 2ab·cosC\`. Định lý này là cây cầu nối định nghĩa đại số và hình học của dot product.
-- [Tầng 2 Lesson 03 — Đường tròn đơn vị](../../02-Trigonometry/lesson-03-unit-circle/): biết \`cosθ ∈ [-1, 1]\`.
+- [Lesson 01 — Vector chính thức](../lesson-01-vectors/) (Tầng 4): cộng vector, scalar multiply, norm $\\lVert v \\rVert = \\sqrt{\\sum_i v_i^2}$.
+- [Tầng 2 Lesson 05 — Identities + Định lý cosin](../../02-Trigonometry/lesson-05-identities-cosine-law/): chính thức công thức $c^2 = a^2 + b^2 - 2ab\\cos C$. Định lý này là cây cầu nối định nghĩa đại số và hình học của dot product.
+- [Tầng 2 Lesson 03 — Đường tròn đơn vị](../../02-Trigonometry/lesson-03-unit-circle/): biết $\\cos\\theta \\in [-1, 1]$.
 
 ---
 
@@ -38,139 +38,127 @@ Trong Lesson 01 ta đã có vector, biết cộng và nhân scalar. Nhưng còn 
 > **Hai vector "giống nhau" tới mức nào?**
 
 Ví dụ:
-- \`u = (3, 0)\` và \`v = (2, 0)\` — rõ ràng cùng hướng (cùng chiều dương trục Ox).
-- \`u = (3, 0)\` và \`v = (0, 4)\` — vuông góc, "không liên quan".
-- \`u = (3, 0)\` và \`v = (-2, 0)\` — ngược hướng.
+- $\\mathbf{u} = (3, 0)$ và $\\mathbf{v} = (2, 0)$ — rõ ràng cùng hướng (cùng chiều dương trục Ox).
+- $\\mathbf{u} = (3, 0)$ và $\\mathbf{v} = (0, 4)$ — vuông góc, "không liên quan".
+- $\\mathbf{u} = (3, 0)$ và $\\mathbf{v} = (-2, 0)$ — ngược hướng.
 
 Để **đo độ giống nhau về hướng**, ta cần một phép toán mới: **dot product** (tích vô hướng). Đây là phép toán kết hợp hai vector và cho ra **một số duy nhất** (không phải vector). Con số này mã hoá cả độ lớn lẫn góc giữa hai vector.
 
-> **💡 Trực giác**: Hãy nghĩ dot product như một "máy đo chung hướng". Khi bạn đẩy một chiếc xe (lực \`F\`) đi được quãng đường \`d\`, công sinh ra là \`F · d · cosθ\` — đây chính xác là dot product của vector lực và vector dịch chuyển. Nếu đẩy vuông góc với hướng đi (θ = 90°), công bằng 0 — xe vẫn đi nhưng không phải nhờ lực của bạn. Dot product chính là phép toán đo "bao nhiêu phần của u đi cùng hướng với v".
+> **💡 Trực giác**: Hãy nghĩ dot product như một "máy đo chung hướng". Khi bạn đẩy một chiếc xe (lực $\\mathbf{F}$) đi được quãng đường $d$, công sinh ra là $\\mathbf{F} \\cdot d \\cdot \\cos\\theta$ — đây chính xác là dot product của vector lực và vector dịch chuyển. Nếu đẩy vuông góc với hướng đi ($\\theta = 90°$), công bằng 0 — xe vẫn đi nhưng không phải nhờ lực của bạn. Dot product chính là phép toán đo "bao nhiêu phần của u đi cùng hướng với v".
 
 ### 1.2 Định nghĩa đại số
 
-**Cho hai vector \`u, v ∈ ℝⁿ\`**:
+**Cho hai vector $\\mathbf{u}, \\mathbf{v} \\in \\mathbb{R}^n$**:
 
-\`\`\`
-u · v = u₁v₁ + u₂v₂ + ... + uₙvₙ = Σᵢ uᵢvᵢ
-\`\`\`
+$$\\mathbf{u} \\cdot \\mathbf{v} = u_1 v_1 + u_2 v_2 + \\cdots + u_n v_n = \\sum_i u_i v_i$$
 
 Kết quả là **một số thực** (scalar), KHÔNG phải vector. Vì vậy còn gọi là **tích vô hướng** (scalar product / inner product).
 
 **Ví dụ tính tay**:
 
-1. \`u = (3, 4)\`, \`v = (2, 1)\` → \`u·v = 3·2 + 4·1 = 6 + 4 = 10\`.
-2. \`u = (1, 0, 0)\`, \`v = (0, 1, 0)\` → \`u·v = 1·0 + 0·1 + 0·0 = 0\`. (Hai trục Ox, Oy vuông góc → tích bằng 0, sẽ giải thích ngay.)
-3. \`u = (1, 2, 3)\`, \`v = (4, 5, 6)\` → \`u·v = 4 + 10 + 18 = 32\`.
-4. \`u = (2, -1)\`, \`v = (1, 2)\` → \`u·v = 2·1 + (-1)·2 = 2 - 2 = 0\`. (Vuông góc!)
-5. \`u = (3, 0)\`, \`v = (-2, 0)\` → \`u·v = 3·(-2) + 0·0 = -6\`. (Ngược hướng → âm.)
-6. \`u = (1, 1, 1, 1)\`, \`v = (1, 1, 1, 1)\` → \`u·v = 1+1+1+1 = 4 = |u|² \`. (Tự dot với chính mình = bình phương độ dài.)
+1. $\\mathbf{u} = (3, 4)$, $\\mathbf{v} = (2, 1)$ → $\\mathbf{u} \\cdot \\mathbf{v} = 3 \\cdot 2 + 4 \\cdot 1 = 6 + 4 = 10$.
+2. $\\mathbf{u} = (1, 0, 0)$, $\\mathbf{v} = (0, 1, 0)$ → $\\mathbf{u} \\cdot \\mathbf{v} = 1 \\cdot 0 + 0 \\cdot 1 + 0 \\cdot 0 = 0$. (Hai trục Ox, Oy vuông góc → tích bằng 0, sẽ giải thích ngay.)
+3. $\\mathbf{u} = (1, 2, 3)$, $\\mathbf{v} = (4, 5, 6)$ → $\\mathbf{u} \\cdot \\mathbf{v} = 4 + 10 + 18 = 32$.
+4. $\\mathbf{u} = (2, -1)$, $\\mathbf{v} = (1, 2)$ → $\\mathbf{u} \\cdot \\mathbf{v} = 2 \\cdot 1 + (-1) \\cdot 2 = 2 - 2 = 0$. (Vuông góc!)
+5. $\\mathbf{u} = (3, 0)$, $\\mathbf{v} = (-2, 0)$ → $\\mathbf{u} \\cdot \\mathbf{v} = 3 \\cdot (-2) + 0 \\cdot 0 = -6$. (Ngược hướng → âm.)
+6. $\\mathbf{u} = (1, 1, 1, 1)$, $\\mathbf{v} = (1, 1, 1, 1)$ → $\\mathbf{u} \\cdot \\mathbf{v} = 1+1+1+1 = 4 = \\lVert u \\rVert^2$. (Tự dot với chính mình = bình phương độ dài.)
 
 > **❓ Câu hỏi tự nhiên**: Tại sao lại nhân từng cặp tọa độ rồi cộng? Có vẻ tùy tiện?
 >
-> **Đáp**: Định nghĩa này KHÔNG tùy tiện — nó chính là khai triển của công thức hình học \`|u||v|cosθ\` (sẽ chứng minh ở mục 1.4). Cách dễ nhớ: dot product là cách rẻ nhất để mã hóa cả độ lớn + góc giữa hai vector mà không phải đo độ dài hay tính \`arccos\` — chỉ cần nhân-cộng.
+> **Đáp**: Định nghĩa này KHÔNG tùy tiện — nó chính là khai triển của công thức hình học $\\lVert u \\rVert \\lVert v \\rVert \\cos\\theta$ (sẽ chứng minh ở mục 1.4). Cách dễ nhớ: dot product là cách rẻ nhất để mã hóa cả độ lớn + góc giữa hai vector mà không phải đo độ dài hay tính $\\arccos$ — chỉ cần nhân-cộng.
 
 ### 1.3 Định nghĩa hình học
 
-**Cho hai vector \`u, v\` có góc \`θ\` giữa chúng (0 ≤ θ ≤ π)**:
+**Cho hai vector $\\mathbf{u}, \\mathbf{v}$ có góc $\\theta$ giữa chúng ($0 \\leq \\theta \\leq \\pi$)**:
 
-\`\`\`
-u · v = |u| · |v| · cos θ
-\`\`\`
+$$\\mathbf{u} \\cdot \\mathbf{v} = \\lVert u \\rVert \\cdot \\lVert v \\rVert \\cdot \\cos\\theta$$
 
 Trong đó:
-- \`|u|\`, \`|v|\` là độ dài (norm) của u và v.
-- \`θ\` là góc giữa u và v.
+- $\\lVert u \\rVert$, $\\lVert v \\rVert$ là độ dài (norm) của u và v.
+- $\\theta$ là góc giữa u và v.
 
 **Ý nghĩa từng phần**:
-- Nếu θ = 0° (cùng hướng): \`cosθ = 1\`, dot product = \`|u|·|v|\` (dương, lớn nhất).
-- Nếu θ = 90° (vuông góc): \`cosθ = 0\`, dot product = \`0\`.
-- Nếu θ = 180° (ngược hướng): \`cosθ = -1\`, dot product = \`-|u|·|v|\` (âm, nhỏ nhất).
+- Nếu $\\theta = 0°$ (cùng hướng): $\\cos\\theta = 1$, dot product $= \\lVert u \\rVert \\lVert v \\rVert$ (dương, lớn nhất).
+- Nếu $\\theta = 90°$ (vuông góc): $\\cos\\theta = 0$, dot product $= 0$.
+- Nếu $\\theta = 180°$ (ngược hướng): $\\cos\\theta = -1$, dot product $= -\\lVert u \\rVert \\lVert v \\rVert$ (âm, nhỏ nhất).
 
-> **💡 Trực giác hình học**: \`|u|cosθ\` chính là độ dài "bóng đổ" của u khi chiếu vuông góc xuống đường thẳng chứa v. Nhân với \`|v|\` → ta được "phần u đi theo hướng v, nhân với độ dài v". Đó là lý do dot product đo "chung hướng".
+> **💡 Trực giác hình học**: $\\lVert u \\rVert \\cos\\theta$ chính là độ dài "bóng đổ" của u khi chiếu vuông góc xuống đường thẳng chứa v. Nhân với $\\lVert v \\rVert$ → ta được "phần u đi theo hướng v, nhân với độ dài v". Đó là lý do dot product đo "chung hướng".
 
 **Hai ví dụ mở đầu** (vẽ ra giấy để check):
 
-- \`u = (3, 0)\`, \`v = (2, 0)\`. Cả hai cùng hướng Ox, θ = 0. \`|u| = 3\`, \`|v| = 2\`. \`u·v = 3·2·cos0 = 6·1 = 6\`. Verify đại số: \`3·2 + 0·0 = 6\`. ✓
-- \`u = (3, 0)\`, \`v = (0, 4)\`. Vuông góc, θ = 90°. \`|u| = 3\`, \`|v| = 4\`. \`u·v = 3·4·cos90° = 0\`. Verify đại số: \`3·0 + 0·4 = 0\`. ✓
+- $\\mathbf{u} = (3, 0)$, $\\mathbf{v} = (2, 0)$. Cả hai cùng hướng Ox, $\\theta = 0$. $\\lVert u \\rVert = 3$, $\\lVert v \\rVert = 2$. $\\mathbf{u} \\cdot \\mathbf{v} = 3 \\cdot 2 \\cdot \\cos 0 = 6 \\cdot 1 = 6$. Verify đại số: $3 \\cdot 2 + 0 \\cdot 0 = 6$. ✓
+- $\\mathbf{u} = (3, 0)$, $\\mathbf{v} = (0, 4)$. Vuông góc, $\\theta = 90°$. $\\lVert u \\rVert = 3$, $\\lVert v \\rVert = 4$. $\\mathbf{u} \\cdot \\mathbf{v} = 3 \\cdot 4 \\cdot \\cos 90° = 0$. Verify đại số: $3 \\cdot 0 + 0 \\cdot 4 = 0$. ✓
 
 ### 1.4 Chứng minh: hai định nghĩa bằng nhau
 
 Đây là kết quả quan trọng nhất của bài. Ta cần chứng minh:
 
-\`\`\`
-u₁v₁ + u₂v₂ + ... + uₙvₙ  =  |u|·|v|·cosθ
-\`\`\`
+$$u_1 v_1 + u_2 v_2 + \\cdots + u_n v_n = \\lVert u \\rVert \\cdot \\lVert v \\rVert \\cdot \\cos\\theta$$
 
-**Trường hợp 2D** (tổng quát tương tự, dùng định lý cosin trong ℝⁿ qua khai triển hình học của 3 điểm bất kỳ).
+**Trường hợp 2D** (tổng quát tương tự, dùng định lý cosin trong $\\mathbb{R}^n$ qua khai triển hình học của 3 điểm bất kỳ).
 
-Cho \`u = (u₁, u₂)\` và \`v = (v₁, v₂)\`, cả hai đặt gốc tại O. Gọi:
-- Điểm \`A = u\`, điểm \`B = v\` (xem u, v như vector vị trí).
-- Vector \`B − A = v − u\` (đi từ A đến B).
+Cho $\\mathbf{u} = (u_1, u_2)$ và $\\mathbf{v} = (v_1, v_2)$, cả hai đặt gốc tại O. Gọi:
+- Điểm $A = \\mathbf{u}$, điểm $B = \\mathbf{v}$ (xem u, v như vector vị trí).
+- Vector $B - A = \\mathbf{v} - \\mathbf{u}$ (đi từ A đến B).
 
 Ba điểm O, A, B tạo thành tam giác. Độ dài 3 cạnh:
-- \`OA = |u|\`
-- \`OB = |v|\`
-- \`AB = |v − u|\`
+- $OA = \\lVert u \\rVert$
+- $OB = \\lVert v \\rVert$
+- $AB = \\lVert v - u \\rVert$
 
-Góc tại đỉnh O chính là \`θ\` (góc giữa u và v).
+Góc tại đỉnh O chính là $\\theta$ (góc giữa u và v).
 
-**Bước 1 — Áp dụng định lý cosin** (Tầng 2 Lesson 05) cho cạnh AB đối diện góc θ:
+**Bước 1 — Áp dụng định lý cosin** (Tầng 2 Lesson 05) cho cạnh AB đối diện góc $\\theta$:
 
-\`\`\`
-|v − u|² = |u|² + |v|² − 2|u||v|cosθ
-\`\`\`
+$$\\lVert v - u \\rVert^2 = \\lVert u \\rVert^2 + \\lVert v \\rVert^2 - 2\\lVert u \\rVert \\lVert v \\rVert \\cos\\theta$$
 
-**Bước 2 — Khai triển \`|v − u|²\` bằng đại số** (theo công thức norm):
+**Bước 2 — Khai triển $\\lVert v - u \\rVert^2$ bằng đại số** (theo công thức norm):
 
-\`\`\`
-|v − u|² = (v₁ − u₁)² + (v₂ − u₂)²
-        = v₁² − 2u₁v₁ + u₁² + v₂² − 2u₂v₂ + u₂²
-        = (u₁² + u₂²) + (v₁² + v₂²) − 2(u₁v₁ + u₂v₂)
-        = |u|² + |v|² − 2(u₁v₁ + u₂v₂)
-\`\`\`
+$$\\begin{aligned}
+\\lVert v - u \\rVert^2 &= (v_1 - u_1)^2 + (v_2 - u_2)^2 \\\\
+&= v_1^2 - 2u_1 v_1 + u_1^2 + v_2^2 - 2u_2 v_2 + u_2^2 \\\\
+&= (u_1^2 + u_2^2) + (v_1^2 + v_2^2) - 2(u_1 v_1 + u_2 v_2) \\\\
+&= \\lVert u \\rVert^2 + \\lVert v \\rVert^2 - 2(u_1 v_1 + u_2 v_2)
+\\end{aligned}$$
 
-**Bước 3 — So sánh hai biểu thức của \`|v − u|²\`**:
+**Bước 3 — So sánh hai biểu thức của $\\lVert v - u \\rVert^2$**:
 
-\`\`\`
-|u|² + |v|² − 2|u||v|cosθ  =  |u|² + |v|² − 2(u₁v₁ + u₂v₂)
-\`\`\`
+$$\\lVert u \\rVert^2 + \\lVert v \\rVert^2 - 2\\lVert u \\rVert \\lVert v \\rVert \\cos\\theta = \\lVert u \\rVert^2 + \\lVert v \\rVert^2 - 2(u_1 v_1 + u_2 v_2)$$
 
-Khử \`|u|² + |v|²\` ở hai vế, chia cả hai vế cho \`−2\`:
+Khử $\\lVert u \\rVert^2 + \\lVert v \\rVert^2$ ở hai vế, chia cả hai vế cho $-2$:
 
-\`\`\`
-|u|·|v|·cosθ = u₁v₁ + u₂v₂
-\`\`\`
+$$\\lVert u \\rVert \\cdot \\lVert v \\rVert \\cdot \\cos\\theta = u_1 v_1 + u_2 v_2$$
 
 Đây chính là **hai định nghĩa của dot product khớp nhau** trong 2D. ∎
 
-**Mở rộng ℝⁿ**: Lập luận hệt như vậy — vẫn có 3 điểm O, A, B với A = u, B = v, định lý cosin vẫn áp dụng được cho **bất kỳ tam giác phẳng nào trong không gian ℝⁿ** (vì 3 điểm luôn nằm trên một mặt phẳng 2D). Khai triển \`|v−u|² = Σ(vᵢ−uᵢ)²\` ra rồi so sánh.
+**Mở rộng $\\mathbb{R}^n$**: Lập luận hệt như vậy — vẫn có 3 điểm O, A, B với $A = \\mathbf{u}$, $B = \\mathbf{v}$, định lý cosin vẫn áp dụng được cho **bất kỳ tam giác phẳng nào trong không gian $\\mathbb{R}^n$** (vì 3 điểm luôn nằm trên một mặt phẳng 2D). Khai triển $\\lVert v - u \\rVert^2 = \\sum_i (v_i - u_i)^2$ ra rồi so sánh.
 
 > **⚠ Lỗi thường gặp**: Có người chỉ nhớ một trong hai công thức rồi dùng nhầm. **Cả hai luôn cho cùng kết quả** — chọn công thức nào tùy bối cảnh:
-> - Khi biết tọa độ → dùng đại số (\`Σ uᵢvᵢ\`).
-> - Khi biết độ dài và góc → dùng hình học (\`|u||v|cosθ\`).
-> - Khi muốn TÍNH góc → kết hợp cả hai để giải ra \`cosθ\`.
+> - Khi biết tọa độ → dùng đại số ($\\sum_i u_i v_i$).
+> - Khi biết độ dài và góc → dùng hình học ($\\lVert u \\rVert \\lVert v \\rVert \\cos\\theta$).
+> - Khi muốn TÍNH góc → kết hợp cả hai để giải ra $\\cos\\theta$.
 
 ### 1.5 Verify cả 2 vế bằng số
 
-Lấy \`u = (3, 4)\` và \`v = (4, 0)\`:
+Lấy $\\mathbf{u} = (3, 4)$ và $\\mathbf{v} = (4, 0)$:
 
-- Đại số: \`u·v = 3·4 + 4·0 = 12\`.
-- Hình học: \`|u| = √(9+16) = 5\`, \`|v| = 4\`. Góc θ: vì v nằm trên trục Ox và u tạo góc \`arctan(4/3) ≈ 53.13°\` với Ox, ta có \`θ ≈ 53.13°\`. \`cosθ = 3/5 = 0.6\`. → \`|u||v|cosθ = 5·4·0.6 = 12\`. ✓
+- Đại số: $\\mathbf{u} \\cdot \\mathbf{v} = 3 \\cdot 4 + 4 \\cdot 0 = 12$.
+- Hình học: $\\lVert u \\rVert = \\sqrt{9+16} = 5$, $\\lVert v \\rVert = 4$. Góc $\\theta$: vì v nằm trên trục Ox và u tạo góc $\\arctan(4/3) \\approx 53.13°$ với Ox, ta có $\\theta \\approx 53.13°$. $\\cos\\theta = 3/5 = 0.6$. → $\\lVert u \\rVert \\lVert v \\rVert \\cos\\theta = 5 \\cdot 4 \\cdot 0.6 = 12$. ✓
 
-Lấy \`u = (1, 1, 1)\` và \`v = (1, 1, 1)\`:
+Lấy $\\mathbf{u} = (1, 1, 1)$ và $\\mathbf{v} = (1, 1, 1)$:
 
-- Đại số: \`1 + 1 + 1 = 3\`.
-- Hình học: \`|u| = |v| = √3\`. Vì u = v, θ = 0, cosθ = 1. → \`√3·√3·1 = 3\`. ✓
+- Đại số: $1 + 1 + 1 = 3$.
+- Hình học: $\\lVert u \\rVert = \\lVert v \\rVert = \\sqrt{3}$. Vì $\\mathbf{u} = \\mathbf{v}$, $\\theta = 0$, $\\cos\\theta = 1$. → $\\sqrt{3} \\cdot \\sqrt{3} \\cdot 1 = 3$. ✓
 
 > **🔁 Dừng lại tự kiểm tra**:
 >
-> *Câu hỏi*: Tính \`u · v\` với \`u = (2, -3, 1)\`, \`v = (1, 2, 4)\` bằng cả hai cách (nếu có thể).
+> *Câu hỏi*: Tính $\\mathbf{u} \\cdot \\mathbf{v}$ với $\\mathbf{u} = (2, -3, 1)$, $\\mathbf{v} = (1, 2, 4)$ bằng cả hai cách (nếu có thể).
 >
 > <details><summary>Đáp án</summary>
 >
-> Đại số: \`2·1 + (-3)·2 + 1·4 = 2 - 6 + 4 = 0\`.
+> Đại số: $2 \\cdot 1 + (-3) \\cdot 2 + 1 \\cdot 4 = 2 - 6 + 4 = 0$.
 >
-> Hình học: dot product = 0 → \`cosθ = 0\` → θ = 90°. Hai vector vuông góc trong ℝ³. Ta không cần tính norm và cosθ ngược lại — đại số đã cho đáp án 0 trực tiếp.
+> Hình học: dot product = 0 → $\\cos\\theta = 0$ → $\\theta = 90°$. Hai vector vuông góc trong $\\mathbb{R}^3$. Ta không cần tính norm và $\\cos\\theta$ ngược lại — đại số đã cho đáp án 0 trực tiếp.
 > </details>
 
 ### 1.6 Cách viết và ký hiệu
@@ -179,19 +167,19 @@ Có nhiều ký hiệu tương đương:
 
 | Ký hiệu | Dùng ở đâu |
 |---------|------------|
-| \`u · v\` | Phổ thông, sách giáo khoa |
-| \`⟨u, v⟩\` | Toán cao cấp, "inner product" |
-| \`uᵀv\` | Đại số tuyến tính (xem vector cột, u transpose nhân v) |
-| \`dot(u, v)\` | Code (Python/Go/...) |
+| $\\mathbf{u} \\cdot \\mathbf{v}$ | Phổ thông, sách giáo khoa |
+| $\\langle \\mathbf{u}, \\mathbf{v} \\rangle$ | Toán cao cấp, "inner product" |
+| $\\mathbf{u}^\\top \\mathbf{v}$ | Đại số tuyến tính (xem vector cột, u transpose nhân v) |
+| $\\operatorname{dot}(\\mathbf{u}, \\mathbf{v})$ | Code (Python/Go/...) |
 
-Trong bài này dùng \`u · v\` cho thống nhất.
+Trong bài này dùng $\\mathbf{u} \\cdot \\mathbf{v}$ cho thống nhất.
 
 > **📝 Tóm tắt mục 1**:
-> - Dot product \`u·v\` cho ra **một số** (không phải vector).
-> - **Đại số**: \`Σ uᵢvᵢ\` — nhân từng cặp tọa độ rồi cộng.
-> - **Hình học**: \`|u|·|v|·cosθ\` — độ lớn × cosine góc.
+> - Dot product $\\mathbf{u} \\cdot \\mathbf{v}$ cho ra **một số** (không phải vector).
+> - **Đại số**: $\\sum_i u_i v_i$ — nhân từng cặp tọa độ rồi cộng.
+> - **Hình học**: $\\lVert u \\rVert \\cdot \\lVert v \\rVert \\cdot \\cos\\theta$ — độ lớn × cosine góc.
 > - Hai định nghĩa bằng nhau (chứng minh qua định lý cosin Tầng 2).
-> - Dấu của dot product: dương ↔ θ nhọn, 0 ↔ vuông góc, âm ↔ θ tù.
+> - Dấu của dot product: dương ↔ $\\theta$ nhọn, 0 ↔ vuông góc, âm ↔ $\\theta$ tù.
 
 ---
 
@@ -201,52 +189,48 @@ Trong bài này dùng \`u · v\` cho thống nhất.
 
 Từ công thức hình học, **rearrange**:
 
-\`\`\`
-cosθ = (u · v) / (|u| · |v|)
-\`\`\`
+$$\\cos\\theta = \\frac{\\mathbf{u} \\cdot \\mathbf{v}}{\\lVert u \\rVert \\cdot \\lVert v \\rVert}$$
 
 Đây chính là **cosine similarity** giữa hai vector:
 
-\`\`\`
-cos_sim(u, v) = (u · v) / (|u| · |v|)
-\`\`\`
+$$\\operatorname{cos\\_sim}(\\mathbf{u}, \\mathbf{v}) = \\frac{\\mathbf{u} \\cdot \\mathbf{v}}{\\lVert u \\rVert \\cdot \\lVert v \\rVert}$$
 
-Range: \`cos_sim ∈ [-1, 1]\` (vì cosine của góc bất kỳ luôn nằm trong khoảng này — đã học Tầng 2 Lesson 03).
+Range: $\\operatorname{cos\\_sim} \\in [-1, 1]$ (vì cosine của góc bất kỳ luôn nằm trong khoảng này — đã học Tầng 2 Lesson 03).
 
 | Giá trị | Ý nghĩa |
 |---------|---------|
-| \`+1\` | Hai vector **cùng hướng** (θ = 0°) |
-| \`> 0\` | Hai vector **lệch hướng góc nhọn** — vẫn "giống" |
-| \`0\` | Hai vector **vuông góc** — "không liên quan" |
-| \`< 0\` | Hai vector **lệch hướng góc tù** — "đối ngược" |
-| \`-1\` | Hai vector **ngược hướng** (θ = 180°) |
+| $+1$ | Hai vector **cùng hướng** ($\\theta = 0°$) |
+| $> 0$ | Hai vector **lệch hướng góc nhọn** — vẫn "giống" |
+| $0$ | Hai vector **vuông góc** — "không liên quan" |
+| $< 0$ | Hai vector **lệch hướng góc tù** — "đối ngược" |
+| $-1$ | Hai vector **ngược hướng** ($\\theta = 180°$) |
 
-> **💡 Trực giác**: Cosine similarity là dot product **đã bỏ ảnh hưởng của độ lớn**. Vector \`(3, 0)\` và \`(300, 0)\` đều cùng hướng — cosine sim của chúng là 1, dù dot product là 900 (rất khác \`9 = (3,0)·(3,0)\`). Đây là lý do cosine sim rất phù hợp cho **so sánh ý nghĩa** trong NLP: hai câu cùng nội dung không nên chỉ vì "có nhiều từ hơn" mà bị khác.
+> **💡 Trực giác**: Cosine similarity là dot product **đã bỏ ảnh hưởng của độ lớn**. Vector $(3, 0)$ và $(300, 0)$ đều cùng hướng — cosine sim của chúng là 1, dù dot product là 900 (rất khác $9 = (3,0) \\cdot (3,0)$). Đây là lý do cosine sim rất phù hợp cho **so sánh ý nghĩa** trong NLP: hai câu cùng nội dung không nên chỉ vì "có nhiều từ hơn" mà bị khác.
 
 ### 2.2 Năm ví dụ walk-through
 
 **Ví dụ 1 — 2D, cùng hướng**:
-- \`u = (3, 0)\`, \`v = (5, 0)\`.
-- \`u·v = 3·5 + 0·0 = 15\`.
-- \`|u| = 3\`, \`|v| = 5\`.
-- \`cos_sim = 15 / (3·5) = 15/15 = 1\`. → **Hoàn toàn cùng hướng**.
+- $\\mathbf{u} = (3, 0)$, $\\mathbf{v} = (5, 0)$.
+- $\\mathbf{u} \\cdot \\mathbf{v} = 3 \\cdot 5 + 0 \\cdot 0 = 15$.
+- $\\lVert u \\rVert = 3$, $\\lVert v \\rVert = 5$.
+- $\\operatorname{cos\\_sim} = 15 / (3 \\cdot 5) = 15/15 = 1$. → **Hoàn toàn cùng hướng**.
 
 **Ví dụ 2 — 2D, vuông góc**:
-- \`u = (1, 0)\`, \`v = (0, 1)\`.
-- \`u·v = 0\`.
-- \`cos_sim = 0\`. → **Vuông góc**.
+- $\\mathbf{u} = (1, 0)$, $\\mathbf{v} = (0, 1)$.
+- $\\mathbf{u} \\cdot \\mathbf{v} = 0$.
+- $\\operatorname{cos\\_sim} = 0$. → **Vuông góc**.
 
 **Ví dụ 3 — 2D, góc 60°**:
-- \`u = (1, 0)\`, \`v = (1, √3)\`. (v nằm ở góc 60° vì \`tan60° = √3\`.)
-- \`u·v = 1·1 + 0·√3 = 1\`.
-- \`|u| = 1\`, \`|v| = √(1+3) = 2\`.
-- \`cos_sim = 1 / (1·2) = 0.5\`. → Đúng vì \`cos60° = 0.5\`. ✓
+- $\\mathbf{u} = (1, 0)$, $\\mathbf{v} = (1, \\sqrt{3})$. (v nằm ở góc 60° vì $\\tan 60° = \\sqrt{3}$.)
+- $\\mathbf{u} \\cdot \\mathbf{v} = 1 \\cdot 1 + 0 \\cdot \\sqrt{3} = 1$.
+- $\\lVert u \\rVert = 1$, $\\lVert v \\rVert = \\sqrt{1+3} = 2$.
+- $\\operatorname{cos\\_sim} = 1 / (1 \\cdot 2) = 0.5$. → Đúng vì $\\cos 60° = 0.5$. ✓
 
 **Ví dụ 4 — 3D**:
-- \`u = (1, 2, 2)\`, \`v = (2, 1, 2)\`.
-- \`u·v = 2 + 2 + 4 = 8\`.
-- \`|u| = √(1+4+4) = 3\`, \`|v| = √(4+1+4) = 3\`.
-- \`cos_sim = 8 / 9 ≈ 0.889\`. → Hai vector "khá giống hướng" (góc ≈ 27.27°).
+- $\\mathbf{u} = (1, 2, 2)$, $\\mathbf{v} = (2, 1, 2)$.
+- $\\mathbf{u} \\cdot \\mathbf{v} = 2 + 2 + 4 = 8$.
+- $\\lVert u \\rVert = \\sqrt{1+4+4} = 3$, $\\lVert v \\rVert = \\sqrt{4+1+4} = 3$.
+- $\\operatorname{cos\\_sim} = 8 / 9 \\approx 0.889$. → Hai vector "khá giống hướng" (góc $\\approx 27.27°$).
 
 **Ví dụ 5 — 4D, embedding giả lập**:
 
@@ -261,23 +245,21 @@ Giả sử ta có "embedding" cho 3 từ (4 chiều, đã chuẩn hoá):
 (Tất nhiên embedding thật là 300D/768D, không có ý nghĩa "trục" như vậy. Đây là toy.)
 
 - **cat vs dog**:
-  - \`u·v = 0.8·0.7 + 0.6·0.7 + 0 + 0 = 0.56 + 0.42 = 0.98\`.
-  - \`|cat| = √(0.64 + 0.36) = 1.0\` (đã normalize). \`|dog| = √(0.49 + 0.49 + 0.01) ≈ 0.995\`.
-  - \`cos_sim ≈ 0.98 / (1 · 0.995) ≈ 0.985\`. → **Rất giống** (động vật).
+  - $\\mathbf{u} \\cdot \\mathbf{v} = 0.8 \\cdot 0.7 + 0.6 \\cdot 0.7 + 0 + 0 = 0.56 + 0.42 = 0.98$.
+  - $\\lVert \\text{cat} \\rVert = \\sqrt{0.64 + 0.36} = 1.0$ (đã normalize). $\\lVert \\text{dog} \\rVert = \\sqrt{0.49 + 0.49 + 0.01} \\approx 0.995$.
+  - $\\operatorname{cos\\_sim} \\approx 0.98 / (1 \\cdot 0.995) \\approx 0.985$. → **Rất giống** (động vật).
 - **cat vs car**:
-  - \`u·v = 0 + 0 + 0 + 0 = 0\`.
-  - \`cos_sim = 0\`. → **Không liên quan** (chỉ trùng phụ âm đầu — và embedding không quan tâm chính tả).
+  - $\\mathbf{u} \\cdot \\mathbf{v} = 0 + 0 + 0 + 0 = 0$.
+  - $\\operatorname{cos\\_sim} = 0$. → **Không liên quan** (chỉ trùng phụ âm đầu — và embedding không quan tâm chính tả).
 - **dog vs car**:
-  - \`u·v = 0 + 0 + 0.1·0.9 + 0 = 0.09\`.
-  - \`cos_sim ≈ 0.09 / (0.995·0.985) ≈ 0.092\`. → **Gần như không liên quan**.
+  - $\\mathbf{u} \\cdot \\mathbf{v} = 0 + 0 + 0.1 \\cdot 0.9 + 0 = 0.09$.
+  - $\\operatorname{cos\\_sim} \\approx 0.09 / (0.995 \\cdot 0.985) \\approx 0.092$. → **Gần như không liên quan**.
 
 ### 2.3 Trường hợp đặc biệt: vector đã normalize
 
-Nếu \`|u| = |v| = 1\` (vector đơn vị, "unit vector"), thì:
+Nếu $\\lVert u \\rVert = \\lVert v \\rVert = 1$ (vector đơn vị, "unit vector"), thì:
 
-\`\`\`
-cos_sim(u, v) = u · v
-\`\`\`
+$$\\operatorname{cos\\_sim}(\\mathbf{u}, \\mathbf{v}) = \\mathbf{u} \\cdot \\mathbf{v}$$
 
 → **Dot product trực tiếp = cosine similarity**, không cần chia.
 
@@ -285,7 +267,7 @@ cos_sim(u, v) = u · v
 - Tính cosine sim = chỉ cần 1 phép dot product (nhanh hơn 2-3 lần).
 - FAISS, Pinecone, Weaviate đều có chế độ "inner product" — chính là cos sim khi vector đã normalize.
 
-> **⚠ Lỗi thường gặp**: Nhầm dot product với cosine similarity khi vector CHƯA normalize. \`u·v = 100\` nghe có vẻ "rất giống nhau", nhưng nếu \`|u| = |v| = 1000\`, thực ra \`cos_sim = 100 / (1000·1000) = 0.0001\` — gần như vuông góc. **Luôn check norm trước khi diễn giải dot product**.
+> **⚠ Lỗi thường gặp**: Nhầm dot product với cosine similarity khi vector CHƯA normalize. $\\mathbf{u} \\cdot \\mathbf{v} = 100$ nghe có vẻ "rất giống nhau", nhưng nếu $\\lVert u \\rVert = \\lVert v \\rVert = 1000$, thực ra $\\operatorname{cos\\_sim} = 100 / (1000 \\cdot 1000) = 0.0001$ — gần như vuông góc. **Luôn check norm trước khi diễn giải dot product**.
 
 > **❓ Câu hỏi tự nhiên**: Có cách nào nhanh hơn cosine sim không?
 >
@@ -296,17 +278,17 @@ cos_sim(u, v) = u · v
 
 > **🔁 Dừng lại tự kiểm tra**:
 >
-> *Câu hỏi*: \`u = (3, 4)\`, \`v = (6, 8)\`. Tính \`u·v\`, \`cos_sim(u, v)\`. Hai vector có cùng hướng không?
+> *Câu hỏi*: $\\mathbf{u} = (3, 4)$, $\\mathbf{v} = (6, 8)$. Tính $\\mathbf{u} \\cdot \\mathbf{v}$, $\\operatorname{cos\\_sim}(\\mathbf{u}, \\mathbf{v})$. Hai vector có cùng hướng không?
 >
 > <details><summary>Đáp án</summary>
 >
-> - \`u·v = 18 + 32 = 50\`.
-> - \`|u| = 5\`, \`|v| = 10\`. \`cos_sim = 50/50 = 1\`.
-> - **Có**, hoàn toàn cùng hướng (v = 2u, scalar dương).
+> - $\\mathbf{u} \\cdot \\mathbf{v} = 18 + 32 = 50$.
+> - $\\lVert u \\rVert = 5$, $\\lVert v \\rVert = 10$. $\\operatorname{cos\\_sim} = 50/50 = 1$.
+> - **Có**, hoàn toàn cùng hướng ($\\mathbf{v} = 2\\mathbf{u}$, scalar dương).
 > </details>
 
 > **📝 Tóm tắt mục 2**:
-> - \`cos_sim(u, v) = (u·v) / (|u|·|v|)\`, range [-1, 1].
+> - $\\operatorname{cos\\_sim}(\\mathbf{u}, \\mathbf{v}) = (\\mathbf{u} \\cdot \\mathbf{v}) / (\\lVert u \\rVert \\lVert v \\rVert)$, range $[-1, 1]$.
 > - Nếu đã normalize: cos sim = dot product.
 > - Đây là phép toán cốt lõi của embedding search / RAG / attention.
 
@@ -316,43 +298,44 @@ cos_sim(u, v) = u · v
 
 ### 3.1 Bốn tính chất cơ bản
 
-Cho \`u, v, w ∈ ℝⁿ\` và \`c ∈ ℝ\`:
+Cho $\\mathbf{u}, \\mathbf{v}, \\mathbf{w} \\in \\mathbb{R}^n$ và $c \\in \\mathbb{R}$:
 
 | Tính chất | Công thức | Chứng minh nhanh |
 |-----------|-----------|------------------|
-| Giao hoán | \`u·v = v·u\` | \`Σ uᵢvᵢ = Σ vᵢuᵢ\` (nhân số giao hoán) |
-| Phân phối | \`u·(v + w) = u·v + u·w\` | \`Σ uᵢ(vᵢ + wᵢ) = Σ uᵢvᵢ + Σ uᵢwᵢ\` |
-| Scalar | \`(cu)·v = c(u·v) = u·(cv)\` | \`Σ (cuᵢ)vᵢ = c Σ uᵢvᵢ\` |
-| Tự dot | \`u·u = |u|² ≥ 0\`, dấu = chỉ khi u = 0 | \`Σ uᵢ² ≥ 0\` |
+| Giao hoán | $\\mathbf{u} \\cdot \\mathbf{v} = \\mathbf{v} \\cdot \\mathbf{u}$ | $\\sum_i u_i v_i = \\sum_i v_i u_i$ (nhân số giao hoán) |
+| Phân phối | $\\mathbf{u} \\cdot (\\mathbf{v} + \\mathbf{w}) = \\mathbf{u} \\cdot \\mathbf{v} + \\mathbf{u} \\cdot \\mathbf{w}$ | $\\sum_i u_i(v_i + w_i) = \\sum_i u_i v_i + \\sum_i u_i w_i$ |
+| Scalar | $(c\\mathbf{u}) \\cdot \\mathbf{v} = c(\\mathbf{u} \\cdot \\mathbf{v}) = \\mathbf{u} \\cdot (c\\mathbf{v})$ | $\\sum_i (cu_i)v_i = c \\sum_i u_i v_i$ |
+| Tự dot | $\\mathbf{u} \\cdot \\mathbf{u} = \\lVert u \\rVert^2 \\geq 0$, dấu = chỉ khi $\\mathbf{u} = 0$ | $\\sum_i u_i^2 \\geq 0$ |
 
 **Verify từng tính chất bằng số cụ thể**:
 
-1. **Giao hoán** với \`u = (1, 2)\`, \`v = (3, 4)\`: \`u·v = 3 + 8 = 11\`. \`v·u = 3 + 8 = 11\`. ✓
-2. **Phân phối** với \`u = (1, 0)\`, \`v = (1, 1)\`, \`w = (2, 3)\`:
-   - \`v + w = (3, 4)\`. \`u·(v+w) = 3 + 0 = 3\`.
-   - \`u·v = 1\`. \`u·w = 2\`. Tổng = 3. ✓
-3. **Scalar** với \`c = 5\`, \`u = (1, 2)\`, \`v = (3, 4)\`:
-   - \`cu = (5, 10)\`. \`(cu)·v = 15 + 40 = 55\`.
-   - \`c(u·v) = 5·(3+8) = 5·11 = 55\`. ✓
-4. **Tự dot** với \`u = (3, 4)\`: \`u·u = 9 + 16 = 25 = 5² = |u|²\`. ✓
+1. **Giao hoán** với $\\mathbf{u} = (1, 2)$, $\\mathbf{v} = (3, 4)$: $\\mathbf{u} \\cdot \\mathbf{v} = 3 + 8 = 11$. $\\mathbf{v} \\cdot \\mathbf{u} = 3 + 8 = 11$. ✓
+2. **Phân phối** với $\\mathbf{u} = (1, 0)$, $\\mathbf{v} = (1, 1)$, $\\mathbf{w} = (2, 3)$:
+   - $\\mathbf{v} + \\mathbf{w} = (3, 4)$. $\\mathbf{u} \\cdot (\\mathbf{v}+\\mathbf{w}) = 3 + 0 = 3$.
+   - $\\mathbf{u} \\cdot \\mathbf{v} = 1$. $\\mathbf{u} \\cdot \\mathbf{w} = 2$. Tổng = 3. ✓
+3. **Scalar** với $c = 5$, $\\mathbf{u} = (1, 2)$, $\\mathbf{v} = (3, 4)$:
+   - $c\\mathbf{u} = (5, 10)$. $(c\\mathbf{u}) \\cdot \\mathbf{v} = 15 + 40 = 55$.
+   - $c(\\mathbf{u} \\cdot \\mathbf{v}) = 5 \\cdot (3+8) = 5 \\cdot 11 = 55$. ✓
+4. **Tự dot** với $\\mathbf{u} = (3, 4)$: $\\mathbf{u} \\cdot \\mathbf{u} = 9 + 16 = 25 = 5^2 = \\lVert u \\rVert^2$. ✓
 
 ### 3.2 Hệ quả quan trọng
 
 Từ các tính chất trên ta suy ra:
 
-- **\`|u + v|² = |u|² + 2u·v + |v|²\`** (khai triển hệt như \`(a+b)²\` cho số thường).
-- **\`|u − v|² = |u|² − 2u·v + |v|²\`** (đây là dạng định lý cosin viết lại bằng dot product).
+- $\\lVert u + v \\rVert^2 = \\lVert u \\rVert^2 + 2\\,\\mathbf{u} \\cdot \\mathbf{v} + \\lVert v \\rVert^2$ (khai triển hệt như $(a+b)^2$ cho số thường).
+- $\\lVert u - v \\rVert^2 = \\lVert u \\rVert^2 - 2\\,\\mathbf{u} \\cdot \\mathbf{v} + \\lVert v \\rVert^2$ (đây là dạng định lý cosin viết lại bằng dot product).
 
 Chứng minh hệ quả đầu:
-\`\`\`
-|u + v|² = (u + v)·(u + v)
-        = u·u + u·v + v·u + v·v   (phân phối, 2 lần)
-        = |u|² + 2(u·v) + |v|²    (giao hoán: u·v = v·u)
-\`\`\`
 
-**Verify**: \`u = (1, 0)\`, \`v = (0, 1)\`. \`u + v = (1, 1)\`, \`|u+v|² = 2\`. Mặt khác \`|u|² + 2u·v + |v|² = 1 + 0 + 1 = 2\`. ✓
+$$\\begin{aligned}
+\\lVert u + v \\rVert^2 &= (\\mathbf{u} + \\mathbf{v}) \\cdot (\\mathbf{u} + \\mathbf{v}) \\\\
+&= \\mathbf{u} \\cdot \\mathbf{u} + \\mathbf{u} \\cdot \\mathbf{v} + \\mathbf{v} \\cdot \\mathbf{u} + \\mathbf{v} \\cdot \\mathbf{v} &&\\text{(phân phối, 2 lần)} \\\\
+&= \\lVert u \\rVert^2 + 2(\\mathbf{u} \\cdot \\mathbf{v}) + \\lVert v \\rVert^2 &&\\text{(giao hoán: } \\mathbf{u} \\cdot \\mathbf{v} = \\mathbf{v} \\cdot \\mathbf{u}\\text{)}
+\\end{aligned}$$
 
-> **💡 Trực giác hệ quả**: Đây chính là **định lý Pythagoras tổng quát**. Nếu u và v vuông góc (\`u·v = 0\`), ta có \`|u + v|² = |u|² + |v|²\` — định lý Pythagoras quen thuộc. Dot product cho phép ta mở rộng Pythagoras sang trường hợp bất kỳ.
+**Verify**: $\\mathbf{u} = (1, 0)$, $\\mathbf{v} = (0, 1)$. $\\mathbf{u} + \\mathbf{v} = (1, 1)$, $\\lVert u+v \\rVert^2 = 2$. Mặt khác $\\lVert u \\rVert^2 + 2\\,\\mathbf{u} \\cdot \\mathbf{v} + \\lVert v \\rVert^2 = 1 + 0 + 1 = 2$. ✓
+
+> **💡 Trực giác hệ quả**: Đây chính là **định lý Pythagoras tổng quát**. Nếu u và v vuông góc ($\\mathbf{u} \\cdot \\mathbf{v} = 0$), ta có $\\lVert u + v \\rVert^2 = \\lVert u \\rVert^2 + \\lVert v \\rVert^2$ — định lý Pythagoras quen thuộc. Dot product cho phép ta mở rộng Pythagoras sang trường hợp bất kỳ.
 
 > **📝 Tóm tắt mục 3**: 4 tính chất + 2 hệ quả khai triển. Phân phối là tính chất quan trọng nhất, sẽ dùng nhiều ở các bài sau.
 
@@ -362,52 +345,47 @@ Chứng minh hệ quả đầu:
 
 ### 4.1 Định nghĩa
 
-Hai vector \`u, v ∈ ℝⁿ\` được gọi là **vuông góc** (orthogonal) khi và chỉ khi:
+Hai vector $\\mathbf{u}, \\mathbf{v} \\in \\mathbb{R}^n$ được gọi là **vuông góc** (orthogonal) khi và chỉ khi:
 
-\`\`\`
-u · v = 0
-\`\`\`
+$$\\mathbf{u} \\cdot \\mathbf{v} = 0$$
 
-Ký hiệu: \`u ⊥ v\`.
+Ký hiệu: $\\mathbf{u} \\perp \\mathbf{v}$.
 
-**Tại sao định nghĩa này hợp lý?** Từ \`u·v = |u||v|cosθ = 0\`, nếu cả \`|u| ≠ 0\` và \`|v| ≠ 0\`, thì \`cosθ = 0 → θ = 90°\`. Đây chính là vuông góc theo nghĩa hình học.
+**Tại sao định nghĩa này hợp lý?** Từ $\\mathbf{u} \\cdot \\mathbf{v} = \\lVert u \\rVert \\lVert v \\rVert \\cos\\theta = 0$, nếu cả $\\lVert u \\rVert \\neq 0$ và $\\lVert v \\rVert \\neq 0$, thì $\\cos\\theta = 0 \\to \\theta = 90°$. Đây chính là vuông góc theo nghĩa hình học.
 
-> **⚠ Lưu ý mở rộng**: Định nghĩa này áp dụng cho mọi ℝⁿ, kể cả khi không có hình ảnh trực quan (vd ℝ¹⁰⁰⁰). Trong các không gian cao chiều, "vuông góc" được định nghĩa qua dot product, không phải qua mắt nhìn.
+> **⚠ Lưu ý mở rộng**: Định nghĩa này áp dụng cho mọi $\\mathbb{R}^n$, kể cả khi không có hình ảnh trực quan (vd $\\mathbb{R}^{1000}$). Trong các không gian cao chiều, "vuông góc" được định nghĩa qua dot product, không phải qua mắt nhìn.
 
 ### 4.2 Bốn ví dụ
 
-1. \`u = (1, 0)\`, \`v = (0, 1)\`. \`u·v = 0\`. ⊥. (Trục Ox và Oy.)
-2. \`u = (3, 4)\`, \`v = (-4, 3)\`. \`u·v = -12 + 12 = 0\`. ⊥. (Xoay 90° trong 2D thì luôn cho 1 vector vuông góc — Tầng 2 Lesson 06.)
-3. \`u = (1, 2, 3)\`, \`v = (3, 0, -1)\`. \`u·v = 3 + 0 - 3 = 0\`. ⊥.
-4. \`u = (1, 1, 1, 1)\`, \`v = (1, -1, 1, -1)\`. \`u·v = 1 - 1 + 1 - 1 = 0\`. ⊥. (4D — không thể hình dung, nhưng đại số bảo vậy.)
+1. $\\mathbf{u} = (1, 0)$, $\\mathbf{v} = (0, 1)$. $\\mathbf{u} \\cdot \\mathbf{v} = 0$. $\\perp$. (Trục Ox và Oy.)
+2. $\\mathbf{u} = (3, 4)$, $\\mathbf{v} = (-4, 3)$. $\\mathbf{u} \\cdot \\mathbf{v} = -12 + 12 = 0$. $\\perp$. (Xoay 90° trong 2D thì luôn cho 1 vector vuông góc — Tầng 2 Lesson 06.)
+3. $\\mathbf{u} = (1, 2, 3)$, $\\mathbf{v} = (3, 0, -1)$. $\\mathbf{u} \\cdot \\mathbf{v} = 3 + 0 - 3 = 0$. $\\perp$.
+4. $\\mathbf{u} = (1, 1, 1, 1)$, $\\mathbf{v} = (1, -1, 1, -1)$. $\\mathbf{u} \\cdot \\mathbf{v} = 1 - 1 + 1 - 1 = 0$. $\\perp$. (4D — không thể hình dung, nhưng đại số bảo vậy.)
 
 ### 4.3 Orthonormal — vuông góc và đơn vị
 
-Một tập vector \`{e₁, e₂, ..., eₖ}\` gọi là **orthonormal** nếu:
-- \`eᵢ·eⱼ = 0\` khi \`i ≠ j\` (đôi một vuông góc).
-- \`eᵢ·eᵢ = 1\` (mỗi vector có độ dài 1).
+Một tập vector $\\{e_1, e_2, \\ldots, e_k\\}$ gọi là **orthonormal** nếu:
+- $e_i \\cdot e_j = 0$ khi $i \\neq j$ (đôi một vuông góc).
+- $e_i \\cdot e_i = 1$ (mỗi vector có độ dài 1).
 
-Tập **chuẩn nhất** trong ℝⁿ là **basis chuẩn**:
+Tập **chuẩn nhất** trong $\\mathbb{R}^n$ là **basis chuẩn**:
 
-\`\`\`
-e₁ = (1, 0, 0, ..., 0)
-e₂ = (0, 1, 0, ..., 0)
-...
-eₙ = (0, 0, ..., 0, 1)
-\`\`\`
+$$e_1 = \\begin{bmatrix} 1 \\\\ 0 \\\\ 0 \\\\ \\vdots \\\\ 0 \\end{bmatrix}, \\quad
+e_2 = \\begin{bmatrix} 0 \\\\ 1 \\\\ 0 \\\\ \\vdots \\\\ 0 \\end{bmatrix}, \\quad \\ldots, \\quad
+e_n = \\begin{bmatrix} 0 \\\\ 0 \\\\ \\vdots \\\\ 0 \\\\ 1 \\end{bmatrix}$$
 
 Đây là khái niệm trung tâm của **Lesson 04** (basis) và **Lesson 07** (eigenvector + diagonalization).
 
 > **🔁 Dừng lại tự kiểm tra**:
 >
-> Tìm một vector \`w ∈ ℝ³\` vuông góc với cả \`u = (1, 0, 0)\` và \`v = (0, 1, 0)\`.
+> Tìm một vector $\\mathbf{w} \\in \\mathbb{R}^3$ vuông góc với cả $\\mathbf{u} = (1, 0, 0)$ và $\\mathbf{v} = (0, 1, 0)$.
 >
 > <details><summary>Đáp án</summary>
 >
-> \`w = (0, 0, c)\` với \`c ≠ 0\` bất kỳ. Vd \`(0, 0, 1)\` hoặc \`(0, 0, -7)\`. Đây chính là phép **cross product** trong ℝ³, sẽ thấy ở các bài sau.
+> $\\mathbf{w} = (0, 0, c)$ với $c \\neq 0$ bất kỳ. Vd $(0, 0, 1)$ hoặc $(0, 0, -7)$. Đây chính là phép **cross product** trong $\\mathbb{R}^3$, sẽ thấy ở các bài sau.
 > </details>
 
-> **📝 Tóm tắt mục 4**: \`u ⊥ v ⇔ u·v = 0\`. Orthonormal = orthogonal + chuẩn hóa. Basis chuẩn là ví dụ orthonormal đẹp nhất.
+> **📝 Tóm tắt mục 4**: $\\mathbf{u} \\perp \\mathbf{v} \\iff \\mathbf{u} \\cdot \\mathbf{v} = 0$. Orthonormal = orthogonal + chuẩn hóa. Basis chuẩn là ví dụ orthonormal đẹp nhất.
 
 ---
 
@@ -415,65 +393,60 @@ eₙ = (0, 0, ..., 0, 1)
 
 ### 5.1 Đặt vấn đề
 
-Cho vector \`u\`. Ta muốn tách u thành 2 phần:
-- Phần **đi cùng hướng** v (gọi là \`u_∥\`).
-- Phần **vuông góc** với v (gọi là \`u_⊥\`).
+Cho vector $\\mathbf{u}$. Ta muốn tách u thành 2 phần:
+- Phần **đi cùng hướng** v (gọi là $\\mathbf{u}_\\parallel$).
+- Phần **vuông góc** với v (gọi là $\\mathbf{u}_\\perp$).
 
-Sao cho \`u = u_∥ + u_⊥\`. Phần \`u_∥\` chính là **projection của u lên v**, ký hiệu \`proj_v(u)\`.
+Sao cho $\\mathbf{u} = \\mathbf{u}_\\parallel + \\mathbf{u}_\\perp$. Phần $\\mathbf{u}_\\parallel$ chính là **projection của u lên v**, ký hiệu $\\operatorname{proj}_v(u)$.
 
-> **💡 Trực giác**: Hãy tưởng tượng v là một thanh sắt nằm ngang. Bạn chiếu đèn pin vuông góc xuống vector u. **Bóng** của u trên thanh sắt = \`proj_v(u)\`. Bóng này có cùng hướng v (hoặc ngược hướng nếu góc tù).
+> **💡 Trực giác**: Hãy tưởng tượng v là một thanh sắt nằm ngang. Bạn chiếu đèn pin vuông góc xuống vector u. **Bóng** của u trên thanh sắt $= \\operatorname{proj}_v(u)$. Bóng này có cùng hướng v (hoặc ngược hướng nếu góc tù).
 
 ### 5.2 Công thức
 
-\`\`\`
-proj_v(u) = ((u · v) / (v · v)) · v
-         = ((u · v) / |v|²) · v
-\`\`\`
+$$\\operatorname{proj}_v(u) = \\frac{\\mathbf{u} \\cdot \\mathbf{v}}{\\mathbf{v} \\cdot \\mathbf{v}} \\cdot \\mathbf{v} = \\frac{\\mathbf{u} \\cdot \\mathbf{v}}{\\lVert v \\rVert^2} \\cdot \\mathbf{v}$$
 
 **Suy luận công thức**:
-- \`proj_v(u)\` phải cùng hướng v → \`proj_v(u) = α·v\` với scalar α nào đó.
-- Phần dư \`u − α·v\` phải vuông góc với v → \`(u − α·v) · v = 0\`.
-- Khai triển: \`u·v − α(v·v) = 0\` → \`α = (u·v) / (v·v)\`.
-- Suy ra \`proj_v(u) = ((u·v) / (v·v)) · v\`. ∎
+- $\\operatorname{proj}_v(u)$ phải cùng hướng v → $\\operatorname{proj}_v(u) = \\alpha \\mathbf{v}$ với scalar $\\alpha$ nào đó.
+- Phần dư $\\mathbf{u} - \\alpha \\mathbf{v}$ phải vuông góc với v → $(\\mathbf{u} - \\alpha \\mathbf{v}) \\cdot \\mathbf{v} = 0$.
+- Khai triển: $\\mathbf{u} \\cdot \\mathbf{v} - \\alpha(\\mathbf{v} \\cdot \\mathbf{v}) = 0$ → $\\alpha = \\dfrac{\\mathbf{u} \\cdot \\mathbf{v}}{\\mathbf{v} \\cdot \\mathbf{v}}$.
+- Suy ra $\\operatorname{proj}_v(u) = \\dfrac{\\mathbf{u} \\cdot \\mathbf{v}}{\\mathbf{v} \\cdot \\mathbf{v}} \\cdot \\mathbf{v}$. ∎
 
 ### 5.3 Ba ví dụ walk-through
 
 **Ví dụ 1 — 2D, đơn giản**:
-- \`u = (3, 4)\`, \`v = (1, 0)\`.
-- \`u·v = 3·1 + 4·0 = 3\`. \`v·v = 1\`. \`α = 3/1 = 3\`.
-- \`proj_v(u) = 3·(1, 0) = (3, 0)\`.
-- **Diễn giải**: u chiếu xuống trục Ox → bóng có tọa độ (3, 0). Phần dư \`u − (3, 0) = (0, 4)\` vuông góc với v. ✓
+- $\\mathbf{u} = (3, 4)$, $\\mathbf{v} = (1, 0)$.
+- $\\mathbf{u} \\cdot \\mathbf{v} = 3 \\cdot 1 + 4 \\cdot 0 = 3$. $\\mathbf{v} \\cdot \\mathbf{v} = 1$. $\\alpha = 3/1 = 3$.
+- $\\operatorname{proj}_v(u) = 3 \\cdot (1, 0) = (3, 0)$.
+- **Diễn giải**: u chiếu xuống trục Ox → bóng có tọa độ $(3, 0)$. Phần dư $\\mathbf{u} - (3, 0) = (0, 4)$ vuông góc với v. ✓
 
 **Ví dụ 2 — 2D, v không đơn vị**:
-- \`u = (2, 3)\`, \`v = (4, 0)\`.
-- \`u·v = 8\`. \`v·v = 16\`. \`α = 8/16 = 0.5\`.
-- \`proj_v(u) = 0.5·(4, 0) = (2, 0)\`.
-- Verify: \`u − (2, 0) = (0, 3)\`. \`(0, 3)·(4, 0) = 0\`. ✓
+- $\\mathbf{u} = (2, 3)$, $\\mathbf{v} = (4, 0)$.
+- $\\mathbf{u} \\cdot \\mathbf{v} = 8$. $\\mathbf{v} \\cdot \\mathbf{v} = 16$. $\\alpha = 8/16 = 0.5$.
+- $\\operatorname{proj}_v(u) = 0.5 \\cdot (4, 0) = (2, 0)$.
+- Verify: $\\mathbf{u} - (2, 0) = (0, 3)$. $(0, 3) \\cdot (4, 0) = 0$. ✓
 
 **Ví dụ 3 — 3D**:
-- \`u = (1, 2, 2)\`, \`v = (0, 0, 3)\`.
-- \`u·v = 0 + 0 + 6 = 6\`. \`v·v = 9\`. \`α = 6/9 = 2/3\`.
-- \`proj_v(u) = (2/3)·(0, 0, 3) = (0, 0, 2)\`.
-- Verify: \`u − (0, 0, 2) = (1, 2, 0)\`. \`(1, 2, 0)·(0, 0, 3) = 0\`. ✓
+- $\\mathbf{u} = (1, 2, 2)$, $\\mathbf{v} = (0, 0, 3)$.
+- $\\mathbf{u} \\cdot \\mathbf{v} = 0 + 0 + 6 = 6$. $\\mathbf{v} \\cdot \\mathbf{v} = 9$. $\\alpha = 6/9 = 2/3$.
+- $\\operatorname{proj}_v(u) = (2/3) \\cdot (0, 0, 3) = (0, 0, 2)$.
+- Verify: $\\mathbf{u} - (0, 0, 2) = (1, 2, 0)$. $(1, 2, 0) \\cdot (0, 0, 3) = 0$. ✓
 
 ### 5.4 Độ dài projection
 
 Từ công thức:
 
-\`\`\`
-|proj_v(u)| = |u·v| / |v|  =  |u| · |cosθ|
-\`\`\`
+$$\\lVert \\operatorname{proj}_v(u) \\rVert = \\frac{\\lvert \\mathbf{u} \\cdot \\mathbf{v} \\rvert}{\\lVert v \\rVert} = \\lVert u \\rVert \\cdot \\lvert \\cos\\theta \\rvert$$
 
 Đây chính là **"bóng đổ"** của u trên v — đúng như trực giác.
 
-> **⚠ Lỗi thường gặp**: Nhầm \`proj_v(u)\` với \`proj_u(v)\`. Hai phép chiếu KHÁC nhau:
-> - \`proj_v(u)\` = u chiếu **xuống** v (kết quả nằm trên đường thẳng v).
-> - \`proj_u(v)\` = v chiếu xuống u (kết quả nằm trên đường thẳng u).
+> **⚠ Lỗi thường gặp**: Nhầm $\\operatorname{proj}_v(u)$ với $\\operatorname{proj}_u(v)$. Hai phép chiếu KHÁC nhau:
+> - $\\operatorname{proj}_v(u)$ = u chiếu **xuống** v (kết quả nằm trên đường thẳng v).
+> - $\\operatorname{proj}_u(v)$ = v chiếu xuống u (kết quả nằm trên đường thẳng u).
 > Nhớ: subscript là vector ĐÍCH (đường thẳng để chiếu xuống).
 
 > **📝 Tóm tắt mục 5**:
-> - \`proj_v(u) = ((u·v)/|v|²)·v\` — vector cùng hướng v.
-> - Phần dư \`u − proj_v(u)\` vuông góc với v (phân tích trực giao).
+> - $\\operatorname{proj}_v(u) = ((\\mathbf{u} \\cdot \\mathbf{v})/\\lVert v \\rVert^2) \\cdot \\mathbf{v}$ — vector cùng hướng v.
+> - Phần dư $\\mathbf{u} - \\operatorname{proj}_v(u)$ vuông góc với v (phân tích trực giao).
 > - Là nền của Gram-Schmidt (Lesson 04), least squares (Lesson 05).
 
 ---
@@ -482,55 +455,53 @@ Từ công thức:
 
 ### 6.1 Phát biểu
 
-**Với mọi \`u, v ∈ ℝⁿ\`**:
+**Với mọi $\\mathbf{u}, \\mathbf{v} \\in \\mathbb{R}^n$**:
 
-\`\`\`
-|u · v| ≤ |u| · |v|
-\`\`\`
+$$\\lvert \\mathbf{u} \\cdot \\mathbf{v} \\rvert \\leq \\lVert u \\rVert \\cdot \\lVert v \\rVert$$
 
-Dấu \`=\` xảy ra ⇔ u, v cùng phương (tức là \`v = cu\` với scalar c nào đó).
+Dấu $=$ xảy ra $\\iff$ u, v cùng phương (tức là $\\mathbf{v} = c\\mathbf{u}$ với scalar $c$ nào đó).
 
 ### 6.2 Chứng minh
 
-**Cách 1 — Suy luận từ hình học** (ngắn nhưng cần biết \`|u||v|cosθ\`):
-- \`u·v = |u||v|cosθ\`.
-- \`|cosθ| ≤ 1\` với mọi góc θ.
-- Vậy \`|u·v| = |u||v||cosθ| ≤ |u||v|\`. ∎
+**Cách 1 — Suy luận từ hình học** (ngắn nhưng cần biết $\\lVert u \\rVert \\lVert v \\rVert \\cos\\theta$):
+- $\\mathbf{u} \\cdot \\mathbf{v} = \\lVert u \\rVert \\lVert v \\rVert \\cos\\theta$.
+- $\\lvert \\cos\\theta \\rvert \\leq 1$ với mọi góc $\\theta$.
+- Vậy $\\lvert \\mathbf{u} \\cdot \\mathbf{v} \\rvert = \\lVert u \\rVert \\lVert v \\rVert \\lvert \\cos\\theta \\rvert \\leq \\lVert u \\rVert \\lVert v \\rVert$. ∎
 
-**Cách 2 — Đại số thuần** (không cần khái niệm góc — quan trọng vì ở ℝⁿ với n lớn "góc" chỉ có nghĩa qua định nghĩa này):
+**Cách 2 — Đại số thuần** (không cần khái niệm góc — quan trọng vì ở $\\mathbb{R}^n$ với n lớn "góc" chỉ có nghĩa qua định nghĩa này):
 
-Xét hàm \`f(t) = |u − t·v|² ≥ 0\` với mọi \`t ∈ ℝ\`.
+Xét hàm $f(t) = \\lVert u - t\\mathbf{v} \\rVert^2 \\geq 0$ với mọi $t \\in \\mathbb{R}$.
 
 Khai triển (dùng hệ quả mục 3.2):
-\`\`\`
-f(t) = |u|² − 2t(u·v) + t²|v|²
-\`\`\`
 
-Đây là **tam thức bậc 2 theo t**. Vì \`f(t) ≥ 0\` với mọi t, **discriminant ≤ 0**:
+$$f(t) = \\lVert u \\rVert^2 - 2t(\\mathbf{u} \\cdot \\mathbf{v}) + t^2 \\lVert v \\rVert^2$$
 
-\`\`\`
-Δ = (2(u·v))² − 4|v|²|u|² ≤ 0
-4(u·v)² ≤ 4|u|²|v|²
-(u·v)² ≤ |u|²·|v|²
-|u·v| ≤ |u|·|v|         (lấy căn 2 vế, cả 2 vế đều ≥ 0)
-\`\`\`
+Đây là **tam thức bậc 2 theo t**. Vì $f(t) \\geq 0$ với mọi t, **discriminant $\\leq 0$**:
+
+$$\\begin{aligned}
+\\Delta = (2(\\mathbf{u} \\cdot \\mathbf{v}))^2 - 4\\lVert v \\rVert^2 \\lVert u \\rVert^2 &\\leq 0 \\\\
+4(\\mathbf{u} \\cdot \\mathbf{v})^2 &\\leq 4\\lVert u \\rVert^2 \\lVert v \\rVert^2 \\\\
+(\\mathbf{u} \\cdot \\mathbf{v})^2 &\\leq \\lVert u \\rVert^2 \\cdot \\lVert v \\rVert^2 \\\\
+\\lvert \\mathbf{u} \\cdot \\mathbf{v} \\rvert &\\leq \\lVert u \\rVert \\cdot \\lVert v \\rVert &&\\text{(lấy căn 2 vế, cả 2 vế đều } \\geq 0\\text{)}
+\\end{aligned}$$
+
 ∎
 
 ### 6.3 Verify bằng số
 
-- \`u = (3, 4)\`, \`v = (1, 0)\`. \`u·v = 3\`, \`|u·v| = 3\`. \`|u|·|v| = 5·1 = 5\`. \`3 ≤ 5\`. ✓
-- \`u = (1, 2)\`, \`v = (2, 4)\` (cùng phương, v = 2u). \`u·v = 10\`, \`|u·v| = 10\`. \`|u| = √5\`, \`|v| = √20 = 2√5\`. \`|u||v| = √5 · 2√5 = 10\`. **Dấu =**. ✓
-- \`u = (1, 0)\`, \`v = (0, 1)\`. \`u·v = 0\`. \`|u||v| = 1\`. \`0 ≤ 1\`. ✓
+- $\\mathbf{u} = (3, 4)$, $\\mathbf{v} = (1, 0)$. $\\mathbf{u} \\cdot \\mathbf{v} = 3$, $\\lvert \\mathbf{u} \\cdot \\mathbf{v} \\rvert = 3$. $\\lVert u \\rVert \\lVert v \\rVert = 5 \\cdot 1 = 5$. $3 \\leq 5$. ✓
+- $\\mathbf{u} = (1, 2)$, $\\mathbf{v} = (2, 4)$ (cùng phương, $\\mathbf{v} = 2\\mathbf{u}$). $\\mathbf{u} \\cdot \\mathbf{v} = 10$, $\\lvert \\mathbf{u} \\cdot \\mathbf{v} \\rvert = 10$. $\\lVert u \\rVert = \\sqrt{5}$, $\\lVert v \\rVert = \\sqrt{20} = 2\\sqrt{5}$. $\\lVert u \\rVert \\lVert v \\rVert = \\sqrt{5} \\cdot 2\\sqrt{5} = 10$. **Dấu =**. ✓
+- $\\mathbf{u} = (1, 0)$, $\\mathbf{v} = (0, 1)$. $\\mathbf{u} \\cdot \\mathbf{v} = 0$. $\\lVert u \\rVert \\lVert v \\rVert = 1$. $0 \\leq 1$. ✓
 
 ### 6.4 Ý nghĩa
 
 Cauchy-Schwarz là **bất đẳng thức nền** của giải tích và xác suất:
 
-- **Đảm bảo cosine similarity nằm trong \`[-1, 1]\`** — vì \`cos_sim = (u·v)/(|u||v|)\` và \`|u·v| ≤ |u||v|\`.
-- **Trong xác suất**: \`|Cov(X, Y)| ≤ σ_X · σ_Y\` (sẽ thấy Tầng 5 Probability) → định nghĩa **hệ số tương quan Pearson** \`r ∈ [-1, 1]\`.
-- **Trong giải tích**: cần thiết để chứng minh **bất đẳng thức tam giác** \`|u + v| ≤ |u| + |v|\` (Lesson 03).
+- **Đảm bảo cosine similarity nằm trong $[-1, 1]$** — vì $\\operatorname{cos\\_sim} = (\\mathbf{u} \\cdot \\mathbf{v})/(\\lVert u \\rVert \\lVert v \\rVert)$ và $\\lvert \\mathbf{u} \\cdot \\mathbf{v} \\rvert \\leq \\lVert u \\rVert \\lVert v \\rVert$.
+- **Trong xác suất**: $\\lvert \\operatorname{Cov}(X, Y) \\rvert \\leq \\sigma_X \\cdot \\sigma_Y$ (sẽ thấy Tầng 5 Probability) → định nghĩa **hệ số tương quan Pearson** $r \\in [-1, 1]$.
+- **Trong giải tích**: cần thiết để chứng minh **bất đẳng thức tam giác** $\\lVert u + v \\rVert \\leq \\lVert u \\rVert + \\lVert v \\rVert$ (Lesson 03).
 
-> **📝 Tóm tắt mục 6**: \`|u·v| ≤ |u||v|\`. Là điều kiện cho cosine sim hợp lệ, và xuất hiện ở mọi tầng tiếp theo.
+> **📝 Tóm tắt mục 6**: $\\lvert \\mathbf{u} \\cdot \\mathbf{v} \\rvert \\leq \\lVert u \\rVert \\lVert v \\rVert$. Là điều kiện cho cosine sim hợp lệ, và xuất hiện ở mọi tầng tiếp theo.
 
 ---
 
@@ -540,9 +511,9 @@ Cauchy-Schwarz là **bất đẳng thức nền** của giải tích và xác su
 
 ### 7.1 Embedding là gì?
 
-**Định nghĩa nông**: Embedding là **một vector trong ℝᵈ** (thường d = 300, 768, 1536, 3072) đại diện cho một từ / câu / đoạn / hình ảnh / video.
+**Định nghĩa nông**: Embedding là **một vector trong $\\mathbb{R}^d$** (thường $d = 300, 768, 1536, 3072$) đại diện cho một từ / câu / đoạn / hình ảnh / video.
 
-**Đặc tính kỳ diệu**: Hai thứ có ý nghĩa giống nhau → hai vector embedding của chúng **cùng hướng** trong ℝᵈ.
+**Đặc tính kỳ diệu**: Hai thứ có ý nghĩa giống nhau → hai vector embedding của chúng **cùng hướng** trong $\\mathbb{R}^d$.
 
 Ví dụ (giả định embedding 4D — thực tế là 300D+):
 
@@ -563,10 +534,10 @@ Tính cosine similarity pairwise sẽ thấy:
 - "con chó" vs "Paris": ≈ 0.30 (yếu)
 
 Cụ thể "con mèo" vs "con chó":
-- \`u·v = 0.81·0.78 + 0.59·0.62 + 0.02·0.08 + 0.03·0.05 = 0.6318 + 0.3658 + 0.0016 + 0.0015 ≈ 1.0007\`
-- \`|u| ≈ √(0.656 + 0.348 + 0.0004 + 0.0009) ≈ √1.005 ≈ 1.0025\`
-- \`|v| ≈ √(0.608 + 0.384 + 0.0064 + 0.0025) ≈ √1.001 ≈ 1.0005\`
-- \`cos_sim ≈ 1.0007 / (1.0025 · 1.0005) ≈ 0.998\`. ✓
+- $\\mathbf{u} \\cdot \\mathbf{v} = 0.81 \\cdot 0.78 + 0.59 \\cdot 0.62 + 0.02 \\cdot 0.08 + 0.03 \\cdot 0.05 = 0.6318 + 0.3658 + 0.0016 + 0.0015 \\approx 1.0007$
+- $\\lVert u \\rVert \\approx \\sqrt{0.656 + 0.348 + 0.0004 + 0.0009} \\approx \\sqrt{1.005} \\approx 1.0025$
+- $\\lVert v \\rVert \\approx \\sqrt{0.608 + 0.384 + 0.0064 + 0.0025} \\approx \\sqrt{1.001} \\approx 1.0005$
+- $\\operatorname{cos\\_sim} \\approx 1.0007 / (1.0025 \\cdot 1.0005) \\approx 0.998$. ✓
 
 > **⚠ Đây là toy — không phải embedding thật**: Embedding thật từ OpenAI/SBERT có 768D+, từng tọa độ không tương ứng với "trục" có nghĩa. Mô hình học cách phân phối thông tin qua nhiều trục cùng lúc — không thể đọc trực tiếp từng tọa độ. Ở đây chúng ta dùng 4D để có thể tính tay.
 
@@ -583,7 +554,7 @@ Word embedding xuất hiện trước (2013, Word2Vec). Sentence embedding là t
 
 **Vấn đề thực tế**: Bạn có 1 triệu document. Mỗi document → 1 vector 1536D. Cần trả lời câu hỏi: *"document nào gần nhất với query này?"*
 
-**Naive**: tính cos sim của query với toàn bộ 1 triệu document → O(N·d) phép tính. Với N = 10⁶, d = 1536, mỗi query → 1.5 tỷ phép nhân-cộng. Quá chậm.
+**Naive**: tính cos sim của query với toàn bộ 1 triệu document → $O(N \\cdot d)$ phép tính. Với $N = 10^6$, $d = 1536$, mỗi query → 1.5 tỷ phép nhân-cộng. Quá chậm.
 
 **Vector database** (Pinecone, Weaviate, Qdrant, Milvus, FAISS, pgvector...) làm 3 việc:
 
@@ -633,9 +604,9 @@ Với HNSW, truy vấn 1M document chỉ mất **~5ms** (so với ~5s nếu naiv
 
 | Tiêu chí | Cosine similarity | Euclidean distance |
 |----------|-------------------|--------------------|
-| Công thức | \`(u·v) / (|u||v|)\` | \`√Σ(uᵢ−vᵢ)²\` |
+| Công thức | $(\\mathbf{u} \\cdot \\mathbf{v}) / (\\lVert u \\rVert \\lVert v \\rVert)$ | $\\sqrt{\\sum_i (u_i - v_i)^2}$ |
 | Quan tâm | **Hướng** | **Vị trí tuyệt đối** |
-| Range | [-1, 1] | [0, ∞) |
+| Range | $[-1, 1]$ | $[0, \\infty)$ |
 | Ảnh hưởng độ lớn | Không | Có |
 
 **Vì sao embedding nên dùng cosine?**
@@ -648,18 +619,18 @@ Với HNSW, truy vấn 1M document chỉ mất **~5ms** (so với ~5s nếu naiv
 
 **Ví dụ cụ thể minh họa**:
 
-- Câu A (ngắn): \`(0.1, 0.2)\` (norm ≈ 0.224)
-- Câu B (dài, cùng nghĩa): \`(0.5, 1.0)\` (norm ≈ 1.118)
+- Câu A (ngắn): $(0.1, 0.2)$ (norm $\\approx 0.224$)
+- Câu B (dài, cùng nghĩa): $(0.5, 1.0)$ (norm $\\approx 1.118$)
 
-Quan sát: A và B **cùng hướng** (B = 5·A).
+Quan sát: A và B **cùng hướng** ($B = 5 \\cdot A$).
 
-- **Euclidean**: \`√((0.5−0.1)² + (1.0−0.2)²) = √(0.16 + 0.64) = √0.8 ≈ 0.894\`. → "Khác nhau", sai.
-- **Cosine**: \`u·v = 0.05 + 0.2 = 0.25\`. \`cos_sim = 0.25/(0.224·1.118) = 0.25/0.25 = 1.0\`. → "Hoàn toàn giống nghĩa", đúng.
+- **Euclidean**: $\\sqrt{(0.5-0.1)^2 + (1.0-0.2)^2} = \\sqrt{0.16 + 0.64} = \\sqrt{0.8} \\approx 0.894$. → "Khác nhau", sai.
+- **Cosine**: $\\mathbf{u} \\cdot \\mathbf{v} = 0.05 + 0.2 = 0.25$. $\\operatorname{cos\\_sim} = 0.25/(0.224 \\cdot 1.118) = 0.25/0.25 = 1.0$. → "Hoàn toàn giống nghĩa", đúng.
 
-> **⚠ Ngoại lệ**: Nếu embedding đã được **L2-normalize** (toàn bộ có \`|v| = 1\`), thì cosine sim và Euclidean distance **tương đương** thông qua công thức:
-> \`\`\`
-> |u − v|² = |u|² + |v|² − 2u·v = 2 − 2·cos_sim(u, v)
-> \`\`\`
+> **⚠ Ngoại lệ**: Nếu embedding đã được **L2-normalize** (toàn bộ có $\\lVert v \\rVert = 1$), thì cosine sim và Euclidean distance **tương đương** thông qua công thức:
+>
+> $$\\lVert u - v \\rVert^2 = \\lVert u \\rVert^2 + \\lVert v \\rVert^2 - 2\\,\\mathbf{u} \\cdot \\mathbf{v} = 2 - 2 \\cdot \\operatorname{cos\\_sim}(\\mathbf{u}, \\mathbf{v})$$
+>
 > Nên rank theo cos sim giảm dần = rank theo Euclidean tăng dần. **Đây là lý do hầu hết embedding API auto-normalize đầu ra** — để vector DB có thể dùng inner product hoặc Euclidean tùy chọn.
 
 ### 7.6 Ví dụ pipeline RAG bằng tay
@@ -673,22 +644,22 @@ chunk_3: "Cách lắp đặt ngoài trời"     → (0.7, 0.6, 0.2, 0.3)
 chunk_4: "Sản phẩm B màu xanh"          → (0.1, 0.2, 0.3, 0.9)
 \`\`\`
 
-Query: "Sản phẩm A có cài đặt ngoài trời được không?" → embed → \`(0.65, 0.65, 0.3, 0.2)\`. (\`|q| ≈ √(0.4225+0.4225+0.09+0.04) ≈ √0.975 ≈ 0.987\`.)
+Query: "Sản phẩm A có cài đặt ngoài trời được không?" → embed → $\\mathbf{q} = (0.65, 0.65, 0.3, 0.2)$. ($\\lVert q \\rVert \\approx \\sqrt{0.4225+0.4225+0.09+0.04} \\approx \\sqrt{0.975} \\approx 0.987$.)
 
 Tính cos sim với từng chunk (đã làm tròn):
 
-- **q · c1** = 0.65·0.6 + 0.65·0.7 + 0.3·0.3 + 0.2·0.2 = 0.39 + 0.455 + 0.09 + 0.04 = 0.975.
-  \`|c1| = √(0.36+0.49+0.09+0.04) = √0.98 ≈ 0.99\`.
-  \`cos_sim ≈ 0.975 / (0.987·0.99) ≈ 0.998\`.
-- **q · c2** = 0.65·0.5 + 0.65·0.4 + 0.3·0.7 + 0.2·0.3 = 0.325 + 0.26 + 0.21 + 0.06 = 0.855.
-  \`|c2| = √(0.25+0.16+0.49+0.09) = √0.99 ≈ 0.995\`.
-  \`cos_sim ≈ 0.855 / (0.987·0.995) ≈ 0.871\`.
-- **q · c3** = 0.65·0.7 + 0.65·0.6 + 0.3·0.2 + 0.2·0.3 = 0.455 + 0.39 + 0.06 + 0.06 = 0.965.
-  \`|c3| = √(0.49+0.36+0.04+0.09) = √0.98 ≈ 0.99\`.
-  \`cos_sim ≈ 0.965 / (0.987·0.99) ≈ 0.987\`.
-- **q · c4** = 0.65·0.1 + 0.65·0.2 + 0.3·0.3 + 0.2·0.9 = 0.065 + 0.13 + 0.09 + 0.18 = 0.465.
-  \`|c4| = √(0.01+0.04+0.09+0.81) = √0.95 ≈ 0.975\`.
-  \`cos_sim ≈ 0.465 / (0.987·0.975) ≈ 0.483\`.
+- $\\mathbf{q} \\cdot \\mathbf{c_1} = 0.65 \\cdot 0.6 + 0.65 \\cdot 0.7 + 0.3 \\cdot 0.3 + 0.2 \\cdot 0.2 = 0.39 + 0.455 + 0.09 + 0.04 = 0.975$.
+  $\\lVert c_1 \\rVert = \\sqrt{0.36+0.49+0.09+0.04} = \\sqrt{0.98} \\approx 0.99$.
+  $\\operatorname{cos\\_sim} \\approx 0.975 / (0.987 \\cdot 0.99) \\approx 0.998$.
+- $\\mathbf{q} \\cdot \\mathbf{c_2} = 0.65 \\cdot 0.5 + 0.65 \\cdot 0.4 + 0.3 \\cdot 0.7 + 0.2 \\cdot 0.3 = 0.325 + 0.26 + 0.21 + 0.06 = 0.855$.
+  $\\lVert c_2 \\rVert = \\sqrt{0.25+0.16+0.49+0.09} = \\sqrt{0.99} \\approx 0.995$.
+  $\\operatorname{cos\\_sim} \\approx 0.855 / (0.987 \\cdot 0.995) \\approx 0.871$.
+- $\\mathbf{q} \\cdot \\mathbf{c_3} = 0.65 \\cdot 0.7 + 0.65 \\cdot 0.6 + 0.3 \\cdot 0.2 + 0.2 \\cdot 0.3 = 0.455 + 0.39 + 0.06 + 0.06 = 0.965$.
+  $\\lVert c_3 \\rVert = \\sqrt{0.49+0.36+0.04+0.09} = \\sqrt{0.98} \\approx 0.99$.
+  $\\operatorname{cos\\_sim} \\approx 0.965 / (0.987 \\cdot 0.99) \\approx 0.987$.
+- $\\mathbf{q} \\cdot \\mathbf{c_4} = 0.65 \\cdot 0.1 + 0.65 \\cdot 0.2 + 0.3 \\cdot 0.3 + 0.2 \\cdot 0.9 = 0.065 + 0.13 + 0.09 + 0.18 = 0.465$.
+  $\\lVert c_4 \\rVert = \\sqrt{0.01+0.04+0.09+0.81} = \\sqrt{0.95} \\approx 0.975$.
+  $\\operatorname{cos\\_sim} \\approx 0.465 / (0.987 \\cdot 0.975) \\approx 0.483$.
 
 **Top-2 retrieved**: chunk_1 (0.998), chunk_3 (0.987).
 
@@ -719,27 +690,25 @@ LLM trả lời: "Có. Sản phẩm A chống nước theo chuẩn IP68 và tài
 
 Trong Transformer (mô hình nền của GPT, Claude, BERT...), cơ chế **Scaled Dot-Product Attention** (Vaswani et al. 2017) là:
 
-\`\`\`
-Attention(Q, K, V) = softmax(Q·Kᵀ / √d) · V
-\`\`\`
+$$\\operatorname{Attention}(Q, K, V) = \\operatorname{softmax}\\!\\left(\\frac{Q \\cdot K^\\top}{\\sqrt{d}}\\right) \\cdot V$$
 
 Trong đó:
-- \`Q\` (query): vector "câu hỏi" tại vị trí hiện tại (kích thước d).
-- \`K\` (key): các vector "khóa" của những vị trí khác (mỗi vector kích thước d).
-- \`V\` (value): các vector "nội dung" tương ứng.
-- \`d\`: số chiều của Q, K (thường 64 hoặc 128 cho mỗi head).
+- $Q$ (query): vector "câu hỏi" tại vị trí hiện tại (kích thước d).
+- $K$ (key): các vector "khóa" của những vị trí khác (mỗi vector kích thước d).
+- $V$ (value): các vector "nội dung" tương ứng.
+- $d$: số chiều của Q, K (thường 64 hoặc 128 cho mỗi head).
 
-**Cốt lõi**: \`Q·K\` chính là **dot product** giữa query và mỗi key. Score cao = "key này liên quan tới query này" → "chú ý nhiều".
+**Cốt lõi**: $Q \\cdot K$ chính là **dot product** giữa query và mỗi key. Score cao = "key này liên quan tới query này" → "chú ý nhiều".
 
-### 8.2 Vì sao chia cho \`√d\`?
+### 8.2 Vì sao chia cho $\\sqrt{d}$?
 
-Khi d lớn (thường 64+), dot product của hai vector ngẫu nhiên có **variance tỉ lệ với d**. Giá trị dot product trở nên rất lớn → softmax bão hòa (gradient gần 0) → mô hình khó học. Chia cho \`√d\` để bình thường hóa scale về O(1).
+Khi d lớn (thường 64+), dot product của hai vector ngẫu nhiên có **variance tỉ lệ với d**. Giá trị dot product trở nên rất lớn → softmax bão hòa (gradient gần 0) → mô hình khó học. Chia cho $\\sqrt{d}$ để bình thường hóa scale về $O(1)$.
 
-**Verify**: Nếu mỗi tọa độ của Q và K iid với mean 0, var 1, thì \`Var(Q·K) = Σ Var(Qᵢ·Kᵢ) = d\` (vì giả định độc lập). Chia cho \`√d\` → variance về 1.
+**Verify**: Nếu mỗi tọa độ của Q và K iid với mean 0, var 1, thì $\\operatorname{Var}(Q \\cdot K) = \\sum_i \\operatorname{Var}(Q_i \\cdot K_i) = d$ (vì giả định độc lập). Chia cho $\\sqrt{d}$ → variance về 1.
 
 ### 8.3 Liên hệ với cosine similarity
 
-Khi Q, K đã được L2-normalize, \`Q·K = cos_sim(Q, K)\`. Attention thực chất là "**cosine similarity giữa query và các key, sau đó dùng làm trọng số để trộn value**".
+Khi Q, K đã được L2-normalize, $Q \\cdot K = \\operatorname{cos\\_sim}(Q, K)$. Attention thực chất là "**cosine similarity giữa query và các key, sau đó dùng làm trọng số để trộn value**".
 
 Đây là lý do hiểu dot product = bước đầu tiên hiểu Transformer. Tầng 6 sẽ học chi tiết.
 
@@ -753,37 +722,37 @@ Khi Q, K đã được L2-normalize, \`Q·K = cos_sim(Q, K)\`. Attention thực 
 
 ### Bài 1 — Tính dot product
 
-Tính \`u · v\` cho các cặp sau:
-1. \`u = (5, -1, 2)\`, \`v = (3, 4, -2)\`
-2. \`u = (1, 1, 1, 1)\`, \`v = (1, 2, 3, 4)\`
-3. \`u = (-2, 3)\`, \`v = (6, 4)\`
+Tính $\\mathbf{u} \\cdot \\mathbf{v}$ cho các cặp sau:
+1. $\\mathbf{u} = (5, -1, 2)$, $\\mathbf{v} = (3, 4, -2)$
+2. $\\mathbf{u} = (1, 1, 1, 1)$, $\\mathbf{v} = (1, 2, 3, 4)$
+3. $\\mathbf{u} = (-2, 3)$, $\\mathbf{v} = (6, 4)$
 
 ### Bài 2 — Cosine similarity
 
-Tính \`cos_sim(u, v)\` cho:
-1. \`u = (1, 2, 2)\`, \`v = (3, 4, 0)\`.
-2. \`u = (1, 1)\`, \`v = (-1, 1)\`.
+Tính $\\operatorname{cos\\_sim}(\\mathbf{u}, \\mathbf{v})$ cho:
+1. $\\mathbf{u} = (1, 2, 2)$, $\\mathbf{v} = (3, 4, 0)$.
+2. $\\mathbf{u} = (1, 1)$, $\\mathbf{v} = (-1, 1)$.
 
 ### Bài 3 — Vuông góc
 
-Tìm tất cả vector \`(a, b)\` vuông góc với \`(3, 4)\` (chỉ ra mối quan hệ giữa a và b, đưa 2 ví dụ).
+Tìm tất cả vector $(a, b)$ vuông góc với $(3, 4)$ (chỉ ra mối quan hệ giữa a và b, đưa 2 ví dụ).
 
 ### Bài 4 — Projection
 
-Tính \`proj_v(u)\` với \`u = (4, 5, 1)\`, \`v = (2, 0, -1)\`. Verify rằng \`u − proj_v(u)\` vuông góc với v.
+Tính $\\operatorname{proj}_v(u)$ với $\\mathbf{u} = (4, 5, 1)$, $\\mathbf{v} = (2, 0, -1)$. Verify rằng $\\mathbf{u} - \\operatorname{proj}_v(u)$ vuông góc với v.
 
 ### Bài 5 — Cosine sim embedding 4D
 
 Cho 3 embedding (đã normalize):
-- \`apple = (0.7, 0.5, 0.5, 0.1)\`
-- \`banana = (0.6, 0.6, 0.5, 0.1)\`
-- \`cat = (0.1, 0.2, 0.3, 0.92)\`
+- $\\text{apple} = (0.7, 0.5, 0.5, 0.1)$
+- $\\text{banana} = (0.6, 0.6, 0.5, 0.1)$
+- $\\text{cat} = (0.1, 0.2, 0.3, 0.92)$
 
 Tính cos sim của (apple, banana), (apple, cat), (banana, cat). Sắp xếp theo độ giống nhau.
 
 ### Bài 6 — Suy ra góc từ cos sim
 
-Cho \`u = (3, 4)\`, \`v = (0, 5)\`. Tính \`cos_sim(u, v)\` rồi suy ra góc θ giữa chúng (làm tròn 1 chữ số thập phân).
+Cho $\\mathbf{u} = (3, 4)$, $\\mathbf{v} = (0, 5)$. Tính $\\operatorname{cos\\_sim}(\\mathbf{u}, \\mathbf{v})$ rồi suy ra góc $\\theta$ giữa chúng (làm tròn 1 chữ số thập phân).
 
 ---
 
@@ -791,57 +760,57 @@ Cho \`u = (3, 4)\`, \`v = (0, 5)\`. Tính \`cos_sim(u, v)\` rồi suy ra góc θ
 
 ### Lời giải bài 1
 
-1. \`u·v = 5·3 + (-1)·4 + 2·(-2) = 15 - 4 - 4 = 7\`.
-2. \`u·v = 1 + 2 + 3 + 4 = 10\`.
-3. \`u·v = (-2)·6 + 3·4 = -12 + 12 = 0\`. (Vuông góc.)
+1. $\\mathbf{u} \\cdot \\mathbf{v} = 5 \\cdot 3 + (-1) \\cdot 4 + 2 \\cdot (-2) = 15 - 4 - 4 = 7$.
+2. $\\mathbf{u} \\cdot \\mathbf{v} = 1 + 2 + 3 + 4 = 10$.
+3. $\\mathbf{u} \\cdot \\mathbf{v} = (-2) \\cdot 6 + 3 \\cdot 4 = -12 + 12 = 0$. (Vuông góc.)
 
 ### Lời giải bài 2
 
 **Phần 1**:
-- \`u·v = 1·3 + 2·4 + 2·0 = 3 + 8 = 11\`.
-- \`|u| = √(1+4+4) = 3\`. \`|v| = √(9+16+0) = 5\`.
-- \`cos_sim = 11/(3·5) = 11/15 ≈ 0.733\`. → Khá giống hướng (góc ≈ 42.83°).
+- $\\mathbf{u} \\cdot \\mathbf{v} = 1 \\cdot 3 + 2 \\cdot 4 + 2 \\cdot 0 = 3 + 8 = 11$.
+- $\\lVert u \\rVert = \\sqrt{1+4+4} = 3$. $\\lVert v \\rVert = \\sqrt{9+16+0} = 5$.
+- $\\operatorname{cos\\_sim} = 11/(3 \\cdot 5) = 11/15 \\approx 0.733$. → Khá giống hướng (góc $\\approx 42.83°$).
 
 **Phần 2**:
-- \`u·v = -1 + 1 = 0\`. → Vuông góc.
-- \`cos_sim = 0\`. (Không cần tính norm vì tử số đã 0.)
+- $\\mathbf{u} \\cdot \\mathbf{v} = -1 + 1 = 0$. → Vuông góc.
+- $\\operatorname{cos\\_sim} = 0$. (Không cần tính norm vì tử số đã 0.)
 
 ### Lời giải bài 3
 
-Điều kiện vuông góc: \`(a, b)·(3, 4) = 0 → 3a + 4b = 0 → a = -4b/3\`.
+Điều kiện vuông góc: $(a, b) \\cdot (3, 4) = 0 \\to 3a + 4b = 0 \\to a = -4b/3$.
 
-Vậy mọi vector dạng \`(-4t, 3t)\` với t ∈ ℝ đều vuông góc với (3, 4).
+Vậy mọi vector dạng $(-4t, 3t)$ với $t \\in \\mathbb{R}$ đều vuông góc với $(3, 4)$.
 
-Ví dụ: t = 1 → (-4, 3); t = -1 → (4, -3); t = 3 → (-12, 9).
+Ví dụ: $t = 1 \\to (-4, 3)$; $t = -1 \\to (4, -3)$; $t = 3 \\to (-12, 9)$.
 
-Kiểm tra t=1: \`(-4)·3 + 3·4 = -12 + 12 = 0\`. ✓
+Kiểm tra $t=1$: $(-4) \\cdot 3 + 3 \\cdot 4 = -12 + 12 = 0$. ✓
 
 ### Lời giải bài 4
 
-- \`u·v = 4·2 + 5·0 + 1·(-1) = 8 - 1 = 7\`.
-- \`v·v = 4 + 0 + 1 = 5\`.
-- \`α = 7/5 = 1.4\`.
-- \`proj_v(u) = 1.4·(2, 0, -1) = (2.8, 0, -1.4)\`.
+- $\\mathbf{u} \\cdot \\mathbf{v} = 4 \\cdot 2 + 5 \\cdot 0 + 1 \\cdot (-1) = 8 - 1 = 7$.
+- $\\mathbf{v} \\cdot \\mathbf{v} = 4 + 0 + 1 = 5$.
+- $\\alpha = 7/5 = 1.4$.
+- $\\operatorname{proj}_v(u) = 1.4 \\cdot (2, 0, -1) = (2.8, 0, -1.4)$.
 
 Verify vuông góc:
-- \`u − proj_v(u) = (4-2.8, 5-0, 1-(-1.4)) = (1.2, 5, 2.4)\`.
-- \`(1.2, 5, 2.4)·(2, 0, -1) = 2.4 + 0 - 2.4 = 0\`. ✓
+- $\\mathbf{u} - \\operatorname{proj}_v(u) = (4-2.8, 5-0, 1-(-1.4)) = (1.2, 5, 2.4)$.
+- $(1.2, 5, 2.4) \\cdot (2, 0, -1) = 2.4 + 0 - 2.4 = 0$. ✓
 
 ### Lời giải bài 5
 
 **apple vs banana**:
-- \`u·v = 0.7·0.6 + 0.5·0.6 + 0.5·0.5 + 0.1·0.1 = 0.42 + 0.30 + 0.25 + 0.01 = 0.98\`.
-- \`|apple| = √(0.49+0.25+0.25+0.01) = √1.00 = 1.0\`. \`|banana| = √(0.36+0.36+0.25+0.01) = √0.98 ≈ 0.99\`.
-- \`cos_sim ≈ 0.98 / (1.0·0.99) ≈ 0.990\`. → **Rất giống** (cả 2 đều là trái cây).
+- $\\mathbf{u} \\cdot \\mathbf{v} = 0.7 \\cdot 0.6 + 0.5 \\cdot 0.6 + 0.5 \\cdot 0.5 + 0.1 \\cdot 0.1 = 0.42 + 0.30 + 0.25 + 0.01 = 0.98$.
+- $\\lVert \\text{apple} \\rVert = \\sqrt{0.49+0.25+0.25+0.01} = \\sqrt{1.00} = 1.0$. $\\lVert \\text{banana} \\rVert = \\sqrt{0.36+0.36+0.25+0.01} = \\sqrt{0.98} \\approx 0.99$.
+- $\\operatorname{cos\\_sim} \\approx 0.98 / (1.0 \\cdot 0.99) \\approx 0.990$. → **Rất giống** (cả 2 đều là trái cây).
 
 **apple vs cat**:
-- \`u·v = 0.7·0.1 + 0.5·0.2 + 0.5·0.3 + 0.1·0.92 = 0.07 + 0.10 + 0.15 + 0.092 = 0.412\`.
-- \`|cat| = √(0.01+0.04+0.09+0.8464) = √0.9864 ≈ 0.993\`.
-- \`cos_sim ≈ 0.412 / (1.0·0.993) ≈ 0.415\`. → Yếu (không cùng category).
+- $\\mathbf{u} \\cdot \\mathbf{v} = 0.7 \\cdot 0.1 + 0.5 \\cdot 0.2 + 0.5 \\cdot 0.3 + 0.1 \\cdot 0.92 = 0.07 + 0.10 + 0.15 + 0.092 = 0.412$.
+- $\\lVert \\text{cat} \\rVert = \\sqrt{0.01+0.04+0.09+0.8464} = \\sqrt{0.9864} \\approx 0.993$.
+- $\\operatorname{cos\\_sim} \\approx 0.412 / (1.0 \\cdot 0.993) \\approx 0.415$. → Yếu (không cùng category).
 
 **banana vs cat**:
-- \`u·v = 0.6·0.1 + 0.6·0.2 + 0.5·0.3 + 0.1·0.92 = 0.06 + 0.12 + 0.15 + 0.092 = 0.422\`.
-- \`cos_sim ≈ 0.422 / (0.99·0.993) ≈ 0.429\`. → Yếu.
+- $\\mathbf{u} \\cdot \\mathbf{v} = 0.6 \\cdot 0.1 + 0.6 \\cdot 0.2 + 0.5 \\cdot 0.3 + 0.1 \\cdot 0.92 = 0.06 + 0.12 + 0.15 + 0.092 = 0.422$.
+- $\\operatorname{cos\\_sim} \\approx 0.422 / (0.99 \\cdot 0.993) \\approx 0.429$. → Yếu.
 
 **Xếp hạng theo cos sim giảm dần**:
 1. apple-banana (0.990) — cùng category trái cây.
@@ -852,28 +821,28 @@ Verify vuông góc:
 
 ### Lời giải bài 6
 
-- \`u·v = 3·0 + 4·5 = 20\`.
-- \`|u| = 5\`, \`|v| = 5\`. \`cos_sim = 20/25 = 0.8\`.
-- \`θ = arccos(0.8) ≈ 36.87°\` (làm tròn 36.9°).
+- $\\mathbf{u} \\cdot \\mathbf{v} = 3 \\cdot 0 + 4 \\cdot 5 = 20$.
+- $\\lVert u \\rVert = 5$, $\\lVert v \\rVert = 5$. $\\operatorname{cos\\_sim} = 20/25 = 0.8$.
+- $\\theta = \\arccos(0.8) \\approx 36.87°$ (làm tròn 36.9°).
 
-Kiểm tra ngược: u nằm ở góc \`arctan(4/3) ≈ 53.13°\` so với Ox. v nằm ở 90°. Hiệu = \`90° − 53.13° = 36.87°\`. ✓
+Kiểm tra ngược: u nằm ở góc $\\arctan(4/3) \\approx 53.13°$ so với Ox. v nằm ở 90°. Hiệu $= 90° - 53.13° = 36.87°$. ✓
 
 ---
 
 ## 11. Liên kết và bài tiếp theo
 
-**Bài tiếp**: [Lesson 03 — Norm và khoảng cách](../lesson-03-norm-distance/) — chính thức hoá \`|v|\`, các loại norm (L1, L2, L∞), khoảng cách giữa hai vector, và **chuẩn hóa** (normalize) để chuẩn bị cho cosine sim hiệu quả.
+**Bài tiếp**: [Lesson 03 — Norm và khoảng cách](../lesson-03-norm-distance/) — chính thức hoá $\\lVert v \\rVert$, các loại norm (L1, L2, L∞), khoảng cách giữa hai vector, và **chuẩn hóa** (normalize) để chuẩn bị cho cosine sim hiệu quả.
 
 **Sẽ gặp lại** ở các tầng sau:
 - **Tầng 4 Lesson 04** — Linear independence: dùng dot product để chứng minh orthogonal basis độc lập tuyến tính.
-- **Tầng 4 Lesson 05** — Ma trận: \`(Ax)·y = x·(Aᵀy)\` — transpose qua dot product.
+- **Tầng 4 Lesson 05** — Ma trận: $(A\\mathbf{x}) \\cdot \\mathbf{y} = \\mathbf{x} \\cdot (A^\\top \\mathbf{y})$ — transpose qua dot product.
 - **Tầng 4 Lesson 07** — Eigenvector: ma trận đối xứng có eigenvector orthogonal.
 - **Tầng 5** — Probability: covariance là dot product của hai biến đã trừ trung bình, hệ số Pearson là cosine sim.
 - **Tầng 6** — AI/ML: cosine sim trong embedding search, scaled dot product attention, contrastive learning loss.
 
 **Reference Tầng 2**:
 - [Lesson 05 — Cosine law](../../02-Trigonometry/lesson-05-identities-cosine-law/): cơ sở chứng minh hai định nghĩa dot product.
-- [Lesson 03 — Đường tròn đơn vị](../../02-Trigonometry/lesson-03-unit-circle/): \`cosθ ∈ [-1, 1]\`.
+- [Lesson 03 — Đường tròn đơn vị](../../02-Trigonometry/lesson-03-unit-circle/): $\\cos\\theta \\in [-1, 1]$.
 
 **File đi kèm**:
 - [\`visualization.html\`](./visualization.html) — 4 component tương tác: dot product playground, cosine similarity, projection, embedding heatmap.

@@ -63,7 +63,7 @@ Quy tắc: nếu \`dp[i][...]\` chỉ phụ thuộc \`dp[i-1][...]\` (và/hoặc
 
 ### 2.1 Fibonacci: O(n) space → O(1)
 
-Recurrence \`f(i) = f(i-1) + f(i-2)\` chỉ cần 2 giá trị trước:
+Recurrence $f(i) = f(i-1) + f(i-2)$ chỉ cần 2 giá trị trước:
 
 \`\`\`go
 // O(n) thời gian, O(1) bộ nhớ — chỉ giữ 2 biến thay vì mảng dp[n+1].
@@ -379,29 +379,29 @@ Thay vì thử tất cả j (O(n) mỗi i → O(n²)), ta duy trì lower envelop
 
 ## 6. Divide & Conquer DP optimization — nhắc qua
 
-> 💡 **Trực giác.** Một số DP dạng \`dp[i][j] = min_{k < j} ( dp[i-1][k] + cost(k, j) )\` có tính chất: **điểm chia tối ưu \`opt(i, j)\` không giảm khi j tăng** (\`opt(i, j) ≤ opt(i, j+1)\`). Tức là vị trí cắt tốt nhất "trôi sang phải" theo j. Tính chất này cho phép dùng chia để trị.
+> 💡 **Trực giác.** Một số DP dạng \`dp[i][j] = min_{k < j} ( dp[i-1][k] + cost(k, j) )\` có tính chất: **điểm chia tối ưu $\\text{opt}(i, j)$ không giảm khi j tăng** ($\\text{opt}(i, j) \\leq \\text{opt}(i, j+1)$). Tức là vị trí cắt tốt nhất "trôi sang phải" theo j. Tính chất này cho phép dùng chia để trị.
 
-Thay vì cho mỗi (i, j) thử mọi k (O(n) → tổng O(n²) cho mỗi i), ta tính theo đệ quy: giải \`j\` ở giữa trước, tìm \`opt(mid)\`, rồi đệ quy nửa trái với k ∈ [lo, opt(mid)] và nửa phải với k ∈ [opt(mid), hi]. Tổng cho mỗi tầng i là O(n log n) thay vì O(n²).
+Thay vì cho mỗi (i, j) thử mọi k (O(n) → tổng O(n²) cho mỗi i), ta tính theo đệ quy: giải \`j\` ở giữa trước, tìm $\\text{opt}(\\text{mid})$, rồi đệ quy nửa trái với k ∈ [lo, opt(mid)] và nửa phải với k ∈ [opt(mid), hi]. Tổng cho mỗi tầng i là O(n log n) thay vì O(n²).
 
 → Áp dụng cho DP "chia thành nhóm" có hàm cost thoả tính monotonic của opt. Điều kiện đủ phổ biến: cost thoả **quadrangle inequality** (xem mục 7).
 
-> 📝 **Tóm tắt mục 6.** Nếu \`opt(i,j)\` đơn điệu theo j → D&C DP: O(n²) → O(n log n) mỗi lớp i. Cần chứng minh/tin được tính đơn điệu của điểm chia tối ưu.
+> 📝 **Tóm tắt mục 6.** Nếu $\\text{opt}(i,j)$ đơn điệu theo j → D&C DP: O(n²) → O(n log n) mỗi lớp i. Cần chứng minh/tin được tính đơn điệu của điểm chia tối ưu.
 
 ---
 
 ## 7. Knuth optimization — nhắc qua
 
-> 💡 **Trực giác.** Interval DP dạng \`dp[i][j] = min_{i ≤ k < j} ( dp[i][k] + dp[k+1][j] ) + cost(i, j)\` (ví dụ [Optimal BST, Matrix Chain — Interval DP L27](../lesson-27-interval-dp/)) thường là O(n³). Nếu cost thoả **quadrangle inequality (QI)** thì điểm chia tối ưu thoả: \`opt(i, j-1) ≤ opt(i, j) ≤ opt(i+1, j)\`. Khi quét k ta chỉ cần duyệt trong khoảng \`[opt(i,j-1), opt(i+1,j)]\` thay vì toàn bộ \`[i, j)\`.
+> 💡 **Trực giác.** Interval DP dạng \`dp[i][j] = min_{i ≤ k < j} ( dp[i][k] + dp[k+1][j] ) + cost(i, j)\` (ví dụ [Optimal BST, Matrix Chain — Interval DP L27](../lesson-27-interval-dp/)) thường là O(n³). Nếu cost thoả **quadrangle inequality (QI)** thì điểm chia tối ưu thoả: $\\text{opt}(i, j-1) \\leq \\text{opt}(i, j) \\leq \\text{opt}(i+1, j)$. Khi quét k ta chỉ cần duyệt trong khoảng $[\\text{opt}(i,j-1), \\text{opt}(i+1,j)]$ thay vì toàn bộ $[i, j)$.
 
 Tổng số phép thử k khi cộng dồn lại chỉ còn O(n²) thay vì O(n³).
 
-**Quadrangle inequality** (điều kiện đủ): với a ≤ b ≤ c ≤ d,
-\`cost(a, c) + cost(b, d) ≤ cost(a, d) + cost(b, c)\`
-(cùng với điều kiện đơn điệu \`cost(b,c) ≤ cost(a,d)\`).
+**Quadrangle inequality** (điều kiện đủ): với $a \\leq b \\leq c \\leq d$,
+$$cost(a, c) + cost(b, d) \\leq cost(a, d) + cost(b, c)$$
+(cùng với điều kiện đơn điệu $\\text{cost}(b,c) \\leq \\text{cost}(a,d)$).
 
 > ⚠ Knuth opt đòi cấu trúc rất đặc thù (interval DP + QI). Nhiều bài *trông giống* nhưng cost không thoả QI → áp dụng sẽ ra sai. Luôn kiểm tra QI (hoặc thử trên ví dụ nhỏ) trước khi dùng.
 
-> 📝 **Tóm tắt mục 7.** Interval DP \`dp[i][j]=min_k(dp[i][k]+dp[k+1][j])+cost\` với cost thoả quadrangle inequality → O(n³)→O(n²) nhờ giới hạn k trong \`[opt(i,j-1), opt(i+1,j)]\`.
+> 📝 **Tóm tắt mục 7.** Interval DP \`dp[i][j]=min_k(dp[i][k]+dp[k+1][j])+cost\` với cost thoả quadrangle inequality → O(n³)→O(n²) nhờ giới hạn k trong $[\\text{opt}(i,j-1), \\text{opt}(i+1,j)]$.
 
 ---
 
@@ -425,7 +425,7 @@ Quan hệ then chốt:
 [ f(n)   ] = T^n  [ f(0) ] = T^n  [ 0 ]
 \`\`\`
 
-→ \`f(n)\` = phần tử \`[0][1]\` (hoặc \`[1][0]\`) của \`T^n\`. Kiểm chứng:
+→ $f(n)$ = phần tử \`[0][1]\` (hoặc \`[1][0]\`) của $T^n$. Kiểm chứng:
 
 \`\`\`
 T^1 = [[1,1],[1,0]]   -> [0][1]=1 = f(1)? f(1)=1 ✓  ([1][0]=1=f(1))
@@ -491,7 +491,7 @@ Một ứng dụng đẹp khác: nếu A là **ma trận kề** (adjacency matri
 Quy nạp: (A^L)[u][v] = số đường dài L. -> tính A^L bằng lũy thừa nhanh.
 \`\`\`
 
-> ❓ **Câu hỏi tự nhiên.** *"Recurrence nào dùng được matrix expo?"* Chỉ **tuyến tính, hệ số HẰNG**: \`f(n) = c₁·f(n-1) + c₂·f(n-2) + ... + c_d·f(n-d)\`. Bậc d → ma trận d×d → O(d³ log n). Nếu hệ số *thay đổi theo n* (vd \`f(n) = n·f(n-1)\`) thì KHÔNG dùng được — ma trận chuyển không cố định.
+> ❓ **Câu hỏi tự nhiên.** *"Recurrence nào dùng được matrix expo?"* Chỉ **tuyến tính, hệ số HẰNG**: $f(n) = c_1 \\cdot f(n-1) + c_2 \\cdot f(n-2) + ... + c_d \\cdot f(n-d)$. Bậc d → ma trận d×d → O(d³ log n). Nếu hệ số *thay đổi theo n* (vd $f(n) = n \\cdot f(n-1)$) thì KHÔNG dùng được — ma trận chuyển không cố định.
 
 > ⚠ **Lỗi thường gặp.** (1) Quên modulo → tràn số (fib lớn rất nhanh). (2) Đặt sai ma trận chuyển T (sai thứ tự trạng thái). (3) Áp matrix expo cho recurrence hệ số không hằng. Luôn kiểm T bằng cách tính tay T^1, T^2 và đối chiếu vài số hạng đầu (như mục 8.1).
 
@@ -581,7 +581,7 @@ Quy trình thực tế:
 2. **Knapsack 0/1 nén 1D mà duyệt w tăng dần.** → lấy lại vật nhiều lần (thành unbounded). Phải duyệt **giảm dần** (mục 2.2).
 3. **Deque quên xử lý ra/vào cửa sổ.** Quên pop front đã rời cửa sổ → dùng giá trị lậu ngoài cửa sổ → sai.
 4. **CHT/Knuth phức tạp, dễ sai.** Sai dấu khi pop đường thẳng, sai điều kiện QI. **Chỉ dùng khi DP cơ bản thật sự TLE** — n nhỏ thì O(n²)/O(n³) là đủ.
-5. **Matrix expo cho recurrence hệ số KHÔNG hằng.** \`f(n)=n·f(n-1)\` không có ma trận chuyển cố định → matrix expo sai. Chỉ dùng cho hệ số hằng. Và **luôn nhớ modulo** (số fib tràn int64 từ ~f(92)).
+5. **Matrix expo cho recurrence hệ số KHÔNG hằng.** $f(n)=n \\cdot f(n-1)$ không có ma trận chuyển cố định → matrix expo sai. Chỉ dùng cho hệ số hằng. Và **luôn nhớ modulo** (số fib tràn int64 từ ~f(92)).
 6. **Bitset tưởng đổi bậc.** Bitset chỉ chia hằng số ~64, KHÔNG đổi Big-O. Bài cần đổi bậc thì bitset vô dụng.
 7. **Tối ưu sớm.** Tối ưu khi chưa cần = thêm bug + tốn thời gian. Đo độ phức tạp trước; chỉ tối ưu khi vượt ràng buộc.
 

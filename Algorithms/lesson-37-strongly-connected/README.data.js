@@ -258,7 +258,7 @@ func main() {
 
 - \`disc[u]\`: thời điểm DFS thăm \`u\` lần đầu (timer tăng dần). \`-1\` = chưa thăm.
 - \`low[u]\`: min của \`disc[u]\` và mọi đỉnh \`u\` reach được (qua tree-edge xuống rồi back-edge / cross-edge tới đỉnh **còn trên stack**).
-- \`stack\` + \`onStack[]\`: chứa các đỉnh của SCC đang hình thành; \`onStack[v]\` kiểm tra membership trong O(1).
+- \`stack\` + \`onStack[]\`: chứa các đỉnh của SCC đang hình thành; \`onStack[v]\` kiểm tra membership trong $O(1)$.
 
 **Quy tắc cập nhật low (rất dễ sai — đọc kỹ):**
 

@@ -48,7 +48,7 @@ Xét đồ thị 7 đỉnh \`{0,1,2,3,4,5,6}\` với các cạnh:
 
 → **Số thành phần = 4.**
 
-> ⚠ **Lỗi thường gặp.** Đỉnh cô lập (không cạnh nào) **vẫn là một thành phần**. Nhiều người quên đếm chúng → số component bị thiếu. Một đồ thị \`n\` đỉnh, 0 cạnh có đúng \`n\` thành phần.
+> ⚠ **Lỗi thường gặp.** Đỉnh cô lập (không cạnh nào) **vẫn là một thành phần**. Nhiều người quên đếm chúng → số component bị thiếu. Một đồ thị $n$ đỉnh, 0 cạnh có đúng $n$ thành phần.
 
 ### Bốn ví dụ nữa để chắc tay
 
@@ -146,9 +146,9 @@ func main() {
 
 > ⚠ **Lỗi thường gặp.** DFS đệ quy trên đồ thị **rất sâu/lớn** (vài trăm nghìn đỉnh) có thể tràn stack. Dùng BFS dùng hàng đợi, hoặc DFS với stack tường minh.
 
-**Độ phức tạp:** \`O(V + E)\` thời gian, \`O(V)\` bộ nhớ — duyệt mỗi đỉnh và mỗi cạnh đúng một lần. Đây là cách tốt nhất khi đồ thị **tĩnh (static)** — có sẵn toàn bộ cạnh từ đầu.
+**Độ phức tạp:** $O(V + E)$ thời gian, $O(V)$ bộ nhớ — duyệt mỗi đỉnh và mỗi cạnh đúng một lần. Đây là cách tốt nhất khi đồ thị **tĩnh (static)** — có sẵn toàn bộ cạnh từ đầu.
 
-> 📝 **Tóm tắt mục 2.** BFS/DFS đếm component bằng cách "tô màu" từng vùng. Mỗi đỉnh chưa thăm = một component mới. \`O(V+E)\`. Tốt cho đồ thị tĩnh và khi cần **đường đi / traversal** thật sự.
+> 📝 **Tóm tắt mục 2.** BFS/DFS đếm component bằng cách "tô màu" từng vùng. Mỗi đỉnh chưa thăm = một component mới. $O(V+E)$. Tốt cho đồ thị tĩnh và khi cần **đường đi / traversal** thật sự.
 
 ---
 
@@ -165,7 +165,7 @@ Biểu diễn bằng mảng \`parent[]\`: \`parent[x]\` trỏ tới "cha" của 
 
 ### 3.1 Phiên bản ngây thơ và 2 tối ưu
 
-Phiên bản ngây thơ: \`find\` đi ngược cha tới root, \`union\` cho root này trỏ root kia. Vấn đề: cây có thể bị "thoái hóa" thành dây chuyền dài → \`find\` chậm \`O(n)\`. Hai tối ưu cứu nguy:
+Phiên bản ngây thơ: \`find\` đi ngược cha tới root, \`union\` cho root này trỏ root kia. Vấn đề: cây có thể bị "thoái hóa" thành dây chuyền dài → \`find\` chậm $O(n)$. Hai tối ưu cứu nguy:
 
 1. **Union by size (hoặc rank).** Khi gộp, luôn cho cây **nhỏ hơn** treo dưới cây **lớn hơn** → chiều cao tăng chậm, cây luôn "lùn".
 2. **Path compression.** Trong lúc \`find\`, sau khi tìm ra root, ta cho **mọi đỉnh trên đường đi trỏ thẳng tới root** → lần sau hỏi chỉ tốn 1 bước.
@@ -267,7 +267,7 @@ func main() {
 
 ### 3.4 Vì sao gần O(1)? — α(n) và amortized
 
-Với cả union by size **và** path compression, mỗi thao tác \`find\`/\`union\` chạy trong **O(α(n))** amortized, với \`α\` là hàm ngược Ackermann. \`α(n) ≤ 4\` cho mọi \`n\` thực tế (kể cả \`n\` lớn hơn số nguyên tử trong vũ trụ) → coi như **hằng số**.
+Với cả union by size **và** path compression, mỗi thao tác \`find\`/\`union\` chạy trong **$O(\\alpha(n))$** amortized, với $\\alpha$ là hàm ngược Ackermann. $\\alpha(n) \\leq 4$ cho mọi $n$ thực tế (kể cả $n$ lớn hơn số nguyên tử trong vũ trụ) → coi như **hằng số**.
 
 > ⚠ Đây là cận **amortized** (xem [Lesson 02](../lesson-02-amortized-analysis/)) — một lần \`find\` riêng lẻ có thể tốn hơn O(1), nhưng **trung bình trên cả dãy** thao tác thì gần hằng số. Path compression "trả trước" công làm phẳng cây để các lần sau rẻ.
 
@@ -330,7 +330,7 @@ func hasCycleUndirected(n int, edges [][2]int) bool {
 
 ### 4.3 Kruskal MST (recap Lesson 35)
 
-Union-Find là lõi của [Kruskal](../lesson-35-mst-kruskal-prim/): sắp cạnh tăng dần theo trọng số, duyệt từng cạnh, **chỉ lấy cạnh nếu nó nối hai component khác nhau** (\`Union\` trả \`true\`) — nếu trả \`false\` thì cạnh đó tạo chu trình, bỏ. Dừng khi đủ \`n-1\` cạnh.
+Union-Find là lõi của [Kruskal](../lesson-35-mst-kruskal-prim/): sắp cạnh tăng dần theo trọng số, duyệt từng cạnh, **chỉ lấy cạnh nếu nó nối hai component khác nhau** (\`Union\` trả \`true\`) — nếu trả \`false\` thì cạnh đó tạo chu trình, bỏ. Dừng khi đủ $n-1$ cạnh.
 
 \`\`\`go
 type Edge struct{ u, v, w int }
@@ -371,11 +371,11 @@ func findCircleNum(isConnected [][]int) int {
 }
 \`\`\`
 
-**Độ phức tạp:** \`O(n²·α(n))\` ≈ \`O(n²)\` (do phải đọc cả ma trận).
+**Độ phức tạp:** $O(n^2 \\cdot \\alpha(n)) \\approx O(n^2)$ (do phải đọc cả ma trận).
 
 ### 4.5 Redundant Connection
 
-Cho một cây \`n\` đỉnh đã thêm **đúng một cạnh thừa** (tạo đúng một chu trình). Tìm cạnh thừa — cạnh **cuối cùng** trong danh sách mà khi thêm vào lại nối hai đỉnh đã cùng tập.
+Cho một cây $n$ đỉnh đã thêm **đúng một cạnh thừa** (tạo đúng một chu trình). Tìm cạnh thừa — cạnh **cuối cùng** trong danh sách mà khi thêm vào lại nối hai đỉnh đã cùng tập.
 
 \`\`\`go
 func findRedundantConnection(edges [][]int) []int {
@@ -440,9 +440,9 @@ func numIslands2(m, n int, positions [][]int) []int {
 |---|---|---|
 | Có sẵn toàn bộ cạnh? | Có | Không, đến dần |
 | Cần đường đi / cây duyệt? | Thường có | Thường chỉ cần connectivity |
-| Công cụ tốt | BFS/DFS \`O(V+E)\` | **Union-Find** ~O(α) mỗi cạnh |
+| Công cụ tốt | BFS/DFS $O(V+E)$ | **Union-Find** ~$O(\\alpha)$ mỗi cạnh |
 
-Union-Find xử lý "thêm cạnh" cực rẻ nhưng **không hỗ trợ xóa cạnh** dễ dàng (đó là bài toán khó hơn — dynamic connectivity với link-cut tree). BFS/DFS phải duyệt lại từ đầu mỗi lần đồ thị đổi → tốn \`O(V+E)\` mỗi truy vấn.
+Union-Find xử lý "thêm cạnh" cực rẻ nhưng **không hỗ trợ xóa cạnh** dễ dàng (đó là bài toán khó hơn — dynamic connectivity với link-cut tree). BFS/DFS phải duyệt lại từ đầu mỗi lần đồ thị đổi → tốn $O(V+E)$ mỗi truy vấn.
 
 ---
 
@@ -494,7 +494,7 @@ func numIslands(grid [][]byte) int {
 \`\`\`
 - (0,0)='1' → count=1, flood làm chìm {(0,0),(0,1),(1,1)}.
 - Quét tiếp tới (2,2)='1' → count=2, flood {(2,2)}.
-→ **2 đảo.** Độ phức tạp \`O(m·n)\`.
+→ **2 đảo.** Độ phức tạp $O(m \\cdot n)$.
 
 > ⚠ Flood fill mặc định **4 hướng**. Một số bài yêu cầu **8 hướng** (kèm chéo) — thêm 4 hướng đường chéo vào danh sách. Đọc kỹ đề.
 
@@ -526,11 +526,11 @@ func (d *WDSU) Find(x int) int {
 
 ## 8. Số component giảm dần khi union
 
-Một quan sát quan trọng: **mỗi \`Union\` thành công làm số component giảm đúng 1**; \`Union\` thất bại (đã cùng tập) **không đổi**. Bắt đầu \`n\` component (mỗi đỉnh một), sau \`k\` union thành công còn \`n - k\` component.
+Một quan sát quan trọng: **mỗi \`Union\` thành công làm số component giảm đúng 1**; \`Union\` thất bại (đã cùng tập) **không đổi**. Bắt đầu $n$ component (mỗi đỉnh một), sau $k$ union thành công còn $n - k$ component.
 
-→ Hệ quả: với đồ thị \`n\` đỉnh, để **liên thông hoàn toàn** (1 component) cần **ít nhất \`n-1\` cạnh union thành công** — đây chính là số cạnh của một cây khung (spanning tree).
+→ Hệ quả: với đồ thị $n$ đỉnh, để **liên thông hoàn toàn** (1 component) cần **ít nhất $n-1$ cạnh union thành công** — đây chính là số cạnh của một cây khung (spanning tree).
 
-**Ví dụ:** \`n=5\`, các cạnh union thành công: \`0-1, 1-2, 2-3, 3-4\` (4 = n-1 cạnh) → 1 component. Nếu chỉ 3 cạnh thành công → còn 2 component.
+**Ví dụ:** $n=5$, các cạnh union thành công: \`0-1, 1-2, 2-3, 3-4\` (4 = n-1 cạnh) → 1 component. Nếu chỉ 3 cạnh thành công → còn 2 component.
 
 ---
 
@@ -539,14 +539,14 @@ Một quan sát quan trọng: **mỗi \`Union\` thành công làm số component
 | Thao tác / Bài | Cấu trúc | Thời gian |
 |---|---|---|
 | \`find\` / \`union\` (riêng) | DSU (path compression + by size) | amortized **O(α(n)) ≈ O(1)** |
-| Đếm component, \`m\` cạnh | DSU | \`O((V + m)·α(n))\` ≈ \`O(V + m)\` |
-| Đếm component tĩnh | BFS/DFS | \`O(V + E)\` |
-| Phát hiện chu trình vô hướng | DSU | \`O((V+E)·α)\` |
-| Number of Provinces (ma trận) | DSU | \`O(n²·α)\` |
-| Number of Islands (flood fill) | BFS/DFS | \`O(m·n)\` |
-| Number of Islands II (online, \`k\` thao tác) | DSU | \`O(k·α(m·n))\` |
+| Đếm component, $m$ cạnh | DSU | $O((V + m) \\cdot \\alpha(n)) \\approx O(V + m)$ |
+| Đếm component tĩnh | BFS/DFS | $O(V + E)$ |
+| Phát hiện chu trình vô hướng | DSU | $O((V+E) \\cdot \\alpha)$ |
+| Number of Provinces (ma trận) | DSU | $O(n^2 \\cdot \\alpha)$ |
+| Number of Islands (flood fill) | BFS/DFS | $O(m \\cdot n)$ |
+| Number of Islands II (online, $k$ thao tác) | DSU | $O(k \\cdot \\alpha(m \\cdot n))$ |
 
-Bộ nhớ DSU: \`O(n)\` cho \`parent\` + \`size\`.
+Bộ nhớ DSU: $O(n)$ cho \`parent\` + \`size\`.
 
 ---
 
@@ -554,7 +554,7 @@ Bộ nhớ DSU: \`O(n)\` cho \`parent\` + \`size\`.
 
 | Tình huống | Chọn |
 |---|---|
-| Đồ thị **tĩnh**, cần đếm component một lần | BFS/DFS (đơn giản, \`O(V+E)\`) |
+| Đồ thị **tĩnh**, cần đếm component một lần | BFS/DFS (đơn giản, $O(V+E)$) |
 | Cần **đường đi cụ thể / cây duyệt / thứ tự thăm** | BFS/DFS |
 | Cạnh đến **dần (online)**, hỏi connectivity sau mỗi lần | **Union-Find** |
 | Chỉ quan tâm "hai đỉnh có cùng nhóm không" | **Union-Find** |
@@ -570,7 +570,7 @@ Bộ nhớ DSU: \`O(n)\` cho \`parent\` + \`size\`.
 
 > ⚠ **Tổng hợp các lỗi phổ biến** — đọc kỹ trước khi nộp bài:
 
-1. **Quên path compression** → cây thoái hóa thành dây chuyền, \`find\` chậm \`O(n)\`, cả thuật toán chậm \`O(n²)\`. Luôn nén đường.
+1. **Quên path compression** → cây thoái hóa thành dây chuyền, \`find\` chậm $O(n)$, cả thuật toán chậm $O(n^2)$. Luôn nén đường.
 2. **Quên union by size/rank** → cũng làm cây cao, chậm. Phải có một trong hai (lý tưởng cả hai).
 3. **Đếm component sai khi union hai đỉnh đã cùng tập** → phải kiểm tra \`Find(a) == Find(b)\` **trước** khi \`count--\`. Code mẫu trả \`false\` đúng cho trường hợp này.
 4. **Off-by-one ở khởi tạo \`parent\`** — đỉnh đánh số \`1..n\` cần \`NewDSU(n+1)\` (như redundant connection); đỉnh \`0..n-1\` thì \`NewDSU(n)\`. Sai chỗ này → panic index hoặc kết quả sai.
@@ -586,12 +586,12 @@ Bộ nhớ DSU: \`O(n)\` cho \`parent\` + \`size\`.
 > Tự làm trước, lời giải chi tiết ở mục sau.
 
 1. **Number of Provinces.** Cho \`isConnected[n][n]\`, đếm số tỉnh (component). Big-O?
-2. **Redundant Connection.** Cho cây \`n\` đỉnh thêm 1 cạnh thừa (\`edges\` đỉnh 1..n). Trả về cạnh thừa (cạnh cuối tạo chu trình).
+2. **Redundant Connection.** Cho cây $n$ đỉnh thêm 1 cạnh thừa (\`edges\` đỉnh 1..n). Trả về cạnh thừa (cạnh cuối tạo chu trình).
 3. **Accounts Merge.** Mỗi account = \`[tên, email1, email2, ...]\`. Gộp account cùng người (chia sẻ email), trả danh sách \`[tên, email-đã-sort...]\`.
 4. **Number of Islands.** Lưới \`'0'/'1'\`, đếm số đảo (4 hướng).
-5. **Graph Valid Tree.** \`n\` đỉnh, danh sách \`edges\` vô hướng. Kiểm tra đồ thị có phải là **cây** (liên thông + không chu trình) không?
+5. **Graph Valid Tree.** $n$ đỉnh, danh sách \`edges\` vô hướng. Kiểm tra đồ thị có phải là **cây** (liên thông + không chu trình) không?
 6. **Satisfiability of Equality Equations.** Mảng phương trình dạng \`"a==b"\`, \`"a!=b"\` (biến là 1 chữ cái). Có gán giá trị thỏa mãn tất cả không?
-7. *(thêm)* **Number of Connected Components in an Undirected Graph.** \`n\` đỉnh, \`edges\`. Trả về số component (dùng cả 2 cách).
+7. *(thêm)* **Number of Connected Components in an Undirected Graph.** $n$ đỉnh, \`edges\`. Trả về số component (dùng cả 2 cách).
 
 ---
 
@@ -616,7 +616,7 @@ func findCircleNum(isConnected [][]int) int {
 }
 \`\`\`
 
-**Độ phức tạp:** \`O(n²·α(n)) ≈ O(n²)\` thời gian (phải đọc cả ma trận), \`O(n)\` bộ nhớ.
+**Độ phức tạp:** $O(n^2 \\cdot \\alpha(n)) \\approx O(n^2)$ thời gian (phải đọc cả ma trận), $O(n)$ bộ nhớ.
 
 ### Bài 2 — Redundant Connection
 
@@ -635,7 +635,7 @@ func findRedundantConnection(edges [][]int) []int {
 }
 \`\`\`
 
-**Độ phức tạp:** \`O(n·α(n)) ≈ O(n)\`.
+**Độ phức tạp:** $O(n \\cdot \\alpha(n)) \\approx O(n)$.
 
 ### Bài 3 — Accounts Merge
 
@@ -682,7 +682,7 @@ func accountsMerge(accounts [][]string) [][]string {
 }
 \`\`\`
 
-**Độ phức tạp:** \`O(N·K·log(N·K))\` với \`N\` account, \`K\` email trung bình (chi phí chính là sort các nhóm email).
+**Độ phức tạp:** $O(N \\cdot K \\cdot \\log(N \\cdot K))$ với $N$ account, $K$ email trung bình (chi phí chính là sort các nhóm email).
 
 ### Bài 4 — Number of Islands
 
@@ -692,11 +692,11 @@ func accountsMerge(accounts [][]string) [][]string {
 func numIslands(grid [][]byte) int { /* xem mục 6 */ return 0 }
 \`\`\`
 
-**Độ phức tạp:** \`O(m·n)\` thời gian, \`O(m·n)\` bộ nhớ (đệ quy worst-case).
+**Độ phức tạp:** $O(m \\cdot n)$ thời gian, $O(m \\cdot n)$ bộ nhớ (đệ quy worst-case).
 
 ### Bài 5 — Graph Valid Tree
 
-**Cách tiếp cận:** Đồ thị \`n\` đỉnh là **cây** ⇔ (a) có **đúng \`n-1\` cạnh** VÀ (b) **không chu trình** (tương đương: liên thông + không chu trình). Dùng DSU: nếu gặp cạnh nối hai đỉnh cùng tập → có chu trình → false. Cuối cùng kiểm tra \`count == 1\` (liên thông).
+**Cách tiếp cận:** Đồ thị $n$ đỉnh là **cây** ⇔ (a) có **đúng $n-1$ cạnh** VÀ (b) **không chu trình** (tương đương: liên thông + không chu trình). Dùng DSU: nếu gặp cạnh nối hai đỉnh cùng tập → có chu trình → false. Cuối cùng kiểm tra \`count == 1\` (liên thông).
 
 \`\`\`go
 func validTree(n int, edges [][]int) bool {
@@ -715,7 +715,7 @@ func validTree(n int, edges [][]int) bool {
 
 > Thực ra khi đã có \`len(edges)==n-1\` và không chu trình thì chắc chắn liên thông; nhưng kiểm tra \`count==1\` cho rõ ràng và an toàn.
 
-**Độ phức tạp:** \`O(n·α(n)) ≈ O(n)\`.
+**Độ phức tạp:** $O(n \\cdot \\alpha(n)) \\approx O(n)$.
 
 ### Bài 6 — Satisfiability of Equality Equations
 
@@ -743,7 +743,7 @@ func equationsPossible(equations []string) bool {
 
 **Ví dụ:** \`["a==b","b!=a"]\` → union(a,b); rồi \`b!=a\` mà Find(b)==Find(a) → **false** ✓.
 
-**Độ phức tạp:** \`O(L·α(26)) ≈ O(L)\` với \`L\` số phương trình.
+**Độ phức tạp:** $O(L \\cdot \\alpha(26)) \\approx O(L)$ với $L$ số phương trình.
 
 ### Bài 7 — Number of Connected Components
 
@@ -759,7 +759,7 @@ func countComponents(n int, edges [][]int) int {
 \`\`\`
 **Cách 2 (DFS):** xem \`countComponentsDFS\` mục 2.
 
-**Độ phức tạp:** DSU \`O((n+E)·α)\`; DFS \`O(n+E)\`.
+**Độ phức tạp:** DSU $O((n+E) \\cdot \\alpha)$; DFS $O(n+E)$.
 
 ---
 

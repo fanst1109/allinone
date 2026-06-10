@@ -12,7 +12,7 @@ Sau bài này bạn sẽ:
 
 - Nhận diện **dạng DP đơn giản nhất**: state chỉ là **một chỉ số** \`dp[i]\`, transition chỉ phụ thuộc vài phần tử liền trước (\`dp[i-1]\`, \`dp[i-2]\`, ...).
 - Giải thành thạo bộ bài kinh điển: **climbing stairs, house robber I/II, max subarray (Kadane), decode ways, min cost climbing stairs, word break, LIS, max product subarray**.
-- Biết **tối ưu không gian** từ \`O(n)\` xuống \`O(1)\` bằng kỹ thuật "rolling variable".
+- Biết **tối ưu không gian** từ $O(n)$ xuống $O(1)$ bằng kỹ thuật "rolling variable".
 - Tránh được các cạm bẫy: Kadane reset-vs-continue, LIS hai phiên bản, số \`'0'\` trong decode ways, quên track \`min\` trong product subarray, off-by-one ở base case.
 
 ---
@@ -114,7 +114,7 @@ func climbStairs(n int) int {
 > **🔁 Dừng lại tự kiểm tra.** Với \`n=4\`, có bao nhiêu cách?
 > <details><summary>Đáp án</summary>5 cách: 1+1+1+1, 1+1+2, 1+2+1, 2+1+1, 2+2. Khớp \`dp[4]=5\`.</details>
 
-> **📝 Tóm tắt mục 2.** Climbing stairs = Fibonacci. \`dp[i]=dp[i-1]+dp[i-2]\`. Tối ưu xuống \`O(1)\` bằng 2 biến rolling.
+> **📝 Tóm tắt mục 2.** Climbing stairs = Fibonacci. \`dp[i]=dp[i-1]+dp[i-2]\`. Tối ưu xuống $O(1)$ bằng 2 biến rolling.
 
 ---
 
@@ -178,7 +178,7 @@ func max(a, b int) int {
 > **🔁 Dừng lại tự kiểm tra.** \`nums=[2,1,1,2]\` cho ra bao nhiêu?
 > <details><summary>Đáp án</summary>4. dp: 2, max(2,1)=2, max(2,2+1=3)=3, max(3,2+2=4)=4 → 4 (trộm nhà 0 và 3).</details>
 
-> **📝 Tóm tắt mục 3.** House robber: \`dp[i]=max(dp[i-1], dp[i-2]+nums[i])\` — bỏ qua hay trộm. \`O(1)\` không gian.
+> **📝 Tóm tắt mục 3.** House robber: \`dp[i]=max(dp[i-1], dp[i-2]+nums[i])\` — bỏ qua hay trộm. $O(1)$ không gian.
 
 ---
 
@@ -395,7 +395,7 @@ func min(a, b int) int {
 - **Transition:** \`dp[i] = OR over j<i ( dp[j] AND (s[j..i-1] ∈ dict) )\`.
 - **Base case:** \`dp[0] = true\` (chuỗi rỗng tách được — không cần từ nào).
 - **Đáp án:** \`dp[n]\`.
-- **Độ phức tạp:** \`O(n²)\` cặp \`(j, i)\`, mỗi lần tra dict + cắt chuỗi \`O(n)\` → \`O(n³)\` thô, hoặc \`O(n²)\` với hashset + so sánh khéo.
+- **Độ phức tạp:** $O(n^2)$ cặp \`(j, i)\`, mỗi lần tra dict + cắt chuỗi $O(n)$ → $O(n^3)$ thô, hoặc $O(n^2)$ với hashset + so sánh khéo.
 
 ### Walk-through với \`s = "leetcode"\`, \`dict = {"leet", "code"}\`
 
@@ -440,7 +440,7 @@ func wordBreak(s string, wordDict []string) bool {
 > **🔁 Dừng lại tự kiểm tra.** \`"catsandog"\`, dict \`{cats,dog,sand,and,cat}\` — tách được không?
 > <details><summary>Đáp án</summary>Không (false). "cat"+"sand"+"og"? "og" không có. "cats"+"and"+"og"? "og" không có. Mọi nhánh đều kẹt ở "og".</details>
 
-> **📝 Tóm tắt mục 8.** Word break: \`dp[i]=∃j: dp[j] ∧ s[j..i-1]∈dict\`. \`dp[0]=true\`. \`O(n²)\`.
+> **📝 Tóm tắt mục 8.** Word break: \`dp[i]=∃j: dp[j] ∧ s[j..i-1]∈dict\`. \`dp[0]=true\`. $O(n^2)$.
 
 ---
 
@@ -543,12 +543,12 @@ func lengthOfLIS_nlogn(nums []int) int {
 
 > **❓ Câu hỏi tự nhiên.** *"Vì sao thay đuôi lại đúng?"* — Thay \`tails[k]\` bằng số nhỏ hơn không làm hỏng các dãy đã đếm (độ dài giữ nguyên), mà làm đuôi nhỏ hơn → dễ nối thêm về sau. Đây là invariant của thuật toán.
 
-> **⚠ Cạm bẫy: hai phiên bản LIS.** \`O(n²)\` dễ viết và cho cả việc **dựng lại dãy**; \`O(n log n)\` nhanh hơn nhiều nhưng \`tails\` **không phải** dãy thật. Khi đề chỉ hỏi **độ dài** → dùng \`O(n log n)\`. Khi cần **dãy cụ thể** → dùng \`O(n²)\` (hoặc \`O(n log n)\` có lưu thêm con trỏ cha).
+> **⚠ Cạm bẫy: hai phiên bản LIS.** $O(n^2)$ dễ viết và cho cả việc **dựng lại dãy**; $O(n \\log n)$ nhanh hơn nhiều nhưng \`tails\` **không phải** dãy thật. Khi đề chỉ hỏi **độ dài** → dùng $O(n \\log n)$. Khi cần **dãy cụ thể** → dùng $O(n^2)$ (hoặc $O(n \\log n)$ có lưu thêm con trỏ cha).
 
 > **🔁 Dừng lại tự kiểm tra.** \`[7,7,7,7]\` LIS dài bao nhiêu (tăng nghiêm ngặt)?
 > <details><summary>Đáp án</summary>1. Các số bằng nhau không tạo dãy tăng nghiêm ngặt. (Nếu là "không giảm" thì là 4.)</details>
 
-> **📝 Tóm tắt mục 9.** LIS \`O(n²)\`: \`dp[i]=1+max{dp[j]:nums[j]<nums[i]}\`. \`O(n log n)\`: patience + binary search trên \`tails\`.
+> **📝 Tóm tắt mục 9.** LIS $O(n^2)$: \`dp[i]=1+max{dp[j]:nums[j]<nums[i]}\`. $O(n \\log n)$: patience + binary search trên \`tails\`.
 
 ---
 
@@ -613,7 +613,7 @@ func maxProduct(nums []int) int {
 
 ## 11. State + tối ưu không gian (rolling variable)
 
-> **💡 Trực giác.** Nhiều bài DP 1D có transition chỉ nhìn lại **một hằng số** ô trước (\`dp[i-1]\`, \`dp[i-2]\`). Vậy giữ cả mảng \`dp[]\` là **lãng phí** — chỉ cần 1-2 biến "lăn" theo vòng lặp. Đây là tối ưu không gian \`O(n) → O(1)\`.
+> **💡 Trực giác.** Nhiều bài DP 1D có transition chỉ nhìn lại **một hằng số** ô trước (\`dp[i-1]\`, \`dp[i-2]\`). Vậy giữ cả mảng \`dp[]\` là **lãng phí** — chỉ cần 1-2 biến "lăn" theo vòng lặp. Đây là tối ưu không gian $O(n) \\to O(1)$.
 
 **Quy tắc:** Nếu \`dp[i]\` chỉ phụ thuộc \`dp[i-1]\` và \`dp[i-2]\`, thay mảng bằng 2 biến \`prev1, prev2\`:
 
@@ -631,18 +631,18 @@ for i := 2; i <= n; i++ {
 
 | Bài | Nhìn lại | Số biến rolling | Không gian |
 |-----|----------|-----------------|------------|
-| Climbing stairs | dp[i-1], dp[i-2] | 2 | O(1) |
-| House robber I/II | dp[i-1], dp[i-2] | 2 | O(1) |
-| Kadane | dp[i-1] | 1 (\`cur\`) | O(1) |
-| Max product | maxEnd, minEnd | 2 | O(1) |
-| Decode ways | dp[i-1], dp[i-2] | 2 | O(1) |
-| Min cost stairs | dp[i-1], dp[i-2] | 2 | O(1) |
-| **Word break** | **mọi \`dp[j]\`, j<i** | **không rút được** | **O(n)** |
-| **LIS O(n²)** | **mọi \`dp[j]\`, j<i** | **không rút được** | **O(n)** |
+| Climbing stairs | dp[i-1], dp[i-2] | 2 | $O(1)$ |
+| House robber I/II | dp[i-1], dp[i-2] | 2 | $O(1)$ |
+| Kadane | dp[i-1] | 1 (\`cur\`) | $O(1)$ |
+| Max product | maxEnd, minEnd | 2 | $O(1)$ |
+| Decode ways | dp[i-1], dp[i-2] | 2 | $O(1)$ |
+| Min cost stairs | dp[i-1], dp[i-2] | 2 | $O(1)$ |
+| **Word break** | **mọi \`dp[j]\`, j<i** | **không rút được** | **$O(n)$** |
+| **LIS $O(n^2)$** | **mọi \`dp[j]\`, j<i** | **không rút được** | **$O(n)$** |
 
 > **❓ Câu hỏi tự nhiên.** *"Bài nào KHÔNG rút được về O(1)?"* — Khi transition cần **toàn bộ** các ô trước (Word break, LIS quét mọi \`j<i\`). Lúc đó phải giữ cả mảng.
 
-> **📝 Tóm tắt mục 11.** Nhìn lại hằng số ô trước → rolling variable \`O(1)\`. Nhìn lại mọi ô trước → giữ mảng \`O(n)\`.
+> **📝 Tóm tắt mục 11.** Nhìn lại hằng số ô trước → rolling variable $O(1)$. Nhìn lại mọi ô trước → giữ mảng $O(n)$.
 
 ---
 
@@ -665,7 +665,7 @@ Nhận diện một bài là DP 1D khi **cả ba** dấu hiệu xuất hiện:
 > **⚠ Tổng hợp các bẫy đã rải trong bài — đọc lại trước khi làm bài tập:**
 
 1. **Kadane reset vs continue.** Reset (\`cur=nums[i]\`) khi tổng tích lũy đang âm; continue khi đang dương. Khởi tạo \`best=nums[0]\`, **không** phải \`0\` (sai khi mảng toàn âm).
-2. **LIS O(n²) vs O(n log n).** Hỏi độ dài → \`O(n log n)\`; cần dãy thật → \`O(n²)\`. \`tails\` trong bản nhanh **không** là LIS thật.
+2. **LIS $O(n^2)$ vs $O(n \\log n)$.** Hỏi độ dài → $O(n \\log n)$; cần dãy thật → $O(n^2)$. \`tails\` trong bản nhanh **không** là LIS thật.
 3. **Decode ways với \`'0'\`.** \`'0'\` chỉ hợp lệ trong cặp "10"/"20"; đứng riêng hoặc sau số >2 → kẹt (0 cách từ đó về sau).
 4. **Product subarray quên \`min\`.** Phải track cả \`maxEnd\` và \`minEnd\` vì âm×âm lật dấu. Quên \`min\` → sai với mảng có số âm.
 5. **Off-by-one ở base case.** Climbing/decode dùng \`dp[0]=1\` (chuỗi rỗng/đứng yên có 1 cách); word break \`dp[0]=true\`. Sai base → toàn bộ lệch. Luôn verify bằng tay 1-2 ô đầu.
@@ -693,7 +693,7 @@ Nhận diện một bài là DP 1D khi **cả ba** dấu hiệu xuất hiện:
 - **State:** \`dp[i]\` = tiền tối đa khi xét tới nhà \`i\`.
 - **Transition:** \`dp[i] = max(dp[i-1], dp[i-2]+nums[i])\`.
 - **Base:** \`dp[0]=nums[0]\`, \`dp[1]=max(nums[0],nums[1])\`.
-- **Độ phức tạp:** thời gian \`O(n)\`, không gian \`O(1)\` (2 biến rolling).
+- **Độ phức tạp:** thời gian $O(n)$, không gian $O(1)$ (2 biến rolling).
 - **Đáp án \`[2,7,9,3,1]\` = 12** (trộm 2+9+1). Code: hàm \`rob\` ở [mục 3](#3-house-robber-tên-trộm-nhà).
 
 \`\`\`go
@@ -710,7 +710,7 @@ func rob(nums []int) int {
 
 - **State:** \`cur\` = tổng đoạn tốt nhất kết thúc tại \`i\`; lưu thêm \`tmpStart\` (vị trí bắt đầu đoạn hiện tại) và \`bestL, bestR\`.
 - **Transition:** nếu \`cur < 0\` → reset (\`cur=nums[i]\`, \`tmpStart=i\`); ngược lại \`cur+=nums[i]\`. Khi \`cur>best\` cập nhật \`best, bestL=tmpStart, bestR=i\`.
-- **Độ phức tạp:** \`O(n)\` thời gian, \`O(1)\` không gian.
+- **Độ phức tạp:** $O(n)$ thời gian, $O(1)$ không gian.
 - **Đáp án \`[-2,1,-3,4,-1,2,1,-5,4]\`** → tổng **6**, đoạn \`[4,-1,2,1]\` (chỉ số 3..6).
 
 \`\`\`go
@@ -737,28 +737,28 @@ func maxSubArrayWithRange(nums []int) (sum, l, r int) {
 
 - **State:** \`dp[i]\` = số cách giải mã \`i\` ký tự đầu.
 - **Transition:** \`dp[i] = (s[i-1]!='0' ? dp[i-1]) + (s[i-2..i-1]∈[10,26] ? dp[i-2])\`.
-- **Base:** \`dp[0]=1\`. **Độ phức tạp:** \`O(n)\` / \`O(1)\`.
+- **Base:** \`dp[0]=1\`. **Độ phức tạp:** $O(n)$ / $O(1)$.
 - **Đáp án \`"2266"\`:** dp = 1,1(\`2\`),2(\`22\`),3(\`226\`),5(\`2266\`). Walk: dp[4]: \`'6'≠0\`→+dp[3]=3; \`"66"\`∉[10,26]→+0 → 3? Khoan, lại tính: dp[3]=3, dp[4]: 1 ký tự \`'6'\`→+dp[3]=3; 2 ký tự \`"66"\`=66∉[10,26]→0 → dp[4]=3. **Đáp án \`"2266"\` = 3** (BBZF? — cặp hợp lệ: 2,2,6,6 / 22,6,6 / 2,26,6 → 3 cách). Code: hàm \`numDecodings\` ở [mục 6](#6-decode-ways-số-cách-giải-mã).
 
 ### Bài 4 — Word break
 
 - **State:** \`dp[i]\` = \`s[0..i-1]\` tách được?
 - **Transition:** \`dp[i] = ∃ j<i : dp[j] ∧ s[j..i-1]∈dict\`.
-- **Base:** \`dp[0]=true\`. **Độ phức tạp:** \`O(n²)\` (tra hashset \`O(1)\`).
+- **Base:** \`dp[0]=true\`. **Độ phức tạp:** $O(n^2)$ (tra hashset $O(1)$).
 - **Đáp án \`"applepenapple"\`, dict \`{apple,pen}\`:** dp[5]=T (\`apple\`), dp[8]=T (dp[5]∧\`pen\`), dp[13]=T (dp[8]∧\`apple\`) → **true**. Code: hàm \`wordBreak\` ở [mục 8](#8-word-break-tách-từ).
 
 ### Bài 5 — LIS O(n log n)
 
 - **State (qua tails):** \`tails[k]\` = đuôi nhỏ nhất của dãy tăng dài \`k+1\`.
 - **Transition:** lower_bound \`x\` trong \`tails\`; thay hoặc append.
-- **Độ phức tạp:** \`O(n log n)\` thời gian, \`O(n)\` không gian.
+- **Độ phức tạp:** $O(n \\log n)$ thời gian, $O(n)$ không gian.
 - **Đáp án \`[1,3,6,7,9,4,10,5,6]\`:** tails diễn tiến: [1],[1,3],[1,3,6],[1,3,6,7],[1,3,6,7,9], 4→thay 6→[1,3,4,7,9], 10→[1,3,4,7,9,10], 5→thay 7→[1,3,4,5,9,10], 6→thay 9→[1,3,4,5,6,10]. \`len=6\` → **LIS = 6** (vd \`[1,3,4,5,6,10]\`... thực ra \`[1,3,6,7,9,10]\` dài 6). Code: hàm \`lengthOfLIS_nlogn\` ở [mục 9.2](#92-phiên-bản-on-log-n--patience--binary-search).
 
 ### Bài 6 — Max product subarray
 
 - **State:** \`maxEnd[i]\`, \`minEnd[i]\`.
 - **Transition:** \`maxEnd=max(x, maxEnd·x, minEnd·x)\`, \`minEnd=min(...)\`.
-- **Base:** \`maxEnd=minEnd=nums[0]\`. **Độ phức tạp:** \`O(n)\` / \`O(1)\`.
+- **Base:** \`maxEnd=minEnd=nums[0]\`. **Độ phức tạp:** $O(n)$ / $O(1)$.
 - **Đáp án:** \`[2,3,-2,4]\` → **6** (đoạn \`[2,3]\`); \`[-2,3,-4]\` → **24** (cả mảng, âm×âm). Code: hàm \`maxProduct\` ở [mục 10](#10-maximum-product-subarray-tích-đoạn-con-lớn-nhất).
 
 ---

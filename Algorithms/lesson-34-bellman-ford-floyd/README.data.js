@@ -67,7 +67,7 @@ Phản ví dụ kinh điển hơn (Dijkstra chốt sai chắc chắn):
 
 Dijkstra lấy đỉnh nhỏ nhất trước, có thể chốt B = 2 trước khi khám phá \`D→B = −9\`, nên bỏ lỡ. Kết luận: **bất cứ khi nào có cạnh âm, đừng dùng Dijkstra** — kết quả không đảm bảo đúng.
 
-> ⚠ **Lỗi thường gặp**: "Thêm một hằng số vào mọi cạnh để khử âm rồi chạy Dijkstra." **Sai!** Cộng hằng số \`c\` vào mỗi cạnh làm đường đi \`k\` cạnh tăng thêm \`k·c\` — đường nhiều cạnh bị phạt nặng hơn đường ít cạnh, làm thay đổi đường ngắn nhất. (Có kỹ thuật **Johnson's algorithm** dùng "reweighting" qua thế năng \`h(v)\` để khử âm *đúng cách*, nhưng đó là chủ đề nâng cao.)
+> ⚠ **Lỗi thường gặp**: "Thêm một hằng số vào mọi cạnh để khử âm rồi chạy Dijkstra." **Sai!** Cộng hằng số $c$ vào mỗi cạnh làm đường đi $k$ cạnh tăng thêm $k \\cdot c$ — đường nhiều cạnh bị phạt nặng hơn đường ít cạnh, làm thay đổi đường ngắn nhất. (Có kỹ thuật **Johnson's algorithm** dùng "reweighting" qua thế năng $h(v)$ để khử âm *đúng cách*, nhưng đó là chủ đề nâng cao.)
 
 ### Hai bài toán bài này giải quyết
 
@@ -81,7 +81,7 @@ Dijkstra lấy đỉnh nhỏ nhất trước, có thể chốt B = 2 trước kh
 <details>
 <summary>Vì sao không thể "cộng hằng số khử âm rồi Dijkstra"?</summary>
 
-Vì hằng số cộng vào *mỗi cạnh*, nên một đường đi \`k\` cạnh bị cộng tổng cộng \`k·c\`. Hai đường cùng nối \`s→t\` nhưng số cạnh khác nhau sẽ bị phạt khác nhau → so sánh không còn công bằng → đường ngắn nhất có thể đổi. Ví dụ \`A→B→C\` (2 cạnh) và \`A→C\` (1 cạnh): cộng \`c\` làm đường đầu +2c, đường sau +c.
+Vì hằng số cộng vào *mỗi cạnh*, nên một đường đi $k$ cạnh bị cộng tổng cộng $k \\cdot c$. Hai đường cùng nối \`s→t\` nhưng số cạnh khác nhau sẽ bị phạt khác nhau → so sánh không còn công bằng → đường ngắn nhất có thể đổi. Ví dụ \`A→B→C\` (2 cạnh) và \`A→C\` (1 cạnh): cộng $c$ làm đường đầu $+2c$, đường sau $+c$.
 </details>
 
 ### 📝 Tóm tắt mục 1
@@ -899,9 +899,9 @@ func findCheapestPrice(n int, flights [][]int, src, dst, K int) int {
 
 ### Lời giải 5 — Currency arbitrage
 
-**Cách tiếp cận**: đặt \`w(i→j) = −log(rate[i][j])\`. Tích tỷ giá vòng > 1 ⟺ tổng log > 0 ⟺ tổng \`−log\` < 0 ⟺ **chu trình âm**. Chạy Bellman-Ford phát hiện chu trình âm (code mục 7.1 \`detectArbitrage\`). Cần epsilon vì float.
+**Cách tiếp cận**: đặt $w(i \\to j) = -\\log(\\text{rate}[i][j])$. Tích tỷ giá vòng > 1 ⟺ tổng log > 0 ⟺ tổng $-\\log$ < 0 ⟺ **chu trình âm**. Chạy Bellman-Ford phát hiện chu trình âm (code mục 7.1 \`detectArbitrage\`). Cần epsilon vì float.
 
-**Vì sao đúng**: arbitrage = đổi \`c₀→c₁→...→c₀\` mà \`∏ rate > 1\`. Lấy log: \`Σ log(rate) > 0\`. Nhân −1: \`Σ (−log rate) < 0\` — đúng định nghĩa chu trình âm. **Độ phức tạp**: O(V·E) = O(V³) với ma trận đầy đủ.
+**Vì sao đúng**: arbitrage = đổi \`c₀→c₁→...→c₀\` mà $\\prod \\text{rate} > 1$. Lấy log: $\\sum \\log(\\text{rate}) > 0$. Nhân −1: $\\sum (-\\log \\text{rate}) < 0$ — đúng định nghĩa chu trình âm. **Độ phức tạp**: O(V·E) = O(V³) với ma trận đầy đủ.
 
 ### Lời giải 6 — Transitive closure
 

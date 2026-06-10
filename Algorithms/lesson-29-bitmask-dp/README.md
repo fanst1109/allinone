@@ -10,7 +10,7 @@ Sau bài này bạn sẽ:
 - Thành thạo các **thao tác tập bằng bit**: kiểm tra, set, clear, toggle, đếm bit, duyệt subset.
 - Nắm **ý tưởng cốt lõi của bitmask DP**: state là một bitmask đại diện tập đã/chưa xử lý, có `2^n` state.
 - Giải được 3 bài kinh điển bằng bitmask DP: **TSP** (người giao hàng), **assignment problem** (bài toán gán), **đếm đường Hamilton**.
-- Làm chủ **trick duyệt mọi subset của một mask** bằng `s = (s-1) & mask` và biết vì sao tổng độ phức tạp là `O(3^n)` chứ không phải `O(4^n)`.
+- Làm chủ **trick duyệt mọi subset của một mask** bằng `s = (s-1) & mask` và biết vì sao tổng độ phức tạp là $O(3^n)$ chứ không phải $O(4^n)$.
 - Biết **giới hạn**: bitmask DP chỉ sống được khi `n ≤ ~20` (đôi khi 22-25 nếu hằng số nhỏ), tránh `2^n` nổ tung.
 
 ## Kiến thức tiền đề
@@ -80,7 +80,7 @@ Trong Go, `1<<i` tạo số chỉ có **bit thứ `i`** bật. Đây là "viên 
 
 ## 2. Thao tác tập bằng bit
 
-Đây là "bộ đồ nghề" bạn sẽ dùng đi dùng lại trong mọi bài bitmask DP. Mỗi thao tác là **một biểu thức bit**, chạy trong `O(1)`.
+Đây là "bộ đồ nghề" bạn sẽ dùng đi dùng lại trong mọi bài bitmask DP. Mỗi thao tác là **một biểu thức bit**, chạy trong $O(1)$.
 
 > **💡 Trực giác / Hình dung**
 >
@@ -214,8 +214,8 @@ for mask := 0; mask < (1 << n); mask++ {
 > **❓ Câu hỏi tự nhiên của người đọc**
 >
 > - *"Vì sao duyệt `mask` tăng dần lại đúng?"* — Vì khi thêm một phần tử, mask **luôn tăng** (`mask | (1<<j) > mask` khi bit `j` chưa có). Nên `dp[mask]` luôn được tính xong trước khi dùng để cập nhật `dp[next]`. Đây là thứ tự topo tự nhiên.
-> - *"Phải duyệt thêm `j` à? Vậy tổng là bao nhiêu?"* — `2^n` mask × `n` lựa chọn `j` = `O(2^n · n)`. Nếu chuyển trạng thái cần thêm 1 biến (như TSP có thêm "đang đứng ở đâu") thì thành `O(2^n · n²)`.
-> - *"Bộ nhớ?"* — `O(2^n)` cho `dp[mask]`, hoặc `O(2^n · n)` nếu state có thêm chiều. Đây là lý do `n` phải nhỏ.
+> - *"Phải duyệt thêm `j` à? Vậy tổng là bao nhiêu?"* — $2^n$ mask $\times$ $n$ lựa chọn `j` = $O(2^n \cdot n)$. Nếu chuyển trạng thái cần thêm 1 biến (như TSP có thêm "đang đứng ở đâu") thì thành $O(2^n \cdot n^2)$.
+> - *"Bộ nhớ?"* — $O(2^n)$ cho `dp[mask]`, hoặc $O(2^n \cdot n)$ nếu state có thêm chiều. Đây là lý do $n$ phải nhỏ.
 
 > **📝 Tóm tắt mục 3**
 >
@@ -231,7 +231,7 @@ for mask := 0; mask < (1 << n); mask++ {
 
 > **💡 Trực giác / Hình dung**
 >
-> Một người giao hàng phải ghé hết các điểm rồi về kho. Brute-force là thử mọi thứ tự ghé: `(n-1)!` hoán vị — `n=10` đã là `362880`, `n=13` là `~6 tỉ`. Bitmask DP đẩy xuống `O(2^n · n²)`: ta không quan tâm **thứ tự** đã ghé các thành phố trong tập, chỉ quan tâm **đã ghé tập nào** và **đang đứng ở đâu** — vì chi phí đi tiếp chỉ phụ thuộc 2 thứ đó.
+> Một người giao hàng phải ghé hết các điểm rồi về kho. Brute-force là thử mọi thứ tự ghé: $(n-1)!$ hoán vị — $n=10$ đã là `362880`, $n=13$ là `~6 tỉ`. Bitmask DP đẩy xuống $O(2^n \cdot n^2)$: ta không quan tâm **thứ tự** đã ghé các thành phố trong tập, chỉ quan tâm **đã ghé tập nào** và **đang đứng ở đâu** — vì chi phí đi tiếp chỉ phụ thuộc 2 thứ đó.
 
 State:
 
@@ -241,7 +241,7 @@ State:
 - **Chuyển trạng thái:** từ `(mask, i)`, đi tới thành phố `j` chưa thăm: `dp[mask | (1<<j)][j] = min(..., dp[mask][i] + dist[i][j])`.
 - **Đáp án:** `min over i của dp[full][i] + dist[i][0]` — thăm hết rồi cộng chặng về kho.
 
-Độ phức tạp: `2^n` mask × `n` vị trí `i` × `n` lựa chọn `j` = **`O(2^n · n²)`**. Bộ nhớ `O(2^n · n)`.
+Độ phức tạp: $2^n$ mask $\times$ $n$ vị trí `i` $\times$ $n$ lựa chọn `j` = **$O(2^n \cdot n^2)$**. Bộ nhớ $O(2^n \cdot n)$.
 
 ### Walk-through 4 thành phố
 
@@ -377,7 +377,7 @@ func main() {
 >
 > - `dp[mask][i]` = min cost thăm tập `mask`, đang ở `i`. Base `dp[{0}][0]=0`.
 > - Chuyển: `dp[mask|1<<j][j] = min(..., dp[mask][i] + dist[i][j])` với `j` chưa thăm.
-> - Đáp án = `min_i dp[full][i] + dist[i][0]`. Độ phức tạp `O(2^n·n²)`.
+> - Đáp án = `min_i dp[full][i] + dist[i][0]`. Độ phức tạp $O(2^n \cdot n^2)$.
 
 ---
 
@@ -397,7 +397,7 @@ State:
 - **Chuyển trạng thái:** ở `dp[mask]`, người `p = popcount(mask)` chọn một việc `j` chưa bị chiếm: `dp[mask | (1<<j)] = min(..., dp[mask] + cost[p][j])`.
 - **Đáp án:** `dp[(1<<n)-1]` (mọi việc đã giao = mọi người đã gán).
 
-Độ phức tạp: `2^n` mask × `n` lựa chọn việc `j` = **`O(2^n · n)`** — gọn hơn TSP một bậc `n` vì người `p` suy ra từ mask, không cần chiều thứ hai.
+Độ phức tạp: $2^n$ mask $\times$ $n$ lựa chọn việc `j` = **$O(2^n \cdot n)$** — gọn hơn TSP một bậc $n$ vì người `p` suy ra từ mask, không cần chiều thứ hai.
 
 ### Walk-through 3 người / 3 việc
 
@@ -488,7 +488,7 @@ func main() {
 >
 > - `dp[mask]` = min cost, `mask` = tập việc đã giao, người tiếp = `popcount(mask)`.
 > - Chuyển: `dp[mask|1<<j] = min(..., dp[mask] + cost[p][j])`. Đáp án `dp[full]`.
-> - `O(2^n·n)` — không cần chiều "người" vì suy ra từ popcount.
+> - $O(2^n \cdot n)$ — không cần chiều "người" vì suy ra từ popcount.
 
 ---
 
@@ -573,7 +573,7 @@ func main() {
 > **📝 Tóm tắt mục 6**
 >
 > - Đếm = đổi `min/max` thành `+=`. `dp[mask][i]` = số đường thăm `mask`, kết ở `i`.
-> - Base `dp[1<<i][i]=1`. Đáp án `Σ_i dp[full][i]`. Độ phức tạp `O(2^n·n²)`.
+> - Base `dp[1<<i][i]=1`. Đáp án `Σ_i dp[full][i]`. Độ phức tạp $O(2^n \cdot n^2)$.
 
 ---
 
@@ -609,7 +609,7 @@ Vòng lặp duyệt `6 → 4 → 2`, tức `{1,2}, {2}, {1}` — đúng 3 tập 
 > **❓ Câu hỏi tự nhiên của người đọc**
 >
 > - *"Vì sao trick này duyệt ĐỦ và KHÔNG TRÙNG?"* — Mỗi giá trị `s` chỉ xuất hiện một lần và giảm nghiêm ngặt (`(s-1)&mask < s` luôn đúng vì ta vừa xóa ít nhất bit thấp nhất). Nó liệt kê **đúng** các con số `s` thỏa `s ⊆ mask` theo thứ tự giảm — không sót, không lặp.
-> - *"Tổng độ phức tạp khi duyệt subset-of-subset là bao nhiêu?"* — Nếu bạn chạy `for mask` rồi với mỗi mask lại `for s ⊆ mask`, một mask có `k` bit có `2^k` tập con. Tổng `Σ_mask 2^popcount(mask) = Σ_{k} C(n,k)·2^k = (1+2)^n = 3^n` (nhị thức Newton). Vậy là **`O(3^n)`**, không phải `O(4^n)` hay `O(2^n·2^n)`. Ghi nhớ con số này.
+> - *"Tổng độ phức tạp khi duyệt subset-of-subset là bao nhiêu?"* — Nếu bạn chạy `for mask` rồi với mỗi mask lại `for s ⊆ mask`, một mask có $k$ bit có $2^k$ tập con. Tổng $\sum_{\text{mask}} 2^{\text{popcount}(\text{mask})} = \sum_{k} C(n,k) \cdot 2^k = (1+2)^n = 3^n$ (nhị thức Newton). Vậy là **$O(3^n)$**, không phải $O(4^n)$ hay $O(2^n \cdot 2^n)$. Ghi nhớ con số này.
 
 ### Code subset enumeration (Go)
 
@@ -639,13 +639,13 @@ func main() {
 
 > **⚠ Lỗi thường gặp**
 >
-> - **Nhầm `O(3^n)` thành `O(2^n)`.** Subset-of-subset là `3^n` (`n=18 → ~387 triệu`), nặng hơn DP `2^n` thường nhiều. Đừng đánh giá thấp.
+> - **Nhầm $O(3^n)$ thành $O(2^n)$.** Subset-of-subset là $3^n$ (`n=18 → ~387 triệu`), nặng hơn DP $2^n$ thường nhiều. Đừng đánh giá thấp.
 > - **Quên tập rỗng.** Vòng `s > 0` bỏ qua `s = 0`. Nếu bài cần xét cả tập rỗng (vd partition), xử lý `s = 0` riêng hoặc viết vòng do-while thủ công.
 
 > **📝 Tóm tắt mục 7**
 >
 > - Trick `for s := mask; s > 0; s = (s-1) & mask` duyệt mọi tập con khác rỗng, giảm dần, không trùng.
-> - Tổng lần lặp trên mọi mask = `O(3^n)` (nhị thức `(1+2)^n`), không phải `2^n`.
+> - Tổng lần lặp trên mọi mask = $O(3^n)$ (nhị thức $(1+2)^n$), không phải $2^n$.
 
 ---
 
@@ -655,7 +655,7 @@ Bài toán dạng "chia `n` phần tử thành `k` nhóm thỏa điều kiện" 
 
 > **💡 Trực giác / Hình dung**
 >
-> `dp[mask]` = (số cách / chi phí tốt nhất) để phủ kín tập `mask` bằng các nhóm hợp lệ. Để tính `dp[mask]`, ta thử **mọi tập con `sub ⊆ mask`** làm "nhóm cuối cùng": nếu `sub` là một nhóm hợp lệ thì `dp[mask] = op(dp[mask], dp[mask \ sub] + cost(sub))`. Đây chính là chỗ trick subset enumeration vào cuộc → tổng `O(3^n)`.
+> `dp[mask]` = (số cách / chi phí tốt nhất) để phủ kín tập `mask` bằng các nhóm hợp lệ. Để tính `dp[mask]`, ta thử **mọi tập con `sub ⊆ mask`** làm "nhóm cuối cùng": nếu `sub` là một nhóm hợp lệ thì `dp[mask] = op(dp[mask], dp[mask \ sub] + cost(sub))`. Đây chính là chỗ trick subset enumeration vào cuộc → tổng $O(3^n)$.
 
 Mẫu chia nhóm (đếm số cách chia thành các nhóm hợp lệ):
 
@@ -702,19 +702,19 @@ func main() {
 
 > **❓ Câu hỏi tự nhiên của người đọc**
 >
-> - *"`valid[sub]` lấy đâu ra?"* — Tùy bài. Vd "chia thành các nhóm tổng ≤ C": `valid[sub] = (sum(sub) <= C)`. "Chia thành nhóm `k` người tương thích": `valid[sub]` = sub là một clique kích thước hợp lệ. Tiền xử lý `valid` trong `O(2^n · n)`.
+> - *"`valid[sub]` lấy đâu ra?"* — Tùy bài. Vd "chia thành các nhóm tổng ≤ C": `valid[sub] = (sum(sub) <= C)`. "Chia thành nhóm $k$ người tương thích": `valid[sub]` = sub là một clique kích thước hợp lệ. Tiền xử lý `valid` trong $O(2^n \cdot n)$.
 > - *"Vì sao `dp[mask &^ sub]`?"* — `mask &^ sub` = `mask` bỏ đi các phần tử của `sub` = phần còn lại cần chia tiếp. Vì `sub ⊆ mask` nên `mask &^ sub = mask - sub` (về tập).
 
 > **📝 Tóm tắt mục 8**
 >
 > - Chia nhóm = `dp[mask]` gộp qua mọi `sub ⊆ mask` hợp lệ làm nhóm cuối: `dp[mask] op= dp[mask&^sub] ⊕ cost(sub)`.
-> - Kết hợp bitmask DP + subset enumeration → `O(3^n)`. Tiền xử lý `valid[sub]` riêng.
+> - Kết hợp bitmask DP + subset enumeration → $O(3^n)$. Tiền xử lý `valid[sub]` riêng.
 
 ---
 
 ## 9. Độ phức tạp & giới hạn `n`
 
-Bitmask DP gần như luôn có dạng `O(2^n · poly(n))` về thời gian, `O(2^n · poly(n))` về bộ nhớ. Bảng cảm nhận con số:
+Bitmask DP gần như luôn có dạng $O(2^n \cdot \text{poly}(n))$ về thời gian, $O(2^n \cdot \text{poly}(n))$ về bộ nhớ. Bảng cảm nhận con số:
 
 | `n` | `2^n` | `2^n · n` | `2^n · n²` | `3^n` | Khả thi? |
 |---|---|---|---|---|---|
@@ -728,13 +728,13 @@ Bitmask DP gần như luôn có dạng `O(2^n · poly(n))` về thời gian, `O(
 
 > **❓ Câu hỏi tự nhiên của người đọc**
 >
-> - *"Ngưỡng thực dụng là bao nhiêu?"* — `n ≤ 20` an toàn cho DP `O(2^n·n²)`. `n = 22–25` chỉ qua nếu đa thức nhỏ (`O(2^n·n)` hay `O(2^n)`) và bộ nhớ vừa. `n > 25` → đổi cách (meet-in-the-middle, branch&bound, heuristic).
+> - *"Ngưỡng thực dụng là bao nhiêu?"* — $n \leq 20$ an toàn cho DP $O(2^n \cdot n^2)$. `n = 22–25` chỉ qua nếu đa thức nhỏ ($O(2^n \cdot n)$ hay $O(2^n)$) và bộ nhớ vừa. $n > 25$ → đổi cách (meet-in-the-middle, branch&bound, heuristic).
 > - *"Bộ nhớ hay thời gian chết trước?"* — Thường **bộ nhớ**: `dp[2^n][n]` với `n=22` là `4.2M × 22 × 8 byte ≈ 740 MB` — MLE. Nếu chỉ cần `dp[2^n]` 1 chiều thì nhẹ hơn nhiều.
 
 > **📝 Tóm tắt mục 9**
 >
-> - Thời gian `O(2^n·poly)`, bộ nhớ `O(2^n·poly)`. `n ≤ 20` an toàn.
-> - `2^20 ≈ 1M` (OK), `3^n` nặng hơn nhiều — chỉ tới `~n=18`. `n > 25` không dùng bitmask DP.
+> - Thời gian $O(2^n \cdot \text{poly})$, bộ nhớ $O(2^n \cdot \text{poly})$. $n \leq 20$ an toàn.
+> - $2^{20} \approx 1\text{M}$ (OK), $3^n$ nặng hơn nhiều — chỉ tới $\sim n=18$. $n > 25$ không dùng bitmask DP.
 
 ---
 
@@ -759,7 +759,7 @@ Ngược lại, **đừng** dùng bitmask DP khi: `n` lớn (dùng greedy/DP đa
 > **⚠ Lỗi thường gặp — tổng hợp**
 >
 > 1. **`n > 20` → `2^n` nổ.** `n=30` là `~1 tỉ` state — TLE/MLE chắc chắn. Luôn kiểm tra ràng buộc `n` trước khi chọn bitmask.
-> 2. **Nhầm subset-of-subset là `O(2^n)`.** Nó là `O(3^n)` (mục 7). `n=18` đã `~387 triệu` — đừng đánh giá thấp.
+> 2. **Nhầm subset-of-subset là $O(2^n)$.** Nó là $O(3^n)$ (mục 7). $n=18$ đã `~387 triệu` — đừng đánh giá thấp.
 > 3. **Off-by-one ở bit index.** Phần tử `i` ↔ `1<<i`, không phải `1<<(i-1)`. Phần tử đầu là 0, không phải 1. Tập đầy đủ là `(1<<n)-1`, không phải `1<<n`.
 > 4. **`1<<i` tràn kiểu (overflow).** Trong Go, `int` thường 64-bit nên `1<<i` an toàn tới `i=62`, nhưng nếu dùng `int32` hay shift `i ≥ 64` thì kết quả undefined/0. Với `n` lớn hơn 31 phải dùng `int`/`uint64`, không `int32`.
 > 5. **Quên base case.** Quên `dp[0]=0` (assignment), `dp[1<<0][0]=0` (TSP), hay `dp[1<<i][i]=1` (Hamilton) → toàn bộ bảng `INF`/`0`, đáp án sai. Luôn khởi tạo base trước vòng lặp.
@@ -825,7 +825,7 @@ func tsp(dist [][]int) int {
 }
 ```
 
-**Độ phức tạp:** thời gian `O(2^n · n²)`, bộ nhớ `O(2^n · n)`.
+**Độ phức tạp:** thời gian $O(2^n \cdot n^2)$, bộ nhớ $O(2^n \cdot n)$.
 
 ### Bài 2 — Assignment problem
 
@@ -862,7 +862,7 @@ func assign(cost [][]int) int {
 }
 ```
 
-**Độ phức tạp:** thời gian `O(2^n · n)`, bộ nhớ `O(2^n)`.
+**Độ phức tạp:** thời gian $O(2^n \cdot n)$, bộ nhớ $O(2^n)$.
 
 ### Bài 3 — Count ways to partition
 
@@ -888,7 +888,7 @@ func countPartitions(n int, valid []bool) int {
 }
 ```
 
-**Độ phức tạp:** thời gian `O(3^n)` (duyệt subset-of-subset, mục 7), bộ nhớ `O(2^n)`. Tiền xử lý `valid` tùy bài (thường `O(2^n·n)`).
+**Độ phức tạp:** thời gian $O(3^n)$ (duyệt subset-of-subset, mục 7), bộ nhớ $O(2^n)$. Tiền xử lý `valid` tùy bài (thường $O(2^n \cdot n)$).
 
 **Lưu ý:** nếu bài đếm **dãy nhóm có thứ tự** (ordered) chứ không phải set-of-sets, bỏ điều kiện `sub&low` — khi đó mỗi hoán vị nhóm được tính riêng.
 
@@ -932,7 +932,7 @@ func canPartitionKSubsets(nums []int, k int) bool {
 
 **Vì sao đúng:** sắp các phần tử vào "nhóm hiện tại" cho tới khi đầy (`= target`) rồi mở nhóm mới — nhờ `% target` về 0. Nếu đến `mask` đầy đủ mà `dp = 0` (không dư), nghĩa là chia trọn vẹn `k` nhóm bằng nhau. Điều kiện `dp[mask]+nums[i] <= target` đảm bảo không nhóm nào vượt.
 
-**Độ phức tạp:** thời gian `O(2^n · n)`, bộ nhớ `O(2^n)`. (`n` = số phần tử ≤ ~16 trong các đề chuẩn.)
+**Độ phức tạp:** thời gian $O(2^n \cdot n)$, bộ nhớ $O(2^n)$. ($n$ = số phần tử ≤ ~16 trong các đề chuẩn.)
 
 ### Bài 5 — Shortest superstring
 
@@ -1020,7 +1020,7 @@ func shortestSuperstring(words []string) string {
 }
 ```
 
-**Độ phức tạp:** DP `O(2^n · n²)`, tiền xử lý overlap `O(n² · L)` với `L` độ dài từ, bộ nhớ `O(2^n · n)`.
+**Độ phức tạp:** DP $O(2^n \cdot n^2)$, tiền xử lý overlap $O(n^2 \cdot L)$ với $L$ độ dài từ, bộ nhớ $O(2^n \cdot n)$.
 
 ### Bài 6 — Minimum incompatibility
 
@@ -1099,7 +1099,7 @@ func minimumIncompatibility(nums []int, k int) int {
 
 **Vì sao cố định "low":** ép mỗi nhóm chứa phần tử-chưa-phủ nhỏ nhất → mỗi phân hoạch chỉ đếm một lần, không lặp hoán vị thứ tự nhóm.
 
-**Độ phức tạp:** tiền xử lý cost `O(2^n · n)`; DP `O(3^n)` (subset enumeration). `n ≤ 16` trong đề chuẩn nên khả thi.
+**Độ phức tạp:** tiền xử lý cost $O(2^n \cdot n)$; DP $O(3^n)$ (subset enumeration). $n \leq 16$ trong đề chuẩn nên khả thi.
 
 ---
 
@@ -1117,6 +1117,6 @@ Mở **[visualization.html](./visualization.html)** để thấy 3 module tươn
 
 ## Bài tiếp theo
 
-- **[Lesson 30 — DP Optimization](../lesson-30-dp-optimization/)** — sau khi đã có "vũ khí" bitmask cho `n` nhỏ, Lesson 30 dạy cách **tối ưu DP** cho `n` lớn: nén bộ nhớ (`O(n)` thay `O(n²)`), monotonic deque, prefix optimization, convex hull trick (giới thiệu).
+- **[Lesson 30 — DP Optimization](../lesson-30-dp-optimization/)** — sau khi đã có "vũ khí" bitmask cho $n$ nhỏ, Lesson 30 dạy cách **tối ưu DP** cho $n$ lớn: nén bộ nhớ ($O(n)$ thay $O(n^2)$), monotonic deque, prefix optimization, convex hull trick (giới thiệu).
 - Ôn lại nền: [Lesson 23 — DP Fundamentals](../lesson-23-dp-fundamentals/), [Lesson 28 — DP trên cây](../lesson-28-dp-on-trees/).
 - Bitmask còn quay lại ở **Tier 5 (đồ thị)** với một số bài state-compression và **Tier 7 (bit manipulation nâng cao)**.

@@ -28,7 +28,7 @@ Sau bài này bạn sẽ:
 > 💡 **Trực giác — mặc quần áo buổi sáng.**
 > Bạn không thể đi giày trước khi đi tất, không mặc áo khoác trước khi mặc áo sơ mi. Có những **ràng buộc thứ tự**: "tất phải trước giày", "sơ mi phải trước khoác". Nhưng "đeo đồng hồ" thì độc lập, đặt bất cứ lúc nào. Topo sort là một **danh sách mặc đồ hợp lệ** — một thứ tự tuyến tính tôn trọng MỌI ràng buộc.
 
-**Định nghĩa hình thức.** Cho đồ thị có hướng \`G = (V, E)\`. Một **thứ tự topo** (topological ordering) là một cách xếp tất cả các đỉnh thành dãy tuyến tính \`v₁, v₂, …, vₙ\` sao cho:
+**Định nghĩa hình thức.** Cho đồ thị có hướng $G = (V, E)$. Một **thứ tự topo** (topological ordering) là một cách xếp tất cả các đỉnh thành dãy tuyến tính $v_1, v_2, \\ldots, v_n$ sao cho:
 
 > Với MỌI cạnh \`u → v\` trong \`E\`, thì \`u\` xuất hiện TRƯỚC \`v\` trong dãy.
 
@@ -137,7 +137,7 @@ Topo sort xuất hiện ở mọi nơi có "việc A phải xong trước việc
 2. Đưa mọi đỉnh có \`inDeg == 0\` vào **queue**.
 3. Lặp tới khi queue rỗng: lấy \`u\` ra khỏi queue, thêm \`u\` vào kết quả.
 4. Với mỗi cạnh \`u → w\`: giảm \`inDeg[w]\` đi 1. Nếu \`inDeg[w]\` về 0 ⟹ đẩy \`w\` vào queue.
-5. Sau vòng lặp: nếu kết quả có đủ \`V\` đỉnh ⟹ topo order hợp lệ. Nếu THIẾU đỉnh ⟹ đồ thị **có chu trình** (các đỉnh trong chu trình không bao giờ về in-degree 0).
+5. Sau vòng lặp: nếu kết quả có đủ $V$ đỉnh ⟹ topo order hợp lệ. Nếu THIẾU đỉnh ⟹ đồ thị **có chu trình** (các đỉnh trong chu trình không bao giờ về in-degree 0).
 
 ### 3.3 Walk-through cụ thể (ví dụ 4, 6 đỉnh)
 
@@ -238,7 +238,7 @@ func main() {
 > Đồ thị chắc chắn có chu trình (mọi đỉnh đều có cha). \`order\` rỗng, \`len(order) != n\` ⟹ trả về \`false\`. Đây là trường hợp đặc biệt của bước 5.
 > </details>
 
-> 📝 **Tóm tắt mục 3.** Kahn = đếm in-degree → queue các đỉnh in-degree 0 → bóc dần, mỗi lần bóc giảm in-degree neighbor. Thiếu đỉnh ⟹ chu trình. Độ phức tạp O(V+E).
+> 📝 **Tóm tắt mục 3.** Kahn = đếm in-degree → queue các đỉnh in-degree 0 → bóc dần, mỗi lần bóc giảm in-degree neighbor. Thiếu đỉnh ⟹ chu trình. Độ phức tạp $O(V+E)$.
 
 ---
 
@@ -341,7 +341,7 @@ func main() {
 
 > ⚠ **Lỗi thường gặp #3:** QUÊN đảo ngược stack — trả về luôn thứ tự finish. Đó là thứ tự topo của đồ thị ĐẢO chiều cạnh, không phải đồ thị gốc. Phải đảo ngược (hoặc dùng stack pop).
 
-> 📝 **Tóm tắt mục 4.** DFS topo = chạy DFS, push đỉnh khi finish (post-order), đảo ngược. Tích hợp sẵn cycle detection qua màu gray. O(V+E).
+> 📝 **Tóm tắt mục 4.** DFS topo = chạy DFS, push đỉnh khi finish (post-order), đảo ngược. Tích hợp sẵn cycle detection qua màu gray. $O(V+E)$.
 
 ---
 
@@ -472,9 +472,9 @@ func main() {
 }
 \`\`\`
 
-> ⚠ **Lưu ý độ phức tạp:** Dùng heap làm Kahn chậm hơn — \`O(V log V + E)\` thay vì \`O(V + E)\` (mỗi push/pop heap tốn \`log V\`). Chỉ dùng khi BẮT BUỘC cần thứ tự nhỏ nhất.
+> ⚠ **Lưu ý độ phức tạp:** Dùng heap làm Kahn chậm hơn — $O(V \\log V + E)$ thay vì $O(V + E)$ (mỗi push/pop heap tốn $\\log V$). Chỉ dùng khi BẮT BUỘC cần thứ tự nhỏ nhất.
 
-> 📝 **Tóm tắt mục 7.** Topo order không duy nhất. Lexicographically smallest = Kahn với min-heap thay queue, \`O(V log V + E)\`.
+> 📝 **Tóm tắt mục 7.** Topo order không duy nhất. Lexicographically smallest = Kahn với min-heap thay queue, $O(V \\log V + E)$.
 
 ---
 
@@ -640,7 +640,7 @@ func main() {
 }
 \`\`\`
 
-> 📝 **Tóm tắt mục 9.** Trên DAG, đường dài nhất = topo sort + DP một lượt theo topo order, \`O(V+E)\`. Là critical path. Trên đồ thị có chu trình bài này NP-hard.
+> 📝 **Tóm tắt mục 9.** Trên DAG, đường dài nhất = topo sort + DP một lượt theo topo order, $O(V+E)$. Là critical path. Trên đồ thị có chu trình bài này NP-hard.
 
 ---
 
@@ -648,15 +648,15 @@ func main() {
 
 | Thuật toán | Thời gian | Bộ nhớ | Ghi chú |
 |------------|-----------|--------|---------|
-| Kahn (BFS) | **O(V + E)** | O(V) | duyệt mỗi đỉnh + mỗi cạnh đúng 1 lần |
-| DFS topo | **O(V + E)** | O(V) đệ quy | mỗi đỉnh thăm 1 lần, mỗi cạnh xét 1 lần |
-| Cycle detection (cả 2) | **O(V + E)** | O(V) | đi kèm topo sort, không tốn thêm bậc |
-| Lex smallest (heap Kahn) | **O(V log V + E)** | O(V) | heap thêm log V mỗi thao tác |
-| Longest path DAG | **O(V + E)** | O(V) | topo sort + DP một lượt |
+| Kahn (BFS) | **$O(V + E)$** | $O(V)$ | duyệt mỗi đỉnh + mỗi cạnh đúng 1 lần |
+| DFS topo | **$O(V + E)$** | $O(V)$ đệ quy | mỗi đỉnh thăm 1 lần, mỗi cạnh xét 1 lần |
+| Cycle detection (cả 2) | **$O(V + E)$** | $O(V)$ | đi kèm topo sort, không tốn thêm bậc |
+| Lex smallest (heap Kahn) | **$O(V \\log V + E)$** | $O(V)$ | heap thêm $\\log V$ mỗi thao tác |
+| Longest path DAG | **$O(V + E)$** | $O(V)$ | topo sort + DP một lượt |
 
-> ❓ **Vì sao O(V+E) chứ không phải O(V²)?** Mỗi đỉnh được lấy ra khỏi queue/stack đúng MỘT lần (O(V) tổng). Khi xử lý đỉnh \`u\`, ta duyệt qua mọi cạnh ra của nó; cộng dồn toàn bộ = tổng số cạnh = O(E). Vậy V + E. Nếu lưu đồ thị bằng ma trận kề thì duyệt neighbor tốn O(V) mỗi đỉnh ⟹ O(V²); dùng adjacency list mới đạt O(V+E).
+> ❓ **Vì sao $O(V+E)$ chứ không phải $O(V^2)$?** Mỗi đỉnh được lấy ra khỏi queue/stack đúng MỘT lần ($O(V)$ tổng). Khi xử lý đỉnh \`u\`, ta duyệt qua mọi cạnh ra của nó; cộng dồn toàn bộ = tổng số cạnh = $O(E)$. Vậy $V + E$. Nếu lưu đồ thị bằng ma trận kề thì duyệt neighbor tốn $O(V)$ mỗi đỉnh ⟹ $O(V^2)$; dùng adjacency list mới đạt $O(V+E)$.
 
-> 📝 **Tóm tắt mục 10.** Topo sort cơ bản O(V+E) với adjacency list. Lex-smallest đắt hơn vì heap. Longest path DAG vẫn O(V+E).
+> 📝 **Tóm tắt mục 10.** Topo sort cơ bản $O(V+E)$ với adjacency list. Lex-smallest đắt hơn vì heap. Longest path DAG vẫn $O(V+E)$.
 
 ---
 
@@ -749,7 +749,7 @@ func canFinish(numCourses int, prerequisites [][]int) bool {
 }
 \`\`\`
 
-**Độ phức tạp:** Thời gian **O(V + E)** (V = numCourses, E = số cặp prereq), bộ nhớ O(V + E).
+**Độ phức tạp:** Thời gian **$O(V + E)$** ($V$ = numCourses, $E$ = số cặp prereq), bộ nhớ $O(V + E)$.
 
 ---
 
@@ -791,7 +791,7 @@ func findOrder(numCourses int, prerequisites [][]int) []int {
 }
 \`\`\`
 
-**Độ phức tạp:** **O(V + E)** thời gian, O(V + E) bộ nhớ.
+**Độ phức tạp:** **$O(V + E)$** thời gian, $O(V + E)$ bộ nhớ.
 
 ---
 
@@ -862,7 +862,7 @@ func alienOrder(words []string) string {
 }
 \`\`\`
 
-**Độ phức tạp:** Gọi \`N\` = tổng độ dài các từ, \`C\` = số ký tự phân biệt (≤ 26). Xây graph **O(N)**, topo **O(C + cạnh) = O(C²)** tối đa. Tổng **O(N + C²)** ≈ O(N).
+**Độ phức tạp:** Gọi $N$ = tổng độ dài các từ, $C$ = số ký tự phân biệt ($\\leq 26$). Xây graph **$O(N)$**, topo **$O(C + \\text{cạnh}) = O(C^2)$** tối đa. Tổng **$O(N + C^2)$** $\\approx O(N)$.
 
 ---
 
@@ -903,7 +903,7 @@ func smallestTopo(n int, adj [][]int) []int {
 }
 \`\`\`
 
-**Độ phức tạp:** **O(V log V + E)** — mỗi push/pop heap tốn \`log V\`.
+**Độ phức tạp:** **$O(V \\log V + E)$** — mỗi push/pop heap tốn $\\log V$.
 
 ---
 
@@ -925,7 +925,7 @@ for _, u := range order {
 }
 \`\`\`
 
-**Độ phức tạp:** **O(V + E)** — topo sort O(V+E) + DP duyệt mỗi cạnh 1 lần. Lưu ý: cách này CHỈ đúng trên DAG; trên đồ thị có chu trình longest simple path là NP-hard.
+**Độ phức tạp:** **$O(V + E)$** — topo sort $O(V+E)$ + DP duyệt mỗi cạnh 1 lần. Lưu ý: cách này CHỈ đúng trên DAG; trên đồ thị có chu trình longest simple path là NP-hard.
 
 ---
 
@@ -959,9 +959,9 @@ func hasCycleDirected(n int, adj [][]int) bool {
 }
 \`\`\`
 
-**Độ phức tạp:** **O(V + E)** thời gian, O(V) bộ nhớ (mảng màu + stack đệ quy).
+**Độ phức tạp:** **$O(V + E)$** thời gian, $O(V)$ bộ nhớ (mảng màu + stack đệ quy).
 
-*Cách khác:* Kahn — nếu \`len(order) < V\` thì có chu trình, cũng O(V+E).
+*Cách khác:* Kahn — nếu \`len(order) < V\` thì có chu trình, cũng $O(V+E)$.
 
 ---
 
@@ -1008,7 +1008,7 @@ func minimumSemesters(n int, relations [][]int) int {
 
 **Walk-through:** \`n=3\`, \`relations=[[1,3],[2,3]]\`. Lớp 1: in-degree 0 = \`{1,2}\` (học song song) → semesters=1, giảm in-degree 3 về 0. Lớp 2: \`{3}\` → semesters=2. Tổng **2 học kỳ**.
 
-**Độ phức tạp:** **O(V + E)** — vẫn là Kahn nhưng đếm theo lớp.
+**Độ phức tạp:** **$O(V + E)$** — vẫn là Kahn nhưng đếm theo lớp.
 
 ---
 

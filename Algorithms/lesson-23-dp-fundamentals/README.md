@@ -2,7 +2,7 @@
 
 > Tier 4 · Lesson đầu tiên của tier Quy hoạch động (Dynamic Programming — DP).
 > Đây là kỹ thuật khó nhất nhưng mạnh nhất trong toolbox thuật toán: biến những bài toán
-> tưởng chừng "mũ" (`O(2ⁿ)`) thành đa thức (`O(n)`) chỉ bằng một ý tưởng đơn giản — **đệ quy + nhớ**.
+> tưởng chừng "mũ" ($O(2^n)$) thành đa thức ($O(n)$) chỉ bằng một ý tưởng đơn giản — **đệ quy + nhớ**.
 
 ## Mục tiêu học tập
 
@@ -21,7 +21,7 @@ Sau bài này bạn sẽ:
 - [Lesson 03 — Đệ quy & quan hệ truy hồi](../lesson-03-recursion-recurrence/) — DP về bản chất là đệ quy có nhớ; bạn cần đọc thông thạo công thức truy hồi (recurrence).
 - [Lesson 17 — Chia để trị (Divide & Conquer)](../lesson-17-divide-and-conquer/) — D&C chia bài con **độc lập**; DP khác ở chỗ bài con **chồng lấp**. So sánh này là chìa khóa.
 - [Lesson 19 — Greedy Fundamentals](../lesson-19-greedy-fundamentals/) và [Lesson 22 — Greedy vs DP](../lesson-22-greedy-vs-dp/) — greedy chọn cục bộ không quay lại; DP xét mọi lựa chọn rồi lưu kết quả.
-- Big-O ([Lesson 01](../lesson-01-bigo-asymptotic/)) để so sánh `O(2ⁿ)` với `O(n)`.
+- Big-O ([Lesson 01](../lesson-01-bigo-asymptotic/)) để so sánh $O(2^n)$ với $O(n)$.
 
 ---
 
@@ -43,7 +43,7 @@ Cái tên "dynamic programming" do Richard Bellman đặt năm 1950, "programmin
 
 > ❓ **Câu hỏi tự nhiên của người đọc**
 > - *"DP khác đệ quy thường ở đâu?"* — Đệ quy thường tính lại bài con đã tính. DP **thêm một bảng nhớ**. Đó là toàn bộ khác biệt về mặt cài đặt.
-> - *"Tại sao việc nhớ lại biến `O(2ⁿ)` thành `O(n)`?"* — Vì số bài con **phân biệt** chỉ là `n`, dù cây đệ quy có `2ⁿ` node. Nhớ rồi thì mỗi bài con tính đúng 1 lần.
+> - *"Tại sao việc nhớ lại biến $O(2^n)$ thành $O(n)$?"* — Vì số bài con **phân biệt** chỉ là $n$, dù cây đệ quy có $2^n$ node. Nhớ rồi thì mỗi bài con tính đúng 1 lần.
 > - *"Có phải mọi bài đệ quy đều DP được?"* — Không. Chỉ khi bài con **chồng lấp**. Merge sort chia mảng làm đôi nhưng 2 nửa độc lập, không chồng lấp → không phải DP.
 
 ### 1.1 Công thức "DP = đệ quy + nhớ"
@@ -81,7 +81,7 @@ Hình thức: gọi `OPT(n)` là giá trị tối ưu của bài kích thước 
 OPT(n) = f( OPT(các bài con) )
 ```
 
-Ví dụ leo cầu thang: `cách(n) = cách(n-1) + cách(n-2)`. Số cách lên bậc `n` dựng từ số cách lên các bậc trước.
+Ví dụ leo cầu thang: $\text{cách}(n) = \text{cách}(n-1) + \text{cách}(n-2)$. Số cách lên bậc $n$ dựng từ số cách lên các bậc trước.
 
 > ⚠ **Lỗi thường gặp — tưởng có optimal substructure nhưng không.**
 > Bài "đường đi DÀI nhất không lặp đỉnh trong đồ thị có chu trình" **KHÔNG** có optimal substructure:
@@ -94,15 +94,15 @@ Ví dụ leo cầu thang: `cách(n) = cách(n-1) + cách(n-2)`. Số cách lên 
 >
 > <details><summary>Đáp án</summary>
 >
-> 1. Có optimal substructure (`max(arr[0..n]) = max(max(arr[0..n-1]), arr[n])`) nhưng **không overlap** — mỗi phần tử xét đúng 1 lần. Nên đây chỉ là duyệt tuyến tính `O(n)`, không cần memo. DP "thừa".
-> 2. Có cả hai: `f(n) = f(n-1) + f(n-2)` (substructure), và `f(n-2)` bị tính lại từ nhiều nhánh (overlap). Đây chính là Fibonacci trá hình → DP hoàn hảo.
+> 1. Có optimal substructure (`max(arr[0..n]) = max(max(arr[0..n-1]), arr[n])`) nhưng **không overlap** — mỗi phần tử xét đúng 1 lần. Nên đây chỉ là duyệt tuyến tính $O(n)$, không cần memo. DP "thừa".
+> 2. Có cả hai: $f(n) = f(n-1) + f(n-2)$ (substructure), và $f(n-2)$ bị tính lại từ nhiều nhánh (overlap). Đây chính là Fibonacci trá hình → DP hoàn hảo.
 > </details>
 
 ---
 
 ## 3. Fibonacci — ví dụ mở đầu kinh điển
 
-Dãy Fibonacci: `F(0)=0, F(1)=1, F(n)=F(n-1)+F(n-2)`. Các giá trị: `0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ...`
+Dãy Fibonacci: $F(0)=0$, $F(1)=1$, $F(n)=F(n-1)+F(n-2)$. Các giá trị: `0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ...`
 
 ### 3.1 Naive — đệ quy thuần, `O(2ⁿ)`
 
@@ -138,7 +138,7 @@ func fibNaive(n int) int {
 > ```
 >
 > `fib(3)` tính **2 lần**, `fib(2)` tính **3 lần**, `fib(1)` tính **5 lần**, `fib(0)` tính **3 lần**.
-> Tổng số node ≈ `2·F(n+1) − 1`. Với `n=5` đã có 15 lời gọi; với `n=40` lên tới ~331 triệu lời gọi → treo máy.
+> Tổng số node $\approx 2 \cdot F(n+1) - 1$. Với $n=5$ đã có 15 lời gọi; với $n=40$ lên tới ~331 triệu lời gọi → treo máy.
 > Đây chính là **overlap** đang ăn hết hiệu năng.
 
 Đếm số lời gọi (verify bằng số thật):
@@ -150,11 +150,11 @@ func fibNaive(n int) int {
 | 20  | 21891                    | 6765           |
 | 30  | 2692537                  | 832040         |
 
-Số lời gọi tăng theo `φⁿ ≈ 1.618ⁿ` — đúng nghĩa hàm mũ.
+Số lời gọi tăng theo $\varphi^n \approx 1{,}618^n$ — đúng nghĩa hàm mũ.
 
-> ❓ **Câu hỏi tự nhiên.** *"Sao số lời gọi lại là `φⁿ` chứ không phải `2ⁿ`?"* — Cây gọi không cân bằng:
-> nhánh `fib(n-1)` sâu hơn nhánh `fib(n-2)`. Tổng số node thỏa đúng quan hệ truy hồi của Fibonacci nên tăng theo `φⁿ`.
-> `2ⁿ` chỉ là chặn trên thô; `φⁿ` mới là chặt. Dù sao vẫn là hàm mũ → vô dụng cho `n` lớn.
+> ❓ **Câu hỏi tự nhiên.** *"Sao số lời gọi lại là $\varphi^n$ chứ không phải $2^n$?"* — Cây gọi không cân bằng:
+> nhánh `fib(n-1)` sâu hơn nhánh `fib(n-2)`. Tổng số node thỏa đúng quan hệ truy hồi của Fibonacci nên tăng theo $\varphi^n$.
+> $2^n$ chỉ là chặn trên thô; $\varphi^n$ mới là chặt. Dù sao vẫn là hàm mũ → vô dụng cho $n$ lớn.
 
 ### 3.2 Memoization (top-down) — `O(n)`
 
@@ -184,7 +184,7 @@ func fibMemo(n int) int {
 > Lần đầu gặp `fib(3)` (qua nhánh `fib(4)`) ta tính và ghi `memo[3]=2`.
 > Khi nhánh thứ hai (`fib(5)` gọi trực tiếp `fib(3)`) chạm tới `fib(3)`, `memo[3] != -1` → **cache hit**, trả về ngay.
 > Mỗi state `fib(0..5)` chỉ tính đúng **1 lần** → 6 phép tính thật + vài cache hit. So với 15 lời gọi của naive.
-> Tổng quát: `n+1` state, mỗi state `O(1)` → tổng `O(n)` thời gian, `O(n)` bộ nhớ (mảng + stack đệ quy).
+> Tổng quát: $n+1$ state, mỗi state $O(1)$ → tổng $O(n)$ thời gian, $O(n)$ bộ nhớ (mảng + stack đệ quy).
 
 ### 3.3 Tabulation (bottom-up) — `O(n)`
 
@@ -239,13 +239,13 @@ So sánh 4 cách (verify bằng `fib(40) = 102334155`):
 
 | Cách | Thời gian | Bộ nhớ | Ghi chú |
 |------|-----------|--------|---------|
-| Naive | `O(φⁿ)` ≈ `O(2ⁿ)` | `O(n)` stack | `fib(40)` ~331 triệu lời gọi, treo |
-| Memo (top-down) | `O(n)` | `O(n)` + stack | tự nhiên, lazy |
-| Tabulation (bottom-up) | `O(n)` | `O(n)` | không stack overflow |
-| Space-opt | `O(n)` | `O(1)` | tối ưu nhất cho fib |
+| Naive | $O(\varphi^n) \approx O(2^n)$ | $O(n)$ stack | `fib(40)` ~331 triệu lời gọi, treo |
+| Memo (top-down) | $O(n)$ | $O(n)$ + stack | tự nhiên, lazy |
+| Tabulation (bottom-up) | $O(n)$ | $O(n)$ | không stack overflow |
+| Space-opt | $O(n)$ | $O(1)$ | tối ưu nhất cho fib |
 
-> 📝 **Tóm tắt mục 3.** Fibonacci là "Hello World" của DP. Naive `O(2ⁿ)` vì overlap; memo/tab đưa về `O(n)`;
-> space-opt về `O(1)`. Cùng một recurrence `F(n)=F(n-1)+F(n-2)`, 4 cách cài chỉ khác nhau ở **cách lưu** và **thứ tự tính**.
+> 📝 **Tóm tắt mục 3.** Fibonacci là "Hello World" của DP. Naive $O(2^n)$ vì overlap; memo/tab đưa về $O(n)$;
+> space-opt về $O(1)$. Cùng một recurrence $F(n)=F(n-1)+F(n-2)$, 4 cách cài chỉ khác nhau ở **cách lưu** và **thứ tự tính**.
 
 ---
 
@@ -387,7 +387,7 @@ dp[i][1] = dp[i-2][0]                // bước cuối 2 bậc: trước đó KH
 > Cứ thêm chiều cho đến khi transition viết được chỉ dựa vào state.
 
 > ⚠ **Lỗi thường gặp — tăng chiều vô tội vạ.** Mỗi chiều thêm vào nhân kích thước bảng. State `dp[i][j][k]`
-> với mỗi chiều `n` → `O(n³)` bộ nhớ. Chỉ thêm chiều **thật sự cần**. Nếu một thông tin có thể suy ra từ state khác,
+> với mỗi chiều $n$ → $O(n^3)$ bộ nhớ. Chỉ thêm chiều **thật sự cần**. Nếu một thông tin có thể suy ra từ state khác,
 > đừng lưu nó.
 
 ---
@@ -420,7 +420,7 @@ func fibMap(n int, memo map[int]int) int {
 
 > 💡 **Ví dụ state thưa.** Bài "từ `1` tới `n`, mỗi bước hoặc `+1` hoặc `×2`, ít cách tới `n` nhất".
 > State là giá trị hiện tại, nhưng chỉ một số ít giá trị thực sự xuất hiện trên đường đi tối ưu.
-> Nếu `n=10⁹` mà chỉ ~30 state tới → mảng `10⁹` phần tử = lãng phí khủng khiếp, dùng map `30` entry là hợp lý.
+> Nếu $n=10^9$ mà chỉ ~30 state tới → mảng $10^9$ phần tử = lãng phí khủng khiếp, dùng map 30 entry là hợp lý.
 
 > ⚠ **Lỗi thường gặp.** Dùng map cho state dày → chậm gấp 3-10 lần mảng do hashing + cache miss bộ nhớ.
 > Khi state là chỉ số `0..n` liên tục, **luôn** dùng mảng.
@@ -503,7 +503,7 @@ func min(a, b int) int { if a < b { return a }; return b }
 3. **Quên base case / base case sai.** Như `dp[0]=0` thay vì `1` ở climbing stairs (mục 5.1). Cả bảng sai theo.
    *Chữa:* viết base case TRƯỚC, kiểm tra tay với `n=0,1,2`.
 
-4. **Không nhận ra overlap → dùng plain recursion mũ.** Viết đệ quy đẹp nhưng quên memo → `O(2ⁿ)`, TLE (timeout).
+4. **Không nhận ra overlap → dùng plain recursion mũ.** Viết đệ quy đẹp nhưng quên memo → $O(2^n)$, TLE (timeout).
    *Chữa:* luôn tự hỏi "bài con có lặp không?". Nếu có → thêm cache.
 
 5. **Off-by-one ở chỉ số.** `dp` kích thước `n` hay `n+1`? `cost[i-1]` hay `cost[i]`? Lệch 1 ô là sai cả bài.
@@ -541,10 +541,10 @@ Code đầy đủ đã ở các mục 3.1–3.4. Tóm tắt:
 
 | Cách | Code | Thời gian | Bộ nhớ | State |
 |------|------|-----------|--------|-------|
-| Naive | `fibNaive` | `O(φⁿ)≈O(2ⁿ)` | `O(n)` stack | — (không memo) |
-| Memo | `fibMemo` | `O(n)` | `O(n)`+stack | `memo[k]` = F(k) |
-| Tabulation | `fibTab` | `O(n)` | `O(n)` | `dp[i]` = F(i) |
-| Space-opt | `fibO1` | `O(n)` | `O(1)` | 2 biến `prev1, prev2` |
+| Naive | `fibNaive` | $O(\varphi^n) \approx O(2^n)$ | $O(n)$ stack | — (không memo) |
+| Memo | `fibMemo` | $O(n)$ | $O(n)$+stack | `memo[k]` = F(k) |
+| Tabulation | `fibTab` | $O(n)$ | $O(n)$ | `dp[i]` = F(i) |
+| Space-opt | `fibO1` | $O(n)$ | $O(1)$ | 2 biến `prev1, prev2` |
 
 Verify: cả 4 cho `fib(10)=55`, `fib(40)=102334155`. Chỉ naive là chậm (treo từ `n≈45`).
 
@@ -553,8 +553,8 @@ Verify: cả 4 cho `fib(10)=55`, `fib(40)=102334155`. Chỉ naive là chậm (tr
 - **State:** `dp[i]` = số cách leo lên đúng bậc `i`.
 - **Recurrence:** `dp[i] = dp[i-1] + dp[i-2]` (bước cuối 1 hoặc 2 bậc).
 - **Base:** `dp[0]=1, dp[1]=1`.
-- **Big-O:** `O(n)` thời gian, `O(1)` nếu rolling.
-- **Đáp án `n=5`:** dãy `1,1,2,3,5,8` → `dp[5]=8`. Kiểm tra: đây là `F(6)`. Liệt kê 8 cách cho `n=5` khả thi nhưng dài; tin vào recurrence đã verify ở mục 5.1 cho `n=4` (=5). ✓
+- **Big-O:** $O(n)$ thời gian, $O(1)$ nếu rolling.
+- **Đáp án $n=5$:** dãy `1,1,2,3,5,8` → `dp[5]=8`. Kiểm tra: đây là $F(6)$. Liệt kê 8 cách cho $n=5$ khả thi nhưng dài; tin vào recurrence đã verify ở mục 5.1 cho $n=4$ (=5). ✓
 
 ```go
 func climbStairs(n int) int {
@@ -572,7 +572,7 @@ func climbStairs(n int) int {
 - **State:** `dp[i]` = chi phí tối thiểu để **tới** bậc `i` (bậc `n` = đỉnh, ở ngoài mảng).
 - **Recurrence:** `dp[i] = min(dp[i-1] + cost[i-1], dp[i-2] + cost[i-2])`.
 - **Base:** `dp[0] = dp[1] = 0` (xuất phát miễn phí từ bậc 0 hoặc 1).
-- **Đáp án:** `dp[n]`. **Big-O:** `O(n)` thời gian, `O(1)` space.
+- **Đáp án:** `dp[n]`. **Big-O:** $O(n)$ thời gian, $O(1)$ space.
 
 ```go
 func minCostClimbingStairs(cost []int) int {
@@ -599,7 +599,7 @@ func minCostClimbingStairs(cost []int) int {
   - Nếu `s[i-1] != '0'`: cộng `dp[i-1]` (chữ số này tự đứng một mình `1..9`).
   - Nếu `s[i-2..i-1]` tạo số trong `10..26`: cộng `dp[i-2]` (ghép 2 chữ số).
 - **Base:** `dp[0] = 1` (chuỗi rỗng có 1 cách), `dp[1] = (s[0] != '0' ? 1 : 0)`.
-- **Big-O:** `O(n)` thời gian, `O(1)` space. **Đáp án:** `dp[n]`.
+- **Big-O:** $O(n)$ thời gian, $O(1)$ space. **Đáp án:** `dp[n]`.
 
 ```go
 func numDecodings(s string) int {
@@ -649,7 +649,7 @@ f(5)
 ```
 `f(1)` xuất hiện nhiều lần từ các nhánh khác nhau → **overlap rõ ràng** → cần memo.
 
-Walk-through bảng: `dp[0]=1, dp[1]=1, dp[2]=1, dp[3]=2` (`1+1+1`, `3`), `dp[4]=4` (`1+1+1+1, 1+3, 3+1, 4`), `dp[5]=6` (`dp[4]+dp[2]+dp[1]=4+1+1`). **Big-O:** `O(n)`.
+Walk-through bảng: `dp[0]=1, dp[1]=1, dp[2]=1, dp[3]=2` (`1+1+1`, `3`), `dp[4]=4` (`1+1+1+1, 1+3, 3+1, 4`), `dp[5]=6` (`dp[4]+dp[2]+dp[1]=4+1+1`). **Big-O:** $O(n)$.
 
 ### Bài 6 — Chuyển memo → tabulation (bài 5)
 
@@ -677,7 +677,7 @@ func waysTab(n int) int {
     return dp[n]
 }
 ```
-**Thứ tự điền:** tăng dần `i = 1 → n`, vì mọi dependency `i-1, i-3, i-4` đều nhỏ hơn `i`. Verify: `waysTab(5)=6` khớp bài 5. **Big-O:** `O(n)` thời gian, `O(n)` space.
+**Thứ tự điền:** tăng dần `i = 1 → n`, vì mọi dependency `i-1, i-3, i-4` đều nhỏ hơn `i`. Verify: `waysTab(5)=6` khớp bài 5. **Big-O:** $O(n)$ thời gian, $O(n)$ space.
 
 ---
 

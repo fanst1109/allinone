@@ -11,7 +11,7 @@ Sau bài này bạn sẽ:
 - Viết được **khung cơ bản** (template) của một bài DP trên cây.
 - Giải 3 bài kinh điển: **Maximum Independent Set / House Robber III**, **Tree Diameter**, **Subtree Aggregate**.
 - Mở rộng sang DP nhiều state: **min vertex cover**, **max matching**.
-- Nắm **rerooting technique** — tính kết quả cho MỌI node làm gốc trong `O(n)` thay vì `O(n²)`.
+- Nắm **rerooting technique** — tính kết quả cho MỌI node làm gốc trong $O(n)$ thay vì $O(n^2)$.
 - Biết tease về **binary lifting (LCA)** và các cạm bẫy thường gặp (stack overflow, quên parent, sai chiều rerooting, thiếu state).
 
 ---
@@ -20,7 +20,7 @@ Sau bài này bạn sẽ:
 
 > 💡 **Trực giác / Hình dung.** Hãy tưởng tượng một **cây gia phả** ngược: muốn biết "tổng tài sản của cả dòng họ tính từ một người trở xuống", bạn không cần đếm lại từ đầu mỗi lần. Bạn chỉ cần hỏi từng người con "tổng tài sản dòng họ của con là bao nhiêu?", rồi **cộng dồn + tài sản của chính mình**. Mỗi người con cũng làm y hệt với con của họ. Đây chính là tinh thần DP trên cây: **kết quả của một node được tổng hợp từ kết quả của các con nó**.
 
-DP trên cây = áp dụng quy hoạch động trên cấu trúc **cây** (đồ thị liên thông, không chu trình, `n` node thì `n-1` cạnh). Đặc trưng:
+DP trên cây = áp dụng quy hoạch động trên cấu trúc **cây** (đồ thị liên thông, không chu trình, $n$ node thì $n-1$ cạnh). Đặc trưng:
 
 - **State gắn với mỗi node**: `dp[node]` = một đại lượng (số, hoặc bộ giá trị) tổng hợp từ **subtree** gốc tại `node`.
 - **Tính từ con lên cha**: muốn có `dp[node]`, ta cần `dp` của tất cả các con trước. Thứ tự tự nhiên là **post-order** (xử lý con xong mới xử lý cha).
@@ -204,7 +204,7 @@ func max(a, b int) int { if a > b { return a }; return b }
 > 📝 **Tóm tắt mục 3.**
 > - Max Independent Set / House Robber III: state `dp[node][0/1]` = không cướp / cướp.
 > - `dp[0] = Σ max(con[0], con[1])`, `dp[1] = val + Σ con[0]`.
-> - Đáp án = `max(dp[root][0], dp[root][1])`. Độ phức tạp `O(n)`.
+> - Đáp án = `max(dp[root][0], dp[root][1])`. Độ phức tạp $O(n)$.
 
 ---
 
@@ -295,7 +295,7 @@ func (t *Tree) treeDiameter() int {
 > 📝 **Tóm tắt mục 4.**
 > - Diameter = đường dài nhất giữa 2 node, đi qua một node "đỉnh".
 > - DFS trả `down(node)` = nhánh sâu nhất; tại node update `diameter = max(diameter, best1+best2)`.
-> - Pattern "trả 1 thứ, update toàn cục thứ khác". `O(n)`.
+> - Pattern "trả 1 thứ, update toàn cục thứ khác". $O(n)$.
 
 ---
 
@@ -383,7 +383,7 @@ func (t *Tree) countEven(val []int) []int {
 
 > 📝 **Tóm tắt mục 5.**
 > - Subtree aggregate: `dp[node] = base(node) + Σ dp[con]`.
-> - Size / Sum / Count chỉ khác baseCase + đại lượng. Tất cả `O(n)`.
+> - Size / Sum / Count chỉ khác baseCase + đại lượng. Tất cả $O(n)$.
 
 ---
 
@@ -438,7 +438,7 @@ State: `dp[node][0]` = max matching subtree khi node **chưa được match**; `
 - `dp[node][0] = Σ max(dp[c][0], dp[c][1])` (con tự do).
 - `dp[node][1] = max qua từng con c của (1 + dp[c][0] + Σ_{c'≠c} max(dp[c'][0], dp[c'][1]))` — chọn 1 con để match.
 
-Đáp án = `max(dp[root][0], dp[root][1])`. Độ phức tạp `O(n)` (tính khéo phần "trừ một con").
+Đáp án = `max(dp[root][0], dp[root][1])`. Độ phức tạp $O(n)$ (tính khéo phần "trừ một con").
 
 > ❓ **Câu hỏi tự nhiên.** *"Vì sao bài trên cây giải được bằng DP còn trên đồ thị tổng quát thì khó?"* — Trên cây, mỗi node tách subtree độc lập → bài con không "đan chéo". Trên đồ thị có chu trình, các lựa chọn ràng buộc lẫn nhau vòng quanh → cần thuật toán khác (matching tổng quát = Edmonds' Blossom).
 
@@ -451,7 +451,7 @@ State: `dp[node][0]` = max matching subtree khi node **chưa được match**; `
 
 ## 7. Rerooting technique (DP lại gốc / re-rooting)
 
-> 💡 **Trực giác.** Cho tới giờ ta cố định **gốc** (thường node 0) và tính `dp` cho subtree dưới mỗi node. Nhưng nhiều bài hỏi: *"với MỖI node làm gốc, kết quả là gì?"* — vd "tổng khoảng cách từ node `v` tới tất cả node còn lại", cho mọi `v`. Cách ngây thơ: chạy DFS `n` lần, mỗi lần đổi gốc → `O(n²)`. **Rerooting** làm trong `O(n)`: chạy 2 lần DFS, lần 2 "đẩy" thông tin từ cha xuống con để chuyển gốc dần dần.
+> 💡 **Trực giác.** Cho tới giờ ta cố định **gốc** (thường node 0) và tính `dp` cho subtree dưới mỗi node. Nhưng nhiều bài hỏi: *"với MỖI node làm gốc, kết quả là gì?"* — vd "tổng khoảng cách từ node `v` tới tất cả node còn lại", cho mọi `v`. Cách ngây thơ: chạy DFS $n$ lần, mỗi lần đổi gốc → $O(n^2)$. **Rerooting** làm trong $O(n)$: chạy 2 lần DFS, lần 2 "đẩy" thông tin từ cha xuống con để chuyển gốc dần dần.
 
 ### Ví dụ kinh điển: Sum of Distances in Tree
 
@@ -484,7 +484,7 @@ Cây đường thẳng `0—1—2—3`. Gốc 0.
 - `ans[2] = ans[1] - size[2] + (n - size[2]) = 4 - 2 + (4-2) = 4 - 2 + 2 = 4`. Kiểm: 2→0,1,3 = 2+1+1 = 4 ✓.
 - `ans[3] = ans[2] - size[3] + (n - size[3]) = 4 - 1 + (4-1) = 4 - 1 + 3 = 6`. Kiểm: 3→0,1,2 = 3+2+1 = 6 ✓.
 
-→ `ans = [6, 4, 4, 6]`. Tất cả khớp! Chỉ **2 lần DFS = O(n)** thay vì 4 lần DFS riêng = `O(n²)`.
+→ `ans = [6, 4, 4, 6]`. Tất cả khớp! Chỉ **2 lần DFS = $O(n)$** thay vì 4 lần DFS riêng = $O(n^2)$.
 
 ### Code Go
 
@@ -543,7 +543,7 @@ func (t *Tree) sumOfDistances() []int {
 > </details>
 
 > 📝 **Tóm tắt mục 7.**
-> - Rerooting: tính kết quả cho MỌI gốc trong `O(n)` (thay vì `O(n²)`).
+> - Rerooting: tính kết quả cho MỌI gốc trong $O(n)$ (thay vì $O(n^2)$).
 > - DFS 1 hướng xuống (size + dp gốc cố định); DFS 2 đẩy từ cha xuống con.
 > - Sum of distances: `ans[c] = ans[node] - size[c] + (n - size[c])`.
 
@@ -551,12 +551,12 @@ func (t *Tree) sumOfDistances() []int {
 
 ## 8. Binary Lifting (LCA) — tease
 
-> 💡 Khi cần trả lời nhiều truy vấn **"tổ tiên chung thấp nhất (Lowest Common Ancestor — LCA)"** của 2 node, hoặc khoảng cách giữa 2 node bất kỳ, ta dùng **binary lifting**: tiền xử lý `up[node][k]` = tổ tiên thứ `2^k` của node. Mỗi truy vấn LCA chạy `O(log n)` bằng cách "nhảy" lên theo lũy thừa 2.
+> 💡 Khi cần trả lời nhiều truy vấn **"tổ tiên chung thấp nhất (Lowest Common Ancestor — LCA)"** của 2 node, hoặc khoảng cách giữa 2 node bất kỳ, ta dùng **binary lifting**: tiền xử lý `up[node][k]` = tổ tiên thứ $2^k$ của node. Mỗi truy vấn LCA chạy $O(\log n)$ bằng cách "nhảy" lên theo lũy thừa 2.
 
 Đây là kỹ thuật gắn liền với cây nhưng thuộc chuyên đề **truy vấn trên cây** (Tier 7 nâng cao). Trong bài này chỉ cần biết:
 
 - `up[v][0]` = cha trực tiếp; `up[v][k] = up[ up[v][k-1] ][k-1]`.
-- Tiền xử lý `O(n log n)`, mỗi truy vấn LCA `O(log n)`.
+- Tiền xử lý $O(n \log n)$, mỗi truy vấn LCA $O(\log n)$.
 - Ứng dụng: khoảng cách `dist(u,v) = depth[u] + depth[v] - 2·depth[LCA(u,v)]`.
 
 > Sẽ học kỹ ở các lesson nâng cao về cây/đồ thị. Ở đây chỉ tease để bạn biết khi gặp bài "nhiều truy vấn quan hệ tổ tiên" thì tìm tới binary lifting.
@@ -567,16 +567,16 @@ func (t *Tree) sumOfDistances() []int {
 
 | Bài toán | Thời gian | Bộ nhớ | Ghi chú |
 |----------|-----------|--------|---------|
-| Subtree size / sum / count | `O(n)` | `O(n)` | 1 lần DFS |
-| House Robber III (MIS) | `O(n)` | `O(n)` | state `[node][2]` |
-| Tree diameter | `O(n)` | `O(n)` | 1 lần DFS, giữ 2 nhánh |
-| Min vertex cover / max matching | `O(n)` | `O(n)` | state nhiều hơn nhưng vẫn tuyến tính |
-| Rerooting (sum of distances) | `O(n)` | `O(n)` | **2** lần DFS, không phải `O(n²)` |
-| Binary lifting (tiền xử lý) | `O(n log n)` | `O(n log n)` | mỗi truy vấn LCA `O(log n)` |
+| Subtree size / sum / count | $O(n)$ | $O(n)$ | 1 lần DFS |
+| House Robber III (MIS) | $O(n)$ | $O(n)$ | state `[node][2]` |
+| Tree diameter | $O(n)$ | $O(n)$ | 1 lần DFS, giữ 2 nhánh |
+| Min vertex cover / max matching | $O(n)$ | $O(n)$ | state nhiều hơn nhưng vẫn tuyến tính |
+| Rerooting (sum of distances) | $O(n)$ | $O(n)$ | **2** lần DFS, không phải $O(n^2)$ |
+| Binary lifting (tiền xử lý) | $O(n \log n)$ | $O(n \log n)$ | mỗi truy vấn LCA $O(\log n)$ |
 
-> ❓ **Câu hỏi tự nhiên.** *"Vì sao 1 lần DFS là `O(n)` chứ không `O(n²)`?"* — DFS duyệt mỗi node đúng 1 lần và mỗi cạnh đúng 2 lần (xuống + lên). Cây có `n-1` cạnh → tổng công việc `O(n)`. Việc gộp dp tại mỗi node tỉ lệ số con, tổng số con toàn cây = số cạnh = `O(n)`.
+> ❓ **Câu hỏi tự nhiên.** *"Vì sao 1 lần DFS là $O(n)$ chứ không $O(n^2)$?"* — DFS duyệt mỗi node đúng 1 lần và mỗi cạnh đúng 2 lần (xuống + lên). Cây có $n-1$ cạnh → tổng công việc $O(n)$. Việc gộp dp tại mỗi node tỉ lệ số con, tổng số con toàn cây = số cạnh = $O(n)$.
 
-> 📝 **Tóm tắt mục 9.** Hầu hết DP trên cây là `O(n)`. Rerooting cũng `O(n)` (2 DFS). Chỉ binary lifting thêm hệ số `log n`.
+> 📝 **Tóm tắt mục 9.** Hầu hết DP trên cây là $O(n)$. Rerooting cũng $O(n)$ (2 DFS). Chỉ binary lifting thêm hệ số $\log n$.
 
 ---
 
@@ -599,7 +599,7 @@ func (t *Tree) sumOfDistances() []int {
 
 > ⚠ Tổng hợp các lỗi điển hình (mỗi cái kèm cách phòng):
 
-1. **Đệ quy quá sâu → stack overflow.** Cây lệch (skewed, gần như đường thẳng) có độ sâu `O(n)`. Với `n = 10⁶`, đệ quy `dfs` có thể tràn stack. **Cách sửa**: tăng stack, hoặc viết DFS **iterative** dùng stack thủ công (xử lý post-order bằng cách đẩy node 2 lần hoặc đánh dấu).
+1. **Đệ quy quá sâu → stack overflow.** Cây lệch (skewed, gần như đường thẳng) có độ sâu $O(n)$. Với $n = 10^6$, đệ quy `dfs` có thể tràn stack. **Cách sửa**: tăng stack, hoặc viết DFS **iterative** dùng stack thủ công (xử lý post-order bằng cách đẩy node 2 lần hoặc đánh dấu).
 
 ```go
 // DFS iterative tính subtree size (tránh stack overflow trên cây lệch).
@@ -662,7 +662,7 @@ func (t *Tree) subtreeSizeIterative(root int) []int {
 3. **Max Path Sum (any node to any node).** Cho cây, mỗi node trọng số (có thể âm). Tìm tổng lớn nhất của một đường đi giữa 2 node bất kỳ (đường đi không lặp node).
 4. **Count Nodes in Subtree.** Cho cây gốc 0. Với mỗi node, in số node trong subtree của nó.
 5. **Min Vertex Cover on Tree.** Cho cây. Tìm số node nhỏ nhất sao cho mọi cạnh có ít nhất 1 đầu được chọn.
-6. **Sum of Distances in Tree (rerooting).** Cho cây `n` node. Với mỗi node `v`, in tổng khoảng cách từ `v` tới mọi node khác. Yêu cầu `O(n)`.
+6. **Sum of Distances in Tree (rerooting).** Cho cây $n$ node. Với mỗi node `v`, in tổng khoảng cách từ `v` tới mọi node khác. Yêu cầu $O(n)$.
 
 ---
 
@@ -676,7 +676,7 @@ func (t *Tree) subtreeSizeIterative(root int) []int {
 
 **Walk-through:** với `val=[3,2,3,0,1]` và cây mục 3 → đáp án `5` (đã verify ở mục 3).
 
-**Độ phức tạp:** thời gian `O(n)` (1 DFS), bộ nhớ `O(n)` (stack đệ quy + state hằng số mỗi node).
+**Độ phức tạp:** thời gian $O(n)$ (1 DFS), bộ nhớ $O(n)$ (stack đệ quy + state hằng số mỗi node).
 
 ### Bài 2 — Tree Diameter
 
@@ -686,7 +686,7 @@ func (t *Tree) subtreeSizeIterative(root int) []int {
 
 **Walk-through:** cây `0—1, 1—2, 1—3, 3—4, 4—5` → diameter `4` (đường `2—1—3—4—5`).
 
-**Độ phức tạp:** `O(n)` thời gian, `O(n)` bộ nhớ.
+**Độ phức tạp:** $O(n)$ thời gian, $O(n)$ bộ nhớ.
 
 ### Bài 3 — Max Path Sum (any to any)
 
@@ -728,7 +728,7 @@ func (t *Tree) maxPathSum(val []int) int {
 
 **Ví dụ số.** Cây `1—2—3` thẳng, `val=[1,2,3]` (0-1-2). gain(node2)=3 → best=3. node1: g1=3 (từ con2) → vòng qua = 2+3+0=5 > best → best=5; trả 2+3=5. node0: g1=max(0,5)=5 → vòng qua = 1+5+0=6 → best=6; trả 1+5=6. Đáp án **6** (đường 0–1–2 = 1+2+3). Với nhánh âm `val=[-10, 2, 3]`: con2→3, node1 vòng=2+3=5→best=5, trả 5; node0: gain con1=5→g1=5, vòng=-10+5=-5 (không hơn), trả max(-10+5,...) → đáp án giữ **5** (bỏ node âm).
 
-**Độ phức tạp:** `O(n)` thời gian, `O(n)` bộ nhớ.
+**Độ phức tạp:** $O(n)$ thời gian, $O(n)$ bộ nhớ.
 
 ### Bài 4 — Count Nodes in Subtree
 
@@ -738,7 +738,7 @@ func (t *Tree) maxPathSum(val []int) int {
 
 **Walk-through:** cây mục 3 → `size=[5,3,1,1,1]`.
 
-**Độ phức tạp:** `O(n)` thời gian, `O(n)` bộ nhớ.
+**Độ phức tạp:** $O(n)$ thời gian, $O(n)$ bộ nhớ.
 
 ### Bài 5 — Min Vertex Cover on Tree
 
@@ -748,17 +748,17 @@ func (t *Tree) maxPathSum(val []int) int {
 
 **Walk-through:** đường `0—1—2` → đáp án `1` (chọn node 1 phủ cả 2 cạnh).
 
-**Độ phức tạp:** `O(n)` thời gian, `O(n)` bộ nhớ.
+**Độ phức tạp:** $O(n)$ thời gian, $O(n)$ bộ nhớ.
 
 ### Bài 6 — Sum of Distances in Tree (rerooting)
 
-**Cách tiếp cận.** Rerooting 2 lần DFS (mục 7). DFS 1: tính `size[]` và `ans[0]` (= Σ depth). DFS 2 (pre-order): `ans[c] = ans[node] - size[c] + (n - size[c])`. `O(n)`.
+**Cách tiếp cận.** Rerooting 2 lần DFS (mục 7). DFS 1: tính `size[]` và `ans[0]` (= Σ depth). DFS 2 (pre-order): `ans[c] = ans[node] - size[c] + (n - size[c])`. $O(n)$.
 
 **Code:** xem `sumOfDistances` ở mục 7.
 
 **Walk-through:** đường `0—1—2—3` → `ans=[6,4,4,6]` (đã verify mục 7).
 
-**Độ phức tạp:** `O(n)` thời gian (2 DFS), `O(n)` bộ nhớ. Tốt hơn hẳn cách ngây thơ `O(n²)` (chạy BFS/DFS từ mỗi node).
+**Độ phức tạp:** $O(n)$ thời gian (2 DFS), $O(n)$ bộ nhớ. Tốt hơn hẳn cách ngây thơ $O(n^2)$ (chạy BFS/DFS từ mỗi node).
 
 ---
 

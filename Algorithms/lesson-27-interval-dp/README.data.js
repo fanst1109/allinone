@@ -14,7 +14,7 @@ Sau bài này bạn sẽ:
 - Giải được các bài kinh điển: **Matrix Chain Multiplication**, **Palindrome Partitioning II**, **Burst Balloons**, **Longest Palindromic Subsequence**, **Merge Stones**, **Stone Game / Predict the Winner**.
 - Hiểu mẹo nghĩ **"điểm chia cuối cùng"** (Burst Balloons) thay vì "điểm chia đầu tiên".
 - Biết **vì sao phải tính theo độ dài tăng dần** (thứ tự điền bảng theo đường chéo).
-- Tránh các cạm bẫy: sai thứ tự loop, quên base case, quên biên ảo, off-by-one ở \`k\`, và \`O(n³)\` không chạy nổi khi \`n\` lớn.
+- Tránh các cạm bẫy: sai thứ tự loop, quên base case, quên biên ảo, off-by-one ở \`k\`, và $O(n^3)$ không chạy nổi khi $n$ lớn.
 
 ## Kiến thức tiền đề
 
@@ -61,7 +61,7 @@ Sau bài này bạn sẽ:
 > **❓ Câu hỏi tự nhiên của người đọc**
 >
 > - *"Vì sao state lại là một KHOẢNG mà không phải một chỉ số như DP 1D?"* — Vì lời giải của bài không phân rã được theo "phần tử cuối" như DP 1D, mà phân rã theo "vết cắt ở giữa". Một khi cắt, hai nửa độc lập → state phải mô tả đủ một nửa, tức là một đoạn \`[i..j]\`.
-> - *"Có phải lúc nào cũng \`O(n³)\` không?"* — Thường có, vì \`O(n²)\` state nhân \`O(n)\` điểm chia. Một số bài (Knuth optimization, Stone Game cùng số đống) giảm được, nhưng đó là nâng cao.
+> - *"Có phải lúc nào cũng $O(n^3)$ không?"* — Thường có, vì $O(n^2)$ state nhân $O(n)$ điểm chia. Một số bài (Knuth optimization, Stone Game cùng số đống) giảm được, nhưng đó là nâng cao.
 
 > **🔁 Dừng lại tự kiểm tra**
 >
@@ -647,18 +647,18 @@ Người đi trước thắng/hòa khi \`dp[0][n-1] >= 0\`.
 
 | Bài toán | State | Transition | Tổng | Bộ nhớ |
 |---|---|---|---|---|
-| Matrix Chain | \`O(n²)\` | \`O(n)\` thử \`k\` | **\`O(n³)\`** | \`O(n²)\` |
-| Palindrome Partition II | \`O(n²)\` (isPal) + \`O(n)\` (cut) | \`O(n)\` | **\`O(n²)\`** | \`O(n²)\` |
-| Burst Balloons | \`O(n²)\` | \`O(n)\` | **\`O(n³)\`** | \`O(n²)\` |
-| Longest Palindromic Subseq | \`O(n²)\` | \`O(1)\` | **\`O(n²)\`** | \`O(n²)\` |
-| Merge Stones (k=2) | \`O(n²)\` | \`O(n)\` | **\`O(n³)\`** | \`O(n²)\` |
-| Predict Winner | \`O(n²)\` | \`O(1)\` | **\`O(n²)\`** | \`O(n²)\` |
+| Matrix Chain | $O(n^2)$ | $O(n)$ thử \`k\` | **$O(n^3)$** | $O(n^2)$ |
+| Palindrome Partition II | $O(n^2)$ (isPal) + $O(n)$ (cut) | $O(n)$ | **$O(n^2)$** | $O(n^2)$ |
+| Burst Balloons | $O(n^2)$ | $O(n)$ | **$O(n^3)$** | $O(n^2)$ |
+| Longest Palindromic Subseq | $O(n^2)$ | $O(1)$ | **$O(n^2)$** | $O(n^2)$ |
+| Merge Stones (k=2) | $O(n^2)$ | $O(n)$ | **$O(n^3)$** | $O(n^2)$ |
+| Predict Winner | $O(n^2)$ | $O(1)$ | **$O(n^2)$** | $O(n^2)$ |
 
-Công thức chung: **\`O(n²)\` state** (số cặp \`(i,j)\` với \`i ≤ j\`) **× \`O(transition)\`**. Nếu transition là "thử mọi điểm chia \`k\`" thì \`O(n)\` → tổng \`O(n³)\`. Nếu transition chỉ so 2 lựa chọn (LPS, stone game) thì \`O(1)\` → tổng \`O(n²)\`.
+Công thức chung: **$O(n^2)$ state** (số cặp $(i,j)$ với $i \\leq j$) **× $O(\\text{transition})$**. Nếu transition là "thử mọi điểm chia \`k\`" thì $O(n)$ → tổng $O(n^3)$. Nếu transition chỉ so 2 lựa chọn (LPS, stone game) thì $O(1)$ → tổng $O(n^2)$.
 
 > **⚠ Lỗi thường gặp**
 >
-> \`O(n³)\` chỉ chạy nổi với \`n\` tới khoảng vài trăm (\`n=500\` → \`1.25·10⁸\` phép tính, sát giới hạn 1 giây). \`n=10⁴\` với \`O(n³)\` = \`10¹²\` → **không tractable**. Khi \`n\` lớn cần kỹ thuật giảm bậc (Knuth optimization đưa Matrix Chain / Merge Stones về \`O(n²)\`) — đó là chủ đề nâng cao.
+> $O(n^3)$ chỉ chạy nổi với $n$ tới khoảng vài trăm ($n=500$ → $1{,}25 \\cdot 10^8$ phép tính, sát giới hạn 1 giây). $n=10^4$ với $O(n^3)$ = $10^{12}$ → **không tractable**. Khi $n$ lớn cần kỹ thuật giảm bậc (Knuth optimization đưa Matrix Chain / Merge Stones về $O(n^2)$) — đó là chủ đề nâng cao.
 
 ---
 
@@ -684,8 +684,8 @@ Nhận diện một bài là interval DP khi thấy đủ các dấu hiệu:
 > 1. **Sai thứ tự loop**: vòng ngoài cùng phải là **độ dài khoảng** (hoặc \`i\` giảm dần). Đặt \`i\`/\`j\` ngoài cùng → đọc ô chưa tính.
 > 2. **Quên / sai base case**: \`dp[i][i]\` thường = 0 (matrix chain, merge stones) hoặc = 1 (LPS) hoặc = \`nums[i]\` (stone game). Sai base → toàn bộ bảng sai.
 > 3. **Burst Balloons quên biên ảo**: phải thêm \`1\` ở hai đầu, nếu không sẽ sai công thức điểm ở biên.
-> 4. **Off-by-one ở \`k\`**: khoảng đóng dùng \`k ∈ [i, j-1]\` và \`dp[k+1][j]\`; khoảng mở (burst) dùng \`k ∈ (i, j)\` và \`dp[k][j]\`. Nhầm lẫn hai loại → sai.
-> 5. **\`O(n³)\` với \`n\` lớn**: đừng áp interval DP \`O(n³)\` cho \`n ≥ 10⁴\` — sẽ TLE. Kiểm tra ràng buộc \`n\` trước.
+> 4. **Off-by-one ở \`k\`**: khoảng đóng dùng $k \\in [i, j-1]$ và \`dp[k+1][j]\`; khoảng mở (burst) dùng $k \\in (i, j)$ và \`dp[k][j]\`. Nhầm lẫn hai loại → sai.
+> 5. **$O(n^3)$ với $n$ lớn**: đừng áp interval DP $O(n^3)$ cho $n \\geq 10^4$ — sẽ TLE. Kiểm tra ràng buộc $n$ trước.
 > 6. **Nhầm subsequence và substring**: LPS (con) dùng \`dp[i+1][j-1]+2\`; substring palindrome dùng \`isPal\`. Hai công thức khác nhau.
 
 ---
@@ -711,11 +711,11 @@ Nhận diện một bài là interval DP khi thấy đủ các dấu hiệu:
 - Kết quả chi phí tối thiểu = **15125**.
 - Ngoặc tối ưu = **\`((A1·(A2·A3))·((A4·A5)·A6))\`**.
 
-**Cách truy vết**: từ \`split[1][6]\`. Đây là ví dụ chuẩn trong CLRS; điểm chia tối ưu \`dp[1][6]\` tại \`k=3\`, \`dp[1][3]\` tại \`k=1\`, \`dp[4][6]\` tại \`k=5\`. Độ phức tạp **\`O(n³)\` = O(6³) = 216 phép so**, bộ nhớ \`O(n²)\`.
+**Cách truy vết**: từ \`split[1][6]\`. Đây là ví dụ chuẩn trong CLRS; điểm chia tối ưu \`dp[1][6]\` tại \`k=3\`, \`dp[1][3]\` tại \`k=1\`, \`dp[4][6]\` tại \`k=5\`. Độ phức tạp **$O(n^3) = O(6^3) = 216$ phép so**, bộ nhớ $O(n^2)$.
 
 ### Bài 2 — Palindrome Partition II, \`s = "ababbbabbababa"\`
 
-Precompute \`isPal[i][j]\` (\`O(n²)\`), rồi \`cut[j] = min_i ( cut[i-1]+1 )\` với \`s[i..j]\` palindrome (mục 4). Chuỗi này có thể tách \`"a" | "babbbab" | "b" | "ababa"\` (các phần \`"babbbab"\` và \`"ababa"\` đều palindrome) → cần kiểm bằng code. Đáp án chuẩn (LeetCode 132 ví dụ này) = **3 cắt**. Độ phức tạp **\`O(n²)\`** thời gian và bộ nhớ.
+Precompute \`isPal[i][j]\` ($O(n^2)$), rồi \`cut[j] = min_i ( cut[i-1]+1 )\` với \`s[i..j]\` palindrome (mục 4). Chuỗi này có thể tách \`"a" | "babbbab" | "b" | "ababa"\` (các phần \`"babbbab"\` và \`"ababa"\` đều palindrome) → cần kiểm bằng code. Đáp án chuẩn (LeetCode 132 ví dụ này) = **3 cắt**. Độ phức tạp **$O(n^2)$** thời gian và bộ nhớ.
 
 ### Bài 3 — Burst Balloons, \`nums = [1, 2, 3, 4, 5]\`
 
@@ -724,11 +724,11 @@ Thêm biên ảo: \`a = [1, 1, 2, 3, 4, 5, 1]\`. Áp \`dp[i][j] = max_k ( dp[i][
 - Đáp án = **110**.
 - Một thứ tự tối ưu: nổ \`1\` → \`2\` → \`3\` → \`4\` → \`5\` không tối ưu; DP tìm thứ tự cho 110. (Kiểm bằng code.)
 
-Độ phức tạp **\`O(n³)\`** thời gian, \`O(n²)\` bộ nhớ.
+Độ phức tạp **$O(n^3)$** thời gian, $O(n^2)$ bộ nhớ.
 
 ### Bài 4 — Longest Palindromic Subsequence, \`s = "agbdba"\`
 
-Áp \`dp[i][j]\` (mục 6). LPS của \`"agbdba"\`: dãy con palindrome dài nhất là \`"abdba"\`? Kiểm: \`a g b d b a\` — bỏ \`g\` → \`"abdba"\` (đối xứng: a-b-d-b-a) ✓ độ dài **5**. Vậy đáp án = **5**. Độ phức tạp **\`O(n²)\`** thời gian và bộ nhớ.
+Áp \`dp[i][j]\` (mục 6). LPS của \`"agbdba"\`: dãy con palindrome dài nhất là \`"abdba"\`? Kiểm: \`a g b d b a\` — bỏ \`g\` → \`"abdba"\` (đối xứng: a-b-d-b-a) ✓ độ dài **5**. Vậy đáp án = **5**. Độ phức tạp **$O(n^2)$** thời gian và bộ nhớ.
 
 ### Bài 5 — Min cost merge stones, \`stones = [4, 3, 3, 4]\`
 
@@ -742,7 +742,7 @@ Prefix sum: \`pre = [0, 4, 7, 10, 14]\`, tổng toàn mảng = 14. Áp \`dp[i][j
   - \`k=2\`: \`dp[0][2]+dp[3][3] = 16+0 = 16\`.
   - min = 14, cộng sum 14 → \`dp[0][3] = 14 + 14 = 28\`.
 
-Đáp án = **28**. Độ phức tạp **\`O(n³)\`** thời gian, \`O(n²)\` bộ nhớ.
+Đáp án = **28**. Độ phức tạp **$O(n^3)$** thời gian, $O(n^2)$ bộ nhớ.
 
 \`\`\`go
 // Merge stones k=2
@@ -783,7 +783,7 @@ func mergeStones(stones []int) int {
 - Độ dài 3: \`dp[0][2]=max(1-dp[1][2], 233-dp[0][1])=max(1-228, 233-4)=max(-227, 229)=229\`; \`dp[1][3]=max(5-dp[2][3], 7-dp[1][2])=max(5-226, 7-228)=max(-221,-221)=-221\`.
 - Độ dài 4: \`dp[0][3]=max(1-dp[1][3], 7-dp[0][2])=max(1-(-221), 7-229)=max(222, -222)=222\`.
 
-\`dp[0][3] = 222 ≥ 0\` → **người đi trước THẮNG**. (Trực giác: lấy được \`233\` quyết định ván.) Độ phức tạp **\`O(n²)\`** thời gian và bộ nhớ.
+\`dp[0][3] = 222 ≥ 0\` → **người đi trước THẮNG**. (Trực giác: lấy được \`233\` quyết định ván.) Độ phức tạp **$O(n^2)$** thời gian và bộ nhớ.
 
 ### Bài 7 — Boolean Parenthesization (mở rộng)
 
@@ -793,7 +793,7 @@ func mergeStones(stones []int) int {
 - \`|\` (OR): \`False\` chỉ khi cả hai \`False\`; \`True\` còn lại.
 - \`^\` (XOR): \`True\` khi hai nửa khác nhau; \`False\` khi giống nhau.
 
-Với \`tot = (lt+lf)·(rt+rf)\` là tổng số cách ghép hai nửa, ta suy phần còn lại bằng \`tot - <đã tính>\`. Độ phức tạp **\`O(n³)\`** thời gian (\`O(n²)\` state × \`O(n)\` điểm chia), \`O(n²)\` bộ nhớ. Base case: toán hạng đơn \`T[i][i]=1\` nếu là \`T\`, \`F[i][i]=1\` nếu là \`F\`.
+Với \`tot = (lt+lf)·(rt+rf)\` là tổng số cách ghép hai nửa, ta suy phần còn lại bằng \`tot - <đã tính>\`. Độ phức tạp **$O(n^3)$** thời gian ($O(n^2)$ state × $O(n)$ điểm chia), $O(n^2)$ bộ nhớ. Base case: toán hạng đơn \`T[i][i]=1\` nếu là \`T\`, \`F[i][i]=1\` nếu là \`F\`.
 
 ---
 

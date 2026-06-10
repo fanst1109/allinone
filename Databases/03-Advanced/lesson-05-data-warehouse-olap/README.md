@@ -253,8 +253,8 @@ Cùng bảng `fact_sales(date_id, product_id, store_id, quantity, amount)`:
 
 Bảng có **20 cột**, **10.000.000 dòng**. Truy vấn `SELECT SUM(amount) FROM fact_sales;` chỉ cần **1 cột** (`amount`).
 
-- **Row storage:** để lấy cột `amount`, đĩa vẫn phải đọc **cả dòng** (cách bố trí byte không cho đọc riêng 1 cột) → đọc **20 cột × 10.000.000 = 200.000.000 ô**, rồi vứt bỏ 19/20.
-- **Columnar storage:** đọc **đúng 1 cột** → **1 × 10.000.000 = 10.000.000 ô**.
+- **Row storage:** để lấy cột `amount`, đĩa vẫn phải đọc **cả dòng** (cách bố trí byte không cho đọc riêng 1 cột) → đọc $20 \text{ cột} \times 10{.}000{.}000 = \mathbf{200{.}000{.}000}$ ô, rồi vứt bỏ 19/20.
+- **Columnar storage:** đọc **đúng 1 cột** → $1 \times 10{.}000{.}000 = \mathbf{10{.}000{.}000}$ ô.
 
 → Columnar đọc **ít hơn ~20 lần** cho truy vấn này. Truy vấn OLAP điển hình chạm rất ít cột nhưng rất nhiều dòng → đây là kiểu lợi thế thường gặp.
 
@@ -284,7 +284,7 @@ Bảng có **20 cột**, **10.000.000 dòng**. Truy vấn `SELECT SUM(amount) FR
 
 - **Slice (cắt lát):** cố định **một** chiều ở một giá trị, lấy "lát" còn lại. Vd "chỉ xem cube ở `store = S1`" → còn một mặt 2 chiều thời gian × sản phẩm.
 
-- **Dice (xúc khối):** lọc **nhiều** chiều cùng lúc theo các tập giá trị → lấy ra một **khối con**. Vd "`store ∈ {S1, S2}` và `quarter = Q1` và `category = 'Đồ điện'`".
+- **Dice (xúc khối):** lọc **nhiều** chiều cùng lúc theo các tập giá trị → lấy ra một **khối con**. Vd "$store \in \{S1, S2\}$ và `quarter = Q1` và `category = 'Đồ điện'`".
 
 ❓ *"Roll-up khác `GROUP BY` thường ở đâu?"* — Về bản chất roll-up **là** dùng `GROUP BY` ở mức cao hơn. Thuật ngữ cube/roll-up/drill-down là **góc nhìn người dùng** trên công cụ BI (Business Intelligence), còn bên dưới warehouse vẫn thực thi bằng các `GROUP BY`/`SUM` như mục 3.4.
 
@@ -365,10 +365,10 @@ Sơ đồ sao: `fact_loans` ở giữa, 4 dimension (`dim_date`, `dim_book`, `di
 ### Bài 5 — Roll-up / drill-down
 
 - **(a) Roll-up lên tháng** = cộng các ngày trong mỗi tháng:
-  - tháng 1 = 10 + 20 + 5 = **35**
-  - tháng 2 = 30 + 10 = **40**
-  - tháng 3 = 15 + 25 = **40**
-- **(b) Roll-up lên quý** = cộng cả 3 tháng: 35 + 40 + 40 = **115** (triệu).
+  - tháng 1 $= 10 + 20 + 5 = \mathbf{35}$
+  - tháng 2 $= 30 + 10 = \mathbf{40}$
+  - tháng 3 $= 15 + 25 = \mathbf{40}$
+- **(b) Roll-up lên quý** = cộng cả 3 tháng: $35 + 40 + 40 = \mathbf{115}$ (triệu).
 - **(c) Drill-down về tháng** = đi ngược lại: từ con số quý `115` bung ra chi tiết theo từng tháng `[35, 40, 40]` (và có thể khoan tiếp xuống ngày). Drill-down không tạo dữ liệu mới — nó hiển thị mức chi tiết hơn của cùng dữ liệu.
 
 ---

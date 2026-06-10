@@ -7,7 +7,7 @@
 Sau bài này bạn sẽ:
 
 - Hiểu vì sao một bảng "gộp tất cả" gây ra **bất thường (anomaly)** khi thêm, sửa, xóa dữ liệu — và nhận diện được cả ba loại: insertion, update, deletion anomaly.
-- Định nghĩa được **phụ thuộc hàm (functional dependency, X→Y)**, phân biệt **phụ thuộc bộ phận (partial dependency)** và **phụ thuộc bắc cầu (transitive dependency)**.
+- Định nghĩa được **phụ thuộc hàm (functional dependency, $X \to Y$)**, phân biệt **phụ thuộc bộ phận (partial dependency)** và **phụ thuộc bắc cầu (transitive dependency)**.
 - Tách một bảng phi chuẩn qua các dạng chuẩn (normal form) **1NF → 2NF → 3NF → BCNF**, hiểu mỗi mức loại bỏ đúng loại phụ thuộc nào.
 - Biết khi nào nên **phi chuẩn hóa (denormalize)** có chủ đích để đánh đổi hiệu năng đọc lấy tính toàn vẹn.
 
@@ -77,7 +77,7 @@ Xóa xong, **toàn bộ thông tin về Bình biến mất khỏi cơ sở dữ 
 
 ### 2.1 Định nghĩa (đủ 3 phần)
 
-**(a) Là gì.** Phụ thuộc hàm `X → Y` (đọc: "X xác định Y") nghĩa là: nếu hai dòng có cùng giá trị ở (các) cột `X` thì **bắt buộc** phải có cùng giá trị ở (các) cột `Y`. Nói cách khác, biết `X` là biết duy nhất `Y`. `X` gọi là **vế trái / determinant (yếu tố quyết định)**.
+**(a) Là gì.** Phụ thuộc hàm $X \to Y$ (đọc: "X xác định Y") nghĩa là: nếu hai dòng có cùng giá trị ở (các) cột $X$ thì **bắt buộc** phải có cùng giá trị ở (các) cột $Y$. Nói cách khác, biết $X$ là biết duy nhất $Y$. $X$ gọi là **vế trái / determinant (yếu tố quyết định)**.
 
 **(b) Vì sao cần.** Phụ thuộc hàm là *ngôn ngữ chính xác* để mô tả "cột nào quyết định cột nào". Cả lý thuyết chuẩn hóa xây trên nó: mỗi dạng chuẩn được định nghĩa bằng việc cho phép hay cấm một loại phụ thuộc cụ thể. Không có FD thì "tách bảng" chỉ là cảm tính.
 
@@ -107,7 +107,7 @@ Walk-through: khóa là `(order_id, product)`. Tên sản phẩm "Bàn phím" đ
 
 ### 2.4 Phụ thuộc bắc cầu (transitive dependency)
 
-Khi `X → Y` và `Y → Z` (với `Y` không phải khóa), thì `X → Z` là phụ thuộc **bắc cầu** — `Z` phụ thuộc khóa *gián tiếp* qua một cột không-khóa trung gian `Y`.
+Khi $X \to Y$ và $Y \to Z$ (với $Y$ không phải khóa), thì $X \to Z$ là phụ thuộc **bắc cầu** — $Z$ phụ thuộc khóa *gián tiếp* qua một cột không-khóa trung gian $Y$.
 
 Ví dụ bảng `Customers(cust_id, cust_city, city_zone)` với `cust_id` là khóa:
 
@@ -127,7 +127,7 @@ Ví dụ bảng `Customers(cust_id, cust_city, city_zone)` với `cust_id` là k
 2. Phụ thuộc bộ phận chỉ xảy ra khi khóa là **khóa ghép (≥ 2 cột)**. Với khóa đơn, không có "một phần của khóa" → không có partial dependency, nên bảng khóa đơn ở 1NF đã tự động đạt 2NF.
 </details>
 
-📝 **Tóm tắt mục 2.** FD `X→Y`: cùng X buộc cùng Y, có hướng. **Bộ phận** = phụ thuộc vào một phần khóa ghép. **Bắc cầu** = phụ thuộc gián tiếp qua cột không-khóa. Hai loại này là "thủ phạm" mà 2NF và 3NF nhắm tới.
+📝 **Tóm tắt mục 2.** FD $X \to Y$: cùng X buộc cùng Y, có hướng. **Bộ phận** = phụ thuộc vào một phần khóa ghép. **Bắc cầu** = phụ thuộc gián tiếp qua cột không-khóa. Hai loại này là "thủ phạm" mà 2NF và 3NF nhắm tới.
 
 ---
 

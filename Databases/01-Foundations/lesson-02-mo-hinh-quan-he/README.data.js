@@ -19,7 +19,7 @@ Sau bài này bạn sẽ:
 ## Kiến thức tiền đề
 
 - [Lesson 01 — Giới thiệu CSDL & DBMS](../lesson-01-gioi-thieu-csdl/): biết DBMS quan hệ là gì, vì sao bảng là mô hình mặc định.
-- Khái niệm **tập hợp (set)** và **tích Descartes**: nếu chưa chắc, xem [DataFoundations — Set Theory](../../../DataFoundations/02-SetTheory/index.html). Mô hình quan hệ chính là một ứng dụng trực tiếp của lý thuyết tập hợp.
+- Khái niệm **tập hợp (set)** và **tích Descartes**: nếu chưa chắc, xem [DataFoundations — Set Theory](../../../DataFoundations/03-MathFoundations/index.html). Mô hình quan hệ chính là một ứng dụng trực tiếp của lý thuyết tập hợp.
 
 ---
 
@@ -98,14 +98,14 @@ Xét bảng \`SinhVien\` (Students) sau làm ví dụ xuyên suốt:
 
 💡 **Trực giác.** Tích Descartes (Cartesian product) của hai tập là "ghép mọi giá trị bên trái với mọi giá trị bên phải". Giống menu combo: 3 loại bánh × 2 loại nước = 6 combo có thể.
 
-**Định nghĩa.** Với hai tập \`A\` và \`B\`, tích Descartes \`A × B\` là tập tất cả các cặp \`(a, b)\` với \`a ∈ A\` và \`b ∈ B\`.
+**Định nghĩa.** Với hai tập $A$ và $B$, tích Descartes $A \\times B$ là tập tất cả các cặp $(a, b)$ với $a \\in A$ và $b \\in B$.
 
 **Walk-through bằng giá trị thật.** Lấy:
 
-- \`Tuoi = {18, 19, 20}\` (3 phần tử)
-- \`Tinh = {HN, HCM}\` (2 phần tử)
+- $Tuoi = \\{18, 19, 20\\}$ (3 phần tử)
+- $Tinh = \\{HN, HCM\\}$ (2 phần tử)
 
-Thì \`Tuoi × Tinh\` có \`3 × 2 = 6\` cặp. Liệt kê đầy đủ:
+Thì $Tuoi \\times Tinh$ có $3 \\times 2 = 6$ cặp. Liệt kê đầy đủ:
 
 \`\`\`
 (18, HN)   (18, HCM)
@@ -113,7 +113,7 @@ Thì \`Tuoi × Tinh\` có \`3 × 2 = 6\` cặp. Liệt kê đầy đủ:
 (20, HN)   (20, HCM)
 \`\`\`
 
-Tổng quát: nếu \`|A| = m\` và \`|B| = n\` thì \`|A × B| = m × n\`. Ở đây \`|Tuoi| = 3\`, \`|Tinh| = 2\` → \`|Tuoi × Tinh| = 6\` ✓.
+Tổng quát: nếu $|A| = m$ và $|B| = n$ thì $|A \\times B| = m \\times n$. Ở đây $|Tuoi| = 3$, $|Tinh| = 2 \\Rightarrow |Tuoi \\times Tinh| = 6$ ✓.
 
 ### 3.2 Một quan hệ là một tập con của tích đó
 
@@ -126,10 +126,10 @@ Một quan hệ trên hai domain \`Tuoi\` và \`Tinh\` là **bất kỳ tập co
 3. \`{ }\` — quan hệ rỗng, 0 bộ. Hợp lệ (tập con rỗng vẫn là tập con).
 4. Cả 6 cặp — quan hệ "đầy đủ". Hợp lệ.
 
-Số quan hệ khả dĩ trên 2 domain này là số tập con của một tập 6 phần tử = \`2^6 = 64\`.
+Số quan hệ khả dĩ trên 2 domain này là số tập con của một tập 6 phần tử $= 2^6 = 64$.
 
 ❓ **Câu hỏi tự nhiên của người đọc.**
-- *"Bảng thật có nhiều hơn 2 cột thì sao?"* — Tổng quát hóa: quan hệ trên \`n\` domain \`D₁, D₂, ..., Dₙ\` là tập con của \`D₁ × D₂ × ... × Dₙ\`. Mỗi phần tử là một bộ \`n\` giá trị \`(v₁, ..., vₙ)\`.
+- *"Bảng thật có nhiều hơn 2 cột thì sao?"* — Tổng quát hóa: quan hệ trên $n$ domain $D_1, D_2, \\ldots, D_n$ là tập con của $D_1 \\times D_2 \\times \\cdots \\times D_n$. Mỗi phần tử là một bộ $n$ giá trị $(v_1, \\ldots, v_n)$.
 - *"Vậy domain có cần hữu hạn không?"* — Không. Domain \`Tuoi\` thực tế là "số nguyên 0..150", domain \`HoTen\` là "mọi chuỗi". Tích Descartes vẫn định nghĩa được; chỉ là ta không liệt kê hết được.
 
 ### 3.3 Hệ quả: ba tính chất của quan hệ
@@ -157,11 +157,11 @@ Vì quan hệ là **tập hợp** các bộ, ta suy ra ngay:
 
 <details><summary>Đáp án</summary>
 
-1. \`2 × 2 = 4\` phần tử: \`(Do, Truoc), (Do, Sau), (Xanh, Truoc), (Xanh, Sau)\`.
+1. $2 \\times 2 = 4$ phần tử: \`(Do, Truoc), (Do, Sau), (Xanh, Truoc), (Xanh, Sau)\`.
 2. **Không** — thứ tự bộ không quan trọng, hai cái là *cùng một quan hệ* (cùng một tập hợp các bộ).
 </details>
 
-📝 **Tóm tắt mục 3.** Quan hệ = tập con của tích Descartes các domain. Vì là *tập hợp*, ta được miễn phí ba tính chất: không trùng bộ, không thứ tự, mỗi ô một giá trị nguyên tử (1NF). \`|D₁ × ... × Dₙ|\` = tích các kích thước domain; số quan hệ khả dĩ = \`2\` mũ số đó.
+📝 **Tóm tắt mục 3.** Quan hệ = tập con của tích Descartes các domain. Vì là *tập hợp*, ta được miễn phí ba tính chất: không trùng bộ, không thứ tự, mỗi ô một giá trị nguyên tử (1NF). $|D_1 \\times \\cdots \\times D_n|$ = tích các kích thước domain; số quan hệ khả dĩ $= 2$ mũ số đó.
 
 ---
 
@@ -270,18 +270,18 @@ Với bảng \`SinhVien(MaSV, HoTen, Tuoi, Tinh)\`, giả sử \`MaSV\` là duy 
 
 - **(a)** Bậc = **4** (bốn cột: MaDon, MaKH, NgayDat, TongTien).
 - **(b)** Lực lượng = **5.420** (số hàng hiện có).
-- **(c)** Xóa 20 đơn → lực lượng = \`5.420 − 20 = 5.400\`. Thêm cột \`TrangThai\` → bậc = \`4 + 1 = 5\`. Vậy **bậc = 5, lực lượng = 5.400**. (Xóa hàng chỉ ảnh hưởng lực lượng; thêm cột chỉ ảnh hưởng bậc.)
+- **(c)** Xóa 20 đơn → lực lượng $= 5{.}420 - 20 = 5{.}400$. Thêm cột \`TrangThai\` → bậc $= 4 + 1 = 5$. Vậy **bậc = 5, lực lượng = 5.400**. (Xóa hàng chỉ ảnh hưởng lực lượng; thêm cột chỉ ảnh hưởng bậc.)
 
 ### Bài 2 — Tích Descartes & quan hệ
 
-- **(a)** \`|Size| × |Mau| = 3 × 2 = 6\` phần tử:
+- **(a)** $|Size| \\times |Mau| = 3 \\times 2 = 6$ phần tử:
   \`\`\`
   (S, Den)  (S, Trang)
   (M, Den)  (M, Trang)
   (L, Den)  (L, Trang)
   \`\`\`
 - **(b)** Một quan hệ 3 bộ hợp lệ, ví dụ: \`{ (S, Den), (M, Trang), (L, Den) }\`. (Bất kỳ 3 cặp khác nhau nào trong 6 cặp trên đều được.)
-- **(c)** Số tập con của một tập 6 phần tử = \`2^6 = 64\` quan hệ khả dĩ (kể cả quan hệ rỗng và quan hệ đầy đủ 6 bộ).
+- **(c)** Số tập con của một tập 6 phần tử $= 2^6 = 64$ quan hệ khả dĩ (kể cả quan hệ rỗng và quan hệ đầy đủ 6 bộ).
 
 ### Bài 3 — Candidate key
 
@@ -323,7 +323,7 @@ Giờ mỗi ô chứa một giá trị đơn (atomic ✓), và truy vấn theo t
 ## 8. Code & Minh họa
 
 - Minh họa tương tác: [visualization.html](./visualization.html) — gồm ba mô-đun: (1) bảng \`SinhVien\` cho bấm xem degree/cardinality tự cập nhật và highlight một bộ/thuộc tính; (2) mô phỏng tích Descartes hai domain nhỏ rồi chọn tập con để tạo "một quan hệ"; (3) bộ kiểm tra logic ba trị với NULL.
-- Mô hình quan hệ là một ứng dụng trực tiếp của lý thuyết tập hợp: [DataFoundations — Set Theory](../../../DataFoundations/02-SetTheory/index.html).
+- Mô hình quan hệ là một ứng dụng trực tiếp của lý thuyết tập hợp: [DataFoundations — Set Theory](../../../DataFoundations/03-MathFoundations/index.html).
 
 ---
 

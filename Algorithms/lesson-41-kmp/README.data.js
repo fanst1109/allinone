@@ -13,8 +13,8 @@ Sau bài này bạn sẽ:
 - Hiểu **vì sao naive matching lãng phí**: mỗi mismatch lùi text về \`i+1\` và bỏ hết thông tin đã so sánh.
 - Nắm vững **failure function / LPS** (Longest Proper Prefix that is also Suffix) — trái tim của KMP.
 - Tự tay tính được bảng LPS cho một pattern bất kỳ bằng **2 con trỏ, O(m)**.
-- Chạy được **KMP matching O(n+m)**: text pointer **không bao giờ lùi**, pattern pointer nhảy theo LPS.
-- Chứng minh được vì sao tổng chi phí là **O(n+m)** bằng amortized analysis.
+- Chạy được **KMP matching $O(n+m)$**: text pointer **không bao giờ lùi**, pattern pointer nhảy theo LPS.
+- Chứng minh được vì sao tổng chi phí là $O(n+m)$ bằng amortized analysis.
 - Áp dụng KMP/LPS vào: repeated substring pattern, shortest palindrome, string period, longest happy prefix.
 - Phân biệt KMP với Rabin-Karp và Z-algorithm, biết khi nào chọn cái nào.
 
@@ -54,15 +54,15 @@ P:    A B A B C
 Tại \`i=0\` ta đã biết chắc \`T[0..3] = "ABAB"\`. Khi mismatch tại \`T[4]\`, naive **vứt bỏ** thông tin này và lùi text về \`i=1\`, dù \`T[1]='B'\` chắc chắn không khớp \`P[0]='A'\`.
 
 > ❓ **Câu hỏi tự nhiên của người đọc.**
-> - *"Naive tệ cỡ nào?"* — Worst case \`O(n·m)\`. Với \`T = "AAAA...A"\` (n chữ A) và \`P = "AAA...AB"\` (m-1 chữ A rồi B): mỗi vị trí so gần \`m\` ký tự rồi mới mismatch ở cuối → \`n·m\` phép so.
+> - *"Naive tệ cỡ nào?"* — Worst case $O(n \\cdot m)$. Với \`T = "AAAA...A"\` ($n$ chữ A) và \`P = "AAA...AB"\` ($m-1$ chữ A rồi B): mỗi vị trí so gần $m$ ký tự rồi mới mismatch ở cuối → $n \\cdot m$ phép so.
 > - *"Ta đã so \`"ABAB"\` khớp rồi — có cách nào tận dụng không?"* — Có! Đó chính là ý tưởng KMP: \`"ABAB"\` có phần đuôi \`"AB"\` trùng với phần đầu \`"AB"\` của pattern. Nên thay vì lùi về đầu, ta có thể dịch pattern sao cho \`"AB"\` ở đầu khớp ngay với \`"AB"\` ta vừa thấy.
 
 **KMP (Knuth-Morris-Pratt, 1977)** xử lý đúng chỗ lãng phí này: **text pointer không bao giờ lùi**. Khi mismatch, chỉ pattern pointer "trượt" về một vị trí thông minh tính sẵn.
 
 > 📝 **Tóm tắt mục 1.**
-> - Naive: mismatch → lùi text về \`i+1\`, so lại từ \`P[0]\`, vứt hết thông tin đã khớp → \`O(nm)\`.
+> - Naive: mismatch → lùi text về \`i+1\`, so lại từ \`P[0]\`, vứt hết thông tin đã khớp → $O(nm)$.
 > - Thông tin bị vứt: phần prefix của pattern đã khớp với text.
-> - KMP: dùng cấu trúc nội tại của pattern (prefix trùng suffix) để **không lùi text**, đạt \`O(n+m)\`.
+> - KMP: dùng cấu trúc nội tại của pattern (prefix trùng suffix) để **không lùi text**, đạt $O(n+m)$.
 
 ---
 
@@ -195,7 +195,7 @@ Quy tắc tại mỗi bước:
 
 Kết quả \`lps = [0,0,1,2,3,0,1]\` — khớp Ví dụ 3 ở mục 2.2. ✓
 
-Chú ý bước 5-6: khi \`C\` không khớp \`P[3]='B'\`, ta lùi \`len\` qua 2 nấc (\`3 → 1 → 0\`) **mà không tăng \`i\`**. Đây là điểm khiến nhiều người nghĩ "vòng lặp này O(m²)" — nhưng nó amortized O(m) (xem mục 5).
+Chú ý bước 5-6: khi \`C\` không khớp \`P[3]='B'\`, ta lùi \`len\` qua 2 nấc (\`3 → 1 → 0\`) **mà không tăng \`i\`**. Đây là điểm khiến nhiều người nghĩ "vòng lặp này $O(m^2)$" — nhưng nó amortized $O(m)$ (xem mục 5).
 
 ### 3.3 Code Go — \`computeLPS\`
 
@@ -259,7 +259,7 @@ Dùng 2 con trỏ: \`i\` chạy trên text, \`j\` chạy trên pattern.
 
 ### 4.2 Walk-through: tìm \`P = "ABABCABAB"\` trong \`T\`
 
-\`P = "ABABCABAB"\` (m=9). Trước hết tính \`lps\`:
+\`P = "ABABCABAB"\` ($m=9$). Trước hết tính \`lps\`:
 
 | i | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
 |---|---|---|---|---|---|---|---|---|---|
@@ -268,7 +268,7 @@ Dùng 2 con trỏ: \`i\` chạy trên text, \`j\` chạy trên pattern.
 
 (Kiểm: \`lps[3]\` cho \`"ABAB"\`→2; \`lps[4]\` \`"ABABC"\`→0; \`lps[8]\` \`"ABABCABAB"\` có \`"ABAB"\` đầu = \`"ABAB"\` cuối → 4.) ✓
 
-Tìm trong \`T = "ABABDABACDABABCABAB"\` (n=19):
+Tìm trong \`T = "ABABDABACDABABCABAB"\` ($n=19$):
 
 \`\`\`
 index: 0123456789...
@@ -346,24 +346,24 @@ func kmpSearch(t, p string) []int {
 
 ## 5. Vì sao O(n+m)?
 
-> 💡 **Trực giác.** Nhìn vào \`i + j\` (tổng 2 con trỏ) như một "đồng hồ". Mỗi bước vòng lặp HOẶC tăng \`i\` (match hoặc nhánh j=0), HOẶC giữ \`i\` nhưng giảm \`j\` (nhánh \`j=lps[j-1]\`, vì \`lps[j-1] < j\`). \`i+j\` không bao giờ giảm trừ khi... thực ra \`i+j\` cũng không giảm khi \`i\` giữ và \`j\` giảm? Hãy đếm cẩn thận hơn.
+> 💡 **Trực giác.** Nhìn vào $i + j$ (tổng 2 con trỏ) như một "đồng hồ". Mỗi bước vòng lặp HOẶC tăng $i$ (match hoặc nhánh j=0), HOẶC giữ $i$ nhưng giảm $j$ (nhánh \`j=lps[j-1]\`, vì \`lps[j-1] < j\`). $i+j$ không bao giờ giảm trừ khi... thực ra $i+j$ cũng không giảm khi $i$ giữ và $j$ giảm? Hãy đếm cẩn thận hơn.
 
 **Phân tích amortized (kiểu potential / counting).**
 
-- **Con trỏ text \`i\`:** chỉ tăng, từ 0 đến \`n\`. Mỗi lần tăng tốn O(1). Tổng cộng O(n) lần tăng \`i\`.
-- **Con trỏ pattern \`j\`:**
-  - \`j\` **tăng** chỉ trong nhánh match (cùng lúc \`i\` tăng). Vì \`i\` tăng tối đa \`n\` lần, \`j\` cũng tăng tối đa \`n\` lần.
-  - \`j\` **giảm** trong nhánh \`j = lps[j-1]\` (vì \`lps[j-1] < j\`, luôn giảm ít nhất 1).
-  - \`j ≥ 0\` luôn. Mỗi lần giảm bớt ≥ 1. Tổng số lần giảm **không thể vượt** tổng số lần tăng (nếu không \`j\` sẽ âm). Vậy tổng lần giảm ≤ tổng lần tăng = O(n).
+- **Con trỏ text $i$:** chỉ tăng, từ 0 đến $n$. Mỗi lần tăng tốn $O(1)$. Tổng cộng $O(n)$ lần tăng $i$.
+- **Con trỏ pattern $j$:**
+  - $j$ **tăng** chỉ trong nhánh match (cùng lúc $i$ tăng). Vì $i$ tăng tối đa $n$ lần, $j$ cũng tăng tối đa $n$ lần.
+  - $j$ **giảm** trong nhánh \`j = lps[j-1]\` (vì \`lps[j-1] < j\`, luôn giảm ít nhất 1).
+  - $j \\geq 0$ luôn. Mỗi lần giảm bớt $\\geq 1$. Tổng số lần giảm **không thể vượt** tổng số lần tăng (nếu không $j$ sẽ âm). Vậy tổng lần giảm $\\leq$ tổng lần tăng $= O(n)$.
 
-Vậy toàn bộ vòng lặp matching chạy O(n) bước. Cộng \`computeLPS\` là O(m) (cùng lập luận: \`len\` tăng tối đa m lần nên giảm tối đa m lần). **Tổng: O(n+m)**, bộ nhớ O(m).
+Vậy toàn bộ vòng lặp matching chạy $O(n)$ bước. Cộng \`computeLPS\` là $O(m)$ (cùng lập luận: \`len\` tăng tối đa $m$ lần nên giảm tối đa $m$ lần). **Tổng: $O(n+m)$**, bộ nhớ $O(m)$.
 
-> ❓ **Câu hỏi tự nhiên.** *"Nhánh \`j=lps[j-1]\` chạy nhiều lần liên tiếp trong 1 vị trí i (như bước 5-6 mục 3.2) thì sao?"* — Đúng là một bước \`i\` có thể kéo theo nhiều lần giảm \`j\`. Nhưng **tổng cộng trên toàn bộ thuật toán**, số lần giảm bị chặn bởi số lần tăng. Một vị trí giảm nhiều thì vị trí khác giảm ít — amortized vẫn O(1)/bước.
+> ❓ **Câu hỏi tự nhiên.** *"Nhánh \`j=lps[j-1]\` chạy nhiều lần liên tiếp trong 1 vị trí $i$ (như bước 5-6 mục 3.2) thì sao?"* — Đúng là một bước $i$ có thể kéo theo nhiều lần giảm $j$. Nhưng **tổng cộng trên toàn bộ thuật toán**, số lần giảm bị chặn bởi số lần tăng. Một vị trí giảm nhiều thì vị trí khác giảm ít — amortized vẫn $O(1)$/bước.
 
 > 📝 **Tóm tắt mục 5.**
-> - \`i\` đơn điệu tăng → O(n) cho text.
-> - \`j\` tăng ≤ n lần (cùng match) ⇒ giảm ≤ n lần (vì j≥0) → tổng O(n).
-> - computeLPS tương tự O(m). Tổng O(n+m), không phải O(nm).
+> - $i$ đơn điệu tăng → $O(n)$ cho text.
+> - $j$ tăng $\\leq n$ lần (cùng match) ⇒ giảm $\\leq n$ lần (vì $j \\geq 0$) → tổng $O(n)$.
+> - computeLPS tương tự $O(m)$. Tổng $O(n+m)$, không phải $O(nm)$.
 
 ---
 
@@ -399,12 +399,12 @@ Khác Rabin-Karp (có thể có hash collision → worst case O(nm)), KMP **luô
 
 > Cho \`s\`, hỏi \`s\` có là **một chuỗi con lặp lại nhiều lần** không (vd \`"abcabcabc"\` = \`"abc"\` × 3)?
 
-**Mẹo:** Gọi \`L = lps[n-1]\` (LPS cuối của cả chuỗi). Đặt \`period = n - L\`.
-- Nếu \`n % period == 0\` **và** \`L > 0\` → \`s\` lặp với chu kỳ \`period\`.
+**Mẹo:** Gọi \`L = lps[n-1]\` (LPS cuối của cả chuỗi). Đặt $\\text{period} = n - L$.
+- Nếu $n \\bmod \\text{period} = 0$ **và** $L > 0$ → \`s\` lặp với chu kỳ $\\text{period}$.
 
-**Walk-through \`s = "abcabc"\` (n=6):** lps = \`[0,0,0,1,2,3]\`. \`L=lps[5]=3\`, \`period = 6-3 = 3\`, \`6 % 3 == 0\` và \`L>0\` → ĐÚNG, lặp \`"abc"\` × 2.
+**Walk-through \`s = "abcabc"\` ($n=6$):** lps = \`[0,0,0,1,2,3]\`. \`L=lps[5]=3\`, $\\text{period} = 6-3 = 3$, $6 \\bmod 3 = 0$ và $L>0$ → ĐÚNG, lặp \`"abc"\` × 2.
 
-**Walk-through \`s = "aba"\` (n=3):** lps = \`[0,0,1]\`. \`L=1\`, \`period=2\`, \`3 % 2 = 1 ≠ 0\` → SAI (không lặp). ✓
+**Walk-through \`s = "aba"\` ($n=3$):** lps = \`[0,0,1]\`. $L=1$, $\\text{period}=2$, $3 \\bmod 2 = 1 \\neq 0$ → SAI (không lặp). ✓
 
 \`\`\`go
 // repeatedSubstringPattern: s có là một substring lặp ≥ 2 lần không?
@@ -430,9 +430,9 @@ func repeatedSubstringPattern(s string) bool {
 
 ### 7.4 String period (chu kỳ nhỏ nhất)
 
-Chu kỳ nhỏ nhất của \`s\` là \`n - lps[n-1]\` (nếu \`n % (n - lps[n-1]) == 0\` thì đó là chu kỳ thật sự lặp kín; nếu không, đó vẫn là "chu kỳ" theo nghĩa string period mở rộng).
+Chu kỳ nhỏ nhất của \`s\` là $n - $ \`lps[n-1]\` (nếu $n \\bmod (n - $\`lps[n-1]\`$) = 0$ thì đó là chu kỳ thật sự lặp kín; nếu không, đó vẫn là "chu kỳ" theo nghĩa string period mở rộng).
 
-**Walk-through \`s = "ababab"\`:** lps=\`[0,0,1,2,3,4]\`, \`lps[5]=4\`, chu kỳ = \`6-4 = 2\` (\`"ab"\`). \`6%2==0\` → lặp kín. ✓
+**Walk-through \`s = "ababab"\`:** lps=\`[0,0,1,2,3,4]\`, \`lps[5]=4\`, chu kỳ $= 6-4 = 2$ (\`"ab"\`). $6 \\bmod 2 = 0$ → lặp kín. ✓
 
 \`\`\`go
 // smallestPeriod trả về độ dài chu kỳ nhỏ nhất khiến s lặp kín;
@@ -457,7 +457,7 @@ func smallestPeriod(s string) int {
 
 **Walk-through \`s = "level"\`:** lps=\`[0,0,0,0,1]\`, \`lps[4]=1\` → happy prefix = \`"l"\`.
 
-> 📝 **Tóm tắt mục 7.** Hầu hết ứng dụng quy về **LPS cuối** \`lps[n-1]\`: repeated pattern (\`n%(n-L)==0\`), period (\`n-L\`), happy prefix (\`s[0..L-1]\`). Shortest palindrome dùng \`s+#+reverse(s)\`.
+> 📝 **Tóm tắt mục 7.** Hầu hết ứng dụng quy về **LPS cuối** \`lps[n-1]\`: repeated pattern ($n \\bmod (n-L) = 0$), period ($n-L$), happy prefix (\`s[0..L-1]\`). Shortest palindrome dùng \`s+#+reverse(s)\`.
 
 ---
 
@@ -489,7 +489,7 @@ func buildAutomaton(p string, alphabet []byte) map[byte][]int {
 }
 \`\`\`
 
-**Đánh đổi:** automaton matching là O(n) cứng (mỗi ký tự 1 lookup) nhưng tiền xử lý O(m·|Σ|) thời gian và bộ nhớ. Hợp khi alphabet nhỏ và cần latency cực thấp mỗi ký tự (vd hardware, streaming).
+**Đánh đổi:** automaton matching là $O(n)$ cứng (mỗi ký tự 1 lookup) nhưng tiền xử lý $O(m \\cdot |\\Sigma|)$ thời gian và bộ nhớ. Hợp khi alphabet nhỏ và cần latency cực thấp mỗi ký tự (vd hardware, streaming).
 
 ---
 
@@ -497,9 +497,9 @@ func buildAutomaton(p string, alphabet []byte) map[byte][]int {
 
 | Tiêu chí | KMP | Rabin-Karp ([L40](../lesson-40-string-matching-rabin-karp/)) | Z-algorithm ([L42](../lesson-42-z-algorithm/)) |
 |----------|-----|-------------|-------------|
-| Tiền xử lý | LPS O(m) | hash O(m) | Z trên \`P#T\` O(n+m) |
-| Matching | O(n) guaranteed | O(n) trung bình, O(nm) worst (collision) | O(n+m) |
-| Worst case | **O(n+m) chắc chắn** | O(nm) (collision đối nghịch) | O(n+m) chắc chắn |
+| Tiền xử lý | LPS $O(m)$ | hash $O(m)$ | Z trên \`P#T\` $O(n+m)$ |
+| Matching | $O(n)$ guaranteed | $O(n)$ trung bình, $O(nm)$ worst (collision) | $O(n+m)$ |
+| Worst case | $O(n+m)$ chắc chắn | $O(nm)$ (collision đối nghịch) | $O(n+m)$ chắc chắn |
 | Sai (false positive) | Không bao giờ | Có thể (cần verify) | Không bao giờ |
 | Multi-pattern | Không trực tiếp (→ Aho-Corasick) | **Tốt** (hash nhiều pattern cùng độ dài) | Không trực tiếp |
 | Trực quan | Trung bình (LPS hơi khó cảm) | Dễ (hash) | **Dễ nhất** (Z = "khớp prefix tại mỗi vị trí") |
@@ -510,7 +510,7 @@ func buildAutomaton(p string, alphabet []byte) map[byte][]int {
 > - Cần code ngắn, dễ hiểu, một pattern → **Z** (L42, tương đương KMP về độ phức tạp nhưng trực giác hơn).
 > - Streaming/hardware alphabet nhỏ → **KMP automaton**.
 
-> 📝 **Tóm tắt mục 9.** KMP = guaranteed O(n+m), không collision, nhưng LPS hơi trừu tượng. RK đơn giản, đa pattern, nhưng worst O(nm). Z tương đương KMP, trực quan hơn (học ở L42).
+> 📝 **Tóm tắt mục 9.** KMP = guaranteed $O(n+m)$, không collision, nhưng LPS hơi trừu tượng. RK đơn giản, đa pattern, nhưng worst $O(nm)$. Z tương đương KMP, trực quan hơn (học ở L42).
 
 ---
 
@@ -521,7 +521,7 @@ func buildAutomaton(p string, alphabet []byte) map[byte][]int {
 | Tính LPS sai (tính cả chuỗi) | \`lps[m-1] == m\`, period = 0 | Proper prefix — không bao giờ tính cả chuỗi; \`lps[i] ≤ i\` |
 | Off-by-one \`lps[length]\` thay \`lps[length-1]\` | Index out of range hoặc kết quả sai | \`length\` là độ dài → index ký tự cuối = \`length-1\` |
 | Nhầm nghĩa \`lps[i]\` (boolean / vị trí) | Logic nhảy sai | \`lps[i]\` là **độ dài** prefix-suffix dài nhất |
-| Reset \`j=0\` khi mismatch | Chậm về O(nm), mất ưu thế | \`j = lps[j-1]\` (không reset về 0 trừ khi lps[j-1]=0) |
+| Reset \`j=0\` khi mismatch | Chậm về $O(nm)$, mất ưu thế | \`j = lps[j-1]\` (không reset về 0 trừ khi lps[j-1]=0) |
 | Quên \`j=lps[j-1]\` sau match | Vòng vô hạn / sót match overlap | Sau \`j==m\`: \`j = lps[j-1]\` |
 | Tăng \`i\` ở nhánh mismatch & j>0 | Bỏ sót match | Text **không lùi nhưng cũng không nhảy** — chỉ đổi \`j\` |
 
@@ -574,7 +574,7 @@ func strStr(haystack, needle string) int {
 
 **Walk-through \`haystack="aabaaab"\`, \`needle="aab"\`:** lps("aab")=\`[0,1,0]\`. i=0..2 khớp "aab" → j=3==m → trả \`0\`. ✓ (Nếu cần match tại vị trí khác, ví dụ needle="aaab", lps=[0,1,2,0], match bắt đầu tại index 3.)
 
-**Big-O:** O(n+m) thời gian, O(m) bộ nhớ.
+**Big-O:** $O(n+m)$ thời gian, $O(m)$ bộ nhớ.
 
 ### Bài 2 — Repeated Substring Pattern
 
@@ -593,9 +593,9 @@ func repeatedSubstringPattern(s string) bool {
 }
 \`\`\`
 
-**Walk-through \`s="abcabcabc"\` (n=9):** lps=\`[0,0,0,1,2,3,4,5,6]\`, \`L=6\`, \`period=3\`, \`9%3==0\` & L>0 → \`true\` (lặp "abc"×3). Với \`s="aba"\`: lps=\`[0,0,1]\`, L=1, period=2, \`3%2=1\` → \`false\`. ✓
+**Walk-through \`s="abcabcabc"\` ($n=9$):** lps=\`[0,0,0,1,2,3,4,5,6]\`, $L=6$, $\\text{period}=3$, $9 \\bmod 3 = 0$ & $L>0$ → \`true\` (lặp "abc"×3). Với \`s="aba"\`: lps=\`[0,0,1]\`, $L=1$, $\\text{period}=2$, $3 \\bmod 2 = 1$ → \`false\`. ✓
 
-**Big-O:** O(n) thời gian, O(n) bộ nhớ.
+**Big-O:** $O(n)$ thời gian, $O(n)$ bộ nhớ.
 
 ### Bài 3 — Shortest Palindrome
 
@@ -625,7 +625,7 @@ func shortestPalindrome(s string) string {
 
 **Walk-through \`s="aacecaaa"\`:** prefix palindrome dài nhất = \`"aacecaa"\` (palLen=7). \`suffix=s[7:]="a"\`, \`reverse("a")="a"\` → kết quả \`"a"+"aacecaaa"="aaacecaaa"\` (palindrome). ✓ Với \`s="abcd"\`: palLen=1 ("a"), suffix="bcd", reverse="dcb" → \`"dcbabcd"\`.
 
-**Big-O:** O(n) thời gian, O(n) bộ nhớ.
+**Big-O:** $O(n)$ thời gian, $O(n)$ bộ nhớ.
 
 ### Bài 4 — Longest Happy Prefix
 
@@ -644,7 +644,7 @@ func longestHappyPrefix(s string) string {
 
 **Walk-through \`s="ababab"\`:** lps=\`[0,0,1,2,3,4]\`, \`lps[5]=4\` → \`s[:4]="abab"\`. Với \`s="aabcaabdaab"\`: lps cuối = 3 → \`"aab"\`. Với \`s="abcdef"\`: lps cuối=0 → \`""\`. ✓
 
-**Big-O:** O(n) thời gian, O(n) bộ nhớ.
+**Big-O:** $O(n)$ thời gian, $O(n)$ bộ nhớ.
 
 ### Bài 5 — Count Pattern Occurrences (kể cả overlap)
 
@@ -678,11 +678,11 @@ func countOccurrences(t, p string) int {
 
 **Walk-through \`t="aaaa"\`, \`p="aa"\`:** lps("aa")=\`[0,1]\`. Match tại i=2 (start 0)→count=1, j=lps[1]=1; match tại i=3 (start 1)→count=2, j=1; match tại i=4 (start 2)→count=3. Trả \`3\`. ✓ Naive đếm overlap dễ sai khi reset j=0.
 
-**Big-O:** O(n+m) thời gian, O(m) bộ nhớ.
+**Big-O:** $O(n+m)$ thời gian, $O(m)$ bộ nhớ.
 
 ### Bài 6 — String Rotation Check
 
-**Cách tiếp cận.** \`b\` là phép xoay của \`a\` ⟺ \`len(a)==len(b)\` **và** \`b\` là substring của \`a+a\`. Dùng KMP để search trong \`a+a\` → O(n).
+**Cách tiếp cận.** \`b\` là phép xoay của \`a\` ⟺ \`len(a)==len(b)\` **và** \`b\` là substring của \`a+a\`. Dùng KMP để search trong \`a+a\` → $O(n)$.
 
 \`\`\`go
 func isRotation(a, b string) bool {
@@ -699,9 +699,9 @@ func isRotation(a, b string) bool {
 
 **Walk-through \`a="abcde"\`, \`b="cdeab"\`:** \`a+a="abcdeabcde"\`, tìm \`"cdeab"\` → có (bắt đầu index 2) → \`true\`. Với \`b="abced"\`: không phải substring \`a+a\` → \`false\`. ✓
 
-**Vì sao đúng:** mọi phép xoay của \`a\` đều xuất hiện liền mạch trong \`a+a\` (vd \`a="abcde"\` → \`a+a="abcde|abcde"\`, các xoay \`"bcdea","cdeab",...\` đều là cửa sổ độ dài n trong đó). KMP đảm bảo search O(2n+n)=O(n).
+**Vì sao đúng:** mọi phép xoay của \`a\` đều xuất hiện liền mạch trong \`a+a\` (vd \`a="abcde"\` → \`a+a="abcde|abcde"\`, các xoay \`"bcdea","cdeab",...\` đều là cửa sổ độ dài $n$ trong đó). KMP đảm bảo search $O(2n+n)=O(n)$.
 
-**Big-O:** O(n) thời gian, O(n) bộ nhớ.
+**Big-O:** $O(n)$ thời gian, $O(n)$ bộ nhớ.
 
 ---
 

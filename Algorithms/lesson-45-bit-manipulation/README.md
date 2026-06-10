@@ -17,7 +17,7 @@ Sau bài này, bạn sẽ:
 4. Đếm số bit 1 (**popcount**) bằng Brian Kernighan, lookup table và `bits.OnesCount`.
 5. Dùng **bitmask** để biểu diễn tập hợp, liệt kê subset và subset-của-subset.
 6. Giải được nhóm bài kinh điển: single number I/II/III, counting bits, reverse bits, sum without `+`, Hamming distance, subsets, Gray code.
-7. Làm số học bằng bit (nhân/chia 2, mod 2^k, chẵn/lẻ) và tránh các **cạm bẫy đặc thù của Go** (signed shift, `^` là XOR chứ không phải mũ, `&^` AND-NOT).
+7. Làm số học bằng bit (nhân/chia 2, mod $2^k$, chẵn/lẻ) và tránh các **cạm bẫy đặc thù của Go** (signed shift, `^` là XOR chứ không phải mũ, `&^` AND-NOT).
 
 ## Kiến thức tiền đề
 
@@ -376,7 +376,7 @@ bits.TrailingZeros32(8)   // 3
 
 > **💡 Trực giác / Hình dung**
 > Một tập con của `{0,1,...,n-1}` ≡ một dãy "có/không" độ dài n ≡ **một số nguyên n-bit**.
-> Bit `i` bật ⟺ phần tử `i` thuộc tập. Vậy mọi tập con đều là một số trong `[0, 2^n)` — và phép tập hợp
+> Bit `i` bật ⟺ phần tử `i` thuộc tập. Vậy mọi tập con đều là một số trong $[0, 2^n)$ — và phép tập hợp
 > trở thành phép bit: hợp = OR, giao = AND, hiệu = `&^`.
 
 Ví dụ với `n = 4`, tập `{0, 2, 3}` ⟺ bit 0,2,3 bật ⟺ `0b1101 = 13`.
@@ -515,7 +515,7 @@ Thêm: `(3, 1)`: `0011 ^ 0001 = 0010` → 1; `(7, 0)`: → 3; `(5, 5)`: `0` → 
 
 ### 6.5 Subsets bằng bitmask
 
-Sinh power set của một mảng bằng cách lặp mọi mask `0..2^n-1`:
+Sinh power set của một mảng bằng cách lặp mọi mask $0..2^n-1$:
 
 ```go
 func subsets(nums []int) [][]int {
@@ -539,7 +539,7 @@ Walk-through `nums = [1,2]` (n=2, 4 mask):
 
 ### 6.6 Gray code
 
-Dãy Gray code: 2^n số sao cho **hai số liên tiếp khác nhau đúng 1 bit**. Công thức kì diệu: `g(i) = i ^ (i>>1)`.
+Dãy Gray code: $2^n$ số sao cho **hai số liên tiếp khác nhau đúng 1 bit**. Công thức kì diệu: `g(i) = i ^ (i>>1)`.
 
 ```go
 func grayCode(n int) []int {
@@ -568,12 +568,12 @@ Walk-through `n = 2`:
 
 | Phép toán | Bit | Ví dụ |
 |-----------|-----|-------|
-| Nhân 2^k | `n << k` | `5 << 1 = 10`, `5 << 3 = 40` |
-| Chia 2^k (số dương) | `n >> k` | `40 >> 3 = 5`, `7 >> 1 = 3` |
-| Mod 2^k | `n & (2^k - 1)` | `13 & (8-1) = 13 & 0b111 = 5` |
+| Nhân $2^k$ | `n << k` | `5 << 1 = 10`, `5 << 3 = 40` |
+| Chia $2^k$ (số dương) | `n >> k` | `40 >> 3 = 5`, `7 >> 1 = 3` |
+| Mod $2^k$ | `n & (2^k - 1)` | `13 & (8-1) = 13 & 0b111 = 5` |
 | Chẵn / lẻ | `n & 1` | `6 & 1 = 0` (chẵn), `7 & 1 = 1` (lẻ) |
 
-Walk-through mod: `13 = 0b1101`, `13 mod 8`: `8 = 2^3`, mask `= 7 = 0b0111`.
+Walk-through mod: `13 = 0b1101`, `13 mod 8`: $8 = 2^3$, mask `= 7 = 0b0111`.
 `1101 & 0111 = 0101 = 5`. Kiểm: `13 = 1*8 + 5` ✓. Cách này chỉ đúng khi chia cho **lũy thừa 2**.
 
 Thêm: `5 << 2 = 20` (5×4); `100 >> 2 = 25` (100/4); `27 & 3 = 3` (27 mod 4 = 3); `27 & 1 = 1` (lẻ).
@@ -773,7 +773,7 @@ func reverseBits(n uint32) uint32 {
 
 ### Bài 7 — Subsets
 
-**Cách tiếp cận**: mỗi mask `0..2^n-1` là một tập con; bit `i` bật ⟹ lấy `nums[i]` (mục 6.5).
+**Cách tiếp cận**: mỗi mask $0..2^n-1$ là một tập con; bit `i` bật ⟹ lấy `nums[i]` (mục 6.5).
 
 ```go
 func subsets(nums []int) [][]int {
@@ -819,7 +819,7 @@ func getSum(a, b int) int {
 - **[visualization.html](./visualization.html)** — 3 module tương tác:
   1. **Bit playground** — click toggle từng ô bit, áp dụng trick (set/clear/lowest/popcount), xem kết quả nhị phân.
   2. **XOR single number** — nhập dãy số, animate XOR dồn từng bước → tìm số lẻ.
-  3. **Subset enumeration** — duyệt bitmask `0..2^n-1`, hiện tập con tương ứng.
+  3. **Subset enumeration** — duyệt bitmask $0..2^n-1$, hiện tập con tương ứng.
 
 ---
 

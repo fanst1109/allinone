@@ -54,7 +54,7 @@ Tại sao đây là "capstone tốt"? Vì nó **bắt buộc bạn dùng đúng 
 
 ## 2. Bài toán — phát biểu chính xác
 
-Cho một **lưới** \`R × C\` ô. Mỗi ô có một trong các trạng thái:
+Cho một **lưới** $R \\times C$ ô. Mỗi ô có một trong các trạng thái:
 
 - **trống (empty)** — đi qua được, chi phí bước vào = 1 (hoặc \`cost(ô)\` nếu có địa hình).
 - **tường (wall)** — không đi qua được.
@@ -81,11 +81,11 @@ Ta sẽ đánh giá mỗi thuật toán theo **3 tiêu chí**:
 
 Trước khi chạy bất kỳ thuật toán nào, phải **nhìn lưới dưới dạng đồ thị** — vì mọi thuật toán pathfinding đều là thuật toán đồ thị (xem lại [Lesson 31](../lesson-31-graph-traversal/)).
 
-> 💡 **Trực giác.** Mỗi **ô** = một **đỉnh (vertex)**. Có **cạnh (edge)** giữa hai ô nếu chúng kề nhau và không phải tường. Lưới \`R × C\` ⇒ đồ thị có tới \`R·C\` đỉnh và \`~4·R·C\` cạnh (4 hướng).
+> 💡 **Trực giác.** Mỗi **ô** = một **đỉnh (vertex)**. Có **cạnh (edge)** giữa hai ô nếu chúng kề nhau và không phải tường. Lưới $R \\times C$ ⇒ đồ thị có tới $R \\cdot C$ đỉnh và $\\sim 4 \\cdot R \\cdot C$ cạnh (4 hướng).
 
 Cách định danh đỉnh: ô ở hàng \`r\`, cột \`c\` có id duy nhất \`r * C + c\` (làm phẳng 2D → 1D). Việc này giúp lưu \`visited\`, \`dist\`, \`came-from\` bằng mảng/map theo id.
 
-**Ví dụ cụ thể** với lưới \`3 × 4\` (\`C = 4\`):
+**Ví dụ cụ thể** với lưới $3 \\times 4$ ($C = 4$):
 
 \`\`\`
 cột:   0    1    2    3
@@ -222,7 +222,7 @@ func reconstruct(cameFrom map[Cell]Cell, start, goal Cell) []Cell {
 }
 \`\`\`
 
-**Walk-through BFS** trên lưới \`1 × 5\` không tường, \`S\` ở cột 0, \`G\` ở cột 4:
+**Walk-through BFS** trên lưới $1 \\times 5$ không tường, \`S\` ở cột 0, \`G\` ở cột 4:
 
 \`\`\`
 [S][ ][ ][ ][G]   id: 0 1 2 3 4
@@ -236,7 +236,7 @@ func reconstruct(cameFrom map[Cell]Cell, start, goal Cell) []Cell {
 | 4 | \`[3]\` | 3 | 4 | \`4←3\` |
 | 5 | \`[4]\` | 4 (=goal!) | — | dừng |
 
-Truy vết: \`4 ← 3 ← 2 ← 1 ← 0\`, đảo lại → \`0→1→2→3→4\`. Độ dài 4 bước (tối ưu). Duyệt 5 ô.
+Truy vết: $4 \\leftarrow 3 \\leftarrow 2 \\leftarrow 1 \\leftarrow 0$, đảo lại → $0 \\to 1 \\to 2 \\to 3 \\to 4$. Độ dài 4 bước (tối ưu). Duyệt 5 ô.
 
 > ❓ **Câu hỏi.** *"Vì sao đánh dấu \`visited\` ngay lúc đẩy vào queue (qua \`cameFrom\`), không phải lúc pop ra?"* — Để tránh **đẩy cùng một ô vào queue nhiều lần**. Nếu đợi tới lúc pop mới đánh dấu, một ô có thể bị nhiều hàng xóm đẩy vào trước khi nó được xử lý → queue phình to, làm chậm. Đây là lỗi kinh điển khiến BFS lưới chạy chậm bất thường.
 
@@ -324,7 +324,7 @@ func dijkstra(g *Grid, start, goal Cell) ([]Cell, int) {
 }
 \`\`\`
 
-**Walk-through Dijkstra** trên lưới \`1 × 4\` có địa hình. Cost bước vào mỗi ô ghi dưới:
+**Walk-through Dijkstra** trên lưới $1 \\times 4$ có địa hình. Cost bước vào mỗi ô ghi dưới:
 
 \`\`\`
 [S][bùn][ ][G]
@@ -443,7 +443,7 @@ func aStar(g *Grid, start, goal Cell, h func(a, b Cell) int) ([]Cell, int) {
 
 > ❓ **Câu hỏi.** *"Nếu \`h\` luôn trả 0 thì sao?"* — Thì \`f = g\`, và A\\* **biến thành Dijkstra** chính xác. Ngược lại nếu \`h\` rất lớn (át hẳn \`g\`), A\\* nghiêng về **Greedy**. A\\* là **một họ thuật toán**, hai cực là Dijkstra và Greedy.
 
-**Walk-through A\\*** trên lưới \`3 × 3\` không tường, \`S=(0,0)\`, \`G=(2,2)\`, heuristic Manhattan, cost mỗi bước 1:
+**Walk-through A\\*** trên lưới $3 \\times 3$ không tường, \`S=(0,0)\`, \`G=(2,2)\`, heuristic Manhattan, cost mỗi bước 1:
 
 \`\`\`
 (0,0)S (0,1) (0,2)
@@ -465,9 +465,9 @@ func aStar(g *Grid, start, goal Cell, h func(a, b Cell) int) ([]Cell, int) {
 
 Nhận xét quan trọng: **mọi ô A\\* duyệt đều có \`f = 4\`** = đúng độ dài đường tối ưu. A\\* không bao giờ mở rộng ô có \`f\` lớn hơn đường tối ưu — đó là lý do nó duyệt **ít ô hơn Dijkstra** (Dijkstra mở cả các ô đi xa khỏi goal vì không có \`h\` để "kéo" về).
 
-**Tính tối ưu của A\\*:** A\\* trả về đường **đúng ngắn nhất** nếu heuristic \`h\` là **admissible** — tức \`h(n) ≤ chi phí thực còn lại tới goal\` (không bao giờ ước lượng **quá cao / over-estimate**). Trực giác: nếu \`h\` không phóng đại, A\\* không bao giờ "bỏ lỡ" một ô thực ra dẫn tới đường rẻ hơn.
+**Tính tối ưu của A\\*:** A\\* trả về đường **đúng ngắn nhất** nếu heuristic \`h\` là **admissible** — tức $h(n) \\leq \\text{chi phí thực còn lại tới goal}$ (không bao giờ ước lượng **quá cao / over-estimate**). Trực giác: nếu \`h\` không phóng đại, A\\* không bao giờ "bỏ lỡ" một ô thực ra dẫn tới đường rẻ hơn.
 
-> ⚠ **Lỗi thường gặp.** Nhân heuristic lên cho "nhanh hơn" (vd \`h = 2 * Manhattan\`). Điều này phá vỡ admissibility ⇒ A\\* **không còn tối ưu** (trở thành "weighted A\\*", đường có thể dài hơn). Chỉ làm vậy khi bạn **chấp nhận** đánh đổi tối ưu lấy tốc độ.
+> ⚠ **Lỗi thường gặp.** Nhân heuristic lên cho "nhanh hơn" (vd $h = 2 \\times \\text{Manhattan}$). Điều này phá vỡ admissibility ⇒ A\\* **không còn tối ưu** (trở thành "weighted A\\*", đường có thể dài hơn). Chỉ làm vậy khi bạn **chấp nhận** đánh đổi tối ưu lấy tốc độ.
 
 > 📝 **Tóm tắt mục 7.**
 > - \`f = g + h\`: \`g\` giữ tối ưu, \`h\` cho định hướng.
@@ -481,11 +481,11 @@ Nhận xét quan trọng: **mọi ô A\\* duyệt đều có \`f = 4\`** = đún
 
 Heuristic \`h(n)\` ước lượng khoảng cách từ ô \`n\` tới goal. Với lưới, có 3 lựa chọn kinh điển:
 
-| Heuristic | Công thức \`h((r,c), (gr,gc))\` | Dùng khi |
+| Heuristic | Công thức $h((r,c), (gr,gc))$ | Dùng khi |
 |---|---|---|
-| **Manhattan** | \`|r−gr| + |c−gc|\` | Di chuyển **4 hướng** (không chéo) |
-| **Euclidean** | \`√((r−gr)² + (c−gc)²)\` | Di chuyển **mọi góc** (ít dùng cho lưới ô) |
-| **Chebyshev** | \`max(|r−gr|, |c−gc|)\` | Di chuyển **8 hướng** (cho phép chéo) |
+| **Manhattan** | $|r-gr| + |c-gc|$ | Di chuyển **4 hướng** (không chéo) |
+| **Euclidean** | $\\sqrt{(r-gr)^2 + (c-gc)^2}$ | Di chuyển **mọi góc** (ít dùng cho lưới ô) |
+| **Chebyshev** | $\\max(|r-gr|, |c-gc|)$ | Di chuyển **8 hướng** (cho phép chéo) |
 
 \`\`\`go
 import "math"
@@ -511,15 +511,15 @@ func euclidean(a, b Cell) float64 {
 
 **Hai tính chất của heuristic tốt:**
 
-- **Admissible** (chấp nhận được): \`h(n) ≤ chi phí thực còn lại\`. Đảm bảo A\\* **tối ưu**.
-- **Consistent** (nhất quán / monotone): \`h(n) ≤ cost(n, n') + h(n')\` với mọi ô kề \`n'\`. Consistent ⇒ admissible, và đảm bảo mỗi ô được "chốt" đúng một lần (không cần xét lại) — giúp cài đặt đơn giản và nhanh hơn.
+- **Admissible** (chấp nhận được): $h(n) \\leq \\text{chi phí thực còn lại}$. Đảm bảo A\\* **tối ưu**.
+- **Consistent** (nhất quán / monotone): $h(n) \\leq \\text{cost}(n, n') + h(n')$ với mọi ô kề \`n'\`. Consistent ⇒ admissible, và đảm bảo mỗi ô được "chốt" đúng một lần (không cần xét lại) — giúp cài đặt đơn giản và nhanh hơn.
 
 **4 ví dụ về admissibility** (lưới 4-hướng, cost cạnh 1):
 
-1. Manhattan trên lưới 4-hướng: \`h = |Δr|+|Δc|\` = đúng số bước tối thiểu nếu **không có tường** ⇒ ≤ chi phí thực (có tường thì thực tế ≥ Manhattan). **Admissible ✓**.
-2. \`h = 0\` (Dijkstra): \`0 ≤\` mọi chi phí. **Admissible ✓** (nhưng vô định hướng).
+1. Manhattan trên lưới 4-hướng: $h = |\\Delta r|+|\\Delta c|$ = đúng số bước tối thiểu nếu **không có tường** ⇒ ≤ chi phí thực (có tường thì thực tế ≥ Manhattan). **Admissible ✓**.
+2. $h = 0$ (Dijkstra): $0 \\leq$ mọi chi phí. **Admissible ✓** (nhưng vô định hướng).
 3. Euclidean trên lưới 4-hướng: đường chim bay luôn ≤ đường đi theo bước vuông ⇒ **admissible ✓**, nhưng **yếu hơn** Manhattan (ước lượng thấp hơn → ít định hướng hơn → duyệt nhiều ô hơn).
-4. \`h = 2 × Manhattan\`: trên ô cạnh goal, thực tế còn 1 bước nhưng \`h = 2\` > 1 ⇒ **over-estimate ⇒ KHÔNG admissible** ⇒ A\\* có thể trả đường không tối ưu. **Phản ví dụ.**
+4. $h = 2 \\times \\text{Manhattan}$: trên ô cạnh goal, thực tế còn 1 bước nhưng $h = 2 > 1$ ⇒ **over-estimate ⇒ KHÔNG admissible** ⇒ A\\* có thể trả đường không tối ưu. **Phản ví dụ.**
 
 > ⚠ **Lỗi thường gặp — dùng sai heuristic cho số hướng di chuyển.** Nếu cho phép **đi chéo** (8 hướng, mỗi bước chéo vẫn tốn 1) mà dùng **Manhattan**, thì Manhattan **over-estimate**: từ \`(0,0)\` tới \`(1,1)\` thực ra 1 bước chéo, nhưng Manhattan = 2. → Mất tối ưu. Đi chéo phải dùng **Chebyshev**.
 
@@ -669,7 +669,7 @@ type WGrid struct {
 func (g *WGrid) cost(cell Cell) int { return g.terrain[cell.r][cell.c] }
 \`\`\`
 
-**Ví dụ chứng minh BFS sai.** Lưới \`1 × 4\`:
+**Ví dụ chứng minh BFS sai.** Lưới $1 \\times 4$:
 
 \`\`\`
 [S][bùn=10][cỏ=1][G]
@@ -683,10 +683,10 @@ hàng0: [S][bùn=10][G]
 hàng1: [cỏ1][cỏ1][cỏ1]
 \`\`\`
 
-- **BFS** (đếm bước): đường trên \`S→bùn→G\` = 2 bước; đường dưới \`S→(1,0)→(1,1)→(1,2)→G\` = 4 bước. BFS chọn đường **2 bước** ⇒ chi phí thực \`10 + 1 = 11\`.
-- **Dijkstra/A\\***: đường dưới cost \`1+1+1+1 = 4\` < 11 ⇒ chọn đúng đường rẻ.
+- **BFS** (đếm bước): đường trên \`S→bùn→G\` = 2 bước; đường dưới \`S→(1,0)→(1,1)→(1,2)→G\` = 4 bước. BFS chọn đường **2 bước** ⇒ chi phí thực $10 + 1 = 11$.
+- **Dijkstra/A\\***: đường dưới cost $1+1+1+1 = 4 < 11$ ⇒ chọn đúng đường rẻ.
 
-**Kết luận.** BFS tối ưu **số bước**, không phải **chi phí**. Có terrain ⇒ bắt buộc Dijkstra/A\\*. Độ phức tạp Dijkstra/A\\*: \`O(E log V)\` với heap.
+**Kết luận.** BFS tối ưu **số bước**, không phải **chi phí**. Có terrain ⇒ bắt buộc Dijkstra/A\\*. Độ phức tạp Dijkstra/A\\*: $O(E \\log V)$ với heap.
 
 ---
 
@@ -712,11 +712,11 @@ func (g *Grid) neighbors8(cur Cell) []Cell {
 }
 \`\`\`
 
-**Vì sao Manhattan không còn admissible?** Với 8 hướng, từ \`(0,0)\` tới \`(3,3)\` chỉ cần **3 bước chéo** (cost 3). Nhưng Manhattan = \`3 + 3 = 6\` > 3 ⇒ **over-estimate** ⇒ A\\* có thể trả đường không tối ưu.
+**Vì sao Manhattan không còn admissible?** Với 8 hướng, từ \`(0,0)\` tới \`(3,3)\` chỉ cần **3 bước chéo** (cost 3). Nhưng Manhattan = $3 + 3 = 6 > 3$ ⇒ **over-estimate** ⇒ A\\* có thể trả đường không tối ưu.
 
-Chebyshev = \`max(3,3) = 3\` = đúng số bước tối thiểu (đi chéo cost 1) ⇒ **admissible**. Đó là heuristic đúng cho 8 hướng cost-đều.
+Chebyshev = $\\max(3,3) = 3$ = đúng số bước tối thiểu (đi chéo cost 1) ⇒ **admissible**. Đó là heuristic đúng cho 8 hướng cost-đều.
 
-> Lưu ý: nếu bước chéo cost \`√2\` (Euclidean thật), dùng **octile distance**: \`max(dx,dy) + (√2−1)·min(dx,dy)\`.
+> Lưu ý: nếu bước chéo cost $\\sqrt{2}$ (Euclidean thật), dùng **octile distance**: $\\max(dx,dy) + (\\sqrt{2}-1) \\cdot \\min(dx,dy)$.
 
 ---
 
@@ -772,7 +772,7 @@ func joinPaths(fromS, fromG map[Cell]Cell, start, goal, meet Cell) []Cell {
 }
 \`\`\`
 
-**Vì sao tiết kiệm?** BFS một chiều loang một hình tròn bán kính \`d\` ⇒ duyệt \`~d²\` ô. Hai chiều, mỗi sóng chỉ loang tới \`d/2\` ⇒ \`2 · (d/2)² = d²/2\` ô — **giảm một nửa**. Trên đồ thị bậc cao (branching factor \`b\`), lợi thế còn lớn hơn: từ \`b^d\` xuống \`2·b^(d/2)\`.
+**Vì sao tiết kiệm?** BFS một chiều loang một hình tròn bán kính $d$ ⇒ duyệt $\\sim d^2$ ô. Hai chiều, mỗi sóng chỉ loang tới $d/2$ ⇒ $2 \\cdot (d/2)^2 = d^2/2$ ô — **giảm một nửa**. Trên đồ thị bậc cao (branching factor $b$), lợi thế còn lớn hơn: từ $b^d$ xuống $2 \\cdot b^{d/2}$.
 
 ---
 
@@ -846,7 +846,7 @@ func genMaze(R, C int) *Grid {
 }
 \`\`\`
 
-**Độ phức tạp.** \`O(R·C)\` — mỗi ô được thăm đúng một lần. Dùng để sinh map test cho 4 thuật toán: trên mê cung "perfect", A\\* và BFS cho cùng đường (chỉ có 1 đường), nhưng A\\* vẫn duyệt ít ô hơn nhờ định hướng.
+**Độ phức tạp.** $O(R \\cdot C)$ — mỗi ô được thăm đúng một lần. Dùng để sinh map test cho 4 thuật toán: trên mê cung "perfect", A\\* và BFS cho cùng đường (chỉ có 1 đường), nhưng A\\* vẫn duyệt ít ô hơn nhờ định hướng.
 
 > Biến thể: **Prim ngẫu nhiên** (giữ tập "frontier wall", chọn ngẫu nhiên để đục) cho mê cung có nhiều ngã rẽ ngắn hơn — phù hợp test Greedy bị "bẫy" ngõ cụt.
 

@@ -91,12 +91,12 @@ Framework gồm 2 thứ:
 
 Cộng thêm 2 "siêu năng lực" thực dụng:
 
-- **Đọc constraint → đoán độ phức tạp mục tiêu** (mục 3): trước khi nghĩ thuật toán, nhìn \`n ≤ ?\` là biết được phép dùng độ phức tạp nào.
+- **Đọc constraint → đoán độ phức tạp mục tiêu** (mục 3): trước khi nghĩ thuật toán, nhìn $n \\leq ?$ là biết được phép dùng độ phức tạp nào.
 - **Chiến lược khi stuck** (mục 5): khi không nghĩ ra, làm gì để không kẹt mãi.
 
 **Ba ví dụ thất bại điển hình khi không có framework:**
 
-1. Đề: "đếm số cặp \`(i,j)\` có \`a[i]+a[j]=k\`, \`n ≤ 2·10^5\`". Phản xạ: hai vòng for \`O(n^2) = 4·10^{10}\` → TLE. Nếu đọc constraint trước (mục 3) đã biết phải \`O(n)\`/\`O(n log n)\` → dùng hash/two pointers.
+1. Đề: "đếm số cặp \`(i,j)\` có \`a[i]+a[j]=k\`, $n \\leq 2 \\cdot 10^5$". Phản xạ: hai vòng for $O(n^2) = 4 \\cdot 10^{10}$ → TLE. Nếu đọc constraint trước (mục 3) đã biết phải $O(n)$/$O(n \\log n)$ → dùng hash/two pointers.
 2. Đề: "tìm subarray tổng lớn nhất". Code tham lam "cứ cộng tiếp" mà không xử lý số âm → sai trên \`[-1, -2]\` (quên rằng có thể phải reset). Bỏ qua bước 2 (edge case số âm) là nguyên nhân.
 3. Đề: "đổi tiền ít xu nhất". Dùng greedy lấy xu lớn nhất → sai trên \`coins=[1,3,4]\` (mục 7.3). Không kiểm chứng greedy là anti-pattern (mục 8).
 
@@ -116,7 +116,7 @@ Cộng thêm 2 "siêu năng lực" thực dụng:
 
 - **Diễn đạt lại đề bằng lời của mình.** Nếu không nói lại được trong 1 câu, bạn chưa hiểu.
 - Xác định rõ **input** (kiểu, định dạng) và **output** (trả về gì, định dạng nào).
-- Liệt kê **ràng buộc**: \`n\` tối đa bao nhiêu? giá trị âm/0 có không? có trùng không? đề bảo đảm gì (đã sorted? liên thông?)?
+- Liệt kê **ràng buộc**: $n$ tối đa bao nhiêu? giá trị âm/0 có không? có trùng không? đề bảo đảm gì (đã sorted? liên thông?)?
 
 ### Bước 2 — Ví dụ cụ thể (small cases + edge cases)
 
@@ -135,7 +135,7 @@ Cộng thêm 2 "siêu năng lực" thực dụng:
 ### Bước 4 — Phân tích Big-O + nhìn constraint để đoán mục tiêu
 
 - Tính độ phức tạp của brute-force. Có vượt giới hạn không?
-- Nhìn \`n\` tối đa, **đoán độ phức tạp mục tiêu** (mục 3). Ví dụ \`n ≤ 10^5\` → cần \`O(n log n)\` trở xuống.
+- Nhìn $n$ tối đa, **đoán độ phức tạp mục tiêu** (mục 3). Ví dụ $n \\leq 10^5$ → cần $O(n \\log n)$ trở xuống.
 - Khoảng cách giữa brute-force và mục tiêu cho biết phải tối ưu mạnh cỡ nào.
 
 ### Bước 5 — Nhận diện pattern → chọn kỹ thuật
@@ -155,17 +155,17 @@ Cộng thêm 2 "siêu năng lực" thực dụng:
 
 ### 2.1 Áp dụng nhanh 7 bước cho một bài (toàn cảnh)
 
-Đề mẫu: *"Cho mảng \`a\` (\`n ≤ 10^5\`), tìm độ dài subarray liên tục dài nhất mà tổng \`≤ S\` (mọi \`a[i] > 0\`)."* Chạy nhanh 7 bước:
+Đề mẫu: *"Cho mảng \`a\` ($n \\leq 10^5$), tìm độ dài subarray liên tục dài nhất mà tổng $\\leq S$ (mọi \`a[i] > 0\`)."* Chạy nhanh 7 bước:
 
-1. **Hiểu:** input mảng dương + ngưỡng \`S\`; output 1 số (độ dài).
-2. **Ví dụ:** \`a=[2,1,5,1,3], S=8\` → \`3\` (\`[1,5,1]=7≤8\`). Edge: \`S\` nhỏ hơn mọi phần tử → 0; mảng rỗng → 0.
-3. **Brute-force:** thử mọi \`(i,j)\`, tính tổng → \`O(n^2)\`.
-4. **Constraint:** \`n ≤ 10^5\` → \`O(n^2)=10^{10}\` TLE → mục tiêu \`O(n)\`.
+1. **Hiểu:** input mảng dương + ngưỡng $S$; output 1 số (độ dài).
+2. **Ví dụ:** \`a=[2,1,5,1,3], S=8\` → \`3\` (\`[1,5,1]=7≤8\`). Edge: $S$ nhỏ hơn mọi phần tử → 0; mảng rỗng → 0.
+3. **Brute-force:** thử mọi \`(i,j)\`, tính tổng → $O(n^2)$.
+4. **Constraint:** $n \\leq 10^5$ → $O(n^2)=10^{10}$ TLE → mục tiêu $O(n)$.
 5. **Pattern:** "subarray liên tục" + "mọi phần tử dương" → **sliding window** mở rộng/co được (tổng đơn điệu vì toàn dương).
-6. **Code + test:** window hai con trỏ, co \`left\` khi tổng vượt \`S\`; test các ví dụ bước 2.
-7. **Tối ưu:** đã \`O(n)\` → dừng.
+6. **Code + test:** window hai con trỏ, co \`left\` khi tổng vượt $S$; test các ví dụ bước 2.
+7. **Tối ưu:** đã $O(n)$ → dừng.
 
-Toàn bộ "suy nghĩ" trên mất ~2 phút và đảm bảo không lao vào \`O(n^2)\`.
+Toàn bộ "suy nghĩ" trên mất ~2 phút và đảm bảo không lao vào $O(n^2)$.
 
 > 🔁 **Dừng lại tự kiểm tra.** Vì sao nên viết brute-force *trước* khi nghĩ cách tối ưu, thay vì nhảy thẳng vào cách hay?
 > <details><summary>Đáp án</summary>
@@ -178,56 +178,56 @@ Toàn bộ "suy nghĩ" trên mất ~2 phút và đảm bảo không lao vào \`O
 
 ## 3. Đọc constraint → đoán độ phức tạp mục tiêu
 
-> 💡 **Trực giác.** Constraint \`n ≤ ?\` giống biển báo tốc độ. Máy chấm thường cho ~1 giây, CPU làm được cỡ \`10^8\`–\`10^9\` phép tính cơ bản/giây. Vậy nếu biết \`n\`, ta lật ngược: độ phức tạp nào nhân với \`n\` ra dưới \`~10^8\` thì *kịp*. Đây là cách **đoán hướng đi trước khi nghĩ thuật toán**.
+> 💡 **Trực giác.** Constraint $n \\leq ?$ giống biển báo tốc độ. Máy chấm thường cho ~1 giây, CPU làm được cỡ $10^8$–$10^9$ phép tính cơ bản/giây. Vậy nếu biết $n$, ta lật ngược: độ phức tạp nào nhân với $n$ ra dưới $\\sim 10^8$ thì *kịp*. Đây là cách **đoán hướng đi trước khi nghĩ thuật toán**.
 
 Quy tắc ngón tay cái (ước lượng "lọt trong ~1 giây"):
 
-| \`n\` tối đa | Độ phức tạp mục tiêu | Kỹ thuật điển hình | Lesson |
+| $n$ tối đa | Độ phức tạp mục tiêu | Kỹ thuật điển hình | Lesson |
 |-----------|----------------------|--------------------|--------|
-| \`≤ 10–12\` | \`O(n!)\`, \`O(2^n · n)\` | Backtracking đầy đủ, sinh hoán vị | [L18](../lesson-18-backtracking/) |
-| \`≤ 18–25\` | \`O(2^n)\`, \`O(2^n · n)\` | Bitmask DP, meet-in-the-middle | [L29](../lesson-29-bitmask-dp/) |
-| \`≤ 100–500\` | \`O(n^3)\` | Floyd-Warshall, interval DP | [L34](../lesson-34-bellman-ford-floyd/), [L27](../lesson-27-interval-dp/) |
-| \`≤ 1000–5000\` | \`O(n^2)\` | DP 2D, mọi cặp \`(i,j)\` | [L26](../lesson-26-dp-grid-2d/) |
-| \`≤ 10^4\` | \`O(n^2)\` (giáp ranh) | DP \`O(n^2)\`, đôi khi \`O(n^2)\` còn kịp | [L24](../lesson-24-dp-1d/) |
-| \`≤ 10^5–10^6\` | \`O(n log n)\` | Sort, heap, binary search, segment tree | [L07](../lesson-07-merge-sort/), [L12](../lesson-12-binary-search-variants/) |
-| \`≤ 10^7–10^8\` | \`O(n)\` | Sliding window, prefix sum, two pointers, đếm | [L14](../lesson-14-sliding-window/), [L15](../lesson-15-prefix-sum-difference/) |
-| \`≤ 10^9\` | \`O(log n)\` hoặc \`O(1)\` | Binary search trên đáp án, công thức toán | [L12](../lesson-12-binary-search-variants/) |
-| \`≤ 10^18\` | \`O(log n)\` | Binary search, lũy thừa nhanh, công thức | — |
+| $\\leq 10\\text{–}12$ | $O(n!)$, $O(2^n \\cdot n)$ | Backtracking đầy đủ, sinh hoán vị | [L18](../lesson-18-backtracking/) |
+| $\\leq 18\\text{–}25$ | $O(2^n)$, $O(2^n \\cdot n)$ | Bitmask DP, meet-in-the-middle | [L29](../lesson-29-bitmask-dp/) |
+| $\\leq 100\\text{–}500$ | $O(n^3)$ | Floyd-Warshall, interval DP | [L34](../lesson-34-bellman-ford-floyd/), [L27](../lesson-27-interval-dp/) |
+| $\\leq 1000\\text{–}5000$ | $O(n^2)$ | DP 2D, mọi cặp \`(i,j)\` | [L26](../lesson-26-dp-grid-2d/) |
+| $\\leq 10^4$ | $O(n^2)$ (giáp ranh) | DP $O(n^2)$, đôi khi $O(n^2)$ còn kịp | [L24](../lesson-24-dp-1d/) |
+| $\\leq 10^5\\text{–}10^6$ | $O(n \\log n)$ | Sort, heap, binary search, segment tree | [L07](../lesson-07-merge-sort/), [L12](../lesson-12-binary-search-variants/) |
+| $\\leq 10^7\\text{–}10^8$ | $O(n)$ | Sliding window, prefix sum, two pointers, đếm | [L14](../lesson-14-sliding-window/), [L15](../lesson-15-prefix-sum-difference/) |
+| $\\leq 10^9$ | $O(\\log n)$ hoặc $O(1)$ | Binary search trên đáp án, công thức toán | [L12](../lesson-12-binary-search-variants/) |
+| $\\leq 10^{18}$ | $O(\\log n)$ | Binary search, lũy thừa nhanh, công thức | — |
 
 ### Ví dụ áp dụng (≥ 4 ví dụ số cụ thể)
 
-1. **\`n ≤ 20\`, tìm tập con tổng = target.** \`2^20 ≈ 10^6\` → duyệt mọi tập con \`O(2^n)\` kịp. Hướng: bitmask / backtracking. *Không* cần DP phức tạp.
-2. **\`n ≤ 2000\`, đếm cặp \`(i, j)\` thoả điều kiện.** \`2000^2 = 4·10^6\` → \`O(n^2)\` kịp thoải mái. Hai vòng for là đủ.
-3. **\`n ≤ 200000\`, tìm subarray có tổng lớn nhất độ dài ≤ k.** \`n^2 = 4·10^{10}\` → **quá lớn**, \`O(n^2)\` chết. Phải \`O(n log n)\` hoặc \`O(n)\` → sliding window / prefix sum + deque.
-4. **\`n ≤ 10^9\`, tìm số \`x\` nhỏ nhất sao cho \`f(x) ≥ T\` (\`f\` đơn điệu).** Không thể duyệt \`x\`. \`O(log n)\` → **binary search trên đáp án** (~30 vòng lặp).
-5. **\`n ≤ 12\` thành phố, bài toán người giao hàng (TSP).** \`n! = 12! ≈ 4.8·10^8\` hơi căng; \`2^n · n^2 = 4096 · 144 ≈ 6·10^5\` → **bitmask DP** là lựa chọn đúng.
+1. **$n \\leq 20$, tìm tập con tổng = target.** $2^{20} \\approx 10^6$ → duyệt mọi tập con $O(2^n)$ kịp. Hướng: bitmask / backtracking. *Không* cần DP phức tạp.
+2. **$n \\leq 2000$, đếm cặp \`(i, j)\` thoả điều kiện.** $2000^2 = 4 \\cdot 10^6$ → $O(n^2)$ kịp thoải mái. Hai vòng for là đủ.
+3. **$n \\leq 200000$, tìm subarray có tổng lớn nhất độ dài ≤ k.** $n^2 = 4 \\cdot 10^{10}$ → **quá lớn**, $O(n^2)$ chết. Phải $O(n \\log n)$ hoặc $O(n)$ → sliding window / prefix sum + deque.
+4. **$n \\leq 10^9$, tìm số $x$ nhỏ nhất sao cho $f(x) \\geq T$ ($f$ đơn điệu).** Không thể duyệt $x$. $O(\\log n)$ → **binary search trên đáp án** (~30 vòng lặp).
+5. **$n \\leq 12$ thành phố, bài toán người giao hàng (TSP).** $n! = 12! \\approx 4,8 \\cdot 10^8$ hơi căng; $2^n \\cdot n^2 = 4096 \\cdot 144 \\approx 6 \\cdot 10^5$ → **bitmask DP** là lựa chọn đúng.
 
-> ⚠ **Lỗi thường gặp.** Đừng coi bảng là *luật cứng*. Hằng số ẩn (constant factor) và bộ nhớ vẫn quan trọng: \`O(n log n)\` với hằng số lớn (vd nhiều phép chia, cấp phát động) có thể chậm hơn \`O(n^2)\` với \`n\` nhỏ. Bảng để *đoán hướng*, không phải để kết luận tuyệt đối.
+> ⚠ **Lỗi thường gặp.** Đừng coi bảng là *luật cứng*. Hằng số ẩn (constant factor) và bộ nhớ vẫn quan trọng: $O(n \\log n)$ với hằng số lớn (vd nhiều phép chia, cấp phát động) có thể chậm hơn $O(n^2)$ với $n$ nhỏ. Bảng để *đoán hướng*, không phải để kết luận tuyệt đối.
 
 > ❓ **Câu hỏi tự nhiên.**
-> - *"Nếu đề không cho constraint thì sao?"* — Hiếm. Nếu thiếu, hỏi/ước lượng từ ngữ cảnh (vd "username của toàn user" → cỡ triệu). Khi mơ hồ, nhắm \`O(n log n)\` cho an toàn.
-> - *"\`10^8\` phép/giây có chính xác không?"* — Ước lượng thô. Phép đơn giản (cộng, so sánh) nhanh hơn; phép nặng (chia, modulo, truy cập bộ nhớ rải rác) chậm hơn. Lấy \`10^8\` làm mốc thận trọng.
+> - *"Nếu đề không cho constraint thì sao?"* — Hiếm. Nếu thiếu, hỏi/ước lượng từ ngữ cảnh (vd "username của toàn user" → cỡ triệu). Khi mơ hồ, nhắm $O(n \\log n)$ cho an toàn.
+> - *"$10^8$ phép/giây có chính xác không?"* — Ước lượng thô. Phép đơn giản (cộng, so sánh) nhanh hơn; phép nặng (chia, modulo, truy cập bộ nhớ rải rác) chậm hơn. Lấy $10^8$ làm mốc thận trọng.
 
 ### 3.1 Walk-through tính thời gian bằng số thật
 
-Cách quy đổi: lấy số phép tính ≈ công thức độ phức tạp thay \`n\` vào, rồi chia cho \`10^8\` phép/giây để ra giây.
+Cách quy đổi: lấy số phép tính ≈ công thức độ phức tạp thay $n$ vào, rồi chia cho $10^8$ phép/giây để ra giây.
 
-| Bài | \`n\` | Độ phức tạp | Số phép ≈ | Ước thời gian | Kết luận |
+| Bài | $n$ | Độ phức tạp | Số phép ≈ | Ước thời gian | Kết luận |
 |-----|-----|-------------|-----------|---------------|----------|
-| A | \`10^5\` | \`O(n^2)\` | \`10^{10}\` | ~100 s | TLE — cần tối ưu |
-| A | \`10^5\` | \`O(n log n)\` | \`10^5 · 17 ≈ 1.7·10^6\` | ~0.02 s | OK |
-| B | \`500\` | \`O(n^3)\` | \`1.25·10^8\` | ~1.25 s | Giáp ranh — coi chừng |
-| C | \`25\` | \`O(2^n)\` | \`3.3·10^7\` | ~0.3 s | OK |
-| C | \`40\` | \`O(2^n)\` | \`1.1·10^{12}\` | ~3 giờ | Vô vọng — cần meet-in-middle \`O(2^{n/2})\` |
+| A | $10^5$ | $O(n^2)$ | $10^{10}$ | ~100 s | TLE — cần tối ưu |
+| A | $10^5$ | $O(n \\log n)$ | $10^5 \\cdot 17 \\approx 1,7 \\cdot 10^6$ | ~0,02 s | OK |
+| B | $500$ | $O(n^3)$ | $1,25 \\cdot 10^8$ | ~1,25 s | Giáp ranh — coi chừng |
+| C | $25$ | $O(2^n)$ | $3,3 \\cdot 10^7$ | ~0,3 s | OK |
+| C | $40$ | $O(2^n)$ | $1,1 \\cdot 10^{12}$ | ~3 giờ | Vô vọng — cần meet-in-middle $O(2^{n/2})$ |
 
-Riêng dòng cuối minh hoạ vì sao \`n ≤ 20–25\` là ranh giới của \`2^n\`: từ \`n = 40\`, \`2^n\` nhảy lên nghìn tỷ. Mẹo: \`2^{40} = (2^{20})^2 ≈ (10^6)^2 = 10^{12}\`.
+Riêng dòng cuối minh hoạ vì sao $n \\leq 20\\text{–}25$ là ranh giới của $2^n$: từ $n = 40$, $2^n$ nhảy lên nghìn tỷ. Mẹo: $2^{40} = (2^{20})^2 \\approx (10^6)^2 = 10^{12}$.
 
-> 🔁 **Dừng lại tự kiểm tra.** Đề cho \`n ≤ 5·10^5\`, brute-force của bạn là \`O(n^2)\`. Có cần tối ưu không, và mục tiêu là gì?
+> 🔁 **Dừng lại tự kiểm tra.** Đề cho $n \\leq 5 \\cdot 10^5$, brute-force của bạn là $O(n^2)$. Có cần tối ưu không, và mục tiêu là gì?
 > <details><summary>Đáp án</summary>
-> \`(5·10^5)^2 = 2.5·10^{11}\` ≫ \`10^8\` → chắc chắn TLE, **phải** tối ưu. Mục tiêu: \`O(n log n)\` (~\`5·10^5 · 19 ≈ 10^7\`, kịp). Nghĩ tới sort + two pointers, hoặc binary search, hoặc heap.
+> $(5 \\cdot 10^5)^2 = 2,5 \\cdot 10^{11} \\gg 10^8$ → chắc chắn TLE, **phải** tối ưu. Mục tiêu: $O(n \\log n)$ (~$5 \\cdot 10^5 \\cdot 19 \\approx 10^7$, kịp). Nghĩ tới sort + two pointers, hoặc binary search, hoặc heap.
 > </details>
 
-> 📝 **Tóm tắt mục 3.** Nhìn \`n\` tối đa → tra bảng → biết độ phức tạp mục tiêu *trước khi* nghĩ thuật toán. \`n\` nhỏ (≤25) cho phép exponential; \`n\` cỡ \`10^5\` ép \`O(n log n)\`; \`n\` khổng lồ ép \`O(log n)\`.
+> 📝 **Tóm tắt mục 3.** Nhìn $n$ tối đa → tra bảng → biết độ phức tạp mục tiêu *trước khi* nghĩ thuật toán. $n$ nhỏ (≤25) cho phép exponential; $n$ cỡ $10^5$ ép $O(n \\log n)$; $n$ khổng lồ ép $O(\\log n)$.
 
 ---
 
@@ -255,22 +255,22 @@ Riêng dòng cuối minh hoạ vì sao \`n ≤ 20–25\` là ranh giới của \
 | **Tìm chuỗi con / khớp mẫu** trong văn bản | KMP / Z / Rabin-Karp | [L41](../lesson-41-kmp/), [L42](../lesson-42-z-algorithm/), [L40](../lesson-40-string-matching-rabin-karp/) |
 | Nhiều mẫu cùng lúc / tiền tố chung | Trie / Aho-Corasick | [L43](../lesson-43-trie-aho-corasick/) |
 | Chia bài thành **nửa rồi gộp** | Divide & Conquer | [L17](../lesson-17-divide-and-conquer/) |
-| \`n\` nhỏ (≤ 20), trạng thái là **tập con** | Bitmask DP | [L29](../lesson-29-bitmask-dp/) |
+| $n$ nhỏ (≤ 20), trạng thái là **tập con** | Bitmask DP | [L29](../lesson-29-bitmask-dp/) |
 
 > ⚠ **Lỗi thường gặp.** Một dấu hiệu *không* khoá chết một kỹ thuật. "Tối ưu" có thể là greedy *hoặc* DP — phân biệt: greedy đúng khi *lựa chọn cục bộ tốt nhất dẫn tới tối ưu toàn cục* (phải chứng minh!). Nếu lựa chọn hiện tại ảnh hưởng tương lai theo cách phức tạp → DP. Xem [L22 — Greedy vs DP](../lesson-22-greedy-vs-dp/).
 
 ### 4.1 Bốn ví dụ nhận diện pattern từ đề thật
 
 1. *"Cho lịch họp \`[start, end]\`, tìm số phòng tối thiểu để không trùng giờ."* → dấu hiệu **interval** + "tối thiểu phòng" → sort theo mốc + sweep/heap đếm chồng lấn ([L20](../lesson-20-interval-problems/)).
-2. *"Trong mảng chưa sorted, có 2 số nào tổng = \`k\` không?"* → "cặp tổng" nhưng *chưa* sorted → **hash set** một lượt (\`O(n)\`), không cần sort ([L16](../lesson-16-hashing-techniques/)).
-3. *"Tìm phần tử lớn thứ \`k\` trong luồng dữ liệu liên tục."* → "top-k" + "luôn lấy min/max động" → **heap** kích thước \`k\` ([L33](../lesson-33-dijkstra/) dùng heap).
+2. *"Trong mảng chưa sorted, có 2 số nào tổng = $k$ không?"* → "cặp tổng" nhưng *chưa* sorted → **hash set** một lượt ($O(n)$), không cần sort ([L16](../lesson-16-hashing-techniques/)).
+3. *"Tìm phần tử lớn thứ $k$ trong luồng dữ liệu liên tục."* → "top-k" + "luôn lấy min/max động" → **heap** kích thước $k$ ([L33](../lesson-33-dijkstra/) dùng heap).
 4. *"Đếm số đảo (số cặp \`i<j\` mà \`a[i]>a[j]\`)."* → không có từ khoá quen, nhưng "đếm cặp nghịch thế" là biến thể kinh điển → **merge sort đếm trong khi trộn** ([L07](../lesson-07-merge-sort/)) hoặc segment tree. Đây là ví dụ "tìm bài tương tự đã biết" (mục 5).
 
 > ❓ **Câu hỏi tự nhiên.** *"Một bài có nhiều dấu hiệu thì chọn cái nào?"* — Chọn kỹ thuật đạt được **độ phức tạp mục tiêu** (mục 3). Ví dụ "subarray liên tục" gợi sliding window, nhưng nếu có giá trị âm thì window vỡ → chuyển prefix sum + hash. Dùng constraint làm trọng tài.
 
 > 🔁 **Dừng lại tự kiểm tra.** Đề: "Cho mảng số nguyên (có thể âm), tìm độ dài subarray liên tục dài nhất có tổng = k." Dấu hiệu nào? Kỹ thuật nào?
 > <details><summary>Đáp án</summary>
-> Dấu hiệu: "subarray liên tục" + "tổng = k". Vì *có số âm*, sliding window không dùng được (mở rộng window không đảm bảo tổng tăng). Đúng: **prefix sum + hash map** lưu prefix sum đầu tiên xuất hiện ở mỗi giá trị, tìm \`prefix[j] - prefix[i] = k\`. \`O(n)\`.
+> Dấu hiệu: "subarray liên tục" + "tổng = k". Vì *có số âm*, sliding window không dùng được (mở rộng window không đảm bảo tổng tăng). Đúng: **prefix sum + hash map** lưu prefix sum đầu tiên xuất hiện ở mỗi giá trị, tìm \`prefix[j] - prefix[i] = k\`. $O(n)$.
 > </details>
 
 > 📝 **Tóm tắt mục 4.** Học thuộc bảng dấu hiệu → kỹ thuật. "sorted" → binary search/two pointers; "liên tục" → window/prefix; "tất cả tổ hợp" → backtracking; "tối ưu + overlap" → DP; "đường đi" → graph; "top-k/min-max" → heap; "đếm nhanh" → hash; "khớp chuỗi" → KMP/Z/RK; "thứ tự DAG" → topo sort.
@@ -282,7 +282,7 @@ Riêng dòng cuối minh hoạ vì sao \`n ≤ 20–25\` là ranh giới của \
 > 💡 **Trực giác.** Bị kẹt là *bình thường*, kể cả với người giỏi. Khác biệt là người giỏi có **danh sách động tác** để thoát kẹt, thay vì nhìn màn hình trống.
 
 1. **Đơn giản hoá bài toán.** Bỏ bớt một ràng buộc (vd: bỏ trọng số, coi đồ thị vô hướng, giả sử mảng đã sorted). Giải bản dễ trước, rồi thêm ràng buộc lại.
-2. **Giải case nhỏ bằng tay.** \`n = 1, 2, 3\` rồi tìm quy luật. Nhiều bài DP/toán lộ công thức truy hồi từ vài case đầu.
+2. **Giải case nhỏ bằng tay.** $n = 1, 2, 3$ rồi tìm quy luật. Nhiều bài DP/toán lộ công thức truy hồi từ vài case đầu.
 3. **Vẽ ra.** Đồ thị, cây, lưới, dòng thời gian. Mắt nhìn thấy cấu trúc mà đầu không tưởng tượng ra.
 4. **Nghĩ ngược (từ đáp án).** "Nếu đáp án là X thì điều kiện gì phải đúng?" → dẫn tới binary search trên đáp án, hoặc DP truy ngược.
 5. **Tìm bài tương tự đã biết.** "Bài này giống bài nào mình từng giải?" Nhận ra nó là biến thể của bài quen → tái dùng khung.
@@ -292,12 +292,12 @@ Riêng dòng cuối minh hoạ vì sao \`n ≤ 20–25\` là ranh giới của \
 
 ### 5.1 Ví dụ "thoát stuck" bằng nghĩ ngược
 
-**Đề:** mỗi ngày \`i\` có giá \`price[i]\`. Mỗi ngày sản xuất tốn \`k\` đơn vị. Tìm số \`x\` (số sản phẩm/ngày) lớn nhất sao cho tổng chi phí \`≤ budget\`. \`x\` có thể tới \`10^9\`.
+**Đề:** mỗi ngày $i$ có giá \`price[i]\`. Mỗi ngày sản xuất tốn $k$ đơn vị. Tìm số $x$ (số sản phẩm/ngày) lớn nhất sao cho tổng chi phí $\\leq \\text{budget}$. $x$ có thể tới $10^9$.
 
-- Nghĩ thẳng "duyệt \`x\` từ 1 đi lên" → \`10^9\` vòng → TLE, *stuck*.
-- **Động tác 4 (nghĩ ngược từ đáp án):** "Nếu đáp án là \`x\`, điều kiện gì đúng?" → \`cost(x) ≤ budget\`. Quan sát: \`cost(x)\` **tăng đơn điệu** theo \`x\` (sản xuất nhiều hơn → tốn hơn).
-- Đơn điệu + tìm \`x\` lớn nhất thoả điều kiện → đây chính là **binary search trên đáp án** ([L12](../lesson-12-binary-search-variants/))! Khoảng \`[1, 10^9]\`, mỗi bước kiểm tra \`cost(mid)\`, ~30 vòng → \`O(30 · check)\`.
-- Bài học: từ "duyệt \`x\`" (TLE) sang "đoán \`x\` rồi kiểm tra" (binary search) — đúng động tác *nghĩ ngược*.
+- Nghĩ thẳng "duyệt $x$ từ 1 đi lên" → $10^9$ vòng → TLE, *stuck*.
+- **Động tác 4 (nghĩ ngược từ đáp án):** "Nếu đáp án là $x$, điều kiện gì đúng?" → $\\text{cost}(x) \\leq \\text{budget}$. Quan sát: $\\text{cost}(x)$ **tăng đơn điệu** theo $x$ (sản xuất nhiều hơn → tốn hơn).
+- Đơn điệu + tìm $x$ lớn nhất thoả điều kiện → đây chính là **binary search trên đáp án** ([L12](../lesson-12-binary-search-variants/))! Khoảng $[1, 10^9]$, mỗi bước kiểm tra $\\text{cost}(\\text{mid})$, ~30 vòng → $O(30 \\cdot \\text{check})$.
+- Bài học: từ "duyệt $x$" (TLE) sang "đoán $x$ rồi kiểm tra" (binary search) — đúng động tác *nghĩ ngược*.
 
 > 📝 **Tóm tắt mục 5.** Stuck thì: đơn giản hoá, giải tay case nhỏ, vẽ, nghĩ ngược (→ binary search trên đáp án), tìm bài tương tự, đổi góc nhìn cấu trúc.
 
@@ -307,20 +307,20 @@ Riêng dòng cuối minh hoạ vì sao \`n ≤ 20–25\` là ranh giới của \
 
 > 💡 **Trực giác.** Test ẩn của máy chấm gần như *luôn* có case biên. Chạy checklist này trong đầu (hoặc viết test) trước khi submit.
 
-- [ ] **Rỗng**: mảng/chuỗi \`n = 0\`. Trả về gì? (0? rỗng? lỗi?)
-- [ ] **Một phần tử**: \`n = 1\`. Vòng lặp/đệ quy có chạy đúng không?
+- [ ] **Rỗng**: mảng/chuỗi $n = 0$. Trả về gì? (0? rỗng? lỗi?)
+- [ ] **Một phần tử**: $n = 1$. Vòng lặp/đệ quy có chạy đúng không?
 - [ ] **Toàn trùng**: mọi phần tử giống nhau. Two pointers, hash, dedup còn đúng?
 - [ ] **Âm / 0**: giá trị âm hoặc bằng 0. Sliding window (giả định dương) có vỡ không? Chia cho 0?
 - [ ] **Overflow**: tổng/tích vượt \`int32\`/\`int64\`? Dùng kiểu rộng hơn hoặc modulo.
 - [ ] **Đã sorted / sorted ngược**: trường hợp tệ nhất của quicksort, hay best-case của binary search.
-- [ ] **Max constraint**: \`n\`, giá trị ở mức lớn nhất. Có TLE/MLE (Memory Limit) không?
+- [ ] **Max constraint**: $n$, giá trị ở mức lớn nhất. Có TLE/MLE (Memory Limit) không?
 - [ ] **Trùng biên**: target nằm ở đầu/cuối mảng; window dài bằng cả mảng; đồ thị một đỉnh.
 
-> ⚠ **Lỗi thường gặp.** **Overflow** là sát thủ thầm lặng: code chạy đúng mọi test nhỏ, rớt đúng test max vì \`sum\` tràn \`int32\`. Trong Go, \`int\` là 64-bit trên nền 64-bit nhưng vẫn cẩn thận với tích lớn (vd \`a*b\` với \`a, b ~ 10^9\` → cần \`int64\` và đôi khi \`big.Int\`).
+> ⚠ **Lỗi thường gặp.** **Overflow** là sát thủ thầm lặng: code chạy đúng mọi test nhỏ, rớt đúng test max vì \`sum\` tràn \`int32\`. Trong Go, \`int\` là 64-bit trên nền 64-bit nhưng vẫn cẩn thận với tích lớn (vd \`a*b\` với $a, b \\sim 10^9$ → cần \`int64\` và đôi khi \`big.Int\`).
 
 > 🔁 **Dừng lại tự kiểm tra.** Hàm tính trung bình \`sum/n\`. Hai edge case nguy hiểm nào?
 > <details><summary>Đáp án</summary>
-> (1) \`n = 0\` → chia cho 0 (panic/lỗi). (2) \`sum\` overflow khi cộng nhiều giá trị lớn. Sửa: kiểm tra \`n == 0\`, và dùng kiểu đủ rộng cho \`sum\` (hoặc cộng dồn cẩn thận).
+> (1) $n = 0$ → chia cho 0 (panic/lỗi). (2) \`sum\` overflow khi cộng nhiều giá trị lớn. Sửa: kiểm tra \`n == 0\`, và dùng kiểu đủ rộng cho \`sum\` (hoặc cộng dồn cẩn thận).
 > </details>
 
 > 📝 **Tóm tắt mục 6.** Luôn thử: rỗng, 1 phần tử, toàn trùng, âm/0, overflow, đã sorted, max constraint, trùng biên.
@@ -363,11 +363,11 @@ Bài hỏi gì?
 
 - **Bước 1 (hiểu đề):** input là chuỗi, output là một số (độ dài). "Substring" = liên tục (khác "subsequence" = không cần liên tục). Không lặp = mỗi ký tự xuất hiện tối đa 1 lần trong cửa sổ.
 - **Bước 2 (ví dụ):** \`"abcabcbb"\` → \`3\` (\`"abc"\`). \`"bbbbb"\` → \`1\`. \`""\` → \`0\`. \`"pwwkew"\` → \`3\` (\`"wke"\`). Edge: rỗng → 0; toàn trùng → 1.
-- **Bước 3 (brute-force):** thử mọi substring \`(i, j)\`, kiểm tra không lặp. \`O(n^2)\` cặp × \`O(n)\` kiểm tra = \`O(n^3)\`. (Dùng set giảm còn \`O(n^2)\`.)
-- **Bước 4 (constraint):** \`n ≤ 10^5\` → \`O(n^2) = 10^{10}\` **TLE**. Mục tiêu \`O(n)\` hoặc \`O(n log n)\`.
+- **Bước 3 (brute-force):** thử mọi substring \`(i, j)\`, kiểm tra không lặp. $O(n^2)$ cặp × $O(n)$ kiểm tra = $O(n^3)$. (Dùng set giảm còn $O(n^2)$.)
+- **Bước 4 (constraint):** $n \\leq 10^5$ → $O(n^2) = 10^{10}$ **TLE**. Mục tiêu $O(n)$ hoặc $O(n \\log n)$.
 - **Bước 5 (pattern):** "substring liên tục" + "thoả điều kiện" → **sliding window** ([L14](../lesson-14-sliding-window/)) + hash lưu vị trí ký tự.
 - **Bước 6 (code + test):** dưới đây. Test các ví dụ bước 2.
-- **Bước 7 (tối ưu):** đã \`O(n)\`, đạt mục tiêu → dừng.
+- **Bước 7 (tối ưu):** đã $O(n)$, đạt mục tiêu → dừng.
 
 **Mô phỏng từng bước** trên \`s = "abcabcbb"\` (cửa sổ \`[left, right]\`, \`last\` lưu vị trí gần nhất):
 
@@ -382,7 +382,7 @@ Bài hỏi gì?
 | 6 | b | 4 (≥ left) → left=5 | 5 | 2 | 3 |
 | 7 | b | 6 (≥ left) → left=7 | 7 | 1 | 3 |
 
-Kết quả \`best = 3\` (chuỗi \`"abc"\`). Để ý: \`left\` **chỉ tiến**, không lùi → mỗi chỉ số được \`left\` và \`right\` đi qua tối đa 1 lần → tổng \`O(n)\`, đây là lý do window nhanh hơn brute \`O(n^2)\`.
+Kết quả \`best = 3\` (chuỗi \`"abc"\`). Để ý: \`left\` **chỉ tiến**, không lùi → mỗi chỉ số được \`left\` và \`right\` đi qua tối đa 1 lần → tổng $O(n)$, đây là lý do window nhanh hơn brute $O(n^2)$.
 
 \`\`\`go
 package main
@@ -439,17 +439,17 @@ func main() {
 
 ### 7.2 Course Schedule (phát hiện chu trình trên DAG)
 
-**Đề:** Có \`n\` môn học \`0..n-1\` và danh sách điều kiện tiên quyết \`[a, b]\` nghĩa là "phải học \`b\` trước \`a\`". Hỏi có học hết được mọi môn không (tức đồ thị phụ thuộc *không* có chu trình)? Constraint: \`n ≤ 10^5\`, số điều kiện ≤ \`10^5\`.
+**Đề:** Có $n$ môn học \`0..n-1\` và danh sách điều kiện tiên quyết \`[a, b]\` nghĩa là "phải học \`b\` trước \`a\`". Hỏi có học hết được mọi môn không (tức đồ thị phụ thuộc *không* có chu trình)? Constraint: $n \\leq 10^5$, số điều kiện ≤ $10^5$.
 
-- **Bước 1 (hiểu đề):** input là \`n\` + danh sách cạnh có hướng \`a ← b\`. Output: bool. Học hết được ⟺ không có chu trình.
+- **Bước 1 (hiểu đề):** input là $n$ + danh sách cạnh có hướng \`a ← b\`. Output: bool. Học hết được ⟺ không có chu trình.
 - **Bước 2 (ví dụ):** \`n=2, [[1,0]]\` → true (học 0 rồi 1). \`n=2, [[1,0],[0,1]]\` → false (vòng tròn). Edge: không có điều kiện nào → true; tự phụ thuộc \`[0,0]\` → false.
-- **Bước 3 (brute-force):** thử mọi thứ tự học (hoán vị) xem có hợp lệ không → \`O(n!)\`. Vô vọng.
-- **Bước 4 (constraint):** \`n ≤ 10^5\` → cần tuyến tính \`O(n + E)\`.
+- **Bước 3 (brute-force):** thử mọi thứ tự học (hoán vị) xem có hợp lệ không → $O(n!)$. Vô vọng.
+- **Bước 4 (constraint):** $n \\leq 10^5$ → cần tuyến tính $O(n + E)$.
 - **Bước 5 (pattern):** "phụ thuộc / thứ tự" + "DAG" + "phát hiện chu trình" → **topological sort** ([L32](../lesson-32-topological-sort/)). Kahn's algorithm: nếu topo sort xếp được hết đỉnh → không chu trình.
 - **Bước 6 (code + test):** dưới đây.
-- **Bước 7 (tối ưu):** Kahn đã \`O(n + E)\` → dừng.
+- **Bước 7 (tối ưu):** Kahn đã $O(n + E)$ → dừng.
 
-**Mô phỏng Kahn** với \`n = 4\`, điều kiện \`[[1,0],[2,0],[3,1],[3,2]]\` (cạnh \`b→a\`: \`0→1, 0→2, 1→3, 2→3\`):
+**Mô phỏng Kahn** với $n = 4$, điều kiện \`[[1,0],[2,0],[3,1],[3,2]]\` (cạnh \`b→a\`: \`0→1, 0→2, 1→3, 2→3\`):
 
 | Bước | indegree \`[0,1,2,3]\` | queue | học (learned) |
 |:----:|:--------------------:|:-----:|:-------------:|
@@ -459,7 +459,7 @@ func main() {
 | lấy 2 → giảm 3 | \`[_,_,_,0]\` | \`[3]\` | 3 |
 | lấy 3 | \`[_,_,_,_]\` | \`[]\` | 4 |
 
-\`learned = 4 = n\` → **không chu trình** → true. Nếu có chu trình (vd thêm \`0\` phụ thuộc \`3\`), một số đỉnh sẽ kẹt indegree > 0, không bao giờ vào queue → \`learned < n\` → false.
+$\\text{learned} = 4 = n$ → **không chu trình** → true. Nếu có chu trình (vd thêm \`0\` phụ thuộc \`3\`), một số đỉnh sẽ kẹt indegree > 0, không bao giờ vào queue → $\\text{learned} < n$ → false.
 
 \`\`\`go
 package main
@@ -508,17 +508,17 @@ func main() {
 
 ### 7.3 Coin Change (số đồng xu ít nhất)
 
-**Đề:** Cho các mệnh giá \`coins\` (vô hạn mỗi loại) và số tiền \`amount\`. Tìm **số đồng xu ít nhất** để đạt đúng \`amount\`, hoặc \`-1\` nếu không thể. Constraint: \`amount ≤ 10^4\`, \`len(coins) ≤ 12\`.
+**Đề:** Cho các mệnh giá \`coins\` (vô hạn mỗi loại) và số tiền \`amount\`. Tìm **số đồng xu ít nhất** để đạt đúng \`amount\`, hoặc \`-1\` nếu không thể. Constraint: $\\text{amount} \\leq 10^4$, $\\text{len(coins)} \\leq 12$.
 
 - **Bước 1 (hiểu đề):** input \`coins[]\` + \`amount\`. Output: số nguyên (ít xu nhất) hoặc \`-1\`. Mỗi loại xu dùng được nhiều lần (unbounded).
 - **Bước 2 (ví dụ):** \`coins=[1,2,5], amount=11\` → \`3\` (5+5+1). \`coins=[2], amount=3\` → \`-1\`. \`amount=0\` → \`0\`. \`coins=[1], amount=2\` → \`2\`.
-- **Bước 3 (brute-force):** thử mọi cách chọn xu đệ quy → cây phân nhánh khổng lồ, \`O(coins^amount)\`. Mũ.
-- **Bước 4 (constraint):** \`amount ≤ 10^4\`, \`coins ≤ 12\` → \`O(amount · len(coins)) = 1.2·10^5\` rất nhỏ. Mục tiêu: DP \`O(amount · coins)\`.
-- **Bước 5 (pattern):** "tối ưu (ít nhất)" + "lựa chọn (chọn xu nào)" + "bài con chồng nhau (cùng số tiền con xuất hiện nhiều lần)" → **Dynamic Programming** ([L25 — Knapsack family](../lesson-25-knapsack-family/), [L23](../lesson-23-dp-fundamentals/)). *Cảnh báo:* greedy "luôn lấy xu lớn nhất" **sai** (vd \`coins=[1,3,4], amount=6\`: greedy ra \`4+1+1=3\` xu, DP ra \`3+3=2\` xu).
+- **Bước 3 (brute-force):** thử mọi cách chọn xu đệ quy → cây phân nhánh khổng lồ, $O(\\text{coins}^{\\text{amount}})$. Mũ.
+- **Bước 4 (constraint):** $\\text{amount} \\leq 10^4$, $\\text{coins} \\leq 12$ → $O(\\text{amount} \\cdot \\text{len(coins)}) = 1,2 \\cdot 10^5$ rất nhỏ. Mục tiêu: DP $O(\\text{amount} \\cdot \\text{coins})$.
+- **Bước 5 (pattern):** "tối ưu (ít nhất)" + "lựa chọn (chọn xu nào)" + "bài con chồng nhau (cùng số tiền con xuất hiện nhiều lần)" → **Dynamic Programming** ([L25 — Knapsack family](../lesson-25-knapsack-family/), [L23](../lesson-23-dp-fundamentals/)). *Cảnh báo:* greedy "luôn lấy xu lớn nhất" **sai** (vd \`coins=[1,3,4], amount=6\`: greedy ra $4+1+1=3$ xu, DP ra $3+3=2$ xu).
 - **Bước 6 (code + test):** dưới đây.
 - **Bước 7 (tối ưu):** DP 1D đã tối ưu cả time lẫn space → dừng.
 
-**Mô phỏng DP** với \`coins = [1, 3, 4]\`, \`amount = 6\`. \`dp[x]\` = số xu ít nhất cho \`x\`:
+**Mô phỏng DP** với \`coins = [1, 3, 4]\`, \`amount = 6\`. \`dp[x]\` = số xu ít nhất cho $x$:
 
 | \`x\` | tính \`dp[x] = min(dp[x-c]+1)\` | \`dp[x]\` |
 |:---:|------------------------------|:------:|
@@ -530,7 +530,7 @@ func main() {
 | 5 | min(\`dp[4]+1=2\`, \`dp[2]+1=3\`, \`dp[1]+1=2\`) | 2 |
 | 6 | min(\`dp[5]+1=3\`, \`dp[3]+1=2\`, \`dp[2]+1=3\`) | **2** |
 
-\`dp[6] = 2\` (dùng \`3 + 3\`). Greedy lấy xu lớn nhất sẽ ra \`4 + 1 + 1 = 3\` xu — **sai**. DP đúng vì nó thử *mọi* lựa chọn xu cuối cùng tại mỗi \`x\`, không "khoá cứng" vào xu to.
+\`dp[6] = 2\` (dùng $3 + 3$). Greedy lấy xu lớn nhất sẽ ra $4 + 1 + 1 = 3$ xu — **sai**. DP đúng vì nó thử *mọi* lựa chọn xu cuối cùng tại mỗi $x$, không "khoá cứng" vào xu to.
 
 \`\`\`go
 package main
@@ -571,7 +571,7 @@ func main() {
 
 > 🔁 **Dừng lại tự kiểm tra.** Ở 7.3, vì sao greedy "luôn lấy xu lớn nhất ≤ số còn lại" sai?
 > <details><summary>Đáp án</summary>
-> Vì lựa chọn cục bộ tốt (lấy xu to) không dẫn tới tối ưu toàn cục. \`coins=[1,3,4], amount=6\`: greedy lấy \`4\` → còn \`2\` → \`1+1\` → tổng \`3\` xu. Nhưng \`3+3 = 2\` xu mới tối ưu. Greedy chỉ đúng với hệ tiền "canonical" (vd VND, USD chuẩn); đề tổng quát phải DP.
+> Vì lựa chọn cục bộ tốt (lấy xu to) không dẫn tới tối ưu toàn cục. \`coins=[1,3,4], amount=6\`: greedy lấy \`4\` → còn \`2\` → $1+1$ → tổng \`3\` xu. Nhưng $3+3 = 2$ xu mới tối ưu. Greedy chỉ đúng với hệ tiền "canonical" (vd VND, USD chuẩn); đề tổng quát phải DP.
 > </details>
 
 > 📝 **Tóm tắt mục 7.** Cùng một quy trình 7 bước cho 3 bài rất khác nhau: window (chuỗi), topo sort (đồ thị), DP (tối ưu). Điểm chung: brute-force trước → đọc constraint → nhận pattern → code → kiểm chứng bằng baseline.
@@ -583,11 +583,11 @@ func main() {
 > ⚠ **Lỗi thường gặp — bốn anti-pattern kinh điển:**
 
 1. **Code ngay khi chưa hiểu đề.** Bỏ qua bước 1–2 → giải đúng một bài *khác*. Triệu chứng: viết được code nhưng sai ví dụ nhỏ. *Sửa:* luôn rephrase đề + giải tay 1 ví dụ trước khi gõ.
-2. **Tối ưu sớm (premature optimization).** Lao vào segment tree/cấu trúc phức tạp khi \`n ≤ 1000\` chỉ cần \`O(n^2)\`. Tốn thời gian, dễ bug. *Sửa:* đọc constraint (mục 3) → chỉ tối ưu tới *vừa đủ* mục tiêu.
+2. **Tối ưu sớm (premature optimization).** Lao vào segment tree/cấu trúc phức tạp khi $n \\leq 1000$ chỉ cần $O(n^2)$. Tốn thời gian, dễ bug. *Sửa:* đọc constraint (mục 3) → chỉ tối ưu tới *vừa đủ* mục tiêu.
 3. **Không test edge case.** Code đúng case thường, rớt test ẩn (rỗng, max, overflow). *Sửa:* chạy checklist mục 6 trước khi submit.
 4. **Chọn greedy mà không kiểm chứng.** "Có vẻ tham lam là được" → sai như coin change 7.3. *Sửa:* greedy phải có lập luận *exchange argument* hoặc đối chiếu với DP trên case nhỏ. Khi nghi ngờ, dùng DP. Xem [L22](../lesson-22-greedy-vs-dp/).
 
-**Ví dụ cụ thể về tối ưu sớm:** đề "tổng đoạn \`[l,r]\`, \`n ≤ 1000\`, \`q ≤ 1000\` truy vấn, *không* cập nhật". Phản xạ "range query → segment tree" → viết 60 dòng cây phân đoạn, dễ bug. Nhưng \`n, q ≤ 1000\` cho \`O(n·q)=10^6\` *quá thừa kịp*; thậm chí cộng thẳng mỗi truy vấn cũng được, và **prefix sum** (3 dòng) là quá đủ. Segment tree chỉ cần khi *có cập nhật* hoặc \`n, q\` lớn (\`10^5+\`). Đọc constraint trước → tránh viết thừa.
+**Ví dụ cụ thể về tối ưu sớm:** đề "tổng đoạn \`[l,r]\`, $n \\leq 1000$, $q \\leq 1000$ truy vấn, *không* cập nhật". Phản xạ "range query → segment tree" → viết 60 dòng cây phân đoạn, dễ bug. Nhưng $n, q \\leq 1000$ cho $O(n \\cdot q)=10^6$ *quá thừa kịp*; thậm chí cộng thẳng mỗi truy vấn cũng được, và **prefix sum** (3 dòng) là quá đủ. Segment tree chỉ cần khi *có cập nhật* hoặc $n, q$ lớn ($10^5+$). Đọc constraint trước → tránh viết thừa.
 
 > ❓ **Câu hỏi tự nhiên.** *"Làm sao biết greedy đúng mà không cần chứng minh hình thức?"* — Cách thực dụng: viết brute-force/DP đúng, sinh ngẫu nhiên *nhiều* case nhỏ, so kết quả greedy với DP (kỹ thuật *stress testing*). Nếu lệch dù chỉ 1 case → greedy sai. Khớp toàn bộ → tăng tự tin (nhưng không thay được chứng minh).
 
@@ -601,14 +601,14 @@ Gói gọn cả lesson để dán lên màn hình khi luyện tập:
 
 **Quy trình:** Hiểu đề → Ví dụ + edge → Brute-force → Big-O + constraint → Pattern → Code + test → Tối ưu.
 
-**Constraint → mục tiêu (mốc \`~10^8\` phép/giây):**
+**Constraint → mục tiêu (mốc $\\sim 10^8$ phép/giây):**
 
-| \`n ≤\` | Mục tiêu | \`n ≤\` | Mục tiêu |
+| $n \\leq$ | Mục tiêu | $n \\leq$ | Mục tiêu |
 |:----:|:--------:|:----:|:--------:|
-| 12 | \`O(n!)\` / backtracking | \`10^5–10^6\` | \`O(n log n)\` |
-| 20–25 | \`O(2^n)\` / bitmask | \`10^7–10^8\` | \`O(n)\` |
-| 100–500 | \`O(n^3)\` | \`10^9\` | \`O(log n)\` / \`O(1)\` |
-| 1000–5000 | \`O(n^2)\` | \`10^{18}\` | \`O(log n)\` |
+| 12 | $O(n!)$ / backtracking | $10^5\\text{–}10^6$ | $O(n \\log n)$ |
+| 20–25 | $O(2^n)$ / bitmask | $10^7\\text{–}10^8$ | $O(n)$ |
+| 100–500 | $O(n^3)$ | $10^9$ | $O(\\log n)$ / $O(1)$ |
+| 1000–5000 | $O(n^2)$ | $10^{18}$ | $O(\\log n)$ |
 
 **Dấu hiệu → kỹ thuật:** sorted→binary search/two pointers · liên tục→window/prefix · cặp tổng→two pointers/hash · mọi tổ hợp→backtracking · tối ưu+overlap→DP · chọn cục bộ→greedy(chứng minh!) · interval→sort+sweep · đường đi→BFS/DFS · ngắn nhất ≥0→Dijkstra · cạnh âm→Bellman-Ford · DAG thứ tự→topo sort · top-k/min-max→heap · đếm/lookup→hash · range query→prefix/segment tree · khớp chuỗi→KMP/Z/RK.
 
@@ -626,12 +626,12 @@ Gói gọn cả lesson để dán lên màn hình khi luyện tập:
 
 Với **mỗi** bài dưới đây, **không cần code đầy đủ** — hãy tập trung vào TƯ DUY: (a) đoán **độ phức tạp mục tiêu** từ constraint, (b) **nhận diện pattern**, (c) **chọn kỹ thuật**, (d) **outline lời giải**.
 
-1. **Two Sum sorted.** Mảng *đã sorted*, tìm 2 chỉ số có tổng = \`target\`. \`n ≤ 10^5\`.
-2. **Subarray tổng = k (có số âm).** Đếm số subarray liên tục có tổng đúng bằng \`k\`. \`n ≤ 10^5\`, giá trị có thể âm.
-3. **Đường đi ngắn nhất, trọng số không âm.** Đồ thị \`n\` đỉnh, \`m\` cạnh trọng số ≥ 0, tìm khoảng cách ngắn nhất từ đỉnh \`s\` tới mọi đỉnh. \`n ≤ 10^5\`, \`m ≤ 2·10^5\`.
-4. **Sinh mọi tập con tổng = target.** \`coins\` không trùng, liệt kê *mọi* tập con có tổng = \`target\`. \`len(coins) ≤ 16\`.
-5. **Đếm chữ "ABC" xuất hiện trong văn bản lớn.** Đếm số lần mẫu \`p\` xuất hiện trong \`s\`. \`len(s) ≤ 10^6\`, \`len(p) ≤ 10^4\`.
-6. **Lập lịch n việc trên DAG.** Cho \`n\` việc và quan hệ "việc A phải xong trước việc B", tìm *một* thứ tự thực hiện hợp lệ, hoặc báo không thể. \`n ≤ 10^5\`, số quan hệ ≤ \`2·10^5\`.
+1. **Two Sum sorted.** Mảng *đã sorted*, tìm 2 chỉ số có tổng = \`target\`. $n \\leq 10^5$.
+2. **Subarray tổng = k (có số âm).** Đếm số subarray liên tục có tổng đúng bằng $k$. $n \\leq 10^5$, giá trị có thể âm.
+3. **Đường đi ngắn nhất, trọng số không âm.** Đồ thị $n$ đỉnh, $m$ cạnh trọng số ≥ 0, tìm khoảng cách ngắn nhất từ đỉnh \`s\` tới mọi đỉnh. $n \\leq 10^5$, $m \\leq 2 \\cdot 10^5$.
+4. **Sinh mọi tập con tổng = target.** \`coins\` không trùng, liệt kê *mọi* tập con có tổng = \`target\`. $\\text{len(coins)} \\leq 16$.
+5. **Đếm chữ "ABC" xuất hiện trong văn bản lớn.** Đếm số lần mẫu \`p\` xuất hiện trong \`s\`. $\\text{len}(s) \\leq 10^6$, $\\text{len}(p) \\leq 10^4$.
+6. **Lập lịch n việc trên DAG.** Cho $n$ việc và quan hệ "việc A phải xong trước việc B", tìm *một* thứ tự thực hiện hợp lệ, hoặc báo không thể. $n \\leq 10^5$, số quan hệ ≤ $2 \\cdot 10^5$.
 
 ---
 
@@ -639,45 +639,45 @@ Với **mỗi** bài dưới đây, **không cần code đầy đủ** — hãy 
 
 ### Bài 1 — Two Sum sorted
 
-- **(a) Độ phức tạp mục tiêu:** \`n ≤ 10^5\` → \`O(n^2) = 10^{10}\` TLE. Mục tiêu \`O(n)\` (vì đã sorted, không cần cả \`O(n log n)\`).
+- **(a) Độ phức tạp mục tiêu:** $n \\leq 10^5$ → $O(n^2) = 10^{10}$ TLE. Mục tiêu $O(n)$ (vì đã sorted, không cần cả $O(n \\log n)$).
 - **(b) Pattern:** "mảng **đã sorted**" + "tìm **cặp** có tổng cho trước" → dấu hiệu kinh điển của **two pointers**.
-- **(c) Kỹ thuật:** two pointers ([L13](../lesson-13-two-pointers/)). (Nếu mảng *chưa* sorted thì dùng hash \`O(n)\`, [L16](../lesson-16-hashing-techniques/).)
-- **(d) Outline:** đặt \`l = 0\`, \`r = n-1\`. Tính \`sum = a[l] + a[r]\`. Nếu \`= target\` → trả về \`(l, r)\`. Nếu \`< target\` → \`l++\` (cần tổng lớn hơn). Nếu \`> target\` → \`r--\`. Mỗi bước thu hẹp khoảng → \`O(n)\`. *Edge:* \`n < 2\` → không có cặp; trùng giá trị vẫn đúng.
+- **(c) Kỹ thuật:** two pointers ([L13](../lesson-13-two-pointers/)). (Nếu mảng *chưa* sorted thì dùng hash $O(n)$, [L16](../lesson-16-hashing-techniques/).)
+- **(d) Outline:** đặt \`l = 0\`, \`r = n-1\`. Tính \`sum = a[l] + a[r]\`. Nếu \`= target\` → trả về \`(l, r)\`. Nếu \`< target\` → \`l++\` (cần tổng lớn hơn). Nếu \`> target\` → \`r--\`. Mỗi bước thu hẹp khoảng → $O(n)$. *Edge:* $n < 2$ → không có cặp; trùng giá trị vẫn đúng.
 
 ### Bài 2 — Subarray tổng = k (có số âm)
 
-- **(a) Mục tiêu:** \`n ≤ 10^5\` → \`O(n)\` hoặc \`O(n log n)\`. \`O(n^2)\` (mọi cặp) = \`10^{10}\` TLE.
+- **(a) Mục tiêu:** $n \\leq 10^5$ → $O(n)$ hoặc $O(n \\log n)$. $O(n^2)$ (mọi cặp) = $10^{10}$ TLE.
 - **(b) Pattern:** "subarray **liên tục**" + "tổng = k" — *nhưng có số âm* → **sliding window KHÔNG dùng được** (mở rộng window không làm tổng đơn điệu). Cảnh báo này quan trọng.
 - **(c) Kỹ thuật:** **prefix sum + hash map** ([L15](../lesson-15-prefix-sum-difference/) + [L16](../lesson-16-hashing-techniques/)).
-- **(d) Outline:** \`prefix[j] - prefix[i] = k\` ⟺ subarray \`(i, j]\` có tổng \`k\`. Duyệt \`j\`, với mỗi \`prefix[j]\` tìm số lần \`prefix[j] - k\` đã xuất hiện trước đó (lưu trong hash \`count[prefixValue]\`). Cộng dồn vào đáp án, rồi \`count[prefix[j]]++\`. Nhớ khởi tạo \`count[0] = 1\` (prefix rỗng). \`O(n)\`. *Edge:* \`k = 0\`; giá trị âm/0; overflow tổng (dùng \`int64\`).
+- **(d) Outline:** \`prefix[j] - prefix[i] = k\` ⟺ subarray \`(i, j]\` có tổng \`k\`. Duyệt \`j\`, với mỗi \`prefix[j]\` tìm số lần \`prefix[j] - k\` đã xuất hiện trước đó (lưu trong hash \`count[prefixValue]\`). Cộng dồn vào đáp án, rồi \`count[prefix[j]]++\`. Nhớ khởi tạo \`count[0] = 1\` (prefix rỗng). $O(n)$. *Edge:* \`k = 0\`; giá trị âm/0; overflow tổng (dùng \`int64\`).
 
 ### Bài 3 — Đường đi ngắn nhất, trọng số không âm
 
-- **(a) Mục tiêu:** \`n ≤ 10^5\`, \`m ≤ 2·10^5\` → cần \`O((n + m) log n)\` ≈ \`3·10^5 · 17 ≈ 5·10^6\`, kịp. \`O(n^2)\` Dijkstra dạng mảng = \`10^{10}\` TLE.
+- **(a) Mục tiêu:** $n \\leq 10^5$, $m \\leq 2 \\cdot 10^5$ → cần $O((n + m) \\log n) \\approx 3 \\cdot 10^5 \\cdot 17 \\approx 5 \\cdot 10^6$, kịp. $O(n^2)$ Dijkstra dạng mảng = $10^{10}$ TLE.
 - **(b) Pattern:** "đường đi **ngắn nhất**" + "trọng số **không âm**" → **Dijkstra**. (Nếu có cạnh âm → Bellman-Ford; nếu không trọng số → BFS.)
 - **(c) Kỹ thuật:** Dijkstra với **heap** (priority queue) ([L33](../lesson-33-dijkstra/)). Dấu hiệu phụ "luôn lấy đỉnh khoảng cách nhỏ nhất tiếp theo" → heap.
 - **(d) Outline:** \`dist[s] = 0\`, đẩy \`(0, s)\` vào min-heap. Lặp: lấy đỉnh \`u\` có \`dist\` nhỏ nhất; với mỗi cạnh \`(u, v, w)\` nếu \`dist[u] + w < dist[v]\` thì cập nhật và đẩy \`(dist[v], v)\`. Bỏ qua entry cũ trong heap (lazy deletion). *Edge:* đỉnh không tới được → \`dist = ∞\`; đồ thị 1 đỉnh; cạnh trọng số 0.
 
 ### Bài 4 — Sinh mọi tập con tổng = target
 
-- **(a) Mục tiêu:** \`len(coins) ≤ 16\` → \`2^16 = 65536\` tập con → exponential **OK**. Vì đề yêu cầu *liệt kê mọi* tập con (không chỉ đếm), bản chất output đã mũ.
+- **(a) Mục tiêu:** $\\text{len(coins)} \\leq 16$ → $2^{16} = 65536$ tập con → exponential **OK**. Vì đề yêu cầu *liệt kê mọi* tập con (không chỉ đếm), bản chất output đã mũ.
 - **(b) Pattern:** "sinh **tất cả** tổ hợp/tập con thoả điều kiện" → **backtracking**.
-- **(c) Kỹ thuật:** backtracking ([L18](../lesson-18-backtracking/)). (Có thể duyệt bitmask \`2^16\` vì \`n\` nhỏ, nhưng backtracking cắt nhánh sớm gọn hơn.)
+- **(c) Kỹ thuật:** backtracking ([L18](../lesson-18-backtracking/)). (Có thể duyệt bitmask $2^{16}$ vì $n$ nhỏ, nhưng backtracking cắt nhánh sớm gọn hơn.)
 - **(d) Outline:** đệ quy \`dfs(i, remain, cur)\`: tại chỉ số \`i\`, hoặc *bỏ* \`coins[i]\` hoặc *lấy* nó (\`remain - coins[i]\`). Khi \`remain == 0\` → lưu \`cur\` vào kết quả. Cắt nhánh nếu \`remain < 0\`. Sort giảm dần để cắt sớm. *Edge:* \`target = 0\` → tập rỗng là một đáp án; coins lớn hơn target bỏ ngay.
 
 ### Bài 5 — Đếm mẫu xuất hiện trong văn bản lớn
 
-- **(a) Mục tiêu:** \`len(s) ≤ 10^6\` → cần \`O(|s| + |p|)\`. Naïve so từng vị trí = \`O(|s|·|p|) = 10^{10}\` TLE.
+- **(a) Mục tiêu:** $\\text{len}(s) \\leq 10^6$ → cần $O(|s| + |p|)$. Naïve so từng vị trí = $O(|s| \\cdot |p|) = 10^{10}$ TLE.
 - **(b) Pattern:** "tìm/đếm **chuỗi con khớp mẫu**" trong văn bản → string matching tuyến tính.
-- **(c) Kỹ thuật:** **KMP** ([L41](../lesson-41-kmp/)) hoặc **Z-algorithm** ([L42](../lesson-42-z-algorithm/)) hoặc **Rabin-Karp** ([L40](../lesson-40-string-matching-rabin-karp/)). KMP/Z đảm bảo \`O(n+m)\` worst-case; Rabin-Karp \`O(n+m)\` kỳ vọng (cần xử lý va chạm hash).
-- **(d) Outline (KMP):** xây mảng \`fail\` (failure function) của \`p\` trong \`O(|p|)\`. Quét \`s\`, duy trì độ dài khớp hiện tại \`j\`; khi mismatch nhảy \`j = fail[j-1]\` thay vì lùi về đầu; khi \`j == |p|\` → đếm +1 rồi \`j = fail[j-1]\`. *Edge:* \`p\` rỗng; \`p\` dài hơn \`s\`; mẫu chồng lấp (vd đếm "aa" trong "aaaa" = 3).
+- **(c) Kỹ thuật:** **KMP** ([L41](../lesson-41-kmp/)) hoặc **Z-algorithm** ([L42](../lesson-42-z-algorithm/)) hoặc **Rabin-Karp** ([L40](../lesson-40-string-matching-rabin-karp/)). KMP/Z đảm bảo $O(n+m)$ worst-case; Rabin-Karp $O(n+m)$ kỳ vọng (cần xử lý va chạm hash).
+- **(d) Outline (KMP):** xây mảng \`fail\` (failure function) của \`p\` trong $O(|p|)$. Quét \`s\`, duy trì độ dài khớp hiện tại \`j\`; khi mismatch nhảy \`j = fail[j-1]\` thay vì lùi về đầu; khi \`j == |p|\` → đếm +1 rồi \`j = fail[j-1]\`. *Edge:* \`p\` rỗng; \`p\` dài hơn \`s\`; mẫu chồng lấp (vd đếm "aa" trong "aaaa" = 3).
 
 ### Bài 6 — Lập lịch n việc trên DAG
 
-- **(a) Mục tiêu:** \`n ≤ 10^5\`, quan hệ ≤ \`2·10^5\` → \`O(n + E)\` tuyến tính. Thử mọi hoán vị \`O(n!)\` vô vọng.
+- **(a) Mục tiêu:** $n \\leq 10^5$, quan hệ ≤ $2 \\cdot 10^5$ → $O(n + E)$ tuyến tính. Thử mọi hoán vị $O(n!)$ vô vọng.
 - **(b) Pattern:** "**thứ tự / phụ thuộc** A trước B" trên đồ thị có hướng → **topological sort**. "Hoặc báo không thể" = phát hiện chu trình.
 - **(c) Kỹ thuật:** topological sort bằng Kahn (BFS theo indegree) hoặc DFS post-order ([L32](../lesson-32-topological-sort/)).
-- **(d) Outline (Kahn):** tính \`indegree\` mọi đỉnh; đẩy mọi đỉnh \`indegree=0\` vào queue; lặp lấy ra đỉnh \`u\`, thêm vào thứ tự, giảm \`indegree\` các đỉnh kề, đỉnh nào về 0 thì đẩy vào queue. Nếu thứ tự có đủ \`n\` đỉnh → trả về thứ tự; nếu thiếu → **có chu trình** → báo không thể. \`O(n + E)\`. *Edge:* không quan hệ nào (mọi thứ tự hợp lệ); tự phụ thuộc \`A → A\` (chu trình); nhiều thành phần rời rạc.
+- **(d) Outline (Kahn):** tính \`indegree\` mọi đỉnh; đẩy mọi đỉnh \`indegree=0\` vào queue; lặp lấy ra đỉnh \`u\`, thêm vào thứ tự, giảm \`indegree\` các đỉnh kề, đỉnh nào về 0 thì đẩy vào queue. Nếu thứ tự có đủ $n$ đỉnh → trả về thứ tự; nếu thiếu → **có chu trình** → báo không thể. $O(n + E)$. *Edge:* không quan hệ nào (mọi thứ tự hợp lệ); tự phụ thuộc \`A → A\` (chu trình); nhiều thành phần rời rạc.
 
 ---
 
@@ -685,14 +685,14 @@ Với **mỗi** bài dưới đây, **không cần code đầy đủ** — hãy 
 
 - Code Go inline đầy đủ ở **mục 7** (3 bài: longest substring, course schedule, coin change) — thể hiện brute-force → nhận pattern → optimal.
 - [visualization.html](./visualization.html) — 3 module tương tác:
-  1. **Constraint → Complexity**: nhập \`n\`, gợi ý độ phức tạp mục tiêu + kỹ thuật khả dĩ.
+  1. **Constraint → Complexity**: nhập $n$, gợi ý độ phức tạp mục tiêu + kỹ thuật khả dĩ.
   2. **Pattern Matcher**: chọn dấu hiệu bài toán → gợi ý kỹ thuật + link lesson.
   3. **7-Step Walkthrough**: chọn bài mẫu, đi qua đủ 7 bước.
 
 ## 📝 Tóm tắt toàn bài
 
 - **Framework = quy trình + bản đồ.** 7 bước lặp lại được cho mọi bài lạ; không đoán mò.
-- **Constraint → độ phức tạp mục tiêu** (mục 3): \`n\` nhỏ (≤25) cho phép exponential; \`~10^5\` ép \`O(n log n)\`; \`~10^9\` ép \`O(log n)\`. Quy đổi qua mốc \`~10^8\` phép/giây.
+- **Constraint → độ phức tạp mục tiêu** (mục 3): $n$ nhỏ (≤25) cho phép exponential; $\\sim 10^5$ ép $O(n \\log n)$; $\\sim 10^9$ ép $O(\\log n)$. Quy đổi qua mốc $\\sim 10^8$ phép/giây.
 - **Dấu hiệu → kỹ thuật** (mục 4): học thuộc bảng + cây quyết định (7.0). "sorted/liên tục/tổ hợp/tối ưu/đường đi/top-k/đếm/khớp chuỗi/thứ tự DAG" → kỹ thuật tương ứng.
 - **Brute-force trước** làm baseline đúng, rồi tối ưu *vừa đủ* mục tiêu — không tối ưu sớm.
 - **Stuck:** đơn giản hoá, giải tay, vẽ, nghĩ ngược, tìm bài tương tự, đổi góc nhìn.

@@ -307,10 +307,10 @@ func rangeSumPrefix(pre []int, l, r int) int {
 \`\`\`
 
 **Phân tích điểm hòa vốn (break-even).** Gọi \`q\` = số query, \`n\` = kích thước mảng.
-- Tổng chi phí naive: \`q · O(n)\` = **q·n**.
-- Tổng chi phí prefix: dựng \`O(n)\` + \`q · O(1)\` = **n + q**.
+- Tổng chi phí naive: $q \\cdot O(n) = q \\cdot n$.
+- Tổng chi phí prefix: dựng $O(n) + q \\cdot O(1) = n + q$.
 
-Prefix thắng khi \`n + q < q·n\`, tức gần như **luôn thắng ngay khi q ≥ 2** (với n lớn). Walk-through số:
+Prefix thắng khi $n + q < q \\cdot n$, tức gần như **luôn thắng ngay khi q ≥ 2** (với n lớn). Walk-through số:
 
 | n | q | Naive (q·n) | Prefix (n + q) | Người thắng |
 |---|---|-------------|----------------|-------------|
@@ -320,8 +320,8 @@ Prefix thắng khi \`n + q < q·n\`, tức gần như **luôn thắng ngay khi q
 | 1000 | 10⁶ | 10⁹ | 1,001,000 | Prefix (1000×) |
 
 > ❓ **Câu hỏi tự nhiên.**
-> - *"Nếu chỉ có đúng 1 query thì sao?"* — Naive thắng sát nút: prefix tốn \`n\` để dựng + \`1\` để query
->   = \`n+1\`, còn naive chỉ \`n\`. Không đáng dựng bảng cho 1 query.
+> - *"Nếu chỉ có đúng 1 query thì sao?"* — Naive thắng sát nút: prefix tốn $n$ để dựng + $1$ để query
+>   = $n+1$, còn naive chỉ $n$. Không đáng dựng bảng cho 1 query.
 > - *"Nếu mảng thay đổi giữa các query thì sao?"* — Mỗi lần đổi 1 phần tử, prefix phải dựng lại O(n)
 >   (hoặc cập nhật O(n) các phần tử sau nó). Lúc này **segment tree** (update O(log n)) hợp hơn prefix.
 >   Đây chính là cầu nối sang trục Online vs Offline ở mục 4.
@@ -397,7 +397,7 @@ Prefix thắng khi \`n + q < q·n\`, tức gần như **luôn thắng ngay khi q
 **Walk-through bằng số — quicksort pivot ngu trên mảng đã sort.** Mảng \`[1,2,3,4,5]\`, luôn chọn pivot
 là phần tử cuối:
 - Phân hoạch quanh \`5\`: mọi phần tử khác đều < 5 → một bên có 4 phần tử, bên kia rỗng. **Không cân.**
-- Lần sau quanh \`4\`: lại 3 vs 0. Rồi \`3\`: 2 vs 0... → độ sâu đệ quy = n, mỗi mức quét O(n) → **O(n²)**.
+- Lần sau quanh \`4\`: lại 3 vs 0. Rồi \`3\`: 2 vs 0... → độ sâu đệ quy = n, mỗi mức quét $O(n)$ → $O(n^2)$.
 - Số so sánh: 4+3+2+1 = **10** cho n=5; tổng quát n(n−1)/2. Với n=10⁴ → ~5·10⁷ so sánh thay vì
   n·log₂n ≈ 1.3·10⁵. **Chậm gấp ~380×** chỉ vì input "vô tình" đã sort.
 

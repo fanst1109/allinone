@@ -10,15 +10,15 @@ window.README_MD = `# Lesson 44 — Cấu trúc hậu tố (Suffix Structures): 
 Sau bài này, bạn sẽ:
 
 - Hiểu **suffix array (SA)** là gì: mảng các vị trí bắt đầu của hậu tố, sắp xếp theo thứ tự từ điển.
-- Tự xây được SA bằng **prefix doubling** O(n log² n) / O(n log n), biết tại sao naive sort là O(n² log n).
-- Tính **LCP array** bằng **Kasai's algorithm** O(n) và hiểu vì sao nó chạy được trong tuyến tính.
-- Dùng SA + LCP để giải: **pattern matching** O(m log n), **đếm số substring phân biệt**, **longest repeated substring**, **longest common substring** của 2 chuỗi.
+- Tự xây được SA bằng **prefix doubling** $O(n\\log^2 n)$ / $O(n\\log n)$, biết tại sao naive sort là $O(n^2\\log n)$.
+- Tính **LCP array** bằng **Kasai's algorithm** $O(n)$ và hiểu vì sao nó chạy được trong tuyến tính.
+- Dùng SA + LCP để giải: **pattern matching** $O(m\\log n)$, **đếm số substring phân biệt**, **longest repeated substring**, **longest common substring** của 2 chuỗi.
 - Nắm khái niệm **suffix tree** và **suffix automaton** ở mức giới thiệu, biết khi nào chọn cấu trúc nào.
 
 ## Kiến thức tiền đề
 
 - [Lesson 12 — Binary Search Variants](../lesson-12-binary-search-variants/) — tìm pattern trên SA dựa hoàn toàn vào binary search trên mảng đã sắp.
-- [Lesson 10 — Non-comparison Sorts](../lesson-10-non-comparison-sorts/) — prefix doubling dùng radix/counting sort để đạt O(n log n).
+- [Lesson 10 — Non-comparison Sorts](../lesson-10-non-comparison-sorts/) — prefix doubling dùng radix/counting sort để đạt $O(n\\log n)$.
 - [Lesson 40 — Rabin-Karp](../lesson-40-string-matching-rabin-karp/), [Lesson 41 — KMP](../lesson-41-kmp/), [Lesson 43 — Trie & Aho-Corasick](../lesson-43-trie-aho-corasick/) — các cách tiếp cận pattern matching khác để so sánh.
 
 ---
@@ -27,18 +27,18 @@ Sau bài này, bạn sẽ:
 
 Giả sử bạn có **một** quyển sách 1 triệu ký tự (text cố định \`T\`), và sẽ nhận **hàng nghìn** truy vấn dạng "chuỗi \`P\` có xuất hiện trong sách không? bao nhiêu lần? ở đâu?".
 
-- Nếu mỗi truy vấn chạy KMP/Z lại từ đầu: mỗi lần O(n + m) với n = 1.000.000. Một nghìn truy vấn = O(1000 × n) ≈ 10⁹ thao tác — chậm.
-- Ý tưởng cốt lõi: **mọi lần xuất hiện của \`P\` trong \`T\` đều là một tiền tố (prefix) của một hậu tố (suffix) nào đó của \`T\`.** Nếu ta sắp xếp **tất cả hậu tố** của \`T\` theo thứ tự từ điển, các hậu tố bắt đầu bằng \`P\` sẽ nằm **liền kề nhau** thành một đoạn → tìm đoạn đó bằng **binary search** chỉ tốn O(m log n) cho mỗi truy vấn, sau khi đã tiền xử lý một lần.
+- Nếu mỗi truy vấn chạy KMP/Z lại từ đầu: mỗi lần $O(n + m)$ với $n$ = 1.000.000. Một nghìn truy vấn = $O(1000 \\times n) \\approx 10^9$ thao tác — chậm.
+- Ý tưởng cốt lõi: **mọi lần xuất hiện của \`P\` trong \`T\` đều là một tiền tố (prefix) của một hậu tố (suffix) nào đó của \`T\`.** Nếu ta sắp xếp **tất cả hậu tố** của \`T\` theo thứ tự từ điển, các hậu tố bắt đầu bằng \`P\` sẽ nằm **liền kề nhau** thành một đoạn → tìm đoạn đó bằng **binary search** chỉ tốn $O(m\\log n)$ cho mỗi truy vấn, sau khi đã tiền xử lý một lần.
 
 > 💡 **Trực giác / Hình dung.** Hãy tưởng tượng bạn cắt quyển sách thành mọi "đoạn đuôi" có thể: từ ký tự 0 đến hết, từ ký tự 1 đến hết, ... Mỗi đoạn đuôi là một **hậu tố**. Bạn sắp xếp các đoạn này theo bảng chữ cái như sắp từ trong từ điển. Bây giờ muốn tra một từ \`P\`, bạn lật từ điển (binary search) tới chỗ các đoạn bắt đầu bằng \`P\` — y hệt tra từ điển giấy. **Suffix array chính là "danh mục mục lục" của text.**
 
-Câu hỏi tu từ trên — *"trả lời nghìn truy vấn cho nhanh"* — được đóng ngay trong bài này: tiền xử lý O(n log n) một lần, rồi mỗi truy vấn O(m log n). Ta sẽ xây từng mảnh.
+Câu hỏi tu từ trên — *"trả lời nghìn truy vấn cho nhanh"* — được đóng ngay trong bài này: tiền xử lý $O(n\\log n)$ một lần, rồi mỗi truy vấn $O(m\\log n)$. Ta sẽ xây từng mảnh.
 
 ---
 
 ## 1. Suffix array là gì?
 
-> 💡 **Trực giác.** Suffix array **không** lưu các chuỗi hậu tố (tốn O(n²) bộ nhớ). Nó chỉ lưu **vị trí bắt đầu** của mỗi hậu tố, theo đúng thứ tự từ điển. Một mảng số nguyên độ dài n — gọn nhẹ.
+> 💡 **Trực giác.** Suffix array **không** lưu các chuỗi hậu tố (tốn $O(n^2)$ bộ nhớ). Nó chỉ lưu **vị trí bắt đầu** của mỗi hậu tố, theo đúng thứ tự từ điển. Một mảng số nguyên độ dài $n$ — gọn nhẹ.
 
 **Định nghĩa.** Cho chuỗi \`T\` độ dài n (chỉ số 0..n-1). Hậu tố thứ \`i\`, ký hiệu \`suf(i)\`, là \`T[i..n-1]\`. **Suffix array** \`sa[]\` là hoán vị của \`{0, 1, ..., n-1}\` sao cho:
 
@@ -127,7 +127,7 @@ func suffixArrayNaive(s string) []int {
 }
 \`\`\`
 
-> ⚠ **Cạm bẫy hiệu năng.** \`s[sa[a]:] < s[sa[b]:]\` trông gọn nhưng mỗi phép so sánh chuỗi tốn tới O(n), và sort gọi comparator O(n log n) lần → **O(n² log n)**. Với n = 10⁶ là vô vọng (10¹⁸ thao tác). Đây là phiên bản minh họa định nghĩa, **không dùng production**. Bản đúng là prefix doubling bên dưới.
+> ⚠ **Cạm bẫy hiệu năng.** \`s[sa[a]:] < s[sa[b]:]\` trông gọn nhưng mỗi phép so sánh chuỗi tốn tới $O(n)$, và sort gọi comparator $O(n\\log n)$ lần → **$O(n^2\\log n)$**. Với $n = 10^6$ là vô vọng ($10^{18}$ thao tác). Đây là phiên bản minh họa định nghĩa, **không dùng production**. Bản đúng là prefix doubling bên dưới.
 
 ### 2.2 Prefix doubling — O(n log² n) → O(n log n)
 
@@ -140,7 +140,7 @@ key(i) = ( rank của 2^(k-1) ký tự đầu của suf(i),
            rank của 2^(k-1) ký tự đầu của suf(i + 2^(k-1)) )
 \`\`\`
 
-Tức là tiền tố 2^k ký tự = "nửa trái 2^(k-1) ký tự" nối "nửa phải 2^(k-1) ký tự". Cả hai nửa **đã** có rank từ vòng trước → so sánh hai cặp số (O(1)) thay vì so sánh chuỗi. Nếu \`i + 2^(k-1) ≥ n\`, nửa phải coi như rank = -1 (nhỏ nhất, vì hậu tố ngắn đứng trước).
+Tức là tiền tố 2^k ký tự = "nửa trái 2^(k-1) ký tự" nối "nửa phải 2^(k-1) ký tự". Cả hai nửa **đã** có rank từ vòng trước → so sánh hai cặp số ($O(1)$) thay vì so sánh chuỗi. Nếu $i + 2^{k-1} \\geq n$, nửa phải coi như rank = -1 (nhỏ nhất, vì hậu tố ngắn đứng trước).
 
 #### Walk-through "banana" theo prefix doubling
 
@@ -186,7 +186,7 @@ Kết quả \`sa = [5, 3, 1, 0, 4, 2]\` — **khớp** với walk-through naive 
 
 > ❓ **Câu hỏi tự nhiên.**
 > - *"Vì sao tối đa log n vòng?"* — Mỗi vòng tăng độ dài tiền tố được phân biệt gấp đôi (1→2→4→...). Hậu tố dài nhất có n ký tự, nên sau ⌈log₂ n⌉ vòng mọi hậu tố đã phân biệt. Với n=6: cần ≤ 3 vòng (1,2,4 — ở vòng 4 ký tự đã xong).
-> - *"Sao mỗi vòng là O(n log n) hay O(n)?"* — Nếu sort cặp bằng \`sort.Slice\` thì O(n log n)/vòng → tổng **O(n log² n)**. Nếu dùng **radix sort** (counting sort 2 lượt theo 2 thành phần của cặp, vì rank ∈ [0,n)) thì O(n)/vòng → tổng **O(n log n)**.
+> - *"Sao mỗi vòng là $O(n\\log n)$ hay $O(n)$?"* — Nếu sort cặp bằng \`sort.Slice\` thì $O(n\\log n)$/vòng → tổng **$O(n\\log^2 n)$**. Nếu dùng **radix sort** (counting sort 2 lượt theo 2 thành phần của cặp, vì rank $\\in [0,n)$) thì $O(n)$/vòng → tổng **$O(n\\log n)$**.
 
 \`\`\`go
 // Prefix doubling. Phiên bản này dùng sort.Slice -> O(n log^2 n), dễ đọc.
@@ -245,7 +245,7 @@ func suffixArray(s string) []int {
 
 Tồn tại thuật toán xây SA trong **O(n)** thời gian: **SA-IS** (Suffix Array by Induced Sorting) và **DC3/skew**. Ý tưởng SA-IS: phân loại mỗi hậu tố thành kiểu **S** (nhỏ hơn hậu tố bên phải) hay **L** (lớn hơn), tìm các "LMS substring", sort chúng đệ quy, rồi **induced sort** suy ra thứ tự đầy đủ. Cài đặt phức tạp và dễ sai; trong competitive programming, **prefix doubling O(n log n) gần như luôn đủ nhanh** (n ≤ 10⁶ trong vài chục ms). Chỉ chuyển sang SA-IS khi thực sự cần hằng số tốt nhất.
 
-> 📝 **Tóm tắt mục 2.** Naive O(n² log n) chỉ để hiểu. Prefix doubling sort theo tiền tố 2^k, ghép cặp rank → O(n log² n) (sort cặp) hoặc O(n log n) (radix). SA-IS O(n) tồn tại nhưng phức tạp, hiếm khi cần.
+> 📝 **Tóm tắt mục 2.** Naive $O(n^2\\log n)$ chỉ để hiểu. Prefix doubling sort theo tiền tố $2^k$, ghép cặp rank → $O(n\\log^2 n)$ (sort cặp) hoặc $O(n\\log n)$ (radix). SA-IS $O(n)$ tồn tại nhưng phức tạp, hiếm khi cần.
 
 ---
 
@@ -272,7 +272,7 @@ Vậy **\`lcp = [0, 1, 3, 0, 0, 2]\`**.
 
 ### 3.2 Kasai's algorithm — O(n)
 
-> 💡 **Trực giác vì sao O(n).** Tính LCP "thô" cho mỗi cặp kề là O(n) mỗi cặp → O(n²). Kasai khôn ở chỗ: **duyệt hậu tố theo vị trí gốc i = 0,1,2,...** (không theo thứ tự SA). Nhận xét then chốt: nếu suf(i) và hậu tố đứng ngay trước nó trong SA có LCP = h, thì suf(i+1) và hậu tố đứng trước *nó* có LCP **≥ h-1** (vì bỏ ký tự đầu của cả hai vẫn còn chung ≥ h-1). Nên biến \`h\` chỉ **giảm tối đa 1** mỗi bước i nhưng có thể tăng nhiều — tổng số lần tăng/giảm bị chặn → O(n) amortized (giống two-pointers, xem [L13](../lesson-13-two-pointers/)).
+> 💡 **Trực giác vì sao $O(n)$.** Tính LCP "thô" cho mỗi cặp kề là $O(n)$ mỗi cặp → $O(n^2)$. Kasai khôn ở chỗ: **duyệt hậu tố theo vị trí gốc i = 0,1,2,...** (không theo thứ tự SA). Nhận xét then chốt: nếu suf(i) và hậu tố đứng ngay trước nó trong SA có LCP = h, thì suf(i+1) và hậu tố đứng trước *nó* có LCP **≥ h-1** (vì bỏ ký tự đầu của cả hai vẫn còn chung ≥ h-1). Nên biến \`h\` chỉ **giảm tối đa 1** mỗi bước i nhưng có thể tăng nhiều — tổng số lần tăng/giảm bị chặn → $O(n)$ amortized (giống two-pointers, xem [L13](../lesson-13-two-pointers/)).
 
 \`\`\`go
 // Kasai's algorithm: tính LCP array trong O(n).
@@ -368,7 +368,7 @@ func countOccurrences(s, p string, sa []int) (int, []int) {
 
 **Walk-through \`P = "ana"\` trên "banana".** \`sa=[5,3,1,0,4,2]\`, các hậu tố sorted: \`a, ana, anana, banana, na, nana\`. Những hậu tố bắt đầu bằng \`ana\`: \`ana\`(k=1) và \`anana\`(k=2) → lo=1, hi=3 → **2 lần xuất hiện** tại vị trí sa[1]=3 và sa[2]=1. Kiểm: "banana" có "ana" ở chỉ số 1 và 3 ✓.
 
-> ⚠ **Cạm bẫy.** Comparator \`s[sa[k]:] >= p\` slice chuỗi mỗi lần so sánh tốn O(m) → tổng O(m log n) (chấp nhận được). Nhưng nếu vô tình so sánh toàn hậu tố O(n) thì thành O(n log n). Giữ so sánh chỉ tới m ký tự.
+> ⚠ **Cạm bẫy.** Comparator \`s[sa[k]:] >= p\` slice chuỗi mỗi lần so sánh tốn $O(m)$ → tổng $O(m\\log n)$ (chấp nhận được). Nhưng nếu vô tình so sánh toàn hậu tố $O(n)$ thì thành $O(n\\log n)$. Giữ so sánh chỉ tới m ký tự.
 
 ### 4.2 Đếm số substring phân biệt (distinct substrings)
 
@@ -465,7 +465,7 @@ func longestCommonSubstring(a, b string) string {
 
 > ⚠ **Cạm bẫy separator.** \`#\`/sep phải (1) **không xuất hiện** trong A, B; (2) **nhỏ nhất** để các hậu tố chứa sep không "trộn" nhầm tiền tố chung vượt qua ranh giới. Với nhiều chuỗi, dùng các separator **khác nhau** và đều nhỏ hơn alphabet thật (vd \`\\x01\`, \`\\x02\`, ...). Dùng chung 1 separator cho nhiều chuỗi có thể tạo LCP giả vượt biên.
 
-> ❓ **Câu hỏi tự nhiên.** *"Sao chỉ xét hậu tố KỀ NHAU mà chắc tìm ra max?"* — Vì LCP của hai hậu tố bất kỳ \`i<j\` trong SA = **min** các \`lcp\` giữa chúng, luôn ≤ lcp của một cặp kề. Cặp khác phía có LCP lớn nhất nhất định là một cặp kề (nếu không, cặp kề ở giữa còn lớn hơn). Đây cũng là lý do dùng RMQ trên LCP để trả lời LCP của cặp bất kỳ trong O(1) sau tiền xử lý.
+> ❓ **Câu hỏi tự nhiên.** *"Sao chỉ xét hậu tố KỀ NHAU mà chắc tìm ra max?"* — Vì LCP của hai hậu tố bất kỳ $i<j$ trong SA = **min** các \`lcp\` giữa chúng, luôn ≤ lcp của một cặp kề. Cặp khác phía có LCP lớn nhất nhất định là một cặp kề (nếu không, cặp kề ở giữa còn lớn hơn). Đây cũng là lý do dùng RMQ trên LCP để trả lời LCP của cặp bất kỳ trong $O(1)$ sau tiền xử lý.
 
 > 🔁 **Dừng lại tự kiểm tra.** "abcabc" — longest repeated substring là gì, dài bao nhiêu?
 > <details><summary>Đáp án</summary>

@@ -11,11 +11,11 @@
 
 Sau bài này bạn sẽ:
 
-- Nhắc lại **Trie** (cây prefix) và các thao tác `insert` / `search` / `startsWith` trong O(L).
+- Nhắc lại **Trie** (cây prefix) và các thao tác `insert` / `search` / `startsWith` trong $O(L)$.
 - Hiểu các ứng dụng kinh điển của Trie: autocomplete, spell check, prefix search, IP routing, từ điển.
 - Phát biểu **bài toán multi-pattern matching** và thấy vì sao chạy KMP nhiều lần là chậm.
 - Xây **Aho-Corasick automaton** = Trie + **failure links** (giống KMP failure function nhưng trên cây) + **output links**.
-- Chạy text qua automaton để tìm **tất cả** match trong O(n + tổng độ dài pattern + số match).
+- Chạy text qua automaton để tìm **tất cả** match trong $O(n + \text{tổng độ dài pattern} + \text{số match})$.
 - Biết khi nào dùng Aho-Corasick so với KMP-nhiều-lần hay Rabin-Karp multi-pattern.
 
 ## Kiến thức tiền đề
@@ -59,23 +59,23 @@ Sau bài này bạn sẽ:
 
 | Thao tác | Chuỗi | Số node duyệt | Độ phức tạp |
 |----------|-------|:---:|:---:|
-| `search("cat")` | 3 ký tự | 3 (c→a→t), node t terminal → **có** | O(3) |
-| `search("ca")` | 2 ký tự | 2 (c→a), node a **không** terminal → **không phải từ** | O(2) |
-| `startsWith("car")` | 3 ký tự | 3 (c→a→r), đến được node r → **có prefix** | O(3) |
-| `search("cab")` | 3 ký tự | dừng ở node a vì **không có cạnh `b`** → **không** | O(3) tối đa |
+| `search("cat")` | 3 ký tự | 3 (c→a→t), node t terminal → **có** | $O(3)$ |
+| `search("ca")` | 2 ký tự | 2 (c→a), node a **không** terminal → **không phải từ** | $O(2)$ |
+| `startsWith("car")` | 3 ký tự | 3 (c→a→r), đến được node r → **có prefix** | $O(3)$ |
+| `search("cab")` | 3 ký tự | dừng ở node a vì **không có cạnh `b`** → **không** | $O(3)$ tối đa |
 
-> **Mọi thao tác = O(L)** với L là độ dài chuỗi truy vấn — **không phụ thuộc** số từ trong trie. So với `map[string]bool` cũng O(L) (do phải hash cả chuỗi), nhưng trie thắng ở **prefix query** (`startsWith`, autocomplete) mà map không làm được.
+> **Mọi thao tác $= O(L)$** với $L$ là độ dài chuỗi truy vấn — **không phụ thuộc** số từ trong trie. So với `map[string]bool` cũng $O(L)$ (do phải hash cả chuỗi), nhưng trie thắng ở **prefix query** (`startsWith`, autocomplete) mà map không làm được.
 
 > ❓ **Câu hỏi tự nhiên của người đọc.**
 > - *"Trie tốn bộ nhớ không?"* — Có. Mỗi node có thể giữ một mảng/map con theo alphabet. Với alphabet 26 chữ thường, dùng `[26]*node` đơn giản nhưng phí ô trống; dùng `map[byte]*node` tiết kiệm hơn khi thưa. Xem mục 9 (cạm bẫy).
-> - *"Trie khác cây nhị phân tìm kiếm (BST) chỗ nào?"* — BST so sánh **cả khóa** ở mỗi node (O(log n) phép so sánh chuỗi). Trie so sánh **từng ký tự** đi xuống → O(L) bất kể có bao nhiêu từ, và tự nhiên hỗ trợ prefix.
+> - *"Trie khác cây nhị phân tìm kiếm (BST) chỗ nào?"* — BST so sánh **cả khóa** ở mỗi node ($O(\log n)$ phép so sánh chuỗi). Trie so sánh **từng ký tự** đi xuống → $O(L)$ bất kể có bao nhiêu từ, và tự nhiên hỗ trợ prefix.
 
 > 🔁 **Dừng lại tự kiểm tra.** Với trie chứa {cat, car, card}, `startsWith("ca")` trả về gì? `search("ca")` trả về gì?
 > <details><summary>Đáp án</summary>
 > <code>startsWith("ca")</code> = <strong>true</strong> (có node tại đường c→a, là prefix của cat/car/card). <code>search("ca")</code> = <strong>false</strong> ("ca" không phải từ đã chèn — node a không terminal).
 > </details>
 
-> 📝 **Tóm tắt mục 1.** Trie = cây prefix, mỗi cạnh 1 ký tự, đường đi = chuỗi. `insert`/`search`/`startsWith` đều O(L). Prefix chung được chia sẻ. Điểm mạnh độc nhất so với hash map: **truy vấn theo prefix**.
+> 📝 **Tóm tắt mục 1.** Trie = cây prefix, mỗi cạnh 1 ký tự, đường đi = chuỗi. `insert`/`search`/`startsWith` đều $O(L)$. Prefix chung được chia sẻ. Điểm mạnh độc nhất so với hash map: **truy vấn theo prefix**.
 
 ---
 
@@ -181,14 +181,14 @@ func main() {
 
 ### 3.1 Cách naive: chạy KMP cho từng pattern
 
-Gọi `m = |p₁| + |p₂| + ... + |pₖ|` (tổng độ dài pattern), `z` = số match tìm được.
+Gọi $m = |p_1| + |p_2| + ... + |p_k|$ (tổng độ dài pattern), $z$ = số match tìm được.
 
 | Cách | Thời gian | Vấn đề |
 |------|-----------|--------|
-| Chạy KMP **k lần** | O(n·k + m) | Quét text **k lần** — với k=10.000 và n=1 triệu là **10¹⁰ phép so sánh** |
-| **Aho-Corasick** | **O(n + m + z)** | Quét text **một lần duy nhất** |
+| Chạy KMP **k lần** | $O(n \cdot k + m)$ | Quét text **k lần** — với $k=10\,000$ và $n=1$ triệu là $10^{10}$ phép so sánh |
+| **Aho-Corasick** | $O(n + m + z)$ | Quét text **một lần duy nhất** |
 
-> **Ví dụ số.** n = 1.000.000 byte, k = 10.000 pattern. KMP-nhiều-lần: ~10¹⁰ thao tác. Aho-Corasick: ~10⁶ + m + z thao tác. Chênh lệch **~10.000 lần**.
+> **Ví dụ số.** $n = 1\,000\,000$ byte, $k = 10\,000$ pattern. KMP-nhiều-lần: $\approx 10^{10}$ thao tác. Aho-Corasick: $\approx 10^6 + m + z$ thao tác. Chênh lệch $\approx 10\,000$ lần.
 
 > ❓ **Câu hỏi tự nhiên.** *"Sao không gộp các pattern thành 1 regex `p1|p2|...|pk`?"* — Đa số engine regex backtracking sẽ **bùng nổ** với nhiều alternation. Aho-Corasick chính là **cách đúng** để compile một tập literal pattern thành một automaton tuyến tính (nhiều thư viện regex dùng AC bên dưới cho tập literal).
 
@@ -299,7 +299,7 @@ for i, c in text:
 
 > **Kết quả:** "she" (bắt đầu vị trí 1), "he" (bắt đầu vị trí 2), "hers" (bắt đầu vị trí 2). Chỉ **một lượt** qua "ushers" (6 ký tự) bắt được cả 3 pattern, kể cả "he" lồng trong "she". Để ý ở i=4 ta phải nhảy failure 9→2 rồi mới đi tiếp được — đúng cơ chế KMP.
 
-> ❓ **Câu hỏi tự nhiên.** *"Vòng `while` tụt failure có làm match thành O(n·something) không?"* — Không. Tổng số bước tụt failure trên toàn bộ text bị chặn bởi **chiều sâu**: mỗi ký tự làm `cur` xuống tối đa 1 level, mỗi bước failure làm `cur` lên ít nhất 1 level → tổng failure ≤ tổng đi xuống ≤ n. Vậy match là **O(n)** (amortized), cộng z để liệt kê match.
+> ❓ **Câu hỏi tự nhiên.** *"Vòng `while` tụt failure có làm match thành $O(n \cdot \text{something})$ không?"* — Không. Tổng số bước tụt failure trên toàn bộ text bị chặn bởi **chiều sâu**: mỗi ký tự làm `cur` xuống tối đa 1 level, mỗi bước failure làm `cur` lên ít nhất 1 level → tổng failure $\leq$ tổng đi xuống $\leq n$. Vậy match là $O(n)$ (amortized), cộng $z$ để liệt kê match.
 
 > 📝 **Tóm tắt mục 5.** Match = một con trỏ chạy trên automaton: có child thì đi xuống, không thì tụt failure; báo output tại mỗi node. Một lượt qua text bắt mọi pattern, kể cả pattern lồng nhau.
 
@@ -309,12 +309,12 @@ for i, c in text:
 
 | Giai đoạn | Thời gian | Giải thích |
 |-----------|-----------|------------|
-| Build trie | O(m) | m = tổng độ dài pattern; mỗi ký tự thêm tối đa 1 node |
-| Build failure (BFS) | O(m · \|Σ\|) hoặc O(m) | với map con: O(m) amortized; với mảng `[\|Σ\|]`: O(m·\|Σ\|) khởi tạo |
-| Match | O(n + z) | n = độ dài text, z = số match được liệt kê |
-| **Tổng** | **O(n + m + z)** | Quét text **một lần** |
+| Build trie | $O(m)$ | $m$ = tổng độ dài pattern; mỗi ký tự thêm tối đa 1 node |
+| Build failure (BFS) | $O(m \cdot |\Sigma|)$ hoặc $O(m)$ | với map con: $O(m)$ amortized; với mảng `[\|Σ\|]`: $O(m \cdot |\Sigma|)$ khởi tạo |
+| Match | $O(n + z)$ | $n$ = độ dài text, $z$ = số match được liệt kê |
+| **Tổng** | $O(n + m + z)$ | Quét text **một lần** |
 
-So với KMP-k-lần O(n·k + m): khi k lớn, AC vượt trội tuyệt đối. Bộ nhớ: O(m) node (+ \|Σ\| con mỗi node nếu dùng mảng).
+So với KMP-k-lần $O(n \cdot k + m)$: khi $k$ lớn, AC vượt trội tuyệt đối. Bộ nhớ: $O(m)$ node (+ $|\Sigma|$ con mỗi node nếu dùng mảng).
 
 ### 6.1 Code Go đầy đủ — Aho-Corasick
 
@@ -425,7 +425,7 @@ func main() {
 
 > **Lưu ý.** Trong code, `output` được **gộp sẵn** lúc build (`child.output = append(child.output, child.fail.output...)`), nên lúc match chỉ cần đọc `cur.output` trực tiếp, không phải đi failure chain lần nữa — match O(n + z) sạch sẽ.
 
-> 📝 **Tóm tắt mục 6.** Build O(m) (hoặc O(m·\|Σ\|) với mảng), match O(n + z). Tổng O(n + m + z) — tuyến tính theo input + output.
+> 📝 **Tóm tắt mục 6.** Build $O(m)$ (hoặc $O(m \cdot |\Sigma|)$ với mảng), match $O(n + z)$. Tổng $O(n + m + z)$ — tuyến tính theo input + output.
 
 ---
 
@@ -450,9 +450,9 @@ func main() {
 | Tiêu chí | KMP × k lần | Rabin-Karp multi-pattern | **Aho-Corasick** |
 |----------|:---:|:---:|:---:|
 | Số lần quét text | k | 1 (nhưng hash đa độ dài rắc rối) | **1** |
-| Độ phức tạp | O(n·k + m) | O(n·L) trung bình, xấu O(n·k·L) nếu nhiều va chạm hash | **O(n + m + z)** |
+| Độ phức tạp | $O(n \cdot k + m)$ | $O(n \cdot L)$ trung bình, xấu $O(n \cdot k \cdot L)$ nếu nhiều va chạm hash | $O(n + m + z)$ |
 | Pattern khác độ dài | Ổn | **Khó** (mỗi độ dài 1 cửa sổ hash riêng) | **Tự nhiên** (trie xử mọi độ dài) |
-| Bộ nhớ | O(m) | O(k) bảng hash | O(m) (+ \|Σ\| con/node) |
+| Bộ nhớ | $O(m)$ | $O(k)$ bảng hash | $O(m)$ (+ $|\Sigma|$ con/node) |
 | Khi nào dùng | Vài pattern, hoặc 1 pattern | Pattern **cùng độ dài**, ít pattern | **Nhiều pattern, độ dài khác nhau** |
 
 > 💡 **Trực giác chọn lựa.** Rabin-Karp multi-pattern hiệu quả khi mọi pattern **cùng độ dài** (một cửa sổ trượt, tra bảng hash). Khi pattern **dài ngắn lẫn lộn** và **số lượng lớn**, Aho-Corasick là lựa chọn rõ ràng nhất — trie nuốt mọi độ dài, một lượt quét bắt hết.
@@ -499,7 +499,7 @@ func main() {
 
 **Cách tiếp cận.** Đúng như code mục 2.1: node giữ `children map[rune]*node` + `isEnd`. `insert`/`search`/`startsWith` đi xuống cây.
 
-**Độ phức tạp.** Mỗi thao tác O(L). Bộ nhớ O(tổng độ dài các từ).
+**Độ phức tạp.** Mỗi thao tác $O(L)$. Bộ nhớ $O(\text{tổng độ dài các từ})$.
 
 ```go
 // Xem code đầy đủ ở mục 2.1 — insert/search/startsWith/walk.
@@ -509,7 +509,7 @@ func main() {
 
 ### Bài 2 — Word Search II (trie + DFS grid)
 
-**Cách tiếp cận.** Nếu DFS từng từ riêng → O(W · 4^L) chậm. Thay vào đó: **dựng trie của tất cả từ**, rồi DFS từ mỗi ô lưới, mang theo con trỏ trie. Tại mỗi bước chỉ đi tiếp nếu trie còn cạnh tương ứng — **một lần DFS bắt nhiều từ**, prune cực mạnh.
+**Cách tiếp cận.** Nếu DFS từng từ riêng → $O(W \cdot 4^L)$ chậm. Thay vào đó: **dựng trie của tất cả từ**, rồi DFS từ mỗi ô lưới, mang theo con trỏ trie. Tại mỗi bước chỉ đi tiếp nếu trie còn cạnh tương ứng — **một lần DFS bắt nhiều từ**, prune cực mạnh.
 
 ```go
 func findWords(board [][]byte, words []string) []string {
@@ -560,7 +560,7 @@ func findWords(board [][]byte, words []string) []string {
 }
 ```
 
-**Độ phức tạp.** O(R·C · 4^Lmax) xấu nhất, nhưng trie prune khiến thực tế nhanh hơn nhiều. Bộ nhớ O(tổng độ dài từ).
+**Độ phức tạp.** $O(R \cdot C \cdot 4^{L_{\max}})$ xấu nhất, nhưng trie prune khiến thực tế nhanh hơn nhiều. Bộ nhớ $O(\text{tổng độ dài từ})$.
 
 ---
 
@@ -610,7 +610,7 @@ func splitSpace(s string) []string { /* strings.Fields(s) */ return nil }
 func joinSpace(a []string) string  { /* strings.Join(a," ") */ return "" }
 ```
 
-**Độ phức tạp.** Build O(tổng độ dài root). Thay thế O(tổng độ dài câu). Tổng O(D + S).
+**Độ phức tạp.** Build $O(\text{tổng độ dài root})$. Thay thế $O(\text{tổng độ dài câu})$. Tổng $O(D + S)$.
 
 ---
 
@@ -618,7 +618,7 @@ func joinSpace(a []string) string  { /* strings.Join(a," ") */ return "" }
 
 **Cách tiếp cận.** Đúng code mục 6.1: build trie + failure (BFS) + match. Trả `[]Hit`.
 
-**Độ phức tạp.** O(n + m + z). Xem walk-through "ushers" mục 5.1.
+**Độ phức tạp.** $O(n + m + z)$. Xem walk-through "ushers" mục 5.1.
 
 ```go
 // Xem code đầy đủ ở mục 6.1 — NewAhoCorasick + Match.
@@ -653,7 +653,7 @@ func (s *StreamChecker) query(letter byte) bool {
 }
 ```
 
-**Độ phức tạp.** Build O(tổng độ dài từ). Mỗi `query` O(1) amortized (failure tụt tổng cộng bị chặn như mục 5).
+**Độ phức tạp.** Build $O(\text{tổng độ dài từ})$. Mỗi `query` $O(1)$ amortized (failure tụt tổng cộng bị chặn như mục 5).
 
 ---
 
@@ -687,7 +687,7 @@ func countDistinctSubstrings(s string) int {
 - "a": 'a' đã tồn tại → +0.
 - **Kết quả 5**: {"a","b","ab","ba","aba"} — đúng 5 substring phân biệt. ✓
 
-**Độ phức tạp.** O(n²) thời gian & bộ nhớ (trie of suffixes). Với n lớn dùng **suffix automaton / suffix array** (xem [Lesson 44](../lesson-44-suffix-structures/)) để đạt O(n).
+**Độ phức tạp.** $O(n^2)$ thời gian & bộ nhớ (trie of suffixes). Với $n$ lớn dùng **suffix automaton / suffix array** (xem [Lesson 44](../lesson-44-suffix-structures/)) để đạt $O(n)$.
 
 ---
 
@@ -720,7 +720,7 @@ func longestCommonPrefix(words []string) string {
 }
 ```
 
-**Độ phức tạp.** Build O(tổng độ dài). Tìm LCP O(độ dài LCP).
+**Độ phức tạp.** Build $O(\text{tổng độ dài})$. Tìm LCP $O(\text{độ dài LCP})$.
 
 ---
 

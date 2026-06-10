@@ -27,29 +27,29 @@ Sau bài này bạn sẽ:
 
 ## 1. Mạng luồng (Flow network) — mô hình
 
-> 💡 **Trực giác / Hình dung.** Tưởng tượng một **hệ thống ống nước**. Có một **nguồn** \`s\` (trạm bơm) và một **bể chứa** \`t\` (đích). Mỗi đoạn ống \`u → v\` có **đường kính giới hạn** — tối đa bơm được \`c(u,v)\` lít/giây qua nó. Câu hỏi: **bơm được tối đa bao nhiêu lít/giây từ \`s\` tới \`t\`** mà không làm vỡ ống nào? Đó chính là max flow.
+> 💡 **Trực giác / Hình dung.** Tưởng tượng một **hệ thống ống nước**. Có một **nguồn** $s$ (trạm bơm) và một **bể chứa** $t$ (đích). Mỗi đoạn ống $u \\to v$ có **đường kính giới hạn** — tối đa bơm được $c(u,v)$ lít/giây qua nó. Câu hỏi: **bơm được tối đa bao nhiêu lít/giây từ $s$ tới $t$** mà không làm vỡ ống nào? Đó chính là max flow.
 
-Hình thức hơn, một **mạng luồng** là đồ thị có hướng \`G = (V, E)\` với:
+Hình thức hơn, một **mạng luồng** là đồ thị có hướng $G = (V, E)$ với:
 
-- Mỗi cạnh \`(u, v) ∈ E\` có **sức chứa (capacity)** \`c(u, v) ≥ 0\`. Nếu không có cạnh thì quy ước \`c(u,v) = 0\`.
-- Một đỉnh **nguồn (source)** \`s\` và một đỉnh **đích (sink)** \`t\`.
+- Mỗi cạnh $(u, v) \\in E$ có **sức chứa (capacity)** $c(u, v) \\geq 0$. Nếu không có cạnh thì quy ước $c(u,v) = 0$.
+- Một đỉnh **nguồn (source)** $s$ và một đỉnh **đích (sink)** $t$.
 
-Một **luồng (flow)** là hàm \`f(u, v)\` thỏa 3 ràng buộc:
+Một **luồng (flow)** là hàm $f(u, v)$ thỏa 3 ràng buộc:
 
-1. **Ràng buộc sức chứa**: \`0 ≤ f(u, v) ≤ c(u, v)\` — không bơm quá đường kính ống.
-2. **Bảo toàn luồng (flow conservation)**: tại mọi đỉnh \`v ≠ s, t\`, **tổng vào = tổng ra**.
-   \`Σ_u f(u, v) = Σ_w f(v, w)\`. Nước không tự sinh ra hay biến mất ở giữa đường.
-3. **Giá trị luồng** \`|f|\` = tổng luồng ra khỏi \`s\` (= tổng luồng vào \`t\`):
-   \`|f| = Σ_v f(s, v) − Σ_v f(v, s)\`.
+1. **Ràng buộc sức chứa**: $0 \\leq f(u, v) \\leq c(u, v)$ — không bơm quá đường kính ống.
+2. **Bảo toàn luồng (flow conservation)**: tại mọi đỉnh $v \\neq s, t$, **tổng vào = tổng ra**.
+   $\\sum_u f(u, v) = \\sum_w f(v, w)$. Nước không tự sinh ra hay biến mất ở giữa đường.
+3. **Giá trị luồng** $|f|$ = tổng luồng ra khỏi $s$ (= tổng luồng vào $t$):
+   $|f| = \\sum_v f(s, v) - \\sum_v f(v, s)$.
 
 > ❓ **Câu hỏi tự nhiên của người đọc.**
 > - *"Capacity là số nguyên hay thực?"* — Trong bài này dùng **số nguyên** (thực tế gần như luôn vậy). Số nguyên đảm bảo các thuật toán dừng (mục 5).
-> - *"Nguồn \`s\` có cần ràng buộc bảo toàn không?"* — Không. \`s\` được phép "đẻ ra" luồng, \`t\` được phép "nuốt" luồng. Bảo toàn chỉ áp dụng cho các đỉnh **giữa**.
+> - *"Nguồn $s$ có cần ràng buộc bảo toàn không?"* — Không. $s$ được phép "đẻ ra" luồng, $t$ được phép "nuốt" luồng. Bảo toàn chỉ áp dụng cho các đỉnh **giữa**.
 > - *"Có thể có nhiều nguồn / nhiều đích không?"* — Có, và ta rút gọn về 1 nguồn / 1 đích bằng **super source/sink** (mục 10).
 
 ### Ví dụ số cụ thể
 
-Mạng 4 đỉnh \`s, a, b, t\`, capacity ghi trên cạnh:
+Mạng 4 đỉnh $s, a, b, t$, capacity ghi trên cạnh:
 
 \`\`\`
         s
@@ -61,31 +61,31 @@ Mạng 4 đỉnh \`s, a, b, t\`, capacity ghi trên cạnh:
    và cạnh a→b capacity 1
 \`\`\`
 
-Cụ thể: \`c(s,a)=3, c(s,b)=2, c(a,b)=1, c(a,t)=2, c(b,t)=3\`.
+Cụ thể: $c(s,a)=3, c(s,b)=2, c(a,b)=1, c(a,t)=2, c(b,t)=3$.
 
-Một luồng hợp lệ: \`f(s,a)=2, f(a,t)=2, f(s,b)=2, f(b,t)=2\`, các cạnh khác = 0.
-- Sức chứa: \`2≤3, 2≤2, 2≤2, 2≤3\` ✓.
-- Bảo toàn tại \`a\`: vào = \`f(s,a)=2\`, ra = \`f(a,t)=2\` ✓. Tại \`b\`: vào = \`2\`, ra = \`2\` ✓.
-- Giá trị: \`|f| = f(s,a)+f(s,b) = 2+2 = 4\`.
+Một luồng hợp lệ: $f(s,a)=2, f(a,t)=2, f(s,b)=2, f(b,t)=2$, các cạnh khác = 0.
+- Sức chứa: $2 \\leq 3, 2 \\leq 2, 2 \\leq 2, 2 \\leq 3$ ✓.
+- Bảo toàn tại $a$: vào = $f(s,a)=2$, ra = $f(a,t)=2$ ✓. Tại $b$: vào = $2$, ra = $2$ ✓.
+- Giá trị: $|f| = f(s,a)+f(s,b) = 2+2 = 4$.
 
-Đây có phải max flow? Chưa chắc — ta sẽ thấy ở mục 6 rằng max flow mạng này là **4** (đúng), bị nghẽn bởi cạnh ra khỏi \`s\` (tổng \`3+2=5\`) và vào \`t\` (\`2+3=5\`), nhưng cấu trúc giữa giới hạn ở 4.
+Đây có phải max flow? Chưa chắc — ta sẽ thấy ở mục 6 rằng max flow mạng này là **4** (đúng), bị nghẽn bởi cạnh ra khỏi $s$ (tổng $3+2=5$) và vào $t$ ($2+3=5$), nhưng cấu trúc giữa giới hạn ở 4.
 
 > 📝 **Tóm tắt mục 1.**
-> - Flow network = đồ thị có hướng + capacity mỗi cạnh + nguồn \`s\` + đích \`t\`.
-> - Luồng hợp lệ: ≤ capacity, bảo toàn tại đỉnh giữa, giá trị = luồng ra khỏi \`s\`.
+> - Flow network = đồ thị có hướng + capacity mỗi cạnh + nguồn $s$ + đích $t$.
+> - Luồng hợp lệ: ≤ capacity, bảo toàn tại đỉnh giữa, giá trị = luồng ra khỏi $s$.
 > - Max flow = giá trị luồng lớn nhất có thể.
 
 ---
 
 ## 2. Bài toán Max Flow
 
-> 💡 **Trực giác.** "Mở van hết cỡ ở \`s\`, nước chảy qua mạng ống tới \`t\`. Lượng nước tối đa chảy được — bị giới hạn bởi **chỗ thắt cổ chai (bottleneck)** nào đó trong mạng — là max flow."
+> 💡 **Trực giác.** "Mở van hết cỡ ở $s$, nước chảy qua mạng ống tới $t$. Lượng nước tối đa chảy được — bị giới hạn bởi **chỗ thắt cổ chai (bottleneck)** nào đó trong mạng — là max flow."
 
-**Bài toán**: cho mạng luồng \`(G, c, s, t)\`, tìm luồng \`f\` có giá trị \`|f|\` **lớn nhất**.
+**Bài toán**: cho mạng luồng $(G, c, s, t)$, tìm luồng $f$ có giá trị $|f|$ **lớn nhất**.
 
 Vì sao bài toán này quan trọng? Vì "lượng tối đa truyền qua mạng có ràng buộc" xuất hiện khắp nơi:
 
-| Bài toán thực | \`s\`, \`t\`, capacity là gì |
+| Bài toán thực | $s$, $t$, capacity là gì |
 |---|---|
 | Mạng truyền dữ liệu | s=server, t=client, capacity = băng thông cáp |
 | Giao thông | s, t = 2 thành phố, capacity = số làn xe/giờ |
@@ -98,38 +98,38 @@ Vì sao bài toán này quan trọng? Vì "lượng tối đa truyền qua mạn
 
 ## 3. Augmenting path (Đường tăng luồng)
 
-> 💡 **Trực giác.** Một augmenting path là **một đường đi \`s → t\` mà mọi ống trên đó còn dư chỗ**. Nếu tìm được, ta có thể bơm thêm một lượng = ống hẹp nhất còn lại trên đường (bottleneck của đường), làm tăng tổng luồng.
+> 💡 **Trực giác.** Một augmenting path là **một đường đi $s \\to t$ mà mọi ống trên đó còn dư chỗ**. Nếu tìm được, ta có thể bơm thêm một lượng = ống hẹp nhất còn lại trên đường (bottleneck của đường), làm tăng tổng luồng.
 
-Định nghĩa: với luồng \`f\` hiện tại, **dung lượng dư (residual capacity)** của cạnh \`(u,v)\` là
-\`c_f(u, v) = c(u, v) − f(u, v)\` (còn bơm thêm được bao nhiêu).
+Định nghĩa: với luồng $f$ hiện tại, **dung lượng dư (residual capacity)** của cạnh $(u,v)$ là
+$c_f(u, v) = c(u, v) - f(u, v)$ (còn bơm thêm được bao nhiêu).
 
-Một **augmenting path** là đường từ \`s\` tới \`t\` mà **mọi cạnh đều có \`c_f > 0\`**. Lượng bơm thêm = \`min\` các \`c_f\` trên đường (gọi là **bottleneck**).
+Một **augmenting path** là đường từ $s$ tới $t$ mà **mọi cạnh đều có $c_f > 0$**. Lượng bơm thêm = $\\min$ các $c_f$ trên đường (gọi là **bottleneck**).
 
 ### Walk-through tăng luồng
 
-Dùng lại mạng mục 1, bắt đầu \`f = 0\`:
+Dùng lại mạng mục 1, bắt đầu $f = 0$:
 
-- Đường \`s → a → t\`: residual \`c_f(s,a)=3, c_f(a,t)=2\` → bottleneck \`min(3,2)=2\`. Bơm 2.
-  Giờ \`f(s,a)=2, f(a,t)=2\`. \`|f|=2\`.
-- Đường \`s → b → t\`: \`c_f(s,b)=2, c_f(b,t)=3\` → bottleneck \`2\`. Bơm 2.
-  Giờ \`|f|=4\`.
-- Đường \`s → a → b → t\`? \`c_f(s,a)=3−2=1, c_f(a,b)=1, c_f(b,t)=3−2=1\` → bottleneck \`1\`. Bơm 1.
-  Giờ \`|f|=5\`?
+- Đường $s \\to a \\to t$: residual $c_f(s,a)=3, c_f(a,t)=2$ → bottleneck $\\min(3,2)=2$. Bơm 2.
+  Giờ $f(s,a)=2, f(a,t)=2$. $|f|=2$.
+- Đường $s \\to b \\to t$: $c_f(s,b)=2, c_f(b,t)=3$ → bottleneck $2$. Bơm 2.
+  Giờ $|f|=4$.
+- Đường $s \\to a \\to b \\to t$? $c_f(s,a)=3-2=1, c_f(a,b)=1, c_f(b,t)=3-2=1$ → bottleneck $1$. Bơm 1.
+  Giờ $|f|=5$?
 
-Khoan — \`|f|=5\` mâu thuẫn với "max=4" ở mục 1? **Không.** Mục 1 chỉ đưa ra **một** luồng cụ thể giá trị 4, không khẳng định đó là max. Tính lại bottleneck mạng này: max flow thật = **5** (cạnh \`a→b\` cho phép \`a\` "đổ bớt" sang nhánh \`b\`). Đây là minh họa quan trọng: **đừng tin một luồng bất kỳ là tối ưu** — phải tăng tới khi hết augmenting path.
+Khoan — $|f|=5$ mâu thuẫn với "max=4" ở mục 1? **Không.** Mục 1 chỉ đưa ra **một** luồng cụ thể giá trị 4, không khẳng định đó là max. Tính lại bottleneck mạng này: max flow thật = **5** (cạnh $a \\to b$ cho phép $a$ "đổ bớt" sang nhánh $b$). Đây là minh họa quan trọng: **đừng tin một luồng bất kỳ là tối ưu** — phải tăng tới khi hết augmenting path.
 
 > ⚠ **Lỗi thường gặp.** Bơm tham lam theo đường đầu tiên tìm được rồi tưởng đã xong. **Một quyết định bơm sớm có thể "chặn" đường tốt hơn về sau.** Để sửa sai lầm này mà không phải tính lại từ đầu, ta cần **cạnh ngược** trong residual graph (mục 4) — cho phép "rút lại" luồng đã bơm.
 
-> 🔁 **Dừng lại tự kiểm tra.** Trên đường \`s → x → y → t\` với residual \`c_f = 4, 2, 7\`, ta bơm thêm bao nhiêu?
-> <details><summary>Đáp án</summary>\`min(4,2,7) = 2\`. Sau đó cạnh \`x→y\` bão hòa (\`c_f\` về 0), không còn dùng được trên đường khác cho tới khi có luồng rút lại nó.</details>
+> 🔁 **Dừng lại tự kiểm tra.** Trên đường $s \\to x \\to y \\to t$ với residual $c_f = 4, 2, 7$, ta bơm thêm bao nhiêu?
+> <details><summary>Đáp án</summary>$\\min(4,2,7) = 2$. Sau đó cạnh $x \\to y$ bão hòa ($c_f$ về 0), không còn dùng được trên đường khác cho tới khi có luồng rút lại nó.</details>
 
 ---
 
 ## 4. Residual graph (Đồ thị thặng dư) — và vì sao cần cạnh ngược
 
 > 💡 **Trực giác.** Residual graph trả lời câu hỏi: *"Tại trạng thái luồng hiện tại, tôi còn có thể bơm thêm theo những hướng nào?"* Nó gồm **2 loại cạnh**:
-> - **Cạnh xuôi (forward)**: với mỗi cạnh \`(u,v)\` còn dư, có cạnh residual \`u→v\` dung lượng \`c(u,v) − f(u,v)\`.
-> - **Cạnh ngược (backward)**: với mỗi cạnh \`(u,v)\` đã bơm \`f(u,v) > 0\`, có cạnh residual \`v→u\` dung lượng \`f(u,v)\` — nghĩa là *"có thể rút lại tối đa \`f(u,v)\` đơn vị đã bơm"*.
+> - **Cạnh xuôi (forward)**: với mỗi cạnh $(u,v)$ còn dư, có cạnh residual $u \\to v$ dung lượng $c(u,v) - f(u,v)$.
+> - **Cạnh ngược (backward)**: với mỗi cạnh $(u,v)$ đã bơm $f(u,v) > 0$, có cạnh residual $v \\to u$ dung lượng $f(u,v)$ — nghĩa là *"có thể rút lại tối đa $f(u,v)$ đơn vị đã bơm"*.
 
 ### Vì sao cần cạnh ngược? (undo quyết định)
 
@@ -142,7 +142,7 @@ Walk-through minh họa kinh điển. Mạng:
    s →(3)→ b        a →(3)→ t
 \`\`\`
 
-Cụ thể: \`c(s,a)=3, c(s,b)=3, c(a,b)=1, c(a,t)=3, c(b,t)=3\`. Max flow thật = **6**.
+Cụ thể: $c(s,a)=3, c(s,b)=3, c(a,b)=1, c(a,t)=3, c(b,t)=3$. Max flow thật = **6**.
 
 **Bước 1**: tìm đường \`s → a → b → t\` (giả sử BFS/DFS chọn nó). Residual: \`3, 1, 3\` → bottleneck \`1\`. Bơm 1.
 - \`f(s,a)=1, f(a,b)=1, f(b,t)=1\`. \`|f|=1\`.
@@ -184,10 +184,10 @@ Ford-Fulkerson(G, s, t):
     return f
 \`\`\`
 
-**Định lý dừng (số nguyên)**: nếu mọi capacity là **số nguyên**, mỗi vòng lặp tăng \`|f|\` ít nhất 1 → tối đa \`|f*|\` vòng. Độ phức tạp **O(|f*| · E)** với \`|f*|\` = giá trị max flow (vì mỗi lần tìm đường bằng DFS tốn \`O(E)\`).
+**Định lý dừng (số nguyên)**: nếu mọi capacity là **số nguyên**, mỗi vòng lặp tăng \`|f|\` ít nhất 1 → tối đa \`|f*|\` vòng. Độ phức tạp $O(|f^*| \\cdot E)$ với $|f^*|$ = giá trị max flow (vì mỗi lần tìm đường bằng DFS tốn $O(E)$).
 
 > ⚠ **Lỗi thường gặp / vấn đề của Ford-Fulkerson "trần".**
-> - **Chọn đường tùy ý (DFS)** có thể chậm tệ hại. Ví dụ kinh điển: mạng có cạnh \`a→b\` capacity 1 ở giữa, 2 cạnh ngoài capacity \`1,000,000\`. Nếu mỗi lần DFS chọn đường đi qua \`a→b\` rồi bù lại bằng cạnh ngược, ta tốn **2,000,000 vòng** dù max flow chỉ là 2,000,000 — \`O(|f*|·E)\` phụ thuộc giá trị flow, không phải kích thước đồ thị. **Tệ hơn**: với capacity **vô tỉ (irrational)**, Ford-Fulkerson DFS có thể **không bao giờ dừng** (chuỗi bottleneck hội tụ nhưng không đạt max).
+> - **Chọn đường tùy ý (DFS)** có thể chậm tệ hại. Ví dụ kinh điển: mạng có cạnh \`a→b\` capacity 1 ở giữa, 2 cạnh ngoài capacity \`1,000,000\`. Nếu mỗi lần DFS chọn đường đi qua \`a→b\` rồi bù lại bằng cạnh ngược, ta tốn **2,000,000 vòng** dù max flow chỉ là 2,000,000 — $O(|f^*| \\cdot E)$ phụ thuộc giá trị flow, không phải kích thước đồ thị. **Tệ hơn**: với capacity **vô tỉ (irrational)**, Ford-Fulkerson DFS có thể **không bao giờ dừng** (chuỗi bottleneck hội tụ nhưng không đạt max).
 > - **Cách sửa**: chọn đường thông minh hơn. **Edmonds-Karp** dùng BFS (đường ngắn nhất theo số cạnh) → dừng, độc lập với độ lớn capacity.
 
 ---
@@ -196,7 +196,7 @@ Ford-Fulkerson(G, s, t):
 
 > 💡 **Trực giác.** Giống Ford-Fulkerson, nhưng **mỗi vòng tìm augmenting path NGẮN NHẤT theo số cạnh** (BFS thay vì DFS). Điều này khiến số vòng lặp bị chặn bởi \`O(V·E)\` — **không phụ thuộc capacity** — nên luôn dừng kể cả với capacity thực.
 
-**Độ phức tạp**: \`O(V · E²)\`. Chứng minh (ý tưởng): khoảng cách BFS từ \`s\` tới mỗi đỉnh **không giảm** qua các vòng, và mỗi cạnh chỉ trở thành "tới hạn (critical, tức bottleneck)" \`O(V)\` lần → tổng \`O(V·E)\` lần augment, mỗi lần BFS tốn \`O(E)\`.
+**Độ phức tạp**: $O(V \\cdot E^2)$. Chứng minh (ý tưởng): khoảng cách BFS từ $s$ tới mỗi đỉnh **không giảm** qua các vòng, và mỗi cạnh chỉ trở thành "tới hạn (critical, tức bottleneck)" $O(V)$ lần → tổng $O(V \\cdot E)$ lần augment, mỗi lần BFS tốn $O(E)$.
 
 ### Walk-through đầy đủ Edmonds-Karp trên mạng nhỏ
 
@@ -247,8 +247,8 @@ Dinic(G, s, t):
     return f
 \`\`\`
 
-**Độ phức tạp**: \`O(V² · E)\` tổng quát. Đặc biệt:
-- Trên mạng **đơn vị capacity** (unit capacity, dùng cho bipartite matching): \`O(E·√V)\` — rất nhanh.
+**Độ phức tạp**: $O(V^2 \\cdot E)$ tổng quát. Đặc biệt:
+- Trên mạng **đơn vị capacity** (unit capacity, dùng cho bipartite matching): $O(E\\sqrt V)$ — rất nhanh.
 - Thực tế Dinic chạy nhanh hơn nhiều so với worst case, là lựa chọn mặc định cho contest / hệ thống thật.
 
 > ❓ **Câu hỏi tự nhiên.** *"Bài này có cần cài Dinic không?"* — Không. Bài này cài **Edmonds-Karp** (dễ hiểu, đủ nhanh cho mạng vài trăm đỉnh). Biết Dinic tồn tại + độ phức tạp là đủ. Khi cần hiệu năng cao (mạng lớn, unit-capacity matching) hãy dùng Dinic.
@@ -350,12 +350,12 @@ Mạng giới hạn lượng đi **qua một đỉnh** \`v\` (không chỉ qua c
 
 | Thuật toán | Chọn đường | Độ phức tạp | Dừng với capacity thực? |
 |---|---|---|:---:|
-| Ford-Fulkerson | DFS tùy ý | \`O(|f*| · E)\` | ❌ (có thể không) |
-| **Edmonds-Karp** | BFS (ngắn nhất) | \`O(V · E²)\` | ✅ |
-| Dinic | level graph + blocking | \`O(V² · E)\` | ✅ |
-| Dinic (unit cap) | — | \`O(E · √V)\` | ✅ |
+| Ford-Fulkerson | DFS tùy ý | $O(|f^*| \\cdot E)$ | ❌ (có thể không) |
+| **Edmonds-Karp** | BFS (ngắn nhất) | $O(V \\cdot E^2)$ | ✅ |
+| Dinic | level graph + blocking | $O(V^2 \\cdot E)$ | ✅ |
+| Dinic (unit cap) | — | $O(E\\sqrt V)$ | ✅ |
 
-- \`|f*|\` = giá trị max flow (có thể rất lớn → Ford-Fulkerson tệ).
+- $|f^*|$ = giá trị max flow (có thể rất lớn → Ford-Fulkerson tệ).
 - Edmonds-Karp là lựa chọn an toàn để học/cài; Dinic khi cần hiệu năng.
 - Mọi thuật toán trên đều cho **cùng** giá trị max flow (định lý min cut đảm bảo tính đúng).
 
@@ -584,7 +584,7 @@ Minh họa tương tác: **[visualization.html](./visualization.html)** — 3 mo
 
 6. **Vertex capacity (split node).** Mạng routing: mỗi router chỉ chuyển tối đa 3 gói/giây. Cho biết cách biến đổi đồ thị để áp ràng buộc này, rồi tính max flow \`s→t\` trên mạng 5 đỉnh tự chọn.
 
-7. **(Nâng cao) Vì sao Ford-Fulkerson DFS có thể chậm.** Dựng mạng 4 đỉnh khiến DFS tốn \`O(max_flow)\` vòng còn BFS chỉ 2 vòng. Giải thích.
+7. **(Nâng cao) Vì sao Ford-Fulkerson DFS có thể chậm.** Dựng mạng 4 đỉnh khiến DFS tốn $O(\\text{max\\_flow})$ vòng còn BFS chỉ 2 vòng. Giải thích.
 
 ---
 
@@ -604,7 +604,7 @@ Minh họa tương tác: **[visualization.html](./visualization.html)** — 3 mo
 
 (Lưu ý: thứ tự đường BFS có thể khác tùy thứ tự duyệt cạnh, nhưng **giá trị cuối luôn = 19** theo định lý min cut.)
 
-Big-O: Edmonds-Karp \`O(V·E²)\`; ở đây V=6, E=8 → vài chục thao tác.
+Big-O: Edmonds-Karp $O(V \\cdot E^2)$; ở đây $V=6, E=8$ → vài chục thao tác.
 
 ### Bài 2 — Min cut
 
@@ -621,7 +621,7 @@ Cạnh **gốc** từ \`S\` sang \`T\`:
 
 \`cap(S,T) = 10 + 9 = 19\` = max flow ✓.
 
-Big-O: BFS trích cut \`O(V+E)\`.
+Big-O: BFS trích cut $O(V+E)$.
 
 ### Bài 3 — Maximum bipartite matching qua flow
 
@@ -637,7 +637,7 @@ Chạy Edmonds-Karp (mỗi augmenting path = 1 cặp, bottleneck luôn 1):
 
 **Max matching = 4** (ghép hết). Một lời ghép: P0–0, P1–1, P2–2, P3–3.
 
-Big-O: bipartite matching qua flow \`O(V·E)\` (mỗi augment tăng 1, tối đa \`V/2\` augment, mỗi BFS \`O(E)\`). Với Dinic unit-cap: \`O(E√V)\`.
+Big-O: bipartite matching qua flow $O(V \\cdot E)$ (mỗi augment tăng 1, tối đa $V/2$ augment, mỗi BFS $O(E)$). Với Dinic unit-cap: $O(E\\sqrt V)$.
 
 ### Bài 4 — Edge-disjoint paths
 
@@ -645,7 +645,7 @@ Big-O: bipartite matching qua flow \`O(V·E)\` (mỗi augment tăng 1, tối đa
 
 Trực giác: mỗi cạnh cap 1 → mỗi cạnh dùng được nhiều nhất 1 lần → mỗi đơn vị flow là 1 đường không chia sẻ cạnh với đường khác. Số đường = giá trị flow.
 
-Big-O: Edmonds-Karp \`O(V·E²)\`; vì max flow ≤ \`E\` nên thực tế \`O(E²)\` cũng bound bằng số augment ≤ E.
+Big-O: Edmonds-Karp $O(V \\cdot E^2)$; vì max flow $\\leq E$ nên thực tế $O(E^2)$ cũng bound bằng số augment $\\leq E$.
 
 ### Bài 5 — Super source/sink
 
@@ -656,7 +656,7 @@ Dựng:
 
 Chạy max flow \`S→T\`. Kết quả bị chặn bởi \`min(tổng phát = 12, tổng nhận = 14) = 12\` nếu kết nối đầy đủ → max flow = 12.
 
-Big-O: như Edmonds-Karp \`O(V·E²)\` trên đồ thị mở rộng (thêm 2 đỉnh, \`nL+nR\` cạnh).
+Big-O: như Edmonds-Karp $O(V \\cdot E^2)$ trên đồ thị mở rộng (thêm 2 đỉnh, $nL+nR$ cạnh).
 
 ### Bài 6 — Vertex capacity (split node)
 
@@ -667,7 +667,7 @@ Ví dụ mạng 5 đỉnh \`s, a, b, c, t\`, cạnh cap ∞, router \`a,b,c\` ca
 - \`s→a_in, s→b_in\`; \`a_out→c_in, b_out→c_in\`; \`c_out→t\`.
 - Cổ chai là \`c_in→c_out\` cap 3 → max flow \`s→t\` = **3** (mọi luồng buộc qua router c).
 
-Big-O: số đỉnh tăng gấp đôi (mỗi đỉnh thành 2), Edmonds-Karp vẫn \`O(V·E²)\` trên đồ thị mới.
+Big-O: số đỉnh tăng gấp đôi (mỗi đỉnh thành 2), Edmonds-Karp vẫn $O(V \\cdot E^2)$ trên đồ thị mới.
 
 ### Bài 7 — Ford-Fulkerson DFS chậm
 
@@ -678,7 +678,7 @@ Mạng kinh điển 4 đỉnh \`s, a, b, t\`:
 
 **BFS (Edmonds-Karp)**: vòng 1 \`s→a→t\` (2 cạnh) bơm \`10⁶\`; vòng 2 \`s→b→t\` (2 cạnh) bơm \`10⁶\`. **Chỉ 2 vòng**, max flow \`2·10⁶\`. BFS tránh đường 3-cạnh qua \`a→b\` nên không bao giờ rơi vào bẫy đẩy-rút.
 
-Đây là lý do Edmonds-Karp \`O(V·E²)\` **độc lập** với capacity, còn Ford-Fulkerson DFS \`O(|f*|·E)\` phụ thuộc.
+Đây là lý do Edmonds-Karp $O(V \\cdot E^2)$ **độc lập** với capacity, còn Ford-Fulkerson DFS $O(|f^*| \\cdot E)$ phụ thuộc.
 
 ---
 

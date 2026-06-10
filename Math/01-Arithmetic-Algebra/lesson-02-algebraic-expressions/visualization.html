@@ -47,7 +47,7 @@
     <input type="number" id="exprX" step="1" value="4">
     <button onclick="evalExpr()">Tính</button>
   </div>
-  <div class="result" id="exprResult"></div>
+  <div class="result katex-hero" id="exprResult"></div>
 </div>
 
 <h2>2. Khai triển nhanh (a ± b)² và (a ± b)³</h2>
@@ -104,18 +104,35 @@
 </main>
 
 <script>
+// Chuyển biểu thức kiểu JS (vd "2*x*x - 3*x + 1") sang LaTeX để render đẹp.
+// Chỉ dùng cho HIỂN THỊ; eval vẫn dùng chuỗi gốc.
+function prettifyExpr(s) {
+  let t = (s || '').replace(/\s+/g, ' ');
+  t = t.replace(/\*\*/g, '^');                                  // ** -> ^
+  // gom tích cùng biến: x*x*x -> x^{3}
+  t = t.replace(/\b([a-zA-Z])(?:\s*\*\s*\1)+/g, (m, v) => v + '^{' + m.split('*').length + '}');
+  t = t.replace(/\^([A-Za-z0-9.]+)/g, '^{$1}');                 // ^2 -> ^{2}
+  t = t.replace(/Math\.sqrt/g, '\\sqrt');
+  t = t.replace(/(\d)\s*\*\s*([A-Za-z(])/g, '$1$2');            // 2*x -> 2x
+  t = t.replace(/([A-Za-z)\}])\s*\*\s*([A-Za-z(])/g, '$1$2');   // x*y -> xy
+  t = t.replace(/\s*\*\s*/g, ' \\cdot ');                       // còn lại (số*số) -> \cdot
+  return t;
+}
+
 function evalExpr() {
   const exprStr = document.getElementById("exprInput").value;
   const x = parseFloat(document.getElementById("exprX").value);
+  const exprEl = document.getElementById("exprResult");
   try {
     const fn = new Function("x", "return " + exprStr);
     const result = fn(x);
-    document.getElementById("exprResult").innerHTML = `
-      <div style="font-family:monospace; font-size:15px">P(x) = ${exprStr}</div>
+    exprEl.innerHTML = `
+      <div style="font-size:16px">$P(x) = ${prettifyExpr(exprStr)}$</div>
       <div style="margin-top:6px">Tại x = ${x}: <strong style="font-size:18px">${result}</strong></div>
     `;
+    if (window.katexHero) window.katexHero.render(exprEl);
   } catch (e) {
-    document.getElementById("exprResult").innerHTML = `<span style="color:#dc2626">Lỗi: ${e.message}</span>`;
+    exprEl.innerHTML = `<span style="color:#dc2626">Lỗi: ${e.message}</span>`;
   }
 }
 

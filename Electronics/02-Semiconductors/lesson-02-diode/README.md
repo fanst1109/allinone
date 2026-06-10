@@ -74,29 +74,27 @@ Như đã học ở [Lesson 01](../lesson-01-semiconductor-pn/), tiếp giáp P-
 
 ### 2.1. Phương trình Shockley (định tính)
 
-**Phương trình Shockley** mô tả quan hệ giữa dòng I và điện áp V trên diode:
+**Phương trình Shockley** mô tả quan hệ giữa dòng $I$ và điện áp $V$ trên diode:
 
-```
-I = I_s · (e^(V / (n·V_T)) − 1)
-```
+$$I = I_s \cdot \left(e^{V / (n \cdot V_T)} - 1\right)$$
 
 Trong đó:
-- **I_s** = dòng bão hoà ngược (saturation current), cỡ 10⁻¹² A đến 10⁻⁶ A tuỳ diode.
-- **n** = hệ số lý tưởng (ideality factor), n ≈ 1–2.
-- **V_T** = điện áp nhiệt (thermal voltage) = kT/q ≈ **26 mV** ở 25°C.
+- $I_s$ = dòng bão hoà ngược (saturation current), cỡ $10^{-12}$ A đến $10^{-6}$ A tuỳ diode.
+- $n$ = hệ số lý tưởng (ideality factor), $n \approx$ 1–2.
+- $V_T$ = điện áp nhiệt (thermal voltage) $= kT/q \approx$ **26 mV** ở 25°C.
 
-💡 **Trực giác**: Phương trình này nói rằng dòng tăng theo hàm mũ khi tăng V. Tăng V thêm 60 mV → dòng tăng 10 lần (ở nhiệt độ phòng). Đó là lý do đặc tuyến I-V trông như "hầu như không có gì rồi bật đột ngột".
+💡 **Trực giác**: Phương trình này nói rằng dòng tăng theo hàm mũ khi tăng $V$. Tăng $V$ thêm 60 mV → dòng tăng 10 lần (ở nhiệt độ phòng). Đó là lý do đặc tuyến I-V trông như "hầu như không có gì rồi bật đột ngột".
 
 ❓ **Câu hỏi tự nhiên**:
 
 **Q: Vậy không có ngưỡng cứng 0.7 V?**
-A: Đúng — thực tế là hàm liên tục. Nhưng vì hàm mũ tăng rất nhanh, trong khoảng V = 0.5–0.8 V dòng tăng từ micro-ampe lên milli-ampe và centi-ampe. Mô hình 0.7 V là gần đúng tốt cho hầu hết tính toán mạch.
+A: Đúng — thực tế là hàm liên tục. Nhưng vì hàm mũ tăng rất nhanh, trong khoảng $V =$ 0.5–0.8 V dòng tăng từ micro-ampe lên milli-ampe và centi-ampe. Mô hình 0.7 V là gần đúng tốt cho hầu hết tính toán mạch.
 
-**Q: Tại sao n·V_T ≈ 26 mV mà ngưỡng lại là 0.7 V — cách nhau gần 30 lần?**
-A: Vì e^(0.7/0.026) = e^26.9 ≈ 4.8 × 10¹¹. Nhân với I_s = 10⁻¹² A → I ≈ 0.48 A. Đây là lý do tại ngưỡng 0.7 V dòng đã rất lớn.
+**Q: Tại sao $n \cdot V_T \approx 26$ mV mà ngưỡng lại là 0.7 V — cách nhau gần 30 lần?**
+A: Vì $e^{0.7/0.026} = e^{26.9} \approx 4.8 \times 10^{11}$. Nhân với $I_s = 10^{-12}$ A → $I \approx 0.48$ A. Đây là lý do tại ngưỡng 0.7 V dòng đã rất lớn.
 
-**Q: Ở vùng ngược (V < 0), dòng là bao nhiêu?**
-A: I ≈ −I_s ≈ −10⁻¹² A (cực kỳ nhỏ) — thực tế coi như hở mạch.
+**Q: Ở vùng ngược ($V < 0$), dòng là bao nhiêu?**
+A: $I \approx -I_s \approx -10^{-12}$ A (cực kỳ nhỏ) — thực tế coi như hở mạch.
 
 ### 2.2. Tính mạch: diode + điện trở nối tiếp
 
@@ -110,10 +108,7 @@ A: I ≈ −I_s ≈ −10⁻¹² A (cực kỳ nhỏ) — thực tế coi như h
 
 Áp dụng Kirchhoff điện áp (KVL):
 
-```
-V_s = V_R + V_D = I·R + 0.7
-→ I = (V_s − 0.7) / R
-```
+$$V_s = V_R + V_D = I \cdot R + 0.7 \implies I = \frac{V_s - 0.7}{R}$$
 
 **Ví dụ 1 — V_s = 5 V, R = 220 Ω:**
 ```
@@ -156,9 +151,9 @@ Kiểm tra: V_R + V_D = 11.3 + 0.7 = 12 V ✓
 </details>
 
 📝 **Tóm tắt mục 2**
-- Phương trình Shockley: I = I_s(e^(V/nV_T) − 1). Dòng tăng theo hàm mũ khi tăng V.
-- Mô hình 0.7 V: tính mạch bằng KVL → I = (V_s − 0.7) / R.
-- Nếu V_s < 0.7 V: diode không dẫn, I = 0.
+- Phương trình Shockley: $I = I_s(e^{V/(n V_T)} - 1)$. Dòng tăng theo hàm mũ khi tăng $V$.
+- Mô hình 0.7 V: tính mạch bằng KVL → $I = (V_s - 0.7) / R$.
+- Nếu $V_s < 0.7$ V: diode không dẫn, $I = 0$.
 
 ---
 
@@ -247,59 +242,56 @@ A: Khi tắt dòng qua cuộn cảm (inductor) hoặc relay, cuộn sinh xung đ
 2. Dòng qua Zener I_Z = I_R − I_L phải dương (Zener luôn có dòng chảy qua).
 3. Dòng Zener không vượt I_Z_max (tra datasheet).
 
-**Tính R_s (điện trở hạn dòng):**
+**Tính $R_s$ (điện trở hạn dòng):**
 
-```
-I_R = (V_in − V_Z) / R_s      (dòng qua R_s)
-I_Z = I_R − I_L               (dòng qua Zener = dòng R trừ dòng tải)
-```
+$$I_R = \frac{V_{\text{in}} - V_Z}{R_s} \qquad I_Z = I_R - I_L$$
 
-Chọn R_s sao cho I_Z tối thiểu ≈ 5–10% I_Z_max để Zener luôn ở vùng ổn áp.
+Chọn $R_s$ sao cho $I_Z$ tối thiểu $\approx$ 5–10% $I_{Z,\text{max}}$ để Zener luôn ở vùng ổn áp.
 
 **Ví dụ 1 — Ổn áp 5.1 V từ nguồn 9 V, tải 50 mA:**
 
 - V_Z = 5.1 V, V_in = 9 V, I_L = 50 mA.
 - Chọn I_Z_min = 10 mA → I_R = I_L + I_Z = 50 + 10 = 60 mA.
-- R_s = (V_in − V_Z) / I_R = (9 − 5.1) / 0.060 = 3.9 / 0.060 = **65 Ω** → chọn 68 Ω (giá trị E12 gần nhất).
-- Kiểm tra dòng Zener với R_s = 68 Ω: I_R = 3.9 / 68 = 57.4 mA. I_Z = 57.4 − 50 = 7.4 mA > 0 ✓.
-- Công suất R_s = I_R² × R_s = (0.0574)² × 68 ≈ **224 mW** → dùng điện trở 1/2 W.
-- Công suất Zener tối đa (khi tải hở I_L = 0): P_Z = V_Z × I_R = 5.1 × 0.0574 ≈ **293 mW** → chọn Zener 500 mW trở lên.
+- $R_s = (V_{\text{in}} - V_Z) / I_R = (9 - 5.1) / 0.060 = 3.9 / 0.060 =$ **65 Ω** → chọn 68 Ω (giá trị E12 gần nhất).
+- Kiểm tra dòng Zener với $R_s = 68\ \Omega$: $I_R = 3.9 / 68 = 57.4$ mA. $I_Z = 57.4 - 50 = 7.4$ mA > 0 ✓.
+- Công suất $R_s$: $P = I_R^2 \cdot R_s = (0.0574)^2 \times 68 \approx$ **224 mW** → dùng điện trở 1/2 W.
+- Công suất Zener tối đa (khi tải hở $I_L = 0$): $P_Z = V_Z \cdot I_R = 5.1 \times 0.0574 \approx$ **293 mW** → chọn Zener 500 mW trở lên.
 
 **Ví dụ 2 — Ổn áp 3.3 V từ nguồn 5 V, tải 20 mA:**
 
-- V_Z = 3.3 V, V_in = 5 V, I_L = 20 mA.
-- Chọn I_Z_min = 5 mA → I_R = 25 mA.
-- R_s = (5 − 3.3) / 0.025 = 1.7 / 0.025 = **68 Ω** (đúng E12).
-- Công suất R_s = (0.025)² × 68 = 0.0425 W = **42.5 mW** → điện trở 1/4 W đủ dùng.
+- $V_Z = 3.3$ V, $V_{\text{in}} = 5$ V, $I_L = 20$ mA.
+- Chọn $I_{Z,\text{min}} = 5$ mA → $I_R = 25$ mA.
+- $R_s = (5 - 3.3) / 0.025 = 1.7 / 0.025 =$ **68 Ω** (đúng E12).
+- Công suất $R_s$: $P = (0.025)^2 \times 68 = 0.0425$ W = **42.5 mW** → điện trở 1/4 W đủ dùng.
 
 **Ví dụ 3 — Ổn áp 12 V từ nguồn 15 V, không tải (I_L = 0):**
 
-- V_Z = 12 V, V_in = 15 V, I_L = 0.
-- Chọn I_Z = 20 mA (Zener dẫn đủ để ổn áp).
-- R_s = (15 − 12) / 0.020 = 3 / 0.020 = **150 Ω** → chọn 150 Ω (E12).
-- Công suất Zener = 12 × 0.020 = **240 mW** → chọn Zener 500 mW.
-- Công suất R_s = (0.020)² × 150 = **60 mW** → điện trở 1/4 W ổn.
+- $V_Z = 12$ V, $V_{\text{in}} = 15$ V, $I_L = 0$.
+- Chọn $I_Z = 20$ mA (Zener dẫn đủ để ổn áp).
+- $R_s = (15 - 12) / 0.020 = 3 / 0.020 =$ **150 Ω** → chọn 150 Ω (E12).
+- Công suất Zener: $P_Z = 12 \times 0.020 =$ **240 mW** → chọn Zener 500 mW.
+- Công suất $R_s$: $P = (0.020)^2 \times 150 =$ **60 mW** → điện trở 1/4 W ổn.
 
-⚠ **Lỗi thường gặp**: Quên kiểm tra công suất Zener khi tải hở. Khi I_L = 0, toàn bộ dòng I_R chảy qua Zener → P_Z tối đa. Phải tính trường hợp xấu nhất này.
+⚠ **Lỗi thường gặp**: Quên kiểm tra công suất Zener khi tải hở. Khi $I_L = 0$, toàn bộ dòng $I_R$ chảy qua Zener → $P_Z$ tối đa. Phải tính trường hợp xấu nhất này.
 
 🔁 **Dừng lại tự kiểm tra**: V_in = 12 V, V_Z = 5.1 V (1N4733), I_L = 30 mA. Tính R_s và P_Zener_max.
 
 <details>
 <summary>Đáp án</summary>
 
-Chọn I_Z_min = 10 mA → I_R = 40 mA.
+Chọn $I_{Z,\text{min}} = 10$ mA → $I_R = 40$ mA.
 
-R_s = (12 − 5.1) / 0.040 = 6.9 / 0.040 = **172.5 Ω** → chọn **180 Ω** (E12).
+$R_s = (12 - 5.1) / 0.040 = 6.9 / 0.040 =$ **172.5 Ω** → chọn **180 Ω** (E12).
 
-I_R thực = 6.9 / 180 = 38.3 mA. I_Z = 38.3 − 30 = 8.3 mA > 0 ✓.
+$I_R$ thực $= 6.9 / 180 = 38.3$ mA. $I_Z = 38.3 - 30 = 8.3$ mA > 0 ✓.
 
-P_Zener_max (khi I_L = 0): P_Z = 5.1 × 0.0383 ≈ **195 mW** → chọn Zener 500 mW.
+$P_{Z,\text{max}}$ (khi $I_L = 0$): $P_Z = 5.1 \times 0.0383 \approx$ **195 mW** → chọn Zener 500 mW.
 </details>
 
 📝 **Tóm tắt mục 4**
-- Zener hoạt động ở vùng đánh thủng ngược V_Z, giữ điện áp ổn định.
-- Mạch ổn áp: R_s = (V_in − V_Z) / (I_L + I_Z_min).
-- Luôn kiểm tra công suất Zener ở trường hợp tải hở (I_L = 0) → P_Z = V_Z × (V_in − V_Z) / R_s.
+- Zener hoạt động ở vùng đánh thủng ngược $V_Z$, giữ điện áp ổn định.
+- Mạch ổn áp: $R_s = (V_{\text{in}} - V_Z) / (I_L + I_{Z,\text{min}})$.
+- Luôn kiểm tra công suất Zener ở trường hợp tải hở ($I_L = 0$) → $P_Z = V_Z \cdot (V_{\text{in}} - V_Z) / R_s$.
 
 ---
 
@@ -329,9 +321,7 @@ P_Zener_max (khi I_L = 0): P_Z = 5.1 × 0.0383 ≈ **195 mW** → chọn Zener 5
 
 **Công thức:**
 
-```
-R = (V_nguồn − V_LED) / I_LED
-```
+$$R = \frac{V_{\text{nguồn}} - V_{\text{LED}}}{I_{\text{LED}}}$$
 
 **Ví dụ 1 — LED đỏ với nguồn 5 V, I = 20 mA:**
 ```
@@ -382,8 +372,8 @@ I_thực = 0.3 / 33 ≈ 9.1 mA (vẫn đủ sáng).
 
 📝 **Tóm tắt mục 5**
 - LED: sụt áp phụ thuộc màu (đỏ ~1.8 V, xanh dương ~3.0–3.2 V). Dòng định mức ~20 mA.
-- R = (V_nguồn − V_LED) / I_LED. Luôn phải có điện trở hạn dòng.
-- LED nối tiếp: V_LED cộng lại. Không nối song song trực tiếp không qua điện trở.
+- $R = (V_{\text{nguồn}} - V_{\text{LED}}) / I_{\text{LED}}$. Luôn phải có điện trở hạn dòng.
+- LED nối tiếp: $V_{\text{LED}}$ cộng lại. Không nối song song trực tiếp không qua điện trở.
 
 ---
 
@@ -475,9 +465,9 @@ I_Z_max = 32.5 mA < 49 mA ✓. Cần Zener 500 mW để có biên an toàn 3×.
 
 *(b)* I_peak = V_out_peak / R_tải = 17.3 / 500 = **34.6 mA**.
 
-*(c)* PIV tối thiểu = V_in_peak = **18 V**. Thực tế chọn diode PIV ≥ 1.5 × 18 = 27 V (thường dùng loại 50 V).
+*(c)* PIV tối thiểu $= V_{\text{in,peak}} =$ **18 V**. Thực tế chọn diode PIV $\geq 1.5 \times 18 = 27$ V (thường dùng loại 50 V).
 
-*(d)* Vì chỉ có bán kỳ dương đi qua; bán kỳ âm = 0. Trung bình hình sin nửa kỳ = V_peak / π ≈ 18 / 3.14 ≈ 5.7 V. Sau khi trừ V_D: V_DC_trung_bình ≈ (17.3) / π ≈ **5.5 V**.
+*(d)* Vì chỉ có bán kỳ dương đi qua; bán kỳ âm = 0. Trung bình hình sin nửa kỳ $= V_{\text{peak}} / \pi \approx 18 / 3.14 \approx 5.7$ V. Sau khi trừ $V_D$: $V_{\text{DC,trung bình}} \approx 17.3 / \pi \approx$ **5.5 V**.
 
 ---
 
@@ -488,7 +478,7 @@ R = (12 − 9.6) / 0.020 = 2.4 / 0.020 = **120 Ω** (đúng E12).
 
 *(b)* P_R = I² × R = (0.020)² × 120 = 0.048 W = **48 mW** → 1/4 W thoải mái.
 
-*(c)* Nếu một LED hở mạch: toàn bộ 12 V rơi trên 2 LED còn lại + R. Dòng = (12 − 2×3.2) / 120 = (12 − 6.4) / 120 = 5.6 / 120 ≈ **46.7 mA** — gần gấp đôi dòng định mức 20 mA → 2 LED còn lại có thể hỏng nếu không xử lý.
+*(c)* Nếu một LED hở mạch: toàn bộ 12 V rơi trên 2 LED còn lại + R. Dòng $= (12 - 2 \times 3.2) / 120 = (12 - 6.4) / 120 = 5.6 / 120 \approx$ **46.7 mA** — gần gấp đôi dòng định mức 20 mA → 2 LED còn lại có thể hỏng nếu không xử lý.
 
 ---
 
@@ -500,9 +490,9 @@ R_s = (18 − 12) / 0.055 = 6 / 0.055 ≈ **109 Ω** → chọn E12 = **100 Ω**
 I_R thực với R_s = 100 Ω: I_R = 6 / 100 = 60 mA.
 I_Z khi I_L = 50 mA: I_Z = 60 − 50 = 10 mA > 0 ✓.
 
-*(b)* Khi I_L = 0: P_Z = V_Z × I_R = 12 × 0.060 = **720 mW < 1 W** ✓. Zener an toàn.
+*(b)* Khi $I_L = 0$: $P_Z = V_Z \cdot I_R = 12 \times 0.060 =$ **720 mW < 1 W** ✓. Zener an toàn.
 
-Tuy nhiên P_R = I_R² × R_s = (0.060)² × 100 = **360 mW** → cần điện trở **1/2 W** (hoặc 1 W để chắc chắn).
+Tuy nhiên $P_R = I_R^2 \cdot R_s = (0.060)^2 \times 100 =$ **360 mW** → cần điện trở **1/2 W** (hoặc 1 W để chắc chắn).
 
 ---
 
@@ -517,7 +507,7 @@ Tuy nhiên P_R = I_R² × R_s = (0.060)² × 100 = **360 mW** → cần điện 
 ## 📝 Tổng kết Lesson 02
 
 1. **Diode = van một chiều**: dẫn khi phân cực thuận (V_A > V_K + 0.7 V), hở mạch khi ngược.
-2. **Mô hình 0.7 V**: tính mạch bằng KVL → I = (V_s − 0.7) / R. Phương trình Shockley cho hiểu cơ chế sâu hơn.
-3. **Chỉnh lưu bán kỳ**: diode chỉ cho bán kỳ dương qua; cần chọn PIV > V_peak_AC.
-4. **Zener**: hoạt động ở vùng đánh thủng ngược V_Z; R_s = (V_in − V_Z) / (I_L + I_Z_min). Luôn kiểm tra P_Z khi tải hở.
-5. **LED**: R = (V_nguồn − V_LED) / I_LED. Không bao giờ nối LED trực tiếp vào nguồn không có điện trở.
+2. **Mô hình 0.7 V**: tính mạch bằng KVL → $I = (V_s - 0.7) / R$. Phương trình Shockley cho hiểu cơ chế sâu hơn.
+3. **Chỉnh lưu bán kỳ**: diode chỉ cho bán kỳ dương qua; cần chọn PIV $> V_{\text{peak,AC}}$.
+4. **Zener**: hoạt động ở vùng đánh thủng ngược $V_Z$; $R_s = (V_{\text{in}} - V_Z) / (I_L + I_{Z,\text{min}})$. Luôn kiểm tra $P_Z$ khi tải hở.
+5. **LED**: $R = (V_{\text{nguồn}} - V_{\text{LED}}) / I_{\text{LED}}$. Không bao giờ nối LED trực tiếp vào nguồn không có điện trở.

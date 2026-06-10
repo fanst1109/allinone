@@ -7,49 +7,45 @@ window.README_MD = `# Lesson 06 — Kỳ vọng, Phương sai, Covariance
 
 Sau bài này bạn sẽ:
 
-- **Tính được kỳ vọng \`E[X]\`** cho cả phân phối rời rạc (Σ) và liên tục (∫), hiểu nó là "trung bình có trọng số" chứ không phải "giá trị dễ xảy ra nhất".
-- **Sử dụng tuyến tính của kỳ vọng** một cách thành thạo: \`E[aX + b] = aE[X] + b\`, \`E[X+Y] = E[X] + E[Y]\` (luôn đúng, không cần độc lập). Đây là một trong những công cụ mạnh nhất xác suất cho.
-- **Tính được \`Var[X]\`** bằng cả định nghĩa \`E[(X-μ)²]\` và công thức \`E[X²] - (E[X])²\`, biết khi nào dùng cái nào.
-- **Phân biệt được Var và σ** (độ lệch chuẩn): Var đo bình phương lệch, σ cùng đơn vị với X.
-- **Hiểu Covariance và Correlation**: dấu của Cov nói gì, vì sao chia cho \`σ_X·σ_Y\` để chuẩn hóa về \`[-1, 1]\`, và vì sao \`ρ = 0\` **không** kéo theo độc lập.
-- **Đọc được Covariance matrix Σ**: đường chéo là phương sai, off-diagonal là covariance, đối xứng và positive semi-definite. Đây là nguyên liệu cho PCA.
+- **Tính được kỳ vọng $E[X]$** cho cả phân phối rời rạc ($\\sum$) và liên tục ($\\int$), hiểu nó là "trung bình có trọng số" chứ không phải "giá trị dễ xảy ra nhất".
+- **Sử dụng tuyến tính của kỳ vọng** một cách thành thạo: $E[aX + b] = aE[X] + b$, $E[X+Y] = E[X] + E[Y]$ (luôn đúng, không cần độc lập). Đây là một trong những công cụ mạnh nhất xác suất cho.
+- **Tính được $\\operatorname{Var}[X]$** bằng cả định nghĩa $E[(X-\\mu)^2]$ và công thức $E[X^2] - (E[X])^2$, biết khi nào dùng cái nào.
+- **Phân biệt được $\\operatorname{Var}$ và $\\sigma$** (độ lệch chuẩn): $\\operatorname{Var}$ đo bình phương lệch, $\\sigma$ cùng đơn vị với X.
+- **Hiểu Covariance và Correlation**: dấu của Cov nói gì, vì sao chia cho $\\sigma_X \\cdot \\sigma_Y$ để chuẩn hóa về $[-1, 1]$, và vì sao $\\rho = 0$ **không** kéo theo độc lập.
+- **Đọc được Covariance matrix $\\Sigma$**: đường chéo là phương sai, off-diagonal là covariance, đối xứng và positive semi-definite. Đây là nguyên liệu cho PCA.
 - **Liên hệ ML**: MSE loss là variance của residuals, bias-variance tradeoff, và PCA = eigen-decomposition của Σ.
 
 ## Kiến thức tiền đề
 
 - [Lesson 03 — Biến ngẫu nhiên rời rạc](../lesson-03-discrete-rv/) — PMF, Bernoulli, Binomial, Poisson.
 - [Lesson 04 — Biến ngẫu nhiên liên tục](../lesson-04-continuous-rv/) — PDF, CDF.
-- [Lesson 05 — Phân phối chuẩn](../lesson-05-normal-distribution/) — μ, σ², CLT.
+- [Lesson 05 — Phân phối chuẩn](../lesson-05-normal-distribution/) — $\\mu$, $\\sigma^2$, CLT.
 - [Tầng 3 — Calculus Lesson 08](../../03-Calculus/lesson-08-integration/) — tích phân (cho E[X] liên tục).
 - [Tầng 4 — Linear Algebra Lesson 06](../../04-LinearAlgebra/lesson-06-eigenvalues/) — eigenvalue/eigenvector (cho positive semi-definite của Σ).
 
 ---
 
-## 1. Kỳ vọng \`E[X]\`
+## 1. Kỳ vọng E[X]
 
 ### 1.1. Trực giác trước định nghĩa
 
 > 💡 **Trực giác.** Tưởng tượng bạn chơi một trò chơi: tung xúc xắc 6 mặt, ăn số tiền bằng số chấm xuất hiện. Chơi 600 lần. Bạn dự đoán tổng ăn được bao nhiêu?
 >
-> Mỗi mặt xuất hiện trung bình \`600/6 = 100\` lần. Tổng tiền ≈ \`100·(1 + 2 + 3 + 4 + 5 + 6) = 100·21 = 2100\`. Trung bình mỗi lần: \`2100/600 = 3.5\`.
+> Mỗi mặt xuất hiện trung bình $600/6 = 100$ lần. Tổng tiền $\\approx 100 \\cdot (1 + 2 + 3 + 4 + 5 + 6) = 100 \\cdot 21 = 2100$. Trung bình mỗi lần: $2100/600 = 3.5$.
 >
-> **Đó chính là \`E[X] = 3.5\`.** Nó là **trung bình dài hạn** sau vô số lần lặp, không phải giá trị dễ xảy ra nhất. Lưu ý: 3.5 không bao giờ thực sự xảy ra trong một lần tung — kỳ vọng có thể là một con số không thuộc tập giá trị có thể.
+> **Đó chính là $E[X] = 3.5$.** Nó là **trung bình dài hạn** sau vô số lần lặp, không phải giá trị dễ xảy ra nhất. Lưu ý: 3.5 không bao giờ thực sự xảy ra trong một lần tung — kỳ vọng có thể là một con số không thuộc tập giá trị có thể.
 
-Vậy \`E[X]\` là "trọng tâm" của phân phối: nếu bạn vẽ PMF/PDF rồi cắt giấy ra, đặt lên cạnh dao, thì \`E[X]\` là điểm cân bằng.
+Vậy $E[X]$ là "trọng tâm" của phân phối: nếu bạn vẽ PMF/PDF rồi cắt giấy ra, đặt lên cạnh dao, thì $E[X]$ là điểm cân bằng.
 
 ### 1.2. Định nghĩa hình thức
 
-**Trường hợp rời rạc:** với biến ngẫu nhiên \`X\` có giá trị \`x₁, x₂, ...\` và PMF \`p(xᵢ) = P(X = xᵢ)\`:
+**Trường hợp rời rạc:** với biến ngẫu nhiên $X$ có giá trị $x_1, x_2, \\dots$ và PMF $p(x_i) = P(X = x_i)$:
 
-\`\`\`
-E[X] = Σᵢ xᵢ · p(xᵢ)
-\`\`\`
+$$E[X] = \\sum_i x_i \\cdot p(x_i)$$
 
-**Trường hợp liên tục:** với PDF \`f(x)\`:
+**Trường hợp liên tục:** với PDF $f(x)$:
 
-\`\`\`
-E[X] = ∫_{-∞}^{+∞} x · f(x) dx
-\`\`\`
+$$E[X] = \\int_{-\\infty}^{+\\infty} x \\cdot f(x)\\,dx$$
 
 > ❓ **Hai công thức này có liên quan gì nhau không?** Có. Cả hai đều là "tổng có trọng số" của giá trị, trọng số là xác suất. Rời rạc tổng đếm, liên tục tổng tích phân. Đó là cùng một ý tưởng dưới hai dạng.
 
@@ -57,86 +53,80 @@ E[X] = ∫_{-∞}^{+∞} x · f(x) dx
 
 #### Ví dụ 1 — Xúc xắc đều 6 mặt
 
-\`X ∈ {1, 2, 3, 4, 5, 6}\`, mỗi giá trị xác suất \`1/6\`.
+$X \\in \\{1, 2, 3, 4, 5, 6\\}$, mỗi giá trị xác suất $1/6$.
 
-\`\`\`
-E[X] = 1·(1/6) + 2·(1/6) + 3·(1/6) + 4·(1/6) + 5·(1/6) + 6·(1/6)
-     = (1+2+3+4+5+6)/6 = 21/6 = 3.5
-\`\`\`
+$$\\begin{aligned}
+E[X] &= 1 \\cdot \\tfrac{1}{6} + 2 \\cdot \\tfrac{1}{6} + 3 \\cdot \\tfrac{1}{6} + 4 \\cdot \\tfrac{1}{6} + 5 \\cdot \\tfrac{1}{6} + 6 \\cdot \\tfrac{1}{6} \\\\
+&= \\frac{1+2+3+4+5+6}{6} = \\frac{21}{6} = 3.5
+\\end{aligned}$$
 
 #### Ví dụ 2 — Bernoulli(p)
 
-\`X = 1\` với xác suất \`p\`, \`X = 0\` với xác suất \`1-p\`.
+$X = 1$ với xác suất $p$, $X = 0$ với xác suất $1-p$.
 
-\`\`\`
-E[X] = 1·p + 0·(1-p) = p
-\`\`\`
+$$E[X] = 1 \\cdot p + 0 \\cdot (1-p) = p$$
 
-Kiểm thử: tung xu cân \`p = 0.5\`, kỳ vọng \`0.5\` — nghĩa là trung bình một nửa lần ra mặt ngửa (X = 1). Đúng.
+Kiểm thử: tung xu cân $p = 0.5$, kỳ vọng $0.5$ — nghĩa là trung bình một nửa lần ra mặt ngửa ($X = 1$). Đúng.
 
 #### Ví dụ 3 — Binomial(n, p)
 
-\`X = X₁ + X₂ + ... + Xₙ\` với mỗi \`Xᵢ ~ Bernoulli(p)\` độc lập.
+$X = X_1 + X_2 + \\dots + X_n$ với mỗi $X_i \\sim \\text{Bernoulli}(p)$ độc lập.
 
 Dùng tuyến tính (sẽ chứng minh ở mục 4):
 
-\`\`\`
-E[X] = E[X₁] + E[X₂] + ... + E[Xₙ] = n·p
-\`\`\`
+$$E[X] = E[X_1] + E[X_2] + \\dots + E[X_n] = n \\cdot p$$
 
-Kiểm thử với \`n = 10, p = 0.3\`: kỳ vọng \`3\` lần thành công trong 10 lần thử. Hợp lý.
+Kiểm thử với $n = 10, p = 0.3$: kỳ vọng $3$ lần thành công trong 10 lần thử. Hợp lý.
 
 #### Ví dụ 4 — Uniform(a, b) liên tục
 
-\`f(x) = 1/(b-a)\` với \`x ∈ [a, b]\`, 0 ngoài đoạn đó.
+$f(x) = \\frac{1}{b-a}$ với $x \\in [a, b]$, 0 ngoài đoạn đó.
 
-\`\`\`
-E[X] = ∫ₐᵇ x · 1/(b-a) dx
-     = 1/(b-a) · [x²/2]ₐᵇ
-     = 1/(b-a) · (b² - a²)/2
-     = (b+a)/2
-\`\`\`
+$$\\begin{aligned}
+E[X] &= \\int_a^b x \\cdot \\frac{1}{b-a}\\,dx \\\\
+&= \\frac{1}{b-a} \\cdot \\left[\\frac{x^2}{2}\\right]_a^b \\\\
+&= \\frac{1}{b-a} \\cdot \\frac{b^2 - a^2}{2} \\\\
+&= \\frac{b+a}{2}
+\\end{aligned}$$
 
-Đúng như trực giác: trung điểm của đoạn \`[a, b]\`.
+Đúng như trực giác: trung điểm của đoạn $[a, b]$.
 
 #### Ví dụ 5 — Exponential(λ)
 
-\`f(x) = λe^{-λx}\` với \`x ≥ 0\`.
+$f(x) = \\lambda e^{-\\lambda x}$ với $x \\ge 0$.
 
-\`\`\`
-E[X] = ∫₀^∞ x · λe^{-λx} dx
-\`\`\`
+$$E[X] = \\int_0^\\infty x \\cdot \\lambda e^{-\\lambda x}\\,dx$$
 
-Tích phân từng phần với \`u = x, dv = λe^{-λx} dx → du = dx, v = -e^{-λx}\`:
+Tích phân từng phần với $u = x,\\ dv = \\lambda e^{-\\lambda x}\\,dx \\to du = dx,\\ v = -e^{-\\lambda x}$:
 
-\`\`\`
-E[X] = [-x·e^{-λx}]₀^∞ + ∫₀^∞ e^{-λx} dx
-     = 0 + [-1/λ · e^{-λx}]₀^∞
-     = 0 - (-1/λ) = 1/λ
-\`\`\`
+$$\\begin{aligned}
+E[X] &= \\left[-x \\cdot e^{-\\lambda x}\\right]_0^\\infty + \\int_0^\\infty e^{-\\lambda x}\\,dx \\\\
+&= 0 + \\left[-\\tfrac{1}{\\lambda} \\cdot e^{-\\lambda x}\\right]_0^\\infty \\\\
+&= 0 - \\left(-\\tfrac{1}{\\lambda}\\right) = \\frac{1}{\\lambda}
+\\end{aligned}$$
 
-Nghĩa là: nếu trung bình mỗi phút có \`λ = 2\` sự kiện, thì thời gian chờ giữa 2 sự kiện trung bình là \`1/2 = 0.5\` phút. Khớp trực giác.
+Nghĩa là: nếu trung bình mỗi phút có $\\lambda = 2$ sự kiện, thì thời gian chờ giữa 2 sự kiện trung bình là $1/2 = 0.5$ phút. Khớp trực giác.
 
-> ⚠ **Lỗi thường gặp.** Đừng nghĩ \`E[X]\` là "giá trị dễ xảy ra nhất" — đó là **mode**, khác hẳn. Với phân phối lệch (skewed), mean và mode lệch xa nhau. Ví dụ: lương trong một công ty có vài người siêu giàu → mean cao, mode (mức lương phổ biến nhất) thấp.
+> ⚠ **Lỗi thường gặp.** Đừng nghĩ $E[X]$ là "giá trị dễ xảy ra nhất" — đó là **mode**, khác hẳn. Với phân phối lệch (skewed), mean và mode lệch xa nhau. Ví dụ: lương trong một công ty có vài người siêu giàu → mean cao, mode (mức lương phổ biến nhất) thấp.
 
 > 🔁 **Dừng lại tự kiểm tra.**
 >
-> 1. Một xúc xắc 4 mặt đều có giá trị \`{1, 2, 3, 4}\`. Tính \`E[X]\`.
-> 2. Một xu lệch \`p = 0.7\`. Tính \`E[X]\` cho \`X ~ Bernoulli\`.
+> 1. Một xúc xắc 4 mặt đều có giá trị $\\{1, 2, 3, 4\\}$. Tính $E[X]$.
+> 2. Một xu lệch $p = 0.7$. Tính $E[X]$ cho $X \\sim \\text{Bernoulli}$.
 >
 > <details><summary>Đáp án</summary>
 >
-> 1. \`E[X] = (1+2+3+4)/4 = 2.5\`.
-> 2. \`E[X] = 0.7\`.
+> 1. $E[X] = (1+2+3+4)/4 = 2.5$.
+> 2. $E[X] = 0.7$.
 >
 > </details>
 
 ### 1.4. 📝 Tóm tắt mục 1
 
-- \`E[X]\` = trung bình có trọng số, "trọng tâm" của phân phối.
-- Rời rạc: tổng \`Σ x·p(x)\`; liên tục: \`∫ x·f(x) dx\`.
+- $E[X]$ = trung bình có trọng số, "trọng tâm" của phân phối.
+- Rời rạc: tổng $\\sum x \\cdot p(x)$; liên tục: $\\int x \\cdot f(x)\\,dx$.
 - Khác mode, khác median. Có thể là giá trị không xảy ra thực tế (xúc xắc 3.5).
-- 5 ví dụ chuẩn: dice 3.5, Bernoulli p, Binomial np, Uniform \`(a+b)/2\`, Exp \`1/λ\`.
+- 5 ví dụ chuẩn: dice 3.5, Bernoulli $p$, Binomial $np$, Uniform $(a+b)/2$, Exp $1/\\lambda$.
 
 ---
 
@@ -144,360 +134,344 @@ Nghĩa là: nếu trung bình mỗi phút có \`λ = 2\` sự kiện, thì thờ
 
 ### 2.1. Tuyến tính (linearity) — định lý quan trọng nhất
 
-\`\`\`
-E[aX + b] = a·E[X] + b
-E[X + Y] = E[X] + E[Y]    (cho mọi X, Y — KHÔNG cần độc lập!)
-\`\`\`
+$$\\begin{aligned}
+E[aX + b] &= a \\cdot E[X] + b \\\\
+E[X + Y] &= E[X] + E[Y] \\quad (\\text{cho mọi } X, Y - \\text{KHÔNG cần độc lập!})
+\\end{aligned}$$
 
-> 💡 **Vì sao quan trọng?** Vì nó cho phép "tách" một biến phức tạp thành tổng nhiều biến đơn giản, tính \`E\` từng cái rồi cộng lại. Đây là lý do \`E[Binomial(n, p)] = np\` được dẫn ra trong 1 dòng ở Ví dụ 3.
+> 💡 **Vì sao quan trọng?** Vì nó cho phép "tách" một biến phức tạp thành tổng nhiều biến đơn giản, tính $E$ từng cái rồi cộng lại. Đây là lý do $E[\\text{Binomial}(n, p)] = np$ được dẫn ra trong 1 dòng ở Ví dụ 3.
 
-#### Chứng minh rời rạc (cho \`E[X + Y]\`)
+#### Chứng minh rời rạc (cho $E[X + Y]$)
 
-\`\`\`
-E[X + Y] = Σ_{x,y} (x + y) · p(x, y)
-         = Σ_{x,y} x·p(x,y) + Σ_{x,y} y·p(x,y)
-         = Σ_x x · (Σ_y p(x,y)) + Σ_y y · (Σ_x p(x,y))
-         = Σ_x x · p_X(x) + Σ_y y · p_Y(y)
-         = E[X] + E[Y]
-\`\`\`
+$$\\begin{aligned}
+E[X + Y] &= \\sum_{x,y} (x + y) \\cdot p(x, y) \\\\
+&= \\sum_{x,y} x \\cdot p(x,y) + \\sum_{x,y} y \\cdot p(x,y) \\\\
+&= \\sum_x x \\cdot \\left(\\sum_y p(x,y)\\right) + \\sum_y y \\cdot \\left(\\sum_x p(x,y)\\right) \\\\
+&= \\sum_x x \\cdot p_X(x) + \\sum_y y \\cdot p_Y(y) \\\\
+&= E[X] + E[Y]
+\\end{aligned}$$
 
-Lưu ý: ở dòng 3 ta dùng "marginal" — tổng theo \`y\` của joint là PMF của \`X\`. **Không có bước nào giả định độc lập.**
+Lưu ý: ở dòng 3 ta dùng "marginal" — tổng theo $y$ của joint là PMF của $X$. **Không có bước nào giả định độc lập.**
 
 ### 2.2. Walk-through tuyến tính
 
 #### Ví dụ — tổng 2 xúc xắc
 
-\`X, Y\` là 2 xúc xắc 6 mặt. \`Z = X + Y\`.
+$X, Y$ là 2 xúc xắc 6 mặt. $Z = X + Y$.
 
-\`\`\`
-E[Z] = E[X] + E[Y] = 3.5 + 3.5 = 7
-\`\`\`
+$$E[Z] = E[X] + E[Y] = 3.5 + 3.5 = 7$$
 
 Tính kiểu "khó" thì phải liệt kê 36 kết quả, tính PMF của tổng rồi nhân — mất 1 trang. Tuyến tính cho ngay trong 1 dòng.
 
 #### Ví dụ — bù lương theo doanh thu
 
-Lương cố định 10 triệu + 5% doanh thu \`X\`. Doanh thu kỳ vọng \`E[X] = 200\` triệu.
+Lương cố định 10 triệu + 5% doanh thu $X$. Doanh thu kỳ vọng $E[X] = 200$ triệu.
 
-\`\`\`
-Lương = 10 + 0.05·X
-E[Lương] = 10 + 0.05·200 = 10 + 10 = 20 triệu
-\`\`\`
+$$\\begin{aligned}
+\\text{Lương} &= 10 + 0.05 \\cdot X \\\\
+E[\\text{Lương}] &= 10 + 0.05 \\cdot 200 = 10 + 10 = 20 \\text{ triệu}
+\\end{aligned}$$
 
-> ❓ **Câu hỏi tự nhiên.** Tại sao \`E[X + Y] = E[X] + E[Y]\` không cần độc lập, nhưng \`Var[X + Y] = Var[X] + Var[Y]\` lại cần? Lý do: tuyến tính bảo toàn dưới expectation (vì E là tích phân/tổng tuyến tính), nhưng phương sai có thành phần bình phương → khi mở \`(X + Y - μ_X - μ_Y)²\` xuất hiện số hạng chéo \`2(X-μ_X)(Y-μ_Y)\`, kỳ vọng của nó **chính là** covariance. Nếu Cov = 0 (đặc biệt khi độc lập) thì thành phần đó biến mất → cộng được. Sẽ chứng minh đầy đủ ở mục 8.
+> ❓ **Câu hỏi tự nhiên.** Tại sao $E[X + Y] = E[X] + E[Y]$ không cần độc lập, nhưng $\\operatorname{Var}[X + Y] = \\operatorname{Var}[X] + \\operatorname{Var}[Y]$ lại cần? Lý do: tuyến tính bảo toàn dưới expectation (vì E là tích phân/tổng tuyến tính), nhưng phương sai có thành phần bình phương → khi mở $(X + Y - \\mu_X - \\mu_Y)^2$ xuất hiện số hạng chéo $2(X-\\mu_X)(Y-\\mu_Y)$, kỳ vọng của nó **chính là** covariance. Nếu $\\operatorname{Cov} = 0$ (đặc biệt khi độc lập) thì thành phần đó biến mất → cộng được. Sẽ chứng minh đầy đủ ở mục 8.
 
 ### 2.3. Một số tính chất khác
 
-- **Hằng số**: \`E[c] = c\` (biến ngẫu nhiên không đổi).
-- **Đơn điệu**: nếu \`X ≤ Y\` chắc chắn thì \`E[X] ≤ E[Y]\`.
-- **Tích KHÔNG bằng tích kỳ vọng nói chung**: \`E[XY] ≠ E[X]·E[Y]\` trừ khi X, Y độc lập.
+- **Hằng số**: $E[c] = c$ (biến ngẫu nhiên không đổi).
+- **Đơn điệu**: nếu $X \\le Y$ chắc chắn thì $E[X] \\le E[Y]$.
+- **Tích KHÔNG bằng tích kỳ vọng nói chung**: $E[XY] \\ne E[X] \\cdot E[Y]$ trừ khi X, Y độc lập.
 
-> ⚠ **Lỗi thường gặp.** Đừng viết \`E[X·Y] = E[X]·E[Y]\` mà không kiểm tra độc lập. Ví dụ phản chứng: \`Y = X\`, thì \`E[X·Y] = E[X²]\`, nhưng \`E[X]·E[Y] = (E[X])²\`. Hai cái này khác nhau bằng đúng \`Var[X] ≥ 0\`. Bằng nhau chỉ khi \`Var[X] = 0\`, tức X là hằng số.
+> ⚠ **Lỗi thường gặp.** Đừng viết $E[X \\cdot Y] = E[X] \\cdot E[Y]$ mà không kiểm tra độc lập. Ví dụ phản chứng: $Y = X$, thì $E[X \\cdot Y] = E[X^2]$, nhưng $E[X] \\cdot E[Y] = (E[X])^2$. Hai cái này khác nhau bằng đúng $\\operatorname{Var}[X] \\ge 0$. Bằng nhau chỉ khi $\\operatorname{Var}[X] = 0$, tức X là hằng số.
 
-> 🔁 **Tự kiểm tra.** Cho \`X ~ Uniform(0, 10)\`, \`Y = 3X + 5\`. Tính \`E[Y]\`.
+> 🔁 **Tự kiểm tra.** Cho $X \\sim \\text{Uniform}(0, 10)$, $Y = 3X + 5$. Tính $E[Y]$.
 >
 > <details><summary>Đáp án</summary>
 >
-> \`E[X] = 5\`. Theo tuyến tính: \`E[Y] = 3·5 + 5 = 20\`.
+> $E[X] = 5$. Theo tuyến tính: $E[Y] = 3 \\cdot 5 + 5 = 20$.
 >
 > </details>
 
 ### 2.4. 📝 Tóm tắt mục 2
 
-- Tuyến tính \`E[aX + b] = aE[X] + b\` và \`E[X+Y] = E[X] + E[Y]\` — **luôn đúng**.
-- Tích \`E[XY]\` chỉ tách được khi độc lập.
-- Tuyến tính là cách "nhanh" để tính \`E\` của biến phức tạp.
+- Tuyến tính $E[aX + b] = aE[X] + b$ và $E[X+Y] = E[X] + E[Y]$ — **luôn đúng**.
+- Tích $E[XY]$ chỉ tách được khi độc lập.
+- Tuyến tính là cách "nhanh" để tính $E$ của biến phức tạp.
 
 ---
 
-## 3. \`E[g(X)]\` và LOTUS
+## 3. E[g(X)] và LOTUS
 
 ### 3.1. Trực giác
 
-> 💡 **Vấn đề.** Cho \`X ~ Uniform(0, 1)\`. Tính \`E[X²]\`. Cám dỗ đầu tiên là viết \`E[X²] = (E[X])² = (1/2)² = 1/4\`. **SAI.**
+> 💡 **Vấn đề.** Cho $X \\sim \\text{Uniform}(0, 1)$. Tính $E[X^2]$. Cám dỗ đầu tiên là viết $E[X^2] = (E[X])^2 = (1/2)^2 = 1/4$. **SAI.**
 >
-> Đúng: phải lấy mọi giá trị có thể của \`X²\`, nhân với mật độ của \`X\` ban đầu, rồi tích phân.
+> Đúng: phải lấy mọi giá trị có thể của $X^2$, nhân với mật độ của $X$ ban đầu, rồi tích phân.
 
 ### 3.2. LOTUS — Law of the Unconscious Statistician
 
-\`\`\`
-E[g(X)] = Σ_x g(x) · p(x)         (rời rạc)
-E[g(X)] = ∫ g(x) · f(x) dx        (liên tục)
-\`\`\`
+$$\\begin{aligned}
+E[g(X)] &= \\sum_x g(x) \\cdot p(x) &&\\text{(rời rạc)} \\\\
+E[g(X)] &= \\int g(x) \\cdot f(x)\\,dx &&\\text{(liên tục)}
+\\end{aligned}$$
 
-Tại sao gọi là "Unconscious"? Vì hầu hết người dùng áp công thức này mà không nhận ra nó cần được chứng minh — nó **không hiển nhiên**: ta tính \`E[g(X)]\` mà không cần đi qua PDF của \`Y = g(X)\`.
+Tại sao gọi là "Unconscious"? Vì hầu hết người dùng áp công thức này mà không nhận ra nó cần được chứng minh — nó **không hiển nhiên**: ta tính $E[g(X)]$ mà không cần đi qua PDF của $Y = g(X)$.
 
-### 3.3. Ví dụ — \`E[X²]\` cho \`X ~ Uniform(0, 1)\`
+### 3.3. Ví dụ — E[X²] cho X ~ Uniform(0, 1)
 
-\`\`\`
-E[X²] = ∫₀¹ x² · 1 dx = [x³/3]₀¹ = 1/3
-\`\`\`
+$$E[X^2] = \\int_0^1 x^2 \\cdot 1\\,dx = \\left[\\frac{x^3}{3}\\right]_0^1 = \\frac{1}{3}$$
 
-So với \`(E[X])² = 1/4\`. Khác nhau \`1/3 - 1/4 = 1/12\` — đó chính là \`Var[Uniform(0,1)]\`.
+So với $(E[X])^2 = 1/4$. Khác nhau $1/3 - 1/4 = 1/12$ — đó chính là $\\operatorname{Var}[\\text{Uniform}(0,1)]$.
 
-### 3.4. Ví dụ — \`E[X²]\` cho xúc xắc
+### 3.4. Ví dụ — E[X²] cho xúc xắc
 
-\`\`\`
-E[X²] = (1² + 2² + 3² + 4² + 5² + 6²) / 6
-      = (1 + 4 + 9 + 16 + 25 + 36) / 6
-      = 91/6 ≈ 15.167
-\`\`\`
+$$\\begin{aligned}
+E[X^2] &= \\frac{1^2 + 2^2 + 3^2 + 4^2 + 5^2 + 6^2}{6} \\\\
+&= \\frac{1 + 4 + 9 + 16 + 25 + 36}{6} \\\\
+&= \\frac{91}{6} \\approx 15.167
+\\end{aligned}$$
 
-(Sẽ dùng ở mục 6 để tính \`Var[X]\` của xúc xắc.)
+(Sẽ dùng ở mục 6 để tính $\\operatorname{Var}[X]$ của xúc xắc.)
 
 ### 3.5. 📝 Tóm tắt mục 3
 
-- \`E[g(X)] = Σ g(x)·p(x)\` hoặc \`∫ g(x)·f(x) dx\`.
-- Không phải \`g(E[X])\` — ngoại trừ \`g\` tuyến tính.
-- Là nền tảng để tính phương sai (\`g(x) = (x-μ)²\`).
+- $E[g(X)] = \\sum g(x) \\cdot p(x)$ hoặc $\\int g(x) \\cdot f(x)\\,dx$.
+- Không phải $g(E[X])$ — ngoại trừ $g$ tuyến tính.
+- Là nền tảng để tính phương sai ($g(x) = (x-\\mu)^2$).
 
 ---
 
-## 4. Phương sai \`Var[X]\`
+## 4. Phương sai Var[X]
 
 ### 4.1. Trực giác
 
-> 💡 **Trực giác.** \`E[X]\` chỉ nói "trung bình" — không nói "biến động cỡ nào". Hai phân phối có cùng mean nhưng khác hẳn về độ tản: ví dụ một phân phối tập trung sát mean (variance nhỏ), một phân phối trải rộng (variance lớn). Variance đo "độ rộng" này.
+> 💡 **Trực giác.** $E[X]$ chỉ nói "trung bình" — không nói "biến động cỡ nào". Hai phân phối có cùng mean nhưng khác hẳn về độ tản: ví dụ một phân phối tập trung sát mean (variance nhỏ), một phân phối trải rộng (variance lớn). Variance đo "độ rộng" này.
 >
-> Cụ thể: trung bình của **bình phương** khoảng cách từ X đến \`μ\`.
+> Cụ thể: trung bình của **bình phương** khoảng cách từ X đến $\\mu$.
 
 ### 4.2. Định nghĩa
 
-\`\`\`
-Var[X] = E[(X - μ)²]    với μ = E[X]
-\`\`\`
+$$\\operatorname{Var}[X] = E[(X - \\mu)^2] \\quad \\text{với } \\mu = E[X]$$
 
 **Công thức thực hành** (tiện tính hơn):
 
-\`\`\`
-Var[X] = E[X²] - (E[X])²
-\`\`\`
+$$\\operatorname{Var}[X] = E[X^2] - (E[X])^2$$
 
 Chứng minh:
 
-\`\`\`
-E[(X - μ)²] = E[X² - 2μX + μ²]
-            = E[X²] - 2μ·E[X] + μ²       (tuyến tính)
-            = E[X²] - 2μ² + μ²
-            = E[X²] - μ²
-\`\`\`
+$$\\begin{aligned}
+E[(X - \\mu)^2] &= E[X^2 - 2\\mu X + \\mu^2] \\\\
+&= E[X^2] - 2\\mu \\cdot E[X] + \\mu^2 \\quad \\text{(tuyến tính)} \\\\
+&= E[X^2] - 2\\mu^2 + \\mu^2 \\\\
+&= E[X^2] - \\mu^2
+\\end{aligned}$$
 
-> ❓ **Câu hỏi tự nhiên.** Sao không dùng \`E[|X - μ|]\` (mean absolute deviation) cho dễ hiểu? Lý do thực dụng: bình phương cho ta khả vi mượt → dễ làm giải tích, dễ ráp vào MLE, MSE. Trị tuyệt đối không khả vi tại 0 → giải tích đau đầu. Bình phương cũng "phạt nặng" outlier — phù hợp với nhiều ứng dụng.
+> ❓ **Câu hỏi tự nhiên.** Sao không dùng $E[|X - \\mu|]$ (mean absolute deviation) cho dễ hiểu? Lý do thực dụng: bình phương cho ta khả vi mượt → dễ làm giải tích, dễ ráp vào MLE, MSE. Trị tuyệt đối không khả vi tại 0 → giải tích đau đầu. Bình phương cũng "phạt nặng" outlier — phù hợp với nhiều ứng dụng.
 
 ### 4.3. Walk-through 4 ví dụ
 
 #### Ví dụ 1 — Xúc xắc 6 mặt
 
-\`\`\`
-E[X]  = 3.5
-E[X²] = 91/6 ≈ 15.167   (mục 3.4)
-Var[X] = 91/6 - (7/2)² = 91/6 - 49/4 = 182/12 - 147/12 = 35/12 ≈ 2.917
-σ = √(35/12) ≈ 1.708
-\`\`\`
+$$\\begin{aligned}
+E[X] &= 3.5 \\\\
+E[X^2] &= \\frac{91}{6} \\approx 15.167 \\quad \\text{(mục 3.4)} \\\\
+\\operatorname{Var}[X] &= \\frac{91}{6} - \\left(\\frac{7}{2}\\right)^2 = \\frac{91}{6} - \\frac{49}{4} = \\frac{182}{12} - \\frac{147}{12} = \\frac{35}{12} \\approx 2.917 \\\\
+\\sigma &= \\sqrt{\\frac{35}{12}} \\approx 1.708
+\\end{aligned}$$
 
 #### Ví dụ 2 — Bernoulli(p)
 
-\`\`\`
-E[X]  = p
-E[X²] = 1²·p + 0²·(1-p) = p
-Var[X] = p - p² = p(1-p)
-\`\`\`
+$$\\begin{aligned}
+E[X] &= p \\\\
+E[X^2] &= 1^2 \\cdot p + 0^2 \\cdot (1-p) = p \\\\
+\\operatorname{Var}[X] &= p - p^2 = p(1-p)
+\\end{aligned}$$
 
-Đặc biệt \`p = 0.5\` cho \`Var = 0.25\` (max), \`p = 0\` hoặc \`1\` cho \`Var = 0\` (hằng số).
+Đặc biệt $p = 0.5$ cho $\\operatorname{Var} = 0.25$ (max), $p = 0$ hoặc $1$ cho $\\operatorname{Var} = 0$ (hằng số).
 
 #### Ví dụ 3 — Uniform(a, b)
 
-\`\`\`
-E[X]  = (a+b)/2
-E[X²] = ∫ₐᵇ x² · 1/(b-a) dx = (b³ - a³)/(3(b-a)) = (a² + ab + b²)/3
-Var[X] = (a² + ab + b²)/3 - ((a+b)/2)²
-       = (a² + ab + b²)/3 - (a² + 2ab + b²)/4
-\`\`\`
+$$\\begin{aligned}
+E[X] &= \\frac{a+b}{2} \\\\
+E[X^2] &= \\int_a^b x^2 \\cdot \\frac{1}{b-a}\\,dx = \\frac{b^3 - a^3}{3(b-a)} = \\frac{a^2 + ab + b^2}{3} \\\\
+\\operatorname{Var}[X] &= \\frac{a^2 + ab + b^2}{3} - \\left(\\frac{a+b}{2}\\right)^2 \\\\
+&= \\frac{a^2 + ab + b^2}{3} - \\frac{a^2 + 2ab + b^2}{4}
+\\end{aligned}$$
 
 Quy đồng 12:
 
-\`\`\`
-       = (4(a² + ab + b²) - 3(a² + 2ab + b²)) / 12
-       = (4a² + 4ab + 4b² - 3a² - 6ab - 3b²) / 12
-       = (a² - 2ab + b²) / 12
-       = (b - a)² / 12
-\`\`\`
+$$\\begin{aligned}
+&= \\frac{4(a^2 + ab + b^2) - 3(a^2 + 2ab + b^2)}{12} \\\\
+&= \\frac{4a^2 + 4ab + 4b^2 - 3a^2 - 6ab - 3b^2}{12} \\\\
+&= \\frac{a^2 - 2ab + b^2}{12} \\\\
+&= \\frac{(b - a)^2}{12}
+\\end{aligned}$$
 
-Khớp Ví dụ 3.3 với \`a=0, b=1\`: \`Var = 1/12\`. ✓
+Khớp Ví dụ 3.3 với $a=0, b=1$: $\\operatorname{Var} = 1/12$. ✓
 
 #### Ví dụ 4 — Exponential(λ)
 
-Tính \`E[X²]\` bằng tích phân từng phần (hai lần):
+Tính $E[X^2]$ bằng tích phân từng phần (hai lần):
 
-\`\`\`
-E[X²] = ∫₀^∞ x² · λe^{-λx} dx = 2/λ²
-Var[X] = 2/λ² - (1/λ)² = 1/λ²
-σ = 1/λ
-\`\`\`
+$$\\begin{aligned}
+E[X^2] &= \\int_0^\\infty x^2 \\cdot \\lambda e^{-\\lambda x}\\,dx = \\frac{2}{\\lambda^2} \\\\
+\\operatorname{Var}[X] &= \\frac{2}{\\lambda^2} - \\left(\\frac{1}{\\lambda}\\right)^2 = \\frac{1}{\\lambda^2} \\\\
+\\sigma &= \\frac{1}{\\lambda}
+\\end{aligned}$$
 
-Đặc biệt: với exponential, \`σ = mean\` — phân phối tản rộng đúng bằng trung bình.
+Đặc biệt: với exponential, $\\sigma = \\text{mean}$ — phân phối tản rộng đúng bằng trung bình.
 
 ### 4.4. 📝 Tóm tắt mục 4
 
-- \`Var[X] = E[(X-μ)²] = E[X²] - μ²\`.
-- Bernoulli(p): \`p(1-p)\`. Dice: \`35/12\`. Uniform(a,b): \`(b-a)²/12\`. Exp(λ): \`1/λ²\`.
-- \`Var ≥ 0\` luôn, bằng 0 khi và chỉ khi X là hằng số.
+- $\\operatorname{Var}[X] = E[(X-\\mu)^2] = E[X^2] - \\mu^2$.
+- Bernoulli(p): $p(1-p)$. Dice: $35/12$. Uniform(a,b): $(b-a)^2/12$. Exp(λ): $1/\\lambda^2$.
+- $\\operatorname{Var} \\ge 0$ luôn, bằng 0 khi và chỉ khi X là hằng số.
 
 ---
 
 ## 5. Tính chất phương sai
 
-### 5.1. \`Var[aX + b]\`
+### 5.1. Var[aX + b]
 
-\`\`\`
-Var[aX + b] = a² · Var[X]
-\`\`\`
+$$\\operatorname{Var}[aX + b] = a^2 \\cdot \\operatorname{Var}[X]$$
 
 Chứng minh:
 
-\`\`\`
-Var[aX + b] = E[(aX + b - (aμ + b))²]
-            = E[(aX - aμ)²]
-            = E[a²(X - μ)²]
-            = a²·E[(X - μ)²]
-            = a²·Var[X]
-\`\`\`
+$$\\begin{aligned}
+\\operatorname{Var}[aX + b] &= E[(aX + b - (a\\mu + b))^2] \\\\
+&= E[(aX - a\\mu)^2] \\\\
+&= E[a^2(X - \\mu)^2] \\\\
+&= a^2 \\cdot E[(X - \\mu)^2] \\\\
+&= a^2 \\cdot \\operatorname{Var}[X]
+\\end{aligned}$$
 
-Cả \`b\` (dịch chuyển) lẫn \`a\` (scale) đều quan trọng:
+Cả $b$ (dịch chuyển) lẫn $a$ (scale) đều quan trọng:
 
-- \`b\` không ảnh hưởng — dịch chuyển không thay đổi độ tản.
-- \`a\` được bình phương — scale gấp đôi → variance gấp 4.
+- $b$ không ảnh hưởng — dịch chuyển không thay đổi độ tản.
+- $a$ được bình phương — scale gấp đôi → variance gấp 4.
 
-> ⚠ **Lỗi rất phổ biến.** Viết \`Var[2X] = 2·Var[X]\`. **SAI.** Đúng là \`Var[2X] = 4·Var[X]\`. Lý do: variance đo theo bình phương đơn vị, scale \`a\` ảnh hưởng \`a²\`.
+> ⚠ **Lỗi rất phổ biến.** Viết $\\operatorname{Var}[2X] = 2 \\cdot \\operatorname{Var}[X]$. **SAI.** Đúng là $\\operatorname{Var}[2X] = 4 \\cdot \\operatorname{Var}[X]$. Lý do: variance đo theo bình phương đơn vị, scale $a$ ảnh hưởng $a^2$.
 >
-> Tương ứng cho σ: \`σ[aX] = |a|·σ[X]\` (cùng đơn vị với X).
+> Tương ứng cho σ: $\\sigma[aX] = |a| \\cdot \\sigma[X]$ (cùng đơn vị với X).
 
-### 5.2. \`Var[X + Y]\` và covariance
+### 5.2. Var[X + Y] và covariance
 
-\`\`\`
-Var[X + Y] = Var[X] + Var[Y] + 2·Cov(X, Y)
-\`\`\`
+$$\\operatorname{Var}[X + Y] = \\operatorname{Var}[X] + \\operatorname{Var}[Y] + 2 \\cdot \\operatorname{Cov}(X, Y)$$
 
-**Nếu X, Y độc lập** (hoặc tổng quát hơn: uncorrelated): \`Cov = 0\` → \`Var[X + Y] = Var[X] + Var[Y]\`.
+**Nếu X, Y độc lập** (hoặc tổng quát hơn: uncorrelated): $\\operatorname{Cov} = 0$ → $\\operatorname{Var}[X + Y] = \\operatorname{Var}[X] + \\operatorname{Var}[Y]$.
 
 Chứng minh đầy đủ:
 
-\`\`\`
-Var[X + Y] = E[(X + Y - μ_X - μ_Y)²]
-           = E[((X - μ_X) + (Y - μ_Y))²]
-           = E[(X - μ_X)² + (Y - μ_Y)² + 2(X - μ_X)(Y - μ_Y)]
-           = Var[X] + Var[Y] + 2·E[(X - μ_X)(Y - μ_Y)]
-           = Var[X] + Var[Y] + 2·Cov(X, Y)
-\`\`\`
+$$\\begin{aligned}
+\\operatorname{Var}[X + Y] &= E[(X + Y - \\mu_X - \\mu_Y)^2] \\\\
+&= E[((X - \\mu_X) + (Y - \\mu_Y))^2] \\\\
+&= E[(X - \\mu_X)^2 + (Y - \\mu_Y)^2 + 2(X - \\mu_X)(Y - \\mu_Y)] \\\\
+&= \\operatorname{Var}[X] + \\operatorname{Var}[Y] + 2 \\cdot E[(X - \\mu_X)(Y - \\mu_Y)] \\\\
+&= \\operatorname{Var}[X] + \\operatorname{Var}[Y] + 2 \\cdot \\operatorname{Cov}(X, Y)
+\\end{aligned}$$
 
 ### 5.3. Ví dụ thực hành
 
 #### Tổng hai xúc xắc độc lập
 
-\`\`\`
-Var[X + Y] = Var[X] + Var[Y] = 35/12 + 35/12 = 70/12 ≈ 5.833
-σ_{X+Y} = √(70/12) ≈ 2.415
-\`\`\`
+$$\\begin{aligned}
+\\operatorname{Var}[X + Y] &= \\operatorname{Var}[X] + \\operatorname{Var}[Y] = \\frac{35}{12} + \\frac{35}{12} = \\frac{70}{12} \\approx 5.833 \\\\
+\\sigma_{X+Y} &= \\sqrt{\\frac{70}{12}} \\approx 2.415
+\\end{aligned}$$
 
-#### Hiệu hai biến — \`Var[X - Y]\`
+#### Hiệu hai biến — Var[X - Y]
 
-\`X - Y = X + (-Y)\`. Áp công thức:
+$X - Y = X + (-Y)$. Áp công thức:
 
-\`\`\`
-Var[X - Y] = Var[X] + Var[-Y] + 2·Cov(X, -Y)
-           = Var[X] + Var[Y] - 2·Cov(X, Y)
-\`\`\`
+$$\\begin{aligned}
+\\operatorname{Var}[X - Y] &= \\operatorname{Var}[X] + \\operatorname{Var}[-Y] + 2 \\cdot \\operatorname{Cov}(X, -Y) \\\\
+&= \\operatorname{Var}[X] + \\operatorname{Var}[Y] - 2 \\cdot \\operatorname{Cov}(X, Y)
+\\end{aligned}$$
 
-Nếu độc lập: \`Var[X - Y] = Var[X] + Var[Y]\` — **vẫn cộng**, không trừ.
+Nếu độc lập: $\\operatorname{Var}[X - Y] = \\operatorname{Var}[X] + \\operatorname{Var}[Y]$ — **vẫn cộng**, không trừ.
 
-> ❓ **Câu hỏi tự nhiên: \`Var[X - Y]\` có thể âm không?** Không, không bao giờ. Variance theo định nghĩa là kỳ vọng của một bình phương ≥ 0. Nếu bạn ra số âm, đó là lỗi tính.
+> ❓ **Câu hỏi tự nhiên: $\\operatorname{Var}[X - Y]$ có thể âm không?** Không, không bao giờ. Variance theo định nghĩa là kỳ vọng của một bình phương ≥ 0. Nếu bạn ra số âm, đó là lỗi tính.
 
 ### 5.4. 📝 Tóm tắt mục 5
 
-- \`Var[aX + b] = a²·Var[X]\`. Đừng quên bình phương \`a\`.
-- \`Var[X + Y] = Var[X] + Var[Y] + 2·Cov\`. Độc lập → bỏ Cov.
-- \`Var[X - Y] = Var[X] + Var[Y] - 2·Cov\`. Vẫn không âm.
+- $\\operatorname{Var}[aX + b] = a^2 \\cdot \\operatorname{Var}[X]$. Đừng quên bình phương $a$.
+- $\\operatorname{Var}[X + Y] = \\operatorname{Var}[X] + \\operatorname{Var}[Y] + 2 \\cdot \\operatorname{Cov}$. Độc lập → bỏ Cov.
+- $\\operatorname{Var}[X - Y] = \\operatorname{Var}[X] + \\operatorname{Var}[Y] - 2 \\cdot \\operatorname{Cov}$. Vẫn không âm.
 
 ---
 
 ## 6. Độ lệch chuẩn (Standard Deviation)
 
-\`\`\`
-σ[X] = √Var[X]
-\`\`\`
+$$\\sigma[X] = \\sqrt{\\operatorname{Var}[X]}$$
 
 **Tại sao cần thêm σ khi đã có Var?**
 
-- Var có đơn vị **bình phương** của X. Nếu X là chiều cao tính bằng cm, Var có đơn vị cm². Không trực quan.
+- $\\operatorname{Var}$ có đơn vị **bình phương** của X. Nếu X là chiều cao tính bằng cm, $\\operatorname{Var}$ có đơn vị cm². Không trực quan.
 - σ cùng đơn vị với X — đọc được trực tiếp: "trung bình lệch khỏi mean khoảng σ".
-- Trong phân phối chuẩn: 68% giá trị nằm trong \`μ ± σ\`, 95% trong \`μ ± 2σ\`, 99.7% trong \`μ ± 3σ\`.
+- Trong phân phối chuẩn: 68% giá trị nằm trong $\\mu \\pm \\sigma$, 95% trong $\\mu \\pm 2\\sigma$, 99.7% trong $\\mu \\pm 3\\sigma$.
 
 ### Ví dụ
 
-- Xúc xắc: \`σ ≈ 1.708\` — giá trị trung bình lệch khỏi 3.5 khoảng 1.7.
-- IQ chuẩn \`N(100, 15²)\`: \`σ = 15\`, nghĩa là \`[85, 115]\` chứa 68% dân số.
+- Xúc xắc: $\\sigma \\approx 1.708$ — giá trị trung bình lệch khỏi 3.5 khoảng 1.7.
+- IQ chuẩn $N(100, 15^2)$: $\\sigma = 15$, nghĩa là $[85, 115]$ chứa 68% dân số.
 
-> 📝 **Tóm tắt mục 6.** σ = √Var. Cùng đơn vị X. Là thước đo "tản" có ý nghĩa thực tế.
+> 📝 **Tóm tắt mục 6.** $\\sigma = \\sqrt{\\operatorname{Var}}$. Cùng đơn vị X. Là thước đo "tản" có ý nghĩa thực tế.
 
 ---
 
-## 7. Covariance \`Cov(X, Y)\`
+## 7. Covariance Cov(X, Y)
 
 ### 7.1. Trực giác
 
-> 💡 **Trực giác.** Khi \`X\` lớn, \`Y\` có xu hướng cũng lớn hay nhỏ?
+> 💡 **Trực giác.** Khi $X$ lớn, $Y$ có xu hướng cũng lớn hay nhỏ?
 >
 > - Cùng lớn / cùng nhỏ → **đồng biến** → Cov dương.
 > - X lớn đi với Y nhỏ → **nghịch biến** → Cov âm.
-> - Không có quan hệ tuyến tính → Cov ≈ 0.
+> - Không có quan hệ tuyến tính → $\\operatorname{Cov} \\approx 0$.
 
 ### 7.2. Định nghĩa
 
-\`\`\`
-Cov(X, Y) = E[(X - μ_X)(Y - μ_Y)]
-          = E[XY] - E[X]·E[Y]    (công thức thực hành)
-\`\`\`
+$$\\begin{aligned}
+\\operatorname{Cov}(X, Y) &= E[(X - \\mu_X)(Y - \\mu_Y)] \\\\
+&= E[XY] - E[X] \\cdot E[Y] \\quad \\text{(công thức thực hành)}
+\\end{aligned}$$
 
 Chứng minh dạng thứ hai:
 
-\`\`\`
-E[(X - μ_X)(Y - μ_Y)] = E[XY - μ_X·Y - X·μ_Y + μ_X·μ_Y]
-                     = E[XY] - μ_X·E[Y] - μ_Y·E[X] + μ_X·μ_Y
-                     = E[XY] - μ_X·μ_Y - μ_X·μ_Y + μ_X·μ_Y
-                     = E[XY] - μ_X·μ_Y
-\`\`\`
+$$\\begin{aligned}
+E[(X - \\mu_X)(Y - \\mu_Y)] &= E[XY - \\mu_X \\cdot Y - X \\cdot \\mu_Y + \\mu_X \\cdot \\mu_Y] \\\\
+&= E[XY] - \\mu_X \\cdot E[Y] - \\mu_Y \\cdot E[X] + \\mu_X \\cdot \\mu_Y \\\\
+&= E[XY] - \\mu_X \\cdot \\mu_Y - \\mu_X \\cdot \\mu_Y + \\mu_X \\cdot \\mu_Y \\\\
+&= E[XY] - \\mu_X \\cdot \\mu_Y
+\\end{aligned}$$
 
 ### 7.3. Tính chất
 
-- \`Cov(X, X) = Var[X]\`.
-- \`Cov(X, Y) = Cov(Y, X)\` — đối xứng.
-- Bilinear: \`Cov(aX + b, cY + d) = ac·Cov(X, Y)\` — hằng số bị triệt, scale nhân vào.
-- \`|Cov(X, Y)| ≤ σ_X · σ_Y\` (bất đẳng thức Cauchy-Schwarz).
-- **Độc lập → \`Cov = 0\`** (nhưng chiều ngược lại không đúng — xem 8.3).
+- $\\operatorname{Cov}(X, X) = \\operatorname{Var}[X]$.
+- $\\operatorname{Cov}(X, Y) = \\operatorname{Cov}(Y, X)$ — đối xứng.
+- Bilinear: $\\operatorname{Cov}(aX + b, cY + d) = ac \\cdot \\operatorname{Cov}(X, Y)$ — hằng số bị triệt, scale nhân vào.
+- $|\\operatorname{Cov}(X, Y)| \\le \\sigma_X \\cdot \\sigma_Y$ (bất đẳng thức Cauchy-Schwarz).
+- **Độc lập → $\\operatorname{Cov} = 0$** (nhưng chiều ngược lại không đúng — xem 8.3).
 
 ### 7.4. Walk-through 3 ví dụ
 
 #### Ví dụ 1 — X, Y độc lập
 
-\`X, Y ~ Bernoulli(0.5)\` độc lập. Tính Cov(X, Y).
+$X, Y \\sim \\text{Bernoulli}(0.5)$ độc lập. Tính $\\operatorname{Cov}(X, Y)$.
 
-\`\`\`
-E[X] = E[Y] = 0.5
-E[XY] = P(X=1, Y=1)·1·1 = 0.5·0.5 = 0.25
-Cov(X, Y) = 0.25 - 0.5·0.5 = 0
-\`\`\`
+$$\\begin{aligned}
+E[X] &= E[Y] = 0.5 \\\\
+E[XY] &= P(X=1, Y=1) \\cdot 1 \\cdot 1 = 0.5 \\cdot 0.5 = 0.25 \\\\
+\\operatorname{Cov}(X, Y) &= 0.25 - 0.5 \\cdot 0.5 = 0
+\\end{aligned}$$
 
 Như mong đợi.
 
 #### Ví dụ 2 — Y = X (đồng biến hoàn hảo)
 
-\`\`\`
-Cov(X, X) = E[X²] - (E[X])² = Var[X]
-\`\`\`
+$$\\operatorname{Cov}(X, X) = E[X^2] - (E[X])^2 = \\operatorname{Var}[X]$$
 
 #### Ví dụ 3 — Joint PMF cho 2 xúc xắc giả tạo
 
-\`X, Y ∈ {1, 2, 3}\` với joint PMF:
+$X, Y \\in \\{1, 2, 3\\}$ với joint PMF:
 
 | X\\Y | 1 | 2 | 3 |
 |-----|-----|-----|-----|
@@ -505,7 +479,7 @@ Cov(X, X) = E[X²] - (E[X])² = Var[X]
 | 2 | 0.05 | 0.20 | 0.05 |
 | 3 | 0 | 0.05 | 0.25 |
 
-Marginal: \`P(X=1) = 0.3, P(X=2) = 0.3, P(X=3) = 0.3\`. Đợi — tổng \`0.9\`. Để đúng tổng 1, sửa diagonal lên một chút. Lấy bảng dễ hơn:
+Marginal: $P(X=1) = 0.3, P(X=2) = 0.3, P(X=3) = 0.3$. Đợi — tổng $0.9$. Để đúng tổng 1, sửa diagonal lên một chút. Lấy bảng dễ hơn:
 
 | X\\Y | 1 | 2 | 3 |
 |-----|-----|-----|-----|
@@ -513,184 +487,168 @@ Marginal: \`P(X=1) = 0.3, P(X=2) = 0.3, P(X=3) = 0.3\`. Đợi — tổng \`0.9\
 | 2 | 0.05 | 0.20 | 0.05 |
 | 3 | 0 | 0.05 | 0.3 |
 
-Tổng = \`0.3+0.05+0+0.05+0.2+0.05+0+0.05+0.3 = 1.0\` ✓.
+Tổng $= 0.3+0.05+0+0.05+0.2+0.05+0+0.05+0.3 = 1.0$ ✓.
 
-Marginal X: \`P(X=1) = 0.35, P(X=2) = 0.30, P(X=3) = 0.35\`. Đối xứng → marginal Y giống hệt.
+Marginal X: $P(X=1) = 0.35, P(X=2) = 0.30, P(X=3) = 0.35$. Đối xứng → marginal Y giống hệt.
 
-\`\`\`
-E[X] = 1·0.35 + 2·0.30 + 3·0.35 = 0.35 + 0.6 + 1.05 = 2.0
-E[Y] = 2.0
-\`\`\`
+$$\\begin{aligned}
+E[X] &= 1 \\cdot 0.35 + 2 \\cdot 0.30 + 3 \\cdot 0.35 = 0.35 + 0.6 + 1.05 = 2.0 \\\\
+E[Y] &= 2.0
+\\end{aligned}$$
 
-\`\`\`
-E[XY] = 1·1·0.3 + 1·2·0.05 + 1·3·0 + 2·1·0.05 + 2·2·0.20 + 2·3·0.05
-      + 3·1·0 + 3·2·0.05 + 3·3·0.3
-      = 0.3 + 0.1 + 0 + 0.1 + 0.8 + 0.3 + 0 + 0.3 + 2.7
-      = 4.6
+$$\\begin{aligned}
+E[XY] &= 1 \\cdot 1 \\cdot 0.3 + 1 \\cdot 2 \\cdot 0.05 + 1 \\cdot 3 \\cdot 0 + 2 \\cdot 1 \\cdot 0.05 + 2 \\cdot 2 \\cdot 0.20 + 2 \\cdot 3 \\cdot 0.05 \\\\
+&\\quad + 3 \\cdot 1 \\cdot 0 + 3 \\cdot 2 \\cdot 0.05 + 3 \\cdot 3 \\cdot 0.3 \\\\
+&= 0.3 + 0.1 + 0 + 0.1 + 0.8 + 0.3 + 0 + 0.3 + 2.7 \\\\
+&= 4.6 \\\\
+\\operatorname{Cov}(X, Y) &= 4.6 - 2.0 \\cdot 2.0 = 0.6
+\\end{aligned}$$
 
-Cov(X, Y) = 4.6 - 2.0·2.0 = 0.6
-\`\`\`
-
-Dương — đúng vì bảng tập trung khối lượng ở đường chéo \`X = Y\` (đồng biến).
+Dương — đúng vì bảng tập trung khối lượng ở đường chéo $X = Y$ (đồng biến).
 
 ### 7.5. 📝 Tóm tắt mục 7
 
 - Cov đo mức "đồng biến": dương = cùng tăng/giảm, âm = ngược.
-- \`Cov(X, Y) = E[XY] - E[X]E[Y]\`. Khi độc lập = 0.
-- \`Cov(X, X) = Var[X]\`. Bilinear.
+- $\\operatorname{Cov}(X, Y) = E[XY] - E[X]E[Y]$. Khi độc lập = 0.
+- $\\operatorname{Cov}(X, X) = \\operatorname{Var}[X]$. Bilinear.
 
 ---
 
-## 8. Hệ số tương quan \`ρ\`
+## 8. Hệ số tương quan ρ
 
 ### 8.1. Tại sao cần?
 
-Covariance có đơn vị **đơn vị X · đơn vị Y** — không thể so sánh giữa các cặp khác đơn vị. Ví dụ: Cov(chiều cao cm, cân nặng kg) và Cov(chiều cao m, cân nặng kg) khác nhau bằng đúng tỉ lệ 100, dù cùng một dữ liệu.
+Covariance có đơn vị **đơn vị X · đơn vị Y** — không thể so sánh giữa các cặp khác đơn vị. Ví dụ: $\\operatorname{Cov}(\\text{chiều cao cm}, \\text{cân nặng kg})$ và $\\operatorname{Cov}(\\text{chiều cao m}, \\text{cân nặng kg})$ khác nhau bằng đúng tỉ lệ 100, dù cùng một dữ liệu.
 
 Cần một số **không đơn vị**, **bị chặn**, để dùng phổ quát.
 
 ### 8.2. Định nghĩa và tính chất
 
-\`\`\`
-ρ(X, Y) = Cov(X, Y) / (σ_X · σ_Y)
-\`\`\`
+$$\\rho(X, Y) = \\frac{\\operatorname{Cov}(X, Y)}{\\sigma_X \\cdot \\sigma_Y}$$
 
 **Tính chất quan trọng:**
 
-- \`-1 ≤ ρ ≤ 1\` (suy từ Cauchy-Schwarz).
-- \`ρ = +1\` ⇔ \`Y = aX + b\` với \`a > 0\` (tuyến tính dương hoàn hảo).
-- \`ρ = -1\` ⇔ \`Y = aX + b\` với \`a < 0\`.
-- \`ρ = 0\` ⇔ **uncorrelated** (không có quan hệ **tuyến tính**) — không kéo theo độc lập!
+- $-1 \\le \\rho \\le 1$ (suy từ Cauchy-Schwarz).
+- $\\rho = +1 \\iff Y = aX + b$ với $a > 0$ (tuyến tính dương hoàn hảo).
+- $\\rho = -1 \\iff Y = aX + b$ với $a < 0$.
+- $\\rho = 0 \\iff$ **uncorrelated** (không có quan hệ **tuyến tính**) — không kéo theo độc lập!
 
 Bằng số:
 
-- \`|ρ| > 0.7\` thường gọi là "tương quan mạnh".
-- \`0.3 < |ρ| < 0.7\` "trung bình".
-- \`|ρ| < 0.3\` "yếu".
+- $|\\rho| > 0.7$ thường gọi là "tương quan mạnh".
+- $0.3 < |\\rho| < 0.7$ "trung bình".
+- $|\\rho| < 0.3$ "yếu".
 
-### 8.3. ⚠ \`ρ = 0\` không kéo theo độc lập
+### 8.3. ⚠ ρ = 0 không kéo theo độc lập
 
-**Ví dụ phản chứng kinh điển.** \`X ~ Uniform(-1, 1)\`, \`Y = X²\`.
+**Ví dụ phản chứng kinh điển.** $X \\sim \\text{Uniform}(-1, 1)$, $Y = X^2$.
 
-\`\`\`
-E[X] = 0, E[Y] = E[X²] = 1/3 (đã tính cho Uniform(0,1), điều chỉnh)
-E[XY] = E[X³] = ∫_{-1}^{1} x³ · 1/2 dx = 0  (hàm lẻ)
-Cov(X, Y) = 0 - 0·(1/3) = 0
-→ ρ = 0
-\`\`\`
+$$\\begin{aligned}
+E[X] &= 0, \\quad E[Y] = E[X^2] = \\tfrac{1}{3} \\quad (\\text{đã tính cho Uniform(0,1), điều chỉnh}) \\\\
+E[XY] &= E[X^3] = \\int_{-1}^{1} x^3 \\cdot \\tfrac{1}{2}\\,dx = 0 \\quad (\\text{hàm lẻ}) \\\\
+\\operatorname{Cov}(X, Y) &= 0 - 0 \\cdot \\tfrac{1}{3} = 0 \\\\
+&\\to \\rho = 0
+\\end{aligned}$$
 
-Nhưng \`Y\` được xác định **hoàn toàn** bởi \`X\` (\`Y = X²\`) — chúng cực kỳ phụ thuộc!
+Nhưng $Y$ được xác định **hoàn toàn** bởi $X$ ($Y = X^2$) — chúng cực kỳ phụ thuộc!
 
-**Bài học:** Cov và ρ chỉ bắt được quan hệ **tuyến tính**. Quan hệ phi tuyến (parabola, sin, exp) có thể có \`ρ = 0\` mà vẫn rất phụ thuộc.
+**Bài học:** Cov và ρ chỉ bắt được quan hệ **tuyến tính**. Quan hệ phi tuyến (parabola, sin, exp) có thể có $\\rho = 0$ mà vẫn rất phụ thuộc.
 
-> ❓ **Câu hỏi tự nhiên: Vậy độc lập có suy ra ρ = 0 không?** Có. \`X ⊥ Y ⇒ E[XY] = E[X]E[Y] ⇒ Cov = 0 ⇒ ρ = 0\`. Chiều ngược thì không, như ví dụ trên.
+> ❓ **Câu hỏi tự nhiên: Vậy độc lập có suy ra ρ = 0 không?** Có. $X \\perp Y \\Rightarrow E[XY] = E[X]E[Y] \\Rightarrow \\operatorname{Cov} = 0 \\Rightarrow \\rho = 0$. Chiều ngược thì không, như ví dụ trên.
 >
-> **Một ngoại lệ quan trọng:** nếu \`(X, Y)\` là **joint normal**, thì \`ρ = 0 ⇔ X ⊥ Y\`. Đây là một trong những lý do Gaussian đặc biệt.
+> **Một ngoại lệ quan trọng:** nếu $(X, Y)$ là **joint normal**, thì $\\rho = 0 \\iff X \\perp Y$. Đây là một trong những lý do Gaussian đặc biệt.
 
 ### 8.4. 📝 Tóm tắt mục 8
 
-- ρ = Cov chuẩn hóa, không đơn vị, ∈ [-1, 1].
-- ρ = ±1 ⇔ tuyến tính hoàn hảo.
-- ρ = 0 chỉ là uncorrelated, **không** kéo theo độc lập (trừ joint normal).
+- $\\rho = \\operatorname{Cov}$ chuẩn hóa, không đơn vị, $\\in [-1, 1]$.
+- $\\rho = \\pm 1 \\iff$ tuyến tính hoàn hảo.
+- $\\rho = 0$ chỉ là uncorrelated, **không** kéo theo độc lập (trừ joint normal).
 
 ---
 
-## 9. Covariance matrix \`Σ\`
+## 9. Covariance matrix Σ
 
 ### 9.1. Trực giác
 
-> 💡 Khi có **nhiều** biến ngẫu nhiên \`X₁, ..., Xₙ\` cùng lúc (vector ngẫu nhiên \`X ∈ ℝⁿ\`), ta cần một cách gọn để ghi:
+> 💡 Khi có **nhiều** biến ngẫu nhiên $X_1, \\dots, X_n$ cùng lúc (vector ngẫu nhiên $X \\in \\mathbb{R}^n$), ta cần một cách gọn để ghi:
 >
-> - Phương sai của mỗi \`Xᵢ\`.
-> - Covariance giữa mọi cặp \`Xᵢ, Xⱼ\`.
+> - Phương sai của mỗi $X_i$.
+> - Covariance giữa mọi cặp $X_i, X_j$.
 >
-> → Đóng gói trong một ma trận \`n × n\`.
+> → Đóng gói trong một ma trận $n \\times n$.
 
 ### 9.2. Định nghĩa
 
-Với \`X = (X₁, ..., Xₙ)ᵀ\` và \`μ = E[X] = (μ₁, ..., μₙ)ᵀ\`:
+Với $X = (X_1, \\dots, X_n)^\\mathsf{T}$ và $\\mu = E[X] = (\\mu_1, \\dots, \\mu_n)^\\mathsf{T}$:
 
-\`\`\`
-Σ = E[(X - μ)(X - μ)ᵀ]
-\`\`\`
+$$\\Sigma = E[(X - \\mu)(X - \\mu)^\\mathsf{T}]$$
 
-Thành phần thứ \`(i, j)\`:
+Thành phần thứ $(i, j)$:
 
-\`\`\`
-Σᵢⱼ = Cov(Xᵢ, Xⱼ)
-\`\`\`
+$$\\Sigma_{ij} = \\operatorname{Cov}(X_i, X_j)$$
 
 Đặc biệt:
 
-\`\`\`
-Σᵢᵢ = Var[Xᵢ]    (đường chéo = phương sai mỗi biến)
-\`\`\`
+$$\\Sigma_{ii} = \\operatorname{Var}[X_i] \\quad \\text{(đường chéo = phương sai mỗi biến)}$$
 
-### 9.3. Ví dụ — \`n = 2\`
+### 9.3. Ví dụ — n = 2
 
-\`\`\`
-      [ Var[X]      Cov(X,Y) ]
-Σ  =  [ Cov(X,Y)    Var[Y]   ]
-\`\`\`
+$$\\Sigma = \\begin{bmatrix} \\operatorname{Var}[X] & \\operatorname{Cov}(X,Y) \\\\ \\operatorname{Cov}(X,Y) & \\operatorname{Var}[Y] \\end{bmatrix}$$
 
-Với \`Var[X] = 4, Var[Y] = 9, Cov(X, Y) = 3\`:
+Với $\\operatorname{Var}[X] = 4, \\operatorname{Var}[Y] = 9, \\operatorname{Cov}(X, Y) = 3$:
 
-\`\`\`
-      [ 4   3 ]
-Σ  =  [ 3   9 ]
-\`\`\`
+$$\\Sigma = \\begin{bmatrix} 4 & 3 \\\\ 3 & 9 \\end{bmatrix}$$
 
-\`ρ = 3 / (2·3) = 0.5\`.
+$\\rho = 3 / (2 \\cdot 3) = 0.5$.
 
-### 9.4. Tính chất của \`Σ\`
+### 9.4. Tính chất của Σ
 
 #### 9.4.1. Đối xứng
 
-\`Σᵢⱼ = Cov(Xᵢ, Xⱼ) = Cov(Xⱼ, Xᵢ) = Σⱼᵢ\`. Suy ra \`Σᵀ = Σ\`.
+$\\Sigma_{ij} = \\operatorname{Cov}(X_i, X_j) = \\operatorname{Cov}(X_j, X_i) = \\Sigma_{ji}$. Suy ra $\\Sigma^\\mathsf{T} = \\Sigma$.
 
 #### 9.4.2. Positive semi-definite (PSD)
 
-\`vᵀ Σ v ≥ 0\` với mọi \`v ∈ ℝⁿ\`.
+$v^\\mathsf{T} \\Sigma v \\ge 0$ với mọi $v \\in \\mathbb{R}^n$.
 
 **Chứng minh:**
 
-\`\`\`
-vᵀ Σ v = vᵀ E[(X-μ)(X-μ)ᵀ] v
-       = E[vᵀ(X-μ)(X-μ)ᵀv]
-       = E[((X-μ)ᵀv)²]
-       ≥ 0   (kỳ vọng của một bình phương)
-\`\`\`
+$$\\begin{aligned}
+v^\\mathsf{T} \\Sigma v &= v^\\mathsf{T} E[(X-\\mu)(X-\\mu)^\\mathsf{T}] v \\\\
+&= E[v^\\mathsf{T}(X-\\mu)(X-\\mu)^\\mathsf{T}v] \\\\
+&= E[((X-\\mu)^\\mathsf{T}v)^2] \\\\
+&\\ge 0 \\quad \\text{(kỳ vọng của một bình phương)}
+\\end{aligned}$$
 
-Hệ quả: mọi eigenvalue của \`Σ\` ≥ 0.
+Hệ quả: mọi eigenvalue của $\\Sigma \\ge 0$.
 
-> ❓ **Khi nào Σ là positive definite (strict, không "semi")?** Khi không có hướng nào mà phương sai bằng 0 — tương đương \`det Σ > 0\`. Ví dụ: nếu một biến là tổ hợp tuyến tính của các biến khác (collinear), thì có hướng mà phương sai = 0 → Σ chỉ PSD, không PD.
+> ❓ **Khi nào Σ là positive definite (strict, không "semi")?** Khi không có hướng nào mà phương sai bằng 0 — tương đương $\\det \\Sigma > 0$. Ví dụ: nếu một biến là tổ hợp tuyến tính của các biến khác (collinear), thì có hướng mà phương sai = 0 → Σ chỉ PSD, không PD.
 
 ### 9.5. Ví dụ tính eigenvalue (n = 2)
 
-\`\`\`
-      [ 4   3 ]
-Σ  =  [ 3   9 ]
+$$\\Sigma = \\begin{bmatrix} 4 & 3 \\\\ 3 & 9 \\end{bmatrix}$$
 
-det(Σ - λI) = (4 - λ)(9 - λ) - 9 = λ² - 13λ + 27 = 0
-λ = (13 ± √(169 - 108))/2 = (13 ± √61)/2
-λ₁ ≈ 10.405, λ₂ ≈ 2.595    — cả hai > 0, Σ là PD.
-\`\`\`
+$$\\begin{aligned}
+\\det(\\Sigma - \\lambda I) &= (4 - \\lambda)(9 - \\lambda) - 9 = \\lambda^2 - 13\\lambda + 27 = 0 \\\\
+\\lambda &= \\frac{13 \\pm \\sqrt{169 - 108}}{2} = \\frac{13 \\pm \\sqrt{61}}{2} \\\\
+\\lambda_1 &\\approx 10.405, \\quad \\lambda_2 \\approx 2.595 \\quad \\text{— cả hai} > 0, \\Sigma \\text{ là PD.}
+\\end{aligned}$$
 
 ### 9.6. Liên hệ Tầng 4 — PCA
 
 > 💡 **Bridge tới PCA.** PCA (Principal Component Analysis) bắt đầu bằng cách:
 >
 > 1. Lấy ma trận dữ liệu, trừ mean từng feature.
-> 2. Tính ma trận covariance mẫu \`Σ̂ = (1/N) Xᵀ X\`.
-> 3. Eigen-decompose \`Σ̂ = V Λ Vᵀ\`.
+> 2. Tính ma trận covariance mẫu $\\hat{\\Sigma} = \\frac{1}{N} X^\\mathsf{T} X$.
+> 3. Eigen-decompose $\\hat{\\Sigma} = V \\Lambda V^\\mathsf{T}$.
 > 4. Eigenvector ứng với eigenvalue lớn nhất = "hướng phương sai lớn nhất" = principal component đầu tiên.
 >
 > Sẽ học chi tiết ở [Tầng 4 — Linear Algebra Lesson 08](../../04-LinearAlgebra/lesson-08-pca/) (nếu chưa có thì coi như mục tiếp theo cần học).
 
 ### 9.7. 📝 Tóm tắt mục 9
 
-- \`Σᵢⱼ = Cov(Xᵢ, Xⱼ)\`. Đường chéo = variance.
-- Đối xứng và PSD. Eigenvalue ≥ 0.
+- $\\Sigma_{ij} = \\operatorname{Cov}(X_i, X_j)$. Đường chéo = variance.
+- Đối xứng và PSD. Eigenvalue $\\ge 0$.
 - Nền tảng cho PCA, Gaussian đa biến, Kalman filter.
 
 ---
@@ -699,33 +657,27 @@ det(Σ - λI) = (4 - λ)(9 - λ) - 9 = λ² - 13λ + 27 = 0
 
 ### 10.1. MSE loss và variance của residuals
 
-Cho dataset \`{(xᵢ, yᵢ)}\` và model dự đoán \`ŷᵢ = f(xᵢ)\`. Residual \`rᵢ = yᵢ - ŷᵢ\`.
+Cho dataset $\\{(x_i, y_i)\\}$ và model dự đoán $\\hat{y}_i = f(x_i)$. Residual $r_i = y_i - \\hat{y}_i$.
 
-\`\`\`
-MSE = (1/N) Σᵢ rᵢ² = (1/N) Σᵢ (yᵢ - ŷᵢ)²
-\`\`\`
+$$\\text{MSE} = \\frac{1}{N} \\sum_i r_i^2 = \\frac{1}{N} \\sum_i (y_i - \\hat{y}_i)^2$$
 
-Nếu model được fit để \`mean(rᵢ) = 0\` (true cho linear regression với intercept), thì:
+Nếu model được fit để $\\text{mean}(r_i) = 0$ (true cho linear regression với intercept), thì:
 
-\`\`\`
-MSE = (1/N) Σ (rᵢ - 0)² = sample variance of residuals
-\`\`\`
+$$\\text{MSE} = \\frac{1}{N} \\sum (r_i - 0)^2 = \\text{sample variance of residuals}$$
 
 Tức là **train với MSE = minimize phương sai của sai số**. Đó là lý do MSE rất tự nhiên dưới giả thuyết Gaussian noise.
 
 ### 10.2. Bias-variance tradeoff
 
-\`\`\`
-E[(ŷ - y)²] = Bias² + Variance + Irreducible noise
-\`\`\`
+$$E[(\\hat{y} - y)^2] = \\text{Bias}^2 + \\text{Variance} + \\text{Irreducible noise}$$
 
 Trong đó:
 
-- **Bias** = \`E[ŷ] - y\` — model "trung bình" có lệch khỏi sự thật bao nhiêu (underfit).
-- **Variance** = \`Var[ŷ]\` — model thay đổi cỡ nào khi đổi tập train (overfit).
-- **Irreducible noise** = \`Var[noise]\` — không thể giảm bằng model tốt hơn.
+- **Bias** $= E[\\hat{y}] - y$ — model "trung bình" có lệch khỏi sự thật bao nhiêu (underfit).
+- **Variance** $= \\operatorname{Var}[\\hat{y}]$ — model thay đổi cỡ nào khi đổi tập train (overfit).
+- **Irreducible noise** $= \\operatorname{Var}[\\text{noise}]$ — không thể giảm bằng model tốt hơn.
 
-Tradeoff: model phức tạp → bias thấp + variance cao; model đơn giản → bias cao + variance thấp. Mục tiêu là tổng \`Bias² + Variance\` nhỏ nhất.
+Tradeoff: model phức tạp → bias thấp + variance cao; model đơn giản → bias cao + variance thấp. Mục tiêu là tổng $\\text{Bias}^2 + \\text{Variance}$ nhỏ nhất.
 
 ### 10.3. PCA và covariance matrix
 
@@ -733,29 +685,25 @@ Như đã nói mục 9.6: PCA = eigen-decomposition của Σ. Eigenvalue lớn n
 
 ### 10.4. Gaussian đa biến
 
-\`\`\`
-X ~ N(μ, Σ)
-\`\`\`
+$$X \\sim N(\\mu, \\Sigma)$$
 
-PDF có dạng \`exp(-(1/2)(x - μ)ᵀ Σ⁻¹ (x - μ))\`. Σ⁻¹ gọi là **precision matrix**, đóng vai trò trong nhiều thuật toán (Gaussian Process, Kalman filter).
+PDF có dạng $\\exp\\left(-\\tfrac{1}{2}(x - \\mu)^\\mathsf{T} \\Sigma^{-1} (x - \\mu)\\right)$. $\\Sigma^{-1}$ gọi là **precision matrix**, đóng vai trò trong nhiều thuật toán (Gaussian Process, Kalman filter).
 
-> 📝 **Tóm tắt mục 10.** MSE ≈ variance of residuals. Bias² + Variance là phân rã sai số. PCA cần Σ. Gaussian đa biến cần Σ⁻¹.
+> 📝 **Tóm tắt mục 10.** MSE ≈ variance of residuals. $\\text{Bias}^2 + \\text{Variance}$ là phân rã sai số. PCA cần Σ. Gaussian đa biến cần $\\Sigma^{-1}$.
 
 ---
 
 ## 11. ❓ Q&A — câu hỏi tự nhiên
 
-### Q1. \`E[XY] ≠ E[X]·E[Y]\` khi nào?
+### Q1. E[XY] ≠ E[X]·E[Y] khi nào?
 
-Khi \`Cov(X, Y) ≠ 0\`. Cụ thể:
+Khi $\\operatorname{Cov}(X, Y) \\ne 0$. Cụ thể:
 
-\`\`\`
-E[XY] = E[X]·E[Y] + Cov(X, Y)
-\`\`\`
+$$E[XY] = E[X] \\cdot E[Y] + \\operatorname{Cov}(X, Y)$$
 
-Nếu X, Y độc lập thì Cov = 0 và đẳng thức trở thành \`E[XY] = E[X]E[Y]\`. Ngược lại không.
+Nếu X, Y độc lập thì $\\operatorname{Cov} = 0$ và đẳng thức trở thành $E[XY] = E[X]E[Y]$. Ngược lại không.
 
-### Q2. \`Var[X - Y]\` có thể nhỏ hơn 0 không?
+### Q2. Var[X - Y] có thể nhỏ hơn 0 không?
 
 **Không.** Variance theo định nghĩa là kỳ vọng của bình phương ≥ 0. Nếu tính ra số âm → lỗi tính.
 
@@ -763,16 +711,16 @@ Nếu X, Y độc lập thì Cov = 0 và đẳng thức trở thành \`E[XY] = E
 
 - **Toán học**: bình phương khả vi mượt, dễ làm giải tích, dễ ráp vào MLE.
 - **Thống kê**: với Gaussian noise, MLE = least squares = MSE. Không có "mean absolute error MLE" trừ khi noise là Laplace.
-- **Hình học**: variance ↔ độ dài bình phương trong không gian L² → quan hệ rõ với Pythagore và orthogonality.
+- **Hình học**: variance ↔ độ dài bình phương trong không gian $L^2$ → quan hệ rõ với Pythagore và orthogonality.
 
 ### Q4. Σ luôn có inverse?
 
 **Không.** Σ là PSD, có thể có eigenvalue = 0 (singular). Khi nào singular?
 
 - Khi tồn tại tổ hợp tuyến tính của các biến có phương sai = 0 (collinear).
-- Trong thực tế: dữ liệu có ít sample hơn chiều (\`N < n\`) → sample Σ̂ chắc chắn singular.
+- Trong thực tế: dữ liệu có ít sample hơn chiều ($N < n$) → sample $\\hat{\\Sigma}$ chắc chắn singular.
 
-Giải pháp: regularize, \`Σ̂ + λI\` để đảm bảo invertible.
+Giải pháp: regularize, $\\hat{\\Sigma} + \\lambda I$ để đảm bảo invertible.
 
 ### Q5. Nếu hai biến không độc lập nhưng ρ = 0, sao phát hiện được?
 
@@ -784,10 +732,10 @@ Giải pháp: regularize, \`Σ̂ + λI\` để đảm bảo invertible.
 
 ## 12. ⚠ Lỗi thường gặp tổng hợp
 
-1. **\`Var[2X] = 2·Var[X]\`** — SAI, đúng là \`4·Var[X]\`.
-2. **\`E[g(X)] = g(E[X])\`** — SAI nói chung, đúng chỉ khi \`g\` tuyến tính.
-3. **\`E[XY] = E[X]·E[Y]\`** — chỉ đúng khi độc lập.
-4. **"ρ = 0 nghĩa là độc lập"** — SAI, chỉ là uncorrelated. Phản chứng: \`Y = X²\`.
+1. **$\\operatorname{Var}[2X] = 2 \\cdot \\operatorname{Var}[X]$** — SAI, đúng là $4 \\cdot \\operatorname{Var}[X]$.
+2. **$E[g(X)] = g(E[X])$** — SAI nói chung, đúng chỉ khi $g$ tuyến tính.
+3. **$E[XY] = E[X] \\cdot E[Y]$** — chỉ đúng khi độc lập.
+4. **"ρ = 0 nghĩa là độc lập"** — SAI, chỉ là uncorrelated. Phản chứng: $Y = X^2$.
 5. **"Var có cùng đơn vị X"** — SAI. Đó là σ. Var có đơn vị bình phương.
 6. **"Σ luôn invertible"** — SAI khi singular.
 7. **Nhầm Var/SD trong báo cáo** — đọc kỹ tài liệu.
@@ -799,47 +747,43 @@ Giải pháp: regularize, \`Σ̂ + λI\` để đảm bảo invertible.
 
 ### Bài 1
 
-Một xúc xắc 8 mặt đều. Tính \`E[X]\`, \`Var[X]\`, \`σ\`.
+Một xúc xắc 8 mặt đều. Tính $E[X]$, $\\operatorname{Var}[X]$, $\\sigma$.
 
 ### Bài 2
 
-\`X ~ Binomial(10, 0.4)\`. Tính \`E[X]\`, \`Var[X]\`.
+$X \\sim \\text{Binomial}(10, 0.4)$. Tính $E[X]$, $\\operatorname{Var}[X]$.
 
 ### Bài 3
 
-Cho \`X ~ Uniform(2, 8)\`. \`Y = 3X - 5\`. Tính \`E[Y]\` và \`Var[Y]\`.
+Cho $X \\sim \\text{Uniform}(2, 8)$. $Y = 3X - 5$. Tính $E[Y]$ và $\\operatorname{Var}[Y]$.
 
 ### Bài 4
 
-\`X, Y\` độc lập, \`Var[X] = 4, Var[Y] = 9\`. Tính:
-- \`Var[X + Y]\`
-- \`Var[X - Y]\`
-- \`Var[2X - 3Y]\`
+$X, Y$ độc lập, $\\operatorname{Var}[X] = 4, \\operatorname{Var}[Y] = 9$. Tính:
+- $\\operatorname{Var}[X + Y]$
+- $\\operatorname{Var}[X - Y]$
+- $\\operatorname{Var}[2X - 3Y]$
 
 ### Bài 5
 
-Joint PMF của \`(X, Y)\` với \`X, Y ∈ {0, 1}\`:
+Joint PMF của $(X, Y)$ với $X, Y \\in \\{0, 1\\}$:
 
 | X\\Y | 0 | 1 |
 |-----|---|---|
 | 0 | 0.4 | 0.1 |
 | 1 | 0.2 | 0.3 |
 
-Tính \`Cov(X, Y)\` và \`ρ(X, Y)\`.
+Tính $\\operatorname{Cov}(X, Y)$ và $\\rho(X, Y)$.
 
 ### Bài 6
 
 Cho covariance matrix:
 
-\`\`\`
-      [ 2   1   0 ]
-Σ  =  [ 1   2   1 ]
-      [ 0   1   2 ]
-\`\`\`
+$$\\Sigma = \\begin{bmatrix} 2 & 1 & 0 \\\\ 1 & 2 & 1 \\\\ 0 & 1 & 2 \\end{bmatrix}$$
 
 - Kiểm tra Σ có symmetric không.
 - Tính eigenvalue. Σ có PD không?
-- Cov(X₁, X₃) bằng bao nhiêu? Hai biến này có uncorrelated không?
+- $\\operatorname{Cov}(X_1, X_3)$ bằng bao nhiêu? Hai biến này có uncorrelated không?
 
 ---
 
@@ -847,114 +791,106 @@ Cho covariance matrix:
 
 ### Lời giải Bài 1
 
-\`X ∈ {1, 2, ..., 8}\`, mỗi giá trị xác suất \`1/8\`.
+$X \\in \\{1, 2, \\dots, 8\\}$, mỗi giá trị xác suất $1/8$.
 
-\`\`\`
-E[X] = (1+2+3+4+5+6+7+8)/8 = 36/8 = 4.5
-E[X²] = (1+4+9+16+25+36+49+64)/8 = 204/8 = 25.5
-Var[X] = 25.5 - 4.5² = 25.5 - 20.25 = 5.25 = 21/4
-σ = √5.25 ≈ 2.291
-\`\`\`
+$$\\begin{aligned}
+E[X] &= \\frac{1+2+3+4+5+6+7+8}{8} = \\frac{36}{8} = 4.5 \\\\
+E[X^2] &= \\frac{1+4+9+16+25+36+49+64}{8} = \\frac{204}{8} = 25.5 \\\\
+\\operatorname{Var}[X] &= 25.5 - 4.5^2 = 25.5 - 20.25 = 5.25 = \\frac{21}{4} \\\\
+\\sigma &= \\sqrt{5.25} \\approx 2.291
+\\end{aligned}$$
 
-**Verify nhanh:** với xúc xắc đều \`n\` mặt, có công thức \`Var = (n² - 1)/12\`. Với \`n = 8\`: \`(64-1)/12 = 63/12 = 5.25\`. ✓
+**Verify nhanh:** với xúc xắc đều $n$ mặt, có công thức $\\operatorname{Var} = (n^2 - 1)/12$. Với $n = 8$: $(64-1)/12 = 63/12 = 5.25$. ✓
 
 ### Lời giải Bài 2
 
-Binomial(n, p): \`E[X] = np, Var[X] = np(1-p)\`.
+Binomial(n, p): $E[X] = np, \\operatorname{Var}[X] = np(1-p)$.
 
-\`\`\`
-E[X] = 10·0.4 = 4
-Var[X] = 10·0.4·0.6 = 2.4
-σ = √2.4 ≈ 1.549
-\`\`\`
+$$\\begin{aligned}
+E[X] &= 10 \\cdot 0.4 = 4 \\\\
+\\operatorname{Var}[X] &= 10 \\cdot 0.4 \\cdot 0.6 = 2.4 \\\\
+\\sigma &= \\sqrt{2.4} \\approx 1.549
+\\end{aligned}$$
 
 ### Lời giải Bài 3
 
-\`X ~ Uniform(2, 8)\`:
+$X \\sim \\text{Uniform}(2, 8)$:
 
-\`\`\`
-E[X] = (2+8)/2 = 5
-Var[X] = (8-2)²/12 = 36/12 = 3
-\`\`\`
+$$\\begin{aligned}
+E[X] &= \\frac{2+8}{2} = 5 \\\\
+\\operatorname{Var}[X] &= \\frac{(8-2)^2}{12} = \\frac{36}{12} = 3
+\\end{aligned}$$
 
-\`Y = 3X - 5\`:
+$Y = 3X - 5$:
 
-\`\`\`
-E[Y] = 3·5 - 5 = 10
-Var[Y] = 3²·Var[X] = 9·3 = 27
-σ_Y = √27 ≈ 5.196
-\`\`\`
+$$\\begin{aligned}
+E[Y] &= 3 \\cdot 5 - 5 = 10 \\\\
+\\operatorname{Var}[Y] &= 3^2 \\cdot \\operatorname{Var}[X] = 9 \\cdot 3 = 27 \\\\
+\\sigma_Y &= \\sqrt{27} \\approx 5.196
+\\end{aligned}$$
 
 ### Lời giải Bài 4
 
-Vì độc lập nên \`Cov = 0\`.
+Vì độc lập nên $\\operatorname{Cov} = 0$.
 
-\`\`\`
-Var[X + Y] = Var[X] + Var[Y] = 4 + 9 = 13
-Var[X - Y] = Var[X] + Var[Y] = 4 + 9 = 13   (CŨNG là cộng!)
-Var[2X - 3Y] = 4·Var[X] + 9·Var[Y] = 4·4 + 9·9 = 16 + 81 = 97
-\`\`\`
+$$\\begin{aligned}
+\\operatorname{Var}[X + Y] &= \\operatorname{Var}[X] + \\operatorname{Var}[Y] = 4 + 9 = 13 \\\\
+\\operatorname{Var}[X - Y] &= \\operatorname{Var}[X] + \\operatorname{Var}[Y] = 4 + 9 = 13 \\quad \\text{(CŨNG là cộng!)} \\\\
+\\operatorname{Var}[2X - 3Y] &= 4 \\cdot \\operatorname{Var}[X] + 9 \\cdot \\operatorname{Var}[Y] = 4 \\cdot 4 + 9 \\cdot 9 = 16 + 81 = 97
+\\end{aligned}$$
 
 ### Lời giải Bài 5
 
 Marginal:
-- \`P(X=0) = 0.4 + 0.1 = 0.5\`, \`P(X=1) = 0.5\`.
-- \`P(Y=0) = 0.4 + 0.2 = 0.6\`, \`P(Y=1) = 0.4\`.
+- $P(X=0) = 0.4 + 0.1 = 0.5$, $P(X=1) = 0.5$.
+- $P(Y=0) = 0.4 + 0.2 = 0.6$, $P(Y=1) = 0.4$.
 
-\`\`\`
-E[X] = 0·0.5 + 1·0.5 = 0.5
-E[Y] = 0·0.6 + 1·0.4 = 0.4
-E[XY] = 0·0·0.4 + 0·1·0.1 + 1·0·0.2 + 1·1·0.3 = 0.3
+$$\\begin{aligned}
+E[X] &= 0 \\cdot 0.5 + 1 \\cdot 0.5 = 0.5 \\\\
+E[Y] &= 0 \\cdot 0.6 + 1 \\cdot 0.4 = 0.4 \\\\
+E[XY] &= 0 \\cdot 0 \\cdot 0.4 + 0 \\cdot 1 \\cdot 0.1 + 1 \\cdot 0 \\cdot 0.2 + 1 \\cdot 1 \\cdot 0.3 = 0.3 \\\\[4pt]
+\\operatorname{Cov}(X, Y) &= 0.3 - 0.5 \\cdot 0.4 = 0.3 - 0.2 = 0.1 \\\\[4pt]
+\\operatorname{Var}[X] &= E[X^2] - (E[X])^2 = 0.5 - 0.25 = 0.25 \\quad (\\text{Bernoulli(0.5): } 0.5 \\cdot 0.5) \\\\
+\\operatorname{Var}[Y] &= 0.4 \\cdot 0.6 = 0.24 \\\\[4pt]
+\\sigma_X &= 0.5, \\quad \\sigma_Y = \\sqrt{0.24} \\approx 0.4899 \\\\[4pt]
+\\rho &= \\frac{0.1}{0.5 \\cdot 0.4899} \\approx 0.408
+\\end{aligned}$$
 
-Cov(X, Y) = 0.3 - 0.5·0.4 = 0.3 - 0.2 = 0.1
-
-Var[X] = E[X²] - (E[X])² = 0.5 - 0.25 = 0.25 (Bernoulli(0.5): 0.5·0.5)
-Var[Y] = 0.4·0.6 = 0.24
-
-σ_X = 0.5, σ_Y = √0.24 ≈ 0.4899
-
-ρ = 0.1 / (0.5 · 0.4899) ≈ 0.408
-\`\`\`
-
-**Diễn giải:** ρ ≈ 0.41 — tương quan dương vừa phải. Nhìn bảng cũng thấy: khối lượng tập trung ở \`(0,0)\` và \`(1,1)\`.
+**Diễn giải:** ρ ≈ 0.41 — tương quan dương vừa phải. Nhìn bảng cũng thấy: khối lượng tập trung ở $(0,0)$ và $(1,1)$.
 
 ### Lời giải Bài 6
 
 **Symmetric?**
 
-\`Σ[1][2] = 1 = Σ[2][1]\`, \`Σ[1][3] = 0 = Σ[3][1]\`, \`Σ[2][3] = 1 = Σ[3][2]\`. ✓ Đối xứng.
+$\\Sigma_{12} = 1 = \\Sigma_{21}$, $\\Sigma_{13} = 0 = \\Sigma_{31}$, $\\Sigma_{23} = 1 = \\Sigma_{32}$. ✓ Đối xứng.
 
 **Eigenvalue:**
 
-\`\`\`
-det(Σ - λI) = det([2-λ  1   0
-                   1   2-λ  1
-                   0   1   2-λ])
-\`\`\`
+$$\\det(\\Sigma - \\lambda I) = \\det\\begin{bmatrix} 2-\\lambda & 1 & 0 \\\\ 1 & 2-\\lambda & 1 \\\\ 0 & 1 & 2-\\lambda \\end{bmatrix}$$
 
 Khai triển theo hàng 1:
 
-\`\`\`
-= (2-λ)·det([2-λ  1; 1  2-λ]) - 1·det([1  1; 0  2-λ]) + 0
-= (2-λ)·((2-λ)² - 1) - (2-λ)
-= (2-λ)·[(2-λ)² - 1 - 1]
-= (2-λ)·[(2-λ)² - 2]
-\`\`\`
+$$\\begin{aligned}
+&= (2-\\lambda) \\cdot \\det\\begin{bmatrix} 2-\\lambda & 1 \\\\ 1 & 2-\\lambda \\end{bmatrix} - 1 \\cdot \\det\\begin{bmatrix} 1 & 1 \\\\ 0 & 2-\\lambda \\end{bmatrix} + 0 \\\\
+&= (2-\\lambda) \\cdot ((2-\\lambda)^2 - 1) - (2-\\lambda) \\\\
+&= (2-\\lambda) \\cdot [(2-\\lambda)^2 - 1 - 1] \\\\
+&= (2-\\lambda) \\cdot [(2-\\lambda)^2 - 2]
+\\end{aligned}$$
 
 Cho bằng 0:
 
-- \`λ = 2\`
-- \`(2-λ)² = 2 ⇒ 2 - λ = ±√2 ⇒ λ = 2 ± √2\`
+- $\\lambda = 2$
+- $(2-\\lambda)^2 = 2 \\Rightarrow 2 - \\lambda = \\pm\\sqrt{2} \\Rightarrow \\lambda = 2 \\pm \\sqrt{2}$
 
-Vậy ba eigenvalue: \`λ₁ = 2 + √2 ≈ 3.414\`, \`λ₂ = 2\`, \`λ₃ = 2 - √2 ≈ 0.586\`. Tất cả > 0 → Σ là **positive definite**.
+Vậy ba eigenvalue: $\\lambda_1 = 2 + \\sqrt{2} \\approx 3.414$, $\\lambda_2 = 2$, $\\lambda_3 = 2 - \\sqrt{2} \\approx 0.586$. Tất cả > 0 → Σ là **positive definite**.
 
-**Cov(X₁, X₃):** từ ma trận = \`Σ[1][3] = 0\`. Vậy X₁ và X₃ **uncorrelated**. Nhưng có độc lập không thì không kết luận được chỉ từ Σ (cần joint distribution). Tuy nhiên nếu (X₁, X₂, X₃) joint normal thì ρ = 0 ⇔ độc lập → trong trường hợp đó X₁ ⊥ X₃.
+**$\\operatorname{Cov}(X_1, X_3)$:** từ ma trận $= \\Sigma_{13} = 0$. Vậy $X_1$ và $X_3$ **uncorrelated**. Nhưng có độc lập không thì không kết luận được chỉ từ Σ (cần joint distribution). Tuy nhiên nếu $(X_1, X_2, X_3)$ joint normal thì $\\rho = 0 \\iff$ độc lập → trong trường hợp đó $X_1 \\perp X_3$.
 
 ---
 
 ## 15. Liên kết tiếp theo
 
-- [Lesson 07 — Maximum Likelihood Estimation](../lesson-07-mle/): dùng \`E\` và \`Var\` để chứng minh MLE là estimator hợp lý.
+- [Lesson 07 — Maximum Likelihood Estimation](../lesson-07-mle/): dùng $E$ và $\\operatorname{Var}$ để chứng minh MLE là estimator hợp lý.
 - [Lesson 08 — Cross-entropy và KL divergence](../lesson-08-cross-entropy-kl/): các "khoảng cách" giữa phân phối, dẫn loss của classification.
 - [Tầng 4 — Linear Algebra Lesson 08 — PCA](../../04-LinearAlgebra/lesson-08-pca/): eigen-decompose covariance matrix.
 - [Visualization](./visualization.html): 4 component tương tác (E[X]+Var, linearity, correlation, Σ matrix viewer).

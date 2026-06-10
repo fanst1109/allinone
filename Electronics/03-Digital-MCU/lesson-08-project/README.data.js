@@ -153,40 +153,36 @@ Arduino Uno
 
 ### 3.1. Mạch phân áp thermistor NTC
 
-💡 **Trực giác mạch phân áp**: đặt R1 (cố định) nối tiếp với thermistor (thay đổi theo nhiệt độ), đo điện áp ở điểm giữa. Khi nhiệt độ tăng → R_thermistor giảm → điện áp tại A0 giảm (do R1 chiếm tỷ lệ lớn hơn).
+💡 **Trực giác mạch phân áp**: đặt R1 (cố định) nối tiếp với thermistor (thay đổi theo nhiệt độ), đo điện áp ở điểm giữa. Khi nhiệt độ tăng → $R_{\\text{thermistor}}$ giảm → điện áp tại A0 giảm (do R1 chiếm tỷ lệ lớn hơn).
 
 **Công thức phân áp**:
 
-\`\`\`
-V_A0 = V_CC × R_thermistor / (R1 + R_thermistor)
-\`\`\`
+$$V_{\\text{A0}} = V_{\\text{CC}} \\times \\frac{R_{\\text{NTC}}}{R_1 + R_{\\text{NTC}}}$$
 
-Với V_CC = 5 V, R1 = 10 kΩ, R_thermistor = R_NTC(T):
+Với $V_{\\text{CC}} = 5$ V, $R_1 = 10$ kΩ, $R_{\\text{NTC}} = R_{\\text{NTC}}(T)$.
 
 **Công thức Steinhart-Hart** (đơn giản hóa B-parameter):
 
-\`\`\`
-1/T = 1/T₀ + (1/B) × ln(R_NTC / R₀)
-\`\`\`
+$$\\frac{1}{T} = \\frac{1}{T_0} + \\frac{1}{B} \\ln\\!\\left(\\frac{R_{\\text{NTC}}}{R_0}\\right)$$
 
-Trong đó: T₀ = 298.15 K (25 °C), R₀ = 10 kΩ, B = 3950 K.
+Trong đó: $T_0 = 298.15$ K (25 °C), $R_0 = 10$ kΩ, $B = 3950$ K.
 
 **Walk-through tại 25 °C (298.15 K)**:
-- R_NTC = 10 kΩ (định nghĩa tại 25 °C).
-- V_A0 = 5 × 10 / (10 + 10) = **2.50 V**.
-- Giá trị ADC 10-bit = 2.50 / 5 × 1023 ≈ **511 (~ 512)**.
+- $R_{\\text{NTC}} = 10$ kΩ (định nghĩa tại 25 °C).
+- $V_{\\text{A0}} = 5 \\times 10 / (10 + 10) =$ **2.50 V**.
+- Giá trị ADC 10-bit $= 2.50 / 5 \\times 1023 \\approx$ **511 (~ 512)**.
 
 **Walk-through tại 37 °C (310.15 K)**:
-- 1/T = 1/298.15 + (1/3950) × ln(R_NTC/10000).
-- Giải ngược: R_NTC = R₀ × exp(B × (1/T − 1/T₀)) = 10000 × exp(3950 × (1/310.15 − 1/298.15)).
-- 1/310.15 − 1/298.15 = 0.003224 − 0.003354 = −0.0001297.
-- R_NTC = 10000 × exp(3950 × (−0.0001297)) = 10000 × exp(−0.5123) = 10000 × 0.5993 ≈ **5993 Ω ≈ 5.99 kΩ**.
-- V_A0 = 5 × 5993 / (10000 + 5993) = 5 × 5993 / 15993 ≈ **1.875 V**.
-- Giá trị ADC ≈ 1.875 / 5 × 1023 ≈ **383**.
+- $1/T = 1/298.15 + (1/3950) \\times \\ln(R_{\\text{NTC}}/10000)$.
+- Giải ngược: $R_{\\text{NTC}} = R_0 \\times e^{B(1/T - 1/T_0)} = 10000 \\times e^{3950 \\times (1/310.15 - 1/298.15)}$.
+- $1/310.15 - 1/298.15 = 0.003224 - 0.003354 = -0.0001297$.
+- $R_{\\text{NTC}} = 10000 \\times e^{3950 \\times (-0.0001297)} = 10000 \\times e^{-0.5123} = 10000 \\times 0.5993 \\approx$ **5993 Ω ≈ 5.99 kΩ**.
+- $V_{\\text{A0}} = 5 \\times 5993 / (10000 + 5993) = 5 \\times 5993 / 15993 \\approx$ **1.875 V**.
+- Giá trị ADC $\\approx 1.875 / 5 \\times 1023 \\approx$ **383**.
 
 **Walk-through tại 42 °C (315.15 K)**:
-- R_NTC = 10000 × exp(3950 × (1/315.15 − 1/298.15)) = 10000 × exp(3950 × (−0.000180)) = 10000 × exp(−0.712) ≈ **4907 Ω ≈ 4.91 kΩ**.
-- V_A0 = 5 × 4907 / (10000 + 4907) ≈ **1.647 V** → ADC ≈ **337**.
+- $R_{\\text{NTC}} = 10000 \\times e^{3950 \\times (1/315.15 - 1/298.15)} = 10000 \\times e^{3950 \\times (-0.000180)} = 10000 \\times e^{-0.712} \\approx$ **4907 Ω ≈ 4.91 kΩ**.
+- $V_{\\text{A0}} = 5 \\times 4907 / (10000 + 4907) \\approx$ **1.647 V** → ADC $\\approx$ **337**.
 
 **Bảng tóm tắt ADC vs. nhiệt độ**:
 
@@ -203,27 +199,25 @@ Trong đó: T₀ = 298.15 K (25 °C), R₀ = 10 kΩ, B = 3950 K.
 
 ### 3.2. Tính điện trở hạn dòng LED
 
-Điện áp nguồn V_CC = 5 V, LED đỏ có Vf = 2.0 V, dòng làm việc I_LED = 20 mA.
+Điện áp nguồn $V_{\\text{CC}} = 5$ V, LED đỏ có $V_f = 2.0$ V, dòng làm việc $I_{\\text{LED}} = 20$ mA.
 
-\`\`\`
-R_LED = (V_CC − Vf) / I_LED = (5.0 − 2.0) / 0.020 = 3.0 / 0.020 = 150 Ω
-\`\`\`
+$$R_{\\text{LED}} = \\frac{V_{\\text{CC}} - V_f}{I_{\\text{LED}}} = \\frac{5.0 - 2.0}{0.020} = \\frac{3.0}{0.020} = 150 \\text{ Ω}$$
 
-Công suất điện trở: P = I² × R = (0.020)² × 150 = 0.06 W = **60 mW** → an toàn với loại 1/4 W.
+Công suất điện trở: $P = I^2 \\times R = (0.020)^2 \\times 150 = 0.06$ W = **60 mW** → an toàn với loại 1/4 W.
 
-Tương tự cho LED xanh: Vf = 2.2 V → R = (5.0 − 2.2) / 0.020 = 2.8 / 0.020 = **140 Ω** → chọn 150 Ω tiêu chuẩn, I_thực = 2.8 / 150 ≈ **18.7 mA** — chấp nhận được.
+Tương tự cho LED xanh: $V_f = 2.2$ V → $R = (5.0 - 2.2) / 0.020 = 2.8 / 0.020 =$ **140 Ω** → chọn 150 Ω tiêu chuẩn, $I_{\\text{thực}} = 2.8 / 150 \\approx$ **18.7 mA** — chấp nhận được.
 
 ### 3.3. Chọn MOSFET cho quạt
 
 Yêu cầu: bật/tắt quạt DC 12 V, 0.5 A (6 W) từ GPIO Arduino (V_GPIO = 5 V, I_GPIO_max = 40 mA).
 
 **Tiêu chí chọn**:
-- V_GS(th) < V_GPIO = 5 V: chọn logic-level MOSFET như **IRLZ44N** (V_GS(th) = 1–2 V).
-- I_D > 1.5 × I_quạt = 0.75 A (derating 1.5×): IRLZ44N I_D = 47 A — dư dùng.
-- V_DS > 12 V: IRLZ44N V_DSS = 55 V — đủ.
-- R_DS(on) thấp: 22 mΩ tại V_GS = 10 V → công suất tản nhiệt P = I² × R_DS(on) = 0.5² × 0.022 = **0.0055 W** — không cần tản nhiệt.
+- $V_{GS(\\text{th})} < V_{\\text{GPIO}} = 5$ V: chọn logic-level MOSFET như **IRLZ44N** ($V_{GS(\\text{th})} = 1$–2 V).
+- $I_D > 1.5 \\times I_{\\text{quạt}} = 0.75$ A (derating 1.5×): IRLZ44N $I_D = 47$ A — dư dùng.
+- $V_{DS} > 12$ V: IRLZ44N $V_{DSS} = 55$ V — đủ.
+- $R_{DS(\\text{on})}$ thấp: 22 mΩ tại $V_{GS} = 10$ V → công suất tản nhiệt $P = I^2 \\times R_{DS(\\text{on})} = 0.5^2 \\times 0.022 =$ **0.0055 W** — không cần tản nhiệt.
 
-**Điện trở gate R_G = 100 Ω**: hạn dòng xung khi gate chuyển trạng thái, bảo vệ GPIO Arduino. Dòng GPIO không bao giờ vượt V/R = 5/100 = 50 mA > 40 mA trong tức thì (thực tế nhỏ hơn do gate charge), nhưng R_G = 100 Ω là convention an toàn. Có thể dùng 220 Ω nếu tốc độ chuyển mạch không quan trọng.
+**Điện trở gate $R_G = 100$ Ω**: hạn dòng xung khi gate chuyển trạng thái, bảo vệ GPIO Arduino. Dòng GPIO không bao giờ vượt $V/R = 5/100 = 50$ mA trong tức thì (thực tế nhỏ hơn do gate charge), nhưng $R_G = 100$ Ω là convention an toàn. Có thể dùng 220 Ω nếu tốc độ chuyển mạch không quan trọng.
 
 **Diode flyback 1N4007**: bảo vệ MOSFET khỏi điện áp ngược khi quạt (tải cảm kháng) tắt đột ngột. Đặt từ Drain → 12 V (anode ở Drain, cathode ở 12 V). Xem thêm: [Lesson 05 BJT Switch — flyback diode](../../02-Semiconductors/lesson-05-bjt-switch/).
 
@@ -233,9 +227,9 @@ Yêu cầu: bật/tắt quạt DC 12 V, 0.5 A (6 W) từ GPIO Arduino (V_GPIO = 
 - *"MOSFET N-ch kéo tải về GND hay về VCC?"* — N-ch thường dùng low-side switch: Source nối GND, Drain nối tải. Gate HIGH → dẫn → tải chạy. Đây là cấu hình bài này dùng.
 
 📝 **Tóm tắt mục 3**
-- Mạch phân áp NTC: V_A0 = V_CC × R_NTC / (R1 + R_NTC). Tại 37 °C → ADC ≈ 383.
-- R_LED = (V_CC − Vf) / I_LED = 150 Ω cho cả LED đỏ và xanh.
-- IRLZ44N: logic-level MOSFET, V_GS(th) thấp, phù hợp GPIO 5 V. R_G = 100 Ω, diode flyback bắt buộc.
+- Mạch phân áp NTC: $V_{\\text{A0}} = V_{\\text{CC}} \\times R_{\\text{NTC}} / (R_1 + R_{\\text{NTC}})$. Tại 37 °C → ADC $\\approx 383$.
+- $R_{\\text{LED}} = (V_{\\text{CC}} - V_f) / I_{\\text{LED}} = 150$ Ω cho cả LED đỏ và xanh.
+- IRLZ44N: logic-level MOSFET, $V_{GS(\\text{th})}$ thấp, phù hợp GPIO 5 V. $R_G = 100$ Ω, diode flyback bắt buộc.
 
 ---
 
@@ -546,7 +540,7 @@ void loop() {
 ❓ **Câu hỏi tự nhiên của người đọc về code**
 
 - *"Tại sao relay dùng active-LOW nhưng MOSFET dùng active-HIGH?"* — Module relay thương mại thường có optocoupler active-LOW (LOW = bật). MOSFET N-ch dùng trực tiếp: HIGH = dẫn = bật quạt. Phải đọc datasheet module cụ thể để xác định.
-- *"Tại sao lấy trung bình 8 mẫu ADC?"* — Nhiễu điện từ (từ motor quạt, nguồn xung) làm ADC dao động ± vài LSB. Lấy trung bình 8 mẫu giảm nhiễu ~2.83× (√8), cải thiện độ chính xác đọc nhiệt độ.
+- *"Tại sao lấy trung bình 8 mẫu ADC?"* — Nhiễu điện từ (từ motor quạt, nguồn xung) làm ADC dao động $\\pm$ vài LSB. Lấy trung bình 8 mẫu giảm nhiễu $\\approx 2.83\\times$ ($= \\sqrt{8}$), cải thiện độ chính xác đọc nhiệt độ.
 - *"Biến \`currentState\` ở đâu được giữ khi ở trong vùng trễ?"* — Khai báo global, không được ghi lại trong nhánh HOLD của \`controlLogic()\`. Trạng thái tồn tại trong RAM của MCU giữa các lần gọi \`loop()\`.
 
 📝 **Tóm tắt mục 5**
@@ -730,9 +724,9 @@ duty = constrain(duty, 0, 255);
 analogWrite(PIN_FAN_MOSFET, duty);
 \`\`\`
 
-Tại T = 38.0 °C: duty = map(380, 380, 420, 80, 255) = **80** (~31 %).
-Tại T = 40.0 °C: duty = map(400, 380, 420, 80, 255) = map(400−380=20, 0, 40, 80, 255) = 80 + 20/40×(255−80) = 80 + 87.5 ≈ **168** (~66 %).
-Tại T = 42.0 °C: duty = **255** (100 %).
+Tại $T = 38.0$ °C: duty $= \\text{map}(380, 380, 420, 80, 255) =$ **80** ($\\approx 31\\%$).
+Tại $T = 40.0$ °C: duty $= \\text{map}(400, 380, 420, 80, 255)$; ánh xạ tuyến tính $\\Rightarrow 80 + \\frac{20}{40} \\times (255 - 80) = 80 + 87.5 \\approx$ **168** ($\\approx 66\\%$).
+Tại $T = 42.0$ °C: duty $=$ **255** (100%).
 
 **Bài 5 — Tính dòng tiêu thụ**:
 
@@ -760,12 +754,12 @@ Dùng nguồn 12 V / 1 A là đủ (derating 2×).
 
 **(c) Công suất toàn hệ khi sưởi bật**:
 
-- Arduino 5 V: P = 5 × 0.170 = **0.85 W**.
+- Arduino 5 V: $P = 5 \\times 0.170 =$ **0.85 W**.
 - Đèn sưởi: **60 W** (định mức).
 - Quạt tắt khi đang sưởi: 0 W.
-- Tổng: ≈ **60.85 W** ≈ **61 W** (tải chủ yếu là sưởi).
+- Tổng: $\\approx$ **60.85 W** $\\approx$ **61 W** (tải chủ yếu là sưởi).
 
-Lưu ý: đèn sưởi 60 W / 220 V = 0.27 A AC. Relay chọn 10 A / 250 VAC là dư thừa — an toàn.
+Lưu ý: đèn sưởi 60 W / 220 V $= 0.27$ A AC. Relay chọn 10 A / 250 VAC là dư thừa — an toàn.
 
 ---
 
@@ -783,9 +777,9 @@ Lưu ý: đèn sưởi 60 W / 220 V = 0.27 A AC. Relay chọn 10 A / 250 VAC là
 ## 📝 Tổng kết Lesson 08
 
 1. **Hệ nhúng = Sense → Process → Act** — vòng lặp khép kín, ADC cầu nối analog ↔ digital.
-2. **Thermistor NTC + mạch phân áp**: V_A0 = VCC × R_NTC / (R1 + R_NTC); dùng Steinhart-Hart chuyển ADC → °C.
-3. **Hysteresis tránh chattering**: bật khi T < (setpoint − h), tắt khi T > (setpoint + h), HOLD khi ở giữa.
-4. **MOSFET N-ch logic-level (IRLZ44N)**: V_GS(th) thấp, điều khiển trực tiếp từ GPIO 5 V; R_G = 100 Ω, diode flyback bắt buộc.
+2. **Thermistor NTC + mạch phân áp**: $V_{\\text{A0}} = V_{\\text{CC}} \\times R_{\\text{NTC}} / (R_1 + R_{\\text{NTC}})$; dùng Steinhart-Hart chuyển ADC → °C.
+3. **Hysteresis tránh chattering**: bật khi $T < (\\text{setpoint} - h)$, tắt khi $T > (\\text{setpoint} + h)$, HOLD khi ở giữa.
+4. **MOSFET N-ch logic-level (IRLZ44N)**: $V_{GS(\\text{th})}$ thấp, điều khiển trực tiếp từ GPIO 5 V; $R_G = 100$ Ω, diode flyback bắt buộc.
 5. **Code Arduino-C**: tách biệt các hàm đọc cảm biến, điều khiển, hiển thị, cảnh báo — dễ mở rộng và debug.
 6. **Toàn lĩnh vực Electronics**: 3 tầng × 6–8 bài = nền tảng đầy đủ để bước vào PCB, FPGA, RTOS, IoT.
 

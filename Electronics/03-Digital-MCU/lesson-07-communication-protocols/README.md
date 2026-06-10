@@ -62,11 +62,13 @@ Kết quả: hầu hết giao tiếp cảm biến/thiết bị ngoại vi hiện
 
 **Baud rate** (đọc là "bo rết") = số ký hiệu tín hiệu truyền mỗi giây. Trong UART, 1 ký hiệu = 1 bit, nên baud rate = bit rate (bit/giây = bps).
 
+Quan hệ: $t_{\text{bit}} = 1 / \text{baud rate}$.
+
 Các baud rate chuẩn UART phổ biến: **9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600** bps.
 
 Ví dụ cụ thể:
-- 9600 bps → 1 bit mất 1/9600 ≈ **104.2 µs**.
-- 115200 bps → 1 bit mất 1/115200 ≈ **8.68 µs**.
+- 9600 bps → 1 bit mất $1/9600 \approx$ **104.2 µs**.
+- 115200 bps → 1 bit mất $1/115200 \approx$ **8.68 µs**.
 
 **Tần số clock** trong I2C/SPI: thay vì baud rate, ta dùng tần số clock (Hz hoặc MHz). 1 chu kỳ clock = 2 cạnh tín hiệu = truyền 1 bit.
 
@@ -113,7 +115,7 @@ Chi tiết từng phần:
 | Parity bit | 0 hoặc 1 | Even/Odd/None | Phát hiện lỗi (thường bỏ qua = None) |
 | Stop bit(s) | 1 hoặc 2 | HIGH (1) | Báo hiệu kết thúc frame |
 
-**Cấu hình 8N1** là phổ biến nhất: 8 data bits, No parity, 1 stop bit. Tổng = 1 + 8 + 1 = **10 bit** cho mỗi byte dữ liệu.
+**Cấu hình 8N1** là phổ biến nhất: 8 data bits, No parity, 1 stop bit. Tổng $= 1 + 8 + 1 =$ **10 bit** cho mỗi byte dữ liệu.
 
 ⚠ **Lỗi thường gặp**: Hai bên dùng baud rate khác nhau → nhận rác. Ví dụ: MCU phát ở 115200 bps, Arduino nhận ở 9600 bps → đọc sai hoàn toàn. Luôn kiểm tra baud rate trong code.
 
@@ -131,29 +133,29 @@ Với cấu hình 8N1: N_bit_per_frame = 10 (1 start + 8 data + 1 stop).
 ---
 
 **Ví dụ 1**: Truyền 1 byte ở 9600 bps.
-- T_1_bit = 1 / 9600 = **104.17 µs**
-- T_frame (1 byte) = 10 × 104.17 µs = **1041.7 µs ≈ 1.04 ms**
+- $t_{\text{bit}} = 1 / 9600 =$ **104.17 µs**
+- $t_{\text{frame}}$ (1 byte) $= 10 \times 104.17$ µs $=$ **1041.7 µs ≈ 1.04 ms**
 - → 1 byte mất khoảng 1 mili-giây ở 9600 bps.
 
 **Ví dụ 2**: Truyền 1 byte ở 115200 bps.
-- T_1_bit = 1 / 115200 = **8.68 µs**
-- T_frame (1 byte) = 10 × 8.68 µs = **86.8 µs**
-- → Nhanh hơn ví dụ 1 đúng 12× (= 115200/9600).
+- $t_{\text{bit}} = 1 / 115200 =$ **8.68 µs**
+- $t_{\text{frame}}$ (1 byte) $= 10 \times 8.68$ µs $=$ **86.8 µs**
+- → Nhanh hơn ví dụ 1 đúng 12× ($= 115200/9600$).
 
 **Ví dụ 3**: Truyền chuỗi "Hello" (5 byte) ở 115200 bps.
-- T_tổng = 5 × 86.8 µs = **434 µs ≈ 0.43 ms**
-- Throughput thực tế = 5 byte / 0.434 ms = **11,520 byte/s = 11.25 kB/s**
-  (nhỏ hơn 115200 bit/s ÷ 8 = 14400 byte/s vì có overhead 2 bit/frame)
+- $t_{\text{tổng}} = 5 \times 86.8$ µs $=$ **434 µs ≈ 0.43 ms**
+- Throughput thực tế $= 5$ byte $/$ 0.434 ms $=$ **11,520 byte/s = 11.25 kB/s**
+  (nhỏ hơn 115200 bit/s $\div 8 = 14400$ byte/s vì có overhead 2 bit/frame)
 
 ❓ **Tại sao throughput thực tế thấp hơn baud rate ÷ 8?**
 
-Vì mỗi frame 8 data bit kèm theo 2 bit overhead (start + stop), tức là hiệu suất = 8/10 = **80%** baud rate. Ở 115200 bps → chỉ 92160 bps dữ liệu thực = 11520 byte/s.
+Vì mỗi frame 8 data bit kèm theo 2 bit overhead (start + stop), tức là hiệu suất $= 8/10 =$ **80%** baud rate. Ở 115200 bps → chỉ $115200 \times 0.8 = 92160$ bps dữ liệu thực $= 11520$ byte/s.
 
 ### 2.4. Ứng dụng thực tế
 
 - **Debug Serial**: `Serial.println("Hello")` trong Arduino → in ra Serial Monitor trên máy tính qua UART.
 - **Nạp firmware**: Bootloader của Arduino Uno dùng UART để nhận firmware mới từ máy tính.
-- **Module GPS** (NEO-6M, u-blox): gửi câu NMEA (`$GPGLL,...`) qua UART ở 9600 bps mặc định.
+- **Module GPS** (NEO-6M, u-blox): gửi câu NMEA (dạng `GPGLL,...`) qua UART ở 9600 bps mặc định.
 - **Module Bluetooth** (HC-05, HC-06): hoạt động như cầu nối UART-Bluetooth — MCU giao tiếp qua UART như bình thường.
 - **ESP8266/ESP32**: module WiFi/BLE, giao tiếp với MCU host qua UART (AT commands hoặc firmware tùy chỉnh).
 
@@ -161,7 +163,7 @@ Vì mỗi frame 8 data bit kèm theo 2 bit overhead (start + stop), tức là hi
 
 - UART = 2 dây TX/RX, không có clock chung, hai bên phải cùng baud rate.
 - Khung 8N1 = 10 bit/byte (1 start + 8 data + 1 stop) → hiệu suất 80%.
-- T_byte = 10 / baud_rate: ở 9600 bps ≈ 1 ms/byte; ở 115200 bps ≈ 87 µs/byte.
+- $t_{\text{byte}} = 10 / \text{baud rate}$: ở 9600 bps $\approx$ 1 ms/byte; ở 115200 bps $\approx$ 87 µs/byte.
 - Ứng dụng: debug, nạp code, GPS, Bluetooth, module WiFi.
 
 ---
@@ -172,7 +174,7 @@ Vì mỗi frame 8 data bit kèm theo 2 bit overhead (start + stop), tức là hi
 
 **I2C** (đọc là "ai-tu-xi" hoặc "ai-squared-xi") là giao thức đồng bộ chỉ dùng **2 dây**: SDA (Serial Data — dữ liệu) và SCL (Serial Clock — xung đồng hồ).
 
-💡 **Điểm đặc biệt**: I2C là **bus** — nhiều thiết bị dùng chung 2 dây, phân biệt nhau bằng **địa chỉ 7-bit**. Giống như một đường điện thoại nội bộ với nhiều phòng ban — mỗi phòng có số máy lẻ riêng.
+💡 **Điểm đặc biệt**: I2C là **bus** — nhiều thiết bị dùng chung 2 dây, phân biệt nhau bằng **địa chỉ 7-bit** ($2^7 = 128$ địa chỉ tối đa). Giống như một đường điện thoại nội bộ với nhiều phòng ban — mỗi phòng có số máy lẻ riêng.
 
 **Vì sao cần** (so với UART và SPI):
 - Nhiều thiết bị, ít dây: 8 cảm biến I2C dùng chung 2 dây; 8 thiết bị SPI cần 8+3 = 11 dây; 8 UART cần 16 dây.
@@ -182,7 +184,7 @@ Vì mỗi frame 8 data bit kèm theo 2 bit overhead (start + stop), tức là hi
 
 **Kiến trúc master-slave**:
 - **Master**: điều khiển xung clock SCL, khởi động và kết thúc giao tiếp. Thường là MCU.
-- **Slave**: thiết bị ngoại vi, chờ master gọi. Mỗi slave có địa chỉ I2C 7-bit duy nhất (64 địa chỉ có thể dùng — địa chỉ 0 là broadcast).
+- **Slave**: thiết bị ngoại vi, chờ master gọi. Mỗi slave có địa chỉ I2C 7-bit duy nhất (địa chỉ 0 là broadcast, nên thực tế dùng được $2^7 - 1 = 127$ địa chỉ).
 
 **Điện trở kéo lên (pull-up resistor)**:
 Cả SDA và SCL đều dùng cấu trúc **open-drain** (cực máng hở): bộ nhớ có thể kéo đường dây xuống LOW, nhưng **không thể chủ động đưa lên HIGH** — phải nhờ điện trở kéo lên (thường 4.7 kΩ hoặc 2.2 kΩ) nối lên VCC.
@@ -400,19 +402,16 @@ Chuỗi "HELLO WORLD" = 11 ký tự × 1 byte/ký tự = **11 byte**.
 Cấu hình 8N1 → mỗi byte = 10 bit (1 start + 8 data + 1 stop).
 
 Thời gian 1 bit ở 9600 bps:
-```
-T_bit = 1 / 9600 = 104.17 µs
-```
+
+$$t_{\text{bit}} = \frac{1}{9600} = 104.17 \text{ µs}$$
 
 Thời gian 1 byte:
-```
-T_byte = 10 × T_bit = 10 × 104.17 µs = 1041.7 µs
-```
+
+$$t_{\text{byte}} = 10 \times t_{\text{bit}} = 10 \times 104.17 \text{ µs} = 1041.7 \text{ µs}$$
 
 Thời gian toàn bộ chuỗi:
-```
-T_total = 11 × 1041.7 µs = 11,458.7 µs ≈ 11.46 ms
-```
+
+$$t_{\text{total}} = 11 \times 1041.7 \text{ µs} = 11{,}458.7 \text{ µs} \approx 11.46 \text{ ms}$$
 
 **Đáp án: 11.46 ms**.
 
@@ -422,15 +421,15 @@ T_total = 11 × 1041.7 µs = 11,458.7 µs ≈ 11.46 ms
 
 Tương tự Bài 1 nhưng baud rate = 115200 bps:
 
-```
-T_bit = 1 / 115200 = 8.68 µs
-T_byte = 10 × 8.68 µs = 86.8 µs
-T_total = 11 × 86.8 µs = 954.9 µs ≈ 0.955 ms
-```
+$$t_{\text{bit}} = \frac{1}{115200} = 8.68 \text{ µs}$$
+
+$$t_{\text{byte}} = 10 \times 8.68 \text{ µs} = 86.8 \text{ µs}$$
+
+$$t_{\text{total}} = 11 \times 86.8 \text{ µs} = 954.9 \text{ µs} \approx 0.955 \text{ ms}$$
 
 **Đáp án: ≈ 0.955 ms**.
 
-So sánh: 115200 / 9600 = **12 lần** nhanh hơn → thời gian giảm 12 lần (11.46 ms / 12 ≈ 0.955 ms). Tỉ lệ nghịch với baud rate — đúng như công thức.
+So sánh: $115200 / 9600 =$ **12 lần** nhanh hơn → thời gian giảm 12 lần ($11.46$ ms $/ 12 \approx 0.955$ ms). Tỉ lệ nghịch với baud rate — đúng như công thức.
 
 ---
 
@@ -450,9 +449,8 @@ Tuy nhiên, 3× SHT31 có vấn đề: SHT31 chỉ có địa chỉ 0x44 và 0x4
 Giải pháp: dùng thêm 1 I2C bus hoặc I2C multiplexer (TCA9548A) → thêm 2 chân SCL+SDA thứ 2 hoặc 2 chân cho TCA9548A qua I2C.
 
 Nếu bỏ qua vấn đề trùng địa chỉ (đề bài cho là khả dụng):
-```
-Tổng = 2 (I2C) + 4 (SPI) + 2 (UART) = 8 chân
-```
+
+$\text{Tổng} = 2 \text{ (I2C)} + 4 \text{ (SPI)} + 2 \text{ (UART)} = 8$ chân
 
 **Đáp án: tối thiểu 8 chân MCU** (chú ý: thực tế cần giải quyết vấn đề trùng địa chỉ I2C).
 
@@ -495,23 +493,22 @@ Bước 8: **Stop condition** — SDA lên HIGH khi SCL HIGH.
 **Bài 5 — Lời giải**:
 
 Tổng dữ liệu cần truyền:
-```
-N_byte = 320 × 240 × 2 = 153,600 byte
-N_bit  = 153,600 × 8  = 1,228,800 bit
-```
 
-Tốc độ clock SPI = 10 MHz = 10,000,000 bit/giây (mỗi chu kỳ clock = 1 bit).
+$$N_{\text{byte}} = 320 \times 240 \times 2 = 153{,}600 \text{ byte}$$
+
+$$N_{\text{bit}} = 153{,}600 \times 8 = 1{,}228{,}800 \text{ bit}$$
+
+Tốc độ clock SPI $= 10$ MHz $= 10{,}000{,}000$ bit/giây (mỗi chu kỳ clock = 1 bit).
 
 Thời gian truyền:
-```
-T = N_bit / f_clock = 1,228,800 / 10,000,000 = 0.12288 s ≈ 122.9 ms
-```
+
+$$t = \frac{N_{\text{bit}}}{f_{\text{clock}}} = \frac{1{,}228{,}800}{10{,}000{,}000} = 0.12288 \text{ s} \approx 122.9 \text{ ms}$$
 
 Đây là thời gian truyền ròng. Thực tế còn thêm overhead lệnh (khoảng vài µs mỗi lệnh display), nhưng chiếm không đáng kể.
 
 **Đáp án: ≈ 122.9 ms** cho 1 frame tại 10 MHz.
 
-Hệ quả: để đạt 30 FPS cần: T_frame ≤ 1/30 s ≈ 33.3 ms. Với 10 MHz chỉ đạt ≈ 8 FPS. Phải dùng SPI ≥ **40 MHz** để đạt 30 FPS (ILI9341 hỗ trợ 40 MHz write).
+Hệ quả: để đạt 30 FPS cần: $t_{\text{frame}} \leq 1/30$ s $\approx 33.3$ ms. Với 10 MHz chỉ đạt $\approx 8$ FPS. Phải dùng SPI $\geq$ **40 MHz** để đạt 30 FPS (ILI9341 hỗ trợ 40 MHz write).
 
 ---
 
@@ -559,6 +556,6 @@ Hệ quả: để đạt 30 FPS cần: T_frame ≤ 1/30 s ≈ 33.3 ms. Với 10 
 2. **I2C** = đồng bộ, 2 dây SDA+SCL, nhiều slave qua địa chỉ 7-bit, open-drain + pull-up, 100–400 kHz. Dùng cho cảm biến nhỏ, RTC, OLED.
 3. **SPI** = đồng bộ, 4 dây MOSI+MISO+SCLK+CS, full-duplex, mỗi slave cần 1 chân CS, 1–100 MHz. Dùng cho màn hình, thẻ SD, flash tốc độ cao.
 4. **Chọn giao thức**: nhiều slave + ít dây → I2C; tốc độ cao + ít slave → SPI; module sẵn có / debug / khoảng cách xa → UART.
-5. **Tính thời gian UART**: T_byte = 10 / baud_rate (cho 8N1); throughput thực = baud_rate × 80%.
+5. **Tính thời gian UART**: $t_{\text{byte}} = 10 / \text{baud rate}$ (cho 8N1); throughput thực $= \text{baud rate} \times 80\%$.
 
 **Tiếp theo**: [Lesson 08 — Dự án tổng hợp](../lesson-08-project/visualization.html)

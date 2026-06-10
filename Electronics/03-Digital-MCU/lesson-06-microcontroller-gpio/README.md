@@ -121,13 +121,11 @@ void loop() {
 
 ⚠ **Dòng tối đa mỗi chân GPIO**: ATmega328P = **40 mA** (absolute maximum); khuyến nghị thực tế ≤ 20 mA. ESP32 = **40 mA** mỗi chân; tổng tất cả GPIO ≤ 1200 mA (nhưng điều này hiếm gặp trong thực tế).
 
-**Tính dòng LED cơ bản** (LED đỏ, V_f ≈ 2 V, V_supply = 5 V):
+**Tính dòng LED cơ bản** (LED đỏ, $V_f \approx 2$ V, $V_{\text{supply}} = 5$ V):
 
-```
-I = (V_supply - V_f) / R = (5 - 2) / 220 = 3 / 220 ≈ 13.6 mA
-```
+$$I = \frac{V_{\text{supply}} - V_f}{R} = \frac{5 - 2}{220} = \frac{3}{220} \approx 13.6 \text{ mA}$$
 
-13.6 mA < 20 mA → an toàn cho chân GPIO. Nếu muốn LED sáng hơn với I = 30 mA → R = 3/0.03 = 100 Ω → **vẫn trong giới hạn** nếu chỉ bật 1 LED. Nếu bật nhiều LED cùng lúc → tổng dòng vượt ngưỡng → cần transistor.
+13.6 mA < 20 mA → an toàn cho chân GPIO. Nếu muốn LED sáng hơn với $I = 30$ mA → $R = 3/0.03 = 100$ Ω → **vẫn trong giới hạn** nếu chỉ bật 1 LED. Nếu bật nhiều LED cùng lúc → tổng dòng vượt ngưỡng → cần transistor.
 
 **Khi nào cần transistor?**
 - Tải > 40 mA (ví dụ: motor DC nhỏ, relay, nhiều LED song song).
@@ -143,12 +141,12 @@ I = (V_supply - V_f) / R = (5 - 2) / 220 = 3 / 220 ≈ 13.6 mA
 | Relay coil 5 V, 50 mA | 50 mA | Quá giới hạn | BJT + diode freewheeling |
 | Motor DC 6 V, 200 mA | 200 mA | Vượt xa | H-bridge IC (L298N) |
 
-🔁 **Tự kiểm tra**: LED xanh lá (V_f ≈ 2.1 V) nối vào chân GPIO 3.3 V qua điện trở 150 Ω. Tính dòng và cho biết có an toàn không.
+🔁 **Tự kiểm tra**: LED xanh lá ($V_f \approx 2.1$ V) nối vào chân GPIO 3.3 V qua điện trở 150 Ω. Tính dòng và cho biết có an toàn không.
 
 <details>
 <summary>Đáp án</summary>
 
-I = (3.3 - 2.1) / 150 = 1.2 / 150 = **8 mA** — an toàn (< 20 mA).
+$I = (3.3 - 2.1) / 150 = 1.2 / 150 =$ **8 mA** — an toàn (< 20 mA).
 
 </details>
 
@@ -190,13 +188,13 @@ VCC (5 V)
 
 **Điện trở pull-up điển hình**: 4.7 kΩ đến 100 kΩ. Phổ biến nhất: **10 kΩ**.
 
-**ATmega328P có pull-up nội (internal pull-up) ~ 20–50 kΩ**:
+**ATmega328P có pull-up nội (internal pull-up) $\approx$ 20–50 kΩ**:
 ```c
 pinMode(2, INPUT_PULLUP);   // kích hoạt pull-up nội
 // Không cần điện trở ngoài!
 ```
 
-**Dòng qua pull-up khi nút nhấn**: I = VCC / R_pull = 5 / 10 000 = **0.5 mA** — rất nhỏ, tiêu tán điện năng không đáng kể.
+**Dòng qua pull-up khi nút nhấn**: $I = V_{\text{CC}} / R_{\text{pull}} = 5 / 10{,}000 =$ **0.5 mA** — rất nhỏ, tiêu tán điện năng không đáng kể.
 
 ### 3.3. Pull-down — kéo xuống GND
 
@@ -282,11 +280,10 @@ Vì pull-up nội kéo chân lên HIGH; nhấn nút nối GND → chân xuống 
 ATmega328P có ADC 10-bit, 6 kênh (A0–A5). Đọc điện áp 0–5 V → trả về giá trị số 0–1023.
 
 **Công thức chuyển đổi**:
-```
-Giá trị số = V_in / V_ref × (2^N - 1) = V_in / 5.0 × 1023
-```
 
-Ví dụ: `analogRead(A0)` trả về 512 → V_in = 512 / 1023 × 5.0 ≈ **2.502 V**.
+$$\text{Giá trị số} = \frac{V_{\text{in}}}{V_{\text{ref}}} \times (2^N - 1) = \frac{V_{\text{in}}}{5.0} \times 1023$$
+
+Ví dụ: `analogRead(A0)` trả về 512 → $V_{\text{in}} = 512 / 1023 \times 5.0 \approx$ **2.502 V**.
 
 Xem chi tiết lý thuyết ADC tại [Lesson 05 — ADC/DAC](../lesson-05-adc-dac/).
 
@@ -312,8 +309,8 @@ GND
 V_A0 = 5 × LDR / (R_fix + LDR)
 ```
 
-- Tối: LDR = 100 kΩ → V_A0 = 5 × 100k / (10k + 100k) = 5 × 100/110 ≈ **4.55 V** → ADC = 931.
-- Sáng: LDR = 1 kΩ → V_A0 = 5 × 1k / (10k + 1k) = 5 × 1/11 ≈ **0.45 V** → ADC = 92.
+- Tối: LDR $= 100$ kΩ → $V_{\text{A0}} = 5 \times 100\text{k} / (10\text{k} + 100\text{k}) = 5 \times 100/110 \approx$ **4.55 V** → ADC = 931.
+- Sáng: LDR $= 1$ kΩ → $V_{\text{A0}} = 5 \times 1\text{k} / (10\text{k} + 1\text{k}) = 5 \times 1/11 \approx$ **0.45 V** → ADC = 92.
 
 ```c
 int lightVal = analogRead(A0);  // 0–1023
@@ -343,15 +340,15 @@ if (lightVal < 300) {
 💡 **Trực giác**: Nhấp nháy đèn 100 lần/giây ở tỉ lệ 50% thời gian bật / 50% tắt → mắt thấy đèn sáng bằng **nửa** độ sáng tối đa (do quán tính thị giác). Đây chính là PWM (Pulse Width Modulation — điều chế độ rộng xung): tín hiệu số HIGH/LOW xen kẽ nhanh → tải nhận **giá trị trung bình** tỉ lệ với duty cycle.
 
 **Định nghĩa**:
-- **Chu kỳ (period) T**: thời gian của một chu kỳ PWM đầy đủ.
-- **Duty cycle D**: tỉ lệ phần trăm thời gian tín hiệu ở mức HIGH.
-- **Điện áp trung bình**: `V_avg = D × V_HIGH`
+- **Chu kỳ (period) $T$**: thời gian của một chu kỳ PWM đầy đủ.
+- **Duty cycle $D$**: tỉ lệ phần trăm thời gian tín hiệu ở mức HIGH.
+- **Điện áp trung bình**: $V_{\text{avg}} = D \times V_{\text{HIGH}}$
 
 **Công thức**:
-```
-D = t_on / T × 100%
-V_avg = D% × V_supply / 100
-```
+
+$$D = \frac{t_{\text{on}}}{T} \times 100\%$$
+
+$$V_{\text{avg}} = \frac{D\%}{100} \times V_{\text{supply}}$$
 
 **Ví dụ 4 trường hợp**:
 
@@ -410,19 +407,19 @@ Motor (+) ── VCC_motor (6 V / 12 V...)
 GND_motor ── GND chung với MCU
 ```
 
-🔁 **Tự kiểm tra**: `analogWrite(9, 191)` cho duty cycle bao nhiêu %? V_avg bao nhiêu V (5 V supply)?
+🔁 **Tự kiểm tra**: `analogWrite(9, 191)` cho duty cycle bao nhiêu %? $V_{\text{avg}}$ bao nhiêu V (5 V supply)?
 
 <details>
 <summary>Đáp án</summary>
 
-D = 191 / 255 × 100% ≈ **74.9%**
+$D = 191 / 255 \times 100\% \approx$ **74.9%**
 
-V_avg = 0.749 × 5 ≈ **3.75 V**
+$V_{\text{avg}} = 0.749 \times 5 \approx$ **3.75 V**
 
 </details>
 
 📝 **Tóm tắt mục 5**:
-- PWM: HIGH/LOW xen kẽ nhanh → V_avg tỉ lệ duty cycle.
+- PWM: HIGH/LOW xen kẽ nhanh → $V_{\text{avg}}$ tỉ lệ duty cycle.
 - `analogWrite(pin, 0..255)` trên chân có dấu `~`.
 - Tải lớn (motor) → MOSFET làm công tắc; không nối trực tiếp GPIO.
 
@@ -534,7 +531,7 @@ void loop() {
 }
 ```
 
-Kiểm tra dòng: I = (5 - 2) / 330 ≈ **9.1 mA** — an toàn (< 20 mA).
+Kiểm tra dòng: $I = (5 - 2) / 330 \approx$ **9.1 mA** — an toàn (< 20 mA).
 
 **Bài 2**:
 
@@ -596,20 +593,20 @@ void loop() {
 }
 ```
 
-Bước phân tích: ADC > 500 nghĩa là V_A0 > 500/1023 × 5 ≈ 2.44 V → LDR > R_fix = 10 kΩ → môi trường tối. Logic đúng.
+Bước phân tích: ADC > 500 nghĩa là $V_{\text{A0}} > 500/1023 \times 5 \approx 2.44$ V → LDR $> R_{\text{fix}} = 10$ kΩ → môi trường tối. Logic đúng.
 
 **Bài 4**:
 
-- (a) Giá trị `analogWrite`: value = 60% × 255 = **153** (làm tròn).
-- (b) V_avg = 153/255 × 5.0 = **3.0 V** (chính xác 60% × 5 V = 3.0 V ✓).
-- (c) Dòng trung bình: I_avg = (V_avg - V_f) / R_LED = (3.0 - 2.0) / 220 = **4.55 mA**.
+- (a) Giá trị `analogWrite`: value $= 60\% \times 255 =$ **153** (làm tròn).
+- (b) $V_{\text{avg}} = 153/255 \times 5.0 =$ **3.0 V** (chính xác $60\% \times 5$ V $= 3.0$ V ✓).
+- (c) Dòng trung bình: $I_{\text{avg}} = (V_{\text{avg}} - V_f) / R_{\text{LED}} = (3.0 - 2.0) / 220 =$ **4.55 mA**.
 
-Lưu ý: trong thực tế, LED nhận xung HIGH 5 V với duty 60% → dòng đỉnh (peak) = (5.0 - 2.0) / 220 = 13.6 mA; dòng **trung bình** = 13.6 × 60% = **8.16 mA**. Hai cách tính cho kết quả khác nhau vì V_f không tuyến tính, nhưng sai số nhỏ trong thực tế. Cách tính (c) dùng V_avg là gần đúng.
+Lưu ý: trong thực tế, LED nhận xung HIGH 5 V với duty 60% → dòng đỉnh (peak) $= (5.0 - 2.0) / 220 = 13.6$ mA; dòng **trung bình** $= 13.6 \times 60\% =$ **8.16 mA**. Hai cách tính cho kết quả khác nhau vì $V_f$ không tuyến tính, nhưng sai số nhỏ trong thực tế. Cách tính (c) dùng $V_{\text{avg}}$ là gần đúng.
 
 **Bài 5**:
 
-- Dòng mỗi LED: I = (5 - 2) / 150 = 3 / 150 = **20 mA**.
-- Tổng dòng 3 LED song song: I_tổng = 3 × 20 = **60 mA**.
+- Dòng mỗi LED: $I = (5 - 2) / 150 = 3 / 150 =$ **20 mA**.
+- Tổng dòng 3 LED song song: $I_{\text{tổng}} = 3 \times 20 =$ **60 mA**.
 - Giới hạn tuyệt đối ATmega328P: 40 mA/chân → **60 mA vượt giới hạn → không an toàn**.
 - **Giải pháp**: dùng transistor BJT NPN (ví dụ 2N2222) hoặc MOSFET (2N7000) làm công tắc; GPIO chỉ điều khiển base/gate (vài mA), transistor cấp dòng lớn từ nguồn ngoài cho 3 LED. Tham khảo [BJT switch](../../02-Semiconductors/lesson-05-bjt-switch/).
 
@@ -633,5 +630,5 @@ Lưu ý: trong thực tế, LED nhận xung HIGH 5 V với duty 60% → dòng đ
 3. **GPIO INPUT**: luôn dùng pull-up hoặc pull-down để tránh floating; `INPUT_PULLUP` dùng pull-up nội; nhấn nút = LOW (active-low).
 4. **Debounce**: đợi 50 ms ổn định (phần mềm) hoặc tụ 100 nF song song nút (phần cứng).
 5. **ADC**: `analogRead()` trả về 0–1023 (10-bit, 0–5 V); cảm biến điện trở đọc qua phân áp.
-6. **PWM**: `analogWrite(pin, 0..255)` trên chân `~`; D = value/255; V_avg = D × V_supply.
+6. **PWM**: `analogWrite(pin, 0..255)` trên chân `~`; $D = \text{value}/255$; $V_{\text{avg}} = D \times V_{\text{supply}}$.
 7. **setup/loop + interrupt**: `setup()` cấu hình 1 lần; `loop()` lặp mãi; interrupt phản hồi sự kiện tức thì không bỏ sót.

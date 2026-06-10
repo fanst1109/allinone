@@ -29,7 +29,7 @@ Sau bài này bạn sẽ:
 
 > 💡 **Trực giác**: Hash function chứng minh tính toàn vẹn (integrity) của data — nhưng bất kỳ ai cũng có thể tính lại hash. MAC thêm một **secret key** vào: chỉ người biết key mới tạo được MAC hợp lệ. Đây là sự khác biệt giữa "không ai sửa file" (hash) và "file đến từ người tôi tin" (MAC).
 
-**MAC**: f(K, M) → tag, với:
+**MAC**: $f(K, M) \\to \\text{tag}$, với:
 - **Integrity**: mọi thay đổi trong M → tag khác → detect.
 - **Authenticity**: chỉ ai có K mới tạo được tag hợp lệ.
 
@@ -39,9 +39,9 @@ Sau bài này bạn sẽ:
 
 ### 1.2. Tại sao không phải H(K ‖ M)?
 
-Đây là "secret prefix MAC" — và nó **dễ bị length extension attack** (L03). Biết H(K ‖ M), forge H(K ‖ M ‖ padding ‖ extra) mà không cần K.
+Đây là "secret prefix MAC" — và nó **dễ bị length extension attack** (L03). Biết $H(K \\,\\|\\, M)$, forge $H(K \\,\\|\\, M \\,\\|\\, \\text{padding} \\,\\|\\, \\text{extra})$ mà không cần $K$.
 
-Tương tự, H(M ‖ K) "secret suffix" cũng có vấn đề: chosen-message attack trong một số cấu trúc.
+Tương tự, $H(M \\,\\|\\, K)$ "secret suffix" cũng có vấn đề: chosen-message attack trong một số cấu trúc.
 
 **Giải pháp**: HMAC.
 
@@ -51,17 +51,15 @@ Tương tự, H(M ‖ K) "secret suffix" cũng có vấn đề: chosen-message a
 
 ### 2.1. Công thức HMAC
 
-\`\`\`
-HMAC_K(M) = H((K ⊕ opad) ‖ H((K ⊕ ipad) ‖ M))
-\`\`\`
+$$\\mathrm{HMAC}_K(M) = H\\big((K \\oplus \\text{opad}) \\,\\|\\, H((K \\oplus \\text{ipad}) \\,\\|\\, M)\\big)$$
 
 - \`ipad\` = 0x36 repeated (inner pad, 64 bytes với SHA-256)
 - \`opad\` = 0x5C repeated (outer pad, 64 bytes)
 - \`K\` được pad/hash về đúng block size (64 byte)
 
 **Hai lần hash**:
-1. **Inner**: H(K_inner ‖ M) → inner hash (= message hash với key mixed)
-2. **Outer**: H(K_outer ‖ inner_hash) → final HMAC
+1. **Inner**: $H(K_\\text{inner} \\,\\|\\, M) \\to$ inner hash ($=$ message hash với key mixed)
+2. **Outer**: $H(K_\\text{outer} \\,\\|\\, \\text{inner\\_hash}) \\to$ final HMAC
 
 **Tại sao fix length extension?** Inner hash hoàn thành trước khi outer hash bắt đầu. Output của inner hash là giá trị cố định 32 byte — không phải "half-processed state". Outer hash không thể bị extend vì nó nhận input đã hoàn chỉnh.
 
@@ -69,21 +67,20 @@ HMAC_K(M) = H((K ⊕ opad) ‖ H((K ⊕ ipad) ‖ M))
 
 **HMAC-SHA256(K="key", M="The quick brown fox jumps over the lazy dog")**:
 
-\`\`\`
-K = "key" (3 bytes) → pad về 64 bytes: 6b657900000...0
+$K = $ "key" (3 bytes) $\\to$ pad về 64 bytes: \`6b657900000...0\`.
 
-K_inner = K ⊕ ipad = [0x6b⊕0x36, 0x65⊕0x36, 0x79⊕0x36, 0x36⊕0x36, ...]
-         = [0x5d, 0x53, 0x4f, 0x36, ..., 0x36]
+$$\\begin{aligned}
+K_\\text{inner} = K \\oplus \\text{ipad} &= [\\text{0x6b}{\\oplus}\\text{0x36}, \\text{0x65}{\\oplus}\\text{0x36}, \\text{0x79}{\\oplus}\\text{0x36}, \\text{0x36}{\\oplus}\\text{0x36}, \\ldots] \\\\
+&= [\\text{0x5d}, \\text{0x53}, \\text{0x4f}, \\text{0x36}, \\ldots, \\text{0x36}] \\\\
+K_\\text{outer} = K \\oplus \\text{opad} &= [\\text{0x6b}{\\oplus}\\text{0x5c}, \\text{0x65}{\\oplus}\\text{0x5c}, \\text{0x79}{\\oplus}\\text{0x5c}, \\text{0x5c}{\\oplus}\\text{0x5c}, \\ldots] \\\\
+&= [\\text{0x37}, \\text{0x39}, \\text{0x25}, \\text{0x5c}, \\ldots, \\text{0x5c}]
+\\end{aligned}$$
 
-K_outer = K ⊕ opad = [0x6b⊕0x5c, 0x65⊕0x5c, 0x79⊕0x5c, 0x5c⊕0x5c, ...]
-         = [0x37, 0x39, 0x25, 0x5c, ..., 0x5c]
+$\\text{inner\\_msg} = K_\\text{inner} \\,\\|\\, \\text{"The quick brown fox..."}$, rồi $\\text{inner\\_hash} = \\mathrm{SHA256}(\\text{inner\\_msg}) = \\text{2fcf96...}$
 
-inner_msg = K_inner ‖ "The quick brown fox..."
-inner_hash = SHA256(inner_msg) = 2fcf96...
+$\\text{final\\_msg} = K_\\text{outer} \\,\\|\\, \\text{inner\\_hash}$, rồi:
 
-final_msg = K_outer ‖ inner_hash
-HMAC = SHA256(final_msg) = f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd
-\`\`\`
+$$\\mathrm{HMAC} = \\mathrm{SHA256}(\\text{final\\_msg}) = \\text{f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd}$$
 
 *(Giá trị trên là HMAC-SHA256 thực với key="key", message đó)*
 
@@ -103,40 +100,39 @@ Crypto cần random trong nhiều bước: AES key generation, IV/nonce, session
 
 ### 3.2. LCG — Linear Congruential Generator (Insecure)
 
-**Công thức**: X_{n+1} = (a · X_n + c) mod m
+**Công thức**: $X_{n+1} = (a \\cdot X_n + c) \\bmod m$
 
-**Thường dùng**: m = 2³², a = 1664525, c = 1013904223 (Numerical Recipes).
+**Thường dùng**: $m = 2^{32}$, $a = 1664525$, $c = 1013904223$ (Numerical Recipes).
 
-**Ví dụ với a=1103515245, c=12345, m=2³¹**:
-\`\`\`
-X_0 = 42
-X_1 = (1103515245 × 42 + 12345) mod 2³¹ = 1248496485
-X_2 = (1103515245 × 1248496485 + 12345) mod 2³¹ = 1521572805
-X_3 = ?
-\`\`\`
+**Ví dụ với $a = 1103515245$, $c = 12345$, $m = 2^{31}$**:
+
+$$\\begin{aligned}
+X_0 &= 42 \\\\
+X_1 &= (1103515245 \\times 42 + 12345) \\bmod 2^{31} = 1248496485 \\\\
+X_2 &= (1103515245 \\times 1248496485 + 12345) \\bmod 2^{31} = 1521572805 \\\\
+X_3 &= ?
+\\end{aligned}$$
 
 **Vì sao không an toàn?** LCG là **tuyến tính** — biết 2 output liên tiếp, giải hệ phương trình tuyến tính:
 
-\`\`\`
-X_2 = a·X_1 + c (mod m)
-→ X_2 - X_1·a ≡ c (mod m)
+$$\\begin{aligned}
+X_2 &= a \\cdot X_1 + c \\pmod{m} \\\\
+&\\Rightarrow X_2 - X_1 \\cdot a \\equiv c \\pmod{m}
+\\end{aligned}$$
 
-Biết X_1, X_2:
-→ a = (X_2 - c) · X_1^{-1} mod m  (nếu biết c)
-→ Hay: biết 3 output → giải a và c hoàn toàn
-\`\`\`
+Biết $X_1, X_2$: $a = (X_2 - c) \\cdot X_1^{-1} \\bmod m$ (nếu biết $c$). Hay: biết 3 output $\\Rightarrow$ giải $a$ và $c$ hoàn toàn.
 
-Sau khi có a, c, m: biết X_n → tính X_{n+1}, X_{n+2}, ... vô hạn. PRNG bị compromise hoàn toàn.
+Sau khi có $a, c, m$: biết $X_n \\to$ tính $X_{n+1}, X_{n+2}, \\ldots$ vô hạn. PRNG bị compromise hoàn toàn.
 
 **Thực tế tấn công**: PHP cũ dùng LCG cho \`rand()\`. Biết 1 số từ session token → predict tất cả random về sau → đoán reset password token.
 
 **Ví dụ predict**:
 
-\`\`\`
-Biết: X_1 = 15, X_2 = 8, X_3 = 22 (với a=5, c=3, m=31)
-→ X_4 = (5×22 + 3) mod 31 = 113 mod 31 = 20
-→ X_5 = (5×20 + 3) mod 31 = 103 mod 31 = 10
-\`\`\`
+$$\\begin{aligned}
+\\text{Biết: } & X_1 = 15, X_2 = 8, X_3 = 22 \\text{ (với } a{=}5, c{=}3, m{=}31) \\\\
+X_4 &= (5 \\times 22 + 3) \\bmod 31 = 113 \\bmod 31 = 20 \\\\
+X_5 &= (5 \\times 20 + 3) \\bmod 31 = 103 \\bmod 31 = 10
+\\end{aligned}$$
 
 ### 3.3. CSPRNG — Cryptographically Secure PRNG
 
@@ -163,16 +159,16 @@ Biết: X_1 = 15, X_2 = 8, X_3 = 22 (với a=5, c=3, m=31)
 
 **SHA-256("password123") = ef92b778bafe...** — tính được trong **microseconds**. Kẻ tấn công có GPU cluster:
 
-\`\`\`
-1 GPU: ~10⁹ SHA-256/giây
-100 GPU cluster: ~10¹¹ SHA-256/giây
-Password space 8 ký tự lowercase: 26⁸ ≈ 2×10¹¹
-→ Brute force trong ~2 giây!
-\`\`\`
+$$\\begin{aligned}
+\\text{1 GPU} &: \\approx 10^9 \\text{ SHA-256/giây} \\\\
+\\text{100 GPU cluster} &: \\approx 10^{11} \\text{ SHA-256/giây} \\\\
+\\text{Password space 8 ký tự lowercase} &: 26^8 \\approx 2 \\times 10^{11} \\\\
+&\\Rightarrow \\text{Brute force trong } \\approx 2 \\text{ giây!}
+\\end{aligned}$$
 
-**KDF mục đích**: chủ ý làm chậm function xuống ~100ms. Brute force: 100ms × 2×10¹¹ = 2×10¹⁰ giây = 630 năm.
+**KDF mục đích**: chủ ý làm chậm function xuống $\\approx 100\\text{ms}$. Brute force: $100\\text{ms} \\times 2 \\times 10^{11} = 2 \\times 10^{10}$ giây $= 630$ năm.
 
-**Salt**: tránh rainbow table (precomputed hash table). Salt = random string unique per user, lưu cùng hash. SHA-256(salt ‖ password) khác nhau dù password giống nhau.
+**Salt**: tránh rainbow table (precomputed hash table). Salt $=$ random string unique per user, lưu cùng hash. $\\mathrm{SHA\\text{-}256}(\\text{salt} \\,\\|\\, \\text{password})$ khác nhau dù password giống nhau.
 
 ### 4.2. PBKDF2 (2000, RFC 2898)
 
@@ -185,17 +181,18 @@ DK = PBKDF2(PRF, Password, Salt, c, dkLen)
 
 **Cơ chế**: lặp c lần HMAC. Mỗi lần dùng output trước làm input. Chỉ tăng được thời gian bằng iteration count — không tăng memory.
 
-**OWASP 2023**: c ≥ 600,000 iterations với SHA-256 → ~100ms trên CPU thường.
+**OWASP 2023**: $c \\ge 600{,}000$ iterations với SHA-256 $\\to \\approx 100\\text{ms}$ trên CPU thường.
 
 **Nhược điểm**: **ASIC/GPU-friendly**. Attacker dùng custom ASIC có thể hash nhanh hơn CPU 100-1000x → cost advantage giảm 100-1000x.
 
 ### 4.3. bcrypt (1999, Niels Provos & David Mazières)
 
 \`\`\`
-bcrypt(password, cost) → 60-char hash
+bcrypt(password, cost) -> 60-char hash
   cost: 2^cost internal rounds
-  Vd: cost=12 → 2¹² = 4096 rounds → ~100ms
 \`\`\`
+
+Ví dụ: $\\text{cost} = 12 \\to 2^{12} = 4096$ rounds $\\to \\approx 100\\text{ms}$.
 
 **Ưu điểm**: đơn giản, widely deployed, battle-tested 25 năm.
 
@@ -211,8 +208,9 @@ scrypt(Password, Salt, N, r, p, dkLen)
   N: CPU/memory cost (2^N blocks of 128*r bytes)
   r: block size (usually 8)
   p: parallelization
-  Vd: N=2¹⁶, r=8, p=1 → ~64 MB memory
 \`\`\`
+
+Ví dụ: $N = 2^{16}$, $r = 8$, $p = 1 \\to \\approx 64\\text{ MB}$ memory.
 
 **Ưu điểm**: **Memory-hard** — cần nhiều RAM. ASIC cần RAM đắt tiền → cost advantage giảm nhiều hơn bcrypt.
 
@@ -226,26 +224,28 @@ scrypt(Password, Salt, N, r, p, dkLen)
 - **Argon2id**: hybrid — first pass data-independent, rest data-dependent. **Best for passwords**.
 
 \`\`\`
-Argon2id(password, salt, t, m, p) → hash
+Argon2id(password, salt, t, m, p) -> hash
   t: time cost (iterations)
   m: memory cost (KB)
   p: parallelism (threads)
-  Recommended: t=3, m=65536 (64MB), p=4 → ~100ms
 \`\`\`
+
+Recommended: $t = 3$, $m = 65536$ (64MB), $p = 4 \\to \\approx 100\\text{ms}$.
 
 **Ví dụ tính toán**:
 
-\`\`\`
-Password "password123", Salt = 16 random bytes
-Argon2id: t=3, m=64 MB, p=4 → ~100ms per attempt
+Password "password123", Salt $= 16$ random bytes. Argon2id: $t = 3$, $m = 64\\text{ MB}$, $p = 4 \\to \\approx 100\\text{ms}$ per attempt.
 
-Attack: 8-char lowercase password, 26⁸ ≈ 2×10¹¹ combinations
-Time = 100ms × 2×10¹¹ = 2×10¹⁰ seconds ≈ 630 năm
-Dù attacker có 1,000 server: 630 năm / 1,000 = 230 ngày
-→ Vẫn không khả thi với password đủ mạnh
-\`\`\`
+Attack: 8-char lowercase password, $26^8 \\approx 2 \\times 10^{11}$ combinations.
 
-**Memory hardness**: 64 MB × 4 thread = 256 MB RAM cho 1 hash attempt. Crack cluster 10,000 GPU cần: 10,000 × 256 MB = 2.5 TB RAM chỉ để hash đồng thời — cực đắt.
+$$\\begin{aligned}
+\\text{Time} &= 100\\text{ms} \\times 2 \\times 10^{11} = 2 \\times 10^{10} \\text{ seconds} \\approx 630 \\text{ năm} \\\\
+\\text{Dù attacker có 1,000 server} &: 630 \\text{ năm} / 1{,}000 = 230 \\text{ ngày}
+\\end{aligned}$$
+
+$\\Rightarrow$ Vẫn không khả thi với password đủ mạnh.
+
+**Memory hardness**: $64\\text{ MB} \\times 4$ thread $= 256\\text{ MB}$ RAM cho 1 hash attempt. Crack cluster 10,000 GPU cần: $10{,}000 \\times 256\\text{ MB} = 2.5\\text{ TB}$ RAM chỉ để hash đồng thời — cực đắt.
 
 > ❓ **Câu hỏi**: Nếu KDF chậm thì login của user cũng chậm không? Đúng — nhưng user chỉ login 1 lần/session, 100ms không đáng kể. Trong khi attacker phải brute-force hàng tỷ lần → tốn vô cùng.
 
@@ -276,44 +276,42 @@ Dù attacker có 1,000 server: 630 năm / 1,000 = 230 ngày
 
 ### Bài 1
 
-\`\`\`
-K = "secret" = [0x73, 0x65, 0x63, 0x72, 0x65, 0x74]
-Pad về 64 bytes: K_64 = [0x73, 0x65, 0x63, 0x72, 0x65, 0x74, 0x00, ..., 0x00]
+$K = $ "secret" $= [\\text{0x73}, \\text{0x65}, \\text{0x63}, \\text{0x72}, \\text{0x65}, \\text{0x74}]$. Pad về 64 bytes: $K_{64} = [\\text{0x73}, \\text{0x65}, \\text{0x63}, \\text{0x72}, \\text{0x65}, \\text{0x74}, \\text{0x00}, \\ldots, \\text{0x00}]$.
 
-ipad = [0x36, 0x36, ..., 0x36] (64 bytes)
-opad = [0x5c, 0x5c, ..., 0x5c] (64 bytes)
+$\\text{ipad} = [\\text{0x36}, \\text{0x36}, \\ldots, \\text{0x36}]$ (64 bytes); $\\text{opad} = [\\text{0x5c}, \\text{0x5c}, \\ldots, \\text{0x5c}]$ (64 bytes).
 
-K_inner = K_64 ⊕ ipad:
-  byte 0: 0x73 ⊕ 0x36 = 0x45
-  byte 1: 0x65 ⊕ 0x36 = 0x53
-  byte 2: 0x63 ⊕ 0x36 = 0x55
-  ...
-  byte 6-63: 0x00 ⊕ 0x36 = 0x36
+$K_\\text{inner} = K_{64} \\oplus \\text{ipad}$:
 
-K_outer = K_64 ⊕ opad:
-  byte 0: 0x73 ⊕ 0x5c = 0x2f
-  byte 1: 0x65 ⊕ 0x5c = 0x39
-  ...
-  byte 6-63: 0x00 ⊕ 0x5c = 0x5c
+$$\\begin{aligned}
+\\text{byte 0} &: \\text{0x73} \\oplus \\text{0x36} = \\text{0x45} \\\\
+\\text{byte 1} &: \\text{0x65} \\oplus \\text{0x36} = \\text{0x53} \\\\
+\\text{byte 2} &: \\text{0x63} \\oplus \\text{0x36} = \\text{0x55} \\\\
+\\text{byte 6-63} &: \\text{0x00} \\oplus \\text{0x36} = \\text{0x36}
+\\end{aligned}$$
 
-inner_msg = K_inner ‖ "hello"  (64 + 5 = 69 bytes)
-inner_hash = SHA256(inner_msg)
+$K_\\text{outer} = K_{64} \\oplus \\text{opad}$:
 
-final_msg = K_outer ‖ inner_hash  (64 + 32 = 96 bytes)
-HMAC = SHA256(final_msg)
-\`\`\`
+$$\\begin{aligned}
+\\text{byte 0} &: \\text{0x73} \\oplus \\text{0x5c} = \\text{0x2f} \\\\
+\\text{byte 1} &: \\text{0x65} \\oplus \\text{0x5c} = \\text{0x39} \\\\
+\\text{byte 6-63} &: \\text{0x00} \\oplus \\text{0x5c} = \\text{0x5c}
+\\end{aligned}$$
+
+$\\text{inner\\_msg} = K_\\text{inner} \\,\\|\\, \\text{"hello"}$ ($64 + 5 = 69$ bytes), rồi $\\text{inner\\_hash} = \\mathrm{SHA256}(\\text{inner\\_msg})$.
+
+$\\text{final\\_msg} = K_\\text{outer} \\,\\|\\, \\text{inner\\_hash}$ ($64 + 32 = 96$ bytes), rồi $\\mathrm{HMAC} = \\mathrm{SHA256}(\\text{final\\_msg})$.
 
 ### Bài 2
 
-\`\`\`
-a=7, c=3, m=16, X_0=5
-X_1 = (7×5 + 3) mod 16 = 38 mod 16 = 6
-X_2 = (7×6 + 3) mod 16 = 45 mod 16 = 13
-X_3 = (7×13 + 3) mod 16 = 94 mod 16 = 14
-X_4 = (7×14 + 3) mod 16 = 101 mod 16 = 5
-\`\`\`
+$$\\begin{aligned}
+& a = 7, c = 3, m = 16, X_0 = 5 \\\\
+X_1 &= (7 \\times 5 + 3) \\bmod 16 = 38 \\bmod 16 = 6 \\\\
+X_2 &= (7 \\times 6 + 3) \\bmod 16 = 45 \\bmod 16 = 13 \\\\
+X_3 &= (7 \\times 13 + 3) \\bmod 16 = 94 \\bmod 16 = 14 \\\\
+X_4 &= (7 \\times 14 + 3) \\bmod 16 = 101 \\bmod 16 = 5
+\\end{aligned}$$
 
-X_4 = X_0 = 5 → chu kỳ = 4. LCG với m=16 có chu kỳ tối đa 4 (rất ngắn!). Với m=2³², chu kỳ tối đa ~2³² nếu chọn a, c đúng.
+$X_4 = X_0 = 5 \\to$ chu kỳ $= 4$. LCG với $m = 16$ có chu kỳ tối đa 4 (rất ngắn!). Với $m = 2^{32}$, chu kỳ tối đa $\\approx 2^{32}$ nếu chọn $a, c$ đúng.
 
 ### Bài 3
 
@@ -321,16 +319,16 @@ Vì SHA-256("password") là hằng số, mọi user dùng "password" đều có 
 1. Dùng **rainbow table** (precomputed hash → password, lưu sẵn) → tra cứu O(1).
 2. Rainbow table phổ biến cho SHA-256 của 1 tỷ password thông dụng đã tồn tại sẵn.
 
-Salt fix điều này: SHA-256(salt ‖ "password") khác nhau với mỗi salt → không dùng rainbow table chung được.
+Salt fix điều này: $\\mathrm{SHA\\text{-}256}(\\text{salt} \\,\\|\\, \\text{"password"})$ khác nhau với mỗi salt $\\to$ không dùng rainbow table chung được.
 
 ### Bài 4
 
 Các option:
-- **Tăng t** từ 3 → 6: +100% thời gian (→ 160ms). Dễ nhất.
-- **Tăng m** từ 65536 → 131072 KB: tăng memory gấp đôi, +100% thời gian (→ 160ms). Tốt hơn vì cũng tăng memory cost cho attacker.
-- **Tăng cả 2**: t=4, m=131072 → ~3-4× chậm hơn.
+- **Tăng $t$** từ 3 $\\to$ 6: $+100\\%$ thời gian ($\\to 160\\text{ms}$). Dễ nhất.
+- **Tăng $m$** từ 65536 $\\to$ 131072 KB: tăng memory gấp đôi, $+100\\%$ thời gian ($\\to 160\\text{ms}$). Tốt hơn vì cũng tăng memory cost cho attacker.
+- **Tăng cả 2**: $t = 4$, $m = 131072 \\to \\approx 3\\text{-}4\\times$ chậm hơn.
 
-**Khuyến nghị**: Tăng m trước (memory-hardness là lợi thế chính của Argon2 so với PBKDF2). t=3, m=131072, p=4 → ~160ms — vẫn chấp nhận được cho login, nhưng attacker cần gấp đôi RAM.
+**Khuyến nghị**: Tăng $m$ trước (memory-hardness là lợi thế chính của Argon2 so với PBKDF2). $t = 3$, $m = 131072$, $p = 4 \\to \\approx 160\\text{ms}$ — vẫn chấp nhận được cho login, nhưng attacker cần gấp đôi RAM.
 
 ---
 

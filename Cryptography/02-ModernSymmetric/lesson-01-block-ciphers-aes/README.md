@@ -6,11 +6,11 @@
 
 Sau bài này bạn sẽ:
 
-- Hiểu **block cipher** là gì: pseudo-random permutation trên n-bit block, tham số hóa bởi key.
+- Hiểu **block cipher** là gì: pseudo-random permutation trên $n$-bit block, tham số hóa bởi key.
 - Nắm **SPN structure** (Substitution-Permutation Network) — nguyên lý nền của AES.
 - Mô tả chi tiết **4 phép biến đổi** của mỗi AES round: SubBytes, ShiftRows, MixColumns, AddRoundKey.
 - Biết lịch sử DES → 3DES → AES và lý do DES/3DES **deprecated**.
-- Định lượng độ an toàn: brute-force 2¹²⁸ ops mất bao nhiêu năm.
+- Định lượng độ an toàn: brute-force $2^{128}$ ops mất bao nhiêu năm.
 
 ## Kiến thức tiền đề
 
@@ -24,11 +24,11 @@ Sau bài này bạn sẽ:
 
 > 💡 **Trực giác**: Hãy tưởng tượng một hộp đen có 2 chế độ. Chế độ **encrypt**: nhét vào 16 byte bất kỳ + 1 chìa khóa → nhả ra 16 byte trông hoàn toàn ngẫu nhiên. Chế độ **decrypt**: nhét 16 byte ciphertext + đúng chìa đó → trả về chính xác 16 byte ban đầu. Hộp đen này là **block cipher**.
 
-**Định nghĩa chính xác**: Block cipher E: {0,1}^k × {0,1}^n → {0,1}^n là họ hàm sao cho:
+**Định nghĩa chính xác**: Block cipher $E: \{0,1\}^k \times \{0,1\}^n \to \{0,1\}^n$ là họ hàm sao cho:
 
-- **Tham số hóa bởi key k**: mỗi key xác định một hoán vị (permutation) cụ thể trên {0,1}^n.
-- **Pseudo-random permutation (PRP)**: không thể phân biệt E_K(·) với một random permutation thật sự khi không có K.
-- **Khả nghịch**: với mỗi K cố định, E_K là bijection — có thể decrypt.
+- **Tham số hóa bởi key k**: mỗi key xác định một hoán vị (permutation) cụ thể trên $\{0,1\}^n$.
+- **Pseudo-random permutation (PRP)**: không thể phân biệt $E_K(\cdot)$ với một random permutation thật sự khi không có $K$.
+- **Khả nghịch**: với mỗi $K$ cố định, $E_K$ là bijection — có thể decrypt.
 
 **Vì sao block cipher tồn tại?** Stream cipher (như RC4 hay OTP) encrypt từng bit — nếu có lỗi 1 bit trong keystream, mỗi bit trong output sai tương ứng và khó phát hiện. Block cipher xử lý theo khối, trộn đều các bit trong khối → một bit thay đổi ở input ảnh hưởng ~50% bit output (avalanche effect), dễ phát hiện can thiệp hơn và cung cấp nền cho authentication.
 
@@ -40,7 +40,7 @@ Sau bài này bạn sẽ:
 | AES-192 | 128 bit | 192 bit | 12 |
 | AES-256 | 128 bit | 256 bit | 14 |
 
-> ❓ **Câu hỏi tự nhiên**: Tại sao block size cố định 128 bit? Vì 64-bit (như DES) dễ bị birthday attack: sau 2³² block (4GB) mã hóa cùng key, xác suất cao có 2 block cho cùng ciphertext → thông tin lộ. 128 bit → cần 2⁶⁴ block (hàng triệu TB) mới gặp vấn đề này.
+> ❓ **Câu hỏi tự nhiên**: Tại sao block size cố định 128 bit? Vì 64-bit (như DES) dễ bị birthday attack: sau $2^{32}$ block (4GB) mã hóa cùng key, xác suất cao có 2 block cho cùng ciphertext $\to$ thông tin lộ. 128 bit $\to$ cần $2^{64}$ block (hàng triệu TB) mới gặp vấn đề này.
 
 ---
 
@@ -50,7 +50,7 @@ Sau bài này bạn sẽ:
 
 AES được NIST công bố năm 2001, chọn từ thuật toán **Rijndael** (Joan Daemen + Vincent Rijmen, Bỉ) qua cuộc thi mở (1997–2001). Tên "AES" = Advanced Encryption Standard. Hiện tại (2024):
 
-- AES-128 **vẫn an toàn** — best known attack ~2¹²⁶ ops (biquadratic), brute-force vẫn là 2¹²⁸.
+- AES-128 **vẫn an toàn** — best known attack $\approx 2^{126}$ ops (biquadratic), brute-force vẫn là $2^{128}$.
 - Side-channel attacks (timing, power analysis) là mối đe dọa thực tế hơn brute-force.
 
 ### 2.2. State matrix — 4×4 byte grid
@@ -87,7 +87,7 @@ Lý thuyết thông tin của Shannon (1949) yêu cầu **confusion** (S) + **di
 
 ### 3.1. SubBytes — thay thế phi tuyến
 
-**Là gì**: Thay từng byte của state bằng giá trị tra trong **S-box** (substitution box) — bảng 256 phần tử được xây từ nghịch đảo trong trường hữu hạn GF(2⁸).
+**Là gì**: Thay từng byte của state bằng giá trị tra trong **S-box** (substitution box) — bảng 256 phần tử được xây từ nghịch đảo trong trường hữu hạn $\mathrm{GF}(2^{8})$.
 
 **Vì sao cần**: Phá tính tuyến tính. Nếu dùng phép cộng hay nhân đơn giản, kẻ tấn công có thể lập hệ phương trình tuyến tính để tìm key. S-box là phi tuyến → vô hiệu hóa chiến lược này.
 
@@ -100,9 +100,9 @@ Lý thuyết thông tin của Shannon (1949) yêu cầu **confusion** (S) + **di
 | 0xa1 | 10100001 | 0xfe | 11111110 |
 | 0x63 | 01100011 | 0xfb | 11111011 |
 
-Ví dụ: `SubBytes(0x53) = 0xed`. Cách tính thô (không cần biết khi dùng): lấy nghịch đảo 0x53 trong GF(2⁸) = 0xca, sau đó áp affine transformation → 0xed.
+Ví dụ: `SubBytes(0x53) = 0xed`. Cách tính thô (không cần biết khi dùng): lấy nghịch đảo 0x53 trong $\mathrm{GF}(2^{8})$ = 0xca, sau đó áp affine transformation → 0xed.
 
-> ⚠ **Lỗi thường gặp**: S-box KHÔNG phải table lookup tùy tiện — nó có cấu trúc algebraic rõ ràng (inverse trong GF(2⁸) + affine). Điều này đảm bảo không có "trap door" ẩn. Đây là điểm khác biệt so với DES S-box (được thiết kế bí mật ban đầu).
+> ⚠ **Lỗi thường gặp**: S-box KHÔNG phải table lookup tùy tiện — nó có cấu trúc algebraic rõ ràng (inverse trong $\mathrm{GF}(2^{8})$ + affine). Điều này đảm bảo không có "trap door" ẩn. Đây là điểm khác biệt so với DES S-box (được thiết kế bí mật ban đầu).
 
 ### 3.2. ShiftRows — dịch vòng theo hàng
 
@@ -142,7 +142,7 @@ Row 3: [21  41  54  41]   (dịch 3: ! A T A)
 
 ### 3.3. MixColumns — khuếch tán trong cột
 
-**Là gì**: Nhân mỗi cột (4 byte) với ma trận MDS cố định trong trường hữu hạn GF(2⁸):
+**Là gì**: Nhân mỗi cột (4 byte) với ma trận MDS cố định trong trường hữu hạn $\mathrm{GF}(2^{8})$:
 
 ```
 [2 3 1 1]   [b0]   [b'0]
@@ -151,21 +151,21 @@ Row 3: [21  41  54  41]   (dịch 3: ! A T A)
 [3 1 1 2]   [b3]   [b'3]
 ```
 
-Trong đó các phép nhân và cộng thực hiện trong GF(2⁸) (cộng = XOR; nhân = polynomial mod irreducible poly x⁸+x⁴+x³+x+1).
+Trong đó các phép nhân và cộng thực hiện trong $\mathrm{GF}(2^{8})$ (cộng = XOR; nhân = polynomial mod irreducible poly $x^{8}+x^{4}+x^{3}+x+1$).
 
 **Ví dụ tính thô** (đủ để hiểu khái niệm): nhân cột [0x87, 0x6e, 0x46, 0xa6] với hàng đầu [2,3,1,1]:
 
-```
-b'0 = 2×0x87 ⊕ 3×0x6e ⊕ 1×0x46 ⊕ 1×0xa6
-    = 0x15  ⊕  0xb2  ⊕  0x46  ⊕  0xa6
-    = 0x47
-```
+$$\begin{aligned}
+b'_0 &= 2 \cdot \text{0x87} \oplus 3 \cdot \text{0x6e} \oplus 1 \cdot \text{0x46} \oplus 1 \cdot \text{0xa6} \\
+     &= \text{0x15} \oplus \text{0xb2} \oplus \text{0x46} \oplus \text{0xa6} \\
+     &= \text{0x47}
+\end{aligned}$$
 
-*(Nhân 2×0x87 trong GF(2⁸): shift left 1 bit = 0x0e, XOR 0x1b nếu MSB=1 → 0x0e XOR 0x1b = ... tính ra 0x15)*
+*(Nhân $2 \cdot \text{0x87}$ trong $\mathrm{GF}(2^{8})$: shift left 1 bit = 0x0e, XOR 0x1b nếu MSB=1 → 0x0e XOR 0x1b = ... tính ra 0x15)*
 
 **Vì sao cần**: Một bit thay đổi ở input → 4 byte output thay đổi (sau MixColumns) → sau 2 round, tất cả 16 byte bị ảnh hưởng. Đây là **diffusion** của Shannon.
 
-> ⚠ **Lỗi thường gặp**: MixColumns KHÔNG phải nhân ma trận số nguyên thông thường — phải dùng GF(2⁸). Ví dụ: 2×0x87 ≠ 0x10e; đúng là phép nhân polynomial mod p(x).
+> ⚠ **Lỗi thường gặp**: MixColumns KHÔNG phải nhân ma trận số nguyên thông thường — phải dùng $\mathrm{GF}(2^{8})$. Ví dụ: $2 \cdot \text{0x87} \ne \text{0x10e}$; đúng là phép nhân polynomial mod $p(x)$.
 
 > 📝 **Tóm tắt phân biệt 3 bước**: SubBytes = confusion (non-linear lookup, loại bỏ tính tuyến tính); ShiftRows = diffusion ngang (trộn byte giữa các cột); MixColumns = diffusion dọc (trộn byte trong cùng cột). Ba bước phối hợp → full diffusion sau 2 round.
 
@@ -173,13 +173,11 @@ b'0 = 2×0x87 ⊕ 3×0x6e ⊕ 1×0x46 ⊕ 1×0xa6
 
 **Là gì**: XOR state với round key hiện tại (16 byte). Round key được sinh từ master key qua **key schedule**.
 
-```
-state'[i][j] = state[i][j] ⊕ roundKey[i][j]
-```
+$$\text{state}'[i][j] = \text{state}[i][j] \oplus \text{roundKey}[i][j]$$
 
-**Ví dụ**: state byte 0x4b, round key byte 0x3c → 0x4b ⊕ 0x3c = 0x77.
+**Ví dụ**: state byte 0x4b, round key byte 0x3c → $\text{0x4b} \oplus \text{0x3c} = \text{0x77}$.
 
-**Vì sao XOR?** Vì XOR là phép biến đổi nghịch đảo dễ nhất (A ⊕ K ⊕ K = A), không tốn kém, và bảo đảm không có key → không decrypt được.
+**Vì sao XOR?** Vì XOR là phép biến đổi nghịch đảo dễ nhất ($A \oplus K \oplus K = A$), không tốn kém, và bảo đảm không có key → không decrypt được.
 
 **Key schedule**: AES-128 từ 1 master key (16 byte) sinh ra 11 round key (10 round + 1 cho round 0). Mỗi round key phụ thuộc nonlinearly vào key trước (dùng S-box và rotation).
 
@@ -222,23 +220,23 @@ Ciphertext (16 byte)
 **DES (Data Encryption Standard)**, IBM + NSA, chuẩn hóa 1977:
 
 - **Block 64 bit, key 56 bit** (thực ra 64 bit nhưng 8 bit parity), **16 round Feistel**.
-- **Feistel structure**: chia block thành nửa trái L, nửa phải R. Mỗi round: L_new = R, R_new = L ⊕ F(R, K_i). Không cần inverse của F — giải mã chạy ngược round key.
+- **Feistel structure**: chia block thành nửa trái $L$, nửa phải $R$. Mỗi round: $L_\text{new} = R$, $R_\text{new} = L \oplus F(R, K_i)$. Không cần inverse của $F$ — giải mã chạy ngược round key.
 
-Điểm khác biệt với AES: DES không phải SPN — dùng Feistel. F function dùng S-box 6→4 bit (8 S-box), nhân rộng R từ 32 → 48 bit (expansion), XOR với K_i, qua S-box → 32 bit.
+Điểm khác biệt với AES: DES không phải SPN — dùng Feistel. $F$ function dùng S-box $6 \to 4$ bit (8 S-box), nhân rộng $R$ từ $32 \to 48$ bit (expansion), XOR với $K_i$, qua S-box $\to 32$ bit.
 
 ### 5.2. Sự sụp đổ của DES
 
 **1998**: EFF (Electronic Frontier Foundation) xây **Deep Crack** với giá 250,000 USD. Trong DES Cracking Contest II:
 
 - Thử 90 tỷ key/giây.
-- Brute-force 56-bit key space = 2⁵⁶ ≈ 7.2 × 10¹⁶ key.
+- Brute-force 56-bit key space $= 2^{56} \approx 7.2 \times 10^{16}$ key.
 - **Tìm ra trong 56 giờ** (tháng 7/1998). Sau đó năm 1999 kết hợp distributed: **22 giờ 15 phút**.
 
 Kết luận: 56-bit key = chết.
 
 ### 5.3. 3DES và sự lỗi thời
 
-**3DES (Triple DES)**: E_K3(D_K2(E_K1(P))). Với 3 key khác nhau → key effective 168 bit, nhưng meet-in-the-middle attack giảm còn ~2¹¹² effective.
+**3DES (Triple DES)**: $E_{K_3}(D_{K_2}(E_{K_1}(P)))$. Với 3 key khác nhau $\to$ key effective 168 bit, nhưng meet-in-the-middle attack giảm còn $\approx 2^{112}$ effective.
 
 - **NIST deprecated 3DES** năm 2017 (disallowed từ 2023).
 - Nhược điểm: 3× chậm hơn DES = 9× chậm hơn AES.
@@ -261,28 +259,29 @@ Kết luận: 56-bit key = chết.
 
 ### 6.1. Brute-force timing
 
-Với AES-128 (key space = 2¹²⁸):
+Với AES-128 (key space = $2^{128}$):
 
-```
-2¹²⁸ = 340,282,366,920,938,463,463,374,607,431,768,211,456 keys
+$$2^{128} = 340{,}282{,}366{,}920{,}938{,}463{,}463{,}374{,}607{,}431{,}768{,}211{,}456 \text{ keys}$$
 
-Tốc độ máy tính hiện đại: ~10⁹ keys/giây (1 GHz single-core)
-Cụm máy tính mạnh nhất: ~10¹⁵ keys/giây
-NSA-level (giả sử): ~10¹⁸ keys/giây
+- Tốc độ máy tính hiện đại: $\approx 10^9$ keys/giây (1 GHz single-core)
+- Cụm máy tính mạnh nhất: $\approx 10^{15}$ keys/giây
+- NSA-level (giả sử): $\approx 10^{18}$ keys/giây
 
-Thời gian brute-force tại 10¹⁸ keys/giây:
-= 2¹²⁸ / 10¹⁸
-= 3.4 × 10³⁸ / 10¹⁸
-= 3.4 × 10²⁰ giây
-= 1.08 × 10¹³ năm
-≈ 10,800 tỷ năm
-```
+Thời gian brute-force tại $10^{18}$ keys/giây:
 
-Tuổi vũ trụ ≈ 1.38 × 10¹⁰ năm. Brute AES-128 cần gấp **~800 lần tuổi vũ trụ** ngay cả với máy nhanh nhất hiện nay.
+$$\begin{aligned}
+&= 2^{128} / 10^{18} \\
+&= 3.4 \times 10^{38} / 10^{18} \\
+&= 3.4 \times 10^{20} \text{ giây} \\
+&= 1.08 \times 10^{13} \text{ năm} \\
+&\approx 10{,}800 \text{ tỷ năm}
+\end{aligned}$$
+
+Tuổi vũ trụ $\approx 1.38 \times 10^{10}$ năm. Brute AES-128 cần gấp **~800 lần tuổi vũ trụ** ngay cả với máy nhanh nhất hiện nay.
 
 ### 6.2. Best known cryptanalytic attack
 
-**Biclique attack** (2011): ~2¹²⁶ operations thay vì 2¹²⁸ — tức là nhanh hơn brute force chỉ 4 lần. Trong thực tế vẫn hoàn toàn không khả thi. AES-128 **an toàn**.
+**Biclique attack** (2011): $\approx 2^{126}$ operations thay vì $2^{128}$ — tức là nhanh hơn brute force chỉ 4 lần. Trong thực tế vẫn hoàn toàn không khả thi. AES-128 **an toàn**.
 
 ### 6.3. Side-channel attacks
 
@@ -300,7 +299,7 @@ Giải pháp: **AES-NI** (AES Native Instructions) — Intel/AMD implement AES t
 
 **Bài 1**: Cho state AES sau SubBytes, một byte có giá trị 0x63. Hỏi byte này là 0x00 hay 0x01 trước SubBytes? *(Gợi ý: xem bảng S-box)*
 
-**Bài 2**: Nếu ta dùng DES với key 56-bit và cluster 10,000 máy, mỗi máy thử 10⁹ key/giây, trung bình mất bao lâu để brute-force?
+**Bài 2**: Nếu ta dùng DES với key 56-bit và cluster 10,000 máy, mỗi máy thử $10^9$ key/giây, trung bình mất bao lâu để brute-force?
 
 **Bài 3**: Tại sao AES không thể dùng simple XOR thay cho MixColumns mà vẫn đảm bảo diffusion? Gợi ý: xét trường hợp 2 block cùng key.
 
@@ -318,18 +317,18 @@ Kiểm tra thêm: S-box(0x01) = 0x7c (không phải 0x63). Vậy câu trả lờ
 
 ### Bài 2
 
-```
-Key space: 2⁵⁶ = 7.2 × 10¹⁶
-Tốc độ: 10,000 × 10⁹ = 10¹³ keys/giây
-Trung bình brute-force: 2⁵⁶ / 2 = 2⁵⁵ try (trung bình)
-= 3.6 × 10¹⁶ / 10¹³ = 3,600 giây ≈ 1 giờ
-```
+$$\begin{aligned}
+\text{Key space}&: 2^{56} = 7.2 \times 10^{16} \\
+\text{Tốc độ}&: 10{,}000 \times 10^9 = 10^{13} \text{ keys/giây} \\
+\text{Trung bình brute-force}&: 2^{56} / 2 = 2^{55} \text{ try} \\
+&= 3.6 \times 10^{16} / 10^{13} = 3{,}600 \text{ giây} \approx 1 \text{ giờ}
+\end{aligned}$$
 
-Với 10,000 máy mỗi máy 10⁹ key/giây: **trung bình ~1 giờ**. Worst case ~2 giờ. Điều này chứng minh 56-bit đã chết ngay cả với commodity hardware.
+Với 10,000 máy mỗi máy $10^9$ key/giây: **trung bình ~1 giờ**. Worst case ~2 giờ. Điều này chứng minh 56-bit đã chết ngay cả với commodity hardware.
 
 ### Bài 3
 
-XOR đơn giản (A ⊕ B ⊕ C ⊕ D) là tuyến tính: nếu biết 3/4 byte trong cột, lập tức tính được byte thứ 4. Không cần thử nhiều khả năng → không đủ diffusion trong nghĩa cryptographic. MixColumns dùng nhân trong GF(2⁸) — một phép toán **linear** trên GF(2) nhưng đủ diffusion nhờ MDS matrix: bất kỳ 2 column input khác nhau cho 4 column output khác nhau hoàn toàn.
+XOR đơn giản ($A \oplus B \oplus C \oplus D$) là tuyến tính: nếu biết 3/4 byte trong cột, lập tức tính được byte thứ 4. Không cần thử nhiều khả năng $\to$ không đủ diffusion trong nghĩa cryptographic. MixColumns dùng nhân trong $\mathrm{GF}(2^{8})$ — một phép toán **linear** trên $\mathrm{GF}(2)$ nhưng đủ diffusion nhờ MDS matrix: bất kỳ 2 column input khác nhau cho 4 column output khác nhau hoàn toàn.
 
 ### Bài 4
 

@@ -102,13 +102,13 @@ Mỗi record có **nonce** = IV XOR sequence_number. Hết sequence → phải r
 
 ### 1.5. Walk-through với số nhỏ (toy)
 
-Giả sử ECDH trên curve nhỏ. G = base point, a = client secret, b = server secret.
+Giả sử ECDH trên curve nhỏ. $G$ = base point, $a$ = client secret, $b$ = server secret.
 
-- **Client gửi**: A = a·G
-- **Server gửi**: B = b·G
-- **Shared ECDHE**: K = a·B = b·A = (ab)·G
+- **Client gửi**: $A = a \\cdot G$
+- **Server gửi**: $B = b \\cdot G$
+- **Shared ECDHE**: $K = a \\cdot B = b \\cdot A = (ab) \\cdot G$
 
-Từ K → HKDF → handshake_key, app_key. K chỉ tồn tại trong RAM handshake — xóa ngay sau khi derive keys.
+Từ $K$ $\\to$ HKDF $\\to$ handshake_key, app_key. $K$ chỉ tồn tại trong RAM handshake — xóa ngay sau khi derive keys.
 
 ---
 
@@ -137,14 +137,14 @@ TLS 1.2 hỗ trợ cả RSA key exchange (không PFS) và DHE/ECDHE (PFS). Tùy 
 
 ### 3.1. Mối đe dọa từ máy tính lượng tử
 
-**Thuật toán Shor (1994)**: Chạy trên quantum computer, factor n trong **O((log n)³)** — polynomial!
+**Thuật toán Shor (1994)**: Chạy trên quantum computer, factor $n$ trong $O((\\log n)^3)$ — polynomial!
 
 Hệ quả:
-- RSA-2048: Máy tính cổ điển cần ~2⁹⁰ ops. Máy lượng tử → polynomial → PHẢI broken.
-- DH, ECDH, ECDSA: Đều dựa trên DLP/ECDLP → Shor giải trong polynomial time.
+- RSA-2048: Máy tính cổ điển cần $\\sim 2^{90}$ ops. Máy lượng tử $\\to$ polynomial $\\to$ PHẢI broken.
+- DH, ECDH, ECDSA: Đều dựa trên DLP/ECDLP $\\to$ Shor giải trong polynomial time.
 - **Tất cả public-key crypto hiện tại đều bị phá bởi Shor.**
 
-**Grover's algorithm**: Tìm kiếm database không có cấu trúc trong O(√N) thay vì O(N). Giảm security của AES-128 từ 2¹²⁸ xuống 2⁶⁴ — không break, chỉ làm yếu đi. Fix: tăng key size (AES-256 → 2¹²⁸ effective với Grover).
+**Grover's algorithm**: Tìm kiếm database không có cấu trúc trong $O(\\sqrt{N})$ thay vì $O(N)$. Giảm security của AES-128 từ $2^{128}$ xuống $2^{64}$ — không break, chỉ làm yếu đi. Fix: tăng key size (AES-256 $\\to 2^{128}$ effective với Grover).
 
 **Timeline**:
 - "Cryptographically relevant quantum computer" (CRQC) — đủ qubits và coherence time để factor RSA-2048: ước tính ~2030-2035.
@@ -193,56 +193,56 @@ NIST khởi động 2016, round 3 hoàn thành 2022, chuẩn hóa 2024:
 
 ### 4.1. Khái niệm
 
-**Zero-knowledge proof**: Prover chứng minh biết một bí mật x mà không tiết lộ x.
+**Zero-knowledge proof**: Prover chứng minh biết một bí mật $x$ mà không tiết lộ $x$.
 
 Ba tính chất:
-1. **Completeness**: Nếu Prover biết x, Verifier chấp nhận.
-2. **Soundness**: Nếu Prover không biết x, Verifier reject (xác suất cao).
-3. **Zero-knowledge**: Verifier không học được gì về x ngoài việc "Prover biết x."
+1. **Completeness**: Nếu Prover biết $x$, Verifier chấp nhận.
+2. **Soundness**: Nếu Prover không biết $x$, Verifier reject (xác suất cao).
+3. **Zero-knowledge**: Verifier không học được gì về $x$ ngoài việc "Prover biết $x$."
 
-> 💡 **Trực giác**: Ali Baba cave problem. Peggy biết từ khóa để mở cửa trong hang. Để prove điều này với Victor mà không tiết lộ từ khóa: Victor đứng ngoài, Peggy đi vào một trong hai nhánh. Victor chọn ngẫu nhiên "A" hoặc "B" (bên muốn Peggy ra). Nếu Peggy biết từ khóa, luôn ra đúng bên. Lặp 20 lần → xác suất đoán may = (1/2)^20 ≈ 1/1 triệu.
+> 💡 **Trực giác**: Ali Baba cave problem. Peggy biết từ khóa để mở cửa trong hang. Để prove điều này với Victor mà không tiết lộ từ khóa: Victor đứng ngoài, Peggy đi vào một trong hai nhánh. Victor chọn ngẫu nhiên "A" hoặc "B" (bên muốn Peggy ra). Nếu Peggy biết từ khóa, luôn ra đúng bên. Lặp 20 lần $\\to$ xác suất đoán may $= (1/2)^{20} \\approx 1/1$ triệu.
 
 ### 4.2. Schnorr Identification Protocol
 
-Prove knowledge of x where y = g^x mod p, without revealing x.
+Prove knowledge of $x$ where $y = g^x \\bmod p$, without revealing $x$.
 
-**Setup**: Public (g, p, y = g^x mod p). Prover biết x.
+**Setup**: Public $(g, p, y = g^x \\bmod p)$. Prover biết $x$.
 
 **Protocol (3 messages)**:
 
-1. **Commit**: Prover chọn random r, tính R = g^r mod p. Gửi R cho Verifier.
-2. **Challenge**: Verifier chọn random challenge c.
-3. **Response**: Prover tính s = r + c·x mod (p−1). Gửi s.
+1. **Commit**: Prover chọn random $r$, tính $R = g^r \\bmod p$. Gửi $R$ cho Verifier.
+2. **Challenge**: Verifier chọn random challenge $c$.
+3. **Response**: Prover tính $s = r + c \\cdot x \\bmod (p-1)$. Gửi $s$.
 
-**Verify**: g^s mod p == R · y^c mod p?
+**Verify**: $g^s \\bmod p = R \\cdot y^c \\bmod p$?
 
 **Tại sao đúng?**
 
-g^s = g^(r+cx) = g^r · g^(cx) = R · (g^x)^c = R · y^c ✓
+$$g^s = g^{r+cx} = g^r \\cdot g^{cx} = R \\cdot (g^x)^c = R \\cdot y^c \\quad \\checkmark$$
 
-**Tại sao zero-knowledge?** Verifier thấy (R, c, s). Từ (c, s) có thể simulate bất kỳ transcript nào mà không cần biết x — chọn s ngẫu nhiên, tính R = g^s · y^(−c). Transcript (R, c, s) indistinguishable từ real run.
+**Tại sao zero-knowledge?** Verifier thấy $(R, c, s)$. Từ $(c, s)$ có thể simulate bất kỳ transcript nào mà không cần biết $x$ — chọn $s$ ngẫu nhiên, tính $R = g^s \\cdot y^{-c}$. Transcript $(R, c, s)$ indistinguishable từ real run.
 
 ### 4.3. Walk-through Schnorr với số nhỏ
 
-p = 23, g = 5. x = 4 (secret). y = 5⁴ mod 23 = 625 mod 23 = 4. (Vì 625=27×23+4 ✓)
+$p = 23$, $g = 5$. $x = 4$ (secret). $y = 5^4 \\bmod 23 = 625 \\bmod 23 = 4$. (Vì $625 = 27 \\times 23 + 4$ ✓)
 
-**Commit**: Prover chọn r = 6. R = 5⁶ mod 23 = 8 (từ bài DH).
+**Commit**: Prover chọn $r = 6$. $R = 5^6 \\bmod 23 = 8$ (từ bài DH).
 
-**Challenge**: Verifier gửi c = 3.
+**Challenge**: Verifier gửi $c = 3$.
 
-**Response**: s = r + c·x = 6 + 3·4 = 18 (mod 22 = p-1 = 22). s = 18.
+**Response**: $s = r + c \\cdot x = 6 + 3 \\cdot 4 = 18$ (mod $22 = p-1 = 22$). $s = 18$.
 
-**Verify**: g^s = 5¹⁸ mod 23. 5¹⁶ = ?
+**Verify**: $g^s = 5^{18} \\bmod 23$. $5^{16} = ?$
 
-- 5² = 2. 5⁴ = 4. 5⁸ = 4²=16. 5¹⁶ = 16²=256=11×23+3→3.
-- 5¹⁸ = 3 × 5² = 3×2 = 6.
-- R · y^c = 8 · 4³ mod 23. 4³=64=2×23+18→18. 8×18=144=6×23+6→6. ✓
+- $5^2 = 2$. $5^4 = 4$. $5^8 = 4^2 = 16$. $5^{16} = 16^2 = 256 = 11 \\times 23 + 3 \\to 3$.
+- $5^{18} = 3 \\times 5^2 = 3 \\times 2 = 6$.
+- $R \\cdot y^c = 8 \\cdot 4^3 \\bmod 23$. $4^3 = 64 = 2 \\times 23 + 18 \\to 18$. $8 \\times 18 = 144 = 6 \\times 23 + 6 \\to 6$. ✓
 
-Verify: 6 = 6 ✓. Prover đã prove knowledge of x=4 mà không tiết lộ x.
+Verify: $6 = 6$ ✓. Prover đã prove knowledge of $x=4$ mà không tiết lộ $x$.
 
 ### 4.4. Fiat-Shamir Transform: Non-Interactive
 
-Schnorr là interactive (cần Verifier gửi c). Fiat-Shamir transform: thay challenge c = Hash(R ‖ message ‖ ...). Prover tự tính c từ hash — không cần Verifier. Đây là cơ sở của schnorr signatures trong ed25519.
+Schnorr là interactive (cần Verifier gửi $c$). Fiat-Shamir transform: thay challenge $c = \\text{Hash}(R \\,\\|\\, \\text{message} \\,\\|\\, \\ldots)$. Prover tự tính $c$ từ hash — không cần Verifier. Đây là cơ sở của schnorr signatures trong ed25519.
 
 ### 4.5. Hệ thống ZKP nâng cao
 
@@ -261,20 +261,20 @@ Schnorr là interactive (cần Verifier gửi c). Fiat-Shamir transform: thay ch
 
 **Ý tưởng**: Tính trên ciphertext mà không cần decrypt.
 
-\`\`\`
-HE_Enc(a) ⊕ HE_Enc(b) = HE_Enc(a + b)   (additive)
-HE_Enc(a) ⊗ HE_Enc(b) = HE_Enc(a × b)   (multiplicative)
-\`\`\`
+$$\\begin{aligned}
+\\text{HE\\_Enc}(a) \\oplus \\text{HE\\_Enc}(b) &= \\text{HE\\_Enc}(a + b) && \\text{(additive)}\\\\
+\\text{HE\\_Enc}(a) \\otimes \\text{HE\\_Enc}(b) &= \\text{HE\\_Enc}(a \\times b) && \\text{(multiplicative)}
+\\end{aligned}$$
 
-**Fully HE (FHE)**: hỗ trợ cả + và ×. Craig Gentry 2009 — chứng minh FHE khả thi.
+**Fully HE (FHE)**: hỗ trợ cả $+$ và $\\times$. Craig Gentry 2009 — chứng minh FHE khả thi.
 
-Thực tế: FHE hiện tại chậm ~10⁶ lần so với plaintext computation. Đang cải thiện nhanh.
+Thực tế: FHE hiện tại chậm $\\sim 10^6$ lần so với plaintext computation. Đang cải thiện nhanh.
 
 Ứng dụng: Cloud compute on private medical data, privacy-preserving ML.
 
 ### 5.2. Multi-party Computation (MPC)
 
-N bên tính f(x₁, x₂, ..., xₙ) mà không ai biết input của người khác.
+$N$ bên tính $f(x_1, x_2, \\ldots, x_n)$ mà không ai biết input của người khác.
 
 Ví dụ: "Ai có mức lương cao nhất?" mà không ai tiết lộ lương cụ thể.
 
@@ -288,7 +288,7 @@ Cơ chế: Secret sharing (Shamir's Secret Sharing) — chia bí mật thành n 
 
 **Bài 1**: TLS 1.3: Liệt kê theo thứ tự 6 message trong handshake và mục đích của mỗi cái.
 
-**Bài 2**: Schnorr ZKP: p=7, g=3, x=2, y=3²=2 mod 7. Prover chọn r=3. Tính R. Verifier gửi c=2. Tính s. Verify.
+**Bài 2**: Schnorr ZKP: $p=7$, $g=3$, $x=2$, $y = 3^2 = 2 \\bmod 7$. Prover chọn $r=3$. Tính $R$. Verifier gửi $c=2$. Tính $s$. Verify.
 
 **Bài 3**: Tại sao Grover's algorithm không "phá" AES-256 giống Shor "phá" RSA?
 
@@ -300,8 +300,8 @@ Cơ chế: Secret sharing (Shamir's Secret Sharing) — chia bí mật thành n 
 
 ### Lời giải Bài 1
 
-1. **ClientHello**: cipher_suites, ECDH key_share (A=a·G), versions.
-2. **ServerHello**: chosen suite, ECDH key_share (B=b·G). Sau đây derive handshake keys từ ECDHE.
+1. **ClientHello**: cipher_suites, ECDH key_share ($A = a \\cdot G$), versions.
+2. **ServerHello**: chosen suite, ECDH key_share ($B = b \\cdot G$). Sau đây derive handshake keys từ ECDHE.
 3. **Certificate**: Server's X.509 cert (encrypted với handshake key).
 4. **CertVerify**: Chữ ký trên transcript hash bằng private key từ cert → prove server owns cert.
 5. **Finished (server)**: HMAC trên toàn bộ handshake → integrity.
@@ -309,15 +309,15 @@ Cơ chế: Secret sharing (Shamir's Secret Sharing) — chia bí mật thành n 
 
 ### Lời giải Bài 2
 
-p=7, g=3, x=2. y = 3² mod 7 = 9 mod 7 = 2. r=3. R = 3³ mod 7 = 27 mod 7 = 6. c=2. s = r+c·x = 3+2·2 = 7 mod (p−1)=7 mod 6 = **1**.
+$p=7$, $g=3$, $x=2$. $y = 3^2 \\bmod 7 = 9 \\bmod 7 = 2$. $r=3$. $R = 3^3 \\bmod 7 = 27 \\bmod 7 = 6$. $c=2$. $s = r + c \\cdot x = 3 + 2 \\cdot 2 = 7 \\bmod (p-1) = 7 \\bmod 6 = \\mathbf{1}$.
 
-Verify: g^s = 3¹ mod 7 = 3. R·y^c = 6·2² mod 7 = 6·4=24 mod 7 = 24−3×7=24−21=**3** ✓.
+Verify: $g^s = 3^1 \\bmod 7 = 3$. $R \\cdot y^c = 6 \\cdot 2^2 \\bmod 7 = 6 \\cdot 4 = 24 \\bmod 7 = 24 - 3 \\times 7 = 24 - 21 = \\mathbf{3}$ ✓.
 
 ### Lời giải Bài 3
 
-Grover's algorithm là quadratic speedup (√N) — giảm nửa security bits. AES-256: 2²⁵⁶ → 2¹²⁸ với Grover. Vẫn 2¹²⁸ — không feasible.
+Grover's algorithm là quadratic speedup ($\\sqrt{N}$) — giảm nửa security bits. AES-256: $2^{256} \\to 2^{128}$ với Grover. Vẫn $2^{128}$ — không feasible.
 
-Shor là **exponential to polynomial** speedup — với RSA, thuật toán cổ điển cần ~2⁹⁰ ops, Shor cần O((log n)³) → giảm từ 2⁹⁰ xuống vài nghìn ops. Đây là **qualitative** change, không chỉ quantitative.
+Shor là **exponential to polynomial** speedup — với RSA, thuật toán cổ điển cần $\\sim 2^{90}$ ops, Shor cần $O((\\log n)^3)$ $\\to$ giảm từ $2^{90}$ xuống vài nghìn ops. Đây là **qualitative** change, không chỉ quantitative.
 
 ### Lời giải Bài 4
 

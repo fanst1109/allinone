@@ -23,13 +23,13 @@
 
 ### 1.1 Định nghĩa hình thức
 
-Key: một từ/chuỗi K = K[0] K[1] ... K[m-1], lặp lại theo vị trí.
+Key: một từ/chuỗi $K = K[0]\, K[1] \dots K[m-1]$, lặp lại theo vị trí.
 
-**Encrypt**: C[i] = (P[i] + K[i mod m]) mod 26
+**Encrypt**: $C[i] = (P[i] + K[i \bmod m]) \bmod 26$
 
-**Decrypt**: P[i] = (C[i] − K[i mod m] + 26) mod 26
+**Decrypt**: $P[i] = (C[i] - K[i \bmod m] + 26) \bmod 26$
 
-Trong đó P[i], C[i] = chỉ số plaintext/ciphertext tại vị trí i; K[j] = chỉ số ký tự key (A=0,...,Z=25).
+Trong đó $P[i]$, $C[i]$ = chỉ số plaintext/ciphertext tại vị trí $i$; $K[j]$ = chỉ số ký tự key (A=0,...,Z=25).
 
 ### 1.2 Walk-through encrypt "ATTACKATDAWN" với key "LEMON"
 
@@ -53,43 +53,43 @@ Ciphertext: "LXFOPVEFRNHR"
 
 **Ví dụ 2 — Decrypt "LXFOPVEFRNHR" với key "LEMON":**
 
-```
-L-L = 11-11 = 0 = A
-X-E = 23-4  = 19 = T
-F-M = 5-12  = -7 + 26 = 19 = T
-O-O = 14-14 = 0 = A
-P-N = 15-13 = 2 = C
-V-L = 21-11 = 10 = K
-E-E = 4-4   = 0 = A
-F-M = 5-12  = -7+26 = 19 = T
-R-O = 17-14 = 3 = D
-N-N = 13-13 = 0 = A
-H-L = 7-11  = -4+26 = 22 = W
-R-E = 17-4  = 13 = N
+$$\begin{aligned}
+L-L &= 11-11 = 0 = A\\
+X-E &= 23-4 = 19 = T\\
+F-M &= 5-12 = -7 + 26 = 19 = T\\
+O-O &= 14-14 = 0 = A\\
+P-N &= 15-13 = 2 = C\\
+V-L &= 21-11 = 10 = K\\
+E-E &= 4-4 = 0 = A\\
+F-M &= 5-12 = -7+26 = 19 = T\\
+R-O &= 17-14 = 3 = D\\
+N-N &= 13-13 = 0 = A\\
+H-L &= 7-11 = -4+26 = 22 = W\\
+R-E &= 17-4 = 13 = N
+\end{aligned}$$
 
 Kết quả: "ATTACKATDAWN" ✓
-```
 
 **Ví dụ 3 — Encrypt "HELLOWORLD" với key "KEY":**
 
-K=10, E=4, Y=24. m=3.
+$K=10$, $E=4$, $Y=24$. $m=3$.
 
-```
-i=0: H(7)  + K(10) = 17 = R
-i=1: E(4)  + E(4)  =  8 = I
-i=2: L(11) + Y(24) = 35 mod 26 = 9 = J
-i=3: L(11) + K(10) = 21 = V
-i=4: O(14) + E(4)  = 18 = S
-i=5: W(22) + Y(24) = 46 mod 26 = 20 = U
-i=6: O(14) + K(10) = 24 = Y
-i=7: R(17) + E(4)  = 21 = V
-i=8: L(11) + Y(24) = 35 mod 26 = 9 = J
-i=9: D(3)  + K(10) = 13 = N
+$$\begin{aligned}
+i=0:\ &H(7) + K(10) = 17 = R\\
+i=1:\ &E(4) + E(4) = 8 = I\\
+i=2:\ &L(11) + Y(24) = 35 \bmod 26 = 9 = J\\
+i=3:\ &L(11) + K(10) = 21 = V\\
+i=4:\ &O(14) + E(4) = 18 = S\\
+i=5:\ &W(22) + Y(24) = 46 \bmod 26 = 20 = U\\
+i=6:\ &O(14) + K(10) = 24 = Y\\
+i=7:\ &R(17) + E(4) = 21 = V\\
+i=8:\ &L(11) + Y(24) = 35 \bmod 26 = 9 = J\\
+i=9:\ &D(3) + K(10) = 13 = N
+\end{aligned}$$
 
 Ciphertext: "RIJVSUYVJN"
-```
 
-> ⚠ **Lỗi thường gặp**: Encrypt và decrypt đều cộng key nhưng theo chiều ngược nhau. Decrypt không cộng key — phải trừ. Và khi trừ ra âm: P = (C - K + 26) mod 26, KHÔNG phải (C - K) mod 26 (kết quả âm trong nhiều ngôn ngữ lập trình không wrap đúng về dương).
+> ⚠ **Lỗi thường gặp**: Encrypt và decrypt đều cộng key nhưng theo chiều ngược nhau. Decrypt không cộng key — phải trừ. Và khi trừ ra âm: $P = (C - K + 26) \bmod 26$, KHÔNG phải $(C - K) \bmod 26$ (kết quả âm trong nhiều ngôn ngữ lập trình không wrap đúng về dương).
 
 > ❓ **Câu hỏi tự nhiên**:
 > - *"Tại sao 'E' trong plaintext không còn tần số cao trong ciphertext?"* — Vì mỗi vị trí của 'E' bị shift theo ký tự key khác nhau (L, E, M, O, N), tạo ra 5 ký tự ciphertext khác nhau. Histogram ciphertext phẳng hơn → frequency analysis thông thường không dùng được.
@@ -113,13 +113,13 @@ Ciphertext: "RIJVSUYVJN"
 **Ví dụ 3 — Kasiski với trigram lặp:**
 
 Ciphertext có trigram "VEF" ở vị trí 7 và vị trí 52:
-- Khoảng cách = 52 − 7 = 45 = 3 × 3 × 5
-- Ước số: 1, 3, 5, 9, 15, 45
-- Candidates m ∈ {3, 5, 9, 15} (loại 1 và 45 quá bé/lớn)
+- Khoảng cách $= 52 - 7 = 45 = 3 \times 3 \times 5$
+- Ước số: $1, 3, 5, 9, 15, 45$
+- Candidates $m \in \{3, 5, 9, 15\}$ (loại 1 và 45 quá bé/lớn)
 
 Nếu có thêm trigram "XFO" ở vị trí 2 và 52:
-- Khoảng cách = 50 = 2 × 5 × 5
-- GCD(45, 50) = 5 → m = 5 là candidate mạnh nhất
+- Khoảng cách $= 50 = 2 \times 5 \times 5$
+- $\gcd(45, 50) = 5 \to m = 5$ là candidate mạnh nhất
 
 > ⚠ **Hạn chế**: Lặp trùng hợp ngẫu nhiên cũng xảy ra (không phải lúc nào lặp cũng vì key). Cần nhiều trigram lặp để kết luận. Ciphertext ngắn → ít trigram → GCD không đáng tin.
 
@@ -131,52 +131,44 @@ Nếu có thêm trigram "XFO" ở vị trí 2 và 52:
 
 ### 3.1 Công thức IC
 
-```
-IC = Σ_{i=A}^{Z} f_i(f_i − 1) / [N(N−1)]
-```
+$$\mathrm{IC} = \frac{\sum_{i=A}^{Z} f_i(f_i - 1)}{N(N-1)}$$
 
-Trong đó f_i = số lần ký tự i xuất hiện, N = tổng ký tự (chỉ A–Z).
+Trong đó $f_i$ = số lần ký tự $i$ xuất hiện, $N$ = tổng ký tự (chỉ A–Z).
 
 **Giá trị chuẩn:**
-- Tiếng Anh (monoalphabetic): IC ≈ **0.0667**
-- Phân bố uniform ngẫu nhiên: IC ≈ **0.0385** = 1/26
-- Vigenère với key length m: IC ≈ (0.0267/m) + 0.0385(m−1)/m
+- Tiếng Anh (monoalphabetic): $\mathrm{IC} \approx$ **0.0667**
+- Phân bố uniform ngẫu nhiên: $\mathrm{IC} \approx$ **0.0385** $= 1/26$
+- Vigenère với key length $m$: $\mathrm{IC} \approx (0.0267/m) + 0.0385(m-1)/m$
 
 **Ví dụ 4 — Tính IC cho chuỗi ngắn:**
 
-Text "AABBCC" (N=6):
-- f_A=2, f_B=2, f_C=2, mọi chữ khác = 0
-- IC = [2(1) + 2(1) + 2(1)] / [6×5] = 6/30 = **0.200**
+Text "AABBCC" ($N=6$):
+- $f_A=2$, $f_B=2$, $f_C=2$, mọi chữ khác $= 0$
+- $\mathrm{IC} = \dfrac{2(1) + 2(1) + 2(1)}{6 \times 5} = \dfrac{6}{30} =$ **0.200**
 
-Text "ABCDEF" (N=6):
-- Mỗi chữ xuất hiện 1 lần: f_i(f_i-1) = 1×0 = 0
-- IC = 0/30 = **0.000** (phân bố hoàn toàn đều)
+Text "ABCDEF" ($N=6$):
+- Mỗi chữ xuất hiện 1 lần: $f_i(f_i-1) = 1 \times 0 = 0$
+- $\mathrm{IC} = 0/30 =$ **0.000** (phân bố hoàn toàn đều)
 
-Text tiếng Anh thực: IC ≈ 0.0667 vì E, T, A xuất hiện nhiều, Q, Z ít.
+Text tiếng Anh thực: $\mathrm{IC} \approx 0.0667$ vì E, T, A xuất hiện nhiều, Q, Z ít.
 
 ### 3.2 Ước m từ IC
 
 Từ công thức gần đúng:
 
-```
-m ≈ 0.0267 / (IC − 0.0385)
-```
+$$m \approx \frac{0.0267}{\mathrm{IC} - 0.0385}$$
 
-**Ví dụ**: IC đo được = 0.045
+**Ví dụ**: IC đo được $= 0.045$
 
-```
-m ≈ 0.0267 / (0.045 − 0.0385) = 0.0267 / 0.0065 ≈ 4.1 → m ≈ 4
-```
+$$m \approx \frac{0.0267}{0.045 - 0.0385} = \frac{0.0267}{0.0065} \approx 4.1 \to m \approx 4$$
 
-IC đo được = 0.052:
-```
-m ≈ 0.0267 / (0.052 − 0.0385) = 0.0267 / 0.0135 ≈ 2.0 → m = 2
-```
+IC đo được $= 0.052$:
 
-IC đo được ≈ 0.065 (gần English 0.067):
-```
-m ≈ 0.0267 / (0.065 − 0.0385) = 0.0267 / 0.0265 ≈ 1.0 → m = 1 (Caesar)
-```
+$$m \approx \frac{0.0267}{0.052 - 0.0385} = \frac{0.0267}{0.0135} \approx 2.0 \to m = 2$$
+
+IC đo được $\approx 0.065$ (gần English 0.067):
+
+$$m \approx \frac{0.0267}{0.065 - 0.0385} = \frac{0.0267}{0.0265} \approx 1.0 \to m = 1 \text{ (Caesar)}$$
 
 > ❓ **Câu hỏi tự nhiên**:
 > - *"IC đo cái gì ở mức trực giác?"* — IC là xác suất 2 ký tự chọn ngẫu nhiên từ text là giống nhau. Text tiếng Anh: E xuất hiện nhiều → pick 2 E dễ → IC cao. Text random đều: ít khả năng 2 ký tự trùng → IC thấp.
@@ -207,7 +199,7 @@ Key = "LEMON" ✓
 > **Câu 1**: Encrypt "HELP" với key "AB" (A=0, B=1). Kết quả?
 > <details><summary>Đáp án</summary>
 >
-> H(7)+A(0)=7=H; E(4)+B(1)=5=F; L(11)+A(0)=11=L; P(15)+B(1)=16=Q
+> $H(7)+A(0)=7=H$; $E(4)+B(1)=5=F$; $L(11)+A(0)=11=L$; $P(15)+B(1)=16=Q$
 >
 > "HELP" → "HFLQ"
 > </details>
@@ -215,15 +207,15 @@ Key = "LEMON" ✓
 > **Câu 2**: Ciphertext có trigram "XYZ" ở vị trí 10 và 40. Vậy m có thể là bao nhiêu?
 > <details><summary>Đáp án</summary>
 >
-> Khoảng cách = 40 − 10 = 30 = 2 × 3 × 5. Ước số: 2, 3, 5, 6, 10, 15, 30. Key length candidates: 2, 3, 5, 6 (thực tế loại quá lớn). Cần thêm trigram lặp khác để GCD cho m chính xác hơn.
+> Khoảng cách $= 40 - 10 = 30 = 2 \times 3 \times 5$. Ước số: $2, 3, 5, 6, 10, 15, 30$. Key length candidates: $2, 3, 5, 6$ (thực tế loại quá lớn). Cần thêm trigram lặp khác để GCD cho $m$ chính xác hơn.
 > </details>
 
 > 📝 **Tóm tắt**:
-> - Vigenère: C[i] = (P[i] + K[i mod m]) mod 26 — m Caesar luân phiên.
-> - Cùng plaintext → nhiều ciphertext khác nhau → frequency analysis đơn không dùng được.
-> - Kasiski test: trigram lặp → GCD khoảng cách → m.
-> - Friedman IC: đo "độ lệch" phân bố, IC tiếng Anh ≈ 0.0667, IC uniform ≈ 0.0385, IC Vigenère ≈ (0.0267/m)+0.0385(m-1)/m → solve m.
-> - Sau khi có m: chia m columns → phá từng column bằng Caesar frequency.
+> - Vigenère: $C[i] = (P[i] + K[i \bmod m]) \bmod 26$ — $m$ Caesar luân phiên.
+> - Cùng plaintext $\to$ nhiều ciphertext khác nhau $\to$ frequency analysis đơn không dùng được.
+> - Kasiski test: trigram lặp $\to$ GCD khoảng cách $\to m$.
+> - Friedman IC: đo "độ lệch" phân bố, IC tiếng Anh $\approx 0.0667$, IC uniform $\approx 0.0385$, IC Vigenère $\approx (0.0267/m)+0.0385(m-1)/m \to$ solve $m$.
+> - Sau khi có $m$: chia $m$ columns $\to$ phá từng column bằng Caesar frequency.
 
 ---
 
@@ -243,23 +235,23 @@ Key = "LEMON" ✓
 
 ### Bài 1 — Encrypt "MATHEMATICS" với key "CODE"
 
-C=2, O=14, D=3, E=4. m=4.
+$C=2$, $O=14$, $D=3$, $E=4$. $m=4$.
 
-```
-i=0:  M(12) + C(2)  = 14 = O
-i=1:  A(0)  + O(14) = 14 = O
-i=2:  T(19) + D(3)  = 22 = W
-i=3:  H(7)  + E(4)  = 11 = L
-i=4:  E(4)  + C(2)  =  6 = G
-i=5:  M(12) + O(14) = 26 mod 26 = 0 = A
-i=6:  A(0)  + D(3)  =  3 = D
-i=7:  T(19) + E(4)  = 23 = X
-i=8:  I(8)  + C(2)  = 10 = K
-i=9:  C(2)  + O(14) = 16 = Q
-i=10: S(18) + D(3)  = 21 = V
+$$\begin{aligned}
+i=0:\ &M(12) + C(2) = 14 = O\\
+i=1:\ &A(0) + O(14) = 14 = O\\
+i=2:\ &T(19) + D(3) = 22 = W\\
+i=3:\ &H(7) + E(4) = 11 = L\\
+i=4:\ &E(4) + C(2) = 6 = G\\
+i=5:\ &M(12) + O(14) = 26 \bmod 26 = 0 = A\\
+i=6:\ &A(0) + D(3) = 3 = D\\
+i=7:\ &T(19) + E(4) = 23 = X\\
+i=8:\ &I(8) + C(2) = 10 = K\\
+i=9:\ &C(2) + O(14) = 16 = Q\\
+i=10:\ &S(18) + D(3) = 21 = V
+\end{aligned}$$
 
 Ciphertext: "OOWLGADXKQV"
-```
 
 ### Bài 2 — Phá Vigenère "RIKVBIYBITEI" m=3
 
@@ -269,40 +261,40 @@ Columns:
 - Column 2 (vị trí 2,5,8,11): K, I, I, I
 
 Frequency từng column:
-- Column 0: R(17),V(21),Y(24),T(19) → phổ biến nhất = T(19)? Guess T=E → key[0] = (19-4+26)%26 = 15 = P
-- Column 1: I(8),B(1),B(1),E(4) → B phổ biến nhất(2 lần) = B(1)? Guess B=E → key[1] = (1-4+26)%26 = 23 = X. Hoặc thử: guess key[1]=E→A: A(0)+E(4)=E? Thử key[1]=4=E: decrypt I-E=4, B-E=-3+26=23=X, ... Hmm.
+- Column 0: R(17),V(21),Y(24),T(19) → phổ biến nhất = T(19)? Guess T=E → $\text{key}[0] = (19-4+26) \bmod 26 = 15 = P$
+- Column 1: I(8),B(1),B(1),E(4) → B phổ biến nhất (2 lần) = B(1)? Guess B=E → $\text{key}[1] = (1-4+26) \bmod 26 = 23 = X$. Hoặc thử: guess $\text{key}[1]=E\to A$: $A(0)+E(4)=E$? Thử $\text{key}[1]=4=E$: decrypt $I-E=4$, $B-E=-3+26=23=X$, ... Hmm.
 
-*Thực tế với sample ngắn, frequency analysis chỉ gợi ý:* thử key[1] = 4 → column 1 decrypt: I(8)-4=4=E, B(1)-4=-3+26=23=X, B(1)-4=X, E(4)-4=0=A → "EXXA" — có E, tiếp tục.
+*Thực tế với sample ngắn, frequency analysis chỉ gợi ý:* thử $\text{key}[1] = 4 \to$ column 1 decrypt: $I(8)-4=4=E$, $B(1)-4=-3+26=23=X$, $B(1)-4=X$, $E(4)-4=0=A \to$ "EXXA" — có E, tiếp tục.
 
-*Nếu key thật = "EAT":* E=4,A=0,T=19.
-- Column 0: decrypt với 4: R(17)-4=13=N, V(21)-4=17=R, Y(24)-4=20=U, T(19)-4=15=P → "NRUP"
+*Nếu key thật = "EAT":* $E=4$, $A=0$, $T=19$.
+- Column 0: decrypt với 4: $R(17)-4=13=N$, $V(21)-4=17=R$, $Y(24)-4=20=U$, $T(19)-4=15=P \to$ "NRUP"
 - Column 1: decrypt với 0: I,B,B,E → "IBBE"
-- Column 2: decrypt với 19: K(10)-19=-9+26=17=R, I(8)-19=-11+26=15=P, I→P, I→P → "RPPP"
+- Column 2: decrypt với 19: $K(10)-19=-9+26=17=R$, $I(8)-19=-11+26=15=P$, $I\to P$, $I\to P \to$ "RPPP"
 
 Ghép: N,I,R,R,U,B,P,P,P,B,E → không thành câu. Bài tập này minh họa quy trình — cần ciphertext dài hơn để frequency analysis cho kết quả tốt.
 
 ### Bài 3 — IC của "AAABBBCCCDDD" vs "ABCDABCDABCD"
 
-Text 1 "AAABBBCCCDDD": f_A=3, f_B=3, f_C=3, f_D=3, N=12.
-```
-IC = [3(2)+3(2)+3(2)+3(2)] / [12×11] = 24/132 ≈ 0.182
-```
-Text 2 "ABCDABCDABCD": f_A=3, f_B=3, f_C=3, f_D=3, N=12 → IC ≡ nhau = 0.182.
+Text 1 "AAABBBCCCDDD": $f_A=3$, $f_B=3$, $f_C=3$, $f_D=3$, $N=12$.
 
-**Ý nghĩa**: IC không phụ thuộc vào thứ tự ký tự — chỉ phụ thuộc vào phân bố (counts). Text 1 và 2 có cùng counts → cùng IC. IC cao (0.182 >> 0.0667) vì chỉ dùng 4 trong 26 chữ — phân bố rất lệch.
+$$\mathrm{IC} = \frac{3(2)+3(2)+3(2)+3(2)}{12 \times 11} = \frac{24}{132} \approx 0.182$$
+
+Text 2 "ABCDABCDABCD": $f_A=3$, $f_B=3$, $f_C=3$, $f_D=3$, $N=12 \to \mathrm{IC}$ ≡ nhau $= 0.182$.
+
+**Ý nghĩa**: IC không phụ thuộc vào thứ tự ký tự — chỉ phụ thuộc vào phân bố (counts). Text 1 và 2 có cùng counts → cùng IC. IC cao ($0.182 \gg 0.0667$) vì chỉ dùng 4 trong 26 chữ — phân bố rất lệch.
 
 ### Bài 4 — Kasiski test
 
 Khoảng cách:
-- Lần 1 và 2: 20 − 5 = 15
-- Lần 2 và 3: 65 − 20 = 45
-- Lần 1 và 3: 65 − 5 = 60
+- Lần 1 và 2: $20 - 5 = 15$
+- Lần 2 và 3: $65 - 20 = 45$
+- Lần 1 và 3: $65 - 5 = 60$
 
-GCD(15, 45, 60):
-- GCD(15, 45) = 15
-- GCD(15, 60) = 15
+$\gcd(15, 45, 60)$:
+- $\gcd(15, 45) = 15$
+- $\gcd(15, 60) = 15$
 
-→ m có thể là **5** hoặc **3** hoặc **15**. Ước số của 15 = {1, 3, 5, 15}.
+→ $m$ có thể là **5** hoặc **3** hoặc **15**. Ước số của 15 $= \{1, 3, 5, 15\}$.
 
 Loại 1 (quá bé) và 15 (hiếm gặp) → **m = 3 hoặc m = 5** là candidates mạnh nhất. Cần thêm trigram lặp khác để confirm.
 

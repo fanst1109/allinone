@@ -8,8 +8,8 @@ Sau bài này bạn sẽ:
 
 - Giải thích **DH key exchange**: tại sao hai bên đồng thuận được shared secret mà kẻ nghe lén không tính ra được.
 - Phát biểu được **bài toán logarithm rời rạc (DLP)** và tại sao nó khó.
-- Thực hiện **tính tay** DH với p=23, g=5, các giá trị a, b nhỏ.
-- Tính **ECC point doubling** trên đường cong y²=x³+2x+3 mod 17.
+- Thực hiện **tính tay** DH với $p=23$, $g=5$, các giá trị $a$, $b$ nhỏ.
+- Tính **ECC point doubling** trên đường cong $y^2 = x^3 + 2x + 3 \bmod 17$.
 - So sánh kích thước khóa ECC vs RSA tương đương bảo mật.
 - Giải thích tại sao DH cơ bản không xác thực và MITM attack là thế nào.
 
@@ -36,28 +36,28 @@ RSA đòi hỏi Alice đã có public key của Bob trước. DH cho phép hai n
 ### 2.1. Setup công khai
 
 Chọn công khai (mọi người biết):
-- **p**: số nguyên tố lớn.
-- **g**: generator (primitive root mod p) — thường g = 2 hoặc g = 5.
+- $p$: số nguyên tố lớn.
+- $g$: generator (primitive root mod $p$) — thường $g = 2$ hoặc $g = 5$.
 
 ### 2.2. Trao đổi
 
 | Bước | Alice | Bob | Kênh công khai |
 |------|-------|-----|----------------|
-| 1 | Chọn bí mật **a** | Chọn bí mật **b** | — |
-| 2 | Tính **A = g^a mod p** | Tính **B = g^b mod p** | A, B (lộ) |
-| 3 | Nhận B, tính **K = B^a mod p** | Nhận A, tính **K = A^b mod p** | — |
+| 1 | Chọn bí mật $a$ | Chọn bí mật $b$ | — |
+| 2 | Tính $A = g^a \bmod p$ | Tính $B = g^b \bmod p$ | $A$, $B$ (lộ) |
+| 3 | Nhận $B$, tính $K = B^a \bmod p$ | Nhận $A$, tính $K = A^b \bmod p$ | — |
 
-**Shared secret K = g^(ab) mod p** — cả hai ra cùng kết quả:
-- Alice: K = B^a = (g^b)^a = g^(ab) mod p
-- Bob: K = A^b = (g^a)^b = g^(ab) mod p
+**Shared secret $K = g^{ab} \bmod p$** — cả hai ra cùng kết quả:
+- Alice: $K = B^a = (g^b)^a = g^{ab} \bmod p$
+- Bob: $K = A^b = (g^a)^b = g^{ab} \bmod p$
 
 ### 2.3. Bài toán logarithm rời rạc (DLP)
 
-Kẻ tấn công biết: g, p, A = g^a mod p. Tìm **a**.
+Kẻ tấn công biết: $g$, $p$, $A = g^a \bmod p$. Tìm $a$.
 
-Đây là **Discrete Logarithm Problem (DLP)**. Với p đủ lớn (~2048 bit), thuật toán tốt nhất là **index calculus**, sub-exponential nhưng vẫn không feasible cho p đủ lớn.
+Đây là **Discrete Logarithm Problem (DLP)**. Với $p$ đủ lớn (~2048 bit), thuật toán tốt nhất là **index calculus**, sub-exponential nhưng vẫn không feasible cho $p$ đủ lớn.
 
-> ⚠ **Lỗi thường gặp**: DH với p nhỏ (< 512 bit) hoàn toàn bị phá bằng **Pohlig-Hellman** hoặc **Baby-step Giant-step** trong vài giây.
+> ⚠ **Lỗi thường gặp**: DH với $p$ nhỏ ($< 512$ bit) hoàn toàn bị phá bằng **Pohlig-Hellman** hoặc **Baby-step Giant-step** trong vài giây.
 
 ---
 
@@ -65,33 +65,33 @@ Kẻ tấn công biết: g, p, A = g^a mod p. Tìm **a**.
 
 ### 3.1. Alice chọn a=6
 
-A = 5⁶ mod 23. Tính:
-- 5² = 25 = 1×23 + 2 → **2**
-- 5⁴ = 2² = 4 → **4**
-- 5⁶ = 5⁴ × 5² = 4 × 2 = 8 → **A = 8**
+$A = 5^6 \bmod 23$. Tính:
+- $5^2 = 25 = 1 \times 23 + 2 \to \mathbf{2}$
+- $5^4 = 2^2 = 4 \to \mathbf{4}$
+- $5^6 = 5^4 \cdot 5^2 = 4 \times 2 = 8 \to \mathbf{A = 8}$
 
 ### 3.2. Bob chọn b=15
 
-B = 5¹⁵ mod 23. 15 = 8 + 4 + 2 + 1:
-- 5¹ = 5
-- 5² = 2
-- 5⁴ = 4
-- 5⁸ = 4² = 16 → **16**
-- 5¹⁵ = 5⁸ × 5⁴ × 5² × 5¹ = 16 × 4 × 2 × 5 = 640 mod 23.
-  - 640 / 23 = 27.8... → 27 × 23 = 621 → 640 − 621 = **19**
-- **B = 19**
+$B = 5^{15} \bmod 23$. $15 = 8 + 4 + 2 + 1$:
+- $5^1 = 5$
+- $5^2 = 2$
+- $5^4 = 4$
+- $5^8 = 4^2 = 16 \to \mathbf{16}$
+- $5^{15} = 5^8 \cdot 5^4 \cdot 5^2 \cdot 5^1 = 16 \times 4 \times 2 \times 5 = 640 \bmod 23$.
+  - $640 / 23 = 27.8\ldots \to 27 \times 23 = 621 \to 640 - 621 = \mathbf{19}$
+- $\mathbf{B = 19}$
 
 ### 3.3. Shared secret
 
-Alice: K = B^a = 19⁶ mod 23:
-- 19² = 361 = 15×23 + 16 → 16
-- 19⁴ = 16² = 256 = 11×23 + 3 → 3
-- 19⁶ = 3 × 16 = 48 = 2×23 + 2 → **K = 2**
+Alice: $K = B^a = 19^6 \bmod 23$:
+- $19^2 = 361 = 15 \times 23 + 16 \to 16$
+- $19^4 = 16^2 = 256 = 11 \times 23 + 3 \to 3$
+- $19^6 = 3 \times 16 = 48 = 2 \times 23 + 2 \to \mathbf{K = 2}$
 
-Bob: K = A^b = 8¹⁵ mod 23:
-- 8¹ = 8; 8² = 64 = 2×23+18 → 18; 8⁴ = 18² = 324 = 14×23+2 → 2; 8⁸ = 4; 8¹⁵ = 8⁸×8⁴×8²×8¹ = 4×2×18×8 mod 23 = 4×2=8; 8×18=144=6×23+6→6; 6×8=48=2×23+2 → **K = 2** ✓
+Bob: $K = A^b = 8^{15} \bmod 23$:
+- $8^1 = 8$; $8^2 = 64 = 2 \times 23 + 18 \to 18$; $8^4 = 18^2 = 324 = 14 \times 23 + 2 \to 2$; $8^8 = 4$; $8^{15} = 8^8 \cdot 8^4 \cdot 8^2 \cdot 8^1 = 4 \times 2 \times 18 \times 8 \bmod 23 = 4 \times 2 = 8$; $8 \times 18 = 144 = 6 \times 23 + 6 \to 6$; $6 \times 8 = 48 = 2 \times 23 + 2 \to \mathbf{K = 2}$ ✓
 
-Cả hai ra K = 2. Eve thấy A=8, B=19, p=23, g=5 — phải giải DLP để tìm a, b.
+Cả hai ra $K = 2$. Eve thấy $A=8$, $B=19$, $p=23$, $g=5$ — phải giải DLP để tìm $a$, $b$.
 
 ---
 
@@ -127,78 +127,76 @@ Alice và Bob nghĩ họ đang nói chuyện với nhau, nhưng thực ra đều
 
 ECC cần khóa **ngắn hơn 10-20 lần** với cùng mức bảo mật.
 
-> 💡 **Tại sao ECC an toàn hơn DH cùng kích thước?** Trên đường cong elliptic, DLP (ECDLP) không có thuật toán sub-exponential — không có analog của index calculus. Thuật toán tốt nhất (Pollard's rho) là square-root: ECDLP-256 cần ~2¹²⁸ ops.
+> 💡 **Tại sao ECC an toàn hơn DH cùng kích thước?** Trên đường cong elliptic, DLP (ECDLP) không có thuật toán sub-exponential — không có analog của index calculus. Thuật toán tốt nhất (Pollard's rho) là square-root: ECDLP-256 cần $\sim 2^{128}$ ops.
 
 ### 5.2. Đường cong Elliptic là gì?
 
-**Đường cong elliptic** (over F_p) là tập điểm (x, y) thỏa:
+**Đường cong elliptic** (over $\mathbb{F}_p$) là tập điểm $(x, y)$ thỏa:
 
-```
-y² ≡ x³ + ax + b (mod p)
-```
+$$y^2 \equiv x^3 + ax + b \pmod{p}$$
 
-Kèm điểm đặc biệt **O** (point at infinity, "điểm vô cực"), đóng vai trò là phần tử đơn vị.
+Kèm điểm đặc biệt $O$ (point at infinity, "điểm vô cực"), đóng vai trò là phần tử đơn vị.
 
-Điều kiện: 4a³ + 27b² ≢ 0 (mod p) — đảm bảo đường cong không suy biến.
+Điều kiện: $4a^3 + 27b^2 \not\equiv 0 \pmod{p}$ — đảm bảo đường cong không suy biến.
 
 ### 5.3. Phép cộng điểm (Point Addition)
 
-**Trực giác hình học (trên R)**: Vẽ đường thẳng qua P và Q, cắt đường cong tại điểm thứ 3 R', lấy đối xứng qua trục x → đó là P + Q = R.
+**Trực giác hình học (trên $\mathbb{R}$)**: Vẽ đường thẳng qua $P$ và $Q$, cắt đường cong tại điểm thứ 3 $R'$, lấy đối xứng qua trục $x$ $\to$ đó là $P + Q = R$.
 
-**Trường hợp P ≠ Q**: Slope λ = (y_Q − y_P) · (x_Q − x_P)⁻¹ mod p
+**Trường hợp $P \ne Q$**: Slope $\lambda = (y_Q - y_P) \cdot (x_Q - x_P)^{-1} \bmod p$
 
-```
-λ = (y_Q - y_P) / (x_Q - x_P) mod p
-x_R = λ² - x_P - x_Q mod p
-y_R = λ(x_P - x_R) - y_P mod p
-```
+$$\begin{aligned}
+\lambda &= (y_Q - y_P) / (x_Q - x_P) \bmod p\\
+x_R &= \lambda^2 - x_P - x_Q \bmod p\\
+y_R &= \lambda(x_P - x_R) - y_P \bmod p
+\end{aligned}$$
 
-**Trường hợp P = Q (Point Doubling)**:
+**Trường hợp $P = Q$ (Point Doubling)**:
 
-```
-λ = (3·x_P² + a) / (2·y_P) mod p
-x_R = λ² - 2·x_P mod p
-y_R = λ(x_P - x_R) - y_P mod p
-```
+$$\begin{aligned}
+\lambda &= (3 \cdot x_P^2 + a) / (2 \cdot y_P) \bmod p\\
+x_R &= \lambda^2 - 2 \cdot x_P \bmod p\\
+y_R &= \lambda(x_P - x_R) - y_P \bmod p
+\end{aligned}$$
 
-**Trường hợp P + (−P) = O**: Nếu x_P = x_Q và y_P = −y_Q → kết quả là O.
+**Trường hợp $P + (-P) = O$**: Nếu $x_P = x_Q$ và $y_P = -y_Q$ $\to$ kết quả là $O$.
 
 ### 5.4. Walk-through Point Doubling: y² = x³ + 2x + 3 mod 17, P=(3,6)
 
 Tính **2P = P + P**:
 
-**Bước 1**: Tính λ = (3·x²+a) / (2y) = (3·9+2) / (2·6) = 29/12 mod 17.
+**Bước 1**: Tính $\lambda = (3 \cdot x^2 + a) / (2y) = (3 \cdot 9 + 2) / (2 \cdot 6) = 29/12 \bmod 17$.
 
-- 29 mod 17 = **12**. Tử = 12.
-- 12 mod 17 = 12. Cần 12⁻¹ mod 17.
-- Extended Euclidean: 17 = 1·12 + 5; 12 = 2·5 + 2; 5 = 2·2 + 1 → 1 = 5−2·2 = 5−2·(12−2·5) = 3·(17−12)−2·12 = 3·17−5·12 → 12⁻¹ = −5 ≡ 12 mod 17.
-- λ = 12 × 12 mod 17 = 144 mod 17 = **8·17=136, 144−136=8** → **λ = 8**.
+- $29 \bmod 17 = \mathbf{12}$. Tử $= 12$.
+- $12 \bmod 17 = 12$. Cần $12^{-1} \bmod 17$.
+- Extended Euclidean: $17 = 1 \cdot 12 + 5$; $12 = 2 \cdot 5 + 2$; $5 = 2 \cdot 2 + 1$ $\to 1 = 5 - 2 \cdot 2 = 5 - 2 \cdot (12 - 2 \cdot 5) = 3 \cdot (17 - 12) - 2 \cdot 12 = 3 \cdot 17 - 5 \cdot 12$ $\to 12^{-1} = -5 \equiv 12 \bmod 17$.
+- $\lambda = 12 \times 12 \bmod 17 = 144 \bmod 17 = \mathbf{8 \cdot 17 = 136,\ 144 - 136 = 8}$ $\to \mathbf{\lambda = 8}$.
 
-Kiểm tra: (3·9+2) = 29; 12·8 = 96 = 5·17+11... Tính lại: 12/12 mod 17: 12×12⁻¹ = 12×12 = 144 = 8×17+8 → λ=8. ✓
+Kiểm tra: $(3 \cdot 9 + 2) = 29$; $12 \cdot 8 = 96 = 5 \cdot 17 + 11\ldots$ Tính lại: $12/12 \bmod 17$: $12 \times 12^{-1} = 12 \times 12 = 144 = 8 \times 17 + 8 \to \lambda = 8$. ✓
 
-**Bước 2**: x_R = λ² − 2·x_P = 64 − 6 = 58 mod 17 = 58−3×17 = 58−51 = **7**.
+**Bước 2**: $x_R = \lambda^2 - 2 \cdot x_P = 64 - 6 = 58 \bmod 17 = 58 - 3 \times 17 = 58 - 51 = \mathbf{7}$.
 
-**Bước 3**: y_R = λ·(x_P − x_R) − y_P = 8·(3−7) − 6 = 8·(−4) − 6 = −32 − 6 = −38 mod 17 = −38+3×17 = −38+51 = **13**.
+**Bước 3**: $y_R = \lambda \cdot (x_P - x_R) - y_P = 8 \cdot (3 - 7) - 6 = 8 \cdot (-4) - 6 = -32 - 6 = -38 \bmod 17 = -38 + 3 \times 17 = -38 + 51 = \mathbf{13}$.
 
 **2P = (7, 13)**.
 
-Verify: y² = 169; x³+2x+3 = 343+14+3 = 360. 169 mod 17 = 169−9×17=169−153=16. 360 mod 17 = 360−21×17=360−357=3. 
+Verify: $y^2 = 169$; $x^3 + 2x + 3 = 343 + 14 + 3 = 360$. $169 \bmod 17 = 169 - 9 \times 17 = 169 - 153 = 16$. $360 \bmod 17 = 360 - 21 \times 17 = 360 - 357 = 3$.
 
-Recalculate: λ = (3·9+2)·(2·6)⁻¹ = 29·12⁻¹. 29 mod 17 = 12. 12⁻¹ mod 17: 12×10=120=7×17+1 → 12⁻¹=10. λ = 12×10=120 mod 17 = 120-7×17=120-119=**1**.
+Recalculate: $\lambda = (3 \cdot 9 + 2) \cdot (2 \cdot 6)^{-1} = 29 \cdot 12^{-1}$. $29 \bmod 17 = 12$. $12^{-1} \bmod 17$: $12 \times 10 = 120 = 7 \times 17 + 1 \to 12^{-1} = 10$. $\lambda = 12 \times 10 = 120 \bmod 17 = 120 - 7 \times 17 = 120 - 119 = \mathbf{1}$.
 
-x_R = 1−6 = −5 mod 17 = **12**. y_R = 1·(3−12)−6 = −9−6 = −15 mod 17 = **2**.
+$x_R = 1 - 6 = -5 \bmod 17 = \mathbf{12}$. $y_R = 1 \cdot (3 - 12) - 6 = -9 - 6 = -15 \bmod 17 = \mathbf{2}$.
 
 **2P = (12, 2)**. ✓
 
-Verify: y²=4 mod 17=4. x³+2x+3 = 1728+24+3=1755. 1755/17=103.2→103×17=1751→1755−1751=4 ✓.
+Verify: $y^2 = 4 \bmod 17 = 4$. $x^3 + 2x + 3 = 1728 + 24 + 3 = 1755$. $1755/17 = 103.2 \to 103 \times 17 = 1751 \to 1755 - 1751 = 4$ ✓.
 
 ### 5.5. Scalar multiplication k·P
 
-Tính k·P = P + P + ... + P (k lần). Dùng **double-and-add** (tương tự fast exp):
+Tính $k \cdot P = P + P + \ldots + P$ ($k$ lần). Dùng **double-and-add** (tương tự fast exp):
 
-Ví dụ 7·P = 4·P + 2·P + P.
+Ví dụ $7 \cdot P = 4 \cdot P + 2 \cdot P + P$.
 
-ECDLP: cho P và Q = k·P, tìm k. Không có sub-exponential → ECDLP-256 cần ~2¹²⁸ ops.
+ECDLP: cho $P$ và $Q = k \cdot P$, tìm $k$. Không có sub-exponential $\Rightarrow$ ECDLP-256 cần $\sim 2^{128}$ ops.
 
 ---
 
@@ -218,28 +216,28 @@ ECDLP: cho P và Q = k·P, tìm k. Không có sub-exponential → ECDLP-256 cầ
 
 ## 7. ECDH — DH trên đường cong Elliptic
 
-Thay g^a bằng a·P (scalar mul):
+Thay $g^a$ bằng $a \cdot P$ (scalar mul):
 
 | | DH (mod p) | ECDH |
 |--|---|---|
-| Public param | (g, p) | (đường cong E, điểm base G) |
-| Alice gửi | A = g^a mod p | A = a·G |
-| Bob gửi | B = g^b mod p | B = b·G |
-| Shared secret | A^b = g^(ab) | a·B = a·(b·G) = (ab)·G |
+| Public param | $(g, p)$ | (đường cong $E$, điểm base $G$) |
+| Alice gửi | $A = g^a \bmod p$ | $A = a \cdot G$ |
+| Bob gửi | $B = g^b \bmod p$ | $B = b \cdot G$ |
+| Shared secret | $A^b = g^{ab}$ | $a \cdot B = a \cdot (b \cdot G) = (ab) \cdot G$ |
 
-Với ECDH-Curve25519: 256-bit key ↔ AES-128 security.
+Với ECDH-Curve25519: 256-bit key $\leftrightarrow$ AES-128 security.
 
 ---
 
 ## 8. Ví dụ thêm: ECC Point Addition P + Q
 
-Curve y²=x³+2x+3 mod 17. P=(3,6), Q=(7,13) (tức là Q=2P từ trên).
+Curve $y^2 = x^3 + 2x + 3 \bmod 17$. $P = (3,6)$, $Q = (7,13)$ (tức là $Q = 2P$ từ trên).
 
-λ = (13−6)/(7−3) = 7/4 mod 17. 4⁻¹ mod 17: 4×13=52=3×17+1 → 4⁻¹=13. λ=7×13=91 mod 17=91−5×17=91−85=**6**.
+$\lambda = (13 - 6)/(7 - 3) = 7/4 \bmod 17$. $4^{-1} \bmod 17$: $4 \times 13 = 52 = 3 \times 17 + 1 \to 4^{-1} = 13$. $\lambda = 7 \times 13 = 91 \bmod 17 = 91 - 5 \times 17 = 91 - 85 = \mathbf{6}$.
 
-x_R = 6²−3−7 = 36−10 = 26 mod 17 = **9**. y_R = 6(3−9)−6 = −36−6 = −42 mod 17 = −42+3×17 = −42+51 = **9**.
+$x_R = 6^2 - 3 - 7 = 36 - 10 = 26 \bmod 17 = \mathbf{9}$. $y_R = 6(3 - 9) - 6 = -36 - 6 = -42 \bmod 17 = -42 + 3 \times 17 = -42 + 51 = \mathbf{9}$.
 
-P + 2P = 3P = (9, 9). Verify: 81 mod 17 = 81−4×17=81−68=13. 729+18+3=750 mod 17: 750/17=44.1→44×17=748→750−748=2. Hmm, recheck: y²=81 mod 17=13; x³+2x+3 = 729+18+3=750 mod 17 = 750−44×17=750−748=2. 13≠2 — điểm (9,9) cần recheck bằng calculator.
+$P + 2P = 3P = (9, 9)$. Verify: $81 \bmod 17 = 81 - 4 \times 17 = 81 - 68 = 13$. $729 + 18 + 3 = 750 \bmod 17$: $750/17 = 44.1 \to 44 \times 17 = 748 \to 750 - 748 = 2$. Hmm, recheck: $y^2 = 81 \bmod 17 = 13$; $x^3 + 2x + 3 = 729 + 18 + 3 = 750 \bmod 17 = 750 - 44 \times 17 = 750 - 748 = 2$. $13 \ne 2$ — điểm $(9,9)$ cần recheck bằng calculator.
 
 > ⚠ Tính tay trên F_p dễ nhầm từng bước — trong viz có bảng tính chính xác.
 
@@ -247,13 +245,13 @@ P + 2P = 3P = (9, 9). Verify: 81 mod 17 = 81−4×17=81−68=13. 729+18+3=750 mo
 
 ## 9. Bài tập
 
-**Bài 1**: DH với p=29, g=2. Alice chọn a=5, Bob chọn b=9. Tính A, B, K.
+**Bài 1**: DH với $p=29$, $g=2$. Alice chọn $a=5$, Bob chọn $b=9$. Tính $A$, $B$, $K$.
 
-**Bài 2**: DLP nhỏ: p=7, g=3. Tìm x sao cho 3^x ≡ 6 (mod 7). (Baby-step giant-step thủ công.)
+**Bài 2**: DLP nhỏ: $p=7$, $g=3$. Tìm $x$ sao cho $3^x \equiv 6 \pmod{7}$. (Baby-step giant-step thủ công.)
 
-**Bài 3**: Curve y²=x³+4x+4 mod 5. P=(1,2). Tính 2P bằng công thức doubling.
+**Bài 3**: Curve $y^2 = x^3 + 4x + 4 \bmod 5$. $P=(1,2)$. Tính $2P$ bằng công thức doubling.
 
-**Bài 4**: Giải thích tại sao ECDLP khó hơn DLP (mod p) cùng kích thước bit.
+**Bài 4**: Giải thích tại sao ECDLP khó hơn DLP (mod $p$) cùng kích thước bit.
 
 ---
 
@@ -261,32 +259,33 @@ P + 2P = 3P = (9, 9). Verify: 81 mod 17 = 81−4×17=81−68=13. 729+18+3=750 mo
 
 ### Lời giải Bài 1
 
-p=29, g=2, a=5, b=9.
+$p=29$, $g=2$, $a=5$, $b=9$.
 
-**A** = 2⁵ mod 29 = 32 mod 29 = **3**.
-**B** = 2⁹ mod 29 = 512 mod 29. 512/29=17.6→17×29=493 → 512−493=**19**.
-**K_Alice** = B^a = 19⁵ mod 29.
-- 19²=361=12×29+13→13. 19⁴=13²=169=5×29+24→24. 19⁵=24×19=456=15×29+21→**21**.
-**K_Bob** = A^b = 3⁹ mod 29.
-- 3²=9. 3⁴=81=2×29+23→23. 3⁸=23²=529=18×29+7→7. 3⁹=7×3=21→**21** ✓.
+**A** $= 2^5 \bmod 29 = 32 \bmod 29 = \mathbf{3}$.
+**B** $= 2^9 \bmod 29 = 512 \bmod 29$. $512/29 = 17.6 \to 17 \times 29 = 493 \to 512 - 493 = \mathbf{19}$.
+**K_Alice** $= B^a = 19^5 \bmod 29$.
+- $19^2 = 361 = 12 \times 29 + 13 \to 13$. $19^4 = 13^2 = 169 = 5 \times 29 + 24 \to 24$. $19^5 = 24 \times 19 = 456 = 15 \times 29 + 21 \to \mathbf{21}$.
+
+**K_Bob** $= A^b = 3^9 \bmod 29$.
+- $3^2 = 9$. $3^4 = 81 = 2 \times 29 + 23 \to 23$. $3^8 = 23^2 = 529 = 18 \times 29 + 7 \to 7$. $3^9 = 7 \times 3 = 21 \to \mathbf{21}$ ✓.
 
 ### Lời giải Bài 2
 
-p=7, g=3. Tìm x: 3^x ≡ 6 (mod 7).
-Bảng: 3¹=3, 3²=2, 3³=6, 3⁴=4, 3⁵=5, 3⁶=1 mod 7.
-→ x = **3** (3³=27=3×7+6=6 ✓).
+$p=7$, $g=3$. Tìm $x$: $3^x \equiv 6 \pmod{7}$.
+Bảng: $3^1 = 3$, $3^2 = 2$, $3^3 = 6$, $3^4 = 4$, $3^5 = 5$, $3^6 = 1 \bmod 7$.
+$\Rightarrow x = \mathbf{3}$ ($3^3 = 27 = 3 \times 7 + 6 = 6$ ✓).
 
 ### Lời giải Bài 3
 
-y²=x³+4x+4 mod 5. P=(1,2). a=4, p=5.
+$y^2 = x^3 + 4x + 4 \bmod 5$. $P=(1,2)$. $a=4$, $p=5$.
 
-λ = (3×1+4)/(2×2) = 7/4 mod 5. 4⁻¹ mod 5 = 4 (4×4=16≡1). λ = 7×4=28 mod 5 = **3**.
-x_R = 3²−2×1 = 9−2=7 mod 5 = **2**. y_R = 3(1−2)−2 = −3−2=−5 mod 5 = **0**.
-2P = (2, 0).
+$\lambda = (3 \times 1 + 4)/(2 \times 2) = 7/4 \bmod 5$. $4^{-1} \bmod 5 = 4$ ($4 \times 4 = 16 \equiv 1$). $\lambda = 7 \times 4 = 28 \bmod 5 = \mathbf{3}$.
+$x_R = 3^2 - 2 \times 1 = 9 - 2 = 7 \bmod 5 = \mathbf{2}$. $y_R = 3(1 - 2) - 2 = -3 - 2 = -5 \bmod 5 = \mathbf{0}$.
+$2P = (2, 0)$.
 
 ### Lời giải Bài 4
 
-Trên nhóm multiplicative ℤ_p*, tồn tại cấu trúc đặc biệt (smooth numbers, subgroup relations) cho phép index calculus làm GNFS-style reduction. Trên đường cong elliptic, nhóm điểm không có cấu trúc tương tự — không có "factorbase" tự nhiên. Điều này ngăn index calculus hoạt động, giữ độ khó ở mức full square-root (~2^(k/2) với k-bit scalar).
+Trên nhóm multiplicative $\mathbb{Z}_p^*$, tồn tại cấu trúc đặc biệt (smooth numbers, subgroup relations) cho phép index calculus làm GNFS-style reduction. Trên đường cong elliptic, nhóm điểm không có cấu trúc tương tự — không có "factorbase" tự nhiên. Điều này ngăn index calculus hoạt động, giữ độ khó ở mức full square-root ($\sim 2^{k/2}$ với $k$-bit scalar).
 
 ---
 

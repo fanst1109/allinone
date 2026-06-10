@@ -10,7 +10,7 @@ window.README_MD = `# Lesson 03: Hash Functions
 Sau bài này bạn sẽ:
 
 - Phân biệt rõ **3 tính chất bảo mật** của hash function: preimage resistance, second preimage resistance, collision resistance.
-- Hiểu **Birthday paradox** và tại sao nó giảm độ phức tạp tìm collision xuống còn O(2^(n/2)).
+- Hiểu **Birthday paradox** và tại sao nó giảm độ phức tạp tìm collision xuống còn $O(2^{n/2})$.
 - Biết MD5 và SHA-1 đã **chết thực sự** — không phải "hơi yếu", mà là có collision thực.
 - Hiểu **Merkle-Damgård construction** và **length extension attack**.
 - Biết SHA-256 và SHA-3 là lựa chọn an toàn hiện tại.
@@ -27,7 +27,7 @@ Sau bài này bạn sẽ:
 
 > 💡 **Trực giác**: Hash function giống như máy xay thịt kỹ thuật số — nhét vào bất kỳ thứ gì (1 byte hay 1 GB), luôn ra 32 byte (với SHA-256). Nhưng máy này có một tính chất đặc biệt: không thể "unxay" — biết đầu ra không thể suy ra đầu vào.
 
-**Định nghĩa**: h: {0,1}* → {0,1}^n (domain vô hạn, codomain cố định n bit).
+**Định nghĩa**: $h: \\{0,1\\}^* \\to \\{0,1\\}^n$ (domain vô hạn, codomain cố định $n$ bit).
 
 **Vì sao tồn tại?** 
 - Verify file integrity mà không cần giữ file: SHA-256(file.iso) = hash đã biết → download → tính lại → so sánh.
@@ -52,33 +52,33 @@ Lưu ý: thay đổi 1 ký tự ("abc" → "abd") → output thay đổi hoàn t
 
 ### 2.1. Preimage resistance — One-way
 
-**Là gì**: Cho y = h(x), khó tìm x' sao cho h(x') = y.
+**Là gì**: Cho $y = h(x)$, khó tìm $x'$ sao cho $h(x') = y$.
 
-**Vì sao cần**: Nếu không có tính chất này, kẻ tấn công có hash password từ database → tính ngược → biết password.
+**Vì sao cần**: Nếu không có tính chất này, kẻ tấn công có hash password từ database $\\to$ tính ngược $\\to$ biết password.
 
-**Độ phức tạp**: O(2^n) — phải thử toàn bộ domain cho đến khi tìm collision. Với SHA-256: 2²⁵⁶ ≈ 10⁷⁷ thao tác.
+**Độ phức tạp**: $O(2^n)$ — phải thử toàn bộ domain cho đến khi tìm collision. Với SHA-256: $2^{256} \\approx 10^{77}$ thao tác.
 
-**Ví dụ**: Biết y = ba7816bf... = SHA-256("abc"). Không có cách nào nhanh hơn thử ~2²⁵⁶ giá trị để tìm x với SHA-256(x) = y.
+**Ví dụ**: Biết $y = $ ba7816bf... $= $ SHA-256("abc"). Không có cách nào nhanh hơn thử $\\approx 2^{256}$ giá trị để tìm $x$ với $\\mathrm{SHA\\text{-}256}(x) = y$.
 
-> ❓ **Câu hỏi**: "Nếu thử ngẫu nhiên đủ lâu thì sẽ tìm ra phải không?" Đúng về lý thuyết. Nhưng 2²⁵⁶ / 10¹⁸ (máy tính/giây) = 10⁵⁸ giây = 10⁵⁰ năm. Tuổi vũ trụ = 1.38×10¹⁰ năm. Không khả thi trong bất kỳ hoàn cảnh nào.
+> ❓ **Câu hỏi**: "Nếu thử ngẫu nhiên đủ lâu thì sẽ tìm ra phải không?" Đúng về lý thuyết. Nhưng $2^{256} / 10^{18}$ (máy tính/giây) $= 10^{58}$ giây $= 10^{50}$ năm. Tuổi vũ trụ $= 1.38 \\times 10^{10}$ năm. Không khả thi trong bất kỳ hoàn cảnh nào.
 
 ### 2.2. Second preimage resistance — Weak collision resistance
 
-**Là gì**: Cho x, khó tìm x' ≠ x sao cho h(x') = h(x).
+**Là gì**: Cho $x$, khó tìm $x' \\ne x$ sao cho $h(x') = h(x)$.
 
-**Khác gì preimage resistance?** Bây giờ x đã biết — mục tiêu cụ thể hơn. Nhưng vẫn O(2^n) vì không có shortcut.
+**Khác gì preimage resistance?** Bây giờ $x$ đã biết — mục tiêu cụ thể hơn. Nhưng vẫn $O(2^n)$ vì không có shortcut.
 
-**Tại sao quan trọng riêng?** Digital signature scheme: Alice ký hash(document). Nếu Mallory tìm được document' với hash(document') = hash(document), cô ký document nhưng chữ ký lại valid cho document' (document giả mạo).
+**Tại sao quan trọng riêng?** Digital signature scheme: Alice ký $\\mathrm{hash}(\\text{document})$. Nếu Mallory tìm được document' với $\\mathrm{hash}(\\text{document'}) = \\mathrm{hash}(\\text{document})$, cô ký document nhưng chữ ký lại valid cho document' (document giả mạo).
 
 ### 2.3. Collision resistance — Strong
 
-**Là gì**: Khó tìm bất kỳ pair (x, x') với x ≠ x' và h(x) = h(x').
+**Là gì**: Khó tìm bất kỳ pair $(x, x')$ với $x \\ne x'$ và $h(x) = h(x')$.
 
-**Mạnh hơn second preimage**: Ở đây không ràng buộc x cụ thể — chỉ cần tìm bất kỳ cặp nào. Trực quan: dễ hơn second preimage vì có nhiều "đích" hơn.
+**Mạnh hơn second preimage**: Ở đây không ràng buộc $x$ cụ thể — chỉ cần tìm bất kỳ cặp nào. Trực quan: dễ hơn second preimage vì có nhiều "đích" hơn.
 
-**Độ phức tạp**: Chỉ O(2^(n/2)) — **Birthday paradox**.
+**Độ phức tạp**: Chỉ $O(2^{n/2})$ — **Birthday paradox**.
 
-> ⚠ **Lỗi thường gặp**: Nhiều người nhầm "collision resistance" và "preimage resistance" là một. Không phải! SHA-256 collision cần ~2¹²⁸ ops, preimage cần ~2²⁵⁶ ops. Khác nhau 2¹²⁸ lần. Đây là lý do hash output 256 bit cho security 128-bit collision resistance.
+> ⚠ **Lỗi thường gặp**: Nhiều người nhầm "collision resistance" và "preimage resistance" là một. Không phải! SHA-256 collision cần $\\approx 2^{128}$ ops, preimage cần $\\approx 2^{256}$ ops. Khác nhau $2^{128}$ lần. Đây là lý do hash output 256 bit cho security 128-bit collision resistance.
 
 ---
 
@@ -88,9 +88,9 @@ Lưu ý: thay đổi 1 ký tự ("abc" → "abd") → output thay đổi hoàn t
 
 > 💡 **Bài toán gốc**: Trong phòng có 23 người, xác suất **ít nhất 2 người cùng sinh nhật** là > 50%. Nhiều người ngạc nhiên vì nghĩ cần 183 người (= 365/2). Nhưng 23 người đã đủ!
 
-**Tại sao?** Không phải so 1 người với tất cả — mà so **mọi cặp** với nhau. 23 người → 23×22/2 = 253 cặp → cơ hội cao.
+**Tại sao?** Không phải so 1 người với tất cả — mà so **mọi cặp** với nhau. 23 người $\\to 23 \\times 22 / 2 = 253$ cặp $\\to$ cơ hội cao.
 
-**Công thức xấp xỉ**: Với hash n-bit, tìm collision sau ~1.17 × 2^(n/2) thử ngẫu nhiên.
+**Công thức xấp xỉ**: Với hash $n$-bit, tìm collision sau $\\approx 1.17 \\times 2^{n/2}$ thử ngẫu nhiên.
 
 | n (bit) | Tìm preimage (2^n) | Tìm collision (2^(n/2)) | Ratio |
 |---------|-------------------|------------------------|-------|
@@ -101,7 +101,7 @@ Lưu ý: thay đổi 1 ký tự ("abc" → "abd") → output thay đổi hoàn t
 
 ### 3.2. Mô phỏng với hash nhỏ
 
-**Ví dụ với hash 16-bit** (65,536 giá trị): mong đợi collision sau ~301 thử (≈ √(65536) = 256).
+**Ví dụ với hash 16-bit** (65,536 giá trị): mong đợi collision sau $\\approx 301$ thử ($\\approx \\sqrt{65536} = 256$).
 
 Thực nghiệm: sinh ngẫu nhiên chuỗi, hash 16-bit, lưu vào set, dừng khi thấy collision:
 - Lần 1: collision sau 287 thử ✓
@@ -109,15 +109,13 @@ Thực nghiệm: sinh ngẫu nhiên chuỗi, hash 16-bit, lưu vào set, dừng 
 - Lần 3: collision sau 254 thử ✓
 - Trung bình: ~290 (gần lý thuyết 301)
 
-**Ví dụ với hash 8-bit** (256 giá trị): mong đợi collision sau ~19 thử (≈ √256 = 16).
+**Ví dụ với hash 8-bit** (256 giá trị): mong đợi collision sau $\\approx 19$ thử ($\\approx \\sqrt{256} = 16$).
 
 ### 3.3. Ứng dụng cho SHA-256
 
-SHA-256 có n=256: collision mong đợi sau ~2¹²⁸ thử. Tại 10¹⁵ hash/giây:
+SHA-256 có $n = 256$: collision mong đợi sau $\\approx 2^{128}$ thử. Tại $10^{15}$ hash/giây:
 
-\`\`\`
-2¹²⁸ / 10¹⁵ ≈ 3.4×10²³ giây ≈ 10¹⁶ năm = 1 quadrillion năm
-\`\`\`
+$$2^{128} / 10^{15} \\approx 3.4 \\times 10^{23} \\text{ giây} \\approx 10^{16} \\text{ năm} = 1 \\text{ quadrillion năm}$$
 
 SHA-256 **an toàn** với birthday attack.
 
@@ -151,10 +149,10 @@ SHA-256 **an toàn** với birthday attack.
 | Năm | Sự kiện |
 |-----|---------|
 | 1995 | SHA-1 chuẩn hóa |
-| 2005 | Wang et al.: attack lý thuyết ~2⁶³ ops (< brute 2⁸⁰) |
+| 2005 | Wang et al.: attack lý thuyết $\\approx 2^{63}$ ops ($< $ brute $2^{80}$) |
 | 2017 | **SHAttered**: Google + CWI tạo **2 file PDF khác nhau có cùng SHA-1** |
-| 2019 | Chosen-prefix SHA-1 collision ($75,000 GPU budget) |
-| 2020 | Chosen-prefix SHA-1 = $50,000 |
+| 2019 | Chosen-prefix SHA-1 collision (\\$75,000 GPU budget) |
+| 2020 | Chosen-prefix SHA-1 = \\$50,000 |
 
 **SHAttered demo**: sha1("document1.pdf") = sha1("document2.pdf") = 38762cf7f55934b34d179ae6a4c80cadccbb7f0a. Có thể download 2 PDF này từ shattered.io.
 
@@ -183,15 +181,13 @@ SHA-256 **an toàn** với birthday attack.
 
 MD5, SHA-1, SHA-2 đều dùng Merkle-Damgård (1979):
 
-\`\`\`
-Message M → padding → M || pad
-Chia thành block m_1, m_2, ..., m_t (512-bit mỗi block cho SHA-256)
+Message $M \\to$ padding $\\to M \\,\\|\\, \\text{pad}$, chia thành block $m_1, m_2, \\ldots, m_t$ (512-bit mỗi block cho SHA-256). Khi đó:
 
-IV = initial value (256-bit constant)
-h_0 = IV
-h_i = compress(h_{i-1}, m_i)   (compression function, 512+256 → 256 bit)
-H(M) = h_t
-\`\`\`
+$$\\begin{aligned}
+h_0 &= IV \\quad \\text{(initial value, 256-bit constant)} \\\\
+h_i &= \\mathrm{compress}(h_{i-1}, m_i) \\quad \\text{(compression function, } 512{+}256 \\to 256 \\text{ bit)} \\\\
+H(M) &= h_t
+\\end{aligned}$$
 
 **Padding**: Thêm bit '1', rồi đủ '0', rồi 64-bit độ dài original message. Đảm bảo message là bội của 512 bit.
 
@@ -204,27 +200,23 @@ H(M) = h_t
 
 ### 5.2. Length Extension Attack
 
-**Vulnerability**: Merkle-Damgård dùng state cuối làm output. Biết H(secret ‖ message), có thể tính H(secret ‖ message ‖ padding ‖ extra) mà không cần biết secret.
+**Vulnerability**: Merkle-Damgård dùng state cuối làm output. Biết $H(\\text{secret} \\,\\|\\, \\text{message})$, có thể tính $H(\\text{secret} \\,\\|\\, \\text{message} \\,\\|\\, \\text{padding} \\,\\|\\, \\text{extra})$ mà không cần biết secret.
 
 **Cơ chế**:
-1. H(M) = h_t = state sau khi process M ‖ padding.
-2. Biết h_t, attacker có thể tiếp tục chạy compression function với data mới: compress(h_t, extra_data) → H mới.
-3. H mới = H(secret ‖ message ‖ padding ‖ extra_data) — đây chính xác là kết quả tính với full input.
+1. $H(M) = h_t = $ state sau khi process $M \\,\\|\\, \\text{padding}$.
+2. Biết $h_t$, attacker có thể tiếp tục chạy compression function với data mới: $\\mathrm{compress}(h_t, \\text{extra\\_data}) \\to H$ mới.
+3. $H$ mới $= H(\\text{secret} \\,\\|\\, \\text{message} \\,\\|\\, \\text{padding} \\,\\|\\, \\text{extra\\_data})$ — đây chính xác là kết quả tính với full input.
 
 **Ví dụ attack**:
 
-\`\`\`
-API: sign(request) = SHA-256(secret ‖ request)
-Request: "user=alice&role=user"
-Alice gửi: request + tag, với tag = SHA-256(secret ‖ "user=alice&role=user")
+API: $\\mathrm{sign}(\\text{request}) = \\mathrm{SHA\\text{-}256}(\\text{secret} \\,\\|\\, \\text{request})$. Request: \`"user=alice&role=user"\`. Alice gửi: request + tag, với $\\text{tag} = \\mathrm{SHA\\text{-}256}(\\text{secret} \\,\\|\\, \\text{"user=alice\\&role=user"})$.
 
-Mallory biết tag (từ request của Alice).
-Mallory forge: "user=alice&role=user" ‖ padding ‖ "&role=admin"
-Tính tag mới mà không cần secret — chỉ cần tag của Alice + length(secret).
-Gửi forged request → server verify = H(secret ‖ forged_request) = tag mới → valid!
-\`\`\`
+- Mallory biết tag (từ request của Alice).
+- Mallory forge: $\\text{"user=alice\\&role=user"} \\,\\|\\, \\text{padding} \\,\\|\\, \\text{"\\&role=admin"}$.
+- Tính tag mới mà không cần secret — chỉ cần tag của Alice $+ \\mathrm{length}(\\text{secret})$.
+- Gửi forged request $\\to$ server verify $= H(\\text{secret} \\,\\|\\, \\text{forged\\_request}) = $ tag mới $\\Rightarrow$ valid!
 
-**Fix**: Dùng **HMAC** thay vì hash trực tiếp. HMAC(K, M) = H((K ⊕ opad) ‖ H((K ⊕ ipad) ‖ M)) — double hashing ngăn length extension. SHA-3 (sponge) không có vulnerability này.
+**Fix**: Dùng **HMAC** thay vì hash trực tiếp. $\\mathrm{HMAC}(K, M) = H\\big((K \\oplus \\text{opad}) \\,\\|\\, H((K \\oplus \\text{ipad}) \\,\\|\\, M)\\big)$ — double hashing ngăn length extension. SHA-3 (sponge) không có vulnerability này.
 
 ---
 
@@ -236,7 +228,7 @@ Gửi forged request → server verify = H(secret ‖ forged_request) = tag mớ
 
 **Bài 3**: Tại sao HMAC fix length-extension nhưng "SHA-256(SHA-256(M))" không fix? *(double hash)*
 
-**Bài 4**: Git commit hash là SHA-1 (đang chuyển SHA-256). Nếu Mallory có $50,000 GPU budget (đủ để chosen-prefix SHA-1 collision), cô có thể làm gì với Git repo?
+**Bài 4**: Git commit hash là SHA-1 (đang chuyển SHA-256). Nếu Mallory có \\$50,000 GPU budget (đủ để chosen-prefix SHA-1 collision), cô có thể làm gì với Git repo?
 
 ---
 
@@ -246,22 +238,22 @@ Gửi forged request → server verify = H(secret ‖ forged_request) = tag mớ
 
 SHA-256("ab") = fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603 (giá trị thật).
 
-Không thể tính từ SHA-256("a") và SHA-256("b") vì hash là **one-way compression** — "ab" là input 2 byte, không phải concatenation của 2 hash. Đây là ý nghĩa của "non-linear": SHA-256("ab") ≠ SHA-256("a") + SHA-256("b") (không có phép toán nào kết hợp được). Phải hash "ab" từ đầu.
+Không thể tính từ SHA-256("a") và SHA-256("b") vì hash là **one-way compression** — "ab" là input 2 byte, không phải concatenation của 2 hash. Đây là ý nghĩa của "non-linear": $\\mathrm{SHA\\text{-}256}(\\text{"ab"}) \\ne \\mathrm{SHA\\text{-}256}(\\text{"a"}) + \\mathrm{SHA\\text{-}256}(\\text{"b"})$ (không có phép toán nào kết hợp được). Phải hash "ab" từ đầu.
 
 ### Bài 2
 
-\`\`\`
-n = 20 bit → hash space = 2²⁰ = 1,048,576 values
-Collision: ~2^(20/2) = 2¹⁰ = 1,024 thử (birthday)
-Preimage: ~2²⁰ = 1,048,576 thử (brute force)
-Ratio: preimage / collision ≈ 1,024× nhiều hơn
-\`\`\`
+$$\\begin{aligned}
+n = 20 \\text{ bit} &\\to \\text{hash space} = 2^{20} = 1{,}048{,}576 \\text{ values} \\\\
+\\text{Collision} &: \\approx 2^{20/2} = 2^{10} = 1{,}024 \\text{ thử (birthday)} \\\\
+\\text{Preimage} &: \\approx 2^{20} = 1{,}048{,}576 \\text{ thử (brute force)} \\\\
+\\text{Ratio} &: \\text{preimage} / \\text{collision} \\approx 1{,}024\\times \\text{ nhiều hơn}
+\\end{aligned}$$
 
 ### Bài 3
 
-**SHA-256(SHA-256(M))** không fix vì: H₁ = SHA-256(M) là output 256 bit. SHA-256(H₁) = SHA-256 của 1 block 256-bit. Attacker không thể length-extend bước ngoài vì H₁ là giá trị cố định đã được hash hoàn chỉnh — không có "state" bị expose.
+**SHA-256(SHA-256(M))** không fix vì: $H_1 = \\mathrm{SHA\\text{-}256}(M)$ là output 256 bit. $\\mathrm{SHA\\text{-}256}(H_1) = $ SHA-256 của 1 block 256-bit. Attacker không thể length-extend bước ngoài vì $H_1$ là giá trị cố định đã được hash hoàn chỉnh — không có "state" bị expose.
 
-Thực ra SHA-256(SHA-256(M)) *có fix* length extension attack. Nhưng không recommended so với HMAC vì thiếu key. HMAC thêm key theo cách provably secure (PRF). SHA-256(SHA-256(M)) không có key → chỉ là hash-of-hash, không là MAC.
+Thực ra $\\mathrm{SHA\\text{-}256}(\\mathrm{SHA\\text{-}256}(M))$ *có fix* length extension attack. Nhưng không recommended so với HMAC vì thiếu key. HMAC thêm key theo cách provably secure (PRF). $\\mathrm{SHA\\text{-}256}(\\mathrm{SHA\\text{-}256}(M))$ không có key $\\to$ chỉ là hash-of-hash, không là MAC.
 
 ### Bài 4
 

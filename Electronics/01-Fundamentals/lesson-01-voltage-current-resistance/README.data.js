@@ -167,7 +167,7 @@ $$R = \\frac{V}{I}$$
 - kΩ (kilohm) $= 10^{3}$ Ω — phổ biến nhất trong mạch điện tử
 - MΩ (megaohm) $= 10^{6}$ Ω — điện trở rất lớn
 
-### 3.2. Yếu tố ảnh hưởng đến điện trở — $R = \\rho L / A$
+### 3.2. Yếu tố ảnh hưởng đến điện trở — R = ρL/A
 
 Điện trở của một dây dẫn phụ thuộc vào:
 

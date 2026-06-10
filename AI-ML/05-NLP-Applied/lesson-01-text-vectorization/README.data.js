@@ -24,10 +24,10 @@ Bạn cần đã nắm vững các bài này (nếu quên, mở lại tab):
 
 - **Vector và dot product**: [\`../../04-LinearAlgebra/lesson-02-dot-product/\`](../../04-LinearAlgebra/lesson-02-dot-product/) — cosine similarity giữa 2 doc về bản chất là dot product chuẩn hoá.
 - **Norm L2**: [\`../../04-LinearAlgebra/lesson-01-vector-basics/\`](../../04-LinearAlgebra/lesson-01-vector-basics/) — để chuẩn hoá vector TF-IDF.
-- **Logarit**: [\`../../01-Algebra/lesson-07-exponent-log/\`](../../01-Algebra/lesson-07-exponent-log/) — IDF dùng \`log\`.
+- **Logarit**: [\`../../01-Algebra/lesson-07-exponent-log/\`](../../01-Algebra/lesson-07-exponent-log/) — IDF dùng $\\log$.
 - **Pipeline ML**: [\`../lesson-01-ml-pipeline/\`](../lesson-01-ml-pipeline/) — vectorization chính là bước "feature engineering" trong pipeline.
 
-> 💡 **Trực giác mở đầu**. Trong Lesson 02 (linear regression), input của bạn là số đẹp: tuổi = 25, lương = 12, kinh nghiệm = 3. Bạn có thể cho thẳng vào \`y = w·x + b\`. Nhưng nếu input là câu *"Hôm nay trời đẹp"* thì sao? Phép nhân \`w · "Hôm nay trời đẹp"\` không tồn tại. Bài này dạy 3 cách biến chuỗi ký tự thành **vector số** — bước "không thể bỏ qua" để ML đụng được vào ngôn ngữ.
+> 💡 **Trực giác mở đầu**. Trong Lesson 02 (linear regression), input của bạn là số đẹp: tuổi = 25, lương = 12, kinh nghiệm = 3. Bạn có thể cho thẳng vào $y = w \\cdot x + b$. Nhưng nếu input là câu *"Hôm nay trời đẹp"* thì sao? Phép nhân \`w · "Hôm nay trời đẹp"\` không tồn tại. Bài này dạy 3 cách biến chuỗi ký tự thành **vector số** — bước "không thể bỏ qua" để ML đụng được vào ngôn ngữ.
 
 ---
 
@@ -45,7 +45,7 @@ Mọi phép toán trong \`f\` đều là **tuyến tính + phi tuyến** trên *
 
 $$\\text{vectorize}: \\text{text} \\to \\mathbb{R}^d$$
 
-biến mỗi câu / mỗi từ thành một vector \`d\` chiều. Bài này giới thiệu 3 cách cổ điển: **one-hot**, **BoW**, **TF-IDF**. Lesson 06 sẽ giới thiệu cách "hiện đại" hơn (embedding).
+biến mỗi câu / mỗi từ thành một vector $d$ chiều. Bài này giới thiệu 3 cách cổ điển: **one-hot**, **BoW**, **TF-IDF**. Lesson 06 sẽ giới thiệu cách "hiện đại" hơn (embedding).
 
 ### 3.2. Câu hỏi mở: vectorize "Hôm nay trời đẹp" thế nào?
 
@@ -60,7 +60,7 @@ Có ít nhất 4 quyết định phải đưa ra:
 
 > ❓ **"Tại sao không cứ map mỗi từ thành một số nguyên — alice=1, bob=2 — rồi xong?"**
 >
-> Vì với model toán học (linear, neural), số nguyên gánh **thứ tự** và **khoảng cách**. Nếu \`alice=1, bob=2, cat=3\`, model sẽ tự "hiểu" rằng \`cat - bob = bob - alice\` (cat xa alice gấp đôi xa bob), điều này vô nghĩa với từ vựng. Đó là lý do one-hot xuất hiện: mỗi từ thành vector riêng, không từ nào "gần" từ nào.
+> Vì với model toán học (linear, neural), số nguyên gánh **thứ tự** và **khoảng cách**. Nếu $\\text{alice}=1, \\text{bob}=2, \\text{cat}=3$, model sẽ tự "hiểu" rằng $\\text{cat} - \\text{bob} = \\text{bob} - \\text{alice}$ (cat xa alice gấp đôi xa bob), điều này vô nghĩa với từ vựng. Đó là lý do one-hot xuất hiện: mỗi từ thành vector riêng, không từ nào "gần" từ nào.
 
 ---
 
@@ -153,7 +153,7 @@ Tổng **vocab word-level** từ 3 câu: \`{hôm, nay, trời, đẹp, tôi, yê
 
 ### 5.1. Định nghĩa
 
-Cho **vocab** \`V = [w_1, w_2, ..., w_V]\` (cố định thứ tự). Mỗi từ \`w_i\` thành vector V-chiều:
+Cho **vocab** $V = [w_1, w_2, \\ldots, w_V]$ (cố định thứ tự). Mỗi từ $w_i$ thành vector $V$-chiều:
 
 $$\\text{one-hot}(w_i) = \\underbrace{[0, 0, \\ldots, 0, \\underbrace{1}_{\\text{vị trí } i}, 0, \\ldots, 0]}_{V \\text{ phần tử}}$$
 
@@ -173,10 +173,10 @@ Vocab: \`V = ["tôi", "yêu", "học", "máy", "tính"]\` (V = 5, index từ 0).
 
 **Ví dụ tính dot product** (đo độ tương đồng theo Lesson \`04-LinearAlgebra/lesson-02-dot-product\`):
 
-- \`tôi · yêu = 1·0 + 0·1 + 0·0 + 0·0 + 0·0 = 0\`
-- \`tôi · tôi = 1·1 + ... = 1\`
-- \`học · máy = 0\`
-- \`máy · tính = 0\`
+- $\\text{tôi} \\cdot \\text{yêu} = 1 \\cdot 0 + 0 \\cdot 1 + 0 \\cdot 0 + 0 \\cdot 0 + 0 \\cdot 0 = 0$
+- $\\text{tôi} \\cdot \\text{tôi} = 1 \\cdot 1 + \\cdots = 1$
+- $\\text{học} \\cdot \\text{máy} = 0$
+- $\\text{máy} \\cdot \\text{tính} = 0$
 
 **Mọi cặp từ khác nhau đều dot = 0**, tức **vuông góc**. Đây là tính chất quan trọng nhất (và cũng là hạn chế lớn nhất) của one-hot.
 
@@ -204,12 +204,12 @@ Cùng vocab \`["the","cat","sits","on","mat"]\` (V=5).
 ### 5.5. Vấn đề của one-hot
 
 1. **Cao chiều và thưa**: vocab 50k → mỗi từ là vector 50k chiều, 49,999 số 0 và 1 số 1. Lưu trữ + tính toán cực tốn (dù sparse format giúp).
-2. **Không biểu diễn semantic similarity**: \`cat · dog = 0\`, \`cat · table = 0\`, \`cat · cat = 1\`. Model không biết "cat gần dog hơn table".
+2. **Không biểu diễn semantic similarity**: $\\text{cat} \\cdot \\text{dog} = 0$, $\\text{cat} \\cdot \\text{table} = 0$, $\\text{cat} \\cdot \\text{cat} = 1$. Model không biết "cat gần dog hơn table".
 3. **Không capture được thứ tự** (khi gộp tổng): "dog bites man" và "man bites dog" cho ra cùng tổng.
 
 > ❓ **"Vậy one-hot có còn dùng không?"**
 >
-> Có, nhưng **gián tiếp**: trong neural network, layer đầu tiên \`Embedding(V, d)\` về bản chất là phép nhân \`one-hot · W\` với \`W ∈ R^{V×d}\`. Nhân one-hot với ma trận = chọn 1 hàng của ma trận. One-hot vẫn là "khái niệm trừu tượng" để định nghĩa embedding, nhưng ta không bao giờ tạo vector one-hot trong RAM — chỉ lưu **index**.
+> Có, nhưng **gián tiếp**: trong neural network, layer đầu tiên \`Embedding(V, d)\` về bản chất là phép nhân $\\text{one-hot} \\cdot W$ với $W \\in \\mathbb{R}^{V \\times d}$. Nhân one-hot với ma trận = chọn 1 hàng của ma trận. One-hot vẫn là "khái niệm trừu tượng" để định nghĩa embedding, nhưng ta không bao giờ tạo vector one-hot trong RAM — chỉ lưu **index**.
 
 > 📝 **Tóm tắt mục 5**. One-hot = vector V-chiều đúng 1 vị trí = 1. Đơn giản, dễ hiểu, nhưng vuông góc mọi cặp và cực thưa. Là viên gạch nền để build BoW/embedding sau này.
 
@@ -219,7 +219,7 @@ Cùng vocab \`["the","cat","sits","on","mat"]\` (V=5).
 
 ### 6.1. Định nghĩa
 
-Document \`d\` được biểu diễn bằng vector \`V\` chiều, mỗi chiều = **số lần xuất hiện** của từ tương ứng trong \`d\`.
+Document $d$ được biểu diễn bằng vector $V$ chiều, mỗi chiều = **số lần xuất hiện** của từ tương ứng trong $d$.
 
 $$\\text{BoW}(d)_i = \\text{count}(w_i, d)$$
 
@@ -287,9 +287,9 @@ d1 · d2 = 0·0 + 0·0 + 1·0 + 0·1 + 0·0 + 0·1 + 1·0 + 1·1 + 1·1 + 2·2
         = 6
 \`\`\`
 
-\`d1 · d3 = 0+0+1+0+0+0+0+0+0+0 = 1\` (chỉ chung từ \`cat\`).
+$d_1 \\cdot d_3 = 0+0+1+0+0+0+0+0+0+0 = 1$ (chỉ chung từ \`cat\`).
 
-\`d2 · d3 = 0+0+0+1+0+0+0+0+0+0 = 1\` (chỉ chung từ \`dog\`).
+$d_2 \\cdot d_3 = 0+0+0+1+0+0+0+0+0+0 = 1$ (chỉ chung từ \`dog\`).
 
 **Quan sát**: d1 và d2 "giống nhau" hơn d3, đúng trực giác (d1+d2 đều nói về \`sat on the\`...).
 
@@ -330,19 +330,19 @@ TF-IDF mã hoá đúng intuition này: nhân TF (Term Frequency) với IDF (Inve
 
 ### 7.2. Term Frequency (TF)
 
-TF đo "trong doc d, từ t xuất hiện nhiều hay ít". Có 2 biến thể phổ biến:
+TF đo "trong doc $d$, từ $t$ xuất hiện nhiều hay ít". Có 2 biến thể phổ biến:
 
-1. **Raw count**: \`TF(t, d) = count(t, d)\`.
-2. **Normalized**: \`TF(t, d) = count(t, d) / |d|\` với \`|d|\` là tổng số token trong d. Cách này tránh bias do doc dài.
+1. **Raw count**: $\\text{TF}(t, d) = \\text{count}(t, d)$.
+2. **Normalized**: $\\text{TF}(t, d) = \\dfrac{\\text{count}(t, d)}{|d|}$ với $|d|$ là tổng số token trong $d$. Cách này tránh bias do doc dài.
 
 Mặc định trong bài này ta dùng **normalized** (chia cho độ dài doc).
 
 ### 7.3. Document Frequency (DF) và Inverse Document Frequency (IDF)
 
-- \`DF(t)\` = **số document** chứa từ \`t\` (không quan tâm xuất hiện bao nhiêu lần trong mỗi doc).
-- \`IDF(t) = log(N / DF(t))\` với \`N\` = tổng số doc.
+- $\\text{DF}(t)$ = **số document** chứa từ $t$ (không quan tâm xuất hiện bao nhiêu lần trong mỗi doc).
+- $\\text{IDF}(t) = \\log\\dfrac{N}{\\text{DF}(t)}$ với $N$ = tổng số doc.
 
-Một số biến thể thêm \`+1\` chống chia 0 hoặc dùng \`ln\` thay \`log10\`. Bài này dùng \`log\` cơ số 10 (dễ tính tay) và **không** smooth:
+Một số biến thể thêm $+1$ chống chia 0 hoặc dùng $\\ln$ thay $\\log_{10}$. Bài này dùng $\\log$ cơ số 10 (dễ tính tay) và **không** smooth:
 
 $$\\text{IDF}(t) = \\log_{10}\\!\\left(\\frac{N}{\\text{DF}(t)}\\right)$$
 
@@ -354,13 +354,13 @@ $$\\text{IDF}(t) = \\log_{10}\\!\\left(\\frac{N}{\\text{DF}(t)}\\right)$$
 | 2     | 2    | log(2) ≈ **0.301** |
 | 1     | 4    | log(4) ≈ **0.602** |
 
-→ Từ xuất hiện ở **mọi doc** (\`DF=N\`) bị "cấm" với IDF = 0. Từ chỉ xuất hiện ở 1/4 doc có IDF cao nhất.
+→ Từ xuất hiện ở **mọi doc** ($\\text{DF}=N$) bị "cấm" với IDF = 0. Từ chỉ xuất hiện ở 1/4 doc có IDF cao nhất.
 
 ### 7.4. Công thức TF-IDF
 
 $$\\text{TF-IDF}(t, d) = \\text{TF}(t, d) \\times \\text{IDF}(t)$$
 
-Vector TF-IDF của doc d = vector V chiều, mỗi chiều là \`TF-IDF(w_i, d)\`.
+Vector TF-IDF của doc $d$ = vector $V$ chiều, mỗi chiều là $\\text{TF-IDF}(w_i, d)$.
 
 ### 7.5. Walk-through chi tiết với 4 docs, vocab 6 từ
 
@@ -466,7 +466,7 @@ TFIDF(d4) ≈ [0.025, 0.025, 0.000, 0.000, 0.000, 0.361]
 
 > 🔁 **Dừng lại tự kiểm tra**.
 >
-> Với corpus trên, nếu thêm \`d5 = "cat dog the"\` (3 token), \`DF(the)\` bằng bao nhiêu? IDF(the) đổi thế nào?
+> Với corpus trên, nếu thêm \`d5 = "cat dog the"\` (3 token), $\\text{DF}(\\text{the})$ bằng bao nhiêu? IDF(the) đổi thế nào?
 >
 > <details><summary>Đáp án</summary>
 > DF(the) = 2 (d4 và d5). N = 5. IDF(the) = log10(5/2) = log10(2.5) ≈ 0.398. Giảm so với 0.602 trước đây vì 'the' không còn "độc quyền" cho 1 doc.
@@ -516,7 +516,7 @@ BoW unigram (\`tôi, yêu, mèo\`) cho cả hai doc đều là \`[1,1,1]\` — g
 ### 8.3. Trade-off
 
 - **Ưu**: giữ context cục bộ (2-3 từ).
-- **Nhược**: vocab nổ. Nếu vocab unigram là V, thì bigram có thể lên tới V² (thực tế ít hơn nhiều, nhưng vẫn lớn).
+- **Nhược**: vocab nổ. Nếu vocab unigram là $V$, thì bigram có thể lên tới $V^2$ (thực tế ít hơn nhiều, nhưng vẫn lớn).
 
 Trong thực tế thường dùng **unigram + bigram** kết hợp (kéo dài vector nhưng cải thiện rõ rệt cho classification).
 
@@ -528,11 +528,11 @@ Trong thực tế thường dùng **unigram + bigram** kết hợp (kéo dài ve
 
 ### 9.1. Nhắc lại từ Tầng 4
 
-Cosine similarity giữa 2 vector \`u, v ≠ 0\`:
+Cosine similarity giữa 2 vector $u, v \\neq 0$:
 
 $$\\cos(u, v) = \\frac{u \\cdot v}{\\|u\\| \\cdot \\|v\\|} \\in [-1, 1]$$
 
-Với vector tần suất / TF-IDF, mọi giá trị ≥ 0 nên \`cos ∈ [0, 1]\`. \`1\` = giống hệt hướng, \`0\` = vuông góc (không chia sẻ từ nào sau khi cân nhắc IDF).
+Với vector tần suất / TF-IDF, mọi giá trị $\\geq 0$ nên $\\cos \\in [0, 1]$. $1$ = giống hệt hướng, $0$ = vuông góc (không chia sẻ từ nào sau khi cân nhắc IDF).
 
 Xem chi tiết: [\`../../04-LinearAlgebra/lesson-02-dot-product/\`](../../04-LinearAlgebra/lesson-02-dot-product/).
 
@@ -549,19 +549,19 @@ TFIDF(d4) ≈ [0.025, 0.025, 0.000, 0.000, 0.000, 0.361]
 
 **Norm L2** (làm tròn):
 
-- \`||d1|| = √(0.042² + 0.201² + 0.100²) = √(0.00176 + 0.04040 + 0.01000) = √0.05216 ≈ 0.228\`
-- \`||d2|| = √(0.042² + 0.201² + 0.100²) ≈ 0.228\`
-- \`||d3|| = √(0.083² + 0.042²) = √(0.00689 + 0.00176) = √0.00865 ≈ 0.0930\`
-- \`||d4|| = √(0.025² + 0.025² + 0.361²) = √(0.00063 + 0.00063 + 0.13032) ≈ 0.362\`
+- $\\|d_1\\| = \\sqrt{0,042^2 + 0,201^2 + 0,100^2} = \\sqrt{0,00176 + 0,04040 + 0,01000} = \\sqrt{0,05216} \\approx 0,228$
+- $\\|d_2\\| = \\sqrt{0,042^2 + 0,201^2 + 0,100^2} \\approx 0,228$
+- $\\|d_3\\| = \\sqrt{0,083^2 + 0,042^2} = \\sqrt{0,00689 + 0,00176} = \\sqrt{0,00865} \\approx 0,0930$
+- $\\|d_4\\| = \\sqrt{0,025^2 + 0,025^2 + 0,361^2} = \\sqrt{0,00063 + 0,00063 + 0,13032} \\approx 0,362$
 
 **Dot product**:
 
-- \`d1·d2 = 0 + 0 + 0 + 0 + 0.100·0.100 + 0 = 0.0100\` (chung từ \`sat\`)
-- \`d1·d3 = 0.042·0.083 + 0 + ... ≈ 0.00349\`
-- \`d1·d4 = 0.042·0.025 + 0 + ... ≈ 0.00105\`
-- \`d2·d3 = 0 + 0.042·0.042 + 0 + 0 + 0 + 0 ≈ 0.00176\`
-- \`d2·d4 = 0 + 0.042·0.025 + 0 + 0 + 0 + 0 ≈ 0.00105\`
-- \`d3·d4 = 0.083·0.025 + 0.042·0.025 + 0 + 0 + 0 + 0 ≈ 0.00313\`
+- $d_1 \\cdot d_2 = 0 + 0 + 0 + 0 + 0,100 \\cdot 0,100 + 0 = 0,0100$ (chung từ \`sat\`)
+- $d_1 \\cdot d_3 = 0,042 \\cdot 0,083 + 0 + \\cdots \\approx 0,00349$
+- $d_1 \\cdot d_4 = 0,042 \\cdot 0,025 + 0 + \\cdots \\approx 0,00105$
+- $d_2 \\cdot d_3 = 0 + 0,042 \\cdot 0,042 + 0 + 0 + 0 + 0 \\approx 0,00176$
+- $d_2 \\cdot d_4 = 0 + 0,042 \\cdot 0,025 + 0 + 0 + 0 + 0 \\approx 0,00105$
+- $d_3 \\cdot d_4 = 0,083 \\cdot 0,025 + 0,042 \\cdot 0,025 + 0 + 0 + 0 + 0 \\approx 0,00313$
 
 **Cosine**:
 
@@ -577,11 +577,11 @@ TFIDF(d4) ≈ [0.025, 0.025, 0.000, 0.000, 0.000, 0.361]
 **Đọc kết quả**:
 - d1 và d2 giống nhau nhất (0.192) — chia sẻ từ \`sat\` (IDF=0.301 cao).
 - d1-d4 và d2-d4 thấp nhất (0.013) — chỉ chia sẻ \`cat\`/\`dog\` có IDF=0.125 rất nhỏ.
-- Lưu ý d4 có vector dài (||·|| = 0.362) do \`the\` nặng nhưng không match với ai → cosine nhỏ.
+- Lưu ý d4 có vector dài ($\\|\\cdot\\| = 0,362$) do \`the\` nặng nhưng không match với ai → cosine nhỏ.
 
 ### 9.3. Tại sao cosine, không phải dot thuần?
 
-Cosine **chuẩn hoá theo độ dài** doc. Doc dài có TF nhỏ hơn nhưng có thể có nhiều từ → dot product dễ to giả tạo. Cosine chia cho \`||·||\` → fair.
+Cosine **chuẩn hoá theo độ dài** doc. Doc dài có TF nhỏ hơn nhưng có thể có nhiều từ → dot product dễ to giả tạo. Cosine chia cho $\\|\\cdot\\|$ → fair.
 
 > 📝 **Tóm tắt mục 9**. Cosine TF-IDF là cách "đo độ giống nhau" cổ điển. Cao = chia sẻ nhiều từ riêng (IDF cao). Là nền tảng cho search engine và recommend.
 
@@ -606,28 +606,28 @@ Dùng lại corpus 4 doc ở mục 7. Query: \`q = "cat sat"\` (2 token, |q|=2).
 **Bước 1 — Tokenize query**: \`[cat, sat]\`.
 
 **Bước 2 — TF của query**:
-- \`TF(cat, q) = 1/2 = 0.500\`
-- \`TF(sat, q) = 1/2 = 0.500\`
+- $\\text{tf}(\\text{cat}, q) = 1/2 = 0,500$
+- $\\text{tf}(\\text{sat}, q) = 1/2 = 0,500$
 - Các từ khác = 0.
 
 **Bước 3 — TF-IDF của query** (dùng IDF đã tính từ corpus):
-- \`TFIDF(cat, q) = 0.500 · 0.125 = 0.0625\`
-- \`TFIDF(sat, q) = 0.500 · 0.301 = 0.1505\`
+- $\\text{tfidf}(\\text{cat}, q) = 0,500 \\cdot 0,125 = 0,0625$
+- $\\text{tfidf}(\\text{sat}, q) = 0,500 \\cdot 0,301 = 0,1505$
 
-Vector \`q = [0.0625, 0, 0, 0, 0.1505, 0]\`.
+Vector $q = [0,0625, 0, 0, 0, 0,1505, 0]$.
 
-**Bước 4 — Norm**: \`||q|| = √(0.0625² + 0.1505²) = √(0.0039 + 0.0227) = √0.0266 ≈ 0.163\`.
+**Bước 4 — Norm**: $\\|q\\| = \\sqrt{0,0625^2 + 0,1505^2} = \\sqrt{0,0039 + 0,0227} = \\sqrt{0,0266} \\approx 0,163$.
 
 **Bước 5 — Cosine với mỗi doc**:
 
-- \`q·d1 = 0.0625·0.042 + 0.1505·0.100 ≈ 0.00263 + 0.01505 = 0.01768\`
-  - \`cos(q,d1) = 0.01768 / (0.163·0.228) = 0.01768 / 0.03716 ≈ **0.476**\`
-- \`q·d2 = 0 + 0.1505·0.100 = 0.01505\`
-  - \`cos(q,d2) = 0.01505 / (0.163·0.228) ≈ **0.405**\`
-- \`q·d3 = 0.0625·0.083 + 0 ≈ 0.00519\`
-  - \`cos(q,d3) = 0.00519 / (0.163·0.0930) ≈ **0.343**\`
-- \`q·d4 = 0.0625·0.025 + 0 ≈ 0.00156\`
-  - \`cos(q,d4) = 0.00156 / (0.163·0.362) ≈ **0.026**\`
+- $q \\cdot d_1 = 0,0625 \\cdot 0,042 + 0,1505 \\cdot 0,100 \\approx 0,00263 + 0,01505 = 0,01768$
+  - $\\cos(q, d_1) = 0,01768 / (0,163 \\cdot 0,228) = 0,01768 / 0,03716 \\approx \\mathbf{0,476}$
+- $q \\cdot d_2 = 0 + 0,1505 \\cdot 0,100 = 0,01505$
+  - $\\cos(q, d_2) = 0,01505 / (0,163 \\cdot 0,228) \\approx \\mathbf{0,405}$
+- $q \\cdot d_3 = 0,0625 \\cdot 0,083 + 0 \\approx 0,00519$
+  - $\\cos(q, d_3) = 0,00519 / (0,163 \\cdot 0,0930) \\approx \\mathbf{0,343}$
+- $q \\cdot d_4 = 0,0625 \\cdot 0,025 + 0 \\approx 0,00156$
+  - $\\cos(q, d_4) = 0,00156 / (0,163 \\cdot 0,362) \\approx \\mathbf{0,026}$
 
 **Bước 6 — Rank**:
 
@@ -662,8 +662,8 @@ Vector \`q = [0.0625, 0, 0, 0, 0.1505, 0]\`.
 
 ### 11.2. Không biểu diễn synonym / semantic
 
-- \`car · automobile = 0\` trong one-hot và TF-IDF, dù 2 từ gần nghĩa.
-- \`dog · puppy = 0\`, \`happy · joyful = 0\`.
+- $\\text{car} \\cdot \\text{automobile} = 0$ trong one-hot và TF-IDF, dù 2 từ gần nghĩa.
+- $\\text{dog} \\cdot \\text{puppy} = 0$, $\\text{happy} \\cdot \\text{joyful} = 0$.
 - Search "automobile" không tìm thấy doc nói về "car".
 - **Giải pháp**: embedding học từ co-occurrence — từ gần nghĩa sẽ có vector gần nhau (Lesson 06).
 
@@ -710,7 +710,7 @@ Với vocab ở Bài 1, viết vector one-hot cho từng từ.
 
 ### Bài 3 — BoW
 
-Tính vector BoW của \`s1, s2, s3\` ở Bài 1. Tính \`BoW(s1) · BoW(s2)\`.
+Tính vector BoW của \`s1, s2, s3\` ở Bài 1. Tính $\\text{BoW}(s_1) \\cdot \\text{BoW}(s_2)$.
 
 ### Bài 4 — TF-IDF tay
 
@@ -723,7 +723,7 @@ Tính TF (normalized), DF, IDF (log10), và TF-IDF cho mọi cặp (t, d). N=3.
 
 ### Bài 5 — Cosine similarity
 
-Dựa trên TF-IDF ở Bài 4, tính \`cos(d1, d2)\`, \`cos(d1, d3)\`, \`cos(d2, d3)\`. Doc nào giống d1 nhất?
+Dựa trên TF-IDF ở Bài 4, tính $\\cos(d_1, d_2)$, $\\cos(d_1, d_3)$, $\\cos(d_2, d_3)$. Doc nào giống d1 nhất?
 
 ### Bài 6 — Mini search
 
@@ -767,11 +767,11 @@ V = [anh, đi, học, làm, tôi]   (V=5)
 | s3| 1   | 1  | 1  | 0   | 0   |
 
 BoW:
-- \`BoW(s1) = [0, 1, 1, 0, 1]\`
-- \`BoW(s2) = [0, 1, 0, 1, 1]\`
-- \`BoW(s3) = [1, 1, 1, 0, 0]\`
+- $\\text{BoW}(s_1) = [0, 1, 1, 0, 1]$
+- $\\text{BoW}(s_2) = [0, 1, 0, 1, 1]$
+- $\\text{BoW}(s_3) = [1, 1, 1, 0, 0]$
 
-\`BoW(s1) · BoW(s2) = 0·0 + 1·1 + 1·0 + 0·1 + 1·1 = 0+1+0+0+1 = **2**\` (chia sẻ \`đi, tôi\`).
+$\\text{BoW}(s_1) \\cdot \\text{BoW}(s_2) = 0 \\cdot 0 + 1 \\cdot 1 + 1 \\cdot 0 + 0 \\cdot 1 + 1 \\cdot 1 = 0+1+0+0+1 = \\mathbf{2}$ (chia sẻ \`đi, tôi\`).
 
 ### Lời giải Bài 4
 
@@ -832,21 +832,21 @@ d3 = [0.0000, 0.0586, 0.0586, 0.1589]
 
 **Norm L2**:
 
-- \`||d1|| = √(0.0880² + 0.0880²) = √(0.00774 + 0.00774) = √0.01548 ≈ 0.1244\`
-- \`||d2|| = √(0.0880² + 0.0880²) ≈ 0.1244\`
-- \`||d3|| = √(0.0586² + 0.0586² + 0.1589²) = √(0.00343 + 0.00343 + 0.02525) = √0.03211 ≈ 0.1792\`
+- $\\|d_1\\| = \\sqrt{0,0880^2 + 0,0880^2} = \\sqrt{0,00774 + 0,00774} = \\sqrt{0,01548} \\approx 0,1244$
+- $\\|d_2\\| = \\sqrt{0,0880^2 + 0,0880^2} \\approx 0,1244$
+- $\\|d_3\\| = \\sqrt{0,0586^2 + 0,0586^2 + 0,1589^2} = \\sqrt{0,00343 + 0,00343 + 0,02525} = \\sqrt{0,03211} \\approx 0,1792$
 
 **Dot**:
 
-- \`d1·d2 = 0.0880·0.0880 + 0 + 0 + 0 = 0.00774\` (chung apple)
-- \`d1·d3 = 0 + 0.0880·0.0586 + 0 + 0 ≈ 0.00516\` (chung banana)
-- \`d2·d3 = 0 + 0 + 0.0880·0.0586 + 0 ≈ 0.00516\` (chung cherry)
+- $d_1 \\cdot d_2 = 0,0880 \\cdot 0,0880 + 0 + 0 + 0 = 0,00774$ (chung apple)
+- $d_1 \\cdot d_3 = 0 + 0,0880 \\cdot 0,0586 + 0 + 0 \\approx 0,00516$ (chung banana)
+- $d_2 \\cdot d_3 = 0 + 0 + 0,0880 \\cdot 0,0586 + 0 \\approx 0,00516$ (chung cherry)
 
 **Cosine**:
 
-- \`cos(d1,d2) = 0.00774 / (0.1244·0.1244) = 0.00774 / 0.01548 = **0.500**\`
-- \`cos(d1,d3) = 0.00516 / (0.1244·0.1792) = 0.00516 / 0.02229 ≈ **0.231**\`
-- \`cos(d2,d3) = 0.00516 / (0.1244·0.1792) ≈ **0.231**\`
+- $\\cos(d_1, d_2) = 0,00774 / (0,1244 \\cdot 0,1244) = 0,00774 / 0,01548 = \\mathbf{0,500}$
+- $\\cos(d_1, d_3) = 0,00516 / (0,1244 \\cdot 0,1792) = 0,00516 / 0,02229 \\approx \\mathbf{0,231}$
+- $\\cos(d_2, d_3) = 0,00516 / (0,1244 \\cdot 0,1792) \\approx \\mathbf{0,231}$
 
 **Doc giống d1 nhất**: **d2** (0.500). Phù hợp: d1 và d2 đều có \`apple\`, còn d3 không có.
 
@@ -863,18 +863,18 @@ Query \`q = "apple date"\`, |q|=2.
 - apple: 0.500·0.176 = 0.0880
 - date: 0.500·0.477 ≈ 0.2385
 
-Vector \`q = [0.0880, 0, 0, 0.2385]\`.
+Vector $q = [0,0880, 0, 0, 0,2385]$.
 
-\`||q|| = √(0.0880² + 0.2385²) = √(0.00774 + 0.05688) = √0.06462 ≈ 0.2542\`.
+$\\|q\\| = \\sqrt{0,0880^2 + 0,2385^2} = \\sqrt{0,00774 + 0,05688} = \\sqrt{0,06462} \\approx 0,2542$.
 
 **Dot với mỗi doc**:
 
-- \`q·d1 = 0.0880·0.0880 + 0 + 0 + 0.2385·0 = 0.00774\`
-  - \`cos = 0.00774 / (0.2542·0.1244) = 0.00774 / 0.03162 ≈ **0.245**\`
-- \`q·d2 = 0.0880·0.0880 + 0 + 0 + 0 = 0.00774\`
-  - \`cos = 0.00774 / (0.2542·0.1244) ≈ **0.245**\`
-- \`q·d3 = 0 + 0 + 0 + 0.2385·0.1589 ≈ 0.03790\`
-  - \`cos = 0.03790 / (0.2542·0.1792) = 0.03790 / 0.04556 ≈ **0.832**\`
+- $q \\cdot d_1 = 0,0880 \\cdot 0,0880 + 0 + 0 + 0,2385 \\cdot 0 = 0,00774$
+  - $\\cos = 0,00774 / (0,2542 \\cdot 0,1244) = 0,00774 / 0,03162 \\approx \\mathbf{0,245}$
+- $q \\cdot d_2 = 0,0880 \\cdot 0,0880 + 0 + 0 + 0 = 0,00774$
+  - $\\cos = 0,00774 / (0,2542 \\cdot 0,1244) \\approx \\mathbf{0,245}$
+- $q \\cdot d_3 = 0 + 0 + 0 + 0,2385 \\cdot 0,1589 \\approx 0,03790$
+  - $\\cos = 0,03790 / (0,2542 \\cdot 0,1792) = 0,03790 / 0,04556 \\approx \\mathbf{0,832}$
 
 **Rank**:
 

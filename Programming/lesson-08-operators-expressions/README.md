@@ -729,7 +729,7 @@ s := b.String()   // O(n), không alloc nhiều lần
 "abc" == "Abc"   // false (case-sensitive)
 ```
 
-So sánh từng byte. Nhanh, O(n) với n là độ dài chuỗi.
+So sánh từng byte. Nhanh, $O(n)$ với n là độ dài chuỗi.
 
 ### 13.2 `<`, `>`, `<=`, `>=` — lexicographic
 
@@ -915,7 +915,7 @@ Test:
 - `Has(7, Execute)` = `7 & 1 != 0` = `1 != 0` = **`true`**.
 - `Clear(7, Write)` = `7 &^ 2` = `0b111 &^ 0b010` = `0b101` = **`5`**.
 
-Độ phức tạp: O(n) cho `Combine` (n = số flag); O(1) cho `Has` và `Clear`.
+Độ phức tạp: $O(n)$ cho `Combine` (n = số flag); $O(1)$ cho `Has` và `Clear`.
 
 ### Giải BT4
 

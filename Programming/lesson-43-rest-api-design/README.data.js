@@ -988,7 +988,7 @@ e) \`POST /api/searchProducts?token=abc\` (token trong URL)
 
 Tính toán: với offset/limit, trang thứ 50,000 (\`offset=999,980\`) → DB phải scan qua ~1M row rồi bỏ đi đầu tiên. Postgres trên SSD ~0.5–2 giây cho 1M row scan. Tệ.
 
-Cursor: \`WHERE id > 999980 ORDER BY id LIMIT 20\` → index seek B-tree, **O(log n)** ~ vài ms.
+Cursor: \`WHERE id > 999980 ORDER BY id LIMIT 20\` → index seek B-tree, **$O(\\log n)$** ~ vài ms.
 
 Bonus: trong social feed, **không ai jump tới "trang 50,000"** — luôn là infinite scroll dọc. Cursor phù hợp hoàn toàn.
 

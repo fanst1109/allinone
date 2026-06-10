@@ -173,7 +173,7 @@ BenchmarkSum/n=10000-8     30000 7100 ns/op   0 B/op   0 allocs/op
 
 Đẹp ở chỗ:
 
-- Tỷ lệ \`n × 10 → ns × 10\` → xác nhận O(n) đúng như mong đợi.
+- Tỷ lệ \`n × 10 → ns × 10\` → xác nhận $O(n)$ đúng như mong đợi.
 - Có thể combine 2 dimension: \`n × algo\`:
 
 \`\`\`go
@@ -309,7 +309,7 @@ BenchmarkConcat/Plus/n=1000-8     391    638114 ns/op   2137575 B/op   999 alloc
 | \`2137575 B/op\` | mỗi op allocate 2.1 MB |
 | \`999 allocs/op\` | mỗi op allocate 999 lần (≈ số phần tử concat) |
 
-→ Đọc ngay: với 1000 chuỗi 4 byte, dùng \`+=\` allocate 2 MB và 999 lần. Vì sao? Mỗi \`+=\` tạo string mới = copy tích luỹ → tổng cộng O(n²) bytes.
+→ Đọc ngay: với 1000 chuỗi 4 byte, dùng \`+=\` allocate 2 MB và 999 lần. Vì sao? Mỗi \`+=\` tạo string mới = copy tích luỹ → tổng cộng $O(n^2)$ bytes.
 
 ---
 
@@ -339,8 +339,8 @@ BenchmarkConcat/Builder/n=1000       6952 ns/op     12536 B/op    12 allocs/op
 BenchmarkConcat/BuilderGrow/n=1000   4849 ns/op      4096 B/op     1 allocs/op
 \`\`\`
 
-- \`+=\` → O(n²) bytes. 1000 chuỗi 4-byte → 2 MB allocate.
-- Builder → O(n) bytes nhờ grow geometric.
+- \`+=\` → $O(n^2)$ bytes. 1000 chuỗi 4-byte → 2 MB allocate.
+- Builder → $O(n)$ bytes nhờ grow geometric.
 - Builder + \`Grow(total)\` → 1 lần allocate.
 
 **Speedup ~92× từ Plus → BuilderGrow.**

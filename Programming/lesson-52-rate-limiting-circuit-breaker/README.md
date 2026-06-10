@@ -231,7 +231,7 @@ Hai biến thể phổ biến:
 **(a) Sliding log:** lưu timestamp mọi request gần đây. Khi request mới đến: xóa timestamp cũ hơn `now - 60s`, đếm số còn lại.
 
 - ✓ Chính xác tuyệt đối.
-- ✗ Memory: O(số request trong window) per key. 1000 user × 100 req/min = 100k timestamp = nặng.
+- ✗ Memory: $O(\text{số request trong window})$ per key. 1000 user × 100 req/min = 100k timestamp = nặng.
 
 **(b) Sliding window counter** (xấp xỉ): lưu count của window hiện tại + window trước. Nội suy tuyến tính.
 
@@ -253,11 +253,11 @@ Giảm đều khi window cũ "trôi ra ngoài". **Mượt, không burst tại bo
 
 | Thuật toán | Burst | Chính xác | Memory | Code |
 |-----------|-------|-----------|--------|------|
-| Token bucket | ✓ (B token) | Cao | O(1) | Vừa |
-| Leaky bucket | ✗ (output đều) | Cao | O(1) ngoài queue | Vừa |
-| Fixed window | Tại boundary | Thấp (boundary issue) | O(1) | Đơn giản nhất |
-| Sliding window (counter) | ✗ | Cao | O(1) (2 counters) | Vừa |
-| Sliding log | ✗ | Tuyệt đối | O(N) | Vừa |
+| Token bucket | ✓ (B token) | Cao | $O(1)$ | Vừa |
+| Leaky bucket | ✗ (output đều) | Cao | $O(1)$ ngoài queue | Vừa |
+| Fixed window | Tại boundary | Thấp (boundary issue) | $O(1)$ | Đơn giản nhất |
+| Sliding window (counter) | ✗ | Cao | $O(1)$ (2 counters) | Vừa |
+| Sliding log | ✗ | Tuyệt đối | $O(N)$ | Vừa |
 
 > 🔁 **Dừng lại tự kiểm tra.**
 > 1. Limit 10/phút. Token bucket B=10, R=10/60. Fixed window 60s. User gửi 10 req lúc t=0, sau đó 10 req lúc t=59. Cái nào allow tất, cái nào deny?
@@ -273,7 +273,7 @@ Giảm đều khi window cũ "trôi ra ngoài". **Mượt, không burst tại bo
 > - **Token bucket** = burst-friendly, dùng cho API user-facing.
 > - **Leaky bucket** = output đều, dùng cho stream ra downstream.
 > - **Fixed window** = đơn giản nhất, nhưng có lỗ hổng boundary.
-> - **Sliding window** = mượt, chính xác — counter dùng O(1), log dùng O(N).
+> - **Sliding window** = mượt, chính xác — counter dùng $O(1)$, log dùng $O(N)$.
 
 ---
 
@@ -773,7 +773,7 @@ func (b *TokenBucket) Allow() bool {
 
 Sau giây đầu burst, ổn định 2 allow / giây = đúng `R=2`.
 
-**Độ phức tạp:** O(1) per `Allow()`. **Memory:** O(1) per bucket.
+**Độ phức tạp:** $O(1)$ per `Allow()`. **Memory:** $O(1)$ per bucket.
 
 ### Giải BT2 — So sánh 4 thuật toán
 

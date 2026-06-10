@@ -50,7 +50,7 @@ NoSQL ra đời (~2009) vì các công ty web khổng lồ (Google, Amazon, Face
 
 Mỗi họ **đánh đổi** một thứ để mạnh ở thứ khác:
 
-- **Key-value** bỏ khả năng query phức tạp → đổi lấy tra cứu O(1) theo key và scale dễ.
+- **Key-value** bỏ khả năng query phức tạp → đổi lấy tra cứu $O(1)$ theo key và scale dễ.
 - **Column-family** bỏ JOIN và transaction mạnh → đổi lấy write throughput khủng và phân tán.
 - **Graph** bỏ scale ngang dễ dàng → đổi lấy traversal quan hệ nhiều cấp cực nhanh (bạn-của-bạn-của-bạn).
 - **Document** giữ một phần khả năng query nhưng bỏ schema cứng và JOIN gốc → đổi lấy linh hoạt schema và đọc dữ liệu phân cấp trong 1 lần.
@@ -356,7 +356,7 @@ res, err := coll.DeleteOne(ctx, filter)
 
 > 💡 **Trực giác.** Tìm một từ trong sách: không có mục lục thì lật từng trang (collection scan, COLLSCAN). Có mục lục (index) thì nhảy thẳng tới trang chứa từ. Index trong DB chính là "mục lục" cho field.
 
-Không có index, MongoDB phải **quét toàn bộ collection** (COLLSCAN) cho mỗi query — O(n). Với 10 triệu document, một query lọc trở thành ác mộng.
+Không có index, MongoDB phải **quét toàn bộ collection** (COLLSCAN) cho mỗi query — $O(n)$. Với 10 triệu document, một query lọc trở thành ác mộng.
 
 ### 8.1 Các loại index
 
@@ -388,7 +388,7 @@ coll.Indexes().CreateOne(ctx, mongo.IndexModel{
 > ❓ **Câu hỏi tự nhiên.** *"Làm sao biết query có dùng index hay COLLSCAN?"* — Chạy `db.coll.find(...).explain("executionStats")`. Nếu thấy `stage: "COLLSCAN"` là chưa có index phù hợp; `IXSCAN` là đang dùng index.
 
 > 📝 **Tóm tắt mục 8.**
-> - Không index → COLLSCAN (quét toàn bộ, O(n)).
+> - Không index → COLLSCAN (quét toàn bộ, $O(n)$).
 > - Loại: single, compound, text, geospatial.
 > - Compound theo ESR: Equality → Sort → Range.
 > - Đừng index mọi field — tốn RAM, chậm ghi. Dùng `explain()` để kiểm tra.
@@ -647,7 +647,7 @@ func DeletePost(ctx context.Context, coll *mongo.Collection, id primitive.Object
 }
 ```
 
-**Độ phức tạp:** mỗi thao tác theo `_id` (có index mặc định) là O(log n) trên B-tree index. Điểm cần nhớ: `IncrementViews` dùng `$inc` để cộng **atomic** ngay trong DB, tránh race condition của pattern đọc-cộng-ghi.
+**Độ phức tạp:** mỗi thao tác theo `_id` (có index mặc định) là $O(\log n)$ trên B-tree index. Điểm cần nhớ: `IncrementViews` dùng `$inc` để cộng **atomic** ngay trong DB, tránh race condition của pattern đọc-cộng-ghi.
 
 ### Lời giải BT3 — Aggregation đếm post per author
 

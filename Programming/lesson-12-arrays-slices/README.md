@@ -294,7 +294,7 @@ Trace 10 lần `append` vào slice rỗng (Go ≥ 1.18, có thể khác tuỳ ve
 Pattern: cap chỉ tăng khi `len == cap`, và mỗi lần tăng là gấp đôi (cho size nhỏ). Trong 10 lần append, có 5 lần thực sự alloc mới.
 
 ❓ **Câu hỏi tự nhiên**:
-- *"Tại sao gấp đôi mà không phải +1?"* → Amortize: dù grow tốn O(n), nhưng trung bình mỗi `append` chỉ tốn O(1). Nếu +1 mỗi lần → O(n²) tổng.
+- *"Tại sao gấp đôi mà không phải +1?"* → Amortize: dù grow tốn $O(n)$, nhưng trung bình mỗi `append` chỉ tốn $O(1)$. Nếu +1 mỗi lần → $O(n^2)$ tổng.
 - *"Có thể ép Go grow ít hơn không?"* → Có, bằng `make([]T, 0, n)` ngay từ đầu. Xem mục 11.
 
 ### 4.4 `append` spread — gộp 2 slice
@@ -311,7 +311,7 @@ c := append(a, b...)  // [1, 2, 3, 4, 5, 6]
 
 - `append` **có thể** alloc array mới, **luôn gán lại** kết quả.
 - Khi `len == cap` → grow (thường ×2 cho slice nhỏ).
-- Amortized cost của n lần append = O(n).
+- Amortized cost của n lần append = $O(n)$.
 
 ---
 
@@ -468,7 +468,7 @@ Tổng hợp 6 trick gặp hàng ngày (kèm code thực).
 
 ### 7.1 Remove phần tử tại index `i`
 
-**Cách A — preserve order, O(n)**:
+**Cách A — preserve order, $O(n)$**:
 
 ```go
 s = append(s[:i], s[i+1:]...)
@@ -484,7 +484,7 @@ append([10, 20], 40, 50) → [10, 20, 40, 50]
 
 ⚠ Lưu ý: trick này **modify in-place** underlying array (vì `append` vào slice có cap dư). Sau lệnh, `s` của caller (nếu được pass vào function) có thể bị ghi đè phần đuôi → xem mục 9.
 
-**Cách B — KHÔNG preserve order, O(1)** (swap with last):
+**Cách B — KHÔNG preserve order, $O(1)$** (swap with last):
 
 ```go
 s[i] = s[len(s)-1]
@@ -827,7 +827,7 @@ BenchmarkAppendWithCap-8  30000    42000 ns/op    81920 B/op    1 allocs/op
 
 ### 📝 Tóm tắt mục 11
 
-- `make([]T, 0, n)` khi biết size → tránh O(log n) lần alloc.
+- `make([]T, 0, n)` khi biết size → tránh $O(\log n)$ lần alloc.
 - Win lớn trong loop chạy nhiều / hot path.
 - Khi không biết size: tạm chấp nhận grow, hoặc dùng `sync.Pool` (sau).
 
@@ -876,7 +876,7 @@ Viết hàm reverse **in-place** không alloc, không return.
 
 ### Bài tập 5 — `dedupe(s []int) []int` cho slice ĐÃ SẮP XẾP
 
-Viết hàm dedupe in-place. Yêu cầu: O(n) thời gian, O(1) bộ nhớ phụ.
+Viết hàm dedupe in-place. Yêu cầu: $O(n)$ thời gian, $O(1)$ bộ nhớ phụ.
 
 ### Bài tập 6 — `chunk(s []int, n int) [][]int`
 
@@ -973,7 +973,7 @@ func reverse(s []int) {
 }
 ```
 
-Độ phức tạp: O(n/2) ~ O(n) thời gian, O(1) bộ nhớ phụ. Caller thấy thay đổi vì modify element.
+Độ phức tạp: $O(n/2)$ ~ $O(n)$ thời gian, $O(1)$ bộ nhớ phụ. Caller thấy thay đổi vì modify element.
 
 ### Lời giải BT5 — `dedupe`
 
@@ -995,7 +995,7 @@ func dedupe(s []int) []int {
 
 - Biến `j` là vị trí ghi tiếp theo trong "vùng kết quả".
 - Walk-through đã có ở mục 7.5.
-- O(n) thời gian, O(1) phụ. Phần đuôi (từ `j` tới `len(s)`) còn data cũ trong cap nhưng không truy cập qua slice trả về.
+- $O(n)$ thời gian, $O(1)$ phụ. Phần đuôi (từ `j` tới `len(s)`) còn data cũ trong cap nhưng không truy cập qua slice trả về.
 
 ### Lời giải BT6 — `chunk`
 

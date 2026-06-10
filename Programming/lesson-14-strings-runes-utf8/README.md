@@ -93,7 +93,7 @@ fmt.Printf("%c\n", s[4])   // © (byte thứ hai của 'é')
 
 `'é'` được mã hoá UTF-8 = 2 byte `0xC3 0xA9`. Index theo byte cắt giữa ký tự → ra ra rác.
 
-> **❓ Câu hỏi tự nhiên**: vì sao Go thiết kế kiểu này? Vì sao không index theo char như Python? Vì char trong Unicode có **độ dài byte thay đổi** (1-4 byte). Để random-access theo char, Go sẽ phải decode UTF-8 mỗi lần `s[i]` → mất O(i). Index byte luôn O(1). Go chọn tốc độ, đẩy việc "iterate đúng" sang `for range`.
+> **❓ Câu hỏi tự nhiên**: vì sao Go thiết kế kiểu này? Vì sao không index theo char như Python? Vì char trong Unicode có **độ dài byte thay đổi** (1-4 byte). Để random-access theo char, Go sẽ phải decode UTF-8 mỗi lần `s[i]` → mất $O(i)$. Index byte luôn $O(1)$. Go chọn tốc độ, đẩy việc "iterate đúng" sang `for range`.
 
 ## 3. `len(s)` đếm BYTE — 4 ví dụ thực tế
 
@@ -177,12 +177,12 @@ fmt.Println("\U0001F600")  // 😀
 
 | Conversion | Ý nghĩa | Cost |
 |------------|---------|------|
-| `[]byte(s)` | Copy byte ra slice mutable | O(n) memory copy |
-| `string(b []byte)` | Tạo string mới copy từ slice | O(n) |
-| `[]rune(s)` | **Decode UTF-8** thành slice rune | O(n) cả time và space (mỗi rune 4 byte) |
-| `string(r []rune)` | **Encode** mỗi rune thành UTF-8 bytes rồi nối | O(n) |
-| `string(r rune)` | 1 rune → string UTF-8 1 ký tự | O(1) |
-| `string(b byte)` | 1 byte → string 1 byte (≠ char nếu > 127!) | O(1) |
+| `[]byte(s)` | Copy byte ra slice mutable | $O(n)$ memory copy |
+| `string(b []byte)` | Tạo string mới copy từ slice | $O(n)$ |
+| `[]rune(s)` | **Decode UTF-8** thành slice rune | $O(n)$ cả time và space (mỗi rune 4 byte) |
+| `string(r []rune)` | **Encode** mỗi rune thành UTF-8 bytes rồi nối | $O(n)$ |
+| `string(r rune)` | 1 rune → string UTF-8 1 ký tự | $O(1)$ |
+| `string(b byte)` | 1 byte → string 1 byte (≠ char nếu > 127!) | $O(1)$ |
 
 ```go
 s := "café"
@@ -366,7 +366,7 @@ for i := 0; i < 1000; i++ {
 s := b.String()            // chuyển buffer → string, 1 lần allocate cuối
 ```
 
-`Builder` duy trì `[]byte` buffer growable (giống `append`). Mỗi `WriteString` amortized O(1). Total O(N).
+`Builder` duy trì `[]byte` buffer growable (giống `append`). Mỗi `WriteString` amortized $O(1)$. Total $O(N)$.
 
 ### Benchmark thực tế (1000 concat)
 
@@ -538,7 +538,7 @@ func ValidateName(name string) error {
 }
 ```
 
-**Phân tích**: `len("Lê")` = 3 (byte), nhưng `utf8.RuneCountInString("Lê")` = 2 (rune) → đúng "2 ký tự". `utf8.RuneCountInString("😀😀")` = 2 (mỗi emoji 1 rune, dù 4 byte). Độ phức tạp O(n) byte — vẫn tốt cho name ngắn.
+**Phân tích**: `len("Lê")` = 3 (byte), nhưng `utf8.RuneCountInString("Lê")` = 2 (rune) → đúng "2 ký tự". `utf8.RuneCountInString("😀😀")` = 2 (mỗi emoji 1 rune, dù 4 byte). Độ phức tạp $O(n)$ byte — vẫn tốt cho name ngắn.
 
 ### BT2 — Reverse string
 
@@ -557,7 +557,7 @@ func Reverse(s string) string {
 - Sau swap: `['o', 'l', 'l', 'é', 'h']`.
 - `string(...)` encode lại UTF-8: `"olléh"` (6 byte vì `é` 2 byte).
 
-Độ phức tạp O(n) time + O(n) space (slice rune).
+Độ phức tạp $O(n)$ time + $O(n)$ space (slice rune).
 
 ### BT3 — Palindrome
 
@@ -706,7 +706,7 @@ func isIdentChar(c byte) bool {
 
 > **Lưu ý**: dùng byte iteration vì identifier chỉ chứa ASCII (a-z, A-Z, 0-9, _) — không bị lỗi UTF-8. Value `data[key]` có thể chứa Unicode, nhưng `b.WriteString` handle nguyên string không cần care encoding.
 
-Độ phức tạp O(n) trên độ dài template (mỗi byte thăm đúng 1 lần).
+Độ phức tạp $O(n)$ trên độ dài template (mỗi byte thăm đúng 1 lần).
 
 ---
 

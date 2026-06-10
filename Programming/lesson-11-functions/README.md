@@ -754,7 +754,7 @@ func sum(n int) int {
 
 Khi nào tránh:
 - Iteration linh hoạt và hiệu suất tốt hơn (cộng dồn, lặp tuần tự).
-- Khi input có thể lớn không kiểm soát (depth = O(n)).
+- Khi input có thể lớn không kiểm soát (depth = $O(n)$).
 
 ### 9.3 Fibonacci — bài học về complexity
 
@@ -1007,7 +1007,7 @@ fmt.Println(err)    // divmod: division by zero
 
 **Tại sao return `(0, 0, error)` thay vì `(undefined, undefined, error)`?** Go bắt buộc khai báo TẤT CẢ return value, ngay cả khi có error. Convention: trả zero value cho các slot non-error khi có error.
 
-**Độ phức tạp**: O(1).
+**Độ phức tạp**: $O(1)$.
 
 ### Lời giải BT2 — Variadic max
 
@@ -1035,7 +1035,7 @@ fmt.Println(err) // maxOf: empty input
 
 **Tại sao bắt đầu với `nums[0]` thay vì `math.MinInt`?** Hai lý do: (1) tránh import math chỉ vì hằng số; (2) `nums[1:]` cho phép skip pass đầu tiên — micro-optimization, không quan trọng nhưng pattern phổ biến.
 
-**Độ phức tạp**: O(n) một pass.
+**Độ phức tạp**: $O(n)$ một pass.
 
 ### Lời giải BT3 — Currying multiplier
 
@@ -1113,7 +1113,7 @@ lens := Map(words, func(s string) int { return len(s) })
 // T=string, U=int
 ```
 
-**Độ phức tạp**: O(n).
+**Độ phức tạp**: $O(n)$.
 
 **Lưu ý**: `make([]U, len(s))` tốt hơn `var result []U` rồi `append` — biết trước size, tránh re-alloc.
 

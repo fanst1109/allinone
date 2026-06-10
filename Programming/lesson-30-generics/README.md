@@ -1247,7 +1247,7 @@ func Map[T, U any](s []T, f func(T) U) []U {
 
 **Verify**:
 - `Map([]int{1,2,3}, fmt.Sprintf("#%d", _))` → `["#1", "#2", "#3"]` ✓
-- Độ phức tạp: O(n).
+- Độ phức tạp: $O(n)$.
 
 ### Lời giải BT2 — `Filter[T]`
 
@@ -1269,7 +1269,7 @@ func Filter[T any](s []T, pred func(T) bool) []T {
 
 **Verify**:
 - `Filter([]int{1,2,3,4,5}, x → x%2 == 0)` → `[2, 4]` ✓
-- Độ phức tạp: O(n).
+- Độ phức tạp: $O(n)$.
 
 ### Lời giải BT3 — Generic `Set[T comparable]`
 
@@ -1322,7 +1322,7 @@ func (s *Set[T]) Intersect(o *Set[T]) *Set[T] {
 **Verify**:
 - `NewSet(1,2,3).Union(NewSet(3,4,5))` → `{1,2,3,4,5}` ✓
 - `NewSet(1,2,3).Intersect(NewSet(2,3,4))` → `{2,3}` ✓
-- Độ phức tạp: Add/Has/Remove O(1) amortized; Union/Intersect O(n+m).
+- Độ phức tạp: Add/Has/Remove $O(1)$ amortized; Union/Intersect $O(n+m)$.
 
 ### Lời giải BT4 — Generic `LinkedList[T]`
 
@@ -1364,8 +1364,8 @@ func (l *LinkedList[T]) ToSlice() []T {
 
 **Cách tiếp cận**:
 - `node[T]` cũng là generic type — phải nhắc T mỗi lần.
-- Push/Pop đều thao tác đầu → O(1).
-- `ToSlice` chạy qua toàn list → O(n).
+- Push/Pop đều thao tác đầu → $O(1)$.
+- `ToSlice` chạy qua toàn list → $O(n)$.
 
 **Verify Push/Pop bằng số**:
 

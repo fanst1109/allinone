@@ -644,7 +644,7 @@ func PrintFields(x any, indent int) {
 }
 ```
 
-**Độ phức tạp**: O(n) với n là tổng field (kể cả nested).
+**Độ phức tạp**: $O(n)$ với n là tổng field (kể cả nested).
 
 ### BT2 — StructToMap
 

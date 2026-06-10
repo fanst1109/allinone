@@ -1043,7 +1043,7 @@ for i := 0; i < 4; i++ { total += <-results }
 fmt.Println(total) // 5050
 ```
 
-- Độ phức tạp: O(n) thời gian, O(n/p) wall-clock với p core.
+- Độ phức tạp: $O(n)$ thời gian, $O(n/p)$ wall-clock với p core.
 - Lý do dùng buffer cap 4: 4 goroutine có thể "ném" kết quả mà không cần receiver sẵn sàng → giảm 1 lần đồng bộ.
 
 ### BT2 — Worker pool

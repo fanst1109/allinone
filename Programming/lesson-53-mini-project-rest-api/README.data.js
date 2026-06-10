@@ -579,7 +579,7 @@ func (h *Handler) publicProfile(w http.ResponseWriter, r *http.Request) {
 
 **Vì sao dùng DTO riêng?** \`User\` đã ẩn \`PasswordHash\` bằng tag \`json:"-"\`, nhưng email là
 thông tin nhạy cảm không nên công khai. DTO \`PublicUser\` đảm bảo **chỉ** field an toàn lộ
-ra — an toàn hơn dựa vào tag. Độ phức tạp O(1) (lookup map).
+ra — an toàn hơn dựa vào tag. Độ phức tạp $O(1)$ (lookup map).
 
 ### Bài 2 — Phân trang
 
@@ -611,7 +611,7 @@ resp, err := h.svc.ListPaged(r.Context(), limit, offset)
 \`\`\`
 
 **Lưu ý:** \`Atoi\` lỗi (query rỗng) trả \`0\` → rơi về mặc định. \`total\` luôn là **tổng thật**
-(không phải số item trang này) để client tính được số trang. Độ phức tạp O(n) do \`List\`
+(không phải số item trang này) để client tính được số trang. Độ phức tạp $O(n)$ do \`List\`
 copy toàn bộ (in-memory). Với DB thật dùng \`LIMIT/OFFSET\` của SQL → DB lo.
 
 ### Bài 3 — \`GET /v1/users/me/posts\`
@@ -640,7 +640,7 @@ func (h *Handler) myPosts(w http.ResponseWriter, r *http.Request) {
 }
 \`\`\`
 
-Route này **phải qua \`authMW\`** vì cần biết "me" là ai. Độ phức tạp O(n) (quét tất cả bài);
+Route này **phải qua \`authMW\`** vì cần biết "me" là ai. Độ phức tạp $O(n)$ (quét tất cả bài);
 DB thật dùng index trên \`author_id\` → nhanh hơn nhiều.
 
 ### Bài 4 — Soft delete

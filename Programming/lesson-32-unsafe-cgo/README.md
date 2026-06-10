@@ -254,7 +254,7 @@ Dùng để làm gì trong thực tế?
 
 ## 5. Zero-copy `string` ↔ `[]byte` (cẩn thận với `string` immutability)
 
-Trong Go, `string` và `[]byte` về memory layout **gần như giống nhau** — đều có data pointer và length. `[]byte` có thêm `cap`. Convert qua lại bằng cú pháp `[]byte(s)` / `string(b)` thì **bị copy toàn bộ data** — an toàn nhưng O(n).
+Trong Go, `string` và `[]byte` về memory layout **gần như giống nhau** — đều có data pointer và length. `[]byte` có thêm `cap`. Convert qua lại bằng cú pháp `[]byte(s)` / `string(b)` thì **bị copy toàn bộ data** — an toàn nhưng $O(n)$.
 
 Khi xử lý JSON / log / network buffer hàng triệu lần/giây, copy thừa giết performance. Zero-copy:
 

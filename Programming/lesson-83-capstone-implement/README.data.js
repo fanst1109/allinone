@@ -222,7 +222,7 @@ Bảng so sánh trade-off:
 | Cần counter tập trung | có (DB sequence/Redis) | không |
 | Code đầu tiên | rất ngắn (\`"1"\`, \`"2"\`...) | luôn 7 ký tự |
 
-> ❓ **Tính hash/encode có đắt không?** Không — chia lấy dư vài lần, O(log₆₂ n). Với \`crypto/rand\` thì chi phí chính là đọc entropy, vẫn rất nhỏ so với I/O mạng của redirect.
+> ❓ **Tính hash/encode có đắt không?** Không — chia lấy dư vài lần, $O(\\log_{62} n)$. Với \`crypto/rand\` thì chi phí chính là đọc entropy, vẫn rất nhỏ so với I/O mạng của redirect.
 >
 > ❓ **Random 7 ký tự thì xác suất trùng bao nhiêu?** Không gian = 62⁷ ≈ 3.5×10¹². Với 1 triệu URL, xác suất một code mới trùng ≈ 10⁶/3.5×10¹² ≈ 0.00003%. Ta vẫn \`Exists()\` kiểm tra để chắc chắn.
 
@@ -820,7 +820,7 @@ exists, err := uc.repo.Exists(ctx, alias)
 if exists { return nil, domain.ErrCodeTaken }   // -> handler map 409
 \`\`\`
 
-\`writeDomainErr\` đã map \`ErrCodeTaken\` → 409. **Độ phức tạp:** O(1) (map lookup). Test xác minh: tạo alias \`"dup"\` lần 1 OK, lần 2 trả \`ErrCodeTaken\` (xem \`TestShortenWithAlias_Taken\`).
+\`writeDomainErr\` đã map \`ErrCodeTaken\` → 409. **Độ phức tạp:** $O(1)$ (map lookup). Test xác minh: tạo alias \`"dup"\` lần 1 OK, lần 2 trả \`ErrCodeTaken\` (xem \`TestShortenWithAlias_Taken\`).
 
 Mở rộng nên làm thêm: validate alias chỉ chứa \`[0-9A-Za-z_-]\`, độ dài 3–30, không trùng các path reserved (\`api\`, \`healthz\`). Thêm vào \`domain.NewURL\` hoặc một hàm \`validAlias\`.
 
@@ -841,7 +841,7 @@ if ttl > 0 {
 if u.IsExpired(now) { return "", domain.ErrURLExpired }   // -> 410 Gone
 \`\`\`
 
-**Lưu ý cache:** entry hết hạn vẫn có thể nằm trong cache. Hai cách xử lý: (a) cache TTL ≤ URL TTL (cache tự evict trước); (b) kiểm tra \`ExpiresAt\` cả khi hit cache (cache phải lưu thêm \`ExpiresAt\`, không chỉ \`original\`). Đơn giản nhất: set cache TTL = thời gian còn lại của URL. **Độ phức tạp:** O(1). Test: tạo URL với \`ExpiresAt\` quá khứ → \`Resolve\` trả \`ErrURLExpired\` (xem \`TestRedirect_Expired\`).
+**Lưu ý cache:** entry hết hạn vẫn có thể nằm trong cache. Hai cách xử lý: (a) cache TTL ≤ URL TTL (cache tự evict trước); (b) kiểm tra \`ExpiresAt\` cả khi hit cache (cache phải lưu thêm \`ExpiresAt\`, không chỉ \`original\`). Đơn giản nhất: set cache TTL = thời gian còn lại của URL. **Độ phức tạp:** $O(1)$. Test: tạo URL với \`ExpiresAt\` quá khứ → \`Resolve\` trả \`ErrURLExpired\` (xem \`TestRedirect_Expired\`).
 
 ### BT3 — Rate limit per user (API key)
 
@@ -864,7 +864,7 @@ func RateLimitByKey(rps, capacity float64) Middleware {
 }
 \`\`\`
 
-Logic token bucket (\`allow\`) không đổi — chỉ đổi *key*. Có thể cho mỗi tier API key một quota khác bằng cách map \`key → (rate, capacity)\`. **Độ phức tạp:** O(1)/request. **Lưu ý:** in-memory bucket không chia sẻ giữa nhiều instance. Production dùng Redis (INCR + EXPIRE) để rate limit phân tán.
+Logic token bucket (\`allow\`) không đổi — chỉ đổi *key*. Có thể cho mỗi tier API key một quota khác bằng cách map \`key → (rate, capacity)\`. **Độ phức tạp:** $O(1)$/request. **Lưu ý:** in-memory bucket không chia sẻ giữa nhiều instance. Production dùng Redis (INCR + EXPIRE) để rate limit phân tán.
 
 ### BT4 — Bulk shorten
 
@@ -893,7 +893,7 @@ func (h *Handler) shortenBulk(w http.ResponseWriter, r *http.Request) {
 }
 \`\`\`
 
-**Độ phức tạp:** O(n) với n = số URL. **Nên có giới hạn** \`len(in.URLs) <= 100\` (trả 400 nếu vượt) để tránh request quá lớn. Có thể song song hóa bằng goroutine + \`errgroup\` nếu cần (nhưng repo in-memory đã rất nhanh nên tuần tự là đủ).
+**Độ phức tạp:** $O(n)$ với n = số URL. **Nên có giới hạn** \`len(in.URLs) <= 100\` (trả 400 nếu vượt) để tránh request quá lớn. Có thể song song hóa bằng goroutine + \`errgroup\` nếu cần (nhưng repo in-memory đã rất nhanh nên tuần tự là đủ).
 
 ### BT5 — Unique visitors
 
@@ -905,7 +905,7 @@ func (h *Handler) shortenBulk(w http.ResponseWriter, r *http.Request) {
 
 \`Worker.UniqueVisitors(code)\` đã trả \`len(a.uniqueIPs)\`. Test \`TestWorker_Aggregate\` xác minh: 3 click từ 2 IP → unique = 2.
 
-**Độ phức tạp:** O(1) khi đọc (\`len(map)\`), O(1) khi ghi (set vào map). **Lưu ý production:** set IP trong memory tốn RAM nếu nhiều IP. Production dùng **HyperLogLog** (Redis \`PFADD\`/\`PFCOUNT\`) — ước lượng unique count với sai số ~2% nhưng tốn cố định ~12KB/code thay vì O(số IP). Đây là trade-off chính xác đổi lấy bộ nhớ.
+**Độ phức tạp:** $O(1)$ khi đọc (\`len(map)\`), $O(1)$ khi ghi (set vào map). **Lưu ý production:** set IP trong memory tốn RAM nếu nhiều IP. Production dùng **HyperLogLog** (Redis \`PFADD\`/\`PFCOUNT\`) — ước lượng unique count với sai số ~2% nhưng tốn cố định ~12KB/code thay vì O(số IP). Đây là trade-off chính xác đổi lấy bộ nhớ.
 
 ---
 

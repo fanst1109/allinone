@@ -577,7 +577,7 @@ DROP INDEX idx_posts_user_id;
 DROP TABLE posts;
 \`\`\`
 
-**Lý do thứ tự down:** \`posts\` tham chiếu \`users\` (FK). Nếu drop \`users\` trước trong khi \`posts\` còn → lỗi constraint. Nên drop \`posts\` (migration 002 down) trước, \`users\` (001 down) sau — và đó đúng là thứ tự \`migrate down\` chạy (ngược version). Độ phức tạp: O(1) DDL, không đụng data lớn → an toàn.
+**Lý do thứ tự down:** \`posts\` tham chiếu \`users\` (FK). Nếu drop \`users\` trước trong khi \`posts\` còn → lỗi constraint. Nên drop \`posts\` (migration 002 down) trước, \`users\` (001 down) sau — và đó đúng là thứ tự \`migrate down\` chạy (ngược version). Độ phức tạp: $O(1)$ DDL, không đụng data lớn → an toàn.
 
 ### Lời giải BT2 — thêm cột NOT NULL an toàn (3 bước)
 
@@ -604,7 +604,7 @@ ALTER TABLE orders ALTER COLUMN currency SET NOT NULL;
 \`\`\`
 (Postgres ≥ 12: có thể thêm \`ALTER TABLE orders ADD CONSTRAINT chk CHECK (currency IS NOT NULL) NOT VALID;\` rồi \`VALIDATE CONSTRAINT chk;\` để tránh full-table lock; hoặc \`SET NOT NULL\` trực tiếp nếu bảng nhỏ.)
 
-**Down** cho bước 3: \`ALTER TABLE orders ALTER COLUMN currency DROP NOT NULL;\`. Độ phức tạp: bước 2 là O(n) nhưng batch nên lock ngắn; bước 1,3 là O(1) DDL (3 nhanh nếu đã backfill xong, vì PG chỉ cần verify không còn NULL).
+**Down** cho bước 3: \`ALTER TABLE orders ALTER COLUMN currency DROP NOT NULL;\`. Độ phức tạp: bước 2 là $O(n)$ nhưng batch nên lock ngắn; bước 1,3 là $O(1)$ DDL (3 nhanh nếu đã backfill xong, vì PG chỉ cần verify không còn NULL).
 
 ### Lời giải BT3 — rename column zero-downtime
 
@@ -671,7 +671,7 @@ for start := 0; start <= maxID; start += batch {
 }
 \`\`\`
 
-**Vì sao đúng:** mỗi lô là transaction ngắn (5000 row) → lock cực ngắn, autovacuum kịp dọn, replica không lag. \`full_name IS NULL\` làm backfill **idempotent** (chạy lại không ghi đè row đã xong). Độ phức tạp tổng O(n) nhưng chia nhỏ → không đỉnh lock. Batch theo dải \`id\` dùng index PK → mỗi UPDATE rẻ; nếu \`id\` có lỗ hổng (gap), một số lô rỗng — vô hại.
+**Vì sao đúng:** mỗi lô là transaction ngắn (5000 row) → lock cực ngắn, autovacuum kịp dọn, replica không lag. \`full_name IS NULL\` làm backfill **idempotent** (chạy lại không ghi đè row đã xong). Độ phức tạp tổng $O(n)$ nhưng chia nhỏ → không đỉnh lock. Batch theo dải \`id\` dùng index PK → mỗi UPDATE rẻ; nếu \`id\` có lỗ hổng (gap), một số lô rỗng — vô hại.
 
 ### Lời giải BT6 — diagnose: drop column làm prod crash
 

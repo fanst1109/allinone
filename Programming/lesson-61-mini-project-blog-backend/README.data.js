@@ -351,8 +351,8 @@ service.Create:
 \`\`\`
 
 > **Vì sao index NGAY lúc tạo, không index lúc search?** Vì search phải nhanh.
-> Nếu mỗi lần search mới quét toàn bộ bài để khớp từ → O(N × độ dài bài) mỗi
-> query. Index sẵn lúc ghi → search chỉ tra map → O(số bài chứa term). Đây là
+> Nếu mỗi lần search mới quét toàn bộ bài để khớp từ → $O(N \\times \\text{độ dài bài})$ mỗi
+> query. Index sẵn lúc ghi → search chỉ tra map → $O(\\text{số bài chứa term})$. Đây là
 > đánh đổi kinh điển: trả giá lúc **ghi** (ít) để **đọc** rẻ (nhiều).
 
 ### 6.2 Get post → cache-aside (cache → miss → storage → populate)
@@ -607,7 +607,7 @@ query. ES tự lo tokenize/analyzer/ranking (BM25 — bản nâng cấp của TF
 |---------|---------|----------------------------------|
 | Quên invalidate cache sau ghi | Stale read tới khi TTL hết | Mọi đường ghi gọi \`cache.Delete\` |
 | Trả con trỏ vào store nội bộ | Caller sửa lén dữ liệu "thật" | \`clonePost\` trả bản sao sâu |
-| Index lúc search thay vì lúc ghi | Search chậm O(N×len) mỗi query | \`Create/Update\` index sẵn |
+| Index lúc search thay vì lúc ghi | Search chậm $O(N \\times \\text{len})$ mỗi query | \`Create/Update\` index sẵn |
 | Multi-table write không tx | Comment có nhưng count sai | \`AddComment\` chạy trong \`WithTx\` |
 | Migration chạy lại gây hỏng | Cộng đôi / lỗi DDL | \`Up()\` idempotent theo version |
 | Import cycle entity ↔ storage | Không biên dịch được | Entity ở package lá \`model\` |
@@ -692,7 +692,7 @@ snapshot → khi commit cả hai cùng vào, khi rollback cả hai cùng biến 
 **Verify.** \`TestAddCommentTransaction\` (count 1→2), \`TestAddCommentRollback\`
 (post 999 không tồn tại → lỗi → state không đổi).
 
-**Độ phức tạp.** Snapshot O(số bản ghi) mỗi giao dịch (vì copy). Postgres thật
+**Độ phức tạp.** Snapshot $O(\\text{số bản ghi})$ mỗi giao dịch (vì copy). Postgres thật
 không copy toàn bộ — nó dùng MVCC + WAL. Đây là điểm "toy" cần biết: bản memory
 trả giá copy để đơn giản, production dùng cơ chế hiệu quả hơn.
 
@@ -753,7 +753,7 @@ for _, p := range plist { scores[p.docID] += float64(p.tf) * idf }
 **Edge case.** Query rỗng → trả \`nil\`. Term không có trong corpus → bỏ qua (không
 đóng góp điểm). Cả hai test ở \`TestSearchEmptyAndMiss\`.
 
-**Độ phức tạp.** Search = O(Σ độ dài posting list của các term trong query) — chỉ
+**Độ phức tạp.** Search = $O(\\Sigma \\text{ độ dài posting list của các term trong query})$ — chỉ
 chạm các doc thực sự chứa term, không quét toàn corpus. Đó là sức mạnh của
 inverted index.
 
@@ -782,7 +782,7 @@ func (r *MemoryRepository) TagFacets(ctx) map[string]int {
 **Verify.** \`TestTagFilterAndFacets\`: 3 post (go,db / go / db) → lọc \`go\` ra 2,
 facet \`{go:2, db:2}\`.
 
-**Lưu ý production.** Lọc/facet bằng cách duyệt toàn bảng là O(N) — chấp nhận với
+**Lưu ý production.** Lọc/facet bằng cách duyệt toàn bảng là $O(N)$ — chấp nhận với
 blog nhỏ. Postgres thật dùng GIN index trên cột mảng \`tags\` để lọc nhanh; facet
 quy mô lớn thường tính sẵn (materialized) hoặc để Elasticsearch aggregation lo.
 

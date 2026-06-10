@@ -6,7 +6,7 @@
 
 Sau bài này bạn sẽ:
 
-- Biết Map là gì, vì sao nó là cấu trúc lookup **O(1) amortized** quan trọng nhất trong mọi backend.
+- Biết Map là gì, vì sao nó là cấu trúc lookup **$O(1)$ amortized** quan trọng nhất trong mọi backend.
 - Khai báo và khởi tạo map đúng cách (literal, `make`, hint capacity); hiểu vì sao **nil map ghi sẽ panic** nhưng đọc thì OK.
 - Thành thạo các operation: set, get, **comma-ok**, `delete`, `len`.
 - Hiểu **vì sao iteration thứ tự random** (Go cố tình) và cách extract sorted keys khi cần thứ tự ổn định.
@@ -17,12 +17,12 @@ Sau bài này bạn sẽ:
 
 Hầu hết bài toán "tìm nhanh", "đếm", "nhóm", "dedupe" trong code Go thật đều quy về map. Vài ví dụ rút ra từ backend thực tế ở Hasaki:
 
-- **Cache user session** theo `sessionID` → user info. Lookup mọi request, phải O(1).
+- **Cache user session** theo `sessionID` → user info. Lookup mọi request, phải $O(1)$.
 - **Group transaction by date**: `map[string][]Transaction` — gom giao dịch theo ngày để báo cáo.
 - **Dedupe email list** trước khi gửi marketing: bỏ tất cả email đã unsubscribe → `map[string]struct{}` chứa email đã unsub, check `_, ok := unsub[mail]` cực nhanh.
 - **Đếm tần suất** sản phẩm xuất hiện trong giỏ hàng: `map[productID]int`.
 
-Không có map, bạn sẽ phải duyệt slice mỗi lần → O(n) cho từng lookup. Với 1 triệu user session, 1 request = 500ms duyệt slice. Với map = 1µs. Khoảng cách 500.000×.
+Không có map, bạn sẽ phải duyệt slice mỗi lần → $O(n)$ cho từng lookup. Với 1 triệu user session, 1 request = 500ms duyệt slice. Với map = 1µs. Khoảng cách 500.000×.
 
 ---
 
@@ -34,11 +34,11 @@ Không có map, bạn sẽ phải duyệt slice mỗi lần → O(n) cho từng 
 
 **Định nghĩa hình thức:** Map (hash table) trong Go là cấu trúc dữ liệu lưu trữ cặp `(key, value)` với:
 
-- **Lookup** trung bình **O(1) amortized** — không phụ thuộc số phần tử.
-- **Insert / delete** trung bình **O(1) amortized**.
+- **Lookup** trung bình **$O(1)$ amortized** — không phụ thuộc số phần tử.
+- **Insert / delete** trung bình **$O(1)$ amortized**.
 - **Iteration thứ tự không xác định** (random hoá có chủ ý).
 
-> **❓ "Amortized" là gì?** Nghĩa là *trung bình theo thời gian dài*. Đôi khi 1 thao tác đơn lẻ chậm (vì map cần "resize" — cấp phát lại lớn hơn, copy hết phần tử qua bucket mới — tốn O(n)). Nhưng tính trên **n** thao tác liên tiếp thì tổng chi phí ~O(n), nên trung bình mỗi cái vẫn O(1). Đây là cùng kỹ thuật mà `append` cho slice dùng (đã học L12).
+> **❓ "Amortized" là gì?** Nghĩa là *trung bình theo thời gian dài*. Đôi khi 1 thao tác đơn lẻ chậm (vì map cần "resize" — cấp phát lại lớn hơn, copy hết phần tử qua bucket mới — tốn $O(n)$). Nhưng tính trên **n** thao tác liên tiếp thì tổng chi phí ~$O(n)$, nên trung bình mỗi cái vẫn $O(1)$. Đây là cùng kỹ thuật mà `append` cho slice dùng (đã học L12).
 
 **Cú pháp khai báo:**
 
@@ -434,7 +434,7 @@ Go runtime tự detect (đối với write/write) và **panic luôn**, không ph
 
 ## 11. Performance — một vài fact
 
-- **Load factor:** Go map resize (gấp đôi số bucket, rehash hết) khi số phần tử / số bucket > 6.5. Resize tốn O(n) — đó là chi phí "amortized" đã nói.
+- **Load factor:** Go map resize (gấp đôi số bucket, rehash hết) khi số phần tử / số bucket > 6.5. Resize tốn $O(n)$ — đó là chi phí "amortized" đã nói.
 - **Pre-allocate hint:** `make(map[K]V, n)` cho Go biết "tôi sẽ chèn ~n phần tử" để cấp đủ bucket từ đầu, tránh resize giữa chừng. Test thực tế của Go team cho thấy hint đúng tiết kiệm 20–40% thời gian insert với map lớn.
 - **Hash function nhanh:** với key string, Go runtime dùng **AESHASH** trên CPU có AES-NI (mọi x86 hiện đại) — hash 1 string dài 16 byte chỉ vài chục cycle. Đây là lý do `map[string]X` rất nhanh trong thực tế.
 - **Memory overhead:** mỗi bucket Go giữ ~8 entry + metadata. Map nhỏ có overhead tương đối lớn — với < 8 entry, slice + linear search còn nhanh hơn vì cache-friendly.
@@ -485,7 +485,7 @@ Tất cả đều idiomatic, đọc Go thật bạn sẽ gặp hàng ngày.
 
 > **📝 Tóm tắt nhanh trước khi vào bài tập:**
 >
-> - Map = hash table built-in, lookup O(1) amortized.
+> - Map = hash table built-in, lookup $O(1)$ amortized.
 > - 3 cách khởi tạo: literal, `make`, `make(..., hint)`. **Nil map đọc OK, ghi PANIC.**
 > - Operations: set `m[k]=v`, get `v=m[k]`, comma-ok `v,ok=m[k]`, `delete(m,k)`, `len(m)`.
 > - Iteration thứ tự **random cố ý**. Cần thứ tự → extract keys + sort.
@@ -577,7 +577,7 @@ func wordCount(words []string) map[string]int {
 
 **Cách tiếp cận:** counter pattern — `m[k]++` an toàn vì zero value của int là 0. Pre-allocate hint = `len(words)` (worst case mỗi word unique).
 
-**Độ phức tạp:** O(n) thời gian, O(k) bộ nhớ với k = số word distinct.
+**Độ phức tạp:** $O(n)$ thời gian, $O(k)$ bộ nhớ với k = số word distinct.
 
 Với input bài: kết quả `{"go": 3, "is": 2, "fun": 1}`.
 
@@ -595,7 +595,7 @@ func groupByDept(users []User) map[string][]User {
 
 **Cách tiếp cận:** `append` trên `groups[key]` an toàn vì nếu key chưa có, value là `nil` slice — và `append(nil, x)` hợp lệ trong Go (trả về slice mới với len=1).
 
-**Độ phức tạp:** O(n) thời gian. Mỗi user duyệt 1 lần.
+**Độ phức tạp:** $O(n)$ thời gian. Mỗi user duyệt 1 lần.
 
 ### Giải BT3 — Số xuất hiện đúng 1 lần
 
@@ -617,7 +617,7 @@ func onlyOnce(nums []int) []int {
 
 **Cách tiếp cận:** Pass 1 đếm, pass 2 lọc các phần tử có count == 1.
 
-**Độ phức tạp:** O(n) thời gian, O(n) bộ nhớ.
+**Độ phức tạp:** $O(n)$ thời gian, $O(n)$ bộ nhớ.
 
 Với input `{1,2,3,2,1,4,3}` → counts `{1:2, 2:2, 3:2, 4:1}` → kết quả `[4]`.
 
@@ -701,12 +701,12 @@ func (c *SimpleCache) Set(key, value string) {
 
 LRU (Least Recently Used) cần evict **key cũ nhất theo thời gian truy cập**. Map không lưu thứ tự. Để biết key nào cũ nhất:
 
-- **Option A**: lưu thêm timestamp `map[string]struct{value string; lastUsed time.Time}` — Set/Get O(1), nhưng **eviction** phải duyệt toàn map tìm `min(lastUsed)` → O(n). Không production-ready.
-- **Option B (đúng)**: map + **doubly linked list**. List giữ thứ tự truy cập, map trỏ tới node trong list. Mỗi Get đưa node lên đầu list (O(1) nhờ doubly linked). Evict là remove tail (O(1)). Đây là cách `groupcache`, Redis LRU, Java `LinkedHashMap` đều dùng.
+- **Option A**: lưu thêm timestamp `map[string]struct{value string; lastUsed time.Time}` — Set/Get $O(1)$, nhưng **eviction** phải duyệt toàn map tìm `min(lastUsed)` → $O(n)$. Không production-ready.
+- **Option B (đúng)**: map + **doubly linked list**. List giữ thứ tự truy cập, map trỏ tới node trong list. Mỗi Get đưa node lên đầu list ($O(1)$ nhờ doubly linked). Evict là remove tail ($O(1)$). Đây là cách `groupcache`, Redis LRU, Java `LinkedHashMap` đều dùng.
 
 Sẽ học chi tiết khi vào **Tier 5 — Database & Caching**.
 
-**Độ phức tạp** của bản đơn giản: Get O(1), Set O(1) trung bình (eviction trong vòng `for break` thực tế ~O(1) vì chỉ lấy phần tử đầu của iteration).
+**Độ phức tạp** của bản đơn giản: Get $O(1)$, Set $O(1)$ trung bình (eviction trong vòng `for break` thực tế ~$O(1)$ vì chỉ lấy phần tử đầu của iteration).
 
 ---
 

@@ -674,7 +674,7 @@ func replay(events []Event) int {
 - +70 → 120
 - −20 → **100** ✓
 
-**Độ phức tạp:** O(n) theo số event, mỗi event O(1). Đây chính là lý do cần snapshot khi n lớn.
+**Độ phức tạp:** $O(n)$ theo số event, mỗi event $O(1)$. Đây chính là lý do cần snapshot khi n lớn.
 
 ### Lời giải BT2 — Snapshot mỗi 100 event
 

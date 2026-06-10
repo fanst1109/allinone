@@ -160,7 +160,7 @@ Repository: `github.com/gin-gonic/gin`.
 
 ### 4.1 Đặc điểm
 
-- **Router radix tree** — lookup O(số ký tự), thực tế ~4μs/route.
+- **Router radix tree** — lookup $O(\text{số ký tự})$, thực tế ~4μs/route.
 - **`gin.Context`** thay thế `(w, r)` — gọn nhưng lock-in.
 - **JSON binding built-in**: `c.ShouldBindJSON(&req)` tự parse + validate (qua tag `validate:"..."`).
 - **Ecosystem rộng**: middleware JWT, Sentry, Prometheus, Swagger... gần như có sẵn.
@@ -830,7 +830,7 @@ func rateLimitMW(rps float64) func(http.Handler) http.Handler {
 }
 ```
 
-Độ phức tạp: O(1) mỗi request. Cảnh báo: map `buckets` grow unbounded → cần TTL hoặc LRU. Production dùng `golang.org/x/time/rate`.
+Độ phức tạp: $O(1)$ mỗi request. Cảnh báo: map `buckets` grow unbounded → cần TTL hoặc LRU. Production dùng `golang.org/x/time/rate`.
 
 ### Giải BT4 — Sub-router v1/v2
 

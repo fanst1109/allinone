@@ -921,7 +921,7 @@ if mock.SendCount != 1 { t.Fail() }
 if mock.LastCall.To != "a@b.com" { t.Fail() }
 ```
 
-Độ phức tạp: O(1) mỗi gọi.
+Độ phức tạp: $O(1)$ mỗi gọi.
 
 ### BT2. Test NotifyService
 
@@ -960,7 +960,7 @@ func TestNotifyUser_StoreError(t *testing.T) {
 }
 ```
 
-Độ phức tạp: O(1) cho mỗi test case.
+Độ phức tạp: $O(1)$ cho mỗi test case.
 
 ### BT3. InMemoryUserStore + UserService
 
@@ -1016,7 +1016,7 @@ func TestUserService_Workflow(t *testing.T) {
 
 Ưu điểm fake: workflow nhiều bước, không cần `.On(...)` cho từng method.
 
-Độ phức tạp: O(1) cho mỗi op (map lookup).
+Độ phức tạp: $O(1)$ cho mỗi op (map lookup).
 
 ### BT4. Mock time
 

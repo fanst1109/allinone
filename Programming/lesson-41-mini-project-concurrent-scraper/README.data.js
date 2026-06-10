@@ -844,8 +844,8 @@ wg.Wait()
 \`\`\`
 
 **Độ phức tạp**:
-- Visited check: \`sync.Map.LoadOrStore\` ~O(1).
-- Memory: O(số URL unique).
+- Visited check: \`sync.Map.LoadOrStore\` ~$O(1)$.
+- Memory: $O(\\text{số URL unique})$.
 - Đảm bảo terminate: mỗi job tăng inflight, mỗi worker giảm khi xong + có thể tăng nếu enqueue. Khi \`inflight == 0\`, không còn worker nào có thể tăng (vì worker đang trong vòng \`range\` đợi).
 
 > ⚠ **Lỗi tinh tế — race điều kiện close(jobs)**: nếu close trước khi mọi \`enqueue\` hoàn tất, send vào channel closed → panic. Pattern an toàn: gom enqueue trong worker (chỉ worker enqueue, không phải main), main chỉ đếm inflight.
@@ -905,7 +905,7 @@ func (rc *RobotsCache) fetch(ctx context.Context, url string) *RobotsRules {
 }
 \`\`\`
 
-**Độ phức tạp**: O(R) parse per host (R = số rule, thường < 100). Cache giúp avoid re-fetch trong cùng run.
+**Độ phức tạp**: $O(R)$ parse per host (R = số rule, thường < 100). Cache giúp avoid re-fetch trong cùng run.
 
 ### Lời giải BT3 — per-host rate limit
 
@@ -979,9 +979,9 @@ func (m *Metrics) Print(total time.Duration) {
 \`\`\`
 
 **Độ phức tạp**:
-- Record: O(1) amortized (append).
-- Percentile: O(N log N) do sort. Acceptable cho N < 100k. Lớn hơn dùng hdrhistogram (O(1)).
-- Memory: O(N) — mỗi sample 8 byte (\`time.Duration\` = int64).
+- Record: $O(1)$ amortized (append).
+- Percentile: $O(N \\log N)$ do sort. Acceptable cho N < 100k. Lớn hơn dùng hdrhistogram ($O(1)$).
+- Memory: $O(N)$ — mỗi sample 8 byte (\`time.Duration\` = int64).
 
 ### Lời giải BT5 — integration test
 

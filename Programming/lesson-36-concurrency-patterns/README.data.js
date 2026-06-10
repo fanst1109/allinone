@@ -953,7 +953,7 @@ func RunPool[J any, R any](
 4. **Closer goroutine**: chờ mọi worker \`wg.Done()\` rồi đóng resultCh. Consumer \`for range resultCh\` tự thoát.
 5. **Consumer**: collect mọi result. Khi ctx cancel, partial results vẫn có trong out.
 
-**Độ phức tạp**: O(jobs / n) wall-clock với work cost không đổi.
+**Độ phức tạp**: $O(jobs / n)$ wall-clock với work cost không đổi.
 
 ### Lời giải BT2 — Pipeline
 

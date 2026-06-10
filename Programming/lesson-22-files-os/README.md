@@ -980,7 +980,7 @@ func countHosts(path string) (int, error) {
 }
 ```
 
-**Độ phức tạp**: O(N) với N = số byte file. Memory: O(1) (Scanner buffer cố định).
+**Độ phức tạp**: $O(N)$ với N = số byte file. Memory: $O(1)$ (Scanner buffer cố định).
 
 **Edge case**:
 - Dòng chỉ có IP, không có hostname → `len(fields) == 1` → không count.
@@ -1012,7 +1012,7 @@ func sumGoSize(root string) (int64, error) {
 
 **Bí kíp**: trả `filepath.SkipDir` khi gặp `vendor` / `.git` → tiết kiệm hàng nghìn syscall trên project lớn.
 
-**Độ phức tạp**: O(N) với N = tổng entry trong cây thư mục. Cho dự án 10k file Go, chạy < 1s.
+**Độ phức tạp**: $O(N)$ với N = tổng entry trong cây thư mục. Cho dự án 10k file Go, chạy < 1s.
 
 ### Lời giải BT3 — Atomic write JSON
 
@@ -1090,7 +1090,7 @@ func tail(path string, n int) ([]string, error) {
 }
 ```
 
-**Độ phức tạp**: O(K) với K = tổng byte 10 dòng cuối (chứ không phải N = size file). File 50 GB, 10 dòng cuối 200 KB → đọc tối đa 200 KB.
+**Độ phức tạp**: $O(K)$ với K = tổng byte 10 dòng cuối (chứ không phải N = size file). File 50 GB, 10 dòng cuối 200 KB → đọc tối đa 200 KB.
 
 **Edge case**:
 - File có < 10 dòng → trả tất cả.

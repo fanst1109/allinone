@@ -1082,7 +1082,7 @@ func main() {
 }
 ```
 
-**Độ phức tạp**: regex compile 1 lần (O(regex_len)), match O(input_len). Trên input ngắn (~ 15 ký tự) là ~ µs-level.
+**Độ phức tạp**: regex compile 1 lần ($O(\text{regex\_len})$), match $O(\text{input\_len})$. Trên input ngắn (~ 15 ký tự) là ~ µs-level.
 
 ### Lời giải BT3
 

@@ -838,7 +838,7 @@ for _, seg := range strings.Split(s, ";") {
 Lưu input crash vào `testdata/fuzz/FuzzParse/<hash>`. Lần test sau chạy
 case này tự động.
 
-**Độ phức tạp**: O(n) trên độ dài string. Fuzz time scale với compute budget.
+**Độ phức tạp**: $O(n)$ trên độ dài string. Fuzz time scale với compute budget.
 
 ### Lời giải BT2 — Sort idempotent
 
@@ -876,7 +876,7 @@ if sumIn != sumOut { t.Errorf("mất phần tử") }
 ```
 (Tổng là invariant yếu — tốt hơn dùng map count.)
 
-**Độ phức tạp**: 100 iter × O(n log n), n ≤ 50 → ~rất nhanh.
+**Độ phức tạp**: 100 iter × $O(n \log n)$, n ≤ 50 → ~rất nhanh.
 
 ### Lời giải BT3 — Race detector
 

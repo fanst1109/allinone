@@ -102,7 +102,7 @@ Khác biệt cốt lõi:
 | Backreference \`\\1\`, \`\\2\` | Có | **Không** |
 | Lookahead \`(?=...)\`, \`(?!...)\` | Có | **Không** |
 | Lookbehind \`(?<=...)\`, \`(?<!...)\` | Có | **Không** |
-| Worst-case time | Có thể **exponential** | **Luôn linear** O(m·n) |
+| Worst-case time | Có thể **exponential** | **Luôn linear** $O(m \\cdot n)$ |
 | Worst-case memory | Lớn | Bị giới hạn |
 
 > 💡 **Trực giác**: PCRE mạnh hơn (làm được nhiều hơn) nhưng có thể **rất chậm** với một số pattern + input độc. RE2 yếu hơn (bỏ vài tính năng) nhưng **bảo đảm linear time** — không bao giờ "treo" service vì regex.
@@ -934,7 +934,7 @@ Test:
 | \`0901234\` | ❌ | chỉ 6 số sau \`0\` |
 | \`0901234567 \` | ❌ | có space cuối, anchor \`$\` chặn |
 
-Độ phức tạp: O(n) — RE2 chạy linear với độ dài chuỗi.
+Độ phức tạp: $O(n)$ — RE2 chạy linear với độ dài chuỗi.
 
 ### Lời giải Bài 2
 
@@ -1001,7 +1001,7 @@ result := tmplRe.ReplaceAllStringFunc(tmpl, func(m string) string {
 })
 \`\`\`
 
-Độ phức tạp: O(n + k) với n = len(tmpl), k = số match.
+Độ phức tạp: $O(n + k)$ với n = len(tmpl), k = số match.
 
 ### Lời giải Bài 4
 

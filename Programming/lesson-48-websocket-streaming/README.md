@@ -956,7 +956,7 @@ func wsEchoHandler(w http.ResponseWriter, r *http.Request) {
 3. `Write` với opcode `MessageText` (UTF-8). Nếu gửi `MessageBinary` thì client browser nhận `Blob`.
 4. Sau 5 message → `Close` với status code `1000` (Normal Closure) + reason.
 
-**Độ phức tạp:** O(N) message, mỗi message O(K) cho K = kích thước payload.
+**Độ phức tạp:** $O(N)$ message, mỗi message $O(K)$ cho K = kích thước payload.
 
 ### Lời giải Bài 3 — Chat broadcast (hub-and-spoke)
 
@@ -979,7 +979,7 @@ case b := <-h.broadcast:
     }
 ```
 
-**Độ phức tạp broadcast:** O(N) với N = số client. Trên 10k client + message 200 byte ≈ 2ms.
+**Độ phức tạp broadcast:** $O(N)$ với N = số client. Trên 10k client + message 200 byte ≈ 2ms.
 
 ### Lời giải Bài 4 — Long polling
 

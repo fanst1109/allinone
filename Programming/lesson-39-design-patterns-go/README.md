@@ -957,7 +957,7 @@ func TestChain(t *testing.T) {
     // case panic: base2 := http.HandlerFunc(func(...){ panic("boom") }) → 500
 }
 ```
-Độ phức tạp: O(số middleware) per request.
+Độ phức tạp: $O(\text{số middleware})$ per request.
 
 ### BT3 — Pub-Sub
 
@@ -992,7 +992,7 @@ Code đầy đủ trong [solutions.go](./solutions.go) (section 5). Demo output 
 [gzip] in=2400 bytes  out=55 bytes   (2.3%)   ← BestCompression
 [none] in=2400 bytes  out=2400 bytes (100%)
 ```
-Độ phức tạp gzip: O(n) trên input bytes.
+Độ phức tạp gzip: $O(n)$ trên input bytes.
 
 ### BT6 — Refactor over-abstraction
 

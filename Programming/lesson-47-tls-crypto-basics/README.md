@@ -941,7 +941,7 @@ func makeSelfSignedCert() (tls.Certificate, error) {
 
 Chạy: `curl -k https://localhost:8443/` (`-k` để bỏ qua cert verify vì self-signed).
 
-**Độ phức tạp**: O(1), một lần sinh khi start. ECDSA P-256 gen ~1ms.
+**Độ phức tạp**: $O(1)$, một lần sinh khi start. ECDSA P-256 gen ~1ms.
 
 ### Lời giải 2 — HMAC sign/verify
 
@@ -965,7 +965,7 @@ func Verify(msg, key []byte, tag string) bool {
 thời gian compare phán đoán dần từng byte tag đúng. `hmac.Equal` luôn so toàn bộ, thời gian không
 phụ thuộc nội dung.
 
-**Độ phức tạp**: O(n) với n = `len(msg)` cho hash; compare O(32).
+**Độ phức tạp**: $O(n)$ với n = `len(msg)` cho hash; compare $O(32)$.
 
 ### Lời giải 3 — AES-GCM encrypt/decrypt
 
@@ -998,7 +998,7 @@ func Decrypt(token string, key []byte) ([]byte, error) {
 **Test**: encrypt 100 lần plaintext `"hello"` → 100 token khác nhau (do random nonce 12 byte). Decrypt
 tất cả → đều ra `"hello"`. Sửa 1 byte token → `gcm.Open` trả error (auth tag fail).
 
-**Độ phức tạp**: O(n) cả encrypt và decrypt với n = `len(plaintext)`.
+**Độ phức tạp**: $O(n)$ cả encrypt và decrypt với n = `len(plaintext)`.
 
 ### Lời giải 4 — Random token
 

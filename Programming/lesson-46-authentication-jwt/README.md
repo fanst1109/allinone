@@ -950,7 +950,7 @@ func verifyJWT(token string, secret []byte) (map[string]any, error) {
 
 `hmac.Equal` đã constant-time. Trả `claims` cho caller.
 
-Độ phức tạp: O(len(token)) cho HMAC + parse JSON. Vài µs với token ngắn.
+Độ phức tạp: $O(\text{len(token)})$ cho HMAC + parse JSON. Vài µs với token ngắn.
 
 ### Giải BT3 — Auth middleware + context helper
 

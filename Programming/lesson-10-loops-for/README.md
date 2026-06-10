@@ -788,7 +788,7 @@ Viết hàm `twoSum(nums []int, target int) (int, int, bool)` trả về `(i, j,
 - `twoSum([]int{3, 2, 4}, 6)` → `(1, 2, true)` (vì 2+4=6).
 - `twoSum([]int{1, 2, 3}, 100)` → `(-1, -1, false)`.
 
-Yêu cầu: **dùng 2 loop lồng (O(n²))** — phiên bản O(n) bằng map sẽ học ở L13.
+Yêu cầu: **dùng 2 loop lồng ($O(n^2)$)** — phiên bản $O(n)$ bằng map sẽ học ở L13.
 
 ### BT5 — Detect và sửa bug closure
 
@@ -847,7 +847,7 @@ func sumDivBy3() int {
 
 **Kiểm chứng bằng số**: số chia hết 3 trong 1..100 là `3, 6, ..., 99` — có 33 số, tổng = `3·(1+2+...+33) = 3·33·34/2 = 3·561 = 1683`. ✓
 
-**Độ phức tạp**: O(n) với n = 100 — không tối ưu được nhanh hơn ở mức readable.
+**Độ phức tạp**: $O(n)$ với n = 100 — không tối ưu được nhanh hơn ở mức readable.
 
 ### Lời giải BT2
 
@@ -869,7 +869,7 @@ func maxInt(nums []int) int {
 - Vòng 1: `x = -4`, `-4 > -1`? Không → giữ nguyên.
 - Trả `-1`. ✓
 
-**Độ phức tạp**: O(n) — phải duyệt mọi phần tử để chắc chắn không sót max.
+**Độ phức tạp**: $O(n)$ — phải duyệt mọi phần tử để chắc chắn không sót max.
 
 ### Lời giải BT3
 
@@ -893,7 +893,7 @@ func charFreq(s string) map[rune]int {
 
 **Tại sao range string thay vì `s[i]`?** Vì cần đúng `rune` cho ký tự Unicode. Với `"héllo"`, `s[1]` là byte `0xC3`, không phải `'é'` — bug ngay.
 
-**Độ phức tạp**: O(n) với n = số rune.
+**Độ phức tạp**: $O(n)$ với n = số rune.
 
 ### Lời giải BT4
 
@@ -919,7 +919,7 @@ func twoSum(nums []int, target int) (int, int, bool) {
   - j=1 (nums[j]=7): 2+7=9 ✓ → trả `(0, 1, true)`.
 - Dừng.
 
-**Độ phức tạp**: O(n²) — case xấu nhất duyệt mọi cặp. Phiên bản O(n) dùng map sẽ học ở L13.
+**Độ phức tạp**: $O(n^2)$ — case xấu nhất duyệt mọi cặp. Phiên bản $O(n)$ dùng map sẽ học ở L13.
 
 ### Lời giải BT5
 
@@ -973,4 +973,4 @@ for _, v := range []int{10, 20, 30} {
 
 - **L11 — Hàm**: định nghĩa hàm, multiple return, named return, variadic, closure (sẽ gặp lại pitfall closure-trong-loop ở dạng tổng quát).
 - **L12 — Slice & Map sâu**: capacity, grow strategy, range pitfall khi modify, map internals.
-- **L13 — Strings & Bytes**: byte vs rune chi tiết, `[]rune(s)`, `unicode/utf8` package, walk-through two-sum O(n) bằng map.
+- **L13 — Strings & Bytes**: byte vs rune chi tiết, `[]rune(s)`, `unicode/utf8` package, walk-through two-sum $O(n)$ bằng map.

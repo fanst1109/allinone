@@ -800,7 +800,7 @@ func f6(n int) {
 
 ### BT2 — Refactor string concat O(n²) → O(n)
 
-Hàm dưới chạy O(n²) do string immutable. Refactor về \`strings.Builder\` và benchmark cả 2.
+Hàm dưới chạy $O(n^2)$ do string immutable. Refactor về \`strings.Builder\` và benchmark cả 2.
 
 \`\`\`go
 func badConcat(words []string) string {

@@ -922,7 +922,7 @@ io.ReadAll(cr)
 fmt.Println(cr.N)  // 10
 ```
 
-**Độ phức tạp**: O(1) overhead mỗi Read. Không alloc.
+**Độ phức tạp**: $O(1)$ overhead mỗi Read. Không alloc.
 
 ### Lời giải BT2 — Line scanner
 
@@ -952,7 +952,7 @@ func longestLine(r io.Reader) (count int, maxLen int, longest string) {
 
 **⚠ Pitfall**: dòng >64 KB → cần `sc.Buffer(make([]byte, 1MB), 10MB)`.
 
-**Độ phức tạp**: O(N) byte, RAM = O(L) với L là dòng dài nhất (chỉ giữ 1 dòng + buffer).
+**Độ phức tạp**: $O(N)$ byte, RAM = $O(L)$ với L là dòng dài nhất (chỉ giữ 1 dòng + buffer).
 
 ### Lời giải BT3 — Download stream
 
@@ -973,7 +973,7 @@ func Download(url, path string) (int64, error) {
 
 **Vì sao đúng**: `io.Copy` dùng buffer 32 KB nội bộ. File 10 GB chỉ cần ~32 KB RAM.
 
-**Độ phức tạp**: O(N) thời gian (giới hạn bởi network), O(32 KB) RAM.
+**Độ phức tạp**: $O(N)$ thời gian (giới hạn bởi network), O(32 KB) RAM.
 
 ### Lời giải BT4 — Tee + hash
 
@@ -1006,7 +1006,7 @@ data, _ := os.ReadFile(path)  // ĐỌC LẠI từ disk
 hash := sha256.Sum256(data)   // hash
 ```
 
-**Độ phức tạp**: O(N) thời gian, O(32 KB) RAM.
+**Độ phức tạp**: $O(N)$ thời gian, O(32 KB) RAM.
 
 ### Lời giải BT5 — Pipe producer/consumer
 
@@ -1041,7 +1041,7 @@ func sumDivisibleByThree() int {
 
 **Vì sao cần defer `pw.Close()`**: không có nó, scan trên consumer block mãi vì `pr.Read` không bao giờ trả EOF.
 
-**Độ phức tạp**: O(N) thời gian. Bộ nhớ O(1) — pipe synchronous, không buffer.
+**Độ phức tạp**: $O(N)$ thời gian. Bộ nhớ $O(1)$ — pipe synchronous, không buffer.
 
 ### Lời giải BT6 — Rate limiter
 
@@ -1075,7 +1075,7 @@ func (r *RateLimitedReader) Read(p []byte) (int, error) {
 
 **Edge case**: Read trả lượng nhỏ → sleep nhỏ → granular. Nếu reader gốc đã chậm, không sleep gì cả.
 
-**Độ phức tạp**: O(1) overhead mỗi Read. Sleep block goroutine current, không tiêu CPU.
+**Độ phức tạp**: $O(1)$ overhead mỗi Read. Sleep block goroutine current, không tiêu CPU.
 
 ---
 

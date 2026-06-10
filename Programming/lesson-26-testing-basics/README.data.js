@@ -972,7 +972,7 @@ func TestReverse(t *testing.T) {
 }
 \`\`\`
 
-**Độ phức tạp**: O(n) thời gian, O(n) không gian (do \`[]rune\`).
+**Độ phức tạp**: $O(n)$ thời gian, $O(n)$ không gian (do \`[]rune\`).
 
 > ⚠ **Lưu ý**: với combining character (vd \`é\` = \`e\` + \`́\`), kết quả vẫn "lệch" về diacritic. Để hoàn hảo cần normalize unicode trước (golang.org/x/text/unicode/norm). Bài tập dừng ở mức \`[]rune\` là đủ.
 
@@ -1066,7 +1066,7 @@ BenchmarkConcatPlus-8         50000     30000 ns/op   500000 B/op   999 allocs/o
 BenchmarkConcatBuilder-8     2000000       600 ns/op     1024 B/op     1 allocs/op
 \`\`\`
 
-Builder nhanh **50x** và alloc ít **999x**. Vì sao? Mỗi \`s += "a"\` tạo string mới (string immutable trong Go) → 1000 alloc, O(n²) byte copy. Builder dùng \`[]byte\` mutable, grow theo nhu cầu (chiến lược 2x), \`b.Grow(n)\` thậm chí pre-alloc → 1 alloc duy nhất.
+Builder nhanh **50x** và alloc ít **999x**. Vì sao? Mỗi \`s += "a"\` tạo string mới (string immutable trong Go) → 1000 alloc, $O(n^2)$ byte copy. Builder dùng \`[]byte\` mutable, grow theo nhu cầu (chiến lược 2x), \`b.Grow(n)\` thậm chí pre-alloc → 1 alloc duy nhất.
 
 **Bài học**: trong hot path, không bao giờ concat string trong loop bằng \`+\`.
 

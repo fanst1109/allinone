@@ -720,7 +720,7 @@ Walk-through với \`1 → 2 → 3 → 4 → nil\`:
 | 4    | 3    | 4    | nil  | 4.Next = 3 → prev=4, curr=nil |
 | stop | 4    | nil  | -    | return 4 |
 
-Kết quả: \`4 → 3 → 2 → 1 → nil\`. Độ phức tạp: O(n) thời gian, O(1) không gian.
+Kết quả: \`4 → 3 → 2 → 1 → nil\`. Độ phức tạp: $O(n)$ thời gian, $O(1)$ không gian.
 
 ### Lời giải Bài tập 5
 

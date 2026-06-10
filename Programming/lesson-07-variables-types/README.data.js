@@ -1184,7 +1184,7 @@ func main() {
 
 **Cách tiếp cận**: \`1 << iota\` sinh dãy 1, 2, 4 — mỗi giá trị chiếm đúng 1 bit. Kiểm tra quyền dùng AND: \`p & want == want\` đúng khi \`p\` có **tất cả** các bit trong \`want\`. Nếu chỉ muốn check "có ít nhất 1": \`p & want != 0\`.
 
-**Độ phức tạp**: O(1) — tất cả bitwise.
+**Độ phức tạp**: $O(1)$ — tất cả bitwise.
 
 ### Lời giải BT5
 

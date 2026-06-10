@@ -1063,7 +1063,7 @@ func main() {
 
 **Verify Heron** với 3-4-5: s = 6, area = √(6·3·2·1) = √36 = 6 ✓.
 
-**Độ phức tạp**: O(1) cho mọi shape.
+**Độ phức tạp**: $O(1)$ cho mọi shape.
 
 ### Giải BT2 — Sort.Interface
 
@@ -1089,7 +1089,7 @@ func main() {
 }
 \`\`\`
 
-**Phân tích**: \`sort.Sort\` dùng introsort (quicksort + heapsort fallback). O(n log n).
+**Phân tích**: \`sort.Sort\` dùng introsort (quicksort + heapsort fallback). $O(n \\log n)$.
 
 **Tại sao convert \`p\` sang \`ByAge(p)\`?** Vì \`[]Person\` không tự có method — phải qua type alias để gắn method.
 
@@ -1129,7 +1129,7 @@ func Walk(v any, indent string) {
 }
 \`\`\`
 
-**Độ phức tạp**: O(N) với N = tổng số node trong cây (mỗi node thăm 1 lần).
+**Độ phức tạp**: $O(N)$ với N = tổng số node trong cây (mỗi node thăm 1 lần).
 
 ### Giải BT5 — Stringer cho Status
 

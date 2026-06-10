@@ -629,7 +629,7 @@ func instrument(next http.Handler) http.Handler {
 }
 ```
 
-**Giải thích từng bước.** `inFlight.Inc()` ngay đầu + `defer Dec()` đảm bảo gauge luôn cân bằng. `statusRecorder` cần thiết vì `http.ResponseWriter` không cho đọc lại status đã ghi — ta chặn `WriteHeader`. `Observe(dur)` đẩy giá trị vào histogram (rơi vào bucket phù hợp). **Độ phức tạp:** O(1) mỗi request (Inc/Observe là thao tác hằng số với atomic). Xem cài đặt mô phỏng đầy đủ trong `solutions.go`.
+**Giải thích từng bước.** `inFlight.Inc()` ngay đầu + `defer Dec()` đảm bảo gauge luôn cân bằng. `statusRecorder` cần thiết vì `http.ResponseWriter` không cho đọc lại status đã ghi — ta chặn `WriteHeader`. `Observe(dur)` đẩy giá trị vào histogram (rơi vào bucket phù hợp). **Độ phức tạp:** $O(1)$ mỗi request (Inc/Observe là thao tác hằng số với atomic). Xem cài đặt mô phỏng đầy đủ trong `solutions.go`.
 
 ### Lời giải BT2 — RED cho `/orders`
 

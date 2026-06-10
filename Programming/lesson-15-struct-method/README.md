@@ -1396,7 +1396,7 @@ Cách tiếp cận:
 2. Quyết định pointer vì có method mutate (`Scale`) → mọi method dùng pointer.
 3. Test: r{3,4} có area=12, perimeter=14. Scale(2) → r{6,8}, area=48.
 
-**Độ phức tạp**: tất cả method O(1).
+**Độ phức tạp**: tất cả method $O(1)$.
 
 ---
 
@@ -1454,7 +1454,7 @@ Cách tiếp cận:
 2. Định nghĩa `Speak()` trên `Dog` → shadow `Speak()` của Animal.
 3. Truy cập method gốc qua tên embedded type: `d.Animal.Speak()`.
 
-**Độ phức tạp**: O(1) cho mọi access.
+**Độ phức tạp**: $O(1)$ cho mọi access.
 
 ---
 
@@ -1499,7 +1499,7 @@ Cách tiếp cận:
 3. Nếu n không nil, traverse tới cuối, gắn node mới vào `cur.Next`.
 
 **Độ phức tạp**:
-- `Append`: O(n) — phải duyệt tới cuối list. Có thể tối ưu O(1) nếu giữ `tail` pointer (làm trong `LinkedList` wrapper struct).
+- `Append`: $O(n)$ — phải duyệt tới cuối list. Có thể tối ưu $O(1)$ nếu giữ `tail` pointer (làm trong `LinkedList` wrapper struct).
 
 ⚠ Bug suýt mắc: trả `newNode` trong case head != nil thì sai — phải trả `n` (head cũ).
 
@@ -1570,11 +1570,11 @@ fmt.Println(s.IsEmpty())   // false
 ```
 
 Cách tiếp cận:
-1. Dùng `[]int` làm storage — append cuối = push, slice cuối = pop, O(1) amortized.
+1. Dùng `[]int` làm storage — append cuối = push, slice cuối = pop, $O(1)$ amortized.
 2. Mọi method pointer receiver (vì Push/Pop mutate). Theo convention "nhất quán", Len/IsEmpty/Peek cũng pointer.
 3. Pop trên rỗng trả `(0, false)` — caller dùng comma-ok pattern.
 
-**Độ phức tạp**: Push/Pop/Peek O(1) amortized, Len/IsEmpty O(1).
+**Độ phức tạp**: Push/Pop/Peek $O(1)$ amortized, Len/IsEmpty $O(1)$.
 
 ---
 

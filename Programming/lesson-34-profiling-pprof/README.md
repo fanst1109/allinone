@@ -835,7 +835,7 @@ Browser mở UI tab có:
 
 7. **Không re-profile sau fix**. Fix bottleneck #1 → bottleneck #2 từ chỗ chiếm 10% có thể trở thành 60% mới. Phải profile lại để biết next target.
 
-8. **Optimize micro mà bỏ qua algorithmic**. Tối ưu 1 function chậm 10× không bằng đổi từ O(n²) sang O(n log n). **Luôn xem algorithm trước.**
+8. **Optimize micro mà bỏ qua algorithmic**. Tối ưu 1 function chậm 10× không bằng đổi từ $O(n^2)$ sang $O(n \log n)$. **Luôn xem algorithm trước.**
 
 ---
 
@@ -1134,7 +1134,7 @@ go tool pprof -http=:8081 cpu.out  # mở UI flamegraph
    - `runtime.concatstrings` hoặc `runtime.growslice` chiếm > 60% flat.
    - `runtime.mallocgc` chiếm 10-20%.
    - `runtime.memmove` cao (do copy buffer khi grow).
-   - Đây là O(n²) — mỗi `s += x` copy toàn bộ `s` hiện tại sang buffer mới.
+   - Đây là $O(n^2)$ — mỗi `s += x` copy toàn bộ `s` hiện tại sang buffer mới.
 
 3. **Fix**:
 
@@ -1166,7 +1166,7 @@ go tool pprof -http=:8081 cpu.out  # mở UI flamegraph
    ```
 
 4. **Speedup**:
-   - Original O(n²): với n=10000, ~50ms/op, ~500MB alloc.
+   - Original $O(n^2)$: với n=10000, ~50ms/op, ~500MB alloc.
    - Fix 1 với Grow: ~150µs/op, ~100KB alloc → **~300× nhanh hơn**, **~5000× ít alloc**.
    - Fix 2: tương tự fix 1.
    - Không pre-allocate (chỉ `var b strings.Builder`): vẫn nhanh ~50× vì avoid string copy, nhưng có grow.

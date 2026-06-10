@@ -802,7 +802,7 @@ ValidateEmail("abc") → invalid
 ValidateEmail("a@b.c") → OK
 \`\`\`
 
-Độ phức tạp: O(n) với n là độ dài chuỗi (cho \`Contains\`).
+Độ phức tạp: $O(n)$ với n là độ dài chuỗi (cho \`Contains\`).
 
 ### Giải BT2
 

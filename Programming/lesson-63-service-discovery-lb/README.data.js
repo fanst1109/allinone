@@ -293,7 +293,7 @@ Gửi request tới instance đang có **ít kết nối đang mở nhất**.
 - **Random thuần**: chọn ngẫu nhiên 1 instance. Đơn giản, stateless, nhưng có thể lệch tải.
 - **Power of Two Choices (P2C)**: chọn **ngẫu nhiên 2** instance, rồi lấy cái có ít connection hơn.
 
-> 💡 **Trực giác P2C.** Random thuần có thể vô tình dồn vào một instance đang đầy. Chỉ cần lấy 2 ứng viên ngẫu nhiên và chọn cái nhẹ hơn, xác suất "đổ dồn vào instance quá tải" giảm cực mạnh (về mặt lý thuyết, tải lệch tối đa giảm từ O(log n) xuống O(log log n)). Gần như "least-connections" mà chi phí gần như "random". Đây là thuật toán mặc định của nhiều LB hiện đại (vd Nginx, Envoy hỗ trợ).
+> 💡 **Trực giác P2C.** Random thuần có thể vô tình dồn vào một instance đang đầy. Chỉ cần lấy 2 ứng viên ngẫu nhiên và chọn cái nhẹ hơn, xác suất "đổ dồn vào instance quá tải" giảm cực mạnh (về mặt lý thuyết, tải lệch tối đa giảm từ $O(\\log n)$ xuống $O(\\log \\log n)$). Gần như "least-connections" mà chi phí gần như "random". Đây là thuật toán mặc định của nhiều LB hiện đại (vd Nginx, Envoy hỗ trợ).
 
 ### 6.5 Consistent hashing
 
@@ -606,7 +606,7 @@ func (lb *RoundRobinLB) Pick(insts []*Instance) *Instance {
 
 **Kiểm chứng.** 3 instance [order-1, order-2, order-3], 6 lần Pick → \`order-1, order-2, order-3, order-1, order-2, order-3\` (output thật của \`solutions.go\`).
 
-**Lưu ý.** \`len(insts)\` có thể đổi giữa các lần Pick (instance thêm/bớt) — dùng \`next % len\` đảm bảo không out-of-range. **Độ phức tạp**: O(1) mỗi Pick.
+**Lưu ý.** \`len(insts)\` có thể đổi giữa các lần Pick (instance thêm/bớt) — dùng \`next % len\` đảm bảo không out-of-range. **Độ phức tạp**: $O(1)$ mỗi Pick.
 
 ### Lời giải BT2 — Consistent hashing ring
 
@@ -634,7 +634,7 @@ Kết quả từ \`solutions.go\`: **~234/1000 ≈ 23%** key bị remap (lý thu
 
 **Walk-through nhỏ** (mục 7.3): ring {A=100, B=200, C=300}, thêm D=170 → chỉ key có hash trong (100,170] đổi từ B sang D, phần còn lại giữ nguyên.
 
-**Độ phức tạp**: \`Get\` = O(log M) (M = tổng điểm ảo, binary search). \`AddNode\` = O(M log M) (sort lại).
+**Độ phức tạp**: \`Get\` = $O(\\log M)$ (M = tổng điểm ảo, binary search). \`AddNode\` = $O(M \\log M)$ (sort lại).
 
 ### Lời giải BT3 — Health check loop deregister instance chết
 
@@ -703,9 +703,9 @@ func (lb *WeightedLB) Pick(insts []*Instance) *Instance {
 
 **Kiểm chứng** (\`solutions.go\`): [order-1(w=1), order-2(w=2), order-3(w=1)], 8 request → \`{order-1:2, order-2:4, order-3:2}\` — tỉ lệ đúng 1:2:1.
 
-**Cải tiến production**: cách "nở danh sách" tốn bộ nhớ O(Σweight) và phân phối hơi "cụm" (chạy hết order-2 mới sang cái khác). Bản thật nên dùng **smooth weighted round-robin** (thuật toán của Nginx): mỗi instance giữ \`currentWeight += effectiveWeight\`, chọn instance có \`currentWeight\` lớn nhất rồi trừ đi tổng weight — phân phối xen kẽ mượt hơn (A B A C A B... thay vì A A A B B...).
+**Cải tiến production**: cách "nở danh sách" tốn bộ nhớ $O(\\Sigma weight)$ và phân phối hơi "cụm" (chạy hết order-2 mới sang cái khác). Bản thật nên dùng **smooth weighted round-robin** (thuật toán của Nginx): mỗi instance giữ \`currentWeight += effectiveWeight\`, chọn instance có \`currentWeight\` lớn nhất rồi trừ đi tổng weight — phân phối xen kẽ mượt hơn (A B A C A B... thay vì A A A B B...).
 
-**Độ phức tạp**: O(Σweight) mỗi Pick ở bản đơn giản; O(N) ở bản smooth.
+**Độ phức tạp**: $O(\\Sigma weight)$ mỗi Pick ở bản đơn giản; $O(N)$ ở bản smooth.
 
 ### Lời giải BT6 — Chẩn đoán request route đến dead instance
 

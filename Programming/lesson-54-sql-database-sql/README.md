@@ -621,8 +621,8 @@ Tất cả dùng placeholder `?`. Cột `bio` NULL-able nên Create nhận `*str
 `sql.NullString` (nil → NULL). Xem `createUser`/`getUser`/`updateUserEmail`/`deleteUser`
 trong solutions.go.
 
-**Độ phức tạp.** Mỗi thao tác là một round-trip O(1) phía Go; chi phí thực nằm ở DB (index
-lookup theo `id` ~ O(log n) với B-tree index).
+**Độ phức tạp.** Mỗi thao tác là một round-trip $O(1)$ phía Go; chi phí thực nằm ở DB (index
+lookup theo `id` ~ $O(\log n)$ với B-tree index).
 
 ### BT2 — Query nhiều row, scan vào slice
 
@@ -630,7 +630,7 @@ lookup theo `id` ~ O(log n) với B-tree index).
 (2) loop `rows.Next()` + `Scan` append vào slice, (3) `rows.Err()` sau loop. Bỏ bước (1) →
 leak connection; bỏ (3) → có thể bỏ sót lỗi I/O giữa chừng. Xem `listUsers`.
 
-**Độ phức tạp.** O(số dòng) cho scan; bộ nhớ O(số dòng) vì gom hết vào slice. Nếu kết quả
+**Độ phức tạp.** $O(\text{số dòng})$ cho scan; bộ nhớ $O(\text{số dòng})$ vì gom hết vào slice. Nếu kết quả
 khổng lồ, hãy xử lý streaming từng dòng trong loop thay vì gom hết.
 
 ### BT3 — NULL handling
@@ -665,7 +665,7 @@ song (Lesson 56).
 - **Multi-row VALUES (`batchInsertMultiRow`)**: gom thành `INSERT ... VALUES (?,?),(?,?),...` → ít round-trip nhất. Phải để ý giới hạn placeholder (SQLite 999, Postgres 65535) → chia chunk khi vượt.
 - **Postgres COPY** (`pgx.CopyFrom`): cho hàng trăm nghìn / triệu dòng (ETL).
 
-**Độ phức tạp.** Tất cả O(N) công ghi, nhưng **hằng số** (số round-trip) khác nhau rất lớn —
+**Độ phức tạp.** Tất cả $O(N)$ công ghi, nhưng **hằng số** (số round-trip) khác nhau rất lớn —
 đó là điểm mấu chốt của tối ưu batch. Xem `batchInsertAccounts` và `batchInsertMultiRow`.
 
 ### BT6 — Fix SQL injection

@@ -618,7 +618,7 @@ for range sigCh {
 
 Mấu chốt atomic + validate-trước-khi-áp: reader không bao giờ thấy nửa-cũ-nửa-mới; config hỏng không bao giờ được áp (giữ cũ). solutions.go mô phỏng bằng cách gọi reload trực tiếp (thay vì thật sự gửi signal, để chạy được không cần tương tác) nhưng cấu trúc signal handler vẫn có đầy đủ.
 
-**Độ phức tạp.** Swap atomic O(1); reader lock-free.
+**Độ phức tạp.** Swap atomic $O(1)$; reader lock-free.
 
 ### Lời giải BT5 — Feature flag runtime
 

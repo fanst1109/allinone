@@ -345,7 +345,7 @@ CREATE TABLE urls (
 CREATE UNIQUE INDEX idx_urls_code ON urls (code);
 \`\`\`
 
-- \`code\` có **unique index** → vừa đảm bảo không trùng, vừa cho lookup \`WHERE code = ?\` cực nhanh (O(log n) qua B-tree). Đây là index quan trọng nhất của hệ thống vì hot path (redirect) chỉ làm đúng query này.
+- \`code\` có **unique index** → vừa đảm bảo không trùng, vừa cho lookup \`WHERE code = ?\` cực nhanh ($O(\\log n)$ qua B-tree). Đây là index quan trọng nhất của hệ thống vì hot path (redirect) chỉ làm đúng query này.
 
 ### 6.2 Bảng \`clicks\`
 

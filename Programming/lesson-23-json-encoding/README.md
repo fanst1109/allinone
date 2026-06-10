@@ -1115,8 +1115,8 @@ Cách tiếp cận:
 - Lặp đến hết → mỗi lần chỉ 1 object trong RAM (vài trăm byte), không phải 100MB.
 
 Độ phức tạp:
-- Time: O(N) với N số user.
-- Space: O(1) — không phụ thuộc N. Đây là điểm mấu chốt: stream giúp xử lý file lớn hơn RAM.
+- Time: $O(N)$ với N số user.
+- Space: $O(1)$ — không phụ thuộc N. Đây là điểm mấu chốt: stream giúp xử lý file lớn hơn RAM.
 
 ### Giải BT6
 

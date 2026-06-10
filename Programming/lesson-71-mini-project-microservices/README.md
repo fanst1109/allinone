@@ -702,7 +702,7 @@ b.Wait()
 
 **Giải thích:** `Seen` trả `false` đúng một lần (lần đầu), sau đó luôn `true`. Vì side-effect (`processed++`) đặt SAU kiểm tra `Seen`, nó chỉ chạy lần đầu. Mấu chốt: **dedup theo ID, không theo nội dung** — 3 event có cùng `ID` được coi là một.
 
-**Độ phức tạp:** `Seen` là O(1) trung bình (map lookup).
+**Độ phức tạp:** `Seen` là $O(1)$ trung bình (map lookup).
 
 ### Lời giải BT4 — Retry với backoff
 

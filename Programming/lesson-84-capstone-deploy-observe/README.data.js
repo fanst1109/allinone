@@ -819,7 +819,7 @@ func (m *Metrics) recordCache(hit bool) {
 
 **Verify:** \`go run solutions/observability.go\` → in self-test với \`requests_total\`, \`clicks_processed\`, \`cache_hit_ratio\`, \`p50_ms\`, \`p99_ms\`. Code đầy đủ (build + chạy): [\`solutions/observability.go\`](./solutions/observability.go).
 
-**Độ phức tạp:** mỗi metric op O(1) (atomic add / mutex set). Histogram mock lưu samples O(n) RAM — production dùng bucket cố định O(số bucket).
+**Độ phức tạp:** mỗi metric op $O(1)$ (atomic add / mutex set). Histogram mock lưu samples $O(n)$ RAM — production dùng bucket cố định O(số bucket).
 
 ### Lời giải BT4 — Load test plan & bottleneck
 

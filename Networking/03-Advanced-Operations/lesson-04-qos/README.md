@@ -324,7 +324,7 @@ Thay vì đợi buffer đầy mới drop (tail-drop — mặc định FIFO), AQM
 
 Ví dụ RED với min=30 gói, max=60 gói (buffer = 100 gói):
 - Hàng đợi 25 gói: không drop.
-- Hàng đợi 40 gói: drop random với p = (40−30)/(60−30) × p_max = 33% × 0.1 = **3.3%** (p_max điển hình = 10%).
+- Hàng đợi 40 gói: drop random với $p = \frac{40-30}{60-30} \times p_{\max} = 0.33 \times 0.1 = 0.033$ → **3.3%** ($p_{\max}$ điển hình = 10%).
 - Hàng đợi 60 gói: drop p = **10%**.
 - Hàng đợi > 60 gói: drop **100%** (tail drop).
 
@@ -464,7 +464,7 @@ Kết hợp traffic shaping (token bucket 480 Kbps cho VoIP) đảm bảo VoIP k
 **Lời giải Bài 6**:
 
 (a) Hàng đợi = 50 gói. Nằm trong khoảng [min=20, max=80].
-Xác suất drop = ((avg_queue − min) / (max − min)) × p_max = ((50−20)/(80−20)) × 0.1 = (30/60) × 0.1 = 0.5 × 0.1 = **0.05 = 5%**.
+Xác suất drop $= \frac{\text{avg\_queue} - \min}{\max - \min} \times p_{\max} = \frac{50-20}{80-20} \times 0.1 = \frac{30}{60} \times 0.1 = 0.5 \times 0.1 = 0.05$ → **5%**.
 
 (b) Hàng đợi = 90 gói > max = 80 → **drop tất cả (tail-drop trong vùng > max)**. Mọi gói mới đến đều bị drop 100%.
 

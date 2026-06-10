@@ -24,7 +24,7 @@ Sau bài này bạn sẽ:
 💡 **Trực giác**: Hãy tưởng tượng mỗi thiết bị kết nối Internet cần một số điện thoại duy nhất. IPv4 chỉ có khoảng **4,3 tỉ** số điện thoại cho toàn thế giới — nhưng dân số thế giới đã vượt 8 tỉ, chưa kể mỗi người có nhiều thiết bị (điện thoại, laptop, smartwatch, TV, máy lạnh thông minh...).
 
 Địa chỉ IPv4 là số 32-bit:
-- 2^32 = **4.294.967.296** ≈ 4,3 tỉ địa chỉ.
+- $2^{32} = 4.294.967.296 \approx$ **4,3 tỉ** địa chỉ.
 - Trừ đi các dải dành riêng (private, multicast, loopback, broadcast...): thực tế còn khoảng **3,7 tỉ** địa chỉ có thể dùng công khai.
 - IANA (tổ chức phân bổ địa chỉ toàn cầu) đã **cạn pool IPv4 vào tháng 2/2011**. Các tổ chức khu vực (RIPE NCC — châu Âu, APNIC — châu Á) lần lượt cạn kiệt trong giai đoạn 2012–2019.
 
@@ -49,24 +49,24 @@ NAT (Network Address Translation — chuyển đổi địa chỉ mạng) cho ph
 ### 1.3. IPv6 — giải pháp dài hạn
 
 IPv6 dùng địa chỉ **128-bit**:
-- 2^128 = **340.282.366.920.938.463.463.374.607.431.768.211.456** địa chỉ.
-- Tức là khoảng **3,4 × 10^38** địa chỉ.
+- $2^{128} = 340.282.366.920.938.463.463.374.607.431.768.211.456$ địa chỉ.
+- Tức là khoảng **$3,4 \times 10^{38}$** địa chỉ.
 
-💡 **Trực giác về quy mô**: 2^128 ≈ 340 tỉ tỉ tỉ tỉ. Nếu Trái Đất có 7,5 tỉ người và mỗi người được cấp một "dải /64" (tức 2^64 ≈ 18 tỉ tỉ địa chỉ), vẫn còn đủ cho **hàng trăm tỉ hành tinh** như Trái Đất. Nói cách khác, mỗi hạt cát trên Trái Đất có thể được cấp hàng triệu địa chỉ IPv6.
+💡 **Trực giác về quy mô**: $2^{128} \approx$ 340 tỉ tỉ tỉ tỉ. Nếu Trái Đất có 7,5 tỉ người và mỗi người được cấp một "dải /64" (tức $2^{64} \approx$ 18 tỉ tỉ địa chỉ), vẫn còn đủ cho **hàng trăm tỉ hành tinh** như Trái Đất. Nói cách khác, mỗi hạt cát trên Trái Đất có thể được cấp hàng triệu địa chỉ IPv6.
 
 **So sánh nhanh**:
 
 | Thuộc tính | IPv4 | IPv6 |
 |-----------|------|------|
 | Độ dài địa chỉ | 32-bit | 128-bit |
-| Tổng số địa chỉ | ~4,3 tỉ (2^32) | ~3,4 × 10^38 (2^128) |
+| Tổng số địa chỉ | ~4,3 tỉ ($2^{32}$) | ~$3,4 \times 10^{38}$ ($2^{128}$) |
 | Ký hiệu | Thập phân, dấu chấm (`192.168.1.1`) | Thập lục phân, dấu hai chấm (`2001:db8::1`) |
 | Cạn kiệt? | Đã cạn (2011) | Không thực tế bao giờ cạn |
 
 📝 **Tóm tắt mục 1**:
-- IPv4 có 2^32 ≈ 4,3 tỉ địa chỉ — đã cạn kiệt từ 2011.
+- IPv4 có $2^{32} \approx$ 4,3 tỉ địa chỉ — đã cạn kiệt từ 2011.
 - NAT là giải pháp tạm, có nhiều nhược điểm nghiêm trọng cho ứng dụng hiện đại.
-- IPv6 có 2^128 ≈ 3,4 × 10^38 địa chỉ — đủ dùng vĩnh viễn.
+- IPv6 có $2^{128} \approx 3,4 \times 10^{38}$ địa chỉ — đủ dùng vĩnh viễn.
 
 ---
 
@@ -84,11 +84,11 @@ IPv6 dùng địa chỉ **128-bit**:
 ```
 
 Ví dụ đọc nhóm G2 (`0db8`):
-- `0` = 0×16^3 = 0
-- `d` = 13×16^2 = 3328
-- `b` = 11×16^1 = 176
-- `8` = 8×16^0 = 8
-- Tổng = **3512 (decimal)** — mỗi nhóm biểu diễn một số từ 0 đến 65535.
+- `0` $= 0 \times 16^3 = 0$
+- `d` $= 13 \times 16^2 = 3328$
+- `b` $= 11 \times 16^1 = 176$
+- `8` $= 8 \times 16^0 = 8$
+- Tổng $=$ **3512 (decimal)** — mỗi nhóm biểu diễn một số từ 0 đến 65535.
 
 ### 2.2. Quy tắc rút gọn (RFC 5952)
 
@@ -520,17 +520,17 @@ Lưu ý: đây là địa chỉ **Solicited-Node multicast** (`ff02::1:ff` + 24 
 
 **Bài 4 — Đếm địa chỉ trong /64**:
 
-Subnet IPv6 /64 có phần host = 128 − 64 = **64 bit**.
+Subnet IPv6 /64 có phần host $= 128 - 64 =$ **64 bit**.
 
-Số địa chỉ = 2^64 = **18.446.744.073.709.551.616** địa chỉ (≈ 18,4 tỉ tỉ địa chỉ).
+Số địa chỉ $= 2^{64} =$ **18.446.744.073.709.551.616** địa chỉ ($\approx$ 18,4 tỉ tỉ địa chỉ).
 
 Tất cả đều có thể dùng (không cần trừ network address hay broadcast như IPv4 — IPv6 không có broadcast).
 
 So sánh với IPv4 /24:
-- Số bit host = 32 − 24 = 8 bit → 2^8 = **256 địa chỉ** tổng.
+- Số bit host $= 32 - 24 = 8$ bit $\to 2^8 =$ **256 địa chỉ** tổng.
 - Trừ network (`x.x.x.0`) và broadcast (`x.x.x.255`) → **254 host khả dụng**.
 
-Tỉ lệ: 2^64 / 254 ≈ **7,3 × 10^16** (tức là một subnet /64 của IPv6 lớn hơn toàn bộ subnet /24 của IPv4 khoảng 73.000 tỉ lần).
+Tỉ lệ: $2^{64} / 254 \approx$ **$7,3 \times 10^{16}$** (tức là một subnet /64 của IPv6 lớn hơn toàn bộ subnet /24 của IPv4 khoảng 73.000 tỉ lần).
 
 ---
 
@@ -593,8 +593,8 @@ Bước 4 — Ghép với prefix `2001:db8:1:1::/64`:
 
 ## 📝 Tổng kết Lesson 06
 
-1. **IPv4 cạn kiệt**: 2^32 ≈ 4,3 tỉ địa chỉ — đã cạn từ 2011. NAT là giải pháp tạm, phá vỡ end-to-end.
-2. **IPv6 = 128-bit = 2^128 ≈ 3,4 × 10^38 địa chỉ** — đủ dùng vĩnh viễn.
+1. **IPv4 cạn kiệt**: $2^{32} \approx$ 4,3 tỉ địa chỉ — đã cạn từ 2011. NAT là giải pháp tạm, phá vỡ end-to-end.
+2. **IPv6 = 128-bit = $2^{128} \approx 3,4 \times 10^{38}$ địa chỉ** — đủ dùng vĩnh viễn.
 3. **Rút gọn**: bỏ 0 đứng đầu nhóm + `::` cho chuỗi 0 dài nhất (chỉ một lần).
 4. **Các loại địa chỉ**: global unicast, link-local (`fe80::/10`), loopback (`::1`), multicast (`ff00::/8`), ULA (`fd00::/8`). Không có broadcast.
 5. **Ưu điểm IPv6**: header cố định 40B, không checksum, không fragment tại router, NDP thay ARP, SLAAC tự cấu hình, không cần NAT.

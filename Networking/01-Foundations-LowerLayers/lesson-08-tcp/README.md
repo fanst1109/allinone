@@ -130,7 +130,7 @@ IP (tầng mạng) chỉ "cố gắng tốt nhất" (best effort) để chuyển
 <details>
 <summary>Xem đáp án</summary>
 
-ACK = 200 + 300 = **500**. Nghĩa là receiver đã nhận đến byte 499, mong nhận byte 500 tiếp theo.
+$\text{ACK} = 200 + 300 = 500$. Nghĩa là receiver đã nhận đến byte 499, mong nhận byte 500 tiếp theo.
 </details>
 
 📝 **Tóm tắt mục 2**:
@@ -235,7 +235,7 @@ TCP có 2 cơ chế phát hiện mất gói:
 **Cơ chế 1 — Timeout (Retransmission Timeout, RTO)**:
 - Sender đặt timer sau mỗi segment.
 - Nếu không nhận ACK trong thời gian RTO → coi như gói mất → phát lại.
-- RTO thường = 2 × RTT ban đầu, tự điều chỉnh theo mạng (thuật toán Karn/Jacobson).
+- RTO thường $= 2 \times RTT$ ban đầu, tự điều chỉnh theo mạng (thuật toán Karn/Jacobson).
 
 **Cơ chế 2 — Duplicate ACK (Fast Retransmit)**:
 - Khi receiver nhận segment 3 nhưng thiếu segment 2 → receiver gửi ACK=601 lặp lại (duplicate ACK cho segment cuối đã nhận tốt).
@@ -291,25 +291,22 @@ Phát lại SEQ=601 ──────→   Nhận 601-1100
 **Window size W** = số byte tối đa sender có thể gửi mà chưa được ACK.
 
 **Throughput tối đa** (không tắc nghẽn):
-```
-Throughput = Window Size / RTT
-```
 
-**Ví dụ số 1**: Window = 64 KB = 65536 byte, RTT = 50 ms.
-```
-Throughput = 65536 byte / 0.05 s = 1,310,720 byte/s ≈ 10.5 Mbps
-```
+$$\text{Throughput} = \frac{W}{RTT}$$
 
-**Ví dụ số 2**: Window = 1 MB = 1,048,576 byte, RTT = 100 ms.
-```
-Throughput = 1,048,576 / 0.1 = 10,485,760 byte/s ≈ 83.9 Mbps
-```
+**Ví dụ số 1**: Window $= 64$ KB $= 65536$ byte, RTT $= 50$ ms.
 
-**Ví dụ số 3**: Kết nối satellite, RTT = 600 ms, muốn đạt 100 Mbps.
-```
-Window cần = 100 × 10^6 / 8 × 0.6 = 7,500,000 byte ≈ 7.15 MB
-→ Cần TCP window scaling (option header mở rộng window > 64 KB)
-```
+$$\text{Throughput} = \frac{65536 \text{ byte}}{0.05 \text{ s}} = 1{,}310{,}720 \text{ byte/s} \approx 10.5 \text{ Mbps}$$
+
+**Ví dụ số 2**: Window $= 1$ MB $= 1{,}048{,}576$ byte, RTT $= 100$ ms.
+
+$$\text{Throughput} = \frac{1{,}048{,}576}{0.1} = 10{,}485{,}760 \text{ byte/s} \approx 83.9 \text{ Mbps}$$
+
+**Ví dụ số 3**: Kết nối satellite, RTT $= 600$ ms, muốn đạt 100 Mbps.
+
+$$W_{\text{cần}} = \frac{100 \times 10^6}{8} \times 0.6 = 7{,}500{,}000 \text{ byte} \approx 7.15 \text{ MB}$$
+
+→ Cần TCP window scaling (option header mở rộng window > 64 KB).
 
 ### 5.2. Kiểm soát luồng (Flow Control)
 
@@ -332,7 +329,7 @@ TCP dùng **cwnd** (congestion window) để ước lượng "khả năng chịu
 
 **Slow Start** (bắt đầu chậm — tên gây hiểu nhầm, thực ra tăng rất nhanh):
 - Bắt đầu: cwnd = 1 MSS (Maximum Segment Size, thường 1460 byte).
-- Mỗi RTT mà không mất gói: cwnd × 2 (tăng theo hàm mũ).
+- Mỗi RTT mà không mất gói: $\text{cwnd} \times 2$ (tăng theo hàm mũ).
 - Ví dụ: cwnd = 1, 2, 4, 8, 16 MSS qua 5 RTT đầu.
 - Dừng khi cwnd đạt ngưỡng ssthresh (slow start threshold), chuyển sang Congestion Avoidance.
 
@@ -341,7 +338,7 @@ TCP dùng **cwnd** (congestion window) để ước lượng "khả năng chịu
 - Ví dụ với ssthresh = 16 MSS: cwnd = 16, 17, 18, 19, 20 MSS...
 
 **Khi phát hiện mất gói** (3 dup ACK → fast retransmit):
-- ssthresh = cwnd / 2.
+- $\text{ssthresh} = \text{cwnd} / 2$.
 - cwnd = ssthresh (TCP Reno) hoặc cwnd = 1 (TCP Tahoe — cũ hơn).
 - Bắt đầu lại congestion avoidance từ ssthresh.
 
@@ -368,10 +365,10 @@ RTT  cwnd (MSS)  Trạng thái
 
 *"Vì sao gọi là 'slow start' nếu cwnd tăng theo hàm mũ?"* — Vì trước khi có slow start, TCP gửi toàn bộ window ngay từ đầu → làm tắc nghẽn mạng. "Slow" so với cách cũ đó, không phải slow về tuyệt đối.
 
-*"MSS là gì?"* — Maximum Segment Size = kích thước dữ liệu tối đa trong một TCP segment, được thỏa thuận trong handshake. Thường bằng MTU mạng (1500 byte Ethernet) trừ header IP (20 byte) và TCP (20 byte) = **1460 byte**.
+*"MSS là gì?"* — Maximum Segment Size = kích thước dữ liệu tối đa trong một TCP segment, được thỏa thuận trong handshake. Thường bằng MTU mạng (1500 byte Ethernet) trừ header IP (20 byte) và TCP (20 byte) $= 1500 - 20 - 20 =$ **1460 byte**.
 
 📝 **Tóm tắt mục 5**:
-- Sliding window: gửi nhiều segment liên tiếp; Throughput = Window / RTT.
+- Sliding window: gửi nhiều segment liên tiếp; $\text{Throughput} = \frac{W}{RTT}$.
 - Flow control: rwnd (receive window) bảo vệ receiver không tràn buffer.
 - Congestion control: cwnd tăng mũ (slow start) rồi tuyến tính (CA); cắt giảm khi mất gói.
 
@@ -453,9 +450,9 @@ ISN của client = 200. Sau handshake, SEQ đầu tiên của data = 201 (SYN ti
 
 Server nhận đủ đến byte 4500, nên ACK = 4501.
 
-Số byte data application = 4501 − 201 = **4300 byte**.
+Số byte data application $= 4501 - 201 =$ **4300 byte**.
 
-Kiểm tra: byte đầu tiên = 201, byte cuối = 4500, tổng = 4500 − 201 + 1 = 4300 byte. ✓
+Kiểm tra: byte đầu tiên $= 201$, byte cuối $= 4500$, tổng $= 4500 - 201 + 1 = 4300$ byte. ✓
 
 ---
 
@@ -476,28 +473,23 @@ Hậu quả:
 
 **Lời giải Bài 4**:
 
-**Câu a**:
-```
-Window = 32 KB = 32,768 byte
-RTT    = 80 ms = 0.08 s
-Throughput = 32,768 / 0.08 = 409,600 byte/s = 409.6 KB/s ≈ 3.28 Mbps
-```
+**Câu a**: Window $= 32$ KB $= 32{,}768$ byte, RTT $= 80$ ms $= 0.08$ s.
 
-**Câu b**:
-```
-Muốn đạt 500 Mbps = 500 × 10^6 / 8 = 62,500,000 byte/s
-RTT = 20 ms = 0.02 s
-Window tối thiểu = 62,500,000 × 0.02 = 1,250,000 byte ≈ 1.19 MB
-→ Cần TCP window scaling vì window field TCP chỉ 16-bit = tối đa 65,535 byte (64 KB).
-   Với window scaling option (RFC 1323): window có thể lên đến 1 GB.
-```
+$$\text{Throughput} = \frac{32{,}768}{0.08} = 409{,}600 \text{ byte/s} = 409.6 \text{ KB/s} \approx 3.28 \text{ Mbps}$$
 
-**Câu c**:
-```
-Window = 64 KB = 65,536 byte
-RTT    = 600 ms = 0.6 s
-Throughput = 65,536 / 0.6 = 109,227 byte/s ≈ 874 Kbps ≈ 0.85 Mbps
-```
+**Câu b**: Muốn đạt 500 Mbps, RTT $= 20$ ms $= 0.02$ s.
+
+$$\begin{aligned}
+500 \text{ Mbps} &= \frac{500 \times 10^6}{8} = 62{,}500{,}000 \text{ byte/s} \\
+W_{\text{tối thiểu}} &= 62{,}500{,}000 \times 0.02 = 1{,}250{,}000 \text{ byte} \approx 1.19 \text{ MB}
+\end{aligned}$$
+
+→ Cần TCP window scaling vì window field TCP chỉ 16-bit $=$ tối đa 65,535 byte (64 KB). Với window scaling option (RFC 1323): window có thể lên đến 1 GB.
+
+**Câu c**: Window $= 64$ KB $= 65{,}536$ byte, RTT $= 600$ ms $= 0.6$ s.
+
+$$\text{Throughput} = \frac{65{,}536}{0.6} = 109{,}227 \text{ byte/s} \approx 874 \text{ Kbps} \approx 0.85 \text{ Mbps}$$
+
 Nhận xét: dù đường truyền vệ tinh có thể có băng thông hàng trăm Mbps, TCP window 64 KB và RTT cao 600 ms bóp nghẹt throughput xuống chưa đến 1 Mbps. Giải pháp: TCP window scaling, hoặc dùng giao thức khác (QUIC, PEP — Performance Enhancing Proxy) tối ưu cho satellite.
 
 ---

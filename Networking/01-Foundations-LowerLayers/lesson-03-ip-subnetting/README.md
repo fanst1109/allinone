@@ -61,7 +61,7 @@ Kiểm tra: 128 + 32 + 8 = 168 ✓
 ```
 255 = 128 + 64 + 32 + 16 + 8 + 4 + 2 + 1 = 11111111
 ```
-255 = 2^8 − 1 = tất cả 8 bit bật.
+$255 = 2^8 - 1$ = tất cả 8 bit bật.
 
 **Ví dụ 4 — đổi 10 sang nhị phân**:
 ```
@@ -87,8 +87,8 @@ bit7=1 bit6=1 bit5=0 bit4=0 bit3=1 bit2=1 bit1=0 bit0=0
 
 ❓ **Câu hỏi tự nhiên**:
 
-- *"Tại sao mỗi octet tối đa là 255?"* — Vì 8 bit, tối đa = 2^8 − 1 = 255.
-- *"Có bao nhiêu địa chỉ IPv4 tổng cộng?"* — 2^32 = 4.294.967.296 ≈ 4,3 tỷ địa chỉ.
+- *"Tại sao mỗi octet tối đa là 255?"* — Vì 8 bit, tối đa $= 2^8 - 1 = 255$.
+- *"Có bao nhiêu địa chỉ IPv4 tổng cộng?"* — $2^{32} = 4.294.967.296 \approx$ 4,3 tỷ địa chỉ.
 - *"Tại sao IPv4 cạn kiệt?"* — 4,3 tỷ địa chỉ không đủ cho hàng chục tỷ thiết bị toàn cầu. Giải pháp tạm thời là NAT (sẽ học Lesson 05), giải pháp dài hạn là IPv6 (Lesson 06).
 
 🔁 **Dừng lại tự kiểm tra**: Đổi `172.31.200.5` sang nhị phân.
@@ -208,8 +208,8 @@ Bảng các prefix phổ biến:
 | /8 | 255.0.0.0 | 24 | 16777216 | 16777214 |
 
 **Công thức**:
-- Số địa chỉ tổng = 2^H (H = 32 − n).
-- Số host khả dụng = 2^H − 2 (trừ network address và broadcast).
+- Số địa chỉ tổng $= 2^H$ ($H = 32 - n$).
+- Số host khả dụng $= 2^H - 2$ (trừ network address và broadcast).
 
 ❓ **Câu hỏi tự nhiên**:
 
@@ -222,14 +222,14 @@ Bảng các prefix phổ biến:
 <details>
 <summary>Đáp án</summary>
 
-- H = 32 − 27 = 5 bit host → 2^5 = 32 địa chỉ → 32 − 2 = **30 host khả dụng**.
+- $H = 32 - 27 = 5$ bit host → $2^5 = 32$ địa chỉ → $32 - 2 =$ **30 host khả dụng**.
 - Octet 4 mask: 5 bit 0, 3 bit 1 (từ trái): `11100000` = 128+64+32 = **224**.
 - Mask đầy đủ: `255.255.255.224`.
 </details>
 
 📝 **Tóm tắt mục 3**:
 - Mask = chuỗi bit 1 (network) tiếp chuỗi bit 0 (host); biểu diễn dạng 4 octet thập phân.
-- CIDR /n = số bit network; số host = 2^(32−n) − 2.
+- CIDR /n = số bit network; số host $= 2^{32-n} - 2$.
 - `IP AND mask = network address`.
 
 ---
@@ -243,11 +243,11 @@ Cho địa chỉ IP/prefix, tính:
 2. **Broadcast address**: network address OR NOT(mask) (đặt tất cả bit host = 1).
 3. **First host**: network address + 1.
 4. **Last host**: broadcast − 1.
-5. **Số host khả dụng**: 2^H − 2 (H = số bit host).
+5. **Số host khả dụng**: $2^H - 2$ (H = số bit host).
 
 ### 4.2. Ví dụ 1 — `192.168.1.130/26`
 
-**Bước 1**: H = 32 − 26 = 6 bit host → 2^6 = 64 địa chỉ.
+**Bước 1**: $H = 32 - 26 = 6$ bit host → $2^6 = 64$ địa chỉ.
 
 **Bước 2**: Viết octet 4 của IP và mask dạng nhị phân:
 ```
@@ -284,7 +284,7 @@ Số host         : 2^6 − 2 = 62
 
 ### 4.3. Ví dụ 2 — `10.20.50.100/25`
 
-H = 32 − 25 = 7 bit host → 2^7 = 128 địa chỉ, 126 host.
+$H = 32 - 25 = 7$ bit host → $2^7 = 128$ địa chỉ, 126 host.
 
 ```
 IP octet 4:   100 = 01100100
@@ -305,7 +305,7 @@ Số host         = 126
 
 ### 4.4. Ví dụ 3 — `172.16.5.200/28`
 
-H = 32 − 28 = 4 bit host → 2^4 = 16 địa chỉ, 14 host.
+$H = 32 - 28 = 4$ bit host → $2^4 = 16$ địa chỉ, 14 host.
 
 ```
 IP octet 4:   200 = 11001000
@@ -327,7 +327,7 @@ Số host         = 14
 
 ### 4.5. Ví dụ 4 — `203.0.113.77/30`
 
-H = 32 − 30 = 2 bit host → 2^2 = 4 địa chỉ, 2 host (dùng cho liên kết P2P).
+$H = 32 - 30 = 2$ bit host → $2^2 = 4$ địa chỉ, 2 host (dùng cho liên kết P2P).
 
 ```
 IP octet 4:   77  = 01001101
@@ -364,7 +364,7 @@ Lưu ý: host `203.0.113.77` (IP đề bài) thuộc subnet này, là first host
 <details>
 <summary>Đáp án</summary>
 
-H = 5, 2^5 = 32 địa chỉ, 30 host.
+$H = 5$, $2^5 = 32$ địa chỉ, 30 host.
 ```
 Octet 4 mask /27: 3 bit network, 5 bit host → 11100000 = 224
 IP octet 4: 67  = 01000011
@@ -392,18 +392,18 @@ First host = 192.168.10.65, Last host = 192.168.10.94, Số host = 30
 
 ### 5.1. Khái niệm mượn bit
 
-💡 **Trực giác**: Bạn có mảnh đất /24 (256 ô) và cần chia cho 4 khu. Thay vì chia ngẫu nhiên, bạn mượn 2 bit từ phần host (2^2 = 4 khu), mỗi khu còn 6 bit host (2^6 = 64 ô). Kết quả: 4 khu /26, mỗi khu 62 host khả dụng.
+💡 **Trực giác**: Bạn có mảnh đất /24 (256 ô) và cần chia cho 4 khu. Thay vì chia ngẫu nhiên, bạn mượn 2 bit từ phần host ($2^2 = 4$ khu), mỗi khu còn 6 bit host ($2^6 = 64$ ô). Kết quả: 4 khu /26, mỗi khu 62 host khả dụng.
 
 **Quy tắc mượn bit**:
-- Muốn chia thành **S subnet**: cần mượn ít nhất ceil(log2(S)) bit. Ví dụ S=4 → mượn 2 bit (2^2=4).
-- Sau khi mượn b bit: prefix mới = prefix cũ + b; số host mỗi subnet = 2^(H−b) − 2.
-- Các subnet cách đều nhau, khoảng cách = 2^(H−b) địa chỉ.
+- Muốn chia thành **S subnet**: cần mượn ít nhất $\lceil \log_2(S) \rceil$ bit. Ví dụ $S = 4 \to$ mượn 2 bit ($2^2 = 4$).
+- Sau khi mượn b bit: prefix mới = prefix cũ + b; số host mỗi subnet $= 2^{H-b} - 2$.
+- Các subnet cách đều nhau, khoảng cách $= 2^{H-b}$ địa chỉ.
 
 ### 5.2. Ví dụ — chia `192.168.1.0/24` thành 4 subnet /26
 
-**Bước 1**: /24 → H = 8. Cần 4 subnet → mượn 2 bit → prefix mới /26, H mới = 6.
+**Bước 1**: /24 → $H = 8$. Cần 4 subnet → mượn 2 bit → prefix mới /26, H mới = 6.
 
-**Bước 2**: Khoảng cách giữa subnet = 2^6 = 64.
+**Bước 2**: Khoảng cách giữa subnet $= 2^6 = 64$.
 
 **Bước 3**: Liệt kê 4 subnet:
 
@@ -422,13 +422,13 @@ Phần host:    000000 (tất cả 0 → network address)
 → 10000000 ✓
 ```
 
-**Kiểm tra**: 4 × 64 = 256 địa chỉ = toàn bộ /24. Không có địa chỉ bị bỏ sót hay chồng lấp.
+**Kiểm tra**: $4 \times 64 = 256$ địa chỉ = toàn bộ /24. Không có địa chỉ bị bỏ sót hay chồng lấp.
 
 ### 5.3. Ví dụ — chia `10.0.0.0/16` thành 8 subnet /19
 
-**Bước 1**: /16 → H = 16. Cần 8 subnet → mượn 3 bit → prefix mới /19, H mới = 13.
+**Bước 1**: /16 → $H = 16$. Cần 8 subnet → mượn 3 bit → prefix mới /19, H mới = 13.
 
-**Bước 2**: Khoảng cách = 2^13 = 8192.
+**Bước 2**: Khoảng cách $= 2^{13} = 8192$.
 
 **Bước 3**: Các subnet (liệt kê 4 đầu):
 
@@ -450,16 +450,16 @@ Broadcast: 5 bit host + octet 4 tất cả 1: 00111111 = 63, .255
 
 ❓ **Câu hỏi tự nhiên**:
 
-- *"Nếu số subnet cần không phải lũy thừa 2 thì sao?"* — Phải làm tròn lên. Cần 5 subnet → mượn 3 bit (2^3=8 ≥ 5), có 8 subnet nhưng dùng 5, 3 subnet còn lại để dự phòng hoặc mở rộng sau.
+- *"Nếu số subnet cần không phải lũy thừa 2 thì sao?"* — Phải làm tròn lên. Cần 5 subnet → mượn 3 bit ($2^3 = 8 \geq 5$), có 8 subnet nhưng dùng 5, 3 subnet còn lại để dự phòng hoặc mở rộng sau.
 - *"Có thể chia subnet không đều nhau không?"* — Có, gọi là VLSM (Variable-Length Subnet Mask). Ví dụ dùng /30 cho liên kết P2P, /24 cho văn phòng lớn trong cùng một không gian địa chỉ. Đây là kỹ thuật nâng cao.
 
 ⚠ **Lỗi thường gặp**:
-- Mượn bit vào phần host của octet 3 nhưng quên cộng dồn khi liệt kê subnet — phải cộng đúng khoảng cách = 2^(H−b).
+- Mượn bit vào phần host của octet 3 nhưng quên cộng dồn khi liệt kê subnet — phải cộng đúng khoảng cách $= 2^{H-b}$.
 - Tính số host mỗi subnet trên tổng /24 thay vì trên từng /26 con.
 
 📝 **Tóm tắt mục 5**:
-- Mượn b bit → 2^b subnet, prefix tăng thêm b, H giảm b.
-- Các subnet cách đều nhau: khoảng cách = 2^(H−b).
+- Mượn b bit → $2^b$ subnet, prefix tăng thêm b, H giảm b.
+- Các subnet cách đều nhau: khoảng cách $= 2^{H-b}$.
 - Kiểm tra: tổng địa chỉ mọi subnet = tổng địa chỉ mạng gốc.
 
 ---
@@ -570,11 +570,11 @@ Kết quả: `10101100.00010000.11001000.00100001`
 ```
 Tổng: 8+8+7+0 = **23 bit 1** → prefix **/23**.
 
-Số host = 2^(32−23) − 2 = 2^9 − 2 = 512 − 2 = **510 host**.
+Số host $= 2^{32-23} - 2 = 2^9 - 2 = 512 - 2 =$ **510 host**.
 
 ### Bài 3
 
-`192.168.50.87/27`. H = 5, 2^5 = 32, 30 host.
+`192.168.50.87/27`. $H = 5$, $2^5 = 32$, 30 host.
 
 ```
 Mask octet 4: /27 → 3 bit network → 11100000 = 224
@@ -596,7 +596,7 @@ Số host         = 30
 
 ### Bài 4
 
-`10.100.0.50/22`. H = 32−22 = 10, 2^10 = 1024, 1022 host.
+`10.100.0.50/22`. $H = 32 - 22 = 10$, $2^{10} = 1024$, 1022 host.
 
 Prefix /22: 2 octet đầu cố định (10, 100), octet 3 có 6 bit network và octet 4 toàn host.
 
@@ -619,7 +619,7 @@ Số host    = 1022
 
 ### Bài 5
 
-`192.168.10.0/24` chia 8 subnet → mượn 3 bit → /27. Khoảng cách = 2^5 = 32.
+`192.168.10.0/24` chia 8 subnet → mượn 3 bit → /27. Khoảng cách $= 2^5 = 32$.
 
 | Subnet | Network | Broadcast | Host range |
 |--------|---------|-----------|-----------|
@@ -632,7 +632,7 @@ Số host    = 1022
 | 6 | 192.168.10.192/27 | 192.168.10.223 | .193–.222 |
 | 7 | 192.168.10.224/27 | 192.168.10.255 | .225–.254 |
 
-Kiểm tra: 8 × 32 = 256 = toàn bộ /24. ✓
+Kiểm tra: $8 \times 32 = 256$ = toàn bộ /24. ✓
 
 ### Bài 6
 
@@ -654,7 +654,7 @@ Network address khác nhau → **Khác subnet.** Cần router để giao tiếp.
 
 ### Bài 7 (nâng cao)
 
-Mạng gốc: `10.0.0.0/22` → 2^10 = 1024 địa chỉ.
+Mạng gốc: `10.0.0.0/22` → $2^{10} = 1024$ địa chỉ.
 
 Phân bổ VLSM theo thứ tự từ lớn đến nhỏ:
 
@@ -665,11 +665,11 @@ Phân bổ VLSM theo thứ tự từ lớn đến nhỏ:
 | P2P link 1 | 2 host | /30 | 2 | 10.0.2.128/30 | 10.0.2.131 |
 | P2P link 2 | 2 host | /30 | 2 | 10.0.2.132/30 | 10.0.2.135 |
 
-Tổng địa chỉ dùng: 512 + 128 + 4 + 4 = 648. Còn lại: 1024 − 648 = 376 (dự phòng).
+Tổng địa chỉ dùng: $512 + 128 + 4 + 4 = 648$. Còn lại: $1024 - 648 = 376$ (dự phòng).
 
 Kiểm tra: tất cả đều nằm trong `10.0.0.0 – 10.0.3.255` (giới hạn /22). ✓
 
-**Tại sao /23 cho văn phòng A?** — 2^(32−23) − 2 = 510 ≥ 300. /24 chỉ cho 254 < 300 → không đủ.
+**Tại sao /23 cho văn phòng A?** — $2^{32-23} - 2 = 510 \geq 300$. /24 chỉ cho $254 < 300$ → không đủ.
 
 ---
 
@@ -686,7 +686,7 @@ Kiểm tra: tất cả đều nằm trong `10.0.0.0 – 10.0.3.255` (giới hạ
 
 - **IPv4** = 32 bit, 4 octet, thập phân chấm. Tổng 4,3 tỷ địa chỉ — đã cạn kiệt.
 - **Phân lớp A/B/C** theo octet đầu; **private** (10.x, 172.16-31.x, 192.168.x) không định tuyến Internet; **loopback** 127.0.0.1.
-- **Subnet mask / CIDR /n**: n bit network, (32−n) bit host; số host = 2^(32−n) − 2.
+- **Subnet mask / CIDR /n**: n bit network, $(32-n)$ bit host; số host $= 2^{32-n} - 2$.
 - **Tính subnet**: IP AND mask = network; bit host tất cả 1 = broadcast; first = network+1; last = broadcast−1.
-- **Subnetting**: mượn b bit → 2^b subnet mới, khoảng cách 2^(H−b), prefix mới = cũ+b.
+- **Subnetting**: mượn b bit → $2^b$ subnet mới, khoảng cách $2^{H-b}$, prefix mới = cũ+b.
 - **Cùng subnet**: IP1 AND mask = IP2 AND mask → giao tiếp trực tiếp; khác → cần router.

@@ -270,8 +270,8 @@ Hai trường phái lớn:
 
 💡 **Trực giác:** Mỗi router **quảng bá toàn bộ danh sách hàng xóm và chi phí kết nối** (gọi là LSA — Link State Advertisement) đến tất cả router trong cùng vùng. Mỗi router có **bản đồ đầy đủ** của mạng và tự tính đường ngắn nhất (thuật toán Dijkstra).
 
-- **OSPF (Open Shortest Path First)**: metric là **cost** (thường tỷ lệ nghịch bandwidth: cost = 10^8 / bandwidth_bps). Hội tụ nhanh (vài giây). Được dùng rộng rãi trong mạng doanh nghiệp và ISP.
-- Ví dụ: Đường 1 Gbps có cost = 10^8 / 10^9 = 0.1 (làm tròn = 1). Đường 10 Mbps có cost = 10^8 / 10^7 = 10. OSPF ưu tiên đường nhanh hơn.
+- **OSPF (Open Shortest Path First)**: metric là **cost** (thường tỷ lệ nghịch bandwidth: $\\text{cost} = \\frac{10^8}{BW}$, với $BW$ tính bằng bps). Hội tụ nhanh (vài giây). Được dùng rộng rãi trong mạng doanh nghiệp và ISP.
+- Ví dụ: Đường 1 Gbps có cost $= \\frac{10^8}{10^9} = 0.1$ (làm tròn = 1). Đường 10 Mbps có cost $= \\frac{10^8}{10^7} = 10$. OSPF ưu tiên đường nhanh hơn.
 
 | Tiêu chí | Distance-Vector (RIP) | Link-State (OSPF) |
 |----------|----------------------|-------------------|
@@ -602,9 +602,9 @@ Bước 2 — R xử lý:
 
 **Bài 5 — Số hop và TTL**
 
-**(a)** TTL ban đầu = 64. Qua 5 router, mỗi router giảm 1 lần: 64 − 5 = **59**.
+**(a)** TTL ban đầu = 64. Qua 5 router, mỗi router giảm 1 lần: $64 - 5 =$ **59**.
 
-**(b)** Qua 64 router: TTL = 64 − 64 = 0. Router thứ 64 giảm TTL về 0 và **hủy gói** (drop), gửi thông báo ICMP "Time Exceeded" về Host A. Gói không bao giờ đến Host B.
+**(b)** Qua 64 router: TTL $= 64 - 64 = 0$. Router thứ 64 giảm TTL về 0 và **hủy gói** (drop), gửi thông báo ICMP "Time Exceeded" về Host A. Gói không bao giờ đến Host B.
 
 Thực tế: TTL mặc định Linux = 64, Windows = 128, nhiều ISP router có 255. Nếu cần đi qua nhiều hop hơn, cần cấu hình TTL lớn hơn ở nguồn.
 
@@ -620,11 +620,11 @@ RIP chọn **Đường 2** (R1→R4→R5, 2 hop) — ít hop hơn.
 
 Nhưng mỗi link Đường 2 chỉ có 1 Mbps — thực tế rất chậm so với 100 Mbps của Đường 1.
 
-**OSPF** dùng metric = cost = 10^8 / bandwidth:
-- Đường 1: cost mỗi link 100 Mbps = 10^8/10^8 = 1. Tổng = 1+1+1 = **3**.
-- Đường 2: cost mỗi link 1 Mbps = 10^8/10^6 = 100. Tổng = 100+100 = **200**.
+**OSPF** dùng metric $= \\text{cost} = \\frac{10^8}{BW}$:
+- Đường 1: cost mỗi link 100 Mbps $= \\frac{10^8}{10^8} = 1$. Tổng $= 1+1+1 =$ **3**.
+- Đường 2: cost mỗi link 1 Mbps $= \\frac{10^8}{10^6} = 100$. Tổng $= 100+100 =$ **200**.
 
-OSPF chọn **Đường 1** (tổng cost 3 < 200) — đúng về mặt hiệu năng.
+OSPF chọn **Đường 1** (tổng cost $3 < 200$) — đúng về mặt hiệu năng.
 
 **Bài học:** RIP mù về băng thông; OSPF biết tính đường thật sự tốt hơn theo năng lực kết nối.
 

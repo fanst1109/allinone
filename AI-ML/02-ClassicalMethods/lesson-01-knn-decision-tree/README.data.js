@@ -32,9 +32,9 @@ Sau bài này, bạn sẽ:
 
 > 💡 **Trực giác**: Bạn muốn biết một loại quả lạ có ăn được không. Bạn nhìn 5 loại quả quen thuộc **gần nhất** (về hình dạng, màu, mùi) và xem chúng có ăn được không — nếu 4/5 ăn được → quả lạ nhiều khả năng ăn được. Đây chính xác là KNN.
 
-**(a) Là gì**: để dự đoán label của điểm mới \`x\`:
-1. Tính khoảng cách từ \`x\` tới tất cả \`n\` điểm training.
-2. Chọn \`k\` điểm gần nhất (k-nearest neighbors).
+**(a) Là gì**: để dự đoán label của điểm mới $x$:
+1. Tính khoảng cách từ $x$ tới tất cả $n$ điểm training.
+2. Chọn $k$ điểm gần nhất (k-nearest neighbors).
 3. **Classification**: majority vote → class có nhiều nhất trong k láng giềng.
 4. **Regression**: mean của k giá trị label.
 
@@ -62,13 +62,13 @@ Giả sử chọn D, G, E (3 gần nhất): vote = {1: 2, 0: 1} → **predict cl
 
 ### 1.2. Distance Metrics
 
-**(a) Euclidean**: \`d(a,b) = √(Σ(aᵢ−bᵢ)²)\` — chuẩn L2.
+**(a) Euclidean**: $d(a,b) = \\sqrt{\\sum (a_i - b_i)^2}$ — chuẩn L2.
 - Ví dụ: a=(1,3), b=(4,7) → d = √((4−1)²+(7−3)²) = √(9+16) = √25 = 5.
 
-**(b) Manhattan**: \`d(a,b) = Σ|aᵢ−bᵢ|\` — chuẩn L1, "grid distance".
+**(b) Manhattan**: $d(a,b) = \\sum |a_i - b_i|$ — chuẩn L1, "grid distance".
 - Cùng ví dụ: d = |4−1| + |7−3| = 3 + 4 = 7.
 
-**(c) Cosine similarity**: \`cos(a,b) = (a·b) / (‖a‖·‖b‖)\` — đo góc, không phụ thuộc độ lớn.
+**(c) Cosine similarity**: $\\cos(a,b) = (a \\cdot b) / (\\|a\\| \\cdot \\|b\\|)$ — đo góc, không phụ thuộc độ lớn.
 - a=(1,0), b=(3,0) → cos = 3/3 = 1 (hoàn toàn cùng hướng, distance = 0).
 - a=(1,0), b=(0,1) → cos = 0 (vuông góc, distance = 1).
 - Dùng khi: text documents (bag of words — tần suất khác nhau nhưng topic giống nhau).
@@ -104,7 +104,7 @@ Giả sử chọn D, G, E (3 gần nhất): vote = {1: 2, 0: 1} → **predict cl
 
 Ở d=100: nearest neighbor và farthest neighbor đều xa ~0.9 → mọi "neighbour" đều xa như nhau → KNN vô nghĩa.
 
-**(b) Công thức**: để cover volume = ε của unit hypercube d chiều bằng k nearest neighbors, cần \`k ≈ n · ε^(1/d)\` tăng theo hàm mũ. Cần n = 10^d điểm để có density tương đương.
+**(b) Công thức**: để cover volume = ε của unit hypercube d chiều bằng k nearest neighbors, cần $k \\approx n \\cdot \\varepsilon^{1/d}$ tăng theo hàm mũ. Cần n = 10^d điểm để có density tương đương.
 
 > ⚠ **Lỗi thường gặp**: dùng KNN với raw pixel (784D cho MNIST 28×28) mà không giảm chiều. Fix: PCA xuống ~50D trước rồi mới KNN.
 
@@ -139,15 +139,15 @@ Giả sử chọn D, G, E (3 gần nhất): vote = {1: 2, 0: 1} → **predict cl
 H(S) = −Σᵢ pᵢ · log₂(pᵢ)
 \`\`\`
 
-với \`pᵢ\` là tỉ lệ class i trong tập S.
+với $p_i$ là tỉ lệ class i trong tập S.
 
 **(b) Vì sao cần**: để so sánh "độ hỗn tạp" của node trước và sau khi split. Split tốt = entropy giảm nhiều nhất.
 
 **(c) Ví dụ số** (4 trường hợp):
-1. **Pure**: S = {+, +, +, +} → p₊=1, p₋=0. \`H = −1·log₂(1) − 0·log₂(0) = 0 + 0 = **0 bit**\`.
-2. **Maximum disorder**: S = {+, +, +, +, +, −, −, −, −, −} (5 vs 5) → p₊=0.5, p₋=0.5. \`H = −0.5·log₂(0.5) − 0.5·log₂(0.5) = −0.5·(−1) − 0.5·(−1) = **1.0 bit**\`.
-3. **3 classes equal**: p=(⅓, ⅓, ⅓). \`H = −3·(⅓·log₂(⅓)) = −3·(⅓·(−1.585)) = **1.585 bit**\`.
-4. **Imbalanced**: S = {+:7, −:3}. p₊=0.7, p₋=0.3. \`H = −0.7·log₂(0.7) − 0.3·log₂(0.3) = −0.7·(−0.515) − 0.3·(−1.737) = 0.360 + 0.521 = **0.881 bit**\`.
+1. **Pure**: S = {+, +, +, +} → p₊=1, p₋=0. $H = -1 \\cdot \\log_2(1) - 0 \\cdot \\log_2(0) = 0 + 0 = \\textbf{0 bit}$.
+2. **Maximum disorder**: S = {+, +, +, +, +, −, −, −, −, −} (5 vs 5) → p₊=0,5, p₋=0,5. $H = -0{,}5 \\cdot \\log_2(0{,}5) - 0{,}5 \\cdot \\log_2(0{,}5) = -0{,}5 \\cdot (-1) - 0{,}5 \\cdot (-1) = \\textbf{1,0 bit}$.
+3. **3 classes equal**: p=(⅓, ⅓, ⅓). $H = -3 \\cdot (\\tfrac{1}{3} \\cdot \\log_2(\\tfrac{1}{3})) = -3 \\cdot (\\tfrac{1}{3} \\cdot (-1{,}585)) = \\textbf{1,585 bit}$.
+4. **Imbalanced**: S = {+:7, −:3}. p₊=0,7, p₋=0,3. $H = -0{,}7 \\cdot \\log_2(0{,}7) - 0{,}3 \\cdot \\log_2(0{,}3) = -0{,}7 \\cdot (-0{,}515) - 0{,}3 \\cdot (-1{,}737) = 0{,}360 + 0{,}521 = \\textbf{0,881 bit}$.
 
 > ❓ **Câu hỏi**: Tại sao log₂? — Đơn vị là "bit". Có thể dùng log tự nhiên (nats) hoặc log₁₀. Kết quả giống nhau về thứ tự so sánh, chỉ khác đơn vị. Trong ML, log₂ thông dụng vì dễ đọc với binary split.
 
@@ -159,7 +159,7 @@ với \`pᵢ\` là tỉ lệ class i trong tập S.
 IG(S, A) = H(S) − Σᵥ (|Sᵥ|/|S|) · H(Sᵥ)
 \`\`\`
 
-với \`Sᵥ\` là subset có A = v.
+với $S_v$ là subset có A = v.
 
 **(b) Vì sao cần**: so sánh nhiều candidate features → chọn feature có IG cao nhất tại mỗi node.
 
@@ -184,7 +184,7 @@ Dataset 14 rows (tổng hợp kinh điển):
 | 13 | Overcast | Hot | Normal | Weak | Yes |
 | 14 | Rain | Mild | High | Strong | No |
 
-S = 14 samples: 9 Yes (+), 5 No (−). \`H(S) = −(9/14)log₂(9/14) − (5/14)log₂(5/14)\`:
+S = 14 samples: 9 Yes (+), 5 No (−). $H(S) = -(9/14)\\log_2(9/14) - (5/14)\\log_2(5/14)$:
 
 \`\`\`
 9/14 ≈ 0.643, log₂(0.643) ≈ −0.637
@@ -194,9 +194,9 @@ H(S) = 0.643 × 0.637 + 0.357 × 1.486 = 0.410 + 0.530 = 0.940 bit
 
 **Tính IG(S, Outlook)**:
 
-- Sunny (5 rows): #1,2,8 → No; #9,11 → Yes. p₊=2/5, p₋=3/5. \`H = −(2/5)log₂(2/5) − (3/5)log₂(3/5) = 0.400×1.322 + 0.600×0.737 = 0.529 + 0.442 = 0.971\`.
-- Overcast (4 rows): #3,7,12,13 → 4 Yes, 0 No. \`H = 0\` (pure!).
-- Rain (5 rows): #4,5,10 → Yes; #6,14 → No. p₊=3/5, p₋=2/5. \`H = 0.971\` (giống Sunny).
+- Sunny (5 rows): #1,2,8 → No; #9,11 → Yes. p₊=2/5, p₋=3/5. $H = -(2/5)\\log_2(2/5) - (3/5)\\log_2(3/5) = 0{,}400 \\times 1{,}322 + 0{,}600 \\times 0{,}737 = 0{,}529 + 0{,}442 = 0{,}971$.
+- Overcast (4 rows): #3,7,12,13 → 4 Yes, 0 No. $H = 0$ (pure!).
+- Rain (5 rows): #4,5,10 → Yes; #6,14 → No. p₊=3/5, p₋=2/5. $H = 0{,}971$ (giống Sunny).
 
 \`\`\`
 IG(S, Outlook) = 0.940 − [(5/14)·0.971 + (4/14)·0 + (5/14)·0.971]
@@ -207,8 +207,8 @@ IG(S, Outlook) = 0.940 − [(5/14)·0.971 + (4/14)·0 + (5/14)·0.971]
 
 **Tính IG(S, Humidity)**:
 
-- High (7 rows): #1,2,3,4,8,12,14 → 3 Yes, 4 No. p₊=3/7, p₋=4/7. \`H = −(3/7)log₂(3/7) − (4/7)log₂(4/7) = 0.429×1.222 + 0.571×0.807 = 0.524 + 0.461 = 0.985\`.
-- Normal (7 rows): #5,6,7,9,10,11,13 → 6 Yes, 1 No. p₊=6/7, p₋=1/7. \`H = −(6/7)log₂(6/7) − (1/7)log₂(1/7) = 0.857×0.222 + 0.143×2.807 = 0.190 + 0.401 = 0.591\`.
+- High (7 rows): #1,2,3,4,8,12,14 → 3 Yes, 4 No. p₊=3/7, p₋=4/7. $H = -(3/7)\\log_2(3/7) - (4/7)\\log_2(4/7) = 0{,}429 \\times 1{,}222 + 0{,}571 \\times 0{,}807 = 0{,}524 + 0{,}461 = 0{,}985$.
+- Normal (7 rows): #5,6,7,9,10,11,13 → 6 Yes, 1 No. p₊=6/7, p₋=1/7. $H = -(6/7)\\log_2(6/7) - (1/7)\\log_2(1/7) = 0{,}857 \\times 0{,}222 + 0{,}143 \\times 2{,}807 = 0{,}190 + 0{,}401 = 0{,}591$.
 
 \`\`\`
 IG(S, Humidity) = 0.940 − [(7/14)·0.985 + (7/14)·0.591]
@@ -241,10 +241,10 @@ Gini(S) = 1 − Σᵢ pᵢ²
 **(b) Vì sao cần**: CART (Gini) thường nhanh hơn ID3 (entropy) vì tránh tính log. Kết quả gần như nhau.
 
 **(c) Ví dụ số** (4 trường hợp):
-1. Pure: p₊=1 → \`Gini = 1 − 1² = 0\`.
-2. 50/50: p=0.5 → \`Gini = 1 − 0.25 − 0.25 = 0.5\` (max).
-3. Play Tennis S: p₊=9/14, p₋=5/14 → \`Gini = 1 − (9/14)² − (5/14)² = 1 − 0.413 − 0.128 = 0.459\`.
-4. 3 classes equal: p=⅓ × 3 → \`Gini = 1 − 3·(⅓)² = 1 − 3/9 = 0.667\`.
+1. Pure: p₊=1 → $\\text{Gini} = 1 - 1^2 = 0$.
+2. 50/50: p=0,5 → $\\text{Gini} = 1 - 0{,}25 - 0{,}25 = 0{,}5$ (max).
+3. Play Tennis S: p₊=9/14, p₋=5/14 → $\\text{Gini} = 1 - (9/14)^2 - (5/14)^2 = 1 - 0{,}413 - 0{,}128 = 0{,}459$.
+4. 3 classes equal: p=⅓ × 3 → $\\text{Gini} = 1 - 3 \\cdot (1/3)^2 = 1 - 3/9 = 0{,}667$.
 
 > ⚠ **Lỗi thường gặp**: nhầm Entropy với Gini — Entropy có giá trị lớn hơn (0–log₂(k) bits), Gini chuẩn hoá trong [0, (k-1)/k]. Không so sánh số tuyệt đối giữa Entropy và Gini.
 
@@ -257,13 +257,13 @@ Gini(S) = 1 − Σᵢ pᵢ²
 \`\`\`
 Tα(T) = R(T) + α · |T|
 \`\`\`
-- \`R(T)\` = training error
-- \`|T|\` = số leaf nodes
-- \`α\` = regularization parameter (như λ trong Ridge)
+- $R(T)$ = training error
+- $|T|$ = số leaf nodes
+- $\\alpha$ = regularization parameter (như $\\lambda$ trong Ridge)
 
-α = 0 → cây đầy đủ (overfit). α lớn → cây nhỏ hơn (underfit). Tune α bằng CV.
+$\\alpha = 0$ → cây đầy đủ (overfit). $\\alpha$ lớn → cây nhỏ hơn (underfit). Tune $\\alpha$ bằng CV.
 
-> ❓ **Câu hỏi**: Khi nào dùng Decision Tree thay vì KNN? — Decision Tree: interpretable (giải thích được từng nhánh), xử lý categorical tự nhiên, nhanh hơn lúc predict (O(log n) vs O(n) của KNN). KNN: không cần training, tốt với small dataset, sensitive với local structure.
+> ❓ **Câu hỏi**: Khi nào dùng Decision Tree thay vì KNN? — Decision Tree: interpretable (giải thích được từng nhánh), xử lý categorical tự nhiên, nhanh hơn lúc predict ($O(\\log n)$ vs $O(n)$ của KNN). KNN: không cần training, tốt với small dataset, sensitive với local structure.
 
 > 🔁 **Kiểm tra**: Tập S có 8 Yes và 2 No. Tính Entropy và Gini.
 
@@ -271,12 +271,12 @@ Tα(T) = R(T) + α · |T|
 
 p₊ = 8/10 = 0.8, p₋ = 2/10 = 0.2.
 
-**Entropy**: \`H = −0.8·log₂(0.8) − 0.2·log₂(0.2)\`.
-log₂(0.8) = log₂(4/5) = 2 − log₂(5) = 2 − 2.322 = −0.322.
-log₂(0.2) = log₂(1/5) = −log₂(5) = −2.322.
-\`H = −0.8×(−0.322) − 0.2×(−2.322) = 0.258 + 0.464 = 0.722 bit\`.
+**Entropy**: $H = -0{,}8 \\cdot \\log_2(0{,}8) - 0{,}2 \\cdot \\log_2(0{,}2)$.
+$\\log_2(0{,}8) = \\log_2(4/5) = 2 - \\log_2(5) = 2 - 2{,}322 = -0{,}322$.
+$\\log_2(0{,}2) = \\log_2(1/5) = -\\log_2(5) = -2{,}322$.
+$H = -0{,}8 \\times (-0{,}322) - 0{,}2 \\times (-2{,}322) = 0{,}258 + 0{,}464 = 0{,}722$ bit.
 
-**Gini**: \`G = 1 − 0.8² − 0.2² = 1 − 0.64 − 0.04 = 0.32\`.
+**Gini**: $G = 1 - 0{,}8^2 - 0{,}2^2 = 1 - 0{,}64 - 0{,}04 = 0{,}32$.
 
 </details>
 
@@ -343,7 +343,7 @@ log₂(0.25) = −2
 H(Weak) = 0.75×0.415 + 0.25×2 = 0.311 + 0.500 = 0.811 bit
 \`\`\`
 
-Strong (6 rows): 3 Yes, 3 No → p=0.5 → \`H(Strong) = 1.0 bit\`.
+Strong (6 rows): 3 Yes, 3 No → p=0,5 → $H(\\text{Strong}) = 1{,}0$ bit.
 
 \`\`\`
 IG(S, Wind) = H(S) − [(8/14)·H(Weak) + (6/14)·H(Strong)]

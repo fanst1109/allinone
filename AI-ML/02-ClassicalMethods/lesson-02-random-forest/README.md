@@ -61,7 +61,7 @@ Hội tụ rất nhanh về e⁻¹ ≈ 0.3679 ngay từ n nhỏ.
 - Classification: **majority vote** qua B cây.
 - Regression: **mean** của B dự đoán.
 
-> ❓ **Câu hỏi**: tại sao bagging giảm variance? — Vì `Var(mean of B independent variables) = Var(X)/B`. B cây "độc lập" → variance giảm B lần. Cây không hoàn toàn độc lập, nhưng vẫn giảm đáng kể.
+> ❓ **Câu hỏi**: tại sao bagging giảm variance? — Vì $\text{Var}(\text{mean of B independent variables}) = \text{Var}(X)/B$. B cây "độc lập" → variance giảm B lần. Cây không hoàn toàn độc lập, nhưng vẫn giảm đáng kể.
 
 > ⚠ **Lỗi thường gặp**: nghĩ bagging giảm bias. **Không**: bias của mỗi cây không đổi → mean bias không đổi. Bagging **chỉ giảm variance**. Nếu mỗi cây underfit (high bias) → forest vẫn underfit.
 
@@ -98,15 +98,15 @@ OOB_error = fraction(oob_prediction[i] ≠ y_i)
 
 ### 2.1. Thêm Randomness: Random Feature Subset
 
-> 💡 **Trực giác**: Bagging đã tạo diversity về **data**, nhưng nếu có một feature rất mạnh (ví dụ "Outlook" trong Play Tennis), tất cả cây sẽ dùng feature đó làm root → các cây vẫn tương quan cao → không giảm variance nhiều. Random Forest thêm diversity về **features**: mỗi lần split, chỉ xem xét `m` features ngẫu nhiên thay vì toàn bộ `d`.
+> 💡 **Trực giác**: Bagging đã tạo diversity về **data**, nhưng nếu có một feature rất mạnh (ví dụ "Outlook" trong Play Tennis), tất cả cây sẽ dùng feature đó làm root → các cây vẫn tương quan cao → không giảm variance nhiều. Random Forest thêm diversity về **features**: mỗi lần split, chỉ xem xét $m$ features ngẫu nhiên thay vì toàn bộ $d$.
 
-**(a) Là gì**: ở mỗi node split, **chọn ngẫu nhiên m features** (không phải toàn bộ d features) → chọn best split trong m features đó.
+**(a) Là gì**: ở mỗi node split, **chọn ngẫu nhiên $m$ features** (không phải toàn bộ $d$ features) → chọn best split trong $m$ features đó.
 
 **(b) Vì sao cần**: khi m < d, các cây sẽ split theo các features khác nhau → ít correlated → averaging giảm variance nhiều hơn.
 
 **(c) Rule of thumb**:
-- Classification: `m = √d` (ví dụ d=100 → m=10).
-- Regression: `m = d/3` (ví dụ d=100 → m=33).
+- Classification: $m = \sqrt{d}$ (ví dụ d=100 → m=10).
+- Regression: $m = d/3$ (ví dụ d=100 → m=33).
 
 **(d) Ví dụ số**: d=4 features (Iris: sepal_l, sepal_w, petal_l, petal_w), m=√4=2.
 
@@ -164,9 +164,9 @@ Petal features quan trọng hơn sepal → phù hợp với domain knowledge (nh
 **(d) 4 ví dụ để verify trực giác**:
 
 1. **Toy binary**: X = [important, noise1, noise2, noise3]. Random Forest → importance: [0.85, 0.05, 0.06, 0.04]. Đúng.
-2. **Correlated features**: X₁ ≈ X₂ (correlation 0.95). Importance chia đều: [0.45, 0.45, 0.05, 0.05] — MDI chia đôi thay vì chọn một.
+2. **Correlated features**: $X_1 \approx X_2$ (correlation 0,95). Importance chia đều: [0.45, 0.45, 0.05, 0.05] — MDI chia đôi thay vì chọn một.
 3. **High cardinality categorical**: zipcode (10000 values) → MDI overestimates! Dùng permutation importance thay thế.
-4. **Toy regression**: y = 3x₁ + 0.1x₂. Linear regression coeff = [3, 0.1]. Random Forest MDI = [0.92, 0.08]. Tỷ lệ tương đương.
+4. **Toy regression**: $y = 3x_1 + 0{,}1x_2$. Linear regression coeff = [3, 0.1]. Random Forest MDI = [0.92, 0.08]. Tỷ lệ tương đương.
 
 ### 3.2. Permutation Importance
 
@@ -244,7 +244,7 @@ P(có mặt) = 1 − 0.3677 = **0.6323 ≈ 63.2%**.
 
 ### Bài 2
 
-**m tại mỗi split**: m = √d = √4 = 2 features.
+**m tại mỗi split**: $m = \sqrt{d} = \sqrt{4} = 2$ features.
 
 **Số splits**: binary tree depth 4 → số internal nodes = 2⁰ + 2¹ + 2² + 2³ = 1+2+4+8 = 15 splits/cây.
 

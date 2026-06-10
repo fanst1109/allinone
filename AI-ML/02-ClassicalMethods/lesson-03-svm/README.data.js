@@ -11,17 +11,17 @@ SVM tìm **hyperplane tối ưu** không phải bằng cách khớp data tốt n
 
 Sau bài này, bạn sẽ:
 
-- Phát biểu bài toán **maximum margin classifier**: tối đa hóa \`2/‖w‖\` tương đương minimize \`‖w‖²/2\`.
+- Phát biểu bài toán **maximum margin classifier**: tối đa hóa $2/\\|w\\|$ tương đương minimize $\\|w\\|^2/2$.
 - Giải thích **support vectors** là gì và tại sao chỉ chúng quyết định hyperplane.
 - Phân biệt **hard margin** và **soft margin** (slack variable ξᵢ, cost C).
-- Mô tả **kernel trick**: tại sao KNN không cần tính φ(x) tường minh.
+- Mô tả **kernel trick**: tại sao KNN không cần tính $\\varphi(x)$ tường minh.
 - Tính kernel values: linear, polynomial, RBF với ví dụ số cụ thể.
 - Giải thích effect của hyperparameter C và γ (RBF) lên margin và boundary.
 
 ## Kiến thức tiền đề
 
 - [T2-L01 — Decision Tree](../lesson-01-knn-decision-tree/): binary classification.
-- Linear algebra: dot product, norm, hyperplane \`w·x + b = 0\`.
+- Linear algebra: dot product, norm, hyperplane $w \\cdot x + b = 0$.
 - Optimization cơ bản: Lagrange multipliers (khái niệm, không cần tính).
 
 ---
@@ -32,21 +32,21 @@ Sau bài này, bạn sẽ:
 
 > 💡 **Trực giác**: có vô số đường thẳng có thể tách được hai class. Đường nào tốt nhất? — Đường có **khoảng trống rộng nhất** hai bên. Nếu test point hơi dao động về bất kỳ phía nào, đường có margin rộng vẫn phân loại đúng nhiều hơn.
 
-Cho tập linearly separable: \`{(x₁, y₁), …, (xₙ, yₙ)}\` với \`yᵢ ∈ {−1, +1}\`.
+Cho tập linearly separable: $\\{(x_1, y_1), \\dots, (x_n, y_n)\\}$ với $y_i \\in \\{-1, +1\\}$.
 
-Hyperplane: \`f(x) = w·x + b = 0\`.
+Hyperplane: $f(x) = w \\cdot x + b = 0$.
 
-Điều kiện phân loại đúng: \`yᵢ · (w·xᵢ + b) ≥ 1\` cho mọi i.
+Điều kiện phân loại đúng: $y_i \\cdot (w \\cdot x_i + b) \\geq 1$ cho mọi i.
 
 ### 1.2. Margin
 
-**Margin** = khoảng cách từ hyperplane tới support vector gần nhất = \`2 / ‖w‖\`.
+**Margin** = khoảng cách từ hyperplane tới support vector gần nhất = $2 / \\|w\\|$.
 
 **(a) Là gì**: vùng "safety buffer" quanh decision boundary.
 
 **(b) Vì sao tối đa hóa margin**: lý thuyết VC dimension và structural risk minimization chứng minh rằng tối đa margin → minimize upper bound của generalization error.
 
-**(c) Bài toán tối ưu**: tối đa hóa \`2/‖w‖\` ≡ minimize \`‖w‖²/2\`:
+**(c) Bài toán tối ưu**: tối đa hóa $2/\\|w\\|$ ≡ minimize $\\|w\\|^2/2$:
 
 \`\`\`
 min   (1/2)‖w‖²
@@ -60,29 +60,29 @@ Class +1: A=(1,2), B=(2,3), C=(3,1)
 Class −1: D=(5,4), E=(6,3), F=(4,5)
 \`\`\`
 
-Optimal hyperplane (sau giải QP): \`w = [−1.2, 0.8]\`, b = 2.4.
+Optimal hyperplane (sau giải QP): $w = [-1{,}2,\\ 0{,}8]$, b = 2,4.
 
-Check: \`w·A + b = −1.2×1 + 0.8×2 + 2.4 = −1.2 + 1.6 + 2.4 = 2.8 > 0\`. (class +1 ✓)
+Check: $w \\cdot A + b = -1{,}2 \\times 1 + 0{,}8 \\times 2 + 2{,}4 = -1{,}2 + 1{,}6 + 2{,}4 = 2{,}8 > 0$. (class +1 ✓)
 
-Margin = 2/‖w‖ = 2/√(1.44+0.64) = 2/√2.08 ≈ 2/1.44 ≈ **1.39**.
+Margin = $2/\\|w\\| = 2/\\sqrt{1{,}44+0{,}64} = 2/\\sqrt{2{,}08} \\approx 2/1{,}44 \\approx \\textbf{1{,}39}$.
 
 ### 1.3. Support Vectors
 
-**(a) Là gì**: các điểm data **nằm đúng trên margin boundaries** (khoảng cách = 1/‖w‖ tới hyperplane). Chỉ những điểm này ảnh hưởng tới hyperplane — xóa bất kỳ điểm nào không phải support vector → hyperplane không đổi.
+**(a) Là gì**: các điểm data **nằm đúng trên margin boundaries** (khoảng cách = $1/\\|w\\|$ tới hyperplane). Chỉ những điểm này ảnh hưởng tới hyperplane — xóa bất kỳ điểm nào không phải support vector → hyperplane không đổi.
 
 **(b) Ví dụ số** (tiếp):
 
 Sau giải QP, chỉ có B=(2,3) từ class +1 và E=(6,3) từ class −1 là support vectors. A, C, D, F không ảnh hưởng.
 
-Verify B là support vector: \`|w·B + b| / ‖w‖ = |−1.2×2 + 0.8×3 + 2.4| / 1.44 = |−2.4+2.4+2.4| / 1.44 = 2.4/1.44 ≈ 1.67\`... (chuẩn hóa khác nhau tùy ký hiệu).
+Verify B là support vector: $|w \\cdot B + b| / \\|w\\| = |-1{,}2 \\times 2 + 0{,}8 \\times 3 + 2{,}4| / 1{,}44 = |-2{,}4+2{,}4+2{,}4| / 1{,}44 = 2{,}4/1{,}44 \\approx 1{,}67$... (chuẩn hóa khác nhau tùy ký hiệu).
 
 > ❓ **Câu hỏi**: Có bao nhiêu support vectors tối thiểu trong 2D? — Ít nhất 3: 2 từ một class, 1 từ class kia (hoặc ngược lại). Với d chiều: ít nhất d+1 support vectors.
 
 > ❓ **Câu hỏi**: SVM có thể train được khi n << d không? — Có! Vì SVM chỉ phụ thuộc vào support vectors (thường ít hơn n nhiều) và giải trong dual space với n×n matrix thay vì d×d.
 
 📝 **Tóm tắt mục 1**:
-- Maximum margin hyperplane: minimize ‖w‖² subject to yᵢ(w·xᵢ+b) ≥ 1.
-- Margin = 2/‖w‖ — càng rộng càng generalize tốt.
+- Maximum margin hyperplane: minimize $\\|w\\|^2$ subject to $y_i(w \\cdot x_i + b) \\geq 1$.
+- Margin = $2/\\|w\\|$ — càng rộng càng generalize tốt.
 - Support vectors: điểm trên margin, quyết định hyperplane. Phần còn lại vô nghĩa.
 
 ---
@@ -95,10 +95,10 @@ Verify B là support vector: \`|w·B + b| / ‖w‖ = |−1.2×2 + 0.8×3 + 2.4|
 
 ### 2.2. Slack Variables ξᵢ
 
-**(a) Là gì**: mỗi điểm i có slack \`ξᵢ ≥ 0\` đo mức độ vi phạm:
-- \`ξᵢ = 0\`: điểm đúng phía, ngoài margin.
-- \`0 < ξᵢ < 1\`: điểm đúng phía nhưng **trong margin**.
-- \`ξᵢ > 1\`: điểm **sai phía** (misclassified).
+**(a) Là gì**: mỗi điểm i có slack $\\xi_i \\geq 0$ đo mức độ vi phạm:
+- $\\xi_i = 0$: điểm đúng phía, ngoài margin.
+- $0 < \\xi_i < 1$: điểm đúng phía nhưng **trong margin**.
+- $\\xi_i > 1$: điểm **sai phía** (misclassified).
 
 **(b) Bài toán**:
 
@@ -127,7 +127,7 @@ C=1.0 optimal — balance giữa margin rộng và ít violation.
 > ⚠ **Lỗi thường gặp**: nghĩ C lớn luôn tốt hơn (ít misclassification). **Sai**: C lớn → overfit noise → val accuracy giảm. Tune C bằng CV.
 
 📝 **Tóm tắt mục 2**:
-- Soft margin: thêm slack ξᵢ cho phép violation, phạt bởi cost C.
+- Soft margin: thêm slack $\\xi_i$ cho phép violation, phạt bởi cost C.
 - C lớn: ít violation, margin hẹp, overfit. C nhỏ: nhiều violation, margin rộng, underfit.
 - Tune C bằng CV (cross-validation).
 
@@ -137,32 +137,32 @@ C=1.0 optimal — balance giữa margin rộng và ít violation.
 
 ### 3.1. Vấn đề phi tuyến
 
-> 💡 **Trực giác**: XOR problem: class +1 ở (0,0), (1,1); class −1 ở (0,1), (1,0) — **không linearly separable** trong 2D. Nhưng nếu map lên 3D: \`φ(x₁,x₂) = (x₁, x₂, x₁x₂)\` → class +1 tại z₃=0, class −1 tại z₃=0 hoặc z₃=1... vẫn tricky. Nhưng ý tưởng là: **data phi tuyến trong thấp-D có thể linearly separable trong cao-D**.
+> 💡 **Trực giác**: XOR problem: class +1 ở (0,0), (1,1); class −1 ở (0,1), (1,0) — **không linearly separable** trong 2D. Nhưng nếu map lên 3D: $\\varphi(x_1,x_2) = (x_1, x_2, x_1 x_2)$ → class +1 tại z₃=0, class −1 tại z₃=0 hoặc z₃=1... vẫn tricky. Nhưng ý tưởng là: **data phi tuyến trong thấp-D có thể linearly separable trong cao-D**.
 
 ### 3.2. Kernel Function
 
-**(a) Là gì**: hàm \`K(x, x') = φ(x)·φ(x')\` tính inner product trong **feature space φ** mà không cần compute φ tường minh.
+**(a) Là gì**: hàm $K(x, x') = \\varphi(x) \\cdot \\varphi(x')$ tính inner product trong **feature space $\\varphi$** mà không cần compute $\\varphi$ tường minh.
 
-**(b) Vì sao cần**: SVM dual formulation chỉ cần inner products \`xᵢ·xⱼ\`. Thay \`xᵢ·xⱼ\` bằng \`K(xᵢ, xⱼ)\` → SVM trong high-d space mà không cần tính φ (có thể vô hạn chiều).
+**(b) Vì sao cần**: SVM dual formulation chỉ cần inner products $x_i \\cdot x_j$. Thay $x_i \\cdot x_j$ bằng $K(x_i, x_j)$ → SVM trong high-d space mà không cần tính $\\varphi$ (có thể vô hạn chiều).
 
 **(c) 4 kernel phổ biến**:
 
-**1. Linear**: \`K(x, x') = x·x'\`.
+**1. Linear**: $K(x, x') = x \\cdot x'$.
 - Ví dụ: x=(1,2), x'=(3,4) → K = 1×3 + 2×4 = **11**.
 - Khi dùng: data linearly separable hoặc high-d (text).
 
-**2. Polynomial**: \`K(x, x') = (x·x' + c)^d\`.
-- Ví dụ: c=1, d=2, x=(1,2), x'=(3,4): K = (11+1)² = **144**.
-- Implicit φ: x=(x₁,x₂) → φ = (x₁², √2·x₁x₂, x₂², √2x₁, √2x₂, 1) (d=2, 6 chiều).
+**2. Polynomial**: $K(x, x') = (x \\cdot x' + c)^d$.
+- Ví dụ: c=1, d=2, x=(1,2), x'=(3,4): $K = (11+1)^2 = \\textbf{144}$.
+- Implicit $\\varphi$: $x=(x_1,x_2) \\to \\varphi = (x_1^2, \\sqrt{2} \\cdot x_1 x_2, x_2^2, \\sqrt{2} x_1, \\sqrt{2} x_2, 1)$ (d=2, 6 chiều).
 - Khi dùng: NLP (n-grams), gene expression.
 
-**3. RBF / Gaussian**: \`K(x, x') = exp(−γ‖x−x'‖²)\`.
-- γ = 0.1, x=(1,2), x'=(3,4): ‖x−x'‖² = (1−3)²+(2−4)² = 4+4=8. K = exp(−0.1×8) = e⁻⁰·⁸ ≈ **0.449**.
-- γ = 1.0: K = exp(−8) ≈ **0.000335** (gần 0 vì x và x' xa nhau trong feature space).
-- φ có **vô hạn chiều** (Taylor expansion của exp).
+**3. RBF / Gaussian**: $K(x, x') = \\exp(-\\gamma \\|x-x'\\|^2)$.
+- γ = 0,1, x=(1,2), x'=(3,4): $\\|x-x'\\|^2 = (1-3)^2+(2-4)^2 = 4+4=8$. $K = \\exp(-0{,}1 \\times 8) = e^{-0{,}8} \\approx \\textbf{0{,}449}$.
+- γ = 1,0: $K = \\exp(-8) \\approx \\textbf{0{,}000335}$ (gần 0 vì x và x' xa nhau trong feature space).
+- $\\varphi$ có **vô hạn chiều** (Taylor expansion của exp).
 - Khi dùng: mặc định khi không biết cấu trúc.
 
-**4. Sigmoid**: \`K(x, x') = tanh(α·x·x' + c)\`.
+**4. Sigmoid**: $K(x, x') = \\tanh(\\alpha \\cdot x \\cdot x' + c)$.
 - Không phải positive definite mọi trường hợp → dùng cẩn thận.
 
 ### 3.3. Ảnh hưởng của γ (RBF)
@@ -183,7 +183,7 @@ C=1.0 optimal — balance giữa margin rộng và ít violation.
 | 10 | 91% |
 | 100 | 74% (overfits) |
 
-> ❓ **Câu hỏi**: Tại sao kernel SVM không tính φ(x) tường minh? — RBF kernel có φ vô hạn chiều → không thể lưu trữ hay tính. Nhưng dual SVM chỉ cần K(xᵢ, xⱼ) — một số thực — để predict: \`f(x) = Σ αᵢyᵢK(xᵢ,x) + b\`. Tính kernel function đủ rồi.
+> ❓ **Câu hỏi**: Tại sao kernel SVM không tính φ(x) tường minh? — RBF kernel có φ vô hạn chiều → không thể lưu trữ hay tính. Nhưng dual SVM chỉ cần $K(x_i, x_j)$ — một số thực — để predict: $f(x) = \\sum \\alpha_i y_i K(x_i, x) + b$. Tính kernel function đủ rồi.
 
 > ⚠ **Lỗi thường gặp**: quên normalize features trước khi dùng RBF kernel. RBF nhạy với scale: feature range [0,1] và [0,1000] → ‖x−x'‖² bị dominated bởi feature lớn → kernel không hoạt động đúng. Luôn StandardScaler/MinMaxScaler trước SVM.
 
@@ -204,11 +204,11 @@ Optimal: C=1.0, γ=1.0. Grid search: 16 configurations × 5 folds = 80 fits.
 
 <details><summary>Đáp án</summary>
 
-‖x − x'‖² = (0−2)² + (1−3)² = 4 + 4 = 8.
+$\\|x - x'\\|^2 = (0-2)^2 + (1-3)^2 = 4 + 4 = 8$.
 
-K = exp(−0.5 × 8) = exp(−4) = e⁻⁴ ≈ **0.0183**.
+$K = \\exp(-0{,}5 \\times 8) = \\exp(-4) = e^{-4} \\approx \\textbf{0{,}0183}$.
 
-Rất nhỏ vì hai điểm cách nhau xa (khoảng cách √8 ≈ 2.83) và γ=0.5 tạo kernel hẹp.
+Rất nhỏ vì hai điểm cách nhau xa (khoảng cách $\\sqrt{8} \\approx 2{,}83$) và γ=0,5 tạo kernel hẹp.
 
 </details>
 
@@ -222,13 +222,13 @@ Rất nhỏ vì hai điểm cách nhau xa (khoảng cách √8 ≈ 2.83) và γ=
 
 ## 4. Bài tập
 
-**Bài 1**: Hai điểm support vectors: A=(2,1) class +1, B=(4,3) class −1. Midpoint giữa hai support vectors là? Nếu optimal hyperplane đi qua midpoint và vuông góc với AB, tính \`w\` (unit normal) và margin.
+**Bài 1**: Hai điểm support vectors: A=(2,1) class +1, B=(4,3) class −1. Midpoint giữa hai support vectors là? Nếu optimal hyperplane đi qua midpoint và vuông góc với AB, tính $w$ (unit normal) và margin.
 
-**Bài 2**: Tính polynomial kernel K(x, x') với c=0, d=3, x=(1,2), x'=(3,1). Tính bằng cả công thức kernel lẫn inner product của φ tường minh (gợi ý: d=3, 1D là x → φ(x)=(1, √3x, √3x², x³)).
+**Bài 2**: Tính polynomial kernel $K(x, x')$ với c=0, d=3, x=(1,2), x'=(3,1). Tính bằng cả công thức kernel lẫn inner product của $\\varphi$ tường minh (gợi ý: d=3, 1D là x → $\\varphi(x)=(1, \\sqrt{3}x, \\sqrt{3}x^2, x^3)$).
 
 **Bài 3**: SVM với C=0.01 cho train accuracy 70%, val accuracy 75%. SVM với C=100 cho train accuracy 99%, val accuracy 78%. Kết luận gì? Bạn sẽ thử C nào tiếp theo?
 
-**Bài 4**: Dataset: feature 1 range [0, 1000], feature 2 range [0, 1]. Tính ‖x − x'‖² với x=(500, 0.5), x'=(501, 0.6) trước và sau khi chuẩn hóa Min-Max. Nhận xét ảnh hưởng tới RBF kernel.
+**Bài 4**: Dataset: feature 1 range [0, 1000], feature 2 range [0, 1]. Tính $\\|x - x'\\|^2$ với x=(500, 0.5), x'=(501, 0.6) trước và sau khi chuẩn hóa Min-Max. Nhận xét ảnh hưởng tới RBF kernel.
 
 ---
 
@@ -240,27 +240,27 @@ Rất nhỏ vì hai điểm cách nhau xa (khoảng cách √8 ≈ 2.83) và γ=
 
 **Vector AB**: AB = (4−2, 3−1) = (2, 2). 
 
-**w (vuông góc với AB)**: w = (2,2) normalize → ‖(2,2)‖ = √(4+4) = 2√2.
-Unit normal: w = (2/2√2, 2/2√2) = (1/√2, 1/√2) ≈ **(0.707, 0.707)**.
+**w (vuông góc với AB)**: $w = (2,2)$ normalize → $\\|(2,2)\\| = \\sqrt{4+4} = 2\\sqrt{2}$.
+Unit normal: $w = (2/2\\sqrt{2}, 2/2\\sqrt{2}) = (1/\\sqrt{2}, 1/\\sqrt{2}) \\approx \\textbf{(0{,}707, 0{,}707)}$.
 
-**Margin**: khoảng cách từ A tới midplane = |w·(A−M)| = |(0.707×(2−3) + 0.707×(1−2))| = |0.707×(−1)+0.707×(−1)| = |−1.414| = √2/2 × 2 = √2. Half margin = √2/2 ≈ 0.707.
+**Margin**: khoảng cách từ A tới midplane = $|w \\cdot (A-M)| = |(0{,}707 \\times (2-3) + 0{,}707 \\times (1-2))| = |0{,}707 \\times (-1)+0{,}707 \\times (-1)| = |-1{,}414| = \\sqrt{2}/2 \\times 2 = \\sqrt{2}$. Half margin = $\\sqrt{2}/2 \\approx 0{,}707$.
 
-Margin = 2 × 0.707 = **√2 ≈ 1.414**.
+Margin = $2 \\times 0{,}707 = \\sqrt{2} \\approx \\textbf{1{,}414}$.
 
-Verify: margin = 2/‖w‖ = 2/|(2,2)|/√2... Với non-unit w = (2,2): ‖w‖=2√2, margin = 2/(2√2) = 1/√2 → total = 2 × 1/√2 = √2. ✓
+Verify: margin = $2/\\|w\\| = 2/|(2,2)|/\\sqrt{2}$... Với non-unit $w = (2,2)$: $\\|w\\|=2\\sqrt{2}$, margin = $2/(2\\sqrt{2}) = 1/\\sqrt{2}$ → total = $2 \\times 1/\\sqrt{2} = \\sqrt{2}$. ✓
 
 ### Bài 2
 
-**Kernel**: K = (x·x')³ = ((1×3)+(2×1))³ = (3+2)³ = 5³ = **125**.
+**Kernel**: $K = (x \\cdot x')^3 = ((1 \\times 3)+(2 \\times 1))^3 = (3+2)^3 = 5^3 = \\textbf{125}$.
 
 **φ tường minh** (simplified 1D, mỗi feature độc lập — thực ra 2D polynomial phức tạp hơn, đây là illustration):
-- φ(x₁=1): (1, √3×1, √3×1², 1³) = (1, √3, √3, 1).
-- φ(x'₁=3): (1, √3×3, √3×9, 27) = (1, 3√3, 9√3, 27).
+- $\\varphi(x_1=1)$: $(1, \\sqrt{3} \\times 1, \\sqrt{3} \\times 1^2, 1^3) = (1, \\sqrt{3}, \\sqrt{3}, 1)$.
+- $\\varphi(x'_1=3)$: $(1, \\sqrt{3} \\times 3, \\sqrt{3} \\times 9, 27) = (1, 3\\sqrt{3}, 9\\sqrt{3}, 27)$.
 
-Nhưng với 2D input và degree 3: x=(x₁,x₂)=(1,2), x'=(3,1).
-K(x,x') = (x·x')^d = (1×3 + 2×1)³ = 5³ = **125**. (c=0)
+Nhưng với 2D input và degree 3: $x=(x_1,x_2)=(1,2)$, $x'=(3,1)$.
+$K(x,x') = (x \\cdot x')^d = (1 \\times 3 + 2 \\times 1)^3 = 5^3 = \\textbf{125}$. (c=0)
 
-Verify bằng cách expand: (x₁x'₁ + x₂x'₂)³ = (3+2)³ = 125. ✓
+Verify bằng cách expand: $(x_1 x'_1 + x_2 x'_2)^3 = (3+2)^3 = 125$. ✓
 
 ### Bài 3
 
@@ -279,9 +279,9 @@ Verify bằng cách expand: (x₁x'₁ + x₂x'₂)³ = (3+2)³ = 125. ✓
 ‖x − x'‖² = (500−501)² + (0.5−0.6)² = 1 + 0.01 = 1.01
 \`\`\`
 
-Feature 1 chiếm 1/1.01 = 99% của distance. Feature 2 (0.01) = 1% → gần như vô hình.
+Feature 1 chiếm 1/1,01 = 99% của distance. Feature 2 (0,01) = 1% → gần như vô hình.
 
-K_RBF(γ=1) = exp(−1.01) ≈ 0.365.
+$K_{\\text{RBF}}(\\gamma=1) = \\exp(-1{,}01) \\approx 0{,}365$.
 
 **Sau Min-Max** (feature 1: /1000, feature 2: /1):
 x_norm = (0.500, 0.5), x'_norm = (0.501, 0.6).
@@ -291,7 +291,7 @@ x_norm = (0.500, 0.5), x'_norm = (0.501, 0.6).
 
 Feature 2 nay chiếm 99.99% → đóng góp cân bằng.
 
-K_RBF(γ=1) = exp(−0.01) ≈ **0.990** (rất khác 0.365 trước!).
+$K_{\\text{RBF}}(\\gamma=1) = \\exp(-0{,}01) \\approx \\textbf{0{,}990}$ (rất khác 0,365 trước!).
 
 **Nhận xét**: kết quả kernel thay đổi hoàn toàn sau chuẩn hóa. Feature 2 (biến đổi 0.1) ảnh hưởng nhiều hơn feature 1 (biến đổi 1 trong 1000 scale) chỉ sau normalize → model học pattern thực sự trong data.
 

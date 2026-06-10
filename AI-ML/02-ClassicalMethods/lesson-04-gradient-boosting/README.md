@@ -59,14 +59,14 @@ Sau bài này, bạn sẽ:
 
 **(c) Walk-through ví dụ số**:
 
-Dataset 5 points: `{(x₁,+1), (x₂,−1), (x₃,+1), (x₄,−1), (x₅,+1)}`.
+Dataset 5 points: $\{(x_1,+1), (x_2,-1), (x_3,+1), (x_4,-1), (x_5,+1)\}$.
 
 **Iter 1**: weights uniform = [0.2, 0.2, 0.2, 0.2, 0.2]. Learner h₁ sai trên x₂, x₃:
 ```
 ε₁ = 0.2 + 0.2 = 0.4
 α₁ = 0.5 · ln(0.6/0.4) = 0.5 · ln(1.5) = 0.5 × 0.405 = 0.203
 ```
-Update weights (sai → tăng, đúng → giảm): x₂ và x₃ tăng: `wᵢ_new = wᵢ · exp(−0.203 · yᵢ · hₘ(xᵢ))`. Sau normalize: x₂,x₃ → 0.267, x₁,x₄,x₅ → 0.155.
+Update weights (sai → tăng, đúng → giảm): x₂ và x₃ tăng: $w_i^{\text{new}} = w_i \cdot \exp(-0{,}203 \cdot y_i \cdot h_m(x_i))$. Sau normalize: x₂,x₃ → 0,267, x₁,x₄,x₅ → 0,155.
 
 **Iter 2**: focus vào x₂,x₃ (weights cao hơn). Learner h₂ sai trên x₁:
 ```
@@ -88,7 +88,7 @@ Update weights (sai → tăng, đúng → giảm): x₂ và x₃ tăng: `wᵢ_ne
 
 ### 3.2. Thuật toán GBM
 
-**(a) Là gì**: tìm `F*(x) = argmin_F E[L(y, F(x))]` bằng cách thêm dần các weak learner:
+**(a) Là gì**: tìm $F^*(x) = \arg\min_F E[L(y, F(x))]$ bằng cách thêm dần các weak learner:
 
 ```
 Khởi tạo: F₀(x) = argmin_γ Σ L(yᵢ, γ)   [constant prediction]
@@ -99,9 +99,9 @@ For m = 1 to M:
   4. Update: F_m(x) = F_{m-1}(x) + η·γₘ·hₘ(x)
 ```
 
-**(b) Pseudo-residual cho MSE loss**: `L = (y − F)²/2`.
+**(b) Pseudo-residual cho MSE loss**: $L = (y - F)^2/2$.
 
-∂L/∂F = −(y − F) → rᵢ = y − F(xᵢ) = **residual thông thường**!
+$\partial L/\partial F = -(y - F) \to r_i = y - F(x_i) =$ **residual thông thường**!
 
 Với MSE, GBM = fit trees tới residuals → cộng dần.
 
@@ -164,7 +164,7 @@ MSE giảm ~53% mỗi iteration ban đầu.
 
 ### 3.4. Learning Rate η
 
-**(a) Là gì**: shrinks contribution của mỗi tree: `F_m = F_{m-1} + η·h_m`.
+**(a) Là gì**: shrinks contribution của mỗi tree: $F_m = F_{m-1} + \eta \cdot h_m$.
 
 **(b) Vì sao cần**: không có η (η=1), mỗi cây fit hoàn toàn residual → model overfit ngay iteration 1-2.
 
@@ -203,13 +203,13 @@ MSE giảm ~53% mỗi iteration ban đầu.
 ```
 L ≈ Σᵢ [gᵢ·fₘ(xᵢ) + (1/2)hᵢ·fₘ(xᵢ)²]
 ```
-với `gᵢ = ∂L/∂F|_{m-1}`, `hᵢ = ∂²L/∂F²|_{m-1}`.
+với $g_i = \partial L/\partial F|_{m-1}$, $h_i = \partial^2 L/\partial F^2|_{m-1}$.
 
 Cho phép tính gain của mỗi split **analytically** → nhanh hơn line search.
 
-**Regularization**: thêm `Ω(fₘ) = γ·T + (1/2)λ·‖w‖²` vào objective (T = số leaves, w = leaf weights).
+**Regularization**: thêm $\Omega(f_m) = \gamma \cdot T + (1/2)\lambda \cdot \|w\|^2$ vào objective (T = số leaves, w = leaf weights).
 
-**(c) Ví dụ số**: dataset với `g=[0.5, −0.3, 0.8, −0.2]`, `h=[0.9, 1.1, 0.8, 1.2]`. Split gain:
+**(c) Ví dụ số**: dataset với $g=[0{,}5,\ -0{,}3,\ 0{,}8,\ -0{,}2]$, $h=[0{,}9,\ 1{,}1,\ 0{,}8,\ 1{,}2]$. Split gain:
 ```
 Gain = (1/2) · [(Σᵢ∈L gᵢ)² / (Σᵢ∈L hᵢ + λ) + (Σᵢ∈R gᵢ)² / (Σᵢ∈R hᵢ + λ) − (Σᵢ gᵢ)² / (Σᵢ hᵢ + λ)] − γ
 ```
@@ -300,7 +300,7 @@ Khi ε = 0.5 (random): α = 0 → learner này **không đóng góp gì**. AdaBo
 
 Giải thích: ε=0.5 nghĩa là learner chỉ đúng ngẫu nhiên như tung đồng xu → không thông tin.
 
-Weights sau update với α=0: `wᵢ_new = wᵢ · exp(0) = wᵢ` → **weights không thay đổi**. Normalize: vẫn [0.25, 0.25, 0.25, 0.25].
+Weights sau update với α=0: $w_i^{\text{new}} = w_i \cdot \exp(0) = w_i$ → **weights không thay đổi**. Normalize: vẫn [0.25, 0.25, 0.25, 0.25].
 
 ### Bài 3
 

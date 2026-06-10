@@ -206,7 +206,7 @@ P4 [  4  3  3 ]
 
 ### 4.2. Tính Need và Available
 
-**Need = Max − Allocation:**
+**$\\text{Need} = \\text{Max} - \\text{Allocation}$:**
 
 \`\`\`
       A  B  C
@@ -217,7 +217,7 @@ P3 [  0  1  1 ]   (2-2, 2-1, 2-1)
 P4 [  4  3  1 ]   (4-0, 3-0, 3-2)
 \`\`\`
 
-**Available** = Total − Σ(Allocation):
+**Available** $= \\text{Total} - \\sum(\\text{Allocation})$:
 
 \`\`\`
 Σ Allocation A = 0+2+3+2+0 = 7 → Available A = 10-7 = 3
@@ -334,8 +334,8 @@ Ví dụ: nếu P2 bổ sung yêu cầu thêm, Available giảm xuống [2,3,0] 
 - *"Unsafe state có nghĩa là deadlock chắc chắn xảy ra không?"* — Không. Unsafe state nghĩa là có **thể** deadlock nếu process xin đủ Max. Nếu process không xin thêm, vẫn an toàn. Nhưng Banker không chấp nhận rủi ro → không cho cấp phát nếu dẫn đến unsafe state.
 
 📝 **Tóm tắt mục 4:**
-- Banker cần 3 ma trận: Allocation (đang giữ), Max (tối đa cần), Need = Max - Allocation.
-- Available = Total - Σ(Allocation).
+- Banker cần 3 ma trận: Allocation (đang giữ), Max (tối đa cần), $\\text{Need} = \\text{Max} - \\text{Allocation}$.
+- $\\text{Available} = \\text{Total} - \\sum(\\text{Allocation})$.
 - Tìm safe sequence: lặp lại — tìm process có Need ≤ Available, cho chạy, cộng Allocation vào Available.
 - Safe sequence tồn tại → hệ thống an toàn → cho phép cấp phát.
 
@@ -532,6 +532,6 @@ Phá **Circular Wait**. Thực tế nhất trong 4 cách — chi phí thấp (ch
 2. **4 điều kiện Coffman** (tất cả phải đồng thời): Mutual Exclusion + Hold & Wait + No Preemption + Circular Wait. Phá 1 → không deadlock.
 3. **RAG**: đồ thị phân bổ tài nguyên. Chu trình → deadlock (1 instance: chắc; nhiều instance: có thể).
 4. **Phòng ngừa**: phá ≥ 1 Coffman điều kiện (ví dụ: thứ tự lock toàn cục phá Circular Wait).
-5. **Thuật toán Banker**: kiểm tra safe state trước mỗi cấp phát. Need = Max - Allocation. Tìm safe sequence bằng cách chọn process có Need ≤ Available, cho chạy, cộng Allocation vào Available.
+5. **Thuật toán Banker**: kiểm tra safe state trước mỗi cấp phát. $\\text{Need} = \\text{Max} - \\text{Allocation}$. Tìm safe sequence bằng cách chọn process có $\\text{Need} \\leq \\text{Available}$, cho chạy, cộng Allocation vào Available.
 6. **Phát hiện & Phục hồi**: chờ deadlock xảy ra, phát hiện bằng chu trình / thuật toán, giải quyết bằng kill process hoặc rollback.
 `;

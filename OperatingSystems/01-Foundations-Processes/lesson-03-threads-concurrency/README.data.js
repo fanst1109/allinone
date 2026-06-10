@@ -156,7 +156,7 @@ Core2: |----B----|
 📝 **Tóm tắt mục 2:**
 - **Concurrency** = nhiều tác vụ tiến triển xen kẽ (không cần cùng lúc). Tính chất của cấu trúc.
 - **Parallelism** = nhiều tác vụ thực thi thực sự cùng lúc. Cần nhiều core.
-- Concurrency ⊇ parallelism: mọi parallel đều concurrent, nhưng concurrent chưa chắc parallel.
+- $\\text{concurrency} \\supseteq \\text{parallelism}$: mọi parallel đều concurrent, nhưng concurrent chưa chắc parallel.
 - 1 core + nhiều thread = concurrent nhưng không parallel.
 
 ---
@@ -313,7 +313,7 @@ Data race là **undefined behavior** trong C/C++, Go race detector (\`go run -ra
 
 📝 **Tóm tắt mục 4:**
 - Race condition: kết quả phụ thuộc vào thứ tự thực thi không xác định của các thread.
-- Data race: ≥ 2 thread truy cập cùng vùng nhớ đồng thời, ≥ 1 ghi, không có đồng bộ.
+- Data race: $\\geq 2$ thread truy cập cùng vùng nhớ đồng thời, $\\geq 1$ ghi, không có đồng bộ.
 - \`counter++\` trông đơn giản nhưng thực ra 3 bước lệnh máy — không nguyên tử (atomic).
 - Giải pháp: mutex, atomic, channel — sẽ học ở Lesson 05.
 
@@ -428,7 +428,7 @@ Vùng heap của B (\`buf\`): vẫn hợp lệ — heap tồn tại đến khi p
 
 \`balance\` ban đầu = 1000. T_A gọi \`transfer(200)\`, T_B gọi \`transfer(300)\`.
 
-Kết quả đúng: 1000 - 200 - 300 = **500**.
+Kết quả đúng: $1000 - 200 - 300 =$ **500**.
 
 **Nhưng với race condition**, các giá trị có thể là:
 
@@ -459,12 +459,12 @@ Kết quả: **800** (sai — mất 300 của B).
 **Bài 5 — Web server 100k connections**
 
 **(a) 1:1 thread, 100,000 thread:**
-- Bộ nhớ: 100,000 × 8 MB = **800 GB RAM** chỉ cho stack (dù large part là virtual, page table vẫn tốn). Thực tế kernel thường giới hạn ~32,768 thread/user.
+- Bộ nhớ: $100{,}000 \\times 8 \\text{ MB} =$ **800 GB RAM** chỉ cho stack (dù large part là virtual, page table vẫn tốn). Thực tế kernel thường giới hạn ~32,768 thread/user.
 - CPU: Context switch giữa 100,000 thread = overhead khổng lồ, scheduler chạy nhiều hơn code thật.
 - Kết luận: **không khả thi** với 1:1 thread model trên phần cứng thông thường.
 
 **(b) Go goroutine (M:N):**
-- Bộ nhớ: 100,000 × 2 KB = **200 MB** (so với 800 GB). Khả thi trên bất kỳ máy chủ nào.
+- Bộ nhớ: $100{,}000 \\times 2 \\text{ KB} =$ **200 MB** (so với 800 GB). Khả thi trên bất kỳ máy chủ nào.
 - CPU: Go runtime dùng N kernel thread (N = số core, ví dụ 8), 100,000 goroutine được lập lịch trên 8 thread. Khi goroutine chờ I/O (read socket), Go runtime dùng non-blocking syscall + epoll bên dưới, goroutine suspend → goroutine khác chạy.
 - Kết luận: **đây là cách Go được thiết kế** — xem gói \`net/http\` tạo 1 goroutine/request tự nhiên.
 
@@ -494,7 +494,7 @@ Kết quả: **800** (sai — mất 300 của B).
 
 1. **Thread** = đơn vị thực thi nhỏ nhất trong process. Chia sẻ: code, data, heap, fd. Riêng: stack, PC, registers.
 2. Tạo thread rẻ hơn fork: không cần sao chép address space. Nhưng ít cô lập hơn: bug 1 thread có thể corrupt data của thread khác.
-3. **Concurrency** ≠ **Parallelism**. Concurrent = nhiều tác vụ tiến triển xen kẽ (không cần cùng lúc). Parallel = thực sự cùng lúc, cần nhiều core.
+3. **Concurrency** $\\neq$ **Parallelism**. Concurrent = nhiều tác vụ tiến triển xen kẽ (không cần cùng lúc). Parallel = thực sự cùng lúc, cần nhiều core.
 4. **1:1 model** (pthreads): mỗi user thread = kernel thread. Parallel thật sự, nhưng tốn kém (8 MB stack, syscall). **M:N model** (goroutine): M user thread trên N kernel thread. Rẻ hơn, scale tốt hơn.
 5. **Race condition**: nhiều thread chia sẻ dữ liệu, thứ tự thực thi không xác định → kết quả sai. Giải pháp: đồng bộ hoá (Lesson 05).
 

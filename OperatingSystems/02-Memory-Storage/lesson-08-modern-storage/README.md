@@ -184,7 +184,7 @@ C1      C2      C3      C4
 File A: stripe A1 vào Đĩa 0, A2 vào Đĩa 1, A3 vào Đĩa 2, A4 vào Đĩa 3 — **4 đĩa ghi song song**.
 
 **4 đĩa 1 TB:**
-- Dung lượng dùng được: **4 × 1 TB = 4 TB** (100% hiệu suất không gian).
+- Dung lượng dùng được: $\mathbf{4 \times 1 \text{ TB} = 4 \text{ TB}}$ (100% hiệu suất không gian).
 - Chịu đĩa hỏng: **0** — 1 đĩa hỏng bất kỳ → mất toàn bộ dữ liệu.
 - Read/Write speed: ~4× so với đĩa đơn (lý thuyết).
 
@@ -214,10 +214,10 @@ C                  C (copy)          D                  D (copy)
 **Cơ chế:** Dữ liệu stripe qua tất cả đĩa + 1 **parity block** (tổng XOR) luân phiên trên các đĩa. Parity cho phép phục hồi dữ liệu nếu **1 đĩa hỏng**.
 
 **Tính parity (XOR):**
-- Bit A XOR bit B XOR bit C = Parity P.
-- Nếu A hỏng: A = P XOR B XOR C → khôi phục được A.
-- Ví dụ: A=1, B=0, C=1 → P = 1 XOR 0 XOR 1 = 0.
-- A hỏng: A = 0 XOR 0 XOR 1 = 1. ✓
+- $\text{bit } A \oplus \text{bit } B \oplus \text{bit } C = \text{Parity } P$.
+- Nếu A hỏng: $A = P \oplus B \oplus C$ → khôi phục được A.
+- Ví dụ: $A=1, B=0, C=1 \to P = 1 \oplus 0 \oplus 1 = 0$.
+- A hỏng: $A = 0 \oplus 0 \oplus 1 = 1$. ✓
 
 **Layout với 4 đĩa:**
 
@@ -270,9 +270,9 @@ Parity luân phiên trên các đĩa → tránh bottleneck vào 1 đĩa parity.
 
 <details>
 <summary>Đáp án</summary>
-RAID 5 với N đĩa: dùng N-1 cho dữ liệu, 1 cho parity (distributed).
+RAID 5 với $N$ đĩa: dùng $N-1$ cho dữ liệu, 1 cho parity (distributed).
 
-6 đĩa × 2 TB: dung lượng dùng được = (6-1) × 2 TB = **10 TB**.
+6 đĩa × 2 TB: dung lượng dùng được $= (6-1) \times 2 \text{ TB} =$ **10 TB**.
 
 Chịu tối đa **1 đĩa hỏng** — dù có bao nhiêu đĩa, RAID 5 chỉ chịu 1 đĩa. Nếu cần chịu 2 đĩa → dùng RAID 6 (2 parity blocks).
 </details>
@@ -346,9 +346,9 @@ OS dùng biến thể LRU để evict page ít dùng nhất (giống page replac
 4. **Ghi toàn bộ block** (512 KB) trở lại NAND.
 
 **Số byte I/O thực tế trên NAND:**
-- Đọc: 512 KB (128 × 4 KB).
+- Đọc: 512 KB ($128 \times 4$ KB).
 - Ghi: 512 KB.
-- **Tổng: 1 MB** để ghi 4 KB dữ liệu → **Write Amplification = 128×**.
+- **Tổng: 1 MB** để ghi 4 KB dữ liệu → **Write Amplification $= 128\times$**.
 
 Trong thực tế, controller có thể dùng kỹ thuật "out-of-place write": ghi page 50 mới vào block trống khác (không cần xóa block cũ ngay) → amortize chi phí GC. Write amplification thực tế thấp hơn, nhưng GC vẫn phải xảy ra.
 
@@ -381,18 +381,18 @@ Crash sau TxEnd nhưng trước áp dụng vào đĩa thật → replay journal 
 
 | RAID | Tính toán | Dung lượng | Chịu hỏng |
 |------|-----------|-----------|-----------|
-| RAID 0 | 6 × 4 TB | **24 TB** | 0 đĩa |
-| RAID 1 | 3 cặp × (4 TB ÷ 2) | **12 TB** | 1 đĩa/cặp |
-| RAID 5 | (6-1) × 4 TB | **20 TB** | **1 đĩa** |
-| RAID 10 | 3 cặp mirror, stripe | (6÷2) × 4 TB = **12 TB** | 1-2 đĩa (tùy cặp) |
+| RAID 0 | $6 \times 4$ TB | **24 TB** | 0 đĩa |
+| RAID 1 | $3 \text{ cặp} \times (4 \text{ TB} / 2)$ | **12 TB** | 1 đĩa/cặp |
+| RAID 5 | $(6-1) \times 4$ TB | **20 TB** | **1 đĩa** |
+| RAID 10 | 3 cặp mirror, stripe | $(6/2) \times 4 \text{ TB} =$ **12 TB** | 1-2 đĩa (tùy cặp) |
 
 Lưu ý RAID 5: 6 đĩa → 5 đĩa dữ liệu + 1 đĩa parity (distributed) = 20 TB. Vẫn chỉ chịu 1 đĩa hỏng (RAID 6 chịu 2 đĩa).
 
 ### Bài 4 — PostgreSQL page cache
 
-- RAM: 64 GB. Shared_buffers = 25% × 64 GB = **16 GB**.
-- Block 8 KB: 16 GB ÷ 8 KB = 16 × 1024 × 1024 ÷ 8 = **2,097,152 block = 2,048K block**.
-- **Working set 10 GB < 16 GB cache** → cache đủ để chứa toàn bộ working set → hầu hết query đọc từ RAM → hiệu năng tốt.
+- RAM: 64 GB. Shared_buffers $= 25\% \times 64 \text{ GB} =$ **16 GB**.
+- Block 8 KB: $16 \text{ GB} / 8 \text{ KB} = 16 \times 1024 \times 1024 / 8 =$ **2,097,152 block = 2,048K block**.
+- **Working set $10 \text{ GB} < 16 \text{ GB}$ cache** → cache đủ để chứa toàn bộ working set → hầu hết query đọc từ RAM → hiệu năng tốt.
 - Nếu working set > cache (ví dụ 20 GB): cache miss → phải đọc đĩa → hiệu năng giảm đáng kể.
 
 ### Bài 5 — write() nhanh, fsync() chậm

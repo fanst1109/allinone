@@ -36,21 +36,21 @@ Có 10 khách hàng đang chờ trước 1 quầy thu ngân. Ai được phục 
 
 **Waiting Time (thời gian chờ):** Tổng thời gian process nằm trong hàng Ready, chờ được CPU. **Mục tiêu: ngắn nhất có thể.**
 
-Công thức: `waiting_time = turnaround_time − burst_time`
+Công thức: $\text{waiting} = \text{turnaround} - \text{burst}$
 
 **Turnaround Time (thời gian hoàn thành):** Tổng thời gian từ khi process được submit đến khi hoàn tất. **Mục tiêu: ngắn nhất có thể.**
 
-Công thức: `turnaround_time = completion_time − arrival_time`
+Công thức: $\text{turnaround} = \text{completion} - \text{arrival}$
 
 **Response Time (thời gian phản hồi đầu tiên):** Thời gian từ khi process được submit đến khi *lần đầu tiên* được CPU (bắt đầu thực thi). Quan trọng cho interactive system (user đang chờ màn hình phản hồi).
 
-Công thức: `response_time = first_cpu_time − arrival_time`
+Công thức: $\text{response} = \text{first\_cpu} - \text{arrival}$
 
 **Ví dụ cụ thể — Tính tay cho 1 process:**
 - Process P: đến lúc t=0, burst time = 10ms, bắt đầu chạy lúc t=3ms, kết thúc lúc t=13ms.
-- Waiting time = 13 - 10 - 0 = **3ms** (hoặc: turnaround - burst = 13 - 10 = 3ms).
-- Turnaround time = 13 - 0 = **13ms**.
-- Response time = 3 - 0 = **3ms**.
+- Waiting time = $13 - 10 - 0 =$ **3ms** (hoặc: turnaround − burst $= 13 - 10 = 3$ ms).
+- Turnaround time = $13 - 0 =$ **13ms**.
+- Response time = $3 - 0 =$ **3ms**.
 
 📝 **Tóm tắt mục 1:**
 - Lập lịch = chọn process nào được CPU tiếp theo trong hàng Ready.
@@ -94,14 +94,14 @@ Công thức: `response_time = first_cpu_time − arrival_time`
 
 | Process | Arrival | Burst | Start | Finish | Turnaround | Waiting |
 |---------|---------|-------|-------|--------|-----------|---------|
-| P1 | 0 | 24 | 0 | 24 | 24−0=**24** | 24−24=**0** |
-| P2 | 1 | 3 | 24 | 27 | 27−1=**26** | 26−3=**23** |
-| P3 | 2 | 3 | 27 | 30 | 30−2=**28** | 28−3=**25** |
-| P4 | 3 | 5 | 30 | 35 | 35−3=**32** | 32−5=**27** |
+| P1 | 0 | 24 | 0 | 24 | $24-0=$**24** | $24-24=$**0** |
+| P2 | 1 | 3 | 24 | 27 | $27-1=$**26** | $26-3=$**23** |
+| P3 | 2 | 3 | 27 | 30 | $30-2=$**28** | $28-3=$**25** |
+| P4 | 3 | 5 | 30 | 35 | $35-3=$**32** | $32-5=$**27** |
 
 **Trung bình:**
-- Average turnaround = (24 + 26 + 28 + 32) / 4 = 110 / 4 = **27.5 ms**
-- Average waiting = (0 + 23 + 25 + 27) / 4 = 75 / 4 = **18.75 ms**
+- Average turnaround $= \frac{24 + 26 + 28 + 32}{4} = \frac{110}{4} =$ **27.5 ms**
+- Average waiting $= \frac{0 + 23 + 25 + 27}{4} = \frac{75}{4} =$ **18.75 ms**
 
 ### 2.3. Convoy Effect (Hiệu ứng đoàn xe)
 
@@ -174,15 +174,15 @@ Kết quả giống FCFS vì P1 đến t=0 khi không có ai khác → phải ch
 | P3 | 7 | 9 | 16 | **16** | **9** |
 | P2 | 8 | 16 | 24 | **24** | **16** |
 
-- Average turnaround = (3 + 9 + 16 + 24) / 4 = 52 / 4 = **13 ms**
-- Average waiting = (0 + 3 + 9 + 16) / 4 = 28 / 4 = **7 ms**
+- Average turnaround $= \frac{3 + 9 + 16 + 24}{4} = \frac{52}{4} =$ **13 ms**
+- Average waiting $= \frac{0 + 3 + 9 + 16}{4} = \frac{28}{4} =$ **7 ms**
 
 **So sánh với FCFS** (nếu chạy FCFS thứ tự P1, P2, P3, P4):
 ```
 |---P1---|-----P2-----|----P3----|--P4--|
 0        6            14         21    24
 ```
-- FCFS avg waiting = (0 + 6 + 14 + 21) / 4 = 41 / 4 = **10.25 ms**
+- FCFS avg waiting $= \frac{0 + 6 + 14 + 21}{4} = \frac{41}{4} =$ **10.25 ms**
 - SJF avg waiting = **7 ms** — giảm 32%!
 
 **SJF cho average waiting time nhỏ nhất** trong số các non-preemptive algorithm — đây là kết quả có thể chứng minh được.
@@ -237,20 +237,20 @@ Kết quả giống FCFS vì P1 đến t=0 khi không có ai khác → phải ch
 
 | Process | Arrival | Burst | Finish | Turnaround | Waiting |
 |---------|---------|-------|--------|-----------|---------|
-| P1 | 0 | 8 | 17 | 17−0=**17** | 17−8=**9** |
-| P2 | 1 | 4 | 5 | 5−1=**4** | 4−4=**0** |
-| P3 | 2 | 9 | 26 | 26−2=**24** | 24−9=**15** |
-| P4 | 3 | 5 | 10 | 10−3=**7** | 7−5=**2** |
+| P1 | 0 | 8 | 17 | $17-0=$**17** | $17-8=$**9** |
+| P2 | 1 | 4 | 5 | $5-1=$**4** | $4-4=$**0** |
+| P3 | 2 | 9 | 26 | $26-2=$**24** | $24-9=$**15** |
+| P4 | 3 | 5 | 10 | $10-3=$**7** | $7-5=$**2** |
 
-- **Average turnaround** = (17 + 4 + 24 + 7) / 4 = 52 / 4 = **13 ms**
-- **Average waiting** = (9 + 0 + 15 + 2) / 4 = 26 / 4 = **6.5 ms**
+- **Average turnaround** $= \frac{17 + 4 + 24 + 7}{4} = \frac{52}{4} =$ **13 ms**
+- **Average waiting** $= \frac{9 + 0 + 15 + 2}{4} = \frac{26}{4} =$ **6.5 ms**
 
 **SRTF cho average waiting time nhỏ hơn SJF** (6.5 ms vs 7 ms trong ví dụ 4-process kia) vì có thể cướp CPU cho job ngắn hơn ngay khi chúng đến.
 
 ❓ **Câu hỏi tự nhiên của người đọc:**
 
 - *"Context switch khi cướp CPU có tốn không?"* — Có. Mỗi lần cướp = 1 context switch = ~1-100 μs overhead. Trong ví dụ trên, có 5 context switch. Nếu burst time rất ngắn (1ms) và context switch 1 μs, overhead = 0.1% — chấp nhận được. Nhưng nếu burst time ngắn bằng context switch time → overhead tăng đáng kể.
-- *"Làm sao biết remaining time?"* — Không biết chính xác. OS ước tính bằng exponential average: `τ_{n+1} = α * t_n + (1-α) * τ_n`, với `t_n` là burst thực tế lần trước, `α` thường = 0.5.
+- *"Làm sao biết remaining time?"* — Không biết chính xác. OS ước tính bằng exponential average: $\tau_{n+1} = \alpha \cdot t_n + (1-\alpha) \cdot \tau_n$, với $t_n$ là burst thực tế lần trước, $\alpha$ thường $= 0.5$.
 
 📝 **Tóm tắt mục 4:**
 - SRTF = preemptive SJF: process mới đến nếu ngắn hơn remaining time → cướp CPU.
@@ -300,12 +300,12 @@ Hàng Ready ban đầu: P1, P2, P3 (theo thứ tự đến hoặc thứ tự FCF
 
 | Process | Arrival | Burst | Finish | Turnaround | Waiting |
 |---------|---------|-------|--------|-----------|---------|
-| P1 | 0 | 12 | 20 | 20−0=**20** | 20−12=**8** |
-| P2 | 0 | 5 | 16 | 16−0=**16** | 16−5=**11** |
-| P3 | 0 | 3 | 11 | 11−0=**11** | 11−3=**8** |
+| P1 | 0 | 12 | 20 | $20-0=$**20** | $20-12=$**8** |
+| P2 | 0 | 5 | 16 | $16-0=$**16** | $16-5=$**11** |
+| P3 | 0 | 3 | 11 | $11-0=$**11** | $11-3=$**8** |
 
-- **Average turnaround** = (20 + 16 + 11) / 3 = 47 / 3 = **15.67 ms**
-- **Average waiting** = (8 + 11 + 8) / 3 = 27 / 3 = **9 ms**
+- **Average turnaround** $= \frac{20 + 16 + 11}{3} = \frac{47}{3} =$ **15.67 ms**
+- **Average waiting** $= \frac{8 + 11 + 8}{3} = \frac{27}{3} =$ **9 ms**
 
 ### 5.3. Chọn Time Quantum
 
@@ -314,10 +314,10 @@ Quantum ảnh hưởng lớn đến hiệu năng:
 | Quantum | Hệ quả |
 |---------|--------|
 | **Quá nhỏ** (< 1ms) | Overhead context switch chiếm phần lớn CPU. Ví dụ: q=1ms, switch=1ms → 50% CPU lãng phí. |
-| **Quá lớn** (→∞) | Round Robin thoái hoá thành FCFS. Response time tệ (process cuối phải chờ lâu). |
+| **Quá lớn** ($\to \infty$) | Round Robin thoái hoá thành FCFS. Response time tệ (process cuối phải chờ lâu). |
 | **Lý tưởng** | q lớn hơn 80% burst time của các process. Thực tế: 10–100 ms trên hệ thống thời gian thực/tương tác. |
 
-**Ví dụ tính overhead:** quantum=5ms, context switch=0.5ms. Overhead = 0.5/(5+0.5) = **9%** CPU — chấp nhận được. Nếu quantum=1ms: 0.5/(1+0.5) = **33%** — quá cao.
+**Ví dụ tính overhead:** quantum=5ms, context switch=0.5ms. Overhead $= \frac{0.5}{5+0.5} =$ **9%** CPU — chấp nhận được. Nếu quantum=1ms: $\frac{0.5}{1+0.5} =$ **33%** — quá cao.
 
 🔁 **Dừng lại tự kiểm tra:**
 
@@ -344,7 +344,7 @@ Response time P2 = 5ms (P2 lần đầu tiên được CPU tại t=5).
 📝 **Tóm tắt mục 5:**
 - Round Robin: mỗi process có q ms CPU, sau đó ra cuối hàng. Công bằng, response time tốt cho interactive.
 - q nhỏ → overhead cao. q lớn → như FCFS. Chọn q sao cho overhead < 10%.
-- Good response time (không ai đợi quá q × n ms).
+- Good response time (không ai đợi quá $q \times n$ ms).
 
 ---
 
@@ -393,7 +393,7 @@ Q3 (Priority thấp nhất, FCFS)
 ❓ **Câu hỏi tự nhiên của người đọc:**
 
 - *"CFS của Linux có phải là MLFQ không?"* — CFS không phải MLFQ thuần tuý — nó dùng **virtual runtime** và **red-black tree** thay cho queue nhiều cấp. Mỗi process có `vruntime` — thời gian CPU ảo đã dùng (điều chỉnh theo priority). Scheduler luôn chọn process có `vruntime` nhỏ nhất (đã dùng CPU ít nhất). Nhưng ý tưởng cốt lõi — ưu tiên process đã dùng CPU ít — tương đồng với MLFQ.
-- *"Burst time thật sự được dự đoán như thế nào?"* — OS dùng **exponential averaging**: `τ_{n+1} = α × t_n + (1-α) × τ_n`. Với `α=0.5`: dự đoán mới = 50% burst thực lần trước + 50% dự đoán cũ. Các burst gần đây có trọng số cao hơn — phản ánh hành vi hiện tại của process.
+- *"Burst time thật sự được dự đoán như thế nào?"* — OS dùng **exponential averaging**: $\tau_{n+1} = \alpha \times t_n + (1-\alpha) \times \tau_n$. Với $\alpha = 0.5$: dự đoán mới = 50% burst thực lần trước + 50% dự đoán cũ. Các burst gần đây có trọng số cao hơn — phản ánh hành vi hiện tại của process.
 
 📝 **Tóm tắt mục 6:**
 - Priority scheduling: process ưu tiên cao chạy trước. Starvation là vấn đề → dùng aging.
@@ -521,8 +521,8 @@ FCFS: phục vụ theo thứ tự arrival. P1(arrive=0) → P2(arrive=3) → P3(
 | P3 | 6 | 5 | 19 | 13 | 8 |
 | P4 | 7 | 2 | 21 | 14 | 12 |
 
-- **Avg turnaround** = (10+11+13+14)/4 = 48/4 = **12 ms**
-- **Avg waiting** = (0+7+8+12)/4 = 27/4 = **6.75 ms**
+- **Avg turnaround** $= \frac{10+11+13+14}{4} = \frac{48}{4} =$ **12 ms**
+- **Avg waiting** $= \frac{0+7+8+12}{4} = \frac{27}{4} =$ **6.75 ms**
 
 ---
 
@@ -548,8 +548,8 @@ SJF: khi CPU rảnh, chọn process ngắn nhất trong hàng Ready.
 | P2 | 3 | 4 | 16 | 13 | 9 |
 | P3 | 6 | 5 | 21 | 15 | 10 |
 
-- **Avg turnaround** = (10+5+13+15)/4 = 43/4 = **10.75 ms**
-- **Avg waiting** = (0+3+9+10)/4 = 22/4 = **5.5 ms**
+- **Avg turnaround** $= \frac{10+5+13+15}{4} = \frac{43}{4} =$ **10.75 ms**
+- **Avg waiting** $= \frac{0+3+9+10}{4} = \frac{22}{4} =$ **5.5 ms**
 
 **So sánh:** SJF avg waiting = 5.5ms vs FCFS avg waiting = 6.75ms — SJF tốt hơn 18%.
 
@@ -585,8 +585,8 @@ Theo dõi từng mốc:
 | P3 | 4 | 1 | 5 | 1 | 0 |
 | P4 | 5 | 4 | 11 | 6 | 2 |
 
-- **Avg turnaround** = (16+5+1+6)/4 = 28/4 = **7 ms**
-- **Avg waiting** = (9+1+0+2)/4 = 12/4 = **3 ms**
+- **Avg turnaround** $= \frac{16+5+1+6}{4} = \frac{28}{4} =$ **7 ms**
+- **Avg waiting** $= \frac{9+1+0+2}{4} = \frac{12}{4} =$ **3 ms**
 
 Context switch xảy ra tại: t=2 (P2 cướp P1), t=4 (P3 cướp P2), t=5 (P2 quay lại), t=7 (P4 được CPU), t=11 (P1 quay lại) — tổng 5 context switch.
 
@@ -619,8 +619,8 @@ P1(10), P2(6), P3(4), tất cả đến t=0. Hàng ban đầu: P1, P2, P3.
 | P2 | 6 | 15 | 15 | 3 (bắt đầu t=3) |
 | P3 | 4 | 16 | 16 | 6 (bắt đầu t=6) |
 
-- **Avg turnaround** = (20+15+16)/3 = 51/3 = **17 ms**
-- **Avg response** = (0+3+6)/3 = 9/3 = **3 ms**
+- **Avg turnaround** $= \frac{20+15+16}{3} = \frac{51}{3} =$ **17 ms**
+- **Avg response** $= \frac{0+3+6}{3} = \frac{9}{3} =$ **3 ms**
 
 ---
 

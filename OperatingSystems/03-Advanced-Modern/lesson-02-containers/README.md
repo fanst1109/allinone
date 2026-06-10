@@ -564,9 +564,9 @@ PID namespace cô lập: tiến trình trong container chỉ thấy các tiến 
 
 **Bài 4:**
 
-**(a)** 2 CPUs → quota = 2 × period = 2 × 100000 = **200000 µs**. Nghĩa là mỗi 100ms, container được dùng tối đa 200ms CPU time (trải trên tối đa 2 core song song).
+**(a)** 2 CPUs → quota $= 2 \times \text{period} = 2 \times 100000 = 200000$ µs. Nghĩa là mỗi 100ms, container được dùng tối đa 200ms CPU time (trải trên tối đa 2 core song song).
 
-**(b)** Máy có 8 core = 800% CPU tổng. Container được 2 core = 200% CPU. Tối đa = 200/800 = **25% tổng CPU vật lý**.
+**(b)** Máy có 8 core = 800% CPU tổng. Container được 2 core = 200% CPU. Tối đa $= \frac{200}{800} = 25\%$ tổng CPU vật lý.
 
 **(c)** Khi tổng vượt 1 GB (limit):
 1. Linux memory cgroup phát hiện container dùng > `memory.limit_in_bytes`.

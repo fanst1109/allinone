@@ -339,7 +339,7 @@ Kết quả: tiến trình trong VM đọc địa chỉ GVA=0x7FFFFFFF
 \`\`\`
 
 - **Ưu điểm:** Không cần shadow page table, không cần trap vào hypervisor cho mọi thay đổi bảng trang.
-- **Nhược điểm nhỏ:** Page walk chậm hơn chút (4 × 4 = 16 bước tra bảng thay vì 4). TLB (Translation Lookaside Buffer) cache kết quả → hầu hết lần dịch tiếp theo chỉ tốn 1 bước tra TLB.
+- **Nhược điểm nhỏ:** Page walk chậm hơn chút ($4 \\times 4 = 16$ bước tra bảng thay vì 4). TLB (Translation Lookaside Buffer) cache kết quả → hầu hết lần dịch tiếp theo chỉ tốn 1 bước tra TLB.
 
 **Liên hệ:** Đây là mở rộng của paging bạn đã học tại [Tầng 2 — Lesson 02: Paging](../../02-Memory-Storage/lesson-02-paging/) và [Lesson 03: TLB & Multi-level Paging](../../02-Memory-Storage/lesson-03-tlb-multilevel-paging/).
 

@@ -261,13 +261,13 @@ t: 0  1  2  3  4  5  6  7  8  9  10
 ```
 
 **Thống kê:**
-- P1: Wait = 0, Turnaround = 5−0 = 5.
-- P2: Wait = 5−1 = 4, Turnaround = 8−1 = 7.
-- P3: Wait = 8−2 = 6, Turnaround = 10−2 = 8.
-- **Avg Wait** = (0+4+6)/3 = **3.33 đơn vị**.
-- **Avg Turnaround** = (5+7+8)/3 = **6.67 đơn vị**.
-- **Throughput** = 3/10 = **0.3 process/đơn vị**.
-- **CPU Utilization** = 10/10 = **100%**.
+- P1: Wait $= 0$, Turnaround $= 5 - 0 = 5$.
+- P2: Wait $= 5 - 1 = 4$, Turnaround $= 8 - 1 = 7$.
+- P3: Wait $= 8 - 2 = 6$, Turnaround $= 10 - 2 = 8$.
+- **Avg Wait** $= \frac{0+4+6}{3} = 3.33$ đơn vị.
+- **Avg Turnaround** $= \frac{5+7+8}{3} = 6.67$ đơn vị.
+- **Throughput** $= \frac{3}{10} = 0.3$ process/đơn vị.
+- **CPU Utilization** $= \frac{10}{10} = 100\%$.
 
 ### 3.2. Walk-through Round-Robin (Q=2)
 
@@ -292,11 +292,11 @@ t: 0  1  2  3  4  5  6  7  8  9  10
 ```
 
 **Thống kê:**
-- P1: Finish=10, Wait = 10−0−5 = 5, Turnaround = 10.
-- P2: Finish=9, Wait = 9−1−3 = 5, Turnaround = 8.
-- P3: Finish=8, Wait = 8−2−2 = 4, Turnaround = 6.
-- **Avg Wait** = (5+5+4)/3 = **4.67**.
-- **Avg Turnaround** = (10+8+6)/3 = **8.0**.
+- P1: Finish=10, Wait $= 10 - 0 - 5 = 5$, Turnaround $= 10$.
+- P2: Finish=9, Wait $= 9 - 1 - 3 = 5$, Turnaround $= 8$.
+- P3: Finish=8, Wait $= 8 - 2 - 2 = 4$, Turnaround $= 6$.
+- **Avg Wait** $= \frac{5+5+4}{3} = 4.67$.
+- **Avg Turnaround** $= \frac{10+8+6}{3} = 8.0$.
 
 **So sánh FCFS vs RR (Q=2):**
 | | FCFS | RR (Q=2) |
@@ -335,14 +335,14 @@ Thêm P4 (arrival=3, burst=4): FCFS chạy theo thứ tự đến:
 - P4 chạy t=10..14 (arrive=3). Xong t=14.
 
 **Thống kê:**
-- P1: Wait=0, Turnaround=5.
-- P2: Wait=5−1=4, Turnaround=7.
-- P3: Wait=8−2=6, Turnaround=8.
-- P4: Wait=10−3=7, Turnaround=11.
+- P1: Wait $= 0$, Turnaround $= 5$.
+- P2: Wait $= 5 - 1 = 4$, Turnaround $= 7$.
+- P3: Wait $= 8 - 2 = 6$, Turnaround $= 8$.
+- P4: Wait $= 10 - 3 = 7$, Turnaround $= 11$.
 
-**Avg Wait** = (0+4+6+7)/4 = **4.25**.
-**Avg Turnaround** = (5+7+8+11)/4 = **7.75**.
-**Throughput** = 4/14 ≈ **0.286 process/đơn vị**.
+**Avg Wait** $= \frac{0+4+6+7}{4} = 4.25$.
+**Avg Turnaround** $= \frac{5+7+8+11}{4} = 7.75$.
+**Throughput** $= \frac{4}{14} \approx 0.286$ process/đơn vị.
 
 ---
 
@@ -362,13 +362,13 @@ Thêm P4 (arrival=3, burst=4): FCFS chạy theo thứ tự đến:
 **Gantt:** `P1 P2 P2 P2 P4 P4 P4 P4 P1 P1 P1 P1 P3 P3`
 
 Wait time (tổng thời gian chờ trong READY queue):
-- P1: chờ t=1..8 = 7, Finish=12, Turnaround=12.
+- P1: chờ t=1..8 $= 7$, Finish=12, Turnaround=12.
 - P2: chờ 0, Finish=4, Turnaround=3.
-- P3: chờ t=2..12 = 10, Finish=14, Turnaround=12.
-- P4: chờ t=3..4 = 1, Finish=8, Turnaround=5.
+- P3: chờ t=2..12 $= 10$, Finish=14, Turnaround=12.
+- P4: chờ t=3..4 $= 1$, Finish=8, Turnaround=5.
 
-**Avg Wait** = (7+0+10+1)/4 = **4.5**.
-**Avg Turnaround** = (12+3+12+5)/4 = **8.0**.
+**Avg Wait** $= \frac{7+0+10+1}{4} = 4.5$.
+**Avg Turnaround** $= \frac{12+3+12+5}{4} = 8.0$.
 
 ---
 

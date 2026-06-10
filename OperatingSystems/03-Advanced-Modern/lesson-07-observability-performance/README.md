@@ -100,9 +100,9 @@ load average: 2.15, 1.87, 1.23
 **Ví dụ:** Máy chủ 4 nhân (4 CPU), `uptime` cho thấy: `load average: 5.20, 3.40, 1.60`.
 
 Phân tích:
-- **1 phút: 5.20 / 4 = 1.30** → hiện tại đang quá tải 130% — có 5 process sẵn sàng, chỉ 4 CPU → 1 process phải đợi.
-- **5 phút: 3.40 / 4 = 0.85** → 5 phút qua, tải ổn (85% capacity).
-- **15 phút: 1.60 / 4 = 0.40** → 15 phút trước, hệ thống nhàn rỗi.
+- **1 phút: $\frac{5.20}{4} = 1.30$** → hiện tại đang quá tải 130% — có 5 process sẵn sàng, chỉ 4 CPU → 1 process phải đợi.
+- **5 phút: $\frac{3.40}{4} = 0.85$** → 5 phút qua, tải ổn (85% capacity).
+- **15 phút: $\frac{1.60}{4} = 0.40$** → 15 phút trước, hệ thống nhàn rỗi.
 
 **Kết luận:** Tải tăng đột ngột trong 5 phút gần đây. Cần kiểm tra process nào đang tiêu thụ CPU.
 
@@ -350,7 +350,7 @@ pidstat -w -p <PID> 1           # cs/s của từng process
 ### Bài 1
 
 **(a) Load 1 phút theo %capacity:**
-Load = 12.5 / 8 cores = **1.5625** → đang dùng **156%** capacity → có 12.5 - 8 = 4.5 process phải chờ CPU tại mỗi thời điểm.
+Load $= \frac{12.5}{8} = 1.5625$ (8 cores) → đang dùng **156%** capacity → có $12.5 - 8 = 4.5$ process phải chờ CPU tại mỗi thời điểm.
 
 **(b) Xu hướng:**
 1min=12.5 > 5min=8.2 > 15min=4.1 → Load đang **tăng nhanh** trong 15 phút qua. Nếu không can thiệp, tình trạng sẽ tiếp tục xấu đi.
@@ -421,7 +421,7 @@ strace -e read -e read=all ./myapp 2>&1 | grep "read(" | awk '{print $NF}'
 ## 📝 Tổng kết Lesson 07
 
 - **Observability**: đo trước khi kết luận. `top`, `vmstat`, `iostat`, `strace`, `perf` là bộ công cụ thiết yếu.
-- **Load average**: load/CPU — ≤0.7 thoải mái, >1.0 bắt đầu quá tải. Linux bao gồm cả I/O wait.
+- **Load average**: $\text{load}/\text{CPU}$ — $\leq 0.7$ thoải mái, $> 1.0$ bắt đầu quá tải. Linux bao gồm cả I/O wait.
 - **%wa (iowait)**: CPU idle do chờ I/O. Cao → I/O bottleneck, không phải CPU bottleneck.
 - **Thrashing**: si/so liên tục → RAM thiếu, kernel swap không ngừng → hệ thống gần unusable.
 - **Context switch/s**: cao chưa chắc xấu; phân biệt voluntary (I/O) vs involuntary (CPU tranh chấp).

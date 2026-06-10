@@ -360,8 +360,8 @@ Bạn cắm USB Wi-Fi vào laptop Linux. Liệt kê các bước xảy ra từ l
 ### Bài 2
 
 **(a) Giới hạn kích thước:**
-- BIOS/MBR: địa chỉ LBA 32-bit → tối đa 2^32 × 512 bytes = **2 TB**.
-- UEFI/GPT: địa chỉ LBA 64-bit → tối đa 2^64 × 512 bytes ≈ **9.4 ZB** (zettabytes).
+- BIOS/MBR: địa chỉ LBA 32-bit → tối đa $2^{32} \\times 512$ bytes = **2 TB**.
+- UEFI/GPT: địa chỉ LBA 64-bit → tối đa $2^{64} \\times 512$ bytes $\\approx$ **9.4 ZB** (zettabytes).
 
 **(b) Số phân vùng:**
 - MBR: 4 primary partition. Muốn thêm → phải dùng extended + logical (phức tạp, giới hạn mềm ~26 partition).

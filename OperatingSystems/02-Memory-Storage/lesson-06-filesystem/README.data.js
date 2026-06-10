@@ -144,31 +144,31 @@ Inode #1024
 
 ### 3.2. Tính dung lượng file tối đa
 
-Giả sử: block size = 4 KB = 4096 bytes; mỗi con trỏ block = 4 bytes → mỗi indirect block chứa **4096 ÷ 4 = 1024 con trỏ**.
+Giả sử: block size = 4 KB = 4096 bytes; mỗi con trỏ block = 4 bytes → mỗi indirect block chứa $4096 / 4 = 1024$ con trỏ.
 
 | Loại con trỏ | Số block | Dung lượng |
 |-------------|----------|-----------|
-| 12 direct | 12 | 12 × 4 KB = **48 KB** |
-| 1 single indirect | 1024 | 1024 × 4 KB = **4 MB** |
-| 1 double indirect | 1024² = 1,048,576 | 1,048,576 × 4 KB = **4 GB** |
-| 1 triple indirect | 1024³ = 1,073,741,824 | 1,073,741,824 × 4 KB = **4 TB** |
-| **Tổng** | | **≈ 4 TB + 4 GB + 4 MB + 48 KB** |
+| 12 direct | 12 | $12 \\times 4$ KB = **48 KB** |
+| 1 single indirect | 1024 | $1024 \\times 4$ KB = **4 MB** |
+| 1 double indirect | $1024^2 = 1{,}048{,}576$ | $1{,}048{,}576 \\times 4$ KB = **4 GB** |
+| 1 triple indirect | $1024^3 = 1{,}073{,}741{,}824$ | $1{,}073{,}741{,}824 \\times 4$ KB = **4 TB** |
+| **Tổng** | | **$\\approx$ 4 TB + 4 GB + 4 MB + 48 KB** |
 
 **Walk-through: truy cập byte thứ 50,000 của file**
 
 - Block size = 4096 bytes.
-- Block offset = ⌊50,000 ÷ 4,096⌋ = **12** (block thứ 12, đánh số từ 0).
+- Block offset $= \\lfloor 50{,}000 / 4{,}096 \\rfloor =$ **12** (block thứ 12, đánh số từ 0).
 - 12 direct blocks → block 0..11. Block thứ 12 **nằm ngoài vùng direct**.
-- Đi vào **single indirect**: đọc block tại \`inode.single_indirect\` → lấy con trỏ thứ \`12 - 12 = 0\` → đó là địa chỉ block chứa dữ liệu.
-- Offset trong block: \`50,000 mod 4,096 = 50,000 - 12 × 4,096 = 50,000 - 49,152 = **848 bytes** từ đầu block\`.
+- Đi vào **single indirect**: đọc block tại \`inode.single_indirect\` → lấy con trỏ thứ $12 - 12 = 0$ → đó là địa chỉ block chứa dữ liệu.
+- Offset trong block: $50{,}000 \\bmod 4{,}096 = 50{,}000 - 12 \\times 4{,}096 = 50{,}000 - 49{,}152 =$ **848 bytes** từ đầu block.
 
 **Walk-through: truy cập byte thứ 100,000**
 
-- Block offset = ⌊100,000 ÷ 4,096⌋ = **24** (block thứ 24).
-- 24 > 12 → nằm trong single indirect.
-- Chỉ số trong single indirect = 24 - 12 = **12**.
+- Block offset $= \\lfloor 100{,}000 / 4{,}096 \\rfloor =$ **24** (block thứ 24).
+- $24 > 12$ → nằm trong single indirect.
+- Chỉ số trong single indirect $= 24 - 12 =$ **12**.
 - Đọc block tại \`inode.single_indirect\`, lấy con trỏ thứ 12 → địa chỉ block dữ liệu.
-- Offset trong block: \`100,000 mod 4,096 = 100,000 - 24 × 4,096 = 100,000 - 98,304 = **1,696 bytes\`**.
+- Offset trong block: $100{,}000 \\bmod 4{,}096 = 100{,}000 - 24 \\times 4{,}096 = 100{,}000 - 98{,}304 =$ **1,696 bytes**.
 
 ❓ **Câu hỏi tự nhiên của người đọc:**
 
@@ -192,11 +192,11 @@ Giả sử: block size = 4 KB = 4096 bytes; mỗi con trỏ block = 4 bytes → 
 
 **Ví dụ:** File "report.pdf" 5 block: bắt đầu ở block 40, chiếm block 40, 41, 42, 43, 44.
 
-**Truy cập block thứ k:** \`địa chỉ = block_đầu + k\` → 1 phép tính, 1 lần truy cập đĩa. **Cực nhanh**.
+**Truy cập block thứ $k$:** $\\text{địa chỉ} = \\text{block\\_đầu} + k$ → 1 phép tính, 1 lần truy cập đĩa. **Cực nhanh**.
 
 **Ưu điểm:**
 - Đọc tuần tự rất nhanh (các block liền nhau → ít di chuyển đầu đọc).
-- Hỗ trợ random access dễ dàng: \`block_đầu + k\`.
+- Hỗ trợ random access dễ dàng: $\\text{block\\_đầu} + k$.
 
 **Nhược điểm:**
 - **Phân mảnh ngoài (external fragmentation)**: sau nhiều create/delete, xuất hiện các lỗ nhỏ không đủ chỗ cho file lớn.
@@ -324,12 +324,12 @@ Block trống: 3, 5, 8, 9, 10, 11, 14, 15.
 ❓ **Câu hỏi tự nhiên của người đọc:**
 
 - *"ext4 dùng cái nào?"* — ext4 dùng **bitmap** cho block và inode, cộng thêm **block group** để tổ chức bitmap thành nhiều vùng nhỏ, tăng locality.
-- *"NTFS thì sao?"* — NTFS dùng **$Bitmap** (file đặc biệt chứa bitmap toàn bộ volume).
+- *"NTFS thì sao?"* — NTFS dùng **\`$Bitmap\`** (file đặc biệt chứa bitmap toàn bộ volume).
 
 📝 **Tóm tắt mục 5:**
 - Bitmap: compact, hỗ trợ tìm block liên tiếp, cần cache trong RAM.
 - Free list: đơn giản, không cần RAM, nhưng chậm và khó tìm chuỗi liên tiếp.
-- Thực tế: bitmap + block groups (ext4), $Bitmap (NTFS).
+- Thực tế: bitmap + block groups (ext4), \`$Bitmap\` (NTFS).
 
 ---
 
@@ -353,23 +353,23 @@ Block trống: 3, 5, 8, 9, 10, 11, 14, 15.
 ### Bài 1
 
 **(a) Số block tối đa:**
-- Block size = 4096 bytes, con trỏ = 4 bytes → mỗi indirect block chứa \`4096 ÷ 4 = 1024\` con trỏ.
+- Block size = 4096 bytes, con trỏ = 4 bytes → mỗi indirect block chứa $4096 / 4 = 1024$ con trỏ.
 - Direct: 12 block.
 - Single indirect: 1024 block.
-- Double indirect: 1024 × 1024 = 1,048,576 block.
-- **Tổng: 12 + 1,024 + 1,048,576 = 1,049,612 block**.
+- Double indirect: $1024 \\times 1024 = 1{,}048{,}576$ block.
+- **Tổng: $12 + 1{,}024 + 1{,}048{,}576 = 1{,}049{,}612$ block**.
 
 **(b) Kích thước tối đa:**
-\`1,049,612 × 4,096 bytes = 4,299,161,600 bytes ≈ 4.00 GB\`.
+$1{,}049{,}612 \\times 4{,}096$ bytes $= 4{,}299{,}161{,}600$ bytes $\\approx 4.00$ GB.
 
 **(c) Byte thứ 5,000,000:**
-- Block chứa byte này: \`⌊5,000,000 ÷ 4,096⌋ = 1220\` (block thứ 1220, đánh số từ 0).
+- Block chứa byte này: $\\lfloor 5{,}000{,}000 / 4{,}096 \\rfloor = 1220$ (block thứ 1220, đánh số từ 0).
 - 12 direct (0..11), single indirect (12..1035), double indirect (1036..1,049,611).
-- Block 1220 > 1035 → nằm trong **double indirect**.
-- Chỉ số trong double indirect: \`1220 - 12 - 1024 = 184\`.
-- Cách đọc: (1) đọc block double_indirect → (2) đọc block single_indirect thứ \`⌊184 ÷ 1024⌋ = 0\` (block 0 của double) → (3) lấy con trỏ thứ \`184 mod 1024 = 184\` → (4) đọc block dữ liệu.
+- Block $1220 > 1035$ → nằm trong **double indirect**.
+- Chỉ số trong double indirect: $1220 - 12 - 1024 = 184$.
+- Cách đọc: (1) đọc block double_indirect → (2) đọc block single_indirect thứ $\\lfloor 184 / 1024 \\rfloor = 0$ (block 0 của double) → (3) lấy con trỏ thứ $184 \\bmod 1024 = 184$ → (4) đọc block dữ liệu.
 - **Tổng: 3 lần đọc đĩa** (double block → single block → data block; inode giả sử đã cached).
-- Offset trong block: \`5,000,000 mod 4,096 = 5,000,000 - 1220 × 4,096 = 5,000,000 - 4,997,120 = 2,880 bytes\`.
+- Offset trong block: $5{,}000{,}000 \\bmod 4{,}096 = 5{,}000{,}000 - 1220 \\times 4{,}096 = 5{,}000{,}000 - 4{,}997{,}120 = 2{,}880$ bytes.
 
 ### Bài 2
 

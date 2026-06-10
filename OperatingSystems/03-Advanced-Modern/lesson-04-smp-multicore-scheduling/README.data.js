@@ -153,7 +153,7 @@ Tốt hơn (balanced từ đầu):
   → Makespan = 10ms (giảm 33%!)
 \`\`\`
 
-⚠ **Lỗi thường gặp:** "Thêm core thì chương trình nhanh gấp đôi". Sai. Chỉ phần nào **song song** mới tăng tốc (Amdahl's Law: \`speedup = 1 / (serial_frac + parallel_frac/N)\`). Nếu 20% code là serial, tối đa speedup = 5x dù dùng bao nhiêu core.
+⚠ **Lỗi thường gặp:** "Thêm core thì chương trình nhanh gấp đôi". Sai. Chỉ phần nào **song song** mới tăng tốc (Amdahl's Law: $\\text{speedup} = \\frac{1}{\\text{serial} + \\text{parallel}/N}$). Nếu 20% code là serial, tối đa speedup = 5x dù dùng bao nhiêu core.
 
 📝 **Tóm tắt mục 2:**
 - Global queue: đơn giản, cân bằng tải tự nhiên, nhưng lock contention bottleneck trên nhiều core.
@@ -375,7 +375,7 @@ Socket 0 (Node 0):                    Socket 1 (Node 1):
 | RAM local (same node) | ~200 cycle (~67ns) | Core 0 đọc RAM Node 0 |
 | RAM remote (cross node) | ~350–400 cycle (~120–130ns) | Core 0 đọc RAM Node 1 |
 
-**Hệ số NUMA (NUMA factor)**: remote latency / local latency ≈ 120/67 ≈ **1.8x** — remote chậm hơn ~80%.
+**Hệ số NUMA (NUMA factor)**: remote latency / local latency $\\approx \\frac{120}{67} \\approx 1.8$x — remote chậm hơn ~80%.
 
 **Ví dụ cụ thể — Walk-through latency:**
 

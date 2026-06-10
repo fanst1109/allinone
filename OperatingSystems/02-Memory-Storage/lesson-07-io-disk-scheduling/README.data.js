@@ -40,7 +40,7 @@ Các thành phần vật lý:
 
 ### 1.2. Các loại thời gian
 
-**Thời gian truy cập = Seek time + Rotational latency + Transfer time**
+$$\\text{Thời gian truy cập} = \\text{Seek time} + \\text{Rotational latency} + \\text{Transfer time}$$
 
 **Seek time (thời gian tìm track):**
 - Thời gian đầu đọc di chuyển từ cylinder hiện tại đến cylinder đích.
@@ -50,8 +50,8 @@ Các thành phần vật lý:
 
 **Rotational latency (độ trễ quay):**
 - Thời gian chờ sector cần đọc quay đến vị trí đầu đọc.
-- Trung bình = 1/2 vòng quay = 4.17 ms với 7,200 RPM.
-- Tính: 1 vòng / 7200 RPM = 60,000 ms / 7200 = 8.33 ms → half rotation = 4.17 ms.
+- Trung bình $= 1/2$ vòng quay $= 4.17$ ms với 7,200 RPM.
+- Tính: 1 vòng / 7200 RPM $= 60{,}000 \\text{ ms} / 7200 = 8.33$ ms → half rotation $= 4.17$ ms.
 
 **Transfer time (thời gian truyền):**
 - Thời gian đọc/ghi dữ liệu thực tế.
@@ -112,7 +112,7 @@ Hàng đợi: \`98 183 37 122 14 124 65 67\`. Đầu đọc tại 53.
 | 7 | 124 | 65 | 59 |
 | 8 | 65 | 67 | 2 |
 
-**Tổng quãng đường FCFS = 45 + 85 + 146 + 85 + 108 + 110 + 59 + 2 = 640 cylinder**
+**Tổng quãng đường FCFS** $= 45 + 85 + 146 + 85 + 108 + 110 + 59 + 2 = 640$ **cylinder**
 
 ⚠ **Lỗi thường gặp:** FCFS công bằng nhất về thứ tự nhưng tệ nhất về hiệu năng. Đầu đọc nhảy qua lại nhiều lần (ví dụ: 183 → 37 → 122 → 14 là di chuyển cực xa).
 
@@ -130,16 +130,16 @@ Hàng đợi: \`98 183 37 122 14 124 65 67\`. Đầu đọc tại 53.
 
 | Bước | Từ | Hàng đợi còn lại | Chọn | Di chuyển |
 |------|-----|-----------------|------|----------|
-| 1 | 53 | {98,183,37,122,14,124,65,67} | 65 (gần nhất: |65-53|=12) | 12 |
-| 2 | 65 | {98,183,37,122,14,124,67} | 67 (|67-65|=2) | 2 |
-| 3 | 67 | {98,183,37,122,14,124} | 98 (|98-67|=31) | 31 |
-| 4 | 98 | {183,37,122,14,124} | 122 (|122-98|=24) | 24 |
-| 5 | 122 | {183,37,14,124} | 124 (|124-122|=2) | 2 |
-| 6 | 124 | {183,37,14} | 183 (|183-124|=59) | 59 |
-| 7 | 183 | {37,14} | 37 (|37-183|=146) | 146 |
-| 8 | 37 | {14} | 14 (|14-37|=23) | 23 |
+| 1 | 53 | {98,183,37,122,14,124,65,67} | 65 (gần nhất: $\\lvert 65-53 \\rvert = 12$) | 12 |
+| 2 | 65 | {98,183,37,122,14,124,67} | 67 ($\\lvert 67-65 \\rvert = 2$) | 2 |
+| 3 | 67 | {98,183,37,122,14,124} | 98 ($\\lvert 98-67 \\rvert = 31$) | 31 |
+| 4 | 98 | {183,37,122,14,124} | 122 ($\\lvert 122-98 \\rvert = 24$) | 24 |
+| 5 | 122 | {183,37,14,124} | 124 ($\\lvert 124-122 \\rvert = 2$) | 2 |
+| 6 | 124 | {183,37,14} | 183 ($\\lvert 183-124 \\rvert = 59$) | 59 |
+| 7 | 183 | {37,14} | 37 ($\\lvert 37-183 \\rvert = 146$) | 146 |
+| 8 | 37 | {14} | 14 ($\\lvert 14-37 \\rvert = 23$) | 23 |
 
-**Tổng SSTF = 12 + 2 + 31 + 24 + 2 + 59 + 146 + 23 = 299 cylinder**
+**Tổng SSTF** $= 12 + 2 + 31 + 24 + 2 + 59 + 146 + 23 = 299$ **cylinder**
 
 **SSTF tốt hơn FCFS gần gấp đôi!**
 
@@ -172,7 +172,7 @@ Hàng đợi: \`98 183 37 122 14 124 65 67\`. Đầu đọc tại 53.
 | 8 | 199 | 37 | 162 |
 | 9 | 37 | 14 | 23 |
 
-**Tổng SCAN = 12+2+31+24+2+59+16+162+23 = 331 cylinder**
+**Tổng SCAN** $= 12+2+31+24+2+59+16+162+23 = 331$ **cylinder**
 
 *(Lưu ý: SCAN đi đến cylinder 199 — đầu cuối — trước khi quay)*
 
@@ -201,7 +201,7 @@ Hàng đợi: \`98 183 37 122 14 124 65 67\`. Đầu đọc tại 53.
 | 9 | 0 | 14 | 14 | |
 | 10 | 14 | 37 | 23 | |
 
-**Tổng C-SCAN = 12+2+31+24+2+59+16+199+14+23 = 382 cylinder**
+**Tổng C-SCAN** $= 12+2+31+24+2+59+16+199+14+23 = 382$ **cylinder**
 
 **C-SCAN tệ hơn SCAN trong ví dụ này** nhưng có ưu điểm: thời gian chờ phân phối **đều hơn** — request ở cylinder thấp không phải chờ đầu đọc quét hết từ 199 về 0 rồi mới đến, mà quay nhanh về 0.
 
@@ -226,7 +226,7 @@ Giống SCAN nhưng **không đi đến tận cylinder 0 hoặc 199** — chỉ 
 | 7 | 183 | 37 | 146 (đổi chiều, xuống) |
 | 8 | 37 | 14 | 23 |
 
-**Tổng LOOK = 12+2+31+24+2+59+146+23 = 299 cylinder**
+**Tổng LOOK** $= 12+2+31+24+2+59+146+23 = 299$ **cylinder**
 
 ### 7.2. C-LOOK
 
@@ -243,7 +243,7 @@ Giống C-SCAN nhưng chỉ quay về request thấp nhất (không về cylinde
 | 7 | 183 | 14 | 169 | Nhảy về request thấp nhất |
 | 8 | 14 | 37 | 23 | |
 
-**Tổng C-LOOK = 12+2+31+24+2+59+169+23 = 322 cylinder**
+**Tổng C-LOOK** $= 12+2+31+24+2+59+169+23 = 322$ **cylinder**
 
 ---
 
@@ -337,22 +337,22 @@ Sắp xếp: {11, 34, 41, 60, 79, 92, 114, 176}. Đầu tại 50, ascending.
 |------|------|-----|-----|-----|-----|-----|------|
 |126|97|45|26|32|81|30|73|
 
-**Tổng FCFS = 126 + 97 + 45 + 26 + 32 + 81 + 30 + 73 = 510**
+**Tổng FCFS** $= 126 + 97 + 45 + 26 + 32 + 81 + 30 + 73 = 510$
 
 **SSTF** (luôn chọn gần nhất):
 
 | Từ | Chọn | Di chuyển | Lý do |
 |----|------|----------|-------|
-| 50 | 60 | 10 | |60-50|=10 |
-| 60 | 41 | 19 | |41-60|=19 |
-| 41 | 34 | 7 | |34-41|=7 |
-| 34 | 11 | 23 | |11-34|=23 |
+| 50 | 60 | 10 | $\\lvert 60-50 \\rvert = 10$ |
+| 60 | 41 | 19 | $\\lvert 41-60 \\rvert = 19$ |
+| 41 | 34 | 7 | $\\lvert 34-41 \\rvert = 7$ |
+| 34 | 11 | 23 | $\\lvert 11-34 \\rvert = 23$ |
 | 11 | 79 | 68 | còn {79,92,114,176}: 79 gần nhất |
 | 79 | 92 | 13 | |
 | 92 | 114 | 22 | |
 | 114 | 176 | 62 | |
 
-**Tổng SSTF = 10+19+7+23+68+13+22+62 = 224**
+**Tổng SSTF** $= 10+19+7+23+68+13+22+62 = 224$
 
 **SCAN** (ascending từ 50, đến 199, rồi xuống):
 
@@ -362,13 +362,13 @@ Sắp xếp: {11, 34, 41, 60, 79, 92, 114, 176}. Đầu tại 50, ascending.
 |-----|-----|-----|------|-------|-------|------|-----|-----|
 |10|19|13|22|62|23|158|7|23|
 
-**Tổng SCAN = 10+19+13+22+62+23+158+7+23 = 337**
+**Tổng SCAN** $= 10+19+13+22+62+23+158+7+23 = 337$
 
 **C-SCAN** (50 → ... → 199 → 0 → 11 → 34 → 41):
 
 50→60→79→92→114→176→199 (giống SCAN phase 1: 151) + 199→0 (199) + 0→11 (11) + 11→34 (23) + 34→41 (7)
 
-**Tổng C-SCAN = 151 + 199 + 11 + 23 + 7 = 391**
+**Tổng C-SCAN** $= 151 + 199 + 11 + 23 + 7 = 391$
 
 **LOOK** (ascending từ 50, chỉ đến 176 rồi xuống):
 
@@ -378,13 +378,13 @@ Sắp xếp: {11, 34, 41, 60, 79, 92, 114, 176}. Đầu tại 50, ascending.
 |-----|-----|-----|------|-------|------|-----|-----|
 |10|19|13|22|62|135|7|23|
 
-**Tổng LOOK = 10+19+13+22+62+135+7+23 = 291**
+**Tổng LOOK** $= 10+19+13+22+62+135+7+23 = 291$
 
 **C-LOOK** (50 → 176, nhảy về 11 rồi lên):
 
 50→60→79→92→114→176 (151) + 176→11 (165) + 11→34 (23) + 34→41 (7)
 
-**Tổng C-LOOK = 151+165+23+7 = 346**
+**Tổng C-LOOK** $= 151+165+23+7 = 346$
 
 **Bảng tổng hợp Bài 1:**
 
@@ -407,11 +407,11 @@ Sắp xếp: {11, 34, 41, 60, 79, 92, 114, 176}. Đầu tại 50, ascending.
 
 **Rotational latency:** 7,200 RPM = 7,200 vòng/phút = 120 vòng/giây.
 
-Thời gian 1 vòng = 1/120 giây = 8.33 ms.
+Thời gian 1 vòng $= 1/120$ giây $= 8.33$ ms.
 
-**Rotational latency trung bình = 8.33 ÷ 2 = 4.17 ms.**
+**Rotational latency trung bình** $= 8.33 / 2 = 4.17$ **ms.**
 
-Tổng thời gian truy cập ngẫu nhiên 1 sector = 8 ms (seek) + 4.17 ms (rotation) + 0.5 ms (transfer) = **12.67 ms**.
+Tổng thời gian truy cập ngẫu nhiên 1 sector $= 8 \\text{ ms (seek)} + 4.17 \\text{ ms (rotation)} + 0.5 \\text{ ms (transfer)} =$ **12.67 ms**.
 
 ### Bài 4
 

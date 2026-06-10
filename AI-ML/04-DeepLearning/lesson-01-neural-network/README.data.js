@@ -3,7 +3,7 @@
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 04 — Neural Network 1-hidden-layer
 
-> "Tầng 6 — AI/ML, bài **bản lề**. Linear regression (Lesson 02) và logistic regression (Lesson 03) chỉ học được **đường thẳng / mặt phẳng phân chia**. Bài này sẽ chỉ rõ: vì sao XOR — một bài toán 4 điểm trẻ con cũng giải được — lại **không** giải được bằng logistic regression, và một mạng nơ-ron với **chỉ 1 hidden layer** đã đủ để gãy gọn cái rào đó. Bạn sẽ chạy tay từng phép forward + backprop cho một mạng 2-3-1, hiểu chain rule lặp đi lặp lại như thế nào, viết được code Go train được XOR, và rời bài với khả năng đọc bất kỳ paper deep learning nào mà không bị 'lost' ở chỗ ∂L/∂W."
+> "Tầng 6 — AI/ML, bài **bản lề**. Linear regression (Lesson 02) và logistic regression (Lesson 03) chỉ học được **đường thẳng / mặt phẳng phân chia**. Bài này sẽ chỉ rõ: vì sao XOR — một bài toán 4 điểm trẻ con cũng giải được — lại **không** giải được bằng logistic regression, và một mạng nơ-ron với **chỉ 1 hidden layer** đã đủ để gãy gọn cái rào đó. Bạn sẽ chạy tay từng phép forward + backprop cho một mạng 2-3-1, hiểu chain rule lặp đi lặp lại như thế nào, viết được code Go train được XOR, và rời bài với khả năng đọc bất kỳ paper deep learning nào mà không bị 'lost' ở chỗ $\\partial L/\\partial W$."
 
 ## Mục tiêu học tập
 
@@ -11,8 +11,8 @@ Sau bài này bạn sẽ:
 
 1. Phát biểu được **giới hạn của model tuyến tính**: vì sao logistic regression không học được XOR (chứng minh chính thức bằng linear separability).
 2. Mô tả **kiến trúc 1-hidden-layer**: input → hidden (kèm activation phi tuyến) → output. Viết được công thức forward dạng scalar và dạng ma trận (vectorized).
-3. Chạy tay **forward pass** cho mạng 2-3-1 với input \`x = [1, 2]\` cụ thể — tính từng \`z₁\`, \`h\`, \`z₂\`, \`ŷ\`, loss.
-4. Chạy tay **backprop**: từ loss → ∂L/∂ŷ → ∂L/∂W₂ → ∂L/∂h → ∂L/∂z₁ → ∂L/∂W₁, đối chiếu **cả 2 vế** bằng số.
+3. Chạy tay **forward pass** cho mạng 2-3-1 với input $x = [1, 2]$ cụ thể — tính từng $z_1$, $h$, $z_2$, $\\hat{y}$, loss.
+4. Chạy tay **backprop**: từ loss → $\\partial L/\\partial \\hat{y}$ → $\\partial L/\\partial W_2$ → $\\partial L/\\partial h$ → $\\partial L/\\partial z_1$ → $\\partial L/\\partial W_1$, đối chiếu **cả 2 vế** bằng số.
 5. **Vector hoá** backprop: thay vì 6 vòng \`for\`, chỉ 4 phép nhân ma trận. Tự kiểm tra shape mọi gradient khớp shape weight.
 6. Hoàn chỉnh **1 step training** (forward → loss → backward → cập nhật bằng gradient descent), và lặp lại cho nhiều epoch — mạng học được XOR.
 7. So sánh **ReLU vs sigmoid vs tanh vs leaky-ReLU**: vì sao ReLU thắng trong deep network (vanishing gradient + cost tính rẻ).
@@ -22,14 +22,14 @@ Sau bài này bạn sẽ:
 ## Kiến thức tiền đề
 
 - [Lesson 03 — Logistic regression](../lesson-03-logistic-regression/): sigmoid, binary cross-entropy, gradient descent. Một neural network 1-hidden-layer **có thể nhìn như "stack hai logistic regression"**. Nếu chưa nắm vững sigmoid, đạo hàm sigmoid, và cách GD update weight, dừng lại đọc Lesson 03 trước.
-- [Lesson 02 — Linear regression](../lesson-02-linear-regression/): MSE loss, ý nghĩa của \`y = Wx + b\` về mặt hình học, gradient descent từng bước.
-- [Tầng 3 — Lesson 04 — Chain rule](../../03-Calculus/lesson-04-chain-rule/): **không có cái này thì không hiểu backprop**. Chain rule chính là backprop. Phải biết tính \`d/dx[f(g(x))] = f'(g(x))·g'(x)\` thành thạo trước khi vào mục 5.
-- [Tầng 3 — Lesson 06 — Đạo hàm riêng + gradient](../../03-Calculus/lesson-06-partial-gradient/): ∂L/∂W₁ là ma trận đạo hàm riêng. Phải biết "đạo hàm theo từng phần tử".
+- [Lesson 02 — Linear regression](../lesson-02-linear-regression/): MSE loss, ý nghĩa của $y = Wx + b$ về mặt hình học, gradient descent từng bước.
+- [Tầng 3 — Lesson 04 — Chain rule](../../03-Calculus/lesson-04-chain-rule/): **không có cái này thì không hiểu backprop**. Chain rule chính là backprop. Phải biết tính $\\dfrac{d}{dx}[f(g(x))] = f'(g(x)) \\cdot g'(x)$ thành thạo trước khi vào mục 5.
+- [Tầng 3 — Lesson 06 — Đạo hàm riêng + gradient](../../03-Calculus/lesson-06-partial-gradient/): $\\partial L/\\partial W_1$ là ma trận đạo hàm riêng. Phải biết "đạo hàm theo từng phần tử".
 - [Tầng 4 — Lesson 05 — Ma trận](../../04-LinearAlgebra/lesson-05-matrices/): nhân ma trận, transpose, shape. Vectorized backprop hoàn toàn dùng đại số ma trận.
-- [Tầng 5 — Cross-entropy](../../05-Probability/) (nếu dùng cross-entropy loss thay vì MSE): công thức \`-Σ y log ŷ\` và đạo hàm của nó kết hợp với softmax/sigmoid.
+- [Tầng 5 — Cross-entropy](../../05-Probability/) (nếu dùng cross-entropy loss thay vì MSE): công thức $-\\sum y \\log \\hat{y}$ và đạo hàm của nó kết hợp với softmax/sigmoid.
 
 > **💡 Đọc trước bài này một câu**
-> Mạng nơ-ron không phải "AI bí ẩn" — nó chỉ là **hàm hợp** (composition of functions). \`ŷ = W₂·σ(W₁·x + b₁) + b₂\`. Training = tìm W₁, b₁, W₂, b₂ để \`ŷ ≈ y\` trên dataset. Backprop = áp chain rule cho hàm hợp đó. Hết.
+> Mạng nơ-ron không phải "AI bí ẩn" — nó chỉ là **hàm hợp** (composition of functions). $\\hat{y} = W_2 \\cdot \\sigma(W_1 \\cdot x + b_1) + b_2$. Training = tìm $W_1, b_1, W_2, b_2$ để $\\hat{y} \\approx y$ trên dataset. Backprop = áp chain rule cho hàm hợp đó. Hết.
 
 ---
 
@@ -39,52 +39,52 @@ Sau bài này bạn sẽ:
 
 Cho 4 điểm 2D với nhãn (1 = đỏ, 0 = xanh):
 
-| x₁ | x₂ | y |
+| $x_1$ | $x_2$ | $y$ |
 |----|----|----|
 | 0 | 0 | 0 |
 | 0 | 1 | 1 |
 | 1 | 0 | 1 |
 | 1 | 1 | 0 |
 
-Đây là **XOR** (exclusive or): \`y = 1\` khi \`x₁ ≠ x₂\`, ngược lại \`y = 0\`.
+Đây là **XOR** (exclusive or): $y = 1$ khi $x_1 \\neq x_2$, ngược lại $y = 0$.
 
-Logistic regression học \`ŷ = σ(w₁·x₁ + w₂·x₂ + b)\`. Quyết định: nếu \`w₁·x₁ + w₂·x₂ + b > 0\` → class 1, ngược lại class 0. **Decision boundary là đường thẳng** \`w₁·x₁ + w₂·x₂ + b = 0\`.
+Logistic regression học $\\hat{y} = \\sigma(w_1 \\cdot x_1 + w_2 \\cdot x_2 + b)$. Quyết định: nếu $w_1 \\cdot x_1 + w_2 \\cdot x_2 + b > 0$ → class 1, ngược lại class 0. **Decision boundary là đường thẳng** $w_1 \\cdot x_1 + w_2 \\cdot x_2 + b = 0$.
 
 > **💡 Trực giác**
 > Vẽ 4 điểm XOR ra giấy. Bạn không tài nào kẻ **một đường thẳng** chia (0,0) và (1,1) sang một bên, (0,1) và (1,0) sang bên kia — vì hai cặp này nằm **xen kẽ** trên hai đường chéo của hình vuông. Mọi đường thẳng đều cắt nhầm.
 
 ### 1.2. Chứng minh chính thức: XOR không **linear separable**
 
-Giả sử tồn tại \`w₁, w₂, b\` sao cho:
+Giả sử tồn tại $w_1, w_2, b$ sao cho:
 
-- \`(0,0)\` → \`b ≤ 0\` (vì class 0)
-- \`(1,1)\` → \`w₁ + w₂ + b ≤ 0\` (class 0)
-- \`(0,1)\` → \`w₂ + b > 0\` (class 1)
-- \`(1,0)\` → \`w₁ + b > 0\` (class 1)
+- $(0,0)$ → $b \\leq 0$ (vì class 0)
+- $(1,1)$ → $w_1 + w_2 + b \\leq 0$ (class 0)
+- $(0,1)$ → $w_2 + b > 0$ (class 1)
+- $(1,0)$ → $w_1 + b > 0$ (class 1)
 
-Cộng (3) và (4): \`w₁ + w₂ + 2b > 0\`.
-Cộng (1) và (2): \`w₁ + w₂ + 2b ≤ 0\`.
+Cộng (3) và (4): $w_1 + w_2 + 2b > 0$.
+Cộng (1) và (2): $w_1 + w_2 + 2b \\leq 0$.
 
-**Mâu thuẫn.** ⇒ Không tồn tại \`(w₁, w₂, b)\` nào tách được XOR. ∎
+**Mâu thuẫn.** ⇒ Không tồn tại $(w_1, w_2, b)$ nào tách được XOR. ∎
 
 ### 1.3. Trick: thêm một feature phi tuyến
 
-Nếu ta tạo thêm feature \`x₃ = x₁ · x₂\`, thì:
+Nếu ta tạo thêm feature $x_3 = x_1 \\cdot x_2$, thì:
 
-| x₁ | x₂ | x₃ = x₁·x₂ | y |
+| $x_1$ | $x_2$ | $x_3 = x_1 \\cdot x_2$ | $y$ |
 |----|----|------------|---|
 | 0 | 0 | 0 | 0 |
 | 0 | 1 | 0 | 1 |
 | 1 | 0 | 0 | 1 |
 | 1 | 1 | 1 | 0 |
 
-Bây giờ \`(0,0)\` và \`(1,1)\` khác nhau ở \`x₃\` (0 vs 1). Một mặt phẳng trong không gian 3D \`(x₁, x₂, x₃)\` có thể tách được. Cụ thể: \`ŷ = σ(x₁ + x₂ - 2·x₃ - 0.5)\` cho ra 4 giá trị \`[-0.5, 0.5, 0.5, -0.5]\` — đúng dấu yêu cầu.
+Bây giờ $(0,0)$ và $(1,1)$ khác nhau ở $x_3$ (0 vs 1). Một mặt phẳng trong không gian 3D $(x_1, x_2, x_3)$ có thể tách được. Cụ thể: $\\hat{y} = \\sigma(x_1 + x_2 - 2 \\cdot x_3 - 0{,}5)$ cho ra 4 giá trị $[-0{,}5, 0{,}5, 0{,}5, -0{,}5]$ — đúng dấu yêu cầu.
 
 **Bài học**: nếu **biết trước** feature phi tuyến nào hữu ích, model tuyến tính cũng giải được. Nhưng với dataset thật (ảnh, văn bản), ai biết feature phi tuyến nào là đúng?
 
 ### 1.4. Ý tưởng: để model TỰ HỌC feature phi tuyến
 
-Đặt 1 lớp trung gian (**hidden layer**) gồm vài neuron. Mỗi neuron là một \`σ(w·x + b)\` — chính là một logistic regression mini. Output của lớp này là **feature mới**, phi tuyến (do \`σ\`). Sau đó tầng output dùng các feature mới này để phân loại.
+Đặt 1 lớp trung gian (**hidden layer**) gồm vài neuron. Mỗi neuron là một $\\sigma(w \\cdot x + b)$ — chính là một logistic regression mini. Output của lớp này là **feature mới**, phi tuyến (do $\\sigma$). Sau đó tầng output dùng các feature mới này để phân loại.
 
 \`\`\`
 x ──┬─→ neuron 1: σ(w₁·x + b₁) ──┐
@@ -96,9 +96,9 @@ x ──┬─→ neuron 1: σ(w₁·x + b₁) ──┐
 
 ### ❓ Câu hỏi tự nhiên
 
-> *"Nếu các neuron hidden là tuyến tính (\`σ\` là hàm identity \`σ(z) = z\`), thì có khác linear regression không?"*
+> *"Nếu các neuron hidden là tuyến tính ($\\sigma$ là hàm identity $\\sigma(z) = z$), thì có khác linear regression không?"*
 
-**Không khác gì cả.** Vì stack tuyến tính = tuyến tính: \`W₂·(W₁·x + b₁) + b₂ = (W₂·W₁)·x + (W₂·b₁ + b₂) = W'·x + b'\`. Activation **phi tuyến** là *linh hồn* của neural network. Mất nó, NN chỉ là linear regression viết phức tạp hơn.
+**Không khác gì cả.** Vì stack tuyến tính = tuyến tính: $W_2 \\cdot (W_1 \\cdot x + b_1) + b_2 = (W_2 \\cdot W_1) \\cdot x + (W_2 \\cdot b_1 + b_2) = W' \\cdot x + b'$. Activation **phi tuyến** là *linh hồn* của neural network. Mất nó, NN chỉ là linear regression viết phức tạp hơn.
 
 > *"Vì sao gọi là 'neuron'? Có liên quan tới não thật không?"*
 
@@ -109,16 +109,16 @@ Lấy cảm hứng lỏng lẻo từ neuron sinh học (input dendrites → cell
 Lý thuyết: 1 hidden layer đủ rộng có thể xấp xỉ mọi hàm liên tục (universal approximation, mục 10). Thực tế: nhiều layer **nông** (deep) hiệu quả hơn nhiều một layer **rộng**. Bài này dạy 1-hidden để dễ chạy tay; deep network chỉ là backprop lặp lại N lần.
 
 > **⚠ Lỗi thường gặp**
-> - Cứ tưởng "phi tuyến" = phải dùng tanh hay sigmoid. **ReLU** (\`max(0, z)\`) — một hàm gãy đơn giản — cũng đủ phi tuyến.
-> - Đặt \`σ\` là \`identity\` rồi thắc mắc sao model không học gì hơn linear regression. Linear stack vẫn linear.
+> - Cứ tưởng "phi tuyến" = phải dùng tanh hay sigmoid. **ReLU** ($\\max(0, z)$) — một hàm gãy đơn giản — cũng đủ phi tuyến.
+> - Đặt $\\sigma$ là identity rồi thắc mắc sao model không học gì hơn linear regression. Linear stack vẫn linear.
 
 > **🔁 Tự kiểm tra**
-> Câu hỏi: Tại sao bài AND (\`y = x₁ AND x₂\`) **giải được** bằng logistic regression, còn XOR thì không?
+> Câu hỏi: Tại sao bài AND ($y = x_1$ AND $x_2$) **giải được** bằng logistic regression, còn XOR thì không?
 >
 > <details>
 > <summary>Đáp án</summary>
 >
-> Bảng AND có 3 điểm class 0 — \`(0,0), (0,1), (1,0)\` — và 1 điểm class 1 — \`(1,1)\`. Vẽ ra: bạn dễ dàng kẻ một đường thẳng (vd \`x₁ + x₂ = 1.5\`) chia \`(1,1)\` ra khỏi 3 điểm kia. AND là linear separable. XOR thì không (chứng minh ở 1.2).
+> Bảng AND có 3 điểm class 0 — $(0,0), (0,1), (1,0)$ — và 1 điểm class 1 — $(1,1)$. Vẽ ra: bạn dễ dàng kẻ một đường thẳng (vd $x_1 + x_2 = 1{,}5$) chia $(1,1)$ ra khỏi 3 điểm kia. AND là linear separable. XOR thì không (chứng minh ở 1.2).
 > </details>
 
 > **📝 Tóm tắt mục 1**
@@ -147,25 +147,25 @@ INPUT      HIDDEN                       OUTPUT
 \`\`\`
 
 Trong đó:
-- \`x ∈ ℝᵈ\` — input vector.
-- \`W₁ ∈ ℝ^(H×d)\` — weight ma trận của hidden layer (H hàng, d cột). Mỗi **hàng** của \`W₁\` là weight của một neuron hidden.
-- \`b₁ ∈ ℝᴴ\` — bias vector của hidden layer.
-- \`σ\` — activation phi tuyến, áp **element-wise** (lên từng phần tử của vector).
-- \`h = σ(W₁·x + b₁) ∈ ℝᴴ\` — output của hidden layer (còn gọi là **hidden representation**, hay **feature mới**).
-- \`W₂ ∈ ℝ^(K×H)\` — weight ma trận của output layer.
-- \`b₂ ∈ ℝᴷ\` — bias output.
-- \`ŷ ∈ ℝᴷ\` — prediction. Với regression \`K = 1\`, output không cần activation. Với binary classification dùng \`σ(ŷ)\`. Với multi-class dùng \`softmax(ŷ)\`.
+- $x \\in \\mathbb{R}^d$ — input vector.
+- $W_1 \\in \\mathbb{R}^{H \\times d}$ — weight ma trận của hidden layer (H hàng, d cột). Mỗi **hàng** của $W_1$ là weight của một neuron hidden.
+- $b_1 \\in \\mathbb{R}^H$ — bias vector của hidden layer.
+- $\\sigma$ — activation phi tuyến, áp **element-wise** (lên từng phần tử của vector).
+- $h = \\sigma(W_1 \\cdot x + b_1) \\in \\mathbb{R}^H$ — output của hidden layer (còn gọi là **hidden representation**, hay **feature mới**).
+- $W_2 \\in \\mathbb{R}^{K \\times H}$ — weight ma trận của output layer.
+- $b_2 \\in \\mathbb{R}^K$ — bias output.
+- $\\hat{y} \\in \\mathbb{R}^K$ — prediction. Với regression $K = 1$, output không cần activation. Với binary classification dùng $\\sigma(\\hat{y})$. Với multi-class dùng $\\text{softmax}(\\hat{y})$.
 
 ### 2.2. Công thức forward (dạng scalar)
 
-Cho từng neuron hidden \`j ∈ {1, ..., H}\`:
+Cho từng neuron hidden $j \\in \\{1, \\dots, H\\}$:
 
 \`\`\`
 z₁ⱼ = Σᵢ W₁[j,i] · xᵢ + b₁[j]      (tính pre-activation)
 hⱼ  = σ(z₁ⱼ)                          (áp activation)
 \`\`\`
 
-Output (giả sử \`K = 1\`, regression):
+Output (giả sử $K = 1$, regression):
 
 \`\`\`
 z₂  = Σⱼ W₂[j] · hⱼ + b₂
@@ -189,44 +189,44 @@ Có 4 lựa chọn phổ biến:
 
 | Tên | Công thức | Range | Đạo hàm |
 |-----|-----------|-------|---------|
-| **Sigmoid** | \`σ(z) = 1 / (1 + e^(-z))\` | (0, 1) | \`σ(z)·(1 - σ(z))\` |
-| **Tanh** | \`tanh(z) = (eᶻ - e^-z) / (eᶻ + e^-z)\` | (-1, 1) | \`1 - tanh²(z)\` |
-| **ReLU** | \`max(0, z)\` | [0, ∞) | \`1 nếu z > 0; 0 nếu z < 0\` |
-| **Leaky-ReLU** | \`max(αz, z)\`, \`α≈0.01\` | (-∞, ∞) | \`1 nếu z > 0; α nếu z ≤ 0\` |
+| **Sigmoid** | $\\sigma(z) = \\dfrac{1}{1 + e^{-z}}$ | (0, 1) | $\\sigma(z) \\cdot (1 - \\sigma(z))$ |
+| **Tanh** | $\\tanh(z) = \\dfrac{e^z - e^{-z}}{e^z + e^{-z}}$ | (-1, 1) | $1 - \\tanh^2(z)$ |
+| **ReLU** | $\\max(0, z)$ | [0, ∞) | $1$ nếu $z > 0$; $0$ nếu $z < 0$ |
+| **Leaky-ReLU** | $\\max(\\alpha z, z)$, $\\alpha \\approx 0{,}01$ | (-∞, ∞) | $1$ nếu $z > 0$; $\\alpha$ nếu $z \\leq 0$ |
 
 > **💡 Trực giác**
-> - **Sigmoid**: "ép" mọi giá trị về (0,1). Dễ diễn giải như xác suất, nhưng bão hòa khi \`|z|\` lớn → gradient ≈ 0 → vanishing gradient.
+> - **Sigmoid**: "ép" mọi giá trị về (0,1). Dễ diễn giải như xác suất, nhưng bão hòa khi $|z|$ lớn → gradient $\\approx 0$ → vanishing gradient.
 > - **Tanh**: như sigmoid nhưng zero-centered (range -1..1). Học nhanh hơn sigmoid trong nhiều trường hợp.
 > - **ReLU**: "tắt" mọi giá trị âm. Tính siêu rẻ, không bão hòa phía dương → gradient không vanish. Đây là default cho deep learning hiện đại.
 > - **Leaky-ReLU**: cùng ý tưởng nhưng cho leak nhỏ phía âm, tránh "dead neuron" (ReLU bị stuck ở 0 mãi mãi nếu input luôn âm).
 
 ### 2.5. Đếm tham số
 
-Với mạng input \`d\` → hidden \`H\` → output \`K\`:
+Với mạng input $d$ → hidden $H$ → output $K$:
 
-- \`W₁\`: \`H × d\` phần tử.
-- \`b₁\`: \`H\` phần tử.
-- \`W₂\`: \`K × H\` phần tử.
-- \`b₂\`: \`K\` phần tử.
+- $W_1$: $H \\times d$ phần tử.
+- $b_1$: $H$ phần tử.
+- $W_2$: $K \\times H$ phần tử.
+- $b_2$: $K$ phần tử.
 
-Tổng = \`H·d + H + K·H + K = H(d + 1 + K) + K\`.
+Tổng $= H \\cdot d + H + K \\cdot H + K = H(d + 1 + K) + K$.
 
-Ví dụ XOR: \`d = 2, H = 3, K = 1\` → \`3·(2+1+1) + 1 = 13\` tham số. Một con số bé tí, nhưng đủ học XOR.
+Ví dụ XOR: $d = 2, H = 3, K = 1$ → $3 \\cdot (2+1+1) + 1 = 13$ tham số. Một con số bé tí, nhưng đủ học XOR.
 
 ### ❓ Câu hỏi tự nhiên
 
-> *"Vì sao bias \`b\` quan trọng? Bỏ đi được không?"*
+> *"Vì sao bias $b$ quan trọng? Bỏ đi được không?"*
 
-Bỏ được, nhưng decision boundary phải đi qua gốc tọa độ. Vd: \`w·x = 0\` định nghĩa siêu phẳng qua O. Với bias, \`w·x + b = 0\` đi qua điểm \`-b/||w||\` từ O — di chuyển được tự do. Bỏ bias = mất 1 bậc tự do, mạng học kém hơn rất nhiều với cùng số neuron.
+Bỏ được, nhưng decision boundary phải đi qua gốc tọa độ. Vd: $w \\cdot x = 0$ định nghĩa siêu phẳng qua O. Với bias, $w \\cdot x + b = 0$ đi qua điểm $-b/\\|w\\|$ từ O — di chuyển được tự do. Bỏ bias = mất 1 bậc tự do, mạng học kém hơn rất nhiều với cùng số neuron.
 
-> *"Activation phải áp lên \`z₁\` chứ không lên \`x\`. Vì sao?"*
+> *"Activation phải áp lên $z_1$ chứ không lên $x$. Vì sao?"*
 
-Vì \`x\` đã là input cho trước, không có gì để "phi tuyến hoá". Phi tuyến áp lên **pre-activation \`z₁\`** — là kết hợp tuyến tính của các input. Mục đích: biến tổ hợp tuyến tính → output phi tuyến. Lặp lại quá trình này N lần = NN sâu.
+Vì $x$ đã là input cho trước, không có gì để "phi tuyến hoá". Phi tuyến áp lên **pre-activation $z_1$** — là kết hợp tuyến tính của các input. Mục đích: biến tổ hợp tuyến tính → output phi tuyến. Lặp lại quá trình này N lần = NN sâu.
 
 > **📝 Tóm tắt mục 2**
-> - NN 1-hidden-layer = 3 lớp: input (\`x\`), hidden (\`h = σ(W₁x + b₁)\`), output (\`ŷ = W₂h + b₂\`).
+> - NN 1-hidden-layer = 3 lớp: input ($x$), hidden ($h = \\sigma(W_1 x + b_1)$), output ($\\hat{y} = W_2 h + b_2$).
 > - 4 activation phổ biến: sigmoid, tanh, ReLU, leaky-ReLU. ReLU là default hiện đại.
-> - Tổng tham số: \`H(d + K + 1) + K\`.
+> - Tổng tham số: $H(d + K + 1) + K$.
 > - Bỏ bias = mất bậc tự do, mạng yếu hẳn.
 
 ---
@@ -239,9 +239,9 @@ Vì \`x\` đã là input cho trước, không có gì để "phi tuyến hoá". 
 
 Mạng: 2 input, 3 hidden (sigmoid), 1 output (linear, regression).
 
-Input: \`x = [1, 2]\`.
+Input: $x = [1, 2]$.
 
-Target: \`y = 1\` (giá trị thật).
+Target: $y = 1$ (giá trị thật).
 
 Weights khởi tạo (chọn số "đẹp" để dễ tính, không phải random):
 
@@ -263,21 +263,21 @@ b₂ = 0.1                        (scalar)
 z₁ = W₁ · x + b₁
 \`\`\`
 
-Hàng 1: \`z₁[0] = 0.5·1 + (-0.3)·2 + 0.1 = 0.5 - 0.6 + 0.1 = 0.0\`
-Hàng 2: \`z₁[1] = 0.2·1 + 0.8·2 + (-0.2) = 0.2 + 1.6 - 0.2 = 1.6\`
-Hàng 3: \`z₁[2] = -0.4·1 + 0.1·2 + 0.0 = -0.4 + 0.2 + 0.0 = -0.2\`
+Hàng 1: $z_1[0] = 0{,}5 \\cdot 1 + (-0{,}3) \\cdot 2 + 0{,}1 = 0{,}5 - 0{,}6 + 0{,}1 = 0{,}0$
+Hàng 2: $z_1[1] = 0{,}2 \\cdot 1 + 0{,}8 \\cdot 2 + (-0{,}2) = 0{,}2 + 1{,}6 - 0{,}2 = 1{,}6$
+Hàng 3: $z_1[2] = -0{,}4 \\cdot 1 + 0{,}1 \\cdot 2 + 0{,}0 = -0{,}4 + 0{,}2 + 0{,}0 = -0{,}2$
 
-→ **\`z₁ = [0.0, 1.6, -0.2]\`**
+→ **$z_1 = [0{,}0,\\ 1{,}6,\\ -0{,}2]$**
 
 ### 3.3. Bước 2: áp sigmoid để có \`h\`
 
-Công thức \`σ(z) = 1 / (1 + e^(-z))\`.
+Công thức $\\sigma(z) = \\dfrac{1}{1 + e^{-z}}$.
 
-- \`h[0] = σ(0.0) = 1/(1+1) = 0.5\`
-- \`h[1] = σ(1.6) = 1/(1 + e^(-1.6)) = 1/(1 + 0.2019) = 1/1.2019 ≈ 0.8320\`
-- \`h[2] = σ(-0.2) = 1/(1 + e^(0.2)) = 1/(1 + 1.2214) = 1/2.2214 ≈ 0.4502\`
+- $h[0] = \\sigma(0{,}0) = 1/(1+1) = 0{,}5$
+- $h[1] = \\sigma(1{,}6) = 1/(1 + e^{-1{,}6}) = 1/(1 + 0{,}2019) = 1/1{,}2019 \\approx 0{,}8320$
+- $h[2] = \\sigma(-0{,}2) = 1/(1 + e^{0{,}2}) = 1/(1 + 1{,}2214) = 1/2{,}2214 \\approx 0{,}4502$
 
-→ **\`h ≈ [0.5000, 0.8320, 0.4502]\`**
+→ **$h \\approx [0{,}5000,\\ 0{,}8320,\\ 0{,}4502]$**
 
 ### 3.4. Bước 3: tính \`z₂\` (pre-activation output)
 
@@ -288,11 +288,11 @@ z₂ = W₂ · h + b₂
    = 0.1491
 \`\`\`
 
-→ **\`z₂ ≈ 0.1491\`**
+→ **$z_2 \\approx 0{,}1491$**
 
 ### 3.5. Bước 4: output
 
-Vì regression, \`ŷ = z₂ = 0.1491\`.
+Vì regression, $\\hat{y} = z_2 = 0{,}1491$.
 
 ### 3.6. Bước 5: tính loss (MSE — 1 sample)
 
@@ -304,21 +304,21 @@ L = (1/2)·(ŷ - y)²
   ≈ 0.3620
 \`\`\`
 
-(Hệ số \`1/2\` để khi đạo hàm, hệ số \`2\` triệt tiêu — quy ước rất phổ biến.)
+(Hệ số $1/2$ để khi đạo hàm, hệ số $2$ triệt tiêu — quy ước rất phổ biến.)
 
 ### 3.7. Bảng tổng kết forward pass
 
 | Đại lượng | Giá trị |
 |-----------|---------|
-| \`x\` | \`[1, 2]\` |
-| \`z₁\` | \`[0.0, 1.6, -0.2]\` |
-| \`h = σ(z₁)\` | \`[0.5000, 0.8320, 0.4502]\` |
-| \`z₂\` | \`0.1491\` |
-| \`ŷ\` | \`0.1491\` |
-| \`y\` (target) | \`1\` |
-| \`L\` | \`0.3620\` |
+| $x$ | $[1, 2]$ |
+| $z_1$ | $[0{,}0,\\ 1{,}6,\\ -0{,}2]$ |
+| $h = \\sigma(z_1)$ | $[0{,}5000,\\ 0{,}8320,\\ 0{,}4502]$ |
+| $z_2$ | $0{,}1491$ |
+| $\\hat{y}$ | $0{,}1491$ |
+| $y$ (target) | $1$ |
+| $L$ | $0{,}3620$ |
 
-Verify số: dùng máy tính \`(0.1491 - 1)² / 2\`:
+Verify số: dùng máy tính $(0{,}1491 - 1)^2 / 2$:
 
 \`\`\`
 0.8509² = 0.72403
@@ -333,10 +333,10 @@ Không "đúng" — đây là khởi tạo. Trong thực tế dùng **random** (
 
 > *"Loss 0.3620 là tốt hay tệ?"*
 
-Tệ. Vì \`ŷ = 0.149\` còn rất xa \`y = 1\`. Sau khi backprop và update, loss giảm dần. Bài này train xong cho XOR đến mục 7.
+Tệ. Vì $\\hat{y} = 0{,}149$ còn rất xa $y = 1$. Sau khi backprop và update, loss giảm dần. Bài này train xong cho XOR đến mục 7.
 
 > **🔁 Tự kiểm tra**
-> Bây giờ tự tính forward pass với \`x = [0, 1]\` (cùng weights). Đáp số \`ŷ ≈ ?\`
+> Bây giờ tự tính forward pass với $x = [0, 1]$ (cùng weights). Đáp số $\\hat{y} \\approx ?$
 >
 > <details>
 > <summary>Đáp án</summary>
@@ -359,9 +359,9 @@ Tệ. Vì \`ŷ = 0.149\` còn rất xa \`y = 1\`. Sau khi backprop và update, l
 > </details>
 
 > **📝 Tóm tắt mục 3**
-> - Forward pass đi từ \`x\` → \`z₁\` → \`h\` → \`z₂\` → \`ŷ\`.
+> - Forward pass đi từ $x$ → $z_1$ → $h$ → $z_2$ → $\\hat{y}$.
 > - Mỗi bước: phép tuyến tính rồi (có thể) áp activation.
-> - Loss đo cách \`ŷ\` lệch khỏi \`y\` — để biết phải sửa weights như thế nào, qua backprop.
+> - Loss đo cách $\\hat{y}$ lệch khỏi $y$ — để biết phải sửa weights như thế nào, qua backprop.
 
 ---
 
@@ -371,7 +371,7 @@ Tệ. Vì \`ŷ = 0.149\` còn rất xa \`y = 1\`. Sau khi backprop và update, l
 
 ### 4.1. Mục tiêu của backprop
 
-Tính \`∂L/∂W₁\`, \`∂L/∂b₁\`, \`∂L/∂W₂\`, \`∂L/∂b₂\` — gradient của loss theo MỌI tham số. Có gradient → gradient descent update: \`W ← W - η·∂L/∂W\`.
+Tính $\\partial L/\\partial W_1$, $\\partial L/\\partial b_1$, $\\partial L/\\partial W_2$, $\\partial L/\\partial b_2$ — gradient của loss theo MỌI tham số. Có gradient → gradient descent update: $W \\leftarrow W - \\eta \\cdot \\partial L/\\partial W$.
 
 ### 4.2. Lưu đồ tính toán (computational graph)
 
@@ -383,35 +383,35 @@ x → [×W₁ +b₁] → z₁ → [σ] → h → [×W₂ +b₂] → z₂ → [lo
 
 ### 4.3. Chain rule cốt lõi
 
-Nếu \`L\` phụ thuộc vào \`z₂\`, mà \`z₂\` phụ thuộc vào \`W₂\`, thì:
+Nếu $L$ phụ thuộc vào $z_2$, mà $z_2$ phụ thuộc vào $W_2$, thì:
 
 \`\`\`
 ∂L/∂W₂ = (∂L/∂z₂) · (∂z₂/∂W₂)
 \`\`\`
 
-Tương tự cho mọi tham số khác. Backprop là việc tính các thành phần \`∂L/∂z₂\`, \`∂L/∂h\`, \`∂L/∂z₁\` theo thứ tự **ngược chiều** forward pass.
+Tương tự cho mọi tham số khác. Backprop là việc tính các thành phần $\\partial L/\\partial z_2$, $\\partial L/\\partial h$, $\\partial L/\\partial z_1$ theo thứ tự **ngược chiều** forward pass.
 
 ### 4.4. Bước backward 1: \`∂L/∂ŷ\` và \`∂L/∂z₂\`
 
-Với \`L = (1/2)·(ŷ - y)²\`:
+Với $L = \\dfrac{1}{2}(\\hat{y} - y)^2$:
 
 \`\`\`
 ∂L/∂ŷ = ŷ - y
 \`\`\`
 
-Số: \`∂L/∂ŷ = 0.1491 - 1 = -0.8509\`.
+Số: $\\partial L/\\partial \\hat{y} = 0{,}1491 - 1 = -0{,}8509$.
 
-Vì \`ŷ = z₂\` (output không có activation cho regression):
+Vì $\\hat{y} = z_2$ (output không có activation cho regression):
 
 \`\`\`
 ∂L/∂z₂ = ∂L/∂ŷ · ∂ŷ/∂z₂ = (-0.8509) · 1 = -0.8509
 \`\`\`
 
-Ký hiệu **\`δ₂ = ∂L/∂z₂\`** — gọi là **error signal** ở output layer.
+Ký hiệu $\\delta_2 = \\partial L/\\partial z_2$ — gọi là **error signal** ở output layer.
 
 ### 4.5. Bước backward 2: \`∂L/∂W₂\` và \`∂L/∂b₂\`
 
-Với \`z₂ = W₂·h + b₂\` (W₂ shape \`(1, 3)\`, h shape \`(3,)\`):
+Với $z_2 = W_2 \\cdot h + b_2$ ($W_2$ shape \`(1, 3)\`, $h$ shape \`(3,)\`):
 
 \`\`\`
 ∂z₂/∂W₂[j] = h[j]
@@ -427,14 +427,14 @@ Với \`z₂ = W₂·h + b₂\` (W₂ shape \`(1, 3)\`, h shape \`(3,)\`):
 
 Số:
 
-- \`∂L/∂W₂[0] = -0.8509 · 0.5000 = -0.4255\`
-- \`∂L/∂W₂[1] = -0.8509 · 0.8320 = -0.7079\`
-- \`∂L/∂W₂[2] = -0.8509 · 0.4502 = -0.3830\`
-- \`∂L/∂b₂   = -0.8509\`
+- $\\partial L/\\partial W_2[0] = -0{,}8509 \\cdot 0{,}5000 = -0{,}4255$
+- $\\partial L/\\partial W_2[1] = -0{,}8509 \\cdot 0{,}8320 = -0{,}7079$
+- $\\partial L/\\partial W_2[2] = -0{,}8509 \\cdot 0{,}4502 = -0{,}3830$
+- $\\partial L/\\partial b_2 = -0{,}8509$
 
 ### 4.6. Bước backward 3: \`∂L/∂h\` (gradient truyền về hidden layer)
 
-\`z₂ = Σⱼ W₂[j]·h[j] + b₂\` → \`∂z₂/∂h[j] = W₂[j]\`. Áp chain rule:
+$z_2 = \\sum_j W_2[j] \\cdot h[j] + b_2$ → $\\partial z_2/\\partial h[j] = W_2[j]$. Áp chain rule:
 
 \`\`\`
 ∂L/∂h[j] = δ₂ · W₂[j]
@@ -442,13 +442,13 @@ Số:
 
 Số:
 
-- \`∂L/∂h[0] = -0.8509 · 0.3  = -0.2553\`
-- \`∂L/∂h[1] = -0.8509 · (-0.5) = 0.4255\`
-- \`∂L/∂h[2] = -0.8509 · 0.7  = -0.5956\`
+- $\\partial L/\\partial h[0] = -0{,}8509 \\cdot 0{,}3 = -0{,}2553$
+- $\\partial L/\\partial h[1] = -0{,}8509 \\cdot (-0{,}5) = 0{,}4255$
+- $\\partial L/\\partial h[2] = -0{,}8509 \\cdot 0{,}7 = -0{,}5956$
 
 ### 4.7. Bước backward 4: \`∂L/∂z₁\` (qua sigmoid)
 
-\`h = σ(z₁)\`, và \`σ'(z) = σ(z)·(1 - σ(z)) = h·(1-h)\`.
+$h = \\sigma(z_1)$, và $\\sigma'(z) = \\sigma(z) \\cdot (1 - \\sigma(z)) = h \\cdot (1-h)$.
 
 \`\`\`
 ∂L/∂z₁[j] = ∂L/∂h[j] · σ'(z₁[j])
@@ -457,32 +457,32 @@ Số:
 
 Số:
 
-- \`σ'(z₁[0]) = 0.5000·(1-0.5000) = 0.2500\`
-- \`σ'(z₁[1]) = 0.8320·(1-0.8320) = 0.8320·0.1680 = 0.1398\`
-- \`σ'(z₁[2]) = 0.4502·(1-0.4502) = 0.4502·0.5498 = 0.2475\`
+- $\\sigma'(z_1[0]) = 0{,}5000 \\cdot (1-0{,}5000) = 0{,}2500$
+- $\\sigma'(z_1[1]) = 0{,}8320 \\cdot (1-0{,}8320) = 0{,}8320 \\cdot 0{,}1680 = 0{,}1398$
+- $\\sigma'(z_1[2]) = 0{,}4502 \\cdot (1-0{,}4502) = 0{,}4502 \\cdot 0{,}5498 = 0{,}2475$
 
 Vậy:
 
-- \`∂L/∂z₁[0] = -0.2553 · 0.2500 = -0.0638\`
-- \`∂L/∂z₁[1] =  0.4255 · 0.1398 =  0.0595\`
-- \`∂L/∂z₁[2] = -0.5956 · 0.2475 = -0.1474\`
+- $\\partial L/\\partial z_1[0] = -0{,}2553 \\cdot 0{,}2500 = -0{,}0638$
+- $\\partial L/\\partial z_1[1] = 0{,}4255 \\cdot 0{,}1398 = 0{,}0595$
+- $\\partial L/\\partial z_1[2] = -0{,}5956 \\cdot 0{,}2475 = -0{,}1474$
 
-Ký hiệu **\`δ₁ = ∂L/∂z₁ = [-0.0638, 0.0595, -0.1474]\`** — error signal ở hidden layer.
+Ký hiệu $\\delta_1 = \\partial L/\\partial z_1 = [-0{,}0638,\\ 0{,}0595,\\ -0{,}1474]$ — error signal ở hidden layer.
 
 ### 4.8. Bước backward 5: \`∂L/∂W₁\` và \`∂L/∂b₁\`
 
-\`z₁[j] = Σᵢ W₁[j,i]·xᵢ + b₁[j]\` → \`∂z₁[j]/∂W₁[j,i] = xᵢ\`, \`∂z₁[j]/∂b₁[j] = 1\`.
+$z_1[j] = \\sum_i W_1[j,i] \\cdot x_i + b_1[j]$ → $\\partial z_1[j]/\\partial W_1[j,i] = x_i$, $\\partial z_1[j]/\\partial b_1[j] = 1$.
 
 \`\`\`
 ∂L/∂W₁[j,i] = δ₁[j] · xᵢ
 ∂L/∂b₁[j]   = δ₁[j]
 \`\`\`
 
-Số: nhớ \`x = [1, 2]\`.
+Số: nhớ $x = [1, 2]$.
 
-- Row 0: \`∂L/∂W₁[0,0] = -0.0638·1 = -0.0638\`; \`∂L/∂W₁[0,1] = -0.0638·2 = -0.1276\`
-- Row 1: \`∂L/∂W₁[1,0] =  0.0595·1 =  0.0595\`; \`∂L/∂W₁[1,1] =  0.0595·2 =  0.1190\`
-- Row 2: \`∂L/∂W₁[2,0] = -0.1474·1 = -0.1474\`; \`∂L/∂W₁[2,1] = -0.1474·2 = -0.2948\`
+- Row 0: $\\partial L/\\partial W_1[0,0] = -0{,}0638 \\cdot 1 = -0{,}0638$; $\\partial L/\\partial W_1[0,1] = -0{,}0638 \\cdot 2 = -0{,}1276$
+- Row 1: $\\partial L/\\partial W_1[1,0] = 0{,}0595 \\cdot 1 = 0{,}0595$; $\\partial L/\\partial W_1[1,1] = 0{,}0595 \\cdot 2 = 0{,}1190$
+- Row 2: $\\partial L/\\partial W_1[2,0] = -0{,}1474 \\cdot 1 = -0{,}1474$; $\\partial L/\\partial W_1[2,1] = -0{,}1474 \\cdot 2 = -0{,}2948$
 
 \`\`\`
 ∂L/∂W₁ = [[-0.0638, -0.1276],
@@ -496,12 +496,12 @@ Số: nhớ \`x = [1, 2]\`.
 
 | Tham số | Shape | Gradient shape | Khớp? |
 |---------|-------|----------------|-------|
-| \`W₁\` | \`(3, 2)\` | \`(3, 2)\` | ✓ |
-| \`b₁\` | \`(3,)\` | \`(3,)\` | ✓ |
-| \`W₂\` | \`(1, 3)\` | \`(1, 3)\` | ✓ |
-| \`b₂\` | \`(1,)\` | \`(1,)\` | ✓ |
+| $W_1$ | \`(3, 2)\` | \`(3, 2)\` | ✓ |
+| $b_1$ | \`(3,)\` | \`(3,)\` | ✓ |
+| $W_2$ | \`(1, 3)\` | \`(1, 3)\` | ✓ |
+| $b_2$ | \`(1,)\` | \`(1,)\` | ✓ |
 
-**Quy tắc thép**: shape của \`∂L/∂θ\` luôn bằng shape của \`θ\`. Nếu khác là sai. Đây là cách debug backprop nhanh nhất.
+**Quy tắc thép**: shape của $\\partial L/\\partial \\theta$ luôn bằng shape của $\\theta$. Nếu khác là sai. Đây là cách debug backprop nhanh nhất.
 
 ### ❓ Câu hỏi tự nhiên
 
@@ -511,31 +511,31 @@ Vì gradient lan từ output (cuối) **ngược** về input (đầu). Forward 
 
 > *"Nếu activation là ReLU, đạo hàm tính sao?"*
 
-\`ReLU(z) = max(0, z)\` → \`ReLU'(z) = 1 nếu z > 0; 0 nếu z < 0\`. Tại \`z = 0\` đạo hàm không tồn tại (gãy), nhưng quy ước cho \`= 0\` (hoặc 1, tuỳ implementation). Cứ thay \`σ'(z₁[j])\` bằng \`1 nếu z₁[j] > 0 else 0\` trong công thức 4.7.
+$\\text{ReLU}(z) = \\max(0, z)$ → $\\text{ReLU}'(z) = 1$ nếu $z > 0$; $0$ nếu $z < 0$. Tại $z = 0$ đạo hàm không tồn tại (gãy), nhưng quy ước cho $= 0$ (hoặc 1, tuỳ implementation). Cứ thay $\\sigma'(z_1[j])$ bằng $1$ nếu $z_1[j] > 0$ else $0$ trong công thức 4.7.
 
 > *"Bias gradient đơn giản hơn weight gradient — vì sao?"*
 
-Vì \`∂z/∂b = 1\` (bias xuất hiện cộng thẳng, không nhân với gì). Trong khi \`∂z/∂W = x\` (xuất hiện với hệ số là input).
+Vì $\\partial z/\\partial b = 1$ (bias xuất hiện cộng thẳng, không nhân với gì). Trong khi $\\partial z/\\partial W = x$ (xuất hiện với hệ số là input).
 
 > **⚠ Lỗi thường gặp**
-> - Quên hệ số \`1/2\` trong loss → \`∂L/∂ŷ\` lệch factor 2. Vẫn học được, nhưng learning rate cần chia 2.
-> - Áp \`σ'\` lên \`h\` thay vì \`z₁\` mà không nhớ rằng \`σ'(z₁) = h·(1-h)\` (đẳng thức đặc biệt của sigmoid). Với activation khác (tanh, ReLU) phải dùng đúng công thức.
-> - Nhầm \`∂L/∂W\` shape — quên transpose. Verify shape là cách phát hiện ngay.
+> - Quên hệ số $1/2$ trong loss → $\\partial L/\\partial \\hat{y}$ lệch factor 2. Vẫn học được, nhưng learning rate cần chia 2.
+> - Áp $\\sigma'$ lên $h$ thay vì $z_1$ mà không nhớ rằng $\\sigma'(z_1) = h \\cdot (1-h)$ (đẳng thức đặc biệt của sigmoid). Với activation khác (tanh, ReLU) phải dùng đúng công thức.
+> - Nhầm $\\partial L/\\partial W$ shape — quên transpose. Verify shape là cách phát hiện ngay.
 
 > **🔁 Tự kiểm tra**
-> Câu hỏi: Tính lại \`∂L/∂h[1]\` mà không nhìn lời giải. Bước đầu: viết công thức \`∂L/∂h[1] = ?\` theo \`δ₂\` và \`W₂\`.
+> Câu hỏi: Tính lại $\\partial L/\\partial h[1]$ mà không nhìn lời giải. Bước đầu: viết công thức $\\partial L/\\partial h[1] = ?$ theo $\\delta_2$ và $W_2$.
 >
 > <details>
 > <summary>Đáp án</summary>
 >
-> \`∂L/∂h[1] = δ₂ · W₂[1] = -0.8509 · (-0.5) = +0.4255\` ✓ khớp mục 4.6.
+> $\\partial L/\\partial h[1] = \\delta_2 \\cdot W_2[1] = -0{,}8509 \\cdot (-0{,}5) = +0{,}4255$ ✓ khớp mục 4.6.
 > </details>
 
 > **📝 Tóm tắt mục 4**
 > - Backprop = chain rule áp ngược chiều forward.
-> - Tính \`δ₂ = ∂L/∂z₂\` ở output, rồi truyền về \`∂L/∂h\` → \`δ₁ = ∂L/∂z₁\` → \`∂L/∂W₁, ∂L/∂b₁\`.
+> - Tính $\\delta_2 = \\partial L/\\partial z_2$ ở output, rồi truyền về $\\partial L/\\partial h$ → $\\delta_1 = \\partial L/\\partial z_1$ → $\\partial L/\\partial W_1, \\partial L/\\partial b_1$.
 > - Shape gradient luôn khớp shape tham số → quy tắc debug nhanh.
-> - \`σ'(z) = h·(1-h)\` với sigmoid; mỗi activation có công thức đạo hàm riêng.
+> - $\\sigma'(z) = h \\cdot (1-h)$ với sigmoid; mỗi activation có công thức đạo hàm riêng.
 
 ---
 
@@ -571,25 +571,25 @@ Backward (vectorized):
 \`\`\`
 
 Trong đó:
-- \`⊗\` là outer product: \`(a ⊗ b)[i,j] = aᵢ·bⱼ\`. Cho \`a ∈ ℝᵏ\`, \`b ∈ ℝᴴ\` thì kết quả là \`(k, H)\`.
-- \`⊙\` là Hadamard (element-wise): \`(a ⊙ b)[i] = aᵢ·bᵢ\`.
+- $\\otimes$ là outer product: $(a \\otimes b)_{ij} = a_i \\cdot b_j$. Cho $a \\in \\mathbb{R}^k$, $b \\in \\mathbb{R}^H$ thì kết quả là \`(k, H)\`.
+- $\\odot$ là Hadamard (element-wise): $(a \\odot b)_i = a_i \\cdot b_i$.
 
 ### 5.2. Verify vectorized bằng số (kiểm tra lại mục 4)
 
-Lấy \`δ₂ = -0.8509\`, \`h = [0.5000, 0.8320, 0.4502]\`:
+Lấy $\\delta_2 = -0{,}8509$, $h = [0{,}5000,\\ 0{,}8320,\\ 0{,}4502]$:
 
-\`∂L/∂W₂ = δ₂ ⊗ hᵀ = [-0.8509·0.5000, -0.8509·0.8320, -0.8509·0.4502]\`
-       = \`[-0.4255, -0.7079, -0.3830]\` shape \`(1, 3)\` ✓ khớp mục 4.5.
+$\\partial L/\\partial W_2 = \\delta_2 \\otimes h^\\top = [-0{,}8509 \\cdot 0{,}5000,\\ -0{,}8509 \\cdot 0{,}8320,\\ -0{,}8509 \\cdot 0{,}4502]$
+$= [-0{,}4255,\\ -0{,}7079,\\ -0{,}3830]$ shape \`(1, 3)\` ✓ khớp mục 4.5.
 
-\`∂L/∂h = W₂ᵀ · δ₂ = [0.3, -0.5, 0.7]ᵀ · (-0.8509) = [-0.2553, 0.4255, -0.5956]\` ✓ khớp 4.6.
+$\\partial L/\\partial h = W_2^\\top \\cdot \\delta_2 = [0{,}3,\\ -0{,}5,\\ 0{,}7]^\\top \\cdot (-0{,}8509) = [-0{,}2553,\\ 0{,}4255,\\ -0{,}5956]$ ✓ khớp 4.6.
 
-\`σ'(z₁) = h ⊙ (1 - h) = [0.5·0.5, 0.8320·0.1680, 0.4502·0.5498]\`
-       = \`[0.2500, 0.1398, 0.2475]\` ✓ khớp 4.7.
+$\\sigma'(z_1) = h \\odot (1 - h) = [0{,}5 \\cdot 0{,}5,\\ 0{,}8320 \\cdot 0{,}1680,\\ 0{,}4502 \\cdot 0{,}5498]$
+$= [0{,}2500,\\ 0{,}1398,\\ 0{,}2475]$ ✓ khớp 4.7.
 
-\`δ₁ = ∂L/∂h ⊙ σ'(z₁) = [-0.2553·0.2500, 0.4255·0.1398, -0.5956·0.2475]\`
-   = \`[-0.0638, 0.0595, -0.1474]\` ✓ khớp 4.7.
+$\\delta_1 = \\partial L/\\partial h \\odot \\sigma'(z_1) = [-0{,}2553 \\cdot 0{,}2500,\\ 0{,}4255 \\cdot 0{,}1398,\\ -0{,}5956 \\cdot 0{,}2475]$
+$= [-0{,}0638,\\ 0{,}0595,\\ -0{,}1474]$ ✓ khớp 4.7.
 
-\`∂L/∂W₁ = δ₁ ⊗ xᵀ\`:
+$\\partial L/\\partial W_1 = \\delta_1 \\otimes x^\\top$:
 
 \`\`\`
    = [[-0.0638·1, -0.0638·2],
@@ -623,7 +623,7 @@ W1 -= η·dW1; b1 -= η·db1; W2 -= η·dW2; b2 -= η·db2
 
 ### 5.4. Mở rộng batch N samples
 
-Khi train với batch (N samples cùng lúc), \`X ∈ ℝ^(d, N)\` (mỗi cột 1 sample). Forward:
+Khi train với batch (N samples cùng lúc), $X \\in \\mathbb{R}^{d \\times N}$ (mỗi cột 1 sample). Forward:
 
 \`\`\`
 Z₁ = W₁·X + b₁       (broadcast b₁)        (H, N)
@@ -645,21 +645,21 @@ dW₁ = D₁ · Xᵀ                                (H, d)
 db₁ = sum(D₁, axis=1)                        (H,)
 \`\`\`
 
-Bias gradient = **sum** trên trục batch (không phải outer product nữa, vì b broadcast).
+Bias gradient = **sum** trên trục batch (không phải outer product nữa, vì $b$ broadcast).
 
 ### ❓ Câu hỏi tự nhiên
 
 > *"Vì sao outer product? Vì sao không phải dot product?"*
 
-Vì \`δ₂ ∈ ℝᴷ\` còn \`h ∈ ℝᴴ\` — hai shape khác nhau. Dot product cần cùng chiều. Outer product \`ℝᴷ × ℝᴴ → ℝ^(K×H)\` đúng shape \`W₂\`. Hình dung: \`dW₂[k,j] = ∂L/∂W₂[k,j] = δ₂[k] · h[j]\` — đúng định nghĩa outer.
+Vì $\\delta_2 \\in \\mathbb{R}^K$ còn $h \\in \\mathbb{R}^H$ — hai shape khác nhau. Dot product cần cùng chiều. Outer product $\\mathbb{R}^K \\times \\mathbb{R}^H \\to \\mathbb{R}^{K \\times H}$ đúng shape $W_2$. Hình dung: $dW_2[k,j] = \\partial L/\\partial W_2[k,j] = \\delta_2[k] \\cdot h[j]$ — đúng định nghĩa outer.
 
-> *"Trong code Go thật, tính \`δ₁ = ∂L/∂h ⊙ σ'(z₁)\` thế nào cho hiệu quả?"*
+> *"Trong code Go thật, tính $\\delta_1 = \\partial L/\\partial h \\odot \\sigma'(z_1)$ thế nào cho hiệu quả?"*
 
-Một vòng \`for j\` chạy \`d1[j] = dh[j] * sigma_prime(z1[j])\`. Hoặc dùng thư viện ma trận (\`gonum\`) với \`mat.MulElem\`. Cả hai cách đều \`O(H)\` — gần như không tốn.
+Một vòng \`for j\` chạy \`d1[j] = dh[j] * sigma_prime(z1[j])\`. Hoặc dùng thư viện ma trận (\`gonum\`) với \`mat.MulElem\`. Cả hai cách đều $O(H)$ — gần như không tốn.
 
 > **📝 Tóm tắt mục 5**
 > - Vectorized = viết backprop bằng ma trận, ngắn 10 dòng, nhanh nhờ BLAS.
-> - Quy tắc shape: \`dW = δ ⊗ inputᵀ\` (1 sample) hoặc \`dW = δ · inputᵀ\` (batch, \`δ\` shape \`(out, N)\`, input shape \`(in, N)\`).
+> - Quy tắc shape: $dW = \\delta \\otimes \\text{input}^\\top$ (1 sample) hoặc $dW = \\delta \\cdot \\text{input}^\\top$ (batch, $\\delta$ shape \`(out, N)\`, input shape \`(in, N)\`).
 > - Bias: outer product → sum khi batch.
 
 ---
@@ -685,7 +685,7 @@ Khi output là binary class:
 L = -[y·log(ŷ) + (1-y)·log(1-ŷ)]
 \`\`\`
 
-Tính \`∂L/∂z₂\` (chain qua sigmoid):
+Tính $\\partial L/\\partial z_2$ (chain qua sigmoid):
 
 \`\`\`
 ∂L/∂ŷ  = -y/ŷ + (1-y)/(1-ŷ)
@@ -696,7 +696,7 @@ Tính \`∂L/∂z₂\` (chain qua sigmoid):
 ∂L/∂z₂ = ∂L/∂ŷ · ∂ŷ/∂z₂ = (ŷ - y) / (ŷ·(1-ŷ)) · ŷ·(1-ŷ) = ŷ - y
 \`\`\`
 
-**Phép kỳ diệu**: \`∂L/∂z₂ = ŷ - y\`. Đúng dạng như MSE. Sigmoid + binary-CE = cặp đôi tự nhiên — đạo hàm output luôn \`ŷ - y\`, không có gì bão hòa.
+**Phép kỳ diệu**: $\\partial L/\\partial z_2 = \\hat{y} - y$. Đúng dạng như MSE. Sigmoid + binary-CE = cặp đôi tự nhiên — đạo hàm output luôn $\\hat{y} - y$, không có gì bão hòa.
 
 ### 6.3. Multi-class cross-entropy + softmax
 
@@ -708,18 +708,18 @@ L = -Σₖ yₖ·log(ŷₖ)        (y là one-hot)
 
 ### 6.4. Bảng tổng hợp
 
-| Bài toán | Output activation | Loss | \`∂L/∂z₂\` |
+| Bài toán | Output activation | Loss | $\\partial L/\\partial z_2$ |
 |---------|-------------------|------|----------|
-| Regression | none | MSE | \`ŷ - y\` |
-| Binary classification | sigmoid | binary CE | \`ŷ - y\` |
-| Multi-class | softmax | categorical CE | \`ŷ - y\` |
+| Regression | none | MSE | $\\hat{y} - y$ |
+| Binary classification | sigmoid | binary CE | $\\hat{y} - y$ |
+| Multi-class | softmax | categorical CE | $\\hat{y} - y$ |
 
 > **💡 Trực giác**
-> Cả 3 bài toán đều cho ra \`∂L/∂z₂ = ŷ - y\` — sai số raw. Đây không phải trùng hợp: chọn loss "đối ngẫu" với activation output cho ra công thức gọn. Đó là lý do code framework (PyTorch, TF) ghép sẵn \`softmax + cross_entropy\` thành một hàm — vừa rẻ tính, vừa ổn định số.
+> Cả 3 bài toán đều cho ra $\\partial L/\\partial z_2 = \\hat{y} - y$ — sai số raw. Đây không phải trùng hợp: chọn loss "đối ngẫu" với activation output cho ra công thức gọn. Đó là lý do code framework (PyTorch, TF) ghép sẵn \`softmax + cross_entropy\` thành một hàm — vừa rẻ tính, vừa ổn định số.
 
 > **📝 Tóm tắt mục 6**
 > - MSE cho regression; binary CE + sigmoid cho 2 lớp; categorical CE + softmax cho K lớp.
-> - Khi ghép loss đúng với activation output, gradient ở output luôn = \`ŷ - y\`.
+> - Khi ghép loss đúng với activation output, gradient ở output luôn $= \\hat{y} - y$.
 
 ---
 
@@ -738,28 +738,28 @@ L = -Σₖ yₖ·log(ŷₖ)        (y là one-hot)
 
 Update:
 
-- \`W₂ ← W₂ - 0.1 · dW₂ = [0.3, -0.5, 0.7] - 0.1·[-0.4255, -0.7079, -0.3830]\`
-       \`= [0.3 + 0.04255, -0.5 + 0.07079, 0.7 + 0.0383]\`
-       \`= [0.3426, -0.4292, 0.7383]\`
-- \`b₂ ← 0.1 - 0.1·(-0.8509) = 0.1 + 0.08509 = 0.1851\`
-- \`W₁\` mỗi phần tử trừ 0.1 lần gradient. Vd \`W₁[0,0] ← 0.5 - 0.1·(-0.0638) = 0.5064\`.
-- Tương tự cho \`b₁\`.
+- $W_2 \\leftarrow W_2 - 0{,}1 \\cdot dW_2 = [0{,}3,\\ -0{,}5,\\ 0{,}7] - 0{,}1 \\cdot [-0{,}4255,\\ -0{,}7079,\\ -0{,}3830]$
+       $= [0{,}3 + 0{,}04255,\\ -0{,}5 + 0{,}07079,\\ 0{,}7 + 0{,}0383]$
+       $= [0{,}3426,\\ -0{,}4292,\\ 0{,}7383]$
+- $b_2 \\leftarrow 0{,}1 - 0{,}1 \\cdot (-0{,}8509) = 0{,}1 + 0{,}08509 = 0{,}1851$
+- $W_1$ mỗi phần tử trừ 0,1 lần gradient. Vd $W_1[0,0] \\leftarrow 0{,}5 - 0{,}1 \\cdot (-0{,}0638) = 0{,}5064$.
+- Tương tự cho $b_1$.
 
 ### 7.3. Kiểm chứng: loss giảm sau 1 step?
 
-Sau update, forward lại với cùng \`x = [1, 2]\`:
+Sau update, forward lại với cùng $x = [1, 2]$:
 
-Để rẻ tính, ước lượng tuyến tính bậc 1: \`ΔL ≈ -η · ||∇L||²\` (theo chain rule, với learning rate đủ nhỏ).
+Để rẻ tính, ước lượng tuyến tính bậc 1: $\\Delta L \\approx -\\eta \\cdot \\|\\nabla L\\|^2$ (theo chain rule, với learning rate đủ nhỏ).
 
-\`||∇L||²\` (squared norm của toàn bộ gradient) = tổng bình phương mọi entry:
-- \`dW₁\`: \`0.0638² + 0.1276² + 0.0595² + 0.1190² + 0.1474² + 0.2948² ≈ 0.1495\`
-- \`db₁\`: \`0.0638² + 0.0595² + 0.1474² ≈ 0.0294\`
-- \`dW₂\`: \`0.4255² + 0.7079² + 0.3830² ≈ 0.8290\`
-- \`db₂\`: \`0.8509² ≈ 0.7240\`
+$\\|\\nabla L\\|^2$ (squared norm của toàn bộ gradient) = tổng bình phương mọi entry:
+- $dW_1$: $0{,}0638^2 + 0{,}1276^2 + 0{,}0595^2 + 0{,}1190^2 + 0{,}1474^2 + 0{,}2948^2 \\approx 0{,}1495$
+- $db_1$: $0{,}0638^2 + 0{,}0595^2 + 0{,}1474^2 \\approx 0{,}0294$
+- $dW_2$: $0{,}4255^2 + 0{,}7079^2 + 0{,}3830^2 \\approx 0{,}8290$
+- $db_2$: $0{,}8509^2 \\approx 0{,}7240$
 
-Tổng \`≈ 1.7319\`.
+Tổng $\\approx 1{,}7319$.
 
-\`ΔL ≈ -0.1 · 1.7319 = -0.1732\`. Tức loss giảm từ 0.3620 xuống ~0.189. **Loss giảm sau 1 step.** ✓
+$\\Delta L \\approx -0{,}1 \\cdot 1{,}7319 = -0{,}1732$. Tức loss giảm từ 0,3620 xuống ~0,189. **Loss giảm sau 1 step.** ✓
 
 ### 7.4. Train XOR — kết quả thực
 
@@ -789,7 +789,7 @@ Vẽ decision boundary (mục 11 viz) → mạng học được một **đườn
 
 > *"Learning rate quá cao thì sao?"*
 
-Diverge — loss tăng thay vì giảm. Vẽ "loss vs epoch" sẽ thấy spike. Quy tắc kinh nghiệm: với MSE và sigmoid/tanh, thử η = 0.01 → 0.5. Với ReLU và Adam optimizer, η = 0.001 — 0.01.
+Diverge — loss tăng thay vì giảm. Vẽ "loss vs epoch" sẽ thấy spike. Quy tắc kinh nghiệm: với MSE và sigmoid/tanh, thử $\\eta = 0{,}01 \\to 0{,}5$. Với ReLU và Adam optimizer, $\\eta = 0{,}001 - 0{,}01$.
 
 > *"5000 epoch nhiều quá, có dừng sớm được không?"*
 
@@ -801,7 +801,7 @@ Có thể stuck ở local minimum (xem mục 8). Với XOR mạng nhỏ, mỗi 1
 
 > **📝 Tóm tắt mục 7**
 > - 1 step = forward + loss + backward + update.
-> - Loss giảm tỉ lệ thuận với \`||∇L||² · η\` ở bước nhỏ.
+> - Loss giảm tỉ lệ thuận với $\\|\\nabla L\\|^2 \\cdot \\eta$ ở bước nhỏ.
 > - Train 1000-5000 epoch là đủ cho XOR mạng 2-3-1.
 
 ---
@@ -810,18 +810,18 @@ Có thể stuck ở local minimum (xem mục 8). Với XOR mạng nhỏ, mỗi 1
 
 ### 8.1. Tại sao zero init làm hỏng
 
-Nếu \`W₁ = 0\` và \`W₂ = 0\`, thì:
-- Mọi neuron hidden tính ra cùng giá trị (\`z₁[j] = 0\` với mọi \`j\`).
-- Mọi gradient \`dW₁[j, :]\` cũng bằng nhau (vì backprop qua đối xứng).
+Nếu $W_1 = 0$ và $W_2 = 0$, thì:
+- Mọi neuron hidden tính ra cùng giá trị ($z_1[j] = 0$ với mọi $j$).
+- Mọi gradient $dW_1[j, :]$ cũng bằng nhau (vì backprop qua đối xứng).
 - Sau update, mọi neuron vẫn giống hệt nhau ⇒ mạng chỉ có "1 neuron giả" thay vì H neuron khác nhau.
 
 **Hậu quả**: mạng không học được hàm phức tạp hơn 1-neuron.
 
 ### 8.2. Random init — chuẩn hoá variance
 
-Nếu init random theo \`N(0, σ²)\` với \`σ²\` không kiểm soát:
-- Quá lớn (\`σ = 1\`) → \`z₁\` bão hòa sigmoid → gradient ≈ 0 → không học (vanishing).
-- Quá bé (\`σ = 0.01\`) → \`h\` cũng bé → tín hiệu yếu → gradient nhỏ → học chậm.
+Nếu init random theo $N(0, \\sigma^2)$ với $\\sigma^2$ không kiểm soát:
+- Quá lớn ($\\sigma = 1$) → $z_1$ bão hòa sigmoid → gradient $\\approx 0$ → không học (vanishing).
+- Quá bé ($\\sigma = 0{,}01$) → $h$ cũng bé → tín hiệu yếu → gradient nhỏ → học chậm.
 
 ### 8.3. Xavier (Glorot) init — cho sigmoid/tanh
 
@@ -837,24 +837,24 @@ Mục tiêu: giữ variance của output activation = variance của input. Phâ
 W ~ N(0, 2/d_in)
 \`\`\`
 
-Vì ReLU "tắt" nửa phía âm → variance giảm một nửa sau mỗi lớp. He compensate bằng factor 2.
+Vì ReLU "tắt" nửa phía âm → variance giảm một nửa sau mỗi lớp. He compensate bằng factor $2$.
 
 ### 8.5. Ví dụ số
 
-Mạng \`d_in = 100, H = 50\` (Tầng 4, Lesson 05 [ma trận](../../04-LinearAlgebra/lesson-05-matrices/)):
+Mạng $d_{in} = 100, H = 50$ (Tầng 4, Lesson 05 [ma trận](../../04-LinearAlgebra/lesson-05-matrices/)):
 
-- Xavier: \`σ = √(1/100) = 0.1\` → init \`W₁ ~ N(0, 0.01)\`.
-- He: \`σ = √(2/100) = 0.1414\` → init \`W₁ ~ N(0, 0.02)\`.
+- Xavier: $\\sigma = \\sqrt{1/100} = 0{,}1$ → init $W_1 \\sim N(0,\\ 0{,}01)$.
+- He: $\\sigma = \\sqrt{2/100} = 0{,}1414$ → init $W_1 \\sim N(0,\\ 0{,}02)$.
 
-Bias thường init = 0 (không có vấn đề đối xứng vì W đã random).
+Bias thường init $= 0$ (không có vấn đề đối xứng vì $W$ đã random).
 
 > **💡 Trực giác**
 > Init **không phải cosmetic** — chọn sai làm mạng deep không train được (Sutskever 2013, Glorot 2010). Đây là một trong những lý do deep learning trước 2012 chật vật, sau khi có Xavier/He thì bùng nổ.
 
 > **📝 Tóm tắt mục 8**
 > - Zero init = chết do đối xứng.
-> - Random theo \`N(0, σ²)\` cần chỉnh \`σ\` đúng.
-> - Xavier (\`1/d_in\`) cho sigmoid/tanh; He (\`2/d_in\`) cho ReLU.
+> - Random theo $N(0, \\sigma^2)$ cần chỉnh $\\sigma$ đúng.
+> - Xavier ($1/d_{in}$) cho sigmoid/tanh; He ($2/d_{in}$) cho ReLU.
 
 ---
 
@@ -864,34 +864,34 @@ Bias thường init = 0 (không có vấn đề đối xứng vì W đã random)
 
 | Activation | Đạo hàm max | Khi nào bão hòa | Cost tính |
 |-----------|-------------|----------------|-----------|
-| sigmoid | 0.25 (tại \`z=0\`) | \`\\|z\\| > 5\` | exp() đắt |
-| tanh | 1.0 (tại \`z=0\`) | \`\\|z\\| > 3\` | exp() đắt |
-| ReLU | 1.0 (cho \`z>0\`) | không (phía dương) | so sánh + 0 |
-| Leaky-ReLU | 1.0 / α | không | so sánh + 0 |
+| sigmoid | 0,25 (tại $z=0$) | $\\lvert z \\rvert > 5$ | exp() đắt |
+| tanh | 1,0 (tại $z=0$) | $\\lvert z \\rvert > 3$ | exp() đắt |
+| ReLU | 1,0 (cho $z>0$) | không (phía dương) | so sánh + 0 |
+| Leaky-ReLU | $1{,}0 / \\alpha$ | không | so sánh + 0 |
 
 ### 9.2. Vanishing gradient — vấn đề của sigmoid sâu
 
-Backprop qua N lớp sigmoid: \`∂L/∂z(0) ∝ Π σ'(z(i))\`. Với mỗi \`σ' ≤ 0.25\`, sau N lớp:
+Backprop qua N lớp sigmoid: $\\partial L/\\partial z^{(0)} \\propto \\prod \\sigma'(z^{(i)})$. Với mỗi $\\sigma' \\leq 0{,}25$, sau N lớp:
 
 \`\`\`
 gradient_input ≤ 0.25^N · gradient_output
 \`\`\`
 
-- N = 5: \`0.25⁵ = 0.000977\` → gradient giảm 1000×.
-- N = 10: \`0.25¹⁰ ≈ 10⁻⁶\` → gradient gần như 0.
+- N = 5: $0{,}25^5 = 0{,}000977$ → gradient giảm 1000×.
+- N = 10: $0{,}25^{10} \\approx 10^{-6}$ → gradient gần như 0.
 
 Mạng deep sigmoid → input layer **không học gì** vì gradient nhỏ vô vọng. Đây gọi là **vanishing gradient problem**.
 
 ### 9.3. ReLU không vanish (phía dương)
 
-\`ReLU'(z) = 1\` khi \`z > 0\`. Backprop qua N lớp ReLU, gradient không giảm theo cấp số nhân — chỉ giảm khi đi qua những neuron "tắt" (z < 0). Trong thực tế, một nửa số neuron có \`z > 0\` → gradient giảm chậm hơn nhiều.
+$\\text{ReLU}'(z) = 1$ khi $z > 0$. Backprop qua N lớp ReLU, gradient không giảm theo cấp số nhân — chỉ giảm khi đi qua những neuron "tắt" ($z < 0$). Trong thực tế, một nửa số neuron có $z > 0$ → gradient giảm chậm hơn nhiều.
 
 ### 9.4. Dead ReLU problem
 
-Ngược lại, ReLU có vấn đề riêng: nếu một neuron có \`z < 0\` cho TẤT CẢ input → gradient luôn 0 → weight không update → neuron "chết" mãi mãi.
+Ngược lại, ReLU có vấn đề riêng: nếu một neuron có $z < 0$ cho TẤT CẢ input → gradient luôn 0 → weight không update → neuron "chết" mãi mãi.
 
 Cách fix:
-- **Leaky-ReLU**: cho leak nhỏ phía âm (\`max(0.01z, z)\`).
+- **Leaky-ReLU**: cho leak nhỏ phía âm ($\\max(0{,}01z, z)$).
 - **He init**: giảm xác suất neuron chết khi init.
 - **Lower learning rate**: tránh push neuron sang vùng âm quá mạnh.
 
@@ -929,7 +929,7 @@ Trong **RNN / LSTM** cũ, tanh là default cho gate vì range đối xứng (-1,
 
 ### 10.1. Phát biểu (informal)
 
-**Định lý (Cybenko 1989, Hornik 1991)**: Với mọi hàm liên tục \`f: [0,1]ᵈ → ℝ\` và mọi \`ε > 0\`, tồn tại mạng nơ-ron 1-hidden-layer với đủ neuron, activation sigmoid (hoặc bất kỳ activation nào phi tuyến + bị chặn), sao cho:
+**Định lý (Cybenko 1989, Hornik 1991)**: Với mọi hàm liên tục $f: [0,1]^d \\to \\mathbb{R}$ và mọi $\\varepsilon > 0$, tồn tại mạng nơ-ron 1-hidden-layer với đủ neuron, activation sigmoid (hoặc bất kỳ activation nào phi tuyến + bị chặn), sao cho:
 
 \`\`\`
 |NN(x) - f(x)| < ε      với mọi x ∈ [0,1]ᵈ
@@ -944,8 +944,8 @@ NN không bị giới hạn về **biểu diễn**. Mọi hàm bạn quan tâm (
 ### 10.3. Vì sao deep network thắng dù 1-hidden là đủ?
 
 Định lý nói "tồn tại" nhưng **không nói số neuron cần là bao nhiêu**. Trong thực tế:
-- Một số hàm yêu cầu **exp(d)** neuron ở 1 hidden layer → bùng nổ tham số khi \`d\` lớn.
-- Cùng hàm đó với **deep network** (nhiều hidden layer) chỉ cần \`poly(d)\` neuron.
+- Một số hàm yêu cầu **$\\exp(d)$** neuron ở 1 hidden layer → bùng nổ tham số khi $d$ lớn.
+- Cùng hàm đó với **deep network** (nhiều hidden layer) chỉ cần $\\text{poly}(d)$ neuron.
 
 Đây là kết quả của Telgarsky 2016, Eldan-Shamir 2016: **depth vs width** — depth cho expressive power hiệu quả hơn theo tham số.
 
@@ -965,7 +965,7 @@ NN không bị giới hạn về **biểu diễn**. Mọi hàm bạn quan tâm (
 
 > **📝 Tóm tắt mục 10**
 > - NN 1-hidden đủ rộng = xấp xỉ mọi hàm liên tục.
-> - "Đủ rộng" có thể là exp(d) → không khả thi.
+> - "Đủ rộng" có thể là $\\exp(d)$ → không khả thi.
 > - Deep network = same capacity với poly tham số → thắng thực tế.
 
 ---
@@ -994,20 +994,20 @@ Với mạng \`n\` hidden layer:
 
 ### 11.3. CNN (Convolutional Neural Network)
 
-Thay \`W·x\` bằng **convolution** (chia sẻ tham số trên ảnh). Cùng backprop, chỉ thay đổi cấu trúc lớp. Dùng cho ảnh — xem [Lesson 08 CLIP](../lesson-08-clip-multimodal/) sẽ gặp lại.
+Thay $W \\cdot x$ bằng **convolution** (chia sẻ tham số trên ảnh). Cùng backprop, chỉ thay đổi cấu trúc lớp. Dùng cho ảnh — xem [Lesson 08 CLIP](../lesson-08-clip-multimodal/) sẽ gặp lại.
 
 ### 11.4. RNN / LSTM
 
-Hidden state lặp theo thời gian: \`h_t = σ(W·h_{t-1} + U·x_t + b)\`. Backprop qua thời gian (BPTT). Cùng chain rule, áp lên một computational graph chữ chi theo time.
+Hidden state lặp theo thời gian: $h_t = \\sigma(W \\cdot h_{t-1} + U \\cdot x_t + b)$. Backprop qua thời gian (BPTT). Cùng chain rule, áp lên một computational graph chữ chi theo time.
 
 ### 11.5. Transformer
 
-Thay convolution bằng **self-attention**: \`attn(Q,K,V) = softmax(QKᵀ/√d_k)·V\`. Vẫn là forward + backprop. Q, K, V là projection từ input qua W_Q, W_K, W_V — chỉ là 3 linear layer. Toàn bộ machinery học từ bài này là **đủ** để hiểu attention.
+Thay convolution bằng **self-attention**: $\\text{attn}(Q,K,V) = \\text{softmax}\\left(\\dfrac{QK^\\top}{\\sqrt{d_k}}\\right) \\cdot V$. Vẫn là forward + backprop. Q, K, V là projection từ input qua $W_Q, W_K, W_V$ — chỉ là 3 linear layer. Toàn bộ machinery học từ bài này là **đủ** để hiểu attention.
 
 > **💡 Trực giác**
 > Mọi kiến trúc deep learning là **biến thể** của một template:
 > 1. Forward: chuỗi phép tuyến tính + phi tuyến.
-> 2. Loss: so sánh \`ŷ\` với \`y\`.
+> 2. Loss: so sánh $\\hat{y}$ với $y$.
 > 3. Backward: chain rule ngược chiều forward.
 > 4. Update: gradient descent.
 >
@@ -1032,33 +1032,33 @@ W₂ = [2, -1]
 b₂ = 0.5
 \`\`\`
 
-Tính \`ŷ\` cho \`x = [1, -1]\`. Tính loss MSE với \`y = 0\`.
+Tính $\\hat{y}$ cho $x = [1, -1]$. Tính loss MSE với $y = 0$.
 
 ### Bài 2 (Backward)
-Cùng mạng và \`x\`, \`y\` bài 1. Tính \`∂L/∂W₂\`, \`∂L/∂b₂\`, \`∂L/∂W₁\`, \`∂L/∂b₁\`.
+Cùng mạng và $x$, $y$ bài 1. Tính $\\partial L/\\partial W_2$, $\\partial L/\\partial b_2$, $\\partial L/\\partial W_1$, $\\partial L/\\partial b_1$.
 
 ### Bài 3 (XOR linear separability)
-Chứng minh rằng nếu thêm feature \`x₃ = (x₁ - x₂)²\`, XOR trở thành linear separable. Tìm 1 bộ weight \`(w₁, w₂, w₃, b)\` đúng.
+Chứng minh rằng nếu thêm feature $x_3 = (x_1 - x_2)^2$, XOR trở thành linear separable. Tìm 1 bộ weight $(w_1, w_2, w_3, b)$ đúng.
 
 ### Bài 4 (Dead ReLU)
-Một neuron ReLU có \`W = [0.5, -0.3]\`, \`b = -1\`. Cho input dataset:
+Một neuron ReLU có $W = [0{,}5, -0{,}3]$, $b = -1$. Cho input dataset:
 \`\`\`
 x = (1,1), (2,0), (0.5, 1), (1, 0)
 \`\`\`
-Kiểm tra neuron này có "dead" không (z luôn ≤ 0)? Nếu có, giải thích vì sao gradient sẽ không update neuron này.
+Kiểm tra neuron này có "dead" không ($z$ luôn $\\leq 0$)? Nếu có, giải thích vì sao gradient sẽ không update neuron này.
 
 ### Bài 5 (Vanishing gradient cụ thể)
-Một deep network có 5 hidden layer sigmoid. Tại điểm input của lớp 1, ước lượng tỷ lệ \`||∂L/∂W₁|| / ||∂L/∂W₅||\` (upper bound). Hỏi sau bao nhiêu epoch SGD layer 1 mới chuyển động được bằng layer 5 sau 1 epoch?
+Một deep network có 5 hidden layer sigmoid. Tại điểm input của lớp 1, ước lượng tỷ lệ $\\|\\partial L/\\partial W_1\\| / \\|\\partial L/\\partial W_5\\|$ (upper bound). Hỏi sau bao nhiêu epoch SGD layer 1 mới chuyển động được bằng layer 5 sau 1 epoch?
 
 ### Bài 6 (Code Go cho XOR)
 Viết code Go (không dùng thư viện ML, chỉ math thuần) train mạng 2-3-1 trên XOR với:
 - Activation tanh ở hidden, no activation ở output.
 - Loss MSE.
 - Learning rate 0.5, 5000 epoch.
-- Init random uniform \`[-1, 1]\`.
+- Init random uniform $[-1, 1]$.
 - In loss mỗi 500 epoch.
 
-Kỳ vọng: sau 5000 epoch, predict 4 điểm XOR đúng (|ŷ - y| < 0.1 cho cả 4).
+Kỳ vọng: sau 5000 epoch, predict 4 điểm XOR đúng ($|\\hat{y} - y| < 0{,}1$ cho cả 4).
 
 ---
 
@@ -1081,41 +1081,41 @@ z₂ = 2·0.9640 + (-1)·(-0.4621) + 0.5
 ŷ ≈ 2.8901
 \`\`\`
 
-Loss: \`L = (1/2)·(2.8901 - 0)² = 0.5·8.3527 = 4.1764\`.
+Loss: $L = \\dfrac{1}{2}(2{,}8901 - 0)^2 = 0{,}5 \\cdot 8{,}3527 = 4{,}1764$.
 
 ### Lời giải Bài 2
 
-\`∂L/∂ŷ = ŷ - y = 2.8901\`. Vì \`z₂ = ŷ\`, \`δ₂ = 2.8901\`.
+$\\partial L/\\partial \\hat{y} = \\hat{y} - y = 2{,}8901$. Vì $z_2 = \\hat{y}$, $\\delta_2 = 2{,}8901$.
 
-\`∂L/∂W₂[j] = δ₂ · h[j]\`:
-- \`∂L/∂W₂[0] = 2.8901 · 0.9640 = 2.7861\`
-- \`∂L/∂W₂[1] = 2.8901 · (-0.4621) = -1.3357\`
+$\\partial L/\\partial W_2[j] = \\delta_2 \\cdot h[j]$:
+- $\\partial L/\\partial W_2[0] = 2{,}8901 \\cdot 0{,}9640 = 2{,}7861$
+- $\\partial L/\\partial W_2[1] = 2{,}8901 \\cdot (-0{,}4621) = -1{,}3357$
 
-\`∂L/∂b₂ = 2.8901\`.
+$\\partial L/\\partial b_2 = 2{,}8901$.
 
-\`∂L/∂h = W₂ᵀ · δ₂\`:
-- \`∂L/∂h[0] = 2 · 2.8901 = 5.7802\`
-- \`∂L/∂h[1] = -1 · 2.8901 = -2.8901\`
+$\\partial L/\\partial h = W_2^\\top \\cdot \\delta_2$:
+- $\\partial L/\\partial h[0] = 2 \\cdot 2{,}8901 = 5{,}7802$
+- $\\partial L/\\partial h[1] = -1 \\cdot 2{,}8901 = -2{,}8901$
 
-\`tanh'(z) = 1 - tanh²(z) = 1 - h²\`:
-- \`tanh'(z₁[0]) = 1 - 0.9640² = 1 - 0.9293 = 0.0707\`
-- \`tanh'(z₁[1]) = 1 - 0.4621² = 1 - 0.2135 = 0.7865\`
+$\\tanh'(z) = 1 - \\tanh^2(z) = 1 - h^2$:
+- $\\tanh'(z_1[0]) = 1 - 0{,}9640^2 = 1 - 0{,}9293 = 0{,}0707$
+- $\\tanh'(z_1[1]) = 1 - 0{,}4621^2 = 1 - 0{,}2135 = 0{,}7865$
 
-\`δ₁[j] = ∂L/∂h[j] · tanh'(z₁[j])\`:
-- \`δ₁[0] = 5.7802 · 0.0707 = 0.4087\`
-- \`δ₁[1] = -2.8901 · 0.7865 = -2.2731\`
+$\\delta_1[j] = \\partial L/\\partial h[j] \\cdot \\tanh'(z_1[j])$:
+- $\\delta_1[0] = 5{,}7802 \\cdot 0{,}0707 = 0{,}4087$
+- $\\delta_1[1] = -2{,}8901 \\cdot 0{,}7865 = -2{,}2731$
 
-\`∂L/∂W₁[j,i] = δ₁[j] · x[i]\` (với \`x = [1, -1]\`):
-- \`∂L/∂W₁[0,0] = 0.4087·1 = 0.4087\`; \`∂L/∂W₁[0,1] = 0.4087·(-1) = -0.4087\`
-- \`∂L/∂W₁[1,0] = -2.2731·1 = -2.2731\`; \`∂L/∂W₁[1,1] = -2.2731·(-1) = 2.2731\`
+$\\partial L/\\partial W_1[j,i] = \\delta_1[j] \\cdot x[i]$ (với $x = [1, -1]$):
+- $\\partial L/\\partial W_1[0,0] = 0{,}4087 \\cdot 1 = 0{,}4087$; $\\partial L/\\partial W_1[0,1] = 0{,}4087 \\cdot (-1) = -0{,}4087$
+- $\\partial L/\\partial W_1[1,0] = -2{,}2731 \\cdot 1 = -2{,}2731$; $\\partial L/\\partial W_1[1,1] = -2{,}2731 \\cdot (-1) = 2{,}2731$
 
-\`∂L/∂b₁ = δ₁ = [0.4087, -2.2731]\`.
+$\\partial L/\\partial b_1 = \\delta_1 = [0{,}4087,\\ -2{,}2731]$.
 
-Verify shape: \`dW₁\` shape \`(2,2)\` khớp \`W₁\`; \`dW₂\` shape \`(2,)\` khớp \`W₂\` (1×2 hoặc 2 tuỳ ký pháp). ✓
+Verify shape: $dW_1$ shape \`(2,2)\` khớp $W_1$; $dW_2$ shape \`(2,)\` khớp $W_2$ (1×2 hoặc 2 tuỳ ký pháp). ✓
 
 ### Lời giải Bài 3
 
-Thêm \`x₃ = (x₁ - x₂)²\`:
+Thêm $x_3 = (x_1 - x_2)^2$:
 
 | x₁ | x₂ | x₃ | y |
 |----|----|----|----|
@@ -1124,33 +1124,33 @@ Thêm \`x₃ = (x₁ - x₂)²\`:
 | 1 | 0 | 1 | 1 |
 | 1 | 1 | 0 | 0 |
 
-Cần \`(w₁, w₂, w₃, b)\` sao cho:
-- Class 0: \`(0,0,0)\`, \`(1,1,0)\` → giá trị ≤ 0.
-- Class 1: \`(0,1,1)\`, \`(1,0,1)\` → giá trị > 0.
+Cần $(w_1, w_2, w_3, b)$ sao cho:
+- Class 0: $(0,0,0)$, $(1,1,0)$ → giá trị $\\leq 0$.
+- Class 1: $(0,1,1)$, $(1,0,1)$ → giá trị $> 0$.
 
-Chọn \`w₁ = 0, w₂ = 0, w₃ = 1, b = -0.5\`:
-- \`(0,0,0)\`: \`0 + 0 + 0 - 0.5 = -0.5\` ≤ 0 ✓
-- \`(1,1,0)\`: \`0 + 0 + 0 - 0.5 = -0.5\` ≤ 0 ✓
-- \`(0,1,1)\`: \`0 + 0 + 1 - 0.5 = +0.5\` > 0 ✓
-- \`(1,0,1)\`: \`0 + 0 + 1 - 0.5 = +0.5\` > 0 ✓
+Chọn $w_1 = 0, w_2 = 0, w_3 = 1, b = -0{,}5$:
+- $(0,0,0)$: $0 + 0 + 0 - 0{,}5 = -0{,}5 \\leq 0$ ✓
+- $(1,1,0)$: $0 + 0 + 0 - 0{,}5 = -0{,}5 \\leq 0$ ✓
+- $(0,1,1)$: $0 + 0 + 1 - 0{,}5 = +0{,}5 > 0$ ✓
+- $(1,0,1)$: $0 + 0 + 1 - 0{,}5 = +0{,}5 > 0$ ✓
 
-Hoàn tất. Bộ \`(0, 0, 1, -0.5)\` là 1 đáp án (nhiều đáp án khác).
+Hoàn tất. Bộ $(0, 0, 1, -0{,}5)$ là 1 đáp án (nhiều đáp án khác).
 
 ### Lời giải Bài 4
 
-Tính \`z = W·x + b = 0.5·x₁ - 0.3·x₂ - 1\`:
-- \`(1,1)\`: \`0.5 - 0.3 - 1 = -0.8\` ≤ 0
-- \`(2,0)\`: \`1 - 0 - 1 = 0\` ≤ 0
-- \`(0.5,1)\`: \`0.25 - 0.3 - 1 = -1.05\` ≤ 0
-- \`(1,0)\`: \`0.5 - 0 - 1 = -0.5\` ≤ 0
+Tính $z = W \\cdot x + b = 0{,}5 \\cdot x_1 - 0{,}3 \\cdot x_2 - 1$:
+- $(1,1)$: $0{,}5 - 0{,}3 - 1 = -0{,}8 \\leq 0$
+- $(2,0)$: $1 - 0 - 1 = 0 \\leq 0$
+- $(0{,}5,1)$: $0{,}25 - 0{,}3 - 1 = -1{,}05 \\leq 0$
+- $(1,0)$: $0{,}5 - 0 - 1 = -0{,}5 \\leq 0$
 
-Tất cả \`z ≤ 0\` → \`ReLU(z) = 0\` cho mọi sample → \`h = 0\` → trong backprop \`σ'(z) = 0\` (ReLU' = 0 với z<0) → \`δ = ∂L/∂h · 0 = 0\` → \`∂L/∂W = δ · xᵀ = 0\`.
+Tất cả $z \\leq 0$ → $\\text{ReLU}(z) = 0$ cho mọi sample → $h = 0$ → trong backprop $\\sigma'(z) = 0$ ($\\text{ReLU}' = 0$ với $z < 0$) → $\\delta = \\partial L/\\partial h \\cdot 0 = 0$ → $\\partial L/\\partial W = \\delta \\cdot x^\\top = 0$.
 
-Gradient luôn 0 ⇒ weight không update ⇒ neuron mãi mãi dead. Fix: dùng leaky-ReLU (\`α = 0.01\`) hoặc khởi tạo lại.
+Gradient luôn 0 ⇒ weight không update ⇒ neuron mãi mãi dead. Fix: dùng leaky-ReLU ($\\alpha = 0{,}01$) hoặc khởi tạo lại.
 
 ### Lời giải Bài 5
 
-\`σ'(z) ≤ 0.25\` (cực đại tại z=0). Backprop qua 4 lần activation (giữa 5 layer):
+$\\sigma'(z) \\leq 0{,}25$ (cực đại tại $z=0$). Backprop qua 4 lần activation (giữa 5 layer):
 
 \`\`\`
 ||dW₁|| / ||dW₅|| ≤ 0.25⁴ = 1/256 ≈ 0.0039
@@ -1159,8 +1159,8 @@ Gradient luôn 0 ⇒ weight không update ⇒ neuron mãi mãi dead. Fix: dùng 
 Tức gradient lớp 1 nhỏ hơn lớp 5 khoảng **256×**. Để layer 1 chuyển động ngang layer 5:
 
 Với cùng learning rate, sau 1 epoch:
-- Layer 5 update bước \`Δ\`.
-- Layer 1 update bước \`Δ/256\`.
+- Layer 5 update bước $\\Delta$.
+- Layer 1 update bước $\\Delta/256$.
 
 ⇒ Layer 1 cần khoảng **256 epoch** mới chuyển động bằng 1 epoch của layer 5. Trong thực tế thường tệ hơn vì hệ số chồng chất.
 
@@ -1307,13 +1307,13 @@ Mạng học XOR thành công — sai số mỗi điểm < 0.03.
 ## Bài học chính
 
 - **Linear không học được XOR** — chứng minh chính thức bằng linear separability.
-- **NN 1-hidden** giải bằng cách tự học feature phi tuyến qua activation \`σ\`.
-- **Forward**: \`z₁ = W₁x + b₁; h = σ(z₁); z₂ = W₂h + b₂; ŷ = z₂\`. 3 dòng.
-- **Backward**: chain rule lặp ngược forward. \`δ₂ = ŷ - y\` (với MSE) → \`dW₂, db₂\` → \`dh\` → \`δ₁ = dh ⊙ σ'(z₁)\` → \`dW₁, db₁\`. 5 dòng.
+- **NN 1-hidden** giải bằng cách tự học feature phi tuyến qua activation $\\sigma$.
+- **Forward**: $z_1 = W_1 x + b_1$; $h = \\sigma(z_1)$; $z_2 = W_2 h + b_2$; $\\hat{y} = z_2$. 3 dòng.
+- **Backward**: chain rule lặp ngược forward. $\\delta_2 = \\hat{y} - y$ (với MSE) → $dW_2, db_2$ → $dh$ → $\\delta_1 = dh \\odot \\sigma'(z_1)$ → $dW_1, db_1$. 5 dòng.
 - **Vectorized backprop** = 10 dòng cheatsheet (mục 5.3).
 - **Activation**: ReLU > sigmoid trong deep do không vanishing gradient.
 - **Init**: Xavier cho sigmoid/tanh, He cho ReLU. Zero init không bao giờ.
-- **Universal approximation**: 1-hidden đủ rộng = mọi hàm liên tục. Nhưng "đủ rộng" exp(d) → thực tế cần deep.
+- **Universal approximation**: 1-hidden đủ rộng = mọi hàm liên tục. Nhưng "đủ rộng" $\\exp(d)$ → thực tế cần deep.
 - **Deep learning** = NN 1-hidden áp dụng N lần. CNN, RNN, Transformer = biến thể.
 
 ## Tham khảo

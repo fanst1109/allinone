@@ -14,7 +14,7 @@ Sau bài này bạn sẽ:
 3. Giải thích **receptive field**: một output pixel ở layer-3 nhìn được bao nhiêu pixel gốc? Tại sao deep network có receptive field lớn hơn wide network?
 4. So sánh **max pooling vs average pooling** bằng ví dụ số cụ thể; biết khi nào dùng cái nào.
 5. Đọc hiểu và phân biệt **LeNet-5, AlexNet, VGG, ResNet** — chỉ ra điểm khác biệt quyết định của từng architecture.
-6. Giải thích **skip connection** của ResNet — tại sao \`y = F(x) + x\` cứu được việc train 152 layer khi không có skip thì gradient tắt dần.
+6. Giải thích **skip connection** của ResNet — tại sao $y = F(x) + x$ cứu được việc train 152 layer khi không có skip thì gradient tắt dần.
 
 ## Kiến thức tiền đề
 
@@ -29,12 +29,12 @@ Sau bài này bạn sẽ:
 ### 1.1. Bài toán: nhận diện chữ số MNIST
 
 Ảnh MNIST: 28×28 pixel, grayscale → 784 input neuron. MLP 784→128→10 có:
-- \`784 × 128 = 100.352\` tham số tầng 1.
-- \`128 × 10 = 1.280\` tham số tầng 2.
+- $784 \\times 128 = 100.352$ tham số tầng 1.
+- $128 \\times 10 = 1.280$ tham số tầng 2.
 - Tổng: ~101.632 tham số.
 
 Với ảnh 224×224 RGB (ImageNet):
-- Tầng đầu tiên: \`150.528 × 4.096 = 616.562.688\` tham số chỉ riêng **một layer**.
+- Tầng đầu tiên: $150.528 \\times 4.096 = 616.562.688$ tham số chỉ riêng **một layer**.
 
 > **💡 Trực giác**
 > Hãy tưởng tượng bạn đang học nhận dạng mèo. MLP yêu cầu bạn ghi nhớ: "mèo có tai ở **đúng tọa độ pixel (45, 32)**". Nếu mèo dịch sang trái 5 pixel → fail. Còn CNN học "ở đâu đó trong ảnh có hình tam giác nhỏ nhọn chỉa lên" — không quan tâm tọa độ cụ thể.
@@ -65,7 +65,7 @@ output = floor((W − F + 2P) / S) + 1
 \`\`\`
 
 > **💡 Tại sao công thức này đúng?**
-> Filter bắt đầu ở pixel 0, dịch S bước mỗi lần. Vị trí cuối cùng filter có thể đặt là \`W + 2P − F\` (còn đủ F pixels). Số vị trí = \`floor((W + 2P − F) / S) + 1\` (cộng 1 cho vị trí đầu tiên).
+> Filter bắt đầu ở pixel 0, dịch S bước mỗi lần. Vị trí cuối cùng filter có thể đặt là $W + 2P - F$ (còn đủ F pixels). Số vị trí = $\\lfloor (W + 2P - F) / S \\rfloor + 1$ (cộng 1 cho vị trí đầu tiên).
 
 **4 ví dụ tính cụ thể**:
 
@@ -77,10 +77,10 @@ output = floor((W − F + 2P) / S) + 1
 | 32 | 3 | 1 | 1 | (32−3+2)/1+1 = **32** (VGG 3×3 same) |
 
 > **⚠ Lỗi thường gặp #1**
-> Quên rằng công thức tính **theo 1 chiều** (W hoặc H). Nếu input hình chữ nhật W₁×W₂, tính 2 lần riêng. Output shape: \`[(W₁−F+2P)/S+1] × [(W₂−F+2P)/S+1]\`.
+> Quên rằng công thức tính **theo 1 chiều** (W hoặc H). Nếu input hình chữ nhật $W_1 \\times W_2$, tính 2 lần riêng. Output shape: $\\left[\\frac{W_1-F+2P}{S}+1\\right] \\times \\left[\\frac{W_2-F+2P}{S}+1\\right]$.
 
 > **⚠ Lỗi thường gặp #2**
-> Kernel **có depth bằng input channels** (C). Một kernel 3×3 trên ảnh RGB thực ra là 3×3×3 = 27 số. Output của 1 kernel là **1 channel feature map** (2D scalar).
+> Kernel **có depth bằng input channels** (C). Một kernel 3×3 trên ảnh RGB thực ra là $3 \\times 3 \\times 3 = 27$ số. Output của 1 kernel là **1 channel feature map** (2D scalar).
 
 ### 2.2. Walk-through tay: 5×5 input × 3×3 Sobel filter
 
@@ -146,14 +146,14 @@ Conv layer với:
 - K kernels, mỗi kernel F×F×C
 - Mỗi kernel có 1 bias
 
-Tổng tham số = **K × (F² × C + 1)**
+Tổng tham số = $K \\times (F^2 \\times C + 1)$
 
-Ví dụ: AlexNet conv1: 96 kernels 11×11×3 → \`96 × (121 × 3 + 1) = 96 × 364 = 34.944\` tham số — trong khi MLP tương đương cần 616M.
+Ví dụ: AlexNet conv1: 96 kernels 11×11×3 → $96 \\times (121 \\times 3 + 1) = 96 \\times 364 = 34.944$ tham số — trong khi MLP tương đương cần 616M.
 
 > **🔁 Dừng lại tự kiểm tra**
 > Conv layer: F=3, C=64 input channels, K=128 output channels, bias. Bao nhiêu tham số?
 > <details><summary>Đáp án</summary>
-> K × (F² × C + 1) = 128 × (9 × 64 + 1) = 128 × 577 = **73.856 tham số**.
+> $K \\times (F^2 \\times C + 1) = 128 \\times (9 \\times 64 + 1) = 128 \\times 577 = 73.856$ tham số.
 > </details>
 
 ---
@@ -204,7 +204,7 @@ Avg pool output:
 
 **Receptive field** = vùng input ảnh hưởng tới 1 neuron tại layer hiện tại.
 
-Công thức đệ quy: \`RF_k = RF_{k-1} + (F_k − 1) × Π_{i=1}^{k-1} S_i\`
+Công thức đệ quy: $RF_k = RF_{k-1} + (F_k - 1) \\times \\prod_{i=1}^{k-1} S_i$
 
 **Ví dụ tính với VGG-style (chỉ conv 3×3, stride 1)**:
 
@@ -218,7 +218,7 @@ Công thức đệ quy: \`RF_k = RF_{k-1} + (F_k − 1) × Π_{i=1}^{k-1} S_i\`
 | Conv5 | 3×3 | 18×18 |
 
 > **💡 Trực giác sâu**
-> 2 conv 3×3 liên tiếp = receptive field 5×5 nhưng chỉ \`2 × (9C²)\` tham số thay vì \`25C²\` của 1 conv 5×5 — rẻ hơn, phi tuyến hơn (2 ReLU thay 1). Đây là lý do VGG dùng toàn 3×3.
+> 2 conv 3×3 liên tiếp = receptive field 5×5 nhưng chỉ $2 \\times (9C^2)$ tham số thay vì $25C^2$ của 1 conv 5×5 — rẻ hơn, phi tuyến hơn (2 ReLU thay 1). Đây là lý do VGG dùng toàn 3×3.
 
 ---
 
@@ -259,16 +259,16 @@ AlexNet đạt **top-5 error 15.3%** tại ImageNet 2012, trong khi runner-up đ
 y = F(x) + x
 \`\`\`
 
-Trong đó \`F(x)\` là 2-3 conv layer với ReLU. Output layer học **residual** \`F(x) = y − x\` thay vì học \`y\` trực tiếp.
+Trong đó $F(x)$ là 2-3 conv layer với ReLU. Output layer học **residual** $F(x) = y - x$ thay vì học $y$ trực tiếp.
 
 > **💡 Tại sao skip connection cứu được gradient?**
-> Đạo hàm của \`y = F(x) + x\` theo \`x\` là \`∂y/∂x = ∂F/∂x + 1\`. Hạng \`+1\` đảm bảo gradient **không bao giờ bằng 0** ngay cả khi \`∂F/∂x ≈ 0\`. Gradient luôn có đường truyền thẳng qua skip connection.
+> Đạo hàm của $y = F(x) + x$ theo $x$ là $\\frac{\\partial y}{\\partial x} = \\frac{\\partial F}{\\partial x} + 1$. Hạng $+1$ đảm bảo gradient **không bao giờ bằng 0** ngay cả khi $\\frac{\\partial F}{\\partial x} \\approx 0$. Gradient luôn có đường truyền thẳng qua skip connection.
 
 **Walk-through vanishing gradient**:
 
-Không có skip: gradient từ layer N về layer 1 = \`Π_{k=1}^{N} ∂h_k/∂h_{k-1}\`.
+Không có skip: gradient từ layer N về layer 1 = $\\prod_{k=1}^{N} \\frac{\\partial h_k}{\\partial h_{k-1}}$.
 
-Nếu mỗi Jacobian có norm ~0.9: sau 50 layers → \`0.9^50 ≈ 0.005\`. Sau 100 layers → \`0.9^100 ≈ 2.7 × 10⁻⁵\`. **Gradient gần như 0 — layer đầu không học được gì.**
+Nếu mỗi Jacobian có norm ~0.9: sau 50 layers → $0.9^{50} \\approx 0.005$. Sau 100 layers → $0.9^{100} \\approx 2.7 \\times 10^{-5}$. **Gradient gần như 0 — layer đầu không học được gì.**
 
 Với skip: luôn có path thẳng → gradient không nhân dần về 0.
 
@@ -298,7 +298,7 @@ Với skip: luôn có path thẳng → gradient không nhân dần về 0.
 - (a) Output size sau mỗi bước.
 - (b) Receptive field của 1 neuron sau cùng tính theo pixel gốc.
 
-**Bài 4**: ResNet skip connection: \`y = F(x) + x\`. Giả sử \`F(x)\` gồm 2 conv 3×3 (cùng channels). Input và output đều 64 channels. Viết công thức đạo hàm \`∂L/∂x\` theo \`∂L/∂y\` và \`∂y/∂x\`, chỉ rõ tại sao gradient luôn ≥ gradient qua \`F(x)\` một mình.
+**Bài 4**: ResNet skip connection: $y = F(x) + x$. Giả sử $F(x)$ gồm 2 conv 3×3 (cùng channels). Input và output đều 64 channels. Viết công thức đạo hàm $\\frac{\\partial L}{\\partial x}$ theo $\\frac{\\partial L}{\\partial y}$ và $\\frac{\\partial y}{\\partial x}$, chỉ rõ tại sao gradient luôn $\\geq$ gradient qua $F(x)$ một mình.
 
 ---
 
@@ -334,10 +334,10 @@ Input 28×28.
 
 **(a) Tính từng bước** (no padding assumed, stride như ghi):
 
-1. Conv 3×3, stride 1, no padding: \`(28−3)/1+1 = 26\` → **26×26**
-2. MaxPool 2×2, stride 2: \`(26−2)/2+1 = 13\` → **13×13**
-3. Conv 3×3, stride 1, no padding: \`(13−3)/1+1 = 11\` → **11×11**
-4. MaxPool 2×2, stride 2: \`(11−2)/2+1 = 5+0.5\` → \`floor\` = **5×5**
+1. Conv 3×3, stride 1, no padding: $(28-3)/1+1 = 26$ → **26×26**
+2. MaxPool 2×2, stride 2: $(26-2)/2+1 = 13$ → **13×13**
+3. Conv 3×3, stride 1, no padding: $(13-3)/1+1 = 11$ → **11×11**
+4. MaxPool 2×2, stride 2: $(11-2)/2+1 = 5+0,5$ → $\\lfloor \\cdot \\rfloor$ = **5×5**
 
 **(b) Receptive field** (tính ngược từ cuối):
 
@@ -347,8 +347,8 @@ Input 28×28.
 - Qua Conv1 (3×3): cộng thêm F−1=2 theo mỗi phía → **8×8 receptive field** trên ảnh gốc 28×28.
 
 Chi tiết công thức đệ quy:
-- RF sau Conv2 (tính trên trục feature-after-Pool1): \`1 + 2×(3−1) = 5\`? Dùng công thức chuẩn:
-  \`RF(L) = RF(L−1) + (F_L − 1) × stride_product_before_L\`
+- RF sau Conv2 (tính trên trục feature-after-Pool1): $1 + 2 \\times (3-1) = 5$? Dùng công thức chuẩn:
+  $RF(L) = RF(L-1) + (F_L - 1) \\times \\text{stride\\_product\\_before\\_L}$
 
 Tính lại tường minh:
 | Layer | RF |
@@ -358,7 +358,7 @@ Tính lại tường minh:
 | Pool1 2×2 s2 | 3 + 1×2 = 5 |  (pool "sees" 2 pixels → adds (2−1)×S_before=1×2=2 — thực ra RF pool thêm (2−1)×1 = 1 rồi stride nhân đôi bước nhảy sau đó) |
 
 Đúng hơn với công thức tiêu chuẩn:
-- RF_k = RF_{k-1} + (F_k − 1) × jump_{k-1}, trong đó jump_{k} = jump_{k-1} × S_k.
+- $RF_k = RF_{k-1} + (F_k - 1) \\times \\text{jump}_{k-1}$, trong đó $\\text{jump}_k = \\text{jump}_{k-1} \\times S_k$.
 
 | k | Layer | F | S | jump | RF |
 |---|-------|---|---|------|----|
@@ -372,14 +372,14 @@ RF cuối = **10×10** pixels trên ảnh gốc 28×28.
 
 ### Bài 4
 
-\`y = F(x) + x\`. Áp chain rule:
+$y = F(x) + x$. Áp chain rule:
 \`\`\`
 ∂L/∂x = ∂L/∂y × ∂y/∂x
        = ∂L/∂y × (∂F/∂x + I)
        = ∂L/∂y × ∂F/∂x  +  ∂L/∂y
 \`\`\`
 
-Hạng thứ 2 (\`∂L/∂y\`) là gradient đi thẳng qua skip — **không giảm** dù \`∂F/∂x\` nhỏ bao nhiêu. Ngay cả khi \`F(x)\` hoàn toàn "chết" (\`∂F/∂x ≈ 0\`), vẫn còn \`∂L/∂x ≈ ∂L/∂y\` → layer gần input vẫn nhận gradient đủ mạnh để cập nhật.
+Hạng thứ 2 ($\\frac{\\partial L}{\\partial y}$) là gradient đi thẳng qua skip — **không giảm** dù $\\frac{\\partial F}{\\partial x}$ nhỏ bao nhiêu. Ngay cả khi $F(x)$ hoàn toàn "chết" ($\\frac{\\partial F}{\\partial x} \\approx 0$), vẫn còn $\\frac{\\partial L}{\\partial x} \\approx \\frac{\\partial L}{\\partial y}$ → layer gần input vẫn nhận gradient đủ mạnh để cập nhật.
 
 ---
 
@@ -394,9 +394,9 @@ Hạng thứ 2 (\`∂L/∂y\`) là gradient đi thẳng qua skip — **không gi
 [T4-L03 — RNN/LSTM](../lesson-03-rnn-lstm/) — sequence modeling, vanishing gradient qua thời gian, LSTM gates.
 
 📝 **Tóm tắt bài này**:
-- Convolution = kernel trượt, dot product tại mỗi vị trí. Output size = \`(W−F+2P)/S+1\`.
+- Convolution = kernel trượt, dot product tại mỗi vị trí. Output size = $\\frac{W-F+2P}{S}+1$.
 - 1 kernel có depth = input channels; K kernels → K output channels.
 - Max pooling lấy max trong vùng → giảm spatial dim, tăng invariance.
 - LeNet(1998) → AlexNet(2012, GPU+ReLU+Dropout) → VGG(2014, 3×3 deep) → ResNet(2015, skip connection).
-- ResNet skip connection \`y=F(x)+x\` đảm bảo gradient path thẳng, giải quyết vanishing gradient deep network.
+- ResNet skip connection $y=F(x)+x$ đảm bảo gradient path thẳng, giải quyết vanishing gradient deep network.
 `;

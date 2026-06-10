@@ -24,16 +24,16 @@ Sau bài này, bạn sẽ:
 ### 1.1. Hai Hyperparameter
 
 DBSCAN có 2 hyperparameter duy nhất:
-- **ε (eps)**: bán kính vùng lân cận — một điểm `xᵢ` có "hàng xóm" là tất cả điểm trong hình cầu bán kính ε.
+- **ε (eps)**: bán kính vùng lân cận — một điểm $x_i$ có "hàng xóm" là tất cả điểm trong hình cầu bán kính $\epsilon$.
 - **minPts**: ngưỡng mật độ tối thiểu — cần ít nhất minPts điểm trong ε-neighborhood để tạo thành vùng dày đặc.
 
 > 💡 **Hình dung**: eps là kích thước cái lưới của bạn — thả lưới bán kính eps quanh mỗi điểm. minPts = ngưỡng "cái lưới phải bắt được ít nhất bao nhiêu điểm thì mới gọi là đây là vùng đông dân".
 
 ### 1.2. Ba Loại Điểm
 
-**Core point**: điểm `p` là core nếu `|N_ε(p)| ≥ minPts`, trong đó `N_ε(p)` là tập hàng xóm của `p` trong bán kính ε (bao gồm chính `p`).
+**Core point**: điểm $p$ là core nếu $|N_\epsilon(p)| \geq \text{minPts}$, trong đó $N_\epsilon(p)$ là tập hàng xóm của $p$ trong bán kính $\epsilon$ (bao gồm chính $p$).
 
-**Border point**: điểm `q` là border nếu `|N_ε(q)| < minPts` nhưng `q` nằm trong ε-neighborhood của một core point.
+**Border point**: điểm $q$ là border nếu $|N_\epsilon(q)| < \text{minPts}$ nhưng $q$ nằm trong $\epsilon$-neighborhood của một core point.
 
 **Noise point**: không phải core, không phải border. Không thuộc cluster nào.
 
@@ -60,11 +60,11 @@ Cluster = {A, B, C, D} (connected qua core points). Noise = {E, F}.
 
 ### 1.3. Density-Reachability & Density-Connectivity
 
-**Directly density-reachable**: `q` directly reachable từ core `p` nếu `q ∈ N_ε(p)`.
+**Directly density-reachable**: $q$ directly reachable từ core $p$ nếu $q \in N_\epsilon(p)$.
 
-**Density-reachable**: `q` reachable từ `p` nếu tồn tại chain `p = p₀ → p₁ → … → pₙ = q` trong đó mỗi `pᵢ₊₁` directly reachable từ core `pᵢ`.
+**Density-reachable**: $q$ reachable từ $p$ nếu tồn tại chain $p = p_0 \to p_1 \to \ldots \to p_n = q$ trong đó mỗi $p_{i+1}$ directly reachable từ core $p_i$.
 
-**Density-connected**: `p` và `q` density-connected nếu tồn tại điểm `o` sao cho cả hai đều density-reachable từ `o`.
+**Density-connected**: $p$ và $q$ density-connected nếu tồn tại điểm $o$ sao cho cả hai đều density-reachable từ $o$.
 
 > 💡 **Tại sao cần "chain"?** Vì DBSCAN cluster có thể dài và uốn khúc — điểm ở đầu và cuối không directly reachable với nhau nhưng kết nối qua chain core points. Đây là lý do DBSCAN bắt được hình dạng phi tuyến.
 
@@ -177,7 +177,7 @@ DBSCAN với eps đủ nhỏ (≈ khoảng cách giữa các điểm trong cùng
 
 ### 3.3. Chọn eps và minPts
 
-**minPts**: thường chọn `minPts = 2×d` (d = số chiều) hoặc ≥ 3.
+**minPts**: thường chọn $\text{minPts} = 2 \times d$ ($d$ = số chiều) hoặc $\geq 3$.
 
 **eps**: dùng **k-distance plot** — với mỗi điểm, tính khoảng cách đến điểm hàng xóm thứ minPts, sort tăng dần. Tìm "khuỷu tay" → đó là eps tốt.
 
@@ -218,9 +218,9 @@ N(50.0) = {50.0} → |1| < 4 → Noise = outlier! Giao dịch 50 triệu bất t
 
 Ý tưởng: thay vì một eps cố định, HDBSCAN xây dựng một **hierarchy** của cluster ở tất cả eps — rồi chọn cluster ổn định nhất theo lý thuyết stability.
 
-**Khái niệm core distance**: `core_dist_k(p)` = khoảng cách từ `p` đến điểm hàng xóm thứ k.
+**Khái niệm core distance**: $\text{core\_dist}_k(p)$ = khoảng cách từ $p$ đến điểm hàng xóm thứ $k$.
 
-**Mutual reachability distance**: `mrd(p,q) = max(core_dist(p), core_dist(q), dist(p,q))`.
+**Mutual reachability distance**: $\text{mrd}(p,q) = \max(\text{core\_dist}(p),\ \text{core\_dist}(q),\ \text{dist}(p,q))$.
 
 → Điểm trong vùng thưa có core_dist lớn → mutual reachability lớn → phải "gần hơn thật sự" để join cluster. Điểm trong vùng dày → core_dist nhỏ.
 

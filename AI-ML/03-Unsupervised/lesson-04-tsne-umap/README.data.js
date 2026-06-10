@@ -8,7 +8,7 @@ window.README_MD = `# Lesson T3-04 — t-SNE & UMAP
 ## Mục tiêu học tập
 
 Sau bài này, bạn sẽ:
-- Giải thích t-SNE học gì: P(j|i) trong high-dim và Q_ij trong low-dim, minimize KL divergence.
+- Giải thích t-SNE học gì: $P(j|i)$ trong high-dim và $Q_{ij}$ trong low-dim, minimize KL divergence.
 - Biết tại sao t-SNE dùng t-distribution (heavy tail) thay vì Gaussian trong low-dim space.
 - Chọn hyperparameter perplexity hợp lý và hiểu ảnh hưởng.
 - Nhận ra 4 pitfall phổ biến khi đọc t-SNE plot.
@@ -18,7 +18,7 @@ Sau bài này, bạn sẽ:
 ## Kiến thức tiền đề
 
 - [T3-L03: PCA & SVD](../lesson-03-pca-svd/) — hiểu dimensionality reduction.
-- Xác suất: Gaussian distribution, KL divergence — \`KL(P||Q) = Σ P log(P/Q)\`.
+- Xác suất: Gaussian distribution, KL divergence — $\\text{KL}(P\\|Q) = \\sum P \\log(P/Q)$.
 - Gradient descent (T1 Foundations): minimize loss bằng GD.
 
 ---
@@ -50,9 +50,9 @@ t-SNE (van der Maaten & Hinton, 2008) học một embedding Y = {y₁,…,yₙ} 
 \`\`\`
 P(j|i) = exp(−‖xᵢ−xⱼ‖²/2σᵢ²) / Σₖ≠ᵢ exp(−‖xᵢ−xₖ‖²/2σᵢ²)
 \`\`\`
-\`σᵢ\` được chọn tự động sao cho **perplexity** = \`2^(H(Pᵢ))\` ≈ perplexity tham số (H = entropy của Pᵢ).
+$\\sigma_i$ được chọn tự động sao cho **perplexity** = $2^{H(P_i)}$ ≈ perplexity tham số ($H$ = entropy của $P_i$).
 
-Đối xứng: \`Pᵢⱼ = (P(j|i) + P(i|j)) / 2n\`.
+Đối xứng: $P_{ij} = (P(j|i) + P(i|j)) / 2n$.
 
 **Bước 2 — Xác suất trong low-dim** (dùng t-distribution với 1 degree of freedom = Cauchy):
 \`\`\`
@@ -71,7 +71,7 @@ Tối ưu bằng **gradient descent** trên Y (các tọa độ 2D).
 ∂KL/∂yᵢ = 4 Σⱼ (Pᵢⱼ − Qᵢⱼ)(yᵢ − yⱼ)(1 + ‖yᵢ−yⱼ‖²)⁻¹
 \`\`\`
 
-> 💡 **Tại sao t-distribution thay vì Gaussian trong low-dim?** — "Crowding problem". Trong 784D, một điểm có thể có nhiều hàng xóm "vừa gần vừa xa" đồng thời (nhiều chiều). Trong 2D, không đủ "diện tích" để đặt tất cả. Gaussian trong 2D → khoảng cách trung bình nhỏ → các điểm bị ép chặt. **t-distribution có heavy tail** → cho phép điểm "hơi xa" vẫn có Qᵢⱼ đáng kể → map giải nén, cluster tách xa nhau hơn.
+> 💡 **Tại sao t-distribution thay vì Gaussian trong low-dim?** — "Crowding problem". Trong 784D, một điểm có thể có nhiều hàng xóm "vừa gần vừa xa" đồng thời (nhiều chiều). Trong 2D, không đủ "diện tích" để đặt tất cả. Gaussian trong 2D → khoảng cách trung bình nhỏ → các điểm bị ép chặt. **t-distribution có heavy tail** → cho phép điểm "hơi xa" vẫn có $Q_{ij}$ đáng kể → map giải nén, cluster tách xa nhau hơn.
 
 ### 2.2. Walk-through Số Cụ Thể (Đơn Giản Hóa)
 
@@ -87,16 +87,16 @@ exp(−11²/2) = exp(−60.5) ≈ 0     (j=4, dist=11)
 Normalize: P(2|1) ≈ 1.0, P(3|1)≈0, P(4|1)≈0
 \`\`\`
 
-P(1|2) ≈ 1.0 (x₂=1, gần x₁=0). P(3|2) ≈ exp(−40.5)/... ≈ 0.
+$P(1|2) \\approx 1{,}0$ ($x_2 = 1$, gần $x_1 = 0$). $P(3|2) \\approx \\exp(-40{,}5)/\\ldots \\approx 0$.
 
-→ P₁₂ = (1+1)/(2×4) = 0.25 (đối xứng, chia 2n=8).
-P₃₄ = (1+1)/8 = 0.25 tương tự.
-P₁₃ ≈ 0, P₂₄ ≈ 0, v.v.
+→ $P_{12} = (1+1)/(2 \\times 4) = 0{,}25$ (đối xứng, chia $2n = 8$).
+$P_{34} = (1+1)/8 = 0{,}25$ tương tự.
+$P_{13} \\approx 0$, $P_{24} \\approx 0$, v.v.
 
-**Gradient descent** sẽ học Y = {y₁,y₂,y₃,y₄} sao cho:
-- y₁,y₂ gần nhau (P₁₂ lớn → attract).
-- y₃,y₄ gần nhau (P₃₄ lớn).
-- {y₁,y₂} và {y₃,y₄} xa nhau (P₁₃,P₂₃,P₁₄,P₂₄ ≈ 0 → repel do Q₁₃ > P₁₃).
+**Gradient descent** sẽ học $Y = \\{y_1, y_2, y_3, y_4\\}$ sao cho:
+- $y_1, y_2$ gần nhau ($P_{12}$ lớn → attract).
+- $y_3, y_4$ gần nhau ($P_{34}$ lớn).
+- $\\{y_1, y_2\\}$ và $\\{y_3, y_4\\}$ xa nhau ($P_{13}, P_{23}, P_{14}, P_{24} \\approx 0$ → repel do $Q_{13} > P_{13}$).
 
 > ❓ **Câu hỏi tự nhiên**: tại sao minimize KL(P||Q) chứ không phải KL(Q||P)?
 >
@@ -106,7 +106,7 @@ P₁₃ ≈ 0, P₂₄ ≈ 0, v.v.
 
 **Perplexity** ≈ số hàng xóm "hiệu dụng" mà model xem xét cho mỗi điểm.
 
-\`Perplexity = 2^{H(Pᵢ)}\` — exponential của Shannon entropy của distribution Pᵢ.
+$\\text{Perplexity} = 2^{H(P_i)}$ — exponential của Shannon entropy của distribution $P_i$.
 
 | Perplexity | Ảnh hưởng |
 |------------|-----------|
@@ -245,13 +245,13 @@ Lý do: t-SNE/UMAP O(n²) hoặc O(n log n) theo n điểm nhưng cũng chậm t
 
 ### Bài 1: Crowding Problem
 
-**Crowding problem**: trong 2D, "diện tích" tăng linear với bán kính (A = πr²). Trong 10D, "thể tích" tăng như r^10 → rất nhiều điểm ở khoảng cách "vừa vừa" trong high-dim mà không thể đặt tất cả ở khoảng cách vừa vừa trong 2D.
+**Crowding problem**: trong 2D, "diện tích" tăng linear với bán kính ($A = \\pi r^2$). Trong 10D, "thể tích" tăng như $r^{10}$ → rất nhiều điểm ở khoảng cách "vừa vừa" trong high-dim mà không thể đặt tất cả ở khoảng cách vừa vừa trong 2D.
 
 **Ví dụ số**: trong 10D, điểm trên hypersphere r=1 có thể có 1000 hàng xóm. Nếu map về 2D với Gaussian → cần đặt 1000 điểm trong hình tròn r≈1 (mật độ cao) → ép chặt.
 
-**Giải pháp t-distribution**: Cauchy distribution \`Q = (1+d²)⁻¹\` có **heavy tail** — khoảng cách lớn vẫn có xác suất đáng kể. Vì vậy gradient đẩy điểm "vừa gần vừa xa" ra xa hơn trong 2D → cluster tách biệt hơn.
+**Giải pháp t-distribution**: Cauchy distribution $Q = (1 + d^2)^{-1}$ có **heavy tail** — khoảng cách lớn vẫn có xác suất đáng kể. Vì vậy gradient đẩy điểm "vừa gần vừa xa" ra xa hơn trong 2D → cluster tách biệt hơn.
 
-Cụ thể: nếu P₁₂=0.1 (gần trong high-dim), model cần Q₁₂ ≈ 0.1. Với Gaussian trong 2D: Q=0.1 → d₂D ≈ 0.1 (rất gần). Với Cauchy: Q=0.1 → (1+d²)=10 → d ≈ 3 (xa hơn nhiều, cho phép cluster tách biệt).
+Cụ thể: nếu $P_{12} = 0{,}1$ (gần trong high-dim), model cần $Q_{12} \\approx 0{,}1$. Với Gaussian trong 2D: $Q = 0{,}1 \\to d_{2D} \\approx 0{,}1$ (rất gần). Với Cauchy: $Q = 0{,}1 \\to (1 + d^2) = 10 \\to d \\approx 3$ (xa hơn nhiều, cho phép cluster tách biệt).
 
 ### Bài 2: Chọn số clusters từ nhiều perplexity
 

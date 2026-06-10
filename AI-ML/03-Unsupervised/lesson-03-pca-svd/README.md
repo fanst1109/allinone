@@ -17,7 +17,7 @@ Sau bài này, bạn sẽ:
 ## Kiến thức tiền đề
 
 - [Vectors/Linear Algebra: eigenvector, eigenvalue, SVD](../../../Vectors/) — cốt lõi của bài này.
-- Covariance matrix: `Cov(X) = (1/n) X̃ᵀ X̃`, centered data `X̃ = X − μ`.
+- Covariance matrix: $\text{Cov}(X) = \frac{1}{n} \tilde{X}^\top \tilde{X}$, centered data $\tilde{X} = X - \mu$.
 - [T3-L01: K-means](../lesson-01-kmeans-hierarchical/) — biết tại sao cần giảm chiều trước khi cluster.
 
 ---
@@ -105,16 +105,16 @@ Verify: `C[0,0] = (1/4)((-1.5)²+(-0.5)²+(0.5)²+(1.5)²) = (1/4)(2.25+0.25+0.2
 
 **Bước 3 — Eigendecomposition** của C = [[1.25,1.25],[1.25,1.25]]:
 
-`det(C - λI) = (1.25-λ)² - 1.25² = 0`
-`(1.25-λ)² = 1.5625`
-`1.25-λ = ±1.25`
-`λ₁ = 2.5,  λ₂ = 0`
+$\det(C - \lambda I) = (1{,}25 - \lambda)^2 - 1{,}25^2 = 0$
+$(1{,}25 - \lambda)^2 = 1{,}5625$
+$1{,}25 - \lambda = \pm 1{,}25$
+$\lambda_1 = 2{,}5,\quad \lambda_2 = 0$
 
-Eigenvector cho λ₁=2.5:
-`(C − 2.5I)v = 0 → [[-1.25,1.25],[1.25,-1.25]]v = 0 → v₁ = (1/√2, 1/√2) ≈ (0.707, 0.707)`
+Eigenvector cho $\lambda_1 = 2{,}5$:
+$(C - 2{,}5 I)v = 0 \to \begin{bmatrix} -1{,}25 & 1{,}25 \\ 1{,}25 & -1{,}25 \end{bmatrix} v = 0 \to v_1 = (1/\sqrt{2},\ 1/\sqrt{2}) \approx (0{,}707,\ 0{,}707)$
 
-Eigenvector cho λ₂=0:
-`v₂ = (1/√2, −1/√2) ≈ (0.707, −0.707)`
+Eigenvector cho $\lambda_2 = 0$:
+$v_2 = (1/\sqrt{2},\ -1/\sqrt{2}) \approx (0{,}707,\ -0{,}707)$
 
 > 💡 **Giải thích**: tất cả 4 điểm nằm trên đường thẳng y=x−1.5 → chỉ có 1 hướng có variance (hướng (1,1) normalize). Hướng vuông góc (1,−1) không có variance nào → λ₂=0. PCA phát hiện đúng!
 
@@ -177,9 +177,9 @@ Lúc đó:
 X̃ᵀ X̃ = (UΣVᵀ)ᵀ (UΣVᵀ) = VΣUᵀUΣVᵀ = VΣ²Vᵀ
 ```
 
-Vì `UᵀU = I` (U orthonormal). So sánh với eigendecomposition `C = VΛVᵀ`:
+Vì $U^\top U = I$ (U orthonormal). So sánh với eigendecomposition $C = V\Lambda V^\top$:
 
-→ **V từ SVD = eigenvector matrix V từ eigendecomp**, và `λⱼ = σⱼ²/n` (σⱼ là singular value).
+→ **V từ SVD = eigenvector matrix V từ eigendecomp**, và $\lambda_j = \sigma_j^2 / n$ ($\sigma_j$ là singular value).
 
 **Walk-through số** — kiểm chứng với ví dụ 2D ở trên:
 
@@ -187,11 +187,11 @@ X̃ = [[-1.5,-1.5],[-0.5,-0.5],[0.5,0.5],[1.5,1.5]] (4×2 matrix).
 
 SVD: X̃ = UΣVᵀ. Vì X̃ = c·[1,1]ᵀ·[coefficients] (rank-1 matrix):
 
-σ₁ = ‖X̃‖_F = √(1.5²+1.5²+0.5²+0.5²+0.5²+0.5²+1.5²+1.5²) = √10 ≈ 3.162.
+$\sigma_1 = \|\tilde{X}\|_F = \sqrt{1{,}5^2 + 1{,}5^2 + 0{,}5^2 + 0{,}5^2 + 0{,}5^2 + 0{,}5^2 + 1{,}5^2 + 1{,}5^2} = \sqrt{10} \approx 3{,}162$.
 
-V[:,0] = (1/√2, 1/√2) = (0.707, 0.707) ✓ — khớp với eigenvector PC1.
+`V[:,0]` = $(1/\sqrt{2},\ 1/\sqrt{2}) = (0{,}707,\ 0{,}707)$ ✓ — khớp với eigenvector PC1.
 
-λ₁ = σ₁²/n = 10/4 = 2.5 ✓ — khớp với eigenvalue.
+$\lambda_1 = \sigma_1^2 / n = 10/4 = 2{,}5$ ✓ — khớp với eigenvalue.
 
 > ❓ **Câu hỏi tự nhiên**: sklearn dùng method nào, eigendecomp hay SVD?
 >

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 06 — Ước lượng & quản lý công việc</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background: #7c3aed; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.primary:hover { background:#6d28d9; }
+  button.primary:disabled { background:#c4b5fd; cursor:default; }
+  .feedback { margin-top:12px; font-size:14px; padding:10px 12px; border-left:4px solid #7c3aed; background:#f5f3ff; border-radius:4px; line-height:1.5; }
+
+  /* Module 1: story point */
+  .tasks { display:flex; flex-direction:column; gap:8px; margin-top:10px; }
+  .task { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:8px 10px; background:#f8fafc; border-radius:6px; }
+  .task .label { flex:1 1 180px; font-size:13px; font-weight:600; color:#334155; }
+  .task.anchor { background:#ede9fe; border:1px dashed #a78bfa; }
+  .fibrow { display:flex; gap:5px; flex-wrap:wrap; }
+  .fib { width:34px; height:34px; border-radius:6px; border:2px solid #c4b5fd; background:#fff; color:#5b21b6; font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .fib.sel { background:#7c3aed; color:#fff; border-color:#7c3aed; }
+  .fib.disabled { opacity:.4; cursor:default; }
+  .sp-check { margin-top:6px; font-size:13px; }
+
+  /* Module 2: burndown */
+  .controls { display:flex; gap:18px; flex-wrap:wrap; align-items:flex-end; margin-bottom:8px; }
+  .ctrl { display:flex; flex-direction:column; gap:4px; font-size:13px; color:#475569; font-weight:600; }
+  .ctrl input[type=range] { width:100%; max-width:220px; accent-color:#7c3aed; }
+  .ctrl .val { color:#5b21b6; font-weight:700; }
+  .legend { display:flex; gap:16px; font-size:12px; margin:6px 0 2px; flex-wrap:wrap; }
+  .legend span { display:inline-flex; align-items:center; gap:6px; color:#475569; }
+  .swatch { width:18px; height:4px; border-radius:2px; display:inline-block; }
+  .forecast { display:flex; gap:14px; flex-wrap:wrap; margin-top:6px; }
+  .stat { background:#f5f3ff; border-radius:8px; padding:10px 14px; flex:1 1 120px; }
+  .stat .big { font-size:22px; font-weight:800; color:#7c3aed; }
+  .stat .cap { font-size:12px; color:#64748b; }
+
+  /* Module 3: planning poker */
+  .members { display:flex; gap:10px; flex-wrap:wrap; margin:12px 0; }
+  .member { flex:1 1 130px; min-width:0; background:#f8fafc; border-radius:8px; padding:10px; text-align:center; }
+  .member .who { font-size:13px; font-weight:700; color:#334155; }
+  .member .card { margin-top:8px; height:62px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:800; background:#7c3aed; color:#fff; transition:transform .3s; }
+  .member .card.hidden { background:#ddd6fe; color:#7c3aed; }
+  .member .reason { font-size:11px; color:#64748b; margin-top:6px; min-height:28px; line-height:1.3; }
+  .poker-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-code-review/visualization.html">← L5: Code review</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Ước lượng & quản lý việc</span>
+</nav>
+<main>
+<h1>Ước lượng & quản lý công việc</h1>
+<p class="note">Ba mô-đun: (1) gán story point <b>tương đối</b> trên thang Fibonacci, (2) burndown chart & dự báo số sprint, (3) mô phỏng Planning Poker hội tụ.</p>
+
+<div class="panel">
+  <h2>1 · Story point tương đối — so việc với việc</h2>
+  <p class="note">Việc <b>mốc</b> đã cố định ở <b>2 point</b>. Với mỗi task còn lại, chọn point trên thang Fibonacci theo cảm nhận "to gấp mấy lần việc mốc". Không quy ra giờ!</p>
+  <div class="tasks" id="tasks"></div>
+  <div class="sp-check" id="spCheck"></div>
+  <button class="primary" onclick="checkPoints()" style="margin-top:10px">Kiểm tra gợi ý</button>
+</div>
+
+<div class="panel">
+  <h2>2 · Burndown chart & dự báo</h2>
+  <p class="note">Chỉnh backlog còn lại và velocity trung bình → xem đường burndown (point còn lại theo sprint) và dự báo số sprint, kèm khoảng bi quan–lạc quan.</p>
+  <div class="controls">
+    <label class="ctrl">Backlog còn lại: <span class="val" id="blVal">80</span> point
+      <input type="range" id="bl" min="20" max="200" step="5" value="80" oninput="renderBurn()">
+    </label>
+    <label class="ctrl">Velocity trung bình: <span class="val" id="velVal">20</span> point/sprint
+      <input type="range" id="vel" min="5" max="40" step="1" value="20" oninput="renderBurn()">
+    </label>
+  </div>
+  <div class="legend">
+    <span><i class="swatch" style="background:#94a3b8"></i> Lý tưởng (đốt đều)</span>
+    <span><i class="swatch" style="background:#7c3aed"></i> Burndown thực tế (mô phỏng)</span>
+  </div>
+  <svg id="burnSvg" width="560" height="300" viewBox="0 0 560 300" style="width:100%;height:auto"></svg>
+  <div class="forecast" id="forecast"></div>
+  <div class="feedback" id="burnFb"></div>
+</div>
+
+<div class="panel">
+  <h2>3 · Planning Poker — từ lệch nhau tới hội tụ</h2>
+  <p class="note">Ba thành viên ước cùng một story "Tích hợp đăng nhập Google". Lật bài → thấy lệch → người cao/thấp nhất giải thích → bỏ thẻ lại. Bấm qua từng vòng.</p>
+  <div class="members" id="members"></div>
+  <div class="poker-row">
+    <button class="primary" id="pokerBtn" onclick="nextPoker()">Lật bài (vòng 1)</button>
+    <button class="primary" onclick="resetPoker()" style="background:#64748b">↻ Làm lại</button>
+  </div>
+  <div class="feedback" id="pokerFb">Mọi người đã chọn thẻ úp xuống (giấu kín — chống mỏ neo). Bấm "Lật bài" để lộ đồng thời.</div>
+</div>
+
+<script>
+const FIB = [1,2,3,5,8,13];
+
+// ===== Module 1: story point =====
+const TASKS = [
+  { label: '🔒 (MỐC) Thêm trường "số điện thoại" vào form (có validate)', anchor:true, pt:2 },
+  { label: 'Đổi nhãn nút "Lưu" → "Cập nhật"', suggest:1,
+    why:'Nhỏ hơn mốc nhiều, gần như không bất định.' },
+  { label: 'Thêm phân trang cho danh sách đơn hàng', suggest:3,
+    why:'Lớn hơn mốc chút: thêm logic offset/limit + sửa UI.' },
+  { label: 'Tích hợp thanh toán qua cổng ngoài (lần đầu)', suggest:8,
+    why:'Nhiều bước, bất định cao: API ngoài, lỗi, sandbox→production.' },
+  { label: 'Viết lại toàn bộ module báo cáo realtime', suggest:13,
+    why:'Quá lớn + rất nhiều ẩn số → 13 chủ yếu là cờ "to quá, phải chẻ nhỏ".' },
+];
+const chosen = {}; // index -> point
+function renderTasks(){
+  document.getElementById('tasks').innerHTML = TASKS.map((t,i)=>{
+    if(t.anchor){
+      return `<div class="task anchor"><span class="label">${t.label}</span>
+        <div class="fibrow">${FIB.map(f=>`<div class="fib ${f===2?'sel':''} disabled">${f}</div>`).join('')}</div></div>`;
+    }
+    return `<div class="task"><span class="label">${t.label}</span>
+      <div class="fibrow">${FIB.map(f=>`<div class="fib ${chosen[i]===f?'sel':''}" onclick="pickPt(${i},${f})">${f}</div>`).join('')}</div></div>`;
+  }).join('');
+}
+function pickPt(i,f){ chosen[i]=f; renderTasks(); document.getElementById('spCheck').innerHTML=''; }
+function checkPoints(){
+  let rows = [];
+  for(let i=1;i<TASKS.length;i++){
+    const t=TASKS[i], c=chosen[i];
+    if(c===undefined){ rows.push(`• "${t.label}": <i>chưa chọn</i>`); continue; }
+    const ok = c===t.suggest;
+    const near = !ok && FIB.indexOf(c)>-1 && Math.abs(FIB.indexOf(c)-FIB.indexOf(t.suggest))===1;
+    const mark = ok ? '✅' : near ? '🟡' : '❌';
+    rows.push(`${mark} "${t.label}" — bạn: <b>${c}</b>, gợi ý: <b>${t.suggest}</b>. ${t.why}`);
+  }
+  document.getElementById('spCheck').innerHTML =
+    `<div class="feedback">${rows.join('<br>')}<br><span class="note">Lệch 1 bậc (🟡) hoàn toàn chấp nhận được — point chỉ có nghĩa <b>tương đối trong cùng một đội</b>, miễn lý do so sánh hợp lý.</span></div>`;
+}
+
+// ===== Module 2: burndown =====
+function renderBurn(){
+  const bl = +document.getElementById('bl').value;
+  const vel = +document.getElementById('vel').value;
+  document.getElementById('blVal').textContent = bl;
+  document.getElementById('velVal').textContent = vel;
+
+  const sprintsCenter = Math.ceil(bl/vel);
+  const velLow = Math.max(1, Math.round(vel*0.85));   // bi quan
+  const velHigh = Math.round(vel*1.15);               // lạc quan
+  const sLow = Math.ceil(bl/velLow);                  // nhiều sprint hơn
+  const sHigh = Math.ceil(bl/velHigh);                // ít sprint hơn
+
+  // SVG geometry
+  const W=560,H=300, padL=46, padB=40, padT=18, padR=14;
+  const plotW=W-padL-padR, plotH=H-padT-padB;
+  const N = sprintsCenter;
+  const x = i => padL + (N? i/N*plotW : 0);
+  const y = v => padT + (1 - v/bl)*plotH;
+
+  // ideal line: bl -> 0 over N sprints
+  let ideal = `M ${x(0)} ${y(bl)} L ${x(N)} ${y(0)}`;
+
+  // actual (mô phỏng): đốt hơi chậm ở đầu (warm-up), nhanh dần — vẫn về 0 ở N
+  let pts = [[0,bl]]; let rem = bl;
+  for(let i=1;i<=N;i++){
+    // tỉ lệ đốt: đầu sprint 80% velocity, tăng tới 120%
+    const frac = 0.8 + 0.4*(i-1)/Math.max(1,N-1);
+    let burn = vel*frac;
+    rem = Math.max(0, rem - burn);
+    if(i===N) rem = 0;
+    pts.push([i,rem]);
+  }
+  let actual = 'M ' + pts.map(p=>`${x(p[0])} ${y(p[1])}`).join(' L ');
+  let dots = pts.map(p=>`<circle cx="${x(p[0])}" cy="${y(p[1])}" r="3.5" fill="#7c3aed"/>`).join('');
+
+  // axes ticks
+  let xticks=''; for(let i=0;i<=N;i++){ xticks += `<text x="${x(i)}" y="${H-padB+18}" font-size="11" fill="#64748b" text-anchor="middle">S${i}</text>`; }
+  let yticks=''; for(let k=0;k<=4;k++){ const v=Math.round(bl*k/4); yticks += `<line x1="${padL}" y1="${y(v)}" x2="${W-padR}" y2="${y(v)}" stroke="#eef2f7"/><text x="${padL-6}" y="${y(v)+4}" font-size="11" fill="#64748b" text-anchor="end">${v}</text>`; }
+
+  document.getElementById('burnSvg').innerHTML = `
+    ${yticks}
+    <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H-padB}" stroke="#cbd5e1"/>
+    <line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="#cbd5e1"/>
+    ${xticks}
+    <path d="${ideal}" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 5" fill="none"/>
+    <path d="${actual}" stroke="#7c3aed" stroke-width="2.5" fill="none"/>
+    ${dots}
+    <text x="${padL+4}" y="${padT+12}" font-size="11" fill="#64748b">Point còn lại</text>`;
+
+  document.getElementById('forecast').innerHTML = `
+    <div class="stat"><div class="big">${sprintsCenter}</div><div class="cap">sprint (kế hoạch trung tâm)<br>${bl} ÷ ${vel}</div></div>
+    <div class="stat"><div class="big">${sHigh}–${sLow}</div><div class="cap">khoảng lạc quan–bi quan<br>vel ${velHigh} ↔ ${velLow}</div></div>
+    <div class="stat"><div class="big">${sHigh*2}–${sLow*2}</div><div class="cap">tuần (sprint = 2 tuần)</div></div>`;
+
+  document.getElementById('burnFb').innerHTML =
+    `Với backlog <b>${bl}</b> point và velocity trung bình <b>${vel}</b> point/sprint → dự báo <b>${sprintsCenter} sprint</b> ` +
+    `(= ⌈${bl}/${vel}⌉). Vì velocity dao động, báo cáo bằng <b>khoảng ${sHigh}–${sLow} sprint</b> chứ không hứa một con số cứng. ` +
+    `Đường tím (thực tế) đốt chậm ở đầu rồi nhanh dần — nếu nó nằm <b>trên</b> đường xám (lý tưởng) giữa sprint nghĩa là đang <b>chậm</b>, cần can thiệp sớm.`;
+}
+
+// ===== Module 3: planning poker =====
+const POKER = [
+  { who:'An (đã làm OAuth)', rounds:[
+      {pt:3, reason:'"Có thư viện sẵn, copy cấu hình cũ."'},
+      {pt:5, reason:'À, dự án này cần xử lý refresh token → 5.'} ] },
+  { who:'Bình', rounds:[
+      {pt:8, reason:'"Lo phần token hết hạn & refresh."'},
+      {pt:5, reason:'Có thư viện sẵn rồi → 5.'} ] },
+  { who:'Chi', rounds:[
+      {pt:5, reason:'"Cảm thấy cỡ trung bình."'},
+      {pt:5, reason:'Giữ nguyên 5.'} ] },
+];
+let pokerStage = 0; // 0=úp, 1=lật vòng1, 2=lật vòng2 (hội tụ)
+function renderPoker(){
+  document.getElementById('members').innerHTML = POKER.map(m=>{
+    if(pokerStage===0){
+      return `<div class="member"><div class="who">${m.who}</div><div class="card hidden">?</div><div class="reason">Đã chọn, giấu kín</div></div>`;
+    }
+    const r = m.rounds[pokerStage-1];
+    return `<div class="member"><div class="who">${m.who}</div><div class="card">${r.pt}</div><div class="reason">${r.reason}</div></div>`;
+  }).join('');
+}
+function nextPoker(){
+  const btn=document.getElementById('pokerBtn'), fb=document.getElementById('pokerFb');
+  if(pokerStage===0){
+    pokerStage=1; renderPoker();
+    fb.innerHTML='🃏 <b>Vòng 1 — lật đồng thời:</b> 3, 8, 5 — <b>lệch nhau</b>! Không lấy trung bình (≈5.3). Người thấp nhất (An, 3) và cao nhất (Bình, 8) giải thích: An có thư viện sẵn, Bình lo refresh token. Sự lệch lôi ra thông tin cả hai chưa biết.';
+    btn.textContent='Lật bài (vòng 2)';
+  } else if(pokerStage===1){
+    pokerStage=2; renderPoker();
+    fb.innerHTML='✅ <b>Vòng 2 — hội tụ tại 5:</b> sau khi gộp thông tin (có thư viện + vẫn phải refresh token), cả ba chốt <b>5 point</b>. Nếu An nói "3 thôi" trước rồi cả nhóm gật → thông tin refresh token của Bình không bao giờ lộ → cam kết hụt.';
+    btn.textContent='Đã hội tụ ✔'; btn.disabled=true;
+  }
+}
+function resetPoker(){ pokerStage=0; document.getElementById('pokerBtn').disabled=false; document.getElementById('pokerBtn').textContent='Lật bài (vòng 1)'; document.getElementById('pokerFb').innerHTML='Mọi người đã chọn thẻ úp xuống (giấu kín — chống mỏ neo). Bấm "Lật bài" để lộ đồng thời.'; renderPoker(); }
+
+// init
+renderTasks(); renderBurn(); renderPoker();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

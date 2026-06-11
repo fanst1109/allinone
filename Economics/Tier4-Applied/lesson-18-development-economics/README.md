@@ -136,9 +136,9 @@ Chìa khóa Lee Kuan Yew:
 
 ### Bài 1 — Áp dụng Solow
 
-Hai nước có cùng `s, δ, α` nhưng khác `A` (TFP). Nước nghèo có k₀ thấp. Theo Solow:
-- (a) Có hội tụ về cùng `y*` không?
-- (b) Nếu khác `A`, kết quả thế nào?
+Hai nước có cùng $s, \delta, \alpha$ nhưng khác $A$ (TFP). Nước nghèo có $k_0$ thấp. Theo Solow:
+- (a) Có hội tụ về cùng $y^*$ không?
+- (b) Nếu khác $A$, kết quả thế nào?
 
 ### Bài 2 — Phân tích Korea vs Korea
 
@@ -162,9 +162,9 @@ Việt Nam đang trong "middle income trap". Đánh giá 3 phương án:
 
 ### Lời giải Bài 1
 
-(a) Nếu cùng `A, s, δ, α` → hội tụ về `y* = A · k*^α`. Cùng `y*`. Đây là **conditional convergence**.
+(a) Nếu cùng $A, s, \delta, \alpha$ → hội tụ về $y^* = A \cdot k^{*\alpha}$. Cùng $y^*$. Đây là **conditional convergence**.
 
-(b) Nếu khác `A`, mỗi nước hội tụ về `y*` riêng. Nước có `A` cao → giàu hơn dài hạn. Đây là vì sao **công nghệ + thể chế** quyết định "trần" GDP của nước.
+(b) Nếu khác $A$, mỗi nước hội tụ về $y^*$ riêng. Nước có $A$ cao → giàu hơn dài hạn. Đây là vì sao **công nghệ + thể chế** quyết định "trần" GDP của nước.
 
 ### Lời giải Bài 2
 

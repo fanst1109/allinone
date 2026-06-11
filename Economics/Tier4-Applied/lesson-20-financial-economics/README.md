@@ -7,7 +7,7 @@ Sau bài này bạn sẽ:
 - Hiểu **rủi ro vs lợi suất** — quan hệ cơ bản của tài chính.
 - Tính được **lợi suất kỳ vọng** và **độ lệch chuẩn** của một danh mục đầu tư.
 - Hiểu **diversification** — vì sao "không bỏ tất cả trứng vào một giỏ" có cơ sở toán học.
-- Áp dụng **CAPM (Capital Asset Pricing Model)** để định giá tài sản: `E(R) = R_f + β · (E(R_m) − R_f)`.
+- Áp dụng **CAPM (Capital Asset Pricing Model)** để định giá tài sản: $E(R) = R_f + \beta \cdot (E(R_m) - R_f)$.
 - Hiểu **Efficient Market Hypothesis (EMH)** ở 3 dạng (yếu, trung bình, mạnh) và hệ quả thực tế.
 - Phân biệt **bong bóng (bubble)** với giá hợp lý — và vì sao bong bóng tồn tại trong thực tế.
 
@@ -21,9 +21,7 @@ Sau bài này bạn sẽ:
 
 ### 1.1. Lợi suất kỳ vọng
 
-```
-E(R) = Σ p_i · R_i
-```
+$$E(R) = \sum p_i \cdot R_i$$
 
 Walk-through: cổ phiếu X có 3 kịch bản:
 
@@ -33,23 +31,23 @@ Walk-through: cổ phiếu X có 3 kịch bản:
 | Bình thường | 0.5 | 10% |
 | Xấu | 0.2 | -20% |
 
-`E(R) = 0.3 × 30 + 0.5 × 10 + 0.2 × (-20) = 9 + 5 − 4 = 10%`.
+$E(R) = 0.3 \times 30 + 0.5 \times 10 + 0.2 \times (-20) = 9 + 5 - 4 = 10\%$.
 
 ### 1.2. Rủi ro = Độ lệch chuẩn
 
-```
-σ² = Σ p_i · (R_i − E(R))²
-σ = √(σ²)
-```
+$$\begin{aligned}
+\sigma^2 &= \sum p_i \cdot (R_i - E(R))^2 \\
+\sigma &= \sqrt{\sigma^2}
+\end{aligned}$$
 
-`σ² = 0.3×(30-10)² + 0.5×(10-10)² + 0.2×(-20-10)² = 0.3×400 + 0 + 0.2×900 = 120 + 180 = 300`.
-`σ = √300 ≈ 17.3%`.
+$\sigma^2 = 0.3 \times (30-10)^2 + 0.5 \times (10-10)^2 + 0.2 \times (-20-10)^2 = 0.3 \times 400 + 0 + 0.2 \times 900 = 120 + 180 = 300$.
+$\sigma = \sqrt{300} \approx 17.3\%$.
 
 ### 1.3. Trade-off
 
 Quan sát thực tế: tài sản lợi suất kỳ vọng cao → rủi ro cao.
 
-| Loại | E(R) | σ |
+| Loại | $E(R)$ | $\sigma$ |
 |------|------|---|
 | Trái phiếu chính phủ Mỹ | ~3-5% | ~3% |
 | Trái phiếu DN | ~5-8% | ~7% |
@@ -63,24 +61,24 @@ Nhà đầu tư *risk-averse* sẽ đòi lợi suất cao hơn để bù rủi r
 
 ### 2.1. Lợi ích toán học
 
-Lợi suất danh mục `R_p = w₁ R₁ + w₂ R₂` (với `w₁ + w₂ = 1`).
+Lợi suất danh mục $R_p = w_1 R_1 + w_2 R_2$ (với $w_1 + w_2 = 1$).
 
-`E(R_p) = w₁ E(R₁) + w₂ E(R₂)`.
+$E(R_p) = w_1 E(R_1) + w_2 E(R_2)$.
 
-`σ²_p = w₁²σ₁² + w₂²σ₂² + 2w₁w₂ρ σ₁σ₂`.
+$\sigma^2_p = w_1^2 \sigma_1^2 + w_2^2 \sigma_2^2 + 2 w_1 w_2 \rho\, \sigma_1 \sigma_2$.
 
-`ρ` = correlation giữa 2 tài sản. Nếu `ρ < 1` → `σ_p < trung bình` của các `σ` riêng — diversification giảm rủi ro mà *không* giảm lợi suất kỳ vọng.
+$\rho$ = correlation giữa 2 tài sản. Nếu $\rho < 1$ → $\sigma_p < \text{trung bình}$ của các $\sigma$ riêng — diversification giảm rủi ro mà *không* giảm lợi suất kỳ vọng.
 
 ### 2.2. Walk-through
 
-Cổ phiếu A: `E(R) = 10%, σ = 20%`. Cổ phiếu B: `E(R) = 10%, σ = 20%`. `ρ = 0` (không tương quan).
+Cổ phiếu A: $E(R) = 10\%, \sigma = 20\%$. Cổ phiếu B: $E(R) = 10\%, \sigma = 20\%$. $\rho = 0$ (không tương quan).
 
-Chia đều 50/50: `E(R_p) = 10%`. `σ²_p = 0.25×400 + 0.25×400 + 0 = 200`. `σ_p ≈ 14.1%`.
+Chia đều 50/50: $E(R_p) = 10\%$. $\sigma^2_p = 0.25 \times 400 + 0.25 \times 400 + 0 = 200$. $\sigma_p \approx 14.1\%$.
 
 → Lợi suất giữ nguyên, rủi ro giảm từ 20% → 14.1%. *Free lunch* của diversification.
 
-Nếu `ρ = 1` (giống hệt): `σ_p = 20%`, không có lợi.
-Nếu `ρ = -1` (ngược chiều): `σ_p = 0`, rủi ro biến mất hoàn toàn.
+Nếu $\rho = 1$ (giống hệt): $\sigma_p = 20\%$, không có lợi.
+Nếu $\rho = -1$ (ngược chiều): $\sigma_p = 0$, rủi ro biến mất hoàn toàn.
 
 ### 2.3. Hệ quả thực tế
 
@@ -92,34 +90,30 @@ Nếu `ρ = -1` (ngược chiều): `σ_p = 0`, rủi ro biến mất hoàn toà
 ### 3.1. Mô hình
 
 Cốt lõi của định giá tài sản hiện đại:
-```
-E(R_i) = R_f + β_i · (E(R_m) − R_f)
-```
 
-- `R_f` = lợi suất tài sản phi rủi ro (trái phiếu chính phủ).
-- `R_m` = lợi suất thị trường.
-- `β_i` = beta — đo độ nhạy của tài sản `i` với thị trường.
+$$E(R_i) = R_f + \beta_i \cdot (E(R_m) - R_f)$$
+
+- $R_f$ = lợi suất tài sản phi rủi ro (trái phiếu chính phủ).
+- $R_m$ = lợi suất thị trường.
+- $\beta_i$ = beta — đo độ nhạy của tài sản $i$ với thị trường.
 
 ### 3.2. Beta
 
-```
-β_i = Cov(R_i, R_m) / Var(R_m)
-```
+$$\beta_i = \frac{\text{Cov}(R_i, R_m)}{\text{Var}(R_m)}$$
 
-- `β > 1`: nhạy hơn thị trường (tech stocks, vd Tesla β ≈ 2).
-- `β = 1`: đi cùng thị trường.
-- `β < 1`: ít nhạy (utilities, tiêu dùng cơ bản, vd P&G β ≈ 0.5).
-- `β = 0`: phi rủi ro.
-- `β < 0`: ngược thị trường (vàng đôi khi).
+- $\beta > 1$: nhạy hơn thị trường (tech stocks, vd Tesla $\beta \approx 2$).
+- $\beta = 1$: đi cùng thị trường.
+- $\beta < 1$: ít nhạy (utilities, tiêu dùng cơ bản, vd P&G $\beta \approx 0.5$).
+- $\beta = 0$: phi rủi ro.
+- $\beta < 0$: ngược thị trường (vàng đôi khi).
 
 ### 3.3. Walk-through
 
-`R_f = 4%, E(R_m) = 12%`. Cổ phiếu có `β = 1.5`:
-```
-E(R) = 4 + 1.5 × (12 − 4) = 4 + 12 = 16%
-```
+$R_f = 4\%, E(R_m) = 12\%$. Cổ phiếu có $\beta = 1.5$:
 
-Nhà đầu tư đòi lợi suất 16% để gánh rủi ro β=1.5. Nếu thực tế chỉ 14% → không đáng mua. Nếu 18% → có lợi (mua, kéo giá lên → lợi suất giảm về 16%).
+$$E(R) = 4 + 1.5 \times (12 - 4) = 4 + 12 = 16\%$$
+
+Nhà đầu tư đòi lợi suất 16% để gánh rủi ro $\beta = 1.5$. Nếu thực tế chỉ 14% → không đáng mua. Nếu 18% → có lợi (mua, kéo giá lên → lợi suất giảm về 16%).
 
 ## 4. Efficient Market Hypothesis (EMH)
 
@@ -179,15 +173,15 @@ Keynes: *"thị trường có thể vô lý lâu hơn bạn có thể giữ solv
 
 ### Bài 1 — Lợi suất + rủi ro
 
-Cổ phiếu Y: 3 kịch bản (0.4 tốt = 40%, 0.4 bình = 5%, 0.2 xấu = -30%). Tính `E(R), σ`.
+Cổ phiếu Y: 3 kịch bản (0.4 tốt = 40%, 0.4 bình = 5%, 0.2 xấu = -30%). Tính $E(R), \sigma$.
 
 ### Bài 2 — Diversification
 
-A: σ = 30%. B: σ = 20%. ρ = 0.3. Danh mục 60% A + 40% B. Tính σ_p.
+A: $\sigma = 30\%$. B: $\sigma = 20\%$. $\rho = 0.3$. Danh mục 60% A + 40% B. Tính $\sigma_p$.
 
 ### Bài 3 — CAPM
 
-`R_f = 3%, E(R_m) = 10%`. Cổ phiếu có `β = 0.8`. `E(R)` theo CAPM?
+$R_f = 3\%, E(R_m) = 10\%$. Cổ phiếu có $\beta = 0.8$. $E(R)$ theo CAPM?
 
 Nếu giá hiện tại cho lợi suất kỳ vọng 12% (cao hơn CAPM dự đoán) → bạn nên làm gì?
 
@@ -199,21 +193,21 @@ Bạn đọc tin "Apple công bố doanh thu Q1 vượt kỳ vọng" trên báo.
 
 ### Lời giải Bài 1
 
-`E(R) = 0.4×40 + 0.4×5 + 0.2×(-30) = 16 + 2 − 6 = 12%`.
+$E(R) = 0.4 \times 40 + 0.4 \times 5 + 0.2 \times (-30) = 16 + 2 - 6 = 12\%$.
 
-`σ² = 0.4×(40-12)² + 0.4×(5-12)² + 0.2×(-30-12)² = 0.4×784 + 0.4×49 + 0.2×1764 = 313.6 + 19.6 + 352.8 = 686`.
+$\sigma^2 = 0.4 \times (40-12)^2 + 0.4 \times (5-12)^2 + 0.2 \times (-30-12)^2 = 0.4 \times 784 + 0.4 \times 49 + 0.2 \times 1764 = 313.6 + 19.6 + 352.8 = 686$.
 
-`σ ≈ 26.2%`.
+$\sigma \approx 26.2\%$.
 
 ### Lời giải Bài 2
 
-`σ²_p = 0.36 × 900 + 0.16 × 400 + 2 × 0.6 × 0.4 × 0.3 × 30 × 20 = 324 + 64 + 86.4 = 474.4`.
+$\sigma^2_p = 0.36 \times 900 + 0.16 \times 400 + 2 \times 0.6 \times 0.4 \times 0.3 \times 30 \times 20 = 324 + 64 + 86.4 = 474.4$.
 
-`σ_p ≈ 21.8%` — thấp hơn cả tài sản B (20%)? Kiểm tra: `21.8 > 20` thực ra cao hơn B chút, nhưng thấp hơn A nhiều (30%). Trung bình có trọng `0.6×30 + 0.4×20 = 26%` — danh mục cho `21.8%`, thấp hơn → diversification có lợi.
+$\sigma_p \approx 21.8\%$ — thấp hơn cả tài sản B (20%)? Kiểm tra: $21.8 > 20$ thực ra cao hơn B chút, nhưng thấp hơn A nhiều (30%). Trung bình có trọng $0.6 \times 30 + 0.4 \times 20 = 26\%$ — danh mục cho $21.8\%$, thấp hơn → diversification có lợi.
 
 ### Lời giải Bài 3
 
-`E(R) = 3 + 0.8 × (10 − 3) = 3 + 5.6 = 8.6%`.
+$E(R) = 3 + 0.8 \times (10 - 3) = 3 + 5.6 = 8.6\%$.
 
 Nếu thực tế 12% > 8.6% → **mua** (lợi suất cao hơn CAPM mong đợi, "undervalued"). Cầu tăng → giá tăng → lợi suất tương lai giảm về 8.6%.
 

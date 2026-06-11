@@ -5,7 +5,7 @@
 Sau bài này bạn sẽ:
 
 - Hiểu **hồi quy tuyến tính (linear regression)** — công cụ cốt lõi của econometrics — ước lượng quan hệ giữa biến.
-- Biết đọc kết quả hồi quy: hệ số `β`, sai số chuẩn (SE), p-value, R².
+- Biết đọc kết quả hồi quy: hệ số $\beta$, sai số chuẩn (SE), p-value, $R^2$.
 - Hiểu khái niệm **causation vs correlation** — vì sao hồi quy đơn giản không đủ để nói nguyên nhân.
 - Áp dụng **Instrumental Variables (IV)** — cách giải quyết khi có endogeneity.
 - Áp dụng **Difference-in-Differences (DiD)** — phương pháp natural experiment phổ biến.
@@ -19,29 +19,27 @@ Sau bài này bạn sẽ:
 
 ### 1.1. Mô hình
 
-```
-y = β₀ + β₁ · x + ε
-```
+$$y_i = \beta_0 + \beta_1 x_i + \varepsilon_i$$
 
-- `y` = biến phụ thuộc (dependent).
-- `x` = biến giải thích (explanatory).
-- `β₀` = intercept; `β₁` = slope (hệ số quan tâm).
-- `ε` = sai số (error term) — chứa mọi thứ khác ảnh hưởng `y`.
+- $y$ = biến phụ thuộc (dependent).
+- $x$ = biến giải thích (explanatory).
+- $\beta_0$ = intercept; $\beta_1$ = slope (hệ số quan tâm).
+- $\varepsilon$ = sai số (error term) — chứa mọi thứ khác ảnh hưởng $y$.
 
-**Ý nghĩa `β₁`**: tăng `x` lên 1 đơn vị → `y` tăng trung bình `β₁` đơn vị (giữ mọi thứ khác).
+**Ý nghĩa $\beta_1$**: tăng $x$ lên 1 đơn vị → $y$ tăng trung bình $\beta_1$ đơn vị (giữ mọi thứ khác).
 
 ### 1.2. OLS (Ordinary Least Squares)
 
-Phương pháp ước lượng: chọn `β₀, β₁` *tối thiểu hóa tổng bình phương sai số*:
-```
-min Σ (y_i − β₀ − β₁ · x_i)²
-```
+Phương pháp ước lượng: chọn $\beta_0, \beta_1$ *tối thiểu hóa tổng bình phương sai số*:
+
+$$\min \sum_i (y_i - \beta_0 - \beta_1 x_i)^2$$
 
 Lời giải:
-```
-β₁_hat = Cov(x, y) / Var(x)
-β₀_hat = mean(y) − β₁_hat · mean(x)
-```
+
+$$\begin{aligned}
+\hat{\beta}_1 &= \frac{\text{Cov}(x, y)}{\text{Var}(x)} \\
+\hat{\beta}_0 &= \bar{y} - \hat{\beta}_1 \bar{x}
+\end{aligned}$$
 
 ### 1.3. Walk-through bằng số
 
@@ -53,9 +51,9 @@ Lời giải:
 | 4 | 8 |
 | 5 | 11 |
 
-mean(x) = 3, mean(y) = 6.8.
+$\bar{x} = 3$, $\bar{y} = 6.8$.
 
-| x−mean | y−mean | tích |
+| $x - \bar{x}$ | $y - \bar{y}$ | tích |
 |--------|--------|------|
 | -2 | -3.8 | 7.6 |
 | -1 | -1.8 | 1.8 |
@@ -63,46 +61,42 @@ mean(x) = 3, mean(y) = 6.8.
 | 1 | 1.2 | 1.2 |
 | 2 | 4.2 | 8.4 |
 
-Cov = 18.0/5 = 3.6. Var(x) = (4+1+0+1+4)/5 = 2.
+$\text{Cov} = 18.0/5 = 3.6$. $\text{Var}(x) = (4+1+0+1+4)/5 = 2$.
 
-`β₁ = 3.6/2 = 1.8`. `β₀ = 6.8 − 1.8 × 3 = 1.4`.
+$\beta_1 = 3.6/2 = 1.8$. $\beta_0 = 6.8 - 1.8 \times 3 = 1.4$.
 
-Phương trình hồi quy: `y = 1.4 + 1.8·x`.
+Phương trình hồi quy: $\hat{y} = 1.4 + 1.8 x$.
 
 ### 1.4. R² — Mức độ giải thích
 
-`R² ∈ [0, 1]` đo phần trăm biến thiên của `y` được giải thích bởi `x`.
+$R^2 \in [0, 1]$ đo phần trăm biến thiên của $y$ được giải thích bởi $x$.
 
-```
-R² = 1 − SSR/SST
-```
+$$R^2 = 1 - \frac{\text{SSR}}{\text{SST}}$$
 
-- SSR = Σ(y_i − y_hat_i)² — biến thiên còn lại sau hồi quy.
-- SST = Σ(y_i − mean(y))² — tổng biến thiên của y.
+- $\text{SSR} = \sum_i (y_i - \hat{y}_i)^2$ — biến thiên còn lại sau hồi quy.
+- $\text{SST} = \sum_i (y_i - \bar{y})^2$ — tổng biến thiên của $y$.
 
-`R² = 0.9` → 90% biến thiên giải thích được. `R² = 0.1` → rất ít.
+$R^2 = 0.9$ → 90% biến thiên giải thích được. $R^2 = 0.1$ → rất ít.
 
 ### 1.5. Standard Error và p-value
 
-`β₁_hat` là một *ước lượng*, có sai số. **Standard error** đo độ chính xác. Lý thuyết:
-```
-SE(β₁) = σ / √(Σ(x − mean(x))²)
-```
-`σ` = độ lệch chuẩn của ε.
+$\hat{\beta}_1$ là một *ước lượng*, có sai số. **Standard error** đo độ chính xác. Lý thuyết:
 
-**t-statistic** = `β₁_hat / SE(β₁)`. Nếu `|t| > 1.96` → `p < 0.05` → "có ý nghĩa thống kê" → tự tin `β₁ ≠ 0`.
+$$\text{SE}(\beta_1) = \frac{\sigma}{\sqrt{\sum_i (x_i - \bar{x})^2}}$$
+
+$\sigma$ = độ lệch chuẩn của $\varepsilon$.
+
+**t-statistic** $= \dfrac{\hat{\beta}_1}{\text{SE}(\beta_1)}$. Nếu $\lvert t \rvert > 1.96$ → $p < 0.05$ → "có ý nghĩa thống kê" → tự tin $\beta_1 \neq 0$.
 
 ## 2. Multiple Regression
 
-```
-y = β₀ + β₁·x₁ + β₂·x₂ + ... + βₖ·xₖ + ε
-```
+$$y_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i} + \dots + \beta_k x_{ki} + \varepsilon_i$$
 
-`β_j` = tác động của `x_j` lên `y` *giữ mọi `x_i` khác cố định*.
+$\beta_j$ = tác động của $x_j$ lên $y$ *giữ mọi $x_i$ khác cố định*.
 
 **Ví dụ**: nghiên cứu ảnh hưởng giáo dục lên lương.
-- Hồi quy đơn: `lương = β₀ + β₁ · năm_học`. β₁ có thể quá lớn vì *người giàu thường đi học hơn* (confounding).
-- Hồi quy bội: `lương = β₀ + β₁ · năm_học + β₂ · iq + β₃ · cha_mẹ_thu_nhập`. β₁ ổn định hơn vì *kiểm soát* các yếu tố khác.
+- Hồi quy đơn: $\text{lương} = \beta_0 + \beta_1 \cdot \text{năm\_học}$. $\beta_1$ có thể quá lớn vì *người giàu thường đi học hơn* (confounding).
+- Hồi quy bội: $\text{lương} = \beta_0 + \beta_1 \cdot \text{năm\_học} + \beta_2 \cdot \text{iq} + \beta_3 \cdot \text{cha\_mẹ\_thu\_nhập}$. $\beta_1$ ổn định hơn vì *kiểm soát* các yếu tố khác.
 
 ## 3. Correlation vs Causation
 
@@ -110,15 +104,15 @@ y = β₀ + β₁·x₁ + β₂·x₂ + ... + βₖ·xₖ + ε
 
 Hồi quy chỉ cho biết *quan hệ*, không *nhân quả*. 3 lý do có thể gây sai:
 
-1. **Reverse causality**: `y` gây `x`, không phải ngược.
-2. **Confounding (omitted variable)**: một biến `z` ảnh hưởng cả `x` và `y`.
+1. **Reverse causality**: $y$ gây $x$, không phải ngược.
+2. **Confounding (omitted variable)**: một biến $z$ ảnh hưởng cả $x$ và $y$.
 3. **Selection bias**: mẫu không ngẫu nhiên.
 
-**Ví dụ**: kem và đuối nước tương quan dương. Không phải kem gây đuối — biến `z` = mùa hè (gây cả 2).
+**Ví dụ**: kem và đuối nước tương quan dương. Không phải kem gây đuối — biến $z$ = mùa hè (gây cả 2).
 
 ### 3.2. Cách giải quyết
 
-1. **RCT**: ngẫu nhiên hóa `x` → loại bỏ confounding (Lesson 18).
+1. **RCT**: ngẫu nhiên hóa $x$ → loại bỏ confounding (Lesson 18).
 2. **Instrumental Variables**.
 3. **Difference-in-Differences**.
 4. **Regression Discontinuity**.
@@ -127,12 +121,12 @@ Hồi quy chỉ cho biết *quan hệ*, không *nhân quả*. 3 lý do có thể
 
 ### 4.1. Ý tưởng
 
-Tìm biến `z` (instrument) thỏa:
+Tìm biến $z$ (instrument) thỏa:
 
-- (a) Tương quan với `x` (relevance).
-- (b) Ảnh hưởng `y` *chỉ qua* `x` (exclusion restriction).
+- (a) Tương quan với $x$ (relevance).
+- (b) Ảnh hưởng $y$ *chỉ qua* $x$ (exclusion restriction).
 
-Khi đó dùng `z` để "lọc" phần `x` ngoại sinh → ước lượng causation.
+Khi đó dùng $z$ để "lọc" phần $x$ ngoại sinh → ước lượng causation.
 
 ### 4.2. Ví dụ Angrist-Krueger (1991)
 
@@ -150,11 +144,9 @@ Kết quả: 1 năm học thêm ≈ tăng lương 7-10%.
 
 ### 5.1. Setup
 
-Có 2 nhóm, 2 thời điểm. Nhóm A (treatment) nhận chính sách ở `t=2`. Nhóm B (control) không.
+Có 2 nhóm, 2 thời điểm. Nhóm A (treatment) nhận chính sách ở $t=2$. Nhóm B (control) không.
 
-```
-DiD = (y_A_t2 − y_A_t1) − (y_B_t2 − y_B_t1)
-```
+$$\text{DiD} = (y_{A,t_2} - y_{A,t_1}) - (y_{B,t_2} - y_{B,t_1})$$
 
 = thay đổi trong nhóm A − thay đổi trong nhóm B.
 
@@ -171,7 +163,7 @@ Câu hỏi: tăng lương tối thiểu có giảm việc làm?
 Trước (Q1 1992): NJ ~20 việc, PA ~21 việc.
 Sau (Q4 1992): NJ ~21 việc, PA ~19 việc.
 
-`DiD = (21 − 20) − (19 − 21) = 1 − (−2) = +3`.
+$\text{DiD} = (21 - 20) - (19 - 21) = 1 - (-2) = +3$.
 
 Kết quả gây sốc: tăng min wage *không* giảm (thậm chí tăng) việc làm. Bóp méo lý thuyết kinh tế cổ điển. Khả năng giải thích: monopsony power (Lesson 10).
 
@@ -183,11 +175,11 @@ DiD chỉ hợp lệ nếu nhóm A và B có *xu hướng song song* trong absen
 
 ### Bài 1 — Tính hồi quy bằng tay
 
-Dữ liệu 5 điểm: `(1, 2), (2, 4), (3, 5), (4, 8), (5, 9)`. Tính `β₀, β₁`.
+Dữ liệu 5 điểm: $(1, 2), (2, 4), (3, 5), (4, 8), (5, 9)$. Tính $\beta_0, \beta_1$.
 
 ### Bài 2 — Phân tích kết quả
 
-Bạn hồi quy `lương = β₀ + β₁ · năm_học + ε` và được `β₁_hat = 800` (USD/năm), SE = 200.
+Bạn hồi quy $\text{lương} = \beta_0 + \beta_1 \cdot \text{năm\_học} + \varepsilon$ và được $\hat{\beta}_1 = 800$ (USD/năm), SE = 200.
 
 - (a) Tính t-stat.
 - (b) Có ý nghĩa thống kê (5%)?
@@ -210,9 +202,9 @@ Tính DiD. Diễn giải.
 
 ### Lời giải Bài 1
 
-mean(x) = 3, mean(y) = 5.6.
+$\bar{x} = 3$, $\bar{y} = 5.6$.
 
-| x−mean | y−mean | tích | (x−mean)² |
+| $x - \bar{x}$ | $y - \bar{y}$ | tích | $(x - \bar{x})^2$ |
 |--------|--------|------|-----------|
 | -2 | -3.6 | 7.2 | 4 |
 | -1 | -1.6 | 1.6 | 1 |
@@ -220,15 +212,15 @@ mean(x) = 3, mean(y) = 5.6.
 | 1 | 2.4 | 2.4 | 1 |
 | 2 | 3.4 | 6.8 | 4 |
 
-Tổng tích = 18.0. Tổng (x−mean)² = 10. β₁ = 18/10 = 1.8. β₀ = 5.6 − 1.8×3 = 0.2.
+Tổng tích = 18.0. Tổng $(x - \bar{x})^2 = 10$. $\beta_1 = 18/10 = 1.8$. $\beta_0 = 5.6 - 1.8 \times 3 = 0.2$.
 
-`y = 0.2 + 1.8·x`.
+$\hat{y} = 0.2 + 1.8 x$.
 
 ### Lời giải Bài 2
 
-(a) t = `800/200 = 4`.
-(b) `|t| = 4 > 1.96` → có ý nghĩa, p < 0.05.
-(c) Mỗi năm học thêm liên hệ với lương cao hơn `~800 USD/năm` (giả định không có confounding nghiêm trọng).
+(a) $t = 800/200 = 4$.
+(b) $\lvert t \rvert = 4 > 1.96$ → có ý nghĩa, $p < 0.05$.
+(c) Mỗi năm học thêm liên hệ với lương cao hơn $\approx 800$ USD/năm (giả định không có confounding nghiêm trọng).
 
 ### Lời giải Bài 3
 
@@ -241,7 +233,7 @@ Tổng tích = 18.0. Tổng (x−mean)² = 10. β₁ = 18/10 = 1.8. β₀ = 5.6 
 
 ### Lời giải Bài 4
 
-`DiD = (60 − 50) − (45 − 40) = 10 − 5 = +5`.
+$\text{DiD} = (60 - 50) - (45 - 40) = 10 - 5 = +5$.
 
 Diễn giải: chính sách làm tăng outcome thêm **5 đơn vị** so với điều gì sẽ xảy ra nếu không có chính sách (sử dụng nhóm control làm baseline cho xu hướng).
 

@@ -31,6 +31,11 @@ $$\frac{dy}{dx} = \frac{dy/dt}{dx/dt} \quad (dx/dt \neq 0)$$
 
 > ⚠ **Lỗi thường gặp.** $\frac{dy}{dx} \neq (d^2y/dt^2)/(d^2x/dt^2)$. Chỉ chia đạo hàm *bậc một*. Với đạo hàm bậc hai phải dùng $\frac{d^2y}{dx^2} = \frac{d}{dt}\left(\frac{dy}{dx}\right) \div \frac{dx}{dt}$.
 
+> 🔁 **Dừng lại tự kiểm tra.** Đường cong $x = t^3, y = t^2$. Tính $\frac{dy}{dx}$ tại $t = 1$.
+> <details><summary>Đáp án</summary>$\frac{dx}{dt} = 3t^2$, $\frac{dy}{dt} = 2t$ $\Rightarrow \frac{dy}{dx} = \frac{2t}{3t^2} = \frac{2}{3t}$. Tại $t=1$: $\frac{2}{3}$.</details>
+
+> 📝 **Tóm tắt mục 1.** $\frac{dy}{dx} = \dfrac{dy/dt}{dx/dt}$ (với $dx/dt \neq 0$) — coi $t$ là thời gian, đây là độ dốc *hình học* của đường đi. Đạo hàm bậc hai **không** chia trực tiếp $\frac{d^2y/dt^2}{d^2x/dt^2}$.
+
 ---
 
 ## 2. Độ dài cung của đường cong tham số
@@ -47,6 +52,13 @@ $$L = \int_{\alpha}^{\beta} \sqrt{\left(\tfrac{dx}{dt}\right)^2 + \left(\tfrac{d
 4. Ellipse $x=2\cos t, y=\sin t$: $L = \int_0^{2\pi}\sqrt{4\sin^2 t+\cos^2 t}\,dt \approx 9.6884$ — **không có công thức sơ cấp** (tích phân elliptic), phải tính số.
 
 > ❓ **"Vì sao cycloid lại đúng bằng 8 mà không dính π?"** Vì $\sqrt{2-2\cos t}$ rút gọn được thành $2|\sin(t/2)|$ nhờ công thức hạ bậc (xem [Trig L3](../../03-Trig-Complex/lesson-03-trig-identities/)) — tích phân ra số nguyên. Còn ellipse thì căn không rút gọn được → kẹt ở tích phân elliptic.
+
+> ⚠ **Lỗi thường gặp.** Khi rút gọn căn phải **giữ trị tuyệt đối**: $\sqrt{4\sin^2(t/2)} = 2|\sin(t/2)|$, không phải $2\sin(t/2)$. Trên $t\in[0,2\pi]$ thì $\sin(t/2)\ge0$ nên bỏ được, nhưng trên khoảng khác $\sin(t/2)$ có thể âm → bỏ dấu trị tuyệt đối làm độ dài ra âm/sai.
+
+> 🔁 **Dừng lại tự kiểm tra.** Độ dài đoạn $x = 3t, y = 4t$ với $t\in[0,2]$.
+> <details><summary>Đáp án</summary>$x'=3, y'=4$, $\sqrt{9+16}=5$ $\Rightarrow L = \int_0^2 5\,dt = 10$. Khớp khoảng cách hình học: điểm đi từ $(0,0)$ tới $(6,8)$, $\sqrt{6^2+8^2}=10$ ✓.</details>
+
+> 📝 **Tóm tắt mục 2.** $L = \int_\alpha^\beta \sqrt{(x')^2 + (y')^2}\,dt$ — Pythagoras cho vận tốc, cộng dồn theo thời gian. Cycloid $L = 8$ (không dính $\pi$); ellipse → tích phân elliptic, phải tính số.
 
 ---
 
@@ -65,6 +77,11 @@ $$x = r\cos\theta, \quad y = r\sin\theta, \qquad r = \sqrt{x^2+y^2},\ \ \theta =
 
 > ⚠ **Lỗi thường gặp.** Cùng một điểm có **nhiều** cặp $(r, \theta)$ (vì $\theta$ cộng $2\pi$, hoặc $r$ âm + $\theta$ thêm $\pi$). Khi vẽ đường cong cực, cho $\theta$ chạy đủ một chu kỳ của $r(\theta)$ để không vẽ thiếu/thừa cánh.
 
+> 🔁 **Dừng lại tự kiểm tra.** Điểm cực $(r, \theta) = (2, \frac{\pi}{3})$ có toạ độ Descartes là gì?
+> <details><summary>Đáp án</summary>$x = r\cos\theta = 2\cos\frac{\pi}{3} = 2\cdot\frac{1}{2} = 1$; $y = r\sin\theta = 2\sin\frac{\pi}{3} = 2\cdot\frac{\sqrt{3}}{2} = \sqrt{3}$. Vậy $(1, \sqrt{3})$.</details>
+
+> 📝 **Tóm tắt mục 3.** Cực = "**quay góc $\theta$, đi xa $r$**": $x = r\cos\theta$, $y = r\sin\theta$. Một điểm ứng với nhiều $(r,\theta)$. Đường tròn, cardioid, hoa hồng — khó viết $y=f(x)$ — lại rất gọn trong cực.
+
 ---
 
 ## 4. Diện tích trong toạ độ cực
@@ -82,17 +99,35 @@ $$A = \frac{1}{2}\int_{\alpha}^{\beta} r(\theta)^2 \, d\theta$$
 
 > ❓ **"Sao là ½r² chứ không phải r²?"** Vì diện tích một hình quạt bán kính r, góc nhỏ dθ là $\frac{1}{2}r^2\,d\theta$ (giống $\frac{1}{2}\cdot$đáy$\cdot$cao của tam giác hẹp), không phải $r\,d\theta$ (cái đó là *độ dài cung*). Nhầm hai cái là lỗi phổ biến nhất ở phần này.
 
+> ⚠ **Lỗi thường gặp.** (1) Quên hệ số $\frac{1}{2}$ → diện tích gấp đôi. (2) Chọn sai khoảng $\theta$: với một cánh hoa hồng phải lấy đúng khoảng $r(\theta)\ge0$, với cả hình kín lấy đúng một vòng — thừa/thiếu khoảng đều sai.
+
+> 🔁 **Dừng lại tự kiểm tra.** Tính diện tích bao bởi đường tròn $r = 2\cos\theta$ (cho $\theta\in[-\frac{\pi}{2}, \frac{\pi}{2}]$).
+> <details><summary>Đáp án</summary>$A = \frac{1}{2}\int_{-\pi/2}^{\pi/2}(2\cos\theta)^2\,d\theta = \frac{1}{2}\int_{-\pi/2}^{\pi/2}4\cos^2\theta\,d\theta = 2\int_{-\pi/2}^{\pi/2}\cos^2\theta\,d\theta = 2\cdot\frac{\pi}{2} = \pi$. Kiểm tra: $r=2\cos\theta$ là đường tròn bán kính $1$ tâm $(1,0)$ → diện tích $\pi\cdot1^2 = \pi$ ✓.</details>
+
+> 📝 **Tóm tắt mục 4.** $A = \frac{1}{2}\int_\alpha^\beta r(\theta)^2\,d\theta$ — cộng dồn các **hình quạt mảnh** $\frac{1}{2}r^2\,d\theta$. Hệ số $\frac{1}{2}$ là chỗ dễ quên nhất; chọn cận $\theta$ phải khớp đúng phạm vi cần tính.
+
 ---
 
 ## 5. Độ dài cung trong toạ độ cực
 
-Từ $x=r\cos\theta, y=r\sin\theta$ rồi áp công thức độ dài cung tham số (biến θ), rút gọn được:
+💡 **Trực giác.** Vẫn là Pythagoras như mục 2, nhưng diễn theo $\theta$: khi $\theta$ nhích một chút $d\theta$, điểm vừa dịch **theo phương bán kính** một đoạn $dr$, vừa dịch **theo phương tiếp tuyến** một đoạn $r\,d\theta$. Hai dịch chuyển này vuông góc → quãng đường nhỏ $ds = \sqrt{(dr)^2 + (r\,d\theta)^2}$. Cộng dồn:
 
 $$L = \int_{\alpha}^{\beta} \sqrt{r^2 + \left(\tfrac{dr}{d\theta}\right)^2}\,d\theta$$
 
-**Ví dụ:** cardioid $r = 1 + \cos\theta$: $\frac{dr}{d\theta} = -\sin\theta$, $r^2 + r'^2 = (1+\cos\theta)^2 + \sin^2\theta = 2 + 2\cos\theta = 4\cos^2(\theta/2)$. $\Rightarrow L = \int_0^{2\pi}2|\cos(\theta/2)|\,d\theta = 8$.
+**Ví dụ số cụ thể (verify):**
 
-> 📝 **Tóm tắt.** Tham số: $\frac{dy}{dx} = (dy/dt)/(dx/dt)$, $L = \int\sqrt{x'^2+y'^2}\,dt$. Cực: $A = \frac{1}{2}\int r^2\,d\theta$, $L = \int\sqrt{r^2+r'^2}\,d\theta$. Đường tròn/cycloid/cardioid/hoa hồng — thứ khó viết $y=f(x)$ — đều gọn gàng trong hai ngôn ngữ này.
+1. Đường tròn $r = a$ (hằng): $\frac{dr}{d\theta} = 0$ $\Rightarrow L = \int_0^{2\pi}\sqrt{a^2 + 0}\,d\theta = \int_0^{2\pi}a\,d\theta = 2\pi a$ — đúng chu vi ✓.
+2. **Cardioid** $r = 1 + \cos\theta$: $\frac{dr}{d\theta} = -\sin\theta$, $r^2 + r'^2 = (1+\cos\theta)^2 + \sin^2\theta = 2 + 2\cos\theta = 4\cos^2(\theta/2)$. $\Rightarrow L = \int_0^{2\pi}2|\cos(\theta/2)|\,d\theta = 8$.
+3. Xoắn ốc Archimedes $r = \theta$, $\theta\in[0, 2\pi]$: $r' = 1$ $\Rightarrow L = \int_0^{2\pi}\sqrt{\theta^2 + 1}\,d\theta \approx 21.26$ (tính số — dạng $\sqrt{a^2+x^2}$, đổi biến lượng giác ở [L09](../lesson-09-integration-techniques/)).
+
+> 🔁 **Dừng lại tự kiểm tra.** Vì sao đường tròn $r=a$ cho $L = 2\pi a$ mà không cần $\frac{dr}{d\theta}$?
+> <details><summary>Đáp án</summary>Vì $r$ hằng nên $\frac{dr}{d\theta}=0$, công thức rút về $L = \int_0^{2\pi} r\,d\theta = \int_0^{2\pi} a\,d\theta = 2\pi a$. Đúng là "đi hết một vòng với bán kính cố định" = chu vi.</details>
+
+> 📝 **Tóm tắt mục 5.** $L = \int_\alpha^\beta \sqrt{r^2 + (r')^2}\,d\theta$ — Pythagoras của hai dịch chuyển vuông góc (bán kính $dr$, tiếp tuyến $r\,d\theta$). Cardioid $L=8$; nhiều đường (xoắn ốc) phải tính số.
+
+---
+
+> 📝 **Tóm tắt cả bài.** Tham số: $\frac{dy}{dx} = (dy/dt)/(dx/dt)$, $L = \int\sqrt{x'^2+y'^2}\,dt$. Cực: $A = \frac{1}{2}\int r^2\,d\theta$, $L = \int\sqrt{r^2+r'^2}\,d\theta$. Đường tròn/cycloid/cardioid/hoa hồng — thứ khó viết $y=f(x)$ — đều gọn gàng trong hai ngôn ngữ này.
 
 ---
 

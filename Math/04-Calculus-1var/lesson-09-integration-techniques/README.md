@@ -31,6 +31,11 @@ $$\int f(g(x))\,g'(x)\,dx = \int f(u)\,du \quad (u = g(x))$$
 
 > ⚠ **Lỗi thường gặp.** Khi đổi biến trong tích phân **xác định**, phải đổi luôn **cận** theo $u$ (ví dụ 4: $x$ từ $0\to1$ thành $u$ từ $0\to1$), hoặc thế ngược về $x$ trước khi thay cận. Quên đổi cận → sai số.
 
+> 🔁 **Dừng lại tự kiểm tra.** Tính $\int 3x^2\cos(x^3)\,dx$.
+> <details><summary>Đáp án</summary>Thấy "cụm $x^3$ + đạo hàm $3x^2$" → đặt $u=x^3$, $du=3x^2\,dx$. $\Rightarrow \int\cos u\,du = \sin u + C = \sin(x^3) + C$. Verify: $\frac{d}{dx}\sin(x^3) = 3x^2\cos(x^3)$ ✓.</details>
+
+> 📝 **Tóm tắt mục 1.** Đổi biến = quy tắc hàm hợp chạy ngược. Nhận diện mẫu "**một cụm + đạo hàm của cụm**", đặt cụm đó là $u$. Với tích phân **xác định**, bắt buộc đổi cận theo $u$ (hoặc thế ngược về $x$ trước khi thay số).
+
 ---
 
 ## 2. Tích phân từng phần (integration by parts)
@@ -60,6 +65,8 @@ $$\int u\,dv = uv - \int v\,du$$
 > 🔁 **Tự kiểm tra.** Tính $\int x\cdot\cos x\,dx$.
 > <details><summary>Đáp án</summary>$u=x, dv=\cos x\,dx \to v=\sin x$. $\Rightarrow x\sin x - \int\sin x\,dx = x\sin x + \cos x + C$. Verify: $\sin x + x\cos x - \sin x = x\cos x$ ✓.</details>
 
+> 📝 **Tóm tắt mục 2.** $\int u\,dv = uv - \int v\,du$ — biến tích phân khó thành (hi vọng) dễ hơn. Chọn $u$ theo **LIATE** (Log → Inverse → Algebra → Trig → Exp). Dạng *vòng lặp* ($\int e^x\cos x\,dx$): từng phần hai lần rồi giải như phương trình ẩn $I$.
+
 ---
 
 ## 3. Đổi biến lượng giác (trig substitution)
@@ -83,6 +90,11 @@ $$\int u\,dv = uv - \int v\,du$$
 
 > ⚠ **Lỗi thường gặp.** Sau khi tính xong theo $\theta$, phải **đổi ngược về $x$** (dùng tam giác: $\sin\theta = \frac{x}{a} \Rightarrow \cos\theta = \frac{\sqrt{a^2-x^2}}{a}$...). Để nguyên $\theta$ là chưa xong.
 
+> 🔁 **Dừng lại tự kiểm tra.** Tính $\int \frac{1}{\sqrt{4-x^2}}\,dx$.
+> <details><summary>Đáp án</summary>Dạng $\sqrt{a^2-x^2}$ với $a=2$ → đặt $x=2\sin\theta$, $dx=2\cos\theta\,d\theta$, $\sqrt{4-x^2}=2\cos\theta$. $\Rightarrow \int\frac{2\cos\theta}{2\cos\theta}\,d\theta = \int d\theta = \theta + C = \arcsin\frac{x}{2} + C$. Verify: $\frac{d}{dx}\arcsin\frac{x}{2} = \frac{1/2}{\sqrt{1-x^2/4}} = \frac{1}{\sqrt{4-x^2}}$ ✓.</details>
+
+> 📝 **Tóm tắt mục 3.** Ba dạng căn → ba phép đặt: $\sqrt{a^2-x^2}\to a\sin\theta$, $\sqrt{a^2+x^2}\to a\tan\theta$, $\sqrt{x^2-a^2}\to a\sec\theta$. Đồng nhất thức Pythagoras khử căn. Nhớ **đổi ngược về $x$** bằng tam giác vuông.
+
 ---
 
 ## 4. Phân tích thành phân thức đơn giản (partial fractions)
@@ -101,6 +113,11 @@ $$\int u\,dv = uv - \int v\,du$$
 > ❓ **"Tách hệ số A, B kiểu gì cho nhanh?"** **Phương pháp che (cover-up):** để tìm hệ số của $\frac{1}{x-r}$, che $(x-r)$ ở mẫu rồi thay $x=r$ vào phần còn lại. Ví dụ 1: hệ số của $\frac{1}{x-1}$ = $\frac{1}{x+1}\big|_{x=1} = \frac{1}{2}$.
 
 > ⚠ **Bậc tử ≥ bậc mẫu?** Phải **chia đa thức trước** để tách phần nguyên, rồi mới phân tích phần dư. Ví dụ $\frac{x^2}{x^2-1} = 1 + \frac{1}{x^2-1}$.
+
+> 🔁 **Dừng lại tự kiểm tra.** Tách rồi tính $\int \frac{5}{(x-2)(x+3)}\,dx$.
+> <details><summary>Đáp án</summary>Cover-up: hệ số của $\frac{1}{x-2}$ = $\frac{5}{x+3}\big|_{x=2} = \frac{5}{5} = 1$; của $\frac{1}{x+3}$ = $\frac{5}{x-2}\big|_{x=-3} = \frac{5}{-5} = -1$. $\Rightarrow \int\left(\frac{1}{x-2} - \frac{1}{x+3}\right)dx = \ln|x-2| - \ln|x+3| + C = \ln\left|\frac{x-2}{x+3}\right| + C$.</details>
+
+> 📝 **Tóm tắt mục 4.** Phân thức hữu tỉ (bậc tử < mẫu) tách thành tổng các $\frac{A}{x-r}$ → mỗi mảnh tích phân ra $A\ln|x-r|$. **Cover-up** tìm hệ số nhanh. Bậc tử ≥ mẫu → **chia đa thức trước**. Nếu tử đúng bằng đạo hàm của mẫu → đổi biến gọn hơn tách.
 
 ---
 
@@ -127,6 +144,11 @@ Nếu giới hạn hữu hạn → **hội tụ**; nếu $= \infty$ hoặc khôn
 4. $\int_0^1 \frac{1}{\sqrt{x}}\,dx = [2\sqrt{x}]_0^1 = 2$ (suy rộng tại $x=0$ vì $\frac{1}{\sqrt{x}} \to \infty$; vẫn hội tụ vì $p=\frac{1}{2} < 1$ cho cận **0**).
 
 > ❓ **"Sao chỗ thì $p>1$ hội tụ, chỗ thì $p<1$ hội tụ?"** Khác cận! Tại **$\infty$** cần hàm tắt nhanh $\Rightarrow p>1$. Tại **điểm kỳ dị 0** cần hàm không quá nhọn $\Rightarrow p<1$. Hai bài toán đối xứng nhau.
+
+> 🔁 **Dừng lại tự kiểm tra.** $\int_1^\infty \frac{1}{x^{1.5}}\,dx$ hội tụ hay phân kỳ? Nếu hội tụ, bằng bao nhiêu?
+> <details><summary>Đáp án</summary>$p = 1.5 > 1$ → **hội tụ**, giá trị $= \frac{1}{p-1} = \frac{1}{0.5} = 2$. Kiểm tra: $\int_1^b x^{-1.5}dx = [-2x^{-0.5}]_1^b = -\frac{2}{\sqrt{b}} + 2 \to 2$ khi $b\to\infty$ ✓.</details>
+
+> 📝 **Tóm tắt mục 5.** Tích phân suy rộng = **giới hạn** của tích phân thường (cận $\infty$ hoặc hàm vọt vô cực). Hữu hạn → hội tụ; ngược lại → phân kỳ. **p-test**: tại $\infty$ cần $p>1$; tại điểm kỳ dị (vd $0$) cần $p<1$ — hai điều kiện đối xứng.
 
 ---
 

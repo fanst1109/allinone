@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 04 — Git workflow cho nhóm</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background:#7c3aed; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; margin:2px; }
+  button.primary:hover { background:#6d28d9; }
+  button.ghost { background:#ede9fe; color:#5b21b6; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; margin:2px; }
+  button.ghost:hover { background:#ddd6fe; }
+  .chip { display:inline-block; padding:5px 13px; border-radius:6px; background:#ede9fe; color:#5b21b6; cursor:pointer; margin-right:6px; font-size:13px; font-weight:600; }
+  .chip.active { background:#7c3aed; color:#fff; }
+  .feedback { margin-top:12px; font-size:14px; padding:10px 12px; border-left:4px solid #7c3aed; background:#f5f3ff; border-radius:4px; }
+  .btnbar { margin:10px 0; }
+  /* commit graph svg */
+  #graph { width:100%; max-width:640px; background:#faf9ff; border-radius:6px; border:1px solid #ece9f6; }
+  /* gitflow/trunk diagram */
+  .diag-svg { width:100%; max-width:640px; background:#faf9ff; border-radius:6px; border:1px solid #ece9f6; }
+  table.cmp { border-collapse:collapse; width:100%; margin-top:12px; font-size:13px; }
+  table.cmp th, table.cmp td { border:1px solid #e2e8f0; padding:6px 9px; text-align:left; }
+  table.cmp th { background:#ede9fe; color:#5b21b6; }
+  /* conflict resolver */
+  .codeblk { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; background:#0f172a; color:#e2e8f0; padding:12px 14px; border-radius:6px; white-space:pre-wrap; line-height:1.5; }
+  .hd { color:#fca5a5; } .sep { color:#94a3b8; } .ours { color:#86efac; } .theirs { color:#93c5fd; }
+  .opt { display:block; width:100%; text-align:left; margin:6px 0; padding:9px 12px; border:2px solid #c4b5fd; border-radius:6px; background:#fff; cursor:pointer; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; color:#334155; }
+  .opt:hover { background:#f5f3ff; }
+  .opt.right { border-color:#16a34a; background:#f0fdf4; }
+  .opt.wrong { border-color:#dc2626; background:#fef2f2; }
+  .ok { color:#16a34a; } .bad { color:#dc2626; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-yeu-cau-dac-ta/visualization.html">← L3: Yêu cầu & đặc tả</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Git workflow cho nhóm</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-code-review/visualization.html">L5: Code review →</a>
+</nav>
+<main>
+<h1>Git workflow cho nhóm</h1>
+<p class="note">Ba mô-đun: (1) dựng commit graph bằng nút bấm, (2) GitFlow vs Trunk-Based bật/tắt, (3) giải merge conflict.</p>
+
+<div class="panel">
+  <h2>1 · Dựng commit graph — tạo branch / commit / merge</h2>
+  <p class="note">Bấm các nút để thấy đồ thị nhánh hình thành. <b>main</b> là dòng dưới; tạo branch để rẽ nhánh, commit để thêm node, merge để gộp về main.</p>
+  <div class="btnbar">
+    <button class="primary" onclick="gAddBranch()">+ Tạo feature branch</button>
+    <button class="primary" onclick="gCommit()">+ Commit (nhánh hiện tại)</button>
+    <button class="primary" onclick="gMerge()">⇢ Merge vào main</button>
+    <button class="ghost" onclick="gReset()">↻ Làm lại</button>
+  </div>
+  <svg id="graph" viewBox="0 0 640 240" width="640" height="240" role="img" aria-label="Commit graph"></svg>
+  <div class="feedback" id="gFb">main bắt đầu với 1 commit. Tạo một feature branch rồi commit lên nó, sau đó merge về main.</div>
+</div>
+
+<div class="panel">
+  <h2>2 · GitFlow vs Trunk-Based</h2>
+  <p class="note">Bấm để chuyển. Diagram và bảng so sánh đổi theo chiến lược.</p>
+  <div>
+    <span class="chip active" id="cFlow" onclick="setStrat('flow')">🌿 GitFlow</span>
+    <span class="chip" id="cTrunk" onclick="setStrat('trunk')">🌳 Trunk-Based</span>
+  </div>
+  <svg class="diag-svg" id="diag" viewBox="0 0 640 220" width="640" height="220" role="img" aria-label="Strategy diagram"></svg>
+  <div class="feedback" id="stratFb"></div>
+  <table class="cmp" id="cmpTable"></table>
+</div>
+
+<div class="panel">
+  <h2>3 · Giải merge conflict</h2>
+  <p class="note">Git dừng lại vì hai người sửa cùng dòng. Đọc cả hai phía rồi chọn cách hợp nhất <b>đúng nghiệp vụ</b>. Bối cảnh: phía của bạn đổi thuế xuống 8%; phía nhánh kia thêm làm tròn. Cả hai ý đều cần giữ.</p>
+  <div class="codeblk" id="conflictBox"></div>
+  <div id="opts" style="margin-top:12px"></div>
+  <div class="feedback" id="cfFb">Chọn một phương án hợp nhất.</div>
+</div>
+
+<script>
+// ===== Module 1: commit graph =====
+// model: nodes = {id, x, y, branch}, edges = [fromId, toId]
+let G;
+function gReset(){
+  G = { nodes:[{id:0,x:60,y:180,b:'main'}], edges:[], lastMain:0, lastFeat:null, cur:'main', nx:0, fy:80 };
+  document.getElementById('gFb').textContent='main bắt đầu với 1 commit. Tạo một feature branch rồi commit lên nó, sau đó merge về main.';
+  drawGraph();
+}
+function rightMostX(){ return G.nodes.reduce((m,n)=>Math.max(m,n.x),60); }
+function gAddBranch(){
+  // rẽ từ commit main cuối cùng
+  const from = G.nodes.find(n=>n.id===G.lastMain);
+  const id = ++G.nx;
+  const node = { id, x: from.x+80, y: G.fy, b:'feature' };
+  G.nodes.push(node); G.edges.push([from.id, id]);
+  G.lastFeat = id; G.cur='feature';
+  document.getElementById('gFb').innerHTML='Tạo <b>feature branch</b> rẽ từ main (node tím phía trên). Giờ commit lên nó để làm việc cô lập — main không bị ảnh hưởng.';
+  drawGraph();
+}
+function gCommit(){
+  const id = ++G.nx;
+  if(G.cur==='feature' && G.lastFeat!=null){
+    const from=G.nodes.find(n=>n.id===G.lastFeat);
+    G.nodes.push({id,x:from.x+70,y:G.fy,b:'feature'}); G.edges.push([from.id,id]); G.lastFeat=id;
+    document.getElementById('gFb').innerHTML='Commit lên <b>feature branch</b>. Code dang dở nằm an toàn ở nhánh riêng, main vẫn chạy được.';
+  } else {
+    const from=G.nodes.find(n=>n.id===G.lastMain);
+    G.nodes.push({id,x:from.x+70,y:180,b:'main'}); G.edges.push([from.id,id]); G.lastMain=id;
+    document.getElementById('gFb').innerHTML='Commit thẳng lên <b>main</b>.';
+  }
+  drawGraph();
+}
+function gMerge(){
+  if(G.cur!=='feature' || G.lastFeat==null){
+    document.getElementById('gFb').innerHTML='Chưa có feature branch để merge. Bấm "Tạo feature branch" trước.'; return;
+  }
+  const id=++G.nx;
+  const x=Math.max(G.nodes.find(n=>n.id===G.lastMain).x, G.nodes.find(n=>n.id===G.lastFeat).x)+80;
+  G.nodes.push({id,x,y:180,b:'merge'});
+  G.edges.push([G.lastMain,id]); G.edges.push([G.lastFeat,id]); // merge commit có 2 cha
+  G.lastMain=id; G.lastFeat=null; G.cur='main';
+  document.getElementById('gFb').innerHTML='<b>Merge</b> feature vào main: tạo một <b>merge commit</b> (node có 2 cạnh vào). Tính năng đã vào main; trên thực tế bước này đi qua một Pull Request có review.';
+  drawGraph();
+}
+function drawGraph(){
+  const svg=document.getElementById('graph');
+  const color={main:'#7c3aed',feature:'#0ea5e9',merge:'#16a34a'};
+  let s='';
+  // edges
+  G.edges.forEach(([a,b])=>{
+    const na=G.nodes.find(n=>n.id===a), nb=G.nodes.find(n=>n.id===b);
+    s+=`<line x1="${na.x}" y1="${na.y}" x2="${nb.x}" y2="${nb.y}" stroke="#cbd5e1" stroke-width="3"/>`;
+  });
+  // nodes
+  G.nodes.forEach(n=>{
+    s+=`<circle cx="${n.x}" cy="${n.y}" r="11" fill="${color[n.b]}" stroke="#fff" stroke-width="2"/>`;
+  });
+  // labels
+  s+=`<text x="20" y="185" font-size="12" fill="#7c3aed" font-weight="700">main</text>`;
+  if(G.nodes.some(n=>n.b==='feature')) s+=`<text x="20" y="84" font-size="12" fill="#0ea5e9" font-weight="700">feature</text>`;
+  svg.innerHTML=s;
+}
+
+// ===== Module 2: GitFlow vs Trunk-Based =====
+let strat='flow';
+function setStrat(s){ strat=s;
+  document.getElementById('cFlow').classList.toggle('active',s==='flow');
+  document.getElementById('cTrunk').classList.toggle('active',s==='trunk');
+  drawStrat();
+}
+function drawStrat(){
+  const svg=document.getElementById('diag');
+  let s='';
+  function line(y){ return `<line x1="40" y1="${y}" x2="600" y2="${y}" stroke="#e2e8f0" stroke-width="2"/>`; }
+  function lbl(y,t,c){ return `<text x="44" y="${y-8}" font-size="11" fill="${c}" font-weight="700">${t}</text>`; }
+  function dot(x,y,c){ return `<circle cx="${x}" cy="${y}" r="7" fill="${c}" stroke="#fff" stroke-width="2"/>`; }
+  function curve(x1,y1,x2,y2){ return `<path d="M${x1} ${y1} C ${(x1+x2)/2} ${y1}, ${(x1+x2)/2} ${y2}, ${x2} ${y2}" stroke="#cbd5e1" stroke-width="2.5" fill="none"/>`; }
+  if(strat==='flow'){
+    const ymain=60, ydev=120, yfeat=180;
+    s+=line(ymain)+line(ydev)+line(yfeat);
+    s+=lbl(ymain,'main (release)','#7c3aed')+lbl(ydev,'develop','#0ea5e9')+lbl(yfeat,'feature','#f59e0b');
+    // main dots (releases)
+    [120,420].forEach(x=>s+=dot(x,ymain,'#7c3aed'));
+    // develop dots
+    [120,200,280,360,440,520].forEach(x=>s+=dot(x,ydev,'#0ea5e9'));
+    // feature branches in & out of develop
+    s+=curve(200,ydev,260,yfeat)+dot(260,yfeat,'#f59e0b')+dot(320,yfeat,'#f59e0b')+curve(320,yfeat,360,ydev);
+    // develop -> main releases
+    s+=curve(360,ydev,420,ymain);
+    s+=`<text x="300" y="210" font-size="10.5" fill="#92400e">feature → develop → (release) → main</text>`;
+  } else {
+    const ymain=110;
+    s+=line(ymain)+lbl(ymain,'main (trunk)','#7c3aed');
+    // many short branches
+    [120,200,280,360,440,520].forEach(x=>s+=dot(x,ymain,'#7c3aed'));
+    [[180,70],[300,160],[420,70],[500,160]].forEach(([x,y])=>{ s+=curve(x-40,ymain,x,y)+dot(x,y,'#16a34a')+curve(x,y,x+40,ymain); });
+    s+=`<text x="170" y="40" font-size="10.5" fill="#15803d">branch ngắn (vài giờ) → merge ngay vào main</text>`;
+  }
+  svg.innerHTML=s;
+  const fb=document.getElementById('stratFb');
+  fb.innerHTML = strat==='flow'
+    ? '🌿 <b>GitFlow</b>: nhiều nhánh sống lâu (main/develop/feature/release/hotfix). Hợp <b>sản phẩm nhiều version</b> phát hành theo đợt. Đổi lại: branch dài → tích hợp muộn → conflict to.'
+    : '🌳 <b>Trunk-Based</b>: branch siêu ngắn, merge vào main nhiều lần/ngày, tính năng dở bọc <b>feature flag</b>. Hợp <b>release liên tục</b>, conflict nhỏ — nhưng đòi test tự động mạnh.';
+  // comparison table
+  const rows=[
+    ['Số loại branch','Nhiều (5)','Ít (trunk + ngắn)'],
+    ['Tuổi đời branch','Dài','Vài giờ/ngày'],
+    ['Tần suất merge','Theo kỳ release','Nhiều lần/ngày'],
+    ['Kích thước conflict','To','Nhỏ'],
+    ['Hợp với','Nhiều version, release đợt','Web/SaaS release liên tục'],
+    ['Tính năng dở','Giữ trên branch dài','Feature flag'],
+  ];
+  document.getElementById('cmpTable').innerHTML =
+    '<tr><th>Tiêu chí</th><th>GitFlow</th><th>Trunk-Based</th></tr>' +
+    rows.map(r=>`<tr><td>${r[0]}</td><td${strat==='flow'?' style="background:#f5f3ff"':''}>${r[1]}</td><td${strat==='trunk'?' style="background:#f0fdf4"':''}>${r[2]}</td></tr>`).join('');
+}
+
+// ===== Module 3: conflict resolver =====
+function drawConflict(){
+  document.getElementById('conflictBox').innerHTML =
+    '<span class="hd">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD (của bạn)</span>\n' +
+    '<span class="ours">giaVAT := giaGoc * 1.08   // thuế 10% → 8%</span>\n' +
+    '<span class="sep">=======</span>\n' +
+    '<span class="theirs">giaVAT := math.Round(giaGoc * 1.10)   // làm tròn</span>\n' +
+    '<span class="hd">&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/lam-tron</span>';
+  const opts=[
+    { t:'giaVAT := giaGoc * 1.08', ok:false, why:'Chỉ giữ phía bạn — mất tính năng làm tròn của nhánh kia.' },
+    { t:'giaVAT := math.Round(giaGoc * 1.10)', ok:false, why:'Chỉ giữ phía nhánh kia — quay lại thuế 10%, mất thay đổi 8% của bạn.' },
+    { t:'giaVAT := math.Round(giaGoc * 1.08)', ok:true, why:'Đúng! Gộp cả hai ý: thuế 8% (của bạn) + làm tròn (của nhánh kia). Đây là "hiểu ý cả hai rồi gộp theo nghiệp vụ".' },
+    { t:'<<<<<<< giaVAT := giaGoc * 1.08 =======', ok:false, why:'Còn nguyên dấu mốc <<<<<<< / ======= → code không compile. Phải xóa hết dấu.' },
+  ];
+  document.getElementById('opts').innerHTML = opts.map((o,i)=>
+    `<button class="opt" id="opt${i}" onclick="pickOpt(${i})">${o.t.replace(/</g,'&lt;')}</button>`).join('');
+  window.__opts=opts;
+}
+function pickOpt(i){
+  const opts=window.__opts;
+  opts.forEach((o,j)=>{ const el=document.getElementById('opt'+j); el.classList.remove('right','wrong');
+    if(j===i) el.classList.add(o.ok?'right':'wrong'); });
+  const o=opts[i];
+  document.getElementById('cfFb').innerHTML = (o.ok?'<span class="ok">✅ ':'<span class="bad">❌ ')+o.why+'</span>'+
+    (o.ok?' Sau đó: xóa hết dấu mốc → <code>git add gia.go</code> → <code>git commit</code> → <b>build & test lại</b>.':'');
+}
+
+// init
+gReset(); drawStrat(); drawConflict();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

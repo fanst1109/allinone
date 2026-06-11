@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 05 — Code review</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background: #7c3aed; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.primary:hover { background:#6d28d9; }
+  .feedback { margin-top:12px; font-size:14px; padding:10px 12px; border-left:4px solid #7c3aed; background:#f5f3ff; border-radius:4px; }
+  .ok { color:#16a34a; } .bad { color:#dc2626; }
+
+  /* Module 1: review một PR */
+  .codeblock { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size:13px; background:#1e1e2e; border-radius:8px; padding:10px 0; overflow-x:auto; }
+  .cline { display:flex; padding:2px 12px; white-space:pre; color:#cdd6f4; cursor:default; }
+  .cline.flag { cursor:pointer; }
+  .cline.flag:hover { background:#313244; }
+  .cline.flag.open { background:#45475a; }
+  .cline .ln { display:inline-block; width:26px; color:#6c7086; user-select:none; text-align:right; margin-right:12px; flex:none; }
+  .cline .dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:#f9e2af; margin-right:8px; flex:none; align-self:center; }
+  .cmt { margin:6px 0 6px 50px; padding:10px 12px; border-radius:6px; background:#fff3cd; border-left:4px solid #f59e0b; font-size:13px; line-height:1.5; }
+  .cmt .tag { display:inline-block; font-weight:700; padding:1px 7px; border-radius:4px; font-size:11px; margin-right:6px; }
+  .tag.security { background:#fee2e2; color:#b91c1c; }
+  .tag.correct { background:#fef3c7; color:#92400e; }
+  .tag.read { background:#dbeafe; color:#1e40af; }
+  .tag.test { background:#dcfce7; color:#166534; }
+  .progress { font-size:13px; color:#475569; margin-top:10px; }
+
+  /* Module 2: phân loại comment */
+  .cmtcard { background:#f8fafc; border:1px solid #e2e8f0; border-radius:7px; padding:10px 12px; margin:8px 0; font-size:13px; }
+  .cmtcard .body { margin-bottom:8px; line-height:1.45; font-family: ui-monospace, Menlo, monospace; }
+  .btns { display:flex; gap:6px; flex-wrap:wrap; }
+  .clsbtn { padding:5px 10px; border-radius:5px; border:1px solid #cbd5e1; background:#fff; cursor:pointer; font-size:12px; font-weight:600; color:#475569; }
+  .clsbtn.block { border-color:#fca5a5; } .clsbtn.block.sel { background:#dc2626; color:#fff; border-color:#dc2626; }
+  .clsbtn.sugg { border-color:#fcd34d; } .clsbtn.sugg.sel { background:#d97706; color:#fff; border-color:#d97706; }
+  .clsbtn.praise { border-color:#86efac; } .clsbtn.praise.sel { background:#16a34a; color:#fff; border-color:#16a34a; }
+  .res { font-size:12px; margin-top:6px; font-weight:600; }
+
+  /* Module 3: PR nhỏ hay to */
+  .slrow { display:flex; align-items:center; gap:12px; margin:14px 0; flex-wrap:wrap; }
+  .slrow input[type=range] { flex:1 1 240px; max-width:420px; accent-color:#7c3aed; }
+  .big { font-size:26px; font-weight:800; color:#5b21b6; }
+  .metrics { display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; }
+  .metric { flex:1 1 130px; background:#f5f3ff; border-radius:8px; padding:12px; text-align:center; }
+  .metric .mlbl { font-size:12px; color:#64748b; }
+  .metric .mval { font-size:22px; font-weight:800; margin-top:4px; }
+  .meter { height:12px; border-radius:6px; background:#e2e8f0; margin-top:8px; overflow:hidden; }
+  .meter > span { display:block; height:100%; transition:width .25s, background .25s; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-git-workflow-team/visualization.html">← L4: Git workflow cho nhóm</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Code review</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-uoc-luong-quan-ly-viec/visualization.html">L6: Ước lượng & quản lý việc →</a>
+</nav>
+<main>
+<h1>Code review (đánh giá mã nguồn)</h1>
+<p class="note">Ba mô-đun: (1) review một PR — bấm dòng nghi vấn để hiện vấn đề; (2) phân loại comment blocking / nit / praise; (3) PR nhỏ hay to — kéo slider xem chi phí review & tỉ lệ lọt lỗi.</p>
+
+<div class="panel">
+  <h2>1 · Review một PR — bấm dòng nghi vấn</h2>
+  <p class="note">Đoạn code có vài vấn đề. Dòng có chấm vàng <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f9e2af;"></span> là chỗ đáng ngờ — bấm vào để xem reviewer sẽ comment gì. Tìm hết các vấn đề!</p>
+  <div class="codeblock" id="code1"></div>
+  <div class="progress" id="prog1"></div>
+</div>
+
+<div class="panel">
+  <h2>2 · Phân loại comment review</h2>
+  <p class="note">Mỗi comment thuộc loại nào? <b>Blocking</b> = phải sửa (request changes); <b>Nit/Suggestion</b> = gợi ý không chặn; <b>Praise</b> = khen. Bấm chọn để kiểm tra.</p>
+  <div id="cmtList"></div>
+  <div class="feedback" id="clsFb">Đã phân loại đúng: 0 / 0</div>
+</div>
+
+<div class="panel">
+  <h2>3 · PR nhỏ hay to? — kéo slider số dòng</h2>
+  <p class="note">Kéo để đổi kích thước PR. Xem thời gian review ước tính, hành vi thực tế của reviewer, và tỉ lệ lỗi bị bỏ sót thay đổi ra sao.</p>
+  <div class="slrow">
+    <span>Số dòng PR:</span>
+    <input type="range" id="sl" min="20" max="2000" step="10" value="50">
+    <span class="big" id="lines">50</span>
+  </div>
+  <div class="feedback" id="behavior"></div>
+  <div class="metrics">
+    <div class="metric">
+      <div class="mlbl">Thời gian review ước tính</div>
+      <div class="mval" id="mTime" style="color:#5b21b6"></div>
+    </div>
+    <div class="metric">
+      <div class="mlbl">Tỉ lệ lỗi bị bỏ sót</div>
+      <div class="mval" id="mMiss" style="color:#dc2626"></div>
+      <div class="meter"><span id="missBar"></span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== Module 1: review một PR =====
+// mỗi dòng: text + (nếu có) issue {tag, label, text}
+const LINES = [
+  { t: 'func GetUser(id string) User {' },
+  { t: '    q := "SELECT * FROM users WHERE id = " + id', issue:{tag:'security',label:'Bảo mật', text:'Nối chuỗi <code>id</code> trực tiếp vào SQL → nguy cơ SQL injection. Dùng parameterized query: <code>db.Query("... WHERE id = ?", id)</code>.'} },
+  { t: '    rows, _ := db.Query(q)', issue:{tag:'correct',label:'Tính đúng', text:'Đang nuốt error (<code>_</code>). Nếu query lỗi, code chạy tiếp với <code>rows</code> không hợp lệ. Phải kiểm tra <code>err</code>.'} },
+  { t: '    var u User' },
+  { t: '    rows.Scan(&u.Name)', issue:{tag:'correct',label:'Tính đúng', text:'<code>SELECT *</code> trả nhiều cột nhưng chỉ Scan một field → số cột không khớp, Scan sẽ lỗi. Chỉ <code>SELECT name</code> hoặc Scan đủ cột. Cũng đang bỏ qua error của Scan.'} },
+  { t: '    return u', issue:{tag:'test',label:'Edge case', text:'Không tìm thấy user thì trả <code>User{}</code> rỗng âm thầm — caller không phân biệt được "rỗng" với "không tồn tại". Trả thêm <code>error</code> hoặc <code>(User, bool)</code>. (Và: chưa có test nào cho hàm này.)'} },
+  { t: '}' },
+];
+let found = new Set();
+function renderCode1(){
+  const total = LINES.filter(l=>l.issue).length;
+  let html = '';
+  LINES.forEach((l,i)=>{
+    const has = !!l.issue;
+    const open = found.has(i);
+    html += `<div class="cline ${has?'flag':''} ${open?'open':''}" ${has?`onclick="toggleLine(${i})"`:''}>` +
+      `<span class="ln">${i+1}</span>` +
+      (has?`<span class="dot"></span>`:'<span class="dot" style="background:transparent"></span>') +
+      `${escapeHtml(l.t)}</div>`;
+    if(has && open){
+      html += `<div class="cmt"><span class="tag ${l.issue.tag}">${l.issue.label}</span>${l.issue.text}</div>`;
+    }
+  });
+  document.getElementById('code1').innerHTML = html;
+  const p = document.getElementById('prog1');
+  if(found.size>=total){
+    p.innerHTML = `<span class="ok">✅ Đã tìm hết ${total}/${total} vấn đề! Đây là review theo nhiều lớp: bảo mật, tính đúng, edge case, test — không chỉ "code có chạy không".</span>`;
+  } else {
+    p.textContent = `Đã tìm: ${found.size} / ${total} vấn đề. Bấm các dòng có chấm vàng còn lại.`;
+  }
+}
+function toggleLine(i){ if(found.has(i)) found.delete(i); else found.add(i); renderCode1(); }
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ===== Module 2: phân loại comment =====
+const COMMENTS = [
+  { body:'Câu SQL nối chuỗi từ input → SQL injection.', ans:'block' },
+  { body:'nit: thừa một dòng trống ở cuối hàm.', ans:'sugg' },
+  { body:'Cách bạn tách hàm validate ra rất gọn, dễ test 👍', ans:'praise' },
+  { body:'Hàm trả về nil khi không tìm thấy nhưng caller không kiểm tra → sẽ nil-pointer panic.', ans:'block' },
+  { body:'Có thể dùng strings.Builder cho gọn — không bắt buộc.', ans:'sugg' },
+  { body:'Test cho list rỗng rất chu đáo, đúng chỗ hay off-by-one.', ans:'praise' },
+];
+const CLS = { block:'Blocking', sugg:'Nit/Gợi ý', praise:'Praise' };
+const EXP = {
+  block:'phải sửa trước khi merge (request changes).',
+  sugg:'gợi ý/chuyện nhỏ, không chặn merge.',
+  praise:'khen — củng cố hành vi tốt.'
+};
+let picks = Array(COMMENTS.length).fill(null);
+function renderCmts(){
+  document.getElementById('cmtList').innerHTML = COMMENTS.map((c,i)=>{
+    const p = picks[i];
+    const correct = p && p===c.ans;
+    let res = '';
+    if(p){
+      res = correct
+        ? `<div class="res ok">✅ Đúng — ${CLS[c.ans]}: ${EXP[c.ans]}</div>`
+        : `<div class="res bad">❌ Chưa đúng. Đây là <b>${CLS[c.ans]}</b>: ${EXP[c.ans]}</div>`;
+    }
+    return `<div class="cmtcard">
+      <div class="body">"${escapeHtml(c.body)}"</div>
+      <div class="btns">
+        <span class="clsbtn block ${p==='block'?'sel':''}" onclick="pickCls(${i},'block')">Blocking</span>
+        <span class="clsbtn sugg ${p==='sugg'?'sel':''}" onclick="pickCls(${i},'sugg')">Nit/Gợi ý</span>
+        <span class="clsbtn praise ${p==='praise'?'sel':''}" onclick="pickCls(${i},'praise')">Praise</span>
+      </div>${res}</div>`;
+  }).join('');
+  const done = picks.filter((p,i)=>p===COMMENTS[i].ans).length;
+  const answered = picks.filter(Boolean).length;
+  const fb = document.getElementById('clsFb');
+  if(answered===COMMENTS.length && done===COMMENTS.length){
+    fb.innerHTML = `<span class="ok">✅ Hoàn hảo: ${done}/${COMMENTS.length} đúng! Mẹo: blocking = bug/bảo mật/crash; nit = format/sở thích; praise giúp người khác biết cái gì nên giữ.</span>`;
+  } else {
+    fb.innerHTML = `Đã phân loại đúng: <b>${done} / ${COMMENTS.length}</b>`;
+  }
+}
+function pickCls(i,c){ picks[i]=c; renderCmts(); }
+
+// ===== Module 3: PR nhỏ hay to =====
+function renderSize(){
+  const n = +document.getElementById('sl').value;
+  document.getElementById('lines').textContent = n;
+  // thời gian review ~ tuyến tính nhẹ (phút)
+  const mins = Math.max(2, Math.round(n*0.06 + 2));
+  // tỉ lệ bỏ sót lỗi: tăng theo log/saturating — PR to bị đọc lướt
+  // ~8% ở 50 dòng, tiến tới ~75% ở 2000 dòng
+  const miss = Math.min(78, Math.round(8 + 70*(1 - Math.exp(-n/650))));
+  document.getElementById('mTime').textContent = mins + ' phút';
+  document.getElementById('mMiss').textContent = miss + '%';
+  const bar = document.getElementById('missBar');
+  bar.style.width = miss + '%';
+  bar.style.background = miss < 25 ? '#16a34a' : miss < 50 ? '#d97706' : '#dc2626';
+  let txt;
+  if(n <= 80) txt = '🟢 <b>PR nhỏ</b>: reviewer đọc kỹ từng dòng, nghĩ edge case → bắt được phần lớn lỗi. Đây là vùng lý tưởng.';
+  else if(n <= 250) txt = '🟡 <b>Vừa</b>: vẫn đọc được nhưng bắt đầu mệt. Gần ngưỡng ~200–400 dòng mà hiệu quả review bắt đầu giảm.';
+  else if(n <= 600) txt = '🟠 <b>To</b>: reviewer đọc lướt phần sau, edge case bắt đầu lọt. Nên cân nhắc chia nhỏ.';
+  else if(n <= 1200) txt = '🔴 <b>Rất to</b>: dễ rơi vào "LGTM" — đọc qua loa rồi approve. Lỗi lọt nhiều.';
+  else txt = '🔴 <b>Khổng lồ</b>: nguy cơ <b>rubber-stamp</b> — approve cho xong vì không ai đọc nổi. Nghịch lý: PR cần review kỹ nhất lại được review hời hợt nhất. Hãy chia thành nhiều PR nhỏ một-mục-đích.';
+  document.getElementById('behavior').innerHTML = txt;
+}
+
+// init
+renderCode1();
+renderCmts();
+document.getElementById('sl').addEventListener('input', renderSize);
+renderSize();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

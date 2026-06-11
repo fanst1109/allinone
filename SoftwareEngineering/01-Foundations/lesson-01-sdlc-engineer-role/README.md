@@ -52,7 +52,7 @@ Khác biệt cốt lõi giữa *code cá nhân* và *phần mềm kỹ thuật*:
 > ⚠ **Lỗi thường gặp.** Người mới hay nhảy thẳng từ giai đoạn 1 sang 3 ("nghe xong là code luôn"), bỏ qua **thiết kế** và xem nhẹ **yêu cầu**. Hậu quả: xây xong mới phát hiện hiểu sai nhu cầu, hoặc kiến trúc không mở rộng được → đập đi làm lại. Phần mềm thất bại phần lớn vì *làm sai thứ* (sai yêu cầu), không phải *làm sai cách* (bug code).
 
 > 🔁 **Dừng lại tự kiểm tra.** Một bạn dev nhận yêu cầu "làm chức năng tìm kiếm sản phẩm" rồi code ngay trong 2 ngày. Tuần sau khách bảo "tôi cần tìm cả theo nhà cung cấp và lọc theo khoảng giá nữa". Giai đoạn nào đã bị làm hời hợt?
-> <details><summary>Đáp án</summary>Giai đoạn 1 — <b>Yêu cầu</b>. "Tìm kiếm" là mô tả mơ hồ; chưa làm rõ tìm theo trường nào, có lọc/sắp xếp không. Bỏ công làm rõ yêu cầu trước sẽ rẻ hơn nhiều so với code lại. Sẽ học kỹ ở <a href="../lesson-03-yeu-cau-dac-ta/">Lesson 03 — Yêu cầu & đặc tả</a>.</details>
+> <details><summary>Đáp án</summary>Giai đoạn 1 — <b>Yêu cầu</b>. "Tìm kiếm" là mô tả mơ hồ; chưa làm rõ tìm theo trường nào, có lọc/sắp xếp không. Bỏ công làm rõ yêu cầu trước sẽ rẻ hơn nhiều so với code lại. Sẽ học kỹ ở <a href="../lesson-03-requirements-spec/">Lesson 03 — Yêu cầu & đặc tả</a>.</details>
 
 📝 **Tóm tắt mục 2.** SDLC = 6 giai đoạn: Yêu cầu → Thiết kế → Hiện thực → Kiểm thử → Triển khai → Bảo trì. Các mô hình quy trình khác nhau ở *nhịp lặp* qua sáu giai đoạn này.
 

@@ -14,7 +14,7 @@ window.README_MD = `# Lesson 01 — Clean code & code smells
 ## Kiến thức tiền đề
 
 - Đã từng đọc code của người khác trong **code review** và thấy có đoạn khó hiểu — xem [Lesson 05 — Code review](../../01-Foundations/lesson-05-code-review/). Clean code chính là thứ làm review nhanh và dễ.
-- Hiểu rằng phần lớn chi phí một phần mềm nằm ở **giai đoạn bảo trì**, không phải lúc viết lần đầu — xem [Lesson 01 — SDLC & vai trò kỹ sư](../../01-Foundations/lesson-01-sdlc-vai-tro-ky-su/) (đường cong chi phí, vòng đời nhiều năm).
+- Hiểu rằng phần lớn chi phí một phần mềm nằm ở **giai đoạn bảo trì**, không phải lúc viết lần đầu — xem [Lesson 01 — SDLC & vai trò kỹ sư](../../01-Foundations/lesson-01-sdlc-engineer-role/) (đường cong chi phí, vòng đời nhiều năm).
 - Biết đọc code Go cơ bản (đủ để theo các ví dụ before/after).
 
 > 💡 **Vì sao tầng này (Design & Quality) bắt đầu bằng clean code?** Trước khi bàn nguyên lý thiết kế lớn (SOLID, coupling/cohesion, design pattern), phải vững nền: code *trong từng hàm* phải đọc được đã. Clean code là "vệ sinh cá nhân" của lập trình — không hào nhoáng nhưng bỏ qua thì cả hệ thống bốc mùi.
@@ -53,7 +53,7 @@ func sumPositive(numbers []int) int {
 
 Hai hàm **giống hệt nhau về hành vi**. Khác biệt duy nhất là cái thứ hai *nói cho bạn biết nó làm gì* — và đó chính là toàn bộ giá trị của clean code.
 
-> ❓ **"Clean code có làm chậm tốc độ ra tính năng không?"** Ngược lại. Nhanh lúc đầu (code ẩu) nhưng chậm dần vì mỗi thay đổi sau đều phải lội qua bùn. Clean code chậm hơn vài phút *bây giờ* để nhanh hơn nhiều giờ *về sau*. Đây là cùng nguyên lý "phát hiện/sửa sớm rẻ hơn muộn" ở [đường cong chi phí SDLC](../../01-Foundations/lesson-01-sdlc-vai-tro-ky-su/).
+> ❓ **"Clean code có làm chậm tốc độ ra tính năng không?"** Ngược lại. Nhanh lúc đầu (code ẩu) nhưng chậm dần vì mỗi thay đổi sau đều phải lội qua bùn. Clean code chậm hơn vài phút *bây giờ* để nhanh hơn nhiều giờ *về sau*. Đây là cùng nguyên lý "phát hiện/sửa sớm rẻ hơn muộn" ở [đường cong chi phí SDLC](../../01-Foundations/lesson-01-sdlc-engineer-role/).
 
 > ❓ **"Clean code có phải là viết thật ngắn / dùng ít dòng nhất?"** Không. Ngắn không bằng *rõ*. Một dòng \`r += d[i]\` ngắn hơn nhưng tệ hơn \`total += numbers[i]\`. Mục tiêu là **dễ hiểu**, không phải dòng tối thiểu.
 
@@ -429,7 +429,7 @@ Lưu ý: gộp ba điều kiện loại trừ thành một guard. \`o.Paid == fa
 - \`EmailNotifier\` — gửi email xác nhận.
 - \`InvoicePDFGenerator\` — xuất PDF.
 - \`AuditLogger\` — ghi log.
-   \`OrderManager\` (hoặc một \`OrderService\` mỏng) chỉ còn *điều phối* các thành phần này theo đúng luồng, không tự làm chi tiết. Mỗi class giờ nhỏ, một việc, dễ test riêng. (Đây là tiền đề của Single Responsibility — sẽ học sâu ở [Lesson 02 — Nguyên lý thiết kế](../lesson-02-nguyen-ly-thiet-ke/).)
+   \`OrderManager\` (hoặc một \`OrderService\` mỏng) chỉ còn *điều phối* các thành phần này theo đúng luồng, không tự làm chi tiết. Mỗi class giờ nhỏ, một việc, dễ test riêng. (Đây là tiền đề của Single Responsibility — sẽ học sâu ở [Lesson 02 — Nguyên lý thiết kế](../lesson-02-design-principles/).)
 
 ---
 
@@ -439,6 +439,6 @@ Lưu ý: gộp ba điều kiện loại trừ thành một guard. \`o.Paid == fa
 
 ## 9. Bài tiếp theo
 
-- [Lesson 02 — Nguyên lý thiết kế](../lesson-02-nguyen-ly-thiet-ke/) — từ code sạch *trong* hàm tiến lên các nguyên lý thiết kế *giữa* các thành phần (SOLID, DRY, KISS, YAGNI).
+- [Lesson 02 — Nguyên lý thiết kế](../lesson-02-design-principles/) — từ code sạch *trong* hàm tiến lên các nguyên lý thiết kế *giữa* các thành phần (SOLID, DRY, KISS, YAGNI).
 - Liên quan: [Lesson 05 — Refactoring & tech debt](../lesson-05-refactoring-tech-debt/) — cách cải thiện cấu trúc code có hệ thống mà không đổi hành vi; nối tiếp nguyên tắc boy-scout ở mục 6.
 `;

@@ -1,5 +1,5 @@
 // AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: SoftwareEngineering/03-Architecture-Delivery/lesson-02-thiet-ke-api/README.md
+// Source: SoftwareEngineering/03-Architecture-Delivery/lesson-02-api-design/README.md
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 02 — Thiết kế API (REST, gRPC, GraphQL)
 
@@ -14,10 +14,10 @@ window.README_MD = `# Lesson 02 — Thiết kế API (REST, gRPC, GraphQL)
 
 ## Kiến thức tiền đề
 
-- [Lesson 01 — Kiến trúc phần mềm](../lesson-01-kien-truc-phan-mem/): hiểu hệ thống được chia thành các thành phần/dịch vụ giao tiếp với nhau — API chính là *bề mặt giao tiếp* đó.
+- [Lesson 01 — Kiến trúc phần mềm](../lesson-01-software-architecture/): hiểu hệ thống được chia thành các thành phần/dịch vụ giao tiếp với nhau — API chính là *bề mặt giao tiếp* đó.
 - [Networking — HTTP](../../../Networking/index.html): nắm cơ bản về HTTP (request/response, method, header, status code, body). API REST và GraphQL chạy trên HTTP; gRPC chạy trên HTTP/2.
 
-> 💡 **Vì sao học thiết kế API trong tier "Kiến trúc & vận hành"?** Ở [Lesson 01](../lesson-01-kien-truc-phan-mem/) ta chia hệ thống thành các thành phần. Nhưng các thành phần đó *nói chuyện với nhau bằng gì*? Đó là API. API là "đường biên" giữa các đội, giữa client và server, giữa các microservice. Một biên giới thiết kế cẩu thả sẽ khiến mọi thứ phía sau khó thay đổi — nên thiết kế API tốt là một quyết định kiến trúc, không chỉ là chi tiết kỹ thuật.
+> 💡 **Vì sao học thiết kế API trong tier "Kiến trúc & vận hành"?** Ở [Lesson 01](../lesson-01-software-architecture/) ta chia hệ thống thành các thành phần. Nhưng các thành phần đó *nói chuyện với nhau bằng gì*? Đó là API. API là "đường biên" giữa các đội, giữa client và server, giữa các microservice. Một biên giới thiết kế cẩu thả sẽ khiến mọi thứ phía sau khó thay đổi — nên thiết kế API tốt là một quyết định kiến trúc, không chỉ là chi tiết kỹ thuật.
 
 ---
 
@@ -505,5 +505,5 @@ Nguyên tắc: 4xx = lỗi do client (request sai/không tìm thấy/không có 
 ## 10. Bài tiếp theo
 
 - [Lesson 03 — CI/CD](../lesson-03-ci-cd/) — sau khi đã thiết kế API, làm sao tự động build/test/triển khai an toàn mỗi khi đổi code.
-- Liên quan: [Lesson 01 — Kiến trúc phần mềm](../lesson-01-kien-truc-phan-mem/) (API là đường biên giữa các thành phần) và [Networking — HTTP](../../../Networking/index.html) (nền tảng giao thức bên dưới REST/GraphQL/gRPC).
+- Liên quan: [Lesson 01 — Kiến trúc phần mềm](../lesson-01-software-architecture/) (API là đường biên giữa các thành phần) và [Networking — HTTP](../../../Networking/index.html) (nền tảng giao thức bên dưới REST/GraphQL/gRPC).
 `;

@@ -15,11 +15,11 @@ Tầng cuối của lĩnh vực [SoftwareEngineering](../README.md), nối tiế
 
 | STT | Bài học | Chủ đề chính | Liên kết |
 | --- | --- | --- | --- |
-| 01 | Kiến trúc phần mềm | Layered, hexagonal, monolith vs microservices, event-driven | [lesson-01-kien-truc-phan-mem](./lesson-01-kien-truc-phan-mem/) |
-| 02 | Thiết kế API | REST, gRPC, GraphQL, versioning & tương thích ngược | [lesson-02-thiet-ke-api](./lesson-02-thiet-ke-api/) |
+| 01 | Kiến trúc phần mềm | Layered, hexagonal, monolith vs microservices, event-driven | [lesson-01-software-architecture](./lesson-01-software-architecture/) |
+| 02 | Thiết kế API | REST, gRPC, GraphQL, versioning & tương thích ngược | [lesson-02-api-design](./lesson-02-api-design/) |
 | 03 | CI/CD | Pipeline, quality gate, blue-green/canary/rolling | [lesson-03-ci-cd](./lesson-03-ci-cd/) |
-| 04 | Container & triển khai | Container vs VM, Dockerfile, orchestration, 12-factor | [lesson-04-container-trien-khai](./lesson-04-container-trien-khai/) |
-| 05 | Observability & độ tin cậy | Logs/metrics/traces, golden signals, SLO & error budget | [lesson-05-observability-do-tin-cay](./lesson-05-observability-do-tin-cay/) |
+| 04 | Container & triển khai | Container vs VM, Dockerfile, orchestration, 12-factor | [lesson-04-containers-deployment](./lesson-04-containers-deployment/) |
+| 05 | Observability & độ tin cậy | Logs/metrics/traces, golden signals, SLO & error budget | [lesson-05-observability-reliability](./lesson-05-observability-reliability/) |
 | 06 | System design & scalability | Scale, load balancing, caching, sharding, message queue | [lesson-06-system-design-scalability](./lesson-06-system-design-scalability/) |
 
 ## Kết thúc lĩnh vực

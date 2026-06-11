@@ -2,7 +2,7 @@
 
 ## Mục tiêu
 
-- Hiểu **code review** là gì, vì sao mọi nhóm kỹ thuật nghiêm túc đều coi nó là bắt buộc — và nó nối với **đường cong chi phí sửa lỗi** ở [Lesson 01](../lesson-01-sdlc-vai-tro-ky-su/) như thế nào.
+- Hiểu **code review** là gì, vì sao mọi nhóm kỹ thuật nghiêm túc đều coi nó là bắt buộc — và nó nối với **đường cong chi phí sửa lỗi** ở [Lesson 01](../lesson-01-sdlc-engineer-role/) như thế nào.
 - Nắm **quy trình review qua Pull Request (PR)**: author mở PR → reviewer đọc diff → comment → request changes / approve → merge.
 - Biết **review cái gì** qua một checklist thực dụng: tính đúng (correctness), khả đọc (readability), thiết kế, test, bảo mật, hiệu năng, edge case.
 - Xây dựng **văn hóa review lành mạnh**: feedback mang tính xây dựng, phân biệt "phải sửa" vs "gợi ý" (`nit:`), nhận góp ý không tự ái.
@@ -29,7 +29,7 @@ Ba lý do cốt lõi:
 
 | Lý do | Giải thích | Liên hệ |
 |-------|------------|---------|
-| **Bắt lỗi sớm** | Reviewer phát hiện bug, edge case bị bỏ sót *trước khi* code lên production | Nối thẳng [đường cong chi phí — Lesson 01](../lesson-01-sdlc-vai-tro-ky-su/): bắt lỗi ở review (~giai đoạn code, 10×) rẻ hơn bắt ở production (30–100×) nhiều lần |
+| **Bắt lỗi sớm** | Reviewer phát hiện bug, edge case bị bỏ sót *trước khi* code lên production | Nối thẳng [đường cong chi phí — Lesson 01](../lesson-01-sdlc-engineer-role/): bắt lỗi ở review (~giai đoạn code, 10×) rẻ hơn bắt ở production (30–100×) nhiều lần |
 | **Lan tỏa kiến thức** | Reviewer học được phần code mình chưa đụng tới; author học được mẹo từ góp ý → giảm "bus factor" (chỉ 1 người hiểu một vùng code) | — |
 | **Giữ chất lượng & nhất quán** | Code mới khớp style chung, không lặp lại, đặt tên thống nhất → cả codebase đọc như do một người viết | Tránh nợ kỹ thuật |
 
@@ -289,5 +289,5 @@ Vì sao tốt hơn: (1) reviewer đọc kỹ từng PR nhỏ → bắt lỗi nhi
 
 ## 9. Bài tiếp theo
 
-- [Lesson 06 — Ước lượng & quản lý việc](../lesson-06-uoc-luong-quan-ly-viec/) — sau khi đã biết viết & review code cùng nhóm, học cách *ước lượng thời gian* và *quản lý đầu việc* để dự án về đích.
-- Liên quan: review gắn với **branch protection & CI** đã đề cập ở [Lesson 04 — Git workflow cho nhóm](../lesson-04-git-workflow-team/); đường cong chi phí sửa lỗi ở [Lesson 01](../lesson-01-sdlc-vai-tro-ky-su/).
+- [Lesson 06 — Ước lượng & quản lý việc](../lesson-06-estimation-planning/) — sau khi đã biết viết & review code cùng nhóm, học cách *ước lượng thời gian* và *quản lý đầu việc* để dự án về đích.
+- Liên quan: review gắn với **branch protection & CI** đã đề cập ở [Lesson 04 — Git workflow cho nhóm](../lesson-04-git-workflow-team/); đường cong chi phí sửa lỗi ở [Lesson 01](../lesson-01-sdlc-engineer-role/).

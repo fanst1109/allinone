@@ -16,11 +16,11 @@ Tầng thứ hai của lĩnh vực [SoftwareEngineering](../README.md), nối ti
 | STT | Bài học | Chủ đề chính | Liên kết |
 | --- | --- | --- | --- |
 | 01 | Clean code & code smells | Đặt tên, hàm nhỏ, 7 code smells, comment "vì sao" | [lesson-01-clean-code-code-smells](./lesson-01-clean-code-code-smells/) |
-| 02 | Nguyên lý thiết kế | SOLID, DRY, KISS, YAGNI — vi phạm & cách sửa | [lesson-02-nguyen-ly-thiet-ke](./lesson-02-nguyen-ly-thiet-ke/) |
+| 02 | Nguyên lý thiết kế | SOLID, DRY, KISS, YAGNI — vi phạm & cách sửa | [lesson-02-design-principles](./lesson-02-design-principles/) |
 | 03 | Coupling & cohesion | Thang coupling/cohesion, quan hệ SOLID, giảm coupling | [lesson-03-coupling-cohesion](./lesson-03-coupling-cohesion/) |
 | 04 | Design patterns | Mẫu GoF — khi nào & vì sao dùng, cảnh báo lạm dụng | [lesson-04-design-patterns](./lesson-04-design-patterns/) |
 | 05 | Refactoring & nợ kỹ thuật | Phép refactor, quy trình an toàn, quản lý nợ kỹ thuật | [lesson-05-refactoring-tech-debt](./lesson-05-refactoring-tech-debt/) |
-| 06 | Chiến lược kiểm thử | Test pyramid, TDD/BDD, giới hạn của coverage | [lesson-06-chien-luoc-kiem-thu](./lesson-06-chien-luoc-kiem-thu/) |
+| 06 | Chiến lược kiểm thử | Test pyramid, TDD/BDD, giới hạn của coverage | [lesson-06-testing-strategy](./lesson-06-testing-strategy/) |
 
 ## Tiếp theo
 

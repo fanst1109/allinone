@@ -1,7 +1,4 @@
-// AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: SoftwareEngineering/01-Foundations/lesson-03-yeu-cau-dac-ta/README.md
-// Chạy lại: go run tools/build-readme-data.go
-window.README_MD = `# Lesson 03 — Yêu cầu & đặc tả (Requirements)
+# Lesson 03 — Yêu cầu & đặc tả (Requirements)
 
 ## Mục tiêu
 
@@ -14,7 +11,7 @@ window.README_MD = `# Lesson 03 — Yêu cầu & đặc tả (Requirements)
 
 ## Kiến thức tiền đề
 
-- [Lesson 01 — Vòng đời phần mềm (SDLC) & vai trò kỹ sư](../lesson-01-sdlc-vai-tro-ky-su/) — đặc biệt là **giai đoạn 1 "Yêu cầu"** trong SDLC: bài này đào sâu chính giai đoạn đó. Nhắc lại: giai đoạn Yêu cầu trả lời câu hỏi *"xây cái gì, cho ai?"* và sản phẩm đầu ra là tài liệu đặc tả + user story. Đường cong chi phí sửa lỗi (mục 5 của Lesson 01) cho thấy lỗi yêu cầu bắt sớm rẻ hơn bắt muộn tới 30–100 lần — đó là lý do bài này quan trọng.
+- [Lesson 01 — Vòng đời phần mềm (SDLC) & vai trò kỹ sư](../lesson-01-sdlc-engineer-role/) — đặc biệt là **giai đoạn 1 "Yêu cầu"** trong SDLC: bài này đào sâu chính giai đoạn đó. Nhắc lại: giai đoạn Yêu cầu trả lời câu hỏi *"xây cái gì, cho ai?"* và sản phẩm đầu ra là tài liệu đặc tả + user story. Đường cong chi phí sửa lỗi (mục 5 của Lesson 01) cho thấy lỗi yêu cầu bắt sớm rẻ hơn bắt muộn tới 30–100 lần — đó là lý do bài này quan trọng.
 - [Lesson 02 — Agile, Scrum & Kanban](../lesson-02-agile-scrum-kanban/) — user story và acceptance criteria là "đơn vị công việc" của backlog trong Scrum; bài này giải thích cách *viết* chúng cho tốt.
 - Không cần kiến thức kỹ thuật nâng cao; chỉ cần đã từng dùng một app phần mềm bất kỳ.
 
@@ -57,7 +54,7 @@ Bốn ví dụ (cùng app trên):
 
 ## 2. Vì sao yêu cầu mơ hồ là nguồn gốc thất bại
 
-💡 **Trực giác.** Một yêu cầu mơ hồ giống như đặt taxi mà chỉ nói "chở tôi đi chỗ nào đó đẹp đẹp". Mỗi người hiểu một kiểu: tài xế chở ra biển, bạn lại muốn lên núi. Khi yêu cầu không đo được, *mỗi người trong nhóm tự lấp khoảng trống bằng giả định riêng* — và các giả định đó mâu thuẫn nhau, lộ ra muộn, lúc sửa thì đắt (đường cong chi phí, [Lesson 01 mục 5](../lesson-01-sdlc-vai-tro-ky-su/)).
+💡 **Trực giác.** Một yêu cầu mơ hồ giống như đặt taxi mà chỉ nói "chở tôi đi chỗ nào đó đẹp đẹp". Mỗi người hiểu một kiểu: tài xế chở ra biển, bạn lại muốn lên núi. Khi yêu cầu không đo được, *mỗi người trong nhóm tự lấp khoảng trống bằng giả định riêng* — và các giả định đó mâu thuẫn nhau, lộ ra muộn, lúc sửa thì đắt (đường cong chi phí, [Lesson 01 mục 5](../lesson-01-sdlc-engineer-role/)).
 
 Câu mơ hồ kinh điển: **"Hệ thống phải nhanh."**
 
@@ -119,7 +116,7 @@ Ba phần và vì sao quan trọng:
 > - *"User story có phải là đặc tả đầy đủ không?"* Không. Story là *lời nhắc về một cuộc trò chuyện*, không phải tài liệu chi tiết. Chi tiết "đúng/sai thế nào" nằm ở **acceptance criteria** (mục 4). Story trả lời *cái gì + vì sao*; acceptance criteria trả lời *khi nào coi là xong*.
 > - *"Phần 'để...' có bắt buộc không?"* Rất nên có. Nếu không viết được phần "để", có thể tính năng đó *không thực sự cần*. Nó cũng là cách kiểm tra giá trị.
 
-⚠ **Lỗi thường gặp.** Viết story theo góc nhìn *kỹ thuật* thay vì *người dùng*: "Là hệ thống, tôi muốn có một bảng \`orders\`, để lưu đơn." Sai — "hệ thống" và "bảng orders" là chi tiết hiện thực, không phải nhu cầu người dùng. Story phải bắt đầu từ một *con người* có mục đích.
+⚠ **Lỗi thường gặp.** Viết story theo góc nhìn *kỹ thuật* thay vì *người dùng*: "Là hệ thống, tôi muốn có một bảng `orders`, để lưu đơn." Sai — "hệ thống" và "bảng orders" là chi tiết hiện thực, không phải nhu cầu người dùng. Story phải bắt đầu từ một *con người* có mục đích.
 
 > 🔁 **Dừng lại tự kiểm tra.** Viết một user story cho tính năng "đổi mật khẩu" của một app ngân hàng.
 > <details><summary>Đáp án</summary>"<b>Là</b> chủ tài khoản, <b>tôi muốn</b> đổi mật khẩu đăng nhập, <b>để</b> giữ tài khoản an toàn khi nghi ngờ mật khẩu cũ bị lộ." Lưu ý phần "để" làm rõ giá trị bảo mật — gợi ý rằng tính năng nên kèm yêu cầu xác thực lại / thông báo cho người dùng.</details>
@@ -299,4 +296,3 @@ Sửa thành nhiều yêu cầu tách bạch, đo được, ví dụ:
 
 - [Lesson 04 — Git workflow cho nhóm](../lesson-04-git-workflow-team/) — khi đã có yêu cầu rõ ràng và chia thành story, nhóm cần một quy trình cộng tác trên code; bài sau giới thiệu Git workflow để nhiều người cùng làm mà không giẫm chân nhau.
 - Liên quan: acceptance criteria (Given/When/Then) sẽ gặp lại khi viết **test tự động** ở Tier kiểm thử — xem [trang chính lĩnh vực](../../index.html).
-`;

@@ -14,7 +14,7 @@ window.README_MD = `# Lesson 06 — System design & khả năng mở rộng (sca
 
 ## Kiến thức tiền đề
 
-- [Lesson 01 — Kiến trúc phần mềm](../lesson-01-kien-truc-phan-mem/) — phân lớp, monolith vs microservices: nền để hiểu "các thành phần" trong một thiết kế hệ thống.
+- [Lesson 01 — Kiến trúc phần mềm](../lesson-01-software-architecture/) — phân lớp, monolith vs microservices: nền để hiểu "các thành phần" trong một thiết kế hệ thống.
 - [Databases — Replication & Sharding](../../../Databases/03-Advanced/lesson-03-replication-sharding/) — cơ chế nhân bản và phân mảnh dữ liệu mà mục 4 dưới đây sẽ dựa vào.
 - Biết khái niệm latency (độ trễ) và throughput (thông lượng) ở mức cơ bản là đủ.
 

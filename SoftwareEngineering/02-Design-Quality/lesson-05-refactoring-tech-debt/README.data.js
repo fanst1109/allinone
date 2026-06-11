@@ -59,7 +59,7 @@ Với \`q=10, p=5.0\`: cả hai trả \`45.0\`. Hành vi giống hệt — đây
 
 💡 **Trực giác.** Refactor là "phẫu thuật khi tỉnh": bạn động dao vào code đang chạy. Bộ **test** là máy đo nhịp tim — sau mỗi nhát dao, nó báo "bệnh nhân còn sống" (hành vi chưa đổi). Không có test = phẫu thuật bịt mắt: bạn *nghĩ* mình không đổi hành vi, nhưng không có gì xác nhận.
 
-Vì ràng buộc cốt lõi của refactor là "không đổi hành vi", ta cần một cách *kiểm chứng* điều đó. Test tự động làm đúng việc này: chạy trước → xanh; refactor; chạy lại → vẫn xanh ⇒ hành vi được giữ. Cách xây bộ test này sẽ học kỹ ở [Lesson 06 — Chiến lược kiểm thử](../lesson-06-chien-luoc-kiem-thu/).
+Vì ràng buộc cốt lõi của refactor là "không đổi hành vi", ta cần một cách *kiểm chứng* điều đó. Test tự động làm đúng việc này: chạy trước → xanh; refactor; chạy lại → vẫn xanh ⇒ hành vi được giữ. Cách xây bộ test này sẽ học kỹ ở [Lesson 06 — Chiến lược kiểm thử](../lesson-06-testing-strategy/).
 
 > ⚠ **Lỗi thường gặp.** "Code đơn giản quá, không cần test, tôi nhìn là biết đúng." Refactor thủ công rất dễ trượt tay (đổi \`<\` thành \`<=\`, quên một nhánh \`else\`). Mắt người không bắt được mọi hồi quy (regression). Nếu chưa có test, **viết test trước** (gọi là "characterization test" — test chụp lại hành vi hiện tại) rồi mới refactor.
 
@@ -297,7 +297,7 @@ Nguyên tắc quyết định *khi nào trả nợ*:
 2. **Ưu tiên theo lãi suất × tần suất đụng.** Vùng code vừa bẩn vừa *hay phải sửa* = lãi cao nhất → trả trước. Vùng bẩn nhưng *không ai đụng* = lãi gần 0 → kệ.
 3. **Đừng để nợ vượt "ngưỡng phá sản".** Khi mỗi tính năng nhỏ cũng mất hàng tuần, đội mất khả năng giao hàng — phải dừng lại trả nợ tập trung.
 
-**Đánh đổi với deadline.** Đây là nối tiếp [đường cong chi phí sửa lỗi ở Foundations Lesson 01](../../01-Foundations/lesson-01-sdlc-vai-tro-ky-su/): cũng giống lỗi bắt muộn đắt hơn bắt sớm, **nợ trả muộn đắt hơn trả sớm**. Ship sớm bằng cách vay nợ *cố ý + thận trọng* có thể đúng về kinh doanh — nhưng phải ghi nợ vào backlog và lên lịch trả, nếu không "lãi" sẽ ăn mòn mọi tốc độ tương lai.
+**Đánh đổi với deadline.** Đây là nối tiếp [đường cong chi phí sửa lỗi ở Foundations Lesson 01](../../01-Foundations/lesson-01-sdlc-engineer-role/): cũng giống lỗi bắt muộn đắt hơn bắt sớm, **nợ trả muộn đắt hơn trả sớm**. Ship sớm bằng cách vay nợ *cố ý + thận trọng* có thể đúng về kinh doanh — nhưng phải ghi nợ vào backlog và lên lịch trả, nếu không "lãi" sẽ ăn mòn mọi tốc độ tương lai.
 
 > ⚠ **Lỗi thường gặp.** "Tuần sau rảnh tôi sẽ refactor cả hệ thống." *Big-bang refactor* (dừng mọi tính năng để dọn dẹp lớn) hiếm khi được duyệt và rủi ro cao (đổi quá nhiều, dễ vỡ). Cách bền vững là **trả dần, liên tục, ngay trong luồng công việc** (mục 1, Boy Scout rule).
 
@@ -428,6 +428,6 @@ Kiểm chứng tương đương: \`canVote\` chỉ trả \`true\` khi \`p != nil
 
 ## 9. Bài tiếp theo
 
-- [Lesson 06 — Chiến lược kiểm thử](../lesson-06-chien-luoc-kiem-thu/) — xây dựng bộ test (đơn vị, tích hợp...) làm "lưới an toàn" cho refactor: chính bộ test này là thứ xác nhận "hành vi không đổi" ở mục 1.1.
+- [Lesson 06 — Chiến lược kiểm thử](../lesson-06-testing-strategy/) — xây dựng bộ test (đơn vị, tích hợp...) làm "lưới an toàn" cho refactor: chính bộ test này là thứ xác nhận "hành vi không đổi" ở mục 1.1.
 - Ôn lại: [Lesson 01 — Clean Code & Code Smells](../lesson-01-clean-code-code-smells/) — các smell là *tín hiệu* refactor; bài này là *hành động* chữa chúng.
 `;

@@ -11,7 +11,7 @@
 
 ## Kiến thức tiền đề
 
-- Đã học [Lesson 02 — Nguyên lý thiết kế (SOLID)](../lesson-02-nguyen-ly-thiet-ke/) — đặc biệt **Single Responsibility** và **Dependency Inversion**. Bài này là góc nhìn "đo lường" cho chính những nguyên lý đó: SRP đẩy cohesion lên, DIP kéo coupling xuống.
+- Đã học [Lesson 02 — Nguyên lý thiết kế (SOLID)](../lesson-02-design-principles/) — đặc biệt **Single Responsibility** và **Dependency Inversion**. Bài này là góc nhìn "đo lường" cho chính những nguyên lý đó: SRP đẩy cohesion lên, DIP kéo coupling xuống.
 - Đã quen [Lesson 01 — Clean Code & code smells](../lesson-01-clean-code-code-smells/) (các "mùi" code thường bắt nguồn từ coupling chặt / cohesion thấp).
 - Biết đọc code Go cơ bản (struct, interface, method).
 
@@ -203,7 +203,7 @@ func (ReportStore) Save(r string) { /* chỉ lưu trữ */ }
 
 ### 4.2 Dependency Inversion ↔ Coupling
 
-**Dependency Inversion Principle (DIP)** — "phụ thuộc vào abstraction, không vào concrete" — chính là **cách hạ coupling**. Thay vì A phụ thuộc *chi tiết* của B (coupling chặt), A phụ thuộc một **interface** (giao kèo ổn định) — đổi B không đụng A. (Đã học ở [Lesson 02 §DIP](../lesson-02-nguyen-ly-thiet-ke/).)
+**Dependency Inversion Principle (DIP)** — "phụ thuộc vào abstraction, không vào concrete" — chính là **cách hạ coupling**. Thay vì A phụ thuộc *chi tiết* của B (coupling chặt), A phụ thuộc một **interface** (giao kèo ổn định) — đổi B không đụng A. (Đã học ở [Lesson 02 §DIP](../lesson-02-design-principles/).)
 
 ```go
 // Coupling chặt: OrderService dán cứng vào StripeClient cụ thể
@@ -432,5 +432,5 @@ Vì thế hai mục tiêu củng cố lẫn nhau: chia hệ thống theo *nhiệ
 ## 9. Bài tiếp theo
 
 - [Lesson 04 — Design patterns](../lesson-04-design-patterns/) — các "khuôn mẫu" lặp lại để đạt low coupling/high cohesion (Strategy, Observer, Factory... chính là interface/DI/event được đóng gói thành mẫu).
-- Ôn lại nền: [Lesson 02 — Nguyên lý thiết kế (SOLID)](../lesson-02-nguyen-ly-thiet-ke/) (SRP ↔ cohesion, DIP ↔ coupling).
+- Ôn lại nền: [Lesson 02 — Nguyên lý thiết kế (SOLID)](../lesson-02-design-principles/) (SRP ↔ cohesion, DIP ↔ coupling).
 - Liên quan: [Lesson 05 — Refactoring & nợ kỹ thuật](../lesson-05-refactoring-tech-debt/) — coupling chặt/cohesion thấp tích tụ thành nợ kỹ thuật ra sao.

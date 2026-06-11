@@ -15,8 +15,8 @@ window.README_MD = `# Lesson 04 — Git workflow cho nhóm
 ## Kiến thức tiền đề
 
 - **Lệnh git nền tảng** (\`add\`, \`commit\`, \`push\`, \`pull\`, \`branch\`, \`checkout\`) — học ở [Programming — Môi trường dev & Git](../../../Programming/lesson-02-dev-environment-git/). Bài đó dạy *cách dùng git một mình*; bài này dạy *cách dùng git cùng nhiều người*.
-- Đã hiểu vòng đời phần mềm là một nỗ lực **nhóm** — xem [Lesson 01 — SDLC & vai trò kỹ sư](../lesson-01-sdlc-vai-tro-ky-su/).
-- Yêu cầu được chia thành các đầu việc cụ thể — xem [Lesson 03 — Yêu cầu & đặc tả](../lesson-03-yeu-cau-dac-ta/) (mỗi user story thường tương ứng một feature branch).
+- Đã hiểu vòng đời phần mềm là một nỗ lực **nhóm** — xem [Lesson 01 — SDLC & vai trò kỹ sư](../lesson-01-sdlc-engineer-role/).
+- Yêu cầu được chia thành các đầu việc cụ thể — xem [Lesson 03 — Yêu cầu & đặc tả](../lesson-03-requirements-spec/) (mỗi user story thường tương ứng một feature branch).
 
 > 💡 **Ranh giới với "git cơ bản".** [Bài git ở Programming](../../../Programming/lesson-02-dev-environment-git/) trả lời câu hỏi *"làm sao commit và push code của tôi?"*. Bài này trả lời câu hỏi *"khi 5 người cùng sửa một codebase, làm sao họ không giẫm chân nhau, không phá \`main\`, và hợp nhất công việc một cách an toàn?"*. Ở đây ta giả định bạn đã biết \`git add\`/\`commit\`/\`push\` — không nhắc lại — và chỉ tập trung vào **workflow cộng tác**.
 

@@ -12,7 +12,7 @@ window.README_MD = `# Lesson 04 — Design patterns (mẫu thiết kế GoF)
 
 ## Kiến thức tiền đề
 
-- [Lesson 02 — Nguyên lý thiết kế (SOLID, KISS, YAGNI, DRY)](../lesson-02-nguyen-ly-thiet-ke/) — pattern là cách *hiện thực hóa* các nguyên lý này; nhiều pattern sinh ra để thỏa Open/Closed và Dependency Inversion.
+- [Lesson 02 — Nguyên lý thiết kế (SOLID, KISS, YAGNI, DRY)](../lesson-02-design-principles/) — pattern là cách *hiện thực hóa* các nguyên lý này; nhiều pattern sinh ra để thỏa Open/Closed và Dependency Inversion.
 - [Lesson 03 — Coupling & cohesion](../lesson-03-coupling-cohesion/) — gần như mọi pattern đều nhằm **giảm coupling** (nới lỏng phụ thuộc) hoặc **tăng cohesion** (gom trách nhiệm). Hiểu hai đại lượng này là điều kiện để hiểu *vì sao* một pattern tốt.
 - [Programming — Design patterns trong Go](../../../Programming/lesson-39-design-patterns-go/) — cách **hiện thực** các pattern bằng cú pháp Go cụ thể (interface, struct, closure).
 
@@ -34,7 +34,7 @@ window.README_MD = `# Lesson 04 — Design patterns (mẫu thiết kế GoF)
 
 > ❓ **"Vậy pattern khác gì với một thư viện hay framework?"** Thư viện là *code có sẵn* bạn gọi (\`sort.Sort(...)\`). Pattern là *ý tưởng tổ chức* bạn tự hiện thực. Một framework có thể *dùng* nhiều pattern bên trong (vd middleware HTTP dùng Decorator), nhưng bản thân pattern không phải thứ bạn \`import\`.
 
-> ⚠ **Pattern-itis — bệnh lạm dụng pattern.** Người mới học pattern thường mắc bệnh "có búa thì thấy gì cũng là đinh": nhét Factory, Singleton, Observer vào mọi chỗ kể cả khi một hàm 5 dòng là đủ. Hậu quả: code phình to, nhiều tầng gián tiếp (indirection) vô nghĩa, khó đọc hơn cả khi không có pattern. **Pattern thêm vào một cái giá: độ phức tạp.** Chỉ "trả" cái giá đó khi bài toán *thật sự* cần sự linh hoạt mà pattern mang lại (nối tiếp KISS/YAGNI ở [Lesson 02](../lesson-02-nguyen-ly-thiet-ke/)).
+> ⚠ **Pattern-itis — bệnh lạm dụng pattern.** Người mới học pattern thường mắc bệnh "có búa thì thấy gì cũng là đinh": nhét Factory, Singleton, Observer vào mọi chỗ kể cả khi một hàm 5 dòng là đủ. Hậu quả: code phình to, nhiều tầng gián tiếp (indirection) vô nghĩa, khó đọc hơn cả khi không có pattern. **Pattern thêm vào một cái giá: độ phức tạp.** Chỉ "trả" cái giá đó khi bài toán *thật sự* cần sự linh hoạt mà pattern mang lại (nối tiếp KISS/YAGNI ở [Lesson 02](../lesson-02-design-principles/)).
 
 > 🔁 **Dừng lại tự kiểm tra.** Một đồng nghiệp nói "tôi đã *cài đặt pattern Singleton* bằng cách copy file \`singleton.go\` từ dự án cũ sang". Cách diễn đạt này sai ở đâu?
 > <details><summary>Đáp án</summary>Sai ở chỗ coi pattern như <b>một file code dán được</b>. Singleton là <i>ý tưởng</i> "đảm bảo chỉ có một instance và cho điểm truy cập toàn cục". Hiện thực đúng tùy ngữ cảnh — ở Go thường là một biến package-level + <code>sync.Once</code>, hoàn toàn không cần "file singleton.go". Hơn nữa Singleton là pattern nên cân nhắc kỹ (xem mục 3) — copy mù sẽ kéo theo cả nhược điểm của nó.</details>
@@ -309,7 +309,7 @@ Import(jsonFile, parseJSON)
 4. **Trả giá có ý thức.** Mỗi pattern thêm độ phức tạp/gián tiếp. Chỉ "mua" khi lợi (linh hoạt, ít sửa về sau) *vượt* chi phí (khó đọc hơn bây giờ).
 
 > ⚠ **Các anti-pattern quanh việc dùng pattern.**
-> - **Pattern-itis / Golden hammer**: nhét pattern vào mọi chỗ. Hậu quả là *over-engineering* — code phức tạp hơn cần thiết, vi phạm thẳng [YAGNI](../lesson-02-nguyen-ly-thiet-ke/).
+> - **Pattern-itis / Golden hammer**: nhét pattern vào mọi chỗ. Hậu quả là *over-engineering* — code phức tạp hơn cần thiết, vi phạm thẳng [YAGNI](../lesson-02-design-principles/).
 > - **Premature abstraction**: dựng Factory/Strategy cho "loại thứ hai" *chưa tồn tại*. Trừu tượng hóa quá sớm khóa bạn vào một thiết kế sai trước khi đủ thông tin.
 > - **Cargo-cult pattern**: dùng pattern vì "ai cũng dùng" mà không hiểu vấn đề nó giải → thường dùng sai chỗ.
 > - **Singleton tràn lan**: biến mọi service thành global → coupling ẩn, khó test (mục 3.3).

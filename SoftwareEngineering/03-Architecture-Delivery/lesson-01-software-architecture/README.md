@@ -1,7 +1,4 @@
-// AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: SoftwareEngineering/03-Architecture-Delivery/lesson-01-kien-truc-phan-mem/README.md
-// Chạy lại: go run tools/build-readme-data.go
-window.README_MD = `# Lesson 01 — Kiến trúc phần mềm
+# Lesson 01 — Kiến trúc phần mềm
 
 ## Mục tiêu
 
@@ -12,7 +9,7 @@ window.README_MD = `# Lesson 01 — Kiến trúc phần mềm
 ## Kiến thức tiền đề
 
 - **Độ phụ thuộc & độ gắn kết** (coupling/cohesion) ở mức module — kiến trúc chính là coupling/cohesion ở **mức hệ thống**. Xem [Lesson 03 — Coupling & Cohesion](../../02-Design-Quality/lesson-03-coupling-cohesion/).
-- **Nguyên lý thiết kế** (SOLID, DIP...) — nền tảng để hiểu vì sao hexagonal "đảo ngược phụ thuộc". Xem [Lesson 02 — Nguyên lý thiết kế](../../02-Design-Quality/lesson-02-nguyen-ly-thiet-ke/).
+- **Nguyên lý thiết kế** (SOLID, DIP...) — nền tảng để hiểu vì sao hexagonal "đảo ngược phụ thuộc". Xem [Lesson 02 — Nguyên lý thiết kế](../../02-Design-Quality/lesson-02-design-principles/).
 - Đã từng viết một ứng dụng có nhiều module (web + database) là đủ.
 
 > 💡 **Kiến trúc khác thiết kế chi tiết ở quy mô của hậu quả.** Đặt tên một hàm sai → đổi trong 30 giây. Chọn microservices cho một đội 3 người → trả giá hằng ngày suốt nhiều năm. Kiến trúc là tập hợp các quyết định mà **chi phí thay đổi cao nhất**, nên đáng để cân nhắc kỹ trước.
@@ -31,8 +28,8 @@ window.README_MD = `# Lesson 01 — Kiến trúc phần mềm
 |---------|----------|--------|
 | "Hệ thống là 1 tiến trình hay 8 service gọi nhau qua HTTP?" | **Kiến trúc** | Đổi sau = viết lại cách triển khai, mạng, dữ liệu |
 | "Lõi nghiệp vụ có được phép gọi thẳng thư viện database không?" | **Kiến trúc** | Quy tắc phụ thuộc áp cho cả hệ thống |
-| "Hàm \`tinhGiamGia\` nhận \`float64\` hay \`decimal\`?" | **Thiết kế chi tiết** | Đổi trong một file, vài phút |
-| "Vòng lặp này nên dùng \`for\` hay \`map\`?" | **Thiết kế chi tiết** | Cục bộ, không ảnh hưởng ai khác |
+| "Hàm `tinhGiamGia` nhận `float64` hay `decimal`?" | **Thiết kế chi tiết** | Đổi trong một file, vài phút |
+| "Vòng lặp này nên dùng `for` hay `map`?" | **Thiết kế chi tiết** | Cục bộ, không ảnh hưởng ai khác |
 
 > ❓ **"Vậy ranh giới chính xác giữa kiến trúc và thiết kế ở đâu?"** Không có vạch kẻ tuyệt đối — đó là một *phổ*. Một quy tắc thực dụng (theo Martin Fowler): **kiến trúc là những thứ mà người giàu kinh nghiệm thấy *quan trọng và khó đổi*.** Nếu một quyết định mà sửa sai sau này tốn hàng tuần và ảnh hưởng nhiều đội → coi nó là kiến trúc, cân nhắc kỹ. Nếu sửa trong một buổi chiều → cứ để code dạy bạn.
 
@@ -51,7 +48,7 @@ window.README_MD = `# Lesson 01 — Kiến trúc phần mềm
 
 Kiểu kiến trúc phổ biến nhất. Hệ thống chia thành các **tầng** xếp chồng, mỗi tầng một trách nhiệm, và **chỉ phụ thuộc xuống dưới**:
 
-\`\`\`
+```
 ┌─────────────────────────────────────┐
 │  Presentation (UI / API controller)  │  ← nhận request, trả response
 ├─────────────────────────────────────┤
@@ -60,13 +57,13 @@ Kiểu kiến trúc phổ biến nhất. Hệ thống chia thành các **tầng*
 │  Data (repository, DB, ORM)           │  ← lưu / đọc dữ liệu
 └─────────────────────────────────────┘
         Phụ thuộc chỉ chảy XUỐNG
-\`\`\`
+```
 
 **Ví dụ tình huống — đặt một đơn hàng:**
-1. \`OrderController\` (presentation) nhận \`POST /orders\`, parse JSON.
-2. Gọi \`OrderService.placeOrder()\` (business) — kiểm tra tồn kho, tính tổng tiền, áp khuyến mãi.
-3. Business gọi \`OrderRepository.save()\` (data) — ghi vào PostgreSQL.
-4. Kết quả chảy ngược lên, controller trả \`201 Created\`.
+1. `OrderController` (presentation) nhận `POST /orders`, parse JSON.
+2. Gọi `OrderService.placeOrder()` (business) — kiểm tra tồn kho, tính tổng tiền, áp khuyến mãi.
+3. Business gọi `OrderRepository.save()` (data) — ghi vào PostgreSQL.
+4. Kết quả chảy ngược lên, controller trả `201 Created`.
 
 **Ưu điểm:** dễ hiểu, ai cũng quen; tách trách nhiệm rõ; đổi UI (web → mobile API) không đụng tầng business; dễ phân công đội theo tầng.
 
@@ -76,7 +73,7 @@ Kiểu kiến trúc phổ biến nhất. Hệ thống chia thành các **tầng*
 
 > ❓ **"Tầng business có được phép gọi thẳng tầng presentation không?"** Không. Phụ thuộc chỉ chảy **một chiều xuống dưới**. Nếu business cần "thông báo cho UI", nó *trả dữ liệu lên* hoặc phát một sự kiện (mục 5), chứ không gọi ngược lên. Vi phạm chiều phụ thuộc = tạo vòng lặp coupling, phá vỡ lợi ích của phân tầng (nhắc lại [coupling/cohesion](../../02-Design-Quality/lesson-03-coupling-cohesion/)).
 
-> ⚠ **Lỗi thường gặp.** "Tầng" không phải là "thư mục". Tạo 3 thư mục \`presentation/ business/ data/\` rồi vẫn để controller gọi thẳng SQL = phân tầng *hình thức*, không có ràng buộc thật. Phân tầng chỉ có giá trị khi **chiều phụ thuộc được ép tuân thủ** (qua review, qua công cụ, qua interface).
+> ⚠ **Lỗi thường gặp.** "Tầng" không phải là "thư mục". Tạo 3 thư mục `presentation/ business/ data/` rồi vẫn để controller gọi thẳng SQL = phân tầng *hình thức*, không có ràng buộc thật. Phân tầng chỉ có giá trị khi **chiều phụ thuộc được ép tuân thủ** (qua review, qua công cụ, qua interface).
 
 > 🔁 **Dừng lại tự kiểm tra.** Bạn muốn đổi từ PostgreSQL sang MongoDB. Trong kiến trúc phân tầng "thuần", việc này dễ hay khó?
 > <details><summary>Đáp án</summary>Thường <b>khó hơn mong đợi</b>, vì tầng business gọi thẳng API của tầng data (ORM cụ thể). Câu lệnh, kiểu dữ liệu, transaction lẫn vào logic nghiệp vụ. Để dễ đổi, cần <b>đảo ngược phụ thuộc</b>: business chỉ phụ thuộc một <i>interface</i> trừu tượng, data hiện thực interface đó — đây chính là ý tưởng của hexagonal (mục 3).</details>
@@ -89,12 +86,12 @@ Kiểu kiến trúc phổ biến nhất. Hệ thống chia thành các **tầng*
 
 💡 **Trực giác.** Hãy hình dung **lõi nghiệp vụ** như một con chip xử lý đặt giữa, còn mọi thứ bên ngoài (database, web, hàng đợi tin nhắn, dịch vụ thanh toán) là *thiết bị cắm vào* qua các cổng chuẩn — giống cổng USB. Lõi không cần biết đầu kia cắm cái gì; nó chỉ biết "cổng lưu đơn hàng". Bạn thay ổ cứng bằng USB, lõi không đổi.
 
-**Vấn đề cần giải.** Trong phân tầng thuần, lõi nghiệp vụ phụ thuộc *xuống* hạ tầng (DB, framework). Hexagonal **đảo chiều phụ thuộc** (Dependency Inversion — xem [nguyên lý thiết kế](../../02-Design-Quality/lesson-02-nguyen-ly-thiet-ke/)): hạ tầng phụ thuộc *vào* lõi, không ngược lại.
+**Vấn đề cần giải.** Trong phân tầng thuần, lõi nghiệp vụ phụ thuộc *xuống* hạ tầng (DB, framework). Hexagonal **đảo chiều phụ thuộc** (Dependency Inversion — xem [nguyên lý thiết kế](../../02-Design-Quality/lesson-02-design-principles/)): hạ tầng phụ thuộc *vào* lõi, không ngược lại.
 
-- **Port (cổng):** một **interface** do lõi định nghĩa — mô tả *cái lõi cần* hoặc *cái lõi cung cấp*, bằng ngôn ngữ nghiệp vụ. Ví dụ: \`OrderRepository\` (lưu/đọc đơn), \`PaymentGateway\` (thu tiền).
-- **Adapter (bộ chuyển đổi):** một hiện thực cụ thể của port, sống ở *vòng ngoài*. Ví dụ: \`PostgresOrderRepository\`, \`StripePaymentGateway\`, \`HttpOrderController\`.
+- **Port (cổng):** một **interface** do lõi định nghĩa — mô tả *cái lõi cần* hoặc *cái lõi cung cấp*, bằng ngôn ngữ nghiệp vụ. Ví dụ: `OrderRepository` (lưu/đọc đơn), `PaymentGateway` (thu tiền).
+- **Adapter (bộ chuyển đổi):** một hiện thực cụ thể của port, sống ở *vòng ngoài*. Ví dụ: `PostgresOrderRepository`, `StripePaymentGateway`, `HttpOrderController`.
 
-\`\`\`
+```
             ┌──────────────────────────────┐
    HTTP  ──►│  Adapter   ┌────────────┐     │
    (web)    │  (driving) │   LÕI       │     │
@@ -104,12 +101,12 @@ Kiểu kiến trúc phổ biến nhất. Hệ thống chia thành các **tầng*
             │            └────────────┘     │
             └──────────────────────────────┘
    Adapter ngoài phụ thuộc VÀO Port của lõi (mũi tên hướng vào trong)
-\`\`\`
+```
 
-**Vì sao dễ test?** Lõi chỉ biết *interface* \`PaymentGateway\`, không biết Stripe. Khi viết unit test, ta cắm một **adapter giả** (\`FakePaymentGateway\` trả về "thành công" tức thì) thay cho Stripe thật. Test chạy **không cần mạng, không cần thẻ thật, mili-giây** mà vẫn kiểm tra đúng logic "đơn được đánh dấu đã-thanh-toán khi gateway trả OK".
+**Vì sao dễ test?** Lõi chỉ biết *interface* `PaymentGateway`, không biết Stripe. Khi viết unit test, ta cắm một **adapter giả** (`FakePaymentGateway` trả về "thành công" tức thì) thay cho Stripe thật. Test chạy **không cần mạng, không cần thẻ thật, mili-giây** mà vẫn kiểm tra đúng logic "đơn được đánh dấu đã-thanh-toán khi gateway trả OK".
 
 **Ví dụ Go (rút gọn):**
-\`\`\`go
+```go
 // Port — lõi định nghĩa, lõi sở hữu
 type OrderRepository interface {
     Save(o Order) error
@@ -128,15 +125,15 @@ func (r PostgresOrderRepo) FindByID(id string) (Order, error) { /* SELECT ... */
 // Test — cắm fake, không cần DB
 type FakeRepo struct{ saved []Order }
 func (f *FakeRepo) Save(o Order) error { f.saved = append(f.saved, o); return nil }
-\`\`\`
+```
 
 **Ưu điểm:** lõi nghiệp vụ **độc lập với hạ tầng** → test nhanh, đổi DB/framework không đụng logic, biên giới rõ ràng. **Nhược điểm:** nhiều interface & lớp hơn → *boilerplate*; với CRUD đơn giản là thừa thãi (over-engineering — mục 6).
 
 > ❓ **"Khác gì phân tầng đâu, vẫn 3 lớp?"** Khác ở **chiều phụ thuộc**. Phân tầng: business → data (lõi phụ thuộc hạ tầng). Hexagonal: data → business (hạ tầng phụ thuộc lõi, qua port do lõi định nghĩa). Sự đảo chiều này là điều khiến lõi *test được mà không cần hạ tầng* — thứ phân tầng thuần không cho.
 
-> ⚠ **Lỗi thường gặp.** Định nghĩa port ở *tầng hạ tầng* (vd interface nằm trong gói \`repository\`) rồi để lõi import nó. Sai chiều — khi đó lõi vẫn phụ thuộc hạ tầng. **Port phải do lõi sở hữu**, đặt cạnh use case; adapter ở ngoài import vào lõi.
+> ⚠ **Lỗi thường gặp.** Định nghĩa port ở *tầng hạ tầng* (vd interface nằm trong gói `repository`) rồi để lõi import nó. Sai chiều — khi đó lõi vẫn phụ thuộc hạ tầng. **Port phải do lõi sở hữu**, đặt cạnh use case; adapter ở ngoài import vào lõi.
 
-> 🔁 **Dừng lại tự kiểm tra.** Vì sao đặt interface \`PaymentGateway\` trong gói lõi (chứ không trong gói \`stripe\`) lại quan trọng?
+> 🔁 **Dừng lại tự kiểm tra.** Vì sao đặt interface `PaymentGateway` trong gói lõi (chứ không trong gói `stripe`) lại quan trọng?
 > <details><summary>Đáp án</summary>Vì như vậy <b>lõi không import gói <code>stripe</code></b> — phụ thuộc chỉ chảy từ ngoài vào trong. Nếu interface nằm trong gói <code>stripe</code> và lõi import nó, lõi lại dính vào hạ tầng: đổi sang PayPal phải sửa lõi, và test phải kéo theo gói stripe. Đặt port trong lõi = đảo ngược phụ thuộc đúng nghĩa.</details>
 
 📝 **Tóm tắt mục 3.** Hexagonal tách **lõi nghiệp vụ** khỏi hạ tầng qua **port (interface lõi sở hữu)** và **adapter (hiện thực bên ngoài)**. Đảo chiều phụ thuộc (ngoài → trong) → lõi test được không cần DB/mạng. Đổi lại: nhiều lớp/boilerplate, thừa cho ứng dụng CRUD đơn giản.
@@ -150,7 +147,7 @@ func (f *FakeRepo) Save(o Order) error { f.saved = append(f.saved, o); return ni
 - **Monolith:** toàn bộ ứng dụng là **một đơn vị triển khai** (một tiến trình, một codebase, thường một database). Các module gọi nhau bằng *lời gọi hàm trong bộ nhớ*.
 - **Microservices:** hệ thống chia thành **nhiều service nhỏ, độc lập triển khai**, mỗi service một trách nhiệm nghiệp vụ và (lý tưởng) một database riêng. Giao tiếp qua **mạng** (HTTP/REST, gRPC, hoặc message queue).
 
-\`\`\`
+```
    MONOLITH                          MICROSERVICES
  ┌───────────────┐          ┌────────┐  HTTP/  ┌────────┐
  │ ┌─────┐┌─────┐│          │ Order  │ ◄─────► │Payment │
@@ -162,7 +159,7 @@ func (f *FakeRepo) Save(o Order) error { f.saved = append(f.saved, o); return ni
  │   1 database  │          │  svc   │         │  svc   │
  └───────────────┘          └────────┘         └────────┘
   1 tiến trình, gọi hàm     N tiến trình, gọi qua mạng
-\`\`\`
+```
 
 **Bảng so sánh:**
 
@@ -196,18 +193,18 @@ func (f *FakeRepo) Save(o Order) error { f.saved = append(f.saved, o); return ni
 
 💡 **Trực giác.** Thay vì A *gọi* B và đứng chờ B làm xong (đồng bộ, như gọi điện chờ máy), A chỉ **phát một thông báo** "đơn hàng đã đặt" lên một bảng tin chung rồi đi tiếp; ai quan tâm thì tự đọc và xử lý (bất đồng bộ, như đăng tin lên nhóm chat). A không cần biết *ai* nghe, *bao nhiêu* người nghe.
 
-- **Sự kiện (event):** một sự thật đã xảy ra trong quá khứ, vd \`OrderPlaced\`, \`PaymentReceived\`. Producer (bên phát) *không biết* consumer (bên nhận) là ai.
+- **Sự kiện (event):** một sự thật đã xảy ra trong quá khứ, vd `OrderPlaced`, `PaymentReceived`. Producer (bên phát) *không biết* consumer (bên nhận) là ai.
 - **Message queue / broker** (Kafka, RabbitMQ, SQS): trung gian lưu trữ và chuyển sự kiện, **tách rời** (decouple) producer khỏi consumer cả về *thời gian* lẫn *danh tính*.
 
-\`\`\`
+```
                           ┌─► [Inventory svc]  (trừ kho)
  [Order svc] ──OrderPlaced──►│ MESSAGE   ┌─► [Email svc]  (gửi mail xác nhận)
    (producer)              └─► QUEUE  ──►├─► [Analytics]  (ghi thống kê)
                                           └─► [Shipping]   (tạo phiếu giao)
         Producer phát 1 sự kiện → nhiều consumer xử lý độc lập, bất đồng bộ
-\`\`\`
+```
 
-**Ví dụ tình huống.** Khách đặt hàng. Service Order chỉ làm *một việc*: lưu đơn + phát \`OrderPlaced\`. Bốn việc còn lại (trừ kho, gửi mail, ghi analytics, tạo phiếu giao) do bốn consumer tự xử lý khi rảnh. Thêm tính năng mới ("tích điểm thưởng") = thêm một consumer mới *nghe cùng sự kiện*, **không sửa Order service**.
+**Ví dụ tình huống.** Khách đặt hàng. Service Order chỉ làm *một việc*: lưu đơn + phát `OrderPlaced`. Bốn việc còn lại (trừ kho, gửi mail, ghi analytics, tạo phiếu giao) do bốn consumer tự xử lý khi rảnh. Thêm tính năng mới ("tích điểm thưởng") = thêm một consumer mới *nghe cùng sự kiện*, **không sửa Order service**.
 
 **Ưu điểm:** tách rời mạnh (producer/consumer phát triển độc lập); chịu tải tốt (queue đệm lúc cao điểm); dễ mở rộng tính năng (thêm consumer); một consumer chết không kéo cả luồng theo.
 
@@ -215,7 +212,7 @@ func (f *FakeRepo) Save(o Order) error { f.saved = append(f.saved, o); return ni
 
 **Eventual consistency là gì (và vì sao tồn tại)?** Vì các consumer xử lý *bất đồng bộ*, có một khoảng thời gian ngắn hệ thống **chưa nhất quán**: đơn đã được tạo nhưng kho *chưa kịp* trừ, mail *chưa kịp* gửi. Sau một lúc (mili-giây tới giây) mọi thứ hội tụ về đúng — "*eventual*" (rốt cuộc) consistency, đối lập với "*strong*" consistency (nhất quán tức thì như transaction trong một DB). 
 
-> 💡 **Ví dụ số cụ thể về eventual consistency.** Tại \`t=0ms\` khách đặt đơn #1001, Order service trả \`201 Created\` ngay. Tại \`t=0ms\` kho hàng *vẫn hiển thị* còn 5 cái (chưa trừ). Tại \`t=120ms\` Inventory consumer xử lý xong \`OrderPlaced\` → kho còn 4. Trong khoảng \`0–120ms\`, một truy vấn tồn kho thấy **5** dù đơn đã đặt. Hệ thống *rốt cuộc* đúng, nhưng không *tức thì* đúng. Thiết kế phải chấp nhận và xử lý cửa sổ này (vd: đặt chỗ tạm, idempotency).
+> 💡 **Ví dụ số cụ thể về eventual consistency.** Tại `t=0ms` khách đặt đơn #1001, Order service trả `201 Created` ngay. Tại `t=0ms` kho hàng *vẫn hiển thị* còn 5 cái (chưa trừ). Tại `t=120ms` Inventory consumer xử lý xong `OrderPlaced` → kho còn 4. Trong khoảng `0–120ms`, một truy vấn tồn kho thấy **5** dù đơn đã đặt. Hệ thống *rốt cuộc* đúng, nhưng không *tức thì* đúng. Thiết kế phải chấp nhận và xử lý cửa sổ này (vd: đặt chỗ tạm, idempotency).
 
 > ❓ **"Eventual consistency có phải là 'dữ liệu sai' không?"** Không hẳn — dữ liệu *sẽ đúng*, chỉ là không *ngay lập tức*. Vấn đề là **chấp nhận được không** cho nghiệp vụ đó. "Số like trên bài đăng" trễ vài giây → không sao. "Số dư tài khoản ngân hàng khi rút tiền" trễ → tuyệt đối không, phải strong consistency. Chọn event-driven = chọn đánh đổi này một cách *có ý thức*.
 
@@ -232,7 +229,7 @@ func (f *FakeRepo) Save(o Order) error { f.saved = append(f.saved, o); return ni
 
 💡 **Trực giác.** Không có kiến trúc "tốt nhất" tuyệt đối, chỉ có kiến trúc **phù hợp nhất với ràng buộc của bạn**. Như chọn phương tiện đi lại: đi chợ gần thì xe đạp; chở 30 tấn hàng xuyên quốc gia thì xe tải. Chọn xe tải để đi chợ = over-engineering (lãng phí, cồng kềnh); chọn xe đạp chở 30 tấn = under-engineering (không kham nổi).
 
-**Kiến trúc được lái bởi yêu cầu phi chức năng** (non-functional requirements — NFR), không phải bởi tính năng. Tính năng nói *hệ thống làm gì*; NFR nói *làm tốt đến mức nào*. Xem lại [Lesson 03 — Yêu cầu & đặc tả](../../01-Foundations/lesson-03-yeu-cau-dac-ta/) để phân biệt chức năng vs phi chức năng.
+**Kiến trúc được lái bởi yêu cầu phi chức năng** (non-functional requirements — NFR), không phải bởi tính năng. Tính năng nói *hệ thống làm gì*; NFR nói *làm tốt đến mức nào*. Xem lại [Lesson 03 — Yêu cầu & đặc tả](../../01-Foundations/lesson-03-requirements-spec/) để phân biệt chức năng vs phi chức năng.
 
 **Bảng: NFR nào dẫn tới lựa chọn kiến trúc nào (ví dụ):**
 
@@ -263,13 +260,13 @@ func (f *FakeRepo) Save(o Order) error { f.saved = append(f.saved, o); return ni
 
 ## 7. Bài tập
 
-1. Phân loại mỗi quyết định sau là **kiến trúc** hay **thiết kế chi tiết**, giải thích ngắn: (a) "Dùng microservices hay monolith?"; (b) "Đặt tên biến \`n\` hay \`count\`?"; (c) "Lõi nghiệp vụ có được import gói database không?"; (d) "Hàm sắp xếp dùng quicksort hay mergesort?".
+1. Phân loại mỗi quyết định sau là **kiến trúc** hay **thiết kế chi tiết**, giải thích ngắn: (a) "Dùng microservices hay monolith?"; (b) "Đặt tên biến `n` hay `count`?"; (c) "Lõi nghiệp vụ có được import gói database không?"; (d) "Hàm sắp xếp dùng quicksort hay mergesort?".
 
 2. Một hệ thống thương mại điện tử đang là monolith. Phần **tìm kiếm sản phẩm** chịu tải gấp 40 lần phần **quản lý đơn hàng** vào giờ cao điểm, và đội tìm kiếm muốn deploy độc lập 5 lần/ngày. Có nên tách tìm kiếm thành microservice riêng không? Vì sao? Nêu **một** chi phí phải trả khi tách.
 
 3. Giải thích vì sao kiến trúc **hexagonal** giúp test lõi nghiệp vụ *không cần database thật*, trong khi kiến trúc **phân tầng thuần** thường không. Chỉ rõ điểm khác biệt về **chiều phụ thuộc**.
 
-4. Một app chuyển tiền giữa hai tài khoản đề xuất dùng **event-driven** (phát sự kiện \`MoneyTransferred\`, các service tự xử lý bất đồng bộ). Nêu rủi ro cụ thể của lựa chọn này và đề xuất hướng xử lý.
+4. Một app chuyển tiền giữa hai tài khoản đề xuất dùng **event-driven** (phát sự kiện `MoneyTransferred`, các service tự xử lý bất đồng bộ). Nêu rủi ro cụ thể của lựa chọn này và đề xuất hướng xử lý.
 
 5. Một đội 3 người làm MVP cho ý tưởng startup chưa được kiểm chứng, đề xuất kiến trúc: 10 microservices + Kafka + hexagonal đầy đủ mỗi service. Đánh giá đề xuất và đưa ra kiến trúc bạn khuyến nghị kèm lý do (theo NFR).
 
@@ -287,7 +284,7 @@ func (f *FakeRepo) Save(o Order) error { f.saved = append(f.saved, o); return ni
 
 **Bài 5.** Đề xuất là **over-engineering nghiêm trọng**. Bối cảnh: đội 3 người, MVP, ý tưởng *chưa kiểm chứng* → NFR ưu tiên là **đi nhanh + dễ đổi hướng**, *không* phải scale hay tự chủ nhiều đội (chưa có nhiều đội, chưa có tải). 10 microservices + Kafka + hexagonal đầy đủ sẽ: tốn phần lớn thời gian dựng hạ tầng thay vì kiểm chứng ý tưởng; mỗi thay đổi phải sờ nhiều service; 3 người không kham nổi vận hành. **Khuyến nghị: modular monolith** — một codebase/một tiến trình/một DB, *chia module rõ ràng* theo nghiệp vụ, có thể đặt interface ở vài biên giới quan trọng (chuẩn bị *rẻ*) để dễ tách sau. Lý do theo NFR: thỏa "đi nhanh + dễ đổi" với chi phí thấp nhất; tách microservice *sau* khi ý tưởng được kiểm chứng và biên giới nghiệp vụ rõ.
 
-**Bài 6.** Chọn **strong consistency** cho thao tác "giữ vé". Vì yêu cầu nghiệp vụ là **không được oversell** — mỗi vé bán cho *đúng một* người, đây là ràng buộc *bất biến tức thì*. Eventual consistency mở ra cửa sổ thời gian hai người *cùng thấy vé còn trống* rồi *cùng mua* → bán trùng (double-sell). Strong consistency (vd dùng transaction + khóa hàng/\`SELECT ... FOR UPDATE\`, hoặc thao tác atomic giảm tồn kho có điều kiện) đảm bảo chỉ một giao dịch thành công. Đây là trường hợp "số dư/tồn kho duy nhất" ở mục 5: nhất quán tức thì là bắt buộc, không đánh đổi được.
+**Bài 6.** Chọn **strong consistency** cho thao tác "giữ vé". Vì yêu cầu nghiệp vụ là **không được oversell** — mỗi vé bán cho *đúng một* người, đây là ràng buộc *bất biến tức thì*. Eventual consistency mở ra cửa sổ thời gian hai người *cùng thấy vé còn trống* rồi *cùng mua* → bán trùng (double-sell). Strong consistency (vd dùng transaction + khóa hàng/`SELECT ... FOR UPDATE`, hoặc thao tác atomic giảm tồn kho có điều kiện) đảm bảo chỉ một giao dịch thành công. Đây là trường hợp "số dư/tồn kho duy nhất" ở mục 5: nhất quán tức thì là bắt buộc, không đánh đổi được.
 
 ---
 
@@ -300,6 +297,5 @@ func (f *FakeRepo) Save(o Order) error { f.saved = append(f.saved, o); return ni
 
 ## 9. Bài tiếp theo
 
-- [Lesson 02 — Thiết kế API](../lesson-02-thiet-ke-api/) — khi đã chọn cấu trúc lớn, bước tiếp là thiết kế **hợp đồng giao tiếp** giữa các thành phần/service.
-- Liên quan ngược: [Coupling & Cohesion](../../02-Design-Quality/lesson-03-coupling-cohesion/) (kiến trúc là coupling/cohesion mức hệ thống), [Nguyên lý thiết kế](../../02-Design-Quality/lesson-02-nguyen-ly-thiet-ke/) (DIP là nền của hexagonal), [Yêu cầu & đặc tả](../../01-Foundations/lesson-03-yeu-cau-dac-ta/) (NFR lái lựa chọn kiến trúc).
-`;
+- [Lesson 02 — Thiết kế API](../lesson-02-api-design/) — khi đã chọn cấu trúc lớn, bước tiếp là thiết kế **hợp đồng giao tiếp** giữa các thành phần/service.
+- Liên quan ngược: [Coupling & Cohesion](../../02-Design-Quality/lesson-03-coupling-cohesion/) (kiến trúc là coupling/cohesion mức hệ thống), [Nguyên lý thiết kế](../../02-Design-Quality/lesson-02-design-principles/) (DIP là nền của hexagonal), [Yêu cầu & đặc tả](../../01-Foundations/lesson-03-requirements-spec/) (NFR lái lựa chọn kiến trúc).

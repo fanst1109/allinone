@@ -1,5 +1,5 @@
 // AUTO-GENERATED bởi tools/build-readme-data.go — KHÔNG sửa bằng tay.
-// Source: SoftwareEngineering/02-Design-Quality/lesson-06-chien-luoc-kiem-thu/README.md
+// Source: SoftwareEngineering/02-Design-Quality/lesson-06-testing-strategy/README.md
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 06 — Chiến lược kiểm thử (test pyramid, TDD/BDD)
 
@@ -19,8 +19,8 @@ window.README_MD = `# Lesson 06 — Chiến lược kiểm thử (test pyramid, 
 ## Kiến thức tiền đề
 
 - [Lesson 05 — Refactoring & nợ kỹ thuật](../lesson-05-refactoring-tech-debt/) — refactor là "đổi cấu trúc mà giữ nguyên hành vi". *Làm sao biết hành vi không đổi?* → nhờ **test bảo vệ**. Bài này giải thích bộ test đó được tổ chức ra sao.
-- [Lesson 01 (Tầng 1) — SDLC & vai trò kỹ sư](../../01-Foundations/lesson-01-sdlc-vai-tro-ky-su/) — **đường cong chi phí lỗi**: lỗi bắt càng muộn càng đắt (1× → tới 100× ở production). Test tự động chính là cơ chế kéo việc "bắt lỗi" về sớm.
-- [Lesson 03 (Tầng 1) — Yêu cầu & đặc tả](../../01-Foundations/lesson-03-yeu-cau-dac-ta/) — **tiêu chí chấp nhận** (acceptance criteria). BDD ở mục 5 biến các tiêu chí này thành test đọc được.
+- [Lesson 01 (Tầng 1) — SDLC & vai trò kỹ sư](../../01-Foundations/lesson-01-sdlc-engineer-role/) — **đường cong chi phí lỗi**: lỗi bắt càng muộn càng đắt (1× → tới 100× ở production). Test tự động chính là cơ chế kéo việc "bắt lỗi" về sớm.
+- [Lesson 03 (Tầng 1) — Yêu cầu & đặc tả](../../01-Foundations/lesson-03-requirements-spec/) — **tiêu chí chấp nhận** (acceptance criteria). BDD ở mục 5 biến các tiêu chí này thành test đọc được.
 - Đã viết được test cơ bản (xem 3 bài Programming nêu ở đầu). Không bắt buộc, nhưng giúp các ví dụ thân quen hơn.
 
 ---
@@ -31,7 +31,7 @@ window.README_MD = `# Lesson 06 — Chiến lược kiểm thử (test pyramid, 
 
 Test phục vụ **hai mục đích** thường bị nhầm thành một:
 
-1. **Bắt lỗi sớm** — phát hiện sai *trước khi* nó tới người dùng. Đây là cách kéo lỗi về phía rẻ trên [đường cong chi phí lỗi](../../01-Foundations/lesson-01-sdlc-vai-tro-ky-su/): một bug bắt ở máy dev (test chạy trong 2 giây) tốn gần như 0; cùng bug đó lọt ra production có thể tốn nhiều ngày + uy tín.
+1. **Bắt lỗi sớm** — phát hiện sai *trước khi* nó tới người dùng. Đây là cách kéo lỗi về phía rẻ trên [đường cong chi phí lỗi](../../01-Foundations/lesson-01-sdlc-engineer-role/): một bug bắt ở máy dev (test chạy trong 2 giây) tốn gần như 0; cùng bug đó lọt ra production có thể tốn nhiều ngày + uy tín.
 2. **Cho phép thay đổi tự tin** — đây mới là giá trị *lâu dài*. Khi [refactor (Lesson 05)](../lesson-05-refactoring-tech-debt/) hay thêm tính năng, bộ test chạy lại trong giây lát và nói "hành vi cũ vẫn đúng". Không có nó, mỗi lần sửa là một canh bạc.
 
 **Ví dụ số cụ thể — giá trị của lưới an toàn.** Một hàm \`tinhGiamGia(tongTien, hangThanhVien)\` có 6 nhánh logic (thường, bạc, vàng, kim cương, đơn > 1 triệu, mã khuyến mãi). Bạn cần sửa công thức hạng vàng.
@@ -44,7 +44,7 @@ Test phục vụ **hai mục đích** thường bị nhầm thành một:
 
 > ❓ **Câu hỏi tự nhiên của người đọc.**
 > - *"Viết test tốn thời gian mà, có làm chậm dự án không?"* — Chậm *lúc đầu*, nhanh *về sau*. Test là khoản đầu tư: bỏ vài phút viết, thu lại hàng giờ không phải debug thủ công + không phải sợ-hãi mỗi lần sửa. Đúng logic đường cong chi phí lỗi ở Tầng 1.
-> - *"Code của tôi nhỏ, cần gì test?"* — Script 50 dòng dùng một lần thì không. Nhưng bất cứ thứ gì *nhiều người sửa, sống nhiều năm* thì test là điều kiện để nó không mục (xem [Lesson 01 Tầng 1: code cá nhân vs phần mềm kỹ thuật](../../01-Foundations/lesson-01-sdlc-vai-tro-ky-su/)).
+> - *"Code của tôi nhỏ, cần gì test?"* — Script 50 dòng dùng một lần thì không. Nhưng bất cứ thứ gì *nhiều người sửa, sống nhiều năm* thì test là điều kiện để nó không mục (xem [Lesson 01 Tầng 1: code cá nhân vs phần mềm kỹ thuật](../../01-Foundations/lesson-01-sdlc-engineer-role/)).
 > - *"Test có chứng minh code đúng không?"* — Không. Test chỉ chứng minh code đúng *với những trường hợp bạn đã nghĩ ra*. Lỗi nằm ở case bạn quên thì test không bắt được (xem mục 6 về coverage).
 
 🔁 **Dừng lại tự kiểm tra.** Đội bạn ngại refactor một module rối vì "sửa là sợ vỡ chỗ khác". Test giúp gì ở đây — bắt lỗi sớm hay cho phép thay đổi tự tin?
@@ -174,7 +174,7 @@ Khuôn mẫu chuẩn **Given / When / Then** (Cho trước / Khi / Thì):
 - **When** (hành động): sự kiện xảy ra — *"Khi đặt đơn hàng trị giá 1.200.000đ"*.
 - **Then** (kết quả mong đợi): hành vi cần đúng — *"Thì tổng tiền sau giảm là 1.080.000đ"*.
 
-**Nối với tiêu chí chấp nhận.** Đây chính là cách hiện thực hóa [acceptance criteria từ Lesson 03 (Tầng 1)](../../01-Foundations/lesson-03-yeu-cau-dac-ta/). Một user story có tiêu chí chấp nhận:
+**Nối với tiêu chí chấp nhận.** Đây chính là cách hiện thực hóa [acceptance criteria từ Lesson 03 (Tầng 1)](../../01-Foundations/lesson-03-requirements-spec/). Một user story có tiêu chí chấp nhận:
 
 > *"Là khách hàng vàng, tôi muốn được giảm 10% cho đơn trên 1 triệu, để được tưởng thưởng vì trung thành."*
 
@@ -206,7 +206,7 @@ Scenario: Khách chưa đăng nhập bị chặn khỏi trang quản trị
 \`\`\`
 Given = trạng thái (chưa đăng nhập); When = hành động (truy cập /admin); Then = hành vi mong đợi (redirect về /login). Đây vừa là tiêu chí chấp nhận vừa là test chạy được.</details>
 
-📝 **Tóm tắt mục 5.** BDD mô tả *hành vi* bằng ngôn ngữ nghiệp vụ theo mẫu **Given/When/Then**, biến [tiêu chí chấp nhận (Lesson 03)](../../01-Foundations/lesson-03-yeu-cau-dac-ta/) thành test chạy được — xóa khoảng cách giữa tài liệu và kiểm thử. Bản chất là TDD ở mức hành vi; không bắt buộc công cụ riêng.
+📝 **Tóm tắt mục 5.** BDD mô tả *hành vi* bằng ngôn ngữ nghiệp vụ theo mẫu **Given/When/Then**, biến [tiêu chí chấp nhận (Lesson 03)](../../01-Foundations/lesson-03-requirements-spec/) thành test chạy được — xóa khoảng cách giữa tài liệu và kiểm thử. Bản chất là TDD ở mức hành vi; không bắt buộc công cụ riêng.
 
 ---
 
@@ -350,7 +350,7 @@ Tham khảo cú pháp viết test thực tế (Go): [Programming L26 basics](../
 | # | Lesson | Ý chính rút ra |
 |---|--------|----------------|
 | 1 | [Clean code & code smells](../lesson-01-clean-code-code-smells/) | Code đọc-được là tài sản; smell là tín hiệu cảnh báo cần dọn |
-| 2 | [Nguyên lý thiết kế (SOLID)](../lesson-02-nguyen-ly-thiet-ke/) | 5 nguyên lý giữ thiết kế hướng đối tượng linh hoạt, dễ mở rộng |
+| 2 | [Nguyên lý thiết kế (SOLID)](../lesson-02-design-principles/) | 5 nguyên lý giữ thiết kế hướng đối tượng linh hoạt, dễ mở rộng |
 | 3 | [Coupling & Cohesion](../lesson-03-coupling-cohesion/) | Gắn kết cao trong module, ràng buộc lỏng giữa module |
 | 4 | [Design patterns](../lesson-04-design-patterns/) | Giải pháp mẫu cho vấn đề thiết kế lặp lại |
 | 5 | [Refactoring & nợ kỹ thuật](../lesson-05-refactoring-tech-debt/) | Cải thiện cấu trúc mà giữ hành vi; quản lý nợ kỹ thuật |

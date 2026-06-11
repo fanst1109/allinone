@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 01 — SDLC & vai trò kỹ sư</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background: #7c3aed; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.primary:hover { background:#6d28d9; }
+  .chip { display:inline-block; padding:4px 11px; border-radius:6px; background:#ede9fe; color:#5b21b6; cursor:pointer; margin-right:6px; font-size:13px; font-weight:600; }
+  .chip.active { background:#7c3aed; color:#fff; }
+  /* timeline */
+  .track { display:flex; gap:4px; margin-top:12px; flex-wrap:wrap; }
+  .ph { flex:1 1 0; min-width:54px; text-align:center; padding:8px 4px; border-radius:6px; font-size:12px; font-weight:600; background:#f1f5f9; color:#475569; border:2px solid transparent; }
+  .ph.done { background:#ddd6fe; color:#5b21b6; }
+  .ph.demo { background:#fde68a; color:#92400e; border-color:#f59e0b; }
+  .feedback { margin-top:12px; font-size:14px; padding:10px 12px; border-left:4px solid #7c3aed; background:#f5f3ff; border-radius:4px; }
+  /* cost curve */
+  .stages { display:flex; gap:4px; margin:10px 0; flex-wrap:wrap; }
+  .stage { flex:1 1 0; min-width:60px; text-align:center; padding:6px 2px; border-radius:5px; background:#f1f5f9; cursor:pointer; font-size:11px; font-weight:600; }
+  .stage.sel { background:#7c3aed; color:#fff; }
+  .bars { display:flex; align-items:flex-end; gap:6px; height:160px; margin-top:10px; padding:0 4px; }
+  .bar { flex:1; background:#c4b5fd; border-radius:4px 4px 0 0; transition:height .4s, background .3s; position:relative; }
+  .bar.sel { background:#7c3aed; }
+  .bar .v { position:absolute; top:-18px; left:0; right:0; text-align:center; font-size:11px; font-weight:700; color:#5b21b6; }
+  .bar .lbl { position:absolute; bottom:-34px; left:-6px; right:-6px; text-align:center; font-size:10px; color:#475569; line-height:1.1; }
+  .barwrap { margin-bottom:40px; }
+  /* ordering */
+  .pool, .slot { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; min-height:44px; }
+  .tok { padding:7px 12px; border-radius:6px; background:#ede9fe; border:2px solid #c4b5fd; cursor:pointer; font-size:13px; font-weight:600; color:#5b21b6; user-select:none; }
+  .tok.placed { opacity:.4; cursor:default; }
+  .slot { border:2px dashed #cbd5e1; border-radius:8px; padding:8px; }
+  .slot .tok { background:#fff; }
+  .ord-fb { margin-top:10px; font-size:14px; font-weight:600; }
+  .ok { color:#16a34a; } .bad { color:#dc2626; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L1: SDLC & vai trò kỹ sư</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-agile-scrum-kanban/visualization.html">L2: Agile, Scrum, Kanban →</a>
+</nav>
+<main>
+<h1>Vòng đời phần mềm (SDLC) & vai trò kỹ sư</h1>
+<p class="note">Ba mô-đun: (1) Waterfall vs Lặp — khi nào khách thấy sản phẩm, (2) đường cong chi phí sửa lỗi, (3) xếp đúng thứ tự SDLC.</p>
+
+<div class="panel">
+  <h2>1 · Waterfall vs Lặp — cùng một dự án</h2>
+  <p class="note">Cùng 6 giai đoạn SDLC. Bấm "▶ Chạy" để xem mỗi mô hình giao sản phẩm & lấy phản hồi khách lúc nào (ô vàng = khách dùng thử).</p>
+  <div>
+    <span class="chip active" id="cWf" onclick="setModel('wf')">🌊 Waterfall</span>
+    <span class="chip" id="cIt" onclick="setModel('it')">🔁 Lặp (Iterative)</span>
+    <button class="primary" onclick="runModel()" style="margin-left:8px">▶ Chạy</button>
+  </div>
+  <div class="track" id="track"></div>
+  <div class="feedback" id="modelFb">Chọn mô hình rồi bấm Chạy.</div>
+</div>
+
+<div class="panel">
+  <h2>2 · Chi phí sửa cùng một lỗi — phát hiện càng muộn càng đắt</h2>
+  <p class="note">Bấm chọn giai đoạn phát hiện lỗi. Cột tô đậm = chi phí tương đối (theo Boehm).</p>
+  <div class="stages" id="stages"></div>
+  <div class="barwrap"><div class="bars" id="bars"></div></div>
+  <div class="feedback" id="costFb"></div>
+</div>
+
+<div class="panel">
+  <h2>3 · Xếp đúng thứ tự 6 giai đoạn SDLC</h2>
+  <p class="note">Bấm các thẻ theo đúng thứ tự vòng đời. Bấm nhầm thì "↻ Làm lại".</p>
+  <div class="pool" id="pool"></div>
+  <div class="slot" id="slot"></div>
+  <div class="ord-fb" id="ordFb"></div>
+  <button class="primary" onclick="resetOrder()" style="margin-top:10px">↻ Làm lại</button>
+</div>
+
+<script>
+// ===== Module 1: Waterfall vs Iterative =====
+const PHASES = ['Yêu cầu','Thiết kế','Hiện thực','Kiểm thử','Triển khai','Bảo trì'];
+let model = 'wf';
+function setModel(m){ model=m; document.getElementById('cWf').classList.toggle('active',m==='wf'); document.getElementById('cIt').classList.toggle('active',m==='it'); renderTrack([]); document.getElementById('modelFb').textContent='Bấm Chạy.'; }
+function renderTrack(states){
+  document.getElementById('track').innerHTML = PHASES.map((p,i)=>
+    `<div class="ph ${states[i]||''}">${p}</div>`).join('');
+}
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+async function runModel(){
+  const fb = document.getElementById('modelFb');
+  if(model==='wf'){
+    const st = Array(6).fill('');
+    for(let i=0;i<6;i++){ st[i]='done'; renderTrack([...st]); await sleep(420); }
+    // khách chỉ thấy ở cuối
+    st[4]='demo'; renderTrack([...st]);
+    fb.innerHTML = '🌊 <b>Waterfall</b>: làm tuần tự, khách <b>chỉ thấy sản phẩm ở giai đoạn Triển khai</b> (ô vàng) — gần cuối. Nếu hiểu sai yêu cầu từ đầu, đến giờ mới lộ → sửa rất đắt.';
+  } else {
+    fb.innerHTML = '🔁 <b>Lặp</b>: mỗi vòng đi hết các giai đoạn cho một lát cắt nhỏ và <b>giao bản chạy được</b> (ô vàng) — khách phản hồi sớm, sai thì sửa khi còn rẻ.';
+    for(let v=1; v<=3; v++){
+      const st = Array(6).fill('');
+      for(let i=0;i<5;i++){ st[i]='done'; renderTrack([...st]); await sleep(170); }
+      st[4]='demo'; renderTrack([...st]);
+      fb.innerHTML = `🔁 <b>Lặp — vòng ${v}/3</b>: vừa giao một bản chạy được (ô vàng) → khách dùng thử & góp ý ngay. Hiểu lầm yêu cầu lộ ra sau mỗi vòng ngắn, không phải ở cuối dự án.`;
+      await sleep(620);
+    }
+  }
+}
+
+// ===== Module 2: cost curve =====
+const COST = [
+  {s:'Yêu cầu', c:1},
+  {s:'Thiết kế', c:5},
+  {s:'Hiện thực', c:10},
+  {s:'Kiểm thử', c:25},
+  {s:'Production', c:100},
+];
+const MAXC = 100;
+let costSel = 0;
+function renderCost(){
+  document.getElementById('stages').innerHTML = COST.map((d,i)=>
+    `<div class="stage ${i===costSel?'sel':''}" onclick="selCost(${i})">${d.s}</div>`).join('');
+  document.getElementById('bars').innerHTML = COST.map((d,i)=>{
+    const h = Math.max(6, Math.round(d.c/MAXC*100));
+    return `<div class="bar ${i===costSel?'sel':''}" style="height:${h}%"><span class="v">${d.c}×</span><span class="lbl">${d.s}</span></div>`;
+  }).join('');
+  const d = COST[costSel];
+  document.getElementById('costFb').innerHTML =
+    `Lỗi bắt ở giai đoạn <b>${d.s}</b> tốn ~<b>${d.c}×</b> so với bắt ngay ở giai đoạn Yêu cầu (1×). ` +
+    (costSel===0 ? 'Rẻ nhất — chỉ là sửa một dòng đặc tả.' :
+     costSel===4 ? 'Đắt nhất — dữ liệu thật đã sai, phải di trú & thông báo, rủi ro uy tín.' :
+     'Càng muộn càng nhiều thứ đã xây dựa trên phần sai → sửa càng đắt.');
+}
+function selCost(i){ costSel=i; renderCost(); }
+
+// ===== Module 3: ordering =====
+let placed = [];
+function renderOrder(){
+  document.getElementById('pool').innerHTML = PHASES.map((p,i)=>
+    `<div class="tok ${placed.includes(i)?'placed':''}" onclick="${placed.includes(i)?'':'pick('+i+')'}">${p}</div>`).join('');
+  document.getElementById('slot').innerHTML = placed.map(i=>`<div class="tok">${PHASES[i]}</div>`).join('') || '<span class="note">Bấm các thẻ trên theo đúng thứ tự…</span>';
+  const fb = document.getElementById('ordFb');
+  if(placed.length<6){ fb.textContent=''; return; }
+  const ok = placed.every((v,idx)=>v===idx);
+  fb.innerHTML = ok ? '<span class="ok">✅ Chính xác! Yêu cầu → Thiết kế → Hiện thực → Kiểm thử → Triển khai → Bảo trì.</span>'
+                    : '<span class="bad">❌ Chưa đúng thứ tự. Gợi ý: bắt đầu từ "xây cái gì" (Yêu cầu), kết thúc bằng "sửa & tiến hóa" (Bảo trì). Bấm Làm lại.</span>';
+}
+function pick(i){ placed.push(i); renderOrder(); }
+function resetOrder(){ placed=[]; renderOrder(); }
+
+// init
+renderTrack([]); renderCost(); renderOrder();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

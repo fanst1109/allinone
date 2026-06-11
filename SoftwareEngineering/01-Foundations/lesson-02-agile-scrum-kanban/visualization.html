@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 02 — Agile, Scrum & Kanban</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background: #7c3aed; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.primary:hover { background:#6d28d9; }
+  button.ghost { background:#ede9fe; color:#5b21b6; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; font-weight:600; }
+  button.ghost:hover { background:#ddd6fe; }
+  .feedback { margin-top:12px; font-size:14px; padding:10px 12px; border-left:4px solid #7c3aed; background:#f5f3ff; border-radius:4px; }
+
+  /* ===== Kanban board ===== */
+  .board { display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
+  .col { flex:1 1 0; min-width:0; background:#f1f5f9; border-radius:8px; padding:8px; border:2px solid transparent; }
+  .col.over-wip { border-color:#dc2626; background:#fef2f2; }
+  .col h3 { margin:0 0 4px; font-size:13px; color:#475569; display:flex; justify-content:space-between; align-items:center; }
+  .col .wip { font-size:11px; font-weight:700; padding:1px 7px; border-radius:10px; background:#ddd6fe; color:#5b21b6; }
+  .col.over-wip .wip { background:#fecaca; color:#991b1b; }
+  .card { background:#fff; border-radius:6px; padding:7px 9px; margin:5px 0; font-size:12.5px; box-shadow:0 1px 2px rgba(0,0,0,.06); border-left:3px solid #7c3aed; }
+  .card .cbtns { margin-top:5px; display:flex; gap:5px; }
+  .card .cbtns button { font-size:11px; padding:2px 8px; border:0; border-radius:4px; background:#ede9fe; color:#5b21b6; cursor:pointer; font-weight:600; }
+  .card .cbtns button:hover { background:#ddd6fe; }
+  .wipctl { margin-top:10px; font-size:13px; }
+  .wipctl input { width:54px; }
+
+  /* ===== Sprint / burndown ===== */
+  .backlog { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; }
+  .item { padding:6px 11px; border-radius:6px; background:#ede9fe; border:2px solid #c4b5fd; cursor:pointer; font-size:12.5px; font-weight:600; color:#5b21b6; user-select:none; }
+  .item.picked { background:#7c3aed; color:#fff; border-color:#7c3aed; }
+  .item .pt { opacity:.75; font-weight:700; }
+  .sprintbox { background:#f5f3ff; border-radius:8px; padding:8px 10px; margin-top:6px; font-size:13px; }
+  .bchart { margin-top:12px; }
+  .bchart svg { width:100%; height:auto; }
+  .legend { font-size:12px; color:#475569; margin-top:6px; }
+  .legend span { display:inline-block; margin-right:14px; }
+  .swatch { display:inline-block; width:12px; height:3px; vertical-align:middle; margin-right:4px; }
+
+  /* ===== Quiz ===== */
+  .qrow { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:7px 0; padding:7px 9px; background:#f8fafc; border-radius:6px; }
+  .qterm { font-weight:700; font-size:13.5px; min-width:130px; }
+  .qrow .opts { display:flex; gap:6px; flex-wrap:wrap; }
+  .qrow .opt { padding:4px 10px; border-radius:5px; background:#ede9fe; color:#5b21b6; cursor:pointer; font-size:12.5px; font-weight:600; border:2px solid transparent; }
+  .qrow .opt.sel { background:#7c3aed; color:#fff; }
+  .qrow .opt.right { border-color:#16a34a; }
+  .qrow .opt.wrong { border-color:#dc2626; }
+  .ok { color:#16a34a; } .bad { color:#dc2626; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-sdlc-vai-tro-ky-su/visualization.html">← L1: SDLC & vai trò kỹ sư</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Agile, Scrum & Kanban</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-yeu-cau-dac-ta/visualization.html">L3: Yêu cầu & đặc tả →</a>
+</nav>
+<main>
+<h1>Agile, Scrum & Kanban</h1>
+<p class="note">Ba mô-đun: (1) bảng Kanban với giới hạn WIP, (2) mô phỏng Sprint Scrum + burndown, (3) quiz Role / Artefact / Event.</p>
+
+<!-- ===== Module 1: Kanban board ===== -->
+<div class="panel">
+  <h2>1 · Bảng Kanban — giới hạn WIP</h2>
+  <p class="note">Bấm nút trên mỗi thẻ để kéo nó sang cột kế. Cột <b>In Progress</b> có giới hạn WIP — vượt là cột đỏ lên cảnh báo. Thử kéo hết 5 thẻ vào In Progress để thấy "ôm quá nhiều việc dở".</p>
+  <div class="wipctl">Giới hạn WIP cột In Progress:
+    <input type="number" id="wipLimit" value="3" min="1" max="6" onchange="renderBoard()"> thẻ
+  </div>
+  <div class="board" id="board"></div>
+  <div class="feedback" id="kanbanFb">Giới hạn WIP buộc làm xong rồi mới nhận thêm → giá trị tới tay người dùng sớm và đều hơn.</div>
+  <button class="ghost" onclick="resetBoard()" style="margin-top:10px">↻ Đặt lại bảng</button>
+</div>
+
+<!-- ===== Module 2: Sprint + burndown ===== -->
+<div class="panel">
+  <h2>2 · Mô phỏng một Sprint Scrum (2 tuần = 10 ngày)</h2>
+  <p class="note">Bấm các item trong Product Backlog để đưa vào Sprint Backlog (mỗi item có story point). Rồi bấm "▶ Chạy sprint" để xem burndown — điểm còn lại giảm dần qua 10 ngày làm việc.</p>
+  <p class="note"><b>Product Backlog</b> — bấm để chọn vào sprint:</p>
+  <div class="backlog" id="backlog"></div>
+  <div class="sprintbox" id="sprintBox">Sprint Backlog: <b>0</b> điểm (chưa chọn item nào).</div>
+  <div style="margin-top:10px">
+    <button class="primary" onclick="runSprint()">▶ Chạy sprint</button>
+    <button class="ghost" onclick="resetSprint()" style="margin-left:6px">↻ Làm lại</button>
+  </div>
+  <div class="bchart" id="bchart"></div>
+  <div class="legend">
+    <span><span class="swatch" style="background:#cbd5e1"></span>Đường lý tưởng</span>
+    <span><span class="swatch" style="background:#7c3aed"></span>Thực tế (điểm còn lại)</span>
+  </div>
+  <div class="feedback" id="sprintFb">Chọn ít nhất 1 item rồi bấm Chạy sprint.</div>
+</div>
+
+<!-- ===== Module 3: Quiz ===== -->
+<div class="panel">
+  <h2>3 · Quiz — Role / Artefact / Event?</h2>
+  <p class="note">Với mỗi thuật ngữ Scrum, bấm chọn nó là <b>Role</b> (vai trò), <b>Artefact</b> (sản phẩm tạo tác) hay <b>Event</b> (sự kiện).</p>
+  <div id="quiz"></div>
+  <button class="primary" onclick="checkQuiz()" style="margin-top:8px">✓ Kiểm tra</button>
+  <button class="ghost" onclick="resetQuiz()" style="margin-left:6px">↻ Làm lại</button>
+  <div class="feedback" id="quizFb">Chọn nhóm cho cả 6 thuật ngữ rồi bấm Kiểm tra.</div>
+</div>
+
+<script>
+// ===== Module 1: Kanban board =====
+const KCARDS = [
+  {id:1, t:'Đăng nhập Google'},
+  {id:2, t:'Tìm phòng theo ngày'},
+  {id:3, t:'Trang chi tiết phòng'},
+  {id:4, t:'Thêm vào giỏ'},
+  {id:5, t:'Lịch sử đặt phòng'},
+];
+const KCOLS = ['To Do','In Progress','Done'];
+let kstate = {}; // id -> col index
+function resetBoard(){ kstate = {}; KCARDS.forEach(c => kstate[c.id]=0); renderBoard(); }
+function moveCard(id, dir){
+  const n = kstate[id] + dir;
+  if(n>=0 && n<KCOLS.length){ kstate[id]=n; renderBoard(); }
+}
+function renderBoard(){
+  const wip = parseInt(document.getElementById('wipLimit').value)||3;
+  const counts = [0,0,0];
+  KCARDS.forEach(c => counts[kstate[c.id]]++);
+  const over = counts[1] > wip;
+  document.getElementById('board').innerHTML = KCOLS.map((name,ci)=>{
+    const cards = KCARDS.filter(c => kstate[c.id]===ci).map(c=>{
+      const left = ci>0 ? `<button onclick="moveCard(${c.id},-1)">←</button>` : '';
+      const right = ci<2 ? `<button onclick="moveCard(${c.id},1)">→</button>` : '';
+      return `<div class="card">${c.t}<div class="cbtns">${left}${right}</div></div>`;
+    }).join('') || '<div class="note" style="margin:4px 0">— trống —</div>';
+    const wipTag = ci===1 ? `<span class="wip">${counts[1]} / ${wip}</span>` : `<span class="wip" style="background:#e2e8f0;color:#475569">${counts[ci]}</span>`;
+    const cls = (ci===1 && over) ? 'col over-wip' : 'col';
+    return `<div class="${cls}"><h3>${name}${wipTag}</h3>${cards}</div>`;
+  }).join('');
+  const fb = document.getElementById('kanbanFb');
+  if(over){
+    fb.innerHTML = `🚨 <b>Vượt giới hạn WIP!</b> Đang có ${counts[1]} thẻ "In Progress" trong khi trần là ${wip}. Ôm nhiều việc dở cùng lúc → context switching, chưa thẻ nào "xong". Theo Kanban: <b>làm xong (kéo sang Done) rồi mới nhận thêm</b>, hoặc cả nhóm xúm gỡ thẻ đang kẹt.`;
+  } else if(counts[2]===KCARDS.length){
+    fb.innerHTML = `✅ Tất cả thẻ đã Done — và bạn không bao giờ phá trần WIP. Đây là luồng Kanban lành mạnh: giá trị giao đều, không dồn việc nửa vời.`;
+  } else {
+    fb.innerHTML = `Giới hạn WIP cột In Progress = <b>${wip}</b>. Kéo thẻ sang phải khi tiến triển; chỉ kéo thẻ mới vào In Progress khi còn chỗ dưới trần.`;
+  }
+}
+
+// ===== Module 2: Sprint + burndown =====
+const PBL = [
+  {id:1, t:'Đăng nhập email', pt:3},
+  {id:2, t:'Tìm phòng theo ngày', pt:5},
+  {id:3, t:'Chi tiết phòng', pt:3},
+  {id:4, t:'Thêm vào giỏ', pt:2},
+  {id:5, t:'Tích hợp thanh toán', pt:8},
+  {id:6, t:'Lịch sử đặt phòng', pt:5},
+];
+let picked = new Set();
+const DAYS = 10;
+function togglePick(id){
+  if(picked.has(id)) picked.delete(id); else picked.add(id);
+  renderBacklog();
+}
+function totalPts(){ return PBL.filter(i=>picked.has(i.id)).reduce((s,i)=>s+i.pt,0); }
+function renderBacklog(){
+  document.getElementById('backlog').innerHTML = PBL.map(i=>
+    `<div class="item ${picked.has(i.id)?'picked':''}" onclick="togglePick(${i.id})">${i.t} <span class="pt">(${i.pt}đ)</span></div>`).join('');
+  const tot = totalPts();
+  document.getElementById('sprintBox').innerHTML = `Sprint Backlog: <b>${tot}</b> điểm` +
+    (tot>0 ? ` — ${picked.size} item.` : ' (chưa chọn item nào).');
+}
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+function drawBurndown(total, actual){
+  // actual: mảng điểm còn lại theo ngày, length tới hiện tại (index 0 = ngày 0/đầu)
+  const W=520, H=220, padL=34, padB=28, padT=10, padR=10;
+  const x = d => padL + d/DAYS*(W-padL-padR);
+  const y = v => padT + (1 - v/Math.max(total,1))*(H-padT-padB);
+  // đường lý tưởng từ (0,total) -> (DAYS,0)
+  const ideal = `M ${x(0)} ${y(total)} L ${x(DAYS)} ${y(0)}`;
+  const realPts = actual.map((v,d)=>`${x(d)},${y(v)}`).join(' ');
+  const dots = actual.map((v,d)=>`<circle cx="${x(d)}" cy="${y(v)}" r="3.5" fill="#7c3aed"/>`).join('');
+  // ticks
+  let xticks=''; for(let d=0; d<=DAYS; d+=2){ xticks += `<text x="${x(d)}" y="${H-8}" font-size="10" fill="#64748b" text-anchor="middle">D${d}</text>`; }
+  let yticks=''; const step = Math.max(1, Math.ceil(total/4));
+  for(let v=0; v<=total; v+=step){ yticks += `<text x="${padL-6}" y="${y(v)+3}" font-size="10" fill="#64748b" text-anchor="end">${v}</text><line x1="${padL}" y1="${y(v)}" x2="${W-padR}" y2="${y(v)}" stroke="#eef2f7"/>`; }
+  document.getElementById('bchart').innerHTML =
+    `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+      ${yticks}
+      <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H-padB}" stroke="#cbd5e1"/>
+      <line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="#cbd5e1"/>
+      <path d="${ideal}" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="5 4" fill="none"/>
+      <polyline points="${realPts}" stroke="#7c3aed" stroke-width="2.5" fill="none"/>
+      ${dots}
+      ${xticks}
+    </svg>`;
+}
+async function runSprint(){
+  const total = totalPts();
+  const fb = document.getElementById('sprintFb');
+  if(total===0){ fb.textContent = 'Hãy chọn ít nhất 1 item từ Product Backlog đã.'; return; }
+  // mô phỏng: nhóm "đốt" điểm với chút biến động ngẫu nhiên, kết thúc ~0 ở ngày 10
+  let remaining = total;
+  const actual = [total];
+  drawBurndown(total, actual);
+  const perDay = total / DAYS;
+  for(let d=1; d<=DAYS; d++){
+    // vài ngày nhanh, vài ngày chậm (mô phỏng thực tế)
+    const wobble = (Math.random()*0.9 + 0.55); // 0.55..1.45 lần nhịp lý tưởng
+    let burn = perDay * wobble;
+    remaining = Math.max(0, remaining - burn);
+    if(d===DAYS) remaining = 0; // chốt về 0 cuối sprint
+    actual.push(Math.round(remaining*10)/10);
+    drawBurndown(total, actual);
+    fb.innerHTML = `📉 <b>Ngày ${d}/${DAYS}</b> — còn lại <b>${actual[d]}</b> điểm. ` +
+      (actual[d] > total*(1 - d/DAYS) + 0.5
+        ? 'Đường thực tế đang <b>trên</b> đường lý tưởng → hơi trễ so với nhịp.'
+        : 'Đang bám sát hoặc nhanh hơn đường lý tưởng — ổn.');
+    await sleep(420);
+  }
+  fb.innerHTML = `✅ <b>Hết sprint:</b> ${total} điểm đã được "đốt" về 0 → tạo ra một <b>Increment</b> chạy được. Số điểm hoàn thành (${total}) chính là <b>velocity</b> của sprint này — dùng để dự báo các sprint sau.`;
+}
+function resetSprint(){
+  picked.clear(); renderBacklog();
+  document.getElementById('bchart').innerHTML='';
+  document.getElementById('sprintFb').textContent='Chọn ít nhất 1 item rồi bấm Chạy sprint.';
+}
+
+// ===== Module 3: Quiz =====
+const QTERMS = [
+  {t:'Product Owner', a:'Role'},
+  {t:'Sprint Backlog', a:'Artefact'},
+  {t:'Daily Standup', a:'Event'},
+  {t:'Increment', a:'Artefact'},
+  {t:'Scrum Master', a:'Role'},
+  {t:'Sprint Retrospective', a:'Event'},
+];
+const QOPTS = ['Role','Artefact','Event'];
+let qsel = {}; // index -> chosen
+function renderQuiz(){
+  document.getElementById('quiz').innerHTML = QTERMS.map((q,i)=>
+    `<div class="qrow"><span class="qterm">${q.t}</span><span class="opts">` +
+    QOPTS.map(o=>`<span class="opt ${qsel[i]===o?'sel':''}" data-i="${i}" data-o="${o}" onclick="pickQ(${i},'${o}')">${o}</span>`).join('') +
+    `</span></div>`).join('');
+}
+function pickQ(i,o){ qsel[i]=o; renderQuiz(); }
+function checkQuiz(){
+  let right=0;
+  document.querySelectorAll('.qrow').forEach((row,i)=>{
+    row.querySelectorAll('.opt').forEach(el=>{
+      el.classList.remove('right','wrong');
+      const o = el.getAttribute('data-o');
+      if(qsel[i]===o){ el.classList.add(o===QTERMS[i].a ? 'right':'wrong'); }
+    });
+    if(qsel[i]===QTERMS[i].a) right++;
+  });
+  const fb = document.getElementById('quizFb');
+  if(right===QTERMS.length){
+    fb.innerHTML = `<span class="ok">✅ Đúng cả ${right}/${QTERMS.length}!</span> Role = người (PO, Scrum Master); Artefact = thứ tạo ra/danh sách (Sprint Backlog, Increment); Event = buổi họp/khung thời gian (Daily Standup, Retrospective).`;
+  } else {
+    fb.innerHTML = `<span class="bad">Đúng ${right}/${QTERMS.length}.</span> Ô viền xanh = đúng, viền đỏ = sai. Mẹo: Role là <i>người</i>, Artefact là <i>thứ được tạo ra</i>, Event là <i>buổi họp/khung thời gian</i>.`;
+  }
+}
+function resetQuiz(){ qsel={}; renderQuiz(); document.getElementById('quizFb').textContent='Chọn nhóm cho cả 6 thuật ngữ rồi bấm Kiểm tra.'; }
+
+// init
+resetBoard();
+renderBacklog();
+renderQuiz();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

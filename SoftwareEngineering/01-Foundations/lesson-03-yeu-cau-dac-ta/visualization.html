@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 03 — Yêu cầu & đặc tả</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background:#7c3aed; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.primary:hover { background:#6d28d9; }
+  /* story builder */
+  .row { display:flex; flex-wrap:wrap; gap:10px; margin:10px 0; }
+  .field { flex:1 1 200px; min-width:0; }
+  .field label { display:block; font-size:12px; font-weight:700; color:#5b21b6; margin-bottom:4px; }
+  select { width:100%; max-width:100%; box-sizing:border-box; padding:7px 9px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px; background:#fff; }
+  .story-out { margin-top:12px; font-size:15px; line-height:1.6; padding:14px 16px; border-left:4px solid #7c3aed; background:#f5f3ff; border-radius:4px; }
+  .story-out b { color:#5b21b6; }
+  /* classify */
+  .req { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:10px 12px; border-radius:8px; background:#f8fafc; border:1px solid #e2e8f0; margin:8px 0; }
+  .req .txt { flex:1 1 200px; font-size:14px; }
+  .req button { border:1px solid #c4b5fd; background:#ede9fe; color:#5b21b6; border-radius:6px; padding:5px 11px; font-size:13px; font-weight:600; cursor:pointer; }
+  .req button:hover { background:#ddd6fe; }
+  .req.right { background:#f0fdf4; border-color:#86efac; }
+  .req.wrong { background:#fef2f2; border-color:#fca5a5; }
+  .req .res { font-size:13px; font-weight:700; flex-basis:100%; }
+  .ok { color:#16a34a; } .bad { color:#dc2626; }
+  .score { font-weight:700; margin-top:10px; }
+  /* vague */
+  .vague-q { font-size:15px; font-weight:700; padding:10px 12px; background:#fef9c3; border-radius:6px; border-left:4px solid #f59e0b; }
+  .opt { display:block; width:100%; text-align:left; box-sizing:border-box; margin:8px 0; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; background:#fff; font-size:14px; cursor:pointer; }
+  .opt:hover { border-color:#7c3aed; }
+  .opt.right { background:#f0fdf4; border-color:#16a34a; }
+  .opt.wrong { background:#fef2f2; border-color:#dc2626; }
+  .vague-fb { margin-top:10px; font-size:14px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-agile-scrum-kanban/visualization.html">← L2: Agile, Scrum & Kanban</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Yêu cầu & đặc tả</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-git-workflow-team/visualization.html">L4: Git workflow cho nhóm →</a>
+</nav>
+<main>
+<h1>Yêu cầu & đặc tả (Requirements)</h1>
+<p class="note">Ba mô-đun: (1) ghép một user story chuẩn, (2) phân loại yêu cầu chức năng vs phi chức năng, (3) chọn cách làm rõ yêu cầu mơ hồ.</p>
+
+<div class="panel">
+  <h2>1 · User story builder</h2>
+  <p class="note">Chọn vai trò, mong muốn và mục đích — câu story chuẩn "Là… tôi muốn… để…" tự ghép bên dưới.</p>
+  <div class="row">
+    <div class="field">
+      <label>Là (vai trò)</label>
+      <select id="who" onchange="buildStory()"></select>
+    </div>
+    <div class="field">
+      <label>tôi muốn (hành động)</label>
+      <select id="want" onchange="buildStory()"></select>
+    </div>
+    <div class="field">
+      <label>để (mục đích)</label>
+      <select id="why" onchange="buildStory()"></select>
+    </div>
+  </div>
+  <div class="story-out" id="storyOut"></div>
+  <p class="note">Phần "để…" (giá trị) hay bị bỏ nhất nhưng quan trọng nhất: nếu không viết được, có thể tính năng đó không thực sự cần.</p>
+</div>
+
+<div class="panel">
+  <h2>2 · Chức năng (F) hay phi chức năng (NF)?</h2>
+  <p class="note">F = hệ thống <i>làm gì</i>. NF = hệ thống làm <i>tốt đến mức nào</i> (hiệu năng, bảo mật, khả dụng, khả mở rộng). Bấm phân loại từng yêu cầu.</p>
+  <div id="classify"></div>
+  <div class="score" id="clScore"></div>
+  <button class="primary" onclick="resetClassify()" style="margin-top:8px">↻ Làm lại</button>
+</div>
+
+<div class="panel">
+  <h2>3 · Làm rõ yêu cầu mơ hồ</h2>
+  <p class="note">Mỗi câu dưới đây mơ hồ. Chọn phiên bản <b>đo được</b> (testable) tốt nhất.</p>
+  <div id="vague"></div>
+</div>
+
+<script>
+// ===== Module 1: user story builder =====
+const WHO = ['thực khách','chủ nhà hàng','tài xế giao hàng','quản trị viên'];
+const WANT = ['lọc nhà hàng theo loại món','lưu địa chỉ giao hàng thường dùng','theo dõi tài xế trên bản đồ thời gian thực','tạm ẩn món đã hết hàng'];
+const WHY = ['nhanh chóng tìm thứ mình thèm','không phải nhập lại mỗi lần đặt','biết khi nào món tới mà chủ động','khách không đặt món tôi không phục vụ được'];
+function fill(id, arr){ document.getElementById(id).innerHTML = arr.map((v,i)=>`<option value="${i}">${v}</option>`).join(''); }
+function buildStory(){
+  const w = WHO[+document.getElementById('who').value];
+  const a = WANT[+document.getElementById('want').value];
+  const p = WHY[+document.getElementById('why').value];
+  document.getElementById('storyOut').innerHTML =
+    `<b>Là</b> ${w}, <b>tôi muốn</b> ${a}, <b>để</b> ${p}.`;
+}
+fill('who',WHO); fill('want',WANT); fill('why',WHY); buildStory();
+
+// ===== Module 2: classify F vs NF =====
+const REQS = [
+  {t:'Người dùng có thể tải lên ảnh đại diện.', f:true},
+  {t:'Trang sản phẩm phải tải xong trong dưới 2 giây ở 4G.', f:false},
+  {t:'Admin có thể khóa tài khoản người dùng.', f:true},
+  {t:'Mật khẩu được lưu dưới dạng băm bcrypt, không bao giờ plaintext.', f:false},
+  {t:'Người dùng có thể đặt lại mật khẩu qua email.', f:true},
+  {t:'Hệ thống chịu được 10.000 người dùng đồng thời.', f:false},
+];
+let clState = REQS.map(()=>null);
+function renderClassify(){
+  document.getElementById('classify').innerHTML = REQS.map((r,i)=>{
+    const st = clState[i];
+    let cls = '', res = '';
+    if(st!==null){
+      const correct = (st==='f')===r.f;
+      cls = correct ? 'right' : 'wrong';
+      const realLabel = r.f ? 'Chức năng (F)' : 'Phi chức năng (NF)';
+      res = `<div class="res ${correct?'ok':'bad'}">${correct?'✅ Đúng':'❌ Sai'} — đây là <b>${realLabel}</b>. `
+          + (r.f ? 'Là một việc hệ thống làm.' : 'Mô tả mức độ/ràng buộc chất lượng.') + '</div>';
+    }
+    return `<div class="req ${cls}">
+        <span class="txt">${r.t}</span>
+        <button onclick="pickCl(${i},'f')">Chức năng</button>
+        <button onclick="pickCl(${i},'nf')">Phi chức năng</button>
+        ${res}
+      </div>`;
+  }).join('');
+  const done = clState.filter(s=>s!==null).length;
+  const correct = clState.filter((s,i)=> s!==null && (s==='f')===REQS[i].f).length;
+  document.getElementById('clScore').textContent = done ? `Đúng ${correct}/${done} (đã phân loại ${done}/${REQS.length}).` : '';
+}
+function pickCl(i,v){ clState[i]=v; renderClassify(); }
+function resetClassify(){ clState = REQS.map(()=>null); renderClassify(); }
+renderClassify();
+
+// ===== Module 3: clarify vague =====
+const VAGUE = [
+  {
+    q:'"Hệ thống phải nhanh."',
+    opts:[
+      {t:'Hệ thống phải phản hồi tức thì.', ok:false, why:'"Tức thì" vẫn mơ hồ, không có con số hay điều kiện đo.'},
+      {t:'95% request tải trang danh sách sản phẩm hoàn tất trong dưới 2 giây, đo phía client trên 4G.', ok:true, why:'Có con số (2s), phân vị (95%), điều kiện đo (client, 4G) → QA test được.'},
+      {t:'Hệ thống phải nhanh hơn đối thủ.', ok:false, why:'Phụ thuộc bên ngoài, không kiểm chứng khách quan và dễ thay đổi.'},
+    ]
+  },
+  {
+    q:'"Giao diện phải thân thiện."',
+    opts:[
+      {t:'Giao diện phải đẹp và hiện đại.', ok:false, why:'"Đẹp", "hiện đại" là tính từ co giãn, không đo được.'},
+      {t:'Giao diện phải dễ dùng cho mọi người.', ok:false, why:'"Dễ dùng", "mọi người" vẫn không có tiêu chí kiểm chứng.'},
+      {t:'Người dùng mới hoàn tất đặt đơn đầu tiên trong ≤ 3 phút mà không cần hướng dẫn.', ok:true, why:'Đo được qua usability test: bấm giờ, đếm số người đạt.'},
+    ]
+  },
+  {
+    q:'"Hệ thống phải ổn định."',
+    opts:[
+      {t:'Uptime ≥ 99.9% mỗi tháng; không quá 1 sự cố nghiêm trọng/quý.', ok:true, why:'Có chỉ số khả dụng đo được và ngưỡng sự cố rõ ràng.'},
+      {t:'Hệ thống hầu như không bao giờ sập.', ok:false, why:'"Hầu như không bao giờ" không định lượng được.'},
+      {t:'Hệ thống chạy tốt trong mọi điều kiện.', ok:false, why:'"Mọi điều kiện" là phạm vi vô hạn, bất khả thi và không đo được.'},
+    ]
+  },
+];
+function renderVague(){
+  document.getElementById('vague').innerHTML = VAGUE.map((v,qi)=>`
+    <div style="margin-bottom:16px">
+      <div class="vague-q">${v.q}</div>
+      ${v.opts.map((o,oi)=>`<button class="opt" id="o${qi}_${oi}" onclick="pickVague(${qi},${oi})">${o.t}</button>`).join('')}
+      <div class="vague-fb" id="fb${qi}"></div>
+    </div>`).join('');
+}
+function pickVague(qi,oi){
+  const v = VAGUE[qi];
+  v.opts.forEach((o,i)=>{
+    const el = document.getElementById(`o${qi}_${i}`);
+    el.classList.remove('right','wrong');
+    if(i===oi) el.classList.add(o.ok?'right':'wrong');
+    else if(o.ok) el.classList.add('right'); // luôn highlight đáp án đúng
+  });
+  const o = v.opts[oi];
+  document.getElementById(`fb${qi}`).innerHTML =
+    `<span class="${o.ok?'ok':'bad'}">${o.ok?'✅ Chính xác.':'❌ Chưa tối ưu.'}</span> ${o.why}`;
+}
+renderVague();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

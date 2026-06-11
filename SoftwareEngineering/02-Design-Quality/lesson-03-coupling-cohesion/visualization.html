@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 03 — Coupling & cohesion</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background:#7c3aed; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.primary:hover { background:#6d28d9; }
+  button.ghost { background:#ede9fe; color:#5b21b6; border:0; padding:6px 12px; border-radius:5px; cursor:pointer; font-size:13px; font-weight:600; }
+  button.ghost:hover { background:#ddd6fe; }
+  /* module 1: graph */
+  .graphwrap { width:100%; overflow-x:auto; }
+  svg .node rect { fill:#ede9fe; stroke:#7c3aed; stroke-width:2; cursor:default; }
+  svg .node text { font-size:13px; font-weight:600; fill:#5b21b6; }
+  svg .edge { stroke:#94a3b8; stroke-width:2.5; cursor:pointer; }
+  svg .edge.on { stroke:#7c3aed; stroke-width:3.5; }
+  svg .edge.off { stroke:#e2e8f0; stroke-dasharray:5 5; }
+  svg .ehit { stroke:transparent; stroke-width:16; cursor:pointer; }
+  .metrics { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+  .metric { flex:1 1 0; min-width:90px; background:#f5f3ff; border-radius:6px; padding:8px 10px; text-align:center; }
+  .metric .big { font-size:22px; font-weight:800; color:#5b21b6; }
+  .metric .cap { font-size:11px; color:#64748b; }
+  table.fan { width:100%; border-collapse:collapse; margin-top:12px; font-size:13px; }
+  table.fan th, table.fan td { border:1px solid #e2e8f0; padding:5px 8px; text-align:center; }
+  table.fan th { background:#f5f3ff; color:#5b21b6; }
+  table.fan td.warn { background:#fef2f2; color:#dc2626; font-weight:700; }
+  /* module 2: cohesion toggle */
+  .seg { display:inline-flex; border:2px solid #7c3aed; border-radius:7px; overflow:hidden; margin:6px 0; }
+  .seg button { border:0; background:#fff; color:#5b21b6; padding:7px 14px; cursor:pointer; font-size:13px; font-weight:600; }
+  .seg button.active { background:#7c3aed; color:#fff; }
+  .codebox { background:#1e1b2e; color:#e9e7f5; border-radius:7px; padding:12px 14px; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12.5px; line-height:1.55; overflow-x:auto; white-space:pre; margin-top:10px; }
+  .codebox .cmt { color:#8b87a8; }
+  .codebox .kw  { color:#c4b5fd; }
+  .codebox .ty  { color:#7dd3fc; }
+  .verdict { margin-top:10px; font-size:14px; padding:10px 12px; border-radius:6px; border-left:4px solid; }
+  .verdict.low { background:#fef2f2; border-color:#dc2626; color:#7f1d1d; }
+  .verdict.high { background:#f0fdf4; border-color:#16a34a; color:#14532d; }
+  /* module 3: quiz */
+  .opt { display:block; width:100%; text-align:left; margin:5px 0; padding:9px 12px; border:2px solid #e2e8f0; border-radius:6px; background:#fff; cursor:pointer; font-size:13.5px; }
+  .opt:hover { border-color:#c4b5fd; }
+  .opt.right { border-color:#16a34a; background:#f0fdf4; }
+  .opt.wrong { border-color:#dc2626; background:#fef2f2; }
+  .qcase { background:#1e1b2e; color:#e9e7f5; border-radius:7px; padding:11px 13px; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12.5px; white-space:pre-wrap; margin:8px 0; }
+  .quizfb { margin-top:10px; font-size:14px; min-height:20px; }
+  .ok { color:#16a34a; font-weight:600; } .bad { color:#dc2626; font-weight:600; }
+  .prog { font-size:13px; color:#64748b; margin-top:6px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-nguyen-ly-thiet-ke/visualization.html">← L2: Nguyên lý thiết kế</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Coupling & cohesion</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-design-patterns/visualization.html">L4: Design patterns →</a>
+</nav>
+<main>
+<h1>Coupling & cohesion (khớp nối & gắn kết)</h1>
+<p class="note">Ba mô-đun: (1) sơ đồ mô-đun — bấm dây nối, xem coupling & fan-in/fan-out, (2) toggle cohesion thấp ↔ cao, (3) quiz phân loại coupling.</p>
+
+<div class="panel">
+  <h2>1 · Sơ đồ mô-đun — ít dây = low coupling</h2>
+  <p class="note">Bấm vào một dây để bật/tắt phụ thuộc. Chỉ số <b>coupling</b> (tổng số dây) và <b>fan-in/fan-out</b> mỗi hộp cập nhật ngay. Mục tiêu: hệ làm việc được với ÍT dây nhất.</p>
+  <div class="graphwrap">
+    <svg width="520" height="260" viewBox="0 0 520 260" id="graph" role="img" aria-label="Sơ đồ mô-đun"></svg>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="big" id="mCoupling">0</div><div class="cap">Tổng dây (coupling)</div></div>
+    <div class="metric"><div class="big" id="mMaxOut">0</div><div class="cap">Fan-out cao nhất</div></div>
+    <div class="metric"><div class="big" id="mMaxIn">0</div><div class="cap">Fan-in cao nhất</div></div>
+  </div>
+  <table class="fan" id="fanTable"></table>
+  <div style="margin-top:10px">
+    <button class="ghost" onclick="resetGraph()">↻ Khôi phục mặc định</button>
+    <button class="ghost" onclick="clearGraph()">✂ Bỏ hết dây</button>
+  </div>
+  <div class="note" id="graphFb"></div>
+</div>
+
+<div class="panel">
+  <h2>2 · Cohesion thấp ↔ cao — cùng một chỗ code</h2>
+  <p class="note">So sánh: gộp đủ việc vào một <code>Helper</code> (cohesion thấp) vs tách theo nhiệm vụ (cohesion cao). Cùng làm được việc, nhưng độ "thuộc về nhau" khác hẳn.</p>
+  <div class="seg">
+    <button id="bLow" class="active" onclick="setCoh('low')">Cohesion thấp</button>
+    <button id="bHigh" onclick="setCoh('high')">Cohesion cao</button>
+  </div>
+  <div class="codebox" id="cohCode"></div>
+  <div class="verdict" id="cohVerdict"></div>
+</div>
+
+<div class="panel">
+  <h2>3 · Quiz — phân loại loại coupling</h2>
+  <p class="note">Đọc đoạn mô tả, chọn loại coupling đúng (chặt → lỏng: content · common · control · stamp · data).</p>
+  <div class="qcase" id="qCase"></div>
+  <div id="qOpts"></div>
+  <div class="quizfb" id="qFb"></div>
+  <div class="prog" id="qProg"></div>
+  <button class="primary" id="qNext" onclick="nextQ()" style="margin-top:10px; display:none">Câu tiếp →</button>
+</div>
+
+<script>
+// ===== Module 1: module graph =====
+// Vị trí 5 hộp trên SVG
+const NODES = [
+  {id:'Cart',     x:40,  y:30,  w:90, h:40},
+  {id:'Order',    x:210, y:30,  w:90, h:40},
+  {id:'Payment',  x:380, y:30,  w:100,h:40},
+  {id:'Inventory',x:210, y:160, w:100,h:40},
+  {id:'Report',   x:380, y:160, w:90, h:40},
+];
+// Tất cả cạnh có thể có (directed A->B). on=true là mặc định.
+const ALL_EDGES = [
+  {a:'Cart',    b:'Order',     on:true},
+  {a:'Order',   b:'Payment',   on:true},
+  {a:'Order',   b:'Inventory', on:true},
+  {a:'Report',  b:'Order',     on:true},
+  {a:'Report',  b:'Payment',   on:true},
+  {a:'Report',  b:'Inventory', on:true},
+  {a:'Cart',    b:'Inventory', on:false},
+];
+let edges = ALL_EDGES.map(e=>({...e}));
+function nodeById(id){ return NODES.find(n=>n.id===id); }
+function center(n){ return {x:n.x+n.w/2, y:n.y+n.h/2}; }
+
+function renderGraph(){
+  const svg = document.getElementById('graph');
+  let s = '';
+  // edges first (dưới node)
+  edges.forEach((e,i)=>{
+    const A=center(nodeById(e.a)), B=center(nodeById(e.b));
+    const cls = e.on ? 'edge on' : 'edge off';
+    s += `<line class="${cls}" x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}"/>`;
+    s += `<line class="ehit" x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" onclick="toggleEdge(${i})"/>`;
+  });
+  // nodes
+  NODES.forEach(n=>{
+    s += `<g class="node"><rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="7"/>`+
+         `<text x="${n.x+n.w/2}" y="${n.y+n.h/2+4}" text-anchor="middle">${n.id}</text></g>`;
+  });
+  svg.innerHTML = s;
+  updateMetrics();
+}
+function toggleEdge(i){ edges[i].on = !edges[i].on; renderGraph(); }
+function resetGraph(){ edges = ALL_EDGES.map(e=>({...e})); renderGraph(); }
+function clearGraph(){ edges.forEach(e=>e.on=false); renderGraph(); }
+
+function updateMetrics(){
+  const live = edges.filter(e=>e.on);
+  document.getElementById('mCoupling').textContent = live.length;
+  const fout = {}, fin = {};
+  NODES.forEach(n=>{ fout[n.id]=0; fin[n.id]=0; });
+  live.forEach(e=>{ fout[e.a]++; fin[e.b]++; });
+  const maxOut = Math.max(0,...Object.values(fout));
+  const maxIn  = Math.max(0,...Object.values(fin));
+  document.getElementById('mMaxOut').textContent = maxOut;
+  document.getElementById('mMaxIn').textContent  = maxIn;
+  // bảng fan-in/out
+  let t = '<tr><th>Mô-đun</th><th>Fan-out</th><th>Fan-in</th></tr>';
+  NODES.forEach(n=>{
+    const ow = fout[n.id]>=3 ? ' class="warn"' : '';
+    t += `<tr><td>${n.id}</td><td${ow}>${fout[n.id]}</td><td>${fin[n.id]}</td></tr>`;
+  });
+  document.getElementById('fanTable').innerHTML = t;
+  // nhận xét
+  const fb = document.getElementById('graphFb');
+  const worst = NODES.find(n=>fout[n.id]===maxOut && maxOut>=3);
+  if(live.length===0){ fb.innerHTML='Hệ không còn dây nào — coupling = 0, nhưng các hộp cũng không hợp tác được nữa. Bài học: mục tiêu là <b>ít dây đủ dùng</b>, không phải 0 dây.'; }
+  else if(worst){ fb.innerHTML=`⚠ <b>${worst.id}</b> có fan-out = ${maxOut} → "biết quá nhiều", là điểm coupling cao đáng xem lại.`; }
+  else { fb.innerHTML=`Coupling = ${live.length} dây. Fan-out cao nhất = ${maxOut} (≤ 2 → khá gọn). Bấm thêm/bớt dây để thấy chỉ số đổi.`; }
+}
+
+// ===== Module 2: cohesion toggle =====
+const LOW_CODE =
+`<span class="cmt">// MỘT struct ôm 4 nhiệm vụ chẳng liên quan</span>
+<span class="kw">type</span> <span class="ty">Helper</span> <span class="kw">struct</span>{}
+
+<span class="kw">func</span> (<span class="ty">Helper</span>) ParseDate(s <span class="ty">string</span>) <span class="ty">time.Time</span>  { ... }
+<span class="kw">func</span> (<span class="ty">Helper</span>) SaveUserToDB(u <span class="ty">User</span>)        { ... }
+<span class="kw">func</span> (<span class="ty">Helper</span>) FormatMoney(c <span class="ty">int</span>) <span class="ty">string</span>    { ... }
+<span class="kw">func</span> (<span class="ty">Helper</span>) SendSMS(phone, msg <span class="ty">string</span>)    { ... }
+
+<span class="cmt">// ngày tháng + DB + tiền + SMS → "ngăn kéo linh tinh"</span>`;
+const HIGH_CODE =
+`<span class="cmt">// Tách theo NHIỆM VỤ — mỗi hộp một việc</span>
+<span class="kw">type</span> <span class="ty">DateParser</span> <span class="kw">struct</span>{}     <span class="cmt">// chỉ lo ngày tháng</span>
+<span class="kw">func</span> (<span class="ty">DateParser</span>) Parse(s <span class="ty">string</span>) <span class="ty">time.Time</span> { ... }
+
+<span class="kw">type</span> <span class="ty">Money</span> <span class="kw">struct</span>{}          <span class="cmt">// chỉ lo tiền tệ</span>
+<span class="kw">func</span> (<span class="ty">Money</span>) Format(cents <span class="ty">int</span>) <span class="ty">string</span>   { ... }
+
+<span class="kw">type</span> <span class="ty">UserRepo</span> <span class="kw">struct</span>{}       <span class="cmt">// chỉ lo lưu trữ</span>
+<span class="kw">type</span> <span class="ty">SMS</span> <span class="kw">struct</span>{}            <span class="cmt">// chỉ lo gửi tin</span>`;
+function setCoh(mode){
+  document.getElementById('bLow').classList.toggle('active', mode==='low');
+  document.getElementById('bHigh').classList.toggle('active', mode==='high');
+  document.getElementById('cohCode').innerHTML = mode==='low' ? LOW_CODE : HIGH_CODE;
+  const v = document.getElementById('cohVerdict');
+  if(mode==='low'){
+    v.className='verdict low';
+    v.innerHTML='❌ <b>Coincidental cohesion (thấp nhất).</b> 4 trách nhiệm gom vào một chỗ chỉ vì "không biết để đâu". Tên <code>Helper</code> mơ hồ vì bên trong cũng mơ hồ. Đổi cách gửi SMS lại đụng vào nơi xử lý ngày tháng.';
+  } else {
+    v.className='verdict high';
+    v.innerHTML='✅ <b>Functional cohesion (cao nhất).</b> Mỗi mô-đun một nhiệm vụ rõ: biết đi đâu để sửa, dễ test, dễ tái dùng. Đây là tinh thần Single Responsibility (xem L2).';
+  }
+}
+
+// ===== Module 3: quiz =====
+const TYPES = ['content','common','control','stamp','data'];
+const LABEL = {content:'Content (chặt nhất)', common:'Common', control:'Control', stamp:'Stamp', data:'Data (lỏng nhất)'};
+const QUIZ = [
+  { code:'b.internalValue = 42\nb.buffer[3] = \'x\'   // A sửa thẳng ruột của B',
+    ans:'content',
+    why:'A truy cập/sửa trực tiếp dữ liệu nội bộ của B → content coupling, chặt nhất. Đổi cấu trúc trong B là A vỡ ngay.' },
+  { code:'var CurrentUser *User        // global\nlogin()  { CurrentUser = u }\ncharge() { bill(CurrentUser.ID) }',
+    ans:'common',
+    why:'Hai module chia sẻ trạng thái global CurrentUser → common coupling. Ai sửa global đều ảnh hưởng tất cả, khó test/khó song song.' },
+  { code:'report(data, 2)   // 2 = "xuất PDF"\n// bên trong: if mode==2 { ...PDF... }',
+    ans:'control',
+    why:'Tham số 2 là cờ điều khiển bảo report() CÁCH chạy; người gọi phải biết logic nội bộ → control coupling.' },
+  { code:'func sendWelcome(u User) {       // nhận cả User (20 field)\n    smtp.Send(u.Email, "Welcome")   // chỉ dùng Email\n}',
+    ans:'stamp',
+    why:'Truyền cả struct lớn dù chỉ cần 1 field → stamp coupling. Hàm "bị buộc" biết về cả User; sửa thành sendWelcome(email string) để hạ về data.' },
+  { code:'func sendWelcome(email string) {\n    smtp.Send(email, "Welcome")   // chỉ nhận đúng thứ cần\n}',
+    ans:'data',
+    why:'Chỉ truyền đúng dữ liệu cần qua tham số rõ ràng → data coupling, lỏng nhất. Đây là mục tiêu nhắm tới.' },
+];
+let qi = 0, answered = false;
+function renderQ(){
+  answered = false;
+  const q = QUIZ[qi];
+  document.getElementById('qCase').textContent = q.code;
+  document.getElementById('qOpts').innerHTML = TYPES.map(t=>
+    `<button class="opt" data-t="${t}" onclick="answer('${t}')">${LABEL[t]}</button>`).join('');
+  document.getElementById('qFb').innerHTML = '';
+  document.getElementById('qProg').textContent = `Câu ${qi+1}/${QUIZ.length}`;
+  document.getElementById('qNext').style.display = 'none';
+}
+function answer(t){
+  if(answered) return;
+  answered = true;
+  const q = QUIZ[qi];
+  document.querySelectorAll('#qOpts .opt').forEach(b=>{
+    if(b.dataset.t===q.ans) b.classList.add('right');
+    else if(b.dataset.t===t) b.classList.add('wrong');
+  });
+  const fb = document.getElementById('qFb');
+  fb.innerHTML = (t===q.ans ? '<span class="ok">✅ Đúng! </span>' : '<span class="bad">❌ Chưa đúng. </span>') + q.why;
+  document.getElementById('qNext').style.display = qi < QUIZ.length-1 ? 'inline-block' : 'none';
+  if(qi===QUIZ.length-1) fb.innerHTML += ' <b>Hết quiz — bạn đã đi qua cả 5 loại từ chặt tới lỏng.</b>';
+}
+function nextQ(){ if(qi < QUIZ.length-1){ qi++; renderQ(); } }
+
+// init
+renderGraph();
+setCoh('low');
+renderQ();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 05 — Refactoring & nợ kỹ thuật</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background:#fff; border-radius:8px; padding:16px 20px; box-shadow:0 1px 3px rgba(0,0,0,.08); margin-bottom:18px; }
+  .panel h2 { margin-top:0; font-size:18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background:#7c3aed; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.primary:hover { background:#6d28d9; }
+  button.primary:disabled { background:#c4b5fd; cursor:default; }
+  button.ghost { background:#ede9fe; color:#5b21b6; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  /* code blocks */
+  pre.code { background:#1e1b2e; color:#e9e3ff; padding:14px 16px; border-radius:8px; overflow-x:auto; font-size:13px; line-height:1.55; margin:10px 0; }
+  pre.code .hl { background:rgba(124,58,237,.35); border-radius:3px; }
+  .testbar { display:inline-block; padding:4px 12px; border-radius:20px; font-size:13px; font-weight:700; }
+  .testbar.green { background:#dcfce7; color:#15803d; }
+  .steps { font-size:13px; color:#475569; margin:8px 0; }
+  .stepname { font-weight:700; color:#5b21b6; }
+  /* debt sim */
+  .controls { display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin:12px 0; }
+  .controls label { font-size:13px; color:#475569; font-weight:600; }
+  input[type=range] { width:100%; max-width:260px; accent-color:#7c3aed; }
+  .toggle { display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:14px; font-weight:600; color:#5b21b6; }
+  .readout { display:flex; flex-wrap:wrap; gap:18px; margin-top:10px; font-size:14px; }
+  .readout b { color:#5b21b6; }
+  .legend { font-size:12px; color:#64748b; margin-top:6px; }
+  .legend .sw { display:inline-block; width:11px; height:11px; border-radius:2px; vertical-align:middle; margin-right:4px; }
+  /* quiz */
+  .opt { display:block; width:100%; text-align:left; background:#f5f3ff; border:2px solid #ede9fe; border-radius:7px; padding:9px 12px; margin:6px 0; cursor:pointer; font-size:14px; color:#3b0764; }
+  .opt:hover { border-color:#c4b5fd; }
+  .opt.ok { background:#dcfce7; border-color:#16a34a; color:#14532d; }
+  .opt.bad { background:#fee2e2; border-color:#dc2626; color:#7f1d1d; }
+  .quiz-fb { margin-top:10px; font-size:14px; padding:10px 12px; border-left:4px solid #7c3aed; background:#f5f3ff; border-radius:4px; min-height:8px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-design-patterns/visualization.html">← L4: Design patterns</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Refactoring & nợ kỹ thuật</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-chien-luoc-kiem-thu/visualization.html">L6: Chiến lược kiểm thử →</a>
+</nav>
+<main>
+<h1>Refactoring & nợ kỹ thuật</h1>
+<p class="note">Ba mô-đun: (1) refactor từng bước — code sạch dần, test luôn xanh; (2) mô phỏng "lãi" nợ kỹ thuật theo thời gian; (3) chọn phép refactor phù hợp cho đoạn code.</p>
+
+<div class="panel">
+  <h2>1 · Refactor từng bước — test luôn xanh</h2>
+  <p class="note">Bắt đầu từ một hàm xấu. Bấm "▶ Bước tiếp" để áp lần lượt từng phép refactor. Hành vi <b>không đổi</b> ⇒ dải test luôn xanh sau mỗi bước.</p>
+  <div style="margin:10px 0">
+    <span class="testbar green" id="testBar">✅ Test: 5/5 xanh</span>
+    <span class="steps" style="margin-left:12px">Bước <b id="stepNo">0</b>/4 — <span class="stepname" id="stepName">code gốc (chưa refactor)</span></span>
+  </div>
+  <pre class="code" id="codeBox"></pre>
+  <div class="note" id="stepExplain"></div>
+  <div style="margin-top:10px">
+    <button class="primary" id="btnNext" onclick="nextStep()">▶ Bước tiếp</button>
+    <button class="ghost" onclick="resetSteps()">↻ Về code gốc</button>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>2 · Lãi nợ kỹ thuật — tốc độ phát triển theo thời gian</h2>
+  <p class="note">Kéo slider số tháng. Nếu <b>không trả nợ</b>, mỗi tính năng mất thêm thời gian (lãi tích lũy). Bật "trả nợ tháng 2" để thấy bỏ công refactor sớm giúp tốc độ ổn định.</p>
+  <div class="controls">
+    <div>
+      <label>Số tháng: <b id="monLbl">5</b></label><br>
+      <input type="range" id="monRange" min="1" max="12" value="5" oninput="renderDebt()">
+    </div>
+    <label class="toggle"><input type="checkbox" id="payChk" onchange="renderDebt()"> 💳 Trả nợ (refactor 3 ngày ở tháng 2)</label>
+  </div>
+  <svg id="debtSvg" width="640" height="280" viewBox="0 0 640 280" style="width:100%;height:auto"></svg>
+  <div class="legend">
+    <span class="sw" style="background:#dc2626"></span>Không trả nợ (lãi tăng dần)
+    <span class="sw" style="background:#16a34a; margin-left:14px"></span>Trả nợ sớm
+  </div>
+  <div class="readout" id="debtRead"></div>
+</div>
+
+<div class="panel">
+  <h2>3 · Nhận diện phép refactor phù hợp</h2>
+  <p class="note">Đọc đoạn code, chọn phép refactor nên dùng. Bấm "Câu khác" để đổi đề.</p>
+  <pre class="code" id="quizCode"></pre>
+  <div id="quizOpts"></div>
+  <div class="quiz-fb" id="quizFb"></div>
+  <button class="ghost" onclick="nextQuiz()" style="margin-top:10px">↻ Câu khác</button>
+</div>
+
+<script>
+// ===== Module 1: stepwise refactor =====
+const STEPS = [
+  {
+    name: 'code gốc (chưa refactor)',
+    explain: 'Hàm đúng nhưng đầy smell: tên mơ hồ (p, o, t), magic number (100, 0.9), if lồng sâu.',
+    code:
+`func p(o Order) {
+    if o.t > 100 {
+        if o.vip {
+            fmt.Println(o.t * 0.9)
+        }
+    }
+}`
+  },
+  {
+    name: 'Replace Magic Number',
+    explain: 'Đưa 100 và 0.9 thành hằng đặt tên. Output y hệt ⇒ test xanh.',
+    code:
+`const ##vipThreshold = 100##
+const ##vipDiscount  = 0.1##
+func p(o Order) {
+    if o.t > vipThreshold {
+        if o.vip {
+            fmt.Println(o.t * (1 - vipDiscount))
+        }
+    }
+}`
+  },
+  {
+    name: 'Guard Clause',
+    explain: 'Thoát sớm các trường hợp loại trừ ⇒ làm phẳng if lồng. Hành vi giữ nguyên.',
+    code:
+`const vipThreshold = 100
+const vipDiscount  = 0.1
+func p(o Order) {
+    ##if o.t <= vipThreshold { return }##
+    ##if !o.vip { return }##
+    fmt.Println(o.t * (1 - vipDiscount))
+}`
+  },
+  {
+    name: 'Extract Function',
+    explain: 'Tách phần tính giá VIP ra hàm riêng có thể test độc lập.',
+    code:
+`const vipThreshold = 100
+const vipDiscount  = 0.1
+##func vipPrice(total float64) float64 {##
+##    return total * (1 - vipDiscount)##
+##}##
+func p(o Order) {
+    if o.t <= vipThreshold { return }
+    if !o.vip { return }
+    fmt.Println(##vipPrice(o.t)##)
+}`
+  },
+  {
+    name: 'Rename',
+    explain: 'Đổi tên rõ nghĩa: p→printVipPrice, o→order, t→Total. Giờ code đọc như câu văn.',
+    code:
+`const vipThreshold = 100
+const vipDiscount  = 0.1
+func vipPrice(total float64) float64 {
+    return total * (1 - vipDiscount)
+}
+func ##printVipPrice##(##order## Order) {
+    if ##order.Total## <= vipThreshold { return }
+    if !##order.IsVIP## { return }
+    fmt.Println(vipPrice(##order.Total##))
+}`
+  },
+];
+let step = 0;
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function renderStep(){
+  const s = STEPS[step];
+  // ##...## marks highlighted spans
+  let html = escapeHtml(s.code).replace(/##(.+?)##/g, '<span class="hl">$1</span>');
+  document.getElementById('codeBox').innerHTML = html;
+  document.getElementById('stepNo').textContent = step;
+  document.getElementById('stepName').textContent = s.name;
+  document.getElementById('stepExplain').textContent = s.explain;
+  document.getElementById('btnNext').disabled = (step >= STEPS.length - 1);
+  document.getElementById('btnNext').textContent = step >= STEPS.length - 1 ? '✓ Đã sạch' : '▶ Bước tiếp';
+}
+function nextStep(){ if(step < STEPS.length-1){ step++; renderStep(); } }
+function resetSteps(){ step = 0; renderStep(); }
+
+// ===== Module 2: tech debt interest sim =====
+const BASE = 2;        // ngày/tính năng nền (code sạch)
+const GROWTH = 1;      // mỗi tháng không trả nợ, +1 ngày/tính năng
+const PAY_MONTH = 2;   // trả nợ ở tháng 2
+const PAY_COST = 3;    // refactor tốn 3 ngày (một lần)
+// thời gian làm 1 tính năng ở tháng m
+function timeNoPay(m){ return BASE + (m - 1) * GROWTH; }       // lãi tăng dần
+function timePay(m){ return BASE; }                            // sau refactor: ổn định
+function renderDebt(){
+  const months = +document.getElementById('monRange').value;
+  const pay = document.getElementById('payChk').checked;
+  document.getElementById('monLbl').textContent = months;
+
+  // build series
+  const maxY = timeNoPay(12); // = 13
+  const W=640, H=280, padL=46, padB=36, padT=14, padR=12;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const xs = m => padL + (months<=1 ? plotW/2 : (m-1)/(months-1)*plotW);
+  const ys = v => padT + plotH - (v/maxY)*plotH;
+
+  function path(fn){
+    let d='';
+    for(let m=1;m<=months;m++){ d += (m===1?'M':'L') + xs(m).toFixed(1) + ',' + ys(fn(m)).toFixed(1) + ' '; }
+    return d.trim();
+  }
+  // gridlines + axis labels
+  let grid='';
+  for(let v=0; v<=maxY; v+=2){
+    const y=ys(v);
+    grid += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#eef" stroke-width="1"/>`;
+    grid += `<text x="${padL-6}" y="${y+4}" font-size="10" fill="#94a3b8" text-anchor="end">${v}</text>`;
+  }
+  let xlab='';
+  for(let m=1;m<=months;m++){ xlab += `<text x="${xs(m)}" y="${H-padB+16}" font-size="10" fill="#94a3b8" text-anchor="middle">T${m}</text>`; }
+
+  let lines = `<path d="${path(timeNoPay)}" fill="none" stroke="#dc2626" stroke-width="2.5"/>`;
+  let payMarker = '';
+  if(pay){
+    lines += `<path d="${path(timePay)}" fill="none" stroke="#16a34a" stroke-width="2.5"/>`;
+    if(months>=PAY_MONTH){
+      const mx=xs(PAY_MONTH), my=ys(timePay(PAY_MONTH));
+      payMarker = `<circle cx="${mx}" cy="${my}" r="5" fill="#16a34a"/>`+
+        `<text x="${mx}" y="${my-10}" font-size="10" fill="#16a34a" text-anchor="middle" font-weight="700">refactor 3d</text>`;
+    }
+  }
+  document.getElementById('debtSvg').innerHTML =
+    grid +
+    `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H-padB}" stroke="#cbd5e1"/>`+
+    `<line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="#cbd5e1"/>`+
+    `<text x="${padL}" y="${padT-2}" font-size="10" fill="#64748b">ngày / tính năng</text>`+
+    lines + payMarker + xlab;
+
+  // totals (assume 1 feature/month)
+  let totalNo=0; for(let m=1;m<=months;m++) totalNo += timeNoPay(m);
+  let totalPay=0; for(let m=1;m<=months;m++){ totalPay += timePay(m); if(m===PAY_MONTH) totalPay += PAY_COST; }
+  let read = `<div>Không trả nợ — tổng <b>${totalNo}</b> ngày sau ${months} tháng.</div>`;
+  if(pay){
+    const save = totalNo - totalPay;
+    read += `<div>Trả nợ sớm — tổng <b>${totalPay}</b> ngày (đã gồm 3 ngày refactor). `+
+      (save>0 ? `Tiết kiệm <b>${save}</b> ngày ✅` : save===0 ? `Hòa vốn ⚖️` : `Chưa hòa vốn (${-save} ngày), cần thêm thời gian ⏳`) + `</div>`;
+  } else {
+    read += `<div class="note">Bật "trả nợ" để so sánh — lãi (đường đỏ) tăng đều mỗi tháng vì code càng rối.</div>`;
+  }
+  document.getElementById('debtRead').innerHTML = read;
+}
+
+// ===== Module 3: identify refactor quiz =====
+const QUIZ = [
+  {
+    code: `if status == 3 { ship() }\n// ... và status == 3 ở 5 chỗ khác`,
+    opts: ['Replace Magic Number','Extract Function','Inline','Guard Clause'],
+    ans: 0,
+    why: 'Replace Magic Number: 3 là số ma thuật. Đặt const statusShipped = 3 → tự giải thích, đổi giá trị chỉ sửa một nơi.'
+  },
+  {
+    code: `if u != nil {\n    if u.Active {\n        if u.Admin {\n            grant()\n        }\n    }\n}`,
+    opts: ['Rename','Guard Clause','Extract Variable','Inline'],
+    ans: 1,
+    why: 'Guard Clause: if lồng 3 tầng. Thoát sớm (if u==nil { return }...) làm phẳng, đường chính không bị thụt sâu.'
+  },
+  {
+    code: `result := age >= 18\nreturn result`,
+    opts: ['Extract Function','Replace Magic Number','Inline','Guard Clause'],
+    ans: 2,
+    why: 'Inline: biến trung gian result không thêm ý nghĩa. Gỡ đi: return age >= 18.'
+  },
+  {
+    code: `// hàm 60 dòng: vừa validate, vừa\n// tính tổng, vừa in hóa đơn`,
+    opts: ['Inline','Rename','Extract Function','Replace Magic Number'],
+    ans: 2,
+    why: 'Extract Function: một hàm làm quá nhiều việc. Tách thành validate(), calcTotal(), printReceipt() — mỗi hàm một việc, test riêng được.'
+  },
+  {
+    code: `func f(d int) int {\n    return d * 86400\n}`,
+    opts: ['Rename (+ đặt tên hằng)','Guard Clause','Inline','Extract Function'],
+    ans: 0,
+    why: 'Rename: f và d mơ hồ, 86400 bí ẩn. → daysToSeconds(days), const secondsPerDay = 86400. (Kèm Replace Magic Number cho 86400.)'
+  },
+];
+let qi = 0, qiAnswered = false;
+function renderQuiz(){
+  qiAnswered = false;
+  const q = QUIZ[qi];
+  document.getElementById('quizCode').textContent = q.code;
+  document.getElementById('quizOpts').innerHTML = q.opts.map((o,i)=>
+    `<button class="opt" data-i="${i}" onclick="answerQuiz(${i})">${o}</button>`).join('');
+  document.getElementById('quizFb').textContent = '';
+}
+function answerQuiz(i){
+  if(qiAnswered) return;
+  qiAnswered = true;
+  const q = QUIZ[qi];
+  document.querySelectorAll('#quizOpts .opt').forEach(b=>{
+    const bi = +b.dataset.i;
+    if(bi === q.ans) b.classList.add('ok');
+    else if(bi === i) b.classList.add('bad');
+  });
+  const fb = document.getElementById('quizFb');
+  fb.innerHTML = (i===q.ans ? '✅ Chính xác. ' : '❌ Chưa đúng. ') + q.why;
+}
+function nextQuiz(){ qi = (qi+1) % QUIZ.length; renderQuiz(); }
+
+// init
+renderStep(); renderDebt(); renderQuiz();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

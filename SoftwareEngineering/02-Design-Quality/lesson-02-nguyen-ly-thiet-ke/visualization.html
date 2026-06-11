@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 02 — Nguyên lý thiết kế (SOLID, DRY, KISS, YAGNI)</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background: #7c3aed; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.primary:hover { background:#6d28d9; }
+  /* SOLID cards */
+  .solid-tabs { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }
+  .stab { width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:8px; background:#ede9fe; color:#5b21b6; cursor:pointer; font-size:18px; font-weight:800; border:2px solid transparent; }
+  .stab.active { background:#7c3aed; color:#fff; }
+  .stab-name { font-weight:700; color:#5b21b6; margin:6px 0 2px; }
+  .codes { display:flex; flex-wrap:wrap; gap:12px; margin-top:10px; }
+  .codecol { flex:1 1 280px; min-width:0; }
+  .codecol h3 { font-size:13px; margin:0 0 4px; }
+  .bad-h { color:#dc2626; } .good-h { color:#16a34a; }
+  pre { background:#1e293b; color:#e2e8f0; border-radius:6px; padding:10px 12px; font-size:12px; line-height:1.45; overflow-x:auto; margin:0; }
+  pre.bad { border-left:4px solid #dc2626; }
+  pre.good { border-left:4px solid #16a34a; }
+  /* quiz */
+  .qcode { background:#1e293b; color:#e2e8f0; border-radius:6px; padding:10px 12px; font-size:12px; line-height:1.45; overflow-x:auto; }
+  .opts { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }
+  .opt { padding:7px 12px; border-radius:6px; background:#ede9fe; color:#5b21b6; cursor:pointer; font-size:13px; font-weight:600; border:2px solid #c4b5fd; }
+  .opt.correct { background:#16a34a; color:#fff; border-color:#16a34a; }
+  .opt.wrong { background:#dc2626; color:#fff; border-color:#dc2626; }
+  .qfb { margin-top:8px; font-size:14px; padding:10px 12px; border-left:4px solid #7c3aed; background:#f5f3ff; border-radius:4px; min-height:20px; }
+  .qmeta { font-size:13px; color:#64748b; }
+  /* kiss toggle */
+  .switch-row { display:flex; align-items:center; gap:10px; margin:10px 0; flex-wrap:wrap; }
+  .chip { display:inline-block; padding:4px 11px; border-radius:6px; background:#ede9fe; color:#5b21b6; cursor:pointer; font-size:13px; font-weight:600; }
+  .chip.active { background:#7c3aed; color:#fff; }
+  .metric { display:inline-block; background:#f1f5f9; border-radius:6px; padding:4px 10px; font-size:12px; font-weight:600; color:#475569; margin-right:6px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-clean-code-code-smells/visualization.html">← L1: Clean code & code smells</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Nguyên lý thiết kế</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-coupling-cohesion/visualization.html">L3: Coupling & cohesion →</a>
+</nav>
+<main>
+<h1>Nguyên lý thiết kế — SOLID, DRY, KISS, YAGNI</h1>
+<p class="note">Ba mô-đun: (1) thẻ SOLID — vi phạm vs đã sửa, (2) quiz đoán nguyên lý bị vi phạm, (3) toggle Over-engineered ↔ KISS.</p>
+
+<div class="panel">
+  <h2>1 · SOLID — bấm từng chữ để xem code vi phạm vs đã sửa</h2>
+  <div class="solid-tabs" id="stabs"></div>
+  <div class="stab-name" id="sname"></div>
+  <p class="note" id="sdef"></p>
+  <div class="codes">
+    <div class="codecol"><h3 class="bad-h">❌ Vi phạm</h3><pre class="bad" id="sbad"></pre></div>
+    <div class="codecol"><h3 class="good-h">✅ Đã sửa</h3><pre class="good" id="sgood"></pre></div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>2 · Quiz — đoán nguyên lý nào bị vi phạm</h2>
+  <p class="qmeta" id="qprog"></p>
+  <pre class="qcode" id="qcode"></pre>
+  <div class="opts" id="qopts"></div>
+  <div class="qfb" id="qfb">Đọc đoạn code rồi chọn nguyên lý bị vi phạm.</div>
+  <button class="primary" id="qnext" onclick="nextQ()" style="margin-top:10px; display:none">Câu tiếp →</button>
+</div>
+
+<div class="panel">
+  <h2>3 · Over-engineered ↔ KISS — cùng một yêu cầu "kiểm tra số chẵn"</h2>
+  <div class="switch-row">
+    <span class="chip" id="cOver" onclick="setKiss('over')">🏗️ Over-engineered</span>
+    <span class="chip active" id="cKiss" onclick="setKiss('kiss')">✨ KISS</span>
+  </div>
+  <div id="kmetrics"></div>
+  <pre id="kcode" style="margin-top:8px"></pre>
+  <div class="qfb" id="kfb"></div>
+</div>
+
+<script>
+// ===== Module 1: SOLID cards =====
+const SOLID = [
+  { k:'S', name:'Single Responsibility — Trách nhiệm đơn',
+    def:'Mỗi đơn vị chỉ có MỘT lý do để thay đổi (một tác nhân nghiệp vụ).',
+    bad:`type Report struct{ data []Row }
+func (r *Report) Calculate() float64 { ... }
+func (r *Report) RenderHTML() string { ... }
+func (r *Report) SaveToDisk(p string) error { ... }
+// 3 lý do đổi: công thức, HTML, cách lưu`,
+    good:`type Report struct{ data []Row }
+func (r *Report) Calculate() float64 { ... }
+
+type HTMLRenderer struct{}
+func (h HTMLRenderer) Render(r *Report) string { ... }
+
+type FileStore struct{}
+func (f FileStore) Save(p, c string) error { ... }` },
+  { k:'O', name:'Open/Closed — Đóng/Mở',
+    def:'Mở để mở rộng (thêm hành vi), đóng với sửa đổi (không sửa code cũ).',
+    bad:`func Area(t string, a, b float64) float64 {
+  if t=="rect"   { return a*b }
+  if t=="circle" { return 3.14*a*a }
+  // thêm triangle -> phải SỬA hàm này
+  return 0
+}`,
+    good:`type Shape interface{ Area() float64 }
+type Rect struct{ W,H float64 }
+func (r Rect) Area() float64 { return r.W*r.H }
+type Circle struct{ R float64 }
+func (c Circle) Area() float64 { return 3.14*c.R*c.R }
+// thêm Triangle = THÊM struct, không đụng cũ` },
+  { k:'L', name:'Liskov Substitution — Thay thế Liskov',
+    def:'Lớp con phải thay thế được lớp cha mà chương trình vẫn đúng.',
+    bad:`type Bird interface{ Fly() }
+type Penguin struct{}
+func (p Penguin) Fly() {
+  panic("chim cánh cụt không bay!") // phá hợp đồng
+}
+func MakeItFly(b Bird){ b.Fly() } // Penguin -> crash`,
+    good:`type Bird  interface{ Eat() }
+type Flyer interface{ Fly() }
+type Penguin struct{}
+func (p Penguin) Eat() {}        // chỉ là Bird
+type Sparrow struct{}
+func (s Sparrow) Eat() {}
+func (s Sparrow) Fly() {}        // Bird + Flyer
+func MakeItFly(f Flyer){ f.Fly() }` },
+  { k:'I', name:'Interface Segregation — Phân tách interface',
+    def:'Nhiều interface nhỏ chuyên biệt tốt hơn một interface to.',
+    bad:`type Machine interface {
+  Print(d string); Scan(d string); Fax(d string)
+}
+type CheapPrinter struct{}
+func (c CheapPrinter) Print(d string){}
+func (c CheapPrinter) Scan(d string){ panic("ko hỗ trợ") }
+func (c CheapPrinter) Fax(d string){ panic("ko hỗ trợ") }`,
+    good:`type Printer interface{ Print(d string) }
+type Scanner interface{ Scan(d string) }
+type Faxer   interface{ Fax(d string) }
+type CheapPrinter struct{}
+func (c CheapPrinter) Print(d string){} // chỉ cài thứ làm được` },
+  { k:'D', name:'Dependency Inversion — Đảo phụ thuộc',
+    def:'Phụ thuộc vào trừu tượng (interface), không vào lớp cụ thể.',
+    bad:`type OrderService struct{ db MySQLDB } // hàn cứng MySQL
+func NewOrderService() *OrderService {
+  return &OrderService{db: MySQLDB{}} // tự tạo
+}
+// không thay được DB, không test được`,
+    good:`type Store interface{ Save(o Order) } // trừu tượng
+type OrderService struct{ db Store }
+func NewOrderService(db Store) *OrderService { // inject
+  return &OrderService{db: db}
+}
+// test: store giả; đổi DB: PostgresDB — ko sửa service` },
+];
+let sSel = 0;
+function renderSolid(){
+  document.getElementById('stabs').innerHTML = SOLID.map((d,i)=>
+    `<div class="stab ${i===sSel?'active':''}" onclick="selSolid(${i})">${d.k}</div>`).join('');
+  const d = SOLID[sSel];
+  document.getElementById('sname').textContent = d.name;
+  document.getElementById('sdef').textContent = d.def;
+  document.getElementById('sbad').textContent = d.bad;
+  document.getElementById('sgood').textContent = d.good;
+}
+function selSolid(i){ sSel=i; renderSolid(); }
+
+// ===== Module 2: quiz =====
+const OPTIONS = ['S — Single Resp.','O — Open/Closed','L — Liskov','I — Interface Seg.','D — Dependency Inv.','DRY','KISS / YAGNI'];
+const QUIZ = [
+  { code:`func area(t string, a, b float64) float64 {
+  if t=="rect"   { return a*b }
+  if t=="circle" { return 3.14*a*a }
+  // thêm loại mới phải sửa hàm này
+}`, ans:1, why:'Thêm một loại hình mới buộc SỬA hàm cũ đang chạy → vi phạm Open/Closed. Sửa: mỗi hình một struct cài interface Area().' },
+  { code:`type Square struct{ Rectangle }
+func (s *Square) SetWidth(w float64) {
+  s.width = w; s.height = w   // đổi cả 2 cạnh
+}
+// code kỳ vọng SetWidth chỉ đổi rộng -> vỡ`, ans:2, why:'Square không thay thế được Rectangle (SetWidth có hành vi khác) → vi phạm Liskov. Square không thật sự "là" Rectangle về hành vi.' },
+  { code:`type Worker interface { Work(); Eat() }
+type Robot struct{}
+func (r Robot) Work() {}
+func (r Robot) Eat()  { panic("robot không ăn") }`, ans:3, why:'Interface "béo" buộc Robot cài Eat() nó không dùng → vi phạm Interface Segregation. Tách Workable và Eatable riêng.' },
+  { code:`func priceA(p float64) float64 { return p + p*0.1 }
+func priceB(p float64) float64 { return p * 1.1 }
+// thuế suất 0.1 hardcode ở nhiều nơi`, ans:5, why:'Cùng kiến thức "thuế suất" lặp ở nhiều chỗ → vi phạm DRY. Gom về const TaxRate, sửa một chỗ đúng mọi nơi.' },
+  { code:`type Svc struct{ db MySQLDB }   // hàn cứng lớp cụ thể
+func New() *Svc { return &Svc{db: MySQLDB{}} }
+// không mock được khi test`, ans:4, why:'Phụ thuộc trực tiếp vào MySQL cụ thể → vi phạm Dependency Inversion. Đặt interface Store và inject từ ngoài.' },
+  { code:`// yêu cầu: kiểm tra n có chẵn không
+type Classifier interface{ Classify(n int) string }
+type Factory struct{}
+func (f Factory) Create(k string) Classifier { ... }`, ans:6, why:'Dựng factory/strategy cho việc một dòng làm được → vi phạm KISS/YAGNI. Chỉ cần func IsEven(n) bool { return n%2==0 }.' },
+  { code:`type Report struct{ data []Row }
+func (r *Report) Calculate() float64 { ... }
+func (r *Report) RenderHTML() string { ... }
+func (r *Report) SaveToDisk(p string) error { ... }`, ans:0, why:'Một struct ôm 3 lý do thay đổi (tính toán, hiển thị, lưu trữ) → vi phạm Single Responsibility. Tách thành 3 đơn vị.' },
+];
+let qIdx = 0, qDone = false;
+function renderQ(){
+  const q = QUIZ[qIdx];
+  qDone = false;
+  document.getElementById('qprog').textContent = `Câu ${qIdx+1}/${QUIZ.length}`;
+  document.getElementById('qcode').textContent = q.code;
+  document.getElementById('qopts').innerHTML = OPTIONS.map((o,i)=>
+    `<div class="opt" id="opt${i}" onclick="answer(${i})">${o}</div>`).join('');
+  document.getElementById('qfb').textContent = 'Đọc đoạn code rồi chọn nguyên lý bị vi phạm.';
+  document.getElementById('qnext').style.display = 'none';
+}
+function answer(i){
+  if(qDone) return;
+  qDone = true;
+  const q = QUIZ[qIdx];
+  document.getElementById('opt'+q.ans).classList.add('correct');
+  if(i!==q.ans) document.getElementById('opt'+i).classList.add('wrong');
+  document.getElementById('qfb').innerHTML = (i===q.ans?'✅ <b>Đúng!</b> ':'❌ <b>Chưa đúng.</b> ') + q.why;
+  document.getElementById('qnext').style.display = qIdx < QUIZ.length-1 ? 'inline-block' : 'none';
+  if(qIdx === QUIZ.length-1) document.getElementById('qfb').innerHTML += ' 🎉 Hết quiz!';
+}
+function nextQ(){ if(qIdx < QUIZ.length-1){ qIdx++; renderQ(); } }
+
+// ===== Module 3: KISS toggle =====
+const KISS = {
+  over: {
+    metrics: [['Dòng code','~12'],['Số kiểu/struct','4'],['Số file','3'],['Dễ hiểu','Thấp']],
+    code:`type NumberClassifier interface{ Classify(n int) string }
+type EvenOddStrategy struct{}
+func (e EvenOddStrategy) Classify(n int) string {
+  if n%2==0 { return "even" }
+  return "odd"
+}
+type ClassifierFactory struct{}
+func (f ClassifierFactory) Create(k string) NumberClassifier {
+  return EvenOddStrategy{}
+}
+// dùng: factory.Create("evenodd").Classify(n) == "even"`,
+    fb:'🏗️ <b>Over-engineered</b>: interface + strategy + factory cho một phép kiểm tra. Phức tạp thừa, khó đọc, không mua được gì vì chưa có nhu cầu nhiều kiểu phân loại (vi phạm KISS + YAGNI).' },
+  kiss: {
+    metrics: [['Dòng code','1'],['Số kiểu/struct','0'],['Số file','1'],['Dễ hiểu','Cao']],
+    code:`// yêu cầu: n có chẵn không
+func IsEven(n int) bool { return n%2 == 0 }`,
+    fb:'✨ <b>KISS</b>: một dòng giải quyết đúng yêu cầu hiện tại. Dễ đọc, dễ test, không bug. Khi NÀO thật sự cần nhiều kiểu phân loại (nhu cầu thật) mới thêm abstraction.' },
+};
+let kSel = 'kiss';
+function renderKiss(){
+  const d = KISS[kSel];
+  document.getElementById('cOver').classList.toggle('active', kSel==='over');
+  document.getElementById('cKiss').classList.toggle('active', kSel==='kiss');
+  document.getElementById('kmetrics').innerHTML = d.metrics.map(m=>
+    `<span class="metric">${m[0]}: ${m[1]}</span>`).join('');
+  document.getElementById('kcode').textContent = d.code;
+  document.getElementById('kfb').innerHTML = d.fb;
+}
+function setKiss(m){ kSel=m; renderKiss(); }
+
+// init
+renderSolid(); renderQ(); renderKiss();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

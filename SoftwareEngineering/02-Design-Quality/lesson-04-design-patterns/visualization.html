@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 04 — Design patterns (GoF)</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background:#fff; border-radius:8px; padding:16px 20px; box-shadow:0 1px 3px rgba(0,0,0,.08); margin-bottom:18px; }
+  .panel h2 { margin-top:0; font-size:18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background:#7c3aed; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.primary:hover { background:#6d28d9; }
+  /* module 1: pattern library */
+  .groups { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+  .grp { padding:4px 11px; border-radius:6px; background:#f1f5f9; color:#475569; cursor:pointer; font-size:13px; font-weight:600; border:2px solid transparent; }
+  .grp.active { background:#ede9fe; color:#5b21b6; border-color:#c4b5fd; }
+  .plist { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+  .pchip { padding:6px 12px; border-radius:6px; background:#ede9fe; color:#5b21b6; cursor:pointer; font-size:13px; font-weight:600; }
+  .pchip.active { background:#7c3aed; color:#fff; }
+  .pdetail { border-left:4px solid #7c3aed; background:#f5f3ff; border-radius:4px; padding:12px 14px; font-size:14px; line-height:1.55; }
+  .pdetail h3 { margin:0 0 6px; font-size:16px; color:#5b21b6; }
+  .pdetail .tag { display:inline-block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#6d28d9; background:#ede9fe; padding:2px 8px; border-radius:4px; margin-bottom:8px; }
+  .pdetail .lab { font-weight:700; color:#5b21b6; }
+  .pdetail pre { background:#1e1b2e; color:#e9e5ff; padding:10px 12px; border-radius:6px; overflow-x:auto; font-size:12.5px; margin:8px 0 0; }
+  /* module 2: quiz */
+  .qcard { font-size:15px; margin-bottom:10px; }
+  .qcard b { color:#5b21b6; }
+  .opts { display:flex; flex-direction:column; gap:7px; }
+  .opt { text-align:left; padding:9px 12px; border-radius:6px; background:#f8fafc; border:2px solid #e2e8f0; cursor:pointer; font-size:14px; }
+  .opt:hover { border-color:#c4b5fd; }
+  .opt.correct { background:#dcfce7; border-color:#16a34a; }
+  .opt.wrong { background:#fee2e2; border-color:#dc2626; }
+  .qfb { margin-top:10px; font-size:14px; padding:10px 12px; border-radius:5px; background:#f5f3ff; border-left:4px solid #7c3aed; display:none; }
+  .qfb.show { display:block; }
+  .qnav { margin-top:12px; display:flex; align-items:center; gap:10px; }
+  .qscore { font-size:13px; color:#64748b; }
+  /* module 3: strategy demo */
+  .sgroup { display:flex; gap:6px; flex-wrap:wrap; margin:10px 0; }
+  .srow { display:flex; align-items:center; gap:8px; margin:8px 0; flex-wrap:wrap; }
+  .srow label { font-size:13px; color:#475569; min-width:120px; }
+  .srow input[type=range] { flex:1; min-width:140px; max-width:260px; }
+  .sval { font-weight:700; color:#5b21b6; min-width:64px; }
+  .scost { font-size:30px; font-weight:800; color:#7c3aed; margin:8px 0 2px; }
+  .scode { background:#1e1b2e; color:#e9e5ff; padding:8px 12px; border-radius:6px; font-size:12.5px; margin-top:8px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-coupling-cohesion/visualization.html">← L3: Coupling &amp; cohesion</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Design patterns</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-refactoring-tech-debt/visualization.html">L5: Refactoring &amp; nợ kỹ thuật →</a>
+</nav>
+<main>
+<h1>Design patterns (mẫu thiết kế GoF)</h1>
+<p class="note">Ba mô-đun: (1) thư viện pattern — bấm xem vấn đề + sơ đồ + ví dụ; (2) quiz chọn pattern cho tình huống; (3) Strategy demo — đổi thuật toán tính phí ship lúc chạy.</p>
+
+<div class="panel">
+  <h2>1 · Thư viện pattern — bấm để xem nó giải vấn đề gì</h2>
+  <p class="note">Chọn nhóm GoF rồi bấm một pattern. Mỗi pattern nêu: vấn đề cụ thể → cách giải → ví dụ ngắn.</p>
+  <div class="groups" id="groups"></div>
+  <div class="plist" id="plist"></div>
+  <div class="pdetail" id="pdetail"></div>
+</div>
+
+<div class="panel">
+  <h2>2 · Chọn pattern cho tình huống</h2>
+  <p class="note">Đọc tình huống, chọn pattern phù hợp nhất. Sai cũng có giải thích.</p>
+  <div class="qcard" id="qcard"></div>
+  <div class="opts" id="opts"></div>
+  <div class="qfb" id="qfb"></div>
+  <div class="qnav">
+    <button class="primary" id="qnext" onclick="nextQ()">Câu tiếp →</button>
+    <span class="qscore" id="qscore"></span>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>3 · Strategy demo — đổi thuật toán tính phí ship lúc chạy</h2>
+  <p class="note">Cùng một giỏ hàng, đổi <b>strategy</b> tính phí → kết quả đổi tức thì mà code giỏ hàng KHÔNG đổi.</p>
+  <div class="sgroup" id="sgroup"></div>
+  <div class="srow"><label>Trọng lượng (kg)</label><input type="range" id="wt" min="0.5" max="20" step="0.5" value="4" oninput="renderStrat()"><span class="sval" id="wtv"></span></div>
+  <div class="srow"><label>Khoảng cách (km)</label><input type="range" id="dist" min="1" max="100" step="1" value="12" oninput="renderStrat()"><span class="sval" id="distv"></span></div>
+  <div class="srow"><label>Khách VIP?</label><input type="checkbox" id="vip" onchange="renderStrat()"></div>
+  <div class="scost" id="scost"></div>
+  <div class="note" id="sexplain"></div>
+  <div class="scode" id="scode"></div>
+</div>
+
+<script>
+// ===== Module 1: pattern library =====
+const GROUPS = ['Creational','Structural','Behavioral'];
+const PATTERNS = {
+  Creational: [
+    { name:'Factory Method', tag:'Creational',
+      problem:'Code tạo object cụ thể (new PDFReport) rải rác khắp nơi; thêm loại mới phải sửa nhiều chỗ → vi phạm Open/Closed.',
+      solve:'Đưa việc "quyết định tạo loại nào" vào một hàm factory trả về interface chung. Client chỉ phụ thuộc interface, không biết class cụ thể.',
+      not:'Khi chỉ có MỘT loại object và không có dấu hiệu thêm — factory chỉ là tầng gián tiếp thừa (YAGNI).',
+      code:'func NewReport(kind string) (Report, error) {\n  switch kind {\n  case "pdf": return &PDFReport{}, nil\n  case "csv": return &CSVReport{}, nil\n  }\n}' },
+    { name:'Builder', tag:'Creational',
+      problem:'Object có nhiều tham số tùy chọn; constructor dài NewRequest(url,"GET",nil,nil,30,3,true) — không ai đọc nổi true/false cuối là gì.',
+      solve:'Dựng object qua chuỗi bước CÓ TÊN, mỗi bước set một phần, kết thúc .Build().',
+      not:'Object chỉ 2-3 trường đơn giản → struct literal Foo{A:1,B:2} đã đủ. Trong Go, functional options thường gọn hơn Builder.',
+      code:'req := NewRequestBuilder("https://api...").\n  Method("POST").\n  Header("Auth","Bearer x").\n  Timeout(30*time.Second).\n  Build()' },
+    { name:'Singleton ⚠', tag:'Creational',
+      problem:'Cần ĐÚNG MỘT instance dùng chung toàn app (vd connection pool DB) — tạo nhiều sẽ sai logic / lãng phí.',
+      solve:'Đảm bảo một instance + điểm truy cập toàn cục. Trong Go dùng sync.Once cho an toàn goroutine.',
+      not:'Gần như LUÔN cân nhắc dependency injection trước! Singleton = global trá hình → coupling ẩn, khó test, dễ bug đồng thời. Chỉ dùng khi DI quá phiền và "một-instance" là bất biến tuyệt đối.',
+      code:'var once sync.Once; var instance *Pool\nfunc GetPool() *Pool {\n  once.Do(func(){ instance = newPool() })\n  return instance\n}' },
+  ],
+  Structural: [
+    { name:'Adapter', tag:'Structural',
+      problem:'Code bạn gọi Charge(amount), nhưng SDK bên thứ ba chỉ có CreateCharge(cents, currency) — chữ ký khác hẳn, mà bạn không sửa được SDK.',
+      solve:'Viết lớp adapter "bọc" SDK, trình bày nó dưới interface mà code bạn mong đợi (chuyển đổi tham số/kiểu).',
+      not:'Khi bạn KIỂM SOÁT được cả hai phía interface → sửa cho khớp trực tiếp thay vì thêm lớp adapter. Adapter dành cho mã không sửa được.',
+      code:'func (a *StripeAdapter) Charge(amount float64) error {\n  cents := int64(amount * 100)\n  return a.client.CreateCharge(cents, "usd")\n}' },
+    { name:'Decorator', tag:'Structural',
+      problem:'Muốn thêm logging, rate-limit, gzip vào một handler. Nhét hết vào handler gốc → phình to, vi phạm SRP, khó bật/tắt từng cái.',
+      solve:'Mỗi tính năng phụ là một lớp BỌC cùng interface, làm thêm việc rồi gọi tiếp lớp trong. Xếp chồng tùy ý → đây là nền của middleware.',
+      not:'Khi chỉ một hành vi phụ cố định, không tổ hợp → viết thẳng. Chồng quá nhiều lớp cũng khó debug (stack trace dài).',
+      code:'func Logging(next http.Handler) http.Handler {\n  return http.HandlerFunc(func(w,r){\n    log.Println(r.Method, r.URL)\n    next.ServeHTTP(w, r)\n  })\n}\n// Gzip(RateLimit(Logging(core)))' },
+    { name:'Facade', tag:'Structural',
+      problem:'Để "đặt hàng" phải gọi inventory.Check, payment.Charge, shipping.Schedule, email.Send đúng thứ tự — mọi nơi lặp lại → coupling cao, dễ sai.',
+      solve:'Cung cấp MỘT interface đơn giản (PlaceOrder) che giấu chuỗi phức tạp bên trong.',
+      not:'Khi hệ con vốn đã đơn giản (1-2 lời gọi) → facade là tầng vô nghĩa. Tránh facade "god object" gom MỌI thứ vào một class khổng lồ.',
+      code:'func (f *OrderFacade) PlaceOrder(o Order) error {\n  if err := f.inventory.Check(o); err != nil { return err }\n  f.payment.Charge(o); f.shipping.Schedule(o)\n  f.email.SendConfirm(o); return nil\n}' },
+  ],
+  Behavioral: [
+    { name:'Strategy', tag:'Behavioral',
+      problem:'Hàm tính phí ship có nhiều cách (khoảng cách / trọng lượng / đồng giá). Chuỗi if/else khổng lồ → thêm cách phải sửa hàm đó, không đổi runtime được.',
+      solve:'Tách MỖI thuật toán sau interface chung; client giữ tham chiếu và đổi được lúc chạy.',
+      not:'Khi chỉ một thuật toán không đổi → một hàm là đủ. Trong Go, strategy đơn giản có thể truyền thẳng func(Order)float64 thay vì cả interface.',
+      code:'type ShippingStrategy interface { Cost(o Order) float64 }\nfunc (c *Cart) SetStrategy(s ShippingStrategy) { c.strategy = s }\nfunc (c *Cart) Ship(o Order) float64 { return c.strategy.Cost(o) }' },
+    { name:'Observer', tag:'Behavioral',
+      problem:'Khi đơn "đã thanh toán" cần: gửi email, cập nhật kho, ghi analytics, báo admin. Nếu MarkPaid tự gọi cả 4 → coupling chặt, thêm việc phải sửa lại nó.',
+      solve:'Subject giữ danh sách observer đăng ký; khi sự kiện xảy ra thì PHÁT cho tất cả mà không cần biết chúng là ai.',
+      not:'Khi chỉ một "người nghe" cố định → gọi thẳng. Observer dễ tạo luồng khó lần theo (sự kiện kích sự kiện); quy mô lớn dùng message queue.',
+      code:'func (o *Order) MarkPaid() {\n  // ... logic ...\n  for _, ob := range o.observers {\n    ob.OnPaid(*o) // phát cho tất cả\n  }\n}' },
+    { name:'Template Method', tag:'Behavioral',
+      problem:'Quy trình import luôn có khung: mở→đọc→parse→validate→lưu. Chỉ bước parse khác (CSV/JSON/XML). Copy cả quy trình → trùng 80% code.',
+      solve:'Cố định KHUNG ở một chỗ, để các bước thay đổi thành "lỗ trống". Trong Go thường truyền hàm parse vào khung (composition).',
+      not:'Khi các biến thể khác nhau quá nhiều, ép chung khung làm khung đầy điều kiện đặc biệt → tách hẳn rõ hơn. Tránh kế thừa cha-con coupling chặt.',
+      code:'func Import(r io.Reader, parse func([]byte)([]Row,error)) error {\n  data, _ := io.ReadAll(r)\n  rows, _ := parse(data) // chỗ trống client điền\n  return save(rows)\n}' },
+  ],
+};
+let curGroup = 'Creational', curPat = 0;
+function renderGroups(){
+  document.getElementById('groups').innerHTML = GROUPS.map(g=>
+    `<span class="grp ${g===curGroup?'active':''}" onclick="selGroup('${g}')">${g}</span>`).join('');
+}
+function renderPlist(){
+  document.getElementById('plist').innerHTML = PATTERNS[curGroup].map((p,i)=>
+    `<span class="pchip ${i===curPat?'active':''}" onclick="selPat(${i})">${p.name}</span>`).join('');
+}
+function renderDetail(){
+  const p = PATTERNS[curGroup][curPat];
+  document.getElementById('pdetail').innerHTML =
+    `<span class="tag">${p.tag}</span><h3>${p.name}</h3>`+
+    `<div><span class="lab">🔴 Vấn đề:</span> ${p.problem}</div>`+
+    `<div style="margin-top:6px"><span class="lab">🟢 Pattern giải:</span> ${p.solve}</div>`+
+    `<div style="margin-top:6px"><span class="lab">⚠ KHÔNG nên dùng khi:</span> ${p.not}</div>`+
+    `<pre>${p.code.replace(/</g,'&lt;')}</pre>`;
+}
+function selGroup(g){ curGroup=g; curPat=0; renderGroups(); renderPlist(); renderDetail(); }
+function selPat(i){ curPat=i; renderPlist(); renderDetail(); }
+
+// ===== Module 2: quiz =====
+const QUIZ = [
+  { q:'Tích hợp một SDK thanh toán bên thứ ba có chữ ký hàm khác hẳn interface code bạn đang dùng (và bạn không sửa được SDK).',
+    opts:['Adapter','Singleton','Observer','Builder'], correct:0,
+    why:'<b>Adapter</b> — vấn đề là hai interface không khớp và bạn không sửa được SDK. Adapter bọc SDK, trình bày nó dưới interface bạn mong đợi.' },
+  { q:'Đổi thuật toán nén (gzip / brotli / none) theo cấu hình từng request lúc chạy.',
+    opts:['Facade','Strategy','Decorator','Singleton'], correct:1,
+    why:'<b>Strategy</b> — nhiều thuật toán cùng vai trò cần đổi LÚC CHẠY. Tách mỗi thuật toán sau interface, đổi đối tượng strategy theo request. Tránh switch khổng lồ.' },
+  { q:'Khi user đăng ký xong cần đồng thời gửi email, tạo profile, ghi analytics — và sẽ còn thêm phản ứng nữa.',
+    opts:['Template Method','Adapter','Observer','Builder'], correct:2,
+    why:'<b>Observer</b> — một sự kiện kích nhiều phản ứng độc lập VÀ sẽ thêm nữa. Subject phát sự kiện cho observer đã đăng ký; thêm phản ứng = đăng ký thêm, không sửa code phát.' },
+  { q:'Cần đảm bảo connection pool tới DB chỉ có đúng một instance. Cách nào ưu tiên đầu tiên?',
+    opts:['Singleton toàn cục','Dependency injection (tạo 1 lần ở main, truyền vào)','Decorator','Factory mỗi lần gọi'], correct:1,
+    why:'<b>Dependency injection</b> — vẫn "một instance" nhưng không global ẩn: phụ thuộc hiện rõ trên chữ ký, test thay được. Singleton là global trá hình → coupling ẩn, khó test.' },
+  { q:'Để "đặt hàng" client phải gọi 4 hệ con (kho, thanh toán, ship, email) đúng thứ tự, lặp ở mọi nơi đặt hàng.',
+    opts:['Strategy','Facade','Observer','Builder'], correct:1,
+    why:'<b>Facade</b> — cung cấp một cửa đơn giản PlaceOrder() che chuỗi 4 lời gọi phức tạp, giảm coupling và tránh lặp.' },
+  { q:'App TODO cá nhân 3 màn hình. Đồng nghiệp đề nghị dùng AbstractFactory + Strategy + Observer ngay từ đầu.',
+    opts:['Đồng ý — pattern luôn tốt','Không — đây là pattern-itis / over-engineering, vi phạm KISS & YAGNI','Đồng ý nhưng bỏ Observer','Chỉ thêm Singleton'], correct:1,
+    why:'<b>Không</b> — thêm pattern dựa trên phỏng đoán chứ không phải đau thực tế là over-engineering. Viết đơn giản trước; refactor sang pattern KHI VÀ CHỈ KHI nhu cầu linh hoạt cụ thể xuất hiện.' },
+];
+let qi=0, answered=false, score=0, total=0;
+function renderQ(){
+  answered=false;
+  const item=QUIZ[qi];
+  document.getElementById('qcard').innerHTML = `<b>Tình huống ${qi+1}/${QUIZ.length}:</b> ${item.q}`;
+  document.getElementById('opts').innerHTML = item.opts.map((o,i)=>
+    `<button class="opt" data-i="${i}" onclick="answer(${i})">${o}</button>`).join('');
+  document.getElementById('qfb').className='qfb';
+  document.getElementById('qscore').textContent = total ? `Điểm: ${score}/${total}` : '';
+}
+function answer(i){
+  if(answered) return; answered=true; total++;
+  const item=QUIZ[qi];
+  if(i===item.correct) score++;
+  document.querySelectorAll('.opt').forEach(b=>{
+    const bi=+b.dataset.i;
+    if(bi===item.correct) b.classList.add('correct');
+    else if(bi===i) b.classList.add('wrong');
+  });
+  const fb=document.getElementById('qfb');
+  fb.className='qfb show';
+  fb.innerHTML = (i===item.correct?'✅ Chính xác! ':'❌ Chưa đúng. ') + item.why;
+  document.getElementById('qscore').textContent = `Điểm: ${score}/${total}`;
+}
+function nextQ(){ qi=(qi+1)%QUIZ.length; renderQ(); }
+
+// ===== Module 3: strategy demo =====
+const STRATS = [
+  { id:'weight', name:'Theo trọng lượng', expr:'w * 2.5',
+    fn:(w,d,vip)=> w*2.5,
+    code:'func (ByWeight) Cost(o) float64 { return o.Weight * 2.5 }' },
+  { id:'dist', name:'Theo khoảng cách', expr:'5 + d * 1.2',
+    fn:(w,d,vip)=> 5 + d*1.2,
+    code:'func (ByDistance) Cost(o) float64 { return 5 + o.Dist * 1.2 }' },
+  { id:'flat', name:'Đồng giá', expr:'30',
+    fn:(w,d,vip)=> 30,
+    code:'func (FlatRate) Cost(o) float64 { return 30 }' },
+  { id:'vip', name:'Miễn phí VIP', expr:'vip ? 0 : (theo trọng lượng)',
+    fn:(w,d,vip)=> vip?0:w*2.5,
+    code:'func (VIPFree) Cost(o) float64 {\n  if o.VIP { return 0 }; return o.Weight * 2.5\n}' },
+];
+let curStrat=0;
+function renderSgroup(){
+  document.getElementById('sgroup').innerHTML = STRATS.map((s,i)=>
+    `<span class="pchip ${i===curStrat?'active':''}" onclick="selStrat(${i})">${s.name}</span>`).join('');
+}
+function selStrat(i){ curStrat=i; renderStrat(); }
+function renderStrat(){
+  const w=+document.getElementById('wt').value;
+  const d=+document.getElementById('dist').value;
+  const vip=document.getElementById('vip').checked;
+  document.getElementById('wtv').textContent = w+' kg';
+  document.getElementById('distv').textContent = d+' km';
+  const s=STRATS[curStrat];
+  const cost=s.fn(w,d,vip);
+  document.getElementById('scost').textContent = 'Phí ship: '+cost.toFixed(1)+'k';
+  document.getElementById('sexplain').innerHTML =
+    `Strategy đang dùng: <b style="color:#5b21b6">${s.name}</b> (công thức <code>${s.expr}</code>). `+
+    `Đổi strategy ở trên → Cart gọi <code>strategy.Cost()</code> ra kết quả khác, mà code Cart KHÔNG đổi một dòng.`;
+  document.getElementById('scode').innerHTML = s.code.replace(/</g,'&lt;');
+}
+
+// init
+renderGroups(); renderPlist(); renderDetail();
+renderQ();
+renderSgroup(); renderStrat();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

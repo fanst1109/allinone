@@ -46,7 +46,7 @@
 | PoliticalScience | Chính trị học qua lý thuyết trò chơi — 3 tầng × 15 bài: NE → voting paradox → deterrence/mechanism design | [PoliticalScience/](./PoliticalScience/) |
 | Programming | Học lập trình bằng Go từ tư duy đến production — 9 tier × 84 lesson | [Programming/](./Programming/) |
 | Psychology | Tâm lý học khoa học — 3 tầng × 15 bài: cognitive (Stroop, biases) → social/developmental → clinical & methods | [Psychology/](./Psychology/) |
-| SoftwareEngineering | Kỹ thuật phần mềm — nghề làm phần mềm cùng nhóm (Tầng 1 Foundations: 6 bài — SDLC, Agile, yêu cầu, git workflow, code review, ước lượng; Tầng 2-3 đang mở rộng) | [SoftwareEngineering/](./SoftwareEngineering/) |
+| SoftwareEngineering | Kỹ thuật phần mềm — nghề làm phần mềm cùng nhóm, 3 tầng × 6 bài: quy trình & cộng tác (SDLC, Agile, git workflow) → thiết kế & chất lượng (clean code, SOLID, patterns, kiểm thử) → kiến trúc & vận hành (API, CI/CD, container, system design) | [SoftwareEngineering/](./SoftwareEngineering/) |
 | Statistics | Thống kê — 3 tầng × 15 bài: mô tả dữ liệu → suy luận → Bayesian, nhân quả, time series | [Statistics/](./Statistics/) |
 | Vectors | Lộ trình toán cho AI & ML — 5 tầng từ đại số phổ thông tới xác suất & cross-entropy | [Vectors/](./Vectors/) |
 | VietnameseHistory | Lịch sử Việt Nam — 3 tầng × 8 bài: dựng nước & Bắc thuộc → các triều đại quân chủ → cận-hiện đại & Đổi mới | [VietnameseHistory/](./VietnameseHistory/) |

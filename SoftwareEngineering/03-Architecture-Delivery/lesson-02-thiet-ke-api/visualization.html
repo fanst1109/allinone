@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 02 — Thiết kế API (REST, gRPC, GraphQL)</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background:#fff; border-radius:8px; padding:16px 20px; box-shadow:0 1px 3px rgba(0,0,0,.08); margin-bottom:18px; }
+  .panel h2 { margin-top:0; font-size:18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background:#7c3aed; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.primary:hover { background:#6d28d9; }
+  code, .mono { font-family:ui-monospace,Menlo,Consolas,monospace; }
+  /* ---- Module 1: REST builder ---- */
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px; }
+  select, input[type=text] { font-size:14px; padding:7px 9px; border:1px solid #cbd5e1; border-radius:5px; box-sizing:border-box; }
+  input.url { flex:1 1 220px; max-width:100%; width:100%; font-family:ui-monospace,Menlo,Consolas,monospace; }
+  .verb-sel { font-family:ui-monospace,Menlo,Consolas,monospace; font-weight:700; color:#5b21b6; }
+  .score { margin-top:14px; font-size:34px; font-weight:800; }
+  .score small { font-size:14px; font-weight:600; color:#64748b; }
+  .checks { list-style:none; padding:0; margin:10px 0 0; }
+  .checks li { padding:7px 10px; border-radius:6px; margin-bottom:6px; font-size:13.5px; line-height:1.4; }
+  .checks li.pass { background:#dcfce7; color:#166534; }
+  .checks li.fail { background:#fee2e2; color:#991b1b; }
+  .ex-chip { display:inline-block; padding:4px 10px; margin:3px 4px 0 0; border-radius:6px; background:#ede9fe; color:#5b21b6; cursor:pointer; font-size:12.5px; font-weight:600; }
+  /* ---- Module 2: over-fetch ---- */
+  .fields { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; }
+  .fld { padding:6px 12px; border-radius:20px; border:2px solid #c4b5fd; background:#fff; color:#5b21b6; cursor:pointer; font-size:13px; font-weight:600; user-select:none; }
+  .fld.on { background:#7c3aed; color:#fff; border-color:#7c3aed; }
+  .barwrap2 { display:flex; gap:18px; align-items:flex-end; height:170px; margin:14px 0 6px; }
+  .bar2 { flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; }
+  .bar2 .fill { width:100%; max-width:120px; border-radius:6px 6px 0 0; transition:height .4s; }
+  .bar2 .fill.rest { background:#fca5a5; }
+  .bar2 .fill.gql { background:#7c3aed; }
+  .bar2 .cap { font-size:12px; font-weight:700; margin-bottom:4px; }
+  .bar2 .nm { font-size:13px; font-weight:600; margin-top:6px; color:#475569; }
+  /* ---- Module 3: quiz ---- */
+  .q { font-size:15px; font-weight:600; margin:6px 0 10px; }
+  .opts { display:flex; flex-wrap:wrap; gap:8px; }
+  .opt { padding:8px 14px; border-radius:6px; border:2px solid #c4b5fd; background:#fff; color:#5b21b6; cursor:pointer; font-size:14px; font-weight:700; font-family:ui-monospace,Menlo,Consolas,monospace; }
+  .opt.right { background:#16a34a; color:#fff; border-color:#16a34a; }
+  .opt.wrong { background:#dc2626; color:#fff; border-color:#dc2626; }
+  .qfb { margin-top:12px; font-size:14px; padding:10px 12px; border-left:4px solid #7c3aed; background:#f5f3ff; border-radius:4px; min-height:20px; }
+  .qnav { margin-top:12px; font-size:13px; color:#64748b; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-kien-truc-phan-mem/visualization.html">← L1: Kiến trúc phần mềm</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Thiết kế API</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-ci-cd/visualization.html">L3: CI/CD →</a>
+</nav>
+<main>
+<h1>Thiết kế API — REST, gRPC, GraphQL</h1>
+<p class="note">Ba mô-đun: (1) chấm điểm endpoint REST theo best practice, (2) so sánh payload REST (lấy thừa) vs GraphQL (chọn field), (3) quiz chọn HTTP status code.</p>
+
+<div class="panel">
+  <h2>1 · REST endpoint — chấm điểm theo best practice</h2>
+  <p class="note">Chọn HTTP verb + gõ URL, rồi bấm "Chấm điểm". Hệ thống kiểm tra các quy tắc đặt URL (danh từ số nhiều, không động từ trong URL, không dùng GET để đổi dữ liệu...).</p>
+  <div class="row">
+    <select id="verb" class="verb-sel">
+      <option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option>
+    </select>
+    <input type="text" id="url" class="url" value="/getUser?id=42" spellcheck="false">
+    <button class="primary" onclick="grade()">Chấm điểm</button>
+  </div>
+  <div class="note">Thử nhanh:
+    <span class="ex-chip" onclick="setEx('GET','/users/42')">GET /users/42</span>
+    <span class="ex-chip" onclick="setEx('GET','/getUser?id=42')">GET /getUser?id=42</span>
+    <span class="ex-chip" onclick="setEx('POST','/createUser')">POST /createUser</span>
+    <span class="ex-chip" onclick="setEx('GET','/deleteUser?id=42')">GET /deleteUser?id=42</span>
+    <span class="ex-chip" onclick="setEx('POST','/users/42/orders')">POST /users/42/orders</span>
+  </div>
+  <div class="score" id="score"></div>
+  <ul class="checks" id="checks"></ul>
+</div>
+
+<div class="panel">
+  <h2>2 · Over-fetching: REST trả hết vs GraphQL chọn field</h2>
+  <p class="note">Màn hình của bạn chỉ cần vài field. REST (1 endpoint) trả về <b>cả 6 field</b>; GraphQL trả <b>đúng field bạn chọn</b>. Tích/bỏ field để xem chênh lệch kích thước payload.</p>
+  <div class="fields" id="fields"></div>
+  <div class="barwrap2">
+    <div class="bar2">
+      <div class="cap" id="restCap">0 B</div>
+      <div class="fill rest" id="restFill" style="height:10%"></div>
+      <div class="nm">REST<br><span class="note">trả cả 6 field</span></div>
+    </div>
+    <div class="bar2">
+      <div class="cap" id="gqlCap">0 B</div>
+      <div class="fill gql" id="gqlFill" style="height:10%"></div>
+      <div class="nm">GraphQL<br><span class="note">đúng field chọn</span></div>
+    </div>
+  </div>
+  <div class="qfb" id="ofFb"></div>
+</div>
+
+<div class="panel">
+  <h2>3 · Quiz: chọn HTTP status code đúng</h2>
+  <p class="note">Đọc tình huống, bấm status code bạn cho là đúng. Có giải thích sau mỗi câu.</p>
+  <svg width="320" height="60" viewBox="0 0 320 60" aria-hidden="true" style="margin:4px 0">
+    <rect x="2"   y="14" width="74" height="32" rx="6" fill="#dcfce7"/><text x="39"  y="35" text-anchor="middle" font-size="13" font-weight="700" fill="#166534">2xx OK</text>
+    <rect x="84"  y="14" width="74" height="32" rx="6" fill="#dbeafe"/><text x="121" y="35" text-anchor="middle" font-size="13" font-weight="700" fill="#1e40af">3xx →</text>
+    <rect x="166" y="14" width="74" height="32" rx="6" fill="#fef3c7"/><text x="203" y="35" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">4xx client</text>
+    <rect x="248" y="14" width="70" height="32" rx="6" fill="#fee2e2"/><text x="283" y="35" text-anchor="middle" font-size="13" font-weight="700" fill="#991b1b">5xx server</text>
+  </svg>
+  <div class="q" id="q"></div>
+  <div class="opts" id="opts"></div>
+  <div class="qfb" id="qfb"></div>
+  <div class="qnav"><span id="qprog"></span> <button class="primary" id="nextBtn" onclick="nextQ()" style="margin-left:8px;display:none">Câu tiếp →</button></div>
+</div>
+
+<script>
+// ================= Module 1: REST endpoint grader =================
+const VERBS_THAT_WRITE = ['POST','PUT','PATCH','DELETE'];
+const VERB_WORDS = ['get','create','make','add','update','edit','delete','remove','fetch','list','find','set'];
+function setEx(v,u){ document.getElementById('verb').value=v; document.getElementById('url').value=u; grade(); }
+function grade(){
+  const verb = document.getElementById('verb').value;
+  const raw  = document.getElementById('url').value.trim();
+  const path = raw.split('?')[0];
+  const hasQuery = raw.includes('?');
+  const segs = path.split('/').filter(Boolean);
+  const checks = [];
+  const add = (ok,txt)=>checks.push({ok,txt});
+
+  // 1. bắt đầu bằng /
+  add(raw.startsWith('/'), 'URL bắt đầu bằng "/" (đường dẫn tuyệt đối).');
+
+  // 2. không chứa động từ trong path
+  const verbInPath = segs.some(s => VERB_WORDS.some(w => s.toLowerCase()===w || s.toLowerCase().startsWith(w) && /^[a-z]+[A-Z]/.test(s)));
+  add(!verbInPath, verbInPath
+      ? 'Có động từ trong URL (vd get/create/delete) — động từ phải nằm ở HTTP method, không phải URL.'
+      : 'Không nhét động từ vào URL — để động từ cho HTTP method.');
+
+  // 3. dùng id qua path, không qua query (cho thao tác trên 1 tài nguyên)
+  const idInQuery = hasQuery && /(\?|&)(id|user|item)/i.test(raw);
+  add(!idInQuery, idInQuery
+      ? 'Định danh tài nguyên (id) nên nằm trong đường dẫn (/users/42), không phải query (?id=42).'
+      : 'Định danh tài nguyên đặt trong đường dẫn (hoặc không cần id).');
+
+  // 4. danh từ số nhiều cho collection đầu tiên
+  const first = segs[0] || '';
+  const plural = first==='' || first.endsWith('s') || first.includes('-');
+  add(plural, plural
+      ? 'Tài nguyên dùng danh từ số nhiều (vd /users, /products).'
+      : `Tài nguyên "/${first}" nên ở dạng số nhiều (vd /${first}s).`);
+
+  // 5. GET phải an toàn — không dùng để thay đổi
+  const getMutates = verb==='GET' && (verbInPath && /delete|create|update|remove|add|set/i.test(raw));
+  add(!getMutates, getMutates
+      ? 'GET đang được dùng để THAY ĐỔI dữ liệu — GET phải an toàn (chỉ đọc). Dùng POST/PUT/DELETE.'
+      : 'HTTP method khớp với ý định (GET chỉ đọc).');
+
+  const pass = checks.filter(c=>c.ok).length;
+  const total = checks.length;
+  const sc = document.getElementById('score');
+  const emoji = pass===total ? '✅' : pass>=total-1 ? '🟡' : '🔴';
+  sc.innerHTML = `${emoji} ${pass}/${total} <small>quy tắc đạt — <code>${verb} ${raw}</code></small>`;
+  document.getElementById('checks').innerHTML = checks.map(c =>
+    `<li class="${c.ok?'pass':'fail'}">${c.ok?'✓':'✗'} ${c.txt}</li>`).join('');
+}
+
+// ================= Module 2: over-fetching REST vs GraphQL =================
+const FIELDS = [
+  {k:'id',        bytes:12,  on:true},
+  {k:'name',      bytes:30,  on:true},
+  {k:'email',     bytes:40,  on:false},
+  {k:'address',   bytes:90,  on:false},
+  {k:'orders[]',  bytes:220, on:false},
+  {k:'history[]', bytes:300, on:false},
+];
+const TOTAL_BYTES = FIELDS.reduce((s,f)=>s+f.bytes,0); // REST luôn trả hết
+function renderFields(){
+  document.getElementById('fields').innerHTML = FIELDS.map((f,i)=>
+    `<span class="fld ${f.on?'on':''}" onclick="toggleFld(${i})">${f.k}</span>`).join('');
+  const sel = FIELDS.filter(f=>f.on).reduce((s,f)=>s+f.bytes,0);
+  const maxH = TOTAL_BYTES;
+  document.getElementById('restFill').style.height = Math.max(8, Math.round(TOTAL_BYTES/maxH*100))+'%';
+  document.getElementById('gqlFill').style.height  = Math.max(8, Math.round(sel/maxH*100))+'%';
+  document.getElementById('restCap').textContent = TOTAL_BYTES+' B';
+  document.getElementById('gqlCap').textContent  = sel+' B';
+  const saved = TOTAL_BYTES - sel;
+  const pct = Math.round(saved/TOTAL_BYTES*100);
+  const nSel = FIELDS.filter(f=>f.on).length;
+  document.getElementById('ofFb').innerHTML = nSel===0
+    ? 'Chọn ít nhất 1 field cần dùng.'
+    : `Bạn cần <b>${nSel}/6</b> field (${sel} B). REST một-endpoint vẫn trả cả 6 field (${TOTAL_BYTES} B) → <b>lãng phí ${saved} B (${pct}%)</b> mỗi lần gọi. GraphQL chỉ trả đúng field bạn hỏi.` +
+      (pct===0 ? ' (Khi cần đủ field thì hai bên ngang nhau — over-fetching chỉ đau khi bạn cần ít.)' : '');
+}
+function toggleFld(i){ FIELDS[i].on=!FIELDS[i].on; renderFields(); }
+
+// ================= Module 3: status code quiz =================
+const QUIZ = [
+  { s:'Client gọi GET /users/42 nhưng id 42 không tồn tại.',
+    opts:['200','404','400','500'], correct:'404',
+    why:'404 Not Found — request hợp lệ nhưng tài nguyên không tồn tại. Không phải 400 (request không sai), không phải 500 (server không lỗi).' },
+  { s:'POST /users với email sai định dạng ("abc@").',
+    opts:['201','400','404','403'], correct:'400',
+    why:'400 Bad Request (hoặc 422) — lỗi do CLIENT gửi dữ liệu không hợp lệ. Kèm body chỉ rõ field nào sai.' },
+  { s:'Tạo thành công một sản phẩm mới qua POST /products.',
+    opts:['200','201','204','302'], correct:'201',
+    why:'201 Created — đã TẠO tài nguyên mới, kèm header Location trỏ tới nó. 200 chung chung hơn; 204 là "thành công, không có body".' },
+  { s:'Server mất kết nối database khi đang xử lý GET /products.',
+    opts:['400','404','500','403'], correct:'500',
+    why:'500 Internal Server Error — lỗi phía SERVER, không phải lỗi client. (Nếu DB tạm sập và sẽ phục hồi: 503 Service Unavailable.)' },
+  { s:'DELETE /products/7 xóa thành công, không cần trả nội dung gì.',
+    opts:['200','201','204','404'], correct:'204',
+    why:'204 No Content — thành công nhưng không có body để trả. 200 cũng chấp nhận nếu muốn trả lại thông tin.' },
+  { s:'Người dùng chưa đăng nhập mà gọi API cần xác thực.',
+    opts:['400','401','403','404'], correct:'401',
+    why:'401 Unauthorized — CHƯA xác thực (chưa đăng nhập). Phân biệt với 403 Forbidden = đã đăng nhập nhưng KHÔNG có quyền.' },
+];
+let qi=0, answered=false;
+function renderQ(){
+  answered=false;
+  const Q=QUIZ[qi];
+  document.getElementById('q').textContent = `Câu ${qi+1}: ${Q.s}`;
+  document.getElementById('opts').innerHTML = Q.opts.map(o=>
+    `<div class="opt" onclick="answer('${o}',this)">${o}</div>`).join('');
+  document.getElementById('qfb').textContent='';
+  document.getElementById('qprog').textContent = `Tiến độ: ${qi+1}/${QUIZ.length}`;
+  document.getElementById('nextBtn').style.display = 'none';
+}
+function answer(o,el){
+  if(answered) return;
+  answered=true;
+  const Q=QUIZ[qi];
+  const right = o===Q.correct;
+  document.querySelectorAll('#opts .opt').forEach(b=>{
+    if(b.textContent===Q.correct) b.classList.add('right');
+    else if(b===el) b.classList.add('wrong');
+  });
+  document.getElementById('qfb').innerHTML = (right?'✅ Đúng! ':`❌ Đáp án đúng: <b>${Q.correct}</b>. `) + Q.why;
+  document.getElementById('nextBtn').style.display = qi<QUIZ.length-1 ? 'inline-block' : 'none';
+  if(qi===QUIZ.length-1) document.getElementById('qprog').textContent = 'Hoàn thành! Cuộn lên xem lại nếu cần.';
+}
+function nextQ(){ if(qi<QUIZ.length-1){ qi++; renderQ(); } }
+
+// init
+grade(); renderFields(); renderQ();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 03 — CI/CD</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background:#fff; border-radius:8px; padding:16px 20px; box-shadow:0 1px 3px rgba(0,0,0,.08); margin-bottom:18px; }
+  .panel h2 { margin-top:0; font-size:18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background:#7c3aed; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.primary:hover { background:#6d28d9; }
+  button.ghost { background:#ede9fe; color:#5b21b6; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; font-weight:600; }
+  button.ghost:hover { background:#ddd6fe; }
+  .chip { display:inline-block; padding:4px 11px; border-radius:6px; background:#ede9fe; color:#5b21b6; cursor:pointer; margin-right:6px; font-size:13px; font-weight:600; }
+  .chip.active { background:#7c3aed; color:#fff; }
+  .feedback { margin-top:12px; font-size:14px; padding:10px 12px; border-left:4px solid #7c3aed; background:#f5f3ff; border-radius:4px; }
+  /* pipeline */
+  .pipe { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; align-items:stretch; }
+  .stg { flex:1 1 0; min-width:72px; text-align:center; padding:12px 6px; border-radius:8px; font-size:12px; font-weight:600; background:#f1f5f9; color:#475569; border:2px solid #e2e8f0; position:relative; transition:.25s; }
+  .stg .ic { display:block; font-size:18px; margin-bottom:4px; }
+  .stg.run { background:#fef9c3; border-color:#eab308; color:#854d0e; }
+  .stg.pass { background:#dcfce7; border-color:#22c55e; color:#166534; }
+  .stg.fail { background:#fee2e2; border-color:#ef4444; color:#991b1b; }
+  .stg.skip { opacity:.4; }
+  .failpick { margin-top:12px; font-size:13px; color:#475569; }
+  .failpick select { padding:4px 8px; border-radius:5px; border:1px solid #cbd5e1; font-size:13px; }
+  /* traffic */
+  .controls { margin:10px 0; }
+  .legend { font-size:13px; margin-top:8px; }
+  .legend .sw { display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:middle; margin-right:4px; }
+  /* ci compare */
+  .scen { display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; }
+  .col { flex:1 1 240px; min-width:0; border:2px solid #e2e8f0; border-radius:8px; padding:12px 14px; }
+  .col.ci { border-color:#a78bfa; }
+  .col h3 { margin:0 0 8px; font-size:15px; }
+  .col .big { font-size:26px; font-weight:800; }
+  .col .ci-c { color:#16a34a; } .col .no-c { color:#dc2626; }
+  .timeline { font-size:13px; line-height:1.7; margin-top:6px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-thiet-ke-api/visualization.html">← L2: Thiết kế API</a>
+  <span class="sep">·</span>
+  <span class="current">L3: CI/CD</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-container-trien-khai/visualization.html">L4: Container &amp; triển khai →</a>
+</nav>
+<main>
+<h1>CI/CD — tích hợp &amp; triển khai liên tục</h1>
+<p class="note">Ba mô-đun: (1) chạy thử pipeline với fail fast, (2) blue-green vs canary phân phối traffic, (3) CI hay không CI — thời gian phát hiện lỗi.</p>
+
+<div class="panel">
+  <h2>1 · Pipeline tương tác — fail fast</h2>
+  <p class="note">Chọn một stage để cho "hỏng" (hoặc "Không hỏng"), rồi bấm ▶ Push. Các stage chạy lần lượt; gặp stage hỏng thì pipeline DỪNG (các stage sau bị bỏ qua).</p>
+  <div class="failpick">
+    Cho hỏng tại stage:
+    <select id="failSel">
+      <option value="-1">(Không hỏng — tất cả xanh)</option>
+      <option value="0">lint</option>
+      <option value="1">build</option>
+      <option value="2">test</option>
+      <option value="3">deploy staging</option>
+      <option value="4">deploy prod</option>
+    </select>
+    <button class="primary" onclick="runPipe()" style="margin-left:8px">▶ Push</button>
+  </div>
+  <div class="pipe" id="pipe"></div>
+  <div class="feedback" id="pipeFb">Bấm ▶ Push để chạy.</div>
+</div>
+
+<div class="panel">
+  <h2>2 · Blue-green vs Canary — phân phối traffic</h2>
+  <p class="note">Chọn chiến lược, bấm "Tiến →" để đẩy traffic sang bản mới (v2), "← Lui" để rollback. Quan sát % traffic chạm bản mới.</p>
+  <div class="controls">
+    <span class="chip active" id="cBg" onclick="setStrat('bg')">🔵🟢 Blue-green</span>
+    <span class="chip" id="cCan" onclick="setStrat('can')">🐤 Canary</span>
+    <button class="ghost" onclick="step(-1)" style="margin-left:8px">← Lui</button>
+    <button class="primary" onclick="step(1)">Tiến →</button>
+  </div>
+  <svg id="trafSvg" width="520" height="170" viewBox="0 0 520 170" style="margin-top:10px"></svg>
+  <div class="legend">
+    <span class="sw" style="background:#3b82f6"></span> v1 (bản cũ) &nbsp;&nbsp;
+    <span class="sw" style="background:#22c55e"></span> v2 (bản mới)
+  </div>
+  <div class="feedback" id="trafFb"></div>
+</div>
+
+<div class="panel">
+  <h2>3 · CI hay không CI — thời gian phát hiện cùng một lỗi</h2>
+  <p class="note">Cùng một lỗi (tính sai VAT). Bấm để xem nó bị bắt lúc nào và "chi phí" tương đối ở hai cách làm.</p>
+  <button class="primary" onclick="runCompare()">▶ Mô phỏng cùng một lỗi</button>
+  <div class="scen">
+    <div class="col ci">
+      <h3>✅ Có CI</h3>
+      <div class="timeline" id="ciTl"></div>
+      <div style="margin-top:8px">Chi phí tương đối: <span class="big ci-c" id="ciCost">—</span></div>
+    </div>
+    <div class="col">
+      <h3>❌ Không CI</h3>
+      <div class="timeline" id="noTl"></div>
+      <div style="margin-top:8px">Chi phí tương đối: <span class="big no-c" id="noCost">—</span></div>
+    </div>
+  </div>
+  <div class="feedback" id="cmpFb">Bấm nút để chạy mô phỏng.</div>
+</div>
+
+<script>
+// ===== Module 1: pipeline fail fast =====
+const STAGES = [
+  {n:'lint'}, {n:'build'}, {n:'test'}, {n:'deploy staging'}, {n:'deploy prod'}
+];
+const STG_IC = ['🔍','🔨','🧪','🛫','🚀'];
+let pipeState = STAGES.map(()=> '');
+function renderPipe(){
+  document.getElementById('pipe').innerHTML = STAGES.map((s,i)=>
+    `<div class="stg ${pipeState[i]}"><span class="ic">${STG_IC[i]}</span>${s.n}</div>`).join('');
+}
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+let pipeRunning = false;
+async function runPipe(){
+  if(pipeRunning) return; pipeRunning = true;
+  const failAt = parseInt(document.getElementById('failSel').value, 10);
+  pipeState = STAGES.map(()=> ''); renderPipe();
+  const fb = document.getElementById('pipeFb');
+  fb.textContent = 'Đang chạy…';
+  for(let i=0;i<STAGES.length;i++){
+    pipeState[i] = 'run'; renderPipe(); await sleep(520);
+    if(i === failAt){
+      pipeState[i] = 'fail';
+      for(let j=i+1;j<STAGES.length;j++) pipeState[j] = 'skip';
+      renderPipe();
+      fb.innerHTML = `❌ Pipeline ĐỎ tại stage <b>${STAGES[i].n}</b>. Các stage sau (${STAGES.slice(i+1).map(s=>s.n).join(', ')||'—'}) bị <b>bỏ qua</b> — đây là <b>fail fast</b>: dừng ngay khi gặp lỗi, không phí công chạy tiếp. Sửa lỗi rồi push lại.`;
+      pipeRunning = false; return;
+    }
+    pipeState[i] = 'pass'; renderPipe();
+  }
+  fb.innerHTML = '✅ Tất cả stage XANH! Code đã qua lint → build → test → staging → prod. PR đủ điều kiện merge / bản build sẵn sàng.';
+  pipeRunning = false;
+}
+
+// ===== Module 2: traffic blue-green vs canary =====
+let strat = 'bg';
+// blue-green: 0% rồi nhảy thẳng 100%. canary: 0→5→25→50→100
+const STEPS = { bg: [0,100], can: [0,5,25,50,100] };
+let idx = 0;
+function setStrat(s){
+  strat = s; idx = 0;
+  document.getElementById('cBg').classList.toggle('active', s==='bg');
+  document.getElementById('cCan').classList.toggle('active', s==='can');
+  renderTraf();
+}
+function step(d){
+  const seq = STEPS[strat];
+  idx = Math.max(0, Math.min(seq.length-1, idx+d));
+  renderTraf();
+}
+function renderTraf(){
+  const seq = STEPS[strat];
+  const pct = seq[idx];          // % traffic sang v2
+  const W = 480, X = 20, Y = 50, H = 46;
+  const wNew = Math.round(W * pct/100);
+  const wOld = W - wNew;
+  const svg = `
+    <text x="20" y="30" font-size="14" font-weight="700" fill="#334155">Traffic người dùng → ${pct}% sang v2</text>
+    <rect x="${X}" y="${Y}" width="${wOld}" height="${H}" fill="#3b82f6" rx="4"/>
+    <rect x="${X+wOld}" y="${Y}" width="${wNew}" height="${H}" fill="#22c55e" rx="4"/>
+    ${wOld>34?`<text x="${X+wOld/2}" y="${Y+H/2+5}" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">v1 ${100-pct}%</text>`:''}
+    ${wNew>34?`<text x="${X+wOld+wNew/2}" y="${Y+H/2+5}" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">v2 ${pct}%</text>`:''}
+    <text x="20" y="138" font-size="12" fill="#64748b">Bước ${idx+1}/${seq.length} — chuỗi: ${seq.map(p=>p+'%').join(' → ')}</text>
+  `;
+  document.getElementById('trafSvg').innerHTML = svg;
+  const fb = document.getElementById('trafFb');
+  if(strat==='bg'){
+    fb.innerHTML = pct===0
+      ? '🔵🟢 <b>Blue-green</b>: v2 đã deploy & test nhưng <b>0% traffic</b> (vẫn ở v1). Bấm Tiến → để chuyển <b>100% một nhịp</b>.'
+      : '🔵🟢 <b>Blue-green</b>: chuyển <b>100% traffic sang v2 trong một nhịp</b> (đổi router). Lỗi? Bấm ← Lui = trỏ về v1 <b>tức thì</b> (rollback nhanh nhất). Đánh đổi: blast radius = toàn bộ user cùng lúc.';
+  } else {
+    fb.innerHTML = pct===0
+      ? '🐤 <b>Canary</b>: chưa mở cho ai (0%). Bấm Tiến → để mở dần 5% → 25% → 50% → 100%.'
+      : pct===100
+      ? '🐤 <b>Canary</b>: đã mở <b>100%</b> — hoàn tất. Suốt quá trình, lỗi (nếu có) chỉ chạm phần nhỏ trước khi mở rộng.'
+      : `🐤 <b>Canary</b>: chỉ <b>${pct}% user</b> dùng v2, theo dõi chỉ số. Lỗi? Kéo về 0% — chỉ ${pct}% bị ảnh hưởng (<b>blast radius nhỏ nhất</b>). Cần giám sát tốt để biết khi nào tăng tiếp.`;
+  }
+}
+
+// ===== Module 3: CI vs no-CI =====
+async function runCompare(){
+  const ciTl = document.getElementById('ciTl'), noTl = document.getElementById('noTl');
+  const cmpFb = document.getElementById('cmpFb');
+  ciTl.innerHTML = ''; noTl.innerHTML = '';
+  document.getElementById('ciCost').textContent = '—';
+  document.getElementById('noCost').textContent = '—';
+  cmpFb.textContent = 'Đang mô phỏng…';
+  const ciSteps = [
+    'push commit "thêm CalcVAT"',
+    'pipeline chạy lint → build → test',
+    '🧪 test ĐỎ: TestCalcVAT sai (×0.01 thay vì ×0.1)',
+    '⛔ lỗi bị chặn TRƯỚC khi merge (~73 giây)'
+  ];
+  const noSteps = [
+    'push commit "thêm CalcVAT" (không test)',
+    'merge thẳng, deploy thủ công lên prod',
+    '⚠ 3 tháng sau: hàng nghìn hóa đơn sai VAT',
+    '💥 sửa code + script tính lại + thông báo + rủi ro pháp lý'
+  ];
+  for(let i=0;i<4;i++){
+    ciTl.innerHTML += `<div>• ${ciSteps[i]}</div>`;
+    await sleep(450);
+  }
+  document.getElementById('ciCost').textContent = '~1×';
+  for(let i=0;i<4;i++){
+    noTl.innerHTML += `<div>• ${noSteps[i]}</div>`;
+    await sleep(450);
+  }
+  document.getElementById('noCost').textContent = '~100×';
+  cmpFb.innerHTML = 'Cùng một lỗi: CI bắt trong <b>~73 giây trước khi merge</b> (chi phí ~1×). Không CI → lỗi lọt lên production, phát hiện sau 3 tháng (chi phí ~100×). Đầu tư vào CI rẻ hơn gấp bội — đây là đường cong chi phí sửa lỗi áp dụng vào pipeline.';
+}
+
+// init
+renderPipe(); renderTraf();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

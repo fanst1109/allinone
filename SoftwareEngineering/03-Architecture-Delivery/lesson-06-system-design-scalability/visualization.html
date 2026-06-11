@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 06 — System design & scalability</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background:#7c3aed; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.primary:hover { background:#6d28d9; }
+  button.ghost { background:#ede9fe; color:#5b21b6; border:0; padding:6px 12px; border-radius:5px; cursor:pointer; font-size:13px; font-weight:600; }
+  button.ghost:hover { background:#ddd6fe; }
+  .row { display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end; }
+  .ctrl { display:flex; flex-direction:column; gap:4px; font-size:13px; color:#475569; }
+  .ctrl input[type=range] { width:100%; max-width:280px; accent-color:#7c3aed; }
+  .ctrl input[type=number] { width:100%; max-width:160px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:5px; font-size:14px; box-sizing:border-box; }
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-top:14px; }
+  .stat { background:#f5f3ff; border-radius:8px; padding:10px 12px; border-left:4px solid #7c3aed; }
+  .stat .k { font-size:12px; color:#64748b; }
+  .stat .v { font-size:20px; font-weight:700; color:#5b21b6; line-height:1.2; }
+  .stat .v small { font-size:13px; font-weight:600; color:#7c3aed; }
+  .barwrap { margin-top:14px; }
+  .barline { display:flex; align-items:center; gap:8px; margin:6px 0; font-size:13px; }
+  .barline .lab { width:120px; color:#475569; flex:none; }
+  .bartrack { flex:1; background:#f1f5f9; border-radius:5px; height:22px; overflow:hidden; }
+  .barfill { height:100%; border-radius:5px; transition:width .35s; display:flex; align-items:center; justify-content:flex-end; padding-right:6px; color:#fff; font-size:11px; font-weight:700; box-sizing:border-box; }
+  .feedback { margin-top:12px; font-size:14px; padding:10px 12px; border-left:4px solid #7c3aed; background:#f5f3ff; border-radius:4px; }
+  svg { display:block; max-width:100%; height:auto; }
+  table.calc { border-collapse:collapse; margin-top:12px; font-size:14px; width:100%; max-width:480px; }
+  table.calc td { padding:6px 10px; border-bottom:1px solid #eef1f5; }
+  table.calc td:last-child { text-align:right; font-weight:700; color:#5b21b6; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-observability-do-tin-cay/visualization.html">← L5: Observability &amp; độ tin cậy</a>
+  <span class="sep">·</span>
+  <span class="current">L6: System design &amp; scalability</span>
+</nav>
+<main>
+<h1>System design &amp; khả năng mở rộng</h1>
+<p class="note">Ba mô-đun: (1) caching — kéo hit-rate xem latency &amp; tải DB; (2) load balancer phân phối request tới N server; (3) back-of-envelope calculator ước tài nguyên.</p>
+
+<!-- Module 1: Caching -->
+<div class="panel">
+  <h2>1 · Mô phỏng caching — hit-rate đổi latency &amp; tải DB</h2>
+  <p class="note">Cache RAM ~1 ms, DB ~50 ms. Kéo tỷ lệ cache hit để xem latency trung bình và phần tải dồn vào DB.</p>
+  <div class="row">
+    <label class="ctrl" style="flex:1 1 260px">
+      Cache hit-rate: <b id="hrLab">90%</b>
+      <input type="range" id="hr" min="0" max="100" value="90" oninput="renderCache()">
+    </label>
+    <label class="ctrl" style="flex:1 1 200px">
+      Tổng request: <b id="reqLab">1000</b>
+      <input type="range" id="req" min="100" max="5000" step="100" value="1000" oninput="renderCache()">
+    </label>
+  </div>
+  <div class="stat-grid">
+    <div class="stat"><div class="k">Latency trung bình</div><div class="v" id="avgLat">—</div></div>
+    <div class="stat"><div class="k">Tăng tốc so với không cache</div><div class="v" id="speedup">—</div></div>
+    <div class="stat"><div class="k">Request chạm DB</div><div class="v" id="dbHits">—</div></div>
+  </div>
+  <div class="barwrap">
+    <div class="barline"><span class="lab">Không cache</span><div class="bartrack"><div class="barfill" id="barNo" style="background:#ef4444"></div></div></div>
+    <div class="barline"><span class="lab">Có cache</span><div class="bartrack"><div class="barfill" id="barYes" style="background:#7c3aed"></div></div></div>
+  </div>
+  <div class="feedback" id="cacheFb"></div>
+</div>
+
+<!-- Module 2: Load balancer -->
+<div class="panel">
+  <h2>2 · Load balancer — phân phối round-robin tới N server</h2>
+  <p class="note">Bấm "▶ Gửi 12 request" để xem LB chia đều theo round-robin. Thêm/bớt server và quan sát tải mỗi máy.</p>
+  <div class="row" style="margin-bottom:6px">
+    <button class="ghost" onclick="addServer()">+ Thêm server</button>
+    <button class="ghost" onclick="delServer()">− Bớt server</button>
+    <button class="primary" onclick="sendBurst()">▶ Gửi 12 request</button>
+    <button class="ghost" onclick="resetLB()">↻ Reset</button>
+  </div>
+  <svg id="lbSvg" width="560" height="260" viewBox="0 0 560 260" role="img" aria-label="Load balancer phân phối request"></svg>
+  <div class="feedback" id="lbFb">Có 3 server. Bấm Gửi để phân phối.</div>
+</div>
+
+<!-- Module 3: Back-of-envelope -->
+<div class="panel">
+  <h2>3 · Back-of-envelope — ước QPS &amp; số server</h2>
+  <p class="note">Nhập DAU và số request mỗi user/ngày. QPS đỉnh ≈ 3× QPS trung bình (giờ cao điểm).</p>
+  <div class="row">
+    <label class="ctrl">DAU (user/ngày)
+      <input type="number" id="dau" value="1000000" min="1" oninput="renderCalc()">
+    </label>
+    <label class="ctrl">Request/user/ngày
+      <input type="number" id="rpu" value="20" min="1" oninput="renderCalc()">
+    </label>
+    <label class="ctrl">QPS mỗi server chịu
+      <input type="number" id="cap" value="200" min="1" oninput="renderCalc()">
+    </label>
+  </div>
+  <table class="calc">
+    <tr><td>Tổng request / ngày</td><td id="cTot">—</td></tr>
+    <tr><td>QPS trung bình</td><td id="cAvg">—</td></tr>
+    <tr><td>QPS đỉnh (×3)</td><td id="cPeak">—</td></tr>
+    <tr><td>Số server cần (+1 dự phòng)</td><td id="cSrv">—</td></tr>
+  </table>
+  <div class="feedback" id="calcFb"></div>
+</div>
+
+<script>
+// ===== Module 1: Caching =====
+const CACHE_MS = 1, DB_MS = 50;
+function fmt(n){ return n.toLocaleString('vi-VN'); }
+function renderCache(){
+  const hr = +document.getElementById('hr').value;       // %
+  const req = +document.getElementById('req').value;
+  document.getElementById('hrLab').textContent = hr + '%';
+  document.getElementById('reqLab').textContent = fmt(req);
+  const p = hr/100;
+  const avg = p*CACHE_MS + (1-p)*DB_MS;                   // ms
+  const speed = DB_MS/avg;
+  const dbHits = Math.round(req*(1-p));
+  document.getElementById('avgLat').innerHTML = avg.toFixed(2) + ' <small>ms</small>';
+  document.getElementById('speedup').innerHTML = '×' + speed.toFixed(1) + ' <small>nhanh hơn</small>';
+  document.getElementById('dbHits').innerHTML = fmt(dbHits) + ' <small>/ ' + fmt(req) + '</small>';
+  // bars (scale theo DB_MS = max)
+  const wNo = 100, wYes = Math.max(2, avg/DB_MS*100);
+  const bNo = document.getElementById('barNo'), bYes = document.getElementById('barYes');
+  bNo.style.width = wNo + '%'; bNo.textContent = DB_MS + ' ms';
+  bYes.style.width = wYes + '%'; bYes.textContent = avg.toFixed(1) + ' ms';
+  document.getElementById('cacheFb').innerHTML =
+    `Với hit-rate <b>${hr}%</b>: latency trung bình <b>${avg.toFixed(2)} ms</b> (vs ${DB_MS} ms khi không cache → nhanh ~<b>${speed.toFixed(1)}×</b>). ` +
+    `DB chỉ còn nhận <b>${fmt(dbHits)}</b> / ${fmt(req)} request (=${(100-hr)}% tải). ` +
+    (hr>=95 ? 'Hit-rate rất cao — lợi suất tăng tốc bắt đầu giảm dần nhưng tải DB vẫn rất nhẹ.' :
+     hr<=40 ? 'Hit-rate thấp — phần lớn request vẫn chạm DB, cache chưa phát huy. Cần tăng hit-rate (TTL hợp lý, cache key tốt).' :
+     'Tăng hit-rate thêm sẽ tiếp tục giảm mạnh latency và tải DB.');
+}
+
+// ===== Module 2: Load balancer =====
+let nServers = 3;
+let counts = [0,0,0];
+let rrPtr = 0;
+const SVG = document.getElementById('lbSvg');
+function drawLB(highlight=-1){
+  const W=560, lbX=90, lbY=130, lbW=90, lbH=56;
+  const sx=360, sw=150, sh=40, gap=14;
+  const totalH = nServers*sh + (nServers-1)*gap;
+  const startY = 130 - totalH/2;
+  let parts = [];
+  // client
+  parts.push(`<rect x="14" y="106" width="58" height="44" rx="6" fill="#ede9fe" stroke="#c4b5fd"/>`);
+  parts.push(`<text x="43" y="132" text-anchor="middle" font-size="12" fill="#5b21b6" font-weight="700">client</text>`);
+  // arrow client->LB
+  parts.push(`<line x1="72" y1="128" x2="${lbX}" y2="128" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>`);
+  // LB
+  parts.push(`<rect x="${lbX}" y="${lbY-lbH/2}" width="${lbW}" height="${lbH}" rx="8" fill="#7c3aed"/>`);
+  parts.push(`<text x="${lbX+lbW/2}" y="${lbY-4}" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">Load</text>`);
+  parts.push(`<text x="${lbX+lbW/2}" y="${lbY+12}" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">Balancer</text>`);
+  const max = Math.max(1, ...counts);
+  for(let i=0;i<nServers;i++){
+    const y = startY + i*(sh+gap);
+    const cy = y + sh/2;
+    const on = i===highlight;
+    // line LB->server
+    parts.push(`<line x1="${lbX+lbW}" y1="${lbY}" x2="${sx}" y2="${cy}" stroke="${on?'#7c3aed':'#cbd5e1'}" stroke-width="${on?3:1.5}" marker-end="url(${on?'#arOn':'#ar'})"/>`);
+    // server box
+    parts.push(`<rect x="${sx}" y="${y}" width="${sw}" height="${sh}" rx="6" fill="${on?'#ddd6fe':'#f1f5f9'}" stroke="${on?'#7c3aed':'#cbd5e1'}" stroke-width="${on?2:1}"/>`);
+    parts.push(`<text x="${sx+10}" y="${cy+4}" font-size="12" fill="#475569" font-weight="600">S${i+1}</text>`);
+    // load mini-bar inside
+    const bw = (counts[i]/max)*70;
+    parts.push(`<rect x="${sx+40}" y="${cy-7}" width="70" height="14" rx="3" fill="#e2e8f0"/>`);
+    parts.push(`<rect x="${sx+40}" y="${cy-7}" width="${bw}" height="14" rx="3" fill="#7c3aed"/>`);
+    parts.push(`<text x="${sx+sw-8}" y="${cy+4}" text-anchor="end" font-size="12" fill="#5b21b6" font-weight="700">${counts[i]}</text>`);
+  }
+  SVG.innerHTML =
+    `<defs>
+      <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#94a3b8"/></marker>
+      <marker id="arOn" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#7c3aed"/></marker>
+    </defs>` + parts.join('');
+}
+function addServer(){ if(nServers>=6){ return; } nServers++; counts.push(0); rrPtr=0; drawLB(); updateLBFb(); }
+function delServer(){ if(nServers<=2){ return; } nServers--; counts.pop(); rrPtr=0; drawLB(); updateLBFb(); }
+function resetLB(){ counts = Array(nServers).fill(0); rrPtr=0; drawLB(); updateLBFb('Đã reset. Có '+nServers+' server.'); }
+function updateLBFb(msg){
+  const total = counts.reduce((a,b)=>a+b,0);
+  if(msg){ document.getElementById('lbFb').innerHTML = msg; return; }
+  if(total===0){ document.getElementById('lbFb').innerHTML = `Có <b>${nServers}</b> server. Bấm Gửi để phân phối round-robin.`; return; }
+  const per = (total/nServers).toFixed(1);
+  document.getElementById('lbFb').innerHTML =
+    `<b>${total}</b> request chia cho <b>${nServers}</b> server (round-robin) → mỗi máy ~<b>${per}</b> request. ` +
+    `Thêm server → tải mỗi máy giảm. Nhờ service <b>stateless</b>, request kế của cùng user rơi vào máy nào cũng phục vụ được.`;
+}
+async function sendBurst(){
+  const N=12;
+  for(let k=0;k<N;k++){
+    const target = rrPtr % nServers;
+    counts[target]++;
+    rrPtr++;
+    drawLB(target);
+    await new Promise(r=>setTimeout(r,150));
+  }
+  drawLB();
+  updateLBFb();
+}
+
+// ===== Module 3: Back-of-envelope =====
+function renderCalc(){
+  const dau = Math.max(1, +document.getElementById('dau').value||0);
+  const rpu = Math.max(1, +document.getElementById('rpu').value||0);
+  const cap = Math.max(1, +document.getElementById('cap').value||0);
+  const tot = dau*rpu;
+  const avg = tot/86400;
+  const peak = avg*3;
+  const srv = Math.ceil(peak/cap) + 1;
+  document.getElementById('cTot').textContent = fmt(tot);
+  document.getElementById('cAvg').textContent = avg.toFixed(0) + ' QPS';
+  document.getElementById('cPeak').textContent = peak.toFixed(0) + ' QPS';
+  document.getElementById('cSrv').textContent = srv + ' máy';
+  document.getElementById('calcFb').innerHTML =
+    `Tổng <b>${fmt(tot)}</b> request/ngày ÷ 86.400 giây ≈ <b>${avg.toFixed(0)} QPS</b> trung bình. ` +
+    `Giờ cao điểm ~×3 ≈ <b>${peak.toFixed(0)} QPS</b>. Mỗi server chịu ${cap} QPS → cần ⌈${peak.toFixed(0)}/${cap}⌉ + 1 dự phòng = <b>${srv} máy</b>. ` +
+    `Mục tiêu là <b>đúng bậc độ lớn</b> để chọn kiến trúc, không cần con số chính xác tuyệt đối.`;
+}
+
+// init
+renderCache();
+drawLB(); updateLBFb();
+renderCalc();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

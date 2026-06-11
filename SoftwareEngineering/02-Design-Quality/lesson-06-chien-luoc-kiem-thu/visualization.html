@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 06 — Chiến lược kiểm thử (test pyramid, TDD/BDD)</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background: #7c3aed; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.primary:hover { background:#6d28d9; }
+  button.primary:disabled { background:#c4b5fd; cursor:default; }
+  /* sliders */
+  .ctrl { margin:12px 0; }
+  .ctrl label { font-size:13px; font-weight:600; color:#475569; display:flex; justify-content:space-between; }
+  .ctrl input[type=range] { width:100%; max-width:100%; accent-color:#7c3aed; }
+  .readout { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+  .stat { flex:1 1 0; min-width:130px; background:#f5f3ff; border-radius:8px; padding:10px 12px; text-align:center; }
+  .stat .big { font-size:22px; font-weight:800; color:#5b21b6; }
+  .stat .cap { font-size:11px; color:#64748b; }
+  .warn { margin-top:12px; font-size:14px; padding:10px 12px; border-radius:6px; }
+  .warn.good { border-left:4px solid #16a34a; background:#f0fdf4; color:#166534; }
+  .warn.bad { border-left:4px solid #dc2626; background:#fef2f2; color:#991b1b; }
+  /* TDD */
+  .tdd-stage { display:flex; gap:6px; flex-wrap:wrap; margin:10px 0; }
+  .tdd-step { flex:1 1 0; min-width:90px; text-align:center; padding:8px 4px; border-radius:6px; font-size:13px; font-weight:700; background:#f1f5f9; color:#475569; border:2px solid transparent; }
+  .tdd-step.act-red { background:#fee2e2; color:#991b1b; border-color:#ef4444; }
+  .tdd-step.act-green { background:#dcfce7; color:#166534; border-color:#22c55e; }
+  .tdd-step.act-blue { background:#ede9fe; color:#5b21b6; border-color:#7c3aed; }
+  pre.code { background:#1e293b; color:#e2e8f0; padding:12px 14px; border-radius:8px; font-size:12.5px; overflow-x:auto; line-height:1.5; margin:10px 0; }
+  pre.code .cm { color:#94a3b8; }
+  pre.code .ok { color:#4ade80; }
+  pre.code .no { color:#f87171; }
+  .tdd-fb { margin-top:10px; font-size:14px; padding:10px 12px; border-left:4px solid #7c3aed; background:#f5f3ff; border-radius:4px; }
+  .pill { display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700; }
+  .pill.red { background:#fee2e2; color:#991b1b; }
+  .pill.green { background:#dcfce7; color:#166534; }
+  /* coverage */
+  .cov-line { font-family: ui-monospace, monospace; font-size:13px; padding:3px 8px; border-radius:4px; margin:3px 0; }
+  .cov-line.hit { background:#dcfce7; }
+  .cov-line.miss { background:#fee2e2; }
+  table.cov { border-collapse:collapse; margin-top:10px; font-size:13px; width:100%; }
+  table.cov th, table.cov td { border:1px solid #e2e8f0; padding:6px 9px; text-align:left; }
+  table.cov th { background:#f5f3ff; color:#5b21b6; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-refactoring-tech-debt/visualization.html">← L5: Refactoring &amp; nợ kỹ thuật</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Chiến lược kiểm thử</span>
+</nav>
+<main>
+<h1>Chiến lược kiểm thử — Test Pyramid, TDD/BDD, Coverage</h1>
+<p class="note">Ba mô-đun: (1) Test pyramid — kéo tỉ lệ test, xem tốc độ &amp; độ tin cậy của bộ test; (2) vòng TDD Red→Green→Refactor; (3) coverage 100% mà vẫn sót bug.</p>
+
+<div class="panel">
+  <h2>1 · Test pyramid — kéo tỉ lệ, xem hệ quả</h2>
+  <p class="note">Chỉnh số lượng test mỗi tầng. Tốc độ điển hình: unit 5ms · integration 200ms · E2E 8s. Quan sát thời gian chạy bộ test &amp; cảnh báo ice-cream-cone.</p>
+
+  <div class="ctrl">
+    <label>🟢 Unit (cô lập, nhanh, ổn định) <span id="uVal">2500</span></label>
+    <input type="range" id="uRange" min="0" max="3000" step="50" value="2500" oninput="recalc()">
+  </div>
+  <div class="ctrl">
+    <label>🟡 Integration (vài thành phần ghép thật) <span id="iVal">450</span></label>
+    <input type="range" id="iRange" min="0" max="2000" step="50" value="450" oninput="recalc()">
+  </div>
+  <div class="ctrl">
+    <label>🔴 E2E (cả hệ thống qua UI, chậm, giòn) <span id="eVal">50</span></label>
+    <input type="range" id="eRange" min="0" max="2000" step="10" value="50" oninput="recalc()">
+  </div>
+
+  <svg id="pyramid" width="520" height="220" viewBox="0 0 520 220" style="max-width:100%;height:auto;margin-top:8px"></svg>
+
+  <div class="readout">
+    <div class="stat"><div class="big" id="totalTests">—</div><div class="cap">tổng số test</div></div>
+    <div class="stat"><div class="big" id="runTime">—</div><div class="cap">thời gian chạy bộ test</div></div>
+    <div class="stat"><div class="big" id="trust">—</div><div class="cap">độ tin cậy (ít giòn)</div></div>
+  </div>
+  <div class="warn" id="pyrWarn"></div>
+  <p class="note">Quy ước minh họa: độ tin cậy giảm khi tỉ trọng E2E (giòn) tăng. Con số chỉ để cảm nhận xu hướng, không phải đo lường thật.</p>
+</div>
+
+<div class="panel">
+  <h2>2 · Vòng TDD — Red → Green → Refactor</h2>
+  <p class="note">Xây hàm <code>laSoNguyenTo(n)</code> theo TDD. Bấm "▶ Bước tiếp" để đi qua từng nhịp; xem test đỏ/xanh và code tối thiểu mỗi bước.</p>
+  <div class="tdd-stage" id="tddStage">
+    <div class="tdd-step" data-k="red">🔴 Red — viết test đỏ</div>
+    <div class="tdd-step" data-k="green">🟢 Green — code tối thiểu</div>
+    <div class="tdd-step" data-k="blue">🔵 Refactor — dọn sạch</div>
+  </div>
+  <pre class="code" id="tddCode"></pre>
+  <div class="tdd-fb" id="tddFb"></div>
+  <div style="margin-top:10px">
+    <button class="primary" id="tddNext" onclick="tddStep()">▶ Bước tiếp</button>
+    <button class="primary" onclick="tddReset()" style="background:#64748b">↻ Làm lại</button>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>3 · Coverage 100% mà vẫn sót bug</h2>
+  <p class="note">Hàm <code>chia(a,b)</code> không xử lý <code>b == 0</code>. Bấm thêm test, xem coverage tăng nhưng bug vẫn ẩn cho tới khi có case biên.</p>
+  <pre class="code" id="covCode"></pre>
+  <div>
+    <button class="primary" onclick="addTest('happy')">+ Test chia(10,2)</button>
+    <button class="primary" onclick="addTest('happy2')">+ Test chia(9,3)</button>
+    <button class="primary" onclick="addTest('zero')" style="background:#dc2626">+ Test chia(10,0) — case biên</button>
+    <button class="primary" onclick="covReset()" style="background:#64748b">↻ Reset</button>
+  </div>
+  <table class="cov">
+    <tr><th>Line coverage</th><td id="covPct">0%</td></tr>
+    <tr><th>Trạng thái bug chia-0</th><td id="bugState">Chưa kiểm — vẫn ẩn</td></tr>
+  </table>
+  <div class="warn" id="covWarn" style="border-left-color:#7c3aed;background:#f5f3ff;color:#5b21b6">Chưa có test nào.</div>
+</div>
+
+<script>
+// ===== Module 1: test pyramid =====
+const SPEED = { u: 5, i: 200, e: 8000 }; // ms per test
+function recalc(){
+  const u = +document.getElementById('uRange').value;
+  const i = +document.getElementById('iRange').value;
+  const e = +document.getElementById('eRange').value;
+  document.getElementById('uVal').textContent = u;
+  document.getElementById('iVal').textContent = i;
+  document.getElementById('eVal').textContent = e;
+  const total = u + i + e;
+  const ms = u*SPEED.u + i*SPEED.i + e*SPEED.e;
+  document.getElementById('totalTests').textContent = total;
+  document.getElementById('runTime').textContent = fmtTime(ms);
+  // độ tin cậy minh họa: cao khi unit chiếm tỉ trọng lớn, giảm theo tỉ trọng E2E
+  const eShare = total ? e/total : 0;
+  const trust = Math.round(Math.max(0, 100 - eShare*120));
+  document.getElementById('trust').textContent = total ? trust + '%' : '—';
+  drawPyramid(u, i, e, total);
+  // chẩn đoán hình dạng
+  const w = document.getElementById('pyrWarn');
+  if(total === 0){ w.className='warn'; w.textContent='Chưa có test nào.'; return; }
+  const isCone = e > u; // đỉnh rộng hơn đáy
+  if(isCone){
+    w.className = 'warn bad';
+    w.innerHTML = '⚠ <b>Ice-cream cone!</b> E2E ('+e+') nhiều hơn unit ('+u+') — kim tự tháp lộn ngược. Bộ test chạy <b>'+fmtTime(ms)+'</b> &amp; giòn → không ai chạy mỗi commit, mất tác dụng lưới an toàn. Hãy đẩy logic xuống unit test.';
+  } else if (eShare > 0.2) {
+    w.className = 'warn bad';
+    w.innerHTML = '⚠ Tỉ trọng E2E hơi cao ('+Math.round(eShare*100)+'%). Đáy unit vẫn rộng hơn đỉnh, nhưng E2E giòn kéo độ tin cậy &amp; tốc độ xuống. Cân nhắc chuyển bớt sang unit/integration.';
+  } else {
+    w.className = 'warn good';
+    w.innerHTML = '✅ <b>Pyramid lành mạnh.</b> Đáy unit rộng, đỉnh E2E nhọn → bộ test chạy <b>'+fmtTime(ms)+'</b>, ổn định, chạy được mỗi commit.';
+  }
+}
+function fmtTime(ms){
+  if(ms < 1000) return ms.toFixed(0)+' ms';
+  const s = ms/1000;
+  if(s < 90) return s.toFixed(1)+' giây';
+  const m = s/60;
+  if(m < 90) return m.toFixed(1)+' phút';
+  return (m/60).toFixed(1)+' giờ';
+}
+function drawPyramid(u, i, e, total){
+  const svg = document.getElementById('pyramid');
+  const cx = 260, top = 16, levelH = 56, maxHalf = 230;
+  // chiều rộng mỗi tầng tỉ lệ với số lượng (chuẩn hoá theo max)
+  const mx = Math.max(u, i, e, 1);
+  const wE = 30 + (e/mx)*maxHalf;
+  const wI = 30 + (i/mx)*maxHalf;
+  const wU = 30 + (u/mx)*maxHalf;
+  function trap(yTop, wTop, wBot, fill, label, count){
+    const y2 = yTop + levelH - 6;
+    const pts = [
+      [cx-wTop, yTop],[cx+wTop, yTop],[cx+wBot, y2],[cx-wBot, y2]
+    ].map(p=>p.join(',')).join(' ');
+    return `<polygon points="${pts}" fill="${fill}" stroke="#fff" stroke-width="2"/>`+
+      `<text x="${cx}" y="${yTop+levelH/2-2}" text-anchor="middle" font-size="13" font-weight="700" fill="#1e293b">${label}: ${count}</text>`;
+  }
+  // E2E trên cùng (đỉnh), unit dưới cùng (đáy)
+  let svgInner = '';
+  svgInner += trap(top,            Math.min(wE,40),  wE, '#fca5a5', 'E2E', e);
+  svgInner += trap(top+levelH,     wE,               wI, '#fcd34d', 'Integration', i);
+  svgInner += trap(top+levelH*2,   wI,               wU, '#86efac', 'Unit', u);
+  svg.innerHTML = svgInner;
+}
+
+// ===== Module 2: TDD =====
+const TDD = [
+  { step:'red',  title:'Vòng 1 · 🔴 Red',
+    code:`<span class="cm">// Test cho hành vi CHƯA có → đỏ</span>\nfunc TestNguyenTo(t *T) {\n  if !laSoNguyenTo(2) { t.Fail() } <span class="no">// ❌ chưa có hàm</span>\n}`,
+    fb:'<span class="pill red">ĐỎ</span> Viết test trước khi có code. <code>laSoNguyenTo</code> chưa tồn tại nên test đỏ — đúng như mong đợi.' },
+  { step:'green', title:'Vòng 1 · 🟢 Green',
+    code:`func laSoNguyenTo(n int) bool {\n  return true <span class="cm">// code tối thiểu cho test xanh</span>\n}`,
+    fb:'<span class="pill green">XANH</span> Viết <i>ít nhất có thể</i> để test xanh — kể cả "gian lận" <code>return true</code>. Test mới ở vòng sau sẽ ép code đúng dần.' },
+  { step:'red',  title:'Vòng 2 · 🔴 Red',
+    code:`if laSoNguyenTo(4) { t.Fail() } <span class="no">// ❌ code đang luôn trả true</span>`,
+    fb:'<span class="pill red">ĐỎ</span> Thêm case <code>laSoNguyenTo(4)==false</code>. Code "gian lận" trả true cho mọi n → đỏ. Test mới ép viết logic thật.' },
+  { step:'green', title:'Vòng 2 · 🟢 Green',
+    code:`func laSoNguyenTo(n int) bool {\n  for d := 2; d < n; d++ {\n    if n%d == 0 { return false }\n  }\n  return true\n}`,
+    fb:'<span class="pill green">XANH</span> Viết logic thật vừa đủ: chia thử từ 2..n-1. Cả hai test (2→true, 4→false) xanh.' },
+  { step:'red',  title:'Vòng 3 · 🔴 Red',
+    code:`if laSoNguyenTo(1) { t.Fail() } <span class="no">// ❌ trả true vì vòng lặp không chạy</span>`,
+    fb:'<span class="pill red">ĐỎ</span> Case biên <code>laSoNguyenTo(1)==false</code>. Với n=1 vòng lặp không chạy → hàm trả true (sai) → đỏ.' },
+  { step:'green', title:'Vòng 3 · 🟢 Green',
+    code:`func laSoNguyenTo(n int) bool {\n  if n < 2 { return false } <span class="ok">// + xử lý biên 0,1</span>\n  for d := 2; d < n; d++ {\n    if n%d == 0 { return false }\n  }\n  return true\n}`,
+    fb:'<span class="pill green">XANH</span> Thêm chốt biên <code>if n &lt; 2</code>. Tất cả test xanh (2,4,1,0 đều đúng).' },
+  { step:'blue', title:'Vòng 3 · 🔵 Refactor',
+    code:`func laSoNguyenTo(n int) bool {\n  if n < 2 { return false }\n  for d := 2; d*d <= n; d++ { <span class="ok">// tối ưu: chỉ tới √n</span>\n    if n%d == 0 { return false }\n  }\n  return true\n}`,
+    fb:'🔵 <b>Refactor:</b> đổi <code>d &lt; n</code> thành <code>d*d &lt;= n</code> (chỉ duyệt tới √n). Chạy lại test — <b>vẫn xanh</b> → tối ưu không phá hành vi. Đây là lúc lưới an toàn phát huy.' },
+];
+let tddIdx = -1;
+function renderTdd(){
+  const cur = tddIdx >= 0 ? TDD[tddIdx] : null;
+  document.querySelectorAll('#tddStage .tdd-step').forEach(el=>{
+    el.className = 'tdd-step';
+    if(cur && el.dataset.k === cur.step) el.classList.add('act-'+cur.step);
+  });
+  document.getElementById('tddCode').innerHTML = cur ? cur.code : '<span class="cm">// Bấm "▶ Bước tiếp" để bắt đầu vòng TDD…</span>';
+  document.getElementById('tddFb').innerHTML = cur ? '<b>'+cur.title+'</b><br>'+cur.fb
+    : 'Vòng TDD: viết test (đỏ) → code tối thiểu (xanh) → dọn sạch (refactor) → lặp lại.';
+  document.getElementById('tddNext').disabled = (tddIdx >= TDD.length-1);
+  document.getElementById('tddNext').textContent = (tddIdx >= TDD.length-1) ? '✓ Hoàn tất' : '▶ Bước tiếp';
+}
+function tddStep(){ if(tddIdx < TDD.length-1){ tddIdx++; renderTdd(); } }
+function tddReset(){ tddIdx = -1; renderTdd(); }
+
+// ===== Module 3: coverage =====
+let tests = { happy:false, happy2:false, zero:false };
+function renderCov(){
+  // hàm có 1 dòng logic; line coverage = "đã chạy dòng đó chưa"
+  const ranLine = tests.happy || tests.happy2 || tests.zero;
+  const code = `func chia(a, b int) int {\n` +
+    `  <span class="${ranLine?'ok':'no'}">return a / b</span>   <span class="cm">// bug: b==0 → panic</span>\n}`;
+  document.getElementById('covCode').innerHTML = code;
+  const pct = ranLine ? 100 : 0;
+  document.getElementById('covPct').textContent = pct + '%' + (ranLine?'  (mọi dòng đã chạy)':'');
+  const w = document.getElementById('covWarn');
+  const any = tests.happy || tests.happy2 || tests.zero;
+  if(!any){
+    document.getElementById('bugState').textContent = 'Chưa kiểm — vẫn ẩn';
+    w.style.borderLeftColor='#7c3aed'; w.style.background='#f5f3ff'; w.style.color='#5b21b6';
+    w.innerHTML = 'Chưa có test nào.';
+    return;
+  }
+  if(tests.zero){
+    document.getElementById('bugState').textContent = '✅ Đã bắt! case b==0 được kiểm → bug lộ ra';
+    w.style.borderLeftColor='#16a34a'; w.style.background='#f0fdf4'; w.style.color='#166534';
+    w.innerHTML = '✅ <b>Bug bị bắt.</b> Chỉ khi thêm case biên <code>chia(10,0)</code> thì panic chia-0 mới lộ. Coverage không nghĩ hộ bạn case này — bạn phải tự nghĩ ra.';
+  } else {
+    document.getElementById('bugState').textContent = '⚠ Vẫn ẩn dù coverage 100%';
+    w.style.borderLeftColor='#dc2626'; w.style.background='#fef2f2'; w.style.color='#991b1b';
+    w.innerHTML = '⚠ <b>Coverage 100% nhưng bug chia-0 vẫn ẩn!</b> Test happy-path chạy qua dòng duy nhất → 100% line. Nhưng case <code>b==0</code> chưa kiểm. <b>100% coverage ≠ không bug.</b> Hãy thêm test case biên.';
+  }
+}
+function addTest(k){ tests[k]=true; renderCov(); }
+function covReset(){ tests = { happy:false, happy2:false, zero:false }; renderCov(); }
+
+// init
+recalc(); renderTdd(); renderCov();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 01 — Clean code & code smells</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background:#7c3aed; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.primary:hover { background:#6d28d9; }
+  .toggle { display:inline-flex; gap:0; border:2px solid #7c3aed; border-radius:6px; overflow:hidden; }
+  .toggle span { padding:6px 14px; cursor:pointer; font-size:13px; font-weight:600; color:#5b21b6; background:#fff; }
+  .toggle span.on { background:#7c3aed; color:#fff; }
+  /* code blocks */
+  pre.code { background:#0f172a; color:#e2e8f0; border-radius:8px; padding:14px 16px; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; line-height:1.55; overflow-x:auto; margin:10px 0; }
+  pre.code .ln { display:block; padding:0 6px; border-radius:3px; }
+  pre.code .ln.clickable { cursor:pointer; }
+  pre.code .ln.clickable:hover { background:#1e293b; }
+  pre.code .ln.flagged { background:#7c3aed; color:#fff; }
+  pre.code .kw { color:#c4b5fd; }
+  /* smell feedback */
+  .smell-fb { margin-top:12px; font-size:14px; padding:10px 12px; border-left:4px solid #7c3aed; background:#f5f3ff; border-radius:4px; min-height:20px; }
+  .smell-fb .tag { display:inline-block; background:#7c3aed; color:#fff; border-radius:5px; padding:2px 8px; font-size:12px; font-weight:700; margin-right:6px; }
+  .progress { font-size:13px; color:#64748b; margin-top:8px; }
+  /* quiz */
+  .quiz-pair { display:flex; gap:10px; flex-wrap:wrap; margin:10px 0; }
+  .opt { flex:1 1 0; min-width:130px; background:#ede9fe; border:2px solid #c4b5fd; border-radius:8px; padding:12px; cursor:pointer; font-family:ui-monospace,monospace; font-size:14px; font-weight:600; color:#5b21b6; text-align:center; }
+  .opt:hover { background:#ddd6fe; }
+  .opt.right { background:#dcfce7; border-color:#16a34a; color:#15803d; }
+  .opt.wrong { background:#fee2e2; border-color:#dc2626; color:#b91c1c; }
+  .quiz-fb { margin-top:10px; font-size:14px; }
+  .quiz-fb.ok { color:#16a34a; } .quiz-fb.no { color:#dc2626; }
+  .ok { color:#16a34a; } .bad { color:#dc2626; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Clean code & code smells</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-nguyen-ly-thiet-ke/visualization.html">L2: Nguyên lý thiết kế →</a>
+</nav>
+<main>
+<h1>Clean code & code smells</h1>
+<p class="note">Ba mô-đun: (1) bấm dòng có code smell để dò mùi code, (2) bật/tắt before–after khi đặt tên & tách hàm, (3) quiz "tên nào tốt hơn".</p>
+
+<div class="panel">
+  <h2>1 · Code smell detector — bấm dòng bạn nghĩ có mùi</h2>
+  <p class="note">Đọc đoạn code, bấm vào những dòng bạn cho là có code smell. Tìm hết các dòng có mùi để hoàn thành.</p>
+  <pre class="code" id="smellCode"></pre>
+  <div class="smell-fb" id="smellFb">Bấm một dòng để kiểm tra…</div>
+  <div class="progress" id="smellProg"></div>
+  <button class="primary" onclick="resetSmell()" style="margin-top:10px">↻ Làm lại</button>
+</div>
+
+<div class="panel">
+  <h2>2 · Before / After — đặt tên tốt & tách hàm</h2>
+  <p class="note">Cùng một logic, hai cách viết. Bật toggle để so sánh trực tiếp.</p>
+  <div class="toggle">
+    <span id="tBefore" class="on" onclick="setBA('before')">❌ Before</span>
+    <span id="tAfter" onclick="setBA('after')">✅ After</span>
+  </div>
+  <pre class="code" id="baCode"></pre>
+  <div class="smell-fb" id="baFb"></div>
+</div>
+
+<div class="panel">
+  <h2>3 · Quiz — tên nào tốt hơn?</h2>
+  <p class="note">Mỗi câu cho hai tên cho cùng một thứ. Chọn tên rõ nghĩa hơn.</p>
+  <div id="quizCtx" class="note" style="font-weight:600;color:#334155"></div>
+  <div class="quiz-pair" id="quizOpts"></div>
+  <div class="quiz-fb" id="quizFb"></div>
+  <div class="progress" id="quizScore"></div>
+  <button class="primary" onclick="nextQuiz()" id="quizNext" style="margin-top:10px;display:none">Câu tiếp →</button>
+</div>
+
+<script>
+// ===== Module 1: code smell detector =====
+// Mỗi dòng: {t: text, smell: null | {name, fix}}
+const SMELL_LINES = [
+  { t: 'func calc(a int, b int, c int, d int, e int) int {', smell: { name: 'Long parameter list', fix: 'Gom 5 tham số thành một struct, hoặc tách hàm. Gọi 5 tham số cùng kiểu rất dễ nhầm thứ tự.' } },
+  { t: '    r := 0', smell: null },
+  { t: '    if a > 0 {', smell: { name: 'Deep nesting', fix: 'Dùng guard clause: "if a <= 0 || b <= 0 { return 0 }" để logic chính ra cấp ngoài cùng, không lồng sâu.' } },
+  { t: '        if b > 0 {', smell: null },
+  { t: '            r = a * b + 86400', smell: { name: 'Magic number', fix: '86400 là gì? Đặt hằng có tên: const secondsPerDay = 86400 — người đọc hiểu ngay ý nghĩa.' } },
+  { t: '        }', smell: null },
+  { t: '    }', smell: null },
+  { t: '    // c, d, e không bao giờ dùng tới', smell: { name: 'Dead code', fix: 'Tham số c, d, e không hề được dùng → xóa khỏi chữ ký hàm. Git lưu lịch sử giùm bạn.' } },
+  { t: '    return r', smell: null },
+  { t: '}', smell: null },
+];
+let smellFound = new Set();
+const totalSmells = SMELL_LINES.filter(l => l.smell).length;
+function renderSmell() {
+  document.getElementById('smellCode').innerHTML = SMELL_LINES.map((l, i) => {
+    const cls = l.smell ? (smellFound.has(i) ? 'flagged' : 'clickable') : 'clickable';
+    const safe = l.t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return `<span class="ln ${cls}" onclick="checkSmell(${i})">${safe || '&nbsp;'}</span>`;
+  }).join('');
+  document.getElementById('smellProg').textContent = `Đã tìm: ${smellFound.size}/${totalSmells} smell`;
+}
+function checkSmell(i) {
+  const l = SMELL_LINES[i];
+  const fb = document.getElementById('smellFb');
+  if (l.smell) {
+    smellFound.add(i);
+    fb.innerHTML = `<span class="tag">${l.smell.name}</span> ${l.smell.fix}`;
+    if (smellFound.size === totalSmells) {
+      fb.innerHTML += '<br><b class="ok">🎉 Đã tìm hết tất cả smell! Đọc lại các cách sửa ở trên.</b>';
+    }
+  } else {
+    fb.innerHTML = '<span class="bad">Dòng này ổn — không có smell rõ rệt. Thử dòng khác.</span>';
+  }
+  renderSmell();
+}
+function resetSmell() {
+  smellFound = new Set();
+  document.getElementById('smellFb').textContent = 'Bấm một dòng để kiểm tra…';
+  renderSmell();
+}
+
+// ===== Module 2: before / after =====
+const BEFORE = [
+  'func p(d []float64, t float64) float64 {',
+  '    s := 0.0',
+  '    for _, e := range d {',
+  '        if e > t {',
+  '            s += e',
+  '        }',
+  '    }',
+  '    return s',
+  '}',
+];
+const AFTER = [
+  'func sumAboveThreshold(amounts []float64, threshold float64) float64 {',
+  '    total := 0.0',
+  '    for _, amount := range amounts {',
+  '        if amount > threshold {',
+  '            total += amount',
+  '        }',
+  '    }',
+  '    return total',
+  '}',
+];
+let baMode = 'before';
+function setBA(m) {
+  baMode = m;
+  document.getElementById('tBefore').classList.toggle('on', m === 'before');
+  document.getElementById('tAfter').classList.toggle('on', m === 'after');
+  const lines = m === 'before' ? BEFORE : AFTER;
+  document.getElementById('baCode').innerHTML = lines.map(t => {
+    const safe = t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return `<span class="ln">${safe || '&nbsp;'}</span>`;
+  }).join('');
+  document.getElementById('baFb').innerHTML = m === 'before'
+    ? '❌ <b>Before:</b> tên 1 chữ (<code>p, d, t, s, e</code>) — phải đoán mọi thứ. Hành vi đúng nhưng người đọc tốn công giải mã.'
+    : '✅ <b>After:</b> <b>cùng logic, cùng hành vi</b>, chỉ đổi tên. Lời gọi đọc như tiếng Anh: <code>sumAboveThreshold(prices, 100)</code> = "tổng các giá trên 100". Tên là tài liệu rẻ nhất.';
+}
+
+// ===== Module 3: quiz "tên nào tốt hơn" =====
+const QUIZ = [
+  { ctx: 'Biến đếm số lần đăng nhập thất bại:', opts: ['n', 'failedLoginAttempts'], right: 1, why: 'Tiết lộ đếm cái gì, trong ngữ cảnh nào — không cần comment.' },
+  { ctx: 'Cờ cho biết người dùng đã xác thực email:', opts: ['isEmailVerified', 'flag'], right: 0, why: 'Boolean nên là câu hỏi (is/has) và nói rõ về cái gì. "flag" chẳng cho biết gì.' },
+  { ctx: 'Hàm chuẩn hóa email về chữ thường:', opts: ['proc(x)', 'normalizeEmail(email)'], right: 1, why: 'Hàm là động từ nói rõ hành động + đối tượng. "proc" quá chung chung.' },
+  { ctx: 'Biến giữ danh sách đơn hàng đã lọc hợp lệ:', opts: ['validOrders', 'tmp'], right: 0, why: '"tmp" không tiết lộ gì; "validOrders" cho biết đây là đơn đã lọc hợp lệ.' },
+  { ctx: 'Biến giữ tên khách hàng (kiểu string):', opts: ['strName', 'customerName'], right: 1, why: 'Đừng nhồi kiểu dữ liệu vào tên (str đã có trong khai báo). Đặt theo vai trò nghiệp vụ.' },
+];
+let qi = 0, qScore = 0, qAnswered = false;
+function renderQuiz() {
+  const q = QUIZ[qi];
+  qAnswered = false;
+  document.getElementById('quizCtx').textContent = q.ctx;
+  document.getElementById('quizOpts').innerHTML = q.opts.map((o, i) =>
+    `<div class="opt" id="opt${i}" onclick="answerQuiz(${i})">${o}</div>`).join('');
+  document.getElementById('quizFb').textContent = '';
+  document.getElementById('quizFb').className = 'quiz-fb';
+  document.getElementById('quizNext').style.display = 'none';
+  document.getElementById('quizScore').textContent = `Câu ${qi + 1}/${QUIZ.length} · Điểm: ${qScore}`;
+}
+function answerQuiz(i) {
+  if (qAnswered) return;
+  qAnswered = true;
+  const q = QUIZ[qi];
+  const fb = document.getElementById('quizFb');
+  document.getElementById('opt' + q.right).classList.add('right');
+  if (i === q.right) {
+    qScore++;
+    fb.textContent = '✅ Đúng! ' + q.why;
+    fb.className = 'quiz-fb ok';
+  } else {
+    document.getElementById('opt' + i).classList.add('wrong');
+    fb.textContent = '❌ Chưa tối ưu. ' + q.why;
+    fb.className = 'quiz-fb no';
+  }
+  document.getElementById('quizScore').textContent = `Câu ${qi + 1}/${QUIZ.length} · Điểm: ${qScore}`;
+  document.getElementById('quizNext').style.display = qi < QUIZ.length - 1 ? 'inline-block' : 'none';
+  if (qi === QUIZ.length - 1) {
+    fb.textContent += `  — Hết quiz! Tổng điểm: ${qScore}/${QUIZ.length}.`;
+  }
+}
+function nextQuiz() {
+  if (qi < QUIZ.length - 1) { qi++; renderQuiz(); }
+}
+
+// init
+renderSmell();
+setBA('before');
+renderQuiz();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

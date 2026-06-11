@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 05 — Observability & độ tin cậy</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background: #7c3aed; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.primary:hover { background:#6d28d9; }
+  .chip { display:inline-block; padding:6px 13px; border-radius:6px; background:#ede9fe; color:#5b21b6; cursor:pointer; margin:4px 6px 4px 0; font-size:13px; font-weight:600; }
+  .chip.active { background:#7c3aed; color:#fff; }
+  .feedback { margin-top:12px; font-size:14px; padding:10px 12px; border-left:4px solid #7c3aed; background:#f5f3ff; border-radius:4px; }
+  /* module 1: pillars */
+  .pillars { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .pillar { flex:1 1 0; min-width:90px; text-align:center; padding:10px 6px; border-radius:8px; border:2px solid #e2e8f0; cursor:pointer; font-weight:600; font-size:13px; background:#f8fafc; transition:.2s; }
+  .pillar.sel { border-color:#7c3aed; background:#ede9fe; color:#5b21b6; }
+  .pillar.right { border-color:#16a34a; background:#dcfce7; color:#166534; }
+  .pillar.wrong { border-color:#dc2626; background:#fee2e2; color:#991b1b; }
+  .pillar .ic { font-size:22px; display:block; margin-bottom:4px; }
+  /* module 2: error budget */
+  .ebrow { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:10px 0; }
+  input[type=range] { flex:1; min-width:160px; max-width:320px; accent-color:#7c3aed; }
+  .bignum { font-size:30px; font-weight:800; color:#7c3aed; }
+  .ebgrid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+  .ebcard { background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; text-align:center; }
+  .ebcard .k { font-size:12px; color:#64748b; }
+  .ebcard .vv { font-size:20px; font-weight:800; color:#5b21b6; margin-top:3px; }
+  /* module 3: golden signals */
+  .sig { margin:10px 0; }
+  .sig .top { display:flex; justify-content:space-between; font-size:13px; font-weight:600; margin-bottom:3px; }
+  .meter { height:16px; border-radius:8px; background:#e2e8f0; overflow:hidden; }
+  .fill { height:100%; border-radius:8px; transition:width .3s, background .3s; }
+  .stat-ok { color:#16a34a; } .stat-warn { color:#d97706; } .stat-crit { color:#dc2626; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-container-trien-khai/visualization.html">← L4: Container &amp; triển khai</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Observability &amp; độ tin cậy</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-system-design-scalability/visualization.html">L6: System design &amp; scalability →</a>
+</nav>
+<main>
+<h1>Observability &amp; độ tin cậy</h1>
+<p class="note">Ba mô-đun: (1) chọn trụ cột cho từng sự cố, (2) tính error budget từ SLO, (3) dashboard 4 golden signals kéo tải xem signal nào báo động.</p>
+
+<div class="panel">
+  <h2>1 · Logs / Metrics / Traces — chọn công cụ cho từng sự cố</h2>
+  <p class="note">Đọc tình huống, bấm trụ cột bạn nghĩ hợp nhất. Bấm "Tình huống tiếp →" để đổi.</p>
+  <div class="feedback" id="scen" style="border-color:#94a3b8;background:#f1f5f9"></div>
+  <div class="pillars" id="pillars"></div>
+  <div class="feedback" id="pFb">Chọn một trụ cột.</div>
+  <button class="primary" onclick="nextScen()" style="margin-top:10px">Tình huống tiếp →</button>
+</div>
+
+<div class="panel">
+  <h2>2 · Error budget — kéo SLO xem được phép hỏng bao nhiêu</h2>
+  <p class="note">Một tháng ≈ 30 ngày = 43.200 phút. Giả định 5.000.000 request/tháng. Downtime cho phép = (1 − SLO) × tổng thời gian.</p>
+  <div class="ebrow">
+    <span style="font-weight:600">SLO:</span>
+    <input type="range" id="sloR" min="90" max="99.999" step="0.001" value="99.9" oninput="renderEB()">
+    <span class="bignum" id="sloVal">99.9%</span>
+  </div>
+  <div class="ebgrid">
+    <div class="ebcard"><div class="k">Lỗi cho phép</div><div class="vv" id="ebPct"></div></div>
+    <div class="ebcard"><div class="k">Downtime / tháng</div><div class="vv" id="ebMin"></div></div>
+    <div class="ebcard"><div class="k">Downtime / năm</div><div class="vv" id="ebYear"></div></div>
+    <div class="ebcard"><div class="k">Request lỗi cho phép / tháng</div><div class="vv" id="ebReq"></div></div>
+  </div>
+  <div class="feedback" id="ebFb"></div>
+</div>
+
+<div class="panel">
+  <h2>3 · Dashboard 4 golden signals — kéo tải xem signal nào báo động</h2>
+  <p class="note">Kéo thanh <b>Traffic</b> (lưu lượng). Saturation thường báo trước, rồi latency, rồi errors khi hệ quá tải.</p>
+  <div class="ebrow">
+    <span style="font-weight:600">Traffic:</span>
+    <input type="range" id="loadR" min="0" max="100" step="1" value="20" oninput="renderSig()">
+    <span class="bignum" id="loadVal" style="font-size:20px"></span>
+  </div>
+  <div id="signals"></div>
+  <div class="feedback" id="sigFb"></div>
+</div>
+
+<script>
+// ===== Module 1: pillars =====
+const PILLARS = [
+  {k:'logs', ic:'📜', name:'Logs'},
+  {k:'metrics', ic:'📈', name:'Metrics'},
+  {k:'traces', ic:'🧵', name:'Traces'},
+];
+const SCEN = [
+  {q:'"Tỷ lệ lỗi 5xx tuần này so với tuần trước thế nào?" — câu hỏi tổng hợp, xu hướng theo thời gian.',
+   a:'metrics', why:'Metrics tổng hợp sẵn và rẻ → so sánh tuần-qua-tuần tức thì. Dùng log để đếm sẽ chậm và tốn.'},
+  {q:'"Request id=xyz của khách VIP mất 4 giây — chậm ở service nào trong 8 service nó đi qua?"',
+   a:'traces', why:'Trace nối các chặng của MỘT request qua trace ID và đo thời lượng từng span → thấy ngay chặng nào chậm.'},
+  {q:'"Lúc 02:13 chính xác user nào đã đổi cấu hình gì, lý do từ chối là gì?"',
+   a:'logs', why:'Cần chi tiết chính xác một sự kiện tại một thời điểm (ai, làm gì, vì sao) — đúng thế mạnh của structured log.'},
+  {q:'"Hệ có đang quá tải không, CPU/RAM còn dư bao nhiêu?" — sức khỏe tức thời để alert.',
+   a:'metrics', why:'Saturation là một golden signal, đo bằng gauge metric → vẽ dashboard & đặt alert. Không phải việc của log/trace.'},
+];
+let scIdx = 0, scAnswered = false;
+function renderPillars(state){
+  document.getElementById('pillars').innerHTML = PILLARS.map(p=>
+    `<div class="pillar ${state&&state[p.k]||''}" onclick="pickPillar('${p.k}')"><span class="ic">${p.ic}</span>${p.name}</div>`).join('');
+}
+function showScen(){
+  scAnswered = false;
+  document.getElementById('scen').innerHTML = '🔎 <b>Tình huống ' + (scIdx+1) + '/' + SCEN.length + ':</b> ' + SCEN[scIdx].q;
+  renderPillars(null);
+  document.getElementById('pFb').textContent = 'Chọn một trụ cột.';
+}
+function pickPillar(k){
+  if(scAnswered) return;
+  scAnswered = true;
+  const correct = SCEN[scIdx].a;
+  const st = {}; st[k] = (k===correct?'right':'wrong'); if(k!==correct) st[correct]='right';
+  renderPillars(st);
+  const fb = document.getElementById('pFb');
+  if(k===correct) fb.innerHTML = '✅ <b>Đúng — ' + PILLARS.find(p=>p.k===correct).name + '.</b> ' + SCEN[scIdx].why;
+  else fb.innerHTML = '❌ Chưa hợp nhất. Đáp án: <b>' + PILLARS.find(p=>p.k===correct).name + '</b>. ' + SCEN[scIdx].why;
+}
+function nextScen(){ scIdx = (scIdx+1)%SCEN.length; showScen(); }
+
+// ===== Module 2: error budget =====
+const MIN_MONTH = 43200, REQ_MONTH = 5000000;
+function fmtDur(min){
+  if(min >= 1440) return (min/1440).toFixed(2) + ' ngày';
+  if(min >= 60) return (min/60).toFixed(2) + ' giờ';
+  if(min >= 1) return min.toFixed(1) + ' phút';
+  return Math.round(min*60) + ' giây';
+}
+function renderEB(){
+  const slo = parseFloat(document.getElementById('sloR').value);
+  const frac = (100 - slo)/100;
+  document.getElementById('sloVal').textContent = slo.toFixed(3).replace(/0+$/,'').replace(/\.$/,'') + '%';
+  const dtMonth = frac * MIN_MONTH;
+  const dtYear = frac * MIN_MONTH * 12;
+  const reqErr = Math.round(frac * REQ_MONTH);
+  document.getElementById('ebPct').textContent = (frac*100).toFixed(3).replace(/0+$/,'').replace(/\.$/,'') + '%';
+  document.getElementById('ebMin').textContent = fmtDur(dtMonth);
+  document.getElementById('ebYear').textContent = fmtDur(dtYear);
+  document.getElementById('ebReq').textContent = reqErr.toLocaleString('vi-VN');
+  let msg;
+  if(slo >= 99.999) msg = '"Five nines" — chỉ ~26 giây/tháng. Cực đắt: mỗi số 9 thêm vào đội chi phí hạ tầng gấp bội. Hiếm khi cần.';
+  else if(slo >= 99.99) msg = '"Four nines" — ~4 phút/tháng. Rất chặt, đòi hỏi tự động hóa cao và dự phòng kỹ.';
+  else if(slo >= 99.9) msg = '"Three nines" — ~43 phút/tháng. Mức phổ biến cho dịch vụ web nghiêm túc.';
+  else if(slo >= 99) msg = '"Two nines" — ~7.2 giờ/tháng. Hợp cho dịch vụ nội bộ ít rủi ro.';
+  else msg = 'Dưới 99% — gần 3+ ngày downtime/năm. Chỉ hợp dịch vụ không quan trọng.';
+  document.getElementById('ebFb').innerHTML = '💡 ' + msg + ' <br>Còn error budget thì ship tính năng mới mạnh dạn; cạn budget thì đóng băng thay đổi rủi ro, dồn sức vá ổn định.';
+}
+
+// ===== Module 3: golden signals =====
+function clamp(v){ return Math.max(0, Math.min(100, v)); }
+function renderSig(){
+  const load = parseInt(document.getElementById('loadR').value);
+  document.getElementById('loadVal').textContent = load + ' RPS%';
+  // saturation tăng tuyến tính theo tải, báo trước
+  const sat = clamp(load * 1.05);
+  // latency: thấp khi tải thấp, vọt lên khi tải > 70 (knee của hàng đợi)
+  let lat = load < 70 ? 20 + load*0.4 : 48 + (load-70)*4.2;
+  lat = clamp(lat);
+  // errors: chỉ tăng khi đã quá tải (> 85)
+  let err = load <= 85 ? load*0.05 : 4.25 + (load-85)*5.5;
+  err = clamp(err);
+  const traf = load;
+  const sigs = [
+    {name:'Latency (độ trễ, p99)', v:lat, unit:(lat<48?Math.round(20+load*4):Math.round(200+(load-70)*120))+' ms', warn:60, crit:80, prefVal:lat},
+    {name:'Traffic (lưu lượng)', v:traf, unit:Math.round(load*120)+' RPS', warn:101, crit:101, prefVal:0, neutral:true},
+    {name:'Errors (tỷ lệ lỗi 5xx)', v:err, unit:err.toFixed(2)+' %', warn:1, crit:5, prefVal:err},
+    {name:'Saturation (CPU/RAM)', v:sat, unit:Math.round(sat)+' %', warn:80, crit:95, prefVal:sat},
+  ];
+  document.getElementById('signals').innerHTML = sigs.map(s=>{
+    let cls='stat-ok', color='#16a34a', label='OK';
+    if(!s.neutral){
+      if(s.prefVal>=s.crit){ cls='stat-crit'; color='#dc2626'; label='CRIT'; }
+      else if(s.prefVal>=s.warn){ cls='stat-warn'; color='#d97706'; label='WARN'; }
+    } else { cls='stat-ok'; color='#7c3aed'; label='—'; }
+    return `<div class="sig"><div class="top"><span>${s.name}</span><span class="${cls}">${s.unit} · ${label}</span></div>
+      <div class="meter"><div class="fill" style="width:${s.v}%;background:${color}"></div></div></div>`;
+  }).join('');
+  let msg;
+  if(load < 60) msg = '🟢 Tải thấp: mọi signal khỏe. Đây là trạng thái bình thường.';
+  else if(load < 80) msg = '🟡 Tải tăng: <b>Saturation báo trước</b> (CPU lên cao) trong khi latency mới chớm tăng và errors vẫn 0. Saturation thường là tín hiệu sớm.';
+  else if(load < 90) msg = '🟠 Quá tải: <b>Latency vọt lên</b> (hàng đợi ùn) — user bắt đầu thấy chậm. Errors sắp xuất hiện.';
+  else msg = '🔴 Sụp đổ: cả <b>Errors</b> và <b>Latency</b> vượt ngưỡng — user gặp lỗi 5xx. Đây là lúc alert (đặt trên triệu chứng: errors & latency) phải kêu.';
+  document.getElementById('sigFb').innerHTML = msg;
+}
+
+// init
+showScen(); renderEB(); renderSig();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

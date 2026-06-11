@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<title>Lesson 04 — Container & triển khai</title>
+<style>
+  h1 { margin-top: 0; }
+  .panel { background: #fff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px; }
+  .panel h2 { margin-top: 0; font-size: 18px; }
+  .note { color:#64748b; font-size:13px; margin-top:8px; }
+  button.primary { background: #7c3aed; color:#fff; border:0; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button.primary:hover { background:#6d28d9; }
+  button.ghost { background:#ede9fe; color:#5b21b6; border:0; padding:7px 12px; border-radius:5px; cursor:pointer; font-size:13px; font-weight:600; }
+  button.ghost:hover { background:#ddd6fe; }
+  .chip { display:inline-block; padding:4px 11px; border-radius:6px; background:#ede9fe; color:#5b21b6; cursor:pointer; margin-right:6px; font-size:13px; font-weight:600; }
+  .chip.active { background:#7c3aed; color:#fff; }
+  .feedback { margin-top:12px; font-size:14px; padding:10px 12px; border-left:4px solid #7c3aed; background:#f5f3ff; border-radius:4px; }
+
+  /* Module 1: layers */
+  .m1-grid { display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start; }
+  .m1-col { flex:1 1 300px; min-width:0; }
+  .dfline { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; padding:6px 9px; border-radius:5px; margin:3px 0; border:2px solid transparent; cursor:pointer; background:#f8fafc; color:#334155; white-space:pre-wrap; word-break:break-word; }
+  .dfline.built { border-color:#c4b5fd; background:#faf5ff; }
+  .dfline.next { border-color:#f59e0b; background:#fffbeb; }
+  .layers { display:flex; flex-direction:column-reverse; gap:3px; min-height:60px; padding:8px; background:#f1f5f9; border-radius:8px; }
+  .layer { padding:7px 10px; border-radius:5px; font-size:12px; font-weight:600; color:#fff; opacity:0; transform:translateY(8px); transition:opacity .35s, transform .35s; }
+  .layer.show { opacity:1; transform:translateY(0); }
+  .layer .tag { float:right; font-weight:700; font-size:11px; padding:1px 6px; border-radius:4px; }
+  .layer .tag.hit { background:#16a34a; }
+  .layer .tag.miss { background:#dc2626; }
+
+  /* Module 2: container vs VM */
+  .toggle-row { margin:8px 0; }
+
+  /* Module 3: orchestration */
+  .cluster { display:flex; flex-wrap:wrap; gap:10px; margin:12px 0; }
+  .pod { width:64px; height:64px; border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#fff; cursor:pointer; transition:background .3s, transform .25s, opacity .3s; user-select:none; }
+  .pod.healthy { background:#7c3aed; }
+  .pod.dead { background:#cbd5e1; color:#64748b; }
+  .pod.new { background:#16a34a; animation:pop .4s ease; }
+  @keyframes pop { from { transform:scale(.4); opacity:0; } to { transform:scale(1); opacity:1; } }
+  .pod small { font-weight:500; font-size:9px; }
+  .ctrls { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .repbox { font-weight:700; color:#5b21b6; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-ci-cd/visualization.html">← L3: CI/CD</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Container & triển khai</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-observability-do-tin-cay/visualization.html">L5: Observability & độ tin cậy →</a>
+</nav>
+<main>
+<h1>Container & triển khai</h1>
+<p class="note">Ba mô-đun: (1) Image layers & cache build, (2) Container vs máy ảo, (3) Orchestration — self-heal & scale.</p>
+
+<!-- ===== Module 1 ===== -->
+<div class="panel">
+  <h2>1 · Image layers & cache — build từng dòng</h2>
+  <p class="note">Bấm "▶ Build" để dựng image từng dòng Dockerfile (mỗi dòng = một layer xếp chồng). Đổi nội dung file ở dưới rồi build lại để xem layer nào <b>cache hit</b> (xanh, dùng lại) / <b>cache miss</b> (đỏ, phải làm lại).</p>
+  <div class="m1-grid">
+    <div class="m1-col">
+      <strong style="font-size:13px;color:#475569">Dockerfile</strong>
+      <div id="dockerfile"></div>
+      <div class="toggle-row" style="margin-top:10px">
+        <span class="chip active" id="ch-none" onclick="setChange('none')">Không sửa gì</span>
+        <span class="chip" id="ch-src" onclick="setChange('src')">Sửa server.js</span>
+        <span class="chip" id="ch-dep" onclick="setChange('dep')">Sửa package.json</span>
+      </div>
+      <button class="primary" onclick="buildImage()" style="margin-top:8px">▶ Build</button>
+      <button class="ghost" onclick="resetBuild()" style="margin-top:8px">↻ Reset</button>
+    </div>
+    <div class="m1-col">
+      <strong style="font-size:13px;color:#475569">Image (layer xếp chồng từ dưới lên)</strong>
+      <div class="layers" id="layers"></div>
+    </div>
+  </div>
+  <div class="feedback" id="m1fb">Lần build đầu: mọi layer đều phải tạo mới (chưa có cache).</div>
+</div>
+
+<!-- ===== Module 2 ===== -->
+<div class="panel">
+  <h2>2 · Container vs máy ảo (VM)</h2>
+  <p class="note">Cùng chạy 3 app. Bật/tắt để thấy: VM nhân bản cả một OS cho mỗi app; container chia sẻ một kernel máy chủ → nhẹ hơn nhiều.</p>
+  <div class="toggle-row">
+    <span class="chip active" id="cVM" onclick="setArch('vm')">🖥 Máy ảo (VM)</span>
+    <span class="chip" id="cCT" onclick="setArch('ct')">📦 Container</span>
+  </div>
+  <svg id="archSvg" width="520" height="300" viewBox="0 0 520 300" style="max-width:100%;height:auto"></svg>
+  <div class="feedback" id="m2fb"></div>
+</div>
+
+<!-- ===== Module 3 ===== -->
+<div class="panel">
+  <h2>3 · Orchestration — self-heal & scale</h2>
+  <p class="note">Orchestrator (vd Kubernetes) giữ số bản chạy khoẻ = số mong muốn (replicas). <b>Bấm vào một pod để "giết" nó</b> → xem tự dựng lại. Chỉnh replicas để xem scale.</p>
+  <div class="ctrls">
+    <span>replicas mong muốn:</span>
+    <button class="ghost" onclick="changeRep(-1)">−</button>
+    <span class="repbox" id="repVal">3</span>
+    <button class="ghost" onclick="changeRep(1)">+</button>
+    <span class="chip" id="selfheal" onclick="toggleHeal()" style="margin-left:12px">🩺 Self-heal: BẬT</span>
+  </div>
+  <div class="cluster" id="cluster"></div>
+  <div class="feedback" id="m3fb">Trạng thái mong muốn = 3 pod khoẻ. Bấm một pod để mô phỏng sự cố.</div>
+</div>
+
+<script>
+// ===================== Module 1: layers & cache =====================
+const DF = [
+  { txt:'FROM node:18-alpine',          color:'#64748b', dep:['base'] },
+  { txt:'WORKDIR /app',                 color:'#0891b2', dep:['base'] },
+  { txt:'COPY package*.json ./',        color:'#7c3aed', dep:['dep'] },
+  { txt:'RUN npm ci --omit=dev',        color:'#7c3aed', dep:['dep'] },
+  { txt:'COPY . .',                     color:'#b45309', dep:['dep','src'] },
+  { txt:'CMD ["node","server.js"]',     color:'#475569', dep:['dep','src'] },
+];
+let change = 'none';      // none | src | dep
+let firstBuild = true;
+function setChange(c){
+  change = c;
+  ['none','src','dep'].forEach(k=>document.getElementById('ch-'+k).classList.toggle('active',k===c));
+}
+function renderDockerfile(activeIdx){
+  document.getElementById('dockerfile').innerHTML = DF.map((l,i)=>{
+    const cls = activeIdx>i ? 'built' : (activeIdx===i ? 'next' : '');
+    return `<div class="dfline ${cls}">${l.txt}</div>`;
+  }).join('');
+}
+// xác định layer i có cache hit không, dựa vào thay đổi
+function isCacheHit(i){
+  if(firstBuild) return false;            // lần đầu: chưa có cache
+  if(change==='none') return true;        // không đổi gì → hit hết
+  if(change==='dep') return false || (DF[i].dep.includes('base') && !DF[i].dep.includes('dep')); // chỉ base layer còn hit
+  if(change==='src'){
+    // src thay đổi chỉ phá từ layer "COPY . ." (index 4) trở đi
+    return i < 4;
+  }
+  return false;
+}
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+async function buildImage(){
+  const layersEl = document.getElementById('layers');
+  layersEl.innerHTML = '';
+  const states = [];
+  for(let i=0;i<DF.length;i++){
+    renderDockerfile(i);
+    const hit = isCacheHit(i);
+    states.push(hit);
+    const div = document.createElement('div');
+    div.className = 'layer';
+    div.style.background = DF[i].color;
+    div.innerHTML = `${DF[i].txt}<span class="tag ${hit?'hit':'miss'}">${hit?'CACHED':'BUILD'}</span>`;
+    layersEl.appendChild(div);
+    requestAnimationFrame(()=>div.classList.add('show'));
+    await sleep(hit ? 130 : 480);   // cache hit nhanh hơn nhiều
+  }
+  renderDockerfile(DF.length);
+  const hits = states.filter(Boolean).length;
+  const fb = document.getElementById('m1fb');
+  if(firstBuild){
+    fb.innerHTML = '🧱 <b>Lần build đầu</b>: chưa có cache → cả 6 layer đều BUILD. Giờ thử chọn một kiểu sửa file rồi build lại để thấy cache.';
+  } else if(change==='none'){
+    fb.innerHTML = '✅ <b>Không sửa gì</b> → cả 6 layer CACHED, build gần như tức thì. Image bất biến, không tốn công làm lại.';
+  } else if(change==='src'){
+    fb.innerHTML = '✏️ <b>Sửa server.js</b>: 3 layer đầu (FROM, WORKDIR, COPY package + npm ci) vẫn CACHED vì phụ thuộc không đổi → bước cài thư viện chậm nhất được bỏ qua. Chỉ từ <code>COPY . .</code> mới BUILD lại. Đây là lý do copy phụ thuộc TRƯỚC source.';
+  } else {
+    fb.innerHTML = '📦 <b>Sửa package.json</b>: layer <code>COPY package*.json</code> miss → kéo theo <code>npm ci</code> và mọi layer sau đều BUILD lại (cài lại toàn bộ thư viện). Chỉ FROM/WORKDIR còn CACHED.';
+  }
+  firstBuild = false;
+}
+function resetBuild(){ firstBuild=true; setChange('none'); document.getElementById('layers').innerHTML=''; renderDockerfile(-1); document.getElementById('m1fb').innerHTML='Lần build đầu: mọi layer đều phải tạo mới (chưa có cache).'; }
+
+// ===================== Module 2: container vs VM =====================
+let arch = 'vm';
+function setArch(a){
+  arch=a;
+  document.getElementById('cVM').classList.toggle('active',a==='vm');
+  document.getElementById('cCT').classList.toggle('active',a==='ct');
+  drawArch();
+}
+function box(x,y,w,h,fill,text,sub){
+  let t = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="${fill}" stroke="#fff" stroke-width="1.5"/>`;
+  t += `<text x="${x+w/2}" y="${y+h/2+ (sub?-2:4)}" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">${text}</text>`;
+  if(sub) t += `<text x="${x+w/2}" y="${y+h/2+12}" text-anchor="middle" font-size="9" fill="#ffffffcc">${sub}</text>`;
+  return t;
+}
+function drawArch(){
+  const svg = document.getElementById('archSvg');
+  let s = '';
+  const apps = [['App A','#7c3aed'],['App B','#7c3aed'],['App C','#7c3aed']];
+  const colX = [20,190,360]; const colW=140;
+  // hàng app + bin
+  apps.forEach((a,i)=>{ s += box(colX[i],20,colW,34,a[1],a[0]); });
+  apps.forEach((a,i)=>{ s += box(colX[i],58,colW,28,'#a78bfa','Bin/Lib'); });
+  if(arch==='vm'){
+    // mỗi cột có OS riêng
+    apps.forEach((a,i)=>{ s += box(colX[i],90,colW,40,'#dc2626','Guest OS','(kernel riêng)'); });
+    s += box(20,134,480,30,'#9a3412','Hypervisor');
+    s += box(20,168,480,30,'#1e293b','Phần cứng');
+    document.getElementById('m2fb').innerHTML = '🖥 <b>VM</b>: mỗi app gánh nguyên một <b>Guest OS (kernel riêng)</b> — phần đỏ lặp 3 lần → hàng GB mỗi máy ảo, boot chậm. Cô lập mạnh nhưng nặng.';
+  } else {
+    // chung 1 engine + 1 OS
+    s += box(20,90,480,30,'#0891b2','Container Engine (Docker / containerd)');
+    s += box(20,124,480,34,'#16a34a','OS máy chủ — 1 KERNEL CHIA SẺ','(không lặp lại cho mỗi app)');
+    s += box(20,162,480,30,'#1e293b','Phần cứng');
+    document.getElementById('m2fb').innerHTML = '📦 <b>Container</b>: 3 app <b>chia sẻ một kernel</b> (phần xanh, chỉ 1 lần) qua engine → mỗi container chỉ là Bin/Lib + app (hàng chục MB), khởi động mili-giây. Nhẹ, dày đặc.';
+  }
+  svg.innerHTML = s;
+}
+
+// ===================== Module 3: orchestration =====================
+let desired = 3;
+let healOn = true;
+let pods = [];   // {id, state:'healthy'|'dead'|'new'}
+let pid = 0;
+function spawnPod(isNew){ return { id:++pid, state:isNew?'new':'healthy' }; }
+function initPods(){ pods = Array.from({length:desired},()=>spawnPod(false)); renderCluster(); }
+function renderCluster(){
+  const el = document.getElementById('cluster');
+  el.innerHTML = pods.map(p=>
+    `<div class="pod ${p.state}" onclick="killPod(${p.id})" title="${p.state==='dead'?'đã chết':'bấm để giết'}">`+
+    `${p.state==='dead'?'✕':'📦'}<small>pod ${p.id}</small></div>`).join('');
+  const healthy = pods.filter(p=>p.state!=='dead').length;
+  document.getElementById('repVal').textContent = desired;
+  const fb = document.getElementById('m3fb');
+  if(healthy===desired) fb.innerHTML = `✅ Trạng thái thực (${healthy} khoẻ) = mong muốn (${desired}). Cụm ổn định.`;
+  else fb.innerHTML = `⚠ Trạng thái thực (${healthy} khoẻ) ≠ mong muốn (${desired})…`;
+}
+async function killPod(id){
+  const p = pods.find(x=>x.id===id);
+  if(!p || p.state==='dead') return;
+  p.state='dead'; renderCluster();
+  const healthy = pods.filter(x=>x.state!=='dead').length;
+  document.getElementById('m3fb').innerHTML = `💥 pod ${id} chết → còn ${healthy}/${desired} khoẻ.` + (healOn?' Orchestrator phát hiện lệch trạng thái mong muốn → đang dựng lại…':' (Self-heal TẮT → không ai dựng lại, hệ thống thiếu bản chạy.)');
+  if(healOn){
+    await sleep(900);
+    // xoá pod chết, thêm pod mới
+    pods = pods.filter(x=>x.state!=='dead');
+    pods.push(spawnPod(true));
+    renderCluster();
+    document.getElementById('m3fb').innerHTML = `🩺 <b>Self-heal</b>: scheduler dựng pod mới thay thế → lại đủ ${desired} pod khoẻ. Service tự định tuyến traffic sang các pod khoẻ suốt quá trình, client không thấy gián đoạn.`;
+    await sleep(600);
+    pods.forEach(x=>{ if(x.state==='new') x.state='healthy'; }); renderCluster();
+  }
+}
+function changeRep(d){
+  desired = Math.max(1, Math.min(8, desired+d));
+  const healthy = pods.filter(p=>p.state!=='dead').length;
+  if(healthy < desired){
+    while(pods.filter(p=>p.state!=='dead').length < desired) pods.push(spawnPod(true));
+    document.getElementById('m3fb').innerHTML = `📈 <b>Scale lên ${desired}</b>: orchestrator dựng thêm pod cho đủ replicas mong muốn.`;
+  } else if(healthy > desired){
+    let extra = healthy - desired;
+    pods = pods.filter(p=>p.state==='dead');
+    let live = []; // giữ lại desired pod khoẻ
+    const liveAll = []; pods=[]; // rebuild
+    // đơn giản: tạo lại đúng desired pod khoẻ
+    pods = Array.from({length:desired},()=>spawnPod(false));
+    document.getElementById('m3fb').innerHTML = `📉 <b>Scale xuống ${desired}</b>: orchestrator gỡ bớt pod thừa để khớp replicas mong muốn.`;
+  }
+  renderCluster();
+  setTimeout(()=>{ pods.forEach(x=>{ if(x.state==='new') x.state='healthy'; }); renderCluster(); }, 500);
+}
+function toggleHeal(){
+  healOn=!healOn;
+  document.getElementById('selfheal').textContent = '🩺 Self-heal: ' + (healOn?'BẬT':'TẮT');
+  document.getElementById('selfheal').classList.toggle('active',healOn);
+}
+
+// ===================== init =====================
+renderDockerfile(-1);
+drawArch();
+document.getElementById('selfheal').classList.add('active');
+initPods();
+</script>
+</main>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

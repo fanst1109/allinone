@@ -279,6 +279,13 @@
       flex: 1;
     }
 
+    /* Hiệu năng: README math có thể tới ~22.000 node DOM (KaTeX), cao gần 19.000px.
+       content-visibility cho phép trình duyệt BỎ QUA layout + paint các khối nằm
+       ngoài màn hình → cắt mạnh chi phí scroll/repaint (hết giật & nóng máy iOS).
+       contain-intrinsic-size: auto ... → nhớ kích thước thật sau lần render đầu nên
+       scrollbar không nhảy. Trình duyệt cũ không hỗ trợ thì bỏ qua, vô hại. */
+    .rm-content > * { content-visibility: auto; contain-intrinsic-size: auto 48px; }
+
     /* ── Markdown styles ── */
     .rm-content h1 { font-size: 24px; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
     .rm-content h2 { font-size: 19px; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #e2e8f0; color: #2d3748; }
@@ -574,21 +581,30 @@
       });
 
       // Scroll-spy bên trong content.
-      // QUAN TRỌNG (hiệu năng mobile): throttle bằng requestAnimationFrame để
-      // gom nhiều sự kiện scroll (iOS bắn rất dày) về tối đa 1 lần/frame, tránh
-      // layout thrash (getBoundingClientRect lặp qua mọi heading mỗi event) gây
-      // giật khi scroll README dài. Chỉ đụng DOM khi heading active thực sự đổi.
+      // QUAN TRỌNG (hiệu năng mobile): README math có thể tới ~22.000 node DOM
+      // (KaTeX). Nếu mỗi frame scroll lại getBoundingClientRect() từng heading thì
+      // ép reflow cả cây khổng lồ → giật + nóng máy trên iOS. Thay vào đó:
+      //  - CACHE offset (vị trí dọc) của các heading MỘT LẦN; khi scroll chỉ so
+      //    sánh số học với scrollTop → 0 lần đọc layout mỗi frame.
+      //  - Tự dựng lại cache khi scrollHeight đổi (KaTeX render xong / xoay máy).
+      //  - rAF-throttle + chỉ chạm DOM khi heading active đổi.
       var links = {};
       tocEl.querySelectorAll('a').forEach(function (a) { links[a.dataset.id] = a; });
-      var spyScheduled = false;
-      var lastActive = null;
+      var offsets = null, cachedH = -1, spyScheduled = false, lastActive = null;
+      function buildOffsets() {
+        var base = contentEl.getBoundingClientRect().top - contentEl.scrollTop;
+        offsets = items.map(function (it) {
+          return { id: it.id, top: it.el.getBoundingClientRect().top - base };
+        });
+        cachedH = contentEl.scrollHeight;
+      }
       function updateSpy() {
         spyScheduled = false;
-        var contentTop = contentEl.getBoundingClientRect().top;
+        if (offsets === null || contentEl.scrollHeight !== cachedH) buildOffsets();
+        var y = contentEl.scrollTop + 40;
         var current = null;
-        for (var i = 0; i < items.length; i++) {
-          var rect = items[i].el.getBoundingClientRect();
-          if (rect.top - contentTop <= 40) current = items[i].id;
+        for (var i = 0; i < offsets.length; i++) {
+          if (offsets[i].top <= y) current = offsets[i].id;
           else break;
         }
         if (current === lastActive) return; // không đổi → không chạm DOM
@@ -602,6 +618,7 @@
           requestAnimationFrame(updateSpy);
         }
       }, { passive: true });
+      window.addEventListener('resize', function () { offsets = null; });
     }
 
     function escapeHtml(s) {

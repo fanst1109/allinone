@@ -21,6 +21,33 @@
 
 Mỗi điểm M có 3 tọa độ **(x, y, z)** = hoành độ, tung độ, **cao độ**.
 
+### Hình dung hệ trục Oxyz (ASCII)
+
+Quy ước **tay phải (right-handed)**: ngón cái Ox, ngón trỏ Oy, ngón giữa Oz. Trục Oz hướng "lên", còn Ox vẽ "đâm ra phía người xem".
+
+```
+              z (lên)
+              ↑
+              |
+              |
+              |        • M(2, 3, 4)
+              |       ╱:
+              |      ╱ :  ← cao độ z = 4
+              |     ╱  :
+              |    ╱   :
+              O───┼────┼──────────► y (sang phải)
+             ╱   ╱:    :
+            ╱   ╱ :....:  ← hình chiếu (2, 3, 0) trên đáy Oxy
+           ╱   ╱
+          ╱   ╱  hoành độ x = 2, tung độ y = 3
+         ╱
+        x (đâm ra khỏi trang, về phía người xem)
+```
+
+💡 **Trực giác — trục Oz "đâm ra khỏi trang giấy"**: mặt phẳng đáy Oxy là tờ giấy nằm trên bàn. Trục Oz dựng vuông góc lên khỏi mặt bàn — đó là chiều "cao". Để định vị điểm M(2, 3, 4): đi 2 đơn vị theo x, 3 theo y (vẫn đang trên mặt bàn, tại bóng đổ (2, 3, 0)), rồi **leo lên 4** theo z. Bóng đổ xuống đáy gọi là **hình chiếu (projection)** của M lên mặt phẳng Oxy — luôn là (x, y, 0).
+
+⚠ **Lỗi thường gặp — nhầm hệ tay phải / tay trái**: đồ họa máy tính (OpenGL dùng tay phải, DirectX dùng tay trái) khác nhau ở chiều trục z. Cùng điểm (1, 1, 1) nhưng hệ trái và hệ phải cho vị trí "trước/sau màn hình" ngược nhau. Trong toán phổ thông luôn dùng **tay phải**; nhớ cố định 1 quy ước để cross product (mục 1.5) không bị đảo dấu.
+
 ### Khoảng cách 2 điểm A(x₁, y₁, z₁), B(x₂, y₂, z₂)
 
 $$d = \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2 + (z_2-z_1)^2}$$
@@ -42,6 +69,106 @@ $$d = \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2 + (z_2-z_1)^2}$$
 - A(1,1,1), B(2,3,3): $d = \sqrt{1+4+4} = \sqrt{9} = $ **3**.
 - A(0,0,0), B(1,2,2): $d = \sqrt{1+4+4} = $ **3**.
 - A(−1,0,2), B(1,4,2): $d = \sqrt{4+16+0} = \sqrt{20} = $ **2√5 ≈ 4.47** (cùng z).
+
+#### Walk-through chi tiết — Pythagoras áp 2 lần
+
+Lấy A(0,0,0), B(2,3,6). Vì sao $\sqrt{\Delta x^2+\Delta y^2+\Delta z^2}$ đúng, làm rõ từng bước (cấm "dễ thấy"):
+
+$$\begin{aligned}
+\text{Bước 1 — bóng đổ trên đáy Oxy:}\quad
+d_{\text{đáy}} &= \sqrt{\Delta x^2 + \Delta y^2} = \sqrt{2^2 + 3^2} = \sqrt{13} \\
+\text{Bước 2 — dựng tam giác vuông đứng:}\quad
+& \text{cạnh đáy} = d_{\text{đáy}} = \sqrt{13},\ \ \text{cạnh đứng} = \Delta z = 6 \\
+\text{Bước 3 — Pythagoras lần 2:}\quad
+d &= \sqrt{d_{\text{đáy}}^2 + \Delta z^2} = \sqrt{(\sqrt{13})^2 + 6^2} \\
+&= \sqrt{13 + 36} = \sqrt{49} = 7
+\end{aligned}$$
+
+Vì $(\sqrt{13})^2 = 13 = \Delta x^2 + \Delta y^2$ nên gộp lại đúng $\sqrt{\Delta x^2+\Delta y^2+\Delta z^2}$. Verify ngược: $7^2 = 49 = 4+9+36$ ✓.
+
+ASCII của 2 tam giác vuông lồng nhau:
+
+```
+        B(2,3,6)
+        /|
+       / | Δz = 6  (cạnh đứng)
+      /  |
+     /   |
+    A----P  ← P(2,3,0) là bóng đổ của B
+      √13   (cạnh đáy, đã là cạnh huyền của tam giác Δx-Δy)
+```
+
+### Walk-through tích vô hướng & góc — 3 ví dụ số
+
+Công thức góc: $\cos\theta = \dfrac{u\cdot v}{|u|\,|v|}$. Quy trình 3 bước: (1) tính $u\cdot v$, (2) tính $|u|, |v|$, (3) chia rồi $\arccos$.
+
+**Ví dụ 1 — góc nhọn**: $u = (1, 2, 2)$, $v = (2, 1, -1)$.
+- $u\cdot v = 1\cdot 2 + 2\cdot 1 + 2\cdot(-1) = 2 + 2 - 2 = 2$.
+- $|u| = \sqrt{1+4+4} = 3$; $|v| = \sqrt{4+1+1} = \sqrt{6}$.
+- $\cos\theta = \dfrac{2}{3\sqrt{6}} \approx 0.272 \Rightarrow \theta \approx$ **74.2°** (nhọn vì $u\cdot v > 0$).
+
+**Ví dụ 2 — vuông góc**: $u = (1, 0, 1)$, $v = (1, 0, -1)$.
+- $u\cdot v = 1 + 0 - 1 = 0 \Rightarrow \cos\theta = 0 \Rightarrow \theta = $ **90°**. Tích vô hướng bằng 0 → vuông góc, không cần tính độ lớn.
+
+**Ví dụ 3 — góc tù**: $u = (1, 1, 0)$, $v = (-1, 0, 1)$.
+- $u\cdot v = -1 + 0 + 0 = -1$ (âm → góc tù).
+- $|u| = \sqrt{2}$; $|v| = \sqrt{2}$.
+- $\cos\theta = \dfrac{-1}{\sqrt{2}\cdot\sqrt{2}} = \dfrac{-1}{2} = -0.5 \Rightarrow \theta = $ **120°**.
+
+💡 **Dấu của $u\cdot v$ cho biết loại góc**: dương → nhọn (< 90°), bằng 0 → vuông, âm → tù (> 90°). Đây là cách "đọc nhanh" trước khi cần con số chính xác.
+
+### 1.5 Tích có hướng (cross product) — sinh vector pháp tuyến
+
+💡 **Trực giác**: tích vô hướng (dot) cho ra **một số** (đo "cùng hướng nhiều hay ít"). Tích có hướng (cross) cho ra **một vector mới** $u \times v$ **vuông góc với cả** $u$ và $v$ cùng lúc — như "ngón cái chỉ lên khi 4 ngón còn lại quét từ $u$ sang $v$" (quy tắc bàn tay phải). Đây chính là cách lấy **vector pháp tuyến (normal)** của mặt phẳng chứa $u, v$ — nền tảng của chiếu sáng trong đồ họa 3D/game.
+
+Công thức (định thức formal):
+
+$$u \times v = \begin{bmatrix} u_2 v_3 - u_3 v_2 \\ u_3 v_1 - u_1 v_3 \\ u_1 v_2 - u_2 v_1 \end{bmatrix}$$
+
+Mẹo nhớ: mỗi thành phần "bỏ qua chỉ số của nó, lấy chéo 2 chỉ số còn lại, theo vòng x→y→z→x".
+
+> 📐 **Định nghĩa đầy đủ — Tích có hướng $u \times v$**
+>
+> **(a) Là gì**: phép toán nhận 2 vector 3D, trả về **một vector 3D mới** vuông góc với cả hai. Độ lớn $|u\times v| = |u|\,|v|\sin\theta$ = **diện tích hình bình hành** căng bởi $u, v$.
+>
+> **(b) Vì sao cần**: dot product không cho được "hướng vuông góc" — nó trả số. Trong 3D, vô số vector vuông góc với một vector cho trước; nhưng vuông góc với **cả hai** $u, v$ thì (gần như) chỉ còn 1 hướng — chính là pháp tuyến mặt phẳng. Đồ họa cần normal để tính ánh sáng phản chiếu; vật lý cần nó cho moment lực (torque $\tau = r \times F$) và lực Lorentz.
+>
+> **(c) Ví dụ số**: $u = (1,0,0)$ (trục x), $v = (0,1,0)$ (trục y). $u\times v = (0\cdot0-0\cdot1,\ 0\cdot0-1\cdot0,\ 1\cdot1-0\cdot0) = (0,0,1)$ = trục z. Đúng quy tắc tay phải: x quét sang y thì ngón cái chỉ lên z. Diện tích hình bình hành (ở đây là hình vuông đơn vị) $= |(0,0,1)| = 1$ ✓.
+
+**Walk-through 3 ví dụ cross product**:
+
+**Ví dụ 1** (2 trục): $u = (1,0,0)$, $v = (0,1,0)$.
+$$u\times v = (0\cdot0 - 0\cdot1,\ \ 0\cdot0 - 1\cdot0,\ \ 1\cdot1 - 0\cdot0) = (0, 0, 1).$$
+Kiểm vuông góc: $(0,0,1)\cdot(1,0,0) = 0$ ✓ và $(0,0,1)\cdot(0,1,0) = 0$ ✓.
+
+**Ví dụ 2** (tổng quát): $u = (1,2,3)$, $v = (4,5,6)$.
+$$\begin{aligned}
+(u\times v)_x &= u_2 v_3 - u_3 v_2 = 2\cdot6 - 3\cdot5 = 12 - 15 = -3 \\
+(u\times v)_y &= u_3 v_1 - u_1 v_3 = 3\cdot4 - 1\cdot6 = 12 - 6 = 6 \\
+(u\times v)_z &= u_1 v_2 - u_2 v_1 = 1\cdot5 - 2\cdot4 = 5 - 8 = -3
+\end{aligned}$$
+→ $u\times v = (-3, 6, -3)$. Kiểm: $(-3,6,-3)\cdot(1,2,3) = -3+12-9 = 0$ ✓; $(-3,6,-3)\cdot(4,5,6) = -12+30-18 = 0$ ✓ (vuông góc cả hai).
+
+**Ví dụ 3** (diện tích tam giác): $A(0,0,0)$, $B(1,0,0)$, $C(0,2,0)$ — tam giác trong mặt phẳng đáy.
+- $\vec{AB} = (1,0,0)$, $\vec{AC} = (0,2,0)$.
+- $\vec{AB}\times\vec{AC} = (0\cdot0-0\cdot2,\ 0\cdot0-1\cdot0,\ 1\cdot2-0\cdot0) = (0,0,2)$.
+- Diện tích tam giác $= \frac{1}{2}|\vec{AB}\times\vec{AC}| = \frac{1}{2}\cdot 2 = $ **1** (khớp công thức $\frac12\cdot\text{đáy}\cdot\text{cao} = \frac12\cdot1\cdot2 = 1$ ✓).
+
+⚠ **Lỗi thường gặp — cross product KHÔNG giao hoán**: $u\times v = -(v\times u)$ (đảo dấu, không bằng nhau!). Phản ví dụ: từ Ví dụ 1, $v\times u = (0,1,0)\times(1,0,0) = (0,0,-1) = -(u\times v)$. Khác hẳn dot product (giao hoán: $u\cdot v = v\cdot u$). Đảo thứ tự cross → pháp tuyến lật ngược hướng.
+
+⚠ **Lỗi thường gặp — nhầm dot với cross**: dot $u\cdot v$ → **một số** (vô hướng), dùng tìm góc / kiểm vuông góc. Cross $u\times v$ → **một vector** (3 thành phần), dùng tìm pháp tuyến / diện tích. Phản ví dụ: với $u=(1,2,3), v=(4,5,6)$: $u\cdot v = 4+10+18 = 32$ (số), còn $u\times v = (-3,6,-3)$ (vector) — hai đại lượng hoàn toàn khác loại, đừng lẫn.
+
+🔁 **Dừng lại tự kiểm tra (cross product)**
+
+1. Tính $(0,1,0)\times(0,0,1)$.
+2. Diện tích hình bình hành căng bởi $u=(2,0,0)$ và $v=(0,3,0)$ là bao nhiêu?
+
+<details><summary>Đáp án</summary>
+
+1. $(1\cdot1-0\cdot0,\ 0\cdot0-0\cdot1,\ 0\cdot0-1\cdot0) = $ **(1, 0, 0)** (trục x — đúng vòng y×z = x).
+2. $u\times v = (0,0,6) \to$ diện tích $= |(0,0,6)| = $ **6** (= 2 × 3, đúng hình chữ nhật) .
+
+</details>
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -65,10 +192,11 @@ $$d = \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2 + (z_2-z_1)^2}$$
 
 ### 📝 Tóm tắt mục 1
 
-- Hệ Oxyz: mỗi điểm $= (x, y, z)$; 3 trục đôi một vuông góc tại O.
+- Hệ Oxyz: mỗi điểm $= (x, y, z)$; 3 trục đôi một vuông góc tại O (quy ước tay phải, Oz "đâm lên/ra").
 - **Khoảng cách 3D**: $d = \sqrt{\Delta x^2 + \Delta y^2 + \Delta z^2}$ (Pythagoras 2 lần).
-- **Tích vô hướng**: $u\cdot v = u_1 v_1+u_2 v_2+u_3 v_3$; $= 0 \iff$ vuông góc.
+- **Tích vô hướng** (ra **số**): $u\cdot v = u_1 v_1+u_2 v_2+u_3 v_3$; $= 0 \iff$ vuông góc. Dấu: + nhọn, 0 vuông, − tù.
 - Độ lớn $|u| = \sqrt{u_1^2+u_2^2+u_3^2}$; góc qua $\cos\theta = \frac{u\cdot v}{|u||v|}$.
+- **Tích có hướng** (ra **vector**): $u\times v \perp$ cả $u, v$ → pháp tuyến; $|u\times v| = $ diện tích hình bình hành. KHÔNG giao hoán: $u\times v = -(v\times u)$.
 
 ---
 
@@ -83,6 +211,37 @@ Hoặc dạng tổng quát:
 $$Ax + By + Cz + D = 0$$
 
 💡 **Ý nghĩa**: vector pháp tuyến $n \perp$ với mọi vector nằm trong mặt phẳng.
+
+ASCII — mặt phẳng và pháp tuyến đâm vuông góc:
+
+```
+            n (pháp tuyến)
+            ↑
+            |
+   ┌────────┼────────────┐
+   │        •M₀          │   ← mặt phẳng (tờ giấy nghiêng)
+   │     ╱        ╲      │     mọi vector trong mặt
+   │   v₁          v₂    │     đều ⊥ n  (n·v₁ = n·v₂ = 0)
+   └────────────────────┘
+```
+
+#### Lập phương trình mặt phẳng qua 3 điểm (dùng cross product)
+
+💡 3 điểm không thẳng hàng xác định **duy nhất 1 mặt phẳng**. Cách lấy pháp tuyến: dựng 2 vector trong mặt rồi **cross** chúng — kết quả vuông góc cả hai, chính là $n$.
+
+**Walk-through**: mặt phẳng qua $A(1,0,0)$, $B(0,1,0)$, $C(0,0,1)$.
+- Bước 1 — 2 vector trong mặt: $\vec{AB} = (-1,1,0)$, $\vec{AC} = (-1,0,1)$.
+- Bước 2 — pháp tuyến $n = \vec{AB}\times\vec{AC}$:
+$$n = (1\cdot1 - 0\cdot0,\ \ 0\cdot(-1) - (-1)\cdot1,\ \ (-1)\cdot0 - 1\cdot(-1)) = (1, 1, 1).$$
+- Bước 3 — viết PT qua A(1,0,0) với $n=(1,1,1)$: $1(x-1)+1(y-0)+1(z-0)=0 \to$ **$x+y+z = 1$**.
+- Verify cả 3 điểm: $A: 1+0+0=1$ ✓; $B: 0+1+0=1$ ✓; $C: 0+0+1=1$ ✓.
+
+**≥4 ví dụ phương trình mặt phẳng**:
+1. Qua $(0,0,0)$ với $n=(1,2,2)$: $x+2y+2z = 0$ (D = 0 vì đi qua gốc).
+2. Qua $(2,1,3)$ với $n=(1,2,1)$: $1(x-2)+2(y-1)+1(z-3)=0 \to x+2y+z = 7$.
+3. Mặt phẳng đáy Oxy: mọi điểm có $z=0$ → PT là $z = 0$, pháp tuyến $(0,0,1)$.
+4. Qua 3 điểm $A(1,0,0),B(0,1,0),C(0,0,1)$ (vừa làm): $x+y+z = 1$, pháp $(1,1,1)$.
+5. Song song với $2x-y+2z=5$ và qua gốc: cùng pháp $(2,-1,2)$ → $2x-y+2z = 0$.
 
 > 📐 **Định nghĩa đầy đủ — Phương trình mặt phẳng Ax+By+Cz+D=0**
 >
@@ -226,7 +385,78 @@ $$\frac{x - x_0}{a} = \frac{y - y_0}{b} = \frac{z - z_0}{c}$$
 
 ---
 
-## 5. Bài tập
+## 5. Mặt cầu
+
+💡 **Trực giác**: mặt cầu = tập **mọi điểm cách tâm I một khoảng không đổi R** (bán kính). Y hệt đường tròn 2D ("cách tâm cùng khoảng cách") nhưng nâng lên 3D — thay vì 1 vòng dẹt thì là cả vỏ quả bóng. PT của nó chính là viết lại công thức **khoảng cách 3D** = R rồi bình phương 2 vế.
+
+Mặt cầu tâm $I(a, b, c)$, bán kính $R$:
+
+$$(x-a)^2 + (y-b)^2 + (z-c)^2 = R^2$$
+
+Dạng khai triển (tổng quát): $x^2+y^2+z^2 - 2ax - 2by - 2cz + d = 0$, với $d = a^2+b^2+c^2 - R^2$.
+
+> 📐 **Định nghĩa đầy đủ — Mặt cầu**
+>
+> **(a) Là gì**: tập điểm $M(x,y,z)$ thoả $IM = R$, tức $\sqrt{(x-a)^2+(y-b)^2+(z-c)^2} = R$. Bình phương 2 vế khử căn → PT chuẩn. Nó là **bề mặt** (rỗng bên trong); phần đặc bên trong gọi là **khối cầu (ball)**.
+>
+> **(b) Vì sao cần**: nhiều bài toán 3D quy về "khoảng cách cố định": vùng phủ sóng (mọi điểm trong R mét), va chạm trong game (2 vật chạm khi khoảng cách tâm $\le R_1+R_2$), quỹ đạo. Dạng tổng quát hữu ích vì dữ liệu thực thường cho ở dạng đã khai triển, phải "hoàn thành bình phương" để moi ra tâm & bán kính.
+>
+> **(c) Ví dụ số**: mặt cầu tâm $I(1,2,3)$, $R=5$: $(x-1)^2+(y-2)^2+(z-3)^2 = 25$. Điểm $(1,2,8)$ có thuộc? $0+0+25 = 25$ ✓ (nằm trên cầu, đúng "đỉnh" cao hơn tâm 5 đơn vị). Điểm $(1,2,3)$ (tâm): $0 \ne 25$ → không thuộc (tâm không nằm trên bề mặt).
+
+**≥4 ví dụ mặt cầu (lập PT / tìm tâm–bán kính)**:
+1. Tâm $O(0,0,0)$, $R=3$: $x^2+y^2+z^2 = 9$.
+2. Tâm $I(1,2,3)$, $R=5$: $(x-1)^2+(y-2)^2+(z-3)^2 = 25$.
+3. Đường kính AB với $A(0,0,0), B(2,4,4)$: tâm = trung điểm $= (1,2,2)$; $R = \frac12|AB| = \frac12\sqrt{4+16+16} = \frac12\cdot6 = 3$ → $(x-1)^2+(y-2)^2+(z-2)^2 = 9$.
+4. Tìm tâm–bán kính từ dạng tổng quát $x^2+y^2+z^2 - 2x - 4y - 6z + 5 = 0$: so khớp $2a=2,2b=4,2c=6 \to I(1,2,3)$; $R = \sqrt{a^2+b^2+c^2 - d} = \sqrt{1+4+9-5} = \sqrt{9} = $ **3**.
+
+#### Vị trí mặt phẳng & mặt cầu
+
+So sánh $d$ (khoảng cách từ tâm I tới mặt phẳng) với $R$:
+- $d > R$: mặt phẳng **không cắt** mặt cầu.
+- $d = R$: **tiếp xúc** (tiếp diện) tại đúng 1 điểm.
+- $d < R$: **cắt** theo một **đường tròn** bán kính $r = \sqrt{R^2 - d^2}$.
+
+**Walk-through**: cầu tâm $O(0,0,0)$, $R=5$; mặt phẳng $z = 3$. Khoảng cách từ O tới mặt: $d = 3 < 5$ → cắt. Đường tròn giao có $r = \sqrt{25-9} = \sqrt{16} = $ **4** (nằm trên mặt $z=3$). Kiểm: điểm $(4,0,3)$ thuộc cầu? $16+0+9 = 25$ ✓.
+
+⚠ **Lỗi thường gặp — quên bình phương R, hoặc sai dấu khi moi tâm**: trong dạng tổng quát hệ số là $-2a$, nên tâm $a = -\frac{\text{hệ số } x}{2}$. Phản ví dụ: $x^2+y^2+z^2 - 2x = 0$ có $-2a = -2 \to a = 1$ (KHÔNG phải $-1$), tâm $(1,0,0)$, $R = \sqrt{1-0} = 1$. Lỗi khác: viết vế phải là $R$ thay vì $R^2$ — với $R=5$ phải là 25, không phải 5.
+
+🔁 **Dừng lại tự kiểm tra (mặt cầu)**
+
+1. Lập PT mặt cầu tâm $I(2,-1,0)$, bán kính $R=4$.
+2. Cho $x^2+y^2+z^2 - 4x + 2y - 4 = 0$. Tìm tâm và bán kính.
+
+<details><summary>Đáp án</summary>
+
+1. $(x-2)^2+(y+1)^2+z^2 = 16$.
+2. $-2a=-4\to a=2$; $-2b=2\to b=-1$; $c=0$; $d=-4$. Tâm $(2,-1,0)$; $R=\sqrt{a^2+b^2+c^2-d}=\sqrt{4+1+0+4}=\sqrt{9}=$ **3**.
+
+</details>
+
+### 📝 Tóm tắt mục 5
+
+- Mặt cầu = tập điểm cách tâm I khoảng R: $(x-a)^2+(y-b)^2+(z-c)^2 = R^2$ (viết lại khoảng cách 3D).
+- Dạng tổng quát $x^2+y^2+z^2-2ax-2by-2cz+d=0$ → tâm $(a,b,c)$, $R=\sqrt{a^2+b^2+c^2-d}$ (chú ý dấu & bình phương R).
+- Mặt phẳng vs cầu: so $d$ với $R$ → không cắt / tiếp xúc / cắt (đường tròn $r=\sqrt{R^2-d^2}$).
+
+---
+
+## 6. Liên hệ đồ họa 3D & game
+
+💡 Mọi khái niệm bài này là **xương sống của render 3D và vật lý game** — không phải lý thuyết suông:
+
+- **Pháp tuyến (cross product) → chiếu sáng**: mỗi tam giác (mesh) của vật thể có pháp tuyến $n = \vec{AB}\times\vec{AC}$. Độ sáng bề mặt $= \max(0,\ \hat{n}\cdot\hat{L})$ với $\hat{L}$ là hướng tới nguồn sáng (mô hình Lambert) — chính là **tích vô hướng** đã học. Mặt quay thẳng về đèn ($n \parallel L$, dot lớn) → sáng; quay nghiêng (dot nhỏ) → tối.
+
+  **Ví dụ số**: tam giác có $n=(0,0,1)$ (mặt ngửa lên), đèn từ trên $\hat L=(0,0,1)$: độ sáng $= (0,0,1)\cdot(0,0,1) = 1$ (sáng tối đa). Đèn xiên $\hat L = (0, 0.6, 0.8)$: độ sáng $= 0.8$ (mờ hơn).
+
+- **Mặt phẳng $ax+by+cz=d$ → mặt va chạm (collision plane)**: sàn, tường trong game là mặt phẳng. Nhân vật cao độ $z$ "rơi" tới khi khoảng cách tới sàn = 0.
+- **Mặt cầu → bounding sphere**: kiểm va chạm nhanh bằng cách bọc vật thể trong 1 mặt cầu; 2 vật chạm nhau khi khoảng cách 2 tâm $\le R_1 + R_2$ (chỉ 1 phép khoảng cách 3D — rẻ hơn nhiều so với kiểm từng tam giác).
+- **Đường thẳng tham số $M_0 + t\,u$ → ray (tia)**: ray tracing và "bắn tia chuột" (picking) đều bắn 1 tia từ camera, tìm $t$ nhỏ nhất cắt vật thể.
+
+📝 Tóm lại: dot → góc/độ sáng; cross → pháp tuyến/diện tích; mặt cầu → va chạm; đường tham số → tia. Học chắc bài này là có nền cho đồ họa 3D.
+
+---
+
+## 7. Bài tập
 
 ### Bài tập
 
@@ -240,6 +470,14 @@ $$\frac{x - x_0}{a} = \frac{y - y_0}{b} = \frac{z - z_0}{c}$$
 
 **Bài 5**: Viết PT tham số đường thẳng qua A(1, 2, 0) với vector chỉ phương $(3, 1, 4)$.
 
+**Bài 6**: Cho $u = (1, 2, 3)$, $v = (4, 5, 6)$. Tính $u \times v$ và kiểm $u\times v \perp u$.
+
+**Bài 7**: Lập PT mặt phẳng qua 3 điểm $A(1,0,0)$, $B(0,2,0)$, $C(0,0,3)$.
+
+**Bài 8**: Tìm tâm và bán kính của mặt cầu $x^2+y^2+z^2 - 2x - 4y - 6z + 5 = 0$.
+
+**Bài 9**: Tính diện tích tam giác $A(0,0,0)$, $B(2,0,0)$, $C(0,3,0)$ bằng cross product.
+
 ### Lời giải
 
 **Bài 1**: $d = \sqrt{9 + 16 + 25} = \sqrt{50} = $ **5√2 ≈ 7.07**.
@@ -252,16 +490,27 @@ $$\frac{x - x_0}{a} = \frac{y - y_0}{b} = \frac{z - z_0}{c}$$
 
 **Bài 5**: $x = 1 + 3t$, $y = 2 + t$, $z = 4t$.
 
+**Bài 6**: $u\times v = (2\cdot6-3\cdot5,\ 3\cdot4-1\cdot6,\ 1\cdot5-2\cdot4) = (12-15,\ 12-6,\ 5-8) = $ **(−3, 6, −3)**. Kiểm: $(-3,6,-3)\cdot(1,2,3) = -3+12-9 = 0$ ✓ → vuông góc với $u$.
+
+**Bài 7**: $\vec{AB} = (-1,2,0)$, $\vec{AC} = (-1,0,3)$. Pháp tuyến $n = \vec{AB}\times\vec{AC} = (2\cdot3-0\cdot0,\ 0\cdot(-1)-(-1)\cdot3,\ (-1)\cdot0-2\cdot(-1)) = (6, 3, 2)$. PT qua $A(1,0,0)$: $6(x-1)+3y+2z = 0 \to$ **$6x + 3y + 2z = 6$**. Verify: $B(0,2,0): 0+6+0=6$ ✓; $C(0,0,3): 0+0+6=6$ ✓.
+
+**Bài 8**: $-2a=-2\to a=1$; $-2b=-4\to b=2$; $-2c=-6\to c=3$; $d=5$. Tâm **$I(1,2,3)$**; $R=\sqrt{a^2+b^2+c^2-d}=\sqrt{1+4+9-5}=\sqrt{9}=$ **3**.
+
+**Bài 9**: $\vec{AB}=(2,0,0)$, $\vec{AC}=(0,3,0)$. $\vec{AB}\times\vec{AC} = (0\cdot0-0\cdot3,\ 0\cdot0-2\cdot0,\ 2\cdot3-0\cdot0) = (0,0,6)$. Diện tích $= \frac12|(0,0,6)| = \frac12\cdot6 = $ **3** (khớp $\frac12\cdot2\cdot3 = 3$ ✓).
+
 ---
 
-## 6. Bài tiếp theo
+## 8. Bài tiếp theo
 
 [Lesson 08 — Biến hình & Vector](../lesson-08-transformations-vector-geo/).
 
 ## 📝 Tổng kết
 
-1. **Oxyz**: mỗi điểm $= (x, y, z)$. $d = \sqrt{\Delta x^2 + \Delta y^2 + \Delta z^2}$.
-2. **Mặt phẳng**: $Ax + By + Cz + D = 0$. Vector pháp $n = (A,B,C)$.
-3. **Đường thẳng**: tham số $x = x_0 + at$, $y = y_0 + bt$, $z = z_0 + ct$.
-4. **Khoảng cách điểm-mặt**: $\frac{|Ax_0+By_0+Cz_0+D|}{\sqrt{A^2+B^2+C^2}}$.
-5. **Đặc thù 3D**: 2 đường có thể **chéo nhau** (không có ở 2D).
+1. **Oxyz**: mỗi điểm $= (x, y, z)$ (tay phải). $d = \sqrt{\Delta x^2 + \Delta y^2 + \Delta z^2}$.
+2. **Dot vs cross**: $u\cdot v$ → số (góc, độ sáng); $u\times v$ → vector ⊥ cả hai (pháp tuyến, diện tích), KHÔNG giao hoán.
+3. **Mặt phẳng**: $Ax + By + Cz + D = 0$. Vector pháp $n = (A,B,C)$; lập từ 3 điểm bằng $n = \vec{AB}\times\vec{AC}$.
+4. **Đường thẳng**: tham số $x = x_0 + at$, $y = y_0 + bt$, $z = z_0 + ct$.
+5. **Khoảng cách điểm-mặt**: $\frac{|Ax_0+By_0+Cz_0+D|}{\sqrt{A^2+B^2+C^2}}$.
+6. **Mặt cầu**: $(x-a)^2+(y-b)^2+(z-c)^2 = R^2$; dạng tổng quát → tâm $(a,b,c)$, $R=\sqrt{a^2+b^2+c^2-d}$.
+7. **Đặc thù 3D**: 2 đường có thể **chéo nhau** (không có ở 2D).
+8. **Ứng dụng**: dot → độ sáng (Lambert), cross → pháp tuyến mesh, mặt cầu → bounding sphere, đường tham số → ray tracing.

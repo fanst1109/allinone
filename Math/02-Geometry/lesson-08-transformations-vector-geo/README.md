@@ -4,8 +4,9 @@
 
 - Hiểu **4 phép biến hình cơ bản** trong mặt phẳng: tịnh tiến, đối xứng (trục, tâm), quay, vị tự.
 - Biểu diễn mỗi phép biến hình bằng **công thức tọa độ** và **ma trận** (cầu nối với Đại số tuyến tính ở Tier 6).
+- **Áp ma trận biến đổi lên điểm cụ thể** (nhân ma trận × vector) và **ghép nhiều phép biến đổi bằng cách nhân ma trận** — hiểu vì sao thứ tự quan trọng (không giao hoán).
 - Hiểu **vector hình học**: cộng/trừ, nhân vô hướng, ứng dụng (chứng minh hình học bằng vector).
-- Phân biệt **phép dời hình** (giữ khoảng cách) và **phép đồng dạng** (giữ tỉ lệ).
+- Phân biệt **phép dời hình** (giữ khoảng cách) và **phép đồng dạng** (giữ tỉ lệ); nắm **bất biến** của từng phép (khoảng cách, góc, diện tích, hướng).
 
 ## Kiến thức tiền đề
 
@@ -62,17 +63,46 @@ $$M(x, y) \xrightarrow{\ T_v\ } M'(x+a, y+b)$$
 
 **Ví dụ số**: $v = (3, -2)$. $M(1, 5) \to M'(4, 3)$.
 
+**ASCII before/after — tịnh tiến tam giác bởi $v = (3, -1)$** (mỗi `·` = 1 ô lưới, `o` = đỉnh gốc, `*` = đỉnh ảnh):
+
+Tam giác gốc $A(0,0), B(2,0), C(0,2)$ → ảnh $A'(3,-1), B'(5,-1), C'(3,1)$. Cả hình "trượt" sang phải 3, xuống 1, **không xoay, không đổi kích thước**:
+
+```
+ y
+ 3 ·  ·  ·  ·  ·  ·
+ 2 o(C) ·  ·  ·  ·             C gốc
+ 1 ·  ·  ·  *(C')·  ·          C' = C + (3,-1)
+ 0 o──o(B)·  ·  ·  ·   x       AB gốc
+-1 ·  ·  *(A')──*(B')          A'B' = ảnh (trượt nguyên khối)
+   0  1  2  3  4  5
+```
+
+Quan sát: vector $\vec{AA'} = \vec{BB'} = \vec{CC'} = (3,-1)$ — **mọi điểm dịch cùng 1 vector**. Đó chính là định nghĩa tịnh tiến.
+
 **Ma trận** (dạng affine 3×3, dùng tọa độ thuần nhất):
 
 $$\begin{pmatrix} x' \\ y' \\ 1 \end{pmatrix} = \begin{pmatrix} 1 & 0 & a \\ 0 & 1 & b \\ 0 & 0 & 1 \end{pmatrix} \begin{pmatrix} x \\ y \\ 1 \end{pmatrix}$$
 
 **Tính chất**: Bảo toàn khoảng cách, góc, diện tích. Hai đường thẳng song song vẫn song song.
 
-**4 ví dụ số đa dạng** ($v = (3, -2)$):
+**6 ví dụ số đa dạng** ($v = (3, -2)$):
 - $M(0,0) \to (3,-2)$.
 - $M(1,5) \to (4,3)$.
 - $M(-2,4) \to (1,2)$.
 - $M(-3,2) \to (0,0)$ (về gốc — vì $M = -v$).
+- $M(2.5, -1) \to (5.5, -3)$ (tọa độ phân số vẫn cộng từng thành phần).
+- $M(-5, -5) \to (-2, -7)$ (cả hai âm — vẫn $+a, +b$).
+
+**Walk-through ghép 2 tịnh tiến** (composition = cộng vector). Cho $T_u$ với $u = (3, -2)$ rồi tiếp $T_w$ với $w = (-1, 5)$, áp lên $M(2, 2)$:
+
+$$\begin{aligned}
+M(2,2) \xrightarrow{\ T_u\ } & (2+3,\ 2-2) = (5, 0) \\
+(5,0) \xrightarrow{\ T_w\ } & (5-1,\ 0+5) = (4, 5)
+\end{aligned}$$
+
+Kiểm tra bằng vector tổng: $u + w = (3-1,\ -2+5) = (2, 3)$, nên $T_w \circ T_u = T_{(2,3)}$. Áp thẳng: $M(2,2) \to (2+2,\ 2+3) = (4, 5)$ ✓ — khớp với làm 2 bước.
+
+⚠ Tịnh tiến **giao hoán**: $T_u \circ T_w = T_w \circ T_u$ vì cộng vector giao hoán. Đây là ngoại lệ hiếm — quay quanh tâm khác nhau hay quay+đối xứng thì KHÔNG giao hoán (xem Mục 7).
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -126,11 +156,50 @@ $M(x, y) \to M'(y, x)$. Đổi chỗ tọa độ.
 
 💡 **Vì sao đặc biệt?** Đây là phép biến hình "đảo ngược" hàm số: nếu $y = f(x)$ thì hàm ngược có đồ thị đối xứng qua $y = x$.
 
-**4 ví dụ số đa dạng** (điểm M(3, 5)):
+### 3.4. ASCII before/after — đối xứng qua Ox
+
+Tam giác $A(1,1), B(4,1), C(1,3)$ "lật trên-dưới" qua trục Ox → ảnh $A'(1,-1), B'(4,-1), C'(1,-3)$. Để ý chữ "tam giác" bị **lật hướng** (đỉnh nhọn C đang chỉ lên → ảnh C' chỉ xuống):
+
+```
+ y
+ 3 o(C)·  ·  ·             C gốc (chỉ lên)
+ 2 ·  ·  ·  ·
+ 1 o(A)──────o(B)          cạnh đáy AB nằm trên y=1
+ 0 ═══════════════ Ox  ← trục gương (mặt phẳng phản chiếu)
+-1 *(A')──────*(B')        ảnh: mỗi điểm cách Ox đúng bằng gốc
+-2 ·  ·  ·  ·
+-3 *(C')·  ·  ·             C' gốc (chỉ xuống — đã lật)
+   1  2  3  4
+```
+
+Mỗi điểm và ảnh **cách trục Ox đúng bằng nhau** nhưng ngược phía: $C(1,3)$ cách Ox 3 ô phía trên, $C'(1,-3)$ cách Ox 3 ô phía dưới.
+
+### 3.5. Walk-through áp ma trận đối xứng lên điểm
+
+Đối xứng qua Ox là ma trận $\begin{bmatrix} 1 & 0 \\ 0 & -1 \end{bmatrix}$. Áp lên $M(3, 5)$ theo quy tắc hàng × cột:
+
+$$\begin{bmatrix} 1 & 0 \\ 0 & -1 \end{bmatrix} \begin{bmatrix} 3 \\ 5 \end{bmatrix} = \begin{bmatrix} 1\cdot 3 + 0\cdot 5 \\ 0\cdot 3 + (-1)\cdot 5 \end{bmatrix} = \begin{bmatrix} 3 \\ -5 \end{bmatrix}$$
+
+→ $(3, -5)$ ✓ (giữ x, đổi dấu y). Đối xứng qua Oy, áp $\begin{bmatrix} -1 & 0 \\ 0 & 1 \end{bmatrix}$ lên $(3, 5)$:
+
+$$\begin{bmatrix} -1 & 0 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 3 \\ 5 \end{bmatrix} = \begin{bmatrix} -1\cdot 3 + 0\cdot 5 \\ 0\cdot 3 + 1\cdot 5 \end{bmatrix} = \begin{bmatrix} -3 \\ 5 \end{bmatrix} \to (-3, 5)$$ ✓
+
+**6 ví dụ số đa dạng** (điểm M(3, 5)):
 - Qua Ox: $(3, -5)$ (đổi dấu y).
 - Qua Oy: $(-3, 5)$ (đổi dấu x).
 - Qua O (tâm): $(-3, -5)$ (đổi dấu cả hai).
 - Qua y = x: $(5, 3)$ (đổi chỗ).
+- Điểm âm $N(-2, 4)$ qua Ox: $(-2, -4)$; qua y = x: $(4, -2)$.
+- Điểm trên trục $P(0, 6)$ qua Oy: $(0, 6)$ (điểm trên trục gương Oy là **bất động** — đổi dấu $x=0$ vẫn là 0).
+
+**Walk-through tính tự nghịch đảo (làm 2 lần = identity).** Đối xứng qua Ox 2 lần liên tiếp, áp lên $M(3,5)$:
+
+$$\begin{aligned}
+M(3,5) \xrightarrow{\ \text{Ox}\ } & (3, -5) \\
+(3,-5) \xrightarrow{\ \text{Ox}\ } & (3, 5)
+\end{aligned}$$
+
+Về đúng điểm gốc. Bằng ma trận: $\begin{bmatrix} 1 & 0 \\ 0 & -1 \end{bmatrix}^2 = \begin{bmatrix} 1\cdot 1 + 0\cdot 0 & 0 \\ 0 & (-1)(-1) \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} = I$ — bình phương ma trận đối xứng = ma trận đơn vị $I$. Đó là lý do đối xứng "tự nghịch đảo".
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -191,7 +260,56 @@ $$R(\alpha) = \begin{pmatrix} \cos\alpha & -\sin\alpha \\ \sin\alpha & \cos\alph
 
 **Quay 180°**: $\cos 180^\circ = -1$, $\sin 180^\circ = 0 \to R = \begin{pmatrix} -1 & 0 \\ 0 & -1 \end{pmatrix} \to$ giống đối xứng tâm O.
 
-⚠ **Quay quanh điểm I khác O**: Phải tịnh tiến về O trước. $M \to M - I \to$ quay $\to$ kết quả $+ I$.
+### 4.1. ASCII before/after — quay 90° quanh O
+
+Quay 90° ngược chiều kim đồng hồ biến trục Ox dương → trục Oy dương ("Đông → Bắc"). Tam giác $A(1,0), B(3,0), C(1,2)$ → ảnh $A'(0,1), B'(0,3), C'(-2,1)$:
+
+```
+          y
+ 3 ·  *(B')·  ·  ·  ·       B(3,0) → B'(0,3): trục Ox→Oy
+ 2 ·  ·  ·  ·  o(C)·         C gốc
+ 1 *(C')──*(A')·  ·  ·       A(1,0) → A'(0,1)
+ 0 ──────o(A)──o(B)──  x     AB gốc nằm trên trục Ox
+   -2 -1  0  1  2  3
+```
+
+Mỗi điểm "lượn 1/4 vòng quanh O ngược kim đồng hồ", khoảng cách tới O giữ nguyên: $|OB| = 3 = |OB'|$, $|OC| = \sqrt{1+4} = \sqrt 5 = |OC'|$.
+
+### 4.2. Walk-through áp ma trận quay lên điểm (≥3 ví dụ)
+
+Áp $R(\alpha)$ theo quy tắc hàng × cột: $\begin{bmatrix} \cos\alpha & -\sin\alpha \\ \sin\alpha & \cos\alpha \end{bmatrix}\begin{bmatrix} x \\ y \end{bmatrix} = \begin{bmatrix} x\cos\alpha - y\sin\alpha \\ x\sin\alpha + y\cos\alpha \end{bmatrix}$.
+
+**Ví dụ 4.2a — quay $(3,4)$ góc $90°$** ($\cos = 0, \sin = 1$):
+
+$$\begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}\begin{bmatrix} 3 \\ 4 \end{bmatrix} = \begin{bmatrix} 0\cdot 3 + (-1)\cdot 4 \\ 1\cdot 3 + 0\cdot 4 \end{bmatrix} = \begin{bmatrix} -4 \\ 3 \end{bmatrix} \to (-4, 3)$$
+
+Kiểm tra độ dài: $|(3,4)| = 5$, $|(-4,3)| = \sqrt{16+9} = 5$ ✓.
+
+**Ví dụ 4.2b — quay $(2,2)$ góc $45°$** ($\cos 45° = \sin 45° = \tfrac{\sqrt 2}{2} \approx 0.7071$):
+
+$$\begin{bmatrix} 0.7071 & -0.7071 \\ 0.7071 & 0.7071 \end{bmatrix}\begin{bmatrix} 2 \\ 2 \end{bmatrix} = \begin{bmatrix} 0.7071\cdot 2 - 0.7071\cdot 2 \\ 0.7071\cdot 2 + 0.7071\cdot 2 \end{bmatrix} = \begin{bmatrix} 0 \\ 2.828 \end{bmatrix}$$
+
+→ $(0, 2.828)$. Đúng trực giác: $(2,2)$ lệch trục Ox $45°$, quay thêm $45°$ thành $90°$ → nằm thẳng trên trục Oy, độ dài $\sqrt{2^2+2^2} = 2\sqrt 2 \approx 2.828$ giữ nguyên ✓.
+
+**Ví dụ 4.2c — quay $(1,0)$ góc $30°$** ($\cos 30° \approx 0.866, \sin 30° = 0.5$):
+
+$$\begin{bmatrix} 0.866 & -0.5 \\ 0.5 & 0.866 \end{bmatrix}\begin{bmatrix} 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 0.866 \\ 0.5 \end{bmatrix} \to (0.866, 0.5)$$
+
+= $(\cos 30°, \sin 30°)$ — điểm đầu trục Ox quay $\alpha$ thì luôn rơi vào $(\cos\alpha, \sin\alpha)$ trên đường tròn đơn vị.
+
+**Ví dụ 4.2d — quay $(0,5)$ góc $90°$**: $\begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}\begin{bmatrix} 0 \\ 5 \end{bmatrix} = \begin{bmatrix} -5 \\ 0 \end{bmatrix} \to (-5, 0)$ (trục Oy dương → trục Ox âm).
+
+### 4.3. Walk-through quay quanh tâm I khác gốc O
+
+⚠ **Quay quanh điểm I khác O**: Phải tịnh tiến về O trước. $M \to M - I \to$ quay $\to$ kết quả $+ I$. Quay $M(4, 2)$ góc $90°$ quanh **tâm $I(1, 1)$**, từng bước:
+
+$$\begin{aligned}
+\text{(1) dời về O: } & M - I = (4-1,\ 2-1) = (3, 1) \\
+\text{(2) quay 90°: } & \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}\begin{bmatrix} 3 \\ 1 \end{bmatrix} = \begin{bmatrix} -1 \\ 3 \end{bmatrix} \\
+\text{(3) dời lại: } & (-1, 3) + I = (-1+1,\ 3+1) = (0, 4)
+\end{aligned}$$
+
+→ $M'(0, 4)$. Nếu **quên dời tâm** và quay thẳng quanh O: $\begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}\begin{bmatrix} 4 \\ 2 \end{bmatrix} = (-2, 4)$ — **sai**, vì tâm quay thực là $I$ chứ không phải O.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -234,6 +352,30 @@ $$M(x, y) \to M'(k\cdot x, k\cdot y)$$
 - $k < 0$: vừa thu nhỏ/phóng to vừa lật (như qua O).
 
 **Ma trận**: $R = k\cdot I = \begin{pmatrix} k & 0 \\ 0 & k \end{pmatrix}$.
+
+### 5.1. ASCII before/after — vị tự $k = 2$ (phóng to) và $k = 0.5$ (thu nhỏ)
+
+Tam giác $A(1,1), B(2,1), C(1,2)$ vị tự tâm O. Với $k=2$ ảnh $A'(2,2), B'(4,2), C'(2,4)$ — hình **lớn gấp đôi**, các đỉnh "xa O gấp đôi":
+
+```
+ y
+ 4 ·  ·  *(C')·  ·          C(1,2) → C'(2,4): xa O gấp 2
+ 3 ·  ·  ·  ·  ·
+ 2 o(C)*(A')·  *(B')        A(1,1) → A'(2,2), B(2,1) → B'(4,2)
+ 1 o(A)o(B)·  ·  ·          tam giác gốc nhỏ, sát O
+ 0 O──────────────  x
+   0  1  2  3  4
+```
+
+Vector $\vec{OA'} = 2\vec{OA}$, $\vec{OB'} = 2\vec{OB}$… — **mỗi đỉnh kéo ra xa O theo tỉ số $k$**, nên hình to lên nhưng **giữ nguyên hình dạng** (đồng dạng). Với $k = 0.5$ thì ngược lại: $A(1,1) \to (0.5, 0.5)$, hình co về phía O còn một nửa.
+
+### 5.2. Walk-through áp ma trận vị tự lên điểm (≥3 ví dụ)
+
+$\begin{bmatrix} k & 0 \\ 0 & k \end{bmatrix}\begin{bmatrix} x \\ y \end{bmatrix} = \begin{bmatrix} kx \\ ky \end{bmatrix}$ — đơn giản là nhân cả 2 tọa độ với $k$.
+
+- $k = 2$, $M(4,2)$: $\begin{bmatrix} 2 & 0 \\ 0 & 2 \end{bmatrix}\begin{bmatrix} 4 \\ 2 \end{bmatrix} = \begin{bmatrix} 8 \\ 4 \end{bmatrix} \to (8, 4)$.
+- $k = -1$, $M(4,2)$: $\begin{bmatrix} -1 & 0 \\ 0 & -1 \end{bmatrix}\begin{bmatrix} 4 \\ 2 \end{bmatrix} = \begin{bmatrix} -4 \\ -2 \end{bmatrix} \to (-4, -2)$ = đối xứng tâm O.
+- $k = 1.5$, $M(-2, 6)$: $\begin{bmatrix} 1.5 & 0 \\ 0 & 1.5 \end{bmatrix}\begin{bmatrix} -2 \\ 6 \end{bmatrix} = \begin{bmatrix} -3 \\ 9 \end{bmatrix} \to (-3, 9)$.
 
 **Tính chất**: KHÔNG bảo toàn khoảng cách ($A'B' = |k|\cdot AB$), nhưng **bảo toàn góc** và **tỉ lệ**. Mọi hình → hình đồng dạng.
 
@@ -344,7 +486,123 @@ Chứng minh:
 
 ---
 
-## 7. Tổng hợp các phép biến hình
+## 7. Tổ hợp biến đổi = nhân ma trận
+
+💡 **Trực giác**: làm phép biến đổi A rồi phép B liên tiếp = **một** phép biến đổi duy nhất, mà ma trận của nó là **tích** $M_B \cdot M_A$ (ma trận của phép làm **sau** đứng **bên trái**). Lý do: áp lên vector $v$ là $M_B (M_A v) = (M_B M_A) v$ — tính kết hợp của nhân ma trận. Đây là lý do sâu xa khiến ma trận trở thành "ngôn ngữ" của biến hình: ghép nhiều bước = nhân vài ma trận, máy tính chạy cực nhanh.
+
+⚠ **Đọc thứ tự từ PHẢI sang TRÁI**: $M_B M_A$ nghĩa là $A$ làm trước (sát vector nhất), $B$ làm sau. Viết ngược thứ tự thường ra kết quả khác (xem cảnh báo không giao hoán bên dưới).
+
+### 7.1. Walk-through 1 — quay 90° rồi đối xứng qua Ox
+
+Gọi $R = R(90°) = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$ (làm **trước**), $S = $ đối xứng Ox $= \begin{bmatrix} 1 & 0 \\ 0 & -1 \end{bmatrix}$ (làm **sau**). Phép ghép = $S \cdot R$:
+
+$$S \cdot R = \begin{bmatrix} 1 & 0 \\ 0 & -1 \end{bmatrix}\begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$$
+
+Nhân hàng × cột từng phần tử:
+- $(1,1) = 1\cdot 0 + 0\cdot 1 = 0$
+- $(1,2) = 1\cdot(-1) + 0\cdot 0 = -1$
+- $(2,1) = 0\cdot 0 + (-1)\cdot 1 = -1$
+- $(2,2) = 0\cdot(-1) + (-1)\cdot 0 = 0$
+
+$$S \cdot R = \begin{bmatrix} 0 & -1 \\ -1 & 0 \end{bmatrix}$$
+
+Kiểm tra trên điểm $M(2, 0)$ — làm 2 bước rồi so với ma trận ghép:
+
+$$\begin{aligned}
+\text{Bước 1 (quay 90°): } & R\begin{bmatrix} 2 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ 2 \end{bmatrix} \\
+\text{Bước 2 (đối xứng Ox): } & S\begin{bmatrix} 0 \\ 2 \end{bmatrix} = \begin{bmatrix} 0 \\ -2 \end{bmatrix}
+\end{aligned}$$
+
+Áp thẳng ma trận ghép: $\begin{bmatrix} 0 & -1 \\ -1 & 0 \end{bmatrix}\begin{bmatrix} 2 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ -2 \end{bmatrix}$ ✓ — khớp. Ma trận $\begin{bmatrix} 0 & -1 \\ -1 & 0 \end{bmatrix}$ thực chất là đối xứng qua đường $y = -x$.
+
+### 7.2. Walk-through 2 — thứ tự QUAN TRỌNG (không giao hoán)
+
+Đảo thứ tự: đối xứng Ox **trước** rồi quay 90° **sau** = $R \cdot S$:
+
+$$R \cdot S = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}\begin{bmatrix} 1 & 0 \\ 0 & -1 \end{bmatrix}$$
+
+- $(1,1) = 0\cdot 1 + (-1)\cdot 0 = 0$
+- $(1,2) = 0\cdot 0 + (-1)\cdot(-1) = 1$
+- $(2,1) = 1\cdot 1 + 0\cdot 0 = 1$
+- $(2,2) = 1\cdot 0 + 0\cdot(-1) = 0$
+
+$$R \cdot S = \begin{bmatrix} 0 & 1 \\ 1 & 0 \end{bmatrix} \neq S \cdot R = \begin{bmatrix} 0 & -1 \\ -1 & 0 \end{bmatrix}$$
+
+Khác hẳn! $R \cdot S = \begin{bmatrix} 0 & 1 \\ 1 & 0 \end{bmatrix}$ là đối xứng qua $y = x$, còn $S \cdot R$ là đối xứng qua $y = -x$. Kiểm tra trên $M(2,0)$: $RS$ cho $(0, 2)$, còn $SR$ cho $(0,-2)$ — hai kết quả ngược dấu y.
+
+⚠ **Lỗi cực phổ biến**: tưởng "quay rồi lật" = "lật rồi quay". SAI — đa số tổ hợp biến đổi **không giao hoán** ($M_B M_A \neq M_A M_B$). Riêng 2 phép quay quanh **cùng** một tâm thì giao hoán (cộng góc), 2 tịnh tiến cũng giao hoán (cộng vector) — nhưng đó là ngoại lệ, không phải quy luật.
+
+### 7.3. Walk-through 3 — ghép 2 phép quay = cộng góc
+
+$R(30°) \cdot R(60°) = R(90°)$. Lấy $R(30°) = \begin{bmatrix} 0.866 & -0.5 \\ 0.5 & 0.866 \end{bmatrix}$, $R(60°) = \begin{bmatrix} 0.5 & -0.866 \\ 0.866 & 0.5 \end{bmatrix}$:
+
+- $(1,1) = 0.866\cdot 0.5 + (-0.5)\cdot 0.866 = 0.433 - 0.433 = 0$
+- $(1,2) = 0.866\cdot(-0.866) + (-0.5)\cdot 0.5 = -0.75 - 0.25 = -1$
+- $(2,1) = 0.5\cdot 0.5 + 0.866\cdot 0.866 = 0.25 + 0.75 = 1$
+- $(2,2) = 0.5\cdot(-0.866) + 0.866\cdot 0.5 = -0.433 + 0.433 = 0$
+
+$$= \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix} = R(90°)$$ ✓
+
+Đúng như kỳ vọng $30° + 60° = 90°$. Quay quanh cùng tâm O thì $R(\alpha)R(\beta) = R(\beta)R(\alpha) = R(\alpha+\beta)$ — **giao hoán**.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Vì sao ma trận làm sau đứng bên trái?"* Vì áp lên vector viết là $M v$, nên làm A trước: $M_A v$; rồi B: $M_B(M_A v) = (M_B M_A) v$. Vector ở bên phải nên phép sát nó (làm trước) cũng ở bên phải.
+- *"Có phải mọi tổ hợp biến đổi đều ra 1 ma trận 2×2 không?"* Đúng với quay/đối xứng/vị tự quanh O. Riêng **tịnh tiến** cần ma trận affine 3×3 (Mục 2) vì không biểu diễn được bằng 2×2 — khi ghép có tịnh tiến, dùng 3×3 cho đồng nhất.
+- *"Ghép vị tự $k$ với quay $\alpha$ ra gì?"* Ra phép "quay-co giãn" (spiral similarity), ma trận $k\cdot R(\alpha) = \begin{bmatrix} k\cos\alpha & -k\sin\alpha \\ k\sin\alpha & k\cos\alpha \end{bmatrix}$ — vừa xoay vừa phóng to, đồng dạng tỉ số $k$.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Đối xứng qua Oy có ma trận $\begin{bmatrix} -1 & 0 \\ 0 & 1 \end{bmatrix}$. Tính ma trận "đối xứng Oy rồi đối xứng Ox" (tích $S_{Ox} \cdot S_{Oy}$). Nó là phép gì?
+2. $R(90°) \cdot R(90°) = ?$ Phép gì?
+
+<details><summary>Đáp án</summary>
+
+1. $\begin{bmatrix} 1 & 0 \\ 0 & -1 \end{bmatrix}\begin{bmatrix} -1 & 0 \\ 0 & 1 \end{bmatrix} = \begin{bmatrix} -1 & 0 \\ 0 & -1 \end{bmatrix}$ = đối xứng tâm O (= quay $180°$). Hợp 2 đối xứng trục vuông góc = đối xứng tâm.
+2. $\begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}^2 = \begin{bmatrix} -1 & 0 \\ 0 & -1 \end{bmatrix} = R(180°)$ (cộng góc $90°+90°$). 
+
+</details>
+
+### 📝 Tóm tắt mục 7
+
+- Tổ hợp 2 biến đổi = nhân ma trận; phép làm **sau** đứng **bên trái** ($M_B M_A$).
+- Đa số tổ hợp **không giao hoán**: $M_B M_A \neq M_A M_B$ (quay rồi lật $\neq$ lật rồi quay).
+- Ngoại lệ giao hoán: 2 phép quay cùng tâm (cộng góc), 2 tịnh tiến (cộng vector).
+- Vị tự $k$ ghép quay $\alpha$ = "quay-co giãn" $k\cdot R(\alpha)$ (đồng dạng tỉ số $k$).
+
+---
+
+## 8. Bất biến của phép biến đổi (Invariants)
+
+💡 **Trực giác**: "bất biến" = đại lượng **không đổi** sau khi áp phép biến đổi. Biết một phép giữ gì / phá gì giúp chọn đúng công cụ: muốn giữ kích thước → dùng dời hình; chỉ cần giữ hình dạng → đồng dạng được phép phóng to.
+
+| Đại lượng | Tịnh tiến | Quay | Đối xứng | Vị tự ($k$) |
+|-----------|:--:|:--:|:--:|:--:|
+| Khoảng cách giữa 2 điểm | giữ | giữ | giữ | $\times\|k\|$ |
+| Góc giữa 2 đường | giữ | giữ | giữ | giữ |
+| Diện tích | giữ | giữ | giữ | $\times k^2$ |
+| Tính song song | giữ | giữ | giữ | giữ |
+| **Hướng** (định hướng) | giữ | giữ | **lật** | giữ nếu $k>0$, lật nếu $k<0$ |
+
+**Walk-through bất biến khoảng cách với phép quay.** Lấy $A(1,0), B(0,1)$, quay cả hai $90°$:
+- $A(1,0) \to A'(0,1)$, $B(0,1) \to B'(-1,0)$.
+- Trước: $AB = \sqrt{(1-0)^2 + (0-1)^2} = \sqrt 2$.
+- Sau: $A'B' = \sqrt{(0-(-1))^2 + (1-0)^2} = \sqrt 2$ ✓ — khoảng cách **bất biến** với phép quay (dời hình).
+
+**Walk-through khoảng cách KHÔNG bất biến với vị tự.** Cùng $A(1,0), B(0,1)$, vị tự $k = 3$:
+- $A \to (3,0)$, $B \to (0,3)$.
+- $A'B' = \sqrt{9+9} = 3\sqrt 2 = 3\cdot AB$ → đúng $A'B' = |k|\cdot AB$ ✓. Khoảng cách **không** bất biến, nhưng **tỉ lệ** thì có (mọi khoảng cách đều nhân 3).
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Vì sao dời hình quan trọng đến vậy?"* Vì nó là phép biến đổi "giữ nguyên hình thật" — đặt vật ở đâu, xoay thế nào, hình học của nó (cạnh, góc, diện tích) không đổi. Mọi định lý hình học "không phụ thuộc vị trí/hướng" đều dựa trên bất biến của dời hình.
+- *"Phép nào KHÔNG giữ góc?"* Trong 4 phép cơ bản ở bài này, **tất cả giữ góc** (vị tự cũng giữ góc, chỉ đổi độ dài). Phép phá góc là các biến đổi affine tổng quát hơn (shear/kéo xiên) — học sâu ở Tier 6.
+
+📝 **Tóm tắt mục 8**: Dời hình (tịnh tiến/quay/đối xứng) giữ khoảng cách + góc + diện tích; đối xứng lật hướng. Vị tự giữ góc + tỉ lệ nhưng khoảng cách $\times|k|$, diện tích $\times k^2$, lật hướng khi $k<0$.
+
+---
+
+## 9. Tổng hợp các phép biến hình
 
 | Phép | Công thức | Ma trận | Dời hình? | Đồng dạng? |
 |------|-----------|---------|:--:|:--:|
@@ -358,7 +616,7 @@ Chứng minh:
 
 ---
 
-## 8. Bài tập
+## 10. Bài tập
 
 ### Bài tập
 
@@ -373,6 +631,10 @@ Chứng minh:
 **Bài 5**: Cho A(1, 2), B(4, 6). Tính $\vec{AB}$, $|\vec{AB}|$. Tìm điểm M sao cho $\vec{AM} = 2\cdot\vec{AB}$.
 
 **Bài 6**: Trong tam giác ABC, M là trung điểm BC. CMR $\vec{AM} = \frac{1}{2}(\vec{AB} + \vec{AC})$ (dùng vector).
+
+**Bài 7** (tổ hợp biến đổi): Tính ma trận của phép "vị tự $k=2$ tâm O **rồi** quay $90°$ quanh O". Áp lên điểm $(1, 2)$.
+
+**Bài 8** (không giao hoán): Cho $R = R(90°)$ và $S$ = đối xứng qua $y = x$ (ma trận $\begin{bmatrix} 0 & 1 \\ 1 & 0 \end{bmatrix}$). Tính $R\cdot S$ và $S\cdot R$. Chúng có bằng nhau không?
 
 ### Lời giải
 
@@ -390,9 +652,19 @@ $\vec{AM} = 2\vec{AB} = (6, 8) \to M = A + (6, 8) = $ **(7, 10)**.
 **Bài 6**: M trung điểm BC → $\vec{AM} = \frac{\vec{AB} + \vec{AC}}{2}$. Chứng minh:
 - $\vec{AM} = \vec{AB} + \vec{BM} = \vec{AB} + \frac{1}{2}\vec{BC} = \vec{AB} + \frac{1}{2}(\vec{AC} - \vec{AB}) = \frac{1}{2}\vec{AB} + \frac{1}{2}\vec{AC} = \frac{1}{2}(\vec{AB} + \vec{AC})$. □
 
+**Bài 7**: Vị tự làm trước → ma trận của nó $\begin{bmatrix} 2 & 0 \\ 0 & 2 \end{bmatrix}$ đứng bên phải; quay $90°$ làm sau → $\begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$ bên trái. Tích:
+
+$$\begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}\begin{bmatrix} 2 & 0 \\ 0 & 2 \end{bmatrix} = \begin{bmatrix} 0\cdot 2 + (-1)\cdot 0 & 0\cdot 0 + (-1)\cdot 2 \\ 1\cdot 2 + 0\cdot 0 & 1\cdot 0 + 0\cdot 2 \end{bmatrix} = \begin{bmatrix} 0 & -2 \\ 2 & 0 \end{bmatrix}$$
+
+Áp lên $(1,2)$: $\begin{bmatrix} 0 & -2 \\ 2 & 0 \end{bmatrix}\begin{bmatrix} 1 \\ 2 \end{bmatrix} = \begin{bmatrix} -4 \\ 2 \end{bmatrix} \to$ **(−4, 2)**. (Kiểm tra 2 bước: vị tự $(1,2)\to(2,4)$; quay $90°$: $(2,4)\to(-4,2)$ ✓.)
+
+**Bài 8**: 
+$$R\cdot S = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}\begin{bmatrix} 0 & 1 \\ 1 & 0 \end{bmatrix} = \begin{bmatrix} -1 & 0 \\ 0 & 1 \end{bmatrix}, \quad S\cdot R = \begin{bmatrix} 0 & 1 \\ 1 & 0 \end{bmatrix}\begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & -1 \end{bmatrix}$$
+**Không** bằng nhau ($R S$ = đối xứng Oy, $S R$ = đối xứng Ox). Khẳng định lại: tổ hợp biến đổi nói chung **không giao hoán**.
+
 ---
 
-## 9. 🎉 HOÀN THÀNH TIER 2 GEOMETRY (8/8)!
+## 11. 🎉 HOÀN THÀNH TIER 2 GEOMETRY (8/8)!
 
 Tiếp theo: **Tier 3 — Trig & Complex** (lượng giác, số phức, công thức Euler).
 

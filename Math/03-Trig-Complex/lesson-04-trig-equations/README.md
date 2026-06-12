@@ -6,6 +6,8 @@
 - Áp dụng được nghiệm tổng quát (vô số nghiệm).
 - Giải PT bậc 2 theo $\sin x$ / $\cos x$.
 - Đưa **$a\cdot\sin x + b\cdot\cos x = c$** về PT cơ bản.
+- Dùng đồng nhất thức (biến tổng thành tích) đưa PT về dạng **tích = 0**.
+- Lọc **nghiệm trong một khoảng cho trước** (vd $[0, 2\pi)$).
 
 ## Kiến thức tiền đề
 
@@ -17,17 +19,59 @@
 
 💡 **Đặc thù của PT lượng giác**: Vì sin/cos tuần hoàn, một PT có **vô số nghiệm** — phải viết ở dạng tổng quát.
 
+💡 **Trực giác — nghiệm là "vô số điểm trên đường tròn"**: giải PT đại số $x^2 = 4$ là tìm vài điểm rời rạc trên trục số ($x = 2, -2$). Giải PT lượng giác thì khác hẳn về chất. Hãy hình dung một góc $x$ như một **kim quay** quanh tâm đường tròn đơn vị: cứ quay đủ một vòng ($2\pi$) kim trở về đúng chỗ cũ. Vì thế nếu góc $\alpha$ thỏa $\sin\alpha = a$, thì $\alpha + 2\pi$, $\alpha + 4\pi$, $\alpha - 2\pi$, ... **mọi vòng cộng thêm** cũng thỏa — vô hạn nghiệm.
+
+```
+        kim quay quanh đường tròn đơn vị
+                    y (= sin x)
+                    |
+              · · · | · · ·        sin x = a là đường NGANG
+           ·        |        ·      y = a cắt đường tròn
+         ·          |          ·
+        ·    α       a━━━━━━━━━·━━━  ← cắt tại 2 điểm:
+        ·  ←kim→   /|        ·  ·       một bên trái (π−α),
+     ───·─────────/─+─────────·──── x   một bên phải (α)
+        ·        /  |        ·
+         ·      /   |       ·
+           ·   /    |     ·
+              · · · | · · ·
+                    |
+   Mỗi điểm cắt lặp lại sau mỗi vòng quay 2π → vô hạn nghiệm.
+```
+
+Nói cách khác: **tập nghiệm của một PT lượng giác cơ bản không phải vài con số, mà là vài "ray" điểm cách đều nhau $2\pi$ (hoặc $\pi$ với tan) chạy ra vô tận hai phía**. Công thức $x = \alpha + k\cdot 2\pi$ chính là cách viết gọn "lấy điểm $\alpha$ rồi nhân bản nó mỗi vòng".
+
 $$\sin x = a \quad (|a| \le 1)$$
 
 **Nghiệm tổng quát**: Nếu $\sin\alpha = a$ thì:
 
 $$x = \alpha + k\cdot 2\pi \quad \text{hoặc} \quad x = \pi - \alpha + k\cdot 2\pi \quad (k \in \mathbb{Z})$$
 
-💡 **Vì sao 2 họ nghiệm?** Trên đường tròn đơn vị, có 2 điểm có cùng tung độ a: 1 ở phần tư I/II và 1 ở phần tư III/IV (đối xứng qua trục Oy → góc $\pi - \alpha$).
+💡 **Vì sao 2 họ nghiệm?** sin x = tung độ (hoành... không, **tung độ**) của điểm trên đường tròn. Cố định tung độ $= a$ tức **cắt đường tròn bằng một đường nằm ngang** $y = a$. Đường ngang này cắt đường tròn ở **2 điểm** đối xứng qua **trục tung Oy** (vì đường tròn đối xứng trái-phải): điểm bên phải ứng góc $\alpha$, điểm bên trái ứng góc $\pi - \alpha$. Đó chính là 2 họ nghiệm.
 
-**Ví dụ số**: $\sin x = \frac{1}{2}$.
-- $\alpha = \frac{\pi}{6}$ (vì $\sin\frac{\pi}{6} = \frac{1}{2}$).
-- $x = \frac{\pi}{6} + k\cdot 2\pi$, hoặc $x = \pi - \frac{\pi}{6} + k\cdot 2\pi = \frac{5\pi}{6} + k\cdot 2\pi$.
+```
+   sin x = 1/2  →  đường ngang y = 1/2 cắt đường tròn ở 2 điểm:
+                         y
+            (π−α)        |        (α)
+          5π/6 •·· ···· 1/2 ···· •· π/6     ← 2 nghiệm cùng tung độ 1/2
+              ·          |          ·          đối xứng qua Oy
+            ·            |            ·
+        ────·────────────+────────────·──── x
+            ·            |            ·
+              ·          |          ·
+                ·        |        ·
+                    ·· · | · ··
+                         |
+   x = π/6 + k·2π   HOẶC   x = 5π/6 + k·2π
+```
+
+Vì sao thêm $k\cdot 2\pi$? Vì quay thêm trọn $k$ vòng ($k$ nguyên, dương hay âm) kim về đúng vị trí cũ → cùng tung độ → vẫn là nghiệm. $k=0$ cho nghiệm "gốc", $k=1$ cho nghiệm "cộng một vòng", $k=-1$ cho nghiệm "lùi một vòng"...
+
+**Ví dụ số** (≥4 giá trị $a$ đa dạng):
+- $\sin x = \frac{1}{2}$: $\alpha = \frac{\pi}{6}$ (vì $\sin\frac{\pi}{6} = \frac{1}{2}$). $x = \frac{\pi}{6} + k\cdot 2\pi$, hoặc $x = \pi - \frac{\pi}{6} + k\cdot 2\pi = \frac{5\pi}{6} + k\cdot 2\pi$.
+- $\sin x = \frac{\sqrt{3}}{2}$: $\alpha = \frac{\pi}{3}$. $x = \frac{\pi}{3} + k2\pi$ hoặc $x = \frac{2\pi}{3} + k2\pi$.
+- $\sin x = -\frac{\sqrt{2}}{2}$ (giá trị âm): $\alpha = -\frac{\pi}{4}$. $x = -\frac{\pi}{4} + k2\pi$ hoặc $x = \pi -(-\frac{\pi}{4}) + k2\pi = \frac{5\pi}{4} + k2\pi$.
+- $\sin x = 0$: $\alpha = 0$. $x = k2\pi$ hoặc $x = \pi + k2\pi$ — hai họ gộp lại thành $x = k\pi$ (xem mục 4).
 
 ⚠ **Điều kiện**: $|a| > 1$ → **vô nghiệm**.
 
@@ -71,6 +115,24 @@ $$x = \alpha + k\cdot 2\pi \quad \text{hoặc} \quad x = \pi - \alpha + k\cdot 2
 ## 2. Phương trình cơ bản cos x = a
 
 💡 **Trực giác / Hình dung**: cắt đường tròn đơn vị bằng một **đường thẳng đứng** $x = a$ (vì cos = hoành độ). Đường này cắt đường tròn ở hai điểm **đối xứng qua trục hoành** — một ở trên, một ở dưới, góc $+\alpha$ và $-\alpha$. Vì thế nghiệm gọn lại thành $\pm\alpha + k2\pi$ (một họ với dấu ±), khác sin (hai họ riêng).
+
+```
+   cos x = 1/2  →  đường ĐỨNG x = 1/2 cắt đường tròn ở 2 điểm:
+                         y
+                    ·· · | · ··
+                ·        |    •  π/3   (góc +α, nửa trên)
+              ·          |   /·
+            ·            |  / ·
+        ────·────────────+─/──·──── x
+            ·            |/   ·      ← đường đứng x = 1/2
+              ·         /|   ·          (cos = hoành độ = 1/2)
+                ·      / •  ·  −π/3   (góc −α, nửa dưới)
+                    ·· · | · ··
+                     x = 1/2
+   x = +π/3 + k·2π   HOẶC   x = −π/3 + k·2π   ⟺   x = ±π/3 + k·2π
+```
+
+Khác biệt then chốt so với sin: sin cắt bằng đường **ngang** → đối xứng qua **Oy** → $\alpha$ và $\pi-\alpha$. cos cắt bằng đường **đứng** → đối xứng qua **Ox** → $+\alpha$ và $-\alpha$. Nhớ "cos đứng, sin ngang" để khỏi lẫn công thức.
 
 $$\cos x = a \quad (|a| \le 1)$$
 
@@ -118,6 +180,24 @@ $$x = \pm\alpha + k\cdot 2\pi \quad (k \in \mathbb{Z})$$
 ## 3. Phương trình cơ bản tan x = a
 
 💡 **Trực giác / Hình dung**: tan tuần hoàn chu kỳ **$\pi$** (không phải $2\pi$), nên một giá trị tan lặp lại sau mỗi nửa vòng. Trên đường tròn, hai điểm đối tâm (cách nhau $\pi$) có cùng tan vì cả sin và cos đều đổi dấu (tỉ số giữ nguyên). Vì thế tan chỉ có **một họ** nghiệm với bước nhảy $\pi$, và nhận **mọi** giá trị $a \in \mathbb{R}$ (không bị chặn $|a|\le 1$ như sin/cos).
+
+```
+   tan x = a  →  hai điểm ĐỐI TÂM (cách nhau π) có cùng tan:
+                         y
+                    ·· · | · ··
+                ·        |     •  α        Tại α:  sin=+s, cos=+c → tan=+s/c
+              ·          |    /·
+            ·            |   / ·
+        ────·────────────+──/──·──── x
+            ·            | /   ·
+              ·       •  /     ·       Tại α+π:  sin=−s, cos=−c → tan=(−s)/(−c)
+                ·    α+π  |    ·                          = +s/c  (CÙNG tan!)
+                    ·· · | · ··
+   Đổi dấu cả tử lẫn mẫu → tỉ số không đổi → chu kỳ chỉ π, một họ.
+   x = α + k·π   (KHÔNG phải +k·2π)
+```
+
+Walk-through tỉ số: lấy $\alpha = \frac{\pi}{4}$, $\sin\frac{\pi}{4} = \cos\frac{\pi}{4} = \frac{\sqrt2}{2}$ → $\tan = 1$. Điểm đối tâm $\alpha + \pi = \frac{5\pi}{4}$: $\sin\frac{5\pi}{4} = -\frac{\sqrt2}{2}$, $\cos\frac{5\pi}{4} = -\frac{\sqrt2}{2}$ → $\tan = \frac{-\sqrt2/2}{-\sqrt2/2} = 1$ — **cùng** giá trị. Vậy bước nhảy thật sự là $\pi$, không phải $2\pi$.
 
 $$\tan x = a \quad (\text{mọi } a \in \mathbb{R})$$
 
@@ -218,6 +298,24 @@ $$x = \alpha + k\cdot\pi \quad (k \in \mathbb{Z})$$
 - $\sin x = 1$ → $x = \frac{\pi}{2} + k\cdot 2\pi$.
 - $\sin x = -\frac{1}{2}$ → $x = -\frac{\pi}{6} + k\cdot 2\pi$ hoặc $x = \pi + \frac{\pi}{6} + k\cdot 2\pi = \frac{7\pi}{6} + k\cdot 2\pi$.
 
+#### 5.1. Walk-through đầy đủ từng bước — PT bậc 2 theo cos
+
+Giải $2\cos^2 x + 3\cos x + 1 = 0$, viết rõ **mọi** bước không bỏ qua:
+
+$$\begin{aligned}
+&\textbf{Bước 1 — đặt ẩn phụ.}\quad t = \cos x,\ \text{kèm ràng buộc } -1 \le t \le 1. \\
+&\textbf{Bước 2 — viết PT bậc 2 đại số.}\quad 2t^2 + 3t + 1 = 0. \\
+&\textbf{Bước 3 — giải bằng } \Delta.\quad \Delta = 3^2 - 4\cdot 2\cdot 1 = 9 - 8 = 1,\ \sqrt{\Delta} = 1. \\
+&\qquad t = \frac{-3 \pm 1}{2\cdot 2} = \frac{-3+1}{4}\ \text{hoặc}\ \frac{-3-1}{4} = -\tfrac{1}{2}\ \text{hoặc}\ -1. \\
+&\textbf{Bước 4 — lọc ràng buộc } [-1,1].\quad t = -\tfrac{1}{2}\ (\text{ok}),\ t = -1\ (\text{ok, đúng biên}). \\
+&\textbf{Bước 5 — quay về PT lượng giác cho từng } t. \\
+&\qquad \cos x = -\tfrac{1}{2}:\ \alpha = \tfrac{2\pi}{3}\ \Rightarrow\ x = \pm\tfrac{2\pi}{3} + k2\pi. \\
+&\qquad \cos x = -1:\ \alpha = \pi\ \Rightarrow\ x = \pi + k2\pi. \\
+&\textbf{Bước 6 — gộp tập nghiệm.}\quad x \in \left\{\pm\tfrac{2\pi}{3} + k2\pi\right\}\cup\left\{\pi + k2\pi\right\}.
+\end{aligned}$$
+
+**Kiểm tra** với $x = \frac{2\pi}{3}$: $\cos\frac{2\pi}{3} = -\frac{1}{2}$, thay vào $2\cdot(-\frac12)^2 + 3\cdot(-\frac12) + 1 = 2\cdot\frac14 - \frac32 + 1 = \frac12 - \frac32 + 1 = 0$ ✓.
+
 ⚠ **Lỗi thường gặp — quên điều kiện $-1 \le t \le 1$ rồi giữ nghiệm t "ảo"**. Vì $t = \sin x$ (hoặc cos x) bị chặn trong $[-1, 1]$. Phản ví dụ: PT $t^2 - 3t + 2 = 0$ cho $t = 1$ và $t = 2$. Nghiệm $t = 2$ phải **loại** vì $\sin x = 2$ vô nghiệm — chỉ giữ $\sin x = 1$.
 
 ⚠ **Lỗi thường gặp 2 — PT lẫn cả sin và cos bậc 2 mà không quy về một hàm**. Vd $\sin^2 x + \cos x = 1$ có cả hai. Phải dùng $\sin^2 x = 1 - \cos^2 x$ đưa về một ẩn cos trước: $1 - \cos^2 x + \cos x = 1$ → $\cos x - \cos^2 x = 0$ → $\cos x(1 - \cos x) = 0$.
@@ -260,6 +358,26 @@ trong đó $R = \sqrt{a^2+b^2}$, $\tan\varphi = \frac{b}{a}$.
 ⟶ Đưa về $\sin(x + \varphi) = \frac{c}{R}$.
 
 **Điều kiện có nghiệm**: $|\frac{c}{R}| \le 1$ → **$c^2 \le a^2 + b^2$**.
+
+#### 6.1. Walk-through đầy đủ — tìm R, φ rồi giải
+
+Giải $\sin x + \cos x = 1$ với **mọi** bước rõ ràng (đây là dạng dễ sai khi tìm $\varphi$):
+
+$$\begin{aligned}
+&\textbf{Bước 1 — đọc hệ số.}\quad a = 1\ (\text{trước }\sin),\ b = 1\ (\text{trước }\cos),\ c = 1. \\
+&\textbf{Bước 2 — biên độ } R.\quad R = \sqrt{a^2 + b^2} = \sqrt{1 + 1} = \sqrt{2}. \\
+&\textbf{Bước 3 — pha } \varphi.\quad \tan\varphi = \frac{b}{a} = \frac{1}{1} = 1\ \Rightarrow\ \varphi = \frac{\pi}{4}. \\
+&\textbf{Bước 4 — viết lại vế trái.}\quad \sin x + \cos x = \sqrt{2}\,\sin\!\left(x + \tfrac{\pi}{4}\right). \\
+&\textbf{Bước 5 — kiểm tra điều kiện.}\quad c^2 = 1 \le a^2 + b^2 = 2\ \checkmark\ (\text{có nghiệm}). \\
+&\textbf{Bước 6 — đưa về PT cơ bản.}\quad \sqrt{2}\,\sin\!\left(x + \tfrac{\pi}{4}\right) = 1 \Rightarrow \sin\!\left(x + \tfrac{\pi}{4}\right) = \tfrac{1}{\sqrt2} = \tfrac{\sqrt2}{2}. \\
+&\textbf{Bước 7 — giải PT cơ bản (đặt } u = x + \tfrac{\pi}{4}\text{).} \\
+&\qquad u = \tfrac{\pi}{4} + k2\pi\ \Rightarrow\ x = k2\pi. \\
+&\qquad u = \pi - \tfrac{\pi}{4} + k2\pi = \tfrac{3\pi}{4} + k2\pi\ \Rightarrow\ x = \tfrac{\pi}{2} + k2\pi.
+\end{aligned}$$
+
+**Kiểm tra** $x = 0$: $\sin 0 + \cos 0 = 0 + 1 = 1$ ✓. Kiểm tra $x = \frac{\pi}{2}$: $\sin\frac{\pi}{2} + \cos\frac{\pi}{2} = 1 + 0 = 1$ ✓.
+
+⚠ **Bẫy dấu khi tìm φ**: $\tan\varphi = \frac{b}{a}$ có **hai** góc cách nhau $\pi$ cùng tan; phải chọn $\varphi$ sao cho $\cos\varphi = \frac{a}{R}$ **và** $\sin\varphi = \frac{b}{R}$ đúng dấu, không chỉ máy móc lấy $\arctan$. Vd $\sin x - \sqrt3\cos x$: $a = 1, b = -\sqrt3$ → $\tan\varphi = -\sqrt3$ → chọn $\varphi = -\frac{\pi}{3}$ (vì cần $\cos\varphi = \frac12 > 0$, $\sin\varphi = -\frac{\sqrt3}{2} < 0$), KHÔNG lấy $\varphi = \frac{2\pi}{3}$.
 
 **Ví dụ**: $\sqrt{3}\cdot\sin x + \cos x = 1$.
 - $R = \sqrt{3+1} = 2$, $\tan\varphi = \frac{1}{\sqrt{3}}$ → $\varphi = \frac{\pi}{6}$.
@@ -308,6 +426,30 @@ Biến tổng thành tích: $\sin x + \sin 3x = 2\cdot\sin(2x)\cdot\cos(x)$.
 
 Kết hợp: $x = \frac{k\pi}{2}$ (đã bao gồm cả).
 
+#### 7.1. Walk-through đầy đủ — kèm bước kiểm tra trùng họ
+
+Giải $\cos x + \cos 3x = 0$, viết rõ từng bước (kèm cả bước kiểm tra hai họ có trùng không):
+
+$$\begin{aligned}
+&\textbf{Bước 1 — chọn công thức tổng→tích.}\quad \cos A + \cos B = 2\cos\tfrac{A+B}{2}\cos\tfrac{A-B}{2}. \\
+&\textbf{Bước 2 — thay } A = 3x,\ B = x.\quad \cos 3x + \cos x = 2\cos\tfrac{3x+x}{2}\cos\tfrac{3x-x}{2} = 2\cos 2x\cos x. \\
+&\textbf{Bước 3 — đưa về tích = 0.}\quad 2\cos 2x\cos x = 0 \Rightarrow \cos 2x = 0\ \text{HOẶC}\ \cos x = 0. \\
+&\textbf{Bước 4 — giải từng nhân tử.} \\
+&\qquad \cos 2x = 0\ \Rightarrow\ 2x = \tfrac{\pi}{2} + k\pi\ \Rightarrow\ x = \tfrac{\pi}{4} + \tfrac{k\pi}{2}. \\
+&\qquad \cos x = 0\ \Rightarrow\ x = \tfrac{\pi}{2} + k\pi. \\
+&\textbf{Bước 5 — kiểm tra trùng họ.}\ \text{Họ } \tfrac{\pi}{4} + \tfrac{k\pi}{2}\ \text{cho } \{\tfrac{\pi}{4}, \tfrac{3\pi}{4}, \tfrac{5\pi}{4}, \ldots\}; \\
+&\qquad\text{họ } \tfrac{\pi}{2} + k\pi\ \text{cho } \{\tfrac{\pi}{2}, \tfrac{3\pi}{2}, \ldots\}\ \text{— KHÔNG trùng, giữ cả hai.} \\
+&\textbf{Kết luận.}\quad x = \tfrac{\pi}{4} + \tfrac{k\pi}{2}\ \text{HOẶC}\ x = \tfrac{\pi}{2} + k\pi.
+\end{aligned}$$
+
+```
+   "Đưa về tích = 0" — nguyên lý tách nghiệm:
+        A · B = 0
+        ╱      ╲
+     A = 0    B = 0        (tích bằng 0 ⟺ ít nhất một thừa số bằng 0)
+   mỗi nhánh → một PT lượng giác CƠ BẢN đã biết giải.
+```
+
 ⚠ **Lỗi thường gặp — chuyển vế sai trước khi biến đổi**. Để dùng tổng→tích cần đưa PT về dạng $(\text{tổng}) = 0$ hoặc $(\text{hiệu}) = 0$. Phản ví dụ: $\sin 3x = \sin x$ phải chuyển thành $\sin 3x - \sin x = 0$ rồi mới dùng $\sin a - \sin b = 2 \cos(\ldots) \sin(\ldots)$. Nếu để nguyên $\sin 3x = \sin x$ rồi "rút" sin hai vế là **sai** (mất nghiệm, và sin không "rút" được như số).
 
 ❓ **Câu hỏi tự nhiên của người đọc**
@@ -335,7 +477,83 @@ Kết hợp: $x = \frac{k\pi}{2}$ (đã bao gồm cả).
 
 ---
 
-## 8. Bài tập
+## 8. Nghiệm trong một khoảng cho trước
+
+💡 **Trực giác / Hình dung**: nghiệm tổng quát cho **vô hạn** điểm; nhưng đề thường hỏi "nghiệm trong $[0, 2\pi)$" hay "trong $[-\pi, \pi]$" — tức chỉ lấy các điểm **rơi vào một đoạn** trên trục số. Hình dung trục số chia thành các "cửa sổ" rộng $2\pi$ (hoặc $\pi$ với tan); nghiệm tổng quát rải đều, ta chỉ "chụp lại" những điểm lọt vào cửa sổ đề cho.
+
+**Quy trình 3 bước**:
+> **Bước 1** — Giải ra **nghiệm tổng quát** ($x = \ldots + k\cdot 2\pi$ / $+k\pi$).
+>
+> **Bước 2** — Với mỗi họ, **thay $k = \ldots, -1, 0, 1, 2, \ldots$** lần lượt, tính giá trị $x$.
+>
+> **Bước 3** — **Giữ** các $x$ nằm trong khoảng đề cho, **loại** phần còn lại. Dừng khi $x$ đã vượt khỏi khoảng.
+
+### 8.1. Walk-through — nghiệm của $\sin x = \frac{1}{2}$ trong $[0, 2\pi)$
+
+$$\begin{aligned}
+&\textbf{Bước 1.}\quad x = \tfrac{\pi}{6} + k2\pi \quad\text{HOẶC}\quad x = \tfrac{5\pi}{6} + k2\pi. \\
+&\textbf{Bước 2-3 — họ thứ nhất } \tfrac{\pi}{6} + k2\pi: \\
+&\qquad k=0:\ x = \tfrac{\pi}{6} \approx 0.52 \in [0, 2\pi)\ \checkmark \\
+&\qquad k=1:\ x = \tfrac{\pi}{6} + 2\pi = \tfrac{13\pi}{6} \approx 6.81 \ge 2\pi\ \text{(loại, vượt)} \\
+&\qquad k=-1:\ x = \tfrac{\pi}{6} - 2\pi < 0\ \text{(loại, âm)} \\
+&\textbf{Họ thứ hai } \tfrac{5\pi}{6} + k2\pi: \\
+&\qquad k=0:\ x = \tfrac{5\pi}{6} \approx 2.62 \in [0, 2\pi)\ \checkmark \\
+&\qquad k=\pm 1:\ \text{vượt / âm (loại).} \\
+&\textbf{Kết luận.}\quad x \in \left\{\tfrac{\pi}{6},\ \tfrac{5\pi}{6}\right\}.
+\end{aligned}$$
+
+```
+   Trục số, cửa sổ [0, 2π):
+   0        π/6       π/2        5π/6      π        3π/2      2π
+   |─────────•─────────|──────────•─────────|─────────|────────|
+            ✓ giữ                ✓ giữ
+   (các nghiệm π/6+2π, 5π/6+2π, ... nằm NGOÀI cửa sổ → loại)
+```
+
+### 8.2. Walk-through khó hơn — $\tan x = \sqrt{3}$ trong $(-\pi, \pi)$
+
+Chu kỳ tan là $\pi$ nên bước nhảy nhỏ hơn — phải quét nhiều $k$ hơn.
+
+$$\begin{aligned}
+&\textbf{Bước 1.}\quad \tan x = \sqrt3 \Rightarrow x = \tfrac{\pi}{3} + k\pi. \\
+&\textbf{Bước 2-3.}\quad
+k=0:\ x=\tfrac{\pi}{3}\approx 1.05 \in (-\pi,\pi)\ \checkmark \\
+&\qquad k=-1:\ x = \tfrac{\pi}{3} - \pi = -\tfrac{2\pi}{3}\approx -2.09 \in (-\pi,\pi)\ \checkmark \\
+&\qquad k=1:\ x = \tfrac{\pi}{3} + \pi = \tfrac{4\pi}{3} > \pi\ \text{(loại)} \\
+&\qquad k=-2:\ x = \tfrac{\pi}{3} - 2\pi < -\pi\ \text{(loại)} \\
+&\textbf{Kết luận.}\quad x \in \left\{-\tfrac{2\pi}{3},\ \tfrac{\pi}{3}\right\}.
+\end{aligned}$$
+
+⚠ **Lỗi thường gặp — quên quét $k$ âm**. Nhiều người chỉ thử $k = 0, 1, 2$ rồi dừng, bỏ sót nghiệm ứng $k < 0$. Với khoảng đối xứng quanh 0 như $(-\pi, \pi)$, gần như **luôn** có nghiệm từ $k$ âm. Phản ví dụ: ở 8.2, nếu chỉ lấy $k\ge 0$ thì mất nghiệm $-\frac{2\pi}{3}$ → sai một nửa.
+
+⚠ **Lỗi thường gặp 2 — nhầm khoảng đóng/mở**. $[0, 2\pi)$ **chứa** $0$ nhưng **không** chứa $2\pi$. Nếu một nghiệm tổng quát rơi đúng vào $2\pi$, phải loại (vì đầu mút mở). Phản ví dụ: giải $\cos x = 1$ trên $[0, 2\pi)$ → $x = k2\pi$ → chỉ $x = 0$ (loại $x = 2\pi$ vì mở), KHÔNG phải $\{0, 2\pi\}$.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Làm sao biết quét $k$ tới đâu thì dừng?"* Cứ tăng/giảm $k$ đến khi $x$ vượt **ra ngoài** hai đầu khoảng là dừng — mỗi họ chỉ cho hữu hạn nghiệm trong một khoảng hữu hạn.
+- *"Khoảng rộng $4\pi$ thì mỗi họ cho mấy nghiệm?"* Họ chu kỳ $2\pi$ → khoảng $4\pi$ chứa khoảng 2 nghiệm/họ; họ chu kỳ $\pi$ (tan) → chứa khoảng 4 nghiệm. Quét $k$ tuần tự để không sót.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Tìm mọi nghiệm của $\cos x = \frac{1}{2}$ trong $[0, 2\pi)$.
+2. Tìm mọi nghiệm của $\sin x = -1$ trong $[-2\pi, 2\pi]$.
+
+<details><summary>Đáp án</summary>
+
+1. $x = \pm\frac{\pi}{3} + k2\pi$. Trong $[0, 2\pi)$: từ $+\frac{\pi}{3}$ lấy $\frac{\pi}{3}$ ($k=0$); từ $-\frac{\pi}{3}$ lấy $-\frac{\pi}{3} + 2\pi = \frac{5\pi}{3}$ ($k=1$). Nghiệm: $\left\{\frac{\pi}{3}, \frac{5\pi}{3}\right\}$.
+2. $x = -\frac{\pi}{2} + k2\pi$. $k=0: -\frac{\pi}{2}$ ✓; $k=1: \frac{3\pi}{2}$ ✓; $k=-1: -\frac{5\pi}{2} < -2\pi$ (loại). Còn $k$ nào cho $\frac{3\pi}{2} - 2\pi = -\frac{\pi}{2}$ (đã có). Nghiệm: $\left\{-\frac{\pi}{2}, \frac{3\pi}{2}\right\}$.
+
+</details>
+
+### 📝 Tóm tắt mục 8
+
+- Lấy nghiệm trong khoảng = giải nghiệm tổng quát rồi **quét $k$** (cả âm lẫn dương), giữ các $x$ lọt khoảng.
+- Quét đến khi $x$ vượt khỏi hai đầu thì dừng; **đừng quên $k$ âm**.
+- Cẩn thận đầu mút **đóng/mở** ($[0, 2\pi)$ loại $2\pi$).
+
+---
+
+## 9. Bài tập
 
 ### Bài tập
 
@@ -348,6 +566,10 @@ Kết hợp: $x = \frac{k\pi}{2}$ (đã bao gồm cả).
 **Bài 4**: Giải $\tan x = -1$.
 
 **Bài 5**: Giải $\sin 2x = \sin x$.
+
+**Bài 6**: Tìm mọi nghiệm của $\cos x = -\frac{\sqrt{3}}{2}$ trong $[0, 2\pi)$.
+
+**Bài 7**: Giải $2\sin^2 x - 3\sin x + 1 = 0$, rồi lọc các nghiệm trong $[0, 2\pi)$.
 
 ### Lời giải
 
@@ -367,16 +589,39 @@ Kết hợp: $x = \frac{k\pi}{2}$ (đã bao gồm cả).
 - $\cos(\frac{3x}{2}) = 0$ → $\frac{3x}{2} = \frac{\pi}{2} + k\pi$ → $x = \frac{\pi}{3} + \frac{2k\pi}{3}$.  
 - $\sin(\frac{x}{2}) = 0$ → $x = 2k\pi$.
 
+**Bài 6**: $\cos x = -\frac{\sqrt{3}}{2}$ → $\alpha = \frac{5\pi}{6}$ (vì $\cos\frac{5\pi}{6} = -\frac{\sqrt3}{2}$) → $x = \pm\frac{5\pi}{6} + k2\pi$. Quét $k$ trong $[0, 2\pi)$:
+- Họ $+\frac{5\pi}{6}$: $k=0 \to \frac{5\pi}{6}$ ✓; $k=\pm1$ vượt/âm (loại).
+- Họ $-\frac{5\pi}{6}$: $k=0 \to -\frac{5\pi}{6} < 0$ (loại); $k=1 \to -\frac{5\pi}{6} + 2\pi = \frac{7\pi}{6}$ ✓.
+- Nghiệm: $\left\{\frac{5\pi}{6}, \frac{7\pi}{6}\right\}$. Kiểm tra: $\cos\frac{7\pi}{6} = -\frac{\sqrt3}{2}$ ✓.
+
+**Bài 7**: Đặt $t = \sin x$ ($-1 \le t \le 1$). $2t^2 - 3t + 1 = 0$ → $\Delta = 9 - 8 = 1$ → $t = \frac{3\pm1}{4} = 1$ hoặc $\frac{1}{2}$ (cả hai trong $[-1,1]$, giữ).
+- $\sin x = 1$ → $x = \frac{\pi}{2} + k2\pi$. Trong $[0,2\pi)$: $\frac{\pi}{2}$.
+- $\sin x = \frac{1}{2}$ → $x = \frac{\pi}{6} + k2\pi$ hoặc $\frac{5\pi}{6} + k2\pi$. Trong $[0,2\pi)$: $\frac{\pi}{6}, \frac{5\pi}{6}$.
+- Nghiệm trong $[0, 2\pi)$: $\left\{\frac{\pi}{6}, \frac{\pi}{2}, \frac{5\pi}{6}\right\}$.
+
 ---
 
-## 9. Bài tiếp theo
+## 10. Bài tiếp theo
 
 [Lesson 05 — Số phức](../lesson-05-complex-numbers/) — i, dạng đại số, ý nghĩa.
 
 ## 📝 Tổng kết
 
-1. **$\sin x = a$**: $x = \alpha + k\cdot 2\pi$ hoặc $\pi-\alpha + k\cdot 2\pi$.
-2. **$\cos x = a$**: $x = \pm\alpha + k\cdot 2\pi$.
-3. **$\tan x = a$**: $x = \alpha + k\pi$.
-4. **Bậc 2 theo sin/cos**: đặt ẩn phụ.
-5. **$a\cdot\sin x + b\cdot\cos x = c$**: dùng $R\cdot\sin(x+\varphi)$. Có nghiệm khi $c^2 \le a^2+b^2$.
+**Bảng ba PT cơ bản** (học thuộc, dùng đi dùng lại):
+
+| PT | Ràng buộc $a$ | Đối xứng | Nghiệm tổng quát | Chu kỳ |
+|----|---------------|----------|------------------|--------|
+| $\sin x = a$ | $\lvert a\rvert \le 1$ | qua Oy (ngang) | $\alpha + k2\pi$ **hoặc** $\pi-\alpha + k2\pi$ | $2\pi$ |
+| $\cos x = a$ | $\lvert a\rvert \le 1$ | qua Ox (đứng) | $\pm\alpha + k2\pi$ | $2\pi$ |
+| $\tan x = a$ | mọi $a\in\mathbb{R}$ | đối tâm | $\alpha + k\pi$ | $\pi$ |
+
+1. **$\sin x = a$**: $x = \alpha + k\cdot 2\pi$ hoặc $\pi-\alpha + k\cdot 2\pi$. Nhớ "sin ngang → $\pi-\alpha$".
+2. **$\cos x = a$**: $x = \pm\alpha + k\cdot 2\pi$. Nhớ "cos đứng → $\pm\alpha$".
+3. **$\tan x = a$**: $x = \alpha + k\pi$ (chu kỳ $\pi$, KHÔNG $2\pi$); loại $x = \frac{\pi}{2} + k\pi$.
+4. **Bậc 2 theo sin/cos**: đặt ẩn phụ $t$, giải bậc 2 đại số, **lọc $-1\le t\le 1$**, rồi giải PT cơ bản.
+5. **$a\cdot\sin x + b\cdot\cos x = c$**: dùng $R\cdot\sin(x+\varphi)$, $R=\sqrt{a^2+b^2}$. Có nghiệm khi $c^2 \le a^2+b^2$.
+6. **Tổng→tích**: đưa về **tích = 0** rồi tách thành các PT cơ bản; chuyển hết về một vế trước.
+7. **Nghiệm trong khoảng**: giải tổng quát rồi **quét $k$** (cả âm lẫn dương), giữ các $x$ lọt khoảng; chú ý đầu mút đóng/mở.
+8. **Lỗi cốt lõi cần tránh**: quên $+k2\pi$ / $+k\pi$; quên họ $\pi-\alpha$ của sin; dùng $+k2\pi$ cho tan; mất nghiệm khi chia $\cos x$ (xem dưới); giữ nghiệm $t$ ngoài $[-1,1]$; quên quét $k$ âm.
+
+⚠ **Lỗi tổng — mất nghiệm khi chia cả hai vế cho $\cos x$ (hay $\sin x$)**. Khi gặp PT kiểu $\sin x = \sqrt3\cos x$, nhiều người chia hai vế cho $\cos x$ để được $\tan x = \sqrt3$. Nhưng phép chia này **ngầm giả định $\cos x \neq 0$** — nếu $\cos x = 0$ cũng là nghiệm thì đã **mất**. Cách an toàn: chuyển về $\sin x - \sqrt3\cos x = 0$ rồi xét, hoặc kiểm tra riêng trường hợp $\cos x = 0$ trước khi chia. (Ở ví dụ này $\cos x = 0 \Rightarrow \sin x = \pm1 \neq 0$ nên không mất nghiệm, nhưng thói quen kiểm tra phải có.)

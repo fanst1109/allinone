@@ -20,17 +20,47 @@
 
 $$\sin^2 x + \cos^2 x = 1$$
 
-Suy ra:
-- $1 + \tan^2 x = \frac{1}{\cos^2 x}$ (chia 2 vế cho $\cos^2 x$).
-- $1 + \cot^2 x = \frac{1}{\sin^2 x}$.
+Suy ra (dùng $\sec x = \frac{1}{\cos x}$, $\csc x = \frac{1}{\sin x}$, $\cot x = \frac{\cos x}{\sin x}$):
+- $1 + \tan^2 x = \sec^2 x = \frac{1}{\cos^2 x}$ (chia 2 vế cho $\cos^2 x$).
+- $1 + \cot^2 x = \csc^2 x = \frac{1}{\sin^2 x}$ (chia 2 vế cho $\sin^2 x$).
 
 💡 **Vì sao đúng?** Vì điểm $(\cos x, \sin x)$ nằm trên đường tròn bán kính 1, theo Pythagore khoảng cách$^2 = 1$.
+
+**Chứng minh từng bước $\sin^2 x + \cos^2 x = 1$** (từ đường tròn đơn vị, không bỏ bước):
+- Đường tròn đơn vị có phương trình $X^2 + Y^2 = 1$ (mọi điểm cách gốc đúng 1 đơn vị — đây là định nghĩa khoảng cách Pythagore với bán kính $= 1$).
+- Theo định nghĩa lượng giác trên đường tròn đơn vị, điểm ứng với góc $x$ có tọa độ $X = \cos x$, $Y = \sin x$.
+- Thay vào phương trình đường tròn: $(\cos x)^2 + (\sin x)^2 = 1$, tức $\cos^2 x + \sin^2 x = 1$. Đúng với **mọi** $x$ (kể cả góc tù, âm, $> 360°$ — vì điểm vẫn nằm trên đường tròn). ∎
+
+**Chứng minh biến thể $1 + \tan^2 x = \sec^2 x$** (chia, không bỏ bước): lấy $\sin^2 x + \cos^2 x = 1$, chia cả 2 vế cho $\cos^2 x$ (giả sử $\cos x \neq 0$):
+$$\frac{\sin^2 x}{\cos^2 x} + \frac{\cos^2 x}{\cos^2 x} = \frac{1}{\cos^2 x} \;\Rightarrow\; \tan^2 x + 1 = \sec^2 x. \quad ∎$$
+
+**Walk-through $\sin^2 + \cos^2 = 1$ bằng 4 góc cụ thể** (verify cả 2 vế):
+
+| $x$ | $\sin x$ | $\cos x$ | $\sin^2 x$ | $\cos^2 x$ | Tổng |
+|-----|----------|----------|------------|------------|------|
+| $0°$ | $0$ | $1$ | $0$ | $1$ | $0+1=1$ ✓ |
+| $30°$ | $\frac{1}{2}$ | $\frac{\sqrt{3}}{2}$ | $\frac{1}{4}$ | $\frac{3}{4}$ | $\frac{1}{4}+\frac{3}{4}=1$ ✓ |
+| $45°$ | $\frac{\sqrt{2}}{2}$ | $\frac{\sqrt{2}}{2}$ | $\frac{1}{2}$ | $\frac{1}{2}$ | $\frac{1}{2}+\frac{1}{2}=1$ ✓ |
+| $120°$ | $\frac{\sqrt{3}}{2}$ | $-\frac{1}{2}$ | $\frac{3}{4}$ | $\frac{1}{4}$ | $\frac{3}{4}+\frac{1}{4}=1$ ✓ |
+| $210°$ | $-\frac{1}{2}$ | $-\frac{\sqrt{3}}{2}$ | $\frac{1}{4}$ | $\frac{3}{4}$ | $\frac{1}{4}+\frac{3}{4}=1$ ✓ |
+
+Bình phương khử dấu âm → góc ở phần tư nào cũng cho tổng $= 1$.
+
+**Verify biến thể $1 + \cot^2 x = \csc^2 x$ bằng số** (lấy $x = 45°$): $\cot 45° = 1$ → vế trái $1 + 1^2 = 2$. $\sin 45° = \frac{\sqrt{2}}{2}$ → $\csc 45° = \frac{2}{\sqrt{2}} = \sqrt{2}$ → vế phải $(\sqrt{2})^2 = 2$ ✓. Thử thêm $x = 30°$: $\cot 30° = \sqrt{3}$ → vế trái $1 + 3 = 4$; $\csc 30° = \frac{1}{1/2} = 2$ → vế phải $4$ ✓.
 
 ### 1.2. Tính chẵn lẻ
 
 - $\sin(-x) = -\sin x$ (lẻ).
 - $\cos(-x) = \cos x$ (chẵn).
 - $\tan(-x) = -\tan x$ (lẻ).
+
+**Vì sao?** Góc $-x$ là điểm đối xứng với góc $x$ qua **trục hoành** (Ox): hoành độ ($\cos$) giữ nguyên → cos chẵn; tung độ ($\sin$) đổi dấu → sin lẻ; $\tan = \frac{\sin}{\cos}$ nên cũng đổi dấu → tan lẻ.
+
+**Verify bằng 4 giá trị**:
+- $\sin(-30°) = -\frac{1}{2}$, còn $-\sin 30° = -\frac{1}{2}$ ✓.
+- $\cos(-30°) = \frac{\sqrt3}{2}$, còn $\cos 30° = \frac{\sqrt3}{2}$ ✓ (không đổi dấu).
+- $\sin(-90°) = -1 = -\sin 90°$ ✓.
+- $\tan(-45°) = -1 = -\tan 45°$ ✓.
 
 ### 1.3. Tính tuần hoàn
 
@@ -89,6 +119,55 @@ $$\begin{aligned}
 **Ví dụ số**: tính $\sin 75^\circ$.
 - $75 = 45 + 30$.
 - $\sin 75^\circ = \sin 45\cdot\cos 30 + \cos 45\cdot\sin 30 = \frac{\sqrt{2}}{2}\cdot\frac{\sqrt{3}}{2} + \frac{\sqrt{2}}{2}\cdot\frac{1}{2} = \frac{\sqrt{6}}{4} + \frac{\sqrt{2}}{4} = $ **$\frac{\sqrt{6}+\sqrt{2}}{4}$**.
+
+### 2.1. Chứng minh công thức cộng (từng bước)
+
+💡 **Trực giác**: chỉ cần chứng minh MỘT công thức gốc — $\cos(a - b)$ — bằng đường tròn đơn vị; bốn công thức còn lại suy ra cơ học (thay dấu, dùng góc phụ). Không phải học thuộc 5 chứng minh rời.
+
+**Bước nền — chứng minh $\cos(a - b) = \cos a\cos b + \sin a\sin b$** (dùng khoảng cách trên đường tròn đơn vị):
+
+Đặt trên đường tròn đơn vị hai điểm $A = (\cos a, \sin a)$ và $B = (\cos b, \sin b)$, gốc $O = (0,0)$. Góc $\angle AOB = a - b$.
+
+- **Tính $|AB|^2$ bằng tọa độ** (công thức khoảng cách):
+$$\begin{aligned}
+|AB|^2 &= (\cos a - \cos b)^2 + (\sin a - \sin b)^2 \\
+&= \cos^2 a - 2\cos a\cos b + \cos^2 b + \sin^2 a - 2\sin a\sin b + \sin^2 b \\
+&= (\cos^2 a + \sin^2 a) + (\cos^2 b + \sin^2 b) - 2(\cos a\cos b + \sin a\sin b) \\
+&= 1 + 1 - 2(\cos a\cos b + \sin a\sin b) = 2 - 2(\cos a\cos b + \sin a\sin b).
+\end{aligned}$$
+- **Tính $|AB|^2$ bằng định lý cosin** (Mục 9) trong tam giác $OAB$ với $OA = OB = 1$ và góc xen $= a - b$:
+$$|AB|^2 = 1^2 + 1^2 - 2\cdot 1\cdot 1\cdot\cos(a-b) = 2 - 2\cos(a-b).$$
+- **So sánh hai cách** (cùng là $|AB|^2$): $2 - 2\cos(a-b) = 2 - 2(\cos a\cos b + \sin a\sin b)$. Rút gọn:
+$$\cos(a - b) = \cos a\cos b + \sin a\sin b. \quad ∎$$
+
+**Suy ra $\cos(a + b)$**: thay $b \to -b$, dùng $\cos(-b) = \cos b$, $\sin(-b) = -\sin b$:
+$$\cos(a + b) = \cos(a - (-b)) = \cos a\cos b + \sin a(-\sin b) = \cos a\cos b - \sin a\sin b. \quad ∎$$
+
+**Suy ra $\sin(a + b)$**: dùng góc phụ $\sin x = \cos(90° - x)$:
+$$\begin{aligned}
+\sin(a + b) &= \cos\big(90° - (a+b)\big) = \cos\big((90° - a) - b\big) \\
+&= \cos(90° - a)\cos b + \sin(90° - a)\sin b \\
+&= \sin a\cos b + \cos a\sin b. \quad ∎
+\end{aligned}$$
+
+**Suy ra $\sin(a - b)$**: thay $b \to -b$: $\sin(a - b) = \sin a\cos b - \cos a\sin b$. ∎
+
+**Suy ra $\tan(a + b)$**: chia $\frac{\sin(a+b)}{\cos(a+b)}$ rồi chia tử & mẫu cho $\cos a\cos b$:
+$$\tan(a+b) = \frac{\sin a\cos b + \cos a\sin b}{\cos a\cos b - \sin a\sin b} = \frac{\tan a + \tan b}{1 - \tan a\tan b}. \quad ∎$$
+
+**Verify $\cos(a-b)$ bằng số** ($a = 60°$, $b = 30°$ → $\cos 30° = \frac{\sqrt 3}{2}$): vế phải $\cos 60\cos 30 + \sin 60\sin 30 = \frac{1}{2}\cdot\frac{\sqrt3}{2} + \frac{\sqrt3}{2}\cdot\frac{1}{2} = \frac{\sqrt3}{4} + \frac{\sqrt3}{4} = \frac{\sqrt3}{2}$ ✓ ($= \cos 30°$).
+
+### 2.2. Bốn ví dụ áp dụng công thức cộng
+
+**Ví dụ 1 — $\cos 75°$**: $\cos(45+30) = \cos45\cos30 - \sin45\sin30 = \frac{\sqrt2}{2}\cdot\frac{\sqrt3}{2} - \frac{\sqrt2}{2}\cdot\frac{1}{2} = \frac{\sqrt6 - \sqrt2}{4} \approx 0.2588$ ✓.
+
+**Ví dụ 2 — $\sin 15°$**: $\sin(45-30) = \sin45\cos30 - \cos45\sin30 = \frac{\sqrt6 - \sqrt2}{4} \approx 0.2588$. Để ý $\sin 15° = \cos 75°$ (góc phụ, vì $15 + 75 = 90$).
+
+**Ví dụ 3 — $\tan 105°$**: $105 = 60 + 45$, $\tan 60 = \sqrt3$, $\tan 45 = 1$:
+$$\tan 105° = \frac{\sqrt3 + 1}{1 - \sqrt3\cdot 1} = \frac{\sqrt3+1}{1-\sqrt3} = \frac{(\sqrt3+1)(1+\sqrt3)}{(1-\sqrt3)(1+\sqrt3)} = \frac{4 + 2\sqrt3}{-2} = -(2+\sqrt3) \approx -3.732 ✓.$$
+
+**Ví dụ 4 — góc qua tam giác Pythagore** ($\sin a = \frac{3}{5}, \cos a = \frac{4}{5}, \sin b = \frac{5}{13}, \cos b = \frac{12}{13}$):
+$$\sin(a+b) = \frac{3}{5}\cdot\frac{12}{13} + \frac{4}{5}\cdot\frac{5}{13} = \frac{36}{65} + \frac{20}{65} = \frac{56}{65} \approx 0.8615.$$
 
 > 📐 **Định nghĩa đầy đủ — Công thức cộng**
 >
@@ -359,7 +438,174 @@ trong đó:
 
 ---
 
-## 8. Bài tập
+## 8. Định lý cosin (Law of Cosines)
+
+💡 **Trực giác / Hình dung**: ta đã có **Pythagore** cho tam giác **vuông**: $a^2 + b^2 = c^2$. Nếu tam giác **không vuông** thì sao? Định lý cosin là **bản tổng quát** của Pythagore: nó thêm một số hạng hiệu chỉnh $-2ab\cos C$ để "vá" khi góc $C$ khác $90°$.
+
+**Phát biểu**: tam giác bất kỳ với 3 cạnh $a, b, c$ và 3 góc đối diện $A, B, C$ (cạnh $a$ đối đỉnh $A$...). Khi đó:
+
+$$c^2 = a^2 + b^2 - 2ab\cos C$$
+
+Đối xứng (đổi vai trò các cạnh/góc):
+
+$$\begin{aligned}
+a^2 &= b^2 + c^2 - 2bc\cos A \\
+b^2 &= a^2 + c^2 - 2ac\cos B
+\end{aligned}$$
+
+```
+            A
+           /\
+        b /  \ c
+         /    \
+        / C    \
+       B────────  ... C đối diện cạnh c = AB
+              a
+```
+(Quy ước: đỉnh $A,B,C$; cạnh đối diện cùng tên thường $a,b,c$; góc $C$ là góc tại đỉnh $C$, **xen giữa** hai cạnh $a$ và $b$.)
+
+### 8.1. Vì sao là "tổng quát của Pythagore"?
+
+Khi $C = 90°$ thì $\cos C = 0$, số hạng hiệu chỉnh biến mất:
+
+$$c^2 = a^2 + b^2 - 2ab\cdot 0 = a^2 + b^2 \quad \leftarrow \text{Pythagore}.$$
+
+| $C$ | $\cos C$ | $-2ab\cos C$ | $c^2$ so với $a^2+b^2$ |
+|-----|----------|--------------|------------------------|
+| $< 90°$ (nhọn) | $> 0$ | âm | $c^2 < a^2+b^2$ → cạnh đối **ngắn** hơn |
+| $= 90°$ (vuông) | $0$ | $0$ | $c^2 = a^2+b^2$ (Pythagore) |
+| $> 90°$ (tù) | $< 0$ | dương | $c^2 > a^2+b^2$ → cạnh đối **dài** hơn |
+
+Trực giác khớp hình học: mở rộng góc đối → nới dài cạnh đối.
+
+### 8.2. Chứng minh từng bước (tọa độ + Pythagore lượng giác)
+
+**Setup**: đặt $C = (0,0)$ ở gốc, $B = (a, 0)$ trên trục Ox (cạnh $CB$ dài $a$), và $A = (b\cos C, b\sin C)$ (đi từ $C$ một góc $C$, khoảng cách $b$).
+
+**Bước 1** — $c^2 = |AB|^2$ bằng công thức khoảng cách:
+$$c^2 = (b\cos C - a)^2 + (b\sin C - 0)^2.$$
+**Bước 2** — khai triển:
+$$c^2 = b^2\cos^2 C - 2ab\cos C + a^2 + b^2\sin^2 C.$$
+**Bước 3** — nhóm $b^2(\cos^2 C + \sin^2 C)$:
+$$c^2 = a^2 + b^2(\cos^2 C + \sin^2 C) - 2ab\cos C.$$
+**Bước 4** — dùng Pythagore lượng giác $\cos^2 C + \sin^2 C = 1$:
+$$c^2 = a^2 + b^2 - 2ab\cos C. \quad ∎$$
+Chứng minh dùng được cả góc nhọn lẫn tù (vì $0° < C < 180°$ nên $\sin C > 0$, và $\cos C$ tự đổi dấu khi $C$ vượt $90°$).
+
+### 8.3. Walk-through — 3 ví dụ giải tam giác
+
+**Ví dụ 1 — biết 2 cạnh + góc xen ($a = 5, b = 7, C = 60°$), tính $c$**:
+$$c^2 = 25 + 49 - 2\cdot 5\cdot 7\cdot\cos 60° = 74 - 70\cdot\tfrac{1}{2} = 74 - 35 = 39 \;\Rightarrow\; c = \sqrt{39} \approx 6.245.$$
+Kiểm: $C = 60° < 90°$ → kỳ vọng $c < \sqrt{74} \approx 8.6$; thực tế $6.245 < 8.6$ ✓.
+
+**Ví dụ 2 — biết 3 cạnh ($a=4, b=5, c=6$), tính các góc** (đảo công thức: $\cos C = \frac{a^2+b^2-c^2}{2ab}$):
+$$\begin{aligned}
+\cos A &= \frac{b^2+c^2-a^2}{2bc} = \frac{25+36-16}{60} = \frac{45}{60} = 0.75 \;\Rightarrow\; A \approx 41.41°, \\
+\cos B &= \frac{a^2+c^2-b^2}{2ac} = \frac{16+36-25}{48} = \frac{27}{48} = 0.5625 \;\Rightarrow\; B \approx 55.77°, \\
+\cos C &= \frac{a^2+b^2-c^2}{2ab} = \frac{16+25-36}{40} = \frac{5}{40} = 0.125 \;\Rightarrow\; C \approx 82.82°.
+\end{aligned}$$
+Kiểm tổng góc: $41.41 + 55.77 + 82.82 = 180.00°$ ✓.
+
+**Ví dụ 3 — góc tù ($a = 6, b = 8, C = 120°$), tính $c$**:
+$$c^2 = 36 + 64 - 2\cdot 6\cdot 8\cdot\cos 120° = 100 - 96\cdot(-\tfrac{1}{2}) = 100 + 48 = 148 \;\Rightarrow\; c = \sqrt{148} \approx 12.166.$$
+Kiểm: $C = 120° > 90°$ → kỳ vọng $c > \sqrt{100} = 10$; thực tế $12.166 > 10$ ✓.
+
+**Ví dụ 4 — định lý cosin "nhận ra" tam giác vuông ($a=3, b=4, c=5$)**:
+$$25 = 9 + 16 - 24\cos C \;\Rightarrow\; 25 = 25 - 24\cos C \;\Rightarrow\; \cos C = 0 \;\Rightarrow\; C = 90°. ✓$$
+
+⚠ **Lỗi thường gặp — đặt sai góc xen giữa**. Số hạng $-2ab\cos C$ phải dùng góc $C$ **xen giữa** đúng hai cạnh $a$ và $b$. Nếu lỡ dùng góc $A$ (đối diện $a$) vào công thức của $c$ thì sai. Mẹo: trong $c^2 = a^2 + b^2 - 2ab\cos C$, **chữ in hoa $C$ (góc) phải khác chữ thường $a,b$ đang bình phương**, và $C$ đối diện cạnh $c$ đang tính.
+
+⚠ **Lỗi thường gặp 2 — quên dấu trừ**. Là $a^2 + b^2 \boldsymbol{-} 2ab\cos C$, KHÔNG phải dấu cộng. Phản ví dụ $a=3,b=4,C=90°$: đúng cho $c^2 = 9+16-0 = 25$ → $c=5$; nếu dùng dấu cộng và quên $\cos 90°=0$ thì ra số khác → sai.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Biết 3 cạnh thì chắc gì tạo được tam giác?"* Phải thỏa **bất đẳng thức tam giác**: mỗi cạnh nhỏ hơn tổng hai cạnh kia. Nếu vi phạm, định lý cosin cho $|\cos C| > 1$ (vô lý) → báo ngay dữ liệu sai. Vd $a=1,b=1,c=5$: $\cos C = \frac{1+1-25}{2} = -11.5 \notin [-1,1]$ → tam giác không tồn tại.
+- *"Khi nào dùng cosin, khi nào dùng sin (Mục 9)?"* Cosin khi biết **2 cạnh + góc xen** (SAS) hoặc **3 cạnh** (SSS). Định lý sin khi biết **2 góc + 1 cạnh** (AAS/ASA) hoặc **2 cạnh + góc đối** (SSA).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Tam giác có $a = 8, b = 6, C = 90°$. Tính $c$.
+2. Tam giác có 3 cạnh $a = 7, b = 8, c = 9$. Tính $\cos B$.
+
+<details><summary>Đáp án</summary>
+
+1. $c^2 = 64 + 36 - 2\cdot 8\cdot 6\cdot\cos 90° = 100 - 0 = 100 \Rightarrow c = 10$ (chính là bộ ba $6,8,10$).
+2. $\cos B = \frac{a^2+c^2-b^2}{2ac} = \frac{49+81-64}{2\cdot 7\cdot 9} = \frac{66}{126} = \frac{11}{21} \approx 0.524 \Rightarrow B \approx 58.4°$.
+
+</details>
+
+### 📝 Tóm tắt mục 8
+
+- $c^2 = a^2 + b^2 - 2ab\cos C$ — tổng quát của Pythagore; khi $C = 90°$ → $\cos C = 0$ → quay về $a^2+b^2$.
+- Dùng để: tính cạnh khi biết 2 cạnh + góc xen (SAS); tính góc khi biết 3 cạnh (SSS, đảo công thức $\cos C = \frac{a^2+b^2-c^2}{2ab}$).
+- Cẩn thận dấu trừ và chọn đúng góc xen giữa.
+
+---
+
+## 9. Định lý sin (Law of Sines)
+
+💡 **Trực giác / Hình dung**: trong một tam giác, **cạnh càng dài thì góc đối diện càng lớn**. Định lý sin định lượng chính xác quan hệ đó: tỉ số $\frac{\text{cạnh}}{\sin(\text{góc đối})}$ là **hằng số** cho cả 3 cặp, và hằng số đó bằng $2R$ (đường kính đường tròn ngoại tiếp).
+
+**Phát biểu**:
+
+$$\frac{a}{\sin A} = \frac{b}{\sin B} = \frac{c}{\sin C} = 2R$$
+
+với $R$ là bán kính đường tròn ngoại tiếp (đi qua cả 3 đỉnh).
+
+### 9.1. Chứng minh từng bước (qua đường cao)
+
+Hạ đường cao $h$ từ đỉnh $C$ xuống cạnh $AB$ (cạnh $c$). Xét hai tam giác vuông tạo bởi $h$:
+- Trong tam giác vuông chứa góc $A$: $\sin A = \frac{h}{b}$ → $h = b\sin A$.
+- Trong tam giác vuông chứa góc $B$: $\sin B = \frac{h}{a}$ → $h = a\sin B$.
+
+Cùng là $h$ nên $b\sin A = a\sin B$, chia hai vế cho $\sin A\sin B$:
+
+$$\frac{a}{\sin A} = \frac{b}{\sin B}.$$
+
+Hạ đường cao từ đỉnh khác cho cặp còn lại → cả 3 tỉ số bằng nhau. ∎ (Việc tỉ số chung bằng $2R$ chứng minh bằng đường tròn ngoại tiếp; tạm dùng kết quả.)
+
+### 9.2. Walk-through — 3 ví dụ giải tam giác
+
+**Ví dụ 1 — biết 2 góc + 1 cạnh ($A = 30°, B = 75°, a = 10$), tính $b$**:
+
+$C = 180° - 30° - 75° = 75°$. Dùng $\frac{a}{\sin A} = \frac{b}{\sin B}$:
+$$\frac{10}{\sin 30°} = \frac{b}{\sin 75°} \;\Rightarrow\; \frac{10}{0.5} = \frac{b}{0.9659} \;\Rightarrow\; b = 20\cdot 0.9659 \approx 19.319.$$
+
+**Ví dụ 2 — tìm bán kính ngoại tiếp ($a = 10, A = 30°$)**:
+$$2R = \frac{a}{\sin A} = \frac{10}{0.5} = 20 \;\Rightarrow\; R = 10.$$
+
+**Ví dụ 3 — biết 2 cạnh + góc đối ($a = 8, b = 6, A = 60°$), tính $B$** (trường hợp SSA):
+$$\frac{a}{\sin A} = \frac{b}{\sin B} \;\Rightarrow\; \sin B = \frac{b\sin A}{a} = \frac{6\cdot\frac{\sqrt3}{2}}{8} = \frac{3\sqrt3}{8} \approx 0.6495 \;\Rightarrow\; B \approx 40.5°.$$
+(Vì cạnh $b < a$ nên $B < A$, chỉ có một nghiệm — không rơi vào *ambiguous case*.)
+
+⚠ **Lỗi thường gặp — ambiguous case (SSA)**. Khi biết 2 cạnh + góc đối **không xen**, $\sin B = k$ có thể cho **hai** góc $B$ và $180° - B$ (vì $\sin$ bằng nhau ở hai góc bù). Phải kiểm cả hai xem tam giác nào hợp lệ (tổng 3 góc $< 180°$). Vd $a=6, b=8, A=30°$: $\sin B = \frac{8\sin30°}{6} = \frac{4}{6} \approx 0.667$ → $B \approx 41.8°$ HOẶC $B \approx 138.2°$, cả hai đều cho tam giác hợp lệ → **hai tam giác**.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Định lý sin và cosin trùng vai trò không?"* Không, **bù trừ**. Cosin cần (và cho) một góc xen 2 cạnh hoặc cả 3 cạnh; sin cần một **cặp cạnh–góc đối** đã biết. Nếu chỉ có SAS hoặc SSS thì sin bí (không có cặp đối nào trọn vẹn) → phải khởi đầu bằng cosin.
+- *"Vì sao tỉ số bằng $2R$ chứ không phải $R$?"* Vì với một dây cung, góc nội tiếp chắn cung bằng nửa góc ở tâm; suy ra cạnh $= 2R\sin(\text{góc đối})$. Chi tiết học ở hình học đường tròn.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Tam giác có $A = 45°, B = 60°, a = 12$. Tính $b$.
+2. Tam giác có $a = 14, A = 30°$. Tính $2R$ và $R$.
+
+<details><summary>Đáp án</summary>
+
+1. $\frac{12}{\sin 45°} = \frac{b}{\sin 60°} \Rightarrow b = \frac{12\cdot(\sqrt3/2)}{\sqrt2/2} = \frac{12\sqrt3}{\sqrt2} = 6\sqrt6 \approx 14.70$.
+2. $2R = \frac{14}{\sin 30°} = \frac{14}{0.5} = 28 \Rightarrow R = 14$.
+
+</details>
+
+### 📝 Tóm tắt mục 9
+
+- $\frac{a}{\sin A} = \frac{b}{\sin B} = \frac{c}{\sin C} = 2R$ — cạnh tỉ lệ với sin góc đối.
+- Dùng khi biết 2 góc + 1 cạnh (AAS/ASA) hoặc 2 cạnh + góc đối (SSA — coi chừng ambiguous case có 2 nghiệm).
+- Bù trừ với định lý cosin: SAS/SSS dùng cosin, AAS/ASA/SSA dùng sin.
+
+---
+
+## 10. Bài tập
 
 ### Bài tập
 
@@ -372,6 +618,12 @@ trong đó:
 **Bài 4**: Tính $\int_0^\pi \sin^2 x \, dx$.
 
 **Bài 5**: Biến đổi $\sqrt{3}\cdot\sin x + \cos x$ sang dạng $R\cdot\sin(x + \varphi)$.
+
+**Bài 6**: Tam giác có $a = 8, b = 10, C = 45°$. Tính $c$ (dùng định lý cosin).
+
+**Bài 7**: Tam giác có 3 cạnh $a = 5, b = 6, c = 7$. Tính $\cos A$ rồi góc $A$.
+
+**Bài 8**: Tam giác có $A = 40°, B = 60°, a = 10$. Tính cạnh $b$ (dùng định lý sin).
 
 ### Lời giải
 
@@ -387,15 +639,38 @@ trong đó:
 
 **Bài 5**: $R = \sqrt{3 + 1} = $ **2**. $\tan\varphi = \frac{1}{\sqrt{3}}$ → $\varphi = \frac{\pi}{6}$. → **$2\cdot\sin(x + \frac{\pi}{6})$**.
 
+**Bài 6**: $c^2 = a^2 + b^2 - 2ab\cos C = 64 + 100 - 2\cdot 8\cdot 10\cdot\cos 45° = 164 - 160\cdot\frac{\sqrt2}{2} = 164 - 80\sqrt2 \approx 164 - 113.14 = 50.86$. Vậy $c \approx \sqrt{50.86} \approx$ **7.13**. Kiểm: $C = 45° < 90°$ → $c < \sqrt{164} \approx 12.8$; $7.13 < 12.8$ ✓.
+
+**Bài 7**: đảo định lý cosin: $\cos A = \frac{b^2 + c^2 - a^2}{2bc} = \frac{36 + 49 - 25}{2\cdot 6\cdot 7} = \frac{60}{84} = \frac{5}{7} \approx 0.714$. → $A = \arccos(0.714) \approx$ **44.4°**. (Cạnh $a=5$ nhỏ nhất → $A$ nhỏ nhất, hợp lý.)
+
+**Bài 8**: $\frac{a}{\sin A} = \frac{b}{\sin B}$ → $b = \frac{a\sin B}{\sin A} = \frac{10\cdot\sin 60°}{\sin 40°} = \frac{10\cdot 0.8660}{0.6428} \approx$ **13.47**. Kiểm: $B = 60° > A = 40°$ → cạnh $b > a = 10$; $13.47 > 10$ ✓.
+
 ---
 
-## 9. Bài tiếp theo
+## 11. Bài tiếp theo
 
 [Lesson 04 — Phương trình lượng giác](../lesson-04-trig-equations/).
 
 ## 📝 Tổng kết
 
-1. **$\sin^2 + \cos^2 = 1$**, công thức cộng, nhân đôi, hạ bậc.
-2. **Hạ bậc**: $\sin^2 x = \frac{1-\cos 2x}{2}$, $\cos^2 x = \frac{1+\cos 2x}{2}$ — dùng để tích phân.
-3. **Tích ↔ tổng**: cho giải PT.
-4. **$a\cdot\sin x + b\cdot\cos x = \sqrt{a^2+b^2}\cdot\sin(x + \varphi)$** — tổng hợp dao động.
+1. **$\sin^2 + \cos^2 = 1$** (Pythagore lượng giác); chia ra $1+\tan^2 = \sec^2$, $1+\cot^2 = \csc^2$.
+2. **Công thức cộng** là gốc — chứng minh $\cos(a-b)$ bằng đường tròn đơn vị, suy ra hết; nhân đôi = cộng với $b=a$.
+3. **Hạ bậc**: $\sin^2 x = \frac{1-\cos 2x}{2}$, $\cos^2 x = \frac{1+\cos 2x}{2}$ — dùng để tích phân.
+4. **Tích ↔ tổng**: cho giải PT.
+5. **$a\cdot\sin x + b\cdot\cos x = \sqrt{a^2+b^2}\cdot\sin(x + \varphi)$** — tổng hợp dao động.
+6. **Định lý cosin** $c^2 = a^2 + b^2 - 2ab\cos C$ (tổng quát Pythagore, dùng SAS/SSS) và **định lý sin** $\frac{a}{\sin A} = \frac{b}{\sin B} = \frac{c}{\sin C} = 2R$ (dùng AAS/ASA/SSA) — giải tam giác bất kỳ.
+
+## Bảng công thức tổng hợp (cheatsheet)
+
+| Nhóm | Công thức |
+|------|-----------|
+| **Pythagore** | $\sin^2 x + \cos^2 x = 1$; $\;1+\tan^2 x = \sec^2 x$; $\;1+\cot^2 x = \csc^2 x$ |
+| **Cộng/Hiệu** | $\sin(a\pm b) = \sin a\cos b \pm \cos a\sin b$ |
+| | $\cos(a\pm b) = \cos a\cos b \mp \sin a\sin b$ |
+| | $\tan(a\pm b) = \dfrac{\tan a \pm \tan b}{1 \mp \tan a\tan b}$ |
+| **Nhân đôi** | $\sin 2a = 2\sin a\cos a$ |
+| | $\cos 2a = \cos^2 a - \sin^2 a = 2\cos^2 a - 1 = 1 - 2\sin^2 a$ |
+| | $\tan 2a = \dfrac{2\tan a}{1 - \tan^2 a}$ |
+| **Hạ bậc** | $\sin^2 a = \dfrac{1-\cos 2a}{2}$; $\;\cos^2 a = \dfrac{1+\cos 2a}{2}$ |
+| **Định lý cosin** | $c^2 = a^2 + b^2 - 2ab\cos C$ |
+| **Định lý sin** | $\dfrac{a}{\sin A} = \dfrac{b}{\sin B} = \dfrac{c}{\sin C} = 2R$ |

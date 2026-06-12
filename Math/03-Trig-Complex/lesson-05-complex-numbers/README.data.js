@@ -117,20 +117,42 @@ $$z = a + bi$$
 
 ## 3. Mặt phẳng phức (Argand)
 
-💡 **Trực giác**: Coi $z = a + bi$ như **điểm $M(a, b)$** trên mặt phẳng. Trục hoành = phần thực, trục tung = phần ảo.
+💡 **Trực giác**: Coi $z = a + bi$ như **điểm $M(a, b)$** trên mặt phẳng. Trục hoành = phần thực, trục tung = phần ảo. Mỗi số phức **vừa là điểm vừa là mũi tên (vector)** từ gốc $O$ tới điểm đó — cách nhìn "mũi tên" giúp hiểu phép cộng (nối vector) và phép nhân (quay + co giãn, L06).
+
+Trục hoành (Re) chứa các số thực thuần ($b=0$); trục tung (Im) chứa số thuần ảo ($a=0$). Bốn số phức $3+4i$, $-2+i$, $-3i$, $4$ đặt lên mặt phẳng Argand:
 
 \`\`\`
-   ●(3+4i)
-   │
-   │
-   ●(2)        ●(5)            (trục thực)
-   │
-   ●(-3i)                       (trục ảo)
+                    Im (trục ảo)
+                     ↑
+                   4 +        ● 3+4i
+                     |       ╱:
+                   3 +      ╱ :
+                     |     ╱  :
+        ● -2+i     2 +    ╱   :
+          ╲          |   ╱    :
+         1 +●··········  ╱     :         |z|=5 (độ dài mũi tên OM)
+            ╲        | ╱      :
+  ──────┼────┼────┼──O────┼────┼────┼──→ Re (trục thực)
+       -3   -2   -1   |  1   2   3  4 ●(số thực 4)
+                      |              :
+                   -1 +              :
+                      |              :
+                   -2 +              :
+                      |              :
+                   -3 +              ● -3i (thuần ảo)
+                      |
 \`\`\`
+
+- $3+4i$ → điểm $(3,4)$, góc phần tư I (cả Re lẫn Im dương).
+- $-2+i$ → điểm $(-2,1)$, góc phần tư II.
+- $-3i = 0-3i$ → điểm $(0,-3)$, nằm trên trục ảo (đi xuống).
+- $4 = 4+0i$ → điểm $(4,0)$, nằm trên trục thực (số thực bình thường).
 
 **Mô-đun** (độ dài vector $OM$):
 
 $$|z| = \\sqrt{a^2 + b^2}$$
+
+💡 **Vì sao là $\\sqrt{a^2+b^2}$?** Vì $z=a+bi \\leftrightarrow$ điểm $(a,b)$, và độ dài đoạn từ gốc $O(0,0)$ tới $(a,b)$ chính là **định lý Pythagoras**: cạnh ngang $a$, cạnh dọc $b$, cạnh huyền $\\sqrt{a^2+b^2}$. Mô-đun đo "$z$ ở xa gốc bao nhiêu", luôn là số thực $\\ge 0$.
 
 **Liên hợp** (lật qua trục thực):
 
@@ -140,33 +162,85 @@ $$\\bar{z} = a - bi$$
 - $z \\cdot \\bar{z} = (a+bi)(a-bi) = a^2 + b^2 = |z|^2$.
 - $z + \\bar{z} = 2a = 2\\cdot\\operatorname{Re}(z)$.
 - $z - \\bar{z} = 2bi$.
+- $\\overline{\\bar{z}} = z$ (liên hợp hai lần về chỗ cũ — lật gương hai lần).
+- $|\\bar{z}| = |z|$ (gương không đổi độ dài), $|z\\cdot w| = |z|\\cdot|w|$, $\\overline{z\\cdot w} = \\bar{z}\\cdot\\bar{w}$.
 
 **Verify bằng số ($z = 3 + 4i$)**: $|z| = \\sqrt{3^2+4^2} = \\sqrt{25} = 5$. $\\bar{z} = 3 - 4i$. $z\\cdot\\bar{z} = (3+4i)(3-4i) = 9 - 12i + 12i - 16i^2 = 9 + 16 = 25 = |z|^2$ ✓. $z + \\bar{z} = 6 = 2\\cdot\\operatorname{Re}(z)$ ✓. $z - \\bar{z} = 8i = 2\\cdot(4)i$ ✓.
 
+#### 3.1. Walk-through mô-đun |z| — 4 ví dụ đa dạng
+
+| $z$ | $a$ | $b$ | $a^2+b^2$ | $\\lvert z\\rvert=\\sqrt{a^2+b^2}$ |
+|-----|-----|-----|-----------|----------------|
+| $3+4i$ | $3$ | $4$ | $9+16=25$ | $\\sqrt{25}=\\mathbf{5}$ |
+| $-5+12i$ | $-5$ | $12$ | $25+144=169$ | $\\sqrt{169}=\\mathbf{13}$ |
+| $-3i$ (thuần ảo) | $0$ | $-3$ | $0+9=9$ | $\\sqrt{9}=\\mathbf{3}$ |
+| $1+i$ | $1$ | $1$ | $1+1=2$ | $\\sqrt{2}\\approx\\mathbf{1.414}$ |
+
+Lưu ý ví dụ thứ 3: với $z=-3i$, $a=0$ và $b=-3$ → $|z| = \\sqrt{0+(-3)^2} = 3$. Dấu của $b$ **không** ảnh hưởng tới mô-đun vì bị bình phương. Tương tự $|3|=3$ với số thực thuần $z=3+0i$ → trùng giá trị tuyệt đối thông thường (mô-đun là **mở rộng** của trị tuyệt đối lên mặt phẳng).
+
+#### 3.2. Walk-through liên hợp z̄ — 4 ví dụ
+
+| $z$ | $\\bar{z}=a-bi$ | Hình học (lật qua trục thực) |
+|-----|----------------|------------------------------|
+| $3+4i$ | $3-4i$ | $(3,4)\\to(3,-4)$ |
+| $-2+5i$ | $-2-5i$ | $(-2,5)\\to(-2,-5)$ |
+| $6i$ ($=0+6i$) | $-6i$ | $(0,6)\\to(0,-6)$ |
+| $7$ ($=7+0i$) | $7$ | $(7,0)\\to(7,0)$ — số thực **bất biến** |
+
+Ví dụ cuối quan trọng: liên hợp của một **số thực thuần** là chính nó ($\\bar{z}=z \\iff z$ là số thực). Lý do hình học: điểm nằm sẵn trên trục thực, lật qua trục thực không di chuyển.
+
+#### 3.3. Nghịch đảo $z^{-1} = \\dfrac{1}{z}$ — walk-through 3 ví dụ
+
+💡 **Trực giác**: nghịch đảo của $z$ là số $w$ sao cho $z\\cdot w = 1$. Công thức suy ra trực tiếp từ "$z\\cdot\\bar{z}=|z|^2$": chia cả hai vế cho $|z|^2$ → $z\\cdot\\dfrac{\\bar{z}}{|z|^2}=1$, nên:
+
+$$z^{-1} = \\frac{1}{z} = \\frac{\\bar{z}}{|z|^2} = \\frac{a - bi}{a^2 + b^2}$$
+
+Quy trình: lấy liên hợp $\\bar{z}$ làm tử, mô-đun-bình-phương $a^2+b^2$ làm mẫu (mẫu giờ là số thực).
+
+**Ví dụ 1**: $z = 3 + 4i$. $|z|^2 = 9+16 = 25$, $\\bar{z}=3-4i$.
+$$z^{-1} = \\frac{3-4i}{25} = \\frac{3}{25} - \\frac{4}{25}i$$
+**Kiểm tra**: $z\\cdot z^{-1} = (3+4i)\\cdot\\dfrac{3-4i}{25} = \\dfrac{9+16}{25} = \\dfrac{25}{25} = 1$ ✓.
+
+**Ví dụ 2**: $z = i$. $|z|^2 = 0^2+1^2 = 1$, $\\bar{z} = -i$.
+$$z^{-1} = \\frac{-i}{1} = -i$$
+**Kiểm tra**: $i\\cdot(-i) = -i^2 = -(-1) = 1$ ✓. (Khớp với $i^{-1}=i^3=-i$ ở mục 5.)
+
+**Ví dụ 3**: $z = 1 - 2i$. $|z|^2 = 1+4 = 5$, $\\bar{z} = 1+2i$.
+$$z^{-1} = \\frac{1+2i}{5} = \\frac{1}{5} + \\frac{2}{5}i$$
+**Kiểm tra**: $(1-2i)\\cdot\\dfrac{1+2i}{5} = \\dfrac{(1-2i)(1+2i)}{5} = \\dfrac{1+4}{5} = 1$ ✓.
+
 ⚠ **Lỗi thường gặp — tính mô-đun thiếu bình phương hoặc cộng nhầm**. $|a+bi| = \\sqrt{a^2+b^2}$, KHÔNG phải $a + b$ hay $\\sqrt{a+b}$. Phản ví dụ: $|3+4i|$ đúng là $\\sqrt{9+16}=5$; nếu tính $3+4=7$ hay $\\sqrt{3+4}=\\sqrt{7}\\approx 2.65$ đều sai.
+
+⚠ **Lỗi thường gặp — nhầm $\\lvert z\\rvert$ (số thực) với $z$ (số phức)**. Mô-đun $|z|$ là **một số thực** (độ dài), không còn phần ảo. Với $z=3+4i$, $|z|=5$ — không viết $|z|=5+0i$ rồi tiếp tục coi như số phức để cộng phần ảo. Tương tự đừng nhầm $|z|^2$ (số thực $a^2+b^2$) với $z^2$ (số phức $(a+bi)^2$): với $z=3+4i$, $|z|^2=25$ nhưng $z^2 = 9+24i-16 = -7+24i$ — khác hoàn toàn.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
 - *"Liên hợp $\\bar{z}$ có ý nghĩa hình học gì?"* Là **ảnh qua gương** của $z$ qua trục thực (trục hoành): điểm $(a, b) \\to (a, -b)$. Giữ phần thực, lật dấu phần ảo.
 - *"Vì sao $z\\cdot\\bar{z}$ luôn là số thực không âm?"* Vì $= a^2 + b^2 = |z|^2$. Đây chính là mẹo để "khử ảo" ở mẫu khi chia (mục 4.3).
+- *"Số phức nào KHÔNG có nghịch đảo?"* Chỉ **$z = 0$** — vì $|z|^2 = 0$ làm mẫu bằng 0. Mọi $z \\neq 0$ đều có nghịch đảo duy nhất. (Đây là tính chất "trường" — field — của $\\mathbb{C}$, giống $\\mathbb{R}$.)
+- *"Khi nào $\\bar{z} = z^{-1}$?"* Khi $|z|^2 = 1$, tức $z$ nằm trên **đường tròn đơn vị** (mô-đun bằng 1). Vd $z=i$: $\\bar{z}=-i=z^{-1}$ ✓.
 
 🔁 **Dừng lại tự kiểm tra**
 
 1. Cho $z = -1 + 2i$. Tính $|z|$ và $\\bar{z}$.
 2. $z\\cdot\\bar{z}$ của $z = 5i$ bằng mấy?
+3. Tính nghịch đảo của $z = 2 + i$, rồi kiểm tra $z\\cdot z^{-1} = 1$.
 
 <details><summary>Đáp án</summary>
 
 1. $|z| = \\sqrt{(-1)^2+2^2} = \\sqrt{5}$. $\\bar{z} = -1 - 2i$.
 2. $z = 0 + 5i$, $\\bar{z} = -5i$ → $z\\cdot\\bar{z} = 25$ (= $|z|^2 = 5^2 = 25$).
+3. $|z|^2 = 4+1 = 5$, $\\bar{z}=2-i$ → $z^{-1} = \\dfrac{2-i}{5} = \\dfrac{2}{5} - \\dfrac{1}{5}i$. Kiểm tra: $(2+i)\\dfrac{2-i}{5} = \\dfrac{4+1}{5} = 1$ ✓.
 
 </details>
 
 ### 📝 Tóm tắt mục 3
 
-- $z = a+bi \\leftrightarrow$ điểm $(a, b)$ trên mặt phẳng Argand (trục x thực, trục y ảo).
-- $|z| = \\sqrt{a^2+b^2}$ (độ dài vector); $\\bar{z} = a - bi$ (lật qua trục thực).
+- $z = a+bi \\leftrightarrow$ điểm $(a, b)$ trên mặt phẳng Argand (trục x thực, trục y ảo); cũng là vector $OM$.
+- $|z| = \\sqrt{a^2+b^2}$ (độ dài vector, Pythagoras); $\\bar{z} = a - bi$ (lật gương qua trục thực).
 - $z\\cdot\\bar{z} = |z|^2$ (luôn thực $\\ge 0$) — mẹo khử ảo ở mẫu.
+- Nghịch đảo $z^{-1} = \\dfrac{\\bar{z}}{|z|^2}$; mọi $z\\neq 0$ đều có nghịch đảo, chỉ $z=0$ thì không.
+- $|z|$ là **số thực**, đừng nhầm với $z$; $|z|^2$ (thực) khác $z^2$ (phức).
 
 ---
 
@@ -183,29 +257,69 @@ $$\\begin{aligned}
 
 **Ví dụ**: $(3+2i) + (1-4i) =$ **$4 - 2i$**.
 
-💡 **Hình học**: Cộng số phức = **cộng vector**.
+💡 **Hình học**: Cộng số phức = **cộng vector** (quy tắc hình bình hành — nối hai mũi tên đầu-đuôi). Ví dụ $(3+i)+(1+2i)=4+3i$: đi từ $O$ tới $(3,1)$, rồi tiếp tục đi thêm $(1,2)$ → tới $(4,3)$.
+
+\`\`\`
+        Im
+         ↑
+       3 +              ● 4+3i (tổng)
+         |            ╱ ↑
+       2 +      ● 1+2i  | (dịch thêm 1+2i từ điểm 3+i)
+         |    ╱        |
+       1 +  ╱      ●───┘ 3+i
+         |╱       ╱
+  ───────O───────────────→ Re
+         |   1   3   4
+\`\`\`
+
+**4 ví dụ số đa dạng (cộng/trừ)**:
+
+| Phép | Phần thực | Phần ảo | Kết quả |
+|------|-----------|---------|---------|
+| $(3+2i)+(1-4i)$ | $3+1=4$ | $2+(-4)=-2$ | $\\mathbf{4-2i}$ |
+| $(-2+5i)+(6-5i)$ | $-2+6=4$ | $5+(-5)=0$ | $\\mathbf{4}$ (thuần thực!) |
+| $(7-3i)-(2+4i)$ | $7-2=5$ | $-3-4=-7$ | $\\mathbf{5-7i}$ |
+| $(4i)-(4i)$ | $0-0=0$ | $4-4=0$ | $\\mathbf{0}$ |
+
+Ví dụ thứ 2 minh họa: $(z)+(\\bar z$-kiểu) có thể triệt tiêu phần ảo → ra số thực. Cụ thể tổng của một cặp liên hợp luôn thực: $(a+bi)+(a-bi)=2a$.
 
 ### 4.2. Nhân
 
-Phân phối, dùng $i^2 = -1$:
+Phân phối (FOIL), dùng $i^2 = -1$:
 
 $$(a+bi)(c+di) = ac + adi + bci + bd\\cdot i^2 = (ac - bd) + (ad + bc)i$$
 
 **Ví dụ**: $(3+2i)(1-4i) = 3 - 12i + 2i - 8i^2 = 3 - 10i + 8 =$ **$11 - 10i$**.
 
-⚠ **Lỗi thường gặp**: Quên $i^2 = -1$, để nguyên $8i^2$ → kết quả sai $3 - 10i$ thay vì $11 - 10i$.
+**4 ví dụ số đa dạng (nhân) — bám từng bước FOIL**:
+
+1. $(2+3i)(1+2i) = 2 + 4i + 3i + 6i^2 = 2 + 7i - 6 = \\mathbf{-4 + 7i}$. (Bốn tích F-O-I-L: $2\\cdot1$, $2\\cdot2i$, $3i\\cdot1$, $3i\\cdot2i=6i^2$.)
+2. $(1+i)(1-i) = 1 - i + i - i^2 = 1 + 1 = \\mathbf{2}$ (thuần thực — chính là $z\\bar z$ với $z=1+i$, bằng $|z|^2=2$).
+3. $(2+3i)^2 = (2+3i)(2+3i) = 4 + 12i + 9i^2 = 4 + 12i - 9 = \\mathbf{-5 + 12i}$ (bình phương: nhớ $9i^2=-9$).
+4. $(-1+i)(3-2i) = -3 + 2i + 3i - 2i^2 = -3 + 5i + 2 = \\mathbf{-1 + 5i}$.
+
+⚠ **Lỗi thường gặp — quên $i^2 = -1$**. Để nguyên $8i^2$ ở ví dụ đầu → ra sai $3 - 10i$ thay vì $11 - 10i$. Bước "thay $i^2=-1$" làm thay đổi **phần thực** (chuyển $+bd\\cdot i^2$ thành $-bd$), nên quên là sai luôn cả phần thực. Phản ví dụ ở $(2+3i)^2$: nếu giữ $9i^2$ thì ra $4+12i+9i^2$ và đọc nhầm là $4+9=13$ cộng $12i$ → sai; đúng phải là $4-9=-5$.
 
 ### 4.3. Chia
 
-**Mẹo**: Nhân tử và mẫu với liên hợp của mẫu (để mẫu thành số thực).
+**Mẹo**: Nhân tử và mẫu với **liên hợp của mẫu** (để mẫu thành số thực — đúng cơ chế "khử ảo" giống hữu tỉ hóa mẫu căn ở Tier 1).
 
 $$\\frac{a+bi}{c+di} = \\frac{(a+bi)(c-di)}{(c+di)(c-di)} = \\frac{(a+bi)(c-di)}{c^2+d^2}$$
 
-**Ví dụ**: $\\dfrac{3+2i}{1+i}$.
-- Nhân với $(1-i)$:
+**Ví dụ (mẫu)**: $\\dfrac{3+2i}{1+i}$.
+- Nhân tử & mẫu với liên hợp mẫu $(1-i)$:
 - Tử: $(3+2i)(1-i) = 3 - 3i + 2i - 2i^2 = 3 - i + 2 = 5 - i$.
 - Mẫu: $(1+i)(1-i) = 1^2 + 1^2 = 2$.
 - → **$\\dfrac{5-i}{2} = \\dfrac{5}{2} - \\dfrac{1}{2}i$**.
+
+**4 ví dụ số đa dạng (chia) — luôn nhân liên hợp mẫu**:
+
+1. $\\dfrac{1}{2+i}$: liên hợp mẫu $2-i$. Tử $1\\cdot(2-i)=2-i$; mẫu $(2+i)(2-i)=4+1=5$ → $\\dfrac{2-i}{5} = \\mathbf{\\dfrac{2}{5} - \\dfrac{1}{5}i}$. (Đây cũng là $z^{-1}$ của $2+i$ — khớp mục 3.3.)
+2. $\\dfrac{4+2i}{1-i}$: liên hợp $1+i$. Tử $(4+2i)(1+i)=4+4i+2i+2i^2=4+6i-2=2+6i$; mẫu $(1-i)(1+i)=2$ → $\\dfrac{2+6i}{2} = \\mathbf{1+3i}$.
+3. $\\dfrac{5}{i}$: liên hợp của $i$ là $-i$. Tử $5\\cdot(-i)=-5i$; mẫu $i\\cdot(-i)=-i^2=1$ → $\\mathbf{-5i}$. (Nhanh hơn: $\\dfrac{5}{i}=5\\cdot i^{-1}=5\\cdot(-i)=-5i$.)
+4. $\\dfrac{2+3i}{3-4i}$: liên hợp $3+4i$. Tử $(2+3i)(3+4i)=6+8i+9i+12i^2=6+17i-12=-6+17i$; mẫu $(3-4i)(3+4i)=9+16=25$ → $\\mathbf{\\dfrac{-6}{25} + \\dfrac{17}{25}i}$.
+
+⚠ **Lỗi thường gặp — nhân tử & mẫu với chính mẫu thay vì LIÊN HỢP**. Nhân với $(c+di)$ (không đổi dấu) thì mẫu thành $(c+di)^2$ — **vẫn còn ảo**, không khử được. Phải nhân với $(c-di)$ để mẫu ra $c^2+d^2$ (thực). Phản ví dụ ở $\\dfrac{1}{2+i}$: nhân $(2+i)$ ra mẫu $(2+i)^2=3+4i$ (còn ảo, vô ích); nhân $(2-i)$ mới ra mẫu $5$ (thực) ✓.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -226,15 +340,30 @@ $$\\frac{a+bi}{c+di} = \\frac{(a+bi)(c-di)}{(c+di)(c-di)} = \\frac{(a+bi)(c-di)}
 
 ### 📝 Tóm tắt mục 4
 
-- Cộng/trừ: gộp phần thực với thực, ảo với ảo.
-- Nhân: phân phối (FOIL) rồi thay $i^2 = -1$ (đừng quên bước này).
-- Chia: nhân tử & mẫu với **liên hợp mẫu** để mẫu thành thực.
+- Cộng/trừ: gộp phần thực với thực, ảo với ảo (= cộng vector).
+- Nhân: phân phối (FOIL) rồi thay $i^2 = -1$ (đừng quên bước này — nó đổi cả phần thực).
+- Chia: nhân tử & mẫu với **liên hợp mẫu** (không phải chính mẫu) để mẫu thành thực $c^2+d^2$.
+- Mọi phép toán: làm như đa thức biến $i$ với luật duy nhất $i^2=-1$.
 
 ---
 
 ## 5. Lũy thừa của i
 
-💡 **Trực giác / Hình dung**: nhân với $i$ = **quay 90°** trên mặt phẳng. Bắt đầu từ 1 (hướng phải): quay 90° → $i$ (lên), quay tiếp → $-1$ (trái), quay tiếp → $-i$ (xuống), quay tiếp → $1$ (về chỗ cũ). Cứ 4 lần quay = 1 vòng đầy → lũy thừa của i lặp lại chu kỳ 4.
+💡 **Trực giác / Hình dung**: nhân với $i$ = **quay 90° ngược kim đồng hồ** trên mặt phẳng. Bắt đầu từ 1 (hướng phải): quay 90° → $i$ (lên), quay tiếp → $-1$ (trái), quay tiếp → $-i$ (xuống), quay tiếp → $1$ (về chỗ cũ). Cứ 4 lần quay = 1 vòng đầy → lũy thừa của i lặp lại chu kỳ 4.
+
+\`\`\`
+              Im
+               ↑
+            i² = -1 ?  ● i  (= i¹)
+                    ↖  ↑  ↗
+                      \\ | /  mỗi mũi tên = nhân thêm i (quay 90°)
+   -1 ●───────────────O───────────────● 1  (= i⁰)
+                      / | \\
+                    ↙  ↓  ↘
+                       ● -i (= i³)
+
+   i⁰=1 → i¹=i → i²=-1 → i³=-i → i⁴=1 (quay đủ 360°, về 1)
+\`\`\`
 
 | n | $i^n$ |
 |---|-----|
@@ -289,11 +418,29 @@ $$\\frac{a+bi}{c+di} = \\frac{(a+bi)(c-di)}{(c+di)(c-di)} = \\frac{(a+bi)(c-di)}
 
 Trước đây vô nghiệm. Nay luôn có 2 nghiệm phức.
 
-**Ví dụ**: $x^2 + 4x + 13 = 0$. $\\Delta = 16 - 52 = -36$.
+**Quy trình 4 bước** (với $\\Delta = b^2 - 4ac < 0$):
+
+> **Bước 1** — tính $\\Delta = b^2 - 4ac$. Nếu $\\Delta < 0$, viết $\\Delta = -|\\Delta|$.
+>
+> **Bước 2** — $\\sqrt{\\Delta} = \\sqrt{-|\\Delta|} = \\sqrt{|\\Delta|}\\cdot i$ (lấy căn của **trị tuyệt đối** rồi gắn $i$).
+>
+> **Bước 3** — áp công thức nghiệm $x = \\dfrac{-b \\pm \\sqrt{|\\Delta|}\\,i}{2a}$.
+>
+> **Bước 4** — rút gọn về dạng $p \\pm qi$; hai nghiệm là **cặp liên hợp**.
+
+**Ví dụ 1**: $x^2 + 4x + 13 = 0$ ($a=1, b=4, c=13$). $\\Delta = 16 - 52 = -36$.
 - $\\sqrt{\\Delta} = \\sqrt{-36} = 6i$.
 - $x = \\dfrac{-4 \\pm 6i}{2} =$ **$-2 \\pm 3i$**.
 
-**Kiểm tra**: $(-2+3i)^2 + 4(-2+3i) + 13 = 4 - 12i - 9 - 8 + 12i + 13 = 0$ ✓.
+**Kiểm tra**: $(-2+3i)^2 + 4(-2+3i) + 13 = (4 - 12i + 9i^2) + (-8 + 12i) + 13 = (4 - 12i - 9) - 8 + 12i + 13 = 0$ ✓.
+
+**Ví dụ 2** ($a \\neq 1$): $2x^2 - 2x + 5 = 0$ ($a=2, b=-2, c=5$). $\\Delta = (-2)^2 - 4\\cdot2\\cdot5 = 4 - 40 = -36$.
+- $\\sqrt{\\Delta} = \\sqrt{-36} = 6i$.
+- $x = \\dfrac{-(-2) \\pm 6i}{2\\cdot2} = \\dfrac{2 \\pm 6i}{4} = \\dfrac{1}{2} \\pm \\dfrac{3}{2}i$.
+
+→ **$x = \\dfrac{1}{2} \\pm \\dfrac{3}{2}i$**. **Kiểm tra Vieta**: tổng $= 1 = -\\dfrac{b}{a} = \\dfrac{2}{2}$ ✓; tích $= \\left(\\dfrac12\\right)^2 + \\left(\\dfrac32\\right)^2 = \\dfrac14+\\dfrac94 = \\dfrac{10}{4} = \\dfrac{5}{2} = \\dfrac{c}{a}$ ✓.
+
+**Ví dụ 3** (PT khuyết, $b=0$): $x^2 + 25 = 0$ → $x^2 = -25$ → $x = \\pm\\sqrt{-25} = \\pm 5i$. Hai nghiệm thuần ảo $5i$ và $-5i$ (vẫn là cặp liên hợp với phần thực $=0$).
 
 ⚠ **Lỗi thường gặp — viết $\\sqrt{-36} = \\pm 6i$ rồi lại đặt thêm ± trong công thức**. Trong công thức nghiệm đã có sẵn dấu $\\pm$ trước căn: $x = \\dfrac{-b \\pm \\sqrt{|\\Delta|}\\cdot i}{2a}$. Lấy $\\sqrt{36} = 6$ (dương) rồi gắn $i$, dấu ± do công thức lo. Phản ví dụ nếu nhân đôi dấu: dễ tạo 4 "nghiệm" sai thay vì 2.
 
@@ -306,11 +453,13 @@ Trước đây vô nghiệm. Nay luôn có 2 nghiệm phức.
 
 1. Giải $x^2 + 2x + 5 = 0$ trong $\\mathbb{C}$.
 2. Hai nghiệm đó có liên hợp nhau không?
+3. Giải $3x^2 + 2x + 1 = 0$ (hệ số $a=3\\neq1$).
 
 <details><summary>Đáp án</summary>
 
 1. $\\Delta = 4 - 20 = -16$ → $\\sqrt{\\Delta} = 4i$ → $x = \\dfrac{-2 \\pm 4i}{2} = -1 \\pm 2i$.
 2. Có: $-1+2i$ và $-1-2i$ là cặp liên hợp.
+3. $\\Delta = 4 - 12 = -8$ → $\\sqrt{\\Delta} = \\sqrt{8}\\,i = 2\\sqrt{2}\\,i$ → $x = \\dfrac{-2 \\pm 2\\sqrt{2}\\,i}{6} = -\\dfrac{1}{3} \\pm \\dfrac{\\sqrt{2}}{3}i$.
 
 </details>
 
@@ -377,6 +526,16 @@ Trước đây vô nghiệm. Nay luôn có 2 nghiệm phức.
 
 **Bài 5**: Tính $i^{100}$.
 
+**Bài 6**: Tính nghịch đảo $z^{-1}$ của $z = 3 - 4i$, rồi kiểm tra $z\\cdot z^{-1}=1$.
+
+**Bài 7**: Tính $\\dfrac{2 - 3i}{4 + i}$ (đưa về dạng $a+bi$).
+
+**Bài 8**: Giải $x^2 - 6x + 25 = 0$ trong $\\mathbb{C}$, kiểm tra hai nghiệm liên hợp nhau và verify Vieta.
+
+**Bài 9**: Cho $z = -5 + 12i$. Tính $|z|$, $\\bar{z}$, và $z\\cdot\\bar{z}$.
+
+**Bài 10**: Rút gọn $i^7 + i^{16} + i^{-3}$.
+
 ### Lời giải
 
 **Bài 1**: $\\operatorname{Re} = 4$, $\\operatorname{Im} = -3$, $|z| = \\sqrt{16+9} =$ **$5$**, $\\bar{z} =$ **$4 + 3i$**.
@@ -392,6 +551,23 @@ Trước đây vô nghiệm. Nay luôn có 2 nghiệm phức.
 
 **Bài 5**: $100 = 4\\cdot 25$ → $i^{100} = (i^4)^{25} = 1^{25} =$ **$1$**.
 
+**Bài 6**: $|z|^2 = 3^2 + (-4)^2 = 9 + 16 = 25$, $\\bar{z} = 3 + 4i$.
+$$z^{-1} = \\frac{\\bar{z}}{|z|^2} = \\frac{3+4i}{25} = \\frac{3}{25} + \\frac{4}{25}i.$$
+Kiểm tra: $(3-4i)\\cdot\\dfrac{3+4i}{25} = \\dfrac{(3-4i)(3+4i)}{25} = \\dfrac{9+16}{25} = 1$ ✓.
+
+**Bài 7**: Nhân tử & mẫu với liên hợp mẫu $(4 - i)$:
+- Tử: $(2-3i)(4-i) = 8 - 2i - 12i + 3i^2 = 8 - 14i - 3 = 5 - 14i$.
+- Mẫu: $(4+i)(4-i) = 16 + 1 = 17$.
+- → **$\\dfrac{5 - 14i}{17} = \\dfrac{5}{17} - \\dfrac{14}{17}i$**.
+
+**Bài 8**: $a=1, b=-6, c=25$. $\\Delta = 36 - 100 = -64$ → $\\sqrt{\\Delta} = 8i$.
+$$x = \\frac{6 \\pm 8i}{2} = \\mathbf{3 \\pm 4i}.$$
+Hai nghiệm $3+4i$ và $3-4i$ là cặp liên hợp ✓. Vieta: tổng $= 6 = -\\dfrac{b}{a}$ ✓; tích $= 3^2 + 4^2 = 25 = \\dfrac{c}{a}$ ✓.
+
+**Bài 9**: $|z| = \\sqrt{(-5)^2 + 12^2} = \\sqrt{25+144} = \\sqrt{169} = \\mathbf{13}$. $\\bar{z} = \\mathbf{-5 - 12i}$. $z\\cdot\\bar{z} = |z|^2 = \\mathbf{169}$.
+
+**Bài 10**: $i^7 = i^{7\\bmod4} = i^3 = -i$; $i^{16} = i^{16\\bmod4} = i^0 = 1$; $i^{-3} = i^{(-3)\\bmod4} = i^1 = i$ (vì $-3 \\equiv 1 \\pmod 4$). Tổng: $-i + 1 + i = \\mathbf{1}$.
+
 ---
 
 ## 9. Bài tiếp theo
@@ -400,8 +576,9 @@ Trước đây vô nghiệm. Nay luôn có 2 nghiệm phức.
 
 ## 📝 Tổng kết
 
-1. **$i^2 = -1$**. $\\mathbb{C} = \\{a + bi : a, b \\in \\mathbb{R}\\}$.
-2. **$|z| = \\sqrt{a^2+b^2}$**, **$\\bar{z} = a - bi$**, $z\\cdot\\bar{z} = |z|^2$.
-3. 4 phép toán: cộng/trừ theo phần thực/ảo, nhân phân phối với $i^2 = -1$, chia nhân liên hợp.
-4. **Định lý đại số cơ bản**: PT bậc n có đúng n nghiệm trong $\\mathbb{C}$.
+1. **$i^2 = -1$**. $\\mathbb{C} = \\{a + bi : a, b \\in \\mathbb{R}\\}$. Mỗi $z \\leftrightarrow$ điểm/vector $(a,b)$ trên mặt phẳng Argand.
+2. **$|z| = \\sqrt{a^2+b^2}$** (số thực, Pythagoras), **$\\bar{z} = a - bi$** (lật gương), $z\\cdot\\bar{z} = |z|^2$. Nghịch đảo $z^{-1} = \\dfrac{\\bar{z}}{|z|^2}$ ($z\\neq 0$).
+3. 4 phép toán: cộng/trừ theo phần thực/ảo, nhân phân phối với $i^2 = -1$, chia nhân **liên hợp mẫu**.
+4. $\\Delta < 0$: hai nghiệm phức liên hợp $p \\pm qi$; Vieta vẫn đúng trong $\\mathbb{C}$.
+5. **Định lý đại số cơ bản**: PT bậc n có đúng n nghiệm trong $\\mathbb{C}$ (đếm cả bội).
 `;

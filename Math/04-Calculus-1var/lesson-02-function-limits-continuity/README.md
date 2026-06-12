@@ -18,7 +18,37 @@
 
 💡 **Là gì**: $\lim_{x \to a} f(x) = L$ có nghĩa **khi $x$ càng gần $a$, $f(x)$ càng gần $L$**.
 
+💡 **Trực giác cốt lõi — "tiến tới mà không cần chạm"**: tưởng tượng bạn lái xe trên một con đường (đồ thị $y = f(x)$) hướng về cột mốc tại $x = a$. Câu hỏi của giới hạn **không** phải "có cái gì ngay tại cột mốc?" mà là "khi tôi tiến sát cột mốc, độ cao của con đường đang **nhắm tới** giá trị nào?". Bạn có thể không bao giờ tới đúng cột mốc (đường có thể bị đào hố ngay tại đó — $f(a)$ không xác định), hoặc tại cột mốc có một biển báo lẻ treo lơ lửng ở độ cao khác ($f(a) \neq L$) — cả hai đều **không** ảnh hưởng tới "độ cao đang nhắm tới". Giới hạn chỉ đọc **xu hướng của lân cận**, không đọc giá trị tại điểm.
+
+Cụ thể hơn, "tiến tới mà không cần chạm" thể hiện ngay trong ký hiệu $0 < |x - a|$ của định nghĩa hình thức bên dưới: dấu $0 <$ cố ý **loại trừ** $x = a$. Ta lấy thông tin từ mọi điểm sát $a$, trừ đúng $a$.
+
 ⚠ **Quan trọng**: Giá trị tại $x = a$ **không quan trọng** (có thể $f(a)$ không xác định, hoặc khác $L$). Chỉ quan tâm "xung quanh $a$".
+
+**Bảng tiến gần (numerical approach) cho $\lim_{x \to 1} \frac{x^2-1}{x-1}$** — thấy tận mắt "tiến tới mà không chạm":
+
+| $x$ (trái) | $f(x)$ | | $x$ (phải) | $f(x)$ |
+|-----------|--------|---|-----------|--------|
+| $0.9$ | $1.9$ | | $1.1$ | $2.1$ |
+| $0.99$ | $1.99$ | | $1.01$ | $2.01$ |
+| $0.999$ | $1.999$ | | $1.001$ | $2.001$ |
+| $0.9999$ | $1.9999$ | | $1.0001$ | $2.0001$ |
+| $1$ | **không xác định** | | $1$ | **không xác định** |
+
+Hai cột cùng ép $f(x)$ về **2** — dù ngay tại $x = 1$ hàm "thủng lỗ". Đó chính là $\lim_{x \to 1} f(x) = 2$.
+
+ASCII đồ thị (lỗ trống tại $x = 1$, ký hiệu `o` = điểm bị khoét):
+
+```
+ f(x)
+  3 |                          /
+    |                       /
+  2 |- - - - - - - - - - o          <- lim = 2, nhưng f(1) không tồn tại
+    |                 / :
+  1 |              /    :
+    |           /       :
+  0 +--------------------+---------- x
+    0       0.5     1   (a=1)   1.5
+```
 
 **Ví dụ kinh điển**: $f(x) = \frac{x^2 - 1}{x - 1}$ khi $x \to 1$.
 - Tại $x = 1$: $f(1) = \frac{0}{0} =$ không xác định!
@@ -41,11 +71,13 @@ $$\lim_{x \to a} f(x) = L \iff \forall \varepsilon > 0,\ \exists \delta > 0,\ \f
 >
 > **(c) Ví dụ số**: $f(x) = x^2$ liên tục tại 2: $f(2) = 4$, $\lim_{x \to 2} x^2 = 4$, khớp ✓. $f(x) = \frac{x^2-1}{x-1}$ **gián đoạn bỏ được** tại 1: $f(1)$ chưa định nghĩa, nhưng $\lim = 2 \to$ sửa $f(1)=2$ thì liên tục. $f(x) = \frac{1}{x}$ **gián đoạn vô hạn** tại 0: $\lim$ trái $= -\infty$, $\lim$ phải $= +\infty$. $f(x) = \lfloor x \rfloor$ (sàn) **gián đoạn nhảy** tại mọi số nguyên: $f(2^-) = 1$, $f(2^+) = 2$.
 
-**4 ví dụ số đa dạng cho $\lim_{x \to a} f(x)$**:
-- Hàm liên tục thường (thay trực tiếp): $\lim_{x \to 3} (2x+1) = 7$.
-- Dạng $\frac{0}{0}$ rút gọn được: $\lim_{x \to 2} \frac{x^2-4}{x-2} = \lim(x+2) = 4$.
+**4 ví dụ số đa dạng cho $\lim_{x \to a} f(x)$** (đủ các "kiểu" gặp được):
+- Hàm liên tục thường (thay trực tiếp): $\lim_{x \to 3} (2x+1) = 7$. Verify: $x = 2.99 \to 6.98$, $x = 3.01 \to 7.02$ — kẹp về 7.
+- Dạng $\frac{0}{0}$ rút gọn được: $\lim_{x \to 2} \frac{x^2-4}{x-2} = \lim(x+2) = 4$. Verify: $x = 1.999 \to 3.999$, $x = 2.001 \to 4.001$.
 - Giới hạn không tồn tại (hai bên lệch): $\lim_{x \to 0} \frac{|x|}{x}$ — trái $= -1$, phải $= +1 \to$ không tồn tại.
 - Giới hạn tại điểm hàm xác định nhưng lệch giá trị: $f(x) = 1$ mọi $x \neq 0$, $f(0) = 5 \to \lim_{x \to 0} f = 1 \neq f(0)$.
+
+**Một cái bẫy thực sự — bảng giá trị có thể lừa**: với $f(x) = \sin\!\left(\frac{1}{x}\right)$ khi $x \to 0$, nếu bạn lập bảng tại $x = \frac{1}{\pi}, \frac{1}{2\pi}, \frac{1}{3\pi}, \dots$ thì $f$ luôn $= 0$ → tưởng $\lim = 0$. Nhưng tại $x = \frac{1}{\pi/2 + 2k\pi}$ thì $f = 1$, và tại $x = \frac{1}{-\pi/2 + 2k\pi}$ thì $f = -1$. Hàm dao động **vô số lần** càng gần 0 càng nhanh → $\lim_{x \to 0} \sin(1/x)$ **không tồn tại**. Bài học: bảng số là **gợi ý**, không phải chứng minh; chỉ định nghĩa $\varepsilon$-$\delta$ hoặc quy tắc đại số mới chắc chắn.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -87,7 +119,25 @@ $$\lim_{x \to a} f(x) = L \iff \forall \varepsilon > 0,\ \exists \delta > 0,\ \f
 - $x > 0$: $f = 1 \to \lim$ phải $= 1$.
 - Khác nhau → **$\lim$ 2 bên KHÔNG tồn tại**.
 
+ASCII đồ thị hàm dấu $\frac{|x|}{x}$ (nhảy tại 0, hai bên lệch):
+
+```
+ f(x)
+  +1 |          o========   (x > 0: f = +1)
+     |
+   0 +----------+--------- x
+     |          : a=0
+  -1 |======o   :          (x < 0: f = -1)
+```
+
+Hai mép `o` ở hai độ cao khác nhau → không có giá trị duy nhất để "tiến tới" → giới hạn hai bên DNE.
+
 💡 **Trực giác**: tưởng tượng đi bộ trên đồ thị tiến về điểm $x = a$. Đi từ bên trái thấy hàm dẫn về giá trị nào ($\lim$ trái), đi từ bên phải thấy dẫn về đâu ($\lim$ phải). Chỉ khi hai lối đi gặp nhau ở cùng một điểm thì mới có giới hạn hai bên.
+
+**3 ví dụ walk-through giới hạn một bên**:
+- Hàm chia khúc: $f(x) = \begin{cases} x^2 & x < 1 \\ x+3 & x \ge 1 \end{cases}$. $\lim_{x \to 1^-} = 1^2 = 1$; $\lim_{x \to 1^+} = 1+3 = 4$. Lệch → $\lim_{x \to 1}$ DNE.
+- Biên miền xác định: $f(x) = \sqrt{x}$ tại $x = 0$. Bên trái $x < 0$ không xác định (không lấy căn số âm) → chỉ có $\lim_{x \to 0^+} \sqrt{x} = 0$. Đây là giới hạn một bên "tự nhiên" — không phải lỗi.
+- Tiệm cận đứng lệch dấu: $f(x) = \frac{1}{x}$. $\lim_{x \to 0^-} = -\infty$, $\lim_{x \to 0^+} = +\infty$. Hai bên bay về hai vô cực khác → $\lim_{x \to 0} \frac{1}{x}$ DNE.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -123,6 +173,23 @@ $$\lim_{x \to a} f(x) = L \iff \forall \varepsilon > 0,\ \exists \delta > 0,\ \f
 
 💡 **Trực giác — phân biệt hai loại "vô cùng"**: $\lim = \infty$ (giá trị hàm bay lên trời, tiệm cận **đứng**) khác $\lim_{x \to \infty}$ (biến bay ra xa, xét tiệm cận **ngang**). Đừng lẫn "hàm ra vô cực" với "biến ra vô cực".
 
+**Walk-through giới hạn ∞ — chia cho lũy thừa lớn nhất**: $\lim_{x \to \infty} \frac{3x^2 + 2x}{x^2 - 5}$ là dạng vô định $\frac{\infty}{\infty}$. Chia cả tử và mẫu cho $x^2$ (lũy thừa cao nhất):
+
+$$\frac{3x^2 + 2x}{x^2 - 5} = \frac{3 + \dfrac{2}{x}}{1 - \dfrac{5}{x^2}} \xrightarrow{x \to \infty} \frac{3 + 0}{1 - 0} = 3$$
+
+Verify số: $x = 100 \to \frac{30200}{9995} \approx 3.022$; $x = 1000 \to \approx 3.002$ — tiến về 3 ✓.
+
+**Quy tắc nhanh cho thương đa thức $\frac{P(x)}{Q(x)}$ tại $x \to \infty$** (bậc tử $m$, bậc mẫu $n$):
+
+$$\lim_{x \to \infty} \frac{P(x)}{Q(x)} = \begin{cases} 0 & m < n \ (\text{mẫu trội}) \\[4pt] \dfrac{\text{hệ số đầu } P}{\text{hệ số đầu } Q} & m = n \\[4pt] \pm\infty & m > n \ (\text{tử trội}) \end{cases}$$
+
+Verify 3 trường hợp:
+- $m < n$: $\lim_{x \to \infty} \frac{x+1}{x^2+3} = 0$. Check $x = 1000 \to \frac{1001}{1000003} \approx 0.001 \to 0$ ✓.
+- $m = n$: $\lim_{x \to \infty} \frac{2x^3+x}{5x^3-7} = \frac{2}{5}$. Check $x = 1000 \to \approx 0.4$ ✓.
+- $m > n$: $\lim_{x \to \infty} \frac{x^2+1}{x-1} = +\infty$. Check $x = 1000 \to \approx 1001$, tăng vô hạn ✓.
+
+⚠ **Cẩn thận dấu khi $x \to -\infty$ với lũy thừa lẻ**: $\lim_{x \to -\infty} x^3 = -\infty$ (không phải $+\infty$). Và với căn: $\sqrt{x^2} = |x| = -x$ khi $x < 0$ — sai dấu này là lỗi kinh điển khi xử lý $\frac{\sqrt{x^2+1}}{x}$ tại $-\infty$.
+
 ❓ **Câu hỏi tự nhiên của người đọc**
 
 - *"$\lim = \infty$ có phải là 'giới hạn tồn tại' không?"* Theo nghĩa chặt (giới hạn hữu hạn) thì KHÔNG — ta nói "giới hạn vô cực" như một mô tả hành vi, không phải một số. Khi viết $\lim_{x \to 0} \frac{1}{x^2} = +\infty$ ta đang nói "hàm tăng vô hạn", đây là cách diễn đạt được chấp nhận.
@@ -154,6 +221,21 @@ $$\lim_{x \to a} f(x) = L \iff \forall \varepsilon > 0,\ \exists \delta > 0,\ \f
 
 Tương tự dãy: $\lim(f+g) = \lim f + \lim g$, ... (khi cả 2 tồn tại).
 
+Giả sử $\lim_{x \to a} f = L$ và $\lim_{x \to a} g = M$ đều là số thực. Khi đó:
+
+| Quy tắc | Phát biểu |
+|---------|-----------|
+| Tổng / Hiệu | $\lim (f \pm g) = L \pm M$ |
+| Hằng số | $\lim (c \cdot f) = c \cdot L$ |
+| Tích | $\lim (f \cdot g) = L \cdot M$ |
+| Thương | $\lim (f / g) = L / M$, **miễn $M \neq 0$** |
+| Lũy thừa | $\lim f^n = L^n$ ($n$ nguyên dương) |
+| Hợp | nếu $g$ liên tục tại $L$ thì $\lim g(f(x)) = g(L)$ |
+
+**Walk-through kết hợp**: $\lim_{x \to 2} \frac{x^2 + 3x}{x+1}$ — tách từng mảnh: $\lim x^2 = 4$, $\lim 3x = 6$, nên $\lim(x^2+3x) = 10$ (quy tắc tổng); $\lim(x+1) = 3 \neq 0$, dùng quy tắc thương → $\frac{10}{3}$. Khớp thay số trực tiếp $\frac{4+6}{3} = \frac{10}{3}$ ✓.
+
+**Định lý kẹp (squeeze theorem)** — vũ khí cho hàm dao động: nếu $g(x) \le f(x) \le h(x)$ quanh $a$ và $\lim g = \lim h = L$ thì $\lim f = L$. Ví dụ $\lim_{x \to 0} x^2 \sin(1/x)$: vì $-1 \le \sin(1/x) \le 1$ nên $-x^2 \le x^2 \sin(1/x) \le x^2$; hai mép cùng $\to 0$ → kẹp được $\lim = 0$ (dù $\sin(1/x)$ dao động điên cuồng).
+
 **Dạng không xác định** (giống dãy): $\frac{0}{0}$, $\frac{\infty}{\infty}$, $\infty-\infty$, $0 \cdot \infty$, $1^\infty$...
 
 ### Mẹo giải $\frac{0}{0}$
@@ -163,6 +245,71 @@ Tương tự dãy: $\lim(f+g) = \lim f + \lim g$, ... (khi cả 2 tồn tại).
 - $\frac{\sin x}{x} = 1$.
 
 💡 **Trực giác — vì sao có $\frac{0}{0}$ mà vẫn ra số hữu hạn**: $\frac{0}{0}$ không có nghĩa "tử và mẫu đều bằng 0" mà là "cả hai cùng tiến về 0". Tốc độ tiến về 0 của tử so với mẫu quyết định kết quả. Như cuộc đua hai vận động viên cùng về đích: ai nhanh hơn (gấp mấy lần) mới là câu trả lời.
+
+#### Kỹ thuật 1 — phân tích nhân tử (walk-through 4 ví dụ)
+
+Khi tử/mẫu là **đa thức** và cùng triệt tiêu tại $x = a$, chúng đều có nhân tử $(x - a)$. Rút gọn rồi mới thay:
+
+- $\lim_{x \to 1} \frac{x^2-1}{x-1} = \lim \frac{(x-1)(x+1)}{x-1} = \lim (x+1) = 2$.
+- $\lim_{x \to 2} \frac{x^2-4}{x-2} = \lim (x+2) = 4$.
+- $\lim_{x \to 3} \frac{x^2-5x+6}{x-3} = \lim \frac{(x-2)(x-3)}{x-3} = \lim (x-2) = 1$.
+- $\lim_{x \to 1} \frac{x^3-1}{x-1} = \lim \frac{(x-1)(x^2+x+1)}{x-1} = \lim (x^2+x+1) = 3$.
+
+Tổng quát đẹp: $\lim_{x \to a} \frac{x^n - a^n}{x - a} = n \cdot a^{n-1}$ — đây chính là đạo hàm của $x^n$ (sẽ gặp ở [Lesson 03](../lesson-03-derivative-definition/)).
+
+#### Kỹ thuật 2 — nhân lượng liên hợp (rationalize, walk-through 4 ví dụ)
+
+Khi có **căn** $\sqrt{\dots}$, nhân tử và mẫu với "lượng liên hợp" để biến hiệu căn thành hiệu bình phương ($(\sqrt{A}-B)(\sqrt{A}+B) = A - B^2$):
+
+$$\begin{aligned}
+\lim_{x \to 0} \frac{\sqrt{x+1}-1}{x}
+&= \lim_{x \to 0} \frac{(\sqrt{x+1}-1)(\sqrt{x+1}+1)}{x(\sqrt{x+1}+1)} \\[4pt]
+&= \lim_{x \to 0} \frac{(x+1)-1}{x(\sqrt{x+1}+1)}
+= \lim_{x \to 0} \frac{x}{x(\sqrt{x+1}+1)} \\[4pt]
+&= \lim_{x \to 0} \frac{1}{\sqrt{x+1}+1} = \frac{1}{2}
+\end{aligned}$$
+
+Verify số: $x = 0.01 \to \frac{\sqrt{1.01}-1}{0.01} \approx 0.4988$; $x = 0.001 \to \approx 0.4999 \to 0.5$ ✓.
+
+Thêm 3 ví dụ liên hợp:
+- $\lim_{x \to 4} \frac{\sqrt{x}-2}{x-4} = \lim \frac{x-4}{(x-4)(\sqrt{x}+2)} = \lim \frac{1}{\sqrt{x}+2} = \frac{1}{4}$.
+- $\lim_{x \to 0} \frac{x}{\sqrt{x+9}-3} = \lim \frac{x(\sqrt{x+9}+3)}{(x+9)-9} = \lim (\sqrt{x+9}+3) = 6$.
+- $\lim_{x \to 1} \frac{x-1}{\sqrt{x}-1} = \lim \frac{(x-1)(\sqrt{x}+1)}{x-1} = \lim (\sqrt{x}+1) = 2$.
+
+#### Kỹ thuật 3 — giới hạn đặc biệt $\dfrac{\sin x}{x} = 1$
+
+💡 Với $x$ nhỏ (radian), $\sin x \approx x$. Bảng kiểm:
+
+| $x$ | $\sin x$ | $\sin x / x$ |
+|-----|---------|-------------|
+| $1$ | $0.84147$ | $0.84147$ |
+| $0.1$ | $0.09983$ | $0.99833$ |
+| $0.01$ | $0.00999983$ | $0.99998$ |
+| $0.001$ | $0.0009999998$ | $0.99999983$ |
+
+**Chứng minh từng bước (định lý kẹp)** — trên đường tròn đơn vị, với $x \in (0, \frac{\pi}{2})$, so diện tích:
+
+$$\begin{aligned}
+&\text{tam giác nhỏ} < \text{hình quạt} < \text{tam giác lớn} \\[4pt]
+&\tfrac{1}{2}\sin x < \tfrac{1}{2}x < \tfrac{1}{2}\tan x \\[4pt]
+&\sin x < x < \frac{\sin x}{\cos x}
+\end{aligned}$$
+
+Chia ba vế cho $\sin x > 0$ rồi lật ngược (đảo dấu bất đẳng thức):
+
+$$\cos x < \frac{\sin x}{x} < 1$$
+
+Khi $x \to 0^+$, $\cos x \to 1$, hai mép kẹp $\frac{\sin x}{x}$ về 1. Hàm $\frac{\sin x}{x}$ chẵn nên phía âm cũng vậy. Kết luận $\lim_{x \to 0} \frac{\sin x}{x} = 1$.
+
+Áp dụng nhanh: $\lim_{x \to 0} \frac{\sin 3x}{x} = \lim_{x \to 0} 3 \cdot \frac{\sin 3x}{3x} = 3 \cdot 1 = 3$ (đặt $u = 3x$).
+
+#### Kỹ thuật 4 — giới hạn đặc biệt $\dfrac{e^x - 1}{x} = 1$
+
+$$\lim_{x \to 0} \frac{e^x - 1}{x} = 1$$
+
+Verify số: $x = 0.001 \to \frac{e^{0.001}-1}{0.001} = \frac{0.0010005}{0.001} \approx 1.0005 \to 1$; $x = -0.001 \to \approx 0.9995 \to 1$. Đây là đạo hàm của $e^x$ tại 0 (sẽ chứng minh kỹ ở Lesson về đạo hàm). Họ hàng: $\lim_{x \to 0} \frac{1-\cos x}{x^2} = \frac{1}{2}$ (verify: $x = 0.1 \to \frac{1-0.995004}{0.01} = 0.4996 \approx 0.5$).
+
+⚠ **Vòng lặp logic cấm**: KHÔNG dùng L'Hôpital để chứng minh $\frac{\sin x}{x} \to 1$ — vì L'Hôpital cần $(\sin x)' = \cos x$, mà điều đó lại cần chính giới hạn này. Phải chứng minh bằng hình học/kẹp như trên.
 
 **Verify mẹo bằng số** — $\lim_{x \to 1} \frac{x^2-1}{x-1} = 2$:
 - Thay gần: $x = 1.001 \to \frac{1.002001 - 1}{0.001} = \frac{0.002001}{0.001} = 2.001 \to$ tiến 2 ✓.
@@ -210,6 +357,28 @@ $$\lim_{x \to a} f(x) = f(a)$$
 
 ⟶ Nếu thiếu 1 trong 3 → **gián đoạn**.
 
+#### Quy trình kiểm tra 3 điều kiện — walk-through ≥3 ví dụ
+
+Mỗi điều kiện bịt một loại "vỡ": (1) có lỗ trống không, (2) có nhảy/dao động không, (3) giá trị thật có khớp xu hướng không. Kiểm theo thứ tự:
+
+**Ví dụ A — liên tục**: $f(x) = x^2 + 1$ tại $a = 3$.
+1. $f(3) = 10$ → xác định ✓.
+2. $\lim_{x \to 3} (x^2+1) = 10$ → tồn tại ✓.
+3. $10 = 10$ → khớp ✓. **Kết luận: liên tục** (phân loại: không gián đoạn).
+
+**Ví dụ B — gián đoạn bỏ được** (vi phạm (3)): $f(x) = \begin{cases} \frac{x^2-9}{x-3} & x \ne 3 \\ 1 & x = 3 \end{cases}$ tại $a = 3$.
+1. $f(3) = 1$ → xác định ✓.
+2. $\lim_{x \to 3} \frac{x^2-9}{x-3} = \lim (x+3) = 6$ → tồn tại ✓.
+3. $6 \ne 1$ → **vi phạm**. Gián đoạn **bỏ được** — sửa $f(3) = 6$ thì liên tục.
+
+**Ví dụ C — gián đoạn nhảy** (vi phạm (2)): $f(x) = \begin{cases} x^2 & x \le 1 \\ 2x & x > 1 \end{cases}$ tại $a = 1$.
+1. $f(1) = 1^2 = 1$ → xác định ✓.
+2. $\lim_{x \to 1^-} = 1$, $\lim_{x \to 1^+} = 2 \cdot 1 = 2$. Hai bên lệch → giới hạn **không tồn tại** → **vi phạm (2)**. Gián đoạn **nhảy** (jump), bước nhảy $= 2 - 1 = 1$.
+
+**Ví dụ D — gián đoạn vô hạn** (vi phạm (1) và (2)): $f(x) = \frac{1}{x-2}$ tại $a = 2$.
+1. $f(2)$ → chia 0, **không xác định** → vi phạm (1).
+2. $\lim_{x \to 2^-} = -\infty$, $\lim_{x \to 2^+} = +\infty$ → DNE → vi phạm (2). Gián đoạn **vô hạn** (tiệm cận đứng $x = 2$).
+
 **4 ví dụ số đa dạng**:
 - Liên tục: $f(x) = x^2$ tại $a = 2$: $f(2) = 4 = \lim_{x \to 2} x^2$ ✓.
 - Gián đoạn (lỗ): $f(x) = \frac{x^2-1}{x-1}$ tại $1$: $f(1)$ không xác định → vi phạm điều kiện (1).
@@ -252,6 +421,26 @@ $$\lim_{x \to a} f(x) = f(a)$$
 | **Vô hạn** | $\lim = \pm\infty$ | $\frac{1}{x}$ tại 0 |
 
 💡 **Bỏ được**: ta có thể "lấp" lỗ bằng cách định nghĩa lại $f(a) = \lim$.
+
+ASCII đối chiếu 3 loại gián đoạn (ký hiệu `o` = lỗ, `|` = bay vô hạn):
+
+```
+ BỎ ĐƯỢC (removable)     NHẢY (jump)            VÔ HẠN (infinite)
+   |   o                    |  o====               |   :  |
+   |  /                     |                       |   :  |
+   | /                      |==o                    |   :  |
+   |/                       |                       +---:--+--- x
+   +-------                 +--------               |   :
+  lim tồn tại,             lim trái ≠ phải,        lim = ±∞,
+  chỉ lệch 1 điểm          cả hai hữu hạn          tiệm cận đứng
+  -> lấp được             -> KHÔNG lấp được       -> KHÔNG lấp được
+```
+
+**4 ví dụ phân loại nhanh**:
+- $\frac{x^2-1}{x-1}$ tại 1 → **bỏ được** ($\lim = 2$ tồn tại, chỉ thiếu $f(1)$).
+- $\frac{\sin x}{x}$ tại 0 → **bỏ được** ($\lim = 1$; định nghĩa $f(0)=1$ là liên tục).
+- $\lfloor x \rfloor$ (hàm sàn) tại $x = 2$ → **nhảy** ($\lim_{2^-} = 1$, $\lim_{2^+} = 2$, đều hữu hạn).
+- $\frac{1}{x^2}$ tại 0 → **vô hạn** ($\lim = +\infty$ cả hai bên).
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -331,7 +520,28 @@ Nếu $f$ liên tục trên $[a, b]$ và $f(a) \cdot f(b) < 0$ (khác dấu), th
 
 ⟶ Dùng để chứng minh PT có nghiệm mà không cần giải.
 
-**Ví dụ**: $x^3 - x - 1 = 0$. Đặt $f(x) = x^3 - x - 1$. $f(1) = -1$, $f(2) = 5$. $f$ đổi dấu → có nghiệm trong $(1, 2)$. (Thực tế nghiệm $\approx 1.3247$.)
+ASCII trực giác IVT — đường liền nét đi từ $f(a)$ tới $f(b)$ **buộc** cắt mọi mức $y_0$ ở giữa:
+
+```
+ f(b) |              .--*
+      |          .-'
+ y0   |- - - - *  <- IVT đảm bảo có c với f(c) = y0
+      |     .-'
+ f(a) |--*-'
+      +--+-----+----- x
+         a  c  b
+```
+
+**Ví dụ + chứng minh tồn tại nghiệm**: chứng minh $x^3 - x - 1 = 0$ có nghiệm trong $(1, 2)$.
+1. Đặt $f(x) = x^3 - x - 1$. $f$ là **đa thức → liên tục** trên $[1, 2]$ (điều kiện IVT/Bolzano thỏa).
+2. Tính hai đầu: $f(1) = 1 - 1 - 1 = -1 < 0$; $f(2) = 8 - 2 - 1 = 5 > 0$.
+3. $f(1) \cdot f(2) = (-1)(5) = -5 < 0$ → **đổi dấu**.
+4. Theo Bolzano (hệ quả IVT với $y_0 = 0$), $\exists c \in (1, 2)$ sao cho $f(c) = 0$. ∎
+
+**Tìm nghiệm bằng chia đôi (bisection) — walk-through 3 bước**: nghiệm thật $\approx 1.3247$.
+- Trung điểm $1.5$: $f(1.5) = 3.375 - 1.5 - 1 = 0.875 > 0$ → đổi dấu nằm ở $(1, 1.5)$.
+- Trung điểm $1.25$: $f(1.25) = 1.953 - 1.25 - 1 = -0.297 < 0$ → đổi dấu ở $(1.25, 1.5)$.
+- Trung điểm $1.375$: $f(1.375) = 2.600 - 1.375 - 1 = 0.225 > 0$ → đổi dấu ở $(1.25, 1.375)$ → nghiệm $\in (1.25, 1.375)$, hội tụ dần về $1.3247$.
 
 ❓ **Câu hỏi tự nhiên của người đọc**
 
@@ -374,6 +584,16 @@ Nếu $f$ liên tục trên $[a, b]$ và $f(a) \cdot f(b) < 0$ (khác dấu), th
 
 **Bài 5**: PT $x^3 + x - 3 = 0$ có nghiệm trong $(1, 2)$ không?
 
+**Bài 6**: Tính $\lim_{x \to 0} \frac{\sqrt{x+4} - 2}{x}$ (nhân liên hợp).
+
+**Bài 7**: Tính $\lim_{x \to \infty} \big(\sqrt{x^2 + x} - x\big)$ (dạng $\infty - \infty$).
+
+**Bài 8**: Phân loại điểm gián đoạn của $f(x) = \frac{x-2}{|x-2|}$ tại $x = 2$.
+
+**Bài 9**: Tìm $a$ để $f(x) = \begin{cases} x^2 & x \le 2 \\ ax + 1 & x > 2 \end{cases}$ liên tục tại $x = 2$.
+
+**Bài 10**: Tính $\lim_{x \to 0} \frac{1 - \cos x}{x^2}$ (gợi ý: nhân liên hợp $1 + \cos x$ rồi dùng $\frac{\sin x}{x}$).
+
 ### Lời giải
 
 **Bài 1**: $\frac{x^2-4}{x-2} = \frac{(x-2)(x+2)}{x-2} = x+2 \to \lim =$ **4**.
@@ -385,6 +605,16 @@ Nếu $f$ liên tục trên $[a, b]$ và $f(a) \cdot f(b) < 0$ (khác dấu), th
 **Bài 4**: Chia tử mẫu cho $x^2$: $\frac{3 + 1/x^2}{1 + 5/x^2} \to \frac{3}{1} =$ **3**.
 
 **Bài 5**: $f$ liên tục. $f(1) = -1$, $f(2) = 7$. $f(1) \cdot f(2) < 0 \to$ **có nghiệm** trong $(1, 2)$ (Bolzano).
+
+**Bài 6**: Thay trực tiếp $\frac{\sqrt{4}-2}{0} = \frac{0}{0}$. Nhân liên hợp $\sqrt{x+4}+2$: $\frac{(x+4)-4}{x(\sqrt{x+4}+2)} = \frac{x}{x(\sqrt{x+4}+2)} = \frac{1}{\sqrt{x+4}+2} \to \frac{1}{\sqrt{4}+2} = \frac{1}{4}$. **Đáp số: $\frac{1}{4}$.**
+
+**Bài 7**: Dạng $\infty - \infty$. Nhân liên hợp $\sqrt{x^2+x}+x$: $\frac{(x^2+x)-x^2}{\sqrt{x^2+x}+x} = \frac{x}{\sqrt{x^2+x}+x}$. Chia tử mẫu cho $x$ (với $x > 0$): $\frac{1}{\sqrt{1+1/x}+1} \to \frac{1}{1+1} = \frac{1}{2}$. Verify: $x = 1000 \to \sqrt{1001000} - 1000 \approx 0.4999$ ✓. **Đáp số: $\frac{1}{2}$.**
+
+**Bài 8**: $\lim_{x \to 2^-}$: với $x < 2$, $|x-2| = -(x-2)$ → $f = \frac{x-2}{-(x-2)} = -1$. $\lim_{x \to 2^+}$: với $x > 2$, $|x-2| = x-2$ → $f = +1$. Hai bên hữu hạn nhưng lệch ($-1 \ne 1$) → **gián đoạn nhảy** (jump). $f(2)$ cũng không xác định (chia 0).
+
+**Bài 9**: Cần $\lim_{x \to 2^-} = \lim_{x \to 2^+} = f(2)$. $\lim_{x \to 2^-} x^2 = 4 = f(2)$. $\lim_{x \to 2^+} (ax+1) = 2a + 1$. Đặt $2a + 1 = 4 \Rightarrow a = \frac{3}{2}$. **Đáp số: $a = \frac{3}{2}$.**
+
+**Bài 10**: Nhân liên hợp $1 + \cos x$: $\frac{(1-\cos x)(1+\cos x)}{x^2(1+\cos x)} = \frac{1-\cos^2 x}{x^2(1+\cos x)} = \frac{\sin^2 x}{x^2(1+\cos x)} = \left(\frac{\sin x}{x}\right)^2 \cdot \frac{1}{1+\cos x}$. Khi $x \to 0$: $\left(\frac{\sin x}{x}\right)^2 \to 1^2 = 1$ và $\frac{1}{1+\cos x} \to \frac{1}{2}$. Tích $\to \frac{1}{2}$. **Đáp số: $\frac{1}{2}$.**
 
 ---
 

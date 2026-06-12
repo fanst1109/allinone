@@ -268,6 +268,10 @@
     /* ── Content area ── */
     .rm-panel .rm-content {
       overflow-y: auto; padding: 24px 28px;
+      /* overflow-x: hidden — KHÔNG cho cả vùng đọc cuộn ngang. Phần tử rộng (bảng,
+         pre, công thức) phải tự cuộn trong khung riêng của chúng → tránh nội dung
+         "xê qua lại" khi vuốt dọc trên mobile. overflow-wrap để bẻ token dài. */
+      overflow-x: hidden; overflow-wrap: break-word;
       /* Mobile: momentum scroll + chặn scroll-chaining ra page sau (giảm rung/giật trên iOS) */
       -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
       font-size: 16px; line-height: 1.65; color: #1f2328;
@@ -318,7 +322,11 @@
     }
     /* font-size: inherit để bảng lấy 16px của .rm-content, chặn rule table font-size
        rò rỉ từ style nội bộ của viz (trước đây phải ép td/th = 13px vì lý do này). */
-    .rm-content table { border-collapse: collapse; margin: 12px 0; width: 100%; font-size: inherit; }
+    /* Khung cuộn ngang cho bảng rộng — bảng tự cuộn trong đây, không đẩy modal */
+    .rm-content .rm-tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; margin: 12px 0; }
+    /* width: auto + min-width: 100% → bảng hẹp lấp đầy bề ngang, bảng rộng tràn ra
+       trong khung .rm-tablewrap (cuộn ngang) thay vì đẩy cả .rm-content */
+    .rm-content table { border-collapse: collapse; margin: 0; width: auto; min-width: 100%; font-size: inherit; }
     .rm-content th, .rm-content td {
       border: 1px solid #e2e8f0; padding: 6px 10px; font-size: 1em;
       text-align: left; vertical-align: top;
@@ -798,6 +806,23 @@
       }
     }
 
+    // Bọc mỗi <table> trong khung cuộn ngang riêng (.rm-tablewrap). Bảng nhiều cột
+    // (vd bảng Big-O) rộng hơn bề ngang modal → nếu để trần sẽ đẩy CẢ .rm-content
+    // cuộn ngang, khiến nội dung "xê qua lại" khi vuốt dọc trên mobile. Bọc lại để
+    // bảng tự cuộn ngang trong khung, còn .rm-content thì overflow-x: hidden.
+    function wrapWideTables(root) {
+      var tables = root.querySelectorAll('table');
+      for (var i = 0; i < tables.length; i++) {
+        var t = tables[i];
+        var par = t.parentNode;
+        if (par && par.classList && par.classList.contains('rm-tablewrap')) continue;
+        var wrap = document.createElement('div');
+        wrap.className = 'rm-tablewrap';
+        par.insertBefore(wrap, t);
+        wrap.appendChild(t);
+      }
+    }
+
     // TOC visibility: load từ localStorage.
     // Default: desktop = visible (side-by-side đẹp), mobile = hidden (overlay
     // full panel sẽ che content khi vừa mở → bắt user tap tắt là khó chịu).
@@ -831,6 +856,7 @@
           function paint() {
             contentEl.innerHTML = restoreMath(parsedHtml, protectedDoc.math);
             rewriteReadmeLinks(contentEl);
+            wrapWideTables(contentEl);
             buildToc();
           }
           // Nếu có công thức → lazy-load KaTeX rồi mới vẽ; không có thì vẽ ngay.

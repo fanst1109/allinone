@@ -9,8 +9,10 @@ window.README_MD = `# Lesson 02 — Mô hình từ dữ liệu (Hồi quy bình 
 - Phân biệt **nội suy (interpolation)** và **hồi quy/khớp xu hướng (regression)**.
 - Hiểu và áp dụng **hồi quy tuyến tính bình phương tối thiểu (least squares)**: công thức nghiệm và walk-through bằng số.
 - Hiểu **vì sao bình phương** sai số (không phải trị tuyệt đối).
-- Đánh giá độ khớp bằng **hệ số xác định $R^2$**.
-- **Tuyến tính hóa** mô hình phi tuyến (mũ, lũy thừa) để fit — tổng quát hóa cách tìm hằng số k của định luật nguội Newton ở [Lesson 01](../lesson-01-modeling-cycle/).
+- Đánh giá độ khớp bằng **hệ số xác định $R^2$**; đọc **biểu đồ phần dư (residual plot)** để bắt sai dạng.
+- **Tuyến tính hóa** mô hình phi tuyến (mũ qua semi-log, lũy thừa qua log–log) để fit — tổng quát hóa cách tìm hằng số k của định luật nguội Newton ở [Lesson 01](../lesson-01-modeling-cycle/).
+- **Hồi quy đa thức** và **chọn mô hình** (tuyến tính / bậc 2 / mũ / lũy thừa) từ dấu hiệu trên dữ liệu.
+- Tránh các cạm bẫy: **overfitting**, **ngoại suy (extrapolation)**, **outlier**, và "**$R^2$ cao $\\neq$ nhân quả**".
 
 ## Kiến thức tiền đề
 
@@ -23,6 +25,23 @@ window.README_MD = `# Lesson 02 — Mô hình từ dữ liệu (Hồi quy bình 
 ## 1. Mô hình từ dữ liệu là gì?
 
 💡 **Trực giác / Hình dung — vẽ một đường "đi giữa" đám điểm.** Ở [Lesson 01](../lesson-01-modeling-cycle/) ta *biết trước* quy luật (định luật Newton) rồi mới tìm hằng số. Nhưng nhiều khi ta chỉ có **bảng số đo** — doanh thu theo tháng, cân nặng theo tuổi — mà *không biết* công thức nào sinh ra chúng. Mô hình từ dữ liệu đảo ngược: nhìn vào đám điểm, **vẽ một đường khớp nhất**, rồi dùng đường đó để dự đoán.
+
+Hình dung bằng **biểu đồ tán xạ (scatter plot)** — 5 điểm "giờ ôn → điểm" của mục 3, kèm đường khớp $\\hat{y} = 0.9x + 1.3$ đi *giữa* chúng (không qua điểm nào):
+
+\`\`\`
+ điểm y
+   7 |
+   6 |                        ●        ← (5,6) lệch trên đường
+   5 |              ●                  ← (3,5) lệch trên
+   4 |        ___---⊙___---            đường khớp ŷ = 0.9x+1.3
+   3 |     ●⊙---     (4,4) lệch dưới   (⊙ = điểm trên đường)
+   2 |  ●⊙
+   1 |⊙
+   0 +--●--+----+----+----+----+→ x (giờ ôn)
+     0  1    2    3    4    5
+\`\`\`
+
+Đường *không* chạm điểm nào — nó "đi giữa", cân bằng các phần dư trên/dưới. Đó chính là khác biệt cốt lõi với nội suy (mục 2).
 
 > 📐 **Định nghĩa đầy đủ — Khớp mô hình (model fitting)**
 >
@@ -87,6 +106,28 @@ window.README_MD = `# Lesson 02 — Mô hình từ dữ liệu (Hồi quy bình 
 
 💡 **Trực giác / Hình dung.** Với mỗi đường thẳng ứng viên $\\hat{y} = ax + b$, mỗi điểm dữ liệu lệch khỏi đường một đoạn dọc gọi là **phần dư (residual)** $e_i = y_i - (ax_i + b)$. Ta muốn đường nào tổng các đoạn lệch "nhỏ nhất". Để tránh lệch âm triệt tiêu lệch dương, ta **bình phương** từng đoạn rồi cộng lại — và đi tìm $a$, $b$ cực tiểu hóa tổng đó. Hình dung: mỗi điểm nối với đường bằng một lò xo dọc; đường tối ưu là vị trí cân bằng năng lượng lò xo nhỏ nhất.
 
+**Phần dư là đoạn DỌC, không phải khoảng cách vuông góc.** Hình dung từng lò xo dọc kéo điểm về đường:
+
+\`\`\`
+   y                              ● y_i (điểm thật)
+                                  ┊  ↕ e_i = y_i − ŷ_i  (phần dư = đoạn dọc)
+            ____------------------⊙ ŷ_i (trên đường khớp)
+   ____-----      ŷ = ax + b
+   --
+   +--------------------------------→ x
+                                  x_i
+\`\`\`
+
+Tổng bình phương $S = \\sum e_i^2$ chính là "tổng năng lượng lò xo" ($\\frac12 k e^2$ bỏ hằng số). Least squares = tìm đường làm tổng năng lượng đó **nhỏ nhất**. Lưu ý ta đo lệch *theo trục y* (dọc), không phải khoảng cách vuông góc tới đường — vì ta coi $x$ là đầu vào chính xác, chỉ $y$ có nhiễu. (Khi cả hai trục đều có nhiễu thì dùng "hồi quy trực giao / total least squares", một chủ đề khác.)
+
+> 📐 **Định nghĩa đầy đủ — Phần dư (residual) và đường khớp $\\hat{y}$**
+>
+> **(a) Là gì**: với điểm thứ $i$, **giá trị dự đoán** $\\hat{y}_i = a x_i + b$ (đọc *"y mũ i"*) là tung độ trên đường khớp tại $x_i$; **phần dư** $e_i = y_i - \\hat{y}_i$ là chênh lệch giữa giá trị thật và giá trị dự đoán. $e_i > 0$: điểm nằm *trên* đường; $e_i < 0$: nằm *dưới*.
+>
+> **(b) Vì sao cần**: phần dư là "thước đo sai" của từng điểm. Mọi tiêu chí khớp ($S = \\sum e_i^2$), mọi chỉ số chất lượng ($R^2$), mọi chẩn đoán (biểu đồ phần dư ở mục 7.5) đều xây trên $e_i$. Không có khái niệm phần dư thì không định nghĩa được "khớp tốt".
+>
+> **(c) Ví dụ số** (dùng đường $\\hat{y} = 0.9x + 1.3$ của mục 3.1): tại $x = 3$, $\\hat{y} = 0.9\\cdot 3 + 1.3 = 4.0$ nhưng $y$ thật $= 5$ → $e = 5 - 4 = +1.0$ (trên đường); tại $x = 4$, $\\hat{y} = 4.9$ nhưng $y = 4$ → $e = -0.9$ (dưới đường); tại $x = 1$, $\\hat{y} = 2.2$, $y = 2$ → $e = -0.2$; tại $x = 5$, $\\hat{y} = 5.8$, $y = 6$ → $e = +0.2$.
+
 **Tiêu chí bình phương tối thiểu**: chọn $a$, $b$ cực tiểu hóa
 $$S(a, b) = \\sum_i e_i^2 = \\sum_i (y_i - a\\cdot x_i - b)^2$$
 
@@ -97,6 +138,22 @@ $$\\begin{aligned}
 \\end{aligned}$$
 Giải hệ 2 phương trình này (gọi là **phương trình chuẩn — normal equations**) ra công thức đóng:
 $$a = \\frac{n\\cdot\\sum xy - \\sum x\\cdot\\sum y}{n\\cdot\\sum x^2 - (\\sum x)^2}, \\quad b = \\frac{\\sum y - a\\cdot\\sum x}{n} = \\bar{y} - a\\cdot\\bar{x}$$
+
+**Giải hệ TỪNG BƯỚC (không "dễ thấy").** Khai triển hai phương trình chuẩn (chia 2 vế cho $-2$ rồi tách tổng):
+$$\\begin{aligned}
+\\text{(I) từ } \\partial S/\\partial b: && \\sum y_i &= a\\sum x_i + n\\,b \\\\
+\\text{(II) từ } \\partial S/\\partial a: && \\sum x_i y_i &= a\\sum x_i^2 + b\\sum x_i
+\\end{aligned}$$
+Đây là hệ tuyến tính 2 ẩn $a, b$ (xem [T1 — Hệ phương trình bậc nhất](../../01-Arithmetic-Algebra/lesson-03-linear-equations/)). Từ (I) rút $b$:
+$$b = \\frac{\\sum y - a\\sum x}{n}.$$
+Thay vào (II):
+$$\\begin{aligned}
+\\sum xy &= a\\sum x^2 + \\frac{\\sum y - a\\sum x}{n}\\cdot\\sum x \\\\
+n\\sum xy &= a\\,n\\sum x^2 + \\sum x\\sum y - a\\,(\\sum x)^2 &&(\\text{nhân cả 2 vế với } n) \\\\
+n\\sum xy - \\sum x\\sum y &= a\\big(n\\sum x^2 - (\\sum x)^2\\big) &&(\\text{gom } a) \\\\
+a &= \\frac{n\\sum xy - \\sum x\\sum y}{n\\sum x^2 - (\\sum x)^2}. &&\\blacksquare
+\\end{aligned}$$
+Mỗi bước là phép biến đổi đại số tường minh — không có bước nào bỏ qua. Có $a$ rồi thay ngược vào $b = \\bar{y} - a\\bar{x}$.
 
 ### 3.1 Walk-through bằng số
 
@@ -246,7 +303,56 @@ Fit least squares trên $(t, \\ln u)$: độ dốc $= (n\\cdot\\sum t\\cdot\\ln 
 - Vậy **$k \\approx 0.075$ phút⁻¹** — khớp tuyệt với giá trị 0.074 tìm bằng 1 điểm ở L01, nhưng giờ dựa trên *toàn bộ* dữ liệu nên đáng tin hơn.
 - Tung độ gốc $= (\\sum \\ln u - \\text{độ dốc}\\cdot\\sum t)/n = (14.460 - (-0.0752)\\cdot 30)/4 = 16.716/4 = 4.179$ → $A = e^{4.179} \\approx$ **65.3 ≈ 65** ✓ (đúng nhiệt độ vượt trội ban đầu $u_0 = 90-25 = 65$).
 
+### 6.2 Walk-through 2 — mũ tăng trưởng (vi khuẩn)
+
+Nuôi vi khuẩn, đếm số tế bào (triệu) theo giờ. Nghi mũ $N = A\\cdot e^{kx}$ (tăng trưởng):
+
+| $x$ (giờ) | $N$ (triệu) | $Y = \\ln N$ |
+|---|---|---|
+| 0 | 2.0 | 0.693 |
+| 1 | 3.2 | 1.163 |
+| 2 | 5.4 | 1.686 |
+| 3 | 8.5 | 2.140 |
+
+Fit least squares trên $(x, Y)$. Tính các tổng: $n = 4$, $\\sum x = 0+1+2+3 = 6$, $\\sum Y = 0.693+1.163+1.686+2.140 = 5.682$, $\\sum xY = 0\\cdot0.693 + 1\\cdot1.163 + 2\\cdot1.686 + 3\\cdot2.140 = 0 + 1.163 + 3.372 + 6.420 = 10.955$, $\\sum x^2 = 0+1+4+9 = 14$.
+
+**Độ dốc** (chính là $k$):
+$$k = \\frac{n\\sum xY - \\sum x\\sum Y}{n\\sum x^2 - (\\sum x)^2} = \\frac{4\\cdot 10.955 - 6\\cdot 5.682}{4\\cdot 14 - 6^2} = \\frac{43.82 - 34.092}{56 - 36} = \\frac{9.728}{20} = \\mathbf{0.486}.$$
+
+**Tung độ gốc** ($= \\ln A$):
+$$\\ln A = \\frac{\\sum Y - k\\sum x}{n} = \\frac{5.682 - 0.486\\cdot 6}{4} = \\frac{5.682 - 2.916}{4} = \\frac{2.766}{4} = 0.6915 \\Rightarrow A = e^{0.6915} \\approx \\mathbf{1.997 \\approx 2.0}.$$
+
+→ Mô hình **$N \\approx 2.0\\cdot e^{0.486 x}$**. Kiểm tại $x = 2$: $2.0\\cdot e^{0.972} = 2.0\\cdot 2.643 = 5.29 \\approx 5.4$ ✓. **Thời gian nhân đôi** $= \\ln 2 / k = 0.693/0.486 \\approx 1.43$ giờ. Lưu ý $k > 0$ (tăng), khác Newton cooling $k > 0$ trong $e^{-kt}$ (giảm) — dấu nằm ở vị trí số mũ.
+
+### 6.3 Walk-through 3 — lũy thừa (log–log)
+
+Mô hình **lũy thừa** $y = A\\cdot x^n$ tuyến tính hóa bằng cách lấy ln *cả hai* biến:
+$$\\ln y = \\ln A + n\\cdot\\ln x.$$
+Đặt $X = \\ln x$, $Y = \\ln y$ → $Y = n\\cdot X + \\ln A$: tuyến tính giữa $\\ln y$ và $\\ln x$ (khác mũ — ở mũ chỉ log trục $y$). Đây là vì sao dữ liệu lũy thừa trông **thẳng trên giấy log–log** (cả hai trục thang log).
+
+Ví dụ: quãng đường rơi tự do $s$ (m) theo thời gian $t$ (s), nghi $s = A\\cdot t^n$:
+
+| $t$ | $s$ | $X = \\ln t$ | $Y = \\ln s$ |
+|---|---|---|---|
+| 1 | 4.9 | 0.000 | 1.589 |
+| 2 | 19.6 | 0.693 | 2.976 |
+| 4 | 78.4 | 1.386 | 4.362 |
+
+Hai điểm cách đều: từ $(0, 1.589)$ đến $(1.386, 4.362)$, độ dốc $= (4.362 - 1.589)/(1.386 - 0) = 2.773/1.386 = \\mathbf{2.0}$ → $n = 2$. Tung độ gốc $= 1.589 = \\ln A \\Rightarrow A = e^{1.589} \\approx 4.9$. Vậy $s = 4.9\\,t^2$ — đúng công thức rơi tự do $s = \\frac12 g t^2$ với $g \\approx 9.8$ (vì $\\frac12\\cdot 9.8 = 4.9$). Tuyến tính hóa log–log đã "moi" ra cả số mũ $n = 2$ lẫn hệ số $A = 4.9$ từ dữ liệu thô.
+
+### 6.4 Khi nào dùng semi-log, khi nào log–log?
+
+| Dạng nghi ngờ | Đổi biến | Trục thẳng trên giấy | Đọc gì từ đường |
+|---|---|---|---|
+| Mũ $y = A e^{kx}$ | $Y = \\ln y$ (chỉ y) | **semi-log** ($y$ log, $x$ thường) | độ dốc $= k$, chặn $= \\ln A$ |
+| Lũy thừa $y = A x^n$ | $X = \\ln x, Y = \\ln y$ | **log–log** (cả hai log) | độ dốc $= n$, chặn $= \\ln A$ |
+| Tuyến tính $y = ax + b$ | không đổi | giấy thường | độ dốc $= a$, chặn $= b$ |
+
+💡 **Mẹo chẩn đoán nhanh bằng mắt**: vẽ dữ liệu trên cả ba loại giấy; loại nào cho **đường thẳng nhất** thì đó là dạng mô hình. Thẳng trên semi-log → mũ; thẳng trên log–log → lũy thừa; thẳng trên giấy thường → tuyến tính.
+
 ⚠ **Lỗi thường gặp — quên rằng log làm méo trọng số sai số.** Fit trên ln y *không* cực tiểu sai số trên y mà trên ln y — điểm y nhỏ bị "phóng đại" tầm quan trọng. Với dữ liệu sạch thì ổn; cần chính xác cao thì dùng fit phi tuyến trực tiếp (Gauss–Newton). Nêu rõ đây là **xấp xỉ tiện lợi**.
+
+⚠ **Lỗi thường gặp — lẫn semi-log với log–log.** Dùng nhầm sẽ ra dạng sai: nếu dữ liệu thật là mũ mà bạn vẽ log–log (log cả $x$) thì không thẳng, và ngược lại. Quy tắc: **mũ → chỉ log $y$; lũy thừa → log cả hai**. Kiểm bằng "đường nào thẳng nhất" ở mục 6.4.
 
 🔁 **Dừng lại tự kiểm tra**
 
@@ -260,23 +366,141 @@ $\\ln y = \\ln A + n\\cdot\\ln x$. Tuyến tính giữa **$\\ln y$ và $\\ln x$*
 
 ### 📝 Tóm tắt mục 6
 
-- $y = A\\cdot e^{kx}$ → $\\ln y = \\ln A + kx$: tuyến tính theo $x$ → fit được bằng least squares.
-- Áp dụng tìm $k$ của nguội Newton với nhiều điểm: $k \\approx 0.075$, khớp L01 nhưng bền hơn.
-- $y = A\\cdot x^n$ → $\\ln y$ theo $\\ln x$ (log–log). Cảnh báo: log méo trọng số sai số.
+- $y = A\\cdot e^{kx}$ → $\\ln y = \\ln A + kx$: tuyến tính theo $x$ → fit được bằng least squares (semi-log).
+- Áp dụng tìm $k$ của nguội Newton với nhiều điểm: $k \\approx 0.075$, khớp L01 nhưng bền hơn; vi khuẩn $N = 2e^{0.486x}$, nhân đôi mỗi $\\approx 1.43$ giờ.
+- $y = A\\cdot x^n$ → $\\ln y$ theo $\\ln x$ (log–log), độ dốc $= n$. Vd rơi tự do $s = 4.9t^2$.
+- Mũ → chỉ log $y$; lũy thừa → log cả hai. Đường nào thẳng nhất → đó là dạng mô hình.
+- Cảnh báo: log méo trọng số sai số (điểm nhỏ bị phóng đại).
 
 ---
 
-## 7. Cạm bẫy: overfitting, ngoại suy, outlier
+## 7. Hồi quy đa thức & chọn mô hình
+
+### 7.1 Hồi quy đa thức (polynomial regression)
+
+💡 **Trực giác.** Đôi khi dữ liệu *cong* rõ ràng — đường thẳng không đủ. Ta nâng họ hàm lên **đa thức bậc $d$**:
+$$\\hat{y} = c_0 + c_1 x + c_2 x^2 + \\cdots + c_d x^d.$$
+Điều bất ngờ: đây **vẫn là bài toán bình phương tối thiểu tuyến tính** — "tuyến tính" theo *tham số* $c_0,\\dots,c_d$ (dù cong theo $x$). Ta coi $x, x^2, \\dots, x^d$ như các "đặc trưng (feature)" riêng và giải hệ phương trình chuẩn $(d+1)$ ẩn y hệt mục 3.
+
+> 📐 **Định nghĩa đầy đủ — Bậc của đa thức khớp (degree $d$)**
+>
+> **(a) Là gì**: $d$ là lũy thừa cao nhất của $x$ trong mô hình. $d = 1$: đường thẳng (2 tham số); $d = 2$: parabol (3 tham số); $d = 3$: cubic (4 tham số). Số tham số $= d + 1$.
+>
+> **(b) Vì sao cần**: $d$ điều khiển **độ dẻo (flexibility)** của đường. $d$ nhỏ → cứng, có thể "không với tới" dữ liệu cong (underfit). $d$ lớn → dẻo, uốn theo mọi điểm kể cả nhiễu (overfit). Chọn $d$ là chọn điểm cân bằng giữa hai thái cực này.
+>
+> **(c) Ví dụ số**: 3 điểm $(0,1), (1,0), (2,3)$ cong rõ. Khớp parabol $\\hat y = c_0 + c_1 x + c_2 x^2$ qua đúng 3 điểm: từ $x=0$: $c_0 = 1$; từ $x=1$: $c_0 + c_1 + c_2 = 0 \\Rightarrow c_1 + c_2 = -1$; từ $x=2$: $c_0 + 2c_1 + 4c_2 = 3 \\Rightarrow 2c_1 + 4c_2 = 2 \\Rightarrow c_1 + 2c_2 = 1$. Trừ hai phương trình: $c_2 = 2$, $c_1 = -3$. → $\\hat y = 1 - 3x + 2x^2$. Kiểm $x=2$: $1 - 6 + 8 = 3$ ✓. (3 điểm + 3 tham số → qua đúng hết, $R^2 = 1$ — đây là nội suy trá hình, xem cảnh báo dưới.)
+
+⚠ **Lỗi thường gặp — tăng bậc $d$ để bơm $R^2$.** $R^2$ trên dữ liệu huấn luyện **luôn tăng** (không bao giờ giảm) khi thêm bậc, vì mô hình mới chứa mô hình cũ như trường hợp riêng ($c_d = 0$). Nên "$R^2$ cao nhờ bậc cao" là *ảo*. Khi $d = n-1$ (bậc bằng số điểm trừ 1) thì $R^2 = 1$ tuyệt đối — nhưng đó là **nội suy + overfitting**, dao động Runge giữa các điểm, dự đoán ngoài thảm họa (đã gặp ở mục 2). Quy tắc: chỉ nâng bậc khi dữ liệu *thật sự* cong và bậc thấp underfit rõ; dùng $R^2$ điều chỉnh (adjusted $R^2$) hoặc tập kiểm tra để so.
+
+### 7.1b Walk-through — khớp parabol bằng phương trình chuẩn
+
+Khi *nhiều hơn* số tham số, parabol **không** qua hết điểm — phải giải hệ phương trình chuẩn least squares. Với bậc 2, ba phương trình chuẩn (mở rộng của hệ 2 ẩn ở mục 3) là:
+$$\\begin{aligned}
+\\sum y &= c_0\\,n + c_1\\sum x + c_2\\sum x^2 \\\\
+\\sum xy &= c_0\\sum x + c_1\\sum x^2 + c_2\\sum x^3 \\\\
+\\sum x^2 y &= c_0\\sum x^2 + c_1\\sum x^3 + c_2\\sum x^4
+\\end{aligned}$$
+Mỗi "feature" thêm ($x^2$) sinh thêm một phương trình và kéo theo các tổng bậc cao hơn ($\\sum x^3, \\sum x^4$). Cấu trúc giống hệt mục 3 — chỉ là hệ $3\\times 3$ thay vì $2\\times 2$. Giải bằng [khử Gauss / quy tắc Cramer](../../01-Arithmetic-Algebra/lesson-03-linear-equations/). (Với $d$ lớn, viết gọn bằng ma trận $X^\\top X\\,\\mathbf c = X^\\top \\mathbf y$ — xem [Vectors](../../../Vectors/).)
+
+### 7.1c So sánh đường thẳng vs parabol bằng R² — khi nào "đáng" nâng bậc?
+
+💡 **Trực giác — adjusted $R^2$.** Vì $R^2$ thường *tăng* khi thêm tham số (kể cả tham số vô dụng), ta phạt số tham số bằng **$R^2$ điều chỉnh (adjusted)**:
+$$R^2_{\\text{adj}} = 1 - (1 - R^2)\\cdot\\frac{n - 1}{n - p - 1},$$
+với $n$ = số điểm, $p$ = số tham số (không kể $c_0$). $R^2_{\\text{adj}}$ chỉ tăng nếu tham số mới giúp *đủ nhiều*; thêm tham số rác → nó *giảm*. Ví dụ số: dữ liệu cong $n = 10$, đường thẳng cho $R^2 = 0.70$ ($p=1$), parabol cho $R^2 = 0.92$ ($p=2$).
+- Thẳng: $R^2_{\\text{adj}} = 1 - (1 - 0.70)\\cdot\\frac{9}{8} = 1 - 0.30\\cdot 1.125 = 1 - 0.3375 = 0.6625$.
+- Parabol: $R^2_{\\text{adj}} = 1 - (1 - 0.92)\\cdot\\frac{9}{7} = 1 - 0.08\\cdot 1.286 = 1 - 0.1029 = 0.897$.
+
+$R^2_{\\text{adj}}$ tăng mạnh ($0.66 \\to 0.90$) → bậc 2 **đáng** (cải thiện thực, không chỉ do thêm tham số). Ngược lại nếu nâng tiếp lên bậc 9 mà $R^2$ chỉ lên $0.93$ thì $R^2_{\\text{adj}}$ sẽ *tụt* (mẫu $n - p - 1 = 10 - 9 - 1 = 0$ → vô nghĩa, dấu hiệu đã hết bậc tự do) — đúng tinh thần "đừng overfitting".
+
+### 7.2 Bốn ví dụ chọn mô hình (tuyến tính / đa thức / mũ)
+
+Mỗi bộ dữ liệu dưới đây minh họa "dấu hiệu" để chọn đúng họ hàm. Quy trình chung: **(1)** vẽ scatter, **(2)** nhìn hình dạng + thử các loại giấy (mục 6.4), **(3)** fit, **(4)** kiểm phần dư.
+
+**Ví dụ A — tuyến tính.** Doanh thu (triệu) theo số nhân viên bán: (2, 5), (4, 9), (6, 14), (8, 18). Hiệu *liên tiếp* của $y$: $+4, +5, +4$ — gần **hằng số** khi $x$ tăng đều. Dấu hiệu tuyến tính: *sai phân bậc 1 không đổi*. Chọn $\\hat y = ax + b$. (Khớp ra $a \\approx 2.2$.)
+
+**Ví dụ B — bậc 2 (parabol).** Độ cao vật ném (m) theo thời gian (s): (0, 0), (1, 25), (2, 40), (3, 45), (4, 40). $y$ tăng rồi **giảm** — có *đỉnh*. Dấu hiệu: đường đổi chiều một lần, hiệu bậc 1 giảm dần ($+25, +15, +5, -5$) nhưng hiệu *bậc 2* gần hằng số ($-10, -10, -10$). Sai phân bậc 2 không đổi ⇒ **bậc 2**. Chọn $\\hat y = c_0 + c_1 x + c_2 x^2$ (mô hình ném xiên, $c_2 < 0$ vì trọng lực).
+
+**Ví dụ C — mũ.** Số ca nhiễm theo ngày: (0, 100), (1, 150), (2, 225), (3, 338). *Tỉ số* liên tiếp: $150/100 = 1.5$, $225/150 = 1.5$, $338/225 \\approx 1.5$ — gần **hằng số**. Dấu hiệu mũ: *tỉ số liên tiếp không đổi* (mỗi bước nhân cùng một hệ số). Chọn $y = A e^{kx}$ với $e^k = 1.5 \\Rightarrow k = \\ln 1.5 \\approx 0.405$, $A = 100$.
+
+**Ví dụ D — lũy thừa.** Diện tích quả cầu theo bán kính: (1, 12.6), (2, 50.3), (3, 113), (4, 201). Không phải tỉ số hằng (mũ) cũng không phải hiệu hằng (tuyến tính). Thử log–log: $\\ln y$ theo $\\ln x$ cho đường thẳng độ dốc $\\approx 2$ → $y = A x^2$ (đúng $A = 4\\pi \\approx 12.57$, công thức $4\\pi r^2$). Dấu hiệu lũy thừa: thẳng trên **log–log**, số mũ thường là số "đẹp" (2, 3, 1.5...).
+
+> **Bảng dấu hiệu nhận dạng — "đọc" dữ liệu trước khi fit:**
+>
+> | Dấu hiệu trên dữ liệu (x cách đều) | Mô hình | Đổi biến để thẳng |
+> |---|---|---|
+> | Hiệu liên tiếp $\\Delta y$ ≈ hằng | tuyến tính | không cần |
+> | Hiệu **bậc 2** ≈ hằng (cong, 1 đỉnh) | bậc 2 | không cần (fit đa thức) |
+> | **Tỉ số** liên tiếp $y_{i+1}/y_i$ ≈ hằng | mũ | log $y$ (semi-log) |
+> | Thẳng trên log–log, mũ số "đẹp" | lũy thừa | log cả hai |
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Mũ và lũy thừa khác nhau thế nào? Nhìn scatter dễ lẫn."* Mũ $e^{kx}$: $x$ ở *số mũ* → tăng "bùng nổ", tỉ số liên tiếp hằng. Lũy thừa $x^n$: $x$ ở *cơ số* → tăng "đa thức", thẳng trên log–log. Cách phân biệt chắc nhất: thử cả semi-log lẫn log–log, xem cái nào thẳng.
+- *"Nếu hai mô hình cùng $R^2$ cao thì chọn cái nào?"* Chọn cái **đơn giản hơn** (ít tham số hơn) — dao cạo Occam (mục 8). Và cái nào có *ý nghĩa cơ chế* (vd ném xiên thì bậc 2 hợp lý hơn bậc 5 dù bậc 5 khớp hơn vài phần nghìn).
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Dữ liệu (1, 3), (2, 6), (3, 12), (4, 24). Mô hình gì? Tìm tham số.
+
+<details><summary>Đáp án</summary>
+
+Tỉ số liên tiếp $6/3 = 2$, $12/6 = 2$, $24/12 = 2$ — hằng ⇒ **mũ** $y = A e^{kx}$ với $e^k = 2 \\Rightarrow k = \\ln 2 \\approx 0.693$. Tại $x=1$, $y=3$: $3 = A e^{0.693} = 2A \\Rightarrow A = 1.5$. Vậy $y = 1.5\\cdot 2^x$. Kiểm $x=4$: $1.5\\cdot 16 = 24$ ✓.
+
+</details>
+
+2. Dữ liệu (0, 1), (1, 4), (2, 9), (3, 16). Tuyến tính, bậc 2, hay mũ?
+
+<details><summary>Đáp án</summary>
+
+Hiệu bậc 1: $+3, +5, +7$ (không hằng → không tuyến tính). Hiệu bậc 2: $+2, +2$ (hằng → **bậc 2**). Thật ra $y = (x+1)^2$. Tỉ số $4/1=4$ nhưng $9/4=2.25$ — không hằng nên không mũ.
+
+</details>
+
+### 📝 Tóm tắt mục 7
+
+- Hồi quy đa thức bậc $d$: $\\hat y = \\sum c_j x^j$ — vẫn là least squares tuyến tính theo tham số $c_j$.
+- $d$ điều khiển độ dẻo: nhỏ → underfit, lớn → overfit; $d = n-1$ → $R^2 = 1$ nhưng là nội suy/overfitting.
+- $R^2$ huấn luyện luôn tăng theo $d$ → không dùng nó để chọn bậc; dùng adjusted $R^2$ / tập kiểm tra.
+- Dấu hiệu chọn mô hình: $\\Delta y$ hằng → tuyến tính; $\\Delta^2 y$ hằng → bậc 2; tỉ số hằng → mũ; thẳng log–log → lũy thừa.
+
+---
+
+## 8. Cạm bẫy: overfitting, ngoại suy, outlier
 
 - **Overfitting (khớp quá mức)**: thêm tham số (đa thức bậc cao) luôn giảm SS_res trên dữ liệu cũ, nhưng mô hình bám nhiễu → dự đoán dữ liệu mới tệ. Quy tắc: chọn mô hình *đơn giản nhất* khớp đủ tốt (dao cạo Occam).
 - **Ngoại suy (extrapolation)**: dùng mô hình *ngoài* khoảng dữ liệu cực kỳ rủi ro. Đường khớp tốt trong [1, 5] không hứa hẹn gì tại x = 100. Mô hình tăng trưởng mũ ngoại suy cho ra dân số vô hạn (đã gặp ở [L01](../lesson-01-modeling-cycle/)).
 - **Outlier**: điểm đo sai kéo lệch cả đường (mục 4). Vẽ đồ thị để phát hiện; cân nhắc loại bỏ hoặc dùng robust regression.
 
-📝 **Tóm tắt mục 7**: khớp dữ liệu cũ tốt ≠ dự đoán tốt. Cảnh giác overfitting (chọn mô hình đơn giản), ngoại suy (chỉ tin trong vùng dữ liệu), outlier (vẽ đồ thị, robust).
+### 8.1 Ngoại suy — minh họa bằng số
+
+Lấy đường ôn thi $\\hat y = 0.9x + 1.3$ (mục 3). **Nội suy** (trong vùng dữ liệu $x \\in [1,5]$): tại $x = 2.5$, $\\hat y = 0.9\\cdot 2.5 + 1.3 = 3.55$ điểm — đáng tin, vì có điểm thật bao quanh. **Ngoại suy** (ngoài vùng): tại $x = 20$ giờ/tuần, công thức cho $\\hat y = 0.9\\cdot 20 + 1.3 = 19.3$ điểm — **vô lý** (thang chỉ tới 10!). Mô hình tuyến tính không "biết" điểm có trần; nó chỉ học xu hướng *trong* $[1,5]$. Bài học: **chỉ tin mô hình trong khoảng dữ liệu đã quan sát**.
+
+⚠ **Lỗi thường gặp — ngoại suy mù quáng.** Đa số thảm họa dự báo (dân số, giá cổ phiếu, lây nhiễm) đến từ kéo dài xu hướng ra ngoài vùng dữ liệu. Đường thẳng/mũ khớp đẹp 5 điểm đầu không hứa hẹn gì ở điểm thứ 100. Trước khi ngoại suy, hỏi: *cơ chế sinh dữ liệu có còn đúng ở đó không?* (vd tăng trưởng mũ luôn gặp giới hạn tài nguyên → bão hòa).
+
+### 8.2 R² cao ≠ nhân quả — minh họa
+
+⚠ **Lỗi thường gặp — suy nhân quả từ tương quan.** $R^2$ cao chỉ nói hai biến *biến thiên cùng nhau*, **không** nói biến này *gây ra* biến kia. Ví dụ kinh điển: doanh số kem và số vụ chết đuối tương quan mạnh ($R^2$ cao) theo tháng — nhưng kem không gây chết đuối; cả hai cùng bị **biến ẩn** (mùa hè nóng) chi phối. Ba khả năng khi $X, Y$ tương quan: (1) $X$ gây $Y$; (2) $Y$ gây $X$; (3) biến thứ ba $Z$ gây cả hai. Hồi quy *một mình* không phân biệt được — cần thí nghiệm có đối chứng hoặc lý lẽ cơ chế.
+
+### 8.3 Biểu đồ phần dư — công cụ chẩn đoán
+
+💡 **Trực giác.** Sau khi fit, đừng chỉ nhìn $R^2$ — **vẽ phần dư $e_i$ theo $x_i$**. Nếu mô hình đúng dạng, phần dư phải rải **ngẫu nhiên quanh 0**, không có hình thù. Nếu thấy **mẫu hình (pattern)**, mô hình sai dạng.
+
+\`\`\`
+ Phần dư đúng (mô hình ổn):        Phần dư cong (sai dạng — nên nâng bậc):
+  e                                 e
+ +| ●    ●        ●                +|        ●  ●
+ 0|----●-----●--------●→ x         0|---●-----------●---→ x
+ -|  ●     ●     ●                 -| ●               ●
+   rải đều, không hình thù            hình chữ U → dữ liệu cong, đường thẳng underfit
+\`\`\`
+
+Phần dư hình chữ U (hoặc ∩) → quan hệ phi tuyến mà ta ép đường thẳng → nâng lên bậc 2 (mục 7). Phần dư "loe rộng" khi $x$ tăng → phương sai không đều (cân nhắc fit có trọng số). Đây là lý do bộ Anscombe (mục 5) lừa được người chỉ nhìn $R^2$: vẽ phần dư ra là lộ ngay.
+
+📝 **Tóm tắt mục 8**: khớp dữ liệu cũ tốt ≠ dự đoán tốt. Cảnh giác **overfitting** (chọn mô hình đơn giản), **ngoại suy** ($x=20$ giờ → 19.3 điểm vô lý, chỉ tin trong vùng dữ liệu), **outlier** (vẽ đồ thị, robust), **R² cao ≠ nhân quả** (kem ↔ chết đuối, biến ẩn mùa hè). Luôn **vẽ biểu đồ phần dư** để bắt sai dạng.
 
 ---
 
-## 8. Bài tập
+## 9. Bài tập
 
 **Bài 1.** Một quầy có dữ liệu *số nhân viên trực* ($x$) và *số đơn xử lý được trong giờ* ($y$): (1, 1), (2, 2), (3, 2), (4, 5). Tìm đường hồi quy $\\hat{y} = ax + b$ (mỗi nhân viên thêm xử lý thêm bao nhiêu đơn?).
 
@@ -288,9 +512,18 @@ $\\ln y = \\ln A + n\\cdot\\ln x$. Tuyến tính giữa **$\\ln y$ và $\\ln x$*
 
 **Bài 5.** Một bạn fit đa thức bậc 9 qua 10 điểm đo có nhiễu, được $R^2 = 1.0$ trên dữ liệu, rồi tuyên bố "mô hình hoàn hảo". Sai ở đâu? Đề xuất cách kiểm tra đúng.
 
+**Bài 6.** Cho 4 bộ dữ liệu (x cách đều). Với mỗi bộ, dùng *bảng dấu hiệu* (mục 7.2) để chọn mô hình (tuyến tính / bậc 2 / mũ / lũy thừa) và giải thích dấu hiệu:
+a) (1, 5), (2, 8), (3, 11), (4, 14).
+b) (0, 5), (1, 10), (2, 20), (3, 40).
+c) (0, 1), (1, 3), (2, 7), (3, 13).
+
+**Bài 7.** Khớp **parabol** $\\hat y = c_0 + c_1 x + c_2 x^2$ qua đúng 3 điểm (0, 2), (1, 1), (2, 6). Sau đó cho biết: vì $R^2 = 1$, có nên kết luận parabol là mô hình "đúng" cho hiện tượng sinh ra dữ liệu không?
+
+**Bài 8.** Một nhà phân tích thấy "số quán cà phê trong thành phố" và "số ca trầm cảm" tương quan với $R^2 = 0.85$ qua các năm, kết luận "cà phê gây trầm cảm". Sai lầm logic là gì? Nêu một biến ẩn khả dĩ.
+
 ---
 
-## 9. Lời giải chi tiết
+## 10. Lời giải chi tiết
 
 **Bài 1.** $n=4$. Bảng: $\\sum x = 1+2+3+4 = 10$; $\\sum y = 1+2+2+5 = 10$; $\\sum xy = 1+4+6+20 = 31$; $\\sum x^2 = 1+4+9+16 = 30$.
 - $a = (4\\cdot 31 - 10\\cdot 10)/(4\\cdot 30 - 10^2) = (124 - 100)/(120 - 100) = 24/20 =$ **1.2**.
@@ -308,9 +541,24 @@ $\\ln y = \\ln A + n\\cdot\\ln x$. Tuyến tính giữa **$\\ln y$ và $\\ln x$*
 
 **Bài 5.** Sai: $R^2 = 1$ trên dữ liệu *huấn luyện* chỉ phản ánh đa thức bậc 9 có đủ 10 tham số để qua đúng 10 điểm — đây là **overfitting**, nó bám cả nhiễu và sẽ dao động Runge, dự đoán điểm mới rất tệ. $R^2$ trên chính dữ liệu đã fit không đo được khả năng dự đoán. **Cách kiểm tra đúng**: tách dữ liệu thành tập huấn luyện + tập kiểm tra (giữ lại vài điểm không dùng để fit), đánh giá sai số trên tập kiểm tra; hoặc dùng kiểm định chéo (cross-validation); và ưu tiên mô hình đơn giản (đường thẳng/bậc thấp) nếu nó khớp đủ tốt.
 
+**Bài 6.**
+a) Hiệu liên tiếp $\\Delta y = 8-5, 11-8, 14-11 = +3, +3, +3$ — **hằng số** ⇒ **tuyến tính**. (Thật ra $y = 3x + 2$: độ dốc 3, chặn 2.)
+b) Tỉ số liên tiếp $10/5 = 2$, $20/10 = 2$, $40/20 = 2$ — **hằng** ⇒ **mũ** $y = A e^{kx}$ với $e^k = 2 \\Rightarrow k = \\ln 2 \\approx 0.693$, $A = 5$ (giá trị tại $x=0$). Tức $y = 5\\cdot 2^x$.
+c) Hiệu bậc 1: $3-1, 7-3, 13-7 = +2, +4, +6$ (không hằng → không tuyến tính). Hiệu bậc 2: $4-2, 6-4 = +2, +2$ — **hằng** ⇒ **bậc 2**. (Thật ra $y = x^2 + x + 1$.) Tỉ số $3/1=3$ nhưng $7/3\\approx 2.33$ — không hằng nên không mũ.
+
+**Bài 7.** Qua 3 điểm:
+- $x=0$: $c_0 = 2$.
+- $x=1$: $c_0 + c_1 + c_2 = 1 \\Rightarrow c_1 + c_2 = -1$.
+- $x=2$: $c_0 + 2c_1 + 4c_2 = 6 \\Rightarrow 2c_1 + 4c_2 = 4 \\Rightarrow c_1 + 2c_2 = 2$.
+- Trừ: $(c_1 + 2c_2) - (c_1 + c_2) = 2 - (-1) \\Rightarrow c_2 = 3$; rồi $c_1 = -1 - 3 = -4$.
+- → **$\\hat y = 2 - 4x + 3x^2$**. Kiểm $x=2$: $2 - 8 + 12 = 6$ ✓.
+- **Không** nên kết luận parabol "đúng": với 3 điểm thì parabol (3 tham số) *luôn* qua đúng hết → $R^2 = 1$ là *tất yếu*, không phải bằng chứng. Cần thêm dữ liệu và kiểm trên điểm mới; nếu chỉ có 3 điểm, mô hình bậc 2 chỉ là *một* trong vô số đường qua chúng. $R^2 = 1$ ở đây là nội suy (mục 2), không nói lên cơ chế.
+
+**Bài 8.** Sai lầm: **suy nhân quả từ tương quan** (mục 8.2). $R^2 = 0.85$ chỉ nói hai biến cùng tăng theo thời gian, không nói cái này gây cái kia. Biến ẩn khả dĩ: **dân số / đô thị hóa** — thành phố lớn dần thì cả số quán cà phê lẫn số ca trầm cảm (được chẩn đoán) đều tăng; hoặc **mức độ tiếp cận chẩn đoán y tế** tăng theo thời gian. Muốn kết luận nhân quả phải có thí nghiệm đối chứng, không phải hồi quy quan sát.
+
 ---
 
-## 10. Bài tiếp theo
+## 11. Bài tiếp theo
 
 [Lesson 03 — Mô hình rời rạc (phương trình sai phân)](../lesson-03-discrete-dynamical/): khi thời gian đi theo bước (năm, thế hệ) thay vì liên tục, mô hình thành dãy truy hồi $x_{n+1} = f(x_n)$.
 
@@ -321,6 +569,7 @@ $\\ln y = \\ln A + n\\cdot\\ln x$. Tuyến tính giữa **$\\ln y$ và $\\ln x$*
 3. **Bình phương tối thiểu**: cực tiểu $\\sum(y_i-ax_i-b)^2$ → công thức đóng $a = (n\\sum xy-\\sum x\\sum y)/(n\\sum x^2-(\\sum x)^2)$, $b = \\bar{y}-a\\bar{x}$.
 4. **Vì sao bình phương**: khả vi (nghiệm đóng) + phạt lệch xa + MLE Gauss; nhược: nhạy outlier.
 5. **$R^2$** $= 1 - SS_{\\text{res}}/SS_{\\text{tot}}$: phần biến động giải thích được; $R^2$ cao $\\neq$ mô hình đúng (vẽ đồ thị!).
-6. **Tuyến tính hóa**: log hóa mô hình mũ/lũy thừa để fit tuyến tính (tìm $k$ nguội Newton $\\approx 0.075$).
-7. Cảnh giác **overfitting, ngoại suy, outlier**.
+6. **Tuyến tính hóa**: log hóa mô hình mũ/lũy thừa để fit tuyến tính. Mũ → semi-log (chỉ log $y$, độ dốc $=k$); lũy thừa → log–log (log cả hai, độ dốc $= n$). Vd $k$ nguội Newton $\\approx 0.075$, vi khuẩn $k = 0.486$, rơi tự do $s = 4.9t^2$.
+7. **Hồi quy đa thức** bậc $d$: vẫn là least squares tuyến tính theo tham số; $d$ điều khiển độ dẻo (nhỏ→underfit, lớn→overfit). **Chọn mô hình** bằng dấu hiệu: $\\Delta y$ hằng → tuyến tính; $\\Delta^2 y$ hằng → bậc 2; tỉ số hằng → mũ; thẳng log–log → lũy thừa.
+8. Cảnh giác **overfitting** (chọn mô hình đơn giản), **ngoại suy** (chỉ tin trong vùng dữ liệu — $x=20$ giờ → 19.3 điểm vô lý), **outlier**, và **$R^2$ cao $\\neq$ nhân quả** (kem ↔ chết đuối). Luôn **vẽ biểu đồ phần dư** để bắt sai dạng.
 `;

@@ -126,10 +126,44 @@ Các loại giả định thường gặp:
 
 </details>
 
+### 3.1 Phân loại giả định theo "mức gây hại" khi sai
+
+Không phải giả định nào cũng nguy hiểm như nhau. Chia ba mức:
+
+| Mức | Loại giả định | Nếu sai thì sao | Ví dụ |
+|-----|---------------|-----------------|-------|
+| 🟢 An toàn | Bỏ yếu tố thực sự nhỏ | Sai số nhỏ, mô hình vẫn dùng được | Bỏ sức cản với hòn đá rơi 2 m |
+| 🟡 Phải canh chừng | Coi hằng cái đang thay đổi chậm | Đúng ngắn hạn, lệch dần dài hạn | "Lãi suất cố định" trong mô hình vay 30 năm |
+| 🔴 Gãy mô hình | Bỏ chính cơ chế chi phối | Sai về *chất*, không chỉ về lượng | Bỏ sức cản với tờ giấy rơi; bỏ giới hạn tài nguyên trong tăng trưởng dài hạn |
+
+💡 **Trực giác.** Một giả định 🔴 không làm mô hình "kém chính xác vài %", mà làm nó trả lời **sai loại câu hỏi** — như dùng bản đồ đường bộ để đoán độ sâu biển. Việc đầu tiên khi mô hình hóa: hỏi *"yếu tố tôi định bỏ có phải là cơ chế chính của câu hỏi này không?"* Nếu có → đừng bỏ.
+
+### 3.2 Giả định ngầm (implicit assumptions) — nguy hiểm nhất vì không ai viết ra
+
+⚠ **Lỗi thường gặp — giả định ngầm.** Giả định *viết ra* thì còn kiểm tra được; giả định *ngầm* (bạn không nhận ra mình đang giả định) mới gây tai họa, vì không ai nghĩ tới chuyện kiểm tra nó. Bốn ví dụ:
+
+1. **"Dân số là số thực"** — khi dùng ODE liên tục cho dân số, bạn ngầm cho phép "0.37 con thỏ". Vô hại khi $N$ lớn (làm tròn không đáng kể), nhưng vô lý khi $N$ nhỏ (mô hình nói còn "0.8 cá thể" → tuyệt chủng hay chưa?).
+2. **"Tham số không đổi theo thời gian"** — mô hình lan bệnh giả định tỉ lệ lây $\\beta$ cố định, ngầm bỏ qua việc người dân *đeo khẩu trang sau khi nghe tin dịch* (β tự giảm). Đây là lý do nhiều dự báo dịch 2020 lệch.
+3. **"Đơn vị đồng nhất"** — trộn mét với foot (vụ Mars Climate Orbiter). Không ai *cố ý* giả định "mọi số đều cùng đơn vị", nhưng code ngầm giả định thế.
+4. **"Quá khứ giống tương lai"** — mọi mô hình khớp dữ liệu lịch sử rồi ngoại suy đều ngầm giả định quy luật không đổi. Sai khi có "thiên nga đen" (đại dịch, khủng hoảng tài chính).
+
+**Cách phòng**: sau khi liệt kê giả định *tường minh*, tự hỏi thêm *"phương trình của tôi còn lặng lẽ đòi hỏi điều gì đúng?"* — đặc biệt về dấu, về miền giá trị (dân số ≥ 0, xác suất ≤ 1), về đơn vị.
+
+### 3.3 Hai cực sai: quá đơn giản và quá phức tạp
+
+⚠ **Lỗi thường gặp — mô hình quá đơn giản (underfitting).** Bỏ quá nhiều → mô hình không bắt được hành vi cốt lõi. Phản ví dụ: mô hình giá nhà chỉ dùng *diện tích* → bỏ qua vị trí, năm xây; dự đoán lệch xa vì hai căn cùng diện tích ở quận khác nhau giá gấp 3 lần. Dấu hiệu: mô hình sai *có hệ thống* (luôn lệch cùng chiều ở một nhóm dữ liệu).
+
+⚠ **Lỗi thường gặp — mô hình quá phức tạp (overfitting / over-engineering).** Thêm quá nhiều biến → mô hình "học thuộc" cả nhiễu trong dữ liệu, khớp lịch sử hoàn hảo nhưng dự báo tương lai tệ. Phản ví dụ số: 10 điểm dữ liệu nhiễu, khớp đa thức bậc 9 → đi qua *cả 10 điểm* (sai số huấn luyện $= 0$!) nhưng dao động điên loạn giữa các điểm, dự đoán điểm thứ 11 sai thậm tệ; trong khi đường thẳng (bậc 1) bỏ qua nhiễu lại dự báo tốt hơn. Càng nhiều tham số tự do, càng dễ overfit (xem mục 8 về validation).
+
+> 🪒 **Dao cạo Occam (Occam's razor) cho mô hình hóa.** Giữa hai mô hình giải thích dữ liệu *tương đương nhau*, chọn cái **đơn giản hơn** (ít tham số hơn). Lý do không phải "đơn giản thì đẹp" mà là *đơn giản thì ít overfit hơn và dễ kiểm chứng/diễn giải hơn*. "Đủ phức tạp để bắt cơ chế, không hơn."
+
 📝 **Tóm tắt mục 3**
 
 - Giả định = công tắc tắt bớt độ phức tạp; đổi độ chính xác lấy độ giải được.
 - Các loại: bỏ yếu tố nhỏ, coi hằng, tuyến tính hóa, rời rạc↔liên tục, trộn đều.
+- Phân ba mức theo "mức gây hại": 🟢 an toàn, 🟡 canh chừng, 🔴 gãy mô hình (bỏ chính cơ chế chính).
+- Nguy hiểm nhất là **giả định ngầm** — tự hỏi "phương trình còn lặng lẽ đòi hỏi gì?".
+- Tránh cả hai cực: quá đơn giản (underfit, sai có hệ thống) và quá phức tạp (overfit, học thuộc nhiễu). Occam: đơn giản nhất mà *đủ*.
 - Luôn ghi rõ phạm vi áp dụng; nêu toy model thì phải cảnh báo hạn chế + chỉ phiên bản thật.
 
 ---
@@ -249,7 +283,212 @@ Tìm $t$ khi $T = 60$°C:
 
 ---
 
-## 6. Bài tập
+## 6. Biến, tham số và hằng số — phân biệt ba vai
+
+💡 **Trực giác / Hình dung — công thức nấu ăn.** Trong một công thức bánh: *lượng bột* bạn đong là **biến đầu vào** (input, thay đổi mỗi lần làm), *chiếc bánh nở to bao nhiêu* là **biến đầu ra** (output), còn *"180°C trong 25 phút"* là **tham số** — cố định cho một công thức cụ thể, nhưng ai đổi lò/khuôn thì chỉnh lại. Nhầm ba vai này là nhầm "cái gì tôi điều khiển" với "cái gì tôi quan sát".
+
+> 📐 **Định nghĩa đầy đủ — Biến (variable), Tham số (parameter), Hằng số (constant)**
+>
+> **(a) Là gì**:
+> - **Biến**: đại lượng *thay đổi* trong phạm vi bài toán. Chia: **biến độc lập** (ta đặt vào / là trục, vd thời gian $t$) và **biến phụ thuộc** (kết quả ta tính, vd nhiệt độ $T(t)$).
+> - **Tham số**: đại lượng *cố định trong một lần chạy mô hình* nhưng *thay đổi giữa các tình huống/bài*. Ta thường phải *hiệu chỉnh* (calibrate) nó từ dữ liệu. Vd hằng số nguội $k$ ở mục 5: cố định cho một cốc cà phê, nhưng cốc khác/chất liệu khác thì $k$ khác.
+> - **Hằng số (vật lý/toán)**: cố định *luôn luôn*, không hiệu chỉnh. Vd $g = 9.8$ m/s², $\\pi$, $e$.
+>
+> **(b) Vì sao cần phân biệt**: Vì nó quyết định *cái gì bạn giải tìm* và *cái gì bạn đo để hiệu chỉnh*. Mục tiêu thường là tìm **biến phụ thuộc** theo **biến độc lập**, với **tham số** lấy từ dữ liệu, và **hằng số** tra bảng. Lẫn lộn → giải sai bài.
+>
+> **(c) Ví dụ số (4 ví dụ)**:
+> 1. Ném bóng $h(t) = v_0 t - \\tfrac{1}{2} g t^2$: **biến độc lập** $t$; **biến phụ thuộc** $h$; **tham số** $v_0$ (vận tốc đầu, đổi theo cú ném); **hằng số** $g = 9.8$.
+> 2. Nguội Newton $T(t) = 25 + 65 e^{-kt}$: **biến độc lập** $t$; **biến phụ thuộc** $T$; **tham số** $k = 0.0736$ (hiệu chỉnh từ 1 điểm đo); "hằng" $25, 65$ thực ra là *điều kiện đầu/biên* (nhiệt độ phòng, chênh lệch đầu).
+> 3. Đường thẳng hồi quy $y = a x + b$: **biến độc lập** $x$, **phụ thuộc** $y$; **tham số** $a, b$ (khớp từ dữ liệu — Lesson 02).
+> 4. Logistic $N(t) = \\dfrac{K}{1 + A e^{-rt}}$: **độc lập** $t$, **phụ thuộc** $N$; **tham số** $K$ (sức chứa), $r$ (tốc độ), $A$ (từ $N(0)$) — cả ba hiệu chỉnh từ dữ liệu.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Tham số và biến khác nhau ở đâu, vì cả hai đều là chữ cái?"* Khác ở **vai trò**, không ở ký hiệu. Trong *một lần chạy*, tham số đứng yên còn biến chạy. Cùng một ký hiệu có thể đổi vai giữa hai bài: $k$ là tham số khi ta giải $T(t)$, nhưng *trở thành biến* khi ta hỏi "$k$ phụ thuộc chất liệu cốc thế nào?".
+- *"Bao nhiêu tham số là 'vừa'?"* Càng ít càng tốt *miễn vẫn khớp* (Occam, mục 3.3). Mỗi tham số thêm vào đòi thêm dữ liệu để hiệu chỉnh đáng tin; thừa tham số → overfit.
+- *"Điều kiện đầu ($N_0$, $T(0)$) là biến hay tham số?"* Thường coi là **tham số** (cố định cho một lần chạy, đặt bởi hiện trạng ban đầu). Đổi điều kiện đầu = chạy lại mô hình với tham số mới.
+
+⚠ **Lỗi thường gặp — coi tham số là hằng số phổ quát.** Hiệu chỉnh $k = 0.0736$ cho *một* cốc rồi dùng lại cho cốc sứ dày là sai — $k$ là tham số *của tình huống đó*. Phản ví dụ: cốc giữ nhiệt có $k$ nhỏ hơn nhiều; dùng nhầm $k$ → dự báo nguội nhanh gấp đôi thực tế.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Trong mô hình lãi kép $A(t) = P(1 + r)^t$, hãy gắn nhãn biến độc lập, biến phụ thuộc, tham số.
+2. Số $e$ trong $e^{-kt}$ là biến, tham số hay hằng số?
+
+<details><summary>Đáp án</summary>
+
+1. **Biến độc lập** $t$ (thời gian); **biến phụ thuộc** $A$ (số tiền); **tham số** $P$ (vốn ban đầu) và $r$ (lãi suất) — cố định cho một khoản gửi, đổi giữa các khoản.
+2. **Hằng số** toán học ($e \\approx 2.718$), không bao giờ hiệu chỉnh. Khác hẳn $k$ (tham số, hiệu chỉnh từ dữ liệu).
+
+</details>
+
+📝 **Tóm tắt mục 6**
+
+- Biến độc lập (ta đặt vào) → mô hình → biến phụ thuộc (ta tính ra).
+- Tham số: cố định trong một lần chạy, đổi giữa các tình huống, *hiệu chỉnh từ dữ liệu*.
+- Hằng số: cố định luôn luôn (g, π, e), tra bảng không hiệu chỉnh.
+- Phân vai sai → giải sai bài. Càng ít tham số càng tốt miễn còn khớp.
+
+---
+
+## 7. Phân loại mô hình
+
+💡 **Trực giác / Hình dung.** Trước khi xây, hỏi ba câu để biết "loại bản đồ" cần vẽ: (1) *Kết quả có chắc chắn không, hay có yếu tố may rủi?* (2) *Thời gian chạy liên tục hay theo bước nhảy?* (3) *Có thay đổi theo thời gian, hay chỉ chụp một khoảnh khắc?* Ba câu này cho ba trục phân loại.
+
+### 7.1 Ba trục phân loại chính
+
+| Trục | Hai cực | Khác nhau ở | Công cụ toán điển hình |
+|------|---------|-------------|------------------------|
+| **Tất định ↔ Ngẫu nhiên** | Deterministic / Stochastic | Cùng input → luôn cùng output? hay có xác suất? | ODE/đại số ↔ xác suất, xích Markov |
+| **Liên tục ↔ Rời rạc** | Continuous / Discrete | Biến (thời gian/không gian) chạy mượt hay nhảy bước? | Vi tích phân ↔ dãy số, sai phân |
+| **Tĩnh ↔ Động** | Static / Dynamic | Có biến thời gian không? | Phương trình đại số ↔ ODE/dãy đệ quy |
+
+> 📐 **Định nghĩa — bốn cặp loại**
+>
+> - **Tất định (deterministic)**: cùng đầu vào và tham số → *luôn* cho cùng đầu ra, không yếu tố may rủi. Vd $h(t) = v_0 t - \\tfrac12 g t^2$.
+> - **Ngẫu nhiên (stochastic)**: có thành phần xác suất; cùng input có thể ra kết quả khác nhau, ta nói về *phân phối* kết quả. Vd tung xúc xắc, mô hình giá cổ phiếu (chuyển động Brown).
+> - **Liên tục (continuous)**: biến nhận *mọi giá trị thực* trong khoảng; dùng đạo hàm. Vd nhiệt độ $T(t)$ theo thời gian thực.
+> - **Rời rạc (discrete)**: biến chỉ nhận giá trị tách biệt (bước); dùng dãy/sai phân. Vd dân số đo *mỗi năm* $N_0, N_1, N_2,\\dots$
+> - **Tĩnh (static)**: không có thời gian, chụp một trạng thái cân bằng. Vd cân bằng cung–cầu $Q_s(p) = Q_d(p)$ tìm giá $p^*$.
+> - **Động (dynamic)**: theo dõi tiến hóa theo thời gian. Vd $\\dfrac{dN}{dt} = rN$.
+
+### 7.2 Bốn (+) ví dụ phân loại thực tế
+
+Một mô hình mang **một nhãn trên mỗi trục** (vd "tất định, liên tục, động"):
+
+| # | Mô hình thực tế | Tất định/Ngẫu nhiên | Liên tục/Rời rạc | Tĩnh/Động |
+|---|------------------|:---:|:---:|:---:|
+| 1 | Quỹ đạo ném bóng $h(t)=v_0t-\\tfrac12gt^2$ | Tất định | Liên tục | Động |
+| 2 | Lãi kép theo tháng $A_{n+1}=A_n(1+r)$ | Tất định | **Rời rạc** | Động |
+| 3 | Tung xúc xắc / số khách đến quầy mỗi giờ (Poisson) | **Ngẫu nhiên** | Rời rạc | (tùy) |
+| 4 | Giá cổ phiếu (chuyển động Brown hình học) | **Ngẫu nhiên** | Liên tục | Động |
+| 5 | Cân bằng cung–cầu tìm giá $p^*$ | Tất định | Liên tục | **Tĩnh** |
+| 6 | Lan bệnh SIR (Lesson 05) | Tất định | Liên tục | Động |
+
+**Walk-through chọn loại cho ví dụ 2 (lãi kép tháng).** *Ngẫu nhiên?* — Không, lãi suất $r$ cho trước, $A_{n+1}$ tính chính xác từ $A_n$ → **tất định**. *Liên tục?* — Tiền chỉ cập nhật *cuối mỗi tháng*, không phải mọi khoảnh khắc → **rời rạc** (chỉ số $n = 0,1,2,\\dots$). *Tĩnh?* — Có theo dõi qua thời gian → **động**. Kết luận: *tất định, rời rạc, động* → công cụ là **dãy đệ quy** ($A_{n+1} = A_n(1+r)$), không phải ODE.
+
+❓ **Câu hỏi tự nhiên của người đọc**
+
+- *"Rời rạc vs liên tục — chọn cái nào?"* Theo *bản chất dữ liệu/câu hỏi*. Dân số thật là số nguyên (rời rạc), nhưng nếu $N$ lớn và muốn dùng giải tích, ta *xấp xỉ* bằng liên tục (giả định ngầm ở mục 3.2!). Đo mỗi năm → rời rạc tự nhiên.
+- *"Khi nào cần mô hình ngẫu nhiên?"* Khi *sự dao động/may rủi chính là điều cần trả lời* (rủi ro đầu tư, xác suất hết hàng), hoặc khi hệ nhỏ (ít cá thể) nên thăng giáng lớn. Nếu chỉ cần xu hướng trung bình và hệ lớn → tất định thường đủ và đơn giản hơn.
+- *"Một mô hình có thể vừa rời rạc vừa liên tục?"* Có — mô hình *lai* (hybrid): vd dân số tăng liên tục trong năm nhưng thu hoạch *một lần* cuối năm (cú nhảy rời rạc). Thực tế nhiều mô hình là lai.
+
+⚠ **Lỗi thường gặp — ép sai loại.** Dùng ODE liên tục cho quần thể chỉ còn 3 cá thể → mô hình nói "2.4 cá thể", vô nghĩa và bỏ sót *tuyệt chủng do ngẫu nhiên* (3 con xui rủi chết hết) mà mô hình tất định không bao giờ thấy. Hệ nhỏ → cân nhắc rời rạc + ngẫu nhiên. Phản ví dụ ngược: dùng mô phỏng ngẫu nhiên từng phân tử khí cho 1 mol ($6\\times10^{23}$ hạt) là phí phạm — số lớn nên trung bình rất ổn định, mô hình liên tục tất định (nhiệt động lực học) đủ và rẻ hơn vô vàn.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Phân loại theo cả 3 trục: *"số người xếp hàng ở quầy ATM theo thời gian"*.
+2. Mô hình tìm *giá thuê nhà cân bằng* ở một khu (không quan tâm nó tới đó ra sao) — tĩnh hay động?
+
+<details><summary>Đáp án</summary>
+
+1. **Ngẫu nhiên** (người đến lúc nào là may rủi — quá trình hàng đợi/Poisson), **rời rạc** (số người là số nguyên), **động** (thay đổi theo thời gian). → công cụ: lý thuyết hàng đợi / xích Markov.
+2. **Tĩnh** — chỉ tìm trạng thái cân bằng $p^*$ (cung = cầu), không theo dõi đường đi tới đó. Nếu hỏi "giá điều chỉnh dần ra sao theo tuần" thì mới là động.
+
+</details>
+
+📝 **Tóm tắt mục 7**
+
+- Ba trục: tất định↔ngẫu nhiên, liên tục↔rời rạc, tĩnh↔động. Mỗi mô hình một nhãn mỗi trục.
+- Loại quyết định công cụ: ODE (liên tục động), dãy đệ quy (rời rạc động), đại số (tĩnh), xác suất/Markov (ngẫu nhiên).
+- Chọn loại theo *bản chất câu hỏi & dữ liệu*, không theo thói quen; hệ nhỏ → rời rạc/ngẫu nhiên, hệ lớn → liên tục/tất định thường đủ.
+
+---
+
+## 8. Kiểm chứng (validation) & sai số mô hình
+
+💡 **Trực giác / Hình dung — thử áo trước khi mua.** Khớp mô hình với dữ liệu rồi tự khen "khớp đẹp" giống như thử áo *chính chiếc bạn đã chọn* rồi kết luận "vừa". Phép thử thật là mặc một chiếc *bạn chưa từng thử* (dữ liệu mới). Validation = kiểm tra mô hình trên dữ liệu nó **chưa nhìn thấy** lúc xây.
+
+### 8.1 Ba loại sai số
+
+> 📐 **Định nghĩa — ba nguồn sai số của mô hình**
+>
+> - **(a) Sai số mô hình (model/structural error)**: do *bản thân cấu trúc* mô hình đơn giản hóa hiện thực (bỏ sức cản, giả định tuyến tính). Không giảm được bằng thêm dữ liệu — chỉ giảm bằng *đổi mô hình*. Vd ném bóng bỏ sức cản: dù đo triệu lần $v_0$ chính xác, vẫn lệch vì thiếu lực cản.
+> - **(b) Sai số tham số (parameter error)**: do *hiệu chỉnh $k, r, a, b\\dots$ chưa chính xác* (dữ liệu ít hoặc nhiễu). Giảm được bằng *thêm/cải thiện dữ liệu*.
+> - **(c) Sai số đo / nhiễu (measurement noise)**: dữ liệu thực luôn có sai số đo. Không phải lỗi mô hình, nhưng làm việc hiệu chỉnh khó hơn.
+
+### 8.2 Đo sai số bằng số — ba thước đo
+
+Gọi $y_i$ là giá trị *thực đo*, $\\hat{y}_i$ là giá trị *mô hình dự đoán*, $n$ điểm:
+
+$$
+\\text{MAE} = \\frac{1}{n}\\sum_{i=1}^{n} |y_i - \\hat{y}_i|,
+\\qquad
+\\text{RMSE} = \\sqrt{\\frac{1}{n}\\sum_{i=1}^{n} (y_i - \\hat{y}_i)^2}
+$$
+
+- **MAE** (sai số tuyệt đối trung bình): dễ hiểu, "trung bình lệch bao nhiêu".
+- **RMSE** (căn sai số bình phương trung bình): *phạt nặng* các lệch lớn (bình phương), nhạy với outlier.
+- **Sai số tương đối**: $|y_i - \\hat{y}_i| / |y_i|$ — để so công bằng giữa đại lượng to/nhỏ.
+
+**Walk-through số.** Mô hình dự đoán nhiệt độ, 4 điểm: thực $y = [70, 60, 52, 46]$, mô hình $\\hat{y} = [72, 58, 53, 44]$. Sai lệch $e_i = y_i - \\hat{y}_i = [-2, +2, -1, +2]$.
+
+$$
+\\begin{aligned}
+\\text{MAE} &= \\tfrac{1}{4}(|{-}2| + |2| + |{-}1| + |2|) = \\tfrac{1}{4}(2+2+1+2) = \\tfrac{7}{4} = 1.75 \\\\
+\\text{RMSE} &= \\sqrt{\\tfrac{1}{4}\\big((-2)^2 + 2^2 + (-1)^2 + 2^2\\big)} = \\sqrt{\\tfrac{4+4+1+4}{4}} = \\sqrt{\\tfrac{13}{4}} = \\sqrt{3.25} \\approx 1.80
+\\end{aligned}
+$$
+
+RMSE (1.80) > MAE (1.75) vì RMSE phạt nặng các lệch $\\pm 2$. Diễn giải: mô hình lệch trung bình ~1.75°C — *đủ tốt* nếu ta chỉ cần ước lượng "khi nào uống được" (±2°C không đổi quyết định).
+
+### 8.3 Train/test split — bí quyết chống overfit
+
+⚠ **Lỗi thường gặp — validation trên chính dữ liệu đã khớp.** Đây là cái bẫy lớn nhất. Nếu hiệu chỉnh tham số trên *toàn bộ* dữ liệu rồi đo sai số trên *cùng dữ liệu đó*, mô hình overfit sẽ cho sai số *giả tạo nhỏ* (đa thức bậc 9 ở mục 3.3 đạt sai số $= 0$ trên 10 điểm khớp) nhưng dự báo thật lại tệ. Đó là "thử lại chính chiếc áo đã chọn".
+
+**Cách đúng — tách dữ liệu**:
+
+\`\`\`
+   Dữ liệu  ┌──────────────── 80% ────────────────┬──── 20% ────┐
+            │   TẬP HUẤN LUYỆN (train)             │  TẬP KIỂM   │
+            │   — dùng hiệu chỉnh tham số          │  THỬ (test) │
+            │                                      │  — mô hình  │
+            │                                      │  CHƯA thấy  │
+            └──────────────────────────────────────┴─────────────┘
+                       hiệu chỉnh ở đây              đánh giá ở đây
+\`\`\`
+
+- Hiệu chỉnh tham số **chỉ** trên tập train.
+- Đo sai số (MAE/RMSE) trên tập **test** — dữ liệu mô hình chưa nhìn → ước lượng *trung thực* khả năng dự báo.
+- Dấu hiệu overfit: sai số train rất nhỏ nhưng sai số test lớn hơn hẳn (khoảng cách lớn = "học thuộc nhiễu").
+
+💡 **Trực giác bổ sung.** Train = đề ôn có đáp án; test = đề thi thật. Học thuộc lòng đề ôn (overfit) → điểm ôn 10/10 nhưng thi thật rớt. Hiểu bản chất (mô hình đơn giản, đúng cơ chế) → ôn 8 nhưng thi cũng 8.
+
+### 8.4 Kiểm chứng định tính — "sniff test" không cần số
+
+Trước cả khi tính MAE, chạy các kiểm tra rẻ tiền bắt lỗi thô:
+
+1. **Kiểm giới hạn (limits)**: $t\\to 0$ và $t\\to\\infty$ có ra giá trị hợp lý? (Cà phê: $T(0)=90$ ✓, $T(\\infty)=25$ ✓.)
+2. **Kiểm dấu & miền**: dân số $N \\ge 0$? xác suất $\\in [0,1]$? Nếu mô hình cho $N = -3$ hay $P = 1.3$ → sai ngay.
+3. **Kiểm đơn điệu/hình dạng**: cà phê phải *giảm* đơn điệu về 25°C; nếu mô hình cho nó tăng lại → sai.
+4. **Kiểm thứ nguyên** (mục 4): hai vế cùng thứ nguyên.
+
+⚠ **Lỗi thường gặp — bỏ qua sniff test, lao thẳng vào tính.** Một mô hình cho "xác suất khỏi bệnh = 1.4" hay "thời gian rơi âm" là sai *về chất*, bắt được trong 2 giây bằng kiểm dấu/miền — không cần MAE. Luôn chạy sniff test trước.
+
+🔁 **Dừng lại tự kiểm tra**
+
+1. Vì sao đo sai số trên *chính* dữ liệu đã dùng hiệu chỉnh lại cho kết quả lạc quan giả?
+2. Sai số mô hình (structural) và sai số tham số khác nhau ở chỗ "thêm dữ liệu có giúp không"?
+3. Mô hình dự báo dân số cho ra $N(50) = -120$ người. Đây là loại lỗi gì, bắt bằng kiểm tra nào?
+
+<details><summary>Đáp án</summary>
+
+1. Vì tham số đã được *chỉnh để khớp đúng những điểm đó*; đo lại trên chính chúng là chấm điểm "đề mình tự ra". Mô hình overfit khớp cả nhiễu → sai số giả tạo nhỏ, không phản ánh dự báo thật.
+2. **Sai số tham số**: thêm/sửa dữ liệu *giúp* (hiệu chỉnh chính xác hơn). **Sai số mô hình**: thêm dữ liệu *không giúp* — phải đổi cấu trúc mô hình (thêm sức cản, đổi sang logistic...).
+3. **Sai về chất** (vi phạm miền giá trị: dân số phải $\\ge 0$), bắt bằng **kiểm dấu & miền** trong sniff test — không cần tính MAE. Nguyên nhân thường là mô hình tuyến tính/mũ giảm ngoại suy quá xa miền hợp lệ.
+
+</details>
+
+📝 **Tóm tắt mục 8**
+
+- Ba sai số: mô hình (cấu trúc, thêm dữ liệu vô ích — phải đổi mô hình), tham số (giảm bằng dữ liệu), đo/nhiễu.
+- Đo bằng số: MAE (lệch trung bình), RMSE (phạt nặng lệch lớn), sai số tương đối.
+- **Train/test split**: hiệu chỉnh trên train, đánh giá trên test (dữ liệu chưa thấy) → chống ngộ nhận overfit. Validation trên chính dữ liệu đã khớp là cái bẫy số một.
+- Chạy **sniff test** (giới hạn, dấu/miền, hình dạng, thứ nguyên) trước khi tính số — bắt lỗi thô nhanh.
+
+---
+
+## 9. Bài tập
 
 **Bài 1.** Kiểm tra thứ nguyên công thức năng lượng tiềm năng hấp dẫn $E = m\\cdot g\\cdot h$. Kết quả có đúng thứ nguyên năng lượng ($M\\cdot L^2\\cdot T^{-2}$) không?
 
@@ -261,9 +500,13 @@ Tìm $t$ khi $T = 60$°C:
 
 **Bài 5.** Chu kỳ dao động của một vật khối lượng $m$ gắn vào lò xo độ cứng $\\kappa$ (thứ nguyên $[\\kappa] = M\\cdot T^{-2}$, vì $F = \\kappa\\cdot x$). Dùng phân tích thứ nguyên đoán dạng công thức chu kỳ $T$ theo $m$ và $\\kappa$.
 
+**Bài 6.** Phân loại các mô hình sau theo cả 3 trục (tất định/ngẫu nhiên, liên tục/rời rạc, tĩnh/động): (a) số tiền trong tài khoản tiết kiệm cộng lãi mỗi cuối tháng; (b) vị trí một hạt phấn hoa trôi trên mặt nước (chuyển động Brown); (c) tìm điểm cân bằng cung–cầu để định giá một sản phẩm.
+
+**Bài 7.** Một mô hình dự báo doanh thu cho 4 tháng: thực đo $y = [100, 120, 90, 110]$ (triệu đồng), mô hình dự đoán $\\hat{y} = [96, 124, 95, 108]$. (a) Tính MAE và RMSE. (b) Vì sao RMSE ≥ MAE? (c) Bạn đo sai số này trên *chính* 4 tháng đã dùng để hiệu chỉnh tham số — kết quả có đáng tin để đánh giá khả năng dự báo tháng thứ 5 không? Vì sao?
+
 ---
 
-## 7. Lời giải chi tiết
+## 10. Lời giải chi tiết
 
 **Bài 1.** $[m\\cdot g\\cdot h] = M \\cdot (L\\cdot T^{-2}) \\cdot L =$ **$M\\cdot L^2\\cdot T^{-2}$** ✓. Đúng bằng thứ nguyên năng lượng (so với $\\frac{1}{2}mv^2$: $M\\cdot(L\\cdot T^{-1})^2 = M\\cdot L^2\\cdot T^{-2}$ — khớp). Kết luận: công thức cân thứ nguyên. Số minh họa: $m=2$kg, $g=9.8$, $h=5$m $\\to E = 2\\cdot 9.8\\cdot 5 = 98$ J (joule $=$ kg·m²/s²) ✓.
 
@@ -288,9 +531,23 @@ $$T^1 = M^a \\cdot (M\\cdot T^{-2})^b = M^{a+b} \\cdot T^{-2b}$$
 
 $\\to T = C\\cdot m^{1/2}\\cdot\\kappa^{-1/2} =$ **$C\\cdot\\sqrt{m/\\kappa}$**. So công thức thật $T = 2\\pi\\sqrt{m/\\kappa}$: đúng dạng, $C = 2\\pi$. Diễn giải: lò xo cứng hơn ($\\kappa$ lớn) → dao động nhanh hơn ($T$ nhỏ); vật nặng hơn ($m$ lớn) → dao động chậm hơn ($T$ lớn) — khớp trực giác.
 
+**Bài 6.**
+- (a) **Tài khoản tiết kiệm cộng lãi cuối tháng**: *tất định* (lãi suất cho trước, tính chính xác), *rời rạc* (cập nhật theo bước tháng $n = 0,1,2,\\dots$), *động* (theo dõi qua thời gian). → công cụ: dãy đệ quy $A_{n+1} = A_n(1+r)$.
+- (b) **Hạt phấn hoa (chuyển động Brown)**: *ngẫu nhiên* (va chạm phân tử là may rủi, mỗi lần chạy ra quỹ đạo khác), *liên tục* (vị trí và thời gian là biến thực), *động*. → công cụ: quá trình ngẫu nhiên / phương trình vi phân ngẫu nhiên.
+- (c) **Cân bằng cung–cầu định giá**: *tất định*, *liên tục* (giá là biến thực), *tĩnh* (chỉ tìm trạng thái cân bằng $p^*$ thỏa $Q_s(p)=Q_d(p)$, không theo dõi đường đi). → công cụ: giải phương trình đại số.
+
+**Bài 7.** Sai lệch $e_i = y_i - \\hat{y}_i = [4, -4, -5, 2]$.
+- (a)
+$$\\begin{aligned}
+\\text{MAE} &= \\tfrac{1}{4}(|4|+|{-}4|+|{-}5|+|2|) = \\tfrac{1}{4}(4+4+5+2) = \\tfrac{15}{4} = 3.75 \\\\
+\\text{RMSE} &= \\sqrt{\\tfrac{1}{4}(4^2 + (-4)^2 + (-5)^2 + 2^2)} = \\sqrt{\\tfrac{16+16+25+4}{4}} = \\sqrt{\\tfrac{61}{4}} = \\sqrt{15.25} \\approx 3.91
+\\end{aligned}$$
+- (b) **RMSE ≥ MAE luôn đúng** (bất đẳng thức về trung bình bình phương ≥ trung bình). RMSE bình phương từng lệch trước khi lấy trung bình rồi căn → các lệch lớn (ở đây $-5$) bị *phạt nặng* hơn, kéo RMSE (3.91) lên cao hơn MAE (3.75). Hai số chỉ bằng nhau khi mọi $|e_i|$ như nhau.
+- (c) **Không đáng tin.** Tham số đã được hiệu chỉnh để khớp đúng 4 tháng này; đo sai số trên chính chúng là "chấm bài mình tự ra" → sai số lạc quan giả, có thể che giấu overfit. Muốn ước lượng trung thực khả năng dự báo tháng 5, phải giữ riêng một tập **test** (dữ liệu không dùng hiệu chỉnh) và đo trên đó (mục 8.3).
+
 ---
 
-## 8. Bài tiếp theo
+## 11. Bài tiếp theo
 
 [Lesson 02 — Mô hình từ dữ liệu (hồi quy bình phương tối thiểu)](../lesson-02-empirical-curve-fitting/): khi chưa biết quy luật, ta *khớp* mô hình từ số liệu đo được — và cách tìm hằng số k như ở mục 5 sẽ được tổng quát hóa.
 
@@ -301,4 +558,7 @@ $\\to T = C\\cdot m^{1/2}\\cdot\\kappa^{-1/2} =$ **$C\\cdot\\sqrt{m/\\kappa}$**.
 3. **Giả định** là công tắc đánh đổi độ chính xác ↔ độ đơn giản; luôn nêu rõ phạm vi và cảnh báo toy model.
 4. **Phân tích thứ nguyên**: hai vế cùng thứ nguyên (điều kiện cần); loại nhanh công thức sai; đoán được *dạng* công thức (vd chu kỳ con lắc $\\propto \\sqrt{\\ell/g}$, không phụ thuộc khối lượng).
 5. **Ví dụ cà phê nguội** minh họa trọn chu trình bằng số — khuôn mẫu cho các lesson sau.
+6. **Biến / tham số / hằng số**: biến độc lập → mô hình → biến phụ thuộc; tham số cố định mỗi lần chạy và *hiệu chỉnh từ dữ liệu*; hằng số (g, π, e) tra bảng. Phân vai sai → giải sai bài.
+7. **Phân loại mô hình** theo 3 trục: tất định↔ngẫu nhiên, liên tục↔rời rạc, tĩnh↔động — loại quyết định công cụ toán (ODE / dãy đệ quy / đại số / xác suất).
+8. **Kiểm chứng & sai số**: phân biệt sai số mô hình (đổi cấu trúc mới giảm) ↔ sai số tham số (thêm dữ liệu giảm); đo bằng MAE/RMSE; **train/test split** chống ngộ nhận overfit; chạy *sniff test* (giới hạn, dấu/miền, thứ nguyên) trước khi tính.
 `;

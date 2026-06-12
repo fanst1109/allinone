@@ -268,6 +268,8 @@
     /* ── Content area ── */
     .rm-panel .rm-content {
       overflow-y: auto; padding: 24px 28px;
+      /* Mobile: momentum scroll + chặn scroll-chaining ra page sau (giảm rung/giật trên iOS) */
+      -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
       font-size: 16px; line-height: 1.65; color: #1f2328;
       /* Font chốt: Manrope Variable. Đổi font: thay tên đầu tiên bằng 1 trong các font
          đã bundle (tools/fonts/ + @font-face ở viz-base.css): 'Manrope Variable',
@@ -571,11 +573,17 @@
         });
       });
 
-      // Scroll-spy bên trong content
+      // Scroll-spy bên trong content.
+      // QUAN TRỌNG (hiệu năng mobile): throttle bằng requestAnimationFrame để
+      // gom nhiều sự kiện scroll (iOS bắn rất dày) về tối đa 1 lần/frame, tránh
+      // layout thrash (getBoundingClientRect lặp qua mọi heading mỗi event) gây
+      // giật khi scroll README dài. Chỉ đụng DOM khi heading active thực sự đổi.
       var links = {};
       tocEl.querySelectorAll('a').forEach(function (a) { links[a.dataset.id] = a; });
-      contentEl.addEventListener('scroll', function () {
-        // Tìm heading gần đỉnh content nhất
+      var spyScheduled = false;
+      var lastActive = null;
+      function updateSpy() {
+        spyScheduled = false;
         var contentTop = contentEl.getBoundingClientRect().top;
         var current = null;
         for (var i = 0; i < items.length; i++) {
@@ -583,9 +591,17 @@
           if (rect.top - contentTop <= 40) current = items[i].id;
           else break;
         }
-        Object.keys(links).forEach(function (k) { links[k].classList.remove('rm-active'); });
+        if (current === lastActive) return; // không đổi → không chạm DOM
+        if (lastActive && links[lastActive]) links[lastActive].classList.remove('rm-active');
         if (current && links[current]) links[current].classList.add('rm-active');
-      });
+        lastActive = current;
+      }
+      contentEl.addEventListener('scroll', function () {
+        if (!spyScheduled) {
+          spyScheduled = true;
+          requestAnimationFrame(updateSpy);
+        }
+      }, { passive: true });
     }
 
     function escapeHtml(s) {

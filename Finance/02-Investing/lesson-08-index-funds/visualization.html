@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Quỹ chỉ số &amp; ETF</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 170px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 100px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 70px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .stat.warn { background: #fee2e2; } .stat.warn strong { color: #b91c1c; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  .seg { height: 32px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid #cbd5e0; margin: 10px 0; }
+  .seg > div { display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 600; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Đầu tư &amp; thị trường</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-efficient-markets/visualization.html">← L7: Thị trường hiệu quả</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Quỹ chỉ số &amp; ETF</span>
+  <span class="sep">·</span>
+  <span>Tầng 3 (sắp ra mắt) →</span>
+</nav>
+
+<main>
+<h1>Lesson 08 — Quỹ chỉ số &amp; ETF</h1>
+<p>Ba công cụ: <strong>tác động expense ratio</strong>, <strong>máy dựng danh mục 3 quỹ</strong>, và <strong>mô phỏng tái cân bằng</strong>.</p>
+
+<h2>1. Tác động tỷ lệ chi phí (expense ratio)</h2>
+<div class="card">
+  <p class="note">Cùng lợi nhuận gộp, chỉ khác phí. Phí thấp = quỹ chỉ số; phí cao = quỹ chủ động.</p>
+  <div class="row">
+    <label>Vốn (triệu):</label>
+    <input type="number" id="P" value="150" step="50" min="1" oninput="drawER()">
+  </div>
+  <div class="row">
+    <label>Lợi nhuận gộp (%/năm):</label>
+    <input type="range" id="g" min="4" max="12" value="7" step="0.5" oninput="drawER()">
+    <span class="val" id="gvv">7%</span>
+  </div>
+  <div class="row">
+    <label>Số năm:</label>
+    <input type="range" id="n" min="5" max="40" value="20" step="1" oninput="drawER()">
+    <span class="val" id="nv">20</span>
+  </div>
+  <div class="row">
+    <label>Phí chủ động (%/năm):</label>
+    <input type="range" id="fee" min="0.3" max="2.5" value="1.8" step="0.1" oninput="drawER()">
+    <span class="val" id="feev">1,8%</span>
+  </div>
+  <canvas id="erc" width="760" height="280"></canvas>
+  <div class="result" id="erout"></div>
+</div>
+
+<h2>2. Máy dựng danh mục 3 quỹ</h2>
+<div class="card">
+  <p class="note">Chọn hồ sơ rủi ro → phân bổ CP trong nước / CP quốc tế / trái phiếu. (Lợi nhuận/rủi ro ước lượng minh họa.)</p>
+  <div class="row">
+    <label>Hồ sơ:</label>
+    <select id="profile" onchange="drawPort()">
+      <option value="growth">Tăng trưởng (trẻ)</option>
+      <option value="balanced" selected>Cân bằng</option>
+      <option value="conservative">Thận trọng (gần hưu)</option>
+    </select>
+  </div>
+  <div class="seg" id="portseg"></div>
+  <div class="result" id="portout"></div>
+</div>
+
+<h2>3. Mô phỏng tái cân bằng</h2>
+<div class="card">
+  <p class="note">Danh mục lệch khỏi mục tiêu sau một năm → tính lệnh mua/bán đưa về. Đây là "mua rẻ bán đắt" tự động.</p>
+  <div class="row">
+    <label>Mục tiêu cổ phiếu (%):</label>
+    <input type="range" id="tgt" min="20" max="80" value="60" step="5" oninput="calcRebal()">
+    <span class="val" id="tgtv">60%</span>
+  </div>
+  <div class="row">
+    <label>Cổ phiếu hiện có (triệu):</label>
+    <input type="number" id="curStk" value="75" step="5" min="0" oninput="calcRebal()">
+    <label>Trái phiếu hiện có (triệu):</label>
+    <input type="number" id="curBnd" value="45" step="5" min="0" oninput="calcRebal()">
+  </div>
+  <div class="result" id="rebalout"></div>
+</div>
+
+<script>
+const fmt = (x, d=0) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+
+function drawER() {
+  const P=Math.max(1,+document.getElementById('P').value);
+  const g=+document.getElementById('g').value/100;
+  const n=+document.getElementById('n').value;
+  const fee=+document.getElementById('fee').value/100;
+  document.getElementById('gvv').textContent=(g*100).toFixed(1).replace(/\.0$/,'')+'%';
+  document.getElementById('nv').textContent=n;
+  document.getElementById('feev').textContent=(fee*100).toFixed(1).replace(/\.0$/,'')+'%';
+  const idx=g-0.002, act=g-fee;
+  const cv=document.getElementById('erc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=64,padR=16,padT=16,padB=34;
+  ctx.clearRect(0,0,W,H);
+  const maxY=P*Math.pow(1+idx,n)*1.05;
+  const x=t=>padL+(t/n)*(W-padL-padR);
+  const y=v=>H-padB-(v/maxY)*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const v=maxY*k/4,yy=y(v);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(fmt(v),padL-6,yy+4);}
+  ctx.textAlign='center'; for(let k=0;k<=4;k++){const tt=Math.round(n*k/4);ctx.fillText(tt,x(tt),H-padB+18);}
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath(); for(let t=0;t<=n;t+=n/120){const v=P*Math.pow(1+idx,t);t===0?ctx.moveTo(x(t),y(v)):ctx.lineTo(x(t),y(v));} ctx.stroke();
+  ctx.strokeStyle='#ef4444'; ctx.lineWidth=3; ctx.beginPath(); for(let t=0;t<=n;t+=n/120){const v=P*Math.pow(1+act,t);t===0?ctx.moveTo(x(t),y(v)):ctx.lineTo(x(t),y(v));} ctx.stroke();
+  const iv=P*Math.pow(1+idx,n), av=P*Math.pow(1+act,n);
+  document.getElementById('erout').innerHTML=
+    `<span class="stat" style="background:#bbf7d0">Quỹ chỉ số (0,2%): <strong>${fmt(iv)}</strong> tr</span>`+
+    `<span class="stat warn">Quỹ chủ động (${(fee*100).toFixed(1)}%): <strong>${fmt(av)}</strong> tr</span>`+
+    `<span class="stat warn">Phí ngốn: <strong>${fmt(iv-av)}</strong> tr (${((iv-av)/iv*100).toFixed(0)}%)</span>`;
+}
+
+const profiles={
+  growth:{s:50,i:35,b:15,name:'Tăng trưởng'},
+  balanced:{s:35,i:25,b:40,name:'Cân bằng'},
+  conservative:{s:20,i:15,b:65,name:'Thận trọng'},
+};
+function drawPort() {
+  const p=profiles[document.getElementById('profile').value];
+  document.getElementById('portseg').innerHTML=
+    `<div style="width:${p.s}%;background:#059669">CP nội ${p.s}%</div>`+
+    `<div style="width:${p.i}%;background:#3b82f6">CP ngoại ${p.i}%</div>`+
+    `<div style="width:${p.b}%;background:#a855f7">Trái phiếu ${p.b}%</div>`;
+  const ret=(p.s*9+p.i*9+p.b*4)/100;
+  const risk=((p.s+p.i)*18+p.b*6)/100;
+  document.getElementById('portout').innerHTML=
+    `Hồ sơ <strong>${p.name}</strong>:<br>`+
+    `<span class="stat">Lợi nhuận kỳ vọng ≈ <strong>${ret.toFixed(1)}%</strong></span>`+
+    `<span class="stat">Rủi ro ước lượng ≈ <strong>${risk.toFixed(0)}%</strong></span><br>`+
+    `<span style="font-size:13px;color:#475569">Cổ phiếu (nội+ngoại) tạo tăng trưởng; trái phiếu giảm biến động. Đa dạng hóa địa lý &amp; lớp tài sản, phí thấp, tái cân bằng định kỳ.</span>`;
+}
+
+function calcRebal() {
+  const tgt=+document.getElementById('tgt').value/100;
+  const cs=Math.max(0,+document.getElementById('curStk').value);
+  const cb=Math.max(0,+document.getElementById('curBnd').value);
+  document.getElementById('tgtv').textContent=(tgt*100).toFixed(0)+'%';
+  const total=cs+cb;
+  const tgtStk=total*tgt, tgtBnd=total*(1-tgt);
+  const dStk=tgtStk-cs;
+  const curStkPct=total>0?cs/total*100:0;
+  let action;
+  if(Math.abs(dStk)<0.5) action='Danh mục đã cân bằng, không cần làm gì.';
+  else if(dStk<0) action=`<strong>Bán ${fmt(-dStk,1)} tr cổ phiếu</strong>, mua ${fmt(-dStk,1)} tr trái phiếu (bán phần đã tăng → "bán đắt").`;
+  else action=`<strong>Mua ${fmt(dStk,1)} tr cổ phiếu</strong> (bán bớt trái phiếu) — bổ sung phần tụt lại → "mua rẻ".`;
+  document.getElementById('rebalout').innerHTML=
+    `Tổng <strong>${fmt(total)}</strong> tr · hiện cổ phiếu <strong>${curStkPct.toFixed(0)}%</strong> (mục tiêu ${(tgt*100).toFixed(0)}%).<br>`+
+    `<span class="stat">Mục tiêu: CP ${fmt(tgtStk,1)} tr / TP ${fmt(tgtBnd,1)} tr</span><br>${action}`;
+}
+
+drawER(); drawPort(); calcRebal();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

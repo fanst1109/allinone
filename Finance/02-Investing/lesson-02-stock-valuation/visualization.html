@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Cổ phiếu &amp; Định giá</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 175px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 120px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 70px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .stat.cheap { background: #bbf7d0; } .stat.exp { background: #fee2e2; } .stat.exp strong { color: #b91c1c; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Đầu tư &amp; thị trường</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-asset-classes/visualization.html">← L1: Lớp tài sản</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Định giá cổ phiếu</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-bonds-yields/visualization.html">L3: Trái phiếu →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Cổ phiếu &amp; Định giá</h1>
+<p>Ba công cụ: <strong>máy định giá Gordon</strong> (+ độ nhạy theo g), <strong>so giá vs giá trị</strong>, và <strong>khám phá P/E</strong>.</p>
+
+<h2>1. Máy định giá Gordon — P = D₁ / (r − g)</h2>
+<div class="card">
+  <p class="note">Kéo các tham số. Đồ thị bên dưới: giá trị nội tại theo g (vọt lên khi g tiến gần r).</p>
+  <div class="row">
+    <label>Cổ tức năm tới D₁ (đ):</label>
+    <input type="number" id="D" value="3000" step="100" min="0" oninput="drawGordon()">
+  </div>
+  <div class="row">
+    <label>Lợi nhuận yêu cầu r (%):</label>
+    <input type="range" id="r" min="3" max="20" value="10" step="0.5" oninput="drawGordon()">
+    <span class="val" id="rv">10%</span>
+  </div>
+  <div class="row">
+    <label>Tăng trưởng cổ tức g (%):</label>
+    <input type="range" id="g" min="0" max="15" value="4" step="0.5" oninput="drawGordon()">
+    <span class="val" id="gv">4%</span>
+  </div>
+  <div class="result" id="gordonout"></div>
+  <canvas id="sens" width="760" height="280"></canvas>
+</div>
+
+<h2>2. So giá thị trường vs giá trị nội tại</h2>
+<div class="card">
+  <p class="note">Dùng giá trị nội tại từ Module 1. Nhập giá thị trường để xem rẻ/hợp lý/đắt.</p>
+  <div class="row">
+    <label>Giá thị trường (đ):</label>
+    <input type="number" id="mkt" value="42000" step="500" min="0" oninput="compareVal()">
+  </div>
+  <div class="result" id="cmpout"></div>
+</div>
+
+<h2>3. Khám phá P/E</h2>
+<div class="card">
+  <p class="note"><code>P/E = Giá / EPS</code>. Earnings yield = 1/(P/E) = lợi suất lợi nhuận.</p>
+  <div class="row">
+    <label>Giá cổ phiếu (đ):</label>
+    <input type="number" id="price" value="60000" step="1000" min="1" oninput="calcPE()">
+    <label>EPS (đ):</label>
+    <input type="number" id="eps" value="4000" step="100" min="1" oninput="calcPE()">
+  </div>
+  <div class="result" id="peout"></div>
+</div>
+
+<script>
+const fmt = (x, d=0) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+let intrinsic = 0;
+
+function gordon(D, r, g) { return (r-g) > 0 ? D/((r-g)) : Infinity; }
+
+function drawGordon() {
+  const D=+document.getElementById('D').value;
+  const r=+document.getElementById('r').value/100;
+  const g=+document.getElementById('g').value/100;
+  document.getElementById('rv').textContent=(r*100).toFixed(1).replace(/\.0$/,'')+'%';
+  document.getElementById('gv').textContent=(g*100).toFixed(1).replace(/\.0$/,'')+'%';
+  intrinsic = gordon(D,r,g);
+  document.getElementById('gordonout').innerHTML = g>=r ?
+    `<span class="stat exp">⚠ g ≥ r → công thức vô nghĩa (giá vô hạn). Cổ tức không thể tăng nhanh hơn lợi nhuận yêu cầu mãi mãi.</span>` :
+    `P = ${fmt(D)} / (${(r*100).toFixed(1)}% − ${(g*100).toFixed(1)}%) = ${fmt(D)} / ${((r-g)*100).toFixed(1)}% = `+
+    `<span class="stat"><strong>${fmt(intrinsic)}</strong> đ/cp (giá trị nội tại)</span>`;
+  // đồ thị độ nhạy theo g
+  const cv=document.getElementById('sens'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=64,padR=16,padT=16,padB=40;
+  ctx.clearRect(0,0,W,H);
+  const gMax=r*100-0.5;
+  const pAtMax=gordon(D,r,(gMax-0.5)/100);
+  const maxY=Math.min(pAtMax, D/0.01)*1.0 || D*10;
+  const x=gg=>padL+(gg/(r*100))*(W-padL-padR);
+  const y=v=>H-padB-(Math.min(v,maxY)/maxY)*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const v=maxY*k/4,yy=y(v);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(fmt(v),padL-6,yy+4);}
+  ctx.textAlign='center';
+  for(let gg=0;gg<r*100;gg+=Math.max(1,Math.round(r*100/6))){ctx.fillText(gg+'%',x(gg),H-padB+18);}
+  ctx.fillText('g (tăng trưởng cổ tức) →', W/2, H-8);
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath();
+  let first=true;
+  for(let gg=0;gg<r*100-0.3;gg+=0.1){ const v=gordon(D,r,gg/100); if(v>maxY*1.2)continue; first?(ctx.moveTo(x(gg),y(v)),first=false):ctx.lineTo(x(gg),y(v)); }
+  ctx.stroke();
+  // điểm hiện tại
+  if(g<r){ ctx.fillStyle='#b91c1c'; ctx.beginPath(); ctx.arc(x(g*100),y(intrinsic),6,0,7); ctx.fill(); }
+  // đường tiệm cận r
+  ctx.strokeStyle='#ef4444'; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(x(r*100),padT); ctx.lineTo(x(r*100),H-padB); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#ef4444'; ctx.textAlign='right'; ctx.fillText('g→r: giá→∞', x(r*100)-4, padT+12);
+  compareVal();
+}
+
+function compareVal() {
+  const mkt=+document.getElementById('mkt').value;
+  if(!isFinite(intrinsic)){ document.getElementById('cmpout').innerHTML='Đặt g < r ở Module 1 trước.'; return; }
+  const diff=(mkt-intrinsic)/intrinsic*100;
+  let cls, verdict;
+  if(diff < -10){ cls='cheap'; verdict='🟢 RẺ — giá dưới giá trị nội tại, có thể là cơ hội (nếu giả định đúng).'; }
+  else if(diff > 10){ cls='exp'; verdict='🔴 ĐẮT — giá trên giá trị nội tại, thị trường kỳ vọng cao.'; }
+  else { cls=''; verdict='🟡 HỢP LÝ — giá xấp xỉ giá trị nội tại.'; }
+  document.getElementById('cmpout').innerHTML=
+    `<span class="stat">Giá trị nội tại: <strong>${fmt(intrinsic)}</strong> đ</span>`+
+    `<span class="stat ${cls}">Giá thị trường: <strong>${fmt(mkt)}</strong> đ (${diff>0?'+':''}${diff.toFixed(1)}%)</span><br>${verdict}`;
+}
+
+function calcPE() {
+  const p=+document.getElementById('price').value, e=Math.max(1,+document.getElementById('eps').value);
+  const pe=p/e, ey=1/pe*100;
+  document.getElementById('peout').innerHTML=
+    `<span class="stat">P/E = <strong>${pe.toFixed(1)}</strong></span>`+
+    `<span class="stat">Earnings yield = <strong>${ey.toFixed(2)}%</strong></span>`+
+    `<span class="stat">~<strong>${pe.toFixed(0)}</strong> năm hoàn vốn (nếu LN không đổi)</span><br>`+
+    `<span style="font-size:13px;color:#475569">${pe>25?'P/E cao → thị trường kỳ vọng tăng trưởng mạnh (rủi ro nếu hụt).':pe<10?'P/E thấp → rẻ tương đối hoặc công ty gặp vấn đề.':'P/E trung bình.'} So sánh trong cùng ngành.</span>`;
+}
+
+drawGordon(); calcPE();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

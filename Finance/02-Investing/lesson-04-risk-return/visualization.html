@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Rủi ro &amp; Lợi nhuận</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 160px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 90px; box-sizing: border-box; }
+  input[type="text"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 360px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 60px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .stat.warn { background: #fee2e2; } .stat.warn strong { color: #b91c1c; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  table.mini { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 10px; }
+  table.mini th, table.mini td { border: 1px solid #d1fae5; padding: 6px 8px; text-align: right; }
+  table.mini th { background: #ecfdf5; color: #047857; }
+  table.mini td:first-child, table.mini th:first-child { text-align: left; }
+  tr.best td { background: #bbf7d0; font-weight: 700; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Đầu tư &amp; thị trường</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-bonds-yields/visualization.html">← L3: Trái phiếu</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Rủi ro &amp; lợi nhuận</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-diversification/visualization.html">L5: Đa dạng hóa →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Rủi ro &amp; Lợi nhuận</h1>
+<p>Ba công cụ: <strong>máy tính trung bình &amp; độ lệch chuẩn</strong> (kèm vol drag), <strong>phân phối lợi nhuận</strong> (68–95–99,7), và <strong>so sánh Sharpe</strong>.</p>
+
+<h2>1. Trung bình, độ lệch chuẩn &amp; lực cản biến động</h2>
+<div class="card">
+  <p class="note">Nhập chuỗi lợi nhuận hằng năm (%, cách nhau bằng dấu phẩy).</p>
+  <div class="row">
+    <label>Chuỗi lợi nhuận (%):</label>
+    <input type="text" id="series" value="20, -10, 15, 5, 10" oninput="calcStats()">
+  </div>
+  <div class="result" id="statsout"></div>
+  <canvas id="barc" width="760" height="220"></canvas>
+</div>
+
+<h2>2. Phân phối lợi nhuận — quy tắc 68–95–99,7</h2>
+<div class="card">
+  <p class="note">Giả định phân phối chuẩn. Vùng tô = ±1σ (68%). Đánh dấu xác suất năm âm.</p>
+  <div class="row">
+    <label>Lợi nhuận TB (%):</label>
+    <input type="range" id="mu" min="0" max="20" value="8" step="0.5" oninput="drawDist()">
+    <span class="val" id="muv">8%</span>
+  </div>
+  <div class="row">
+    <label>Độ lệch chuẩn σ (%):</label>
+    <input type="range" id="sig" min="2" max="40" value="12" step="1" oninput="drawDist()">
+    <span class="val" id="sigv">12%</span>
+  </div>
+  <canvas id="distc" width="760" height="300"></canvas>
+  <div class="result" id="distout"></div>
+</div>
+
+<h2>3. So sánh Sharpe — lợi nhuận điều chỉnh rủi ro</h2>
+<div class="card">
+  <p class="note"><code>Sharpe = (R − Rf) / σ</code>. Càng cao càng hiệu quả. Tô xanh quỹ tốt nhất.</p>
+  <div class="row">
+    <label>Lãi phi rủi ro Rf (%):</label>
+    <input type="number" id="rf" value="3" step="0.5" min="0" oninput="rankSharpe()">
+  </div>
+  <div id="sharpeRows"></div>
+  <div class="result" id="sharpeout"></div>
+</div>
+
+<script>
+const fmt = (x, d=2) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+
+function calcStats() {
+  const raw=document.getElementById('series').value.split(',').map(s=>parseFloat(s.trim())).filter(v=>!isNaN(v));
+  if(raw.length<1){ document.getElementById('statsout').innerHTML='Nhập ít nhất 1 số.'; return; }
+  const mean=raw.reduce((a,b)=>a+b,0)/raw.length;
+  const variance=raw.reduce((a,b)=>a+(b-mean)**2,0)/raw.length;
+  const sd=Math.sqrt(variance);
+  let comp=1; raw.forEach(r=>comp*=(1+r/100));
+  const cagr=(Math.pow(comp,1/raw.length)-1)*100;
+  document.getElementById('statsout').innerHTML=
+    `<span class="stat">Trung bình cộng: <strong>${fmt(mean)}%</strong></span>`+
+    `<span class="stat">Độ lệch chuẩn σ: <strong>${fmt(sd)}%</strong></span>`+
+    `<span class="stat ${cagr<mean?'warn':''}">Lợi nhuận kép (CAGR): <strong>${fmt(cagr)}%</strong></span><br>`+
+    `<span style="font-size:13px;color:#475569">${cagr<mean?`Vol drag: CAGR (${fmt(cagr)}%) &lt; trung bình cộng (${fmt(mean)}%) — biến động ăn lợi nhuận kép ${fmt(mean-cagr)} điểm %.`:'Không biến động → CAGR = trung bình.'}</span>`;
+  // bar chart
+  const cv=document.getElementById('barc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=44,padR=16,padT=16,padB=24;
+  ctx.clearRect(0,0,W,H);
+  const maxA=Math.max(...raw.map(Math.abs),5)*1.1;
+  const mid=padT+(H-padT-padB)/2;
+  const x=i=>padL+(i+0.5)*((W-padL-padR)/raw.length);
+  const bw=(W-padL-padR)/raw.length*0.6;
+  const sc=(H-padT-padB)/2/maxA;
+  ctx.strokeStyle='#cbd5e0'; ctx.beginPath(); ctx.moveTo(padL,mid); ctx.lineTo(W-padR,mid); ctx.stroke();
+  // đường trung bình
+  ctx.strokeStyle='#0ea5e9'; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(padL,mid-mean*sc); ctx.lineTo(W-padR,mid-mean*sc); ctx.stroke(); ctx.setLineDash([]);
+  raw.forEach((r,i)=>{
+    ctx.fillStyle=r>=0?'#059669':'#ef4444';
+    ctx.fillRect(x(i)-bw/2, r>=0?mid-r*sc:mid, bw, Math.abs(r*sc));
+    ctx.fillStyle='#1a202c'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(r+'%', x(i), r>=0?mid-r*sc-4:mid+r*sc+12);
+  });
+  ctx.fillStyle='#0ea5e9'; ctx.textAlign='left'; ctx.fillText('TB '+fmt(mean)+'%', padL+2, mid-mean*sc-4);
+}
+
+function normPdf(x,mu,s){ return Math.exp(-((x-mu)**2)/(2*s*s))/(s*Math.sqrt(2*Math.PI)); }
+function normCdf(x,mu,s){ // xấp xỉ
+  const z=(x-mu)/s; const t=1/(1+0.2316419*Math.abs(z));
+  const d=0.3989423*Math.exp(-z*z/2);
+  let p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));
+  return z>0?1-p:p;
+}
+function drawDist() {
+  const mu=+document.getElementById('mu').value, s=+document.getElementById('sig').value;
+  document.getElementById('muv').textContent=mu+'%';
+  document.getElementById('sigv').textContent=s+'%';
+  const cv=document.getElementById('distc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=20,padR=20,padT=16,padB=40;
+  ctx.clearRect(0,0,W,H);
+  const lo=mu-3.5*s, hi=mu+3.5*s;
+  const x=v=>padL+((v-lo)/(hi-lo))*(W-padL-padR);
+  const peak=normPdf(mu,mu,s);
+  const y=p=>H-padB-(p/peak)*(H-padT-padB);
+  // vùng ±1σ
+  ctx.fillStyle='rgba(5,150,105,0.15)';
+  ctx.beginPath(); ctx.moveTo(x(mu-s),H-padB);
+  for(let v=mu-s;v<=mu+s;v+=(2*s)/60) ctx.lineTo(x(v),y(normPdf(v,mu,s)));
+  ctx.lineTo(x(mu+s),H-padB); ctx.fill();
+  // vùng âm (đỏ)
+  ctx.fillStyle='rgba(239,68,68,0.18)';
+  ctx.beginPath(); ctx.moveTo(x(lo),H-padB);
+  for(let v=lo;v<=0;v+=(0-lo)/40) ctx.lineTo(x(v),y(normPdf(v,mu,s)));
+  ctx.lineTo(x(0),H-padB); ctx.fill();
+  // đường chuông
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath();
+  for(let v=lo;v<=hi;v+=(hi-lo)/200){ v===lo?ctx.moveTo(x(v),y(normPdf(v,mu,s))):ctx.lineTo(x(v),y(normPdf(v,mu,s))); }
+  ctx.stroke();
+  // trục
+  ctx.strokeStyle='#cbd5e0'; ctx.beginPath(); ctx.moveTo(padL,H-padB); ctx.lineTo(W-padR,H-padB); ctx.stroke();
+  ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+  [mu-2*s,mu-s,mu,mu+s,mu+2*s].forEach(v=>{ ctx.fillText(fmt(v,0)+'%',x(v),H-padB+16); ctx.strokeStyle='#e2e8f0'; ctx.beginPath(); ctx.moveTo(x(v),padT); ctx.lineTo(x(v),H-padB); ctx.stroke(); });
+  // đường 0
+  ctx.strokeStyle='#ef4444'; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(x(0),padT); ctx.lineTo(x(0),H-padB); ctx.stroke(); ctx.setLineDash([]);
+  const pNeg=normCdf(0,mu,s)*100;
+  document.getElementById('distout').innerHTML=
+    `<span class="stat">±1σ: <strong>${fmt(mu-s,1)}%</strong> đến <strong>${fmt(mu+s,1)}%</strong> (~68% số năm)</span>`+
+    `<span class="stat warn">P(năm âm) ≈ <strong>${pNeg.toFixed(1)}%</strong></span><br>`+
+    `<span style="font-size:13px;color:#475569">σ càng lớn → đuôi rộng → xác suất năm âm cao hơn. (Thực tế có "đuôi béo" — sụp đổ thường hơn mô hình chuẩn.)</span>`;
+}
+
+const funds=[{n:'A',r:10,s:10},{n:'B',r:15,s:30},{n:'C',r:6,s:4},{n:'D',r:20,s:50}];
+function renderSharpe() {
+  let h='<table class="mini" id="stable"><tr><th>Quỹ</th><th>Lợi nhuận %</th><th>σ %</th><th>Sharpe</th></tr>';
+  funds.forEach((f,i)=>{ h+=`<tr><td>${f.n}</td>`+
+    `<td><input type="number" value="${f.r}" step="1" style="max-width:70px" oninput="funds[${i}].r=+this.value"></td>`+
+    `<td><input type="number" value="${f.s}" step="1" style="max-width:70px" oninput="funds[${i}].s=+this.value"></td>`+
+    `<td id="sh${i}">—</td></tr>`; });
+  h+='</table><div style="margin-top:8px"><button onclick="rankSharpe()" style="background:#059669;color:#fff;border:none;padding:7px 12px;border-radius:5px;cursor:pointer;font-weight:600">↻ Tính Sharpe</button></div>';
+  document.getElementById('sharpeRows').innerHTML=h;
+}
+function rankSharpe() {
+  const rf=+document.getElementById('rf').value;
+  let best=-1e9, bi=0;
+  funds.forEach((f,i)=>{ const sh=f.s>0?(f.r-rf)/f.s:0; document.getElementById('sh'+i).textContent=sh.toFixed(3); document.getElementById('sh'+i).parentElement.classList.remove('best'); if(sh>best){best=sh;bi=i;} });
+  const rows=document.querySelectorAll('#stable tr'); if(rows[bi+1]) rows[bi+1].classList.add('best');
+  document.getElementById('sharpeout').innerHTML=`Hiệu quả nhất: <strong>Quỹ ${funds[bi].n}</strong> (Sharpe ${best.toFixed(3)}) — lời ${funds[bi].r}%, σ ${funds[bi].s}%. Lưu ý quỹ này chưa chắc lời cao nhất!`;
+}
+
+calcStats(); drawDist(); renderSharpe(); rankSharpe();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

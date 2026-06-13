@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Đa dạng hóa &amp; Danh mục</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 175px; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 60px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Đầu tư &amp; thị trường</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-risk-return/visualization.html">← L4: Rủi ro &amp; lợi nhuận</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Đa dạng hóa</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-capm-beta/visualization.html">L6: CAPM &amp; beta →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Đa dạng hóa &amp; Danh mục</h1>
+<p>Ba công cụ: <strong>danh mục 2 tài sản</strong> (đổi ρ thấy rủi ro tụt), <strong>biên hiệu quả Markowitz</strong>, và <strong>rủi ro hệ thống vs phi hệ thống</strong>.</p>
+
+<h2>1. Danh mục 2 tài sản — sức mạnh của tương quan</h2>
+<div class="card">
+  <p class="note"><code>σ_p = √(w²σ₁² + (1−w)²σ₂² + 2w(1−w)ρσ₁σ₂)</code>. Lợi nhuận chỉ là trung bình trọng số; rủi ro giảm khi ρ thấp.</p>
+  <div class="row">
+    <label>Trọng số A (%):</label>
+    <input type="range" id="w" min="0" max="100" value="50" step="5" oninput="calc2()">
+    <span class="val" id="wv">50%</span>
+  </div>
+  <div class="row">
+    <label>Tương quan ρ:</label>
+    <input type="range" id="rho" min="-1" max="1" value="0" step="0.1" oninput="calc2()">
+    <span class="val" id="rhov">0</span>
+  </div>
+  <div class="row"><span class="note">A: lợi nhuận 10%, σ 20% · B: lợi nhuận 6%, σ 12%</span></div>
+  <div class="result" id="out2"></div>
+</div>
+
+<h2>2. Biên hiệu quả (Markowitz)</h2>
+<div class="card">
+  <p class="note">Mỗi điểm = một tỷ lệ trộn A/B. Đường cong cong về trái nhờ ρ &lt; 1. Chấm vàng = danh mục phương sai tối thiểu.</p>
+  <div class="row">
+    <label>Tương quan ρ:</label>
+    <input type="range" id="rho2" min="-0.9" max="0.9" value="0.2" step="0.1" oninput="drawFrontier()">
+    <span class="val" id="rho2v">0,2</span>
+  </div>
+  <canvas id="frontier" width="760" height="360"></canvas>
+</div>
+
+<h2>3. Rủi ro hệ thống vs phi hệ thống</h2>
+<div class="card">
+  <p class="note">Thêm càng nhiều tài sản (ít tương quan) → rủi ro phi hệ thống bị xóa dần, chạm sàn ở rủi ro hệ thống (không xóa được).</p>
+  <div class="row">
+    <label>Số tài sản trong danh mục:</label>
+    <input type="range" id="nass" min="1" max="50" value="1" step="1" oninput="drawSys()">
+    <span class="val" id="nassv">1</span>
+  </div>
+  <canvas id="sysc" width="760" height="260"></canvas>
+  <div class="result" id="sysout"></div>
+</div>
+
+<script>
+const fmt = (x, d=2) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+const A={r:10,s:20}, B={r:6,s:12};
+function portRisk(w, rho, s1, s2){ return Math.sqrt(w*w*s1*s1 + (1-w)*(1-w)*s2*s2 + 2*w*(1-w)*rho*s1*s2); }
+
+function calc2() {
+  const w=+document.getElementById('w').value/100;
+  const rho=+document.getElementById('rho').value;
+  document.getElementById('wv').textContent=(w*100).toFixed(0)+'%';
+  document.getElementById('rhov').textContent=rho.toFixed(1);
+  const rp=w*A.r+(1-w)*B.r;
+  const sp=portRisk(w,rho,A.s,B.s);
+  const weighted=w*A.s+(1-w)*B.s;
+  const benefit=weighted-sp;
+  document.getElementById('out2').innerHTML=
+    `<span class="stat">Lợi nhuận danh mục: <strong>${fmt(rp)}%</strong></span>`+
+    `<span class="stat">Rủi ro danh mục σ_p: <strong>${fmt(sp)}%</strong></span><br>`+
+    `<span class="stat">TB trọng số của σ (nếu ρ=1): <strong>${fmt(weighted)}%</strong></span>`+
+    `<span class="stat" style="background:#bbf7d0">Đa dạng hóa giảm: <strong>${fmt(benefit)}</strong> điểm %</span><br>`+
+    `<span style="font-size:13px;color:#475569">${rho<=-0.99?'ρ=−1 → rủi ro gần triệt tiêu!':rho>=0.99?'ρ=1 → không có lợi ích, σ_p = TB trọng số.':'ρ<1 → σ_p nhỏ hơn TB trọng số: đó là quà đa dạng hóa.'}</span>`;
+}
+
+function drawFrontier() {
+  const rho=+document.getElementById('rho2').value;
+  document.getElementById('rho2v').textContent=rho.toFixed(1).replace('.',',');
+  const cv=document.getElementById('frontier'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=54,padR=20,padT=20,padB=44;
+  ctx.clearRect(0,0,W,H);
+  const xMin=0,xMax=24,yMin=5,yMax=11;
+  const x=s=>padL+((s-xMin)/(xMax-xMin))*(W-padL-padR);
+  const y=r=>H-padB-((r-yMin)/(yMax-yMin))*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let r=5;r<=11;r++){const yy=y(r);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(r+'%',padL-6,yy+4);}
+  ctx.textAlign='center'; for(let s=0;s<=24;s+=4){ctx.fillText(s+'%',x(s),H-padB+18);}
+  ctx.fillText('Rủi ro (σ) →', W/2, H-8);
+  ctx.save(); ctx.translate(16,H/2); ctx.rotate(-Math.PI/2); ctx.fillText('Lợi nhuận →',0,0); ctx.restore();
+  // đường cong (mọi w)
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath();
+  let minS=1e9,minPt=null;
+  let first=true;
+  for(let w=0;w<=1.0001;w+=0.02){ const sp=portRisk(w,rho,A.s,B.s); const rp=w*A.r+(1-w)*B.r; first?(ctx.moveTo(x(sp),y(rp)),first=false):ctx.lineTo(x(sp),y(rp)); if(sp<minS){minS=sp;minPt={sp,rp};} }
+  ctx.stroke();
+  // 2 tài sản đơn lẻ
+  ctx.fillStyle='#3b82f6'; ctx.beginPath(); ctx.arc(x(A.s),y(A.r),6,0,7); ctx.fill();
+  ctx.fillStyle='#a855f7'; ctx.beginPath(); ctx.arc(x(B.s),y(B.r),6,0,7); ctx.fill();
+  ctx.fillStyle='#1a202c'; ctx.font='bold 12px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('A (100%)',x(A.s)+10,y(A.r)+4); ctx.fillText('B (100%)',x(B.s)+10,y(B.r)+4);
+  // min variance
+  ctx.fillStyle='#f59e0b'; ctx.beginPath(); ctx.arc(x(minPt.sp),y(minPt.rp),7,0,7); ctx.fill();
+  ctx.fillStyle='#b45309'; ctx.fillText('Min variance',x(minPt.sp)+10,y(minPt.rp)+4);
+}
+
+function drawSys() {
+  const n=+document.getElementById('nass').value;
+  document.getElementById('nassv').textContent=n;
+  const systematic=12; // sàn không xóa được
+  const totalSingle=24; // rủi ro 1 tài sản
+  // mô hình: σ(n) = sqrt(systematic^2 + (specific^2)/n), specific^2 = totalSingle^2 - systematic^2
+  const specVar=totalSingle*totalSingle-systematic*systematic;
+  const cv=document.getElementById('sysc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=54,padR=16,padT=16,padB=40;
+  ctx.clearRect(0,0,W,H);
+  const x=k=>padL+((k-1)/49)*(W-padL-padR);
+  const y=v=>H-padB-(v/(totalSingle*1.05))*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const v=totalSingle*1.05*k/4,yy=y(v);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(fmt(v,0)+'%',padL-6,yy+4);}
+  ctx.textAlign='center'; for(let k=1;k<=50;k+=10){ctx.fillText(k,x(k),H-padB+18);}
+  ctx.fillText('Số tài sản →', W/2, H-8);
+  // sàn hệ thống
+  ctx.strokeStyle='#ef4444'; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(padL,y(systematic)); ctx.lineTo(W-padR,y(systematic)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#ef4444'; ctx.textAlign='left'; ctx.fillText('Rủi ro hệ thống (không xóa được)', padL+4, y(systematic)-6);
+  // đường giảm
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath();
+  for(let k=1;k<=50;k++){ const v=Math.sqrt(systematic*systematic+specVar/k); k===1?ctx.moveTo(x(k),y(v)):ctx.lineTo(x(k),y(v)); }
+  ctx.stroke();
+  const cur=Math.sqrt(systematic*systematic+specVar/n);
+  ctx.fillStyle='#b91c1c'; ctx.beginPath(); ctx.arc(x(n),y(cur),6,0,7); ctx.fill();
+  document.getElementById('sysout').innerHTML=
+    `Với <strong>${n}</strong> tài sản: rủi ro danh mục ≈ <span class="stat"><strong>${fmt(cur)}%</strong></span>`+
+    `<span class="stat" style="background:#fecaca">sàn hệ thống: <strong>${systematic}%</strong></span><br>`+
+    `<span style="font-size:13px;color:#475569">Phần phi hệ thống (riêng lẻ) bị xóa dần khi thêm tài sản; phần hệ thống (${systematic}%) không bao giờ xóa được → thị trường chỉ trả công cho rủi ro này (Lesson 06).</span>`;
+}
+
+calc2(); drawFrontier(); drawSys();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

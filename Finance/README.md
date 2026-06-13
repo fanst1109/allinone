@@ -14,7 +14,7 @@ Lộ trình học tài chính từ những quyết định tiền bạc hằng n
 | Tầng | Chủ đề | Nội dung | Trạng thái |
 |------|--------|----------|:---:|
 | **1** | [Tài chính cá nhân](./01-PersonalFinance/index.html) | Lãi kép, lạm phát, lãi suất, nợ, ngân sách, tiết kiệm, bảo hiểm, thuế | ✅ hoàn tất (8/8) |
-| **2** | Đầu tư & thị trường | Lớp tài sản, định giá cổ phiếu/trái phiếu, rủi ro–lợi nhuận, đa dạng hóa, CAPM, EMH, quỹ chỉ số | ⏳ |
+| **2** | [Đầu tư & thị trường](./02-Investing/index.html) | Lớp tài sản, định giá cổ phiếu/trái phiếu, rủi ro–lợi nhuận, đa dạng hóa, CAPM, EMH, quỹ chỉ số | ✅ hoàn tất (8/8) |
 | **3** | Tài chính định lượng & phái sinh | Random walk, quyền chọn & định giá, futures, VaR, đường cong lợi suất, báo cáo tài chính, bong bóng | ⏳ |
 
 ### Tầng 1 — Tài chính cá nhân ✅ (8/8)
@@ -27,8 +27,8 @@ Lộ trình học tài chính từ những quyết định tiền bạc hằng n
 7. **Rủi ro & bảo hiểm** — gộp rủi ro, luật số lớn
 8. **Thuế cơ bản** — thuế lũy tiến, lợi nhuận thực sau thuế
 
-### Tầng 2 — Đầu tư & thị trường
-Các lớp tài sản · định giá cổ phiếu (DCF, P/E) · trái phiếu & lợi suất · rủi ro–lợi nhuận (↔ Statistics) · đa dạng hóa & biên Markowitz · CAPM & beta · thị trường hiệu quả & hành vi (↔ Psychology) · quỹ chỉ số & ETF.
+### Tầng 2 — Đầu tư & thị trường ✅ (8/8)
+Các lớp tài sản · định giá cổ phiếu (Gordon, P/E) · trái phiếu & lợi suất · rủi ro–lợi nhuận (↔ Statistics) · đa dạng hóa & biên Markowitz · CAPM & beta · thị trường hiệu quả & hành vi (↔ Psychology) · quỹ chỉ số & ETF.
 
 ### Tầng 3 — Tài chính định lượng & phái sinh
 Lợi nhuận log & random walk · quyền chọn (call/put, payoff) · định giá quyền chọn (binomial, Black–Scholes) · futures & hedging · quản trị rủi ro (VaR, Monte Carlo) · đường cong lợi suất · đọc báo cáo tài chính doanh nghiệp · bong bóng & khủng hoảng.

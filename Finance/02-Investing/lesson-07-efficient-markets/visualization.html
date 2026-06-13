@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Thị trường hiệu quả &amp; Hành vi</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 160px; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 70px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .stat.warn { background: #fee2e2; } .stat.warn strong { color: #b91c1c; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  button { background: #059669; color: #fff; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-weight: 600; margin: 3px; }
+  button:hover { background: #047857; }
+  .bias-card { padding: 14px; background: #f1f5f9; border-radius: 8px; margin: 10px 0; font-size: 15px; }
+  .choices button { background: #e2e8f0; color: #1a202c; }
+  .choices button:hover { background: #cbd5e0; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Đầu tư &amp; thị trường</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-capm-beta/visualization.html">← L6: CAPM &amp; beta</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Thị trường hiệu quả</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-index-funds/visualization.html">L8: Quỹ chỉ số →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Thị trường hiệu quả &amp; Hành vi</h1>
+<p>Ba công cụ: <strong>chủ động vs thụ động</strong> (phí ăn lãi kép), <strong>bước ngẫu nhiên</strong> (tinh thần EMH), và <strong>nhận diện thiên kiến</strong>.</p>
+
+<h2>1. Chủ động vs Thụ động — phí ăn mòn lãi kép</h2>
+<div class="card">
+  <p class="note">Cùng lợi nhuận gộp, chỉ khác phí. Qua nhiều năm, chênh phí thành khoản tiền khổng lồ.</p>
+  <div class="row">
+    <label>Vốn ban đầu (triệu):</label>
+    <input type="range" id="P" min="50" max="500" value="100" step="50" oninput="drawFees()">
+    <span class="val" id="Pv">100</span>
+  </div>
+  <div class="row">
+    <label>Lợi nhuận gộp (%/năm):</label>
+    <input type="range" id="gross" min="4" max="12" value="8" step="0.5" oninput="drawFees()">
+    <span class="val" id="grossv">8%</span>
+  </div>
+  <div class="row">
+    <label>Số năm:</label>
+    <input type="range" id="yrs" min="5" max="40" value="30" step="1" oninput="drawFees()">
+    <span class="val" id="yrsv">30</span>
+  </div>
+  <div class="row">
+    <label>Phí quỹ chủ động (%/năm):</label>
+    <input type="range" id="fee" min="0.5" max="2.5" value="1.5" step="0.1" oninput="drawFees()">
+    <span class="val" id="feev">1,5%</span>
+  </div>
+  <canvas id="feec" width="760" height="300"></canvas>
+  <div class="result" id="feeout"></div>
+</div>
+
+<h2>2. Bước ngẫu nhiên — vì sao khó đoán giá</h2>
+<div class="card">
+  <p class="note">Giá cổ phiếu xấp xỉ "bước ngẫu nhiên": mỗi bước cộng một cú sốc ngẫu nhiên. Bấm để sinh đường mới — bạn có đoán được hướng tiếp theo không?</p>
+  <div class="row"><button onclick="drawWalk()">🎲 Sinh đường giá mới</button></div>
+  <canvas id="walkc" width="760" height="260"></canvas>
+  <p class="note">→ Mỗi đường khác nhau, không có mẫu hình dự đoán được. Đó là tinh thần EMH: tin tức đã phản ánh vào giá; biến động tương lai là cú sốc mới chưa biết.</p>
+</div>
+
+<h2>3. Nhận diện thiên kiến hành vi</h2>
+<div class="card">
+  <div class="bias-card" id="biasQ"></div>
+  <div class="choices" id="biasChoices"></div>
+  <div class="result" id="biasOut" style="display:none"></div>
+  <div style="margin-top:10px"><button onclick="nextBias()">Tình huống khác →</button></div>
+</div>
+
+<script>
+const fmt = (x, d=0) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+
+function drawFees() {
+  const P=+document.getElementById('P').value;
+  const g=+document.getElementById('gross').value/100;
+  const n=+document.getElementById('yrs').value;
+  const fee=+document.getElementById('fee').value/100;
+  document.getElementById('Pv').textContent=P;
+  document.getElementById('grossv').textContent=(g*100).toFixed(1).replace(/\.0$/,'')+'%';
+  document.getElementById('yrsv').textContent=n;
+  document.getElementById('feev').textContent=(fee*100).toFixed(1).replace(/\.0$/,'')+'%';
+  const passive=g-0.002, active=g-fee;
+  const cv=document.getElementById('feec'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=64,padR=16,padT=16,padB=34;
+  ctx.clearRect(0,0,W,H);
+  const end=P*Math.pow(1+passive,n);
+  const maxY=end*1.05;
+  const x=t=>padL+(t/n)*(W-padL-padR);
+  const y=v=>H-padB-(v/maxY)*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const v=maxY*k/4,yy=y(v);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(fmt(v),padL-6,yy+4);}
+  ctx.textAlign='center'; for(let k=0;k<=4;k++){const tt=Math.round(n*k/4);ctx.fillText(tt,x(tt),H-padB+18);}
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath();
+  for(let t=0;t<=n;t+=n/120){const v=P*Math.pow(1+passive,t);t===0?ctx.moveTo(x(t),y(v)):ctx.lineTo(x(t),y(v));} ctx.stroke();
+  ctx.strokeStyle='#ef4444'; ctx.lineWidth=3; ctx.beginPath();
+  for(let t=0;t<=n;t+=n/120){const v=P*Math.pow(1+active,t);t===0?ctx.moveTo(x(t),y(v)):ctx.lineTo(x(t),y(v));} ctx.stroke();
+  const pv=P*Math.pow(1+passive,n), av=P*Math.pow(1+active,n);
+  document.getElementById('feeout').innerHTML=
+    `<span class="stat" style="background:#bbf7d0">Thụ động (phí 0,2%): <strong>${fmt(pv)}</strong> tr</span>`+
+    `<span class="stat warn">Chủ động (phí ${(fee*100).toFixed(1)}%): <strong>${fmt(av)}</strong> tr</span>`+
+    `<span class="stat warn">Phí ngốn mất: <strong>${fmt(pv-av)}</strong> tr</span><br>`+
+    `<span style="font-size:13px;color:#475569">Cùng lợi nhuận gộp ${(g*100).toFixed(1)}%, chênh phí ${((fee-0.002)*100).toFixed(1)}%/năm ăn mất ${((pv-av)/pv*100).toFixed(0)}% giá trị cuối kỳ sau ${n} năm.</span>`;
+}
+
+function drawWalk() {
+  const cv=document.getElementById('walkc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=20,padR=16,padT=16,padB=24;
+  ctx.clearRect(0,0,W,H);
+  const N=120; let price=100; const pts=[price];
+  for(let i=0;i<N;i++){ price=price*(1+(Math.random()-0.5)*0.06); pts.push(price); }
+  const min=Math.min(...pts), max=Math.max(...pts);
+  const x=i=>padL+(i/N)*(W-padL-padR);
+  const y=v=>H-padB-((v-min)/(max-min||1))*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; for(let k=0;k<=4;k++){const yy=padT+k*(H-padT-padB)/4;ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();}
+  ctx.strokeStyle='#059669'; ctx.lineWidth=2; ctx.beginPath();
+  pts.forEach((v,i)=>{i===0?ctx.moveTo(x(i),y(v)):ctx.lineTo(x(i),y(v));}); ctx.stroke();
+  ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('giá mô phỏng (bước ngẫu nhiên)', padL+4, padT+12);
+}
+
+const biases=[
+  {q:'"Cổ phiếu này lỗ 30% rồi, nhưng tôi sẽ đợi nó về đúng giá tôi mua mới bán."', opts:['Neo (anchoring)','Bầy đàn','Quá tự tin'], ans:0, why:'Neo vào giá mua làm điểm tham chiếu, dù giá đó không liên quan tới giá trị tương lai. Kèm sợ thua lỗ.'},
+  {q:'"Ai cũng đang mua đồng coin này, giá tăng mỗi ngày, tôi phải mua kẻo lỡ!"', opts:['Neo','Bầy đàn (herding) / FOMO','Thiên kiến gần đây'], ans:1, why:'Làm theo đám đông, sợ bỏ lỡ (FOMO) — kinh điển dẫn tới mua ở đỉnh bong bóng.'},
+  {q:'"Tôi giao dịch mỗi ngày và chắc chắn mình đọc thị trường giỏi hơn người khác."', opts:['Quá tự tin (overconfidence)','Sợ thua lỗ','Neo'], ans:0, why:'Quá tự tin dẫn tới giao dịch quá nhiều → phí cao, và thường thua chỉ số.'},
+  {q:'"Thị trường tăng 3 tháng liền rồi, chắc chắn sẽ còn tăng nữa."', opts:['Bầy đàn','Thiên kiến gần đây (recency)','Neo'], ans:1, why:'Quá coi trọng xu hướng gần đây, ngoại suy nó kéo dài mãi — bỏ qua khả năng đảo chiều.'},
+  {q:'"Bán cổ phiếu đang lời để chốt, nhưng giữ chặt mấy mã đang lỗ."', opts:['Sợ thua lỗ (loss aversion)','Quá tự tin','Bầy đàn'], ans:0, why:'Đau khi hiện thực hóa lỗ nên ôm mã lỗ; vội chốt lời mã thắng — gọi là "disposition effect".'},
+];
+let bi=0;
+function showBias() {
+  const b=biases[bi];
+  document.getElementById('biasQ').textContent=b.q;
+  document.getElementById('biasOut').style.display='none';
+  let h='';
+  b.opts.forEach((o,i)=>{ h+=`<button onclick="answerBias(${i})">${o}</button>`; });
+  document.getElementById('biasChoices').innerHTML=h;
+}
+function answerBias(i) {
+  const b=biases[bi];
+  const ok=i===b.ans;
+  const out=document.getElementById('biasOut');
+  out.style.display='block';
+  out.innerHTML=(ok?'✅ Đúng! ':'❌ Chưa đúng. Đáp án: <strong>'+b.opts[b.ans]+'</strong>. ')+b.why;
+}
+function nextBias(){ bi=(bi+1)%biases.length; showBias(); }
+
+drawFees(); drawWalk(); showBias();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

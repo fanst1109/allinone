@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Các lớp tài sản</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 150px; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 60px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  .seg { height: 32px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid #cbd5e0; margin: 10px 0; }
+  .seg > div { display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 600; }
+  button { background: #059669; color: #fff; border: none; padding: 7px 12px; border-radius: 5px; cursor: pointer; font-weight: 600; margin: 3px; }
+  button:hover { background: #047857; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin: 6px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Đầu tư &amp; thị trường</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Các lớp tài sản</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-stock-valuation/visualization.html">L2: Định giá cổ phiếu →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — Các lớp tài sản</h1>
+<p>Ba công cụ: <strong>bản đồ rủi ro–lợi nhuận</strong>, <strong>máy phân bổ danh mục</strong>, và <strong>so tăng trưởng các lớp</strong>. (Số liệu minh họa dài hạn, không phải dự báo.)</p>
+
+<h2>1. Bản đồ rủi ro – lợi nhuận</h2>
+<div class="card">
+  <p class="note">Mỗi chấm là một lớp tài sản: trục ngang = rủi ro (độ lệch chuẩn), trục dọc = lợi nhuận kỳ vọng. Thấy rõ quang phổ "lợi nhuận cao ⇔ rủi ro cao".</p>
+  <canvas id="scatter" width="720" height="420"></canvas>
+</div>
+
+<h2>2. Máy phân bổ danh mục</h2>
+<div class="card">
+  <p class="note">Kéo tỷ trọng → lợi nhuận &amp; rủi ro danh mục đổi theo. (Rủi ro tính đơn giản theo trọng số, bỏ qua tương quan — sẽ tinh chỉnh ở Lesson 05.)</p>
+  <div class="row">
+    <label>Cổ phiếu (%):</label>
+    <input type="range" id="stk" min="0" max="100" value="60" step="5" oninput="syncAlloc('stk')">
+    <span class="val" id="stkv">60%</span>
+  </div>
+  <div class="row">
+    <label>Trái phiếu (%):</label>
+    <input type="range" id="bnd" min="0" max="100" value="30" step="5" oninput="syncAlloc('bnd')">
+    <span class="val" id="bndv">30%</span>
+  </div>
+  <div class="row">
+    <label>Tiền mặt (%):</label>
+    <span class="val" id="cashv">10%</span>
+  </div>
+  <div class="seg" id="allocseg"></div>
+  <div class="row">
+    <button onclick="preset(30,50)">Thận trọng</button>
+    <button onclick="preset(60,30)">Cân bằng</button>
+    <button onclick="preset(85,10)">Tăng trưởng</button>
+  </div>
+  <div class="result" id="allocout"></div>
+</div>
+
+<h2>3. So tăng trưởng các lớp tài sản</h2>
+<div class="card">
+  <p class="note">Mô phỏng 100 triệu đầu tư, lãi kép theo lợi nhuận trung bình dài hạn (minh họa). Bỏ qua biến động năm — chỉ để so độ dốc lãi kép.</p>
+  <div class="row">
+    <label>Số năm:</label>
+    <input type="range" id="yrs" min="5" max="40" value="30" step="1" oninput="drawGrowth()">
+    <span class="val" id="yrsv">30</span>
+  </div>
+  <div class="legend">
+    <span><i class="swatch" style="background:#059669"></i> Cổ phiếu 9%</span>
+    <span><i class="swatch" style="background:#3b82f6"></i> BĐS 7%</span>
+    <span><i class="swatch" style="background:#a855f7"></i> Trái phiếu 4%</span>
+    <span><i class="swatch" style="background:#94a3b8"></i> Tiền mặt 2%</span>
+  </div>
+  <canvas id="growth" width="760" height="320"></canvas>
+  <div class="result" id="growthout"></div>
+</div>
+
+<script>
+const fmt = (x, d=0) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+// lớp: [tên, lợi nhuận %, rủi ro %, màu]
+const ASSETS = [
+  ['Tiền mặt', 2, 1, '#94a3b8'],
+  ['Trái phiếu', 4, 6, '#a855f7'],
+  ['BĐS', 7, 14, '#3b82f6'],
+  ['Cổ phiếu', 9, 20, '#059669'],
+  ['Hàng hóa', 5, 28, '#f59e0b'],
+];
+
+// ---------- Module 1: scatter ----------
+function drawScatter() {
+  const cv=document.getElementById('scatter'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=54,padR=20,padT=20,padB=44;
+  ctx.clearRect(0,0,W,H);
+  const maxRisk=32, maxRet=11;
+  const x=r=>padL+(r/maxRisk)*(W-padL-padR);
+  const y=v=>H-padB-(v/maxRet)*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif';
+  ctx.textAlign='right';
+  for(let k=0;k<=maxRet;k+=2){const yy=y(k);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(k+'%',padL-6,yy+4);}
+  ctx.textAlign='center';
+  for(let k=0;k<=maxRisk;k+=4){ctx.fillText(k+'%',x(k),H-padB+18);}
+  ctx.fillText('Rủi ro (độ lệch chuẩn) →', W/2, H-8);
+  ctx.save(); ctx.translate(16,H/2); ctx.rotate(-Math.PI/2); ctx.fillText('Lợi nhuận kỳ vọng →',0,0); ctx.restore();
+  ASSETS.forEach(([name,ret,risk,col])=>{
+    ctx.fillStyle=col; ctx.beginPath(); ctx.arc(x(risk),y(ret),10,0,7); ctx.fill();
+    ctx.fillStyle='#1a202c'; ctx.font='bold 12px sans-serif'; ctx.textAlign='left';
+    ctx.fillText(name,x(risk)+14,y(ret)+4);
+  });
+}
+
+// ---------- Module 2: allocation ----------
+function syncAlloc(which) {
+  let s=+document.getElementById('stk').value, b=+document.getElementById('bnd').value;
+  if (s+b>100){ if(which==='stk') b=100-s; else s=100-b; document.getElementById('stk').value=s; document.getElementById('bnd').value=b; }
+  drawAlloc();
+}
+function preset(s,b){ document.getElementById('stk').value=s; document.getElementById('bnd').value=b; drawAlloc(); }
+function drawAlloc() {
+  const s=+document.getElementById('stk').value, b=+document.getElementById('bnd').value, c=100-s-b;
+  document.getElementById('stkv').textContent=s+'%';
+  document.getElementById('bndv').textContent=b+'%';
+  document.getElementById('cashv').textContent=c+'%';
+  document.getElementById('allocseg').innerHTML=
+    `<div style="width:${s}%;background:#059669">CP ${s}%</div>`+
+    `<div style="width:${b}%;background:#a855f7">TP ${b}%</div>`+
+    `<div style="width:${c}%;background:#94a3b8">TM ${c}%</div>`;
+  const ret=(s*9+b*4+c*2)/100;
+  const risk=(s*20+b*6+c*1)/100;  // xấp xỉ trọng số (chưa tính tương quan)
+  document.getElementById('allocout').innerHTML=
+    `<span class="stat">Lợi nhuận kỳ vọng: <strong>${ret.toFixed(2)}%</strong>/năm</span>`+
+    `<span class="stat">Rủi ro (xấp xỉ): <strong>${risk.toFixed(1)}%</strong></span><br>`+
+    `<span style="font-size:13px;color:#475569">Nhiều cổ phiếu → lợi nhuận &amp; rủi ro cùng tăng. Lesson 05 sẽ cho thấy trộn đúng cách giảm rủi ro nhờ tương quan.</span>`;
+}
+
+// ---------- Module 3: growth ----------
+function drawGrowth() {
+  const n=+document.getElementById('yrs').value;
+  document.getElementById('yrsv').textContent=n;
+  const series=[['Cổ phiếu',0.09,'#059669'],['BĐS',0.07,'#3b82f6'],['Trái phiếu',0.04,'#a855f7'],['Tiền mặt',0.02,'#94a3b8']];
+  const P=100;
+  const cv=document.getElementById('growth'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=64,padR=16,padT=16,padB=34;
+  ctx.clearRect(0,0,W,H);
+  const maxY=P*Math.pow(1.09,n)*1.05;
+  const x=t=>padL+(t/n)*(W-padL-padR);
+  const y=v=>H-padB-(v/maxY)*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const v=maxY*k/4,yy=y(v);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(fmt(v),padL-6,yy+4);}
+  ctx.textAlign='center';
+  for(let k=0;k<=4;k++){const tt=Math.round(n*k/4);ctx.fillText(tt,x(tt),H-padB+18);}
+  let txt='';
+  series.forEach(([name,r,col])=>{
+    ctx.strokeStyle=col; ctx.lineWidth=3; ctx.beginPath();
+    for(let t=0;t<=n;t+=n/120){const v=P*Math.pow(1+r,t);t===0?ctx.moveTo(x(t),y(v)):ctx.lineTo(x(t),y(v));}
+    ctx.stroke();
+    const end=P*Math.pow(1+r,n);
+    txt+=`<span class="stat" style="background:${col}22">${name}: <strong>${fmt(end)}</strong> tr</span>`;
+  });
+  document.getElementById('growthout').innerHTML=`Sau ${n} năm, 100 tr ban đầu:<br>${txt}`;
+}
+
+drawScatter(); drawAlloc(); drawGrowth();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — CAPM &amp; Beta</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 175px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 90px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 60px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .stat.cheap { background: #bbf7d0; } .stat.exp { background: #fee2e2; } .stat.exp strong { color: #b91c1c; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Đầu tư &amp; thị trường</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-diversification/visualization.html">← L5: Đa dạng hóa</a>
+  <span class="sep">·</span>
+  <span class="current">L6: CAPM &amp; beta</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-efficient-markets/visualization.html">L7: Thị trường hiệu quả →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — CAPM &amp; Beta</h1>
+<p>Ba công cụ: <strong>máy tính CAPM</strong>, <strong>đường SML</strong> (hời/đắt), và <strong>beta danh mục</strong>.</p>
+
+<h2>1. Máy tính CAPM — E[R] = Rf + β(Rm − Rf)</h2>
+<div class="card">
+  <div class="row">
+    <label>Lãi phi rủi ro Rf (%):</label>
+    <input type="range" id="rf" min="0" max="8" value="3" step="0.5" oninput="calcCAPM()">
+    <span class="val" id="rfv">3%</span>
+  </div>
+  <div class="row">
+    <label>Lợi nhuận thị trường Rm (%):</label>
+    <input type="range" id="rm" min="4" max="15" value="9" step="0.5" oninput="calcCAPM()">
+    <span class="val" id="rmv">9%</span>
+  </div>
+  <div class="row">
+    <label>Beta β:</label>
+    <input type="range" id="beta" min="-0.5" max="2.5" value="1.3" step="0.1" oninput="calcCAPM()">
+    <span class="val" id="betav">1,3</span>
+  </div>
+  <div class="result" id="capmout"></div>
+</div>
+
+<h2>2. Đường thị trường chứng khoán (SML)</h2>
+<div class="card">
+  <p class="note">Đường thẳng = lợi nhuận "công bằng" theo beta. Chấm cổ phiếu: trên đường = hời, dưới = đắt.</p>
+  <div class="row">
+    <label>Beta cổ phiếu:</label>
+    <input type="range" id="sBeta" min="0" max="2.5" value="1.2" step="0.1" oninput="drawSML()">
+    <span class="val" id="sBetav">1,2</span>
+  </div>
+  <div class="row">
+    <label>Lợi nhuận kỳ vọng thực (%):</label>
+    <input type="range" id="sRet" min="0" max="20" value="13" step="0.5" oninput="drawSML()">
+    <span class="val" id="sRetv">13%</span>
+  </div>
+  <canvas id="sml" width="760" height="340"></canvas>
+  <div class="result" id="smlout"></div>
+</div>
+
+<h2>3. Beta của danh mục</h2>
+<div class="card">
+  <p class="note"><code>β_danh mục = Σ wᵢ βᵢ</code> (trung bình trọng số). Kéo trọng số (tự chuẩn hóa về 100%).</p>
+  <div class="row">
+    <label>CP tấn công (β=1,5) %:</label>
+    <input type="range" id="w1" min="0" max="100" value="40" step="5" oninput="calcPortBeta()">
+    <span class="val" id="w1v">40%</span>
+  </div>
+  <div class="row">
+    <label>CP thường (β=0,9) %:</label>
+    <input type="range" id="w2" min="0" max="100" value="40" step="5" oninput="calcPortBeta()">
+    <span class="val" id="w2v">40%</span>
+  </div>
+  <div class="row">
+    <label>Trái phiếu (β=0,1) %:</label>
+    <span class="val" id="w3v">20%</span>
+  </div>
+  <div class="result" id="portout"></div>
+</div>
+
+<script>
+const fmt = (x, d=2) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+
+function calcCAPM() {
+  const rf=+document.getElementById('rf').value, rm=+document.getElementById('rm').value, b=+document.getElementById('beta').value;
+  document.getElementById('rfv').textContent=rf+'%';
+  document.getElementById('rmv').textContent=rm+'%';
+  document.getElementById('betav').textContent=b.toFixed(1).replace('.',',');
+  const prem=rm-rf, er=rf+b*prem;
+  const tag=b>1?'tấn công (khuếch đại thị trường)':b===1?'bằng thị trường':b>0?'phòng thủ':b===0?'phi rủi ro hệ thống':'ngược thị trường';
+  document.getElementById('capmout').innerHTML=
+    `E[R] = ${rf}% + ${b.toFixed(1)} × (${rm}% − ${rf}%) = ${rf}% + ${b.toFixed(1)} × ${prem}% = `+
+    `<span class="stat"><strong>${fmt(er)}%</strong></span><br>`+
+    `<span class="stat">Phần phi rủi ro: <strong>${rf}%</strong></span>`+
+    `<span class="stat">Thưởng rủi ro: <strong>${fmt(b*prem)}%</strong></span>`+
+    `<span class="stat">β ${b.toFixed(1)}: ${tag}</span>`;
+}
+
+function drawSML() {
+  const rf=+document.getElementById('rf').value, rm=+document.getElementById('rm').value;
+  const sb=+document.getElementById('sBeta').value, sr=+document.getElementById('sRet').value;
+  document.getElementById('sBetav').textContent=sb.toFixed(1).replace('.',',');
+  document.getElementById('sRetv').textContent=sr+'%';
+  const cv=document.getElementById('sml'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=54,padR=20,padT=20,padB=44;
+  ctx.clearRect(0,0,W,H);
+  const bMax=2.5, rMax=Math.max(20, rf+bMax*(rm-rf)+2);
+  const x=b=>padL+(b/bMax)*(W-padL-padR);
+  const y=r=>H-padB-(r/rMax)*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let r=0;r<=rMax;r+=5){const yy=y(r);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(r+'%',padL-6,yy+4);}
+  ctx.textAlign='center'; for(let b=0;b<=bMax;b+=0.5){ctx.fillText(b.toFixed(1),x(b),H-padB+18);}
+  ctx.fillText('Beta →', W/2, H-8);
+  ctx.save(); ctx.translate(16,H/2); ctx.rotate(-Math.PI/2); ctx.fillText('Lợi nhuận kỳ vọng →',0,0); ctx.restore();
+  // SML
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(x(0),y(rf)); ctx.lineTo(x(bMax),y(rf+bMax*(rm-rf))); ctx.stroke();
+  ctx.fillStyle='#059669'; ctx.textAlign='left'; ctx.font='bold 12px sans-serif'; ctx.fillText('SML',x(bMax)-40,y(rf+bMax*(rm-rf))-8);
+  // điểm thị trường (beta=1)
+  ctx.fillStyle='#3b82f6'; ctx.beginPath(); ctx.arc(x(1),y(rm),5,0,7); ctx.fill();
+  ctx.fillText('TT',x(1)+8,y(rm)-6);
+  // cổ phiếu
+  const fair=rf+sb*(rm-rf);
+  const cheap=sr>fair;
+  ctx.fillStyle=cheap?'#16a34a':'#dc2626'; ctx.beginPath(); ctx.arc(x(sb),y(sr),7,0,7); ctx.fill();
+  // đường tới SML
+  ctx.strokeStyle='#94a3b8'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(x(sb),y(sr)); ctx.lineTo(x(sb),y(fair)); ctx.stroke(); ctx.setLineDash([]);
+  document.getElementById('smlout').innerHTML=
+    `CAPM (công bằng) cho β=${sb.toFixed(1)}: <strong>${fmt(fair)}%</strong>; cổ phiếu kỳ vọng <strong>${sr}%</strong>.<br>`+
+    (cheap?`<span class="stat cheap">🟢 TRÊN SML → HỜI (lợi nhuận vượt mức công bằng), đáng mua.</span>`
+          :sr<fair?`<span class="stat exp">🔴 DƯỚI SML → ĐẮT (lợi nhuận không bù rủi ro).</span>`
+          :`<span class="stat">🟡 ĐÚNG SML → định giá công bằng.</span>`);
+}
+
+function calcPortBeta() {
+  let w1=+document.getElementById('w1').value, w2=+document.getElementById('w2').value;
+  if(w1+w2>100){ w2=100-w1; document.getElementById('w2').value=w2; }
+  const w3=100-w1-w2;
+  document.getElementById('w1v').textContent=w1+'%';
+  document.getElementById('w2v').textContent=w2+'%';
+  document.getElementById('w3v').textContent=w3+'%';
+  const beta=(w1*1.5+w2*0.9+w3*0.1)/100;
+  document.getElementById('portout').innerHTML=
+    `β_danh mục = ${w1}%×1,5 + ${w2}%×0,9 + ${w3}%×0,1 = <span class="stat"><strong>${fmt(beta)}</strong></span>`+
+    `<span style="font-size:13px;color:#475569"> — ${beta>1.1?'thiên tấn công':beta<0.9?'thiên phòng thủ':'gần bằng thị trường'}. Tăng CP tấn công → beta lên, tăng trái phiếu → beta xuống.</span>`;
+}
+
+calcCAPM(); drawSML(); calcPortBeta();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

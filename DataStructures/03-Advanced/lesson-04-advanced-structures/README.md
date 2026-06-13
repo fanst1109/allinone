@@ -1,5 +1,19 @@
 # Lesson 04 — Advanced Structures (B-Tree, Skip List, LSM-Tree, Bloom Filter)
 
+## Mục tiêu học tập
+
+- Hiểu **vì sao** cây nhị phân không đủ cho dữ liệu trên đĩa, và **B-Tree/B+ Tree** giải quyết thế nào.
+- Nắm **Skip List** — cấu trúc xác suất thay thế balanced tree, đơn giản mà $O(\log n)$.
+- Hiểu **LSM-Tree** (ghi nhanh) và đánh đổi đọc/ghi so với B-Tree.
+- Hiểu **Bloom Filter** — kiểm tra thành viên xác suất, false positive vs false negative.
+- Biết các cấu trúc này nằm ở đâu trong hệ thống thật (database, file system, NoSQL, cache).
+
+## Kiến thức tiền đề
+
+- [Lesson 04 — Balanced Trees](../../02-Intermediate/lesson-04-balanced-trees/) (B-Tree mở rộng từ ý tưởng cây cân bằng).
+- [Lesson 06 — Hash Table](../../01-Basic/lesson-06-hash-table/) (Bloom Filter dùng nhiều hàm hash).
+- [Lesson 03 — Segment Tree](../lesson-03-segment-tree/) (so sánh với cấu trúc disk-backed).
+
 ## 1. B-Tree và B+ Tree
 
 ### 1.1. Vấn đề
@@ -139,6 +153,15 @@ Số lần đọc node: 2 (= chiều cao). Với $m = 256$ và $10^9$ khóa, chi
 - Dùng cho **disk-backed structure**: DB index, file system.
 - B+ Tree tối ưu hơn cho range query (lá nối linked list).
 
+### 1.12. 🔁 Tự kiểm tra
+
+1. B-Tree bậc $m = 5$. Mỗi node chứa tối đa và tối thiểu bao nhiêu khóa (node không phải root)? Khi node thứ mấy thì phải split?
+   <details><summary>Đáp án</summary>Tối đa $m - 1 = 4$ khóa; tối thiểu $\lceil m/2 \rceil - 1 = \lceil 2{,}5 \rceil - 1 = 2$ khóa. Khi insert làm node có **5 khóa** (vượt 4) → split: đẩy median (khóa thứ 3) lên cha, chia còn lại thành 2 node 2 khóa.</details>
+2. Một index B+ Tree bậc $m = 256$ chứa $10^{12}$ (nghìn tỷ) khóa. Chiều cao xấp xỉ bao nhiêu? Một truy vấn tốn bao nhiêu lần đọc đĩa?
+   <details><summary>Đáp án</summary>Chiều cao $\approx \log_{256}(10^{12}) = \frac{12 \ln 10}{\ln 256} \approx \frac{27{,}6}{5{,}5} \approx 5$. → ~**5 lần đọc đĩa** cho nghìn tỷ khóa. Cây nhị phân cân bằng cần $\log_2(10^{12}) \approx 40$ lần — chậm gấp 8 lần.</details>
+3. Vì sao trong B+ Tree, range query (`WHERE age BETWEEN 20 AND 30`) nhanh hơn B-Tree thường?
+   <details><summary>Đáp án</summary>Trong B+ Tree **mọi dữ liệu nằm ở lá**, và các lá được **nối thành linked list** theo thứ tự. Tìm `20` ở lá ($O(\log_m n)$), rồi chỉ cần **đi tuần tự** theo linked list tới `30` — không phải leo lên/xuống cây nhiều lần như B-Tree thường (dữ liệu rải ở node nội).</details>
+
 ## 2. Skip List
 
 ### 2.1. Ý tưởng
@@ -262,6 +285,15 @@ T0:  H -> 3 -> 7 -> 10 -> 12 -> 15 -> 18 -> 22 -> 30 -> 40 -> NIL
 - Cài đặt **đơn giản hơn nhiều** so với balanced tree.
 - Dùng cho **concurrent**, **range query**, **Redis ZSET**, **LevelDB memtable**.
 
+### 2.12. 🔁 Tự kiểm tra
+
+1. Skip list với $p = 1/2$ chứa $n = 10^6$ phần tử. Số tầng kỳ vọng khoảng bao nhiêu? Tầng cao nhất trung bình chứa mấy phần tử?
+   <details><summary>Đáp án</summary>Số tầng $\approx \log_2(10^6) \approx 20$. Tầng $k$ kỳ vọng $n/2^k$ phần tử → tầng cao nhất (~20) còn $10^6/2^{20} \approx 1$ phần tử. Đó là lý do số tầng dừng quanh $\log_2 n$.</details>
+2. Vì sao skip list là $O(\log n)$ **kỳ vọng** chứ không phải **worst-case**? Trường hợp xấu nhất là gì?
+   <details><summary>Đáp án</summary>Cấp của mỗi node do **tung đồng xu ngẫu nhiên** quyết định, không đảm bảo. Worst-case: xui đến mức MỌI node đều cấp 0 → skip list suy biến thành linked list thường → search $O(n)$. Nhưng xác suất việc này cực nhỏ (giảm theo lũy thừa của $n$), nên thực tế luôn $\approx O(\log n)$.</details>
+3. So với Red-Black tree (cùng $O(\log n)$), skip list được Redis chọn cho `ZSET` vì lý do gì?
+   <details><summary>Đáp án</summary>(1) **Cài đặt đơn giản hơn nhiều** (vài chục dòng vs hàng trăm dòng cho RB tree, ít bug). (2) **Range query gọn** (`ZRANGEBYSCORE` chỉ cần đi linked list ở tầng 0). (3) Dễ làm **concurrent/lock-free**. Đổi lại tốn thêm bộ nhớ (mỗi node nhiều con trỏ tầng).</details>
+
 ## 3. LSM-Tree (Log-Structured Merge Tree)
 
 ### 3.1. Ý tưởng
@@ -371,6 +403,15 @@ SSTables: [SSTable-3, SSTable-2, SSTable-1]   (mới đến cũ)
 - Bloom filter bắt buộc để tránh tra SSTable thừa.
 - Dùng cho **write-heavy**: time-series, log, NoSQL (Cassandra, HBase, RocksDB).
 
+### 3.10. 🔁 Tự kiểm tra
+
+1. `GET key` trong LSM-Tree tra theo thứ tự nào, và vì sao thứ tự đó quan trọng?
+   <details><summary>Đáp án</summary>Tra **memtable trước**, rồi các SSTable từ **mới nhất → cũ nhất**. Quan trọng vì giá trị mới hơn (ghi đè) phải che giá trị cũ. Nếu tra nhầm thứ tự (cũ trước) → trả về giá trị stale đã bị ghi đè.</details>
+2. Vì sao LSM-Tree **ghi nhanh** hơn B-Tree nhưng **đọc chậm** hơn?
+   <details><summary>Đáp án</summary>**Ghi**: chỉ append vào WAL (đĩa, tuần tự) + thêm vào memtable (RAM) → không random write, cực nhanh. **Đọc**: phải tra lần lượt memtable + nhiều SSTable (mỗi cái ≥ 1 disk seek nếu Bloom báo "có thể có") → nhiều IO hơn B-Tree vốn chỉ leo cây ~4-5 lần đọc.</details>
+3. Xóa một key trong LSM-Tree được làm thế nào, khi SSTable là bất biến (immutable)?
+   <details><summary>Đáp án</summary>Ghi một **tombstone** (đánh dấu "đã xóa") vào memtable — không sửa SSTable cũ. Khi `GET`, gặp tombstone (mới hơn) trước giá trị cũ → trả "không tồn tại". Key thật chỉ bị loại bỏ khi **compaction** trộn các SSTable và bỏ qua key có tombstone.</details>
+
 ## 4. Bloom Filter
 
 ### 4.1. Ý tưởng
@@ -474,6 +515,15 @@ Bloom filter = "chữ ký phân bố": mỗi item bật vài bit ngẫu nhiên t
 - ~10 bit/item cho FP 1%; ~14 bit/item cho FP 0.1%.
 - Saturation khi $n$ vượt thiết kế → cần SBF hoặc Cuckoo Filter để mở rộng.
 - Use cases: pre-filter DB, web crawler, LSM SSTable lookup.
+
+### 4.9. 🔁 Tự kiểm tra
+
+1. Bloom filter trả về "**không có**" cho key `x`. Có thể tin chắc `x` không trong tập không? Còn khi trả "**có thể có**"?
+   <details><summary>Đáp án</summary>"Không có" → **chắc chắn đúng** (no false negative): nếu `x` từng được add thì cả $k$ bit của nó đã bật, không thể có bit tắt. "Có thể có" → **phải verify thật** (có thể false positive: $k$ bit đó bị các key khác bật trùng).</details>
+2. Bảng $m = 1000$ bit, $k = 3$ hàm hash, đã add $n = 100$ key. Ước lượng false positive rate.
+   <details><summary>Đáp án</summary>FP $\approx (1 - e^{-kn/m})^k = (1 - e^{-3 \cdot 100/1000})^3 = (1 - e^{-0{,}3})^3 = (1 - 0{,}741)^3 = 0{,}259^3 \approx 0{,}017 = $ **~1,7%**. (Khá tốt vì $n/m = 0{,}1$ còn nhỏ.)</details>
+3. Muốn lưu $10^7$ phần tử với FP rate 1%, cần bao nhiêu bộ nhớ và mấy hàm hash?
+   <details><summary>Đáp án</summary>~**10 bit/phần tử** cho FP 1% → $m \approx 10 \times 10^7 = 10^8$ bit $= 12{,}5$ MB. Số hash $k \approx 0{,}693 \times (m/n) = 0{,}693 \times 10 \approx 7$ hàm. (So với lưu thật $10^7$ chuỗi ~ vài trăm MB — tiết kiệm hàng chục lần.)</details>
 
 ## 5. Các cấu trúc khác (chỉ điểm danh)
 

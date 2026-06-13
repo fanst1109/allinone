@@ -93,6 +93,30 @@ Trạng thái sau từng thao tác:
 
 Kiểm tra: `find(0)`? Đi `0 → 1 → 3 → 4`. Vậy `parent[4] = 4` → đại diện = `4`. Mất **3 bước** chỉ với 5 phần tử. Nếu các thao tác cứ nối kiểu này (linked-list hóa) thì `find` thành $O(n)$ — đúng là vấn đề.
 
+### 2.2. 💡 Cách lưu: "rừng cây" nhưng chỉ là MỘT mảng số nguyên
+
+Điểm tinh tế: Union-Find biểu diễn một **rừng (forest) các cây có gốc**, nhưng **không dùng node + con trỏ** như [cây nhị phân](../../02-Intermediate/lesson-01-tree/#8-tổ-chức-bộ-nhớ-cách-1--pointer-based). Cả rừng nằm gọn trong **một mảng số nguyên** `parent[]`:
+
+```
+parent: [1, 3, 3, 3, 4]
+index:   0  1  2  3  4
+```
+
+`parent[i]` = chỉ số của **cha** node `i`. Gốc là node tự trỏ vào chính nó (`parent[i] == i`). Vẽ ra cây tương ứng:
+
+```
+   4        3
+   |       /|\
+  (gốc)   1 2 (3 là gốc nhánh này)
+          |
+          0
+```
+
+**Vì sao mảng đủ, không cần con trỏ?** Vì Union-Find **chỉ cần đi LÊN** (con → cha) để tìm gốc — không bao giờ cần duyệt từ cha xuống con. Mỗi node chỉ cần biết *một* thứ: cha nó là ai. Một `int` cho mỗi node là đủ.
+
+- Bộ nhớ: `parent[]` + `rank[]` = $2n$ số nguyên = $8n$ byte (int32) — so với cây pointer-based $24n$ byte. **Tiết kiệm 3 lần và cache-friendly** (mảng liên tiếp, không nhảy địa chỉ).
+- Đây là lý do Union-Find nhanh ngoài đời còn hơn cả lý thuyết $O(\alpha)$: truy cập mảng tuần tự → CPU cache hit cao.
+
 ## 3. Tối ưu 1 — Union by rank/size
 
 Khi gộp hai cây, gắn **cây thấp** vào **cây cao** (không phải ngược lại) để giữ chiều cao thấp.
@@ -286,6 +310,29 @@ function kruskal(edges, n):
 ```
 
 $O(E \log E)$.
+
+### 7.0. Walk-through Kruskal bằng số thật
+
+Đồ thị 5 đỉnh `{0,1,2,3,4}`, các cạnh (u, v, trọng số):
+
+```
+(0,1,1)  (1,2,2)  (0,2,3)  (1,3,4)  (3,4,5)  (2,4,6)
+```
+
+Bước 1 — **sắp xếp cạnh tăng dần** theo trọng số (đã sắp sẵn ở trên). Khởi tạo UF: mỗi đỉnh một tập.
+
+Bước 2 — duyệt từng cạnh, dùng `find` để kiểm tra "hai đầu đã cùng tập chưa":
+
+| Cạnh | `find(u)` vs `find(v)` | Quyết định | MST sau bước | Ghi chú |
+|------|------------------------|------------|--------------|---------|
+| (0,1,1) | `find(0)=0` ≠ `find(1)=1` | **NHẬN** → `union(0,1)` | `{(0,1)}` | nối 0–1 |
+| (1,2,2) | `find(1)=0` ≠ `find(2)=2` | **NHẬN** → `union(1,2)` | `{(0,1),(1,2)}` | nối nhóm {0,1} với 2 |
+| (0,2,3) | `find(0)=0` == `find(2)=0` | **BỎ** (tạo chu trình) | không đổi | 0 và 2 đã cùng nhóm! |
+| (1,3,4) | `find(1)=0` ≠ `find(3)=3` | **NHẬN** → `union(1,3)` | `{(0,1),(1,2),(1,3)}` | thêm 3 |
+| (3,4,5) | `find(3)=0` ≠ `find(4)=4` | **NHẬN** → `union(3,4)` | `+ (3,4)` | thêm 4 — đủ $n-1=4$ cạnh → **DỪNG** |
+| (2,4,6) | — | (không xét) | — | đã đủ cạnh |
+
+MST = `{(0,1,1), (1,2,2), (1,3,4), (3,4,5)}`, tổng trọng số $= 1+2+4+5 = 12$. Cạnh `(0,2,3)` bị loại đúng lúc nhờ `find(0) == find(2)` — đây là vai trò cốt lõi của Union-Find trong Kruskal: **phát hiện chu trình trong $O(\alpha)$** thay vì DFS $O(V)$ mỗi cạnh.
 
 ### 7.1. ❓ Câu hỏi tự nhiên về ứng dụng
 

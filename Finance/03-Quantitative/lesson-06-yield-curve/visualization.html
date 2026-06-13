@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Đường cong lợi suất</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 80px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 90px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 140px; accent-color: #059669; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 56px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .stat.warn { background: #fee2e2; } .stat.warn strong { color: #b91c1c; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  .sliders { display: grid; grid-template-columns: 1fr; gap: 4px; }
+  button { background: #059669; color: #fff; border: none; padding: 7px 12px; border-radius: 5px; cursor: pointer; font-weight: 600; margin: 3px; }
+  button:hover { background: #047857; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tài chính định lượng</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-risk-management/visualization.html">← L5: Quản trị rủi ro</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Đường cong lợi suất</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-financial-statements/visualization.html">L7: Báo cáo tài chính →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Đường cong lợi suất</h1>
+<p>Hai công cụ: <strong>máy dựng đường cong</strong> (tự phân loại + tín hiệu suy thoái) và <strong>máy tính forward rate</strong>.</p>
+
+<h2>1. Máy dựng đường cong lợi suất</h2>
+<div class="card">
+  <p class="note">Kéo lợi suất từng kỳ hạn → đường cong tự vẽ &amp; phân loại. Tạo đảo ngược (ngắn &gt; dài) để xem cảnh báo.</p>
+  <div class="sliders" id="sliders"></div>
+  <div class="row" style="margin-top:8px">
+    <button onclick="preset('normal')">Dốc lên</button>
+    <button onclick="preset('flat')">Phẳng</button>
+    <button onclick="preset('inverted')">Đảo ngược</button>
+  </div>
+  <canvas id="curvec" width="760" height="320"></canvas>
+  <div class="result" id="curveout"></div>
+</div>
+
+<h2>2. Máy tính lãi suất kỳ hạn (forward rate)</h2>
+<div class="card">
+  <p class="note"><code>(1+r₂)² = (1+r₁)(1+f)</code> → f = lãi 1 năm bắt đầu sau 1 năm mà thị trường ngầm dự báo.</p>
+  <div class="row">
+    <label>r₁ (1 năm) %:</label>
+    <input type="range" id="r1" min="0" max="10" value="3" step="0.1" oninput="calcFwd()">
+    <span class="val" id="r1v">3%</span>
+  </div>
+  <div class="row">
+    <label>r₂ (2 năm) %:</label>
+    <input type="range" id="r2" min="0" max="10" value="4" step="0.1" oninput="calcFwd()">
+    <span class="val" id="r2v">4%</span>
+  </div>
+  <div class="result" id="fwdout"></div>
+</div>
+
+<script>
+const fmt = (x, d=2) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+const TENORS = [['3M',0.25],['1Y',1],['2Y',2],['5Y',5],['10Y',10],['30Y',30]];
+let yields = [3.0, 3.4, 3.8, 4.2, 4.5, 4.8];
+
+function renderSliders() {
+  let h='';
+  TENORS.forEach((t,i)=>{ h+=`<div class="row"><label>${t[0]}:</label><input type="range" min="0" max="8" value="${yields[i]}" step="0.1" oninput="yields[${i}]=+this.value;drawCurve()"><span class="val" id="yv${i}">${yields[i]}%</span></div>`; });
+  document.getElementById('sliders').innerHTML=h;
+}
+function preset(type) {
+  if(type==='normal') yields=[3.0,3.4,3.8,4.2,4.5,4.8];
+  else if(type==='flat') yields=[4.0,4.0,4.05,4.1,4.1,4.15];
+  else yields=[5.2,5.0,4.7,4.4,4.3,4.2];
+  renderSliders(); drawCurve();
+}
+function drawCurve() {
+  TENORS.forEach((t,i)=>{ const el=document.getElementById('yv'+i); if(el)el.textContent=fmt(yields[i],1).replace(/,0$/,'')+'%'; });
+  const cv=document.getElementById('curvec'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=44,padR=20,padT=20,padB=40;
+  ctx.clearRect(0,0,W,H);
+  const yMin=Math.min(...yields,2)-0.5, yMax=Math.max(...yields,5)+0.5;
+  const x=i=>padL+(i/(TENORS.length-1))*(W-padL-padR);
+  const y=v=>H-padB-((v-yMin)/(yMax-yMin))*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const v=yMin+(yMax-yMin)*k/4,yy=y(v);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(fmt(v,1)+'%',padL-6,yy+4);}
+  ctx.textAlign='center'; TENORS.forEach((t,i)=>ctx.fillText(t[0],x(i),H-padB+16));
+  ctx.fillText('Kỳ hạn →', W/2, H-6);
+  // đường cong
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath(); yields.forEach((v,i)=>{i===0?ctx.moveTo(x(i),y(v)):ctx.lineTo(x(i),y(v));}); ctx.stroke();
+  yields.forEach((v,i)=>{ ctx.fillStyle='#047857'; ctx.beginPath(); ctx.arc(x(i),y(v),4,0,7); ctx.fill(); });
+  // spread 10Y - 2Y (index 4 - index 2)
+  const spread=yields[4]-yields[2];
+  let shape, cls, msg;
+  if(spread < -0.05){ shape='ĐẢO NGƯỢC'; cls='warn'; msg='🔴 Cảnh báo suy thoái: thị trường kỳ vọng lãi suất/tăng trưởng giảm. Lịch sử: dẫn trước suy thoái 6–18 tháng (không tức thì, có thể báo nhầm).'; }
+  else if(spread < 0.3){ shape='PHẲNG'; cls=''; msg='🟡 Chuyển tiếp — bất định về hướng kinh tế.'; }
+  else { shape='DỐC LÊN (normal)'; cls=''; msg='🟢 Bình thường — kinh tế tăng trưởng, lãi dài > ngắn.'; }
+  document.getElementById('curveout').innerHTML=
+    `<span class="stat ${cls}">Spread 10Y−2Y = <strong>${spread>0?'+':''}${fmt(spread,2)}%</strong></span>`+
+    `<span class="stat ${cls}">Hình dạng: <strong>${shape}</strong></span><br>${msg}`;
+}
+
+function calcFwd() {
+  const r1=+document.getElementById('r1').value/100, r2=+document.getElementById('r2').value/100;
+  document.getElementById('r1v').textContent=(r1*100).toFixed(1).replace(/\.0$/,'')+'%';
+  document.getElementById('r2v').textContent=(r2*100).toFixed(1).replace(/\.0$/,'')+'%';
+  const f=Math.pow(1+r2,2)/(1+r1)-1;
+  const dir = f>r1*100/100 ? 'cao hơn r₁ → thị trường kỳ vọng lãi tăng' : f<r1 ? 'thấp hơn r₁ → kỳ vọng lãi giảm (dấu hiệu đảo ngược)' : 'bằng r₁ → kỳ vọng lãi không đổi';
+  document.getElementById('fwdout').innerHTML=
+    `(1+${fmt(r2*100,1)}%)² = (1+${fmt(r1*100,1)}%)(1+f) → <span class="stat"><strong>f = ${fmt(f*100,2)}%</strong></span><br>`+
+    `<span style="font-size:13px;color:#475569">Lãi 1 năm bắt đầu sau 1 năm (ngầm dự báo): ${fmt(f*100,2)}% — ${dir}.</span>`;
+}
+
+renderSliders(); drawCurve(); calcFwd();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

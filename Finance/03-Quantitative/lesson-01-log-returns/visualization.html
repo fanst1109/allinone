@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Lợi nhuận log &amp; Random walk</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 160px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 110px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 70px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  button { background: #059669; color: #fff; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-weight: 600; margin: 3px; }
+  button:hover { background: #047857; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin: 6px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 16px; height: 4px; border-radius: 2px; display: inline-block; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tài chính định lượng</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Lợi nhuận log &amp; random walk</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-options/visualization.html">L2: Quyền chọn →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — Lợi nhuận log &amp; Bước ngẫu nhiên</h1>
+<p>Ba công cụ: <strong>log vs simple return</strong>, <strong>mô phỏng GBM/random walk</strong>, và <strong>co giãn biến động theo căn thời gian</strong>.</p>
+
+<h2>1. Lợi nhuận log vs đơn giản</h2>
+<div class="card">
+  <div class="row">
+    <label>Giá đầu:</label>
+    <input type="number" id="p0" value="100" step="1" min="0.01" oninput="calcRet()">
+    <label>Giá cuối:</label>
+    <input type="number" id="p1" value="110" step="1" min="0.01" oninput="calcRet()">
+  </div>
+  <div class="result" id="retout"></div>
+  <p class="note">Thử "tăng X% rồi giảm X%" để thấy simple return không đối xứng (không về giá cũ), còn log thì đối xứng.</p>
+</div>
+
+<h2>2. Mô phỏng GBM / Random walk</h2>
+<div class="card">
+  <p class="note">Mỗi đường = một kịch bản giá ngẫu nhiên. Drift μ kéo xu hướng dài hạn; σ tạo nhiễu loạn. Bấm để sinh lại.</p>
+  <div class="row">
+    <label>Drift μ (%/năm):</label>
+    <input type="range" id="mu" min="-5" max="20" value="8" step="1" oninput="drawGBM()">
+    <span class="val" id="muv">8%</span>
+  </div>
+  <div class="row">
+    <label>Biến động σ (%/năm):</label>
+    <input type="range" id="sig" min="5" max="50" value="20" step="1" oninput="drawGBM()">
+    <span class="val" id="sigv">20%</span>
+  </div>
+  <div class="row"><button onclick="drawGBM()">🎲 Sinh lại các đường</button></div>
+  <canvas id="gbmc" width="760" height="300"></canvas>
+  <div class="result" id="gbmout"></div>
+</div>
+
+<h2>3. Biến động co giãn theo căn thời gian</h2>
+<div class="card">
+  <p class="note"><code>σ_T = σ_ngày × √T</code>. Đường cong (√T) so với đường thẳng (nhân tuyến tính — sai).</p>
+  <div class="row">
+    <label>Biến động ngày σ (%):</label>
+    <input type="range" id="sd" min="0.3" max="3" value="1" step="0.1" oninput="drawSqrt()">
+    <span class="val" id="sdv">1%</span>
+  </div>
+  <div class="legend">
+    <span><i class="swatch" style="background:#059669"></i> σ×√T (đúng)</span>
+    <span><i class="swatch" style="background:#ef4444"></i> σ×T (sai — tuyến tính)</span>
+  </div>
+  <canvas id="sqrtc" width="760" height="280"></canvas>
+  <div class="result" id="sqrtout"></div>
+</div>
+
+<script>
+const fmt = (x, d=2) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+
+function calcRet() {
+  const p0=+document.getElementById('p0').value, p1=+document.getElementById('p1').value;
+  if(p0<=0||p1<=0){ document.getElementById('retout').innerHTML='Giá phải dương.'; return; }
+  const simple=(p1/p0-1)*100, log=Math.log(p1/p0)*100;
+  document.getElementById('retout').innerHTML=
+    `<span class="stat">Simple return: <strong>${fmt(simple)}%</strong></span>`+
+    `<span class="stat">Log return: <strong>${fmt(log)}%</strong></span><br>`+
+    `<span style="font-size:13px;color:#475569">${Math.abs(simple-log)<0.5?'Thay đổi nhỏ → hai loại gần bằng nhau.':'Thay đổi lớn → chênh rõ. Log return cộng dồn được qua nhiều kỳ.'}</span>`;
+}
+
+// Box-Muller
+function gauss(){ let u=0,v=0; while(u===0)u=Math.random(); while(v===0)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+
+function drawGBM() {
+  const mu=+document.getElementById('mu').value/100;
+  const sig=+document.getElementById('sig').value/100;
+  document.getElementById('muv').textContent=(mu*100).toFixed(0)+'%';
+  document.getElementById('sigv').textContent=(sig*100).toFixed(0)+'%';
+  const cv=document.getElementById('gbmc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=54,padR=16,padT=16,padB=34;
+  ctx.clearRect(0,0,W,H);
+  const N=252, dt=1/252, P0=100, paths=6;
+  const colors=['#059669','#3b82f6','#a855f7','#f59e0b','#ef4444','#0ea5e9'];
+  const all=[];
+  let gmax=P0;
+  for(let p=0;p<paths;p++){ let price=P0; const arr=[price]; for(let i=0;i<N;i++){ const r=(mu-0.5*sig*sig)*dt + sig*Math.sqrt(dt)*gauss(); price*=Math.exp(r); arr.push(price); gmax=Math.max(gmax,price);} all.push(arr); }
+  const gmin=Math.min(...all.flat());
+  const x=i=>padL+(i/N)*(W-padL-padR);
+  const y=v=>H-padB-((v-gmin)/(gmax-gmin||1))*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const v=gmin+(gmax-gmin)*k/4,yy=y(v);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(fmt(v,0),padL-6,yy+4);}
+  ctx.textAlign='center'; ctx.fillText('0',x(0),H-padB+16); ctx.fillText('1 năm',x(N),H-padB+16);
+  all.forEach((arr,p)=>{ ctx.strokeStyle=colors[p]; ctx.lineWidth=2; ctx.beginPath(); arr.forEach((v,i)=>{i===0?ctx.moveTo(x(i),y(v)):ctx.lineTo(x(i),y(v));}); ctx.stroke(); });
+  // P0 line
+  ctx.strokeStyle='#94a3b8'; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(padL,y(P0)); ctx.lineTo(W-padR,y(P0)); ctx.stroke(); ctx.setLineDash([]);
+  const ends=all.map(a=>a[a.length-1]);
+  document.getElementById('gbmout').innerHTML=
+    `${paths} kịch bản từ giá 100, μ=${(mu*100).toFixed(0)}%, σ=${(sig*100).toFixed(0)}%/năm:<br>`+
+    `<span class="stat">Giá cuối: <strong>${ends.map(e=>fmt(e,0)).join(' · ')}</strong></span><br>`+
+    `<span style="font-size:13px;color:#475569">Mỗi lần chạy ra kết quả khác — không đoán được hướng (EMH), nhưng drift dương kéo xu hướng lên dài hạn.</span>`;
+}
+
+function drawSqrt() {
+  const sd=+document.getElementById('sd').value;
+  document.getElementById('sdv').textContent=sd.toFixed(1).replace(/\.0$/,'')+'%';
+  const cv=document.getElementById('sqrtc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=54,padR=16,padT=16,padB=40;
+  ctx.clearRect(0,0,W,H);
+  const Tmax=252;
+  const yMaxSqrt=sd*Math.sqrt(Tmax);
+  const yMax=yMaxSqrt*1.1;
+  const x=t=>padL+(t/Tmax)*(W-padL-padR);
+  const y=v=>H-padB-(Math.min(v,yMax)/yMax)*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const v=yMax*k/4,yy=y(v);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(fmt(v,0)+'%',padL-6,yy+4);}
+  ctx.textAlign='center'; [1,21,63,126,252].forEach(t=>ctx.fillText(t,x(t),H-padB+16));
+  ctx.fillText('số ngày →', W/2, H-8);
+  // sqrt
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath();
+  for(let t=1;t<=Tmax;t++){ const v=sd*Math.sqrt(t); t===1?ctx.moveTo(x(t),y(v)):ctx.lineTo(x(t),y(v)); } ctx.stroke();
+  // linear (wrong)
+  ctx.strokeStyle='#ef4444'; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.beginPath();
+  for(let t=1;t<=Tmax;t++){ const v=sd*t; if(v>yMax*1.05)break; t===1?ctx.moveTo(x(t),y(v)):ctx.lineTo(x(t),y(v)); } ctx.stroke(); ctx.setLineDash([]);
+  const yr=sd*Math.sqrt(252);
+  document.getElementById('sqrtout').innerHTML=
+    `<span class="stat">Biến động năm = ${sd.toFixed(1)}% × √252 = <strong>${fmt(yr)}%</strong></span><br>`+
+    `<span style="font-size:13px;color:#475569">Biến động tăng theo √T (xanh), KHÔNG tuyến tính (đỏ). Vì phương sai cộng tuyến, độ lệch chuẩn tăng theo căn.</span>`;
+}
+
+calcRet(); drawGBM(); drawSqrt();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

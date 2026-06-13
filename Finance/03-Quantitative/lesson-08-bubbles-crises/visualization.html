@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Bong bóng &amp; Khủng hoảng</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 150px; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 64px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .stat.warn { background: #fee2e2; } .stat.warn strong { color: #b91c1c; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tài chính định lượng</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-financial-statements/visualization.html">← L7: Báo cáo tài chính</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Bong bóng &amp; khủng hoảng</span>
+</nav>
+
+<main>
+<h1>Lesson 08 — Bong bóng &amp; Khủng hoảng tài chính</h1>
+<p>Ba công cụ: <strong>vòng đời bong bóng (Minsky)</strong>, <strong>so sánh khủng hoảng lịch sử</strong>, và <strong>đòn bẩy khuếch đại sụp đổ</strong>.</p>
+
+<h2>1. Vòng đời bong bóng (Minsky)</h2>
+<div class="card">
+  <p class="note">Kéo thanh thời gian → highlight giai đoạn hiện tại trên đường giá &amp; mô tả tâm lý.</p>
+  <div class="row">
+    <label>Thời gian:</label>
+    <input type="range" id="t" min="0" max="100" value="30" step="1" oninput="drawBubble()">
+    <span class="val" id="tstage"></span>
+  </div>
+  <canvas id="bubblec" width="760" height="320"></canvas>
+  <div class="result" id="bubbleout"></div>
+</div>
+
+<h2>2. So sánh khủng hoảng lịch sử</h2>
+<div class="card">
+  <div class="row">
+    <label>Chọn bong bóng:</label>
+    <select id="crisis" onchange="showCrisis()">
+      <option value="0">Tulip mania (1637)</option>
+      <option value="1">South Sea (1720)</option>
+      <option value="2">Đại khủng hoảng (1929)</option>
+      <option value="3">Dot-com (2000)</option>
+      <option value="4">Nhà đất &amp; 2008</option>
+    </select>
+  </div>
+  <canvas id="crashc" width="760" height="220"></canvas>
+  <div class="result" id="crisisout"></div>
+</div>
+
+<h2>3. Đòn bẩy khuếch đại sụp đổ</h2>
+<div class="card">
+  <p class="note">Cùng một cú giảm giá, đòn bẩy càng cao càng dễ cháy tài khoản &amp; gây bán giải chấp dây chuyền.</p>
+  <div class="row">
+    <label>Đòn bẩy (×):</label>
+    <input type="range" id="lev" min="1" max="10" value="4" step="1" oninput="calcLev()">
+    <span class="val" id="levv">4×</span>
+  </div>
+  <div class="row">
+    <label>Giá giảm (%):</label>
+    <input type="range" id="drop" min="0" max="50" value="25" step="1" oninput="calcLev()">
+    <span class="val" id="dropv">25%</span>
+  </div>
+  <div class="result" id="levout"></div>
+</div>
+
+<script>
+const fmt = (x, d=1) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+const STAGES=[
+  {end:15,name:'1. Dịch chuyển',desc:'Một cú hích mới (công nghệ/chính sách) tạo cơ hội thật. Người tiên phong vào sớm.'},
+  {end:40,name:'2. Bùng nổ',desc:'Giá tăng đều, tín dụng nới lỏng, ngày càng nhiều người tham gia.'},
+  {end:62,name:'3. Hưng phấn',desc:'Giá tăng dựng đứng. "Lần này khác!" Định giá phi lý, đòn bẩy tràn lan, người không chuyên đổ xô vào.'},
+  {end:72,name:'4. Chốt lời',desc:'Người khôn ngoan/sớm lặng lẽ bán ra. Đỉnh hình thành.'},
+  {end:100,name:'5. Hoảng loạn',desc:'Niềm tin sụp. Bán tháo, margin call dây chuyền, giá rơi tự do — nhanh hơn nhiều lúc phồng.'},
+];
+function priceAt(t) {
+  // đường bong bóng: tăng dần, dựng đứng ở hưng phấn, đỉnh ~67, sụp
+  if(t<=40) return 100+t*1.5;
+  if(t<=62) return 160+(t-40)*7;       // hưng phấn dựng đứng
+  if(t<=67) return 314+(t-62)*4;       // đỉnh
+  return Math.max(110, 334-(t-67)*7);  // sụp
+}
+function drawBubble() {
+  const t=+document.getElementById('t').value;
+  const stage=STAGES.find(s=>t<=s.end)||STAGES[4];
+  document.getElementById('tstage').textContent=stage.name.split('.')[0];
+  const cv=document.getElementById('bubblec'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=44,padR=16,padT=20,padB=30;
+  ctx.clearRect(0,0,W,H);
+  const x=tt=>padL+(tt/100)*(W-padL-padR);
+  const maxP=340;
+  const y=p=>H-padB-(p/maxP)*(H-padT-padB);
+  // vùng giai đoạn
+  const cols=['#dcfce7','#bbf7d0','#fde68a','#fdba74','#fecaca'];
+  let prev=0;
+  STAGES.forEach((s,i)=>{ ctx.fillStyle=cols[i]; ctx.globalAlpha=0.4; ctx.fillRect(x(prev),padT,x(s.end)-x(prev),H-padT-padB); ctx.globalAlpha=1; prev=s.end; });
+  // đường giá
+  ctx.strokeStyle='#047857'; ctx.lineWidth=3; ctx.beginPath();
+  for(let tt=0;tt<=100;tt++){ tt===0?ctx.moveTo(x(tt),y(priceAt(tt))):ctx.lineTo(x(tt),y(priceAt(tt))); } ctx.stroke();
+  // điểm hiện tại
+  ctx.fillStyle='#b91c1c'; ctx.beginPath(); ctx.arc(x(t),y(priceAt(t)),7,0,7); ctx.fill();
+  // nhãn giai đoạn
+  ctx.fillStyle='#475569'; ctx.font='10px sans-serif'; ctx.textAlign='center'; prev=0;
+  STAGES.forEach((s,i)=>{ ctx.fillText(s.name.split('.')[0], x((prev+s.end)/2), H-padB+14); prev=s.end; });
+  document.getElementById('bubbleout').innerHTML=`<strong>${stage.name}</strong><br><span style="font-size:14px">${stage.desc}</span>`;
+}
+
+const CRISES=[
+  {name:'Tulip mania (1637)',story:'Củ hoa tulip hiếm ở Hà Lan; giá một củ = một căn nhà.',drop:99},
+  {name:'South Sea (1720)',story:'Cổ phiếu công ty độc quyền thương mại Anh; Newton mất tiền.',drop:85},
+  {name:'Đại khủng hoảng (1929)',story:'Cổ phiếu Mỹ + đòn bẩy margin; dẫn tới Đại Suy thoái.',drop:89},
+  {name:'Dot-com (2000)',story:'"Internet thay đổi mọi thứ"; định giá phi lý các công ty .com.',drop:78},
+  {name:'Nhà đất & 2008',story:'"Giá nhà không bao giờ giảm" + nợ dưới chuẩn + đòn bẩy.',drop:55},
+];
+function showCrisis() {
+  const c=CRISES[+document.getElementById('crisis').value];
+  const cv=document.getElementById('crashc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=40,padR=16,padT=16,padB=24;
+  ctx.clearRect(0,0,W,H);
+  const x=t=>padL+(t/100)*(W-padL-padR);
+  const y=p=>H-padB-(p/110)*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; for(let k=0;k<=4;k++){const yy=padT+k*(H-padT-padB)/4;ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();}
+  ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right'; ctx.fillText('đỉnh 100',padL-4,y(100)+3); ctx.fillText('đáy',padL-4,y(100-c.drop)+3);
+  // đường: lên đỉnh rồi sụp
+  ctx.strokeStyle='#047857'; ctx.lineWidth=3; ctx.beginPath();
+  for(let t=0;t<=55;t++){ const p=20+t*(80/55); t===0?ctx.moveTo(x(t),y(p)):ctx.lineTo(x(t),y(p)); }
+  for(let t=55;t<=100;t++){ const p=100-(t-55)/45*c.drop; ctx.lineTo(x(t),y(p)); }
+  ctx.stroke();
+  document.getElementById('crisisout').innerHTML=
+    `<strong>${c.name}</strong><br><span style="font-size:14px">${c.story}</span><br>`+
+    `<span class="stat warn">Sụp đỉnh→đáy: <strong>~${c.drop}%</strong></span>`+
+    `<span style="font-size:13px;color:#475569">Điểm chung: câu chuyện hấp dẫn + tín dụng rẻ + bầy đàn + "lần này khác".</span>`;
+}
+
+function calcLev() {
+  const lev=+document.getElementById('lev').value, drop=+document.getElementById('drop').value/100;
+  document.getElementById('levv').textContent=lev+'×';
+  document.getElementById('dropv').textContent=(drop*100).toFixed(0)+'%';
+  const equity=100, total=equity*lev, debt=total-equity;
+  const newTotal=total*(1-drop);
+  const newEquity=newTotal-debt;
+  const pct=(newEquity-equity)/equity*100;
+  const wipeDrop=(1/lev*100);
+  document.getElementById('levout').innerHTML=
+    `Đòn bẩy ${lev}× (vốn 100, vay ${fmt(debt,0)}). Giá giảm ${(drop*100).toFixed(0)}%:<br>`+
+    `<span class="stat ${newEquity<=0?'warn':''}">Vốn còn lại: <strong>${fmt(Math.max(newEquity,0),0)}</strong></span>`+
+    `<span class="stat ${pct<0?'warn':''}">Trên vốn: <strong>${pct>=0?'+':''}${fmt(pct,0)}%</strong></span>`+
+    (newEquity<=0?`<span class="stat warn">🔥 CHÁY TÀI KHOẢN${newEquity<0?' + nợ thêm '+fmt(-newEquity,0):''}</span>`:'')+`<br>`+
+    `<span style="font-size:13px;color:#475569">Chỉ cần giá giảm <strong>${fmt(wipeDrop,0)}%</strong> là cháy sạch vốn ở đòn bẩy ${lev}×. Bán giải chấp đồng loạt → sụp đổ dây chuyền (1929, 2008).</span>`;
+}
+
+drawBubble(); showCrisis(); calcLev();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

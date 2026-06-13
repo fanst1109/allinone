@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Quyền chọn (Options)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 150px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 100px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 60px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin: 6px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 16px; height: 4px; border-radius: 2px; display: inline-block; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tài chính định lượng</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-log-returns/visualization.html">← L1: Log returns</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Quyền chọn</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-option-pricing/visualization.html">L3: Định giá quyền chọn →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Quyền chọn (Options)</h1>
+<p>Ba công cụ: <strong>máy vẽ payoff diagram</strong>, <strong>so sánh đòn bẩy</strong> (cổ phiếu vs call), và <strong>protective put</strong>.</p>
+
+<h2>1. Máy vẽ payoff diagram</h2>
+<div class="card">
+  <div class="row">
+    <label>Loại:</label>
+    <select id="type" onchange="drawPayoff()">
+      <option value="call">Call (quyền mua)</option>
+      <option value="put">Put (quyền bán)</option>
+    </select>
+    <label>Vị thế:</label>
+    <select id="pos" onchange="drawPayoff()">
+      <option value="long">Long (mua)</option>
+      <option value="short">Short (bán)</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Strike K:</label>
+    <input type="number" id="K" value="100" step="5" min="1" oninput="drawPayoff()">
+    <label>Premium:</label>
+    <input type="number" id="prem" value="5" step="1" min="0" oninput="drawPayoff()">
+  </div>
+  <canvas id="payoffc" width="760" height="340"></canvas>
+  <div class="result" id="payoffout"></div>
+</div>
+
+<h2>2. So sánh đòn bẩy — cổ phiếu vs call</h2>
+<div class="card">
+  <p class="note">Cùng kỳ vọng giá tăng. Đồ thị lợi nhuận % trên vốn bỏ ra: call khuếch đại cả hai chiều.</p>
+  <div class="row">
+    <label>Giá hiện tại:</label>
+    <input type="number" id="s0" value="100" step="5" min="1" oninput="drawLev()">
+    <label>Strike call = giá:</label>
+    <span class="val" id="s0disp">100</span>
+  </div>
+  <div class="row">
+    <label>Premium call:</label>
+    <input type="number" id="levPrem" value="5" step="1" min="0.5" oninput="drawLev()">
+  </div>
+  <div class="legend">
+    <span><i class="swatch" style="background:#3b82f6"></i> Mua cổ phiếu</span>
+    <span><i class="swatch" style="background:#059669"></i> Mua call</span>
+  </div>
+  <canvas id="levc" width="760" height="300"></canvas>
+  <div class="result" id="levout"></div>
+</div>
+
+<h2>3. Protective put — bảo hiểm danh mục</h2>
+<div class="card">
+  <p class="note">Giữ cổ phiếu + mua put → đặt "sàn" cho khoản lỗ. Đường tổng (xanh đậm) phẳng ra ở dưới strike.</p>
+  <div class="row">
+    <label>Giá mua cổ phiếu:</label>
+    <input type="number" id="ppBuy" value="100" step="5" min="1" oninput="drawPP()">
+    <label>Put strike:</label>
+    <input type="number" id="ppK" value="90" step="5" min="1" oninput="drawPP()">
+    <label>Put premium:</label>
+    <input type="number" id="ppPrem" value="3" step="1" min="0" oninput="drawPP()">
+  </div>
+  <canvas id="ppc" width="760" height="300"></canvas>
+  <div class="result" id="ppout"></div>
+</div>
+
+<script>
+const fmt = (x, d=1) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+
+function profitAt(type, pos, K, prem, S) {
+  let payoff = type==='call' ? Math.max(S-K,0) : Math.max(K-S,0);
+  let p = pos==='long' ? payoff - prem : prem - payoff;
+  return p;
+}
+function drawAxes(ctx,W,H,padL,padR,padT,padB,xMin,xMax,yMin,yMax,xlabel) {
+  const x=v=>padL+((v-xMin)/(xMax-xMin))*(W-padL-padR);
+  const y=v=>H-padB-((v-yMin)/(yMax-yMin))*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const v=yMin+(yMax-yMin)*k/4,yy=y(v);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(fmt(v,0),padL-6,yy+4);}
+  ctx.textAlign='center';
+  for(let k=0;k<=5;k++){const v=xMin+(xMax-xMin)*k/5;ctx.fillText(fmt(v,0),x(v),H-padB+16);}
+  ctx.fillText(xlabel, W/2, H-6);
+  // zero line
+  if(yMin<0&&yMax>0){ ctx.strokeStyle='#94a3b8'; ctx.beginPath(); ctx.moveTo(padL,y(0)); ctx.lineTo(W-padR,y(0)); ctx.stroke(); }
+  return {x,y};
+}
+
+function drawPayoff() {
+  const type=document.getElementById('type').value, pos=document.getElementById('pos').value;
+  const K=+document.getElementById('K').value, prem=+document.getElementById('prem').value;
+  const cv=document.getElementById('payoffc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=54,padR=16,padT=16,padB=40;
+  ctx.clearRect(0,0,W,H);
+  const xMin=Math.max(0,K-K*0.6), xMax=K+K*0.6;
+  let yMax=Math.max(prem,(xMax-K),(K-xMin))+5, yMin=-yMax;
+  const {x,y}=drawAxes(ctx,W,H,padL,padR,padT,padB,xMin,xMax,yMin,yMax,'Giá tài sản khi đáo hạn');
+  // strike line
+  ctx.strokeStyle='#f59e0b'; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(x(K),padT); ctx.lineTo(x(K),H-padB); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#b45309'; ctx.textAlign='center'; ctx.fillText('K='+K, x(K), padT+12);
+  // payoff curve
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath();
+  for(let S=xMin;S<=xMax;S+=(xMax-xMin)/200){ const p=profitAt(type,pos,K,prem,S); S===xMin?ctx.moveTo(x(S),y(p)):ctx.lineTo(x(S),y(p)); }
+  ctx.stroke();
+  // breakeven
+  const be = type==='call' ? K+prem*(pos==='long'?1:1) : K-prem;
+  const beVal = type==='call'? K+prem : K-prem;
+  document.getElementById('payoffout').innerHTML=
+    `<span class="stat">${pos==='long'?'Mua':'Bán'} ${type==='call'?'Call':'Put'} strike ${K}, phí ${prem}</span>`+
+    `<span class="stat">Hòa vốn ≈ <strong>${fmt(beVal,0)}</strong></span><br>`+
+    `<span style="font-size:13px;color:#475569">${
+      pos==='long'&&type==='call'?'Lỗ tối đa = phí ('+prem+'); lời không giới hạn khi giá tăng.':
+      pos==='long'&&type==='put'?'Lỗ tối đa = phí ('+prem+'); lời lớn khi giá giảm về 0.':
+      pos==='short'&&type==='call'?'⚠ Lời tối đa = phí ('+prem+'); LỖ KHÔNG GIỚI HẠN khi giá tăng (naked call).':
+      'Lời tối đa = phí ('+prem+'); lỗ lớn khi giá giảm mạnh.'
+    }</span>`;
+}
+
+function drawLev() {
+  const s0=+document.getElementById('s0').value, prem=+document.getElementById('levPrem').value;
+  document.getElementById('s0disp').textContent=s0;
+  const cv=document.getElementById('levc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=54,padR=16,padT=16,padB=40;
+  ctx.clearRect(0,0,W,H);
+  const xMin=s0*0.7, xMax=s0*1.4;
+  const yMax=150, yMin=-110;
+  const {x,y}=drawAxes(ctx,W,H,padL,padR,padT,padB,xMin,xMax,yMin,yMax,'Giá tài sản (%)');
+  // stock: %return = (S-s0)/s0*100
+  ctx.strokeStyle='#3b82f6'; ctx.lineWidth=3; ctx.beginPath();
+  for(let S=xMin;S<=xMax;S+=(xMax-xMin)/100){ const p=(S-s0)/s0*100; S===xMin?ctx.moveTo(x(S),y(p)):ctx.lineTo(x(S),y(p)); } ctx.stroke();
+  // call: profit = max(S-s0,0)-prem, %on prem
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath();
+  for(let S=xMin;S<=xMax;S+=(xMax-xMin)/100){ const pr=(Math.max(S-s0,0)-prem)/prem*100; S===xMin?ctx.moveTo(x(S),y(Math.max(pr,yMin))):ctx.lineTo(x(S),y(Math.max(pr,yMin))); } ctx.stroke();
+  const up=s0*1.2;
+  const stk=(up-s0)/s0*100, cal=(Math.max(up-s0,0)-prem)/prem*100;
+  document.getElementById('levout').innerHTML=
+    `Nếu giá lên +20% (tới ${fmt(up,0)}):<br>`+
+    `<span class="stat" style="background:#dbeafe">Cổ phiếu: <strong>+${fmt(stk,0)}%</strong> trên vốn</span>`+
+    `<span class="stat">Call: <strong>+${fmt(cal,0)}%</strong> trên phí</span><br>`+
+    `<span style="font-size:13px;color:#475569">Call khuếch đại lợi nhuận, nhưng nếu giá đứng yên call mất 100% phí (cổ phiếu chỉ hòa vốn).</span>`;
+}
+
+function drawPP() {
+  const buy=+document.getElementById('ppBuy').value, K=+document.getElementById('ppK').value, prem=+document.getElementById('ppPrem').value;
+  const cv=document.getElementById('ppc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=54,padR=16,padT=16,padB=40;
+  ctx.clearRect(0,0,W,H);
+  const xMin=Math.max(0,buy*0.4), xMax=buy*1.6;
+  const yMax=buy*0.6, yMin=-buy*0.4;
+  const {x,y}=drawAxes(ctx,W,H,padL,padR,padT,padB,xMin,xMax,yMin,yMax,'Giá cổ phiếu khi đáo hạn');
+  // stock only (xám đứt)
+  ctx.strokeStyle='#94a3b8'; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.beginPath();
+  for(let S=xMin;S<=xMax;S+=(xMax-xMin)/100){ const p=S-buy; S===xMin?ctx.moveTo(x(S),y(p)):ctx.lineTo(x(S),y(p)); } ctx.stroke(); ctx.setLineDash([]);
+  // stock + put (xanh đậm)
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath();
+  for(let S=xMin;S<=xMax;S+=(xMax-xMin)/100){ const p=(S-buy)+(Math.max(K-S,0)-prem); S===xMin?ctx.moveTo(x(S),y(p)):ctx.lineTo(x(S),y(p)); } ctx.stroke();
+  ctx.strokeStyle='#f59e0b'; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(x(K),padT); ctx.lineTo(x(K),H-padB); ctx.stroke(); ctx.setLineDash([]);
+  const maxLoss=(buy-K)+prem;
+  document.getElementById('ppout').innerHTML=
+    `<span class="stat">Cổ phiếu ${buy} + put strike ${K} (phí ${prem})</span>`+
+    `<span class="stat" style="background:#bbf7d0">Lỗ tối đa giới hạn ≈ <strong>${fmt(maxLoss,0)}</strong></span><br>`+
+    `<span style="font-size:13px;color:#475569">Dù giá rớt sâu bao nhiêu, tổng lỗ không vượt (giá mua − strike + phí). Put là bảo hiểm đặt "sàn".</span>`;
+}
+
+drawPayoff(); drawLev(); drawPP();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

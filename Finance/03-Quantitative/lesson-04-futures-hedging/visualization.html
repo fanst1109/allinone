@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Hợp đồng tương lai &amp; Phòng hộ</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 160px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 120px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 64px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .stat.warn { background: #fee2e2; } .stat.warn strong { color: #b91c1c; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin: 6px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 16px; height: 4px; border-radius: 2px; display: inline-block; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tài chính định lượng</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-option-pricing/visualization.html">← L3: Định giá quyền chọn</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Futures &amp; hedging</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-risk-management/visualization.html">L5: Quản trị rủi ro →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Hợp đồng tương lai &amp; Phòng hộ</h1>
+<p>Ba công cụ: <strong>máy tính giá forward</strong> (cost of carry), <strong>mô phỏng hedging</strong> (khóa giá), và <strong>đòn bẩy &amp; ký quỹ</strong>.</p>
+
+<h2>1. Máy tính giá forward — F = S(1+r)ᵀ</h2>
+<div class="card">
+  <div class="row">
+    <label>Giá spot S (đ):</label>
+    <input type="number" id="S" value="1000000" step="50000" min="1" oninput="calcF()">
+  </div>
+  <div class="row">
+    <label>Lãi phi rủi ro r (%):</label>
+    <input type="range" id="r" min="0" max="15" value="6" step="0.5" oninput="calcF()">
+    <span class="val" id="rv">6%</span>
+  </div>
+  <div class="row">
+    <label>Thời gian T (năm):</label>
+    <input type="range" id="T" min="0.1" max="3" value="0.5" step="0.1" oninput="calcF()">
+    <span class="val" id="Tv">0,5</span>
+  </div>
+  <div class="result" id="fout"></div>
+</div>
+
+<h2>2. Mô phỏng phòng hộ — khóa giá</h2>
+<div class="card">
+  <p class="note">Hãng cần mua N đơn vị, khóa futures ở giá F. Dù giá spot chạy, chi phí ròng phẳng (đường xanh đậm).</p>
+  <div class="row">
+    <label>Số đơn vị cần mua:</label>
+    <input type="number" id="qty" value="1000" step="100" min="1" oninput="drawHedge()">
+    <label>Giá khóa futures:</label>
+    <input type="number" id="lock" value="82" step="1" min="1" oninput="drawHedge()">
+  </div>
+  <div class="legend">
+    <span><i class="swatch" style="background:#ef4444"></i> Chi phí nếu KHÔNG hedge</span>
+    <span><i class="swatch" style="background:#059669"></i> Chi phí ròng CÓ hedge (khóa)</span>
+  </div>
+  <canvas id="hedgec" width="760" height="300"></canvas>
+  <div class="result" id="hedgeout"></div>
+</div>
+
+<h2>3. Đòn bẩy &amp; ký quỹ</h2>
+<div class="card">
+  <p class="note">Vốn ký quỹ nhỏ điều khiển hợp đồng lớn → lời/lỗ phóng đại. Cảnh báo cháy tài khoản.</p>
+  <div class="row">
+    <label>Giá trị hợp đồng (triệu):</label>
+    <input type="number" id="notional" value="800" step="50" min="1" oninput="calcLev()">
+  </div>
+  <div class="row">
+    <label>Ký quỹ (%):</label>
+    <input type="range" id="margin" min="2" max="50" value="8" step="1" oninput="calcLev()">
+    <span class="val" id="marginv">8%</span>
+  </div>
+  <div class="row">
+    <label>Giá tài sản đổi (%):</label>
+    <input type="range" id="move" min="-20" max="20" value="6" step="1" oninput="calcLev()">
+    <span class="val" id="movev">+6%</span>
+  </div>
+  <div class="result" id="levout"></div>
+</div>
+
+<script>
+const fmt = (x, d=0) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+
+function calcF() {
+  const S=+document.getElementById('S').value, r=+document.getElementById('r').value/100, T=+document.getElementById('T').value;
+  document.getElementById('rv').textContent=(r*100).toFixed(1).replace(/\.0$/,'')+'%';
+  document.getElementById('Tv').textContent=T.toFixed(1).replace('.',',');
+  const F=S*Math.pow(1+r,T);
+  document.getElementById('fout').innerHTML=
+    `F = ${fmt(S)} × (1+${(r*100).toFixed(1)}%)^${T} = <span class="stat"><strong>${fmt(F)}</strong> đ</span>`+
+    `<span class="stat">Chi phí nắm giữ: <strong>${fmt(F-S)}</strong> đ</span><br>`+
+    `<span style="font-size:13px;color:#475569">Giá forward = spot + chi phí vốn (no-arbitrage), KHÔNG phải dự đoán giá tương lai.</span>`;
+}
+
+function drawHedge() {
+  const qty=+document.getElementById('qty').value, lock=+document.getElementById('lock').value;
+  document.getElementById('movev'); // noop
+  const cv=document.getElementById('hedgec'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=64,padR=16,padT=16,padB=40;
+  ctx.clearRect(0,0,W,H);
+  const pMin=lock*0.6, pMax=lock*1.4;
+  const costLocked=qty*lock;
+  const yMax=qty*pMax, yMin=qty*pMin;
+  const x=p=>padL+((p-pMin)/(pMax-pMin))*(W-padL-padR);
+  const y=v=>H-padB-((v-yMin)/(yMax-yMin))*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const v=yMin+(yMax-yMin)*k/4,yy=y(v);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(fmt(v/1000)+'k',padL-6,yy+4);}
+  ctx.textAlign='center'; for(let k=0;k<=4;k++){const p=pMin+(pMax-pMin)*k/4;ctx.fillText(fmt(p),x(p),H-padB+16);}
+  ctx.fillText('Giá spot khi đáo hạn →', W/2, H-6);
+  // không hedge: chi phí = qty*spot
+  ctx.strokeStyle='#ef4444'; ctx.lineWidth=2.5; ctx.beginPath();
+  for(let p=pMin;p<=pMax;p+=(pMax-pMin)/100){ const c=qty*p; p===pMin?ctx.moveTo(x(p),y(c)):ctx.lineTo(x(p),y(c)); } ctx.stroke();
+  // có hedge: phẳng = costLocked
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(x(pMin),y(costLocked)); ctx.lineTo(x(pMax),y(costLocked)); ctx.stroke();
+  document.getElementById('hedgeout').innerHTML=
+    `Khóa giá ${lock} cho ${fmt(qty)} đơn vị → chi phí ròng <span class="stat" style="background:#bbf7d0"><strong>${fmt(costLocked)}</strong> đ</span> (cố định).<br>`+
+    `<span style="font-size:13px;color:#475569">Dù giá spot chạy từ ${fmt(pMin)} tới ${fmt(pMax)}, chi phí ròng luôn phẳng. Đổi bất định lấy chắc chắn (mất phần lợi nếu giá giảm).</span>`;
+}
+
+function calcLev() {
+  const notional=+document.getElementById('notional').value;
+  const m=+document.getElementById('margin').value/100;
+  const move=+document.getElementById('move').value/100;
+  document.getElementById('marginv').textContent=(m*100).toFixed(0)+'%';
+  document.getElementById('movev').textContent=(move>=0?'+':'')+(move*100).toFixed(0)+'%';
+  const marginAmt=notional*m;
+  const pnl=notional*move;
+  const pctOnMargin=pnl/marginAmt*100;
+  const lev=1/m;
+  let warn='';
+  if(pnl<0 && Math.abs(pnl)>=marginAmt) warn=`<br><span class="stat warn">🔥 CHÁY TÀI KHOẢN: lỗ ${fmt(Math.abs(pnl))} tr ≥ ký quỹ ${fmt(marginAmt)} tr → mất sạch${Math.abs(pnl)>marginAmt?' và nợ thêm '+fmt(Math.abs(pnl)-marginAmt)+' tr':''}!</span>`;
+  document.getElementById('levout').innerHTML=
+    `<span class="stat">Ký quỹ: <strong>${fmt(marginAmt)}</strong> tr (đòn bẩy ~${lev.toFixed(1)}×)</span>`+
+    `<span class="stat ${pnl<0?'warn':''}">Lời/lỗ: <strong>${pnl>=0?'+':''}${fmt(pnl)}</strong> tr</span>`+
+    `<span class="stat ${pctOnMargin<0?'warn':''}">Trên vốn: <strong>${pctOnMargin>=0?'+':''}${fmt(pctOnMargin)}%</strong></span>${warn}<br>`+
+    `<span style="font-size:13px;color:#475569">Giá đổi ${(move*100).toFixed(0)}% → vốn đổi ${fmt(pctOnMargin)}% (phóng đại ${lev.toFixed(1)}× do đòn bẩy).</span>`;
+}
+
+calcF(); drawHedge(); calcLev();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

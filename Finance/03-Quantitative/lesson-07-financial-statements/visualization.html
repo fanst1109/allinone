@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Đọc báo cáo tài chính</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 170px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 110px; box-sizing: border-box; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .stat.warn { background: #fee2e2; } .stat.warn strong { color: #b91c1c; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  .balwrap { display: flex; gap: 16px; align-items: stretch; margin: 12px 0; flex-wrap: wrap; }
+  .balcol { flex: 1; min-width: 140px; }
+  .balbar { border-radius: 6px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #cbd5e0; }
+  .balbar > div { display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 600; min-height: 28px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tài chính định lượng</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-yield-curve/visualization.html">← L6: Đường cong lợi suất</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Báo cáo tài chính</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-bubbles-crises/visualization.html">L8: Bong bóng →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Đọc báo cáo tài chính</h1>
+<p>Ba công cụ: <strong>cân đối kế toán</strong>, <strong>phễu KQKD</strong>, và <strong>máy tính tỷ số tài chính</strong>.</p>
+
+<h2>1. Cân đối kế toán — Tài sản = Nợ + Vốn chủ</h2>
+<div class="card">
+  <div class="row">
+    <label>Tiền:</label><input type="number" id="cash" value="200" step="50" oninput="drawBal()">
+    <label>Hàng tồn kho:</label><input type="number" id="inv" value="300" step="50" oninput="drawBal()">
+    <label>Nhà xưởng:</label><input type="number" id="ppe" value="500" step="50" oninput="drawBal()">
+  </div>
+  <div class="row">
+    <label>Vay ngân hàng:</label><input type="number" id="debt" value="400" step="50" oninput="drawBal()">
+    <label>Nợ nhà cung cấp:</label><input type="number" id="ap" value="100" step="50" oninput="drawBal()">
+  </div>
+  <div class="balwrap">
+    <div class="balcol"><div class="note">TÀI SẢN</div><div class="balbar" id="assetBar"></div></div>
+    <div class="balcol"><div class="note">NGUỒN VỐN</div><div class="balbar" id="sourceBar"></div></div>
+  </div>
+  <div class="result" id="balout"></div>
+</div>
+
+<h2>2. Phễu kết quả kinh doanh</h2>
+<div class="card">
+  <div class="row">
+    <label>Doanh thu:</label><input type="number" id="rev" value="1000" step="50" oninput="drawIS()">
+    <label>Giá vốn (COGS):</label><input type="number" id="cogs" value="600" step="50" oninput="drawIS()">
+  </div>
+  <div class="row">
+    <label>Chi phí hoạt động:</label><input type="number" id="opex" value="200" step="25" oninput="drawIS()">
+    <label>Lãi vay:</label><input type="number" id="interest" value="40" step="10" oninput="drawIS()">
+    <label>Thuế suất %:</label><input type="number" id="tax" value="20" step="5" oninput="drawIS()">
+  </div>
+  <canvas id="isc" width="760" height="280"></canvas>
+  <div class="result" id="isout"></div>
+</div>
+
+<h2>3. Máy tính tỷ số tài chính</h2>
+<div class="card">
+  <p class="note">Dùng số liệu từ Module 1 &amp; 2 tự động.</p>
+  <div class="result" id="ratioout"></div>
+</div>
+
+<script>
+const fmt = (x, d=1) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+let netIncome=0, revenue=0, equity=0, totalDebt=0, totalAssets=0, currentAssets=0, currentLiab=0;
+
+function drawBal() {
+  const cash=+document.getElementById('cash').value, inv=+document.getElementById('inv').value, ppe=+document.getElementById('ppe').value;
+  const debt=+document.getElementById('debt').value, ap=+document.getElementById('ap').value;
+  totalAssets=cash+inv+ppe; totalDebt=debt+ap; equity=totalAssets-totalDebt;
+  currentAssets=cash+inv; currentLiab=ap;
+  const T=totalAssets||1;
+  const assets=[['Tiền',cash,'#3b82f6'],['Tồn kho',inv,'#0ea5e9'],['Nhà xưởng',ppe,'#6366f1']];
+  const sources=[['Vay NH',debt,'#ef4444'],['Nợ NCC',ap,'#f59e0b'],['Vốn chủ',equity,'#059669']];
+  document.getElementById('assetBar').innerHTML=assets.map(([n,v,c])=>`<div style="background:${c};flex:${v}">${n} ${fmt(v,0)}</div>`).join('');
+  document.getElementById('sourceBar').innerHTML=sources.map(([n,v,c])=>`<div style="background:${c};flex:${Math.max(v,0)}">${n} ${fmt(v,0)}</div>`).join('');
+  document.getElementById('balout').innerHTML=
+    `<span class="stat">Tổng tài sản: <strong>${fmt(totalAssets,0)}</strong></span>`+
+    `<span class="stat">= Nợ <strong>${fmt(totalDebt,0)}</strong> + Vốn chủ <strong>${fmt(equity,0)}</strong></span>`+
+    (equity<0?`<span class="stat warn">⚠ Vốn chủ ÂM — nợ vượt tài sản!</span>`:'')+
+    `<br><span style="font-size:13px;color:#475569">Vốn chủ sở hữu = book value thuộc cổ đông sau khi trừ hết nợ.</span>`;
+  calcRatios();
+}
+
+function drawIS() {
+  revenue=+document.getElementById('rev').value;
+  const cogs=+document.getElementById('cogs').value, opex=+document.getElementById('opex').value;
+  const interest=+document.getElementById('interest').value, taxRate=+document.getElementById('tax').value/100;
+  const gross=revenue-cogs, ebit=gross-opex, pretax=ebit-interest, tax=Math.max(0,pretax*taxRate);
+  netIncome=pretax-tax;
+  const cv=document.getElementById('isc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=44,padR=16,padT=20,padB=50;
+  ctx.clearRect(0,0,W,H);
+  const steps=[['Doanh thu',revenue,'#059669',true],['−COGS',-cogs,'#ef4444',false],['Gộp',gross,'#10b981',true],['−CP HĐ',-opex,'#ef4444',false],['EBIT',ebit,'#10b981',true],['−Lãi',-interest,'#ef4444',false],['−Thuế',-tax,'#ef4444',false],['LN ròng',netIncome,'#047857',true]];
+  const maxV=revenue*1.05;
+  const bw=(W-padL-padR)/steps.length*0.7, gap=(W-padL-padR)/steps.length;
+  const y=v=>H-padB-(v/maxV)*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='10px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const v=maxV*k/4,yy=y(v);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(fmt(v,0),padL-4,yy+3);}
+  let cum=0;
+  steps.forEach((s,i)=>{
+    const [name,val,col,isTotal]=s;
+    const xx=padL+i*gap+(gap-bw)/2;
+    if(isTotal){ ctx.fillStyle=col; ctx.fillRect(xx,y(val),bw,H-padB-y(val)); cum=val; }
+    else { const top=cum, bot=cum+val; ctx.fillStyle=col; ctx.fillRect(xx,y(Math.max(top,bot)),bw,Math.abs(y(top)-y(bot))); cum=bot; }
+    ctx.fillStyle='#1a202c'; ctx.font='9px sans-serif'; ctx.textAlign='center'; ctx.save(); ctx.translate(xx+bw/2,H-padB+6); ctx.rotate(0.3); ctx.fillText(name,0,8); ctx.restore();
+  });
+  document.getElementById('isout').innerHTML=
+    `<span class="stat">LN gộp: <strong>${fmt(gross,0)}</strong></span>`+
+    `<span class="stat">EBIT: <strong>${fmt(ebit,0)}</strong></span>`+
+    `<span class="stat" style="background:#bbf7d0">LN ròng: <strong>${fmt(netIncome,0)}</strong></span>`;
+  calcRatios();
+}
+
+function calcRatios() {
+  const margin=revenue>0?netIncome/revenue*100:0;
+  const roe=equity>0?netIncome/equity*100:0;
+  const debtRatio=totalAssets>0?totalDebt/totalAssets:0;
+  const current=currentLiab>0?currentAssets/currentLiab:Infinity;
+  document.getElementById('ratioout').innerHTML=
+    `<span class="stat">Biên LN ròng: <strong>${fmt(margin)}%</strong></span>`+
+    `<span class="stat">ROE: <strong>${equity>0?fmt(roe)+'%':'N/A (vốn chủ ≤0)'}</strong></span>`+
+    `<span class="stat ${debtRatio>0.7?'warn':''}">Hệ số nợ: <strong>${fmt(debtRatio,2)}</strong></span>`+
+    `<span class="stat">Thanh toán hiện hành: <strong>${isFinite(current)?fmt(current,2):'∞'}</strong></span><br>`+
+    `<span style="font-size:13px;color:#475569">${debtRatio>0.7?'⚠ Hệ số nợ cao (>0,7) → đòn bẩy &amp; rủi ro tài chính lớn. ':''}ROE cao phải xét cùng hệ số nợ — ROE cao nhờ vay nhiều không bền.</span>`;
+}
+
+drawBal(); drawIS();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

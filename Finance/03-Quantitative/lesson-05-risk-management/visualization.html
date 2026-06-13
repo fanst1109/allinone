@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Quản trị rủi ro: VaR &amp; Monte Carlo</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 160px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 110px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 64px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .stat.warn { background: #fee2e2; } .stat.warn strong { color: #b91c1c; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  button { background: #059669; color: #fff; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-weight: 600; margin: 3px; }
+  button:hover { background: #047857; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tài chính định lượng</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-futures-hedging/visualization.html">← L4: Futures</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Quản trị rủi ro</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-yield-curve/visualization.html">L6: Đường cong lợi suất →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Quản trị rủi ro: VaR &amp; Monte Carlo</h1>
+<p>Ba công cụ: <strong>máy tính VaR</strong>, <strong>mô phỏng Monte Carlo</strong>, và <strong>drawdown</strong>.</p>
+
+<h2>1. Máy tính VaR</h2>
+<div class="card">
+  <p class="note"><code>VaR = z × σ × V</code>. Vùng đỏ ở đuôi = phần xác suất lỗ vượt VaR.</p>
+  <div class="row">
+    <label>Giá trị danh mục (triệu):</label>
+    <input type="number" id="V" value="1000" step="100" min="1" oninput="drawVaR()">
+  </div>
+  <div class="row">
+    <label>Biến động ngày σ (%):</label>
+    <input type="range" id="sig" min="0.5" max="5" value="2" step="0.1" oninput="drawVaR()">
+    <span class="val" id="sigv">2%</span>
+  </div>
+  <div class="row">
+    <label>Độ tin cậy:</label>
+    <select id="conf" onchange="drawVaR()">
+      <option value="1.282">90%</option>
+      <option value="1.645" selected>95%</option>
+      <option value="2.326">99%</option>
+      <option value="3.090">99,9%</option>
+    </select>
+    <label>Khoảng (ngày):</label>
+    <input type="number" id="days" value="1" step="1" min="1" oninput="drawVaR()">
+  </div>
+  <canvas id="varc" width="760" height="280"></canvas>
+  <div class="result" id="varout"></div>
+</div>
+
+<h2>2. Mô phỏng Monte Carlo</h2>
+<div class="card">
+  <p class="note">Mô phỏng nhiều kịch bản GBM 1 năm → histogram giá trị cuối, đánh dấu phân vị 5% (VaR) / trung vị / 95%.</p>
+  <div class="row">
+    <label>Lợi nhuận kỳ vọng μ (%):</label>
+    <input type="range" id="mu" min="-5" max="15" value="8" step="1" oninput="updMC()">
+    <span class="val" id="muv">8%</span>
+  </div>
+  <div class="row">
+    <label>Biến động σ (%/năm):</label>
+    <input type="range" id="mcsig" min="5" max="50" value="20" step="1" oninput="updMC()">
+    <span class="val" id="mcsigv">20%</span>
+  </div>
+  <div class="row"><button onclick="runMC()">🎲 Chạy 2000 kịch bản</button></div>
+  <canvas id="mcc" width="760" height="280"></canvas>
+  <div class="result" id="mcout"></div>
+</div>
+
+<h2>3. Drawdown</h2>
+<div class="card">
+  <p class="note">Nhập chuỗi giá trị danh mục (cách nhau dấu phẩy). Vùng đỏ = drawdown từ đỉnh.</p>
+  <div class="row">
+    <label>Giá trị qua thời gian:</label>
+    <input type="text" id="series" value="100, 130, 110, 140, 95, 120" style="max-width:340px;padding:7px 11px;border:1px solid #cbd5e0;border-radius:4px;font-family:monospace" oninput="drawDD()">
+  </div>
+  <canvas id="ddc" width="760" height="260"></canvas>
+  <div class="result" id="ddout"></div>
+</div>
+
+<script>
+const fmt = (x, d=1) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+function gauss(){ let u=0,v=0; while(u===0)u=Math.random(); while(v===0)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+function normPdf(x){ return Math.exp(-x*x/2)/Math.sqrt(2*Math.PI); }
+
+function drawVaR() {
+  const V=+document.getElementById('V').value, sig=+document.getElementById('sig').value/100;
+  const z=+document.getElementById('conf').value, days=+document.getElementById('days').value;
+  document.getElementById('sigv').textContent=(sig*100).toFixed(1).replace(/\.0$/,'')+'%';
+  const sigT=sig*Math.sqrt(days);
+  const varVal=z*sigT*V;
+  const cv=document.getElementById('varc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=20,padR=20,padT=16,padB=34;
+  ctx.clearRect(0,0,W,H);
+  const x=zz=>padL+((zz+4)/8)*(W-padL-padR);
+  const peak=normPdf(0), y=p=>H-padB-(p/peak)*(H-padT-padB);
+  // vùng đuôi trái (lỗ vượt VaR)
+  ctx.fillStyle='rgba(239,68,68,0.25)'; ctx.beginPath(); ctx.moveTo(x(-4),H-padB);
+  for(let zz=-4;zz<=-z;zz+=0.05) ctx.lineTo(x(zz),y(normPdf(zz)));
+  ctx.lineTo(x(-z),H-padB); ctx.fill();
+  // chuông
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath();
+  for(let zz=-4;zz<=4;zz+=0.05){ zz===-4?ctx.moveTo(x(zz),y(normPdf(zz))):ctx.lineTo(x(zz),y(normPdf(zz))); } ctx.stroke();
+  ctx.strokeStyle='#94a3b8'; ctx.beginPath(); ctx.moveTo(padL,H-padB); ctx.lineTo(W-padR,H-padB); ctx.stroke();
+  // đường VaR
+  ctx.strokeStyle='#b91c1c'; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(x(-z),padT); ctx.lineTo(x(-z),H-padB); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#b91c1c'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('−VaR', x(-z), padT+12);
+  ctx.fillStyle='#64748b'; ctx.fillText('lời →', x(2.5), H-padB-6); ctx.fillText('← lỗ', x(-2.5), H-padB-6);
+  const confPct=({'1.282':'90','1.645':'95','2.326':'99','3.090':'99,9'})[document.getElementById('conf').value];
+  document.getElementById('varout').innerHTML=
+    `VaR = ${z} × ${(sigT*100).toFixed(2)}% × ${fmt(V,0)} = <span class="stat warn"><strong>${fmt(varVal)}</strong> triệu</span><br>`+
+    `<span style="font-size:13px;color:#475569">Với độ tin cậy ${confPct}%, danh mục không mất quá ${fmt(varVal)} tr trong ${days} ngày. ${(100-(+confPct.replace(',','.'))).toFixed(1).replace('.',',')}% thời gian có thể mất NHIỀU hơn (VaR không cho biết tệ tới đâu — rủi ro đuôi).</span>`;
+}
+
+let mcMu=0.08, mcSig=0.20;
+function updMC(){ mcMu=+document.getElementById('mu').value/100; mcSig=+document.getElementById('mcsig').value/100;
+  document.getElementById('muv').textContent=(mcMu*100).toFixed(0)+'%'; document.getElementById('mcsigv').textContent=(mcSig*100).toFixed(0)+'%'; }
+function runMC() {
+  updMC();
+  const N=2000, steps=252, dt=1/252, P0=100;
+  const ends=[];
+  for(let k=0;k<N;k++){ let p=P0; for(let i=0;i<steps;i++){ p*=Math.exp((mcMu-0.5*mcSig*mcSig)*dt+mcSig*Math.sqrt(dt)*gauss()); } ends.push(p); }
+  ends.sort((a,b)=>a-b);
+  const p5=ends[Math.floor(N*0.05)], p50=ends[Math.floor(N*0.5)], p95=ends[Math.floor(N*0.95)];
+  // histogram
+  const cv=document.getElementById('mcc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=40,padR=16,padT=16,padB=34;
+  ctx.clearRect(0,0,W,H);
+  const lo=ends[0], hi=ends[N-1], bins=40;
+  const counts=new Array(bins).fill(0);
+  ends.forEach(v=>{ let b=Math.floor((v-lo)/(hi-lo)*bins); if(b>=bins)b=bins-1; counts[b]++; });
+  const maxC=Math.max(...counts);
+  const x=v=>padL+((v-lo)/(hi-lo))*(W-padL-padR);
+  const bw=(W-padL-padR)/bins;
+  counts.forEach((c,i)=>{ const h=(c/maxC)*(H-padT-padB); ctx.fillStyle='#a7f3d0'; ctx.fillRect(padL+i*bw, H-padB-h, bw-1, h); });
+  // markers
+  [[p5,'#b91c1c','5%'],[p50,'#059669','TV'],[p95,'#3b82f6','95%']].forEach(([v,c,l])=>{
+    ctx.strokeStyle=c; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(x(v),padT); ctx.lineTo(x(v),H-padB); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=c; ctx.font='11px sans-serif'; ctx.textAlign='center'; ctx.fillText(l,x(v),padT+10);
+  });
+  ctx.fillStyle='#64748b'; ctx.textAlign='center'; ctx.fillText('giá trị cuối (từ 100)', W/2, H-6);
+  document.getElementById('mcout').innerHTML=
+    `${N} kịch bản, μ=${(mcMu*100).toFixed(0)}%, σ=${(mcSig*100).toFixed(0)}%/năm (từ 100):<br>`+
+    `<span class="stat warn">Tệ 5%: <strong>${fmt(p5)}</strong></span>`+
+    `<span class="stat">Trung vị: <strong>${fmt(p50)}</strong></span>`+
+    `<span class="stat" style="background:#dbeafe">Tốt 95%: <strong>${fmt(p95)}</strong></span><br>`+
+    `<span style="font-size:13px;color:#475569">Phân vị 5% (${fmt(p5)}) là một dạng VaR — kịch bản tệ. Dải rộng cho thấy bất định.</span>`;
+}
+
+function drawDD() {
+  const vals=document.getElementById('series').value.split(',').map(s=>parseFloat(s.trim())).filter(v=>!isNaN(v));
+  if(vals.length<2){ document.getElementById('ddout').innerHTML='Nhập ≥2 số.'; return; }
+  let peak=vals[0], mdd=0, mddAt=0;
+  const dd=vals.map((v,i)=>{ peak=Math.max(peak,v); const d=(v-peak)/peak; if(d<mdd){mdd=d;mddAt=i;} return d; });
+  const cv=document.getElementById('ddc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=44,padR=16,padT=16,padB=24;
+  ctx.clearRect(0,0,W,H);
+  const lo=Math.min(...vals)*0.95, hi=Math.max(...vals)*1.02;
+  const x=i=>padL+(i/(vals.length-1))*(W-padL-padR);
+  const y=v=>H-padB-((v-lo)/(hi-lo))*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; for(let k=0;k<=4;k++){const yy=padT+k*(H-padT-padB)/4;ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();}
+  // vùng drawdown: từ peak xuống value
+  let pk=vals[0];
+  ctx.fillStyle='rgba(239,68,68,0.15)';
+  for(let i=0;i<vals.length;i++){ pk=Math.max(pk,vals[i]); if(vals[i]<pk){ ctx.fillRect(x(i)-3,y(pk),6,y(vals[i])-y(pk)); } }
+  // đường giá trị
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath(); vals.forEach((v,i)=>{i===0?ctx.moveTo(x(i),y(v)):ctx.lineTo(x(i),y(v));}); ctx.stroke();
+  // điểm MDD
+  ctx.fillStyle='#b91c1c'; ctx.beginPath(); ctx.arc(x(mddAt),y(vals[mddAt]),6,0,7); ctx.fill();
+  ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  ctx.fillText(fmt(hi,0),padL-6,y(hi)+4); ctx.fillText(fmt(lo,0),padL-6,y(lo)+4);
+  const recover=(1/(1+mdd)-1)*100;
+  document.getElementById('ddout').innerHTML=
+    `<span class="stat warn">Max drawdown: <strong>${fmt(mdd*100)}%</strong></span>`+
+    `<span class="stat">Cần lời <strong>+${fmt(recover)}%</strong> để gỡ về đỉnh</span><br>`+
+    `<span style="font-size:13px;color:#475569">Drawdown tính từ đỉnh cao nhất từng đạt. Mất càng sâu, gỡ càng khó (mất 50% cần +100%).</span>`;
+}
+
+drawVaR(); runMC(); drawDD();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

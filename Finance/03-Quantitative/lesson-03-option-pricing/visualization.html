@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Định giá quyền chọn</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 150px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 100px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 64px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  .tree svg { display:block; width:100%; max-width:520px; height:auto; margin:0 auto; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin: 6px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 16px; height: 4px; border-radius: 2px; display: inline-block; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tài chính định lượng</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-options/visualization.html">← L2: Quyền chọn</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Định giá quyền chọn</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-futures-hedging/visualization.html">L4: Futures →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Định giá quyền chọn</h1>
+<p>Ba công cụ: <strong>cây nhị phân 1 bước</strong>, <strong>máy tính Black–Scholes</strong> (5 yếu tố), và <strong>giá vs biến động</strong>.</p>
+
+<h2>1. Cây nhị phân một bước</h2>
+<div class="card">
+  <p class="note">Giá lên S_u hoặc xuống S_d. Tìm Δ sao chép payoff, định giá không cần xác suất thật (r=0 cho đơn giản).</p>
+  <div class="row">
+    <label>Giá hiện tại S:</label>
+    <input type="number" id="S" value="100" step="5" min="1" oninput="calcTree()">
+    <label>Strike K:</label>
+    <input type="number" id="K" value="100" step="5" min="1" oninput="calcTree()">
+  </div>
+  <div class="row">
+    <label>Giá lên S_u:</label>
+    <input type="number" id="Su" value="120" step="5" min="1" oninput="calcTree()">
+    <label>Giá xuống S_d:</label>
+    <input type="number" id="Sd" value="90" step="5" min="1" oninput="calcTree()">
+  </div>
+  <div class="tree"><svg id="treesvg" viewBox="0 0 520 240"></svg></div>
+  <div class="result" id="treeout"></div>
+</div>
+
+<h2>2. Máy tính Black–Scholes (5 yếu tố)</h2>
+<div class="card">
+  <div class="row">
+    <label>Giá tài sản S:</label>
+    <input type="range" id="bsS" min="50" max="150" value="100" step="1" oninput="calcBS()">
+    <span class="val" id="bsSv">100</span>
+  </div>
+  <div class="row">
+    <label>Strike K:</label>
+    <input type="range" id="bsK" min="50" max="150" value="100" step="1" oninput="calcBS()">
+    <span class="val" id="bsKv">100</span>
+  </div>
+  <div class="row">
+    <label>Biến động σ (%/năm):</label>
+    <input type="range" id="bsSig" min="5" max="80" value="20" step="1" oninput="calcBS()">
+    <span class="val" id="bsSigv">20%</span>
+  </div>
+  <div class="row">
+    <label>Thời gian T (năm):</label>
+    <input type="range" id="bsT" min="0.05" max="3" value="1" step="0.05" oninput="calcBS()">
+    <span class="val" id="bsTv">1,0</span>
+  </div>
+  <div class="row">
+    <label>Lãi phi rủi ro r (%):</label>
+    <input type="range" id="bsR" min="0" max="10" value="3" step="0.5" oninput="calcBS()">
+    <span class="val" id="bsRv">3%</span>
+  </div>
+  <div class="result" id="bsout"></div>
+</div>
+
+<h2>3. Giá quyền chọn vs biến động</h2>
+<div class="card">
+  <p class="note">Giữ S=K=100, T=1, r=3%. Kéo σ → giá call &amp; put cùng tăng theo biến động.</p>
+  <div class="legend">
+    <span><i class="swatch" style="background:#059669"></i> Call</span>
+    <span><i class="swatch" style="background:#a855f7"></i> Put</span>
+  </div>
+  <canvas id="volc" width="760" height="280"></canvas>
+  <div class="result" id="volout"></div>
+</div>
+
+<script>
+const fmt = (x, d=2) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+
+function calcTree() {
+  const S=+document.getElementById('S').value, K=+document.getElementById('K').value;
+  const Su=+document.getElementById('Su').value, Sd=+document.getElementById('Sd').value;
+  const Cu=Math.max(Su-K,0), Cd=Math.max(Sd-K,0);
+  const delta=(Su-Sd)!==0?(Cu-Cd)/(Su-Sd):0;
+  const p=(Su-Sd)!==0?(S-Sd)/(Su-Sd):0;
+  const price=p*Cu+(1-p)*Cd; // r=0
+  // svg
+  const svg=document.getElementById('treesvg');
+  svg.innerHTML=
+    `<line x1="120" y1="120" x2="380" y2="50" stroke="#cbd5e0" stroke-width="2"/>`+
+    `<line x1="120" y1="120" x2="380" y2="190" stroke="#cbd5e0" stroke-width="2"/>`+
+    `<circle cx="120" cy="120" r="34" fill="#d1fae5" stroke="#059669" stroke-width="2"/>`+
+    `<text x="120" y="115" text-anchor="middle" font-size="13" font-weight="700" fill="#047857">S=${S}</text>`+
+    `<text x="120" y="132" text-anchor="middle" font-size="12" fill="#047857">C=${fmt(price)}</text>`+
+    `<circle cx="380" cy="50" r="34" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>`+
+    `<text x="380" y="45" text-anchor="middle" font-size="13" font-weight="700" fill="#1d4ed8">${Su}</text>`+
+    `<text x="380" y="62" text-anchor="middle" font-size="12" fill="#1d4ed8">C_u=${fmt(Cu,0)}</text>`+
+    `<circle cx="380" cy="190" r="34" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/>`+
+    `<text x="380" y="185" text-anchor="middle" font-size="13" font-weight="700" fill="#b91c1c">${Sd}</text>`+
+    `<text x="380" y="202" text-anchor="middle" font-size="12" fill="#b91c1c">C_d=${fmt(Cd,0)}</text>`;
+  document.getElementById('treeout').innerHTML=
+    `<span class="stat">Δ = (${fmt(Cu,0)}−${fmt(Cd,0)})/(${Su}−${Sd}) = <strong>${fmt(delta,3)}</strong></span>`+
+    `<span class="stat">p (trung hòa rủi ro) = <strong>${fmt(p,3)}</strong></span>`+
+    `<span class="stat">Giá call = <strong>${fmt(price)}</strong></span><br>`+
+    `<span style="font-size:13px;color:#475569">Giá = p·C_u + (1−p)·C_d (r=0). Bán dưới giá này → có arbitrage; thị trường đẩy về đúng ${fmt(price)}.</span>`;
+}
+
+// chuẩn CDF
+function N(x){ const t=1/(1+0.2316419*Math.abs(x)); const d=0.3989423*Math.exp(-x*x/2);
+  let p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274)))); return x>0?1-p:p; }
+function bs(S,K,sig,T,r) {
+  if(T<=0||sig<=0) return {call:Math.max(S-K,0), put:Math.max(K-S,0)};
+  const d1=(Math.log(S/K)+(r+sig*sig/2)*T)/(sig*Math.sqrt(T));
+  const d2=d1-sig*Math.sqrt(T);
+  const call=S*N(d1)-K*Math.exp(-r*T)*N(d2);
+  const put=call-S+K*Math.exp(-r*T);
+  return {call,put,d1,d2};
+}
+function calcBS() {
+  const S=+document.getElementById('bsS').value, K=+document.getElementById('bsK').value;
+  const sig=+document.getElementById('bsSig').value/100, T=+document.getElementById('bsT').value, r=+document.getElementById('bsR').value/100;
+  document.getElementById('bsSv').textContent=S;
+  document.getElementById('bsKv').textContent=K;
+  document.getElementById('bsSigv').textContent=(sig*100).toFixed(0)+'%';
+  document.getElementById('bsTv').textContent=fmt(T,2).replace('.',',');
+  document.getElementById('bsRv').textContent=(r*100).toFixed(1).replace(/\.0$/,'')+'%';
+  const {call,put}=bs(S,K,sig,T,r);
+  const moneyness = S>K*1.02?'ITM':S<K*0.98?'OTM':'ATM';
+  document.getElementById('bsout').innerHTML=
+    `<span class="stat">Giá CALL = <strong>${fmt(call)}</strong></span>`+
+    `<span class="stat" style="background:#f3e8ff">Giá PUT = <strong>${fmt(put)}</strong></span>`+
+    `<span class="stat">Call ${moneyness}</span><br>`+
+    `<span style="font-size:13px;color:#475569">Tăng S/σ/T → call tăng; tăng K → call giảm. Thử kéo σ thấy giá vọt lên.</span>`;
+}
+
+function drawVol() {
+  const cv=document.getElementById('volc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=44,padR=16,padT=16,padB=40;
+  ctx.clearRect(0,0,W,H);
+  const sigMax=0.8;
+  const cAt=s=>bs(100,100,s,1,0.03).call;
+  const maxY=cAt(sigMax)*1.1;
+  const x=s=>padL+(s/sigMax)*(W-padL-padR);
+  const y=v=>H-padB-(v/maxY)*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const v=maxY*k/4,yy=y(v);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(fmt(v,0),padL-6,yy+4);}
+  ctx.textAlign='center'; for(let s=0;s<=80;s+=20){ctx.fillText(s+'%',x(s/100),H-padB+16);}
+  ctx.fillText('Biến động σ →', W/2, H-8);
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath();
+  for(let s=0.01;s<=sigMax;s+=0.01){const v=bs(100,100,s,1,0.03).call; s<=0.011?ctx.moveTo(x(s),y(v)):ctx.lineTo(x(s),y(v));} ctx.stroke();
+  ctx.strokeStyle='#a855f7'; ctx.lineWidth=3; ctx.beginPath();
+  for(let s=0.01;s<=sigMax;s+=0.01){const v=bs(100,100,s,1,0.03).put; s<=0.011?ctx.moveTo(x(s),y(v)):ctx.lineTo(x(s),y(v));} ctx.stroke();
+  document.getElementById('volout').innerHTML=
+    `<span style="font-size:13px;color:#475569">σ=20% → call ≈ ${fmt(bs(100,100,0.2,1,0.03).call)}; σ=50% → call ≈ ${fmt(bs(100,100,0.5,1,0.03).call)}. Biến động cao → quyền chọn đắt hơn (payoff bất đối xứng).</span>`;
+}
+
+calcTree(); calcBS(); drawVol();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

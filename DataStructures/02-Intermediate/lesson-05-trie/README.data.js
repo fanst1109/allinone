@@ -3,6 +3,18 @@
 // Chạy lại: go run tools/build-readme-data.go
 window.README_MD = `# Lesson 05 — Trie (Cây tiền tố)
 
+## Mục tiêu học tập
+
+- Hiểu **trie** là gì và vì sao nó tối ưu cho truy vấn **theo tiền tố (prefix)**.
+- Cài đặt \`insert\`, \`search\`, \`startsWith\`; phân biệt \`search\` vs \`startsWith\`.
+- Phân tích **đánh đổi bộ nhớ** trie vs hash table, và khi nào dùng compressed trie.
+- Biết ứng dụng thực tế: autocomplete, spell checker, IP routing.
+
+## Kiến thức tiền đề
+
+- [Lesson 01 — Tree](../lesson-01-tree/) (khái niệm node, cây, duyệt DFS).
+- [Lesson 06 — Hash Table](../../01-Basic/lesson-06-hash-table/) (để so sánh trie vs hash ở §4).
+
 ## 1. Trie là gì?
 
 **Trie** (đọc là "try", từ chữ re*trie*val) là cây dùng để lưu **tập hợp chuỗi**, trong đó mỗi cạnh đại diện cho **một ký tự**.
@@ -229,6 +241,40 @@ Giả định: 1 triệu từ tiếng Anh trung bình $8$ ký tự, alphabet a-z
 - **IP routing** (longest prefix match) — biến thể trie nhị phân.
 - **Lưu từ điển**.
 - **Tìm xâu con** (kết hợp với Aho-Corasick).
+
+### 5.1. Walk-through: Autocomplete gõ phím
+
+Đây là ứng dụng "ai cũng dùng": gõ vài chữ vào ô tìm kiếm, hệ thống **gợi ý ngay** các từ bắt đầu bằng chuỗi đó. Trie làm việc này $O(L + K)$ ($L$ = độ dài prefix, $K$ = tổng độ dài kết quả) — trong khi quét danh sách phẳng mất $O(n \\times L)$.
+
+Giả sử từ điển gợi ý chứa \`{"cat", "car", "card", "care", "dog"}\`. Người dùng gõ prefix **\`"ca"\`**:
+
+\`\`\`
+(root)
+  ├─ c ── a ──┬─ t*              "cat"
+  │           └─ r* ──┬─ d*       "car", "card"
+  │                   └─ e*       "care"
+  └─ d ── o ── g*                 "dog"
+\`\`\`
+
+**Bước 1 — đi tới node của prefix** (chỉ $O(L)=O(2)$):
+
+| Ký tự | Node | Có trong children? |
+|-------|------|---------------------|
+| \`c\` | → node \`c\` | có |
+| \`a\` | → node \`a\` | có → **dừng ở đây, đây là "node ca"** |
+
+**Bước 2 — DFS từ node \`ca\`, thu mọi nhánh có \`isEnd\`:**
+
+| Đường đi từ \`ca\` | Tới \`isEnd\`? | Gợi ý |
+|------------------|--------------|-------|
+| \`t\` | có \`*\` | **cat** |
+| \`r\` | có \`*\` | **car** |
+| \`r → d\` | có \`*\` | **card** |
+| \`r → e\` | có \`*\` | **care** |
+
+Trả về \`["cat", "car", "card", "care"]\`. Để ý nhánh \`d → o → g\` ("dog") **không bao giờ bị chạm tới** — vì ta đã rẽ vào node \`ca\` từ bước 1, toàn bộ phần còn lại của trie bị cắt. Đó là lý do trie nhanh: **prefix định vị đúng một subtree**, kết quả nằm gọn trong đó.
+
+> Thực tế (Google, IDE) còn xếp hạng gợi ý theo **độ phổ biến** — thêm trường \`count\`/\`weight\` vào mỗi node (như [Bài 2](#bài-2--đếm-số-chuỗi-bắt-đầu-bằng-prefix)) rồi sort các kết quả DFS theo trọng số trước khi hiển thị top vài gợi ý.
 
 ## 6. Cải tiến
 

@@ -13,6 +13,26 @@
 
 ## 1. Cây là gì?
 
+### 1.1. 💡 Trực giác — bạn đã quen với cây rồi
+
+Trước khi có định nghĩa hình thức, hãy nhìn **3 thứ bạn gặp hằng ngày** — cả ba đều là *cây*:
+
+- **Cây gia phả**: ông bà ở trên cùng, con cái tỏa xuống dưới, cháu chắt sâu hơn nữa. Mỗi người có **đúng một cha mẹ** trong sơ đồ (đi lên không bao giờ rẽ hai nhánh), nhưng có thể có **nhiều con**.
+- **Sơ đồ tổ chức công ty**: CEO trên cùng → các Giám đốc → Trưởng phòng → nhân viên. Bạn báo cáo cho **một** sếp trực tiếp, sếp đó quản **nhiều** người.
+- **Cây thư mục máy tính**: `C:\` chứa `Users\`, trong đó có `admin\`, bên trong lại có `Desktop\`, `Documents\`... Một thư mục nằm trong **đúng một** thư mục cha, nhưng chứa **nhiều** thư mục/file con.
+
+Điểm chung của cả ba — và đó chính là **định nghĩa cây**:
+
+1. Có **một điểm trên cùng** (ông tổ / CEO / ổ `C:\`) gọi là **gốc (root)**.
+2. Đi từ trên xuống thì **tỏa nhánh** (một cha → nhiều con).
+3. Đi từ một node **ngược lên gốc chỉ có đúng một đường** — không có chuyện "hai cha mẹ" hay đi vòng tròn quay lại chính mình.
+
+Đặc điểm số 3 là thứ phân biệt cây với [đồ thị (graph)](../../03-Advanced/lesson-01-graph/) tổng quát: **cây là đồ thị không có chu trình và mỗi node (trừ gốc) có đúng một cha**.
+
+> Vì sao máy tính thích cây? Vì nó cho ta **chia để trị**: muốn xử lý cả cây, chỉ cần xử lý gốc rồi *đệ quy* xuống từng cây con. Mọi thuật toán cây ở dưới đều dựa trên ý này.
+
+### 1.2. Định nghĩa hình thức
+
 **Cây (tree)** là cấu trúc dữ liệu phi tuyến: gồm các **node**, mỗi node có thể có nhiều **node con**, không có chu trình.
 
 ```
@@ -149,7 +169,64 @@ $O(n)$.
 
 ## 8. Tổ chức bộ nhớ: cách 1 — Pointer-based
 
-Phần này trả lời câu hỏi: *"cụ thể trong RAM, bit và byte của một cây được xếp ra sao?"* Có 3 cách phổ biến — pointer-based (mục này), array-based (sẽ học ở [lesson 03 — Heap](../lesson-03-heap-priority-queue/)), và succinct/bit-level (ngoài phạm vi lesson cơ bản).
+Phần này trả lời câu hỏi: *"cụ thể trong RAM, bit và byte của một cây được xếp ra sao?"* Có 3 cách phổ biến — pointer-based (mục này), array-based (sẽ học ở [lesson 03 — Heap](../lesson-03-heap-priority-queue/), và xem trước ở [§8.9](#89-cách-2-xem-trước--lưu-cây-bằng-mảng)), và succinct/bit-level (ngoài phạm vi lesson cơ bản).
+
+### 8.0. Trước khi nói byte: cây trong code chỉ là object trỏ vào nhau
+
+> 🟢 **Đọc mục này trước.** Mục 8.1–8.8 phía dưới đi sâu tới từng byte/địa chỉ hex — rất hay nhưng *nặng*. Nếu bạn chỉ cần hiểu **"làm sao lưu một cây"** ở mức code thường ngày, mục 8.0 này là đủ.
+
+Trong hầu hết ngôn ngữ, một node **chỉ là một object (struct) có 3 ô**:
+
+```
+Node {
+    value          # dữ liệu, vd 1
+    left           # "mũi tên" tới node con bên trái (hoặc rỗng)
+    right          # "mũi tên" tới node con bên phải (hoặc rỗng)
+}
+```
+
+`left` và `right` **không chứa node con bên trong nó** — chúng chỉ là **mũi tên (tham chiếu) chỉ tới một object Node khác** nằm đâu đó trong bộ nhớ. Ô nào không có con thì để **rỗng** (`null` / `nil`).
+
+**Dựng cây ví dụ ở mục 4 bằng tay** — tạo 5 object rời, rồi nối mũi tên:
+
+```
+n1 = Node(1)      # tạo 5 object rời rạc, chưa nối gì
+n2 = Node(2)
+n3 = Node(3)
+n4 = Node(4)
+n5 = Node(5)
+
+n1.left  = n2     # gắn mũi tên: 1 → trái → 2
+n1.right = n3     # 1 → phải → 3
+n2.left  = n4     # 2 → trái → 4
+n2.right = n5     # 2 → phải → 5
+# n3, n4, n5 không gán gì thêm → left/right của chúng vẫn rỗng (là leaf)
+```
+
+Sau 4 dòng "gắn mũi tên", các object rời đã thành một cây. Vẽ ra bằng **hộp + mũi tên**:
+
+```
+        ┌─────────────────┐
+        │ value: 1        │
+        │ left ●──┐ right ●──┐
+        └─────────│─────────│──┘
+            ┌─────┘         └─────┐
+            ▼                     ▼
+   ┌─────────────────┐   ┌─────────────────┐
+   │ value: 2        │   │ value: 3        │
+   │ left ●─┐ right ●─┐  │ left: ∅ right: ∅ │  ← leaf
+   └────────│────────│┘  └─────────────────┘
+       ┌────┘        └────┐
+       ▼                  ▼
+┌──────────────┐   ┌──────────────┐
+│ value: 4     │   │ value: 5     │
+│ left:∅ right:∅│   │ left:∅ right:∅│  ← cả hai là leaf
+└──────────────┘   └──────────────┘
+```
+
+Toàn bộ "cây" thật ra chỉ là **5 hộp nằm rải rác + 4 mũi tên nối chúng**. Muốn đi từ node 1 xuống node 5: đi theo mũi tên `n1.left` (tới 2), rồi `n2.right` (tới 5). Mỗi lần "đi xuống một tầng" = **đi theo một mũi tên**.
+
+Đó là tất cả những gì cần để *lưu* và *duyệt* một cây. Câu hỏi còn lại — "mũi tên đó trong RAM thực chất là cái gì?" — chính là **địa chỉ bộ nhớ (pointer)**, và mục 8.1–8.8 dưới đây mổ xẻ nó tới từng byte.
 
 ### 8.1. 💡 Trực giác — "danh thiếp địa chỉ"
 
@@ -249,7 +326,163 @@ Trong đó **chỉ 20 byte chứa dữ liệu thật (`value`)**. 100 byte còn 
 - 1 node trên 64-bit = **24 byte** (4 value + 4 padding + 8 left + 8 right).
 - Ưu: linh hoạt, dễ chỉnh cây động.
 - Nhược: tốn bộ nhớ, cache-unfriendly, mỗi xuống tầng là một dereference.
-- Khi cây gần đầy (complete) → ưu tiên array-based (lesson 8) để bớt overhead và tăng cache locality.
+- Khi cây gần đầy (complete) → ưu tiên array-based ([§8.9](#89-cách-2-xem-trước--lưu-cây-bằng-mảng) và [lesson 03 — Heap](../lesson-03-heap-priority-queue/)) để bớt overhead và tăng cache locality.
+
+### 8.9. Cách 2 (xem trước): lưu cây bằng MẢNG — không cần mũi tên
+
+Có một cách lưu cây **hoàn toàn không dùng pointer**: xếp các node vào một **mảng** và dùng **công thức trên chỉ số (index)** để tìm cha/con. Ý tưởng: đánh số node theo kiểu **duyệt level-order** (trái→phải, trên→dưới), bắt đầu từ 0.
+
+Lấy lại cây ví dụ ở mục 4:
+
+```
+       1            idx 0
+      / \
+     2   3          idx 1, 2
+    / \
+   4   5            idx 3, 4
+```
+
+Đặt theo level-order vào mảng:
+
+```
+mảng:   [ 1 , 2 , 3 , 4 , 5 ]
+chỉ số:   0   1   2   3   4
+```
+
+**Công thức (0-based)** — với node ở chỉ số $i$:
+
+$$\text{con trái}(i) = 2i + 1, \qquad \text{con phải}(i) = 2i + 2, \qquad \text{cha}(i) = \left\lfloor \frac{i-1}{2} \right\rfloor$$
+
+**Walk-through bằng số thật** — kiểm tra trên mảng trên:
+
+- Node `1` ở $i = 0$: con trái ở $2\cdot 0 + 1 = 1$ → `mảng[1] = 2` ✓; con phải ở $2\cdot 0 + 2 = 2$ → `mảng[2] = 3` ✓.
+- Node `2` ở $i = 1$: con trái ở $2\cdot 1 + 1 = 3$ → `mảng[3] = 4` ✓; con phải ở $2\cdot 1 + 2 = 4$ → `mảng[4] = 5` ✓.
+- Node `5` ở $i = 4$: cha ở $\lfloor (4-1)/2 \rfloor = 1$ → `mảng[1] = 2` ✓ (đúng, 5 là con của 2).
+
+Không cần một byte pointer nào — "mũi tên" được thay bằng **phép tính số học trên chỉ số**.
+
+**⚠ Nhưng cách này chỉ hợp khi cây gần ĐẦY.** Nếu cây lệch (skewed), giữa mảng đầy lỗ rỗng. Ví dụ cây chỉ-rẽ-phải `1 → 3 → 7`:
+
+```
+1 ở idx 0 → con phải idx 2 → con phải idx 6 → ...
+mảng:  [ 1 , _ , 3 , _ , _ , _ , 7 ]   ← 4 ô trống lãng phí cho 3 node thật
+```
+
+Cây càng cao thì lỗ rỗng càng phình theo $2^h$. Vì vậy **mảng dành cho cây đầy** (heap, segment tree); **pointer dành cho cây tùy hình dạng** (BST động, cây thư mục). Học kỹ array-based ở [Lesson 03 — Heap](../lesson-03-heap-priority-queue/) và lý do "vì sao BST không lưu bằng mảng" ở [Lesson 02 — BST](../lesson-02-binary-search-tree/).
+
+## 9. Ứng dụng thực tế của cây
+
+> 💡 **Cây ở đâu trong phần mềm thật?** Câu trả lời ngắn: *gần như khắp nơi*. Mỗi khi dữ liệu có quan hệ "cha–con / chứa–được chứa / chia nhỏ dần", cây xuất hiện. Dưới đây là 5 ứng dụng tiêu biểu, đi từ ví dụ tính được bằng tay tới hệ thống lớn.
+
+### 9.1. Cây biểu thức (expression tree) — máy tính bỏ túi tính thế nào
+
+Khi bạn gõ `(3 + 4) * 5`, trình biên dịch/máy tính **không** tính từ trái qua phải. Nó dựng một **cây biểu thức**: lá là **số**, node trong là **toán tử**, và **cấu trúc cây mã hóa luôn thứ tự ưu tiên**.
+
+```
+        *           ← gốc: phép nhân làm cuối
+       / \
+      +   5
+     / \
+    3   4
+```
+
+Để **tính giá trị**, ta duyệt **postorder** (trái → phải → node) — đúng cái đã học ở [§4](#41-duyệt-theo-chiều-sâu-dfs): muốn tính một toán tử, phải có giá trị **hai con trước**.
+
+**Walk-through postorder tính `(3+4)*5`:**
+
+| Bước | Thăm node | Việc làm | Stack giá trị |
+|------|-----------|----------|---------------|
+| 1 | `3` (lá) | đẩy số 3 | `[3]` |
+| 2 | `4` (lá) | đẩy số 4 | `[3, 4]` |
+| 3 | `+` | lấy 4 và 3 → `3 + 4 = 7`, đẩy lại | `[7]` |
+| 4 | `5` (lá) | đẩy số 5 | `[7, 5]` |
+| 5 | `*` (gốc) | lấy 5 và 7 → `7 * 5 = 35`, đẩy lại | `[35]` |
+
+Kết quả `35` — và để ý: **postorder cho ra đúng thứ tự "tính con trước, tính cha sau"**. Đây chính là lý do mục 4.3 ghi *"postorder: đánh giá biểu thức"*. Cùng cây này, duyệt **inorder** (trái-node-phải) lại cho ra dạng người đọc quen: `3 + 4 * 5` (cần thêm ngoặc), còn **preorder** cho `* + 3 4 5` — chính là **ký pháp Ba Lan (prefix)**.
+
+### 9.2. Mã hóa Huffman (nén file) — gán mã ngắn cho ký tự hay gặp
+
+Vì sao file `.zip`, `.jpg`, `.mp3` nhỏ hơn dữ liệu gốc? Một kỹ thuật cốt lõi là **mã Huffman**, dựa hoàn toàn trên **cây nhị phân**.
+
+Ý tưởng: ký tự **xuất hiện nhiều** → cho **mã bit ngắn**; ký tự hiếm → mã dài. Đi xuống **trái = bit 0**, **phải = bit 1**; mã của một ký tự = đường đi từ gốc tới lá chứa nó.
+
+**Ví dụ số** — văn bản dùng 4 ký tự với tần suất:
+
+| Ký tự | Tần suất |
+|-------|---------:|
+| `A` | 50 |
+| `B` | 25 |
+| `C` | 15 |
+| `D` | 10 |
+
+Cây Huffman (ký tự hay gặp nằm **nông**, gần gốc):
+
+```
+        (●)
+       /   \
+      A      (●)        A nông nhất (hay gặp nhất)
+    0/      /   \
+           B     (●)
+         10/    /   \
+                C     D
+              110   111
+```
+
+Bảng mã: `A = 0`, `B = 10`, `C = 110`, `D = 111`.
+
+So sánh độ dài với mã **cố định 2 bit/ký tự** (`A=00, B=01, C=10, D=11`):
+
+$$\text{Cố định} = (50+25+15+10) \times 2 = 200 \text{ bit}$$
+$$\text{Huffman} = 50\cdot 1 + 25\cdot 2 + 15\cdot 3 + 10\cdot 3 = 50 + 50 + 45 + 30 = 175 \text{ bit}$$
+
+Tiết kiệm $\frac{200-175}{200} = 12{,}5\%$ — chỉ với 4 ký tự; văn bản thật (nhiều ký tự, tần suất lệch hơn) tiết kiệm 40–60%. Toàn bộ phép màu nén nằm ở **hình dạng cây**.
+
+### 9.3. Cây quyết định (decision tree) — chuỗi if/else chính là cây
+
+Mỗi khối `if/else` lồng nhau **là một cây nhị phân**: node trong là **câu hỏi**, hai nhánh là **đúng/sai**, lá là **kết luận**. Đây là nền của thuật toán học máy *Decision Tree* và mọi luật nghiệp vụ.
+
+Ví dụ "có nên cho vay?":
+
+```
+              Thu nhập > 20tr?
+               /          \
+             Có            Không
+            /                 \
+   Có nợ xấu?              TỪ CHỐI
+    /      \
+  Có       Không
+  /          \
+TỪ CHỐI     CHO VAY
+```
+
+Phân loại một hồ sơ = **đi từ gốc xuống một lá** theo câu trả lời — độ phức tạp $O(h)$ với $h$ là chiều cao cây, *không* phải duyệt mọi luật. Random Forest, XGBoost (thắng vô số cuộc thi Kaggle) đều là **tập hợp nhiều cây quyết định**.
+
+### 9.4. Tìm kiếm có thứ tự — xem trước BST
+
+Nếu xếp dữ liệu sao cho "trái nhỏ hơn, phải lớn hơn", mỗi bước so sánh **vứt được một nửa** số node → tìm kiếm $O(\log n)$ thay vì $O(n)$. Đó là **Binary Search Tree**, học ngay ở [Lesson 02](../lesson-02-binary-search-tree/). Đây là ứng dụng phổ biến nhất của cây nhị phân trong cấu trúc dữ liệu.
+
+### 9.5. Cây tổng quát (n-ary) trong hệ thống thật
+
+Nhắc lại [mục 6](#6-cây-tổng-quát-n-ary-tree) — khi mỗi node có *nhiều hơn 2 con*:
+
+- **Hệ thống file** (`C:\Users\admin\...`): thư mục = node, file/thư mục con = con. Lệnh `dir`/`ls -R` = duyệt cây.
+- **DOM của trang web**: `<html>` chứa `<body>` chứa `<div>`... Trình duyệt dựng **cây DOM** rồi vẽ.
+- **AST (Abstract Syntax Tree)**: trình biên dịch parse code thành cây cú pháp trước khi sinh mã máy — chính là phiên bản tổng quát của §9.1.
+
+### 9.6. 📝 Tóm tắt mục 9
+
+- **Expression tree**: cấu trúc cây mã hóa thứ tự ưu tiên; **postorder** = tính giá trị, preorder/inorder = các ký pháp khác nhau.
+- **Huffman**: cây nhị phân gán mã bit (trái=0, phải=1) — ký tự hay gặp nằm nông → file nhỏ đi.
+- **Decision tree**: if/else lồng nhau = cây; phân loại = đi gốc → lá, $O(h)$.
+- **BST**: cây "trái nhỏ phải lớn" cho tìm kiếm $O(\log n)$ (Lesson 02).
+- **n-ary tree**: file system, DOM, AST — bất cứ đâu có quan hệ "chứa / cha–con".
+
+### 9.7. 🔁 Tự kiểm tra
+
+1. Dựng cây biểu thức cho `2 * (3 + 5)` rồi tính bằng postorder. Kết quả là bao nhiêu?
+   <details><summary>Đáp án</summary>Cây: gốc `*`, con trái `2`, con phải `+` (với con `3`, `5`). Postorder: thăm `2`, `3`, `5`, rồi `+` → `3+5=8`, rồi `*` → `2*8=16`. Kết quả **16**.</details>
+2. Trong mã Huffman ở §9.2, vì sao không ký tự nào có mã là **tiền tố** của ký tự khác (vd không có `A=0` và `X=01`)?
+   <details><summary>Đáp án</summary>Vì mọi ký tự nằm ở **lá**, không ký tự nào nằm trên đường đi xuống ký tự khác. Tính chất "không tiền tố" (prefix-free) này cho phép giải mã chuỗi bit mà không cần dấu phân cách: cứ đi từ gốc, gặp lá thì xuất ký tự rồi quay lại gốc.</details>
 
 ## Bài tập
 

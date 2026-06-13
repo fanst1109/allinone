@@ -245,6 +245,22 @@ Build heap ($O(n)$), rồi extract $n$ lần → mảng sắp xếp. Tổng $O(n
 ### 6.2. Top-K
 Tìm K phần tử lớn nhất trong dãy $n$ phần tử bằng min-heap kích thước K → $O(n \\log K)$.
 
+**💡 Trực giác — vì sao dùng MIN-heap để tìm LỚN nhất?** Nghe ngược đời, nhưng đây là mẹo: giữ một "phòng VIP" sức chứa đúng K. Người gác cửa đứng ngay cửa và là **người nhỏ nhất trong phòng** (= gốc min-heap). Có ứng viên mới: nếu nó còn **nhỏ hơn cả người gác cửa** → khỏi vào (chắc chắn không thuộc top-K); nếu **lớn hơn** → đá người gác cửa ra, cho nó vào, rồi tìm người gác cửa mới. Cuối cùng phòng VIP chứa đúng K người lớn nhất.
+
+**Walk-through** — tìm **Top-3** trong \`[4, 1, 7, 3, 9, 2, 8]\` bằng min-heap size 3:
+
+| Phần tử | So với gốc (min) | Hành động | Heap (sau) |
+|--------:|------------------|-----------|------------|
+| \`4\` | — | heap chưa đầy → thêm | \`[4]\` |
+| \`1\` | — | chưa đầy → thêm | \`[1, 4]\` |
+| \`7\` | — | chưa đầy → thêm | \`[1, 4, 7]\` |
+| \`3\` | \`3 > 1\`? Có | đầy rồi: \`3 > min(1)\` → bỏ \`1\`, thêm \`3\` | \`[3, 4, 7]\` |
+| \`9\` | \`9 > 3\`? Có | bỏ \`3\`, thêm \`9\` | \`[4, 9, 7]\` |
+| \`2\` | \`2 > 4\`? Không | bỏ qua (quá nhỏ) | \`[4, 9, 7]\` |
+| \`8\` | \`8 > 4\`? Có | bỏ \`4\`, thêm \`8\` | \`[7, 9, 8]\` |
+
+Kết quả: \`{7, 8, 9}\` — đúng 3 phần tử lớn nhất. Heap luôn chỉ giữ **3** phần tử → bộ nhớ $O(K)$, thời gian $O(n \\log K)$. So với "sắp xếp cả mảng rồi lấy 3 cuối" ($O(n \\log n)$), cách này thắng rõ khi $K \\ll n$ (vd top-10 trong 1 tỉ log). Đây là cách \`heapq.nlargest\` (Python) và nhiều hệ thống xếp hạng/streaming hoạt động.
+
 ### 6.3. Thuật toán đồ thị
 - **Dijkstra** (đường đi ngắn nhất).
 - **Prim** (cây khung nhỏ nhất).

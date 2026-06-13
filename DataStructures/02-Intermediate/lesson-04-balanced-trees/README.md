@@ -1,6 +1,30 @@
 # Lesson 04 — Balanced Trees (AVL, Red-Black)
 
+## Mục tiêu học tập
+
+- Hiểu **vì sao** BST thường không đủ và cây cân bằng giải quyết điều gì.
+- Nắm tính chất **AVL** (balance factor) và **bốn phép rotation** (LL, RR, LR, RL).
+- Hiểu 5 tính chất **Red-Black tree** và vì sao nó được dùng phổ biến hơn AVL.
+- Biết **ứng dụng thực tế**: index cơ sở dữ liệu, scheduler, thư viện chuẩn.
+
+## Kiến thức tiền đề
+
+- [Lesson 02 — Binary Search Tree](../lesson-02-binary-search-tree/) (tính chất BST, insert/delete, vì sao cây lệch tệ).
+- [Lesson 01 — Tree](../lesson-01-tree/) (chiều cao, duyệt cây, cách lưu pointer-based).
+
 ## 1. Vì sao cần cây cân bằng?
+
+### 1.1. 💡 Trực giác — "cây bonsai được cắt tỉa"
+
+[BST thường](../lesson-02-binary-search-tree/#5-độ-phức-tạp) có một điểm yếu chí mạng: hình dạng của nó **phụ thuộc thứ tự insert**. Chèn dãy đã sắp `1, 2, 3, 4, 5` → cây biến thành **một dây thẳng** dài như linked list, mọi thao tác tụt về $O(n)$.
+
+Hình dung **cây bonsai**: để dáng đẹp và thấp, người chơi **cắt tỉa, uốn nắn liên tục** sau mỗi lần cây mọc thêm. Cây cân bằng làm đúng vậy: sau **mỗi** insert/delete, nó **tự kiểm tra** xem có nhánh nào "mọc lệch" quá không, và nếu có thì **uốn lại** (bằng *rotation*) để giữ chiều cao luôn ở mức thấp nhất $O(\log n)$.
+
+Một analogy thứ hai cho rotation: **bập bênh (seesaw)**. Cây cân bằng = bập bênh thăng bằng; insert làm một bên nặng thêm; nếu lệch quá ngưỡng thì phải "chuyển một chân sang bên kia" cho cân lại. "Chuyển chân" chính là rotation (chi tiết ở [§2.4](#24--trực-giác--vì-sao-phải-rotate)).
+
+> Cốt lõi: cây cân bằng **trả một chi phí nhỏ $O(1)$–$O(\log n)$ mỗi lần ghi** (để uốn lại) nhằm **bảo đảm mọi truy vấn về sau luôn $O(\log n)$**, bất kể dữ liệu vào theo thứ tự xấu cỡ nào.
+
+### 1.2. Định nghĩa & các biến thể
 
 BST có thể suy biến thành dãy → $O(n)$. Cây cân bằng đảm bảo chiều cao luôn $O(\log n)$, do đó **mọi thao tác $O(\log n)$ thực sự**.
 
@@ -358,6 +382,20 @@ BF tất cả node đều trong $[-1, 1]$ → không rotation cần thiết. ✓
 - **Insert tối đa 1 lần xử lý** mất cân bằng; **delete tối đa $O(\log n)$ rotation**.
 - AVL phù hợp **read-heavy**; Red-Black phù hợp **write-heavy** vì ít rotation hơn.
 
+### 2.13. Node lưu gì thêm so với BST thường?
+
+Cây cân bằng vẫn lưu **pointer-based** y như [BST](../lesson-02-binary-search-tree/#6-cách-lưu-bst-trong-bộ-nhớ) và [cây thường](../lesson-01-tree/#8-tổ-chức-bộ-nhớ-cách-1--pointer-based) — rotation chỉ **đổi lại các con trỏ**, không đổi cách biểu diễn. Khác biệt duy nhất: mỗi node mang thêm **một mẩu metadata để biết mình có đang lệch không**.
+
+| Loại | Node lưu thêm | Kích thước thêm | Ghi chú |
+|------|---------------|----------------:|---------|
+| BST thường | (không) | 0 | `value + left + right` ≈ 24 byte (64-bit) |
+| **AVL** | `height` (hoặc `balance factor`) | 1–8 byte | Để tính `balance = h(trái) − h(phải)` trong $O(1)$ |
+| **Red-Black** | `color` (1 bit: đỏ/đen) | thực tế 1 byte (do alignment) | Rẻ hơn AVL về metadata |
+
+**Vì sao AVL lưu `height` mà không tính lại mỗi lần?** Tính chiều cao bằng đệ quy tốn $O(n)$; lưu sẵn và cập nhật khi rotate → `balance(node)` còn $O(1)$ (xem [Bài 2](#bài-2--hàm-balance)). Đây là đánh đổi quen thuộc: **tốn vài byte/node để mua tốc độ**.
+
+**Vì sao Red-Black chỉ cần 1 bit?** Nó không đo chiều cao chính xác như AVL, chỉ cần phân biệt đỏ/đen để duy trì 5 tính chất ([§3.1](#31-tính-chất)) — nhẹ hơn, nên cập nhật sau ghi rẻ hơn. Đó là một lý do Red-Black được chọn cho workload nhiều ghi.
+
 ## 3. Red-Black Tree
 
 Phát minh ngầm bởi Bayer (1972), tên hiện đại do Guibas & Sedgewick (1978).
@@ -409,6 +447,45 @@ Sau insert/delete, có thể vi phạm — cần kết hợp **rotation** và **
 - Cần **tìm kiếm + thứ tự + range query** → balanced tree.
 - Không cần thứ tự, chỉ cần $O(1)$ trung bình → **hash table**.
 - Dữ liệu rất lớn, lưu đĩa → **B-tree / B+ tree**.
+
+## 7. Ứng dụng thực tế
+
+> 💡 **Vì sao cây cân bằng ở khắp nơi nhưng bạn ít khi tự viết nó?** Vì nó là **động cơ ẩn** bên dưới những thứ bạn dùng hằng ngày: mỗi câu lệnh SQL có `ORDER BY`, mỗi `std::map`, mỗi tiến trình Linux đang chạy — đều dựa trên một cây cân bằng. Nó đảm bảo $O(\log n)$ **bất kể** dữ liệu vào theo thứ tự nào — đúng điều BST thường không hứa được.
+
+### 7.1. Index cơ sở dữ liệu — B-tree / B+ tree
+
+Đây là ứng dụng quan trọng nhất. Khi bảng có hàng triệu dòng, `WHERE age BETWEEN 20 AND 30 ORDER BY age` mà **không có index** sẽ phải quét cả bảng $O(n)$. Index là **cây cân bằng** giúp: nhảy thẳng tới `20` ($O(\log n)$), rồi **duyệt tuần tự có thứ tự** tới `30`.
+
+**❓ Vì sao DB dùng B-tree chứ không AVL/Red-Black nhị phân?** Vì dữ liệu nằm trên **đĩa/SSD**, mà mỗi lần đọc đĩa lấy nguyên một **block** (vd 4–16 KB) rất chậm so với RAM. Cây nhị phân cao $\log_2 n$ → với 1 tỉ dòng là ~30 tầng = ~30 lần đọc đĩa. **B-tree gom nhiều khóa vào một node** (một node = một block, chứa hàng trăm khóa) → mỗi node phân ra **hàng trăm nhánh**, nên chiều cao chỉ $\log_{100} n$ ≈ **3–4 tầng** = 3–4 lần đọc đĩa cho 1 tỉ dòng. Cùng nguyên lý "trái nhỏ phải lớn + tự cân bằng", chỉ là **nhiều con/node** để hợp với đĩa. Dùng trong: MySQL (InnoDB), PostgreSQL, SQLite, hầu hết hệ quản trị CSDL.
+
+### 7.2. Nhân Linux — Red-Black tree
+
+- **CFS (Completely Fair Scheduler)**: bộ lập lịch tiến trình của Linux lưu các tiến trình *theo thời gian chạy tích lũy (vruntime)* trong một **Red-Black tree**. Tiến trình "đói CPU nhất" = node trái nhất → lấy ra $O(\log n)$ để cho chạy tiếp. Cần ghi liên tục (mỗi lần chuyển ngữ cảnh) → Red-Black hợp vì **ít rotation** hơn AVL.
+- **epoll**, quản lý vùng nhớ ảo (`vm_area_struct`), bộ định thời (timer) trong kernel cũng dùng Red-Black tree.
+
+### 7.3. Thư viện chuẩn các ngôn ngữ
+
+| Ngôn ngữ | Cấu trúc | Bên dưới |
+|----------|----------|----------|
+| Java | `TreeMap`, `TreeSet` | Red-Black tree |
+| C++ | `std::map`, `std::set`, `std::multimap` | Red-Black tree |
+| .NET (C#) | `SortedDictionary`, `SortedSet` | Red-Black tree |
+
+Tất cả cho phép **floor/ceiling, range, duyệt theo thứ tự khóa** trong $O(\log n)$ — ví dụ `TreeMap.floorKey(15)` trả khóa lớn nhất ≤ 15. Cần map *không* thứ tự, nhanh nhất → `HashMap`/`unordered_map` ($O(1)$).
+
+### 7.4. 📝 Tóm tắt mục 7
+
+- **Index DB** = cây cân bằng; thực tế là **B-tree/B+ tree** (nhiều con/node) để giảm số lần đọc đĩa xuống 3–4 tầng.
+- **Linux CFS scheduler, epoll** dùng **Red-Black** vì workload nhiều ghi → cần ít rotation.
+- `TreeMap`/`std::map`/`SortedSet` đều là Red-Black tree — cho thứ tự + range + floor/ceiling $O(\log n)$.
+- Quy luật chọn: cần **thứ tự/range** → cây cân bằng; chỉ cần tra **một khóa thật nhanh** → hash table.
+
+### 7.5. 🔁 Tự kiểm tra
+
+1. Một index B-tree mỗi node chứa ~256 khóa. Với 1 tỉ ($10^9$) dòng, cây cao khoảng mấy tầng? So với cây nhị phân cân bằng thì sao?
+   <details><summary>Đáp án</summary>B-tree: $\log_{256}(10^9) = \frac{\ln 10^9}{\ln 256} \approx \frac{20{,}7}{5{,}5} \approx 3{,}7$ → **~4 tầng** (4 lần đọc đĩa). Cây nhị phân: $\log_2(10^9) \approx 30$ tầng → 30 lần đọc đĩa. B-tree nhanh hơn ~8 lần về số lần truy cập đĩa.</details>
+2. Vì sao Linux CFS chọn Red-Black thay vì AVL, dù AVL search nhanh hơn chút?
+   <details><summary>Đáp án</summary>Scheduler **ghi liên tục** (mỗi lần tiến trình chạy xong một lát, vruntime đổi → phải xóa+chèn lại). Red-Black ít rotation hơn AVL khi insert/delete → chi phí ghi thấp hơn. Lợi thế search nhỏ của AVL không bù được chi phí ghi cao trong workload này.</details>
 
 ## Bài tập
 

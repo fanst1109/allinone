@@ -302,7 +302,64 @@ Cùng tập \`{1, 2, 3, 4, 5}\`, 4 thứ tự khác nhau:
 - Cùng tập key, **thứ tự insert quyết định hình dạng cây** → quyết định performance.
 - Khắc phục lệch: trộn ngẫu nhiên, hoặc dùng cây tự cân bằng (AVL, Red-Black) ở Lesson 09.
 
-## 6. So sánh BST với HashMap
+## 6. Cách lưu BST trong bộ nhớ
+
+### 6.1. 💡 BST lưu y hệt cây nhị phân thường — bằng pointer
+
+BST **không có cách lưu trữ riêng** — nó là một cây nhị phân, nên lưu **pointer-based** đúng như đã mổ xẻ ở [Lesson 01 — Tree §8](../lesson-01-tree/#8-tổ-chức-bộ-nhớ-cách-1--pointer-based). Mỗi node là một struct:
+
+\`\`\`
+Node {
+    value          # khóa (key), vd 8
+    left           # con trỏ tới subtree trái (giá trị nhỏ hơn) hoặc nil
+    right          # con trỏ tới subtree phải (giá trị lớn hơn) hoặc nil
+}
+\`\`\`
+
+Trên máy 64-bit với \`value\` kiểu số nguyên: \`8 (value) + 8 (left) + 8 (right) = 24 byte/node\`. Cây BST $n$ node tốn $24n$ byte, trong đó $\\frac{2}{3}$ là con trỏ — cái giá của khả năng **chèn/xóa động** mà mảng sắp xếp không có.
+
+Tính chất "trái nhỏ, phải lớn" **không thay đổi cách lưu** — nó chỉ là **quy ước về việc gắn con vào đâu** khi insert (xem [§3](#3-thêm--insertroot-key)). Trong RAM, một BST và một cây nhị phân lộn xộn nhìn giống hệt nhau; khác biệt nằm ở *giá trị* được sắp đặt có thứ tự.
+
+### 6.2. ❓ "Sao không lưu BST bằng MẢNG như heap cho gọn?"
+
+Heap lưu bằng mảng được vì nó **luôn là complete binary tree** (đầy từ trái sang, không lỗ hổng) — xem [Lesson 03 §2](../lesson-03-heap-priority-queue/). **BST thì KHÔNG** đảm bảo điều đó: hình dạng BST phụ thuộc thứ tự insert (xem [§5](#5-độ-phức-tạp)), và thường **không đầy**.
+
+Nếu cố nhét BST vào mảng theo công thức $left = 2i+1, right = 2i+2$, cây lệch sẽ tạo **mảng đầy lỗ rỗng**. Walk-through bằng số — lấy lại cây suy biến ở §5 (insert \`1, 2, 3, 4, 5\` đã sắp):
+
+\`\`\`
+1
+ \\
+  2
+   \\
+    3
+     \\
+      4
+       \\
+        5
+\`\`\`
+
+Đặt vào mảng (node chỉ rẽ phải → mỗi tầng chỉ số nhân đôi rồi +2):
+
+| Node | Chỉ số trong mảng | Vì |
+|------|------------------:|-----|
+| \`1\` | 0 | gốc |
+| \`2\` | 2 | con phải của 0: $2\\cdot 0+2$ |
+| \`3\` | 6 | con phải của 2: $2\\cdot 2+2$ |
+| \`4\` | 14 | con phải của 6: $2\\cdot 6+2$ |
+| \`5\` | 30 | con phải của 14: $2\\cdot 14+2$ |
+
+→ Cần **mảng 31 ô** chỉ để lưu **5 node thật** — 26 ô bỏ trống. Tổng quát, BST lệch độ sâu $h$ cần mảng $2^{h+1}-1$ ô. Với 1 triệu node lệch ($h \\approx 10^6$), mảng cần $\\approx 2^{10^6}$ ô — **bất khả thi**. Còn pointer-based chỉ tốn đúng $24 \\times 10^6 \\approx 24$ MB. Đây là lý do **BST luôn dùng pointer**, không dùng mảng.
+
+> Trường hợp duy nhất nên cân nhắc mảng cho cây "kiểu BST" là khi cây được giữ **luôn cân bằng và gần đầy** (vd một số biến thể tĩnh) — nhưng khi đó người ta thường chuyển hẳn sang [cây cân bằng](../lesson-04-balanced-trees/) hoặc B-tree, vẫn lưu bằng pointer.
+
+### 6.3. 📝 Tóm tắt mục 6
+
+- BST lưu **pointer-based** y hệt cây nhị phân thường: node = \`value + left + right\` (~24 byte/node 64-bit).
+- Tính "trái nhỏ phải lớn" là **quy ước insert**, không phải cách lưu khác.
+- **Không** lưu BST bằng mảng vì BST không complete → cây lệch làm mảng phình $2^{h+1}$ ô.
+- Cần lưu bằng mảng + đảm bảo $O(\\log n)$ → dùng cây cân bằng/B-tree (Lesson 04).
+
+## 7. So sánh BST với HashMap
 
 | Tiêu chí | BST | Hash Table |
 | --- | --- | --- |
@@ -313,12 +370,63 @@ Cùng tập \`{1, 2, 3, 4, 5}\`, 4 thứ tự khác nhau:
 
 → BST phù hợp khi cần **thứ tự** hoặc **truy vấn khoảng**.
 
-## 7. Ứng dụng
+## 8. Ứng dụng thực tế
 
-- \`TreeMap\` / \`TreeSet\` trong Java (thực chất là Red-Black tree).
-- \`std::map\` / \`std::set\` trong C++.
-- Index trong cơ sở dữ liệu (thực tế dùng B-tree, biến thể của BST).
-- Tìm phần tử gần nhất, predecessor/successor.
+> 💡 **Khi nào chọn BST thay vì HashMap?** Khi bạn cần **thứ tự** — duyệt tăng dần, tìm khoảng, tìm "phần tử gần nhất". HashMap nhanh hơn ($O(1)$) cho tra cứu *một* khóa, nhưng nó **vứt bỏ hoàn toàn thứ tự** nên ba việc dưới đây nó *không làm được*.
+
+### 8.1. Range query — "liệt kê mọi giá trị trong khoảng [lo, hi]"
+
+Đây là thế mạnh số một của BST. Lấy cây mẫu ở [§1](#1-tính-chất-bst):
+
+\`\`\`
+       8
+      / \\
+     3   10
+    / \\    \\
+   1   6    14
+      / \\   /
+     4   7 13
+\`\`\`
+
+Tìm mọi key trong **\`[5, 11]\`** — duyệt inorder nhưng **cắt nhánh** dựa vào tính chất BST:
+
+| Node | So với \`[5, 11]\` | Hành động |
+|------|------------------|-----------|
+| \`8\` | nằm trong | xét trái (có thể còn ≥5), in \`8\`, xét phải |
+| \`3\` | \`3 < 5\` | **bỏ luôn nhánh trái của 3** (mọi thứ < 3, vô ích); chỉ xét phải của 3 |
+| \`6\` | nằm trong | in \`6\` |
+| \`4\` | \`4 < 5\` | bỏ |
+| \`7\` | nằm trong | in \`7\` |
+| \`10\` | nằm trong | in \`10\`, xét phải |
+| \`14\` | \`14 > 11\` | **bỏ luôn nhánh phải** |
+| \`13\` | \`13 > 11\` | bỏ |
+
+Kết quả: \`6, 7, 8, 10\`. Độ phức tạp $O(h + k)$ với $k$ = số kết quả — **không** phải duyệt cả cây. **❓ Vì sao HashMap chịu thua?** Hash trộn key thành vị trí bucket *ngẫu nhiên* để phân bố đều → hai key gần nhau (5 và 6) nằm ở hai bucket xa tít. Không có cách nào "đi từ 5 tới 11" mà không quét **toàn bộ** $n$ phần tử → $O(n)$.
+
+### 8.2. floor / ceiling / successor — "phần tử gần nhất"
+
+- **floor(k)**: key lớn nhất **≤ k**. **ceiling(k)**: key nhỏ nhất **≥ k**.
+- **successor(k)**: key nhỏ nhất **> k** (đã cài ở [Bài 3](#bài-3--in-order-successor-của-k)).
+
+Ví dụ trên cây mẫu: \`floor(5) = 4\`, \`ceiling(5) = 6\`, \`successor(8) = 10\`. Mỗi truy vấn $O(h)$ — đi xuống một đường, ghi nhớ ứng viên tốt nhất.
+
+Ứng dụng đời thực: **đặt phòng/lịch** ("khung giờ trống *gần nhất* sau 14h?"), **làm tròn giá** lên mức bậc thang gần nhất, **tô màu/gradient** tìm mốc gần nhất. Trong Java: \`TreeMap.floorKey()\`, \`ceilingKey()\`, \`higherKey()\`; C++: \`std::map::lower_bound()\`.
+
+### 8.3. Index cơ sở dữ liệu
+
+Khi bạn chạy \`SELECT * FROM users WHERE age BETWEEN 20 AND 30 ORDER BY age\`, DB dùng **index** có cấu trúc cây để (1) nhảy thẳng tới \`age=20\`, (2) **duyệt tuần tự** tới 30 — chính là range query §8.1, và (3) kết quả **đã sắp xếp sẵn**. Thực tế DB dùng **B-tree / B+ tree** (cây cân bằng nhiều con, tối ưu cho đọc từ đĩa) chứ không phải BST nhị phân thường — học ở [Lesson 04 — Balanced Trees](../lesson-04-balanced-trees/) — nhưng nguyên lý "trái nhỏ phải lớn + duyệt có thứ tự" là **giống hệt** BST.
+
+### 8.4. Thư viện chuẩn dùng BST cân bằng
+
+- **Java**: \`TreeMap\` / \`TreeSet\` — thực chất là Red-Black tree.
+- **C++**: \`std::map\` / \`std::set\` — cũng Red-Black tree.
+- Mọi nơi cần *map có thứ tự* (duyệt key tăng dần, range, floor/ceiling) đều dựa trên BST cân bằng. Cần *map không thứ tự, nhanh nhất* → \`HashMap\` / \`unordered_map\`.
+
+### 8.5. 📝 Tóm tắt mục 8
+
+- BST tỏa sáng khi cần **thứ tự**: range query $O(h+k)$, floor/ceiling/successor $O(h)$, duyệt tăng dần.
+- HashMap **không** làm được mấy việc này vì hash phá thứ tự — đổi lại tra cứu một khóa thì nhanh hơn ($O(1)$).
+- Index DB, \`TreeMap\`/\`std::map\` đều là **BST cân bằng** (thực tế B-tree / Red-Black) — cùng nguyên lý "trái nhỏ phải lớn".
 
 ## Bài tập
 

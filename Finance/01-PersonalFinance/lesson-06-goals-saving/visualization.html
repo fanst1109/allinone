@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Mục tiêu &amp; Tiết kiệm</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 170px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 110px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 88px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .stat.hi { background: #fef3c7; } .stat.hi strong { color: #b45309; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  table.mini { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 10px; }
+  table.mini th, table.mini td { border: 1px solid #d1fae5; padding: 6px 8px; text-align: right; }
+  table.mini th { background: #ecfdf5; color: #047857; }
+  table.mini td:first-child, table.mini th:first-child { text-align: left; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; margin: 6px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 16px; height: 4px; border-radius: 2px; display: inline-block; }
+  .pricegrid { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pricegrid input { max-width: 80px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tài chính cá nhân</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-budgeting/visualization.html">← L5: Ngân sách</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Mục tiêu &amp; tiết kiệm</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-risk-insurance/visualization.html">L7: Rủi ro &amp; bảo hiểm →</a>
+</nav>
+
+<main>
+<h1>Lesson 06 — Mục tiêu &amp; Tiết kiệm</h1>
+<p>Ba công cụ: <strong>tính khoản đóng theo mục tiêu</strong>, <strong>mô phỏng bình quân giá (DCA)</strong>, và <strong>bắt đầu sớm vs muộn</strong>.</p>
+
+<h2>1. Tính khoản đóng cần để đạt mục tiêu</h2>
+<div class="card">
+  <p class="note"><code>PMT = FV · r / ((1+r)ⁿ − 1)</code>. Kéo dài thời gian giảm gánh nặng phi tuyến.</p>
+  <div class="row">
+    <label>Mục tiêu FV (triệu):</label>
+    <input type="number" id="goal" value="300" step="50" min="1" oninput="drawGoal()">
+  </div>
+  <div class="row">
+    <label>Số năm:</label>
+    <input type="range" id="gyears" min="1" max="30" value="5" step="1" oninput="drawGoal()">
+    <span class="val" id="gyearsv">5</span>
+  </div>
+  <div class="row">
+    <label>Lãi suất (%/năm):</label>
+    <input type="range" id="grate" min="0" max="15" value="6" step="0.5" oninput="drawGoal()">
+    <span class="val" id="gratev">6%</span>
+  </div>
+  <div class="result" id="goalout"></div>
+</div>
+
+<h2>2. Mô phỏng bình quân giá (DCA)</h2>
+<div class="card">
+  <p class="note">Đóng <strong>cố định</strong> mỗi kỳ; giá biến động. Chỉnh giá từng kỳ và xem giá vốn của bạn vs giá trung bình thị trường.</p>
+  <div class="row">
+    <label>Tiền đóng mỗi kỳ (triệu):</label>
+    <input type="number" id="dcaAmt" value="6" step="1" min="1" oninput="drawDCA()">
+  </div>
+  <div class="row">
+    <label>Giá đơn vị (nghìn đ):</label>
+    <div class="pricegrid">
+      <input type="number" class="price" value="30" step="1" min="1" oninput="drawDCA()">
+      <input type="number" class="price" value="20" step="1" min="1" oninput="drawDCA()">
+      <input type="number" class="price" value="25" step="1" min="1" oninput="drawDCA()">
+      <input type="number" class="price" value="40" step="1" min="1" oninput="drawDCA()">
+    </div>
+  </div>
+  <div id="dcatable"></div>
+  <div class="result" id="dcaout"></div>
+</div>
+
+<h2>3. Bắt đầu sớm vs muộn</h2>
+<div class="card">
+  <p class="note">Cùng đóng <span id="annAmtLbl">3</span> triệu/năm, lãi <span id="esRateLbl">8</span>%. "Sớm" đóng 10 năm đầu rồi dừng; "Muộn" đóng đều từ năm 11 tới cuối.</p>
+  <div class="row">
+    <label>Đóng/năm (triệu):</label>
+    <input type="number" id="annAmt" value="3" step="1" min="1" oninput="drawEarly()">
+  </div>
+  <div class="row">
+    <label>Lãi suất (%/năm):</label>
+    <input type="range" id="esRate" min="2" max="12" value="8" step="0.5" oninput="drawEarly()">
+    <span class="val" id="esRatev">8%</span>
+  </div>
+  <div class="row">
+    <label>Tổng số năm:</label>
+    <input type="range" id="esYears" min="20" max="45" value="40" step="1" oninput="drawEarly()">
+    <span class="val" id="esYearsv">40</span>
+  </div>
+  <div class="legend">
+    <span><i class="swatch" style="background:#059669"></i> Bắt đầu sớm (đóng 10 năm đầu)</span>
+    <span><i class="swatch" style="background:#f59e0b"></i> Bắt đầu muộn (đóng từ năm 11)</span>
+  </div>
+  <canvas id="earlyc" width="760" height="300"></canvas>
+  <div class="result" id="earlyout"></div>
+</div>
+
+<script>
+const fmt = (x, d=2) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+
+// ---------- Module 1 ----------
+function drawGoal() {
+  const FV=Math.max(1,+document.getElementById('goal').value);
+  const yrs=+document.getElementById('gyears').value;
+  const ra=+document.getElementById('grate').value/100;
+  document.getElementById('gyearsv').textContent=yrs;
+  document.getElementById('gratev').textContent=(ra*100).toFixed(1).replace(/\.0$/,'')+'%';
+  const n=yrs*12, r=ra/12;
+  const pmt = r<1e-9 ? FV/n : FV*r/(Math.pow(1+r,n)-1);
+  const totalContrib=pmt*n, interest=FV-totalContrib;
+  document.getElementById('goalout').innerHTML=
+    `Để có <strong>${fmt(FV,0)}</strong> tr sau <strong>${yrs}</strong> năm @ ${(ra*100).toFixed(1).replace(/\.0$/,'')}%:<br>`+
+    `<span class="stat">Đóng <strong>${fmt(pmt)}</strong> tr/tháng</span>`+
+    `<span class="stat">Tổng đóng: <strong>${fmt(totalContrib,0)}</strong> tr</span>`+
+    `<span class="stat hi">Lãi kép gánh: <strong>${fmt(interest,0)}</strong> tr (${(interest/FV*100).toFixed(0)}%)</span>`;
+}
+
+// ---------- Module 2: DCA ----------
+function drawDCA() {
+  const amt=Math.max(1,+document.getElementById('dcaAmt').value);
+  const prices=[...document.querySelectorAll('.price')].map(e=>Math.max(1,+e.value));
+  let totalUnits=0, totalMoney=0;
+  let rows='<table class="mini"><tr><th>Kỳ</th><th>Giá (k)</th><th>Đóng (tr)</th><th>Đơn vị mua</th></tr>';
+  prices.forEach((p,i)=>{
+    const units=amt*1000/p;  // triệu/nghìn = *1000 đơn vị
+    totalUnits+=units; totalMoney+=amt;
+    rows+=`<tr><td>${i+1}</td><td>${p}</td><td>${fmt(amt,0)}</td><td>${fmt(units,1)}</td></tr>`;
+  });
+  rows+=`<tr style="font-weight:700;background:#ecfdf5"><td>Tổng</td><td>—</td><td>${fmt(totalMoney,0)}</td><td>${fmt(totalUnits,1)}</td></tr></table>`;
+  document.getElementById('dcatable').innerHTML=rows;
+  const avgMarket=prices.reduce((a,b)=>a+b,0)/prices.length;
+  const myCost=totalMoney*1000/totalUnits;
+  document.getElementById('dcaout').innerHTML=
+    `<span class="stat">Giá TB thị trường: <strong>${fmt(avgMarket)}</strong>k</span>`+
+    `<span class="stat" style="background:#bbf7d0">Giá vốn của bạn: <strong>${fmt(myCost)}</strong>k</span>`+
+    (myCost<avgMarket?`<span class="stat" style="background:#bbf7d0">Thấp hơn <strong>${fmt(avgMarket-myCost)}</strong>k ✓</span>`
+                     :`<span class="stat hi">Cao hơn (giá tăng đều → mua sớm lợi hơn)</span>`)+
+    `<br><span style="font-size:13px;color:#475569">Đóng cố định → tự động mua nhiều đơn vị khi giá rẻ → giá vốn ≤ giá trung bình.</span>`;
+}
+
+// ---------- Module 3: early vs late ----------
+function drawEarly() {
+  const amt=Math.max(1,+document.getElementById('annAmt').value);
+  const r=+document.getElementById('esRate').value/100;
+  const N=+document.getElementById('esYears').value;
+  document.getElementById('esRatev').textContent=(r*100).toFixed(1).replace(/\.0$/,'')+'%';
+  document.getElementById('esYearsv').textContent=N;
+  document.getElementById('annAmtLbl').textContent=amt;
+  document.getElementById('esRateLbl').textContent=(r*100).toFixed(1).replace(/\.0$/,'');
+
+  // sớm: đóng năm 1..10, để yên tới N
+  // muộn: đóng năm 11..N
+  const early=[], late=[];
+  let be=0, bl=0;
+  for(let y=1;y<=N;y++){
+    be=be*(1+r) + (y<=10?amt:0);
+    bl=bl*(1+r) + (y>10?amt:0);
+    early.push(be); late.push(bl);
+  }
+  const cv=document.getElementById('earlyc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=64,padR=16,padT=16,padB=34;
+  ctx.clearRect(0,0,W,H);
+  const maxY=Math.max(be,bl)*1.05;
+  const x=y=>padL+((y-1)/(N-1))*(W-padL-padR);
+  const yy=v=>H-padB-(v/maxY)*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const v=maxY*k/4,y2=yy(v);ctx.beginPath();ctx.moveTo(padL,y2);ctx.lineTo(W-padR,y2);ctx.stroke();ctx.fillText(Math.round(v),padL-6,y2+4);}
+  ctx.textAlign='center';
+  for(let k=0;k<=4;k++){const yv=Math.round(1+(N-1)*k/4);ctx.fillText(yv,x(yv),H-padB+18);}
+  ctx.fillText('năm',W-padR-10,H-padB+18);
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath(); early.forEach((v,i)=>{i===0?ctx.moveTo(x(i+1),yy(v)):ctx.lineTo(x(i+1),yy(v));}); ctx.stroke();
+  ctx.strokeStyle='#f59e0b'; ctx.lineWidth=3; ctx.beginPath(); late.forEach((v,i)=>{i===0?ctx.moveTo(x(i+1),yy(v)):ctx.lineTo(x(i+1),yy(v));}); ctx.stroke();
+
+  const earlyContrib=amt*10, lateContrib=amt*(N-10);
+  document.getElementById('earlyout').innerHTML=
+    `<span class="stat" style="background:#bbf7d0">Sớm: đóng <strong>${fmt(earlyContrib,0)}</strong> tr → cuối <strong>${fmt(be,0)}</strong> tr</span>`+
+    `<span class="stat hi">Muộn: đóng <strong>${fmt(lateContrib,0)}</strong> tr → cuối <strong>${fmt(bl,0)}</strong> tr</span><br>`+
+    (be>bl?`<span style="font-size:13px;color:#475569">→ "Sớm" đóng ít hơn (${fmt(earlyContrib,0)} vs ${fmt(lateContrib,0)} tr) nhưng cuối cùng <strong>nhiều hơn</strong>, nhờ 10 năm đóng sớm có thêm thời gian sinh lãi kép.</span>`
+          :`<span style="font-size:13px;color:#475569">Với cấu hình này "muộn" vượt do đóng tổng nhiều hơn nhiều — thử giảm số năm hoặc tăng lãi để thấy sức mạnh bắt đầu sớm.</span>`);
+}
+
+drawGoal(); drawDCA(); drawEarly();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

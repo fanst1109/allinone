@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Lãi suất: APR vs APY</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 180px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 110px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 78px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .stat.warn { background: #fee2e2; } .stat.warn strong { color: #b91c1c; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  table.mini { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 10px; }
+  table.mini th, table.mini td { border: 1px solid #d1fae5; padding: 6px 8px; text-align: right; }
+  table.mini th { background: #ecfdf5; color: #047857; }
+  table.mini td:first-child, table.mini th:first-child { text-align: left; }
+  tr.best td { background: #bbf7d0; font-weight: 700; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tài chính cá nhân</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-inflation/visualization.html">← L2: Lạm phát</a>
+  <span class="sep">·</span>
+  <span class="current">L3: APR vs APY</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-debt-loans/visualization.html">L4: Nợ &amp; vay →</a>
+</nav>
+
+<main>
+<h1>Lesson 03 — Lãi suất: APR vs APY</h1>
+<p>Ba công cụ để nhìn ra con số lãi suất <em>thật</em>: <strong>máy tính APY</strong>, <strong>bẫy lãi phẳng vs dư nợ giảm dần</strong>, và <strong>xếp hạng sản phẩm tiết kiệm</strong>.</p>
+
+<h2>1. Máy tính APY — lãi hiệu dụng thật</h2>
+<div class="card">
+  <p class="note"><code>APY = (1 + r/m)ᵐ − 1</code>. Cùng một lãi danh nghĩa, ghép càng dày APY càng cao.</p>
+  <div class="row">
+    <label>Lãi danh nghĩa r (%/năm):</label>
+    <input type="range" id="nom" min="1" max="24" value="12" step="0.5" oninput="calcAPY()">
+    <span class="val" id="nomv">12%</span>
+  </div>
+  <div id="apytable"></div>
+</div>
+
+<h2>2. Bẫy lãi phẳng (flat) vs dư nợ giảm dần</h2>
+<div class="card">
+  <p class="note">Lãi phẳng tính trên gốc ban đầu suốt kỳ; nhưng bạn trả gốc dần nên dư nợ giảm. Lãi suất <strong>thực</strong> cao hơn nhiều con số "phẳng".</p>
+  <div class="row">
+    <label>Vay gốc (triệu):</label>
+    <input type="number" id="loan" value="120" step="10" min="1" oninput="calcFlat()">
+  </div>
+  <div class="row">
+    <label>Lãi phẳng (%/tháng):</label>
+    <input type="range" id="flat" min="0.3" max="3" value="1" step="0.1" oninput="calcFlat()">
+    <span class="val" id="flatv">1%/th</span>
+  </div>
+  <div class="row">
+    <label>Số tháng vay:</label>
+    <input type="range" id="months" min="3" max="48" value="12" step="1" oninput="calcFlat()">
+    <span class="val" id="monthsv">12</span>
+  </div>
+  <canvas id="balc" width="760" height="260"></canvas>
+  <div class="result" id="flatout"></div>
+</div>
+
+<h2>3. Xếp hạng sản phẩm tiết kiệm theo APY</h2>
+<div class="card">
+  <p class="note">Bốn sản phẩm với lãi niêm yết &amp; tần suất ghép khác nhau. Bảng tự tính APY và tô xanh sản phẩm tốt nhất.</p>
+  <div id="rankrows"></div>
+  <div style="margin-top:10px"><button onclick="rank()">↻ Tính &amp; xếp hạng</button></div>
+  <div id="rankout"></div>
+</div>
+
+<script>
+const fmt = (x, d=2) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+const apy = (r, m) => m === 0 ? Math.exp(r) - 1 : Math.pow(1 + r/m, m) - 1;
+
+// ---------- Module 1 ----------
+function calcAPY() {
+  const r = +document.getElementById('nom').value / 100;
+  document.getElementById('nomv').textContent = (r*100).toFixed(1).replace(/\.0$/,'') + '%';
+  const freqs = [['Năm',1],['Nửa năm',2],['Quý',4],['Tháng',12],['Ngày',365],['Liên tục (eʳ)',0]];
+  let rows = '<table class="mini"><tr><th>Tần suất ghép</th><th>m</th><th>APY</th><th>Chênh vs danh nghĩa</th></tr>';
+  freqs.forEach(([name,m])=>{
+    const a = apy(r,m);
+    rows += `<tr><td>${name}</td><td>${m||'∞'}</td><td>${(a*100).toFixed(3)}%</td><td>+${((a-r)*100).toFixed(3)} đ%</td></tr>`;
+  });
+  rows += '</table>';
+  document.getElementById('apytable').innerHTML = rows;
+}
+
+// ---------- Module 2: flat vs reducing ----------
+// Tìm lãi suất thực hằng tháng cho dòng tiền: nhận L, trả pay mỗi tháng trong n tháng (annuity)
+function solveMonthlyRate(L, pay, n) {
+  let lo = 0, hi = 1;  // 0% .. 100%/tháng
+  for (let it=0; it<100; it++) {
+    const mid = (lo+hi)/2;
+    // PV của chuỗi trả với lãi mid
+    const pv = mid < 1e-9 ? pay*n : pay * (1 - Math.pow(1+mid, -n)) / mid;
+    if (pv > L) lo = mid; else hi = mid;
+  }
+  return (lo+hi)/2;
+}
+function calcFlat() {
+  const L = Math.max(1, +document.getElementById('loan').value);
+  const f = +document.getElementById('flat').value/100;
+  const n = +document.getElementById('months').value;
+  document.getElementById('flatv').textContent = (f*100).toFixed(1).replace(/\.0$/,'') + '%/th';
+  document.getElementById('monthsv').textContent = n;
+
+  const monthlyInterest = L * f;
+  const totalInterest = monthlyInterest * n;
+  const principalPer = L / n;
+  const pay = principalPer + monthlyInterest;
+  const flatAnnual = f * 12;
+  const realMonthly = solveMonthlyRate(L, pay, n);
+  const realAnnual = Math.pow(1 + realMonthly, 12) - 1;
+
+  // vẽ dư nợ giảm dần
+  const cv = document.getElementById('balc'), ctx = cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=64,padR=16,padT=16,padB=34;
+  ctx.clearRect(0,0,W,H);
+  const x=k=>padL+(k/n)*(W-padL-padR);
+  const y=v=>H-padB-(v/(L*1.05))*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const v=L*1.05*k/4,yy=y(v);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(Math.round(v),padL-6,yy+4);}
+  ctx.textAlign='center';
+  for(let k=0;k<=4;k++){const kk=Math.round(n*k/4);ctx.fillText(kk,x(kk),H-padB+18);}
+  ctx.fillText('tháng', W-padR-16, H-padB+18);
+  // dư nợ thực (giảm dần) - xanh fill
+  ctx.fillStyle='rgba(5,150,105,0.15)'; ctx.strokeStyle='#059669'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(x(0),y(L));
+  for(let k=1;k<=n;k++){ ctx.lineTo(x(k),y(L - principalPer*k)); }
+  ctx.stroke();
+  // đường gốc danh nghĩa lãi-phẳng-tính-trên (= L cố định) - đỏ đứt
+  ctx.strokeStyle='#ef4444'; ctx.lineWidth=2; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(x(0),y(L)); ctx.lineTo(x(n),y(L)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#ef4444'; ctx.textAlign='left'; ctx.fillText('Lãi phẳng tính trên gốc này (đứng yên)', padL+6, y(L)-6);
+  ctx.fillStyle='#059669'; ctx.fillText('Dư nợ thực của bạn (giảm dần)', padL+6, y(L/2)+4);
+
+  document.getElementById('flatout').innerHTML =
+    `Trả mỗi tháng: <strong>${fmt(pay)}</strong> tr · Tổng lãi: <strong>${fmt(totalInterest)}</strong> tr<br>`+
+    `<span class="stat">Lãi "phẳng" gợi ý: <strong>${(flatAnnual*100).toFixed(1)}%</strong>/năm</span>`+
+    `<span class="stat warn">Lãi suất THỰC: <strong>${(realAnnual*100).toFixed(1)}%</strong>/năm</span>`+
+    `<span class="stat warn">Gấp <strong>${(realAnnual/flatAnnual).toFixed(2)}×</strong></span><br>`+
+    `<span style="font-size:13px;color:#475569">→ Vì gốc giảm dần nhưng lãi vẫn tính trên ${fmt(L,0)} tr ban đầu, bạn trả lãi đắt gần gấp đôi con số quảng cáo.</span>`;
+}
+
+// ---------- Module 3: ranking ----------
+const products = [
+  {name:'A', rate:7.0, m:1},
+  {name:'B', rate:6.9, m:12},
+  {name:'C', rate:6.85, m:365},
+  {name:'D', rate:7.1, m:2},
+];
+function renderRankInputs() {
+  let h = '<table class="mini" id="ranktable"><tr><th>SP</th><th>Lãi niêm yết %</th><th>Ghép/năm (m)</th><th>APY</th></tr>';
+  products.forEach((p,idx)=>{
+    h += `<tr><td>${p.name}</td>`+
+         `<td><input type="number" value="${p.rate}" step="0.05" style="max-width:80px" oninput="products[${idx}].rate=+this.value"></td>`+
+         `<td><input type="number" value="${p.m}" step="1" style="max-width:80px" oninput="products[${idx}].m=+this.value"></td>`+
+         `<td id="apy${idx}">—</td></tr>`;
+  });
+  h += '</table>';
+  document.getElementById('rankrows').innerHTML = h;
+}
+function rank() {
+  let best=-1, bestIdx=0;
+  products.forEach((p,idx)=>{
+    const a = apy(p.rate/100, p.m)*100;
+    document.getElementById('apy'+idx).textContent = a.toFixed(3)+'%';
+    document.getElementById('apy'+idx).parentElement.classList.remove('best');
+    if (a>best){best=a;bestIdx=idx;}
+  });
+  document.querySelectorAll('#ranktable tr')[bestIdx+1].classList.add('best');
+  document.getElementById('rankout').innerHTML =
+    `<div class="result">Tốt nhất: <strong>Sản phẩm ${products[bestIdx].name}</strong> với APY <strong>${best.toFixed(3)}%</strong> — `+
+    `dù chưa chắc có lãi niêm yết cao nhất. Luôn so theo APY!</div>`;
+}
+
+calcAPY(); calcFlat(); renderRankInputs(); rank();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

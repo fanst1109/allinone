@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Rủi ro &amp; Bảo hiểm</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 170px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 110px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 88px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .stat.warn { background: #fee2e2; } .stat.warn strong { color: #b91c1c; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  button { background: #059669; color: #fff; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-weight: 600; margin: 3px; }
+  button:hover { background: #047857; }
+  .grid4 { display: grid; grid-template-columns: 120px 1fr 1fr; gap: 4px; font-size: 13px; margin-top: 12px; }
+  .grid4 > div { padding: 14px 8px; text-align: center; border-radius: 6px; background: #f1f5f9; }
+  .grid4 .hdr { background: #ecfdf5; font-weight: 700; color: #047857; }
+  .cell.active { outline: 3px solid #047857; font-weight: 700; }
+  .cell.buy { background: #bbf7d0; } .cell.self { background: #fef9c3; } .cell.avoid { background: #fecaca; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tài chính cá nhân</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-goals-saving/visualization.html">← L6: Mục tiêu</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Rủi ro &amp; bảo hiểm</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-taxes/visualization.html">L8: Thuế →</a>
+</nav>
+
+<main>
+<h1>Lesson 07 — Rủi ro &amp; Bảo hiểm</h1>
+<p>Ba công cụ: <strong>mô phỏng gộp rủi ro</strong> (luật số lớn), <strong>máy tính phí bảo hiểm</strong>, và <strong>lưới quyết định mua</strong>.</p>
+
+<h2>1. Mô phỏng gộp rủi ro (pooling) — luật số lớn</h2>
+<div class="card">
+  <p class="note">Cá nhân: mỗi năm hoặc mất 0, hoặc mất cả tài sản. Quỹ chung: tổng tổn thất hội tụ về kỳ vọng khi số người tăng.</p>
+  <div class="row">
+    <label>Số người trong quỹ:</label>
+    <input type="range" id="N" min="10" max="20000" value="2000" step="10" oninput="updLbl()">
+    <span class="val" id="Nv">2000</span>
+  </div>
+  <div class="row">
+    <label>Xác suất gặp nạn (%):</label>
+    <input type="range" id="p" min="0.2" max="10" value="1" step="0.2" oninput="updLbl()">
+    <span class="val" id="pv">1%</span>
+  </div>
+  <div class="row">
+    <label>Tổn thất mỗi vụ (triệu):</label>
+    <input type="number" id="loss" value="200" step="10" min="1" oninput="updLbl()">
+  </div>
+  <div class="row"><button onclick="runPool()">🎲 Mô phỏng 1 năm</button> <span id="poolnote" class="note"></span></div>
+  <canvas id="poolc" width="760" height="220"></canvas>
+  <div class="result" id="poolout"></div>
+</div>
+
+<h2>2. Máy tính phí bảo hiểm</h2>
+<div class="card">
+  <p class="note"><code>Phí = E[L] × (1 + phụ phí)</code>, với <code>E[L] = xác suất × tổn thất</code>.</p>
+  <div class="row">
+    <label>Xác suất (%/năm):</label>
+    <input type="range" id="pp" min="0.1" max="10" value="1" step="0.1" oninput="calcPrem()">
+    <span class="val" id="ppv">1%</span>
+  </div>
+  <div class="row">
+    <label>Tổn thất (triệu):</label>
+    <input type="number" id="pl" value="200" step="10" min="1" oninput="calcPrem()">
+  </div>
+  <div class="row">
+    <label>Phụ phí (loading %):</label>
+    <input type="range" id="load" min="0" max="60" value="30" step="5" oninput="calcPrem()">
+    <span class="val" id="loadv">30%</span>
+  </div>
+  <div class="result" id="premout"></div>
+</div>
+
+<h2>3. Lưới quyết định: mua hay tự gánh?</h2>
+<div class="card">
+  <p class="note">Kéo 2 slider — ô tương ứng sáng lên với khuyến nghị.</p>
+  <div class="row">
+    <label>Tần suất:</label>
+    <input type="range" id="freq" min="0" max="1" value="0" step="1" oninput="drawGrid()">
+    <span class="val" id="freqv">Hiếm</span>
+  </div>
+  <div class="row">
+    <label>Quy mô tổn thất:</label>
+    <input type="range" id="sev" min="0" max="1" value="1" step="1" oninput="drawGrid()">
+    <span class="val" id="sevv">Lớn (phá sản)</span>
+  </div>
+  <div class="grid4" id="grid"></div>
+  <div class="result" id="gridout"></div>
+</div>
+
+<script>
+const fmt = (x, d=1) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+
+function updLbl() {
+  document.getElementById('Nv').textContent=(+document.getElementById('N').value).toLocaleString('vi-VN');
+  document.getElementById('pv').textContent=(+document.getElementById('p').value).toFixed(1).replace(/\.0$/,'')+'%';
+}
+// PRNG đơn giản (không dùng Math.random của môi trường cấm? Math.random bị cấm trong workflow scripts, nhưng đây là trình duyệt — OK)
+function runPool() {
+  const N=+document.getElementById('N').value;
+  const p=+document.getElementById('p').value/100;
+  const loss=+document.getElementById('loss').value;
+  let victims=0;
+  for(let i=0;i<N;i++){ if(Math.random()<p) victims++; }
+  const totalLoss=victims*loss;
+  const perPerson=totalLoss/N;
+  const expected=p*loss;
+  const cv=document.getElementById('poolc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  // thanh: tổn thất TB/người thực tế vs kỳ vọng
+  const maxV=expected*2.2;
+  const bx=v=>40+(v/maxV)*(W-80);
+  ctx.fillStyle='#475569'; ctx.font='12px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('Kỳ vọng (lý thuyết): '+fmt(expected)+' tr/người', 40, 30);
+  ctx.strokeStyle='#059669'; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(bx(expected),40); ctx.lineTo(bx(expected),H-30); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#f59e0b'; ctx.fillRect(40,70,Math.min(bx(perPerson)-40,W-80),36);
+  ctx.fillStyle='#1a202c'; ctx.fillText('Thực tế năm nay: '+fmt(perPerson)+' tr/người ('+victims+' vụ)', 44, 92);
+  const dev=Math.abs(perPerson-expected)/expected*100;
+  document.getElementById('poolout').innerHTML=
+    `<span class="stat">${victims} người gặp nạn / ${N.toLocaleString('vi-VN')}</span>`+
+    `<span class="stat">Tổng quỹ chi: <strong>${fmt(totalLoss,0)}</strong> tr</span>`+
+    `<span class="stat">TB/người: <strong>${fmt(perPerson)}</strong> tr</span>`+
+    `<span class="stat ${dev>20?'warn':''}">Lệch kỳ vọng: <strong>${dev.toFixed(1)}%</strong></span><br>`+
+    `<span style="font-size:13px;color:#475569">→ Số người càng lớn, lệch càng nhỏ (luật số lớn): tổng quỹ trở nên dự đoán được dù cá nhân thì 0 hoặc ${fmt(loss,0)} tr.</span>`;
+  document.getElementById('poolnote').textContent = N<200?'(N nhỏ → dao động mạnh, bấm nhiều lần để thấy)':'(N lớn → ổn định gần kỳ vọng)';
+}
+
+// ---------- Module 2 ----------
+function calcPrem() {
+  const p=+document.getElementById('pp').value/100;
+  const loss=+document.getElementById('pl').value;
+  const load=+document.getElementById('load').value/100;
+  document.getElementById('ppv').textContent=(p*100).toFixed(1).replace(/\.0$/,'')+'%';
+  document.getElementById('loadv').textContent=(load*100).toFixed(0)+'%';
+  const EL=p*loss, prem=EL*(1+load), diff=prem-EL;
+  document.getElementById('premout').innerHTML=
+    `<span class="stat">E[L] (phí thuần): <strong>${fmt(EL)}</strong> tr</span>`+
+    `<span class="stat">Phí phải đóng: <strong>${fmt(prem)}</strong> tr</span>`+
+    `<span class="stat warn">"Thiệt" kỳ vọng: <strong>${fmt(diff)}</strong> tr</span><br>`+
+    `<span style="font-size:13px;color:#475569">→ Bạn trả thêm ${fmt(diff)} tr/năm để đổi lấy việc loại bỏ kịch bản mất ${fmt(loss,0)} tr — đó là giá của sự an tâm.</span>`;
+}
+
+// ---------- Module 3 ----------
+function drawGrid() {
+  const freq=+document.getElementById('freq').value; // 0 hiếm, 1 thường
+  const sev=+document.getElementById('sev').value;   // 0 nhỏ, 1 lớn
+  document.getElementById('freqv').textContent=freq?'Thường xuyên':'Hiếm';
+  document.getElementById('sevv').textContent=sev?'Lớn (phá sản)':'Nhỏ';
+  // cells: [freq][sev]
+  const labels=[['Tự gánh','MUA BẢO HIỂM'],['Tự gánh','Tránh/giảm rủi ro']];
+  const cls=[['self','buy'],['self','avoid']];
+  let h='<div class="hdr"></div><div class="hdr">Tổn thất nhỏ</div><div class="hdr">Tổn thất lớn</div>';
+  const rowNames=['Hiếm','Thường xuyên'];
+  for(let f=0;f<2;f++){
+    h+=`<div class="hdr">${rowNames[f]}</div>`;
+    for(let s=0;s<2;s++){
+      const active=(f===freq&&s===sev)?' active':'';
+      h+=`<div class="cell ${cls[f][s]}${active}">${labels[f][s]}</div>`;
+    }
+  }
+  document.getElementById('grid').innerHTML=h;
+  const rec=labels[freq][sev];
+  let why='';
+  if(rec==='MUA BẢO HIỂM') why='Hiếm nhưng phá sản → đúng vùng bảo hiểm phát huy (gộp rủi ro). Vd cháy nhà, viện phí lớn.';
+  else if(rec==='Tự gánh') why='Tổn thất nhỏ → phụ phí ăn hết lợi ích, tự gánh (hoặc dùng quỹ khẩn cấp) rẻ hơn.';
+  else why='Lớn + thường xuyên → phí bảo hiểm cực cao hoặc bị từ chối; nên tránh/giảm rủi ro tận gốc.';
+  document.getElementById('gridout').innerHTML=`Khuyến nghị: <strong>${rec}</strong>. ${why}`;
+}
+
+updLbl(); runPool(); calcPrem(); drawGrid();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

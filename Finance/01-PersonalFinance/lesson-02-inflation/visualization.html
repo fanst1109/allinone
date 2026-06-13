@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Lạm phát &amp; Sức mua</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 170px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 110px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 78px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .stat.warn { background: #fee2e2; } .stat.warn strong { color: #b91c1c; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; margin: 6px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 16px; height: 4px; border-radius: 2px; display: inline-block; }
+  .bowls { font-size: 28px; line-height: 1.5; letter-spacing: 2px; word-break: break-word; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tài chính cá nhân</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-time-value-money/visualization.html">← L1: Lãi kép</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Lạm phát</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-interest-rates/visualization.html">L3: APR vs APY →</a>
+</nav>
+
+<main>
+<h1>Lesson 02 — Lạm phát &amp; Sức mua</h1>
+<p>Ba công cụ để <em>thấy</em> tiền mất giá: <strong>máy bào sức mua</strong> (kèm số tô phở mua được), <strong>CPI → lạm phát</strong>, và <strong>lãi danh nghĩa vs thực (Fisher)</strong>.</p>
+
+<h2>1. Máy bào sức mua — tiền mặt teo dần</h2>
+<div class="card">
+  <p class="note">Giữ tiền mặt không sinh lời, lạm phát ăn dần sức mua theo <code>M / (1+i)ⁿ</code>. Hàng phở minh họa số tô bạn mua được mỗi năm.</p>
+  <div class="row">
+    <label>Số tiền giữ (triệu):</label>
+    <input type="number" id="amt" value="100" step="10" min="1" oninput="drawPP()">
+  </div>
+  <div class="row">
+    <label>Lạm phát i (%/năm):</label>
+    <input type="range" id="inf" min="1" max="20" value="6" step="0.5" oninput="drawPP()">
+    <span class="val" id="infv">6%</span>
+  </div>
+  <div class="row">
+    <label>Số năm n:</label>
+    <input type="range" id="yrs" min="1" max="40" value="30" step="1" oninput="drawPP()">
+    <span class="val" id="yrsv">30</span>
+  </div>
+  <div class="row">
+    <label>Giá 1 tô phở nay (đ):</label>
+    <input type="number" id="pho" value="50000" step="5000" min="1000" oninput="drawPP()">
+  </div>
+  <canvas id="ppc" width="760" height="300"></canvas>
+  <div class="result" id="ppout"></div>
+  <p class="note" style="margin-top:10px">Số tô phở mua được (giá phở cũng tăng theo lạm phát):</p>
+  <div class="bowls" id="bowls"></div>
+</div>
+
+<h2>2. CPI → Tỷ lệ lạm phát</h2>
+<div class="card">
+  <p class="note">Lạm phát giữa hai năm = phần trăm thay đổi của CPI: <code>(CPI₂ − CPI₁) / CPI₁</code>.</p>
+  <div class="row">
+    <label>CPI năm trước:</label>
+    <input type="number" id="cpi1" value="110" step="0.1" min="1" oninput="calcCPI()">
+    <label>CPI năm sau:</label>
+    <input type="number" id="cpi2" value="116.6" step="0.1" min="1" oninput="calcCPI()">
+  </div>
+  <div class="result" id="cpiout"></div>
+</div>
+
+<h2>3. Lãi danh nghĩa vs Lãi thực (Fisher)</h2>
+<div class="card">
+  <p class="note">Lãi thực = phần tăng sức mua thật: <code>(1+r)/(1+i) − 1</code>. Hai đường dưới: tăng trưởng danh nghĩa vs sức mua thực.</p>
+  <div class="row">
+    <label>Lãi danh nghĩa r (%/năm):</label>
+    <input type="range" id="nom" min="0" max="20" value="8" step="0.5" oninput="drawFisher()">
+    <span class="val" id="nomv">8%</span>
+  </div>
+  <div class="row">
+    <label>Lạm phát i (%/năm):</label>
+    <input type="range" id="finf" min="0" max="20" value="6" step="0.5" oninput="drawFisher()">
+    <span class="val" id="finfv">6%</span>
+  </div>
+  <div class="row">
+    <label>Vốn gốc (triệu):</label>
+    <input type="number" id="fp" value="100" step="10" min="1" oninput="drawFisher()">
+  </div>
+  <div class="row">
+    <label>Số năm:</label>
+    <input type="range" id="fn" min="1" max="40" value="20" step="1" oninput="drawFisher()">
+    <span class="val" id="fnv">20</span>
+  </div>
+  <div class="legend">
+    <span><i class="swatch" style="background:#94a3b8"></i> Giá trị danh nghĩa</span>
+    <span><i class="swatch" style="background:#059669"></i> Sức mua thực (hôm nay)</span>
+  </div>
+  <canvas id="fc" width="760" height="300"></canvas>
+  <div class="result" id="fout"></div>
+</div>
+
+<script>
+const fmt = (x, d=1) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+
+// ---------- Module 1: Purchasing power ----------
+function drawPP() {
+  const M = Math.max(1, +document.getElementById('amt').value);
+  const i = +document.getElementById('inf').value / 100;
+  const n = +document.getElementById('yrs').value;
+  const pho0 = Math.max(1000, +document.getElementById('pho').value);
+  document.getElementById('infv').textContent = (i*100).toFixed(1).replace(/\.0$/,'') + '%';
+  document.getElementById('yrsv').textContent = n;
+
+  const cv = document.getElementById('ppc'), ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height, padL = 60, padR = 16, padT = 16, padB = 34;
+  ctx.clearRect(0,0,W,H);
+  const maxY = M * 1.05;
+  const x = t => padL + (t/n)*(W-padL-padR);
+  const y = v => H - padB - (v/maxY)*(H-padT-padB);
+
+  ctx.strokeStyle = '#eef2f0'; ctx.fillStyle = '#64748b'; ctx.font = '11px sans-serif'; ctx.textAlign='right';
+  for (let k=0;k<=4;k++){ const v=maxY*k/4, yy=y(v); ctx.beginPath(); ctx.moveTo(padL,yy); ctx.lineTo(W-padR,yy); ctx.stroke(); ctx.fillText(Math.round(v),padL-6,yy+4); }
+  ctx.textAlign='center';
+  for (let k=0;k<=4;k++){ const tt=n*k/4; ctx.fillText(Math.round(tt),x(tt),H-padB+18); }
+  ctx.fillText('năm', W-padR-12, H-padB+18);
+
+  // đường giá trị danh nghĩa (không đổi) - xám đứt
+  ctx.strokeStyle='#cbd5e0'; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(x(0),y(M)); ctx.lineTo(x(n),y(M)); ctx.stroke(); ctx.setLineDash([]);
+  // đường sức mua thực - xanh
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath();
+  for (let t=0;t<=n;t+=n/120){ const v=M/Math.pow(1+i,t); t===0?ctx.moveTo(x(t),y(v)):ctx.lineTo(x(t),y(v)); }
+  ctx.stroke();
+
+  const real = M/Math.pow(1+i,n);
+  document.getElementById('ppout').innerHTML =
+    `Sau <strong>${n}</strong> năm, lạm phát <strong>${(i*100).toFixed(1).replace(/\.0$/,'')}%</strong>:<br>`+
+    `<span class="stat">Danh nghĩa vẫn: <strong>${fmt(M,0)}</strong> tr</span>`+
+    `<span class="stat warn">Sức mua thực: <strong>${fmt(real)}</strong> tr</span>`+
+    `<span class="stat warn">Mất: <strong>${fmt((1-real/M)*100)}%</strong></span>`;
+
+  // bowls: số tô phở mỗi mốc (giá phở tăng theo i nên = M/pho0 không đổi danh nghĩa? Không: tiền cố định M, phở tăng → tô giảm)
+  const marks = [0, Math.round(n/3), Math.round(2*n/3), n];
+  let html='';
+  marks.forEach(t=>{
+    const phoT = pho0*Math.pow(1+i,t);
+    const bowlsN = Math.floor(M*1e6/phoT);
+    const show = Math.min(bowlsN, 40);
+    html += `<div style="margin:4px 0;font-size:14px"><strong>Năm ${t}:</strong> ${bowlsN.toLocaleString('vi-VN')} tô `+
+            `<span style="font-size:20px">${'🍜'.repeat(Math.max(1,Math.round(show/2)))}</span></div>`;
+  });
+  document.getElementById('bowls').innerHTML = html;
+}
+
+// ---------- Module 2: CPI ----------
+function calcCPI() {
+  const a = +document.getElementById('cpi1').value, b = +document.getElementById('cpi2').value;
+  const rate = (b-a)/a*100;
+  const cls = rate < 0 ? 'warn' : '';
+  document.getElementById('cpiout').innerHTML =
+    `Lạm phát = (${b} − ${a}) / ${a} = <span class="stat ${cls}"><strong>${rate.toFixed(2)}%</strong></span>`+
+    (rate < 0 ? ' → <strong>giảm phát (deflation)</strong>: mức giá chung giảm.'
+              : rate > 10 ? ' → lạm phát cao.' : ' → trong vùng bình thường.');
+}
+
+// ---------- Module 3: Fisher ----------
+function drawFisher() {
+  const r = +document.getElementById('nom').value/100;
+  const i = +document.getElementById('finf').value/100;
+  const P = Math.max(1, +document.getElementById('fp').value);
+  const n = +document.getElementById('fn').value;
+  document.getElementById('nomv').textContent=(r*100).toFixed(1).replace(/\.0$/,'')+'%';
+  document.getElementById('finfv').textContent=(i*100).toFixed(1).replace(/\.0$/,'')+'%';
+  document.getElementById('fnv').textContent=n;
+
+  const realRate = (1+r)/(1+i)-1;
+  const cv=document.getElementById('fc'), ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=64,padR=16,padT=16,padB=34;
+  ctx.clearRect(0,0,W,H);
+  const nomEnd=P*Math.pow(1+r,n);
+  const maxY=Math.max(nomEnd,P)*1.05;
+  const x=t=>padL+(t/n)*(W-padL-padR);
+  const y=v=>H-padB-(v/maxY)*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const v=maxY*k/4,yy=y(v);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(Math.round(v).toLocaleString('vi-VN'),padL-6,yy+4);}
+  ctx.textAlign='center';
+  for(let k=0;k<=4;k++){const tt=n*k/4;ctx.fillText(Math.round(tt),x(tt),H-padB+18);}
+  // danh nghĩa - xám
+  ctx.strokeStyle='#94a3b8'; ctx.lineWidth=2.5; ctx.beginPath();
+  for(let t=0;t<=n;t+=n/120){const v=P*Math.pow(1+r,t);t===0?ctx.moveTo(x(t),y(v)):ctx.lineTo(x(t),y(v));}
+  ctx.stroke();
+  // thực - xanh
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath();
+  for(let t=0;t<=n;t+=n/120){const v=P*Math.pow(1+realRate,t);t===0?ctx.moveTo(x(t),y(v)):ctx.lineTo(x(t),y(v));}
+  ctx.stroke();
+
+  const nomV=P*Math.pow(1+r,n), realV=P*Math.pow(1+realRate,n);
+  const cls=realRate<0?'warn':'';
+  document.getElementById('fout').innerHTML=
+    `Lãi thực = 1,${(r*100).toFixed(0)} / 1,${(i*100).toFixed(0)} − 1 = <span class="stat ${cls}"><strong>${(realRate*100).toFixed(2)}%</strong></span>`+
+    `<span class="stat">(xấp xỉ ${((r-i)*100).toFixed(1)}%)</span><br>`+
+    `Sau ${n} năm: <span class="stat" style="background:#94a3b8;color:#fff"><strong style="color:#fff">${fmt(nomV,0)}</strong> tr danh nghĩa</span>`+
+    `<span class="stat ${cls}">= <strong>${fmt(realV,0)}</strong> tr sức mua hôm nay</span>`+
+    (realRate<0?'<br>→ <strong>Lãi thực âm</strong>: con số tăng nhưng sức mua giảm!':'');
+}
+
+drawPP(); calcCPI(); drawFisher();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

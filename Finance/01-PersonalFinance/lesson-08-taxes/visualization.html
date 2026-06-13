@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Thuế cơ bản</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 175px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 110px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 88px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  .bracketbar { display: flex; height: 38px; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e0; margin: 12px 0; }
+  .bracketbar > div { display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 600; min-width: 0; }
+  table.mini { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 10px; }
+  table.mini th, table.mini td { border: 1px solid #d1fae5; padding: 6px 8px; text-align: right; }
+  table.mini th { background: #ecfdf5; color: #047857; }
+  table.mini td:first-child, table.mini th:first-child { text-align: left; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; margin: 6px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 16px; height: 4px; border-radius: 2px; display: inline-block; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tài chính cá nhân</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-risk-insurance/visualization.html">← L7: Rủi ro &amp; bảo hiểm</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Thuế</span>
+</nav>
+
+<main>
+<h1>Lesson 08 — Thuế cơ bản</h1>
+<p>Ba công cụ: <strong>máy tính thuế lũy tiến</strong> (chia bậc), <strong>đường cong suất biên vs trung bình</strong>, và <strong>lợi nhuận thực sau thuế</strong>. Dùng biểu thuế TNCN Việt Nam.</p>
+
+<h2>1. Máy tính thuế lũy tiến (TNCN Việt Nam)</h2>
+<div class="card">
+  <p class="note">Mỗi bậc chỉ đánh thuế trên <strong>phần thu nhập trong bậc đó</strong>. Thanh dưới tô màu phần đóng góp thuế mỗi bậc.</p>
+  <div class="row">
+    <label>Thu nhập tính thuế (triệu/th):</label>
+    <input type="number" id="ti" value="30" step="1" min="0" oninput="calcTax()">
+    <span class="note">(đã trừ giảm trừ gia cảnh)</span>
+  </div>
+  <div class="bracketbar" id="bbar"></div>
+  <div id="taxtable"></div>
+  <div class="result" id="taxout"></div>
+</div>
+
+<h2>2. Suất biên vs Suất trung bình</h2>
+<div class="card">
+  <p class="note">Suất biên (đỏ, bậc thang) = đồng tiếp theo bị đánh bao nhiêu. Suất trung bình (xanh, mượt) = % thực trên toàn bộ — luôn nằm dưới.</p>
+  <div class="legend">
+    <span><i class="swatch" style="background:#ef4444"></i> Suất biên</span>
+    <span><i class="swatch" style="background:#059669"></i> Suất trung bình</span>
+  </div>
+  <canvas id="ratec" width="760" height="300"></canvas>
+  <p class="note">→ Hai đường không bao giờ cắt nhau (trung bình ≤ biên). "Lên bậc" chỉ tăng suất cho phần thu nhập mới — không bao giờ làm bạn lỗ.</p>
+</div>
+
+<h2>3. Lợi nhuận thực sau thuế</h2>
+<div class="card">
+  <p class="note"><code>thực sau thuế = (1 + r(1−t)) / (1+i) − 1</code>. Bóc tách: gộp → sau thuế → sau lạm phát.</p>
+  <div class="row">
+    <label>Lợi nhuận gộp r (%/năm):</label>
+    <input type="range" id="r" min="0" max="20" value="10" step="0.5" oninput="calcAfter()">
+    <span class="val" id="rv">10%</span>
+  </div>
+  <div class="row">
+    <label>Thuế trên lãi t (%):</label>
+    <input type="range" id="t" min="0" max="40" value="20" step="1" oninput="calcAfter()">
+    <span class="val" id="tv">20%</span>
+  </div>
+  <div class="row">
+    <label>Lạm phát i (%/năm):</label>
+    <input type="range" id="i" min="0" max="15" value="6" step="0.5" oninput="calcAfter()">
+    <span class="val" id="iv">6%</span>
+  </div>
+  <div class="bracketbar" id="afterbar" style="height:30px"></div>
+  <div class="result" id="afterout"></div>
+</div>
+
+<script>
+const fmt = (x, d=2) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+// bậc thuế: [ngưỡng trên (triệu), suất]
+const BR = [[5,0.05],[10,0.10],[18,0.15],[32,0.20],[52,0.25],[80,0.30],[Infinity,0.35]];
+const COLORS = ['#34d399','#10b981','#059669','#0ea5e9','#6366f1','#a855f7','#ef4444'];
+
+function taxOf(ti) {
+  let tax=0, prev=0, marginal=0;
+  const parts=[];
+  for (let k=0;k<BR.length;k++){
+    const [hi,rate]=BR[k];
+    if (ti>prev){
+      const inBracket=Math.min(ti,hi)-prev;
+      tax+=inBracket*rate; marginal=rate;
+      parts.push({k, amount:inBracket, rate, tax:inBracket*rate});
+    }
+    prev=hi;
+    if (ti<=hi) break;
+  }
+  return {tax, marginal, parts};
+}
+
+// ---------- Module 1 ----------
+function calcTax() {
+  const ti=Math.max(0,+document.getElementById('ti').value);
+  const {tax, marginal, parts}=taxOf(ti);
+  // thanh
+  let bar='';
+  parts.forEach(p=>{ const w=ti>0?(p.amount/ti*100):0; bar+=`<div style="width:${w}%;background:${COLORS[p.k]}" title="Bậc ${p.k+1}">${(p.rate*100)}%</div>`; });
+  document.getElementById('bbar').innerHTML=bar||'<div style="width:100%;background:#cbd5e0;color:#475569">0</div>';
+  // bảng
+  let rows='<table class="mini"><tr><th>Bậc</th><th>Phần TN (tr)</th><th>Suất</th><th>Thuế (tr)</th></tr>';
+  parts.forEach(p=>{ rows+=`<tr><td>Bậc ${p.k+1}</td><td>${fmt(p.amount)}</td><td>${(p.rate*100)}%</td><td>${fmt(p.tax)}</td></tr>`; });
+  rows+=`<tr style="font-weight:700;background:#ecfdf5"><td>Tổng</td><td>${fmt(ti)}</td><td>—</td><td>${fmt(tax)}</td></tr></table>`;
+  document.getElementById('taxtable').innerHTML=rows;
+  const avg=ti>0?tax/ti*100:0;
+  document.getElementById('taxout').innerHTML=
+    `<span class="stat">Tổng thuế: <strong>${fmt(tax)}</strong> tr/tháng</span>`+
+    `<span class="stat">Suất biên: <strong>${(marginal*100)}%</strong></span>`+
+    `<span class="stat" style="background:#bbf7d0">Suất trung bình: <strong>${avg.toFixed(1)}%</strong></span>`+
+    `<span class="stat">Thực nhận: <strong>${fmt(ti-tax)}</strong> tr</span>`;
+}
+
+// ---------- Module 2 ----------
+function drawRates() {
+  const cv=document.getElementById('ratec'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=46,padR=16,padT=16,padB=40;
+  ctx.clearRect(0,0,W,H);
+  const maxTI=120;
+  const x=v=>padL+(v/maxTI)*(W-padL-padR);
+  const y=p=>H-padB-(p/40)*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const p=40*k/4,yy=y(p);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(p+'%',padL-6,yy+4);}
+  ctx.textAlign='center';
+  for(let v=0;v<=maxTI;v+=20){ctx.fillText(v,x(v),H-padB+18);}
+  ctx.fillText('Thu nhập tính thuế (triệu/tháng) →', W/2, H-8);
+  // suất biên - bậc thang đỏ
+  ctx.strokeStyle='#ef4444'; ctx.lineWidth=2.5; ctx.beginPath();
+  let prev=0; ctx.moveTo(x(0),y(5));
+  BR.forEach(([hi,rate])=>{ const right=Math.min(hi,maxTI); ctx.lineTo(x(prev),y(rate*100)); ctx.lineTo(x(right),y(rate*100)); prev=right; });
+  ctx.stroke();
+  // suất trung bình - mượt xanh
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath();
+  for(let v=0.5;v<=maxTI;v+=0.5){ const {tax}=taxOf(v); const avg=tax/v*100; v===0.5?ctx.moveTo(x(v),y(avg)):ctx.lineTo(x(v),y(avg)); }
+  ctx.stroke();
+}
+
+// ---------- Module 3 ----------
+function calcAfter() {
+  const r=+document.getElementById('r').value/100;
+  const t=+document.getElementById('t').value/100;
+  const i=+document.getElementById('i').value/100;
+  document.getElementById('rv').textContent=(r*100).toFixed(1).replace(/\.0$/,'')+'%';
+  document.getElementById('tv').textContent=(t*100).toFixed(0)+'%';
+  document.getElementById('iv').textContent=(i*100).toFixed(1).replace(/\.0$/,'')+'%';
+  const afterTax=r*(1-t);
+  const realAfter=(1+afterTax)/(1+i)-1;
+  // thanh phân rã: thực | thuế ăn | lạm phát ăn (theo điểm %)
+  const total=r*100||0.0001;
+  const realP=Math.max(0,realAfter*100);
+  const taxEat=(r-afterTax)*100;
+  const infEat=Math.max(0,(afterTax-realAfter)*100 - (realAfter<0?0:0));
+  const lossExtra=realAfter<0?(-realAfter*100):0;
+  const sum=realP+taxEat+Math.max(0,afterTax*100-realP);
+  const seg=(v,c,lbl)=>`<div style="width:${Math.max(0,v/ (Math.max(total,realP+taxEat+Math.max(0,afterTax*100-realP)))*100)}%;background:${c}">${v>1.5?lbl:''}</div>`;
+  document.getElementById('afterbar').innerHTML=
+    seg(realP,'#059669','Thực '+realP.toFixed(1)+'%')+
+    seg(Math.max(0,afterTax*100-realP),'#f59e0b','Lạm phát')+
+    seg(taxEat,'#ef4444','Thuế '+taxEat.toFixed(1)+'%');
+  document.getElementById('afterout').innerHTML=
+    `<span class="stat">Gộp: <strong>${(r*100).toFixed(1)}%</strong></span>`+
+    `<span class="stat" style="background:#fed7aa">Sau thuế: <strong>${(afterTax*100).toFixed(2)}%</strong></span>`+
+    `<span class="stat" style="background:${realAfter<0?'#fecaca':'#bbf7d0'}">Thực sau thuế: <strong>${(realAfter*100).toFixed(2)}%</strong></span><br>`+
+    `<span style="font-size:13px;color:#475569">→ ${realAfter<0?'<strong>Âm</strong>: sau thuế &amp; lạm phát, sức mua <strong>giảm</strong>!':'Lợi nhuận "'+(r*100).toFixed(0)+'%" thực ra chỉ còn '+(realAfter*100).toFixed(2)+'% sức mua thật sau thuế &amp; lạm phát.'}</span>`;
+}
+
+calcTax(); drawRates(); calcAfter();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

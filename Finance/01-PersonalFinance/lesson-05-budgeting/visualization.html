@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Ngân sách &amp; Dòng tiền</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 180px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 110px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 78px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .stat.warn { background: #fee2e2; } .stat.warn strong { color: #b91c1c; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; max-width: 100%; height: auto; margin: 12px auto; }
+  .flex2 { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+  .barwrap { margin: 12px 0; }
+  .seg { height: 34px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid #cbd5e0; }
+  .seg > div { display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; font-weight: 600; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tài chính cá nhân</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-debt-loans/visualization.html">← L4: Nợ &amp; vay</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Ngân sách</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-goals-saving/visualization.html">L6: Mục tiêu &amp; tiết kiệm →</a>
+</nav>
+
+<main>
+<h1>Lesson 05 — Ngân sách &amp; Dòng tiền cá nhân</h1>
+<p>Ba công cụ: <strong>chia ngân sách 50/30/20</strong>, <strong>quỹ khẩn cấp &amp; runway</strong>, và <strong>tác động tỷ lệ tiết kiệm</strong> tới tự do tài chính.</p>
+
+<h2>1. Máy chia ngân sách 50/30/20</h2>
+<div class="card">
+  <p class="note">Phân bổ thu nhập <strong>ròng</strong> (sau thuế). Chỉnh tỷ lệ tùy biến; cảnh báo nếu chi "Cần" thực tế vượt khung.</p>
+  <div class="row">
+    <label>Thu nhập ròng (triệu/th):</label>
+    <input type="number" id="income" value="20" step="1" min="1" oninput="drawBudget()">
+  </div>
+  <div class="row">
+    <label>% Cần:</label>
+    <input type="range" id="pNeed" min="20" max="80" value="50" step="5" oninput="syncBudget('need')">
+    <span class="val" id="pNeedv">50%</span>
+  </div>
+  <div class="row">
+    <label>% Muốn:</label>
+    <input type="range" id="pWant" min="0" max="60" value="30" step="5" oninput="syncBudget('want')">
+    <span class="val" id="pWantv">30%</span>
+  </div>
+  <div class="row">
+    <label>Chi "Cần" thực tế (triệu):</label>
+    <input type="number" id="actualNeed" value="10" step="0.5" min="0" oninput="drawBudget()">
+  </div>
+  <div class="barwrap"><div class="seg" id="seg"></div></div>
+  <div class="result" id="budgetout"></div>
+</div>
+
+<h2>2. Quỹ khẩn cấp &amp; Runway</h2>
+<div class="card">
+  <p class="note">Runway = số tháng cầm cự nếu mất hết thu nhập = quỹ / chi thiết yếu tháng.</p>
+  <div class="row">
+    <label>Chi thiết yếu (triệu/th):</label>
+    <input type="number" id="essential" value="10" step="0.5" min="0.5" oninput="drawEF()">
+  </div>
+  <div class="row">
+    <label>Tiền mặt hiện có (triệu):</label>
+    <input type="number" id="cash" value="30" step="5" min="0" oninput="drawEF()">
+  </div>
+  <canvas id="efc" width="700" height="120"></canvas>
+  <div class="result" id="efout"></div>
+</div>
+
+<h2>3. Tác động tỷ lệ tiết kiệm tới tự do tài chính</h2>
+<div class="card">
+  <p class="note">Giả định lợi nhuận thực 5%/năm, mục tiêu tích lũy 25× chi tiêu năm (quy tắc 4%). Minh họa giáo dục.</p>
+  <div class="row">
+    <label>Tỷ lệ tiết kiệm:</label>
+    <input type="range" id="srate" min="5" max="80" value="20" step="5" oninput="drawFI()">
+    <span class="val" id="sratev">20%</span>
+  </div>
+  <canvas id="fic" width="760" height="280"></canvas>
+  <div class="result" id="fiout"></div>
+</div>
+
+<script>
+const fmt = (x, d=1) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+
+// ---------- Module 1 ----------
+function syncBudget(which) {
+  let need=+document.getElementById('pNeed').value, want=+document.getElementById('pWant').value;
+  if (need+want>100){ if(which==='need') want=100-need; else need=100-want; document.getElementById('pNeed').value=need; document.getElementById('pWant').value=want; }
+  drawBudget();
+}
+function drawBudget() {
+  const inc=Math.max(1,+document.getElementById('income').value);
+  const pn=+document.getElementById('pNeed').value, pw=+document.getElementById('pWant').value, ps=100-pn-pw;
+  document.getElementById('pNeedv').textContent=pn+'%';
+  document.getElementById('pWantv').textContent=pw+'%';
+  const need=inc*pn/100, want=inc*pw/100, save=inc*ps/100;
+  const actual=+document.getElementById('actualNeed').value;
+  document.getElementById('seg').innerHTML=
+    `<div style="width:${pn}%;background:#3b82f6">Cần ${pn}%</div>`+
+    `<div style="width:${pw}%;background:#f59e0b">Muốn ${pw}%</div>`+
+    `<div style="width:${ps}%;background:#059669">Tiết kiệm ${ps}%</div>`;
+  let warn='';
+  if (actual>need) warn=`<br><span class="stat warn">⚠ Chi "Cần" thực tế ${fmt(actual)} tr vượt khung ${fmt(need)} tr (+${fmt(actual-need)} tr) → tiết kiệm bị bóp.</span>`;
+  document.getElementById('budgetout').innerHTML=
+    `<span class="stat">Cần: <strong>${fmt(need)}</strong> tr</span>`+
+    `<span class="stat">Muốn: <strong>${fmt(want)}</strong> tr</span>`+
+    `<span class="stat" style="background:#bbf7d0">Tiết kiệm: <strong>${fmt(save)}</strong> tr</span>`+warn;
+}
+
+// ---------- Module 2 ----------
+function drawEF() {
+  const ess=Math.max(0.5,+document.getElementById('essential').value);
+  const cash=Math.max(0,+document.getElementById('cash').value);
+  const runway=cash/ess;
+  const target3=3*ess, target6=6*ess;
+  const cv=document.getElementById('efc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  const maxMonths=Math.max(6, Math.ceil(runway)+1);
+  const x=m=>20+(m/maxMonths)*(W-40);
+  // thanh runway
+  ctx.fillStyle='#e2e8f0'; ctx.fillRect(20,40,W-40,28);
+  ctx.fillStyle = runway>=6?'#059669':runway>=3?'#f59e0b':'#ef4444';
+  ctx.fillRect(20,40,(runway/maxMonths)*(W-40),28);
+  // mốc 3 và 6
+  [3,6].forEach(m=>{ ctx.strokeStyle='#475569'; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(x(m),30); ctx.lineTo(x(m),78); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#475569'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText(m+' tháng',x(m),96); });
+  ctx.fillStyle='#1a202c'; ctx.font='bold 13px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('Runway: '+fmt(runway)+' tháng', 24, 30);
+
+  const status = runway>=6?'🟢 An toàn (≥6 tháng)':runway>=3?'🟡 Tạm ổn (3–6 tháng)':'🔴 Mỏng (<3 tháng)';
+  document.getElementById('efout').innerHTML=
+    `<span class="stat">Runway: <strong>${fmt(runway)}</strong> tháng</span> ${status}<br>`+
+    `<span class="stat">Mục tiêu 3 th: <strong>${fmt(target3,0)}</strong> tr</span>`+
+    `<span class="stat">Mục tiêu 6 th: <strong>${fmt(target6,0)}</strong> tr</span>`+
+    (cash<target6?`<span class="stat warn">Còn thiếu (tới 6 th): <strong>${fmt(target6-cash,0)}</strong> tr</span>`:`<span class="stat" style="background:#bbf7d0">Đã đủ 6 tháng ✓</span>`);
+}
+
+// ---------- Module 3: FI time ----------
+// năm để đạt 25x chi tiêu năm, lợi nhuận thực g, tiết kiệm tỷ lệ s của thu nhập
+// thu=1, chi=1-s, mục tiêu=25*(1-s), đóng s mỗi năm: s*((1+g)^t-1)/g = 25*(1-s)
+function yearsToFI(s, g) {
+  if (s<=0) return Infinity;
+  const target=25*(1-s);
+  // giải t: s/g*((1+g)^t -1) = target -> (1+g)^t = 1 + target*g/s
+  const inner=1+target*g/s;
+  return Math.log(inner)/Math.log(1+g);
+}
+function drawFI() {
+  const s=+document.getElementById('srate').value/100;
+  document.getElementById('sratev').textContent=(s*100).toFixed(0)+'%';
+  const g=0.05;
+  const cv=document.getElementById('fic'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=50,padR=16,padT=16,padB=40;
+  ctx.clearRect(0,0,W,H);
+  const xs=[]; for(let p=5;p<=80;p+=5)xs.push(p);
+  const ys=xs.map(p=>yearsToFI(p/100,g));
+  const maxY=55;
+  const x=p=>padL+((p-5)/75)*(W-padL-padR);
+  const y=v=>H-padB-(Math.min(v,maxY)/maxY)*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=5;k++){const v=maxY*k/5,yy=y(v);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(Math.round(v),padL-6,yy+4);}
+  ctx.textAlign='center';
+  for(let p=10;p<=80;p+=10){ctx.fillText(p+'%',x(p),H-padB+18);}
+  ctx.fillText('Tỷ lệ tiết kiệm →', W/2, H-8);
+  // đường cong
+  ctx.strokeStyle='#059669'; ctx.lineWidth=3; ctx.beginPath();
+  xs.forEach((p,i)=>{ i===0?ctx.moveTo(x(p),y(ys[i])):ctx.lineTo(x(p),y(ys[i])); });
+  ctx.stroke();
+  // điểm hiện tại
+  const cur=yearsToFI(s,g);
+  ctx.fillStyle='#b91c1c'; ctx.beginPath(); ctx.arc(x(s*100),y(cur),6,0,7); ctx.fill();
+
+  document.getElementById('fiout').innerHTML=
+    `Tiết kiệm <strong>${(s*100).toFixed(0)}%</strong> thu nhập (lợi nhuận thực 5%/năm):<br>`+
+    `<span class="stat" style="background:#fecaca">≈ <strong>${cur===Infinity?'∞':fmt(cur,1)}</strong> năm tới tự do tài chính</span>`+
+    `<span style="font-size:13px;color:#475569"> — tăng tỷ lệ tiết kiệm rút ngắn thời gian phi tuyến (vừa tăng tiền để dành, vừa giảm chi cần bù).</span>`;
+}
+
+drawBudget(); drawEF(); drawFI();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

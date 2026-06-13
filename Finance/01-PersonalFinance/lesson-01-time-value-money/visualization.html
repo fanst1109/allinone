@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Giá trị thời gian của tiền &amp; Lãi kép</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 160px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 110px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  select { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 78px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .stat.simple { background: #fef3c7; }
+  .stat.simple strong { color: #b45309; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; margin: 6px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 16px; height: 4px; border-radius: 2px; display: inline-block; }
+  table.mini { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 10px; }
+  table.mini th, table.mini td { border: 1px solid #d1fae5; padding: 6px 8px; text-align: right; }
+  table.mini th { background: #ecfdf5; color: #047857; }
+  table.mini td:first-child, table.mini th:first-child { text-align: left; }
+  button { background: #059669; color: #fff; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: 600; margin: 3px; }
+  button:hover { background: #047857; }
+  .barwrap { display: flex; height: 30px; border-radius: 6px; overflow: hidden; margin: 10px 0; border: 1px solid #cbd5e0; }
+  .bar-principal { background: #94a3b8; }
+  .bar-interest { background: #059669; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tài chính cá nhân</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Giá trị thời gian của tiền</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-inflation/visualization.html">L2: Lạm phát →</a>
+</nav>
+
+<main>
+<h1>Lesson 01 — Giá trị thời gian của tiền &amp; Lãi kép</h1>
+<p>Bốn công cụ tương tác để <em>thấy</em> tiền lớn lên theo thời gian: <strong>máy tính lãi kép</strong> (so với lãi đơn), <strong>chiết khấu PV↔FV</strong>, <strong>Quy tắc 72</strong>, và <strong>mô phỏng tiết kiệm đều</strong>.</p>
+
+<h2>1. Máy tính lãi kép — Lãi kép vs Lãi đơn</h2>
+<div class="card">
+  <p class="note">Kéo các slider để thấy đường lãi kép (xanh) ngày càng bứt khỏi đường lãi đơn (vàng). Khoảng cách giữa hai đường chính là "lãi sinh ra từ lãi".</p>
+  <div class="row">
+    <label>Vốn gốc P (triệu):</label>
+    <input type="number" id="P" value="100" step="10" min="1" oninput="drawGrowth()">
+  </div>
+  <div class="row">
+    <label>Lãi suất r (%/năm):</label>
+    <input type="range" id="r" min="1" max="20" value="10" step="0.5" oninput="drawGrowth()">
+    <span class="val" id="rv">10%</span>
+  </div>
+  <div class="row">
+    <label>Số năm n:</label>
+    <input type="range" id="n" min="1" max="40" value="30" step="1" oninput="drawGrowth()">
+    <span class="val" id="nv">30</span>
+  </div>
+  <div class="row">
+    <label>Tần suất ghép lãi:</label>
+    <select id="m" onchange="drawGrowth()">
+      <option value="1">Năm (m=1)</option>
+      <option value="4">Quý (m=4)</option>
+      <option value="12">Tháng (m=12)</option>
+      <option value="365">Ngày (m=365)</option>
+      <option value="0">Liên tục (e^rt)</option>
+    </select>
+  </div>
+  <div class="legend">
+    <span><i class="swatch" style="background:#059669"></i> Lãi kép</span>
+    <span><i class="swatch" style="background:#f59e0b"></i> Lãi đơn</span>
+  </div>
+  <canvas id="growth" width="760" height="340"></canvas>
+  <div class="result" id="growthout"></div>
+</div>
+
+<h2>2. Chiết khấu — Giá trị hiện tại (PV) của một khoản tương lai</h2>
+<div class="card">
+  <p class="note">Một khoản tiền tương lai FV "teo" về hôm nay khi tăng discount rate hoặc kéo dài thời gian: <code>PV = FV / (1+r)ⁿ</code>.</p>
+  <div class="row">
+    <label>Khoản tương lai FV (triệu):</label>
+    <input type="number" id="fv" value="1000" step="50" min="1" oninput="drawPV()">
+  </div>
+  <div class="row">
+    <label>Discount rate r (%/năm):</label>
+    <input type="range" id="dr" min="1" max="20" value="9" step="0.5" oninput="drawPV()">
+    <span class="val" id="drv">9%</span>
+  </div>
+  <div class="row">
+    <label>Số năm n:</label>
+    <input type="range" id="dn" min="1" max="40" value="10" step="1" oninput="drawPV()">
+    <span class="val" id="dnv">10</span>
+  </div>
+  <div class="barwrap" id="pvbar"></div>
+  <div class="result" id="pvout"></div>
+</div>
+
+<h2>3. Quy tắc 72 — bao lâu tiền gấp đôi?</h2>
+<div class="card">
+  <p class="note">Nhẩm nhanh: <code>thời gian gấp đôi ≈ 72 / r(%)</code>. So với giá trị chính xác <code>ln2 / ln(1+r)</code>.</p>
+  <div class="row">
+    <label>Lãi suất r (%/năm):</label>
+    <input type="range" id="r72" min="1" max="24" value="8" step="0.5" oninput="calc72()">
+    <span class="val" id="r72v">8%</span>
+  </div>
+  <div class="result" id="out72"></div>
+  <div class="row" style="margin-top:10px">
+    <button onclick="set72(6)">6%</button>
+    <button onclick="set72(8)">8%</button>
+    <button onclick="set72(10)">10%</button>
+    <button onclick="set72(12)">12%</button>
+  </div>
+</div>
+
+<h2>4. Mô phỏng tiết kiệm đều (Annuity) — gốc đã đóng vs lãi sinh ra</h2>
+<div class="card">
+  <p class="note">Đóng đều mỗi năm, lãi kép. Cột xám = tổng tiền bạn bỏ ra; cột xanh = phần lãi kép tạo thêm. Thấy phần xanh "nuốt" phần xám theo thời gian.</p>
+  <div class="row">
+    <label>Đóng mỗi năm PMT (triệu):</label>
+    <input type="number" id="pmt" value="10" step="1" min="1" oninput="drawAnnuity()">
+  </div>
+  <div class="row">
+    <label>Lãi suất r (%/năm):</label>
+    <input type="range" id="ar" min="1" max="15" value="8" step="0.5" oninput="drawAnnuity()">
+    <span class="val" id="arv">8%</span>
+  </div>
+  <div class="row">
+    <label>Số năm n:</label>
+    <input type="range" id="an" min="1" max="40" value="25" step="1" oninput="drawAnnuity()">
+    <span class="val" id="anv">25</span>
+  </div>
+  <canvas id="annuity" width="760" height="300"></canvas>
+  <div class="result" id="annout"></div>
+</div>
+
+<script>
+const fmt = (x, d=2) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+
+// ---------- Module 1: Growth chart ----------
+function compoundAt(P, r, t, m) {
+  if (m === 0) return P * Math.exp(r * t);      // liên tục
+  return P * Math.pow(1 + r / m, m * t);
+}
+function drawGrowth() {
+  const P = Math.max(1, +document.getElementById('P').value);
+  const r = +document.getElementById('r').value / 100;
+  const n = +document.getElementById('n').value;
+  const m = +document.getElementById('m').value;
+  document.getElementById('rv').textContent = (r*100).toFixed(1).replace(/\.0$/,'') + '%';
+  document.getElementById('nv').textContent = n;
+
+  const cv = document.getElementById('growth'), ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height, padL = 64, padR = 16, padT = 16, padB = 34;
+  ctx.clearRect(0, 0, W, H);
+
+  // dữ liệu
+  const compEnd = compoundAt(P, r, n, m);
+  const simpEnd = P * (1 + r * n);
+  const maxY = Math.max(compEnd, simpEnd) * 1.05;
+  const x = t => padL + (t / n) * (W - padL - padR);
+  const y = v => H - padB - (v / maxY) * (H - padT - padB);
+
+  // lưới ngang + nhãn trục y
+  ctx.strokeStyle = '#eef2f0'; ctx.fillStyle = '#64748b'; ctx.font = '11px sans-serif';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const v = maxY * i / 4, yy = y(v);
+    ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(W - padR, yy); ctx.stroke();
+    ctx.fillText(Math.round(v).toLocaleString('vi-VN'), padL - 6, yy + 4);
+  }
+  // trục x nhãn năm
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 4; i++) {
+    const tt = n * i / 4;
+    ctx.fillText(Math.round(tt), x(tt), H - padB + 18);
+  }
+  ctx.fillText('năm', W - padR - 12, H - padB + 18);
+
+  // đường lãi đơn (vàng)
+  ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2.5; ctx.beginPath();
+  for (let t = 0; t <= n; t += n/120) {
+    const v = P * (1 + r * t);
+    t === 0 ? ctx.moveTo(x(t), y(v)) : ctx.lineTo(x(t), y(v));
+  }
+  ctx.stroke();
+  // đường lãi kép (xanh)
+  ctx.strokeStyle = '#059669'; ctx.lineWidth = 3; ctx.beginPath();
+  for (let t = 0; t <= n; t += n/120) {
+    const v = compoundAt(P, r, t, m);
+    t === 0 ? ctx.moveTo(x(t), y(v)) : ctx.lineTo(x(t), y(v));
+  }
+  ctx.stroke();
+
+  const ratio = compEnd / P;
+  document.getElementById('growthout').innerHTML =
+    `Sau <strong>${n}</strong> năm với lãi <strong>${(r*100).toFixed(1).replace(/\.0$/,'')}%</strong>:<br>` +
+    `<span class="stat">Lãi kép: <strong>${fmt(compEnd)}</strong> tr (×${fmt(ratio)})</span>` +
+    `<span class="stat simple">Lãi đơn: <strong>${fmt(simpEnd)}</strong> tr</span>` +
+    `<span class="stat">Chênh: <strong>${fmt(compEnd - simpEnd)}</strong> tr</span>`;
+}
+
+// ---------- Module 2: PV discounting ----------
+function drawPV() {
+  const FV = Math.max(1, +document.getElementById('fv').value);
+  const r = +document.getElementById('dr').value / 100;
+  const n = +document.getElementById('dn').value;
+  document.getElementById('drv').textContent = (r*100).toFixed(1).replace(/\.0$/,'') + '%';
+  document.getElementById('dnv').textContent = n;
+
+  const PV = FV / Math.pow(1 + r, n);
+  const lost = FV - PV;
+  const pvPct = (PV / FV * 100);
+
+  document.getElementById('pvbar').innerHTML =
+    `<div class="bar-interest" style="width:${pvPct}%"></div>` +
+    `<div class="bar-principal" style="width:${100-pvPct}%"></div>`;
+
+  document.getElementById('pvout').innerHTML =
+    `PV = ${fmt(FV,0)} / (1 + ${(r*100).toFixed(1).replace(/\.0$/,'')}%)<sup>${n}</sup> = ${fmt(FV,0)} / ${fmt(Math.pow(1+r,n))} = ` +
+    `<span class="stat" style="background:#059669;color:#fff"><strong style="color:#fff">${fmt(PV)}</strong> tr hôm nay</span><br>` +
+    `<span class="stat">Phần "mất" do chiết khấu: <strong>${fmt(lost)}</strong> tr</span>` +
+    `<span class="stat">PV chỉ còn <strong>${pvPct.toFixed(1)}%</strong> của FV</span>`;
+}
+
+// ---------- Module 3: Rule of 72 ----------
+function calc72() {
+  const r = +document.getElementById('r72').value;
+  document.getElementById('r72v').textContent = r.toFixed(1).replace(/\.0$/,'') + '%';
+  const approx = 72 / r;
+  const exact = Math.log(2) / Math.log(1 + r/100);
+  const err = Math.abs(approx - exact) / exact * 100;
+  document.getElementById('out72').innerHTML =
+    `<span class="stat">Quy tắc 72: 72 / ${r} = <strong>${fmt(approx)}</strong> năm</span>` +
+    `<span class="stat">Chính xác (ln2/ln(1+r)): <strong>${fmt(exact)}</strong> năm</span>` +
+    `<span class="stat">Sai số: <strong>${err.toFixed(1)}%</strong></span><br>` +
+    `<span style="font-size:13px;color:#475569">→ Gấp 4 lần ≈ <strong>${fmt(approx*2)}</strong> năm · gấp 8 lần ≈ <strong>${fmt(approx*3)}</strong> năm.</span>`;
+}
+function set72(v) { document.getElementById('r72').value = v; calc72(); }
+
+// ---------- Module 4: Annuity ----------
+function drawAnnuity() {
+  const PMT = Math.max(1, +document.getElementById('pmt').value);
+  const r = +document.getElementById('ar').value / 100;
+  const n = +document.getElementById('an').value;
+  document.getElementById('arv').textContent = (r*100).toFixed(1).replace(/\.0$/,'') + '%';
+  document.getElementById('anv').textContent = n;
+
+  const cv = document.getElementById('annuity'), ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height, padL = 64, padR = 16, padT = 16, padB = 34;
+  ctx.clearRect(0, 0, W, H);
+
+  // FV annuity cuối mỗi năm: cộng dồn
+  const fvEnd = PMT * (Math.pow(1+r, n) - 1) / r;
+  const contribEnd = PMT * n;
+  const maxY = fvEnd * 1.05;
+  const barW = (W - padL - padR) / n * 0.7;
+  const gap = (W - padL - padR) / n;
+  const y = v => H - padB - (v / maxY) * (H - padT - padB);
+
+  // lưới + nhãn y
+  ctx.strokeStyle = '#eef2f0'; ctx.fillStyle = '#64748b'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const v = maxY * i / 4, yy = y(v);
+    ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(W - padR, yy); ctx.stroke();
+    ctx.fillText(Math.round(v).toLocaleString('vi-VN'), padL - 6, yy + 4);
+  }
+  // cột chồng cho mỗi năm
+  for (let k = 1; k <= n; k++) {
+    const fv = PMT * (Math.pow(1+r, k) - 1) / r;   // tổng cuối năm k
+    const contrib = PMT * k;
+    const xx = padL + (k - 0.5) * gap - barW/2;
+    // gốc đã đóng (xám)
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(xx, y(contrib), barW, H - padB - y(contrib));
+    // lãi sinh ra (xanh) chồng lên
+    ctx.fillStyle = '#059669';
+    ctx.fillRect(xx, y(fv), barW, y(contrib) - y(fv));
+  }
+  // nhãn x
+  ctx.fillStyle = '#64748b'; ctx.textAlign = 'center';
+  for (let i = 0; i <= 4; i++) {
+    const k = Math.round(n * i / 4) || 1;
+    ctx.fillText(k, padL + (k - 0.5) * gap, H - padB + 18);
+  }
+
+  const interest = fvEnd - contribEnd;
+  document.getElementById('annout').innerHTML =
+    `Sau <strong>${n}</strong> năm đóng <strong>${fmt(PMT,0)}</strong> tr/năm @ ${(r*100).toFixed(1).replace(/\.0$/,'')}%:<br>` +
+    `<span class="stat" style="background:#94a3b8;color:#fff"><strong style="color:#fff">${fmt(contribEnd,0)}</strong> tr gốc đã đóng</span>` +
+    `<span class="stat"><strong>${fmt(interest)}</strong> tr lãi kép tạo thêm</span>` +
+    `<span class="stat" style="background:#059669;color:#fff">Tổng: <strong style="color:#fff">${fmt(fvEnd)}</strong> tr</span><br>` +
+    `<span style="font-size:13px;color:#475569">→ Lãi chiếm <strong>${(interest/fvEnd*100).toFixed(0)}%</strong> giá trị cuối kỳ dù bạn chỉ bỏ ra ${fmt(contribEnd,0)} tr.</span>`;
+}
+
+// init
+drawGrowth();
+drawPV();
+calc72();
+drawAnnuity();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

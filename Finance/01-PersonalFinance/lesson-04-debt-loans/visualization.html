@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Nợ &amp; Khoản vay</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #047857; }
+  h2 { color: #059669; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #a7f3d0; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; min-width: 175px; }
+  input[type="number"] { padding: 7px 11px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; font-family: monospace; width: 100%; max-width: 110px; box-sizing: border-box; }
+  input[type="range"] { flex: 1; min-width: 160px; accent-color: #059669; }
+  .val { font-family: monospace; font-weight: 700; color: #047857; min-width: 90px; display: inline-block; }
+  .stat { display: inline-block; background: #d1fae5; padding: 6px 12px; border-radius: 6px; margin: 4px 6px 4px 0; font-family: monospace; font-size: 14px; }
+  .stat strong { color: #047857; }
+  .stat.warn { background: #fee2e2; } .stat.warn strong { color: #b91c1c; }
+  .result { padding: 14px; background: #d1fae5; border-radius: 8px; margin-top: 12px; font-size: 15px; line-height: 1.6; }
+  .note { font-size: 13px; color: #6a6a6a; margin-top: 6px; }
+  canvas { display: block; width: 100%; max-width: 100%; height: auto; margin: 12px 0; background: #fcfdfc; border: 1px solid #e2e8f0; border-radius: 8px; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; margin: 6px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 16px; height: 12px; border-radius: 2px; display: inline-block; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tài chính cá nhân</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-interest-rates/visualization.html">← L3: APR vs APY</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Nợ &amp; vay</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-budgeting/visualization.html">L5: Ngân sách →</a>
+</nav>
+
+<main>
+<h1>Lesson 04 — Nợ &amp; Khoản vay</h1>
+<p>Ba công cụ: <strong>máy tính trả góp</strong> (bảng amortization + tách gốc/lãi), <strong>bẫy trả tối thiểu</strong> thẻ tín dụng, và <strong>tác động trả thêm gốc</strong>.</p>
+
+<h2>1. Máy tính trả góp — gốc vs lãi mỗi kỳ</h2>
+<div class="card">
+  <p class="note"><code>PMT = P·r / (1 − (1+r)⁻ⁿ)</code>. Cột dưới: phần lãi (đỏ) co lại, phần gốc (xanh) phình ra theo thời gian.</p>
+  <div class="row">
+    <label>Vay gốc (triệu):</label>
+    <input type="number" id="P" value="600" step="50" min="1" oninput="drawAmort()">
+  </div>
+  <div class="row">
+    <label>Lãi suất (%/tháng):</label>
+    <input type="range" id="r" min="0.3" max="3" value="0.8" step="0.1" oninput="drawAmort()">
+    <span class="val" id="rv">0,8%/th</span>
+  </div>
+  <div class="row">
+    <label>Số kỳ (tháng):</label>
+    <input type="range" id="n" min="6" max="360" value="240" step="6" oninput="drawAmort()">
+    <span class="val" id="nv">240</span>
+  </div>
+  <div class="legend">
+    <span><i class="swatch" style="background:#ef4444"></i> Lãi</span>
+    <span><i class="swatch" style="background:#059669"></i> Gốc</span>
+  </div>
+  <canvas id="amortc" width="760" height="300"></canvas>
+  <div class="result" id="amortout"></div>
+</div>
+
+<h2>2. Bẫy trả tối thiểu (thẻ tín dụng)</h2>
+<div class="card">
+  <p class="note">So 3 cách trả nợ thẻ. "Trả tối thiểu" = % dư nợ mỗi tháng → giảm nhỏ giọt, nợ kéo dài.</p>
+  <div class="row">
+    <label>Nợ thẻ (triệu):</label>
+    <input type="number" id="cardP" value="30" step="5" min="1" oninput="drawCard()">
+  </div>
+  <div class="row">
+    <label>Lãi thẻ (%/tháng):</label>
+    <input type="range" id="cardR" min="1" max="4" value="2.5" step="0.1" oninput="drawCard()">
+    <span class="val" id="cardRv">2,5%/th</span>
+  </div>
+  <div class="row">
+    <label>% trả tối thiểu:</label>
+    <input type="range" id="minPct" min="3" max="10" value="5" step="1" oninput="drawCard()">
+    <span class="val" id="minPctv">5%</span>
+  </div>
+  <div class="row">
+    <label>So với trả cố định (triệu/th):</label>
+    <input type="number" id="fixedPay" value="3" step="0.5" min="0.5" oninput="drawCard()">
+  </div>
+  <canvas id="cardc" width="760" height="280"></canvas>
+  <div class="result" id="cardout"></div>
+</div>
+
+<h2>3. Tác động trả thêm gốc</h2>
+<div class="card">
+  <p class="note">Trả thêm mỗi tháng ngoài PMT → cắt thẳng lãi tương lai. Dùng khoản vay ở Module 1.</p>
+  <div class="row">
+    <label>Trả thêm/tháng (triệu):</label>
+    <input type="range" id="extra" min="0" max="10" value="2" step="0.5" oninput="drawAmort()">
+    <span class="val" id="extrav">2</span>
+  </div>
+  <div class="result" id="extraout"></div>
+</div>
+
+<script>
+const fmt = (x, d=1) => x.toLocaleString('vi-VN', {minimumFractionDigits: d, maximumFractionDigits: d});
+const pmtCalc = (P, r, n) => r < 1e-9 ? P/n : P * r / (1 - Math.pow(1+r, -n));
+
+// mô phỏng trả với khoản trả cố định, trả thêm; trả về {months, totalInterest}
+function simulate(P, r, pay) {
+  let bal = P, totalInt = 0, months = 0;
+  while (bal > 1e-6 && months < 2000) {
+    const interest = bal * r;
+    totalInt += interest;
+    let principal = pay - interest;
+    if (principal <= 0) return {months: Infinity, totalInt: Infinity}; // không bao giờ hết
+    if (principal > bal) principal = bal;
+    bal -= principal;
+    months++;
+  }
+  return {months, totalInt};
+}
+
+// ---------- Module 1 + 3 ----------
+function drawAmort() {
+  const P = Math.max(1, +document.getElementById('P').value);
+  const r = +document.getElementById('r').value/100;
+  const n = +document.getElementById('n').value;
+  const extra = +document.getElementById('extra').value;
+  document.getElementById('rv').textContent=(r*100).toFixed(1).replace(/\.0$/,'')+'%/th';
+  document.getElementById('nv').textContent=n;
+  document.getElementById('extrav').textContent=extra;
+
+  const pmt = pmtCalc(P, r, n);
+  // bảng amortization (không trả thêm) để vẽ
+  const cv=document.getElementById('amortc'), ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=64,padR=16,padT=16,padB=34;
+  ctx.clearRect(0,0,W,H);
+  const x=k=>padL+(k/n)*(W-padL-padR);
+  const y=v=>H-padB-(v/(pmt*1.1))*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const v=pmt*1.1*k/4,yy=y(v);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(fmt(v),padL-6,yy+4);}
+  ctx.textAlign='center';
+  for(let k=0;k<=4;k++){const kk=Math.round(n*k/4)||1;ctx.fillText(kk,x(kk),H-padB+18);}
+  ctx.fillText('kỳ', W-padR-10, H-padB+18);
+
+  // vẽ vùng lãi (đỏ) dưới và gốc (xanh) trên, mỗi kỳ
+  let bal=P; let totalInt=0;
+  const step = Math.max(1, Math.floor(n/200));
+  ctx.lineWidth=1.5;
+  for(let k=1;k<=n;k++){
+    const interest=bal*r; const principal=pmt-interest; bal-=principal; totalInt+=interest;
+    if(k % step===0 || k===n){
+      const xx=x(k); const w=Math.max(1,(W-padL-padR)/n*step);
+      ctx.fillStyle='#ef4444'; ctx.fillRect(xx-w/2, y(interest), w, H-padB-y(interest));
+      ctx.fillStyle='#059669'; ctx.fillRect(xx-w/2, y(pmt), w, y(interest)-y(pmt));
+    }
+  }
+  const totalPaid = pmt*n;
+  document.getElementById('amortout').innerHTML=
+    `<span class="stat">Trả mỗi kỳ: <strong>${fmt(pmt)}</strong> tr</span>`+
+    `<span class="stat">Tổng trả: <strong>${fmt(totalPaid,0)}</strong> tr</span>`+
+    `<span class="stat warn">Tổng lãi: <strong>${fmt(totalInt,0)}</strong> tr (${(totalInt/P*100).toFixed(0)}% gốc)</span>`;
+
+  // Module 3: trả thêm
+  const base = simulate(P, r, pmt);
+  const withExtra = simulate(P, r, pmt + extra);
+  const saveInt = base.totalInt - withExtra.totalInt;
+  const saveMonths = base.months - withExtra.months;
+  document.getElementById('extraout').innerHTML = extra<=0 ?
+    `Trả đúng PMT: hết nợ sau <strong>${base.months}</strong> kỳ, tổng lãi <strong>${fmt(base.totalInt,0)}</strong> tr. Kéo slider để trả thêm.` :
+    `Trả thêm <strong>${extra}</strong> tr/tháng (tổng ${fmt(pmt+extra)} tr):<br>`+
+    `<span class="stat">Hết nợ sau <strong>${withExtra.months}</strong> kỳ (sớm hơn <strong>${saveMonths}</strong> kỳ)</span>`+
+    `<span class="stat" style="background:#bbf7d0">Tiết kiệm lãi: <strong>${fmt(saveInt,0)}</strong> tr</span>`;
+}
+
+// ---------- Module 2: card ----------
+function drawCard() {
+  const P=Math.max(1,+document.getElementById('cardP').value);
+  const r=+document.getElementById('cardR').value/100;
+  const minPct=+document.getElementById('minPct').value/100;
+  const fixedPay=Math.max(0.1,+document.getElementById('fixedPay').value);
+  document.getElementById('cardRv').textContent=(r*100).toFixed(1).replace(/\.0$/,'')+'%/th';
+  document.getElementById('minPctv').textContent=(minPct*100).toFixed(0)+'%';
+
+  // sim trả tối thiểu (% dư nợ, có sàn 0.2tr)
+  function simMin() {
+    let bal=P, tot=0, m=0;
+    while(bal>0.05 && m<2000){ const it=bal*r; let pay=Math.max(bal*minPct,0.2); if(pay>bal+it)pay=bal+it; bal=bal+it-pay; tot+=it; m++; }
+    return {m, tot};
+  }
+  const minR=simMin();
+  const fixR=simulate(P,r,fixedPay);
+  const eay=(Math.pow(1+r,12)-1)*100;
+
+  // vẽ 2 đường dư nợ
+  const cv=document.getElementById('cardc'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,padL=56,padR=16,padT=16,padB=34;
+  ctx.clearRect(0,0,W,H);
+  const maxM=Math.min(Math.max(minR.m, fixR.m===Infinity?60:fixR.m),120);
+  const x=m=>padL+(m/maxM)*(W-padL-padR);
+  const y=v=>H-padB-(v/(P*1.05))*(H-padT-padB);
+  ctx.strokeStyle='#eef2f0'; ctx.fillStyle='#64748b'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let k=0;k<=4;k++){const v=P*1.05*k/4,yy=y(v);ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(W-padR,yy);ctx.stroke();ctx.fillText(Math.round(v),padL-6,yy+4);}
+  ctx.textAlign='center'; for(let k=0;k<=4;k++){const mm=Math.round(maxM*k/4);ctx.fillText(mm,x(mm),H-padB+18);} ctx.fillText('tháng',W-padR-16,H-padB+18);
+  // tối thiểu - đỏ
+  let bal=P; ctx.strokeStyle='#ef4444'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(x(0),y(bal));
+  for(let m=1;m<=Math.min(minR.m,maxM);m++){const it=bal*r;let pay=Math.max(bal*minPct,0.2);if(pay>bal+it)pay=bal+it;bal=bal+it-pay;ctx.lineTo(x(m),y(Math.max(0,bal)));}
+  ctx.stroke();
+  // cố định - xanh
+  bal=P; ctx.strokeStyle='#059669'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(x(0),y(bal));
+  for(let m=1;m<=Math.min(fixR.m===Infinity?maxM:fixR.m,maxM);m++){const it=bal*r;let pay=fixedPay;if(pay>bal+it)pay=bal+it;bal=bal+it-pay;ctx.lineTo(x(m),y(Math.max(0,bal)));if(bal<=0)break;}
+  ctx.stroke();
+
+  document.getElementById('cardout').innerHTML=
+    `Lãi thẻ ${(r*100).toFixed(1)}%/tháng = <span class="stat warn"><strong>${eay.toFixed(1)}%</strong>/năm hiệu dụng</span><br>`+
+    `<span class="stat warn">🔴 Trả tối thiểu ${(minPct*100).toFixed(0)}%: ${minR.m>=2000?'>2000':minR.m} tháng, tổng lãi <strong>${fmt(minR.tot,0)}</strong> tr</span><br>`+
+    `<span class="stat">🟢 Trả cố định ${fmt(fixedPay)} tr/th: ${fixR.m===Infinity?'không đủ trả lãi!':fixR.m+' tháng'}, tổng lãi <strong>${fixR.totalInt===Infinity?'∞':fmt(fixR.totalInt,0)}</strong> tr</span>`;
+}
+
+drawAmort(); drawCard();
+</script>
+</main>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -416,6 +416,15 @@ Kết quả \`2\`. ✓ (Lưu ý bài này có số dương lẫn **âm** thì tw
 
 > ⚠ **Lỗi thường gặp** — quên khởi tạo \`freq[0]=1\`. Nếu thiếu, các đoạn bắt đầu từ chỉ số 0 (tức \`P[r]=k\` trực tiếp) bị bỏ sót. Khởi tạo \`{0:1}\` mô hình hóa "đoạn rỗng tại đầu".
 
+> ❓ **Câu hỏi tự nhiên** — *"Vì sao có số âm thì two-pointer / sliding window 'không áp dụng được', mà prefix+hash thì được?"*
+>
+> Two-pointer/sliding window chỉ đúng khi đại lượng theo cửa sổ **đơn điệu (monotonic)**: **mở rộng** cửa sổ (\`r++\`) chỉ làm tổng **tăng**, **co** cửa sổ (\`l++\`) chỉ làm tổng **giảm**. Nhờ đó mới có logic "tổng quá lớn → co trái; quá nhỏ → giãn phải". Điều này **chỉ đúng khi mọi phần tử ≥ 0**.
+>
+> Có **số âm** thì tính đơn điệu vỡ: mở rộng cửa sổ có thể làm tổng *giảm*. Phản ví dụ — \`a = [2, -1, 2]\`, tìm đoạn tổng \`= 3\`:
+> - Cửa sổ \`[2]\` tổng 2 < 3 → "giãn phải" thành \`[2,-1]\` tổng **1** (giảm chứ không tăng!). Logic sliding window kết luận sai rằng cần giãn tiếp, bỏ sót đoạn \`[2,-1,2]\` tổng 3.
+>
+> **Prefix sum + hash không cần đơn điệu** — nó không "trượt cửa sổ" mà tra trực tiếp: tại mỗi \`r\`, đếm xem đã thấy prefix \`P[r] − k\` bao nhiêu lần. Quan hệ \`P[l] = P[r] − k\` đúng với **mọi** giá trị (âm/dương/lộn xộn), nên prefix+hash là lựa chọn tổng quát cho "tổng đoạn = k" khi có số âm. (Sliding window quay lại dùng được ở bài "tổng ≥ k với mảng dương" — xem [Tier 2](../tier-2-searching-core/index.html).)
+
 ---
 
 ## 7. Case study 4 — Phát hiện phần tử trùng (duplicate detection)

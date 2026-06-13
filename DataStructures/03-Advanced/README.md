@@ -29,4 +29,4 @@ Mỗi bài có:
 
 ## Sau khi xong nhóm này
 
-Đây là nhóm cuối của DataStructures. Bước tiếp theo (chưa có): **Algorithms** — sắp xếp, tìm kiếm, quy hoạch động.
+Đây là nhóm cuối của DataStructures. Bước tiếp theo: **[Algorithms](../../Algorithms/README.md)** — sắp xếp, tìm kiếm, quy hoạch động, đồ thị nâng cao (đã có, ~52 lesson).

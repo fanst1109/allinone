@@ -324,6 +324,239 @@ Trả về \`["cat", "car", "card", "care"]\`. Để ý nhánh \`d → o → g\`
 - Lưu ý cài đặt: **isEnd**, alphabet, **xóa cẩn thận** khi từ là prefix của từ khác.
 - Mảng \`[26]\` cho alphabet nhỏ + dày; \`map\` cho alphabet lớn + thưa.
 
+## 8. Thực hành: dùng trong code thật
+
+> 💡 **§5 liệt kê trie "dùng ở đâu". Mục này là code chạy được cho từng cái.** Autocomplete có ranking, router IP longest-prefix, gợi ý sửa lỗi chính tả, gõ T9 — tất cả là trie với một chút biến tấu. Code Go dưới đây \`go run\` được.
+
+### 8.1. Mini-project A — Autocomplete service có xếp hạng
+
+§5.1 dừng ở "DFS thu mọi từ có prefix". Đời thực (Google, IDE, ô tìm kiếm Shopee) còn phải **xếp hạng theo độ phổ biến** và chỉ trả **top-K**. Thêm trường \`weight\` vào node kết thúc từ:
+
+\`\`\`go
+package main
+
+import (
+	"fmt"
+	"sort"
+)
+
+type Node struct {
+	children map[rune]*Node
+	isEnd    bool
+	weight   int // độ phổ biến của từ kết thúc tại đây (vd số lần search)
+	word     string
+}
+
+func newNode() *Node { return &Node{children: map[rune]*Node{}} }
+
+type Autocomplete struct{ root *Node }
+
+func NewAutocomplete() *Autocomplete { return &Autocomplete{root: newNode()} }
+
+func (a *Autocomplete) Insert(word string, weight int) {
+	n := a.root
+	for _, c := range word { // range rune → an toàn với Unicode/tiếng Việt
+		if n.children[c] == nil {
+			n.children[c] = newNode()
+		}
+		n = n.children[c]
+	}
+	n.isEnd, n.weight, n.word = true, weight, word
+}
+
+// Suggest: trả tối đa k gợi ý cho prefix, xếp theo weight giảm dần.
+func (a *Autocomplete) Suggest(prefix string, k int) []string {
+	n := a.root
+	for _, c := range prefix { // bước 1: đi tới node prefix — O(L)
+		if n.children[c] == nil {
+			return nil // không có từ nào bắt đầu bằng prefix
+		}
+		n = n.children[c]
+	}
+	var found []*Node
+	var dfs func(*Node)
+	dfs = func(cur *Node) { // bước 2: DFS subtree thu mọi từ — O(K)
+		if cur.isEnd {
+			found = append(found, cur)
+		}
+		for _, ch := range cur.children {
+			dfs(ch)
+		}
+	}
+	dfs(n)
+	sort.Slice(found, func(i, j int) bool { return found[i].weight > found[j].weight })
+	out := []string{}
+	for i := 0; i < len(found) && i < k; i++ {
+		out = append(out, found[i].word)
+	}
+	return out
+}
+
+func main() {
+	ac := NewAutocomplete()
+	ac.Insert("car", 50)
+	ac.Insert("card", 30)
+	ac.Insert("care", 90) // phổ biến nhất
+	ac.Insert("cat", 70)
+	ac.Insert("dog", 10)
+	fmt.Println(ac.Suggest("ca", 3))  // [care cat car] — theo weight, không theo alphabet
+	fmt.Println(ac.Suggest("car", 2)) // [care car] — care(90) > car(50) > card(30)
+	fmt.Println(ac.Suggest("xyz", 3)) // []
+}
+\`\`\`
+
+> ⚠ **Bẫy — dùng \`[]byte\`/index ASCII là hỏng với tiếng Việt.** \`for i := 0; i < len(word); i++ { word[i] }\` lặp theo **byte**, mà \`"cà phê"\` có ký tự nhiều byte (UTF-8) → tách sai. Luôn \`for _, c := range word\` (lặp theo **rune**) và \`children map[rune]*Node\` khi alphabet là Unicode. Mảng \`[26]\` chỉ an toàn cho a-z thuần.
+
+> ❓ **"DFS toàn subtree rồi sort — có chậm khi prefix ngắn (vd 'a') khớp triệu từ?"** Có. Production tối ưu bằng cách **lưu sẵn top-K tại mỗi node** (precomputed) hoặc dùng cấu trúc kèm heap. Với từ điển vài chục nghìn từ thì DFS+sort là đủ nhanh và đơn giản.
+
+### 8.2. Mini-project B — IP router: longest-prefix match (binary trie)
+
+Router quyết định gửi gói tin đi đâu bằng **longest-prefix match**: tìm route có prefix **dài nhất** khớp địa chỉ đích. Đây là **trie nhị phân** — mỗi bit của IP là một cạnh (0 = trái, 1 = phải). Minh hoạ 8-bit cho gọn:
+
+\`\`\`go
+type BitNode struct {
+	child [2]*BitNode
+	next  string // "next hop" nếu node này là cuối một route
+	isEnd bool
+}
+
+type Router struct{ root *BitNode }
+
+func NewRouter() *Router { return &Router{root: &BitNode{}} }
+
+// AddRoute: prefix dạng (bits, độ dài). Vd 192.168.0.0/16 → bits=0xC0A8..., plen=16.
+func (r *Router) AddRoute(bits uint32, plen int, nextHop string) {
+	n := r.root
+	for i := 0; i < plen; i++ {
+		b := (bits >> uint(31-i)) & 1 // lấy bit thứ i từ trái
+		if n.child[b] == nil {
+			n.child[b] = &BitNode{}
+		}
+		n = n.child[b]
+	}
+	n.isEnd, n.next = true, nextHop
+}
+
+// Lookup: đi theo từng bit của địa chỉ, GHI NHỚ next hop sâu nhất gặp được.
+func (r *Router) Lookup(addr uint32) string {
+	n := r.root
+	best := "DROP" // không khớp route nào → bỏ gói
+	for i := 0; i < 32; i++ {
+		if n.isEnd {
+			best = n.next // route dài hơn ghi đè route ngắn hơn
+		}
+		b := (addr >> uint(31-i)) & 1
+		if n.child[b] == nil {
+			break
+		}
+		n = n.child[b]
+	}
+	if n.isEnd {
+		best = n.next
+	}
+	return best
+}
+\`\`\`
+
+Mấu chốt: đi xuống tới đâu, gặp \`isEnd\` thì **cập nhật \`best\`** — vì route nằm sâu hơn = prefix dài hơn = cụ thể hơn, phải thắng route ngắn. Đây là cốt lõi bảng định tuyến trong router thật (dạng tối ưu hơn gọi là Patricia/LC-trie).
+
+### 8.3. Mini-project C — Spell checker: gợi ý sửa trong 1 lần duyệt
+
+Kiểm tra từ sai chính tả + gợi ý từ đúng "gần nhất" (sai 1 ký tự). Duyệt trie kèm **edit distance** tăng dần, cắt nhánh khi vượt ngưỡng:
+
+\`\`\`go
+// SuggestEdit1: mọi từ trong trie cách \`target\` đúng ≤ 1 phép sửa (thay/thêm/xóa).
+// Cách đơn giản, dễ đọc: sinh mọi biến thể cách 1 sửa của target rồi check Search.
+func (t *Trie) SuggestEdit1(target string) []string {
+	seen := map[string]bool{}
+	try := func(w string) {
+		if w != target && t.Search(w) {
+			seen[w] = true
+		}
+	}
+	r := []rune(target)
+	for i := 0; i <= len(r); i++ {
+		// xóa ký tự i
+		if i < len(r) {
+			try(string(r[:i]) + string(r[i+1:]))
+		}
+		for c := 'a'; c <= 'z'; c++ {
+			// thay ký tự i
+			if i < len(r) {
+				try(string(r[:i]) + string(c) + string(r[i+1:]))
+			}
+			// chèn ký tự trước i
+			try(string(r[:i]) + string(c) + string(r[i:]))
+		}
+	}
+	out := []string{}
+	for w := range seen {
+		out = append(out, w)
+	}
+	return out
+}
+\`\`\`
+
+\`Search\` (trie) cho ta kiểm tra mỗi biến thể $O(L)$. Tổng $O(L^2 \\times 26)$ — đủ nhanh cho gõ realtime. (Bản tối ưu: duyệt trie 1 lần với hàng DP edit-distance, gọi là **Levenshtein automaton** — nhưng bản trên đủ dùng và dễ hiểu.)
+
+### 8.4. Mini-project D — Gõ T9 (bàn phím số cũ)
+
+Điện thoại nút bấm: \`2→abc, 3→def, ...\`. Gõ dãy số \`228\` → khớp những từ mà mỗi chữ thuộc đúng nhóm số đó. Trie cho phép duyệt **chỉ các nhánh hợp lệ**:
+
+\`\`\`go
+var t9 = map[byte]string{'2': "abc", '3': "def", '4': "ghi", '5': "jkl",
+	'6': "mno", '7': "pqrs", '8': "tuv", '9': "wxyz"}
+
+// T9Words: mọi từ trong trie khớp dãy phím digits (vd "228" → "cat", "bat"...).
+func (t *Trie) T9Words(digits string) []string {
+	var out []string
+	var dfs func(n *Trie, di int, path string)
+	dfs = func(n *Trie, di int, path string) {
+		if di == len(digits) {
+			if n.isEnd {
+				out = append(out, path)
+			}
+			return
+		}
+		for _, c := range t9[digits[di]] { // chỉ rẽ vào các chữ thuộc phím này
+			idx := c - 'a'
+			if n.children[idx] != nil {
+				dfs(n.children[idx], di+1, path+string(c))
+			}
+		}
+	}
+	dfs(t.root, 0, "")
+	return out
+}
+\`\`\`
+
+Thay vì thử $3^L$ tổ hợp chữ rồi tra từng cái, trie **cắt ngay** nhánh không tồn tại → chỉ đi theo từ thật có trong từ điển.
+
+### 8.5. ⚠ Khi nào KHÔNG dùng trie
+
+| Tình huống | Vì sao trie phí | Dùng gì |
+|------------|------------------|---------|
+| Chỉ cần "từ này có trong tập không?", không prefix | Trie tốn 10–20× bộ nhớ (§4.1), không lợi gì hơn | \`map[string]bool\` / HashSet |
+| Khóa là số / hash hex dài, không có prefix chung | Mỗi ký tự 1 node, không chia sẻ được gì | Hash table |
+| Bộ nhớ là bottleneck nhưng vẫn cần prefix | Trie ngây thơ phình to | **Compressed trie / Radix tree** (§6) |
+| Cần khớp mẫu ở **giữa** chuỗi (không chỉ prefix) | Trie chỉ giỏi prefix | Suffix tree / Aho-Corasick |
+
+> 🔁 **Tự kiểm tra**
+> 1. Trong autocomplete §8.1, vì sao phải \`for _, c := range word\` thay vì \`word[i]\`?
+>    <details><summary>Đáp án</summary>\`word[i]\` lặp theo <b>byte</b>. Ký tự tiếng Việt/Unicode chiếm nhiều byte trong UTF-8 → tách sai ký tự. \`range\` lặp theo <b>rune</b> (code point), đúng từng ký tự.</details>
+> 2. Router §8.2: hai route \`10.0.0.0/8 → A\` và \`10.1.0.0/16 → B\`. Gói tới \`10.1.2.3\` đi đâu? Vì sao?
+>    <details><summary>Đáp án</summary>Đi <b>B</b>. Cả hai prefix đều khớp, nhưng \`/16\` dài hơn \`/8\` → longest-prefix match chọn route cụ thể hơn. Trong code: đi xuống sâu hơn gặp \`isEnd\` của B sau, ghi đè \`best\`.</details>
+> 3. T9 §8.4: vì sao duyệt trie nhanh hơn "sinh mọi tổ hợp chữ rồi tra"?
+>    <details><summary>Đáp án</summary>Sinh tổ hợp = $3^L$–$4^L$ chuỗi, đa số không phải từ thật. Trie chỉ rẽ vào nhánh <b>tồn tại</b> → cắt sạch tổ hợp vô nghĩa ngay từ ký tự đầu không khớp.</details>
+
+### 8.6. 📝 Tóm tắt mục 8
+
+- **Autocomplete thật** = trie + \`weight\` ở node + DFS subtree + sort top-K. Dùng \`range\`/rune cho tiếng Việt.
+- **IP router** = trie nhị phân (bit), longest-prefix match = ghi nhớ \`isEnd\` sâu nhất khi đi xuống.
+- **Spell check** = sinh biến thể edit-1 + \`Search\` trie mỗi cái $O(L)$.
+- **T9** = DFS trie chỉ theo các chữ thuộc phím số → cắt tổ hợp không tồn tại.
+- Trie thua khi không cần prefix + memory eo hẹp → \`map\`/hash; cần prefix + tiết kiệm → radix tree.
+
 ## Bài tập
 
 1. Cài đặt trie cho chữ cái thường a-z với \`insert\`, \`search\`, \`startsWith\`.

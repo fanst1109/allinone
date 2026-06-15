@@ -240,7 +240,42 @@ function doDelete() {
 function log(m) { document.getElementById('log').textContent = m; }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 render();
-</script></main>
+</script>
+
+<div class="panel">
+  <h2>Autocomplete có xếp hạng (README §8.1)</h2>
+  <p style="margin:.4em 0 .8em; color:#475569; font-size:13px;">
+    Gõ prefix → trie đi tới node prefix <code>O(L)</code>, DFS subtree thu mọi từ, <b>sort theo weight</b> (độ phổ biến) rồi lấy top-K.
+    Khác demo trên: ở đây gợi ý <b>xếp theo weight, không theo alphabet</b> — giống ô tìm kiếm thật.
+  </p>
+  <label>Gõ: <input id="acInput" type="text" placeholder="vd: ca" oninput="acRun()" style="width:160px"></label>
+  <label style="margin-left:8px">top-K = <input id="acK" type="number" value="5" min="1" max="10" style="width:52px" oninput="acRun()"></label>
+  <div class="auto-list" id="acList" style="margin-top:10px"></div>
+  <div class="log" id="acLog">Từ điển (weight): care:90, cat:70, car:50, card:30, dog:10, code:60, coder:25, cup:40.</div>
+</div>
+
+<script>
+// ============= AUTOCOMPLETE CÓ XẾP HẠNG (README §8.1) =============
+const AC_DICT = [['care',90],['cat',70],['car',50],['card',30],['dog',10],['code',60],['coder',25],['cup',40],['cope',15]];
+function acNewNode(){ return { children:{}, isEnd:false, weight:0, word:'' }; }
+const acRoot = acNewNode();
+AC_DICT.forEach(([w,wt])=>{ let n=acRoot; for(const c of w){ if(!n.children[c])n.children[c]=acNewNode(); n=n.children[c]; } n.isEnd=true; n.weight=wt; n.word=w; });
+function acRun(){
+  const p=(document.getElementById('acInput').value||'').toLowerCase();
+  const k=Math.max(1,parseInt(document.getElementById('acK').value)||5);
+  const list=document.getElementById('acList'); const lg=document.getElementById('acLog');
+  let n=acRoot;
+  for(const c of p){ if(!n.children[c]){ list.innerHTML='<span style="color:#94a3b8">(không có từ nào)</span>'; lg.textContent=`Prefix "${p}": dừng ở '${c}' → không có từ.`; return; } n=n.children[c]; }
+  const found=[];
+  (function dfs(x){ if(x.isEnd)found.push({w:x.word,wt:x.weight}); for(const c in x.children)dfs(x.children[c]); })(n);
+  found.sort((a,b)=>b.wt-a.wt);
+  const top=found.slice(0,k);
+  list.innerHTML = top.length ? top.map(f=>`<span class="word">${f.w} <small style="opacity:.7">·${f.wt}</small></span>`).join('') : '<span style="color:#94a3b8">(không có từ nào)</span>';
+  lg.textContent = p ? `Prefix "${p}": ${found.length} từ khớp → xếp theo weight, lấy top-${k}. Chú ý thứ tự KHÔNG theo alphabet.` : 'Gõ prefix vào ô trên.';
+}
+acRun();
+</script>
+</main>
 <!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
 <script src="../../../tools/marked.min.js"></script>
 <script src="./README.data.js"></script>

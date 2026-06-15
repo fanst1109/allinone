@@ -615,6 +615,29 @@ func main() {
 
 ---
 
+## 12. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Quicksort là sort mặc định trong RẤT nhiều thư viện — vì in-place + hằng số nhỏ + cache-friendly.** Và "anh em" của nó, quickselect, giải bài top-K / median nhanh hơn cả sort.
+
+| Ứng dụng | Quicksort/quickselect làm gì |
+|----------|------------------------------|
+| **\`slices.Sort\` (Go pdqsort), C \`qsort\`, C++ \`std::sort\` (introsort)** | Sort mặc định in-place, $O(n \\log n)$ trung bình |
+| **Quickselect — tìm phần tử thứ k / median** | $O(n)$ trung bình, không cần sort cả mảng |
+| **Top-K không cần thứ tự** | Partition quanh pivot thứ k → lấy k phần tử lớn nhất |
+| **Median-of-medians (đảm bảo $O(n)$)** | Chọn pivot tốt để quickselect không bị worst case |
+
+### 12.1. Ví dụ cụ thể — quickselect cho "lương trung vị"
+
+Tìm **median** của 1 triệu mức lương: sort hết = $O(n \\log n)$. Quickselect chỉ cần partition quanh pivot và đệ quy vào **một nửa** chứa vị trí giữa → $O(n)$ trung bình. \`numpy.partition\`, \`nth_element\` của C++ làm chính xác việc này. Dùng cho: thống kê percentile (p50/p95/p99 latency), top-K kết quả, lọc outlier.
+
+> ⚠ **Bẫy worst case $O(n^2)$ + lý do introsort tồn tại.** Quicksort với pivot tệ (mảng đã sắp + pivot đầu) tụt xuống $O(n^2)$ và đệ quy sâu. Thư viện thật dùng **introsort**: chạy quicksort, nhưng nếu độ sâu đệ quy vượt $\\sim 2\\log n$ → chuyển sang **heap sort** ([Lesson 09](../lesson-09-heap-sort/)) để đảm bảo $O(n \\log n)$. Pivot cũng chọn ngẫu nhiên/median-of-three để chống input ác ý.
+
+### 12.2. 📝 Tóm tắt mục 12
+
+- Quicksort = sort mặc định in-place (\`slices.Sort\`/\`std::sort\`/\`qsort\`); cache-friendly, hằng số nhỏ.
+- **Quickselect** giải median/top-K/percentile $O(n)$ trung bình — nhanh hơn sort cả mảng.
+- Worst case $O(n^2)$ → **introsort** chuyển sang heap sort khi đệ quy quá sâu; pivot ngẫu nhiên chống input ác ý.
+
 ## Bài tập
 
 1. **Trace Lomuto partition.** Cho \`[8, 3, 7, 4, 2, 6, 5]\`, pivot = \`A[hi] = 5\`. Lập bảng \`j / A[j] / so sánh / mảng / i\` và cho biết vị trí trả về.

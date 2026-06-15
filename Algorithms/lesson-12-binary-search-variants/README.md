@@ -629,6 +629,32 @@ func shipWithinDaysT(w []int, D int) int {
 
 ---
 
+## 12. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Binary search không chỉ "tìm số trong mảng" — kỹ thuật mạnh nhất là "binary search trên KHÔNG GIAN ĐÁP ÁN".** Bất cứ khi nào hàm đơn điệu (monotonic), bạn tìm ngưỡng bằng $O(\log n)$.
+
+| Ứng dụng | Binary search làm gì |
+|----------|----------------------|
+| **DB index, `sort.Search`, từ điển sắp xếp** | Tra cứu $O(\log n)$ trên dữ liệu đã sắp |
+| **`git bisect`** | Tìm commit gây bug = binary search trên lịch sử commit |
+| **Tìm phiên bản tương thích (npm/go mod)** | Binary search ngày/version để khoanh vùng lỗi |
+| **Binary search on answer** | "Tốc độ tối thiểu để xong việc trong T giờ?", "dung lượng nhỏ nhất chia K phần?" |
+| **Rate limiter / capacity tuning** | Tìm ngưỡng lớn nhất còn thỏa điều kiện |
+
+### 12.1. Ví dụ cụ thể — `git bisect` và "binary search on answer"
+
+**`git bisect`**: có 1000 commit, bug xuất hiện đâu đó. Thay vì kiểm từng commit ($O(n)$), git bisect hỏi "commit giữa có bug không?" → loại nửa lịch sử mỗi lần → ~10 bước tìm ra commit lỗi. Đúng binary search.
+
+**Binary search on answer**: "Chuyển $n$ kiện hàng trong $D$ ngày, tải trọng tàu **nhỏ nhất** là bao nhiêu?" Hàm "tải trọng X có đủ chở trong D ngày không?" là **đơn điệu** (X lớn hơn → dễ hơn). Binary search trên X tìm ngưỡng nhỏ nhất thỏa → $O(n \log(\text{range}))$. Đây là pattern cực phổ biến trong tối ưu năng lực hệ thống (capacity planning, rate limit, scaling).
+
+> ❓ **"Làm sao biết bài toán dùng được binary search on answer?"** Khi đáp án có tính **đơn điệu**: "nếu X thỏa thì mọi giá trị lớn hơn (hoặc nhỏ hơn) cũng thỏa". Lúc đó tìm ngưỡng = binary search, biến bài "thử mọi X" $O(\text{range})$ thành $O(\log \text{range})$.
+
+### 12.2. 📝 Tóm tắt mục 12
+
+- Binary search thật trong: **DB index/`sort.Search`**, **`git bisect`**, **tìm version lỗi**, và mạnh nhất là **binary search on answer**.
+- "On answer": hàm điều kiện **đơn điệu** → tìm ngưỡng $O(\log \text{range})$; dùng cho capacity/rate/scaling.
+- Tiền đề bắt buộc: dữ liệu **đã sắp** (hoặc điều kiện đơn điệu) — nếu không, kết quả sai âm thầm.
+
 ## Bài tập
 
 > Làm trước khi xem lời giải. Mỗi bài tự hỏi: "predicate đơn điệu của tôi là gì? khoảng [lo,hi) là gì?".

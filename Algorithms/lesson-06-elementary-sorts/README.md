@@ -691,6 +691,29 @@ Selection (pairs) [{3 c} {5 b} {5 a}]  <- (5,a) bị đẩy sau (5,b) => KHÔNG 
 
 ---
 
+## 11. Ứng dụng thực tế trong phần mềm
+
+> 💡 **"Sort $O(n^2)$ thì ai dùng?" — bạn sẽ ngạc nhiên.** Insertion sort chạy thật bên trong *mọi* thư viện sort nhanh, vì nó vô địch ở quy mô nhỏ và dữ liệu gần-sắp-xếp.
+
+| Ứng dụng | Sort sơ cấp nào | Vì sao |
+|----------|-----------------|--------|
+| **Mảng nhỏ trong Timsort/introsort/pdqsort** | **Insertion sort** | Hằng số nhỏ, cache-friendly → nhanh hơn quicksort khi $n < \sim 16$ |
+| **Dữ liệu gần như đã sắp** | **Insertion sort** | $O(n)$ khi gần sorted (vd thêm vài phần tử vào danh sách đã sắp) |
+| **Sắp online (phần tử đến dần)** | **Insertion sort** | Chèn từng phần tử vào đúng chỗ ngay khi nhận |
+| **Khi cần ít ghi nhất (bộ nhớ flash/EEPROM)** | **Selection sort** | Số swap tối thiểu $\le n-1$ (ghi đắt) |
+
+### 11.1. Ví dụ cụ thể — vì sao stdlib chuyển sang insertion sort
+
+`slices.Sort` của Go (pdqsort), Java (Timsort/dual-pivot), C++ (introsort) đều **chuyển sang insertion sort** khi đoạn cần sắp nhỏ hơn ngưỡng (~12–16 phần tử). Lý do: quicksort/mergesort có overhead đệ quy + phân hoạch; với mảng tí xíu, insertion sort với hằng số nhỏ và truy cập tuần tự (cache-friendly) **thắng**. Đây là tối ưu thật trong mọi sort thư viện.
+
+> ❓ **"Vậy có bao giờ tự viết bubble sort trong production?"** Gần như không — nó thua insertion sort ở mọi mặt (cùng $O(n^2)$ nhưng nhiều swap hơn). Bubble sort chủ yếu để **dạy** khái niệm. Khi cần sort thật → dùng `sort`/`slices.Sort` của thư viện ([Lesson 11](../lesson-11-sorting-in-practice/)).
+
+### 11.2. 📝 Tóm tắt mục 11
+
+- **Insertion sort** chạy thật bên trong Timsort/introsort/pdqsort cho mảng nhỏ (~<16) và dữ liệu gần-sắp-xếp → $O(n)$ best case.
+- **Selection sort** khi ghi đắt (ít swap nhất).
+- **Bubble sort**: chỉ để dạy; production luôn dùng sort thư viện.
+
 ## Bài tập
 
 > Giải chi tiết ở mục [Lời giải chi tiết](#lời-giải-chi-tiết) bên dưới.

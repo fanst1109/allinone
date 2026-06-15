@@ -570,6 +570,29 @@ func countMerge(a, tmp []int, lo, mid, hi int) int64 {
 
 ---
 
+## 12. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Merge sort thắng ở 3 chỗ quicksort thua: ổn định (stable), dữ liệu lớn hơn RAM, và linked list.** Đó là lý do nó là nền của các sort "thật" trong thư viện.
+
+| Ứng dụng | Merge sort làm gì |
+|----------|-------------------|
+| **Timsort (Python `sorted`, Java `Arrays.sort` cho object)** | Merge sort + insertion, **ổn định** — giữ thứ tự phần tử bằng khóa |
+| **External sort (data > RAM)** | Chia file thành chunk vừa RAM, sort, rồi **merge K chunk** từ đĩa |
+| **DB: ORDER BY trên dữ liệu lớn, merge join** | Sort-merge khi không vừa bộ nhớ |
+| **Đếm nghịch thế (inversion count)** | Đếm cặp đảo trong lúc merge — phân tích "độ lệch thứ hạng" |
+| **Sort linked list** | Merge sort là $O(n \log n)$ **không cần bộ nhớ phụ** trên list |
+
+### 12.1. Ví dụ cụ thể — external sort khi dữ liệu lớn hơn RAM
+
+Sort file 100GB với RAM 8GB: không thể nạp hết. **External merge sort**: (1) đọc từng chunk 8GB, sort trong RAM, ghi ra đĩa thành file đã sắp; (2) **merge K file** đã sắp bằng heap (đúng [merge-K của Heap](../../DataStructures/02-Intermediate/lesson-03-heap-priority-queue/)). Đây là cách database, `sort` Unix, MapReduce shuffle xử lý dữ liệu khổng lồ.
+
+> ❓ **"Vì sao stable lại quan trọng?"** Sort danh sách theo nhiều khóa: sort theo tên trước, rồi theo tuổi — stable sort giữ thứ tự tên trong cùng tuổi. Quicksort không stable → mất thứ tự phụ. Vì vậy Java dùng quicksort cho số nguyên (không cần stable) nhưng **Timsort cho object** (cần stable).
+
+### 12.2. 📝 Tóm tắt mục 12
+
+- Merge sort thật trong: **Timsort** (Python/Java, stable), **external sort** (data > RAM), **sort-merge join** DB, **inversion count**, **sort linked list**.
+- 3 thế mạnh: **ổn định**, **hợp dữ liệu lớn/đĩa** (merge K chunk), **linked list** không tốn bộ nhớ phụ.
+
 ## Bài tập
 
 > Làm trước khi xem lời giải bên dưới.

@@ -737,6 +737,29 @@ func main() {
 
 ---
 
+## 12. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Heap sort hiếm khi đứng một mình — vai trò thật của nó là "lưới an toàn" $O(n \\log n)$ và là động cơ của priority queue.** Cấu trúc heap quan trọng hơn thuật toán heap sort.
+
+| Ứng dụng | Heap làm gì |
+|----------|-------------|
+| **Introsort (C++ \`std::sort\`, nhiều stdlib)** | Heap sort là **fallback** khi quicksort đệ quy quá sâu → đảm bảo $O(n \\log n)$ |
+| **Priority queue** (cốt lõi) | Dijkstra, scheduler, top-K streaming ([Heap & PQ](../../DataStructures/02-Intermediate/lesson-03-heap-priority-queue/)) |
+| **Hệ thống cần $O(n \\log n)$ tại chỗ, không lo worst case** | Heap sort không có worst case $O(n^2)$ như quicksort, không tốn bộ nhớ phụ như merge |
+| **Embedded / bộ nhớ hạn chế** | In-place, $O(1)$ bộ nhớ phụ |
+
+### 12.1. Ví dụ cụ thể — heap sort là "lưới an toàn" của introsort
+
+\`std::sort\` chạy quicksort (nhanh trung bình) nhưng theo dõi độ sâu đệ quy. Nếu vượt $\\sim 2\\log n$ (dấu hiệu pivot tệ → nguy cơ $O(n^2)$), nó **chuyển sang heap sort** — chậm hơn chút nhưng **đảm bảo** $O(n \\log n)$ mọi trường hợp. Kết quả: nhanh như quicksort thông thường, an toàn như merge sort. Đây là lý do heap sort vẫn quan trọng dù ít khi dùng riêng.
+
+> ❓ **"Heap sort nhanh thế sao không dùng mặc định thay quicksort?"** Heap sort có hằng số lớn hơn và **cache-unfriendly** (nhảy lung tung giữa cha-con index xa nhau) → thực tế chậm hơn quicksort ~2-3× dù cùng $O(n \\log n)$. Nó thắng ở "đảm bảo worst case", không phải tốc độ trung bình.
+
+### 12.2. 📝 Tóm tắt mục 12
+
+- Heap sort = **fallback an toàn** trong introsort (chống worst case $O(n^2)$ của quicksort), in-place.
+- Giá trị lớn hơn nằm ở **cấu trúc heap** → priority queue (Dijkstra/scheduler/top-K).
+- Không làm sort mặc định vì cache-unfriendly (chậm hơn quicksort trung bình dù cùng Big-O).
+
 ## Bài tập
 
 > Làm trước, xem [Lời giải chi tiết](#lời-giải-chi-tiết) sau.

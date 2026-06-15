@@ -629,6 +629,31 @@ Tín hiệu cho thấy greedy có khả năng đúng:
 
 ---
 
+## 12. Ứng dụng thực tế trong phần mềm
+
+> 💡 **"Greedy hay DP?" là quyết định thiết kế bạn gặp thật khi tối ưu.** Chọn sai = hoặc kết quả sai (greedy ẩu) hoặc chậm/phức tạp thừa (DP khi greedy đủ).
+
+| Bài toán thật | Đúng là | Vì sao |
+|---------------|---------|--------|
+| Đổi tiền hệ chuẩn (1,2,5,10...) | **Greedy** | Cấu trúc tiền tệ đảm bảo greedy tối ưu |
+| Đổi tiền hệ tùy ý (1,3,4) | **DP** | Greedy sai (6 = 4+1+1 thay vì 3+3) |
+| Đường ngắn nhất, trọng số ≥0 | **Greedy** (Dijkstra) | Tính chất "đỉnh gần nhất chốt được" |
+| Đường ngắn nhất, trọng số âm | **DP** (Bellman-Ford) | Greedy sai với cạnh âm |
+| Chọn item theo tỉ lệ (fractional knapsack) | **Greedy** | Lấy giá trị/kg cao nhất trước |
+| Chọn item nguyên (0/1 knapsack) | **DP** | Greedy sai, cần thử mọi tổ hợp |
+
+### 12.1. Quy tắc quyết định trong thực tế
+
+Khi gặp bài tối ưu mới, hỏi theo thứ tự: (1) **Greedy có đúng không?** — thử tìm phản ví dụ nhỏ; nếu nghi ngờ, kiểm bằng brute-force oracle. (2) Nếu greedy đúng → dùng nó (nhanh, đơn giản). (3) Nếu sai → **DP** (có optimal substructure + overlapping subproblems không?). (4) Nếu cả hai không hợp → backtracking/xấp xỉ. Đây là cây quyết định thật khi thiết kế thuật toán tối ưu trong sản phẩm.
+
+> ⚠ **Hai lỗi đối xứng.** (a) **Greedy ẩu**: dùng greedy vì code ngắn, không chứng minh → sai âm thầm. (b) **DP thừa**: viết DP $O(n^2)$ phức tạp khi greedy $O(n \\log n)$ đã đúng → chậm + khó bảo trì. Biết ranh giới greedy/DP tránh cả hai.
+
+### 12.2. 📝 Tóm tắt mục 12
+
+- Quyết định greedy vs DP là **thiết kế thật**: đổi tiền, shortest path, knapsack đều có "phiên bản greedy" và "phiên bản DP".
+- Quy trình: thử greedy → tìm phản ví dụ → sai thì DP → không hợp thì backtracking/xấp xỉ.
+- Hai lỗi: greedy ẩu (sai âm thầm) vs DP thừa (chậm/phức tạp khi greedy đủ).
+
 ## Bài tập
 
 Với mỗi bài: **xác định greedy đúng hay sai**. Nếu greedy sai → đưa **phản ví dụ cụ thể** và nói rõ cần DP.

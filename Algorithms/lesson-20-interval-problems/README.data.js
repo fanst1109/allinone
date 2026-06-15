@@ -641,6 +641,30 @@ Quy tắc nhớ nhanh:
 
 ---
 
+## 12. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Bài toán đoạn (interval) ở khắp nơi có "thời gian bắt đầu–kết thúc" hoặc "khoảng".** Đặt lịch, đặt phòng, phân bổ tài nguyên — đều là interval scheduling.
+
+| Ứng dụng | Interval algo làm gì |
+|----------|----------------------|
+| **Lịch họp / đặt phòng (Google Calendar)** | Phát hiện trùng lịch, gộp khoảng rảnh, xếp nhiều cuộc nhất |
+| **Phân bổ phòng/tài nguyên** | Số phòng tối thiểu = max chồng lấn (sweep line) |
+| **CPU/job scheduling** | Chọn tập job không đè nhau, hoàn thành nhiều nhất |
+| **Quản lý băng thông / đặt chỗ chuyến bay** | Tối đa hóa booking không xung đột |
+| **Merge khoảng (IP range, version range)** | Gộp các đoạn chồng lấn thành đoạn liền |
+
+### 12.1. Ví dụ cụ thể — "cần bao nhiêu phòng họp?"
+
+Cho danh sách cuộc họp \`[start, end]\`, tìm **số phòng tối thiểu** = số cuộc chồng lấn lớn nhất tại một thời điểm. Kỹ thuật **sweep line**: tách thành sự kiện \`+1\` (start) và \`-1\` (end), sort theo thời gian, quét cộng dồn — đỉnh cao nhất = số phòng. $O(n \\log n)$. Đây là lõi của Google Calendar (phát hiện conflict), hệ đặt phòng, phân bổ tài nguyên cloud theo thời gian.
+
+> ❓ **"Sort theo start hay end?"** Tùy bài: **xếp nhiều cuộc nhất** (activity selection) → sort theo **end** (kết thúc sớm để dành chỗ); **số phòng tối thiểu** → sweep line theo thời gian; **merge khoảng** → sort theo **start**. Chọn sai tiêu chí sort = lời giải sai (cạm bẫy #1, §11).
+
+### 12.2. 📝 Tóm tắt mục 12
+
+- Interval thật trong: **lịch họp/đặt phòng**, **phân bổ phòng** (sweep line), **job scheduling**, **merge IP/version range**.
+- "Số phòng tối thiểu" = max chồng lấn = sweep line $O(n \\log n)$.
+- Tiêu chí sort tùy bài: end (activity selection), start (merge), thời gian (sweep).
+
 ## Bài tập
 
 > Làm xong hãy đối chiếu mục "Lời giải chi tiết" bên dưới. Mọi bài đều có lời giải đầy đủ + Big-O + chứng minh.

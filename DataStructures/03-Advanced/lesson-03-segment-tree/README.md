@@ -381,6 +381,114 @@ Vd $n = 8$:
 - Chọn: BIT cho tổng đơn giản; segtree khi cần min/max/gcd, lazy, hoặc truy vấn descend phức tạp.
 - Cảnh báo: cấp **$4n$** cho mảng `tree`, không phải $n$ hay $2n$.
 
+## 8. Thực hành: dùng trong code thật
+
+> 💡 **§6 liệt kê ứng dụng. Mục này là code chạy được + một quyết định quan trọng: khi nào KHÔNG cần segment tree.** Sự thật thực tế: nếu mảng **tĩnh** (không cập nhật), bạn chỉ cần **prefix-sum** $O(1)$ — segment tree là thừa. Segment tree/BIT chỉ thắng khi **cập nhật xen kẽ truy vấn**. Code Go dưới đây `go run` được.
+
+### 8.1. Quyết định trước tiên: prefix-sum vs segment tree vs BIT
+
+| Tình huống | Dùng | Vì sao |
+|------------|------|--------|
+| Mảng **tĩnh**, chỉ range-sum | **Prefix-sum array** | Build $O(n)$, query $O(1)$ — segtree thừa |
+| Range-sum + **point update** xen kẽ | **Fenwick (BIT)** | Code ngắn, $O(\log n)$, $n$ bộ nhớ |
+| Range-**min/max/gcd**, hoặc **range update** | **Segment tree** | BIT chỉ cộng/trừ được; segtree tổng quát |
+
+Đây là lỗi người mới hay mắc: dựng segment tree cho mảng không bao giờ đổi → phức tạp vô ích. Hỏi trước: **có update không?** Không → prefix-sum.
+
+### 8.2. Mini-project A — Analytics: tổng doanh thu khoảng giờ, có cập nhật
+
+"Tổng doanh thu giờ [l, r]" trên dashboard, nhưng số liệu **cập nhật liên tục** (đơn mới về). Prefix-sum hỏng vì mỗi update phải tính lại toàn bộ $O(n)$. Segment tree: cả update lẫn query đều $O(\log n)$:
+
+```go
+type SegTree struct {
+	n    int
+	tree []int // cấp 4n (xem §7.2)
+}
+
+func NewSegTree(a []int) *SegTree {
+	n := len(a)
+	st := &SegTree{n: n, tree: make([]int, 4*n)}
+	var build func(node, l, r int)
+	build = func(node, l, r int) {
+		if l == r { st.tree[node] = a[l]; return } // lá = 1 phần tử
+		m := (l + r) / 2
+		build(2*node, l, m)
+		build(2*node+1, m+1, r)
+		st.tree[node] = st.tree[2*node] + st.tree[2*node+1] // gộp 2 con
+	}
+	if n > 0 { build(1, 0, n-1) }
+	return st
+}
+
+func (st *SegTree) Update(i, val int) { // a[i] = val rồi sửa các node trên đường lên
+	var upd func(node, l, r int)
+	upd = func(node, l, r int) {
+		if l == r { st.tree[node] = val; return }
+		m := (l + r) / 2
+		if i <= m { upd(2*node, l, m) } else { upd(2*node+1, m+1, r) }
+		st.tree[node] = st.tree[2*node] + st.tree[2*node+1]
+	}
+	upd(1, 0, st.n-1)
+}
+
+func (st *SegTree) Query(ql, qr int) int { // tổng [ql, qr]
+	var q func(node, l, r int) int
+	q = func(node, l, r int) int {
+		if qr < l || r < ql { return 0 }          // đoạn node nằm NGOÀI query → bỏ
+		if ql <= l && r <= qr { return st.tree[node] } // nằm TRỌN → lấy luôn
+		m := (l + r) / 2
+		return q(2*node, l, m) + q(2*node+1, m+1, r) // giao một phần → chia đôi
+	}
+	return q(1, 0, st.n-1)
+}
+```
+
+Dùng: `st.Query(1,4)` = tổng giờ 1..4; `st.Update(2,15)` đổi giờ 2 → query sau đó tự đúng. Đây là cách dashboard real-time, game scoring, đếm lượt xem theo khoảng hoạt động.
+
+### 8.3. Mini-project B — Fenwick (BIT): cùng việc, code ngắn hơn nhiều
+
+Nếu chỉ cần **range-sum + point update** (không min/max), BIT gọn hơn segtree, dùng mẹo bit `i & (-i)` (§5.2):
+
+```go
+type BIT struct{ t []int } // 1-based
+
+func NewBIT(n int) *BIT { return &BIT{t: make([]int, n+1)} }
+
+func (b *BIT) Add(i, v int) { // a[i] += v
+	for ; i < len(b.t); i += i & (-i) { // nhảy lên các node cha phụ trách i
+		b.t[i] += v
+	}
+}
+func (b *BIT) PrefixSum(i int) int { // tổng a[1..i]
+	s := 0
+	for ; i > 0; i -= i & (-i) { // nhảy lùi gom các đoạn
+		s += b.t[i]
+	}
+	return s
+}
+func (b *BIT) RangeSum(l, r int) int { return b.PrefixSum(r) - b.PrefixSum(l-1) }
+```
+
+Dùng nhiều cho: **đếm nghịch thế** (Bài 4), rank động trong leaderboard (đếm "bao nhiêu người điểm < tôi"), đếm tần suất tích lũy. ~15 dòng so với ~40 dòng segtree.
+
+> ⚠ **Bẫy — cấp `4n` cho mảng `tree`, không phải `n` hay `2n`.** Segment tree trên $n$ phần tử có thể cần tới $4n$ node ở dạng đệ quy (cây không phải lúc nào cũng đầy hoàn hảo). Cấp thiếu → ghi out-of-bounds, sai âm thầm. BIT thì đúng $n+1$.
+
+### 8.4. 🔁 Tự kiểm tra
+
+> 1. Mảng giá tĩnh, chỉ hỏi "tổng [l,r]" nhiều lần, không bao giờ sửa. Dùng gì?
+>    <details><summary>Đáp án</summary><b>Prefix-sum array</b>: <code>pre[i]=a[0]+...+a[i-1]</code>, query <code>pre[r+1]-pre[l]</code> = $O(1)$. Segment tree thừa vì không có update.</details>
+> 2. Cần range **min** + point update. BIT đủ không?
+>    <details><summary>Đáp án</summary>Không trực tiếp — BIT chuẩn chỉ làm cộng/trừ (có nghịch đảo). Min không có nghịch đảo → dùng <b>segment tree</b> (tổng quát cho min/max/gcd).</details>
+> 3. Vì sao `Query` trong segtree dừng ngay khi đoạn node nằm trọn trong [ql,qr]?
+>    <details><summary>Đáp án</summary>Node đó đã lưu sẵn tổng cả đoạn (tính lúc build/update) → lấy luôn, khỏi đi sâu. Đây là lý do query chỉ $O(\log n)$ thay vì $O(n)$.</details>
+
+### 8.5. 📝 Tóm tắt mục 8
+
+- **Hỏi trước: có update không?** Không → prefix-sum $O(1)$. Có → BIT/segtree.
+- **Segment tree**: range sum/min/max + update, mỗi thao tác $O(\log n)$; cấp **4n**.
+- **BIT (Fenwick)**: range-sum + point update, ngắn gọn ~15 dòng, mẹo `i & (-i)`; dùng cho nghịch thế, rank động.
+- BIT chỉ cộng/trừ; cần min/max/gcd hoặc range update → segment tree (+ lazy).
+
 ## Bài tập
 
 1. Cài đặt segment tree cho **range sum**, hỗ trợ point update và range query.

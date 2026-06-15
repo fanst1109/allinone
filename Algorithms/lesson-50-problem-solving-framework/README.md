@@ -619,6 +619,32 @@ Gói gọn cả lesson để dán lên màn hình khi luyện tập:
 
 ---
 
+## 10. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Khung giải bài này không chỉ để thi — nó là quy trình bạn dùng khi gặp bài toán mới trong công việc thật.** Cùng các bước: hiểu → mô hình hóa → chọn công cụ → kiểm.
+
+| Bối cảnh thật | Khung áp dụng thế nào |
+|---------------|------------------------|
+| **Phỏng vấn coding** | Làm rõ yêu cầu → brute-force → tối ưu → test edge case (đúng 4 bước) |
+| **Debug production** | Tái hiện → thu hẹp (binary search nguyên nhân) → giả thuyết → kiểm |
+| **System design** | Ước lượng tải → chọn DS/thuật toán theo độ phức tạp → trade-off |
+| **Code review** | Nhận diện độ phức tạp, edge case thiếu, cấu trúc dữ liệu sai |
+| **Tối ưu hiệu năng** | Profiling tìm hot path → nhận dạng pattern → áp thuật toán phù hợp |
+
+### 10.1. Ví dụ cụ thể — khung này trong phỏng vấn và debug
+
+**Phỏng vấn**: gặp "tìm hai số cộng = target", đừng code ngay. Làm rõ (mảng sắp chưa? có số âm?) → brute-force $O(n^2)$ nói ra → nhận ra hash đưa về $O(n)$ → code → test mảng rỗng/trùng. Đúng khung 4 bước.
+
+**Debug**: API chậm bất thường. Khung: tái hiện (request nào?) → thu hẹp (binary search: tắt từng phần xem phần nào chậm) → giả thuyết (vòng lặp $O(n^2)$ trên data lớn?) → kiểm bằng profiling. Cùng tư duy "hiểu → thu hẹp → kiểm" như giải thuật toán.
+
+> ❓ **"Khung này có thật sự giúp hay chỉ lý thuyết?"** Khác biệt lớn nhất giữa người mới và kỹ sư giỏi không phải "biết nhiều thuật toán" mà là **quy trình ổn định**: không nhảy vào code vội, biết hỏi đúng câu, biết khi nào brute-force đủ. Khung này mã hóa quy trình đó để áp dụng nhất quán.
+
+### 10.2. 📝 Tóm tắt mục 10
+
+- Khung giải bài = quy trình thật cho **phỏng vấn**, **debug production**, **system design**, **code review**, **tối ưu**.
+- Cùng tư duy: hiểu/làm-rõ → mô hình hóa (brute-force) → chọn công cụ (tối ưu) → kiểm (test/profiling).
+- Giá trị: quy trình ổn định > thuộc nhiều thuật toán.
+
 ## Bài tập
 
 Với **mỗi** bài dưới đây, **không cần code đầy đủ** — hãy tập trung vào TƯ DUY: (a) đoán **độ phức tạp mục tiêu** từ constraint, (b) **nhận diện pattern**, (c) **chọn kỹ thuật**, (d) **outline lời giải**.

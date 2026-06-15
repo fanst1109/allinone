@@ -614,6 +614,31 @@ $E[X] = 3(1.0) + 2(0.667) + 0.5 = 3 + 1.333 + 0.5 = 4.833$ phép so sánh kỳ v
 
 ---
 
+## 14. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Ngẫu nhiên hóa không phải "ăn may" — nó là công cụ kỹ thuật để né worst case, đơn giản hóa, và xử lý dữ liệu khổng lồ.**
+
+| Ứng dụng | Randomization làm gì |
+|----------|----------------------|
+| **Quicksort pivot ngẫu nhiên** | Né worst case $O(n^2)$ do input ác ý ([Lesson 08](../lesson-08-quicksort/)) |
+| **Hash với seed ngẫu nhiên (Go map, SipHash)** | Chống tấn công hash-collision DoS |
+| **Miller–Rabin (kiểm số nguyên tố)** | Nền RSA/crypto — kiểm nhanh xác suất ([Lesson 46](../lesson-46-number-theory-algos/)) |
+| **Skip list (Redis ZSet)** | Cân bằng bằng tầng ngẫu nhiên, không cần rotation |
+| **HyperLogLog, Count-Min, Bloom** | Ước lượng cardinality/tần suất với RAM nhỏ |
+| **Load balancing "power of two choices"** | Chọn 2 server ngẫu nhiên, lấy cái ít tải → cân tải gần tối ưu |
+
+### 14.1. Ví dụ cụ thể — vì sao Go random hóa thứ tự duyệt map
+
+\`for k := range m\` trong Go cho thứ tự **ngẫu nhiên** mỗi lần chạy. Cố ý: ngăn lập trình viên vô tình phụ thuộc vào thứ tự (vốn không đảm bảo), và hash seed ngẫu nhiên chống **hash-flooding DoS** (kẻ tấn công gửi key cố tình đụng độ làm map tụt xuống $O(n)$/thao tác). Đây là randomization bảo vệ hệ thống thật.
+
+> ❓ **"Las Vegas vs Monte Carlo trong thực tế?"** **Las Vegas** (luôn đúng, thời gian ngẫu nhiên): quicksort random pivot — kết quả luôn đúng, chỉ tốc độ biến thiên. **Monte Carlo** (nhanh cố định, đúng xác suất): Miller-Rabin — có thể sai với xác suất cực nhỏ, chạy nhiều vòng để giảm. Crypto chấp nhận Monte Carlo vì xác suất sai $< 2^{-100}$ nhỏ hơn lỗi phần cứng.
+
+### 14.2. 📝 Tóm tắt mục 14
+
+- Randomization thật trong: **quicksort pivot**, **hash seed chống DoS**, **Miller-Rabin** (crypto), **skip list**, **HyperLogLog/Bloom**, **power-of-two-choices**.
+- Go random hóa duyệt map = chống phụ thuộc thứ tự + chống hash-flooding.
+- Las Vegas (luôn đúng, thời gian ngẫu nhiên) vs Monte Carlo (nhanh, đúng xác suất).
+
 ## Bài tập
 
 > Mỗi bài có lời giải chi tiết bên dưới — không bỏ ngỏ.

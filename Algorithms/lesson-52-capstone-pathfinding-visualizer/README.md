@@ -638,6 +638,30 @@ Visualizer cơ bản đã hoàn chỉnh. Để biến nó thành sản phẩm "x
 
 ---
 
+## 14. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Pathfinding (BFS/Dijkstra/A*) là một trong số ít thuật toán bạn thấy "chạy" trực tiếp trong sản phẩm hằng ngày — bản đồ, game, robot.**
+
+| Ứng dụng | Pathfinding làm gì |
+|----------|--------------------|
+| **Google Maps / GPS / Waze** | Đường ngắn nhất/nhanh nhất — Dijkstra/A* + dữ liệu giao thông |
+| **Game (RTS, RPG, NPC di chuyển)** | A* trên lưới/navmesh tìm đường tránh vật cản |
+| **Robot / drone / xe tự hành** | Lập đường trong không gian, tránh chướng ngại |
+| **Mạng / routing (OSPF)** | Đường ngắn nhất giữa router (Dijkstra) |
+| **Game giải đố, mê cung, board game AI** | BFS/A* tìm chuỗi trạng thái tới đích |
+
+### 14.1. Ví dụ cụ thể — vì sao game dùng A* chứ không Dijkstra thuần
+
+Dijkstra mở rộng **đều mọi hướng** từ nguồn → tốn công xét ô xa đích. **A*** thêm **heuristic** (vd khoảng cách Manhattan tới đích) để **ưu tiên hướng về đích** → xét ít ô hơn nhiều, nhanh hơn hẳn trên bản đồ lớn. Đây là lý do mọi game engine (Unity, Unreal) và Google Maps dùng A* hoặc biến thể (Contraction Hierarchies cho map đường bộ). A* = Dijkstra + "la bàn chỉ về đích".
+
+> ❓ **"Heuristic chọn sao cho A* vẫn đúng?"** Heuristic phải **admissible** (không bao giờ ước lượng quá khoảng cách thật) — vd đường chim bay luôn ≤ đường thật. Khi đó A* đảm bảo tìm đường ngắn nhất. Heuristic quá lạc quan (ước lượng dư) → A* nhanh hơn nhưng có thể ra đường không tối ưu. Đây là trade-off tốc độ vs tối ưu ([Lesson 51](../lesson-51-complexity-tradeoffs/)).
+
+### 14.2. 📝 Tóm tắt mục 14
+
+- Pathfinding thật trong: **Google Maps/GPS**, **game (A* trên navmesh)**, **robot/drone**, **network routing**, **AI giải đố**.
+- **A* = Dijkstra + heuristic** hướng về đích → xét ít ô hơn, nhanh hơn trên map lớn.
+- Heuristic **admissible** (không ước lượng quá) → A* vẫn cho đường ngắn nhất.
+
 ## Bài tập
 
 > Tất cả bài tập là **mở rộng visualizer**. Lời giải chi tiết ở [phần dưới](#lời-giải-chi-tiết).

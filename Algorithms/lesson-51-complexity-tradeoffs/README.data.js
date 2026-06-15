@@ -637,6 +637,31 @@ memory chật" → tính trực tiếp in-place, đừng cache.
 
 ---
 
+## 13. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Mọi quyết định kiến trúc hệ thống là một trade-off độ phức tạp: nhanh hơn nhưng tốn RAM hơn, hoặc ngược lại.** Hiểu trade-off = thiết kế đúng.
+
+| Trade-off thật | Đánh đổi gì |
+|----------------|------------|
+| **Cache / memoization** | Tốn RAM (lưu kết quả) để đổi tốc độ (khỏi tính lại) |
+| **Index database** | Tốn disk + chậm ghi để đổi đọc nhanh ($O(\\log n)$) |
+| **Precompute vs compute-on-demand** | Tính sẵn (tốn chỗ) vs tính lúc cần (tốn CPU mỗi lần) |
+| **Nén dữ liệu** | Tốn CPU (nén/giải) để đổi băng thông/dung lượng |
+| **Denormalization (DB)** | Lặp dữ liệu (tốn chỗ) để đổi query nhanh (khỏi join) |
+| **Bloom filter trước DB** | Chút RAM + sai số nhỏ để đổi tránh truy vấn đĩa đắt |
+
+### 13.1. Ví dụ cụ thể — caching là trade-off time–space kinh điển
+
+API tính báo cáo nặng mất 2 giây. Cache kết quả vào Redis: lần sau trả trong 5ms — **đổi RAM lấy thời gian**. Nhưng thêm vấn đề: cache invalidation (dữ liệu cũ), tốn bộ nhớ. Mọi tầng hệ thống là trade-off: CPU cache, CDN, database index, materialized view — đều "lưu sẵn để khỏi tính lại". Quyết định *cache cái gì, TTL bao lâu* chính là cân time vs space vs độ tươi dữ liệu.
+
+> ❓ **"Khi nào KHÔNG nên đánh đổi RAM lấy tốc độ?"** Khi dữ liệu thay đổi liên tục (cache miss/invalidation nhiều hơn lợi), khi RAM là bottleneck thật, hoặc khi tính toán vốn đã rẻ. Trade-off chỉ đáng khi **tỉ lệ đọc-lại cao** và **chi phí tính lại lớn**. Đo trước khi cache.
+
+### 13.2. 📝 Tóm tắt mục 13
+
+- Mọi quyết định kiến trúc = trade-off độ phức tạp: **cache**, **DB index**, **precompute**, **nén**, **denormalization**, **Bloom**.
+- Caching = đổi RAM lấy thời gian; kèm chi phí ẩn (invalidation, bộ nhớ, độ tươi).
+- Đánh đổi đáng khi: đọc-lại nhiều + tính lại đắt; đo trước, đừng cache mù.
+
 ## Bài tập
 
 Với mỗi scenario, **chọn đánh đổi/cách giải tối ưu và giải thích lý do** (dựa trên khung mục 11).

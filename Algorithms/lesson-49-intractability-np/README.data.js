@@ -594,6 +594,30 @@ Walk-through \`verifySAT\` với \`a2 = {x1=T, x2=F, x3=F}\` trên \`(x1 OR NOT 
 
 ---
 
+## 13. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Nhận ra bài toán là NP-hard là kỹ năng production cực giá trị — nó cứu bạn khỏi phí hàng tuần tìm lời giải "đúng + nhanh" không tồn tại.** Khi gặp NP-hard, chuyển chiến lược.
+
+| Bài toán production | Là NP-hard | Chiến lược thật |
+|---------------------|------------|-----------------|
+| Định tuyến giao hàng (TSP, VRP) | ✓ | Heuristic (2-opt), solver (OR-Tools) |
+| Xếp lịch/ca/phòng (scheduling) | ✓ | ILP solver, constraint programming |
+| Đóng gói thùng/cloud (bin packing) | ✓ | Greedy first-fit + tinh chỉnh |
+| Cấu hình/phụ thuộc (SAT) | ✓ | SAT solver (MiniSat, Z3) |
+| Phân cụm tối ưu (k-means tối ưu) | ✓ | Heuristic (Lloyd), chấp nhận gần đúng |
+
+### 13.1. Ví dụ cụ thể — gặp NP-hard thì làm gì
+
+Sếp bảo "tối ưu lộ trình 200 điểm giao hàng cho rẻ nhất". Đó là **TSP — NP-hard**: không có thuật toán đúng-và-nhanh cho 200 điểm. Thay vì phí thời gian tìm, kỹ sư giỏi: (1) **nhận ra** nó NP-hard; (2) chọn **đủ tốt** thay vì **tối ưu** — heuristic nearest-neighbor + 2-opt, hoặc gọi **OR-Tools/solver**; (3) nếu input nhỏ ($n \\le 15$) → bitmask DP đúng tuyệt đối ([Lesson 29](../lesson-29-bitmask-dp/)). Biết ranh giới = chọn đúng công cụ.
+
+> ⚠ **Đừng nhầm "khó với tôi" với "NP-hard".** NP-hard là tính chất toán học chứng minh được (reduction). Nhiều bài *trông* khó nhưng có lời giải đa thức (max-flow, matching, shortest path). Ngược lại, cố tìm lời giải poly cho bài NP-hard thật = phí công. Học để **phân biệt**, không để bỏ cuộc sớm.
+
+### 13.2. 📝 Tóm tắt mục 13
+
+- Giá trị thật: **nhận ra NP-hard** → đổi từ "tìm tối ưu" sang heuristic/approximation/solver.
+- TSP/scheduling/bin-packing/SAT đều NP-hard → OR-Tools, ILP, SAT solver, greedy+tinh chỉnh.
+- Input nhỏ → DP/brute đúng tuyệt đối; lớn → gần đúng. Đừng nhầm "khó với tôi" với NP-hard thật.
+
 ## Bài tập
 
 1. **(Verify lời giải NP — Subset Sum)** Cho \`S = {7, 3, 2, 5, 8}\`, \`T = 10\`, certificate \`{2, 8}\`. Viết các bước verify và xác nhận Yes/No. Sau đó verify certificate \`{3, 5}\` cho cùng T.

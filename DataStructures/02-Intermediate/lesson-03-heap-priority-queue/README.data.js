@@ -272,6 +272,234 @@ Job có deadline / priority — lấy job ưu tiên cao nhất tiếp theo.
 ### 6.5. Median streaming
 Duy trì median của dòng số bằng **hai heap** (max-heap chứa nửa nhỏ, min-heap chứa nửa lớn).
 
+## 7. Thực hành: dùng trong code thật
+
+> 💡 **Mục 6 nói heap "dùng ở đâu". Mục này là code bạn thật sự gõ.** Trong Go đời thực bạn **gần như không bao giờ** tự viết sift-up/sift-down — bạn implement interface \`container/heap\` rồi để thư viện chuẩn lo phần khó. Dưới đây là 5 mini-project chạy được (\`go run\`), mỗi cái là một bài toán có thật trong backend/hệ thống.
+
+### 7.1. \`container/heap\` — boilerplate ai cũng cần thuộc
+
+Go stdlib **không** cho bạn một kiểu \`Heap\` sẵn dùng. Nó cho một **interface** — bạn khai báo dữ liệu + 5 method, thư viện cung cấp thuật toán. Đây là mẫu tối thiểu cho min-heap số nguyên — copy là chạy:
+
+\`\`\`go
+package main
+
+import (
+	"container/heap"
+	"fmt"
+)
+
+// IntHeap là min-heap các int. Backing store là slice (đúng "array-based" §2).
+type IntHeap []int
+
+func (h IntHeap) Len() int            { return len(h) }
+func (h IntHeap) Less(i, j int) bool  { return h[i] < h[j] } // '<' = min-heap. Đổi thành '>' ra max-heap.
+func (h IntHeap) Swap(i, j int)       { h[i], h[j] = h[j], h[i] }
+func (h *IntHeap) Push(x any)         { *h = append(*h, x.(int)) }       // thêm vào CUỐI slice
+func (h *IntHeap) Pop() any {                                            // lấy từ CUỐI slice
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[:n-1]
+	return x
+}
+
+func main() {
+	h := &IntHeap{5, 2, 8, 1}
+	heap.Init(h) // build-heap O(n)
+	heap.Push(h, 3)
+	for h.Len() > 0 {
+		fmt.Print(heap.Pop(h), " ") // 1 2 3 5 8 — tăng dần
+	}
+}
+\`\`\`
+
+> ⚠ **Bẫy #1 — \`Push\`/\`Pop\` của BẠN không phải hàm bạn gọi.** Bạn cài \`(*IntHeap).Push/Pop\` thao tác **cuối slice** (rẻ), nhưng trong code bạn gọi \`heap.Push(h, x)\` / \`heap.Pop(h)\` (package-level). Package mới là phần sift-up/sift-down để giữ heap property. Gọi nhầm \`h.Pop()\` (method của bạn) → lấy bừa phần tử cuối, **không** phải min. Đây là lỗi #1 của người mới dùng \`container/heap\`.
+
+> ❓ **"Sao \`Push\`/\`Pop\` nhận \`any\` (interface{})?"** Vì \`container/heap\` viết trước generics (Go 1.18). Muốn type-safe + đỡ boilerplate, có thể dùng generic wrapper hoặc thư viện ngoài, nhưng \`container/heap\` vẫn là chuẩn mọi codebase Go gặp.
+
+### 7.2. Mini-project A — Task scheduler theo độ ưu tiên
+
+Bài toán có thật: một worker xử lý job, job nào **priority cao** chạy trước (job thường < job gấp < job khẩn). Đây là PQ thuần (§5):
+
+\`\`\`go
+type Job struct {
+	Name     string
+	Priority int // càng lớn càng ưu tiên
+}
+type JobQueue []*Job
+
+func (q JobQueue) Len() int           { return len(q) }
+func (q JobQueue) Less(i, j int) bool { return q[i].Priority > q[j].Priority } // '>' = max theo priority
+func (q JobQueue) Swap(i, j int)      { q[i], q[j] = q[j], q[i] }
+func (q *JobQueue) Push(x any)        { *q = append(*q, x.(*Job)) }
+func (q *JobQueue) Pop() any          { old := *q; n := len(old); x := old[n-1]; *q = old[:n-1]; return x }
+
+func main() {
+	q := &JobQueue{}
+	heap.Init(q)
+	heap.Push(q, &Job{"gửi-email", 1})
+	heap.Push(q, &Job{"reset-mật-khẩu", 5}) // khẩn
+	heap.Push(q, &Job{"tạo-báo-cáo", 2})
+	for q.Len() > 0 {
+		j := heap.Pop(q).(*Job)
+		fmt.Printf("Chạy %s (priority %d)\\n", j.Name, j.Priority)
+	}
+	// reset-mật-khẩu (5) → tạo-báo-cáo (2) → gửi-email (1)
+}
+\`\`\`
+
+So với "duyệt cả slice tìm max mỗi lần lấy job" ($O(n)$/lần): heap cho \`Push\`/\`Pop\` đều $O(\\log n)$. Với hàng nghìn job đến/đi liên tục, đây là khác biệt sống còn.
+
+### 7.3. Mini-project B — Dijkstra dùng priority queue
+
+Đây là ứng dụng §6.3 thành code thật. PQ chứa cặp \`(đỉnh, khoảng cách tạm)\`; luôn lấy đỉnh **gần nguồn nhất** chưa xử lý:
+
+\`\`\`go
+type Item struct {
+	node, dist int
+}
+type PQ []Item
+func (p PQ) Len() int            { return len(p) }
+func (p PQ) Less(i, j int) bool  { return p[i].dist < p[j].dist } // min theo dist
+func (p PQ) Swap(i, j int)       { p[i], p[j] = p[j], p[i] }
+func (p *PQ) Push(x any)         { *p = append(*p, x.(Item)) }
+func (p *PQ) Pop() any           { o := *p; n := len(o); x := o[n-1]; *p = o[:n-1]; return x }
+
+// adj[u] = list cạnh (v, trọng số). Trả về khoảng cách ngắn nhất từ src tới mọi đỉnh.
+func dijkstra(n, src int, adj map[int][][2]int) []int {
+	const INF = 1 << 30
+	dist := make([]int, n)
+	for i := range dist { dist[i] = INF }
+	dist[src] = 0
+	pq := &PQ{{src, 0}}
+	for pq.Len() > 0 {
+		cur := heap.Pop(pq).(Item)
+		if cur.dist > dist[cur.node] { continue } // bản cũ lỗi thời → bỏ
+		for _, e := range adj[cur.node] {
+			v, w := e[0], e[1]
+			if nd := cur.dist + w; nd < dist[v] {
+				dist[v] = nd
+				heap.Push(pq, Item{v, nd}) // "lazy deletion": đẩy bản mới, không xóa bản cũ
+			}
+		}
+	}
+	return dist
+}
+\`\`\`
+
+> ⚠ **Bẫy #2 — heap không có "decrease-key" rẻ.** Khi tìm được đường ngắn hơn tới \`v\`, lý thuyết bảo "giảm key của \`v\` trong heap". Nhưng \`container/heap\` (và hầu hết PQ thực dụng) **không** cho tìm \`v\` trong $O(1)$. Mẹo **lazy deletion**: cứ \`Push\` bản mới \`(v, nd)\`, để bản cũ nằm lại; khi \`Pop\` ra bản cũ thì dòng \`if cur.dist > dist[cur.node] { continue }\` vứt nó đi. Heap to hơn chút nhưng code đơn giản và vẫn $O((V+E)\\log V)$.
+
+### 7.4. Mini-project C — Top-K trending (streaming)
+
+Code hóa §6.2: đếm hashtag trong stream khổng lồ, giữ **top-K** mà chỉ tốn bộ nhớ $O(K)$. Min-heap size K = "phòng VIP", gốc = người gác cửa nhỏ nhất:
+
+\`\`\`go
+type Tag struct {
+	name  string
+	count int
+}
+type MinK []Tag
+func (m MinK) Len() int           { return len(m) }
+func (m MinK) Less(i, j int) bool { return m[i].count < m[j].count } // MIN-heap để tìm MAX (§6.2)
+func (m MinK) Swap(i, j int)      { m[i], m[j] = m[j], m[i] }
+func (m *MinK) Push(x any)        { *m = append(*m, x.(Tag)) }
+func (m *MinK) Pop() any          { o := *m; n := len(o); x := o[n-1]; *m = o[:n-1]; return x }
+
+func topK(counts map[string]int, k int) []Tag {
+	h := &MinK{}
+	heap.Init(h)
+	for name, c := range counts {
+		if h.Len() < k {
+			heap.Push(h, Tag{name, c})
+		} else if c > (*h)[0].count { // lớn hơn người gác cửa?
+			heap.Pop(h)                // đá người gác cửa
+			heap.Push(h, Tag{name, c}) // cho ứng viên vào
+		}
+	}
+	return *h // K tag lớn nhất (chưa sắp xếp — sort nếu cần thứ tự)
+}
+\`\`\`
+
+$O(n \\log K)$, bộ nhớ $O(K)$ — chạy được trên 1 tỉ log với K=10 mà chỉ giữ 10 phần tử. Đây đúng cơ chế \`heapq.nlargest\` (Python) và backend "top trending" thật.
+
+### 7.5. Mini-project D — Median của dòng số (hai heap)
+
+Code hóa §6.5 / Bài 4. Hai heap: \`lo\` (max-heap, nửa nhỏ) + \`hi\` (min-heap, nửa lớn). Median nằm ở **đỉnh** hai heap → $O(1)$ lấy, $O(\\log n)$ thêm:
+
+\`\`\`go
+type MedianFinder struct {
+	lo *MaxHeap // nửa nhỏ, đỉnh = lớn nhất của nửa nhỏ
+	hi *MinHeap // nửa lớn, đỉnh = nhỏ nhất của nửa lớn
+}
+func (m *MedianFinder) Add(x int) {
+	heap.Push(m.lo, x)               // luôn vào lo trước
+	heap.Push(m.hi, heap.Pop(m.lo)) // chuyển max của lo sang hi → giữ lo ≤ hi
+	if m.hi.Len() > m.lo.Len() {     // cân lại: lo được phép nhiều hơn hi đúng 1
+		heap.Push(m.lo, heap.Pop(m.hi))
+	}
+}
+func (m *MedianFinder) Median() float64 {
+	if m.lo.Len() > m.hi.Len() {
+		return float64((*m.lo)[0]) // lẻ → đỉnh lo
+	}
+	return float64((*m.lo)[0]+(*m.hi)[0]) / 2 // chẵn → trung bình 2 đỉnh
+}
+\`\`\`
+
+Mẹo "đẩy qua lại": mọi số vào \`lo\` rồi nhả max sang \`hi\`, sau đó cân kích thước. Bất biến \`|lo| - |hi| ∈ {0, 1}\` luôn giữ → median luôn ở đỉnh.
+
+### 7.6. Mini-project E — Merge K sorted lists
+
+Gộp K danh sách đã sắp xếp (vd K file log đã sort theo timestamp) thành một dòng sắp xếp, không nạp hết vào RAM. Heap giữ đúng **K con trỏ đầu** mỗi list:
+
+\`\`\`go
+type Node struct {
+	val, list, idx int // giá trị, list nào, vị trí trong list
+}
+// ... (PQ min theo val, giống §7.3) ...
+func mergeK(lists [][]int) []int {
+	pq := &PQ{}
+	for li, l := range lists {
+		if len(l) > 0 { heap.Push(pq, Node{l[0], li, 0}) }
+	}
+	var out []int
+	for pq.Len() > 0 {
+		n := heap.Pop(pq).(Node)
+		out = append(out, n.val)
+		if n.idx+1 < len(lists[n.list]) { // còn phần tử trong list đó?
+			heap.Push(pq, Node{lists[n.list][n.idx+1], n.list, n.idx + 1})
+		}
+	}
+	return out
+}
+\`\`\`
+
+$O(N \\log K)$ với $N$ = tổng phần tử. Đây là **merge step** của external merge-sort (sort dữ liệu lớn hơn RAM) và cách nhiều DB gộp kết quả từ nhiều partition.
+
+### 7.7. ⚠ Khi nào KHÔNG dùng heap
+
+| Tình huống | Vì sao heap sai | Dùng gì |
+|------------|------------------|---------|
+| Cần tìm/sửa **phần tử bất kỳ** thường xuyên | Heap tìm 1 phần tử = $O(n)$ | \`map\`, hoặc indexed-heap (lưu vị trí) |
+| Cần **range query** / duyệt theo thứ tự | Heap chỉ biết min/max, phần còn lại vô thứ tự | BST cân bằng / \`TreeMap\` ([L02](../lesson-02-binary-search-tree/), [L04](../lesson-04-balanced-trees/)) |
+| Chỉ cần lấy min/max **một lần** | Build heap $O(n)$ thừa | Quét tuyến tính $O(n)$ tìm min |
+| Cần phần tử thứ k cố định nhiều lần trên data tĩnh | — | Sort 1 lần $O(n\\log n)$ rồi index $O(1)$ |
+
+> 🔁 **Tự kiểm tra**
+> 1. Trong \`container/heap\`, vì sao gọi \`h.Pop()\` (method của bạn) thay vì \`heap.Pop(h)\` lại sai?
+>    <details><summary>Đáp án</summary>Method \`Pop\` của bạn chỉ cắt phần tử <b>cuối slice</b> — không phải min. \`heap.Pop(h)\` của package mới đổi root xuống cuối, cắt nó ra, rồi sift-down để khôi phục heap property. Phải gọi bản package-level.</details>
+> 2. Trong Dijkstra §7.3, vì sao không cần xóa bản \`(v, dist cũ)\` khỏi heap?
+>    <details><summary>Đáp án</summary>Lazy deletion: khi \`Pop\` lấy ra bản cũ, \`cur.dist > dist[cur.node]\` đúng (vì \`dist[v]\` đã được cập nhật nhỏ hơn) → \`continue\` bỏ qua. Bản cũ vô hại, chỉ tốn chút bộ nhớ.</details>
+> 3. Top-K §7.4 dùng min-heap hay max-heap để tìm K phần tử LỚN nhất? Vì sao?
+>    <details><summary>Đáp án</summary><b>Min-heap</b> size K. Gốc = phần tử nhỏ nhất trong K hiện giữ = "người gác cửa". Ứng viên mới chỉ vào nếu lớn hơn gốc. Dùng max-heap thì gốc là lớn nhất — không giúp loại phần tử nhỏ.</details>
+
+### 7.8. 📝 Tóm tắt mục 7
+
+- Go: cài \`container/heap\` (5 method \`Len/Less/Swap/Push/Pop\`) rồi gọi \`heap.Push\`/\`heap.Pop\` package-level — **đừng** gọi method \`Push\`/\`Pop\` của mình.
+- \`Less\` dùng \`<\` → min-heap, \`>\` → max-heap. Đổi 1 ký tự là đảo loại.
+- 5 pattern thực chiến: **PQ scheduler**, **Dijkstra** (lazy deletion thay decrease-key), **top-K streaming** ($O(K)$ bộ nhớ), **median 2-heap**, **merge-K** (external sort).
+- Heap mạnh ở min/max + insert/extract $O(\\log n)$; **yếu** ở tìm/sửa phần tử bất kỳ và range query → khi đó dùng map / BST cân bằng.
+
 ## Bài tập
 
 1. Cho mảng \`[4, 1, 7, 3, 2, 6, 5]\`, vẽ min-heap kết quả khi chèn lần lượt.

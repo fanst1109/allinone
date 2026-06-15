@@ -356,7 +356,63 @@ render();
   window.render = function () { orig(); renderByteStrip(_selectedByteIdx); };
   renderByteStrip(_selectedByteIdx);
 })();
-</script></main>
+</script>
+
+<div class="panel">
+  <h2>Top-K trending stream (README §6.2 / §7.4)</h2>
+  <p style="margin:.4em 0 .8em; color:#475569; font-size:13px;">
+    Min-heap size K = "phòng VIP". Gốc heap = <b>người gác cửa</b> (nhỏ nhất trong K đang giữ).
+    Mỗi tag mới: nếu count <b>&gt; người gác cửa</b> → đá gác cửa, cho vào; nếu không → bỏ. Bộ nhớ luôn chỉ <code>O(K)</code>.
+  </p>
+  <label>K = <input id="tkK" type="number" value="3" min="1" max="8" style="width:56px"></label>
+  <button class="green" onclick="tkStep()">▶ Nạp tag tiếp theo</button>
+  <button class="secondary" onclick="tkReset()">Reset stream</button>
+  <div style="margin-top:10px; font-size:13px; color:#475569;">Stream còn lại:</div>
+  <div class="array" id="tkStream"></div>
+  <div style="margin-top:6px; font-size:13px; color:#475569;">Heap (size ≤ K) — ô đầu là người gác cửa:</div>
+  <div class="array" id="tkHeapView"></div>
+  <div class="log" id="tkLog">Nhấn "Nạp tag tiếp theo" để mô phỏng. Cuối stream, heap chứa đúng top-K.</div>
+</div>
+
+<script>
+// ============= TOP-K STREAM (README §6.2 / §7.4) =============
+const TK_SOURCE = [
+  ['#sale', 4], ['#tet', 1], ['#review', 7], ['#unbox', 3],
+  ['#sale', 9], ['#flash', 2], ['#tet', 8], ['#review', 6], ['#unbox', 5],
+];
+let tkStream = [];
+let tkHeap = []; // min-heap theo count: [{name,count}]
+function tkParent(i){return (i-1)>>1;}
+function tkSiftUp(i){ while(i>0 && tkHeap[tkParent(i)].count > tkHeap[i].count){ const p=tkParent(i); [tkHeap[i],tkHeap[p]]=[tkHeap[p],tkHeap[i]]; i=p; } }
+function tkSiftDown(i){ const n=tkHeap.length; while(true){ let s=i,l=2*i+1,r=2*i+2; if(l<n&&tkHeap[l].count<tkHeap[s].count)s=l; if(r<n&&tkHeap[r].count<tkHeap[s].count)s=r; if(s===i)break; [tkHeap[i],tkHeap[s]]=[tkHeap[s],tkHeap[i]]; i=s; } }
+function tkPush(t){ tkHeap.push(t); tkSiftUp(tkHeap.length-1); }
+function tkPopMin(){ const m=tkHeap[0]; tkHeap[0]=tkHeap[tkHeap.length-1]; tkHeap.pop(); if(tkHeap.length)tkSiftDown(0); return m; }
+
+function tkRenderStream(){
+  const el=document.getElementById('tkStream'); el.innerHTML='';
+  if(!tkStream.length){ el.innerHTML='<span style="color:#94a3b8;font-size:13px;">(hết stream)</span>'; return; }
+  tkStream.forEach((t,i)=>{ const c=document.createElement('div'); c.className='cell'+(i===0?' new':''); c.style.width='auto'; c.style.padding='0 8px'; c.style.fontSize='12px'; c.textContent=`${t[0]}:${t[1]}`; el.appendChild(c); });
+}
+function tkRenderHeap(hi){
+  const el=document.getElementById('tkHeapView'); el.innerHTML='';
+  if(!tkHeap.length){ el.innerHTML='<span style="color:#94a3b8;font-size:13px;">(rỗng)</span>'; return; }
+  tkHeap.forEach((t,i)=>{ const c=document.createElement('div'); c.className='cell'+(i===0?' current':'')+(i===hi?' swap':''); c.style.width='auto'; c.style.padding='0 8px'; c.style.fontSize='12px'; c.innerHTML=`<span class="idx">${i===0?'gác cửa':''}</span>${t[0]}:${t[1]}`; el.appendChild(c); });
+}
+function tkStep(){
+  const K=Math.max(1,parseInt(document.getElementById('tkK').value)||3);
+  if(!tkStream.length){ document.getElementById('tkLog').textContent='Hết stream. Top-'+K+' = '+tkHeap.map(t=>t[0]+':'+t[1]).sort().join(', ')+'. Heap chỉ giữ '+tkHeap.length+' phần tử suốt quá trình → O(K) bộ nhớ.'; return; }
+  const [name,count]=tkStream.shift();
+  let msg;
+  if(tkHeap.length<K){ tkPush({name,count}); msg=`Heap chưa đầy (< K=${K}) → thêm ${name}:${count}.`; }
+  else if(count>tkHeap[0].count){ const out=tkPopMin(); tkPush({name,count}); msg=`${name}:${count} > người gác cửa ${out.name}:${out.count} → đá gác cửa, cho ${name} vào.`; }
+  else { msg=`${name}:${count} ≤ người gác cửa ${tkHeap[0].name}:${tkHeap[0].count} → bỏ qua (không thể vào top-K).`; }
+  tkRenderStream(); tkRenderHeap();
+  document.getElementById('tkLog').textContent=msg;
+}
+function tkReset(){ tkStream=TK_SOURCE.map(x=>[...x]); tkHeap=[]; tkRenderStream(); tkRenderHeap(); document.getElementById('tkLog').textContent='Stream nạp lại. Nhấn "Nạp tag tiếp theo".'; }
+tkReset();
+</script>
+</main>
 <!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
 <script src="../../../tools/marked.min.js"></script>
 <script src="./README.data.js"></script>

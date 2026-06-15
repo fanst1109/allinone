@@ -323,6 +323,107 @@ Xấu nhất chỉ khi hash function thật sự kém — runtime chuẩn (Go/Ja
 
 ---
 
+## 11. Thực hành: dùng trong code thật
+
+> 💡 **Bài này đã dạy hash table rất kỹ. Mục này là 3 ứng dụng bạn gõ thật: memoization (tăng tốc), consistent hashing (chia tải nhiều server), gom nhóm/dedup.** Trong Go, hash table = \`map\` built-in — nhưng biết *khi nào & dùng sao* mới là kỹ năng. Code dưới đây \`go run\` được.
+
+### 11.1. Mini-project A — Memoization: nhớ kết quả đã tính
+
+Hàm đắt gọi lại cùng đầu vào → lưu kết quả vào map, lần sau trả ngay. Biến đệ quy mũ thành tuyến tính:
+
+\`\`\`go
+func memoFib() func(int) int {
+	cache := map[int]int{}
+	var fib func(n int) int
+	fib = func(n int) int {
+		if n < 2 { return n }
+		if v, ok := cache[n]; ok {
+			return v // đã tính → O(1), khỏi đệ quy lại
+		}
+		v := fib(n-1) + fib(n-2)
+		cache[n] = v
+		return v
+	}
+	return fib
+}
+\`\`\`
+
+\`fib(40)\` = 102334155, gần như tức thì. Không memo → $O(2^n)$ (tính lại \`fib(38)\` vô số lần); có memo → $O(n)$. Đây là nền của Dynamic Programming, cache API response, parse cache.
+
+### 11.2. Mini-project B — Consistent hashing: chia key cho N server
+
+Bài toán hệ phân tán: phân bố cache/shard lên $N$ server. Cách ngây thơ \`server = hash(key) % N\` có lỗi chí mạng: **thêm/bớt 1 server → đổi $N$ → gần như MỌI key phải chuyển server** (cache miss hàng loạt). **Consistent hashing** giải: xếp server lên một "vòng tròn hash", key đi theo chiều kim đồng hồ tới server gần nhất → thêm/bớt server chỉ ảnh hưởng key lân cận:
+
+\`\`\`go
+import ("hash/crc32"; "sort")
+
+type HashRing struct {
+	ring  map[uint32]string // điểm trên vòng → tên server
+	keys  []uint32          // các điểm đã sort
+	vnode int               // virtual node/server (để phân bố đều)
+}
+
+func NewHashRing(vnode int) *HashRing { return &HashRing{ring: map[uint32]string{}, vnode: vnode} }
+func (h *HashRing) hash(s string) uint32 { return crc32.ChecksumIEEE([]byte(s)) }
+
+func (h *HashRing) AddServer(name string) {
+	for i := 0; i < h.vnode; i++ { // mỗi server đặt vnode điểm rải khắp vòng
+		p := h.hash(fmt.Sprintf("%s#%d", name, i))
+		h.ring[p] = name
+		h.keys = append(h.keys, p)
+	}
+	sort.Slice(h.keys, func(i, j int) bool { return h.keys[i] < h.keys[j] })
+}
+
+func (h *HashRing) GetServer(key string) string {
+	if len(h.keys) == 0 { return "" }
+	p := h.hash(key)
+	// điểm đầu tiên >= p theo chiều kim đồng hồ; hết vòng thì quay về đầu
+	i := sort.Search(len(h.keys), func(i int) bool { return h.keys[i] >= p })
+	if i == len(h.keys) { i = 0 }
+	return h.ring[h.keys[i]]
+}
+\`\`\`
+
+Thêm \`cache-D\` → chỉ các key nằm giữa D và server liền trước phải chuyển, **không phải toàn bộ**. Đây là cốt lõi của Memcached client, Cassandra, Dynamo, CDN, load balancer.
+
+> ❓ **"Vì sao cần virtual node (\`vnode\`)?"** Nếu mỗi server chỉ 1 điểm trên vòng, phân bố dễ lệch (server "ôm" cung lớn → quá tải). Nhiều virtual node (vd 100-200/server) rải đều → tải cân hơn, và khi 1 server chết, key của nó **chia đều** cho các server còn lại thay vì dồn vào 1 cái.
+
+### 11.3. Mini-project C — Gom nhóm / dedup (group anagrams)
+
+Map gom phần tử theo "khóa chuẩn hóa" — pattern cực phổ biến (gom log theo loại, dedup user, gom đơn theo khách). Ví dụ gom anagram (cùng tập chữ cái):
+
+\`\`\`go
+func groupAnagrams(words []string) map[string][]string {
+	groups := map[string][]string{}
+	for _, w := range words {
+		b := []byte(w)
+		sort.Slice(b, func(i, j int) bool { return b[i] < b[j] })
+		groups[string(b)] = append(groups[string(b)], w) // key = chữ cái đã sort
+	}
+	return groups
+}
+// ["eat","tea","tan","ate","nat"] → {"aet":[eat tea ate], "ant":[tan nat]}
+\`\`\`
+
+Mẹo: **chọn khóa chuẩn hóa** sao cho các phần tử "cùng nhóm" ra cùng khóa. Đây là DNA của dedup, gom nhóm, đếm tần suất (Bài 2).
+
+### 11.4. 🔁 Tự kiểm tra
+
+> 1. Vì sao \`server = hash(key) % N\` hỏng khi thêm/bớt server?
+>    <details><summary>Đáp án</summary>$N$ đổi → số dư \`% N\` đổi cho gần như mọi key → đa số key ánh xạ sang server khác → cache miss hàng loạt, phải di chuyển dữ liệu ồ ạt. Consistent hashing chỉ remap các key lân cận server thay đổi.</details>
+> 2. Memoization biến \`fib\` từ độ phức tạp nào sang nào?
+>    <details><summary>Đáp án</summary>Từ $O(2^n)$ (cây đệ quy tính lại vô số lần) sang $O(n)$ (mỗi \`n\` tính đúng 1 lần, lần sau lấy từ cache $O(1)$).</details>
+> 3. Trong group anagrams, vì sao sort ký tự làm khóa?
+>    <details><summary>Đáp án</summary>Hai anagram có cùng đa tập ký tự → sort xong ra cùng chuỗi → cùng khóa map → vào cùng nhóm. "eat" và "tea" đều thành "aet".</details>
+
+### 11.5. 📝 Tóm tắt mục 11
+
+- **Memoization**: map nhớ kết quả → đệ quy mũ thành $O(n)$; nền DP + cache.
+- **Consistent hashing**: vòng hash + virtual node → thêm/bớt server chỉ remap key lân cận (không phải \`% N\`). Nền Memcached/Cassandra/CDN.
+- **Gom nhóm/dedup**: map theo **khóa chuẩn hóa** (vd chữ cái đã sort) → group anagrams, dedup, đếm tần suất.
+- Go: hash table = \`map\`; kỹ năng là **chọn khóa đúng** và biết khi nào hash không hợp (§7).
+
 ## Bài tập
 
 1. Cài đặt một HashMap với chaining: \`Put\`, \`Get\`, \`Remove\`.

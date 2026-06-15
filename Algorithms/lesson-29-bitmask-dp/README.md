@@ -768,6 +768,29 @@ Ngược lại, **đừng** dùng bitmask DP khi: `n` lớn (dùng greedy/DP đa
 
 ---
 
+## 12. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Bitmask DP = "trạng thái là một TẬP CON nhỏ", mã hóa bằng bit.** Dùng khi $n \le \sim 20$ và cần duyệt mọi tập con tối ưu.
+
+| Ứng dụng | Bitmask DP làm gì |
+|----------|-------------------|
+| **Định tuyến giao hàng / đường ngắn nhất ghé hết điểm** | **TSP** (Held–Karp) — thứ tự thăm tối ưu, $O(2^n \cdot n^2)$ |
+| **Phân công việc cho người (assignment)** | Gán $n$ task cho $n$ worker tối thiểu chi phí |
+| **Query planner: thứ tự join nhiều bảng** | DP trên tập bảng đã join (đúng cách Postgres làm với ≤ ~12 bảng) |
+| **Set cover / phủ tối thiểu** | Chọn ít tập nhất phủ hết phần tử |
+| **Game state nhỏ (xếp hình, phủ bàn cờ)** | Trạng thái = cấu hình hàng/cột bằng bitmask |
+
+### 12.1. Ví dụ cụ thể — TSP cho lộ trình giao hàng
+
+Tài xế cần ghé $n$ điểm rồi về kho, tổng quãng đường ngắn nhất. Brute-force = $n!$ thứ tự (12 điểm = 479 triệu). **Held–Karp**: `dp[mask][i]` = đường ngắn nhất thăm đúng tập `mask`, đang đứng ở `i`. $O(2^n \cdot n^2)$ — 20 điểm khả thi. Dùng trong logistics nhỏ, tối ưu route drone, lập lịch máy CNC.
+
+> ⚠ **Bitmask DP CHỈ chạy khi $n$ nhỏ ($\le \sim 20$).** $2^n$ tăng nổ: $n=20$ → ~1 triệu mask × $n^2$; $n=30$ → 1 tỉ mask, bất khả thi. Nhiều điểm hơn → dùng **heuristic/xấp xỉ** (nearest-neighbor, 2-opt, Lin–Kernighan) hoặc solver (OR-Tools). Đây là ranh giới "đúng tuyệt đối nhưng nhỏ" vs "gần đúng nhưng lớn".
+
+### 12.2. 📝 Tóm tắt mục 12
+
+- Bitmask DP thật trong: **TSP routing**, **assignment**, **join order** (query planner), **set cover**, **game state nhỏ**.
+- Trạng thái = tập con mã hóa bit; chỉ khả thi $n \le \sim 20$ ($2^n$). Lớn hơn → heuristic/solver.
+
 ## Bài tập
 
 > Mỗi bài đều có lời giải chi tiết ở mục kế tiếp. Tự làm trước khi xem.

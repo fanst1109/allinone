@@ -687,6 +687,29 @@ Nhận diện một bài là interval DP khi thấy đủ các dấu hiệu:
 
 ---
 
+## 13. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Interval DP = "kết quả tốt nhất trên đoạn [i, j], thử mọi điểm chia k".** Xuất hiện khi thứ tự gộp/ngoặc/cắt ảnh hưởng chi phí.
+
+| Ứng dụng | Interval DP làm gì |
+|----------|--------------------|
+| **Tối ưu truy vấn SQL, nhân chuỗi ma trận** | **Matrix chain order** — thứ tự nhân/join rẻ nhất |
+| **Trình biên dịch / máy tính biểu thức** | Cách đặt ngoặc tối ưu, parse có chi phí |
+| **Optimal BST (gõ phím dự đoán, từ điển)** | Cây tìm kiếm có tổng chi phí truy cập nhỏ nhất theo tần suất |
+| **Gộp file/log nhiều phần (merge cost)** | Thứ tự gộp tối thiểu tổng chi phí (giống Huffman nhưng có ràng buộc đoạn) |
+| **Nén / xử lý chuỗi (burst, palindrome partition)** | Cắt chuỗi tối ưu số đoạn/điểm |
+
+### 13.1. Ví dụ cụ thể — thứ tự join trong query planner
+
+Khi SQL join 4 bảng `A⋈B⋈C⋈D`, thứ tự thực hiện đổi chi phí hàng nghìn lần (bảng trung gian to/nhỏ). Đây là **matrix-chain-order** tổng quát: `dp[i][j]` = chi phí rẻ nhất join các bảng từ `i` đến `j`, thử mọi điểm tách `k`. PostgreSQL/MySQL planner dùng phiên bản DP này (cho số bảng nhỏ) trước khi chuyển sang heuristic khi quá nhiều bảng.
+
+> ❓ **"Vì sao $O(n^3)$?"** Có $O(n^2)$ đoạn `[i,j]`, mỗi đoạn thử $O(n)$ điểm chia `k` → $O(n^3)$. Vẫn tốt hơn nhiều so với thử mọi cách đặt ngoặc (số Catalan, ~$4^n$).
+
+### 13.2. 📝 Tóm tắt mục 13
+
+- Interval DP thật trong: **query planner** (join order), **matrix chain**, **optimal BST**, **merge cost**, **palindrome/chuỗi partition**.
+- Mẫu: tối ưu trên đoạn `[i,j]`, thử mọi điểm chia `k`; $O(n^3)$ thay cho ~$4^n$ cách ngoặc.
+
 ## Bài tập
 
 1. **Matrix Chain + truy vết ngoặc**: cho `dims = [30, 35, 15, 5, 10, 20, 25]`, tính chi phí tối thiểu và in chuỗi ngoặc tối ưu.

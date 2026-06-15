@@ -670,6 +670,29 @@ Nhận diện một bài là DP 1D khi **cả ba** dấu hiệu xuất hiện:
 
 ---
 
+## 14. Ứng dụng thực tế trong phần mềm
+
+> 💡 **DP 1D = "trạng thái tốt nhất tại vị trí i, dựa trên vài vị trí trước".** Mẫu này xuất hiện mọi nơi có dãy thời gian/tuyến tính cần tối ưu.
+
+| Ứng dụng | DP 1D làm gì |
+|----------|-------------|
+| **Phân tích cổ phiếu / tín hiệu** | **Kadane** — đoạn con tổng lớn nhất = khoảng lời lớn nhất, đoạn tín hiệu mạnh nhất |
+| **Đổi tiền / máy bán hàng / ví** | **Coin change** — số tờ ít nhất, hoặc số cách trả một số tiền |
+| **Lập lịch tài nguyên không kề nhau** | **House robber** — chọn tập tối ưu không chọn 2 phần tử liền kề (ca trực, quảng cáo cách quãng) |
+| **Word wrap (TeX, trình duyệt, in ấn)** | Ngắt dòng đẹp nhất = tối thiểu tổng phạt khoảng trắng |
+| **Tốc độ gõ / gợi ý (DP đếm)** | Số cách leo cầu thang / lát gạch = đếm tổ hợp tuyến tính |
+
+### 14.1. Ví dụ cụ thể — Kadane trong phân tích dữ liệu
+
+"Khoảng thời gian nào doanh thu tăng mạnh nhất?" = đoạn con liên tiếp có **tổng lớn nhất** trên mảng biến động (lời/lỗ từng ngày). Kadane giải $O(n)$ một lượt: `best_here = max(x, best_here + x)`. Dùng trong phân tích chứng khoán, xử lý tín hiệu (đoạn năng lượng cao nhất), genomics (vùng GC-rich).
+
+> ❓ **"Sao không thử mọi đoạn con?"** Mọi đoạn con = $O(n^2)$ cặp đầu-cuối. Kadane khai thác: đoạn tốt nhất kết thúc tại `i` = hoặc nối tiếp đoạn tốt tại `i-1`, hoặc bắt đầu lại từ `i`. Một biến trạng thái → $O(n)$.
+
+### 14.2. 📝 Tóm tắt mục 14
+
+- DP 1D thật trong: **Kadane** (đoạn lời lớn nhất, tín hiệu), **coin change** (đổi tiền), **house robber** (lịch không kề), **word wrap** (ngắt dòng).
+- Nhận ra: tối ưu/đếm trên **dãy tuyến tính**, trạng thái `dp[i]` chỉ phụ thuộc vài `dp[i-k]`.
+
 ## Bài tập
 
 > Với mỗi bài: nêu **định nghĩa state**, **transition**, **base case**, **độ phức tạp** (thời gian + không gian), rồi viết code Go.

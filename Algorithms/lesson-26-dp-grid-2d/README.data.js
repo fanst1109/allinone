@@ -974,6 +974,29 @@ Nhận diện bằng 3 dấu hiệu:
 
 ---
 
+## 14. Ứng dụng thực tế trong phần mềm
+
+> 💡 **DP grid 2D = bảng \`dp[i][j]\` so khớp/đường đi giữa hai chiều.** Đây là tier DP "có mặt nhiều nhất trong phần mềm thật" — đặc biệt **so sánh chuỗi**.
+
+| Ứng dụng | DP grid làm gì |
+|----------|----------------|
+| **\`git diff\`, \`diff\`, GitHub compare, Word track-changes** | **LCS** — dòng chung dài nhất → suy ra thêm/xóa |
+| **Spell check, autocorrect, fuzzy search (Elasticsearch)** | **Edit distance (Levenshtein)** — khoảng cách từ gõ sai → từ đúng |
+| **Sinh học: BLAST, alignment DNA/protein** | Needleman–Wunsch / Smith–Waterman = DP grid có điểm thưởng/phạt |
+| **Seam carving (resize ảnh giữ nội dung)** | Đường năng lượng nhỏ nhất xuyên ảnh = DP grid |
+| **Robot/game pathfinding trên lưới** | Số đường đi / đường rẻ nhất từ góc này sang góc kia |
+
+### 14.1. Ví dụ cụ thể — \`git diff\` = LCS
+
+\`git diff\` tìm **dãy con chung dài nhất** giữa file cũ và mới: dòng thuộc LCS = **giữ nguyên**, còn lại = thêm (\`+\`) hoặc xóa (\`-\`). Bảng \`dp[i][j]\` = LCS của \`i\` dòng đầu file A và \`j\` dòng đầu file B, $O(n \\cdot m)$. Cùng thuật toán chạy trong: \`diff\`/\`patch\`, code review GitHub/GitLab, "compare documents" trong Word/Google Docs.
+
+> ❓ **"Edit distance khác LCS thế nào?"** LCS đếm phần **chung**; edit distance đếm số **phép sửa** (thêm/xóa/thay) để biến A→B. Cùng khung DP grid, chỉ khác công thức ô. Edit distance là lõi của spell checker và \`fuzzy match\` trong search engine.
+
+### 14.2. 📝 Tóm tắt mục 14
+
+- DP grid thật trong: **diff/merge** (LCS), **spell check/fuzzy search** (edit distance), **alignment DNA**, **seam carving**, **pathfinding lưới**.
+- \`dp[i][j]\` so khớp hai chiều; $O(n \\cdot m)$ thay cho $2^n$ brute-force.
+
 ## Bài tập
 
 Làm trước khi xem lời giải. Tự ước lượng Big-O cho mỗi bài.

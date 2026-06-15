@@ -520,6 +520,39 @@ func min(a, b int) int { if a < b { return a }; return b }
 
 ---
 
+## 11. Ứng dụng thực tế trong phần mềm
+
+> 💡 **DP nghe học thuật, nhưng nó chạy bên dưới những thứ bạn dùng mỗi ngày.** Bất cứ khi nào phần mềm phải "tìm cách tốt nhất / đếm số cách / so khớp tối ưu" trên dữ liệu có cấu trúc lặp lại, gần như chắc chắn có DP. Dưới đây là nơi DP xuất hiện thật.
+
+| Ứng dụng | DP làm gì | Bài học liên quan |
+|----------|-----------|-------------------|
+| **`git diff`, so sánh file, Google Docs suggest** | **Edit distance / LCS** — số phép sửa ít nhất biến file A → B, dòng nào thêm/xóa | [LCS](../lesson-26-dp-grid-2d/), [DP grid](../lesson-26-dp-grid-2d/) |
+| **Kiểm tra chính tả, autocorrect, fuzzy search** | Levenshtein distance giữa từ gõ sai và từ điển | [DP grid](../lesson-26-dp-grid-2d/) |
+| **Sinh học (BLAST, alignment DNA)** | Căn chỉnh chuỗi gene (Needleman-Wunsch, Smith-Waterman) = DP grid | [DP grid](../lesson-26-dp-grid-2d/) |
+| **Gõ phím xuống dòng (TeX, trình duyệt)** | Word wrap "đẹp nhất" = DP tối thiểu tổng phạt khoảng trắng | [DP 1D](../lesson-24-dp-1d/) |
+| **Tối ưu truy vấn SQL (query planner)** | Thứ tự join rẻ nhất giữa nhiều bảng = DP trên tập con | [bitmask DP](../lesson-29-bitmask-dp/) |
+| **Ví/đầu tư, phân bổ tài nguyên** | Knapsack — chọn tập tối ưu trong giới hạn ngân sách/dung lượng | [knapsack](../lesson-25-knapsack-family/) |
+| **Nén (một phần JPEG/video), nhận dạng giọng nói** | Viterbi (DP trên HMM) tìm chuỗi trạng thái khả dĩ nhất | [DP 1D](../lesson-24-dp-1d/) |
+
+### 11.1. Ví dụ cụ thể — `git diff` chính là LCS
+
+Khi bạn chạy `git diff`, git tìm **dãy con chung dài nhất (LCS)** giữa hai phiên bản file để biết dòng nào **giữ nguyên**; phần còn lại = thêm/xóa. Đây đúng là DP grid $O(n \times m)$ (học ở [Lesson 26](../lesson-26-dp-grid-2d/)). Cùng thuật toán: `diff`, `patch`, so sánh code trên GitHub, "track changes" trong Word.
+
+> ❓ **"Vì sao không brute-force?"** Số dãy con của file $n$ dòng là $2^n$ — file 1000 dòng là $2^{1000}$ tổ hợp, bất khả thi. DP khai thác **bài toán con gối nhau** (§2): LCS của tiền tố dùng lại được → giảm xuống $O(n \cdot m)$. Đây chính là lý do DP tồn tại.
+
+### 11.2. ⚠ Khi gặp bài toán thật, nhận ra DP thế nào
+
+- Câu hỏi dạng **"số cách"**, **"tối đa/tối thiểu"**, **"có thể đạt được không"** trên dãy/lưới/cây.
+- Lời giải đệ quy **gọi lại cùng tham số** nhiều lần (overlapping subproblems, §2).
+- Quyết định ở bước này **chỉ phụ thuộc một ít trạng thái trước** (optimal substructure, §2).
+- Nếu thiếu một trong hai điều kiện trên → **không phải DP** (xem [greedy vs DP](../lesson-22-greedy-vs-dp/)).
+
+### 11.3. 📝 Tóm tắt mục 11
+
+- DP chạy thật trong: **diff/merge** (LCS), **spell check** (edit distance), **alignment DNA**, **query planner** (join order), **knapsack** (phân bổ), **Viterbi** (speech/NLP).
+- Nhận ra DP: bài "đếm / tối ưu / khả thi" + bài toán con gối nhau + cấu trúc con tối ưu.
+- Brute-force $2^n$ → DP khai thác overlap còn $O(n \cdot m)$ — đó là toàn bộ giá trị của DP.
+
 ## Bài tập
 
 > Mỗi bài đều có lời giải chi tiết bên dưới (Big-O + định nghĩa state).

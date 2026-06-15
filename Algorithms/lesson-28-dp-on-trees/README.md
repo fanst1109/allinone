@@ -653,6 +653,29 @@ func (t *Tree) subtreeSizeIterative(root int) []int {
 
 ---
 
+## 12. Ứng dụng thực tế trong phần mềm
+
+> 💡 **DP on trees = "gộp kết quả con lên cha bằng post-order".** Mọi cấu trúc phân cấp (cây thư mục, DOM, org chart, AST) đều có thể tổng hợp kiểu này.
+
+| Ứng dụng | DP-on-tree làm gì |
+|----------|-------------------|
+| **`du`, file explorer, dung lượng thư mục** | Kích thước thư mục = tổng kích thước con (post-order) |
+| **Trình duyệt: layout DOM, tính chiều cao** | Chiều cao node = hàm của chiều cao các con |
+| **Org chart: mời tiệc không có sếp trực tiếp** | **Max independent set trên cây** — chọn tập tối ưu không kề |
+| **Trình biên dịch: tối ưu trên AST** | Cấp phát thanh ghi, hằng số gấp (constant folding) đệ quy lên cây cú pháp |
+| **Mạng/định tuyến: tổng hợp subtree** | Aggregate metric (số host, băng thông) theo cây con |
+
+### 12.1. Ví dụ cụ thể — "mời tiệc công ty" (max independent set)
+
+Mời nhân viên dự tiệc sao cho **không ai đi cùng sếp trực tiếp** (để vui vẻ), tối đa tổng "độ vui". Mỗi node 2 trạng thái: `dp[u][0]` (không mời u), `dp[u][1]` (mời u). Gộp từ lá lên gốc: mời u → con không được mời; không mời u → con tùy ý chọn max. Đây là max-weight independent set trên cây, $O(n)$. Cùng khung: chọn server không liền kề, đặt cảm biến phủ cây.
+
+> ❓ **"Sao cây dễ hơn đồ thị tổng quát?"** Max independent set trên đồ thị tổng quát là **NP-hard**, nhưng trên **cây** thì DP post-order giải $O(n)$ — vì cây không có chu trình, mỗi subtree độc lập sau khi cố định trạng thái gốc nó.
+
+### 12.2. 📝 Tóm tắt mục 12
+
+- DP-on-tree thật trong: **dung lượng thư mục** (`du`), **layout DOM**, **org-chart selection** (independent set), **tối ưu AST**, **aggregate mạng**.
+- Mẫu: post-order gộp con → cha; cây làm bài NP-hard (independent set) thành $O(n)$.
+
 ## Bài tập
 
 > Mỗi bài có lời giải chi tiết ở mục sau. Hãy thử tự làm trước.

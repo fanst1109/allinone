@@ -584,6 +584,29 @@ Quy trình thực tế:
 
 ---
 
+## 13. Ứng dụng thực tế trong phần mềm
+
+> 💡 **DP optimization = "DP đúng rồi nhưng quá chậm cho dữ liệu lớn" → tăng tốc bằng cấu trúc/toán.** Đây là phần xuất hiện khi DP $O(n^2)$ không đủ nhanh ở quy mô production/competitive.
+
+| Kỹ thuật | Dùng khi | Ví dụ thật |
+|----------|----------|-----------|
+| **Convex Hull Trick / Li Chao** | Chuyển đổi $O(n^2) \to O(n \log n)$ khi DP có dạng đường thẳng | Tối ưu chi phí sản xuất theo lô, định giá |
+| **Divide & Conquer optimization** | Điều kiện monotonic điểm tối ưu | Phân cụm 1D (k-means 1 chiều), chia đoạn tối ưu |
+| **Knuth optimization** | Interval DP thỏa bất đẳng thức tứ giác | Optimal BST, merge file |
+| **Monotonic deque (sliding window max)** | DP có cửa sổ trượt | Lập lịch, jump game có giới hạn |
+
+### 13.1. Bối cảnh thực tế — vì sao cần tối ưu DP
+
+Một DP $O(n^2)$ với $n = 10^5$ là $10^{10}$ phép tính → vài chục giây, **quá chậm** cho API thời gian thực hay batch lớn. Các kỹ thuật trên hạ xuống $O(n \log n)$ hoặc $O(n)$ → chạy trong mili giây. Trong thực tế phần mềm thường gặp ở: tối ưu chi phí theo lô (manufacturing/logistics), định giá động (dynamic pricing), phân đoạn tín hiệu/chuỗi thời gian quy mô lớn.
+
+> ❓ **"Có cần học mấy cái này không nếu không thi competitive?"** Phần lớn code ứng dụng **không** — vì $n$ thường đủ nhỏ, hoặc đã có thư viện. Nhưng khi gặp bottleneck DP trên dữ liệu lớn (vd phân đoạn 1 triệu điểm), biết "DP này có thể tăng tốc bằng convex hull trick" là khác biệt giữa "chạy 30s" và "chạy 0.1s". Đây là kiến thức **biết-để-nhận-ra**, không phải để cài lại mỗi ngày.
+
+### 13.2. 📝 Tóm tắt mục 13
+
+- DP optimization = tăng tốc DP đúng-nhưng-chậm: **convex hull trick**, **D&C opt**, **Knuth opt**, **monotonic deque**.
+- Cần khi $n$ lớn ($\ge 10^5$) và DP $O(n^2)$ quá chậm; hạ về $O(n \log n)$/$O(n)$.
+- Ứng dụng: tối ưu lô sản xuất, dynamic pricing, phân đoạn chuỗi thời gian lớn. Kiến thức "biết để nhận ra".
+
 ## Bài tập
 
 > Mọi bài có lời giải chi tiết ở mục kế tiếp. Hãy thử tự làm trước.

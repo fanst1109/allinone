@@ -691,6 +691,30 @@ Dấu hiệu nhận biết một bài toán thuộc họ knapsack:
 
 ---
 
+## 14. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Knapsack = "chọn tập tối ưu trong một giới hạn".** Bất cứ chỗ nào có "ngân sách/dung lượng cố định, tối đa hóa giá trị" → đó là knapsack.
+
+| Ứng dụng | Knapsack làm gì |
+|----------|-----------------|
+| **Phân bổ ngân sách đầu tư / quảng cáo** | Chọn tập dự án/kênh tối đa lợi nhuận trong giới hạn tiền |
+| **Đóng gói cargo, cloud bin-packing** | Xếp item vào container/VM tối đa tận dụng dung lượng |
+| **Cắt vật liệu (cutting stock)** | Cắt thanh/tấm sao cho ít phế liệu nhất |
+| **Chia hóa đơn / cân tải (subset sum)** | Chia tập thành 2 phần cân bằng nhất |
+| **Chọn feature trong giới hạn thời gian sprint** | Tối đa giá trị backlog trong story-point cố định |
+
+### 14.1. Ví dụ cụ thể — cloud resource packing
+
+Đặt $N$ container (mỗi cái cần x CPU, đem lại y doanh thu) lên một máy có CPU giới hạn → tối đa doanh thu = **0/1 knapsack** với "trọng lượng" = CPU, "giá trị" = doanh thu. Biến thể **bounded/unbounded** khi item lặp lại (vd nhiều bản sao cùng loại VM). Cùng khung: AWS spot fleet, Kubernetes scheduler (phần đơn giản hóa).
+
+> ❓ **"Knapsack có phải lúc nào cũng DP?"** 0/1 knapsack là **NP-hard**, nhưng DP cho lời giải $O(n \cdot W)$ — *pseudo-polynomial* (phụ thuộc giá trị $W$). Khi $W$ khổng lồ → DP không khả thi, phải dùng **xấp xỉ/greedy** (như fractional knapsack, [Lesson 19](../lesson-19-greedy-fundamentals/)). Đây là ranh giới greedy vs DP ([Lesson 22](../lesson-22-greedy-vs-dp/)).
+
+### 14.2. 📝 Tóm tắt mục 14
+
+- Knapsack thật trong: **phân bổ ngân sách/đầu tư**, **cloud/cargo packing**, **cutting stock**, **subset-sum chia tải**, **chọn feature sprint**.
+- Mẫu nhận diện: "giới hạn cố định + tối đa hóa giá trị khi chọn/không chọn từng item".
+- DP $O(n \cdot W)$ là pseudo-polynomial; $W$ quá lớn → greedy/xấp xỉ.
+
 ## Bài tập
 
 1. **0/1 Knapsack + truy vết** — `wt=[1,3,4,5]`, `val=[1,4,5,7]`, `W=7`. Tìm giá trị tối ưu và tập món được chọn.

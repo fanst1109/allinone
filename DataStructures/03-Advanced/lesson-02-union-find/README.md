@@ -349,6 +349,123 @@ MST = `{(0,1,1), (1,2,2), (1,3,4), (3,4,5)}`, tổng trọng số $= 1+2+4+5 = 1
 3. UF có dùng được cho **tính số đảo** trong mảng (LeetCode 493 — Reverse Pairs) không?
    <details><summary>Đáp án</summary>Không phù hợp. Đảo cần thứ tự tổng, UF chỉ quản lý quan hệ tương đương. Dùng merge sort hoặc BIT (lesson 13).</details>
 
+## 8. Thực hành: dùng trong code thật
+
+> 💡 **§6–§7 nói Union-Find "dùng để làm gì". Mục này là struct tái sử dụng + code chạy được.** Một `DSU` viết đúng một lần dùng được cho Kruskal (kéo cáp/clustering), liên thông động (bạn bè, mạng), gom nhóm (ảnh, tài khoản). Code Go dưới đây `go run` được.
+
+### 8.1. Mini-project A — Struct `DSU` tái sử dụng (2 tối ưu)
+
+Đây là phiên bản bạn copy vào mọi bài: gói cả **union by size** (§3) và **path compression** (§4), thêm `count` = số nhóm rời nhau:
+
+```go
+type DSU struct {
+	parent, size []int
+	count        int // số nhóm rời nhau hiện tại
+}
+
+func NewDSU(n int) *DSU {
+	p := make([]int, n)
+	s := make([]int, n)
+	for i := range p {
+		p[i], s[i] = i, 1 // ban đầu mỗi phần tử là 1 nhóm riêng
+	}
+	return &DSU{p, s, n}
+}
+
+func (d *DSU) Find(x int) int { // path halving — nén đường khi đi tìm gốc
+	for d.parent[x] != x {
+		d.parent[x] = d.parent[d.parent[x]]
+		x = d.parent[x]
+	}
+	return x
+}
+
+func (d *DSU) Union(a, b int) bool { // union by size — gắn cây nhỏ vào cây lớn
+	ra, rb := d.Find(a), d.Find(b)
+	if ra == rb {
+		return false // đã cùng nhóm → không làm gì
+	}
+	if d.size[ra] < d.size[rb] {
+		ra, rb = rb, ra
+	}
+	d.parent[rb] = ra
+	d.size[ra] += d.size[rb]
+	d.count-- // hai nhóm nhập một → giảm đếm
+	return true
+}
+
+func (d *DSU) Connected(a, b int) bool { return d.Find(a) == d.Find(b) }
+```
+
+`Union` trả `bool`: `true` nếu thực sự nhập hai nhóm, `false` nếu đã chung. Giá trị trả này là **chìa khóa** của Kruskal và phát hiện chu trình bên dưới.
+
+### 8.2. Mini-project B — Kruskal MST: kéo cáp rẻ nhất
+
+§7 walk-through Kruskal bằng tay. Đây là code: nối $n$ thành phố bằng cáp sao cho **tổng chi phí nhỏ nhất** mà vẫn liên thông. Sắp cạnh tăng dần, nhận cạnh nào **không tạo chu trình** (`Union` trả `true`):
+
+```go
+type Edge struct{ u, v, w int }
+
+func kruskal(n int, edges []Edge) (int, []Edge) {
+	sort.Slice(edges, func(i, j int) bool { return edges[i].w < edges[j].w }) // rẻ trước
+	d := NewDSU(n)
+	total, mst := 0, []Edge{}
+	for _, e := range edges {
+		if d.Union(e.u, e.v) { // hai đầu khác nhóm → nhận, không tạo chu trình
+			total += e.w
+			mst = append(mst, e)
+		}
+		// Union trả false → cạnh này nối 2 đỉnh đã liên thông → bỏ (sẽ tạo vòng)
+	}
+	return total, mst
+}
+```
+
+Với 5 thành phố + 6 cạnh, MST chọn đúng 4 cạnh (n−1) tổng chi phí nhỏ nhất. Dùng trong: thiết kế mạng điện/nước/cáp, **clustering** (gom điểm gần nhau), xấp xỉ TSP.
+
+> 💡 **Vì sao `Union` trả `false` = "cạnh tạo chu trình"?** Hai đầu cạnh đã cùng một nhóm nghĩa là đã có đường nối chúng. Thêm cạnh này = tạo vòng → vô ích cho cây khung. Đây cũng chính là **phát hiện chu trình trên đồ thị vô hướng** (§6.3): chạy `Union` trên mọi cạnh, gặp `false` đầu tiên = có chu trình.
+
+### 8.3. Mini-project C — Liên thông động & đếm nhóm
+
+"Sau khi kết bạn A–B, C–D, có bao nhiêu nhóm bạn?" / "Số tỉnh (province) trong ma trận liên thông" / percolation. `count` cho đáp án $O(1)$:
+
+```go
+func main() {
+	d := NewDSU(5) // 5 người, ban đầu 5 nhóm
+	d.Union(0, 1)  // 0,1 kết bạn
+	d.Union(2, 3)  // 2,3 kết bạn
+	fmt.Println(d.Connected(0, 1)) // true
+	fmt.Println(d.Connected(0, 2)) // false — khác nhóm
+	fmt.Println(d.count)           // 3 nhóm: {0,1}, {2,3}, {4}
+}
+```
+
+Khác với DFS/BFS đếm thành phần liên thông ($O(V+E)$ **mỗi lần** hỏi lại sau khi thêm cạnh), Union-Find xử lý **online**: mỗi `Union`/`Connected` gần $O(1)$ ($\alpha(n)$, §5), `count` luôn sẵn. Đây là lý do bài "liên thông **động**" (cạnh đến dần) luôn dùng Union-Find chứ không phải DFS.
+
+### 8.4. ⚠ Khi nào KHÔNG dùng Union-Find
+
+| Tình huống | Vì sao UF không hợp | Dùng gì |
+|------------|----------------------|---------|
+| Cần **tách** nhóm (xóa cạnh) | UF chỉ gộp, không tách được | Link-cut tree / rebuild |
+| Cần đường đi cụ thể giữa 2 đỉnh | UF chỉ biết "cùng nhóm hay không" | BFS/DFS ([L01 Graph](../lesson-01-graph/)) |
+| Cần thứ tự / khoảng | UF là quan hệ tương đương, không thứ tự | BIT/Segment tree ([L03](../lesson-03-segment-tree/)) |
+| Đồ thị **có hướng** cần SCC | UF vô hướng | Tarjan/Kosaraju |
+
+> 🔁 **Tự kiểm tra**
+> 1. Trong Kruskal, vì sao chỉ nhận cạnh khi `Union` trả `true`?
+>    <details><summary>Đáp án</summary>`true` = hai đầu cạnh thuộc <b>hai nhóm khác nhau</b> → nối chúng làm liên thông thêm, không tạo chu trình. `false` = đã cùng nhóm → cạnh này tạo vòng, bỏ đi.</details>
+> 2. Vì sao bài "liên thông động" (cạnh đến dần) dùng Union-Find thay vì DFS?
+>    <details><summary>Đáp án</summary>DFS đếm lại thành phần $O(V+E)$ <b>mỗi lần</b> thêm cạnh rồi hỏi. UF xử lý online: mỗi `Union`/`Connected` ~$O(\alpha(n))$ ≈ hằng số, `count` luôn cập nhật sẵn.</details>
+> 3. Muốn **xóa** một quan hệ bạn bè (tách nhóm), Union-Find làm được không?
+>    <details><summary>Đáp án</summary>Không trực tiếp — UF chỉ gộp. Phải dùng cấu trúc khác (link-cut tree) hoặc dựng lại UF từ đầu với tập cạnh mới.</details>
+
+### 8.5. 📝 Tóm tắt mục 8
+
+- **Struct `DSU`** (union by size + path compression + `count`): copy dùng cho mọi bài. `Union` trả `bool`.
+- **Kruskal MST**: sort cạnh tăng dần, nhận cạnh khi `Union` trả `true` (không tạo chu trình). Dùng cho mạng/clustering.
+- **Liên thông động/đếm nhóm**: `count` $O(1)$, mỗi thao tác $O(\alpha(n))$ — thắng DFS khi cạnh đến **dần** (online).
+- UF không làm được: tách nhóm, tìm đường cụ thể, thứ tự, SCC có hướng.
+
 ## Bài tập
 
 1. Cài đặt Union-Find với cả hai tối ưu. So sánh tốc độ với phiên bản ngây thơ.

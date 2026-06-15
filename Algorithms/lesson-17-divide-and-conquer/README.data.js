@@ -629,6 +629,30 @@ Bốn bug chí mạng: base case, bài con không nhỏ đi, combine quá đắt
 
 ---
 
+## 9. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Divide & conquer = "chia bài lớn thành bài con độc lập, gộp lại".** Vì các bài con độc lập, nó cũng là nền của **xử lý song song** (mỗi core một nhánh).
+
+| Ứng dụng | D&C làm gì |
+|----------|-----------|
+| **MapReduce / Spark** | Chia dữ liệu → xử lý song song từng phần (map) → gộp (reduce) |
+| **FFT (xử lý tín hiệu, nén audio/ảnh, nhân số lớn)** | Chia đa thức/tín hiệu đôi → $O(n \\log n)$ thay $O(n^2)$ |
+| **Merge sort / quicksort** | Chia mảng đôi, sort, gộp ([L07](../lesson-07-merge-sort/), [L08](../lesson-08-quicksort/)) |
+| **Closest pair, computational geometry** | Chia mặt phẳng, giải mỗi nửa, gộp dải giữa |
+| **Parallel reduce (sum/max trên nhiều core)** | Chia cây nhị phân các phép gộp |
+
+### 9.1. Ví dụ cụ thể — D&C là nền của xử lý song song
+
+Tính tổng 1 tỉ số trên 8 core: chia thành 8 đoạn, mỗi core tính tổng đoạn của mình (độc lập, song song), rồi gộp 8 kết quả. Đây là **divide & conquer** + parallelism — chính là mô hình MapReduce/Spark, \`parallel reduce\`, và Go pattern fan-out/fan-in. Vì bài con **độc lập** (không phụ thuộc nhau), chúng chạy song song được — khác hẳn DP (bài con gối nhau, phải tuần tự).
+
+> ❓ **"D&C khác DP thế nào trong thực tế?"** D&C: bài con **không gối nhau** (merge sort chia 2 nửa rời nhau) → song song hóa được, không cần nhớ kết quả. DP: bài con **gối nhau** (Fibonacci dùng lại) → phải memo, khó song song. Nhận sai → hoặc tính trùng (quên memo) hoặc đồng bộ thừa.
+
+### 9.2. 📝 Tóm tắt mục 9
+
+- D&C thật trong: **MapReduce/Spark**, **FFT** (DSP/nén/nhân số lớn), **sort**, **closest pair**, **parallel reduce**.
+- Bài con **độc lập** → song song hóa tự nhiên (fan-out/fan-in, multi-core).
+- Khác DP: D&C bài con rời nhau (song song được); DP bài con gối nhau (phải memo, tuần tự).
+
 ## Bài tập
 
 > Với mỗi bài: nêu **recurrence** và dùng **Master Theorem** ra Big-O. Lời giải chi tiết ở mục sau.

@@ -538,6 +538,31 @@ Output \`[3,3,5,5,6,7]\` ✓.
 
 ---
 
+## 11. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Sliding window = "cửa sổ trượt trên dòng dữ liệu, cập nhật $O(1)$ mỗi bước".** Mọi thứ liên quan "trong khoảng thời gian / đoạn liên tiếp gần đây" đều dùng nó.
+
+| Ứng dụng | Sliding window làm gì |
+|----------|------------------------|
+| **Rate limiting (API gateway)** | Đếm request trong cửa sổ T giây ([nối Queue](../../DataStructures/01-Basic/lesson-05-queue/)) |
+| **Moving average / metrics (Grafana, monitoring)** | Trung bình/percentile trượt trên chuỗi thời gian |
+| **Mạng: TCP sliding window** | Kiểm soát luồng — số gói chưa ack trong cửa sổ |
+| **Nén dữ liệu (LZ77, gzip)** | Cửa sổ trượt tìm chuỗi lặp gần đây |
+| **Phát hiện bất thường / spike** | Tổng/max trong cửa sổ vượt ngưỡng → cảnh báo |
+| **Xử lý chuỗi: chuỗi con dài nhất không lặp** | Cửa sổ co giãn theo điều kiện |
+
+### 11.1. Ví dụ cụ thể — moving average trên metrics
+
+Dashboard hiển thị "CPU trung bình 60 giây gần nhất", cập nhật mỗi giây. Tính lại tổng 60 điểm mỗi giây = lãng phí. Sliding window: **cộng điểm mới, trừ điểm rời cửa sổ** → $O(1)$ mỗi cập nhật. Đây là cách Prometheus/Grafana, hệ thống giám sát, và xử lý tín hiệu thời gian thực tính rate/average mà không quét lại toàn bộ.
+
+> ❓ **"Cửa sổ cố định vs co giãn khác gì?"** Cố định (size k): rate limit, moving average — vào phải ra trái. Co giãn (two-pointer): "chuỗi con dài nhất thỏa điều kiện" — mở rộng phải tới khi vi phạm, co trái lại. Cả hai đều $O(n)$ tổng thể vì mỗi phần tử vào/ra cửa sổ đúng một lần.
+
+### 11.2. 📝 Tóm tắt mục 11
+
+- Sliding window thật trong: **rate limiting**, **moving average/metrics**, **TCP flow control**, **nén LZ77**, **anomaly detection**.
+- Cập nhật $O(1)$/bước (vào phải, ra trái) thay vì quét lại cửa sổ $O(k)$.
+- Cố định (size k) vs co giãn (two-pointer theo điều kiện) — cả hai $O(n)$.
+
 ## Bài tập
 
 > Làm trước khi xem lời giải. Mỗi bài ghi rõ độ phức tạp mục tiêu.

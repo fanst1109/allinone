@@ -745,7 +745,32 @@ m = make(map[int]int) // phải make trước khi ghi
 
 ---
 
-## 13. Bài tập
+## 13. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Kỹ thuật hashing biến nhiều bài $O(n^2)$ thành $O(n)$ — và là nền của dedup, cache, đếm tần suất.** Bất cứ khi nào cần "đã thấy chưa? / nhóm theo khóa / đếm nhanh", nghĩ tới hash.
+
+| Ứng dụng | Hashing làm gì |
+|----------|----------------|
+| **Dedup (lọc trùng log/email/event)** | \`set\` thành viên $O(1)$ — đã thấy chưa |
+| **Đếm tần suất (word count, top sản phẩm)** | \`map[key]count\` một lượt $O(n)$ |
+| **Two-sum / khớp cặp** | Lưu phần bù trong map → tìm cặp $O(n)$ thay $O(n^2)$ |
+| **Caching / memoization** | \`map\` lưu kết quả đã tính ([nối Hash Table](../../DataStructures/01-Basic/lesson-06-hash-table/)) |
+| **Group by (gom nhóm, anagram, phân loại)** | \`map[chuẩn-hóa][]item\` |
+| **Rolling hash (Rabin-Karp)** | So khớp chuỗi nhanh ([Lesson 40](../lesson-40-string-matching-rabin-karp/)) |
+
+### 13.1. Ví dụ cụ thể — two-sum, từ $O(n^2)$ xuống $O(n)$
+
+"Có hai số cộng lại bằng target không?" Brute-force thử mọi cặp = $O(n^2)$. Với hash: duyệt một lượt, mỗi số \`x\` hỏi "đã thấy \`target - x\` chưa?" (tra map $O(1)$); chưa thì lưu \`x\`. Một lượt $O(n)$. Đây là pattern lõi của: phát hiện giao dịch khớp, tìm cặp trùng, join hai tập dữ liệu (hash join trong DB).
+
+> ❓ **"Hash join trong database là gì?"** Khi join 2 bảng, DB có thể build **hash table** trên bảng nhỏ (khóa join → dòng), rồi quét bảng lớn tra hash $O(1)$ mỗi dòng → join $O(n+m)$ thay vì nested-loop $O(n \\cdot m)$. Đây chính là two-sum mở rộng lên bảng. (So với sort-merge join ở [Lesson 07](../lesson-07-merge-sort/).)
+
+### 13.2. 📝 Tóm tắt mục 13
+
+- Hashing thật trong: **dedup**, **đếm tần suất**, **two-sum/khớp cặp**, **caching**, **group-by**, **rolling hash**.
+- Mẫu lõi: biến "tìm trong tập" từ $O(n)$ thành $O(1)$ → nhiều bài $O(n^2)$ xuống $O(n)$.
+- DB **hash join** = two-sum mở rộng: $O(n+m)$ thay nested-loop $O(n \\cdot m)$.
+
+## 14. Bài tập
 
 > Tự code trước, rồi đối chiếu **Lời giải chi tiết** bên dưới. Mỗi bài ghi rõ độ phức tạp.
 
@@ -760,7 +785,7 @@ m = make(map[int]int) // phải make trước khi ghi
 
 ---
 
-## 14. Lời giải chi tiết
+## 15. Lời giải chi tiết
 
 ### Bài 1 — Two-Sum (chỉ số) — O(n) time, O(n) space
 
@@ -936,7 +961,7 @@ func fourSumCount(A, B, C, D []int) int {
 
 ---
 
-## 15. Bài tiếp theo
+## 16. Bài tiếp theo
 
 - **[Lesson 17 — Divide & Conquer](../lesson-17-divide-and-conquer/)** — chia để trị, một paradigm
   thiết kế thuật toán khác.

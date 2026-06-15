@@ -204,7 +204,55 @@ async function loadBad() {
 function reset() { root = null; totalRotations = 0; render(); updateCounters(); document.getElementById('log').textContent = 'Reset.'; }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 loadDemo();
-</script></main>
+</script>
+
+<div class="panel">
+  <h2>B-tree vs cây nhị phân: số lần đọc đĩa (README §7.1 / §8.3)</h2>
+  <p style="margin:.4em 0 .8em; color:#475569; font-size:13px;">
+    DB lưu dữ liệu trên đĩa/SSD — mỗi tầng cây = <b>1 lần đọc block</b> (chậm). Cây nhị phân cao <code>log₂(n)</code> tầng;
+    B-tree gom nhiều khóa/node (1 node = 1 block) nên cao <code>log_fanout(n)</code> → ít tầng hơn nhiều. Kéo thử:
+  </p>
+  <div style="display:flex;flex-wrap:wrap;gap:18px;align-items:center">
+    <label>Số dòng n = <b><span id="btNlbl">1,000,000,000</span></b><br>
+      <input id="btN" type="range" min="3" max="12" value="9" step="1" oninput="btCalc()" style="width:220px;max-width:100%">
+      <span style="font-size:11px;color:#94a3b8">10³ → 10¹²</span>
+    </label>
+    <label>Khóa/node (fanout) = <b><span id="btFlbl">256</span></b><br>
+      <input id="btF" type="range" min="2" max="512" value="256" step="1" oninput="btCalc()" style="width:220px;max-width:100%">
+    </label>
+  </div>
+  <div id="btBars" style="margin-top:14px"></div>
+  <div class="order" id="btLog"></div>
+</div>
+
+<script>
+// ============= B-TREE DISK READS (README §7.1 / §8.3) =============
+function btBar(label, tiers, color){
+  const w = Math.min(100, tiers/30*100);
+  return `<div style="margin:6px 0">
+    <div style="font-size:13px;margin-bottom:2px">${label}: <b>${tiers}</b> tầng = ${tiers} lần đọc đĩa</div>
+    <div style="background:#e2e8f0;border-radius:4px;overflow:hidden;height:22px">
+      <div style="width:${w}%;height:100%;background:${color};transition:width .3s"></div>
+    </div></div>`;
+}
+function btCalc(){
+  const n = Math.pow(10, parseInt(document.getElementById('btN').value));
+  const f = parseInt(document.getElementById('btF').value);
+  document.getElementById('btNlbl').textContent = n.toLocaleString('en-US');
+  document.getElementById('btFlbl').textContent = f;
+  const bin = Math.ceil(Math.log2(n));
+  const bt  = Math.max(1, Math.ceil(Math.log(n)/Math.log(f)));
+  document.getElementById('btBars').innerHTML =
+    btBar('Cây nhị phân (AVL/RB) log₂(n)', bin, '#ef4444') +
+    btBar(`B-tree fanout ${f}: log_${f}(n)`, bt, '#10b981');
+  const ratio = (bin/bt).toFixed(1);
+  document.getElementById('btLog').textContent =
+    `Với ${n.toLocaleString('en-US')} dòng: nhị phân cần ${bin} lần đọc đĩa, B-tree chỉ ${bt} → nhanh hơn ~${ratio}×. ` +
+    `Mỗi node B-tree = 1 block đĩa chứa ${f} khóa, nên 1 lần đọc "phân ra" ${f} nhánh thay vì 2.`;
+}
+btCalc();
+</script>
+</main>
 <!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
 <script src="../../../tools/marked.min.js"></script>
 <script src="./README.data.js"></script>

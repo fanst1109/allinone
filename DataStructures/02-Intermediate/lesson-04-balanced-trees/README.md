@@ -487,6 +487,118 @@ Tất cả cho phép **floor/ceiling, range, duyệt theo thứ tự khóa** tro
 2. Vì sao Linux CFS chọn Red-Black thay vì AVL, dù AVL search nhanh hơn chút?
    <details><summary>Đáp án</summary>Scheduler **ghi liên tục** (mỗi lần tiến trình chạy xong một lát, vruntime đổi → phải xóa+chèn lại). Red-Black ít rotation hơn AVL khi insert/delete → chi phí ghi thấp hơn. Lợi thế search nhỏ của AVL không bù được chi phí ghi cao trong workload này.</details>
 
+## 8. Thực hành: dùng trong code thật
+
+> 💡 **§7 nói cây cân bằng "ẩn dưới những thứ bạn dùng". Mục này là code bạn thật sự gõ — và sự thật quan trọng nhất: bạn KHÔNG tự viết AVL/Red-Black.** Tự cài rotation cho production gần như luôn là sai lầm (dễ bug, đã có bản tối ưu hàng chục năm). Thay vào đó bạn **gọi** một cây cân bằng có sẵn: `TreeMap` (Java), `std::map` (C++), `google/btree` (Go), hoặc **Redis Sorted Set** (skiplist). Dưới đây là code thật cho từng cái.
+
+### 8.1. Quy tắc thực tế: chọn cái có sẵn, đừng cài lại
+
+| Bạn cần | Dùng | Bên dưới là |
+|---------|------|-------------|
+| Ordered map trong 1 process (Java/C++/.NET) | `TreeMap` / `std::map` / `SortedDictionary` | Red-Black tree |
+| Ordered map trong Go | `github.com/google/btree` | B-tree |
+| Leaderboard / ranking **chia sẻ nhiều process** | **Redis Sorted Set** (`ZADD`...) | Skip list + hash |
+| Index trên bảng hàng triệu dòng | `CREATE INDEX` (DB tự lo) | B+ tree |
+
+Khi nào **mới** tự cài? Gần như chỉ khi học (như lesson này) hoặc viết thư viện cấu trúc dữ liệu. Code ứng dụng → luôn dùng bản có sẵn.
+
+### 8.2. Mini-project A — Leaderboard bằng Redis Sorted Set
+
+Bài toán kinh điển: bảng xếp hạng game/điểm thưởng, cần **rank của tôi**, **top-N**, **những người quanh tôi** — tất cả phải nhanh và **nhiều server cùng đọc/ghi**. Redis Sorted Set (ZSet) là cây cân bằng (skip list) "as a service":
+
+```bash
+# Thêm/cập nhật điểm — O(log n), tự sắp xếp theo score
+ZADD leaderboard 1500 "an"
+ZADD leaderboard 1800 "binh"
+ZADD leaderboard 1500 "cuong"
+
+# Top 3 điểm CAO nhất (REV = giảm dần), kèm điểm — O(log n + k)
+ZREVRANGE leaderboard 0 2 WITHSCORES
+# 1) "binh" 2) "1800" 3) "an" 4) "1500" 5) "cuong" 6) "1500"
+
+# Hạng của "an" (0-based, từ cao xuống) — O(log n)
+ZREVRANK leaderboard "an"        # → 1
+
+# Những người điểm trong [1500, 1700] — range query (§7), O(log n + k)
+ZRANGEBYSCORE leaderboard 1500 1700
+```
+
+Gọi từ Go bằng `go-redis` (minh hoạ — cần `github.com/redis/go-redis/v9`):
+
+```go
+rdb.ZAdd(ctx, "leaderboard", redis.Z{Score: 1500, Member: "an"})
+rank, _ := rdb.ZRevRank(ctx, "leaderboard", "an").Result() // hạng O(log n)
+top, _ := rdb.ZRevRangeWithScores(ctx, "leaderboard", 0, 9).Result() // top-10
+```
+
+> ❓ **"Sao không `ORDER BY score` trong SQL mỗi lần?"** Với leaderboard cập nhật liên tục + đọc dồn dập, `ORDER BY` quét/ sort lại tốn kém và đụng DB. ZSet giữ **luôn ở trạng thái đã sắp** (cây cân bằng) → `ZREVRANK`/`ZREVRANGE` là $O(\log n)$, lại nằm in-memory chia sẻ giữa các server. Đây là lý do gần như mọi leaderboard thật dùng Redis ZSet.
+
+> ⚠ **Bẫy — Redis ZSet dùng skip list, KHÔNG phải Red-Black.** Kết quả $O(\log n)$ giống nhau, nhưng skip list dễ cài đồng thời (concurrent) và đỡ rotation. "Cây cân bằng" ở đây là **khái niệm** (giữ $O(\log n)$ bất kể thứ tự vào) — hiện thực cụ thể có thể là RB tree, B-tree, hoặc skip list tùy hệ thống.
+
+### 8.3. Mini-project B — Index DB: đọc `EXPLAIN` để thấy cây làm việc
+
+§7.1 nói index là B+ tree. Đây là cách **thấy** nó trong thực tế. Cùng một query, khác nhau trời vực khi có index:
+
+```sql
+-- Bảng 10 triệu dòng, CHƯA có index trên age
+EXPLAIN SELECT * FROM users WHERE age BETWEEN 20 AND 30 ORDER BY age;
+--   type: ALL          ← quét TOÀN bảng (full scan) = O(n)
+--   rows: 10000000     ← đọc cả 10 triệu dòng
+
+CREATE INDEX idx_age ON users(age);   -- dựng B+ tree trên cột age
+
+EXPLAIN SELECT * FROM users WHERE age BETWEEN 20 AND 30 ORDER BY age;
+--   type: range        ← đi xuống cây tới age=20 rồi duyệt tuần tự (range query §7)
+--   rows: 12000        ← chỉ đọc các dòng khớp
+--   Extra: Using index ← kết quả đã sắp sẵn theo cây, KHỎI sort
+```
+
+Ba lợi ích đúng như BST/B-tree cho: (1) nhảy thẳng tới `age=20` qua $O(\log n)$ tầng, (2) **duyệt tuần tự** có thứ tự tới 30, (3) khỏi `ORDER BY` vì cây vốn đã sắp. `type: ALL` = chưa tận dụng cây; `type: range` = đang đi cây.
+
+### 8.4. Mini-project C — Ordered map cân bằng trong Go (`google/btree`)
+
+Go không có `TreeMap`. Khi cần ordered map **insert/delete liên tục** trong 1 process (không cần Redis), dùng B-tree cân bằng — đã giới thiệu ở [L02 §9.3](../lesson-02-binary-search-tree/), nhắc lại ở đây vì đây chính là "cây cân bằng" thực dụng nhất của Go:
+
+```go
+import "github.com/google/btree"
+
+tr := btree.New(32) // degree 32 → mỗi node tới 64 khóa, ít tầng, cache-friendly
+tr.ReplaceOrInsert(btree.Int(1500))
+tr.ReplaceOrInsert(btree.Int(1800))
+// luôn O(log n), KHÔNG suy biến dù chèn dữ liệu đã sort (khác BST thường — §1)
+tr.AscendGreaterOrEqual(btree.Int(1500), func(it btree.Item) bool {
+	fmt.Println(it); return true // range query có thứ tự
+})
+```
+
+`btree.New(32)` không suy biến — đó là toàn bộ lý do cây cân bằng tồn tại (§1): đảm bảo $O(\log n)$ **bất kể** thứ tự chèn.
+
+### 8.5. Chọn loại nào? Bảng quyết định thực tế
+
+| Workload | Chọn | Vì sao (liên hệ §4, §6, §7) |
+|----------|------|------------------------------|
+| Search nhiều, ghi ít, in-memory | **AVL** | Cân bằng chặt hơn → cây thấp hơn → search nhanh |
+| Ghi/xóa liên tục, in-memory | **Red-Black** | Ít rotation hơn AVL → ghi rẻ (Linux CFS, `TreeMap`) |
+| Dữ liệu trên đĩa/SSD (DB) | **B+ tree** | Nhiều khóa/node → ít lần đọc đĩa (§7.1) |
+| Ranking chia sẻ nhiều process | **Redis ZSet (skip list)** | $O(\log n)$ + concurrent + in-memory service |
+| Chỉ tra 1 khóa, không cần thứ tự | **Hash table** | $O(1)$, không cần cân bằng gì cả |
+
+> 🔁 **Tự kiểm tra**
+> 1. Vì sao leaderboard thật dùng Redis ZSet thay vì `SELECT ... ORDER BY score`?
+>    <details><summary>Đáp án</summary>ZSet giữ dữ liệu <b>luôn ở trạng thái đã sắp</b> (cây cân bằng/skip list) → `ZREVRANK`/top-N là $O(\log n)$, in-memory, chia sẻ nhiều server. `ORDER BY` phải sort lại mỗi lần + đụng DB → chậm khi cập nhật dồn dập.</details>
+> 2. Trong `EXPLAIN`, `type: ALL` và `type: range` khác nhau thế nào?
+>    <details><summary>Đáp án</summary>`ALL` = full table scan $O(n)$, chưa có/không dùng index. `range` = đi xuống B+ tree index tới biên dưới rồi duyệt tuần tự khoảng khớp — đúng range query của cây, chỉ đọc dòng cần.</details>
+> 3. Khi nào nên **tự cài** AVL/Red-Black trong code production?
+>    <details><summary>Đáp án</summary>Gần như không bao giờ. Dùng `TreeMap`/`std::map`/`google/btree`/Redis ZSet có sẵn — đã tối ưu + test kỹ. Tự cài chỉ khi học hoặc viết thư viện cấu trúc dữ liệu nền tảng.</details>
+
+### 8.6. 📝 Tóm tắt mục 8
+
+- **Không tự cài** AVL/RB cho production → gọi bản có sẵn: `TreeMap`/`std::map`/`google/btree`/Redis ZSet.
+- **Leaderboard** = Redis Sorted Set: `ZADD`/`ZREVRANK`/`ZREVRANGE`/`ZRANGEBYSCORE`, $O(\log n)$, chia sẻ nhiều process.
+- **Index DB** = B+ tree; đọc `EXPLAIN`: `type: range` + `Using index` = đang đi cây, `type: ALL` = full scan.
+- **Go** không có ordered map stdlib → `google/btree` (không suy biến, $O(\log n)$ luôn).
+- Chọn loại: AVL (đọc nhiều), RB (ghi nhiều), B+ tree (trên đĩa), skip list/ZSet (chia sẻ), hash (chỉ tra khóa).
+
 ## Bài tập
 
 1. Vẽ AVL tree khi chèn lần lượt: `10, 20, 30, 40, 50, 25`. Chỉ ra rotation nào được dùng.

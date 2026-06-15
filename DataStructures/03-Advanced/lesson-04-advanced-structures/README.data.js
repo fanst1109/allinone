@@ -543,7 +543,92 @@ Bloom filter = "chữ ký phân bố": mỗi item bật vài bit ngẫu nhiên t
 | **Count-Min Sketch** | Đếm tần suất xấp xỉ trên stream |
 | **Cuckoo Hashing / Cuckoo Filter** | Hash table tránh đụng độ; thay thế Bloom có xóa |
 
-## 6. Tổng kết khóa học
+## 6. Thực hành: dùng trong code thật
+
+> 💡 **Bài này giới thiệu 4 cấu trúc hệ thống. Sự thật thực tế: bạn TỰ CÀI đúng MỘT cái (Bloom), còn 3 cái kia bạn DÙNG qua thư viện/DB.** B-tree, skip list, LSM-tree quá phức tạp + đã được tối ưu hàng chục năm → tự cài cho production là sai lầm. Bloom filter thì đủ đơn giản (~30 dòng) và hữu ích để tự viết. Code Go dưới đây \`go run\` được.
+
+### 6.1. Mini-project — Bloom filter chống cache penetration
+
+Bài toán thật: trước mỗi truy vấn DB nặng, hỏi "key này **chắc chắn không tồn tại**?" để **khỏi đụng DB**. Bloom trả lời cực nhanh, $O(k)$, RAM nhỏ. **false = chắc chắn không có** (bỏ qua DB an toàn); **true = có thể có** (mới truy DB):
+
+\`\`\`go
+import "hash/fnv"
+
+type Bloom struct {
+	bits []bool
+	m, k int // m = số bit, k = số hàm hash
+}
+
+func NewBloom(m, k int) *Bloom { return &Bloom{bits: make([]bool, m), m: m, k: k} }
+
+// k vị trí bằng double hashing (h1 + i·h2) từ một hash 64-bit — đỡ phải k hàm riêng
+func (b *Bloom) positions(s string) []int {
+	h := fnv.New64a()
+	h.Write([]byte(s))
+	x := h.Sum64()
+	hi, lo := uint32(x>>32), uint32(x)
+	pos := make([]int, b.k)
+	for i := 0; i < b.k; i++ {
+		pos[i] = int((hi+uint32(i)*lo)%uint32(b.m))
+	}
+	return pos
+}
+
+func (b *Bloom) Add(s string) {
+	for _, p := range b.positions(s) {
+		b.bits[p] = true
+	}
+}
+
+// MightContain: false = CHẮC CHẮN chưa thêm; true = CÓ THỂ đã thêm (false positive được)
+func (b *Bloom) MightContain(s string) bool {
+	for _, p := range b.positions(s) {
+		if !b.bits[p] {
+			return false // 1 bit = 0 → chắc chắn chưa từng Add
+		}
+	}
+	return true
+}
+\`\`\`
+
+Luồng dùng thật: \`if !bloom.MightContain(key) { return "không có" }\` → chặn ngay, khỏi query DB. Chỉ khi Bloom nói "có thể" mới đụng DB. Redis, Cassandra, HBase, Bitcoin SPV đều dùng kiểu này.
+
+> ⚠ **Bẫy — Bloom KHÔNG xóa được, và sai một chiều.** Xóa một key = clear vài bit có thể phá key khác chung bit → Bloom chuẩn **không hỗ trợ xóa** (cần Counting Bloom / Cuckoo filter §5). Và nó chỉ sai kiểu **false positive** ("nói có nhưng không"), **không bao giờ false negative** — nên \`false\` luôn đáng tin tuyệt đối.
+
+### 6.2. Ba cái còn lại: DÙNG, đừng tự cài
+
+| Cấu trúc | Tự cài? | Dùng thật qua | Vì sao không tự cài |
+|----------|---------|---------------|---------------------|
+| **B+ tree** | ✗ | DB index (MySQL/Postgres), \`go.etcd.io/bbolt\`, \`google/btree\` | Cài đúng + tối ưu đĩa cực khó |
+| **Skip list** | ✗ | **Redis Sorted Set** (\`ZADD\`...), một số concurrent map | Concurrency + cấp tầng ngẫu nhiên dễ sai |
+| **LSM-tree** | ✗ | **LevelDB, RocksDB, Pebble, Cassandra, ScyllaDB** | Compaction + WAL + bloom-per-SSTable = cả một hệ thống |
+
+\`\`\`go
+// Skip list trong thực tế = Redis ZSet (đã thấy ở L04 §8.2):
+//   ZADD leaderboard 1500 "an"   → O(log n), bên dưới là skip list
+// LSM-tree trong thực tế = mở một embedded KV store, KHÔNG tự viết:
+//   db, _ := pebble.Open("data", &pebble.Options{})  // ghi nhanh nhờ LSM
+//   db.Set([]byte("key"), []byte("val"), nil)
+\`\`\`
+
+Hiểu cấu trúc bên trong (bài này dạy) = biết **chọn đúng** DB/lib cho workload: ghi nhiều → LSM (Cassandra/RocksDB); đọc-range nhiều → B+ tree (Postgres); ranking → skip list (Redis ZSet); lọc tồn tại → Bloom.
+
+### 6.3. 🔁 Tự kiểm tra
+
+> 1. Bloom \`MightContain\` trả \`false\` — có chắc key chưa từng thêm không? Trả \`true\` thì sao?
+>    <details><summary>Đáp án</summary><b>false = chắc chắn chưa thêm</b> (vì nếu đã thêm thì mọi bit đã bật, không thể có bit 0). <b>true = có thể đã thêm</b>, nhưng có thể là false positive (các bit tình cờ bị key khác bật). Bloom sai một chiều.</details>
+> 2. Vì sao không nên tự cài LSM-tree cho production?
+>    <details><summary>Đáp án</summary>LSM = memtable + WAL + nhiều SSTable trên đĩa + compaction nền + bloom filter mỗi SSTable — cả một hệ con. LevelDB/RocksDB/Pebble đã tối ưu + test hàng chục năm. Tự cài = nhiều bug, chậm hơn.</details>
+> 3. Workload **ghi cực nhiều** (log, metrics, time-series) nên chọn engine bên dưới là gì?
+>    <details><summary>Đáp án</summary><b>LSM-tree</b> (RocksDB/Cassandra/ScyllaDB): ghi tuần tự vào memtable + WAL rất nhanh, flush thành SSTable sau. Đổi lại đọc point chậm hơn B-tree (phải tra nhiều SSTable, có bloom filter giúp).</details>
+
+### 6.4. 📝 Tóm tắt mục 6
+
+- **Tự cài**: chỉ Bloom filter (~30 dòng, hữu ích chống cache penetration). \`false\` đáng tin tuyệt đối, không xóa được.
+- **Dùng thư viện/DB**: B+ tree (DB index/bbolt), skip list (Redis ZSet), LSM (RocksDB/Pebble/Cassandra).
+- Hiểu cấu trúc → **chọn đúng** engine theo workload: ghi nhiều→LSM, đọc-range→B+tree, ranking→ZSet, lọc tồn tại→Bloom.
+
+## 7. Tổng kết khóa học
 
 | Lĩnh vực | Cấu trúc đã học |
 | --- | --- |

@@ -334,6 +334,147 @@ function dijkstra(graph, source):
 - Luôn dùng \`visited\` (BFS/DFS), trừ khi chắc chắn là cây.
 - Trọng số $\\geq 0$ → Dijkstra; có âm → Bellman-Ford; mọi cặp + $V$ nhỏ → Floyd-Warshall.
 
+## 8. Thực hành: dùng trong code thật
+
+> 💡 **§5–§6 liệt kê thuật toán đồ thị. Mục này là code chạy được cho 3 bài toán bạn gặp thật.** Build system quyết định thứ tự biên dịch, "mấy đời bạn bè" trên mạng xã hội, phát hiện deadlock — đều là đồ thị. Code Go dưới đây \`go run\` được.
+
+### 8.1. Mini-project A — Topological sort: thứ tự build theo dependency
+
+\`make\`, \`npm\`, Gradle, hay "môn tiên quyết" trong chương trình học đều giải cùng bài: **A phụ thuộc B thì B phải xong trước**. Đây là **topological sort** trên DAG. Thuật toán **Kahn** (BFS theo bậc vào):
+
+\`\`\`go
+// topoSort: deps[task] = các task phải xong TRƯỚC task này. Trả thứ tự thực hiện.
+func topoSort(deps map[string][]string) []string {
+	indeg := map[string]int{}      // số dependency chưa thỏa của mỗi task
+	adj := map[string][]string{}   // p → các task mở khóa khi p xong
+	nodes := map[string]bool{}
+	for task, prereqs := range deps {
+		nodes[task] = true
+		for _, p := range prereqs {
+			adj[p] = append(adj[p], task)
+			indeg[task]++
+			nodes[p] = true
+		}
+	}
+	queue := []string{} // task không còn dependency → làm được ngay
+	for n := range nodes {
+		if indeg[n] == 0 {
+			queue = append(queue, n)
+		}
+	}
+	order := []string{}
+	for len(queue) > 0 {
+		u := queue[0]
+		queue = queue[1:]
+		order = append(order, u)
+		for _, v := range adj[u] { // u xong → giảm bậc các task phụ thuộc u
+			if indeg[v]--; indeg[v] == 0 {
+				queue = append(queue, v)
+			}
+		}
+	}
+	if len(order) != len(nodes) {
+		return nil // còn task chưa ra = có chu trình → KHÔNG build được
+	}
+	return order
+}
+\`\`\`
+
+Với \`{"app":{"compile"}, "compile":{"fetch-deps"}, "test":{"compile"}, "deploy":{"test","app"}}\` → thứ tự hợp lệ \`fetch-deps → compile → app → test → deploy\`. Nếu deps có vòng (\`a→b→a\`) → \`topoSort\` trả \`nil\` = "dependency cycle", đúng lỗi \`make\`/\`npm\` báo khi config sai.
+
+### 8.2. Mini-project B — BFS shortest path: "mấy đời bạn bè"
+
+§5 nói BFS = đường ngắn nhất khi **không trọng số**. Đây là "degrees of separation" (LinkedIn "kết nối cấp 2"), hay đường ngắn nhất trong mê cung. BFS lan theo từng tầng → tầng chạm đích đầu tiên = ngắn nhất:
+
+\`\`\`go
+// bfsPath: đường ĐI ÍT CẠNH NHẤT từ s tới t. Lưu prev để truy ngược path.
+func bfsPath(adj map[string][]string, s, t string) []string {
+	prev := map[string]string{s: ""} // prev cũng đóng vai trò visited
+	queue := []string{s}
+	for len(queue) > 0 {
+		u := queue[0]
+		queue = queue[1:]
+		if u == t {
+			break
+		}
+		for _, v := range adj[u] {
+			if _, seen := prev[v]; !seen { // chưa thăm → tầng kế tiếp
+				prev[v] = u
+				queue = append(queue, v)
+			}
+		}
+	}
+	if _, ok := prev[t]; !ok {
+		return nil // không tới được
+	}
+	path := []string{} // truy ngược t → s rồi đảo
+	for at := t; at != ""; at = prev[at] {
+		path = append([]string{at}, path...)
+	}
+	return path
+}
+\`\`\`
+
+> ⚠ **Bẫy — BFS chỉ đúng cho đồ thị KHÔNG trọng số.** Vì nó đếm **số cạnh**, không phải tổng trọng số. Nếu cạnh có trọng số khác nhau (km, phút), BFS cho "ít cạnh nhất" ≠ "ngắn nhất" → phải dùng **Dijkstra** (§6, code Go đầy đủ ở [L03 Heap §7.3](../../02-Intermediate/lesson-03-heap-priority-queue/) — dùng priority queue).
+
+### 8.3. Mini-project C — Phát hiện chu trình (deadlock / dependency cycle)
+
+Trước khi topo-sort, hệ thống thật thường **kiểm tra chu trình** để báo lỗi rõ ràng (deadlock giữa các transaction giữ lock chờ nhau, import vòng giữa module). DFS **3 màu**: trắng (chưa thăm), xám (đang trong stack đệ quy), đen (xong). Gặp cạnh tới node **xám** = back edge = chu trình:
+
+\`\`\`go
+func hasCycle(adj map[string][]string, nodes []string) bool {
+	const white, gray, black = 0, 1, 2
+	color := map[string]int{}
+	var dfs func(u string) bool
+	dfs = func(u string) bool {
+		color[u] = gray // đang xử lý
+		for _, v := range adj[u] {
+			if color[v] == gray { // cạnh tới node đang trong stack → CHU TRÌNH
+				return true
+			}
+			if color[v] == white && dfs(v) {
+				return true
+			}
+		}
+		color[u] = black // xong, không nằm trong chu trình nào
+		return false
+	}
+	for _, n := range nodes {
+		if color[n] == white && dfs(n) {
+			return true
+		}
+	}
+	return false
+}
+\`\`\`
+
+> ❓ **"Sao cần 3 màu, dùng \`visited\` (2 trạng thái) không đủ?"** Với đồ thị **có hướng**, \`visited\` 2 trạng thái không phân biệt được "đã thăm xong" (đen) với "đang thăm" (xám). Chỉ cạnh tới node **xám** mới là chu trình; cạnh tới node **đen** chỉ là đường đã đi qua, vô hại. Đồ thị **vô hướng** thì 2 màu + "bỏ qua cha" là đủ.
+
+### 8.4. ⚠ Chọn thuật toán đúng (tóm tắt thực chiến)
+
+| Bài toán thật | Thuật toán | Lý do |
+|---------------|-----------|-------|
+| Thứ tự build/cài đặt theo dependency | **Topo-sort (Kahn)** | DAG → thứ tự tuyến tính |
+| Đường ngắn nhất, mọi cạnh "giá như nhau" | **BFS** | Đếm số cạnh, $O(V+E)$ |
+| Đường ngắn nhất, cạnh có km/phút (≥0) | **Dijkstra** + PQ | Trọng số khác nhau ([L03](../../02-Intermediate/lesson-03-heap-priority-queue/)) |
+| Phát hiện deadlock / import vòng | **DFS 3 màu** | Back edge = chu trình |
+| Cạnh trọng số **âm** | Bellman-Ford | Dijkstra sai với cạnh âm (§7.1) |
+
+> 🔁 **Tự kiểm tra**
+> 1. \`topoSort\` trả \`nil\` khi nào? Điều đó tương ứng lỗi gì trong \`make\`/\`npm\`?
+>    <details><summary>Đáp án</summary>Khi \`len(order) != len(nodes)\` — còn task có bậc vào > 0 mãi, nghĩa là có **chu trình dependency**. \`make\`/\`npm\` báo "circular dependency": A cần B, B cần A → không có thứ tự build hợp lệ.</details>
+> 2. Vì sao không thể dùng BFS để tìm đường ngắn nhất theo **phút di chuyển** giữa các thành phố?
+>    <details><summary>Đáp án</summary>BFS đếm <b>số cạnh</b>, coi mọi cạnh bằng nhau. Đường "ít chặng" có thể tổng phút lớn hơn đường "nhiều chặng nhưng mỗi chặng nhanh". Cần Dijkstra để cộng dồn trọng số.</details>
+> 3. Trong \`hasCycle\`, gặp cạnh tới node màu **đen** có phải chu trình không?
+>    <details><summary>Đáp án</summary>Không. Đen = đã xử lý xong, không còn trong stack đệ quy hiện tại. Chỉ cạnh tới node <b>xám</b> (đang trong stack) mới là back edge = chu trình.</details>
+
+### 8.5. 📝 Tóm tắt mục 8
+
+- **Topo-sort (Kahn)**: thứ tự build theo dependency; \`nil\` = có chu trình (lỗi circular dependency).
+- **BFS shortest path**: ít cạnh nhất, lưu \`prev\` truy ngược path — chỉ đúng khi **không trọng số**.
+- **Cycle detection (DFS 3 màu)**: deadlock/import vòng; cạnh tới node **xám** = chu trình.
+- Cạnh có trọng số ≥0 → Dijkstra ([L03](../../02-Intermediate/lesson-03-heap-priority-queue/)); có âm → Bellman-Ford.
+
 ## Bài tập
 
 1. Cho đồ thị vô hướng, viết hàm đếm số thành phần liên thông.

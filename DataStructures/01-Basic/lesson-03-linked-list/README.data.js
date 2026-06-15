@@ -215,6 +215,105 @@ Dùng 3 con trỏ: \`prev\` (đã đảo), \`cur\` (đang xét), \`nxt\` (lưu t
 - Bug điển hình: \`nil\` head/next, mất đường về khi sửa \`cur.next\`, vòng vô hạn, memory leak (không GC).
 - Khi nghi ngờ: vẽ list trên giấy, đánh số bước, theo dõi từng con trỏ → bug hiện ngay.
 
+## 8. Thực hành: dùng trong code thật
+
+> 💡 **§6 liệt kê ứng dụng. Mục này là một sự thật + ứng dụng "đỉnh" của linked list.** Sự thật: trong Go/đa số ngôn ngữ, **slice/array thường thắng** linked list (cache-friendly, §5). Nhưng có MỘT chỗ linked list không thể thay: **LRU cache** — nơi cần "đưa phần tử lên đầu / xóa cuối" trong $O(1)$. Code Go dưới đây \`go run\` được.
+
+### 8.1. Mini-project — LRU cache: doubly-linked list + hash map
+
+Đây là ứng dụng kinh điển nhất (Redis maxmemory eviction, cache CPU, browser history). Yêu cầu: \`Get\`/\`Put\` đều $O(1)$, khi đầy thì bỏ phần tử **lâu chưa dùng nhất**. Kết hợp:
+- **map** \`key → node\`: tìm node $O(1)$.
+- **doubly-linked list**: đầu = mới dùng nhất, cuối = cũ nhất. Move/remove node $O(1)$ nhờ con trỏ \`prev\`.
+
+\`\`\`go
+type node struct {
+	key, val   int
+	prev, next *node
+}
+
+type LRU struct {
+	cap        int
+	m          map[int]*node
+	head, tail *node // sentinel: head=mới nhất, tail=cũ nhất
+}
+
+func NewLRU(capacity int) *LRU {
+	h, t := &node{}, &node{}
+	h.next, t.prev = t, h // hai node giả nối nhau → khỏi check nil ở biên
+	return &LRU{cap: capacity, m: map[int]*node{}, head: h, tail: t}
+}
+
+func (c *LRU) remove(n *node)   { n.prev.next = n.next; n.next.prev = n.prev }
+func (c *LRU) addFront(n *node) { // chèn ngay sau head = mới nhất
+	n.prev, n.next = c.head, c.head.next
+	c.head.next.prev = n
+	c.head.next = n
+}
+
+func (c *LRU) Get(key int) (int, bool) {
+	n, ok := c.m[key]
+	if !ok {
+		return 0, false
+	}
+	c.remove(n); c.addFront(n) // vừa dùng → đưa lên đầu
+	return n.val, true
+}
+
+func (c *LRU) Put(key, val int) {
+	if n, ok := c.m[key]; ok { // đã có → cập nhật + đưa lên đầu
+		n.val = val
+		c.remove(n); c.addFront(n)
+		return
+	}
+	if len(c.m) == c.cap { // đầy → evict node cũ nhất (ngay trước tail)
+		lru := c.tail.prev
+		c.remove(lru)
+		delete(c.m, lru.key)
+	}
+	n := &node{key: key, val: val}
+	c.addFront(n)
+	c.m[key] = n
+}
+\`\`\`
+
+Chạy \`cap=2\`: \`Put(1,10); Put(2,20); Get(1)\` (1 thành mới nhất); \`Put(3,30)\` → **evict key 2** (cũ nhất) → \`Get(2)\` = \`false\`. Mỗi thao tác $O(1)$.
+
+> 💡 **Vì sao PHẢI doubly-linked, không dùng slice?** Cần 2 việc $O(1)$: (1) **xóa node ở giữa** khi nó vừa được dùng, (2) **xóa node cuối** khi evict. Slice xóa giữa = $O(n)$ (dịch mảng, §array). Doubly-linked có \`prev\` → nối lại 2 hàng xóm trong $O(1)$. Đây là chỗ hiếm hoi linked list thắng tuyệt đối.
+
+> ⚠ **Dùng sentinel head/tail để khỏi xử lý nil ở biên.** Hai node giả luôn tồn tại → \`n.prev\`/\`n.next\` không bao giờ nil → \`remove\`/\`addFront\` không cần \`if\` kiểm tra đầu/cuối list. Bỏ sentinel = code đầy \`if n.prev == nil\` dễ sót → bug con trỏ (§7).
+
+### 8.2. Go có sẵn \`container/list\` (doubly-linked)
+
+Không phải lúc nào cũng tự cài. Go stdlib có \`container/list\`:
+
+\`\`\`go
+import "container/list"
+
+l := list.New()
+e := l.PushFront(10)   // thêm đầu, trả *Element
+l.PushBack(20)         // thêm cuối
+l.MoveToFront(e)       // O(1) — đúng thao tác LRU cần
+l.Remove(l.Back())     // xóa cuối O(1)
+\`\`\`
+
+Nhưng cho LRU production, đa số tự cài struct như §8.1 (kiểm soát tốt hơn) hoặc dùng thư viện \`hashicorp/golang-lru\`.
+
+### 8.3. 🔁 Tự kiểm tra
+
+> 1. Vì sao LRU cache cần **doubly**-linked, singly không đủ?
+>    <details><summary>Đáp án</summary>Evict node cuối + move node giữa lên đầu cần xóa node trong $O(1)$ — phải biết node <b>trước</b> nó. Singly không có \`prev\` → muốn xóa phải duyệt tìm node trước = $O(n)$. Doubly có \`prev\` → $O(1)$.</details>
+> 2. Vai trò của map trong LRU là gì? Bỏ map đi thì sao?
+>    <details><summary>Đáp án</summary>Map \`key→node\` cho \`Get\` tìm node $O(1)$. Bỏ map → phải duyệt list tìm key = $O(n)$, mất cả ý nghĩa "cache nhanh". LRU = map (tìm nhanh) + list (thứ tự dùng).</details>
+> 3. Khi nào nên dùng slice thay vì linked list?
+>    <details><summary>Đáp án</summary>Gần như luôn, trừ khi cần xóa/chèn giữa $O(1)$ với con trỏ sẵn (như LRU). Slice cache-friendly, truy cập index $O(1)$, ít overhead bộ nhớ (§5). Linked list chỉ thắng ở splice/move node.</details>
+
+### 8.4. 📝 Tóm tắt mục 8
+
+- Thực tế: **ưu tiên slice/array**; linked list ít khi thắng (cache-unfriendly).
+- **LRU cache** = doubly-linked list (thứ tự dùng, move/evict $O(1)$) + map (tìm $O(1)$). Ứng dụng đỉnh của linked list.
+- Dùng **sentinel** head/tail để bỏ check nil ở biên.
+- Go có \`container/list\`; production LRU thường tự cài hoặc \`hashicorp/golang-lru\`.
+
 ## Bài tập
 
 1. Cài đặt hàm trả về độ dài của một singly linked list.

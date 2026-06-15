@@ -267,8 +267,65 @@ async function floydRun() {
   }
 }
 floydSetup(true);
-</script></main>
-</script></main>
+</script>
+
+<div class="panel">
+  <h2>LRU cache: doubly-linked list + map (README §8.1)</h2>
+  <p style="margin:.4em 0 .8em; color:#475569; font-size:13px;">
+    Trái = <b>mới dùng nhất</b>, phải = <b>cũ nhất</b>. <code>Get</code>/<code>Put</code> đưa key lên đầu;
+    khi đầy, key cuối bị <b>evict</b>. Mỗi thao tác O(1) nhờ doubly-linked (move/xóa node) + map (tìm node).
+  </p>
+  <label>cap = <input id="luCap" type="number" value="3" min="1" max="6" style="width:56px" onchange="luReset()"></label>
+  <label style="margin-left:6px">key <input id="luK" type="number" value="1" style="width:56px"></label>
+  <label>val <input id="luV" type="number" value="10" style="width:56px"></label>
+  <button onclick="luPut()">Put(key,val)</button>
+  <button onclick="luGet()" style="background:#10b981">Get(key)</button>
+  <button onclick="luReset()" style="background:#64748b">Reset</button>
+  <div class="list" id="luList"></div>
+  <div class="log" id="luLog">Put/Get để xem thứ tự dùng + eviction.</div>
+</div>
+
+<script>
+// ============= LRU CACHE (README §8.1) =============
+let luOrder = []; // [{key,val}] — index 0 = mới nhất
+let luMap = {};
+function luRender(hlKey, evicted){
+  const el = document.getElementById('luList'); el.innerHTML='';
+  if(!luOrder.length){ el.innerHTML='<span class="null">(rỗng)</span>'; }
+  luOrder.forEach((e,i)=>{
+    const wrap=document.createElement('div'); wrap.className='node';
+    const cls = e.key===hlKey ? ' hit' : (i===0?' new':'');
+    wrap.innerHTML=`<div class="box${cls}">${e.key}:${e.val}</div>`;
+    el.appendChild(wrap);
+    if(i<luOrder.length-1){ const a=document.createElement('span'); a.className='arrow'; a.textContent='⇄'; el.appendChild(a); }
+  });
+  if(evicted!=null){ const t=document.createElement('div'); t.className='node'; t.innerHTML=`<div class="box del">evict ${evicted}</div>`; el.appendChild(t); }
+}
+function luTouch(key){ luOrder = luOrder.filter(e=>e.key!==key); }
+function luPut(){
+  const cap=Math.max(1,parseInt(document.getElementById('luCap').value)||3);
+  const k=parseInt(document.getElementById('luK').value), v=parseInt(document.getElementById('luV').value);
+  if(isNaN(k)||isNaN(v)) return;
+  let evicted=null;
+  if(luMap[k]!==undefined){ luTouch(k); luOrder.unshift({key:k,val:v}); luMap[k]=v; document.getElementById('luLog').textContent=`Put(${k},${v}): đã có → cập nhật + đưa lên đầu.`; }
+  else {
+    if(luOrder.length>=cap){ const lru=luOrder.pop(); delete luMap[lru.key]; evicted=lru.key; }
+    luOrder.unshift({key:k,val:v}); luMap[k]=v;
+    document.getElementById('luLog').textContent=`Put(${k},${v}): thêm mới ở đầu.`+(evicted!=null?` Đầy (cap ${cap}) → evict key ${evicted} (cũ nhất).`:'');
+  }
+  luRender(k, evicted);
+}
+function luGet(){
+  const k=parseInt(document.getElementById('luK').value);
+  if(luMap[k]===undefined){ document.getElementById('luLog').textContent=`Get(${k}) = MISS (không có trong cache).`; luRender(null); return; }
+  const v=luMap[k]; luTouch(k); luOrder.unshift({key:k,val:v});
+  document.getElementById('luLog').textContent=`Get(${k}) = ${v} (HIT) → đưa key ${k} lên đầu (mới nhất).`;
+  luRender(k);
+}
+function luReset(){ luOrder=[]; luMap={}; luRender(null); document.getElementById('luLog').textContent='Cache rỗng. Put/Get để thử.'; }
+luReset();
+</script>
+</main>
 <!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
 <script src="../../../tools/marked.min.js"></script>
 <script src="./README.data.js"></script>

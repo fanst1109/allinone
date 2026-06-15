@@ -23,6 +23,8 @@
   input[type=number] { width: 80px; padding: 4px; }
   pre { background: #f3f4f6; padding: 12px; border-radius: 6px; overflow-x: auto; }
   .log { color: #444; min-height: 20px; }
+  .cell.win { border-color: #8b5cf6; background: #ede9fe; }
+  .cell.winbest { box-shadow: 0 0 0 3px #fde68a; }
   .cell.left { border-color: #3b82f6; background: #dbeafe; }
   .cell.right { border-color: #f59e0b; background: #fef3c7; }
   .cell.cap { border-style: dashed; opacity: .5; background: #f3f4f6; }
@@ -283,7 +285,57 @@ function resetDyn() {
   document.getElementById('log5').textContent = '';
 }
 resetDyn();
-</script></main>
+</script>
+
+<div class="panel">
+  <h2>Sliding window: tổng lớn nhất cửa sổ k (README §8.3)</h2>
+  <p style="margin:.4em 0 .8em; color:#475569; font-size:13px;">
+    Trượt cửa sổ size k: mỗi bước <b>thêm phần tử phải, bỏ phần tử trái</b> → cập nhật tổng <code>O(1)</code> thay vì cộng lại cả cửa sổ.
+    Tím = cửa sổ hiện tại, viền vàng = cửa sổ tổng lớn nhất tới giờ.
+  </p>
+  <label>k = <input id="swK" type="number" value="3" min="1" max="6" style="width:56px" onchange="swReset()"></label>
+  <button class="" onclick="swStep()">▶ Trượt 1 bước</button>
+  <button onclick="swReset()" style="background:#64748b">Reset</button>
+  <div class="array" id="swArr" style="flex-wrap:wrap"></div>
+  <div class="stats" id="swStats"></div>
+  <div class="log" id="swLog"></div>
+</div>
+
+<script>
+// ============= SLIDING WINDOW (README §8.3) =============
+const SW_DATA = [2, 1, 5, 1, 3, 2];
+let swStart = 0, swBest = -Infinity, swBestStart = 0, swDone = false;
+function swSum(s, k){ let t=0; for(let i=s;i<s+k;i++) t+=SW_DATA[i]; return t; }
+function swRender(){
+  const k = Math.max(1, parseInt(document.getElementById('swK').value)||3);
+  const el = document.getElementById('swArr'); el.innerHTML='';
+  SW_DATA.forEach((v,i)=>{
+    const c=document.createElement('div'); c.className='cell';
+    if(i>=swStart && i<swStart+k) c.className+=' win';
+    if(swBest>-Infinity && i>=swBestStart && i<swBestStart+k && (i<swStart||i>=swStart+k)) c.className+=' winbest';
+    c.innerHTML=`<span class="idx">${i}</span>${v}`;
+    el.appendChild(c);
+  });
+  const cur = swSum(swStart, k);
+  document.getElementById('swStats').textContent =
+    `Cửa sổ [${swStart}, ${swStart+k-1}] tổng = ${cur} · max tới giờ = ${swBest>-Infinity?swBest:cur} (cửa sổ bắt đầu idx ${swBestStart})`;
+}
+function swStep(){
+  const k = Math.max(1, parseInt(document.getElementById('swK').value)||3);
+  if(swBest===-Infinity){ swBest=swSum(0,k); swBestStart=0; swStart=0; swRender(); document.getElementById('swLog').textContent=`Cửa sổ đầu [0,${k-1}] tổng ${swBest}.`; return; }
+  if(swStart+k>=SW_DATA.length){ document.getElementById('swLog').textContent=`Hết mảng. Tổng lớn nhất = ${swBest} tại cửa sổ bắt đầu idx ${swBestStart}.`; return; }
+  const out=SW_DATA[swStart], inn=SW_DATA[swStart+k];
+  swStart++;
+  const cur=swSum(swStart,k);
+  let msg=`Trượt: bỏ a[${swStart-1}]=${out}, thêm a[${swStart+k-1}]=${inn} → tổng ${cur}.`;
+  if(cur>swBest){ swBest=cur; swBestStart=swStart; msg+=` Mới = max!`; }
+  swRender();
+  document.getElementById('swLog').textContent=msg;
+}
+function swReset(){ swStart=0; swBest=-Infinity; swBestStart=0; swRender(); document.getElementById('swLog').textContent='Nhấn "Trượt 1 bước".'; }
+swReset();
+</script>
+</main>
 <!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
 <script src="../../../tools/marked.min.js"></script>
 <script src="./README.data.js"></script>

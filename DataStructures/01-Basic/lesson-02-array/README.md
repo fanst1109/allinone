@@ -200,6 +200,102 @@ arr[i][j]  ↔  arr_phang[i * n + j]
 - **Yếu** ở: chèn/xóa giữa ($O(n)$), không co lại tự động (lãng phí), latency spike khi resize.
 - Lỗi điển hình: out-of-bounds, off-by-one, slice-aliasing, coi amortized = đảm bảo cứng.
 
+## 8. Thực hành: dùng trong code thật
+
+> 💡 **§1–§7 dạy lý thuyết array. Mục này là 3 thứ bạn gõ hằng ngày: slice Go thật (và cái bẫy aliasing), two-pointer, sliding window.** Đây là những pattern xuất hiện trong gần như mọi code xử lý mảng/chuỗi. Code Go dưới đây `go run` được.
+
+### 8.1. Slice Go = dynamic array — và cái bẫy aliasing chí mạng
+
+§2 nói dynamic array nhân đôi capacity. Trong Go, `slice` chính là nó. Xem `cap` nhân đôi thật:
+
+```go
+s := make([]int, 0, 2)
+for i := 0; i < 5; i++ {
+	s = append(s, i)
+	fmt.Printf("len=%d cap=%d\n", len(s), cap(s))
+}
+// len=1 cap=2 / len=2 cap=2 / len=3 cap=4 / len=4 cap=4 / len=5 cap=8
+```
+
+`cap` đi 2→4→8: mỗi lần đầy, Go cấp mảng gấp đôi + copy → đó là "amortized $O(1)$" của §2.1 bằng số thật.
+
+> ⚠ **Bẫy aliasing — `append` có thể sửa trộm mảng khác (lỗi #1 với slice Go).** Hai slice chia sẻ cùng mảng nền. Nếu một slice còn `cap` dư, `append` ghi **đè** lên phần slice kia đang dùng:
+> ```go
+> a := []int{1, 2, 3, 4}
+> b := a[:2]            // b = [1 2], nhưng CHUNG mảng nền với a, cap(b)=4
+> b = append(b, 99)     // ghi vào index 2 của mảng nền → a[2] bị đổi thành 99!
+> // giờ a = [1 2 99 4] — sửa b mà a hỏng theo
+> ```
+> Cách tránh: `b := append([]int{}, a[:2]...)` (copy thật), hoặc `a[:2:2]` (full-slice expression giới hạn cap → append buộc cấp mảng mới).
+
+### 8.2. Two-pointer: xử lý $O(n)$ thay vì $O(n^2)$
+
+Hai con trỏ chạy trên mảng — pattern cực phổ biến: xóa trùng tại chỗ, two-sum trên mảng đã sort, đảo chuỗi, kiểm tra palindrome.
+
+```go
+// Xóa phần tử trùng TẠI CHỖ trên mảng đã sort. w = con trỏ ghi, r = con trỏ đọc.
+func removeDuplicates(a []int) int {
+	if len(a) == 0 { return 0 }
+	w := 1
+	for r := 1; r < len(a); r++ {
+		if a[r] != a[w-1] { // gặp phần tử mới → ghi vào vị trí w
+			a[w] = a[r]
+			w++
+		}
+	}
+	return w // a[:w] là phần unique
+}
+
+// two-sum trên mảng ĐÃ SORT: O(n), không cần hash. Hai đầu kẹp dần vào.
+func twoSumSorted(a []int, target int) (int, int) {
+	i, j := 0, len(a)-1
+	for i < j {
+		switch s := a[i] + a[j]; {
+		case s == target: return i, j
+		case s < target:  i++ // cần lớn hơn → dời trái phải sang
+		default:          j-- // cần nhỏ hơn → dời phải trái sang
+		}
+	}
+	return -1, -1
+}
+```
+
+`twoSumSorted([2,4,7,11], 15)` → `(1,3)` (4+11). Two-pointer biến nhiều bài $O(n^2)$ (hai vòng lặp lồng) thành $O(n)$ khi mảng đã có thứ tự.
+
+### 8.3. Sliding window: tổng/đếm trên cửa sổ trượt $O(n)$
+
+"Tổng lớn nhất của $k$ phần tử liên tiếp", "chuỗi con dài nhất không lặp ký tự" — đừng tính lại từ đầu mỗi cửa sổ ($O(nk)$). Trượt: **vào phải, ra trái**, mỗi bước $O(1)$:
+
+```go
+func maxSumWindow(a []int, k int) int {
+	sum := 0
+	for i := 0; i < k; i++ { sum += a[i] } // cửa sổ đầu
+	best := sum
+	for i := k; i < len(a); i++ {
+		sum += a[i] - a[i-k] // thêm phần tử mới, bỏ phần tử rời cửa sổ
+		if sum > best { best = sum }
+	}
+	return best
+}
+```
+
+`maxSumWindow([2,1,5,1,3,2], 3)` → `9` (5+1+3). Dùng cho: rate limiting (đếm request trong cửa sổ thời gian), trung bình trượt (moving average) trên metrics, nén/streaming.
+
+### 8.4. 🔁 Tự kiểm tra
+
+> 1. `b := a[:2]; b = append(b, 99)` — vì sao `a` có thể bị đổi?
+>    <details><summary>Đáp án</summary>`b` chia sẻ mảng nền với `a` và còn `cap` dư. `append` ghi vào index 2 của mảng nền (đang là `a[2]`) thay vì cấp mảng mới → `a[2]` bị ghi đè. Tránh bằng copy hoặc full-slice `a[:2:2]`.</details>
+> 2. Vì sao `twoSumSorted` chạy $O(n)$ còn two-sum bằng 2 vòng lặp là $O(n^2)$?
+>    <details><summary>Đáp án</summary>Mảng đã sort → mỗi bước loại được 1 đầu: tổng nhỏ quá thì `i++`, lớn quá thì `j--`. Hai con trỏ chỉ đi tổng cộng $n$ bước. Hai vòng lặp lồng thử mọi cặp = $n^2$.</details>
+> 3. Sliding window: vì sao cập nhật `sum += a[i] - a[i-k]` mà không cộng lại cả cửa sổ?
+>    <details><summary>Đáp án</summary>Cửa sổ mới chỉ khác cửa sổ cũ ở 2 phần tử: thêm `a[i]` (vào bên phải), bỏ `a[i-k]` (rời bên trái). Tận dụng tổng cũ → mỗi bước $O(1)$ thay vì $O(k)$.</details>
+
+### 8.5. 📝 Tóm tắt mục 8
+
+- **Slice Go** = dynamic array; `cap` nhân đôi (amortized $O(1)$). Bẫy **aliasing**: `append` có thể sửa trộm slice chung mảng nền → copy hoặc `a[:n:n]`.
+- **Two-pointer**: $O(n)$ cho xóa-trùng tại chỗ, two-sum-sorted, đảo, palindrome — thay vòng lồng $O(n^2)$.
+- **Sliding window**: tổng/đếm cửa sổ trượt, vào-phải-ra-trái $O(1)$/bước; dùng cho rate-limit, moving average.
+
 ## Bài tập
 
 1. Viết hàm trả về tổng các phần tử của một mảng. Tính Big-O.

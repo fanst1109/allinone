@@ -199,6 +199,113 @@ Ngược lại, với \`"([)]"\`:
 - Bẫy thường gặp: pop trên rỗng, stack overflow do đệ quy, quên check rỗng cuối hàm kiểm tra ngoặc, tràn array tĩnh.
 - Quy luật: bất cứ khi nào bài toán có cấu trúc "lồng nhau" hoặc "việc bắt đầu sau phải xong trước" → nghĩ tới stack.
 
+## 6. Thực hành: dùng trong code thật
+
+> 💡 **§4 liệt kê ứng dụng stack. Mục này là code chạy được cho 3 cái thực dụng nhất: kiểm tra ngoặc (mọi linter/parser), undo/redo (mọi editor), khử đệ quy (tránh stack overflow).** Trong Go, stack chỉ là **slice + append/pop** — không cần kiểu riêng. Code dưới đây \`go run\` được.
+
+### 6.1. Mini-project A — Kiểm tra ngoặc cân bằng (mọi parser/linter)
+
+§4.2 walk-through bằng tay. Đây là code: validate \`() [] {}\` lồng đúng — nền của mọi trình kiểm tra cú pháp JSON/HTML/code. Mở thì **push**, đóng thì **pop và khớp loại**:
+
+\`\`\`go
+func validBrackets(s string) bool {
+	pairs := map[rune]rune{')': '(', ']': '[', '}': '{'}
+	var st []rune // slice làm stack
+	for _, c := range s {
+		switch c {
+		case '(', '[', '{':
+			st = append(st, c) // push
+		case ')', ']', '}':
+			if len(st) == 0 || st[len(st)-1] != pairs[c] {
+				return false // không có mở tương ứng, hoặc sai loại (vd "([)]")
+			}
+			st = st[:len(st)-1] // pop
+		}
+	}
+	return len(st) == 0 // stack rỗng = mọi mở đều đã đóng
+}
+\`\`\`
+
+\`"([{}])"\` → \`true\`; \`"([)]"\` → \`false\` (sai lồng); \`"((("\` → \`false\` (thiếu đóng). LIFO đúng vì ngoặc **đóng gần nhất phải khớp mở gần nhất** — chính là tính chất "lồng nhau" (§1.1).
+
+### 6.2. Mini-project B — Undo/Redo bằng HAI stack
+
+Mọi editor (Word, VS Code, Photoshop) dùng 2 stack: \`undo\` (trạng thái quá khứ), \`redo\` (trạng thái vừa hoàn tác). Thao tác mới **xóa nhánh redo**:
+
+\`\`\`go
+type Editor struct {
+	text       string
+	undo, redo []string
+}
+
+func (e *Editor) Type(s string) {
+	e.undo = append(e.undo, e.text) // lưu trạng thái trước khi đổi
+	e.redo = nil                    // gõ mới → nhánh redo cũ vô nghĩa, xóa
+	e.text += s
+}
+func (e *Editor) Undo() {
+	if len(e.undo) == 0 { return }
+	e.redo = append(e.redo, e.text)        // trạng thái hiện tại sang redo
+	e.text = e.undo[len(e.undo)-1]         // quay về trạng thái trước
+	e.undo = e.undo[:len(e.undo)-1]
+}
+func (e *Editor) Redo() {
+	if len(e.redo) == 0 { return }
+	e.undo = append(e.undo, e.text)
+	e.text = e.redo[len(e.redo)-1]
+	e.redo = e.redo[:len(e.redo)-1]
+}
+\`\`\`
+
+\`Type("Hello"); Type(" World")\` → \`"Hello World"\`; \`Undo()\` → \`"Hello"\`; \`Redo()\` → \`"Hello World"\`. LIFO đúng vì undo luôn hoàn tác **việc gần nhất trước**.
+
+> ⚠ **Bẫy — thao tác mới PHẢI xóa stack redo.** Sau khi undo vài bước rồi gõ thứ mới, lịch sử redo cũ không còn nối tiếp được → phải \`redo = nil\`. Quên bước này = redo ra trạng thái "lai" sai. Đây là lỗi kinh điển khi tự làm undo/redo.
+
+### 6.3. Mini-project C — Khử đệ quy bằng stack tường minh
+
+§4.1 + Bài 5: đệ quy sâu → **stack overflow**. Giải pháp: tự quản stack. Ví dụ DFS đồ thị (thay vì đệ quy):
+
+\`\`\`go
+func dfsIterative(adj map[int][]int, start int) []int {
+	visited := map[int]bool{}
+	var order []int
+	stack := []int{start} // stack tường minh thay cho call stack
+	for len(stack) > 0 {
+		u := stack[len(stack)-1]
+		stack = stack[:len(stack)-1] // pop
+		if visited[u] {
+			continue
+		}
+		visited[u] = true
+		order = append(order, u)
+		for _, v := range adj[u] {
+			if !visited[v] {
+				stack = append(stack, v) // push hàng xóm
+			}
+		}
+	}
+	return order
+}
+\`\`\`
+
+Lợi: không giới hạn bởi stack đệ quy của runtime (Go goroutine stack lớn nhưng vẫn hữu hạn) → xử lý được đồ thị/cây cực sâu mà không crash. Đây là lý do bài "cây 1 triệu tầng" phải dùng stack lặp ([nối Tree §10.4](../../02-Intermediate/lesson-01-tree/)).
+
+### 6.4. 🔁 Tự kiểm tra
+
+> 1. \`validBrackets("([)]")\` trả \`false\` ở bước nào?
+>    <details><summary>Đáp án</summary>Khi gặp \`)\`: đỉnh stack là \`[\` (mở gần nhất), nhưng \`)\` cần khớp \`(\`. \`st[top] != pairs[')']\` → \`false\`. Stack bắt đúng lỗi lồng chéo.</details>
+> 2. Vì sao \`Type\` phải set \`redo = nil\`?
+>    <details><summary>Đáp án</summary>Sau undo vài bước, redo chứa các trạng thái "tương lai cũ". Gõ thứ mới = tạo nhánh lịch sử khác → các trạng thái redo cũ không còn nối tiếp hợp lệ. Không xóa → Redo ra trạng thái sai.</details>
+> 3. Khi nào nên khử đệ quy thành stack lặp?
+>    <details><summary>Đáp án</summary>Khi độ sâu đệ quy có thể rất lớn (cây/đồ thị sâu, danh sách dài) → nguy cơ stack overflow. Stack tường minh dùng heap, không bị giới hạn call-stack của runtime.</details>
+
+### 6.5. 📝 Tóm tắt mục 6
+
+- Trong Go: stack = **slice** + \`append\` (push) + \`s[:len-1]\` (pop). Không cần kiểu riêng.
+- **Bracket matching**: push mở, pop+khớp khi đóng, cuối phải rỗng — nền của parser/linter.
+- **Undo/Redo** = 2 stack; thao tác mới **xóa redo** (bẫy kinh điển).
+- **Khử đệ quy** bằng stack tường minh → tránh stack overflow trên dữ liệu sâu.
+
 ## Bài tập
 
 1. Viết hàm kiểm tra một chuỗi ngoặc \`()[]{}\` có hợp lệ không.

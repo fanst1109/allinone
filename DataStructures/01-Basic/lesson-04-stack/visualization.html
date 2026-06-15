@@ -241,7 +241,56 @@ function resetPostfix() {
   renderStack('stackPost', []);
   document.getElementById('logPost').textContent = '';
 }
-</script></main>
+</script>
+
+<div class="panel">
+  <h2 style="margin-top:0">Undo / Redo bằng 2 stack (README §6.2)</h2>
+  <p style="margin:0 0 8px 0; font-size:14px; color:#555;">
+    Editor giữ 2 stack: <b>undo</b> (quá khứ) và <b>redo</b> (vừa hoàn tác). Gõ thứ mới → <b>xóa redo</b>.
+  </p>
+  <label>Gõ thêm: <input id="urText" type="text" value="abc" style="width:120px"></label>
+  <button onclick="urType()">Type</button>
+  <button onclick="urUndo()" style="background:#f59e0b">⟲ Undo</button>
+  <button onclick="urRedo()" style="background:#10b981">⟳ Redo</button>
+  <button onclick="urReset()" style="background:#64748b">Reset</button>
+  <div style="font-family:monospace;font-size:16px;margin:10px 0;padding:8px 12px;background:#f3f4f6;border-radius:6px">
+    text = "<b id="urShow"></b>"
+  </div>
+  <div class="two-stack">
+    <div><h3>undo stack</h3><div class="stack" id="urUndoS"></div></div>
+    <div><h3>redo stack</h3><div class="stack" id="urRedoS"></div></div>
+  </div>
+  <div class="log" id="urLog"></div>
+</div>
+
+<script>
+// ============= UNDO / REDO 2 stack (README §6.2) =============
+let urMain = '', urU = [], urR = [];
+function urStackHtml(arr){ return arr.length ? arr.map((s,i)=>`<div class="item${i===arr.length-1?' top':''}">"${s}"</div>`).join('') : '<div class="label">(rỗng)</div>'; }
+function urRender(){
+  document.getElementById('urShow').textContent = urMain;
+  document.getElementById('urUndoS').innerHTML = urStackHtml(urU);
+  document.getElementById('urRedoS').innerHTML = urStackHtml(urR);
+}
+function urType(){
+  const s = document.getElementById('urText').value;
+  urU.push(urMain); urR = []; urMain += s;
+  urRender(); document.getElementById('urLog').textContent = `Type "${s}": đẩy trạng thái cũ vào undo, XÓA redo.`;
+}
+function urUndo(){
+  if(!urU.length){ document.getElementById('urLog').textContent='undo rỗng — không có gì để hoàn tác.'; return; }
+  urR.push(urMain); urMain = urU.pop();
+  urRender(); document.getElementById('urLog').textContent='Undo: lấy trạng thái trước từ undo, đẩy hiện tại sang redo.';
+}
+function urRedo(){
+  if(!urR.length){ document.getElementById('urLog').textContent='redo rỗng — không có gì để làm lại.'; return; }
+  urU.push(urMain); urMain = urR.pop();
+  urRender(); document.getElementById('urLog').textContent='Redo: lấy lại trạng thái từ redo, đẩy hiện tại sang undo.';
+}
+function urReset(){ urMain=''; urU=[]; urR=[]; urRender(); document.getElementById('urLog').textContent='Reset. Gõ vài lần rồi Undo/Redo.'; }
+urReset();
+</script>
+</main>
 <!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
 <script src="../../../tools/marked.min.js"></script>
 <script src="./README.data.js"></script>

@@ -19,6 +19,9 @@
   .log { color: #444; margin-top: 8px; min-height: 22px; }
   .node-c.succ { fill: #dbeafe; stroke: #3b82f6; }
   .node-c.del { fill: #fee2e2; stroke: #ef4444; }
+  .node-c.inrange { fill: #bbf7d0; stroke: #16a34a; stroke-width: 3; }
+  .node-c.pruned  { fill: #f1f5f9; stroke: #cbd5e1; opacity: .45; }
+  .node-c.visiting { fill: #fef08a; stroke: #ca8a04; }
   pre.code { background: #1e293b; color: #e2e8f0; padding: 10px 14px; border-radius: 6px; font-size: 12px; }
   pre.code .ln { display: block; padding: 1px 6px; margin: 0 -6px; border-radius: 3px; }
   pre.code .ln.hit { background: #facc15; color: #1e293b; font-weight: 600; }
@@ -207,7 +210,61 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 [50, 30, 70, 20, 40, 60, 80, 35].forEach(x => root = ins(root, x));
 render();
 updateStats();
-</script></main>
+</script>
+
+<div class="panel" style="margin-top:16px">
+  <h2>Range query có cắt nhánh (README §8.1)</h2>
+  <p style="margin:.4em 0 .8em; color:#475569; font-size:13px;">
+    Liệt kê mọi key trong <code>[lo, hi]</code>. Mẹo BST: nếu node <code>&lt; lo</code> → <b>bỏ luôn nhánh trái</b>; nếu node <code>&gt; hi</code> → <b>bỏ luôn nhánh phải</b>.
+    Không quét cả cây → <code>O(h + k)</code>. Đây là điều HashMap không làm được. Dùng cây hiện ở khung trên.
+  </p>
+  <label>lo = <input id="rqLo" type="number" value="35" style="width:64px"></label>
+  <label style="margin-left:6px">hi = <input id="rqHi" type="number" value="65" style="width:64px"></label>
+  <button class="green" style="background:#16a34a;margin-left:8px" onclick="doRangeQuery()">▶ Range query</button>
+  <button class="secondary" onclick="render();document.getElementById('rqOut').textContent='';document.getElementById('rqLog').textContent='';">Xóa highlight</button>
+  <div class="stats" id="rqOut" style="margin-top:8px"></div>
+  <div class="log" id="rqLog"></div>
+</div>
+
+<script>
+// ============= RANGE QUERY có cắt nhánh (README §8.1) =============
+async function doRangeQuery() {
+  if (!root) { document.getElementById('rqLog').textContent = 'Cây rỗng — chèn vài node ở khung trên trước.'; return; }
+  const lo = parseInt(document.getElementById('rqLo').value);
+  const hi = parseInt(document.getElementById('rqHi').value);
+  const hl = {}, result = [];
+  let visited = 0, prunedSubtrees = 0;
+  // đánh dấu toàn bộ subtree là pruned (để thấy "vùng bị cắt")
+  function markPruned(n) { if (!n) return; hl[n.v] = 'pruned'; markPruned(n.l); markPruned(n.r); }
+  async function rq(n) {
+    if (!n) return;
+    visited++;
+    hl[n.v] = 'visiting'; render(hl); await sleep(420);
+    if (n.v < lo) { // node quá nhỏ → trái chắc chắn < lo, cắt
+      if (n.l) { prunedSubtrees++; markPruned(n.l); }
+      hl[n.v] = 'pruned';
+      render(hl); await sleep(300);
+      await rq(n.r);
+    } else if (n.v > hi) { // node quá lớn → phải chắc chắn > hi, cắt
+      if (n.r) { prunedSubtrees++; markPruned(n.r); }
+      hl[n.v] = 'pruned';
+      render(hl); await sleep(300);
+      await rq(n.l);
+    } else { // trong khoảng → in-order: trái, node, phải
+      await rq(n.l);
+      hl[n.v] = 'inrange'; result.push(n.v); render(hl); await sleep(300);
+      await rq(n.r);
+    }
+  }
+  await rq(root);
+  render(hl);
+  document.getElementById('rqOut').textContent =
+    `Kết quả [${lo}, ${hi}] = {${result.sort((a,b)=>a-b).join(', ') || '∅'}}  ·  thăm ${visited}/${treeSize(root)} node, cắt ${prunedSubtrees} nhánh.`;
+  document.getElementById('rqLog').textContent =
+    `Xanh = trong khoảng (kết quả). Mờ = bị cắt vì biết chắc nằm ngoài [lo,hi]. HashMap phải quét cả ${treeSize(root)} node vì hash phá thứ tự.`;
+}
+</script>
+</main>
 <!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
 <script src="../../../tools/marked.min.js"></script>
 <script src="./README.data.js"></script>

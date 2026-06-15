@@ -425,6 +425,149 @@ Khi bạn chạy `SELECT * FROM users WHERE age BETWEEN 20 AND 30 ORDER BY age`,
 - HashMap **không** làm được mấy việc này vì hash phá thứ tự — đổi lại tra cứu một khóa thì nhanh hơn ($O(1)$).
 - Index DB, `TreeMap`/`std::map` đều là **BST cân bằng** (thực tế B-tree / Red-Black) — cùng nguyên lý "trái nhỏ phải lớn".
 
+## 9. Thực hành: dùng trong code thật
+
+> 💡 **§8 nói BST "dùng để làm gì". Mục này là code bạn gõ — và một sự thật bất ngờ về Go.** Trong Go đời thực, bạn **gần như không bao giờ** tự viết một BST. Vì sao? Vì BST thường (chưa cân bằng) dễ suy biến thành dãy thẳng $O(n)$ (Bài 5), nên thực tế người ta dùng **một trong hai**: (a) **sorted slice + `sort.Search`** khi dữ liệu ít đổi, hoặc (b) **`google/btree`** (cây cân bằng) khi insert/delete nhiều. Dưới đây là cả hai, chạy được.
+
+### 9.1. Sự thật: Go stdlib KHÔNG có "ordered map"
+
+Java có `TreeMap`, C++ có `std::map`, nhưng Go stdlib **chỉ có `map`** (hash, vô thứ tự). Khi cần "map có thứ tự + range + floor/ceiling", bạn chọn:
+
+| Nhu cầu | Cấu trúc thực dụng | Vì sao |
+|---------|--------------------|--------|
+| Dữ liệu **ít đổi**, query nhiều | **Sorted slice + `sort.Search`** | $O(\log n)$ tìm, cache-friendly, không node overhead. Insert giữa = $O(n)$ nên chỉ hợp khi ít chèn. |
+| Insert/delete **liên tục** | **`github.com/google/btree`** | B-tree cân bằng, $O(\log n)$ mọi thao tác, không suy biến. |
+| Chỉ tra 1 khóa, không cần thứ tự | `map[K]V` | $O(1)$, đơn giản nhất. |
+
+**Điểm mấu chốt thực tế**: "BST" trong sách = khái niệm. Trong code Go, hiện thân của nó là **sorted slice** (tĩnh) hoặc **B-tree** (động) — cùng nguyên lý "trái nhỏ phải lớn + tìm $O(\log n)$".
+
+### 9.2. Mini-project A — Nearest-timestamp lookup (floor query)
+
+Bài toán có thật: time-series / log. "Giá cổ phiếu **gần nhất tại hoặc trước** thời điểm T là bao nhiêu?" = **floor(T)** trong §8.2. Dữ liệu nạp 1 lần, query rất nhiều → sorted slice là lựa chọn đúng:
+
+```go
+package main
+
+import (
+	"fmt"
+	"sort"
+)
+
+type Tick struct {
+	ts    int64 // timestamp
+	price int
+}
+
+type PriceLog struct{ ticks []Tick } // luôn giữ sắp theo ts tăng dần
+
+// PriceAt: giá tại hoặc trước thời điểm t (floor). Đây là BST floor query,
+// nhưng cài bằng binary search trên slice đã sort — O(log n).
+func (p *PriceLog) PriceAt(t int64) (int, bool) {
+	// tìm chỉ số đầu tiên có ts > t
+	i := sort.Search(len(p.ticks), func(i int) bool { return p.ticks[i].ts > t })
+	if i == 0 {
+		return 0, false // không có tick nào ≤ t
+	}
+	return p.ticks[i-1].price, true // tick ngay trước = floor
+}
+
+func main() {
+	log := &PriceLog{ticks: []Tick{{10, 100}, {20, 105}, {35, 98}, {50, 110}}}
+	fmt.Println(log.PriceAt(34)) // 105 true — tick gần nhất ≤ 34 là ts=20
+	fmt.Println(log.PriceAt(50)) // 110 true — khớp đúng
+	fmt.Println(log.PriceAt(5))  // 0 false  — chưa có dữ liệu
+}
+```
+
+> 💡 **`sort.Search` CHÍNH LÀ đi xuống một BST cân bằng.** Mỗi bước nó vứt nửa mảng — đúng như mỗi bước BST vứt một subtree. Khác biệt duy nhất: slice liền mạch trong RAM (cache-friend, không pointer). Đây là lý do với dữ liệu **tĩnh đã sort**, sorted slice **thắng** cả cây thật.
+
+> ⚠ **Bẫy — sorted slice insert giữa là $O(n)$.** Nếu T-series của bạn **liên tục chèn vào giữa** (không phải append cuối), mỗi chèn phải dịch mảng → $O(n)$. Khi đó đổi sang `google/btree`. Sorted slice chỉ thắng khi: nạp 1 lần / chỉ append cuối / đổi hiếm.
+
+### 9.3. Mini-project B — Khi cần insert liên tục: `google/btree`
+
+Leaderboard game: điểm người chơi đổi liên tục, cần luôn lấy được "ai xếp ngay trên/dưới tôi" (floor/ceiling) + duyệt theo thứ tự. Đây là insert/delete nhiều → dùng B-tree cân bằng:
+
+```go
+import "github.com/google/btree"
+
+type Player struct {
+	score int
+	name  string
+}
+// btree cần Less: sắp theo score, rồi name cho ổn định
+func (p Player) Less(than btree.Item) bool {
+	o := than.(Player)
+	if p.score != o.score {
+		return p.score < o.score
+	}
+	return p.name < o.name
+}
+
+func main() {
+	tr := btree.New(32) // degree 32: mỗi node tới 64 khóa — cache-friendly
+	tr.ReplaceOrInsert(Player{1500, "an"})
+	tr.ReplaceOrInsert(Player{1800, "binh"})
+	tr.ReplaceOrInsert(Player{1500, "cuong"})
+
+	// Duyệt tăng dần (in-order của BST) — O(n)
+	tr.Ascend(func(it btree.Item) bool {
+		p := it.(Player)
+		fmt.Printf("%s: %d\n", p.name, p.score)
+		return true // false để dừng sớm
+	})
+	// AscendGreaterOrEqual = ceiling + range query (§8.1) trong O(log n + k)
+}
+```
+
+`btree.New(32)` không suy biến — chèn dữ liệu đã sort vẫn $O(\log n)$/thao tác, đúng điều BST thường **không** hứa được (Bài 5). Đây là cấu trúc thực tế cho "BST động" trong Go.
+
+### 9.4. Cùng bài toán ở ngôn ngữ có ordered map sẵn
+
+Java/C++ cho sẵn cây cân bằng (Red-Black), nên floor/ceiling/range là one-liner:
+
+```java
+// Java — TreeMap = Red-Black tree
+TreeMap<Integer, Integer> prices = new TreeMap<>();
+prices.put(10, 100); prices.put(20, 105); prices.put(35, 98);
+prices.floorEntry(34).getValue();   // 105  — floor(34) = §8.2
+prices.ceilingKey(21);              // 35   — ceiling
+prices.subMap(15, 40);              // {20=105, 35=98} — range query §8.1
+```
+
+```cpp
+// C++ — std::map = Red-Black tree
+std::map<int,int> prices{{10,100},{20,105},{35,98}};
+auto it = prices.upper_bound(34); // tick đầu tiên > 34
+if (it != prices.begin()) (--it)->second; // 105 = floor(34)
+```
+
+Cùng một thuật toán "trái nhỏ phải lớn", chỉ khác cú pháp. Hiểu BST ở đây = hiểu cách dùng các API này đúng.
+
+### 9.5. ⚠ Khi nào KHÔNG dùng BST / ordered map
+
+| Tình huống | Vì sao BST phí | Dùng gì |
+|------------|-----------------|---------|
+| Chỉ tra cứu 1 khóa, không cần thứ tự | $O(\log n)$ chậm hơn $O(1)$, lại tốn pointer | `map` / HashMap |
+| Cần min/max liên tục + insert/delete, **không** cần range | BST làm được nhưng heap gọn hơn | Heap / PQ ([L03](../lesson-03-heap-priority-queue/)) |
+| Cần prefix query trên chuỗi | BST so cả chuỗi, không tận dụng prefix | Trie ([L05](../lesson-05-trie/)) |
+| Dữ liệu tĩnh, đã sort, chỉ query | BST động thừa cấu trúc | **Sorted slice + binary search** (§9.2) |
+
+> 🔁 **Tự kiểm tra**
+> 1. Vì sao với time-series chỉ **append cuối** (timestamp tăng dần) + query nhiều, sorted slice thắng `google/btree`?
+>    <details><summary>Đáp án</summary>Append cuối = $O(1)$ amortized, không phải chèn giữa. Query = `sort.Search` $O(\log n)$ trên mảng liền mạch (cache-friendly, không pointer-chasing). B-tree thêm overhead node/pointer mà không lợi gì khi không chèn giữa.</details>
+> 2. `sort.Search(n, f)` trả về gì khi không phần tử nào thỏa `f`? Code §9.2 xử lý sao?
+>    <details><summary>Đáp án</summary>Trả về `n` (vị trí "cuối mảng"). Trong `PriceAt`, nếu mọi `ts ≤ t` thì `i = len`, ta lấy `ticks[i-1]` = phần tử cuối = floor đúng. Nếu mọi `ts > t` thì `i = 0` → trả `false` (không có floor).</details>
+> 3. Vì sao `btree.New(32)` không suy biến khi chèn dữ liệu đã sort, còn BST thường thì có?
+>    <details><summary>Đáp án</summary>B-tree <b>tự cân bằng</b>: node đầy thì tách (split), chiều cao luôn $O(\log n)$ bất kể thứ tự chèn. BST thường chèn dãy tăng → đi phải mãi → cao $n-1$ (Bài 5). Cân bằng là điều L04 sẽ học kỹ.</details>
+
+### 9.6. 📝 Tóm tắt mục 9
+
+- Go **không** có ordered map stdlib → hiện thân thực tế của BST là **sorted slice + `sort.Search`** (tĩnh) hoặc **`google/btree`** (động).
+- `sort.Search` = đi xuống BST cân bằng nhưng cache-friendly hơn (không pointer) → thắng khi dữ liệu tĩnh/append-cuối.
+- Insert/delete liên tục → `google/btree` (không suy biến, $O(\log n)$ luôn).
+- Java `TreeMap` / C++ `std::map` cho sẵn floor/ceiling/range — hiểu BST = dùng đúng các API này.
+- BST thua khi: chỉ tra 1 khóa (→map), chỉ min/max (→heap), prefix (→trie).
+
 ## Bài tập
 
 1. Cho dãy `5, 3, 8, 1, 4, 7, 9` chèn lần lượt vào BST rỗng, vẽ cây kết quả.

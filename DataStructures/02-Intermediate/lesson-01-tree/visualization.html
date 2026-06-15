@@ -336,7 +336,91 @@ async function runHeight() {
 function reset() { render(); document.getElementById('order').textContent = 'Thứ tự duyệt sẽ hiển thị ở đây.'; document.getElementById('pseudo').textContent = 'Chọn một cách duyệt để xem pseudocode.'; }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 render();
-</script></main>
+</script>
+
+<div class="panel">
+  <h2>Máy tính biểu thức — expression tree (README §10.1)</h2>
+  <p style="margin:.4em 0 .8em; color:#475569; font-size:13px;">
+    Gõ biểu thức → parser dựng <b>cây biểu thức</b> (lá = số, node trong = toán tử). Độ ưu tiên <code>*</code>/<code>/</code> nằm <b>sâu hơn</b> trong cây.
+    Bấm "Tính" để xem <b>postorder</b> (§4.3): tính 2 con trước, áp toán tử sau.
+  </p>
+  <label>Biểu thức: <input id="exInput" type="text" value="(3 + 4) * 5" style="width:200px"></label>
+  <button onclick="exBuild()">Dựng cây</button>
+  <button style="background:#10b981" onclick="exEval()">▶ Tính (postorder)</button>
+  <div style="margin-top:6px">
+    <button class="secondary" style="background:#64748b" onclick="exPreset('2 * (3 + 5)')">2*(3+5)</button>
+    <button class="secondary" style="background:#64748b" onclick="exPreset('10 - 2 * 3')">10-2*3</button>
+    <button class="secondary" style="background:#64748b" onclick="exPreset('(1 + 2) * (3 + 4)')">(1+2)*(3+4)</button>
+  </div>
+  <svg id="exSvg" width="600" height="300" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid meet" style="margin-top:10px"></svg>
+  <div class="order" id="exLog">Bấm "Dựng cây" rồi "Tính".</div>
+</div>
+
+<script>
+// ============= EXPRESSION TREE (README §10.1) =============
+let exTree = null;
+function exTokenize(s){ for(const c of "+-*/()") s=s.split(c).join(' '+c+' '); return s.split(/\s+/).filter(Boolean); }
+function exParse(toks){
+  let pos=0;
+  const peek=()=>toks[pos], next=()=>toks[pos++];
+  function expr(){ let n=term(); while(peek()==='+'||peek()==='-'){ const op=next(); n={op,l:n,r:term()}; } return n; }
+  function term(){ let n=factor(); while(peek()==='*'||peek()==='/'){ const op=next(); n={op,l:n,r:factor()}; } return n; }
+  function factor(){ const t=next(); if(t==='('){ const n=expr(); next(); return n; } return {val:parseFloat(t)}; }
+  return expr();
+}
+function exLayout(n,depth,xref){ // in-order x assignment
+  if(!n) return;
+  exLayout(n.l,depth+1,xref);
+  n.__x=xref.x++; n.__d=depth;
+  exLayout(n.r,depth+1,xref);
+}
+function exNodes(n,arr){ if(!n)return; arr.push(n); exNodes(n.l,arr); exNodes(n.r,arr); }
+function exRender(hl){
+  hl=hl||{};
+  const svg=document.getElementById('exSvg');
+  if(!exTree){ svg.innerHTML=''; return; }
+  const xref={x:0}; exLayout(exTree,0,xref);
+  const all=[]; exNodes(exTree,all);
+  const maxX=Math.max(1,xref.x-1), maxD=Math.max(...all.map(n=>n.__d));
+  const W=600,H=Math.max(160,(maxD+1)*70+40);
+  const px=n=>40+(n.__x/Math.max(1,maxX))*(W-80);
+  const py=n=>34+n.__d*70;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  let s='';
+  all.forEach(n=>{ [n.l,n.r].forEach(c=>{ if(c) s+=`<line class="edge" x1="${px(n)}" y1="${py(n)}" x2="${px(c)}" y2="${py(c)}"/>`; }); });
+  all.forEach(n=>{ const lbl=n.op!==undefined?n.op:(n.__shown!==undefined?n.__shown:n.val); const k=hl[n.__id]||''; s+=`<circle class="node-c ${k}" cx="${px(n)}" cy="${py(n)}" r="20"/><text x="${px(n)}" y="${py(n)}">${lbl}</text>`; });
+  svg.innerHTML=s;
+}
+let _exId=0;
+function exTag(n){ if(!n)return; n.__id=_exId++; exTag(n.l); exTag(n.r); }
+function exBuild(){
+  try{ exTree=exParse(exTokenize(document.getElementById('exInput').value)); }
+  catch(e){ document.getElementById('exLog').textContent='Biểu thức không hợp lệ.'; return; }
+  _exId=0; exTag(exTree); exRender();
+  document.getElementById('exLog').textContent='Đã dựng cây. Lá = số, node trong = toán tử. Toán tử * / nằm sâu hơn + -. Bấm "Tính".';
+}
+function exPreset(s){ document.getElementById('exInput').value=s; exBuild(); }
+async function exEval(){
+  if(!exTree) exBuild();
+  if(!exTree) return;
+  const lg=document.getElementById('exLog');
+  async function ev(n){
+    if(n.op===undefined){ exRender({[n.__id]:'current'}); await sleep(450); return n.val; }
+    const op=n.op;
+    const l=await ev(n.l), r=await ev(n.r);
+    exRender({[n.__id]:'current'}); await sleep(350);
+    let v; switch(op){case '+':v=l+r;break;case '-':v=l-r;break;case '*':v=l*r;break;case '/':v=l/r;break;}
+    n.__shown=v; n.op=undefined; n.val=v; // biến node thành "đã tính"
+    lg.textContent=`postorder: 2 con đã có giá trị → tính ${l} ${op} ${r} = ${v}`;
+    exRender({[n.__id]:'visited'}); await sleep(500);
+    return v;
+  }
+  const result=await ev(exTree);
+  lg.textContent=`Kết quả = ${result}. Postorder đảm bảo mỗi toán tử chỉ tính sau khi đã có giá trị 2 con.`;
+}
+exBuild();
+</script>
+</main>
 <!-- README modal (xem tools/readme-modal.js để biết chi tiết) -->
 <script src="../../../tools/marked.min.js"></script>
 <script src="./README.data.js"></script>

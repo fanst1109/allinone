@@ -487,6 +487,196 @@ Nhắc lại [mục 6](#6-cây-tổng-quát-n-ary-tree) — khi mỗi node có *
 2. Trong mã Huffman ở §9.2, vì sao không ký tự nào có mã là **tiền tố** của ký tự khác (vd không có \`A=0\` và \`X=01\`)?
    <details><summary>Đáp án</summary>Vì mọi ký tự nằm ở **lá**, không ký tự nào nằm trên đường đi xuống ký tự khác. Tính chất "không tiền tố" (prefix-free) này cho phép giải mã chuỗi bit mà không cần dấu phân cách: cứ đi từ gốc, gặp lá thì xuất ký tự rồi quay lại gốc.</details>
 
+## 10. Thực hành: dùng trong code thật
+
+> 💡 **§9 giải thích cây "ở đâu trong phần mềm". Mục này là code chạy được.** Ba thứ bạn gặp hằng ngày — một **máy tính biểu thức** (đúng §9.1), **duyệt thư mục** (§9.5), và **đọc JSON/config lồng nhau** (§9.5) — đều là cây + đệ quy. Code Go dưới đây \`go run\` được.
+
+### 10.1. Mini-project A — Máy tính biểu thức (expression tree thật)
+
+§9.1 dựng cây \`(3+4)*5\` bằng tay. Đây là code dựng cây đó **tự động** từ chuỗi rồi tính bằng **postorder**. Parser đệ quy xuống (recursive descent) tôn trọng độ ưu tiên \`*\` \`/\` trước \`+\` \`-\`:
+
+\`\`\`go
+package main
+
+import (
+	"fmt"
+	"strings"
+)
+
+type ExprNode struct {
+	op          byte // 0 nếu là số (lá); '+','-','*','/' nếu là toán tử (node trong)
+	val         float64
+	left, right *ExprNode
+}
+
+type parser struct {
+	toks []string
+	pos  int
+}
+
+func (p *parser) peek() string { if p.pos < len(p.toks) { return p.toks[p.pos] }; return "" }
+func (p *parser) next() string { t := p.peek(); p.pos++; return t }
+
+// expr = term (('+'|'-') term)*   — '+''-' ưu tiên thấp → nằm GẦN GỐC
+func (p *parser) expr() *ExprNode {
+	n := p.term()
+	for p.peek() == "+" || p.peek() == "-" {
+		op := p.next()[0]
+		n = &ExprNode{op: op, left: n, right: p.term()}
+	}
+	return n
+}
+
+// term = factor (('*'|'/') factor)*  — '*''/' ưu tiên cao → nằm SÂU hơn
+func (p *parser) term() *ExprNode {
+	n := p.factor()
+	for p.peek() == "*" || p.peek() == "/" {
+		op := p.next()[0]
+		n = &ExprNode{op: op, left: n, right: p.factor()}
+	}
+	return n
+}
+
+// factor = number | '(' expr ')'
+func (p *parser) factor() *ExprNode {
+	if t := p.next(); t == "(" {
+		n := p.expr()
+		p.next() // bỏ ')'
+		return n
+	} else {
+		var v float64
+		fmt.Sscanf(t, "%g", &v)
+		return &ExprNode{op: 0, val: v} // lá = số
+	}
+}
+
+// eval = duyệt POSTORDER (§4.3): tính 2 con TRƯỚC rồi mới áp toán tử ở node
+func eval(n *ExprNode) float64 {
+	if n.op == 0 {
+		return n.val // lá: trả số
+	}
+	l, r := eval(n.left), eval(n.right)
+	switch n.op {
+	case '+': return l + r
+	case '-': return l - r
+	case '*': return l * r
+	case '/': return l / r
+	}
+	return 0
+}
+
+func tokenize(s string) []string {
+	for _, c := range "+-*/()" {
+		s = strings.ReplaceAll(s, string(c), " "+string(c)+" ") // tách toán tử khỏi số
+	}
+	return strings.Fields(s)
+}
+
+func main() {
+	for _, s := range []string{"(3 + 4) * 5", "2 * (3 + 5)", "10 - 2 * 3"} {
+		p := &parser{toks: tokenize(s)}
+		fmt.Printf("%s = %g\\n", s, eval(p.expr()))
+	}
+	// (3 + 4) * 5 = 35
+	// 2 * (3 + 5) = 16
+	// 10 - 2 * 3  = 4   ← '*' tính trước nhờ nằm sâu hơn trong cây
+}
+\`\`\`
+
+> 💡 **Độ ưu tiên được "mã hóa bằng hình dạng cây", không cần xử lý riêng.** Grammar đặt \`+\`/\`-\` ở \`expr\` (ngoài cùng) → chúng thành **gốc**; \`*\`/\`/\` ở \`term\` (trong) → nằm **sâu hơn** → eval (postorder) chạm tới trước. Đây là lý do \`10 - 2*3 = 4\` chứ không phải \`24\`. Trình biên dịch thật dựng **AST** y hệt cách này (§9.5).
+
+> ⚠ **Bẫy — đệ quy trái (left recursion) làm parser lặp vô hạn.** Nếu viết grammar \`expr = expr '+' term\`, hàm \`expr()\` gọi \`expr()\` ngay đầu → stack overflow. Cách đúng (trên): dùng **vòng lặp** \`for p.peek()=="+"...\` thay cho đệ quy trái.
+
+### 10.2. Mini-project B — Duyệt cây thư mục (n-ary tree thật)
+
+§9.5 nói file system là n-ary tree. \`filepath.WalkDir\` chính là **preorder DFS** trên cây đó — stdlib lo phần đệ quy, bạn chỉ xử lý từng node:
+
+\`\`\`go
+import (
+	"fmt"
+	"io/fs"
+	"path/filepath"
+	"strings"
+)
+
+func printTree(root string) error {
+	return filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+		if err != nil { return err }
+		// độ sâu = số dấu phân cách → thụt lề (giống mức tầng của cây)
+		depth := strings.Count(strings.TrimPrefix(path, root), string(filepath.Separator))
+		marker := "📄 "
+		if d.IsDir() { marker = "📁 " }
+		fmt.Printf("%s%s%s\\n", strings.Repeat("  ", depth), marker, d.Name())
+		return nil // trả filepath.SkipDir để "cắt nhánh" cả thư mục con
+	})
+}
+\`\`\`
+
+Mỗi lần callback được gọi = thăm một node (preorder: cha trước con). \`filepath.SkipDir\` = **prune** cả subtree — đúng tư duy cắt nhánh ở [BST §8.1](../lesson-02-binary-search-tree/) và range-query.
+
+### 10.3. Mini-project C — Đọc JSON/config lồng nhau (cây tổng quát)
+
+Mọi file JSON/YAML config là một **cây**: object/array = node trong, giá trị vô hướng = lá. Đệ quy duyệt để in cấu trúc hoặc tìm khóa:
+
+\`\`\`go
+import (
+	"encoding/json"
+	"fmt"
+)
+
+// walk: DFS một cây JSON bất kỳ, in path tới mọi lá (giống đường root→lá của cây).
+func walk(prefix string, v any) {
+	switch node := v.(type) {
+	case map[string]any: // object = node trong, mỗi key là một cạnh
+		for k, child := range node {
+			walk(prefix+"."+k, child)
+		}
+	case []any: // array = node trong, index là cạnh
+		for i, child := range node {
+			walk(fmt.Sprintf("%s[%d]", prefix, i), child)
+		}
+	default: // số/chuỗi/bool/null = LÁ
+		fmt.Printf("%s = %v\\n", prefix, node)
+	}
+}
+
+func main() {
+	raw := \`{"db":{"host":"localhost","ports":[5432,5433]},"debug":true}\`
+	var tree any
+	json.Unmarshal([]byte(raw), &tree)
+	walk("config", tree)
+	// config.db.host = localhost
+	// config.db.ports[0] = 5432
+	// config.db.ports[1] = 5433
+	// config.debug = true
+}
+\`\`\`
+
+\`switch v.(type)\` phân biệt **node trong** (object/array → đệ quy xuống) với **lá** (giá trị → in ra) — đúng khuôn mẫu duyệt cây. Đây là cách config loader, linter, formatter (vd \`jq\`, prettier) hoạt động.
+
+### 10.4. ⚠ Khi nào KHÔNG nên nghĩ "cây"
+
+| Tình huống | Vì sao cây sai/thừa | Dùng gì |
+|------------|----------------------|---------|
+| Quan hệ có **chu trình** (bạn bè, đường đi) | Cây cấm chu trình (mỗi node 1 cha) | Đồ thị ([L01 Graph](../../03-Advanced/lesson-01-graph/)) |
+| Dữ liệu phẳng, chỉ tra theo khóa | Cây thêm tầng vô ích | \`map\` / hash |
+| Cây quá sâu (đệ quy → stack overflow) | DFS đệ quy tràn stack | Duyệt bằng **stack tường minh** (lặp) |
+
+> 🔁 **Tự kiểm tra**
+> 1. Vì sao cây biểu thức cho \`10 - 2 * 3\` ra \`4\`, không phải \`24\`?
+>    <details><summary>Đáp án</summary>Grammar đặt \`*\` trong \`term\` (sâu hơn), \`-\` trong \`expr\` (gần gốc). Cây: gốc \`-\`, con trái \`10\`, con phải là node \`*\`(2,3). Postorder tính \`2*3=6\` trước, rồi \`10-6=4\`. Hình dạng cây mã hóa độ ưu tiên.</details>
+> 2. \`filepath.WalkDir\` duyệt theo thứ tự pre/in/post-order nào? Trả \`filepath.SkipDir\` làm gì?
+>    <details><summary>Đáp án</summary><b>Preorder</b> (thăm thư mục cha trước nội dung). \`SkipDir\` <b>cắt nhánh</b> — bỏ qua toàn bộ subtree (thư mục con) đang đứng, giống prune ở range-query BST.</details>
+> 3. Trong hàm \`walk\` JSON §10.3, đâu là "node trong", đâu là "lá"?
+>    <details><summary>Đáp án</summary>Node trong = \`map[string]any\` (object) và \`[]any\` (array) → có con, phải đệ quy xuống. Lá = số/chuỗi/bool/null (case \`default\`) → không có con, in ra ngay.</details>
+
+### 10.5. 📝 Tóm tắt mục 10
+
+- **Expression tree**: recursive-descent parser dựng cây, **postorder** eval; độ ưu tiên = hình dạng cây (không xử lý riêng). Tránh đệ quy trái.
+- **File system**: \`filepath.WalkDir\` = preorder DFS; \`SkipDir\` = prune subtree.
+- **JSON/config**: object/array = node trong (đệ quy), giá trị = lá (\`switch .(type)\`).
+- Đừng dùng cây khi có **chu trình** (→ đồ thị), dữ liệu phẳng (→ map), hoặc cây quá sâu (→ duyệt bằng stack lặp).
+
 ## Bài tập
 
 1. Cho cây nhị phân, viết hàm đếm số node.

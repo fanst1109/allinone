@@ -590,9 +590,33 @@ func goodSum(n int) int {
 
 ---
 
-## 10. Bài tập
+## 10. Ứng dụng thực tế trong phần mềm
 
-> Lời giải chi tiết ở mục [11. Lời giải chi tiết](#11-lời-giải-chi-tiết). Tự làm trước khi xem.
+> 💡 **Đệ quy không phải mẹo học thuật — nó là cách tự nhiên nhất để xử lý dữ liệu phân cấp và chia-để-trị.** Recurrence thì cho bạn **dự đoán hiệu năng** trước khi chạy.
+
+| Ứng dụng | Đệ quy làm gì |
+|----------|---------------|
+| **Duyệt cây thư mục, DOM, JSON/YAML** | DFS đệ quy: xử lý node rồi đệ quy xuống con (file explorer, \`jq\`, prettier) |
+| **Trình biên dịch / parser** | **Recursive descent** — mỗi luật ngữ pháp là một hàm gọi nhau ([nối expression tree](../../DataStructures/02-Intermediate/lesson-01-tree/)) |
+| **Divide & conquer** | Merge sort, quicksort, FFT — chia đôi đệ quy ([Lesson 17](../lesson-17-divide-and-conquer/)) |
+| **Backtracking / solver** | Sudoku, N-queens, sinh tổ hợp ([Lesson 18](../lesson-18-backtracking/)) |
+| **Phân tích hiệu năng** | **Recurrence + Master Theorem** dự đoán $\\Theta$ của thuật toán chia-để-trị |
+
+### 10.1. Ví dụ cụ thể — recurrence dự đoán hiệu năng merge sort
+
+Trước khi viết merge sort, ta viết recurrence $T(n) = 2T(n/2) + O(n)$ (chia đôi + gộp tuyến tính). Master Theorem (§5) cho ngay $T(n) = O(n \\log n)$ — **biết trước** nó nhanh, không cần chạy thử. Đây là cách kỹ sư đánh giá một thiết kế chia-để-trị trên giấy: viết recurrence → giải → quyết định có đáng cài không.
+
+> ⚠ **Bẫy production — đệ quy sâu gây stack overflow.** §7 đã cảnh báo Go không có TCO. File system 100.000 cấp, JSON lồng cực sâu, hoặc input ác ý → đệ quy crash. Production thường: (1) chuyển sang **lặp + stack tường minh** ([nối Stack](../../DataStructures/01-Basic/lesson-04-stack/)), hoặc (2) giới hạn độ sâu. Vì sao nhiều JSON parser có \`maxDepth\`.
+
+### 10.2. 📝 Tóm tắt mục 10
+
+- Đệ quy thật trong: **duyệt cây/DOM/JSON**, **recursive-descent parser**, **divide & conquer** (sort/FFT), **backtracking solver**.
+- Recurrence + Master Theorem = **dự đoán hiệu năng** thiết kế chia-để-trị trên giấy.
+- Bẫy: đệ quy sâu → stack overflow; production dùng lặp+stack tường minh hoặc giới hạn độ sâu.
+
+## 11. Bài tập
+
+> Lời giải chi tiết ở mục [12. Lời giải chi tiết](#12-lời-giải-chi-tiết). Tự làm trước khi xem.
 
 1. **Giải 6 recurrence.** Cho biết $\\Theta$ của mỗi recurrence và phương pháp dùng:
    (a) $T(n)=2T(n/2)+n$  (b) $T(n)=T(n/2)+1$  (c) $T(n)=4T(n/2)+n$
@@ -610,7 +634,7 @@ func goodSum(n int) int {
 
 ---
 
-## 11. Lời giải chi tiết
+## 12. Lời giải chi tiết
 
 ### Bài 1 — Giải 6 recurrence
 
@@ -692,7 +716,7 @@ Vẽ cây, ghi chi phí phi-đệ-quy mỗi node:
 
 ---
 
-## 12. Code & Minh họa
+## 13. Code & Minh họa
 
 - Code Go inline xuyên suốt bài (factorial, fib naive/memo, Hanoi, merge sort, iterative + explicit stack). Không có \`solutions.go\` riêng cho lesson này.
 - [visualization.html](./visualization.html) — 3 module tương tác:

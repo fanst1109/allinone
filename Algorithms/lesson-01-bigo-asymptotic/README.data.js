@@ -619,6 +619,30 @@ Với $O(2^n)$: $n=20$ "ổn" (~$10^6$ ops). $n=40$ → $2^{40} \\approx 10^{12}
 
 ---
 
+## 11. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Big-O không phải lý thuyết suông — nó là công cụ ra quyết định kỹ thuật hằng ngày.** Mỗi khi chọn cấu trúc dữ liệu, viết query, hay xử lý dữ liệu lớn, bạn đang chọn một độ phức tạp.
+
+| Tình huống thật | Big-O quyết định gì |
+|-----------------|---------------------|
+| **Chọn \`map\` hay duyệt slice** | Tra cứu $O(1)$ vs $O(n)$ — với 1 triệu phần tử là khác biệt sống còn |
+| **Index database hay không** | \`WHERE\` không index = $O(n)$ full scan; có B-tree index = $O(\\log n)$ |
+| **Vòng lặp lồng trên request** | $O(n^2)$ trên 10k user = 100 triệu phép → timeout; phải hạ xuống $O(n)$/$O(n\\log n)$ |
+| **Phân trang vs tải hết** | Tải hết = $O(n)$ bộ nhớ; phân trang giữ $O(1)$ |
+| **Nhận xét code review** | "vòng lặp này $O(n^2)$, dùng set thành $O(n)$" — ngôn ngữ chung của kỹ sư |
+
+### 11.1. Ví dụ cụ thể — vì sao app chậm dần khi scale
+
+Một tính năng "tìm bạn chung" viết bằng 2 vòng lặp lồng là $O(n^2)$. Lúc demo 100 user → 10.000 phép, chạy tức thì. Lên production 50.000 user → 2,5 **tỉ** phép → treo. Cùng code, chỉ khác $n$. Nhận ra $O(n^2)$ **trước khi deploy** (bằng Big-O) = tránh sự cố. Sửa bằng hash set → $O(n)$.
+
+> ❓ **"Hằng số có quan trọng không khi Big-O bỏ qua nó?"** Có, ở quy mô nhỏ. $O(n)$ với hằng số lớn có thể chậm hơn $O(n^2)$ khi $n$ bé (vì sao quicksort chuyển sang insertion sort cho mảng nhỏ — [Lesson 11](../lesson-11-sorting-in-practice/)). Big-O cho biết xu hướng **khi $n$ lớn**; benchmark cho biết thực tế ở $n$ của bạn.
+
+### 11.2. 📝 Tóm tắt mục 11
+
+- Big-O là **công cụ quyết định**: chọn DS (map vs slice), index DB, tránh vòng lồng $O(n^2)$, phân trang.
+- Lỗi kinh điển: code $O(n^2)$ chạy tốt lúc demo nhỏ, treo khi scale — nhận ra bằng Big-O trước khi deploy.
+- Big-O = xu hướng khi $n$ lớn; hằng số vẫn quan trọng ở $n$ nhỏ → kết hợp benchmark.
+
 ## Bài tập
 
 > Tự làm trước khi xem lời giải. Mỗi bài rèn một kỹ năng phân tích khác nhau.

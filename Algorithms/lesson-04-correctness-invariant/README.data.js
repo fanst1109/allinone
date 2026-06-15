@@ -605,6 +605,30 @@ Khi $\\text{hi} = \\text{lo} + 1$: $\\text{mid} = \\text{lo} + (1)/2 = \\text{lo
 
 ---
 
+## 11. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Invariant không chỉ để chứng minh thuật toán trên giấy — nó là cách kỹ sư viết code đúng và bắt bug.** Mọi hệ thống đáng tin đều dựa trên các bất biến được giữ vững.
+
+| Ứng dụng | Invariant đóng vai trò gì |
+|----------|---------------------------|
+| **\`assert\` / precondition / postcondition** | Khẳng định invariant tại runtime → bug lộ ngay tại nguồn |
+| **Database constraint (UNIQUE, FK, CHECK)** | Invariant ở tầng dữ liệu: "email không trùng", "balance ≥ 0" |
+| **Transaction ACID** | Invariant "tổng tiền không đổi khi chuyển khoản" giữ qua commit/rollback |
+| **Property-based testing (QuickCheck, jqwik)** | Test rằng invariant đúng với hàng nghìn input ngẫu nhiên |
+| **Loop bug (off-by-one)** | Phân tích invariant vòng lặp = cách tìm ra lỗi biên |
+
+### 11.1. Ví dụ cụ thể — invariant trong chuyển khoản ngân hàng
+
+Chuyển 100k từ A sang B phải giữ invariant **tổng số dư không đổi** (\`A + B\` trước = sau). Nếu trừ A xong mà crash trước khi cộng B → invariant vỡ → mất tiền. Database **transaction** đảm bảo: hoặc cả hai thao tác xảy ra (commit), hoặc không gì cả (rollback) → invariant luôn đúng ở trạng thái nhìn thấy được. Đây chính là chữ **C (Consistency)** trong ACID.
+
+> ❓ **"Assert có nên để trong production không?"** Tùy. Assert chặn invariant nội bộ (lỗi lập trình) thường tắt ở production vì hiệu năng; nhưng validate input người dùng và database constraint **luôn bật** — vì đó là invariant về dữ liệu, không phải về code. Phân biệt: lỗi-của-tôi (assert, dev) vs dữ liệu-không-hợp-lệ (validate, luôn).
+
+### 11.2. 📝 Tóm tắt mục 11
+
+- Invariant thật trong: **assert/pre-postcondition**, **DB constraint**, **transaction ACID**, **property-based testing**, gỡ **off-by-one**.
+- Ví dụ ACID: transaction giữ "tổng tiền không đổi" qua commit/rollback.
+- Assert (lỗi code) có thể tắt ở prod; validate/constraint (dữ liệu) luôn bật.
+
 ## Bài tập
 
 > Tự làm trước khi xem lời giải. Mỗi bài đều có lời giải chi tiết bên dưới.

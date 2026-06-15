@@ -242,6 +242,108 @@ Mẹo: snapshot \`size\` **trước** khi xử lý tầng. Trong vòng \`for\`, 
 - Complexity: $O(V + E)$ thời gian, $O(V)$ bộ nhớ.
 - Biến thể quan trọng: level-by-level (snapshot size), multi-source (push hết nguồn vào queue ban đầu), 0-1 BFS (deque).
 
+## 7. Thực hành: dùng trong code thật
+
+> 💡 **§5 liệt kê ứng dụng, §6 dạy BFS. Mục này là 3 thứ backend dùng hằng ngày: rate limiter, job queue (channel Go), ring buffer.** Queue = FIFO, và trong Go nó xuất hiện ở hai dạng: slice (single-thread) và **channel** (thread-safe, giữa goroutine). Code dưới đây \`go run\` được.
+
+### 7.1. Mini-project A — Rate limiter (sliding-window log)
+
+Bài toán có thật: "mỗi user tối đa N request trong T giây". Giữ một **queue timestamp**: bỏ cái cũ rời cửa sổ (dequeue đầu), đếm cái còn lại:
+
+\`\`\`go
+type RateLimiter struct {
+	window int64   // độ rộng cửa sổ (vd 60)
+	limit  int     // tối đa N request
+	q      []int64 // timestamp gần đây, FIFO
+}
+
+func (r *RateLimiter) Allow(now int64) bool {
+	for len(r.q) > 0 && r.q[0] <= now-r.window { // dequeue các request đã rời cửa sổ
+		r.q = r.q[1:]
+	}
+	if len(r.q) >= r.limit {
+		return false // đủ limit trong cửa sổ → chặn
+	}
+	r.q = append(r.q, now) // enqueue request mới
+	return true
+}
+\`\`\`
+
+\`window=10, limit=3\`: t=1,2,3 cho qua; t=4 **chặn** (đã 3 trong cửa sổ); t=12 cho qua (t=1,2 đã rời cửa sổ [2,12]). Đây là cốt lõi API gateway / chống abuse. FIFO đúng vì request **cũ nhất rời cửa sổ trước**.
+
+### 7.2. Mini-project B — Job queue + worker pool (channel Go LÀ queue)
+
+Go có queue thread-safe sẵn: **channel**. Buffered channel = queue FIFO an toàn giữa nhiều goroutine — nền của mọi worker pool (xử lý job nền, gửi email, resize ảnh):
+
+\`\`\`go
+func workerPool(jobs []int, workers int) int {
+	jobCh := make(chan int, len(jobs)) // buffered channel = queue
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	total := 0
+	for w := 0; w < workers; w++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for j := range jobCh { // nhận job FIFO tới khi channel đóng
+				mu.Lock(); total += j * j; mu.Unlock() // "xử lý"
+			}
+		}()
+	}
+	for _, j := range jobs {
+		jobCh <- j // enqueue
+	}
+	close(jobCh) // báo hết job → các worker thoát vòng range
+	wg.Wait()
+	return total
+}
+\`\`\`
+
+Nhiều worker cùng \`range jobCh\` → mỗi job giao cho đúng **một** worker rảnh, theo thứ tự enqueue. Đây là pattern producer-consumer kinh điển; channel lo toàn bộ khóa/đồng bộ.
+
+> ⚠ **Bẫy — dequeue bằng \`q = q[1:]\` rò rỉ bộ nhớ ngầm + $O(n)$ nếu làm sai.** \`q[1:]\` không giải phóng phần tử đầu (mảng nền vẫn giữ), và nếu bạn \`append\` lại nhiều lần có thể không co. Cho queue nhỏ/ngắn hạn (rate limiter) thì ổn. Queue **lớn, sống lâu** → dùng **circular buffer** (§3.3) hoặc \`container/list\`, hoặc channel.
+
+### 7.3. Mini-project C — Ring buffer: N mục gần nhất
+
+"Trung bình 5 giá gần nhất" (Bài 4), "100 log gần nhất", moving average trên metrics. Mảng vòng (§3.3) ghi đè cái cũ nhất, cố định bộ nhớ:
+
+\`\`\`go
+type RingBuffer struct {
+	buf  []int
+	head, size int
+}
+
+func NewRing(n int) *RingBuffer { return &RingBuffer{buf: make([]int, n)} }
+
+func (r *RingBuffer) Push(x int) { // ghi đè cái cũ nhất khi đầy
+	idx := (r.head + r.size) % len(r.buf)
+	if r.size < len(r.buf) {
+		r.size++
+	} else {
+		r.head = (r.head + 1) % len(r.buf) // đầy → dời head, "quên" cái cũ nhất
+	}
+	r.buf[idx] = x
+}
+\`\`\`
+
+Bộ nhớ cố định $O(n)$ bất kể đẩy bao nhiêu — không cấp phát thêm. Dùng cho metrics, audio/video buffer, log gần đây.
+
+### 7.4. 🔁 Tự kiểm tra
+
+> 1. Rate limiter: vì sao phải dequeue timestamp cũ TRƯỚC khi đếm?
+>    <details><summary>Đáp án</summary>Các request cũ hơn \`now-window\` đã rời cửa sổ thời gian → không còn tính vào limit. Không bỏ chúng → đếm dư → chặn nhầm request hợp lệ.</details>
+> 2. Vì sao channel Go phù hợp làm job queue hơn slice?
+>    <details><summary>Đáp án</summary>Channel <b>thread-safe</b> sẵn: nhiều goroutine producer/consumer cùng dùng không cần tự khóa. Slice cần mutex thủ công. Channel còn block/đợi tự nhiên khi rỗng/đầy.</details>
+> 3. Ring buffer khác queue thường ở điểm nào?
+>    <details><summary>Đáp án</summary>Ring buffer <b>cố định kích thước</b>, đầy thì ghi đè cái cũ nhất (mất dữ liệu cũ có chủ đích). Queue thường lớn vô hạn (cấp thêm bộ nhớ). Ring hợp khi chỉ cần "N cái gần nhất".</details>
+
+### 7.5. 📝 Tóm tắt mục 7
+
+- **Rate limiter** = queue timestamp; dequeue cái rời cửa sổ rồi đếm. Nền API gateway.
+- **Job queue** = **channel Go** (thread-safe FIFO) + worker pool; channel lo đồng bộ.
+- **Ring buffer** = mảng vòng cố định, đầy thì ghi đè cũ nhất; dùng cho "N mục gần nhất".
+- Bẫy: \`q[1:]\` dequeue ổn cho queue ngắn; queue lớn/lâu → circular buffer / \`container/list\` / channel.
+
 ## Bài tập
 
 1. Cài đặt một circular queue dùng mảng kích thước cố định.

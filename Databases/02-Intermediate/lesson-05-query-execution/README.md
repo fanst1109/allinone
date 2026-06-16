@@ -332,7 +332,31 @@ Khi gặp query chậm, theo thứ tự:
 
 ---
 
-## 7. Bài tập
+## 7. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Hiểu query execution = biết vì sao một query chậm và sửa thế nào.** `EXPLAIN ANALYZE` là công cụ gỡ lỗi hiệu năng DB quan trọng nhất.
+
+| Vấn đề thật | Execution plan tiết lộ gì |
+|-------------|---------------------------|
+| **Query chậm bất ngờ** | `Seq Scan` trên bảng lớn → thiếu index |
+| **JOIN chậm** | Nested Loop trên bảng lớn → nên Hash/Merge join, thiếu index FK |
+| **N+1 query (ORM)** | Hàng nghìn query con thay vì 1 join → lỗi ORM kinh điển |
+| **Sort/group chậm** | `Sort`/`Hash Aggregate` đổ ra đĩa khi vượt `work_mem` |
+| **Ước lượng sai** | `rows` planner đoán lệch thực tế → cần `ANALYZE` cập nhật thống kê |
+
+### 7.1. Ví dụ cụ thể — N+1 query, sát thủ hiệu năng ẩn
+
+ORM viết `for user in users: print(user.orders)` → sinh **1 query lấy users + N query lấy orders** (mỗi user một query). 1000 user = 1001 query → chậm gấp trăm lần. `EXPLAIN`/log query lộ ra ngay. Sửa: **eager loading** (`JOIN` hoặc `IN`) → 1-2 query. Đây là bug hiệu năng #1 của app dùng ORM, và chỉ thấy khi đọc query thực thi.
+
+> ❓ **"`EXPLAIN` vs `EXPLAIN ANALYZE` khác gì?"** `EXPLAIN` chỉ cho **kế hoạch ước lượng** (không chạy). `EXPLAIN ANALYZE` **chạy thật** và cho thời gian + số dòng thực tế → so với ước lượng để phát hiện planner đoán sai (do thống kê cũ → chạy `ANALYZE`). Dùng `ANALYZE` để gỡ query chậm thật; cẩn thận nó **thực thi** cả `UPDATE/DELETE`.
+
+### 7.2. 📝 Tóm tắt mục 7
+
+- `EXPLAIN ANALYZE` = công cụ gỡ query chậm #1: lộ `Seq Scan` (thiếu index), join kiểu gì, sort đổ đĩa.
+- **N+1 query** (ORM) = bug hiệu năng ẩn phổ biến nhất → sửa bằng eager loading (JOIN/IN).
+- Planner đoán theo **thống kê**; thống kê cũ → đoán sai → `ANALYZE` cập nhật.
+
+## 8. Bài tập
 
 1. **Đọc EXPLAIN.** Cho output sau:
    ```
@@ -362,7 +386,7 @@ Khi gặp query chậm, theo thứ tự:
 
 ---
 
-## 8. Lời giải chi tiết
+## 9. Lời giải chi tiết
 
 ### Bài 1 — Đọc EXPLAIN
 
@@ -395,7 +419,7 @@ Khi gặp query chậm, theo thứ tự:
 
 ---
 
-## 9. Code & Minh họa
+## 10. Code & Minh họa
 
 - Minh họa tương tác: [visualization.html](./visualization.html) — gồm 3 mô-đun:
   1. **Optimizer: scan vs index theo selectivity** — kéo thanh trượt "% dòng khớp", xem cost ước lượng của full scan vs index, optimizer tự đổi quyết định quanh điểm hòa vốn.

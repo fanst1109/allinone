@@ -302,7 +302,32 @@ Sau khi tách, bạn có nhiều bảng nhỏ nối nhau bằng khóa ngoại (`
 
 ---
 
-## 6. Bài tập
+## 6. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Chuẩn hóa không phải để "đẹp lý thuyết" — nó chống dữ liệu mâu thuẫn. Nhưng production đôi khi cố ý DENORMALIZE để nhanh hơn.** Biết cả hai chiều mới thiết kế đúng.
+
+| Khái niệm | Trong thiết kế schema thật |
+|-----------|----------------------------|
+| **1NF (không nhóm lặp)** | Không nhét CSV/list vào một cột; tách bảng con |
+| **2NF/3NF (bỏ phụ thuộc bộ phận/bắc cầu)** | Tách `order` khỏi `customer_name` → chỉ giữ `customer_id` (FK) |
+| **Anomaly (insert/update/delete)** | Vì sao sửa tên khách ở 1 chỗ, không phải 1000 dòng đơn |
+| **Denormalization (có chủ đích)** | Lưu sẵn `total_amount`, `comment_count` để khỏi join/đếm mỗi lần đọc |
+
+### 6.1. Ví dụ cụ thể — chuẩn hóa vs denormalize trong thực tế
+
+**Chuẩn hóa (OLTP, ghi nhiều)**: bảng `orders` chỉ lưu `customer_id`, không lưu `customer_name`. Khách đổi tên → sửa **một dòng** ở bảng `customers`, mọi đơn tự đúng. Nếu lưu lặp tên ở mỗi đơn (chưa chuẩn hóa) → đổi tên phải update hàng nghìn dòng, sót một dòng = mâu thuẫn (update anomaly).
+
+**Denormalize (đọc nhiều)**: trang sản phẩm hiển thị "1.234 đánh giá". Đếm `COUNT(*)` mỗi lần tải = chậm. Lưu sẵn cột `review_count`, cập nhật khi có review mới → đọc tức thì. Đánh đổi: phải giữ đồng bộ (trigger hoặc app logic). Đây là trade-off [time-space](../../../Algorithms/lesson-51-complexity-tradeoffs/) ở tầng schema.
+
+> ⚠ **Đừng denormalize sớm.** Mặc định **chuẩn hóa** (3NF) — nó chống bug dữ liệu, đủ nhanh cho hầu hết app. Chỉ denormalize khi đo được bottleneck đọc thật (join/đếm chậm trên đường nóng). Denormalize sớm = gánh chi phí đồng bộ mà chưa cần.
+
+### 6.2. 📝 Tóm tắt mục 6
+
+- Chuẩn hóa (3NF) = mặc định: mỗi sự thật một chỗ → chống insert/update/delete anomaly.
+- **Denormalize có chủ đích** (lưu sẵn count/total) khi đọc là bottleneck — đổi tốc độ lấy chi phí đồng bộ.
+- Quy tắc: chuẩn hóa trước, denormalize chỉ khi đo được nút thắt đọc thật.
+
+## 7. Bài tập
 
 1. **Xác định FD.** Cho bảng `Shipments(shipment_id, order_id, carrier, carrier_phone, ship_date)`, biết: mỗi shipment thuộc đúng một order; mỗi carrier có một số điện thoại cố định; một order có thể tách nhiều shipment. Liệt kê các phụ thuộc hàm hợp lý và chỉ ra cái nào là bắc cầu.
 
@@ -314,7 +339,7 @@ Sau khi tách, bạn có nhiều bảng nhỏ nối nhau bằng khóa ngoại (`
 
 ---
 
-## 7. Lời giải chi tiết
+## 8. Lời giải chi tiết
 
 ### Bài 1 — Xác định FD
 
@@ -365,7 +390,7 @@ Kiểm tra BCNF: xét vế trái mỗi FD. `(room, time_slot)` là super key ✓
 
 ---
 
-## 8. Code & Minh họa
+## 9. Code & Minh họa
 
 - Minh họa tương tác: [visualization.html](./visualization.html) — gồm ba mô-đun: (1) mô phỏng update/deletion anomaly trên bảng phi chuẩn, (2) tách bảng 1NF→2NF→3NF từng bước với highlight cột chuyển đi, (3) bộ kiểm tra "bảng này đang ở normal form nào".
 

@@ -209,7 +209,38 @@ Một transaction đi qua các trạng thái sau:
 
 ---
 
-## 6. Bài tập
+## 6. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Transaction là thứ giữ cho tiền không bốc hơi khi hệ thống crash giữa chừng.** Bất cứ thao tác nào "phải xảy ra trọn vẹn hoặc không gì cả" đều cần transaction.
+
+| Tình huống thật | ACID đảm bảo gì |
+|-----------------|-----------------|
+| **Chuyển khoản (trừ A, cộng B)** | Atomicity — cả hai hoặc không gì; không bao giờ trừ mà quên cộng |
+| **Đặt vé/giữ kho** | Isolation — hai người không cùng mua chỗ cuối |
+| **Đăng ký + tạo profile + gửi mail** | Atomicity — rollback nếu một bước lỗi |
+| **Crash giữa ghi** | Durability — đã commit thì còn sau khi mất điện (WAL) |
+| **Constraint giữa các bảng** | Consistency — invariant luôn đúng trước/sau ([nối invariant](../../../Algorithms/lesson-04-correctness-invariant/)) |
+
+### 6.1. Ví dụ cụ thể — chuyển khoản phải là một transaction
+
+```sql
+BEGIN;
+  UPDATE accounts SET balance = balance - 100 WHERE id = 'A';
+  UPDATE accounts SET balance = balance + 100 WHERE id = 'B';
+COMMIT;  -- cả hai cùng "thật"; nếu crash sau dòng 1 → ROLLBACK, A không mất tiền
+```
+
+Không có transaction: crash sau khi trừ A nhưng trước khi cộng B → **100 bốc hơi**. `BEGIN...COMMIT` đảm bảo Atomicity. Trong code app: ORM bọc bằng `db.Transaction(func(tx){...})` — mọi câu lệnh trong closure cùng commit/rollback.
+
+> ⚠ **Bẫy — quên transaction cho thao tác nhiều bước.** Lỗi kinh điển: tạo user xong, tạo profile ở câu lệnh riêng; nếu tạo profile lỗi → user "mồ côi" không profile. Bọc trong transaction. Và nhớ: transaction giữ **lock** → giữ càng ngắn càng tốt; transaction dài (gọi API bên ngoài bên trong nó) gây nghẽn ([isolation/concurrency](../lesson-04-concurrency-isolation/)).
+
+### 6.2. 📝 Tóm tắt mục 6
+
+- Transaction = "trọn vẹn hoặc không gì": chuyển khoản, đặt vé, đăng ký nhiều bước.
+- **A**tomicity (all-or-nothing), **C**onsistency (invariant), **I**solation (không đè nhau), **D**urability (còn sau crash, nhờ WAL).
+- Bẫy: quên bọc thao tác nhiều bước → bản ghi mồ côi; transaction dài giữ lock → nghẽn.
+
+## 7. Bài tập
 
 1. **Xác định tính chất ACID bị vi phạm.** Với mỗi tình huống, ghi rõ chữ nào trong ACID bị vi phạm và giải thích một câu:
    - (a) Chuyển tiền: A bị trừ 200k nhưng do crash, B không được cộng; hệ thống không hoàn lại.
@@ -230,7 +261,7 @@ Một transaction đi qua các trạng thái sau:
 
 ---
 
-## 7. Lời giải chi tiết
+## 8. Lời giải chi tiết
 
 ### Bài 1 — Xác định tính chất ACID bị vi phạm
 
@@ -293,7 +324,7 @@ Lập luận "xác suất crash nhỏ" sai về nguyên tắc, vì:
 
 ---
 
-## 8. Code & Minh họa
+## 9. Code & Minh họa
 
 - Minh họa tương tác: [visualization.html](./visualization.html) — gồm: (1) mô phỏng chuyển tiền A→B so sánh **có vs không** transaction (lỗi giữa chừng → rollback khôi phục số dư), (2) sơ đồ trạng thái transaction highlight bước đang chạy, (3) bộ thẻ ACID bấm từng chữ xem giải thích + ví dụ.
 

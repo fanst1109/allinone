@@ -831,7 +831,7 @@ type User struct {
 
 ---
 
-## 18. Tóm tắt (TL;DR)
+## 19. Tóm tắt (TL;DR)
 
 - **Reflection** = chương trình tự xem & sửa cấu trúc của mình tại runtime.
 - **3 quy luật Rob Pike**: interface → reflect object → interface; modify cần settable (pointer + \`Elem()\`).

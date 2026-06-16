@@ -716,6 +716,44 @@ Cách dùng: luôn \`errors.Is(err, sql.ErrNoRows)\` (không \`err == sql.ErrNoR
 
 ---
 
+## 15. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Error handling của Go (\`if err != nil\`) bị chê dài dòng, nhưng nó ép xử lý lỗi tường minh — và \`wrap + errors.Is/As\` là cách production phân loại lỗi.**
+
+| Pattern | Dùng thật ở đâu |
+|---------|-----------------|
+| **Wrap với \`%w\`** | \`fmt.Errorf("query user %d: %w", id, err)\` — thêm ngữ cảnh, giữ lỗi gốc |
+| **\`errors.Is(err, ErrNotFound)\`** | Phân biệt "không tìm thấy" (404) vs lỗi DB thật (500) |
+| **\`errors.As(err, &target)\`** | Lấy lỗi cụ thể (vd \`*pq.Error\`) để xử lý theo loại |
+| **Sentinel error** | \`var ErrNotFound = errors.New(...)\` — so khớp ở tầng trên |
+| **Error → HTTP status** | Map loại lỗi sang 400/404/409/500 ở handler |
+
+### 15.1. Ví dụ cụ thể — wrap để truy vết, Is/As để phân loại
+
+\`\`\`go
+// tầng repo
+if err := db.QueryRow(...).Scan(&u); err != nil {
+    return fmt.Errorf("get user %d: %w", id, err) // wrap thêm ngữ cảnh
+}
+// tầng handler
+err := svc.GetUser(id)
+if errors.Is(err, sql.ErrNoRows) {
+    http.Error(w, "not found", 404)  // phân biệt rõ
+} else if err != nil {
+    http.Error(w, "internal", 500)
+}
+\`\`\`
+
+\`%w\` giữ chuỗi lỗi gốc để \`errors.Is\` xuyên qua nhiều tầng wrap. Đây là cách backend Go map lỗi → HTTP status đúng, kèm thông điệp truy vết ("get user 42: sql: no rows") cho log.
+
+> ⚠ **Bẫy — \`err == sql.ErrNoRows\` hỏng khi lỗi bị wrap.** Driver/tầng giữa có thể wrap lỗi → so sánh \`==\` trực tiếp fail. Luôn \`errors.Is(err, sql.ErrNoRows)\` (đi xuyên wrap). Và **đừng panic cho lỗi thường** — panic chỉ cho lỗi lập trình không thể tiếp tục; lỗi nghiệp vụ (input sai, không tìm thấy) trả error.
+
+### 15.2. 📝 Tóm tắt mục 15
+
+- Wrap lỗi với \`%w\` (thêm ngữ cảnh, giữ gốc) + **\`errors.Is/As\`** (phân loại xuyên wrap) → map lỗi sang HTTP status.
+- Sentinel error (\`ErrNotFound\`) để tầng trên so khớp; dùng \`errors.Is\`, không \`==\` (wrap làm fail).
+- Panic chỉ cho lỗi lập trình; lỗi nghiệp vụ luôn trả \`error\`.
+
 ## Bài tập
 
 ### BT1. Sentinel + Validate

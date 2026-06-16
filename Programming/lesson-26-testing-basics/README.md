@@ -856,6 +856,43 @@ Test "PASS" mãi nhưng thật ra không test gì. **Cách phòng**: viết test
 
 ---
 
+## 17. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Testing built-in của Go (`go test`, table-driven, `-race`, coverage) là lý do code Go production dễ tin cậy — không cần framework ngoài.**
+
+| Tính năng | Dùng thật ở đâu |
+|-----------|-----------------|
+| **Table-driven test** | Một test, nhiều case → chuẩn de-facto của Go, dễ thêm case |
+| **`-race` detector** | Bắt data race trong CI — lỗi concurrency khó tái hiện thủ công |
+| **`-cover` coverage** | Đo % code được test, gate trong CI |
+| **`testing.T.Parallel()`** | Chạy test song song → CI nhanh |
+| **Golden file / fixture** | So output với file mẫu (render, serialize) |
+
+### 17.1. Ví dụ cụ thể — table-driven test, chuẩn Go
+
+```go
+func TestAbs(t *testing.T) {
+	cases := []struct{ in, want int }{
+		{-3, 3}, {0, 0}, {5, 5}, {-2147483648, ...}, // thêm case = thêm 1 dòng
+	}
+	for _, c := range cases {
+		if got := Abs(c.in); got != c.want {
+			t.Errorf("Abs(%d)=%d, want %d", c.in, got, c.want)
+		}
+	}
+}
+```
+
+Thêm edge case = thêm một dòng struct. Đây là pattern test phổ biến nhất trong codebase Go (stdlib, Kubernetes, Docker đều dùng). Kết hợp `t.Run(name, ...)` cho subtests có tên → báo cáo rõ case nào fail.
+
+> ⚠ **`-race` trong CI là bắt buộc cho code concurrent.** Data race (hai goroutine ghi cùng biến) thường **không crash lúc test thủ công** nhưng gây bug ngẫu nhiên ở production. `go test -race` instrument code để phát hiện. Bật trong CI dù chậm hơn ~10×. Còn **coverage cao ≠ test tốt** — 100% coverage vẫn có thể thiếu assertion đúng; coverage là tham khảo, không phải mục tiêu.
+
+### 17.2. 📝 Tóm tắt mục 17
+
+- Go test built-in: **table-driven** (chuẩn de-facto), **`t.Run` subtests**, **`Parallel()`**, golden file.
+- **`-race` trong CI** bắt data race ẩn (không crash khi test tay) — bắt buộc cho code concurrent.
+- Coverage là tham khảo, không phải mục tiêu (cao vẫn có thể thiếu assertion).
+
 ## Bài tập
 
 > Sáu bài, từ dễ (TDD basic) đến khó (mock time, benchmark thật).

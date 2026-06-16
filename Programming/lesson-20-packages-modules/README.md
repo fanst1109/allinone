@@ -1116,7 +1116,31 @@ go 1.25     ← chưa tồn tại
 
 ---
 
-## 16. Bài tập
+## 16. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Package/module quyết định codebase dễ bảo trì hay thành "big ball of mud".** Quản lý dependency + bố cục package là kỹ năng kiến trúc thật.
+
+| Khái niệm | Trong dự án thật |
+|-----------|------------------|
+| **`go.mod` + semantic versioning** | Khóa version dependency, reproducible build |
+| **Exported (Hoa) vs unexported (thường)** | API công khai của package vs nội bộ ẩn |
+| **`internal/`** | Code chỉ dùng nội bộ module, cấm import từ ngoài |
+| **Bố cục theo domain** | `user/`, `order/`, `payment/` thay vì `models/`, `controllers/` |
+| **`go.sum` + vendoring** | Đảm bảo dependency không bị đổi ngầm (supply chain) |
+
+### 16.1. Ví dụ cụ thể — `internal/` chặn import sai
+
+Đặt code vào `myapp/internal/db` → **chỉ** code trong `myapp/` import được; package ngoài (`github.com/other/...`) import sẽ **lỗi compile**. Dùng để: ẩn chi tiết triển khai, giữ API công khai nhỏ, ngăn người khác phụ thuộc vào nội bộ bạn có thể đổi. Đây là cách thư viện/service Go kiểm soát ranh giới — encapsulation ở tầng package.
+
+> ⚠ **Bẫy — import cycle (A import B, B import A) không compile.** Go cấm vòng import. Gặp khi tách package sai (vd `user` và `order` import nhau). Sửa: tách interface ra package thứ ba, hoặc gộp/đảo phụ thuộc. Quy tắc: phụ thuộc nên một chiều (domain → không phụ thuộc ngược lên handler). Bố cục **theo domain** (user/order/payment) thường ít cycle hơn theo layer (models/controllers).
+
+### 16.2. 📝 Tóm tắt mục 16
+
+- `go.mod`/semver khóa dependency; **`internal/`** ẩn code nội bộ (cấm import ngoài); Hoa/thường = public/private.
+- **Import cycle cấm** trong Go → tách interface hoặc đảo phụ thuộc; phụ thuộc một chiều.
+- Bố cục **theo domain** (user/order) dễ bảo trì hơn theo layer; `go.sum` chống supply-chain.
+
+## 17. Bài tập
 
 ### Bài tập 1 — Module mới có 2 sub-package
 
@@ -1260,7 +1284,7 @@ Hỏi: file nào import được `github.com/me/proj/shared/internal/helper`?
 
 ---
 
-## 17. Lời giải chi tiết
+## 18. Lời giải chi tiết
 
 ### Giải bài 1
 
@@ -1519,7 +1543,7 @@ func DoX() { helper.Internal() }    // re-export gián tiếp
 
 ---
 
-## 18. Code & Minh hoạ
+## 19. Code & Minh hoạ
 
 - File code mẫu: [`solutions.go`](./solutions.go) — chạy bằng `go run solutions.go`. Demo: package doc, public/private, init, dùng `github.com/google/uuid`.
 - Visualization: [`visualization.html`](./visualization.html) — 3 module tương tác:
@@ -1529,7 +1553,7 @@ func DoX() { helper.Internal() }    // re-export gián tiếp
 
 ---
 
-## 19. Bài tiếp theo
+## 20. Bài tiếp theo
 
 - [Lesson 21 — IO Streaming](../lesson-21-io-streaming/) (tiếp theo): `io.Reader`, `io.Writer`, pipe, file streaming, buffered IO.
 - Để đào sâu hơn về toolchain: `go vet`, `go test`, `go test -race`, `staticcheck`, `golangci-lint` — sẽ học ở các lesson chuyên về testing & quality (Tier 3).

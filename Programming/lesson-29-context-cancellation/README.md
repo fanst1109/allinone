@@ -949,7 +949,37 @@ Hầu hết hàm sẽ panic khi gọi `ctx.Done()` trên nil ctx.
 
 ---
 
-## 16. Bài tập
+## 16. Ứng dụng thực tế trong phần mềm
+
+> 💡 **`context.Context` là cách Go truyền deadline/cancel/giá trị xuyên suốt một request — gần như mọi hàm backend Go nhận `ctx` làm tham số đầu.**
+
+| Tình huống thật | Context làm gì |
+|-----------------|----------------|
+| **Timeout request** | `context.WithTimeout(ctx, 5*time.Second)` — hủy nếu DB/API quá lâu |
+| **Hủy lan truyền** | Client ngắt kết nối → hủy mọi goroutine con đang xử lý request đó |
+| **Truyền request-scoped value** | trace ID, user ID, locale qua các tầng (không dùng cho param tùy ý) |
+| **Graceful shutdown** | Server đóng → cancel ctx gốc → mọi handler dừng sạch |
+
+### 16.1. Ví dụ cụ thể — timeout lan truyền qua các tầng
+
+```go
+ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
+defer cancel()
+rows, err := db.QueryContext(ctx, "SELECT ...")  // DB hủy nếu quá 3s
+resp, err := httpClient.Do(req.WithContext(ctx))  // API call cũng hủy
+```
+
+Một deadline truyền xuống mọi lời gọi con (DB, HTTP, goroutine). Khi hết 3s hoặc client ngắt, **tất cả** dừng cùng lúc → không rò rỉ goroutine, không giữ connection vô ích. Đây là cách backend Go tránh "treo vô hạn" khi một dependency chậm — nền của resilience.
+
+> ⚠ **Bẫy — quên `defer cancel()` rò rỉ; truyền `nil` ctx; nhét param vào ctx.** (1) `WithTimeout`/`WithCancel` trả `cancel` phải gọi (defer) — quên → rò rỉ tài nguyên timer. (2) Đừng truyền `nil` context, dùng `context.Background()` hoặc `context.TODO()`. (3) `ctx.Value` chỉ cho **request-scoped** (trace ID, auth) — KHÔNG nhét tham số hàm vào ctx (khó test, ẩn phụ thuộc); param bình thường truyền tường minh.
+
+### 16.2. 📝 Tóm tắt mục 16
+
+- `context` truyền **deadline/cancel** xuyên các tầng (DB/HTTP/goroutine) → timeout + hủy lan truyền + graceful shutdown.
+- Luôn `defer cancel()`; không truyền `nil` ctx (dùng `Background()/TODO()`).
+- `ctx.Value` chỉ cho request-scoped (trace/auth ID), không nhét param hàm.
+
+## 17. Bài tập
 
 ### BT1 — `Fetch(ctx, url)` với timeout 2s
 
@@ -1022,7 +1052,7 @@ func main() {
 
 ---
 
-## 17. Lời giải chi tiết
+## 18. Lời giải chi tiết
 
 ### Lời giải BT1
 
@@ -1271,7 +1301,7 @@ func main() {
 
 ---
 
-## 18. Code & Minh hoạ
+## 19. Code & Minh hoạ
 
 - File code minh hoạ: [solutions.go](./solutions.go) — chạy `go run solutions.go` để xem demo cancel chain, timeout, deadline, WithValue.
 - Tương tác trực quan: [visualization.html](./visualization.html) — 3 module:
@@ -1281,7 +1311,7 @@ func main() {
 
 ---
 
-## 19. Bài tiếp theo
+## 20. Bài tiếp theo
 
 Bạn vừa hoàn thành **Tier 2 — Go Intermediate**. Bước tiếp theo:
 

@@ -852,7 +852,37 @@ Code mới không nên import \`ioutil\`. \`go vet\` không cảnh báo, nhưng 
 
 ---
 
-## 15. Bài tập
+## 15. Ứng dụng thực tế trong phần mềm
+
+> 💡 **\`io.Reader\`/\`io.Writer\` là interface quan trọng nhất Go — nó cho phép stream dữ liệu lớn mà không nạp hết vào RAM, và ghép nối mọi nguồn/đích.**
+
+| Tình huống thật | io làm gì |
+|-----------------|-----------|
+| **Upload/download file lớn** | Stream qua \`io.Copy\` — không nạp cả GB vào RAM |
+| **Nén/giải nén on-the-fly** | \`gzip.NewWriter(w)\` bọc writer — nén lúc ghi |
+| **Hash file** | \`io.Copy(hasher, file)\` — tính SHA stream |
+| **HTTP body** | \`r.Body\` là Reader, \`w\` là Writer — xử lý không buffer hết |
+| **Pipe / ghép tầng** | \`io.MultiWriter\`, \`io.TeeReader\` — ghi nhiều đích cùng lúc |
+
+### 15.1. Ví dụ cụ thể — \`io.Copy\` stream file khổng lồ
+
+Copy file 10GB từ upload sang disk/S3:
+
+\`\`\`go
+io.Copy(dst, src)  // chuyển từng chunk (buffer ~32KB), KHÔNG nạp 10GB vào RAM
+\`\`\`
+
+So với \`data, _ := io.ReadAll(src); dst.Write(data)\` — \`ReadAll\` nạp **toàn bộ 10GB vào RAM** → OOM crash. \`io.Copy\` stream theo chunk → RAM phẳng. Cùng lý do: nén on-the-fly (\`io.Copy(gzipWriter, file)\`), hash stream, proxy request. Đây là sức mạnh của interface Reader/Writer — ghép bất kỳ nguồn nào với bất kỳ đích nào.
+
+> ⚠ **Bẫy — \`io.ReadAll\` trên input không giới hạn = DoS.** Đọc hết body request bằng \`ReadAll\` mà không giới hạn → kẻ tấn công gửi 100GB → hết RAM. Production dùng \`io.LimitReader(r, maxBytes)\` hoặc \`http.MaxBytesReader\`. Và **luôn \`defer f.Close()\`** sau khi mở reader/writer (file, body) — quên → rò rỉ file descriptor.
+
+### 15.2. 📝 Tóm tắt mục 15
+
+- \`io.Reader\`/\`Writer\` = stream dữ liệu lớn không nạp hết RAM; \`io.Copy\` chuyển theo chunk (~32KB).
+- Ghép nối: nén on-the-fly, hash stream, \`MultiWriter\`/\`TeeReader\` — bất kỳ nguồn ↔ đích.
+- Bẫy: \`ReadAll\` input không giới hạn → DoS (dùng \`LimitReader\`); luôn \`defer Close()\`.
+
+## 16. Bài tập
 
 ### BT1 — \`CountingReader\`
 Implement wrapper:
@@ -895,7 +925,7 @@ func (r *RateLimitedReader) Read(p []byte) (int, error)
 
 ---
 
-## 16. Lời giải chi tiết
+## 17. Lời giải chi tiết
 
 ### Lời giải BT1 — CountingReader
 
@@ -1082,14 +1112,14 @@ func (r *RateLimitedReader) Read(p []byte) (int, error) {
 
 ---
 
-## 17. Code & Minh họa
+## 18. Code & Minh họa
 
 - File code Go: [solutions.go](./solutions.go) — biên dịch bằng \`go run solutions.go\`.
 - Minh họa trực quan: [visualization.html](./visualization.html) — mở trong browser, 3 module animation cho Read loop, io.Copy buffer, io.Pipe.
 
 ---
 
-## 18. Checklist hiểu bài
+## 19. Checklist hiểu bài
 
 - Vì sao \`Read(p)\` trả \`n\` thay vì slice mới? · Tại sao \`n>0 && err=io.EOF\` hợp lệ? · \`bufio.Writer.Flush()\` gọi lúc nào? · \`io.TeeReader\` khác \`io.MultiWriter\` ở đâu? · Khi nào nên dùng \`io.Pipe\` thay \`bytes.Buffer\`? · \`io.LimitReader(r, 100)\` đảm bảo gì?
 

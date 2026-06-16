@@ -278,7 +278,34 @@ Shard C:  leader Cℓ  + follower Cf1, Cf2
 
 ---
 
-## 5. Bài tập
+## 5. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Replication và sharding là cách DB "scale" khi một máy không đủ — nhưng mỗi cái giải bài toán khác nhau.** Nhầm lẫn = chọn sai giải pháp.
+
+| Kỹ thuật | Giải bài toán | Đánh đổi |
+|----------|---------------|----------|
+| **Replication (bản sao)** | Đọc nhiều quá tải; chịu lỗi (failover) | Replica lag (đọc dữ liệu hơi cũ) |
+| **Read replica** | Đẩy query đọc sang bản sao, giảm tải master | Eventual consistency trên replica |
+| **Sharding (chia ngang)** | Dữ liệu/ghi quá lớn cho một máy | Mất join xuyên shard, query phức tạp hơn |
+| **Consistent hashing** | Chia key cho shard, ít remap khi thêm node | ([nối Hash Table](../../../DataStructures/01-Basic/lesson-06-hash-table/)) |
+
+### 5.1. Ví dụ cụ thể — read replica giảm tải đọc
+
+App đọc nhiều gấp 10 lần ghi (điển hình). Master một mình gánh hết → quá tải. Giải: **read replica** — master nhận ghi, đồng bộ sang vài bản sao; query đọc (báo cáo, hiển thị) đẩy sang replica. Master nhẹ đi. Bẫy: **replica lag** — vừa ghi vào master, đọc ngay từ replica có thể chưa thấy (eventual consistency). Vì vậy "đọc-sau-khi-ghi của chính user" thường ép đọc từ master.
+
+### 5.2. Ví dụ cụ thể — sharding khi một máy không chứa nổi
+
+Bảng `events` 100 tỉ dòng, một máy không đủ đĩa/RAM. **Sharding**: chia theo `user_id % N` (hoặc consistent hashing) sang N máy, mỗi máy giữ một phần. Ghi/đọc theo `user_id` → tới đúng shard. Bẫy lớn: query **xuyên shard** (vd "tổng toàn hệ thống") phải hỏi mọi shard rồi gộp — chậm và phức tạp. Chọn **shard key** đúng (theo chiều truy vấn phổ biến nhất) là quyết định sống còn.
+
+> ⚠ **Đừng shard sớm.** Sharding làm app phức tạp hẳn (mất join, mất transaction xuyên shard, rebalance khó). Thứ tự mở rộng đúng: (1) tối ưu query + index → (2) read replica → (3) cache (Redis) → (4) chỉ shard khi **một máy thật sự không chứa nổi**. Nhiều hệ thống không bao giờ cần tới sharding.
+
+### 5.3. 📝 Tóm tắt mục 5
+
+- **Replication** = bản sao → chịu lỗi + scale đọc (bẫy: replica lag).
+- **Sharding** = chia ngang → scale ghi/dung lượng (bẫy: mất join xuyên shard, chọn shard key quan trọng).
+- Thứ tự scale: index/query → read replica → cache → shard (cuối cùng). Đừng shard sớm.
+
+## 6. Bài tập
 
 1. **Chọn sync hay async.** Với mỗi tình huống, chọn replication đồng bộ hay bất đồng bộ và giải thích một câu: (a) hệ thống chuyển khoản ngân hàng; (b) đếm lượt xem video (view count) trên mạng xã hội; (c) bảng số dư ví điện tử; (d) cache hồ sơ công khai của người dùng để hiển thị nhanh.
 
@@ -290,7 +317,7 @@ Shard C:  leader Cℓ  + follower Cf1, Cf2
 
 ---
 
-## 6. Lời giải chi tiết
+## 7. Lời giải chi tiết
 
 ### Bài 1 — Chọn sync hay async
 
@@ -322,7 +349,7 @@ Shard C:  leader Cℓ  + follower Cf1, Cf2
 
 ---
 
-## 7. Code & Minh họa
+## 8. Code & Minh họa
 
 - Minh họa tương tác: [visualization.html](./visualization.html) — gồm: (1) mô phỏng leader–follower với chọn sync/async, chỉnh lag, đọc follower thấy giá trị cũ/mới, và failover khi leader chết; (2) mô phỏng sharding hash vs range với thanh trượt số shard, thêm shard để so sánh reshuffle giữa modulo và consistent hashing; (3) minh họa hotspot khi range partition lệch.
 

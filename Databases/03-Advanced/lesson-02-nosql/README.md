@@ -283,7 +283,32 @@ Nên **tham chiếu** qua `productId` (để dữ liệu sản phẩm ở chỗ 
 
 ---
 
-## 8. Bài tập
+## 8. Ứng dụng thực tế trong phần mềm
+
+> 💡 **NoSQL không phải "tốt hơn SQL" — nó đánh đổi để thắng ở một số workload cụ thể.** Chọn sai (NoSQL khi cần join/transaction) là lỗi kiến trúc đắt giá.
+
+| Loại NoSQL | Mạnh ở | Sản phẩm | Ví dụ dùng |
+|------------|--------|----------|------------|
+| **Document** (MongoDB) | Dữ liệu lồng nhau, schema linh hoạt | MongoDB, Couchbase | catalog sản phẩm, CMS, profile |
+| **Key-value** (Redis) | Tra khóa cực nhanh, cache | Redis, DynamoDB | session, cache, rate-limit, leaderboard |
+| **Column-family** (Cassandra) | Ghi nhiều, scale ngang | Cassandra, HBase | log, metrics, feed, IoT |
+| **Graph** (Neo4j) | Quan hệ nhiều bậc | Neo4j | mạng xã hội, gợi ý, fraud detection |
+
+### 8.1. Ví dụ cụ thể — khi nào MongoDB thắng, khi nào thua
+
+**Thắng**: catalog sản phẩm, mỗi sản phẩm có cấu trúc khác nhau (áo có size, điện thoại có RAM/pin). SQL phải nhiều bảng + join hoặc cột NULL la liệt; MongoDB lưu mỗi sản phẩm một **document** JSON linh hoạt → đọc cả sản phẩm một phát.
+
+**Thua**: hệ thống ngân hàng cần **transaction nhiều bảng** + join phức tạp + ràng buộc chặt. NoSQL truyền thống yếu join và (trước đây) yếu transaction đa-document → ép logic lên app, dễ sai. Đây là lý do "dùng MongoDB cho mọi thứ" là anti-pattern phổ biến.
+
+> ⚠ **Đừng chọn NoSQL vì "nghe hiện đại".** Mặc định nên là **SQL (Postgres)** — nó mạnh, có transaction/join/constraint, và Postgres còn hỗ trợ JSON khi cần linh hoạt. Chỉ chọn NoSQL khi có lý do rõ: scale ghi khổng lồ (Cassandra), cache (Redis), quan hệ đồ thị (Neo4j). "Schema linh hoạt" thường là cái bẫy — thiếu kỷ luật schema gây dữ liệu lộn xộn về sau.
+
+### 8.2. 📝 Tóm tắt mục 8
+
+- NoSQL = đánh đổi để thắng workload cụ thể: **document** (linh hoạt), **key-value** (cache/nhanh), **column** (ghi nhiều), **graph** (quan hệ).
+- MongoDB thắng ở dữ liệu lồng/schema thay đổi; thua ở transaction-join phức tạp.
+- Mặc định SQL (Postgres, có cả JSON); chọn NoSQL khi có lý do scale/cache/graph rõ ràng.
+
+## 9. Bài tập
 
 1. **Chọn họ NoSQL cho use case.** Với mỗi tình huống, chọn họ phù hợp nhất (key-value / document / column-family / graph) và giải thích một câu:
    (a) Lưu giỏ hàng tạm, tra theo `userId`, cần độ trễ cực thấp.
@@ -303,7 +328,7 @@ Nên **tham chiếu** qua `productId` (để dữ liệu sản phẩm ở chỗ 
 
 ---
 
-## 9. Lời giải chi tiết
+## 10. Lời giải chi tiết
 
 ### Bài 1 — Chọn họ NoSQL
 
@@ -366,7 +391,7 @@ Trên graph DB, mỗi đỉnh giữ **con trỏ trực tiếp** tới các đỉ
 
 ---
 
-## 10. Code & Minh họa
+## 11. Code & Minh họa
 
 - Minh họa tương tác: [visualization.html](./visualization.html) — (1) bộ chọn họ NoSQL theo use case có phản hồi đúng/sai + lý do, (2) cùng một dữ liệu (user + orders) hiển thị ở 4 mô hình (bảng quan hệ / key-value / document JSON / graph SVG), (3) bảng tương tác SQL vs NoSQL highlight đánh đổi.
 

@@ -228,7 +228,31 @@ Node 2 có đúng **hai** lựa chọn:
 
 ---
 
-## 8. Bài tập
+## 8. Ứng dụng thực tế trong phần mềm
+
+> 💡 **CAP không phải triết lý — nó buộc bạn chọn: khi mạng phân mảnh (partition), ưu tiên dữ liệu ĐÚNG (CP) hay LUÔN TRẢ LỜI (AP)?** Mỗi DB phân tán đã chọn sẵn, bạn phải biết nó chọn gì.
+
+| Hệ thống | Thiên về | Nghĩa là khi partition |
+|----------|----------|------------------------|
+| **PostgreSQL/MySQL (single), etcd, ZooKeeper** | **CP** | Từ chối/chờ để không trả dữ liệu sai (nhất quán hơn sẵn sàng) |
+| **Cassandra, DynamoDB, Riak** | **AP** | Vẫn trả lời (có thể cũ), đồng bộ sau (sẵn sàng hơn nhất quán) |
+| **MongoDB (tùy cấu hình)** | CP mặc định | Có thể chỉnh write/read concern |
+
+### 8.1. Ví dụ cụ thể — chọn CP hay AP theo nghiệp vụ
+
+**Cần CP — ngân hàng/đặt vé**: thà báo lỗi "thử lại sau" còn hơn cho 2 người cùng rút sạch tài khoản hoặc mua trùng ghế cuối. Số dư sai = thảm họa → chọn nhất quán (CP).
+
+**Cần AP — giỏ hàng/like/feed mạng xã hội**: thà hiện số like hơi cũ (eventual consistency) còn hơn cả trang sập khi một node mất kết nối. Trải nghiệm "luôn dùng được" quan trọng hơn "chính xác tức thì" → chọn sẵn sàng (AP). Amazon nổi tiếng chọn AP cho giỏ hàng: thà thêm nhầm còn hơn không thêm được.
+
+> ❓ **"P (partition tolerance) có phải lựa chọn không?"** Không — với hệ **phân tán** (nhiều máy qua mạng), partition (mất kết nối) **chắc chắn xảy ra**, phải chịu được. Nên CAP thực chất là: *khi đã có P, chọn C hay A*. Hệ một máy (không phân tán) thì không dính CAP — đó là lý do Postgres single-node cho cả C lẫn A. "PACELC" mở rộng: kể cả không partition (E), vẫn đánh đổi Latency vs Consistency.
+
+### 8.2. 📝 Tóm tắt mục 8
+
+- CAP: khi **partition** xảy ra (chắc chắn với hệ phân tán), chọn **C** (đúng, từ chối nếu cần) hay **A** (luôn trả lời, có thể cũ).
+- **CP**: ngân hàng, đặt vé, coordination (etcd/ZooKeeper). **AP**: giỏ hàng, like, feed (Cassandra/Dynamo).
+- P không phải lựa chọn (mạng sẽ phân mảnh); hệ một máy thoát CAP. PACELC: kể cả bình thường vẫn đánh đổi latency vs consistency.
+
+## 9. Bài tập
 
 1. **Phân loại CP/AP.** Với mỗi hệ/yêu cầu, hệ nên nghiêng **CP** hay **AP**? Giải thích một câu: (a) hệ đặt vé máy bay (không được bán trùng ghế); (b) bộ đếm lượt xem video YouTube; (c) khóa phân tán điều phối ai được sửa file; (d) feed bài viết của một mạng xã hội.
 
@@ -240,7 +264,7 @@ Node 2 có đúng **hai** lựa chọn:
 
 ---
 
-## 9. Lời giải chi tiết
+## 10. Lời giải chi tiết
 
 ### Bài 1 — Phân loại CP/AP
 
@@ -274,7 +298,7 @@ Node 2 có đúng **hai** lựa chọn:
 
 ---
 
-## 10. Code & Minh họa
+## 11. Code & Minh họa
 
 - Minh họa tương tác: [visualization.html](./visualization.html) — gồm: (1) mô phỏng partition giữa các node với chế độ CP/AP và hậu quả; (2) tam giác CAP tương tác chọn 2 đỉnh; (3) máy tính quorum kiểm tra \`R+W>N\` và minh họa overlap.
 

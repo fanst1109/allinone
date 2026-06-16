@@ -896,6 +896,43 @@ sortData(arr, bubbleSort)
 
 ---
 
+## 12. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Function là first-class value trong Go — closure và higher-order function chạy thật trong middleware, callback, option pattern, retry.**
+
+| Pattern | Function làm gì | Ví dụ thật |
+|---------|-----------------|-----------|
+| **Middleware HTTP** | Function nhận handler, trả handler bọc thêm | logging, auth, recover quanh mỗi request |
+| **Functional options** | Hàm nhận \`...Option\` (mỗi option là một func) | \`NewServer(WithPort(8080), WithTimeout(5))\` |
+| **Callback / hook** | Truyền func vào để gọi lại | \`sort.Slice(s, func(i,j) bool{...})\`, event handler |
+| **Closure giữ state** | Func nhớ biến ngoài | counter, memoize, rate-limit theo key |
+| **Defer cleanup** | Hoãn func tới khi return | \`defer f.Close()\`, \`defer mu.Unlock()\` |
+
+### 12.1. Ví dụ cụ thể — middleware là higher-order function
+
+Middleware HTTP = hàm **nhận một handler, trả handler mới** bọc thêm hành vi:
+
+\`\`\`go
+func Logging(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		next.ServeHTTP(w, r)            // gọi handler gốc
+		log.Printf("%s %s %v", r.Method, r.URL.Path, time.Since(start))
+	})
+}
+// Xếp chồng: Logging(Auth(Recover(handler)))
+\`\`\`
+
+Mỗi middleware là higher-order function + closure (giữ \`next\`). Toàn bộ framework web (Gin, Echo, chi) xây trên ý tưởng này. Hiểu function-as-value = hiểu vì sao \`Logging(Auth(h))\` hoạt động.
+
+> ❓ **"Closure giữ biến gì — bản sao hay tham chiếu?"** Tham chiếu. Closure giữ **biến** (không phải giá trị tại thời điểm tạo). Bẫy kinh điển: \`for i...{ go func(){ print(i) }() }\` — các goroutine in cùng \`i\` cuối (trước Go 1.22). Sửa: truyền \`i\` làm tham số hoặc copy \`i := i\`. (Go 1.22+ đã sửa scope biến loop.)
+
+### 12.2. 📝 Tóm tắt mục 12
+
+- Function first-class → **middleware** (higher-order), **functional options**, **callback**, **closure giữ state**, **defer cleanup**.
+- Middleware web = hàm nhận handler trả handler bọc thêm — nền mọi framework Go.
+- Closure giữ **biến** (tham chiếu) → bẫy loop variable (sửa bằng copy hoặc tham số).
+
 ## Bài tập
 
 ### BT1: Divmod với error handling

@@ -496,6 +496,31 @@ Tất cả đều idiomatic, đọc Go thật bạn sẽ gặp hàng ngày.
 
 ---
 
+## 13. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Map là công cụ "tra cứu / đếm / nhóm / dedup" số một — và `nil` map + race condition là hai bẫy production hay gặp.**
+
+| Tình huống thật | Map làm gì |
+|-----------------|-----------|
+| **Đếm tần suất, group by** | `m[key]++`, `m[key]=append(...)` — word count, gom log |
+| **Cache / memoize / lookup** | `m[id]=value` tra $O(1)$ ([nối Hash Table](../../DataStructures/01-Basic/lesson-06-hash-table/)) |
+| **Set (dedup)** | `map[T]struct{}` — "đã thấy chưa", lọc trùng |
+| **Index/registry** | `map[string]Handler` — router, plugin registry, config |
+
+### 13.1. Hai bẫy production với map
+
+**Nil map panic khi ghi**: `var m map[string]int; m["x"]=1` → panic "assignment to entry in nil map". Đọc nil map OK (trả zero), nhưng **ghi** phải `make` trước: `m := map[string]int{}`. Bẫy này hay xảy ra với field map trong struct chưa khởi tạo.
+
+**Map không concurrent-safe**: nhiều goroutine cùng đọc-ghi map → **panic "concurrent map writes"** (Go cố tình crash để lộ bug). Sửa: `sync.Mutex` bọc, hoặc `sync.RWMutex` (đọc nhiều), hoặc `sync.Map` (trường hợp đặc thù). Đây là race condition phổ biến nhất khi map dùng chung giữa các request/goroutine ([nối sync](../lesson-28-sync-primitives/)).
+
+> ❓ **"Vì sao duyệt map ra thứ tự khác nhau mỗi lần?"** Go **cố tình random hóa** thứ tự duyệt map để ngăn code phụ thuộc thứ tự (vốn không đảm bảo) và chống hash-flooding DoS. Cần thứ tự → lấy keys ra slice rồi `sort`. Đừng bao giờ dựa vào thứ tự duyệt map.
+
+### 13.2. 📝 Tóm tắt mục 13
+
+- Map = tra cứu/đếm/nhóm/dedup $O(1)$; set = `map[T]struct{}`; registry = `map[string]Handler`.
+- Bẫy: **nil map ghi → panic** (phải `make`); **concurrent read-write → panic** (cần Mutex/sync.Map).
+- Thứ tự duyệt **random hóa** cố ý → cần thứ tự thì sort keys.
+
 ## Bài tập
 
 ### BT1 — Đếm tần suất từ

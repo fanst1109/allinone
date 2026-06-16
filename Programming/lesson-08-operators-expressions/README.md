@@ -766,6 +766,29 @@ So sánh từng byte theo thứ tự ASCII/Unicode codepoint.
 
 ---
 
+## 14. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Toán tử bit (`&`, `|`, `^`, `<<`) trông "học thuật" nhưng chạy thật trong flags, permissions, mask — và integer overflow/float precision là bug tài chính thật.**
+
+| Toán tử | Ứng dụng thật |
+|---------|---------------|
+| **Bit flags (`|`, `&`, `^`)** | Quyền file Unix (`rwx` = 7), feature flags, option set trong một int |
+| **Bitmask (`& 0xFF`)** | Tách byte từ số, màu RGBA, xử lý protocol nhị phân |
+| **Shift (`<<`, `>>`)** | Nhân/chia lũy thừa 2 nhanh, đóng gói nhiều field vào một int |
+| **Modulo (`%`)** | Hash bucket, round-robin, "mỗi N lần", chẵn/lẻ |
+
+### 14.1. Ví dụ cụ thể — quyền bằng bit flags
+
+Unix permission `chmod 755`: mỗi quyền là một bit. `rwx` = `4|2|1 = 7`. Kiểm tra "có quyền ghi?": `perm & 2 != 0`. Thêm quyền: `perm |= 2`. Bỏ: `perm &^= 2` (Go có toán tử `&^` AND-NOT tiện). Cùng kỹ thuật: feature flags (`flags & FeatureX`), trạng thái gói tin mạng. Gói nhiều boolean vào một int → tiết kiệm + so sánh nhanh.
+
+> ⚠ **Integer overflow Go wrap im lặng — bug tài chính thật.** `int8(127) + 1 = -128` (wrap, không panic, không lỗi). Tính tiền/đếm lớn dùng `int8/int16` tràn âm thầm → số âm vô lý. Dùng `int`/`int64` cho giá trị lớn; với tiền dùng integer cents (không float — `0.1+0.2 != 0.3` do float precision §11). Đây là lý do hệ thống tài chính **không bao giờ** lưu tiền bằng float.
+
+### 14.2. 📝 Tóm tắt mục 14
+
+- Bit ops thật: **flags/permissions** (`|` set, `&` check, `&^` clear), **mask** tách byte/màu, **shift** đóng gói field, **`%`** hash/round-robin.
+- **Integer overflow** wrap im lặng (Go không panic) → dùng int64 cho giá trị lớn.
+- **Tiền không dùng float** (precision) → integer cents.
+
 ## Bài tập
 
 ### BT1 — Đoán precedence (6 biểu thức)

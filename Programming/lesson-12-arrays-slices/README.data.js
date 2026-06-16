@@ -836,6 +836,36 @@ BenchmarkAppendWithCap-8  30000    42000 ns/op    81920 B/op    1 allocs/op
 
 ---
 
+## 12. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Slice là cấu trúc dữ liệu dùng nhiều nhất trong Go — và \`append\` aliasing là bug #1 của người mới.** Hiểu cap/len/backing array là kỹ năng sống còn.
+
+| Tình huống thật | Slice làm gì |
+|-----------------|--------------|
+| **Đọc dữ liệu kích thước chưa biết** | \`append\` tự grow (cap nhân đôi) — đọc rows DB, parse file |
+| **Buffer I/O** | \`make([]byte, n)\` đọc/ghi network/file |
+| **Preallocate khi biết size** | \`make([]T, 0, n)\` tránh grow lặp → nhanh hơn nhiều |
+| **Slice của slice (sub-view)** | \`s[lo:hi]\` không copy — xử lý cửa sổ, parse |
+
+### 12.1. Bẫy aliasing — \`append\` sửa trộm slice khác
+
+\`\`\`go
+a := []int{1, 2, 3, 4}
+b := a[:2]          // b=[1 2], CHUNG backing array với a, cap(b)=4
+b = append(b, 99)   // còn cap → ghi vào index 2 của mảng nền → a[2]=99!
+// a giờ là [1 2 99 4] — sửa b mà a hỏng
+\`\`\`
+
+Đây là bug thật khi truyền slice giữa hàm. Tránh: \`b := append([]int{}, a[:2]...)\` (copy), hoặc full-slice \`a[:2:2]\` (giới hạn cap → append cấp mảng mới). Cùng cơ chế dynamic array ([nối DataStructures Array](../../DataStructures/01-Basic/lesson-02-array/)).
+
+> ❓ **"Preallocate cap giúp bao nhiêu?"** Nhiều. \`append\` không cap dư → grow (cấp mảng mới + copy) nhiều lần: thêm $n$ phần tử tốn $O(n)$ lần copy tích lũy. \`make([]T, 0, n)\` cấp đủ ngay → 0 lần grow. Trong vòng lặp lớn (đọc triệu dòng), preallocate nhanh hơn 2-3×. Luôn \`make\` với cap khi biết hoặc đoán được size.
+
+### 12.2. 📝 Tóm tắt mục 12
+
+- Slice = DS dùng nhiều nhất: \`append\` tự grow (cap nhân đôi), \`make([]T,0,n)\` preallocate khi biết size.
+- **Bẫy aliasing**: \`append\` lên sub-slice còn cap → sửa trộm mảng nền → dùng copy hoặc \`s[:n:n]\`.
+- Preallocate cap tránh grow lặp → nhanh 2-3× trong vòng lặp lớn.
+
 ## Bài tập
 
 ### Bài tập 1 — Trace len/cap qua 8 lần append

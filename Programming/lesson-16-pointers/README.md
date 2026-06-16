@@ -522,6 +522,31 @@ Go 1.22 đã sửa: mỗi iteration có biến `v` riêng. Nhưng code cũ vẫn
 - `return &x` trong Go an toàn nhờ escape analysis (khác C). Compiler tự chuyển x sang heap.
 - Top bugs: quên `&` khi Scan/Unmarshal, nil dereference, modify struct trong map.
 
+## 12. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Pointer trong Go ít "nguy hiểm" hơn C (không pointer arithmetic, có GC), nhưng vẫn là nguồn bug #1: nil dereference và quên `&`.**
+
+| Tình huống thật | Pointer làm gì |
+|-----------------|----------------|
+| **`json.Unmarshal`, `db.Scan`, `flag`** | Phải truyền `&v` để hàm ghi vào biến của bạn |
+| **Sửa struct trong hàm/method** | Pointer receiver để thay đổi state thật |
+| **Optional/nullable field** | `*string` phân biệt "rỗng" với "không có" (NULL từ DB/JSON) |
+| **Tránh copy struct lớn** | Truyền `*BigStruct` thay vì copy mỗi lần |
+
+### 12.1. Hai bug pointer phổ biến nhất
+
+**Quên `&`**: `json.Unmarshal(data, user)` (thiếu `&`) → hàm nhận bản copy, ghi vào copy, `user` của bạn không đổi. Phải `json.Unmarshal(data, &user)`. Cùng lỗi với `db.Scan(&col)`, `flag.StringVar(&s,...)`.
+
+**Nil dereference**: `var u *User; fmt.Println(u.Name)` → panic. Xảy ra khi hàm trả `nil, err` mà bạn quên check err rồi dùng luôn con trỏ. Luôn check `if err != nil` hoặc `if p == nil` trước khi deref.
+
+> ❓ **"`return &x` cho biến local có an toàn không?"** Trong Go: **có**. Compiler làm **escape analysis** — thấy `x` thoát ra ngoài hàm thì tự cấp nó trên **heap**, GC dọn sau. Khác C (trả con trỏ tới biến stack = dangling pointer). Đây là lý do Go an toàn hơn mà vẫn cho dùng con trỏ. Xem escape: `go build -gcflags=-m`.
+
+### 12.2. 📝 Tóm tắt mục 12
+
+- Pointer thật trong: `&v` cho Unmarshal/Scan/flag, pointer receiver sửa state, `*T` cho optional/nullable, tránh copy struct lớn.
+- Hai bug #1: **quên `&`** (hàm ghi vào copy) và **nil dereference** (quên check err/nil).
+- `return &local` an toàn nhờ **escape analysis** (Go tự đẩy lên heap) — khác C.
+
 ## Bài tập
 
 ### Bài tập 1 — Đoán output 4 đoạn code

@@ -1228,6 +1228,34 @@ Trong trường hợp này 2 cách bằng nhau. Tease: với struct nhiều fiel
 
 ---
 
+## 14. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Struct + method là cách Go mô hình hóa domain — và lựa chọn value vs pointer receiver có hậu quả thật về đúng đắn lẫn hiệu năng.**
+
+| Tình huống thật | Struct/method làm gì |
+|-----------------|----------------------|
+| **Domain model** | \`User\`, \`Order\`, \`Product\` — struct ánh xạ thực thể (và bảng DB qua ORM) |
+| **Config / request DTO** | Struct + tag (\`json:"..."\`, \`validate:"..."\`) cho parse/validate |
+| **Embedding (composition)** | Nhúng struct để tái dùng — \`BaseModel{ID, CreatedAt}\` trong mọi entity |
+| **Method với pointer receiver** | Sửa state của struct (counter, builder, stateful service) |
+
+### 14.1. Value vs pointer receiver — quyết định thật
+
+\`\`\`go
+func (u User) Name() string   { return u.name }      // value: đọc, không sửa được bản gốc
+func (u *User) SetName(n string) { u.name = n }       // pointer: SỬA được bản gốc
+\`\`\`
+
+Quy tắc thực tế: (1) cần **sửa** struct → pointer receiver; (2) struct **lớn** (nhiều field) → pointer (tránh copy mỗi lần gọi); (3) **nhất quán** — nếu một method dùng pointer, mọi method nên pointer (tránh lẫn lộn). Bẫy: value receiver trên struct lớn copy toàn bộ mỗi lần gọi → chậm âm thầm trên hot path.
+
+> ❓ **"Embedding có phải kế thừa không?"** Không — Go không có kế thừa, dùng **composition**. Nhúng \`BaseModel\` vào \`User\` → \`User\` "có" các field/method của BaseModel (promoted), nhưng đó là *has-a* không phải *is-a*. Linh hoạt hơn kế thừa: nhúng nhiều struct, nhúng interface. Đây là "composition over inheritance" ([nối design patterns](../lesson-39-design-patterns-go/)).
+
+### 14.2. 📝 Tóm tắt mục 14
+
+- Struct + method = domain model (User/Order), DTO + tag (json/validate), composition qua **embedding**.
+- **Pointer receiver** khi cần sửa state hoặc struct lớn (tránh copy); nhất quán toàn type.
+- Embedding = composition (has-a), không phải kế thừa; "composition over inheritance".
+
 ## Bài tập
 
 ### BT1: Rectangle

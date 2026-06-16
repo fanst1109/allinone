@@ -742,6 +742,42 @@ Test client retry logic với `failPct=50` → kiểm tra exponential backoff ho
 
 ---
 
+## 16. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Kỹ thuật test nâng cao (integration, fuzzing, golden file, testcontainers) là khác biệt giữa "test cho có" và "test bắt được bug thật trước production".**
+
+| Kỹ thuật | Dùng thật ở đâu |
+|----------|-----------------|
+| **Integration test (DB/API thật)** | Test repo với Postgres thật trong container (testcontainers) |
+| **Fuzzing (`go test -fuzz`)** | Tự sinh input ngẫu nhiên tìm crash/panic — parser, decoder |
+| **Golden file** | So output phức tạp (render, JSON) với file mẫu đã duyệt |
+| **`httptest`** | Test HTTP handler end-to-end không cần server thật |
+| **Benchmark + `-benchmem`** | Theo dõi hiệu năng/cấp phát qua thời gian, chống hồi quy |
+
+### 16.1. Ví dụ cụ thể — fuzzing tìm bug parser
+
+Hàm parse (URL, JSON, protocol) dễ panic với input lạ. Fuzzing tự sinh hàng triệu input:
+
+```go
+func FuzzParse(f *testing.F) {
+	f.Add("valid input")          // seed
+	f.Fuzz(func(t *testing.T, s string) {
+		_ = Parse(s)               // không được panic với BẤT KỲ input nào
+	})
+}
+// go test -fuzz=FuzzParse  → chạy tới khi tìm input gây crash
+```
+
+Go tự đột biến input, lưu lại case gây fail vào `testdata/`. Fuzzing tìm ra edge case con người không nghĩ tới (chuỗi rỗng, unicode lạ, số khổng lồ). Đây là cách stdlib Go + nhiều thư viện bảo mật tìm bug parser/decoder trước khi kẻ tấn công tìm ra.
+
+> 💡 **Test pyramid trong thực tế.** Nhiều **unit test** (nhanh, chạy mỗi save), ít hơn **integration** (DB/API thật, chạy CI), rất ít **e2e** (chậm, dễ flaky). Đảo ngược (nhiều e2e) = CI chậm + flaky. Integration test với **testcontainers** (DB thật trong Docker) cân bằng tốt: gần production hơn mock, vẫn tự động được.
+
+### 16.2. 📝 Tóm tắt mục 16
+
+- Test nâng cao: **integration** (DB thật/testcontainers), **fuzzing** (`-fuzz` tìm crash parser), **golden file**, **httptest**, benchmark chống hồi quy.
+- Fuzzing tự sinh input tìm edge case con người bỏ sót → bắt panic parser/decoder.
+- Test pyramid: nhiều unit (nhanh) → ít integration → rất ít e2e (chậm/flaky).
+
 ## Bài tập
 
 ### BT1 — Fuzz test cho `Parse`

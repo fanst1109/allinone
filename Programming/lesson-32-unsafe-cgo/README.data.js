@@ -576,6 +576,29 @@ CGo có **bộ luật riêng** về truyền pointer giữa Go ↔ C, vì GC Go 
 
 ---
 
+## 17. Ứng dụng thực tế trong phần mềm
+
+> 💡 **\`unsafe\`/cgo là "lối thoát hiểm" — hiếm dùng, nhưng khi cần thì không thay được. Quy tắc #1: tránh trừ khi buộc phải.**
+
+| Tình huống thật | unsafe/cgo dùng để |
+|-----------------|---------------------|
+| **Gọi thư viện C có sẵn** | cgo bind libsqlite, libgit2, OpenSSL, driver phần cứng |
+| **Zero-copy chuyển \`[]byte\` ↔ \`string\`** | \`unsafe\` tránh copy trên hot path (thư viện hiệu năng cao) |
+| **Serialize/deserialize tốc độ tới hạn** | Đọc struct trực tiếp từ buffer (parser nhị phân) |
+| **Tương tác syscall/mmap cấp thấp** | Truy cập bộ nhớ hệ thống |
+
+### 17.1. Ví dụ cụ thể — vì sao cgo có cái giá đắt
+
+cgo cho gọi C từ Go, nhưng: (1) **chậm khi gọi qua biên** Go↔C (chuyển stack, không inline) → không hợp gọi triệu lần; (2) **mất cross-compile dễ** (cần C toolchain cho mỗi target → mất ưu thế "1 binary tĩnh", [nối toolchain](../lesson-06-hello-world-toolchain/)); (3) GC không quản bộ nhớ C → phải tự \`free\`. Vì vậy nhiều thư viện ưu tiên bản **pure-Go** (vd \`modernc.org/sqlite\` thay mattn/go-sqlite3 cgo) để giữ build đơn giản.
+
+> ⚠ **\`unsafe\` vô hiệu hóa đảm bảo an toàn của Go — dùng = tự chịu trách nhiệm.** Mất kiểm tra bounds, có thể tạo dangling pointer, crash khó debug, và **race detector không bắt** được bug unsafe. Quy tắc: (1) tránh nếu có cách an toàn; (2) nếu dùng, cô lập trong một package nhỏ, test/fuzz kỹ, comment rõ bất biến; (3) chú ý unsafe code có thể vỡ giữa các phiên bản Go (layout bộ nhớ không cam kết). 99% code ứng dụng không cần unsafe.
+
+### 17.2. 📝 Tóm tắt mục 17
+
+- \`unsafe\`/cgo = lối thoát hiểm: bind thư viện C, zero-copy \`[]byte\`↔\`string\`, parser nhị phân tốc độ cao.
+- **cgo cái giá**: chậm qua biên, mất cross-compile dễ, tự quản bộ nhớ C → ưu tiên pure-Go khi có.
+- \`unsafe\` bỏ mọi đảm bảo an toàn (race detector không bắt) → tránh; nếu dùng, cô lập + test kỹ.
+
 ## Bài tập
 
 ### Bài 1 — Compute struct layout (4 struct)

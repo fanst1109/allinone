@@ -888,6 +888,45 @@ Dùng trước khi merge code.
 
 ---
 
+## 16. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Design pattern trong Go khác Java — Go ưa composition + interface nhỏ + function, ít cần pattern nặng nề. Một số pattern bạn dùng thật mỗi ngày mà không gọi tên.**
+
+| Pattern | Dùng thật ở đâu (Go) |
+|---------|----------------------|
+| **Functional options** | `NewServer(WithPort(8080), WithTLS(...))` — config linh hoạt (rất phổ biến Go) |
+| **Strategy** | Interface + nhiều impl: `Storage` (S3/local/GCS), `Notifier` (email/SMS) |
+| **Decorator/Middleware** | Bọc handler/Reader thêm hành vi ([nối functions](../lesson-11-functions/)) |
+| **Factory** | `NewXxx()` constructor trả interface, ẩn struct cụ thể |
+| **Singleton** | `sync.Once` cho config/connection pool toàn cục |
+
+### 16.1. Ví dụ cụ thể — functional options, pattern "rất Go"
+
+Constructor nhiều tham số tùy chọn → thay vì 10 tham số hoặc struct config khổng lồ, dùng options:
+
+```go
+type Option func(*Server)
+func WithPort(p int) Option    { return func(s *Server) { s.port = p } }
+func WithTimeout(d time.Duration) Option { return func(s *Server) { s.timeout = d } }
+
+func NewServer(opts ...Option) *Server {
+	s := &Server{port: 8080, timeout: 30 * time.Second} // mặc định
+	for _, opt := range opts { opt(s) }
+	return s
+}
+// NewServer(WithPort(9000))  — chỉ override cái cần, phần khác mặc định
+```
+
+API gọn, mở rộng được (thêm option không phá chữ ký cũ), tự tài liệu. `grpc`, `zap`, nhiều thư viện Go dùng pattern này. Đây là functional option = closure + variadic ([nối functions](../lesson-11-functions/)).
+
+> ⚠ **Đừng bê nguyên pattern Java vào Go.** Nhiều pattern GoF (AbstractFactory, Visitor nhiều tầng) sinh ra để vá thiếu sót của Java cũ — Go có **interface ngầm + function first-class + composition** nên thường giải gọn hơn. Vd: không cần "Iterator pattern" (dùng `range`/channel), ít cần "Singleton" (dùng package-level var + `sync.Once`). Quy tắc Go: interface nhỏ, composition, đừng over-engineer.
+
+### 16.2. 📝 Tóm tắt mục 16
+
+- Pattern "rất Go": **functional options** (config linh hoạt), **strategy** (interface + impl), **middleware/decorator**, **factory** trả interface.
+- Functional options = closure + variadic → API gọn, mở rộng không phá chữ ký.
+- Đừng bê pattern Java nặng vào Go — interface ngầm + composition + function thường giải gọn hơn.
+
 ## Bài tập
 
 ### BT1. Refactor sang Functional Options

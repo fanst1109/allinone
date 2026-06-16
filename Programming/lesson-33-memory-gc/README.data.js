@@ -750,6 +750,36 @@ defer ticker.Stop()
 
 ---
 
+## 12. Ứng dụng thực tế trong phần mềm
+
+> 💡 **GC làm bạn quên \`free()\`, nhưng KHÔNG quên rò rỉ — goroutine leak, slice giữ mảng lớn, không Close là bug bộ nhớ thật ở Go.**
+
+| Vấn đề production | Nguyên nhân |
+|-------------------|-------------|
+| **Memory tăng dần rồi OOM** | Goroutine leak (chờ channel không bao giờ đến), map chỉ thêm không xóa |
+| **RAM cao bất ngờ** | Slice nhỏ \`s[:1]\` vẫn giữ **cả mảng nền lớn** không được GC |
+| **GC pause ảnh hưởng latency** | Cấp phát quá nhiều rác → GC chạy thường → p99 tăng |
+| **File descriptor leak** | Quên \`defer Close()\` → cạn FD → "too many open files" |
+
+### 12.1. Ví dụ cụ thể — goroutine leak làm tăng RAM
+
+\`\`\`go
+func leak() {
+	ch := make(chan int)        // không ai gửi vào ch
+	go func() { <-ch }()         // goroutine này chờ MÃI MÃI → không bao giờ chết
+}
+\`\`\`
+
+Mỗi lần gọi \`leak()\` tạo một goroutine kẹt vĩnh viễn → tích lũy → RAM tăng dần → OOM sau vài giờ/ngày. GC **không** dọn goroutine đang chờ (nó "còn sống"). Đây là rò rỉ phổ biến nhất Go. Phát hiện: \`pprof\` xem số goroutine tăng đều ([nối profiling](../lesson-34-profiling-pprof/)). Sửa: dùng \`context\` để hủy ([nối context](../lesson-29-context-cancellation/)), hoặc đảm bảo channel luôn có lối thoát.
+
+> ⚠ **Slice giữ mảng nền lớn — rò rỉ ẩn.** \`big := make([]byte, 1<<20); small := big[:10]\` — \`small\` chỉ 10 byte nhưng giữ tham chiếu **cả 1MB** mảng nền → GC không thu được 1MB đó khi \`big\` hết dùng. Nếu \`small\` sống lâu (lưu vào cache/struct) → rò rỉ. Sửa: \`small := append([]byte{}, big[:10]...)\` (copy ra mảng nhỏ mới). Cùng cơ chế aliasing slice ([nối slices](../lesson-12-arrays-slices/)).
+
+### 12.2. 📝 Tóm tắt mục 12
+
+- GC dọn rác tự động nhưng **không** dọn: goroutine leak (chờ vĩnh viễn), slice giữ mảng nền lớn, FD chưa Close.
+- Goroutine leak = rò rỉ #1 → dùng context hủy; phát hiện bằng pprof (goroutine count tăng).
+- Giảm rác cấp phát → GC ít chạy → p99 latency tốt hơn.
+
 ## Bài tập
 
 ### BT1 — Predict escape của 6 function

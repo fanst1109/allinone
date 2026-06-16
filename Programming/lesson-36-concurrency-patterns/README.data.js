@@ -832,6 +832,43 @@ Nếu in-flight quá lâu (> 5s): \`Shutdown\` return \`context deadline exceede
 
 ---
 
+## 14. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Concurrency pattern của Go (worker pool, fan-out/in, pipeline) là vì sao Go được chọn cho hệ throughput cao — xử lý hàng nghìn việc song song với code gọn.**
+
+| Pattern | Dùng thật ở đâu |
+|---------|-----------------|
+| **Worker pool** | Xử lý job nền: gửi email, resize ảnh, crawl — giới hạn N worker |
+| **Fan-out / fan-in** | Chia việc cho nhiều goroutine rồi gom kết quả (map-reduce nhỏ) |
+| **Pipeline** | Chuỗi stage qua channel: đọc → transform → ghi (ETL, xử lý stream) |
+| **\`errgroup\`** | Chạy song song nhiều task, dừng tất cả khi một cái lỗi |
+| **\`rate.Limiter\` / semaphore** | Giới hạn số request đồng thời tới DB/API ngoài |
+
+### 14.1. Ví dụ cụ thể — worker pool giới hạn tải
+
+Crawl 10.000 URL: tạo 10.000 goroutine cùng lúc → quá tải mạng/DB đích, OOM. **Worker pool**: N=20 worker đọc từ một channel job, xử lý song song có giới hạn:
+
+\`\`\`go
+jobs := make(chan string, 100)
+var wg sync.WaitGroup
+for i := 0; i < 20; i++ {          // đúng 20 worker
+	wg.Add(1)
+	go func() { defer wg.Done(); for url := range jobs { fetch(url) } }()
+}
+for _, u := range urls { jobs <- u }
+close(jobs); wg.Wait()
+\`\`\`
+
+20 request đồng thời thay vì 10.000 → ổn định. Đây là pattern xử lý batch/background job chuẩn ([nối mini-project scraper](../lesson-41-mini-project-concurrent-scraper/)).
+
+> ⚠ **Bẫy concurrency thật: leak, race, deadlock.** (1) Goroutine **leak** nếu channel không đóng/không có lối thoát ([nối memory](../lesson-33-memory-gc/)). (2) **Race** khi nhiều goroutine ghi chung biến → \`-race\` bắt. (3) **Deadlock** khi mọi goroutine chờ nhau (gửi vào channel không ai nhận). Quy tắc: "đừng giao tiếp bằng chia sẻ bộ nhớ, hãy chia sẻ bộ nhớ bằng giao tiếp" (channel). Giới hạn đồng thời để không làm sập dependency.
+
+### 14.2. 📝 Tóm tắt mục 14
+
+- Pattern thật: **worker pool** (giới hạn N), **fan-out/in**, **pipeline** (ETL/stream), **errgroup**, **rate.Limiter**.
+- Worker pool giới hạn tải → không tạo nghìn goroutine làm sập mạng/DB đích.
+- Ba bẫy: leak (channel không thoát), race (\`-race\` bắt), deadlock (chờ vòng).
+
 ## Bài tập
 
 ### BT1 — Generic Worker Pool

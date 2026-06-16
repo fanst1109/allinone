@@ -869,7 +869,47 @@ Lộ IP DB, lộ port, lộ driver. Dùng \`httpError(err)\` middleware tách in
 
 ---
 
-## 15. Bài tập
+## 15. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Xử lý lỗi sâu (error type, panic/recover, sentinel vs wrapped) là khác biệt giữa hệ thống "sập im lặng" và hệ thống "lỗi rõ ràng, phục hồi được".**
+
+| Kỹ thuật | Dùng thật ở đâu |
+|----------|-----------------|
+| **Custom error type** | \`ValidationError{Field, Msg}\` mang dữ liệu để xử lý/hiển thị theo loại |
+| **\`recover()\` trong middleware** | Bắt panic của handler → trả 500 thay vì sập cả server |
+| **Sentinel + \`errors.Is\`** | Phân loại lỗi qua nhiều tầng → map HTTP status |
+| **Error group / multierror** | Gom nhiều lỗi (validate nhiều field cùng lúc) |
+| **Retry + backoff theo loại lỗi** | Retry lỗi tạm thời (network), không retry lỗi vĩnh viễn (400) |
+
+### 15.1. Ví dụ cụ thể — recover middleware giữ server sống
+
+Một panic trong handler (nil deref, index out of range) sẽ **giết cả goroutine** — nếu không bắt, có thể sập server. Middleware recover:
+
+\`\`\`go
+func Recover(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if err := recover(); err != nil {
+				log.Printf("panic: %v\\n%s", err, debug.Stack()) // log + stack để debug
+				http.Error(w, "internal error", 500)            // trả 500, không sập
+			}
+		}()
+		next.ServeHTTP(w, r)
+	})
+}
+\`\`\`
+
+Một request lỗi → trả 500 cho request đó, **các request khác vẫn chạy**. Mọi framework web Go có middleware này. Nhưng nhớ: recover chỉ là **lưới an toàn cuối** — lỗi nghiệp vụ vẫn nên trả \`error\` tường minh, không dựa vào panic/recover làm luồng điều khiển.
+
+> ⚠ **\`panic/recover\` KHÔNG phải try/catch.** Dùng panic cho lỗi nghiệp vụ (input sai) là anti-pattern Go: khó theo dõi, bỏ qua giá trị trả, không phân loại được. Quy tắc: **trả \`error\`** cho mọi lỗi mong đợi; **panic** chỉ cho lỗi lập trình không thể tiếp tục (bug); **recover** chỉ ở biên (middleware, goroutine gốc) làm lưới an toàn. Đừng recover rồi nuốt lỗi im lặng.
+
+### 15.2. 📝 Tóm tắt mục 15
+
+- Error sâu: **custom error type** (mang dữ liệu), **recover middleware** (panic → 500, không sập), sentinel + \`Is\`, multierror, retry theo loại lỗi.
+- Recover = lưới an toàn cuối ở biên; **không** dùng panic/recover làm try/catch cho lỗi nghiệp vụ.
+- Lỗi mong đợi → trả \`error\`; panic chỉ cho bug không thể tiếp tục.
+
+## 16. Bài tập
 
 ### Bài 1 — \`AppError\` struct + constructor
 
@@ -942,7 +982,7 @@ Xác định mọi anti-pattern và viết lại đúng.
 
 ---
 
-## 16. Lời giải chi tiết
+## 17. Lời giải chi tiết
 
 ### Lời giải 1
 
@@ -1203,7 +1243,7 @@ Khác biệt: validation có code + field, error wrap context có id+amount, aud
 
 ---
 
-## 17. Code & Minh hoạ
+## 18. Code & Minh hoạ
 
 - Code đầy đủ: [solutions.go](./solutions.go) — chạy \`go run solutions.go\`.
 - Tương tác: [visualization.html](./visualization.html) — 3 module:
@@ -1213,7 +1253,7 @@ Khác biệt: validation có code + field, error wrap context có id+amount, aud
 
 ---
 
-## 18. Bài tiếp theo
+## 19. Bài tiếp theo
 
 - → [Lesson 41 — Mini-project: Concurrent Scraper](../lesson-41-mini-project-concurrent-scraper/) — áp dụng error handling + context + concurrency vào project thật.
 - Đi ngang: [Lesson 19 — Errors (cơ bản)](../lesson-19-errors/), [Lesson 36 — Concurrency Patterns](../lesson-36-concurrency-patterns/).

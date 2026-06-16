@@ -532,7 +532,31 @@ Với Go 1.18+, **generics** giải quyết phần lớn use case mà trước p
 
 ---
 
-## 15. Bài tập
+## 15. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Reflection mạnh nhưng chậm + mất type-safety — bạn hiếm khi viết, nhưng dùng nó gián tiếp qua MỌI thư viện encode/ORM/validate.**
+
+| Thư viện bạn dùng | Reflection làm gì bên trong |
+|-------------------|------------------------------|
+| **\`encoding/json\`** | Đọc struct tag \`json:"..."\`, map field ↔ JSON key lúc runtime |
+| **ORM (GORM, sqlx)** | Map cột DB ↔ field struct qua tag + reflect |
+| **Validator (\`validate:"required"\`)** | Đọc tag, kiểm field theo luật |
+| **\`fmt.Printf("%+v")\`** | Duyệt field in giá trị |
+| **DI framework, config loader** | Điền struct từ env/yaml theo tên/tag |
+
+### 15.1. Ví dụ cụ thể — vì sao \`json.Marshal\` cần reflection
+
+\`json.Marshal(anyStruct)\` không biết trước struct nào → dùng reflect lúc runtime: duyệt từng field, đọc tag \`json:"name,omitempty"\`, lấy giá trị, sinh JSON. Đó là lý do nó nhận \`interface{}\` và chạy với **bất kỳ** struct. Cái giá: chậm hơn code sinh tay ~vài lần. Thư viện hiệu năng cao (easyjson, ffjson) **sinh code** lúc build thay reflect để nhanh hơn — đánh đổi linh hoạt lấy tốc độ.
+
+> ⚠ **Đừng tự viết reflection trừ khi buộc phải.** Reflect: (1) **chậm** (không inline, kiểm type runtime); (2) **mất type-safety** (lỗi thành panic runtime thay vì compile error); (3) **khó đọc/bảo trì**. Từ Go 1.18 có **generics** — nhiều việc trước cần reflect (container generic, hàm tổng quát) giờ dùng generics: nhanh, type-safe, rõ ràng. Quy tắc: thấy mình viết reflect → hỏi "generics được không?".
+
+### 15.2. 📝 Tóm tắt mục 15
+
+- Reflection chạy bên trong mọi thư viện **encode/JSON, ORM, validator, fmt, config loader** (đọc struct tag lúc runtime).
+- Cái giá: chậm + mất type-safety → thư viện tốc độ cao sinh code thay reflect.
+- Hiếm khi tự viết; Go 1.18+ có **generics** thay nhiều ca dùng reflect cũ.
+
+## 16. Bài tập
 
 ### BT1 — Print all fields (recursive)
 
@@ -621,7 +645,7 @@ fmt.Println(t.Field(0).Tag.Get("json"))  // muốn in "name"
 
 ---
 
-## 16. Lời giải chi tiết
+## 17. Lời giải chi tiết
 
 ### BT1 — PrintFields recursive
 
@@ -800,7 +824,7 @@ type User struct {
 
 ---
 
-## 17. Code & Minh họa
+## 18. Code & Minh họa
 
 - [solutions.go](./solutions.go) — code thực thi đầy đủ: TypeOf/ValueOf demo, walk struct, modify với Elem, dynamic call, simple validator.
 - [visualization.html](./visualization.html) — 3 module tương tác: struct inspector, settable check, performance compare.

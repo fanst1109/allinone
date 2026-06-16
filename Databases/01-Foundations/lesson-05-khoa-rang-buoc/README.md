@@ -379,7 +379,35 @@ CREATE TABLE order_items (
 
 ---
 
-## 9. Bài tập
+## 9. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Ràng buộc (constraint) là "lớp phòng thủ cuối cùng" cho dữ liệu — nó đúng kể cả khi code app có bug.** Đây là quyết định kiến trúc thật: validate ở DB, ở app, hay cả hai.
+
+| Ràng buộc | Chặn lỗi thật gì |
+|-----------|------------------|
+| **PRIMARY KEY / UNIQUE** | Hai user trùng email, đặt đơn trùng (idempotency) |
+| **FOREIGN KEY** | Đơn hàng trỏ tới user đã bị xóa (orphan record) |
+| **NOT NULL / CHECK** | `balance < 0`, `status` ngoài tập cho phép, field bắt buộc bị bỏ trống |
+| **ON DELETE CASCADE/RESTRICT** | Xóa user → xóa luôn đơn (cascade) hoặc cấm xóa (restrict) |
+| **DEFAULT** | `created_at`, `status='pending'` tự điền |
+
+### 9.1. Ví dụ cụ thể — vì sao validate ở DB chứ không chỉ ở app
+
+App của bạn check "email không trùng" trong code. Nhưng: (1) hai request đến **đồng thời** cùng vượt qua check rồi cùng insert → trùng; (2) một service khác / script migration ghi thẳng vào DB, bỏ qua code app. **UNIQUE constraint** ở DB chặn cả hai — nó là chân lý duy nhất, không phụ thuộc app nào ghi. Đây là nguyên tắc "DB là người gác cổng cuối": app validate để UX tốt (báo lỗi sớm), DB constraint để **đảm bảo** (không bao giờ sai).
+
+> ⚠ **Bẫy production — quên FK gây "orphan record".** Xóa user mà không có FK ON DELETE → các đơn hàng của user đó trỏ tới id không còn tồn tại → app crash khi join, báo cáo sai. FK với `ON DELETE RESTRICT` (cấm xóa nếu còn đơn) hoặc `CASCADE` (xóa kèm) giữ toàn vẹn tham chiếu. Nhiều bug "dữ liệu ma" đến từ thiếu FK.
+
+### 9.2. Surrogate vs natural key trong thực tế (§6)
+
+Hầu hết hệ thống dùng **surrogate key** (`id` auto-increment hoặc UUID) làm PK, kể cả khi có natural key (email, CMND). Lý do: natural key có thể **đổi** (đổi email) → vỡ mọi FK trỏ tới; surrogate ổn định mãi mãi. UUID còn cho phép sinh id ở client/nhiều server không đụng nhau (hữu ích khi [sharding](../../03-Advanced/lesson-03-replication-sharding/)).
+
+### 9.3. 📝 Tóm tắt mục 9
+
+- Constraint = lớp phòng thủ cuối, đúng kể cả khi code app có bug: **UNIQUE** (chống trùng/race), **FK** (chống orphan), **CHECK/NOT NULL** (chống dữ liệu rác).
+- Validate ở app (UX) **và** DB (đảm bảo) — DB là chân lý cuối vì nhiều nguồn ghi.
+- Production thường dùng **surrogate key** (id/UUID) vì natural key có thể đổi → vỡ FK.
+
+## 10. Bài tập
 
 1. **Xác định candidate key.** Cho bảng `employees(emp_id, ssn, email, dept_id, name)`, biết: `emp_id` duy nhất, `ssn` (số an sinh xã hội) duy nhất, `email` duy nhất, `dept_id` *không* duy nhất (nhiều người cùng phòng), `name` không duy nhất. Liệt kê tất cả candidate key. Cho một ví dụ super key *không* phải candidate key. Bạn chọn cột nào làm primary key, vì sao?
 
@@ -399,7 +427,7 @@ CREATE TABLE order_items (
 
 ---
 
-## 10. Lời giải chi tiết
+## 11. Lời giải chi tiết
 
 ### Bài 1 — Xác định candidate key
 
@@ -440,7 +468,7 @@ Giải thích: `sku` vừa `UNIQUE` vừa `NOT NULL` (mã hàng bắt buộc, kh
 
 ---
 
-## 11. Code & Minh họa
+## 12. Code & Minh họa
 
 - Minh họa tương tác: [visualization.html](./visualization.html) — (1) thử chèn trùng/NULL vào primary key và xem UNIQUE cho nhiều NULL; (2) hai bảng customers/orders với foreign key, mô phỏng từ chối khi vi phạm và xem CASCADE/SET NULL/RESTRICT khi xóa khách; (3) bộ kiểm tra CHECK constraint với `price`, `age`.
 

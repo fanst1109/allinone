@@ -250,7 +250,31 @@ Với bảng \`SinhVien(MaSV, HoTen, Tuoi, Tinh)\`, giả sử \`MaSV\` là duy 
 
 ---
 
-## 6. Bài tập
+## 6. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Mô hình quan hệ không phải lý thuyết hàn lâm — nó là cách 90% backend tổ chức dữ liệu, và là lý do ORM tồn tại.**
+
+| Khái niệm bài này | Hiện ra ở đâu trong code thật |
+|-------------------|-------------------------------|
+| **Quan hệ = bảng, bộ = dòng** | Mỗi \`CREATE TABLE\`, mỗi dòng = một bản ghi (user, order...) |
+| **Thuộc tính = cột có kiểu** | Schema migration (\`ADD COLUMN\`), kiểu cột chống dữ liệu rác |
+| **Khóa** | Primary key (id), foreign key (quan hệ giữa bảng) |
+| **NULL & logic 3 trị** | Bẫy \`WHERE x != 5\` bỏ sót dòng NULL; \`IS NULL\` thay vì \`= NULL\` |
+| **Quan hệ = tập hợp (không thứ tự, không trùng)** | Vì sao kết quả query không đảm bảo thứ tự nếu thiếu \`ORDER BY\` |
+
+### 6.1. Ví dụ cụ thể — ORM ánh xạ class ↔ bảng
+
+Khi viết \`class User\` trong code và lưu xuống DB, **ORM** (Hibernate, Django ORM, GORM, Prisma) ánh xạ: class → bảng, object → dòng, field → cột, quan hệ object → foreign key. Toàn bộ ánh xạ này dựa trên mô hình quan hệ bài này. Hiểu "bảng là tập các bộ" giải thích vì sao ORM cần \`id\` (khóa để phân biệt bộ), vì sao quan hệ nhiều-nhiều cần **bảng trung gian** (quan hệ không lưu được "danh sách" trong một ô — vi phạm 1NF, [chuẩn hóa](../../02-Intermediate/lesson-01-chuan-hoa/)).
+
+> ⚠ **Bẫy NULL trong logic 3 trị (§4) — gặp thật mỗi ngày.** \`SELECT * FROM users WHERE age != 30\` sẽ **bỏ sót** user có \`age IS NULL\` (vì \`NULL != 30\` cho UNKNOWN, không TRUE). Lỗi này gây "thiếu dữ liệu" âm thầm trong báo cáo. Luôn xử lý NULL tường minh: \`WHERE age != 30 OR age IS NULL\`.
+
+### 6.2. 📝 Tóm tắt mục 6
+
+- Mô hình quan hệ = nền của mọi SQL DB + lý do **ORM** tồn tại (class↔bảng, object↔dòng).
+- Quan hệ nhiều-nhiều → bảng trung gian (không nhét list vào 1 ô).
+- Bẫy thật: **NULL logic 3 trị** làm \`!=\` bỏ sót dòng NULL; kết quả không có thứ tự nếu thiếu \`ORDER BY\`.
+
+## 7. Bài tập
 
 1. **Bậc và lực lượng.** Cho quan hệ \`DonHang(MaDon, MaKH, NgayDat, TongTien)\` đang chứa 5.420 đơn hàng. (a) Bậc là bao nhiêu? (b) Lực lượng là bao nhiêu? (c) Nếu xóa 20 đơn và thêm cột \`TrangThai\`, bậc và lực lượng mới là bao nhiêu?
 
@@ -264,7 +288,7 @@ Với bảng \`SinhVien(MaSV, HoTen, Tuoi, Tinh)\`, giả sử \`MaSV\` là duy 
 
 ---
 
-## 7. Lời giải chi tiết
+## 8. Lời giải chi tiết
 
 ### Bài 1 — Bậc và lực lượng
 
@@ -320,7 +344,7 @@ Giờ mỗi ô chứa một giá trị đơn (atomic ✓), và truy vấn theo t
 
 ---
 
-## 8. Code & Minh họa
+## 9. Code & Minh họa
 
 - Minh họa tương tác: [visualization.html](./visualization.html) — gồm ba mô-đun: (1) bảng \`SinhVien\` cho bấm xem degree/cardinality tự cập nhật và highlight một bộ/thuộc tính; (2) mô phỏng tích Descartes hai domain nhỏ rồi chọn tập con để tạo "một quan hệ"; (3) bộ kiểm tra logic ba trị với NULL.
 - Mô hình quan hệ là một ứng dụng trực tiếp của lý thuyết tập hợp: [DataFoundations — Set Theory](../../../DataFoundations/03-MathFoundations/index.html).

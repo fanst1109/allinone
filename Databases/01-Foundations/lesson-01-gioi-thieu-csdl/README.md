@@ -144,7 +144,32 @@ Phần lớn bài học dùng góc nhìn OLTP. OLAP và data warehouse là [Less
 
 ---
 
-## 6. Bài tập
+## 6. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Mọi ứng dụng "có lưu dữ liệu" đều dùng một DBMS — câu hỏi chỉ là DBMS nào.** Hiểu §3 (5 vấn đề) + §5 (OLTP/OLAP) giúp bạn chọn đúng.
+
+| DBMS | Loại | Dùng khi | Sản phẩm thật |
+|------|------|----------|---------------|
+| **PostgreSQL** | Quan hệ (OLTP) | Cần SQL mạnh, transaction, dữ liệu có quan hệ | GitLab, hầu hết backend web |
+| **MySQL/MariaDB** | Quan hệ (OLTP) | Web app phổ thông, đọc nhiều | WordPress, nhiều SaaS |
+| **SQLite** | Quan hệ nhúng | App mobile/desktop, file đơn, không cần server | điện thoại (mỗi app Android/iOS), trình duyệt |
+| **Redis** | Key-value (in-memory) | Cache, session, rate-limit, leaderboard | gần như mọi hệ scale lớn |
+| **MongoDB** | Document (NoSQL) | Dữ liệu lồng nhau, schema linh hoạt | catalog, CMS |
+| **ClickHouse/BigQuery** | Cột (OLAP) | Phân tích, báo cáo trên tỉ dòng | dashboard analytics |
+
+### 6.1. Ví dụ cụ thể — vì sao không "chỉ dùng file"
+
+§1 hỏi "một file có đủ không?". Thử thật: app bán hàng 2 người cùng đặt đơn cuối cùng → ghi file đồng thời → **mất dữ liệu** (không có khóa/transaction). Truy vấn "đơn > 1 triệu của khách VIP" trên file = đọc toàn bộ; DB có **index** → tức thì. Đây là 5 vấn đề §3 thành hậu quả thật: đồng thời, toàn vẹn, truy vấn, phân quyền, phục hồi. Vì vậy ngay cả app nhỏ cũng dùng SQLite thay vì file phẳng.
+
+> ❓ **"App của tôi nhỏ, có cần DB không?"** Có — nhưng chọn loại phù hợp. App mobile/desktop một người dùng → **SQLite** (nhẹ, không cần server, vẫn có SQL+transaction). Web nhiều người → **Postgres/MySQL**. Đừng tự viết lưu file: bạn sẽ phải tái phát minh đúng 5 thứ DBMS đã giải (§3).
+
+### 6.2. 📝 Tóm tắt mục 6
+
+- Mọi app có lưu dữ liệu đều dùng DBMS; chọn theo tải: **OLTP** (Postgres/MySQL/SQLite) vs **OLAP** (ClickHouse/BigQuery) vs **cache** (Redis) vs **document** (Mongo).
+- File phẳng thất bại ở 5 điểm §3 (đồng thời, toàn vẹn, truy vấn, phân quyền, phục hồi) ngay khi app lớn lên.
+- App nhỏ một người → SQLite; web nhiều người → Postgres/MySQL. Đừng tự lưu file.
+
+## 7. Bài tập
 
 1. **Phân loại khái niệm.** Với mỗi mục, ghi rõ nó là *database*, *DBMS*, hay *ngôn ngữ truy vấn*: (a) MySQL; (b) `inventory_db`; (c) `UPDATE products SET stock = stock - 1;`; (d) PostgreSQL; (e) SQL.
 
@@ -156,7 +181,7 @@ Phần lớn bài học dùng góc nhìn OLTP. OLAP và data warehouse là [Less
 
 ---
 
-## 7. Lời giải chi tiết
+## 8. Lời giải chi tiết
 
 ### Bài 1 — Phân loại khái niệm
 
@@ -192,7 +217,7 @@ Phần lớn bài học dùng góc nhìn OLTP. OLAP và data warehouse là [Less
 
 ---
 
-## 8. Code & Minh họa
+## 9. Code & Minh họa
 
 - Minh họa tương tác: [visualization.html](./visualization.html) — so sánh trực quan quét file phẳng vs index, mô phỏng 5 vấn đề của DBMS, và bộ phân loại OLTP/OLAP.
 

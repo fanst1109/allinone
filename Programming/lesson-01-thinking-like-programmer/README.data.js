@@ -663,7 +663,30 @@ Khi đã trả lời 3 câu, bug thường tự lộ ra. Đây là **debug có h
 > - #3 Copy không hiểu → đọc + trace + comment lại.
 > - #4 Đoán + sửa → "expect gì, thấy gì, khác ở đâu".
 
-## 6. Bài tập
+## 6. Ứng dụng thực tế trong phần mềm
+
+> 💡 **"Tư duy như lập trình viên" không phải khẩu hiệu — nó là quy trình bạn dùng mỗi ngày: phân rã bài toán, đọc trước khi sửa, debug có hệ thống.**
+
+| Kỹ năng tư duy | Hiện ra ở đâu trong công việc |
+|----------------|-------------------------------|
+| **Phân rã (decomposition)** | Chia tính năng lớn thành task nhỏ, chia hàm lớn thành hàm nhỏ |
+| **Trừu tượng hóa** | Đặt tên hàm/biến đúng, thiết kế interface, ẩn chi tiết |
+| **Nhận diện pattern** | "Bài này giống bài đã giải" → tái dùng cách tiếp cận |
+| **Debug có hệ thống** | "Mong gì, thấy gì, khác ở đâu" thay vì đoán mò sửa bừa |
+
+### 6.1. Ví dụ cụ thể — phân rã một feature thật
+
+"Thêm tính năng quên mật khẩu" nghe to. Phân rã: (1) form nhập email → (2) sinh token + lưu DB có hạn → (3) gửi email chứa link → (4) trang đặt lại mật khẩu → (5) verify token + cập nhật. Mỗi bước thành một task/hàm test được riêng. Đây là kỹ năng #1 phân biệt người làm được việc lớn: không nhìn "feature khổng lồ" mà thấy "chuỗi bước nhỏ rõ ràng". Cùng tư duy chia-để-trị của thuật toán, áp vào tổ chức công việc.
+
+> 💡 **Debug có hệ thống = tiết kiệm hàng giờ.** Thay vì đoán + sửa bừa (rồi tạo bug mới), hỏi 3 câu: (1) **mong đợi** gì? (2) thực tế **thấy** gì? (3) **khác** nhau ở đâu? Rồi thu hẹp: log/print giữa luồng, binary-search nguyên nhân (tắt nửa code xem lỗi còn không). Đây là cùng tư duy [binary search](../../Algorithms/lesson-12-binary-search-variants/) áp vào tìm bug — kỹ năng dùng cả đời.
+
+### 6.2. 📝 Tóm tắt mục 6
+
+- Tư duy lập trình = quy trình thật: **phân rã** (feature→task nhỏ), **trừu tượng** (đặt tên/interface), **nhận diện pattern**, **debug hệ thống**.
+- Phân rã feature lớn thành chuỗi bước test được = kỹ năng làm việc lớn.
+- Debug: "mong gì / thấy gì / khác đâu" + binary-search nguyên nhân, không đoán mò.
+
+## 7. Bài tập
 
 Mỗi bài làm trước, sau đó so với lời giải ở mục 7. **Đừng đọc lời giải trước.**
 
@@ -736,7 +759,7 @@ Bài toán: **"Đảo ngược một chuỗi"** (vd \`"hello"\` → \`"olleh"\`)
 5. (Chưa cần code Go — bạn chưa học. Bỏ qua bước này hoặc viết bằng ngôn ngữ bạn đã quen.)
 6. Test với các ví dụ bước 2.
 
-## 7. Lời giải chi tiết
+## 8. Lời giải chi tiết
 
 ### Lời giải bài 1
 
@@ -886,7 +909,7 @@ Edge case:
 
 Cả 5 case pass. Xong.
 
-## 8. Code & Minh hoạ
+## 9. Code & Minh hoạ
 
 Lesson này **không có \`solutions.go\`** (chưa học Go). Code Go preview trong README chỉ để bạn thấy ánh xạ từ pseudocode → Go thật khi đến Tier 1.
 

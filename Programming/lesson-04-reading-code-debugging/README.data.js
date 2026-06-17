@@ -644,7 +644,31 @@ Format này gọi là **STAR** (Situation, Task, Action, Result) hoặc **XY for
 
 ---
 
-## 11. Bài tập
+## 11. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Lập trình viên dành nhiều thời gian ĐỌC code hơn VIẾT — và debug là kỹ năng tách biệt "junior loay hoay" với "senior tìm bug trong 5 phút".**
+
+| Kỹ năng | Công cụ/cách thật |
+|---------|-------------------|
+| **Đọc codebase lạ** | Tìm entry point (\`main\`), lần theo luồng, đọc test để hiểu hành vi |
+| **Debugger (Delve)** | \`dlv debug\`, breakpoint, inspect biến — thay vì rải \`print\` |
+| **Đọc stack trace** | Lần từ dòng panic ngược lên tìm nguồn |
+| **\`git blame\` / \`git bisect\`** | Ai/khi nào đổi dòng này; commit nào gây bug |
+| **Log có cấu trúc** | Truy vết luồng request qua nhiều service ([nối logging](../lesson-72-structured-logging/)) |
+
+### 11.1. Ví dụ cụ thể — debug có hệ thống thay vì đoán
+
+Bug "API trả 500 ngẫu nhiên". Cách junior: đổi code đại, deploy, xem hết chưa. Cách hệ thống: (1) **tái hiện** (request nào? input gì?); (2) **đọc stack trace** trong log → dòng panic; (3) **thu hẹp** (log giá trị quanh đó, hoặc breakpoint Delve); (4) tìm ra \`nil map\`/\`index out of range\`; (5) sửa + thêm test chặn hồi quy. Cùng tư duy [binary search](../../Algorithms/lesson-12-binary-search-variants/): mỗi bước loại nửa khả năng. \`git bisect\` tự động hóa khi cần tìm commit gây lỗi.
+
+> 💡 **Đọc test = tài liệu sống.** Vào codebase lạ, đọc file \`*_test.go\` của một package = hiểu nó **làm gì** (input→output mong đợi) nhanh hơn đọc cả implementation. Test thể hiện ý định + edge case. Đây là mẹo onboarding vào dự án mới nhanh nhất.
+
+### 11.2. 📝 Tóm tắt mục 11
+
+- Đọc code > viết code: tìm entry point + đọc **test** (tài liệu sống) để hiểu codebase lạ nhanh.
+- Debug hệ thống: tái hiện → đọc stack trace → thu hẹp (Delve/log, binary-search) → sửa + test hồi quy.
+- \`git blame\`/\`bisect\` truy nguồn thay đổi/commit gây bug; log có cấu trúc truy vết xuyên service.
+
+## 12. Bài tập
 
 ### Bài 1 — Trace request flow trong codebase Go nhỏ
 
@@ -737,7 +761,7 @@ Hệt 5 thứ bạn check theo thứ tự ưu tiên, kèm lý do tại sao thứ
 
 ---
 
-## 12. Lời giải chi tiết
+## 13. Lời giải chi tiết
 
 ### Bài 1
 
@@ -814,7 +838,7 @@ Heuristic: thấy \`make([]T, n)\` thì loop chạy \`i := 0; i < n; i++\`, khô
 
 ---
 
-## 13. Code & Minh hoạ
+## 14. Code & Minh hoạ
 
 Lesson này không có \`solutions.go\`. Mở \`visualization.html\` để chơi 3 module tương tác:
 - **Codebase explorer** — click qua các file để trace happy path 1 request.
@@ -825,7 +849,7 @@ Lesson này không có \`solutions.go\`. Mở \`visualization.html\` để chơi
 
 ---
 
-## 14. Bài tiếp theo
+## 15. Bài tiếp theo
 
 → [Lesson 05 — Vì sao Go? (Triết lý)](../lesson-05-why-go-philosophy/README.md) — bắt đầu chạm code Go thực sự.
 

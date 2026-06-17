@@ -548,6 +548,47 @@ case 1:
 
 > 📝 **Tóm tắt mục 10**: nil check trái trước; `=` không dùng trong condition (trừ init); type switch luôn `v :=`; switch quan trọng thêm `default`; `fallthrough` ở đáy case.
 
+## 11. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Control flow "ai cũng biết", nhưng cách viết nó tạo ra code dễ đọc hay rối — guard clause, early return, switch là phong cách thật trong codebase production.**
+
+| Kỹ thuật | Trong code thật |
+|----------|-----------------|
+| **Guard clause / early return** | Check lỗi/điều kiện sai → `return` sớm, tránh lồng if sâu |
+| **`switch` thay if-else dài** | Phân loại status/type, state machine, router |
+| **`for` + `select`** | Vòng lặp sự kiện (event loop), xử lý nhiều channel |
+| **`defer` cleanup theo nhánh** | Đóng tài nguyên dù return ở nhánh nào |
+
+### 11.1. Ví dụ cụ thể — guard clause làm code phẳng, dễ đọc
+
+```go
+// ❌ lồng sâu — khó đọc
+func process(u *User) error {
+	if u != nil {
+		if u.Active {
+			if u.Balance > 0 { return charge(u) }
+		}
+	}
+	return errInvalid
+}
+// ✅ guard clause — phẳng, lỗi xử lý sớm
+func process(u *User) error {
+	if u == nil || !u.Active { return errInvalid }
+	if u.Balance <= 0 { return errNoBalance }
+	return charge(u)
+}
+```
+
+Early return cho lỗi trước, giữ "happy path" ở lề trái → đọc từ trên xuống không phải lần theo if lồng. Đây là phong cách Go chuẩn (và lý do `if err != nil { return err }` xuất hiện khắp nơi). Code review thật luôn ưu tiên dạng phẳng này.
+
+> ⚠ **Bẫy fallthrough + thiếu default.** Go `switch` **không** tự fallthrough (khác C) — đó là tính năng tốt (tránh bug quên break). Nhưng: (1) cần fallthrough phải ghi rõ `fallthrough`; (2) `switch` phân loại nên có `default` để bắt case ngoài dự kiến (giá trị mới thêm vào enum) → tránh "im lặng bỏ qua". State machine thiếu default = bug ẩn khi thêm state.
+
+### 11.2. 📝 Tóm tắt mục 11
+
+- **Guard clause / early return**: xử lý lỗi sớm, giữ happy path ở lề trái → code phẳng, dễ đọc (phong cách Go).
+- `switch` thay if-else dài cho status/type/state machine; `for+select` cho event loop.
+- Go switch không tự fallthrough (tốt); thêm `default` bắt case ngoài dự kiến (chống bug khi thêm enum/state).
+
 ## Bài tập
 
 ### Bài tập 1 — Refactor pyramid

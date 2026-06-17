@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Proof &amp; Induction Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #44337a; }
+  h2 {
+    color: #553c9a; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #e9d8fd;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #4a5568; }
+  .hint { color: #718096; font-size: 13px; margin: 4px 0; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #f1f5f9; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #6b46c1;
+  }
+  button {
+    background: #553c9a; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #44337a; }
+  button.ghost {
+    background: #e9d8fd; color: #44337a;
+  }
+  button.ghost:hover { background: #d6bcfa; }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+  select, input[type=number] {
+    font-size: 15px; padding: 7px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    background: white; font-family: inherit;
+    max-width: 100%; box-sizing: border-box;
+  }
+  input[type=range] { accent-color: #553c9a; vertical-align: middle; }
+
+  /* Module 1 — domino */
+  .domino-wrap { overflow-x: auto; }
+  .badge {
+    display: inline-block; padding: 4px 12px; border-radius: 4px;
+    font-size: 13px; font-weight: 700;
+  }
+  .badge.ok { background: #c6f6d5; color: #22543d; }
+  .badge.bad { background: #fed7d7; color: #742a2a; }
+  .badge.info { background: #e9d8fd; color: #44337a; }
+
+  /* Module 2 — stepper */
+  .step-box {
+    background: #faf5ff; border-left: 4px solid #805ad5;
+    padding: 12px 16px; border-radius: 4px; margin: 10px 0;
+  }
+  .step-box .lab { font-weight: 700; color: #553c9a; margin-bottom: 6px; }
+  .step-box .eq { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 15px; }
+  .verify {
+    display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px;
+  }
+  .verify > div {
+    background: white; border: 1px solid #cbd5e0; border-radius: 6px;
+    padding: 10px 16px; flex: 1; min-width: 0; text-align: center;
+  }
+  .verify .big { font-size: 24px; font-weight: 700; color: #553c9a;
+    font-family: "SF Mono", Monaco, Consolas, monospace; }
+  .verify .small { font-size: 12px; color: #718096; }
+
+  /* Module 3 — theorem proof */
+  .proof-line {
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 14px;
+    padding: 6px 12px; border-radius: 4px; margin: 5px 0;
+    background: #f7fafc; border-left: 3px solid #cbd5e0;
+  }
+  .proof-line .note { color: #805ad5; font-style: italic; }
+  table.chk {
+    border-collapse: collapse; margin: 12px 0;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 14px;
+  }
+  table.chk th, table.chk td {
+    border: 1px solid #cbd5e0; padding: 6px 14px; text-align: center;
+  }
+  table.chk th { background: #e9d8fd; color: #44337a; font-weight: 700; }
+  table.chk td.eq { background: #c6f6d5; color: #22543d; font-weight: 700; }
+
+  @media (max-width: 480px) {
+    .verify > div { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-modular-arithmetic/visualization.html">← L4: Modular Arithmetic</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Proof &amp; Induction</span>
+</nav>
+
+<main>
+  <h1>Lesson 05 — Proof &amp; Induction</h1>
+  <p>Ba công cụ tương tác: hiệu ứng <strong>domino</strong> minh họa base case + bước nối, <strong>induction stepper</strong> cho tổng 1+…+n, và <strong>bộ chọn định lý tổng</strong> với chứng minh quy nạp từng bước.</p>
+
+  <h2>1. Domino — vì sao cần CẢ base case lẫn bước nối</h2>
+  <p class="hint">
+    Quy nạp = vô hạn domino. Cần <strong>base</strong> (đẩy quân đầu) <strong>và</strong> bước nối (mỗi quân đổ làm quân kế tiếp đổ).
+    Bật/tắt từng điều kiện rồi bấm "Đẩy quân đầu" để thấy chuyện gì xảy ra.
+  </p>
+  <div class="card">
+    <div class="row">
+      <label><input type="checkbox" id="hasBase" checked> Có base case (quân đầu đổ được)</label>
+      <label><input type="checkbox" id="hasStep" checked> Bước nối đúng mọi quân (n → n+1)</label>
+    </div>
+    <div class="row" id="gapRow" style="display:none;">
+      <label>Bước nối GÃY tại quân số:</label>
+      <input type="range" id="gapPos" min="1" max="9" value="4">
+      <span id="gapLabel" class="mono">4</span>
+    </div>
+    <div class="row">
+      <button id="dropBtn">▶ Đẩy quân đầu</button>
+      <button id="resetDom" class="ghost">↺ Dựng lại</button>
+    </div>
+    <div class="domino-wrap">
+      <svg id="dominoSvg" width="640" height="160" viewBox="0 0 640 160"></svg>
+    </div>
+    <div id="domMsg"></div>
+  </div>
+
+  <h2>2. Induction Stepper — tổng 1 + 2 + … + n = n(n+1)/2</h2>
+  <p class="hint">Chọn n, đi qua base case → giả thiết quy nạp (IH) → bước cộng (n+1). Hai vế cập nhật realtime, phải luôn khớp.</p>
+  <div class="card">
+    <div class="row">
+      <label>n =</label>
+      <input type="range" id="nSlider" min="1" max="30" value="5">
+      <span id="nLabel" class="mono" style="font-weight:700; color:#553c9a; font-size:18px;">5</span>
+    </div>
+
+    <div class="step-box">
+      <div class="lab">① Base case (n = 1)</div>
+      <div class="eq">VT = 1 &nbsp;&nbsp; VP = 1·(1+1)/2 = 1 &nbsp;&nbsp; <span class="badge ok">✓ khớp</span></div>
+    </div>
+
+    <div class="step-box">
+      <div class="lab">② Giả thiết quy nạp (IH) — giả sử đúng tới n = <span id="ihN">5</span></div>
+      <div class="eq" id="ihEq"></div>
+    </div>
+
+    <div class="step-box">
+      <div class="lab">③ Bước nối: cộng số hạng (n+1) = <span id="npEq"></span></div>
+      <div class="eq" id="stepEq"></div>
+      <div class="verify">
+        <div>
+          <div class="big" id="lhsVal">15</div>
+          <div class="small">Vế trái: 1+2+…+(n+1) (cộng thật)</div>
+        </div>
+        <div>
+          <div class="big" id="rhsVal">15</div>
+          <div class="small">Vế phải: (n+1)(n+2)/2</div>
+        </div>
+      </div>
+      <div id="stepBadge" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <h2>3. Bộ chọn định lý tổng — chứng minh quy nạp từng bước</h2>
+  <p class="hint">Chọn một định lý, xem chứng minh quy nạp đầy đủ (base + IH + bước nối) và bảng kiểm chứng các giá trị nhỏ.</p>
+  <div class="card">
+    <div class="row">
+      <label>Định lý:</label>
+      <select id="thmPick">
+        <option value="arith">1 + 2 + … + n = n(n+1)/2</option>
+        <option value="pow2">2⁰ + 2¹ + … + 2ⁿ = 2ⁿ⁺¹ − 1</option>
+        <option value="odd">1 + 3 + 5 + … + (2n−1) = n²</option>
+      </select>
+    </div>
+    <div id="thmBase"></div>
+    <h3 style="color:#553c9a; font-size:15px; margin-top:18px;">Chứng minh quy nạp</h3>
+    <div id="thmProof"></div>
+    <h3 style="color:#553c9a; font-size:15px; margin-top:18px;">Bảng kiểm chứng giá trị nhỏ</h3>
+    <div id="thmTable"></div>
+  </div>
+</main>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// Module 1 — Domino
+// ─────────────────────────────────────────────────────────────────────────────
+const COUNT = 10, DW = 30, DH = 80, GAP = 32, X0 = 40, Y0 = 130;
+const svg = document.getElementById('dominoSvg');
+const hasBase = document.getElementById('hasBase');
+const hasStep = document.getElementById('hasStep');
+const gapRow = document.getElementById('gapRow');
+const gapPos = document.getElementById('gapPos');
+const gapLabel = document.getElementById('gapLabel');
+const domMsg = document.getElementById('domMsg');
+let fallen = new Array(COUNT).fill(false);
+
+function drawDominoes() {
+  let h = '';
+  for (let i = 0; i < COUNT; i++) {
+    const x = X0 + i * (DW + GAP);
+    if (fallen[i]) {
+      // fallen: rotated rectangle lying down
+      h += `<g transform="rotate(70 ${x} ${Y0})">
+        <rect x="${x}" y="${Y0 - DH}" width="${DW}" height="${DH}" rx="4"
+          fill="#9f7aea" stroke="#553c9a" stroke-width="2"/>
+        <text x="${x + DW/2}" y="${Y0 - DH/2}" text-anchor="middle"
+          dominant-baseline="middle" fill="white" font-size="13" font-weight="700"
+          transform="rotate(-70 ${x + DW/2} ${Y0 - DH/2})">${i + 1}</text>
+      </g>`;
+    } else {
+      h += `<g>
+        <rect x="${x}" y="${Y0 - DH}" width="${DW}" height="${DH}" rx="4"
+          fill="#e9d8fd" stroke="#805ad5" stroke-width="2"/>
+        <text x="${x + DW/2}" y="${Y0 - DH/2}" text-anchor="middle"
+          dominant-baseline="middle" fill="#44337a" font-size="13" font-weight="700">${i + 1}</text>
+      </g>`;
+    }
+  }
+  svg.innerHTML = h;
+}
+
+function resetDominoes() {
+  fallen.fill(false);
+  drawDominoes();
+  domMsg.innerHTML = '';
+}
+
+async function dropFirst() {
+  resetDominoes();
+  if (!hasBase.checked) {
+    domMsg.innerHTML = '<span class="badge bad">✗ Không có base case → không quân nào đổ. Dù bước nối đúng, không ai đẩy quân đầu.</span>';
+    return;
+  }
+  // Nếu bước nối gãy tại quân `gap` (1-based) thì các quân từ đó trở đi không đổ.
+  const gap = hasStep.checked ? COUNT + 1 : +gapPos.value;
+  for (let i = 0; i < COUNT; i++) {
+    if (i + 1 >= gap) break; // tới chỗ mắt xích đứt → dừng
+    fallen[i] = true;
+    drawDominoes();
+    await new Promise(r => setTimeout(r, 180));
+  }
+  const allFell = fallen.every(x => x);
+  if (allFell) {
+    domMsg.innerHTML = '<span class="badge ok">✓ Base + bước nối đúng → TẤT CẢ quân đổ. Đây là quy nạp hợp lệ: P(n) đúng với mọi n.</span>';
+  } else {
+    const stopped = fallen.filter(x => x).length;
+    domMsg.innerHTML = `<span class="badge bad">✗ Bước nối gãy tại quân ${stopped + 1} → chỉ ${stopped} quân đầu đổ rồi dừng. Một mắt xích đứt = dây chuyền chết.</span>`;
+  }
+}
+
+hasStep.onchange = () => { gapRow.style.display = hasStep.checked ? 'none' : 'flex'; resetDominoes(); };
+hasBase.onchange = resetDominoes;
+gapPos.oninput = () => { gapLabel.textContent = gapPos.value; };
+document.getElementById('dropBtn').onclick = dropFirst;
+document.getElementById('resetDom').onclick = resetDominoes;
+drawDominoes();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Module 2 — Induction stepper for 1+...+n = n(n+1)/2
+// ─────────────────────────────────────────────────────────────────────────────
+const nSlider = document.getElementById('nSlider');
+const nLabel = document.getElementById('nLabel');
+const ihN = document.getElementById('ihN');
+const ihEq = document.getElementById('ihEq');
+const npEq = document.getElementById('npEq');
+const stepEq = document.getElementById('stepEq');
+const lhsVal = document.getElementById('lhsVal');
+const rhsVal = document.getElementById('rhsVal');
+const stepBadge = document.getElementById('stepBadge');
+
+function renderStepper() {
+  const n = +nSlider.value;
+  nLabel.textContent = n;
+  ihN.textContent = n;
+
+  const ihRhs = n * (n + 1) / 2;
+  ihEq.innerHTML = `1 + 2 + … + ${n} = ${n}·(${n}+1)/2 = <strong>${ihRhs}</strong>`;
+
+  npEq.textContent = (n + 1);
+  // lhs = sum 1..n+1 (computed by adding (n+1) to IH)
+  const lhs = ihRhs + (n + 1);
+  const rhs = (n + 1) * (n + 2) / 2;
+  stepEq.innerHTML =
+    `1+…+${n} + (${n + 1}) = <span style="color:#805ad5">${ihRhs}</span> + ${n + 1} ` +
+    `= (${n + 1})(${n + 2})/2`;
+  lhsVal.textContent = lhs;
+  rhsVal.textContent = rhs;
+  stepBadge.innerHTML = (lhs === rhs)
+    ? `<span class="badge ok">✓ Hai vế khớp (${lhs} = ${rhs}) → P(${n}) → P(${n + 1}) thành công</span>`
+    : `<span class="badge bad">✗ Lệch</span>`;
+}
+nSlider.oninput = renderStepper;
+renderStepper();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Module 3 — Theorem picker with proof + check table
+// ─────────────────────────────────────────────────────────────────────────────
+const theorems = {
+  arith: {
+    n0: 1,
+    base: 'Base (n=1): VT = 1; VP = 1·2/2 = 1 → khớp ✓',
+    proof: [
+      ['IH', 'Giả sử 1+2+…+n = n(n+1)/2'],
+      ['Cần', 'Chứng minh 1+…+n+(n+1) = (n+1)(n+2)/2'],
+      ['', '1+…+n + (n+1)', 'tách số hạng cuối'],
+      ['', '= n(n+1)/2 + (n+1)', 'thay IH'],
+      ['', '= [n(n+1) + 2(n+1)]/2', 'quy đồng mẫu 2'],
+      ['', '= (n+1)(n+2)/2', 'đặt nhân tử chung (n+1)'],
+      ['✓', 'Đúng vế phải P(n+1) → kết luận: đúng mọi n ≥ 1'],
+    ],
+    lhs: n => n * (n + 1) / 2,
+    rhsStr: n => `${n}·${n + 1}/2`,
+    lhsStr: n => Array.from({ length: n }, (_, i) => i + 1).join('+'),
+  },
+  pow2: {
+    n0: 0,
+    base: 'Base (n=0): VT = 2⁰ = 1; VP = 2¹ − 1 = 1 → khớp ✓',
+    proof: [
+      ['IH', 'Giả sử 2⁰+…+2ⁿ = 2ⁿ⁺¹ − 1'],
+      ['Cần', 'Chứng minh 2⁰+…+2ⁿ+2ⁿ⁺¹ = 2ⁿ⁺² − 1'],
+      ['', '2⁰+…+2ⁿ + 2ⁿ⁺¹', 'tách số hạng cuối'],
+      ['', '= (2ⁿ⁺¹ − 1) + 2ⁿ⁺¹', 'thay IH'],
+      ['', '= 2·2ⁿ⁺¹ − 1', 'gộp hai 2ⁿ⁺¹'],
+      ['', '= 2ⁿ⁺² − 1', '2·2ⁿ⁺¹ = 2ⁿ⁺²'],
+      ['✓', 'Đúng P(n+1) → đúng mọi n ≥ 0'],
+    ],
+    lhs: n => Math.pow(2, n + 1) - 1,
+    rhsStr: n => `2^${n + 1} − 1`,
+    lhsStr: n => Array.from({ length: n + 1 }, (_, i) => Math.pow(2, i)).join('+'),
+  },
+  odd: {
+    n0: 1,
+    base: 'Base (n=1): VT = 1; VP = 1² = 1 → khớp ✓',
+    proof: [
+      ['IH', 'Giả sử 1+3+…+(2n−1) = n²'],
+      ['Cần', 'Chứng minh tổng tới (2(n+1)−1) = (n+1)²'],
+      ['', 'số hạng kế: 2(n+1)−1 = 2n+1'],
+      ['', '1+3+…+(2n−1) + (2n+1)', 'tách số hạng cuối'],
+      ['', '= n² + (2n+1)', 'thay IH'],
+      ['', '= n²+2n+1 = (n+1)²', 'hằng đẳng thức'],
+      ['✓', 'Đúng P(n+1) → đúng mọi n ≥ 1'],
+    ],
+    lhs: n => n * n,
+    rhsStr: n => `${n}²`,
+    lhsStr: n => Array.from({ length: n }, (_, i) => 2 * (i + 1) - 1).join('+'),
+  },
+};
+
+function renderTheorem() {
+  const key = document.getElementById('thmPick').value;
+  const t = theorems[key];
+
+  document.getElementById('thmBase').innerHTML =
+    `<div class="step-box"><div class="lab">Base case</div><div class="eq">${t.base}</div></div>`;
+
+  let ph = '';
+  for (const ln of t.proof) {
+    const tag = ln[0] ? `<strong>[${ln[0]}]</strong> ` : '';
+    const note = ln[2] ? `  <span class="note">// ${ln[2]}</span>` : '';
+    ph += `<div class="proof-line">${tag}${ln[1]}${note}</div>`;
+  }
+  document.getElementById('thmProof').innerHTML = ph;
+
+  let th = '<table class="chk"><thead><tr><th>n</th><th>Vế trái (tổng)</th><th>Vế phải</th></tr></thead><tbody>';
+  for (let n = t.n0; n <= t.n0 + 4; n++) {
+    const v = t.lhs(n);
+    th += `<tr><td>${n}</td><td>${t.lhsStr(n)} = ${v}</td><td class="eq">${t.rhsStr(n)} = ${v}</td></tr>`;
+  }
+  th += '</tbody></table>';
+  document.getElementById('thmTable').innerHTML = th;
+}
+document.getElementById('thmPick').onchange = renderTheorem;
+renderTheorem();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>
+</content>

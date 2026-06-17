@@ -537,7 +537,7 @@ Trực giác: *"đang active VÀ (chưa bị xóa HOẶC có quyền override)"*
 
 ## Tham khảo & bài tiếp theo
 
-- **Tiếp theo**: `lesson-05` (TBD — đề xuất: Modular Arithmetic & GCD, hoặc Combinatorics).
+- **Tiếp theo**: [Lesson 03 — Combinatorics](../lesson-03-combinatorics/) (đếm, hoán vị, tổ hợp), rồi [Lesson 04 — Modular Arithmetic](../lesson-04-modular-arithmetic/) và [Lesson 05 — Proof & Induction](../lesson-05-proof-induction/).
 - **Sách tham khảo**: *Discrete Mathematics and Its Applications* (Rosen), chương 1–2.
 - **Phần mềm**: thử [Wolfram Alpha](https://www.wolframalpha.com/) gõ `truth table for (p ∧ q) ∨ ¬r` để đối chiếu.
 - **File lời giải Go**: [solutions.go](./solutions.go).

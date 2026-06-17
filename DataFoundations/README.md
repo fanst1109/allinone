@@ -2,13 +2,13 @@
 
 Thư mục này tập hợp **những kiến thức nền** về cách máy tính biểu diễn và thao tác với dữ liệu — số, bit, byte, text, hash, set, logic. Cần khi học các lĩnh vực dùng tới chúng: [DataStructures](../DataStructures/), [Cryptography](../Cryptography/), [Databases](../Databases/), [AI-ML](../AI-ML/) (numerical precision), [English](../English/)/[Chinese](../Chinese/) (encoding).
 
-Trước đây có 4 bài. Sau khi repo mở rộng, restructure thành **3 nhóm × 8 bài** với các bài mới về floating-point, character encoding, endianness, hashing.
+Trước đây có 4 bài. Sau khi repo mở rộng, restructure thành **3 nhóm** (số/bit · encoding/memory · math foundations) với các bài mới về floating-point, character encoding, endianness, hashing, và nhóm math foundations được làm giàu thêm combinatorics, modular arithmetic, proof & induction.
 
 ## Mục tiêu
 
 - Hiểu mọi cách máy biểu diễn **số**: hệ nhị phân/hex, hai's complement, bitwise, **IEEE 754 floating-point**.
 - Hiểu cách máy biểu diễn **data tổng quát**: **UTF-8 encoding**, **endianness & memory layout**, **hash functions** (mapping data → fixed-size).
-- Nắm **math foundations** cho data: lý thuyết tập hợp, đại số Boolean / logic mệnh đề.
+- Nắm **math foundations** cho data: lý thuyết tập hợp, đại số Boolean / logic mệnh đề, tổ hợp & đếm, số học modular, chứng minh & quy nạp.
 
 ## Các nhóm
 
@@ -16,7 +16,7 @@ Trước đây có 4 bài. Sau khi repo mở rộng, restructure thành **3 nhó
 |------|----------|-------|--------|
 | 1 — Number & Bit Representation | [01-NumberRepresentation](./01-NumberRepresentation/) | Cách máy lưu *số* | 3 |
 | 2 — Encoding & Memory | [02-EncodingMemory](./02-EncodingMemory/) | Cách máy lưu *data tổng quát* | 3 |
-| 3 — Math Foundations | [03-MathFoundations](./03-MathFoundations/) | Toán logic cho data | 2 |
+| 3 — Math Foundations | [03-MathFoundations](./03-MathFoundations/) | Toán nền cho data | 5 |
 
 ## Danh sách bài học
 
@@ -42,6 +42,9 @@ Trước đây có 4 bài. Sau khi repo mở rộng, restructure thành **3 nhó
 |---|-----|--------|
 | 01 | [Set Theory](./03-MathFoundations/lesson-01-set-theory/) | Tập hợp, phép toán, ánh xạ, quan hệ tương đương |
 | 02 | [Boolean Logic](./03-MathFoundations/lesson-02-boolean-logic/) | Mệnh đề, truth table, đại số Boolean, De Morgan, tautology |
+| 03 | [Combinatorics](./03-MathFoundations/lesson-03-combinatorics/) | Quy tắc cộng/nhân, hoán vị, tổ hợp, Pascal, nhị thức Newton, pigeonhole, inclusion-exclusion |
+| 04 | [Modular Arithmetic](./03-MathFoundations/lesson-04-modular-arithmetic/) | Đồng dư, Euclid GCD, nghịch đảo modular, lũy thừa nhanh, Fermat nhỏ |
+| 05 | [Proof & Induction](./03-MathFoundations/lesson-05-proof-induction/) | Chứng minh trực tiếp/phản chứng/phản đảo, quy nạp yếu & mạnh, đệ quy & loop invariant |
 
 ## Cách học
 
@@ -60,6 +63,9 @@ Trước đây có 4 bài. Sau khi repo mở rộng, restructure thành **3 nhó
 | Hashing | [DataStructures Hash Table](../DataStructures/01-Basic/lesson-06-hash-table/), [Cryptography T2-L03](../Cryptography/02-ModernSymmetric/lesson-03-hash-functions/), [AI-ML/T5-L03 Vector DB](../AI-ML/05-NLP-Applied/lesson-03-vector-db-rag/) |
 | Set Theory | [Databases](../Databases/) (mô hình quan hệ), [DataStructures](../DataStructures/) (Union-Find, Graph), [Statistics](../Statistics/) (event space) |
 | Boolean Logic | Đánh giá điều kiện trong mọi DS, [Cryptography](../Cryptography/) (XOR truth), [PoliticalScience](../PoliticalScience/) (proof formal cho Arrow) |
+| Combinatorics | [Statistics](../Statistics/) (không gian biến cố, xác suất), [Algorithms](../Algorithms/) (phân tích độ phức tạp, đếm), [Cryptography](../Cryptography/) (key space) |
+| Modular Arithmetic | [Cryptography](../Cryptography/) (RSA, Diffie-Hellman, modular foundations), [DataStructures Hash Table](../DataStructures/01-Basic/lesson-06-hash-table/) (mod prime), checksum/CRC |
+| Proof & Induction | [Algorithms](../Algorithms/) (correctness, đệ quy, độ phức tạp), [DataStructures](../DataStructures/) (tính chất cây), [Math](../Math/) (mọi chứng minh) |
 
 ## Minh họa tương tác
 

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Combinatorics & Counting Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #44337a; }
+  h2 {
+    color: #553c9a; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #e9d8fd;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; }
+  .hint { color: #718096; font-size: 13px; margin: 4px 0; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #faf5ff; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #6b46c1;
+  }
+
+  /* Inputs / buttons */
+  input[type="number"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 16px; padding: 8px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 72px; max-width: 100%; box-sizing: border-box;
+  }
+  button {
+    background: #553c9a; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #44337a; }
+  button.alt { background: #805ad5; }
+  button.alt:hover { background: #6b46c1; }
+
+  /* Formula readout */
+  .formula {
+    background: #faf5ff; border-left: 4px solid #805ad5;
+    padding: 14px 16px; border-radius: 4px; margin-top: 12px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; line-height: 1.9; overflow-x: auto;
+  }
+  .formula b { color: #553c9a; }
+  .big { font-size: 22px; font-weight: 700; color: #44337a; }
+
+  /* Pascal triangle */
+  .pascal { display: flex; flex-direction: column; align-items: center; gap: 4px; margin: 10px 0; }
+  .prow { display: flex; gap: 6px; justify-content: center; flex-wrap: nowrap; }
+  .pcell {
+    min-width: 38px; padding: 6px 4px; text-align: center;
+    border-radius: 4px; background: #ede9fe; color: #4c1d95;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-weight: 700; font-size: 14px; cursor: pointer;
+    user-select: none; transition: transform 0.1s, background 0.1s;
+  }
+  .pcell:hover { transform: scale(1.08); background: #ddd6fe; }
+  .pcell.rowhl { background: #c4b5fd; }
+  .pcell.sel { background: #553c9a; color: white; transform: scale(1.12); }
+  .pcell.parent { background: #f6ad55; color: #7b341e; }
+  .pinfo {
+    margin-top: 12px; background: #faf5ff; border-radius: 4px;
+    padding: 12px 16px; font-size: 14px; line-height: 1.8;
+  }
+
+  /* Enumeration chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip {
+    background: #ede9fe; color: #4c1d95; border-radius: 4px;
+    padding: 5px 10px; font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; font-weight: 600;
+  }
+  .chip.comb { background: #c6f6d5; color: #22543d; }
+  .countbar { font-size: 14px; margin-top: 10px; }
+  .countbar .num { font-size: 20px; font-weight: 700; color: #553c9a; }
+
+  /* Grid path SVG holder */
+  .gridwrap { overflow-x: auto; }
+
+  @media (max-width: 480px) {
+    .pcell { min-width: 28px; font-size: 12px; padding: 5px 2px; }
+    .prow { gap: 3px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-boolean-logic/visualization.html">← L2: Boolean Logic</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Combinatorics</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-modular-arithmetic/visualization.html">L4: Modular Arithmetic →</a>
+</nav>
+
+<main>
+  <h1>Lesson 03 — Combinatorics &amp; Counting</h1>
+  <p>Ba công cụ tương tác: máy tính hoán vị/tổ hợp có thế số, tam giác Pascal click được, và bộ liệt kê hoán vị/tổ hợp + đếm đường đi lưới.</p>
+
+  <!-- ───────────────────────── MODULE 1 ───────────────────────── -->
+  <h2>1. Máy tính P(n,k) &amp; C(n,k)</h2>
+  <p class="hint">Nhập <code>n</code> và <code>k</code> — viz hiển thị công thức <b>thế số tận chân</b> và giải thích thứ tự có/không quan trọng.</p>
+  <div class="card">
+    <div class="row">
+      <label>n =</label>
+      <input type="number" id="nVal" value="5" min="0" max="20">
+      <label>k =</label>
+      <input type="number" id="kVal" value="2" min="0" max="20">
+      <button id="calcBtn">Tính</button>
+    </div>
+    <div class="hint">P = chọn CÓ thứ tự (xếp hạng, mật khẩu). C = chọn KHÔNG thứ tự (đội, tập con).</div>
+    <div class="formula" id="calcOut"></div>
+  </div>
+
+  <!-- ───────────────────────── MODULE 2 ───────────────────────── -->
+  <h2>2. Tam giác Pascal tương tác</h2>
+  <p class="hint">
+    Chọn số hàng rồi <b>click một ô</b> để xem giá trị, công thức tổ hợp, và hệ thức cộng 2 ô ngay trên
+    (<code>C(n,k) = C(n-1,k-1) + C(n-1,k)</code>). Hai ô "cha" được tô cam.
+  </p>
+  <div class="card">
+    <div class="row">
+      <label>Số hàng (0…n):</label>
+      <input type="number" id="pascalN" value="6" min="0" max="12">
+      <button id="pascalBtn">Dựng</button>
+    </div>
+    <div class="pascal" id="pascalTri"></div>
+    <div class="pinfo" id="pascalInfo">Click vào một ô để xem chi tiết.</div>
+  </div>
+
+  <!-- ───────────────────────── MODULE 3 ───────────────────────── -->
+  <h2>3. Liệt kê &amp; đếm trực quan</h2>
+  <p class="hint">Hai chế độ: liệt kê hoán vị/tổ hợp của tập <code>{A,B,C,D,…}</code>, hoặc đếm số đường đi trên lưới.</p>
+  <div class="card">
+    <div class="row">
+      <label>Chế độ:</label>
+      <select id="enumMode">
+        <option value="perm">Hoán vị / Tổ hợp của tập</option>
+        <option value="grid">Đường đi trên lưới</option>
+      </select>
+    </div>
+
+    <div id="permPanel">
+      <div class="row">
+        <label>n (kích thước tập):</label>
+        <input type="number" id="enumN" value="4" min="1" max="6">
+        <label>k (số phần tử chọn):</label>
+        <input type="number" id="enumK" value="2" min="0" max="6">
+        <label>Kiểu:</label>
+        <select id="enumKind">
+          <option value="comb">Tổ hợp (không thứ tự)</option>
+          <option value="perm">Hoán vị (có thứ tự)</option>
+        </select>
+        <button id="enumBtn" class="alt">Liệt kê</button>
+      </div>
+      <div class="hint">Tập = {A, B, C, …} lấy <code>n</code> chữ cái đầu.</div>
+      <div class="countbar" id="enumCount"></div>
+      <div class="chips" id="enumChips"></div>
+    </div>
+
+    <div id="gridPanel" style="display:none;">
+      <div class="row">
+        <label>m (cột, bước phải):</label>
+        <input type="number" id="gridM" value="3" min="0" max="8">
+        <label>n (hàng, bước xuống):</label>
+        <input type="number" id="gridN" value="2" min="0" max="8">
+        <button id="gridBtn" class="alt">Đếm đường</button>
+      </div>
+      <div class="hint">Từ góc trên-trái xuống góc dưới-phải, mỗi bước chỉ đi <b>phải (R)</b> hoặc <b>xuống (D)</b>.</div>
+      <div class="countbar" id="gridCount"></div>
+      <div class="gridwrap"><svg id="gridSvg" width="360" height="240" viewBox="0 0 360 240"></svg></div>
+      <div class="hint" id="gridFormula"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ───────── helpers ─────────
+function factorial(n) { let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }
+function P(n, k) { if (k < 0 || k > n) return 0; let r = 1; for (let i = 0; i < k; i++) r *= (n - i); return r; }
+function C(n, k) { if (k < 0 || k > n) return 0; k = Math.min(k, n - k); let r = 1; for (let i = 0; i < k; i++) r = r * (n - i) / (i + 1); return Math.round(r); }
+function fmt(x) { return x.toLocaleString('en-US'); }
+
+// ───────── Module 1: P/C calculator ─────────
+function descProduct(n, k) {
+  if (k === 0) return '(không thừa số) = 1';
+  const parts = [];
+  for (let i = 0; i < k; i++) parts.push(n - i);
+  return parts.join(' · ');
+}
+
+function renderCalc() {
+  const n = Math.max(0, Math.min(20, +document.getElementById('nVal').value || 0));
+  const k = Math.max(0, Math.min(20, +document.getElementById('kVal').value || 0));
+  const out = document.getElementById('calcOut');
+  if (k > n) {
+    out.innerHTML = `<b>k = ${k} > n = ${n}</b> → không chọn được nhiều hơn số phần tử. P = C = 0.`;
+    return;
+  }
+  const pVal = P(n, k), cVal = C(n, k);
+  out.innerHTML = `
+    <div><b>Hoán vị (có thứ tự):</b></div>
+    <div>P(${n},${k}) = ${n}! / (${n}−${k})! = ${n}! / ${n - k}!</div>
+    <div>= ${descProduct(n, k)} = <span class="big">${fmt(pVal)}</span></div>
+    <div style="margin-top:12px;"><b>Tổ hợp (không thứ tự):</b></div>
+    <div>C(${n},${k}) = ${n}! / (${k}! · ${n - k}!) = P(${n},${k}) / ${k}!</div>
+    <div>= ${fmt(pVal)} / ${fmt(factorial(k))} = <span class="big">${fmt(cVal)}</span></div>
+    <div style="margin-top:12px;color:#6b46c1;">Quan hệ: P = C × k! → ${fmt(cVal)} × ${fmt(factorial(k))} = ${fmt(cVal * factorial(k))} = ${fmt(pVal)} ✓</div>
+    ${cVal === C(n, n - k) ? `<div style="color:#805ad5;">Đối xứng: C(${n},${k}) = C(${n},${n - k}) = ${fmt(cVal)} ✓</div>` : ''}
+  `;
+}
+document.getElementById('calcBtn').onclick = renderCalc;
+['nVal', 'kVal'].forEach(id => document.getElementById(id).addEventListener('input', renderCalc));
+
+// ───────── Module 2: Pascal triangle ─────────
+let pascalRows = 6;
+let selected = null; // {n, k}
+
+function buildPascal() {
+  pascalRows = Math.max(0, Math.min(12, +document.getElementById('pascalN').value || 0));
+  selected = null;
+  const tri = document.getElementById('pascalTri');
+  let html = '';
+  for (let n = 0; n <= pascalRows; n++) {
+    html += '<div class="prow" data-n="' + n + '">';
+    for (let k = 0; k <= n; k++) {
+      html += `<div class="pcell" data-n="${n}" data-k="${k}">${C(n, k)}</div>`;
+    }
+    html += '</div>';
+  }
+  tri.innerHTML = html;
+  tri.querySelectorAll('.pcell').forEach(c => {
+    c.onclick = () => selectCell(+c.dataset.n, +c.dataset.k);
+  });
+  document.getElementById('pascalInfo').innerHTML = 'Click vào một ô để xem chi tiết.';
+}
+
+function selectCell(n, k) {
+  selected = { n, k };
+  document.querySelectorAll('.pcell').forEach(c => c.classList.remove('sel', 'parent', 'rowhl'));
+  document.querySelectorAll(`.pcell[data-n="${n}"]`).forEach(c => c.classList.add('rowhl'));
+  const cell = document.querySelector(`.pcell[data-n="${n}"][data-k="${k}"]`);
+  if (cell) cell.classList.add('sel');
+
+  let recur = '';
+  if (n >= 1 && k >= 1 && k <= n - 1) {
+    document.querySelector(`.pcell[data-n="${n - 1}"][data-k="${k - 1}"]`)?.classList.add('parent');
+    document.querySelector(`.pcell[data-n="${n - 1}"][data-k="${k}"]`)?.classList.add('parent');
+    recur = `Hệ thức Pascal: C(${n},${k}) = C(${n - 1},${k - 1}) + C(${n - 1},${k}) = ${C(n - 1, k - 1)} + ${C(n - 1, k)} = <b>${C(n, k)}</b> ✓ (2 ô cam ở trên).`;
+  } else {
+    recur = `Đây là ô <b>cạnh</b> (k = 0 hoặc k = n) → luôn bằng 1.`;
+  }
+  let rowSum = 0;
+  for (let j = 0; j <= n; j++) rowSum += C(n, j);
+  document.getElementById('pascalInfo').innerHTML = `
+    <div><b>C(${n}, ${k}) = ${fmt(C(n, k))}</b> — số cách chọn ${k} phần tử từ ${n} (không thứ tự).</div>
+    <div>${recur}</div>
+    <div>Đối xứng: C(${n},${k}) = C(${n},${n - k}) = ${fmt(C(n, n - k))}.</div>
+    <div>Tổng hàng ${n}: Σ = ${fmt(rowSum)} = 2<sup>${n}</sup> = ${fmt(2 ** n)} ✓.</div>
+  `;
+}
+document.getElementById('pascalBtn').onclick = buildPascal;
+
+// ───────── Module 3: enumeration ─────────
+const ALPHA = 'ABCDEFGH';
+
+function combinations(arr, k) {
+  const res = [];
+  (function rec(start, cur) {
+    if (cur.length === k) { res.push(cur.slice()); return; }
+    for (let i = start; i < arr.length; i++) { cur.push(arr[i]); rec(i + 1, cur); cur.pop(); }
+  })(0, []);
+  return res;
+}
+function permutations(arr, k) {
+  const res = [];
+  const used = new Array(arr.length).fill(false);
+  (function rec(cur) {
+    if (cur.length === k) { res.push(cur.slice()); return; }
+    for (let i = 0; i < arr.length; i++) {
+      if (used[i]) continue;
+      used[i] = true; cur.push(arr[i]); rec(cur); cur.pop(); used[i] = false;
+    }
+  })([]);
+  return res;
+}
+
+function renderEnum() {
+  const n = Math.max(1, Math.min(6, +document.getElementById('enumN').value || 1));
+  const k = Math.max(0, Math.min(n, +document.getElementById('enumK').value || 0));
+  document.getElementById('enumK').value = k;
+  const kind = document.getElementById('enumKind').value;
+  const set = ALPHA.slice(0, n).split('');
+  let list, formula, klass;
+  if (kind === 'comb') {
+    list = combinations(set, k);
+    formula = `C(${n},${k}) = ${fmt(C(n, k))}`;
+    klass = 'chip comb';
+  } else {
+    list = permutations(set, k);
+    formula = `P(${n},${k}) = ${fmt(P(n, k))}`;
+    klass = 'chip';
+  }
+  document.getElementById('enumCount').innerHTML =
+    `Tập = {${set.join(', ')}} · ${kind === 'comb' ? 'Tổ hợp' : 'Hoán vị'}: liệt kê <span class="num">${list.length}</span> kết quả · công thức ${formula} ${list.length === (kind === 'comb' ? C(n, k) : P(n, k)) ? '✓' : ''}`;
+  document.getElementById('enumChips').innerHTML =
+    list.map(c => `<span class="${klass}">${kind === 'comb' ? '{' + c.join(',') + '}' : c.join('')}</span>`).join('');
+}
+document.getElementById('enumBtn').onclick = renderEnum;
+['enumN', 'enumK', 'enumKind'].forEach(id => document.getElementById(id).addEventListener('change', renderEnum));
+
+// ───────── Module 3b: grid paths ─────────
+function renderGrid() {
+  const m = Math.max(0, Math.min(8, +document.getElementById('gridM').value || 0));
+  const n = Math.max(0, Math.min(8, +document.getElementById('gridN').value || 0));
+  const total = C(m + n, m);
+  document.getElementById('gridCount').innerHTML =
+    `Lưới ${m} × ${n}: số đường = C(${m + n}, ${m}) = <span class="num">${fmt(total)}</span>`;
+  document.getElementById('gridFormula').innerHTML =
+    `Mỗi đường = chuỗi gồm ${m} chữ R (phải) và ${n} chữ D (xuống) → chọn ${m} vị trí "phải" trong ${m + n} bước = C(${m + n},${m}) = C(${m + n},${n}) = ${fmt(total)}.`;
+
+  // draw grid + one sample path (all R then all D)
+  const cell = 36, pad = 18;
+  const w = m * cell + pad * 2, h = n * cell + pad * 2;
+  const svg = document.getElementById('gridSvg');
+  svg.setAttribute('width', w); svg.setAttribute('height', h);
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  let g = '';
+  for (let i = 0; i <= m; i++) g += `<line x1="${pad + i * cell}" y1="${pad}" x2="${pad + i * cell}" y2="${pad + n * cell}" stroke="#ddd6fe" stroke-width="2"/>`;
+  for (let j = 0; j <= n; j++) g += `<line x1="${pad}" y1="${pad + j * cell}" x2="${pad + m * cell}" y2="${pad + j * cell}" stroke="#ddd6fe" stroke-width="2"/>`;
+  // sample path: R*m then D*n
+  let px = pad, py = pad, pathD = `M ${px} ${py}`;
+  for (let i = 0; i < m; i++) { px += cell; pathD += ` L ${px} ${py}`; }
+  for (let j = 0; j < n; j++) { py += cell; pathD += ` L ${px} ${py}`; }
+  g += `<path d="${pathD}" fill="none" stroke="#553c9a" stroke-width="3"/>`;
+  g += `<circle cx="${pad}" cy="${pad}" r="5" fill="#805ad5"/>`;
+  g += `<circle cx="${pad + m * cell}" cy="${pad + n * cell}" r="5" fill="#f6ad55"/>`;
+  svg.innerHTML = g;
+}
+document.getElementById('gridBtn').onclick = renderGrid;
+['gridM', 'gridN'].forEach(id => document.getElementById(id).addEventListener('change', renderGrid));
+
+document.getElementById('enumMode').onchange = function () {
+  const grid = this.value === 'grid';
+  document.getElementById('permPanel').style.display = grid ? 'none' : 'block';
+  document.getElementById('gridPanel').style.display = grid ? 'block' : 'none';
+  if (grid) renderGrid(); else renderEnum();
+};
+
+// ───────── init ─────────
+renderCalc();
+buildPascal();
+selectCell(5, 2);
+renderEnum();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

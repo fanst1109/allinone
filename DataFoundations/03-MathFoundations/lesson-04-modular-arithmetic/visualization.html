@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Modular Arithmetic & GCD Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #44337a; }
+  h2 {
+    color: #553c9a; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #ddd6fe;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #4a5568; }
+  .hint { color: #718096; font-size: 13px; margin: 4px 0; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #f1f5f9; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #6b46c1;
+  }
+  input[type=number] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 100%; max-width: 110px; box-sizing: border-box;
+  }
+  select {
+    font-size: 15px; padding: 7px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    background: white; font-family: inherit;
+  }
+  button {
+    background: #553c9a; color: white; border: none;
+    padding: 8px 16px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #44337a; }
+
+  /* readout box */
+  .readout {
+    background: #faf5ff; border-left: 4px solid #805ad5;
+    padding: 12px 16px; border-radius: 4px; margin-top: 12px;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 15px;
+  }
+  .readout strong { color: #44337a; }
+
+  /* clock svg */
+  .clock-wrap { text-align: center; }
+  svg { display: block; margin: 0 auto; }
+  .tick-num { font: 700 15px "SF Mono", Monaco, monospace; fill: #4a5568; }
+  .tick-num.hit { fill: #553c9a; }
+
+  /* step tables */
+  table.steps {
+    border-collapse: collapse; margin: 12px 0; width: 100%;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 14px;
+  }
+  table.steps th, table.steps td {
+    border: 1px solid #d6bcfa; padding: 6px 10px; text-align: center;
+  }
+  table.steps th { background: #e9d8fd; color: #44337a; font-weight: 700; }
+  table.steps td.hl { background: #faf5ff; }
+  table.steps tr.final td { background: #c6f6d5; color: #22543d; font-weight: 700; }
+  .wrap { overflow-x: auto; }
+
+  .bit-on { color: #38a169; font-weight: 700; }
+  .bit-off { color: #a0aec0; }
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 4px;
+    font-size: 13px; font-weight: 700;
+  }
+  .badge.ok { background: #c6f6d5; color: #22543d; }
+  .badge.no { background: #fed7d7; color: #742a2a; }
+
+  @media (max-width: 480px) {
+    .tick-num { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-combinatorics/visualization.html">← L3: Combinatorics</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Modular Arithmetic</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-proof-induction/visualization.html">L5: Proof &amp; Induction →</a>
+</nav>
+
+<main>
+  <h1>Lesson 04 — Modular Arithmetic &amp; GCD</h1>
+  <p>Bốn công cụ tương tác: đồng hồ modular, thuật toán Euclid tìm GCD từng bước,
+  lũy thừa modular nhanh (square-and-multiply), và bộ tìm nghịch đảo modular.</p>
+
+  <!-- ───────────────────── 1. CLOCK ───────────────────── -->
+  <h2>1. Đồng hồ modular — (a op b) mod m</h2>
+  <p class="hint">Kim quay từ 0, đi <code>a</code> bước rồi cộng/nhân với <code>b</code>;
+  kết quả gập về vòng <code>m</code> vạch. Đây là trực giác "đếm trên vòng tròn".</p>
+  <div class="card">
+    <div class="row">
+      <label>m (số vạch):</label>
+      <input type="number" id="ckM" value="12" min="2" max="24">
+      <label>a:</label>
+      <input type="number" id="ckA" value="10">
+      <label>phép:</label>
+      <select id="ckOp">
+        <option value="add">a + b</option>
+        <option value="mul">a × b</option>
+        <option value="sub">a − b</option>
+      </select>
+      <label>b:</label>
+      <input type="number" id="ckB" value="5">
+      <button id="ckBtn">Quay kim</button>
+    </div>
+    <div class="clock-wrap">
+      <svg id="clockSvg" width="300" height="300" viewBox="0 0 300 300"></svg>
+    </div>
+    <div class="readout" id="ckOut"></div>
+  </div>
+
+  <!-- ───────────────────── 2. EUCLID GCD ───────────────────── -->
+  <h2>2. Euclid GCD stepper — gcd(a,b) = gcd(b, a mod b)</h2>
+  <p class="hint">Mỗi bước thay cặp <code>(a,b)</code> bằng <code>(b, a mod b)</code> tới khi
+  số thứ hai bằng 0. Số bước ≈ O(log).</p>
+  <div class="card">
+    <div class="row">
+      <label>a:</label><input type="number" id="gA" value="48" min="0">
+      <label>b:</label><input type="number" id="gB" value="18" min="0">
+      <button id="gBtn">Chạy Euclid</button>
+    </div>
+    <div class="wrap"><div id="gOut"></div></div>
+  </div>
+
+  <!-- ───────────────────── 3. FAST EXP ───────────────────── -->
+  <h2>3. Fast modular exponentiation — a^b mod m</h2>
+  <p class="hint">Square-and-multiply: duyệt từng bit của <code>b</code>, bình phương base mỗi vòng,
+  bit = 1 thì nhân vào kết quả. O(log b) phép nhân.</p>
+  <div class="card">
+    <div class="row">
+      <label>a:</label><input type="number" id="eA" value="3" min="0">
+      <label>b (số mũ):</label><input type="number" id="eB" value="13" min="0">
+      <label>m:</label><input type="number" id="eM" value="7" min="2">
+      <button id="eBtn">Tính từng bit</button>
+    </div>
+    <div class="wrap"><div id="eOut"></div></div>
+  </div>
+
+  <!-- ───────────────────── 4. MOD INVERSE ───────────────────── -->
+  <h2>4. Modular inverse finder — a⁻¹ mod m</h2>
+  <p class="hint">Tìm <code>x</code> sao cho <code>a·x ≡ 1 (mod m)</code> bằng Extended Euclid.
+  Tồn tại ⇔ gcd(a, m) = 1.</p>
+  <div class="card">
+    <div class="row">
+      <label>a:</label><input type="number" id="iA" value="3" min="1">
+      <label>m:</label><input type="number" id="iM" value="7" min="2">
+      <button id="iBtn">Tìm nghịch đảo</button>
+    </div>
+    <div class="readout" id="iOut"></div>
+  </div>
+</main>
+
+<script>
+// Mod toán học chuẩn hóa về [0, m)
+function mmod(a, m) { return ((a % m) + m) % m; }
+
+// ───────────────────── 1. CLOCK ─────────────────────
+function drawClock() {
+  const m = Math.max(2, Math.min(24, parseInt(document.getElementById('ckM').value) || 12));
+  const a = parseInt(document.getElementById('ckA').value) || 0;
+  const b = parseInt(document.getElementById('ckB').value) || 0;
+  const op = document.getElementById('ckOp').value;
+
+  let raw, opStr;
+  if (op === 'add') { raw = a + b; opStr = a + ' + ' + b; }
+  else if (op === 'mul') { raw = a * b; opStr = a + ' × ' + b; }
+  else { raw = a - b; opStr = a + ' − ' + b; }
+  const res = mmod(raw, m);
+
+  const svg = document.getElementById('clockSvg');
+  const cx = 150, cy = 150, R = 115;
+  let s = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="#faf5ff" stroke="#805ad5" stroke-width="2"/>`;
+  // vạch số
+  for (let i = 0; i < m; i++) {
+    const ang = (-90 + i * 360 / m) * Math.PI / 180;
+    const tx = cx + (R - 22) * Math.cos(ang);
+    const ty = cy + (R - 22) * Math.sin(ang) + 5;
+    const hit = (i === res);
+    s += `<text x="${tx}" y="${ty}" text-anchor="middle" class="tick-num ${hit ? 'hit' : ''}">${i}</text>`;
+    if (hit) {
+      const dx = cx + (R - 22) * Math.cos(ang);
+      const dy = cy + (R - 22) * Math.sin(ang);
+      s += `<circle cx="${dx}" cy="${dy}" r="15" fill="none" stroke="#553c9a" stroke-width="2"/>`;
+    }
+  }
+  // kim chỉ tới res
+  const angR = (-90 + res * 360 / m) * Math.PI / 180;
+  const hx = cx + (R - 40) * Math.cos(angR);
+  const hy = cy + (R - 40) * Math.sin(angR);
+  s += `<line x1="${cx}" y1="${cy}" x2="${hx}" y2="${hy}" stroke="#553c9a" stroke-width="4" stroke-linecap="round"/>`;
+  s += `<circle cx="${cx}" cy="${cy}" r="6" fill="#44337a"/>`;
+  svg.innerHTML = s;
+
+  document.getElementById('ckOut').innerHTML =
+    `<strong>${opStr} = ${raw}</strong>, gập về vòng ${m} vạch:<br>` +
+    `(${opStr}) mod ${m} = ${raw} mod ${m} = <strong>${res}</strong>` +
+    (raw < 0 ? `  <span class="hint">(số âm → mod toán học không âm; lưu ý <code>%</code> Go sẽ ra ${raw % m})</span>` : '');
+}
+
+// ───────────────────── 2. EUCLID GCD ─────────────────────
+function runGCD() {
+  let a = Math.abs(parseInt(document.getElementById('gA').value) || 0);
+  let b = Math.abs(parseInt(document.getElementById('gB').value) || 0);
+  let rows = '', step = 0;
+  const out = document.getElementById('gOut');
+  if (a === 0 && b === 0) { out.innerHTML = '<p class="hint">gcd(0,0) không xác định.</p>'; return; }
+  let html = '<table class="steps"><tr><th>Bước</th><th>a</th><th>b</th><th>a mod b</th><th>Gọi tiếp</th></tr>';
+  while (b !== 0) {
+    step++;
+    const r = a % b;
+    html += `<tr><td>${step}</td><td>${a}</td><td>${b}</td><td class="hl">${a} mod ${b} = ${r}</td>` +
+            `<td>gcd(${b}, ${r})</td></tr>`;
+    [a, b] = [b, r];
+  }
+  html += `<tr class="final"><td>${step + 1}</td><td>${a}</td><td>0</td><td>—</td><td>trả về ${a}</td></tr>`;
+  html += '</table>';
+  html += `<div class="readout">gcd = <strong>${a}</strong> · số bước mod: <strong>${step}</strong>` +
+          (a === 1 ? ' · <span class="badge ok">coprime (gcd=1)</span>' : '') + '</div>';
+  out.innerHTML = html;
+}
+
+// ───────────────────── 3. FAST EXP ─────────────────────
+function runExp() {
+  const a0 = parseInt(document.getElementById('eA').value) || 0;
+  let b = parseInt(document.getElementById('eB').value);
+  const m = parseInt(document.getElementById('eM').value) || 2;
+  const out = document.getElementById('eOut');
+  if (b < 0 || isNaN(b)) { out.innerHTML = '<p class="hint">Số mũ b phải ≥ 0.</p>'; return; }
+
+  let base = mmod(a0, m);
+  let result = mmod(1, m);
+  const bin = (b === 0 ? '0' : b.toString(2));
+  let html = `<p class="hint">b = ${b} = <code>${bin}<sub>2</sub></code> (đọc từ bit thấp lên)</p>`;
+  html += '<table class="steps"><tr><th>i (bit)</th><th>bit b</th><th>base = a^(2^i) mod m</th>' +
+          '<th>bit=1? nhân vào result</th><th>result</th></tr>';
+  html += `<tr><td>khởi tạo</td><td>—</td><td>${base}</td><td>—</td><td>${result}</td></tr>`;
+  let i = 0, bb = b;
+  if (bb === 0) {
+    html += `<tr class="final"><td>0</td><td>0</td><td>${base}</td><td>không</td><td>${result}</td></tr>`;
+  }
+  while (bb > 0) {
+    const bit = bb & 1;
+    let mulStr = 'không';
+    if (bit === 1) {
+      const prev = result;
+      result = (result * base) % m;
+      mulStr = `có → ${prev}·${base} = ${prev * base} ≡ ${result}`;
+    }
+    const baseShown = base;
+    html += `<tr><td>${i}</td><td class="${bit ? 'bit-on' : 'bit-off'}">${bit}</td>` +
+            `<td>${baseShown}</td><td class="hl">${mulStr}</td><td><strong>${result}</strong></td></tr>`;
+    base = (base * base) % m;
+    bb >>= 1; i++;
+  }
+  html += '</table>';
+  html += `<div class="readout"><strong>${a0}^${b} mod ${m} = ${result}</strong> · ${i || 1} vòng (O(log b))</div>`;
+  out.innerHTML = html;
+}
+
+// ───────────────────── 4. MOD INVERSE ─────────────────────
+function extGCD(a, b) {
+  if (b === 0) return [a, 1, 0];
+  const [g, x1, y1] = extGCD(b, a % b);
+  return [g, y1, x1 - Math.floor(a / b) * y1];
+}
+function runInverse() {
+  const a = parseInt(document.getElementById('iA').value) || 0;
+  const m = parseInt(document.getElementById('iM').value) || 2;
+  const out = document.getElementById('iOut');
+  const [g, x] = extGCD(mmod(a, m), m);
+  if (g !== 1) {
+    out.innerHTML = `gcd(${a}, ${m}) = <strong>${g}</strong> ≠ 1 → ` +
+      `<span class="badge no">nghịch đảo KHÔNG tồn tại</span><br>` +
+      `<span class="hint">a và m phải nguyên tố cùng nhau (coprime).</span>`;
+    return;
+  }
+  const inv = mmod(x, m);
+  const check = (a % m * inv) % m;
+  out.innerHTML =
+    `gcd(${a}, ${m}) = 1 → <span class="badge ok">tồn tại</span><br>` +
+    `Bézout: ${a}·(${x}) + ${m}·y = 1 → x = ${x}, chuẩn hóa về [0,${m}): <strong>${inv}</strong><br>` +
+    `Kiểm tra: ${a} · ${inv} = ${a * inv} ≡ ${mmod(a * inv, m)} (mod ${m}) ✓<br>` +
+    `<strong>${mmod(a, m)}⁻¹ ≡ ${inv} (mod ${m})</strong>`;
+}
+
+// ───────────────────── wire up ─────────────────────
+document.getElementById('ckBtn').onclick = drawClock;
+document.getElementById('ckOp').onchange = drawClock;
+document.getElementById('gBtn').onclick = runGCD;
+document.getElementById('eBtn').onclick = runExp;
+document.getElementById('iBtn').onclick = runInverse;
+
+drawClock();
+runGCD();
+runExp();
+runInverse();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

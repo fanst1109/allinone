@@ -519,7 +519,30 @@ todo add "task ở bất kỳ đâu"
 - **TUI** dùng [bubbletea](https://github.com/charmbracelet/bubbletea) thay CLI text. Đẹp hơn, tương tác keyboard.
 - **Sync với REST API**: server lưu task cho nhiều máy. Sẽ làm được sau Tier 4.
 
-## 8. Bài tập — mở rộng project
+## 8. Ứng dụng thực tế trong phần mềm
+
+> 💡 **CLI Go là thế mạnh thật của ngôn ngữ — một binary tĩnh, cross-platform, khởi động tức thì. Từ toy project này tới CLI production cần vài bước rõ ràng.**
+
+| Từ toy → production | Dùng gì |
+|---------------------|---------|
+| **Parse arg/flag/subcommand** | `cobra` (CLI lớn: git/docker/kubectl style), `flag` (đơn giản) |
+| **Config** | File (`~/.config/app`) + env + flag, ưu tiên rõ ràng ([nối config](../lesson-78-config-management/)) |
+| **Phân phối** | Cross-compile ra binary mọi OS ([nối toolchain](../lesson-06-hello-world-toolchain/)), `goreleaser` + Homebrew |
+| **UX tốt** | Exit code đúng, lỗi ra stderr, `--help` rõ, màu/spinner (khi là TTY) |
+
+### 8.1. Ví dụ cụ thể — vì sao CLI tooling hay viết bằng Go
+
+`kubectl`, `gh` (GitHub CLI), `docker`, `terraform`, `hugo` — toàn CLI lớn viết Go. Lý do: (1) **một binary tĩnh** → user tải về chạy ngay, không cần cài runtime/dependency (khác Python/Node cần interpreter); (2) **cross-compile** → phát hành cho Mac/Linux/Windows/ARM từ một máy build; (3) **khởi động tức thì** (không JVM warmup) → hợp lệnh gõ liên tục. Todo CLI này dùng đúng nền tảng đó — nâng lên `cobra` + `goreleaser` là thành CLI phân phối được thật.
+
+> ⚠ **CLI production khác toy ở UX + robustness.** (1) **Exit code**: 0 = thành công, ≠0 = lỗi (script/CI dựa vào) — đừng luôn exit 0. (2) Lỗi ra **stderr**, kết quả ra **stdout** → pipe được (`app list | grep`). (3) Phát hiện **TTY** — màu/spinner khi chạy tay, plain khi pipe/CI (màu ANSI làm rối log). (4) Đọc được từ **stdin** để ghép pipe. (5) `--help` + `--version` đầy đủ. Đây là khác biệt giữa "script cá nhân" và "tool người khác dùng".
+
+### 8.2. 📝 Tóm tắt mục 8
+
+- Go là nền tốt cho CLI: **binary tĩnh + cross-compile + khởi động nhanh** → kubectl/gh/docker/terraform đều Go.
+- Toy → production: `cobra` (subcommand), config file+env+flag, `goreleaser` phân phối đa OS.
+- UX production: exit code đúng, stdout/stderr tách, phát hiện TTY (màu), đọc stdin, `--help`/`--version`.
+
+## 9. Bài tập — mở rộng project
 
 Vì đây là project tổng kết, bài tập = thêm tính năng. Mỗi BT đều có lời giải đầy đủ ở mục sau.
 
@@ -550,7 +573,7 @@ Pending: 5 (41.7%)
 
 Lưu `.todo.json.bak` backup trước MỖI lần Save. Lệnh `undo` swap `.todo.json` ↔ `.todo.json.bak`. Đơn giản, không cần history dài.
 
-## 9. Lời giải chi tiết
+## 10. Lời giải chi tiết
 
 ### BT1 — Priority
 
@@ -734,12 +757,12 @@ func cmdUndo(s *Store, _ []string) error {
 
 > ⚠ `os.Exit(0)` trong handler là hack — production nên dùng flag `skipSave` ở Store rồi check trong main. Ở đây dùng cách đơn giản để minh họa concept undo.
 
-## 10. Code & minh họa
+## 11. Code & minh họa
 
 - [solutions/](./solutions/) — project Go đầy đủ, build và chạy được. `cd solutions && go run . help`.
 - [visualization.html](./visualization.html) — terminal simulator tương tác (gõ lệnh thật, xem state JSON đổi real-time), architecture diagram click-to-explore.
 
-## 11. Kết thúc Tier 1 — bước tiếp
+## 12. Kết thúc Tier 1 — bước tiếp
 
 Sau lesson này bạn đã:
 

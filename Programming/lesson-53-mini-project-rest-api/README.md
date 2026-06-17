@@ -522,6 +522,32 @@ ENTRYPOINT ["/server"]
 
 ---
 
+## 12. Ứng dụng thực tế trong phần mềm
+
+> 💡 **REST API này là khung của hầu hết backend thật. Khoảng cách từ "chạy được" tới "production-ready" là một checklist cụ thể — chính là các lesson Tier 4–7.**
+
+| Production-ready cần | Lesson |
+|----------------------|--------|
+| **Validation + không tin client** | [L45 validation](../lesson-45-request-validation/) |
+| **Auth (JWT/session)** | L46 auth |
+| **Timeout + graceful shutdown** | [L42 http](../lesson-42-http-net-deep/), [L51 shutdown](../lesson-51-graceful-shutdown/) |
+| **Rate limit + circuit breaker** | [L52](../lesson-52-rate-limiting-circuit-breaker/) |
+| **Migration + transaction** | [L56](../lesson-56-transactions-isolation/), [L57](../lesson-57-migrations/) |
+| **Observability (log/metric/trace)** | [L72](../lesson-72-structured-logging/)–[L74](../lesson-74-tracing-opentelemetry/) |
+| **Đóng gói + deploy** | [L75 docker](../lesson-75-docker-multistage/), [L76 k8s](../lesson-76-kubernetes-basics/) |
+
+### 12.1. Ví dụ cụ thể — checklist "chạy được" → "production-ready"
+
+API CRUD chạy local là **20%** chặng đường. Còn lại để chịu được production thật: (1) **validate** mọi input (SQLi/XSS); (2) **auth + phân quyền**; (3) **timeout** ở server lẫn client (không treo do dependency chậm); (4) **graceful shutdown** (deploy không rớt request); (5) **rate limit** (chống abuse); (6) **migration** versioned (đổi schema an toàn); (7) **structured log + trace ID** (debug được khi lỗi); (8) **metric + alert** (biết sự cố trước user); (9) **health check** (K8s probe); (10) **config qua env + secret an toàn**. Mỗi mục là một lesson đã học — project này là nơi **ghép tất cả lại**.
+
+> 💡 **Đây là lý do "viết CRUD" và "vận hành service" là hai kỹ năng khác nhau.** Junior dừng ở "endpoint trả đúng JSON". Service production còn cần resilience (timeout/retry/breaker), observability (log/metric/trace), security (validate/auth/secret), operability (graceful shutdown/health/config). Bộ checklist trên chính là tinh thần [12-factor app](../lesson-78-config-management/) + [production readiness](../lesson-81-incident-postmortem/). Dùng nó để review API của bạn trước khi gọi là "xong".
+
+### 12.2. 📝 Tóm tắt mục 12
+
+- CRUD chạy local = ~20%; production-ready cần thêm: validation, auth, timeout, graceful shutdown, rate limit, migration, observability, deploy.
+- Mỗi mục checklist = một lesson Tier 4–7; project này **ghép tất cả** thành service thật.
+- "Viết CRUD" ≠ "vận hành service": thêm resilience + observability + security + operability.
+
 ## Bài tập
 
 > Mọi bài tập có lời giải đầy đủ ở mục **"Lời giải chi tiết"** ngay sau đây.

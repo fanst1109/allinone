@@ -575,6 +575,34 @@ func newLogger(env string) *slog.Logger {
 
 ---
 
+## 15. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Log có cấu trúc (JSON) là khác biệt giữa "grep mò trong text" và "query log như database". Bắt buộc cho hệ phân tán.**
+
+| Thực hành | Vì sao |
+|-----------|--------|
+| **JSON log** (`slog`, zap, zerolog) | Máy parse được → query/filter/aggregate trong Loki/ELK/Datadog |
+| **Trace/request ID mọi log** | Nối các log của cùng một request xuyên service |
+| **Log level đúng** | DEBUG/INFO/WARN/ERROR — prod chạy INFO, bật DEBUG khi cần |
+| **Không log dữ liệu nhạy cảm** | Mật khẩu/token/PII → vi phạm bảo mật + GDPR |
+
+### 15.1. Ví dụ cụ thể — correlation ID nối log xuyên service
+
+Request đi qua gateway → order → payment → inventory. Mỗi service log riêng. Khi user báo "đơn lỗi", làm sao tìm tất cả log của **đúng request đó** giữa hàng triệu dòng? **Correlation/trace ID**: gateway sinh một ID, truyền qua header xuống mọi service ([nối context](../lesson-29-context-cancellation/)), mọi log đính kèm ID đó. Query `trace_id=abc123` → thấy toàn bộ hành trình request qua mọi service. Với JSON log + ELK/Loki, đây là một query; với text log thì gần như bất khả thi.
+
+```go
+slog.Info("order created", "trace_id", traceID, "order_id", id, "user_id", uid)
+// {"level":"INFO","msg":"order created","trace_id":"abc123","order_id":42,...}
+```
+
+> ⚠ **Log sai cách: nhạy cảm, quá nhiều, hoặc dạng text.** (1) **KHÔNG log** mật khẩu/token/số thẻ/PII — lộ qua log là sự cố bảo mật thật (log thường lưu lâu, nhiều người xem). (2) Log quá nhiều (mỗi vòng lặp) → tốn tiền lưu trữ + che tín hiệu thật; log có chủ đích. (3) Text log `fmt.Println` không parse được ở scale → dùng structured (slog là stdlib từ Go 1.21). (4) Log đồng bộ chặn hot path → logger nên async/buffered.
+
+### 15.2. 📝 Tóm tắt mục 15
+
+- **JSON structured log** (slog/zap) → query/filter/aggregate được; text log vô dụng ở scale.
+- **Correlation/trace ID** trong mọi log → nối hành trình request xuyên service (1 query thay vì grep mò).
+- Đừng log dữ liệu nhạy cảm (bảo mật/GDPR), đừng log quá nhiều (tốn tiền + nhiễu); level đúng.
+
 ## Bài tập
 
 > Khuyến nghị làm trên Go 1.21+ (`go version`). Lời giải đầy đủ ở mục kế tiếp và trong [`solutions.go`](./solutions.go).

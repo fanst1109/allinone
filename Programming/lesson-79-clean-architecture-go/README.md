@@ -424,6 +424,36 @@ Clean architecture **không miễn phí**. Cái giá: nhiều file hơn, nhiều
 
 ---
 
+## 11. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Clean architecture giữ logic nghiệp vụ độc lập với framework/DB — nhưng áp dụng máy móc gây over-engineering. Tinh thần quan trọng hơn cấu trúc thư mục.**
+
+| Nguyên tắc | Lợi thực tế |
+|------------|-------------|
+| **Dependency hướng vào trong** | Domain không phụ thuộc DB/web → đổi Postgres→Mongo không sửa logic |
+| **Interface ở ranh giới** | Domain định nghĩa `UserRepo` interface, infra hiện thực → dễ test ([nối mocking](../lesson-38-mocking-test-doubles/)) |
+| **Logic nghiệp vụ thuần** | Test logic không cần DB/HTTP → nhanh, đáng tin |
+| **Framework là chi tiết** | Đổi Gin→Echo, REST→gRPC không động tới core |
+
+### 11.1. Ví dụ cụ thể — vì sao domain không import DB
+
+```
+domain/      → User, Order + interface UserRepo (KHÔNG import sql/gorm)
+usecase/     → logic nghiệp vụ, dùng interface UserRepo
+infra/db/    → PostgresUserRepo implements UserRepo (import gorm)
+infra/http/  → handler gọi usecase
+```
+
+Mũi tên phụ thuộc hướng **vào trong** (infra → usecase → domain), không bao giờ ngược. Lợi: (1) test usecase với fake repo, không cần Postgres; (2) đổi DB chỉ sửa `infra/db`, domain/usecase không động; (3) logic nghiệp vụ không lẫn SQL/HTTP → đọc hiểu được. Đây là [dependency inversion](../lesson-39-design-patterns-go/) + [package boundary](../lesson-20-packages-modules/) áp ở quy mô kiến trúc.
+
+> ⚠ **Đừng áp máy móc — over-engineering với CRUD đơn giản.** (1) App CRUD thuần (admin panel, blog) áp full clean architecture (4 tầng, interface khắp nơi, mapping DTO↔domain↔entity) → nhiều boilerplate hơn logic, chậm phát triển. (2) Tạo interface cho thứ chỉ có **một** hiện thực và không cần mock → trừu tượng thừa. Tinh thần thật: **giữ logic nghiệp vụ tách khỏi I/O** để test được + đổi được — không phải copy đúng 4 vòng tròn. Bắt đầu đơn giản (handler→service→repo), thêm tầng khi độ phức tạp thật sự cần. "Pragmatic, không dogmatic".
+
+### 11.2. 📝 Tóm tắt mục 11
+
+- Clean arch: dependency hướng **vào trong** (infra→usecase→domain), interface ở ranh giới → domain độc lập DB/framework.
+- Lợi: test logic không cần hạ tầng, đổi DB/framework không sửa core.
+- Đừng dogmatic: CRUD đơn giản không cần 4 tầng + interface khắp nơi; giữ tinh thần (tách logic khỏi I/O), thêm tầng khi cần.
+
 ## Bài tập
 
 > Giải đầy đủ ở mục **Lời giải chi tiết** bên dưới. Hãy thử tự làm trước.

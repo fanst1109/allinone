@@ -552,6 +552,30 @@ Không chỉ code có pitfall — bản thân quá trình review cũng có:
 
 ---
 
+## 15. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Code review là nơi kiến thức lan truyền và bug bị chặn trước production — kỹ năng review tốt quan trọng ngang kỹ năng code.**
+
+| Thực hành | Vì sao |
+|-----------|--------|
+| **Tự động hóa nit** (lint/fmt/CI) | Đừng tốn review cho format → \`gofmt\`/\`golangci-lint\` lo |
+| **Review logic, không style** | Người tập trung vào đúng đắn/thiết kế/edge case |
+| **PR nhỏ** | <400 dòng → review kỹ; PR khổng lồ = approve mù |
+| **Comment mang tính xây dựng** | "Cân nhắc X vì Y" thay vì "sai rồi" |
+| **Conventional Commits** | Lịch sử git đọc được, tự sinh changelog |
+
+### 15.1. Ví dụ cụ thể — vì sao PR nhỏ + lint tự động
+
+PR 2000 dòng → reviewer mệt, approve qua loa, bug lọt. PR 200 dòng → review kỹ từng dòng, bắt được bug thật. Và đừng để reviewer tranh luận "tab hay space", "đặt dấu phẩy đâu" — **\`gofmt\` + \`golangci-lint\` trong CI** tự sửa/chặn → review dành cho thứ máy không làm được: *logic đúng không? edge case? thiết kế hợp lý? đặt tên rõ?*. Google/Go team: format không phải chủ đề review (đã chuẩn hóa bằng tool). Đây là cách review tạo giá trị thật thay vì cãi nhau vặt.
+
+> 💡 **Review là dạy + học hai chiều, không phải gác cổng quyền lực.** (1) Comment giải thích **vì sao** ("dùng \`errors.Is\` ở đây vì lỗi có thể bị wrap" + link) → reviewee học, lần sau tự làm đúng. (2) Phân biệt **phải sửa** (bug, bảo mật) với **gợi ý** (nit, prefer) — đánh dấu rõ để không block PR vì ý kiến cá nhân. (3) Review sớm + nhanh (đừng để PR chờ ngày) → không chặn đồng đội. (4) Người viết: PR nhỏ, mô tả rõ "làm gì, vì sao, test sao" → reviewer hiểu nhanh. Văn hóa review tốt = codebase tốt + team học nhanh.
+
+### 15.2. 📝 Tóm tắt mục 15
+
+- **Tự động hóa style/nit** (gofmt + golangci-lint + CI) → review dành cho logic/thiết kế/edge case/bảo mật.
+- **PR nhỏ** (<400 dòng) → review kỹ, bắt bug thật; PR khổng lồ = approve mù.
+- Review = dạy+học hai chiều: comment "vì sao", phân biệt phải-sửa vs gợi-ý, review nhanh không chặn team.
+
 ## Bài tập
 
 > Tất cả bài tập đều có lời giải chi tiết ở mục kế tiếp. Code minh hoạ chạy được ở [solutions.go](./solutions.go); trực quan tương tác ở [visualization.html](./visualization.html).

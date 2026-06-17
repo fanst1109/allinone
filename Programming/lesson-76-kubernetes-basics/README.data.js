@@ -716,6 +716,30 @@ func gracefulShutdown(srv *http.Server, health *HealthState, grace time.Duration
 
 ---
 
+## 16. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Kubernetes tự động hóa deploy/scale/self-heal — nhưng phức tạp khổng lồ. Phần lớn app nhỏ KHÔNG cần K8s; biết để dùng đúng lúc.**
+
+| K8s lo việc gì | Thay cho thủ công |
+|----------------|-------------------|
+| **Self-healing** | Pod chết → tự restart; node chết → reschedule |
+| **Rolling deploy** | Cập nhật không downtime (cần [graceful shutdown](../lesson-51-graceful-shutdown/) + probe) |
+| **Autoscaling (HPA)** | Tự tăng/giảm replica theo CPU/metric |
+| **Service discovery + LB** | DNS nội bộ + route tới pod khỏe ([nối](../lesson-63-service-discovery-lb/)) |
+| **Config/Secret** | Tách config khỏi image ([nối config](../lesson-78-config-management/)) |
+
+### 16.1. Ví dụ cụ thể — probe + resource limit là sống còn
+
+App Go trên K8s **bắt buộc** khai báo: (1) **readiness probe** — K8s chỉ gửi traffic khi pod sẵn sàng (chưa kết nối DB xong → chưa nhận request); (2) **liveness probe** — pod treo → K8s restart; (3) **resource requests/limits** — K8s biết xếp pod vào node nào, và OOM-kill nếu vượt limit. Thiếu probe → traffic tới pod chưa sẵn sàng → lỗi; thiếu resource limit → một pod ngốn hết RAM node làm chết pod khác. Kèm graceful shutdown (xử lý SIGTERM) → rolling deploy zero-downtime. Đây là "K8s-ready service" thật.
+
+> ⚠ **"Bạn có thực sự cần K8s?" — over-engineering phổ biến nhất 2020s.** K8s thêm: cụm để vận hành, YAML phức tạp, learning curve dốc, nhiều thứ debug. Cho app nhỏ/startup giai đoạn đầu → **PaaS** (Railway, Render, Fly.io, Cloud Run) hoặc VM + Docker Compose đơn giản hơn nhiều, vẫn auto-deploy/scale cơ bản. K8s đáng khi: nhiều service, cần autoscale phức tạp, team có kỹ năng ops, multi-cloud. Đừng chọn K8s vì "công ty lớn dùng" — họ có cả team platform.
+
+### 16.2. 📝 Tóm tắt mục 16
+
+- K8s tự động hóa: **self-heal, rolling deploy, autoscale, service discovery, config/secret**.
+- "K8s-ready service": **readiness + liveness probe** + **resource limits** + **graceful shutdown** — thiếu là lỗi/OOM.
+- Đừng over-engineer: app nhỏ → PaaS (Cloud Run/Fly/Render); K8s khi nhiều service + có team ops.
+
 ## Bài tập
 
 > Lời giải đầy đủ ở mục **Lời giải chi tiết** bên dưới. Tự làm trước khi xem.

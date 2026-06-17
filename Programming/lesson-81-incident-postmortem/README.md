@@ -707,6 +707,29 @@ So sánh hai chiến lược cải thiện (giữ nguyên 4 incident/tháng):
 
 ---
 
+## 16. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Sự cố là chuyện CHẮC CHẮN xảy ra, không phải "nếu". Khác biệt giữa team trưởng thành và non là cách họ phản ứng + học từ sự cố.**
+
+| Giai đoạn | Việc làm |
+|-----------|----------|
+| **Phát hiện** | Alert dựa observability (metrics/trace/log) — biết trước user báo |
+| **Giảm thiểu** | Rollback/feature flag/scale — **khôi phục dịch vụ trước**, tìm nguyên nhân sau |
+| **Postmortem** | Sau sự cố: timeline, root cause, action item phòng tái diễn |
+| **Blameless** | Đổ lỗi quy trình/hệ thống, không cá nhân → người ta dám nói thật |
+
+### 16.1. Ví dụ cụ thể — khôi phục trước, điều tra sau
+
+API sập lúc 2h sáng. Sai lầm junior: ngồi debug tìm nguyên nhân gốc trong khi user vẫn down. Đúng: **giảm thiểu trước** — deploy gần nhất gây ra? → **rollback ngay** (dịch vụ hồi phục) → *rồi* mới điều tra commit nào trong môi trường an toàn. Hoặc tắt feature flag tính năng lỗi, scale thêm nếu quá tải. Mục tiêu #1 lúc sự cố: **MTTR (thời gian khôi phục) thấp**, không phải "hiểu ngay nguyên nhân". Công cụ: observability ([metrics](../lesson-73-metrics-prometheus/)/[tracing](../lesson-74-tracing-opentelemetry/)) để khoanh vùng nhanh, [graceful rollback](../lesson-77-ci-cd-pipeline/) để hồi phục an toàn.
+
+> 💡 **Postmortem blameless = vàng cho team.** Sau sự cố, viết postmortem: **timeline** (mấy giờ gì xảy ra), **root cause** (dùng "5 whys" — hỏi tại sao 5 lần tới gốc), **action items** (sửa gì để không tái diễn — thêm alert, thêm test, sửa quy trình). Then chốt: **blameless** — không đổ lỗi cá nhân ("ai deploy?") mà hỏi hệ thống ("vì sao quy trình cho phép deploy này gây sập? thiếu test/canary/review gì?"). Đổ lỗi cá nhân → người ta giấu lỗi → không học được. Văn hóa blameless (Google/Etsy) làm hệ thống mạnh dần qua mỗi sự cố. Sự cố là cơ hội học, không phải toà án.
+
+### 16.2. 📝 Tóm tắt mục 16
+
+- Sự cố chắc chắn xảy ra → **giảm thiểu trước** (rollback/flag/scale, hạ MTTR), điều tra nguyên nhân sau.
+- Observability (metrics/trace/log) để phát hiện + khoanh vùng nhanh; alert trước khi user báo.
+- **Postmortem blameless**: timeline + root cause (5 whys) + action items; đổ lỗi hệ thống không cá nhân → team học, hệ mạnh dần.
+
 ## Bài tập
 
 > Làm thử trước khi xem [lời giải chi tiết](#lời-giải-chi-tiết) bên dưới. Có thể đối chiếu/chạy thử bằng [solutions.go](./solutions.go) và mô phỏng ở [visualization.html](./visualization.html).

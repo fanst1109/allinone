@@ -565,6 +565,29 @@ Những metric này "miễn phí" — rất hữu ích để theo dõi rò rỉ 
 
 ---
 
+## 16. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Metrics trả lời "hệ thống có khỏe không?" theo thời gian thực — nền của alerting và SLO. Bốn chỉ số vàng quan trọng hơn trăm metric vô nghĩa.**
+
+| Metric type | Đo gì | Ví dụ |
+|-------------|-------|-------|
+| **Counter** | Đếm tích lũy (chỉ tăng) | tổng request, tổng lỗi |
+| **Gauge** | Giá trị hiện tại (lên/xuống) | số connection, memory dùng |
+| **Histogram** | Phân phối (tính percentile) | latency p50/p95/p99 |
+| **Summary** | Như histogram, tính sẵn quantile | (ít dùng hơn histogram) |
+
+### 16.1. Ví dụ cụ thể — bốn chỉ số vàng (RED/USE)
+
+Đừng đo trăm thứ vô nghĩa. **RED** cho service: **R**ate (request/giây), **E**rrors (tỉ lệ lỗi), **D**uration (latency p95/p99). **USE** cho tài nguyên: **U**tilization, **S**aturation, **E**rrors. Vd `http_requests_total{status="500"}` (counter) + `http_request_duration_seconds` (histogram) → tính được "tỉ lệ lỗi 5 phút qua" và "p99 latency" → **alert** khi vượt ngưỡng. Đây là cách phát hiện sự cố **trước** khi user phàn nàn. Prometheus scrape metric endpoint `/metrics`, Grafana vẽ dashboard, Alertmanager gửi cảnh báo.
+
+> ⚠ **Bẫy cardinality — label động làm sập Prometheus.** Mỗi tổ hợp label = một time series. Dùng label **giá trị vô hạn** (user_id, request_id, email) → hàng triệu series → Prometheus hết RAM/sập. Quy tắc: label chỉ cho giá trị **hữu hạn, ít** (status code, method, endpoint pattern — KHÔNG full URL có ID). Đo p99 bằng **histogram** không phải tính trung bình (trung bình giấu outlier; "latency trung bình 50ms" nhưng p99 = 5s vẫn giết UX). Alert trên **symptom** (lỗi/latency user thấy) không phải cause (CPU cao chưa chắc user bị ảnh hưởng).
+
+### 16.2. 📝 Tóm tắt mục 16
+
+- Metric types: **counter** (đếm), **gauge** (giá trị hiện tại), **histogram** (percentile latency).
+- Đo **RED** (Rate/Errors/Duration) cho service, **USE** cho tài nguyên → alert phát hiện sự cố sớm.
+- Bẫy **cardinality** (label vô hạn → sập); dùng histogram cho p99 (không trung bình); alert trên symptom.
+
 ## Bài tập
 
 > Làm trước, xem [Lời giải chi tiết](#lời-giải-chi-tiết) sau. Tham khảo [solutions.go](./solutions.go) cho code chạy được và [visualization.html](./visualization.html) để xem mô phỏng.

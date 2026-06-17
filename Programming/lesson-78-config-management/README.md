@@ -538,6 +538,39 @@ Nếu revoke cũ **trước** khi mọi instance kịp đọc mới → request 
 
 ---
 
+## 16. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Config tách khỏi code (12-factor) cho phép cùng một binary chạy mọi môi trường — và secret để trong code/git là lỗ hổng bảo mật kinh điển.**
+
+| Nguyên tắc | Thực hành |
+|------------|-----------|
+| **Config qua env var** (12-factor) | Cùng image chạy dev/staging/prod, chỉ đổi env |
+| **Secret riêng, không vào git** | Vault, K8s Secret, AWS Secrets Manager — KHÔNG hard-code |
+| **Validate config lúc khởi động** | Fail fast nếu thiếu/sai config, không chết giữa chừng |
+| **Default hợp lý** | App chạy được với cấu hình tối thiểu |
+
+### 16.1. Ví dụ cụ thể — cùng binary, khác môi trường
+
+```go
+type Config struct {
+	Port     int    `env:"PORT" envDefault:"8080"`
+	DBUrl    string `env:"DATABASE_URL,required"`   // bắt buộc, fail fast nếu thiếu
+	LogLevel string `env:"LOG_LEVEL" envDefault:"info"`
+}
+// dev: DATABASE_URL=localhost...  prod: DATABASE_URL=prod-db...
+// CÙNG một binary, chỉ env khác → build 1 lần, chạy mọi nơi
+```
+
+12-factor: config trong **môi trường**, không trong code. Cùng Docker image promote từ staging → prod (cùng artifact đã test), chỉ đổi env var → không "build lại cho prod" (nguồn bug "máy staging chạy được"). Validate `required` lúc start → thiếu `DATABASE_URL` thì crash ngay lúc khởi động (rõ ràng) thay vì lỗi nil khi request đầu tiên.
+
+> ⚠ **Secret trong git = sự cố bảo mật #1.** (1) Hard-code API key/password/token trong code hoặc commit file `.env` → ai có repo (kể cả lịch sử git) đều thấy → lộ key. Dùng secret manager (Vault/K8s Secret/cloud), thêm `.env` vào `.gitignore`. (2) Key đã lỡ commit → **phải rotate** (đổi key), không chỉ xóa commit (lịch sử git còn). (3) Đừng log config chứa secret ([nối logging](../lesson-72-structured-logging/)). (4) Phân biệt config (port, level — vào git OK) với secret (key, password — không bao giờ).
+
+### 16.2. 📝 Tóm tắt mục 16
+
+- **12-factor**: config qua env var → cùng binary/image chạy mọi môi trường (build 1 lần, promote artifact).
+- **Validate lúc khởi động** (`required`) → fail fast khi thiếu config, không lỗi giữa chừng.
+- **Secret KHÔNG vào git/code** → secret manager; lỡ commit phải rotate; đừng log secret.
+
 ## Bài tập
 
 > Lời giải chi tiết ở mục [Lời giải chi tiết](#lời-giải-chi-tiết). Code hoàn chỉnh ở [solutions.go](./solutions.go).

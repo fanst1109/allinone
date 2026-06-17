@@ -654,6 +654,44 @@ Kết quả điển hình cho một Go HTTP service: **~8–12 MB** với scratc
 
 ---
 
+## 16. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Multi-stage build + Go binary tĩnh = image vài MB thay vì hàng trăm MB. Image nhỏ = deploy nhanh, ít lỗ hổng, rẻ.**
+
+| Thực hành | Lợi |
+|-----------|-----|
+| **Multi-stage** (build stage + runtime stage) | Bỏ toolchain/source khỏi image cuối |
+| **\`FROM scratch\`/\`distroless\`** | Image ~10MB, ít lỗ hổng (không shell/lib thừa) |
+| **Layer caching** (copy go.mod trước) | Build lại nhanh khi chỉ đổi code, không đổi deps |
+| **Non-root user** | Bảo mật: container không chạy root |
+| **\`.dockerignore\`** | Không copy \`.git\`, \`node_modules\` vào build context |
+
+### 16.1. Ví dụ cụ thể — multi-stage cho Go
+
+\`\`\`dockerfile
+FROM golang:1.22 AS build
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download              # layer này cache lại nếu deps không đổi
+COPY . .
+RUN CGO_ENABLED=0 go build -o /app ./cmd/server
+
+FROM scratch                     # image cuối RỖNG
+COPY --from=build /app /app      # chỉ copy binary
+COPY --from=build /etc/ssl/certs /etc/ssl/certs  # cần cho HTTPS
+ENTRYPOINT ["/app"]
+\`\`\`
+
+Stage build (golang ~800MB) chỉ dùng để compile; image cuối từ \`scratch\` chỉ chứa binary ~10MB. So với image kéo cả golang toolchain → nhỏ hơn ~80×, deploy nhanh, ít CVE. Đây là [binary tĩnh](../lesson-06-hello-world-toolchain/) phát huy: Go cross-compile + \`CGO_ENABLED=0\` → không cần libc → chạy trên scratch.
+
+> ⚠ **Bẫy Docker thật.** (1) **Layer order**: copy \`go.mod\` + \`go mod download\` TRƯỚC \`COPY . .\` → đổi code không phải tải lại deps (cache hit); để sai thứ tự = build chậm mỗi lần. (2) **\`scratch\` thiếu CA certs** → HTTPS call fail; phải copy \`/etc/ssl/certs\` (hoặc dùng \`distroless\` có sẵn). (3) **Chạy root** trong container = rủi ro bảo mật → thêm non-root user. (4) **Image tag \`latest\`** = không reproducible → pin version cụ thể. (5) Quên \`.dockerignore\` → copy \`.git\` (chậm + lộ lịch sử).
+
+### 16.2. 📝 Tóm tắt mục 16
+
+- **Multi-stage** (build stage + \`scratch\`/\`distroless\` runtime) → Go image ~10MB, ít CVE, deploy nhanh.
+- **Layer caching**: copy go.mod + download deps trước copy code → build lại nhanh.
+- Bẫy: scratch thiếu CA certs (copy vào), chạy root (dùng non-root), \`latest\` tag (pin version), thiếu \`.dockerignore\`.
+
 ## Bài tập
 
 > Làm trước, xem [Lời giải chi tiết](#lời-giải-chi-tiết) sau. Có thể đối chiếu với [\`solutions.go\`](./solutions.go) (HTTP server mẫu) và [\`Dockerfile\`](./Dockerfile) (multi-stage hoàn chỉnh).

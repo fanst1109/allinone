@@ -469,6 +469,28 @@ Cách đọc:
 
 ---
 
+## 14. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Distributed tracing trả lời câu hỏi không log/metric nào trả được: "request CHẬM ở ĐÂU trong chuỗi 10 service?". Đây là mảnh thứ ba của observability.**
+
+| Trụ cột observability | Trả lời |
+|-----------------------|---------|
+| **Logs** | Chuyện gì đã xảy ra (chi tiết một sự kiện) |
+| **Metrics** | Tổng quan sức khỏe (tỉ lệ/xu hướng) |
+| **Traces** | Request đi qua đâu, chậm ở đâu (waterfall xuyên service) |
+
+### 14.1. Ví dụ cụ thể — tìm bottleneck trong chuỗi service
+
+User báo "trang load 5 giây". Request đi gateway → auth → product → inventory → pricing. Metric nói "p99 cao" nhưng **không nói service nào**. Log rải rác khắp nơi. **Trace**: một request có một `trace_id`, mỗi service tạo một **span** (có thời gian bắt đầu/kết thúc) → ghép thành **waterfall**: thấy auth 50ms, product 100ms, **pricing 4.8s** ← thủ phạm. OpenTelemetry chuẩn hóa việc này: instrument code → export sang Jaeger/Tempo/Datadog → xem waterfall. Không có trace, debug "chậm ở đâu" trong microservice gần như mò kim đáy bể.
+
+> 💡 **Context propagation là chìa khóa — và sampling để không vỡ chi phí.** (1) Trace ID + span context phải truyền qua mọi ranh giới service (HTTP header, message metadata) — Go dùng `context.Context` mang span ([nối context](../lesson-29-context-cancellation/)); đứt chuỗi propagation = trace gãy. (2) Trace **mọi** request ở traffic cao = tốn khủng khiếp → **sampling** (vd 1% request, hoặc tail-sampling giữ lại request lỗi/chậm). (3) OpenTelemetry = chuẩn vendor-neutral → đổi backend (Jaeger→Datadog) không sửa code instrument.
+
+### 14.2. 📝 Tóm tắt mục 14
+
+- Ba trụ cột: **logs** (chi tiết), **metrics** (xu hướng/sức khỏe), **traces** (request chậm ở đâu xuyên service).
+- Trace = trace_id + spans → **waterfall** chỉ ra service nào là bottleneck; OpenTelemetry chuẩn hóa.
+- **Context propagation** (qua header/ctx) bắt buộc; **sampling** để không vỡ chi phí ở traffic cao.
+
 ## Bài tập
 
 > Làm thử trước khi xem lời giải. Tất cả lời giải nằm ở mục "Lời giải chi tiết" ngay dưới, và minh họa code chạy được ở [solutions.go](./solutions.go).

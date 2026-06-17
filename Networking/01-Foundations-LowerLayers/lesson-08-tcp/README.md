@@ -374,7 +374,31 @@ RTT  cwnd (MSS)  Trạng thái
 
 ---
 
-## 6. Bài tập + Lời giải chi tiết
+## 6. Ứng dụng thực tế trong phần mềm
+
+> 💡 **TCP là nền của gần như mọi thứ (HTTP, DB, gRPC). Dev không cài TCP, nhưng tuning + hiểu hành vi của nó cứu vô số bug hiệu năng.**
+
+| Khái niệm TCP | Ảnh hưởng app thật |
+|---------------|---------------------|
+| **3-way handshake** | Mỗi connection mới tốn 1 RTT → vì sao cần **connection pooling** |
+| **Connection pool** | Tái dùng connection (DB, HTTP client) tránh handshake mỗi request |
+| **Keep-alive** | Giữ connection mở; phát hiện connection chết |
+| **Nagle / TCP_NODELAY** | Bug "request nhỏ chậm 40ms" do Nagle gộp gói |
+| **TIME_WAIT** | Cạn port khi tạo quá nhiều connection ngắn |
+
+### 6.1. Ví dụ cụ thể — vì sao connection pool quan trọng
+
+Mỗi connection TCP mới tốn handshake (1 RTT) + nếu TLS thì thêm RTT. Tạo connection mới **mỗi request** tới DB/API → latency cộng dồn + cạn tài nguyên. **Connection pool** (DB driver, `http.Client`) tái dùng connection đã mở: request sau bỏ qua handshake → nhanh hơn nhiều. Đây là lý do [tạo `http.Client` mỗi request là bug](../../../Programming/lesson-42-http-net-deep/), và DB pool size là tham số tuning quan trọng. Quá nhiều connection ngắn → kẹt ở trạng thái **TIME_WAIT** (giữ ~60s sau đóng) → cạn ephemeral port → "cannot assign requested address".
+
+> ⚠ **Bẫy Nagle + delayed ACK = 40ms lag bí ẩn.** Nagle gộp gói nhỏ để giảm overhead; delayed ACK chờ gộp ACK. Hai cái gặp nhau → request nhỏ bị **chờ tới ~40ms** vô cớ (latency spike bí ẩn trong RPC/game). Sửa: bật `TCP_NODELAY` (Go: `conn.SetNoDelay(true)`, thường default cho HTTP). Bẫy khác: **không set timeout** → connection treo vĩnh viễn khi peer chết im lặng → dùng keep-alive + read/write deadline ([nối http timeout](../../../Programming/lesson-42-http-net-deep/)).
+
+### 6.2. 📝 Tóm tắt mục 6
+
+- TCP nền mọi thứ; tuning quan trọng: **connection pool** (tránh handshake mỗi request), keep-alive, timeout.
+- Bẫy: **Nagle+delayed ACK** (40ms lag → `TCP_NODELAY`), **TIME_WAIT** cạn port (quá nhiều connection ngắn).
+- Dev không cài TCP nhưng hiểu nó → pool size đúng, fix latency spike, tránh treo connection.
+
+## 7. Bài tập + Lời giải chi tiết
 
 ### Bài tập
 
@@ -514,7 +538,7 @@ SEQ: 1001, 2001, 3001(MẤT), 4001, 5001. Mỗi segment 1000 byte.
 
 ---
 
-## 7. Liên kết và bài tiếp theo
+## 8. Liên kết và bài tiếp theo
 
 - **Bài trước**: [Lesson 07 — UDP](../lesson-07-udp/) — giao thức không kết nối, nền để hiểu điểm khác biệt của TCP.
 - **Bài tiếp theo (Tầng 2)**: [Lesson 01 (Tầng 2) — Client-server & Socket](../../02-Application-Services/lesson-01-client-server-sockets/) — ứng dụng thực sự dùng TCP như thế nào qua socket API.

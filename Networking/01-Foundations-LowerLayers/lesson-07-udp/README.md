@@ -392,7 +392,30 @@ Cùng một địa chỉ IP `192.168.1.5`, ba luồng dữ liệu hoàn toàn đ
 
 ---
 
-## 7. Bài Tập + Lời Giải Chi Tiết
+## 7. Ứng dụng thực tế trong phần mềm
+
+> 💡 **UDP = "gửi rồi quên": nhanh, không đảm bảo. Đúng cho thứ cần độ trễ thấp hơn độ tin cậy — và là nền của HTTP/3 (QUIC).**
+
+| Dùng UDP cho | Vì sao |
+|--------------|--------|
+| **DNS query** | Một gói hỏi-đáp nhanh, retry ở tầng app rẻ hơn bắt tay TCP |
+| **Video call / game / streaming** | Mất 1 frame thì bỏ qua, KHÔNG chờ retransmit (trễ tệ hơn mất) |
+| **QUIC / HTTP/3** | UDP + reliability tự cài ở user-space → nhanh hơn TCP, tránh head-of-line blocking |
+| **Metrics/log (statsd)** | Gửi số liệu, mất vài gói không sao, không muốn chậm app |
+
+### 7.1. Ví dụ cụ thể — vì sao gọi video dùng UDP
+
+TCP đảm bảo thứ tự + retransmit gói mất → nhưng với video call, gói mất sau 200ms thì **vô dụng** (khung hình đã qua), mà TCP vẫn chờ retransmit → cả luồng đứng (head-of-line blocking) → giật/lag. UDP: mất frame thì bỏ, hiển thị frame kế → mượt hơn (chấp nhận chút nhiễu). Đây là vì sao WebRTC, game online, live streaming dùng UDP. **QUIC** (nền HTTP/3) đi xa hơn: dùng UDP nhưng tự cài reliability + multiplex ở user-space → vừa nhanh vừa đáng tin, tránh head-of-line blocking của TCP. Google, Cloudflare đã chuyển nhiều traffic sang HTTP/3.
+
+> ❓ **"Khi nào KHÔNG dùng UDP?"** Khi cần **mọi byte đến đúng thứ tự, không mất** (tải file, API call, transaction) → TCP. UDP buộc app tự lo: thứ tự, mất gói, kiểm soát tắc nghẽn (congestion) — tự cài lại "TCP nghèo" thường là sai lầm. Quy tắc: dùng UDP khi (1) trễ thấp quan trọng hơn độ tin cậy (real-time), hoặc (2) một request-response nhỏ (DNS); còn lại dùng TCP. Đừng tự cài reliability trên UDP trừ khi là QUIC-level (có lý do rõ).
+
+### 7.2. 📝 Tóm tắt mục 7
+
+- UDP "gửi rồi quên": dùng cho **DNS**, **real-time** (video/game/stream — mất gói thì bỏ, không chờ), **QUIC/HTTP3**, **metrics**.
+- Video dùng UDP vì retransmit trễ tệ hơn mất frame (tránh head-of-line blocking của TCP).
+- Cần mọi byte đúng thứ tự → TCP; đừng tự cài reliability trên UDP (trừ QUIC-level có lý do).
+
+## 8. Bài Tập + Lời Giải Chi Tiết
 
 ### Bài tập
 
@@ -546,7 +569,7 @@ Tổng: **2 RTT = 60ms** (chưa kể TCP teardown). Trong thực tế còn cần
 
 ---
 
-## 8. Liên kết và bài tiếp theo
+## 9. Liên kết và bài tiếp theo
 
 - **Tiền đề**: [Lesson 01 — Mô hình phân lớp](../lesson-01-layered-models/) — tầng giao vận trong stack OSI/TCP-IP.
 - **Tiền đề**: [Lesson 03 — IP & Subnetting](../lesson-03-ip-subnetting/) — định tuyến host-to-host, nền tảng cho transport.

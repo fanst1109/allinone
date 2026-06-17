@@ -509,6 +509,29 @@ Khác network address → **Khác subnet.** Cần router để giao tiếp.
 
 ---
 
+## 7. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Subnetting/CIDR không chỉ thi cử — bạn dùng nó mỗi khi thiết kế VPC cloud, cấu hình firewall, hay debug "sao service không gọi được service kia".**
+
+| Khái niệm | Dùng thật ở đâu |
+|-----------|-----------------|
+| **CIDR \`/24\`, \`/16\`** | Thiết kế VPC/subnet trên AWS/GCP, chia dải IP cho từng tier |
+| **Private ranges** (10.x, 172.16.x, 192.168.x) | Mạng nội bộ, K8s pod/service CIDR |
+| **Subnet mask** | Firewall/security group rule ("cho phép 10.0.1.0/24") |
+| **Gateway/route** | Debug "service A không tới được B" (khác subnet, thiếu route) |
+
+### 7.1. Ví dụ cụ thể — thiết kế VPC trên AWS
+
+Tạo VPC \`10.0.0.0/16\` (65k IP). Chia: public subnet \`10.0.1.0/24\` (load balancer), private subnet \`10.0.2.0/24\` (app server), DB subnet \`10.0.3.0/24\` (database, không route ra internet). Security group: "DB chỉ nhận từ \`10.0.2.0/24\`" (app subnet). Mỗi quyết định là subnetting thật: chọn /16 cho VPC (đủ lớn để chia nhiều subnet), /24 mỗi subnet (256 IP đủ cho một tier). Chọn dải chồng lấn giữa VPC và on-premise/VPN → **conflict không route được** — lỗi thiết kế mạng cloud phổ biến. Hiểu CIDR = thiết kế được, debug được.
+
+> ⚠ **Bẫy CIDR overlap + private range cạn.** (1) VPC \`10.0.0.0/16\` + VPN tới văn phòng cũng \`10.0.0.0/16\` → trùng dải → không route được sang nhau; phải chọn dải không đụng từ đầu. (2) Chọn subnet quá nhỏ (\`/28\` = 16 IP) cho tier autoscale → hết IP khi scale → pod/instance không khởi động được (lỗi thật trên K8s/EKS). (3) Đọc security group rule = đọc CIDR: \`0.0.0.0/0\` = "mọi nơi" (cẩn thận mở DB ra internet).
+
+### 7.2. 📝 Tóm tắt mục 7
+
+- CIDR/subnet dùng thật: thiết kế **VPC cloud** (chia tier qua /24), **firewall/SG rule**, **K8s CIDR**, debug routing.
+- Bẫy: **dải overlap** (VPC vs VPN không route được), **subnet quá nhỏ** (cạn IP khi autoscale), đọc nhầm \`0.0.0.0/0\`.
+- Hiểu subnetting = thiết kế network cloud đúng + debug "service không tới được nhau".
+
 ## Bài tập
 
 ### Bài 1

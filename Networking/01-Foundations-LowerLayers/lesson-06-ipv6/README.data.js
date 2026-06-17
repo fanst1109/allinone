@@ -419,7 +419,30 @@ Thiết bị **dịch** gói tin giữa IPv4 và IPv6 tại biên mạng (tươn
 
 ---
 
-## 6. Bài tập + Lời giải chi tiết
+## 6. Ứng dụng thực tế trong phần mềm
+
+> 💡 **IPv6 không còn "tương lai" — mobile/cloud đã dùng rộng. Dev cần code IP-version-agnostic và biết bẫy dual-stack.**
+
+| Khái niệm | Gặp thật ở đâu |
+|-----------|----------------|
+| **Dual-stack** (IPv4+IPv6) | Server/client phải xử lý cả hai; \`::1\` = localhost IPv6 |
+| **Địa chỉ IPv6 trong code** | Parse/format khác (dấu \`:\`, \`[::1]:8080\` có ngoặc vuông) |
+| **No NAT** (IPv6 đủ địa chỉ) | Mỗi thiết bị một IP công → mô hình bảo mật khác (firewall thay NAT) |
+| **AAAA record** | DNS trả IPv6; client chọn IPv4/IPv6 (Happy Eyeballs) |
+
+### 6.1. Ví dụ cụ thể — bẫy parse địa chỉ trong code
+
+URL với IPv6 phải bọc ngoặc vuông: \`http://[2001:db8::1]:8080\` (vì \`:\` đã dùng cho port). Code tự parse \`host:port\` bằng \`strings.Split(addr, ":")\` → **vỡ** với IPv6 (nhiều dấu \`:\`). Dùng \`net.SplitHostPort\` (xử lý đúng cả hai). Tương tự, validate IP đừng giả định IPv4 4-octet. Go \`net.IP\` xử lý cả hai; bind \`:8080\` (không IP) lắng nghe cả v4 lẫn v6. Đây là bug thật khi app chỉ test IPv4 rồi chạy môi trường IPv6-only (một số mạng mobile/cloud).
+
+> ❓ **"App của tôi có cần lo IPv6 không?"** Ngày càng có. (1) Mạng mobile nhiều nơi **IPv6-only** (dùng NAT64 cho IPv4 cũ) → app chỉ hỗ trợ IPv4 có thể lỗi; (2) cloud (AWS/GCP) hỗ trợ/khuyến khích IPv6; (3) Apple yêu cầu app iOS chạy được mạng IPv6-only. Quy tắc thực dụng: **code IP-agnostic** (dùng \`net.SplitHostPort\`, \`net.IP\`, không hard-code v4), test trên cả hai. Không cần migrate sang IPv6, chỉ cần **không giả định IPv4**.
+
+### 6.2. 📝 Tóm tắt mục 6
+
+- IPv6 đã dùng rộng (mobile IPv6-only, cloud, yêu cầu Apple) → code phải **IP-version-agnostic**.
+- Bẫy parse: IPv6 nhiều dấu \`:\`, URL cần \`[::1]:port\` → dùng \`net.SplitHostPort\`/\`net.IP\`, không \`Split(":")\`.
+- IPv6 không NAT (đủ địa chỉ) → bảo mật dựa firewall thay NAT; DNS AAAA + Happy Eyeballs chọn v4/v6.
+
+## 7. Bài tập + Lời giải chi tiết
 
 ### Bài tập
 
@@ -585,7 +608,7 @@ Bước 4 — Ghép với prefix \`2001:db8:1:1::/64\`:
 
 ---
 
-## 7. Liên kết và bài tiếp theo
+## 8. Liên kết và bài tiếp theo
 
 - Tiền đề: [Lesson 03 — IP & Subnetting](../lesson-03-ip-subnetting/) — nền tảng về địa chỉ IP và CIDR.
 - Tiền đề: [Lesson 05 — ARP, ICMP, DHCP, NAT](../lesson-05-arp-icmp-dhcp-nat/) — hiểu NDP qua so sánh với ARP.

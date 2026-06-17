@@ -458,7 +458,30 @@ B nhận frame, MAC đích = MAC-B → đúng của mình. Đọc IP: IP đích 
 
 ---
 
-## 6. Bài tập + Lời giải chi tiết
+## 6. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Routing là vì sao internet hoạt động (BGP) và là thứ bạn debug khi "máy A ping được B nhưng app không gọi được". `ip route`/`traceroute` là công cụ devops thật.**
+
+| Khái niệm | Dùng thật ở đâu |
+|-----------|-----------------|
+| **Routing table / default gateway** | Debug "không ra internet", "không tới subnet khác" |
+| **BGP** | Internet chạy nhờ nó; sự cố BGP = mất cả vùng (Facebook 2021 down) |
+| **Static vs dynamic route** | VPC route table (AWS), VPN route, K8s pod routing |
+| **traceroute** | Tìm hop nào chậm/drop trong đường đi |
+
+### 6.1. Ví dụ cụ thể — debug "service không tới được"
+
+App container không gọi được API ngoài. Kiểm tra theo tầng routing: (1) `ip route` — có default gateway không? (2) cùng subnet thì qua link, khác subnet phải qua gateway — gateway có route tới đích? (3) `traceroute api.example.com` — dừng ở hop nào? Thấy dừng ngay hop đầu = thiếu default route; dừng giữa chừng = route/firewall chặn. Đây là quy trình debug mạng chuẩn. Trên cloud: VPC **route table** quyết định subnet nào ra internet (qua Internet Gateway) hay không (private subnet qua NAT Gateway) — cấu hình sai route table = lỗi "private subnet không update được package".
+
+> ❓ **"Sự cố BGP có thật sự lớn vậy?"** Có. 2021 Facebook/Instagram/WhatsApp **down toàn cầu ~6 giờ** vì rút nhầm route BGP → các DNS server của họ không quảng bá được → cả thế giới không tìm thấy Facebook. Cloudflare, các nhà mạng cũng từng gây mất internet vùng do cấu hình BGP sai. BGP là "bảng chỉ đường internet" — sai một dòng, mất cả mạng. Dev thường không động BGP, nhưng hiểu nó giải thích vì sao "internet sập" đôi khi không phải lỗi app.
+
+### 6.2. 📝 Tóm tắt mục 6
+
+- Routing dùng thật: debug "không tới được" (`ip route`/`traceroute`), VPC route table (public/private subnet), BGP (internet).
+- Quy trình debug: kiểm default gateway → route tới đích → traceroute tìm hop chặn.
+- **BGP** = bảng chỉ đường internet; cấu hình sai = mất mạng vùng/toàn cầu (Facebook 2021).
+
+## 7. Bài tập + Lời giải chi tiết
 
 ### Bài tập
 
@@ -627,7 +650,7 @@ OSPF chọn **Đường 1** (tổng cost $3 < 200$) — đúng về mặt hiệu
 
 ---
 
-## 7. Liên kết và bài tiếp theo
+## 8. Liên kết và bài tiếp theo
 
 - Tiền đề:
   - [Lesson 02 — Link Layer & Ethernet](../lesson-02-link-ethernet/): frame Ethernet, địa chỉ MAC — nền tảng hiểu tại sao MAC đổi mỗi hop.

@@ -442,7 +442,30 @@ journalctl -u ssh | grep "Connection from" | sort | uniq -c | sort -rn | head -2
 
 ---
 
-## 6. Bài tập + Lời giải chi tiết
+## 6. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Biết tấn công để biết phòng thủ. Dev backend phải hiểu DDoS, MITM, injection — vì code của bạn là mục tiêu.**
+
+| Tấn công | Phòng thủ thực tế |
+|----------|-------------------|
+| **DDoS** | CDN/WAF hấp thụ, rate limiting, autoscale ([nối rate-limit](../../../Programming/lesson-52-rate-limiting-circuit-breaker/)) |
+| **MITM** | TLS mọi nơi, HSTS, cert pinning ([nối TLS](../../02-Application-Services/lesson-06-tls/)) |
+| **Injection (SQL/XSS/cmd)** | Parameterized query, escape, validate input ([nối validation](../../../Programming/lesson-45-request-validation/)) |
+| **Credential stuffing / brute-force** | Rate limit login, bcrypt, MFA, lockout |
+
+### 6.1. Ví dụ cụ thể — DDoS và cách hệ thật chịu
+
+Tấn công DDoS gửi traffic khổng lồ làm cạn tài nguyên → service down. Phòng thủ nhiều lớp: (1) **CDN/WAF** (Cloudflare) hấp thụ ở edge trước khi tới origin — chặn pattern tấn công, thử thách bot; (2) **rate limiting** chặn client gửi quá nhiều; (3) **autoscale** tăng capacity tạm; (4) **circuit breaker** để một phần quá tải không sập toàn bộ ([nối](../../../Programming/lesson-52-rate-limiting-circuit-breaker/)). Không có lớp nào đủ một mình — defense in depth. Cloudflare/AWS Shield là tuyến đầu cho hệ public. Dev cũng phải code chịu được: timeout, giới hạn body size, không tạo tài nguyên vô hạn theo request.
+
+> ⚠ **Top tấn công nhắm code của bạn (OWASP).** (1) **SQL injection** → parameterized query, không bao giờ nối chuỗi ([nối ORM/raw](../../../Programming/lesson-55-orm-vs-raw/)). (2) **XSS** → escape output, Content-Security-Policy. (3) **CSRF** → token chống giả request. (4) **Auth lỏng** → MFA, rate-limit login, bcrypt ([nối crypto](../../../Programming/lesson-47-tls-crypto-basics/)). (5) **Lộ secret** trong code/log/error message. Bảo mật là trách nhiệm của dev, không chỉ "team security" — phần lớn lỗ hổng nằm ở tầng app, không phải mạng.
+
+### 6.2. 📝 Tóm tắt mục 6
+
+- Biết tấn công để phòng thủ: **DDoS** (CDN/WAF/rate-limit/autoscale nhiều lớp), **MITM** (TLS/HSTS), **injection**, **brute-force**.
+- DDoS chịu bằng defense in depth: edge (Cloudflare) + rate limit + autoscale + circuit breaker.
+- OWASP top (SQLi/XSS/CSRF/auth/secret) nằm ở **tầng app** → bảo mật là trách nhiệm dev.
+
+## 7. Bài tập + Lời giải chi tiết
 
 ### Bài tập
 

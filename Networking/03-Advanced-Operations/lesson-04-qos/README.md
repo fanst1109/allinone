@@ -341,7 +341,30 @@ Ví dụ RED với min=30 gói, max=60 gói (buffer = 100 gói):
 
 ---
 
-## 6. Bài tập + Lời giải chi tiết
+## 6. Ứng dụng thực tế trong phần mềm
+
+> 💡 **QoS (ưu tiên traffic) ở tầng mạng có "anh em" ở tầng app: khi tài nguyên hữu hạn, ưu tiên việc quan trọng. Pattern này lặp lại khắp backend.**
+
+| QoS mạng | Tương đương ở tầng app |
+|----------|------------------------|
+| Ưu tiên gói voice/video | Hàng đợi ưu tiên cho job quan trọng ([nối priority queue](../../../DataStructures/02-Intermediate/lesson-03-heap-priority-queue/)) |
+| Băng thông đảm bảo | Rate limit + quota per-tier (free vs paid) |
+| Traffic shaping | Throttle/backpressure khi quá tải |
+| Drop gói khi nghẽn | Load shedding — bỏ request thấp ưu tiên để cứu hệ |
+
+### 6.1. Ví dụ cụ thể — load shedding cứu hệ khi quá tải
+
+Service quá tải (CPU 100%, queue đầy). Cố xử lý **mọi** request → tất cả chậm → timeout hàng loạt → sập. **Load shedding** (QoS ở tầng app): khi quá tải, **chủ động từ chối** request ưu tiên thấp (trả 503 nhanh) để dành tài nguyên cho request quan trọng (thanh toán > xem gợi ý) → hệ sống sót thay vì sập toàn bộ. Cùng tư duy QoS mạng "drop gói thấp ưu tiên khi nghẽn". Kèm: **priority queue** cho job (khẩn trước), **quota per-tier** (user trả phí ưu tiên hơn free), **backpressure** (chậm lại producer khi consumer quá tải). Đây là thiết kế hệ chịu tải thật.
+
+> 💡 **"T4 đặc tính QoS" (bandwidth, delay, jitter, loss) ánh xạ vào SLO app.** (1) **Latency/delay** → SLO "p99 < 200ms". (2) **Jitter** (biến thiên trễ) → quan trọng cho real-time (video call), xử lý bằng jitter buffer. (3) **Loss** → retry/redundancy. (4) **Bandwidth** → rate limit + nén. Khi thiết kế SLO/SLA, bạn đang định nghĩa QoS cho service. Ưu tiên + tài nguyên hữu hạn = bài toán muôn thuở, QoS mạng chỉ là một hiện thân.
+
+### 6.2. 📝 Tóm tắt mục 6
+
+- QoS mạng (ưu tiên traffic) ↔ tầng app: **priority queue** (job khẩn), **quota per-tier**, **load shedding**, **backpressure**.
+- **Load shedding**: quá tải thì từ chối request thấp ưu tiên (503 nhanh) để cứu request quan trọng → hệ sống sót.
+- 4 đặc tính QoS (bandwidth/delay/jitter/loss) ↔ định nghĩa **SLO** service (p99 latency, loss→retry).
+
+## 7. Bài tập + Lời giải chi tiết
 
 ### Bài tập
 
@@ -475,7 +498,7 @@ Xác suất drop $= \frac{\text{avg\_queue} - \min}{\max - \min} \times p_{\max}
 
 ---
 
-## 7. Liên kết và bài tiếp theo
+## 8. Liên kết và bài tiếp theo
 
 - **Tiền đề**: [Lesson 08 — TCP](../../01-Foundations-LowerLayers/lesson-08-tcp/) — congestion control, cửa sổ trượt.
 - **Bài tiếp theo**: [Lesson 05 — SDN & Ảo hóa mạng](../lesson-05-sdn-virtualization/) — Software Defined Networking, tách control plane/data plane, NFV.

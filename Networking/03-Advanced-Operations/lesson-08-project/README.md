@@ -469,7 +469,31 @@ Bước 7: curl -v https://...          → xem HTTP status, headers
 
 ---
 
-## 10. Bài tập + Lời giải chi tiết
+## 10. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Project này ghép mọi tầng mạng lại — và đó chính là bức tranh khi bạn deploy + vận hành một hệ thống thật, từ gói tin tới CDN.**
+
+| Tầng | Khi deploy hệ thật, bạn chạm vào |
+|------|----------------------------------|
+| **Link/IP** | MTU (overlay K8s), subnet VPC, routing |
+| **TCP/UDP** | Connection pool, timeout, QUIC/HTTP3 |
+| **Application** | HTTP/TLS, DNS, sockets |
+| **Infra** | LB, CDN, reverse proxy, security group |
+| **Operations** | Diagnostic tools, QoS/rate-limit, security |
+
+### 10.1. Ví dụ cụ thể — hành trình một HTTP request qua mọi tầng
+
+User gõ `https://app.com` → (1) **DNS** resolve ra IP (qua TTL/cache); (2) **TCP handshake** + **TLS handshake** tới CDN/LB; (3) **CDN** trả static từ edge gần user, hoặc forward request động; (4) **LB** chọn instance khỏe (health check), termination TLS; (5) qua **VPC routing** + **security group** tới app trong private subnet; (6) app gọi DB qua **connection pool**; (7) response đi ngược về, **gzip**, cache header. Mỗi bước là một lesson đã học. Khi debug "trang chậm/lỗi", bạn lần theo đúng chuỗi này bằng [diagnostic tools](../lesson-07-diagnostic-tools/). Đây là vì sao hiểu networking giúp debug toàn hệ, không chỉ code app.
+
+> 💡 **Networking là nền của vận hành hệ thống — không chỉ "kiến thức nền".** Mọi sự cố production có chiều mạng: latency (tầng nào?), connection lỗi (DNS/TCP/TLS?), quá tải (QoS/rate-limit), bảo mật (firewall/TLS). Dev/devops giỏi nhìn hệ thống xuyên tầng: từ gói tin → TCP → HTTP → LB → CDN. Project này luyện đúng tư duy đó. Kết hợp với observability ([log/metric/trace](../../../Programming/lesson-74-tracing-opentelemetry/)) → bạn thấy + sửa được vấn đề ở bất kỳ tầng nào.
+
+### 10.2. 📝 Tóm tắt mục 10
+
+- Project ghép mọi tầng = bức tranh deploy/vận hành hệ thật (link→IP→TCP→HTTP→infra→ops).
+- Hành trình HTTP request đi qua: DNS → TCP/TLS → CDN → LB → VPC/SG → app → DB pool → response — mỗi bước một lesson.
+- Networking = nền vận hành: mọi sự cố production có chiều mạng; nhìn xuyên tầng + observability để debug.
+
+## 11. Bài tập + Lời giải chi tiết
 
 ### Bài tập 1 — Sắp xếp thứ tự các bước
 
@@ -641,7 +665,7 @@ Lưu ý: port nguồn private (52100, 52200, 52300) do OS chọn ngẫu nhiên t
 
 ---
 
-## 11. Liên kết và bài tiếp theo
+## 12. Liên kết và bài tiếp theo
 
 Bài này là bài cuối của lĩnh vực Networking. Các hướng học tiếp theo:
 

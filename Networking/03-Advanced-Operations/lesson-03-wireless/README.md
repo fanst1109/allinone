@@ -376,6 +376,29 @@ Ngay cả với HTTPS, mạng mở vẫn lộ: tên miền qua DNS, SNI trong TL
 
 ---
 
+## 6. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Dev hiếm khi code WiFi, nhưng mạng không dây giải thích vì sao app mobile phải xử lý mạng kém: độ trễ cao, mất gói, đổi mạng giữa chừng.**
+
+| Đặc tính wireless | App phải xử lý sao |
+|-------------------|---------------------|
+| **Latency cao + biến thiên** | Timeout rộng hơn, retry với backoff, hiển thị loading |
+| **Mất gói / chập chờn** | TCP retransmit chậm → cảm giác lag; dùng cache offline |
+| **Đổi mạng** (WiFi↔4G) | Connection đứt → reconnect; resume download dở |
+| **Băng thông hạn chế / tốn data** | Nén, lazy load, ảnh responsive, tránh poll liên tục |
+
+### 6.1. Ví dụ cụ thể — app mobile phải "offline-first"
+
+App mobile chạy trên mạng wireless thật: user vào thang máy (mất sóng), chuyển WiFi sang 4G (đổi IP, connection đứt), mạng yếu (latency 2s). App giả định "mạng luôn tốt như WiFi văn phòng" → lỗi khắp nơi. Thiết kế đúng: (1) **timeout + retry backoff** (không fail ngay khi mạng chập chờn); (2) **offline-first** — cache dữ liệu local, sync khi có mạng; (3) **optimistic UI** — hiển thị ngay, sync nền; (4) **resume** download/upload dở thay vì làm lại. Đây là vì sao app tốt (Spotify, Gmail) vẫn dùng được khi mạng kém. Backend cũng phải: hỗ trợ **idempotency** (client retry không tạo trùng, [nối](../../../Programming/lesson-43-rest-api-design/)), range request (resume download).
+
+> ❓ **"Backend có cần biết client dùng wireless không?"** Gián tiếp có. (1) Client mạng kém retry nhiều → backend cần idempotency + rate limit hợp lý (đừng chặn nhầm retry hợp lệ). (2) Hỗ trợ **resumable upload** (chunked) cho client mạng đứt giữa chừng. (3) API nên **gọn** (mobile tốn data/pin) → tránh trả thừa field, hỗ trợ nén. (4) Đừng giả định connection bền — client mobile đứt liên tục là bình thường, không phải lỗi.
+
+### 6.2. 📝 Tóm tắt mục 6
+
+- Wireless = latency cao, mất gói, đổi mạng → app mobile phải **offline-first**: cache + retry backoff + optimistic UI + resume.
+- Backend hỗ trợ: **idempotency** (retry không trùng), resumable upload, API gọn (tốn data/pin), không giả định connection bền.
+- Dev không code WiFi nhưng phải thiết kế chịu được mạng kém — đó là thực tế mobile.
+
 ## Bài tập
 
 **Bài 1**: Văn phòng 2 tầng. Tầng 1 có AP hàng xóm mạnh ở kênh 1 và kênh 11. Tầng 2 chưa có AP nào. Bạn cần đặt AP cho cả 2 tầng với can nhiễu tối thiểu. Chọn kênh cho mỗi AP và giải thích lý do.

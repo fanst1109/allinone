@@ -403,7 +403,30 @@ Ví dụ cụ thể: trong ruleset DMZ ở trên, \`ALLOW src=10.0.1.10 dst=10.0
 
 ---
 
-## Bài tập + Lời giải chi tiết
+## 6. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Bảo mật mạng là tư duy "defense in depth" — nhiều lớp phòng thủ. Dev cần biết firewall/security group, zero-trust, và "đừng tin mạng".**
+
+| Khái niệm | Thực tế dev/devops |
+|-----------|--------------------|
+| **Firewall / Security Group** | Chỉ mở port cần (DB không ra internet); deny by default |
+| **Defense in depth** | Nhiều lớp: WAF → LB → app validate → DB constraint |
+| **Zero-trust** | Không tin mạng nội bộ; xác thực mọi service-to-service (mTLS) |
+| **Least privilege** | Service chỉ có quyền tối thiểu (IAM role hẹp) |
+
+### 6.1. Ví dụ cụ thể — security group "deny by default"
+
+Cloud security group: mặc định **chặn hết**, chỉ mở cụ thể. Web tier: mở 443 từ internet. App tier: chỉ nhận từ web tier (\`source = web-sg\`). DB tier: chỉ nhận 5432 từ app tier, **không** từ internet. Đây là defense in depth bằng network: dù app bị hack, DB vẫn không truy cập được trực tiếp từ ngoài. Bẫy chết người: mở DB ra \`0.0.0.0/0\` (mọi nơi) "cho tiện dev" → bot quét internet tìm thấy trong vài phút → ransomware. Hàng nghìn DB MongoDB/Elasticsearch bị xóa tống tiền vì để hở ra internet. Quy tắc: **deny by default, mở tối thiểu**.
+
+> ⚠ **"Đừng tin mạng" + bẫy bảo mật phổ biến.** (1) Mạng nội bộ KHÔNG an toàn tự nhiên (insider, lateral movement sau khi một service bị hack) → **zero-trust**: mã hóa + xác thực cả nội bộ (mTLS). (2) **Hard-code secret** trong code/image → lộ ([nối config](../../../Programming/lesson-78-config-management/)). (3) **Port mở thừa** (debug/admin port lộ ra ngoài). (4) **Phụ thuộc duy nhất firewall** → vẫn cần validate input app ([nối validation](../../../Programming/lesson-45-request-validation/)), vì firewall không chặn được SQLi qua port 443 hợp lệ. Defense in depth = không lớp nào là duy nhất.
+
+### 6.2. 📝 Tóm tắt mục 6
+
+- **Defense in depth**: nhiều lớp (WAF/LB/app-validate/DB-constraint), không lớp nào là duy nhất.
+- **Security group deny-by-default**, mở tối thiểu; KHÔNG mở DB ra \`0.0.0.0/0\` (bị quét + tống tiền).
+- **Zero-trust** (không tin mạng nội bộ, mTLS), least privilege (IAM hẹp), đừng hard-code secret.
+
+## 7. Bài tập + Lời giải chi tiết
 
 ### Bài tập
 

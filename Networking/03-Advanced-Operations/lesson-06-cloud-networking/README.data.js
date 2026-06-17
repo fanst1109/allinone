@@ -402,7 +402,31 @@ ALB nhận HTTPS \`443\`, forward HTTP \`8080\` tới web server — tầng TLS 
 
 ---
 
-## 6. Bài tập + Lời giải chi tiết
+## 6. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Cloud networking là kiến thức devops dùng hằng ngày — VPC, subnet, security group, LB, NAT gateway là những thứ bạn cấu hình khi deploy thật.**
+
+| Thành phần | Vai trò |
+|-----------|---------|
+| **VPC + subnet** | Mạng ảo riêng; public (có internet) vs private (không) |
+| **Security group / NACL** | Firewall stateful (SG) / stateless (NACL) ([nối security](../lesson-01-network-security/)) |
+| **NAT Gateway** | Private instance ra internet (update package) mà không lộ vào |
+| **Load balancer (ALB/NLB)** | Chia traffic, TLS termination, health check |
+| **VPC peering / Transit Gateway** | Nối nhiều VPC/region/on-premise |
+
+### 6.1. Ví dụ cụ thể — kiến trúc 3-tier trên cloud
+
+Web app điển hình: (1) **public subnet** chứa load balancer (nhận internet qua Internet Gateway); (2) **private subnet** chứa app server (chỉ nhận từ LB, ra internet qua **NAT Gateway** để pull image/update); (3) **private subnet** chứa DB (chỉ nhận từ app, không route internet). Security group siết từng tier. Đây là kiến trúc chuẩn AWS/GCP — kết hợp [subnetting](../../01-Foundations-LowerLayers/lesson-03-ip-subnetting/) + [security](../lesson-01-network-security/) + [routing](../../01-Foundations-LowerLayers/lesson-04-routing/) đã học. Cấu hình bằng Terraform → reproducible. Sai một bước (DB ra public, SG mở rộng) = lỗ hổng.
+
+> ⚠ **Bẫy cloud networking tốn tiền + bảo mật.** (1) **Data transfer cost** — traffic cross-AZ/cross-region/ra internet **tốn tiền** (đôi khi nhiều hơn compute); giữ traffic trong cùng AZ khi được. (2) **NAT Gateway đắt** + là choke point → cân nhắc VPC endpoint cho S3/dịch vụ AWS (không qua NAT). (3) **Security group mở rộng** (\`0.0.0.0/0\` cho DB) = lỗ hổng. (4) **Public IP vô tình** — instance gắn public IP không cần thiết → lộ ra internet. (5) DNS/service discovery trong VPC ([nối DNS](../../02-Application-Services/lesson-02-dns/)). Review network bằng IaC trước khi apply.
+
+### 6.2. 📝 Tóm tắt mục 6
+
+- Cloud networking devops dùng hằng ngày: **VPC/subnet** (public/private), **SG/NACL**, **NAT Gateway**, **LB**, peering.
+- Kiến trúc 3-tier chuẩn: LB (public) → app (private) → DB (private, không internet); SG siết từng tier.
+- Bẫy: **data transfer cost** (cross-AZ/region), NAT đắt (dùng VPC endpoint), SG mở rộng + public IP thừa = lỗ hổng.
+
+## 7. Bài tập + Lời giải chi tiết
 
 ### Bài tập
 
@@ -568,7 +592,7 @@ Kiểm tra: \`10.0.15.255\` là broadcast của subnet 4 và cũng là broadcast
 
 ---
 
-## 7. Liên kết và bài tiếp theo
+## 8. Liên kết và bài tiếp theo
 
 **Kiến thức tiền đề đã dùng trong bài này:**
 - [Lesson 03 — IP & Subnetting](../../01-Foundations-LowerLayers/lesson-03-ip-subnetting/) — chia CIDR, tính địa chỉ.

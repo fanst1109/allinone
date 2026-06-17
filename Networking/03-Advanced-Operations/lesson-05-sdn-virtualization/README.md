@@ -395,7 +395,30 @@ Ví dụ: mạng 5G sử dụng NFV để chạy core network functions (AMF, SM
 
 ---
 
-## 6. Bài tập
+## 6. Ứng dụng thực tế trong phần mềm
+
+> 💡 **SDN (mạng định nghĩa bằng phần mềm) là vì sao cloud cho bạn tạo network bằng API/code trong vài giây. Đây là nền của "network as code".**
+
+| Khái niệm SDN | Hiện ra ở đâu |
+|---------------|---------------|
+| **Tách control plane / data plane** | Cấu hình mạng tập trung bằng phần mềm, không sửa từng switch |
+| **Network virtualization** | VPC, overlay network (VXLAN) trong cloud/K8s |
+| **Programmable network** | Tạo subnet/route/firewall bằng API (Terraform) |
+| **Network as code** | Hạ tầng mạng versioned trong git ([nối IaC](../../../Programming/lesson-78-config-management/)) |
+
+### 6.1. Ví dụ cụ thể — VPC là SDN bạn dùng mỗi ngày
+
+Tạo một VPC trên AWS: vài giây có cả một mạng ảo (subnet, route table, gateway, firewall) — không cắm dây, không mua switch. Đó là **SDN**: mạng định nghĩa bằng phần mềm, điều khiển qua API. Bạn `terraform apply` → hạ tầng mạng dựng lên từ code, versioned, tái lập được. K8s đi xa hơn: mỗi pod có IP trong **overlay network** (CNI plugin tạo mạng ảo trên mạng vật lý) — service-to-service routing hoàn toàn bằng phần mềm. Hiểu SDN giải thích vì sao "mạng cloud" linh hoạt vậy, và là nền của infrastructure-as-code.
+
+> ❓ **"Dev app có cần biết SDN không?"** Biết khái niệm đủ để: (1) hiểu **VPC/subnet/security group** là tài nguyên tạo bằng code (Terraform/CloudFormation) chứ không phải phần cứng → review/version được; (2) debug overlay network K8s (vì sao pod IP đổi, [MTU overlay](../../01-Foundations-LowerLayers/lesson-02-link-ethernet/)); (3) hiểu "network policy" K8s = firewall định nghĩa bằng YAML. Không cần cài SDN controller, nhưng hiểu "mạng giờ là phần mềm" giúp làm việc với cloud/K8s đúng cách.
+
+### 6.2. 📝 Tóm tắt mục 6
+
+- SDN = mạng định nghĩa bằng phần mềm (tách control/data plane) → cloud cho tạo network qua **API/code** trong giây.
+- **VPC** + overlay K8s = SDN bạn dùng hằng ngày; `terraform apply` dựng mạng từ code (network as code, versioned).
+- Dev biết khái niệm để: review network bằng code, debug overlay K8s, hiểu network policy YAML.
+
+## 7. Bài tập
 
 **Bài 1 — Phân biệt control plane và data plane**:
 

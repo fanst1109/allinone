@@ -589,7 +589,32 @@ Mở file trong Wireshark, xem gói bị reset (RST), gói không nhận ACK, ha
 
 ---
 
-## 7. Bài tập + Lời giải chi tiết
+## 7. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Công cụ chẩn đoán mạng là kỹ năng debug devops sống còn. Khi "app gọi không được", biết dùng đúng tool theo tầng cứu hàng giờ.**
+
+| Tool | Trả lời câu hỏi |
+|------|-----------------|
+| **ping** | Host có sống/tới được không? (ICMP) |
+| **traceroute / mtr** | Đường đi dừng/chậm ở hop nào? |
+| **dig / nslookup** | DNS resolve đúng IP không? (it's always DNS) |
+| **curl -v** | HTTP request/response chi tiết, TLS handshake, header |
+| **netstat / ss** | Port nào đang nghe? connection ở trạng thái gì? |
+| **tcpdump / Wireshark** | Bắt gói thật xem chuyện gì xảy ra trên dây |
+
+### 7.1. Ví dụ cụ thể — debug "service không gọi được" theo tầng
+
+App báo "connection refused" tới \`api.internal:8080\`. Debug từ dưới lên: (1) **\`dig api.internal\`** — resolve ra IP đúng không? (DNS sai = vấn đề #1); (2) **\`ping <ip>\`** — host sống không? (ICMP, dù nhiều nơi chặn); (3) **\`nc -zv <ip> 8080\`** / **\`ss -tlnp\`** — port 8080 có nghe không? (service chưa start / nghe sai interface); (4) **\`curl -v\`** — nếu tới được, xem HTTP/TLS chi tiết; (5) **\`tcpdump\`** — nếu vẫn bí, bắt gói xem SYN có đi/về không (firewall chặn?). Mỗi tool một tầng. Đây là quy trình debug mạng chuẩn — đoán mò không có tool = lãng phí giờ.
+
+> 💡 **\`curl -v\` và \`tcpdump\` là hai tool đáng thành thạo nhất.** \`curl -v\` (hoặc \`-vvv\`) hiện toàn bộ: DNS resolve, TCP connect, TLS handshake (cert, version), request header, response header/body, timing → debug 90% vấn đề HTTP/API. \`tcpdump\`/Wireshark bắt gói thật khi cần xem tầng thấp (SYN/ACK, retransmit, MTU) — "sự thật trên dây" không tool nào cãi được. Trong K8s thêm: \`kubectl exec\` vào pod chạy các tool này, hoặc ephemeral debug container. Observability ([metrics/trace/log](../../../Programming/lesson-74-tracing-opentelemetry/)) cho cái nhìn tổng; diagnostic tool cho cái nhìn sâu khi cần.
+
+### 7.2. 📝 Tóm tắt mục 7
+
+- Debug mạng theo tầng: **dig** (DNS) → **ping** (host) → **ss/nc** (port nghe) → **curl -v** (HTTP/TLS) → **tcpdump** (gói thật).
+- \`curl -v\` debug 90% vấn đề HTTP/API; \`tcpdump\`/Wireshark cho "sự thật trên dây" tầng thấp.
+- Quy trình có hệ thống (dưới lên) thay vì đoán mò; trong K8s dùng \`kubectl exec\`/debug container.
+
+## 8. Bài tập + Lời giải chi tiết
 
 ### Bài tập
 

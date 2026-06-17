@@ -780,6 +780,29 @@ worker.Wait()                            // (c) chờ worker xử lý hết rồ
 
 ---
 
+## 13. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Đi từ thiết kế tới code chạy được là nơi mọi bài học hội tụ — và "làm cho chạy → làm cho đúng → làm cho nhanh" là thứ tự đúng.**
+
+| Giai đoạn | Trọng tâm |
+|-----------|-----------|
+| **Walking skeleton** | Một luồng end-to-end mỏng chạy được trước (HTTP→logic→DB→response) |
+| **Vertical slice** | Hoàn thiện từng feature trọn vẹn, không xây hết tầng rồi mới ghép |
+| **Test khi đi** | Mỗi slice kèm test → không nợ test chồng chất |
+| **Iterate** | Chạy được → đúng (edge case) → nhanh (tối ưu chỗ đo được) |
+
+### 13.1. Ví dụ cụ thể — walking skeleton trước, không "big bang"
+
+Sai lầm: xây hết domain layer, rồi hết repo layer, rồi hết handler — cuối cùng ghép, lỗi tùm lum, không gì chạy cho tới phút chót. Đúng: **walking skeleton** — làm **một** endpoint mỏng xuyên suốt (vd `POST /orders` → usecase → lưu DB → trả 201) chạy thật + test ngay. Có khung chạy được → thêm feature theo **vertical slice** (mỗi feature đủ cả tầng). Lợi: luôn có bản chạy được để demo/test, phát hiện vấn đề tích hợp sớm, không "tích hợp địa ngục" cuối dự án. Đây là cách giao phần mềm thật (agile/iterative), khác "thác nước" xây từng tầng.
+
+> 💡 **"Make it work, make it right, make it fast" — đúng thứ tự.** (1) **Work**: chạy được trước (kể cả xấu) → có feedback, validate hướng đi. (2) **Right**: refactor cho sạch + xử lý edge case + test → đúng đắn ([nối correctness](../../Algorithms/lesson-04-correctness-invariant/)). (3) **Fast**: chỉ tối ưu chỗ **đo được** là nóng (profiling), không đoán ([nối profiling/bruteforce-optimize](../../Algorithms/lesson-05-bruteforce-to-optimize/)). Đảo thứ tự (tối ưu trước khi chạy đúng) = premature optimization, lãng phí. Và **commit nhỏ thường xuyên** + CI xanh mỗi bước → luôn ở trạng thái deploy được.
+
+### 13.2. 📝 Tóm tắt mục 13
+
+- **Walking skeleton** (một luồng end-to-end mỏng chạy được) trước, rồi **vertical slice** từng feature trọn vẹn + test.
+- Thứ tự đúng: **work → right → fast** (chạy được → đúng/edge case → tối ưu chỗ đo được).
+- Commit nhỏ + CI xanh mỗi bước → luôn deploy được; tránh "big bang integration" cuối dự án.
+
 ## Bài tập
 
 > Tất cả bài tập đều có **Lời giải chi tiết** ở mục dưới. Phần lớn đã có "móc" sẵn trong code (alias, expiration, unique IP) để bạn mở rộng dễ.

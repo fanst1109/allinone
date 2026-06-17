@@ -650,6 +650,29 @@ Worker đọc batch event, UPSERT vào `click_daily` (`INSERT ... ON CONFLICT DO
 
 ---
 
+## 17. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Thiết kế hệ thống thật = cân bằng yêu cầu, ràng buộc, trade-off — không phải "vẽ kiến trúc đẹp". Đây cũng là dạng phỏng vấn system design.**
+
+| Bước thiết kế | Câu hỏi thật |
+|---------------|--------------|
+| **Làm rõ yêu cầu** | Bao nhiêu user? đọc/ghi tỉ lệ? latency yêu cầu? nhất quán mức nào? |
+| **Ước lượng quy mô** | QPS, dung lượng, băng thông → quyết định kiến trúc |
+| **Chọn DS/DB/kiến trúc** | Theo trade-off, không theo hype ([nối complexity tradeoffs](../../Algorithms/lesson-51-complexity-tradeoffs/)) |
+| **Xác định bottleneck** | Đâu sẽ nghẽn trước? scale phần nào? |
+
+### 17.1. Ví dụ cụ thể — thiết kế dựa trên SỐ, không cảm tính
+
+"Thiết kế rút gọn URL (bit.ly)". Đừng nhảy vào vẽ. Hỏi + ước lượng: 100M URL/tháng → ~40 write/giây, đọc gấp 100 (4000 read/giây) → **đọc-nặng** → cần cache (Redis) + DB read replica. Dung lượng: 100M × 500 byte × 12 tháng = ~600GB/năm → một DB chứa được, chưa cần shard. Latency redirect phải <100ms → cache hit. Từ số liệu → kiến trúc: app stateless + Redis cache + Postgres + CDN. Mỗi quyết định **truy ra từ con số**, không "dùng K8s + Kafka + microservice vì nghe ngầu". Đây là tư duy system design thật (và phỏng vấn).
+
+> ⚠ **Bẫy thiết kế: over-engineer + bỏ qua trade-off.** (1) Thêm microservice/Kafka/K8s khi chưa cần → phức tạp giết tốc độ ([nối monolith first](../lesson-69-microservice-patterns/)). (2) Mọi quyết định là **trade-off** — không có "đúng tuyệt đối": SQL vs NoSQL, đồng bộ vs async, consistency vs availability ([CAP](../../Databases/03-Advanced/lesson-04-cap-consistency/)). Nêu rõ *vì sao chọn* và *đánh đổi gì*. (3) Thiết kế cho quy mô **hiện tại + 10×**, không phải 1000× tưởng tượng (YAGNI). (4) Xác định **single point of failure** và bottleneck trước khi nó cắn.
+
+### 17.2. 📝 Tóm tắt mục 17
+
+- Thiết kế hệ thống: làm rõ yêu cầu → **ước lượng quy mô bằng số** → chọn kiến trúc theo trade-off → tìm bottleneck.
+- Mỗi quyết định truy từ **con số** (QPS, dung lượng, latency), không theo hype.
+- Tránh over-engineer (monolith first, YAGNI); nêu rõ trade-off; xác định SPOF/bottleneck sớm.
+
 ## Bài tập
 
 > Làm trước, xem lời giải sau. Toàn bộ là bài tập **thiết kế** (không cần code chạy), trừ phần tính toán.

@@ -818,7 +818,36 @@ ct := gcm.Seal(nil, nonce, plaintext, nil)
 
 ---
 
-## 12. Bài tập
+## 12. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Crypto sai cách còn nguy hiểm hơn không có — quy tắc vàng: "đừng tự cài crypto, dùng thư viện chuẩn đúng cách".**
+
+| Nhu cầu | Dùng đúng | KHÔNG dùng |
+|---------|-----------|------------|
+| **Lưu mật khẩu** | **bcrypt/argon2** (chậm có chủ đích + salt) | MD5/SHA (nhanh → dễ brute) |
+| **Token/session** | random từ \`crypto/rand\` | \`math/rand\` (đoán được) |
+| **Toàn vẹn dữ liệu** | HMAC | hash thường (sửa được) |
+| **Mã hóa dữ liệu** | AES-GCM (có xác thực) | AES-ECB (lộ pattern) |
+| **HTTPS** | TLS qua thư viện/reverse proxy | tự cài handshake |
+
+### 12.1. Ví dụ cụ thể — lưu mật khẩu đúng cách
+
+\`\`\`go
+hash, _ := bcrypt.GenerateFromPassword([]byte(pw), bcrypt.DefaultCost) // lưu hash này
+err := bcrypt.CompareHashAndPassword(hash, []byte(input))              // kiểm khi login
+\`\`\`
+
+bcrypt **cố tình chậm** (cost factor) + tự sinh **salt** → kẻ lấy được DB vẫn không brute-force nổi (mỗi lần thử tốn ~100ms × hàng tỉ = bất khả thi). Dùng SHA256 (nhanh) → kẻ thử hàng tỉ/giây + rainbow table → vỡ. Đây là lý do mọi vụ "lộ DB mật khẩu MD5" thành thảm họa, còn bcrypt thì an toàn. Quy tắc: **không bao giờ lưu mật khẩu dạng thường hay hash nhanh**.
+
+> ⚠ **"Đừng tự cài crypto" — và những bẫy cụ thể.** (1) \`math/rand\` cho token = đoán được (dùng \`crypto/rand\`); (2) so sánh token bằng \`==\` bị **timing attack** → dùng \`subtle.ConstantTimeCompare\`; (3) tự cài AES dễ chọn sai mode (ECB lộ pattern) → dùng AES-GCM; (4) JWT dùng \`none\` algorithm = ai cũng giả được token → luôn verify thuật toán. Crypto là lĩnh vực "biết một chút còn nguy hơn không biết" — dùng thư viện chuẩn + pattern đã được kiểm chứng.
+
+### 12.2. 📝 Tóm tắt mục 12
+
+- Mật khẩu → **bcrypt/argon2** (chậm + salt), KHÔNG MD5/SHA nhanh; token → **\`crypto/rand\`**.
+- Toàn vẹn → HMAC; mã hóa → AES-GCM (có xác thực); so token → \`ConstantTimeCompare\` (chống timing).
+- Quy tắc vàng: **đừng tự cài crypto** — dùng thư viện chuẩn đúng cách (biết nửa vời nguy hơn không biết).
+
+## 13. Bài tập
 
 ### Bài tập 1 — HTTPS server với self-signed cert tự generate
 
@@ -913,7 +942,7 @@ func newClient() *http.Client {
 
 ---
 
-## 13. Lời giải chi tiết
+## 14. Lời giải chi tiết
 
 ### Lời giải 1 — HTTPS với self-signed cert runtime
 
@@ -1158,7 +1187,7 @@ Tóm tắt 4 fix: **(1)** SHA-1 broken cho collision → SHA-256; \`bytes.Equal\
 
 ---
 
-## 14. Code & Minh hoạ
+## 15. Code & Minh hoạ
 
 - [solutions.go](./solutions.go) — chạy \`go run solutions.go\` để xem HMAC, AES-GCM, random token, mini
   HTTPS server self-signed in console output.
@@ -1172,7 +1201,7 @@ Tóm tắt 4 fix: **(1)** SHA-1 broken cho collision → SHA-256; \`bytes.Equal\
 
 ---
 
-## 15. Bài tiếp theo
+## 16. Bài tiếp theo
 
 - [Lesson 48 — WebSocket & Streaming](../lesson-48-websocket-streaming/) — sau khi đường đi đã an toàn
    (TLS) và biết ai là ai (auth + mTLS), bài tới mở **kênh hai chiều realtime** trên cùng connection

@@ -935,7 +935,41 @@ proxy := func(w http.ResponseWriter, r *http.Request) {
 
 ---
 
-## 18. Bài tập
+## 18. Ứng dụng thực tế trong phần mềm
+
+> 💡 **\`net/http\` của Go đủ mạnh để chạy production không cần framework — nhưng vài cấu hình mặc định là bẫy đã làm sập nhiều service.**
+
+| Vấn đề thật | Cấu hình/cách đúng |
+|-------------|---------------------|
+| **Server treo do client chậm** | Set \`ReadTimeout\`/\`WriteTimeout\`/\`IdleTimeout\` (mặc định = vô hạn!) |
+| **Connection leak** | \`defer resp.Body.Close()\` + đọc hết body để tái dùng connection |
+| **Tạo \`http.Client\` mỗi request** | Tái dùng một Client (có connection pool) → tránh cạn FD/port |
+| **Client không timeout** | \`http.Client{Timeout: ...}\` — mặc định chờ vô hạn |
+| **Quá nhiều connection tới một host** | Chỉnh \`Transport.MaxIdleConnsPerHost\` |
+
+### 18.1. Ví dụ cụ thể — server không timeout = tự sát
+
+\`http.ListenAndServe(addr, handler)\` dùng \`Server\` mặc định với **timeout = 0 (vô hạn)**. Client mở connection rồi gửi byte cực chậm (Slowloris attack) hoặc không gửi gì → goroutine server kẹt chờ mãi → cạn tài nguyên → sập. Production luôn:
+
+\`\`\`go
+srv := &http.Server{
+	Addr: addr, Handler: handler,
+	ReadTimeout: 5 * time.Second, WriteTimeout: 10 * time.Second, IdleTimeout: 120 * time.Second,
+}
+srv.ListenAndServe()
+\`\`\`
+
+Cùng phía client: \`http.Client{Timeout: 10*time.Second}\` — Client mặc định chờ **vô hạn**, một API ngoài treo kéo sập cả service bạn. Hai bẫy timeout này là nguyên nhân sự cố thật rất phổ biến.
+
+> ⚠ **Quên \`resp.Body.Close()\` rò rỉ connection.** Mỗi response không Close → connection không trả về pool → tích lũy → "too many open files" hoặc cạn ephemeral port. Luôn \`defer resp.Body.Close()\` ngay sau khi check err, và **đọc hết body** (\`io.Copy(io.Discard, resp.Body)\`) để connection được tái dùng (keep-alive). Tái dùng một \`http.Client\` (không tạo mới mỗi request) để hưởng connection pool.
+
+### 18.2. 📝 Tóm tắt mục 18
+
+- \`net/http\` đủ cho production, nhưng **timeout mặc định vô hạn** ở cả Server lẫn Client → phải set tay (chống Slowloris, chống treo do dependency chậm).
+- Luôn \`defer resp.Body.Close()\` + đọc hết body → tránh connection leak, hưởng keep-alive.
+- Tái dùng một \`http.Client\` (connection pool), không tạo mới mỗi request.
+
+## 19. Bài tập
 
 ### BT1. HTTP server với 3 endpoint JSON in/out
 
@@ -986,7 +1020,7 @@ Viết \`CORS(allowedOrigins []string)\` middleware:
 
 ---
 
-## 19. Lời giải chi tiết
+## 20. Lời giải chi tiết
 
 ### Giải BT1 — Server 3 endpoint
 
@@ -1235,7 +1269,7 @@ Tạo proxy **một lần** ngoài handler (mỗi proxy có connection pool riê
 
 ---
 
-## 20. Code & Minh họa
+## 21. Code & Minh họa
 
 - **Code đầy đủ**: [\`solutions.go\`](./solutions.go) — server demo với handler/middleware/client/proxy.
 - **Visualization**: [\`visualization.html\`](./visualization.html) — 3 module tương tác:
@@ -1254,7 +1288,7 @@ curl -v -X POST -H "Content-Type: application/json" -d '{"name":"x","age":30}' l
 
 ---
 
-## 21. Bài tiếp theo
+## 22. Bài tiếp theo
 
 - **[Lesson 43 — REST API Design](../lesson-43-rest-api-design/)** — sau khi đã hiểu cơ chế \`net/http\`, học **design rest API**: resource modeling, versioning, idempotency, pagination, HATEOAS, RFC 7807 error.
 - **Tham khảo sâu**: tài liệu chính thức \`net/http\` của Go, blog "Writing HTTP services in Go like Mat Ryer", spec RFC 7230-7235 (HTTP/1.1).

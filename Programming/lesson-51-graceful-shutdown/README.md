@@ -815,6 +815,40 @@ App không toggle `ready=false` → K8s probe vẫn 200 → LB vẫn forward →
 
 ---
 
+## 14. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Graceful shutdown = không làm rớt request đang xử lý khi deploy/scale. Bắt buộc cho mọi service chạy trên Kubernetes (deploy liên tục).**
+
+| Tình huống thật | Graceful shutdown làm gì |
+|-----------------|--------------------------|
+| **Rolling deploy (K8s)** | Pod cũ nhận SIGTERM → ngừng nhận request mới, xử lý nốt request đang chạy rồi thoát |
+| **Scale down** | Giảm replica → instance bị tắt phải drain sạch |
+| **Đóng tài nguyên đúng thứ tự** | Ngừng HTTP → flush queue/worker → đóng DB → thoát |
+| **Readiness probe** | Toggle "not ready" trước khi tắt → load balancer ngừng gửi traffic |
+
+### 14.1. Ví dụ cụ thể — vì sao thiếu nó gây lỗi 502 khi deploy
+
+K8s deploy: gửi `SIGTERM` cho pod cũ. Nếu app **tắt ngay** → mọi request đang xử lý bị cắt giữa chừng → client thấy 502/connection reset. Graceful: bắt SIGTERM → `server.Shutdown(ctx)` (ngừng nhận mới, chờ request đang chạy xong trong timeout) → đóng DB → thoát.
+
+```go
+quit := make(chan os.Signal, 1)
+signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+<-quit
+ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+defer cancel()
+server.Shutdown(ctx)  // chờ request đang xử lý xong (tối đa 30s)
+```
+
+Cùng dùng [context](../lesson-29-context-cancellation/) để truyền deadline drain. Không có bước này → mỗi lần deploy là một đợt lỗi 5xx cho user.
+
+> ⚠ **Thứ tự đóng quan trọng + readiness toggle.** (1) Toggle readiness=false TRƯỚC (LB ngừng gửi traffic mới), đợi vài giây cho traffic ngừng, RỒI mới Shutdown. (2) Đóng theo thứ tự phụ thuộc ngược: HTTP server trước (ngừng nhận), worker/queue sau, DB cuối (còn request cần DB). Đóng DB trước khi request xong → request lỗi. Đây là 5 antipattern §trên thành hậu quả thật.
+
+### 14.2. 📝 Tóm tắt mục 14
+
+- Graceful shutdown = drain request đang xử lý khi SIGTERM (deploy/scale) → không rớt request, không 502.
+- `signal.Notify` + `server.Shutdown(ctx)` với timeout; dùng context truyền deadline.
+- Thứ tự: readiness=false trước → Shutdown HTTP → worker → DB cuối. Bắt buộc cho service trên K8s.
+
 ## Bài tập
 
 ### BT1: HTTP server với graceful shutdown 30s timeout

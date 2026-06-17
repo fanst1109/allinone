@@ -898,6 +898,30 @@ paths:
 
 ---
 
+## 21. Ứng dụng thực tế trong phần mềm
+
+> 💡 **REST design quyết định API dễ dùng hay "đau khổ tích hợp". Vài quyết định nhỏ (status code, versioning, phân trang) tạo khác biệt lớn ở quy mô.**
+
+| Quyết định | Cách production làm |
+|------------|---------------------|
+| **HTTP status đúng nghĩa** | 200/201/204, 400 (input sai), 401/403, 404, 409 (conflict), 422, 429, 5xx |
+| **Versioning** | \`/v1/...\` hoặc header — đổi API không phá client cũ |
+| **Phân trang** | Cursor-based (ổn định) > offset (lệch khi data đổi) cho list lớn |
+| **Idempotency** | \`Idempotency-Key\` header → retry không tạo đơn trùng |
+| **Tài liệu** | OpenAPI/Swagger sinh từ code → client tự generate |
+
+### 21.1. Ví dụ cụ thể — cursor pagination vs offset
+
+List 1 triệu đơn hàng. \`OFFSET 100000 LIMIT 20\` (offset): DB phải **quét bỏ** 100k dòng mỗi lần → càng sâu càng chậm, và nếu có đơn mới chèn vào → trang bị lệch/lặp. **Cursor** (\`WHERE id > last_seen_id LIMIT 20\`): nhảy thẳng nhờ index, ổn định khi data đổi. API thật (Stripe, GitHub, Twitter) đều dùng cursor cho list lớn. Đây là quyết định ảnh hưởng cả hiệu năng DB lẫn đúng đắn.
+
+> ⚠ **Idempotency — bẫy "đặt đơn trùng" khi client retry.** Client gửi POST tạo đơn, mạng timeout, client retry → 2 đơn. Giải: client gửi \`Idempotency-Key\` (UUID); server lưu key → nếu thấy lại, trả kết quả cũ thay vì tạo mới. Bắt buộc cho thanh toán/đặt hàng. Cùng tinh thần "trọn vẹn hoặc không" của [transaction](../lesson-56-transactions-isolation/).
+
+### 21.2. 📝 Tóm tắt mục 21
+
+- REST production: **status code đúng nghĩa**, **versioning** (\`/v1\`), **cursor pagination** (ổn định > offset), **idempotency key** (retry an toàn), **OpenAPI** docs.
+- Cursor pagination thắng offset ở list lớn: nhanh (dùng index) + ổn định khi data đổi.
+- Idempotency-Key chống tạo đơn/thanh toán trùng khi client retry.
+
 ## Bài tập
 
 ### BT1 — Design API endpoint cho social media

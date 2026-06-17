@@ -975,7 +975,40 @@ Body bảo 422 nhưng HTTP status 200 → client middleware đọc status sẽ c
 
 ---
 
-## 16. Bài tập
+## 16. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Validation là tuyến phòng thủ đầu tiên — "không tin input từ client" là quy tắc bảo mật số 1. Thiếu nó = lỗ hổng + dữ liệu rác.**
+
+| Tầng validate | Vai trò |
+|---------------|---------|
+| **Cú pháp (struct tag `validate:"..."`)** | Email đúng format, số trong khoảng, field bắt buộc |
+| **Nghiệp vụ** | "Ngày kết thúc > ngày bắt đầu", "đủ số dư" — logic riêng |
+| **DB constraint** | Tuyến cuối ([nối ràng buộc](../../Databases/01-Foundations/lesson-05-khoa-rang-buoc/)) |
+| **Sanitize/escape** | Chống SQL injection (prepared statement), XSS (escape output) |
+
+### 16.1. Ví dụ cụ thể — validate nhiều tầng
+
+```go
+type CreateOrder struct {
+	Email string `json:"email" validate:"required,email"`
+	Qty   int    `json:"qty" validate:"required,min=1,max=100"`
+}
+// 1. Cú pháp: validator.Struct(req) → trả lỗi từng field cho client (400)
+// 2. Nghiệp vụ: kiểm tồn kho, hạn mức — không tag nào làm được
+// 3. DB: UNIQUE/CHECK constraint chặn nếu lọt qua
+```
+
+Trả lỗi validation **rõ từng field** (`{"qty": "must be ≥ 1"}`) → client sửa được, UX tốt. Đừng trả "invalid input" chung chung. Thư viện `go-playground/validator` chuẩn de-facto cho tag validation.
+
+> ⚠ **"Không bao giờ tin client" — gốc của lỗ hổng bảo mật.** Mọi input (body, query, header, cookie) đều có thể độc hại: (1) **SQL injection** → luôn dùng prepared statement/parameterized query, KHÔNG nối chuỗi SQL; (2) **XSS** → escape khi render HTML; (3) **mass assignment** → đừng bind thẳng request vào model DB (kẻ tấn công set `is_admin=true`), dùng DTO riêng; (4) validate **kích thước** (chống DoS body khổng lồ, [nối io](../lesson-21-io-streaming/)). Validation client-side chỉ cho UX — server PHẢI validate lại.
+
+### 16.2. 📝 Tóm tắt mục 16
+
+- Validate nhiều tầng: **cú pháp** (tag validator) → **nghiệp vụ** (logic) → **DB constraint** (tuyến cuối).
+- Trả lỗi **từng field** rõ ràng cho client (UX), không "invalid input" chung.
+- "Không tin client": prepared statement (SQLi), escape (XSS), DTO riêng (mass assignment), giới hạn size (DoS). Server luôn validate lại.
+
+## 17. Bài tập
 
 ### BT1 — Struct `RegisterRequest`
 
@@ -1032,7 +1065,7 @@ Demo bằng cách wrap 2 handler khác nhau dùng struct khác nhau.
 
 ---
 
-## 17. Lời giải chi tiết
+## 18. Lời giải chi tiết
 
 ### Lời giải BT1
 
@@ -1272,14 +1305,14 @@ func main() {
 
 ---
 
-## 18. Code & Minh hoạ
+## 19. Code & Minh hoạ
 
 - [solutions.go](./solutions.go) — implementation đầy đủ: manual validation, custom validator (regex VN phone), RFC 7807 formatter, validation middleware. Code biên dịch được bằng `go run solutions.go` (không cần external dependency — dùng tay thay vì `go-playground/validator` để tránh `go mod`, nhưng comment chỉ rõ "trong code thật chỉ cần X dòng nếu dùng lib").
 - [visualization.html](./visualization.html) — 3 module tương tác: (1) Validation tag playground — gõ struct + JSON, xem error theo từng field; (2) RFC 7807 builder — chọn scenario, xem response chuẩn; (3) Manual vs library — so sánh lines-of-code.
 
 ---
 
-## 19. Bài tiếp theo
+## 20. Bài tiếp theo
 
 - [Lesson 46 — Authentication & JWT](../lesson-46-authentication-jwt/) — sau khi đã validate input sạch sẽ, bước tiếp là xác thực người gửi request. Vẫn cần validate (JWT token format, claims) — kiến thức bài này dùng trực tiếp.
 

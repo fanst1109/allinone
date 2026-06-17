@@ -586,7 +586,30 @@ Trong Active mode, server phải mở kết nối dữ liệu từ port 20 của
 
 ---
 
-## 6. Bài tập + Lời giải chi tiết
+## 6. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Gửi email từ app nghe đơn giản nhưng đầy bẫy: mail vào spam, SPF/DKIM/DMARC, và "đừng tự chạy mail server".**
+
+| Khái niệm | Thực tế dev |
+|-----------|-------------|
+| **SMTP** | Giao thức gửi mail; app thường gọi qua dịch vụ, không tự nói SMTP |
+| **SPF/DKIM/DMARC** | Xác thực domain gửi → tránh vào spam, chống giả mạo |
+| **Dịch vụ gửi mail** | SendGrid/SES/Postmark — đừng tự chạy mail server |
+| **File transfer** | SFTP (an toàn) thay FTP; cloud dùng S3/object storage + presigned URL |
+
+### 6.1. Ví dụ cụ thể — vì sao mail app vào spam
+
+App gửi mail "quên mật khẩu" nhưng user không nhận (vào spam/bị chặn). Nguyên nhân: thiếu **SPF** (DNS record khai "server nào được gửi thay domain tôi"), **DKIM** (chữ ký số xác thực mail không bị sửa), **DMARC** (chính sách khi SPF/DKIM fail). Gmail/Outlook chấm điểm mail thiếu mấy cái này = spam. Giải pháp thực tế: dùng **dịch vụ gửi mail** (SendGrid, AWS SES, Postmark) — họ lo SPF/DKIM, IP reputation, retry, bounce handling. **Tự chạy mail server** (Postfix) = ác mộng: IP bị blacklist, vào spam, bảo trì khổ → gần như luôn sai lựa chọn cho app.
+
+> ⚠ **Bẫy: FTP/email không mã hóa + tự host.** (1) **FTP** truyền plaintext (cả password) → dùng **SFTP** (qua SSH) hoặc FTPS. (2) Cloud: đừng dùng FTP server, dùng **object storage** (S3) + **presigned URL** (link tạm có hạn để upload/download an toàn không lộ credential). (3) **Email injection**: nhét \`\\r\\n\` vào field From/Subject từ input user → giả header/gửi spam → sanitize input. (4) Đừng nhúng credential SMTP trong code ([nối config/secret](../../../Programming/lesson-78-config-management/)).
+
+### 6.2. 📝 Tóm tắt mục 6
+
+- Gửi mail app: dùng **dịch vụ** (SendGrid/SES/Postmark), KHÔNG tự chạy mail server (IP reputation/spam/bảo trì).
+- **SPF/DKIM/DMARC** (DNS) bắt buộc để mail không vào spam + chống giả mạo domain.
+- File transfer: **SFTP** thay FTP (FTP plaintext), cloud dùng S3 + **presigned URL**; sanitize chống email injection.
+
+## 7. Bài tập + Lời giải chi tiết
 
 ### Bài tập
 

@@ -487,7 +487,38 @@ Go runtime tự sử dụng \`epoll\` bên dưới — lập trình viên vẫn 
 
 ---
 
-## 7. Bài tập + Lời giải chi tiết
+## 7. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Socket là API mọi networking code cuối cùng dùng — \`net.Listen\`/\`Dial\` trong Go là wrapper quanh socket. Hiểu nó = hiểu mọi server/client.**
+
+| Khái niệm | Trong code thật |
+|-----------|-----------------|
+| **\`net.Listen\` / \`Accept\` loop** | Mọi server (HTTP, gRPC, DB) đều là accept loop bên dưới |
+| **Goroutine per connection** | Mô hình concurrency của server Go ([nối goroutine](../../../Programming/lesson-27-goroutines-channels/)) |
+| **Read/write deadline** | Timeout chống connection treo ([nối TCP](../../01-Foundations-LowerLayers/lesson-08-tcp/)) |
+| **\`SO_REUSEADDR\`, backlog** | Restart server không "address already in use", chịu burst connection |
+
+### 7.1. Ví dụ cụ thể — server Go là accept loop + goroutine
+
+\`\`\`go
+ln, _ := net.Listen("tcp", ":8080")
+for {
+	conn, _ := ln.Accept()       // chờ connection mới
+	go handle(conn)              // mỗi connection một goroutine → xử lý song song
+}
+\`\`\`
+
+\`http.ListenAndServe\` chính là pattern này bên trong. Goroutine-per-connection cho Go xử lý hàng chục nghìn connection đồng thời rẻ (goroutine nhẹ ~vài KB, khác thread OS ~MB) — đây là vì sao Go hợp network server. Mỗi \`handle\` phải set **deadline** (\`conn.SetReadDeadline\`) chống client chậm/chết treo goroutine ([nối Slowloris](../../../Programming/lesson-42-http-net-deep/)) và \`defer conn.Close()\` tránh leak.
+
+> ⚠ **Bẫy socket thật: leak FD + thiếu deadline + chặn accept loop.** (1) Quên \`conn.Close()\` → rò rỉ file descriptor → "too many open files". (2) Thiếu read/write deadline → một client treo giữ goroutine + connection mãi → tích lũy → cạn tài nguyên. (3) Làm việc nặng **trong** accept loop (thay vì goroutine) → chặn nhận connection mới. (4) Quá nhiều goroutine nếu mỗi connection tạo thêm goroutine không giới hạn → dùng worker pool ([nối concurrency patterns](../../../Programming/lesson-36-concurrency-patterns/)).
+
+### 7.2. 📝 Tóm tắt mục 7
+
+- Socket = API nền mọi server/client; Go: \`Listen\`→\`Accept\` loop + **goroutine per connection** (nhẹ → vạn connection rẻ).
+- Bắt buộc: **deadline** (chống treo), **\`defer Close()\`** (chống FD leak), không làm việc nặng trong accept loop.
+- \`http.ListenAndServe\`/gRPC server đều là pattern này bên dưới.
+
+## 8. Bài tập + Lời giải chi tiết
 
 ### Bài tập
 

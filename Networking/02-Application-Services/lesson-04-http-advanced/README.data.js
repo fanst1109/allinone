@@ -521,7 +521,30 @@ Xem [Lesson 07 — UDP](../../01-Foundations-LowerLayers/lesson-07-udp/) để h
 
 ---
 
-## 7. Bài tập + Lời giải chi tiết
+## 7. Ứng dụng thực tế trong phần mềm
+
+> 💡 **HTTP/1.1 → HTTP/2 → HTTP/3 mỗi đời giải một bottleneck. Hiểu chúng = tối ưu tốc độ web thật + cấu hình đúng.**
+
+| Phiên bản | Cải tiến | Bottleneck còn lại |
+|-----------|----------|--------------------|
+| **HTTP/1.1** | Keep-alive (tái dùng connection) | Head-of-line blocking (1 request/lần mỗi connection) |
+| **HTTP/2** | Multiplexing (nhiều stream/1 connection), header compression, server push | Head-of-line blocking ở tầng TCP |
+| **HTTP/3 (QUIC)** | Trên UDP, không HOL blocking TCP, kết nối nhanh | Cần hỗ trợ mới |
+| **Caching** (ETag, Cache-Control) | Tránh tải lại = nhanh + rẻ | Invalidation khó |
+
+### 7.1. Ví dụ cụ thể — vì sao HTTP/2 multiplexing tăng tốc web
+
+HTTP/1.1: tải trang có 100 asset → browser mở ~6 connection song song, mỗi connection xử lý tuần tự → "domain sharding" hack để vượt giới hạn. HTTP/2: **một** connection, multiplex 100 stream song song → không cần sharding, ít handshake/TLS hơn → nhanh hơn rõ. Bật HTTP/2 (thường chỉ cần TLS + server hỗ trợ) là một trong tối ưu web rẻ nhất. HTTP/3 đi xa hơn: TCP có head-of-line blocking (1 gói mất → mọi stream chờ), QUIC trên UDP không bị → tốt cho mạng kém ([nối UDP/QUIC](../../01-Foundations-LowerLayers/lesson-07-udp/)).
+
+> ⚠ **Caching đúng cách = tối ưu lớn nhất, sai = bug dữ liệu cũ.** (1) **ETag/Last-Modified** → browser gửi \`If-None-Match\`, server trả \`304 Not Modified\` (không tải lại body) → tiết kiệm băng thông. (2) **Cache-Control: immutable** cho asset có hash trong tên (\`app.abc123.js\`) → cache vĩnh viễn, đổi file = đổi tên. (3) **Bẫy**: cache response động/cá nhân hóa (set \`Cache-Control: private/no-store\`) — cache nhầm trang user A cho user B = lộ dữ liệu. (4) Compression (\`gzip\`/\`br\`) cho text → giảm size nhiều; đừng nén ảnh/video đã nén.
+
+### 7.2. 📝 Tóm tắt mục 7
+
+- HTTP/2 **multiplexing** (nhiều stream/1 connection) → tăng tốc web, bỏ domain sharding; HTTP/3 (QUIC/UDP) bỏ HOL blocking TCP.
+- **Caching** (ETag→304, Cache-Control immutable cho asset hash) = tối ưu rẻ nhất; nén text.
+- Bẫy: cache response cá nhân hóa (\`private/no-store\`) → tránh lộ dữ liệu user khác.
+
+## 8. Bài tập + Lời giải chi tiết
 
 ### Bài tập
 
@@ -677,7 +700,7 @@ Dữ liệu: 50.000 user × 8 lần/ngày = 400.000 request/ngày. Response = 80
 
 ---
 
-## 8. Liên kết và bài tiếp theo
+## 9. Liên kết và bài tiếp theo
 
 - **Bài tiếp theo**: [Lesson 05 — Email & Truyền file](../lesson-05-email-filetransfer/) — giao thức tầng ứng dụng khác: SMTP, IMAP, FTP/SFTP.
 - **Bài trước**: [Lesson 03 — HTTP/HTTPS cơ bản](../lesson-03-http-basics/).

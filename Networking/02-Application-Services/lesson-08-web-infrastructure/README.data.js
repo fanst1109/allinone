@@ -542,7 +542,30 @@ Tiếp theo: [Tầng 3 — An ninh mạng](../../03-Advanced-Operations/lesson-0
 
 ---
 
-## 7. Bài tập + Lời giải chi tiết
+## 7. Ứng dụng thực tế trong phần mềm
+
+> 💡 **CDN, reverse proxy, load balancer là hạ tầng đứng trước mọi web app quy mô. Hiểu chúng = thiết kế hệ chịu tải + debug đúng tầng.**
+
+| Thành phần | Vai trò thật |
+|-----------|--------------|
+| **Reverse proxy** (nginx/Envoy) | TLS termination, routing, rate-limit, đứng trước app |
+| **Load balancer** | Chia traffic nhiều instance ([nối service discovery](../../03-Advanced-Operations/lesson-06-cloud-networking/)) |
+| **CDN** (Cloudflare/CloudFront) | Cache static gần user → nhanh + giảm tải origin |
+| **API Gateway** | Một cửa vào microservice (auth/rate-limit/routing) |
+
+### 7.1. Ví dụ cụ thể — CDN tăng tốc + chịu tải
+
+Web phục vụ user toàn cầu. Không CDN: mọi request tới origin server (vd ở Mỹ) → user châu Á chậm (latency cao) + origin quá tải. **CDN**: cache static asset (JS/CSS/ảnh) tại edge server gần user → user châu Á tải từ edge Singapore (~20ms thay vì ~200ms) + origin chỉ nhận request động (giảm tải lớn). Cloudflare/CloudFront/Fastly làm việc này. Kèm: CDN chống DDoS (hấp thụ traffic ở edge), TLS termination, nén. Đây là tối ưu tốc độ + chịu tải #1 cho web public. Phối hợp với [HTTP caching](../lesson-04-http-advanced/) (Cache-Control điều khiển CDN cache bao lâu).
+
+> ⚠ **Bẫy hạ tầng web thật.** (1) **Cache static, không cache động** — CDN cache nhầm trang cá nhân hóa = lộ dữ liệu user; set \`Cache-Control: private\` cho động. (2) **Real client IP** — sau reverse proxy/LB, app thấy IP của proxy không phải client → đọc \`X-Forwarded-For\` (nhưng verify, header này giả được). (3) **Health check** — LB phải có endpoint \`/health\` để loại instance chết ([nối graceful shutdown/k8s probe](../../../Programming/lesson-76-kubernetes-basics/)). (4) **Single point of failure** — LB/gateway chết = sập tất cả → cần redundancy. (5) Cache invalidation khi deploy (purge CDN hoặc đổi tên file có hash).
+
+### 7.2. 📝 Tóm tắt mục 7
+
+- Hạ tầng web: **reverse proxy** (TLS/route), **LB** (chia tải), **CDN** (cache edge gần user → nhanh + chống DDoS), **API Gateway**.
+- CDN cache static gần user (200ms→20ms) + giảm tải origin; phối với Cache-Control.
+- Bẫy: cache nhầm trang động (lộ data), real client IP (\`X-Forwarded-For\`), health check, SPF của LB, invalidation khi deploy.
+
+## 8. Bài tập + Lời giải chi tiết
 
 ### Bài tập
 

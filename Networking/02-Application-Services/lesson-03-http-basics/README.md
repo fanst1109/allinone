@@ -550,7 +550,30 @@ Xem chi tiết TLS tại [Lesson 06 — TLS](../lesson-06-tls/).
 
 ---
 
-## 7. Bài tập + Lời giải chi tiết
+## 7. Ứng dụng thực tế trong phần mềm
+
+> 💡 **HTTP là giao thức bạn làm việc với nhiều nhất. Method/status/header đúng nghĩa = API sạch; sai = bug + khó tích hợp.**
+
+| Khái niệm | Dùng đúng trong code |
+|-----------|----------------------|
+| **Method semantics** | GET (đọc, cacheable), POST (tạo), PUT (thay thế), PATCH (sửa), DELETE — idempotency |
+| **Status code** | 2xx/3xx/4xx/5xx đúng nghĩa ([nối REST design](../../../Programming/lesson-43-rest-api-design/)) |
+| **Header** | `Content-Type`, `Cache-Control`, `Authorization`, CORS |
+| **Stateless** | Mỗi request tự đủ → scale ngang dễ (state ở DB/cache, không ở server) |
+
+### 7.1. Ví dụ cụ thể — idempotency của method ảnh hưởng retry
+
+GET/PUT/DELETE **idempotent** (gọi nhiều lần = một lần): client/proxy retry an toàn. POST **không** idempotent → retry tạo bản trùng ([nói idempotency key](../../../Programming/lesson-43-rest-api-design/)). Đây không phải lý thuyết: load balancer/client tự retry GET khi timeout (an toàn), nhưng KHÔNG tự retry POST (sợ trùng). Dùng đúng method = hệ thống retry/cache đúng. Vd dùng GET cho action "xóa" (sai semantics) → crawler/prefetch của trình duyệt vô tình xóa dữ liệu (sự cố thật đã xảy ra).
+
+> ⚠ **Bẫy HTTP thật.** (1) **Dùng sai status**: trả 200 kèm `{"error":...}` → client/monitoring tưởng thành công; lỗi phải là 4xx/5xx. (2) **Quên Cache-Control** → response động bị cache (CDN/browser trả dữ liệu cũ) hoặc response tĩnh không được cache (chậm + tốn băng thông). (3) **CORS** — browser chặn cross-origin nếu thiếu header → lỗi "CORS policy" kinh điển của frontend gọi API. (4) Stateless: lưu session **trong RAM server** → scale ra nhiều instance thì user "đăng nhập rồi lại bị out" (request tới instance khác) → lưu session ở Redis/DB.
+
+### 7.2. 📝 Tóm tắt mục 7
+
+- HTTP đúng nghĩa: **method** (GET/PUT/DELETE idempotent → retry an toàn; POST không), **status code** đúng, **header** (cache/CORS/auth).
+- Sai method/status → retry trùng, monitoring nhầm, crawler xóa dữ liệu; CORS thiếu → frontend lỗi.
+- **Stateless**: session ở Redis/DB không ở RAM server → scale ngang không "đăng nhập rồi out".
+
+## 8. Bài tập + Lời giải chi tiết
 
 ### Bài tập
 

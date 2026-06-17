@@ -541,6 +541,29 @@ ORDER BY rank DESC;
 
 ---
 
+## 16. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Elasticsearch giải bài toán SQL `LIKE '%...%'` làm rất tệ: tìm kiếm full-text, gợi ý, lọc nhiều chiều trên dữ liệu lớn — nhưng KHÔNG phải database chính.**
+
+| Dùng ES cho | KHÔNG dùng ES cho |
+|-------------|-------------------|
+| Full-text search (mô tả sản phẩm, bài viết) | Source of truth (dữ liệu gốc) |
+| Autocomplete / gợi ý | Transaction / dữ liệu tài chính |
+| Log analytics (ELK stack) | Cần consistency tức thì (ES near-realtime) |
+| Lọc + facet nhiều chiều (e-commerce) | Quan hệ phức tạp cần join |
+
+### 16.1. Ví dụ cụ thể — vì sao `LIKE '%phone%'` không đủ
+
+Tìm "điện thoại samsung" trong 1 triệu sản phẩm. SQL `WHERE name LIKE '%samsung%'`: (1) **không dùng index** (wildcard đầu) → full scan chậm; (2) không hiểu **liên quan** (relevance) — không xếp hạng kết quả; (3) không xử lý lỗi chính tả, từ đồng nghĩa, số nhiều. Elasticsearch dùng **inverted index** ([nối Trie/index](../../DataStructures/02-Intermediate/lesson-05-trie/)): tách từ (tokenize), chuẩn hóa (lowercase, stem), tìm $O(\text{từ})$ + xếp hạng theo relevance (TF-IDF/BM25) + fuzzy matching. Đây là vì sao search box của mọi e-commerce/site lớn chạy trên ES/Solr, không phải SQL LIKE.
+
+> ⚠ **ES là index phụ, KHÔNG phải nguồn dữ liệu chính.** Pattern chuẩn: dữ liệu gốc ở Postgres (source of truth), **đồng bộ** sang ES để search (qua CDC/event/batch). Bẫy: (1) coi ES là DB chính → mất dữ liệu khi ES lỗi (nó tối ưu search, không phải durability); (2) ES **near-realtime** (~1s refresh) → vừa ghi chưa search thấy ngay; (3) reindex khi đổi mapping tốn kém → thiết kế mapping cẩn thận từ đầu. Giữ Postgres làm chân lý, ES làm lớp search.
+
+### 16.2. 📝 Tóm tắt mục 16
+
+- ES cho **full-text search, autocomplete, log analytics, facet** — inverted index + relevance ranking + fuzzy, thứ SQL `LIKE` làm tệ.
+- ES là **index phụ**, không phải source of truth: Postgres giữ dữ liệu gốc, đồng bộ sang ES để search.
+- Lưu ý: ES near-realtime (~1s), reindex đắt → thiết kế mapping kỹ; đừng dùng ES làm DB chính.
+
 ## Bài tập
 
 > Tự làm trước, đáp án ở mục [Lời giải chi tiết](#lời-giải-chi-tiết).

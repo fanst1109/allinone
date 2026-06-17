@@ -583,6 +583,29 @@ bên dưới.
 
 ---
 
+## 13. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Isolation level là đánh đổi đúng-đắn vs đồng-thời. Chọn sai gây bug "tiền tự nhân đôi" hoặc nghẽn cổ chai — cả hai đều ở production thật.**
+
+| Isolation | Chặn được | Đánh đổi |
+|-----------|-----------|----------|
+| **Read Committed** (default Postgres) | dirty read | vẫn có non-repeatable/phantom read |
+| **Repeatable Read** | + non-repeatable read | ít đồng thời hơn |
+| **Serializable** | tất cả (như chạy tuần tự) | chậm nhất, có thể serialization failure → retry |
+| **SELECT ... FOR UPDATE** | khóa dòng để cập nhật an toàn | giữ lock → giảm đồng thời |
+
+### 13.1. Ví dụ cụ thể — lost update khi 2 request cùng trừ kho
+
+Hai request cùng đọc \`stock=1\`, cả hai thấy "còn hàng", cả hai trừ → bán 2 món dù chỉ 1 (**lost update**). Sửa, ba cách: (1) **\`SELECT ... FOR UPDATE\`** khóa dòng → request 2 chờ request 1 xong mới đọc; (2) **atomic update** \`UPDATE stock = stock - 1 WHERE id=? AND stock > 0\` rồi kiểm rows affected; (3) **optimistic locking** (cột version, update WHERE version=cũ, fail thì retry). Đây là bug kinh điển của đặt vé/bán hàng — cùng dạng race condition nhưng ở tầng DB.
+
+> ⚠ **Serializable không miễn phí — phải xử lý retry.** Postgres Serializable phát hiện xung đột → một transaction bị abort với "serialization failure" → app **phải retry**. Quên xử lý → lỗi 500 ngẫu nhiên dưới tải cao. Quy tắc: dùng isolation **vừa đủ** (Read Committed cho phần lớn; nâng lên khi có invariant đồng thời cụ thể như trừ kho/chuyển tiền); giữ transaction **ngắn** (không gọi API ngoài trong transaction — giữ lock lâu gây nghẽn, [nối transaction ACID](../../Databases/02-Intermediate/lesson-03-transaction-acid/)).
+
+### 13.2. 📝 Tóm tắt mục 13
+
+- Isolation level = đánh đổi đúng-đắn vs đồng-thời: Read Committed (default) → Serializable (chặt nhất, cần retry).
+- **Lost update** (2 request cùng trừ kho) → \`FOR UPDATE\` / atomic update / optimistic locking.
+- Dùng isolation vừa đủ; giữ transaction ngắn (không gọi API ngoài trong tx → giữ lock lâu gây nghẽn).
+
 ## Bài tập
 
 > Làm trước, xem [Lời giải chi tiết](#lời-giải-chi-tiết) sau. Code mẫu Go ở

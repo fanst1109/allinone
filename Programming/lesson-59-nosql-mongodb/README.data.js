@@ -564,6 +564,29 @@ Lợi ích:
 
 ---
 
+## 15. Ứng dụng thực tế trong phần mềm
+
+> 💡 **MongoDB thắng khi dữ liệu lồng nhau + schema linh hoạt, thua khi cần join/transaction phức tạp. Bí quyết: thiết kế theo TRUY VẤN, không theo quan hệ.**
+
+| Hợp MongoDB | Hợp SQL hơn |
+|-------------|-------------|
+| Catalog sản phẩm (mỗi loại field khác nhau) | Giao dịch tài chính (transaction nhiều bảng) |
+| CMS/blog (document lồng: post + comments) | Báo cáo join nhiều thực thể |
+| Event/log/IoT (ghi nhiều, schema thay đổi) | Dữ liệu quan hệ chặt, ràng buộc nhiều |
+| Profile/cấu hình người dùng (nested) | Cần ACID xuyên nhiều entity |
+
+### 15.1. Ví dụ cụ thể — embed vs reference (quyết định thiết kế #1)
+
+Blog có post + comments. **Embed** (nhúng comments vào document post): đọc cả post + comments **một query** — nhanh nếu luôn đọc cùng nhau, comments ít. **Reference** (comments là collection riêng, trỏ \`post_id\`): hợp khi comments rất nhiều (document có giới hạn 16MB) hoặc cần query comments độc lập. Quy tắc MongoDB: **thiết kế theo cách bạn TRUY VẤN** — "dữ liệu đọc cùng nhau thì lưu cùng nhau". Ngược hẳn SQL (chuẩn hóa theo quan hệ rồi join). Sai mô hình → query chậm hoặc document phình.
+
+> ⚠ **Đừng bê tư duy SQL vào Mongo (và ngược lại).** (1) Chuẩn hóa kiểu SQL rồi \`$lookup\` (join) khắp nơi → mất ưu thế Mongo, chậm. (2) Schema linh hoạt **không** nghĩa là vô kỷ luật — vẫn cần schema validation (Mongo có \`$jsonSchema\`) để tránh dữ liệu lộn xộn. (3) Mongo có transaction đa-document từ 4.0 nhưng **đắt** — nếu cần nhiều thì có lẽ chọn sai DB. (4) Index vẫn tối quan trọng — query không index quét cả collection.
+
+### 15.2. 📝 Tóm tắt mục 15
+
+- MongoDB hợp: document lồng, schema linh hoạt, ghi nhiều (catalog/CMS/IoT); thua ở transaction-join phức tạp.
+- **Embed** (đọc cùng nhau, ít) vs **reference** (nhiều, query độc lập) — thiết kế theo **truy vấn**, không theo quan hệ.
+- Đừng bê tư duy SQL vào Mongo; vẫn cần schema validation + index; transaction đa-document đắt.
+
 ## Bài tập
 
 > Làm xong hãy đối chiếu với mục [Lời giải chi tiết](#lời-giải-chi-tiết) bên dưới.

@@ -527,6 +527,29 @@ Sáu cái bẫy kinh điển làm sập production:
 
 ---
 
+## 13. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Migration = version control cho schema DB. Không có nó, "máy tôi chạy được" và deploy thành đánh bạc. Quy tắc vàng: migration phải tương thích với code đang chạy.**
+
+| Khái niệm | Trong thực tế |
+|-----------|---------------|
+| **Versioned migration** | Mỗi đổi schema = file có số thứ tự, chạy theo thứ tự, ghi vào bảng \`schema_migrations\` |
+| **Up/Down** | Up áp dụng, Down rollback — nhưng down thật sự khó (mất dữ liệu) |
+| **Công cụ** | \`golang-migrate\`, \`goose\`, \`atlas\`, hoặc tích hợp ORM |
+| **Expand-contract** | Đổi schema phá vỡ (rename/drop) chia nhiều bước an toàn |
+
+### 13.1. Ví dụ cụ thể — vì sao không thể "ALTER TABLE rename" thẳng
+
+App đang chạy nhiều instance. Bạn rename cột \`name\` → \`full_name\` trong một migration. Khoảnh khắc migration chạy: instance code **cũ** vẫn query \`name\` → lỗi; instance **mới** query \`full_name\`. Trong rolling deploy, cả hai version chạy đồng thời → **downtime/lỗi**. Giải pháp **expand-contract**: (1) thêm cột \`full_name\`, copy dữ liệu, code ghi cả hai; (2) deploy code đọc \`full_name\`; (3) migration sau xóa \`name\`. Mỗi bước **tương thích** với code trước+sau. Đây là cách thay đổi schema zero-downtime ở hệ thật.
+
+> ⚠ **Migration phá vỡ (breaking) + thiếu rollback = sự cố production.** (1) Đừng \`DROP COLUMN\`/\`NOT NULL\` đột ngột khi code cũ còn chạy — dùng expand-contract. (2) Migration lớn (thêm index trên bảng triệu dòng) khóa bảng lâu → dùng \`CREATE INDEX CONCURRENTLY\` (Postgres). (3) **Luôn test migration trên bản sao production data**, không chỉ DB rỗng dev. (4) Migration đi kèm code trong cùng deploy, versioned trong git — không "sửa tay trên prod" (không tái lập được).
+
+### 13.2. 📝 Tóm tắt mục 13
+
+- Migration = version control schema (file đánh số, bảng \`schema_migrations\`), đi kèm code trong git.
+- **Expand-contract** cho đổi schema phá vỡ → zero-downtime khi rolling deploy nhiều version.
+- Tránh: drop/rename đột ngột, index khóa bảng (dùng CONCURRENTLY), sửa tay prod; test trên data thật.
+
 ## Bài tập
 
 > Mọi bài tập đều có lời giải đầy đủ ở mục "Lời giải chi tiết" bên dưới. Hãy thử tự làm trước.

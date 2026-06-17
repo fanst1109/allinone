@@ -509,6 +509,36 @@ Service nhận \`UserRepository\` qua tham số → đổi từ GORM sang sqlx c
 
 ---
 
+## 13. Ứng dụng thực tế trong phần mềm
+
+> 💡 **ORM vs raw SQL là tranh luận muôn thuở — sự thật: dùng đúng công cụ cho đúng query, và LUÔN biết SQL đang chạy.**
+
+| Cách | Mạnh ở | Yếu ở |
+|------|--------|-------|
+| **ORM (GORM, Ent)** | CRUD nhanh, ít boilerplate, migration | Query phức tạp sinh SQL kém, "magic" ẩn |
+| **Raw SQL / sqlx** | Kiểm soát hoàn toàn, query phức tạp | Boilerplate scan, dễ SQL injection nếu nối chuỗi |
+| **\`sqlc\` (sinh code từ SQL)** | Viết SQL thật + có type-safety | Cần generate lại khi đổi |
+| **Query builder (squirrel)** | SQL động an toàn | Trung gian, vẫn cần hiểu SQL |
+
+### 13.1. Ví dụ cụ thể — N+1 query, sát thủ của ORM
+
+\`\`\`go
+users := db.Find(&users)        // 1 query lấy users
+for _, u := range users {
+    db.Where("user_id=?", u.ID).Find(&u.Orders) // N query — mỗi user một lần!
+}
+\`\`\`
+
+1000 user → 1001 query → chậm gấp trăm lần. ORM ẩn điều này. Sửa: **eager loading** (\`Preload("Orders")\` → JOIN/IN, 2 query). Đây là bug hiệu năng #1 với ORM ([nối query execution](../../Databases/02-Intermediate/lesson-05-query-execution/)). Quy tắc sống còn: **bật SQL logger** để thấy ORM thực sự sinh gì — "magic không thấy SQL" là gốc mọi pitfall.
+
+> ⚠ **Raw SQL phải dùng parameterized query — KHÔNG nối chuỗi.** \`"SELECT * WHERE id = " + userInput\` = **SQL injection** (kẻ tấn công nhập \`1 OR 1=1; DROP TABLE\`). Luôn \`db.Query("... WHERE id = ?", userInput)\` — driver tự escape. Quy tắc thực dụng: ORM cho CRUD thường (nhanh), raw/sqlc cho query phức tạp/báo cáo (kiểm soát + nhanh), không bao giờ nối chuỗi input vào SQL.
+
+### 13.2. 📝 Tóm tắt mục 13
+
+- ORM (CRUD nhanh) vs raw/sqlc (query phức tạp, kiểm soát) — dùng đúng cho đúng query.
+- **N+1 query** = bẫy ORM #1 → eager loading (Preload); **bật SQL logger** để luôn thấy SQL thật.
+- Raw SQL: **parameterized query** (\`?\`), không bao giờ nối chuỗi input → chống SQL injection.
+
 ## Bài tập
 
 > Lời giải chi tiết ở mục [Lời giải chi tiết](#lời-giải-chi-tiết) bên dưới. Thử tự làm trước.

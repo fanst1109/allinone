@@ -522,6 +522,29 @@ Xu hướng mới: **sidecar-less mesh** (Istio Ambient mode, Cilium) — bỏ p
 
 ---
 
+## 16. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Service mesh đẩy retry/timeout/mTLS/observability ra khỏi code, vào tầng hạ tầng (sidecar proxy). Mạnh nhưng chỉ đáng khi có RẤT nhiều service.**
+
+| Mesh lo việc gì | Thay cho |
+|------------------|----------|
+| **Retry/timeout/circuit breaker** | Code tự cài trong mỗi service (mỗi ngôn ngữ một kiểu) |
+| **mTLS giữa service** | Tự quản cert trong app |
+| **Traffic management** | Canary/blue-green/A-B routing không sửa code |
+| **Observability** | Metrics/trace tự động mọi gọi service-to-service |
+
+### 16.1. Ví dụ cụ thể — sidecar lo cross-cutting concern
+
+Mesh (Istio, Linkerd) chèn **sidecar proxy** (Envoy) cạnh mỗi service. Mọi traffic vào/ra đi qua proxy → proxy lo retry, timeout, mTLS, thu metrics — **service code không cần biết**. Lợi lớn khi hệ đa ngôn ngữ (Go, Java, Python): không phải cài lại retry/mTLS cho từng ngôn ngữ, chỉ cấu hình mesh một chỗ. Canary deploy: route 5% traffic sang version mới qua config mesh, không sửa code. Đây là "tách cross-cutting concern ra hạ tầng".
+
+> ⚠ **Service mesh là "búa tạ" — phần lớn dự án KHÔNG cần.** Cái giá: (1) **độ phức tạp vận hành** lớn (Istio nổi tiếng khó); (2) sidecar thêm **latency + tài nguyên** (mỗi pod thêm một proxy); (3) thêm một tầng phải debug khi có sự cố. Quy tắc: chỉ đáng khi có **hàng chục+ service, đa ngôn ngữ**, cần mTLS/traffic management thống nhất. Hệ nhỏ (vài service) → thư viện retry/breaker trong code ([nối rate-limit](../lesson-52-rate-limiting-circuit-breaker/)) đơn giản hơn nhiều. Đừng thêm mesh vì "nghe hay".
+
+### 16.2. 📝 Tóm tắt mục 16
+
+- Service mesh (sidecar proxy) đẩy **retry/timeout/mTLS/observability** ra hạ tầng → service code không cần lo, thống nhất đa ngôn ngữ.
+- Lợi rõ khi nhiều service + đa ngôn ngữ + cần mTLS/traffic management (canary).
+- "Búa tạ": thêm phức tạp vận hành + latency + tầng debug → hệ nhỏ dùng thư viện in-code, đừng thêm vì hype.
+
 ## Bài tập
 
 > Làm trước khi xem lời giải. Tất cả lời giải ở mục kế tiếp.

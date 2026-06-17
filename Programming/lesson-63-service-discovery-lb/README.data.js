@@ -567,6 +567,29 @@ Kết hợp:
 
 ---
 
+## 13. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Service discovery + load balancing giải bài "service ở IP nào?" khi instance lên/xuống liên tục (autoscale, deploy). Trong K8s, phần lớn việc này tự động.**
+
+| Khái niệm | Hiện thực thật |
+|-----------|----------------|
+| **Service registry** | Consul, etcd, hoặc K8s Service (DNS nội bộ tự cập nhật) |
+| **Client-side LB** | Client biết danh sách instance, tự chọn (gRPC, Ribbon) |
+| **Server-side LB** | LB đứng trước (nginx, Envoy, K8s Service/Ingress) |
+| **Health check** | Loại instance chết khỏi pool (readiness/liveness probe) |
+
+### 13.1. Ví dụ cụ thể — vì sao không hard-code IP
+
+Microservice A gọi B tại \`10.0.1.5:8080\`. B autoscale 3→10 instance, IP đổi, instance cũ chết → hard-code IP **vỡ ngay**. Service discovery: A hỏi "B ở đâu?" → registry trả danh sách instance **sống hiện tại** → LB chọn một. Trong **Kubernetes** việc này gói gọn: gọi \`http://b-service\` (DNS nội bộ), K8s Service tự route tới pod khỏe mạnh, tự cập nhật khi pod lên/xuống. Đây là lý do code trong K8s gọi nhau qua tên service, không qua IP.
+
+> ⚠ **Bẫy — load balancing không health-check + DNS cache.** (1) LB gửi traffic tới instance đã chết → lỗi; phải có **health check** loại instance không pass readiness ([nối graceful shutdown](../lesson-51-graceful-shutdown/)). (2) **DNS caching**: client cache IP cũ sau khi instance chết → vẫn gọi IP chết; cần TTL ngắn hoặc client-side LB cập nhật. (3) Thuật toán LB: round-robin đơn giản nhưng "least connections" / "power of two choices" cân tải tốt hơn khi request không đều ([nối randomized](../../Algorithms/lesson-48-randomized-algorithms/)).
+
+### 13.2. 📝 Tóm tắt mục 13
+
+- Service discovery giải "service ở IP nào" khi instance lên/xuống liên tục → không hard-code IP.
+- K8s tự lo: gọi qua tên service (DNS nội bộ), Service route tới pod khỏe, tự cập nhật.
+- Bẫy: thiếu health check (gửi traffic tới instance chết), DNS cache IP cũ; chọn thuật toán LB hợp tải.
+
 ## Bài tập
 
 > Lời giải chi tiết ngay dưới. Code tham khảo trong [solutions.go](./solutions.go).

@@ -570,6 +570,29 @@ Consumer: nhận event → tự GET s3://.../abc123 khi cần xử lý
 
 ---
 
+## 15. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Event-driven cho hệ mở rộng + tách rời cao, nhưng đổi lấy độ phức tạp lớn (khó debug, eventual consistency). Mạnh mẽ nhưng dễ lạm dụng.**
+
+| Lợi | Cái giá |
+|-----|---------|
+| Service tách rời (thêm consumer không sửa producer) | Luồng nghiệp vụ "ẩn" trong các event → khó theo dõi |
+| Mở rộng độc lập từng phần | Eventual consistency (dữ liệu không nhất quán tức thì) |
+| Chịu lỗi tốt (event lưu lại, retry) | Debug khó (luồng async xuyên nhiều service) |
+| Audit/replay từ event log | Cần idempotency + xử lý event trùng/lệch thứ tự |
+
+### 15.1. Ví dụ cụ thể — đặt hàng e-commerce qua event
+
+\`OrderPlaced\` event → kích hoạt song song: inventory (trừ kho), payment (thu tiền), notification (gửi mail), analytics (ghi nhận). Mỗi service tự phản ứng, không gọi trực tiếp nhau → thêm "loyalty points" chỉ cần subscribe event mới, **không sửa** order service. Đây là sức mạnh decoupling. Nhưng: "đơn đã đặt nhưng kho chưa trừ xong" (eventual consistency) — UI phải thể hiện trạng thái "đang xử lý", và cần [saga](../lesson-66-saga-pattern/) để rollback nếu payment fail.
+
+> ⚠ **Đừng event-driven hóa mọi thứ — bẫy "spaghetti event".** (1) Luồng nghiệp vụ trải khắp các event handler → không ai thấy bức tranh tổng → khó debug "tại sao đơn này kẹt". (2) Event xử lý **không đúng thứ tự** hoặc **trùng** → cần idempotency + version. (3) Eventual consistency khó cho nghiệp vụ cần nhất quán tức thì (số dư ngân hàng). Quy tắc: dùng event cho **tách rời thật sự cần** (nhiều consumer độc lập, async); giữ luồng đồng bộ đơn giản cho thao tác cần kết quả ngay. Có **event catalog** + tracing ([nối tracing](../lesson-74-tracing-opentelemetry/)) để theo dõi luồng.
+
+### 15.2. 📝 Tóm tắt mục 15
+
+- Event-driven: tách rời cao (thêm consumer không sửa producer), mở rộng độc lập, audit/replay.
+- Cái giá: luồng nghiệp vụ ẩn, **eventual consistency**, debug khó → cần idempotency + tracing + saga.
+- Đừng lạm dụng: event cho tách rời thật cần; đồng bộ cho thao tác cần kết quả tức thì.
+
 ## Bài tập
 
 > Làm trước, đối chiếu lời giải bên dưới. Code Go chạy được ở [solutions.go](./solutions.go), minh họa tương tác ở [visualization.html](./visualization.html).

@@ -583,6 +583,29 @@ Thay vì quyết định nhị phân chết/sống, **phi (φ-accrual)** xuất 
 
 ---
 
+## 16. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Phần lớn bug hệ phân tán đến từ ngộ nhận "8 fallacies": mạng đáng tin, độ trễ = 0, băng thông vô hạn... Tất cả đều SAI.**
+
+| Thực tế khắc nghiệt | Hậu quả nếu quên |
+|---------------------|------------------|
+| **Mạng không đáng tin** | Phải timeout + retry + idempotency cho mọi gọi mạng |
+| **Độ trễ ≠ 0** | Gọi service liên tục trong vòng lặp → chậm khủng khiếp |
+| **Không có "đồng hồ chung"** | Đừng dựa timestamp giữa máy để sắp thứ tự (clock skew) |
+| **Một phần có thể chết** | Partial failure — A gọi B,C; B ok, C chết → xử lý sao? |
+
+### 16.1. Ví dụ cụ thể — at-least-once + idempotency
+
+Service A gửi message cho B. Mạng timeout — A **không biết** B đã nhận chưa. Hai lựa chọn: at-most-once (gửi 1 lần, có thể mất) hoặc **at-least-once** (retry tới khi chắc, có thể trùng). Hầu hết hệ chọn at-least-once → B **phải idempotent** (xử lý message trùng cho cùng kết quả). Vd: "trừ tiền" không idempotent → retry = trừ 2 lần; thêm \`message_id\` đã xử lý → bỏ qua trùng. Đây là nền của message queue ([nối MQ](../lesson-64-message-queue-nats-kafka/)) và là lý do "exactly-once" thực chất là "at-least-once + idempotency".
+
+> ⚠ **Đừng coi gọi mạng như gọi hàm local.** (1) Mỗi RPC có thể chậm/lỗi/timeout → bọc context timeout + retry backoff ([nối rate-limit](../lesson-52-rate-limiting-circuit-breaker/)); (2) đừng gọi service trong vòng lặp (N×latency) → batch hoặc gọi song song; (3) partial failure là bình thường → thiết kế để chịu được (circuit breaker, fallback, saga [nối](../lesson-66-saga-pattern/)); (4) đừng tin clock đồng bộ giữa máy → dùng logical clock/version cho thứ tự. "Distributed monolith" (microservice nhưng gọi đồng bộ chằng chịt) tệ hơn monolith.
+
+### 16.2. 📝 Tóm tắt mục 16
+
+- 8 fallacies: mạng KHÔNG đáng tin, latency ≠ 0, không có clock chung, partial failure là bình thường.
+- At-least-once + **idempotency** (message_id) = cách thực tế đạt "không mất, không nhân đôi tác dụng".
+- Gọi mạng ≠ gọi local: timeout+retry+backoff, tránh gọi trong vòng lặp, chịu được partial failure.
+
 ## Bài tập
 
 > Làm thử trước khi xem lời giải. Tất cả lời giải ở mục kế tiếp; code minh họa ở [solutions.go](./solutions.go); tương tác ở [visualization.html](./visualization.html). Gợi ý: BT1 dùng tư duy mục 3, BT2–BT3 dùng mục 8 & 12, BT4–BT5 dùng mục 9 & 7, BT6 dùng mục 13.

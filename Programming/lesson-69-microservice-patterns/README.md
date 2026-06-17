@@ -647,6 +647,30 @@ Microservices **không miễn phí**. Hãy ở lại monolith nếu:
 
 ---
 
+## 17. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Microservice giải bài tổ chức/scale ở quy mô lớn — nhưng là "thuế phức tạp" khổng lồ. Lời khuyên thật của ngành: bắt đầu bằng monolith.**
+
+| Pattern | Giải bài toán |
+|---------|---------------|
+| **API Gateway** | Một cửa vào: auth, rate-limit, routing tới service trong |
+| **BFF (Backend for Frontend)** | Gateway riêng cho web/mobile, gom nhiều service |
+| **Database per service** | Mỗi service sở hữu DB riêng → tách rời thật |
+| **Saga** | Transaction xuyên service ([nối saga](../lesson-66-saga-pattern/)) |
+| **Strangler fig** | Tách dần monolith → microservice an toàn |
+
+### 17.1. Ví dụ cụ thể — "database per service" và hệ quả
+
+Quy tắc microservice: mỗi service **sở hữu DB riêng**, service khác KHÔNG được truy cập DB đó trực tiếp (chỉ qua API). Lợi: tách rời thật, đổi schema không phá service khác, scale riêng. Nhưng hệ quả lớn: **mất JOIN xuyên service** (order service không join thẳng user table) → phải gọi API hoặc giữ bản sao dữ liệu; **mất transaction ACID xuyên service** → phải dùng saga (eventual consistency). Đây là lý do microservice **khó hơn nhiều** monolith — phần lớn "transaction đơn giản" thành luồng phân tán phức tạp.
+
+> ⚠ **"Monolith first" — đừng bắt đầu bằng microservice.** Lời khuyên đồng thuận của ngành (Fowler, DHH): (1) microservice thêm thuế khổng lồ — network, eventual consistency, distributed debugging, devops phức tạp, [8 fallacies](../lesson-62-distributed-fundamentals/); (2) tách service **sai ranh giới** (chia theo tầng kỹ thuật thay vì theo domain/bounded context) → "distributed monolith" tệ nhất cả hai. Bắt đầu **modular monolith** (1 deploy, code chia module rõ); chỉ tách service khi có lý do thật (team scale, scale phần cụ thể, deploy độc lập) — dùng **strangler fig** tách dần. "Microservice là giải pháp tổ chức cho team lớn, không phải kỹ thuật cho app nhỏ".
+
+### 17.2. 📝 Tóm tắt mục 17
+
+- Pattern: **API Gateway/BFF** (cửa vào), **DB per service** (tách rời), **saga** (transaction xuyên service), **strangler fig** (tách dần).
+- DB per service → mất JOIN + transaction xuyên service → saga/eventual consistency → phức tạp hơn monolith nhiều.
+- **Monolith first**: bắt đầu modular monolith; chỉ tách microservice khi có lý do thật (team/scale), tách theo domain.
+
 ## Bài tập
 
 > Lời giải chi tiết ở mục [Lời giải chi tiết](#lời-giải-chi-tiết). Code minh họa: [solutions.go](./solutions.go). Tương tác: [visualization.html](./visualization.html).

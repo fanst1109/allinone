@@ -613,6 +613,29 @@ Năm bẫy: exactly-once ảo, ordering cross-partition, consumer không idempot
 
 ---
 
+## 15. Ứng dụng thực tế trong phần mềm
+
+> 💡 **Message queue tách rời (decouple) service, hấp thụ tải đột biến, và cho xử lý bất đồng bộ — nền của kiến trúc event-driven.**
+
+| Nhu cầu | MQ làm gì | Công cụ |
+|---------|-----------|---------|
+| **Xử lý nền (không bắt user chờ)** | Đẩy job vào queue, worker xử lý sau | RabbitMQ, NATS, SQS |
+| **Hấp thụ burst** | Queue đệm khi traffic tăng vọt → worker xử lý theo tốc độ | Kafka, SQS |
+| **Tách rời service** | A publish event, B/C/D subscribe — A không biết ai nghe | Kafka, NATS |
+| **Event log / replay** | Lưu event để xử lý lại, audit | Kafka (giữ log) |
+
+### 15.1. Ví dụ cụ thể — đăng ký user, gửi mail bất đồng bộ
+
+Đăng ký: nếu gửi email chào mừng **đồng bộ** trong request → user chờ SMTP chậm, và nếu mail lỗi thì cả đăng ký fail. Tách: lưu user → **publish event \`UserRegistered\`** → trả response ngay (user không chờ). Worker riêng consume event → gửi mail (retry nếu lỗi, không ảnh hưởng đăng ký). Các service khác (analytics, CRM) cũng subscribe cùng event mà không cần sửa code đăng ký. Đây là decoupling + async — pattern lõi của hệ event-driven ([nối event-driven](../lesson-65-event-driven-architecture/)).
+
+> ⚠ **Kafka vs queue truyền thống + bẫy delivery semantics.** (1) **Kafka** = log giữ lại (replay được, nhiều consumer đọc độc lập, throughput cao) hợp event streaming/analytics; **RabbitMQ/NATS/SQS** = queue (message tiêu thụ xong là hết) hợp task/job. Chọn sai = phức tạp thừa. (2) **At-least-once là mặc định** → consumer phải **idempotent** (xử lý trùng OK, [nối distributed](../lesson-62-distributed-fundamentals/)). (3) **Dead letter queue** cho message xử lý hoài không được → tránh kẹt queue. (4) Thứ tự message chỉ đảm bảo trong cùng partition (Kafka).
+
+### 15.2. 📝 Tóm tắt mục 15
+
+- MQ: **decouple** service, **async** (không bắt user chờ), **hấp thụ burst**, event log replay.
+- **Kafka** (log, replay, streaming) vs **RabbitMQ/NATS/SQS** (queue, task/job) — chọn theo nhu cầu.
+- At-least-once → consumer **idempotent**; dùng **dead letter queue**; thứ tự chỉ trong partition.
+
 ## Bài tập
 
 > Lời giải chi tiết ở mục [Lời giải chi tiết](#lời-giải-chi-tiết) bên dưới. Hãy tự làm trước.

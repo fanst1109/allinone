@@ -616,6 +616,28 @@ Dùng khi **ít nhất một** điều kiện sau đúng mạnh:
 
 ---
 
+## 16. Ứng dụng thực tế trong phần mềm
+
+> 💡 **CQRS + Event Sourcing là pattern mạnh nhưng "đắt" — đúng cho miền phức tạp/audit nghiêm ngặt, over-engineering cho CRUD thường.**
+
+| Pattern | Giải bài toán | Cái giá |
+|---------|---------------|---------|
+| **CQRS** (tách đọc/ghi) | Mô hình đọc và ghi khác nhau, scale riêng | 2 mô hình phải đồng bộ |
+| **Event Sourcing** | Lưu chuỗi event thay vì state hiện tại | Phức tạp, query state phải replay/projection |
+| **Kết hợp** | Audit đầy đủ, time-travel, rebuild view | Độ phức tạp cao nhất |
+
+### 16.1. Ví dụ cụ thể — vì sao ngân hàng/kế toán hợp event sourcing
+
+Tài khoản ngân hàng: thay vì lưu \`balance = 100\` (state), lưu **chuỗi event**: \`Deposited(50), Deposited(70), Withdrew(20)\` → balance = replay = 100. Lợi: (1) **audit hoàn hảo** — mọi thay đổi có lịch sử bất biến (sao 100? cộng dồn event); (2) **time-travel** — số dư ngày 1/1? replay tới đó; (3) sửa bug logic → replay lại event ra state đúng. Đây là vì sao kế toán/ngân hàng/hệ cần audit chặt dùng nó. CQRS đi kèm: ghi = append event, đọc = từ "projection" (view tính sẵn từ event) → đọc nhanh, ghi audit đầy đủ.
+
+> ⚠ **Đừng dùng CQRS/ES cho CRUD thường — over-engineering kinh điển.** Phần lớn app (blog, e-commerce cơ bản, admin panel) chỉ cần CRUD + DB quan hệ. CQRS/ES thêm: 2 mô hình đồng bộ, eventual consistency giữa write↔read, replay phức tạp, khó debug, schema event versioning. Quy tắc: dùng khi (1) miền **thực sự phức tạp** với nhiều invariant; (2) **audit/compliance** bắt buộc (tài chính, y tế); (3) đọc và ghi có yêu cầu scale rất khác. Còn lại → CRUD đơn giản. "Bạn có thể thêm CQRS sau khi cần, khó gỡ ra khi lỡ dùng".
+
+### 16.2. 📝 Tóm tắt mục 16
+
+- **CQRS** tách đọc/ghi (mô hình + scale riêng); **Event Sourcing** lưu chuỗi event thay state.
+- Hợp: miền phức tạp, **audit/compliance** (ngân hàng/kế toán), time-travel, rebuild view.
+- **Over-engineering** cho CRUD thường → mặc định CRUD + DB quan hệ; chỉ dùng khi thật sự cần.
+
 ## Bài tập
 
 > Gợi ý: chạy file lời giải bằng \`go run solutions.go\`.

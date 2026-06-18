@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 14 — Ảnh &amp; Fourier 2D Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #0e7490; }
+  h2 {
+    color: #0891b2; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #a5f3fc;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { color: #64748b; font-size: 13px; margin: 6px 0; line-height: 1.5; }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #334155; }
+  code {
+    background: #ecfeff; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #0e7490;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  button {
+    background: #0891b2; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #0e7490; }
+  button.toggle { background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc; }
+  button.toggle.active { background: #0891b2; color: white; border-color: #0891b2; }
+  select, input[type=range] {
+    font-size: 14px; font-family: inherit;
+  }
+  select {
+    padding: 7px 10px; border: 1px solid #a5f3fc; border-radius: 4px; background: white;
+  }
+  input[type=range] { width: 100%; max-width: 280px; accent-color: #0891b2; }
+
+  .canvas-strip { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+  .canvas-box { text-align: center; }
+  .canvas-box .cap { font-size: 12px; color: #64748b; margin-top: 6px; font-weight: 600; }
+  canvas {
+    border: 1px solid #cbd5e1; border-radius: 4px; image-rendering: pixelated;
+    background: #fff; display: block;
+  }
+  .arrow { align-self: center; font-size: 28px; color: #0891b2; font-weight: 700; }
+
+  /* kernel grid */
+  .kgrid { display: inline-grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 6px 0; }
+  .kgrid .kc {
+    width: 46px; height: 38px; display: flex; align-items: center; justify-content: center;
+    border: 1px solid #a5f3fc; border-radius: 4px; background: #ecfeff;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-weight: 700;
+    font-size: 14px; color: #0e7490;
+  }
+  .readout {
+    background: #f0fdff; border-left: 4px solid #0891b2; padding: 10px 14px;
+    border-radius: 4px; margin-top: 12px; font-size: 14px; color: #334155; line-height: 1.6;
+  }
+  .readout b { color: #0e7490; }
+  .stat { font-family: "SF Mono", Monaco, Consolas, monospace; }
+
+  @media (max-width: 480px) {
+    .arrow { transform: rotate(90deg); align-self: center; }
+    .canvas-strip { gap: 10px; }
+    .kgrid .kc { width: 38px; height: 32px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-audio-dsp/visualization.html">← L13: Audio DSP</a>
+  <span class="sep">·</span>
+  <span class="current">L14: Ảnh &amp; Fourier 2D</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-modulation/visualization.html">L15: Điều chế →</a>
+</nav>
+
+<main>
+  <h1>Lesson 14 — Ảnh &amp; Fourier 2D</h1>
+  <p class="hint">Ba phòng thí nghiệm tương tác: (1) áp kernel 3×3 lên ảnh nhỏ, (2) phổ Fourier 2D + che tần số, (3) khối JPEG 8×8 với DCT &amp; lượng tử hóa. Mọi ảnh sinh bằng code — không tải ảnh ngoài.</p>
+
+  <!-- ───────────── Module 1: Kernel ───────────── -->
+  <h2>1. Kernel 3×3 áp lên ảnh nhỏ</h2>
+  <div class="card">
+    <div class="row">
+      <label>Ảnh nguồn:</label>
+      <select id="k-pattern">
+        <option value="stripes">Sọc dọc</option>
+        <option value="square">Ô vuông</option>
+        <option value="gradient">Gradient</option>
+        <option value="checker">Bàn cờ</option>
+      </select>
+      <label>Kernel:</label>
+      <select id="k-kernel">
+        <option value="boxblur">Box blur (mờ)</option>
+        <option value="gauss">Gaussian blur (mờ êm)</option>
+        <option value="sharpen">Sharpen (làm nét)</option>
+        <option value="sobelx">Sobel-x (cạnh dọc)</option>
+        <option value="laplacian">Laplacian (mọi cạnh)</option>
+      </select>
+    </div>
+    <div class="canvas-strip">
+      <div class="canvas-box">
+        <canvas id="k-src" width="64" height="64" style="width:160px;height:160px"></canvas>
+        <div class="cap">Trước (gốc)</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="canvas-box">
+        <div class="kgrid" id="k-mat"></div>
+        <div class="cap">Kernel 3×3</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="canvas-box">
+        <canvas id="k-dst" width="64" height="64" style="width:160px;height:160px"></canvas>
+        <div class="cap">Sau (đã lọc)</div>
+      </div>
+    </div>
+    <div class="readout" id="k-read"></div>
+  </div>
+
+  <!-- ───────────── Module 2: Fourier spectrum ───────────── -->
+  <h2>2. Phổ Fourier 2D — che tần số</h2>
+  <div class="card">
+    <div class="row">
+      <label>Ảnh:</label>
+      <select id="f-pattern">
+        <option value="hstripes">Sọc ngang</option>
+        <option value="vstripes">Sọc dọc</option>
+        <option value="diag">Sọc chéo</option>
+        <option value="blob">Đốm tròn (vùng phẳng)</option>
+        <option value="checker">Bàn cờ</option>
+      </select>
+      <label>Lọc:</label>
+      <button class="toggle active" data-mode="none" id="f-none">Không lọc</button>
+      <button class="toggle" data-mode="low" id="f-low">Low-pass (mờ)</button>
+      <button class="toggle" data-mode="high" id="f-high">High-pass (nét)</button>
+    </div>
+    <div class="row">
+      <label>Bán kính che <span id="f-rval" class="stat">8</span> px:</label>
+      <input type="range" id="f-radius" min="2" max="28" value="8">
+    </div>
+    <div class="canvas-strip">
+      <div class="canvas-box">
+        <canvas id="f-img" width="64" height="64" style="width:170px;height:170px"></canvas>
+        <div class="cap">Ảnh gốc f[x,y]</div>
+      </div>
+      <div class="canvas-box">
+        <canvas id="f-spec" width="64" height="64" style="width:170px;height:170px"></canvas>
+        <div class="cap">Phổ |F[u,v]| (log, tâm = DC)</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="canvas-box">
+        <canvas id="f-recon" width="64" height="64" style="width:170px;height:170px"></canvas>
+        <div class="cap">Tái tạo sau lọc</div>
+      </div>
+    </div>
+    <div class="readout" id="f-read"></div>
+  </div>
+
+  <!-- ───────────── Module 3: JPEG block ───────────── -->
+  <h2>3. Khối JPEG 8×8 — DCT &amp; lượng tử hóa</h2>
+  <div class="card">
+    <div class="row">
+      <label>Ảnh:</label>
+      <select id="j-pattern">
+        <option value="photo">Ảnh "tự nhiên" (mượt + chi tiết)</option>
+        <option value="text">Chữ trên nền (cạnh sắc)</option>
+        <option value="gradient">Gradient</option>
+      </select>
+    </div>
+    <div class="row">
+      <label>Mức nén (q) <span id="j-qval" class="stat">8</span>:</label>
+      <input type="range" id="j-q" min="1" max="60" value="8">
+      <span class="hint" style="margin:0">q nhỏ = chất lượng cao; q lớn = nén mạnh</span>
+    </div>
+    <div class="canvas-strip">
+      <div class="canvas-box">
+        <canvas id="j-src" width="64" height="64" style="width:200px;height:200px"></canvas>
+        <div class="cap">Gốc (lưới khối 8×8)</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="canvas-box">
+        <canvas id="j-dst" width="64" height="64" style="width:200px;height:200px"></canvas>
+        <div class="cap">Sau DCT + lượng tử</div>
+      </div>
+    </div>
+    <div class="readout" id="j-read"></div>
+  </div>
+</main>
+
+<script>
+// ════════════ tiện ích chung ════════════
+function clamp(v){ return v<0?0:(v>255?255:v); }
+
+// vẽ ma trận grayscale (mảng phẳng, kích thước n×n, giá trị 0..255) lên canvas n×n
+function drawGray(cv, arr, n){
+  const ctx = cv.getContext('2d');
+  const img = ctx.createImageData(n, n);
+  for(let i=0;i<n*n;i++){
+    const g = clamp(arr[i])|0;
+    img.data[4*i]=g; img.data[4*i+1]=g; img.data[4*i+2]=g; img.data[4*i+3]=255;
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+// sinh ảnh pattern n×n
+function genPattern(kind, n){
+  const a = new Float64Array(n*n);
+  for(let y=0;y<n;y++) for(let x=0;x<n;x++){
+    let v=0;
+    switch(kind){
+      case 'stripes': case 'vstripes': v = (Math.floor(x/4)%2)?230:30; break;
+      case 'hstripes': v = (Math.floor(y/4)%2)?230:30; break;
+      case 'diag': v = (Math.floor((x+y)/5)%2)?230:30; break;
+      case 'checker': v = ((Math.floor(x/8)+Math.floor(y/8))%2)?230:30; break;
+      case 'square': v = (x>n*0.28&&x<n*0.72&&y>n*0.28&&y<n*0.72)?220:40; break;
+      case 'gradient': v = 20 + 215*x/(n-1); break;
+      case 'blob': { const dx=x-n/2, dy=y-n/2; v = (dx*dx+dy*dy < (n*0.3)*(n*0.3))?210:45; break; }
+      default: v=128;
+    }
+    a[y*n+x]=v;
+  }
+  return a;
+}
+
+// ════════════ MODULE 1: kernel ════════════
+const KERNELS = {
+  boxblur:  {m:[1,1,1, 1,1,1, 1,1,1], div:9,  label:'Box blur — low-pass, lấy trung bình → ảnh mờ.'},
+  gauss:    {m:[1,2,1, 2,4,2, 1,2,1], div:16, label:'Gaussian blur — low-pass có trọng tâm → mờ êm, không gợn.'},
+  sharpen:  {m:[0,-1,0, -1,5,-1, 0,-1,0], div:1, label:'Sharpen — đẩy tâm cao hơn xung quanh → tăng tương phản = làm nét.'},
+  sobelx:   {m:[-1,0,1, -2,0,2, -1,0,1], div:1, label:'Sobel-x — gradient ngang, tổng=0 → vùng phẳng thành đen, chỉ cạnh dọc sáng.'},
+  laplacian:{m:[0,1,0, 1,-4,1, 0,1,0], div:1, label:'Laplacian — đạo hàm bậc 2, tổng=0 → bắt cạnh mọi hướng.'}
+};
+function convolve(src, n, ker){
+  const out = new Float64Array(n*n);
+  const m=ker.m, div=ker.div, isEdge = (div===1 && m.reduce((s,v)=>s+v,0)===0);
+  for(let y=0;y<n;y++) for(let x=0;x<n;x++){
+    let acc=0, k=0;
+    for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){
+      const xx=Math.min(n-1,Math.max(0,x+dx)), yy=Math.min(n-1,Math.max(0,y+dy));
+      acc += src[yy*n+xx]*m[k++];
+    }
+    acc/=div;
+    out[y*n+x] = isEdge ? clamp(Math.abs(acc)) : clamp(acc); // cạnh: lấy |.| để nhìn được
+  }
+  return out;
+}
+function renderKernelMatrix(ker){
+  const el=document.getElementById('k-mat'); el.innerHTML='';
+  ker.m.forEach(v=>{
+    const d=document.createElement('div'); d.className='kc';
+    d.textContent = ker.div===1 ? v : (v+'/'+ker.div);
+    el.appendChild(d);
+  });
+}
+function runKernel(){
+  const n=64;
+  const pat=document.getElementById('k-pattern').value;
+  const kname=document.getElementById('k-kernel').value;
+  const ker=KERNELS[kname];
+  const src=genPattern(pat==='stripes'?'vstripes':pat, n);
+  const dst=convolve(src,n,ker);
+  drawGray(document.getElementById('k-src'), src, n);
+  drawGray(document.getElementById('k-dst'), dst, n);
+  renderKernelMatrix(ker);
+  const sum=ker.m.reduce((s,v)=>s+v,0)/ker.div;
+  document.getElementById('k-read').innerHTML =
+    `<b>${kname}</b>: ${ker.label}<br>Tổng trọng số = <span class="stat">${sum.toFixed(2)}</span> — `+
+    (Math.abs(sum-1)<0.01 ? 'bằng 1 → giữ độ sáng vùng phẳng (low/sharpen).'
+     : Math.abs(sum)<0.01 ? 'bằng 0 → vùng phẳng ra đen, chỉ phản ứng ở cạnh (high-pass).'
+     : 'khác 1 → có thể đổi độ sáng tổng thể.');
+}
+document.getElementById('k-pattern').onchange=runKernel;
+document.getElementById('k-kernel').onchange=runKernel;
+
+// ════════════ MODULE 2: DFT 2D + lọc ════════════
+// DFT 2D separable trên ảnh n×n (n nhỏ = 64 → chấp nhận được). Trả về {re,im} kích thước n×n.
+function dft2d(src, n, inverse){
+  const sign = inverse?1:-1;
+  // bước 1: DFT theo hàng
+  const re1=new Float64Array(n*n), im1=new Float64Array(n*n);
+  for(let y=0;y<n;y++){
+    for(let v=0;v<n;v++){
+      let sr=0,si=0;
+      for(let x=0;x<n;x++){
+        const ang=sign*2*Math.PI*v*x/n;
+        sr += src[y*n+x]*Math.cos(ang);
+        si += src[y*n+x]*Math.sin(ang);
+      }
+      re1[y*n+v]=sr; im1[y*n+v]=si;
+    }
+  }
+  // bước 2: DFT theo cột
+  const re=new Float64Array(n*n), im=new Float64Array(n*n);
+  for(let v=0;v<n;v++){
+    for(let u=0;u<n;u++){
+      let sr=0,si=0;
+      for(let y=0;y<n;y++){
+        const ang=sign*2*Math.PI*u*y/n;
+        const cr=Math.cos(ang), ci=Math.sin(ang);
+        const a=re1[y*n+v], b=im1[y*n+v];
+        sr += a*cr - b*ci;
+        si += a*ci + b*cr;
+      }
+      re[u*n+v]=sr; im[u*n+v]=si;
+    }
+  }
+  if(inverse){ for(let i=0;i<n*n;i++){ re[i]/=(n*n); im[i]/=(n*n); } }
+  return {re,im};
+}
+function drawSpectrum(cv, re, im, n){
+  // magnitude log, fftshift để DC vào tâm
+  const mag=new Float64Array(n*n); let mx=0;
+  for(let i=0;i<n*n;i++){ mag[i]=Math.log(1+Math.hypot(re[i],im[i])); if(mag[i]>mx)mx=mx>mag[i]?mx:mag[i]; }
+  const out=new Float64Array(n*n);
+  const h=n/2;
+  for(let u=0;u<n;u++) for(let v=0;v<n;v++){
+    const su=(u+h)%n, sv=(v+h)%n;
+    out[su*n+sv] = 255*mag[u*n+v]/(mx||1);
+  }
+  drawGray(cv, out, n);
+}
+let fMode='none';
+function runFourier(){
+  const n=64;
+  const pat=document.getElementById('f-pattern').value;
+  const radius=+document.getElementById('f-radius').value;
+  document.getElementById('f-rval').textContent=radius;
+  const src=genPattern(pat,n);
+  drawGray(document.getElementById('f-img'), src, n);
+  const {re,im}=dft2d(src,n,false);
+  drawSpectrum(document.getElementById('f-spec'), re, im, n);
+  // áp mặt nạ (tâm DC ở (0,0) trong dữ liệu — khoảng cách vòng quanh)
+  const re2=re.slice(), im2=im.slice();
+  let kept=0, total=n*n;
+  const h=n/2;
+  for(let u=0;u<n;u++) for(let v=0;v<n;v++){
+    const du=Math.min(u,n-u), dv=Math.min(v,n-v);
+    const d=Math.hypot(du,dv);
+    let keep=true;
+    if(fMode==='low') keep = d<=radius;
+    else if(fMode==='high') keep = d>radius;
+    if(keep) kept++; else { re2[u*n+v]=0; im2[u*n+v]=0; }
+  }
+  const recon=idft2dComplex(re2,im2,n);
+  drawGray(document.getElementById('f-recon'), recon, n);
+  const pct=(100*kept/total).toFixed(1);
+  let msg;
+  if(fMode==='none') msg='Không lọc — ảnh tái tạo trùng gốc (DFT khả nghịch).';
+  else if(fMode==='low') msg=`Low-pass: giữ tần số trong bán kính ${radius} (gần DC) → ảnh <b>mờ</b>, mất chi tiết.`;
+  else msg=`High-pass: bỏ tần số thấp → còn lại <b>cạnh/chi tiết</b>, vùng phẳng thành xám.`;
+  document.getElementById('f-read').innerHTML =
+    `${msg}<br>Hệ số giữ lại: <span class="stat">${kept}/${total} (${pct}%)</span>. Tâm phổ = thành phần DC (độ sáng trung bình).`;
+}
+function idft2dComplex(re,im,n){
+  // IDFT 2D separable, trả phần thực (ảnh)
+  // bước cột ngược
+  const re1=new Float64Array(n*n), im1=new Float64Array(n*n);
+  for(let v=0;v<n;v++){
+    for(let y=0;y<n;y++){
+      let sr=0,si=0;
+      for(let u=0;u<n;u++){
+        const ang=2*Math.PI*u*y/n, cr=Math.cos(ang), ci=Math.sin(ang);
+        const a=re[u*n+v], b=im[u*n+v];
+        sr += a*cr - b*ci; si += a*ci + b*cr;
+      }
+      re1[y*n+v]=sr; im1[y*n+v]=si;
+    }
+  }
+  const out=new Float64Array(n*n);
+  for(let y=0;y<n;y++){
+    for(let x=0;x<n;x++){
+      let sr=0;
+      for(let v=0;v<n;v++){
+        const ang=2*Math.PI*v*x/n, cr=Math.cos(ang), ci=Math.sin(ang);
+        sr += re1[y*n+v]*cr - im1[y*n+v]*ci;
+      }
+      out[y*n+x]=clamp(sr/(n*n));
+    }
+  }
+  return out;
+}
+document.querySelectorAll('[data-mode]').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('[data-mode]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); fMode=b.dataset.mode; runFourier();
+  };
+});
+document.getElementById('f-pattern').onchange=runFourier;
+document.getElementById('f-radius').oninput=runFourier;
+
+// ════════════ MODULE 3: JPEG block 8×8 (DCT + lượng tử) ════════════
+// DCT 1D 8-điểm, dùng cho separable trên block
+function dct8(v){
+  const o=new Array(8).fill(0);
+  for(let u=0;u<8;u++){
+    let s=0;
+    for(let x=0;x<8;x++) s+=v[x]*Math.cos((2*x+1)*u*Math.PI/16);
+    o[u]=(u===0?Math.SQRT1_2:1)*0.5*s;
+  }
+  return o;
+}
+function idct8(c){
+  const o=new Array(8).fill(0);
+  for(let x=0;x<8;x++){
+    let s=0;
+    for(let u=0;u<8;u++) s+=(u===0?Math.SQRT1_2:1)*c[u]*Math.cos((2*x+1)*u*Math.PI/16);
+    o[x]=0.5*s;
+  }
+  return o;
+}
+function dct2dBlock(b){ // b: 8x8 → trả 8x8 hệ số (separable)
+  let t=[];
+  for(let y=0;y<8;y++) t.push(dct8(b.slice(y*8,y*8+8)));
+  const out=new Array(64);
+  for(let u=0;u<8;u++){
+    const col=[]; for(let y=0;y<8;y++) col.push(t[y][u]);
+    const c=dct8(col);
+    for(let v=0;v<8;v++) out[v*8+u]=c[v];
+  }
+  return out;
+}
+function idct2dBlock(C){
+  let t=[];
+  for(let v=0;v<8;v++){ const row=[]; for(let u=0;u<8;u++) row.push(C[v*8+u]); t.push(idct8(row)); }
+  const out=new Array(64);
+  for(let u=0;u<8;u++){
+    const col=[]; for(let v=0;v<8;v++) col.push(t[v][u]);
+    const c=idct8(col);
+    for(let y=0;y<8;y++) out[y*8+u]=c[y];
+  }
+  return out;
+}
+function runJpeg(){
+  const n=64, q=+document.getElementById('j-q').value;
+  document.getElementById('j-qval').textContent=q;
+  const pat=document.getElementById('j-pattern').value;
+  let src;
+  if(pat==='photo'){
+    src=new Float64Array(n*n);
+    for(let y=0;y<n;y++) for(let x=0;x<n;x++)
+      src[y*n+x]=clamp(120 + 70*Math.sin(x/9) + 50*Math.cos(y/7) + 40*Math.sin((x+y)/3));
+  } else if(pat==='text'){
+    src=new Float64Array(n*n).fill(235);
+    // vài "chữ" = thanh đen sắc cạnh
+    for(let y=0;y<n;y++) for(let x=0;x<n;x++){
+      const bx=x%16, by=y%24;
+      if((bx<3 && by<18) || (by<3 && bx<10) || (Math.abs(by-9)<2 && bx<8)) src[y*n+x]=25;
+    }
+  } else { src=genPattern('gradient',n); }
+  drawGray(document.getElementById('j-src'), src, n);
+
+  // chuẩn bảng lượng tử: nền tảng tăng theo (u+v), scale bởi q
+  const out=new Float64Array(n*n);
+  let nonZero=0, totalCoef=0;
+  for(let by=0;by<n;by+=8) for(let bx=0;bx<n;bx+=8){
+    const blk=new Array(64);
+    for(let y=0;y<8;y++) for(let x=0;x<8;x++) blk[y*8+x]=src[(by+y)*n+(bx+x)]-128;
+    const C=dct2dBlock(blk);
+    // lượng tử hóa
+    const Cq=new Array(64);
+    for(let v=0;v<8;v++) for(let u=0;u<8;u++){
+      const step = q*(1 + (u+v));   // bước lớn hơn ở tần số cao
+      const idx=v*8+u;
+      const r=Math.round(C[idx]/step);
+      Cq[idx]=r*step;
+      totalCoef++; if(r!==0) nonZero++;
+    }
+    const rec=idct2dBlock(Cq);
+    for(let y=0;y<8;y++) for(let x=0;x<8;x++) out[(by+y)*n+(bx+x)]=clamp(rec[y*8+x]+128);
+  }
+  drawGray(document.getElementById('j-dst'), out, n);
+  const pct=(100*nonZero/totalCoef).toFixed(1);
+  let note = q<=6 ? 'Chất lượng cao — gần như không thấy artifact.'
+           : q<=20 ? 'Bắt đầu lộ <b>blocking</b> nhẹ ở vùng phẳng & gợn quanh cạnh.'
+           : 'Nén mạnh — rõ <b>lưới ô vuông 8×8</b> (blocking) + ringing quanh cạnh sắc.';
+  document.getElementById('j-read').innerHTML =
+    `Hệ số DCT khác 0 (giữ lại): <span class="stat">${nonZero}/${totalCoef} (${pct}%)</span>. `+
+    `q tăng → bước lượng tử lớn → nhiều hệ số tần số cao thành 0 → file nhỏ hơn nhưng mất chi tiết.<br>${note}`;
+}
+document.getElementById('j-pattern').onchange=runJpeg;
+document.getElementById('j-q').oninput=runJpeg;
+
+// ════════════ init ════════════
+runKernel();
+runFourier();
+runJpeg();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

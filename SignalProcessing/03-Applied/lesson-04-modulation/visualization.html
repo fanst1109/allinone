@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 15 — Điều chế (Modulation) Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #0e7490; }
+  h2 {
+    color: #0891b2; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #a5f3fc;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #0e7490; }
+  .ctrl { display: flex; flex-direction: column; gap: 4px; }
+  .ctrl .val { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; color: #0891b2; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  input[type=range] { width: 100%; max-width: 220px; accent-color: #0891b2; }
+  select {
+    font-size: 15px; padding: 7px 10px; border: 1px solid #a5f3fc;
+    border-radius: 4px; background: white; font-family: inherit; color: #0e7490;
+  }
+  button {
+    background: #0891b2; color: white; border: none;
+    padding: 7px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #0e7490; }
+  button.seg { background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc; }
+  button.seg.active { background: #0891b2; color: white; }
+  code {
+    background: #ecfeff; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #0e7490;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  svg { display: block; max-width: 100%; height: auto; }
+  .plot-label { font-size: 12px; fill: #475569; font-family: "SF Mono", Monaco, Consolas, monospace; }
+  .warn {
+    background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b;
+    padding: 10px 14px; border-radius: 4px; margin: 10px 0; font-size: 14px; font-weight: 600;
+  }
+  .ok {
+    background: #ecfdf5; border-left: 4px solid #10b981; color: #065f46;
+    padding: 10px 14px; border-radius: 4px; margin: 10px 0; font-size: 14px;
+  }
+  .readout {
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 14px;
+    background: #f0fdff; border: 1px solid #a5f3fc; border-radius: 6px;
+    padding: 10px 14px; margin: 10px 0; color: #0e7490; line-height: 1.7;
+  }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 768px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-image-2d-fourier/visualization.html">← L14: Ảnh & Fourier 2D</a>
+  <span class="sep">·</span>
+  <span class="current">L15: Điều chế</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-wavelet-preview/visualization.html">L16: Wavelet →</a>
+</nav>
+<main>
+  <h1>Lesson 15 — Điều chế (Modulation: AM / FM / số)</h1>
+  <p>Ba module tương tác: bộ điều biên AM (sóng + phổ + cảnh báo overmodulation), bộ điều tần FM (tần số đặc/thưa + băng thông Carson), và chòm sao điều chế số ASK/FSK/PSK/QAM.</p>
+
+  <!-- ============================== MODULE 1: AM ============================== -->
+  <h2>1. Bộ điều biên AM</h2>
+  <p class="hint">
+    Sóng AM: <code>s(t) = [1 + m·x(t)]·cos(2π·f_c·t)</code>. Chỉnh tần số sóng mang <code>f_c</code> và chỉ số điều chế <code>m</code>. Quan sát đường bao bám hình message; khi <code>m &gt; 1</code> đường bao lật → méo.
+  </p>
+  <div class="card">
+    <div class="row">
+      <div class="ctrl">
+        <label>Message x(t)</label>
+        <select id="amMsg">
+          <option value="sin">Một tông: cos(2π·f_m·t)</option>
+          <option value="sum">Tổng 2 tông: ½cos(f_m) + ½cos(2f_m)</option>
+        </select>
+      </div>
+      <div class="ctrl">
+        <label>Tần số message f_m</label>
+        <input type="range" id="amFm" min="1" max="5" step="1" value="2">
+        <span class="val" id="amFmVal"></span>
+      </div>
+      <div class="ctrl">
+        <label>Tần số sóng mang f_c</label>
+        <input type="range" id="amFc" min="10" max="40" step="2" value="24">
+        <span class="val" id="amFcVal"></span>
+      </div>
+      <div class="ctrl">
+        <label>Chỉ số điều chế m</label>
+        <input type="range" id="amM" min="0.1" max="1.6" step="0.1" value="0.6">
+        <span class="val" id="amMVal"></span>
+      </div>
+    </div>
+    <div id="amStatus"></div>
+    <div class="grid2">
+      <div>
+        <svg id="amWave" viewBox="0 0 520 360" width="520" height="360"></svg>
+      </div>
+      <div>
+        <svg id="amSpec" viewBox="0 0 520 260" width="520" height="260"></svg>
+        <div class="readout" id="amSpecInfo"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================== MODULE 2: FM ============================== -->
+  <h2>2. Bộ điều tần FM</h2>
+  <p class="hint">
+    Sóng FM giữ biên độ cố định, đổi <em>tần số tức thời</em> theo message: message lớn → sóng dày, message âm → sóng thưa. So băng thông Carson <code>2(Δf + f_max)</code> với AM <code>2·f_max</code>.
+  </p>
+  <div class="card">
+    <div class="row">
+      <div class="ctrl">
+        <label>Độ lệch tần Δf</label>
+        <input type="range" id="fmDev" min="1" max="9" step="1" value="4">
+        <span class="val" id="fmDevVal"></span>
+      </div>
+      <div class="ctrl">
+        <label>Tần số message f_m</label>
+        <input type="range" id="fmFm" min="1" max="5" step="1" value="2">
+        <span class="val" id="fmFmVal"></span>
+      </div>
+    </div>
+    <svg id="fmWave" viewBox="0 0 520 280" width="520" height="280"></svg>
+    <div class="readout" id="fmInfo"></div>
+  </div>
+
+  <!-- ============================== MODULE 3: Digital ============================== -->
+  <h2>3. Chòm sao điều chế số</h2>
+  <p class="hint">
+    Chọn kỹ thuật số: ASK/FSK/PSK đổi biên/tần/pha theo bit; QAM kết hợp biên+pha thành lưới điểm. Mỗi điểm chòm sao = một symbol; số bit/symbol = <code>log₂(số điểm)</code>.
+  </p>
+  <div class="card">
+    <div class="row" id="digBtns">
+      <button class="seg" data-k="ASK">ASK</button>
+      <button class="seg" data-k="FSK">FSK</button>
+      <button class="seg" data-k="BPSK">BPSK</button>
+      <button class="seg" data-k="QPSK">QPSK</button>
+      <button class="seg active" data-k="QAM16">16-QAM</button>
+      <button class="seg" data-k="QAM64">64-QAM</button>
+    </div>
+    <div class="grid2">
+      <div>
+        <svg id="constSvg" viewBox="0 0 320 320" width="320" height="320"></svg>
+      </div>
+      <div>
+        <svg id="digWave" viewBox="0 0 480 200" width="480" height="200"></svg>
+        <div class="readout" id="digInfo"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const TAU = Math.PI * 2;
+
+// ───────── helpers ─────────
+function svgEl(tag, attrs) {
+  const e = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+function polyline(svg, pts, color, w) {
+  const p = svgEl("polyline", { points: pts.map(p => p[0].toFixed(1)+","+p[1].toFixed(1)).join(" "),
+    fill: "none", stroke: color, "stroke-width": w || 1.5 });
+  svg.appendChild(p);
+}
+function text(svg, x, y, str, cls) {
+  const t = svgEl("text", { x, y, class: cls || "plot-label" });
+  t.textContent = str; svg.appendChild(t);
+}
+function axis(svg, x0, y0, x1, y1) {
+  svg.appendChild(svgEl("line", { x1: x0, y1: y0, x2: x1, y2: y1, stroke: "#cbd5e1", "stroke-width": 1 }));
+}
+
+// ═══════════════ MODULE 1: AM ═══════════════
+const amMsg = document.getElementById("amMsg");
+const amFm = document.getElementById("amFm"), amFc = document.getElementById("amFc"), amM = document.getElementById("amM");
+
+function messageVal(t, fm, kind) {
+  if (kind === "sum") return 0.5*Math.cos(TAU*fm*t) + 0.5*Math.cos(TAU*2*fm*t);
+  return Math.cos(TAU*fm*t);
+}
+function drawAM() {
+  const fm = +amFm.value, fc = +amFc.value, m = +amM.value, kind = amMsg.value;
+  document.getElementById("amFmVal").textContent = fm + " (đv)";
+  document.getElementById("amFcVal").textContent = fc + " (đv)";
+  document.getElementById("amMVal").textContent = "m = " + m.toFixed(1);
+
+  // status
+  const st = document.getElementById("amStatus");
+  if (m > 1.0) st.innerHTML = '<div class="warn">⚠ Overmodulation (m = '+m.toFixed(1)+' &gt; 1): đường bao 1+m·x(t) chuyển ÂM tại đáy → bao lật → envelope detector méo, sinh splatter lấn đài bên cạnh.</div>';
+  else st.innerHTML = '<div class="ok">✓ m = '+m.toFixed(1)+' ≤ 1: đường bao luôn dương, bám đúng message — envelope detector khôi phục chuẩn.</div>';
+
+  // waveform plot: 3 lanes (message, carrier, AM)
+  const svg = document.getElementById("amWave"); clear(svg);
+  const W = 520, N = 600, T = 1.0;
+  const lanes = [
+    { y0: 60, label: "Message x(t)", fn: t => messageVal(t, fm, kind), color: "#0891b2", amp: 38 },
+    { y0: 160, label: "Sóng mang cos(2π·f_c·t)", fn: t => Math.cos(TAU*fc*t), color: "#94a3b8", amp: 38 },
+    { y0: 290, label: "AM s(t) + đường bao", fn: null, color: "#0e7490", amp: 60 },
+  ];
+  for (const ln of lanes) {
+    axis(svg, 40, ln.y0, W-10, ln.y0);
+    text(svg, 44, ln.y0 - 44, ln.label);
+    if (ln.fn) {
+      const pts = [];
+      for (let i = 0; i <= N; i++) { const t = i/N*T; pts.push([40 + i/N*(W-50), ln.y0 - ln.fn(t)*ln.amp]); }
+      polyline(svg, pts, ln.color, 1.8);
+    }
+  }
+  // AM lane
+  const ln = lanes[2], pts = [], envU = [], envL = [];
+  for (let i = 0; i <= N; i++) {
+    const t = i/N*T, x = messageVal(t, fm, kind), env = 1 + m*x;
+    const px = 40 + i/N*(W-50);
+    pts.push([px, ln.y0 - env*Math.cos(TAU*fc*t)*ln.amp]);
+    envU.push([px, ln.y0 - env*ln.amp]);
+    envL.push([px, ln.y0 + env*ln.amp]);
+  }
+  polyline(svg, pts, ln.color, 1.3);
+  polyline(svg, envU, m > 1 ? "#ef4444" : "#f59e0b", 1.6);
+  polyline(svg, envL, m > 1 ? "#ef4444" : "#f59e0b", 1.6);
+  // zero line for AM to show envelope crossing
+  svg.appendChild(svgEl("line", { x1: 40, y1: ln.y0 - ln.amp, x2: W-10, y2: ln.y0 - ln.amp, stroke: "#e2e8f0", "stroke-width": 0.8, "stroke-dasharray": "3 3" }));
+
+  // spectrum: carrier + sidebands
+  const spec = document.getElementById("amSpec"); clear(spec);
+  const SW = 520, SH = 260, bx = 40, by = 220, fmax = (kind === "sum" ? 2*fm : fm);
+  axis(spec, bx, by, SW-10, by);
+  text(spec, bx, 24, "Phổ AM (vạch tại f_c và f_c ± thành phần message)");
+  text(spec, SW-60, by+18, "f →");
+  // map freq (fc-fmax-1 .. fc+fmax+1) to x
+  const fLo = fc - fmax - 1.5, fHi = fc + fmax + 1.5;
+  const xf = f => bx + (f - fLo)/(fHi - fLo)*(SW - bx - 20);
+  const lines = [{ f: fc, a: 1.0, t: "carrier" }];
+  const comps = kind === "sum" ? [{f:fm,a:0.5},{f:2*fm,a:0.5}] : [{f:fm,a:1.0}];
+  for (const c of comps) {
+    lines.push({ f: fc - c.f, a: m*c.a/2, t: "LSB" });
+    lines.push({ f: fc + c.f, a: m*c.a/2, t: "USB" });
+  }
+  const maxA = 1.0, hMax = 150;
+  for (const L of lines) {
+    const x = xf(L.f), h = Math.min(L.a/maxA, 1.6)*hMax;
+    spec.appendChild(svgEl("line", { x1: x, y1: by, x2: x, y2: by - h,
+      stroke: L.t === "carrier" ? "#0e7490" : "#06b6d4", "stroke-width": 4 }));
+    text(spec, x - 14, by + 16, L.f.toFixed(0));
+  }
+  document.getElementById("amSpecInfo").innerHTML =
+    "Băng thông B_AM = 2·f_max = <b>" + (2*fmax) + "</b> đv tần số.<br>" +
+    "Mỗi dải biên cao <b>m/2·A_comp</b>; carrier cao 1. Đây là phổ message dịch ±f_max quanh f_c (tính chất dịch tần Fourier).";
+}
+[amMsg, amFm, amFc, amM].forEach(el => el.addEventListener("input", drawAM));
+
+// ═══════════════ MODULE 2: FM ═══════════════
+const fmDev = document.getElementById("fmDev"), fmFm = document.getElementById("fmFm");
+function drawFM() {
+  const dev = +fmDev.value, fm = +fmFm.value, fc = 18, fmax = fm;
+  document.getElementById("fmDevVal").textContent = "Δf = " + dev + " (đv)";
+  document.getElementById("fmFmVal").textContent = fm + " (đv)";
+
+  const svg = document.getElementById("fmWave"); clear(svg);
+  const W = 520, N = 700, T = 1.0;
+  // message on top
+  axis(svg, 40, 70, W-10, 70);
+  text(svg, 44, 26, "Message x(t)");
+  const mpts = [];
+  for (let i = 0; i <= N; i++) { const t = i/N*T; mpts.push([40+i/N*(W-50), 70 - Math.cos(TAU*fm*t)*30]); }
+  polyline(svg, mpts, "#0891b2", 1.8);
+  // FM wave (phase = integral of instantaneous freq); beta = dev/fm
+  axis(svg, 40, 200, W-10, 200);
+  text(svg, 44, 156, "Sóng FM (biên độ cố định, tần số đặc/thưa theo message)");
+  const beta = dev/fm, fpts = [];
+  for (let i = 0; i <= N; i++) {
+    const t = i/N*T;
+    const phase = TAU*fc*t + beta*Math.sin(TAU*fm*t);
+    fpts.push([40+i/N*(W-50), 200 - Math.cos(phase)*45]);
+  }
+  polyline(svg, fpts, "#0e7490", 1.6);
+
+  const bFM = 2*(dev + fmax), bAM = 2*fmax;
+  document.getElementById("fmInfo").innerHTML =
+    "β = Δf / f_m = " + dev + "/" + fm + " = <b>" + beta.toFixed(2) + "</b><br>" +
+    "Băng thông Carson B_FM = 2(Δf + f_max) = 2(" + dev + "+" + fmax + ") = <b>" + bFM + "</b> đv<br>" +
+    "AM cùng message: B_AM = 2·f_max = <b>" + bAM + "</b> đv → FM rộng gấp <b>" + (bFM/bAM).toFixed(1) + "×</b>. " +
+    "Đổi lại: FM chống nhiễu biên độ tốt hơn (limiter cắt nhiễu biên).";
+}
+[fmDev, fmFm].forEach(el => el.addEventListener("input", drawFM));
+
+// ═══════════════ MODULE 3: Digital constellation ═══════════════
+const SCHEMES = {
+  ASK:   { pts: [[0,0],[1,0]], bits: 1, desc: "ASK (OOK): bit 0 → tắt sóng (gốc), bit 1 → có sóng. Bản số của AM." },
+  FSK:   { pts: [[-1,0],[1,0]], bits: 1, desc: "FSK: bit 0 → tần số f₀, bit 1 → tần số f₁. Bản số của FM (Bluetooth dùng GFSK)." },
+  BPSK:  { pts: [[-1,0],[1,0]], bits: 1, desc: "BPSK: bit 0 → pha 0°, bit 1 → pha 180°. Bản số của PM. 2 điểm = 1 bit/symbol." },
+  QPSK:  { pts: [[1,1],[-1,1],[-1,-1],[1,-1]], bits: 2, desc: "QPSK: 4 pha (45/135/225/315°) = 2 bit/symbol. Gấp đôi tốc độ BPSK cùng băng thông." },
+  QAM16: { pts: gridPts(4), bits: 4, desc: "16-QAM: lưới 4×4 (biên+pha) = 4 bit/symbol. Cần SNR cao hơn QPSK." },
+  QAM64: { pts: gridPts(8), bits: 6, desc: "64-QAM: lưới 8×8 = 6 bit/symbol. Throughput cao, nhưng điểm sát nhau → nhạy nhiễu." },
+};
+function gridPts(n) {
+  const out = [], step = 2/(n-1);
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) out.push([-1 + i*step, -1 + j*step]);
+  return out;
+}
+let curScheme = "QAM16";
+function drawDigital() {
+  const sc = SCHEMES[curScheme];
+  const svg = document.getElementById("constSvg"); clear(svg);
+  const S = 320, cx = S/2, cy = S/2, R = 120;
+  // axes I/Q
+  axis(svg, 20, cy, S-20, cy); axis(svg, cx, 20, cx, S-20);
+  text(svg, S-30, cy-6, "I"); text(svg, cx+6, 28, "Q");
+  for (const p of sc.pts) {
+    const px = cx + p[0]*R, py = cy - p[1]*R;
+    svg.appendChild(svgEl("circle", { cx: px, cy: py, r: 6, fill: "#0891b2" }));
+  }
+  // waveform: encode bit stream 1011...
+  const wv = document.getElementById("digWave"); clear(wv);
+  const W = 480, N = 480, bitsArr = [1,0,1,1,0,0,1,0], nb = bitsArr.length;
+  axis(wv, 20, 100, W-10, 100);
+  text(wv, 24, 24, "Dạng sóng (bit-stream 10110010)");
+  // bit boundaries
+  for (let b = 0; b <= nb; b++) {
+    const x = 20 + b/nb*(W-30);
+    wv.appendChild(svgEl("line", { x1: x, y1: 40, x2: x, y2: 160, stroke: "#e2e8f0", "stroke-width": 0.8 }));
+    if (b < nb) text(wv, x + (W-30)/nb/2 - 3, 36, bitsArr[b]);
+  }
+  const pts = [];
+  for (let i = 0; i <= N; i++) {
+    const frac = i/N, bIdx = Math.min(nb-1, Math.floor(frac*nb)), bit = bitsArr[bIdx];
+    const fcw = 12; let y;
+    if (curScheme === "ASK") { y = bit ? Math.cos(TAU*fcw*frac)*45 : 0; }
+    else if (curScheme === "FSK") { y = Math.cos(TAU*(bit ? fcw*1.6 : fcw*0.8)*frac)*45; }
+    else { // PSK-like phase flip
+      const ph = bit ? 0 : Math.PI; y = Math.cos(TAU*fcw*frac + ph)*45;
+    }
+    pts.push([20 + frac*(W-30), 100 - y]);
+  }
+  polyline(wv, pts, "#0e7490", 1.4);
+
+  document.getElementById("digInfo").innerHTML =
+    "<b>" + curScheme.replace("QAM16","16-QAM").replace("QAM64","64-QAM") + "</b> · " +
+    sc.pts.length + " điểm chòm sao → <b>" + sc.bits + " bit/symbol</b> (= log₂ " + sc.pts.length + ").<br>" + sc.desc;
+}
+document.getElementById("digBtns").addEventListener("click", e => {
+  if (e.target.dataset.k) {
+    curScheme = e.target.dataset.k;
+    document.querySelectorAll("#digBtns button").forEach(b => b.classList.toggle("active", b === e.target));
+    drawDigital();
+  }
+});
+
+// init
+drawAM(); drawFM(); drawDigital();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

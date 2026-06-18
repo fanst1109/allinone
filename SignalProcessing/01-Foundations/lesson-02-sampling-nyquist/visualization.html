@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Lấy mẫu & Định lý Nyquist</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #0e7490; }
+  h2 {
+    color: #0891b2; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #a5f3fc;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  .ctrl { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  label { font-weight: 600; color: #334155; font-size: 14px; }
+  input[type=range] { width: 100%; max-width: 260px; accent-color: #0891b2; }
+  .val { font-weight: 700; color: #0e7490; font-family: "SF Mono", Monaco, Consolas, monospace; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  code {
+    background: #ecfeff; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #0e7490;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  .readout {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px;
+  }
+  .stat {
+    background: #ecfeff; border: 1px solid #a5f3fc; border-radius: 8px;
+    padding: 8px 14px; min-width: 120px;
+  }
+  .stat .k { font-size: 12px; color: #0891b2; font-weight: 700; }
+  .stat .v {
+    font-size: 18px; font-weight: 700; color: #0e7490;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  .stat.warn { background: #fff1f2; border-color: #fda4af; }
+  .stat.warn .k { color: #be123c; }
+  .stat.warn .v { color: #be123c; }
+  .stat.ok { background: #ecfdf5; border-color: #6ee7b7; }
+  .stat.ok .k { color: #047857; }
+  .stat.ok .v { color: #047857; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; margin: 8px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; color: #475569; }
+  .swatch { width: 18px; height: 4px; border-radius: 2px; display: inline-block; }
+  canvas { background: #fafdff; border: 1px solid #cbd5e1; border-radius: 6px; display: block; max-width: 100%; }
+  .wheel-wrap { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; }
+  .verdict { font-size: 15px; font-weight: 700; margin-top: 8px; }
+  .verdict.ng { color: #be123c; }
+  .verdict.ok { color: #047857; }
+  button {
+    background: #0891b2; color: white; border: none;
+    padding: 8px 14px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #0e7490; }
+  button.sec { background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc; }
+  button.sec:hover { background: #cffafe; }
+  @media (max-width: 480px) {
+    .stat { min-width: 90px; padding: 6px 10px; }
+    .stat .v { font-size: 15px; }
+    .wheel-wrap { gap: 12px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-signals-basics/visualization.html">← L01: Tín hiệu cơ bản</a>
+  <span class="sep">·</span>
+  <span class="current">L02: Lấy mẫu & Nyquist</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-wave-superposition/visualization.html">L03: Tổng hợp sóng →</a>
+</nav>
+<main>
+  <h1>Lesson 02 — Lấy mẫu & Định lý Nyquist</h1>
+  <p>Ba bộ mô phỏng tương tác: lấy mẫu &amp; aliasing trực tiếp trên đồ thị, hiệu ứng bánh xe quay ngược (wagon-wheel), và lượng tử hóa biên độ với SNR. Kéo slider để thấy lý thuyết "động".</p>
+
+  <h2>1. Lấy mẫu &amp; Aliasing — kéo f<sub>s</sub> xuống dưới Nyquist</h2>
+  <p class="hint">Sóng gốc tần số <code id="m1f">f</code>. Khi <code>fs &gt; 2f</code> → tái tạo đúng. Khi <code>fs &lt; 2f</code> → một sóng alias (nét đứt đỏ) đi qua đúng các điểm mẫu, "giả dạng" tần số thấp.</p>
+  <div class="card">
+    <div class="row">
+      <div class="ctrl">
+        <label>Tần số sóng gốc f = <span class="val" id="sigFv">120</span> Hz</label>
+        <input type="range" id="sigF" min="20" max="400" value="120" step="5">
+      </div>
+      <div class="ctrl">
+        <label>Tần số lấy mẫu f<sub>s</sub> = <span class="val" id="fsv">1000</span> Hz</label>
+        <input type="range" id="fs" min="60" max="2000" value="1000" step="20">
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#0891b2"></i> Sóng gốc liên tục</span>
+      <span><i class="swatch" style="background:#f97316;height:8px;border-radius:50%"></i> Điểm lấy mẫu</span>
+      <span><i class="swatch" style="background:#dc2626;border-bottom:2px dashed #dc2626;height:0"></i> Sóng alias (giả dạng)</span>
+    </div>
+    <canvas id="sampCanvas" width="900" height="320"></canvas>
+    <div class="readout" id="sampStats"></div>
+  </div>
+
+  <h2>2. Bánh xe quay ngược (wagon-wheel effect)</h2>
+  <p class="hint">Camera chụp <code id="m2fs">fs</code> khung/giây một bánh xe quay <code id="m2rot">rot</code> vòng/giây. Khi tốc độ quay vượt Nyquist của camera (fs/2), bánh xe trông như đứng yên hoặc quay ngược — đó là aliasing trong miền không gian.</p>
+  <div class="card">
+    <div class="row">
+      <div class="ctrl">
+        <label>Tốc độ quay thật = <span class="val" id="rotv">10</span> vòng/giây</label>
+        <input type="range" id="rot" min="-30" max="30" value="10" step="1">
+      </div>
+      <div class="ctrl">
+        <label>Khung hình camera f<sub>s</sub> = <span class="val" id="camv">24</span> /giây</label>
+        <input type="range" id="cam" min="6" max="60" value="24" step="1">
+      </div>
+      <button id="wheelToggle">⏸ Tạm dừng</button>
+    </div>
+    <div class="wheel-wrap">
+      <div>
+        <div class="hint">Thực tế</div>
+        <canvas id="wheelReal" width="200" height="200"></canvas>
+      </div>
+      <div>
+        <div class="hint">Trên phim (đã lấy mẫu)</div>
+        <canvas id="wheelSeen" width="200" height="200"></canvas>
+      </div>
+      <div style="flex:1; min-width:200px;">
+        <div class="readout" id="wheelStats"></div>
+        <div class="verdict" id="wheelVerdict"></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>3. Lượng tử hóa — số bit, bậc thang &amp; SNR</h2>
+  <p class="hint">Sóng liên tục bị làm tròn về <code id="m3lv">L</code> mức rời rạc (bậc thang xanh lá). Càng nhiều bit → bậc càng mịn → SNR càng cao (≈ 6.02·N + 1.76 dB).</p>
+  <div class="card">
+    <div class="row">
+      <div class="ctrl">
+        <label>Số bit N = <span class="val" id="bitsv">3</span></label>
+        <input type="range" id="bits" min="1" max="8" value="3" step="1">
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#0891b2"></i> Sóng liên tục</span>
+      <span><i class="swatch" style="background:#16a34a"></i> Tín hiệu đã lượng tử (bậc thang)</span>
+    </div>
+    <canvas id="quantCanvas" width="900" height="320"></canvas>
+    <div class="readout" id="quantStats"></div>
+  </div>
+
+</main>
+
+<script>
+// ── Module 1: Sampling & Aliasing ───────────────────────────────────────────
+(function(){
+  const cv = document.getElementById('sampCanvas');
+  const ctx = cv.getContext('2d');
+  const sigF = document.getElementById('sigF'), fs = document.getElementById('fs');
+  const stats = document.getElementById('sampStats');
+  const W = cv.width, H = cv.height, mid = H/2, amp = H*0.36;
+  const dur = 0.05; // 50 ms window
+
+  function aliasFreq(f, fsv){
+    const k = Math.round(f / fsv);
+    return Math.abs(f - fsv * k);
+  }
+  function draw(){
+    const f = +sigF.value, fsv = +fs.value;
+    document.getElementById('sigFv').textContent = f;
+    document.getElementById('fsv').textContent = fsv;
+    document.getElementById('m1f').textContent = f + ' Hz';
+    ctx.clearRect(0,0,W,H);
+    // axis
+    ctx.strokeStyle = '#e2e8f0'; ctx.beginPath(); ctx.moveTo(0,mid); ctx.lineTo(W,mid); ctx.stroke();
+    // original wave
+    ctx.strokeStyle = '#0891b2'; ctx.lineWidth = 2; ctx.beginPath();
+    for(let px=0; px<=W; px++){
+      const t = (px/W)*dur;
+      const y = mid - amp*Math.sin(2*Math.PI*f*t);
+      px===0 ? ctx.moveTo(px,y) : ctx.lineTo(px,y);
+    }
+    ctx.stroke();
+    // sample points
+    const Ts = 1/fsv;
+    const samples = [];
+    ctx.fillStyle = '#f97316';
+    for(let t=0; t<=dur+1e-9; t+=Ts){
+      const px = (t/dur)*W;
+      const v = Math.sin(2*Math.PI*f*t);
+      const y = mid - amp*v;
+      samples.push({t, v});
+      ctx.beginPath(); ctx.arc(px, y, 4, 0, 2*Math.PI); ctx.fill();
+      ctx.strokeStyle = '#fdba74'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(px, mid); ctx.lineTo(px, y); ctx.stroke();
+    }
+    const nyq = fsv/2;
+    const aliased = f > nyq;
+    const fa = aliasFreq(f, fsv);
+    // alias reconstructed wave (dashed red) — the low freq the samples appear as
+    if(aliased){
+      // Vẽ sóng alias tần số fa, khớp pha/biên độ với các điểm mẫu bằng bình phương tối thiểu
+      // theo mô hình A·cos + B·sin.
+      ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 2; ctx.setLineDash([7,5]);
+      let A=0,B=0,Saa=0,Sab=0,Sbb=0,Say=0,Sby=0;
+      samples.forEach(s=>{
+        const c=Math.cos(2*Math.PI*fa*s.t), sn=Math.sin(2*Math.PI*fa*s.t);
+        Saa+=c*c; Sab+=c*sn; Sbb+=sn*sn; Say+=c*s.v; Sby+=sn*s.v;
+      });
+      const det = Saa*Sbb - Sab*Sab;
+      if(Math.abs(det)>1e-9){ A=(Say*Sbb-Sby*Sab)/det; B=(Saa*Sby-Sab*Say)/det; }
+      else { A=0; B=1; }
+      ctx.beginPath();
+      for(let px=0; px<=W; px++){
+        const t=(px/W)*dur;
+        const v=A*Math.cos(2*Math.PI*fa*t)+B*Math.sin(2*Math.PI*fa*t);
+        const y=mid-amp*v;
+        px===0?ctx.moveTo(px,y):ctx.lineTo(px,y);
+      }
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+    // stats
+    stats.innerHTML =
+      `<div class="stat"><div class="k">Tần số Nyquist fs/2</div><div class="v">${nyq} Hz</div></div>` +
+      `<div class="stat"><div class="k">Mẫu / chu kỳ</div><div class="v">${(fsv/f).toFixed(2)}</div></div>` +
+      (aliased
+        ? `<div class="stat warn"><div class="k">⚠ ALIASING — f &gt; fs/2</div><div class="v">giả thành ${fa.toFixed(0)} Hz</div></div>`
+        : `<div class="stat ok"><div class="k">✓ Nyquist thỏa</div><div class="v">tái tạo đúng</div></div>`);
+  }
+  sigF.oninput = draw; fs.oninput = draw; draw();
+})();
+
+// ── Module 2: Wagon-wheel ────────────────────────────────────────────────────
+(function(){
+  const cR = document.getElementById('wheelReal').getContext('2d');
+  const cS = document.getElementById('wheelSeen').getContext('2d');
+  const rot = document.getElementById('rot'), cam = document.getElementById('cam');
+  const stats = document.getElementById('wheelStats'), verdict = document.getElementById('wheelVerdict');
+  const toggle = document.getElementById('wheelToggle');
+  const SPOKES = 6, R = 80, cx = 100, cy = 100;
+  let running = true, t0 = performance.now();
+
+  function drawWheel(ctx, angle){
+    ctx.clearRect(0,0,200,200);
+    ctx.strokeStyle = '#94a3b8'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.arc(cx,cy,R,0,2*Math.PI); ctx.stroke();
+    ctx.fillStyle='#0e7490'; ctx.beginPath(); ctx.arc(cx,cy,6,0,2*Math.PI); ctx.fill();
+    for(let i=0;i<SPOKES;i++){
+      const a = angle + i*2*Math.PI/SPOKES;
+      ctx.strokeStyle = i===0 ? '#dc2626' : '#0891b2';
+      ctx.lineWidth = i===0 ? 4 : 2;
+      ctx.beginPath(); ctx.moveTo(cx,cy);
+      ctx.lineTo(cx+R*Math.cos(a), cy+R*Math.sin(a)); ctx.stroke();
+    }
+  }
+  function apparentRot(real, fsv){
+    const k = Math.round(real / fsv);
+    return real - fsv*k; // can be negative
+  }
+  function frame(now){
+    const real = +rot.value, fsv = +cam.value;
+    document.getElementById('rotv').textContent = real;
+    document.getElementById('camv').textContent = fsv;
+    document.getElementById('m2fs').textContent = fsv + ' khung/s';
+    document.getElementById('m2rot').textContent = real + ' vòng/s';
+    const elapsed = (now - t0)/1000;
+    const realAngle = 2*Math.PI*real*elapsed;
+    drawWheel(cR, realAngle);
+    // seen: angle advances only at frame instants -> use apparent freq
+    const app = apparentRot(real, fsv);
+    const seenAngle = 2*Math.PI*app*elapsed;
+    drawWheel(cS, seenAngle);
+    const nyq = fsv/2;
+    stats.innerHTML =
+      `<div class="stat"><div class="k">Nyquist camera</div><div class="v">${nyq} v/s</div></div>` +
+      `<div class="stat ${Math.abs(real)>nyq?'warn':'ok'}"><div class="k">Tốc độ biểu kiến</div><div class="v">${app.toFixed(1)} v/s</div></div>`;
+    if(Math.abs(real) > nyq){
+      verdict.className='verdict ng';
+      verdict.textContent = app < -0.05 ? '⚠ Trông như QUAY NGƯỢC!' : (Math.abs(app)<0.05 ? '⚠ Trông như ĐỨNG YÊN!' : '⚠ Aliasing: tốc độ sai');
+    } else {
+      verdict.className='verdict ok';
+      verdict.textContent = '✓ Trong giới hạn Nyquist — quay đúng';
+    }
+    if(running) requestAnimationFrame(frame);
+  }
+  toggle.onclick = ()=>{
+    running = !running;
+    toggle.textContent = running ? '⏸ Tạm dừng' : '▶ Chạy';
+    if(running){ t0 = performance.now(); requestAnimationFrame(frame); }
+  };
+  rot.oninput = ()=>{ if(!running) frame(performance.now()); };
+  cam.oninput = ()=>{ if(!running) frame(performance.now()); };
+  requestAnimationFrame(frame);
+})();
+
+// ── Module 3: Quantization ───────────────────────────────────────────────────
+(function(){
+  const cv = document.getElementById('quantCanvas');
+  const ctx = cv.getContext('2d');
+  const bits = document.getElementById('bits');
+  const stats = document.getElementById('quantStats');
+  const W = cv.width, H = cv.height, mid = H/2, amp = H*0.38;
+  const f = 2; // 2 cycles across window
+
+  function draw(){
+    const N = +bits.value, L = Math.pow(2,N);
+    document.getElementById('bitsv').textContent = N;
+    document.getElementById('m3lv').textContent = L + ' mức';
+    ctx.clearRect(0,0,W,H);
+    // level grid lines
+    ctx.strokeStyle='#eef2f7'; ctx.lineWidth=1;
+    for(let i=0;i<=L;i++){
+      const y = mid - amp + (2*amp)*(i/L);
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+    }
+    // continuous wave
+    ctx.strokeStyle='#0891b2'; ctx.lineWidth=2; ctx.beginPath();
+    for(let px=0;px<=W;px++){
+      const v=Math.sin(2*Math.PI*f*(px/W));
+      const y=mid-amp*v;
+      px===0?ctx.moveTo(px,y):ctx.lineTo(px,y);
+    }
+    ctx.stroke();
+    // quantized staircase + error accumulation
+    ctx.strokeStyle='#16a34a'; ctx.lineWidth=2; ctx.beginPath();
+    let sumSqErr=0, cnt=0;
+    let prevY=null;
+    for(let px=0;px<=W;px++){
+      const v=Math.sin(2*Math.PI*f*(px/W)); // [-1,1]
+      const norm=(v+1)/2; // [0,1]
+      const q=Math.round(norm*(L-1))/(L-1); // quantized [0,1]
+      const qv=q*2-1;
+      sumSqErr += (v-qv)*(v-qv); cnt++;
+      const y=mid-amp*qv;
+      if(prevY!==null){ ctx.lineTo(px,prevY); }
+      px===0?ctx.moveTo(px,y):ctx.lineTo(px,y);
+      prevY=y;
+    }
+    ctx.stroke();
+    const snr = 6.02*N + 1.76;
+    const rmsErr = Math.sqrt(sumSqErr/cnt);
+    const step = 2/L;
+    stats.innerHTML =
+      `<div class="stat"><div class="k">Số mức L = 2^N</div><div class="v">${L}</div></div>` +
+      `<div class="stat"><div class="k">Bước Δ (dải 2)</div><div class="v">${step.toFixed(4)}</div></div>` +
+      `<div class="stat ${N>=12?'ok':(N<=4?'warn':'')}"><div class="k">SNR ≈ 6.02N+1.76</div><div class="v">${snr.toFixed(1)} dB</div></div>` +
+      `<div class="stat"><div class="k">RMS sai số</div><div class="v">${rmsErr.toFixed(4)}</div></div>`;
+  }
+  bits.oninput = draw; draw();
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

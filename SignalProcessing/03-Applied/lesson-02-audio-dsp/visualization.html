@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 13 — Audio DSP Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #0e7490; }
+  h2 {
+    color: #0891b2; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #a5f3fc;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .lead { color: #475569; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #334155; }
+  .hint { color: #64748b; font-size: 13px; margin: 6px 0; }
+  code {
+    background: #ecfeff; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #0e7490;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  canvas {
+    background: #f8fafc; border: 1px solid #cbd5e0; border-radius: 6px;
+    display: block; width: 100%; height: auto;
+  }
+  button {
+    background: #0891b2; color: white; border: none;
+    padding: 8px 14px; border-radius: 5px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #0e7490; }
+  button.preset {
+    background: #ecfeff; color: #0e7490; font-size: 12px;
+    padding: 5px 11px; margin: 3px 4px 3px 0; border: 1px solid #a5f3fc;
+  }
+  button.preset:hover { background: #cffafe; }
+  button.audio { background: #155e75; }
+  button.audio:hover { background: #0e7490; }
+
+  /* slider blocks */
+  .sliders { display: flex; gap: 18px; flex-wrap: wrap; }
+  .slider-block {
+    display: flex; flex-direction: column; align-items: center;
+    min-width: 78px; flex: 1 1 78px; max-width: 130px;
+  }
+  .slider-block input[type=range] { writing-mode: vertical-lr; direction: rtl; height: 120px; width: 28px; }
+  .slider-block .sname { font-size: 12px; font-weight: 700; color: #0e7490; margin-bottom: 4px; text-align: center; }
+  .slider-block .sval { font-size: 12px; color: #475569; margin-top: 4px; font-family: monospace; }
+
+  .ctrl { display: flex; flex-direction: column; gap: 4px; min-width: 200px; flex: 1 1 200px; max-width: 320px; }
+  .ctrl input[type=range] { width: 100%; }
+  .ctrl .cval { font-family: monospace; color: #0e7490; font-weight: 700; }
+
+  .readout {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #0f172a; color: #67e8f9; padding: 10px 14px;
+    border-radius: 6px; font-size: 13px; line-height: 1.7;
+    overflow-x: auto; white-space: pre;
+  }
+  .tag { display:inline-block; background:#cffafe; color:#0e7490; font-size:12px; font-weight:700; padding:2px 8px; border-radius:10px; }
+  .warn { color: #b45309; font-weight: 600; }
+  table.num { border-collapse: collapse; font-family: monospace; font-size: 13px; margin: 8px 0; }
+  table.num th, table.num td { border: 1px solid #cbd5e0; padding: 4px 10px; text-align: center; }
+  table.num th { background: #ecfeff; color: #0e7490; }
+
+  .wrap { overflow-x: auto; }
+
+  @media (max-width: 480px) {
+    .slider-block { min-width: 58px; flex-basis: 58px; }
+    .slider-block input[type=range] { height: 96px; }
+    .ctrl { min-width: 0; flex-basis: 100%; max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-digital-filters/visualization.html">← L12: Lọc số</a>
+  <span class="sep">·</span>
+  <span class="current">L13: Audio DSP</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-image-2d-fourier/visualization.html">L14: Ảnh & Fourier 2D →</a>
+</nav>
+<main>
+  <h1>🔊 Audio DSP — Xử lý âm thanh số</h1>
+  <p class="lead">Âm thanh chỉ là một dãy số (mẫu). Mọi hiệu ứng — equalizer, echo/vang, chipmunk — đều là phép cộng/nhân/trễ trên dãy đó. Ba module dưới đây cho bạn chỉnh tham số và xem (nghe nếu trình duyệt hỗ trợ) kết quả trực tiếp.</p>
+  <p class="hint">Đồ thị canvas luôn hoạt động. Nút <strong>▶ Nghe</strong> dùng Web Audio API — nếu trình duyệt chặn sẽ báo lỗi nhẹ, không ảnh hưởng đồ thị.</p>
+
+  <!-- ════════════════ MODULE A — EQ ════════════════ -->
+  <h2>A. Equalizer (EQ) — chỉnh gain từng băng tần</h2>
+  <div class="card">
+    <p class="hint">Tín hiệu vào = tổng của 6 sóng sin ở các tần số (100 Hz … 8 kHz), biên độ bằng nhau. Mỗi slider chỉnh gain (dB) một băng. Đồ thị: <strong>phổ trước</strong> (xám) vs <strong>sau EQ</strong> (cyan). Vạch đỏ = full-scale; vượt vạch → clipping.</p>
+    <div class="row sliders" id="eqSliders"></div>
+    <div class="row">
+      <span class="hint">Preset:</span>
+      <button class="preset" data-eq="flat">Flat</button>
+      <button class="preset" data-eq="bass">Bass boost</button>
+      <button class="preset" data-eq="treble">Treble cut</button>
+      <button class="preset" data-eq="phone">Telephone</button>
+      <button class="preset" data-eq="smile">Smile (chữ U)</button>
+    </div>
+    <canvas id="eqCanvas" width="760" height="300"></canvas>
+    <div class="readout" id="eqReadout"></div>
+    <div class="row">
+      <button class="audio" id="eqPlay">▶ Nghe EQ (2.5s)</button>
+      <span class="hint" id="eqAudioStatus"></span>
+    </div>
+  </div>
+
+  <!-- ════════════════ MODULE B — ECHO/REVERB ════════════════ -->
+  <h2>B. Echo & Reverb — delay D và feedback α</h2>
+  <div class="card">
+    <p class="hint">Vào một xung "click". <strong>FIR</strong>: <code>y[n]=x[n]+α·x[n−D]</code> → một tiếng vọng. <strong>IIR</strong>: <code>y[n]=x[n]+α·y[n−D]</code> → chuỗi vọng nhỏ dần. Đồ thị vẽ các bản sao mờ dần; bảng liệt kê vài mẫu đầu.</p>
+    <div class="row">
+      <label><input type="radio" name="echoType" value="fir" checked> FIR (1 vọng)</label>
+      <label><input type="radio" name="echoType" value="iir"> IIR (vọng vô hạn)</label>
+    </div>
+    <div class="row">
+      <div class="ctrl">
+        <label>Trễ D = <span class="cval" id="echoDval">6</span> mẫu</label>
+        <input type="range" id="echoD" min="2" max="20" value="6">
+      </div>
+      <div class="ctrl">
+        <label>Feedback α = <span class="cval" id="echoAval">0.60</span></label>
+        <input type="range" id="echoA" min="0" max="120" value="60">
+      </div>
+    </div>
+    <canvas id="echoCanvas" width="760" height="240"></canvas>
+    <div class="readout" id="echoReadout"></div>
+    <div class="wrap"><div id="echoTable"></div></div>
+    <div class="row">
+      <button class="audio" id="echoPlay">▶ Nghe echo (tone ngắn)</button>
+      <span class="hint" id="echoAudioStatus"></span>
+    </div>
+  </div>
+
+  <!-- ════════════════ MODULE C — PITCH/SPEED ════════════════ -->
+  <h2>C. Pitch & Speed — resample đổi cao độ</h2>
+  <div class="card">
+    <p class="hint">Một sóng sin gốc. Kéo tỉ lệ resample <code>r</code>: phát "nhanh hơn ×r" → cao độ ×r <strong>và</strong> thời lượng ÷r (dính nhau, đây là chipmunk khi r&gt;1). Đồ thị so sánh sóng gốc và sóng đã resample trong cùng cửa sổ thời gian.</p>
+    <div class="row">
+      <div class="ctrl">
+        <label>Tỉ lệ resample r = <span class="cval" id="pitchRval">1.50</span></label>
+        <input type="range" id="pitchR" min="50" max="250" value="150">
+      </div>
+      <span class="hint">Preset:</span>
+      <button class="preset" data-r="50">Chậm/trầm (0.5×)</button>
+      <button class="preset" data-r="100">Gốc (1×)</button>
+      <button class="preset" data-r="200">Chipmunk (2×)</button>
+    </div>
+    <canvas id="pitchCanvas" width="760" height="240"></canvas>
+    <div class="readout" id="pitchReadout"></div>
+    <div class="row">
+      <button class="audio" id="pitchPlayOrig">▶ Gốc</button>
+      <button class="audio" id="pitchPlayRes">▶ Resample (×r)</button>
+      <span class="hint" id="pitchAudioStatus"></span>
+    </div>
+  </div>
+
+  <p class="hint">📖 Toàn bộ lý thuyết, walk-through số và bài tập có lời giải nằm trong README — bấm nút "Đọc README" góc phải.</p>
+</main>
+
+<script>
+// ════════════════════════ Web Audio helper (guarded) ════════════════════════
+let _ac = null;
+function audioCtx() {
+  if (_ac) return _ac;
+  try {
+    const C = window.AudioContext || window.webkitAudioContext;
+    if (!C) return null;
+    _ac = new C();
+  } catch (e) { _ac = null; }
+  return _ac;
+}
+function setStatus(id, msg, ok) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.color = ok ? '#0891b2' : '#b45309';
+}
+
+// ════════════════════════ MODULE A — EQ ════════════════════════
+const EQ_BANDS = [
+  { name: 'Low\n100Hz', f: 100 },
+  { name: '300Hz', f: 300 },
+  { name: '1kHz', f: 1000 },
+  { name: '3kHz', f: 3000 },
+  { name: '6kHz', f: 6000 },
+  { name: 'High\n8kHz', f: 8000 },
+];
+const EQ_PRESETS = {
+  flat:   [0, 0, 0, 0, 0, 0],
+  bass:   [9, 5, 0, 0, 0, 0],
+  treble: [0, 0, 0, -3, -6, -9],
+  phone:  [-20, -6, 6, 4, -8, -22],
+  smile:  [8, 3, -4, -4, 3, 8],
+};
+let eqGains = EQ_PRESETS.flat.slice();
+const IN_AMP = 0.35; // biên độ mỗi band đầu vào
+
+function buildEqSliders() {
+  const wrap = document.getElementById('eqSliders');
+  wrap.innerHTML = '';
+  EQ_BANDS.forEach((b, i) => {
+    const div = document.createElement('div');
+    div.className = 'slider-block';
+    div.innerHTML =
+      '<div class="sname">' + b.name.replace('\n', '<br>') + '</div>' +
+      '<input type="range" min="-24" max="12" value="' + eqGains[i] + '" data-i="' + i + '">' +
+      '<div class="sval" id="eqsv' + i + '">' + fmtDb(eqGains[i]) + '</div>';
+    wrap.appendChild(div);
+  });
+  wrap.querySelectorAll('input[type=range]').forEach(inp => {
+    inp.oninput = () => {
+      const i = +inp.dataset.i;
+      eqGains[i] = +inp.value;
+      document.getElementById('eqsv' + i).textContent = fmtDb(eqGains[i]);
+      drawEq();
+    };
+  });
+}
+function fmtDb(d) { return (d > 0 ? '+' : '') + d + ' dB'; }
+function dbToLin(d) { return Math.pow(10, d / 20); }
+
+function drawEq() {
+  const cv = document.getElementById('eqCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  ctx.clearRect(0, 0, W, H);
+  const padL = 44, padB = 38, padT = 16, padR = 16;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const maxAmp = 1.05;
+  const y0 = padT + plotH;
+  // full-scale line at amp=1.0
+  const yClip = y0 - (1.0 / maxAmp) * plotH;
+  ctx.strokeStyle = '#ef4444'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(padL, yClip); ctx.lineTo(W - padR, yClip); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#ef4444'; ctx.font = '11px monospace';
+  ctx.fillText('full-scale 1.0', padL + 4, yClip - 4);
+  // axis
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, y0); ctx.lineTo(W - padR, y0); ctx.stroke();
+  ctx.fillStyle = '#475569';
+  ctx.fillText('biên độ', 4, padT + 8);
+
+  const n = EQ_BANDS.length;
+  const slot = plotW / n;
+  const barW = slot * 0.32;
+  let clipAny = false;
+  EQ_BANDS.forEach((b, i) => {
+    const cx = padL + slot * (i + 0.5);
+    const outAmp = IN_AMP * dbToLin(eqGains[i]);
+    // input bar (grey)
+    const hIn = (IN_AMP / maxAmp) * plotH;
+    ctx.fillStyle = '#cbd5e0';
+    ctx.fillRect(cx - barW - 3, y0 - hIn, barW, hIn);
+    // output bar (cyan / red if clip)
+    const clip = outAmp > 1.0;
+    if (clip) clipAny = true;
+    const hOut = (Math.min(outAmp, maxAmp) / maxAmp) * plotH;
+    ctx.fillStyle = clip ? '#ef4444' : '#0891b2';
+    ctx.fillRect(cx + 3, y0 - hOut, barW, hOut);
+    // label
+    ctx.fillStyle = '#334155'; ctx.font = '11px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(b.f >= 1000 ? (b.f/1000)+'k' : b.f, cx, y0 + 14);
+    ctx.fillText(fmtDb(eqGains[i]), cx, y0 + 28);
+    ctx.textAlign = 'left';
+  });
+  // legend
+  ctx.font = '12px monospace';
+  ctx.fillStyle = '#94a3b8'; ctx.fillText('▮ vào', W - 150, padT + 10);
+  ctx.fillStyle = '#0891b2'; ctx.fillText('▮ ra (EQ)', W - 90, padT + 10);
+
+  // readout
+  let lines = 'Gain (dB) → hệ số tuyến tính → biên độ ra (vào = ' + IN_AMP.toFixed(2) + '):\n';
+  EQ_BANDS.forEach((b, i) => {
+    const lin = dbToLin(eqGains[i]);
+    const out = IN_AMP * lin;
+    lines += '  ' + (b.f >= 1000 ? (b.f/1000)+'kHz' : b.f+'Hz').padEnd(7) +
+      ' ' + fmtDb(eqGains[i]).padStart(7) +
+      ' → ×' + lin.toFixed(3) +
+      ' → ' + out.toFixed(3) + (out > 1.0 ? '  ⚠ CLIP' : '') + '\n';
+  });
+  if (clipAny) lines += '⚠ Có băng vượt full-scale → tín hiệu sẽ rè (xem README §6).';
+  document.getElementById('eqReadout').textContent = lines;
+}
+
+document.querySelectorAll('button[data-eq]').forEach(btn => {
+  btn.onclick = () => { eqGains = EQ_PRESETS[btn.dataset.eq].slice(); buildEqSliders(); drawEq(); };
+});
+
+document.getElementById('eqPlay').onclick = () => {
+  const ac = audioCtx();
+  if (!ac) { setStatus('eqAudioStatus', 'Trình duyệt không hỗ trợ Web Audio — đồ thị vẫn dùng được.', false); return; }
+  ac.resume();
+  const dur = 2.5, now = ac.currentTime;
+  const master = ac.createGain();
+  master.gain.value = 0.9; master.connect(ac.destination);
+  EQ_BANDS.forEach((b, i) => {
+    const osc = ac.createOscillator();
+    osc.type = 'sine'; osc.frequency.value = b.f;
+    const g = ac.createGain();
+    // clamp để không vỡ loa, nhưng phản ánh gain tương đối
+    g.gain.value = Math.min(IN_AMP * dbToLin(eqGains[i]), 0.5);
+    osc.connect(g); g.connect(master);
+    osc.start(now); osc.stop(now + dur);
+  });
+  setStatus('eqAudioStatus', '♪ đang phát tổng 6 sóng sin đã EQ...', true);
+};
+
+// ════════════════════════ MODULE B — ECHO/REVERB ════════════════════════
+const ECHO_N = 60;
+function echoType() { return document.querySelector('input[name=echoType]:checked').value; }
+function computeEcho() {
+  const D = +document.getElementById('echoD').value;
+  const a = +document.getElementById('echoA').value / 100;
+  const x = new Array(ECHO_N).fill(0); x[0] = 1; // click
+  const y = new Array(ECHO_N).fill(0);
+  const type = echoType();
+  for (let n = 0; n < ECHO_N; n++) {
+    if (type === 'fir') {
+      y[n] = x[n] + (n - D >= 0 ? a * x[n - D] : 0);
+    } else {
+      y[n] = x[n] + (n - D >= 0 ? a * y[n - D] : 0);
+    }
+  }
+  return { D, a, x, y, type };
+}
+function drawEcho() {
+  const { D, a, y, type } = computeEcho();
+  document.getElementById('echoDval').textContent = D;
+  document.getElementById('echoAval').textContent = a.toFixed(2);
+  const cv = document.getElementById('echoCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  ctx.clearRect(0, 0, W, H);
+  const padL = 30, padB = 24, padT = 16, padR = 16;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const mid = padT + plotH; // baseline at bottom (amplitudes positive)
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(padL, mid); ctx.lineTo(W - padR, mid); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, mid); ctx.stroke();
+  const step = plotW / ECHO_N;
+  for (let n = 0; n < ECHO_N; n++) {
+    const xx = padL + step * n + step / 2;
+    const amp = y[n];
+    if (Math.abs(amp) < 1e-6) continue;
+    const hh = Math.min(Math.abs(amp), 1.05) / 1.05 * plotH;
+    // first sample (the original click) cyan, echoes fade
+    ctx.fillStyle = (n === 0) ? '#0e7490' : 'rgba(8,145,178,' + (0.35 + 0.6 * Math.min(amp,1)) + ')';
+    ctx.fillRect(xx - step * 0.3, mid - hh, step * 0.6, hh);
+  }
+  ctx.fillStyle = '#475569'; ctx.font = '11px monospace';
+  ctx.fillText('n →', W - padR - 24, mid + 16);
+  ctx.fillText('|y[n]|', 2, padT + 8);
+
+  // readout
+  const eq = type === 'fir' ? 'y[n] = x[n] + α·x[n−D]  (FIR)' : 'y[n] = x[n] + α·y[n−D]  (IIR)';
+  let lines = eq + '\n  D = ' + D + ' mẫu, α = ' + a.toFixed(2) + '\n';
+  if (type === 'iir') {
+    lines += a >= 1
+      ? '  ⚠ α ≥ 1 → đuôi vang KHÔNG tắt, phình to → runaway/clip (README §3.2).'
+      : '  đuôi vang giảm cấp số nhân, công bội α=' + a.toFixed(2) + ', tắt dần.';
+  } else {
+    lines += '  chỉ MỘT vọng tại n=' + D + ', biên độ α=' + a.toFixed(2) + '.';
+  }
+  document.getElementById('echoReadout').textContent = lines;
+
+  // table first nonzero samples
+  const { x } = computeEcho();
+  let rows = '<table class="num"><tr><th>n</th>';
+  const shown = [];
+  for (let n = 0; n < ECHO_N && shown.length < 9; n++) {
+    if (Math.abs(y[n]) > 1e-6 || n <= D + 1) shown.push(n);
+  }
+  shown.forEach(n => rows += '<th>' + n + '</th>');
+  rows += '</tr><tr><td>x[n]</td>';
+  shown.forEach(n => rows += '<td>' + x[n].toFixed(2) + '</td>');
+  rows += '</tr><tr><td>y[n]</td>';
+  shown.forEach(n => rows += '<td>' + y[n].toFixed(3) + '</td>');
+  rows += '</tr></table>';
+  document.getElementById('echoTable').innerHTML = rows;
+}
+['echoD', 'echoA'].forEach(id => document.getElementById(id).oninput = drawEcho);
+document.querySelectorAll('input[name=echoType]').forEach(r => r.onchange = drawEcho);
+
+document.getElementById('echoPlay').onclick = () => {
+  const ac = audioCtx();
+  if (!ac) { setStatus('echoAudioStatus', 'Không hỗ trợ Web Audio — đồ thị vẫn chạy.', false); return; }
+  ac.resume();
+  const { D, a, type } = computeEcho();
+  const fs = ac.sampleRate;
+  const delaySec = D * 0.05; // map D mẫu-toy sang ~50ms/mẫu cho nghe được
+  const src = ac.createOscillator();
+  src.type = 'triangle'; src.frequency.value = 440;
+  const env = ac.createGain();
+  const now = ac.currentTime;
+  env.gain.setValueAtTime(0.0001, now);
+  env.gain.exponentialRampToValueAtTime(0.4, now + 0.01);
+  env.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+  src.connect(env);
+  const dly = ac.createDelay(2.0); dly.delayTime.value = Math.min(delaySec, 1.9);
+  const fb = ac.createGain(); fb.gain.value = Math.min(a, 0.95);
+  env.connect(ac.destination); // dry
+  env.connect(dly);
+  if (type === 'iir') { dly.connect(fb); fb.connect(dly); } // feedback loop
+  dly.connect(ac.destination);
+  src.start(now); src.stop(now + 0.2);
+  setStatus('echoAudioStatus', '♪ ' + (type === 'iir' ? 'reverb (feedback)' : 'echo 1 lần') + ' D≈' + (delaySec*1000|0) + 'ms', true);
+};
+
+// ════════════════════════ MODULE C — PITCH/SPEED ════════════════════════
+const BASE_FREQ = 2; // chu kỳ trong cửa sổ (đơn vị trừu tượng)
+function drawPitch() {
+  const r = +document.getElementById('pitchR').value / 100;
+  document.getElementById('pitchRval').textContent = r.toFixed(2);
+  const cv = document.getElementById('pitchCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  ctx.clearRect(0, 0, W, H);
+  const padL = 24, padR = 16, padT = 16, padB = 24;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const midTop = padT + plotH * 0.27, midBot = padT + plotH * 0.78;
+  const amp = plotH * 0.2;
+  function wave(midY, freq, color, label) {
+    ctx.strokeStyle = '#cbd5e0'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, midY); ctx.lineTo(W - padR, midY); ctx.stroke();
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
+    for (let px = 0; px <= plotW; px++) {
+      const t = px / plotW; // 0..1 cùng cửa sổ thời gian
+      const yv = Math.sin(2 * Math.PI * freq * t);
+      const X = padL + px, Y = midY - yv * amp;
+      px === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
+    }
+    ctx.stroke();
+    ctx.fillStyle = color; ctx.font = '12px monospace';
+    ctx.fillText(label, padL + 4, midY - amp - 4);
+  }
+  wave(midTop, BASE_FREQ, '#64748b', 'Gốc — ' + BASE_FREQ + ' chu kỳ/cửa sổ');
+  wave(midBot, BASE_FREQ * r, '#0891b2', 'Resample ×' + r.toFixed(2) + ' — ' + (BASE_FREQ * r).toFixed(1) + ' chu kỳ/cửa sổ');
+
+  const f0 = 440;
+  const fNew = f0 * r;
+  const semis = 12 * Math.log2(r);
+  let lines = 'Sample sin gốc ' + f0 + ' Hz, resample r = ' + r.toFixed(2) + ':\n';
+  lines += '  cao độ mới = r × ' + f0 + ' = ' + fNew.toFixed(1) + ' Hz';
+  lines += '  (' + (semis >= 0 ? '+' : '') + semis.toFixed(2) + ' semitone)\n';
+  lines += '  thời lượng mới = T/r = ' + (100 / r).toFixed(1) + '% so với gốc\n';
+  if (Math.abs(r - 2) < 0.02) lines += '  → r=2: +1 quãng tám, dài bằng nửa (chipmunk).';
+  else if (r > 1) lines += '  → cao hơn & ngắn hơn (cao độ và tốc độ DÍNH nhau).';
+  else if (r < 1) lines += '  → trầm hơn & dài hơn.';
+  else lines += '  → r=1: không đổi.';
+  document.getElementById('pitchReadout').textContent = lines;
+}
+document.getElementById('pitchR').oninput = drawPitch;
+document.querySelectorAll('button[data-r]').forEach(btn => {
+  btn.onclick = () => { document.getElementById('pitchR').value = btn.dataset.r; drawPitch(); };
+});
+function playTone(freq, dur, label) {
+  const ac = audioCtx();
+  if (!ac) { setStatus('pitchAudioStatus', 'Không hỗ trợ Web Audio — đồ thị vẫn chạy.', false); return; }
+  ac.resume();
+  const osc = ac.createOscillator(); osc.type = 'sawtooth'; osc.frequency.value = freq;
+  const g = ac.createGain(); const now = ac.currentTime;
+  g.gain.setValueAtTime(0.0001, now);
+  g.gain.exponentialRampToValueAtTime(0.3, now + 0.02);
+  g.gain.setValueAtTime(0.3, now + dur - 0.05);
+  g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+  osc.connect(g); g.connect(ac.destination);
+  osc.start(now); osc.stop(now + dur);
+  setStatus('pitchAudioStatus', '♪ ' + label + ' — ' + freq.toFixed(0) + ' Hz, ' + dur.toFixed(2) + 's', true);
+}
+document.getElementById('pitchPlayOrig').onclick = () => playTone(440, 1.0, 'gốc');
+document.getElementById('pitchPlayRes').onclick = () => {
+  const r = +document.getElementById('pitchR').value / 100;
+  // resample: cao độ ×r, thời lượng /r (dính nhau)
+  playTone(440 * r, 1.0 / r, 'resample ×' + r.toFixed(2));
+};
+
+// ════════════════════════ INIT ════════════════════════
+buildEqSliders();
+drawEq();
+drawEcho();
+drawPitch();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

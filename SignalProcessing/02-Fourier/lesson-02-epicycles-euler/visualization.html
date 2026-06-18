@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L07 — Epicycle & Fourier phức</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #0e7490; }
+  h2 {
+    color: #0891b2; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #a5f3fc;
+  }
+  p.lead { color: #475569; max-width: 70ch; }
+  .card {
+    background: white; border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #334155; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  .readout {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; color: #0e7490; background: #ecfeff;
+    padding: 6px 12px; border-radius: 6px; display: inline-block;
+  }
+  code {
+    background: #ecfeff; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #0e7490;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  button {
+    background: #0891b2; color: white; border: none;
+    padding: 8px 14px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #0e7490; }
+  button.preset {
+    background: #cffafe; color: #0e7490; font-size: 13px;
+    padding: 6px 12px; margin: 3px 4px 3px 0;
+  }
+  button.preset:hover { background: #a5f3fc; }
+  button.preset.active { background: #0891b2; color: white; }
+  input[type=range] { accent-color: #0891b2; max-width: 100%; }
+  canvas { background: #0b1220; border-radius: 10px; display: block; max-width: 100%; height: auto; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 768px) { .grid2 { grid-template-columns: 1fr; } }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .stat { background: #f0fdff; border: 1px solid #a5f3fc; border-radius: 8px; padding: 10px 12px; }
+  .stat .k { font-size: 12px; color: #64748b; }
+  .stat .v { font-size: 18px; font-weight: 700; color: #0e7490; font-family: "SF Mono", Monaco, Consolas, monospace; }
+  .legend { font-size: 13px; color: #64748b; margin-top: 8px; }
+  .legend .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: middle; margin: 0 4px 0 10px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-fourier-series/visualization.html">← L06: Chuỗi Fourier</a>
+  <span class="sep">·</span>
+  <span class="current">L07: Epicycle & Euler</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-fourier-transform/visualization.html">L08: Biến đổi Fourier →</a>
+</nav>
+<main>
+  <h1>Epicycle & Fourier phức — vẽ mọi hình bằng vòng tròn quay</h1>
+  <p class="lead">
+    Mỗi số hạng <code>c_n·e^(inω₀t)</code> của chuỗi Fourier phức là một <b>vector quay (phasor)</b>:
+    bán kính <code>|c_n|</code>, pha đầu <code>arg(c_n)</code>, tốc độ quay <code>n</code>.
+    Nối đuôi chúng lại — đầu mút cây bút vẽ ra hình. Kéo slider <b>N</b> để thêm vòng và xem hình sắc nét dần.
+  </p>
+
+  <!-- ───────────────── Module 1: Epicycle drawing machine ───────────────── -->
+  <h2>1. Cỗ máy vẽ epicycle</h2>
+  <div class="card">
+    <div class="row">
+      <span style="font-weight:600;color:#334155">Hình:</span>
+      <button class="preset" data-shape="square">Sóng vuông</button>
+      <button class="preset" data-shape="saw">Sóng răng cưa</button>
+      <button class="preset" data-shape="heart">❤ Trái tim (khép kín)</button>
+      <button class="preset" data-shape="pi">π (chữ)</button>
+    </div>
+    <div class="row">
+      <label>Số vòng tròn N: <span id="nVal" class="readout">0</span></label>
+      <input type="range" id="nSlider" min="1" max="80" value="12" style="flex:1; min-width:200px;">
+    </div>
+    <div class="row">
+      <button id="playBtn">⏸ Tạm dừng</button>
+      <label>Tốc độ: <span id="spdVal" class="readout">1.0×</span></label>
+      <input type="range" id="spdSlider" min="0" max="100" value="35" style="width:160px;">
+      <button id="clearBtn" class="preset">Xoá vệt</button>
+    </div>
+    <div class="grid2">
+      <div>
+        <canvas id="epiCanvas" width="540" height="540"></canvas>
+        <div class="legend">
+          <span class="sw" style="background:#22d3ee"></span> vòng tròn quay
+          <span class="sw" style="background:#fbbf24"></span> đầu mút (cây bút)
+          <span class="sw" style="background:#34d399"></span> vệt hình
+        </div>
+      </div>
+      <div>
+        <div class="stat-grid">
+          <div class="stat"><div class="k">Số vòng đang vẽ</div><div class="v" id="stN">—</div></div>
+          <div class="stat"><div class="k">t (chu kỳ)</div><div class="v" id="stT">—</div></div>
+          <div class="stat"><div class="k">Vòng to nhất |c_n|</div><div class="v" id="stMax">—</div></div>
+          <div class="stat"><div class="k">Sai số ≈</div><div class="v" id="stErr">—</div></div>
+        </div>
+        <p class="hint" style="margin-top:14px">
+          Vòng to ở ngoài (tần số thấp) dựng khung hình; vòng tí xíu ở trong (tần số cao)
+          thêm chi tiết. Giảm <b>N</b> → các góc bị bo tròn, hình mờ. Tăng <b>N</b> → hình bám sát.
+          Đây chính là ý nghĩa của <b>phổ |c_n|</b> ở module 3: cột cao = vòng to = đóng góp nhiều.
+        </p>
+        <p class="hint">
+          Tổng đầu mút: <code>P(t) = Σ c_n·e^(inω₀t)</code> với <code>ω₀ = 2π</code> (chu kỳ T = 1).
+          Hệ số <code>c_n</code> lấy bằng DFT của hình mục tiêu.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────────── Module 2: Phasor Euler ───────────────── -->
+  <h2>2. Một phasor đơn — Euler e^(iθ) = cosθ + i·sinθ</h2>
+  <div class="card">
+    <p class="hint">
+      Một vector quay bán kính 1. Bóng chiếu lên trục ngang là <b>cosθ</b>, lên trục dọc là <b>sinθ</b>.
+      Một cây kim quay mã hoá đồng thời cả cos lẫn sin.
+    </p>
+    <div class="row">
+      <label>Góc θ: <span id="thVal" class="readout">0.00 rad</span></label>
+      <input type="range" id="thSlider" min="0" max="628" value="55" style="flex:1; min-width:200px;">
+      <button id="thPlay" class="preset">▶ Tự quay</button>
+    </div>
+    <div class="grid2">
+      <div><canvas id="phasorCanvas" width="420" height="420"></canvas></div>
+      <div>
+        <div class="stat-grid">
+          <div class="stat"><div class="k">θ</div><div class="v" id="pTh">—</div></div>
+          <div class="stat"><div class="k">cos θ (Re)</div><div class="v" id="pCos">—</div></div>
+          <div class="stat"><div class="k">sin θ (Im)</div><div class="v" id="pSin">—</div></div>
+          <div class="stat"><div class="k">e^(iθ)</div><div class="v" id="pZ">—</div></div>
+        </div>
+        <p class="hint" style="margin-top:14px">
+          Tại θ = 0 → e^(iθ) = 1 (bên phải). θ = π/2 → i (đỉnh). θ = π → −1 (trái). θ = 3π/2 → −i (đáy).
+          Đường sin/cos bên dưới là "bóng" của mũi kim trượt theo thời gian — gốc của mọi sóng.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────────── Module 3: Spectrum ───────────────── -->
+  <h2>3. Phổ |c_n| — đồng bộ với cỗ máy đang chạy</h2>
+  <div class="card">
+    <p class="hint">
+      Cột chiều cao <code>|c_n|</code> theo tần số <code>n</code>. Cột đang được epicycle dùng (≤ N)
+      sáng màu; cột bị cắt bỏ thì mờ. Cắt cột thấp = <b>nén</b> hình mà mắt gần như không thấy khác.
+    </p>
+    <canvas id="specCanvas" width="900" height="280"></canvas>
+    <div class="legend">
+      <span class="sw" style="background:#22d3ee"></span> tần số đang dùng (≤ N)
+      <span class="sw" style="background:#334155"></span> tần số bị cắt bỏ &nbsp;·&nbsp;
+      trục ngang: n (gồm cả n âm) &nbsp;·&nbsp; trục dọc: |c_n|
+    </div>
+  </div>
+
+  <p class="hint" style="margin-top:24px">
+    Mở <b>📖 README</b> để xem lý thuyết đầy đủ: công thức Euler, chuỗi Fourier phức, vì sao có tần số âm,
+    quan hệ <code>c_n ↔ a_n,b_n</code>, và 6 bài tập có lời giải.
+  </p>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+//  Tiện ích số phức: {re, im}
+// ════════════════════════════════════════════════════════════════════════════
+const TAU = Math.PI * 2;
+function cadd(a, b) { return { re: a.re + b.re, im: a.im + b.im }; }
+function cmul(a, b) { return { re: a.re*b.re - a.im*b.im, im: a.re*b.im + a.im*b.re }; }
+function cabs(a) { return Math.hypot(a.re, a.im); }
+function carg(a) { return Math.atan2(a.im, a.re); }
+function expi(t) { return { re: Math.cos(t), im: Math.sin(t) }; }
+
+// ════════════════════════════════════════════════════════════════════════════
+//  Sinh điểm mẫu cho từng hình (trả về mảng {re, im}, đã chuẩn hoá vào ~[-1,1])
+// ════════════════════════════════════════════════════════════════════════════
+const SAMPLES = 256;
+
+function shapeSamples(name) {
+  const pts = [];
+  if (name === 'square') {
+    for (let k = 0; k < SAMPLES; k++) {
+      const t = k / SAMPLES;            // x = t (chạy ngang), y = ±0.6 (sóng vuông)
+      const x = (t - 0.5) * 1.6;
+      const y = t < 0.5 ? 0.55 : -0.55;
+      pts.push({ re: x, im: y });
+    }
+  } else if (name === 'saw') {
+    for (let k = 0; k < SAMPLES; k++) {
+      const t = k / SAMPLES;
+      const x = (t - 0.5) * 1.6;
+      const y = (t - 0.5) * 1.1;        // răng cưa: tuyến tính rồi nhảy
+      pts.push({ re: x, im: y });
+    }
+  } else if (name === 'heart') {
+    for (let k = 0; k < SAMPLES; k++) {
+      const a = (k / SAMPLES) * TAU;
+      const x = 16 * Math.pow(Math.sin(a), 3);
+      const y = 13*Math.cos(a) - 5*Math.cos(2*a) - 2*Math.cos(3*a) - Math.cos(4*a);
+      pts.push({ re: x / 17, im: y / 17 });   // chuẩn hoá
+    }
+  } else if (name === 'pi') {
+    // Chữ π khép kín: nét ngang trên + hai chân, đi rồi về thành vòng kín
+    const path = [
+      [-0.7,0.6],[0.7,0.6],[0.7,0.45],[0.32,0.45],
+      [0.32,-0.6],[0.12,-0.6],[0.12,0.45],
+      [-0.28,0.45],[-0.42,-0.6],[-0.62,-0.6],[-0.46,0.45],
+      [-0.7,0.45],[-0.7,0.6]
+    ];
+    // nội suy đều dọc theo path khép kín
+    const segLen = [];
+    let total = 0;
+    for (let i = 0; i < path.length-1; i++) {
+      const d = Math.hypot(path[i+1][0]-path[i][0], path[i+1][1]-path[i][1]);
+      segLen.push(d); total += d;
+    }
+    for (let k = 0; k < SAMPLES; k++) {
+      let dist = (k / SAMPLES) * total, i = 0;
+      while (i < segLen.length && dist > segLen[i]) { dist -= segLen[i]; i++; }
+      if (i >= segLen.length) i = segLen.length - 1;
+      const f = segLen[i] ? dist / segLen[i] : 0;
+      const x = path[i][0] + (path[i+1][0]-path[i][0]) * f;
+      const y = path[i][1] + (path[i+1][1]-path[i][1]) * f;
+      pts.push({ re: x, im: y });
+    }
+  }
+  return pts;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  DFT → hệ số c_n. Trả về mảng {freq, c:{re,im}, amp, phase} sắp theo amp giảm
+// ════════════════════════════════════════════════════════════════════════════
+function dft(samples) {
+  const N = samples.length;
+  const out = [];
+  for (let k = 0; k < N; k++) {
+    let sum = { re: 0, im: 0 };
+    for (let j = 0; j < N; j++) {
+      const ang = -TAU * k * j / N;
+      sum = cadd(sum, cmul(samples[j], expi(ang)));
+    }
+    sum.re /= N; sum.im /= N;
+    // tần số n: ánh xạ 0..N-1 sang -N/2..N/2 để có cả n âm
+    const freq = k <= N/2 ? k : k - N;
+    out.push({ freq, c: sum, amp: cabs(sum), phase: carg(sum) });
+  }
+  out.sort((a, b) => b.amp - a.amp);   // vòng to nhất trước
+  return out;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  Trạng thái chung
+// ════════════════════════════════════════════════════════════════════════════
+let coeffs = [];          // DFT đầy đủ, đã sort theo amp
+let time = 0;             // pha thời gian, 0..TAU
+let history = [];         // vệt đầu mút
+let running = true;
+let curShape = 'heart';
+let N = 12;
+let speed = 1;
+
+function rebuild(shape) {
+  curShape = shape;
+  coeffs = dft(shapeSamples(shape));
+  history = [];
+  time = 0;
+  document.querySelectorAll('.preset[data-shape]').forEach(b =>
+    b.classList.toggle('active', b.dataset.shape === shape));
+  drawSpectrum();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  Module 1: vẽ epicycle
+// ════════════════════════════════════════════════════════════════════════════
+const ec = document.getElementById('epiCanvas');
+const ectx = ec.getContext('2d');
+
+function drawEpicycles() {
+  const W = ec.width, H = ec.height;
+  ectx.clearRect(0, 0, W, H);
+  ectx.fillStyle = '#0b1220';
+  ectx.fillRect(0, 0, W, H);
+
+  const cx = W * 0.5, cy = H * 0.5;
+  const SCALE = W * 0.32;                  // hệ số phóng (samples ~[-1,1])
+  const use = Math.min(N, coeffs.length);
+
+  let x = cx, y = cy;
+  // vẽ chuỗi vòng tròn nối đuôi
+  for (let i = 0; i < use; i++) {
+    const { c, freq, amp } = coeffs[i];
+    const px = x, py = y;
+    const r = amp * SCALE;
+    const ang = freq * time + carg(c);     // pha tích luỹ theo thời gian
+    x += r * Math.cos(ang);
+    y += r * Math.sin(ang);
+    if (r > 0.6) {
+      ectx.beginPath();
+      ectx.strokeStyle = 'rgba(34,211,238,0.30)';
+      ectx.lineWidth = 1;
+      ectx.arc(px, py, r, 0, TAU);
+      ectx.stroke();
+      ectx.beginPath();
+      ectx.strokeStyle = 'rgba(125,211,252,0.65)';
+      ectx.moveTo(px, py);
+      ectx.lineTo(x, y);
+      ectx.stroke();
+    }
+  }
+
+  // lưu vệt
+  history.unshift({ x, y });
+  if (history.length > SAMPLES + 4) history.pop();
+
+  // vẽ vệt hình
+  ectx.beginPath();
+  ectx.strokeStyle = '#34d399';
+  ectx.lineWidth = 2.4;
+  for (let i = 0; i < history.length; i++) {
+    const p = history[i];
+    if (i === 0) ectx.moveTo(p.x, p.y); else ectx.lineTo(p.x, p.y);
+  }
+  ectx.stroke();
+
+  // đầu mút (cây bút)
+  ectx.beginPath();
+  ectx.fillStyle = '#fbbf24';
+  ectx.arc(x, y, 4.5, 0, TAU);
+  ectx.fill();
+
+  // readouts
+  document.getElementById('stN').textContent = use;
+  document.getElementById('stT').textContent = (time / TAU).toFixed(3);
+  document.getElementById('stMax').textContent = coeffs.length ? coeffs[0].amp.toFixed(3) : '—';
+  // sai số xấp xỉ: tổng amp các vòng bị bỏ
+  let dropped = 0;
+  for (let i = use; i < coeffs.length; i++) dropped += coeffs[i].amp;
+  document.getElementById('stErr').textContent = dropped.toFixed(3);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  Module 2: phasor Euler
+// ════════════════════════════════════════════════════════════════════════════
+const pc = document.getElementById('phasorCanvas');
+const pctx = pc.getContext('2d');
+let theta = 0.55, thetaAuto = false;
+
+function drawPhasor() {
+  const W = pc.width, H = pc.height;
+  pctx.clearRect(0, 0, W, H);
+  pctx.fillStyle = '#0b1220';
+  pctx.fillRect(0, 0, W, H);
+
+  const cx = W * 0.36, cy = H * 0.42, R = W * 0.27;
+
+  // trục
+  pctx.strokeStyle = 'rgba(148,163,184,0.4)'; pctx.lineWidth = 1;
+  pctx.beginPath(); pctx.moveTo(cx - R - 14, cy); pctx.lineTo(cx + R + 14, cy); pctx.stroke();
+  pctx.beginPath(); pctx.moveTo(cx, cy - R - 14); pctx.lineTo(cx, cy + R + 14); pctx.stroke();
+
+  // đường tròn đơn vị
+  pctx.beginPath(); pctx.strokeStyle = 'rgba(34,211,238,0.45)'; pctx.lineWidth = 1.5;
+  pctx.arc(cx, cy, R, 0, TAU); pctx.stroke();
+
+  const px = cx + R * Math.cos(theta);
+  const py = cy - R * Math.sin(theta);   // canvas y lật
+
+  // bóng chiếu
+  pctx.strokeStyle = 'rgba(251,191,36,0.5)'; pctx.setLineDash([4,4]);
+  pctx.beginPath(); pctx.moveTo(px, py); pctx.lineTo(px, cy); pctx.stroke();   // ->cos
+  pctx.beginPath(); pctx.moveTo(px, py); pctx.lineTo(cx, py); pctx.stroke();   // ->sin
+  pctx.setLineDash([]);
+
+  // vector quay
+  pctx.strokeStyle = '#22d3ee'; pctx.lineWidth = 2.5;
+  pctx.beginPath(); pctx.moveTo(cx, cy); pctx.lineTo(px, py); pctx.stroke();
+  pctx.fillStyle = '#fbbf24'; pctx.beginPath(); pctx.arc(px, py, 5, 0, TAU); pctx.fill();
+
+  // điểm cos trên trục x, sin trên trục y
+  pctx.fillStyle = '#34d399';
+  pctx.beginPath(); pctx.arc(px, cy, 4, 0, TAU); pctx.fill();   // cos
+  pctx.beginPath(); pctx.arc(cx, py, 4, 0, TAU); pctx.fill();   // sin
+
+  // mini đồ thị sin/cos chạy bên phải
+  const gx = W * 0.74, gw = W * 0.22, gy = cy, ga = R * 0.9;
+  pctx.strokeStyle = 'rgba(148,163,184,0.3)';
+  pctx.beginPath(); pctx.moveTo(gx, gy - ga - 8); pctx.lineTo(gx, gy + ga + 8); pctx.stroke();
+  pctx.strokeStyle = '#34d399'; pctx.lineWidth = 2; pctx.beginPath();
+  for (let s = 0; s <= 80; s++) {
+    const a = theta - (s/80)*TAU;
+    const yy = gy - Math.sin(a) * ga;
+    const xx = gx + (s/80)*gw;
+    if (s===0) pctx.moveTo(xx, yy); else pctx.lineTo(xx, yy);
+  }
+  pctx.stroke();
+
+  document.getElementById('pTh').textContent = theta.toFixed(2);
+  document.getElementById('pCos').textContent = Math.cos(theta).toFixed(3);
+  document.getElementById('pSin').textContent = Math.sin(theta).toFixed(3);
+  document.getElementById('pZ').textContent =
+    Math.cos(theta).toFixed(2) + (Math.sin(theta) >= 0 ? '+' : '−') + Math.abs(Math.sin(theta)).toFixed(2) + 'i';
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  Module 3: phổ |c_n|
+// ════════════════════════════════════════════════════════════════════════════
+const sc = document.getElementById('specCanvas');
+const sctx = sc.getContext('2d');
+
+function drawSpectrum() {
+  const W = sc.width, H = sc.height;
+  sctx.clearRect(0, 0, W, H);
+  sctx.fillStyle = '#0b1220'; sctx.fillRect(0, 0, W, H);
+
+  // lấy các thành phần freq trong dải hiển thị, bỏ DC trội để thấy rõ
+  const RANGE = 30;
+  const byFreq = {};
+  coeffs.forEach(c => { byFreq[c.freq] = c.amp; });
+  // tập tần số dùng (≤N theo thứ tự amp) để tô sáng
+  const usedFreqs = new Set(coeffs.slice(0, Math.min(N, coeffs.length)).map(c => c.freq));
+
+  let maxAmp = 0;
+  for (let f = -RANGE; f <= RANGE; f++) if (f !== 0 && byFreq[f]) maxAmp = Math.max(maxAmp, byFreq[f]);
+  if (maxAmp === 0) maxAmp = 1;
+
+  const mid = H - 28, cxc = W / 2;
+  const bw = W / (2 * RANGE + 1) * 0.7;
+  const step = W / (2 * RANGE + 1);
+
+  // trục
+  sctx.strokeStyle = 'rgba(148,163,184,0.35)';
+  sctx.beginPath(); sctx.moveTo(0, mid); sctx.lineTo(W, mid); sctx.stroke();
+
+  for (let f = -RANGE; f <= RANGE; f++) {
+    const amp = byFreq[f] || 0;
+    if (f === 0 || amp === 0) continue;
+    const x = cxc + f * step - bw/2;
+    const h = (amp / maxAmp) * (H - 60);
+    sctx.fillStyle = usedFreqs.has(f) ? '#22d3ee' : '#334155';
+    sctx.fillRect(x, mid - h, bw, h);
+  }
+
+  // nhãn trục
+  sctx.fillStyle = '#94a3b8'; sctx.font = '12px monospace'; sctx.textAlign = 'center';
+  [-RANGE, -15, 0, 15, RANGE].forEach(f => {
+    sctx.fillText('n=' + f, cxc + f * step, mid + 18);
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  Vòng lặp hoạt hình
+// ════════════════════════════════════════════════════════════════════════════
+function loop() {
+  if (running) {
+    time += (TAU / SAMPLES) * speed;
+    if (time >= TAU) { time -= TAU; history = []; }
+    drawEpicycles();
+    drawSpectrum();   // đồng bộ vùng sáng theo N
+  }
+  if (thetaAuto) { theta += 0.02; if (theta > TAU) theta -= TAU; drawPhasor(); }
+  requestAnimationFrame(loop);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  Sự kiện UI
+// ════════════════════════════════════════════════════════════════════════════
+document.querySelectorAll('.preset[data-shape]').forEach(b => {
+  b.onclick = () => rebuild(b.dataset.shape);
+});
+
+const nSlider = document.getElementById('nSlider');
+nSlider.oninput = () => { N = +nSlider.value; document.getElementById('nVal').textContent = N; history = []; };
+
+const spdSlider = document.getElementById('spdSlider');
+spdSlider.oninput = () => {
+  speed = (+spdSlider.value / 100) * 3;       // 0..3×
+  document.getElementById('spdVal').textContent = speed.toFixed(1) + '×';
+};
+
+document.getElementById('playBtn').onclick = (e) => {
+  running = !running;
+  e.target.textContent = running ? '⏸ Tạm dừng' : '▶ Tiếp tục';
+};
+document.getElementById('clearBtn').onclick = () => { history = []; };
+
+const thSlider = document.getElementById('thSlider');
+thSlider.oninput = () => {
+  theta = +thSlider.value / 100; thetaAuto = false;
+  document.getElementById('thVal').textContent = theta.toFixed(2) + ' rad';
+  drawPhasor();
+};
+document.getElementById('thPlay').onclick = (e) => {
+  thetaAuto = !thetaAuto;
+  e.target.textContent = thetaAuto ? '⏸ Dừng quay' : '▶ Tự quay';
+};
+
+// init
+N = +nSlider.value; document.getElementById('nVal').textContent = N;
+speed = (+spdSlider.value / 100) * 3; document.getElementById('spdVal').textContent = speed.toFixed(1) + '×';
+document.getElementById('thVal').textContent = theta.toFixed(2) + ' rad';
+rebuild('heart');
+drawPhasor();
+loop();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

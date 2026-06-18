@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Biến đổi Fourier (Fourier Transform)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #0e7490; }
+  h2 {
+    color: #0891b2; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #a5f3fc;
+  }
+  .card {
+    background: white; border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #334155; }
+  .hint { color: #64748b; font-size: 13px; margin: 6px 0; }
+  code {
+    background: #ecfeff; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #0e7490;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  select, input[type="range"] {
+    accent-color: #0891b2;
+  }
+  select {
+    font-size: 15px; padding: 7px 10px;
+    border: 1px solid #a5f3fc; border-radius: 6px;
+    background: white; font-family: inherit;
+  }
+  input[type="range"] { width: 100%; max-width: 260px; }
+  .val-badge {
+    display: inline-block; min-width: 54px; text-align: center;
+    background: #0891b2; color: white; padding: 2px 8px;
+    border-radius: 4px; font-weight: 700; font-size: 13px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+
+  /* two side-by-side plots */
+  .plot-pair {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  .plot-box {
+    background: #f8fafc; border: 1px solid #e2e8f0;
+    border-radius: 8px; padding: 10px;
+  }
+  .plot-box .ptitle {
+    font-weight: 700; color: #0e7490; font-size: 14px; margin-bottom: 4px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  .plot-box canvas { display: block; width: 100%; height: auto; }
+  @media (max-width: 700px) {
+    .plot-pair { grid-template-columns: 1fr; }
+  }
+
+  .readout {
+    background: #ecfeff; border-left: 4px solid #0891b2;
+    padding: 10px 14px; border-radius: 4px; margin-top: 12px;
+    font-size: 14px; color: #155e63; line-height: 1.55;
+  }
+  .readout b { color: #0e7490; }
+  .key { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  .legend { font-size: 12px; color: #64748b; margin-top: 4px; }
+  .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: middle; margin: 0 2px 0 8px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-epicycles-euler/visualization.html">← L07: Epicycle &amp; Euler</a>
+  <span class="sep">·</span>
+  <span class="current">L08: Biến đổi Fourier</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-dft/visualization.html">L09: DFT →</a>
+</nav>
+<main>
+  <h1>Lesson 08 — Biến đổi Fourier (Fourier Transform)</h1>
+  <p>Ba module tương tác: (1) cặp thời gian ↔ tần số với chọn dạng sóng &amp; chỉnh độ rộng — thấy nguyên lý bất định hẹp↔rộng; (2) dịch &amp; scale — pha và độ rộng phổ; (3) định lý tích chập — <code>x*h</code> so với <code>X·H</code> phải trùng nhau.</p>
+
+  <h2>1. Cặp thời gian ↔ tần số (nguyên lý bất định)</h2>
+  <p class="hint">Chọn dạng <code>x(t)</code> và kéo độ rộng. Đồ thị trái là tín hiệu theo thời gian, phải là phổ biên độ <code>|X(f)|</code>. Để ý: kéo cho <b>hẹp trong thời gian</b> ⇒ phổ <b>rộng ra trong tần số</b> (và ngược lại).</p>
+  <div class="card">
+    <div class="row">
+      <label>Dạng x(t):</label>
+      <select id="m1shape">
+        <option value="rect">Xung vuông (rect) ↔ sinc</option>
+        <option value="gauss">Gaussian ↔ Gaussian</option>
+        <option value="cos">Cos ↔ 2 vạch (delta)</option>
+        <option value="double">Xung đôi (double pulse)</option>
+      </select>
+      <label>Độ rộng / tần số: <span class="val-badge" id="m1wval">—</span></label>
+      <input type="range" id="m1w" min="1" max="100" value="40">
+    </div>
+    <div class="plot-pair">
+      <div class="plot-box">
+        <div class="ptitle">x(t) — miền thời gian</div>
+        <canvas id="m1time" width="440" height="220"></canvas>
+      </div>
+      <div class="plot-box">
+        <div class="ptitle">|X(f)| — miền tần số</div>
+        <canvas id="m1freq" width="440" height="220"></canvas>
+      </div>
+    </div>
+    <div class="readout" id="m1read"></div>
+  </div>
+
+  <h2>2. Dịch thời gian &amp; co giãn (pha và độ rộng phổ)</h2>
+  <p class="hint">Một xung Gaussian. <b>Dịch</b> nó trong thời gian → phổ biên độ <code>|X(f)|</code> KHÔNG đổi, nhưng phổ <b>pha</b> nghiêng đi (độ dốc ∝ độ trễ). <b>Scale</b> (co giãn) → phổ phình/co theo nghịch đảo.</p>
+  <div class="card">
+    <div class="row">
+      <label>Dịch t₀: <span class="val-badge" id="m2sval">0.00</span></label>
+      <input type="range" id="m2shift" min="-100" max="100" value="0">
+      <label>Scale a: <span class="val-badge" id="m2aval">1.00</span></label>
+      <input type="range" id="m2scale" min="40" max="260" value="100">
+    </div>
+    <div class="plot-pair">
+      <div class="plot-box">
+        <div class="ptitle">x(t)</div>
+        <canvas id="m2time" width="440" height="200"></canvas>
+      </div>
+      <div class="plot-box">
+        <div class="ptitle">|X(f)| (xanh) &amp; ∠X(f) (cam)</div>
+        <canvas id="m2freq" width="440" height="200"></canvas>
+      </div>
+    </div>
+    <div class="legend"><span class="swatch" style="background:#0891b2"></span>biên độ |X(f)| <span class="swatch" style="background:#ea580c"></span>pha ∠X(f) (−π…π)</div>
+    <div class="readout" id="m2read"></div>
+  </div>
+
+  <h2>3. Định lý tích chập — x*h ↔ X·H</h2>
+  <p class="hint">Chọn tín hiệu <code>x</code> và bộ lọc <code>h</code>. Cột trái: tích chập <b>miền thời gian</b> <code>x*h</code> rồi mới biến đổi Fourier (gọi là FT₁). Cột phải: nhân <b>phổ</b> <code>X·H</code> trực tiếp (FT₂). Hai phổ phải <b>trùng khít</b> — đó là định lý tích chập.</p>
+  <div class="card">
+    <div class="row">
+      <label>x (tín hiệu):</label>
+      <select id="m3x">
+        <option value="cos2">cos 2Hz + cos 9Hz</option>
+        <option value="rect">xung vuông</option>
+        <option value="cos1">cos 4Hz</option>
+      </select>
+      <label>h (bộ lọc):</label>
+      <select id="m3h">
+        <option value="lp">thông thấp (cắt > 5Hz)</option>
+        <option value="hp">thông cao (cắt < 5Hz)</option>
+        <option value="bp">thông dải (3–7Hz)</option>
+      </select>
+    </div>
+    <div class="plot-pair">
+      <div class="plot-box">
+        <div class="ptitle">|FT{ x * h }| — tích chập rồi biến đổi</div>
+        <canvas id="m3a" width="440" height="200"></canvas>
+      </div>
+      <div class="plot-box">
+        <div class="ptitle">|X · H| — nhân phổ trực tiếp</div>
+        <canvas id="m3b" width="440" height="200"></canvas>
+      </div>
+    </div>
+    <div class="readout" id="m3read"></div>
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════
+// Tiện ích vẽ chung
+// ════════════════════════════════════════════════════════════════════
+const CYAN = '#0891b2', ORANGE = '#ea580c', GRID = '#e2e8f0', AXIS = '#94a3b8';
+
+function clear(ctx, w, h) {
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#f8fafc'; ctx.fillRect(0, 0, w, h);
+}
+function axes(ctx, w, h, padL, padB) {
+  ctx.strokeStyle = AXIS; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(padL, 6); ctx.lineTo(padL, h - padB); ctx.lineTo(w - 6, h - padB);
+  ctx.stroke();
+}
+// vẽ đường từ mảng giá trị y trong [ymin,ymax], x đều
+function plotLine(ctx, ys, w, h, padL, padB, ymin, ymax, color) {
+  const n = ys.length;
+  const plotW = w - padL - 8, plotH = h - padB - 8;
+  ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
+  for (let i = 0; i < n; i++) {
+    const x = padL + (i / (n - 1)) * plotW;
+    const y = 6 + plotH - ((ys[i] - ymin) / (ymax - ymin)) * plotH;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+}
+function zeroLine(ctx, w, h, padL, padB, ymin, ymax) {
+  if (ymin < 0 && ymax > 0) {
+    const plotH = h - padB - 8;
+    const y = 6 + plotH - ((0 - ymin) / (ymax - ymin)) * plotH;
+    ctx.strokeStyle = GRID; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w - 6, y); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// MODULE 1: cặp time ↔ freq (uncertainty)
+// ════════════════════════════════════════════════════════════════════
+const m1 = {
+  shape: document.getElementById('m1shape'),
+  w: document.getElementById('m1w'),
+  wval: document.getElementById('m1wval'),
+  time: document.getElementById('m1time').getContext('2d'),
+  freq: document.getElementById('m1freq').getContext('2d'),
+  read: document.getElementById('m1read'),
+};
+const N1 = 220;           // số mẫu thời gian
+const T1 = 4.0;           // cửa sổ thời gian [-2,2] s
+function sinc(u) { return u === 0 ? 1 : Math.sin(Math.PI * u) / (Math.PI * u); }
+
+function m1signal(shape, p) {
+  // trả [tArr, xArr], t trong [-T1/2, T1/2]
+  const t = [], x = [];
+  for (let i = 0; i < N1; i++) {
+    const tt = -T1 / 2 + (i / (N1 - 1)) * T1;
+    t.push(tt); x.push(0);
+  }
+  if (shape === 'rect') {
+    const W = 0.1 + (p / 100) * 1.9;      // độ rộng 0.1..2
+    for (let i = 0; i < N1; i++) x[i] = Math.abs(t[i]) <= W / 2 ? 1 : 0;
+    return [t, x, { W }];
+  }
+  if (shape === 'gauss') {
+    const sig = 0.05 + (p / 100) * 0.6;   // sigma
+    for (let i = 0; i < N1; i++) x[i] = Math.exp(-t[i] * t[i] / (2 * sig * sig));
+    return [t, x, { sig }];
+  }
+  if (shape === 'cos') {
+    const f0 = 1 + (p / 100) * 11;        // tần số 1..12 Hz
+    for (let i = 0; i < N1; i++) x[i] = Math.cos(2 * Math.PI * f0 * t[i]);
+    return [t, x, { f0 }];
+  }
+  // double pulse: 2 xung vuông cách nhau
+  const gap = 0.2 + (p / 100) * 1.4;
+  for (let i = 0; i < N1; i++) {
+    const a = Math.abs(t[i] - gap / 2) <= 0.08 ? 1 : 0;
+    const b = Math.abs(t[i] + gap / 2) <= 0.08 ? 1 : 0;
+    x[i] = a + b;
+  }
+  return [t, x, { gap }];
+}
+
+// DFT số học để dựng |X(f)|, f trong [0, fmax]
+function magSpectrum(t, x, fmax, nf) {
+  const dt = t[1] - t[0], n = x.length, mags = [];
+  for (let k = 0; k < nf; k++) {
+    const f = (k / (nf - 1)) * fmax;
+    let re = 0, im = 0;
+    for (let i = 0; i < n; i++) {
+      const ph = -2 * Math.PI * f * t[i];
+      re += x[i] * Math.cos(ph); im += x[i] * Math.sin(ph);
+    }
+    mags.push(Math.hypot(re, im) * dt);
+  }
+  return mags;
+}
+
+function drawM1() {
+  const shape = m1.shape.value, p = +m1.w.value;
+  const [t, x, info] = m1signal(shape, p);
+  const fmax = 16, nf = 200;
+  const mag = magSpectrum(t, x, fmax, nf);
+
+  // time
+  let tmin = Math.min(...x), tmax = Math.max(...x);
+  if (tmin === tmax) { tmin -= 1; tmax += 1; }
+  const pad = (tmax - tmin) * 0.12; tmin -= pad; tmax += pad;
+  clear(m1.time, 440, 220); axes(m1.time, 440, 220, 30, 22);
+  zeroLine(m1.time, 440, 220, 30, 22, tmin, tmax);
+  plotLine(m1.time, x, 440, 220, 30, 22, tmin, tmax, CYAN);
+
+  // freq
+  const fmaxv = Math.max(...mag) * 1.1 || 1;
+  clear(m1.freq, 440, 220); axes(m1.freq, 440, 220, 30, 22);
+  plotLine(m1.freq, mag, 440, 220, 30, 22, 0, fmaxv, ORANGE);
+
+  // readout
+  let txt = '';
+  if (shape === 'rect') {
+    const W = info.W, z = 1 / W;
+    txt = `Xung vuông rộng <b>W = ${W.toFixed(2)} s</b> → zero đầu của |X(f)| ở <b class="key">f = 1/W = ${z.toFixed(2)} Hz</b>. W nhỏ ⇒ zero xa ⇒ phổ rộng (bất định).`;
+  } else if (shape === 'gauss') {
+    txt = `Gaussian σ = <b>${info.sig.toFixed(3)} s</b>. Phổ cũng Gaussian, độ rộng tần số ∝ <b class="key">1/σ ≈ ${(1 / info.sig).toFixed(2)}</b>. Hẹp thời gian ⇒ rộng tần số.`;
+  } else if (shape === 'cos') {
+    txt = `Cos thuần <b>${info.f0.toFixed(2)} Hz</b> → phổ dồn thành một <b>vạch</b> tại f = ${info.f0.toFixed(2)} Hz (trải vô hạn theo thời gian ⇒ cực hẹp tần số).`;
+  } else {
+    txt = `Xung đôi cách nhau <b>${info.gap.toFixed(2)} s</b> → phổ bị "vân giao thoa" (ripple) chu kỳ <b class="key">1/gap = ${(1 / info.gap).toFixed(2)} Hz</b>. Khoảng cách lớn ⇒ vân dày hơn.`;
+  }
+  m1.read.innerHTML = txt;
+  m1.wval.textContent = ({
+    rect: info.W?.toFixed(2) + 's', gauss: info.sig?.toFixed(2) + 's',
+    cos: info.f0?.toFixed(1) + 'Hz', double: info.gap?.toFixed(2) + 's'
+  })[shape];
+}
+m1.shape.oninput = drawM1; m1.w.oninput = drawM1;
+
+// ════════════════════════════════════════════════════════════════════
+// MODULE 2: dịch & scale
+// ════════════════════════════════════════════════════════════════════
+const m2 = {
+  shift: document.getElementById('m2shift'),
+  scale: document.getElementById('m2scale'),
+  sval: document.getElementById('m2sval'),
+  aval: document.getElementById('m2aval'),
+  time: document.getElementById('m2time').getContext('2d'),
+  freq: document.getElementById('m2freq').getContext('2d'),
+  read: document.getElementById('m2read'),
+};
+const N2 = 220, T2 = 4.0;
+function drawM2() {
+  const t0 = (+m2.shift.value / 100) * 1.0;       // -1..1 s
+  const a = +m2.scale.value / 100;                // 0.4..2.6
+  const sig0 = 0.18;
+  const t = [], x = [];
+  for (let i = 0; i < N2; i++) {
+    const tt = -T2 / 2 + (i / (N2 - 1)) * T2;
+    t.push(tt);
+    const arg = a * (tt - t0);
+    x.push(Math.exp(-arg * arg / (2 * sig0 * sig0)));
+  }
+  // spectrum (giữ phần phức để lấy pha)
+  const dt = t[1] - t[0], fmax = 8, nf = 180, mag = [], ph = [];
+  for (let k = 0; k < nf; k++) {
+    const f = -fmax + (k / (nf - 1)) * 2 * fmax;
+    let re = 0, im = 0;
+    for (let i = 0; i < N2; i++) {
+      const a2 = -2 * Math.PI * f * t[i];
+      re += x[i] * Math.cos(a2); im += x[i] * Math.sin(a2);
+    }
+    re *= dt; im *= dt;
+    mag.push(Math.hypot(re, im));
+    ph.push(Math.atan2(im, re));
+  }
+  // time plot
+  clear(m2.time, 440, 200); axes(m2.time, 440, 200, 30, 22);
+  plotLine(m2.time, x, 440, 200, 30, 22, -0.1, 1.15, CYAN);
+  // freq plot: mag (cyan) + phase (orange) cùng khung
+  clear(m2.freq, 440, 200); axes(m2.freq, 440, 200, 30, 22);
+  const magMax = Math.max(...mag) * 1.1 || 1;
+  // pha scale to [-pi,pi]
+  const phScaled = ph.map(v => (v + Math.PI) / (2 * Math.PI) * magMax); // map vào cùng dải
+  plotLine(m2.freq, phScaled, 440, 200, 30, 22, 0, magMax, ORANGE);
+  plotLine(m2.freq, mag, 440, 200, 30, 22, 0, magMax, CYAN);
+
+  m2.sval.textContent = t0.toFixed(2);
+  m2.aval.textContent = a.toFixed(2);
+  const widthF = 1 / sig0 * a; // độ rộng phổ ~ a/sig0
+  m2.read.innerHTML =
+    `Dịch <b class="key">t₀ = ${t0.toFixed(2)} s</b>: biên độ |X| giữ nguyên, pha nghiêng ∠X(f) = −2πf·t₀ (độ dốc ∝ t₀). ` +
+    `Scale <b class="key">a = ${a.toFixed(2)}</b>: a>1 ⇒ xung hẹp lại, phổ <b>rộng ra</b> (độ rộng ∝ a/σ ≈ ${widthF.toFixed(1)}). Đúng nguyên lý bất định.`;
+}
+m2.shift.oninput = drawM2; m2.scale.oninput = drawM2;
+
+// ════════════════════════════════════════════════════════════════════
+// MODULE 3: định lý tích chập
+// ════════════════════════════════════════════════════════════════════
+const m3 = {
+  xs: document.getElementById('m3x'),
+  hs: document.getElementById('m3h'),
+  a: document.getElementById('m3a').getContext('2d'),
+  b: document.getElementById('m3b').getContext('2d'),
+  read: document.getElementById('m3read'),
+};
+const N3 = 256, T3 = 4.0;             // sampling: dt = T3/N3, fs = N3/T3 = 64 Hz
+function m3xsignal(kind, t) {
+  if (kind === 'cos2') return Math.cos(2 * Math.PI * 2 * t) + Math.cos(2 * Math.PI * 9 * t);
+  if (kind === 'rect') return Math.abs(t - T3 / 2) <= 0.3 ? 1 : 0;
+  return Math.cos(2 * Math.PI * 4 * t);
+}
+function m3Hmask(kind, f) {      // f tuyệt đối (Hz)
+  if (kind === 'lp') return f <= 5 ? 1 : 0;
+  if (kind === 'hp') return f >= 5 ? 1 : 0;
+  return (f >= 3 && f <= 7) ? 1 : 0;   // bp
+}
+// naive DFT (complex) trả {re[],im[]} với tần số bin k -> f = k*fs/N
+function dft(x) {
+  const n = x.length, re = new Array(n).fill(0), im = new Array(n).fill(0);
+  for (let k = 0; k < n; k++) {
+    for (let i = 0; i < n; i++) {
+      const ph = -2 * Math.PI * k * i / n;
+      re[k] += x[i] * Math.cos(ph); im[k] += x[i] * Math.sin(ph);
+    }
+  }
+  return { re, im };
+}
+function idft(re, im) {
+  const n = re.length, out = new Array(n).fill(0);
+  for (let i = 0; i < n; i++) {
+    let s = 0;
+    for (let k = 0; k < n; k++) {
+      const ph = 2 * Math.PI * k * i / n;
+      s += re[k] * Math.cos(ph) - im[k] * Math.sin(ph);
+    }
+    out[i] = s / n;
+  }
+  return out;
+}
+function drawM3() {
+  const fs = N3 / T3;                  // 64 Hz
+  // dựng x[n] và h[n]
+  const x = [], H = { re: [], im: [] };
+  for (let i = 0; i < N3; i++) x.push(m3xsignal(m3.xs.value, (i / N3) * T3));
+  // H(f) là mask thực; H[k] cho bin k (kể cả tần số âm phần nửa trên)
+  for (let k = 0; k < N3; k++) {
+    let f = k * fs / N3; if (f > fs / 2) f -= fs;  // tần số có dấu
+    H.re.push(m3Hmask(m3.hs.value, Math.abs(f))); H.im.push(0);
+  }
+  // h[n] = IDFT(H)  → để tích chập miền thời gian
+  const h = idft(H.re, H.im);
+  // (A) tích chập tròn x*h rồi DFT
+  const conv = new Array(N3).fill(0);
+  for (let n = 0; n < N3; n++) {
+    let s = 0;
+    for (let m = 0; m < N3; m++) s += x[m] * h[(n - m + N3) % N3];
+    conv[n] = s;
+  }
+  const A = dft(conv);
+  // (B) X·H trực tiếp
+  const X = dft(x);
+  const B = { re: [], im: [] };
+  for (let k = 0; k < N3; k++) {
+    B.re.push(X.re[k] * H.re[k] - X.im[k] * H.im[k]);
+    B.im.push(X.re[k] * H.im[k] + X.im[k] * H.re[k]);
+  }
+  // vẽ |.| cho nửa phổ dương 0..fs/2
+  const half = N3 / 2;
+  const magA = [], magB = [];
+  for (let k = 0; k <= half; k++) { magA.push(Math.hypot(A.re[k], A.im[k])); magB.push(Math.hypot(B.re[k], B.im[k])); }
+  const ymax = Math.max(Math.max(...magA), Math.max(...magB)) * 1.1 || 1;
+  clear(m3.a, 440, 200); axes(m3.a, 440, 200, 30, 22);
+  plotLine(m3.a, magA, 440, 200, 30, 22, 0, ymax, CYAN);
+  clear(m3.b, 440, 200); axes(m3.b, 440, 200, 30, 22);
+  plotLine(m3.b, magB, 440, 200, 30, 22, 0, ymax, ORANGE);
+  // sai số lớn nhất giữa 2 cách
+  let maxErr = 0;
+  for (let k = 0; k <= half; k++) maxErr = Math.max(maxErr, Math.abs(magA[k] - magB[k]));
+  const passTxt = magB.map((m, k) => m).filter(m => m > ymax * 0.2).length;
+  m3.read.innerHTML =
+    `Hai phổ trùng khít — sai số tối đa <b class="key">${maxErr.toExponential(1)}</b> (≈ 0, chỉ là làm tròn số). ` +
+    `Đó là định lý tích chập: <b>tích chập miền thời gian (cột trái) = nhân phổ miền tần số (cột phải)</b>. ` +
+    `Bộ lọc chỉ là một mặt nạ H(f) nhân điểm-điểm vào phổ — rẻ hơn nhiều so với trượt-nhân-cộng.`;
+}
+m3.xs.oninput = drawM3; m3.hs.oninput = drawM3;
+
+// init
+drawM1(); drawM2(); drawM3();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

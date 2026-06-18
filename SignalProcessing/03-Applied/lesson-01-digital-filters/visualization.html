@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Lọc số (Digital Filters) Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #0e7490; }
+  h2 {
+    color: #0891b2; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #a5f3fc;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #334155; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0 12px; }
+  code {
+    background: #ecfeff; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #0e7490;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  button {
+    background: #0891b2; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #0e7490; }
+  button.seg { background: #e2e8f0; color: #334155; padding: 7px 14px; }
+  button.seg.active { background: #0891b2; color: white; }
+  select {
+    font-size: 15px; padding: 7px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    background: white; font-family: inherit;
+  }
+  input[type=range] { accent-color: #0891b2; max-width: 220px; width: 100%; }
+  .readout {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; color: #0e7490; font-weight: 700;
+    min-width: 70px; display: inline-block;
+  }
+  canvas { display: block; width: 100%; height: auto; background: #fbfdfe;
+    border: 1px solid #e2e8f0; border-radius: 6px; margin-top: 8px; }
+  .canvas-label { font-size: 12px; color: #64748b; margin: 12px 0 0; font-weight: 600; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+  @media (max-width: 480px) { .stat-grid { grid-template-columns: 1fr; } }
+  .stat {
+    background: #ecfeff; border-left: 4px solid #0891b2;
+    padding: 12px 16px; border-radius: 4px;
+  }
+  .stat .big { font-size: 28px; font-weight: 800; color: #0e7490;
+    font-family: "SF Mono", Monaco, Consolas, monospace; }
+  .stat .lbl { font-size: 13px; color: #64748b; margin-top: 4px; }
+  .note { background: #fffbeb; border-left: 4px solid #f59e0b;
+    padding: 10px 14px; border-radius: 4px; font-size: 14px; color: #713f12; margin-top: 12px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../02-Fourier/lesson-06-spectrogram-stft/visualization.html">← L11: Spectrogram</a>
+  <span class="sep">·</span>
+  <span class="current">L12: Lọc số</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-audio-dsp/visualization.html">L13: Audio DSP →</a>
+</nav>
+<main>
+  <h1>Lesson 01 — Lọc số (Digital Filters: FIR/IIR)</h1>
+  <p>Ba module tương tác: (1) sân chơi lọc tín hiệu đa tần với 4 loại LP/HP/BP/BS,
+     (2) đáp ứng tần số |H(f)| theo bậc filter, (3) so sánh FIR và IIR.
+     Mọi đơn vị tần số chuẩn hóa theo f<sub>s</sub> = 1 (Nyquist = 0.5).</p>
+
+  <h2>1. Filter Playground — cắt băng tần</h2>
+  <p class="hint">Tín hiệu vào = 3 sin (thấp/trung/cao) + nhiễu. Chọn loại lọc và kéo cutoff →
+     xem dạng sóng vào/ra và phổ trước/sau. Băng bị chặn sẽ tụt xuống trong phổ "sau".</p>
+  <div class="card">
+    <div class="row">
+      <label>Loại lọc:</label>
+      <button class="seg active" data-type="LP">Low-pass</button>
+      <button class="seg" data-type="HP">High-pass</button>
+      <button class="seg" data-type="BP">Band-pass</button>
+      <button class="seg" data-type="BS">Band-stop</button>
+    </div>
+    <div class="row">
+      <label id="cutLbl">Cutoff f<sub>c</sub>:</label>
+      <input type="range" id="cut" min="0.02" max="0.48" step="0.005" value="0.15">
+      <span class="readout" id="cutVal">0.150</span>
+      <label id="bwLbl" style="display:none;">Độ rộng dải:</label>
+      <input type="range" id="bw" min="0.02" max="0.2" step="0.005" value="0.08" style="display:none;">
+      <span class="readout" id="bwVal" style="display:none;">0.080</span>
+    </div>
+    <p class="canvas-label">Dạng sóng — vào (xám) vs ra (cyan)</p>
+    <canvas id="wave" width="900" height="220"></canvas>
+    <div class="grid2">
+      <div>
+        <p class="canvas-label">Phổ |X(f)| TRƯỚC lọc</p>
+        <canvas id="specIn" width="440" height="200"></canvas>
+      </div>
+      <div>
+        <p class="canvas-label">Phổ |Y(f)| SAU lọc</p>
+        <canvas id="specOut" width="440" height="200"></canvas>
+      </div>
+    </div>
+    <div class="note" id="pgNote"></div>
+  </div>
+
+  <h2>2. Đáp ứng tần số |H(f)| theo bậc</h2>
+  <p class="hint">FIR low-pass windowed-sinc. Kéo số tap → vùng chuyển hẹp lại, roll-off dốc hơn,
+     tiến dần tới "brick-wall". Đường đứt = cutoff lý tưởng.</p>
+  <div class="card">
+    <div class="row">
+      <label>Số tap (M+1):</label>
+      <input type="range" id="taps" min="5" max="151" step="2" value="21">
+      <span class="readout" id="tapsVal">21</span>
+      <label>Cutoff:</label>
+      <input type="range" id="hcut" min="0.05" max="0.4" step="0.01" value="0.2">
+      <span class="readout" id="hcutVal">0.20</span>
+    </div>
+    <canvas id="hresp" width="900" height="280"></canvas>
+    <div class="stat-grid">
+      <div class="stat"><div class="big" id="hWidth">—</div><div class="lbl">Độ rộng vùng chuyển Δf (xấp xỉ 4/tap)</div></div>
+      <div class="stat"><div class="big" id="hDelay">—</div><div class="lbl">Trễ nhóm M/2 (mẫu)</div></div>
+    </div>
+  </div>
+
+  <h2>3. FIR vs IIR — cùng cutoff, khác kiến trúc</h2>
+  <p class="hint">Cùng một cutoff low-pass. So số hệ số và dạng đáp ứng xung h[n]:
+     FIR tắt hẳn sau M+1 mẫu (hữu hạn); IIR có đuôi giảm dần mãi (vô hạn).</p>
+  <div class="card">
+    <div class="row">
+      <label>Cutoff chung:</label>
+      <input type="range" id="ccut" min="0.05" max="0.4" step="0.01" value="0.15">
+      <span class="readout" id="ccutVal">0.15</span>
+    </div>
+    <div class="grid2">
+      <div>
+        <p class="canvas-label">FIR — đáp ứng xung h[n] (hữu hạn)</p>
+        <canvas id="firImp" width="440" height="200"></canvas>
+      </div>
+      <div>
+        <p class="canvas-label">IIR 1 cực — đáp ứng xung h[n] (đuôi vô hạn)</p>
+        <canvas id="iirImp" width="440" height="200"></canvas>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><div class="big" id="firN">—</div><div class="lbl">FIR: số hệ số (tap) để đạt cutoff này</div></div>
+      <div class="stat"><div class="big" id="iirN">2</div><div class="lbl">IIR 1 cực: số hệ số (b₀ và a₁)</div></div>
+    </div>
+    <div class="note">FIR cần hàng chục tap để dốc tương đương; IIR chỉ 2 hệ số mà đuôi kéo dài vô hạn →
+       rẻ hơn nhiều. Đổi lại IIR có thể bất ổn (nếu cực ra ngoài vòng đơn vị) và méo pha.</div>
+  </div>
+</main>
+
+<script>
+// ── tiện ích ────────────────────────────────────────────────
+function sinc(x){ if (Math.abs(x) < 1e-9) return 1; const p = Math.PI*x; return Math.sin(p)/p; }
+function hamming(n, M){ return 0.54 - 0.46*Math.cos(2*Math.PI*n/M); }
+
+// FIR windowed-sinc low-pass kernel, fc chuẩn hóa (0..0.5), numTaps lẻ
+function firLowpass(fc, numTaps){
+  const M = numTaps - 1, h = [];
+  let sum = 0;
+  for (let n=0; n<numTaps; n++){
+    const v = 2*fc*sinc(2*fc*(n - M/2)) * hamming(n, M);
+    h.push(v); sum += v;
+  }
+  for (let n=0; n<numTaps; n++) h[n] /= sum; // chuẩn hóa gain DC = 1
+  return h;
+}
+// |H(omega)| của FIR tại tần số chuẩn hóa f (0..0.5)
+function firMag(h, f){
+  const w = 2*Math.PI*f; let re=0, im=0;
+  for (let k=0;k<h.length;k++){ re += h[k]*Math.cos(w*k); im -= h[k]*Math.sin(w*k); }
+  return Math.hypot(re, im);
+}
+
+// ── MODULE 1: Filter playground ─────────────────────────────
+const N = 256;
+const comps = [ {f:0.06, a:1.0}, {f:0.18, a:0.8}, {f:0.34, a:0.7} ]; // 3 sin
+let noise = []; for (let n=0;n<N;n++) noise.push((Math.sin(n*12.9898)*43758.5453 % 1)*0.5 - 0.25);
+const xSig = []; for (let n=0;n<N;n++){ let v=0; comps.forEach(c=>v+=c.a*Math.sin(2*Math.PI*c.f*n)); xSig.push(v+noise[n]); }
+
+let pgType = 'LP';
+
+// gain lý tưởng (mềm) của 4 loại tại tần f
+function gain(type, f, fc, bw){
+  const k = 0.012; // độ mềm chuyển tiếp
+  const lp = 1/(1+Math.exp((f-fc)/k));
+  if (type==='LP') return lp;
+  if (type==='HP') return 1 - lp;
+  const lo = fc - bw/2, hi = fc + bw/2;
+  const pass = 1/(1+Math.exp((f-hi)/k)) - 1/(1+Math.exp((f-lo)/k));
+  if (type==='BP') return Math.max(0, pass);
+  if (type==='BS') return 1 - Math.max(0, pass);
+  return 1;
+}
+
+// DFT thưa: chỉ tính biên độ tại các bin (đủ cho phổ minh họa)
+function spectrum(sig){
+  const half = N/2, mag = new Array(half).fill(0);
+  for (let bk=0;bk<half;bk++){
+    let re=0, im=0; const w = 2*Math.PI*bk/N;
+    for (let n=0;n<N;n++){ re += sig[n]*Math.cos(w*n); im -= sig[n]*Math.sin(w*n); }
+    mag[bk] = Math.hypot(re,im)/half;
+  }
+  return mag;
+}
+
+function applyFilterFreq(sig, type, fc, bw){
+  // lọc bằng cách nhân phổ (minh họa định lý tích chập): DFT -> nhân |H| -> IDFT thực
+  const re=new Array(N), im=new Array(N);
+  for (let k=0;k<N;k++){
+    let r=0, i=0; const w=2*Math.PI*k/N;
+    for (let n=0;n<N;n++){ r+=sig[n]*Math.cos(w*n); i-=sig[n]*Math.sin(w*n); }
+    const f = (k<=N/2 ? k/N : (N-k)/N);
+    const g = gain(type, f, fc, bw);
+    re[k]=r*g; im[k]=i*g;
+  }
+  const out=new Array(N);
+  for (let n=0;n<N;n++){
+    let r=0; const w=2*Math.PI*n/N;
+    for (let k=0;k<N;k++){ r += re[k]*Math.cos(w*k) - im[k]*Math.sin(w*k); }
+    out[n]=r/N;
+  }
+  return out;
+}
+
+function drawWave(cv, x, y){
+  const ctx=cv.getContext('2d'), W=cv.width, H=cv.height; ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='#e2e8f0'; ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+  const sc = H/2/3.5;
+  const plot=(sig,color,lw)=>{ ctx.strokeStyle=color; ctx.lineWidth=lw; ctx.beginPath();
+    for(let n=0;n<N;n++){ const px=n/(N-1)*W, py=H/2 - sig[n]*sc; n?ctx.lineTo(px,py):ctx.moveTo(px,py);} ctx.stroke(); };
+  plot(x, '#cbd5e0', 1);
+  plot(y, '#0891b2', 2);
+}
+
+function drawSpec(cv, mag, type, fc, bw, showFilter){
+  const ctx=cv.getContext('2d'), W=cv.width, H=cv.height; ctx.clearRect(0,0,W,H);
+  const half=mag.length, pad=24;
+  let mx=0; for(const m of mag) mx=Math.max(mx,m); mx=mx||1;
+  // gain overlay
+  if (showFilter){
+    ctx.fillStyle='#cffafe'; ctx.beginPath(); ctx.moveTo(pad,H-pad);
+    for(let bk=0;bk<half;bk++){ const f=bk/N; const g=gain(type,f,fc,bw);
+      ctx.lineTo(pad + bk/(half-1)*(W-2*pad), H-pad - g*(H-2*pad)); }
+    ctx.lineTo(W-pad,H-pad); ctx.closePath(); ctx.fill();
+  }
+  // bars
+  for(let bk=0;bk<half;bk++){
+    const px=pad + bk/(half-1)*(W-2*pad), h=mag[bk]/mx*(H-2*pad);
+    ctx.fillStyle='#0e7490'; ctx.fillRect(px, H-pad-h, Math.max(1,(W-2*pad)/half-0.5), h);
+  }
+  ctx.strokeStyle='#94a3b8'; ctx.beginPath(); ctx.moveTo(pad,H-pad); ctx.lineTo(W-pad,H-pad); ctx.stroke();
+  ctx.fillStyle='#64748b'; ctx.font='11px sans-serif';
+  ctx.fillText('0', pad, H-8); ctx.fillText('f=0.5 (Nyquist)', W-pad-78, H-8);
+}
+
+function renderPG(){
+  const fc=parseFloat(cut.value), bw=parseFloat(bw_.value);
+  cutVal.textContent=fc.toFixed(3); bwVal.textContent=bw.toFixed(3);
+  const y=applyFilterFreq(xSig,pgType,fc,bw);
+  drawWave(wave, xSig, y);
+  drawSpec(specIn, spectrum(xSig), pgType, fc, bw, false);
+  drawSpec(specOut, spectrum(y), pgType, fc, bw, true);
+  const names={LP:'Low-pass — giữ tần thấp, cắt tần cao (làm mượt/bỏ hiss).',
+    HP:'High-pass — giữ tần cao, cắt tần thấp (bỏ trôi DC/làm nét).',
+    BP:'Band-pass — chỉ giữ một dải quanh cutoff (tách kênh).',
+    BS:'Band-stop / notch — bỏ đúng một dải quanh cutoff (diệt ù 50Hz).'};
+  pgNote.textContent = names[pgType] + ' Vùng cyan trong phổ "sau" = đáp ứng |H(f)|.';
+}
+const bw_ = document.getElementById('bw');
+const cut = document.getElementById('cut');
+document.querySelectorAll('[data-type]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-type]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); pgType=b.dataset.type;
+  const band = (pgType==='BP'||pgType==='BS');
+  ['bwLbl','bw','bwVal'].forEach(id=>document.getElementById(id).style.display = band?'':'none');
+  cutLbl.innerHTML = band ? 'Tần số trung tâm:' : 'Cutoff f<sub>c</sub>:';
+  renderPG();
+}));
+cut.addEventListener('input',renderPG); bw_.addEventListener('input',renderPG);
+
+// ── MODULE 2: |H(f)| theo bậc ───────────────────────────────
+function renderHResp(){
+  const taps=parseInt(tapsEl.value), fc=parseFloat(hcut.value);
+  tapsVal.textContent=taps; hcutVal.textContent=fc.toFixed(2);
+  const h=firLowpass(fc, taps);
+  const cv=hresp, ctx=cv.getContext('2d'), W=cv.width, H=cv.height, pad=34; ctx.clearRect(0,0,W,H);
+  // lưới
+  ctx.strokeStyle='#eef2f7'; ctx.lineWidth=1;
+  for(let g=0;g<=4;g++){ const y=pad+g/4*(H-2*pad); ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(W-pad,y); ctx.stroke(); }
+  // cutoff lý tưởng
+  ctx.strokeStyle='#f59e0b'; ctx.setLineDash([5,4]);
+  const cx=pad + (fc/0.5)*(W-2*pad); ctx.beginPath(); ctx.moveTo(cx,pad); ctx.lineTo(cx,H-pad); ctx.stroke(); ctx.setLineDash([]);
+  // |H(f)|
+  ctx.strokeStyle='#0891b2'; ctx.lineWidth=2.5; ctx.beginPath();
+  for(let i=0;i<=300;i++){ const f=i/300*0.5; const m=Math.min(1.15, firMag(h,f));
+    const px=pad+f/0.5*(W-2*pad), py=H-pad - m*(H-2*pad); i?ctx.lineTo(px,py):ctx.moveTo(px,py); }
+  ctx.stroke();
+  ctx.strokeStyle='#94a3b8'; ctx.beginPath(); ctx.moveTo(pad,H-pad); ctx.lineTo(W-pad,H-pad);
+  ctx.moveTo(pad,pad); ctx.lineTo(pad,H-pad); ctx.stroke();
+  ctx.fillStyle='#64748b'; ctx.font='11px sans-serif';
+  ctx.fillText('|H|=1', 4, pad+4); ctx.fillText('0', pad-2, H-pad+14);
+  ctx.fillText('f →  0.5', W-pad-44, H-pad+16); ctx.fillText('cutoff', cx+4, pad+12);
+  hWidth.textContent = (4/taps).toFixed(3);
+  hDelay.textContent = ((taps-1)/2).toString();
+}
+const tapsEl=document.getElementById('taps'), hcut=document.getElementById('hcut');
+tapsEl.addEventListener('input',renderHResp); hcut.addEventListener('input',renderHResp);
+
+// ── MODULE 3: FIR vs IIR ────────────────────────────────────
+function drawStem(cv, h, color){
+  const ctx=cv.getContext('2d'), W=cv.width, H=cv.height, pad=22, base=H-pad; ctx.clearRect(0,0,W,H);
+  let mx=0; for(const v of h) mx=Math.max(mx,Math.abs(v)); mx=mx||1;
+  const sc=(H-2*pad)/mx;
+  ctx.strokeStyle='#94a3b8'; ctx.beginPath(); ctx.moveTo(pad,base); ctx.lineTo(W-pad,base); ctx.stroke();
+  const n=h.length, dx=(W-2*pad)/Math.max(n,1);
+  for(let i=0;i<n;i++){ const px=pad+i*dx+dx/2, py=base - h[i]*sc;
+    ctx.strokeStyle=color; ctx.lineWidth=Math.max(1.2, Math.min(4,dx*0.6)); ctx.beginPath();
+    ctx.moveTo(px,base); ctx.lineTo(px,py); ctx.stroke();
+    ctx.fillStyle=color; ctx.beginPath(); ctx.arc(px,py,Math.min(3,dx*0.4),0,7); ctx.fill(); }
+}
+function renderFIRvsIIR(){
+  const fc=parseFloat(ccut.value); ccutVal.textContent=fc.toFixed(2);
+  // FIR: số tap để vùng chuyển ~0.1 (chọn theo cutoff cho minh họa)
+  let taps = Math.round(4/0.1); if(taps%2===0)taps++; taps=Math.max(11,Math.min(41,taps));
+  const hFir=firLowpass(fc, taps);
+  drawStem(firImp, hFir, '#0891b2');
+  // IIR 1 cực tương đương: alpha sao cho -3dB tại fc  => alpha = (1-sin w)/cos w
+  const w=2*Math.PI*fc; const alpha=(1-Math.sin(w))/Math.cos(w);
+  const a=Math.max(0,Math.min(0.97,alpha));
+  const hIir=[]; let v=(1-a); for(let i=0;i<41;i++){ hIir.push(v); v*=a; } // (1-a)*a^n
+  drawStem(iirImp, hIir, '#7c3aed');
+  firN.textContent = taps;
+}
+const ccut=document.getElementById('ccut');
+ccut.addEventListener('input',renderFIRvsIIR);
+
+// init
+renderPG(); renderHResp(); renderFIRvsIIR();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

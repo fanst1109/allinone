@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Tích chập & hệ LTI · Minh họa</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #0e7490; }
+  h2 {
+    color: #0891b2; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #a5f3fc;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #155e75; }
+  .hint { color: #64748b; font-size: 13px; margin: 6px 0; }
+  .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #ecfeff; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #0e7490;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  button {
+    background: #0891b2; color: white; border: none;
+    padding: 8px 14px; border-radius: 5px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #0e7490; }
+  button:disabled { background: #cbd5e1; cursor: not-allowed; }
+  button.ghost { background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc; }
+  button.ghost:hover { background: #cffafe; }
+  input.seq {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 10px;
+    border: 1px solid #a5f3fc; border-radius: 4px;
+    width: 100%; max-width: 220px; box-sizing: border-box;
+  }
+  input[type=range] { width: 100%; max-width: 240px; accent-color: #0891b2; }
+
+  /* Convolution stepper grid */
+  .conv-wrap { overflow-x: auto; }
+  table.conv {
+    border-collapse: collapse; margin: 10px 0;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 15px;
+  }
+  table.conv td, table.conv th {
+    border: 1px solid #cbd5e1; padding: 6px 10px; text-align: center;
+    min-width: 40px; height: 34px;
+  }
+  table.conv th { background: #ecfeff; color: #155e75; font-weight: 700; }
+  table.conv td.lbl { background: #f8fafc; color: #475569; font-weight: 600; text-align: right; min-width: 70px; }
+  table.conv td.zero { color: #cbd5e1; }
+  table.conv td.hi { background: #cffafe; color: #0e7490; font-weight: 700; }
+  table.conv td.prod { background: #fef9c3; color: #854d0e; font-weight: 700; }
+  table.conv td.ydone { background: #dcfce7; color: #166534; font-weight: 700; }
+  table.conv td.ycur { background: #0891b2; color: white; font-weight: 700; }
+  .calc {
+    background: #f0fdfa; border-left: 4px solid #0891b2;
+    padding: 12px 16px; border-radius: 4px; margin: 10px 0;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 15px;
+  }
+
+  /* Canvas plots */
+  canvas { background: white; border: 1px solid #e2e8f0; border-radius: 6px; display: block; max-width: 100%; }
+  .plotrow { display: flex; gap: 16px; flex-wrap: wrap; }
+  .plotcol { flex: 1 1 300px; min-width: 0; }
+  .plotcap { font-size: 13px; color: #475569; margin: 4px 0; font-weight: 600; }
+
+  /* Kernel library */
+  .kgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .kbtn {
+    background: white; border: 2px solid #a5f3fc; border-radius: 8px;
+    padding: 12px; cursor: pointer; text-align: center;
+  }
+  .kbtn:hover { background: #ecfeff; }
+  .kbtn.active { border-color: #0891b2; background: #cffafe; }
+  .kbtn .kname { font-weight: 700; color: #0e7490; font-size: 14px; }
+  .kbtn .kvals { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; color: #475569; margin-top: 4px; }
+  .kbtn .kdesc { font-size: 12px; color: #64748b; margin-top: 4px; }
+
+  @media (max-width: 480px) {
+    table.conv td, table.conv th { padding: 4px 6px; min-width: 30px; font-size: 13px; }
+    .kgrid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-wave-superposition/visualization.html">← L03: Tổng hợp sóng</a>
+  <span class="sep">·</span>
+  <span class="current">L04: Tích chập</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-correlation-energy/visualization.html">L05: Tương quan & Năng lượng →</a>
+</nav>
+<main>
+  <h1>Tích chập (Convolution) & hệ LTI</h1>
+  <p class="hint">Ba module tương tác: (1) bước-từng-bước phép tích chập với cơ chế lật–trượt–nhân–cộng;
+  (2) làm mượt tín hiệu nhiễu bằng moving average; (3) thư viện kernel áp lên tín hiệu mẫu.</p>
+
+  <h2>1. Convolution Stepper — lật · trượt · nhân · cộng</h2>
+  <div class="card">
+    <div class="row">
+      <div>
+        <label>Dãy x (cách nhau bởi dấu phẩy)</label><br>
+        <input class="seq" id="inX" value="1,2,3" />
+      </div>
+      <div>
+        <label>Kernel h (sẽ bị lật)</label><br>
+        <input class="seq" id="inH" value="1,1" />
+      </div>
+      <button class="ghost" id="btnLoad">↻ Nạp dãy</button>
+    </div>
+    <div class="hint">Mỗi bước tính một mẫu output <code>y[n] = Σ x[k]·h[n−k]</code>. Hàng <b>h lật & trượt</b>
+    cho thấy kernel đã đảo ngược, dịch tới vị trí n. Ô <span style="color:#0891b2;font-weight:700">vàng</span> = cặp đang nhân.</div>
+
+    <div class="conv-wrap"><table class="conv" id="convTbl"></table></div>
+    <div class="calc" id="calcBox">Bấm "Bước tiếp" để bắt đầu.</div>
+
+    <div class="row">
+      <button id="btnStep">▶ Bước tiếp</button>
+      <button class="ghost" id="btnAuto">⏩ Tự chạy</button>
+      <button class="ghost" id="btnReset">⟲ Reset</button>
+      <span class="mono" id="yReadout" style="color:#0e7490;font-weight:700"></span>
+    </div>
+  </div>
+
+  <h2>2. Smoothing Demo — làm mượt tín hiệu nhiễu</h2>
+  <div class="card">
+    <p class="hint">Tín hiệu gốc (sin + nhiễu ngẫu nhiên) được tích chập với kernel <b>moving average</b> độ rộng W.
+    W càng lớn → càng mượt, nhưng chi tiết càng "mờ".</p>
+    <div class="row">
+      <div>
+        <label>Độ rộng cửa sổ W = <span id="wVal" class="mono">5</span></label><br>
+        <input type="range" id="wSlider" min="1" max="21" step="2" value="5" />
+      </div>
+      <button class="ghost" id="btnNoise">🎲 Nhiễu mới</button>
+    </div>
+    <div class="plotrow">
+      <div class="plotcol">
+        <div class="plotcap">Tín hiệu gốc (nhiễu)</div>
+        <canvas id="cvRaw" width="420" height="160"></canvas>
+      </div>
+      <div class="plotcol">
+        <div class="plotcap">Sau tích chập (mượt)</div>
+        <canvas id="cvSmooth" width="420" height="160"></canvas>
+      </div>
+    </div>
+    <div class="hint" id="smoothInfo"></div>
+  </div>
+
+  <h2>3. Thư viện Kernel — chọn hiệu ứng</h2>
+  <div class="card">
+    <p class="hint">Chọn một kernel, xem nó áp lên tín hiệu mẫu (một bậc thang có đỉnh nhọn) thế nào.</p>
+    <div class="kgrid" id="kGrid"></div>
+    <div class="plotrow" style="margin-top:16px">
+      <div class="plotcol">
+        <div class="plotcap">Tín hiệu mẫu x</div>
+        <canvas id="cvKin" width="420" height="160"></canvas>
+      </div>
+      <div class="plotcol">
+        <div class="plotcap">Output y = x * h</div>
+        <canvas id="cvKout" width="420" height="160"></canvas>
+      </div>
+    </div>
+    <div class="calc" id="kInfo"></div>
+  </div>
+</main>
+
+<script>
+// ---------- Tiện ích chung ----------
+function conv(x, h) {
+  const n = x.length + h.length - 1;
+  const y = new Array(n).fill(0);
+  for (let i = 0; i < x.length; i++)
+    for (let j = 0; j < h.length; j++)
+      y[i + j] += x[i] * h[j];
+  return y;
+}
+function fmt(v) {
+  const r = Math.round(v * 1000) / 1000;
+  return Object.is(r, -0) ? 0 : r;
+}
+function parseSeq(s) {
+  return s.split(',').map(t => parseFloat(t.trim())).filter(v => !isNaN(v));
+}
+
+// ========== MODULE 1: Convolution Stepper ==========
+let X = [1,2,3], H = [1,1], stepN = -1, autoTimer = null;
+const convTbl = document.getElementById('convTbl');
+const calcBox = document.getElementById('calcBox');
+const yReadout = document.getElementById('yReadout');
+
+function loadSeq() {
+  const nx = parseSeq(document.getElementById('inX').value);
+  const nh = parseSeq(document.getElementById('inH').value);
+  if (nx.length && nh.length) { X = nx; H = nh; resetStep(); }
+}
+function resetStep() {
+  stepN = -1;
+  if (autoTimer) { clearInterval(autoTimer); autoTimer = null; document.getElementById('btnAuto').textContent = '⏩ Tự chạy'; }
+  calcBox.textContent = 'Bấm "Bước tiếp" để bắt đầu.';
+  yReadout.textContent = '';
+  renderConv();
+}
+function renderConv() {
+  const Ly = X.length + H.length - 1;
+  const y = conv(X, H);
+  // cột index 0..Ly-1
+  let html = '<tr><th>chỉ số</th>';
+  for (let n = 0; n < Ly; n++) html += `<th>${n}</th>`;
+  html += '</tr>';
+  // hàng x
+  html += '<tr><td class="lbl">x[k]</td>';
+  for (let n = 0; n < Ly; n++) {
+    if (n < X.length) {
+      const hi = (stepN >= 0 && (stepN - n) >= 0 && (stepN - n) < H.length) ? ' prod' : '';
+      html += `<td class="${hi}">${fmt(X[n])}</td>`;
+    } else html += '<td class="zero">0</td>';
+  }
+  html += '</tr>';
+  // hàng h lật & trượt: ô tại cột k chứa h[stepN-k] nếu hợp lệ
+  html += '<tr><td class="lbl">h[n−k]</td>';
+  for (let n = 0; n < Ly; n++) {
+    if (stepN >= 0) {
+      const hi = stepN - n;
+      if (hi >= 0 && hi < H.length && n < X.length) html += `<td class="prod">${fmt(H[hi])}</td>`;
+      else if (hi >= 0 && hi < H.length) html += `<td class="hi">${fmt(H[hi])}</td>`;
+      else html += '<td class="zero">·</td>';
+    } else html += '<td class="zero">·</td>';
+  }
+  html += '</tr>';
+  // hàng y
+  html += '<tr><td class="lbl">y[n]</td>';
+  for (let n = 0; n < Ly; n++) {
+    if (n < stepN) html += `<td class="ydone">${fmt(y[n])}</td>`;
+    else if (n === stepN) html += `<td class="ycur">${fmt(y[n])}</td>`;
+    else html += '<td class="zero"></td>';
+  }
+  html += '</tr>';
+  convTbl.innerHTML = html;
+}
+function doStep() {
+  const Ly = X.length + H.length - 1;
+  if (stepN >= Ly - 1) { // hoàn tất
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; document.getElementById('btnAuto').textContent = '⏩ Tự chạy'; }
+    return;
+  }
+  stepN++;
+  // build calc string for y[stepN]
+  const terms = [];
+  let sum = 0;
+  for (let k = 0; k < X.length; k++) {
+    const hi = stepN - k;
+    if (hi >= 0 && hi < H.length) {
+      terms.push(`${fmt(X[k])}·${fmt(H[hi])}`);
+      sum += X[k] * H[hi];
+    }
+  }
+  calcBox.innerHTML = `y[${stepN}] = ${terms.join(' + ') || '0'} = <b>${fmt(sum)}</b>`;
+  const y = conv(X, H).slice(0, stepN + 1).map(fmt);
+  yReadout.textContent = 'y = [' + y.join(', ') + (stepN < Ly - 1 ? ', …' : '') + ']';
+  renderConv();
+}
+document.getElementById('btnLoad').onclick = loadSeq;
+document.getElementById('btnStep').onclick = doStep;
+document.getElementById('btnReset').onclick = resetStep;
+document.getElementById('btnAuto').onclick = function() {
+  if (autoTimer) { clearInterval(autoTimer); autoTimer = null; this.textContent = '⏩ Tự chạy'; return; }
+  this.textContent = '⏸ Dừng';
+  autoTimer = setInterval(() => {
+    const Ly = X.length + H.length - 1;
+    if (stepN >= Ly - 1) { clearInterval(autoTimer); autoTimer = null; this.textContent = '⏩ Tự chạy'; return; }
+    doStep();
+  }, 900);
+};
+resetStep();
+
+// ========== MODULE 2: Smoothing Demo ==========
+let rawSig = [];
+const NPTS = 80;
+function genNoise() {
+  rawSig = [];
+  for (let i = 0; i < NPTS; i++) {
+    const clean = Math.sin(i * 0.18) * 0.7;
+    rawSig.push(clean + (Math.random() - 0.5) * 0.9);
+  }
+  drawSmooth();
+}
+function movingAvg(sig, W) {
+  const half = Math.floor(W / 2);
+  const out = [];
+  for (let i = 0; i < sig.length; i++) {
+    let s = 0, c = 0;
+    for (let j = -half; j <= half; j++) {
+      const idx = i + j;
+      if (idx >= 0 && idx < sig.length) { s += sig[idx]; c++; }
+    }
+    out.push(s / c);
+  }
+  return out;
+}
+function plotSig(canvas, sig, color) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, Hc = canvas.height, pad = 12;
+  ctx.clearRect(0, 0, W, Hc);
+  // zero line
+  ctx.strokeStyle = '#e2e8f0'; ctx.beginPath();
+  ctx.moveTo(pad, Hc / 2); ctx.lineTo(W - pad, Hc / 2); ctx.stroke();
+  const maxA = 1.6;
+  ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
+  sig.forEach((v, i) => {
+    const x = pad + (W - 2 * pad) * i / (sig.length - 1);
+    const y = Hc / 2 - (v / maxA) * (Hc / 2 - pad);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+}
+function drawSmooth() {
+  const W = parseInt(document.getElementById('wSlider').value);
+  document.getElementById('wVal').textContent = W;
+  plotSig(document.getElementById('cvRaw'), rawSig, '#94a3b8');
+  plotSig(document.getElementById('cvSmooth'), movingAvg(rawSig, W), '#0891b2');
+  const kern = Array(W).fill(1 / W).map(fmt);
+  document.getElementById('smoothInfo').innerHTML =
+    `Kernel = [${kern.join(', ')}] (W=${W} mẫu, mỗi mẫu trọng số <code>1/${W}</code>). ` +
+    `W lớn hơn → low-pass mạnh hơn → mượt hơn nhưng đỉnh bị làm phẳng nhiều hơn.`;
+}
+document.getElementById('wSlider').oninput = drawSmooth;
+document.getElementById('btnNoise').onclick = genNoise;
+genNoise();
+
+// ========== MODULE 3: Thư viện Kernel ==========
+const KERNELS = [
+  { name: 'Impulse δ', vals: [1], desc: 'giữ nguyên tín hiệu' },
+  { name: 'Trễ δ₂', vals: [0, 0, 1], desc: 'dịch phải 2 ô' },
+  { name: 'Average', vals: [1/3, 1/3, 1/3], desc: 'làm mượt (low-pass)' },
+  { name: 'Edge [−1,1]', vals: [-1, 1], desc: 'dò cạnh (high-pass)' },
+  { name: 'Sharpen', vals: [-1, 3, -1], desc: 'làm nét, tăng tương phản' },
+  { name: 'Echo', vals: [1, 0, 0, 0.6], desc: 'tiếng vọng trễ' },
+];
+const sampleX = [2,2,2,2,8,8,8,8,8,2,2,2];
+let curK = 0;
+const kGrid = document.getElementById('kGrid');
+function renderKGrid() {
+  kGrid.innerHTML = KERNELS.map((k, i) =>
+    `<div class="kbtn ${i === curK ? 'active' : ''}" data-i="${i}">
+       <div class="kname">${k.name}</div>
+       <div class="kvals">[${k.vals.map(fmt).join(', ')}]</div>
+       <div class="kdesc">${k.desc}</div>
+     </div>`).join('');
+  kGrid.querySelectorAll('.kbtn').forEach(el => {
+    el.onclick = () => { curK = parseInt(el.dataset.i); renderKGrid(); drawKernel(); };
+  });
+}
+function plotStem(canvas, sig, color) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, Hc = canvas.height, pad = 16;
+  ctx.clearRect(0, 0, W, Hc);
+  const maxA = Math.max(1, ...sig.map(v => Math.abs(v))) * 1.15;
+  const zeroY = Hc / 2;
+  ctx.strokeStyle = '#e2e8f0'; ctx.beginPath();
+  ctx.moveTo(pad, zeroY); ctx.lineTo(W - pad, zeroY); ctx.stroke();
+  const n = sig.length;
+  sig.forEach((v, i) => {
+    const x = pad + (W - 2 * pad) * i / Math.max(1, n - 1);
+    const y = zeroY - (v / maxA) * (Hc / 2 - pad);
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
+    ctx.moveTo(x, zeroY); ctx.lineTo(x, y); ctx.stroke();
+    ctx.fillStyle = color; ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
+  });
+}
+function drawKernel() {
+  const k = KERNELS[curK];
+  const y = conv(sampleX, k.vals);
+  plotStem(document.getElementById('cvKin'), sampleX, '#94a3b8');
+  plotStem(document.getElementById('cvKout'), y, '#0891b2');
+  document.getElementById('kInfo').innerHTML =
+    `<b>${k.name}</b> · h = [${k.vals.map(fmt).join(', ')}] → <i>${k.desc}</i><br>` +
+    `y = [${y.map(fmt).join(', ')}]`;
+}
+renderKGrid();
+drawKernel();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

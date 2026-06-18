@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 16 — Wavelet (preview) Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #0e7490; }
+  h2 {
+    color: #0891b2; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #a5f3fc;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0 10px; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #ecfeff; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #0e7490;
+  }
+  button {
+    background: #0891b2; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #0e7490; }
+  button.preset {
+    background: #ecfeff; color: #0e7490; font-size: 12px;
+    padding: 5px 11px; margin: 3px 4px 3px 0; border: 1px solid #a5f3fc;
+  }
+  button.preset:hover { background: #cffafe; }
+  input[type=range] { accent-color: #0891b2; }
+  input.num {
+    width: 56px; max-width: 56px; padding: 6px 8px; font-size: 14px;
+    border: 1px solid #cbd5e1; border-radius: 4px; text-align: center;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+
+  /* compare grid (Module A) */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+  .panel {
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px;
+  }
+  .panel .ptitle { font-weight: 700; color: #0e7490; margin-bottom: 6px; font-size: 14px; }
+  .panel .pnote { font-size: 12px; color: #64748b; margin-top: 6px; }
+
+  /* DWT tree (Module B) */
+  .lvl { margin: 10px 0; }
+  .lvl .lname { font-size: 12px; font-weight: 700; color: #0891b2; margin-bottom: 4px; }
+  .seq { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cell {
+    min-width: 44px; padding: 8px 4px; text-align: center; border-radius: 5px;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 14px; font-weight: 600;
+  }
+  .cell.avg { background: #cffafe; color: #0e7490; border: 1px solid #67e8f9; }
+  .cell.det { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+  .cell.in  { background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1; }
+  .step-eq { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; color: #475569; margin: 6px 0; line-height: 1.7; }
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 4px;
+    font-size: 12px; font-weight: 700; background: #cffafe; color: #0e7490;
+  }
+
+  /* denoise readout (Module C) */
+  .stat-grid { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 8px; }
+  .stat { background: #f0fdfa; border-left: 4px solid #0891b2; padding: 8px 14px; border-radius: 4px; }
+  .stat .v { font-size: 22px; font-weight: 700; color: #0e7490; }
+  .stat .k { font-size: 12px; color: #64748b; }
+
+  svg { background: white; border-radius: 6px; }
+
+  @media (max-width: 480px) {
+    .compare { grid-template-columns: 1fr; }
+    .cell { min-width: 36px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-modulation/visualization.html">← L15: Điều chế</a>
+  <span class="sep">·</span>
+  <span class="current">L16: Wavelet</span>
+</nav>
+<main>
+  <h1>Lesson 16 — Wavelet (preview): phân giải đa tỉ lệ</h1>
+  <p>Ba module tương tác: (A) STFT lưới cố định vs Wavelet scalogram đa tỉ lệ trên cùng tín hiệu; (B) Haar DWT stepper phân rã từng mức bằng số; (C) khử nhiễu/nén bằng cách vứt hệ số detail nhỏ.</p>
+
+  <h2>A. STFT (lưới cố định) vs Wavelet (đa tỉ lệ)</h2>
+  <p class="hint">
+    Cùng một tín hiệu: <strong>nốt trầm dài</strong> (tần số thấp, kéo dài) + <strong>tiếng gõ ngắn</strong> (xung tần số cao, chớp nhoáng) chèn vào giữa.
+    STFT vẽ lưới ô <em>cùng kích thước</em> → xung gõ bị bôi mờ. Scalogram dùng ô <em>thay đổi theo scale</em> → bắt sắc cả hai. Chỉnh vị trí tiếng gõ để thấy rõ.
+  </p>
+  <div class="card">
+    <div class="row">
+      <label>Vị trí tiếng gõ:</label>
+      <input type="range" id="clickPos" min="0.15" max="0.85" step="0.01" value="0.5" style="flex:1; min-width:140px;">
+      <span class="badge" id="clickPosOut">t = 0.50</span>
+    </div>
+    <div class="compare">
+      <div class="panel">
+        <div class="ptitle">Tín hiệu thời gian</div>
+        <svg id="sigSvg" width="460" height="120" viewBox="0 0 460 120"></svg>
+        <div class="pnote">Đường nền chậm = nốt trầm. Gai nhọn = tiếng gõ.</div>
+      </div>
+      <div class="panel">
+        <div class="ptitle">STFT spectrogram — lưới ô cố định</div>
+        <svg id="stftSvg" width="460" height="160" viewBox="0 0 460 160"></svg>
+        <div class="pnote">Mọi ô cùng kích thước. Tiếng gõ (hàng tần số cao) bị bôi ngang nhiều ô → khó định vị thời gian.</div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:14px;">
+      <div class="ptitle">Wavelet scalogram — ô thay đổi theo scale</div>
+      <svg id="scalSvg" width="940" height="180" viewBox="0 0 940 180"></svg>
+      <div class="pnote">Scale nhỏ (trên, tần số cao) = ô hẹp → tiếng gõ thành đỉnh sắc đúng thời điểm. Scale lớn (dưới, tần số thấp) = ô rộng → nốt trầm thành dải rộng đọc tần số tốt.</div>
+    </div>
+  </div>
+
+  <h2>B. Haar DWT stepper — phân rã từng mức bằng số</h2>
+  <p class="hint">
+    Chỉnh 4 hoặc 8 số rồi xem Haar tách thành <span class="cell avg" style="padding:1px 6px">average</span>
+    (xấp xỉ, tần số thấp) và <span class="cell det" style="padding:1px 6px">detail</span> (thay đổi, tần số cao) ở từng mức.
+    Average cuối luôn bằng trung bình toàn dãy.
+  </p>
+  <div class="card">
+    <div class="row">
+      <label>Dãy đầu vào:</label>
+      <span id="inputs"></span>
+    </div>
+    <div class="row">
+      <span class="hint" style="margin:0;">Mẫu:</span>
+      <button class="preset" data-seq="4,6,10,12">4,6,10,12 (bài đọc)</button>
+      <button class="preset" data-seq="8,8,0,4">8,8,0,4</button>
+      <button class="preset" data-seq="1,3,5,9">1,3,5,9</button>
+      <button class="preset" data-seq="10,10,10,10,2,2,8,8">8 phần tử</button>
+      <button id="addBtn" class="preset">+ 4 ô</button>
+      <button id="rmBtn" class="preset">− 4 ô</button>
+    </div>
+    <div id="dwtSteps"></div>
+    <div class="row" style="margin-top:6px;">
+      <span class="step-eq" id="dwtResult"></span>
+    </div>
+  </div>
+
+  <h2>C. Khử nhiễu / nén — vứt hệ số detail nhỏ</h2>
+  <p class="hint">
+    Tín hiệu trơn + nhiễu nhỏ. Sau Haar DWT, kéo <strong>ngưỡng τ</strong> để loại các hệ số detail có |d| &lt; τ rồi tái tạo.
+    Detail nhỏ thường là nhiễu → vứt đi vẫn giữ được dạng tín hiệu mà lưu ít số hơn.
+  </p>
+  <div class="card">
+    <div class="row">
+      <label>Ngưỡng τ:</label>
+      <input type="range" id="thr" min="0" max="3" step="0.05" value="0.6" style="flex:1; min-width:140px;">
+      <span class="badge" id="thrOut">τ = 0.60</span>
+      <button id="noiseBtn" class="preset">🎲 Sinh nhiễu mới</button>
+    </div>
+    <svg id="denoiseSvg" width="940" height="180" viewBox="0 0 940 180"></svg>
+    <div class="stat-grid">
+      <div class="stat"><div class="v" id="kept">0</div><div class="k">hệ số detail giữ lại</div></div>
+      <div class="stat"><div class="v" id="ratio">0%</div><div class="k">tỉ lệ giữ (giữ / tổng)</div></div>
+      <div class="stat"><div class="v" id="rmse">0</div><div class="k">RMSE so với tín hiệu sạch</div></div>
+    </div>
+    <div class="pnote" style="margin-top:8px;">Đường xám = nhiễu (gốc) · đường xanh đậm = tái tạo sau ngưỡng · đường nét đứt = tín hiệu sạch lý tưởng.</div>
+  </div>
+</main>
+
+<script>
+// ───────── helpers ─────────
+const $ = id => document.getElementById(id);
+function svgEl(tag, attrs) {
+  const e = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+function clear(svg){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
+// cyan colour ramp for heat cells: 0..1 -> light->dark cyan
+function heat(v){
+  v = Math.max(0, Math.min(1, v));
+  const r = Math.round(236 - 222*v), g = Math.round(254 - 109*v), b = Math.round(255 - 134*v);
+  return `rgb(${r},${g},${b})`;
+}
+
+// ───────── Module A: signal + STFT grid + scalogram ─────────
+const N_A = 200;
+function buildSignal(clickT){
+  // nốt trầm dài (low freq sin spanning whole) + tiếng gõ ngắn (narrow spike, high freq)
+  const x = new Array(N_A);
+  const ci = Math.round(clickT * N_A);
+  for (let i=0;i<N_A;i++){
+    const t = i/N_A;
+    let v = 0.6*Math.sin(2*Math.PI*3*t);          // nốt trầm: 3 chu kỳ trên toàn đoạn
+    const d = i - ci;
+    if (Math.abs(d) < 8){                           // tiếng gõ: gói hẹp tần số cao
+      v += 0.9*Math.cos(2*Math.PI*0.5*d)*Math.exp(-(d*d)/18);
+    }
+    x[i]=v;
+  }
+  return {x, ci};
+}
+function drawSignal(clickT){
+  const svg = $("sigSvg"); clear(svg);
+  const {x} = buildSignal(clickT);
+  const W=460,H=120,pad=8;
+  let path="";
+  for(let i=0;i<N_A;i++){
+    const px = pad + i/(N_A-1)*(W-2*pad);
+    const py = H/2 - x[i]*(H/2-pad);
+    path += (i?"L":"M")+px.toFixed(1)+" "+py.toFixed(1)+" ";
+  }
+  svg.appendChild(svgEl("line",{x1:pad,y1:H/2,x2:W-pad,y2:H/2,stroke:"#e2e8f0","stroke-width":1}));
+  svg.appendChild(svgEl("path",{d:path,fill:"none",stroke:"#0e7490","stroke-width":1.6}));
+}
+function drawSTFT(clickT){
+  const svg=$("stftSvg"); clear(svg);
+  const W=460,H=160,cols=10,rows=6,gx=2,gy=2;
+  const cw=(W-(cols+1)*gx)/cols, ch=(H-(rows+1)*gy)/rows;
+  const {x}=buildSignal(clickT);
+  // energy per (row=freq band, col=time block). Fixed grid -> click smears across whole hi row width.
+  const ci=clickT;
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const t0=c/cols, t1=(c+1)/cols, tc=(t0+t1)/2;
+      let e;
+      if(r>=rows-1){ // top row = high freq band (the click)
+        // fixed window: smear -> any column near click lights up broadly
+        const dist=Math.abs(tc-ci);
+        e = Math.exp(-(dist*dist)/0.10)*0.9 + 0.05;
+      } else if(r<=1){ // low freq = nốt trầm, present everywhere
+        e = 0.55 + 0.15*Math.sin(2*Math.PI*tc*1.5);
+      } else { e = 0.08; }
+      const px=gx+c*(cw+gx), py=gy+r*(ch+gy);
+      svg.appendChild(svgEl("rect",{x:px,y:py,width:cw,height:ch,rx:2,fill:heat(e),stroke:"#cbd5e1","stroke-width":0.5}));
+    }
+  }
+  const lbl=svgEl("text",{x:4,y:12,"font-size":10,fill:"#64748b"});
+  lbl.textContent="↑ tần số cao";
+  svg.appendChild(lbl);
+}
+function drawScalogram(clickT){
+  const svg=$("scalSvg"); clear(svg);
+  const W=940,H=180,pad=6;
+  const ci=clickT;
+  // 5 scale rows: top=small scale (high freq, narrow cells), bottom=large scale (low freq, wide cells)
+  const scales=[{cells:32,kind:"hi"},{cells:24,kind:"hi"},{cells:14,kind:"mid"},{cells:7,kind:"low"},{cells:4,kind:"low"}];
+  const rh=(H-2*pad)/scales.length;
+  for(let r=0;r<scales.length;r++){
+    const sc=scales[r], n=sc.cells, cw=(W-2*pad)/n - 2;
+    const py=pad+r*rh;
+    for(let c=0;c<n;c++){
+      const tc=(c+0.5)/n;
+      let e;
+      if(sc.kind==="hi"){           // high freq: sharp peak right at click only
+        const dist=Math.abs(tc-ci)*n;          // narrow cells -> precise
+        e = Math.exp(-(dist*dist)/2.2)*0.95+0.04;
+      } else if(sc.kind==="mid"){
+        const dist=Math.abs(tc-ci);
+        e = Math.exp(-(dist*dist)/0.02)*0.4+0.08;
+      } else {                       // low freq: nốt trầm spread across wide cells
+        e = 0.5 + 0.18*Math.sin(2*Math.PI*tc*1.5);
+      }
+      const px=pad+c*((W-2*pad)/n)+1;
+      svg.appendChild(svgEl("rect",{x:px,y:py+1,width:Math.max(cw,3),height:rh-2,rx:2,fill:heat(e),stroke:"#e0f2fe","stroke-width":0.5}));
+    }
+    const lab=svgEl("text",{x:W-pad-2,y:py+rh/2+3,"font-size":10,fill:"#475569","text-anchor":"end"});
+    lab.textContent = r===0?"scale nhỏ (cao)":(r===scales.length-1?"scale lớn (thấp)":"");
+    svg.appendChild(lab);
+  }
+}
+function renderA(){
+  const t=parseFloat($("clickPos").value);
+  $("clickPosOut").textContent="t = "+t.toFixed(2);
+  drawSignal(t); drawSTFT(t); drawScalogram(t);
+}
+$("clickPos").addEventListener("input",renderA);
+
+// ───────── Module B: Haar DWT stepper ─────────
+let seqB=[4,6,10,12];
+function renderInputs(){
+  const wrap=$("inputs"); wrap.innerHTML="";
+  seqB.forEach((v,i)=>{
+    const inp=document.createElement("input");
+    inp.className="num"; inp.type="number"; inp.value=v;
+    inp.addEventListener("input",()=>{ seqB[i]=parseFloat(inp.value)||0; renderDWT(); });
+    wrap.appendChild(inp);
+  });
+}
+function haarLevel(arr){
+  const s=[],d=[];
+  for(let i=0;i<arr.length;i+=2){
+    s.push((arr[i]+arr[i+1])/2);
+    d.push((arr[i]-arr[i+1])/2);
+  }
+  return {s,d};
+}
+function fmt(n){ return Number.isInteger(n)?n:(Math.round(n*100)/100); }
+function seqRow(name,arr,cls){
+  const div=document.createElement("div"); div.className="lvl";
+  const ln=document.createElement("div"); ln.className="lname"; ln.textContent=name; div.appendChild(ln);
+  const sq=document.createElement("div"); sq.className="seq";
+  arr.forEach(v=>{ const c=document.createElement("div"); c.className="cell "+cls; c.textContent=fmt(v); sq.appendChild(c); });
+  div.appendChild(sq); return div;
+}
+function renderDWT(){
+  const box=$("dwtSteps"); box.innerHTML="";
+  box.appendChild(seqRow("Đầu vào", seqB, "in"));
+  let cur=seqB.slice(), lvl=1; const allDetails=[];
+  while(cur.length>1){
+    const {s,d}=haarLevel(cur);
+    // equation strings
+    const eqs=[];
+    for(let i=0;i<s.length;i++){
+      const a=cur[2*i],b=cur[2*i+1];
+      eqs.push(`s=(${fmt(a)}+${fmt(b)})/2=${fmt(s[i])}, d=(${fmt(a)}-${fmt(b)})/2=${fmt(d[i])}`);
+    }
+    const eqDiv=document.createElement("div"); eqDiv.className="step-eq";
+    eqDiv.innerHTML="<strong>Mức "+lvl+":</strong><br>"+eqs.join("<br>");
+    box.appendChild(eqDiv);
+    box.appendChild(seqRow("Average mức "+lvl+" (xấp xỉ)", s, "avg"));
+    box.appendChild(seqRow("Detail mức "+lvl, d, "det"));
+    allDetails.unshift({lvl,d});
+    cur=s; lvl++;
+  }
+  // result string: avg final | details coarse->fine
+  let parts=["avg=["+cur.map(fmt).join(", ")+"]"];
+  allDetails.forEach(o=>parts.push("d^("+o.lvl+")=["+o.d.map(fmt).join(", ")+"]"));
+  const mean=seqB.reduce((a,b)=>a+b,0)/seqB.length;
+  $("dwtResult").innerHTML="<strong>DWT đầy đủ:</strong> "+parts.join("  |  ")+
+    "<br><span class='badge'>kiểm chứng</span> average cuối = "+fmt(cur[0])+
+    ", trung bình toàn dãy = "+fmt(mean)+(Math.abs(cur[0]-mean)<1e-9?" ✓ khớp":" (khác)");
+}
+document.querySelectorAll(".preset[data-seq]").forEach(b=>{
+  b.addEventListener("click",()=>{ seqB=b.dataset.seq.split(",").map(Number); renderInputs(); renderDWT(); });
+});
+$("addBtn").addEventListener("click",()=>{ if(seqB.length<16){ for(let i=0;i<4;i++) seqB.push(0); renderInputs(); renderDWT(); }});
+$("rmBtn").addEventListener("click",()=>{ if(seqB.length>4){ seqB=seqB.slice(0,seqB.length-4); renderInputs(); renderDWT(); }});
+
+// ───────── Module C: denoise via thresholding ─────────
+const N_C=64;
+let cleanC=[], noisyC=[];
+function genSignals(){
+  cleanC=new Array(N_C); noisyC=new Array(N_C);
+  for(let i=0;i<N_C;i++){
+    const t=i/N_C;
+    // smooth piecewise: ramp + plateau + sine
+    let v = 1.2*Math.sin(2*Math.PI*1.5*t) + (t>0.5?0.6:-0.2);
+    cleanC[i]=v;
+    noisyC[i]=v + (Math.random()*2-1)*0.45;   // small noise
+  }
+}
+function fullHaar(arr){ // returns {avg:[..final], levels:[{d},...]} ; assumes len power of 2
+  let cur=arr.slice(); const levels=[];
+  while(cur.length>1){ const {s,d}=haarLevel(cur); levels.push(d); cur=s; }
+  return {avg:cur, levels};
+}
+function inverseHaar(avg, levels){
+  let cur=avg.slice();
+  for(let l=levels.length-1;l>=0;l--){
+    const d=levels[l], out=new Array(cur.length*2);
+    for(let i=0;i<cur.length;i++){ out[2*i]=cur[i]+d[i]; out[2*i+1]=cur[i]-d[i]; }
+    cur=out;
+  }
+  return cur;
+}
+function renderC(){
+  const tau=parseFloat($("thr").value);
+  $("thrOut").textContent="τ = "+tau.toFixed(2);
+  const {avg,levels}=fullHaar(noisyC);
+  let kept=0, total=0;
+  const thrLevels=levels.map(d=>d.map(v=>{ total++; if(Math.abs(v)>=tau){kept++; return v;} return 0; }));
+  const recon=inverseHaar(avg,thrLevels);
+  // stats
+  let se=0; for(let i=0;i<N_C;i++) se+=(recon[i]-cleanC[i])**2;
+  const rmse=Math.sqrt(se/N_C);
+  $("kept").textContent=kept;
+  $("ratio").textContent=Math.round(kept/total*100)+"%";
+  $("rmse").textContent=(Math.round(rmse*1000)/1000).toFixed(3);
+  // draw
+  const svg=$("denoiseSvg"); clear(svg);
+  const W=940,H=180,pad=14;
+  const all=cleanC.concat(noisyC,recon);
+  const mn=Math.min(...all), mx=Math.max(...all), rng=mx-mn||1;
+  const X=i=>pad+i/(N_C-1)*(W-2*pad);
+  const Y=v=>pad+(1-(v-mn)/rng)*(H-2*pad);
+  const mkPath=arr=>{ let p=""; arr.forEach((v,i)=>{ p+=(i?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1)+" "; }); return p; };
+  svg.appendChild(svgEl("path",{d:mkPath(noisyC),fill:"none",stroke:"#cbd5e1","stroke-width":1.3}));
+  svg.appendChild(svgEl("path",{d:mkPath(cleanC),fill:"none",stroke:"#94a3b8","stroke-width":1.4,"stroke-dasharray":"5 4"}));
+  svg.appendChild(svgEl("path",{d:mkPath(recon),fill:"none",stroke:"#0e7490","stroke-width":2.2}));
+}
+$("thr").addEventListener("input",renderC);
+$("noiseBtn").addEventListener("click",()=>{ genSignals(); renderC(); });
+
+// ───────── init ─────────
+renderA();
+renderInputs(); renderDWT();
+genSignals(); renderC();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 11 — Spectrogram &amp; STFT</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #0e7490; }
+  h2 {
+    color: #0891b2; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #a5f3fc;
+  }
+  h3 { color: #0e7490; margin-top: 22px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #155e75; }
+  .hint { color: #64748b; font-size: 13px; margin: 6px 0; }
+  code {
+    background: #ecfeff; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #0e7490;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  button {
+    background: #0891b2; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #0e7490; }
+  button.preset {
+    background: #ecfeff; color: #155e75; font-size: 13px;
+    padding: 6px 12px; margin: 3px 4px 3px 0;
+    border: 1px solid #a5f3fc;
+  }
+  button.preset:hover { background: #cffafe; }
+  button.preset.active { background: #0891b2; color: white; border-color: #0891b2; }
+  input[type=range] { width: 100%; max-width: 260px; accent-color: #0891b2; }
+  select {
+    font-size: 14px; padding: 7px 10px;
+    border: 1px solid #a5f3fc; border-radius: 4px;
+    background: white; font-family: inherit; color: #155e75;
+  }
+  canvas {
+    border: 1px solid #cbd5e1; border-radius: 6px;
+    background: #0c1322; display: block; margin: 8px 0;
+  }
+  .readout {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; color: #155e75;
+    background: #ecfeff; border-radius: 6px; padding: 10px 14px;
+    margin: 8px 0; line-height: 1.7;
+  }
+  .readout b { color: #0e7490; }
+  .axis-note { font-size: 12px; color: #64748b; margin: 2px 0; }
+  .legend { display: flex; gap: 4px; align-items: center; font-size: 12px; color: #64748b; margin: 6px 0; }
+  .legend .bar {
+    width: 120px; height: 12px; border-radius: 3px;
+    background: linear-gradient(90deg,#0c1322,#1e3a8a,#0891b2,#22d3ee,#fde047,#f87171);
+  }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+  .win-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 10px; }
+  @media (max-width: 720px) { .win-grid { grid-template-columns: 1fr; } }
+  .win-cell { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; text-align: center; }
+  .win-cell .name { font-weight: 700; color: #0e7490; margin-bottom: 4px; }
+  .win-cell .leak { font-size: 12px; color: #64748b; margin-top: 6px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-fft/visualization.html">← L10: FFT</a>
+  <span class="sep">·</span>
+  <span class="current">L11: Spectrogram</span>
+  <span class="sep">·</span>
+  <a href="../../03-Applied/lesson-01-digital-filters/visualization.html">L12: Lọc số →</a>
+</nav>
+<main>
+  <h1>Lesson 11 — Spectrogram &amp; STFT</h1>
+  <p>Ba module tương tác: (1) Spectrogram tín hiệu thay đổi theo thời gian; (2) Trade-off độ rộng khung (thời gian ↔ tần số); (3) So sánh cửa sổ Hann / Hamming / Rectangular và rò rỉ phổ. Tất cả tín hiệu được tổng hợp sẵn — không cần micro.</p>
+
+  <h2>1. Spectrogram — nhìn tần số thay đổi theo thời gian</h2>
+  <p class="hint">FFT một phát chỉ cho biết <i>có</i> tần số nào; spectrogram cho biết tần số nào <i>ở giây nào</i>. Chọn một tín hiệu mẫu rồi đọc heatmap: trục ngang = thời gian, trục dọc = tần số, màu = năng lượng.</p>
+  <div class="card">
+    <div class="row">
+      <button class="preset active" data-sig="chirp">Chirp lên (quét tần số)</button>
+      <button class="preset" data-sig="twonote">2 nốt nối tiếp (440→880)</button>
+      <button class="preset" data-sig="chord">Hợp âm (440+880 cùng lúc)</button>
+      <button class="preset" data-sig="updown">Chirp lên-xuống</button>
+    </div>
+    <div class="legend">Năng lượng thấp <span class="bar"></span> cao</div>
+    <canvas id="specCanvas" width="640" height="300" viewBox="0 0 640 300"></canvas>
+    <div class="axis-note">↑ Tần số (0 → f<sub>s</sub>/2) &nbsp;·&nbsp; → Thời gian (0 → 1 s)</div>
+    <div class="readout" id="specOut"></div>
+  </div>
+
+  <h2>2. Trade-off thời gian ↔ tần số (Heisenberg)</h2>
+  <p class="hint">Cùng một tín hiệu "2 nốt nối tiếp + một tiếng gõ ngắn", thay đổi độ rộng khung <code>N</code> và xem heatmap đổi: khung <b>ngắn</b> → thời gian sắc, tần số nhòe (vạch dày); khung <b>dài</b> → tần số sắc (vạch mảnh), thời gian nhòe (sự kiện ngắn bị trải rộng).</p>
+  <div class="card">
+    <div class="row">
+      <label>Độ rộng khung N: <span id="nVal" style="color:#0e7490">256</span> mẫu</label>
+      <input type="range" id="nSlider" min="6" max="11" step="1" value="8">
+      <span class="axis-note">(kéo: 64 → 2048, lũy thừa của 2)</span>
+    </div>
+    <canvas id="tradeCanvas" width="640" height="300" viewBox="0 0 640 300"></canvas>
+    <div class="axis-note">↑ Tần số &nbsp;·&nbsp; → Thời gian. Tín hiệu: 300 Hz (nửa đầu) → 1200 Hz (nửa sau) + tiếng gõ ở giữa.</div>
+    <div class="readout" id="tradeOut"></div>
+  </div>
+
+  <h2>3. Cửa sổ &amp; rò rỉ phổ — Hann / Hamming / Rectangular</h2>
+  <p class="hint">Một sin <b>không khít số nguyên chu kỳ</b> trong khung. Cửa sổ nhân vào hai biên khung rồi FFT. Cột nào "chân" càng sạch (ít vạch lan ra) thì rò rỉ càng ít. Rectangular = không làm gì → rò rỉ nhiều nhất.</p>
+  <div class="card">
+    <div class="row">
+      <label>Số chu kỳ trong khung:</label>
+      <input type="range" id="cycSlider" min="30" max="120" step="1" value="75">
+      <span class="readout" style="padding:4px 10px;margin:0" id="cycVal">7.5</span>
+    </div>
+    <div class="hint">Số nguyên chu kỳ (vd 8.0) → cả ba gần như sạch. Lẻ (vd 7.5) → rectangular rò rỉ rõ.</div>
+    <div class="win-grid" id="winGrid"></div>
+    <div class="readout" id="winOut"></div>
+  </div>
+
+</main>
+
+<script>
+// ---------- DFT (đủ nhanh cho N nhỏ trong demo) ----------
+function dftMag(re) {
+  const N = re.length;
+  const half = Math.floor(N / 2);
+  const mag = new Float64Array(half);
+  for (let k = 0; k < half; k++) {
+    let sr = 0, si = 0;
+    for (let n = 0; n < N; n++) {
+      const a = -2 * Math.PI * k * n / N;
+      sr += re[n] * Math.cos(a);
+      si += re[n] * Math.sin(a);
+    }
+    mag[k] = Math.sqrt(sr * sr + si * si);
+  }
+  return mag;
+}
+
+// ---------- Cửa sổ ----------
+function hann(N)      { const w = new Float64Array(N); for (let m=0;m<N;m++) w[m]=0.5*(1-Math.cos(2*Math.PI*m/(N-1))); return w; }
+function hamming(N)   { const w = new Float64Array(N); for (let m=0;m<N;m++) w[m]=0.54-0.46*Math.cos(2*Math.PI*m/(N-1)); return w; }
+function rect(N)      { const w = new Float64Array(N); w.fill(1); return w; }
+
+// ---------- Bảng màu (viridis-ish: tối→xanh→cyan→vàng→đỏ) ----------
+function heat(v) { // v in [0,1]
+  v = Math.max(0, Math.min(1, v));
+  const stops = [
+    [12,19,34],[30,58,138],[8,145,178],[34,211,238],[253,224,71],[248,113,113]
+  ];
+  const x = v * (stops.length - 1);
+  const i = Math.min(stops.length - 2, Math.floor(x));
+  const t = x - i;
+  const a = stops[i], b = stops[i+1];
+  return `rgb(${Math.round(a[0]+(b[0]-a[0])*t)},${Math.round(a[1]+(b[1]-a[1])*t)},${Math.round(a[2]+(b[2]-a[2])*t)})`;
+}
+
+// ---------- Sinh tín hiệu ----------
+const FS = 8000;        // tần số lấy mẫu giả lập
+const LEN = FS;         // 1 giây
+function genSignal(kind) {
+  const x = new Float64Array(LEN);
+  for (let n = 0; n < LEN; n++) {
+    const t = n / FS;
+    let v = 0;
+    if (kind === 'chirp') {            // 200 Hz -> 1800 Hz tuyến tính
+      const f = 200 + 1600 * t;
+      v = Math.sin(2 * Math.PI * (200 * t + 0.5 * 1600 * t * t));
+    } else if (kind === 'twonote') {   // 440 nửa đầu, 880 nửa sau
+      v = t < 0.5 ? Math.sin(2*Math.PI*440*t) : Math.sin(2*Math.PI*880*t);
+    } else if (kind === 'chord') {     // 440 + 880 đồng thời
+      v = 0.6*Math.sin(2*Math.PI*440*t) + 0.6*Math.sin(2*Math.PI*880*t);
+    } else if (kind === 'updown') {    // lên rồi xuống
+      const f = t < 0.5 ? 200 + 2800*t : 200 + 2800*(1-t);
+      // tích phân pha xấp xỉ bằng cách dùng f tức thời (đủ cho minh họa)
+      v = Math.sin(2*Math.PI*f*t);
+    } else if (kind === 'trade') {     // 300 -> 1200 + tiếng gõ giữa
+      v = t < 0.5 ? Math.sin(2*Math.PI*300*t) : Math.sin(2*Math.PI*1200*t);
+      const click = Math.abs(t - 0.5);
+      if (click < 0.004) v += 1.4 * (1 - click/0.004); // transient băng rộng
+    }
+    x[n] = v;
+  }
+  return x;
+}
+
+// ---------- Vẽ spectrogram chung ----------
+function drawSpectrogram(canvas, signal, N, H, winFn) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, Hgt = canvas.height;
+  ctx.fillStyle = '#0c1322'; ctx.fillRect(0,0,W,Hgt);
+  const win = winFn(N);
+  const half = Math.floor(N/2);
+  const nFrames = Math.floor((signal.length - N)/H) + 1;
+  // gom thành cột pixel
+  const cols = Math.min(nFrames, W);
+  const colW = W / cols;
+  let maxLog = -Infinity, mins = [];
+  // tính trước tất cả frame magnitude (log)
+  const frames = [];
+  for (let c = 0; c < cols; c++) {
+    const f = Math.floor(c * nFrames / cols);
+    const start = f * H;
+    const buf = new Float64Array(N);
+    for (let m = 0; m < N; m++) buf[m] = signal[start+m] * win[m];
+    const mag = dftMag(buf);
+    const logm = new Float64Array(half);
+    for (let k = 0; k < half; k++) {
+      logm[k] = Math.log10(mag[k]*mag[k] + 1e-6);
+      if (logm[k] > maxLog) maxLog = logm[k];
+    }
+    frames.push(logm);
+  }
+  const floor = maxLog - 5; // dải động ~50 dB
+  for (let c = 0; c < cols; c++) {
+    const logm = frames[c];
+    for (let k = 0; k < half; k++) {
+      const v = (logm[k] - floor) / (maxLog - floor);
+      ctx.fillStyle = heat(v);
+      // y: bin 0 ở đáy, half ở đỉnh
+      const y = Hgt - (k+1) * (Hgt / half);
+      ctx.fillRect(c*colW, y, Math.ceil(colW)+1, Math.ceil(Hgt/half)+1);
+    }
+  }
+  return { nFrames, half };
+}
+
+// ===== Module 1 =====
+const specCanvas = document.getElementById('specCanvas');
+const specOut = document.getElementById('specOut');
+let curSig = 'chirp';
+function renderSpec() {
+  const N = 256, H = 128;
+  const sig = genSignal(curSig);
+  const info = drawSpectrogram(specCanvas, sig, N, H, hann);
+  const dt = (N/FS*1000).toFixed(1), df = (FS/N).toFixed(1);
+  const desc = {
+    chirp:   'Đường chéo đi LÊN — tần số quét tăng dần theo thời gian.',
+    twonote: 'Một vạch ngang ở 440 Hz (nửa đầu) rồi NHẢY lên 880 Hz (nửa sau).',
+    chord:   'HAI vạch ngang song song (440 + 880) suốt cả giây — khác hẳn "nối tiếp" dù FFT một phát gần giống.',
+    updown:  'Chữ V ngược: tần số lên giữa giây rồi xuống.'
+  }[curSig];
+  specOut.innerHTML = `Cửa sổ Hann · <b>N = ${N}</b> · hop = ${H} (overlap 50%) · f<sub>s</sub> = ${FS} Hz<br>`
+    + `Δt = N/f<sub>s</sub> = <b>${dt} ms</b> · Δf = f<sub>s</sub>/N = <b>${df} Hz</b> · ${info.nFrames} khung<br>`
+    + `📌 ${desc}`;
+}
+document.querySelectorAll('[data-sig]').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('[data-sig]').forEach(x => x.classList.remove('active'));
+  b.classList.add('active'); curSig = b.dataset.sig; renderSpec();
+}));
+
+// ===== Module 2 =====
+const tradeCanvas = document.getElementById('tradeCanvas');
+const tradeOut = document.getElementById('tradeOut');
+const nSlider = document.getElementById('nSlider');
+const nVal = document.getElementById('nVal');
+const tradeSig = genSignal('trade');
+function renderTrade() {
+  const N = Math.pow(2, parseInt(nSlider.value));
+  const H = Math.max(16, Math.floor(N/4));
+  nVal.textContent = N;
+  const info = drawSpectrogram(tradeCanvas, tradeSig, N, H, hann);
+  const dt = (N/FS*1000).toFixed(1), df = (FS/N).toFixed(1);
+  let verdict;
+  if (N <= 128)      verdict = 'Khung NGẮN: tiếng gõ ở giữa hiện sắc (cột mảnh), nhưng hai vạch tần số DÀY (Δf lớn → tần số nhòe).';
+  else if (N >= 1024) verdict = 'Khung DÀI: vạch tần số MẢNH sắc nét (Δf nhỏ), nhưng tiếng gõ bị TRẢI RỘNG theo thời gian (Δt lớn → thời gian nhòe).';
+  else                verdict = 'Khung TRUNG BÌNH: cân bằng giữa sắc nét thời gian và tần số.';
+  tradeOut.innerHTML = `<b>N = ${N}</b> · hop = ${H} · Δt = <b>${dt} ms</b> · Δf = <b>${df} Hz</b> · Δt·Δf = ${(N/FS*FS/N).toFixed(2)} (hằng số!)<br>📌 ${verdict}`;
+}
+nSlider.addEventListener('input', renderTrade);
+
+// ===== Module 3 =====
+const winGrid = document.getElementById('winGrid');
+const winOut = document.getElementById('winOut');
+const cycSlider = document.getElementById('cycSlider');
+const cycVal = document.getElementById('cycVal');
+const WN = 128;
+function renderWin() {
+  const cycles = parseInt(cycSlider.value) / 10; // 3.0 .. 12.0
+  cycVal.textContent = cycles.toFixed(1);
+  const base = new Float64Array(WN);
+  for (let n = 0; n < WN; n++) base[n] = Math.sin(2*Math.PI*cycles*n/WN);
+  const wins = [
+    ['Rectangular', rect(WN)],
+    ['Hann', hann(WN)],
+    ['Hamming', hamming(WN)]
+  ];
+  winGrid.innerHTML = '';
+  const half = WN/2;
+  let globalMax = 0;
+  const data = wins.map(([name, w]) => {
+    const buf = new Float64Array(WN);
+    for (let n = 0; n < WN; n++) buf[n] = base[n] * w[n];
+    const mag = dftMag(buf);
+    let mx = 0, peak = 0;
+    for (let k = 0; k < half; k++) if (mag[k] > mx) { mx = mag[k]; peak = k; }
+    globalMax = Math.max(globalMax, mx);
+    return { name, mag, mx, peak };
+  });
+  data.forEach(d => {
+    const cell = document.createElement('div');
+    cell.className = 'win-cell';
+    // mini spectrum canvas
+    const cw = 180, ch = 90;
+    const cnv = document.createElement('canvas');
+    cnv.width = cw; cnv.height = ch; cnv.setAttribute('viewBox', `0 0 ${cw} ${ch}`);
+    cnv.style.maxWidth = '100%'; cnv.style.background = '#0c1322';
+    const ctx = cnv.getContext('2d');
+    // năng lượng rò rỉ = tổng ngoài 2 bin quanh đỉnh
+    let leak = 0, tot = 0;
+    for (let k = 0; k < half; k++) {
+      tot += d.mag[k]*d.mag[k];
+      if (Math.abs(k - d.peak) > 1) leak += d.mag[k]*d.mag[k];
+    }
+    const leakPct = tot > 0 ? (100 * leak / tot) : 0;
+    const barW = cw / half;
+    for (let k = 0; k < half; k++) {
+      const h = (d.mag[k] / globalMax) * (ch - 6);
+      ctx.fillStyle = (Math.abs(k - d.peak) > 1) ? '#f87171' : '#22d3ee';
+      ctx.fillRect(k*barW, ch - h, Math.max(1, barW-0.5), h);
+    }
+    cell.innerHTML = `<div class="name">${d.name}</div>`;
+    cell.appendChild(cnv);
+    cell.innerHTML += `<div class="leak">Rò rỉ (ngoài đỉnh): <b style="color:#0e7490">${leakPct.toFixed(1)}%</b></div>`;
+    winGrid.appendChild(cell);
+  });
+  const isInt = Math.abs(cycles - Math.round(cycles)) < 0.05;
+  winOut.innerHTML = isInt
+    ? `📌 ${cycles.toFixed(1)} chu kỳ là số NGUYÊN → sóng khít khung → cả ba cửa sổ gần như sạch (rò rỉ nhỏ). Đây là trường hợp lý tưởng hiếm gặp.`
+    : `📌 ${cycles.toFixed(1)} chu kỳ KHÔNG khít khung → <b>Rectangular</b> (cyan đỉnh + đỏ lan rộng) rò rỉ nhiều nhất; Hann/Hamming gom năng lượng về đỉnh tốt hơn. Vạch đỏ = năng lượng rò rỉ sang bin lân cận.`;
+}
+cycSlider.addEventListener('input', renderWin);
+
+// init
+renderSpec();
+renderTrade();
+renderWin();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Tổng hợp sóng & Harmonics</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #0e7490; }
+  h2 {
+    color: #0891b2; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #a5f3fc;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+    border: 1px solid #a5f3fc;
+  }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0 12px; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #334155; }
+  canvas {
+    width: 100%; height: auto; display: block;
+    background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px;
+    margin: 10px 0;
+  }
+  button {
+    background: #0891b2; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #0e7490; }
+  button.preset {
+    background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc;
+    font-size: 13px; padding: 5px 12px; margin: 3px 4px 3px 0;
+  }
+  button.preset:hover { background: #cffafe; }
+  button.preset.active { background: #0891b2; color: white; border-color: #0891b2; }
+  select {
+    font-size: 14px; padding: 7px 10px;
+    border: 1px solid #cbd5e1; border-radius: 4px;
+    background: white; font-family: inherit;
+  }
+  input[type=range] { accent-color: #0891b2; max-width: 100%; }
+  .readout {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; background: #ecfeff; border-left: 4px solid #0891b2;
+    padding: 10px 14px; border-radius: 4px; margin: 10px 0; color: #155e75;
+  }
+  .readout b { color: #0e7490; }
+
+  /* Harmonic term controls */
+  .harm-row {
+    display: flex; align-items: center; gap: 10px; margin: 6px 0;
+    flex-wrap: wrap;
+  }
+  .harm-row .hname {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-weight: 700; min-width: 90px; color: #0e7490;
+  }
+  .harm-row input[type=range] { flex: 1; min-width: 140px; }
+  .harm-row .hval {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    min-width: 52px; text-align: right; color: #334155;
+  }
+  .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+  .legend { font-size: 13px; color: #64748b; margin: 6px 0; }
+
+  @media (max-width: 480px) {
+    .card { padding: 14px; }
+    .harm-row .hname { min-width: 72px; font-size: 13px; }
+    .harm-row input[type=range] { min-width: 100px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-sampling-nyquist/visualization.html">← L02: Lấy mẫu & Nyquist</a>
+  <span class="sep">·</span>
+  <span class="current">L03: Tổng hợp sóng</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-convolution/visualization.html">L04: Tích chập →</a>
+</nav>
+<main>
+  <h1>Lesson 03 — Tổng hợp sóng (Superposition) &amp; Harmonics</h1>
+  <p>Ba bộ công cụ tương tác: dựng sóng vuông/răng cưa bằng cách cộng harmonic, xem giao thoa &amp; phách giữa hai tần số, và so sánh âm sắc (timbre) của hai cấu hình harmonic.</p>
+
+  <h2>1. Bộ cộng harmonic — dựng sóng từ sin</h2>
+  <p class="hint">Bật/tắt và chỉnh biên độ từng harmonic. Đường mảng = từng sin thành phần; đường <b style="color:#0891b2">đậm</b> = tổng. Chọn preset để tự nạp công thức sóng vuông / răng cưa.</p>
+  <div class="card">
+    <div class="row">
+      <span class="hint" style="margin:0 8px 0 0;">Preset:</span>
+      <button class="preset active" data-preset="square">Sóng vuông (lẻ, 1/n)</button>
+      <button class="preset" data-preset="saw">Sóng răng cưa (mọi n)</button>
+      <button class="preset" data-preset="custom">Tùy chỉnh</button>
+    </div>
+    <div id="harmControls"></div>
+    <div class="legend">Hiển thị: <label><input type="checkbox" id="showParts" checked> các sin thành phần</label></div>
+    <canvas id="addCanvas" width="800" height="320"></canvas>
+    <div class="readout" id="addReadout"></div>
+  </div>
+
+  <h2>2. Giao thoa &amp; Phách (Beat)</h2>
+  <p class="hint">Hai sin tần số f1, f2 (Hz). Đường <b style="color:#0e7490">tổng</b> là chồng chập. Khi f1 ≈ f2, để ý "đường viền" (envelope) lên-xuống chậm — đó là phách.</p>
+  <div class="card">
+    <div class="harm-row">
+      <span class="hname"><span class="swatch" style="background:#0e7490"></span>f1</span>
+      <input type="range" id="f1" min="1" max="20" step="0.5" value="5">
+      <span class="hval" id="f1val">5.0 Hz</span>
+    </div>
+    <div class="harm-row">
+      <span class="hname"><span class="swatch" style="background:#0891b2"></span>f2</span>
+      <input type="range" id="f2" min="1" max="20" step="0.5" value="6">
+      <span class="hval" id="f2val">6.0 Hz</span>
+    </div>
+    <div class="row">
+      <span class="hint" style="margin:0 8px 0 0;">Mẫu:</span>
+      <button class="preset" data-beat="5,5">Cùng tần số → tăng cường</button>
+      <button class="preset" data-beat="5,5.5">Phách chậm (0.5 Hz)</button>
+      <button class="preset" data-beat="5,8">Lệch nhiều → hai nốt</button>
+    </div>
+    <canvas id="beatCanvas" width="800" height="300"></canvas>
+    <div class="readout" id="beatReadout"></div>
+  </div>
+
+  <h2>3. So sánh âm sắc (Timbre)</h2>
+  <p class="hint">Cùng tần số cơ bản f₀, nhưng <b>phân bố biên độ harmonic khác nhau</b> → dạng sóng (và tiếng) khác nhau. Đây là lý do guitar và piano cùng nốt vẫn khác tiếng.</p>
+  <div class="card">
+    <div class="row">
+      <label>Nhạc cụ A:</label>
+      <select id="timbreA">
+        <option value="sine">Sáo (gần sin thuần)</option>
+        <option value="square" selected>Clarinet (harmonic lẻ)</option>
+        <option value="saw">Kèn đồng (mọi harmonic)</option>
+        <option value="organ">Organ (1,2,4,8)</option>
+      </select>
+      <label>Nhạc cụ B:</label>
+      <select id="timbreB">
+        <option value="sine">Sáo (gần sin thuần)</option>
+        <option value="square">Clarinet (harmonic lẻ)</option>
+        <option value="saw" selected>Kèn đồng (mọi harmonic)</option>
+        <option value="organ">Organ (1,2,4,8)</option>
+      </select>
+    </div>
+    <canvas id="timbreCanvas" width="800" height="340"></canvas>
+    <div class="readout" id="timbreReadout"></div>
+  </div>
+</main>
+
+<script>
+// ── tiện ích vẽ trục ──────────────────────────────────────────────
+function clearAxes(ctx, w, h, midRatio) {
+  const mid = h * (midRatio || 0.5);
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, mid); ctx.lineTo(w, mid); ctx.stroke();
+  return mid;
+}
+
+// ── MODULE 1: Bộ cộng harmonic ────────────────────────────────────
+const HARM_COLORS = ['#0e7490','#0891b2','#06b6d4','#22d3ee','#67e8f9','#a5f3fc'];
+let harmonics = []; // {n, amp}
+const harmControls = document.getElementById('harmControls');
+
+function presetHarmonics(kind) {
+  // dựng 6 số hạng đầu
+  if (kind === 'square') // harmonic lẻ, biên độ 1/n
+    return [{n:1,amp:1},{n:3,amp:1/3},{n:5,amp:1/5},{n:7,amp:1/7},{n:9,amp:1/9},{n:11,amp:1/11}];
+  if (kind === 'saw') // mọi harmonic, dấu xen kẽ, biên độ 1/n
+    return [{n:1,amp:1},{n:2,amp:-0.5},{n:3,amp:1/3},{n:4,amp:-0.25},{n:5,amp:1/5},{n:6,amp:-1/6}];
+  // custom: chỉ harmonic 1
+  return [{n:1,amp:1},{n:2,amp:0},{n:3,amp:0},{n:4,amp:0},{n:5,amp:0},{n:6,amp:0}];
+}
+
+function buildHarmControls() {
+  harmControls.innerHTML = '';
+  harmonics.forEach((h, i) => {
+    const row = document.createElement('div'); row.className = 'harm-row';
+    row.innerHTML = `
+      <span class="hname"><span class="swatch" style="background:${HARM_COLORS[i]}"></span>H${h.n} (${h.n}f₀)</span>
+      <input type="range" min="-1" max="1" step="0.02" value="${h.amp}" data-i="${i}">
+      <span class="hval">${h.amp.toFixed(2)}</span>`;
+    const inp = row.querySelector('input');
+    const val = row.querySelector('.hval');
+    inp.addEventListener('input', () => {
+      harmonics[i].amp = parseFloat(inp.value);
+      val.textContent = harmonics[i].amp.toFixed(2);
+      drawAdd();
+    });
+    harmControls.appendChild(row);
+  });
+}
+
+function drawAdd() {
+  const c = document.getElementById('addCanvas'), ctx = c.getContext('2d');
+  const w = c.width, h = c.height, mid = clearAxes(ctx, w, h);
+  const showParts = document.getElementById('showParts').checked;
+  const cycles = 2; // số chu kỳ f0 hiển thị
+  const A = h * 0.32; // scale biên độ
+  // từng sin thành phần
+  if (showParts) {
+    harmonics.forEach((hm, i) => {
+      if (hm.amp === 0) return;
+      ctx.strokeStyle = HARM_COLORS[i]; ctx.lineWidth = 1; ctx.globalAlpha = 0.55;
+      ctx.beginPath();
+      for (let x = 0; x <= w; x++) {
+        const t = (x / w) * cycles;
+        const y = mid - hm.amp * A * Math.sin(2*Math.PI*hm.n*t);
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    });
+    ctx.globalAlpha = 1;
+  }
+  // tổng
+  ctx.strokeStyle = '#0891b2'; ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  let peak = 0;
+  for (let x = 0; x <= w; x++) {
+    const t = (x / w) * cycles;
+    let s = 0;
+    harmonics.forEach(hm => s += hm.amp * Math.sin(2*Math.PI*hm.n*t));
+    peak = Math.max(peak, Math.abs(s));
+    const y = mid - s * A;
+    x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  const active = harmonics.filter(hm => hm.amp !== 0).map(hm => 'H'+hm.n).join(', ');
+  document.getElementById('addReadout').innerHTML =
+    `Đang cộng <b>${harmonics.filter(hm=>hm.amp!==0).length}</b> harmonic: ${active || '(trống)'} · biên độ đỉnh tổng ≈ <b>${peak.toFixed(2)}</b>. ` +
+    `Càng nhiều harmonic lẻ 1/n → cạnh càng dốc (sóng vuông); để ý bướu nhỏ ở cạnh (Gibbs).`;
+}
+
+document.querySelectorAll('[data-preset]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-preset]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    harmonics = presetHarmonics(btn.dataset.preset);
+    buildHarmControls(); drawAdd();
+  });
+});
+document.getElementById('showParts').addEventListener('change', drawAdd);
+
+// ── MODULE 2: Giao thoa & phách ───────────────────────────────────
+function drawBeat() {
+  const c = document.getElementById('beatCanvas'), ctx = c.getContext('2d');
+  const w = c.width, h = c.height, mid = clearAxes(ctx, w, h);
+  const f1 = parseFloat(document.getElementById('f1').value);
+  const f2 = parseFloat(document.getElementById('f2').value);
+  const dur = 2; // giây hiển thị
+  const A = h * 0.22;
+  // sin 1
+  ctx.strokeStyle = '#0e7490'; ctx.lineWidth = 1; ctx.globalAlpha = 0.4;
+  ctx.beginPath();
+  for (let x = 0; x <= w; x++) { const t=(x/w)*dur; const y=mid-A*Math.sin(2*Math.PI*f1*t); x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);} ctx.stroke();
+  // sin 2
+  ctx.strokeStyle = '#0891b2';
+  ctx.beginPath();
+  for (let x = 0; x <= w; x++) { const t=(x/w)*dur; const y=mid-A*Math.sin(2*Math.PI*f2*t); x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);} ctx.stroke();
+  ctx.globalAlpha = 1;
+  // tổng
+  ctx.strokeStyle = '#155e75'; ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let x = 0; x <= w; x++) { const t=(x/w)*dur; const y=mid-A*(Math.sin(2*Math.PI*f1*t)+Math.sin(2*Math.PI*f2*t)); x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);} ctx.stroke();
+  // envelope phách (chỉ vẽ khi gần nhau)
+  const fbeat = Math.abs(f1 - f2);
+  if (fbeat > 0 && fbeat <= 4) {
+    ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 1.5; ctx.setLineDash([6,4]);
+    ctx.beginPath();
+    for (let x = 0; x <= w; x++) { const t=(x/w)*dur; const env=2*A*Math.abs(Math.cos(2*Math.PI*(fbeat/2)*t)); const y=mid-env; x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);} ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  let msg;
+  if (fbeat === 0) msg = `f1 = f2 = ${f1} Hz → <b>cùng pha, tăng cường</b>: biên độ tổng gấp đôi, không có phách (f_beat = 0).`;
+  else if (fbeat <= 4) msg = `f_beat = |${f1} − ${f2}| = <b>${fbeat.toFixed(1)} Hz</b> → ${fbeat.toFixed(1)} phách/giây · chu kỳ phách ≈ <b>${(1/fbeat).toFixed(2)} s</b> · cao độ nghe ≈ ${((f1+f2)/2).toFixed(2)} Hz. Đường cam = envelope.`;
+  else msg = `f_beat = <b>${fbeat.toFixed(1)} Hz</b> — cách nhau quá xa, tai tách thành hai nốt riêng (không còn cảm giác phách mượt).`;
+  document.getElementById('beatReadout').innerHTML = msg;
+}
+['f1','f2'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    document.getElementById(id+'val').textContent = parseFloat(document.getElementById(id).value).toFixed(1)+' Hz';
+    drawBeat();
+  });
+});
+document.querySelectorAll('[data-beat]').forEach(btn => btn.addEventListener('click', () => {
+  const [a,b] = btn.dataset.beat.split(',');
+  document.getElementById('f1').value = a; document.getElementById('f2').value = b;
+  document.getElementById('f1val').textContent = parseFloat(a).toFixed(1)+' Hz';
+  document.getElementById('f2val').textContent = parseFloat(b).toFixed(1)+' Hz';
+  drawBeat();
+}));
+
+// ── MODULE 3: So sánh timbre ──────────────────────────────────────
+function timbreHarmonics(kind) {
+  if (kind === 'sine') return [{n:1,amp:1}];
+  if (kind === 'square') return [{n:1,amp:1},{n:3,amp:1/3},{n:5,amp:1/5},{n:7,amp:1/7},{n:9,amp:1/9}];
+  if (kind === 'saw') return [{n:1,amp:1},{n:2,amp:-0.5},{n:3,amp:1/3},{n:4,amp:-0.25},{n:5,amp:1/5}];
+  if (kind === 'organ') return [{n:1,amp:1},{n:2,amp:0.6},{n:4,amp:0.35},{n:8,amp:0.2}];
+  return [{n:1,amp:1}];
+}
+function drawWave(ctx, w, midY, A, harms, color) {
+  ctx.strokeStyle = color; ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  const cycles = 2;
+  for (let x = 0; x <= w; x++) {
+    const t = (x/w)*cycles; let s=0;
+    harms.forEach(h => s += h.amp*Math.sin(2*Math.PI*h.n*t));
+    const y = midY - s*A;
+    x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+}
+function drawTimbre() {
+  const c = document.getElementById('timbreCanvas'), ctx = c.getContext('2d');
+  const w = c.width, h = c.height;
+  ctx.clearRect(0,0,w,h);
+  const midA = h*0.27, midB = h*0.77;
+  const A = h*0.18;
+  ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0,midA); ctx.lineTo(w,midA); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,midB); ctx.lineTo(w,midB); ctx.stroke();
+  const kA = document.getElementById('timbreA').value;
+  const kB = document.getElementById('timbreB').value;
+  const hA = timbreHarmonics(kA), hB = timbreHarmonics(kB);
+  drawWave(ctx, w, midA, A, hA, '#0e7490');
+  drawWave(ctx, w, midB, A, hB, '#0891b2');
+  ctx.fillStyle = '#0e7490'; ctx.font = '13px sans-serif';
+  ctx.fillText('Nhạc cụ A (cùng f₀)', 8, 16);
+  ctx.fillStyle = '#0891b2';
+  ctx.fillText('Nhạc cụ B (cùng f₀)', 8, midB - A - 10);
+  const listA = hA.map(x=>'H'+x.n).join(',');
+  const listB = hB.map(x=>'H'+x.n).join(',');
+  document.getElementById('timbreReadout').innerHTML =
+    `A dùng harmonic <b>${listA}</b>, B dùng <b>${listB}</b>. Cao độ (f₀) giống nhau nên nghe cùng nốt, ` +
+    `nhưng phân bố biên độ khác → dạng sóng khác → <b>âm sắc khác</b>.`;
+}
+document.getElementById('timbreA').addEventListener('change', drawTimbre);
+document.getElementById('timbreB').addEventListener('change', drawTimbre);
+
+// ── khởi tạo ──────────────────────────────────────────────────────
+harmonics = presetHarmonics('square');
+buildHarmControls(); drawAdd();
+drawBeat();
+drawTimbre();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

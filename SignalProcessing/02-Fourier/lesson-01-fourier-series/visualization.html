@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Chuỗi Fourier Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #0e7490; }
+  h2 {
+    color: #0891b2; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #a5f3fc;
+  }
+  .card {
+    background: white; border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .lead { color: #475569; }
+  .row { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #334155; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  code {
+    background: #ecfeff; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #0e7490;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  canvas {
+    background: #fbfeff; border: 1px solid #a5f3fc; border-radius: 8px;
+    display: block; width: 100%; height: auto;
+  }
+  input[type=range] { accent-color: #0891b2; max-width: 100%; }
+  select, button {
+    font-family: inherit; font-size: 14px;
+    border: 1px solid #a5f3fc; border-radius: 6px;
+    padding: 6px 12px; background: white; color: #0e7490; cursor: pointer;
+  }
+  button { background: #0891b2; color: white; border-color: #0891b2; font-weight: 600; }
+  button:hover { background: #0e7490; }
+  button.tog { background: white; color: #0e7490; }
+  button.tog.active { background: #0891b2; color: white; }
+  .readout {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; color: #155e75; background: #ecfeff;
+    border-radius: 6px; padding: 8px 12px; margin: 8px 0;
+    border-left: 4px solid #0891b2;
+  }
+  .big { font-size: 22px; font-weight: 700; color: #0e7490; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: #475569; margin: 6px 0; }
+  .swatch { display: inline-block; width: 14px; height: 4px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+  .formula {
+    background: #083344; color: #cffafe; border-radius: 8px;
+    padding: 14px 16px; font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; overflow-x: auto; margin: 12px 0;
+  }
+  @media (max-width: 480px) {
+    .row { gap: 10px; }
+    .big { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../01-Foundations/lesson-05-correlation-energy/visualization.html">← L05: Tương quan & Năng lượng</a>
+  <span class="sep">·</span>
+  <span class="current">L06: Chuỗi Fourier</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-epicycles-euler/visualization.html">L07: Epicycle & Euler →</a>
+</nav>
+<main>
+
+  <h1>Chuỗi Fourier — dựng sóng từ các sin</h1>
+  <p class="lead">Mọi tín hiệu tuần hoàn = một chồng sóng sin/cos. Ba module dưới đây cho bạn <strong>thấy</strong> điều đó xảy ra: dựng dần dạng sóng, đọc biên độ từng harmonic, và soi cận cảnh hiện tượng Gibbs.</p>
+
+  <div class="formula">f(t) = a₀/2 + Σ&nbsp;[ aₙ·cos(n·ω₀·t) + bₙ·sin(n·ω₀·t) ] &nbsp;&nbsp;với&nbsp; ω₀ = 2π/T</div>
+
+  <!-- ───────────────── MODULE 1: PARTIAL-SUM BUILDER ───────────────── -->
+  <h2>1. Bộ dựng tổng riêng phần</h2>
+  <p class="hint">Chọn dạng sóng đích, rồi kéo slider <code>N</code> (số harmonic). Đường cyan đậm là tổng riêng phần S<sub>N</sub>; đường xám đứt là dạng sóng đích. Vùng tô đỏ = nơi S<sub>N</sub> vọt quá đích (overshoot Gibbs).</p>
+  <div class="card">
+    <div class="row">
+      <label>Dạng sóng:</label>
+      <select id="waveSel">
+        <option value="square">Sóng vuông (square)</option>
+        <option value="sawtooth">Răng cưa (sawtooth)</option>
+        <option value="triangle">Tam giác (triangle)</option>
+      </select>
+    </div>
+    <div class="row">
+      <label>Số harmonic N: <span id="nLabel" class="big">5</span></label>
+      <input type="range" id="nSlider" min="1" max="50" value="5" style="flex:1; min-width:160px;">
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#0891b2"></span>Tổng riêng phần S<sub>N</sub></span>
+      <span><span class="swatch" style="background:#94a3b8"></span>Dạng sóng đích</span>
+      <span><span class="swatch" style="background:#ef4444"></span>Overshoot Gibbs</span>
+    </div>
+    <canvas id="cvBuild" width="860" height="320"></canvas>
+    <div class="readout" id="buildInfo"></div>
+  </div>
+
+  <!-- ───────────────── MODULE 2: HARMONIC SPECTRUM ───────────────── -->
+  <h2>2. Phổ harmonic — đóng góp của từng bₙ</h2>
+  <p class="hint">Mỗi cột là biên độ |bₙ| (hoặc |aₙ|) của harmonic thứ n. Với sóng vuông chỉ có cột <strong>lẻ</strong> và giảm như 1/n — đúng kết quả tính tay <code>bₙ = 4/(nπ)</code>.</p>
+  <div class="card">
+    <canvas id="cvSpec" width="860" height="300"></canvas>
+    <div class="readout" id="specInfo"></div>
+  </div>
+
+  <!-- ───────────────── MODULE 3: GIBBS ZOOM ───────────────── -->
+  <h2>3. Kính lúp Gibbs — overshoot ~9% không biến mất</h2>
+  <p class="hint">Phóng to vùng quanh một bước nhảy của sóng vuông. Tăng N → cú vọt <strong>hẹp lại</strong> nhưng <strong>chiều cao gần như đứng yên</strong> ở ~8.95% biên độ bước nhảy.</p>
+  <div class="card">
+    <div class="row">
+      <label>Số harmonic N: <span id="gNLabel" class="big">11</span></label>
+      <input type="range" id="gSlider" min="1" max="80" value="11" step="2" style="flex:1; min-width:160px;">
+      <span class="hint">(chỉ harmonic lẻ cho sóng vuông)</span>
+    </div>
+    <canvas id="cvGibbs" width="860" height="300"></canvas>
+    <div class="readout" id="gibbsInfo"></div>
+  </div>
+
+</main>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// Hệ số Fourier cho 3 dạng sóng (biên độ ±1, chu kỳ 2π, ω₀ = 1)
+//   square:   chỉ bₙ, n lẻ:  bₙ = 4/(nπ)
+//   sawtooth: chỉ bₙ:        bₙ = 2/n · (-1)^(n+1)
+//   triangle: chỉ bₙ, n lẻ:  bₙ = 8/(π²n²) · (-1)^((n-1)/2)
+// ─────────────────────────────────────────────────────────────────────────────
+function coeff(wave, n) {
+  if (wave === 'square')   return (n % 2 === 1) ? 4 / (n * Math.PI) : 0;
+  if (wave === 'sawtooth') return (2 / n) * Math.pow(-1, n + 1);
+  if (wave === 'triangle') return (n % 2 === 1) ? (8 / (Math.PI * Math.PI * n * n)) * Math.pow(-1, (n - 1) / 2) : 0;
+  return 0;
+}
+// Tổng riêng phần tại t (dùng N harmonic đầu)
+function partialSum(wave, t, N) {
+  let s = 0;
+  for (let n = 1; n <= N; n++) s += coeff(wave, n) * Math.sin(n * t);
+  return s;
+}
+// Dạng sóng đích (giá trị lý tưởng) trên [-π, π] — đều là hàm LẺ vì các chuỗi
+// trên đây chỉ chứa sin. Đã verify khớp với tổng riêng phần khi N lớn.
+function target(wave, t) {
+  // normalize t vào (-π, π]
+  let x = ((t + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+  if (wave === 'square')   return x > 0 ? 1 : (x < 0 ? -1 : 0);
+  if (wave === 'sawtooth') return x / Math.PI;                 // ramp -1..1 (f=t/π)
+  if (wave === 'triangle') {                                   // tam giác lẻ, đỉnh +1 tại π/2
+    const a = x >= 0 ? x : -x;                                 // |x|
+    const v = a <= Math.PI / 2 ? a / (Math.PI / 2) : (Math.PI - a) / (Math.PI / 2);
+    return x >= 0 ? v : -v;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE 1: builder
+// ─────────────────────────────────────────────────────────────────────────────
+const cvB = document.getElementById('cvBuild'), ctxB = cvB.getContext('2d');
+const waveSel = document.getElementById('waveSel');
+const nSlider = document.getElementById('nSlider'), nLabel = document.getElementById('nLabel');
+const buildInfo = document.getElementById('buildInfo');
+
+function drawBuilder() {
+  const W = cvB.width, H = cvB.height, mid = H / 2, amp = H / 2 - 28;
+  const wave = waveSel.value, N = +nSlider.value;
+  nLabel.textContent = N;
+  ctxB.clearRect(0, 0, W, H);
+
+  // axes
+  ctxB.strokeStyle = '#e2e8f0'; ctxB.lineWidth = 1;
+  ctxB.beginPath(); ctxB.moveTo(0, mid); ctxB.lineTo(W, mid); ctxB.stroke();
+  ctxB.fillStyle = '#94a3b8'; ctxB.font = '12px monospace';
+  ctxB.fillText('+1', 4, mid - amp + 12); ctxB.fillText('-1', 4, mid + amp - 4);
+  ctxB.fillText('0', 4, mid - 4);
+
+  const tMin = -Math.PI, tMax = Math.PI, span = tMax - tMin;
+  const px = t => (t - tMin) / span * W;
+  const py = v => mid - v * amp;
+  const M = 1400;
+
+  // overshoot fill (giữa S_N và target, chỉ phần S_N vượt |target|)
+  ctxB.fillStyle = 'rgba(239,68,68,0.28)';
+  for (let i = 0; i < M; i++) {
+    const t = tMin + span * i / M;
+    const s = partialSum(wave, t, N), g = target(wave, t);
+    if (Math.abs(s) > Math.abs(g) + 0.02 && Math.sign(s) === Math.sign(g || s)) {
+      const x = px(t);
+      ctxB.fillRect(x, Math.min(py(s), py(g)), W / M + 0.6, Math.abs(py(s) - py(g)));
+    }
+  }
+
+  // target (dashed gray)
+  ctxB.strokeStyle = '#94a3b8'; ctxB.lineWidth = 1.6; ctxB.setLineDash([6, 5]);
+  ctxB.beginPath();
+  for (let i = 0; i <= M; i++) {
+    const t = tMin + span * i / M, x = px(t), y = py(target(wave, t));
+    i === 0 ? ctxB.moveTo(x, y) : ctxB.lineTo(x, y);
+  }
+  ctxB.stroke(); ctxB.setLineDash([]);
+
+  // partial sum (cyan)
+  ctxB.strokeStyle = '#0891b2'; ctxB.lineWidth = 2.4;
+  ctxB.beginPath();
+  for (let i = 0; i <= M; i++) {
+    const t = tMin + span * i / M, x = px(t), y = py(partialSum(wave, t, N));
+    i === 0 ? ctxB.moveTo(x, y) : ctxB.lineTo(x, y);
+  }
+  ctxB.stroke();
+
+  // đếm số harmonic thực sự khác 0
+  let nonzero = 0; for (let n = 1; n <= N; n++) if (Math.abs(coeff(wave, n)) > 1e-9) nonzero++;
+  const names = { square: 'sóng vuông', sawtooth: 'răng cưa', triangle: 'tam giác' };
+  buildInfo.innerHTML = `Đang dựng <b>${names[wave]}</b> với N = <b>${N}</b> harmonic ` +
+    `(${nonzero} cột khác 0). ${wave === 'square'
+      ? 'Sóng vuông chỉ dùng harmonic lẻ; biên độ giảm như 1/n.'
+      : wave === 'sawtooth'
+        ? 'Răng cưa dùng mọi harmonic; biên độ ~2/n, dấu xen kẽ.'
+        : 'Tam giác chỉ harmonic lẻ; biên độ giảm nhanh như 1/n².'}`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE 2: spectrum bar chart
+// ─────────────────────────────────────────────────────────────────────────────
+const cvS = document.getElementById('cvSpec'), ctxS = cvS.getContext('2d');
+const specInfo = document.getElementById('specInfo');
+
+function drawSpectrum() {
+  const W = cvS.width, H = cvS.height, base = H - 34, top = 18;
+  const wave = waveSel.value, N = +nSlider.value;
+  ctxS.clearRect(0, 0, W, H);
+
+  const NB = Math.min(N, 24); // vẽ tối đa 24 cột cho gọn
+  const maxAmp = Math.max(...Array.from({ length: NB }, (_, i) => Math.abs(coeff(wave, i + 1))), 1e-9);
+  const gap = 6, bw = (W - 50 - gap * (NB - 1)) / NB;
+
+  ctxS.strokeStyle = '#e2e8f0'; ctxS.beginPath();
+  ctxS.moveTo(40, base); ctxS.lineTo(W, base); ctxS.stroke();
+
+  for (let i = 0; i < NB; i++) {
+    const n = i + 1, a = Math.abs(coeff(wave, n));
+    const h = a / maxAmp * (base - top);
+    const x = 44 + i * (bw + gap);
+    ctxS.fillStyle = a > 1e-9 ? '#0891b2' : '#e2e8f0';
+    ctxS.fillRect(x, base - h, bw, h);
+    ctxS.fillStyle = '#64748b'; ctxS.font = '11px monospace';
+    ctxS.textAlign = 'center';
+    ctxS.fillText(n, x + bw / 2, base + 14);
+  }
+  ctxS.textAlign = 'left';
+  ctxS.fillStyle = '#94a3b8'; ctxS.font = '12px monospace';
+  ctxS.fillText('|bₙ|', 6, top + 8);
+  ctxS.fillText('n →', W - 36, H - 6);
+
+  // ví dụ số cụ thể
+  const examples = wave === 'square'
+    ? `b₁=4/π≈${(4 / Math.PI).toFixed(3)}, b₃=4/3π≈${(4 / (3 * Math.PI)).toFixed(3)}, b₅≈${(4 / (5 * Math.PI)).toFixed(3)}, b₂=b₄=0`
+    : wave === 'sawtooth'
+      ? `b₁=2, b₂=-1, b₃≈0.667, b₄=-0.5 (mọi n, dấu xen kẽ)`
+      : `b₁=8/π²≈${(8 / Math.PI / Math.PI).toFixed(3)}, b₃≈${(8 / (Math.PI * Math.PI * 9)).toFixed(3)} (chỉ n lẻ, ~1/n²)`;
+  specInfo.innerHTML = `Phổ biên độ (vẽ tới n=${NB}). ${examples}`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE 3: Gibbs zoom (luôn dùng sóng vuông)
+// ─────────────────────────────────────────────────────────────────────────────
+const cvG = document.getElementById('cvGibbs'), ctxG = cvG.getContext('2d');
+const gSlider = document.getElementById('gSlider'), gNLabel = document.getElementById('gNLabel');
+const gibbsInfo = document.getElementById('gibbsInfo');
+
+function drawGibbs() {
+  const W = cvG.width, H = cvG.height, mid = H / 2, amp = H / 2 - 40;
+  let N = +gSlider.value; gNLabel.textContent = N;
+  ctxG.clearRect(0, 0, W, H);
+
+  // zoom quanh bước nhảy tại t=0: cửa sổ [-0.6, 0.9]
+  const tMin = -0.6, tMax = 0.9, span = tMax - tMin;
+  const px = t => (t - tMin) / span * W;
+  const py = v => mid - v * amp;
+
+  // grid: mức +1 và đỉnh Gibbs lý thuyết ≈1.1789
+  ctxG.strokeStyle = '#e2e8f0'; ctxG.lineWidth = 1;
+  [-1, 0, 1].forEach(v => { ctxG.beginPath(); ctxG.moveTo(0, py(v)); ctxG.lineTo(W, py(v)); ctxG.stroke(); });
+  ctxG.strokeStyle = '#fca5a5'; ctxG.setLineDash([4, 4]);
+  ctxG.beginPath(); ctxG.moveTo(0, py(1.1789)); ctxG.lineTo(W, py(1.1789)); ctxG.stroke();
+  ctxG.setLineDash([]);
+  ctxG.fillStyle = '#94a3b8'; ctxG.font = '12px monospace';
+  ctxG.fillText('+1', 4, py(1) - 4);
+  ctxG.fillStyle = '#dc2626'; ctxG.fillText('đỉnh Gibbs lý thuyết ≈ 1.179', 4, py(1.1789) - 4);
+
+  const M = 2000;
+  ctxG.strokeStyle = '#0891b2'; ctxG.lineWidth = 2.4;
+  ctxG.beginPath();
+  let peak = 0, peakT = 0;
+  for (let i = 0; i <= M; i++) {
+    const t = tMin + span * i / M;
+    const s = partialSum('square', t, N);
+    if (t > 0 && s > peak) { peak = s; peakT = t; }
+    const x = px(t), y = py(s);
+    i === 0 ? ctxG.moveTo(x, y) : ctxG.lineTo(x, y);
+  }
+  ctxG.stroke();
+
+  // đánh dấu đỉnh
+  ctxG.fillStyle = '#ef4444';
+  ctxG.beginPath(); ctxG.arc(px(peakT), py(peak), 5, 0, 2 * Math.PI); ctxG.fill();
+
+  const overPct = (peak - 1) * 100;
+  gibbsInfo.innerHTML = `N = <b>${N}</b> · đỉnh S<sub>N</sub> = <b>${peak.toFixed(4)}</b> tại t≈${peakT.toFixed(3)} · ` +
+    `overshoot trên mức 1 = <b>${overPct.toFixed(1)}%</b>. ` +
+    `Tăng N → đỉnh <b>dịch sát</b> bước nhảy (t→0) nhưng chiều cao <b>hội tụ ~8.95%</b>, không về 0.`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+function redrawTop() { drawBuilder(); drawSpectrum(); }
+waveSel.onchange = redrawTop;
+nSlider.oninput = redrawTop;
+gSlider.oninput = drawGibbs;
+
+redrawTop();
+drawGibbs();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

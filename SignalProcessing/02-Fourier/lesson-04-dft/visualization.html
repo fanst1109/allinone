@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 09 — Biến đổi Fourier rời rạc (DFT)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #0e7490; }
+  h2 {
+    color: #0891b2; margin-top: 40px;
+    padding-bottom: 8px; border-bottom: 2px solid #a5f3fc;
+  }
+  h3 { color: #0e7490; margin-top: 22px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 18px 0;
+    border: 1px solid #e2e8f0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #334155; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  code {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #ecfeff; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #0e7490;
+  }
+  button {
+    background: #0891b2; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #0e7490; }
+  button.preset {
+    background: #ecfeff; color: #0e7490; font-size: 12px;
+    padding: 5px 11px; margin: 3px 4px 3px 0; border: 1px solid #a5f3fc;
+  }
+  button.preset:hover { background: #cffafe; }
+  input[type="text"] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 8px 12px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 100%; max-width: 320px; box-sizing: border-box;
+  }
+  input[type="range"] { vertical-align: middle; }
+  .readout {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #083344; color: #67e8f9; padding: 4px 10px;
+    border-radius: 4px; font-weight: 700; font-size: 14px;
+  }
+  svg { display: block; max-width: 100%; height: auto; }
+
+  table.dft {
+    border-collapse: collapse; margin: 12px 0; width: 100%;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px;
+  }
+  table.dft th, table.dft td {
+    border: 1px solid #cbd5e0; padding: 6px 10px; text-align: center;
+  }
+  table.dft th { background: #ecfeff; color: #0e7490; font-weight: 700; }
+  table.dft td.nyq { background: #fef9c3; }
+  table.dft tr.peak td { background: #cffafe; font-weight: 700; }
+
+  .bar-wrap { overflow-x: auto; }
+  .axis-lbl { font-size: 11px; fill: #64748b; font-family: monospace; }
+  .bar { fill: #0891b2; }
+  .bar.nyq { fill: #f59e0b; }
+  .barlbl { font-size: 11px; fill: #334155; font-family: monospace; }
+
+  @media (max-width: 480px) {
+    table.dft { font-size: 11px; }
+    table.dft th, table.dft td { padding: 4px 5px; }
+    input[type="text"] { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-fourier-transform/visualization.html">← L08: Biến đổi Fourier</a>
+  <span class="sep">·</span>
+  <span class="current">L09: DFT</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-fft/visualization.html">L10: FFT →</a>
+</nav>
+<main>
+  <h1>Biến đổi Fourier rời rạc (DFT)</h1>
+  <p class="hint">Ba module tương tác: (a) máy tính DFT cho dãy bất kỳ, (b) khám phá bin &amp; rò rỉ phổ, (c) căn đơn vị trên vòng tròn. Mọi tính toán chạy bằng số học thuần trong trình duyệt.</p>
+
+  <!-- ============ MODULE A: DFT CALCULATOR ============ -->
+  <h2>① Máy tính DFT — nhập dãy, xem phổ |X[k]|</h2>
+  <div class="card">
+    <div class="row">
+      <label for="seqIn">Dãy mẫu x[n] (cách nhau bởi dấu phẩy):</label>
+    </div>
+    <div class="row">
+      <input type="text" id="seqIn" value="1, 0, -1, 0">
+      <button onclick="computeDFT()">Tính DFT</button>
+    </div>
+    <div class="row">
+      <span class="hint">Dựng nhanh:</span>
+      <button class="preset" onclick="setSeq('1, 0, -1, 0')">[1,0,-1,0]</button>
+      <button class="preset" onclick="setSeq('1, 1, 1, 1')">hằng [1,1,1,1]</button>
+      <button class="preset" onclick="setSeq('0, 1, 0, -1')">sin [0,1,0,-1]</button>
+      <button class="preset" onclick="buildSin(8,1)">sin 1 chu kỳ (N=8)</button>
+      <button class="preset" onclick="buildSin(8,2)">sin 2 chu kỳ (N=8)</button>
+      <button class="preset" onclick="buildSin(16,3)">sin 3 chu kỳ (N=16)</button>
+    </div>
+    <div class="row">
+      <label for="fsIn">f<sub>s</sub> (Hz):</label>
+      <input type="text" id="fsIn" value="8" style="max-width:90px" oninput="computeDFT()">
+      <span class="readout" id="dfRead">Δf = 2.00 Hz</span>
+    </div>
+    <div class="bar-wrap">
+      <svg id="barSvg" width="640" height="280" viewBox="0 0 640 280"></svg>
+    </div>
+    <div id="dftTable"></div>
+  </div>
+
+  <!-- ============ MODULE B: BIN EXPLORER / LEAKAGE ============ -->
+  <h2>② Bin explorer — năng lượng dồn vào bin nào? Rò rỉ phổ</h2>
+  <div class="card">
+    <p class="hint">Sin tần số chỉnh được, lấy mẫu N=16 ở f<sub>s</sub>=16 Hz (Δf = 1 Hz). Khi tần số là số nguyên Hz → rơi đúng bin, năng lượng gọn. Khi rơi <b>giữa hai bin</b> (vd 3.5 Hz) → rò rỉ phổ (spectral leakage).</p>
+    <div class="row">
+      <label for="freqSlider">Tần số sin:</label>
+      <input type="range" id="freqSlider" min="0" max="8" step="0.25" value="3" oninput="updateBin()" style="flex:1; max-width:300px">
+      <span class="readout" id="freqRead">3.00 Hz</span>
+    </div>
+    <div class="row">
+      <button class="preset" onclick="setFreq(2)">2 Hz (đúng bin)</button>
+      <button class="preset" onclick="setFreq(3)">3 Hz (đúng bin)</button>
+      <button class="preset" onclick="setFreq(2.5)">2.5 Hz (giữa bin → rò)</button>
+      <button class="preset" onclick="setFreq(3.5)">3.5 Hz (giữa bin → rò)</button>
+    </div>
+    <div id="leakMsg" class="hint"></div>
+    <div class="bar-wrap">
+      <svg id="leakSvg" width="640" height="240" viewBox="0 0 640 240"></svg>
+    </div>
+  </div>
+
+  <!-- ============ MODULE C: ROOTS OF UNITY ============ -->
+  <h2>③ Căn đơn vị — các hệ số e<sup>−i2πkn/N</sup> trên vòng tròn</h2>
+  <div class="card">
+    <p class="hint">Mỗi hệ số DFT W<sub>N</sub><sup>kn</sup> = e<sup>−i2πkn/N</sup> là một điểm trên vòng tròn đơn vị. Chọn N nhỏ và bin k để xem N vector quay tương ứng — cho bin k này, đây là các sóng mà DFT "so khớp" với tín hiệu.</p>
+    <div class="row">
+      <label for="nSel">N:</label>
+      <select id="nSel" onchange="drawRoots()">
+        <option value="4">4</option>
+        <option value="6">6</option>
+        <option value="8" selected>8</option>
+        <option value="12">12</option>
+      </select>
+      <label for="kSlider">bin k:</label>
+      <input type="range" id="kSlider" min="0" max="7" step="1" value="1" oninput="drawRoots()" style="max-width:240px">
+      <span class="readout" id="kRead">k = 1</span>
+    </div>
+    <svg id="rootSvg" width="420" height="420" viewBox="0 0 420 420"></svg>
+    <p class="hint" id="rootMsg"></p>
+  </div>
+
+</main>
+
+<script>
+// ---------- helpers số phức ----------
+function dft(x) {
+  const N = x.length, X = [];
+  for (let k = 0; k < N; k++) {
+    let re = 0, im = 0;
+    for (let n = 0; n < N; n++) {
+      const ang = -2 * Math.PI * k * n / N;
+      re += x[n] * Math.cos(ang);
+      im += x[n] * Math.sin(ang);
+    }
+    X.push([re, im]);
+  }
+  return X;
+}
+function mag(c) { return Math.hypot(c[0], c[1]); }
+function fmt(v) { return Math.abs(v) < 1e-9 ? '0' : (Math.round(v * 1000) / 1000).toString(); }
+function fmtC(c) {
+  const re = fmt(c[0]), im = fmt(c[1]);
+  if (im === '0') return re;
+  if (re === '0') return (c[1] < 0 ? '' : '') + im + 'i';
+  return re + (c[1] < 0 ? ' − ' + fmt(-c[1]) : ' + ' + im) + 'i';
+}
+
+// ---------- MODULE A ----------
+function setSeq(s) { document.getElementById('seqIn').value = s; computeDFT(); }
+function buildSin(N, cycles) {
+  const arr = [];
+  for (let n = 0; n < N; n++) arr.push(Math.round(Math.sin(2*Math.PI*cycles*n/N)*1000)/1000);
+  document.getElementById('seqIn').value = arr.join(', ');
+  document.getElementById('fsIn').value = N;
+  computeDFT();
+}
+function computeDFT() {
+  const raw = document.getElementById('seqIn').value;
+  const x = raw.split(',').map(s => parseFloat(s.trim())).filter(v => !isNaN(v));
+  if (x.length < 2) return;
+  const N = x.length;
+  const fs = parseFloat(document.getElementById('fsIn').value) || N;
+  const df = fs / N;
+  document.getElementById('dfRead').textContent = `Δf = ${(Math.round(df*100)/100)} Hz`;
+  const X = dft(x);
+  const mags = X.map(mag);
+  const maxMag = Math.max(...mags, 1e-9);
+  const peak = mags.indexOf(maxMag);
+
+  // bar chart
+  const W = 640, H = 280, padL = 44, padB = 46, padT = 16;
+  const plotW = W - padL - 16, plotH = H - padB - padT;
+  const bw = plotW / N * 0.6, gap = plotW / N;
+  let s = '';
+  // axis
+  s += `<line x1="${padL}" y1="${padT+plotH}" x2="${W-8}" y2="${padT+plotH}" stroke="#94a3b8"/>`;
+  s += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+plotH}" stroke="#94a3b8"/>`;
+  s += `<text class="axis-lbl" x="${padL-6}" y="${padT+6}" text-anchor="end">${(Math.round(maxMag*10)/10)}</text>`;
+  s += `<text class="axis-lbl" x="${padL-6}" y="${padT+plotH}" text-anchor="end">0</text>`;
+  const nyq = N % 2 === 0 ? N/2 : -1;
+  for (let k = 0; k < N; k++) {
+    const h = mags[k] / maxMag * plotH;
+    const xpos = padL + gap * k + (gap - bw) / 2;
+    const cls = k === nyq ? 'bar nyq' : 'bar';
+    s += `<rect class="${cls}" x="${xpos}" y="${padT+plotH-h}" width="${bw}" height="${h}"><title>bin ${k}: |X|=${fmt(mags[k])}</title></rect>`;
+    if (N <= 24) {
+      s += `<text class="barlbl" x="${xpos+bw/2}" y="${padT+plotH+14}" text-anchor="middle">${k}</text>`;
+      const hz = Math.round(k*df*10)/10;
+      s += `<text class="axis-lbl" x="${xpos+bw/2}" y="${padT+plotH+30}" text-anchor="middle">${hz}</text>`;
+    }
+  }
+  s += `<text class="axis-lbl" x="${W/2}" y="${H-4}" text-anchor="middle">bin k (dòng dưới: Hz) — cột vàng = Nyquist</text>`;
+  document.getElementById('barSvg').innerHTML = s;
+
+  // table
+  let t = '<table class="dft"><tr><th>k</th><th>f<sub>k</sub> (Hz)</th><th>X[k]</th><th>|X[k]|</th><th>pha (°)</th></tr>';
+  for (let k = 0; k < N; k++) {
+    const cls = k === peak && maxMag > 1e-6 ? ' class="peak"' : '';
+    const tdNyq = k === nyq ? ' class="nyq"' : '';
+    const ph = Math.abs(mags[k]) < 1e-9 ? '—' : Math.round(Math.atan2(X[k][1], X[k][0]) * 180/Math.PI);
+    t += `<tr${cls}><td${tdNyq}>${k}</td><td>${Math.round(k*df*100)/100}</td><td>${fmtC(X[k])}</td><td>${fmt(mags[k])}</td><td>${ph}</td></tr>`;
+  }
+  t += '</table>';
+  if (nyq >= 0) t += '<p class="hint">Ô vàng = bin Nyquist (N/2), tần số f<sub>s</sub>/2. Hàng tô đậm = bin có biên độ lớn nhất.</p>';
+  document.getElementById('dftTable').innerHTML = t;
+}
+
+// ---------- MODULE B ----------
+const LEAK_N = 16, LEAK_FS = 16;
+function setFreq(f) { document.getElementById('freqSlider').value = f; updateBin(); }
+function updateBin() {
+  const f = parseFloat(document.getElementById('freqSlider').value);
+  document.getElementById('freqRead').textContent = f.toFixed(2) + ' Hz';
+  const x = [];
+  for (let n = 0; n < LEAK_N; n++) x.push(Math.sin(2*Math.PI*f*n/LEAK_FS));
+  const X = dft(x), mags = X.map(mag);
+  const maxMag = Math.max(...mags, 1e-9);
+  const df = LEAK_FS / LEAK_N; // = 1
+  const onBin = Math.abs(f / df - Math.round(f / df)) < 1e-6;
+  const msg = document.getElementById('leakMsg');
+  if (f === 0) {
+    msg.innerHTML = '⟶ Tần số 0 → toàn bộ năng lượng vào bin 0 (DC).';
+  } else if (onBin) {
+    msg.innerHTML = `⟶ <b style="color:#0e7490">${f} Hz rơi ĐÚNG bin ${Math.round(f/df)}</b> (và bin gương ${LEAK_N-Math.round(f/df)}). Năng lượng gọn, không rò rỉ.`;
+  } else {
+    msg.innerHTML = `⟶ <b style="color:#b45309">${f} Hz nằm GIỮA bin ${Math.floor(f/df)} và ${Math.ceil(f/df)}</b> → cửa sổ không khít chu kỳ nguyên → <b>rò rỉ phổ</b>: năng lượng trải ra nhiều bin.`;
+  }
+  // bar chart
+  const W = 640, H = 240, padL = 30, padB = 34, padT = 12;
+  const plotW = W - padL - 12, plotH = H - padB - padT;
+  const gap = plotW / LEAK_N, bw = gap * 0.62;
+  let s = '';
+  s += `<line x1="${padL}" y1="${padT+plotH}" x2="${W-8}" y2="${padT+plotH}" stroke="#94a3b8"/>`;
+  const nyq = LEAK_N/2;
+  for (let k = 0; k < LEAK_N; k++) {
+    const h = mags[k] / maxMag * plotH;
+    const xpos = padL + gap * k + (gap - bw)/2;
+    const cls = k === nyq ? 'bar nyq' : 'bar';
+    s += `<rect class="${cls}" x="${xpos}" y="${padT+plotH-h}" width="${bw}" height="${h}"><title>bin ${k}: |X|=${fmt(mags[k])}</title></rect>`;
+    s += `<text class="barlbl" x="${xpos+bw/2}" y="${padT+plotH+13}" text-anchor="middle">${k}</text>`;
+  }
+  s += `<text class="axis-lbl" x="${W/2}" y="${H-3}" text-anchor="middle">bin k = Hz (vì Δf=1). Cột vàng = Nyquist (bin 8)</text>`;
+  document.getElementById('leakSvg').innerHTML = s;
+}
+
+// ---------- MODULE C ----------
+function drawRoots() {
+  const N = parseInt(document.getElementById('nSel').value);
+  const kSl = document.getElementById('kSlider');
+  kSl.max = N - 1;
+  let k = parseInt(kSl.value);
+  if (k > N - 1) { k = N - 1; kSl.value = k; }
+  document.getElementById('kRead').textContent = 'k = ' + k;
+  const cx = 210, cy = 210, R = 160;
+  let s = '';
+  // circle + axes
+  s += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#cbd5e0" stroke-width="1.5"/>`;
+  s += `<line x1="${cx-R-14}" y1="${cy}" x2="${cx+R+14}" y2="${cy}" stroke="#e2e8f0"/>`;
+  s += `<line x1="${cx}" y1="${cy-R-14}" x2="${cx}" y2="${cy+R+14}" stroke="#e2e8f0"/>`;
+  s += `<text class="axis-lbl" x="${cx+R+18}" y="${cy+4}">Re</text>`;
+  s += `<text class="axis-lbl" x="${cx+4}" y="${cy-R-6}">Im</text>`;
+  // points e^{-i 2π k n / N} for n=0..N-1
+  for (let n = 0; n < N; n++) {
+    const ang = -2 * Math.PI * k * n / N; // standard math: counter-clockwise positive; we map Im up
+    const px = cx + R * Math.cos(ang);
+    const py = cy - R * Math.sin(ang); // minus: SVG y down
+    s += `<line x1="${cx}" y1="${cy}" x2="${px}" y2="${py}" stroke="#0891b2" stroke-width="1.5" opacity="0.55"/>`;
+    s += `<circle cx="${px}" cy="${py}" r="6" fill="#0e7490"><title>n=${n}: angle=${Math.round(ang*180/Math.PI)}°</title></circle>`;
+    const lx = cx + (R+20) * Math.cos(ang), ly = cy - (R+20) * Math.sin(ang);
+    s += `<text class="barlbl" x="${lx}" y="${ly+4}" text-anchor="middle">${n}</text>`;
+  }
+  s += `<circle cx="${cx}" cy="${cy}" r="3" fill="#334155"/>`;
+  document.getElementById('rootSvg').innerHTML = s;
+  if (k === 0) {
+    document.getElementById('rootMsg').innerHTML = `k=0: mọi hệ số = e<sup>0</sup> = 1, tất cả ${N} điểm chồng tại (1,0). DFT đang cộng thẳng các mẫu → bin DC.`;
+  } else {
+    document.getElementById('rootMsg').innerHTML = `k=${k}: ${N} hệ số là các căn đơn vị bậc ${N}, mỗi bước nhảy góc −${Math.round(360*k/N)}° (=−2π·${k}/${N}). Càng tăng k, vector quay càng nhanh = so khớp tần số càng cao.`;
+  }
+}
+
+// init
+computeDFT();
+updateBin();
+drawRoots();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

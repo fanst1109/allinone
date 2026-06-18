@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Tương quan & Năng lượng tín hiệu</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #0e7490; }
+  h2 {
+    color: #0891b2; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #a5f3fc;
+  }
+  h3 { color: #0e7490; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #334155; }
+  .hint { color: #64748b; font-size: 13px; margin: 6px 0; }
+  code {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #ecfeff; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #155e75;
+  }
+  .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  button {
+    background: #0891b2; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #0e7490; }
+  button.ghost { background: #ecfeff; color: #155e75; }
+  button.ghost:hover { background: #cffafe; }
+  input[type=text] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 8px 10px;
+    border: 1px solid #cbd5e1; border-radius: 4px;
+    width: 100%; max-width: 320px; box-sizing: border-box;
+  }
+  input[type=range] { width: 100%; max-width: 260px; accent-color: #0891b2; }
+  .readout {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #f0fdff; border-left: 4px solid #0891b2;
+    padding: 10px 14px; border-radius: 4px; margin: 10px 0;
+    color: #155e75; font-size: 14px; white-space: pre-wrap;
+  }
+  svg { max-width: 100%; height: auto; display: block; }
+  canvas { max-width: 100%; height: auto; display: block;
+    border: 1px solid #cbd5e1; border-radius: 6px; background: #0f172a; }
+  table.dat { border-collapse: collapse; margin: 10px 0; font-size: 13px;
+    font-family: "SF Mono", Monaco, Consolas, monospace; }
+  table.dat th, table.dat td { border: 1px solid #cbd5e1; padding: 5px 10px; text-align: center; }
+  table.dat th { background: #ecfeff; color: #155e75; }
+  table.dat td.peak { background: #cffafe; font-weight: 700; color: #0e7490; }
+  .stem-lbl { font-size: 11px; fill: #64748b; font-family: "SF Mono", monospace; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 480px) { .grid-2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-convolution/visualization.html">← L04: Tích chập</a>
+  <span class="sep">·</span>
+  <span class="current">L05: Tương quan & Năng lượng</span>
+  <span class="sep">·</span>
+  <a href="../../02-Fourier/lesson-01-fourier-series/visualization.html">L06: Chuỗi Fourier →</a>
+</nav>
+<main>
+  <h1>Lesson 05 — Tương quan & Năng lượng tín hiệu</h1>
+  <p>Ba phòng thí nghiệm tương tác: (a) trượt một tín hiệu qua tín hiệu kia để dựng hàm tương quan và bắt đỉnh; (b) giấu một sóng sin trong nhiễu rồi để tự tương quan lôi chu kỳ ra; (c) máy tính năng lượng / công suất và minh họa định lý Parseval.</p>
+
+  <h2>(a) Cross-correlation Stepper</h2>
+  <p class="hint">Trượt <code>y</code> qua <code>x</code> theo từng độ trễ <code>m</code>. Mỗi vị trí cho một giá trị tương quan <code>(x⋆y)[m] = Σ x[n]·y[n+m]</code>. Đỉnh = độ trễ khớp nhất. Tương quan <b>không lật</b> y — khác hẳn tích chập.</p>
+  <div class="card">
+    <div class="row">
+      <label>x = </label><input type="text" id="xIn" value="1,2,3,0">
+      <label>y = </label><input type="text" id="yIn" value="0,1,2">
+      <button id="xyApply">Cập nhật</button>
+      <button class="ghost" id="xyPreset">Mẫu khớp lệch</button>
+    </div>
+    <div class="row">
+      <label>Độ trễ m = <span id="mVal" class="mono">0</span></label>
+      <input type="range" id="mSlide" min="-4" max="6" value="0" step="1">
+    </div>
+    <svg id="ccSvg" width="640" height="300" viewBox="0 0 640 300"></svg>
+    <div class="readout" id="ccOut"></div>
+    <h3>Hàm tương quan đầy đủ</h3>
+    <div id="ccTable"></div>
+  </div>
+
+  <h2>(b) Tìm tín hiệu ẩn trong nhiễu</h2>
+  <p class="hint">Một sóng sin chu kỳ <code>P</code> bị chôn dưới nhiễu ngẫu nhiên. Mắt thường nhìn tín hiệu trên (xanh) thấy "loạn", nhưng <b>tự tương quan</b> (dưới) vẫn bật đỉnh tại <code>m = P, 2P, ...</code> — nhiễu không lặp nên bị trung bình về 0.</p>
+  <div class="card">
+    <div class="row">
+      <label>Mức nhiễu = <span id="noiseVal" class="mono">0.8</span></label>
+      <input type="range" id="noiseSlide" min="0" max="3" value="0.8" step="0.1">
+    </div>
+    <div class="row">
+      <label>Chu kỳ ẩn P = <span id="perVal" class="mono">8</span></label>
+      <input type="range" id="perSlide" min="3" max="20" value="8" step="1">
+      <button class="ghost" id="reroll">Đổi nhiễu</button>
+    </div>
+    <canvas id="noiseCanvas" width="640" height="180"></canvas>
+    <p class="hint" style="margin-top:6px">↑ Tín hiệu thu (sin + nhiễu). ↓ Tự tương quan chuẩn hóa — đỉnh đỏ = chu kỳ phát hiện được.</p>
+    <canvas id="acfCanvas" width="640" height="180"></canvas>
+    <div class="readout" id="acfOut"></div>
+  </div>
+
+  <h2>(c) Máy tính Năng lượng / Công suất & Parseval</h2>
+  <p class="hint">Năng lượng <code>E = Σ |x[n]|²</code> (tổng bình phương). Công suất trung bình <code>P = E/N</code>. Parseval: năng lượng miền thời gian = năng lượng miền tần số.</p>
+  <div class="card">
+    <div class="row">
+      <label>x = </label><input type="text" id="eIn" value="3,4,0,-2">
+      <button id="eApply">Tính</button>
+    </div>
+    <div class="grid-2">
+      <div>
+        <h3>Miền thời gian</h3>
+        <svg id="eSvg" width="320" height="180" viewBox="0 0 320 180"></svg>
+        <div class="readout" id="eOut"></div>
+      </div>
+      <div>
+        <h3>Kiểm chứng Parseval</h3>
+        <div class="readout" id="parsOut"></div>
+        <p class="hint">Tính |X[k]|² qua DFT rồi so tổng năng lượng hai miền — phải khớp (sai số làm tròn nhỏ).</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const COL = { x:'#0891b2', y:'#f97316', corr:'#0e7490', axis:'#94a3b8', peak:'#dc2626', grid:'#e2e8f0' };
+
+function parseSeq(s){ return s.split(/[, ]+/).map(v=>v.trim()).filter(v=>v!=='').map(Number).filter(v=>!isNaN(v)); }
+function at(a,i){ return (i>=0 && i<a.length)? a[i] : 0; }
+
+/* ---------- (a) Cross-correlation ---------- */
+let X=[1,2,3,0], Y=[0,1,2];
+const mSlide=document.getElementById('mSlide'), mVal=document.getElementById('mVal');
+
+function crossAt(x,y,m){ let s=0; for(let n=0;n<x.length;n++) s+=x[n]*at(y,n+m); return s; }
+function corrRange(x,y){
+  const out=[]; for(let m=-(y.length+1); m<=x.length; m++) out.push({m, v:crossAt(x,y,m)});
+  return out;
+}
+
+function drawStems(svg, vals, baseX, baseY, w, maxAbs, color, idxFn, hi){
+  const NS='http://www.w3.org/2000/svg';
+  const n=vals.length, step=w/Math.max(n,1), zero=baseY;
+  for(let i=0;i<n;i++){
+    const cx=baseX+step*(i+0.5);
+    const h = maxAbs>0 ? (vals[i]/maxAbs)*40 : 0;
+    const line=document.createElementNS(NS,'line');
+    line.setAttribute('x1',cx); line.setAttribute('x2',cx);
+    line.setAttribute('y1',zero); line.setAttribute('y2',zero-h);
+    line.setAttribute('stroke', (hi===i)?COL.peak:color); line.setAttribute('stroke-width',(hi===i)?4:3);
+    svg.appendChild(line);
+    const dot=document.createElementNS(NS,'circle');
+    dot.setAttribute('cx',cx); dot.setAttribute('cy',zero-h); dot.setAttribute('r',(hi===i)?5:4);
+    dot.setAttribute('fill',(hi===i)?COL.peak:color); svg.appendChild(dot);
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',cx); t.setAttribute('y',zero+14); t.setAttribute('text-anchor','middle');
+    t.setAttribute('class','stem-lbl'); t.textContent=idxFn(i); svg.appendChild(t);
+  }
+  const ax=document.createElementNS(NS,'line');
+  ax.setAttribute('x1',baseX); ax.setAttribute('x2',baseX+w);
+  ax.setAttribute('y1',zero); ax.setAttribute('y2',zero);
+  ax.setAttribute('stroke',COL.axis); svg.appendChild(ax);
+}
+
+function svgText(svg,x,y,txt,color,size){
+  const NS='http://www.w3.org/2000/svg';
+  const t=document.createElementNS(NS,'text');
+  t.setAttribute('x',x); t.setAttribute('y',y); t.setAttribute('fill',color||'#334155');
+  t.setAttribute('font-size',size||13); t.setAttribute('font-weight',600); t.textContent=txt;
+  svg.appendChild(t);
+}
+
+function renderCC(){
+  const svg=document.getElementById('ccSvg'); svg.innerHTML='';
+  const m=+mSlide.value; mVal.textContent=m;
+  const maxX=Math.max(1,...X.map(Math.abs));
+  // row 1: x
+  svgText(svg,10,20,'x[n]',COL.x);
+  drawStems(svg, X, 60, 70, 520, maxX, COL.x, i=>i, -1);
+  // row 2: y shifted to align with x at lag m  (y[n+m] sits under x[n] when index n -> position n)
+  svgText(svg,10,150,'y[n+m]',COL.y);
+  const yAligned=[]; for(let n=0;n<X.length;n++) yAligned.push(at(Y,n+m));
+  const maxY=Math.max(1,...Y.map(Math.abs));
+  drawStems(svg, yAligned, 60, 200, 520, maxY, COL.y, i=>i, -1);
+  // products + sum
+  let prodTerms=[], s=0;
+  for(let n=0;n<X.length;n++){ const p=X[n]*at(Y,n+m); if(p!==0) prodTerms.push(`${X[n]}·${at(Y,n+m)}`); s+=p; }
+  const out=document.getElementById('ccOut');
+  out.textContent = `(x⋆y)[${m}] = Σ x[n]·y[n+${m}]\n  = ${prodTerms.length?prodTerms.join(' + '):'0'} = ${s}`;
+  renderCCTable(m);
+}
+
+function renderCCTable(curM){
+  const data=corrRange(X,Y);
+  const peak=data.reduce((a,b)=>Math.abs(b.v)>Math.abs(a.v)?b:a, data[0]);
+  let html='<table class="dat"><tr><th>m</th>'+data.map(d=>`<td${d.m===peak.m?' class="peak"':''}>${d.m}</td>`).join('')+'</tr>';
+  html+='<tr><th>(x⋆y)[m]</th>'+data.map(d=>`<td${d.m===peak.m?' class="peak"':(d.m===curM?' style="background:#fef9c3"':'')}>${d.v}</td>`).join('')+'</tr></table>';
+  html+=`<p class="hint">Đỉnh tại <b>m = ${peak.m}</b> (giá trị ${peak.v}) → y khớp x nhất khi dịch ${peak.m} mẫu. Ô vàng = m đang chọn.</p>`;
+  document.getElementById('ccTable').innerHTML=html;
+}
+
+document.getElementById('xyApply').onclick=()=>{
+  X=parseSeq(document.getElementById('xIn').value);
+  Y=parseSeq(document.getElementById('yIn').value);
+  if(!X.length) X=[0]; if(!Y.length) Y=[0];
+  mSlide.min=-(Y.length+1); mSlide.max=X.length;
+  renderCC();
+};
+document.getElementById('xyPreset').onclick=()=>{
+  document.getElementById('xIn').value='0,0,1,2,1,0,0';
+  document.getElementById('yIn').value='1,2,1';
+  document.getElementById('xyApply').click();
+};
+mSlide.oninput=renderCC;
+
+/* ---------- (b) Signal hidden in noise ---------- */
+const noiseSlide=document.getElementById('noiseSlide'), perSlide=document.getElementById('perSlide');
+const noiseVal=document.getElementById('noiseVal'), perVal=document.getElementById('perVal');
+let noiseSeed=[];
+const N_B=128;
+function reroll(){ noiseSeed=Array.from({length:N_B},()=>Math.random()*2-1); drawNoise(); }
+function buildSignal(){
+  const P=+perSlide.value, amp=1, nl=+noiseSlide.value, sig=[];
+  for(let n=0;n<N_B;n++) sig.push(amp*Math.sin(2*Math.PI*n/P) + nl*noiseSeed[n]);
+  return sig;
+}
+function autocorr(s){
+  const N=s.length, mean=s.reduce((a,b)=>a+b,0)/N;
+  const c=s.map(v=>v-mean), out=[];
+  let r0=0; for(let n=0;n<N;n++) r0+=c[n]*c[n];
+  for(let m=0;m<N/2;m++){ let acc=0; for(let n=0;n<N-m;n++) acc+=c[n]*c[n+m]; out.push(r0>0?acc/r0:0); }
+  return out;
+}
+function drawCanvasSignal(cv, vals, color, zeroCenter){
+  const ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0f172a'; ctx.fillRect(0,0,W,H);
+  const mid=H/2, maxA=Math.max(0.001,...vals.map(Math.abs));
+  ctx.strokeStyle='#1e293b'; ctx.beginPath(); ctx.moveTo(0,mid); ctx.lineTo(W,mid); ctx.stroke();
+  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.beginPath();
+  vals.forEach((v,i)=>{ const x=i/(vals.length-1)*W; const y=mid - (v/maxA)*(H*0.42); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+  ctx.stroke();
+  return {mid,maxA,W,H};
+}
+function drawNoise(){
+  noiseVal.textContent=(+noiseSlide.value).toFixed(1); perVal.textContent=perSlide.value;
+  const sig=buildSignal();
+  drawCanvasSignal(document.getElementById('noiseCanvas'), sig, '#22d3ee', true);
+  const acf=autocorr(sig);
+  const cv=document.getElementById('acfCanvas'); const ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,mid=H-14;
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0f172a'; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#1e293b'; ctx.beginPath(); ctx.moveTo(0,mid); ctx.lineTo(W,mid); ctx.stroke();
+  // find first peak after m>2
+  let peakM=-1,peakV=-2;
+  for(let m=3;m<acf.length-1;m++){ if(acf[m]>acf[m-1]&&acf[m]>acf[m+1]&&acf[m]>peakV){peakV=acf[m];peakM=m;} }
+  const step=W/acf.length;
+  acf.forEach((v,m)=>{
+    const x=m*step+step/2, h=v*(H-24);
+    ctx.strokeStyle = (m===peakM)?COL.peak:'#0e7490'; ctx.lineWidth=(m===peakM)?3:2;
+    ctx.beginPath(); ctx.moveTo(x,mid); ctx.lineTo(x,mid-h); ctx.stroke();
+  });
+  const out=document.getElementById('acfOut');
+  if(peakM>0){
+    out.textContent=`Chu kỳ thật P = ${perSlide.value}. Đỉnh phụ tự tương quan đầu tiên tại m = ${peakM} (giá trị ${peakV.toFixed(2)}) → chu kỳ phát hiện được ≈ ${peakM}.\n`+
+      (Math.abs(peakM-(+perSlide.value))<=1 ? '✓ Khớp! Dù nhiễu lớn, đỉnh chu kỳ vẫn trụ.' : 'Nhiễu quá lớn làm lệch đỉnh — giảm mức nhiễu để khóa lại đúng chu kỳ.');
+  } else out.textContent='Chưa thấy đỉnh phụ rõ — tăng biên độ tín hiệu / giảm nhiễu.';
+}
+noiseSlide.oninput=drawNoise; perSlide.oninput=drawNoise;
+document.getElementById('reroll').onclick=reroll;
+
+/* ---------- (c) Energy / Power / Parseval ---------- */
+function dftMagSq(x){
+  const N=x.length, out=[];
+  for(let k=0;k<N;k++){
+    let re=0,im=0;
+    for(let n=0;n<N;n++){ const a=-2*Math.PI*k*n/N; re+=x[n]*Math.cos(a); im+=x[n]*Math.sin(a); }
+    out.push(re*re+im*im);
+  }
+  return out;
+}
+function renderEnergy(){
+  const x=parseSeq(document.getElementById('eIn').value);
+  const svg=document.getElementById('eSvg'); svg.innerHTML='';
+  if(!x.length){ document.getElementById('eOut').textContent='Nhập dãy số.'; return; }
+  const maxA=Math.max(1,...x.map(Math.abs));
+  drawStems(svg, x, 30, 90, 260, maxA, COL.x, i=>i, -1);
+  svgText(svg,8,16,'x[n]',COL.x);
+  const E=x.reduce((a,b)=>a+b*b,0), P=E/x.length;
+  const terms=x.map(v=>`${v}²`).join('+');
+  document.getElementById('eOut').textContent=`E = Σ|x[n]|² = ${terms} = ${E}\nN = ${x.length}\nP = E/N = ${E}/${x.length} = ${(P).toFixed(3)}`;
+  const mags=dftMagSq(x);
+  const freqEnergy=mags.reduce((a,b)=>a+b,0)/x.length;
+  const magStr=mags.map(v=>v.toFixed(1)).join(', ');
+  document.getElementById('parsOut').textContent=
+    `Thời gian:  Σ|x[n]|²        = ${E}\n`+
+    `Tần số:     (1/N)·Σ|X[k]|²  = ${freqEnergy.toFixed(3)}\n`+
+    `|X[k]|² = [${magStr}]\n`+
+    (Math.abs(E-freqEnergy)<1e-6 ? '✓ Hai miền khớp — định lý Parseval.' : '✓ Khớp (sai số làm tròn '+Math.abs(E-freqEnergy).toExponential(1)+').');
+}
+document.getElementById('eApply').onclick=renderEnergy;
+
+/* init */
+renderCC(); reroll(); renderEnergy();
+</script>
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

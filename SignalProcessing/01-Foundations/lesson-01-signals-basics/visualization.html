@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Tín hiệu cơ bản · Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #0e7490; }
+  h2 {
+    color: #0891b2; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #a5f3fc;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0 12px; }
+  label { font-weight: 600; color: #334155; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #ecfeff; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #0e7490;
+  }
+  canvas { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; }
+
+  /* Slider rows */
+  .ctrl { display: grid; grid-template-columns: 60px 1fr 90px; gap: 12px; align-items: center; margin: 10px 0; }
+  .ctrl input[type=range] { width: 100%; accent-color: #0891b2; }
+  .ctrl .readout {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; color: #0e7490; font-weight: 700; text-align: right;
+  }
+  .formula {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 18px; color: #0e7490; background: #ecfeff;
+    padding: 12px 16px; border-radius: 6px; margin: 12px 0;
+    border-left: 4px solid #0891b2; word-break: break-word;
+  }
+
+  /* Phasor layout */
+  .phasor-wrap { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+  .phasor-wrap > div { flex: 1 1 280px; }
+
+  /* dB calculator */
+  .db-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  input.num {
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 16px;
+    padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px;
+    width: 100%; max-width: 140px; box-sizing: border-box;
+  }
+  .db-out {
+    font-size: 22px; font-weight: 700; color: #0891b2;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  button {
+    background: #0891b2; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #0e7490; }
+  button.preset {
+    background: #ecfeff; color: #0e7490; font-size: 12px;
+    padding: 4px 10px; margin: 3px 4px 3px 0;
+  }
+  button.preset:hover { background: #a5f3fc; }
+
+  table.db {
+    border-collapse: collapse; margin: 14px 0; width: 100%;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 14px;
+  }
+  table.db th, table.db td {
+    border: 1px solid #cbd5e1; padding: 6px 12px; text-align: center;
+  }
+  table.db th { background: #ecfeff; color: #0e7490; }
+  table.db td.note { font-family: inherit; color: #64748b; font-size: 13px; }
+
+  @media (max-width: 480px) {
+    .ctrl { grid-template-columns: 44px 1fr 70px; gap: 8px; }
+    .formula { font-size: 15px; padding: 10px 12px; }
+    .db-out { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L01: Tín hiệu cơ bản</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-sampling-nyquist/visualization.html">L02: Lấy mẫu & Nyquist →</a>
+</nav>
+
+<main>
+  <h1>Lesson 01 — Tín hiệu là gì?</h1>
+  <p>Ba bộ công cụ tương tác: dựng sóng sin bằng slider, phasor quay đồng bộ với sóng, và máy tính decibel.</p>
+
+  <h2>1. Sin builder — dựng sóng x(t) = A·sin(2πf·t + φ)</h2>
+  <p class="hint">Kéo slider biên độ A, tần số f, pha φ. Đồ thị vẽ lại tức thì; công thức và giá trị tại t cập nhật theo.</p>
+  <div class="card">
+    <div class="ctrl">
+      <label>A</label>
+      <input type="range" id="sA" min="0" max="5" step="0.1" value="3">
+      <span class="readout" id="rA">3.0</span>
+    </div>
+    <div class="ctrl">
+      <label>f (Hz)</label>
+      <input type="range" id="sF" min="0.5" max="8" step="0.5" value="2">
+      <span class="readout" id="rF">2.0 Hz</span>
+    </div>
+    <div class="ctrl">
+      <label>φ (rad)</label>
+      <input type="range" id="sP" min="-3.14159" max="3.14159" step="0.0785" value="0">
+      <span class="readout" id="rP">0.00</span>
+    </div>
+    <div class="formula" id="sinFormula"></div>
+    <canvas id="sinCanvas" width="760" height="280"></canvas>
+    <p class="hint" id="sinInfo"></p>
+  </div>
+
+  <h2>2. Phasor — cây kim quay tạo ra sóng sin</h2>
+  <p class="hint">
+    Cây kim dài A quay ngược chiều kim đồng hồ với tốc độ ω = 2πf. Hình chiếu đầu kim xuống trục dọc (đỏ)
+    chính là sóng sin đang chạy bên phải. Đây là lý do sóng = phần ảo (hoặc thực) của số phức A·e<sup>iφ</sup>·e<sup>iωt</sup>.
+  </p>
+  <div class="card">
+    <div class="ctrl">
+      <label>A</label>
+      <input type="range" id="pA" min="0.2" max="1.4" step="0.05" value="1">
+      <span class="readout" id="prA">1.00</span>
+    </div>
+    <div class="ctrl">
+      <label>f (Hz)</label>
+      <input type="range" id="pF" min="0.2" max="2" step="0.1" value="0.6">
+      <span class="readout" id="prF">0.6 Hz</span>
+    </div>
+    <div class="ctrl">
+      <label>φ (rad)</label>
+      <input type="range" id="pP" min="-3.14159" max="3.14159" step="0.0785" value="0">
+      <span class="readout" id="prP">0.00</span>
+    </div>
+    <div class="db-row">
+      <button id="pToggle">⏸ Tạm dừng</button>
+      <span class="hint" id="phasorInfo" style="margin:0;"></span>
+    </div>
+    <div class="phasor-wrap">
+      <div>
+        <canvas id="phasorCanvas" width="320" height="320"></canvas>
+      </div>
+      <div>
+        <canvas id="waveCanvas" width="380" height="320"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <h2>3. Máy tính decibel — 20·log₁₀(A / A_ref)</h2>
+  <p class="hint">Nhập biên độ A và mốc tham chiếu A_ref. Hệ số 20 vì công suất ∝ A² (dB gốc đo công suất).</p>
+  <div class="card">
+    <div class="db-row">
+      <label>A =</label> <input class="num" id="dbA" type="number" value="2" step="any">
+      <label>A_ref =</label> <input class="num" id="dbRef" type="number" value="1" step="any">
+      <span>→</span> <span class="db-out" id="dbOut">+6.02 dB</span>
+    </div>
+    <div class="db-row">
+      <span class="hint" style="margin:0 8px 0 0;">Tỉ số nhanh:</span>
+      <button class="preset" data-r="2">×2</button>
+      <button class="preset" data-r="1.41421356">×√2</button>
+      <button class="preset" data-r="10">×10</button>
+      <button class="preset" data-r="0.5">×0.5</button>
+      <button class="preset" data-r="100">×100</button>
+      <button class="preset" data-r="0.1">×0.1</button>
+    </div>
+    <table class="db">
+      <thead><tr><th>Tỉ số A/A_ref</th><th>dB = 20·log₁₀(·)</th><th class="note">Ghi nhớ</th></tr></thead>
+      <tbody>
+        <tr><td>2 (gấp đôi)</td><td>+6.02</td><td class="note">×2 ≈ +6 dB</td></tr>
+        <tr><td>√2 ≈ 1.414</td><td>+3.01</td><td class="note">×√2 ≈ +3 dB (gấp đôi công suất)</td></tr>
+        <tr><td>10</td><td>+20.00</td><td class="note">×10 = +20 dB</td></tr>
+        <tr><td>0.5 (một nửa)</td><td>−6.02</td><td class="note">nửa biên độ ≈ −6 dB</td></tr>
+        <tr><td>100</td><td>+40.00</td><td class="note">×10 hai lần = +20+20</td></tr>
+        <tr><td>1 (bằng mốc)</td><td>0.00</td><td class="note">0 dB ≠ im lặng</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+// ───────────────────────── 1) Sin builder ─────────────────────────
+const sA = document.getElementById('sA'), sF = document.getElementById('sF'), sP = document.getElementById('sP');
+const rA = document.getElementById('rA'), rF = document.getElementById('rF'), rP = document.getElementById('rP');
+const sinCanvas = document.getElementById('sinCanvas');
+const sinFormula = document.getElementById('sinFormula');
+const sinInfo = document.getElementById('sinInfo');
+
+function drawAxes(ctx, W, H, midY) {
+  ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(W, midY); ctx.stroke();
+  ctx.strokeStyle = '#e2e8f0';
+  for (let gx = 0; gx <= W; gx += W / 8) {
+    ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
+  }
+}
+
+function drawSin() {
+  const A = +sA.value, f = +sF.value, phi = +sP.value;
+  rA.textContent = A.toFixed(1);
+  rF.textContent = f.toFixed(1) + ' Hz';
+  rP.textContent = phi.toFixed(2);
+
+  const ctx = sinCanvas.getContext('2d');
+  const W = sinCanvas.width, H = sinCanvas.height, midY = H / 2;
+  ctx.clearRect(0, 0, W, H);
+  drawAxes(ctx, W, H, midY);
+
+  const Tspan = 1.0;           // vẽ 1 giây
+  const yScale = (H / 2 - 16) / 5; // A max = 5
+  ctx.strokeStyle = '#0891b2'; ctx.lineWidth = 2.5; ctx.beginPath();
+  for (let px = 0; px <= W; px++) {
+    const t = (px / W) * Tspan;
+    const y = A * Math.sin(2 * Math.PI * f * t + phi);
+    const py = midY - y * yScale;
+    px === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // marker tại t = 0.1s
+  const tm = 0.1, ym = A * Math.sin(2 * Math.PI * f * tm + phi);
+  const pxm = (tm / Tspan) * W, pym = midY - ym * yScale;
+  ctx.fillStyle = '#dc2626';
+  ctx.beginPath(); ctx.arc(pxm, pym, 5, 0, 2 * Math.PI); ctx.fill();
+
+  const phiDeg = (phi * 180 / Math.PI).toFixed(0);
+  sinFormula.textContent = `x(t) = ${A.toFixed(1)}·sin(2π·${f.toFixed(1)}·t + ${phi.toFixed(2)})`;
+  const T = (1 / f);
+  sinInfo.innerHTML = `ω = 2πf = ${(2*Math.PI*f).toFixed(2)} rad/s · T = 1/f = ${T.toFixed(4)} s · φ = ${phiDeg}° · ` +
+    `chấm đỏ: x(0.1) = ${ym.toFixed(3)}`;
+}
+[sA, sF, sP].forEach(s => s.addEventListener('input', drawSin));
+drawSin();
+
+// ───────────────────────── 2) Phasor ─────────────────────────
+const pA = document.getElementById('pA'), pF = document.getElementById('pF'), pP = document.getElementById('pP');
+const prA = document.getElementById('prA'), prF = document.getElementById('prF'), prP = document.getElementById('prP');
+const phasorCanvas = document.getElementById('phasorCanvas');
+const waveCanvas = document.getElementById('waveCanvas');
+const phasorInfo = document.getElementById('phasorInfo');
+const pToggle = document.getElementById('pToggle');
+
+let running = true, t0 = performance.now();
+const history = []; // {y} samples cuộn
+
+pToggle.onclick = () => {
+  running = !running;
+  pToggle.textContent = running ? '⏸ Tạm dừng' : '▶ Chạy';
+  if (running) { t0 = performance.now() - elapsed * 1000; requestAnimationFrame(loop); }
+};
+[pA, pF, pP].forEach(s => s.addEventListener('input', () => {
+  prA.textContent = (+pA.value).toFixed(2);
+  prF.textContent = (+pF.value).toFixed(1) + ' Hz';
+  prP.textContent = (+pP.value).toFixed(2);
+}));
+
+let elapsed = 0;
+function loop(now) {
+  if (running) elapsed = (now - t0) / 1000;
+  const A = +pA.value, f = +pF.value, phi = +pP.value;
+  prA.textContent = A.toFixed(2);
+  prF.textContent = f.toFixed(1) + ' Hz';
+  prP.textContent = phi.toFixed(2);
+  const omega = 2 * Math.PI * f;
+  const theta = omega * elapsed + phi;       // góc kim hiện tại
+  const yNow = A * Math.sin(theta);
+
+  // --- vòng tròn phasor ---
+  const c = phasorCanvas.getContext('2d');
+  const W = phasorCanvas.width, H = phasorCanvas.height;
+  const cx = W / 2, cy = H / 2, R = 110;
+  c.clearRect(0, 0, W, H);
+  // trục
+  c.strokeStyle = '#e2e8f0'; c.lineWidth = 1;
+  c.beginPath(); c.moveTo(0, cy); c.lineTo(W, cy); c.stroke();
+  c.beginPath(); c.moveTo(cx, 0); c.lineTo(cx, H); c.stroke();
+  // vòng tròn bán kính A
+  c.strokeStyle = '#cbd5e1'; c.beginPath(); c.arc(cx, cy, R, 0, 2 * Math.PI); c.stroke();
+  // kim (góc dương = ngược chiều kim đồng hồ → trừ trong y)
+  const tipX = cx + R * Math.cos(theta), tipY = cy - R * Math.sin(theta);
+  c.strokeStyle = '#0891b2'; c.lineWidth = 3;
+  c.beginPath(); c.moveTo(cx, cy); c.lineTo(tipX, tipY); c.stroke();
+  c.fillStyle = '#0891b2'; c.beginPath(); c.arc(tipX, tipY, 6, 0, 2 * Math.PI); c.fill();
+  // hình chiếu xuống trục dọc
+  c.strokeStyle = '#dc2626'; c.setLineDash([4, 4]);
+  c.beginPath(); c.moveTo(tipX, tipY); c.lineTo(cx, tipY); c.stroke();
+  c.setLineDash([]);
+  c.fillStyle = '#dc2626'; c.beginPath(); c.arc(cx, tipY, 5, 0, 2 * Math.PI); c.fill();
+
+  // --- sóng cuộn ---
+  history.push(yNow);
+  if (history.length > 380) history.shift();
+  const wc = waveCanvas.getContext('2d');
+  const WW = waveCanvas.width, WH = waveCanvas.height, mid = WH / 2;
+  wc.clearRect(0, 0, WW, WH);
+  wc.strokeStyle = '#e2e8f0'; wc.lineWidth = 1;
+  wc.beginPath(); wc.moveTo(0, mid); wc.lineTo(WW, mid); wc.stroke();
+  const yS = (WH / 2 - 16) / 1.4;
+  wc.strokeStyle = '#0891b2'; wc.lineWidth = 2; wc.beginPath();
+  for (let i = 0; i < history.length; i++) {
+    const px = i, py = mid - history[i] * yS;
+    i === 0 ? wc.moveTo(px, py) : wc.lineTo(px, py);
+  }
+  wc.stroke();
+  // điểm hiện tại (đầu sóng) khớp chấm đỏ phasor
+  const lastPx = history.length - 1, lastPy = mid - yNow * yS;
+  wc.fillStyle = '#dc2626'; wc.beginPath(); wc.arc(lastPx, lastPy, 5, 0, 2 * Math.PI); wc.fill();
+
+  phasorInfo.textContent = `θ = ωt + φ = ${theta.toFixed(2)} rad · sin θ = ${Math.sin(theta).toFixed(3)} · x = A·sin θ = ${yNow.toFixed(3)}`;
+
+  if (running) requestAnimationFrame(loop);
+}
+prA.textContent = (+pA.value).toFixed(2);
+prF.textContent = (+pF.value).toFixed(1) + ' Hz';
+prP.textContent = (+pP.value).toFixed(2);
+requestAnimationFrame(loop);
+
+// ───────────────────────── 3) dB calculator ─────────────────────────
+const dbA = document.getElementById('dbA'), dbRef = document.getElementById('dbRef'), dbOut = document.getElementById('dbOut');
+function calcDb() {
+  const A = parseFloat(dbA.value), ref = parseFloat(dbRef.value);
+  if (!(A > 0) || !(ref > 0)) { dbOut.textContent = '— (cần A, A_ref > 0)'; return; }
+  const db = 20 * Math.log10(A / ref);
+  dbOut.textContent = (db >= 0 ? '+' : '') + db.toFixed(2) + ' dB';
+}
+[dbA, dbRef].forEach(el => el.addEventListener('input', calcDb));
+document.querySelectorAll('button.preset').forEach(b => {
+  b.onclick = () => { dbRef.value = '1'; dbA.value = b.dataset.r; calcDb(); };
+});
+calcDb();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

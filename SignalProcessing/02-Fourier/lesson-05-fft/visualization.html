@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 10 — FFT (Cooley-Tukey) Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #0e7490; }
+  h2 {
+    color: #0891b2; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #a5f3fc;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #155e75; }
+  .hint { color: #64748b; font-size: 13px; margin: 4px 0; }
+  code {
+    background: #ecfeff; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #0e7490;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  button {
+    background: #0891b2; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #0e7490; }
+  button.ghost { background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc; }
+  button.ghost:hover { background: #cffafe; }
+  button.preset { background: #ecfeff; color: #0e7490; font-size: 12px; padding: 5px 10px; }
+  button.preset:hover { background: #cffafe; }
+
+  input[type=range] { accent-color: #0891b2; }
+  input[type=text] {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 8px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 100%; max-width: 320px; box-sizing: border-box;
+  }
+  .readout {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; background: #f0fdff; border-left: 4px solid #0891b2;
+    padding: 10px 14px; border-radius: 4px; margin: 10px 0; white-space: pre-wrap;
+  }
+
+  /* butterfly svg */
+  .bf-wrap { overflow-x: auto; }
+  svg.bf { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+  .node { fill: #0891b2; }
+  .edge { stroke: #94a3b8; stroke-width: 1.6; fill: none; }
+  .edge.hot { stroke: #db2777; stroke-width: 3; }
+  .twlabel { font-size: 11px; fill: #be185d; font-family: "SF Mono", monospace; }
+  .idxlabel { font-size: 12px; fill: #334155; font-family: "SF Mono", monospace; }
+  .stagelabel { font-size: 13px; fill: #0e7490; font-weight: 700; }
+
+  /* complexity bars */
+  .barbox { display: flex; align-items: flex-end; gap: 30px; height: 200px; margin: 16px 0; }
+  .barcol { display: flex; flex-direction: column; align-items: center; flex: 1; max-width: 120px; }
+  .bar { width: 60px; border-radius: 6px 6px 0 0; transition: height 0.4s; }
+  .bar.n2 { background: #ef4444; }
+  .bar.nlogn { background: #0891b2; }
+  .barlabel { margin-top: 8px; font-size: 12px; color: #475569; text-align: center; font-weight: 600; }
+  table.cmp { border-collapse: collapse; margin: 12px 0; font-size: 14px; width: 100%; }
+  table.cmp th, table.cmp td { border: 1px solid #cbd5e0; padding: 6px 10px; text-align: right; }
+  table.cmp th { background: #ecfeff; color: #0e7490; }
+  table.cmp td:first-child, table.cmp th:first-child { text-align: center; }
+  table.cmp tr.active td { background: #f0fdff; font-weight: 700; }
+
+  /* fft runner spectrum */
+  .spec { display: flex; align-items: flex-end; gap: 4px; height: 160px; border-bottom: 2px solid #94a3b8; padding-top: 8px; }
+  .sbar { flex: 1; background: #0891b2; border-radius: 3px 3px 0 0; min-height: 2px; position: relative; }
+  .sbar span { position: absolute; bottom: -20px; left: 0; right: 0; text-align: center; font-size: 11px; color: #475569; }
+  .ok { color: #059669; font-weight: 700; }
+  .bad { color: #dc2626; font-weight: 700; }
+
+  @media (max-width: 480px) {
+    .barbox { gap: 14px; }
+    .bar { width: 44px; }
+    table.cmp { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-dft/visualization.html">← L09: DFT</a>
+  <span class="sep">·</span>
+  <span class="current">L10: FFT</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-spectrogram-stft/visualization.html">L11: Spectrogram →</a>
+</nav>
+<main>
+  <h1>Lesson 10 — FFT: Fast Fourier Transform (Cooley-Tukey)</h1>
+  <p>Ba module tương tác: sơ đồ butterfly cho N=8 chạy từng tầng, so sánh độ phức tạp O(N²) vs O(N log N), và bộ chạy FFT đối chiếu với DFT trực tiếp.</p>
+
+  <h2>1. Sơ đồ Butterfly — FFT radix-2 DIT, N = 8</h2>
+  <p class="hint">Đầu vào đã sắp theo bit-reversal (trái). Có log₂8 = 3 tầng, mỗi tầng 4 butterfly. Bấm "Tầng tiếp" để tô từng tầng; cạnh hồng = butterfly đang hoạt động, nhãn hồng = twiddle Wₙᵏ.</p>
+  <div class="card">
+    <div class="row">
+      <button id="bfPrev" class="ghost">‹ Tầng trước</button>
+      <button id="bfNext">Tầng tiếp ›</button>
+      <button id="bfReset" class="ghost">Reset</button>
+      <span id="bfStage" style="font-weight:700;color:#0e7490;"></span>
+    </div>
+    <div class="bf-wrap">
+      <svg class="bf" width="640" height="430" viewBox="0 0 640 430" id="bfSvg"></svg>
+    </div>
+    <div class="readout" id="bfNote"></div>
+  </div>
+
+  <h2>2. So sánh độ phức tạp — O(N²) vs O(N log N)</h2>
+  <p class="hint">Kéo slider chọn N (luôn là lũy thừa của 2). Cột đỏ = số phép DFT trực tiếp (N²), cột xanh = FFT (½·N·log₂N). Chú ý trục cao theo log để cột FFT không biến mất.</p>
+  <div class="card">
+    <div class="row">
+      <label>N = 2^<span id="kVal">10</span> = <span id="nVal" style="color:#0e7490;font-weight:700;">1024</span></label>
+    </div>
+    <div class="row">
+      <input type="range" id="kSlider" min="3" max="22" value="10" style="flex:1;max-width:400px;">
+    </div>
+    <div class="barbox">
+      <div class="barcol"><div class="bar n2" id="barN2"></div><div class="barlabel">DFT: N²<br><span id="lblN2"></span></div></div>
+      <div class="barcol"><div class="bar nlogn" id="barNL"></div><div class="barlabel">FFT: ½N·log₂N<br><span id="lblNL"></span></div></div>
+    </div>
+    <div class="readout" id="cmpNote"></div>
+    <table class="cmp" id="cmpTable">
+      <thead><tr><th>N</th><th>DFT N²</th><th>FFT ½N·log₂N</th><th>Tăng tốc</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <h2>3. FFT Runner — chạy thật, đối chiếu DFT</h2>
+  <p class="hint">Nhập tín hiệu (các số cách nhau bằng dấu phẩy; độ dài tự cắt/đệm 0 về lũy thừa 2). Bấm "Chạy FFT" để xem phổ |X[k]| và so khớp với DFT trực tiếp.</p>
+  <div class="card">
+    <div class="row">
+      <input type="text" id="sigInput" value="0,1,2,3,4,5,6,7">
+      <button id="runBtn">Chạy FFT</button>
+    </div>
+    <div class="row">
+      <span class="hint" style="margin-right:6px;">Mẫu:</span>
+      <button class="preset" data-sig="0,1,2,3,4,5,6,7">dốc 0..7</button>
+      <button class="preset" data-sig="1,0,-1,0,1,0,-1,0">cos chu kỳ 4</button>
+      <button class="preset" data-sig="1,1,1,1,0,0,0,0">xung vuông</button>
+      <button class="preset" data-sig="1,2,3,4">N=4</button>
+    </div>
+    <div class="readout" id="runMeta"></div>
+    <div class="spec" id="specBox" style="margin-bottom:28px;"></div>
+    <div class="readout" id="runCheck"></div>
+  </div>
+</main>
+
+<script>
+/* ===== Số phức tiện ích ===== */
+const cx = (re, im=0) => ({re, im});
+const cadd = (a,b) => ({re:a.re+b.re, im:a.im+b.im});
+const csub = (a,b) => ({re:a.re-b.re, im:a.im-b.im});
+const cmul = (a,b) => ({re:a.re*b.re - a.im*b.im, im:a.re*b.im + a.im*b.re});
+const cabs = a => Math.sqrt(a.re*a.re + a.im*a.im);
+const twiddle = (k,N) => ({re: Math.cos(-2*Math.PI*k/N), im: Math.sin(-2*Math.PI*k/N)});
+function fmtC(a){
+  const r = Math.abs(a.re)<1e-9?0:a.re, i = Math.abs(a.im)<1e-9?0:a.im;
+  const rr = (Math.round(r*1000)/1000), ii = (Math.round(i*1000)/1000);
+  if (ii===0) return `${rr}`;
+  return `${rr}${ii>=0?'+':'−'}${Math.abs(ii)}i`;
+}
+
+/* bit-reversal */
+function bitrev(N){
+  const bits = Math.log2(N), out = [];
+  for(let i=0;i<N;i++){ let r=0; for(let b=0;b<bits;b++){ r=(r<<1)|((i>>b)&1); } out.push(r); }
+  return out;
+}
+/* FFT iterative radix-2 DIT */
+function fft(x){
+  const N = x.length, a = x.map(v=>cx(v.re,v.im)), rev = bitrev(N);
+  for(let i=0;i<N;i++){ if(i<rev[i]){ const t=a[i]; a[i]=a[rev[i]]; a[rev[i]]=t; } }
+  for(let len=2; len<=N; len<<=1){
+    const half=len>>1;
+    for(let i=0;i<N;i+=len){
+      for(let j=0;j<half;j++){
+        const w=twiddle(j,len);
+        const u=a[i+j], v=cmul(w,a[i+j+half]);
+        a[i+j]=cadd(u,v); a[i+j+half]=csub(u,v);
+      }
+    }
+  }
+  return a;
+}
+function dft(x){
+  const N=x.length, out=[];
+  for(let k=0;k<N;k++){ let s=cx(0,0); for(let n=0;n<N;n++){ s=cadd(s,cmul(x[n],twiddle(k*n,N))); } out.push(s); }
+  return out;
+}
+
+/* ===================== MODULE 1: Butterfly N=8 ===================== */
+(function(){
+  const N=8, bits=3, svg=document.getElementById('bfSvg');
+  const rev=bitrev(N);
+  const colX=[70,250,420,590], rowY=i=>40+i*46;
+  let stage=0; // 0 = chưa tô, 1..3 các tầng
+
+  function build(){
+    let h='';
+    // input labels (bit-reversed order)
+    for(let i=0;i<N;i++){
+      h+=`<text class="idxlabel" x="20" y="${rowY(i)+4}">x[${rev[i]}]</text>`;
+    }
+    // edges per stage
+    for(let len=2,s=1; len<=N; len<<=1, s++){
+      const half=len>>1, hot = (s===stage);
+      for(let i=0;i<N;i+=len){
+        for(let j=0;j<half;j++){
+          const top=i+j, bot=i+j+half;
+          const x1=colX[s-1], x2=colX[s];
+          const cls = hot? 'edge hot':'edge';
+          // straight (top->top, bot->bot) and cross (top->bot, bot->top)
+          h+=`<path class="${cls}" d="M${x1} ${rowY(top)} L${x2} ${rowY(top)}"/>`;
+          h+=`<path class="${cls}" d="M${x1} ${rowY(bot)} L${x2} ${rowY(bot)}"/>`;
+          h+=`<path class="${cls}" d="M${x1} ${rowY(top)} L${x2} ${rowY(bot)}"/>`;
+          h+=`<path class="${cls}" d="M${x1} ${rowY(bot)} L${x2} ${rowY(top)}"/>`;
+          if(hot){
+            h+=`<text class="twlabel" x="${(x1+x2)/2-8}" y="${rowY(bot)-4}">W${len}^${j}</text>`;
+          }
+        }
+      }
+    }
+    // nodes (4 columns)
+    for(let c=0;c<4;c++){
+      for(let i=0;i<N;i++){
+        h+=`<circle class="node" cx="${colX[c]}" cy="${rowY(i)}" r="4"/>`;
+      }
+    }
+    // output labels
+    for(let i=0;i<N;i++){
+      h+=`<text class="idxlabel" x="606" y="${rowY(i)+4}">X[${i}]</text>`;
+    }
+    // stage header
+    const heads=['Vào','Tầng 1','Tầng 2','Tầng 3'];
+    for(let c=0;c<4;c++){ h+=`<text class="stagelabel" x="${colX[c]-18}" y="22">${heads[c]}</text>`; }
+    svg.innerHTML=h;
+    document.getElementById('bfStage').textContent = stage===0?'(chưa tô tầng)':`Tầng ${stage}/3`;
+    const notes=[
+      'Sơ đồ luồng FFT N=8. Đầu vào (trái) đã sắp theo bit-reversal: thứ tự x[0],x[4],x[2],x[6],x[1],x[5],x[3],x[7]. Bấm "Tầng tiếp" để tô từng tầng.',
+      'Tầng 1: ghép cặp kề (khoảng cách 1), twiddle W2^0 = 1. 4 butterfly. Mỗi butterfly: (a,b) → (a+b, a−b).',
+      'Tầng 2: ghép phần tử cách 2, twiddle W4^0=1 và W4^1=−i. 4 butterfly trong 2 nhóm size-4.',
+      'Tầng 3: ghép phần tử cách 4, twiddle W8^0,W8^1,W8^2,W8^3. 4 butterfly cuối cho ra X[0..7].'
+    ];
+    document.getElementById('bfNote').textContent=notes[stage];
+  }
+  document.getElementById('bfNext').onclick=()=>{ if(stage<3){stage++;build();} };
+  document.getElementById('bfPrev').onclick=()=>{ if(stage>0){stage--;build();} };
+  document.getElementById('bfReset').onclick=()=>{ stage=0;build(); };
+  build();
+})();
+
+/* ===================== MODULE 2: Complexity ===================== */
+(function(){
+  const slider=document.getElementById('kSlider');
+  const kVal=document.getElementById('kVal'), nVal=document.getElementById('nVal');
+  const barN2=document.getElementById('barN2'), barNL=document.getElementById('barNL');
+  const lblN2=document.getElementById('lblN2'), lblNL=document.getElementById('lblNL');
+  const cmpNote=document.getElementById('cmpNote');
+  const tbody=document.querySelector('#cmpTable tbody');
+
+  function human(x){
+    if(x>=1e9) return (x/1e9).toFixed(2)+'·10⁹';
+    if(x>=1e6) return (x/1e6).toFixed(2)+'·10⁶';
+    if(x>=1e3) return (x/1e3).toFixed(1)+'·10³';
+    return x.toLocaleString('vi-VN');
+  }
+  const presetKs=[3,10,16,20];
+  function table(curK){
+    tbody.innerHTML = presetKs.map(k=>{
+      const N=2**k, n2=N*N, nl=N/2*k, sp=n2/nl;
+      const act = (k===curK)?' class="active"':'';
+      return `<tr${act}><td>2^${k} = ${human(N)}</td><td>${human(n2)}</td><td>${human(nl)}</td><td>~${Math.round(sp).toLocaleString('vi-VN')}×</td></tr>`;
+    }).join('');
+  }
+  function update(){
+    const k=+slider.value, N=2**k;
+    const n2=N*N, nl=N/2*k, sp=n2/nl;
+    kVal.textContent=k; nVal.textContent=N.toLocaleString('vi-VN');
+    // log-scaled heights vs n2
+    const maxLog=Math.log10(n2)||1;
+    const h2=190, hl=190*(Math.log10(nl||1)/maxLog);
+    barN2.style.height=h2+'px';
+    barNL.style.height=Math.max(8,hl)+'px';
+    lblN2.textContent=human(n2);
+    lblNL.textContent=human(nl);
+    cmpNote.textContent=`N = 2^${k} = ${N.toLocaleString('vi-VN')}\nDFT trực tiếp: ${human(n2)} nhân phức\nFFT: ${human(nl)} nhân phức\n→ FFT nhanh hơn ~${Math.round(sp).toLocaleString('vi-VN')} lần (tỉ số = 2N/log₂N)`;
+    table(k);
+  }
+  slider.oninput=update;
+  update();
+})();
+
+/* ===================== MODULE 3: FFT Runner ===================== */
+(function(){
+  const inp=document.getElementById('sigInput');
+  const meta=document.getElementById('runMeta');
+  const box=document.getElementById('specBox');
+  const check=document.getElementById('runCheck');
+
+  function parse(){
+    let v=inp.value.split(',').map(s=>parseFloat(s.trim())).filter(x=>!isNaN(x));
+    if(v.length===0) v=[0];
+    // pad to next power of 2
+    let N=1; while(N<v.length) N<<=1;
+    const padded = v.slice();
+    while(padded.length<N) padded.push(0);
+    return {orig:v.length, padded};
+  }
+  function run(){
+    const {orig,padded}=parse();
+    const N=padded.length;
+    const xc=padded.map(v=>cx(v,0));
+    const Xf=fft(xc), Xd=dft(xc);
+    // spectrum
+    const mags=Xf.map(cabs);
+    const mx=Math.max(...mags,1e-9);
+    box.innerHTML=mags.map((m,k)=>`<div class="sbar" style="height:${Math.max(2,m/mx*150)}px" title="|X[${k}]| = ${(Math.round(m*1000)/1000)}"><span>k=${k}</span></div>`).join('');
+    // compare
+    let maxErr=0;
+    for(let k=0;k<N;k++){ maxErr=Math.max(maxErr, cabs(csub(Xf[k],Xd[k]))); }
+    const padNote = orig<N? ` (đệm ${N-orig} số 0 từ ${orig} → ${N})` : '';
+    meta.textContent=`N = ${N} = 2^${Math.log2(N)}${padNote}\nlog₂N = ${Math.log2(N)} tầng × ${N/2} butterfly = ${N/2*Math.log2(N)} nhân phức (DFT cần ${N*N})`;
+    const lines = Xf.map((X,k)=>`X[${k}] = ${fmtC(X)}   |X|=${(Math.round(cabs(X)*1000)/1000)}`).join('\n');
+    const matchCls = maxErr<1e-6?'ok':'bad';
+    check.innerHTML=`<span class="${matchCls}">${maxErr<1e-6?'✓ FFT KHỚP DFT trực tiếp':'✗ Sai lệch'} (sai số tối đa ${maxErr.toExponential(2)})</span>\n\n${lines}`;
+  }
+  document.getElementById('runBtn').onclick=run;
+  document.querySelectorAll('.preset').forEach(b=>b.onclick=()=>{ inp.value=b.dataset.sig; run(); });
+  run();
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

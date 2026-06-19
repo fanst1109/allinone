@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08: Hồi quy tuyến tính — Statistics</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f7f9fc; --accent: #7c3aed; --accent-soft: #ede9fe; --accent-hover: #6d28d9; }
+  h1 { color: #6d28d9; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 { color: #7c3aed; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #ddd6fe; }
+  .module { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .info-box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin: 16px 0; padding: 16px; background: #f7f9fc; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  input[type="range"] { width: 160px; max-width: 100%; accent-color: var(--accent); }
+  .val-badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: monospace; }
+  .stats-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .stat-chip { background: #edf2f7; padding: 6px 12px; border-radius: 6px; font-family: monospace; font-size: 13px; border-left: 3px solid var(--accent); }
+  .stat-chip .name { color: #718096; font-size: 11px; display: block; }
+  .stat-chip .val { color: #2d3748; font-weight: 700; font-size: 15px; }
+  svg { display: block; max-width: 100%; touch-action: none; }
+  button { padding: 8px 16px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  button:hover { background: var(--accent-hover); }
+  button.secondary { background: #e2e8f0; color: #2d3748; }
+  button.secondary:hover { background: #cbd5e0; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+  .hint { font-size: 12px; color: #718096; margin-top: 6px; }
+  .eq { font-family: monospace; font-size: 16px; font-weight: 700; color: #6d28d9; background: var(--accent-soft); padding: 8px 14px; border-radius: 6px; display: inline-block; margin: 8px 0; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: #4a5568; margin: 8px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .swatch { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+  .swatch.dot { width: 10px; height: 10px; border-radius: 50%; }
+  table.cmp { border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+  table.cmp th, table.cmp td { border: 1px solid #e2e8f0; padding: 6px 12px; text-align: center; }
+  table.cmp th { background: var(--accent-soft); color: #6d28d9; }
+  @media (max-width: 480px) {
+    .controls { flex-direction: column; align-items: stretch; }
+    input[type="range"] { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-resampling/visualization.html">← L07: Bootstrap & Permutation</a>
+  <span class="sep">·</span>
+  <span class="current">L08: Linear Regression</span>
+  <span class="sep">·</span>
+  <a href="../lesson-09-multiple-regression/visualization.html">L09: Multiple Regression →</a>
+</nav>
+<main>
+  <h1>Lesson 08: Hồi quy tuyến tính (Linear Regression)</h1>
+  <p class="subtitle">Least squares (OLS) — tìm đường thẳng "khớp nhất", đọc β₀, β₁, R² và phần dư realtime</p>
+
+  <!-- Module 1: Scatter + OLS fit -->
+  <section class="module">
+    <h2>1. Scatter + đường OLS — kéo điểm, xem β₀, β₁, R² đổi realtime</h2>
+    <div class="info-box">
+      <b>Kéo</b> bất kỳ điểm tím nào để di chuyển. <b>Click vùng trống</b> để thêm điểm mới. Đường OLS (tím đậm) tự tính lại; các đoạn dọc cam là <b>phần dư</b> (yᵢ − ŷᵢ). Công thức: β₁ = Σ(x−x̄)(y−ȳ)/Σ(x−x̄)², β₀ = ȳ − β₁·x̄.
+    </div>
+    <div class="legend">
+      <span><span class="swatch dot" style="background:#7c3aed"></span> điểm dữ liệu (y thật)</span>
+      <span><span class="swatch" style="background:#6d28d9"></span> đường OLS (ŷ)</span>
+      <span><span class="swatch" style="background:#ed8936"></span> phần dư (đoạn dọc)</span>
+    </div>
+    <svg id="svg1" width="640" height="380" viewBox="0 0 640 380"></svg>
+    <p class="eq" id="eq1">ŷ = …</p>
+    <div class="btn-row">
+      <button class="secondary" onclick="toggleResid()">Bật/tắt phần dư</button>
+      <button class="secondary" onclick="resetM1()">Reset dữ liệu nhà</button>
+      <button class="secondary" onclick="clearM1()">Xoá hết điểm</button>
+    </div>
+    <div class="stats-row" id="stats1"></div>
+    <p class="hint">Gợi ý: kéo 1 điểm lên/xuống xa khỏi đường → nhìn SSE tăng và R² tụt. Đường luôn đi qua điểm trung tâm (x̄, ȳ).</p>
+  </section>
+
+  <!-- Module 2: bad line vs OLS -->
+  <section class="module">
+    <h2>2. Đường tay vs OLS — vì sao "tối thiểu SSE" là khớp nhất</h2>
+    <div class="info-box">
+      Tự chỉnh <b>đường tay</b> (xanh) bằng 2 slider intercept &amp; slope. So sánh SSE của bạn với SSE tối thiểu của OLS (tím). Mọi đường khác OLS đều cho SSE lớn hơn — đó chính là định nghĩa "khớp nhất".
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Intercept β₀ (tay): <span class="val-badge" id="m2-b0-v">0.0</span></label>
+        <input type="range" id="m2-b0" min="-2" max="6" value="0" step="0.1">
+      </div>
+      <div class="ctrl-group">
+        <label>Slope β₁ (tay): <span class="val-badge" id="m2-b1-v">0.020</span></label>
+        <input type="range" id="m2-b1" min="-0.02" max="0.08" value="0.02" step="0.001">
+      </div>
+      <div class="ctrl-group" style="justify-content:flex-end;">
+        <button class="secondary" onclick="snapToOLS()">⤓ Khớp về OLS</button>
+      </div>
+    </div>
+    <svg id="svg2" width="640" height="360" viewBox="0 0 640 360"></svg>
+    <div class="legend">
+      <span><span class="swatch" style="background:#3182ce"></span> đường tay của bạn</span>
+      <span><span class="swatch" style="background:#6d28d9"></span> đường OLS (SSE tối thiểu)</span>
+    </div>
+    <div class="stats-row" id="stats2"></div>
+    <p class="hint">Càng kéo gần OLS, hai con SSE càng sát. Không đường nào hạ SSE thấp hơn OLS được — thử là biết.</p>
+  </section>
+
+  <!-- Module 3: residual plot + outlier influence -->
+  <section class="module">
+    <h2>3. Residual plot &amp; ảnh hưởng outlier</h2>
+    <div class="info-box">
+      Trái: scatter + đường OLS. Phải: <b>residual plot</b> (phần dư theo x) — mô hình tốt thì các điểm tản ngẫu nhiên quanh đường 0. Nhấn <b>Thêm outlier</b> để chèn 1 điểm xa và xem đường OLS bị kéo lệch + R² tụt thế nào.
+    </div>
+    <div class="btn-row">
+      <button onclick="addOutlier()">+ Thêm outlier (xa)</button>
+      <button class="secondary" onclick="resetM3()">Reset</button>
+      <button class="secondary" onclick="makeCurved()">Dữ liệu cong (xem residual cong)</button>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:16px;">
+      <div style="flex:1;min-width:0;">
+        <p style="font-size:13px;font-weight:600;color:#4a5568;margin:4px 0;">Scatter + OLS</p>
+        <svg id="svg3a" width="380" height="320" viewBox="0 0 380 320"></svg>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <p style="font-size:13px;font-weight:600;color:#4a5568;margin:4px 0;">Residual plot (e theo x)</p>
+        <svg id="svg3b" width="380" height="320" viewBox="0 0 380 320"></svg>
+      </div>
+    </div>
+    <div class="stats-row" id="stats3"></div>
+    <p class="hint">Outlier ở rìa miền x (leverage cao) kéo đường mạnh nhất, vì OLS phạt bình phương sai số. Residual plot hình cong (∪/∩) = quan hệ thật phi tuyến → đường thẳng sai mô hình.</p>
+  </section>
+</main>
+
+<script>
+// ---------- shared OLS ----------
+function ols(pts) {
+  const n = pts.length;
+  if (n < 2) return null;
+  const mx = pts.reduce((a,p)=>a+p.x,0)/n;
+  const my = pts.reduce((a,p)=>a+p.y,0)/n;
+  let sxy=0, sxx=0, syy=0;
+  pts.forEach(p=>{ sxy+=(p.x-mx)*(p.y-my); sxx+=(p.x-mx)**2; syy+=(p.y-my)**2; });
+  if (sxx === 0) return null;
+  const b1 = sxy/sxx;
+  const b0 = my - b1*mx;
+  let sse=0;
+  pts.forEach(p=>{ const yh=b0+b1*p.x; sse+=(p.y-yh)**2; });
+  const sst = syy;
+  const r2 = sst===0 ? 1 : 1 - sse/sst;
+  return { b0, b1, sse, sst, r2, mx, my, n };
+}
+function sseFor(pts,b0,b1){ let s=0; pts.forEach(p=>{ const yh=b0+b1*p.x; s+=(p.y-yh)**2;}); return s; }
+
+// fixed pixel scale helper
+function makeScale(pts, W, H, PAD, xLo, xHi, yLo, yHi) {
+  const sx = v => PAD.l + ((v-xLo)/((xHi-xLo)||1))*(W-PAD.l-PAD.r);
+  const sy = v => H-PAD.b - ((v-yLo)/((yHi-yLo)||1))*(H-PAD.t-PAD.b);
+  return {sx, sy};
+}
+
+// ============ MODULE 1 ============
+const HOUSE = [{x:50,y:2.0},{x:70,y:2.4},{x:90,y:3.6},{x:110,y:3.8},{x:130,y:5.2}];
+let m1 = HOUSE.map(p=>({...p}));
+let showResid = true;
+const X1={lo:30,hi:210}, Y1={lo:0,hi:6.5};
+const W1=640,H1=380,PAD1={t:24,r:24,b:44,l:52};
+const s1 = makeScale(null,W1,H1,PAD1,X1.lo,X1.hi,Y1.lo,Y1.hi);
+
+function drawM1(){
+  const svg=document.getElementById('svg1');
+  const f=ols(m1);
+  let h=`<rect x="0" y="0" width="${W1}" height="${H1}" fill="#fafafa" rx="6"/>`;
+  // grid + axes
+  for(let gx=50; gx<=200; gx+=50){ h+=`<line x1="${s1.sx(gx)}" y1="${PAD1.t}" x2="${s1.sx(gx)}" y2="${H1-PAD1.b}" stroke="#edf2f7"/>`;
+    h+=`<text x="${s1.sx(gx)}" y="${H1-PAD1.b+16}" text-anchor="middle" font-size="10" fill="#718096">${gx}</text>`; }
+  for(let gy=1; gy<=6; gy++){ h+=`<line x1="${PAD1.l}" y1="${s1.sy(gy)}" x2="${W1-PAD1.r}" y2="${s1.sy(gy)}" stroke="#edf2f7"/>`;
+    h+=`<text x="${PAD1.l-8}" y="${s1.sy(gy)+3}" text-anchor="end" font-size="10" fill="#718096">${gy}</text>`; }
+  h+=`<line x1="${PAD1.l}" y1="${H1-PAD1.b}" x2="${W1-PAD1.r}" y2="${H1-PAD1.b}" stroke="#a0aec0"/>`;
+  h+=`<line x1="${PAD1.l}" y1="${PAD1.t}" x2="${PAD1.l}" y2="${H1-PAD1.b}" stroke="#a0aec0"/>`;
+  h+=`<text x="${(PAD1.l+W1-PAD1.r)/2}" y="${H1-4}" text-anchor="middle" font-size="12" fill="#4a5568">Diện tích x (m²)</text>`;
+  h+=`<text x="14" y="${(PAD1.t+H1-PAD1.b)/2}" text-anchor="middle" font-size="12" fill="#4a5568" transform="rotate(-90 14 ${(PAD1.t+H1-PAD1.b)/2})">Giá y (tỉ)</text>`;
+
+  if(f){
+    // OLS line across visible x
+    const xa=X1.lo, xb=X1.hi;
+    h+=`<line x1="${s1.sx(xa)}" y1="${s1.sy(f.b0+f.b1*xa)}" x2="${s1.sx(xb)}" y2="${s1.sy(f.b0+f.b1*xb)}" stroke="#6d28d9" stroke-width="2.5"/>`;
+    // center point
+    h+=`<circle cx="${s1.sx(f.mx)}" cy="${s1.sy(f.my)}" r="4" fill="none" stroke="#6d28d9" stroke-dasharray="2,2"/>`;
+    // residuals
+    if(showResid){
+      m1.forEach(p=>{ const yh=f.b0+f.b1*p.x;
+        h+=`<line x1="${s1.sx(p.x)}" y1="${s1.sy(p.y)}" x2="${s1.sx(p.x)}" y2="${s1.sy(yh)}" stroke="#ed8936" stroke-width="2" opacity="0.8"/>`; });
+    }
+  }
+  // points
+  m1.forEach((p,i)=>{ h+=`<circle class="pt" data-i="${i}" cx="${s1.sx(p.x)}" cy="${s1.sy(p.y)}" r="8" fill="#7c3aed" stroke="white" stroke-width="2" style="cursor:grab"/>`; });
+  svg.innerHTML=h;
+
+  // eq + stats
+  if(f){
+    const sgn = f.b1>=0?'+':'−';
+    document.getElementById('eq1').textContent=`ŷ = ${f.b0.toFixed(2)} ${sgn} ${Math.abs(f.b1).toFixed(4)}·x`;
+    document.getElementById('stats1').innerHTML=
+      chip('β₁ (slope)', f.b1.toFixed(4))+
+      chip('β₀ (intercept)', f.b0.toFixed(3))+
+      chip('SSE', f.sse.toFixed(3))+
+      chip('SST', f.sst.toFixed(3))+
+      chip('R²', f.r2.toFixed(4))+
+      chip('n', f.n);
+  } else {
+    document.getElementById('eq1').textContent='ŷ = … (cần ≥ 2 điểm)';
+    document.getElementById('stats1').innerHTML='';
+  }
+}
+function chip(name,val){ return `<div class="stat-chip"><span class="name">${name}</span><span class="val">${val}</span></div>`; }
+
+// drag + add
+(function attachM1(){
+  const svg=document.getElementById('svg1');
+  let drag=-1;
+  function toData(evt){
+    const r=svg.getBoundingClientRect();
+    const cx=(evt.touches?evt.touches[0].clientX:evt.clientX)-r.left;
+    const cy=(evt.touches?evt.touches[0].clientY:evt.clientY)-r.top;
+    const px=cx*(W1/r.width), py=cy*(H1/r.height);
+    const x=X1.lo+(px-PAD1.l)/((W1-PAD1.l-PAD1.r))*(X1.hi-X1.lo);
+    const y=Y1.lo+((H1-PAD1.b)-py)/((H1-PAD1.t-PAD1.b))*(Y1.hi-Y1.lo);
+    return {x,y,px,py};
+  }
+  function start(e){
+    const t=e.target;
+    if(t.classList.contains('pt')){ drag=+t.dataset.i; e.preventDefault(); }
+    else {
+      const d=toData(e);
+      if(d.x>X1.lo&&d.x<X1.hi&&d.y>Y1.lo&&d.y<Y1.hi){ m1.push({x:Math.round(d.x),y:+d.y.toFixed(2)}); drawM1(); }
+    }
+  }
+  function move(e){ if(drag<0) return; e.preventDefault(); const d=toData(e);
+    m1[drag].x=Math.max(X1.lo,Math.min(X1.hi,d.x));
+    m1[drag].y=Math.max(Y1.lo,Math.min(Y1.hi,d.y));
+    drawM1(); }
+  function end(){ drag=-1; }
+  svg.addEventListener('mousedown',start); window.addEventListener('mousemove',move); window.addEventListener('mouseup',end);
+  svg.addEventListener('touchstart',start,{passive:false}); svg.addEventListener('touchmove',move,{passive:false}); svg.addEventListener('touchend',end);
+})();
+function toggleResid(){ showResid=!showResid; drawM1(); }
+function resetM1(){ m1=HOUSE.map(p=>({...p})); drawM1(); }
+function clearM1(){ m1=[]; drawM1(); }
+
+// ============ MODULE 2 ============
+const M2DATA = HOUSE.map(p=>({...p}));
+const X2={lo:30,hi:150}, Y2={lo:0,hi:6.5};
+const W2=640,H2=360,PAD2={t:24,r:24,b:44,l:52};
+const s2=makeScale(null,W2,H2,PAD2,X2.lo,X2.hi,Y2.lo,Y2.hi);
+function drawM2(){
+  const b0=+document.getElementById('m2-b0').value;
+  const b1=+document.getElementById('m2-b1').value;
+  document.getElementById('m2-b0-v').textContent=b0.toFixed(1);
+  document.getElementById('m2-b1-v').textContent=b1.toFixed(3);
+  const f=ols(M2DATA);
+  const svg=document.getElementById('svg2');
+  let h=`<rect x="0" y="0" width="${W2}" height="${H2}" fill="#fafafa" rx="6"/>`;
+  for(let gx=50; gx<=150; gx+=25){ h+=`<line x1="${s2.sx(gx)}" y1="${PAD2.t}" x2="${s2.sx(gx)}" y2="${H2-PAD2.b}" stroke="#edf2f7"/>`;
+    h+=`<text x="${s2.sx(gx)}" y="${H2-PAD2.b+16}" text-anchor="middle" font-size="10" fill="#718096">${gx}</text>`; }
+  for(let gy=1; gy<=6; gy++){ h+=`<line x1="${PAD2.l}" y1="${s2.sy(gy)}" x2="${W2-PAD2.r}" y2="${s2.sy(gy)}" stroke="#edf2f7"/>`;
+    h+=`<text x="${PAD2.l-8}" y="${s2.sy(gy)+3}" text-anchor="end" font-size="10" fill="#718096">${gy}</text>`; }
+  h+=`<line x1="${PAD2.l}" y1="${H2-PAD2.b}" x2="${W2-PAD2.r}" y2="${H2-PAD2.b}" stroke="#a0aec0"/>`;
+  // hand line + its residuals (blue dashed verticals)
+  const xa=X2.lo,xb=X2.hi;
+  M2DATA.forEach(p=>{ const yh=b0+b1*p.x;
+    h+=`<line x1="${s2.sx(p.x)}" y1="${s2.sy(p.y)}" x2="${s2.sx(p.x)}" y2="${s2.sy(yh)}" stroke="#3182ce" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.6"/>`; });
+  if(f) h+=`<line x1="${s2.sx(xa)}" y1="${s2.sy(f.b0+f.b1*xa)}" x2="${s2.sx(xb)}" y2="${s2.sy(f.b0+f.b1*xb)}" stroke="#6d28d9" stroke-width="2.5"/>`;
+  h+=`<line x1="${s2.sx(xa)}" y1="${s2.sy(b0+b1*xa)}" x2="${s2.sx(xb)}" y2="${s2.sy(b0+b1*xb)}" stroke="#3182ce" stroke-width="2.5"/>`;
+  M2DATA.forEach(p=>{ h+=`<circle cx="${s2.sx(p.x)}" cy="${s2.sy(p.y)}" r="7" fill="#7c3aed" stroke="white" stroke-width="2"/>`; });
+  svg.innerHTML=h;
+  const sseHand=sseFor(M2DATA,b0,b1);
+  const sseOls=f?f.sse:0;
+  const ratio = sseOls>0 ? (sseHand/sseOls) : 1;
+  document.getElementById('stats2').innerHTML=
+    chip('SSE đường tay', sseHand.toFixed(3))+
+    chip('SSE OLS (min)', sseOls.toFixed(3))+
+    chip('Tay / OLS', ratio.toFixed(2)+'×')+
+    (f?chip('OLS β₀, β₁', f.b0.toFixed(2)+', '+f.b1.toFixed(4)):'');
+}
+function snapToOLS(){ const f=ols(M2DATA); if(!f) return;
+  document.getElementById('m2-b0').value=Math.max(-2,Math.min(6,f.b0));
+  document.getElementById('m2-b1').value=Math.max(-0.02,Math.min(0.08,f.b1));
+  drawM2(); }
+document.getElementById('m2-b0').addEventListener('input',drawM2);
+document.getElementById('m2-b1').addEventListener('input',drawM2);
+
+// ============ MODULE 3 ============
+const M3BASE = HOUSE.map(p=>({...p}));
+let m3 = M3BASE.map(p=>({...p}));
+const W3=380,H3=320,PAD3={t:22,r:18,b:40,l:44};
+function drawM3(){
+  const f=ols(m3);
+  const xs=m3.map(p=>p.x), ys=m3.map(p=>p.y);
+  const xLo=Math.min(...xs)-10, xHi=Math.max(...xs)+10;
+  const yLo=Math.min(0,...ys)-0.3, yHi=Math.max(...ys)+0.5;
+  const sa=makeScale(null,W3,H3,PAD3,xLo,xHi,yLo,yHi);
+  // 3a scatter+ols
+  let h=`<rect x="0" y="0" width="${W3}" height="${H3}" fill="#fafafa" rx="6"/>`;
+  h+=`<line x1="${PAD3.l}" y1="${H3-PAD3.b}" x2="${W3-PAD3.r}" y2="${H3-PAD3.b}" stroke="#a0aec0"/>`;
+  h+=`<line x1="${PAD3.l}" y1="${PAD3.t}" x2="${PAD3.l}" y2="${H3-PAD3.b}" stroke="#a0aec0"/>`;
+  h+=`<text x="${(PAD3.l+W3-PAD3.r)/2}" y="${H3-6}" text-anchor="middle" font-size="11" fill="#4a5568">x</text>`;
+  if(f){ h+=`<line x1="${sa.sx(xLo)}" y1="${sa.sy(f.b0+f.b1*xLo)}" x2="${sa.sx(xHi)}" y2="${sa.sy(f.b0+f.b1*xHi)}" stroke="#6d28d9" stroke-width="2.5"/>`; }
+  m3.forEach(p=>{ const out=p.isOut;
+    h+=`<circle cx="${sa.sx(p.x)}" cy="${sa.sy(p.y)}" r="${out?8:6}" fill="${out?'#e53e3e':'#7c3aed'}" stroke="white" stroke-width="2"/>`; });
+  document.getElementById('svg3a').innerHTML=h;
+
+  // 3b residual plot
+  let resids = f ? m3.map(p=>({x:p.x, e:p.y-(f.b0+f.b1*p.x), isOut:p.isOut})) : [];
+  const eMax = resids.length? Math.max(0.5, ...resids.map(r=>Math.abs(r.e))) : 1;
+  const sb=makeScale(null,W3,H3,PAD3,xLo,xHi,-eMax*1.1,eMax*1.1);
+  let h2=`<rect x="0" y="0" width="${W3}" height="${H3}" fill="#fafafa" rx="6"/>`;
+  // zero line
+  h2+=`<line x1="${PAD3.l}" y1="${sb.sy(0)}" x2="${W3-PAD3.r}" y2="${sb.sy(0)}" stroke="#6d28d9" stroke-width="2" stroke-dasharray="5,3"/>`;
+  h2+=`<text x="${W3-PAD3.r}" y="${sb.sy(0)-4}" text-anchor="end" font-size="10" fill="#6d28d9">e = 0</text>`;
+  h2+=`<line x1="${PAD3.l}" y1="${PAD3.t}" x2="${PAD3.l}" y2="${H3-PAD3.b}" stroke="#a0aec0"/>`;
+  h2+=`<text x="${(PAD3.l+W3-PAD3.r)/2}" y="${H3-6}" text-anchor="middle" font-size="11" fill="#4a5568">x</text>`;
+  resids.forEach(r=>{
+    h2+=`<line x1="${sb.sx(r.x)}" y1="${sb.sy(0)}" x2="${sb.sx(r.x)}" y2="${sb.sy(r.e)}" stroke="#cbd5e0" stroke-width="1"/>`;
+    h2+=`<circle cx="${sb.sx(r.x)}" cy="${sb.sy(r.e)}" r="${r.isOut?7:5}" fill="${r.isOut?'#e53e3e':'#ed8936'}" stroke="white" stroke-width="1.5"/>`;
+  });
+  document.getElementById('svg3b').innerHTML=h2;
+
+  if(f){
+    document.getElementById('stats3').innerHTML=
+      chip('β₁ (slope)', f.b1.toFixed(4))+
+      chip('β₀', f.b0.toFixed(3))+
+      chip('SSE', f.sse.toFixed(3))+
+      chip('R²', f.r2.toFixed(4))+
+      chip('n', f.n);
+  }
+}
+function addOutlier(){ m3.push({x:200, y:1.0, isOut:true}); drawM3(); }
+function resetM3(){ m3=M3BASE.map(p=>({...p})); drawM3(); }
+function makeCurved(){
+  // quadratic-ish data → linear fit leaves U-shaped residuals
+  m3=[{x:50,y:5.0},{x:70,y:3.0},{x:90,y:2.2},{x:110,y:2.6},{x:130,y:4.6}];
+  drawM3();
+}
+
+// init all
+drawM1();
+drawM2();
+drawM3();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

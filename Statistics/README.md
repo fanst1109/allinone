@@ -12,7 +12,7 @@ Lĩnh vực này bổ trợ — không trùng — với [`Vectors/05-Probability
 - **Tránh hiểu sai phổ biến**: p-value không phải xác suất H₀ đúng; correlation ≠ causation; "có ý nghĩa thống kê" ≠ "có ý nghĩa thực tiễn".
 - **Mở rộng từ probability**: sampling distribution, CLT, MLE đã có ở `Vectors/05` — ở đây dùng làm công cụ.
 
-## Lộ trình 3 tầng × 15 bài
+## Lộ trình 3 tầng × 18 bài
 
 ### Tầng 1 — Mô tả & khám phá dữ liệu (Descriptive Statistics) — 5 bài
 
@@ -24,7 +24,7 @@ Lĩnh vực này bổ trợ — không trùng — với [`Vectors/05-Probability
 | 04 | [Trực quan hoá phân phối](./01-Descriptive/lesson-04-distribution-viz/) | Histogram, boxplot, violin, Q-Q plot, ECDF |
 | 05 | [Mối quan hệ 2 biến](./01-Descriptive/lesson-05-bivariate-correlation/) | Covariance, Pearson, Spearman, Kendall, Anscombe |
 
-### Tầng 2 — Suy luận thống kê (Inferential) — 7 bài
+### Tầng 2 — Suy luận thống kê (Inferential) — 10 bài
 
 | # | Bài | Chủ đề |
 |---|------|--------|
@@ -35,6 +35,9 @@ Lĩnh vực này bổ trợ — không trùng — với [`Vectors/05-Probability
 | 05 | [ANOVA & Chi-square](./02-Inferential/lesson-05-anova-chisquare/) | One-way ANOVA, χ² goodness-of-fit, independence |
 | 06 | [P-value, power, effect size](./02-Inferential/lesson-06-pvalue-power-effect/) | Đọc đúng p-value, power, sample size, Cohen's d, multiple testing |
 | 07 | [Resampling](./02-Inferential/lesson-07-resampling/) | Bootstrap, permutation test — non-parametric inference |
+| 08 | [Linear Regression](./02-Inferential/lesson-08-linear-regression/) | OLS, least squares, R², residual, giả định, kiểm định hệ số |
+| 09 | [Multiple Regression](./02-Inferential/lesson-09-multiple-regression/) | Nhiều biến, β=(XᵀX)⁻¹Xᵀy, adjusted R², đa cộng tuyến, dummy, overfitting |
+| 10 | [Logistic Regression](./02-Inferential/lesson-10-logistic-regression/) | Phân loại nhị phân, sigmoid, odds/log-odds, decision boundary, confusion matrix |
 
 ### Tầng 3 — Nâng cao & ứng dụng (Advanced) — 3 bài
 

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Phát hiện & sửa lỗi</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f3ff;
+    --accent: #553c9a;
+    --accent-soft: #ede9fe;
+    --accent-hover: #44337a;
+  }
+  h1 { color: #44337a; }
+  h2 { color: #553c9a; margin-top: 36px; padding-bottom: 8px; border-bottom: 2px solid #ddd6fe; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 16px 0; }
+  p.lead { color: #4a5568; line-height: 1.6; }
+  input[type="text"], input[type="number"] {
+    font-family: monospace; font-size: 15px; padding: 8px 12px;
+    border: 1px solid #c4b5fd; border-radius: 5px; max-width: 100%; box-sizing: border-box;
+  }
+  button {
+    background: #553c9a; color: white; border: none;
+    padding: 8px 16px; border-radius: 5px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #44337a; }
+  button.secondary { background: #4a5568; }
+  button.secondary:hover { background: #2d3748; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #2d3748; }
+  .hint { font-size: 13px; color: #718096; }
+
+  /* ---- bit cells (shared) ---- */
+  .bitstrip { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0; }
+  .bitcol { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .bitpos { font-size: 11px; color: #a0aec0; font-family: monospace; }
+  .bit {
+    width: 42px; height: 42px; border-radius: 6px; border: 2px solid #c4b5fd;
+    display: flex; align-items: center; justify-content: center;
+    font-family: monospace; font-size: 19px; font-weight: 700;
+    background: white; color: #2d3748; cursor: pointer; user-select: none;
+    transition: transform 0.12s, background 0.2s, border-color 0.2s;
+  }
+  .bit:hover { transform: translateY(-2px); }
+  .bit.data { background: #ebf8ff; border-color: #4299e1; color: #2b6cb0; }
+  .bit.parity { background: #ede9fe; border-color: #553c9a; color: #553c9a; }
+  .bit.flipped { background: #fed7d7; border-color: #e53e3e; color: #c53030; animation: shake 0.3s; }
+  .bit.errloc { box-shadow: 0 0 0 3px #f6ad55; }
+  .bitrole { font-size: 10px; color: #718096; font-family: monospace; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-3px)} 75%{transform:translateX(3px)} }
+
+  .log {
+    background: #1a202c; color: #9ae6b4; font-family: monospace;
+    padding: 12px 14px; border-radius: 6px; white-space: pre-wrap;
+    font-size: 13px; line-height: 1.7; margin-top: 10px;
+    max-height: 280px; overflow-y: auto;
+  }
+  .verdict { font-weight: 700; padding: 8px 14px; border-radius: 6px; display: inline-block; margin-top: 8px; }
+  .verdict.ok { background: #c6f6d5; color: #22543d; }
+  .verdict.err { background: #fed7d7; color: #742a2a; }
+  .verdict.warn { background: #feebc8; color: #7b341e; }
+
+  /* parity demo */
+  .parity-box { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+  /* CRC stepper */
+  .crc-line { font-family: monospace; font-size: 14px; white-space: pre; line-height: 1.5; }
+  .crc-step-card { background: #f7f9fc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; margin: 8px 0; }
+  .crc-xor { color: #e53e3e; }
+  .crc-bring { color: #3182ce; }
+  .crc-rem { color: #553c9a; font-weight: 700; }
+
+  table.cmp { border-collapse: collapse; width: 100%; margin-top: 10px; font-size: 13px; }
+  table.cmp th, table.cmp td { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: center; }
+  table.cmp th { background: #ede9fe; color: #44337a; }
+  table.cmp td.mono { font-family: monospace; }
+
+  /* Bảng rộng: cho cuộn ngang trong vùng riêng, không phá layout trang */
+  main table { max-width: 100%; }
+  @media (max-width: 600px) {
+    main table { display: block; overflow-x: auto; white-space: nowrap; }
+  }
+
+  @media (max-width: 480px) {
+    .bit { width: 34px; height: 34px; font-size: 16px; }
+    .bitstrip { gap: 4px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-compression/visualization.html">← N2-L04: Compression</a>
+  <span class="sep">·</span>
+  <span class="current">N2-L05: Error Detection</span>
+  <span class="sep">·</span>
+  <a href="../../03-MathFoundations/lesson-01-set-theory/visualization.html">N3-L01: Set Theory →</a>
+</nav>
+<main>
+<h1>Lesson 05 — Phát hiện & sửa lỗi (Error Detection & Correction)</h1>
+<p class="lead">Ba sân chơi tương tác: <strong>Hamming(7,4)</strong> tự định vị & sửa 1 bit, <strong>Parity</strong> phát hiện/bỏ sót lỗi, và <strong>CRC stepper</strong> chia đa thức bằng XOR từng bước. Bấm trực tiếp lên các bit để lật chúng.</p>
+
+<!-- ===== MODULE 1: Hamming(7,4) playground ===== -->
+<h2>1. Hamming(7,4) Playground — encode, định vị & sửa</h2>
+<div class="card">
+  <p class="lead">Nhập 4 bit dữ liệu → xem 7 bit codeword (parity tô tím). Rồi <strong>bấm lên bất kỳ bit nào</strong> trong hàng "Nhận" để lật nó → hệ thống tính syndrome, định vị và SỬA.</p>
+  <div class="row">
+    <label>4 bit data (d1 d2 d3 d4):</label>
+    <input type="text" id="ham-data" value="1011" maxlength="4" style="width:90px">
+    <button onclick="hamEncode()">Mã hóa</button>
+    <button class="secondary" onclick="hamReset()">Đặt lại lỗi</button>
+  </div>
+  <div class="row" style="gap:6px">
+    <button onclick="hamPreset('1011')">d=1011</button>
+    <button onclick="hamPreset('1001')">d=1001</button>
+    <button onclick="hamPreset('0110')">d=0110</button>
+    <button onclick="hamPreset('1111')">d=1111</button>
+  </div>
+
+  <div style="margin-top:14px"><strong>Codeword đã gửi</strong> (vị trí 1→7, tím = parity):</div>
+  <div id="ham-sent" class="bitstrip"></div>
+
+  <div style="margin-top:6px"><strong>Bên nhận</strong> — bấm để lật bit, mô phỏng lỗi đường truyền:</div>
+  <div id="ham-recv" class="bitstrip"></div>
+
+  <div id="ham-log" class="log"></div>
+  <div id="ham-verdict"></div>
+</div>
+
+<!-- ===== MODULE 2: Parity demo ===== -->
+<h2>2. Parity demo — bắt lỗi lẻ, mù lỗi chẵn</h2>
+<div class="card">
+  <p class="lead">Even parity: bit thêm vào (tím) làm tổng số bit <code>1</code> luôn chẵn. Bấm lật bit và quan sát: lỗi <strong>1 bit</strong> bị bắt, lỗi <strong>2 bit</strong> lọt qua.</p>
+  <div class="row">
+    <label>Data (chuỗi 0/1):</label>
+    <input type="text" id="par-data" value="1011010" style="width:140px">
+    <button onclick="parBuild()">Tạo</button>
+  </div>
+  <div style="margin-top:10px">Bấm để lật (cuối hàng là parity bit):</div>
+  <div id="par-strip" class="bitstrip"></div>
+  <div class="parity-box" style="margin-top:8px">
+    <span class="hint">Số bit <code>1</code>:</span>
+    <span id="par-count" style="font-family:monospace;font-weight:700;font-size:16px"></span>
+  </div>
+  <div id="par-verdict"></div>
+  <div id="par-log" class="log"></div>
+</div>
+
+<!-- ===== MODULE 3: CRC stepper ===== -->
+<h2>3. CRC Stepper — chia đa thức bằng XOR</h2>
+<div class="card">
+  <p class="lead">Nhập data và generator → xem từng bước XOR ra số dư (CRC). Bấm lật một bit data và "Tính lại" để thấy CRC đổi hẳn.</p>
+  <div class="row">
+    <label>Data:</label>
+    <input type="text" id="crc-data" value="1101011011" style="width:160px">
+    <label>Generator:</label>
+    <input type="text" id="crc-gen" value="10011" style="width:90px">
+    <button onclick="crcRun()">Tính CRC</button>
+  </div>
+  <div class="row" style="gap:6px">
+    <button onclick="crcPreset('1101011011','10011')">VD bài học</button>
+    <button onclick="crcPreset('110101','1011')">VD bài 3</button>
+  </div>
+  <div style="margin-top:10px">Data bits (bấm để lật rồi Tính lại):</div>
+  <div id="crc-strip" class="bitstrip"></div>
+  <div id="crc-out"></div>
+</div>
+
+</main>
+
+<script>
+const XOR = (a,b) => a ^ b;
+function bin(arr){ return arr.join(''); }
+
+/* ============================================================
+   MODULE 1 — Hamming(7,4)
+   Vị trí 1..7: [p1 p2 d1 p4 d2 d3 d4]
+   p1 canh {1,3,5,7}, p2 canh {2,3,6,7}, p4 canh {4,5,6,7}
+   ============================================================ */
+let hamSent = [0,0,0,0,0,0,0];   // index 0 = vị trí 1
+let hamRecv = [0,0,0,0,0,0,0];
+const HAM_ROLE = ['p1','p2','d1','p4','d2','d3','d4'];
+
+function hamEncode(){
+  let raw = document.getElementById('ham-data').value.replace(/[^01]/g,'').slice(0,4).padStart(4,'0');
+  document.getElementById('ham-data').value = raw;
+  const d1=+raw[0], d2=+raw[1], d3=+raw[2], d4=+raw[3];
+  const p1 = d1^d2^d4;
+  const p2 = d1^d3^d4;
+  const p4 = d2^d3^d4;
+  hamSent = [p1,p2,d1,p4,d2,d3,d4];
+  hamRecv = hamSent.slice();
+  renderHamSent();
+  renderHamRecv();
+  document.getElementById('ham-log').textContent =
+    `Encode data ${raw}:\n` +
+    `p1 = d1⊕d2⊕d4 = ${d1}⊕${d2}⊕${d4} = ${p1}\n` +
+    `p2 = d1⊕d3⊕d4 = ${d1}⊕${d3}⊕${d4} = ${p2}\n` +
+    `p4 = d2⊕d3⊕d4 = ${d2}⊕${d3}⊕${d4} = ${p4}\n` +
+    `→ codeword [p1 p2 d1 p4 d2 d3 d4] = ${bin(hamSent)}`;
+  document.getElementById('ham-verdict').innerHTML =
+    `<div class="verdict ok">Đã gửi sạch. Bấm một bit ở hàng "Bên nhận" để gây lỗi.</div>`;
+}
+
+function hamPreset(d){ document.getElementById('ham-data').value = d; hamEncode(); }
+function hamReset(){ hamRecv = hamSent.slice(); renderHamRecv(); hamDecode(); }
+
+function renderHamSent(){
+  let html='';
+  for(let i=0;i<7;i++){
+    const role = HAM_ROLE[i];
+    const cls = role[0]==='p' ? 'parity' : 'data';
+    html += `<div class="bitcol"><div class="bitpos">${i+1}</div>`+
+            `<div class="bit ${cls}">${hamSent[i]}</div>`+
+            `<div class="bitrole">${role}</div></div>`;
+  }
+  document.getElementById('ham-sent').innerHTML = html;
+}
+
+function renderHamRecv(errPos=-1){
+  let html='';
+  for(let i=0;i<7;i++){
+    const role = HAM_ROLE[i];
+    let cls = role[0]==='p' ? 'parity' : 'data';
+    if(hamRecv[i]!==hamSent[i]) cls += ' flipped';
+    if(errPos===i+1) cls += ' errloc';
+    html += `<div class="bitcol"><div class="bitpos">${i+1}</div>`+
+            `<div class="bit ${cls}" onclick="hamFlip(${i})">${hamRecv[i]}</div>`+
+            `<div class="bitrole">${role}</div></div>`;
+  }
+  document.getElementById('ham-recv').innerHTML = html;
+}
+
+function hamFlip(i){
+  hamRecv[i] ^= 1;
+  hamDecode();
+}
+
+function hamDecode(){
+  const c = hamRecv;  // c[0]=pos1
+  const s1 = c[0]^c[2]^c[4]^c[6];   // 1,3,5,7
+  const s2 = c[1]^c[2]^c[5]^c[6];   // 2,3,6,7
+  const s4 = c[3]^c[4]^c[5]^c[6];   // 4,5,6,7
+  const syn = s4*4 + s2*2 + s1*1;
+  const nFlipped = c.reduce((a,v,i)=>a+(v!==hamSent[i]?1:0),0);
+
+  let log =
+    `Tính syndrome trên chuỗi nhận ${bin(c)}:\n`+
+    `s1 = c1⊕c3⊕c5⊕c7 = ${c[0]}⊕${c[2]}⊕${c[4]}⊕${c[6]} = ${s1}\n`+
+    `s2 = c2⊕c3⊕c6⊕c7 = ${c[1]}⊕${c[2]}⊕${c[5]}⊕${c[6]} = ${s2}\n`+
+    `s4 = c4⊕c5⊕c6⊕c7 = ${c[3]}⊕${c[4]}⊕${c[5]}⊕${c[6]} = ${s4}\n`+
+    `syndrome = s4 s2 s1 = ${s4}${s2}${s1} (nhị phân) = ${syn} (thập phân)`;
+
+  let verdict;
+  renderHamRecv(syn);
+  if(syn===0){
+    verdict = `<div class="verdict ok">Syndrome = 0 → không phát hiện lỗi.</div>`;
+    log += `\n→ Không lỗi (hoặc lỗi quá nhiều để định vị).`;
+  } else {
+    log += `\n→ Lỗi ở VỊ TRÍ ${syn}. Sửa: lật ngược bit ${syn}.`;
+    if(nFlipped===1){
+      verdict = `<div class="verdict ok">Định vị lỗi ở vị trí ${syn} → SỬA thành công (1 bit lỗi).</div>`;
+    } else if(nFlipped===0){
+      verdict = `<div class="verdict warn">Syndrome=${syn} nhưng chuỗi đang khớp gửi — bấm lật bit để thử.</div>`;
+    } else {
+      verdict = `<div class="verdict warn">⚠ Có ${nFlipped} bit lỗi! Hamming(7,4) chỉ sửa đúng 1 bit — nó sẽ "sửa" vị trí ${syn} nhưng SAI.</div>`;
+    }
+  }
+  // hiển thị data trích được sau khi sửa (nếu syn>0 và <=7)
+  let corrected = c.slice();
+  if(syn>=1 && syn<=7) corrected[syn-1]^=1;
+  const dataBits = `${corrected[2]}${corrected[4]}${corrected[5]}${corrected[6]}`;
+  log += `\nData trích (vị trí 3,5,6,7) sau khi sửa = ${dataBits}`;
+
+  document.getElementById('ham-log').textContent = log;
+  document.getElementById('ham-verdict').innerHTML = verdict;
+}
+
+hamEncode();
+
+/* ============================================================
+   MODULE 2 — Parity demo
+   ============================================================ */
+let parBits = [];   // bao gồm cả parity bit ở cuối
+let parDataLen = 0;
+
+function parBuild(){
+  const raw = document.getElementById('par-data').value.replace(/[^01]/g,'') || '0';
+  document.getElementById('par-data').value = raw;
+  const data = raw.split('').map(Number);
+  parDataLen = data.length;
+  const p = data.reduce((a,b)=>a^b,0);  // even parity = XOR
+  parBits = data.concat([p]);
+  parRender();
+}
+
+function parRender(){
+  let html='';
+  for(let i=0;i<parBits.length;i++){
+    const isPar = i===parDataLen;
+    let cls = isPar ? 'parity' : 'data';
+    html += `<div class="bitcol"><div class="bitpos">${isPar?'P':i+1}</div>`+
+            `<div class="bit ${cls}" onclick="parFlip(${i})">${parBits[i]}</div>`+
+            `<div class="bitrole">${isPar?'parity':''}</div></div>`;
+  }
+  document.getElementById('par-strip').innerHTML = html;
+  parCheck();
+}
+
+function parFlip(i){ parBits[i]^=1; parRender(); }
+
+function parCheck(){
+  const ones = parBits.reduce((a,b)=>a+b,0);
+  const parity = parBits.reduce((a,b)=>a^b,0);
+  document.getElementById('par-count').textContent = `${ones} (${ones%2===0?'chẵn':'lẻ'})`;
+  const v = document.getElementById('par-verdict');
+  if(parity===0){
+    v.innerHTML = `<div class="verdict ok">XOR tất cả = 0 → "có vẻ đúng".</div>`;
+    document.getElementById('par-log').textContent =
+      `Tổng số bit 1 = ${ones} (chẵn) → parity check pass.\n`+
+      `⚠ Lưu ý: nếu bạn lật ĐÚNG 2 bit, số 1 vẫn chẵn → parity KHÔNG bắt được (mù lỗi chẵn-bit).`;
+  } else {
+    v.innerHTML = `<div class="verdict err">XOR tất cả = 1 → PHÁT HIỆN LỖI (số lẻ bit đã lật).</div>`;
+    document.getElementById('par-log').textContent =
+      `Tổng số bit 1 = ${ones} (lẻ) → parity check FAIL → có lỗi (số lẻ bit lật).`;
+  }
+}
+
+parBuild();
+
+/* ============================================================
+   MODULE 3 — CRC stepper (long division by XOR)
+   ============================================================ */
+let crcDataBits = [];
+
+function crcStrip(){
+  let html='';
+  for(let i=0;i<crcDataBits.length;i++){
+    html += `<div class="bitcol"><div class="bitpos">${i+1}</div>`+
+            `<div class="bit data" onclick="crcFlip(${i})">${crcDataBits[i]}</div></div>`;
+  }
+  document.getElementById('crc-strip').innerHTML = html;
+}
+function crcFlip(i){ crcDataBits[i]^=1; crcStrip(); }
+function crcPreset(d,g){
+  document.getElementById('crc-data').value=d;
+  document.getElementById('crc-gen').value=g;
+  crcRun();
+}
+
+function crcRun(){
+  const data = document.getElementById('crc-data').value.replace(/[^01]/g,'') || '0';
+  const gen  = document.getElementById('crc-gen').value.replace(/[^01]/g,'') || '11';
+  document.getElementById('crc-data').value = data;
+  document.getElementById('crc-gen').value = gen;
+  crcDataBits = data.split('').map(Number);
+  crcStrip();
+
+  const g = gen.length;
+  const aug = data + '0'.repeat(g-1);
+  const augArr = aug.split('').map(Number);
+
+  // shift-register long division
+  let reg = augArr.slice(0, g);
+  let idx = g;
+  let stepHtml = '';
+  let stepNo = 1;
+  while(true){
+    const regStr = reg.join('');
+    if(reg[0]===1){
+      const xored = reg.map((b,j)=>b^(+gen[j]));
+      stepHtml += `<div class="crc-step-card"><div class="crc-line">Bước ${stepNo}: reg=${regStr}, dẫn '1'\n`+
+        `  ${regStr}\n  ${gen}  <span class="crc-xor">⊕ XOR generator</span>\n  ${'─'.repeat(g)}\n  ${xored.join('')}</div>`;
+      reg = xored;
+    } else {
+      stepHtml += `<div class="crc-step-card"><div class="crc-line">Bước ${stepNo}: reg=${regStr}, dẫn '0' → bỏ qua (XOR ${'0'.repeat(g)})</div>`;
+    }
+    // drop leading, bring down next
+    reg = reg.slice(1);
+    if(idx < augArr.length){
+      const nb = augArr[idx];
+      reg.push(nb);
+      stepHtml += `<div class="crc-line"><span class="crc-bring">  ↳ kéo xuống bit '${nb}' → reg=${reg.join('')}</span></div></div>`;
+      idx++; stepNo++;
+    } else {
+      stepHtml += `<div class="crc-line"><span class="crc-rem">  ↳ hết bit → SỐ DƯ = ${reg.join('')}</span></div></div>`;
+      break;
+    }
+  }
+  const remainder = reg.join('');
+  const transmitted = data + remainder;
+
+  document.getElementById('crc-out').innerHTML =
+    `<div class="log" style="color:#cbd5e0">Augmented = data + ${g-1} zeros = <span style="color:#9ae6b4">${aug}</span></div>`+
+    stepHtml +
+    `<div class="verdict ok" style="display:block">CRC (số dư) = ${remainder} &nbsp;→&nbsp; Truyền đi = data ∥ CRC = ${transmitted}</div>`;
+}
+
+crcRun();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>
+</content>

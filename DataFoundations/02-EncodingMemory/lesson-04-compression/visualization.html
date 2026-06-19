@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Data Compression</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f5f3ff;
+    --accent: #553c9a;
+    --accent-soft: #ede9fe;
+    --accent-hover: #44337a;
+  }
+  h1 { color: #44337a; }
+  h2 { color: #553c9a; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #ddd6fe; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin: 16px 0; }
+  input[type="text"], input[type="number"] {
+    font-family: monospace; font-size: 15px; padding: 8px 12px;
+    border: 1px solid #c4b5fd; border-radius: 5px; max-width: 100%;
+  }
+  button {
+    background: #553c9a; color: white; border: none;
+    padding: 8px 16px; border-radius: 5px; font-size: 14px;
+    cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #44337a; }
+  button.secondary { background: #4a5568; }
+  button.secondary:hover { background: #2d3748; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  table.tbl { border-collapse: collapse; width: 100%; font-size: 14px; margin: 10px 0; }
+  table.tbl th, table.tbl td { border: 1px solid #ddd6fe; padding: 6px 10px; text-align: center; }
+  table.tbl th { background: #ede9fe; color: #44337a; }
+  table.tbl td.code { font-family: monospace; font-weight: 700; color: #553c9a; }
+  .step-log {
+    background: #1a202c; color: #9ae6b4; font-family: monospace;
+    padding: 12px; border-radius: 6px; white-space: pre-wrap;
+    max-height: 260px; overflow-y: auto; font-size: 13px; line-height: 1.7;
+  }
+  .bits { font-family: monospace; word-break: break-all; font-size: 13px; }
+  .badge {
+    display: inline-block; background: #ede9fe; color: #553c9a;
+    padding: 3px 10px; border-radius: 12px; font-weight: 700; font-size: 13px;
+    font-family: monospace;
+  }
+  .badge.good { background: #c6f6d5; color: #22543d; }
+  .badge.warn { background: #fed7d7; color: #822727; }
+  .tree-wrap { overflow-x: auto; margin: 10px 0; }
+  svg text { font-family: monospace; }
+  /* entropy bars */
+  .ent-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .ent-lbl { width: 60px; font-family: monospace; font-size: 13px; color: #4a5568; }
+  .ent-bar-track { flex: 1; background: #f0ebfa; border-radius: 4px; height: 22px; max-width: 360px; }
+  .ent-bar { height: 22px; border-radius: 4px; background: #553c9a; transition: width 0.25s; }
+  .ent-val { font-family: monospace; font-size: 13px; color: #553c9a; width: 64px; }
+  .readout { font-size: 15px; line-height: 1.9; }
+  .readout strong { color: #44337a; }
+  @media (max-width: 480px) {
+    .ent-lbl { width: 46px; }
+    .ent-val { width: 52px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-hashing-fundamentals/visualization.html">← N2-L03: Hashing</a>
+  <span class="sep">·</span>
+  <span class="current">N2-L04: Compression</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-error-detection/visualization.html">N2-L05: Error Detection →</a>
+</nav>
+<main>
+<h1>Lesson 04 — Data Compression (nén dữ liệu)</h1>
+<p>Ba công cụ tương tác: dựng <strong>cây Huffman</strong>, demo <strong>RLE</strong>, và máy tính <strong>entropy</strong>. Mọi thứ chạy ngay trong trình duyệt.</p>
+
+<!-- ===== MODULE 1: Huffman Builder ===== -->
+<h2>1. Huffman Builder — nhập text, dựng cây, tính tỉ lệ nén</h2>
+<div class="card">
+  <div class="row">
+    <label style="font-weight:600">Nhập chuỗi:</label>
+    <input type="text" id="hf-input" value="AAAAAAABBBBCCD" style="width:240px">
+    <button onclick="buildHuffman()">Dựng cây Huffman</button>
+  </div>
+  <div class="row" style="gap:6px">
+    <button class="secondary" onclick="hfPreset('AABBCC')">AABBCC (đều)</button>
+    <button class="secondary" onclick="hfPreset('AAAAAAAAAB')">Cực lệch</button>
+    <button class="secondary" onclick="hfPreset('huffman compression')">Câu thật</button>
+  </div>
+  <div id="hf-freq" style="margin-top:12px"></div>
+  <div id="hf-steps" class="step-log" style="margin-top:8px;display:none"></div>
+  <div class="tree-wrap"><div id="hf-tree"></div></div>
+  <div id="hf-codes" style="margin-top:8px"></div>
+  <div id="hf-summary" style="margin-top:10px"></div>
+</div>
+
+<!-- ===== MODULE 2: RLE demo ===== -->
+<h2>2. RLE Demo — nén / giải nén & cảnh báo phình</h2>
+<div class="card">
+  <div class="row">
+    <label style="font-weight:600">Nhập chuỗi:</label>
+    <input type="text" id="rle-input" value="AAAABBBCC" style="width:240px">
+    <button onclick="runRLE()">Nén RLE</button>
+  </div>
+  <div class="row" style="gap:6px">
+    <button class="secondary" onclick="rlePreset('WWWWWWWWWW')">10×W</button>
+    <button class="secondary" onclick="rlePreset('ABCDEF')">ABCDEF (phình)</button>
+    <button class="secondary" onclick="rlePreset('XXXXXYYZZZZZZ')">XXXXXYYZZZZZZ</button>
+  </div>
+  <div id="rle-out" class="readout" style="margin-top:12px"></div>
+</div>
+
+<!-- ===== MODULE 3: Entropy calculator ===== -->
+<h2>3. Entropy Calculator — phân bố → H (bit/ký hiệu)</h2>
+<div class="card">
+  <p>Kéo slider để đổi xác suất 4 ký hiệu (A, B, C, D). Tổng tự chuẩn hóa về 1. Xem entropy <em>H</em> và so với độ dài mã trung bình của Huffman ở chính phân bố đó.</p>
+  <div id="ent-sliders"></div>
+  <div id="ent-bars" style="margin-top:12px"></div>
+  <div id="ent-readout" class="readout" style="margin-top:10px"></div>
+</div>
+
+</main>
+
+<script>
+// =========================================================
+// MODULE 1 — Huffman
+// =========================================================
+function freqTable(s) {
+  const f = {};
+  for (const ch of s) f[ch] = (f[ch] || 0) + 1;
+  return f;
+}
+
+// build Huffman tree using repeated extract-two-min (priority queue idea)
+function buildTree(freq) {
+  let nodes = Object.entries(freq).map(([ch, w]) => ({ ch, w, left: null, right: null }));
+  const steps = [];
+  let id = 0;
+  nodes.forEach(n => n._id = '#' + (id++));
+  if (nodes.length === 1) {
+    // single symbol: wrap so it gets a 1-bit code
+    const only = nodes[0];
+    return { root: { ch: null, w: only.w, left: only, right: null, _id: 'root' }, steps };
+  }
+  while (nodes.length > 1) {
+    nodes.sort((a, b) => a.w - b.w || String(a.ch).localeCompare(String(b.ch)));
+    const a = nodes.shift();
+    const b = nodes.shift();
+    const parent = { ch: null, w: a.w + b.w, left: a, right: b, _id: '#' + (id++) };
+    steps.push(`Gộp nhỏ nhất: ${label(a)} (${a.w}) + ${label(b)} (${b.w}) → nút mới = ${a.w + b.w}`);
+    nodes.push(parent);
+  }
+  return { root: nodes[0], steps };
+}
+function label(n) {
+  return n.ch !== null ? `'${disp(n.ch)}'` : `[${leaves(n).map(disp).join('')}]`;
+}
+function leaves(n) {
+  if (!n) return [];
+  if (n.ch !== null) return [n.ch];
+  return [...leaves(n.left), ...leaves(n.right)];
+}
+function disp(ch) { return ch === ' ' ? '␣' : ch; }
+
+function assignCodes(root) {
+  const codes = {};
+  (function walk(n, code) {
+    if (!n) return;
+    if (n.ch !== null) { codes[n.ch] = code || '0'; return; }
+    walk(n.left, code + '0');
+    walk(n.right, code + '1');
+  })(root, '');
+  return codes;
+}
+
+// layout tree → SVG with viewBox
+function renderTree(root) {
+  // assign x by in-order, y by depth
+  const positions = [];
+  let xCounter = 0;
+  let maxDepth = 0;
+  (function place(n, depth) {
+    if (!n) return;
+    maxDepth = Math.max(maxDepth, depth);
+    if (n.left || n.right) {
+      place(n.left, depth + 1);
+      n._x = xCounter;
+      place(n.right, depth + 1);
+      // center over children
+      const kids = [n.left, n.right].filter(Boolean);
+      n._x = kids.reduce((s, k) => s + k._x, 0) / kids.length;
+    } else {
+      n._x = xCounter++;
+    }
+    n._depth = depth;
+    positions.push(n);
+  })(root, 0);
+
+  const colW = 64, rowH = 70, padX = 30, padY = 30, r = 18;
+  const W = Math.max(1, xCounter) * colW + padX * 2;
+  const H = (maxDepth + 1) * rowH + padY * 2;
+  const X = n => padX + n._x * colW + r;
+  const Y = n => padY + n._depth * rowH + r;
+
+  let edges = '', circs = '';
+  positions.forEach(n => {
+    [['left', '0'], ['right', '1']].forEach(([side, bit]) => {
+      const c = n[side];
+      if (c) {
+        const mx = (X(n) + X(c)) / 2, my = (Y(n) + Y(c)) / 2;
+        edges += `<line x1="${X(n)}" y1="${Y(n)}" x2="${X(c)}" y2="${Y(c)}" stroke="#c4b5fd" stroke-width="2"/>`;
+        edges += `<text x="${mx}" y="${my}" fill="#822727" font-size="13" font-weight="700" text-anchor="middle">${bit}</text>`;
+      }
+    });
+  });
+  positions.forEach(n => {
+    const isLeaf = n.ch !== null;
+    const fill = isLeaf ? '#553c9a' : '#ede9fe';
+    const stroke = isLeaf ? '#44337a' : '#c4b5fd';
+    const txtColor = isLeaf ? '#fff' : '#553c9a';
+    const lbl = isLeaf ? disp(n.ch) : n.w;
+    circs += `<circle cx="${X(n)}" cy="${Y(n)}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
+    circs += `<text x="${X(n)}" y="${Y(n) + 4}" fill="${txtColor}" font-size="13" font-weight="700" text-anchor="middle">${lbl}</text>`;
+    if (isLeaf) {
+      circs += `<text x="${X(n)}" y="${Y(n) + r + 14}" fill="#718096" font-size="11" text-anchor="middle">w=${n.w}</text>`;
+    }
+  });
+
+  return `<svg width="${W}" height="${H + 12}" viewBox="0 0 ${W} ${H + 12}">${edges}${circs}</svg>`;
+}
+
+function buildHuffman() {
+  const s = document.getElementById('hf-input').value;
+  const freqDiv = document.getElementById('hf-freq');
+  const treeDiv = document.getElementById('hf-tree');
+  const codesDiv = document.getElementById('hf-codes');
+  const sumDiv = document.getElementById('hf-summary');
+  const stepsDiv = document.getElementById('hf-steps');
+  if (!s) { freqDiv.innerHTML = '<em>Nhập chuỗi đã.</em>'; treeDiv.innerHTML = ''; codesDiv.innerHTML = ''; sumDiv.innerHTML = ''; stepsDiv.style.display = 'none'; return; }
+
+  const freq = freqTable(s);
+  const symbols = Object.keys(freq);
+  const n = s.length;
+
+  // freq table
+  let ft = '<table class="tbl"><tr><th>Ký hiệu</th>';
+  symbols.forEach(c => ft += `<th>'${disp(c)}'</th>`);
+  ft += '</tr><tr><td><strong>Tần suất</strong></td>';
+  symbols.forEach(c => ft += `<td>${freq[c]}</td>`);
+  ft += '</tr></table>';
+  freqDiv.innerHTML = ft;
+
+  const { root, steps } = buildTree(freq);
+  // steps log
+  stepsDiv.style.display = 'block';
+  stepsDiv.textContent = steps.length
+    ? 'Dựng cây (lặp lại: lấy 2 nút nhỏ nhất = 2× extractMin từ min-heap):\n\n' + steps.map((t, i) => `Bước ${i + 1}: ${t}`).join('\n')
+    : 'Chỉ 1 ký hiệu → gán mã 1 bit.';
+
+  treeDiv.innerHTML = renderTree(root);
+
+  const codes = assignCodes(root);
+  // codes table
+  let ct = '<table class="tbl"><tr><th>Ký hiệu</th><th>Tần suất</th><th>Mã Huffman</th><th>Dài (bit)</th><th>Bit × tần suất</th></tr>';
+  let huffBits = 0;
+  symbols.sort((a, b) => freq[b] - freq[a]).forEach(c => {
+    const code = codes[c], len = code.length, contrib = len * freq[c];
+    huffBits += contrib;
+    ct += `<tr><td>'${disp(c)}'</td><td>${freq[c]}</td><td class="code">${code}</td><td>${len}</td><td>${contrib}</td></tr>`;
+  });
+  ct += '</table>';
+  codesDiv.innerHTML = ct;
+
+  // summary: vs fixed code & vs ASCII
+  const fixedLen = Math.max(1, Math.ceil(Math.log2(symbols.length)));
+  const fixedBits = fixedLen * n;
+  const asciiBits = 8 * n;
+  const ratioFixed = (fixedBits / huffBits);
+  const savePct = ((1 - huffBits / fixedBits) * 100);
+
+  // entropy of this distribution
+  let Hsrc = 0;
+  symbols.forEach(c => { const p = freq[c] / n; Hsrc += -p * Math.log2(p); });
+  const avg = huffBits / n;
+
+  // encoded bitstring (truncate if very long)
+  let enc = '';
+  for (const ch of s) enc += codes[ch];
+  const encShow = enc.length > 120 ? enc.slice(0, 120) + '… (' + enc.length + ' bit)' : enc;
+
+  sumDiv.innerHTML = `
+    <div class="readout">
+      Chuỗi dài <strong>${n}</strong> ký hiệu, <strong>${symbols.length}</strong> ký hiệu khác nhau.<br>
+      Mã hóa Huffman: <span class="bits">${encShow || '(rỗng)'}</span><br>
+      <span class="badge">Huffman: ${huffBits} bit</span>
+      <span class="badge">Mã cố định ${fixedLen}-bit: ${fixedBits} bit</span>
+      <span class="badge">ASCII 8-bit: ${asciiBits} bit</span><br>
+      Độ dài mã TB Huffman = <strong>${avg.toFixed(3)}</strong> bit/ký hiệu ·
+      Entropy nguồn H = <strong>${Hsrc.toFixed(3)}</strong> bit/ký hiệu
+      ${avg >= Hsrc - 1e-9 ? '<span class="badge good">avg ≥ H ✓ (Huffman ∈ [H, H+1))</span>' : ''}<br>
+      So với mã cố định: ${savePct >= 0
+        ? `<span class="badge good">tiết kiệm ${savePct.toFixed(1)}% (≈${ratioFixed.toFixed(2)}× nhỏ hơn)</span>`
+        : `<span class="badge warn">không lợi (${savePct.toFixed(1)}%)</span>`}
+    </div>`;
+}
+function hfPreset(v) { document.getElementById('hf-input').value = v; buildHuffman(); }
+buildHuffman();
+
+// =========================================================
+// MODULE 2 — RLE
+// =========================================================
+function rleEncode(s) {
+  let out = '';
+  let i = 0;
+  while (i < s.length) {
+    let j = i;
+    while (j < s.length && s[j] === s[i]) j++;
+    out += (j - i) + s[i];
+    i = j;
+  }
+  return out;
+}
+function rleDecode(r) {
+  let out = '', i = 0;
+  while (i < r.length) {
+    let num = '';
+    while (i < r.length && /\d/.test(r[i])) { num += r[i]; i++; }
+    const cnt = parseInt(num);
+    const ch = r[i]; i++;
+    out += ch.repeat(cnt);
+  }
+  return out;
+}
+function runRLE() {
+  const s = document.getElementById('rle-input').value;
+  const out = document.getElementById('rle-out');
+  if (!s) { out.innerHTML = '<em>Nhập chuỗi đã.</em>'; return; }
+  const enc = rleEncode(s);
+  const dec = rleDecode(enc);
+  const ok = dec === s;
+  const ratio = s.length / enc.length;
+  const grew = enc.length > s.length;
+  out.innerHTML = `
+    Gốc: <span class="bits">"${s}"</span> — <strong>${s.length}</strong> ký tự<br>
+    RLE: <span class="bits">"${enc}"</span> — <strong>${enc.length}</strong> ký tự<br>
+    Giải nén: <span class="bits">"${dec}"</span> ${ok ? '<span class="badge good">khớp gốc ✓ (lossless)</span>' : '<span class="badge warn">SAI</span>'}<br>
+    ${grew
+      ? `<span class="badge warn">⚠ PHÌNH: ${(enc.length / s.length).toFixed(2)}× LỚN hơn gốc</span> — chuỗi không có run dài, RLE phải ghi count "1" cho mỗi ký tự.`
+      : ratio > 1
+        ? `<span class="badge good">nén ${ratio.toFixed(2)}× (tỉ lệ ${s.length}/${enc.length})</span>`
+        : `<span class="badge">hòa (không lợi)</span>`}`;
+}
+function rlePreset(v) { document.getElementById('rle-input').value = v; runRLE(); }
+runRLE();
+
+// =========================================================
+// MODULE 3 — Entropy calculator
+// =========================================================
+const entSyms = ['A', 'B', 'C', 'D'];
+let entRaw = [50, 25, 15, 10];
+
+function buildEntSliders() {
+  let html = '';
+  entSyms.forEach((s, i) => {
+    html += `<div class="row">
+      <span class="ent-lbl">p(${s})</span>
+      <input type="range" min="0" max="100" value="${entRaw[i]}" id="ent-${i}"
+        oninput="entRaw[${i}]=+this.value; updateEntropy()" style="width:200px;max-width:60vw">
+      <span id="ent-raw-${i}" class="ent-val"></span>
+    </div>`;
+  });
+  document.getElementById('ent-sliders').innerHTML = html;
+}
+
+// huffman average code length for a probability distribution
+function huffmanAvgLen(probs) {
+  let nodes = probs.map((p, i) => ({ w: p, ch: i, left: null, right: null }))
+                   .filter(n => n.w > 0);
+  if (nodes.length === 0) return 0;
+  if (nodes.length === 1) return 1;
+  const leavesArr = nodes.map(n => ({ ...n }));
+  while (nodes.length > 1) {
+    nodes.sort((a, b) => a.w - b.w);
+    const a = nodes.shift(), b = nodes.shift();
+    nodes.push({ w: a.w + b.w, left: a, right: b, ch: null });
+  }
+  const depth = {};
+  (function walk(n, d) {
+    if (!n) return;
+    if (n.ch !== null) { depth[n.ch] = d || 1; return; }
+    walk(n.left, d + 1); walk(n.right, d + 1);
+  })(nodes[0], 0);
+  let avg = 0;
+  probs.forEach((p, i) => { if (p > 0) avg += p * depth[i]; });
+  return avg;
+}
+
+function updateEntropy() {
+  const total = entRaw.reduce((a, b) => a + b, 0) || 1;
+  const probs = entRaw.map(v => v / total);
+
+  // bars + slider readouts
+  let barsHtml = '';
+  entSyms.forEach((s, i) => {
+    document.getElementById('ent-raw-' + i).textContent = probs[i].toFixed(3);
+    barsHtml += `<div class="ent-row">
+      <span class="ent-lbl">${s}</span>
+      <div class="ent-bar-track"><div class="ent-bar" style="width:${(probs[i] * 100).toFixed(1)}%"></div></div>
+      <span class="ent-val">${(probs[i] * 100).toFixed(1)}%</span>
+    </div>`;
+  });
+  document.getElementById('ent-bars').innerHTML = barsHtml;
+
+  // entropy
+  let H = 0;
+  probs.forEach(p => { if (p > 0) H += -p * Math.log2(p); });
+  const nActive = probs.filter(p => p > 0).length;
+  const fixedLen = Math.max(1, Math.ceil(Math.log2(Math.max(1, nActive))));
+  const avg = huffmanAvgLen(probs);
+
+  let note = '';
+  if (H >= 1.99) note = 'Phân bố gần ĐỀU → H lớn, gần như không nén được.';
+  else if (H < 0.6) note = 'Phân bố CỰC LỆCH → H nhỏ, nén rất tốt.';
+  else note = 'Phân bố lệch vừa → có chỗ để nén.';
+
+  document.getElementById('ent-readout').innerHTML = `
+    Entropy <strong>H = ${H.toFixed(3)}</strong> bit/ký hiệu (cận dưới lý thuyết).<br>
+    Độ dài mã TB Huffman ≈ <strong>${avg.toFixed(3)}</strong> bit/ký hiệu
+    <span class="badge ${avg >= H - 1e-9 && avg < H + 1 ? 'good' : ''}">Huffman ∈ [H, H+1) ${avg >= H - 1e-9 && avg < H + 1 ? '✓' : ''}</span><br>
+    Mã cố định ${fixedLen}-bit dùng <strong>${fixedLen.toFixed(3)}</strong> bit/ký hiệu.
+    Huffman tiết kiệm ≈ <strong>${fixedLen > 0 ? ((1 - avg / fixedLen) * 100).toFixed(1) : 0}%</strong> so với cố định.<br>
+    <span style="color:#718096;font-size:13px">${note}</span>`;
+}
+
+buildEntSliders();
+updateEntropy();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

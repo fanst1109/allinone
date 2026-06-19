@@ -15,7 +15,7 @@ Trước đây có 4 bài. Sau khi repo mở rộng, restructure thành **3 nhó
 | Nhóm | Liên kết | Theme | Số bài |
 |------|----------|-------|--------|
 | 1 — Number & Bit Representation | [01-NumberRepresentation](./01-NumberRepresentation/) | Cách máy lưu *số* | 3 |
-| 2 — Encoding & Memory | [02-EncodingMemory](./02-EncodingMemory/) | Cách máy lưu *data tổng quát* | 3 |
+| 2 — Encoding & Memory | [02-EncodingMemory](./02-EncodingMemory/) | Cách máy lưu *data tổng quát* | 5 |
 | 3 — Math Foundations | [03-MathFoundations](./03-MathFoundations/) | Toán nền cho data | 5 |
 
 ## Danh sách bài học
@@ -35,6 +35,8 @@ Trước đây có 4 bài. Sau khi repo mở rộng, restructure thành **3 nhó
 | 01 | [Character Encoding](./02-EncodingMemory/lesson-01-character-encoding/) | ASCII, Unicode code point, UTF-8 (1-4 byte), UTF-16, BOM, normalization |
 | 02 | [Endianness & Memory Layout](./02-EncodingMemory/lesson-02-endianness-memory/) | Big/little endian, htonl/ntohl, alignment + padding, struct size |
 | 03 | [Hashing Fundamentals](./02-EncodingMemory/lesson-03-hashing-fundamentals/) | Hash function properties, collision handling (probing/chaining), load factor, birthday paradox |
+| 04 | [Compression](./02-EncodingMemory/lesson-04-compression/) | Entropy Shannon, RLE, mã Huffman (cây prefix-free), LZ77/LZ78 — nén lossless |
+| 05 | [Error Detection](./02-EncodingMemory/lesson-05-error-detection/) | Parity, checksum, CRC (chia đa thức XOR), Hamming(7,4) sửa lỗi, Hamming distance |
 
 ### Nhóm 3 — Math Foundations ([03-MathFoundations](./03-MathFoundations/))
 

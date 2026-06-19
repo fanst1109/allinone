@@ -31,7 +31,7 @@
 | Chemistry | Hóa học đại cương — 2 tầng × 8 bài, cấu tạo chất → phản ứng → hóa sinh preview | [Chemistry/](./Chemistry/) |
 | Chinese | Lộ trình học tiếng Trung Phổ thông — 4 nhánh × 20 bài, phát âm Mandarin, chữ Hán Giản thể, HSK 1–4 | [Chinese/](./Chinese/) |
 | Cryptography | Mật mã học — 3 tầng × 4 bài: Caesar/Vigenère/OTP → AES/hash/KDF → RSA/ECC/TLS | [Cryptography/](./Cryptography/) |
-| DataFoundations | Nền tảng cho DataStructures — binary, hex, bitwise, set theory | [DataFoundations/](./DataFoundations/) |
+| DataFoundations | Nền tảng cho DataStructures — 3 nhóm × 13 bài: binary/bit/floating-point, encoding/hashing/nén/sửa-lỗi, set theory/logic/combinatorics/modular/proof | [DataFoundations/](./DataFoundations/) |
 | Databases | Cơ sở dữ liệu — 3 nhóm × 17 bài, mô hình quan hệ & SQL → index/transaction → NoSQL/phân tán | [Databases/](./Databases/) |
 | DataStructures | Cấu trúc dữ liệu — cách tổ chức và lưu trữ dữ liệu hiệu quả | [DataStructures/](./DataStructures/) |
 | Economics | Lộ trình học Kinh tế học — 4 tier từ tư duy nền tảng tới chuyên đề ứng dụng | [Economics/](./Economics/) |
@@ -49,7 +49,7 @@
 | Psychology | Tâm lý học khoa học — 3 tầng × 15 bài: cognitive (Stroop, biases) → social/developmental → clinical & methods | [Psychology/](./Psychology/) |
 | SignalProcessing | Xử lý tín hiệu & Fourier — 3 tier × 16 bài: tín hiệu/lấy mẫu/tích chập → chuỗi & biến đổi Fourier, epicycle, DFT/FFT, spectrogram → lọc số, audio, ảnh 2D, điều chế, wavelet | [SignalProcessing/](./SignalProcessing/) |
 | SoftwareEngineering | Kỹ thuật phần mềm — nghề làm phần mềm cùng nhóm, 3 tầng × 6 bài: quy trình & cộng tác (SDLC, Agile, git workflow) → thiết kế & chất lượng (clean code, SOLID, patterns, kiểm thử) → kiến trúc & vận hành (API, CI/CD, container, system design) | [SoftwareEngineering/](./SoftwareEngineering/) |
-| Statistics | Thống kê — 3 tầng × 15 bài: mô tả dữ liệu → suy luận → Bayesian, nhân quả, time series | [Statistics/](./Statistics/) |
+| Statistics | Thống kê — 3 tầng × 18 bài: mô tả dữ liệu → suy luận (CLT, kiểm định, hồi quy linear/multiple/logistic) → Bayesian, nhân quả, time series | [Statistics/](./Statistics/) |
 | Vectors | Lộ trình toán cho AI & ML — 5 tầng từ đại số phổ thông tới xác suất & cross-entropy | [Vectors/](./Vectors/) |
 | VietnameseHistory | Lịch sử Việt Nam — 3 tầng × 8 bài: dựng nước & Bắc thuộc → các triều đại quân chủ → cận-hiện đại & Đổi mới | [VietnameseHistory/](./VietnameseHistory/) |
 | WorldHistory | Lịch sử thế giới — 3 tầng × 8 bài: cổ đại (văn minh sông → La Mã) → trung-cận đại (Phục hưng, Khai sáng) → hiện đại (Thế chiến, Chiến tranh Lạnh, toàn cầu hóa) | [WorldHistory/](./WorldHistory/) |

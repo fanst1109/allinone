@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 09: Hồi quy bội (Multiple Regression) — Statistics</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root { --bg: #f7f9fc; --accent: #7c3aed; --accent-soft: #ede9fe; --accent-hover: #6d28d9; }
+  h1 { color: #6d28d9; margin-bottom: 4px; }
+  .subtitle { color: #4a5568; margin-bottom: 28px; font-size: 15px; }
+  h2 { color: #7c3aed; margin-top: 40px; padding-bottom: 8px; border-bottom: 2px solid #ddd6fe; }
+  .module { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 28px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin: 16px 0; padding: 16px; background: #f7f9fc; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 13px; font-weight: 600; color: #4a5568; }
+  input[type="range"] { width: 160px; max-width: 100%; accent-color: var(--accent); }
+  .val-badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: monospace; }
+  .stats-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .stat-chip { background: #edf2f7; padding: 6px 12px; border-radius: 6px; font-family: monospace; font-size: 13px; border-left: 3px solid var(--accent); }
+  .stat-chip .name { color: #718096; font-size: 11px; display: block; }
+  .stat-chip .val { color: #2d3748; font-weight: 700; font-size: 15px; }
+  .info-box { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; }
+  .warn-box { background: #fffaf0; border-left: 4px solid #dd6b20; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 14px; color: #7b341e; }
+  svg { display: block; max-width: 100%; }
+  button { padding: 8px 18px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  button:hover { background: var(--accent-hover); }
+  button.secondary { background: #e2e8f0; color: #2d3748; }
+  button.secondary:hover { background: #cbd5e0; }
+  .var-toggle { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+  .var-chip {
+    display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 8px;
+    border: 2px solid #e2e8f0; cursor: pointer; font-size: 14px; user-select: none;
+    transition: all 0.15s; background: white;
+  }
+  .var-chip.on { border-color: var(--accent); background: var(--accent-soft); }
+  .var-chip.junk.on { border-color: #dd6b20; background: #fffaf0; }
+  .var-chip input { accent-color: var(--accent); width: 16px; height: 16px; }
+  .var-chip .tag { font-size: 11px; color: #a0aec0; }
+  .beta-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+  .beta-table th, .beta-table td { padding: 7px 10px; text-align: left; border-bottom: 1px solid #edf2f7; }
+  .beta-table th { color: #718096; font-size: 12px; font-weight: 600; }
+  .beta-table td.num { font-family: monospace; font-weight: 700; }
+  .junk-row { color: #dd6b20; }
+  .partial-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 12px; }
+  @media (max-width: 480px) {
+    .controls { flex-direction: column; align-items: flex-start; }
+    input[type="range"] { width: 100%; }
+    .partial-grid { grid-template-columns: 1fr; }
+    .var-chip { padding: 7px 10px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-08-linear-regression/visualization.html">← L08: Linear Regression</a>
+  <span class="sep">·</span>
+  <span class="current">L09: Multiple Regression</span>
+  <span class="sep">·</span>
+  <a href="../lesson-10-logistic-regression/visualization.html">L10: Logistic Regression →</a>
+</nav>
+<main>
+  <h1>Lesson 09: Hồi quy bội (Multiple Regression)</h1>
+  <p class="subtitle">Nhiều biến dự báo cùng lúc — β riêng phần, R² vs adjusted R², đa cộng tuyến, mặt phẳng hồi quy</p>
+
+  <!-- Module 1: thêm/bớt biến -->
+  <section class="module">
+    <h2>1. Thêm / bớt biến → R² luôn tăng, adjusted có thể giảm</h2>
+    <div class="info-box">
+      Dữ liệu giá nhà cố định (n=24). Bật/tắt các biến dự báo để xem hệ số β, R² và adjusted R² đổi theo.
+      Hai biến <strong style="color:#dd6b20">cam</strong> là <strong>biến rác</strong> (số ngẫu nhiên, không liên quan giá) —
+      thêm chúng vẫn làm R² nhích lên nhưng adjusted R² thường tụt xuống.
+    </div>
+    <div class="var-toggle" id="varToggle"></div>
+    <div class="controls" style="margin-top:8px;">
+      <button class="secondary" onclick="resetVars()">Chỉ biến thật</button>
+      <button class="secondary" onclick="allVars()">Bật tất cả</button>
+    </div>
+    <div class="stats-row" id="m1stats"></div>
+    <table class="beta-table" id="betaTable"></table>
+    <div style="margin-top:16px;">
+      <p style="font-size:13px;font-weight:600;color:#4a5568;margin-bottom:6px;">Lịch sử R² vs adjusted R² (mỗi lần bạn đổi biến):</p>
+      <svg id="r2Chart" width="640" height="220" viewBox="0 0 640 220"></svg>
+    </div>
+  </section>
+
+  <!-- Module 2: đa cộng tuyến -->
+  <section class="module">
+    <h2>2. Đa cộng tuyến — hệ số dao động dữ dội</h2>
+    <div class="info-box">
+      Hai biến dự báo x₁ và x₂ với tương quan r điều chỉnh được. Khi r → 1, mô hình không tách được đóng góp
+      riêng → β₁, β₂ "nhảy múa" giữa các lần lấy mẫu dù dự báo tổng gần như không đổi. VIF đo mức "thổi phồng" phương sai.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>Tương quan r(x₁,x₂): <span class="val-badge" id="mc-r-v">0.95</span></label>
+        <input type="range" id="mc-r" min="0" max="0.99" value="0.95" step="0.01">
+      </div>
+      <button onclick="runColl()">Lấy mẫu lại 8 lần</button>
+    </div>
+    <div class="stats-row" id="m2stats"></div>
+    <svg id="collChart" width="640" height="240" viewBox="0 0 640 240"></svg>
+    <div class="warn-box" id="collWarn"></div>
+  </section>
+
+  <!-- Module 3: partial regression / mặt phẳng -->
+  <section class="module">
+    <h2>3. Mặt phẳng hồi quy 2 biến — partial plots</h2>
+    <div class="info-box">
+      Mô hình giá nhà 2 biến: ŷ = β₀ + β₁·diện tích + β₂·khoảng cách. Vì khó vẽ 3D phẳng, ta dùng <strong>2 partial plot</strong>:
+      mỗi đồ thị giữ một biến cố định ở trung bình, cho biến kia chạy → thấy slope riêng phần. Kéo slider để đổi hệ số và xem điểm dữ liệu khớp ra sao.
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>β₁ (diện tích, /m²): <span class="val-badge" id="p-b1-v">0.040</span></label>
+        <input type="range" id="p-b1" min="0" max="0.08" value="0.04" step="0.002">
+      </div>
+      <div class="ctrl-group">
+        <label>β₂ (khoảng cách, /km): <span class="val-badge" id="p-b2-v">-0.080</span></label>
+        <input type="range" id="p-b2" min="-0.2" max="0.05" value="-0.08" step="0.005">
+      </div>
+      <button class="secondary" onclick="fitBest()">Khớp tối ưu (OLS)</button>
+    </div>
+    <div class="stats-row" id="m3stats"></div>
+    <div class="partial-grid">
+      <div>
+        <p style="font-size:13px;font-weight:600;color:#4a5568;text-align:center;margin:4px 0;">Giá vs Diện tích (kc giữ ở TB)</p>
+        <svg id="partA" width="320" height="260" viewBox="0 0 320 260"></svg>
+      </div>
+      <div>
+        <p style="font-size:13px;font-weight:600;color:#4a5568;text-align:center;margin:4px 0;">Giá vs Khoảng cách (dt giữ ở TB)</p>
+        <svg id="partB" width="320" height="260" viewBox="0 0 320 260"></svg>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ============ tiện ích đại số ma trận nhỏ ============ */
+function matT(A){const r=A.length,c=A[0].length,R=[];for(let j=0;j<c;j++){R.push([]);for(let i=0;i<r;i++)R[j].push(A[i][j]);}return R;}
+function matMul(A,B){const r=A.length,c=B[0].length,k=B.length,R=[];for(let i=0;i<r;i++){R.push([]);for(let j=0;j<c;j++){let s=0;for(let t=0;t<k;t++)s+=A[i][t]*B[t][j];R[i].push(s);}}return R;}
+function matInv(M){ // Gauss-Jordan, M vuông
+  const n=M.length;const A=M.map((row,i)=>[...row,...Array(n).fill(0).map((_,j)=>i===j?1:0)]);
+  for(let col=0;col<n;col++){
+    let piv=col;for(let r=col+1;r<n;r++)if(Math.abs(A[r][col])>Math.abs(A[piv][col]))piv=r;
+    if(Math.abs(A[piv][col])<1e-12)return null; // suy biến
+    [A[col],A[piv]]=[A[piv],A[col]];
+    const d=A[col][col];for(let j=0;j<2*n;j++)A[col][j]/=d;
+    for(let r=0;r<n;r++){if(r===col)continue;const f=A[r][col];for(let j=0;j<2*n;j++)A[r][j]-=f*A[col][j];}
+  }
+  return A.map(row=>row.slice(n));
+}
+// OLS: trả {beta, r2, n, p}. cols = mảng các mảng cột biến (chưa có intercept). y mảng.
+function ols(cols, y){
+  const n=y.length;
+  const X=[];for(let i=0;i<n;i++){const row=[1];for(const c of cols)row.push(c[i]);X.push(row);}
+  const Xt=matT(X);
+  const XtX=matMul(Xt,X);
+  const inv=matInv(XtX);
+  if(!inv)return null;
+  const Xty=matMul(Xt, y.map(v=>[v]));
+  const beta=matMul(inv,Xty).map(r=>r[0]);
+  // dự báo + R2
+  const yhat=X.map(row=>row.reduce((s,v,j)=>s+v*beta[j],0));
+  const ybar=y.reduce((a,b)=>a+b,0)/n;
+  let ssr=0,sst=0;for(let i=0;i<n;i++){ssr+=(y[i]-yhat[i])**2;sst+=(y[i]-ybar)**2;}
+  const r2=sst>0?1-ssr/sst:0;
+  return {beta, r2, n, p:cols.length};
+}
+function adjR2(r2,n,p){ if(n-p-1<=0)return NaN; return 1-(1-r2)*(n-1)/(n-p-1); }
+function randn(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+
+/* ============ MODULE 1: dữ liệu giá nhà cố định ============ */
+// 24 căn. biến thật: dt(m²), phòng, kc(km), tuổi(năm). giá = tỷ.
+const N1=24;
+const dt=[50,70,90,60,100,55,80,75,65,95,48,110,58,72,88,62,105,52,78,68,92,45,85,58];
+const rooms=[1,2,3,2,3,1,2,2,2,3,1,4,2,2,3,2,3,1,2,2,3,1,3,2];
+const kc=[8,5,6,10,3,9,4,7,6,5,12,3,11,6,4,9,2,10,5,8,4,13,5,9];
+const age=[5,3,8,12,2,15,6,4,9,3,20,1,18,7,5,11,2,14,6,10,4,22,5,13];
+// giá thật sinh từ công thức + noise (tính sẵn để cố định)
+const price=[];
+(function(){ for(let i=0;i<N1;i++){ let g=0.5+0.04*dt[i]+0.30*rooms[i]-0.08*kc[i]-0.015*age[i]; g+=(((i*37)%11)-5)*0.03; price.push(Math.round(g*100)/100);} })();
+// biến rác: số ngẫu nhiên cố định (seed thủ công)
+const junk1=[],junk2=[];
+(function(){let s=12345;function rnd(){s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;}
+  for(let i=0;i<N1;i++){junk1.push(Math.round(rnd()*100));junk2.push(Math.round(rnd()*100));}})();
+
+const VARS=[
+  {key:'dt',   name:'Diện tích (m²)', col:dt,    junk:false, on:true},
+  {key:'rooms',name:'Số phòng',       col:rooms, junk:false, on:true},
+  {key:'kc',   name:'Khoảng cách (km)',col:kc,   junk:false, on:true},
+  {key:'age',  name:'Tuổi nhà (năm)', col:age,   junk:false, on:false},
+  {key:'j1',   name:'Biến rác #1',    col:junk1, junk:true,  on:false},
+  {key:'j2',   name:'Biến rác #2',    col:junk2, junk:true,  on:false},
+];
+let r2History=[]; // {r2, adj, p}
+
+function renderVarToggle(){
+  document.getElementById('varToggle').innerHTML=VARS.map((v,idx)=>
+    `<label class="var-chip ${v.on?'on':''} ${v.junk?'junk':''}" id="chip-${idx}">
+       <input type="checkbox" ${v.on?'checked':''} onchange="toggleVar(${idx})">
+       <span>${v.name}</span>${v.junk?'<span class="tag">(rác)</span>':''}
+     </label>`).join('');
+}
+function toggleVar(idx){ VARS[idx].on=!VARS[idx].on; renderVarToggle(); recomputeM1(true); }
+function resetVars(){ VARS.forEach(v=>v.on=!v.junk && v.key!=='age'); renderVarToggle(); recomputeM1(true); }
+function allVars(){ VARS.forEach(v=>v.on=true); renderVarToggle(); recomputeM1(true); }
+
+function recomputeM1(record){
+  const active=VARS.filter(v=>v.on);
+  const cols=active.map(v=>v.col);
+  const res= cols.length? ols(cols, price): null;
+  const m1=document.getElementById('m1stats');
+  if(!res){ m1.innerHTML='<div class="stat-chip"><span class="name">Lỗi</span><span class="val">cần ≥1 biến</span></div>'; document.getElementById('betaTable').innerHTML=''; return; }
+  const adj=adjR2(res.r2,res.n,res.p);
+  m1.innerHTML=`
+    <div class="stat-chip"><span class="name">Số biến p</span><span class="val">${res.p}</span></div>
+    <div class="stat-chip"><span class="name">R²</span><span class="val" style="color:#7c3aed">${res.r2.toFixed(4)}</span></div>
+    <div class="stat-chip"><span class="name">Adjusted R²</span><span class="val" style="color:#dd6b20">${adj.toFixed(4)}</span></div>
+    <div class="stat-chip"><span class="name">n quan sát</span><span class="val">${res.n}</span></div>`;
+  // bảng beta
+  let rows=`<tr><th>Hệ số</th><th>Biến</th><th>Giá trị β</th></tr>`;
+  rows+=`<tr><td>β₀</td><td>Intercept</td><td class="num">${res.beta[0].toFixed(4)}</td></tr>`;
+  active.forEach((v,i)=>{ rows+=`<tr class="${v.junk?'junk-row':''}"><td>β${i+1}</td><td>${v.name}</td><td class="num">${res.beta[i+1].toFixed(4)}</td></tr>`; });
+  document.getElementById('betaTable').innerHTML=rows;
+  if(record){ r2History.push({r2:res.r2,adj:isNaN(adj)?0:adj,p:res.p}); if(r2History.length>14)r2History.shift(); }
+  drawR2Chart();
+}
+
+function drawR2Chart(){
+  const svg=document.getElementById('r2Chart');const W=640,H=220,PAD={t:24,r:90,b:34,l:40};
+  const cw=W-PAD.l-PAD.r,ch=H-PAD.t-PAD.b;
+  let html=`<rect x="0" y="0" width="${W}" height="${H}" fill="#fafafa" rx="6"/>`;
+  // trục y 0..1
+  for(let g=0;g<=4;g++){const yy=PAD.t+ch*(1-g/4);html+=`<line x1="${PAD.l}" y1="${yy}" x2="${W-PAD.r}" y2="${yy}" stroke="#e2e8f0"/><text x="${PAD.l-6}" y="${yy+4}" text-anchor="end" font-size="10" fill="#a0aec0">${(g/4).toFixed(2)}</text>`;}
+  if(r2History.length===0){ html+=`<text x="${PAD.l+cw/2}" y="${PAD.t+ch/2}" text-anchor="middle" font-size="13" fill="#a0aec0">Đổi biến để ghi lịch sử R²...</text>`; svg.innerHTML=html; return; }
+  const n=r2History.length;
+  const sx=i=> n===1? PAD.l+cw/2 : PAD.l+ (i/(n-1))*cw;
+  const sy=v=> PAD.t+ch*(1-Math.max(0,Math.min(1,v)));
+  // line R2
+  const mk=(arr,color)=>{ let d=''; arr.forEach((p,i)=>{d+=(i?'L':'M')+sx(i)+' '+sy(p)+' ';}); html+=`<path d="${d}" fill="none" stroke="${color}" stroke-width="2.5"/>`; arr.forEach((p,i)=>{html+=`<circle cx="${sx(i)}" cy="${sy(p)}" r="3.5" fill="${color}"/>`;});};
+  mk(r2History.map(h=>h.r2),'#7c3aed');
+  mk(r2History.map(h=>h.adj),'#dd6b20');
+  // nhãn p dưới mỗi điểm
+  r2History.forEach((h,i)=>{html+=`<text x="${sx(i)}" y="${H-PAD.b+16}" text-anchor="middle" font-size="10" fill="#718096">p=${h.p}</text>`;});
+  // legend
+  html+=`<rect x="${W-PAD.r+8}" y="${PAD.t+4}" width="12" height="12" fill="#7c3aed" rx="2"/><text x="${W-PAD.r+24}" y="${PAD.t+14}" font-size="11" fill="#4a5568">R²</text>`;
+  html+=`<rect x="${W-PAD.r+8}" y="${PAD.t+24}" width="12" height="12" fill="#dd6b20" rx="2"/><text x="${W-PAD.r+24}" y="${PAD.t+34}" font-size="11" fill="#4a5568">adj R²</text>`;
+  svg.innerHTML=html;
+}
+
+/* ============ MODULE 2: đa cộng tuyến ============ */
+function runColl(){
+  const r=+document.getElementById('mc-r').value;
+  document.getElementById('mc-r-v').textContent=r.toFixed(2);
+  const n=40;
+  const runs=[]; // {b1,b2,r2}
+  for(let trial=0;trial<8;trial++){
+    const x1=[],x2=[],y=[];
+    for(let i=0;i<n;i++){
+      const z=randn();
+      const a=z;                                  // x1
+      const b=r*z+Math.sqrt(1-r*r)*randn();        // x2 tương quan r với x1
+      x1.push(a);x2.push(b);
+      // y phụ thuộc tổng (x1+x2) + noise → ảnh hưởng tổng ổn định, riêng phần không
+      y.push(1.0*(a+b)+0.4*randn());
+    }
+    const res=ols([x1,x2],y);
+    if(res) runs.push({b1:res.beta[1],b2:res.beta[2],r2:res.r2});
+  }
+  // thống kê dao động
+  const b1s=runs.map(r=>r.b1),b2s=runs.map(r=>r.b2);
+  const sd=arr=>{const m=arr.reduce((a,b)=>a+b)/arr.length;return Math.sqrt(arr.reduce((a,b)=>a+(b-m)**2,0)/arr.length);};
+  const vif=1/(1-r*r);
+  document.getElementById('m2stats').innerHTML=`
+    <div class="stat-chip"><span class="name">r(x₁,x₂)</span><span class="val">${r.toFixed(2)}</span></div>
+    <div class="stat-chip"><span class="name">VIF = 1/(1−r²)</span><span class="val" style="color:${vif>10?'#e53e3e':vif>5?'#dd6b20':'#276749'}">${vif.toFixed(2)}</span></div>
+    <div class="stat-chip"><span class="name">SD của β₁ (8 mẫu)</span><span class="val">${sd(b1s).toFixed(3)}</span></div>
+    <div class="stat-chip"><span class="name">SD của β₂ (8 mẫu)</span><span class="val">${sd(b2s).toFixed(3)}</span></div>
+    <div class="stat-chip"><span class="name">R² trung bình</span><span class="val">${(runs.reduce((a,b)=>a+b.r2,0)/runs.length).toFixed(3)}</span></div>`;
+  drawColl(runs);
+  const warn=document.getElementById('collWarn');
+  if(vif>10) warn.innerHTML='⚠ VIF > 10: đa cộng tuyến nghiêm trọng. β₁, β₂ nhảy lung tung giữa các mẫu — KHÔNG diễn giải được từng hệ số, dù R² vẫn cao (dự báo tổng ổn).';
+  else if(vif>5) warn.innerHTML='⚠ VIF > 5: bắt đầu lo. Hệ số bắt đầu dao động đáng kể.';
+  else warn.innerHTML='✓ VIF thấp: hai biến đủ độc lập, hệ số ổn định giữa các mẫu.';
+}
+function drawColl(runs){
+  const svg=document.getElementById('collChart');const W=640,H=240,PAD={t:24,r:30,b:40,l:46};
+  const cw=W-PAD.l-PAD.r,ch=H-PAD.t-PAD.b;
+  const all=runs.flatMap(r=>[r.b1,r.b2]);
+  let lo=Math.min(...all,0),hi=Math.max(...all,1);const pad=(hi-lo)*0.15||1;lo-=pad;hi+=pad;
+  const sy=v=>PAD.t+ch*(1-(v-lo)/(hi-lo));
+  const colW=cw/runs.length;
+  let html=`<rect x="0" y="0" width="${W}" height="${H}" fill="#fafafa" rx="6"/>`;
+  // đường y=1 (giá trị "đúng" của hệ số tổng nếu chia đều ~ không cố định, vẽ tham chiếu 0)
+  html+=`<line x1="${PAD.l}" y1="${sy(0)}" x2="${W-PAD.r}" y2="${sy(0)}" stroke="#cbd5e0" stroke-dasharray="3,3"/>`;
+  html+=`<text x="${PAD.l-6}" y="${sy(0)+4}" text-anchor="end" font-size="10" fill="#a0aec0">0</text>`;
+  runs.forEach((r,i)=>{
+    const cx=PAD.l+colW*(i+0.5);
+    html+=`<circle cx="${cx-8}" cy="${sy(r.b1)}" r="6" fill="#7c3aed" opacity="0.85"/>`;
+    html+=`<circle cx="${cx+8}" cy="${sy(r.b2)}" r="6" fill="#dd6b20" opacity="0.85"/>`;
+    html+=`<text x="${cx}" y="${H-PAD.b+16}" text-anchor="middle" font-size="10" fill="#718096">#${i+1}</text>`;
+  });
+  html+=`<text x="${PAD.l+cw/2}" y="${PAD.t-6}" text-anchor="middle" font-size="12" fill="#2d3748" font-weight="600">β₁ (tím) và β₂ (cam) qua 8 lần lấy mẫu</text>`;
+  svg.innerHTML=html;
+}
+
+/* ============ MODULE 3: partial plots ============ */
+// dùng lại dt, kc, price từ module 1 (chỉ 2 biến)
+const dtMean=dt.reduce((a,b)=>a+b,0)/N1, kcMean=kc.reduce((a,b)=>a+b,0)/N1, priceMean=price.reduce((a,b)=>a+b,0)/N1;
+function olsFull3(){ const res=ols([dt,kc],price); return res; } // β0,β1,β2 tối ưu
+function recomputeM3(){
+  const b1=+document.getElementById('p-b1').value, b2=+document.getElementById('p-b2').value;
+  document.getElementById('p-b1-v').textContent=b1.toFixed(3);
+  document.getElementById('p-b2-v').textContent=b2.toFixed(3);
+  // chọn β0 tối thiểu hoá residual với b1,b2 cho trước: β0 = mean(y) - b1*mean(dt) - b2*mean(kc)
+  const b0=priceMean - b1*dtMean - b2*kcMean;
+  // SSE & R2
+  let ssr=0,sst=0;
+  for(let i=0;i<N1;i++){const yh=b0+b1*dt[i]+b2*kc[i];ssr+=(price[i]-yh)**2;sst+=(price[i]-priceMean)**2;}
+  const r2=1-ssr/sst;
+  const best=olsFull3();
+  document.getElementById('m3stats').innerHTML=`
+    <div class="stat-chip"><span class="name">β₀ (suy ra)</span><span class="val">${b0.toFixed(3)}</span></div>
+    <div class="stat-chip"><span class="name">SSE hiện tại</span><span class="val">${ssr.toFixed(3)}</span></div>
+    <div class="stat-chip"><span class="name">R² hiện tại</span><span class="val" style="color:#7c3aed">${r2.toFixed(4)}</span></div>
+    <div class="stat-chip"><span class="name">OLS tối ưu R²</span><span class="val" style="color:#276749">${best.r2.toFixed(4)}</span></div>`;
+  drawPartial('partA', dt, b0, b1, b2, kcMean, true);   // giá vs dt, kc=mean
+  drawPartial('partB', kc, b0, b1, b2, dtMean, false);  // giá vs kc, dt=mean
+}
+function fitBest(){
+  const best=olsFull3();
+  document.getElementById('p-b1').value=best.beta[1].toFixed(3);
+  document.getElementById('p-b2').value=best.beta[2].toFixed(3);
+  recomputeM3();
+}
+// drawPartial: vẽ scatter price vs xvar, đường dự báo khi giữ biến kia = otherMean
+function drawPartial(id, xvar, b0, b1, b2, otherMean, xIsDt){
+  const svg=document.getElementById(id);const W=320,H=260,PAD={t:18,r:16,b:36,l:44};
+  const cw=W-PAD.l-PAD.r,ch=H-PAD.t-PAD.b;
+  const xmin=Math.min(...xvar),xmax=Math.max(...xvar);
+  const ymin=Math.min(...price)*0.9,ymax=Math.max(...price)*1.05;
+  const sx=v=>PAD.l+((v-xmin)/(xmax-xmin))*cw;
+  const sy=v=>PAD.t+ch*(1-(v-ymin)/(ymax-ymin));
+  let html=`<rect x="0" y="0" width="${W}" height="${H}" fill="#fafafa" rx="6"/>`;
+  // grid y
+  for(let g=0;g<=4;g++){const yy=PAD.t+ch*g/4;const val=ymax-(ymax-ymin)*g/4;html+=`<line x1="${PAD.l}" y1="${yy}" x2="${W-PAD.r}" y2="${yy}" stroke="#edf2f7"/><text x="${PAD.l-5}" y="${yy+4}" text-anchor="end" font-size="9" fill="#a0aec0">${val.toFixed(1)}</text>`;}
+  // đường dự báo: ŷ = b0 + b1*x + b2*otherMean  (khi xIsDt) ; hoặc b0 + b1*otherMean + b2*x
+  const yAt=x=> xIsDt ? (b0+b1*x+b2*otherMean) : (b0+b1*otherMean+b2*x);
+  const x0=xmin,x1v=xmax;
+  html+=`<line x1="${sx(x0)}" y1="${sy(yAt(x0))}" x2="${sx(x1v)}" y2="${sy(yAt(x1v))}" stroke="#7c3aed" stroke-width="2.5"/>`;
+  // điểm + residual
+  for(let i=0;i<N1;i++){
+    const xx=sx(xvar[i]),yy=sy(price[i]);
+    const yp=sy(yAt(xvar[i]));
+    html+=`<line x1="${xx}" y1="${yy}" x2="${xx}" y2="${yp}" stroke="#cbd5e0" stroke-width="1"/>`;
+    html+=`<circle cx="${xx}" cy="${yy}" r="4" fill="#6d28d9" opacity="0.7"/>`;
+  }
+  html+=`<text x="${PAD.l+cw/2}" y="${H-6}" text-anchor="middle" font-size="10" fill="#718096">${xIsDt?'Diện tích (m²)':'Khoảng cách (km)'}</text>`;
+  svg.innerHTML=html;
+}
+
+document.getElementById('mc-r').addEventListener('input',e=>document.getElementById('mc-r-v').textContent=(+e.target.value).toFixed(2));
+document.getElementById('p-b1').addEventListener('input',recomputeM3);
+document.getElementById('p-b2').addEventListener('input',recomputeM3);
+
+// init
+renderVarToggle();
+recomputeM1(true);
+runColl();
+recomputeM3();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>
+</content>

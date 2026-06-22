@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Recursive-Descent Parser Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #c2410c;
+    --accent-soft: #fff7ed;
+    --accent-hover: #9a3412;
+  }
+  h1 { color: #9a3412; }
+  h2 {
+    color: #c2410c; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fed7aa;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { color: #78716c; font-size: 13px; margin: 6px 0; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #fef3c7; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #9a3412;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #57534e; }
+
+  input.expr {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 16px; padding: 8px 12px;
+    border: 1px solid #d6d3d1; border-radius: 4px;
+    width: 100%; max-width: 320px; box-sizing: border-box; flex: 1;
+  }
+  input.expr.bad { border-color: #dc2626; background: #fff5f5; }
+
+  button {
+    background: #c2410c; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #9a3412; }
+  button:disabled { background: #d6d3d1; cursor: not-allowed; }
+  button.preset {
+    background: #ffedd5; color: #9a3412; font-size: 12px;
+    padding: 4px 10px; margin: 3px 4px 3px 0;
+  }
+  button.preset:hover { background: #fed7aa; }
+
+  /* Token strip */
+  .tokens { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+  .tok {
+    border: 1px solid #d6d3d1; border-radius: 6px;
+    padding: 6px 10px; font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; background: #fafaf9; color: #44403c;
+    transition: all 0.15s;
+  }
+  .tok.cur { border-color: #c2410c; background: #ffedd5; color: #9a3412; font-weight: 700; box-shadow: 0 0 0 2px #fed7aa; }
+  .tok.done { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
+  .tok.eof { font-style: italic; color: #a8a29e; }
+
+  /* Call stack */
+  .callstack { display: flex; flex-direction: column-reverse; gap: 4px; min-height: 60px; }
+  .frame {
+    background: #fff7ed; border-left: 4px solid #c2410c;
+    padding: 5px 10px; border-radius: 4px;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px;
+    color: #7c2d12;
+  }
+  .frame.top { background: #ffedd5; font-weight: 700; }
+  .stack-empty { color: #a8a29e; font-style: italic; font-size: 13px; }
+
+  /* Step log */
+  .log {
+    background: #1c1917; color: #fafaf9; border-radius: 6px;
+    padding: 12px 14px; font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; line-height: 1.6; max-height: 220px; overflow-y: auto;
+  }
+  .log .ln { white-space: pre-wrap; }
+  .log .hl { color: #fdba74; font-weight: 700; }
+  .log .ok { color: #86efac; }
+  .log .err { color: #fca5a5; font-weight: 700; }
+
+  /* Two-column layout for stepper */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .split h4 { margin: 0 0 8px; color: #57534e; font-size: 14px; }
+  @media (max-width: 768px) { .split { grid-template-columns: 1fr; } }
+
+  /* SVG tree wrap */
+  .tree-wrap { overflow-x: auto; background: #fafaf9; border-radius: 6px; padding: 8px; }
+  svg.ast { display: block; margin: 0 auto; }
+  .nd-rect { stroke: #c2410c; stroke-width: 1.5; }
+  .nd-op   { fill: #ffedd5; }
+  .nd-num  { fill: #dcfce7; stroke: #16a34a; }
+  .nd-text { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 14px; font-weight: 700; }
+  .nd-text.op  { fill: #9a3412; }
+  .nd-text.num { fill: #15803d; }
+  .edge { stroke: #a8a29e; stroke-width: 1.5; }
+  .nd-grp { cursor: pointer; }
+  .nd-grp:hover .nd-rect { stroke-width: 3; }
+
+  .result-badge {
+    display: inline-block; padding: 6px 14px; border-radius: 6px;
+    font-weight: 700; font-size: 15px; margin-top: 8px;
+    background: #dcfce7; color: #166534;
+  }
+  .err-badge {
+    display: inline-block; padding: 6px 14px; border-radius: 6px;
+    font-weight: 700; font-size: 14px; margin-top: 8px;
+    background: #fee2e2; color: #991b1b;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  .node-info { margin-top: 8px; font-size: 14px; color: #57534e; min-height: 20px; }
+  .grammar-box {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px;
+    padding: 12px 16px; font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; line-height: 1.7; color: #78350f; margin: 10px 0;
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-grammar-cfg/visualization.html">← L03: Grammar &amp; CFG</a>
+  <span class="sep">·</span>
+  <span class="current">L04: Recursive-Descent Parser</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-pratt-precedence/visualization.html">L05: Pratt Parsing →</a>
+</nav>
+
+<main>
+  <h1>Lesson 04 — Recursive-Descent Parser</h1>
+  <p>Biến dãy token phẳng thành cây AST đúng độ ưu tiên. Ba module tương tác: chạy parser từng bước (call stack + AST dựng dần), xem cây AST hoàn chỉnh, và demo lỗi cú pháp.</p>
+
+  <div class="grammar-box">E → T ( '+' | '-' T )*&nbsp;&nbsp;&nbsp;(parseExpr)<br>
+T → F ( '*' | '/' F )*&nbsp;&nbsp;&nbsp;(parseTerm)<br>
+F → '(' E ')' | num&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(parseFactor)</div>
+  <p class="hint">Grammar đã khử đệ quy trái: mỗi non-terminal = một hàm. <code>*</code><code>/</code> ở tầng sâu (T) → ưu tiên cao hơn <code>+</code><code>-</code> (tầng E).</p>
+
+  <h2>1. Parser Stepper — chạy từng bước</h2>
+  <div class="card">
+    <div class="hint">Nhập biểu thức (số nguyên, <code>+ - * /</code>, ngoặc). Bấm <strong>Bước tiếp</strong> để theo dõi từng lời gọi hàm; <strong>Tự chạy</strong> để chạy chậm tự động.</div>
+    <div class="row">
+      <input class="expr" id="stepExpr" value="2 + 3 * 4">
+      <button id="stepInit">Nạp</button>
+      <button id="stepNext" disabled>Bước tiếp ▶</button>
+      <button id="stepAuto" disabled>Tự chạy ⏩</button>
+      <button id="stepReset" disabled>Reset</button>
+    </div>
+    <div class="row">
+      <span class="hint" style="margin-right:6px;">Mẫu:</span>
+      <button class="preset" data-e="2 + 3 * 4">2 + 3 * 4</button>
+      <button class="preset" data-e="( 2 + 3 ) * 4">(2+3)*4</button>
+      <button class="preset" data-e="2 * 3 + 4">2*3+4</button>
+      <button class="preset" data-e="10 - 3 - 2">10-3-2</button>
+      <button class="preset" data-e="2 * ( 8 + 3 )">2*(8+3)</button>
+    </div>
+
+    <h4 style="margin-top:14px;color:#57534e;">Token stream</h4>
+    <div class="tokens" id="stepTokens"></div>
+
+    <div class="split" style="margin-top:12px;">
+      <div>
+        <h4>Call stack (hàm đang chạy, đỉnh trên cùng)</h4>
+        <div class="callstack" id="stepStack"><span class="stack-empty">— bấm Nạp để bắt đầu —</span></div>
+      </div>
+      <div>
+        <h4>AST đang dựng</h4>
+        <div class="tree-wrap" id="stepTree"><span class="hint">cây sẽ hiện dần…</span></div>
+      </div>
+    </div>
+
+    <h4 style="margin-top:12px;color:#57534e;">Nhật ký bước</h4>
+    <div class="log" id="stepLog"><span class="hint" style="color:#a8a29e;">…</span></div>
+    <div id="stepResult"></div>
+  </div>
+
+  <h2>2. AST Viewer — vẽ cây hoàn chỉnh</h2>
+  <div class="card">
+    <div class="hint">Nhập biểu thức bất kỳ → parse một lần, vẽ AST đầy đủ. <strong>Bấm vào node</strong> để xem loại node.</div>
+    <div class="row">
+      <input class="expr" id="astExpr" value="8 + 2 * 3 - 1">
+      <button id="astBtn">Vẽ AST</button>
+    </div>
+    <div class="row">
+      <span class="hint" style="margin-right:6px;">Mẫu:</span>
+      <button class="preset" data-at="8 + 2 * 3 - 1">8+2*3-1</button>
+      <button class="preset" data-at="( 1 + 2 ) * ( 3 + 4 )">(1+2)*(3+4)</button>
+      <button class="preset" data-at="100 / 5 / 2">100/5/2</button>
+      <button class="preset" data-at="2 + 2 * 2 + 2">2+2*2+2</button>
+    </div>
+    <div class="tree-wrap" id="astTree" style="margin-top:12px;"></div>
+    <div class="node-info" id="astInfo">Bấm vào một node để xem chi tiết.</div>
+    <div id="astResult"></div>
+  </div>
+
+  <h2>3. Syntax Error Demo — token nào gây lỗi?</h2>
+  <div class="card">
+    <div class="hint">Nhập biểu thức SAI → parser chỉ ra token gây lỗi và message <code>expect … got …</code> sinh ra ở <code>expect</code>/<code>parseFactor</code>.</div>
+    <div class="row">
+      <input class="expr" id="errExpr" value="2 + * 3">
+      <button id="errBtn">Parse</button>
+    </div>
+    <div class="row">
+      <span class="hint" style="margin-right:6px;">Mẫu lỗi:</span>
+      <button class="preset" data-er="2 + * 3">2 + * 3</button>
+      <button class="preset" data-er="( 4 + 5">( 4 + 5</button>
+      <button class="preset" data-er="7 7">7 7</button>
+      <button class="preset" data-er="* 9">* 9</button>
+      <button class="preset" data-er="2 +">2 +</button>
+    </div>
+    <h4 style="margin-top:12px;color:#57534e;">Token stream (token đỏ = gây lỗi)</h4>
+    <div class="tokens" id="errTokens"></div>
+    <div id="errResult"></div>
+  </div>
+</main>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// LEXER — chuỗi → token
+// ─────────────────────────────────────────────────────────────────────────────
+function lex(src) {
+  const toks = [];
+  let i = 0;
+  while (i < src.length) {
+    const c = src[i];
+    if (c === ' ' || c === '\t') { i++; continue; }
+    if (c >= '0' && c <= '9') {
+      let j = i;
+      while (j < src.length && src[j] >= '0' && src[j] <= '9') j++;
+      toks.push({ kind: 'NUM', value: parseInt(src.slice(i, j), 10), text: src.slice(i, j) });
+      i = j; continue;
+    }
+    const map = { '+': 'PLUS', '-': 'MINUS', '*': 'STAR', '/': 'SLASH', '(': 'LPAREN', ')': 'RPAREN' };
+    if (map[c]) { toks.push({ kind: map[c], text: c }); i++; continue; }
+    throw { tokIndex: toks.length, msg: `ký tự lạ '${c}'` };
+  }
+  toks.push({ kind: 'EOF', text: 'EOF' });
+  return toks;
+}
+
+const SYM = { PLUS: '+', MINUS: '-', STAR: '*', SLASH: '/', LPAREN: '(', RPAREN: ')', NUM: 'số', EOF: 'EOF' };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PLAIN PARSER (cho AST viewer & error demo) — recursive-descent
+// Trả về { ok, ast } hoặc ném { tokIndex, msg }
+// ─────────────────────────────────────────────────────────────────────────────
+function parse(toks) {
+  let pos = 0;
+  let idCounter = 0;
+  const peek = () => toks[pos];
+  const consume = () => toks[pos++];
+  function expect(kind) {
+    const t = peek();
+    if (t.kind !== kind) throw { tokIndex: pos, msg: `expect ${SYM[kind]} got ${t.text}` };
+    return consume();
+  }
+  function factor() {
+    const t = peek();
+    if (t.kind === 'NUM') { consume(); return { id: idCounter++, type: 'NumberLit', value: t.value }; }
+    if (t.kind === 'LPAREN') { consume(); const e = expr(); expect('RPAREN'); return e; }
+    throw { tokIndex: pos, msg: `expect số hoặc '(' got ${t.text}` };
+  }
+  function term() {
+    let f = factor();
+    while (peek().kind === 'STAR' || peek().kind === 'SLASH') {
+      const op = consume();
+      const r = factor();
+      f = { id: idCounter++, type: 'BinaryOp', op: SYM[op.kind], left: f, right: r };
+    }
+    return f;
+  }
+  function expr() {
+    let t = term();
+    while (peek().kind === 'PLUS' || peek().kind === 'MINUS') {
+      const op = consume();
+      const r = term();
+      t = { id: idCounter++, type: 'BinaryOp', op: SYM[op.kind], left: t, right: r };
+    }
+    return t;
+  }
+  const ast = expr();
+  if (peek().kind !== 'EOF') throw { tokIndex: pos, msg: `token thừa ${peek().text}` };
+  return ast;
+}
+
+function evalAst(n) {
+  if (n.type === 'NumberLit') return n.value;
+  const l = evalAst(n.left), r = evalAst(n.right);
+  switch (n.op) {
+    case '+': return l + r;
+    case '-': return l - r;
+    case '*': return l * r;
+    case '/': return r === 0 ? NaN : Math.trunc(l / r);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SVG TREE RENDERER
+// ─────────────────────────────────────────────────────────────────────────────
+function layout(node, depth, xCounter) {
+  // in-order x assignment
+  if (!node) return null;
+  node._depth = depth;
+  if (node.type === 'NumberLit') {
+    node._x = xCounter.v++;
+    return node;
+  }
+  layout(node.left, depth + 1, xCounter);
+  node._x = xCounter.v++;
+  layout(node.right, depth + 1, xCounter);
+  return node;
+}
+
+function collectNodes(node, acc) {
+  if (!node) return acc;
+  acc.push(node);
+  if (node.type === 'BinaryOp') { collectNodes(node.left, acc); collectNodes(node.right, acc); }
+  return acc;
+}
+
+function renderTree(root, opts) {
+  opts = opts || {};
+  if (!root) return '<span class="hint">cây rỗng</span>';
+  const xc = { v: 0 };
+  layout(root, 0, xc);
+  const nodes = collectNodes(root, []);
+  const colGap = 56, rowGap = 70, padX = 30, padY = 28, rW = 38, rH = 30;
+  let maxX = 0, maxD = 0;
+  for (const n of nodes) { if (n._x > maxX) maxX = n._x; if (n._depth > maxD) maxD = n._depth; }
+  const W = padX * 2 + maxX * colGap + rW;
+  const H = padY * 2 + maxD * rowGap + rH;
+  const cx = n => padX + n._x * colGap + rW / 2;
+  const cy = n => padY + n._depth * rowGap + rH / 2;
+
+  let edges = '', rects = '';
+  for (const n of nodes) {
+    if (n.type === 'BinaryOp') {
+      for (const ch of [n.left, n.right]) {
+        edges += `<line class="edge" x1="${cx(n)}" y1="${cy(n) + rH/2}" x2="${cx(ch)}" y2="${cy(ch) - rH/2}"/>`;
+      }
+    }
+  }
+  for (const n of nodes) {
+    const x = padX + n._x * colGap, y = padY + n._depth * rowGap;
+    const isOp = n.type === 'BinaryOp';
+    const label = isOp ? n.op : String(n.value);
+    const hl = opts.highlightId === n.id ? ' style="filter:drop-shadow(0 0 4px #c2410c);"' : '';
+    rects += `<g class="nd-grp" data-id="${n.id}"${hl}>
+      <rect class="nd-rect ${isOp ? 'nd-op' : 'nd-num'}" x="${x}" y="${y}" width="${rW}" height="${rH}" rx="6"/>
+      <text class="nd-text ${isOp ? 'op' : 'num'}" x="${x + rW/2}" y="${y + rH/2 + 5}" text-anchor="middle">${label}</text>
+    </g>`;
+  }
+  return `<svg class="ast" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${edges}${rects}</svg>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE 2 — AST Viewer
+// ─────────────────────────────────────────────────────────────────────────────
+const astTree = document.getElementById('astTree');
+const astInfo = document.getElementById('astInfo');
+const astResult = document.getElementById('astResult');
+let astRoot = null;
+
+function nodeById(node, id) {
+  if (!node) return null;
+  if (node.id === id) return node;
+  if (node.type === 'BinaryOp') return nodeById(node.left, id) || nodeById(node.right, id);
+  return null;
+}
+
+function drawAst() {
+  const src = document.getElementById('astExpr').value;
+  astInfo.textContent = 'Bấm vào một node để xem chi tiết.';
+  try {
+    const toks = lex(src);
+    astRoot = parse(toks);
+    astTree.innerHTML = renderTree(astRoot);
+    bindNodeClicks(astTree, astRoot);
+    const v = evalAst(astRoot);
+    astResult.innerHTML = `<span class="result-badge">Kết quả tính cây = ${isNaN(v) ? 'lỗi (chia 0)' : v}</span>`;
+  } catch (e) {
+    astTree.innerHTML = '';
+    astResult.innerHTML = `<span class="err-badge">Lỗi: ${e.msg || e}</span>`;
+  }
+}
+
+function bindNodeClicks(container, root) {
+  container.querySelectorAll('.nd-grp').forEach(g => {
+    g.onclick = () => {
+      const id = +g.dataset.id;
+      const n = nodeById(root, id);
+      if (!n) return;
+      if (n.type === 'NumberLit')
+        astInfo.innerHTML = `<strong>NumberLit</strong> — lá (leaf), không có con. <code>Value = ${n.value}</code>`;
+      else
+        astInfo.innerHTML = `<strong>BinaryOp</strong> — node trong (internal), có 2 con. <code>Op = "${n.op}"</code>, con trái + con phải.`;
+      astTree.innerHTML = renderTree(root, { highlightId: id });
+      bindNodeClicks(container, root);
+      // re-show info after re-render replaced it
+      if (n.type === 'NumberLit')
+        astInfo.innerHTML = `<strong>NumberLit</strong> — lá (leaf), không có con. <code>Value = ${n.value}</code>`;
+      else
+        astInfo.innerHTML = `<strong>BinaryOp</strong> — node trong (internal), có 2 con. <code>Op = "${n.op}"</code>, con trái + con phải.`;
+    };
+  });
+}
+
+document.getElementById('astBtn').onclick = drawAst;
+document.getElementById('astExpr').addEventListener('keydown', e => { if (e.key === 'Enter') drawAst(); });
+document.querySelectorAll('button.preset[data-at]').forEach(b => {
+  b.onclick = () => { document.getElementById('astExpr').value = b.dataset.at; drawAst(); };
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE 3 — Syntax Error Demo
+// ─────────────────────────────────────────────────────────────────────────────
+const errTokens = document.getElementById('errTokens');
+const errResult = document.getElementById('errResult');
+
+function renderTokenStrip(container, toks, badIndex) {
+  let html = '';
+  toks.forEach((t, idx) => {
+    const cls = idx === badIndex ? 'tok' : 'tok';
+    const extra = idx === badIndex ? ' style="border-color:#dc2626;background:#fee2e2;color:#991b1b;font-weight:700;box-shadow:0 0 0 2px #fecaca;"' : '';
+    const eof = t.kind === 'EOF' ? ' eof' : '';
+    const lbl = t.kind === 'NUM' ? `NUM(${t.value})` : t.text;
+    html += `<span class="${cls}${eof}"${extra}>${lbl}</span>`;
+  });
+  container.innerHTML = html;
+}
+
+function runErr() {
+  const src = document.getElementById('errExpr').value;
+  let toks;
+  try { toks = lex(src); }
+  catch (e) {
+    errTokens.innerHTML = '<span class="hint">lỗi lexer</span>';
+    errResult.innerHTML = `<span class="err-badge">Lexer: ${e.msg} (vị trí ký tự ${e.tokIndex})</span>`;
+    return;
+  }
+  try {
+    const ast = parse(toks);
+    renderTokenStrip(errTokens, toks, -1);
+    const v = evalAst(ast);
+    errResult.innerHTML = `<span class="result-badge">Không có lỗi — parse OK, = ${isNaN(v) ? 'chia 0' : v}</span>`;
+  } catch (e) {
+    renderTokenStrip(errTokens, toks, e.tokIndex);
+    const badTok = toks[e.tokIndex];
+    errResult.innerHTML = `<span class="err-badge">syntax error: ${e.msg}</span>
+      <div class="hint">Token gây lỗi: <code>#${e.tokIndex} = ${badTok ? (badTok.kind === 'NUM' ? 'NUM(' + badTok.value + ')' : badTok.text) : '?'}</code>. Lỗi sinh ở <code>expect</code> / <code>parseFactor</code>.</div>`;
+  }
+}
+
+document.getElementById('errBtn').onclick = runErr;
+document.getElementById('errExpr').addEventListener('keydown', e => { if (e.key === 'Enter') runErr(); });
+document.querySelectorAll('button.preset[data-er]').forEach(b => {
+  b.onclick = () => { document.getElementById('errExpr').value = b.dataset.er; runErr(); };
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE 1 — Parser Stepper (instrumented recursive-descent qua generator)
+// ─────────────────────────────────────────────────────────────────────────────
+const stepTokensEl = document.getElementById('stepTokens');
+const stepStackEl  = document.getElementById('stepStack');
+const stepTreeEl   = document.getElementById('stepTree');
+const stepLogEl    = document.getElementById('stepLog');
+const stepResultEl = document.getElementById('stepResult');
+const btnNext  = document.getElementById('stepNext');
+const btnAuto  = document.getElementById('stepAuto');
+const btnReset = document.getElementById('stepReset');
+
+let S = null;       // trạng thái stepper
+let autoTimer = null;
+
+function* parseGen(toks, state) {
+  let id = 0;
+  const peek = () => toks[state.pos];
+  function* push(name) { state.stack.push(name); yield `→ gọi ${name}()  (peek = ${tokLabel(peek())})`; }
+  function* pop(name, ret) { state.stack.pop(); yield `← ${name}() trả về ${ret}`; }
+
+  function* factor() {
+    yield* push('parseFactor');
+    const t = peek();
+    if (t.kind === 'NUM') {
+      yield `  consume NUM(${t.value})  → con trỏ pos: ${state.pos} → ${state.pos+1}`;
+      state.pos++;
+      const n = { id: id++, type: 'NumberLit', value: t.value };
+      state.lastTree = n;
+      yield* pop('parseFactor', `NumberLit(${t.value})`);
+      return n;
+    }
+    if (t.kind === 'LPAREN') {
+      yield `  consume '('  → vào ngoặc, gọi lại parseExpr (ĐỆ QUY)`;
+      state.pos++;
+      const e = yield* expr();
+      const r = peek();
+      if (r.kind !== 'RPAREN') throw { tokIndex: state.pos, msg: `expect ')' got ${r.text}` };
+      yield `  expect ')' OK  → consume ')'`;
+      state.pos++;
+      yield* pop('parseFactor', 'cây trong ngoặc');
+      return e;
+    }
+    throw { tokIndex: state.pos, msg: `expect số hoặc '(' got ${t.text}` };
+  }
+
+  function* term() {
+    yield* push('parseTerm');
+    let f = yield* factor();
+    while (peek().kind === 'STAR' || peek().kind === 'SLASH') {
+      const op = peek();
+      yield `  peek = ${SYM[op.kind]}  → KHỚP (parseTerm xử lý '*' '/'), consume`;
+      state.pos++;
+      const r = yield* factor();
+      f = { id: id++, type: 'BinaryOp', op: SYM[op.kind], left: f, right: r };
+      state.lastTree = f;
+      yield `  gắn node ${SYM[op.kind]} vào nhánh trái`;
+    }
+    yield `  peek = ${tokLabel(peek())} ≠ '*' '/'  → parseTerm DỪNG vòng lặp`;
+    yield* pop('parseTerm', 'cây Term');
+    return f;
+  }
+
+  function* expr() {
+    yield* push('parseExpr');
+    let t = yield* term();
+    while (peek().kind === 'PLUS' || peek().kind === 'MINUS') {
+      const op = peek();
+      yield `  peek = ${SYM[op.kind]}  → KHỚP (parseExpr xử lý '+' '-'), consume`;
+      state.pos++;
+      const r = yield* term();
+      t = { id: id++, type: 'BinaryOp', op: SYM[op.kind], left: t, right: r };
+      state.lastTree = t;
+      yield `  gắn node ${SYM[op.kind]} vào nhánh trái`;
+    }
+    yield `  peek = ${tokLabel(peek())} ≠ '+' '-'  → parseExpr DỪNG vòng lặp`;
+    yield* pop('parseExpr', 'cây Expr');
+    return t;
+  }
+
+  const ast = yield* expr();
+  if (peek().kind !== 'EOF') throw { tokIndex: state.pos, msg: `token thừa ${peek().text}` };
+  state.lastTree = ast;
+  state.finalVal = evalAst(ast);
+  yield `✓ XONG — pos tại EOF, cây hoàn chỉnh. Tính = ${state.finalVal}`;
+  return ast;
+}
+
+function tokLabel(t) { return t.kind === 'NUM' ? `NUM(${t.value})` : t.text; }
+
+function renderStepTokens() {
+  let html = '';
+  S.toks.forEach((t, idx) => {
+    let cls = 'tok';
+    if (idx < S.pos) cls += ' done';
+    else if (idx === S.pos) cls += ' cur';
+    if (t.kind === 'EOF') cls += ' eof';
+    html += `<span class="${cls}">${tokLabel(t)}</span>`;
+  });
+  stepTokensEl.innerHTML = html;
+}
+
+function renderStepStack() {
+  if (S.stack.length === 0) { stepStackEl.innerHTML = '<span class="stack-empty">(stack rỗng)</span>'; return; }
+  let html = '';
+  S.stack.forEach((f, i) => {
+    const top = i === S.stack.length - 1 ? ' top' : '';
+    html += `<div class="frame${top}">${f}()${top ? '  ◀ đang chạy' : ''}</div>`;
+  });
+  stepStackEl.innerHTML = html;
+}
+
+function renderStepTree() {
+  stepTreeEl.innerHTML = S.lastTree ? renderTree(S.lastTree) : '<span class="hint">cây sẽ hiện dần…</span>';
+}
+
+function logLine(text, klass) {
+  const div = document.createElement('div');
+  div.className = 'ln';
+  // tô màu vài từ khoá
+  let html = text
+    .replace(/(KHỚP|DỪNG|ĐỆ QUY)/g, '<span class="hl">$1</span>')
+    .replace(/(✓ XONG[^\n]*)/g, '<span class="ok">$1</span>');
+  if (klass === 'err') html = `<span class="err">${text}</span>`;
+  div.innerHTML = html;
+  stepLogEl.appendChild(div);
+  stepLogEl.scrollTop = stepLogEl.scrollHeight;
+}
+
+function initStepper() {
+  stopAuto();
+  const src = document.getElementById('stepExpr').value;
+  stepResultEl.innerHTML = '';
+  stepLogEl.innerHTML = '';
+  try {
+    const toks = lex(src);
+    S = { toks, pos: 0, stack: [], lastTree: null, finalVal: null, done: false };
+    S.gen = parseGen(toks, S);
+    renderStepTokens(); renderStepStack(); renderStepTree();
+    logLine('Nạp xong. Bấm "Bước tiếp" để chạy parseExpr().');
+    btnNext.disabled = false; btnAuto.disabled = false; btnReset.disabled = false;
+  } catch (e) {
+    stepTokensEl.innerHTML = '<span class="hint">lỗi lexer</span>';
+    stepResultEl.innerHTML = `<span class="err-badge">Lexer: ${e.msg}</span>`;
+    btnNext.disabled = true; btnAuto.disabled = true;
+  }
+}
+
+function stepOnce() {
+  if (!S || S.done) return false;
+  try {
+    const r = S.gen.next();
+    if (!r.done) {
+      logLine(r.value);
+      renderStepTokens(); renderStepStack(); renderStepTree();
+      return true;
+    } else {
+      S.done = true;
+      renderStepTokens(); renderStepStack(); renderStepTree();
+      const v = S.finalVal;
+      stepResultEl.innerHTML = `<span class="result-badge">Cây hoàn chỉnh — kết quả = ${isNaN(v) ? 'chia 0' : v}</span>`;
+      btnNext.disabled = true; btnAuto.disabled = true;
+      stopAuto();
+      return false;
+    }
+  } catch (e) {
+    S.done = true;
+    logLine(`✗ syntax error: ${e.msg}`, 'err');
+    renderStepTokens();
+    stepResultEl.innerHTML = `<span class="err-badge">syntax error: ${e.msg}</span>`;
+    btnNext.disabled = true; btnAuto.disabled = true;
+    stopAuto();
+    return false;
+  }
+}
+
+function stopAuto() {
+  if (autoTimer) { clearInterval(autoTimer); autoTimer = null; btnAuto.textContent = 'Tự chạy ⏩'; }
+}
+
+btnNext.onclick = () => stepOnce();
+btnReset.onclick = initStepper;
+btnAuto.onclick = () => {
+  if (autoTimer) { stopAuto(); return; }
+  btnAuto.textContent = 'Dừng ⏸';
+  autoTimer = setInterval(() => { if (!stepOnce()) stopAuto(); }, 750);
+};
+document.getElementById('stepInit').onclick = initStepper;
+document.querySelectorAll('button.preset[data-e]').forEach(b => {
+  b.onclick = () => { document.getElementById('stepExpr').value = b.dataset.e; initStepper(); };
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
+drawAst();
+runErr();
+initStepper();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

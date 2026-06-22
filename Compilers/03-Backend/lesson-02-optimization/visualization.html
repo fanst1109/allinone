@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 12 — Tối ưu hóa (Optimization) Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #9a3412; }
+  h2 {
+    color: #c2410c; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fed7aa;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  .hint { color: #718096; font-size: 13px; margin: 4px 0; }
+  label { font-weight: 600; color: #4a5568; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #fff7ed; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #9a3412;
+  }
+  button {
+    background: #c2410c; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #9a3412; }
+  button.ghost { background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
+  button.ghost:hover { background: #ffedd5; }
+  button.preset {
+    background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa;
+    font-size: 12px; padding: 4px 10px; margin: 3px 4px 3px 0;
+  }
+  button.preset:hover { background: #ffedd5; }
+
+  textarea.ir {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; line-height: 1.6; padding: 12px;
+    border: 1px solid #fed7aa; border-radius: 6px;
+    width: 100%; max-width: 100%; box-sizing: border-box;
+    min-height: 150px; resize: vertical; background: #fffdfb;
+  }
+
+  /* Pass toggles */
+  .passes { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0; }
+  .pass-toggle {
+    display: flex; align-items: center; gap: 6px;
+    background: #fff7ed; border: 1px solid #fed7aa; border-radius: 20px;
+    padding: 6px 14px; cursor: pointer; user-select: none; font-size: 13px;
+    font-weight: 600; color: #9a3412;
+  }
+  .pass-toggle input { cursor: pointer; }
+  .pass-toggle.off { opacity: 0.45; }
+
+  /* IR output side-by-side */
+  .io-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+  .io-grid > div { background: #fffdfb; border: 1px solid #fed7aa; border-radius: 6px; padding: 12px; }
+  .io-grid .head { font-weight: 700; color: #c2410c; margin-bottom: 8px; }
+  pre.code {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; line-height: 1.7; margin: 0;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  pre.code .del { background: #fee2e2; color: #991b1b; text-decoration: line-through; border-radius: 3px; padding: 0 2px; }
+  pre.code .new { background: #dcfce7; color: #166534; border-radius: 3px; padding: 0 2px; }
+  @media (max-width: 720px) { .io-grid { grid-template-columns: 1fr; } }
+
+  .stat-row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
+  .stat {
+    background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px;
+    padding: 10px 16px; text-align: center; min-width: 110px;
+  }
+  .stat .num { font-size: 26px; font-weight: 800; color: #c2410c; }
+  .stat .lbl { font-size: 12px; color: #9a3412; }
+  .stat.good .num { color: #166534; }
+
+  /* Folding stepper */
+  .step-expr {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 24px; text-align: center; padding: 18px;
+    background: #fffdfb; border: 1px solid #fed7aa; border-radius: 8px;
+    margin: 12px 0; letter-spacing: 1px;
+  }
+  .step-expr .hot { background: #fde68a; color: #92400e; border-radius: 4px; padding: 2px 6px; font-weight: 700; }
+  .step-expr .done { color: #166534; font-weight: 700; }
+  .step-log { font-size: 13px; color: #4a5568; margin-top: 8px; }
+  .step-log div { padding: 3px 0; border-bottom: 1px dashed #fed7aa; }
+
+  /* Dead code highlighter */
+  pre.dead {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; line-height: 1.9; margin: 0;
+    background: #fffdfb; border: 1px solid #fed7aa; border-radius: 6px; padding: 14px;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  pre.dead .live { }
+  pre.dead .dead-line { background: #fee2e2; color: #991b1b; border-radius: 3px; padding: 0 4px; display: inline-block; }
+  pre.dead .effect { background: #dbeafe; color: #1e40af; border-radius: 3px; padding: 0 4px; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; margin-top: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .chip { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+
+  @media (max-width: 480px) {
+    .step-expr { font-size: 18px; }
+    .stat { min-width: 90px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-ir-three-address/visualization.html">← L11: IR (Three-Address)</a>
+  <span class="sep">·</span>
+  <span class="current">L12: Optimization</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-bytecode-stack-vm/visualization.html">L13: Bytecode &amp; Stack VM →</a>
+</nav>
+
+<main>
+  <h1>Lesson 12 — Tối ưu hóa (Optimization)</h1>
+  <p>Ba module tương tác trên IR ba địa chỉ: (1) pipeline bật/tắt từng pass tối ưu, (2) constant-folding stepper gập biểu thức từng bước, (3) dead-code highlighter tô lệnh sẽ bị bỏ. Mọi pass viết bằng JS thật — bạn sửa input là thấy kết quả đổi theo.</p>
+
+  <h2>1. Optimization Pipeline — bật/tắt từng pass</h2>
+  <div class="card">
+    <div class="hint">
+      Nhập IR ba địa chỉ, mỗi dòng một lệnh dạng <code>x = a op b</code>, <code>x = a</code>, hoặc <code>return x</code>.
+      Toán tử: <code>+ - * /</code>. Bật/tắt các pass để xem IR rút gọn dần và số lệnh trước/sau.
+    </div>
+    <textarea class="ir" id="pipeIn">x = 2 + 3
+y = x * 1
+z = 0 * q
+d = x + 0
+e = x * x
+f = x * x
+g = e + f
+return g</textarea>
+    <div class="row">
+      <span class="hint" style="margin-right:6px;">Mẫu:</span>
+      <button class="preset" data-fill="x = 2 + 3&#10;y = x * 1&#10;z = 0 * q&#10;d = x + 0&#10;e = x * x&#10;f = x * x&#10;g = e + f&#10;return g">hỗn hợp</button>
+      <button class="preset" data-fill="a = b * c&#10;p = a + 1&#10;d = b * c&#10;q = d + 2&#10;r = p + q&#10;return r">CSE</button>
+      <button class="preset" data-fill="k = 4&#10;m = k + k&#10;n = m * 2&#10;s = n + 0&#10;return s">propagate + fold</button>
+      <button class="preset" data-fill="t = a + b&#10;u = a * b&#10;result = u&#10;return result">dead assign</button>
+    </div>
+    <div class="passes" id="passToggles"></div>
+    <div class="row">
+      <button id="pipeRun">Tối ưu →</button>
+      <button class="ghost" id="pipeAll">Bật tất cả</button>
+      <button class="ghost" id="pipeNone">Tắt tất cả</button>
+    </div>
+    <div class="io-grid">
+      <div>
+        <div class="head">IR gốc</div>
+        <pre class="code" id="pipeBefore"></pre>
+      </div>
+      <div>
+        <div class="head">IR sau tối ưu</div>
+        <pre class="code" id="pipeAfter"></pre>
+      </div>
+    </div>
+    <div class="stat-row" id="pipeStats"></div>
+  </div>
+
+  <h2>2. Constant Folding Stepper — gập từng bước</h2>
+  <div class="card">
+    <div class="hint">Nhập một biểu thức hằng (chỉ số và <code>+ - * /</code>, có <code>()</code>). Bấm "Bước tiếp" để gập một phép tính mỗi lần — đúng thứ tự ưu tiên (<code>* /</code> trước <code>+ -</code>).</div>
+    <div class="row">
+      <input class="ir" id="foldIn" value="2 * 3 + 4 * 5" style="min-height:auto; max-width:340px;">
+      <button id="foldReset">Đặt lại</button>
+      <button id="foldStep">Bước tiếp →</button>
+      <button class="ghost" id="foldAll">Gập hết</button>
+    </div>
+    <div class="row">
+      <button class="preset" data-fold="2 * 3 + 4 * 5">2*3+4*5</button>
+      <button class="preset" data-fold="(8 + 7) * 2">(8+7)*2</button>
+      <button class="preset" data-fold="100 / 4 - 6">100/4-6</button>
+      <button class="preset" data-fold="60 * 60 * 24">60*60*24</button>
+    </div>
+    <div class="step-expr" id="foldExpr"></div>
+    <div class="step-log" id="foldLog"></div>
+  </div>
+
+  <h2>3. Dead Code Highlighter — tô lệnh sẽ bị bỏ</h2>
+  <div class="card">
+    <div class="hint">
+      Phân tích <strong>liveness</strong> quét ngược: tô đỏ các lệnh CHẾT (gán cho biến không ai đọc, lệnh thuần khiết).
+      Lệnh có <strong>side effect</strong> (<code>print</code>, <code>read</code>, <code>call</code>, <code>return</code>) màu xanh — không bao giờ bị bỏ dù kết quả không dùng.
+    </div>
+    <textarea class="ir" id="deadIn">a = 1
+b = 2
+c = a + b
+print(c)
+d = a * b
+v = d + 1
+return c</textarea>
+    <div class="row">
+      <button class="preset" data-dead="x = 5&#10;y = 10&#10;z = x + y&#10;print(z)&#10;w = x * y&#10;v = w + 1&#10;return z">SGK §5</button>
+      <button class="preset" data-dead="t = read()&#10;u = 5&#10;print(u)">bẫy side effect</button>
+      <button class="preset" data-dead="a = f()&#10;b = a + 1&#10;c = a * 2&#10;return b">call có effect</button>
+    </div>
+    <div class="row"><button id="deadRun">Phân tích →</button></div>
+    <pre class="dead" id="deadOut"></pre>
+    <div class="legend">
+      <span><span class="chip" style="background:#fee2e2"></span> Chết (sẽ bị DCE xóa)</span>
+      <span><span class="chip" style="background:#dbeafe"></span> Side effect (giữ lại)</span>
+      <span><span class="chip" style="background:#fffdfb;border:1px solid #fed7aa"></span> Sống (giữ lại)</span>
+    </div>
+    <div class="stat-row" id="deadStats"></div>
+  </div>
+</main>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// IR parser: mỗi dòng → {dst, op, a, b} hoặc {ret} hoặc {effect, raw}
+// Toán hạng: số (literal) hoặc tên biến.
+// ─────────────────────────────────────────────────────────────────────────────
+const EFFECT_FNS = /\b(print|read|call|launch|write|f|g|read)\s*\(/; // tên hàm coi như có side effect
+function isNum(s) { return /^-?\d+$/.test(s); }
+
+function parseLine(raw) {
+  const line = raw.trim();
+  if (!line) return null;
+  // return x
+  let m = line.match(/^return\s+(.+)$/);
+  if (m) return { kind: 'return', src: m[1].trim(), raw: line };
+  // print(...) / read() ... lệnh chỉ side-effect (không gán)
+  if (/^[a-zA-Z_]\w*\s*\(/.test(line)) return { kind: 'effect', raw: line };
+  // x = a op b  |  x = a  | x = f(...)
+  m = line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+  if (!m) return { kind: 'effect', raw: line };
+  const dst = m[1], rhs = m[2].trim();
+  // rhs là lời gọi hàm? → có side effect
+  if (/[a-zA-Z_]\w*\s*\(/.test(rhs)) return { kind: 'callassign', dst, rhs, raw: line };
+  // a op b
+  const bin = rhs.match(/^(-?\d+|[a-zA-Z_]\w*)\s*([+\-*/])\s*(-?\d+|[a-zA-Z_]\w*)$/);
+  if (bin) return { kind: 'bin', dst, a: bin[1], op: bin[2], b: bin[3], raw: line };
+  // copy: x = a
+  return { kind: 'copy', dst, a: rhs, raw: line };
+}
+
+function parseIR(text) { return text.split('\n').map(parseLine).filter(Boolean); }
+
+function compute(op, x, y) {
+  switch (op) {
+    case '+': return x + y;
+    case '-': return x - y;
+    case '*': return x * y;
+    case '/': return y === 0 ? null : Math.trunc(x / y); // chia 0 → không fold
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE 1: Pipeline — các pass thật
+// ─────────────────────────────────────────────────────────────────────────────
+const PASSES = [
+  { id: 'fold',  label: 'Constant folding' },
+  { id: 'prop',  label: 'Constant propagation' },
+  { id: 'alg',   label: 'Algebraic simplify' },
+  { id: 'cse',   label: 'Common subexpr (CSE)' },
+  { id: 'dce',   label: 'Dead code elim' },
+];
+const passState = { fold: true, prop: true, alg: true, cse: true, dce: true };
+
+// Một "lệnh" trong pipeline giữ dạng {dst, op?, a, b?, kind}. Hằng lưu là số (typeof number).
+function irToInsns(text) {
+  return parseIR(text).map(n => {
+    if (n.kind === 'bin') return { dst: n.dst, op: n.op, a: tok(n.a), b: tok(n.b), kind: 'bin' };
+    if (n.kind === 'copy') return { dst: n.dst, a: tok(n.a), kind: 'copy' };
+    if (n.kind === 'return') return { src: tok(n.src), kind: 'return' };
+    if (n.kind === 'callassign') return { dst: n.dst, raw: n.raw, kind: 'callassign' };
+    return { raw: n.raw, kind: 'effect' };
+  });
+}
+function tok(s) { return isNum(s) ? parseInt(s, 10) : s; }
+function isConst(v) { return typeof v === 'number'; }
+
+function runPipeline(insns) {
+  let changed = true, guard = 0;
+  while (changed && guard++ < 50) {
+    changed = false;
+    const consts = {}; // biến ≡ hằng (trong block đơn này propagation luôn an toàn)
+    const avail = {};  // CSE: "a op b" -> dst đã tính
+
+    for (const ins of insns) {
+      if (ins.kind === 'bin') {
+        // propagation: thay toán hạng biến bằng hằng đã biết
+        if (passState.prop) {
+          if (typeof ins.a === 'string' && ins.a in consts) { ins.a = consts[ins.a]; changed = true; }
+          if (typeof ins.b === 'string' && ins.b in consts) { ins.b = consts[ins.b]; changed = true; }
+        }
+        // algebraic simplification → có thể biến bin thành copy/const
+        if (passState.alg) {
+          const r = algebraic(ins);
+          if (r) { Object.assign(ins, r); changed = true; }
+        }
+        // folding: cả hai toán hạng là hằng
+        if (ins.kind === 'bin' && passState.fold && isConst(ins.a) && isConst(ins.b)) {
+          const v = compute(ins.op, ins.a, ins.b);
+          if (v !== null) { ins.kind = 'copy'; ins.a = v; delete ins.op; delete ins.b; changed = true; }
+        }
+        // CSE
+        if (ins.kind === 'bin' && passState.cse) {
+          const key = `${ins.a}${ins.op}${ins.b}`;
+          if (key in avail) { ins.kind = 'copy'; ins.a = avail[key]; delete ins.op; delete ins.b; changed = true; }
+          else avail[key] = ins.dst;
+        }
+      }
+      // sau khi xử lý, cập nhật bảng consts từ copy hằng
+      if (ins.kind === 'copy' && isConst(ins.a)) {
+        consts[ins.dst] = ins.a;
+      } else if (ins.kind === 'copy' && typeof ins.a === 'string' && passState.prop && ins.a in consts) {
+        ins.a = consts[ins.a]; consts[ins.dst] = ins.a; changed = true;
+      } else if (ins.dst) {
+        delete consts[ins.dst]; // bị gán giá trị không-hằng → hết là hằng
+      }
+      if (ins.kind === 'return' && passState.prop && typeof ins.src === 'string' && ins.src in consts) {
+        ins.src = consts[ins.src]; changed = true;
+      }
+    }
+
+    // DCE: quét ngược, giữ biến live
+    if (passState.dce) {
+      const live = new Set();
+      // thu thập biến được return / dùng bởi effect
+      for (const ins of insns) {
+        if (ins.kind === 'return' && typeof ins.src === 'string') live.add(ins.src);
+      }
+      const keep = new Array(insns.length).fill(true);
+      for (let i = insns.length - 1; i >= 0; i--) {
+        const ins = insns[i];
+        if (ins.kind === 'bin') {
+          if (!live.has(ins.dst)) { keep[i] = false; changed = true; continue; }
+          live.delete(ins.dst);
+          if (typeof ins.a === 'string') live.add(ins.a);
+          if (typeof ins.b === 'string') live.add(ins.b);
+        } else if (ins.kind === 'copy') {
+          if (!live.has(ins.dst)) { keep[i] = false; changed = true; continue; }
+          live.delete(ins.dst);
+          if (typeof ins.a === 'string') live.add(ins.a);
+        } else if (ins.kind === 'callassign' || ins.kind === 'effect') {
+          // side effect → luôn giữ
+          keep[i] = true;
+        } else if (ins.kind === 'return') {
+          if (typeof ins.src === 'string') live.add(ins.src);
+        }
+      }
+      insns = insns.filter((_, i) => keep[i]);
+    }
+  }
+  return insns;
+}
+
+// Trả về object override nếu áp được luật đại số, ngược lại null.
+function algebraic(ins) {
+  const { op, a, b } = ins;
+  // x + 0  /  0 + x  → x
+  if (op === '+') {
+    if (b === 0) return { kind: 'copy', a, op: undefined, b: undefined };
+    if (a === 0) return { kind: 'copy', a: b, op: undefined, b: undefined };
+  }
+  if (op === '-') {
+    if (b === 0) return { kind: 'copy', a, op: undefined, b: undefined };           // x - 0 → x
+    if (typeof a === 'string' && a === b) return { kind: 'copy', a: 0 };            // x - x → 0
+  }
+  if (op === '*') {
+    if (a === 1) return { kind: 'copy', a: b };                                     // 1 * x → x
+    if (b === 1) return { kind: 'copy', a };                                        // x * 1 → x
+    if (a === 0 || b === 0) return { kind: 'copy', a: 0 };                          // 0 * x → 0 (số nguyên)
+  }
+  if (op === '/') {
+    if (b === 1) return { kind: 'copy', a };                                        // x / 1 → x
+  }
+  return null;
+}
+
+function insnToStr(ins) {
+  if (ins.kind === 'bin') return `${ins.dst} = ${ins.a} ${ins.op} ${ins.b}`;
+  if (ins.kind === 'copy') return `${ins.dst} = ${ins.a}`;
+  if (ins.kind === 'callassign') return ins.raw;
+  if (ins.kind === 'effect') return ins.raw;
+  if (ins.kind === 'return') return `return ${ins.src}`;
+  return '';
+}
+
+function renderPasses() {
+  const box = document.getElementById('passToggles');
+  box.innerHTML = '';
+  for (const p of PASSES) {
+    const lab = document.createElement('label');
+    lab.className = 'pass-toggle' + (passState[p.id] ? '' : ' off');
+    lab.innerHTML = `<input type="checkbox" ${passState[p.id] ? 'checked' : ''} data-pass="${p.id}"> ${p.label}`;
+    lab.querySelector('input').onchange = e => {
+      passState[p.id] = e.target.checked;
+      lab.classList.toggle('off', !e.target.checked);
+      runPipe();
+    };
+    box.appendChild(lab);
+  }
+}
+
+function runPipe() {
+  const text = document.getElementById('pipeIn').value;
+  const original = irToInsns(text);
+  const before = original.map(insnToStr);
+  // chạy trên bản sao sâu
+  const work = irToInsns(text);
+  const after = runPipeline(work).map(insnToStr);
+
+  document.getElementById('pipeBefore').textContent = before.join('\n');
+  // diff: dòng before nào không còn trong after → del
+  const afterSet = after.slice();
+  let html = '';
+  for (const a of after) html += escape(a) + '\n';
+  document.getElementById('pipeAfter').innerHTML = `<span class="new">${after.map(escape).join('</span>\n<span class="new">')}</span>`;
+  // before: tô đỏ dòng bị loại bỏ hoàn toàn
+  const remaining = new Map();
+  for (const a of after) remaining.set(a, (remaining.get(a) || 0) + 1);
+  let bHtml = '';
+  for (const b of before) {
+    if (remaining.get(b) > 0) { remaining.set(b, remaining.get(b) - 1); bHtml += escape(b) + '\n'; }
+    else bHtml += `<span class="del">${escape(b)}</span>\n`;
+  }
+  document.getElementById('pipeBefore').innerHTML = bHtml.trimEnd();
+
+  const removed = before.length - after.length;
+  const pct = before.length ? Math.round(removed / before.length * 100) : 0;
+  document.getElementById('pipeStats').innerHTML = `
+    <div class="stat"><div class="num">${before.length}</div><div class="lbl">lệnh trước</div></div>
+    <div class="stat good"><div class="num">${after.length}</div><div class="lbl">lệnh sau</div></div>
+    <div class="stat good"><div class="num">${removed}</div><div class="lbl">đã bỏ</div></div>
+    <div class="stat good"><div class="num">${pct}%</div><div class="lbl">gọn hơn</div></div>`;
+}
+function escape(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+document.getElementById('pipeRun').onclick = runPipe;
+document.getElementById('pipeAll').onclick = () => { PASSES.forEach(p => passState[p.id] = true); renderPasses(); runPipe(); };
+document.getElementById('pipeNone').onclick = () => { PASSES.forEach(p => passState[p.id] = false); renderPasses(); runPipe(); };
+document.querySelectorAll('button.preset[data-fill]').forEach(b => {
+  b.onclick = () => { document.getElementById('pipeIn').value = b.dataset.fill.replace(/&#10;/g, '\n'); runPipe(); };
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE 2: Constant Folding Stepper
+// Tokenize → shunting-yard → AST, rồi gập từng nút "lá op lá" mỗi bước.
+// ─────────────────────────────────────────────────────────────────────────────
+let foldAst = null, foldSteps = [];
+
+function tokenizeExpr(s) {
+  const t = []; let i = 0;
+  while (i < s.length) {
+    const c = s[i];
+    if (c === ' ') { i++; continue; }
+    if (/\d/.test(c)) { let n = ''; while (i < s.length && /\d/.test(s[i])) n += s[i++]; t.push({ t: 'num', v: parseInt(n,10) }); continue; }
+    if ('+-*/()'.includes(c)) { t.push({ t: c }); i++; continue; }
+    throw new Error(`ký tự lạ '${c}'`);
+  }
+  return t;
+}
+function parseToAst(tokens) {
+  let i = 0;
+  function peek() { return tokens[i]; }
+  function expr() {
+    let l = term();
+    while (peek() && (peek().t === '+' || peek().t === '-')) { const op = tokens[i++].t; l = { op, l, r: term() }; }
+    return l;
+  }
+  function term() {
+    let l = factor();
+    while (peek() && (peek().t === '*' || peek().t === '/')) { const op = tokens[i++].t; l = { op, l, r: factor() }; }
+    return l;
+  }
+  function factor() {
+    const tk = peek();
+    if (!tk) throw new Error('thiếu toán hạng');
+    if (tk.t === '(') { i++; const e = expr(); if (!peek() || peek().t !== ')') throw new Error("thiếu ')'"); i++; return e; }
+    if (tk.t === 'num') { i++; return { num: tk.v }; }
+    throw new Error('cú pháp');
+  }
+  const a = expr();
+  if (i < tokens.length) throw new Error('token thừa');
+  return a;
+}
+// Tìm một nút lá-op-lá để gập (ưu tiên trái-nhất, sâu-nhất theo độ ưu tiên tự nhiên của AST)
+function findFoldable(node) {
+  if (!node || 'num' in node) return null;
+  const left = findFoldable(node.l);
+  if (left) return left;
+  if ('num' in node.l && 'num' in node.r) return node;
+  return findFoldable(node.r);
+}
+function astToHtml(node, hot) {
+  if ('num' in node) return node.num < 0 ? `(${node.num})` : `${node.num}`;
+  const inner = `${astToHtml(node.l, hot)} ${node.op} ${astToHtml(node.r, hot)}`;
+  return node === hot ? `<span class="hot">${inner}</span>` : inner;
+}
+function astAllConst(node) { return 'num' in node; }
+
+function resetFold(expr) {
+  document.getElementById('foldLog').innerHTML = '';
+  try {
+    foldAst = parseToAst(tokenizeExpr(expr));
+    renderFold(null);
+  } catch (e) {
+    document.getElementById('foldExpr').innerHTML = `<span style="color:#991b1b">Lỗi: ${e.message}</span>`;
+    foldAst = null;
+  }
+}
+function renderFold(hot) {
+  if (!foldAst) return;
+  const el = document.getElementById('foldExpr');
+  if (astAllConst(foldAst)) el.innerHTML = `<span class="done">${foldAst.num}</span>`;
+  else el.innerHTML = astToHtml(foldAst, hot);
+}
+function stepFold() {
+  if (!foldAst) return;
+  const node = findFoldable(foldAst);
+  if (!node) { renderFold(null); return; }
+  const a = node.l.num, b = node.r.num, op = node.op;
+  let v;
+  switch (op) { case '+': v=a+b; break; case '-': v=a-b; break; case '*': v=a*b; break; case '/': v=Math.trunc(a/b); break; }
+  // highlight rồi gập
+  renderFold(node);
+  const before = `${a} ${op} ${b}`;
+  node.num = v; delete node.l; delete node.r; delete node.op;
+  setTimeout(() => renderFold(null), 350);
+  const log = document.getElementById('foldLog');
+  const d = document.createElement('div');
+  d.textContent = `Gập: ${before} = ${v}`;
+  log.prepend(d);
+}
+document.getElementById('foldStep').onclick = stepFold;
+document.getElementById('foldReset').onclick = () => resetFold(document.getElementById('foldIn').value);
+document.getElementById('foldAll').onclick = () => {
+  let g = 0;
+  while (foldAst && findFoldable(foldAst) && g++ < 30) stepFold();
+  renderFold(null); // ép hiển thị trạng thái cuối (kết quả đã gập hết)
+};
+document.querySelectorAll('button.preset[data-fold]').forEach(b => {
+  b.onclick = () => { document.getElementById('foldIn').value = b.dataset.fold; resetFold(b.dataset.fold); };
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE 3: Dead Code Highlighter — liveness ngược
+// ─────────────────────────────────────────────────────────────────────────────
+function analyzeDead(text) {
+  const lines = text.split('\n').map(l => l.replace(/\s+$/,''));
+  const parsed = lines.map(l => ({ raw: l, node: parseLine(l) }));
+  const live = new Set();
+  const status = new Array(parsed.length).fill('live');
+
+  for (let i = parsed.length - 1; i >= 0; i--) {
+    const n = parsed[i].node;
+    if (!n) { status[i] = 'blank'; continue; }
+    if (n.kind === 'return') {
+      status[i] = 'effect';
+      if (n.src && !isNum(n.src)) live.add(n.src);
+    } else if (n.kind === 'effect') {
+      status[i] = 'effect';
+      // thu biến dùng trong print(c) / read()
+      const args = (n.raw.match(/\(([^)]*)\)/) || [,''])[1];
+      args.split(',').map(s => s.trim()).filter(s => s && !isNum(s)).forEach(v => live.add(v));
+    } else if (n.kind === 'callassign') {
+      status[i] = 'effect'; // gán = lời gọi hàm → có side effect, giữ
+      live.delete(n.dst);
+    } else if (n.kind === 'bin') {
+      if (!live.has(n.dst)) { status[i] = 'dead'; }
+      else {
+        status[i] = 'live'; live.delete(n.dst);
+        if (!isNum(n.a)) live.add(n.a);
+        if (!isNum(n.b)) live.add(n.b);
+      }
+    } else if (n.kind === 'copy') {
+      if (!live.has(n.dst)) { status[i] = 'dead'; }
+      else { status[i] = 'live'; live.delete(n.dst); if (!isNum(n.a)) live.add(n.a); }
+    }
+  }
+  return parsed.map((p, i) => ({ raw: p.raw, status: status[i] }));
+}
+
+function runDead() {
+  const text = document.getElementById('deadIn').value;
+  const res = analyzeDead(text);
+  let html = '', deadCount = 0, effectCount = 0;
+  for (const r of res) {
+    if (r.status === 'blank') { html += '\n'; continue; }
+    if (r.status === 'dead') { html += `<span class="dead-line">${escape(r.raw)}</span>\n`; deadCount++; }
+    else if (r.status === 'effect') { html += `<span class="effect">${escape(r.raw)}</span>\n`; effectCount++; }
+    else html += `<span class="live">${escape(r.raw)}</span>\n`;
+  }
+  document.getElementById('deadOut').innerHTML = html.trimEnd();
+  document.getElementById('deadStats').innerHTML = `
+    <div class="stat"><div class="num">${res.filter(r=>r.status!=='blank').length}</div><div class="lbl">tổng lệnh</div></div>
+    <div class="stat"><div class="num" style="color:#991b1b">${deadCount}</div><div class="lbl">chết → xóa</div></div>
+    <div class="stat"><div class="num" style="color:#1e40af">${effectCount}</div><div class="lbl">side effect (giữ)</div></div>`;
+}
+document.getElementById('deadRun').onclick = runDead;
+document.querySelectorAll('button.preset[data-dead]').forEach(b => {
+  b.onclick = () => { document.getElementById('deadIn').value = b.dataset.dead.replace(/&#10;/g, '\n'); runDead(); };
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────────────────────────────────────
+renderPasses();
+runPipe();
+resetFold(document.getElementById('foldIn').value);
+runDead();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

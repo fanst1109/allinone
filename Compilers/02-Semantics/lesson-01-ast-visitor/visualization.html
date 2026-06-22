@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — AST & Visitor Pattern Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #9a3412; }
+  h2 {
+    color: #c2410c; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fed7aa;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #7c2d12; }
+  .hint { color: #78716c; font-size: 13px; margin: 4px 0; line-height: 1.5; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #fff7ed; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #9a3412; border: 1px solid #fed7aa;
+  }
+
+  input.expr {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 16px; padding: 8px 12px;
+    border: 1px solid #fdba74; border-radius: 4px;
+    width: 100%; max-width: 320px; box-sizing: border-box; flex: 1 1 200px;
+  }
+  input.expr.bad { border-color: #dc2626; background: #fef2f2; }
+
+  button {
+    background: #c2410c; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #9a3412; }
+  button:disabled { background: #d6d3d1; cursor: not-allowed; }
+  button.preset {
+    background: #ffedd5; color: #9a3412; font-size: 12px;
+    padding: 4px 10px; margin: 3px 4px 3px 0; border: 1px solid #fed7aa;
+  }
+  button.preset:hover { background: #fed7aa; }
+
+  select {
+    font-size: 15px; padding: 7px 10px;
+    border: 1px solid #fdba74; border-radius: 4px;
+    background: white; font-family: inherit; color: #7c2d12;
+  }
+
+  /* segmented order picker */
+  .seg { display: inline-flex; border: 1px solid #fdba74; border-radius: 6px; overflow: hidden; }
+  .seg button {
+    background: white; color: #9a3412; border: none; border-right: 1px solid #fed7aa;
+    padding: 7px 14px; border-radius: 0; font-weight: 600;
+  }
+  .seg button:last-child { border-right: none; }
+  .seg button.active { background: #c2410c; color: white; }
+
+  /* SVG tree */
+  .tree-wrap { overflow-x: auto; }
+  svg.tree { display: block; margin: 0 auto; max-width: 100%; }
+  .node-circle { fill: #fff7ed; stroke: #c2410c; stroke-width: 2; transition: fill .25s, stroke .25s; }
+  .node-circle.visited { fill: #fdba74; }
+  .node-circle.current { fill: #c2410c; stroke: #7c2d12; stroke-width: 3; }
+  .node-label { font-family: "SF Mono", Monaco, Consolas, monospace; font-weight: 700; font-size: 16px; fill: #7c2d12; text-anchor: middle; dominant-baseline: central; }
+  .node-circle.current ~ .node-label, .node-label.on-current { fill: white; }
+  .visit-order { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 12px; font-weight: 700; fill: #9a3412; text-anchor: middle; }
+  .edge { stroke: #fdba74; stroke-width: 2; }
+  .val-badge { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 12px; font-weight: 700; fill: #166534; text-anchor: middle; }
+
+  .readout {
+    background: #fff7ed; border: 1px solid #fed7aa; border-radius: 6px;
+    padding: 12px 14px; margin-top: 12px; font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; color: #7c2d12; min-height: 22px;
+  }
+  .seq-strip { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .seq-chip {
+    background: #ffedd5; border: 1px solid #fed7aa; border-radius: 4px;
+    padding: 4px 9px; font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-weight: 700; font-size: 13px; color: #9a3412;
+  }
+  .seq-chip.eval { background: #dcfce7; border-color: #86efac; color: #166534; }
+
+  .result-box {
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 18px;
+    font-weight: 700; color: #166534; background: #f0fdf4;
+    border: 1px solid #86efac; border-radius: 6px; padding: 12px 16px; margin-top: 12px;
+  }
+
+  /* visitor comparison */
+  .vis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 12px; }
+  .vis-card { background: white; border: 1px solid #fed7aa; border-radius: 8px; padding: 14px; }
+  .vis-card.active { border-color: #c2410c; border-width: 2px; box-shadow: 0 0 0 3px #ffedd5; }
+  .vis-card .vis-name { font-weight: 700; color: #c2410c; margin-bottom: 4px; }
+  .vis-card .vis-order { font-size: 12px; color: #78716c; margin-bottom: 8px; }
+  .vis-card .vis-result {
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 16px;
+    font-weight: 700; color: #7c2d12; word-break: break-all;
+  }
+
+  /* AST vs parse tree */
+  .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+  .twocol > div { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 14px; }
+  .twocol .col-title { font-weight: 700; color: #c2410c; margin-bottom: 8px; }
+  .twocol pre { background: white; border: 1px solid #fed7aa; border-radius: 6px; padding: 10px; overflow-x: auto; font-size: 12px; line-height: 1.4; margin: 0; }
+  .count-pill { display: inline-block; background: #c2410c; color: white; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 10px; margin-top: 8px; }
+  @media (max-width: 720px) { .twocol { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../01-Frontend/lesson-05-pratt-precedence/visualization.html">← L05: Pratt Parsing</a>
+  <span class="sep">·</span>
+  <span class="current">L06: AST & Visitor</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-symbol-table-scope/visualization.html">L07: Symbol Table & Scope →</a>
+</nav>
+
+<main>
+  <h1>Lesson 01 — AST &amp; Visitor Pattern</h1>
+  <p>Ba module tương tác: (1) <strong>AST Traversal Animator</strong> — vẽ cây từ biểu thức, chọn pre/in/post-order, chạy từng bước, post-order hiện eval tích lũy; (2) <strong>Visitor Switcher</strong> — cùng một cây, đổi visitor (Eval / Pretty / S-expr / Count) ra kết quả khác; (3) <strong>AST vs Parse Tree</strong> — so hai cây cho <code>(2+3)*4</code>.</p>
+
+  <h2>1. AST Traversal Animator</h2>
+  <div class="card">
+    <div class="row">
+      <label for="exprInput">Biểu thức:</label>
+      <input class="expr" id="exprInput" value="(2+3)*4" placeholder="vd: 2*(3+4)-5">
+      <button id="buildBtn">Dựng cây</button>
+    </div>
+    <div class="row">
+      <span class="hint" style="margin-right:6px;">Mẫu:</span>
+      <button class="preset" data-expr="(2+3)*4">(2+3)*4</button>
+      <button class="preset" data-expr="2+3*4">2+3*4</button>
+      <button class="preset" data-expr="2*(3+4)-5">2*(3+4)-5</button>
+      <button class="preset" data-expr="(a+b)*(c-d)">(a+b)*(c-d)</button>
+      <button class="preset" data-expr="-(2*3)">-(2*3)</button>
+    </div>
+    <div class="row">
+      <label>Thứ tự duyệt:</label>
+      <div class="seg" id="orderSeg">
+        <button data-order="pre">Pre (N→L→R)</button>
+        <button data-order="in">In (L→N→R)</button>
+        <button data-order="post" class="active">Post (L→R→N)</button>
+      </div>
+    </div>
+    <div class="row">
+      <button id="stepBtn">▶ Bước tiếp</button>
+      <button id="autoBtn">⏩ Tự chạy</button>
+      <button id="resetBtn">↺ Đặt lại</button>
+      <span class="hint" id="orderWhy"></span>
+    </div>
+    <div class="tree-wrap">
+      <svg class="tree" id="treeSvg" width="560" height="320" viewBox="0 0 560 320" role="img" aria-label="Cây AST"></svg>
+    </div>
+    <div class="seq-strip" id="seqStrip"></div>
+    <div class="readout" id="stepReadout">Bấm “▶ Bước tiếp” để thăm node theo thứ tự đã chọn.</div>
+    <div class="result-box" id="evalResult" style="display:none;"></div>
+  </div>
+
+  <h2>2. Visitor Switcher — một cây, nhiều thao tác</h2>
+  <p class="hint">Cùng cây của module 1 ở trên. Mỗi visitor là một <em>thao tác</em> trọn vẹn trên cây — đổi visitor, không đổi cây, ra kết quả khác hẳn. Đây là điểm cốt lõi của Visitor pattern: thêm thao tác = thêm 1 visitor, không sửa node.</p>
+  <div class="card">
+    <div class="row">
+      <label>Visitor:</label>
+      <select id="visitorPick">
+        <option value="eval">Evaluator — tính giá trị (post-order)</option>
+        <option value="pretty">Pretty-printer — in lại mã infix (in-order + ngoặc)</option>
+        <option value="sexpr">S-expression — prefix (pre-order)</option>
+        <option value="count">Counter — đếm số node (post-order)</option>
+        <option value="depth">Depth — chiều cao cây (post-order)</option>
+      </select>
+    </div>
+    <div class="readout" id="visitorDesc"></div>
+    <div class="vis-grid" id="visGrid"></div>
+    <div class="hint" style="margin-top:10px;">Lưu ý <code>Var</code> (biến) không có giá trị số → <code>Eval</code> hiển thị “cần Symbol Table (L07)”. Các visitor in/đếm vẫn chạy được vì không cần giá trị.</div>
+  </div>
+
+  <h2>3. AST vs Parse Tree — cùng <code>(2+3)*4</code></h2>
+  <p class="hint">Parse tree (concrete) ghi NGUYÊN mọi quy tắc grammar và token (kể cả dấu ngoặc). AST (abstract) chỉ giữ node mang ngữ nghĩa. Vai trò của ngoặc không mất — nó nằm trong <em>hình dạng</em> cây AST.</p>
+  <div class="card">
+    <div class="twocol">
+      <div>
+        <div class="col-title">Parse tree (concrete) — giữ ngoặc &amp; node grammar</div>
+        <pre>            expr
+              |
+            term
+          /   |   \
+     factor   *   factor
+      / | \          |
+    (  expr )     NUMBER(4)
+         |
+       term
+      /  |  \
+  factor + factor
+     |        |
+ NUMBER(2) NUMBER(3)</pre>
+        <span class="count-pill">~13 node · có ( ) · có term/factor</span>
+      </div>
+      <div>
+        <div class="col-title">AST (abstract) — chỉ giữ ngữ nghĩa</div>
+        <pre>      *
+     / \
+    +   4
+   / \
+  2   3</pre>
+        <span class="count-pill">5 node · không ( ) · không term/factor</span>
+        <div class="hint" style="margin-top:10px;">Dấu <code>(</code><code>)</code> biến mất vì vai trò của nó đã encode vào hình dạng: <code>+</code> nằm DƯỚI <code>*</code> nên được tính trước.</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// Parser: biểu thức số học → AST  (precedence: * / cao hơn + -, unary -)
+// Node: {t:'num',v} | {t:'var',name} | {t:'un',op,x} | {t:'bin',op,l,r}
+// ─────────────────────────────────────────────────────────────────────────────
+function parse(input) {
+  const s = input.replace(/\s+/g, '');
+  let i = 0;
+  const peek = () => s[i];
+  function atom() {
+    const c = peek();
+    if (c === '(') { i++; const e = addSub(); if (peek() !== ')') throw new Error("thiếu ')'"); i++; return e; }
+    if (c === '-') { i++; return { t:'un', op:'-', x: atom() }; }
+    if (/[0-9]/.test(c)) { let n=''; while (/[0-9.]/.test(peek())) n+=s[i++]; return { t:'num', v: parseFloat(n) }; }
+    if (/[a-z]/.test(c)) { let nm=''; while (/[a-z0-9]/i.test(peek()||'')) nm+=s[i++]; return { t:'var', name: nm }; }
+    throw new Error(`ký tự lạ '${c||'EOF'}'`);
+  }
+  function mulDiv() { let l=atom(); while (peek()==='*'||peek()==='/'){ const op=s[i++]; l={t:'bin',op,l,r:atom()}; } return l; }
+  function addSub() { let l=mulDiv(); while (peek()==='+'||peek()==='-'){ const op=s[i++]; l={t:'bin',op,l,r:mulDiv()}; } return l; }
+  const ast = addSub();
+  if (i < s.length) throw new Error(`token thừa '${s.slice(i)}'`);
+  return ast;
+}
+
+// ── Layout: gán toạ độ cho mỗi node (in-order x, depth y) ─────────────────────
+function layout(ast) {
+  let xCounter = 0, maxDepth = 0;
+  const nodes = [];
+  function walk(n, depth) {
+    n._depth = depth; if (depth > maxDepth) maxDepth = depth;
+    if (n.t === 'bin') walk(n.l, depth+1);
+    else if (n.t === 'un') walk(n.x, depth+1);
+    n._x = xCounter++;          // x theo thứ tự in-order
+    if (n.t === 'bin') walk(n.r, depth+1);
+    nodes.push(n);
+  }
+  walk(ast, 0);
+  const cols = xCounter, rows = maxDepth + 1;
+  const W = 560, H = Math.max(200, rows * 80 + 40);
+  const padX = 40, padTop = 30;
+  const colW = cols > 1 ? (W - 2*padX) / (cols - 1) : 0;
+  const rowH = rows > 1 ? (H - padTop - 40) / (rows - 1) : 0;
+  for (const n of nodes) {
+    n.px = padX + n._x * colW;
+    n.py = padTop + n._depth * rowH;
+  }
+  return { nodes, W, H };
+}
+
+function nodeText(n) {
+  if (n.t === 'num') return (n.v % 1 === 0 ? n.v : n.v);
+  if (n.t === 'var') return n.name;
+  return n.op;
+}
+
+// ── Tạo chuỗi thăm node theo order ────────────────────────────────────────────
+function traverse(ast, order) {
+  const seq = [];
+  function visit(n) {
+    if (order === 'pre') seq.push(n);
+    if (n.t === 'bin') visit(n.l); else if (n.t === 'un') visit(n.x);
+    if (order === 'in') seq.push(n);
+    if (n.t === 'bin') visit(n.r);
+    if (order === 'post') seq.push(n);
+    if (order !== 'pre' && order !== 'in' && order !== 'post') {} // noop
+    if (n.t === 'num' || n.t === 'var') {
+      // lá đã được push đúng chỗ ở trên tuỳ order (vì không có con)
+    }
+  }
+  // chú ý: với lá, pre/in/post đều push một lần; logic trên xử lý đúng vì không có con
+  function visit2(n) {
+    if (order === 'pre') seq.push(n);
+    if (n.t === 'bin') { visit2(n.l); }
+    else if (n.t === 'un') { visit2(n.x); }
+    if (order === 'in') seq.push(n);
+    if (n.t === 'bin') { visit2(n.r); }
+    if (order === 'post') seq.push(n);
+  }
+  visit2(ast);
+  return seq;
+}
+
+// ── Eval tích luỹ (chỉ post-order, chỉ khi không có biến) ─────────────────────
+function evalNode(n) {
+  if (n.t === 'num') return n.v;
+  if (n.t === 'var') return null;
+  if (n.t === 'un') { const x = evalNode(n.x); return x===null?null:-x; }
+  const l = evalNode(n.l), r = evalNode(n.r);
+  if (l===null || r===null) return null;
+  switch (n.op) { case '+': return l+r; case '-': return l-r; case '*': return l*r; case '/': return r===0?null:l/r; }
+  return null;
+}
+function hasVar(n) {
+  if (n.t === 'var') return true;
+  if (n.t === 'num') return false;
+  if (n.t === 'un') return hasVar(n.x);
+  return hasVar(n.l) || hasVar(n.r);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Module 1 state
+// ─────────────────────────────────────────────────────────────────────────────
+let curAst = null, curOrder = 'post', curSeq = [], stepIdx = 0, autoTimer = null;
+const ORDER_WHY = {
+  pre:  'Pre-order: thăm cha TRƯỚC con → dùng in S-expression (prefix).',
+  in:   'In-order: thăm cha GIỮA hai con → dùng in lại mã infix.',
+  post: 'Post-order: thăm cha SAU hai con → dùng EVALUATE (phải có giá trị con trước).'
+};
+
+function svgEl(tag, attrs) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+function drawTree() {
+  const svg = document.getElementById('treeSvg');
+  svg.innerHTML = '';
+  if (!curAst) return;
+  const { nodes, W, H } = layout(curAst);
+  svg.setAttribute('width', W); svg.setAttribute('height', H);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  // edges
+  for (const n of nodes) {
+    const kids = n.t==='bin' ? [n.l,n.r] : n.t==='un' ? [n.x] : [];
+    for (const k of kids) svg.appendChild(svgEl('line', { class:'edge', x1:n.px, y1:n.py, x2:k.px, y2:k.py }));
+  }
+  // nodes
+  const visitedSet = new Set(curSeq.slice(0, stepIdx));
+  const current = stepIdx>0 ? curSeq[stepIdx-1] : null;
+  for (const n of nodes) {
+    let cls = 'node-circle';
+    if (n === current) cls += ' current';
+    else if (visitedSet.has(n)) cls += ' visited';
+    svg.appendChild(svgEl('circle', { class:cls, cx:n.px, cy:n.py, r:20 }));
+    const lbl = svgEl('text', { class:'node-label'+(n===current?' on-current':''), x:n.px, y:n.py });
+    lbl.textContent = nodeText(n);
+    svg.appendChild(lbl);
+    // visit order number
+    const idx = curSeq.indexOf(n);
+    if (idx >= 0 && idx < stepIdx) {
+      const num = svgEl('text', { class:'visit-order', x:n.px+24, y:n.py-16 });
+      num.textContent = '#'+(idx+1);
+      svg.appendChild(num);
+    }
+    // eval value badge (post-order only, no var)
+    if (curOrder==='post' && !hasVar(curAst) && visitedSet.has(n)) {
+      const v = evalNode(n);
+      if (v !== null) {
+        const vb = svgEl('text', { class:'val-badge', x:n.px, y:n.py+34 });
+        vb.textContent = '='+(Math.round(v*1000)/1000);
+        svg.appendChild(vb);
+      }
+    }
+  }
+}
+
+function renderSeqStrip() {
+  const strip = document.getElementById('seqStrip');
+  strip.innerHTML = '';
+  for (let k=0; k<stepIdx; k++) {
+    const n = curSeq[k];
+    const chip = document.createElement('span');
+    chip.className = 'seq-chip' + (curOrder==='post' && !hasVar(curAst) ? ' eval' : '');
+    chip.textContent = nodeText(n);
+    strip.appendChild(chip);
+  }
+}
+
+function updateReadout() {
+  const ro = document.getElementById('stepReadout');
+  const res = document.getElementById('evalResult');
+  if (stepIdx === 0) {
+    ro.textContent = 'Bấm “▶ Bước tiếp” để thăm node theo thứ tự đã chọn.';
+    res.style.display = 'none';
+    return;
+  }
+  const n = curSeq[stepIdx-1];
+  let msg = `Bước ${stepIdx}/${curSeq.length}: thăm node `;
+  if (n.t==='num') msg += `lá NumberLit(${n.v})`;
+  else if (n.t==='var') msg += `lá Var(${n.name})`;
+  else if (n.t==='un') msg += `UnaryOp(${n.op})`;
+  else msg += `BinaryOp(${n.op})`;
+  if (curOrder==='post' && !hasVar(curAst)) {
+    const v = evalNode(n);
+    if (n.t==='bin') {
+      const lv = evalNode(n.l), rv = evalNode(n.r);
+      msg += ` → tính ${fmt(lv)} ${n.op} ${fmt(rv)} = ${fmt(v)}`;
+    } else if (n.t==='un') {
+      msg += ` → tính -(${fmt(evalNode(n.x))}) = ${fmt(v)}`;
+    } else {
+      msg += ` → giá trị ${fmt(v)}`;
+    }
+  }
+  ro.textContent = msg;
+  if (stepIdx === curSeq.length) {
+    if (curOrder==='post' && !hasVar(curAst)) {
+      res.style.display = 'block';
+      res.textContent = `Eval xong (post-order): kết quả = ${fmt(evalNode(curAst))}`;
+    } else if (curOrder==='post') {
+      res.style.display = 'block';
+      res.textContent = 'Có biến → cần Symbol Table (L07) để biết giá trị. Thứ tự thăm vẫn đúng post-order.';
+    } else {
+      res.style.display = 'block';
+      const label = curOrder==='pre'?'S-expression (prefix)':'infix';
+      res.textContent = `Duyệt xong ${curOrder}-order. Chuỗi node ở trên = biểu diễn ${label}.`;
+    }
+  } else {
+    res.style.display = 'none';
+  }
+}
+function fmt(v){ return v===null?'?':(Math.round(v*1000)/1000); }
+
+function rebuild() {
+  const inp = document.getElementById('exprInput');
+  inp.classList.remove('bad');
+  try {
+    curAst = parse(inp.value.trim());
+  } catch (e) {
+    inp.classList.add('bad');
+    document.getElementById('stepReadout').textContent = 'Lỗi cú pháp: ' + e.message;
+    curAst = null;
+    document.getElementById('treeSvg').innerHTML = '';
+    return;
+  }
+  curSeq = traverse(curAst, curOrder);
+  stepIdx = 0;
+  document.getElementById('orderWhy').textContent = ORDER_WHY[curOrder];
+  stopAuto();
+  drawTree(); renderSeqStrip(); updateReadout();
+  renderVisitors(); // module 2 dùng chung cây
+}
+
+function stepOnce() {
+  if (!curAst || stepIdx >= curSeq.length) return;
+  stepIdx++;
+  drawTree(); renderSeqStrip(); updateReadout();
+}
+function stopAuto(){ if (autoTimer){ clearInterval(autoTimer); autoTimer=null; document.getElementById('autoBtn').textContent='⏩ Tự chạy'; } }
+function toggleAuto() {
+  if (autoTimer) { stopAuto(); return; }
+  if (stepIdx >= curSeq.length) stepIdx = 0;
+  document.getElementById('autoBtn').textContent='⏸ Dừng';
+  autoTimer = setInterval(() => { if (stepIdx>=curSeq.length){ stopAuto(); return; } stepOnce(); }, 750);
+}
+function resetSteps(){ stopAuto(); stepIdx=0; drawTree(); renderSeqStrip(); updateReadout(); }
+
+document.getElementById('buildBtn').onclick = rebuild;
+document.getElementById('exprInput').addEventListener('keydown', e => { if (e.key==='Enter') rebuild(); });
+document.getElementById('stepBtn').onclick = () => { stopAuto(); stepOnce(); };
+document.getElementById('autoBtn').onclick = toggleAuto;
+document.getElementById('resetBtn').onclick = resetSteps;
+document.querySelectorAll('#orderSeg button').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('#orderSeg button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    curOrder = b.dataset.order;
+    curSeq = traverse(curAst, curOrder);
+    stepIdx = 0; stopAuto();
+    document.getElementById('orderWhy').textContent = ORDER_WHY[curOrder];
+    drawTree(); renderSeqStrip(); updateReadout();
+  };
+});
+document.querySelectorAll('#mod1 .preset, .preset').forEach(b => {
+  if (b.dataset.expr) b.onclick = () => { document.getElementById('exprInput').value = b.dataset.expr; rebuild(); };
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Module 2: Visitor Switcher (dùng curAst của module 1)
+// ─────────────────────────────────────────────────────────────────────────────
+function vPretty(n) {
+  function prec(op){ return (op==='*'||op==='/')?2:1; }
+  function go(n) {
+    if (n.t==='num') return ''+n.v;
+    if (n.t==='var') return n.name;
+    if (n.t==='un') { const x=go(n.x); return '-'+(n.x.t==='bin'?'('+x+')':x); }
+    let l=go(n.l), r=go(n.r);
+    if (n.l.t==='bin' && prec(n.l.op) < prec(n.op)) l='('+l+')';
+    // trái-kết hợp: con phải cùng/ thấp precedence cũng cần ngoặc
+    if (n.r.t==='bin' && prec(n.r.op) <= prec(n.op)) r='('+r+')';
+    return `${l} ${n.op} ${r}`;
+  }
+  return go(n);
+}
+function vSexpr(n) {
+  if (n.t==='num') return ''+n.v;
+  if (n.t==='var') return n.name;
+  if (n.t==='un') return `(- ${vSexpr(n.x)})`;
+  return `(${n.op} ${vSexpr(n.l)} ${vSexpr(n.r)})`;
+}
+function vCount(n) {
+  if (n.t==='num'||n.t==='var') return 1;
+  if (n.t==='un') return 1 + vCount(n.x);
+  return 1 + vCount(n.l) + vCount(n.r);
+}
+function vDepth(n) {
+  if (n.t==='num'||n.t==='var') return 1;
+  if (n.t==='un') return 1 + vDepth(n.x);
+  return 1 + Math.max(vDepth(n.l), vDepth(n.r));
+}
+
+const VISITORS = {
+  eval:   { name:'Evaluator', order:'post-order', run: a => hasVar(a) ? 'cần Symbol Table (L07)' : ''+fmt(evalNode(a)) },
+  pretty: { name:'Pretty-printer', order:'in-order + ngoặc', run: a => vPretty(a) },
+  sexpr:  { name:'S-expression', order:'pre-order', run: a => vSexpr(a) },
+  count:  { name:'Counter', order:'post-order', run: a => vCount(a)+' node' },
+  depth:  { name:'Depth', order:'post-order', run: a => vDepth(a)+' tầng' },
+};
+const VISITOR_DESC = {
+  eval:'Eval gọi Accept trên con TRƯỚC, rồi tính node (post-order). Cần giá trị con để tính cha.',
+  pretty:'Pretty in con trái, op, con phải (in-order); tự thêm ngoặc khi con có precedence thấp hơn.',
+  sexpr:'S-expr in op rồi tới con (pre-order); luôn bọc ngoặc Lisp nên không cần precedence.',
+  count:'Counter trả 1 ở lá, 1 + tổng con ở node nội (post-order).',
+  depth:'Depth trả 1 ở lá, 1 + max(con) ở node nội (post-order).',
+};
+
+function renderVisitors() {
+  const grid = document.getElementById('visGrid');
+  const sel = document.getElementById('visitorPick').value;
+  document.getElementById('visitorDesc').textContent = VISITOR_DESC[sel];
+  grid.innerHTML = '';
+  if (!curAst) { grid.innerHTML = '<div class="hint">Dựng cây ở module 1 trước.</div>'; return; }
+  for (const key in VISITORS) {
+    const v = VISITORS[key];
+    let out;
+    try { out = v.run(curAst); } catch(e){ out = '—'; }
+    const card = document.createElement('div');
+    card.className = 'vis-card' + (key===sel?' active':'');
+    card.innerHTML = `<div class="vis-name">${v.name}</div>
+      <div class="vis-order">${v.order}</div>
+      <div class="vis-result">${out.replace(/</g,'&lt;')}</div>`;
+    grid.appendChild(card);
+  }
+}
+document.getElementById('visitorPick').onchange = renderVisitors;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────────────────────────────────────
+rebuild();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

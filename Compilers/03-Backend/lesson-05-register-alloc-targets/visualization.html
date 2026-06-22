@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 15 — Register Allocation & Targets Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #9a3412; }
+  h2 {
+    color: #c2410c; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fed7aa;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { color: #78716c; font-size: 13px; margin: 6px 0; }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #57534e; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #fef3e7; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #9a3412;
+  }
+  button {
+    background: #c2410c; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #9a3412; }
+  button.ghost { background: #fef3e7; color: #9a3412; border: 1px solid #fed7aa; }
+  button.ghost:hover { background: #fed7aa; }
+  button.ghost.active { background: #c2410c; color: white; border-color: #c2410c; }
+  select {
+    font-size: 14px; padding: 7px 10px;
+    border: 1px solid #fed7aa; border-radius: 4px;
+    background: white; font-family: inherit;
+  }
+  input[type=range] { accent-color: #c2410c; }
+
+  /* ── Module A: liveness ── */
+  .live-wrap { overflow-x: auto; }
+  table.live {
+    border-collapse: collapse; min-width: 520px; width: 100%;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px;
+  }
+  table.live th, table.live td {
+    border: 1px solid #e7e5e4; padding: 6px 8px; text-align: left;
+    white-space: nowrap; vertical-align: middle;
+  }
+  table.live th { background: #fef3e7; color: #9a3412; font-weight: 700; }
+  table.live td.ln { color: #a8a29e; text-align: right; width: 28px; }
+  table.live td.ir { color: #1c1917; }
+  .bar-cell { position: relative; min-width: 36px; }
+  .bar {
+    height: 16px; border-radius: 3px; margin: 1px 0;
+  }
+  .bar.on  { background: #c2410c; }
+  .bar.def { background: #ea580c; }
+  .bar.off { background: transparent; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: #57534e; margin: 8px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+  .pressure { font-weight: 700; }
+  .pressure.warn { color: #b91c1c; }
+  .pressure.ok { color: #15803d; }
+
+  /* ── Module B: graph coloring ── */
+  .graph-box { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  .graph-svg-wrap { flex: 1 1 320px; min-width: 0; }
+  svg.igraph { width: 100%; height: auto; background: #fffbf7; border: 1px solid #fed7aa; border-radius: 8px; }
+  .node-circle { cursor: pointer; transition: r 0.1s; }
+  .node-circle:hover { stroke: #1c1917; stroke-width: 3; }
+  .node-label { font-family: "SF Mono", Monaco, Consolas, monospace; font-weight: 700; pointer-events: none; }
+  .palette-box { flex: 1 1 220px; min-width: 0; }
+  .reg-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 20px; margin: 4px;
+    font-weight: 700; font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; cursor: pointer; border: 2px solid transparent;
+  }
+  .reg-chip.sel { border-color: #1c1917; }
+  .alloc-status {
+    margin-top: 12px; padding: 12px 14px; border-radius: 6px;
+    font-weight: 600; font-size: 14px;
+  }
+  .alloc-status.ok { background: #dcfce7; color: #166534; }
+  .alloc-status.bad { background: #fee2e2; color: #991b1b; }
+  .alloc-list { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; margin-top: 8px; }
+
+  /* ── Module C: target explorer ── */
+  .target-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .target-grid > div {
+    background: #1c1917; color: #fef3e7; border-radius: 8px; padding: 14px;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 12.5px;
+    overflow-x: auto;
+  }
+  .target-grid .thead { color: #fdba74; font-weight: 700; margin-bottom: 8px; font-size: 13px; }
+  .target-grid pre { margin: 0; white-space: pre; }
+  .target-note { font-size: 11px; color: #a8a29e; margin-top: 8px; font-family: inherit; }
+  @media (max-width: 760px) {
+    .target-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .reg-chip { font-size: 12px; padding: 5px 9px; }
+    .legend { gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-control-flow-codegen/visualization.html">← L14: Control Flow Codegen</a>
+  <span class="sep">·</span>
+  <span class="current">L15: Register Allocation & Targets</span>
+</nav>
+
+<main>
+  <h1>Lesson 15 — Cấp phát thanh ghi &amp; Mục tiêu sinh mã</h1>
+  <p>Ba công cụ tương tác: (A) phân tích <strong>liveness</strong> trên đoạn IR, (B) <strong>tô màu interference graph</strong> với số register tùy chọn, (C) <strong>target explorer</strong> — cùng một biểu thức ra nhiều dạng mã. Bài cuối lĩnh vực Compilers.</p>
+
+  <!-- ───────────── Module A ───────────── -->
+  <h2>A. Liveness Analyzer — temp nào đang sống?</h2>
+  <p class="hint">Chọn một đoạn IR mẫu. Mỗi cột bên phải là một temp; thanh màu = khoảng nó <strong>sống</strong> (từ lúc gán tới lần dùng cuối). Cột "Live" đếm số temp sống cùng lúc (register pressure).</p>
+  <div class="card">
+    <div class="row">
+      <label>Đoạn IR mẫu:</label>
+      <select id="liveSample"></select>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#ea580c"></i> dòng <code>def</code> (bắt đầu sống)</span>
+      <span><i class="swatch" style="background:#c2410c"></i> đang sống</span>
+      <span><i class="swatch" style="background:#e7e5e4"></i> chết / chưa sinh</span>
+    </div>
+    <div class="live-wrap">
+      <table class="live" id="liveTable"></table>
+    </div>
+    <p class="hint" id="livePressure"></p>
+  </div>
+
+  <!-- ───────────── Module B ───────────── -->
+  <h2>B. Graph Coloring — tô màu để cấp phát register</h2>
+  <p class="hint">Đỉnh = temp; cạnh = hai temp sống cùng lúc (không thể chung register). Kéo slider chọn số register <code>k</code>. Bấm <strong>Tô tự động</strong> (greedy), hoặc tự click vào đỉnh rồi chọn màu để tô tay. Hai đỉnh kề cùng màu = lỗi. Nếu cần nhiều màu hơn <code>k</code> → báo phải <strong>spill</strong>.</p>
+  <div class="card">
+    <div class="row">
+      <label>Đồ thị mẫu:</label>
+      <select id="graphSample"></select>
+      <label>Số register k = <strong id="kVal">3</strong></label>
+      <input type="range" id="kSlider" min="1" max="4" value="3">
+    </div>
+    <div class="row">
+      <button id="autoColor">Tô tự động (greedy)</button>
+      <button class="ghost" id="clearColor">Xóa màu</button>
+    </div>
+    <div class="graph-box">
+      <div class="graph-svg-wrap">
+        <svg class="igraph" id="igraph" viewBox="0 0 360 300" aria-label="interference graph"></svg>
+      </div>
+      <div class="palette-box">
+        <div class="hint">Chọn màu rồi click đỉnh để tô tay:</div>
+        <div id="palette"></div>
+        <div class="alloc-status" id="allocStatus">—</div>
+        <div class="alloc-list" id="allocList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────── Module C ───────────── -->
+  <h2>C. Target Explorer — một IR, nhiều mục tiêu</h2>
+  <p class="hint">Chọn một biểu thức. Cùng một IR ba địa chỉ được sinh ra ba dạng mã: <strong>stack-VM bytecode</strong> (L13), <strong>x86-ish register asm</strong> (cần cấp phát register), và <strong>WebAssembly</strong> (stack machine). Đây là minh họa "IR chung → nhiều target".</p>
+  <div class="card">
+    <div class="row">
+      <label>Biểu thức:</label>
+      <select id="exprSample"></select>
+    </div>
+    <div class="hint"><strong>IR ba địa chỉ:</strong></div>
+    <div class="mono" id="irOut" style="background:#fef3e7;padding:10px 12px;border-radius:6px;white-space:pre;overflow-x:auto;font-size:13px;"></div>
+    <div class="target-grid" id="targetGrid"></div>
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════
+// MODULE A — Liveness Analyzer
+// IR mẫu: mảng dòng {def: 'tX' | null, use: ['a','b'], text: '...'}
+// ════════════════════════════════════════════════════════════════════
+const liveSamples = {
+  "(a*b)+(a-c)": [
+    { def: 't1', use: ['a','b'], text: 't1 = a * b' },
+    { def: 't2', use: ['a','c'], text: 't2 = a - c' },
+    { def: 't3', use: ['t1','t2'], text: 't3 = t1 + t2' },
+    { def: null, use: ['t3'], text: 'ret t3' },
+  ],
+  "chuỗi 5 temp (a..e)": [
+    { def: 'a', use: [], text: 'a = 1' },
+    { def: 'b', use: [], text: 'b = 2' },
+    { def: 'c', use: ['a','b'], text: 'c = a + b' },
+    { def: 'd', use: ['c'], text: 'd = c + 2' },
+    { def: 'e', use: ['d','a'], text: 'e = d + a' },
+    { def: null, use: ['e'], text: 'ret e' },
+  ],
+  "có dead code (x không dùng)": [
+    { def: 'x', use: [], text: 'x = 10   ; dead!' },
+    { def: 'y', use: [], text: 'y = 20' },
+    { def: 'z', use: ['y'], text: 'z = y + 5' },
+    { def: null, use: ['z'], text: 'ret z' },
+  ],
+  "(a+b)*(a-b)": [
+    { def: 't1', use: ['a','b'], text: 't1 = a + b' },
+    { def: 't2', use: ['a','b'], text: 't2 = a - b' },
+    { def: 't3', use: ['t1','t2'], text: 't3 = t1 * t2' },
+    { def: null, use: ['t3'], text: 'result = t3' },
+  ],
+};
+
+// chỉ theo dõi liveness của TEMP (def là temp), bỏ qua biến nguồn a,b,c sẵn register
+function tempsOf(prog) {
+  const s = new Set();
+  for (const ln of prog) if (ln.def) s.add(ln.def);
+  return [...s];
+}
+
+// Live set NGAY SAU mỗi dòng, tính bằng quét ngược.
+// Một temp sống tại điểm P nếu được dùng ở dòng > P trước khi bị def lại.
+function computeLiveness(prog, temps) {
+  const n = prog.length;
+  const liveAfter = Array.from({length: n}, () => new Set());
+  let live = new Set(); // live "trước" dòng hiện tại (đi ngược)
+  for (let i = n - 1; i >= 0; i--) {
+    // liveAfter[i] = live set ngay sau dòng i = trạng thái 'live' hiện tại
+    liveAfter[i] = new Set(live);
+    const ln = prog[i];
+    // def: temp được sinh ở đây -> không còn "live đi xuống" qua điểm trước def
+    if (ln.def) live.delete(ln.def);
+    // use: các temp dùng ở đây -> sống ngay trước dòng
+    for (const u of ln.use) if (temps.includes(u)) live.add(u);
+  }
+  return liveAfter;
+}
+
+function renderLiveTable() {
+  const key = document.getElementById('liveSample').value;
+  const prog = liveSamples[key];
+  const temps = tempsOf(prog);
+  const liveAfter = computeLiveness(prog, temps);
+
+  // header
+  let html = '<thead><tr><th>#</th><th>IR</th>';
+  for (const t of temps) html += `<th>${t}</th>`;
+  html += '<th>Live</th></tr></thead><tbody>';
+
+  let maxPressure = 0;
+  for (let i = 0; i < prog.length; i++) {
+    const ln = prog[i];
+    html += `<tr><td class="ln">${i+1}</td><td class="ir">${ln.text}</td>`;
+    for (const t of temps) {
+      let cls = 'off';
+      if (ln.def === t) cls = 'def';            // dòng sinh ra t
+      else if (liveAfter[i].has(t)) cls = 'on'; // sống sau dòng i
+      html += `<td class="bar-cell"><div class="bar ${cls}"></div></td>`;
+    }
+    const p = liveAfter[i].size;
+    maxPressure = Math.max(maxPressure, p);
+    html += `<td><span class="pressure">${p}</span></td></tr>`;
+  }
+  html += '</tbody>';
+  document.getElementById('liveTable').innerHTML = html;
+
+  const dead = temps.filter(t => {
+    // temp dead nếu không bao giờ xuất hiện trong bất kỳ liveAfter
+    return !liveAfter.some(s => s.has(t));
+  });
+  const pEl = document.getElementById('livePressure');
+  let msg = `Register pressure tối đa = <span class="pressure ${maxPressure<=3?'ok':'warn'}">${maxPressure}</span> → cần ít nhất <strong>${maxPressure}</strong> register. Có ${temps.length} temp nhưng chỉ ${maxPressure} sống cùng lúc → tái dùng ghế.`;
+  if (dead.length) msg += ` ⚠ Temp <code>${dead.join(', ')}</code> không bao giờ sống (dead code — gán mà không dùng).`;
+  pEl.innerHTML = msg;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// MODULE B — Graph Coloring
+// ════════════════════════════════════════════════════════════════════
+// đồ thị: nodes [{id, x, y}], edges [[i,j], ...]
+const graphSamples = {
+  "Walk-through (a,b,c,d,e)": {
+    nodes: [
+      { id: 'a', x: 180, y: 150 },
+      { id: 'b', x: 180, y: 50 },
+      { id: 'c', x: 70,  y: 150 },
+      { id: 'd', x: 290, y: 150 },
+      { id: 'e', x: 180, y: 250 },
+    ],
+    edges: [['a','b'],['a','c'],['a','d']], // e cô lập
+  },
+  "Tam giác (cần 3 màu)": {
+    nodes: [
+      { id: 'x', x: 180, y: 60 },
+      { id: 'y', x: 90,  y: 220 },
+      { id: 'z', x: 270, y: 220 },
+    ],
+    edges: [['x','y'],['y','z'],['x','z']],
+  },
+  "Path a-b-c-d (2 màu)": {
+    nodes: [
+      { id: 'a', x: 50,  y: 150 },
+      { id: 'b', x: 150, y: 150 },
+      { id: 'c', x: 250, y: 150 },
+      { id: 'd', x: 330, y: 150 },
+    ],
+    edges: [['a','b'],['b','c'],['c','d']],
+  },
+  "Star (h ở giữa)": {
+    nodes: [
+      { id: 'h', x: 180, y: 150 },
+      { id: 'p', x: 90,  y: 60 },
+      { id: 'q', x: 270, y: 60 },
+      { id: 'r', x: 90,  y: 240 },
+      { id: 's', x: 270, y: 240 },
+    ],
+    edges: [['h','p'],['h','q'],['h','r'],['h','s']],
+  },
+  "Vuông a-b-c-d-a (2 màu)": {
+    nodes: [
+      { id: 'a', x: 90,  y: 70 },
+      { id: 'b', x: 270, y: 70 },
+      { id: 'c', x: 270, y: 230 },
+      { id: 'd', x: 90,  y: 230 },
+    ],
+    edges: [['a','b'],['b','c'],['c','d'],['d','a']],
+  },
+};
+
+const REG_COLORS = [
+  { name: 'R1', col: '#c2410c' },
+  { name: 'R2', col: '#0369a1' },
+  { name: 'R3', col: '#15803d' },
+  { name: 'R4', col: '#7c3aed' },
+];
+
+let curGraph = null;
+let coloring = {};        // id -> color index (0..k-1), or undefined
+let selectedColor = 0;    // màu đang chọn để tô tay
+let k = 3;
+
+function loadGraph() {
+  const key = document.getElementById('graphSample').value;
+  curGraph = graphSamples[key];
+  coloring = {};
+  renderPalette();
+  drawGraph();
+  updateStatus();
+}
+
+function neighbors(id) {
+  const res = [];
+  for (const [u, v] of curGraph.edges) {
+    if (u === id) res.push(v);
+    if (v === id) res.push(u);
+  }
+  return res;
+}
+
+function drawGraph() {
+  const svg = document.getElementById('igraph');
+  let s = '';
+  // edges
+  const pos = {};
+  for (const n of curGraph.nodes) pos[n.id] = n;
+  for (const [u, v] of curGraph.edges) {
+    s += `<line x1="${pos[u].x}" y1="${pos[u].y}" x2="${pos[v].x}" y2="${pos[v].y}" stroke="#a8a29e" stroke-width="2"/>`;
+  }
+  // nodes
+  for (const n of curGraph.nodes) {
+    const ci = coloring[n.id];
+    const fill = ci === undefined ? '#e7e5e4' : REG_COLORS[ci].col;
+    const txtCol = ci === undefined ? '#57534e' : 'white';
+    s += `<circle class="node-circle" data-id="${n.id}" cx="${n.x}" cy="${n.y}" r="24" fill="${fill}" stroke="#fed7aa" stroke-width="2"/>`;
+    s += `<text class="node-label" x="${n.x}" y="${n.y+5}" text-anchor="middle" font-size="16" fill="${txtCol}">${n.id}</text>`;
+  }
+  svg.innerHTML = s;
+  svg.querySelectorAll('.node-circle').forEach(c => {
+    c.onclick = () => {
+      const id = c.dataset.id;
+      if (selectedColor >= k) return; // màu vượt k, bỏ qua
+      if (coloring[id] === selectedColor) delete coloring[id];
+      else coloring[id] = selectedColor;
+      drawGraph();
+      updateStatus();
+    };
+  });
+}
+
+function renderPalette() {
+  const pal = document.getElementById('palette');
+  let s = '';
+  for (let i = 0; i < k; i++) {
+    s += `<span class="reg-chip ${i===selectedColor?'sel':''}" data-ci="${i}" style="background:${REG_COLORS[i].col};color:white;">${REG_COLORS[i].name}</span>`;
+  }
+  pal.innerHTML = s;
+  pal.querySelectorAll('.reg-chip').forEach(ch => {
+    ch.onclick = () => { selectedColor = +ch.dataset.ci; renderPalette(); };
+  });
+}
+
+function autoColor() {
+  // greedy: tô đỉnh bậc cao trước, mỗi đỉnh lấy màu nhỏ nhất chưa dùng bởi hàng xóm
+  coloring = {};
+  const order = [...curGraph.nodes].sort((a,b) => neighbors(b.id).length - neighbors(a.id).length);
+  let needSpill = false;
+  for (const n of order) {
+    const used = new Set(neighbors(n.id).map(nb => coloring[nb]).filter(c => c !== undefined));
+    let chosen = -1;
+    for (let c = 0; c < k; c++) if (!used.has(c)) { chosen = c; break; }
+    if (chosen === -1) { needSpill = true; /* để không tô (spill) */ }
+    else coloring[n.id] = chosen;
+  }
+  drawGraph();
+  updateStatus(needSpill);
+}
+
+// số màu tối thiểu thực sự cần = greedy với vô hạn màu, trả max+1
+function chromaticEstimate() {
+  const tmp = {};
+  const order = [...curGraph.nodes].sort((a,b) => neighbors(b.id).length - neighbors(a.id).length);
+  let maxC = 0;
+  for (const n of order) {
+    const used = new Set(neighbors(n.id).map(nb => tmp[nb]).filter(c => c !== undefined));
+    let c = 0; while (used.has(c)) c++;
+    tmp[n.id] = c; maxC = Math.max(maxC, c + 1);
+  }
+  return maxC;
+}
+
+function updateStatus(forceSpill) {
+  const st = document.getElementById('allocStatus');
+  const list = document.getElementById('allocList');
+  // kiểm tra xung đột màu
+  let conflict = null;
+  for (const [u, v] of curGraph.edges) {
+    if (coloring[u] !== undefined && coloring[v] !== undefined && coloring[u] === coloring[v]) {
+      conflict = [u, v]; break;
+    }
+  }
+  const uncolored = curGraph.nodes.filter(n => coloring[n.id] === undefined).map(n => n.id);
+  const chroma = chromaticEstimate();
+  const needMore = chroma > k;
+
+  if (conflict) {
+    st.className = 'alloc-status bad';
+    st.innerHTML = `✗ Xung đột: <code>${conflict[0]}</code> và <code>${conflict[1]}</code> kề nhau nhưng cùng màu → một cái sẽ ghi đè cái kia.`;
+  } else if (needMore) {
+    st.className = 'alloc-status bad';
+    st.innerHTML = `⚠ Cần <strong>${chroma}</strong> màu nhưng chỉ có k = <strong>${k}</strong> register → <strong>phải SPILL</strong> ít nhất ${chroma - k} temp ra bộ nhớ.`;
+  } else if (uncolored.length) {
+    st.className = 'alloc-status';
+    st.style.background = '#fef3e7'; st.style.color = '#9a3412';
+    st.innerHTML = `Còn ${uncolored.length} đỉnh chưa tô: <code>${uncolored.join(', ')}</code>. (Tô được — chromatic number = ${chroma} ≤ k = ${k}.)`;
+  } else {
+    st.className = 'alloc-status ok';
+    const usedColors = new Set(Object.values(coloring)).size;
+    st.innerHTML = `✓ Cấp phát hợp lệ! Dùng ${usedColors} register (k = ${k} đủ). Không cần spill.`;
+  }
+
+  // bảng allocation
+  let l = '';
+  for (const n of curGraph.nodes) {
+    const ci = coloring[n.id];
+    l += `${n.id} → ${ci === undefined ? '(bộ nhớ / chưa tô)' : REG_COLORS[ci].name}<br>`;
+  }
+  list.innerHTML = l;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// MODULE C — Target Explorer
+// ════════════════════════════════════════════════════════════════════
+// mỗi biểu thức: danh sách "ops" dạng ['op', dst, l, r] với op in +,-,*
+// và thông tin gốc để in các target
+const exprSamples = {
+  "(a + b) * c": {
+    ir: [
+      ['+', 't1', 'a', 'b'],
+      ['*', 't2', 't1', 'c'],
+    ],
+    result: 't2',
+  },
+  "(x - y) + z": {
+    ir: [
+      ['-', 't1', 'x', 'y'],
+      ['+', 't2', 't1', 'z'],
+    ],
+    result: 't2',
+  },
+  "(a + b) * (a - b)": {
+    ir: [
+      ['+', 't1', 'a', 'b'],
+      ['-', 't2', 'a', 'b'],
+      ['*', 't3', 't1', 't2'],
+    ],
+    result: 't3',
+  },
+  "a + b + c + d": {
+    ir: [
+      ['+', 't1', 'a', 'b'],
+      ['+', 't2', 't1', 'c'],
+      ['+', 't3', 't2', 'd'],
+    ],
+    result: 't3',
+  },
+};
+
+const SYM = { '+': '+', '-': '-', '*': '*' };
+const ASM = { '+': 'add', '-': 'sub', '*': 'imul' };
+const STK = { '+': 'ADD', '-': 'SUB', '*': 'MUL' };
+const WASM = { '+': 'i32.add', '-': 'i32.sub', '*': 'i32.mul' };
+
+function renderIR(spec) {
+  return spec.ir.map(([op, d, l, r]) => `${d} = ${l} ${SYM[op]} ${r}`).join('\n');
+}
+
+// Stack bytecode: post-order trên DAG biểu diễn bằng dãy IR (mỗi dòng dùng kết quả trước)
+function genStack(spec) {
+  const lines = [];
+  for (const [op, d, l, r] of spec.ir) {
+    // đẩy toán hạng nếu là biến nguồn (không phải temp đã trên stack)
+    // mô hình tuyến tính: nếu l là temp vừa tính -> đã ở đỉnh stack, bỏ PUSH
+    if (!l.startsWith('t')) lines.push(`PUSH ${l}`);
+    if (!r.startsWith('t')) lines.push(`PUSH ${r}`);
+    lines.push(STK[op]);
+  }
+  return lines.join('\n');
+}
+
+// x86-ish register asm: cấp phát đơn giản, R1 giữ accumulator
+function genAsm(spec) {
+  const lines = [];
+  let regOf = {};
+  let nextReg = 1;
+  function reg(name) {
+    if (regOf[name]) return regOf[name];
+    const r = 'R' + (nextReg++);
+    regOf[name] = r;
+    return r;
+  }
+  for (const [op, d, l, r] of spec.ir) {
+    // dst tái dùng register của toán hạng trái nếu nó là temp (đã chết sau đây)
+    let dreg;
+    if (l.startsWith('t') && regOf[l]) { dreg = regOf[l]; }
+    else { dreg = 'R' + (nextReg++); lines.push(`mov  ${dreg}, ${l}`); }
+    regOf[d] = dreg;
+    let rop = r;
+    if (!r.startsWith('t')) {
+      // toán hạng phải là biến: nhiều ISA dùng trực tiếp được, để nguyên
+      rop = r;
+    } else {
+      rop = regOf[r] || r;
+    }
+    lines.push(`${ASM[op].padEnd(4)} ${dreg}, ${rop}`);
+  }
+  lines.push(`ret  ${regOf[spec.result]}`);
+  return lines.join('\n');
+}
+
+function genWasm(spec) {
+  const lines = [];
+  for (const [op, d, l, r] of spec.ir) {
+    if (!l.startsWith('t')) lines.push(`local.get $${l}`);
+    if (!r.startsWith('t')) lines.push(`local.get $${r}`);
+    lines.push(WASM[op]);
+  }
+  return lines.join('\n');
+}
+
+function renderTargets() {
+  const key = document.getElementById('exprSample').value;
+  const spec = exprSamples[key];
+  document.getElementById('irOut').textContent = renderIR(spec);
+  document.getElementById('targetGrid').innerHTML = `
+    <div>
+      <div class="thead">Stack-VM bytecode (L13)</div>
+      <pre>${genStack(spec)}</pre>
+      <div class="target-note">Stack machine — không cần cấp phát register.</div>
+    </div>
+    <div>
+      <div class="thead">x86-ish register asm</div>
+      <pre>${genAsm(spec)}</pre>
+      <div class="target-note">Register machine — CẦN cấp phát register (R1, R2...).</div>
+    </div>
+    <div>
+      <div class="thead">WebAssembly</div>
+      <pre>${genWasm(spec)}</pre>
+      <div class="target-note">Stack machine — engine tự lo register khi JIT.</div>
+    </div>
+  `;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════════
+function fillSelect(id, keys) {
+  const el = document.getElementById(id);
+  el.innerHTML = keys.map(k => `<option>${k}</option>`).join('');
+}
+
+// Module A
+fillSelect('liveSample', Object.keys(liveSamples));
+document.getElementById('liveSample').onchange = renderLiveTable;
+renderLiveTable();
+
+// Module B
+fillSelect('graphSample', Object.keys(graphSamples));
+document.getElementById('graphSample').onchange = loadGraph;
+document.getElementById('kSlider').oninput = (e) => {
+  k = +e.target.value;
+  document.getElementById('kVal').textContent = k;
+  if (selectedColor >= k) selectedColor = k - 1;
+  // bỏ các màu vượt k
+  for (const id in coloring) if (coloring[id] >= k) delete coloring[id];
+  renderPalette();
+  drawGraph();
+  updateStatus();
+};
+document.getElementById('autoColor').onclick = autoColor;
+document.getElementById('clearColor').onclick = () => { coloring = {}; drawGraph(); updateStatus(); };
+loadGraph();
+
+// Module C
+fillSelect('exprSample', Object.keys(exprSamples));
+document.getElementById('exprSample').onchange = renderTargets;
+renderTargets();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

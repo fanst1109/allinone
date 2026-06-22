@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Grammar & CFG Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #9a3412; }
+  h2 {
+    color: #c2410c; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fed7aa;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { color: #78716c; font-size: 13px; margin: 6px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #44403c; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #fff7ed; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #9a3412;
+  }
+  .grammar-box {
+    background: #fff7ed; border: 1px solid #fed7aa; border-radius: 6px;
+    padding: 12px 16px; font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; line-height: 1.7; color: #7c2d12; white-space: pre;
+    overflow-x: auto;
+  }
+  button {
+    background: #c2410c; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #9a3412; }
+  button:disabled { background: #d6d3d1; color: #78716c; cursor: not-allowed; }
+  button.ghost {
+    background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa;
+  }
+  button.ghost:hover { background: #ffedd5; }
+  button.preset {
+    background: #fef3c7; color: #92400e; font-size: 12px;
+    padding: 5px 11px; border: 1px solid #fde68a;
+  }
+  button.preset:hover { background: #fde68a; }
+  input.tok {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 8px 12px;
+    border: 1px solid #d6d3d1; border-radius: 4px;
+    width: 100%; max-width: 280px; box-sizing: border-box; flex: 1 1 200px;
+  }
+  input.tok.bad { border-color: #dc2626; background: #fef2f2; }
+
+  /* SVG tree wrapper — scroll ngang nếu tràn */
+  .tree-wrap { overflow-x: auto; margin: 12px 0; }
+  svg { display: block; }
+  .node-nt rect { fill: #fed7aa; stroke: #c2410c; stroke-width: 1.5; }
+  .node-nt text { fill: #7c2d12; font-weight: 700; }
+  .node-t rect { fill: #fef3c7; stroke: #d97706; stroke-width: 1.5; }
+  .node-t text { fill: #92400e; font-weight: 700; }
+  .edge { stroke: #a8a29e; stroke-width: 1.5; fill: none; }
+  svg text {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; text-anchor: middle; dominant-baseline: middle;
+  }
+
+  /* Derivation step log */
+  .deriv {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; line-height: 1.9; margin: 10px 0;
+  }
+  .deriv .step {
+    padding: 3px 8px; border-radius: 4px; margin: 2px 0;
+  }
+  .deriv .step.cur { background: #ffedd5; font-weight: 700; }
+  .deriv .rule { color: #78716c; font-size: 12px; }
+  .sentform { color: #7c2d12; }
+  .sentform .focus { background: #fed7aa; padding: 0 2px; border-radius: 2px; }
+
+  /* Ambiguity side-by-side */
+  .ambig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+  .ambig-grid > div {
+    background: #fff7ed; border-left: 4px solid #c2410c;
+    border-radius: 4px; padding: 12px;
+  }
+  .ambig-grid .title { font-weight: 700; color: #9a3412; margin-bottom: 6px; }
+  .ambig-grid .verdict {
+    margin-top: 8px; font-weight: 700; font-size: 15px;
+  }
+  .ambig-grid .ok { color: #15803d; }
+  .ambig-grid .bad { color: #b91c1c; }
+  @media (max-width: 720px) { .ambig-grid { grid-template-columns: 1fr; } }
+
+  /* Validity checker */
+  .badge {
+    display: inline-block; padding: 5px 14px; border-radius: 4px;
+    font-size: 14px; font-weight: 700; margin-top: 4px;
+  }
+  .badge.acc { background: #dcfce7; color: #166534; }
+  .badge.rej { background: #fee2e2; color: #991b1b; }
+  .reason { font-size: 13px; color: #57534e; margin-top: 8px; line-height: 1.6; }
+  .toklist { margin: 8px 0; }
+  .toklist .tk {
+    display: inline-block; padding: 4px 9px; margin: 2px;
+    background: #fef3c7; border: 1px solid #fde68a; border-radius: 4px;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; color: #92400e;
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-lexer/visualization.html">← L02: Lexer</a>
+  <span class="sep">·</span>
+  <span class="current">L03: Grammar & CFG</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-recursive-descent-parser/visualization.html">L04: Recursive-Descent Parser →</a>
+</nav>
+
+<main>
+  <h1>Lesson 03 — Văn phạm phi ngữ cảnh (Grammar &amp; CFG)</h1>
+  <p>Ba công cụ tương tác: dựng cây phân tích từng bước theo grammar phân tầng, so sánh hai cây của một grammar nhập nhằng (14 vs 20), và kiểm tra một dãy token có hợp lệ về cú pháp không.</p>
+
+  <h2>1. Derivation Stepper — dựng cây phân tích từng bước</h2>
+  <p class="hint">
+    Dùng grammar phân tầng (không nhập nhằng, đã mã hoá ưu tiên <code>*</code> &gt; <code>+</code> và trái-kết-hợp):
+  </p>
+  <div class="grammar-box">E → E + T | E - T | T
+T → T * F | T / F | F
+F → ( E ) | num</div>
+  <div class="card">
+    <div class="row">
+      <label for="dInput">Chuỗi:</label>
+      <input class="tok" id="dInput" value="2 + 3 * 4" placeholder="vd: 2 + 3 * 4">
+      <button id="dParse">Phân tích</button>
+      <button class="ghost" id="dPrev" disabled>◀ Lùi</button>
+      <button class="ghost" id="dNext" disabled>Tiến ▶</button>
+      <button class="ghost" id="dAll" disabled>⏭ Hết</button>
+    </div>
+    <div class="row">
+      <span class="hint" style="margin-right:4px;">Mẫu:</span>
+      <button class="preset" data-d="2 + 3 * 4">2 + 3 * 4</button>
+      <button class="preset" data-d="2 * 3 + 4">2 * 3 + 4</button>
+      <button class="preset" data-d="( 2 + 3 ) * 4">( 2 + 3 ) * 4</button>
+      <button class="preset" data-d="8 - 4 - 2">8 - 4 - 2</button>
+      <button class="preset" data-d="2 + 3 * 4 - 5">2 + 3 * 4 - 5</button>
+    </div>
+    <div id="dErr"></div>
+    <div class="deriv" id="dLog"></div>
+    <div class="tree-wrap"><svg id="dTree" width="600" height="60" viewBox="0 0 600 60"></svg></div>
+    <div class="hint" id="dVal"></div>
+  </div>
+
+  <h2>2. Ambiguity Demo — một chuỗi, hai cây, hai giá trị</h2>
+  <p class="hint">
+    Grammar nhập nhằng <code>E → E + E | E * E | ( E ) | num</code> chấp nhận
+    <strong>hai cây khác nhau</strong> cho cùng <code>2 + 3 * 4</code>. Cây trái lấy
+    <code>*</code> trước (đúng) → 14; cây phải lấy <code>+</code> trước (sai) → 20.
+  </p>
+  <div class="card">
+    <div class="ambig-grid">
+      <div>
+        <div class="title">Cây A — áp <code>E → E + E</code> ở gốc</div>
+        <div class="tree-wrap"><svg id="ambA" width="260" height="220" viewBox="0 0 260 220"></svg></div>
+        <div class="hint">3 * 4 = 12, rồi 2 + 12</div>
+        <div class="verdict ok">= 14 ✓ (đúng quy ước toán)</div>
+      </div>
+      <div>
+        <div class="title">Cây B — áp <code>E → E * E</code> ở gốc</div>
+        <div class="tree-wrap"><svg id="ambB" width="260" height="220" viewBox="0 0 260 220"></svg></div>
+        <div class="hint">2 + 3 = 5, rồi 5 * 4</div>
+        <div class="verdict bad">= 20 ✗ (sai — bỏ <code>*</code> ưu tiên)</div>
+      </div>
+    </div>
+    <p class="hint" style="margin-top:14px;">
+      → Một grammar cho ra hai cây = nguy hiểm. Grammar phân tầng ở Module 1 loại bỏ cây B ngay từ thiết kế: ở đó <code>2 + 3 * 4</code> chỉ có MỘT cây = 14.
+    </p>
+  </div>
+
+  <h2>3. Kiểm tra chuỗi hợp lệ — accepted / rejected</h2>
+  <p class="hint">
+    Nhập dãy token (cách nhau bởi dấu cách): dùng <code>num</code> hoặc số,
+    <code>+ - * / ( )</code>. Công cụ chạy parser theo grammar phân tầng và báo
+    chuỗi có thuộc ngôn ngữ không — đúng như câu hỏi mở bài "vì sao <code>2 + * 3</code> bị bác bỏ".
+  </p>
+  <div class="card">
+    <div class="row">
+      <input class="tok" id="vInput" value="2 + * 3" placeholder="vd: 2 + 3 hoặc 2 + * 3">
+      <button id="vCheck">Kiểm tra</button>
+    </div>
+    <div class="row">
+      <span class="hint" style="margin-right:4px;">Mẫu:</span>
+      <button class="preset" data-v="2 + 3">2 + 3</button>
+      <button class="preset" data-v="2 + * 3">2 + * 3</button>
+      <button class="preset" data-v="( 2 + 3 ) * 4">( 2 + 3 ) * 4</button>
+      <button class="preset" data-v="( 2 + 3">( 2 + 3</button>
+      <button class="preset" data-v="2 3 + 4">2 3 + 4</button>
+      <button class="preset" data-v="( ( 5 ) )">( ( 5 ) )</button>
+    </div>
+    <div class="toklist" id="vTokens"></div>
+    <div id="vVerdict"></div>
+    <div class="reason" id="vReason"></div>
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+// Tokenizer chung — biến chuỗi nhập thành dãy token {type, text}
+//   số (123) hoặc 'num' → NUM ;  + - * /  → OP ;  ( ) → ngoặc
+// ════════════════════════════════════════════════════════════════════════════
+function tokenize(input) {
+  const out = [];
+  const parts = input.trim().split(/\s+/).filter(Boolean);
+  for (const p of parts) {
+    if (/^\d+$/.test(p)) out.push({ type: 'num', text: p, val: parseInt(p, 10) });
+    else if (p === 'num') out.push({ type: 'num', text: 'num', val: null });
+    else if ('+-*/()'.includes(p) && p.length === 1) out.push({ type: p, text: p });
+    else throw new Error(`Token không hợp lệ: "${p}"`);
+  }
+  return out;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Parser grammar phân tầng → AST. Trả về { node, error }
+//   E → E +|- T  (trái-kết-hợp, cài bằng vòng lặp)
+//   T → T *|/ F
+//   F → ( E ) | num
+// AST node: { label, val, children:[], op }
+// ════════════════════════════════════════════════════════════════════════════
+function parseTiered(tokens) {
+  let i = 0;
+  const peek = () => tokens[i];
+  const eat = (t) => {
+    if (!tokens[i] || tokens[i].type !== t)
+      throw new Error(`Mong đợi "${t}" nhưng gặp "${tokens[i] ? tokens[i].text : 'hết chuỗi'}" (vị trí token ${i + 1})`);
+    return tokens[i++];
+  };
+
+  function parseE() {
+    let left = parseT();
+    while (peek() && (peek().type === '+' || peek().type === '-')) {
+      const op = eat(peek().type).type;
+      const right = parseT();
+      left = { label: 'E', op, children: [left, right] };
+    }
+    return left;
+  }
+  function parseT() {
+    let left = parseF();
+    while (peek() && (peek().type === '*' || peek().type === '/')) {
+      const op = eat(peek().type).type;
+      const right = parseF();
+      left = { label: 'T', op, children: [left, right] };
+    }
+    return left;
+  }
+  function parseF() {
+    const t = peek();
+    if (!t) throw new Error('Hết chuỗi sớm: mong đợi num hoặc "("');
+    if (t.type === '(') {
+      eat('(');
+      const e = parseE();
+      eat(')');
+      return { label: 'F', children: [e], paren: true };
+    }
+    if (t.type === 'num') {
+      eat('num');
+      return { label: 'num', val: t.val, text: t.text, leaf: true };
+    }
+    throw new Error(`Mong đợi num hoặc "(" nhưng gặp "${t.text}"`);
+  }
+
+  try {
+    const ast = parseE();
+    if (i < tokens.length)
+      throw new Error(`Token thừa: "${tokens[i].text}" (vị trí ${i + 1})`);
+    return { node: ast, error: null };
+  } catch (e) {
+    return { node: null, error: e.message };
+  }
+}
+
+// Đánh giá AST (cho derivation stepper) — chỉ khi mọi num có giá trị
+function evalAst(n) {
+  if (n.leaf) return n.val;
+  if (n.paren) return evalAst(n.children[0]);
+  const a = evalAst(n.children[0]), b = evalAst(n.children[1]);
+  if (a == null || b == null) return null;
+  switch (n.op) {
+    case '+': return a + b;
+    case '-': return a - b;
+    case '*': return a * b;
+    case '/': return b === 0 ? null : a / b;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Vẽ cây AST ra SVG (layout tự tính bề rộng theo số lá)
+// Mỗi node hiển thị: non-terminal (E/T/F) hoặc terminal (num/op/ngoặc)
+// ════════════════════════════════════════════════════════════════════════════
+function layoutTree(ast) {
+  // Chuyển AST sang display-tree với nhãn terminal hiển thị (op, ngoặc)
+  function toDisplay(n) {
+    if (n.leaf) return { text: n.text, terminal: true, children: [] };
+    if (n.paren) {
+      // F → ( E )
+      return {
+        text: 'F', terminal: false,
+        children: [
+          { text: '(', terminal: true, children: [] },
+          toDisplay(n.children[0]),
+          { text: ')', terminal: true, children: [] },
+        ],
+      };
+    }
+    // E hoặc T với op ở giữa
+    return {
+      text: n.label, terminal: false,
+      children: [
+        toDisplay(n.children[0]),
+        { text: n.op, terminal: true, children: [] },
+        toDisplay(n.children[1]),
+      ],
+    };
+  }
+  const root = toDisplay(ast);
+
+  const HGAP = 46, VGAP = 64, LEAFW = 44;
+  let xCursor = 0;
+  function assign(node, depth) {
+    node.y = depth * VGAP + 28;
+    if (node.children.length === 0) {
+      node.x = xCursor + LEAFW / 2;
+      xCursor += LEAFW + HGAP;
+    } else {
+      node.children.forEach(c => assign(c, depth + 1));
+      node.x = (node.children[0].x + node.children[node.children.length - 1].x) / 2;
+    }
+    return node;
+  }
+  assign(root, 0);
+  return root;
+}
+
+function renderTreeSVG(svgEl, ast) {
+  if (!ast) { svgEl.innerHTML = ''; svgEl.setAttribute('viewBox', '0 0 600 60'); return; }
+  const root = layoutTree(ast);
+  let maxX = 0, maxY = 0;
+  (function scan(n) { maxX = Math.max(maxX, n.x); maxY = Math.max(maxY, n.y); n.children.forEach(scan); })(root);
+  const W = maxX + 30, H = maxY + 30;
+
+  let parts = [];
+  (function draw(n) {
+    for (const c of n.children) {
+      parts.push(`<path class="edge" d="M ${n.x} ${n.y + 12} L ${c.x} ${c.y - 12}"/>`);
+      draw(c);
+    }
+    const w = Math.max(28, n.text.length * 10 + 14);
+    const cls = n.terminal ? 'node-t' : 'node-nt';
+    parts.push(`<g class="${cls}">
+      <rect x="${n.x - w / 2}" y="${n.y - 13}" width="${w}" height="26" rx="5"/>
+      <text x="${n.x}" y="${n.y}">${escapeHtml(n.text)}</text></g>`);
+  })(root);
+
+  svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svgEl.setAttribute('width', W);
+  svgEl.setAttribute('height', H);
+  svgEl.innerHTML = parts.join('');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 1: Derivation Stepper
+//   Sinh chuỗi dẫn xuất trái từ AST, cho phép tua từng bước; cây dựng dần.
+// ════════════════════════════════════════════════════════════════════════════
+let dSteps = [];     // mỗi step: { sentence: [tokens hiển thị], rule, treePrefix }
+let dPos = 0;
+let dFullAst = null;
+
+// Sinh các bước dẫn xuất trái (đơn giản hoá: hiển thị sentential form + luật)
+function buildDerivation(ast) {
+  // Ta tạo dãy "sentential form" bằng leftmost expansion mô phỏng.
+  // Mỗi node được khai triển; ta in chuỗi non-terminal/terminal hiện hành.
+  const steps = [];
+  // form là mảng các phần tử: {nt:'E', ref:node} hoặc {term:'+'}
+  let form = [{ nt: ast.label === 'num' ? 'E' : 'E', ref: ast }];
+  // Bắt đầu: chỉ start symbol E
+  steps.push({ form: [{ nt: 'E' }], rule: 'bắt đầu', focus: 0 });
+
+  // Để đơn giản và đúng leftmost, ta khai triển đệ quy ghi lại.
+  // Dùng cách: linear hoá AST thành cây luật rồi expand leftmost.
+  // form2: list of items, item = {type:'nt', sym, node} | {type:'t', sym}
+  let work = [{ type: 'nt', sym: 'E', node: ast }];
+
+  function expansionOf(node) {
+    // trả về list item con + tên luật (string)
+    if (node.leaf) {
+      return { items: [{ type: 't', sym: node.text }], rule: `${labelFor(node)} → ${node.text}` };
+    }
+    if (node.paren) {
+      return {
+        items: [
+          { type: 't', sym: '(' },
+          { type: 'nt', sym: 'E', node: node.children[0] },
+          { type: 't', sym: ')' },
+        ],
+        rule: 'F → ( E )',
+      };
+    }
+    // E/T với op
+    const L = node.label;
+    return {
+      items: [
+        { type: 'nt', sym: childLabel(node.children[0]), node: node.children[0] },
+        { type: 't', sym: node.op },
+        { type: 'nt', sym: childLabel(node.children[1]), node: node.children[1] },
+      ],
+      rule: `${L} → ${L} ${node.op} ${childLabel(node.children[1])}`,
+    };
+  }
+  function labelFor(node) {
+    if (node.leaf) return 'F';
+    if (node.paren) return 'F';
+    return node.label;
+  }
+  function childLabel(node) {
+    if (node.leaf) return 'F';
+    if (node.paren) return 'F';
+    return node.label;
+  }
+
+  // Khai triển leftmost: tìm nt trái nhất, expand.
+  let guard = 0;
+  while (guard++ < 200) {
+    const idx = work.findIndex(it => it.type === 'nt' && it.node);
+    if (idx === -1) break;
+    const item = work[idx];
+    // Nếu nhãn hiện tại khác nhãn cần (vd hiện 'E' nhưng node thực ra là T/F do chỉ một con)
+    // ta chèn bước "thu gọn" E→T, T→F nếu cần để khớp.
+    const needLabel = labelFor(item.node);
+    if (item.sym !== needLabel) {
+      // bước trung gian: X → Y
+      const newItem = { type: 'nt', sym: needLabel, node: item.node };
+      work = [...work.slice(0, idx), newItem, ...work.slice(idx + 1)];
+      steps.push({
+        form: work.map(snapForm),
+        rule: `${item.sym} → ${needLabel}`,
+        focus: idx,
+      });
+      continue;
+    }
+    const { items, rule } = expansionOf(item.node);
+    work = [...work.slice(0, idx), ...items, ...work.slice(idx + 1)];
+    steps.push({ form: work.map(snapForm), rule, focus: idx });
+  }
+  return steps;
+
+  function snapForm(it) {
+    return it.type === 't' ? { term: it.sym } : { nt: it.sym };
+  }
+}
+
+function formToHtml(form, focusIdx) {
+  return form.map((it, k) => {
+    const s = it.term != null ? it.term : it.nt;
+    const cls = (k === focusIdx) ? ' class="focus"' : '';
+    return `<span${cls}>${escapeHtml(s)}</span>`;
+  }).join(' ');
+}
+
+// Cây dựng dần: ở mỗi bước chỉ vẽ tới độ sâu đã khai triển.
+// Để giữ đơn giản & ổn định, ta vẽ cây ĐẦY ĐỦ và bước cuối hiển thị cây.
+// Cây từng bước: ta vẽ "prefix tree" — cắt AST theo số bước expand non-terminal.
+function renderDerivState() {
+  const log = document.getElementById('dLog');
+  const valEl = document.getElementById('dVal');
+  log.innerHTML = dSteps.map((st, k) => {
+    const cur = k === dPos ? ' cur' : '';
+    const hidden = k > dPos ? ' style="opacity:.32"' : '';
+    return `<div class="step${cur}"${hidden}>
+      <span class="sentform">${formToHtml(st.form, k === dPos ? st.focus : -1)}</span>
+      <span class="rule"> &nbsp;[${escapeHtml(st.rule)}]</span></div>`;
+  }).join('');
+
+  // Cây: vẽ đầy đủ chỉ khi tới bước cuối; trước đó vẽ prefix theo độ sâu.
+  const depthLimit = computeDepthLimit(dPos);
+  const prefix = prunedTree(dFullAst, depthLimit);
+  renderTreeSVG(document.getElementById('dTree'), prefix);
+
+  if (dPos === dSteps.length - 1) {
+    const v = evalAst(dFullAst);
+    valEl.innerHTML = v == null
+      ? 'Cây hoàn chỉnh. (Dùng <code>num</code> trừu tượng nên không tính giá trị số.)'
+      : `Cây hoàn chỉnh → đánh giá từ lá lên gốc = <strong>${v}</strong>.`;
+  } else {
+    valEl.innerHTML = `Bước ${dPos}/${dSteps.length - 1}. Bấm <strong>Tiến ▶</strong> để khai triển non-terminal trái nhất.`;
+  }
+  document.getElementById('dPrev').disabled = dPos <= 0;
+  document.getElementById('dNext').disabled = dPos >= dSteps.length - 1;
+  document.getElementById('dAll').disabled = dPos >= dSteps.length - 1;
+}
+
+// Bao nhiêu "lượt expand non-terminal" đã thực hiện ≈ độ sâu được mở.
+function computeDepthLimit(pos) {
+  // pos 0 → chỉ gốc; tăng dần. Ta map số bước sang độ sâu cây hợp lý.
+  // Đếm số bước đã expand ra terminal/cấu trúc; dùng pos trực tiếp với hệ số.
+  return pos; // dùng số bước; prunedTree sẽ cắt dần dựa trên thứ tự duyệt
+}
+
+// Cắt cây: hiển thị dần theo thứ tự khai triển leftmost (preorder).
+let _expandOrder = null;
+function buildExpandOrder(ast) {
+  // gán cho mỗi node một thứ tự "node này được khai triển ở lượt thứ mấy" (preorder leftmost)
+  let order = 0;
+  const map = new Map();
+  (function visit(n) {
+    map.set(n, order++);
+    if (n.leaf) return;
+    if (n.paren) { visit(n.children[0]); return; }
+    visit(n.children[0]); visit(n.children[1]);
+  })(ast);
+  return map;
+}
+function prunedTree(ast, limit) {
+  if (!ast) return null;
+  // limit = số node được phép "mở con". Node vượt limit hiển thị như chưa khai triển (giữ nhãn NT).
+  const order = _expandOrder;
+  function clone(n) {
+    const myOrder = order.get(n);
+    if (n.leaf) return { ...n };
+    if (myOrder >= limit) {
+      // chưa khai triển: hiển thị nhãn non-terminal, không con
+      const lbl = n.paren ? 'F' : n.label;
+      return { label: lbl, leaf: true, text: lbl, val: null, _placeholder: true };
+    }
+    if (n.paren) return { ...n, children: [clone(n.children[0])] };
+    return { ...n, children: [clone(n.children[0]), clone(n.children[1])] };
+  }
+  return clone(ast);
+}
+
+function runDerivation(str) {
+  const errEl = document.getElementById('dErr');
+  errEl.innerHTML = '';
+  const inp = document.getElementById('dInput');
+  inp.classList.remove('bad');
+  let tokens;
+  try { tokens = tokenize(str); }
+  catch (e) { showDErr(e.message); return; }
+  if (tokens.length === 0) { showDErr('Chuỗi rỗng.'); return; }
+  const { node, error } = parseTiered(tokens);
+  if (error) { showDErr('Không hợp lệ: ' + error); return; }
+  dFullAst = node;
+  _expandOrder = buildExpandOrder(node);
+  dSteps = buildDerivation(node);
+  dPos = 0;
+  renderDerivState();
+}
+function showDErr(msg) {
+  document.getElementById('dInput').classList.add('bad');
+  document.getElementById('dErr').innerHTML = `<span class="badge rej">${escapeHtml(msg)}</span>`;
+  document.getElementById('dLog').innerHTML = '';
+  renderTreeSVG(document.getElementById('dTree'), null);
+  document.getElementById('dVal').innerHTML = '';
+  ['dPrev', 'dNext', 'dAll'].forEach(id => document.getElementById(id).disabled = true);
+}
+
+document.getElementById('dParse').onclick = () => runDerivation(document.getElementById('dInput').value);
+document.getElementById('dInput').addEventListener('keydown', e => { if (e.key === 'Enter') runDerivation(e.target.value); });
+document.getElementById('dNext').onclick = () => { if (dPos < dSteps.length - 1) { dPos++; renderDerivState(); } };
+document.getElementById('dPrev').onclick = () => { if (dPos > 0) { dPos--; renderDerivState(); } };
+document.getElementById('dAll').onclick = () => { dPos = dSteps.length - 1; renderDerivState(); };
+document.querySelectorAll('button.preset[data-d]').forEach(b => {
+  b.onclick = () => { document.getElementById('dInput').value = b.dataset.d; runDerivation(b.dataset.d); };
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 2: Ambiguity Demo — hai cây cố định cho 2 + 3 * 4
+// ════════════════════════════════════════════════════════════════════════════
+function ambNode(text, terminal, children) { return { text, terminal, children: children || [] }; }
+
+function drawFixedTree(svgEl, root) {
+  // layout đơn giản cho cây nhỏ
+  const HGAP = 30, VGAP = 60, LEAFW = 38;
+  let cx = 0;
+  (function assign(n, d) {
+    n.y = d * VGAP + 24;
+    if (n.children.length === 0) { n.x = cx + LEAFW / 2; cx += LEAFW + HGAP; }
+    else { n.children.forEach(c => assign(c, d + 1)); n.x = (n.children[0].x + n.children[n.children.length - 1].x) / 2; }
+  })(root, 0);
+  let maxX = 0, maxY = 0;
+  (function scan(n) { maxX = Math.max(maxX, n.x); maxY = Math.max(maxY, n.y); n.children.forEach(scan); })(root);
+  const W = maxX + 30, H = maxY + 30;
+  let parts = [];
+  (function draw(n) {
+    for (const c of n.children) { parts.push(`<path class="edge" d="M ${n.x} ${n.y + 12} L ${c.x} ${c.y - 12}"/>`); draw(c); }
+    const w = Math.max(28, n.text.length * 10 + 14);
+    const cls = n.terminal ? 'node-t' : 'node-nt';
+    parts.push(`<g class="${cls}"><rect x="${n.x - w / 2}" y="${n.y - 13}" width="${w}" height="26" rx="5"/><text x="${n.x}" y="${n.y}">${escapeHtml(n.text)}</text></g>`);
+  })(root);
+  svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svgEl.setAttribute('width', W);
+  svgEl.setAttribute('height', H);
+  svgEl.innerHTML = parts.join('');
+}
+
+function renderAmbiguity() {
+  // Cây A: E -> E + E  ;  E(2)  +  E(3*4)
+  const treeA = ambNode('E', false, [
+    ambNode('E', false, [ambNode('2', true)]),
+    ambNode('+', true),
+    ambNode('E', false, [
+      ambNode('E', false, [ambNode('3', true)]),
+      ambNode('*', true),
+      ambNode('E', false, [ambNode('4', true)]),
+    ]),
+  ]);
+  // Cây B: E -> E * E  ;  E(2+3)  *  E(4)
+  const treeB = ambNode('E', false, [
+    ambNode('E', false, [
+      ambNode('E', false, [ambNode('2', true)]),
+      ambNode('+', true),
+      ambNode('E', false, [ambNode('3', true)]),
+    ]),
+    ambNode('*', true),
+    ambNode('E', false, [ambNode('4', true)]),
+  ]);
+  drawFixedTree(document.getElementById('ambA'), treeA);
+  drawFixedTree(document.getElementById('ambB'), treeB);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 3: Validity checker
+// ════════════════════════════════════════════════════════════════════════════
+function runValidity(str) {
+  const tokEl = document.getElementById('vTokens');
+  const verEl = document.getElementById('vVerdict');
+  const reaEl = document.getElementById('vReason');
+  const inp = document.getElementById('vInput');
+  inp.classList.remove('bad');
+
+  let tokens;
+  try { tokens = tokenize(str); }
+  catch (e) {
+    inp.classList.add('bad');
+    tokEl.innerHTML = '';
+    verEl.innerHTML = `<span class="badge rej">✗ REJECTED (lỗi từ vựng)</span>`;
+    reaEl.textContent = e.message + ' — đây là lỗi ở tầng lexer, trước cả grammar.';
+    return;
+  }
+  tokEl.innerHTML = tokens.length
+    ? tokens.map(t => `<span class="tk">${escapeHtml(t.text)}</span>`).join('')
+    : '<span class="hint">(chuỗi rỗng)</span>';
+
+  if (tokens.length === 0) {
+    verEl.innerHTML = `<span class="badge rej">✗ REJECTED</span>`;
+    reaEl.textContent = 'Chuỗi rỗng — grammar đòi ít nhất một F (num hoặc biểu thức trong ngoặc).';
+    return;
+  }
+
+  const { node, error } = parseTiered(tokens);
+  if (!error && node) {
+    verEl.innerHTML = `<span class="badge acc">✓ ACCEPTED — thuộc L(G)</span>`;
+    const v = evalAst(node);
+    reaEl.innerHTML = 'Tồn tại dẫn xuất từ <code>E</code> ra dãy token này → hợp lệ về cú pháp.'
+      + (v != null ? ` Đánh giá theo cây = <strong>${v}</strong>.` : ' (dùng <code>num</code> trừu tượng nên không tính số.)');
+  } else {
+    verEl.innerHTML = `<span class="badge rej">✗ REJECTED — không thuộc L(G)</span>`;
+    reaEl.innerHTML = 'Không có dẫn xuất nào sinh ra dãy token này. Chi tiết: ' + escapeHtml(error);
+  }
+}
+document.getElementById('vCheck').onclick = () => runValidity(document.getElementById('vInput').value);
+document.getElementById('vInput').addEventListener('keydown', e => { if (e.key === 'Enter') runValidity(e.target.value); });
+document.querySelectorAll('button.preset[data-v]').forEach(b => {
+  b.onclick = () => { document.getElementById('vInput').value = b.dataset.v; runValidity(b.dataset.v); };
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// Init
+// ════════════════════════════════════════════════════════════════════════════
+runDerivation('2 + 3 * 4');
+renderAmbiguity();
+runValidity('2 + * 3');
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>
+</content>

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L13 — Bytecode &amp; Máy ảo Stack Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #9a3412; }
+  h2 {
+    color: #c2410c; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fed7aa;
+  }
+  h3 { color: #9a3412; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin: 16px 0;
+    border: 1px solid #fde8d7;
+  }
+  .hint { color: #78716c; font-size: 13.5px; margin: 6px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #57534e; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #fff3e9; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #9a3412;
+  }
+
+  /* Inputs / buttons — palette rust */
+  input.expr {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 16px; padding: 9px 12px;
+    border: 1px solid #d6cfc9; border-radius: 6px;
+    width: 100%; max-width: 320px; box-sizing: border-box; flex: 1;
+  }
+  input.expr.bad { border-color: #dc2626; background: #fef2f2; }
+  textarea.prog {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 10px; line-height: 1.5;
+    border: 1px solid #d6cfc9; border-radius: 6px;
+    width: 100%; max-width: 100%; box-sizing: border-box;
+    min-height: 84px; resize: vertical;
+  }
+  button {
+    background: #c2410c; color: white; border: none;
+    padding: 9px 16px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #9a3412; }
+  button.ghost {
+    background: #fff3e9; color: #9a3412; border: 1px solid #fdba74;
+  }
+  button.ghost:hover { background: #fde8d7; }
+  button.preset {
+    background: #fef3ec; color: #9a3412; font-size: 12.5px;
+    padding: 5px 11px; margin: 3px 4px 3px 0; border: 1px solid #fed7aa;
+  }
+  button.preset:hover { background: #fed7aa; }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* AST svg */
+  .ast-wrap { overflow-x: auto; margin: 8px 0; }
+  svg.ast { display: block; }
+  .ast .node-op circle { fill: #c2410c; }
+  .ast .node-num circle { fill: #ea7c3a; }
+  .ast .node-var circle { fill: #b45309; }
+  .ast text.lbl { fill: white; font-weight: 700; font-size: 15px; font-family: "SF Mono", monospace; text-anchor: middle; }
+  .ast line { stroke: #d6cfc9; stroke-width: 2; }
+  .ast .node circle { stroke: #fff; stroke-width: 2; }
+
+  /* Bytecode listing */
+  .bclist { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
+  .bcrow {
+    display: flex; gap: 10px; align-items: center;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 14px;
+    padding: 5px 10px; border-radius: 5px; background: #faf6f2;
+    border: 1px solid #f0e6dd;
+  }
+  .bcrow .idx { color: #a8a29e; min-width: 26px; text-align: right; }
+  .bcrow .op { color: #9a3412; font-weight: 700; min-width: 62px; }
+  .bcrow .arg { color: #57534e; }
+  .bcrow.active { background: #fff3e9; border-color: #c2410c; box-shadow: 0 0 0 2px #fed7aa inset; }
+  .bcrow.done { opacity: 0.5; }
+
+  /* VM layout */
+  .vm-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 720px) { .vm-grid { grid-template-columns: 1fr; } }
+
+  /* Stack visual */
+  .stack-frame {
+    border: 2px solid #d6cfc9; border-radius: 8px; padding: 10px;
+    background: #faf6f2; min-height: 220px;
+    display: flex; flex-direction: column-reverse; gap: 6px; justify-content: flex-start;
+  }
+  .stack-frame .floor { text-align: center; color: #a8a29e; font-size: 12px; padding-top: 4px; border-top: 2px dashed #d6cfc9; }
+  .scell {
+    background: #c2410c; color: white; border-radius: 6px;
+    padding: 9px 12px; text-align: center; font-weight: 700;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 16px;
+    animation: pop 0.18s ease;
+  }
+  .scell.top { background: #ea7c3a; box-shadow: 0 0 0 3px #fde8d7; }
+  @keyframes pop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .panel {
+    background: #faf6f2; border: 1px solid #f0e6dd; border-radius: 8px;
+    padding: 12px; margin: 8px 0;
+  }
+  .panel .ttl { font-weight: 700; color: #9a3412; font-size: 13px; margin-bottom: 6px; }
+  .mem-tag {
+    display: inline-block; background: #fff3e9; border: 1px solid #fed7aa;
+    border-radius: 5px; padding: 3px 9px; margin: 3px; font-size: 13.5px;
+    font-family: "SF Mono", monospace; color: #9a3412;
+  }
+  .out-box {
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 15px;
+    background: #1c1917; color: #fdba74; border-radius: 6px; padding: 10px 12px;
+    min-height: 40px; white-space: pre-wrap;
+  }
+  .pc-readout { font-family: "SF Mono", monospace; font-size: 14px; color: #57534e; }
+  .pc-readout b { color: #c2410c; }
+  .step-msg { font-size: 13.5px; color: #57534e; min-height: 20px; margin: 6px 0; }
+  .step-msg b { color: #9a3412; }
+
+  /* compare counters */
+  .cmp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 480px) { .cmp-grid { grid-template-columns: 1fr; } }
+  .cmp-card { border: 1px solid #f0e6dd; border-radius: 8px; padding: 14px; background: #faf6f2; }
+  .cmp-card .big { font-size: 30px; font-weight: 800; color: #c2410c; margin: 4px 0; }
+  .cmp-card .sub { font-size: 12.5px; color: #78716c; }
+  .badge {
+    display: inline-block; padding: 4px 12px; border-radius: 5px;
+    font-size: 13px; font-weight: 700; background: #dcfce7; color: #166534;
+  }
+  .badge.err { background: #fee2e2; color: #991b1b; }
+
+  @media (max-width: 480px) {
+    .scell { font-size: 14px; padding: 7px 9px; }
+    button { padding: 8px 12px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-optimization/visualization.html">← L12: Optimization</a>
+  <span class="sep">·</span>
+  <span class="current">L13: Bytecode &amp; Stack VM</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-control-flow-codegen/visualization.html">L14: Control Flow Codegen →</a>
+</nav>
+
+<main>
+  <h1>L13 — Bytecode &amp; Máy ảo Stack</h1>
+  <p>Biên dịch biểu thức xuống <b>bytecode</b> phẳng (PUSH/ADD/...) rồi <b>chạy</b> nó trên một máy ảo stack tự viết — nhìn ngăn xếp push/pop từng lệnh. Đây là cách Python (<code>.pyc</code>), Java (<code>.class</code>), WASM thực sự chạy.</p>
+
+  <h2>1. Compile → Bytecode</h2>
+  <p class="hint">Nhập biểu thức số học (số, biến a–z, <code>+ - * /</code>, ngoặc <code>()</code>). Viz parse thành <b>AST</b> rồi duyệt <b>post-order</b> sinh bytecode. Bấm "Nạp vào VM" để chạy ở module 2.</p>
+  <div class="card">
+    <div class="row">
+      <input class="expr" id="exprInput" value="(2+3)*4" placeholder="vd: (2+3)*4">
+      <button id="compileBtn">Compile</button>
+      <button class="ghost" id="loadBtn">Nạp vào VM ↓</button>
+    </div>
+    <div class="row">
+      <span class="hint" style="margin-right:4px;">Mẫu:</span>
+      <button class="preset" data-expr="(2+3)*4">(2+3)*4</button>
+      <button class="preset" data-expr="2*(3+4)">2*(3+4)</button>
+      <button class="preset" data-expr="10-3-2">10-3-2</button>
+      <button class="preset" data-expr="100/(5+5)">100/(5+5)</button>
+      <button class="preset" data-expr="8+2*5">8+2*5</button>
+      <button class="preset" data-expr="(6+4)/(5-3)">(6+4)/(5-3)</button>
+    </div>
+    <div id="compileErr"></div>
+    <div class="vm-grid" style="margin-top:8px;">
+      <div>
+        <h3>AST (cây cú pháp)</h3>
+        <div class="ast-wrap"><svg class="ast" id="astSvg" viewBox="0 0 320 240" width="320" height="240"></svg></div>
+      </div>
+      <div>
+        <h3>Bytecode (post-order)</h3>
+        <div class="bclist" id="bcCompile"></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>2. VM Stack Stepper — chạy từng lệnh</h2>
+  <p class="hint">Máy ảo chạy vòng <b>fetch → decode → execute</b>: lấy lệnh tại <b>PC</b>, thực thi, dời PC. Bấm <b>Bước</b> để đi từng lệnh và nhìn ngăn xếp push/pop. Mặc định <code>(2+3)*4</code> → <b>20</b>.</p>
+  <div class="card">
+    <div class="row">
+      <button id="stepBtn">▶ Bước</button>
+      <button class="ghost" id="runBtn">⏩ Chạy hết</button>
+      <button class="ghost" id="resetBtn">⟲ Reset</button>
+      <span class="pc-readout">PC = <b id="pcVal">0</b></span>
+    </div>
+    <div class="step-msg" id="stepMsg">Sẵn sàng. Bấm "Bước" để fetch lệnh đầu tiên.</div>
+    <div class="vm-grid">
+      <div>
+        <h3>Bytecode đang chạy</h3>
+        <div class="bclist" id="bcRun"></div>
+      </div>
+      <div>
+        <h3>Operand Stack <span class="hint">(đỉnh trên cùng)</span></h3>
+        <div class="stack-frame" id="stackView"><div class="floor">— đáy ngăn xếp —</div></div>
+        <div class="panel">
+          <div class="ttl">Bộ nhớ biến (slot)</div>
+          <div id="memView"><span class="hint">trống</span></div>
+        </div>
+        <div class="panel">
+          <div class="ttl">Output (PRINT)</div>
+          <div class="out-box" id="outView"></div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:8px;" id="resultBadge"></div>
+  </div>
+
+  <h2>3. Tree-walking vs Bytecode — đếm "việc lặp lại"</h2>
+  <p class="hint">Cùng biểu thức ở module 1, chạy trong một vòng lặp N lần. So <b>số thao tác</b> mỗi cách phải làm. Mấu chốt: bytecode dồn việc "phân tích cây" vào <b>1 lần compile</b>, lúc chạy chỉ còn thực thi lệnh phẳng.</p>
+  <div class="card">
+    <div class="row">
+      <label>Số vòng lặp N:</label>
+      <input class="expr" id="loopN" value="1000000" style="max-width:160px;">
+      <button id="cmpBtn">So sánh</button>
+    </div>
+    <div class="cmp-grid" id="cmpGrid"></div>
+    <div class="hint" id="cmpNote" style="margin-top:10px;"></div>
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+// PARSER: infix → AST.  Precedence: + - (thấp), * / (cao); kết hợp trái.
+// Node: {t:'num',v:n} | {t:'var',v:name} | {t:'op',op:'+',l,r}
+// ════════════════════════════════════════════════════════════════════════════
+function parse(input) {
+  const s = input.replace(/\s+/g, '');
+  if (!s) throw new Error('Biểu thức rỗng');
+  let i = 0;
+  const peek = () => s[i];
+
+  function atom() {
+    const c = peek();
+    if (c === '(') {
+      i++;
+      const e = addSub();
+      if (peek() !== ')') throw new Error("Thiếu ')'");
+      i++;
+      return e;
+    }
+    if (/[0-9]/.test(c)) {
+      let num = '';
+      while (/[0-9]/.test(peek())) { num += peek(); i++; }
+      return { t: 'num', v: parseInt(num, 10) };
+    }
+    if (/[a-z]/.test(c)) { i++; return { t: 'var', v: c }; }
+    throw new Error(`Ký tự lạ '${c || 'EOF'}'`);
+  }
+  function mulDiv() {
+    let l = atom();
+    while (peek() === '*' || peek() === '/') {
+      const op = peek(); i++;
+      l = { t: 'op', op, l, r: atom() };
+    }
+    return l;
+  }
+  function addSub() {
+    let l = mulDiv();
+    while (peek() === '+' || peek() === '-') {
+      const op = peek(); i++;
+      l = { t: 'op', op, l, r: mulDiv() };
+    }
+    return l;
+  }
+  const ast = addSub();
+  if (i < s.length) throw new Error(`Token thừa '${s.slice(i)}'`);
+  return ast;
+}
+
+// ── COMPILE: post-order traversal → mảng lệnh {op, arg} ──────────────────────
+const OPMAP = { '+': 'ADD', '-': 'SUB', '*': 'MUL', '/': 'DIV' };
+function compile(ast) {
+  const code = [];
+  (function gen(n) {
+    if (n.t === 'num') { code.push({ op: 'PUSH', arg: n.v }); return; }
+    if (n.t === 'var') { code.push({ op: 'LOAD', arg: n.v }); return; }
+    gen(n.l); gen(n.r);             // con trái → con phải
+    code.push({ op: OPMAP[n.op] }); // → opcode cha (post-order)
+  })(ast);
+  return code;
+}
+
+// ── đếm số node của AST (để demo so sánh tree-walking) ───────────────────────
+function countNodes(ast) {
+  if (ast.t !== 'op') return 1;
+  return 1 + countNodes(ast.l) + countNodes(ast.r);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// AST → SVG (layout đơn giản: gán x theo in-order, y theo depth)
+// ════════════════════════════════════════════════════════════════════════════
+function layoutAst(ast) {
+  let counter = 0;
+  const nodes = [];
+  (function place(n, depth) {
+    let x;
+    if (n.t === 'op') { place(n.l, depth + 1); }
+    x = counter++;        // in-order index → cột
+    const self = { n, depth, col: x };
+    nodes.push(self);
+    if (n.t === 'op') { place(n.r, depth + 1); self.rDone = true; }
+    n._svg = self;
+    return self;
+  })(ast, 0);
+  return nodes;
+}
+
+function drawAst(ast) {
+  const svg = document.getElementById('astSvg');
+  const nodes = layoutAst(ast);
+  const cols = Math.max(1, ...nodes.map(d => d.col + 1));
+  const depths = Math.max(1, ...nodes.map(d => d.depth + 1));
+  const padX = 32, padY = 30, stepX = 56, stepY = 64;
+  const W = padX * 2 + (cols - 1) * stepX;
+  const H = padY * 2 + (depths - 1) * stepY;
+  const cx = d => padX + d.col * stepX;
+  const cy = d => padY + d.depth * stepY;
+  svg.setAttribute('viewBox', `0 0 ${Math.max(W,160)} ${Math.max(H,120)}`);
+  svg.setAttribute('width', Math.max(W, 160));
+  svg.setAttribute('height', Math.max(H, 120));
+
+  let lines = '', circles = '';
+  for (const d of nodes) {
+    const n = d.n;
+    if (n.t === 'op') {
+      const lc = n.l._svg, rc = n.r._svg;
+      lines += `<line x1="${cx(d)}" y1="${cy(d)}" x2="${cx(lc)}" y2="${cy(lc)}"/>`;
+      lines += `<line x1="${cx(d)}" y1="${cy(d)}" x2="${cx(rc)}" y2="${cy(rc)}"/>`;
+    }
+  }
+  for (const d of nodes) {
+    const n = d.n;
+    const cls = n.t === 'op' ? 'node-op' : (n.t === 'num' ? 'node-num' : 'node-var');
+    const lbl = n.t === 'op' ? n.op : n.v;
+    circles += `<g class="node ${cls}"><circle cx="${cx(d)}" cy="${cy(d)}" r="16"/>` +
+               `<text class="lbl" x="${cx(d)}" y="${cy(d) + 5}">${lbl}</text></g>`;
+  }
+  svg.innerHTML = lines + circles;
+}
+
+// ── render bytecode list ─────────────────────────────────────────────────────
+function renderBC(containerId, code, activeIdx, doneSet) {
+  const el = document.getElementById(containerId);
+  if (!code.length) { el.innerHTML = '<div class="hint">— chưa có bytecode —</div>'; return; }
+  el.innerHTML = code.map((c, i) => {
+    let cls = 'bcrow';
+    if (i === activeIdx) cls += ' active';
+    else if (doneSet && doneSet.has(i)) cls += ' done';
+    const arg = (c.arg !== undefined) ? `<span class="arg">${c.arg}</span>` : '';
+    return `<div class="${cls}"><span class="idx">${i}</span><span class="op">${c.op}</span>${arg}</div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 1: Compile
+// ════════════════════════════════════════════════════════════════════════════
+let lastCode = [];
+function doCompile() {
+  const inp = document.getElementById('exprInput');
+  const err = document.getElementById('compileErr');
+  inp.classList.remove('bad');
+  err.innerHTML = '';
+  try {
+    const ast = parse(inp.value);
+    drawAst(ast);
+    lastCode = compile(ast);
+    renderBC('bcCompile', lastCode, -1, null);
+  } catch (e) {
+    inp.classList.add('bad');
+    err.innerHTML = `<div style="margin:6px 0;"><span class="badge err">Lỗi parse: ${e.message}</span></div>`;
+    document.getElementById('astSvg').innerHTML = '';
+    document.getElementById('bcCompile').innerHTML = '';
+    lastCode = [];
+  }
+}
+document.getElementById('compileBtn').onclick = doCompile;
+document.getElementById('exprInput').addEventListener('keydown', e => { if (e.key === 'Enter') doCompile(); });
+document.querySelectorAll('.preset').forEach(b => {
+  b.onclick = () => { document.getElementById('exprInput').value = b.dataset.expr; doCompile(); };
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 2: VM Stack Stepper
+// ════════════════════════════════════════════════════════════════════════════
+let vm = null;
+function newVM(code) {
+  return { code: code.slice(), pc: 0, stack: [], mem: {}, output: [], done: [], halted: false, error: null };
+}
+function loadVM(code) {
+  vm = newVM(code);
+  renderVM('Đã nạp bytecode. PC=0, stack rỗng.');
+}
+
+// Mặc định khởi tạo VM bằng demo (2+3)*4
+function defaultDemo() {
+  const ast = parse('(2+3)*4');
+  return compile(ast);
+}
+
+function renderVM(msg) {
+  const doneSet = new Set(vm.done);
+  renderBC('bcRun', vm.code, vm.halted ? -1 : vm.pc, doneSet);
+  document.getElementById('pcVal').textContent = vm.pc;
+
+  // stack
+  const sv = document.getElementById('stackView');
+  let html = '<div class="floor">— đáy ngăn xếp —</div>';
+  vm.stack.forEach((v, i) => {
+    const top = (i === vm.stack.length - 1) ? ' top' : '';
+    html += `<div class="scell${top}">${v}</div>`;
+  });
+  sv.innerHTML = html;
+
+  // mem
+  const mv = document.getElementById('memView');
+  const keys = Object.keys(vm.mem);
+  mv.innerHTML = keys.length ? keys.map(k => `<span class="mem-tag">${k} = ${vm.mem[k]}</span>`).join('') : '<span class="hint">trống</span>';
+
+  // output
+  document.getElementById('outView').textContent = vm.output.join('\n');
+
+  if (msg) document.getElementById('stepMsg').innerHTML = msg;
+
+  // result badge
+  const rb = document.getElementById('resultBadge');
+  if (vm.error) {
+    rb.innerHTML = `<span class="badge err">Runtime error: ${vm.error}</span>`;
+  } else if (vm.halted) {
+    const res = vm.stack.length ? vm.stack[vm.stack.length - 1] : '(stack rỗng)';
+    rb.innerHTML = `<span class="badge">✓ Dừng (PC hết). Kết quả trên đỉnh stack = <b>${res}</b></span>`;
+  } else {
+    rb.innerHTML = '';
+  }
+
+  document.getElementById('stepBtn').disabled = vm.halted || !!vm.error;
+  document.getElementById('runBtn').disabled = vm.halted || !!vm.error;
+}
+
+function vmStep() {
+  if (vm.halted || vm.error) return;
+  if (vm.pc >= vm.code.length) { vm.halted = true; renderVM('Hết bytecode → dừng.'); return; }
+  const inst = vm.code[vm.pc];
+  const here = vm.pc;
+  let msg = '';
+  const need2 = (name) => {
+    if (vm.stack.length < 2) { vm.error = `stack underflow tại pc=${here} (${name} cần 2 toán hạng)`; return false; }
+    return true;
+  };
+  switch (inst.op) {
+    case 'PUSH': vm.stack.push(inst.arg); msg = `<b>PUSH ${inst.arg}</b>: đẩy hằng ${inst.arg} lên đỉnh.`; break;
+    case 'LOAD':
+      if (!(inst.arg in vm.mem)) { vm.error = `biến '${inst.arg}' chưa gán tại pc=${here}`; break; }
+      vm.stack.push(vm.mem[inst.arg]); msg = `<b>LOAD ${inst.arg}</b>: đọc ${inst.arg}=${vm.mem[inst.arg]}, đẩy lên.`; break;
+    case 'STORE':
+      if (vm.stack.length < 1) { vm.error = `stack underflow tại pc=${here} (STORE cần 1 giá trị)`; break; }
+      { const v = vm.stack.pop(); vm.mem[inst.arg] = v; msg = `<b>STORE ${inst.arg}</b>: pop ${v} → biến ${inst.arg}.`; } break;
+    case 'ADD': if (!need2('ADD')) break; { const b = vm.stack.pop(), a = vm.stack.pop(); vm.stack.push(a + b); msg = `<b>ADD</b>: pop b=${b}, pop a=${a}, push a+b=${a + b}.`; } break;
+    case 'SUB': if (!need2('SUB')) break; { const b = vm.stack.pop(), a = vm.stack.pop(); vm.stack.push(a - b); msg = `<b>SUB</b>: pop b=${b}, pop a=${a}, push a−b=${a - b}.`; } break;
+    case 'MUL': if (!need2('MUL')) break; { const b = vm.stack.pop(), a = vm.stack.pop(); vm.stack.push(a * b); msg = `<b>MUL</b>: pop b=${b}, pop a=${a}, push a·b=${a * b}.`; } break;
+    case 'DIV':
+      if (!need2('DIV')) break;
+      { const b = vm.stack.pop(), a = vm.stack.pop();
+        if (b === 0) { vm.stack.push(a); vm.stack.push(b); vm.error = `chia cho 0 tại pc=${here}`; break; }
+        const q = Math.trunc(a / b); vm.stack.push(q); msg = `<b>DIV</b>: pop b=${b}, pop a=${a}, push a÷b=${q}.`; } break;
+    case 'PRINT':
+      if (vm.stack.length < 1) { vm.error = `stack underflow tại pc=${here} (PRINT cần 1 giá trị)`; break; }
+      { const v = vm.stack.pop(); vm.output.push(String(v)); msg = `<b>PRINT</b>: pop ${v} → output.`; } break;
+    default: vm.error = `opcode lạ '${inst.op}' tại pc=${here}`;
+  }
+  if (!vm.error) { vm.done.push(here); vm.pc++; if (vm.pc >= vm.code.length) vm.halted = true; }
+  renderVM(vm.error ? '' : msg);
+}
+
+document.getElementById('stepBtn').onclick = vmStep;
+document.getElementById('runBtn').onclick = () => { let guard = 0; while (!vm.halted && !vm.error && guard++ < 10000) vmStep(); };
+document.getElementById('resetBtn').onclick = () => { vm = newVM(vm.code); renderVM('Reset. PC=0, stack rỗng.'); };
+document.getElementById('loadBtn').onclick = () => {
+  if (!lastCode.length) { doCompile(); }
+  if (!lastCode.length) return;
+  loadVM(lastCode);
+  document.getElementById('stepMsg').innerHTML = 'Đã nạp bytecode từ module 1. Bấm "Bước" để chạy.';
+  document.getElementById('bcRun').scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 3: Tree-walking vs Bytecode counters
+// ════════════════════════════════════════════════════════════════════════════
+function doCompare() {
+  const grid = document.getElementById('cmpGrid');
+  const note = document.getElementById('cmpNote');
+  let ast;
+  try { ast = parse(document.getElementById('exprInput').value); }
+  catch (e) { grid.innerHTML = `<div class="cmp-card"><span class="badge err">Compile biểu thức ở module 1 trước</span></div>`; note.textContent = ''; return; }
+
+  const N = Math.max(1, Math.min(100000000, parseInt(document.getElementById('loopN').value, 10) || 1));
+  const nodes = countNodes(ast);          // số node cây
+  const ops = compile(ast).length;        // số lệnh bytecode
+
+  // Tree-walking: mỗi vòng phải "thăm" lại mọi node → nodes thao tác/vòng
+  const twPerLoop = nodes;
+  const twTotal = twPerLoop * N;
+
+  // Bytecode: compile 1 lần (ops thao tác), rồi mỗi vòng chỉ thực thi ops lệnh
+  const bcCompileOnce = ops;
+  const bcRunTotal = ops * N;
+  const bcTotal = bcCompileOnce + bcRunTotal;
+
+  const fmt = x => x.toLocaleString('vi-VN');
+
+  grid.innerHTML = `
+    <div class="cmp-card">
+      <div class="sub">TREE-WALKING</div>
+      <div class="big">${fmt(twTotal)}</div>
+      <div class="sub">thao tác tổng = ${nodes} node × ${fmt(N)} vòng.<br>
+        <b>Phân tích lại cây MỖI vòng.</b></div>
+    </div>
+    <div class="cmp-card">
+      <div class="sub">BYTECODE + VM</div>
+      <div class="big">${fmt(bcTotal)}</div>
+      <div class="sub">= compile 1 lần (${ops}) + chạy ${ops} lệnh × ${fmt(N)} vòng.<br>
+        <b>Phân tích cây chỉ 1 lần lúc compile.</b></div>
+    </div>`;
+
+  const ratio = (twTotal / bcTotal);
+  note.innerHTML = `Với cùng biểu thức, mỗi vòng cả hai làm cỡ số thao tác bằng nhau, ` +
+    `nhưng tree-walking lặp lại cả <b>việc phân tích cấu trúc cây</b> (rẽ nhánh theo kiểu node + đệ quy + truy con trỏ rải rác → cache miss), ` +
+    `còn bytecode lặp lại chỉ <b>việc thực thi lệnh phẳng</b> trên mảng liền nhau. ` +
+    `Mô hình đơn giản này cho thấy chi phí gần nhau về số thao tác, nhưng trong thực tế mỗi "thao tác" tree-walking đắt hơn nhiều (gọi hàm + cache miss), nên bytecode nhanh hơn ~3–10×.`;
+}
+document.getElementById('cmpBtn').onclick = doCompare;
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+doCompile();
+vm = newVM(defaultDemo());
+renderVM('Mặc định đã nạp bytecode của (2+3)*4. Bấm "Bước" để chạy từng lệnh → 20.');
+doCompare();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>
+</content>

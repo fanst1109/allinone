@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Tổng quan & Pipeline trình biên dịch</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #c2410c;
+    --accent-soft: #ffedd5;
+    --accent-hover: #9a3412;
+  }
+  h1 { color: #9a3412; }
+  h2 {
+    color: #c2410c; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fed7aa;
+  }
+  p.lead { color: #475569; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #4a5568; }
+  .hint { color: #718096; font-size: 13px; margin: 4px 0; }
+  code, .mono {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  code {
+    background: #fff7ed; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #9a3412;
+  }
+  button {
+    background: var(--accent); color: white; border: none;
+    padding: 9px 16px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: var(--accent-hover); }
+  button.preset {
+    background: #fff1e6; color: #9a3412; font-size: 12px;
+    padding: 4px 10px; margin: 3px 4px 3px 0;
+    border: 1px solid #fed7aa;
+  }
+  button.preset:hover { background: #fed7aa; }
+  input.expr {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 16px; padding: 9px 12px;
+    border: 1px solid #fdba74; border-radius: 4px;
+    width: 100%; max-width: 320px; flex: 1;
+    box-sizing: border-box;
+  }
+  input.expr.bad { border-color: #e53e3e; background: #fff5f5; }
+
+  /* ── Module 1: Pipeline explorer ── */
+  .stages { display: flex; flex-direction: column; gap: 0; margin-top: 14px; }
+  .stage {
+    border: 1px solid #fed7aa; border-radius: 8px;
+    background: #fffaf5; padding: 14px 16px; margin-bottom: 0;
+    opacity: 0.35; transition: opacity 0.35s, transform 0.35s, box-shadow 0.35s;
+    transform: translateY(6px);
+  }
+  .stage.shown { opacity: 1; transform: translateY(0); box-shadow: 0 2px 8px rgba(194,65,12,0.08); }
+  .stage .st-head {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .stage .st-name { font-weight: 700; color: #9a3412; font-size: 15px; }
+  .stage .st-io { font-size: 12px; color: #a16207; }
+  .stage .st-body {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; white-space: pre-wrap; color: #1f2328;
+    background: white; border: 1px solid #f3e8df; border-radius: 6px;
+    padding: 10px 12px; overflow-x: auto;
+  }
+  .arrow-down { text-align: center; color: #fb923c; font-size: 18px; line-height: 1; margin: 2px 0; }
+  /* token chips */
+  .tok { display: inline-block; padding: 2px 7px; border-radius: 4px; margin: 2px;
+    font-size: 12px; font-weight: 600; }
+  .tok-num   { background: #dcfce7; color: #166534; }
+  .tok-ident { background: #dbeafe; color: #1e40af; }
+  .tok-op    { background: #ffedd5; color: #9a3412; }
+  .tok-paren { background: #f3e8ff; color: #6b21a8; }
+
+  /* ── Module 2: compiler vs interpreter ── */
+  .vs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+  .vs-grid > div {
+    background: #fffaf5; border: 1px solid #fed7aa; border-radius: 8px; padding: 14px;
+  }
+  .vs-grid .vs-title { font-weight: 700; color: #9a3412; margin-bottom: 6px; }
+  .vs-bar { height: 18px; border-radius: 4px; margin: 6px 0; transition: width 0.4s; }
+  .vs-bar.compile { background: #fb923c; }
+  .vs-bar.run { background: #16a34a; }
+  .vs-num { font-family: "SF Mono", Monaco, Consolas, monospace; font-weight: 700; font-size: 22px; color: #9a3412; }
+  .vs-sub { font-size: 12px; color: #718096; }
+  @media (max-width: 600px) { .vs-grid { grid-template-columns: 1fr; } }
+
+  /* ── Module 3: error classifier ── */
+  .badge { display: inline-block; padding: 5px 14px; border-radius: 999px;
+    font-size: 13px; font-weight: 700; }
+  .badge.lexical  { background: #fee2e2; color: #991b1b; }
+  .badge.syntax   { background: #ffedd5; color: #9a3412; }
+  .badge.semantic { background: #fef9c3; color: #854d0e; }
+  .badge.runtime  { background: #ede9fe; color: #5b21b6; }
+  .badge.ok       { background: #dcfce7; color: #166534; }
+  .err-explain { margin-top: 10px; color: #4a5568; font-size: 14px; line-height: 1.5; }
+  .stage-track { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .stage-track .pin {
+    font-size: 11px; padding: 4px 9px; border-radius: 4px;
+    background: #f1f5f9; color: #64748b; font-weight: 600;
+  }
+  .stage-track .pin.hit { background: var(--accent); color: white; }
+  .stage-track .pin.pass { background: #dcfce7; color: #166534; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L01: Tổng quan & Pipeline</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-lexer/visualization.html">L02: Lexer →</a>
+</nav>
+
+<main>
+  <h1>Lesson 01 — Tổng quan &amp; Pipeline trình biên dịch</h1>
+  <p class="lead">Ba bộ công cụ tương tác: đẩy một biểu thức qua từng trạm của pipeline, so sánh compiler vs interpreter bằng số bước, và phân loại lỗi theo giai đoạn.</p>
+
+  <!-- ════════════════ MODULE 1 ════════════════ -->
+  <h2>1. Pipeline Explorer — đẩy biểu thức qua từng trạm</h2>
+  <p class="hint">
+    Gõ một biểu thức (toán tử <code>+ - * /</code>, ngoặc <code>()</code>, biến <code>a..z</code>, dạng <code>x = ...</code> hoặc chỉ biểu thức).
+    Bấm "Chạy pipeline" để xem nó biến đổi: <strong>tokens → AST → IR → IR tối ưu → bytecode</strong>.
+  </p>
+  <div class="card">
+    <div class="row">
+      <input class="expr" id="pipeInput" value="x = (2+3)*4" placeholder="vd: x = (2+3)*4">
+      <button id="pipeBtn">Chạy pipeline ▶</button>
+    </div>
+    <div class="row">
+      <span class="hint" style="margin-right:6px;">Mẫu:</span>
+      <button class="preset" data-expr="x = (2+3)*4">x = (2+3)*4</button>
+      <button class="preset" data-expr="2+3*4">2+3*4</button>
+      <button class="preset" data-expr="a = 5 * (1 + 2)">a = 5*(1+2)</button>
+      <button class="preset" data-expr="y = 10 - 2 * 3">y = 10-2*3</button>
+      <button class="preset" data-expr="z = a + b * 2">z = a+b*2 (có biến)</button>
+    </div>
+    <div id="pipeErr" style="margin-top:8px;"></div>
+    <div class="stages" id="pipeStages"></div>
+  </div>
+
+  <!-- ════════════════ MODULE 2 ════════════════ -->
+  <h2>2. Compiler vs Interpreter — đếm "bước"</h2>
+  <p class="hint">
+    Cùng một dòng code chạy <strong>N lần</strong>. Compiler dịch <em>một lần</em> rồi chạy mã máy N lần (compile-once-run-many).
+    Interpreter <em>phân tích lại mỗi lần</em> (interpret-mỗi-lần). Kéo thanh để thấy ai thắng khi N lớn dần.
+  </p>
+  <div class="card">
+    <div class="row">
+      <label>Số lần chạy N:</label>
+      <input type="range" id="nRuns" min="1" max="1000000" value="1000" step="1" style="flex:1; min-width:160px;">
+      <span class="vs-num" id="nLabel">1000</span>
+    </div>
+    <p class="hint">Mô hình (đơn vị "bước"): compile = <strong>50</strong> bước (1 lần) + chạy native <strong>1</strong> bước/lần · interpret = <strong>8</strong> bước/lần (phân tích lại + làm).</p>
+    <div class="vs-grid">
+      <div>
+        <div class="vs-title">🛠 Compiler (compile-once-run-many)</div>
+        <div class="vs-sub">Dịch 1 lần (cố định) + N × chạy native</div>
+        <div class="vs-bar compile" id="barC1" style="width:8%;"></div>
+        <div class="vs-bar run" id="barC2" style="width:30%;"></div>
+        <div>Tổng: <span class="vs-num" id="totC">—</span> <span class="vs-sub">bước</span></div>
+      </div>
+      <div>
+        <div class="vs-title">🔁 Interpreter (interpret-mỗi-lần)</div>
+        <div class="vs-sub">Không dịch trước + N × (phân tích lại + làm)</div>
+        <div class="vs-bar run" id="barI1" style="width:60%; background:#a16207;"></div>
+        <div>Tổng: <span class="vs-num" id="totI">—</span> <span class="vs-sub">bước</span></div>
+      </div>
+    </div>
+    <p id="vsVerdict" class="err-explain" style="font-weight:600;"></p>
+  </div>
+
+  <!-- ════════════════ MODULE 3 ════════════════ -->
+  <h2>3. Phân loại lỗi — lỗi thuộc giai đoạn nào?</h2>
+  <p class="hint">
+    Nhập một snippet (có thể sai). Bộ phân loại chỉ ra lỗi rơi vào giai đoạn nào:
+    <strong>Lexical</strong> (ký tự lạ) · <strong>Syntax</strong> (sai cú pháp) · <strong>Semantic</strong> (biến chưa khai báo) · <strong>Runtime</strong> (chia 0...).
+  </p>
+  <div class="card">
+    <div class="row">
+      <input class="expr" id="errInput" value="x = 2 @ 3" placeholder="vd: x = y * 4">
+      <button id="errBtn">Phân tích</button>
+    </div>
+    <div class="row">
+      <span class="hint" style="margin-right:6px;">Mẫu:</span>
+      <button class="preset" data-err="x = 2 @ 3">@ — lexical</button>
+      <button class="preset" data-err="x = (2 + 3">thiếu ) — syntax</button>
+      <button class="preset" data-err="x = y * 4">y chưa khai báo — semantic</button>
+      <button class="preset" data-err="x = 10 / 0">/0 — runtime</button>
+      <button class="preset" data-err="x = (2+3)*4">hợp lệ</button>
+    </div>
+    <div id="errBadge" style="margin-top:14px;"></div>
+    <div class="stage-track" id="errTrack"></div>
+    <div class="err-explain" id="errExplain"></div>
+  </div>
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// Lexer chung — biến chuỗi thành token. Dùng cho cả 3 module.
+// Token: {type, val}  type ∈ num|ident|op|lparen|rparen|assign
+// Ném {kind:'lexical', pos, ch} nếu gặp ký tự lạ.
+// ═══════════════════════════════════════════════════════════════════════════
+function lex(src) {
+  const toks = [];
+  let i = 0;
+  while (i < src.length) {
+    const c = src[i];
+    if (c === ' ' || c === '\t' || c === '\n') { i++; continue; }
+    if (c >= '0' && c <= '9') {
+      let j = i;
+      while (j < src.length && src[j] >= '0' && src[j] <= '9') j++;
+      // số dính chữ ngay sau → lexical error (vd 45abc)
+      if (j < src.length && /[a-zA-Z_]/.test(src[j])) {
+        throw { kind: 'lexical', pos: j, ch: src[j], msg: `số '${src.slice(i,j)}' dính ký tự '${src[j]}'` };
+      }
+      toks.push({ type: 'num', val: +src.slice(i, j) });
+      i = j; continue;
+    }
+    if (/[a-zA-Z_]/.test(c)) {
+      let j = i;
+      while (j < src.length && /[a-zA-Z0-9_]/.test(src[j])) j++;
+      toks.push({ type: 'ident', val: src.slice(i, j) });
+      i = j; continue;
+    }
+    if (c === '+' || c === '-' || c === '*' || c === '/') { toks.push({ type: 'op', val: c }); i++; continue; }
+    if (c === '(') { toks.push({ type: 'lparen', val: '(' }); i++; continue; }
+    if (c === ')') { toks.push({ type: 'rparen', val: ')' }); i++; continue; }
+    if (c === '=') { toks.push({ type: 'assign', val: '=' }); i++; continue; }
+    throw { kind: 'lexical', pos: i, ch: c, msg: `ký tự lạ '${c}' không thuộc bảng chữ cái` };
+  }
+  return toks;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Parser — token → AST. Ngữ pháp: stmt := (ident '=')? expr
+//   expr := term (('+'|'-') term)*   term := factor (('*'|'/') factor)*
+//   factor := num | ident | '(' expr ')'
+// AST node: {op:'+'|'-'|'*'|'/', l, r} | {num:n} | {var:name} | {assign:name, val:node}
+// Ném {kind:'syntax', msg}.
+// ═══════════════════════════════════════════════════════════════════════════
+function parse(toks) {
+  let p = 0;
+  const peek = () => toks[p];
+  const eat = () => toks[p++];
+
+  function factor() {
+    const t = peek();
+    if (!t) throw { kind: 'syntax', msg: 'biểu thức kết thúc đột ngột, thiếu toán hạng' };
+    if (t.type === 'num') { eat(); return { num: t.val }; }
+    if (t.type === 'ident') { eat(); return { var: t.val }; }
+    if (t.type === 'lparen') {
+      eat();
+      const e = expr();
+      if (!peek() || peek().type !== 'rparen') throw { kind: 'syntax', msg: "thiếu ')' đóng ngoặc" };
+      eat();
+      return e;
+    }
+    throw { kind: 'syntax', msg: `gặp '${t.val}' khi đang chờ một số/biến/ngoặc` };
+  }
+  function term() {
+    let l = factor();
+    while (peek() && peek().type === 'op' && (peek().val === '*' || peek().val === '/')) {
+      const op = eat().val; const r = factor(); l = { op, l, r };
+    }
+    return l;
+  }
+  function expr() {
+    let l = term();
+    while (peek() && peek().type === 'op' && (peek().val === '+' || peek().val === '-')) {
+      const op = eat().val; const r = term(); l = { op, l, r };
+    }
+    return l;
+  }
+
+  let assignName = null;
+  if (peek() && peek().type === 'ident' && toks[p + 1] && toks[p + 1].type === 'assign') {
+    assignName = eat().val; eat(); // ident '='
+  } else if (peek() && peek().type === 'assign') {
+    throw { kind: 'syntax', msg: "dấu '=' mà không có biến vế trái" };
+  }
+  const body = expr();
+  if (p < toks.length) throw { kind: 'syntax', msg: `token thừa '${toks[p].val}' sau biểu thức` };
+  return assignName ? { assign: assignName, val: body } : body;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Semantic — kiểm tra biến đã khai báo chưa (đơn giản: chỉ biến được gán mới "khai báo")
+// Ném {kind:'semantic', msg}.
+// ═══════════════════════════════════════════════════════════════════════════
+function semantic(ast) {
+  const declared = new Set();
+  function checkExpr(node) {
+    if ('num' in node) return;
+    if ('var' in node) {
+      if (!declared.has(node.var))
+        throw { kind: 'semantic', msg: `biến '${node.var}' được dùng nhưng chưa khai báo` };
+      return;
+    }
+    checkExpr(node.l); checkExpr(node.r);
+  }
+  if ('assign' in ast) { checkExpr(ast.val); declared.add(ast.assign); }
+  else checkExpr(ast);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Runtime check — phát hiện chia cho 0 hằng (mô phỏng lỗi runtime)
+// ═══════════════════════════════════════════════════════════════════════════
+function detectRuntime(ast) {
+  function walk(node) {
+    if ('num' in node || 'var' in node) return;
+    if ('assign' in node) { walk(node.val); return; }
+    if (node.op === '/' && 'num' in node.r && node.r.num === 0)
+      throw { kind: 'runtime', msg: 'chia cho 0 — lỗi chỉ lộ khi chương trình thực thi' };
+    walk(node.l); walk(node.r);
+  }
+  walk(ast);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// IR generator (three-address code) + constant folding
+// ═══════════════════════════════════════════════════════════════════════════
+function genIR(ast) {
+  const code = [];
+  let cnt = 0;
+  const fresh = () => 't' + (++cnt);
+  function emit(node) {
+    if ('num' in node) return String(node.num);
+    if ('var' in node) return node.var;
+    const l = emit(node.l), r = emit(node.r);
+    const t = fresh();
+    code.push(`${t} = ${l} ${node.op} ${r}`);
+    return t;
+  }
+  let res;
+  if ('assign' in ast) { res = emit(ast.val); code.push(`${ast.assign} = ${res}`); }
+  else { res = emit(ast); code.push(`(kết quả) = ${res}`); }
+  return code;
+}
+
+// Constant folding trên AST: gập node toàn hằng
+function fold(node) {
+  if ('num' in node || 'var' in node) return node;
+  if ('assign' in node) return { assign: node.assign, val: fold(node.val) };
+  const l = fold(node.l), r = fold(node.r);
+  if ('num' in l && 'num' in r) {
+    let v;
+    switch (node.op) {
+      case '+': v = l.num + r.num; break;
+      case '-': v = l.num - r.num; break;
+      case '*': v = l.num * r.num; break;
+      case '/': v = r.num === 0 ? NaN : l.num / r.num; break;
+    }
+    if (!isNaN(v)) return { num: v };
+  }
+  return { op: node.op, l, r };
+}
+
+// Bytecode cho stack VM
+function genBytecode(ast) {
+  const code = [];
+  const opMap = { '+': 'ADD', '-': 'SUB', '*': 'MUL', '/': 'DIV' };
+  function emit(node) {
+    if ('num' in node) { code.push('PUSH ' + node.num); return; }
+    if ('var' in node) { code.push('LOAD ' + node.var); return; }
+    emit(node.l); emit(node.r); code.push(opMap[node.op]);
+  }
+  if ('assign' in ast) { emit(ast.val); code.push('STORE ' + ast.assign); }
+  else emit(ast);
+  return code;
+}
+
+// Vẽ cây AST dạng text thụt lề.
+// prefix = chuỗi thụt lề tích lũy; connector = '' cho gốc, '├─ '/'└─ ' cho con.
+function astToTree(node, prefix, connector) {
+  prefix = prefix || '';
+  connector = connector || '';
+  let label;
+  if ('num' in node) label = String(node.num);
+  else if ('var' in node) label = node.var + ' (biến)';
+  else if ('assign' in node) label = '= (gán ' + node.assign + ')';
+  else label = node.op;
+  let out = prefix + connector + label + '\n';
+  const kids = [];
+  if ('assign' in node) kids.push(node.val);
+  else if ('op' in node) { kids.push(node.l); kids.push(node.r); }
+  // prefix cho con: gốc (connector rỗng) → con bắt đầu từ cột 0;
+  // ngược lại nối thêm '│  ' hoặc '   ' tùy node hiện tại là nhánh cuối chưa.
+  const childPrefix = connector === '' ? '' : prefix + (connector[0] === '└' ? '   ' : '│  ');
+  kids.forEach((k, idx) => {
+    out += astToTree(k, childPrefix, idx === kids.length - 1 ? '└─ ' : '├─ ');
+  });
+  return out;
+}
+
+function tokensToHtml(toks) {
+  return toks.map(t => {
+    const cls = t.type === 'num' ? 'tok-num'
+      : t.type === 'ident' ? 'tok-ident'
+      : (t.type === 'lparen' || t.type === 'rparen') ? 'tok-paren' : 'tok-op';
+    const name = t.type === 'num' ? `NUM(${t.val})`
+      : t.type === 'ident' ? `IDENT("${t.val}")`
+      : t.type === 'assign' ? 'ASSIGN(=)'
+      : t.type === 'lparen' ? 'LPAREN(' : t.type === 'rparen' ? 'RPAREN)'
+      : t.val === '+' ? 'PLUS(+)' : t.val === '-' ? 'MINUS(-)'
+      : t.val === '*' ? 'STAR(*)' : 'SLASH(/)';
+    return `<span class="tok ${cls}">${name}</span>`;
+  }).join('');
+}
+
+// ── Module 1 render ──
+const PIPE_STAGES = [
+  { name: 'Lexer', io: 'text → tokens' },
+  { name: 'Parser', io: 'tokens → AST' },
+  { name: 'IR', io: 'AST → mã trung gian (3-địa-chỉ)' },
+  { name: 'Optimizer', io: 'IR → IR\' (constant folding)' },
+  { name: 'CodeGen', io: 'IR\' → bytecode' },
+];
+
+function runPipeline() {
+  const inp = document.getElementById('pipeInput');
+  const errBox = document.getElementById('pipeErr');
+  const wrap = document.getElementById('pipeStages');
+  inp.classList.remove('bad'); errBox.innerHTML = '';
+  const src = inp.value.trim();
+
+  let toks, ast, ir, foldedAst, irOpt, bytecode;
+  try {
+    toks = lex(src);
+    if (toks.length === 0) throw { kind: 'lexical', msg: 'biểu thức rỗng' };
+    ast = parse(toks);
+    semantic(ast);
+    ir = genIR(ast);
+    foldedAst = fold(ast);
+    irOpt = genIR(foldedAst);
+    bytecode = genBytecode(foldedAst);
+  } catch (e) {
+    inp.classList.add('bad');
+    errBox.innerHTML = `<span class="badge ${e.kind}">${e.kind.toUpperCase()} error</span>
+      <span style="margin-left:8px; color:#742a2a;">${e.msg}</span>`;
+    wrap.innerHTML = '';
+    return;
+  }
+
+  const bodies = [
+    tokensToHtml(toks),
+    '<pre style="margin:0; font-family:inherit;">' + astToTree(ast, '', true).replace(/\n$/, '') + '</pre>',
+    ir.join('\n'),
+    irOpt.join('\n') + (irOpt.length < ir.length ? '\n\n; ↑ đã gập hằng → ít lệnh hơn' : '\n\n; (không có hằng để gập)'),
+    bytecode.join('\n'),
+  ];
+
+  let html = '';
+  PIPE_STAGES.forEach((s, idx) => {
+    html += `<div class="stage" data-i="${idx}">
+      <div class="st-head"><span class="st-name">${idx + 1}. ${s.name}</span><span class="st-io">${s.io}</span></div>
+      <div class="st-body">${bodies[idx]}</div>
+    </div>`;
+    if (idx < PIPE_STAGES.length - 1) html += '<div class="arrow-down">▼</div>';
+  });
+  wrap.innerHTML = html;
+
+  // hiện dần từng trạm
+  const stageEls = wrap.querySelectorAll('.stage');
+  stageEls.forEach((el, idx) => setTimeout(() => el.classList.add('shown'), idx * 280));
+}
+
+document.getElementById('pipeBtn').onclick = runPipeline;
+document.getElementById('pipeInput').addEventListener('keydown', e => { if (e.key === 'Enter') runPipeline(); });
+document.querySelectorAll('button.preset[data-expr]').forEach(b => {
+  b.onclick = () => { document.getElementById('pipeInput').value = b.dataset.expr; runPipeline(); };
+});
+
+// ── Module 2 ──
+const COMPILE_COST = 50, NATIVE_PER = 1, INTERP_PER = 8;
+function fmt(n) { return n.toLocaleString('vi-VN'); }
+function updateVS() {
+  const n = +document.getElementById('nRuns').value;
+  document.getElementById('nLabel').textContent = fmt(n);
+  const totC = COMPILE_COST + n * NATIVE_PER;
+  const totI = n * INTERP_PER;
+  document.getElementById('totC').textContent = fmt(totC);
+  document.getElementById('totI').textContent = fmt(totI);
+  const max = Math.max(totC, totI, 1);
+  document.getElementById('barC1').style.width = (COMPILE_COST / max * 100) + '%';
+  document.getElementById('barC2').style.width = (n * NATIVE_PER / max * 100) + '%';
+  document.getElementById('barI1').style.width = (totI / max * 100) + '%';
+  const v = document.getElementById('vsVerdict');
+  if (totC < totI) {
+    v.textContent = `Với N = ${fmt(n)}: Compiler thắng (${fmt(totC)} < ${fmt(totI)} bước). Chi phí dịch ${COMPILE_COST} bước đã được khấu hao qua nhiều lần chạy.`;
+    v.style.color = '#166534';
+  } else if (totC > totI) {
+    v.textContent = `Với N = ${fmt(n)}: Interpreter thắng (${fmt(totI)} < ${fmt(totC)} bước). N còn nhỏ → chi phí dịch trả trước của compiler chưa đáng để khấu hao.`;
+    v.style.color = '#9a3412';
+  } else {
+    v.textContent = `Với N = ${fmt(n)}: hòa (${fmt(totC)} bước) — điểm hòa vốn. N lớn hơn thì compiler bắt đầu thắng.`;
+    v.style.color = '#475569';
+  }
+}
+document.getElementById('nRuns').addEventListener('input', updateVS);
+
+// ── Module 3 ──
+const ERR_STAGES = ['Lexer', 'Parser', 'Semantic', 'Runtime', 'Máy chạy ✓'];
+function analyzeError() {
+  const inp = document.getElementById('errInput');
+  const badge = document.getElementById('errBadge');
+  const track = document.getElementById('errTrack');
+  const explain = document.getElementById('errExplain');
+  const src = inp.value.trim();
+  inp.classList.remove('bad');
+
+  let stageHit = -1; // index trạm bắt lỗi; -1 = không lỗi
+  let kind = 'ok', msg = '';
+  try {
+    const toks = lex(src);
+    if (toks.length === 0) throw { kind: 'lexical', msg: 'biểu thức rỗng' };
+    try {
+      const ast = parse(toks);
+      try {
+        semantic(ast);
+        try {
+          detectRuntime(ast);
+        } catch (e) { kind = 'runtime'; msg = e.msg; stageHit = 3; }
+      } catch (e) { kind = 'semantic'; msg = e.msg; stageHit = 2; }
+    } catch (e) { kind = 'syntax'; msg = e.msg; stageHit = 1; }
+  } catch (e) { kind = 'lexical'; msg = e.msg; stageHit = 0; }
+
+  if (kind === 'ok') {
+    badge.innerHTML = `<span class="badge ok">✓ Hợp lệ — không lỗi</span>`;
+    explain.innerHTML = 'Snippet qua hết mọi trạm và chạy được. Không có lỗi nào ở 4 giai đoạn.';
+  } else {
+    inp.classList.add('bad');
+    const labels = { lexical: 'LEXICAL', syntax: 'SYNTAX', semantic: 'SEMANTIC', runtime: 'RUNTIME' };
+    const where = { lexical: 'ở trạm Lexer', syntax: 'ở trạm Parser', semantic: 'ở trạm Semantic Analysis', runtime: 'lúc chương trình chạy (không trạm dịch nào bắt được)' };
+    badge.innerHTML = `<span class="badge ${kind}">${labels[kind]} error — ${where[kind]}</span>`;
+    explain.innerHTML = msg;
+  }
+
+  // stage track: trạm trước stageHit là "pass", stageHit là "hit"
+  let html = '';
+  ERR_STAGES.forEach((s, idx) => {
+    let cls = 'pin';
+    if (kind === 'ok') cls = 'pin pass';
+    else if (idx < stageHit) cls = 'pin pass';
+    else if (idx === stageHit) cls = 'pin hit';
+    html += `<span class="${cls}">${idx < 4 ? (idx + 1) + '. ' : ''}${s}</span>`;
+    if (idx < ERR_STAGES.length - 1) html += '<span style="color:#fb923c;">→</span>';
+  });
+  track.innerHTML = html;
+}
+document.getElementById('errBtn').onclick = analyzeError;
+document.getElementById('errInput').addEventListener('keydown', e => { if (e.key === 'Enter') analyzeError(); });
+document.querySelectorAll('button.preset[data-err]').forEach(b => {
+  b.onclick = () => { document.getElementById('errInput').value = b.dataset.err; analyzeError(); };
+});
+
+// ── init ──
+runPipeline();
+updateVS();
+analyzeError();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>
+</content>

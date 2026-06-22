@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Type Checking Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #c2410c;
+    --accent-soft: #fff1e9;
+    --accent-hover: #9a3412;
+  }
+  h1 { color: #9a3412; }
+  h2 {
+    color: #c2410c; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fed7aa;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #4a5568; }
+  .hint { color: #718096; font-size: 13px; margin: 4px 0; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #f1f5f9; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #c2410c;
+  }
+
+  input.expr {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 16px; padding: 8px 12px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    width: 100%; max-width: 320px; box-sizing: border-box; flex: 1 1 200px;
+  }
+  input.expr.bad { border-color: #e53e3e; background: #fff5f5; }
+
+  button {
+    background: #c2410c; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #9a3412; }
+  button.preset {
+    background: #fff1e9; color: #9a3412; font-size: 12px;
+    padding: 5px 10px; margin: 3px 4px 3px 0; border: 1px solid #fed7aa;
+  }
+  button.preset:hover { background: #fed7aa; }
+  button.ghost { background: #edf2f7; color: #2d3748; }
+  button.ghost:hover { background: #cbd5e0; }
+
+  select {
+    font-size: 15px; padding: 7px 10px;
+    border: 1px solid #cbd5e0; border-radius: 4px;
+    background: white; font-family: inherit;
+  }
+
+  /* AST canvas */
+  .ast-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  svg.ast { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+  .edge { stroke: #cbd5e0; stroke-width: 2; }
+  .nodebox {
+    rx: 8; ry: 8; stroke-width: 2;
+    fill: #fff7ed; stroke: #fdba74;
+    transition: fill 0.3s, stroke 0.3s;
+  }
+  .nodebox.typed { fill: #dcfce7; stroke: #4ade80; }
+  .nodebox.error { fill: #fee2e2; stroke: #ef4444; }
+  .node-label { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 15px; font-weight: 700; fill: #1f2937; }
+  .type-tag {
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 12px; font-weight: 700;
+    fill: #166534; opacity: 0; transition: opacity 0.3s;
+  }
+  .type-tag.show { opacity: 1; }
+  .type-tag.err { fill: #b91c1c; }
+
+  .steplog {
+    background: #1f2937; color: #e5e7eb; border-radius: 6px;
+    padding: 12px 14px; font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; line-height: 1.7; margin-top: 12px;
+    max-height: 240px; overflow-y: auto;
+  }
+  .steplog .ok { color: #86efac; }
+  .steplog .err { color: #fca5a5; }
+  .steplog .dim { color: #9ca3af; }
+
+  .verdict {
+    display: inline-block; padding: 5px 14px; border-radius: 4px;
+    font-size: 14px; font-weight: 700; margin-top: 10px;
+  }
+  .verdict.good { background: #dcfce7; color: #166534; }
+  .verdict.bad { background: #fee2e2; color: #b91c1c; }
+
+  /* Static vs dynamic */
+  .sd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+  .sd-grid > div {
+    background: #f8fafc; border-radius: 8px; padding: 14px;
+    border-top: 4px solid #c2410c;
+    min-width: 0; /* cho phép codeblock (white-space:pre) scroll trong cột thay vì ép grid tràn */
+  }
+  .sd-grid .sd-title { font-weight: 700; color: #9a3412; margin-bottom: 8px; }
+  .codeblock {
+    background: #1f2937; color: #e5e7eb; border-radius: 6px; padding: 12px;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px;
+    line-height: 1.6; white-space: pre; overflow-x: auto;
+  }
+  .codeblock .lineok { color: #86efac; }
+  .codeblock .lineerr { color: #fca5a5; font-weight: 700; }
+  .codeblock .linedim { color: #6b7280; }
+  .codeblock .cur { background: rgba(251,146,60,0.25); display: block; }
+  @media (max-width: 720px) { .sd-grid { grid-template-columns: 1fr; } }
+
+  /* Coercion explorer */
+  .coerce-out {
+    margin-top: 12px; display: flex; flex-wrap: wrap; gap: 12px;
+  }
+  .coerce-card {
+    flex: 1 1 200px; background: white; border: 1px solid #e2e8f0;
+    border-radius: 8px; padding: 14px;
+  }
+  .coerce-card .lang { font-weight: 700; color: #9a3412; margin-bottom: 6px; }
+  .coerce-card .res { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 15px; margin: 4px 0; }
+  .coerce-card .res.good { color: #166534; }
+  .coerce-card .res.errc { color: #b91c1c; }
+  .coerce-card .note { font-size: 12px; color: #718096; margin-top: 6px; }
+
+  .table-wrap { overflow-x: auto; }
+  table.cmp { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 14px; margin-top: 8px; }
+  table.cmp th, table.cmp td { border: 1px solid #e2e8f0; padding: 7px 12px; text-align: left; }
+  table.cmp th { background: #fff1e9; color: #9a3412; }
+
+  @media (max-width: 480px) {
+    input.expr { font-size: 15px; }
+    .node-label { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-symbol-table-scope/visualization.html">← L07: Symbol Table & Scope</a>
+  <span class="sep">·</span>
+  <span class="current">L08: Type Checking</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-tree-walking-interpreter/visualization.html">L09: Tree-Walking Interpreter →</a>
+</nav>
+
+<main>
+  <h1>Lesson 08 — Kiểm tra kiểu (Type Checking)</h1>
+  <p>Ba công cụ tương tác: type checker bottom-up vẽ AST và gán kiểu từng node (tô đỏ chỗ lỗi),
+  demo static vs dynamic bắt lỗi lúc-dịch vs lúc-chạy, và coercion explorer so kết quả ép kiểu giữa Go / Python / JS.</p>
+
+  <h2>1. Type Checker bottom-up — vẽ AST & gán kiểu</h2>
+  <div class="card">
+    <div class="hint">
+      Nhập biểu thức: literal <code>int</code> (vd <code>2</code>), <code>float</code> (<code>3.14</code>),
+      <code>bool</code> (<code>true</code>/<code>false</code>), <code>string</code> (<code>"hi"</code>), và biến
+      <code>age</code> (int) · <code>name</code> (string) · <code>ok</code> (bool) · <code>price</code> (float).
+      Toán tử: <code>+ - * /</code>, so sánh <code>&lt; &gt; ==</code>, logic <code>&amp;&amp; ||</code>. Dùng <code>()</code> nhóm.
+    </div>
+    <div class="row">
+      <input class="expr" id="exprInput" value="(2 + 3) * 4" placeholder='vd: 2 + true'>
+      <button id="checkBtn">Type-check ▸</button>
+      <button id="stepBtn" class="ghost">Từng bước ⏭</button>
+    </div>
+    <div class="row">
+      <span class="hint" style="margin-right:6px;">Mẫu:</span>
+      <button class="preset" data-expr="(2 + 3) * 4">(2 + 3) * 4 ✓</button>
+      <button class="preset" data-expr="2 + true">2 + true ✗</button>
+      <button class="preset" data-expr="(1 < 2) + 3">(1 &lt; 2) + 3 ✗</button>
+      <button class="preset" data-expr='"a" + "b"'>"a" + "b" ✓</button>
+      <button class="preset" data-expr="age + 1">age + 1 ✓</button>
+      <button class="preset" data-expr="name + age">name + age ✗</button>
+      <button class="preset" data-expr="ok && (age > 0)">ok &amp;&amp; (age &gt; 0) ✓</button>
+    </div>
+    <div class="ast-wrap"><svg class="ast" id="astSvg" viewBox="0 0 600 320" width="600" height="320"></svg></div>
+    <div id="verdict"></div>
+    <div class="steplog" id="stepLog"></div>
+  </div>
+
+  <h2>2. Static vs Dynamic — bắt lỗi lúc-dịch hay lúc-chạy?</h2>
+  <div class="card">
+    <p class="hint">Cùng một snippet (gán <code>string</code> vào biến rồi sau đó cộng số). Nhấn <strong>Dịch &amp; chạy</strong> để xem
+    static (Go) chặn ngay lúc dịch, còn dynamic (Python) chạy được tới khi gặp dòng lỗi.</p>
+    <div class="row">
+      <button id="runSD">Dịch &amp; chạy ▸</button>
+      <button id="resetSD" class="ghost">Reset</button>
+    </div>
+    <div class="sd-grid">
+      <div>
+        <div class="sd-title">🛂 Static (Go) — kiểm lúc DỊCH</div>
+        <div class="codeblock" id="goCode"></div>
+        <div id="goStatus" class="verdict" style="display:none;"></div>
+      </div>
+      <div>
+        <div class="sd-title">🚆 Dynamic (Python) — kiểm lúc CHẠY</div>
+        <div class="codeblock" id="pyCode"></div>
+        <div id="pyStatus" class="verdict" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>3. Coercion Explorer — cùng phép, khác ngôn ngữ</h2>
+  <div class="card">
+    <p class="hint">Chọn một phép ép kiểu rồi xem ba ngôn ngữ xử lý khác nhau thế nào.
+    Go (static+strong) thường từ chối; Python (dynamic+strong) báo lỗi runtime; JS (dynamic+weak) ép ngầm.</p>
+    <div class="row">
+      <label>Biểu thức:</label>
+      <select id="coercePick">
+        <option value="int_plus_float">1 + 2.5  (int + float)</option>
+        <option value="str_plus_int">"7" + 3  (string + int)</option>
+        <option value="int_to_str">65 + ""  (int + chuỗi rỗng)</option>
+        <option value="str_minus_int">"5" - 1  (string − int)</option>
+        <option value="bool_plus_int">true + 1  (bool + int)</option>
+        <option value="float_to_int">int n = 3.9  (float → int)</option>
+      </select>
+    </div>
+    <div class="coerce-out" id="coerceOut"></div>
+  </div>
+
+  <h2>4. Bảng so sánh static / dynamic / strong / weak</h2>
+  <div class="card">
+    <div class="table-wrap">
+      <table class="cmp">
+        <thead><tr><th>Ngôn ngữ</th><th>Static / Dynamic</th><th>Strong / Weak</th><th>"a" + 1</th><th>Lỗi kiểu lộ khi nào</th></tr></thead>
+        <tbody>
+          <tr><td>Go</td><td>Static</td><td>Strong</td><td>lỗi biên dịch</td><td>lúc dịch</td></tr>
+          <tr><td>Rust</td><td>Static</td><td>Strong</td><td>lỗi biên dịch</td><td>lúc dịch</td></tr>
+          <tr><td>Java</td><td>Static</td><td>Strong-ish</td><td>"a1" (+ với String)</td><td>lúc dịch (nếu kiểu khác hẳn)</td></tr>
+          <tr><td>Python</td><td>Dynamic</td><td>Strong</td><td>TypeError</td><td>lúc chạy</td></tr>
+          <tr><td>JavaScript</td><td>Dynamic</td><td>Weak</td><td>"a1"</td><td>hiếm khi — ép ngầm</td></tr>
+          <tr><td>C</td><td>Static</td><td>Weak</td><td>con trỏ + int (UB)</td><td>lúc dịch một phần</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+// Module 1 — Parser + bottom-up type checker + AST renderer
+// ════════════════════════════════════════════════════════════════════════════
+
+// Bảng ký hiệu (Lesson 07): tên biến -> kiểu
+const SYMBOLS = { age: 'int', name: 'string', ok: 'bool', price: 'float' };
+
+// ── Tokenizer ──────────────────────────────────────────────────────────────
+function tokenize(s) {
+  const toks = [];
+  let i = 0;
+  const two = ['&&', '||', '==', '!=', '<=', '>='];
+  while (i < s.length) {
+    const c = s[i];
+    if (/\s/.test(c)) { i++; continue; }
+    if (c === '"') {                       // string literal
+      let j = i + 1, str = '';
+      while (j < s.length && s[j] !== '"') { str += s[j]; j++; }
+      if (j >= s.length) throw new Error('thiếu dấu " đóng chuỗi');
+      toks.push({ t: 'str', v: str }); i = j + 1; continue;
+    }
+    if (/[0-9]/.test(c)) {                 // number (int hoặc float)
+      let j = i, num = '';
+      while (j < s.length && /[0-9.]/.test(s[j])) { num += s[j]; j++; }
+      toks.push({ t: num.includes('.') ? 'float' : 'int', v: num }); i = j; continue;
+    }
+    if (/[a-zA-Z_]/.test(c)) {             // identifier / keyword
+      let j = i, id = '';
+      while (j < s.length && /[a-zA-Z_0-9]/.test(s[j])) { id += s[j]; j++; }
+      if (id === 'true' || id === 'false') toks.push({ t: 'bool', v: id });
+      else toks.push({ t: 'id', v: id });
+      i = j; continue;
+    }
+    const pair = s.slice(i, i + 2);
+    if (two.includes(pair)) { toks.push({ t: 'op', v: pair }); i += 2; continue; }
+    if ('+-*/<>()'.includes(c)) { toks.push({ t: 'op', v: c }); i++; continue; }
+    throw new Error("ký tự lạ '" + c + "'");
+  }
+  return toks;
+}
+
+// ── Parser (Pratt-ish, precedence climbing) ─────────────────────────────────
+// precedence: || < && < (< > == != <= >=) < (+ -) < (* /)
+const PREC = { '||': 1, '&&': 2, '<': 3, '>': 3, '==': 3, '!=': 3, '<=': 3, '>=': 3, '+': 4, '-': 4, '*': 5, '/': 5 };
+
+function parse(toks) {
+  let pos = 0;
+  const peek = () => toks[pos];
+  const next = () => toks[pos++];
+
+  function parsePrimary() {
+    const tk = peek();
+    if (!tk) throw new Error('biểu thức kết thúc bất ngờ');
+    if (tk.t === 'op' && tk.v === '(') {
+      next();
+      const e = parseExpr(0);
+      if (!peek() || peek().v !== ')') throw new Error("thiếu ')'");
+      next();
+      return e;
+    }
+    if (tk.t === 'int' || tk.t === 'float' || tk.t === 'bool' || tk.t === 'str') {
+      next();
+      return { kind: 'lit', litType: tk.t === 'str' ? 'string' : tk.t, label: tk.t === 'str' ? '"' + tk.v + '"' : tk.v };
+    }
+    if (tk.t === 'id') { next(); return { kind: 'var', name: tk.v, label: tk.v }; }
+    throw new Error("token bất ngờ '" + tk.v + "'");
+  }
+
+  function parseExpr(minPrec) {
+    let left = parsePrimary();
+    while (peek() && peek().t === 'op' && PREC[peek().v] !== undefined && PREC[peek().v] >= minPrec) {
+      const op = next().v;
+      const right = parseExpr(PREC[op] + 1);
+      left = { kind: 'binop', op, label: op, left, right };
+    }
+    return left;
+  }
+
+  const ast = parseExpr(0);
+  if (pos < toks.length) throw new Error("token thừa '" + toks[pos].v + "'");
+  return ast;
+}
+
+// ── Layout: gán toạ độ x,y cho từng node (tree layout) ───────────────────────
+function layout(ast) {
+  let leafX = 0;
+  const LEAF_GAP = 90, LEVEL_H = 80, PAD = 40;
+  let maxDepth = 0;
+  function assign(node, depth) {
+    maxDepth = Math.max(maxDepth, depth);
+    node.depth = depth;
+    if (node.kind === 'binop') {
+      assign(node.left, depth + 1);
+      assign(node.right, depth + 1);
+      node.x = (node.left.x + node.right.x) / 2;
+    } else {
+      node.x = leafX * LEAF_GAP + PAD;
+      leafX++;
+    }
+    node.y = depth * LEVEL_H + PAD;
+  }
+  assign(ast, 0);
+  const width = leafX * LEAF_GAP + PAD;
+  const height = (maxDepth + 1) * LEVEL_H + PAD + 20;
+  return { width: Math.max(width, 280), height };
+}
+
+// ── Type checker: bottom-up, sinh các bước ──────────────────────────────────
+function ruleFor(op, lt, rt) {
+  // trả {type, ok} theo quy tắc kiểu
+  if (['+', '-', '*', '/'].includes(op)) {
+    if (lt === 'int' && rt === 'int') return { type: 'int', ok: true };
+    if (lt === 'float' && rt === 'float') return { type: 'float', ok: true };
+    if (op === '+' && lt === 'string' && rt === 'string') return { type: 'string', ok: true };
+    return { type: 'error', ok: false };
+  }
+  if (['<', '>', '<=', '>='].includes(op)) {
+    if ((lt === 'int' && rt === 'int') || (lt === 'float' && rt === 'float')) return { type: 'bool', ok: true };
+    return { type: 'error', ok: false };
+  }
+  if (['==', '!='].includes(op)) {
+    if (lt === rt) return { type: 'bool', ok: true };
+    return { type: 'error', ok: false };
+  }
+  if (['&&', '||'].includes(op)) {
+    if (lt === 'bool' && rt === 'bool') return { type: 'bool', ok: true };
+    return { type: 'error', ok: false };
+  }
+  return { type: 'error', ok: false };
+}
+
+function check(ast) {
+  const steps = []; // mỗi step: {node, msg, ok, kind}
+  let errored = false;
+  function visit(node) {
+    if (node.kind === 'lit') {
+      node.type = node.litType;
+      steps.push({ node, ok: true, kind: 'lit',
+        msg: 'Lá ' + node.label + ' → literal ' + node.litType + '  ⇒  ' + node.label + ' : ' + node.litType });
+      return node.type;
+    }
+    if (node.kind === 'var') {
+      const t = SYMBOLS[node.name];
+      if (!t) {
+        node.type = 'error'; errored = true;
+        steps.push({ node, ok: false, kind: 'var', msg: 'Biến ' + node.name + ' CHƯA khai báo trong symbol table → lỗi' });
+        return 'error';
+      }
+      node.type = t;
+      steps.push({ node, ok: true, kind: 'var', msg: 'Biến ' + node.name + ' → tra symbol table ⇒ ' + node.name + ' : ' + t });
+      return t;
+    }
+    // binop: con TRƯỚC (post-order)
+    const lt = visit(node.left);
+    const rt = visit(node.right);
+    if (lt === 'error' || rt === 'error') { node.type = 'error'; errored = true; return 'error'; }
+    const r = ruleFor(node.op, lt, rt);
+    node.type = r.type;
+    if (r.ok) {
+      steps.push({ node, ok: true, kind: 'binop',
+        msg: 'Node "' + node.op + '": con (' + lt + ' , ' + rt + ') khớp quy tắc ⇒ ' + node.op + ' : ' + r.type });
+    } else {
+      errored = true;
+      steps.push({ node, ok: false, kind: 'binop',
+        msg: 'TYPE ERROR tại node "' + node.op + '": không có quy tắc nào cho ' + lt + ' ' + node.op + ' ' + rt });
+    }
+    return r.type;
+  }
+  visit(ast);
+  return { steps, errored };
+}
+
+// ── Render SVG ──────────────────────────────────────────────────────────────
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function el(name, attrs) {
+  const e = document.createElementNS(SVG_NS, name);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+let CURRENT = null; // {ast, steps, errored, dims}
+
+function renderAST(ast, dims, revealed) {
+  const svg = document.getElementById('astSvg');
+  svg.innerHTML = '';
+  svg.setAttribute('viewBox', '0 0 ' + dims.width + ' ' + dims.height);
+  svg.setAttribute('width', dims.width);
+  svg.setAttribute('height', dims.height);
+
+  // edges trước
+  (function edges(node) {
+    if (node.kind === 'binop') {
+      for (const ch of [node.left, node.right]) {
+        svg.appendChild(el('line', { class: 'edge', x1: node.x, y1: node.y, x2: ch.x, y2: ch.y }));
+        edges(ch);
+      }
+    }
+  })(ast);
+
+  // nodes
+  (function nodes(node) {
+    const shown = revealed.has(node);
+    const w = 48, h = 34;
+    let cls = 'nodebox';
+    if (shown) cls += node.type === 'error' ? ' error' : ' typed';
+    svg.appendChild(el('rect', { class: cls, x: node.x - w / 2, y: node.y - h / 2, width: w, height: h }));
+    const lbl = el('text', { class: 'node-label', x: node.x, y: node.y + 5, 'text-anchor': 'middle' });
+    lbl.textContent = node.label;
+    svg.appendChild(lbl);
+    // type tag dưới node
+    const tag = el('text', { class: 'type-tag' + (shown ? ' show' : '') + (node.type === 'error' ? ' err' : ''),
+      x: node.x, y: node.y + h / 2 + 16, 'text-anchor': 'middle' });
+    tag.textContent = shown ? (node.type === 'error' ? '✗ error' : ': ' + node.type) : '';
+    svg.appendChild(tag);
+    if (node.kind === 'binop') { nodes(node.left); nodes(node.right); }
+  })(ast);
+}
+
+function logSteps(steps, upto) {
+  const log = document.getElementById('stepLog');
+  let html = '';
+  for (let i = 0; i < steps.length; i++) {
+    const s = steps[i];
+    const dim = i >= upto ? ' dim' : '';
+    const cls = s.ok ? 'ok' : 'err';
+    const prefix = i < upto ? (s.ok ? '✓ ' : '✗ ') : '· ';
+    html += '<div class="' + (i < upto ? cls : '') + dim + '">' + prefix + 'Bước ' + (i + 1) + ': ' + s.msg + '</div>';
+  }
+  log.innerHTML = html;
+}
+
+function showVerdict(errored, full) {
+  const v = document.getElementById('verdict');
+  if (!full) { v.innerHTML = ''; return; }
+  v.innerHTML = errored
+    ? '<span class="verdict bad">✗ TYPE ERROR — biểu thức không hợp lệ kiểu (node đỏ)</span>'
+    : '<span class="verdict good">✓ OK — biểu thức hợp lệ, kiểu cả biểu thức: ' + (CURRENT.ast.type) + '</span>';
+}
+
+function buildCurrent() {
+  const inp = document.getElementById('exprInput');
+  inp.classList.remove('bad');
+  try {
+    const toks = tokenize(inp.value.trim());
+    const ast = parse(toks);
+    const dims = layout(ast);
+    const { steps, errored } = check(ast);
+    CURRENT = { ast, steps, errored, dims, revealed: new Set(), stepIdx: 0 };
+    return true;
+  } catch (e) {
+    inp.classList.add('bad');
+    document.getElementById('astSvg').innerHTML = '';
+    document.getElementById('stepLog').innerHTML = '<div class="err">✗ Lỗi cú pháp: ' + e.message + '</div>';
+    document.getElementById('verdict').innerHTML = '';
+    CURRENT = null;
+    return false;
+  }
+}
+
+function fullCheck() {
+  if (!buildCurrent()) return;
+  for (const s of CURRENT.steps) CURRENT.revealed.add(s.node);
+  CURRENT.stepIdx = CURRENT.steps.length;
+  renderAST(CURRENT.ast, CURRENT.dims, CURRENT.revealed);
+  logSteps(CURRENT.steps, CURRENT.stepIdx);
+  showVerdict(CURRENT.errored, true);
+}
+
+function stepOnce() {
+  if (!CURRENT || CURRENT.stepIdx >= CURRENT.steps.length) {
+    if (!buildCurrent()) return;
+    renderAST(CURRENT.ast, CURRENT.dims, CURRENT.revealed);
+    logSteps(CURRENT.steps, 0);
+    showVerdict(false, false);
+    return;
+  }
+  const s = CURRENT.steps[CURRENT.stepIdx];
+  CURRENT.revealed.add(s.node);
+  CURRENT.stepIdx++;
+  renderAST(CURRENT.ast, CURRENT.dims, CURRENT.revealed);
+  logSteps(CURRENT.steps, CURRENT.stepIdx);
+  showVerdict(CURRENT.errored, CURRENT.stepIdx >= CURRENT.steps.length);
+}
+
+document.getElementById('checkBtn').onclick = fullCheck;
+document.getElementById('stepBtn').onclick = stepOnce;
+document.getElementById('exprInput').addEventListener('keydown', e => { if (e.key === 'Enter') fullCheck(); });
+document.querySelectorAll('button.preset').forEach(b => {
+  b.onclick = () => { document.getElementById('exprInput').value = b.dataset.expr; fullCheck(); };
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// Module 2 — Static vs Dynamic demo
+// ════════════════════════════════════════════════════════════════════════════
+const goLines = [
+  { txt: 'var x int = 10', state: 'ok' },
+  { txt: 'fmt.Println("start")', state: 'ok' },
+  { txt: 'x = "hello"      // gán string vào biến int', state: 'err' },
+  { txt: 'y := x + 5', state: 'dim' },
+  { txt: 'fmt.Println(y)', state: 'dim' },
+];
+const pyLines = [
+  { txt: 'x = 10', state: 'ok' },
+  { txt: 'print("start")        # in: start', state: 'ok' },
+  { txt: 'x = "hello"           # OK: biến đổi kiểu', state: 'ok' },
+  { txt: 'print(x)              # in: hello', state: 'ok' },
+  { txt: 'y = x + 5             # str + int', state: 'err' },
+  { txt: 'print(y)', state: 'dim' },
+];
+
+function renderCode(elId, lines, reached) {
+  const box = document.getElementById(elId);
+  let html = '';
+  for (let i = 0; i < lines.length; i++) {
+    const ln = lines[i];
+    let cls = 'linedim';
+    if (i < reached) cls = ln.state === 'err' ? 'lineerr' : (ln.state === 'dim' ? 'linedim' : 'lineok');
+    const cur = (i === reached - 1) ? ' cur' : '';
+    html += '<span class="' + cls + cur + '">' + ln.txt.replace(/</g, '&lt;') + '</span>\n';
+  }
+  box.innerHTML = html;
+}
+
+function resetSD() {
+  renderCode('goCode', goLines, 0);
+  renderCode('pyCode', pyLines, 0);
+  document.getElementById('goStatus').style.display = 'none';
+  document.getElementById('pyStatus').style.display = 'none';
+}
+
+function runSD() {
+  // Go: static -> chặn lúc DỊCH, không dòng nào chạy. Đánh dấu dòng lỗi ngay.
+  renderCode('goCode', goLines, goLines.length);
+  const gs = document.getElementById('goStatus');
+  gs.style.display = 'inline-block';
+  gs.className = 'verdict bad';
+  gs.textContent = '✗ Lỗi LÚC DỊCH (dòng 3): cannot use "hello" (string) as int — binary KHÔNG được tạo, chưa dòng nào chạy.';
+
+  // Python: dynamic -> chạy lần lượt tới dòng lỗi (dòng 5)
+  let reached = 0;
+  const ps = document.getElementById('pyStatus');
+  ps.style.display = 'none';
+  const errLine = pyLines.findIndex(l => l.state === 'err') + 1; // 1-based count reached
+  const timer = setInterval(() => {
+    reached++;
+    renderCode('pyCode', pyLines, reached);
+    if (reached >= errLine) {
+      clearInterval(timer);
+      ps.style.display = 'inline-block';
+      ps.className = 'verdict bad';
+      ps.textContent = '💥 Lỗi LÚC CHẠY (dòng 5): TypeError: can only concatenate str to str — đã in "start" và "hello" trước đó.';
+    }
+  }, 550);
+}
+
+document.getElementById('runSD').onclick = runSD;
+document.getElementById('resetSD').onclick = resetSD;
+
+// ════════════════════════════════════════════════════════════════════════════
+// Module 3 — Coercion explorer
+// ════════════════════════════════════════════════════════════════════════════
+const COERCE = {
+  int_plus_float: {
+    go:  { res: '3.5 (cần float64(1) + 2.5 tường minh)', ok: true,  note: 'Go không ép ngầm int↔float; phải cast. Mở rộng → không mất dữ liệu.' },
+    py:  { res: '3.5', ok: true,  note: 'Python tự nâng int→float (mở rộng, an toàn).' },
+    js:  { res: '3.5', ok: true,  note: 'JS chỉ có một kiểu số (number) → cộng trực tiếp.' },
+  },
+  str_plus_int: {
+    go:  { res: 'lỗi biên dịch', ok: false, note: 'Static+strong: không cộng string với int.' },
+    py:  { res: 'TypeError (runtime)', ok: false, note: 'Dynamic+strong: từ chối ép, báo lỗi lúc chạy.' },
+    js:  { res: '"73"', ok: true,  note: 'Weak: ép 3→"3" rồi nối chuỗi. Khó đoán!' },
+  },
+  int_to_str: {
+    go:  { res: 'lỗi biên dịch', ok: false, note: 'Go không ép int→string bằng +; dùng strconv.Itoa(65).' },
+    py:  { res: 'TypeError (runtime)', ok: false, note: 'Python cần str(65) tường minh; 65 + "" lỗi.' },
+    js:  { res: '"65"', ok: true,  note: 'Weak: + với chuỗi → ép số thành chuỗi. Nên dùng String(65).' },
+  },
+  str_minus_int: {
+    go:  { res: 'lỗi biên dịch', ok: false, note: '- không định nghĩa cho string ở Go.' },
+    py:  { res: 'TypeError (runtime)', ok: false, note: 'str - int không có nghĩa trong Python.' },
+    js:  { res: '4', ok: true,  note: 'Weak: - chỉ làm việc với số → ép "5"→5 rồi trừ. So với "5"+1="51"!' },
+  },
+  bool_plus_int: {
+    go:  { res: 'lỗi biên dịch', ok: false, note: 'Go không ép bool↔int.' },
+    py:  { res: '2', ok: true,  note: 'Python: bool LÀ con của int, True==1 → 1+1=2 (đặc thù Python).' },
+    js:  { res: '2', ok: true,  note: 'Weak: true→1 → 1+1=2.' },
+  },
+  float_to_int: {
+    go:  { res: 'lỗi biên dịch (cần int(3.9))', ok: false, note: 'Ép thu hẹp phải tường minh; int(3.9)=3 MẤT 0.9.' },
+    py:  { res: 'int n=3.9 báo lỗi nếu annotation kiểm; gán thường giữ 3.9', ok: false, note: 'Python không tự cắt; int(3.9)=3 tường minh, MẤT dữ liệu.' },
+    js:  { res: 'không có int riêng; Math.trunc(3.9)=3', ok: true,  note: 'Thu hẹp tường minh → MẤT phần thập phân 0.9.' },
+  },
+};
+
+function renderCoerce() {
+  const key = document.getElementById('coercePick').value;
+  const data = COERCE[key];
+  const names = { go: 'Go (static + strong)', py: 'Python (dynamic + strong)', js: 'JavaScript (dynamic + weak)' };
+  let html = '';
+  for (const lang of ['go', 'py', 'js']) {
+    const d = data[lang];
+    html += '<div class="coerce-card">'
+      + '<div class="lang">' + names[lang] + '</div>'
+      + '<div class="res ' + (d.ok ? 'good' : 'errc') + '">' + (d.ok ? '⇒ ' : '✗ ') + d.res + '</div>'
+      + '<div class="note">' + d.note + '</div>'
+      + '</div>';
+  }
+  document.getElementById('coerceOut').innerHTML = html;
+}
+document.getElementById('coercePick').onchange = renderCoerce;
+
+// ── Init ────────────────────────────────────────────────────────────────────
+fullCheck();
+resetSD();
+renderCoerce();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

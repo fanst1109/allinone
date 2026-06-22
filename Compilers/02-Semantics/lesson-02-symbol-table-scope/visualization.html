@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — Bảng ký hiệu & Phạm vi Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #9a3412; }
+  h2 {
+    color: #c2410c; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fed7aa;
+  }
+  h3 { color: #9a3412; margin-top: 22px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { color: #78716c; font-size: 13px; margin: 4px 0 10px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #44403c; }
+  code, .mono {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  code {
+    background: #fff7ed; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #9a3412; border: 1px solid #fed7aa;
+  }
+
+  /* Buttons */
+  button {
+    background: #c2410c; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #9a3412; }
+  button:disabled { background: #d6d3d1; color: #78716c; cursor: not-allowed; }
+  button.preset {
+    background: #fff7ed; color: #9a3412; font-size: 12px;
+    padding: 5px 11px; margin: 3px 4px 3px 0; border: 1px solid #fed7aa;
+  }
+  button.preset:hover { background: #fed7aa; }
+  button.ghost {
+    background: #f5f5f4; color: #44403c; border: 1px solid #d6d3d1;
+  }
+  button.ghost:hover { background: #e7e5e4; }
+
+  textarea.code, input.code {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; padding: 10px 12px; line-height: 1.6;
+    border: 1px solid #d6d3d1; border-radius: 4px;
+    width: 100%; box-sizing: border-box;
+    background: #fafaf9; color: #1c1917;
+  }
+  textarea.code { min-height: 120px; resize: vertical; }
+  input.code { max-width: 360px; }
+  input.code.bad, textarea.code.bad { border-color: #dc2626; background: #fef2f2; }
+
+  /* Code listing with active line highlight */
+  .listing {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; line-height: 1.7;
+    background: #1c1917; color: #e7e5e4; border-radius: 6px;
+    padding: 10px 0; margin: 12px 0; overflow-x: auto;
+  }
+  .listing .ln {
+    display: flex; padding: 0 14px; white-space: pre;
+  }
+  .listing .ln .num {
+    color: #78716c; min-width: 26px; text-align: right;
+    margin-right: 14px; user-select: none;
+  }
+  .listing .ln.active { background: #7c2d12; }
+  .listing .ln.active .num { color: #fdba74; font-weight: 700; }
+  .listing .ln.done { color: #a8a29e; }
+
+  /* Scope stack */
+  .stack-wrap { display: flex; flex-direction: column-reverse; gap: 8px; min-height: 60px; }
+  .scope-box {
+    border: 2px solid #c2410c; border-radius: 6px;
+    background: #fff7ed; padding: 8px 12px;
+    animation: pop 0.18s ease;
+  }
+  .scope-box.top { box-shadow: 0 0 0 3px #fed7aa; }
+  .scope-box.hit { border-color: #16a34a; background: #f0fdf4; box-shadow: 0 0 0 3px #bbf7d0; }
+  .scope-box .scope-name { font-weight: 700; color: #9a3412; font-size: 13px; margin-bottom: 4px; }
+  .scope-box.hit .scope-name { color: #15803d; }
+  .scope-entries { display: flex; gap: 6px; flex-wrap: wrap; }
+  .entry {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; background: white; border: 1px solid #fdba74;
+    border-radius: 4px; padding: 2px 8px; color: #1c1917;
+  }
+  .entry.found { background: #16a34a; color: white; border-color: #16a34a; font-weight: 700; }
+  .entry.empty { color: #a8a29e; font-style: italic; border-style: dashed; }
+  @keyframes pop { from { transform: scale(0.95); opacity: 0.4; } to { transform: scale(1); opacity: 1; } }
+
+  /* Log / readout */
+  .log {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; line-height: 1.7;
+    background: #fafaf9; border: 1px solid #e7e5e4; border-radius: 6px;
+    padding: 10px 14px; margin: 10px 0; max-height: 220px; overflow-y: auto;
+  }
+  .log .step { margin: 2px 0; }
+  .log .step .tag {
+    display: inline-block; min-width: 74px; font-weight: 700;
+  }
+  .log .step.push .tag { color: #c2410c; }
+  .log .step.pop .tag { color: #7c3aed; }
+  .log .step.decl .tag { color: #2563eb; }
+  .log .step.look .tag { color: #15803d; }
+  .log .step.out .tag { color: #b45309; }
+  .log .step.err .tag { color: #dc2626; }
+
+  /* Lookup query box */
+  .lookup-result {
+    margin-top: 10px; padding: 10px 14px; border-radius: 6px;
+    font-size: 14px; display: none;
+  }
+  .lookup-result.ok { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; display: block; }
+  .lookup-result.no { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; display: block; }
+  .lookup-result .chain { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; margin-top: 6px; color: #57534e; }
+
+  /* Shadowing demo */
+  .shadow-layers { display: flex; flex-direction: column; gap: 0; margin: 12px 0; }
+  .layer {
+    border-left: 4px solid #c2410c; padding: 8px 14px; margin-left: 0;
+    background: #fff7ed; position: relative;
+  }
+  .layer.l1 { margin-left: 0; }
+  .layer.l2 { margin-left: 24px; border-left-color: #ea580c; background: #ffedd5; }
+  .layer.l3 { margin-left: 48px; border-left-color: #f97316; background: #fed7aa; }
+  .layer .layer-head {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; color: #9a3412; font-weight: 700;
+  }
+  .layer .print-line {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; margin-top: 6px; display: flex; align-items: center; gap: 8px;
+  }
+  .layer .print-line .res {
+    background: #16a34a; color: white; padding: 1px 9px; border-radius: 4px; font-weight: 700;
+  }
+  .layer .print-line .src { color: #78716c; font-size: 12px; }
+
+  /* Error detector */
+  .err-list { margin: 12px 0; }
+  .err-item {
+    display: flex; gap: 10px; align-items: baseline;
+    padding: 8px 12px; border-radius: 5px; margin: 6px 0;
+    font-size: 14px;
+  }
+  .err-item.error { background: #fef2f2; border: 1px solid #fecaca; }
+  .err-item.okline { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .err-item .badge {
+    font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px;
+    white-space: nowrap;
+  }
+  .err-item.error .badge { background: #dc2626; color: white; }
+  .err-item.okline .badge { background: #16a34a; color: white; }
+  .err-item .lc {
+    font-family: "SF Mono", Monaco, Consolas, monospace; flex: 1; min-width: 0;
+    word-break: break-word;
+  }
+  .err-item .msg { color: #b91c1c; font-size: 13px; }
+
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  @media (max-width: 480px) {
+    .layer.l2 { margin-left: 14px; }
+    .layer.l3 { margin-left: 28px; }
+    button.preset { font-size: 11px; padding: 4px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-ast-visitor/visualization.html">← L06: AST & Visitor</a>
+  <span class="sep">·</span>
+  <span class="current">L07: Symbol Table & Scope</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-type-checking/visualization.html">L08: Type Checking →</a>
+</nav>
+
+<main>
+  <h1>Lesson 07 — Bảng ký hiệu & Phạm vi (Symbol Table &amp; Scope)</h1>
+  <p>Ba công cụ tương tác chạy bằng logic scope thật viết bằng JavaScript: <strong>Scope Visualizer</strong> (chạy từng dòng, push/pop ngăn xếp scope, tra biến qua scope chain), <strong>Shadowing demo</strong> (cùng tên ở nhiều mức → mỗi <code>print</code> ra giá trị nào), và <strong>Error detector</strong> (bắt undefined &amp; redeclaration).</p>
+  <p class="hint">Quy ước cú pháp giả: <code>{</code> mở khối · <code>}</code> đóng khối · <code>let x = ...</code> khai báo MỚI ở scope hiện tại · <code>x = ...</code> gán vào biến đã tra được · <code>print x</code> in giá trị tra được. Một lệnh / một dòng.</p>
+
+  <h2>1. Scope Visualizer — chạy từng dòng</h2>
+  <p class="hint">Nhập code khối lồng rồi bấm <strong>Bước tiếp →</strong> để thực thi từng dòng. Cột phải là <strong>ngăn xếp scope</strong> (đỉnh ở trên cùng): <code>{</code> đẩy scope mới, <code>}</code> bật scope ra. Mỗi scope hiện các entry của nó. Tra biến (lookup) tô xanh scope tìm thấy — minh hoạ shadowing.</p>
+  <div class="card">
+    <div class="row">
+      <textarea class="code" id="svCode" spellcheck="false">{ let x = 1;
+  { let x = 2;
+    print x;
+  }
+  print x;
+}</textarea>
+    </div>
+    <div class="row">
+      <span class="hint" style="margin-right:6px;">Mẫu:</span>
+      <button class="preset" data-code="{ let x = 1;
+  { let x = 2;
+    print x;
+  }
+  print x;
+}">shadowing cơ bản</button>
+      <button class="preset" data-code="{ let p = 1;
+  { let q = p;
+    { let p = 5; let r = p; }
+    let s = p;
+  }
+}">3 tầng lồng (Bài 3)</button>
+      <button class="preset" data-code="{ let a = 5;
+  { let b = a;
+    let a = 9;
+    print a;
+    print b;
+  }
+}">thứ tự khai báo</button>
+      <button class="preset" data-code="{ let x = 5;
+  { let x = x + 1;
+    print x;
+  }
+}">let x = x + 1</button>
+    </div>
+    <div class="row controls">
+      <button id="svRun">▶ Nạp / Reset</button>
+      <button id="svStep" class="ghost">Bước tiếp →</button>
+      <button id="svAll" class="ghost">⏩ Chạy hết</button>
+    </div>
+
+    <div class="row" style="align-items: flex-start; gap: 24px;">
+      <div style="flex: 1 1 280px; min-width: 0;">
+        <h3 style="margin-top:6px;">Mã nguồn</h3>
+        <div class="listing" id="svListing"></div>
+      </div>
+      <div style="flex: 1 1 280px; min-width: 0;">
+        <h3 style="margin-top:6px;">Ngăn xếp scope</h3>
+        <div class="stack-wrap" id="svStack"></div>
+      </div>
+    </div>
+
+    <h3>Nhật ký thực thi</h3>
+    <div class="log" id="svLog"></div>
+
+    <h3>Tra cứu thủ công (lookup)</h3>
+    <p class="hint">Khi đang chạy giữa chừng, gõ tên biến để xem lookup đi qua những scope nào, dừng ở đâu (hoặc thất bại → undefined).</p>
+    <div class="row">
+      <input class="code" id="svLookName" placeholder="vd: x" style="max-width: 160px;">
+      <button id="svLookBtn">Tra cứu</button>
+    </div>
+    <div class="lookup-result" id="svLookOut"></div>
+  </div>
+
+  <h2>2. Shadowing demo — cùng tên ở nhiều mức</h2>
+  <p class="hint">Biến <code>x</code> được khai báo ở nhiều tầng lồng nhau. Mỗi <code>print x</code> đặt ở một tầng sẽ tra ra giá trị <strong>gần nhất từ trong ra ngoài</strong>. Đổi giá trị từng tầng (hoặc tắt khai báo) để thấy <code>print</code> nào "đổi nghĩa".</p>
+  <div class="card">
+    <div class="row">
+      <label><input type="checkbox" id="shD1" checked> Tầng 1 (ngoài cùng): <code>let x =</code></label>
+      <input class="code" id="shV1" value="1" style="max-width: 70px;">
+    </div>
+    <div class="row">
+      <label><input type="checkbox" id="shD2" checked> Tầng 2: <code>let x =</code></label>
+      <input class="code" id="shV2" value="2" style="max-width: 70px;">
+    </div>
+    <div class="row">
+      <label><input type="checkbox" id="shD3"> Tầng 3 (trong cùng): <code>let x =</code></label>
+      <input class="code" id="shV3" value="3" style="max-width: 70px;">
+    </div>
+    <div class="shadow-layers" id="shLayers"></div>
+    <p class="hint" id="shNote"></p>
+  </div>
+
+  <h2>3. Error detector — undefined &amp; redeclaration</h2>
+  <p class="hint">Quét code từng dòng giống một <em>resolution pass</em>: tại nút <strong>khai báo</strong> kiểm tra trùng tên trong <em>chính scope hiện tại</em> (redeclaration); tại nút <strong>sử dụng</strong> gọi lookup trên scope chain — thất bại là <em>undefined variable</em>. Vế phải của <code>let</code> được resolve TRƯỚC khi thêm tên (nên <code>let x = x</code> tra <code>x</code> ngoài).</p>
+  <div class="card">
+    <div class="row">
+      <textarea class="code" id="edCode" spellcheck="false">{
+  let x = 1;
+  let x = 2;
+  { let y = z; }
+  print total;
+}</textarea>
+    </div>
+    <div class="row">
+      <span class="hint" style="margin-right:6px;">Mẫu:</span>
+      <button class="preset ed-preset" data-code="{ let x = 1; let x = 2; }">redeclaration (a)</button>
+      <button class="preset ed-preset" data-code="{ let y = z; let z = 3; }">undefined do thứ tự (b)</button>
+      <button class="preset ed-preset" data-code="{ let m = 1; { let m = 2; } let n = m; }">shadowing hợp lệ (c)</button>
+      <button class="preset ed-preset" data-code="let x = 10;
+{ let x = x + 1; print x; }">let x = x+1 (hợp lệ)</button>
+      <button class="preset ed-preset" data-code="{ let a = b; let b = 3; }
+print c;">2 lỗi</button>
+    </div>
+    <div class="row">
+      <button id="edCheck">🔍 Kiểm tra</button>
+    </div>
+    <div class="err-list" id="edOut"></div>
+    <div id="edSummary"></div>
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+// Tokenizer chung — tách code khối lồng thành chuỗi lệnh theo dòng.
+// Mỗi dòng nguồn → một hoặc nhiều "statement" với loại:
+//   {  } open/close · let <name> [= <expr>] · <name> = <expr> · print <name>
+// Giữ liên kết về số dòng nguồn để highlight.
+// ════════════════════════════════════════════════════════════════════════════
+
+// Tách 1 dòng thành các "đơn vị" tách bởi ';' và '{' '}' (giữ '{','}' làm token).
+function tokenizeLine(line) {
+  const units = [];
+  let buf = '';
+  const flush = () => { const t = buf.trim(); if (t) units.push(t); buf = ''; };
+  for (const ch of line) {
+    if (ch === '{' || ch === '}') { flush(); units.push(ch); }
+    else if (ch === ';') { flush(); }
+    else buf += ch;
+  }
+  flush();
+  return units;
+}
+
+// Phân loại một unit thành statement có cấu trúc.
+function classifyUnit(u, srcLine) {
+  if (u === '{') return { kind: 'open', src: srcLine, text: '{' };
+  if (u === '}') return { kind: 'close', src: srcLine, text: '}' };
+
+  let m;
+  if ((m = u.match(/^let\s+([A-Za-z_]\w*)\s*=\s*(.+)$/))) {
+    return { kind: 'let', name: m[1], expr: m[2].trim(), src: srcLine, text: u };
+  }
+  if ((m = u.match(/^let\s+([A-Za-z_]\w*)\s*$/))) {
+    return { kind: 'let', name: m[1], expr: null, src: srcLine, text: u };
+  }
+  if ((m = u.match(/^print\s+(.+)$/))) {
+    return { kind: 'print', expr: m[1].trim(), src: srcLine, text: u };
+  }
+  if ((m = u.match(/^([A-Za-z_]\w*)\s*=\s*(.+)$/))) {
+    return { kind: 'assign', name: m[1], expr: m[2].trim(), src: srcLine, text: u };
+  }
+  return { kind: 'unknown', src: srcLine, text: u };
+}
+
+function parseProgram(code) {
+  const lines = code.replace(/\r/g, '').split('\n');
+  const stmts = [];
+  lines.forEach((line, idx) => {
+    for (const u of tokenizeLine(line)) stmts.push(classifyUnit(u, idx));
+  });
+  return { lines, stmts };
+}
+
+// Trích các tên biến (identifier) xuất hiện trong một biểu thức, bỏ qua số.
+function varsInExpr(expr) {
+  if (!expr) return [];
+  const out = [];
+  const re = /[A-Za-z_]\w*/g;
+  let m;
+  while ((m = re.exec(expr)) !== null) out.push(m[0]);
+  return out;
+}
+
+// Đánh giá biểu thức số đơn giản theo môi trường giá trị (chỉ +,-,*,/, số, tên).
+// Dùng cho phần "giá trị" trực quan; nếu không tính được trả về null.
+function evalExpr(expr, env) {
+  if (expr == null) return null;
+  // chỉ cho phép tên/số/toán tử cơ bản
+  if (!/^[\sA-Za-z_0-9+\-*/().]*$/.test(expr)) return null;
+  const replaced = expr.replace(/[A-Za-z_]\w*/g, (name) => {
+    return Object.prototype.hasOwnProperty.call(env, name) ? '(' + env[name] + ')' : 'NaN';
+  });
+  try {
+    // eslint-disable-next-line no-new-func
+    const v = Function('"use strict";return (' + replaced + ')')();
+    return Number.isFinite(v) ? v : null;
+  } catch (e) { return null; }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Mô hình Scope chain thật — push/pop + lookup từ trong ra ngoài.
+// ════════════════════════════════════════════════════════════════════════════
+class Scope {
+  constructor(name, parent) {
+    this.name = name;
+    this.parent = parent;
+    this.symbols = new Map(); // name -> {value}
+  }
+  declareLocal(name, value) { this.symbols.set(name, { value }); }
+  hasLocal(name) { return this.symbols.has(name); }
+  // Trả về {scope, value} của scope ĐẦU TIÊN (trong→ngoài) có name, hoặc null.
+  lookup(name) {
+    for (let cur = this; cur; cur = cur.parent) {
+      if (cur.symbols.has(name)) return { scope: cur, value: cur.symbols.get(name).value };
+    }
+    return null;
+  }
+  // Danh sách scope đi qua khi lookup, kèm match hay không (để minh hoạ chain).
+  lookupTrace(name) {
+    const trace = [];
+    for (let cur = this; cur; cur = cur.parent) {
+      const hit = cur.symbols.has(name);
+      trace.push({ name: cur.name, hit });
+      if (hit) break;
+    }
+    return trace;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 1 — Scope Visualizer (chạy từng dòng có state)
+// ════════════════════════════════════════════════════════════════════════════
+const SV = {
+  prog: null, pc: 0, scopes: [], counter: 0, log: [],
+};
+
+function svReset() {
+  const code = document.getElementById('svCode').value;
+  SV.prog = parseProgram(code);
+  SV.pc = 0;
+  SV.counter = 0;
+  SV.scopes = [];
+  SV.log = [];
+  SV.lastHitScope = null;
+  document.getElementById('svLookOut').className = 'lookup-result';
+  document.getElementById('svLookOut').innerHTML = '';
+  svRender();
+}
+
+function svCurScope() { return SV.scopes.length ? SV.scopes[SV.scopes.length - 1] : null; }
+
+function svPushLog(kind, tag, msg) { SV.log.push({ kind, tag, msg }); }
+
+function svStep() {
+  if (!SV.prog) svReset();
+  if (SV.pc >= SV.prog.stmts.length) return false;
+  const s = SV.prog.stmts[SV.pc];
+  SV.lastHitScope = null;
+
+  switch (s.kind) {
+    case 'open': {
+      const name = 'S' + (SV.counter++);
+      const sc = new Scope(name, svCurScope());
+      SV.scopes.push(sc);
+      svPushLog('push', 'PUSH', `mở khối → tạo ${name}` + (sc.parent ? ` (parent=${sc.parent.name})` : ' (global)'));
+      break;
+    }
+    case 'close': {
+      const popped = SV.scopes.pop();
+      svPushLog('pop', 'POP', popped ? `đóng khối → bỏ ${popped.name}` : 'đóng khối');
+      break;
+    }
+    case 'let': {
+      const cur = svCurScope();
+      if (!cur) { svPushLog('err', 'LỖI', `let ngoài mọi khối`); break; }
+      // resolve vế phải TRƯỚC khi thêm tên
+      const env = svEnv(cur);
+      const val = s.expr != null ? evalExpr(s.expr, env) : null;
+      // minh hoạ tra các biến trong expr
+      if (s.expr) {
+        for (const v of varsInExpr(s.expr)) {
+          const tr = cur.lookupTrace(v);
+          if (tr.length && tr[tr.length - 1].hit) SV.lastHitScope = tr[tr.length - 1].name;
+        }
+      }
+      cur.declareLocal(s.name, val);
+      const shown = val == null ? '?' : val;
+      svPushLog('decl', 'DECL', `khai báo ${s.name}=${shown} trong ${cur.name}` +
+        (s.expr ? ` (resolve "${s.expr}" trước)` : ''));
+      break;
+    }
+    case 'assign': {
+      const cur = svCurScope();
+      const found = cur ? cur.lookup(s.name) : null;
+      if (!found) { svPushLog('err', 'LỖI', `gán vào "${s.name}" chưa khai báo (undefined)`); break; }
+      const env = svEnv(cur);
+      const val = evalExpr(s.expr, env);
+      found.scope.declareLocal(s.name, val);
+      SV.lastHitScope = found.scope.name;
+      svPushLog('decl', 'ASSIGN', `${s.name}=${val == null ? '?' : val} (vào ${found.scope.name})`);
+      break;
+    }
+    case 'print': {
+      const cur = svCurScope();
+      const vs = varsInExpr(s.expr);
+      const name = vs[0];
+      const found = cur && name ? cur.lookup(name) : null;
+      if (!found) {
+        svPushLog('err', 'LỖI', `print "${s.expr}" — "${name}" undefined`);
+      } else {
+        SV.lastHitScope = found.scope.name;
+        const env = svEnv(cur);
+        const val = evalExpr(s.expr, env);
+        svPushLog('out', 'PRINT', `${s.expr} → ${val == null ? found.value : val}  (tra ${name} dừng ở ${found.scope.name})`);
+      }
+      break;
+    }
+    default:
+      svPushLog('err', 'BỎ QUA', `không hiểu: "${s.text}"`);
+  }
+  SV.pc++;
+  svRender();
+  return SV.pc < SV.prog.stmts.length;
+}
+
+// môi trường giá trị nhìn thấy từ scope cur (trong→ngoài, biến trong che ngoài)
+function svEnv(cur) {
+  const env = {};
+  const chain = [];
+  for (let c = cur; c; c = c.parent) chain.push(c);
+  for (let k = chain.length - 1; k >= 0; k--) {
+    for (const [n, rec] of chain[k].symbols) if (rec.value != null) env[n] = rec.value;
+  }
+  return env;
+}
+
+function svRenderListing() {
+  const el = document.getElementById('svListing');
+  if (!SV.prog) { el.innerHTML = ''; return; }
+  // dòng nguồn của statement sắp chạy
+  const nextSrc = SV.pc < SV.prog.stmts.length ? SV.prog.stmts[SV.pc].src : -1;
+  const doneSrc = SV.pc > 0 ? SV.prog.stmts[SV.pc - 1].src : -1;
+  let html = '';
+  SV.prog.lines.forEach((line, idx) => {
+    let cls = '';
+    if (idx === nextSrc) cls = 'active';
+    else if (idx <= doneSrc) cls = 'done';
+    html += `<div class="ln ${cls}"><span class="num">${idx + 1}</span>${escapeHtml(line) || ' '}</div>`;
+  });
+  el.innerHTML = html;
+}
+
+function svRenderStack() {
+  const el = document.getElementById('svStack');
+  if (!SV.scopes.length) { el.innerHTML = '<div class="hint">(ngăn xếp rỗng — chưa vào khối nào)</div>'; return; }
+  let html = '';
+  SV.scopes.forEach((sc, i) => {
+    const top = i === SV.scopes.length - 1;
+    const hit = sc.name === SV.lastHitScope;
+    let entries = '';
+    if (sc.symbols.size === 0) entries = '<span class="entry empty">∅ chưa có entry</span>';
+    else for (const [n, rec] of sc.symbols) {
+      const ef = hit ? '' : '';
+      entries += `<span class="entry ${ef}">${escapeHtml(n)}${rec.value != null ? '→' + rec.value : ''}</span>`;
+    }
+    html += `<div class="scope-box ${top ? 'top' : ''} ${hit ? 'hit' : ''}">
+      <div class="scope-name">${sc.name}${sc.parent ? ' · parent=' + sc.parent.name : ' · global'}${top ? ' · ĐỈNH' : ''}</div>
+      <div class="scope-entries">${entries}</div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function svRenderLog() {
+  const el = document.getElementById('svLog');
+  if (!SV.log.length) { el.innerHTML = '<div class="hint">(chưa có bước nào — bấm "Bước tiếp →")</div>'; return; }
+  el.innerHTML = SV.log.map(s =>
+    `<div class="step ${s.kind}"><span class="tag">${s.tag}</span> ${escapeHtml(s.msg)}</div>`
+  ).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+function svRender() {
+  svRenderListing();
+  svRenderStack();
+  svRenderLog();
+  const done = !SV.prog || SV.pc >= SV.prog.stmts.length;
+  document.getElementById('svStep').disabled = done;
+  document.getElementById('svAll').disabled = done;
+}
+
+function svLookup() {
+  const name = document.getElementById('svLookName').value.trim();
+  const out = document.getElementById('svLookOut');
+  const cur = svCurScope();
+  if (!name) { out.className = 'lookup-result'; out.innerHTML = ''; return; }
+  if (!cur) {
+    out.className = 'lookup-result no';
+    out.innerHTML = `Không có scope nào đang mở. Hãy bước tới khi đang ở trong một khối <code>{ }</code>.`;
+    SV.lastHitScope = null; svRenderStack(); return;
+  }
+  const trace = cur.lookupTrace(name);
+  const last = trace[trace.length - 1];
+  if (last && last.hit) {
+    const found = cur.lookup(name);
+    SV.lastHitScope = found.scope.name;
+    out.className = 'lookup-result ok';
+    out.innerHTML = `✓ Tìm thấy <code>${escapeHtml(name)}</code> ở <strong>${found.scope.name}</strong>` +
+      (found.value != null ? ` (giá trị ${found.value})` : '') +
+      `<div class="chain">đi qua: ${trace.map(t => t.name + (t.hit ? ' ✓(dừng)' : ' ✗')).join('  →  ')}</div>`;
+  } else {
+    SV.lastHitScope = null;
+    out.className = 'lookup-result no';
+    out.innerHTML = `✗ <code>${escapeHtml(name)}</code> — <strong>undefined</strong> (leo hết chain vẫn không có)` +
+      `<div class="chain">đã xét: ${trace.map(t => t.name + ' ✗').join('  →  ')}</div>`;
+  }
+  svRenderStack();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 2 — Shadowing demo
+// ════════════════════════════════════════════════════════════════════════════
+function renderShadow() {
+  const d1 = document.getElementById('shD1').checked;
+  const d2 = document.getElementById('shD2').checked;
+  const d3 = document.getElementById('shD3').checked;
+  const v1 = document.getElementById('shV1').value.trim();
+  const v2 = document.getElementById('shV2').value.trim();
+  const v3 = document.getElementById('shV3').value.trim();
+
+  // dựng scope chain thật theo các tầng được bật
+  const global = new Scope('S0(tầng1)', null);
+  if (d1) global.declareLocal('x', v1);
+  const s2 = new Scope('S1(tầng2)', global);
+  if (d2) s2.declareLocal('x', v2);
+  const s3 = new Scope('S2(tầng3)', s2);
+  if (d3) s3.declareLocal('x', v3);
+
+  function printAt(scope) {
+    const f = scope.lookup('x');
+    if (!f) return { val: 'LỖI: undefined', src: 'leo hết chain không có x', err: true };
+    return { val: f.value, src: 'tra x dừng ở ' + f.scope.name, err: false };
+  }
+
+  const p3 = printAt(s3);   // print ở tầng trong cùng
+  const p2 = printAt(s2);   // print ở tầng giữa (sau khi tầng 3 đã đóng)
+  const p1 = printAt(global); // print ở tầng ngoài cùng
+
+  const el = document.getElementById('shLayers');
+  el.innerHTML = `
+    <div class="layer l1">
+      <div class="layer-head">{ tầng 1 ${d1 ? `· let x = ${escapeHtml(v1) || '?'}` : '· (không khai báo x)'}</div>
+      <div class="layer l2" style="margin-top:8px;">
+        <div class="layer-head">{ tầng 2 ${d2 ? `· let x = ${escapeHtml(v2) || '?'}` : '· (không khai báo x)'}</div>
+        <div class="layer l3" style="margin-top:8px;">
+          <div class="layer-head">{ tầng 3 ${d3 ? `· let x = ${escapeHtml(v3) || '?'}` : '· (không khai báo x)'}</div>
+          <div class="print-line">print x → ${pBadge(p3)} <span class="src">(${p3.src})</span></div>
+          <div class="layer-head" style="margin-top:6px;">}</div>
+        </div>
+        <div class="print-line">print x → ${pBadge(p2)} <span class="src">(${p2.src})</span></div>
+        <div class="layer-head" style="margin-top:6px;">}</div>
+      </div>
+      <div class="print-line">print x → ${pBadge(p1)} <span class="src">(${p1.src})</span></div>
+      <div class="layer-head" style="margin-top:6px;">}</div>
+    </div>`;
+
+  const note = document.getElementById('shNote');
+  note.innerHTML = `Cùng dòng <code>print x</code> cho ba kết quả khác nhau vì mỗi <code>print</code> đứng ở một scope khác — lookup luôn dừng ở khai báo <strong>gần nhất từ trong ra ngoài</strong>. Tắt một tầng → các <code>print</code> bên trong tầng đó leo ra ngoài tìm <code>x</code>.`;
+}
+
+function pBadge(p) {
+  if (p.err) return `<span class="res" style="background:#dc2626">${escapeHtml(String(p.val))}</span>`;
+  return `<span class="res">${escapeHtml(String(p.val))}</span>`;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 3 — Error detector (resolution pass thật)
+// ════════════════════════════════════════════════════════════════════════════
+function runErrorDetector() {
+  const code = document.getElementById('edCode').value;
+  const prog = parseProgram(code);
+  const results = []; // {src, text, ok, msg}
+  let cur = null;
+  let counter = 0;
+
+  for (const s of prog.stmts) {
+    switch (s.kind) {
+      case 'open':
+        cur = new Scope('S' + (counter++), cur);
+        results.push({ src: s.src, text: '{', ok: true, msg: 'mở scope ' + cur.name });
+        break;
+      case 'close':
+        if (cur) { const popped = cur; cur = cur.parent; results.push({ src: s.src, text: '}', ok: true, msg: 'đóng scope ' + popped.name }); }
+        else results.push({ src: s.src, text: '}', ok: false, msg: '} thừa — không có khối nào để đóng' });
+        break;
+      case 'let': {
+        if (!cur) {
+          // cho phép khai báo ở "global ngầm"
+          cur = new Scope('global', null);
+        }
+        // 1) resolve vế phải TRƯỚC (undefined check), tên đang khai báo chưa có trong scope
+        const errs = [];
+        if (s.expr) {
+          for (const v of varsInExpr(s.expr)) {
+            if (!cur.lookup(v)) errs.push(`undefined variable: ${v}`);
+          }
+        }
+        // 2) redeclaration: CHỈ xét scope hiện tại
+        if (cur.hasLocal(s.name)) errs.push(`redeclaration of ${s.name} (đã có trong ${cur.name})`);
+        // thêm tên vào bảng dù lỗi để tiếp tục quét
+        cur.declareLocal(s.name, true);
+        results.push(errs.length
+          ? { src: s.src, text: s.text, ok: false, msg: errs.join(' · ') }
+          : { src: s.src, text: s.text, ok: true, msg: `khai báo ${s.name} ở ${cur.name}` });
+        break;
+      }
+      case 'assign': {
+        const c = cur || new Scope('global', null);
+        if (!cur) cur = c;
+        const errs = [];
+        if (!cur.lookup(s.name)) errs.push(`undefined variable: ${s.name} (gán trước khai báo)`);
+        for (const v of varsInExpr(s.expr)) if (!cur.lookup(v)) errs.push(`undefined variable: ${v}`);
+        results.push(errs.length
+          ? { src: s.src, text: s.text, ok: false, msg: errs.join(' · ') }
+          : { src: s.src, text: s.text, ok: true, msg: `gán ${s.name} hợp lệ` });
+        break;
+      }
+      case 'print': {
+        const c = cur || new Scope('global', null);
+        if (!cur) cur = c;
+        const errs = [];
+        for (const v of varsInExpr(s.expr)) if (!cur.lookup(v)) errs.push(`undefined variable: ${v}`);
+        results.push(errs.length
+          ? { src: s.src, text: s.text, ok: false, msg: errs.join(' · ') }
+          : { src: s.src, text: s.text, ok: true, msg: `dùng ${varsInExpr(s.expr).join(', ')} hợp lệ` });
+        break;
+      }
+      default:
+        if (s.kind === 'unknown') results.push({ src: s.src, text: s.text, ok: true, msg: '(bỏ qua)' });
+    }
+  }
+
+  // render — gộp open/close ít giá trị, ưu tiên hiện các dòng có nội dung
+  const el = document.getElementById('edOut');
+  const lines = prog.lines;
+  let html = '';
+  let errCount = 0;
+  for (const r of results) {
+    if (r.text === '{' || r.text === '}') continue; // gọn: không liệt kê dấu khối
+    if (!r.ok) errCount++;
+    const ln = (r.src != null ? (r.src + 1) : '?');
+    html += `<div class="err-item ${r.ok ? 'okline' : 'error'}">
+      <span class="badge">${r.ok ? 'OK' : 'LỖI'}</span>
+      <span class="lc">dòng ${ln}: <code>${escapeHtml(r.text)}</code></span>
+      <span class="${r.ok ? 'src hint' : 'msg'}">${escapeHtml(r.msg)}</span>
+    </div>`;
+  }
+  el.innerHTML = html || '<div class="hint">(không có lệnh nào để kiểm tra)</div>';
+
+  const sum = document.getElementById('edSummary');
+  if (errCount === 0) {
+    sum.innerHTML = `<div class="err-item okline" style="font-weight:700"><span class="badge">✓</span><span class="lc">Không phát hiện lỗi — code resolve sạch.</span></div>`;
+  } else {
+    sum.innerHTML = `<div class="err-item error" style="font-weight:700"><span class="badge">✗</span><span class="lc">${errCount} lỗi (undefined / redeclaration).</span></div>`;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Tiện ích & wiring
+// ════════════════════════════════════════════════════════════════════════════
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// Module 1 wiring
+document.getElementById('svRun').onclick = svReset;
+document.getElementById('svStep').onclick = svStep;
+document.getElementById('svAll').onclick = () => { let guard = 0; while (svStep() && guard++ < 1000) {} };
+document.getElementById('svLookBtn').onclick = svLookup;
+document.getElementById('svLookName').addEventListener('keydown', e => { if (e.key === 'Enter') svLookup(); });
+document.querySelectorAll('#svCode ~ .row .preset, .card .preset:not(.ed-preset)').forEach(b => {
+  if (!b.dataset.code || b.classList.contains('ed-preset')) return;
+  b.onclick = () => { document.getElementById('svCode').value = b.dataset.code; svReset(); };
+});
+
+// Module 2 wiring
+['shD1', 'shD2', 'shD3'].forEach(id => document.getElementById(id).addEventListener('change', renderShadow));
+['shV1', 'shV2', 'shV3'].forEach(id => document.getElementById(id).addEventListener('input', renderShadow));
+
+// Module 3 wiring
+document.getElementById('edCheck').onclick = runErrorDetector;
+document.querySelectorAll('.ed-preset').forEach(b => {
+  b.onclick = () => { document.getElementById('edCode').value = b.dataset.code; runErrorDetector(); };
+});
+
+// Init
+svReset();
+renderShadow();
+runErrorDetector();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

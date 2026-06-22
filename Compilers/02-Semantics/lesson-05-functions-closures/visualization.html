@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 10 — Hàm & Closures Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #9a3412; }
+  h2 {
+    color: #c2410c; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fed7aa;
+  }
+  .card {
+    background: white; border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #7c2d12; }
+  .hint { color: #78716c; font-size: 13px; margin: 6px 0; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #fef3ec; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #9a3412;
+  }
+  button {
+    background: #c2410c; color: white; border: none;
+    padding: 8px 14px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #9a3412; }
+  button:disabled { background: #d6d3d1; cursor: not-allowed; }
+  button.ghost { background: #fef3ec; color: #9a3412; border: 1px solid #fed7aa; }
+  button.ghost:hover { background: #fed7aa; }
+  button.preset {
+    background: #fef3ec; color: #7c2d12; font-size: 12px;
+    padding: 5px 11px; border: 1px solid #fed7aa;
+  }
+  button.preset:hover { background: #fed7aa; }
+  input.num {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 7px 10px; width: 100%; max-width: 90px;
+    border: 1px solid #fed7aa; border-radius: 6px; box-sizing: border-box;
+  }
+  select {
+    font-size: 14px; padding: 7px 10px;
+    border: 1px solid #fed7aa; border-radius: 6px;
+    background: white; font-family: inherit;
+  }
+  pre.code {
+    background: #fffbf7; border: 1px solid #fed7aa; border-radius: 8px;
+    padding: 12px 14px; font-size: 13px; overflow-x: auto;
+    color: #44403c; line-height: 1.5;
+  }
+
+  /* ── Call stack viz ── */
+  .cs-wrap { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  .cs-col { flex: 1 1 280px; min-width: 0; }
+  .cs-stack {
+    display: flex; flex-direction: column-reverse;
+    gap: 6px; min-height: 80px;
+    border: 2px dashed #fed7aa; border-radius: 8px; padding: 10px;
+    background: #fffbf7;
+  }
+  .cs-frame {
+    background: #ffedd5; border: 1px solid #fdba74; border-left: 5px solid #c2410c;
+    border-radius: 6px; padding: 8px 12px; font-size: 13px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    transition: all 0.25s ease;
+  }
+  .cs-frame.top { background: #fff7ed; border-left-color: #ea580c; box-shadow: 0 2px 8px rgba(194,65,12,0.18); }
+  .cs-frame.returning { background: #dcfce7; border-left-color: #16a34a; }
+  .cs-frame .fn-head { font-weight: 700; color: #7c2d12; }
+  .cs-frame.returning .fn-head { color: #166534; }
+  .cs-frame .fn-env { color: #57534e; font-size: 12px; margin-top: 2px; }
+  .cs-empty { color: #a8a29e; font-size: 13px; text-align: center; padding: 20px 0; font-style: italic; }
+  .cs-log {
+    background: #1c1917; color: #fde68a; border-radius: 8px;
+    padding: 12px 14px; font-size: 12.5px; line-height: 1.6;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    max-height: 320px; overflow-y: auto; white-space: pre-wrap;
+  }
+  .cs-log .push { color: #fdba74; }
+  .cs-log .pop  { color: #86efac; }
+  .cs-log .ret  { color: #fef08a; font-weight: 700; }
+  .cs-meta { display: flex; gap: 18px; flex-wrap: wrap; margin: 8px 0; font-size: 13px; color: #57534e; }
+  .cs-meta b { color: #9a3412; }
+  .phase-badge {
+    display: inline-block; padding: 3px 12px; border-radius: 12px;
+    font-size: 12px; font-weight: 700;
+  }
+  .phase-badge.grow { background: #ffedd5; color: #9a3412; }
+  .phase-badge.shrink { background: #dcfce7; color: #166534; }
+  .phase-badge.done { background: #e0e7ff; color: #3730a3; }
+
+  /* ── Closure explorer ── */
+  .env-box {
+    border: 2px solid #fdba74; border-radius: 8px; padding: 12px 14px;
+    background: #fffbf7; margin: 8px 0; position: relative;
+  }
+  .env-box .env-title { font-weight: 700; color: #9a3412; font-size: 13px; margin-bottom: 6px; }
+  .env-box .env-bind {
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px;
+    color: #44403c; padding: 2px 0;
+  }
+  .env-box .env-parent { font-size: 12px; color: #a8a29e; margin-top: 6px; }
+  .closure-card {
+    border: 2px solid #c2410c; border-radius: 8px; padding: 12px 14px;
+    background: #fff7ed; margin: 8px 0;
+  }
+  .closure-card .cl-title { font-weight: 700; color: #7c2d12; margin-bottom: 6px; }
+  .arrow-note { color: #c2410c; font-weight: 700; }
+
+  /* ── Loop bug demo ── */
+  .funcs-grid { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .func-chip {
+    border: 1px solid #fdba74; border-radius: 8px; padding: 8px 12px;
+    background: #fffbf7; font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; min-width: 110px;
+  }
+  .func-chip .fc-name { color: #9a3412; font-weight: 700; }
+  .func-chip .fc-val { font-size: 18px; font-weight: 700; margin-top: 4px; }
+  .func-chip.bug .fc-val { color: #b91c1c; }
+  .func-chip.fixed .fc-val { color: #16a34a; }
+  .toggle-pill {
+    display: inline-flex; border: 1px solid #fed7aa; border-radius: 999px; overflow: hidden;
+  }
+  .toggle-pill button {
+    background: white; color: #9a3412; border: none; border-radius: 0;
+    padding: 7px 16px; font-size: 13px;
+  }
+  .toggle-pill button.active { background: #c2410c; color: white; }
+  .verdict {
+    margin-top: 10px; padding: 10px 14px; border-radius: 8px; font-size: 14px;
+  }
+  .verdict.bad { background: #fee2e2; color: #991b1b; border-left: 4px solid #dc2626; }
+  .verdict.good { background: #dcfce7; color: #166534; border-left: 4px solid #16a34a; }
+
+  @media (max-width: 480px) {
+    .cs-col { flex: 1 1 100%; }
+    .func-chip { min-width: 0; flex: 1 1 70px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-tree-walking-interpreter/visualization.html">← L09: Tree-Walking Interpreter</a>
+  <span class="sep">·</span>
+  <span class="current">L10: Functions &amp; Closures</span>
+  <span class="sep">·</span>
+  <a href="../../03-Backend/lesson-01-ir-three-address/visualization.html">L11: IR (Three-Address) →</a>
+</nav>
+
+<main>
+  <h1>Lesson 10 — Hàm &amp; Closures</h1>
+  <p>Ba công cụ tương tác chạy trên một interpreter JS thật có hàm/closure: (1) <strong>Call stack visualizer</strong> cho đệ quy phình/xẹp, (2) <strong>Closure explorer</strong> xem hàm "nhớ" biến, (3) <strong>Closure loop bug</strong> minh họa lỗi bắt biến lặp.</p>
+
+  <!-- ══════════════════════════════ MODULE 1 ══════════════════════════════ -->
+  <h2>1. Call Stack Visualizer — đệ quy phình rồi xẹp</h2>
+  <p class="hint">Chọn hàm đệ quy, nhập <code>n</code>, rồi "Chạy từng bước" để xem mỗi lời gọi <span style="color:#c2410c;font-weight:700">push</span> một frame, mỗi <code>return</code> <span style="color:#16a34a;font-weight:700">pop</span> và lan giá trị ngược lên.</p>
+  <div class="card">
+    <div class="row">
+      <label>Hàm:</label>
+      <select id="csFn">
+        <option value="fact">fact(n) — giai thừa</option>
+        <option value="fib">fib(n) — Fibonacci</option>
+        <option value="sum">sum(n) — tổng 0..n</option>
+      </select>
+      <label>n =</label>
+      <input class="num" id="csN" type="number" value="3" min="0" max="8">
+      <button id="csBuild">Nạp</button>
+    </div>
+    <pre class="code" id="csSrc"></pre>
+    <div class="row">
+      <button id="csStep">▶ Bước tiếp</button>
+      <button class="ghost" id="csAuto">⏩ Tự chạy</button>
+      <button class="ghost" id="csReset">↺ Reset</button>
+      <span class="phase-badge" id="csPhase">sẵn sàng</span>
+    </div>
+    <div class="cs-meta">
+      <span>Bước: <b id="csStepNo">0</b></span>
+      <span>Độ sâu hiện tại: <b id="csDepth">0</b> frame</span>
+      <span>Độ sâu tối đa: <b id="csMax">0</b> frame</span>
+      <span>Kết quả: <b id="csResult">—</b></span>
+    </div>
+    <div class="cs-wrap">
+      <div class="cs-col">
+        <div class="hint" style="font-weight:700;color:#7c2d12">Call stack (đỉnh ở trên)</div>
+        <div class="cs-stack" id="csStack"><div class="cs-empty">stack rỗng — bấm "Bước tiếp"</div></div>
+      </div>
+      <div class="cs-col">
+        <div class="hint" style="font-weight:700;color:#7c2d12">Nhật ký push / pop</div>
+        <div class="cs-log" id="csLog">(chưa chạy)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════ MODULE 2 ══════════════════════════════ -->
+  <h2>2. Closure Explorer — hàm "nhớ" biến</h2>
+  <p class="hint"><code>makeAdder(x)</code> trả về một hàm con bắt giữ <code>x</code>. Tạo vài adder với <code>x</code> khác nhau, rồi gọi chúng để thấy mỗi closure tra <code>x</code> từ environment captured của riêng nó.</p>
+  <div class="card">
+    <pre class="code">fn makeAdder(x) {
+  fn inner(n) { return n + x; }   // x là biến tự do, bắt từ makeAdder
+  return inner;
+}</pre>
+    <div class="row">
+      <label>makeAdder(</label>
+      <input class="num" id="clX" type="number" value="5">
+      <label>)</label>
+      <button id="clMake">Tạo closure</button>
+    </div>
+    <div id="clClosures"></div>
+    <div id="clCallArea" style="display:none">
+      <hr style="border:none;border-top:1px solid #fed7aa;margin:16px 0">
+      <div class="row">
+        <label>Gọi closure:</label>
+        <select id="clPick"></select>
+        <label>(n =</label>
+        <input class="num" id="clN" type="number" value="3">
+        <label>)</label>
+        <button id="clCall">▶ Gọi</button>
+      </div>
+      <div id="clTrace"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════ MODULE 3 ══════════════════════════════ -->
+  <h2>3. Closure Loop Bug — bắt biến, không bắt giá trị</h2>
+  <p class="hint">Vòng lặp tạo nhiều closure. Nếu cả vòng dùng <strong>một biến lặp chung</strong> (bug), mọi closure trỏ cùng ô nhớ → in cùng giá trị cuối. Bật/tắt để so sánh với bản đã sửa (biến mới mỗi vòng).</p>
+  <div class="card">
+    <div class="row">
+      <span class="toggle-pill">
+        <button id="lbBug" class="active">Bug (biến chung)</button>
+        <button id="lbFix">Fixed (biến mới mỗi vòng)</button>
+      </span>
+      <label>Số vòng:</label>
+      <input class="num" id="lbCount" type="number" value="4" min="1" max="8">
+      <button id="lbRun">▶ Chạy vòng lặp + gọi</button>
+    </div>
+    <pre class="code" id="lbSrc"></pre>
+    <div class="hint">Kết quả khi gọi từng closure:</div>
+    <div class="funcs-grid" id="lbFuncs"></div>
+    <div id="lbVerdict"></div>
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+// MINI INTERPRETER có HÀM + CLOSURE (lexical scope, call stack thật)
+// Đủ để chạy fact/fib/sum/makeAdder/counter. Dùng cho cả 3 module.
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── Environment: tên → giá trị, có con trỏ cha (scope chain) ──
+class Env {
+  constructor(parent, label) { this.vars = new Map(); this.parent = parent || null; this.label = label || 'env'; }
+  define(name, val) { this.vars.set(name, val); }
+  set(name, val) {
+    let e = this;
+    while (e) { if (e.vars.has(name)) { e.vars.set(name, val); return; } e = e.parent; }
+    this.vars.set(name, val);
+  }
+  get(name) {
+    let e = this;
+    while (e) { if (e.vars.has(name)) return e.vars.get(name); e = e.parent; }
+    throw new Error("biến chưa định nghĩa: " + name);
+  }
+  snapshot() { return [...this.vars.entries()].map(([k, v]) => k + "=" + fmt(v)); }
+}
+function fmt(v) { return (v && v.__closure) ? "<closure>" : String(v); }
+
+// ── Closure: hàm + defEnv (environment captured) ──
+function makeClosure(params, bodyFn, defEnv, name) {
+  return { __closure: true, params, bodyFn, defEnv, name: name || 'fn' };
+}
+
+// ── Một interpreter có thể "đếm bước" qua callback, dùng cho stack viz ──
+// Ta định nghĩa các hàm đệ quy như JS thường nhưng env hoá để minh họa frame.
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 1: Call Stack Visualizer
+// Tạo một "máy thực thi từng bước" cho hàm đệ quy. Mỗi push/pop là 1 bước.
+// ════════════════════════════════════════════════════════════════════════════
+const CS_DEFS = {
+  fact: {
+    src: `fn fact(n) {\n  if (n == 0) { return 1; }\n  return n * fact(n - 1);\n}`,
+    base: n => n === 0, baseVal: 1,
+    nextArg: n => n - 1,
+    combine: (n, sub) => n * sub,
+    label: 'fact'
+  },
+  sum: {
+    src: `fn sum(n) {\n  if (n == 0) { return 0; }\n  return n + sum(n - 1);\n}`,
+    base: n => n === 0, baseVal: 0,
+    nextArg: n => n - 1,
+    combine: (n, sub) => n + sub,
+    label: 'sum'
+  },
+  // fib có 2 lời gọi con → mô phỏng bằng máy stack tổng quát phía dưới
+  fib: {
+    src: `fn fib(n) {\n  if (n < 2) { return n; }\n  return fib(n - 1) + fib(n - 2);\n}`,
+    label: 'fib'
+  }
+};
+
+// Máy stack tổng quát: mỗi frame có "chương trình con" gồm các phase.
+// Để hỗ trợ cả fact/sum (1 con) lẫn fib (2 con), ta dùng frame có "tiến trình".
+let CS = null;
+function csInit(fnKey, n) {
+  const def = CS_DEFS[fnKey];
+  CS = {
+    fnKey, def, steps: [], i: 0, stack: [], log: [], maxDepth: 0,
+    result: null, phase: 'grow', autoTimer: null
+  };
+  document.getElementById('csSrc').textContent = def.src;
+  // Sinh trước toàn bộ trace bằng một interpreter đệ quy có ghi sự kiện.
+  const events = [];
+  let depth = 0, maxd = 0;
+  function run(name, arg) {
+    depth++; maxd = Math.max(maxd, depth);
+    events.push({ type: 'push', name, arg, depth });
+    let val;
+    if (fnKey === 'fib') {
+      if (arg < 2) { val = arg; }
+      else { const a = run('fib', arg - 1); const b = run('fib', arg - 2); val = a + b; }
+    } else {
+      if (def.base(arg)) { val = def.baseVal; }
+      else { const sub = run(def.label, def.nextArg(arg)); val = def.combine(arg, sub); }
+    }
+    events.push({ type: 'pop', name, arg, depth, val });
+    depth--;
+    return val;
+  }
+  CS.result = run(def.label, n);
+  CS.events = events;
+  CS.maxDepth = maxd;
+  csRender();
+}
+
+function csApplyEvent(ev) {
+  if (ev.type === 'push') {
+    CS.stack.push({ name: ev.name, arg: ev.arg, returning: false, val: null });
+    CS.log.push(`<span class="push">push ${ev.name}(${ev.arg})  →  frame mới, env { n=${ev.arg} }</span>`);
+    CS.phase = 'grow';
+  } else {
+    const f = CS.stack[CS.stack.length - 1];
+    if (f) { f.returning = true; f.val = ev.val; }
+    CS.log.push(`<span class="pop">pop  ${ev.name}(${ev.arg})  →  </span><span class="ret">return ${ev.val}</span>`);
+    CS.phase = 'shrink';
+  }
+}
+
+function csStep() {
+  if (!CS || CS.i >= CS.events.length) { return false; }
+  // Nếu frame trên đỉnh đang "returning" (vừa hiển thị return), pop nó ra trước
+  const top = CS.stack[CS.stack.length - 1];
+  if (top && top.returning) CS.stack.pop();
+  csApplyEvent(CS.events[CS.i]);
+  CS.i++;
+  if (CS.i >= CS.events.length) CS.phase = 'done';
+  csRender();
+  return true;
+}
+
+function csRender() {
+  const stackEl = document.getElementById('csStack');
+  if (!CS || CS.stack.length === 0) {
+    stackEl.innerHTML = '<div class="cs-empty">stack rỗng — bấm "Bước tiếp"</div>';
+  } else {
+    stackEl.innerHTML = CS.stack.map((f, idx) => {
+      const isTop = idx === CS.stack.length - 1;
+      const cls = 'cs-frame' + (f.returning ? ' returning' : (isTop ? ' top' : ''));
+      const status = f.returning ? `return ${f.val}` : `chờ kết quả con`;
+      return `<div class="${cls}">
+        <div class="fn-head">${f.name}(${f.arg})</div>
+        <div class="fn-env">env { n=${f.arg} } · ${status}</div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('csLog').innerHTML = CS && CS.log.length ? CS.log.join('\n') : '(chưa chạy)';
+  document.getElementById('csStepNo').textContent = CS ? CS.i : 0;
+  document.getElementById('csDepth').textContent = CS ? CS.stack.length : 0;
+  document.getElementById('csMax').textContent = CS ? CS.maxDepth : 0;
+  document.getElementById('csResult').textContent = (CS && CS.phase === 'done') ? CS.result : '—';
+  const pb = document.getElementById('csPhase');
+  if (!CS) { pb.textContent = 'sẵn sàng'; pb.className = 'phase-badge'; return; }
+  if (CS.phase === 'grow') { pb.textContent = 'PHÌNH (push)'; pb.className = 'phase-badge grow'; }
+  else if (CS.phase === 'shrink') { pb.textContent = 'XẸP (pop, lan giá trị)'; pb.className = 'phase-badge shrink'; }
+  else { pb.textContent = '✓ XONG — kết quả ' + CS.result; pb.className = 'phase-badge done'; }
+  // log auto-scroll
+  const lg = document.getElementById('csLog'); lg.scrollTop = lg.scrollHeight;
+}
+
+function csBuild() {
+  if (CS && CS.autoTimer) { clearInterval(CS.autoTimer); }
+  let n = parseInt(document.getElementById('csN').value, 10);
+  if (isNaN(n) || n < 0) n = 0;
+  if (n > 8) { n = 8; document.getElementById('csN').value = 8; }
+  csInit(document.getElementById('csFn').value, n);
+}
+document.getElementById('csBuild').onclick = csBuild;
+document.getElementById('csStep').onclick = () => csStep();
+document.getElementById('csReset').onclick = csBuild;
+document.getElementById('csAuto').onclick = () => {
+  if (!CS) return;
+  if (CS.autoTimer) { clearInterval(CS.autoTimer); CS.autoTimer = null; return; }
+  CS.autoTimer = setInterval(() => { if (!csStep()) { clearInterval(CS.autoTimer); CS.autoTimer = null; } }, 600);
+};
+document.getElementById('csFn').onchange = csBuild;
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 2: Closure Explorer (makeAdder)
+// ════════════════════════════════════════════════════════════════════════════
+const global2 = new Env(null, 'global');
+let adderList = []; // {name, x, closure}
+
+function makeAdder(x) {
+  // callEnv của makeAdder: { x }
+  const callEnv = new Env(global2, 'makeAdder.call');
+  callEnv.define('x', x);
+  // inner bắt callEnv làm defEnv → closure
+  const closure = makeClosure(['n'], (env) => env.get('n') + env.get('x'), callEnv, 'inner');
+  return { closure, callEnv };
+}
+
+function clMake() {
+  let x = parseInt(document.getElementById('clX').value, 10);
+  if (isNaN(x)) x = 0;
+  const { closure, callEnv } = makeAdder(x);
+  const name = 'add' + x + (adderList.filter(a => a.x === x).length ? ('_' + adderList.length) : '');
+  adderList.push({ name, x, closure, callEnv });
+  clRenderClosures();
+  clRenderPicker();
+  document.getElementById('clCallArea').style.display = 'block';
+}
+
+function clRenderClosures() {
+  const el = document.getElementById('clClosures');
+  if (!adderList.length) { el.innerHTML = ''; return; }
+  el.innerHTML = adderList.map(a => `
+    <div class="closure-card">
+      <div class="cl-title">${a.name} = makeAdder(${a.x})  —  một closure</div>
+      <div class="env-bind mono">code: return n + x</div>
+      <div style="margin-top:6px" class="arrow-note">defEnv ──▶</div>
+      <div class="env-box">
+        <div class="env-title">callEnv của makeAdder(${a.x}) — environment captured</div>
+        <div class="env-bind">x = ${a.x}</div>
+        <div class="env-parent">↑ cha → global · frame makeAdder đã pop nhưng env này SỐNG vì closure còn trỏ tới</div>
+      </div>
+    </div>`).join('');
+}
+
+function clRenderPicker() {
+  const sel = document.getElementById('clPick');
+  sel.innerHTML = adderList.map((a, i) => `<option value="${i}">${a.name}</option>`).join('');
+}
+
+function clCall() {
+  const idx = parseInt(document.getElementById('clPick').value, 10);
+  const a = adderList[idx];
+  if (!a) return;
+  let n = parseInt(document.getElementById('clN').value, 10);
+  if (isNaN(n)) n = 0;
+  // tạo callEnv mới: { n }, cha = closure.defEnv
+  const callEnv = new Env(a.closure.defEnv, a.name + '.call');
+  callEnv.define('n', n);
+  const result = a.closure.bodyFn(callEnv);
+  document.getElementById('clTrace').innerHTML = `
+    <div class="env-box" style="border-color:#c2410c">
+      <div class="env-title">Gọi ${a.name}(${n}) — tạo callEnv mới</div>
+      <div class="env-bind">callEnv { n = ${n} }  (cha = defEnv của ${a.name})</div>
+      <div class="env-bind" style="margin-top:8px;color:#7c2d12">Eval <code>n + x</code>:</div>
+      <div class="env-bind">• tra <b>n</b> → có ngay trong callEnv → <b>${n}</b></div>
+      <div class="env-bind">• tra <b>x</b> → KHÔNG có trong callEnv → leo lên defEnv → <b>${a.x}</b></div>
+      <div class="env-bind" style="margin-top:8px;font-size:16px;color:#16a34a;font-weight:700">= ${n} + ${a.x} = ${result}</div>
+    </div>`;
+}
+
+document.getElementById('clMake').onclick = clMake;
+document.getElementById('clCall').onclick = clCall;
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 3: Closure Loop Bug
+// ════════════════════════════════════════════════════════════════════════════
+let lbMode = 'bug';
+const lbSrcBug = `fs = []
+for i = 0; i < N; i = i + 1 {
+  fs.push( fn() { return i; } )   // bắt BIẾN i (chung)
+}
+// gọi tất cả → tất cả thấy i cuối cùng`;
+const lbSrcFix = `fs = []
+for i = 0; i < N; i = i + 1 {
+  j = i                           // BIẾN MỚI mỗi vòng
+  fs.push( fn() { return j; } )   // mỗi closure bắt j riêng
+}
+// gọi tất cả → 0, 1, 2, ...`;
+
+function lbRenderSrc() {
+  document.getElementById('lbSrc').textContent =
+    (lbMode === 'bug' ? lbSrcBug : lbSrcFix).replace(/\bN\b/, document.getElementById('lbCount').value);
+}
+
+function lbRun() {
+  let cnt = parseInt(document.getElementById('lbCount').value, 10);
+  if (isNaN(cnt) || cnt < 1) cnt = 1;
+  if (cnt > 8) { cnt = 8; document.getElementById('lbCount').value = 8; }
+
+  const fs = [];
+  if (lbMode === 'bug') {
+    // MỘT environment chung, một ô 'i'
+    const shared = new Env(null, 'loop');
+    shared.define('i', 0);
+    for (let i = 0; i < cnt; i++) {
+      shared.set('i', i);
+      // closure bắt env 'shared' (cùng ô i)
+      fs.push(makeClosure([], (env) => env.get('i'), shared, 'f'));
+    }
+    shared.set('i', cnt); // sau vòng lặp i = cnt
+  } else {
+    // mỗi vòng một env riêng chứa j
+    for (let i = 0; i < cnt; i++) {
+      const per = new Env(null, 'iter');
+      per.define('j', i);
+      fs.push(makeClosure([], (env) => env.get('j'), per, 'f'));
+    }
+  }
+
+  const vals = fs.map(f => {
+    const callEnv = new Env(f.defEnv, 'call');
+    return f.bodyFn(callEnv);
+  });
+
+  const grid = document.getElementById('lbFuncs');
+  grid.innerHTML = vals.map((v, i) =>
+    `<div class="func-chip ${lbMode === 'bug' ? 'bug' : 'fixed'}">
+       <div class="fc-name">fs[${i}]()</div>
+       <div class="fc-val">${v}</div>
+     </div>`).join('');
+
+  const vEl = document.getElementById('lbVerdict');
+  const allSame = vals.every(v => v === vals[0]);
+  if (lbMode === 'bug') {
+    vEl.className = 'verdict bad';
+    vEl.innerHTML = `✗ <b>Bug:</b> tất cả closure bắt cùng ô <code>i</code>. Sau vòng lặp <code>i = ${cnt}</code>, nên mọi <code>fs[k]()</code> đều ra <b>${vals[0]}</b> — không phải 0,1,2,... Closure bắt <b>biến</b>, không bắt giá trị.`;
+  } else {
+    vEl.className = 'verdict good';
+    vEl.innerHTML = `✓ <b>Fixed:</b> mỗi vòng tạo biến <code>j</code> riêng (ô nhớ khác), mỗi closure bắt một <code>j</code> → giữ đúng ${vals.join(', ')}.`;
+  }
+}
+
+document.getElementById('lbBug').onclick = () => { lbMode = 'bug'; document.getElementById('lbBug').classList.add('active'); document.getElementById('lbFix').classList.remove('active'); lbRenderSrc(); lbRun(); };
+document.getElementById('lbFix').onclick = () => { lbMode = 'fix'; document.getElementById('lbFix').classList.add('active'); document.getElementById('lbBug').classList.remove('active'); lbRenderSrc(); lbRun(); };
+document.getElementById('lbCount').oninput = lbRenderSrc;
+document.getElementById('lbRun').onclick = lbRun;
+
+// ── Init ──
+csBuild();
+lbRenderSrc();
+lbRun();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

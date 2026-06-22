@@ -30,6 +30,7 @@
 | Biology | Sinh học — 3 tầng × 8 bài, phân tử & tế bào → di truyền & tiến hóa → sinh lý & sinh thái | [Biology/](./Biology/) |
 | Chemistry | Hóa học đại cương — 2 tầng × 8 bài, cấu tạo chất → phản ứng → hóa sinh preview | [Chemistry/](./Chemistry/) |
 | Chinese | Lộ trình học tiếng Trung Phổ thông — 4 nhánh × 20 bài, phát âm Mandarin, chữ Hán Giản thể, HSK 1–4 | [Chinese/](./Chinese/) |
+| Compilers | Trình biên dịch — 3 tier × 15 bài: lexer/grammar/parser/AST → scope/type/interpreter/closure → IR/optimize/bytecode VM/codegen/register alloc | [Compilers/](./Compilers/) |
 | Cryptography | Mật mã học — 3 tầng × 4 bài: Caesar/Vigenère/OTP → AES/hash/KDF → RSA/ECC/TLS | [Cryptography/](./Cryptography/) |
 | DataFoundations | Nền tảng cho DataStructures — 3 nhóm × 13 bài: binary/bit/floating-point, encoding/hashing/nén/sửa-lỗi, set theory/logic/combinatorics/modular/proof | [DataFoundations/](./DataFoundations/) |
 | Databases | Cơ sở dữ liệu — 3 nhóm × 17 bài, mô hình quan hệ & SQL → index/transaction → NoSQL/phân tán | [Databases/](./Databases/) |

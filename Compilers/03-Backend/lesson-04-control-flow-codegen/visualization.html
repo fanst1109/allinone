@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 14 — Control Flow Codegen Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #9a3412; }
+  h2 {
+    color: #c2410c; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fed7aa;
+  }
+  h3 { color: #9a3412; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+    border: 1px solid #fde6d3;
+  }
+  .hint { color: #78716c; font-size: 13px; margin: 6px 0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #44403c; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #fef3ec; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #c2410c;
+  }
+  button {
+    background: #c2410c; color: white; border: none;
+    padding: 8px 14px; border-radius: 5px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #9a3412; }
+  button.ghost { background: #fef3ec; color: #c2410c; border: 1px solid #fed7aa; }
+  button.ghost:hover { background: #fde6d3; }
+  button:disabled { background: #d6d3d1; cursor: not-allowed; }
+  select, input[type=text], input[type=number] {
+    font-size: 14px; padding: 7px 9px;
+    border: 1px solid #e7e0da; border-radius: 5px;
+    background: white; font-family: inherit; max-width: 100%;
+    box-sizing: border-box;
+  }
+  input.src {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    width: 100%; max-width: 240px;
+  }
+
+  /* Bytecode listing */
+  .code-wrap { overflow-x: auto; }
+  table.bc {
+    border-collapse: collapse; font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; min-width: 100%;
+  }
+  table.bc td {
+    padding: 3px 10px; border-bottom: 1px solid #f5f0eb; white-space: nowrap;
+  }
+  table.bc td.addr { color: #a8a29e; text-align: right; width: 42px; }
+  table.bc td.label { color: #0e7490; font-weight: 700; }
+  table.bc td.op { color: #c2410c; font-weight: 700; }
+  table.bc td.arg { color: #44403c; }
+  table.bc tr.jump td.op { color: #9333ea; }
+  table.bc tr.pc { background: #fff7cc; }
+  table.bc tr.pc td.addr { color: #b45309; font-weight: 700; }
+
+  .pill {
+    display: inline-block; padding: 2px 9px; border-radius: 999px;
+    font-size: 12px; font-weight: 700;
+  }
+  .pill.run { background: #dcfce7; color: #166534; }
+  .pill.done { background: #e0e7ff; color: #3730a3; }
+  .pill.warn { background: #fee2e2; color: #991b1b; }
+
+  /* VM panels */
+  .vm-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .vm-grid { grid-template-columns: 1fr; } }
+  .stack-box, .vars-box { background: #fafaf9; border: 1px solid #e7e0da; border-radius: 6px; padding: 10px; }
+  .stack-box .title, .vars-box .title { font-weight: 700; color: #57534e; font-size: 13px; margin-bottom: 8px; }
+  .stk-item {
+    background: #c2410c; color: white; font-family: "SF Mono", Monaco, Consolas, monospace;
+    padding: 5px 10px; border-radius: 4px; margin: 3px 0; font-size: 13px; font-weight: 700;
+    display: inline-block;
+  }
+  .stk-empty { color: #a8a29e; font-style: italic; font-size: 13px; }
+  .var-pair {
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px;
+    padding: 3px 0; display: flex; justify-content: space-between; gap: 12px;
+  }
+  .var-pair .vname { color: #0e7490; font-weight: 700; }
+  .var-pair .vval { color: #c2410c; font-weight: 700; }
+  .output {
+    background: #1c1917; color: #fdba74; font-family: "SF Mono", Monaco, Consolas, monospace;
+    padding: 10px 12px; border-radius: 6px; font-size: 13px; min-height: 22px;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  .pcline { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; color: #57534e; margin: 6px 0; }
+  .pcline b { color: #b45309; }
+
+  /* CFG */
+  .cfg-wrap { overflow-x: auto; }
+  svg text { font-family: "SF Mono", Monaco, Consolas, monospace; }
+
+  .legend { font-size: 12px; color: #78716c; margin-top: 8px; }
+  .legend .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: middle; margin: 0 3px 0 10px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-bytecode-stack-vm/visualization.html">← L13: Bytecode &amp; Stack VM</a>
+  <span class="sep">·</span>
+  <span class="current">L14: Control Flow Codegen</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-register-alloc-targets/visualization.html">L15: Register Allocation &amp; Targets →</a>
+</nav>
+<main>
+  <h1>Lesson 14 — Sinh mã điều khiển luồng (if/while → jumps)</h1>
+  <p>Ba module tương tác: (1) <b>Compiler</b> dịch <code>if/while/for</code> thành bytecode có nhãn + JMP/JMPF; (2) <b>VM stepper</b> chạy bytecode, vẽ PC nhảy qua các nhãn cùng stack &amp; biến; (3) <b>CFG viewer</b> vẽ basic block + cạnh. Compiler và VM là code JS thật, không phải hình tĩnh.</p>
+
+  <h2>1. Compiler: cấu trúc cao cấp → bytecode</h2>
+  <div class="card">
+    <div class="row">
+      <label>Cấu trúc:</label>
+      <select id="kind">
+        <option value="if">if c { A } else { B }</option>
+        <option value="ifnoelse">if c { A }  (không else)</option>
+        <option value="while" selected>while c { B }</option>
+        <option value="for">for (init; c; update) { B }</option>
+        <option value="and">if (a &amp;&amp; b) { A }  (short-circuit)</option>
+      </select>
+      <button id="compileBtn">Biên dịch →</button>
+    </div>
+    <div id="srcForm" class="row"></div>
+    <div class="hint">Compiler sinh nhãn (<code>Lelse</code>, <code>Lend</code>, <code>Lstart</code>) rồi <b>backpatch</b> địa chỉ — cột địa chỉ là số thật VM thấy. Lệnh nhảy tô tím.</div>
+    <div class="code-wrap"><div id="bcOut"></div></div>
+  </div>
+
+  <h2>2. VM stepper: chạy bytecode với lệnh nhảy</h2>
+  <div class="card">
+    <div class="hint">Bytecode lấy từ module 1. Bấm <b>Bước</b> để chạy từng lệnh — chú ý PC <b>nhảy</b> khi gặp JMP/JMPF (không tăng đều). Mặc định: <code>i=0; while i&lt;3 { print i; i=i+1 }</code>.</div>
+    <div class="row">
+      <button id="vmStep">▶ Bước</button>
+      <button id="vmRun" class="ghost">⏭ Chạy hết</button>
+      <button id="vmReset" class="ghost">↺ Reset</button>
+      <span id="vmStatus"></span>
+    </div>
+    <div class="pcline">PC = <b id="pcVal">0</b> · số bước đã chạy: <b id="stepCount">0</b> · số lần nhảy: <b id="jumpCount">0</b></div>
+    <div class="vm-grid">
+      <div>
+        <div class="code-wrap"><div id="vmCode"></div></div>
+      </div>
+      <div>
+        <div class="stack-box">
+          <div class="title">Stack (đỉnh ở trên)</div>
+          <div id="vmStack"></div>
+        </div>
+        <div class="vars-box" style="margin-top:10px;">
+          <div class="title">Biến</div>
+          <div id="vmVars"></div>
+        </div>
+        <div style="margin-top:10px;">
+          <div class="title" style="font-weight:700;color:#57534e;font-size:13px;margin-bottom:6px;">Output (PRINT)</div>
+          <div class="output" id="vmOut"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>3. CFG viewer: basic block + cạnh nhánh</h2>
+  <div class="card">
+    <div class="hint">Cắt bytecode hiện tại thành <b>basic block</b> (leader = lệnh đầu, đích nhảy, hoặc lệnh ngay sau nhảy) rồi nối cạnh luồng điều khiển. <code>if</code> → hình kim cương; <code>while</code> → có <b>cạnh lùi</b> (back edge, tô tím).</div>
+    <div class="cfg-wrap"><svg id="cfg" width="760" height="440" viewBox="0 0 760 440"></svg></div>
+    <div class="legend">
+      <span class="sw" style="background:#fb923c;"></span> fall-through / true
+      <span class="sw" style="background:#0e7490;"></span> nhánh false (JMPF)
+      <span class="sw" style="background:#9333ea;"></span> back edge (vòng lặp)
+    </div>
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+// COMPILER — sinh bytecode thật với nhãn + backpatching
+// Bytecode = mảng instruction { op, arg, isJump }. arg của JMP/JMPF/JMPT = địa chỉ.
+// ════════════════════════════════════════════════════════════════════════════
+const JUMPS = new Set(['JMP', 'JMPF', 'JMPT']);
+
+class Compiler {
+  constructor() { this.code = []; }
+  emit(op, arg) { this.code.push({ op, arg, isJump: JUMPS.has(op) }); return this.code.length - 1; }
+  here() { return this.code.length; }                  // địa chỉ lệnh kế tiếp
+  patch(idx, addr) { this.code[idx].arg = addr; }      // backpatch
+}
+
+// Sinh mã cho một biểu thức điều kiện đơn giản dạng "lhs OP rhs".
+// lhs/rhs: số (PUSH) hoặc tên biến (LOAD). OP ∈ <, >=, ==.
+function emitCmp(c, lhs, op, rhs) {
+  emitOperand(c, lhs);
+  emitOperand(c, rhs);
+  c.emit({ '<': 'LT', '>=': 'GE', '==': 'EQ' }[op]);
+}
+function emitOperand(c, tok) {
+  tok = String(tok).trim();
+  if (/^-?\d+$/.test(tok)) c.emit('PUSH', parseInt(tok, 10));
+  else c.emit('LOAD', tok);
+}
+// Sinh mã cho lệnh đơn: "print(x)" | "x = expr". expr dạng "a + b" / "a" / số.
+function emitStmt(c, stmt) {
+  stmt = stmt.trim();
+  let m = stmt.match(/^print\((.+)\)$/);
+  if (m) { emitOperand(c, m[1]); c.emit('PRINT'); return; }
+  m = stmt.match(/^(\w+)\s*=\s*(.+)$/);
+  if (m) {
+    emitExpr(c, m[2]);
+    c.emit('STORE', m[1]);
+    return;
+  }
+  // fallback: coi như no-op comment
+}
+function emitExpr(c, expr) {
+  expr = expr.trim();
+  let m = expr.match(/^(.+?)\s*([+\-])\s*(.+)$/);
+  if (m) { emitOperand(c, m[1]); emitOperand(c, m[3]); c.emit(m[2] === '+' ? 'ADD' : 'SUB'); }
+  else emitOperand(c, expr);
+}
+
+// — Các template biên dịch chính (đây là phần "thật" của bài học) —
+function compileIf(cond, thenStmts, elseStmts) {
+  const c = new Compiler();
+  emitCmp(c, cond.lhs, cond.op, cond.rhs);
+  const jmpf = c.emit('JMPF', '?');          // chưa biết Lelse → backpatch
+  thenStmts.forEach(s => emitStmt(c, s));
+  let jmp = -1;
+  if (elseStmts) jmp = c.emit('JMP', '?');   // chưa biết Lend
+  c.patch(jmpf, c.here());                    // Lelse = đầu else (hoặc Lend nếu không else)
+  if (elseStmts) {
+    elseStmts.forEach(s => emitStmt(c, s));
+    c.patch(jmp, c.here());                   // Lend
+  }
+  return c.code;
+}
+function compileWhile(cond, body, initStmts, updateStmts) {
+  const c = new Compiler();
+  if (initStmts) initStmts.forEach(s => emitStmt(c, s));
+  const Lstart = c.here();
+  emitCmp(c, cond.lhs, cond.op, cond.rhs);
+  const jmpf = c.emit('JMPF', '?');          // Lend chưa biết → backpatch
+  body.forEach(s => emitStmt(c, s));
+  if (updateStmts) updateStmts.forEach(s => emitStmt(c, s));
+  c.emit('JMP', Lstart);                      // nhảy LÙI → không cần backpatch
+  c.patch(jmpf, c.here());                    // Lend
+  return c.code;
+}
+function compileAnd(a, b, thenStmts) {
+  // if (a && b) { ... } — short-circuit
+  const c = new Compiler();
+  c.emit('LOAD', a);
+  const j1 = c.emit('JMPF', '?');            // a sai → Lend
+  c.emit('LOAD', b);
+  const j2 = c.emit('JMPF', '?');            // b sai → Lend
+  thenStmts.forEach(s => emitStmt(c, s));
+  const Lend = c.here();
+  c.patch(j1, Lend); c.patch(j2, Lend);      // hai JMPF gom về một Lend
+  return c.code;
+}
+
+// ── Nhãn để hiển thị (tên thân thiện cho các địa chỉ là đích nhảy) ──
+function computeLabels(code) {
+  const targets = new Set();
+  code.forEach(ins => { if (ins.isJump && typeof ins.arg === 'number') targets.add(ins.arg); });
+  const names = {};
+  let n = 0;
+  // gán tên theo thứ tự địa chỉ tăng dần
+  [...targets].sort((a, b) => a - b).forEach(addr => { names[addr] = 'L' + n++; });
+  return names;
+}
+
+function renderBytecode(code, containerId, pc = -1) {
+  const labels = computeLabels(code);
+  let html = '<table class="bc">';
+  for (let a = 0; a <= code.length; a++) {
+    const lbl = labels[a] ? labels[a] + ':' : '';
+    if (a === code.length) {
+      // dòng Lend (nếu địa chỉ cuối là một nhãn)
+      if (labels[a]) html += `<tr><td class="addr">${a}</td><td class="label">${lbl}</td><td class="op">HALT</td><td class="arg"></td></tr>`;
+      else html += `<tr><td class="addr">${a}</td><td class="label"></td><td class="op">HALT</td><td class="arg"></td></tr>`;
+      break;
+    }
+    const ins = code[a];
+    let arg = ins.arg;
+    if (ins.isJump && labels[arg] !== undefined) arg = `${labels[arg]} (${ins.arg})`;
+    else if (arg === undefined) arg = '';
+    const cls = (ins.isJump ? 'jump ' : '') + (a === pc ? 'pc' : '');
+    html += `<tr class="${cls}"><td class="addr">${a}</td><td class="label">${lbl}</td><td class="op">${ins.op}</td><td class="arg">${arg}</td></tr>`;
+  }
+  html += '</table>';
+  document.getElementById(containerId).innerHTML = html;
+}
+
+// ── Form nhập theo loại cấu trúc ──
+function buildForm() {
+  const k = document.getElementById('kind').value;
+  const f = document.getElementById('srcForm');
+  const F = (id, val, w) => `<input class="src" id="${id}" type="text" value="${val}" style="max-width:${w||120}px">`;
+  if (k === 'if' || k === 'ifnoelse') {
+    f.innerHTML = `<label>if</label> ${F('cond', 'x < 10')} <label>{</label> ${F('thenS', 'print(1)', 150)} <label>}</label>`
+      + (k === 'if' ? ` <label>else {</label> ${F('elseS', 'print(2)', 150)} <label>}</label>` : '');
+  } else if (k === 'while') {
+    f.innerHTML = `<label>init:</label> ${F('initS', 'i = 0', 100)} <label>while</label> ${F('cond', 'i < 3')} <label>{</label> ${F('bodyS', 'print(i); i = i + 1', 220)} <label>}</label>`;
+  } else if (k === 'for') {
+    f.innerHTML = `<label>for(</label> ${F('initS', 'i = 0', 90)} <label>;</label> ${F('cond', 'i < 3', 80)} <label>;</label> ${F('updateS', 'i = i + 1', 110)} <label>) {</label> ${F('bodyS', 'print(i)', 130)} <label>}</label>`;
+  } else if (k === 'and') {
+    f.innerHTML = `<label>if (</label> ${F('aVar', 'a', 50)} <label>&amp;&amp;</label> ${F('bVar', 'b', 50)} <label>) {</label> ${F('thenS', 'print(1)', 130)} <label>}</label>`;
+  }
+}
+
+function parseCond(s) {
+  const m = s.match(/^(.+?)\s*(<|>=|==)\s*(.+)$/);
+  if (!m) return { lhs: 'i', op: '<', rhs: '3' };
+  return { lhs: m[1].trim(), op: m[2], rhs: m[3].trim() };
+}
+function splitStmts(s) { return s.split(';').map(x => x.trim()).filter(Boolean); }
+
+let CURRENT_CODE = [];
+
+function doCompile() {
+  const k = document.getElementById('kind').value;
+  const g = id => (document.getElementById(id) ? document.getElementById(id).value : '');
+  let code;
+  if (k === 'if') code = compileIf(parseCond(g('cond')), splitStmts(g('thenS')), splitStmts(g('elseS')));
+  else if (k === 'ifnoelse') code = compileIf(parseCond(g('cond')), splitStmts(g('thenS')), null);
+  else if (k === 'while') code = compileWhile(parseCond(g('cond')), splitStmts(g('bodyS')), splitStmts(g('initS')), null);
+  else if (k === 'for') code = compileWhile(parseCond(g('cond')), splitStmts(g('bodyS')), splitStmts(g('initS')), splitStmts(g('updateS')));
+  else if (k === 'and') code = compileAnd(g('aVar').trim(), g('bVar').trim(), splitStmts(g('thenS')));
+  CURRENT_CODE = code;
+  renderBytecode(code, 'bcOut');
+  loadIntoVM(code);
+  drawCFG(code);
+}
+
+document.getElementById('kind').onchange = () => { buildForm(); };
+document.getElementById('compileBtn').onclick = doCompile;
+
+// ════════════════════════════════════════════════════════════════════════════
+// VM — stack machine thật, thực thi từng bước
+// ════════════════════════════════════════════════════════════════════════════
+class VM {
+  constructor(code) { this.code = code; this.reset(); }
+  reset() {
+    this.pc = 0; this.stack = []; this.vars = {}; this.out = [];
+    this.steps = 0; this.jumps = 0; this.halted = false; this.lastJumped = false;
+  }
+  step() {
+    if (this.halted) return;
+    if (this.pc >= this.code.length) { this.halted = true; return; }
+    const ins = this.code[this.pc];
+    const before = this.pc;
+    this.pc++;                              // mặc định tiến tới lệnh kế
+    this.lastJumped = false;
+    const s = this.stack;
+    switch (ins.op) {
+      case 'PUSH': s.push(ins.arg); break;
+      case 'LOAD': s.push(this.vars[ins.arg] || 0); break;
+      case 'STORE': this.vars[ins.arg] = s.pop(); break;
+      case 'ADD': { const b = s.pop(), a = s.pop(); s.push(a + b); break; }
+      case 'SUB': { const b = s.pop(), a = s.pop(); s.push(a - b); break; }
+      case 'LT': { const b = s.pop(), a = s.pop(); s.push(a < b); break; }
+      case 'GE': { const b = s.pop(), a = s.pop(); s.push(a >= b); break; }
+      case 'EQ': { const b = s.pop(), a = s.pop(); s.push(a === b); break; }
+      case 'PRINT': this.out.push(s.pop()); break;
+      case 'JMP': this.pc = ins.arg; this.lastJumped = true; break;
+      case 'JMPF': { const v = s.pop(); if (!v) { this.pc = ins.arg; this.lastJumped = true; } break; }
+      case 'JMPT': { const v = s.pop(); if (v) { this.pc = ins.arg; this.lastJumped = true; } break; }
+      case 'HALT': this.halted = true; break;
+    }
+    this.steps++;
+    if (this.lastJumped) this.jumps++;
+    if (this.pc >= this.code.length) this.halted = true;
+  }
+}
+
+let vm = null;
+const SAFETY = 5000; // chặn lặp vô hạn
+
+function loadIntoVM(code) {
+  vm = new VM(code);
+  renderVM();
+}
+function fmtVal(v) { return v === true ? 'true' : v === false ? 'false' : String(v); }
+
+function renderVM() {
+  if (!vm) return;
+  renderBytecode(vm.code, 'vmCode', vm.halted ? -1 : vm.pc);
+  document.getElementById('pcVal').textContent = vm.pc;
+  document.getElementById('stepCount').textContent = vm.steps;
+  document.getElementById('jumpCount').textContent = vm.jumps;
+  // stack (đỉnh trên)
+  const st = document.getElementById('vmStack');
+  if (vm.stack.length === 0) st.innerHTML = '<span class="stk-empty">(rỗng)</span>';
+  else st.innerHTML = vm.stack.slice().reverse().map(v => `<div><span class="stk-item">${fmtVal(v)}</span></div>`).join('');
+  // vars
+  const vs = document.getElementById('vmVars');
+  const keys = Object.keys(vm.vars);
+  vs.innerHTML = keys.length ? keys.map(k => `<div class="var-pair"><span class="vname">${k}</span><span class="vval">${fmtVal(vm.vars[k])}</span></div>`).join('') : '<span class="stk-empty">(chưa có)</span>';
+  // output
+  document.getElementById('vmOut').textContent = vm.out.map(fmtVal).join('  ');
+  // status
+  const stat = document.getElementById('vmStatus');
+  if (vm.halted) stat.innerHTML = '<span class="pill done">HALT — kết thúc</span>';
+  else if (vm.lastJumped) stat.innerHTML = '<span class="pill run">vừa NHẢY</span>';
+  else stat.innerHTML = '<span class="pill run">đang chạy</span>';
+}
+
+document.getElementById('vmStep').onclick = () => { if (vm && !vm.halted) { vm.step(); renderVM(); } };
+document.getElementById('vmRun').onclick = () => {
+  if (!vm) return;
+  let guard = 0;
+  while (!vm.halted && guard++ < SAFETY) vm.step();
+  if (guard >= SAFETY) document.getElementById('vmStatus').innerHTML = '<span class="pill warn">Dừng an toàn (>5000 bước — nghi lặp vô hạn)</span>';
+  else renderVM();
+  renderVM();
+};
+document.getElementById('vmReset').onclick = () => { if (vm) { vm.reset(); renderVM(); } };
+
+// ════════════════════════════════════════════════════════════════════════════
+// CFG — cắt basic block + vẽ SVG
+// ════════════════════════════════════════════════════════════════════════════
+function buildBlocks(code) {
+  if (code.length === 0) return { blocks: [], edges: [] };
+  const leaders = new Set([0]);
+  code.forEach((ins, i) => {
+    if (ins.isJump) {
+      if (typeof ins.arg === 'number') leaders.add(ins.arg); // đích nhảy
+      if (i + 1 < code.length) leaders.add(i + 1);            // lệnh sau nhảy
+    }
+  });
+  const starts = [...leaders].filter(x => x < code.length).sort((a, b) => a - b);
+  const blocks = starts.map((s, idx) => {
+    const end = (idx + 1 < starts.length) ? starts[idx + 1] - 1 : code.length - 1;
+    return { id: idx, start: s, end };
+  });
+  const blockOf = addr => {
+    for (const b of blocks) if (addr >= b.start && addr <= b.end) return b.id;
+    return null; // = HALT (sau cùng)
+  };
+  const edges = [];
+  blocks.forEach(b => {
+    const last = code[b.end];
+    if (last.op === 'JMP') {
+      edges.push({ from: b.id, to: blockOf(last.arg), kind: last.arg <= b.start ? 'back' : 'jmp' });
+    } else if (last.op === 'JMPF' || last.op === 'JMPT') {
+      // fall-through (true cho JMPF) + target (false cho JMPF)
+      edges.push({ from: b.id, to: blockOf(b.end + 1), kind: 'true' });
+      edges.push({ from: b.id, to: blockOf(last.arg), kind: 'false' });
+    } else {
+      // fall-through tới block kế (nếu còn)
+      if (b.end + 1 < code.length) edges.push({ from: b.id, to: blockOf(b.end + 1), kind: 'true' });
+    }
+  });
+  return { blocks, edges, blockOf };
+}
+
+function drawCFG(code) {
+  const { blocks, edges } = buildBlocks(code);
+  const svg = document.getElementById('cfg');
+  const W = 760;
+  const bw = 200, bh = 70, gapY = 30;
+  // layout: xếp dọc theo thứ tự block; nếu có 2 nhánh ra, đẩy block else sang phải
+  // đơn giản hóa: cột chính giữa, block nào chỉ là đích "false" của block trước thì lệch phải
+  const pos = {};
+  let y = 20;
+  const cx = W / 2;
+  // đánh dấu block là "else branch" (đích false mà != fall-through tiếp theo)
+  const elseBlocks = new Set();
+  edges.forEach(e => { if (e.kind === 'false' && e.to !== null && e.to !== e.from + 1) elseBlocks.add(e.to); });
+  blocks.forEach(b => {
+    const isElse = elseBlocks.has(b.id);
+    pos[b.id] = { x: isElse ? cx + 150 : cx, y: y + bh / 2, top: y };
+    y += bh + gapY;
+  });
+  const haltY = y;
+  const haltPos = { x: cx, y: haltY + 16 };
+
+  const NS = 'http://www.w3.org/2000/svg';
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  svg.setAttribute('height', haltY + 50);
+  svg.setAttribute('viewBox', `0 0 ${W} ${haltY + 50}`);
+
+  // arrowheads
+  const defs = document.createElementNS(NS, 'defs');
+  [['ah-orange', '#fb923c'], ['ah-teal', '#0e7490'], ['ah-purple', '#9333ea']].forEach(([id, col]) => {
+    const m = document.createElementNS(NS, 'marker');
+    m.setAttribute('id', id); m.setAttribute('markerWidth', '8'); m.setAttribute('markerHeight', '8');
+    m.setAttribute('refX', '6'); m.setAttribute('refY', '3'); m.setAttribute('orient', 'auto');
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', 'M0,0 L6,3 L0,6 Z'); p.setAttribute('fill', col);
+    m.appendChild(p); defs.appendChild(m);
+  });
+  svg.appendChild(defs);
+
+  const colorOf = { true: '#fb923c', false: '#0e7490', jmp: '#fb923c', back: '#9333ea' };
+  const markerOf = { true: 'ah-orange', false: 'ah-teal', jmp: 'ah-orange', back: 'ah-purple' };
+
+  // edges
+  edges.forEach(e => {
+    const a = pos[e.from];
+    const b = e.to === null ? haltPos : pos[e.to];
+    if (!a || !b) return;
+    const col = colorOf[e.kind], mk = markerOf[e.kind];
+    let d;
+    if (e.kind === 'back') {
+      // cạnh lùi: vòng ra bên trái
+      const x0 = a.x - bw / 2, y0 = a.y;
+      const x1 = b.x - bw / 2, y1 = b.y;
+      d = `M ${x0} ${y0} C ${x0 - 90} ${y0}, ${x1 - 90} ${y1}, ${x1} ${y1}`;
+    } else {
+      d = `M ${a.x} ${a.y + bh / 2 - 4} L ${b.x} ${b.y - bh / 2 + 4}`;
+    }
+    const path = document.createElementNS(NS, 'path');
+    path.setAttribute('d', d); path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', col); path.setAttribute('stroke-width', '2');
+    path.setAttribute('marker-end', `url(#${mk})`);
+    if (e.kind === 'back') path.setAttribute('stroke-dasharray', '5 4');
+    svg.appendChild(path);
+  });
+
+  // blocks
+  const labels = computeLabels(code);
+  blocks.forEach(b => {
+    const p = pos[b.id];
+    const x = p.x - bw / 2, yy = p.top;
+    const g = document.createElementNS(NS, 'g');
+    const rect = document.createElementNS(NS, 'rect');
+    rect.setAttribute('x', x); rect.setAttribute('y', yy);
+    rect.setAttribute('width', bw); rect.setAttribute('height', bh);
+    rect.setAttribute('rx', '8'); rect.setAttribute('fill', '#fff7ed');
+    rect.setAttribute('stroke', '#fb923c'); rect.setAttribute('stroke-width', '2');
+    g.appendChild(rect);
+    // title
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', p.x); t.setAttribute('y', yy + 16); t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('font-size', '12'); t.setAttribute('font-weight', '700'); t.setAttribute('fill', '#9a3412');
+    t.textContent = `B${b.id}  [${b.start}–${b.end}]`;
+    g.appendChild(t);
+    // first + last instr summary
+    const lines = [];
+    const first = code[b.start];
+    lines.push(`${b.start}: ${first.op}${first.arg !== undefined ? ' ' + (first.isJump && labels[first.arg] !== undefined ? labels[first.arg] : first.arg) : ''}`);
+    if (b.end !== b.start) {
+      const last = code[b.end];
+      if (b.end > b.start + 1) lines.push('  ⋮');
+      lines.push(`${b.end}: ${last.op}${last.arg !== undefined ? ' ' + (last.isJump && labels[last.arg] !== undefined ? labels[last.arg] : last.arg) : ''}`);
+    }
+    lines.forEach((ln, i) => {
+      const tx = document.createElementNS(NS, 'text');
+      tx.setAttribute('x', x + 10); tx.setAttribute('y', yy + 34 + i * 14);
+      tx.setAttribute('font-size', '11'); tx.setAttribute('fill', '#57534e');
+      tx.textContent = ln;
+      g.appendChild(tx);
+    });
+    svg.appendChild(g);
+  });
+
+  // HALT node
+  const ht = document.createElementNS(NS, 'text');
+  ht.setAttribute('x', haltPos.x); ht.setAttribute('y', haltPos.y); ht.setAttribute('text-anchor', 'middle');
+  ht.setAttribute('font-size', '13'); ht.setAttribute('font-weight', '700'); ht.setAttribute('fill', '#3730a3');
+  ht.textContent = '▼ HALT (Lend / kết thúc)';
+  svg.appendChild(ht);
+}
+
+// ── Init ──
+buildForm();
+doCompile();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

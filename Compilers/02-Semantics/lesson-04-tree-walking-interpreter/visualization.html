@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 09 — Tree-Walking Interpreter Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #9a3412; }
+  h2 {
+    color: #c2410c; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fed7aa;
+  }
+  h3 { color: #9a3412; margin-top: 22px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { color: #78716c; font-size: 13px; margin: 6px 0; }
+  code, .mono {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  code {
+    background: #fef3ec; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #c2410c;
+  }
+
+  /* Buttons */
+  button {
+    background: #c2410c; color: white; border: none;
+    padding: 9px 16px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #9a3412; }
+  button:disabled { background: #d6d3d1; cursor: not-allowed; }
+  button.ghost {
+    background: #fef3ec; color: #9a3412; border: 1px solid #fed7aa;
+  }
+  button.ghost:hover { background: #fed7aa; }
+  button.preset {
+    background: #f5f5f4; color: #44403c; font-size: 12px;
+    padding: 5px 11px; margin: 3px 5px 3px 0; border: 1px solid #e7e5e4;
+    font-weight: 500;
+  }
+  button.preset:hover { background: #e7e5e4; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 12px 0 4px; }
+
+  /* Code editor textarea */
+  textarea.code {
+    width: 100%; box-sizing: border-box;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; line-height: 1.55; padding: 12px;
+    border: 1px solid #d6d3d1; border-radius: 6px;
+    background: #1c1917; color: #fafaf9; resize: vertical;
+    min-height: 130px; tab-size: 2;
+  }
+  textarea.code:focus { outline: 2px solid #c2410c; border-color: #c2410c; }
+
+  /* Output console */
+  .console {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; background: #0c0a09; color: #d6d3d1;
+    border-radius: 6px; padding: 12px 14px; margin-top: 12px;
+    min-height: 44px; white-space: pre-wrap; word-break: break-word;
+  }
+  .console .out-line { color: #fcd34d; }
+  .console .ok { color: #86efac; }
+  .console .err { color: #fca5a5; font-weight: 600; }
+  .console .muted { color: #78716c; }
+
+  /* Env table */
+  table.env {
+    border-collapse: collapse; margin: 4px 0; min-width: 200px;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 14px;
+  }
+  table.env th, table.env td {
+    border: 1px solid #e7e5e4; padding: 6px 16px; text-align: left;
+  }
+  table.env th { background: #fef3ec; color: #9a3412; font-weight: 700; }
+  table.env td.val { color: #c2410c; font-weight: 700; }
+  table.env tr.changed td { background: #fef9c3; }
+  .env-empty { color: #a8a29e; font-style: italic; font-size: 13px; }
+
+  .grid2 {
+    display: grid; grid-template-columns: 1.3fr 1fr; gap: 18px;
+    margin-top: 4px;
+  }
+  .grid2 .sub-head { font-weight: 700; color: #9a3412; margin-bottom: 6px; font-size: 14px; }
+  @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+
+  /* AST tree (stepper) */
+  .ast {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13.5px; line-height: 1.7;
+    background: #fafaf9; border: 1px solid #e7e5e4; border-radius: 6px;
+    padding: 12px 14px; overflow-x: auto;
+  }
+  .ast .node {
+    display: inline-block; padding: 1px 7px; border-radius: 4px;
+    border: 1px solid transparent; white-space: nowrap;
+  }
+  .ast .node.cur {
+    background: #c2410c; color: white; border-color: #9a3412;
+    box-shadow: 0 0 0 3px rgba(194,65,12,0.25);
+  }
+  .ast .node.done { background: #dcfce7; color: #166534; }
+  .ast .node.active { background: #fed7aa; color: #9a3412; }
+  .ast .tw { color: #a8a29e; }
+
+  .step-status {
+    background: #fffbeb; border-left: 4px solid #c2410c;
+    padding: 10px 14px; border-radius: 4px; margin: 12px 0;
+    font-size: 14px; line-height: 1.5;
+  }
+  .step-status .retval {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-weight: 700; color: #c2410c;
+  }
+
+  .demo-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px;
+  }
+  @media (max-width: 720px) { .demo-grid { grid-template-columns: 1fr; } }
+  .demo-card {
+    border: 1px solid #fed7aa; border-radius: 8px; padding: 14px; background: #fffbf7;
+  }
+  .demo-card .dc-title { font-weight: 700; color: #9a3412; margin-bottom: 8px; }
+  .demo-card pre {
+    background: #1c1917; color: #fafaf9; border-radius: 5px;
+    padding: 10px 12px; font-size: 13px; overflow-x: auto; margin: 0 0 8px;
+  }
+
+  .syntax-box {
+    background: #fef3ec; border: 1px solid #fed7aa; border-radius: 6px;
+    padding: 10px 14px; font-size: 13px; line-height: 1.6;
+  }
+
+  @media (max-width: 480px) {
+    textarea.code { font-size: 13px; }
+    .console, .ast { font-size: 12.5px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-type-checking/visualization.html">← L08: Type Checking</a>
+  <span class="sep">·</span>
+  <span class="current">L09: Tree-Walking Interpreter</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-functions-closures/visualization.html">L10: Functions &amp; Closures →</a>
+</nav>
+
+<main>
+  <h1>Lesson 09 — Tree-Walking Interpreter</h1>
+  <p>
+    Một interpreter <strong>thật</strong> cho ngôn ngữ đồ chơi — lexer + parser + <code>eval(node, env)</code>
+    viết bằng JavaScript ngay trong trang này. Nhập chương trình → nó CHẠY, in ra kết quả và bảng biến.
+    Ba module: REPL chạy được, eval stepper từng node, và demo lỗi runtime.
+  </p>
+
+  <div class="syntax-box">
+    <strong>Cú pháp ngôn ngữ đồ chơi:</strong>
+    gán <code>x = biểu_thức</code> · in <code>print biểu_thức</code> ·
+    rẽ nhánh <code>if cond { ... } else { ... }</code> · lặp <code>while cond { ... }</code>.
+    Biểu thức: số, biến, <code>+ - * /</code>, so sánh <code>&lt; &gt; &lt;= &gt;= == !=</code>, ngoặc <code>( )</code>.
+    Mỗi câu lệnh cách nhau bởi <code>;</code> hoặc xuống dòng.
+  </div>
+
+  <!-- ───────────── MODULE 1: REPL ───────────── -->
+  <h2>1. Live Interpreter (REPL) — chạy chương trình</h2>
+  <p class="hint">
+    Nhập một chương trình rồi bấm <strong>▶ Chạy</strong>. Interpreter sẽ lexer → parser → eval, hiển thị
+    output trên màn hình giả lập và bảng <code>env</code> (giá trị biến) lúc kết thúc.
+  </p>
+  <div class="card">
+    <textarea class="code" id="replCode" spellcheck="false">i = 0
+while i < 3 {
+  print i
+  i = i + 1
+}</textarea>
+    <div class="btn-row">
+      <button id="replRun">▶ Chạy</button>
+      <button class="ghost" id="replClear">Xóa output</button>
+    </div>
+    <div class="btn-row">
+      <span class="hint" style="margin-right:4px;">Mẫu:</span>
+      <button class="preset" data-target="replCode" data-code="x = 5&#10;y = x + 3&#10;print y">x = 5; y = x+3; print y → 8</button>
+      <button class="preset" data-target="replCode" data-code="i = 0&#10;while i < 3 {&#10;  print i&#10;  i = i + 1&#10;}">đếm 0..2</button>
+      <button class="preset" data-target="replCode" data-code="n = 4&#10;f = 1&#10;i = 1&#10;while i <= n {&#10;  f = f * i&#10;  i = i + 1&#10;}&#10;print f">giai thừa 4! = 24</button>
+      <button class="preset" data-target="replCode" data-code="x = 8&#10;if x > 10 {&#10;  print 100&#10;} else {&#10;  print x * 2&#10;}">if / else</button>
+      <button class="preset" data-target="replCode" data-code="s = 0&#10;i = 1&#10;while i < 5 {&#10;  s = s + i&#10;  i = i + 1&#10;}&#10;print s">tổng 1..4 = 10</button>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="sub-head">📺 Output</div>
+        <div class="console" id="replConsole"><span class="muted">(chưa chạy)</span></div>
+      </div>
+      <div>
+        <div class="sub-head">🗂 env cuối cùng</div>
+        <div id="replEnv"><span class="env-empty">(rỗng)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────── MODULE 2: STEPPER ───────────── -->
+  <h2>2. Eval Stepper — chạy từng node một</h2>
+  <p class="hint">
+    Cùng một interpreter nhưng dừng ở <strong>mỗi node</strong>. Node đang eval được tô
+    <span class="node cur" style="font-size:12px;">cam</span>; node đã xong tô
+    <span class="node done" style="font-size:12px;">xanh</span>. Theo dõi giá trị trả về và <code>env</code> cập nhật từng bước.
+  </p>
+  <div class="card">
+    <textarea class="code" id="stepCode" spellcheck="false">x = 5
+print x + 3</textarea>
+    <div class="btn-row">
+      <button id="stepLoad">⟳ Nạp chương trình</button>
+      <button class="ghost" id="stepPrev" disabled>← Lùi</button>
+      <button id="stepNext" disabled>Tiến →</button>
+      <button class="ghost" id="stepAuto" disabled>▶ Tự chạy</button>
+    </div>
+    <div class="btn-row">
+      <span class="hint" style="margin-right:4px;">Mẫu:</span>
+      <button class="preset" data-target="stepCode" data-code="x = 5&#10;print x + 3">x=5; print x+3</button>
+      <button class="preset" data-target="stepCode" data-code="a = 4&#10;b = a * 2&#10;c = a + b&#10;print c">block 4 câu</button>
+      <button class="preset" data-target="stepCode" data-code="i = 0&#10;while i < 2 {&#10;  print i&#10;  i = i + 1&#10;}">while 2 vòng</button>
+    </div>
+    <div class="step-status" id="stepStatus">Bấm <strong>⟳ Nạp chương trình</strong> để bắt đầu, rồi bấm <strong>Tiến →</strong> đi qua từng node.</div>
+    <div class="grid2">
+      <div>
+        <div class="sub-head">🌳 AST (node đang eval được tô màu)</div>
+        <div class="ast" id="stepAst"><span class="env-empty">(chưa nạp)</span></div>
+      </div>
+      <div>
+        <div class="sub-head">🗂 env tại bước này</div>
+        <div id="stepEnv"><span class="env-empty">(rỗng)</span></div>
+        <div class="sub-head" style="margin-top:14px;">📺 Output tích lũy</div>
+        <div class="console" id="stepConsole" style="min-height:32px;"><span class="muted">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────── MODULE 3: RUNTIME ERRORS ───────────── -->
+  <h2>3. Runtime Error Demo — lỗi chỉ lộ lúc chạy</h2>
+  <p class="hint">
+    Các chương trình dưới đây <strong>compile sạch</strong> (cú pháp + kiểu đều ổn) nhưng vẫn lỗi khi chạy —
+    vì lỗi phụ thuộc <em>giá trị thật</em> lúc eval. Bấm <strong>▶ Chạy</strong> từng cái để thấy interpreter bắt lỗi
+    mà không tự sập.
+  </p>
+  <div class="card">
+    <div class="demo-grid">
+      <div class="demo-card">
+        <div class="dc-title">(a) Chia cho 0</div>
+        <pre id="errSrc0">x = 6
+y = x - 6
+print 10 / y</pre>
+        <button class="ghost err-run" data-which="0">▶ Chạy</button>
+        <div class="console" id="errOut0" style="min-height:32px;"><span class="muted">—</span></div>
+      </div>
+      <div class="demo-card">
+        <div class="dc-title">(b) Biến chưa gán</div>
+        <pre id="errSrc1">x = 5
+print z</pre>
+        <button class="ghost err-run" data-which="1">▶ Chạy</button>
+        <div class="console" id="errOut1" style="min-height:32px;"><span class="muted">—</span></div>
+      </div>
+    </div>
+    <p class="hint" style="margin-top:14px;">
+      Đối chứng: chương trình hợp lệ ở dưới chạy bình thường — cùng interpreter, khác ở <em>giá trị</em>.
+    </p>
+    <div class="demo-card" style="max-width:520px;">
+      <div class="dc-title">(c) Hợp lệ — chạy được</div>
+      <pre id="errSrc2">a = 2
+b = a * a
+print b</pre>
+      <button class="ghost err-run" data-which="2">▶ Chạy</button>
+      <div class="console" id="errOut2" style="min-height:32px;"><span class="muted">—</span></div>
+    </div>
+    <p class="hint" style="margin-top:14px;">
+      Bạn cũng có thể tự gây lỗi trong REPL ở Module 1, ví dụ: <code>print 1/0</code> hay <code>print abc</code>.
+      Interpreter báo lỗi rồi dừng — không phá cả trang.
+    </p>
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+//  TREE-WALKING INTERPRETER cho ngôn ngữ đồ chơi
+//  Lexer → Parser → eval(node, env). Viết JS thật, dùng chung cho cả 3 module.
+// ════════════════════════════════════════════════════════════════════════════
+
+// ─── 1) LEXER ───────────────────────────────────────────────────────────────
+function lex(src) {
+  const toks = [];
+  let i = 0;
+  const kw = new Set(['print', 'if', 'else', 'while']);
+  const isDigit = c => c >= '0' && c <= '9';
+  const isIdStart = c => /[a-zA-Z_]/.test(c);
+  const isId = c => /[a-zA-Z0-9_]/.test(c);
+
+  while (i < src.length) {
+    const c = src[i];
+    if (c === ' ' || c === '\t' || c === '\n' || c === '\r' || c === ';') { i++; continue; }
+    if (isDigit(c)) {
+      let n = '';
+      while (i < src.length && isDigit(src[i])) n += src[i++];
+      toks.push({ t: 'num', v: parseInt(n, 10) });
+      continue;
+    }
+    if (isIdStart(c)) {
+      let id = '';
+      while (i < src.length && isId(src[i])) id += src[i++];
+      toks.push({ t: kw.has(id) ? id : 'id', v: id });
+      continue;
+    }
+    // toán tử nhiều ký tự
+    const two = src.substr(i, 2);
+    if (['<=', '>=', '==', '!='].includes(two)) { toks.push({ t: two }); i += 2; continue; }
+    if ('+-*/()<>{}='.includes(c)) { toks.push({ t: c }); i++; continue; }
+    throw { kind: 'compile', msg: `Lỗi cú pháp: ký tự lạ '${c}'` };
+  }
+  toks.push({ t: 'eof' });
+  return toks;
+}
+
+// ─── 2) PARSER (recursive descent) → AST ─────────────────────────────────────
+// AST node: { type, ... }. Mỗi node có .id duy nhất để stepper tô màu.
+function parse(toks) {
+  let p = 0;
+  let nid = 0;
+  const peek = () => toks[p];
+  const next = () => toks[p++];
+  const mk = (o) => { o.id = nid++; return o; };
+  function expect(t) {
+    if (peek().t !== t) throw { kind: 'compile', msg: `Lỗi cú pháp: cần '${t}', gặp '${peek().v ?? peek().t}'` };
+    return next();
+  }
+
+  function parseProgram() {
+    const stmts = [];
+    while (peek().t !== 'eof') stmts.push(parseStmt());
+    return mk({ type: 'Block', body: stmts });
+  }
+
+  function parseBlock() {
+    expect('{');
+    const stmts = [];
+    while (peek().t !== '}' && peek().t !== 'eof') stmts.push(parseStmt());
+    expect('}');
+    return mk({ type: 'Block', body: stmts });
+  }
+
+  function parseStmt() {
+    const tk = peek();
+    if (tk.t === 'print') {
+      next();
+      return mk({ type: 'Print', expr: parseExpr() });
+    }
+    if (tk.t === 'if') {
+      next();
+      const cond = parseExpr();
+      const then = parseBlock();
+      let els = null;
+      if (peek().t === 'else') { next(); els = parseBlock(); }
+      return mk({ type: 'If', cond, then, els });
+    }
+    if (tk.t === 'while') {
+      next();
+      const cond = parseExpr();
+      const body = parseBlock();
+      return mk({ type: 'While', cond, body });
+    }
+    if (tk.t === 'id') {
+      // gán:  id = expr
+      const name = next().v;
+      expect('=');
+      return mk({ type: 'Assign', name, rhs: parseExpr() });
+    }
+    throw { kind: 'compile', msg: `Lỗi cú pháp: câu lệnh không hợp lệ tại '${tk.v ?? tk.t}'` };
+  }
+
+  // Cấp ưu tiên: so sánh (thấp) > +,- > *,/ > nguyên tử
+  function parseExpr() { return parseCompare(); }
+
+  function parseCompare() {
+    let l = parseAdd();
+    const cmp = ['<', '>', '<=', '>=', '==', '!='];
+    while (cmp.includes(peek().t)) {
+      const op = next().t;
+      l = mk({ type: 'BinaryOp', op, left: l, right: parseAdd() });
+    }
+    return l;
+  }
+  function parseAdd() {
+    let l = parseMul();
+    while (peek().t === '+' || peek().t === '-') {
+      const op = next().t;
+      l = mk({ type: 'BinaryOp', op, left: l, right: parseMul() });
+    }
+    return l;
+  }
+  function parseMul() {
+    let l = parseAtom();
+    while (peek().t === '*' || peek().t === '/') {
+      const op = next().t;
+      l = mk({ type: 'BinaryOp', op, left: l, right: parseAtom() });
+    }
+    return l;
+  }
+  function parseAtom() {
+    const tk = peek();
+    if (tk.t === '(') {
+      next();
+      const e = parseExpr();
+      expect(')');
+      return e;
+    }
+    if (tk.t === 'num') { next(); return mk({ type: 'Lit', value: tk.v }); }
+    if (tk.t === 'id') { next(); return mk({ type: 'Var', name: tk.v }); }
+    throw { kind: 'compile', msg: `Lỗi cú pháp: cần số/biến/'(', gặp '${tk.v ?? tk.t}'` };
+  }
+
+  const ast = parseProgram();
+  return ast;
+}
+
+// ─── 3) EVAL — bản chạy thẳng (cho REPL & demo lỗi) ──────────────────────────
+const MAX_LOOP = 100000; // chặn vòng lặp vô tận
+
+function applyOp(op, l, r) {
+  switch (op) {
+    case '+': return l + r;
+    case '-': return l - r;
+    case '*': return l * r;
+    case '/':
+      if (r === 0) throw { kind: 'runtime', msg: 'Lỗi runtime: chia cho 0' };
+      return Math.trunc(l / r);
+    case '<': return l < r;
+    case '>': return l > r;
+    case '<=': return l <= r;
+    case '>=': return l >= r;
+    case '==': return l === r;
+    case '!=': return l !== r;
+  }
+}
+
+function run(src) {
+  const out = [];
+  const env = {};
+  const ast = parse(lex(src));   // có thể ném {kind:'compile'}
+  let loopGuard = 0;
+
+  function ev(node) {
+    switch (node.type) {
+      case 'Lit': return node.value;
+      case 'Var':
+        if (!(node.name in env))
+          throw { kind: 'runtime', msg: `Lỗi runtime: biến '${node.name}' chưa được gán` };
+        return env[node.name];
+      case 'BinaryOp':
+        return applyOp(node.op, ev(node.left), ev(node.right));
+      case 'Assign':
+        env[node.name] = ev(node.rhs);
+        return undefined;
+      case 'Print':
+        out.push(String(ev(node.expr)));
+        return undefined;
+      case 'Block':
+        for (const s of node.body) ev(s);
+        return undefined;
+      case 'If':
+        if (ev(node.cond)) ev(node.then);
+        else if (node.els) ev(node.els);
+        return undefined;
+      case 'While':
+        while (ev(node.cond)) {
+          if (++loopGuard > MAX_LOOP)
+            throw { kind: 'runtime', msg: `Lỗi runtime: vòng lặp chạy quá ${MAX_LOOP} vòng (nghi vô tận)` };
+          ev(node.body);
+        }
+        return undefined;
+    }
+  }
+
+  ev(ast);
+  return { out, env };
+}
+
+// ─── Helpers UI ──────────────────────────────────────────────────────────────
+function renderEnv(targetId, env, changedKey) {
+  const el = document.getElementById(targetId);
+  const keys = Object.keys(env);
+  if (keys.length === 0) { el.innerHTML = '<span class="env-empty">(rỗng)</span>'; return; }
+  let html = '<table class="env"><thead><tr><th>biến</th><th>giá trị</th></tr></thead><tbody>';
+  for (const k of keys) {
+    const cls = (k === changedKey) ? ' class="changed"' : '';
+    html += `<tr${cls}><td>${k}</td><td class="val">${env[k]}</td></tr>`;
+  }
+  el.innerHTML = html + '</tbody></table>';
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  MODULE 1 — REPL
+// ════════════════════════════════════════════════════════════════════════════
+function runRepl() {
+  const src = document.getElementById('replCode').value;
+  const cons = document.getElementById('replConsole');
+  try {
+    const { out, env } = run(src);
+    if (out.length === 0) {
+      cons.innerHTML = '<span class="muted">(chương trình không in gì)</span>';
+    } else {
+      cons.innerHTML = out.map(l => `<span class="out-line">${escapeHtml(l)}</span>`).join('\n')
+        + `\n<span class="ok">✓ chạy xong (${out.length} dòng output)</span>`;
+    }
+    renderEnv('replEnv', env);
+  } catch (e) {
+    const tag = e.kind === 'compile' ? '⚠ Lỗi compile-time' : '✗ Lỗi runtime';
+    cons.innerHTML = `<span class="err">${tag}: ${escapeHtml(e.msg || String(e))}</span>`;
+    renderEnv('replEnv', {});
+  }
+}
+document.getElementById('replRun').onclick = runRepl;
+document.getElementById('replClear').onclick = () => {
+  document.getElementById('replConsole').innerHTML = '<span class="muted">(đã xóa)</span>';
+  document.getElementById('replEnv').innerHTML = '<span class="env-empty">(rỗng)</span>';
+};
+
+// presets (dùng chung cho mọi textarea)
+document.querySelectorAll('button.preset').forEach(b => {
+  b.onclick = () => {
+    document.getElementById(b.dataset.target).value = b.dataset.code;
+  };
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+//  MODULE 2 — EVAL STEPPER
+//  Chạy lại interpreter nhưng GHI LẠI từng "bước" (enter/return mỗi node)
+//  thành một timeline để tua tới/lui.
+// ════════════════════════════════════════════════════════════════════════════
+let stepFrames = [];   // mỗi frame: {curId, doneIds:Set, activeIds:Set, env, out, desc, retval}
+let stepIdx = -1;
+let stepAst = null;
+let autoTimer = null;
+
+function snapshot(curId, done, active, env, out, desc, retval) {
+  stepFrames.push({
+    curId,
+    done: new Set(done),
+    active: new Set(active),
+    env: { ...env },
+    out: out.slice(),
+    desc,
+    retval,
+  });
+}
+
+function buildFrames(src) {
+  stepFrames = [];
+  const ast = parse(lex(src));
+  stepAst = ast;
+  const env = {};
+  const out = [];
+  const done = new Set();
+  const active = new Set();   // node đang trong quá trình eval (chưa trả về)
+  let loopGuard = 0;
+
+  function fmt(v) { return v === undefined ? '(không trả giá trị)' : String(v); }
+
+  function ev(node) {
+    active.add(node.id);
+    // bước "ENTER": vừa tới node này
+    snapshot(node.id, done, active, env, out, descEnter(node), null);
+
+    let ret;
+    switch (node.type) {
+      case 'Lit':
+        ret = node.value; break;
+      case 'Var':
+        if (!(node.name in env))
+          throw { kind: 'runtime', msg: `Lỗi runtime: biến '${node.name}' chưa được gán` };
+        ret = env[node.name]; break;
+      case 'BinaryOp': {
+        const l = ev(node.left);
+        const r = ev(node.right);
+        ret = applyOp(node.op, l, r);
+        break;
+      }
+      case 'Assign': {
+        const v = ev(node.rhs);
+        env[node.name] = v;
+        ret = undefined; break;
+      }
+      case 'Print': {
+        const v = ev(node.expr);
+        out.push(String(v));
+        ret = undefined; break;
+      }
+      case 'Block':
+        for (const s of node.body) ev(s);
+        ret = undefined; break;
+      case 'If': {
+        const c = ev(node.cond);
+        if (c) ev(node.then);
+        else if (node.els) ev(node.els);
+        ret = undefined; break;
+      }
+      case 'While':
+        while (ev(node.cond)) {
+          if (++loopGuard > 5000) throw { kind: 'runtime', msg: 'Lỗi runtime: vòng lặp quá dài cho stepper' };
+          ev(node.body);
+        }
+        ret = undefined; break;
+    }
+
+    active.delete(node.id);
+    done.add(node.id);
+    // bước "RETURN": node này xong, trả ret
+    snapshot(node.id, done, active, env, out, descReturn(node, ret, env), ret);
+    return ret;
+  }
+
+  ev(ast);
+  // frame cuối: kết thúc
+  snapshot(-1, done, active, env, out, '✓ Chương trình kết thúc.', undefined);
+}
+
+function descEnter(node) {
+  switch (node.type) {
+    case 'Block': return `Vào Block (${node.body.length} câu lệnh) — eval lần lượt.`;
+    case 'Lit': return `Lit(${node.value}) — literal trả thẳng giá trị.`;
+    case 'Var': return `Var(${node.name}) — tra env.`;
+    case 'BinaryOp': return `BinaryOp(${node.op}) — eval con trái rồi con phải, sau đó áp toán tử.`;
+    case 'Assign': return `Assign(${node.name}) — eval vế phải (RHS) trước.`;
+    case 'Print': return `Print — eval biểu thức bên trong rồi in.`;
+    case 'If': return `If — eval điều kiện để chọn nhánh.`;
+    case 'While': return `While — eval điều kiện; nếu true thì eval thân, lặp lại.`;
+  }
+  return node.type;
+}
+function descReturn(node, ret, env) {
+  switch (node.type) {
+    case 'Lit': return `Lit(${node.value}) → trả <span class="retval">${ret}</span>.`;
+    case 'Var': return `Var(${node.name}) → tra env được <span class="retval">${ret}</span>.`;
+    case 'BinaryOp': return `BinaryOp(${node.op}) → áp toán tử, trả <span class="retval">${ret}</span>.`;
+    case 'Assign': return `Assign(${node.name}) → ghi env[${node.name}] = <span class="retval">${env[node.name]}</span>. (statement, không trả giá trị)`;
+    case 'Print': return `Print → đã in. (statement, không trả giá trị)`;
+    case 'Block': return `Block xong — mọi câu lệnh đã chạy.`;
+    case 'If': return `If xong — đã eval nhánh được chọn.`;
+    case 'While': return `While xong — điều kiện đã thành false, thoát vòng lặp.`;
+  }
+  return node.type;
+}
+
+// ── Render AST dạng cây text với các node được tô màu theo frame ──
+function renderAst(frame) {
+  const lines = [];
+  function walk(node, prefix, isLast, isRoot) {
+    let cls = '';
+    if (frame) {
+      if (node.id === frame.cur) cls = 'cur';
+      else if (frame.active.has(node.id)) cls = 'active';
+      else if (frame.done.has(node.id)) cls = 'done';
+    }
+    const branch = isRoot ? '' : (isLast ? '└─ ' : '├─ ');
+    const label = nodeLabel(node);
+    lines.push(`<span class="tw">${escapeHtml(prefix + branch)}</span><span class="node ${cls}" data-id="${node.id}">${escapeHtml(label)}</span>`);
+    const kids = childrenOf(node);
+    const childPrefix = prefix + (isRoot ? '' : (isLast ? '   ' : '│  '));
+    kids.forEach((k, idx) => walk(k.node, childPrefix, idx === kids.length - 1, false));
+  }
+  walk(stepAst, '', true, true);
+  document.getElementById('stepAst').innerHTML = lines.join('\n');
+}
+
+function nodeLabel(node) {
+  switch (node.type) {
+    case 'Block': return `Block`;
+    case 'Lit': return `Lit ${node.value}`;
+    case 'Var': return `Var ${node.name}`;
+    case 'BinaryOp': return `BinaryOp ${node.op}`;
+    case 'Assign': return `Assign ${node.name}`;
+    case 'Print': return `Print`;
+    case 'If': return `If`;
+    case 'While': return `While`;
+  }
+  return node.type;
+}
+function childrenOf(node) {
+  switch (node.type) {
+    case 'Block': return node.body.map(n => ({ node: n }));
+    case 'BinaryOp': return [{ node: node.left }, { node: node.right }];
+    case 'Assign': return [{ node: node.rhs }];
+    case 'Print': return [{ node: node.expr }];
+    case 'If': {
+      const c = [{ node: node.cond }, { node: node.then }];
+      if (node.els) c.push({ node: node.els });
+      return c;
+    }
+    case 'While': return [{ node: node.cond }, { node: node.body }];
+    default: return [];
+  }
+}
+
+function showFrame() {
+  const f = stepFrames[stepIdx];
+  if (!f) return;
+  renderAst(f);
+  renderEnv('stepEnv', f.env);
+  const cons = document.getElementById('stepConsole');
+  cons.innerHTML = f.out.length
+    ? f.out.map(l => `<span class="out-line">${escapeHtml(l)}</span>`).join('\n')
+    : '<span class="muted">—</span>';
+  const total = stepFrames.length;
+  document.getElementById('stepStatus').innerHTML =
+    `<strong>Bước ${stepIdx + 1}/${total}</strong> · ${f.desc}`;
+  document.getElementById('stepPrev').disabled = stepIdx <= 0;
+  document.getElementById('stepNext').disabled = stepIdx >= total - 1;
+  document.getElementById('stepAuto').disabled = stepIdx >= total - 1;
+}
+
+function loadStepper() {
+  stopAuto();
+  const src = document.getElementById('stepCode').value;
+  try {
+    buildFrames(src);
+    stepIdx = 0;
+    showFrame();
+  } catch (e) {
+    const tag = e.kind === 'compile' ? '⚠ Lỗi compile-time' : '✗ Lỗi runtime';
+    document.getElementById('stepStatus').innerHTML =
+      `<span style="color:#b91c1c;font-weight:700;">${tag}: ${escapeHtml(e.msg || String(e))}</span>`;
+    document.getElementById('stepAst').innerHTML = '<span class="env-empty">(không nạp được — sửa code rồi nạp lại)</span>';
+    document.getElementById('stepEnv').innerHTML = '<span class="env-empty">(rỗng)</span>';
+    ['stepPrev', 'stepNext', 'stepAuto'].forEach(id => document.getElementById(id).disabled = true);
+  }
+}
+function stopAuto() {
+  if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+  document.getElementById('stepAuto').textContent = '▶ Tự chạy';
+}
+document.getElementById('stepLoad').onclick = loadStepper;
+document.getElementById('stepNext').onclick = () => {
+  if (stepIdx < stepFrames.length - 1) { stepIdx++; showFrame(); }
+};
+document.getElementById('stepPrev').onclick = () => {
+  stopAuto();
+  if (stepIdx > 0) { stepIdx--; showFrame(); }
+};
+document.getElementById('stepAuto').onclick = () => {
+  if (autoTimer) { stopAuto(); return; }
+  document.getElementById('stepAuto').textContent = '⏸ Dừng';
+  autoTimer = setInterval(() => {
+    if (stepIdx < stepFrames.length - 1) { stepIdx++; showFrame(); }
+    else stopAuto();
+  }, 650);
+};
+
+// ════════════════════════════════════════════════════════════════════════════
+//  MODULE 3 — RUNTIME ERROR DEMO
+// ════════════════════════════════════════════════════════════════════════════
+document.querySelectorAll('.err-run').forEach(btn => {
+  btn.onclick = () => {
+    const w = btn.dataset.which;
+    const src = document.getElementById('errSrc' + w).textContent;
+    const cons = document.getElementById('errOut' + w);
+    try {
+      const { out } = run(src);
+      cons.innerHTML = (out.length ? out.map(l => `<span class="out-line">${escapeHtml(l)}</span>`).join('\n') + '\n' : '')
+        + '<span class="ok">✓ chạy xong, không lỗi</span>';
+    } catch (e) {
+      const tag = e.kind === 'compile' ? '⚠ compile-time' : '✗ runtime';
+      cons.innerHTML = `<span class="err">${tag}: ${escapeHtml(e.msg || String(e))}</span>`;
+    }
+  };
+});
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+runRepl();
+loadStepper();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

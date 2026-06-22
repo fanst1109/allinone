@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Lexer / Tokenizer Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #9a3412; }
+  h2 {
+    color: #c2410c; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fed7aa;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { color: #78716c; font-size: 13px; margin: 4px 0 10px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #44403c; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #fff7ed; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #9a3412;
+  }
+  button {
+    background: #c2410c; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #9a3412; }
+  button.preset {
+    background: #fff7ed; color: #9a3412; font-size: 12px;
+    padding: 4px 10px; margin: 3px 4px 3px 0; border: 1px solid #fed7aa;
+  }
+  button.preset:hover { background: #fed7aa; }
+
+  /* ── Module 1: Live tokenizer ── */
+  textarea.code-in {
+    width: 100%; max-width: 100%; box-sizing: border-box;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px; padding: 10px 12px; line-height: 1.5;
+    border: 1px solid #d6d3d1; border-radius: 6px; resize: vertical;
+    min-height: 80px;
+  }
+  textarea.code-in:focus { outline: none; border-color: #c2410c; }
+
+  .tok-stream { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .tok {
+    display: inline-flex; flex-direction: column; align-items: center;
+    border-radius: 6px; padding: 5px 10px; min-width: 44px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+  .tok .k { font-size: 10px; font-weight: 700; letter-spacing: 0.4px; opacity: 0.85; }
+  .tok .v { font-size: 15px; font-weight: 700; }
+  .tok .p { font-size: 9px; opacity: 0.6; margin-top: 1px; }
+  /* màu theo loại token */
+  .tok.t-NUM    { background: #dbeafe; color: #1e40af; }
+  .tok.t-ID     { background: #dcfce7; color: #166534; }
+  .tok.t-KW     { background: #fef3c7; color: #92400e; }
+  .tok.t-OP     { background: #fae8ff; color: #86198f; }
+  .tok.t-DELIM  { background: #f1f5f9; color: #475569; }
+  .tok.t-STR    { background: #ffe4e6; color: #9f1239; }
+  .tok.t-EOF    { background: #292524; color: #fafaf9; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; }
+  .legend .chip {
+    font-size: 11px; padding: 3px 9px; border-radius: 999px; font-weight: 700;
+  }
+  .err-box {
+    background: #fef2f2; border-left: 4px solid #dc2626; color: #991b1b;
+    padding: 10px 14px; border-radius: 4px; margin-top: 12px;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px;
+  }
+  .summary { font-size: 13px; color: #78716c; margin-top: 10px; }
+
+  /* ── Module 2: DFA visualizer ── */
+  .dfa-wrap { overflow-x: auto; }
+  svg.dfa { display: block; margin: 4px auto; max-width: 100%; height: auto; }
+  .st circle { fill: #fff; stroke: #c2410c; stroke-width: 2.5; transition: fill .2s, stroke .2s; }
+  .st.active circle { fill: #fdba74; stroke: #9a3412; stroke-width: 3.5; }
+  .st.accept-on circle { fill: #bbf7d0; stroke: #15803d; }
+  .st.reject-on circle { fill: #fecaca; stroke: #b91c1c; }
+  .st text { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; font-weight: 700; fill: #44403c; }
+  .edge { stroke: #a8a29e; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+  .edge-lbl { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 12px; fill: #78716c; }
+
+  .char-track { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0; }
+  .ch {
+    width: 30px; height: 34px; display: flex; align-items: center; justify-content: center;
+    border-radius: 5px; font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-weight: 700; font-size: 15px; background: #f5f5f4; color: #44403c;
+    border: 1px solid #e7e5e4;
+  }
+  .ch.done { background: #fed7aa; color: #9a3412; }
+  .ch.cur { background: #c2410c; color: white; transform: scale(1.12); }
+  .verdict { font-weight: 700; font-size: 15px; margin-top: 10px; }
+  .verdict.ok { color: #15803d; }
+  .verdict.no { color: #b91c1c; }
+
+  /* ── Module 3: maximal munch ── */
+  .mm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+  .mm-grid > div {
+    background: #fafaf9; border: 1px solid #e7e5e4; border-radius: 8px; padding: 14px;
+  }
+  .mm-grid .head { font-weight: 700; margin-bottom: 8px; }
+  .mm-grid .good { color: #15803d; }
+  .mm-grid .bad { color: #b91c1c; }
+  @media (max-width: 720px) { .mm-grid { grid-template-columns: 1fr; } }
+
+  select {
+    font-size: 15px; padding: 7px 10px;
+    border: 1px solid #d6d3d1; border-radius: 4px;
+    background: white; font-family: inherit;
+  }
+
+  @media (max-width: 480px) {
+    .ch { width: 26px; height: 30px; font-size: 13px; }
+    .tok { min-width: 38px; padding: 4px 7px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-overview-pipeline/visualization.html">← L01: Tổng quan & Pipeline</a>
+  <span class="sep">·</span>
+  <span class="current">L02: Lexer</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-grammar-cfg/visualization.html">L03: Grammar & CFG →</a>
+</nav>
+<main>
+  <h1>Lesson 02 — Lexer / Tokenizer</h1>
+  <p>Bộ công cụ tương tác: gõ code xem token tô màu theo loại + vị trí (bắt lỗi từ vựng), chạy DFA nhận số / định danh từng ký tự, và minh hoạ maximal munch (<code>&gt;=</code> vs <code>&gt;</code> <code>=</code>).</p>
+
+  <h2>1. Live Tokenizer — gõ code, xem token</h2>
+  <p class="hint">
+    Lexer mini hiểu: số <code>[0-9]+</code> (kèm <code>.</code> cho số thực), định danh, keyword
+    (<code>if else while for return func var int</code>), toán tử
+    (<code>+ - * / = == != &lt; &gt; &lt;= &gt;= &amp;&amp; ||</code>), dấu phân cách
+    (<code>( ) { } , ;</code>), chuỗi <code>"..."</code>, comment <code>//</code> và <code>/* */</code>.
+    Ký tự lạ (<code>@ $ ?</code>) → lỗi từ vựng kèm dòng:cột.
+  </p>
+  <div class="card">
+    <textarea class="code-in" id="codeIn" spellcheck="false">x = 12 + 3
+if (count >= 10) {
+  msg = "hi"   // gan chuoi
+}</textarea>
+    <div class="row" style="margin-top:8px;">
+      <span class="hint" style="margin:0 8px 0 0;">Mẫu:</span>
+      <button class="preset" data-code="x = 12 + 3">x = 12 + 3</button>
+      <button class="preset" data-code="if (a >= b) return a;">if (a &gt;= b)…</button>
+      <button class="preset" data-code="r = 3.14 * 2">số thực</button>
+      <button class="preset" data-code="cost = $10">lỗi: $</button>
+      <button class="preset" data-code="while iffy { }">while iffy</button>
+    </div>
+    <div class="legend">
+      <span class="chip t-NUM">NUM số</span>
+      <span class="chip t-ID">ID định danh</span>
+      <span class="chip t-KW">KW từ khoá</span>
+      <span class="chip t-OP">OP toán tử</span>
+      <span class="chip t-DELIM">DELIM phân cách</span>
+      <span class="chip t-STR">STR chuỗi</span>
+      <span class="chip t-EOF">EOF hết</span>
+    </div>
+    <div class="tok-stream" id="tokStream"></div>
+    <div id="tokErr"></div>
+    <div class="summary" id="tokSummary"></div>
+  </div>
+
+  <h2>2. DFA Visualizer — chạy automaton từng ký tự</h2>
+  <p class="hint">
+    Mỗi loại token là một automaton. Chọn DFA, nhập chuỗi, bấm <strong>Chạy từng bước</strong> —
+    trạng thái hiện tại được tô cam, kết thúc báo <span style="color:#15803d;font-weight:700;">chấp nhận</span>
+    hay <span style="color:#b91c1c;font-weight:700;">từ chối</span>. Liên hệ state machine trong Algorithms.
+  </p>
+  <div class="card">
+    <div class="row">
+      <label>DFA:</label>
+      <select id="dfaPick">
+        <option value="int">Số nguyên — [0-9]+</option>
+        <option value="ident">Định danh — [a-zA-Z_][a-zA-Z0-9_]*</option>
+      </select>
+      <input id="dfaInput" class="mono" style="font-size:15px;padding:8px 10px;border:1px solid #d6d3d1;border-radius:4px;max-width:160px;" value="12">
+      <button id="dfaStep">Chạy từng bước ▶</button>
+      <button id="dfaReset" style="background:#78716c;">Reset</button>
+    </div>
+    <div class="row" style="gap:6px;">
+      <span class="hint" style="margin:0 6px 0 0;">Thử:</span>
+      <button class="preset" data-dfa="int" data-str="12">int: 12</button>
+      <button class="preset" data-dfa="int" data-str="7">int: 7</button>
+      <button class="preset" data-dfa="int" data-str="1a">int: 1a</button>
+      <button class="preset" data-dfa="ident" data-str="a1_">ident: a1_</button>
+      <button class="preset" data-dfa="ident" data-str="1x">ident: 1x</button>
+    </div>
+    <div class="char-track" id="charTrack"></div>
+    <div class="dfa-wrap">
+      <svg class="dfa" id="dfaSvg" width="560" height="200" viewBox="0 0 560 200"></svg>
+    </div>
+    <div class="verdict" id="dfaVerdict"></div>
+  </div>
+
+  <h2>3. Maximal Munch — ngoạm dài nhất</h2>
+  <p class="hint">
+    Tại mỗi vị trí lexer chọn token <strong>khớp chuỗi dài nhất</strong>. Xem cùng input cho ra
+    kết quả đúng (maximal munch) vs kết quả sai (ngoạm từng ký tự một).
+  </p>
+  <div class="card">
+    <div class="row">
+      <label>Input:</label>
+      <select id="mmPick">
+        <option value="&gt;=">&gt;=</option>
+        <option value="==">==</option>
+        <option value="&amp;&amp;">&amp;&amp;</option>
+        <option value="123">123</option>
+        <option value="a&lt;==b">a&lt;==b</option>
+      </select>
+    </div>
+    <div class="mm-grid" id="mmGrid"></div>
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+// Module 1: Live Tokenizer
+// ════════════════════════════════════════════════════════════════════════════
+const KEYWORDS = new Set(['if','else','while','for','return','func','var','int']);
+// toán tử nhiều ký tự xếp DÀI trước (maximal munch)
+const MULTI_OPS = ['==','!=','<=','>=','&&','||'];
+const SINGLE_OPS = new Set(['+','-','*','/','=','<','>','!']);
+const DELIMS = new Set(['(',')','{','}',',',';']);
+
+// trả về { tokens: [...], error: {msg,line,col}|null }
+function tokenize(src) {
+  const tokens = [];
+  let i = 0, line = 1, col = 1;
+  const n = src.length;
+  const peek = (k = 0) => src[i + k];
+  function adv() {
+    const c = src[i++];
+    if (c === '\n') { line++; col = 1; } else { col++; }
+    return c;
+  }
+  function isDigit(c) { return c >= '0' && c <= '9'; }
+  function isAlpha(c) { return c != null && (/[a-zA-Z_]/.test(c)); }
+  function isAlnum(c) { return c != null && (/[a-zA-Z0-9_]/.test(c)); }
+
+  while (i < n) {
+    const c = peek();
+    // whitespace
+    if (c === ' ' || c === '\t' || c === '\n' || c === '\r') { adv(); continue; }
+    // comment dòng //
+    if (c === '/' && peek(1) === '/') { while (i < n && peek() !== '\n') adv(); continue; }
+    // comment khối /* */
+    if (c === '/' && peek(1) === '*') {
+      const sl = line, sc = col; adv(); adv();
+      let closed = false;
+      while (i < n) { if (peek() === '*' && peek(1) === '/') { adv(); adv(); closed = true; break; } adv(); }
+      if (!closed) return { tokens, error: { msg: "comment khối /* chưa đóng", line: sl, col: sc } };
+      continue;
+    }
+    const sl = line, sc = col;
+    // chuỗi "..."
+    if (c === '"') {
+      adv(); let v = '"', closed = false;
+      while (i < n) { const d = peek(); if (d === '\n') break; v += d; adv(); if (d === '"') { closed = true; break; } }
+      if (!closed) return { tokens, error: { msg: 'chuỗi " chưa đóng', line: sl, col: sc } };
+      tokens.push({ kind: 'STR', cls: 'STR', value: v, line: sl, col: sc }); continue;
+    }
+    // số (nguyên + thực)
+    if (isDigit(c)) {
+      let v = '';
+      while (isDigit(peek())) v += adv();
+      if (peek() === '.' && isDigit(peek(1))) { v += adv(); while (isDigit(peek())) v += adv(); }
+      tokens.push({ kind: 'NUM', cls: 'NUM', value: v, line: sl, col: sc }); continue;
+    }
+    // identifier / keyword
+    if (isAlpha(c)) {
+      let v = '';
+      while (isAlnum(peek())) v += adv();
+      const isKw = KEYWORDS.has(v);
+      tokens.push({ kind: isKw ? v.toUpperCase() : 'ID', cls: isKw ? 'KW' : 'ID', value: v, line: sl, col: sc });
+      continue;
+    }
+    // toán tử nhiều ký tự (maximal munch)
+    const two = c + (peek(1) || '');
+    if (MULTI_OPS.includes(two)) { adv(); adv(); tokens.push({ kind: 'OP', cls: 'OP', value: two, line: sl, col: sc }); continue; }
+    // toán tử một ký tự
+    if (SINGLE_OPS.has(c)) { adv(); tokens.push({ kind: 'OP', cls: 'OP', value: c, line: sl, col: sc }); continue; }
+    // dấu phân cách
+    if (DELIMS.has(c)) { adv(); tokens.push({ kind: 'DELIM', cls: 'DELIM', value: c, line: sl, col: sc }); continue; }
+    // không khớp pattern nào → lỗi từ vựng
+    return { tokens, error: { msg: `ký tự '${c}' không hợp lệ`, line: sl, col: sc } };
+  }
+  tokens.push({ kind: 'EOF', cls: 'EOF', value: 'EOF', line, col });
+  return { tokens, error: null };
+}
+
+function renderTokens() {
+  const src = document.getElementById('codeIn').value;
+  const { tokens, error } = tokenize(src);
+  const stream = document.getElementById('tokStream');
+  const errBox = document.getElementById('tokErr');
+  const summary = document.getElementById('tokSummary');
+
+  stream.innerHTML = tokens.map(t => {
+    const disp = t.cls === 'EOF' ? 'EOF' : escapeHtml(t.value);
+    const klabel = t.cls === 'KW' ? t.kind : t.cls;
+    return `<div class="tok t-${t.cls}" title="${klabel} tại ${t.line}:${t.col}">
+      <span class="k">${klabel}</span>
+      <span class="v">${disp}</span>
+      <span class="p">${t.line}:${t.col}</span>
+    </div>`;
+  }).join('');
+
+  if (error) {
+    errBox.innerHTML = `<div class="err-box">⚠ lỗi từ vựng tại ${error.line}:${error.col}: ${escapeHtml(error.msg)}</div>`;
+  } else {
+    errBox.innerHTML = '';
+  }
+  const real = tokens.filter(t => t.cls !== 'EOF').length;
+  summary.textContent = `${real} token` + (error ? ' (dừng tại lỗi)' : '') + ` + EOF.`;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+}
+
+document.getElementById('codeIn').addEventListener('input', renderTokens);
+document.querySelectorAll('button.preset[data-code]').forEach(b => {
+  b.onclick = () => { document.getElementById('codeIn').value = b.dataset.code; renderTokens(); };
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// Module 2: DFA Visualizer
+// ════════════════════════════════════════════════════════════════════════════
+const DFAS = {
+  int: {
+    states: [
+      { id: 'S0', label: 'S0', x: 110, y: 100, accept: false },
+      { id: 'S1', label: 'S1', x: 380, y: 100, accept: true },
+    ],
+    edges: [
+      { from: 'S0', to: 'S1', label: 'digit', curve: 0 },
+      { from: 'S1', to: 'S1', label: 'digit', loop: true },
+    ],
+    start: 'S0',
+    // hàm chuyển: (state, char) -> nextState | null (reject)
+    step(state, ch) {
+      const d = ch >= '0' && ch <= '9';
+      if (state === 'S0') return d ? 'S1' : null;
+      if (state === 'S1') return d ? 'S1' : null;
+      return null;
+    },
+  },
+  ident: {
+    states: [
+      { id: 'S0', label: 'S0', x: 110, y: 100, accept: false },
+      { id: 'S1', label: 'S1', x: 380, y: 100, accept: true },
+    ],
+    edges: [
+      { from: 'S0', to: 'S1', label: 'letter / _', curve: 0 },
+      { from: 'S1', to: 'S1', label: 'letter / digit / _', loop: true },
+    ],
+    start: 'S0',
+    step(state, ch) {
+      const alpha = /[a-zA-Z_]/.test(ch);
+      const alnum = /[a-zA-Z0-9_]/.test(ch);
+      if (state === 'S0') return alpha ? 'S1' : null;
+      if (state === 'S1') return alnum ? 'S1' : null;
+      return null;
+    },
+  },
+};
+
+let dfaState = { name: 'int', cur: 'S0', idx: 0, str: '12', done: false, rejected: false };
+
+function drawDfa() {
+  const dfa = DFAS[dfaState.name];
+  const svg = document.getElementById('dfaSvg');
+  let g = `<defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#a8a29e"/>
+    </marker>
+  </defs>`;
+  // mũi tên start
+  const s0 = dfa.states.find(s => s.id === dfa.start);
+  g += `<path class="edge" d="M${s0.x - 70},${s0.y} L${s0.x - 30},${s0.y}"/>`;
+  g += `<text class="edge-lbl" x="${s0.x - 70}" y="${s0.y - 8}">start</text>`;
+  // cạnh
+  for (const e of dfa.edges) {
+    const a = dfa.states.find(s => s.id === e.from);
+    const b = dfa.states.find(s => s.id === e.to);
+    if (e.loop) {
+      g += `<path class="edge" d="M${b.x - 16},${b.y - 22} C${b.x - 50},${b.y - 70} ${b.x + 50},${b.y - 70} ${b.x + 16},${b.y - 22}"/>`;
+      g += `<text class="edge-lbl" x="${b.x}" y="${b.y - 62}" text-anchor="middle">${e.label}</text>`;
+    } else {
+      g += `<path class="edge" d="M${a.x + 30},${a.y} L${b.x - 30},${b.y}"/>`;
+      g += `<text class="edge-lbl" x="${(a.x + b.x) / 2}" y="${a.y - 12}" text-anchor="middle">${e.label}</text>`;
+    }
+  }
+  // trạng thái
+  for (const s of dfa.states) {
+    let cls = 'st';
+    if (!dfaState.done && s.id === dfaState.cur) cls += ' active';
+    if (dfaState.done && !dfaState.rejected && s.accept && s.id === dfaState.cur) cls += ' accept-on';
+    if (dfaState.done && dfaState.rejected) { if (s.id === dfaState.cur || dfaState.cur === null) cls += s.id === dfaState.cur ? ' reject-on' : ''; }
+    g += `<g class="${cls}">`;
+    g += `<circle cx="${s.x}" cy="${s.y}" r="28"/>`;
+    if (s.accept) g += `<circle cx="${s.x}" cy="${s.y}" r="22" fill="none"/>`;
+    g += `<text x="${s.x}" y="${s.y + 5}" text-anchor="middle">${s.label}</text>`;
+    g += `</g>`;
+  }
+  svg.innerHTML = g;
+}
+
+function drawCharTrack() {
+  const track = document.getElementById('charTrack');
+  const chars = [...dfaState.str];
+  track.innerHTML = chars.map((c, k) => {
+    let cls = 'ch';
+    if (k < dfaState.idx) cls += ' done';
+    else if (k === dfaState.idx && !dfaState.done) cls += ' cur';
+    return `<div class="${cls}">${escapeHtml(c)}</div>`;
+  }).join('') || '<span class="hint">(chuỗi rỗng)</span>';
+}
+
+function updateVerdict() {
+  const v = document.getElementById('dfaVerdict');
+  if (!dfaState.done) {
+    v.textContent = `Đang ở trạng thái ${dfaState.cur} · đã đọc ${dfaState.idx}/${dfaState.str.length} ký tự`;
+    v.className = 'verdict';
+    return;
+  }
+  const dfa = DFAS[dfaState.name];
+  const accepting = !dfaState.rejected && dfa.states.find(s => s.id === dfaState.cur)?.accept;
+  if (accepting) {
+    v.textContent = `✓ CHẤP NHẬN — kết thúc ở ${dfaState.cur} (accept). Chuỗi "${dfaState.str}" hợp lệ.`;
+    v.className = 'verdict ok';
+  } else {
+    v.textContent = `✗ TỪ CHỐI — ${dfaState.rejected ? 'gặp ký tự không có cạnh hợp lệ' : 'kết thúc ở trạng thái không phải accept'}.`;
+    v.className = 'verdict no';
+  }
+}
+
+function resetDfa(keepStr) {
+  dfaState.name = document.getElementById('dfaPick').value;
+  if (!keepStr) dfaState.str = document.getElementById('dfaInput').value;
+  dfaState.cur = DFAS[dfaState.name].start;
+  dfaState.idx = 0;
+  dfaState.done = false;
+  dfaState.rejected = false;
+  drawDfa(); drawCharTrack(); updateVerdict();
+}
+
+function stepDfa() {
+  if (dfaState.done) { resetDfa(); return; }
+  const dfa = DFAS[dfaState.name];
+  if (dfaState.idx >= dfaState.str.length) {
+    // hết chuỗi
+    dfaState.done = true;
+    drawDfa(); drawCharTrack(); updateVerdict();
+    return;
+  }
+  const ch = dfaState.str[dfaState.idx];
+  const next = dfa.step(dfaState.cur, ch);
+  if (next === null) {
+    dfaState.done = true;
+    dfaState.rejected = true;
+    // giữ idx ở ký tự gây reject
+    drawDfa(); drawCharTrack(); updateVerdict();
+    return;
+  }
+  dfaState.cur = next;
+  dfaState.idx++;
+  if (dfaState.idx >= dfaState.str.length) dfaState.done = true;
+  drawDfa(); drawCharTrack(); updateVerdict();
+}
+
+document.getElementById('dfaStep').onclick = stepDfa;
+document.getElementById('dfaReset').onclick = () => resetDfa();
+document.getElementById('dfaPick').onchange = () => resetDfa();
+document.getElementById('dfaInput').addEventListener('input', () => resetDfa());
+document.querySelectorAll('button.preset[data-dfa]').forEach(b => {
+  b.onclick = () => {
+    document.getElementById('dfaPick').value = b.dataset.dfa;
+    document.getElementById('dfaInput').value = b.dataset.str;
+    resetDfa();
+  };
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// Module 3: Maximal Munch
+// ════════════════════════════════════════════════════════════════════════════
+const MM = {
+  '>=': {
+    good: ['GE(&gt;=)'], goodNote: 'ngoạm 2 ký tự → một token so sánh "lớn hơn hoặc bằng"',
+    bad: ['GT(&gt;)', 'EQ(=)'], badNote: 'tách thành "lớn hơn" rồi "gán" — sai nghĩa hoàn toàn',
+  },
+  '==': {
+    good: ['EQEQ(==)'], goodNote: 'một token "so sánh bằng"',
+    bad: ['EQ(=)', 'EQ(=)'], badNote: 'hai phép gán liên tiếp — vô nghĩa',
+  },
+  '&&': {
+    good: ['AND(&amp;&amp;)'], goodNote: 'một token "và logic"',
+    bad: ['AMP(&amp;)', 'AMP(&amp;)'], badNote: 'hai phép bit-and — sai',
+  },
+  '123': {
+    good: ['NUM(123)'], goodNote: 'ngoạm hết chữ số liền nhau → một số một-trăm-hai-ba',
+    bad: ['NUM(1)', 'NUM(2)', 'NUM(3)'], badNote: 'ba số rời 1, 2, 3 — sai',
+  },
+  'a<==b': {
+    good: ['ID(a)', 'LE(&lt;=)', 'EQ(=)', 'ID(b)'], goodNote: 'tại vị trí 2 ngoạm "&lt;=" (LE) dài nhất; còn lại "=" đứng riêng (EQ), rồi "b"',
+    bad: ['ID(a)', 'LT(&lt;)', 'EQ(=)', 'EQ(=)', 'ID(b)'], badNote: 'ngoạm từng ký tự "&lt;" rồi "=" rồi "=" — bỏ lỡ toán tử LE',
+  },
+};
+
+function renderMM() {
+  const raw = document.getElementById('mmPick').value; // đã là HTML-escaped trong option value
+  // giải mã value về key thực
+  const key = raw.replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&');
+  const m = MM[key];
+  const grid = document.getElementById('mmGrid');
+  const tok = (arr) => arr.map(t => `<code>${t}</code>`).join(' ');
+  grid.innerHTML = `
+    <div>
+      <div class="head good">✓ Maximal munch (đúng)</div>
+      <div style="margin:6px 0;">${tok(m.good)}</div>
+      <div class="hint">${m.goodNote}</div>
+    </div>
+    <div>
+      <div class="head bad">✗ Ngoạm từng ký tự (sai)</div>
+      <div style="margin:6px 0;">${tok(m.bad)}</div>
+      <div class="hint">${m.badNote}</div>
+    </div>`;
+}
+document.getElementById('mmPick').onchange = renderMM;
+
+// ── Init ──
+renderTokens();
+resetDfa();
+renderMM();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>
+</content>

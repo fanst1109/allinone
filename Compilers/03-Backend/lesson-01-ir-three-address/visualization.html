@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 11 — IR & Three-Address Code Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #9a3412; }
+  h2 {
+    color: #c2410c; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fed7aa;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #7c2d12; }
+  .hint { color: #78716c; font-size: 13px; margin: 4px 0; }
+  code, .mono {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  code {
+    background: #fff7ed; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #c2410c;
+  }
+
+  input.expr {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 16px; padding: 8px 12px;
+    border: 1px solid #fdba74; border-radius: 4px;
+    width: 100%; max-width: 320px; box-sizing: border-box; flex: 1 1 220px;
+  }
+  input.expr.bad { border-color: #dc2626; background: #fef2f2; }
+  button {
+    background: #c2410c; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #9a3412; }
+  button.preset {
+    background: #ffedd5; color: #7c2d12; font-size: 12px;
+    padding: 4px 10px; margin: 3px 4px 3px 0;
+  }
+  button.preset:hover { background: #fed7aa; }
+  button.step {
+    background: #ea580c;
+  }
+  button.step:hover { background: #c2410c; }
+  button:disabled { background: #d6d3d1; cursor: default; color: #78716c; }
+
+  /* AST + TAC two-column layout */
+  .gen-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px;
+  }
+  @media (max-width: 760px) { .gen-grid { grid-template-columns: 1fr; } }
+  .panel {
+    background: #fafaf9; border: 1px solid #e7e5e4; border-radius: 8px; padding: 12px;
+  }
+  .panel .head { font-weight: 700; color: #9a3412; margin-bottom: 8px; }
+
+  /* TAC code listing */
+  .tac {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; line-height: 1.7;
+  }
+  .tac .line {
+    padding: 3px 8px; border-radius: 4px; margin: 2px 0;
+    border-left: 3px solid transparent; transition: background 0.2s;
+  }
+  .tac .line.active { background: #ffedd5; border-left-color: #ea580c; font-weight: 700; }
+  .tac .line.future { opacity: 0.32; }
+  .tac .temp { color: #c2410c; font-weight: 700; }
+  .tac .empty { color: #a8a29e; }
+
+  /* SVG node styling */
+  .ast-node circle, .ast-node rect { stroke: #9a3412; stroke-width: 2; }
+  .ast-node text { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 14px; font-weight: 700; }
+  .step-label {
+    font-size: 13px; color: #78716c; margin-top: 6px; min-height: 20px;
+  }
+
+  /* SSA compare */
+  .compare {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px;
+  }
+  @media (max-width: 760px) { .compare { grid-template-columns: 1fr; } }
+  .compare .title { font-weight: 700; color: #9a3412; margin-bottom: 8px; }
+  .ssa-line { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 14px; padding: 3px 8px; line-height: 1.7; }
+  .ssa-line .ver { color: #c2410c; font-weight: 700; }
+  .ssa-line .reassign { background: #fef3c7; border-radius: 3px; }
+
+  .svgwrap { overflow-x: auto; }
+  svg { display: block; max-width: 100%; height: auto; }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: #78716c; margin-top: 8px; }
+  .legend span::before { content: "■ "; }
+  .leg-leaf::before { color: #fbbf24; }
+  .leg-op::before { color: #fb923c; }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../02-Semantics/lesson-05-functions-closures/visualization.html">← L10: Functions & Closures</a>
+  <span class="sep">·</span>
+  <span class="current">L11: IR (Three-Address)</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-optimization/visualization.html">L12: Optimization →</a>
+</nav>
+
+<main>
+  <h1>Lesson 11 — Mã trung gian (IR) & Three-Address Code</h1>
+  <p>Ba công cụ tương tác: (1) <strong>AST → TAC generator</strong> — nhập biểu thức, xem cây AST và mã three-address sinh ra từng bước theo post-order; (2) <strong>CFG viewer</strong> — chương trình if/while chia thành basic block nối bằng cạnh; (3) <strong>TAC vs SSA</strong> — cùng một đoạn ở hai dạng.</p>
+
+  <h2>1. AST → Three-Address Code (từng bước)</h2>
+  <div class="card">
+    <div class="hint">
+      Cú pháp: biến là chữ thường <code>a b c x y</code>, hằng là số <code>0..9</code>;
+      toán tử <code>+ - * /</code>, dấu <code>(</code> <code>)</code> để nhóm, <code>-</code> đứng trước là phép một ngôi (vd <code>-x</code>).
+      Bấm <strong>Sinh từng bước</strong> để xem từng lệnh TAC xuất hiện đúng thứ tự post-order (temp <code>t1, t2…</code> hiện dần).
+    </div>
+    <div class="row">
+      <input class="expr" id="exprInput" value="(2 + 3) * 4" placeholder="vd: a + b * c">
+      <button id="genAllBtn">Sinh toàn bộ</button>
+      <button class="step" id="stepBtn">Sinh từng bước ▶</button>
+      <button id="resetBtn">Reset</button>
+    </div>
+    <div class="row">
+      <span class="hint" style="margin-right:6px;">Mẫu:</span>
+      <button class="preset" data-expr="(2 + 3) * 4">(2+3)*4</button>
+      <button class="preset" data-expr="a + b * c">a + b*c</button>
+      <button class="preset" data-expr="(a + b) * (c + d)">(a+b)*(c+d)</button>
+      <button class="preset" data-expr="-x + y">-x + y</button>
+      <button class="preset" data-expr="a * b + a * c">a*b + a*c</button>
+      <button class="preset" data-expr="x * 2 - (y + 3)">x*2 - (y+3)</button>
+    </div>
+    <div id="genBadge" style="margin-top:10px;"></div>
+    <div class="gen-grid">
+      <div class="panel">
+        <div class="head">Cây AST</div>
+        <div class="svgwrap"><svg id="astSvg" width="420" height="300" viewBox="0 0 420 300"></svg></div>
+        <div class="legend">
+          <span class="leg-leaf">Node lá (hằng/biến) — không phát lệnh</span>
+          <span class="leg-op">Node phép tính — phát 1 lệnh, sinh 1 temp</span>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="head">Three-Address Code</div>
+        <div class="tac" id="tacOut"></div>
+        <div class="step-label" id="stepLabel"></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>2. Control Flow Graph (CFG)</h2>
+  <div class="card">
+    <p class="hint">
+      Chọn một chương trình nhỏ. Viz dịch sang TAC (label/goto/if), chia thành <strong>basic block</strong>
+      (mỗi block chạy một mạch) rồi vẽ <strong>đồ thị luồng điều khiển</strong> — đỉnh là block, cạnh là luồng chạy khả dĩ.
+    </p>
+    <div class="row">
+      <label>Chương trình:</label>
+      <select id="cfgPick">
+        <option value="ifelse">if (a &gt; b) max = a; else max = b;</option>
+        <option value="while">while (i &lt; n) { i = i + 1; }</option>
+        <option value="ifonly">if (x &lt; 10) { y = 1; } z = y;</option>
+      </select>
+    </div>
+    <div class="gen-grid">
+      <div class="panel">
+        <div class="head">TAC (đã đánh dấu leader)</div>
+        <div class="tac" id="cfgTac"></div>
+      </div>
+      <div class="panel">
+        <div class="head">CFG — basic block + cạnh</div>
+        <div class="svgwrap"><svg id="cfgSvg" width="440" height="360" viewBox="0 0 440 360"></svg></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>3. TAC thường vs SSA</h2>
+  <div class="card">
+    <p class="hint">
+      Cùng một đoạn có biến bị <strong>gán lại nhiều lần</strong>. Bên trái TAC thường (tên biến tái dùng);
+      bên phải SSA — mỗi lần gán tạo một <strong>version mới</strong> (<code>x1, x2…</code>), nhờ vậy "tên = giá trị" và tối ưu dễ hơn.
+    </p>
+    <div class="row">
+      <label>Đoạn:</label>
+      <select id="ssaPick">
+        <option value="acc">x = a + b; x = x * 2; y = x + 1;</option>
+        <option value="sum">s = 0; s = s + a; s = s + b;</option>
+        <option value="mix">n = a + 1; n = n * b; m = n - a; n = m + 1;</option>
+      </select>
+    </div>
+    <div class="compare">
+      <div class="panel">
+        <div class="title">TAC thường — biến gán nhiều lần</div>
+        <div id="ssaLeft"></div>
+        <div class="hint" style="margin-top:8px;">Ô tô vàng = lần gán lại cùng một tên → khó biết "ở đây giá trị tới từ đâu".</div>
+      </div>
+      <div class="panel">
+        <div class="title">SSA — mỗi tên gán đúng 1 lần</div>
+        <div id="ssaRight"></div>
+        <div class="hint" style="margin-top:8px;">Nhìn version (<code>x2</code>) là biết ngay lệnh nào tạo ra giá trị đó.</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 1 — AST -> TAC generator (từng bước, post-order)
+// ════════════════════════════════════════════════════════════════════════════
+
+// --- Parser: biểu thức số học, precedence * / > + -, unary minus ---
+function parseExpr(input) {
+  const s = input.replace(/\s+/g, '');
+  let i = 0;
+  const peek = () => s[i];
+
+  function atom() {
+    const c = peek();
+    if (c === '(') {
+      i++;
+      const e = addSub();
+      if (peek() !== ')') throw new Error("Thiếu ')'");
+      i++;
+      return e;
+    }
+    if (c === '-') { i++; return { op: 'u-', kid: atom() }; }      // unary minus
+    if (/[a-z]/.test(c)) { i++; return { lit: c, kind: 'var' }; }
+    if (/[0-9]/.test(c)) {
+      let num = '';
+      while (/[0-9]/.test(peek())) { num += peek(); i++; }
+      return { lit: num, kind: 'num' };
+    }
+    throw new Error("Ký tự lạ '" + (c || 'hết chuỗi') + "'");
+  }
+  function mulDiv() {
+    let l = atom();
+    while (peek() === '*' || peek() === '/') { const op = peek(); i++; l = { op, L: l, R: atom() }; }
+    return l;
+  }
+  function addSub() {
+    let l = mulDiv();
+    while (peek() === '+' || peek() === '-') { const op = peek(); i++; l = { op, L: l, R: mulDiv() }; }
+    return l;
+  }
+  const ast = addSub();
+  if (i < s.length) throw new Error("Token thừa '" + s.slice(i) + "'");
+  return ast;
+}
+
+// --- Layout cây: gán x,y cho mỗi node bằng in-order cho x, depth cho y ---
+function layout(ast) {
+  let xCounter = 0, maxDepth = 0;
+  const nodes = [];
+  function visit(n, depth) {
+    maxDepth = Math.max(maxDepth, depth);
+    if (n.lit !== undefined) {            // lá
+      const x = xCounter++;
+      const o = { node: n, gx: x, depth, isLeaf: true };
+      nodes.push(o); n._lay = o; return o;
+    }
+    if (n.op === 'u-') {                   // unary: 1 con
+      const k = visit(n.kid, depth + 1);
+      const x = xCounter++;
+      const o = { node: n, gx: x, depth, isLeaf: false, kids: [k] };
+      nodes.push(o); n._lay = o; return o;
+    }
+    const l = visit(n.L, depth + 1);
+    const x = xCounter++;                  // node cha nằm giữa (sau con trái)
+    const r = visit(n.R, depth + 1);
+    const o = { node: n, gx: x, depth, isLeaf: false, kids: [l, r] };
+    nodes.push(o); n._lay = o; return o;
+  }
+  const root = visit(ast, 0);
+  return { nodes, cols: xCounter, depth: maxDepth, root };
+}
+
+// --- Sinh TAC, ghi lại các "bước" để chạy từng bước ---
+function genTAC(ast) {
+  let tempCount = 0;
+  const lines = [];   // {text, html, node}
+  const steps = [];   // mỗi bước: {kind:'leaf'|'emit', node, lineIdx, desc}
+
+  function newTemp() { tempCount++; return 't' + tempCount; }
+
+  function gen(n) {
+    if (n.lit !== undefined) {
+      steps.push({ kind: 'leaf', node: n, lineIdx: -1,
+        desc: 'Lá ' + (n.kind === 'num' ? 'hằng' : 'biến') + ' ' + n.lit + ' → trả về chính nó, không phát lệnh.' });
+      return n.lit;
+    }
+    if (n.op === 'u-') {
+      const a = gen(n.kid);
+      const t = newTemp();
+      const text = t + ' = -' + a;
+      const idx = lines.length;
+      lines.push({ text, html: '<span class="temp">' + t + '</span> = -' + a, node: n });
+      steps.push({ kind: 'emit', node: n, lineIdx: idx, desc: 'Phép một ngôi: phát ' + text + ', trả về ' + t });
+      return t;
+    }
+    const a = gen(n.L);
+    const b = gen(n.R);
+    const t = newTemp();
+    const text = t + ' = ' + a + ' ' + n.op + ' ' + b;
+    const idx = lines.length;
+    lines.push({ text, html: '<span class="temp">' + t + '</span> = ' + a + ' ' + n.op + ' ' + b, node: n });
+    steps.push({ kind: 'emit', node: n, lineIdx: idx, desc: 'Node phép ' + n.op + ': hai con trả về ' + a + ', ' + b + ' → phát ' + text + ', trả về ' + t });
+    return t;
+  }
+  const result = gen(ast);
+  return { lines, steps, result };
+}
+
+const SVGNS = 'http://www.w3.org/2000/svg';
+function svgEl(name, attrs) {
+  const e = document.createElementNS(SVGNS, name);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+function drawAST(lay, highlightNode) {
+  const svg = document.getElementById('astSvg');
+  svg.innerHTML = '';
+  const padX = 36, padY = 34;
+  const colW = lay.cols > 1 ? (420 - padX * 2) / (lay.cols - 1) : 0;
+  const rowH = lay.depth > 0 ? (300 - padY * 2) / lay.depth : 0;
+  const xOf = o => lay.cols > 1 ? padX + o.gx * colW : 210;
+  const yOf = o => padY + o.depth * rowH;
+
+  // edges first
+  for (const o of lay.nodes) {
+    if (o.kids) for (const k of o.kids) {
+      svg.appendChild(svgEl('line', { x1: xOf(o), y1: yOf(o), x2: xOf(k), y2: yOf(k), stroke: '#d6d3d1', 'stroke-width': 2 }));
+    }
+  }
+  // nodes
+  for (const o of lay.nodes) {
+    const g = svgEl('g', { class: 'ast-node' });
+    const cx = xOf(o), cy = yOf(o);
+    const hl = (o.node === highlightNode);
+    let labelText;
+    if (o.isLeaf) {
+      labelText = o.node.lit;
+      g.appendChild(svgEl('circle', { cx, cy, r: 16, fill: hl ? '#f59e0b' : '#fde68a' }));
+    } else {
+      labelText = o.node.op === 'u-' ? '-' : o.node.op;
+      g.appendChild(svgEl('rect', { x: cx - 16, y: cy - 16, width: 32, height: 32, rx: 6, fill: hl ? '#ea580c' : '#fdba74' }));
+    }
+    const t = svgEl('text', { x: cx, y: cy + 5, 'text-anchor': 'middle', fill: hl ? '#fff' : '#7c2d12' });
+    t.textContent = labelText;
+    g.appendChild(t);
+    svg.appendChild(g);
+  }
+}
+
+let genState = null; // {lay, gen, stepIdx}
+
+function renderTAC(showUpTo, activeLineIdx) {
+  const out = document.getElementById('tacOut');
+  const g = genState.gen;
+  if (g.lines.length === 0) { out.innerHTML = '<span class="empty">(biểu thức là một lá đơn — không có lệnh nào)</span>'; return; }
+  let html = '';
+  for (let k = 0; k < g.lines.length; k++) {
+    const cls = (k === activeLineIdx) ? 'active' : (showUpTo >= 0 && k > showUpTo ? 'future' : '');
+    html += '<div class="line ' + cls + '">' + g.lines[k].html + '</div>';
+  }
+  out.innerHTML = html;
+}
+
+function buildGen() {
+  const inp = document.getElementById('exprInput');
+  const badge = document.getElementById('genBadge');
+  inp.classList.remove('bad');
+  try {
+    const ast = parseExpr(inp.value.trim());
+    const lay = layout(ast);
+    const gen = genTAC(ast);
+    genState = { lay, gen, stepIdx: -1, ast };
+    badge.innerHTML = '<span style="color:#15803d;font-weight:600;">Kết quả cuối nằm ở <code>' + (gen.result) + '</code> · ' + gen.lines.length + ' lệnh, ' + (gen.lines.filter(l=>true).length) + ' temp</span>';
+    drawAST(lay, null);
+    return true;
+  } catch (e) {
+    inp.classList.add('bad');
+    badge.innerHTML = '<span style="color:#dc2626;font-weight:600;">Lỗi: ' + e.message + '</span>';
+    document.getElementById('astSvg').innerHTML = '';
+    document.getElementById('tacOut').innerHTML = '';
+    genState = null;
+    return false;
+  }
+}
+
+function genAll() {
+  if (!buildGen()) return;
+  genState.stepIdx = genState.gen.steps.length;
+  drawAST(genState.lay, genState.ast);
+  renderTAC(genState.gen.lines.length - 1, -1);
+  document.getElementById('stepLabel').textContent = 'Đã sinh toàn bộ. Kết quả ở ' + genState.gen.result + '.';
+  document.getElementById('stepBtn').textContent = 'Sinh từng bước ▶';
+}
+
+function stepNext() {
+  if (!genState) { if (!buildGen()) return; genState.stepIdx = -1; renderTAC(-1, -1); }
+  const steps = genState.gen.steps;
+  genState.stepIdx++;
+  if (genState.stepIdx >= steps.length) {
+    document.getElementById('stepLabel').textContent = 'Xong — kết quả cuối ở ' + genState.gen.result + '. Bấm Reset để chạy lại.';
+    drawAST(genState.lay, null);
+    renderTAC(genState.gen.lines.length - 1, -1);
+    genState.stepIdx = steps.length - 1;
+    return;
+  }
+  const st = steps[genState.stepIdx];
+  drawAST(genState.lay, st.node);
+  // lines emitted so far
+  let maxLine = -1;
+  for (let k = 0; k <= genState.stepIdx; k++) if (steps[k].lineIdx >= 0) maxLine = Math.max(maxLine, steps[k].lineIdx);
+  renderTAC(maxLine, st.kind === 'emit' ? st.lineIdx : -1);
+  document.getElementById('stepLabel').textContent = 'Bước ' + (genState.stepIdx + 1) + '/' + steps.length + ': ' + st.desc;
+}
+
+function resetGen() {
+  if (!buildGen()) return;
+  genState.stepIdx = -1;
+  renderTAC(-1, -1);
+  document.getElementById('stepLabel').textContent = 'Sẵn sàng. Bấm "Sinh từng bước" để chạy post-order.';
+}
+
+document.getElementById('genAllBtn').onclick = genAll;
+document.getElementById('stepBtn').onclick = stepNext;
+document.getElementById('resetBtn').onclick = resetGen;
+document.getElementById('exprInput').addEventListener('keydown', e => { if (e.key === 'Enter') genAll(); });
+document.querySelectorAll('button.preset').forEach(b => {
+  b.onclick = () => { document.getElementById('exprInput').value = b.dataset.expr; genAll(); };
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 2 — CFG viewer
+// ════════════════════════════════════════════════════════════════════════════
+// Mỗi chương trình: danh sách dòng TAC (text + có phải leader) + các block + cạnh.
+const cfgPrograms = {
+  ifelse: {
+    lines: [
+      { t: 't1 = a > b', leader: true },
+      { t: 'ifFalse t1 goto L1', leader: false },
+      { t: 'max = a', leader: true },
+      { t: 'goto L2', leader: false },
+      { t: 'L1: max = b', leader: true },
+      { t: 'L2: ...', leader: true },
+    ],
+    blocks: [
+      { id: 'B0', body: ['t1 = a > b', 'ifFalse t1 goto L1'], x: 170, y: 20 },
+      { id: 'B1', body: ['max = a', 'goto L2'], x: 40, y: 140 },
+      { id: 'B2', body: ['max = b'], x: 290, y: 140 },
+      { id: 'B3', body: ['...'], x: 170, y: 260 },
+    ],
+    edges: [ ['B0','B1','then'], ['B0','B2','else'], ['B1','B3',''], ['B2','B3',''] ],
+  },
+  while: {
+    lines: [
+      { t: 'i = 0', leader: true },
+      { t: 'L1: t1 = i < n', leader: true },
+      { t: 'ifFalse t1 goto L2', leader: false },
+      { t: 'i = i + 1', leader: true },
+      { t: 'goto L1', leader: false },
+      { t: 'L2: ...', leader: true },
+    ],
+    blocks: [
+      { id: 'B0', body: ['i = 0'], x: 160, y: 20 },
+      { id: 'B1', body: ['t1 = i < n', 'ifFalse goto L2'], x: 160, y: 120 },
+      { id: 'B2', body: ['i = i + 1', 'goto L1'], x: 20, y: 240 },
+      { id: 'B3', body: ['...'], x: 300, y: 240 },
+    ],
+    edges: [ ['B0','B1',''], ['B1','B2','đúng'], ['B1','B3','sai'], ['B2','B1','loop'] ],
+  },
+  ifonly: {
+    lines: [
+      { t: 't1 = x < 10', leader: true },
+      { t: 'ifFalse t1 goto L1', leader: false },
+      { t: 'y = 1', leader: true },
+      { t: 'L1: z = y', leader: true },
+    ],
+    blocks: [
+      { id: 'B0', body: ['t1 = x < 10', 'ifFalse goto L1'], x: 150, y: 20 },
+      { id: 'B1', body: ['y = 1'], x: 40, y: 150 },
+      { id: 'B2', body: ['z = y'], x: 230, y: 150 },
+    ],
+    edges: [ ['B0','B1','đúng'], ['B0','B2','sai'], ['B1','B2',''] ],
+  },
+};
+
+function renderCfgTac(prog) {
+  const el = document.getElementById('cfgTac');
+  let html = '';
+  for (const ln of prog.lines) {
+    const mark = ln.leader ? '<span class="temp">▸</span> ' : '&nbsp;&nbsp;';
+    html += '<div class="line">' + mark + ln.t.replace(/(t\d|L\d)/g, '<span class="temp">$1</span>') + '</div>';
+  }
+  el.innerHTML = html + '<div class="hint" style="margin-top:6px;"><span class="temp">▸</span> = leader (bắt đầu một basic block)</div>';
+}
+
+function drawCFG(prog) {
+  const svg = document.getElementById('cfgSvg');
+  svg.innerHTML = '';
+  // arrow marker
+  const defs = svgEl('defs', {});
+  const marker = svgEl('marker', { id: 'arrow', markerWidth: 9, markerHeight: 9, refX: 8, refY: 3, orient: 'auto', markerUnits: 'strokeWidth' });
+  const poly = svgEl('path', { d: 'M0,0 L8,3 L0,6 Z', fill: '#9a3412' });
+  marker.appendChild(poly); defs.appendChild(marker); svg.appendChild(defs);
+
+  const W = 130, lineH = 16;
+  const bmap = {};
+  for (const b of prog.blocks) { b.w = W; b.h = 24 + b.body.length * lineH; bmap[b.id] = b; }
+
+  // edges first (so nodes draw on top)
+  for (const [from, to, label] of prog.edges) {
+    const a = bmap[from], c = bmap[to];
+    const ax = a.x + a.w / 2, ay = a.y + a.h;
+    const cx = c.x + c.w / 2;
+    let cy = c.y;
+    // self-up / back edges: route to the side
+    let path;
+    if (c.y < a.y) {
+      // back edge (loop) — curve out to the left
+      const midx = Math.min(a.x, c.x) - 30;
+      path = 'M' + ax + ',' + ay + ' C' + midx + ',' + (ay) + ' ' + midx + ',' + (cy + c.h) + ' ' + cx + ',' + (cy + c.h);
+      cy = c.y + c.h;
+    } else {
+      path = 'M' + ax + ',' + ay + ' C' + ax + ',' + (ay + 30) + ' ' + cx + ',' + (cy - 30) + ' ' + cx + ',' + cy;
+    }
+    svg.appendChild(svgEl('path', { d: path, fill: 'none', stroke: '#9a3412', 'stroke-width': 2, 'marker-end': 'url(#arrow)' }));
+    if (label) {
+      const lx = (ax + cx) / 2 + (c.y < a.y ? -34 : 8);
+      const ly = (ay + cy) / 2;
+      const bg = svgEl('rect', { x: lx - 4, y: ly - 11, width: label.length * 7 + 8, height: 16, rx: 3, fill: '#fff7ed', stroke: '#fed7aa' });
+      svg.appendChild(bg);
+      const tx = svgEl('text', { x: lx, y: ly + 1, 'font-size': 11, fill: '#c2410c', 'font-family': 'monospace' });
+      tx.textContent = label;
+      svg.appendChild(tx);
+    }
+  }
+  // nodes
+  for (const b of prog.blocks) {
+    const g = svgEl('g', {});
+    g.appendChild(svgEl('rect', { x: b.x, y: b.y, width: b.w, height: b.h, rx: 8, fill: '#fff7ed', stroke: '#c2410c', 'stroke-width': 2 }));
+    const idt = svgEl('text', { x: b.x + 8, y: b.y + 16, 'font-size': 12, 'font-weight': 700, fill: '#9a3412', 'font-family': 'monospace' });
+    idt.textContent = b.id;
+    g.appendChild(idt);
+    b.body.forEach((line, k) => {
+      const t = svgEl('text', { x: b.x + 8, y: b.y + 30 + k * lineH, 'font-size': 11, fill: '#57534e', 'font-family': 'monospace' });
+      t.textContent = line;
+      g.appendChild(t);
+    });
+    svg.appendChild(g);
+  }
+}
+
+function renderCFG() {
+  const prog = cfgPrograms[document.getElementById('cfgPick').value];
+  renderCfgTac(prog);
+  drawCFG(prog);
+}
+document.getElementById('cfgPick').onchange = renderCFG;
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 3 — TAC vs SSA
+// ════════════════════════════════════════════════════════════════════════════
+// Mỗi đoạn: list lệnh {target, expr-tokens}. Ta render TAC thường + SSA.
+const ssaSnippets = {
+  acc: [
+    { tgt: 'x', rhs: ['a', '+', 'b'] },
+    { tgt: 'x', rhs: ['x', '*', '2'] },
+    { tgt: 'y', rhs: ['x', '+', '1'] },
+  ],
+  sum: [
+    { tgt: 's', rhs: ['0'] },
+    { tgt: 's', rhs: ['s', '+', 'a'] },
+    { tgt: 's', rhs: ['s', '+', 'b'] },
+  ],
+  mix: [
+    { tgt: 'n', rhs: ['a', '+', '1'] },
+    { tgt: 'n', rhs: ['n', '*', 'b'] },
+    { tgt: 'm', rhs: ['n', '-', 'a'] },
+    { tgt: 'n', rhs: ['m', '+', '1'] },
+  ],
+};
+
+function isVar(tok) { return /^[a-z]$/.test(tok); }
+
+function renderSSA() {
+  const snip = ssaSnippets[document.getElementById('ssaPick').value];
+
+  // --- TAC thường: đếm số lần một tên được gán để tô vàng lần gán lại ---
+  const assignCount = {};
+  for (const ins of snip) assignCount[ins.tgt] = (assignCount[ins.tgt] || 0) + 1;
+  const seen = {};
+  let leftHtml = '';
+  for (const ins of snip) {
+    seen[ins.tgt] = (seen[ins.tgt] || 0) + 1;
+    const reassign = seen[ins.tgt] > 1;
+    const tgtSpan = '<span class="' + (reassign ? 'reassign' : '') + '">' + ins.tgt + '</span>';
+    leftHtml += '<div class="ssa-line">' + tgtSpan + ' = ' + ins.rhs.join(' ') + '</div>';
+  }
+  document.getElementById('ssaLeft').innerHTML = leftHtml;
+
+  // --- SSA: mỗi lần gán -> version mới; mỗi lần dùng -> version hiện hành ---
+  const ver = {};      // tên -> version hiện hành đã gán
+  let rightHtml = '';
+  for (const ins of snip) {
+    // render RHS dùng version hiện hành
+    const rhsHtml = ins.rhs.map(tok => {
+      if (isVar(tok) && ver[tok] !== undefined) return '<span class="ver">' + tok + ver[tok] + '</span>';
+      if (isVar(tok)) return '<span class="ver">' + tok + '0</span>'; // input chưa gán: version 0
+      return tok;
+    }).join(' ');
+    // sau khi đọc RHS mới tăng version đích
+    ver[ins.tgt] = (ver[ins.tgt] || 0) + 1;
+    const tgtHtml = '<span class="ver">' + ins.tgt + ver[ins.tgt] + '</span>';
+    rightHtml += '<div class="ssa-line">' + tgtHtml + ' = ' + rhsHtml + '</div>';
+  }
+  document.getElementById('ssaRight').innerHTML = rightHtml;
+}
+document.getElementById('ssaPick').onchange = renderSSA;
+
+// ════════════════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════════════════
+genAll();
+renderCFG();
+renderSSA();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>
+</content>

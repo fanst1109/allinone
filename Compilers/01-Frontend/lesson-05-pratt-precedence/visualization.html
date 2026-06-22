@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Pratt Parsing / Precedence Climbing</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #9a3412; }
+  h2 {
+    color: #c2410c; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fed7aa;
+  }
+  h3 { color: #9a3412; margin-top: 20px; }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #4a5568; }
+  .hint { color: #718096; font-size: 13px; margin: 4px 0; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #fff7ed; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #c2410c;
+  }
+
+  /* inputs & buttons */
+  input.expr {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 16px; padding: 8px 12px;
+    border: 1px solid #fdba74; border-radius: 4px;
+    width: 100%; max-width: 320px; box-sizing: border-box;
+  }
+  input.expr.bad { border-color: #e53e3e; background: #fff5f5; }
+  button {
+    background: #c2410c; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #9a3412; }
+  button.preset, button.ghost {
+    background: #ffedd5; color: #9a3412; font-size: 12px;
+    padding: 4px 10px; margin: 3px 4px 3px 0;
+  }
+  button.preset:hover, button.ghost:hover { background: #fed7aa; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+
+  /* binding power editor */
+  table.bp {
+    border-collapse: collapse; margin: 10px 0; font-size: 14px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  table.bp th, table.bp td {
+    border: 1px solid #fed7aa; padding: 6px 12px; text-align: center;
+  }
+  table.bp th { background: #fff7ed; color: #9a3412; font-weight: 700; }
+  table.bp input[type=number] {
+    width: 56px; font-family: inherit; font-size: 14px;
+    border: 1px solid #fdba74; border-radius: 3px; padding: 2px 4px; text-align: center;
+  }
+  table.bp select {
+    font-size: 13px; padding: 2px 4px; border: 1px solid #fdba74; border-radius: 3px;
+    background: white; font-family: inherit;
+  }
+
+  /* stepper readout */
+  .step-log {
+    background: #1f2937; color: #e5e7eb; border-radius: 6px;
+    padding: 14px 16px; font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; line-height: 1.7; max-height: 320px; overflow-y: auto;
+  }
+  .step-log .ln { white-space: pre-wrap; }
+  .step-log .cur { background: #c2410c; color: white; border-radius: 3px; padding: 0 4px; }
+  .step-log .minbp { color: #fdba74; }
+  .step-log .ok { color: #86efac; }
+  .step-log .no { color: #fca5a5; }
+  .step-log .gom { color: #fcd34d; }
+
+  .readout {
+    display: flex; gap: 20px; flex-wrap: wrap; align-items: baseline;
+    margin: 10px 0; font-size: 15px;
+  }
+  .readout .big {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 20px; font-weight: 700; color: #9a3412;
+  }
+  .pill {
+    display: inline-block; padding: 3px 10px; border-radius: 999px;
+    font-size: 12px; font-weight: 700; background: #ffedd5; color: #9a3412;
+  }
+
+  /* tree svg wrapper */
+  .tree-wrap { overflow-x: auto; }
+  svg text { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  .node-op circle, .node-num circle { stroke: #9a3412; stroke-width: 2; }
+  .node-op circle { fill: #fed7aa; }
+  .node-num circle { fill: #fff7ed; }
+  .edge { stroke: #c2410c; stroke-width: 2; }
+
+  /* assoc compare */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+  .compare > div {
+    background: #fff7ed; border-left: 4px solid #c2410c;
+    padding: 12px 16px; border-radius: 4px;
+  }
+  .compare .title { font-weight: 700; color: #9a3412; margin-bottom: 8px; }
+  @media (max-width: 720px) { .compare { grid-template-columns: 1fr; } }
+
+  .err-box { color: #742a2a; background: #fed7d7; padding: 8px 12px; border-radius: 4px; }
+
+  @media (max-width: 480px) {
+    .step-log { font-size: 12px; }
+    table.bp th, table.bp td { padding: 4px 6px; }
+    table.bp input[type=number] { width: 44px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-recursive-descent-parser/visualization.html">← L04: Recursive-Descent Parser</a>
+  <span class="sep">·</span>
+  <span class="current">L05: Pratt Parsing</span>
+  <span class="sep">·</span>
+  <a href="../../02-Semantics/lesson-01-ast-visitor/visualization.html">L06: AST & Visitor →</a>
+</nav>
+
+<main>
+  <h1>Lesson 05 — Pratt Parsing / Precedence Climbing</h1>
+  <p>Một hàm <code>parseExpr(minbp)</code> thay cho cả chục hàm phân tầng. Ba module tương tác: chạy thuật toán từng bước với cây dựng dần, so kết hợp trái vs phải, và chỉnh binding power để thấy cây đổi hình.</p>
+
+  <h2>1. Pratt Stepper — chạy thuật toán từng bước</h2>
+  <p class="hint">
+    Nhập biểu thức (toán tử <code>+ - * / ^</code>, ngoặc <code>( )</code>, unary <code>-</code>). Chỉnh binding power trong bảng nếu muốn.
+    Bấm <strong>Chạy từng bước</strong> rồi <strong>Bước ▸</strong> để xem <span class="minbp" style="color:#c2410c">minbp</span> hiện tại, cây dựng dần, và giá trị tính ra.
+  </p>
+  <div class="card">
+    <div class="row">
+      <input class="expr" id="exprInput" value="2 + 3 * 4" placeholder="vd: 2 + 3 * 4 ^ 2">
+      <button id="runBtn">Chạy từng bước</button>
+      <button class="ghost" id="stepBtn" disabled>Bước ▸</button>
+      <button class="ghost" id="allBtn" disabled>Chạy hết ▸▸</button>
+      <button class="ghost" id="resetBtn">Reset</button>
+    </div>
+    <div class="row">
+      <span class="hint" style="margin-right:6px;">Mẫu:</span>
+      <button class="preset" data-expr="2 + 3 * 4">2 + 3 * 4</button>
+      <button class="preset" data-expr="2 ^ 3 ^ 2">2 ^ 3 ^ 2</button>
+      <button class="preset" data-expr="8 - 3 - 2">8 - 3 - 2</button>
+      <button class="preset" data-expr="( 2 + 3 ) * 4">(2 + 3) * 4</button>
+      <button class="preset" data-expr="- 2 ^ 2 + 1">-2 ^ 2 + 1</button>
+    </div>
+
+    <h3>Bảng binding power (chỉnh được)</h3>
+    <div style="overflow-x:auto;">
+      <table class="bp" id="bpTable">
+        <thead><tr><th>toán tử</th><th>lbp</th><th>kết hợp</th><th>rbp (suy ra)</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="hint">Trái-kết-hợp → <code>rbp = lbp + 1</code>. Phải-kết-hợp → <code>rbp = lbp − 1</code>. Đổi số/kết hợp rồi <em>Chạy từng bước</em> lại để thấy ảnh hưởng.</p>
+
+    <div class="readout" id="readout"></div>
+    <div class="tree-wrap"><svg id="treeSvg" width="600" height="260" viewBox="0 0 600 260"></svg></div>
+    <h3>Nhật ký thuật toán</h3>
+    <div class="step-log" id="stepLog"><span class="ln">Bấm "Chạy từng bước" để bắt đầu.</span></div>
+  </div>
+
+  <h2>2. Associativity Demo — trái vs phải, hai cây khác nhau</h2>
+  <p class="hint">
+    Cùng một loại toán tử lặp lại, nhưng <strong>kết hợp trái</strong> và <strong>kết hợp phải</strong> dựng cây khác nhau → giá trị khác nhau.
+    Đây là điều mà <code>rbp = lbp ± 1</code> điều khiển.
+  </p>
+  <div class="card">
+    <div class="compare">
+      <div>
+        <div class="title">Trái-kết-hợp: <code>8 - 3 - 2</code></div>
+        <div class="hint"><code>rbp(-) = lbp + 1</code> → toán tử cùng mức KHÔNG lọt vào đệ quy → gom vòng ngoài.</div>
+        <div class="tree-wrap"><svg id="leftSvg" width="280" height="220" viewBox="0 0 280 220"></svg></div>
+        <div class="readout"><span>Cây: <span class="mono" id="leftForm"></span></span><span class="pill" id="leftVal"></span></div>
+      </div>
+      <div>
+        <div class="title">Phải-kết-hợp: <code>2 ^ 3 ^ 2</code></div>
+        <div class="hint"><code>rbp(^) = lbp − 1</code> → toán tử cùng mức LỌT vào đệ quy → gom bên phải trước.</div>
+        <div class="tree-wrap"><svg id="rightSvg" width="280" height="220" viewBox="0 0 280 220"></svg></div>
+        <div class="readout"><span>Cây: <span class="mono" id="rightForm"></span></span><span class="pill" id="rightVal"></span></div>
+      </div>
+    </div>
+    <p class="hint" style="margin-top:12px;">
+      Bản lề: ở <code>8-3-2</code>, <code>-</code>₂ có lbp 30 vs minbp 31 (= rbp của <code>-</code>₁) → <strong>30 &gt; 31 sai</strong> → gom trái.
+      Ở <code>2^3^2</code>, <code>^</code>₂ có lbp 50 vs minbp 49 (= rbp của <code>^</code>₁) → <strong>50 &gt; 49 đúng</strong> → gom phải. Đúng một con số rbp lật cả cây.
+    </p>
+  </div>
+
+  <h2>3. Bảng ưu tiên tương tác — đổi binding power, cây đổi hình</h2>
+  <p class="hint">
+    Biểu thức cố định <code>2 + 3 * 4</code>. Kéo binding power của <code>+</code> và <code>*</code>.
+    Khi <code>lbp(*) &gt; lbp(+)</code> → cây <code>2 + (3*4)</code> (nhân trước). Đảo lại → <code>(2+3) * 4</code> (cộng trước). Thấy ngay cây và giá trị nhảy.
+  </p>
+  <div class="card">
+    <div class="row">
+      <label>lbp(+) = <span id="plusVal" class="mono" style="color:#c2410c">30</span></label>
+      <input type="range" id="plusBp" min="10" max="60" step="10" value="30">
+      <label>lbp(*) = <span id="starVal" class="mono" style="color:#c2410c">40</span></label>
+      <input type="range" id="starBp" min="10" max="60" step="10" value="40">
+    </div>
+    <div class="readout">
+      <span>Ai ưu tiên cao hơn: <span class="pill" id="whoWins"></span></span>
+      <span>Cây: <span class="mono big" id="interForm"></span></span>
+      <span>= <span class="big" id="interVal"></span></span>
+    </div>
+    <div class="tree-wrap"><svg id="interSvg" width="420" height="240" viewBox="0 0 420 240"></svg></div>
+  </div>
+</main>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// Bảng binding power mặc định (khớp README §2.3)
+// ─────────────────────────────────────────────────────────────────────────────
+const DEFAULT_BP = {
+  '=':  { lbp: 10, assoc: 'right' },
+  '<':  { lbp: 20, assoc: 'left'  },
+  '>':  { lbp: 20, assoc: 'left'  },
+  '+':  { lbp: 30, assoc: 'left'  },
+  '-':  { lbp: 30, assoc: 'left'  },
+  '*':  { lbp: 40, assoc: 'left'  },
+  '/':  { lbp: 40, assoc: 'left'  },
+  '^':  { lbp: 50, assoc: 'right' },
+};
+let bpTable = JSON.parse(JSON.stringify(DEFAULT_BP));
+const UNARY_RBP = 60;
+
+function lbpOf(tok) { return bpTable[tok] ? bpTable[tok].lbp : null; }
+function rbpOf(tok) {
+  const e = bpTable[tok]; if (!e) return null;
+  return e.assoc === 'right' ? e.lbp - 1 : e.lbp + 1;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Lexer: cắt biểu thức thành tokens
+// ─────────────────────────────────────────────────────────────────────────────
+function tokenize(src) {
+  const out = [];
+  let i = 0;
+  const s = src.replace(/\s+/g, '');
+  while (i < s.length) {
+    const c = s[i];
+    if (/[0-9.]/.test(c)) {
+      let j = i; while (j < s.length && /[0-9.]/.test(s[j])) j++;
+      out.push({ t: 'num', v: s.slice(i, j) }); i = j;
+    } else if ('+-*/^()<>='.includes(c)) {
+      out.push({ t: 'op', v: c }); i++;
+    } else {
+      throw new Error("Ký tự lạ: '" + c + "'");
+    }
+  }
+  return out;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pratt parser có ghi log từng bước (dùng cho stepper)
+// ─────────────────────────────────────────────────────────────────────────────
+function makeParser(tokens, log) {
+  let pos = 0;
+  const peek = () => pos < tokens.length ? tokens[pos] : null;
+  const next = () => tokens[pos++];
+  let depth = 0;
+  const ind = () => '  '.repeat(depth);
+
+  function atom() {
+    const t = next();
+    if (!t) throw new Error('Hết token bất ngờ (thiếu toán hạng)');
+    if (t.t === 'op' && t.v === '(') {
+      log && log(ind() + 'atom: gặp "(" → parseExpr(<span class="minbp">0</span>)');
+      depth++;
+      const e = expr(0);
+      depth--;
+      const cl = next();
+      if (!cl || cl.v !== ')') throw new Error('Thiếu ")"');
+      return e;
+    }
+    if (t.t === 'op' && t.v === '-') {
+      log && log(ind() + 'atom: unary "-" → parseExpr(<span class="minbp">' + UNARY_RBP + '</span>)');
+      depth++;
+      const x = expr(UNARY_RBP);
+      depth--;
+      return { op: 'u-', x };
+    }
+    if (t.t === 'num') {
+      log && log(ind() + 'atom → <span class="cur">' + t.v + '</span>');
+      return { num: parseFloat(t.v), raw: t.v };
+    }
+    throw new Error('Toán hạng không hợp lệ: "' + t.v + '"');
+  }
+
+  function expr(minbp) {
+    log && log(ind() + 'parseExpr(<span class="minbp">minbp=' + minbp + '</span>)');
+    let left = atom();
+    for (;;) {
+      const p = peek();
+      if (!p || p.t !== 'op' || p.v === ')') break;
+      const l = lbpOf(p.v);
+      if (l === null) break;
+      if (l <= minbp) {
+        log && log(ind() + 'peek "' + p.v + '" lbp=' + l + ' &gt; minbp=' + minbp + '? <span class="no">không</span> → dừng');
+        break;
+      }
+      log && log(ind() + 'peek "' + p.v + '" lbp=' + l + ' &gt; minbp=' + minbp + '? <span class="ok">có</span> → ăn "' + p.v + '", parseExpr(<span class="minbp">rbp=' + rbpOf(p.v) + '</span>)');
+      next();
+      depth++;
+      const right = expr(rbpOf(p.v));
+      depth--;
+      left = { op: p.v, left, right };
+      log && log(ind() + '<span class="gom">gom (' + formNode(left) + ')</span>');
+    }
+    return left;
+  }
+
+  return { parse: () => { const r = expr(0); if (peek()) throw new Error('Token thừa: "' + peek().v + '"'); return r; } };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers: in dạng cây, tính giá trị
+// ─────────────────────────────────────────────────────────────────────────────
+function formNode(n) {
+  if (n.num !== undefined) return n.raw;
+  if (n.op === 'u-') return '-' + formNode(n.x);
+  return '(' + formNode(n.left) + ' ' + n.op + ' ' + formNode(n.right) + ')';
+}
+function evalNode(n) {
+  if (n.num !== undefined) return n.num;
+  if (n.op === 'u-') return -evalNode(n.x);
+  const a = evalNode(n.left), b = evalNode(n.right);
+  switch (n.op) {
+    case '+': return a + b; case '-': return a - b;
+    case '*': return a * b; case '/': return a / b;
+    case '^': return Math.pow(a, b);
+    case '<': return a < b ? 1 : 0; case '>': return a > b ? 1 : 0;
+    case '=': return b;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Vẽ cây AST trong SVG (layout đệ quy đơn giản)
+// ─────────────────────────────────────────────────────────────────────────────
+function layout(n) {
+  // gán x theo in-order, y theo depth
+  let counter = 0, maxDepth = 0;
+  function assign(node, d) {
+    maxDepth = Math.max(maxDepth, d);
+    if (node.num !== undefined) { node._x = counter++; node._d = d; return; }
+    if (node.op === 'u-') {
+      assign(node.x, d + 1);
+      node._x = node.x._x; node._d = d; node._mid = true;
+      return;
+    }
+    assign(node.left, d + 1);
+    node._x = counter++;
+    node._d = d;
+    assign(node.right, d + 1);
+  }
+  assign(n, 0);
+  return { count: counter, maxDepth };
+}
+
+function drawTree(svgId, root, w, h) {
+  const svg = document.getElementById(svgId);
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  if (!root) return;
+  const { count, maxDepth } = layout(root);
+  const padX = 36, padY = 30;
+  const stepX = count > 1 ? (w - 2 * padX) / (count - 1) : 0;
+  const stepY = maxDepth > 0 ? (h - 2 * padY) / maxDepth : 0;
+  const px = n => padX + n._x * stepX;
+  const py = n => padY + n._d * stepY;
+  const NS = 'http://www.w3.org/2000/svg';
+
+  function edges(node) {
+    if (node.num !== undefined) return;
+    const kids = node.op === 'u-' ? [node.x] : [node.left, node.right];
+    for (const k of kids) {
+      const ln = document.createElementNS(NS, 'line');
+      ln.setAttribute('x1', px(node)); ln.setAttribute('y1', py(node));
+      ln.setAttribute('x2', px(k));   ln.setAttribute('y2', py(k));
+      ln.setAttribute('class', 'edge');
+      svg.appendChild(ln);
+      edges(k);
+    }
+  }
+  function nodes(node) {
+    const g = document.createElementNS(NS, 'g');
+    const isOp = node.num === undefined;
+    g.setAttribute('class', isOp ? 'node-op' : 'node-num');
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', px(node)); c.setAttribute('cy', py(node)); c.setAttribute('r', 17);
+    g.appendChild(c);
+    const tx = document.createElementNS(NS, 'text');
+    tx.setAttribute('x', px(node)); tx.setAttribute('y', py(node) + 5);
+    tx.setAttribute('text-anchor', 'middle'); tx.setAttribute('font-size', '15');
+    tx.setAttribute('font-weight', '700'); tx.setAttribute('fill', '#9a3412');
+    tx.textContent = node.num !== undefined ? node.raw : (node.op === 'u-' ? '−' : node.op);
+    g.appendChild(tx);
+    svg.appendChild(g);
+    if (isOp) { const kids = node.op === 'u-' ? [node.x] : [node.left, node.right]; kids.forEach(nodes); }
+  }
+  edges(root);
+  nodes(root);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE 1: stepper
+// ─────────────────────────────────────────────────────────────────────────────
+function renderBpEditor() {
+  const tb = document.querySelector('#bpTable tbody');
+  tb.innerHTML = '';
+  for (const tok of Object.keys(bpTable)) {
+    const e = bpTable[tok];
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><code>' + (tok === '<' ? '&lt;' : tok === '>' ? '&gt;' : tok) + '</code></td>' +
+      '<td><input type="number" step="10" value="' + e.lbp + '" data-tok="' + tok + '" data-f="lbp"></td>' +
+      '<td><select data-tok="' + tok + '" data-f="assoc">' +
+        '<option value="left"' + (e.assoc === 'left' ? ' selected' : '') + '>trái</option>' +
+        '<option value="right"' + (e.assoc === 'right' ? ' selected' : '') + '>phải</option>' +
+      '</select></td>' +
+      '<td class="rbp">' + rbpOf(tok) + '</td>';
+    tb.appendChild(tr);
+  }
+  tb.querySelectorAll('input,select').forEach(el => {
+    el.addEventListener('change', () => {
+      const tok = el.dataset.tok, f = el.dataset.f;
+      if (f === 'lbp') bpTable[tok].lbp = parseInt(el.value, 10) || 0;
+      else bpTable[tok].assoc = el.value;
+      // cập nhật cột rbp
+      el.closest('tr').querySelector('.rbp').textContent = rbpOf(tok);
+    });
+  });
+}
+
+let stepState = null;
+function startStepper() {
+  const log = document.getElementById('stepLog');
+  const ro = document.getElementById('readout');
+  log.innerHTML = '';
+  document.getElementById('exprInput').classList.remove('bad');
+  let lines = [];
+  try {
+    const toks = tokenize(document.getElementById('exprInput').value);
+    const parser = makeParser(toks, msg => lines.push(msg));
+    const ast = parser.parse();
+    stepState = { lines, idx: 0, ast };
+    pushLines(0);
+    document.getElementById('stepBtn').disabled = false;
+    document.getElementById('allBtn').disabled = false;
+    ro.innerHTML = '<span class="pill">Sẵn sàng — bấm "Bước ▸" để chạy từng dòng</span>';
+    drawTree('treeSvg', null, 600, 260);
+  } catch (err) {
+    document.getElementById('exprInput').classList.add('bad');
+    log.innerHTML = '<div class="err-box">Lỗi: ' + err.message + '</div>';
+    ro.innerHTML = '';
+    stepState = null;
+    document.getElementById('stepBtn').disabled = true;
+    document.getElementById('allBtn').disabled = true;
+  }
+}
+function pushLines(upto) {
+  const log = document.getElementById('stepLog');
+  log.innerHTML = stepState.lines.slice(0, upto).map((l, k) =>
+    '<div class="ln' + (k === upto - 1 ? '" style="background:#374151;border-radius:3px;padding:2px 4px;"' : '"') + '>' + l + '</div>'
+  ).join('') || '<span class="ln">Bấm "Bước ▸"…</span>';
+  log.scrollTop = log.scrollHeight;
+}
+function stepOnce() {
+  if (!stepState) return;
+  if (stepState.idx < stepState.lines.length) {
+    stepState.idx++;
+    pushLines(stepState.idx);
+  }
+  if (stepState.idx >= stepState.lines.length) finishStepper();
+}
+function finishStepper() {
+  if (!stepState) return;
+  pushLines(stepState.lines.length);
+  const ast = stepState.ast;
+  drawTree('treeSvg', ast, 600, 260);
+  const val = evalNode(ast);
+  document.getElementById('readout').innerHTML =
+    '<span>Cây AST: <span class="mono big">' + formNode(ast) + '</span></span>' +
+    '<span class="pill">= ' + (Number.isInteger(val) ? val : val.toFixed(4)) + '</span>';
+}
+
+document.getElementById('runBtn').onclick = startStepper;
+document.getElementById('stepBtn').onclick = stepOnce;
+document.getElementById('allBtn').onclick = () => { if (stepState) { stepState.idx = stepState.lines.length; pushLines(stepState.idx); finishStepper(); } };
+document.getElementById('resetBtn').onclick = () => {
+  bpTable = JSON.parse(JSON.stringify(DEFAULT_BP));
+  renderBpEditor();
+  document.getElementById('exprInput').value = '2 + 3 * 4';
+  document.getElementById('stepLog').innerHTML = '<span class="ln">Bấm "Chạy từng bước" để bắt đầu.</span>';
+  document.getElementById('readout').innerHTML = '';
+  drawTree('treeSvg', null, 600, 260);
+  document.getElementById('stepBtn').disabled = true;
+  document.getElementById('allBtn').disabled = true;
+  stepState = null;
+};
+document.querySelectorAll('button.preset').forEach(b => {
+  b.onclick = () => { document.getElementById('exprInput').value = b.dataset.expr; startStepper(); };
+});
+document.getElementById('exprInput').addEventListener('keydown', e => { if (e.key === 'Enter') startStepper(); });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE 2: associativity demo (parse với bảng cố định)
+// ─────────────────────────────────────────────────────────────────────────────
+function parsePlain(src) {
+  return makeParser(tokenize(src), null).parse();
+}
+function renderAssoc() {
+  const left = parsePlain('8 - 3 - 2');
+  const right = parsePlain('2 ^ 3 ^ 2');
+  drawTree('leftSvg', left, 280, 220);
+  drawTree('rightSvg', right, 280, 220);
+  document.getElementById('leftForm').textContent = formNode(left);
+  document.getElementById('leftVal').textContent = '= ' + evalNode(left);
+  document.getElementById('rightForm').textContent = formNode(right);
+  document.getElementById('rightVal').textContent = '= ' + evalNode(right);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE 3: interactive precedence — 2 + 3 * 4 với lbp(+), lbp(*) thay đổi
+// ─────────────────────────────────────────────────────────────────────────────
+function buildFixedTree(plusBp, starBp) {
+  // parse "2 + 3 * 4" bằng bảng tạm
+  const saved = bpTable;
+  bpTable = { '+': { lbp: plusBp, assoc: 'left' }, '*': { lbp: starBp, assoc: 'left' } };
+  const ast = makeParser(tokenize('2 + 3 * 4'), null).parse();
+  bpTable = saved;
+  return ast;
+}
+function renderInter() {
+  const plus = parseInt(document.getElementById('plusBp').value, 10);
+  const star = parseInt(document.getElementById('starBp').value, 10);
+  document.getElementById('plusVal').textContent = plus;
+  document.getElementById('starVal').textContent = star;
+  const ast = buildFixedTree(plus, star);
+  drawTree('interSvg', ast, 420, 240);
+  document.getElementById('interForm').textContent = formNode(ast);
+  document.getElementById('interVal').textContent = evalNode(ast);
+  const who = star > plus ? '* (nhân) ưu tiên cao' : star < plus ? '+ (cộng) ưu tiên cao' : 'bằng nhau → trái-kết-hợp';
+  document.getElementById('whoWins').textContent = who;
+}
+document.getElementById('plusBp').oninput = renderInter;
+document.getElementById('starBp').oninput = renderInter;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────────────────────────────────────
+renderBpEditor();
+startStepper();
+renderAssoc();
+renderInter();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>
+</content>

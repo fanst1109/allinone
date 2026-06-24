@@ -9,7 +9,7 @@ window.README_MD = `# Lesson 10 — Friction, Resting & Stacking (ma sát tiếp
 
 Sau bài này bạn sẽ:
 
-- Hiểu **ma sát va chạm (tangent friction)** — cùng cơ chế impulse như [Lesson 09](../lesson-04-collision-response-impulse/) nhưng theo phương **tiếp tuyến**, bị kẹp bởi định luật Coulomb \`|jₜ| ≤ μ·jₙ\`.
+- Hiểu **ma sát va chạm (tangent friction)** — cùng cơ chế impulse như [Lesson 09](../lesson-04-collision-response-impulse/) nhưng theo phương **tiếp tuyến**, bị kẹp bởi định luật Coulomb $|j_t| \\le \\mu \\cdot j_n$.
 - Hiểu **tiếp xúc nghỉ (resting contact)** — vì sao vật nằm yên trên sàn lại **rung lắc (jitter)** nếu xử lý naive.
 - Hiểu **lún (sinking)** và **hiệu chỉnh vị trí (positional correction)** — slop + Baumgarte/percent correction để hết lún mà không gây nảy.
 - Hiểu **xếp chồng (stacking)** — vì sao giải va chạm **một lần mỗi frame không đủ**, và cách giải lặp (sequential impulse) làm chồng hộp đứng yên.
@@ -55,24 +55,24 @@ Bài này lần lượt đóng cả 4 câu hỏi đó.
 ### 2.1 Trực giác: tách tốc độ thành hai phương
 
 💡 **Hình dung.** Khi hai vật chạm nhau, vận tốc tương đối tại điểm chạm có hai thành phần:
-- **Phương pháp tuyến \`n\`** (vuông góc bề mặt): quyết định **nảy** — đã làm ở L09.
-- **Phương tiếp tuyến \`t\`** (dọc bề mặt): quyết định **trượt**. Ma sát chống lại thành phần này.
+- **Phương pháp tuyến** $n$ (vuông góc bề mặt): quyết định **nảy** — đã làm ở L09.
+- **Phương tiếp tuyến** $t$ (dọc bề mặt): quyết định **trượt**. Ma sát chống lại thành phần này.
 
 Hình dung kéo quyển sách trên bàn: bạn đẩy ngang (tiếp tuyến), ma sát ghì ngược lại. Càng đè mạnh xuống (pháp tuyến lớn) thì càng khó kéo — đó chính là định luật Coulomb.
 
 ### 2.2 Định nghĩa: impulse ma sát
 
-**(a) Là gì.** *Impulse ma sát* \`jₜ\` là một xung lực **theo phương tiếp tuyến** \`t\`, áp tại điểm chạm để **triệt tiêu (hoặc giảm) vận tốc trượt** dọc bề mặt. Đơn vị: kg·m/s (giống mọi impulse).
+**(a) Là gì.** *Impulse ma sát* $j_t$ là một xung lực **theo phương tiếp tuyến** $t$, áp tại điểm chạm để **triệt tiêu (hoặc giảm) vận tốc trượt** dọc bề mặt. Đơn vị: kg·m/s (giống mọi impulse).
 
-**(b) Vì sao cần.** L09 chỉ tính \`jₙ\` theo \`n\` nên vật trượt **tự do** dọc mặt — phi thực tế. Ta cần thêm một xung riêng dọc \`t\` để mô phỏng lực ghì. Không thể gộp vào \`jₙ\` vì hai phương độc lập.
+**(b) Vì sao cần.** L09 chỉ tính $j_n$ theo $n$ nên vật trượt **tự do** dọc mặt — phi thực tế. Ta cần thêm một xung riêng dọc $t$ để mô phỏng lực ghì. Không thể gộp vào $j_n$ vì hai phương độc lập.
 
-**(c) Công thức.** Y hệt impulse pháp tuyến L09, chỉ đổi \`n → t\` và **bỏ hệ số phục hồi** (ma sát không làm vật "nảy ngang", chỉ hãm):
+**(c) Công thức.** Y hệt impulse pháp tuyến L09, chỉ đổi $n \\to t$ và **bỏ hệ số phục hồi** (ma sát không làm vật "nảy ngang", chỉ hãm):
 
 $$
 j_t = \\frac{-(v_{rel}\\cdot t)}{\\tfrac{1}{m_A}+\\tfrac{1}{m_B}}
 $$
 
-trong đó vector tiếp tuyến \`t\` là phần vận tốc tương đối **đã trừ đi thành phần pháp tuyến**, rồi chuẩn hóa:
+trong đó vector tiếp tuyến $t$ là phần vận tốc tương đối **đã trừ đi thành phần pháp tuyến**, rồi chuẩn hóa:
 
 $$
 t = \\text{normalize}\\big(v_{rel} - (v_{rel}\\cdot n)\\,n\\big)
@@ -86,12 +86,12 @@ $$
 |j_t| \\le \\mu \\cdot j_n
 $$
 
-- \`μ\` (mu) = **hệ số ma sát** (không thứ nguyên). Băng ≈ 0.05, gỗ ≈ 0.4, cao su trên bê tông ≈ 1.0.
-- \`jₙ\` = độ lớn impulse pháp tuyến (từ L09).
-- Nếu \`jₜ\` tính ra **vượt** \`μ·jₙ\` → ta **kẹp** nó về đúng \`μ·jₙ\` (giữ dấu/hướng). Đây là trạng thái **trượt động (kinetic)**: vật vẫn trượt, ma sát chỉ hãm bớt.
-- Nếu \`jₜ\` **không vượt** → giữ nguyên: ma sát **tĩnh (static)** đủ sức dừng hẳn trượt.
+- $\\mu$ (mu) = **hệ số ma sát** (không thứ nguyên). Băng $\\approx 0.05$, gỗ $\\approx 0.4$, cao su trên bê tông $\\approx 1.0$.
+- $j_n$ = độ lớn impulse pháp tuyến (từ L09).
+- Nếu $j_t$ tính ra **vượt** $\\mu \\cdot j_n$ → ta **kẹp** nó về đúng $\\mu \\cdot j_n$ (giữ dấu/hướng). Đây là trạng thái **trượt động (kinetic)**: vật vẫn trượt, ma sát chỉ hãm bớt.
+- Nếu $j_t$ **không vượt** → giữ nguyên: ma sát **tĩnh (static)** đủ sức dừng hẳn trượt.
 
-⚠ **Lỗi thường gặp: ma sát vượt giới hạn Coulomb.** Nếu bạn áp nguyên \`jₜ\` mà **quên kẹp**, ma sát có thể lớn hơn cả lực đè → vật đang trượt sang phải bị "hãm ngược" văng sang trái. Triệu chứng: vật rung giật, hoặc trượt xong **bật ngược lại** một cách phi lý. Luôn kẹp \`|jₜ| ≤ μ·jₙ\`.
+⚠ **Lỗi thường gặp: ma sát vượt giới hạn Coulomb.** Nếu bạn áp nguyên $j_t$ mà **quên kẹp**, ma sát có thể lớn hơn cả lực đè → vật đang trượt sang phải bị "hãm ngược" văng sang trái. Triệu chứng: vật rung giật, hoặc trượt xong **bật ngược lại** một cách phi lý. Luôn kẹp $|j_t| \\le \\mu \\cdot j_n$.
 
 ### 2.4 Walk-through bằng số thật
 
@@ -105,52 +105,52 @@ Hệ số phục hồi e = 0  (va chạm dẻo, không nảy — để cô lập
 μ = 0.3
 \`\`\`
 
-**Bước 1 — vận tốc tương đối.** B đứng yên nên \`v_rel = vₐ − v_b = (3, −4)\`.
+**Bước 1 — vận tốc tương đối.** B đứng yên nên $v_{rel} = v_A - v_B = (3, -4)$.
 
-**Bước 2 — impulse pháp tuyến \`jₙ\` (ôn L09).**
-\`v_rel · n = (3)(0) + (−4)(1) = −4\` (đang lao vào sàn).
+**Bước 2 — impulse pháp tuyến $j_n$ (ôn L09).**
+$v_{rel} \\cdot n = (3)(0) + (-4)(1) = -4$ (đang lao vào sàn).
 
 $$
 j_n = \\frac{-(1+e)\\,(v_{rel}\\cdot n)}{\\frac{1}{m_A}+\\frac{1}{m_B}} = \\frac{-(1+0)(-4)}{\\frac{1}{2}+0} = \\frac{4}{0.5} = 8
 $$
 
-→ \`jₙ = 8\`. (Cập nhật \`vₐ ← vₐ + (jₙ/mₐ)·n = (3,−4) + (8/2)(0,1) = (3, 0)\` — đã hết lao xuống, còn trượt ngang \`3\`.)
+→ $j_n = 8$. (Cập nhật $v_A \\leftarrow v_A + (j_n/m_A) \\cdot n = (3,-4) + (8/2)(0,1) = (3, 0)$ — đã hết lao xuống, còn trượt ngang $3$.)
 
-**Bước 3 — vector tiếp tuyến \`t\`.** Lấy vận tốc tương đối hiện tại \`v_rel = (3, 0)\` (sau bước 2):
-\`v_rel · n = (3)(0)+(0)(1) = 0\`, nên phần tiếp tuyến = \`(3,0) − 0·(0,1) = (3, 0)\`.
-Chuẩn hóa: \`t = (3,0)/3 = (1, 0)\`.
+**Bước 3 — vector tiếp tuyến $t$.** Lấy vận tốc tương đối hiện tại $v_{rel} = (3, 0)$ (sau bước 2):
+$v_{rel} \\cdot n = (3)(0)+(0)(1) = 0$, nên phần tiếp tuyến $= (3,0) - 0 \\cdot (0,1) = (3, 0)$.
+Chuẩn hóa: $t = (3,0)/3 = (1, 0)$.
 
 **Bước 4 — impulse ma sát chưa kẹp.**
-\`v_rel · t = (3)(1)+(0)(0) = 3\`.
+$v_{rel} \\cdot t = (3)(1)+(0)(0) = 3$.
 
 $$
 j_t = \\frac{-(v_{rel}\\cdot t)}{\\frac{1}{m_A}+\\frac{1}{m_B}} = \\frac{-(3)}{0.5} = -6
 $$
 
-→ \`jₜ = −6\`, độ lớn \`|jₜ| = 6\`.
+→ $j_t = -6$, độ lớn $|j_t| = 6$.
 
-**Bước 5 — kẹp Coulomb.** Giới hạn = \`μ·jₙ = 0.3 × 8 = 2.4\`.
-Vì \`|jₜ| = 6 > 2.4\` → **vượt giới hạn** → kẹp về \`2.4\`, giữ dấu âm: \`jₜ = −2.4\`. **Đây là trượt động.**
+**Bước 5 — kẹp Coulomb.** Giới hạn $= \\mu \\cdot j_n = 0.3 \\times 8 = 2.4$.
+Vì $|j_t| = 6 > 2.4$ → **vượt giới hạn** → kẹp về $2.4$, giữ dấu âm: $j_t = -2.4$. **Đây là trượt động.**
 
 **Bước 6 — áp vào vận tốc A.**
-\`vₐ ← vₐ + (jₜ/mₐ)·t = (3, 0) + (−2.4/2)(1, 0) = (3 − 1.2, 0) = (1.8, 0)\`.
+$v_A \\leftarrow v_A + (j_t/m_A) \\cdot t = (3, 0) + (-2.4/2)(1, 0) = (3 - 1.2, 0) = (1.8, 0)$.
 
-→ Tốc độ ngang giảm từ \`3\` xuống \`1.8\`. Vật **vẫn trượt** (vì ma sát chỉ đủ hãm bớt, không dừng hẳn) — đúng bản chất trượt động. Frame sau lặp lại, tốc độ tiếp tục giảm dần.
+→ Tốc độ ngang giảm từ $3$ xuống $1.8$. Vật **vẫn trượt** (vì ma sát chỉ đủ hãm bớt, không dừng hẳn) — đúng bản chất trượt động. Frame sau lặp lại, tốc độ tiếp tục giảm dần.
 
 ❓ **Câu hỏi tự nhiên của người đọc.**
-- *"Nếu \`|jₜ|\` không vượt giới hạn thì sao?"* → Giả sử ở một frame khác tính ra \`jₜ = −1.0\` và \`μ·jₙ = 2.4\`. Vì \`1.0 ≤ 2.4\`, **không kẹp**: áp nguyên \`−1.0\`. Lúc đó ma sát tĩnh đủ mạnh, dừng hẳn trượt — vật đứng yên ngang.
-- *"Vì sao bỏ \`e\` trong công thức ma sát?"* → \`e\` mô tả độ "nảy" theo pháp tuyến. Ma sát không làm vật bật ngược dọc bề mặt; nó chỉ hãm. Đặt \`e = 0\` cho phương tiếp tuyến.
-- *"Một vật có hai \`μ\`?"* → Thường engine dùng \`μ_static\` (giữ đứng yên) > \`μ_kinetic\` (khi đã trượt). Toy model trên dùng một \`μ\` cho gọn.
+- *"Nếu $|j_t|$ không vượt giới hạn thì sao?"* → Giả sử ở một frame khác tính ra $j_t = -1.0$ và $\\mu \\cdot j_n = 2.4$. Vì $1.0 \\le 2.4$, **không kẹp**: áp nguyên $-1.0$. Lúc đó ma sát tĩnh đủ mạnh, dừng hẳn trượt — vật đứng yên ngang.
+- *"Vì sao bỏ $e$ trong công thức ma sát?"* → $e$ mô tả độ "nảy" theo pháp tuyến. Ma sát không làm vật bật ngược dọc bề mặt; nó chỉ hãm. Đặt $e = 0$ cho phương tiếp tuyến.
+- *"Một vật có hai $\\mu$?"* → Thường engine dùng \`μ_static\` (giữ đứng yên) > \`μ_kinetic\` (khi đã trượt). Toy model trên dùng một $\\mu$ cho gọn.
 
-🔁 **Dừng lại tự kiểm tra.** Vật A \`mₐ = 1\`, \`v_rel = (5, 0)\` sau khi đã xử lý pháp tuyến, \`jₙ = 10\`, \`μ = 0.2\`, sàn \`1/m_b = 0\`. \`jₜ\` cuối cùng (sau kẹp) là bao nhiêu?
+🔁 **Dừng lại tự kiểm tra.** Vật A $m_A = 1$, $v_{rel} = (5, 0)$ sau khi đã xử lý pháp tuyến, $j_n = 10$, $\\mu = 0.2$, sàn $1/m_B = 0$. $j_t$ cuối cùng (sau kẹp) là bao nhiêu?
 <details><summary>Đáp án</summary>
 
-\`t = (1,0)\`, \`v_rel·t = 5\`, \`jₜ chưa kẹp = −5 / (1/1+0) = −5\`. Giới hạn \`μ·jₙ = 0.2×10 = 2\`. Vì \`5 > 2\` → kẹp về \`−2\`. Vận tốc mới \`= 5 + (−2/1) = 3\`. Trượt động, còn trượt tiếp.
+$t = (1,0)$, $v_{rel} \\cdot t = 5$, $j_t$ chưa kẹp $= -5 / (1/1+0) = -5$. Giới hạn $\\mu \\cdot j_n = 0.2 \\times 10 = 2$. Vì $5 > 2$ → kẹp về $-2$. Vận tốc mới $= 5 + (-2/1) = 3$. Trượt động, còn trượt tiếp.
 </details>
 
 📝 **Tóm tắt mục 2.**
-- Ma sát = impulse **theo phương tiếp tuyến \`t\`**, công thức giống L09 nhưng \`e = 0\`.
-- **Kẹp Coulomb \`|jₜ| ≤ μ·jₙ\`** là bắt buộc — quên kẹp → vật giật ngược.
+- Ma sát = impulse **theo phương tiếp tuyến** $t$, công thức giống L09 nhưng $e = 0$.
+- **Kẹp Coulomb** $|j_t| \\le \\mu \\cdot j_n$ là bắt buộc — quên kẹp → vật giật ngược.
 - Vượt giới hạn → trượt động (kẹp lại); không vượt → trượt tĩnh (dừng hẳn).
 
 ---
@@ -161,36 +161,36 @@ Vì \`|jₜ| = 6 > 2.4\` → **vượt giới hạn** → kẹp về \`2.4\`, gi
 
 💡 **Hình dung.** Đặt một viên gạch lên bàn. Trực giác: nó đứng yên. Nhưng với engine, mỗi frame là một câu chuyện lặp lại:
 
-1. **Tích phân:** trọng lực kéo gạch xuống → \`v_y\` tăng âm một chút, gạch nhích vào mặt bàn.
-2. **Phát hiện:** "gạch đâm xuyên bàn \`0.01\` đơn vị!"
-3. **Giải va chạm naive:** "đẩy ra, reset vận tốc lao vào = 0".
+1. **Tích phân:** trọng lực kéo gạch xuống → $v_y$ tăng âm một chút, gạch nhích vào mặt bàn.
+2. **Phát hiện:** "gạch đâm xuyên bàn $0.01$ đơn vị!"
+3. **Giải va chạm naive:** "đẩy ra, reset vận tốc lao vào $= 0$".
 4. Frame sau: trọng lực lại kéo xuống → lặp lại.
 
-Kết quả: \`v_y\` cứ bị bơm rồi bị reset, gạch **rung lăn tăn** quanh mặt bàn. Mắt thấy nó "lập lòe" lên xuống. Đó là **jitter**.
+Kết quả: $v_y$ cứ bị bơm rồi bị reset, gạch **rung lăn tăn** quanh mặt bàn. Mắt thấy nó "lập lòe" lên xuống. Đó là **jitter**.
 
 ### 3.2 Định nghĩa: tiếp xúc nghỉ
 
 **(a) Là gì.** *Resting contact* là tình huống hai vật chạm nhau với vận tốc tương đối pháp tuyến **xấp xỉ 0** và **kéo dài nhiều frame** (không phải va một phát rồi tách). Vd: hộp nằm trên sàn, nhân vật đứng trên bục.
 
-**(b) Vì sao cần khái niệm riêng.** Va chạm "động" (\`v_rel·n\` lớn) và tiếp xúc "nghỉ" (\`v_rel·n ≈ 0\`) cần xử lý khác nhau. Áp công thức nảy (với \`e > 0\`) cho tiếp xúc nghỉ → nó cứ nảy lăn tăn. Phải nhận diện resting và **không cho nảy** (\`e\` hiệu dụng → 0 khi vận tốc nhỏ).
+**(b) Vì sao cần khái niệm riêng.** Va chạm "động" ($v_{rel} \\cdot n$ lớn) và tiếp xúc "nghỉ" ($v_{rel} \\cdot n \\approx 0$) cần xử lý khác nhau. Áp công thức nảy (với $e > 0$) cho tiếp xúc nghỉ → nó cứ nảy lăn tăn. Phải nhận diện resting và **không cho nảy** ($e$ hiệu dụng → 0 khi vận tốc nhỏ).
 
-**(c) Ví dụ số.** Trọng lực \`g = (0, −10)\`, \`dt = 1/60 ≈ 0.0167\`. Mỗi frame \`v_y\` giảm \`g·dt = −0.167\`. Nếu mỗi frame chỉ reset \`v_y = 0\` khi chạm sàn, thì luôn có dao động \`[−0.167, 0]\` → jitter biên độ nhỏ nhưng thấy được.
+**(c) Ví dụ số.** Trọng lực $g = (0, -10)$, $dt = 1/60 \\approx 0.0167$. Mỗi frame $v_y$ giảm $g \\cdot dt = -0.167$. Nếu mỗi frame chỉ reset $v_y = 0$ khi chạm sàn, thì luôn có dao động $[-0.167, 0]$ → jitter biên độ nhỏ nhưng thấy được.
 
-⚠ **Lỗi thường gặp: jitter do \`e > 0\` ở tiếp xúc nghỉ.** Nếu để hệ số phục hồi \`e = 0.3\` cho cả tiếp xúc nghỉ, mỗi frame vật nảy lên \`30%\` vận tốc lao vào → rung rõ rệt. Sửa: khi \`|v_rel·n|\` nhỏ hơn ngưỡng (vd \`< 1.0\` m/s), đặt \`e = 0\` (gọi là **restitution slop**).
+⚠ **Lỗi thường gặp: jitter do $e > 0$ ở tiếp xúc nghỉ.** Nếu để hệ số phục hồi $e = 0.3$ cho cả tiếp xúc nghỉ, mỗi frame vật nảy lên $30\\%$ vận tốc lao vào → rung rõ rệt. Sửa: khi $|v_{rel} \\cdot n|$ nhỏ hơn ngưỡng (vd $< 1.0$ m/s), đặt $e = 0$ (gọi là **restitution slop**).
 
 ### 3.3 Bốn ví dụ số phân loại động/nghỉ
 
-| Tình huống | \`v_rel·n\` | Phân loại | Xử lý |
+| Tình huống | $v_{rel} \\cdot n$ | Phân loại | Xử lý |
 |---|---|---|---|
-| Bóng rơi từ cao đập sàn | \`−12\` | Va chạm động | nảy, dùng \`e\` |
-| Hộp vừa đặt nhẹ lên sàn | \`−0.8\` | Gần nghỉ | \`e → 0\`, không nảy |
-| Hộp đã nằm yên, frame kế | \`−0.167\` | Nghỉ | \`e = 0\` + positional correction |
-| Hai hộp đứng yên cạnh nhau | \`0.0\` | Nghỉ | chỉ positional correction |
+| Bóng rơi từ cao đập sàn | $-12$ | Va chạm động | nảy, dùng $e$ |
+| Hộp vừa đặt nhẹ lên sàn | $-0.8$ | Gần nghỉ | $e \\to 0$, không nảy |
+| Hộp đã nằm yên, frame kế | $-0.167$ | Nghỉ | $e = 0$ + positional correction |
+| Hai hộp đứng yên cạnh nhau | $0.0$ | Nghỉ | chỉ positional correction |
 
 📝 **Tóm tắt mục 3.**
-- Resting contact = chạm lâu dài, \`v_rel·n ≈ 0\`.
+- Resting contact = chạm lâu dài, $v_{rel} \\cdot n \\approx 0$.
 - Reset vận tốc naive mỗi frame → **jitter** (vật rung lăn tăn).
-- Sửa bước 1: dùng **restitution slop** — \`e → 0\` khi vận tốc lao vào nhỏ.
+- Sửa bước 1: dùng **restitution slop** — $e \\to 0$ khi vận tốc lao vào nhỏ.
 
 ---
 
@@ -212,9 +212,9 @@ $$
 \\text{correction} = \\frac{\\max(\\text{penetration} - \\text{slop},\\ 0)}{\\tfrac{1}{m_A}+\\tfrac{1}{m_B}} \\times \\text{percent} \\times n
 $$
 
-- **slop** (vd \`0.01\`): cho phép chồng lấn **một chút** không sửa → tránh rung quanh điểm 0.
-- **percent** (vd \`0.2\`–\`0.8\`): chỉ sửa một **phần** độ lún mỗi frame → mượt, không bắn quá đà.
-- Chia cho tổng nghịch khối lượng → vật **nhẹ bị đẩy nhiều hơn** (sàn \`1/m = 0\` đứng yên).
+- **slop** (vd $0.01$): cho phép chồng lấn **một chút** không sửa → tránh rung quanh điểm 0.
+- **percent** (vd $0.2$–$0.8$): chỉ sửa một **phần** độ lún mỗi frame → mượt, không bắn quá đà.
+- Chia cho tổng nghịch khối lượng → vật **nhẹ bị đẩy nhiều hơn** (sàn $1/m = 0$ đứng yên).
 
 ### 4.3 Walk-through bằng số thật
 
@@ -225,31 +225,31 @@ n = (0, 1)
 slop = 0.01,  percent = 0.2
 \`\`\`
 
-**Bước 1 — phần lún cần sửa.** \`max(penetration − slop, 0) = max(0.10 − 0.01, 0) = 0.09\`.
+**Bước 1 — phần lún cần sửa.** $\\max(\\text{penetration} - \\text{slop}, 0) = \\max(0.10 - 0.01, 0) = 0.09$.
 
-**Bước 2 — chia nghịch khối lượng.** \`0.09 / (1/1 + 0) = 0.09\`.
+**Bước 2 — chia nghịch khối lượng.** $0.09 / (1/1 + 0) = 0.09$.
 
-**Bước 3 — nhân percent.** \`0.09 × 0.2 = 0.018\`.
+**Bước 3 — nhân percent.** $0.09 \\times 0.2 = 0.018$.
 
-**Bước 4 — vector dịch.** \`correction = 0.018 × (0, 1) = (0, 0.018)\`.
+**Bước 4 — vector dịch.** $\\text{correction} = 0.018 \\times (0, 1) = (0, 0.018)$.
 
 **Bước 5 — áp cho từng vật theo nghịch khối lượng.**
-- A: \`posₐ ← posₐ + (1/mₐ)·correction = posₐ + 1×(0, 0.018)\` → A dịch lên \`0.018\`.
-- Sàn: \`1/m_b = 0\` → không dịch.
+- A: $\\text{pos}_A \\leftarrow \\text{pos}_A + (1/m_A) \\cdot \\text{correction} = \\text{pos}_A + 1 \\times (0, 0.018)$ → A dịch lên $0.018$.
+- Sàn: $1/m_B = 0$ → không dịch.
 
-→ Sau frame này lún còn \`0.10 − 0.018 = 0.082\`. Frame sau sửa tiếp \`max(0.082−0.01,0)×0.2 = 0.0144\`... lún **giảm dần theo cấp số nhân** về quanh \`slop = 0.01\` rồi dừng. Mượt, không bắn ra.
+→ Sau frame này lún còn $0.10 - 0.018 = 0.082$. Frame sau sửa tiếp $\\max(0.082-0.01,0) \\times 0.2 = 0.0144$... lún **giảm dần theo cấp số nhân** về quanh $\\text{slop} = 0.01$ rồi dừng. Mượt, không bắn ra.
 
 ❓ **Câu hỏi tự nhiên.**
-- *"Sao không percent = 1.0 cho hết lún ngay?"* → Sửa 100% mỗi frame dễ over-correct: dịch hơi quá → frame sau lún ngược phía kia → rung. \`0.2\` chậm mà chắc; \`0.8\` nhanh hơn nhưng dễ rung.
-- *"slop để làm gì?"* → Không có slop, engine cố ép penetration về **đúng 0** tuyệt đối → luôn dao động quanh 0 vì số học không bao giờ chính xác → rung vĩnh viễn. Cho phép lún \`≤ 0.01\` thì hệ "yên".
-- *"Hai vật cùng động (không phải sàn)?"* → Cả hai cùng dịch, vật nhẹ dịch nhiều hơn. Vd \`mₐ=1, m_b=2\` → A dịch gấp đôi B.
+- *"Sao không percent = 1.0 cho hết lún ngay?"* → Sửa 100% mỗi frame dễ over-correct: dịch hơi quá → frame sau lún ngược phía kia → rung. $0.2$ chậm mà chắc; $0.8$ nhanh hơn nhưng dễ rung.
+- *"slop để làm gì?"* → Không có slop, engine cố ép penetration về **đúng 0** tuyệt đối → luôn dao động quanh 0 vì số học không bao giờ chính xác → rung vĩnh viễn. Cho phép lún $\\le 0.01$ thì hệ "yên".
+- *"Hai vật cùng động (không phải sàn)?"* → Cả hai cùng dịch, vật nhẹ dịch nhiều hơn. Vd $m_A=1, m_B=2$ → A dịch gấp đôi B.
 
-⚠ **Lỗi thường gặp: jitter do over-correction.** Đặt \`percent = 1.0\` và \`slop = 0\` → vật bị đẩy bật ra mỗi frame rồi trọng lực kéo lại → rung dữ dội, có khi văng lên. Triệu chứng: hộp "nhảy disco" trên sàn. Sửa: hạ \`percent\` về \`0.2\`–\`0.4\`, đặt \`slop ≈ 0.01\`.
+⚠ **Lỗi thường gặp: jitter do over-correction.** Đặt $\\text{percent} = 1.0$ và $\\text{slop} = 0$ → vật bị đẩy bật ra mỗi frame rồi trọng lực kéo lại → rung dữ dội, có khi văng lên. Triệu chứng: hộp "nhảy disco" trên sàn. Sửa: hạ percent về $0.2$–$0.4$, đặt $\\text{slop} \\approx 0.01$.
 
-🔁 **Dừng lại tự kiểm tra.** \`penetration = 0.05\`, \`slop = 0.01\`, \`percent = 0.5\`, A \`mₐ = 1\` trên sàn (\`1/m_b=0\`). A dịch lên bao nhiêu frame này?
+🔁 **Dừng lại tự kiểm tra.** $\\text{penetration} = 0.05$, $\\text{slop} = 0.01$, $\\text{percent} = 0.5$, A $m_A = 1$ trên sàn ($1/m_B = 0$). A dịch lên bao nhiêu frame này?
 <details><summary>Đáp án</summary>
 
-\`max(0.05−0.01,0)=0.04\`; \`0.04/(1+0)=0.04\`; \`×0.5 = 0.02\`. A dịch lên \`0.02\`. Lún còn \`0.03\`.
+$\\max(0.05-0.01,0)=0.04$; $0.04/(1+0)=0.04$; $\\times 0.5 = 0.02$. A dịch lên $0.02$. Lún còn $0.03$.
 </details>
 
 📝 **Tóm tắt mục 4.**
@@ -277,7 +277,7 @@ Sửa cái này làm hỏng cái kia. Một lượt giải để lại sai số.
 
 **(b) Vì sao cần.** Các ràng buộc tiếp xúc **ghép nối** nhau (constraint A–B ảnh hưởng B–C). Giải đồng thời cả hệ là bài toán lớn (LCP); giải lặp là cách **xấp xỉ rẻ** — mỗi vòng tiến gần lời giải đúng hơn (giống Gauss–Seidel).
 
-**(c) Ví dụ số — chồng 3 hộp lún tổng \`0.30\`.** Giả sử mỗi iteration positional correction sửa ~\`50%\` phần lún còn lại của toàn chồng:
+**(c) Ví dụ số — chồng 3 hộp lún tổng $0.30$.** Giả sử mỗi iteration positional correction sửa $\\approx 50\\%$ phần lún còn lại của toàn chồng:
 
 | Iteration | Lún còn lại (xấp xỉ) |
 |---|---|
@@ -287,7 +287,7 @@ Sửa cái này làm hỏng cái kia. Một lượt giải để lại sai số.
 | 4 | 0.019 |
 | 8 | ~0.001 (coi như hết) |
 
-→ **1 iteration** để lại lún \`0.15\` rất lớn → frame sau hộp trên rơi tiếp → rung/sụp. **8 iteration** đưa lún về ~0 → chồng đứng yên.
+→ **1 iteration** để lại lún $0.15$ rất lớn → frame sau hộp trên rơi tiếp → rung/sụp. **8 iteration** đưa lún về $\\approx 0$ → chồng đứng yên.
 
 ### 5.3 Walk-through hai hộp (số thật)
 
@@ -296,12 +296,12 @@ A trên B. Frame bắt đầu: A lún vào B = 0.20.
 percent hiệu dụng mỗi iter = 0.5 (đã gồm slop)
 \`\`\`
 
-- **Iter 1:** sửa \`0.20 × 0.5 = 0.10\`. Lún còn \`0.10\`.
-- **Iter 2:** sửa \`0.10 × 0.5 = 0.05\`. Lún còn \`0.05\`.
-- **Iter 3:** sửa \`0.05 × 0.5 = 0.025\`. Lún còn \`0.025\`.
-- **Iter 4:** sửa \`0.025 × 0.5 = 0.0125\`. Lún còn \`0.0125\`.
+- **Iter 1:** sửa $0.20 \\times 0.5 = 0.10$. Lún còn $0.10$.
+- **Iter 2:** sửa $0.10 \\times 0.5 = 0.05$. Lún còn $0.05$.
+- **Iter 3:** sửa $0.05 \\times 0.5 = 0.025$. Lún còn $0.025$.
+- **Iter 4:** sửa $0.025 \\times 0.5 = 0.0125$. Lún còn $0.0125$.
 
-→ Sau 4 iter, lún từ \`0.20\` còn \`0.0125\` (≈ slop). Nếu chỉ 1 iter, lún còn \`0.10\` — gấp 8 lần, đủ để frame sau "nổ".
+→ Sau 4 iter, lún từ $0.20$ còn $0.0125$ ($\\approx$ slop). Nếu chỉ 1 iter, lún còn $0.10$ — gấp 8 lần, đủ để frame sau "nổ".
 
 ⚠ **Lỗi thường gặp: chồng sụp do thiếu iteration.** Để \`iterations = 1\` cho chồng cao → mỗi frame chỉ vá được tiếp xúc trên cùng một chút, sai số dồn xuống đáy → cả tháp **lảo đảo rồi sụp**. Sửa: tăng iteration (Box2D mặc định 8 velocity + 3 position iteration). Chồng càng cao càng cần nhiều.
 
@@ -309,10 +309,10 @@ percent hiệu dụng mỗi iter = 0.5 (đã gồm slop)
 - *"Nhiều iteration thì có chậm không?"* → Có, chi phí tuyến tính theo số iteration × số tiếp xúc. Nhưng 8–10 là đủ cho hầu hết game; đây là đánh đổi chính xác ↔ tốc độ.
 - *"warm starting là gì?"* → Engine lưu impulse frame trước, dùng làm điểm khởi đầu frame này → hội tụ nhanh hơn nhiều. Là tối ưu nâng cao của sequential impulse.
 
-🔁 **Dừng lại tự kiểm tra.** Lún ban đầu \`0.40\`, mỗi iter sửa \`50%\`. Sau 3 iter còn bao nhiêu?
+🔁 **Dừng lại tự kiểm tra.** Lún ban đầu $0.40$, mỗi iter sửa $50\\%$. Sau 3 iter còn bao nhiêu?
 <details><summary>Đáp án</summary>
 
-\`0.40 → 0.20 → 0.10 → 0.05\`. Còn \`0.05\`.
+$0.40 \\to 0.20 \\to 0.10 \\to 0.05$. Còn $0.05$.
 </details>
 
 📝 **Tóm tắt mục 5.**
@@ -334,9 +334,9 @@ percent hiệu dụng mỗi iter = 0.5 (đã gồm slop)
 
 **(b) Vì sao cần.** Hai lợi ích: **(1) ổn định** — vật ngủ không còn bị sai số số học làm rung; **(2) hiệu năng** — chồng 500 hộp đứng yên gần như miễn phí CPU.
 
-**(c) Tiêu chí (ví dụ số).** Vật ngủ khi: \`|v| < 0.05 m/s\` **và** \`|ω| < 0.05 rad/s\` liên tục trong \`> 0.5 giây\` (≈ 30 frame ở 60 FPS).
+**(c) Tiêu chí (ví dụ số).** Vật ngủ khi: $|v| < 0.05$ m/s **và** $|\\omega| < 0.05$ rad/s liên tục trong $> 0.5$ giây ($\\approx 30$ frame ở 60 FPS).
 
-| Vật | \`|v|\` | Thời gian dưới ngưỡng | Trạng thái |
+| Vật | $|v|$ | Thời gian dưới ngưỡng | Trạng thái |
 |---|---|---|---|
 | Hộp đáy chồng | 0.01 | 1.2 s | 💤 Ngủ |
 | Hộp vừa đặt | 0.30 | 0 s | Thức |
@@ -391,17 +391,17 @@ Tier 3 chuyển từ **một vật / vài vật** sang **hệ thống nhiều th
 
 ## Bài tập
 
-1. **Kẹp Coulomb.** Vật A \`mₐ = 4\`, sàn cố định. Sau khi xử lý pháp tuyến: \`v_rel = (6, 0)\`, \`jₙ = 20\`, \`μ = 0.25\`. Tính \`jₜ\` cuối cùng (sau kẹp) và vận tốc ngang mới của A.
+1. **Kẹp Coulomb.** Vật A $m_A = 4$, sàn cố định. Sau khi xử lý pháp tuyến: $v_{rel} = (6, 0)$, $j_n = 20$, $\\mu = 0.25$. Tính $j_t$ cuối cùng (sau kẹp) và vận tốc ngang mới của A.
 
-2. **Phân loại động/nghỉ.** Cho ngưỡng restitution slop \`|v_rel·n| < 1.0\` thì \`e → 0\`. Phân loại 3 tình huống: (a) \`v_rel·n = −15\`, (b) \`v_rel·n = −0.5\`, (c) \`v_rel·n = −0.167\`. Cái nào cho nảy (dùng \`e\`), cái nào không?
+2. **Phân loại động/nghỉ.** Cho ngưỡng restitution slop $|v_{rel} \\cdot n| < 1.0$ thì $e \\to 0$. Phân loại 3 tình huống: (a) $v_{rel} \\cdot n = -15$, (b) $v_{rel} \\cdot n = -0.5$, (c) $v_{rel} \\cdot n = -0.167$. Cái nào cho nảy (dùng $e$), cái nào không?
 
-3. **Positional correction nhiều frame.** Hộp \`mₐ = 2\` lún \`0.12\` vào sàn, \`slop = 0.01\`, \`percent = 0.25\`. Tính độ dịch của hộp ở **frame 1 và frame 2** (giả sử giữa hai frame không có trọng lực thêm vào, chỉ correction).
+3. **Positional correction nhiều frame.** Hộp $m_A = 2$ lún $0.12$ vào sàn, $\\text{slop} = 0.01$, $\\text{percent} = 0.25$. Tính độ dịch của hộp ở **frame 1 và frame 2** (giả sử giữa hai frame không có trọng lực thêm vào, chỉ correction).
 
-4. **Over-correction.** Giải thích bằng lời + một dãy số minh họa: vì sao \`percent = 1.0\`, \`slop = 0\` gây jitter, trong khi \`percent = 0.2\`, \`slop = 0.01\` thì không. Cho \`penetration\` ban đầu \`0.10\`.
+4. **Over-correction.** Giải thích bằng lời + một dãy số minh họa: vì sao $\\text{percent} = 1.0$, $\\text{slop} = 0$ gây jitter, trong khi $\\text{percent} = 0.2$, $\\text{slop} = 0.01$ thì không. Cho penetration ban đầu $0.10$.
 
-5. **Iteration cho chồng.** Chồng hộp lún tổng \`0.50\`, mỗi iteration sửa \`40%\` phần lún còn lại. Sau bao nhiêu iteration thì lún còn \`< 0.05\`? Lập bảng.
+5. **Iteration cho chồng.** Chồng hộp lún tổng $0.50$, mỗi iteration sửa $40\\%$ phần lún còn lại. Sau bao nhiêu iteration thì lún còn $< 0.05$? Lập bảng.
 
-6. **(Tổng hợp) Một frame đầy đủ.** Vật \`m = 1\` ở \`pos = (0, 0.10)\` (đang lún \`0.10\` vào sàn \`y = 0\`, n = (0,1)), \`v = (2, −3)\`. \`g = (0,−10)\`, \`dt = 0.1\`, \`e = 0\` (resting), \`μ = 0.5\`, \`slop = 0.01\`, \`percent = 0.2\`. Chạy đủ pipeline mục 7 (1 velocity iter, 1 position iter) và cho \`v\`, \`pos\` cuối frame.
+6. **(Tổng hợp) Một frame đầy đủ.** Vật $m = 1$ ở $\\text{pos} = (0, 0.10)$ (đang lún $0.10$ vào sàn $y = 0$, $n = (0,1)$), $v = (2, -3)$. $g = (0,-10)$, $dt = 0.1$, $e = 0$ (resting), $\\mu = 0.5$, $\\text{slop} = 0.01$, $\\text{percent} = 0.2$. Chạy đủ pipeline mục 7 (1 velocity iter, 1 position iter) và cho $v$, $\\text{pos}$ cuối frame.
 
 ---
 
@@ -409,54 +409,54 @@ Tier 3 chuyển từ **một vật / vài vật** sang **hệ thống nhiều th
 
 ### Bài 1
 
-\`t\` = normalize của phần tiếp tuyến của \`v_rel = (6,0)\`. Vì \`v_rel·n = 0\`, phần tiếp tuyến \`= (6,0)\`, \`t = (1,0)\`.
-- \`v_rel·t = 6\`. \`jₜ\` chưa kẹp \`= −6 / (1/4 + 0) = −6 / 0.25 = −24\`. Độ lớn \`24\`.
-- Giới hạn Coulomb \`= μ·jₙ = 0.25 × 20 = 5\`. Vì \`24 > 5\` → **kẹp** về \`−5\`. **Trượt động.**
-- Vận tốc ngang mới \`= 6 + (jₜ/mₐ) = 6 + (−5/4) = 6 − 1.25 = 4.75\`.
+$t$ = normalize của phần tiếp tuyến của $v_{rel} = (6,0)$. Vì $v_{rel} \\cdot n = 0$, phần tiếp tuyến $= (6,0)$, $t = (1,0)$.
+- $v_{rel} \\cdot t = 6$. $j_t$ chưa kẹp $= -6 / (1/4 + 0) = -6 / 0.25 = -24$. Độ lớn $24$.
+- Giới hạn Coulomb $= \\mu \\cdot j_n = 0.25 \\times 20 = 5$. Vì $24 > 5$ → **kẹp** về $-5$. **Trượt động.**
+- Vận tốc ngang mới $= 6 + (j_t/m_A) = 6 + (-5/4) = 6 - 1.25 = 4.75$.
 
-**Kết quả:** \`jₜ = −5\`, vận tốc ngang \`= 4.75\` (vật vẫn trượt, ma sát chỉ hãm bớt).
+**Kết quả:** $j_t = -5$, vận tốc ngang $= 4.75$ (vật vẫn trượt, ma sát chỉ hãm bớt).
 
 ### Bài 2
 
-Ngưỡng: \`|v_rel·n| < 1.0\` → \`e → 0\` (không nảy).
-- **(a)** \`|−15| = 15 ≥ 1.0\` → **dùng \`e\`**, cho nảy. Va chạm động.
-- **(b)** \`|−0.5| = 0.5 < 1.0\` → \`e → 0\`, **không nảy**. Gần nghỉ.
-- **(c)** \`|−0.167| = 0.167 < 1.0\` → \`e → 0\`, **không nảy**. Tiếp xúc nghỉ.
+Ngưỡng: $|v_{rel} \\cdot n| < 1.0$ → $e \\to 0$ (không nảy).
+- **(a)** $|-15| = 15 \\ge 1.0$ → **dùng $e$**, cho nảy. Va chạm động.
+- **(b)** $|-0.5| = 0.5 < 1.0$ → $e \\to 0$, **không nảy**. Gần nghỉ.
+- **(c)** $|-0.167| = 0.167 < 1.0$ → $e \\to 0$, **không nảy**. Tiếp xúc nghỉ.
 
 Lý do: chỉ va chạm đủ mạnh mới đáng cho nảy; vận tốc nhỏ mà cho nảy → jitter (mục 3).
 
 ### Bài 3
 
-Công thức: \`dịch = max(pen − slop, 0) / (1/m + 0) × percent\`, A nhẹ → dịch toàn bộ (sàn \`1/m_b = 0\`).
+Công thức: $\\text{dịch} = \\max(\\text{pen} - \\text{slop}, 0) / (1/m + 0) \\times \\text{percent}$, A nhẹ → dịch toàn bộ (sàn $1/m_B = 0$).
 
-- **Frame 1:** \`max(0.12 − 0.01, 0) = 0.11\`; \`0.11 / (1/2) = 0.22\`; \`× 0.25 = 0.055\`. A dịch lên \`0.055\`. Lún còn \`0.12 − 0.055 = 0.065\`.
+- **Frame 1:** $\\max(0.12 - 0.01, 0) = 0.11$; $0.11 / (1/2) = 0.22$; $\\times 0.25 = 0.055$. A dịch lên $0.055$. Lún còn $0.12 - 0.055 = 0.065$.
 
-  *Chú ý:* chia cho \`1/m = 0.5\` → \`0.11/0.5 = 0.22\`, đây là độ lớn impulse vị trí; nhân \`1/m\` lại khi áp cho A: dịch thực \`= 0.22 × percent × (1/m)\`... để tránh nhầm, dùng dạng gọn tương đương: phần lún hiệu dụng \`0.11\`, nhân \`percent 0.25\` = \`0.0275\` cho hệ một-vật-trên-sàn. Ta dùng nhất quán **dạng gọn** (vật đơn trên sàn cố định, dịch = \`max(pen−slop,0) × percent\`):
+  *Chú ý:* chia cho $1/m = 0.5$ → $0.11/0.5 = 0.22$, đây là độ lớn impulse vị trí; nhân $1/m$ lại khi áp cho A: dịch thực $= 0.22 \\times \\text{percent} \\times (1/m)$... để tránh nhầm, dùng dạng gọn tương đương: phần lún hiệu dụng $0.11$, nhân $\\text{percent } 0.25 = 0.0275$ cho hệ một-vật-trên-sàn. Ta dùng nhất quán **dạng gọn** (vật đơn trên sàn cố định, $\\text{dịch} = \\max(\\text{pen}-\\text{slop},0) \\times \\text{percent}$):
 
-  - **Frame 1 (dạng gọn):** \`0.11 × 0.25 = 0.0275\`. A dịch lên \`0.0275\`. Lún còn \`0.12 − 0.0275 = 0.0925\`.
-  - **Frame 2:** \`max(0.0925 − 0.01, 0) = 0.0825\`; \`× 0.25 = 0.0206\`. A dịch lên \`0.0206\`. Lún còn \`0.0719\`.
+  - **Frame 1 (dạng gọn):** $0.11 \\times 0.25 = 0.0275$. A dịch lên $0.0275$. Lún còn $0.12 - 0.0275 = 0.0925$.
+  - **Frame 2:** $\\max(0.0925 - 0.01, 0) = 0.0825$; $\\times 0.25 = 0.0206$. A dịch lên $0.0206$. Lún còn $0.0719$.
 
-**Kết quả:** Frame 1 dịch \`0.0275\`, frame 2 dịch \`0.0206\` — lún giảm dần, hội tụ về quanh \`slop\`. (Hệ số \`1/m\` chỉ đổi tốc độ hội tụ khi có **hai vật động**; với sàn cố định nó triệt tiêu nên dạng gọn đúng.)
+**Kết quả:** Frame 1 dịch $0.0275$, frame 2 dịch $0.0206$ — lún giảm dần, hội tụ về quanh slop. (Hệ số $1/m$ chỉ đổi tốc độ hội tụ khi có **hai vật động**; với sàn cố định nó triệt tiêu nên dạng gọn đúng.)
 
 ### Bài 4
 
-**Vì sao \`percent=1.0, slop=0\` jitter:** sửa 100% mỗi frame, cộng sai số số học, vật dễ bị đẩy **quá** điểm tiếp xúc → frame sau penetration đổi dấu (vật hở khỏi sàn) → trọng lực kéo lại đâm vào → lặp.
+**Vì sao $\\text{percent}=1.0, \\text{slop}=0$ jitter:** sửa 100% mỗi frame, cộng sai số số học, vật dễ bị đẩy **quá** điểm tiếp xúc → frame sau penetration đổi dấu (vật hở khỏi sàn) → trọng lực kéo lại đâm vào → lặp.
 
-Dãy số (penetration qua các frame, có trọng lực bơm \`+0.02\` mỗi frame):
+Dãy số (penetration qua các frame, có trọng lực bơm $+0.02$ mỗi frame):
 \`\`\`
 0.10 → sửa hết về 0 → +0.02 (trọng lực) → 0.02 → sửa hết về 0 → +0.02 → 0.02 → ...
 \`\`\`
-Vật **nảy lên xuống biên độ ~0.02 mỗi frame mãi mãi** = jitter thấy được.
+Vật **nảy lên xuống biên độ $\\approx 0.02$ mỗi frame mãi mãi** = jitter thấy được.
 
-**Vì sao \`percent=0.2, slop=0.01\` mượt:**
+**Vì sao $\\text{percent}=0.2, \\text{slop}=0.01$ mượt:**
 \`\`\`
 0.10 → max(0.10−0.01,0)×0.2=0.018 → còn 0.082 (+0.02 trọng lực) → 0.102 → ... hội tụ quanh ~0.01
 \`\`\`
-Penetration ổn định quanh \`slop\`, không đổi dấu → không nảy → mắt thấy **đứng yên**.
+Penetration ổn định quanh slop, không đổi dấu → không nảy → mắt thấy **đứng yên**.
 
 ### Bài 5
 
-Lún còn lại sau mỗi iter \`= trước × (1 − 0.40) = trước × 0.6\`:
+Lún còn lại sau mỗi iter $= \\text{trước} \\times (1 - 0.40) = \\text{trước} \\times 0.6$:
 
 | Iter | Lún còn |
 |---|---|
@@ -467,31 +467,31 @@ Lún còn lại sau mỗi iter \`= trước × (1 − 0.40) = trước × 0.6\`:
 | 4 | 0.0648 |
 | 5 | **0.0389** < 0.05 ✓ |
 
-**Kết quả:** cần **5 iteration** để lún xuống dưới \`0.05\`.
+**Kết quả:** cần **5 iteration** để lún xuống dưới $0.05$.
 
 ### Bài 6 (tổng hợp)
 
-\`m=1\`, \`pos=(0,0.10)\`, \`v=(2,−3)\`, \`g=(0,−10)\`, \`dt=0.1\`, \`n=(0,1)\`, penetration ban đầu \`0.10\`, \`e=0\`, \`μ=0.5\`, \`slop=0.01\`, \`percent=0.2\`.
+$m=1$, $\\text{pos}=(0,0.10)$, $v=(2,-3)$, $g=(0,-10)$, $dt=0.1$, $n=(0,1)$, penetration ban đầu $0.10$, $e=0$, $\\mu=0.5$, $\\text{slop}=0.01$, $\\text{percent}=0.2$.
 
-**Bước 1 — tích phân lực.** \`v += g·dt = (2,−3) + (0,−10)(0.1) = (2, −3 −1) = (2, −4)\`.
+**Bước 1 — tích phân lực.** $v \\mathrel{+}= g \\cdot dt = (2,-3) + (0,-10)(0.1) = (2, -3 -1) = (2, -4)$.
 
-**Bước 2 — phát hiện:** đang lún \`0.10\`, \`v_rel = (2,−4)\` (sàn cố định), \`v_rel·n = −4\` < 0 → đâm vào.
+**Bước 2 — phát hiện:** đang lún $0.10$, $v_{rel} = (2,-4)$ (sàn cố định), $v_{rel} \\cdot n = -4 < 0$ → đâm vào.
 
-**Bước 3 — vật không ngủ** (\`|v|\` lớn).
+**Bước 3 — vật không ngủ** ($|v|$ lớn).
 
 **Bước 4 — giải vận tốc (1 iter):**
-- *Pháp tuyến:* \`jₙ = −(1+e)(v_rel·n)/(1/m) = −(1)(−4)/1 = 4\`. \`v += (jₙ/m)·n = (2,−4)+(4)(0,1) = (2, 0)\`.
-- *Ma sát:* \`v_rel\` giờ \`(2,0)\`, phần tiếp tuyến \`(2,0)\`, \`t=(1,0)\`. \`jₜ\` chưa kẹp \`= −(2)/1 = −2\`, độ lớn \`2\`. Giới hạn \`μ·jₙ = 0.5×4 = 2\`. Vì \`2 ≤ 2\` → **không kẹp** (đúng biên), áp \`−2\`. \`v += (−2/1)(1,0) = (2−2, 0) = (0, 0)\`.
+- *Pháp tuyến:* $j_n = -(1+e)(v_{rel} \\cdot n)/(1/m) = -(1)(-4)/1 = 4$. $v \\mathrel{+}= (j_n/m) \\cdot n = (2,-4)+(4)(0,1) = (2, 0)$.
+- *Ma sát:* $v_{rel}$ giờ $(2,0)$, phần tiếp tuyến $(2,0)$, $t=(1,0)$. $j_t$ chưa kẹp $= -(2)/1 = -2$, độ lớn $2$. Giới hạn $\\mu \\cdot j_n = 0.5 \\times 4 = 2$. Vì $2 \\le 2$ → **không kẹp** (đúng biên), áp $-2$. $v \\mathrel{+}= (-2/1)(1,0) = (2-2, 0) = (0, 0)$.
 
-  → Sau giải vận tốc: \`v = (0, 0)\` — vật đứng hẳn cả ngang lẫn dọc.
+  → Sau giải vận tốc: $v = (0, 0)$ — vật đứng hẳn cả ngang lẫn dọc.
 
-**Bước 5 — tích phân vị trí.** \`pos += v·dt = (0,0.10) + (0,0)(0.1) = (0, 0.10)\`. (v = 0 nên không đổi.)
+**Bước 5 — tích phân vị trí.** $\\text{pos} \\mathrel{+}= v \\cdot dt = (0,0.10) + (0,0)(0.1) = (0, 0.10)$. ($v = 0$ nên không đổi.)
 
-**Bước 6 — giải vị trí (1 iter):** \`dịch = max(0.10−0.01,0) × 0.2 = 0.09 × 0.2 = 0.018\` lên. \`pos = (0, 0.10 + 0.018) = (0, 0.118)\`. Lún còn \`0.082\`.
+**Bước 6 — giải vị trí (1 iter):** $\\text{dịch} = \\max(0.10-0.01,0) \\times 0.2 = 0.09 \\times 0.2 = 0.018$ lên. $\\text{pos} = (0, 0.10 + 0.018) = (0, 0.118)$. Lún còn $0.082$.
 
-**Bước 7 — sleeping:** \`|v| = 0 < 0.05\` nhưng mới 1 frame → bắt đầu đếm, **chưa ngủ**.
+**Bước 7 — sleeping:** $|v| = 0 < 0.05$ nhưng mới 1 frame → bắt đầu đếm, **chưa ngủ**.
 
-**Kết quả cuối frame:** \`v = (0, 0)\`, \`pos = (0, 0.118)\`. Vật đã dừng chuyển động, đang được correction đẩy lên dần khỏi sàn; vài frame nữa hết lún và sẽ ngủ.
+**Kết quả cuối frame:** $v = (0, 0)$, $\\text{pos} = (0, 0.118)$. Vật đã dừng chuyển động, đang được correction đẩy lên dần khỏi sàn; vài frame nữa hết lún và sẽ ngủ.
 
 ---
 

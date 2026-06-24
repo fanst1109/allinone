@@ -11,7 +11,7 @@ Sau bài này bạn sẽ:
 - Thành thạo các phép trên vector 2D: cộng, trừ, nhân vô hướng (scalar), độ dài (magnitude), chuẩn hoá (normalize), góc/hướng.
 - Hiểu **kinematics** (động học) trong game loop: mỗi frame cập nhật \`v += a·Δt; p += v·Δt\` — đây là tích phân Euler thô.
 - Mô phỏng **ném xiên (projectile)**: vận tốc đầu + gia tốc trọng trường → quỹ đạo parabol, tính tầm xa và độ cao cực đại.
-- Chuyển **góc → vector vận tốc** \`(cos θ, sin θ)·speed\` để di chuyển nhân vật theo input.
+- Chuyển **góc → vector vận tốc** $(\\cos\\theta, \\sin\\theta) \\cdot speed$ để di chuyển nhân vật theo input.
 - Tránh bug kinh điển: **đi chéo nhanh gấp √2** khi quên chuẩn hoá vector input.
 
 ## Kiến thức tiền đề
@@ -87,7 +87,7 @@ $$k \\cdot \\vec{v} = (k \\cdot x,\\; k \\cdot y)$$
 3. $-1 \\cdot (3, 4) = (-3, -4)$ — đảo ngược hướng (180°), giữ độ dài.
 4. $0 \\cdot (99, 99) = (0, 0)$ — co về gốc.
 
-Ý nghĩa game: \`v · Δt\` (vận tốc nhân thời gian frame) chính là nhân scalar — ra **quãng đường đi trong frame đó**.
+Ý nghĩa game: $\\vec v \\cdot \\Delta t$ (vận tốc nhân thời gian frame) chính là nhân scalar — ra **quãng đường đi trong frame đó**.
 
 ### 2.4. Độ dài (magnitude / norm)
 
@@ -104,7 +104,7 @@ $$|\\vec{v}| = \\sqrt{x^2 + y^2}$$
 
 Đây chính là **norm** trong [Vectors/04 — Norm & Distance](../../../Vectors/04-LinearAlgebra/lesson-03-norm-distance/), áp dụng cho 2 chiều.
 
-> ⚠ **Lỗi thường gặp:** so sánh độ dài bằng \`|v|\` đòi phải tính \`sqrt\` (chậm). Khi chỉ cần **so sánh** (vd "vật nào gần hơn?"), so **bình phương độ dài** $x^2 + y^2$ là đủ và nhanh hơn — vì \`sqrt\` đơn điệu tăng. Chỉ tính \`sqrt\` khi cần con số thật.
+> ⚠ **Lỗi thường gặp:** so sánh độ dài bằng $|\\vec v|$ đòi phải tính \`sqrt\` (chậm). Khi chỉ cần **so sánh** (vd "vật nào gần hơn?"), so **bình phương độ dài** $x^2 + y^2$ là đủ và nhanh hơn — vì \`sqrt\` đơn điệu tăng. Chỉ tính \`sqrt\` khi cần con số thật.
 
 ### 2.5. Chuẩn hoá (normalize) — lấy hướng, vứt độ dài
 
@@ -280,7 +280,7 @@ Cho $s = 100$ (pixel/s), $\\theta = 30°$, $g = 200$ (pixel/s²). Biết $\\sin 
 > - *"Vì sao 30° và 60° cùng tầm xa?"* → Vì $\\sin(2\\cdot30°)=\\sin60°=\\sin120°=\\sin(2\\cdot60°)$ — cặp góc bù nhau $(\\theta, 90°-\\theta)$ luôn cùng range.
 > - *"Trong game thật có dùng công thức kín này không?"* → Phần lớn **không** — game chỉ chạy vòng lặp \`v += a·Δt; p += v·Δt\` mỗi frame (§3) và để quỹ đạo tự xuất hiện. Công thức kín chỉ dùng khi cần biết trước điểm rơi (vd AI ngắm bắn).
 
-> ⚠ **Lỗi thường gặp:** quên dấu trừ ở \`v0y\`. Nếu viết \`v0y = s·sinθ\` (dương) trong canvas, đạn sẽ bắn **xuống đất** ngay thay vì lên trời. Nhớ: góc bắn lên → \`vy\` âm.
+> ⚠ **Lỗi thường gặp:** quên dấu trừ ở \`v0y\`. Nếu viết $v_{0y} = s \\cdot \\sin\\theta$ (dương) trong canvas, đạn sẽ bắn **xuống đất** ngay thay vì lên trời. Nhớ: góc bắn lên → \`vy\` âm.
 
 > 🔁 **Dừng lại tự kiểm tra**
 > Với $s = 200$, $\\theta = 45°$, $g = 200$: tính tầm xa $R$ và độ cao max $H$. ($\\sin 90° = 1$, $\\sin 45° \\approx 0.707$.)
@@ -301,13 +301,13 @@ Cho $s = 100$ (pixel/s), $\\theta = 30°$, $g = 200$ (pixel/s²). Biết $\\sin 
 ## 5. Vận tốc theo hướng — di chuyển nhân vật theo input
 
 > 💡 **Trực giác / Hình dung**
-> Cần trục (joystick) hoặc chuột chỉ cho bạn một **hướng** (góc). Nhưng vật chuyển động cần một **vector vận tốc**. Chuyển góc → vector: đi theo hướng đó với "bước" \`(cos θ, sin θ)\` (đây là điểm trên đường tròn đơn vị), rồi nhân với tốc độ mong muốn.
+> Cần trục (joystick) hoặc chuột chỉ cho bạn một **hướng** (góc). Nhưng vật chuyển động cần một **vector vận tốc**. Chuyển góc → vector: đi theo hướng đó với "bước" $(\\cos\\theta, \\sin\\theta)$ (đây là điểm trên đường tròn đơn vị), rồi nhân với tốc độ mong muốn.
 
 ### 5.1. Công thức
 
 $$\\vec{v} = (\\cos\\theta,\\; \\sin\\theta) \\cdot \\text{speed}$$
 
-Trong canvas (y xuống), góc 0° = sang phải, 90° = **xuống** (vì sin dương = y dương = xuống). Để "bắn lên" với góc đo theo kiểu toán, ta thường phủ định y: \`vy = -sinθ · speed\`.
+Trong canvas (y xuống), góc 0° = sang phải, 90° = **xuống** (vì sin dương = y dương = xuống). Để "bắn lên" với góc đo theo kiểu toán, ta thường phủ định y: $v_y = -\\sin\\theta \\cdot speed$.
 
 **4 ví dụ số** (tốc độ \`speed = 100\`):
 
@@ -338,7 +338,7 @@ Nếu chỉ bấm D: \`dir = (1, 0)\` → đi phải tốc độ \`speed\`. Nế
 > 📝 **Tóm tắt mục 5**
 > - Góc → vector: $(\\cos\\theta, \\sin\\theta)\\cdot\\text{speed}$; nhớ đổi độ ↔ radian.
 > - Top-down: gom input phím thành \`dir\`, **chuẩn hoá**, rồi nhân \`speed\`.
-> - Canvas: lên = y âm, nên \`vy = -sinθ·speed\` nếu góc đo kiểu toán.
+> - Canvas: lên = y âm, nên $v_y = -\\sin\\theta \\cdot speed$ nếu góc đo kiểu toán.
 
 ---
 
@@ -352,7 +352,7 @@ Nếu chỉ bấm D: \`dir = (1, 0)\` → đi phải tốc độ \`speed\`. Nế
 Nếu cộng trực tiếp \`dir = (1, 1)\` rồi nhân speed:
 $$\\vec{v} = (1, 1) \\cdot 200 = (200, 200), \\quad |\\vec{v}| = \\sqrt{200^2 + 200^2} = 200\\sqrt{2} \\approx 283$$
 
-Trong khi đi thẳng \`(1, 0) · 200 = (200, 0)\`, độ dài đúng 200.
+Trong khi đi thẳng $(1, 0) \\cdot 200 = (200, 0)$, độ dài đúng 200.
 
 ### 6.2. Cách sửa — chuẩn hoá hướng trước khi nhân tốc độ
 
@@ -505,7 +505,7 @@ Tầm xa $R \\propto \\sin(2\\theta)$. Hai góc cho cùng range là cặp **bù 
 
 ### Bài 6
 
-$\\theta = 120°$, speed 80, hệ canvas (lên = y âm → \`vy = -sinθ·speed\`).
+$\\theta = 120°$, speed 80, hệ canvas (lên = y âm → $v_y = -\\sin\\theta \\cdot speed$).
 
 - $v_x = \\cos 120° \\cdot 80 = -0.5 \\cdot 80 = -40$.
 - $v_y = -\\sin 120° \\cdot 80 = -0.866 \\cdot 80 = -69.3$.

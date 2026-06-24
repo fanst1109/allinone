@@ -46,7 +46,7 @@ Bây giờ bạn kẹt. `Bat` (lớp bay) có hàm `fly()`. `Goblin` (lớp đá
 - Cho kế thừa lớp `Shooter` → mất `fly()` (kế thừa đơn không cho 2 cha).
 - Tạo lớp `FlyingShootingExplodingEnemy` → tuần sau designer thêm "biết bay + bắn + **tàng hình**", bạn lại đẻ tiếp một lớp nữa.
 
-Số tổ hợp **bùng nổ tổ hợp (combinatorial explosion)**: với `k` khả năng độc lập (bay, bắn, nổ, tàng hình, hồi máu, ...), số lớp con khả dĩ là `2^k`. Với 10 khả năng = 1024 lớp tiềm năng. Đây là **"inheritance hell"** — cây kế thừa phình to, code trùng lặp, và một thay đổi nhỏ ở lớp cha làm vỡ hàng chục lớp con (fragile base class).
+Số tổ hợp **bùng nổ tổ hợp (combinatorial explosion)**: với $k$ khả năng độc lập (bay, bắn, nổ, tàng hình, hồi máu, ...), số lớp con khả dĩ là $2^k$. Với 10 khả năng = 1024 lớp tiềm năng. Đây là **"inheritance hell"** — cây kế thừa phình to, code trùng lặp, và một thay đổi nhỏ ở lớp cha làm vỡ hàng chục lớp con (fragile base class).
 
 ⚠ **Lỗi thường gặp — cố cứu kế thừa bằng "God base class".** Một phản xạ sai là nhồi mọi hàm (`fly()`, `shoot()`, `swim()`, `explode()`) vào thẳng `GameObject` rồi cho lớp con bật/tắt bằng cờ `canFly = true`. Kết quả: lớp gốc khổng lồ, mỗi object mang theo cả tá hàm nó không dùng, và logic `if (canFly && canShoot && !isStunned)` rải khắp nơi. Đây vẫn là inheritance hell, chỉ đổi chỗ đau.
 
@@ -55,7 +55,7 @@ Số tổ hợp **bùng nổ tổ hợp (combinatorial explosion)**: với `k` k
 - Con quái biết bay + bắn + nổ = `Position + Velocity + Sprite + Health + Flying + Shooter + Explosive`.
 - Muốn thêm "tàng hình"? Ráp thêm `Stealth`. Không đẻ lớp mới, không sửa lớp cũ.
 
-Tổ hợp giờ là **phép cộng component**, không phải đẻ lớp — `2^k` tổ hợp được biểu diễn bằng `k` component nhỏ.
+Tổ hợp giờ là **phép cộng component**, không phải đẻ lớp — $2^k$ tổ hợp được biểu diễn bằng $k$ component nhỏ.
 
 ❓ **Câu hỏi tự nhiên của người đọc.**
 - *"Kế thừa xấu hoàn toàn à?"* — Không. Kế thừa **nông** (1-2 tầng) cho quan hệ "is-a" thật sự vẫn tốt. ECS chỉ thay thế khi bạn cần **tổ hợp nhiều khả năng độc lập** — đúng đặc trưng của game object.
@@ -65,7 +65,7 @@ Tổ hợp giờ là **phép cộng component**, không phải đẻ lớp — `
 
 <details><summary>Đáp án</summary>
 
-Kế thừa: tối đa `2^4 = 16` lớp (mỗi tập con của {bay, bơi, bắn, nổ} là một lớp tiềm năng). ECS: chỉ **4 component**, mọi tổ hợp là một tập con của 4 component này. 4 viên gạch lego ráp ra 16 hình.
+Kế thừa: tối đa $2^4 = 16$ lớp (mỗi tập con của {bay, bơi, bắn, nổ} là một lớp tiềm năng). ECS: chỉ **4 component**, mọi tổ hợp là một tập con của 4 component này. 4 viên gạch lego ráp ra 16 hình.
 </details>
 
 ---

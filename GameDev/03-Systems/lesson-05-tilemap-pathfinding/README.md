@@ -80,7 +80,7 @@ const tileSize = 32 // mỗi ô 32×32 pixel
 **Pixel → ô** (đang ở pixel `(px, py)`, ô nào?):
 $$\text{tileX} = \left\lfloor \frac{px}{\text{size}} \right\rfloor, \qquad \text{tileY} = \left\lfloor \frac{py}{\text{size}} \right\rfloor$$
 
-`⌊·⌋` là **làm tròn xuống (floor)**. Trong Go với số nguyên không âm, phép chia nguyên `/` đã là floor: `px / size`.
+$\lfloor \cdot \rfloor$ là **làm tròn xuống (floor)**. Trong Go với số nguyên không âm, phép chia nguyên `/` đã là floor: `px / size`.
 
 **Ô → pixel** (ô `(tileX, tileY)` nằm ở pixel nào?). Góc trên-trái của ô:
 $$px = \text{tileX} \cdot \text{size}, \qquad py = \text{tileY} \cdot \text{size}$$
@@ -88,7 +88,7 @@ $$px = \text{tileX} \cdot \text{size}, \qquad py = \text{tileY} \cdot \text{size
 Tâm ô (hay dùng để đặt nhân vật vào giữa ô):
 $$px_{\text{tâm}} = \text{tileX} \cdot \text{size} + \frac{\text{size}}{2}$$
 
-**≥4 ví dụ** (với `size = 32`):
+**≥4 ví dụ** (với $size = 32$):
 
 | Pixel `(px, py)` | tileX = ⌊px/32⌋ | tileY = ⌊py/32⌋ | Ô |
 |---|---|---|---|
@@ -98,7 +98,7 @@ $$px_{\text{tâm}} = \text{tileX} \cdot \text{size} + \frac{\text{size}}{2}$$
 | `(200, 70)` | ⌊200/32⌋ = 6 | ⌊70/32⌋ = 2 | `(6, 2)` |
 | `(64, 64)` | ⌊64/32⌋ = 2 | ⌊64/32⌋ = 2 | `(2, 2)` |
 
-Chiều ngược lại (ô → pixel góc trên-trái), `size = 32`:
+Chiều ngược lại (ô → pixel góc trên-trái), $size = 32$:
 
 | Ô `(tileX, tileY)` | px = tileX·32 | py = tileY·32 | Pixel góc |
 |---|---|---|---|
@@ -118,7 +118,7 @@ tileX = ⌊70/32⌋ = 2, tileY = ⌊130/32⌋ = 4 → ô `(2, 4)`. Tra `grid[til
 
 ### 2.3 Va chạm với tile (liên hệ AABB — L06)
 
-Mỗi tile tường thực chất là một **hộp chữ nhật AABB** có góc trên-trái `(tileX·size, tileY·size)` và kích thước `size × size`. Để biết nhân vật (cũng là một AABB) có đụng tường không, **không cần** kiểm tra với tất cả tile — chỉ cần kiểm tra **các ô mà hộp nhân vật phủ lên**:
+Mỗi tile tường thực chất là một **hộp chữ nhật AABB** có góc trên-trái $(tileX \cdot size,\ tileY \cdot size)$ và kích thước $size \times size$. Để biết nhân vật (cũng là một AABB) có đụng tường không, **không cần** kiểm tra với tất cả tile — chỉ cần kiểm tra **các ô mà hộp nhân vật phủ lên**:
 
 ```go
 // Hộp nhân vật: góc (x, y), kích thước (w, h)
@@ -140,7 +140,7 @@ for ty := minTileY; ty <= maxTileY; ty++ {
 
 📝 **Tóm tắt §2.**
 - Tilemap = mảng 2D, mỗi ô một loại địa hình; gọn, dễ dò va chạm, dễ tìm đường.
-- Pixel → ô: `tile = ⌊pixel / size⌋`. Ô → pixel góc: `pixel = tile · size`.
+- Pixel → ô: $tile = \lfloor pixel / size \rfloor$. Ô → pixel góc: $pixel = tile \cdot size$.
 - Cẩn thận thứ tự `(x, y)` vs `[row][col]` → tra `grid[tileY][tileX]`.
 - Mỗi tile tường là một AABB; chỉ cần test các ô mà nhân vật phủ lên (broad-phase miễn phí).
 
@@ -372,7 +372,7 @@ Cùng `f = 8` nên **tie-break theo `h` nhỏ hơn**: `(4,0)` có h=4 < `(0,1)` 
 </details>
 
 📝 **Tóm tắt §5.**
-- A* = Dijkstra với priority theo `f = g + h`; `g` chi phí thật, `h` ước lượng tới goal.
+- A* = Dijkstra với priority theo $f = g + h$; `g` chi phí thật, `h` ước lượng tới goal.
 - Manhattan cho 4 hướng, Euclid cho tự do, `h=0` ⇒ Dijkstra.
 - Heuristic kéo tìm kiếm về phía đích → đóng **ít ô** hơn Dijkstra rất nhiều.
 - Truy vết `came_from` để dựng lại đường; tie-break theo `h` nhỏ.
@@ -387,7 +387,7 @@ Cùng `f = 8` nên **tie-break theo `h` nhỏ hơn**: `(4,0)` có h=4 < `(0,1)` 
 
 **Định lý.** Nếu `h` admissible thì A* **luôn trả về đường tối ưu** (ngắn nhất theo chi phí).
 
-**Trực giác chứng minh.** A* dừng khi pop goal. Giả sử nó pop goal với `f = g[goal]` (vì `h(goal)=0`). Nếu có đường ngắn hơn đi qua một ô `n` còn trong open, thì ô đó có $f(n) = g(n) + h(n) \le g(n) + h^*(n) = $ (chi phí thật của đường tối ưu qua `n`) $<$ `g[goal]`. Vì `f(n) <` `f(goal)`, A* lẽ ra đã pop `n` **trước** goal — mâu thuẫn. Vậy không tồn tại đường ngắn hơn. (Dấu `≤` ở giữa là **chỗ admissible phát huy** — nếu `h` overestimate, bất đẳng thức này gãy.)
+**Trực giác chứng minh.** A* dừng khi pop goal. Giả sử nó pop goal với `f = g[goal]` (vì `h(goal)=0`). Nếu có đường ngắn hơn đi qua một ô `n` còn trong open, thì ô đó có $f(n) = g(n) + h(n) \le g(n) + h^*(n) = $ (chi phí thật của đường tối ưu qua `n`) $<$ `g[goal]`. Vì `f(n) <` `f(goal)`, A* lẽ ra đã pop `n` **trước** goal — mâu thuẫn. Vậy không tồn tại đường ngắn hơn. (Dấu $\le$ ở giữa là **chỗ admissible phát huy** — nếu `h` overestimate, bất đẳng thức này gãy.)
 
 ⚠ **Lỗi thường gặp — heuristic overestimate → đường KHÔNG tối ưu.** Nếu nhân lên cho "chạy nhanh hơn", vd dùng $h = 3 \cdot \text{Manhattan}$, thì với ô cạnh đích nhưng phải đi vòng, `h` báo "còn xa lắm" → A* **bỏ qua** đường vòng tối ưu, chộp lấy đường thẳng có vẻ ngắn theo `f` nhưng thực ra **bị tường chặn dài hơn**. Kết quả: đường tìm được **không phải ngắn nhất**. (Đây gọi là **weighted A***: chấp nhận đường hơi dài để chạy nhanh hơn — hữu ích nhưng phải biết mình đang đánh đổi.) Quy tắc: Manhattan cho 4 hướng và Euclid cho tự do **đều admissible** vì chúng là chặn dưới của chi phí thật (không có tường nào làm đường ngắn đi).
 
@@ -471,7 +471,7 @@ Bạn đã hiểu **bên trong** engine hoạt động ra sao. Bước tiếp th
 
 **Bài 1 (toạ độ tile).** `size = 40`. Tính ô cho các pixel: `(0,0)`, `(85, 40)`, `(159, 200)`, `(40, 39)`. Rồi tính pixel **góc trên-trái** và **tâm** của ô `(3, 2)`.
 
-**Bài 2 (va chạm tile).** Nhân vật là AABB góc `(70, 50)`, kích thước `24×24`, `size = 32`. Liệt kê **các ô** mà hộp nhân vật phủ lên (dùng công thức min/max tile ở §2.3).
+**Bài 2 (va chạm tile).** Nhân vật là AABB góc `(70, 50)`, kích thước $24 \times 24$, `size = 32`. Liệt kê **các ô** mà hộp nhân vật phủ lên (dùng công thức min/max tile ở §2.3).
 
 **Bài 3 (đồ thị 8 hướng + cắt góc).** Với lưới `grid` ở §2.1, dùng **8 hướng**. Ô `(2,2)` có những hàng xóm chéo nào hợp lệ nếu **áp quy tắc cấm cắt góc** (không cho đi chéo khi một trong hai ô trực giao kề là tường)?
 
@@ -509,7 +509,7 @@ Tường tại `(2,0),(1,1),(1,2),(3,2)`.
 - `(159, 200)`: ⌊159/40⌋ = 3, ⌊200/40⌋ = 5 → `(3, 5)`.
 - `(40, 39)`: ⌊40/40⌋ = 1, ⌊39/40⌋ = 0 → `(1, 0)`. (Ranh giới: pixel 40 đã sang ô 1; pixel 39 còn ở ô 0.)
 
-Ô `(3, 2)`: góc trên-trái = `(3·40, 2·40)` = `(120, 80)`; tâm = `(120 + 20, 80 + 20)` = `(140, 100)`.
+Ô `(3, 2)`: góc trên-trái = $(3 \cdot 40,\ 2 \cdot 40)$ = `(120, 80)`; tâm = $(120 + 20,\ 80 + 20)$ = `(140, 100)`.
 
 ### Bài 2
 

@@ -376,7 +376,7 @@ Trên máy yếu $\\Delta t \\approx 1/20 = 0.05$ s — lớn gấp 3 lần máy
 
 ## 7. Tích phân dùng ở đâu trong các bài sau?
 
-Bộ tích phân số là **trái tim** của vòng lặp vật lý — mọi lực rồi cũng quy về \`a = F/m\` rồi đưa vào integrator:
+Bộ tích phân số là **trái tim** của vòng lặp vật lý — mọi lực rồi cũng quy về $a = F/m$ rồi đưa vào integrator:
 
 - [Lesson 04 — Forces (Gravity/Drag/Friction)](../lesson-04-forces-gravity-drag-friction/) — tính $a = F/m$ từ tổng lực, rồi tích phân ra chuyển động. Drag $F = -kv$ phụ thuộc $v$ → đây là lúc "không có công thức kín" rõ nhất.
 - **Lesson 05 — Springs (lò xo)** — $a = -\\frac{k}{m}x$ là chính bài con lắc ta walk-through ở trên; chọn integrator sai (explicit) → lò xo phình; $\\Delta t$ lớn → nổ.

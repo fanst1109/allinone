@@ -50,7 +50,7 @@ này trong bài: câu 1-2 ở §5, câu 3-4 ở §6.
 
 ---
 
-## 2. Định luật Hooke — `F = -k·x`
+## 2. Định luật Hooke — $F = -k \cdot x$
 
 ### 2.1 Định nghĩa tự đủ
 
@@ -191,7 +191,7 @@ $$f = \dfrac{1}{T} = \dfrac{\omega}{2\pi} \quad (\text{Hz})$$
 
 ---
 
-## 4. Damping (giảm chấn) — thêm lực cản `-c·v`
+## 4. Damping (giảm chấn) — thêm lực cản $-c \cdot v$
 
 ### 4.1 Vì sao cần
 

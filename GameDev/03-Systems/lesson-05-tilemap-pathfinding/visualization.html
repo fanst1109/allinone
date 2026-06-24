@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 15 — Tilemap & Pathfinding (A*) Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #be123c; }
+  h2 {
+    color: #e11d48; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fecdd3;
+  }
+  .card {
+    background: white; border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+    border: 1px solid #fce7eb;
+  }
+  .hint { color: #6b7280; font-size: 13px; margin: 6px 0; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #4a5568; }
+  code {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #fff1f2; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #be123c;
+  }
+  button {
+    background: #e11d48; color: white; border: none;
+    padding: 8px 14px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #be123c; }
+  button:disabled { background: #fda4af; cursor: default; }
+  button.ghost { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+  button.ghost:hover { background: #fecdd3; }
+  button.tool { background: #fff1f2; color: #9f1239; border: 1px solid #fecdd3; }
+  button.tool.active { background: #e11d48; color: white; border-color: #e11d48; }
+  select {
+    font-size: 14px; padding: 7px 10px; font-family: inherit;
+    border: 1px solid #fecdd3; border-radius: 6px; background: white;
+  }
+
+  /* Canvas wrapper — cho phép scroll ngang trên mobile nếu cần */
+  .canvas-wrap { overflow-x: auto; }
+  canvas {
+    border: 1px solid #fecdd3; border-radius: 8px; cursor: crosshair;
+    background: #fff; touch-action: none; display: block;
+  }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 10px 0; font-size: 13px; }
+  .legend .item { display: flex; align-items: center; gap: 6px; }
+  .swatch { width: 16px; height: 16px; border-radius: 3px; border: 1px solid #cbd5e0; }
+
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px; margin-top: 12px;
+  }
+  .stat {
+    background: #fff1f2; border-radius: 8px; padding: 10px 12px; text-align: center;
+    border: 1px solid #fecdd3;
+  }
+  .stat .num { font-size: 22px; font-weight: 800; color: #be123c; font-variant-numeric: tabular-nums; }
+  .stat .lbl { font-size: 12px; color: #6b7280; margin-top: 2px; }
+
+  table.cmp { border-collapse: collapse; width: 100%; margin-top: 12px; font-size: 14px; }
+  table.cmp th, table.cmp td { border: 1px solid #fecdd3; padding: 8px 10px; text-align: center; }
+  table.cmp th { background: #fff1f2; color: #9f1239; font-weight: 700; }
+  table.cmp td.best { background: #dcfce7; color: #166534; font-weight: 700; }
+
+  .status {
+    margin-top: 10px; padding: 8px 12px; border-radius: 6px;
+    background: #fff1f2; color: #9f1239; font-size: 14px; font-weight: 600;
+    border: 1px solid #fecdd3; min-height: 18px;
+  }
+
+  @media (max-width: 480px) {
+    .row { gap: 8px; }
+    button, select { font-size: 13px; padding: 7px 10px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-ecs-architecture/visualization.html">← L14: ECS &amp; Architecture</a>
+  <span class="sep">·</span>
+  <span class="current">L15: Tilemap &amp; Pathfinding</span>
+</nav>
+
+<main>
+  <h1>Lesson 15 — Tilemap &amp; Pathfinding (lưới ô &amp; tìm đường A*)</h1>
+  <p>Ba bộ công cụ tương tác: (1) <strong>A* pathfinder</strong> — vẽ tường, đặt start/goal, chạy từng bước thấy open/closed + g/h/f mỗi ô; (2) <strong>So thuật toán</strong> — BFS vs Dijkstra vs A* đếm số ô thăm; (3) <strong>Heuristic</strong> — đổi Manhattan / Euclid / zero(=Dijkstra) xem vùng thăm đổi. <em>Bài cuối lĩnh vực GameDev.</em></p>
+
+  <h2>1. A* Pathfinder — vẽ &amp; chạy từng bước</h2>
+  <div class="card">
+    <p class="hint">
+      Chọn công cụ rồi <strong>kéo chuột trên lưới</strong>: ✏ Tường để vẽ/xoá tường, 🟢 Start, 🔴 Goal.
+      Bấm <strong>Bước</strong> để chạy A* một vòng (pop ô f nhỏ nhất, đóng nó, relax hàng xóm) — mỗi ô hiện <code>g</code> (góc trên-trái), <code>h</code> (trên-phải), <code>f</code> (giữa, to). Hoặc <strong>Tự chạy</strong>.
+    </p>
+    <div class="row">
+      <span style="font-weight:600;color:#4a5568;">Công cụ:</span>
+      <button class="tool active" data-tool="wall" id="toolWall">✏ Tường</button>
+      <button class="tool" data-tool="start" id="toolStart">🟢 Start</button>
+      <button class="tool" data-tool="goal" id="toolGoal">🔴 Goal</button>
+    </div>
+    <div class="row">
+      <label>Hướng:</label>
+      <select id="dirSel">
+        <option value="4">4 hướng (Manhattan)</option>
+        <option value="8">8 hướng (Euclid, cấm cắt góc)</option>
+      </select>
+      <label>Bùn cost:</label>
+      <select id="mudSel">
+        <option value="off">tắt (mọi ô = 1)</option>
+        <option value="on">bật (bùn = 3)</option>
+      </select>
+      <button class="tool" data-tool="mud" id="toolMud">💧 Vẽ bùn</button>
+    </div>
+    <div class="row">
+      <button id="stepBtn">▶ Bước</button>
+      <button id="autoBtn">⏩ Tự chạy</button>
+      <button class="ghost" id="resetRunBtn">↺ Chạy lại</button>
+      <button class="ghost" id="clearBtn">🧹 Xoá tường</button>
+      <button class="ghost" id="presetBtn">📐 Lưới mẫu (§5.2)</button>
+    </div>
+    <div class="legend">
+      <span class="item"><span class="swatch" style="background:#dcfce7"></span>open (đang chờ)</span>
+      <span class="item"><span class="swatch" style="background:#cbd5e0"></span>closed (đã đóng)</span>
+      <span class="item"><span class="swatch" style="background:#fde68a"></span>đang pop</span>
+      <span class="item"><span class="swatch" style="background:#a78bfa"></span>đường cuối</span>
+      <span class="item"><span class="swatch" style="background:#1f2937"></span>tường</span>
+      <span class="item"><span class="swatch" style="background:#93c5fd"></span>bùn (cost 3)</span>
+    </div>
+    <div class="canvas-wrap"><canvas id="astarCanvas" width="520" height="416"></canvas></div>
+    <div class="status" id="astarStatus">Sẵn sàng. Bấm “Bước” hoặc “Tự chạy”.</div>
+    <div class="stat-grid">
+      <div class="stat"><div class="num" id="stOpen">0</div><div class="lbl">ô trong open</div></div>
+      <div class="stat"><div class="num" id="stClosed">0</div><div class="lbl">ô đã đóng</div></div>
+      <div class="stat"><div class="num" id="stPath">—</div><div class="lbl">độ dài đường (g)</div></div>
+      <div class="stat"><div class="num" id="stStep">0</div><div class="lbl">vòng đã chạy</div></div>
+    </div>
+  </div>
+
+  <h2>2. So thuật toán — BFS vs Dijkstra vs A*</h2>
+  <div class="card">
+    <p class="hint">
+      Chạy cả ba trên <strong>cùng lưới</strong> (lưới bạn đã vẽ ở module 1) và đếm <strong>số ô thăm</strong> (số ô đã đóng). A* thường thăm ít nhất vì heuristic định hướng. Mỗi ô tô màu theo thuật toán đã thăm nó.
+    </p>
+    <div class="row">
+      <button id="cmpRunBtn">▶ Chạy cả ba</button>
+      <select id="cmpView">
+        <option value="bfs">Xem vùng BFS thăm</option>
+        <option value="dij">Xem vùng Dijkstra thăm</option>
+        <option value="astar">Xem vùng A* thăm</option>
+      </select>
+    </div>
+    <div class="canvas-wrap"><canvas id="cmpCanvas" width="520" height="416"></canvas></div>
+    <table class="cmp" id="cmpTable">
+      <thead><tr><th>Thuật toán</th><th>Số ô thăm</th><th>Độ dài đường (g)</th><th>Đặc điểm</th></tr></thead>
+      <tbody>
+        <tr><td>BFS</td><td id="bfsVisit">—</td><td id="bfsLen">—</td><td>ít ô nhất khi mọi bước = 1</td></tr>
+        <tr><td>Dijkstra</td><td id="dijVisit">—</td><td id="dijLen">—</td><td>đúng cho trọng số (bùn)</td></tr>
+        <tr><td>A*</td><td id="astarVisit">—</td><td id="astarLen">—</td><td>thăm ít nhất nhờ heuristic</td></tr>
+      </tbody>
+    </table>
+    <div class="hint" id="cmpNote"></div>
+  </div>
+
+  <h2>3. Heuristic — đổi để thấy vùng thăm đổi</h2>
+  <div class="card">
+    <p class="hint">
+      Cùng một lưới, đổi heuristic <code>h</code> và xem A* thăm rộng cỡ nào. <code>zero</code> → A* thoái hoá thành Dijkstra (loang đều). Manhattan/Euclid kéo tìm kiếm về đích → vùng thăm thu hẹp về hướng goal.
+    </p>
+    <div class="row">
+      <label>Heuristic:</label>
+      <select id="heurSel">
+        <option value="manhattan">Manhattan (|dx|+|dy|)</option>
+        <option value="euclid">Euclid (√(dx²+dy²))</option>
+        <option value="zero">zero (= Dijkstra)</option>
+      </select>
+      <button id="heurRunBtn">▶ Chạy</button>
+    </div>
+    <div class="canvas-wrap"><canvas id="heurCanvas" width="520" height="416"></canvas></div>
+    <div class="stat-grid">
+      <div class="stat"><div class="num" id="heurVisit">—</div><div class="lbl">ô thăm</div></div>
+      <div class="stat"><div class="num" id="heurLen">—</div><div class="lbl">độ dài đường (g)</div></div>
+    </div>
+    <div class="hint" id="heurNote"></div>
+  </div>
+</main>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// Mô hình lưới chung. Toạ độ ô (x = cột, y = hàng). grid[y][x].
+// Loại tile: 0 = cỏ (cost 1), 1 = tường (∞), 2 = bùn (cost 3).
+// ─────────────────────────────────────────────────────────────────────────────
+const COLS = 13, ROWS = 10, CELL = 40;
+const GRASS = 0, WALL = 1, MUD = 2;
+
+function makeGrid() {
+  const g = [];
+  for (let y = 0; y < ROWS; y++) g.push(new Array(COLS).fill(GRASS));
+  return g;
+}
+
+// Trạng thái dùng chung giữa các module: lưới + start + goal
+let grid = makeGrid();
+let start = { x: 1, y: 1 };
+let goal = { x: COLS - 2, y: ROWS - 2 };
+let use8 = false;
+let mudEnabled = false;
+
+function tileCost(t) { return t === MUD ? 3 : 1; }
+function inBounds(x, y) { return x >= 0 && y >= 0 && x < COLS && y < ROWS; }
+function isWall(x, y) { return grid[y][x] === WALL; }
+function key(x, y) { return y * COLS + x; }
+
+const DIRS4 = [[1,0],[-1,0],[0,1],[0,-1]];
+const DIAG = [[1,1],[1,-1],[-1,1],[-1,-1]];
+
+// Sinh hàng xóm tại chỗ. Trả [{x,y,step}] với step = chi phí cạnh (gồm √2 cho chéo).
+function neighbors(x, y, eight) {
+  const out = [];
+  for (const [dx, dy] of DIRS4) {
+    const nx = x + dx, ny = y + dy;
+    if (inBounds(nx, ny) && !isWall(nx, ny)) out.push({ x: nx, y: ny, step: tileCost(grid[ny][nx]) });
+  }
+  if (eight) {
+    for (const [dx, dy] of DIAG) {
+      const nx = x + dx, ny = y + dy;
+      if (!inBounds(nx, ny) || isWall(nx, ny)) continue;
+      // cấm cắt góc: hai ô trực giao kề phải không phải tường
+      if (isWall(x + dx, y) || isWall(x, y + dy)) continue;
+      out.push({ x: nx, y: ny, step: Math.SQRT2 * tileCost(grid[ny][nx]) });
+    }
+  }
+  return out;
+}
+
+function heuristic(x, y, kind) {
+  const dx = Math.abs(x - goal.x), dy = Math.abs(y - goal.y);
+  if (kind === 'zero') return 0;
+  if (kind === 'euclid') return Math.hypot(dx, dy);
+  return dx + dy; // manhattan
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Lõi tìm đường tổng quát (one-shot). mode: 'bfs' | 'dijkstra' | 'astar'
+// Trả { visited:Set, came:Map, gScore:Map, found:bool, pathLen }
+// ─────────────────────────────────────────────────────────────────────────────
+function runSearch(mode, heurKind) {
+  const came = new Map();
+  const g = new Map();
+  const closed = new Set();
+  g.set(key(start.x, start.y), 0);
+
+  if (mode === 'bfs') {
+    // BFS: hàng đợi FIFO, mọi bước = 1
+    const q = [start];
+    closed.add(key(start.x, start.y));
+    const visited = new Set([key(start.x, start.y)]);
+    while (q.length) {
+      const u = q.shift();
+      if (u.x === goal.x && u.y === goal.y) break;
+      for (const n of neighbors(u.x, u.y, use8)) {
+        const k = key(n.x, n.y);
+        if (visited.has(k)) continue;
+        visited.add(k);
+        g.set(k, g.get(key(u.x, u.y)) + 1);
+        came.set(k, key(u.x, u.y));
+        q.push({ x: n.x, y: n.y });
+      }
+    }
+    const gk = key(goal.x, goal.y);
+    return { visited: closed.size ? visited : visited, came, gScore: g,
+             found: g.has(gk), pathLen: g.get(gk) };
+  }
+
+  // Dijkstra / A*: priority queue đơn giản (mảng + min scan — đủ cho lưới nhỏ)
+  const open = [{ x: start.x, y: start.y, f: heuristic(start.x, start.y, heurKind) }];
+  const fScore = new Map();
+  fScore.set(key(start.x, start.y), open[0].f);
+
+  while (open.length) {
+    // pop ô f nhỏ nhất, tie-break theo h nhỏ
+    let bi = 0;
+    for (let i = 1; i < open.length; i++) {
+      if (open[i].f < open[bi].f - 1e-9) bi = i;
+      else if (Math.abs(open[i].f - open[bi].f) < 1e-9) {
+        const hi = heuristic(open[i].x, open[i].y, heurKind);
+        const hb = heuristic(open[bi].x, open[bi].y, heurKind);
+        if (hi < hb) bi = i;
+      }
+    }
+    const u = open.splice(bi, 1)[0];
+    const uk = key(u.x, u.y);
+    if (closed.has(uk)) continue;
+    closed.add(uk);
+    if (u.x === goal.x && u.y === goal.y) break;
+
+    for (const n of neighbors(u.x, u.y, use8)) {
+      const nk = key(n.x, n.y);
+      if (closed.has(nk)) continue;
+      const tentative = g.get(uk) + n.step;
+      if (!g.has(nk) || tentative < g.get(nk) - 1e-9) {
+        g.set(nk, tentative);
+        came.set(nk, uk);
+        const h = mode === 'dijkstra' ? 0 : heuristic(n.x, n.y, heurKind);
+        const f = tentative + h;
+        fScore.set(nk, f);
+        open.push({ x: n.x, y: n.y, f });
+      }
+    }
+  }
+  const gk = key(goal.x, goal.y);
+  return { visited: closed, came, gScore: g, fScore,
+           found: g.has(gk), pathLen: g.get(gk) };
+}
+
+function reconstruct(came) {
+  const path = [];
+  let k = key(goal.x, goal.y);
+  if (!came.has(k) && k !== key(start.x, start.y)) return path;
+  while (k !== undefined) {
+    path.push({ x: k % COLS, y: Math.floor(k / COLS) });
+    if (k === key(start.x, start.y)) break;
+    k = came.get(k);
+  }
+  return path.reverse();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Vẽ chung
+// ─────────────────────────────────────────────────────────────────────────────
+function drawBase(ctx, opts = {}) {
+  ctx.clearRect(0, 0, COLS * CELL, ROWS * CELL);
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const px = x * CELL, py = y * CELL;
+      let fill = '#ffffff';
+      const t = grid[y][x];
+      if (t === WALL) fill = '#1f2937';
+      else if (t === MUD) fill = '#93c5fd';
+      // overlay trạng thái tìm đường (nếu có)
+      if (opts.closed && opts.closed.has(key(x, y)) && t !== WALL) fill = '#cbd5e0';
+      if (opts.open && opts.open.has(key(x, y)) && t !== WALL) fill = '#dcfce7';
+      if (opts.popped && opts.popped === key(x, y)) fill = '#fde68a';
+      ctx.fillStyle = fill;
+      ctx.fillRect(px, py, CELL, CELL);
+      ctx.strokeStyle = '#e5e7eb';
+      ctx.strokeRect(px + 0.5, py + 0.5, CELL, CELL);
+
+      // g / h / f labels nếu có
+      if (opts.gScore && opts.gScore.has(key(x, y)) && t !== WALL) {
+        const gv = opts.gScore.get(key(x, y));
+        const hv = heuristic(x, y, opts.heurKind || 'manhattan');
+        const fv = gv + (opts.dijkstra ? 0 : hv);
+        ctx.fillStyle = '#16a34a'; ctx.font = '10px monospace'; ctx.textAlign = 'left';
+        ctx.fillText(fmt(gv), px + 3, py + 11);
+        if (!opts.dijkstra) { ctx.fillStyle = '#9333ea'; ctx.textAlign = 'right'; ctx.fillText(fmt(hv), px + CELL - 3, py + 11); }
+        ctx.fillStyle = '#be123c'; ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
+        ctx.fillText(fmt(fv), px + CELL / 2, py + CELL / 2 + 8);
+      }
+    }
+  }
+  // đường cuối
+  if (opts.path && opts.path.length > 1) {
+    ctx.strokeStyle = '#7c3aed'; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath();
+    opts.path.forEach((c, i) => {
+      const cx = c.x * CELL + CELL / 2, cy = c.y * CELL + CELL / 2;
+      i ? ctx.lineTo(cx, cy) : ctx.moveTo(cx, cy);
+    });
+    ctx.stroke(); ctx.lineWidth = 1;
+  }
+  // start & goal
+  drawMarker(ctx, start, '#16a34a', 'S');
+  drawMarker(ctx, goal, '#dc2626', 'G');
+}
+function fmt(v) { return Number.isInteger(v) ? '' + v : v.toFixed(1); }
+function drawMarker(ctx, c, color, ch) {
+  const cx = c.x * CELL + CELL / 2, cy = c.y * CELL + CELL / 2;
+  ctx.fillStyle = color; ctx.beginPath(); ctx.arc(cx, cy, 13, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'white'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(ch, cx, cy + 5);
+}
+function canvasToTile(canvas, ev) {
+  const r = canvas.getBoundingClientRect();
+  const sx = canvas.width / r.width, sy = canvas.height / r.height;
+  const px = (ev.clientX - r.left) * sx, py = (ev.clientY - r.top) * sy;
+  return { x: Math.floor(px / CELL), y: Math.floor(py / CELL) };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE 1: A* pathfinder từng bước
+// ─────────────────────────────────────────────────────────────────────────────
+const ac = document.getElementById('astarCanvas');
+const actx = ac.getContext('2d');
+let tool = 'wall';
+let stepState = null; // { open[], closed:Set, came:Map, g:Map, popped, done }
+
+function freshStepState() {
+  return {
+    open: [{ x: start.x, y: start.y, f: heuristic(start.x, start.y, 'manhattan') }],
+    closed: new Set(), came: new Map(), g: new Map([[key(start.x, start.y), 0]]),
+    popped: null, done: false, steps: 0,
+  };
+}
+
+function aRedraw() {
+  const s = stepState;
+  const openSet = new Set(s ? s.open.map(o => key(o.x, o.y)) : []);
+  const path = (s && s.done && s.came.has(key(goal.x, goal.y))) ? reconstruct(s.came) : null;
+  drawBase(actx, {
+    open: openSet, closed: s ? s.closed : null, popped: s ? s.popped : null,
+    gScore: s ? s.g : null, heurKind: 'manhattan', path,
+  });
+  if (s) {
+    document.getElementById('stOpen').textContent = s.open.length;
+    document.getElementById('stClosed').textContent = s.closed.size;
+    document.getElementById('stStep').textContent = s.steps;
+    const gk = key(goal.x, goal.y);
+    document.getElementById('stPath').textContent = (s.done && s.g.has(gk)) ? fmt(s.g.get(gk)) : '—';
+  }
+}
+
+function aStep() {
+  if (!stepState) stepState = freshStepState();
+  const s = stepState;
+  if (s.done) { setStatus('Đã xong. Bấm “Chạy lại”.'); return; }
+  if (s.open.length === 0) { s.done = true; setStatus('Hết open mà chưa tới goal → KHÔNG có đường.'); aRedraw(); return; }
+  // pop f nhỏ nhất, tie-break h nhỏ
+  let bi = 0;
+  for (let i = 1; i < s.open.length; i++) {
+    if (s.open[i].f < s.open[bi].f - 1e-9) bi = i;
+    else if (Math.abs(s.open[i].f - s.open[bi].f) < 1e-9) {
+      if (heuristic(s.open[i].x, s.open[i].y, 'manhattan') < heuristic(s.open[bi].x, s.open[bi].y, 'manhattan')) bi = i;
+    }
+  }
+  const u = s.open.splice(bi, 1)[0];
+  const uk = key(u.x, u.y);
+  if (s.closed.has(uk)) { aStep(); return; }
+  s.closed.add(uk); s.popped = uk; s.steps++;
+  if (u.x === goal.x && u.y === goal.y) {
+    s.done = true;
+    setStatus(`Tới GOAL ở vòng ${s.steps}! Đường dài g=${fmt(s.g.get(uk))}, đã đóng ${s.closed.size} ô.`);
+    aRedraw(); return;
+  }
+  for (const n of neighbors(u.x, u.y, use8)) {
+    const nk = key(n.x, n.y);
+    if (s.closed.has(nk)) continue;
+    const tentative = s.g.get(uk) + n.step;
+    if (!s.g.has(nk) || tentative < s.g.get(nk) - 1e-9) {
+      s.g.set(nk, tentative);
+      s.came.set(nk, uk);
+      s.open.push({ x: n.x, y: n.y, f: tentative + heuristic(n.x, n.y, 'manhattan') });
+    }
+  }
+  setStatus(`Vòng ${s.steps}: pop (${u.x},${u.y}) f=${fmt(u.f)}. Open=${s.open.length}, Closed=${s.closed.size}.`);
+  aRedraw();
+}
+
+let autoTimer = null;
+function aAuto() {
+  if (autoTimer) { clearInterval(autoTimer); autoTimer = null; document.getElementById('autoBtn').textContent = '⏩ Tự chạy'; return; }
+  document.getElementById('autoBtn').textContent = '⏸ Dừng';
+  autoTimer = setInterval(() => {
+    aStep();
+    if (stepState && stepState.done) { clearInterval(autoTimer); autoTimer = null; document.getElementById('autoBtn').textContent = '⏩ Tự chạy'; }
+  }, 180);
+}
+function setStatus(msg) { document.getElementById('astarStatus').textContent = msg; }
+
+function resetRun() {
+  if (autoTimer) { clearInterval(autoTimer); autoTimer = null; document.getElementById('autoBtn').textContent = '⏩ Tự chạy'; }
+  stepState = null;
+  document.getElementById('stOpen').textContent = '0';
+  document.getElementById('stClosed').textContent = '0';
+  document.getElementById('stPath').textContent = '—';
+  document.getElementById('stStep').textContent = '0';
+  setStatus('Sẵn sàng. Bấm “Bước” hoặc “Tự chạy”.');
+  aRedraw();
+}
+
+// vẽ tường/start/goal bằng chuột
+let painting = false, paintErase = false;
+function applyTool(tx, ty) {
+  if (!inBounds(tx, ty)) return;
+  if (tool === 'start') { if (grid[ty][tx] !== WALL && !(tx === goal.x && ty === goal.y)) start = { x: tx, y: ty }; }
+  else if (tool === 'goal') { if (grid[ty][tx] !== WALL && !(tx === start.x && ty === start.y)) goal = { x: tx, y: ty }; }
+  else if (tool === 'mud') {
+    if (!(tx === start.x && ty === start.y) && !(tx === goal.x && ty === goal.y))
+      grid[ty][tx] = grid[ty][tx] === MUD ? GRASS : MUD;
+  } else { // wall
+    if ((tx === start.x && ty === start.y) || (tx === goal.x && ty === goal.y)) return;
+    grid[ty][tx] = paintErase ? GRASS : WALL;
+  }
+  resetRun();
+}
+ac.addEventListener('pointerdown', e => {
+  const t = canvasToTile(ac, e);
+  if (tool === 'wall' && inBounds(t.x, t.y)) paintErase = (grid[t.y][t.x] === WALL);
+  painting = true; applyTool(t.x, t.y);
+});
+ac.addEventListener('pointermove', e => { if (painting) { const t = canvasToTile(ac, e); applyTool(t.x, t.y); } });
+window.addEventListener('pointerup', () => { painting = false; });
+
+document.querySelectorAll('button.tool').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('button.tool').forEach(x => x.classList.remove('active'));
+    b.classList.add('active'); tool = b.dataset.tool;
+  };
+});
+document.getElementById('stepBtn').onclick = aStep;
+document.getElementById('autoBtn').onclick = aAuto;
+document.getElementById('resetRunBtn').onclick = resetRun;
+document.getElementById('clearBtn').onclick = () => {
+  for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) if (grid[y][x] !== MUD) grid[y][x] = GRASS;
+  resetRun();
+};
+document.getElementById('dirSel').onchange = e => { use8 = e.target.value === '8'; resetRun(); };
+document.getElementById('mudSel').onchange = e => { mudEnabled = e.target.value === 'on'; resetRun(); };
+
+// lưới mẫu khớp walk-through §5.2 (phóng to vào góc trên-trái 5×5)
+document.getElementById('presetBtn').onclick = () => {
+  grid = makeGrid();
+  start = { x: 0, y: 0 }; goal = { x: 4, y: 4 };
+  [[1,1],[2,1],[3,1],[3,2],[0,3],[1,3],[3,3]].forEach(([x, y]) => grid[y][x] = WALL);
+  use8 = false; document.getElementById('dirSel').value = '4';
+  resetRun();
+  setStatus('Đã nạp lưới mẫu §5.2 (S=(0,0), G=(4,4)). Bấm “Tự chạy” để xem A* lao theo mép trên rồi mép phải.');
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE 2: So thuật toán
+// ─────────────────────────────────────────────────────────────────────────────
+const cc = document.getElementById('cmpCanvas');
+const cctx = cc.getContext('2d');
+let cmpResults = null;
+
+function runCompare() {
+  const bfs = runSearch('bfs');
+  const dij = runSearch('dijkstra');
+  const ast = runSearch('astar', 'manhattan');
+  cmpResults = { bfs, dij, astar: ast };
+  const set = (id, v) => document.getElementById(id).textContent = (v === undefined || v === null) ? '—' : v;
+  set('bfsVisit', bfs.visited.size); set('bfsLen', bfs.found ? fmt(bfs.pathLen) : 'không tới');
+  set('dijVisit', dij.visited.size); set('dijLen', dij.found ? fmt(dij.pathLen) : 'không tới');
+  set('astarVisit', ast.visited.size); set('astarLen', ast.found ? fmt(ast.pathLen) : 'không tới');
+  // tô best (ít ô thăm nhất)
+  const cells = { bfsVisit: bfs.visited.size, dijVisit: dij.visited.size, astarVisit: ast.visited.size };
+  const min = Math.min(...Object.values(cells));
+  Object.entries(cells).forEach(([id, v]) => {
+    const td = document.getElementById(id); td.classList.toggle('best', v === min && ast.found);
+  });
+  const note = document.getElementById('cmpNote');
+  if (ast.found) {
+    note.textContent = `A* đóng ${ast.visited.size} ô — ${dij.visited.size >= ast.visited.size ? 'ít hơn/bằng' : 'nhiều hơn'} Dijkstra (${dij.visited.size}). Độ dài đường BFS/Dijkstra/A* trùng nhau khi không có bùn (mọi bước = 1).`;
+  } else {
+    note.textContent = 'Không có đường từ S tới G (bị tường chặn hết).';
+  }
+  cmpRedraw();
+}
+function cmpRedraw() {
+  if (!cmpResults) { drawBase(cctx, {}); return; }
+  const which = document.getElementById('cmpView').value;
+  const r = which === 'bfs' ? cmpResults.bfs : which === 'dij' ? cmpResults.dij : cmpResults.astar;
+  const path = r.found ? reconstruct(r.came) : null;
+  drawBase(cctx, { closed: r.visited, path });
+}
+document.getElementById('cmpRunBtn').onclick = runCompare;
+document.getElementById('cmpView').onchange = cmpRedraw;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE 3: Heuristic
+// ─────────────────────────────────────────────────────────────────────────────
+const hc = document.getElementById('heurCanvas');
+const hctx = hc.getContext('2d');
+
+function runHeur() {
+  const kind = document.getElementById('heurSel').value;
+  const mode = kind === 'zero' ? 'dijkstra' : 'astar';
+  const r = runSearch(mode, kind);
+  const path = r.found ? reconstruct(r.came) : null;
+  drawBase(hctx, { closed: r.visited, path });
+  document.getElementById('heurVisit').textContent = r.visited.size;
+  document.getElementById('heurLen').textContent = r.found ? fmt(r.pathLen) : 'không tới';
+  const note = document.getElementById('heurNote');
+  if (kind === 'zero') note.textContent = 'zero ⇒ A* = Dijkstra: không định hướng, loang đều mọi phía → vùng thăm rộng nhất.';
+  else if (kind === 'euclid') note.textContent = 'Euclid: chặn dưới yếu hơn Manhattan trên lưới 4 hướng → thăm hơi rộng hơn Manhattan, vẫn admissible (đường tối ưu).';
+  else note.textContent = 'Manhattan: sát chi phí thật trên lưới 4 hướng → kéo mạnh về goal, vùng thăm hẹp nhất trong ba.';
+}
+document.getElementById('heurRunBtn').onclick = runHeur;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────────────────────────────────────
+aRedraw();
+drawBase(cctx, {});
+drawBase(hctx, {});
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

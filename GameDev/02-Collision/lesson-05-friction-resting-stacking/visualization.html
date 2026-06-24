@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 10 — Friction, Resting &amp; Stacking</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #be123c; }
+  h2 {
+    color: #e11d48; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fecdd3;
+  }
+  p.lead { color: #4a5568; max-width: 70ch; }
+  .card {
+    background: white; border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+    border: 1px solid #fecdd3;
+  }
+  .controls {
+    display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
+    margin: 10px 0 14px;
+  }
+  .ctl { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .ctl label { font-weight: 700; font-size: 13px; color: #9f1239; }
+  .ctl .val { font-family: ui-monospace, Menlo, Consolas, monospace; color: #e11d48; font-weight: 700; }
+  input[type=range] { width: 100%; max-width: 220px; accent-color: #e11d48; }
+  button {
+    background: #e11d48; color: white; border: none;
+    padding: 9px 16px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 700; font-family: inherit;
+  }
+  button:hover { background: #be123c; }
+  button.ghost { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+  button.ghost:hover { background: #ffe4e6; }
+  .toggle {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: 700; color: #9f1239; cursor: pointer; user-select: none;
+  }
+  .toggle input { width: 18px; height: 18px; accent-color: #e11d48; }
+  canvas {
+    display: block; width: 100%; background: #fff5f6;
+    border: 1px solid #fecdd3; border-radius: 8px;
+  }
+  .readout {
+    margin-top: 10px; font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 13px; color: #4a5568; line-height: 1.7;
+  }
+  .pill {
+    display: inline-block; padding: 2px 10px; border-radius: 999px;
+    font-weight: 700; font-size: 12px;
+  }
+  .pill.ok   { background: #dcfce7; color: #166534; }
+  .pill.bad  { background: #fee2e2; color: #991b1b; }
+  .pill.warn { background: #fef3c7; color: #92400e; }
+  .pill.sleep{ background: #e0e7ff; color: #3730a3; }
+  .note { color: #718096; font-size: 13px; margin: 6px 0 0; }
+  .kbd {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    background: #fff1f2; color: #be123c; padding: 1px 6px;
+    border-radius: 4px; font-size: 13px;
+  }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: #4a5568; margin-top: 8px; }
+  .legend span::before {
+    content: ""; display: inline-block; width: 12px; height: 12px;
+    border-radius: 3px; margin-right: 6px; vertical-align: -1px;
+  }
+  .legend .lg-box::before    { background: #fb7185; }
+  .legend .lg-sleep::before  { background: #818cf8; }
+  .legend .lg-sink::before   { background: #f59e0b; }
+  table.cmp { border-collapse: collapse; margin: 12px 0; font-size: 13px; width: 100%; }
+  table.cmp th, table.cmp td { border: 1px solid #fecdd3; padding: 6px 10px; text-align: center; }
+  table.cmp th { background: #fff1f2; color: #9f1239; }
+  .tbl-wrap { overflow-x: auto; }
+  @media (max-width: 480px) {
+    .controls { gap: 12px; }
+    input[type=range] { max-width: 100%; }
+    .ctl { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-collision-response-impulse/visualization.html">← L09: Collision Response (Impulse)</a>
+  <span class="sep">·</span>
+  <span class="current">L10: Friction &amp; Resting</span>
+  <span class="sep">·</span>
+  <a href="../../03-Systems/lesson-01-particle-systems/visualization.html">L11: Particle Systems →</a>
+</nav>
+<main>
+  <h1>Lesson 10 — Friction, Resting &amp; Stacking</h1>
+  <p class="lead">Ba phòng thí nghiệm tương tác cho phần khó nhất của physics engine: ma sát tiếp tuyến,
+  tiếp xúc nghỉ, hiệu chỉnh vị trí, xếp chồng ổn định và sleeping. Mỗi sim chạy realtime — kéo slider để thấy hệ vỡ hoặc đứng yên.</p>
+
+  <!-- ───────────────────────── MODULE 1: STACKING ───────────────────────── -->
+  <h2>1. Xếp chồng &amp; số iteration giải/frame</h2>
+  <p class="lead">Chồng nhiều hộp. Slider chọn số <strong>iteration</strong> giải tiếp xúc mỗi frame.
+  Ít iteration → sai số dồn xuống đáy, tháp <strong>rung rồi sụp</strong>. Nhiều iteration → hội tụ, tháp <strong>đứng yên</strong>.</p>
+  <div class="card">
+    <div class="controls">
+      <div class="ctl">
+        <label>Số hộp: <span class="val" id="stkNVal">5</span></label>
+        <input type="range" id="stkN" min="2" max="8" step="1" value="5">
+      </div>
+      <div class="ctl">
+        <label>Iterations/frame: <span class="val" id="stkItVal">1</span></label>
+        <input type="range" id="stkIt" min="1" max="12" step="1" value="1">
+      </div>
+      <div class="ctl" style="justify-content:flex-end;">
+        <label>&nbsp;</label>
+        <button id="stkReset" class="ghost">↺ Dựng lại tháp</button>
+      </div>
+    </div>
+    <canvas id="stkCanvas" width="760" height="360"></canvas>
+    <div class="legend">
+      <span class="lg-box">hộp</span>
+      <span class="lg-sleep">đang ngủ (💤)</span>
+    </div>
+    <div class="readout" id="stkOut"></div>
+    <p class="note">Thử <span class="kbd">Iterations = 1</span> với 6+ hộp → quan sát tháp lảo đảo.
+    Tăng dần lên <span class="kbd">8–10</span> → tháp đứng vững (Box2D mặc định 8). Đây là sequential impulse.</p>
+  </div>
+
+  <!-- ───────────────────────── MODULE 2: FRICTION SLOPE ───────────────────── -->
+  <h2>2. Ma sát trên dốc — định luật Coulomb</h2>
+  <p class="lead">Một khối trên mặt nghiêng. Trọng lực có thành phần <strong>kéo trượt</strong> dọc dốc và thành phần
+  <strong>ép xuống</strong> (pháp tuyến). Khối đứng yên chừng nào lực ma sát tĩnh tối đa <code>μ·N</code> còn ≥ lực kéo trượt.</p>
+  <div class="card">
+    <div class="controls">
+      <div class="ctl">
+        <label>Hệ số ma sát μ: <span class="val" id="frMuVal">0.40</span></label>
+        <input type="range" id="frMu" min="0" max="1.2" step="0.01" value="0.40">
+      </div>
+      <div class="ctl">
+        <label>Góc dốc θ: <span class="val" id="frAngVal">25°</span></label>
+        <input type="range" id="frAng" min="0" max="60" step="1" value="25">
+      </div>
+      <div class="ctl" style="justify-content:flex-end;">
+        <label>&nbsp;</label>
+        <button id="frReset" class="ghost">↺ Thả lại khối</button>
+      </div>
+    </div>
+    <canvas id="frCanvas" width="760" height="320"></canvas>
+    <div class="readout" id="frOut"></div>
+    <p class="note">Ranh giới trượt: khối đứng yên khi <code>μ ≥ tan(θ)</code>. Vd θ=25° → tan≈0.466 →
+    cần μ ≥ 0.47. Hạ μ dưới ngưỡng → khối bắt đầu trượt (động lực Coulomb hãm bớt nhưng không giữ nổi).</p>
+  </div>
+
+  <!-- ──────────────────── MODULE 3: POSITIONAL CORRECTION ──────────────────── -->
+  <h2>3. Positional correction &amp; sleeping</h2>
+  <p class="lead">Trọng lực mỗi frame đẩy hộp lún vào sàn. <strong>Tắt</strong> correction → hộp <strong>chìm xuyên sàn</strong>.
+  <strong>Bật</strong> → correction (slop + percent) đẩy lên, hộp đứng đúng mặt sàn rồi <strong>ngủ</strong>. Đẩy <code>percent</code> lên 1.0 với slop 0 → <strong>jitter</strong> do over-correction.</p>
+  <div class="card">
+    <div class="controls">
+      <label class="toggle"><input type="checkbox" id="pcOn" checked> Bật positional correction</label>
+      <div class="ctl">
+        <label>percent: <span class="val" id="pcPctVal">0.20</span></label>
+        <input type="range" id="pcPct" min="0.05" max="1.0" step="0.05" value="0.20">
+      </div>
+      <div class="ctl">
+        <label>slop: <span class="val" id="pcSlopVal">0.010</span></label>
+        <input type="range" id="pcSlop" min="0" max="0.05" step="0.005" value="0.010">
+      </div>
+      <div class="ctl" style="justify-content:flex-end;">
+        <label>&nbsp;</label>
+        <button id="pcReset" class="ghost">↺ Thả hộp lại</button>
+      </div>
+    </div>
+    <canvas id="pcCanvas" width="760" height="300"></canvas>
+    <div class="legend">
+      <span class="lg-box">hộp</span>
+      <span class="lg-sink">phần lún (penetration)</span>
+      <span class="lg-sleep">đang ngủ (💤)</span>
+    </div>
+    <div class="readout" id="pcOut"></div>
+    <p class="note">Thử: tắt correction → hộp tụt dần qua sàn (lún tăng mãi). Bật, percent=0.2 slop=0.01 → đứng yên rồi 💤.
+    Đặt percent=1.0, slop=0 → hộp rung "nhảy disco" quanh sàn (over-correction).</p>
+  </div>
+
+  <!-- ──────────────────── BẢNG THAM SỐ CHUẨN (Box2D) ──────────────────── -->
+  <h2>4. Tham số tham khảo (kiểu Box2D)</h2>
+  <div class="card">
+    <div class="tbl-wrap">
+    <table class="cmp">
+      <tr><th>Tham số</th><th>Giá trị điển hình</th><th>Vai trò</th></tr>
+      <tr><td>velocity iterations</td><td>8</td><td>số lượt giải vận tốc (impulse) / frame</td></tr>
+      <tr><td>position iterations</td><td>3</td><td>số lượt giải vị trí (correction) / frame</td></tr>
+      <tr><td>linear slop</td><td>0.005 m</td><td>cho phép lún nhỏ, chống jitter quanh 0</td></tr>
+      <tr><td>baumgarte (percent)</td><td>0.2</td><td>tỉ lệ sửa lún mỗi frame</td></tr>
+      <tr><td>μ (gỗ/bê tông)</td><td>0.4 – 0.6</td><td>hệ số ma sát Coulomb</td></tr>
+      <tr><td>sleep |v| threshold</td><td>≈ 0.05 m/s</td><td>dưới ngưỡng đủ lâu → ngủ</td></tr>
+      <tr><td>time to sleep</td><td>0.5 s</td><td>thời gian bất động trước khi ngủ</td></tr>
+    </table>
+    </div>
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+//  Helper chung
+// ════════════════════════════════════════════════════════════════════════════
+function fitCanvas(cv) {
+  // Giữ aspect ratio nội tại (width/height attribute) — viz-base ép max-width:100%.
+  return cv.getContext("2d");
+}
+const G = 1400;          // gia tốc trọng lực (px/s²) — chọn để nhìn rõ
+const FLOOR_PAD = 30;
+
+// ════════════════════════════════════════════════════════════════════════════
+//  MODULE 1 — STACKING (sequential impulse, positional correction lặp)
+// ════════════════════════════════════════════════════════════════════════════
+(function stacking() {
+  const cv = document.getElementById("stkCanvas");
+  const ctx = fitCanvas(cv);
+  const W = cv.width, H = cv.height;
+  const floorY = H - FLOOR_PAD;
+  const BW = 90, BH = 36, GAP = 0; // hộp
+  const SLOP = 1.0, PCT = 0.9;     // correction (px); pct cao vì chia theo iteration
+  const sN = document.getElementById("stkN");
+  const sIt = document.getElementById("stkIt");
+  const nVal = document.getElementById("stkNVal");
+  const itVal = document.getElementById("stkItVal");
+  const out = document.getElementById("stkOut");
+  let boxes = [];
+
+  function build() {
+    const n = +sN.value;
+    boxes = [];
+    const cx = W / 2;
+    for (let i = 0; i < n; i++) {
+      // xếp từ dưới lên, thêm lệch ngang nhỏ để buộc solver làm việc
+      const jitter = (Math.random() - 0.5) * 10;
+      boxes.push({
+        x: cx + jitter,
+        y: floorY - BH / 2 - i * (BH + GAP),
+        vx: 0, vy: 0,
+        still: 0, asleep: false,
+        wobble: (Math.random() - 0.5) * 0.4
+      });
+    }
+  }
+  sN.addEventListener("input", () => { nVal.textContent = sN.value; build(); });
+  sIt.addEventListener("input", () => { itVal.textContent = sIt.value; });
+  document.getElementById("stkReset").addEventListener("click", build);
+
+  function resolvePair(lo, hi, factor) {
+    // lo dưới, hi trên. Tiếp xúc dọc: muốn đáy(hi) chạm nóc(lo).
+    const targetGap = BH;
+    const dy = hi.y - lo.y;            // âm vì hi ở trên (y nhỏ hơn)
+    const dist = -dy;                  // khoảng cách dương
+    const pen = targetGap - dist;      // >0 nếu lún
+    if (pen > 0) {
+      // 1) sửa vận tốc: triệt tiêu vận tốc lao vào nhau theo y
+      const rv = hi.vy - lo.vy;
+      if (rv < 0) {                    // đang ép vào nhau
+        const j = -rv / 2;             // chia đều (khối bằng nhau)
+        hi.vy += j; lo.vy -= j;
+      }
+      // 2) positional correction
+      const corr = Math.max(pen - SLOP, 0) * PCT * factor / 2;
+      hi.y -= corr; lo.y += corr;
+    }
+  }
+
+  function step(dt) {
+    const iters = +sIt.value;
+    // tích phân lực
+    for (const b of boxes) {
+      if (b.asleep) continue;
+      b.vy += G * dt;
+      b.y += b.vy * dt;
+      b.x += b.vx * dt;
+      // ghì ngang nhẹ (ma sát với hộp dưới) + về tâm chậm
+      b.vx *= 0.9;
+    }
+    // sắp xếp theo y giảm dần (đáy trước)
+    const order = boxes.map((b, i) => i).sort((a, c) => boxes[c].y - boxes[a].y);
+    // giải lặp — mỗi iteration một lượt qua tất cả tiếp xúc
+    for (let it = 0; it < iters; it++) {
+      const factor = 1 / iters;  // chia phần correction cho số lượt → tổng ~ ổn định
+      // sàn ↔ hộp đáy
+      for (const b of boxes) {
+        if (b.asleep) continue;
+        const pen = (b.y + BH / 2) - floorY;
+        if (pen > 0) {
+          if (b.vy > 0) b.vy = 0;
+          b.y -= Math.max(pen - SLOP, 0) * PCT * factor;
+        }
+      }
+      // giữa các hộp liền kề trong order
+      for (let k = 0; k < order.length - 1; k++) {
+        const lo = boxes[order[k]], hi = boxes[order[k + 1]];
+        if (lo.asleep && hi.asleep) continue;
+        resolvePair(lo, hi, factor);
+      }
+    }
+    // sleeping
+    for (const b of boxes) {
+      const speed = Math.hypot(b.vx, b.vy);
+      if (speed < 6) { b.still += dt; if (b.still > 0.5) b.asleep = true; }
+      else { b.still = 0; b.asleep = false; }
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // sàn
+    ctx.fillStyle = "#9f1239";
+    ctx.fillRect(0, floorY, W, H - floorY);
+    // hộp
+    let totalPen = 0, asleepN = 0;
+    for (const b of boxes) {
+      if (b.asleep) asleepN++;
+      ctx.save();
+      ctx.translate(b.x, b.y);
+      ctx.fillStyle = b.asleep ? "#818cf8" : "#fb7185";
+      ctx.strokeStyle = b.asleep ? "#4338ca" : "#be123c";
+      ctx.lineWidth = 2;
+      ctx.fillRect(-BW / 2, -BH / 2, BW, BH);
+      ctx.strokeRect(-BW / 2, -BH / 2, BW, BH);
+      if (b.asleep) {
+        ctx.fillStyle = "#fff";
+        ctx.font = "14px sans-serif";
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText("💤", 0, 0);
+      }
+      ctx.restore();
+    }
+    // đo độ lệch tổng so với cột thẳng (chỉ báo "đang sụp")
+    let maxOff = 0;
+    const cx = W / 2;
+    for (const b of boxes) maxOff = Math.max(maxOff, Math.abs(b.x - cx));
+    const stable = maxOff < 25 && asleepN === boxes.length;
+    out.innerHTML =
+      `Hộp: <b>${boxes.length}</b> · iterations/frame: <b>${sIt.value}</b> · ` +
+      `lệch ngang tối đa: <b>${maxOff.toFixed(1)} px</b> · ngủ: <b>${asleepN}/${boxes.length}</b> · ` +
+      (stable
+        ? `<span class="pill ok">ỔN ĐỊNH</span>`
+        : (+sIt.value <= 2
+            ? `<span class="pill bad">RUNG / SỤP — thiếu iteration</span>`
+            : `<span class="pill warn">đang hội tụ…</span>`));
+  }
+
+  build();
+  let last = performance.now();
+  function loop(t) {
+    const dt = Math.min((t - last) / 1000, 0.033);
+    last = t;
+    step(dt); draw();
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+
+// ════════════════════════════════════════════════════════════════════════════
+//  MODULE 2 — FRICTION ON SLOPE (Coulomb)
+// ════════════════════════════════════════════════════════════════════════════
+(function frictionSlope() {
+  const cv = document.getElementById("frCanvas");
+  const ctx = fitCanvas(cv);
+  const W = cv.width, H = cv.height;
+  const sMu = document.getElementById("frMu");
+  const sAng = document.getElementById("frAng");
+  const muVal = document.getElementById("frMuVal");
+  const angVal = document.getElementById("frAngVal");
+  const out = document.getElementById("frOut");
+  const g = 1000;
+  const BOX = 46;
+  // dốc: gốc bên trái cao, dốc xuống phải. s = khoảng cách dọc dốc từ đỉnh.
+  let s = 60, vs = 0;
+
+  function geom() {
+    const theta = (+sAng.value) * Math.PI / 180;
+    const top = { x: 70, y: 80 };
+    const len = Math.min((W - 140) / Math.cos(theta), 620);
+    const bottom = { x: top.x + len * Math.cos(theta), y: top.y + len * Math.sin(theta) };
+    return { theta, top, bottom, len };
+  }
+  sMu.addEventListener("input", () => muVal.textContent = (+sMu.value).toFixed(2));
+  sAng.addEventListener("input", () => angVal.textContent = sAng.value + "°");
+  document.getElementById("frReset").addEventListener("click", () => { s = 60; vs = 0; });
+
+  function step(dt) {
+    const theta = (+sAng.value) * Math.PI / 180;
+    const mu = +sMu.value;
+    const pull = g * Math.sin(theta);          // gia tốc kéo trượt dọc dốc
+    const normal = g * Math.cos(theta);        // ~ N/m
+    const maxStatic = mu * normal;             // ma sát tĩnh tối đa (gia tốc)
+    let sliding;
+    if (Math.abs(vs) < 1) {
+      // đang (gần) đứng yên → kiểm tra tĩnh
+      if (pull <= maxStatic) { vs = 0; sliding = false; }
+      else { vs += (pull - maxStatic) * dt; sliding = true; }
+    } else {
+      // đang trượt → ma sát động hãm ngược chiều chuyển động
+      const dir = Math.sign(vs);
+      let a = pull - dir * mu * normal;
+      vs += a * dt;
+      if (vs < 0 && dir > 0) vs = 0; // không hãm văng ngược
+      sliding = Math.abs(vs) > 1;
+    }
+    s += vs * dt;
+    const { len } = geom();
+    if (s > len - BOX) { s = len - BOX; if (vs > 0) vs = 0; }
+    if (s < 0) { s = 0; if (vs < 0) vs = 0; }
+    return { theta, mu, pull, maxStatic, sliding };
+  }
+
+  function draw(info) {
+    const { theta, top, bottom } = geom();
+    ctx.clearRect(0, 0, W, H);
+    // dốc
+    ctx.beginPath();
+    ctx.moveTo(top.x, top.y);
+    ctx.lineTo(bottom.x, bottom.y);
+    ctx.lineTo(bottom.x, H - 20);
+    ctx.lineTo(top.x, H - 20);
+    ctx.closePath();
+    ctx.fillStyle = "#fecdd3";
+    ctx.fill();
+    ctx.strokeStyle = "#9f1239"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(top.x, top.y); ctx.lineTo(bottom.x, bottom.y); ctx.stroke();
+    // khối tại vị trí s dọc dốc
+    const ux = Math.cos(theta), uy = Math.sin(theta);  // đơn vị dọc dốc
+    const nx = Math.sin(theta), ny = -Math.cos(theta); // pháp tuyến (lên khỏi mặt)
+    const px = top.x + ux * s + nx * (BOX / 2);
+    const py = top.y + uy * s + ny * (BOX / 2);
+    ctx.save();
+    ctx.translate(px, py);
+    ctx.rotate(theta);
+    ctx.fillStyle = info.sliding ? "#fb7185" : "#34d399";
+    ctx.strokeStyle = info.sliding ? "#be123c" : "#059669";
+    ctx.lineWidth = 2;
+    ctx.fillRect(-BOX / 2, -BOX / 2, BOX, BOX);
+    ctx.strokeRect(-BOX / 2, -BOX / 2, BOX, BOX);
+    ctx.restore();
+    out.innerHTML =
+      `μ = <b>${info.mu.toFixed(2)}</b> · tan(θ) = <b>${Math.tan(theta).toFixed(3)}</b> · ` +
+      `lực kéo trượt ∝ <b>${info.pull.toFixed(0)}</b> · ma sát tĩnh tối đa ∝ <b>${info.maxStatic.toFixed(0)}</b> · ` +
+      (info.sliding
+        ? `<span class="pill bad">TRƯỢT (μ &lt; tan θ)</span>`
+        : `<span class="pill ok">ĐỨNG YÊN (μ ≥ tan θ)</span>`);
+  }
+
+  let last = performance.now();
+  function loop(t) {
+    const dt = Math.min((t - last) / 1000, 0.033);
+    last = t;
+    const info = step(dt); draw(info);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+
+// ════════════════════════════════════════════════════════════════════════════
+//  MODULE 3 — POSITIONAL CORRECTION + SLEEPING
+// ════════════════════════════════════════════════════════════════════════════
+(function positional() {
+  const cv = document.getElementById("pcCanvas");
+  const ctx = fitCanvas(cv);
+  const W = cv.width, H = cv.height;
+  const floorY = H - 36;
+  const BOX = 64;
+  const pcOn = document.getElementById("pcOn");
+  const sPct = document.getElementById("pcPct");
+  const sSlop = document.getElementById("pcSlop");
+  const pctVal = document.getElementById("pcPctVal");
+  const slopVal = document.getElementById("pcSlopVal");
+  const out = document.getElementById("pcOut");
+  const SLOP_PX = 200; // hệ số quy đổi slop(m)→px cho dễ nhìn
+  let y, vy, still, asleep;
+
+  function reset() { y = 90; vy = 0; still = 0; asleep = false; }
+  reset();
+  sPct.addEventListener("input", () => { pctVal.textContent = (+sPct.value).toFixed(2); asleep = false; still = 0; });
+  sSlop.addEventListener("input", () => { slopVal.textContent = (+sSlop.value).toFixed(3); asleep = false; still = 0; });
+  pcOn.addEventListener("change", reset);
+  document.getElementById("pcReset").addEventListener("click", reset);
+
+  function step(dt) {
+    if (asleep) return 0;
+    vy += G * dt;
+    y += vy * dt;
+    // sửa vận tốc khi chạm sàn (luôn làm — đây là phần L09)
+    const bottom = y + BOX / 2;
+    let pen = bottom - floorY;       // px lún
+    if (pen > 0 && vy > 0) vy = 0;   // resting: triệt tiêu vận tốc lao vào
+    // positional correction (tùy chọn)
+    if (pcOn.checked && pen > 0) {
+      const slopPx = (+sSlop.value) * SLOP_PX;
+      const corr = Math.max(pen - slopPx, 0) * (+sPct.value);
+      y -= corr;
+    }
+    // recompute pen sau correction
+    pen = (y + BOX / 2) - floorY;
+    // sleeping (chỉ khi correction bật & gần đứng yên & lún nhỏ)
+    if (pcOn.checked && Math.abs(vy) < 5 && Math.abs(pen) < (+sSlop.value) * SLOP_PX + 4) {
+      still += dt; if (still > 0.5) asleep = true;
+    } else { still = 0; asleep = false; }
+    return pen;
+  }
+
+  function draw(pen) {
+    ctx.clearRect(0, 0, W, H);
+    // sàn
+    ctx.fillStyle = "#9f1239";
+    ctx.fillRect(0, floorY, W, H - floorY);
+    ctx.strokeStyle = "#fda4af"; ctx.setLineDash([6, 6]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, floorY); ctx.lineTo(W, floorY); ctx.stroke();
+    ctx.setLineDash([]);
+    const cx = W / 2;
+    // hộp
+    ctx.save();
+    ctx.translate(cx, y);
+    ctx.fillStyle = asleep ? "#818cf8" : "#fb7185";
+    ctx.strokeStyle = asleep ? "#4338ca" : "#be123c";
+    ctx.lineWidth = 2;
+    ctx.fillRect(-BOX / 2, -BOX / 2, BOX, BOX);
+    ctx.strokeRect(-BOX / 2, -BOX / 2, BOX, BOX);
+    if (asleep) {
+      ctx.fillStyle = "#fff"; ctx.font = "20px sans-serif";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText("💤", 0, 0);
+    }
+    ctx.restore();
+    // tô phần lún (penetration) màu cam
+    if (pen > 0) {
+      ctx.fillStyle = "rgba(245,158,11,0.55)";
+      ctx.fillRect(cx - BOX / 2, floorY, BOX, Math.min(pen, H - floorY));
+    }
+    const penM = (pen / SLOP_PX);
+    let status;
+    if (!pcOn.checked) status = `<span class="pill bad">CORRECTION TẮT — hộp lún xuyên sàn</span>`;
+    else if (asleep) status = `<span class="pill sleep">💤 ĐANG NGỦ — đứng yên</span>`;
+    else if ((+sPct.value) >= 0.85 && (+sSlop.value) <= 0.0) status = `<span class="pill warn">JITTER — over-correction</span>`;
+    else status = `<span class="pill ok">đang hiệu chỉnh…</span>`;
+    out.innerHTML =
+      `correction: <b>${pcOn.checked ? "BẬT" : "TẮT"}</b> · percent: <b>${(+sPct.value).toFixed(2)}</b> · ` +
+      `slop: <b>${(+sSlop.value).toFixed(3)}</b> · lún hiện tại: <b>${penM.toFixed(3)}</b> đv · ` + status;
+  }
+
+  let last = performance.now();
+  function loop(t) {
+    const dt = Math.min((t - last) / 1000, 0.033);
+    last = t;
+    const pen = step(dt); draw(Math.max(pen, 0));
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

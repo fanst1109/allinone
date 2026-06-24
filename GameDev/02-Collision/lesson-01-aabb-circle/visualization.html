@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06 — Collision: AABB &amp; Circle</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #be123c; }
+  h2 {
+    color: #e11d48; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fecdd3;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { color: #64748b; font-size: 13px; margin: 6px 0; }
+  code {
+    background: #fff1f2; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #be123c;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  canvas {
+    border: 1px solid #fecdd3; border-radius: 8px;
+    background: #fff7f8; display: block; touch-action: none;
+    max-width: 100%; cursor: grab;
+  }
+  canvas.grabbing { cursor: grabbing; }
+
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #475569; font-size: 14px; }
+  input[type="range"] { accent-color: #e11d48; max-width: 100%; }
+
+  button {
+    background: #e11d48; color: white; border: none;
+    padding: 8px 14px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #be123c; }
+  button.ghost { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+  button.ghost:hover { background: #fecdd3; }
+
+  /* Readout panel */
+  .readout {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px; margin-top: 12px; min-width: 0; width: 100%;
+  }
+  .stat {
+    background: #fff7f8; border: 1px solid #fecdd3; border-radius: 6px;
+    padding: 10px 12px; min-width: 0;
+  }
+  .stat .k { font-size: 12px; color: #64748b; }
+  .stat .v {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 16px; font-weight: 700; color: #334155; margin-top: 2px;
+    overflow-wrap: anywhere;
+  }
+  .verdict {
+    display: inline-block; padding: 5px 14px; border-radius: 6px;
+    font-weight: 700; font-size: 14px; margin-top: 4px;
+  }
+  .verdict.hit { background: #fecdd3; color: #9f1239; }
+  .verdict.miss { background: #dcfce7; color: #166534; }
+
+  /* Per-axis condition pills */
+  .axis-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .pill {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; padding: 6px 12px; border-radius: 6px; font-weight: 600;
+  }
+  .pill.ok { background: #dcfce7; color: #166534; }
+  .pill.no { background: #fee2e2; color: #991b1b; }
+
+  @media (max-width: 480px) {
+    .readout { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../01-Motion/lesson-05-springs-oscillation/visualization.html">← L05: Springs &amp; Oscillation</a>
+  <span class="sep">·</span>
+  <span class="current">L06: AABB &amp; Circle</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-sat-polygons/visualization.html">L07: SAT (Polygons) →</a>
+</nav>
+
+<main>
+  <h1>Lesson 06 — Collision: AABB &amp; Circle</h1>
+  <p>Ba sandbox tương tác: kéo hai hộp để xem điều kiện overlap từng trục, kéo hai hình tròn để
+     so khoảng cách tâm với tổng bán kính, và một bể N vật bay nảy tường tô đỏ mọi cặp đang chạm.</p>
+
+  <!-- ───────────────────────────── Module 1: AABB tester ───────────────────────────── -->
+  <h2>1. AABB tester — kéo hai hộp</h2>
+  <div class="card">
+    <p class="hint">Kéo <strong>hộp đỏ (A)</strong> hoặc <strong>hộp xanh (B)</strong>. Chồng cả trục
+       x VÀ y mới là chạm — viz tô đỏ khi chạm và hiển thị điều kiện từng trục.</p>
+    <canvas id="aabbCanvas" width="640" height="320" viewBox="0 0 640 320"></canvas>
+    <div class="axis-row" id="aabbAxes"></div>
+    <div class="readout" id="aabbReadout"></div>
+    <div class="row" style="margin-top:12px;">
+      <button class="ghost" id="aabbReset">Đặt lại vị trí</button>
+    </div>
+  </div>
+
+  <!-- ───────────────────────────── Module 2: Circle tester ───────────────────────────── -->
+  <h2>2. Circle tester — kéo hai hình tròn</h2>
+  <div class="card">
+    <p class="hint">Kéo <strong>tròn đỏ (A)</strong> / <strong>tròn xanh (B)</strong>, chỉnh bán kính
+       bằng thanh trượt. Chạm ⇔ khoảng cách tâm &lt; tổng bán kính. Viz dùng <strong>khoảng cách bình
+       phương</strong> để quyết định (không <code>sqrt</code>) nhưng hiển thị cả con số thật để bạn đối chiếu.</p>
+    <canvas id="circCanvas" width="640" height="320" viewBox="0 0 640 320"></canvas>
+    <div class="row" style="margin-top:12px;">
+      <label>r₁ (đỏ): <span id="r1Val" class="code"></span></label>
+      <input type="range" id="r1" min="15" max="90" value="50">
+      <label>r₂ (xanh): <span id="r2Val" class="code"></span></label>
+      <input type="range" id="r2" min="15" max="90" value="40">
+    </div>
+    <div class="readout" id="circReadout"></div>
+  </div>
+
+  <!-- ───────────────────────────── Module 3: Many bodies ───────────────────────────── -->
+  <h2>3. Nhiều vật bay — narrow-phase realtime</h2>
+  <div class="card">
+    <p class="hint">N vật (hộp + tròn) bay nảy tường. Mỗi frame test <strong>mọi cặp</strong>
+       (hộp-hộp, tròn-tròn, tròn-hộp) — cặp đang chạm được <strong>tô đỏ</strong> và nối bằng
+       đường đứt. Tăng N để thấy số cặp phình theo <code>N²</code> (đó là lý do cần broad-phase ở L08).</p>
+    <div class="row">
+      <label>Số vật N: <span id="nVal" class="code"></span></label>
+      <input type="range" id="nBodies" min="4" max="40" value="14">
+      <button id="pauseBtn">⏸ Tạm dừng</button>
+      <button class="ghost" id="reseedBtn">🔀 Tạo lại</button>
+    </div>
+    <canvas id="manyCanvas" width="640" height="380" viewBox="0 0 640 380"></canvas>
+    <div class="readout" id="manyReadout"></div>
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+// Helpers chung
+// ════════════════════════════════════════════════════════════════════════════
+function clamp(v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); }
+
+// Quy đổi toạ độ chuột → toạ độ canvas (canvas có thể bị CSS scale trên mobile)
+function canvasPos(canvas, ev) {
+  const r = canvas.getBoundingClientRect();
+  const p = ev.touches ? ev.touches[0] : ev;
+  return {
+    x: (p.clientX - r.left) * (canvas.width / r.width),
+    y: (p.clientY - r.top) * (canvas.height / r.height),
+  };
+}
+
+// ── Test va chạm (đúng công thức trong README) ──
+function aabbOverlap(a, b) {
+  return a.minX <= b.maxX && a.maxX >= b.minX &&
+         a.minY <= b.maxY && a.maxY >= b.minY;
+}
+function circleOverlap(a, b) {
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const rSum = a.r + b.r;
+  return dx*dx + dy*dy < rSum*rSum;          // không sqrt
+}
+function circleAABBOverlap(c, b) {
+  const nx = clamp(c.x, b.minX, b.maxX);
+  const ny = clamp(c.y, b.minY, b.maxY);
+  const dx = c.x - nx, dy = c.y - ny;
+  return dx*dx + dy*dy < c.r*c.r;            // không sqrt
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 1 — AABB tester
+// ════════════════════════════════════════════════════════════════════════════
+(function () {
+  const cv = document.getElementById('aabbCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+
+  const DEF_A = { x: 130, y: 110, w: 150, h: 110 };
+  const DEF_B = { x: 360, y: 180, w: 170, h: 110 };
+  let boxes = { A: { ...DEF_A }, B: { ...DEF_B } };
+  let drag = null;
+
+  function rectOf(b) {
+    return { minX: b.x, minY: b.y, maxX: b.x + b.w, maxY: b.y + b.h };
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const ra = rectOf(boxes.A), rb = rectOf(boxes.B);
+    const hit = aabbOverlap(ra, rb);
+
+    // vùng chồng (nếu có)
+    if (hit) {
+      const ox = Math.max(ra.minX, rb.minX), oy = Math.max(ra.minY, rb.minY);
+      const ex = Math.min(ra.maxX, rb.maxX), ey = Math.min(ra.maxY, rb.maxY);
+      ctx.fillStyle = 'rgba(225,29,72,0.22)';
+      ctx.fillRect(ox, oy, ex - ox, ey - oy);
+    }
+
+    drawBox(boxes.A, hit ? '#be123c' : '#e11d48', 'rgba(225,29,72,0.10)', 'A');
+    drawBox(boxes.B, hit ? '#1d4ed8' : '#2563eb', 'rgba(37,99,235,0.10)', 'B');
+
+    // điều kiện từng trục
+    const xOK = ra.minX <= rb.maxX && ra.maxX >= rb.minX;
+    const yOK = ra.minY <= rb.maxY && ra.maxY >= rb.minY;
+    document.getElementById('aabbAxes').innerHTML =
+      `<span class="pill ${xOK?'ok':'no'}">trục x: ${xOK?'✓ chồng':'✗ rời'}</span>` +
+      `<span class="pill ${yOK?'ok':'no'}">trục y: ${yOK?'✓ chồng':'✗ rời'}</span>` +
+      `<span class="pill ${hit?'ok':'no'}">x AND y → ${hit?'✓ CHẠM':'✗ không'}</span>`;
+
+    document.getElementById('aabbReadout').innerHTML =
+      stat('A [min,max]', `[${ra.minX|0},${ra.minY|0}]→[${ra.maxX|0},${ra.maxY|0}]`) +
+      stat('B [min,max]', `[${rb.minX|0},${rb.minY|0}]→[${rb.maxX|0},${rb.maxY|0}]`) +
+      `<div class="stat"><div class="k">Kết luận</div>
+        <span class="verdict ${hit?'hit':'miss'}">${hit?'CHẠM':'KHÔNG CHẠM'}</span></div>`;
+  }
+
+  function drawBox(b, stroke, fill, label) {
+    ctx.fillStyle = fill; ctx.fillRect(b.x, b.y, b.w, b.h);
+    ctx.strokeStyle = stroke; ctx.lineWidth = 2.5;
+    ctx.strokeRect(b.x, b.y, b.w, b.h);
+    ctx.fillStyle = stroke; ctx.font = 'bold 18px sans-serif';
+    ctx.fillText(label, b.x + 8, b.y + 22);
+  }
+
+  function hitTest(p) {
+    for (const k of ['B', 'A']) { // B trên A → ưu tiên B
+      const b = boxes[k];
+      if (p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h)
+        return { key: k, ox: p.x - b.x, oy: p.y - b.y };
+    }
+    return null;
+  }
+
+  function start(ev) {
+    const p = canvasPos(cv, ev);
+    drag = hitTest(p);
+    if (drag) { cv.classList.add('grabbing'); ev.preventDefault(); }
+  }
+  function move(ev) {
+    if (!drag) return;
+    const p = canvasPos(cv, ev);
+    const b = boxes[drag.key];
+    b.x = clamp(p.x - drag.ox, 0, W - b.w);
+    b.y = clamp(p.y - drag.oy, 0, H - b.h);
+    draw(); ev.preventDefault();
+  }
+  function end() { drag = null; cv.classList.remove('grabbing'); }
+
+  cv.addEventListener('mousedown', start);
+  window.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', end);
+  cv.addEventListener('touchstart', start, { passive: false });
+  cv.addEventListener('touchmove', move, { passive: false });
+  cv.addEventListener('touchend', end);
+  document.getElementById('aabbReset').onclick = () => {
+    boxes = { A: { ...DEF_A }, B: { ...DEF_B } }; draw();
+  };
+  draw();
+})();
+
+function stat(k, v) {
+  return `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 2 — Circle tester
+// ════════════════════════════════════════════════════════════════════════════
+(function () {
+  const cv = document.getElementById('circCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+
+  let A = { x: 210, y: 160, r: 50 };
+  let B = { x: 430, y: 170, r: 40 };
+  let drag = null;
+  const r1 = document.getElementById('r1'), r2 = document.getElementById('r2');
+
+  function draw() {
+    A.r = +r1.value; B.r = +r2.value;
+    document.getElementById('r1Val').textContent = A.r;
+    document.getElementById('r2Val').textContent = B.r;
+
+    ctx.clearRect(0, 0, W, H);
+    const dx = B.x - A.x, dy = B.y - A.y;
+    const distSq = dx*dx + dy*dy;
+    const dist = Math.sqrt(distSq);
+    const rSum = A.r + B.r;
+    const hit = distSq < rSum*rSum;
+
+    // đường nối tâm
+    ctx.strokeStyle = hit ? '#be123c' : '#94a3b8';
+    ctx.lineWidth = 2; ctx.setLineDash([6, 5]);
+    ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.stroke();
+    ctx.setLineDash([]);
+
+    drawCircle(A, hit ? '#be123c' : '#e11d48', 'rgba(225,29,72,0.14)', 'A');
+    drawCircle(B, hit ? '#1d4ed8' : '#2563eb', 'rgba(37,99,235,0.14)', 'B');
+
+    // nhãn khoảng cách giữa đường nối
+    ctx.fillStyle = '#334155'; ctx.font = 'bold 13px monospace';
+    ctx.fillText('dist=' + dist.toFixed(1), (A.x+B.x)/2 - 24, (A.y+B.y)/2 - 8);
+
+    document.getElementById('circReadout').innerHTML =
+      stat('dx² + dy²', `${distSq.toFixed(0)}`) +
+      stat('(r₁+r₂)²', `${(rSum*rSum).toFixed(0)}`) +
+      stat('dist (thật)', `${dist.toFixed(1)}  vs  ${rSum}`) +
+      `<div class="stat"><div class="k">distSq &lt; rSum²</div>
+        <span class="verdict ${hit?'hit':'miss'}">${hit?'CHẠM':'KHÔNG CHẠM'}</span></div>`;
+  }
+
+  function drawCircle(c, stroke, fill, label) {
+    ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, Math.PI*2);
+    ctx.fillStyle = fill; ctx.fill();
+    ctx.strokeStyle = stroke; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.fillStyle = stroke; ctx.font = 'bold 18px sans-serif';
+    ctx.fillText(label, c.x - 6, c.y + 6);
+  }
+
+  function start(ev) {
+    const p = canvasPos(cv, ev);
+    for (const [k, c] of [['B', B], ['A', A]]) {
+      const dx = p.x - c.x, dy = p.y - c.y;
+      if (dx*dx + dy*dy <= c.r*c.r) { drag = k; cv.classList.add('grabbing'); ev.preventDefault(); return; }
+    }
+  }
+  function move(ev) {
+    if (!drag) return;
+    const p = canvasPos(cv, ev);
+    const c = drag === 'A' ? A : B;
+    c.x = clamp(p.x, c.r, W - c.r);
+    c.y = clamp(p.y, c.r, H - c.r);
+    draw(); ev.preventDefault();
+  }
+  function end() { drag = null; cv.classList.remove('grabbing'); }
+
+  cv.addEventListener('mousedown', start);
+  window.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', end);
+  cv.addEventListener('touchstart', start, { passive: false });
+  cv.addEventListener('touchmove', move, { passive: false });
+  cv.addEventListener('touchend', end);
+  r1.oninput = draw; r2.oninput = draw;
+  draw();
+})();
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODULE 3 — Many bodies bouncing, highlight colliding pairs
+// ════════════════════════════════════════════════════════════════════════════
+(function () {
+  const cv = document.getElementById('manyCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const nSlider = document.getElementById('nBodies');
+  const pauseBtn = document.getElementById('pauseBtn');
+  let bodies = [], paused = false;
+
+  function spawn(n) {
+    bodies = [];
+    for (let i = 0; i < n; i++) {
+      const isCircle = Math.random() < 0.5;
+      const sz = 18 + Math.random() * 26;
+      const b = {
+        circle: isCircle,
+        x: 40 + Math.random() * (W - 80),
+        y: 40 + Math.random() * (H - 80),
+        vx: (Math.random() - 0.5) * 3.2,
+        vy: (Math.random() - 0.5) * 3.2,
+        r: sz,             // dùng khi circle
+        hw: sz, hh: sz,    // half-width/height khi box
+        hot: false,
+      };
+      bodies.push(b);
+    }
+  }
+
+  function boxRect(b) {
+    return { minX: b.x - b.hw, minY: b.y - b.hh, maxX: b.x + b.hw, maxY: b.y + b.hh };
+  }
+
+  function step() {
+    for (const b of bodies) {
+      b.x += b.vx; b.y += b.vy;
+      const ext = b.circle ? b.r : b.hw;
+      const eyt = b.circle ? b.r : b.hh;
+      if (b.x < ext) { b.x = ext; b.vx *= -1; }
+      if (b.x > W - ext) { b.x = W - ext; b.vx *= -1; }
+      if (b.y < eyt) { b.y = eyt; b.vy *= -1; }
+      if (b.y > H - eyt) { b.y = H - eyt; b.vy *= -1; }
+      b.hot = false;
+    }
+  }
+
+  function pairTest(a, b) {
+    if (a.circle && b.circle) return circleOverlap(a, b);
+    if (!a.circle && !b.circle) return aabbOverlap(boxRect(a), boxRect(b));
+    const c = a.circle ? a : b;
+    const r = a.circle ? boxRect(b) : boxRect(a);
+    return circleAABBOverlap(c, r);
+  }
+
+  function draw() {
+    // narrow-phase: test mọi cặp
+    let pairs = 0, colliding = 0;
+    const hotLinks = [];
+    for (let i = 0; i < bodies.length; i++)
+      for (let j = i + 1; j < bodies.length; j++) {
+        pairs++;
+        if (pairTest(bodies[i], bodies[j])) {
+          bodies[i].hot = bodies[j].hot = true;
+          colliding++;
+          hotLinks.push([bodies[i], bodies[j]]);
+        }
+      }
+
+    ctx.clearRect(0, 0, W, H);
+    // đường nối các cặp chạm
+    ctx.strokeStyle = 'rgba(225,29,72,0.5)'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+    for (const [a, b] of hotLinks) {
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    for (const b of bodies) {
+      const stroke = b.hot ? '#be123c' : (b.circle ? '#0ea5e9' : '#7c3aed');
+      const fill = b.hot ? 'rgba(225,29,72,0.30)'
+                         : (b.circle ? 'rgba(14,165,233,0.16)' : 'rgba(124,58,237,0.16)');
+      ctx.fillStyle = fill; ctx.strokeStyle = stroke; ctx.lineWidth = 2;
+      if (b.circle) {
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+      } else {
+        ctx.fillRect(b.x - b.hw, b.y - b.hh, b.hw*2, b.hh*2);
+        ctx.strokeRect(b.x - b.hw, b.y - b.hh, b.hw*2, b.hh*2);
+      }
+    }
+
+    document.getElementById('manyReadout').innerHTML =
+      stat('N vật', bodies.length) +
+      stat('Số cặp test (N²/2)', pairs) +
+      stat('Cặp đang chạm', colliding);
+  }
+
+  function frame() {
+    if (!paused) step();
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  nSlider.oninput = () => {
+    document.getElementById('nVal').textContent = nSlider.value;
+    spawn(+nSlider.value);
+  };
+  pauseBtn.onclick = () => {
+    paused = !paused;
+    pauseBtn.textContent = paused ? '▶ Chạy tiếp' : '⏸ Tạm dừng';
+  };
+  document.getElementById('reseedBtn').onclick = () => spawn(+nSlider.value);
+
+  document.getElementById('nVal').textContent = nSlider.value;
+  spawn(+nSlider.value);
+  requestAnimationFrame(frame);
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

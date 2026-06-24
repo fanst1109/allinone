@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08 — Broad-phase & Quadtree Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #be123c; }
+  h2 {
+    color: #e11d48; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #fecdd3;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { color: #6b7280; font-size: 13px; margin: 4px 0 12px; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #4b5563; }
+  code {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: #fff1f2; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #be123c;
+  }
+  button {
+    background: #e11d48; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #be123c; }
+  button.ghost { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+  button.ghost:hover { background: #fecdd3; }
+  input[type=range] { accent-color: #e11d48; max-width: 100%; }
+  canvas {
+    background: #fff; border: 1px solid #fecdd3; border-radius: 8px;
+    display: block; width: 100%;
+  }
+  .readout {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px;
+  }
+  .stat {
+    background: #fff1f2; border: 1px solid #fecdd3; border-radius: 8px;
+    padding: 10px 14px; min-width: 0; flex: 1 1 140px;
+  }
+  .stat .k { font-size: 12px; color: #9f1239; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-size: 22px; font-weight: 800; color: #be123c; font-family: "SF Mono", Monaco, monospace; }
+  .stat .sub { font-size: 12px; color: #6b7280; }
+  .legend { font-size: 13px; color: #6b7280; margin-top: 8px; }
+  .legend .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: middle; margin: 0 4px 0 10px; }
+  table.cmp { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  table.cmp th, table.cmp td { border: 1px solid #fecdd3; padding: 6px 10px; text-align: center; }
+  table.cmp th { background: #fff1f2; color: #9f1239; }
+  table.cmp td.n2 { color: #be123c; font-weight: 700; }
+  table.cmp td.bp { color: #15803d; font-weight: 700; }
+  .controls-grid { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-end; }
+  .controls-grid > div { flex: 1 1 160px; min-width: 0; }
+  @media (max-width: 480px) {
+    .stat { flex: 1 1 100%; }
+    .controls-grid > div { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-aabb-circle/visualization.html">← L06: AABB & Circle</a>
+  <span class="sep">·</span>
+  <span class="current">L08: Broad-phase & Quadtree</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-collision-response-impulse/visualization.html">L09: Collision Response (Impulse) →</a>
+</nav>
+
+<main>
+  <h1>Lesson 08 — Broad-phase &amp; Quadtree</h1>
+  <p>Vì sao so mọi cặp ($n^2$) là không chịu nổi, và làm sao grid / quadtree cắt số cặp xuống.
+  Ba module: <strong>(1)</strong> quadtree động — vật bay, ô tự chia/gộp theo mật độ;
+  <strong>(2)</strong> spatial grid — tô ô có vật + cặp cùng ô; <strong>(3)</strong> đồ thị số phép so sánh theo N.</p>
+
+  <!-- ───────────────────────── Module 1: Quadtree động ───────────────────────── -->
+  <h2>1. Quadtree động — vật bay, ô tự chia theo mật độ</h2>
+  <p class="hint">
+    N vật bay tự do (nảy tường). Mỗi frame quadtree dựng lại: node chứa quá <code>capacity</code> vật thì
+    chia làm 4. Đường kẻ mảnh = biên ô quadtree. Bên dưới đếm số cặp phải test
+    <em>với</em> broad-phase (chỉ cặp cùng lá + lá kề) so với <em>không</em> (mọi cặp $n^2$).
+  </p>
+  <div class="card">
+    <div class="controls-grid">
+      <div>
+        <label>Số vật N: <span id="qtNVal" class="mono">120</span></label><br>
+        <input type="range" id="qtN" min="10" max="400" value="120" style="width:100%">
+      </div>
+      <div>
+        <label>Capacity / node: <span id="qtCapVal" class="mono">4</span></label><br>
+        <input type="range" id="qtCap" min="1" max="12" value="4" style="width:100%">
+      </div>
+      <div style="flex:0 0 auto;">
+        <button id="qtPause">⏸ Tạm dừng</button>
+        <button id="qtGather" class="ghost">Dồn cụm</button>
+        <button id="qtSpread" class="ghost">Rải đều</button>
+      </div>
+    </div>
+    <canvas id="qtCanvas" width="640" height="420"></canvas>
+    <div class="legend">
+      <span class="sw" style="background:#e11d48"></span>vật ·
+      <span class="sw" style="background:#fda4af"></span>biên ô quadtree ·
+      <span class="sw" style="background:#fde68a"></span>cặp ứng viên (đang test)
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Cặp không broad-phase</div><div class="v" id="qtN2">—</div><div class="sub">= C(N,2), mọi cặp</div></div>
+      <div class="stat"><div class="k">Cặp với broad-phase</div><div class="v" id="qtBP">—</div><div class="sub">cùng lá + lá kề</div></div>
+      <div class="stat"><div class="k">Giảm</div><div class="v" id="qtCut">—</div><div class="sub">ít test hơn</div></div>
+      <div class="stat"><div class="k">Số lá quadtree</div><div class="v" id="qtLeaves">—</div><div class="sub">node lá hiện tại</div></div>
+    </div>
+  </div>
+
+  <!-- ───────────────────────── Module 2: Spatial grid ───────────────────────── -->
+  <h2>2. Spatial grid — tô ô có vật, đếm cặp cùng ô + ô kề</h2>
+  <p class="hint">
+    Lưới ô đều. Ô tô đậm theo số vật trong ô (càng đông càng đậm). Kéo <code>cell size</code> để thấy:
+    ô to → ít ô đông → nhiều cặp; ô nhỏ → nhiều ô thưa → ít cặp (tới khi quá nhỏ thì vật trải nhiều ô).
+    Cặp ứng viên = mọi cặp trong cùng ô và giữa ô kề.
+  </p>
+  <div class="card">
+    <div class="controls-grid">
+      <div>
+        <label>Số vật N: <span id="grNVal" class="mono">80</span></label><br>
+        <input type="range" id="grN" min="5" max="300" value="80" style="width:100%">
+      </div>
+      <div>
+        <label>Cell size: <span id="grCellVal" class="mono">80</span> px</label><br>
+        <input type="range" id="grCell" min="30" max="200" value="80" style="width:100%">
+      </div>
+      <div style="flex:0 0 auto;">
+        <label style="display:inline-flex;align-items:center;gap:6px;">
+          <input type="checkbox" id="grNeighbor" checked> Xét ô kề
+        </label><br>
+        <button id="grReseed" class="ghost" style="margin-top:6px;">Rải lại vật</button>
+      </div>
+    </div>
+    <canvas id="grCanvas" width="640" height="420"></canvas>
+    <div class="legend">
+      <span class="sw" style="background:#fb7185"></span>vật ·
+      <span class="sw" style="background:#fecdd3"></span>ô có ≥2 vật (tô theo mật độ) ·
+      đường lưới = biên ô
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Mọi cặp C(N,2)</div><div class="v" id="grN2">—</div></div>
+      <div class="stat"><div class="k">Cặp ứng viên (grid)</div><div class="v" id="grBP">—</div><div class="sub" id="grMode">cùng ô + ô kề</div></div>
+      <div class="stat"><div class="k">Giảm</div><div class="v" id="grCut">—</div></div>
+      <div class="stat"><div class="k">Số ô có vật</div><div class="v" id="grUsed">—</div></div>
+    </div>
+    <p class="hint" id="grWarn" style="color:#b45309;font-weight:600;display:none;">
+      ⚠ Tắt "xét ô kề" → vật ở hai bên đường kẻ ô bị bỏ sót (false negative). Bật lại để cứu.
+    </p>
+  </div>
+
+  <!-- ───────────────────────── Module 3: Đồ thị n^2 vs broad-phase ───────────────────────── -->
+  <h2>3. Đồ thị: số phép so sánh theo N — $n^2$ vs broad-phase</h2>
+  <p class="hint">
+    Trục ngang = số vật N; trục dọc = số cặp phải test. Đường đỏ = so mọi cặp $C(N,2)\approx N^2/2$ (parabol).
+    Đường xanh = broad-phase $\approx$ tuyến tính ($\sim c\cdot N$). Bảng dưới đối chiếu vài mốc N.
+  </p>
+  <div class="card">
+    <div class="row">
+      <label>N tối đa trên trục: <span id="chMaxVal" class="mono">2000</span></label>
+      <input type="range" id="chMax" min="200" max="5000" step="100" value="2000" style="flex:1;min-width:0;">
+    </div>
+    <canvas id="chCanvas" width="640" height="360"></canvas>
+    <div class="legend">
+      <span class="sw" style="background:#e11d48"></span>$n^2$ (so mọi cặp) ·
+      <span class="sw" style="background:#15803d"></span>broad-phase (≈ tuyến tính)
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="cmp" id="chTable"></table>
+    </div>
+  </div>
+</main>
+
+<script>
+// ════════════════════════ Tiện ích chung ════════════════════════
+function pairs(n){ return n*(n-1)/2; }
+function fmt(x){ return x.toLocaleString('vi-VN'); }
+
+// PRNG có seed để "rải lại" tái lập được
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+
+// ════════════════════════ MODULE 1: Quadtree động ════════════════════════
+(function(){
+  const cv = document.getElementById('qtCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height, R = 5;
+  let N = 120, CAP = 4, paused = false;
+  let parts = [];
+
+  function reseed(mode){
+    const rnd = Math.random;
+    parts = [];
+    for(let i=0;i<N;i++){
+      let x, y;
+      if(mode==='gather'){ // cụm dày quanh tâm
+        x = W/2 + (rnd()-0.5)*W*0.28;
+        y = H/2 + (rnd()-0.5)*H*0.28;
+      } else {
+        x = R + rnd()*(W-2*R);
+        y = R + rnd()*(H-2*R);
+      }
+      const sp = 0.6 + rnd()*1.0;
+      const ang = rnd()*Math.PI*2;
+      parts.push({x, y, vx:Math.cos(ang)*sp, vy:Math.sin(ang)*sp});
+    }
+  }
+
+  // Quadtree
+  function makeNode(x,y,w,h){ return {x,y,w,h,items:[],divided:false,nw:null,ne:null,sw:null,se:null}; }
+  function contains(nd,p){ return p.x>=nd.x && p.x<nd.x+nd.w && p.y>=nd.y && p.y<nd.y+nd.h; }
+  function subdivide(nd){
+    const hw=nd.w/2, hh=nd.h/2;
+    nd.nw=makeNode(nd.x,nd.y,hw,hh);
+    nd.ne=makeNode(nd.x+hw,nd.y,hw,hh);
+    nd.sw=makeNode(nd.x,nd.y+hh,hw,hh);
+    nd.se=makeNode(nd.x+hw,nd.y+hh,hw,hh);
+    nd.divided=true;
+    const old=nd.items; nd.items=[];
+    for(const p of old) insertChild(nd,p);
+  }
+  function insertChild(nd,p){
+    if(insert(nd.nw,p))return true; if(insert(nd.ne,p))return true;
+    if(insert(nd.sw,p))return true; if(insert(nd.se,p))return true; return false;
+  }
+  function insert(nd,p){
+    if(!contains(nd,p)) return false;
+    if(!nd.divided && nd.items.length < CAP){ nd.items.push(p); return true; }
+    if(!nd.divided) subdivide(nd);
+    return insertChild(nd,p);
+  }
+
+  // Gom các lá; với mỗi lá đếm cặp trong lá + cặp với lá kề (giao vùng nở rộng)
+  function collectLeaves(nd, out){
+    if(!nd.divided){ out.push(nd); return; }
+    collectLeaves(nd.nw,out); collectLeaves(nd.ne,out);
+    collectLeaves(nd.sw,out); collectLeaves(nd.se,out);
+  }
+  function rectsOverlap(a,b){ return !(a.x>b.x+b.w || a.x+a.w<b.x || a.y>b.y+b.h || a.y+a.h<b.y); }
+
+  function buildAndCount(){
+    const root = makeNode(0,0,W,H);
+    for(const p of parts) insert(root,p);
+    const leaves=[]; collectLeaves(root,leaves);
+    // cặp ứng viên: cặp các vật mà cell-region của chúng (nở R) giao nhau, đếm 1 lần
+    // Cách thực dụng: với mỗi lá, vật trong lá + vật ở lá kề (boundary nở R) -> cặp id<id.
+    let candidate = 0;
+    const seen = new Set();
+    // gán id
+    parts.forEach((p,i)=>p._id=i);
+    for(let i=0;i<leaves.length;i++){
+      const a=leaves[i];
+      const grown={x:a.x-R, y:a.y-R, w:a.w+2*R, h:a.h+2*R};
+      // ứng viên trong lá
+      const bag = a.items.slice();
+      // thêm vật từ lá khác giao vùng nở
+      for(let j=0;j<leaves.length;j++){
+        if(i===j) continue;
+        if(rectsOverlap(grown, leaves[j])){
+          for(const q of leaves[j].items) bag.push(q);
+        }
+      }
+      for(let u=0;u<bag.length;u++) for(let v=u+1;v<bag.length;v++){
+        const id1=Math.min(bag[u]._id,bag[v]._id), id2=Math.max(bag[u]._id,bag[v]._id);
+        const key=id1*100000+id2;
+        if(!seen.has(key)){ seen.add(key); candidate++; }
+      }
+    }
+    return {root, leaves, candidate};
+  }
+
+  function drawNode(nd){
+    ctx.strokeStyle='#fda4af'; ctx.lineWidth=1;
+    ctx.strokeRect(nd.x+0.5, nd.y+0.5, nd.w, nd.h);
+    if(nd.divided){ drawNode(nd.nw); drawNode(nd.ne); drawNode(nd.sw); drawNode(nd.se); }
+  }
+
+  function frame(){
+    if(!paused){
+      for(const p of parts){
+        p.x+=p.vx; p.y+=p.vy;
+        if(p.x<R){p.x=R;p.vx=-p.vx;} if(p.x>W-R){p.x=W-R;p.vx=-p.vx;}
+        if(p.y<R){p.y=R;p.vy=-p.vy;} if(p.y>H-R){p.y=H-R;p.vy=-p.vy;}
+      }
+    }
+    const {root, leaves, candidate} = buildAndCount();
+    ctx.clearRect(0,0,W,H);
+    drawNode(root);
+    ctx.fillStyle='#e11d48';
+    for(const p of parts){ ctx.beginPath(); ctx.arc(p.x,p.y,R,0,Math.PI*2); ctx.fill(); }
+
+    const n2 = pairs(N);
+    document.getElementById('qtN2').textContent = fmt(n2);
+    document.getElementById('qtBP').textContent = fmt(candidate);
+    const cut = n2>0 ? Math.round((1-candidate/n2)*100) : 0;
+    document.getElementById('qtCut').textContent = (cut>=0?cut:0)+'%';
+    document.getElementById('qtLeaves').textContent = fmt(leaves.length);
+    requestAnimationFrame(frame);
+  }
+
+  document.getElementById('qtN').addEventListener('input', e=>{
+    N=+e.target.value; document.getElementById('qtNVal').textContent=N; reseed('spread');
+  });
+  document.getElementById('qtCap').addEventListener('input', e=>{
+    CAP=+e.target.value; document.getElementById('qtCapVal').textContent=CAP;
+  });
+  document.getElementById('qtPause').addEventListener('click', e=>{
+    paused=!paused; e.target.textContent = paused?'▶ Chạy':'⏸ Tạm dừng';
+  });
+  document.getElementById('qtGather').addEventListener('click', ()=>reseed('gather'));
+  document.getElementById('qtSpread').addEventListener('click', ()=>reseed('spread'));
+
+  reseed('spread');
+  requestAnimationFrame(frame);
+})();
+
+// ════════════════════════ MODULE 2: Spatial grid ════════════════════════
+(function(){
+  const cv = document.getElementById('grCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height, R = 5;
+  let N = 80, CELL = 80, useNeighbor = true, seed = 12345;
+  let parts = [];
+
+  function reseed(){
+    const rnd = mulberry32(seed);
+    parts=[];
+    for(let i=0;i<N;i++){
+      parts.push({ x: R+rnd()*(W-2*R), y: R+rnd()*(H-2*R) });
+    }
+  }
+
+  function compute(){
+    const cols = Math.ceil(W/CELL), rows = Math.ceil(H/CELL);
+    const grid = new Map(); // key "c,r" -> [idx...]
+    parts.forEach((p,i)=>{
+      const c=Math.floor(p.x/CELL), r=Math.floor(p.y/CELL);
+      const k=c+','+r;
+      if(!grid.has(k)) grid.set(k,[]);
+      grid.get(k).push(i);
+    });
+    // đếm cặp ứng viên
+    let candidate=0;
+    const seen=new Set();
+    for(const [k,arr] of grid){
+      const [c,r]=k.split(',').map(Number);
+      // gom vật trong ô + ô kề (nếu bật)
+      let bag = arr.slice();
+      if(useNeighbor){
+        for(let dc=-1;dc<=1;dc++) for(let dr=-1;dr<=1;dr++){
+          if(dc===0&&dr===0) continue;
+          const nk=(c+dc)+','+(r+dr);
+          if(grid.has(nk)) bag=bag.concat(grid.get(nk));
+        }
+      }
+      for(let u=0;u<bag.length;u++) for(let v=u+1;v<bag.length;v++){
+        const a=Math.min(bag[u],bag[v]), b=Math.max(bag[u],bag[v]);
+        const key=a*100000+b;
+        if(!seen.has(key)){ seen.add(key); candidate++; }
+      }
+    }
+    return {cols, rows, grid, candidate};
+  }
+
+  function draw(){
+    const {cols, rows, grid, candidate} = compute();
+    ctx.clearRect(0,0,W,H);
+    // tô ô theo mật độ
+    let maxCount=1, used=0;
+    for(const [,arr] of grid){ if(arr.length>maxCount) maxCount=arr.length; used++; }
+    for(const [k,arr] of grid){
+      if(arr.length<2) continue;
+      const [c,r]=k.split(',').map(Number);
+      const t = (arr.length-1)/Math.max(1,(maxCount-1));
+      ctx.fillStyle = `rgba(253,164,175,${0.25+0.55*t})`;
+      ctx.fillRect(c*CELL, r*CELL, CELL, CELL);
+    }
+    // đường lưới
+    ctx.strokeStyle='#fecdd3'; ctx.lineWidth=1;
+    for(let c=0;c<=cols;c++){ ctx.beginPath(); ctx.moveTo(c*CELL+0.5,0); ctx.lineTo(c*CELL+0.5,H); ctx.stroke(); }
+    for(let r=0;r<=rows;r++){ ctx.beginPath(); ctx.moveTo(0,r*CELL+0.5); ctx.lineTo(W,r*CELL+0.5); ctx.stroke(); }
+    // vật
+    ctx.fillStyle='#fb7185';
+    for(const p of parts){ ctx.beginPath(); ctx.arc(p.x,p.y,R,0,Math.PI*2); ctx.fill(); }
+
+    const n2 = pairs(N);
+    document.getElementById('grN2').textContent = fmt(n2);
+    document.getElementById('grBP').textContent = fmt(candidate);
+    const cut = n2>0 ? Math.round((1-candidate/n2)*100) : 0;
+    document.getElementById('grCut').textContent = (cut>=0?cut:0)+'%';
+    document.getElementById('grUsed').textContent = fmt(used);
+    document.getElementById('grMode').textContent = useNeighbor ? 'cùng ô + ô kề' : 'CHỈ cùng ô';
+    document.getElementById('grWarn').style.display = useNeighbor ? 'none' : 'block';
+  }
+
+  document.getElementById('grN').addEventListener('input', e=>{
+    N=+e.target.value; document.getElementById('grNVal').textContent=N; reseed(); draw();
+  });
+  document.getElementById('grCell').addEventListener('input', e=>{
+    CELL=+e.target.value; document.getElementById('grCellVal').textContent=CELL; draw();
+  });
+  document.getElementById('grNeighbor').addEventListener('change', e=>{ useNeighbor=e.target.checked; draw(); });
+  document.getElementById('grReseed').addEventListener('click', ()=>{ seed=(seed*1103515245+12345)>>>0; reseed(); draw(); });
+
+  reseed(); draw();
+})();
+
+// ════════════════════════ MODULE 3: Đồ thị n^2 vs broad-phase ════════════════════════
+(function(){
+  const cv = document.getElementById('chCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const padL=64, padB=42, padT=18, padR=16;
+  let maxN = 2000;
+  const C_LINEAR = 6; // hệ số ước lượng broad-phase ~ c*N (vài cặp/vật khi phân bố hợp lý)
+
+  function n2(n){ return n*(n-1)/2; }
+  function bp(n){ return C_LINEAR*n; }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const plotW = W-padL-padR, plotH = H-padT-padB;
+    const yMax = n2(maxN); // parabol chạm trần ở N max
+    const X = n => padL + (n/maxN)*plotW;
+    const Y = v => padT + plotH - (v/yMax)*plotH;
+
+    // trục
+    ctx.strokeStyle='#cbd5e0'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,padT+plotH); ctx.lineTo(padL+plotW,padT+plotH); ctx.stroke();
+    ctx.fillStyle='#6b7280'; ctx.font='12px system-ui';
+    ctx.textAlign='center';
+    for(let i=0;i<=4;i++){ const n=maxN*i/4; ctx.fillText(Math.round(n), X(n), padT+plotH+18); }
+    ctx.save(); ctx.translate(16, padT+plotH/2); ctx.rotate(-Math.PI/2); ctx.fillText('số cặp test', 0, 0); ctx.restore();
+    ctx.textAlign='right';
+    for(let i=0;i<=4;i++){ const v=yMax*i/4; ctx.fillText(fmt(Math.round(v)), padL-6, Y(v)+4); }
+    ctx.textAlign='center';
+    ctx.fillText('số vật N', padL+plotW/2, H-6);
+
+    // n^2 (đỏ)
+    ctx.strokeStyle='#e11d48'; ctx.lineWidth=2.5; ctx.beginPath();
+    for(let n=0;n<=maxN;n+=Math.max(1,Math.floor(maxN/200))){ const x=X(n), y=Y(n2(n)); n===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }
+    ctx.stroke();
+    // broad-phase (xanh)
+    ctx.strokeStyle='#15803d'; ctx.lineWidth=2.5; ctx.beginPath();
+    for(let n=0;n<=maxN;n+=Math.max(1,Math.floor(maxN/200))){ const x=X(n), y=Y(bp(n)); n===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }
+    ctx.stroke();
+
+    // nhãn cuối đường
+    ctx.font='bold 12px system-ui'; ctx.textAlign='left';
+    ctx.fillStyle='#e11d48'; ctx.fillText('n²', X(maxN)-26, Y(n2(maxN))+14);
+    ctx.fillStyle='#15803d'; ctx.fillText('broad-phase', X(maxN)-92, Y(bp(maxN))-8);
+
+    // bảng đối chiếu
+    const marks=[100,500,1000,2000,5000].filter(m=>m<=maxN);
+    if(marks[marks.length-1]!==maxN) marks.push(maxN);
+    let html='<tr><th>N</th><th>n² (mọi cặp)</th><th>broad-phase ≈</th><th>giảm</th></tr>';
+    for(const m of marks){
+      const a=n2(m), b=bp(m), cut=Math.round((1-b/a)*100);
+      html+=`<tr><td>${fmt(m)}</td><td class="n2">${fmt(a)}</td><td class="bp">${fmt(b)}</td><td>${cut}%</td></tr>`;
+    }
+    document.getElementById('chTable').innerHTML=html;
+  }
+
+  document.getElementById('chMax').addEventListener('input', e=>{
+    maxN=+e.target.value; document.getElementById('chMaxVal').textContent=fmt(maxN); draw();
+  });
+  draw();
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

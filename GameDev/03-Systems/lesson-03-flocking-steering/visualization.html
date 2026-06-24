@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 13 — Flocking &amp; Steering (Boids) Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #be123c; }
+  h2 {
+    color: #e11d48; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fecdd3;
+  }
+  p.lead { color: #4a5568; }
+  .card {
+    background: white; border-radius: 10px; padding: 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { color: #718096; font-size: 13px; margin: 6px 0; }
+  code {
+    background: #fff1f2; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #be123c;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  canvas {
+    background: #1f2733; border-radius: 8px; display: block;
+    width: 100%; height: auto;
+  }
+
+  /* Controls */
+  .controls { display: flex; flex-wrap: wrap; gap: 18px; margin: 10px 0; }
+  .ctrl { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .ctrl label { font-weight: 600; font-size: 13px; color: #4a5568; }
+  .ctrl .val { color: #e11d48; font-weight: 700; }
+  input[type=range] { width: 100%; max-width: 220px; accent-color: #e11d48; }
+
+  .btnrow { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  button {
+    background: #e11d48; color: white; border: none;
+    padding: 8px 14px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #be123c; }
+  button.preset {
+    background: #ffe4e6; color: #9f1239; font-size: 13px; padding: 6px 12px;
+  }
+  button.preset:hover { background: #fecdd3; }
+  button.mode { background: #ffe4e6; color: #9f1239; }
+  button.mode.active { background: #e11d48; color: white; }
+
+  .stat {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; color: #4a5568; background: #fff1f2;
+    padding: 8px 12px; border-radius: 6px; margin-top: 8px;
+    border-left: 3px solid #e11d48;
+  }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; margin-top: 8px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; color: #4a5568; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+
+  table.f3 {
+    border-collapse: collapse; margin-top: 10px; width: 100%;
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px;
+  }
+  table.f3 th, table.f3 td {
+    border: 1px solid #fecdd3; padding: 6px 10px; text-align: left;
+  }
+  table.f3 th { background: #fff1f2; color: #9f1239; }
+
+  .table-wrap { overflow-x: auto; }
+
+  @media (max-width: 480px) {
+    .controls { gap: 12px; }
+    input[type=range] { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-constraints-cloth-rope/visualization.html">← L12: Constraints (Cloth/Rope)</a>
+  <span class="sep">·</span>
+  <span class="current">L13: Flocking &amp; Steering</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-ecs-architecture/visualization.html">L14: ECS &amp; Architecture →</a>
+</nav>
+<main>
+  <h1>Lesson 13 — Flocking &amp; Steering (Boids)</h1>
+  <p class="lead">Ba module tương tác: (A) đàn boids realtime với slider trọng số &amp; bán kính lân cận;
+    (B) steering Seek / Flee / Arrive theo con trỏ; (C) một boid + lân cận vẽ ba lực thành phần.</p>
+
+  <h2>A. Đàn Boids — emergent behavior</h2>
+  <p class="hint">Hàng trăm boid, mỗi con chỉ theo 3 luật cục bộ. Kéo slider để thấy đàn đổi tính cách:
+    bầy chặt, tản, hay "dòng chảy". Bấm vào canvas để thả thêm.</p>
+  <div class="card">
+    <div class="controls">
+      <div class="ctrl">
+        <label>Separation: <span class="val" id="sepVal">1.5</span></label>
+        <input type="range" id="sepSld" min="0" max="3" step="0.1" value="1.5">
+      </div>
+      <div class="ctrl">
+        <label>Alignment: <span class="val" id="aliVal">1.0</span></label>
+        <input type="range" id="aliSld" min="0" max="3" step="0.1" value="1.0">
+      </div>
+      <div class="ctrl">
+        <label>Cohesion: <span class="val" id="cohVal">1.0</span></label>
+        <input type="range" id="cohSld" min="0" max="3" step="0.1" value="1.0">
+      </div>
+      <div class="ctrl">
+        <label>Bán kính lân cận: <span class="val" id="radVal">55</span> px</label>
+        <input type="range" id="radSld" min="20" max="120" step="5" value="55">
+      </div>
+      <div class="ctrl">
+        <label>Số boid: <span class="val" id="numVal">160</span></label>
+        <input type="range" id="numSld" min="20" max="400" step="20" value="160">
+      </div>
+    </div>
+    <div class="btnrow">
+      <button class="preset" data-p="1.5,1,1">Cân bằng</button>
+      <button class="preset" data-p="2.5,1,0.6">Đàn lỏng</button>
+      <button class="preset" data-p="0.8,1,2.5">Bầy chặt</button>
+      <button class="preset" data-p="0.4,2,0.3">Dòng chảy</button>
+      <button id="pauseA">⏸ Tạm dừng</button>
+    </div>
+    <canvas id="cnvA" width="900" height="460"></canvas>
+    <div class="legend">
+      <span><span class="swatch" style="background:#fda4af"></span>boid (mũi = hướng bay)</span>
+      <span><span class="swatch" style="background:#38bdf8"></span>vùng lân cận của boid được tô sáng</span>
+    </div>
+    <div class="stat" id="statA"></div>
+  </div>
+
+  <h2>B. Steering: Seek / Flee / Arrive</h2>
+  <p class="hint">Di chuyển con trỏ trên canvas — nó là đích. Mũi tên vẽ <strong>vận tốc hiện tại</strong> (hồng)
+    và <strong>lực lái</strong> (vàng). Đổi chế độ để so sánh.</p>
+  <div class="card">
+    <div class="btnrow">
+      <button class="mode active" data-mode="seek">Seek (đuổi đích)</button>
+      <button class="mode" data-mode="flee">Flee (trốn)</button>
+      <button class="mode" data-mode="arrive">Arrive (dừng êm)</button>
+    </div>
+    <div class="controls">
+      <div class="ctrl">
+        <label>maxSpeed: <span class="val" id="msVal">4.0</span></label>
+        <input type="range" id="msSld" min="1" max="8" step="0.5" value="4">
+      </div>
+      <div class="ctrl">
+        <label>maxForce: <span class="val" id="mfVal">0.3</span></label>
+        <input type="range" id="mfSld" min="0.05" max="2" step="0.05" value="0.3">
+      </div>
+      <div class="ctrl" id="srCtrl">
+        <label>slowing radius: <span class="val" id="srVal">120</span> px</label>
+        <input type="range" id="srSld" min="40" max="260" step="10" value="120">
+      </div>
+    </div>
+    <canvas id="cnvB" width="900" height="380"></canvas>
+    <div class="legend">
+      <span><span class="swatch" style="background:#fb7185"></span>velocity hiện tại</span>
+      <span><span class="swatch" style="background:#fbbf24"></span>lực lái (steering)</span>
+      <span><span class="swatch" style="background:#a3e635"></span>đích / con trỏ</span>
+    </div>
+    <div class="stat" id="statB"></div>
+  </div>
+
+  <h2>C. Ba lực thành phần của một boid</h2>
+  <p class="hint">Cấu hình giống walk-through §3.4 trong README. Kéo trọng số để thấy mỗi mũi tên dài/ngắn ra
+    và lực tổng (trắng) xoay theo. Kéo các chấm lân cận để đổi bố cục.</p>
+  <div class="card">
+    <div class="controls">
+      <div class="ctrl">
+        <label>w·Separation: <span class="val" id="wSepVal">1.0</span></label>
+        <input type="range" id="wSepSld" min="0" max="3" step="0.1" value="1">
+      </div>
+      <div class="ctrl">
+        <label>w·Alignment: <span class="val" id="wAliVal">1.0</span></label>
+        <input type="range" id="wAliSld" min="0" max="3" step="0.1" value="1">
+      </div>
+      <div class="ctrl">
+        <label>w·Cohesion: <span class="val" id="wCohVal">1.0</span></label>
+        <input type="range" id="wCohSld" min="0" max="3" step="0.1" value="1">
+      </div>
+    </div>
+    <div class="btnrow">
+      <button id="resetC" class="preset">↺ Reset bố cục (giống §3.4)</button>
+    </div>
+    <svg id="svgC" width="900" height="420" viewBox="0 0 900 420"></svg>
+    <div class="legend">
+      <span><span class="swatch" style="background:#f43f5e"></span>Separation</span>
+      <span><span class="swatch" style="background:#38bdf8"></span>Alignment</span>
+      <span><span class="swatch" style="background:#a78bfa"></span>Cohesion</span>
+      <span><span class="swatch" style="background:#e2e8f0"></span>lực tổng F</span>
+      <span><span class="swatch" style="background:#fda4af"></span>boid A · <span class="swatch" style="background:#94a3b8"></span>lân cận</span>
+    </div>
+    <div class="table-wrap">
+      <table class="f3" id="tblC"></table>
+    </div>
+  </div>
+</main>
+
+<script>
+// ───────────────────────── helpers vector ─────────────────────────
+const V = {
+  add:(a,b)=>({x:a.x+b.x,y:a.y+b.y}),
+  sub:(a,b)=>({x:a.x-b.x,y:a.y-b.y}),
+  mul:(a,s)=>({x:a.x*s,y:a.y*s}),
+  mag:a=>Math.hypot(a.x,a.y),
+  norm:a=>{const m=Math.hypot(a.x,a.y); return m>1e-9?{x:a.x/m,y:a.y/m}:{x:0,y:0};},
+  limit:(a,max)=>{const m=Math.hypot(a.x,a.y); return m>max?{x:a.x*max/m,y:a.y*max/m}:{x:a.x,y:a.y};},
+  dist:(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),
+};
+function drawArrow(ctx, x0, y0, x1, y1, color, w){
+  ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=w||2;
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+  const a=Math.atan2(y1-y0,x1-x0), h=8;
+  ctx.beginPath();
+  ctx.moveTo(x1,y1);
+  ctx.lineTo(x1-h*Math.cos(a-0.4), y1-h*Math.sin(a-0.4));
+  ctx.lineTo(x1-h*Math.cos(a+0.4), y1-h*Math.sin(a+0.4));
+  ctx.closePath(); ctx.fill();
+}
+
+// ───────────────────────── MODULE A: flock ─────────────────────────
+const cnvA = document.getElementById('cnvA'), ctxA = cnvA.getContext('2d');
+const WA = cnvA.width, HA = cnvA.height;
+let boids = [];
+let weights = {sep:1.5, ali:1.0, coh:1.0};
+let percR = 55, targetN = 160, runningA = true;
+const MAXSPD_A = 3.0, MAXF_A = 0.06;
+
+function mkBoid(){
+  const a = Math.random()*Math.PI*2;
+  return { pos:{x:Math.random()*WA, y:Math.random()*HA},
+           vel:{x:Math.cos(a)*MAXSPD_A, y:Math.sin(a)*MAXSPD_A} };
+}
+function initBoids(n){ boids=[]; for(let i=0;i<n;i++) boids.push(mkBoid()); }
+initBoids(targetN);
+
+// spatial grid để khỏi O(n^2)
+function buildGrid(cell){
+  const grid = new Map();
+  const key = (cx,cy)=>cx+','+cy;
+  for(let i=0;i<boids.length;i++){
+    const b=boids[i];
+    const cx=Math.floor(b.pos.x/cell), cy=Math.floor(b.pos.y/cell);
+    const k=key(cx,cy);
+    if(!grid.has(k)) grid.set(k,[]);
+    grid.get(k).push(i);
+  }
+  return {grid,cell,key};
+}
+function neighbors(i, g){
+  const b=boids[i];
+  const cx=Math.floor(b.pos.x/g.cell), cy=Math.floor(b.pos.y/g.cell);
+  const out=[];
+  for(let dx=-1;dx<=1;dx++) for(let dy=-1;dy<=1;dy++){
+    const arr=g.grid.get(g.key(cx+dx,cy+dy));
+    if(!arr) continue;
+    for(const j of arr){
+      if(j===i) continue;
+      if(V.dist(b.pos,boids[j].pos)<=percR) out.push(j);
+    }
+  }
+  return out;
+}
+
+function stepA(){
+  const g = buildGrid(percR);
+  const acc = boids.map(()=>({x:0,y:0}));
+  for(let i=0;i<boids.length;i++){
+    const b=boids[i], nb=neighbors(i,g);
+    let sep={x:0,y:0}, ali={x:0,y:0}, coh={x:0,y:0};
+    if(nb.length){
+      let center={x:0,y:0}, avgV={x:0,y:0};
+      for(const j of nb){
+        const o=boids[j];
+        const diff=V.sub(b.pos,o.pos);
+        const d=Math.max(V.mag(diff),0.01);
+        sep=V.add(sep, V.mul(diff, 1/(d*d)));   // càng gần đẩy càng mạnh (1/d^2)
+        avgV=V.add(avgV,o.vel);
+        center=V.add(center,o.pos);
+      }
+      // separation: chuẩn hoá → desired → steering
+      if(V.mag(sep)>0){ sep=V.sub(V.mul(V.norm(sep),MAXSPD_A),b.vel); sep=V.limit(sep,MAXF_A); }
+      // alignment
+      avgV=V.mul(avgV,1/nb.length);
+      ali=V.limit(V.sub(V.mul(V.norm(avgV),MAXSPD_A),b.vel),MAXF_A);
+      // cohesion (seek center)
+      center=V.mul(center,1/nb.length);
+      let des=V.sub(center,b.pos);
+      if(V.mag(des)>0){ des=V.mul(V.norm(des),MAXSPD_A); coh=V.limit(V.sub(des,b.vel),MAXF_A); }
+    }
+    let f=V.add(V.add(V.mul(sep,weights.sep), V.mul(ali,weights.ali)), V.mul(coh,weights.coh));
+    acc[i]=f;
+  }
+  for(let i=0;i<boids.length;i++){
+    const b=boids[i];
+    b.vel=V.limit(V.add(b.vel,acc[i]),MAXSPD_A);
+    b.pos=V.add(b.pos,b.vel);
+    // wrap quanh mép
+    if(b.pos.x<0)b.pos.x+=WA; if(b.pos.x>WA)b.pos.x-=WA;
+    if(b.pos.y<0)b.pos.y+=HA; if(b.pos.y>HA)b.pos.y-=HA;
+  }
+}
+function drawA(){
+  ctxA.clearRect(0,0,WA,HA);
+  ctxA.fillStyle='#1f2733'; ctxA.fillRect(0,0,WA,HA);
+  // tô vùng lân cận của boid[0]
+  if(boids.length){
+    const b0=boids[0];
+    ctxA.beginPath(); ctxA.arc(b0.pos.x,b0.pos.y,percR,0,Math.PI*2);
+    ctxA.fillStyle='rgba(56,189,248,0.10)'; ctxA.fill();
+    ctxA.strokeStyle='rgba(56,189,248,0.5)'; ctxA.lineWidth=1; ctxA.stroke();
+  }
+  for(let i=0;i<boids.length;i++){
+    const b=boids[i], a=Math.atan2(b.vel.y,b.vel.x);
+    ctxA.save();
+    ctxA.translate(b.pos.x,b.pos.y); ctxA.rotate(a);
+    ctxA.fillStyle = i===0 ? '#fb7185' : '#fda4af';
+    ctxA.beginPath();
+    ctxA.moveTo(7,0); ctxA.lineTo(-5,4); ctxA.lineTo(-5,-4);
+    ctxA.closePath(); ctxA.fill();
+    ctxA.restore();
+  }
+}
+function loopA(){
+  if(runningA){ stepA(); }
+  drawA();
+  const pairsNaive = (boids.length*(boids.length-1))/2;
+  document.getElementById('statA').textContent =
+    `n = ${boids.length} boid · w(sep,ali,coh)=(${weights.sep.toFixed(1)}, ${weights.ali.toFixed(1)}, ${weights.coh.toFixed(1)}) · `+
+    `bán kính lân cận = ${percR}px · cặp nếu O(n²) ≈ ${pairsNaive.toLocaleString('vi')} (grid giảm xuống ~O(n))`;
+  requestAnimationFrame(loopA);
+}
+// controls A
+const bind=(id,fn)=>{const e=document.getElementById(id); e.addEventListener('input',()=>fn(e.value));};
+bind('sepSld',v=>{weights.sep=+v; sepVal.textContent=(+v).toFixed(1);});
+bind('aliSld',v=>{weights.ali=+v; aliVal.textContent=(+v).toFixed(1);});
+bind('cohSld',v=>{weights.coh=+v; cohVal.textContent=(+v).toFixed(1);});
+bind('radSld',v=>{percR=+v; radVal.textContent=v;});
+bind('numSld',v=>{targetN=+v; numVal.textContent=v; initBoids(targetN);});
+document.querySelectorAll('#cnvA ~ * .preset, .btnrow .preset[data-p]').forEach(()=>{});
+document.querySelectorAll('button.preset[data-p]').forEach(btn=>{
+  btn.onclick=()=>{
+    const [s,a,c]=btn.dataset.p.split(',').map(Number);
+    weights={sep:s,ali:a,coh:c};
+    sepSld.value=s; aliSld.value=a; cohSld.value=c;
+    sepVal.textContent=s.toFixed(1); aliVal.textContent=a.toFixed(1); cohVal.textContent=c.toFixed(1);
+  };
+});
+document.getElementById('pauseA').onclick=function(){ runningA=!runningA; this.textContent=runningA?'⏸ Tạm dừng':'▶ Chạy tiếp'; };
+cnvA.addEventListener('click',e=>{
+  const r=cnvA.getBoundingClientRect();
+  const x=(e.clientX-r.left)*WA/r.width, y=(e.clientY-r.top)*HA/r.height;
+  const a=Math.random()*Math.PI*2;
+  boids.push({pos:{x,y},vel:{x:Math.cos(a)*MAXSPD_A,y:Math.sin(a)*MAXSPD_A}});
+});
+loopA();
+
+// ───────────────────────── MODULE B: steering ─────────────────────────
+const cnvB=document.getElementById('cnvB'), ctxB=cnvB.getContext('2d');
+const WB=cnvB.width, HB=cnvB.height;
+let modeB='seek';
+let agentB={pos:{x:WB/2,y:HB/2},vel:{x:2,y:0}};
+let target={x:WB*0.75,y:HB*0.4};
+let msB=4, mfB=0.3, srB=120;
+
+function steerB(){
+  let des;
+  const toT=V.sub(target,agentB.pos), d=V.mag(toT);
+  if(modeB==='seek'){
+    des=V.mul(V.norm(toT),msB);
+  } else if(modeB==='flee'){
+    des=V.mul(V.norm(V.sub(agentB.pos,target)),msB);
+  } else { // arrive
+    let spd=msB;
+    if(d<srB) spd=msB*(d/srB);
+    des=V.mul(V.norm(toT),spd);
+  }
+  let steer=V.limit(V.sub(des,agentB.vel),mfB);
+  agentB.vel=V.limit(V.add(agentB.vel,steer),msB);
+  agentB.pos=V.add(agentB.pos,agentB.vel);
+  if(agentB.pos.x<0)agentB.pos.x+=WB; if(agentB.pos.x>WB)agentB.pos.x-=WB;
+  if(agentB.pos.y<0)agentB.pos.y+=HB; if(agentB.pos.y>HB)agentB.pos.y-=HB;
+  return {des,steer,d};
+}
+function drawB(){
+  const s=steerB();
+  ctxB.clearRect(0,0,WB,HB); ctxB.fillStyle='#1f2733'; ctxB.fillRect(0,0,WB,HB);
+  // arrive slowing radius
+  if(modeB==='arrive'){
+    ctxB.beginPath(); ctxB.arc(target.x,target.y,srB,0,Math.PI*2);
+    ctxB.strokeStyle='rgba(163,230,53,0.4)'; ctxB.setLineDash([6,5]); ctxB.lineWidth=1.5; ctxB.stroke(); ctxB.setLineDash([]);
+  }
+  // target
+  ctxB.fillStyle='#a3e635'; ctxB.beginPath(); ctxB.arc(target.x,target.y,8,0,Math.PI*2); ctxB.fill();
+  // agent triangle
+  const a=Math.atan2(agentB.vel.y,agentB.vel.x);
+  ctxB.save(); ctxB.translate(agentB.pos.x,agentB.pos.y); ctxB.rotate(a);
+  ctxB.fillStyle='#fda4af'; ctxB.beginPath(); ctxB.moveTo(14,0); ctxB.lineTo(-9,8); ctxB.lineTo(-9,-8); ctxB.closePath(); ctxB.fill();
+  ctxB.restore();
+  // velocity arrow (scale x12)
+  drawArrow(ctxB,agentB.pos.x,agentB.pos.y, agentB.pos.x+agentB.vel.x*12, agentB.pos.y+agentB.vel.y*12,'#fb7185',3);
+  // steering arrow (scale x60 để nhìn được)
+  drawArrow(ctxB,agentB.pos.x,agentB.pos.y, agentB.pos.x+s.steer.x*60, agentB.pos.y+s.steer.y*60,'#fbbf24',3);
+  document.getElementById('statB').textContent =
+    `chế độ = ${modeB.toUpperCase()} · maxSpeed=${msB} maxForce=${mfB.toFixed(2)} · `+
+    `|velocity|=${V.mag(agentB.vel).toFixed(2)} · |steering|=${V.mag(s.steer).toFixed(3)} (kẹp ≤ ${mfB.toFixed(2)}) · `+
+    `khoảng cách tới đích=${s.d.toFixed(0)}px`;
+  requestAnimationFrame(drawB);
+}
+function setTargetB(e){
+  const r=cnvB.getBoundingClientRect();
+  target.x=(e.clientX-r.left)*WB/r.width;
+  target.y=(e.clientY-r.top)*HB/r.height;
+}
+cnvB.addEventListener('mousemove',setTargetB);
+cnvB.addEventListener('touchmove',e=>{e.preventDefault(); setTargetB(e.touches[0]);},{passive:false});
+document.querySelectorAll('button.mode').forEach(btn=>{
+  btn.onclick=()=>{
+    modeB=btn.dataset.mode;
+    document.querySelectorAll('button.mode').forEach(b=>b.classList.toggle('active',b===btn));
+    document.getElementById('srCtrl').style.display = modeB==='arrive'?'':'none';
+  };
+});
+document.getElementById('srCtrl').style.display='none';
+bind('msSld',v=>{msB=+v; msVal.textContent=(+v).toFixed(1);});
+bind('mfSld',v=>{mfB=+v; mfVal.textContent=(+v).toFixed(2);});
+bind('srSld',v=>{srB=+v; srVal.textContent=v;});
+drawB();
+
+// ───────────────────────── MODULE C: 3 forces SVG ─────────────────────────
+const svgC=document.getElementById('svgC');
+const SC=42; // scale world→svg
+const originC={x:430,y:210};
+// cấu hình mặc định khớp §3.4: A=(0,0) v=(2,0); B=(2,0)v=(1,1); C=(0,3)v=(0,2); D=(-4,0)v=(3,0)
+const defaultC=()=>({
+  A:{pos:{x:0,y:0}, vel:{x:2,y:0}},
+  nb:[ {pos:{x:2,y:0}, vel:{x:1,y:1}, name:'B'},
+       {pos:{x:0,y:3}, vel:{x:0,y:2}, name:'C'},
+       {pos:{x:-4,y:0},vel:{x:3,y:0}, name:'D'} ]
+});
+let dataC=defaultC();
+const MAXSPD_C=4, MAXF_C=1;
+// world→svg (y lật vì SVG y hướng xuống)
+const wx=x=>originC.x + x*SC, wy=y=>originC.y - y*SC;
+
+function computeC(){
+  const A=dataC.A, nb=dataC.nb;
+  let sep={x:0,y:0}, avgV={x:0,y:0}, center={x:0,y:0};
+  for(const o of nb){
+    const diff=V.sub(A.pos,o.pos), d=Math.max(V.mag(diff),0.01);
+    sep=V.add(sep,V.mul(diff,1/d));
+    avgV=V.add(avgV,o.vel); center=V.add(center,o.pos);
+  }
+  // separation
+  let sepF={x:0,y:0};
+  if(V.mag(sep)>0){ sepF=V.limit(V.sub(V.mul(V.norm(sep),MAXSPD_C),A.vel),MAXF_C); }
+  // alignment: limit(v̄ − v_A, maxForce)  — khớp công thức §3.4 README
+  avgV=V.mul(avgV,1/nb.length);
+  let aliF=V.limit(V.sub(avgV,A.vel),MAXF_C);
+  // cohesion
+  center=V.mul(center,1/nb.length);
+  let des=V.mul(V.norm(V.sub(center,A.pos)),MAXSPD_C);
+  let cohF=V.limit(V.sub(des,A.vel),MAXF_C);
+  return {sepF,aliF,cohF,center};
+}
+function svgArrow(x0,y0,x1,y1,color,w){
+  const a=Math.atan2(y1-y0,x1-x0), h=10;
+  const p1x=x1-h*Math.cos(a-0.4), p1y=y1-h*Math.sin(a-0.4);
+  const p2x=x1-h*Math.cos(a+0.4), p2y=y1-h*Math.sin(a+0.4);
+  return `<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="${color}" stroke-width="${w}"/>`+
+         `<polygon points="${x1},${y1} ${p1x},${p1y} ${p2x},${p2y}" fill="${color}"/>`;
+}
+let wC={sep:1,ali:1,coh:1};
+function renderC(){
+  const {sepF,aliF,cohF}=computeC();
+  const A=dataC.A;
+  const ax=wx(A.pos.x), ay=wy(A.pos.y);
+  const FS=70; // scale lực→pixel để nhìn rõ
+  let g='';
+  // grid trục
+  g+=`<line x1="40" y1="${originC.y}" x2="860" y2="${originC.y}" stroke="#334155" stroke-width="1"/>`;
+  g+=`<line x1="${originC.x}" y1="20" x2="${originC.x}" y2="400" stroke="#334155" stroke-width="1"/>`;
+  // lân cận
+  dataC.nb.forEach((o,idx)=>{
+    const ox=wx(o.pos.x), oy=wy(o.pos.y);
+    g+=`<circle class="nbDot" data-idx="${idx}" cx="${ox}" cy="${oy}" r="11" fill="#94a3b8" style="cursor:grab"/>`;
+    g+=`<text x="${ox}" y="${oy+4}" text-anchor="middle" font-size="11" fill="#1f2733" font-weight="700">${o.name}</text>`;
+    // velocity nhỏ của lân cận
+    g+=svgArrow(ox,oy, ox+o.vel.x*14, oy-o.vel.y*14, 'rgba(148,163,184,0.7)',1.5);
+  });
+  // boid A
+  g+=`<circle cx="${ax}" cy="${ay}" r="13" fill="#fda4af"/>`;
+  g+=`<text x="${ax}" y="${ay+4}" text-anchor="middle" font-size="12" fill="#7f1d1d" font-weight="700">A</text>`;
+  g+=svgArrow(ax,ay, ax+A.vel.x*14, ay-A.vel.y*14, '#fecdd3',2); // velocity A
+  // 3 lực (đã nhân trọng số)
+  const sw=V.mul(sepF,wC.sep), aw=V.mul(aliF,wC.ali), cw=V.mul(cohF,wC.coh);
+  g+=svgArrow(ax,ay, ax+sw.x*FS, ay-sw.y*FS, '#f43f5e',3);
+  g+=svgArrow(ax,ay, ax+aw.x*FS, ay-aw.y*FS, '#38bdf8',3);
+  g+=svgArrow(ax,ay, ax+cw.x*FS, ay-cw.y*FS, '#a78bfa',3);
+  // lực tổng
+  const F=V.add(V.add(sw,aw),cw);
+  g+=svgArrow(ax,ay, ax+F.x*FS, ay-F.y*FS, '#e2e8f0',4);
+  svgC.innerHTML=g;
+  bindDrag();
+  // bảng số
+  const row=(n,v,col)=>`<tr><td style="color:${col};font-weight:700">${n}</td>`+
+    `<td>(${v.x.toFixed(3)}, ${v.y.toFixed(3)})</td><td>${V.mag(v).toFixed(3)}</td></tr>`;
+  document.getElementById('tblC').innerHTML=
+    `<tr><th>Lực (đã ×trọng số)</th><th>vector (x, y)</th><th>độ dài</th></tr>`+
+    row('Separation', sw,'#f43f5e')+row('Alignment', aw,'#38bdf8')+row('Cohesion', cw,'#a78bfa')+
+    row('TỔNG F', F,'#475569');
+}
+function bindDrag(){
+  let dragging=null;
+  svgC.querySelectorAll('.nbDot').forEach(dot=>{
+    dot.addEventListener('pointerdown',e=>{ dragging=+dot.dataset.idx; dot.setPointerCapture(e.pointerId); });
+  });
+  svgC.addEventListener('pointermove',e=>{
+    if(dragging===null) return;
+    const r=svgC.getBoundingClientRect();
+    const px=(e.clientX-r.left)*900/r.width, py=(e.clientY-r.top)*420/r.height;
+    dataC.nb[dragging].pos.x=(px-originC.x)/SC;
+    dataC.nb[dragging].pos.y=-(py-originC.y)/SC;
+    renderC();
+  });
+  svgC.addEventListener('pointerup',()=>{dragging=null;});
+  svgC.addEventListener('pointerleave',()=>{dragging=null;});
+}
+bind('wSepSld',v=>{wC.sep=+v; wSepVal.textContent=(+v).toFixed(1); renderC();});
+bind('wAliSld',v=>{wC.ali=+v; wAliVal.textContent=(+v).toFixed(1); renderC();});
+bind('wCohSld',v=>{wC.coh=+v; wCohVal.textContent=(+v).toFixed(1); renderC();});
+document.getElementById('resetC').onclick=()=>{ dataC=defaultC(); renderC(); };
+renderC();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

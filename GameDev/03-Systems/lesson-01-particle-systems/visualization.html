@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 11 — Particle Systems Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #be123c; }
+  h2 {
+    color: #e11d48; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fecdd3;
+  }
+  .card {
+    background: white; border-radius: 10px; padding: 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin: 16px 0;
+    border: 1px solid #fee2e2;
+  }
+  .hint { color: #6b7280; font-size: 13px; margin: 6px 0; }
+  code {
+    background: #fff1f2; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #be123c;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+
+  canvas.sim {
+    width: 100%; max-width: 720px; height: auto;
+    display: block; border-radius: 8px;
+    background: #0b0b12; cursor: crosshair;
+    touch-action: none;
+  }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 14px 22px; margin: 14px 0 6px; }
+  .ctrl { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .ctrl label { font-weight: 600; font-size: 13px; color: #374151; }
+  .ctrl .val { color: #e11d48; font-weight: 700; }
+  .ctrl input[type=range] { width: 100%; max-width: 200px; accent-color: #e11d48; }
+
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 4px; }
+  button.preset {
+    background: #fff1f2; color: #9f1239; border: 1px solid #fecdd3;
+    padding: 7px 14px; border-radius: 20px; font-size: 13px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button.preset.active { background: #e11d48; color: white; border-color: #e11d48; }
+  button.preset:hover { border-color: #e11d48; }
+
+  button.act {
+    background: #e11d48; color: white; border: none;
+    padding: 8px 16px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button.act:hover { background: #be123c; }
+  button.act.ghost { background: #fff1f2; color: #9f1239; border: 1px solid #fecdd3; }
+
+  .stats {
+    display: flex; gap: 18px; flex-wrap: wrap;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px; margin: 10px 0 2px; color: #374151;
+  }
+  .stats b { color: #be123c; }
+
+  /* Lerp module */
+  .lerp-wrap { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+  .lerp-wrap > div { flex: 1 1 300px; min-width: 0; }
+  svg.graph { width: 100%; max-width: 360px; height: auto; display: block; }
+  .agebar { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+  .agebar input { flex: 1; accent-color: #e11d48; }
+  .preview-dot-wrap {
+    background: #0b0b12; border-radius: 8px; height: 130px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .readout {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; color: #374151; margin: 6px 0; line-height: 1.7;
+  }
+  .swatch {
+    display: inline-block; width: 16px; height: 16px; border-radius: 3px;
+    vertical-align: middle; border: 1px solid #cbd5e1;
+  }
+
+  table.demo {
+    border-collapse: collapse; width: 100%; font-size: 13px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  table.demo th, table.demo td {
+    border: 1px solid #fecdd3; padding: 5px 8px; text-align: center;
+  }
+  table.demo th { background: #fff1f2; color: #9f1239; }
+  .tbl-wrap { overflow-x: auto; }
+
+  @media (max-width: 480px) {
+    .controls { gap: 10px 14px; }
+    .ctrl input[type=range] { max-width: 140px; }
+    .lerp-wrap > div { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../02-Collision/lesson-05-friction-resting-stacking/visualization.html">← L10: Friction &amp; Resting</a>
+  <span class="sep">·</span>
+  <span class="current">L11: Particle Systems</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-constraints-cloth-rope/visualization.html">L12: Constraints (Cloth/Rope) →</a>
+</nav>
+
+<main>
+  <h1>Lesson 11 — Particle Systems (khói, lửa, nước)</h1>
+  <p>Ba module tương tác: <strong>Playground</strong> (5 preset, slider rate/gravity/lifetime/spread, click để phun, đếm hạt sống + FPS),
+  <strong>Attractor</strong> (hạt bị hút/đẩy theo chuột), và <strong>Lerp theo tuổi</strong> (size/alpha/màu đổi theo age — đồ thị + hạt mẫu).
+  Tất cả dùng chung một <strong>object pool</strong> để tái dùng hạt.</p>
+
+  <h2>1. Particle Playground</h2>
+  <p class="hint">Chọn preset, chỉnh slider, rồi <strong>click/kéo trên khung</strong> để phun thêm hạt tại con trỏ. Emitter trung tâm cũng tự phun theo rate.</p>
+  <div class="card">
+    <div class="presets" id="presets"></div>
+    <canvas class="sim" id="cv1" width="720" height="380" viewBox="0 0 720 380"></canvas>
+    <div class="controls">
+      <div class="ctrl">
+        <label>Emit rate: <span class="val" id="rateV">200</span> hạt/s</label>
+        <input type="range" id="rate" min="0" max="1200" step="10" value="200">
+      </div>
+      <div class="ctrl">
+        <label>Gravity: <span class="val" id="gravV">120</span> px/s²</label>
+        <input type="range" id="grav" min="-400" max="600" step="10" value="120">
+      </div>
+      <div class="ctrl">
+        <label>Lifetime: <span class="val" id="lifeV">1.4</span> s</label>
+        <input type="range" id="life" min="0.3" max="5" step="0.1" value="1.4">
+      </div>
+      <div class="ctrl">
+        <label>Spread: <span class="val" id="sprV">35</span>°</label>
+        <input type="range" id="spr" min="2" max="180" step="1" value="35">
+      </div>
+    </div>
+    <div class="presets">
+      <button class="act" id="burstBtn">💥 Burst (phun 1 đợt lớn)</button>
+      <button class="act ghost" id="clearBtn">Xóa hết hạt</button>
+    </div>
+    <div class="stats">
+      <span>Hạt sống: <b id="aliveN">0</b> / <span id="poolMax">3000</span></span>
+      <span>FPS: <b id="fps">—</b></span>
+      <span>Phun/frame (acc): <b id="acc">0</b></span>
+    </div>
+  </div>
+
+  <h2>2. Attractor — hạt bị hút/đẩy theo chuột</h2>
+  <p class="hint">Di chuột (hoặc kéo ngón) trên khung: một "nam châm" tại con trỏ <strong>hút</strong> hoặc <strong>đẩy</strong> dòng hạt. Đổi dấu lực để thấy xoáy vào / bắn ra.</p>
+  <div class="card">
+    <canvas class="sim" id="cv2" width="720" height="360" viewBox="0 0 720 360"></canvas>
+    <div class="controls">
+      <div class="ctrl">
+        <label>Độ mạnh G: <span class="val" id="gV">600</span></label>
+        <input type="range" id="g" min="100" max="2000" step="50" value="600">
+      </div>
+      <div class="ctrl" style="justify-content:flex-end;">
+        <button class="preset active" id="modeAttract" data-mode="attract">Hút (G &gt; 0)</button>
+        <button class="preset" id="modeRepel" data-mode="repel">Đẩy (G &lt; 0)</button>
+      </div>
+    </div>
+    <div class="stats"><span>Hạt sống: <b id="aliveN2">0</b></span></div>
+  </div>
+
+  <h2>3. Lerp theo tuổi — size / alpha / màu đổi theo age</h2>
+  <p class="hint">Kéo thanh <strong>tuổi t = Age/Lifetime</strong> từ 0 (mới sinh) tới 1 (chết). Đồ thị vẽ alpha &amp; size theo t; hạt mẫu bên phải đổi đúng theo công thức <code>lerp(a,b,t)=a+(b−a)·t</code>.</p>
+  <div class="card">
+    <div class="agebar">
+      <span style="font-weight:600;">t =</span>
+      <input type="range" id="ageT" min="0" max="1" step="0.01" value="0.25">
+      <span class="val" id="ageTV" style="font-family:monospace;color:#e11d48;font-weight:700;">0.25</span>
+    </div>
+    <div class="lerp-wrap">
+      <div>
+        <svg class="graph" id="lerpGraph" viewBox="0 0 360 220"></svg>
+      </div>
+      <div>
+        <div class="preview-dot-wrap"><canvas id="lerpDot" width="240" height="130"></canvas></div>
+        <div class="readout" id="lerpRead"></div>
+      </div>
+    </div>
+    <div class="hint" style="margin-top:14px;">Walk-through tàn lửa (Lifetime 0.8 s, size 5→1, alpha 1→0):</div>
+    <div class="tbl-wrap">
+      <table class="demo">
+        <thead><tr><th>Age</th><th>t</th><th>size = lerp(5,1,t)</th><th>alpha = lerp(1,0,t)</th><th>màu</th></tr></thead>
+        <tbody id="walkTbl"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════
+// Tiện ích chung: lerp, random, object pool
+// ════════════════════════════════════════════════════════════════════════
+const lerp = (a, b, t) => a + (b - a) * t;
+const rand = (lo, hi) => lo + Math.random() * (hi - lo);
+const clamp01 = x => Math.max(0, Math.min(1, x));
+
+// Lerp màu RGB nhiều chặng: stops = [{t, c:[r,g,b]}], tăng dần theo t
+function gradient(stops, t) {
+  t = clamp01(t);
+  for (let i = 0; i < stops.length - 1; i++) {
+    const a = stops[i], b = stops[i + 1];
+    if (t <= b.t) {
+      const local = (t - a.t) / (b.t - a.t || 1);
+      return [
+        Math.round(lerp(a.c[0], b.c[0], local)),
+        Math.round(lerp(a.c[1], b.c[1], local)),
+        Math.round(lerp(a.c[2], b.c[2], local)),
+      ];
+    }
+  }
+  return stops[stops.length - 1].c.slice();
+}
+
+// Object pool: cấp phát MỘT lần, tái dùng ô của hạt đã chết (alive=false)
+function makePool(max) {
+  const ps = new Array(max);
+  for (let i = 0; i < max; i++) {
+    ps[i] = { px:0, py:0, vx:0, vy:0, age:0, life:1, size:3, grad:null, alive:false };
+  }
+  return {
+    ps, max,
+    spawn() {                       // tìm ô chết, KHÔNG cấp mới
+      for (let i = 0; i < max; i++) if (!ps[i].alive) return ps[i];
+      return null;                  // pool đầy → bỏ qua
+    },
+    countAlive() { let n = 0; for (let i = 0; i < max; i++) if (ps[i].alive) n++; return n; },
+    clear() { for (let i = 0; i < max; i++) ps[i].alive = false; },
+  };
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// PRESET: mỗi hiệu ứng = một bộ tham số
+// ════════════════════════════════════════════════════════════════════════
+const PRESETS = {
+  fire: {
+    name: '🔥 Lửa', rate: 300, grav: -90, life: 1.2, spread: 22,
+    angle: -Math.PI/2, speedMin: 40, speedMax: 110, size0: 6, size1: 1,
+    grad: [{t:0,c:[255,235,120]},{t:0.4,c:[255,140,40]},{t:0.8,c:[200,50,30]},{t:1,c:[80,80,90]}],
+  },
+  smoke: {
+    name: '💨 Khói', rate: 90, grav: -25, life: 4.0, spread: 30,
+    angle: -Math.PI/2, speedMin: 8, speedMax: 30, size0: 8, size1: 34,
+    grad: [{t:0,c:[120,120,130]},{t:1,c:[60,60,70]}], alphaMax: 0.45,
+  },
+  water: {
+    name: '💧 Nước', rate: 260, grav: 460, life: 2.4, spread: 14,
+    angle: -Math.PI/2, speedMin: 170, speedMax: 250, size0: 4, size1: 3,
+    grad: [{t:0,c:[120,190,255]},{t:1,c:[60,120,220]}], bounce: true,
+  },
+  explosion: {
+    name: '💥 Nổ', rate: 0, grav: 380, life: 1.3, spread: 180,
+    angle: 0, speedMin: 120, speedMax: 320, size0: 5, size1: 1,
+    grad: [{t:0,c:[255,250,210]},{t:0.3,c:[255,160,60]},{t:1,c:[150,40,20]}],
+    burstOnly: true,
+  },
+  firework: {
+    name: '🎆 Pháo hoa', rate: 0, grav: 110, life: 2.0, spread: 180,
+    angle: 0, speedMin: 90, speedMax: 230, size0: 4, size1: 1,
+    grad: [{t:0,c:[255,255,255]},{t:0.25,c:[120,200,255]},{t:0.7,c:[255,90,180]},{t:1,c:[80,30,60]}],
+    burstOnly: true, twinkle: true,
+  },
+};
+let cur = 'fire';
+
+// ════════════════════════════════════════════════════════════════════════
+// MODULE 1: Playground
+// ════════════════════════════════════════════════════════════════════════
+const cv1 = document.getElementById('cv1'), ctx1 = cv1.getContext('2d');
+const pool1 = makePool(3000);
+document.getElementById('poolMax').textContent = 3000;
+let acc1 = 0;                            // accumulator emitter
+let mouse1 = { x: cv1.width/2, y: cv1.height*0.78, down: false };
+
+// Sliders
+const $ = id => document.getElementById(id);
+function syncLabels() {
+  $('rateV').textContent = $('rate').value;
+  $('gravV').textContent = $('grav').value;
+  $('lifeV').textContent = (+$('life').value).toFixed(1);
+  $('sprV').textContent = $('spr').value;
+}
+['rate','grav','life','spr'].forEach(id => $(id).addEventListener('input', syncLabels));
+
+function applyPreset(key) {
+  cur = key;
+  const p = PRESETS[key];
+  $('rate').value = p.rate;  $('grav').value = p.grav;
+  $('life').value = p.life;  $('spr').value = p.spread;
+  syncLabels();
+  document.querySelectorAll('#presets .preset').forEach(b =>
+    b.classList.toggle('active', b.dataset.k === key));
+}
+
+// Preset buttons
+const presetsBox = document.getElementById('presets');
+Object.entries(PRESETS).forEach(([k, p]) => {
+  const b = document.createElement('button');
+  b.className = 'preset'; b.textContent = p.name; b.dataset.k = k;
+  b.onclick = () => applyPreset(k);
+  presetsBox.appendChild(b);
+});
+
+// Spawn một hạt tại (x,y) theo preset hiện tại + slider hiện tại
+function spawnOne(x, y) {
+  const p = PRESETS[cur];
+  const pt = pool1.spawn();
+  if (!pt) return;
+  const spread = (+$('spr').value) * Math.PI/180;
+  const ang = p.angle + rand(-spread, spread);
+  const spd = rand(p.speedMin, p.speedMax);
+  pt.px = x; pt.py = y;
+  pt.vx = Math.cos(ang) * spd;
+  pt.vy = Math.sin(ang) * spd;
+  pt.age = 0;
+  pt.life = +$('life').value * rand(0.7, 1.0);
+  pt.size0 = p.size0; pt.size1 = p.size1;
+  pt.grad = p.grad; pt.alphaMax = p.alphaMax || 1;
+  pt.bounce = !!p.bounce; pt.twinkle = !!p.twinkle;
+  pt.alive = true;
+}
+
+function burst(x, y, n) { for (let i = 0; i < n; i++) spawnOne(x, y); }
+
+document.getElementById('burstBtn').onclick = () =>
+  burst(cv1.width/2, cv1.height*0.55, 260);
+document.getElementById('clearBtn').onclick = () => { pool1.clear(); acc1 = 0; };
+
+// Click/kéo để phun tại con trỏ
+function canvasPos(cv, e) {
+  const r = cv.getBoundingClientRect();
+  const t = e.touches ? e.touches[0] : e;
+  return { x: (t.clientX - r.left) * cv.width / r.width,
+           y: (t.clientY - r.top)  * cv.height / r.height };
+}
+['mousedown','touchstart'].forEach(ev => cv1.addEventListener(ev, e => {
+  e.preventDefault(); mouse1.down = true;
+  const p = canvasPos(cv1, e); mouse1.x = p.x; mouse1.y = p.y; burst(p.x, p.y, 12);
+}));
+['mousemove','touchmove'].forEach(ev => cv1.addEventListener(ev, e => {
+  const p = canvasPos(cv1, e); mouse1.x = p.x; mouse1.y = p.y;
+  if (mouse1.down) { e.preventDefault(); burst(p.x, p.y, 4); }
+}));
+['mouseup','touchend','mouseleave'].forEach(ev =>
+  cv1.addEventListener(ev, () => mouse1.down = false));
+
+function updatePool(pool, dt, opts) {
+  for (let i = 0; i < pool.max; i++) {
+    const p = pool.ps[i];
+    if (!p.alive) continue;
+    p.age += dt;
+    if (p.age >= p.life) { p.alive = false; continue; }  // chết = set false
+    // Lực
+    if (opts.grav) p.vy += opts.grav * dt;
+    if (opts.force) opts.force(p, dt);
+    // Tích phân Euler (L03)
+    p.px += p.vx * dt; p.py += p.vy * dt;
+    // Va sàn (chỉ cho preset nước)
+    if (p.bounce && p.py > pool.floorY) {
+      p.py = pool.floorY; p.vy = -p.vy * 0.42; p.vx *= 0.7;
+    }
+  }
+}
+
+function drawPool(ctx, pool) {
+  ctx.globalCompositeOperation = 'lighter';   // cộng sáng → lửa/nổ rực
+  for (let i = 0; i < pool.max; i++) {
+    const p = pool.ps[i];
+    if (!p.alive) continue;
+    const t = p.age / p.life;
+    const c = gradient(p.grad, t);
+    let a = lerp(p.alphaMax, 0, t);            // LUÔN lerp alpha về 0 → tắt mượt
+    if (p.twinkle) a *= 0.6 + 0.4 * Math.abs(Math.sin(p.age * 22)); // lập lòe
+    const sz = lerp(p.size0, p.size1, t);
+    ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+    ctx.beginPath();
+    ctx.arc(p.px, p.py, Math.max(0.5, sz), 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// MODULE 2: Attractor
+// ════════════════════════════════════════════════════════════════════════
+const cv2 = document.getElementById('cv2'), ctx2 = cv2.getContext('2d');
+const pool2 = makePool(1400);
+let mouse2 = { x: cv2.width/2, y: cv2.height/2, on: false };
+let attractMode = 'attract';
+const grad2 = [{t:0,c:[255,180,80]},{t:0.5,c:[255,90,150]},{t:1,c:[90,40,120]}];
+
+function spawnStream() {                       // dòng hạt từ mép trái
+  const pt = pool2.spawn();
+  if (!pt) return;
+  pt.px = rand(0, 40); pt.py = rand(0, cv2.height);
+  pt.vx = rand(40, 90); pt.vy = rand(-20, 20);
+  pt.age = 0; pt.life = rand(3, 5);
+  pt.size0 = 3.5; pt.size1 = 1.2; pt.grad = grad2; pt.alphaMax = 0.9;
+  pt.bounce = false; pt.twinkle = false; pt.alive = true;
+}
+['mousemove','touchmove','mousedown','touchstart'].forEach(ev =>
+  cv2.addEventListener(ev, e => {
+    if (ev.startsWith('touch')) e.preventDefault();
+    const p = canvasPos(cv2, e); mouse2.x = p.x; mouse2.y = p.y; mouse2.on = true;
+  }));
+['mouseleave','touchend'].forEach(ev =>
+  cv2.addEventListener(ev, () => mouse2.on = false));
+
+document.getElementById('modeAttract').onclick = e => { attractMode='attract'; setMode(e.target); };
+document.getElementById('modeRepel').onclick   = e => { attractMode='repel';   setMode(e.target); };
+function setMode(btn) {
+  document.querySelectorAll('#cv2 ~ .controls .preset').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function attractorForce(p, dt) {
+  if (!mouse2.on) return;
+  const G = (+document.getElementById('g').value) * (attractMode === 'repel' ? -1 : 1);
+  let dx = mouse2.x - p.px, dy = mouse2.y - p.py;
+  const dist = Math.hypot(dx, dy) + 1e-3;     // +epsilon tránh chia 0
+  p.vx += (dx/dist) * G * dt;
+  p.vy += (dy/dist) * G * dt;
+  p.vx *= 0.992; p.vy *= 0.992;                // drag nhẹ cho xoáy đẹp
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// MODULE 3: Lerp theo tuổi
+// ════════════════════════════════════════════════════════════════════════
+const lerpGrad = [
+  {t:0,c:[255,200,60]}, {t:0.5,c:[220,70,30]}, {t:1,c:[90,90,95]},
+];
+const SIZE0 = 5, SIZE1 = 1, ALPHA0 = 1, ALPHA1 = 0;
+const dotCtx = document.getElementById('lerpDot').getContext('2d');
+const svg = document.getElementById('lerpGraph');
+
+function drawLerpGraph() {
+  const W = 360, H = 220, padL = 36, padB = 28, padT = 12, padR = 12;
+  const x0 = padL, x1 = W - padR, y0 = H - padB, y1 = padT;
+  const X = t => x0 + (x1 - x0) * t;
+  const Y = v => y0 + (y1 - y0) * v;          // v in [0,1]
+  let s = '';
+  // trục
+  s += `<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="#cbd5e1"/>`;
+  s += `<line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y1}" stroke="#cbd5e1"/>`;
+  s += `<text x="${(x0+x1)/2}" y="${H-6}" font-size="11" fill="#6b7280" text-anchor="middle">t = Age / Lifetime</text>`;
+  // đường alpha (1→0)
+  let pa = '';
+  for (let i = 0; i <= 50; i++) { const t = i/50; pa += `${i?'L':'M'}${X(t)},${Y(lerp(ALPHA0,ALPHA1,t))} `; }
+  s += `<path d="${pa}" fill="none" stroke="#e11d48" stroke-width="2.5"/>`;
+  s += `<text x="${x1-4}" y="${Y(0)-6}" font-size="11" fill="#e11d48" text-anchor="end">alpha</text>`;
+  // đường size chuẩn hóa (size−1)/(5−1)
+  let ps = '';
+  for (let i = 0; i <= 50; i++) { const t=i/50; const sz=lerp(SIZE0,SIZE1,t); ps += `${i?'L':'M'}${X(t)},${Y((sz-SIZE1)/(SIZE0-SIZE1))} `; }
+  s += `<path d="${ps}" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="4 3"/>`;
+  s += `<text x="${X(0.05)}" y="${Y(0.5)}" font-size="11" fill="#2563eb">size</text>`;
+  svg.innerHTML = s;
+  svg.dataset.X = JSON.stringify([x0,x1]);
+  svg.dataset.Y = JSON.stringify([y0,y1]);
+}
+
+function updateLerpMarker(t) {
+  drawLerpGraph();
+  const [x0,x1] = JSON.parse(svg.dataset.X), [y0,y1] = JSON.parse(svg.dataset.Y);
+  const mx = x0 + (x1-x0)*t;
+  svg.innerHTML += `<line x1="${mx}" y1="${y1}" x2="${mx}" y2="${y0}" stroke="#9ca3af" stroke-dasharray="3 3"/>`;
+  const aY = y0 + (y1-y0)*lerp(ALPHA0,ALPHA1,t);
+  const sz = lerp(SIZE0,SIZE1,t), sY = y0 + (y1-y0)*((sz-SIZE1)/(SIZE0-SIZE1));
+  svg.innerHTML += `<circle cx="${mx}" cy="${aY}" r="5" fill="#e11d48"/>`;
+  svg.innerHTML += `<circle cx="${mx}" cy="${sY}" r="5" fill="#2563eb"/>`;
+}
+
+function renderLerp() {
+  const t = +document.getElementById('ageT').value;
+  document.getElementById('ageTV').textContent = t.toFixed(2);
+  updateLerpMarker(t);
+  const alpha = lerp(ALPHA0, ALPHA1, t);
+  const size = lerp(SIZE0, SIZE1, t);
+  const c = gradient(lerpGrad, t);
+  // hạt mẫu (phóng to ×8 cho dễ nhìn)
+  dotCtx.clearRect(0,0,240,130);
+  dotCtx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${alpha})`;
+  dotCtx.beginPath(); dotCtx.arc(120, 65, Math.max(2,size*8), 0, Math.PI*2); dotCtx.fill();
+  document.getElementById('lerpRead').innerHTML =
+    `<div>t = Age/Lifetime = <b>${t.toFixed(2)}</b></div>` +
+    `<div>size = lerp(${SIZE0},${SIZE1},t) = <b>${size.toFixed(2)} px</b></div>` +
+    `<div>alpha = lerp(${ALPHA0},${ALPHA1},t) = <b>${alpha.toFixed(2)}</b></div>` +
+    `<div>màu = <span class="swatch" style="background:rgb(${c[0]},${c[1]},${c[2]})"></span> rgb(${c[0]}, ${c[1]}, ${c[2]})</div>`;
+}
+document.getElementById('ageT').addEventListener('input', renderLerp);
+
+// bảng walk-through
+(function buildWalk() {
+  const rows = [[0,0],[0.2,0.25],[0.4,0.5],[0.6,0.75],[0.8,1.0]];
+  let html = '';
+  for (const [age,t] of rows) {
+    const sz = lerp(5,1,t), al = lerp(1,0,t), c = gradient(lerpGrad,t);
+    html += `<tr><td>${age.toFixed(2)}</td><td>${t.toFixed(2)}</td><td>${sz.toFixed(2)}</td>` +
+            `<td>${al.toFixed(2)}</td><td><span class="swatch" style="background:rgb(${c[0]},${c[1]},${c[2]})"></span></td></tr>`;
+  }
+  document.getElementById('walkTbl').innerHTML = html;
+})();
+
+// ════════════════════════════════════════════════════════════════════════
+// Vòng lặp game chung (một requestAnimationFrame cho cả 3 module)
+// ════════════════════════════════════════════════════════════════════════
+let last = performance.now(), fpsAcc = 0, fpsN = 0, fpsShown = 0;
+
+function frame(now) {
+  let dt = (now - last) / 1000; last = now;
+  if (dt > 0.05) dt = 0.05;                    // chống nhảy lớn khi tab ẩn
+
+  // FPS
+  fpsAcc += dt; fpsN++;
+  if (fpsAcc >= 0.4) { fpsShown = Math.round(fpsN / fpsAcc); fpsAcc = 0; fpsN = 0; }
+
+  // ── Module 1 ──────────────────────────────────────────────
+  const p = PRESETS[cur];
+  const rate = +$('rate').value, grav = +$('grav').value;
+  pool1.floorY = cv1.height - 6;
+  if (!p.burstOnly && rate > 0) {
+    acc1 += rate * dt;                          // ACCUMULATOR
+    let n = 0;
+    while (acc1 >= 1) { spawnOne(cv1.width/2, cv1.height*0.78); acc1 -= 1; n++; }
+    $('acc').textContent = n;
+  } else { $('acc').textContent = 0; }
+  updatePool(pool1, dt, { grav, force: null });
+  ctx1.fillStyle = 'rgba(11,11,18,0.35)';       // mờ dần → để lại vệt ngắn
+  ctx1.fillRect(0,0,cv1.width,cv1.height);
+  drawPool(ctx1, pool1);
+  $('aliveN').textContent = pool1.countAlive();
+  $('fps').textContent = fpsShown || '—';
+
+  // ── Module 2 ──────────────────────────────────────────────
+  for (let k = 0; k < 6; k++) spawnStream();    // dòng hạt liên tục
+  updatePool(pool2, dt, { grav: 0, force: attractorForce });
+  ctx2.fillStyle = 'rgba(11,11,18,0.30)';
+  ctx2.fillRect(0,0,cv2.width,cv2.height);
+  drawPool(ctx2, pool2);
+  if (mouse2.on) {                              // vẽ tâm attractor
+    ctx2.strokeStyle = attractMode==='repel' ? '#60a5fa' : '#fb7185';
+    ctx2.lineWidth = 2; ctx2.beginPath();
+    ctx2.arc(mouse2.x, mouse2.y, 14, 0, Math.PI*2); ctx2.stroke();
+  }
+  document.getElementById('aliveN2').textContent = pool2.countAlive();
+
+  requestAnimationFrame(frame);
+}
+
+// Init
+applyPreset('fire');
+renderLerp();
+requestAnimationFrame(frame);
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

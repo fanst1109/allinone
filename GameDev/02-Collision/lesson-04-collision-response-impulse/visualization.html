@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 09 — Collision Response: Impulse Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #be123c; }
+  h2 {
+    color: #e11d48; margin-top: 32px;
+    padding-bottom: 8px; border-bottom: 2px solid #fecdd3;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { color: #6b7280; font-size: 13px; margin: 6px 0; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #4a5568; }
+  code {
+    background: #fff1f2; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #be123c;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  button {
+    background: #e11d48; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #be123c; }
+  button.ghost { background: #fff1f2; color: #be123c; }
+  button.ghost:hover { background: #fecdd3; }
+  canvas {
+    background: #1f2230; border-radius: 8px; display: block;
+    width: 100%; touch-action: none;
+  }
+  input[type=range] { accent-color: #e11d48; max-width: 100%; }
+  .readout {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; background: #fff1f2; border-radius: 6px;
+    padding: 10px 12px; margin-top: 10px; color: #4a5568;
+    white-space: pre-wrap; line-height: 1.55;
+  }
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 4px;
+    font-size: 12px; font-weight: 700; background: #fecdd3; color: #9f1239;
+  }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: #4a5568; margin: 6px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+  .sliderwrap { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .sliderwrap output { font-family: "SF Mono", Monaco, Consolas, monospace; font-weight: 700; color: #be123c; min-width: 42px; }
+  @media (max-width: 480px) {
+    .row { gap: 10px; }
+    button { padding: 7px 11px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-sat-polygons/visualization.html">← L07: SAT (Polygons)</a>
+  <span class="sep">·</span>
+  <span class="current">L09: Collision Response (Impulse)</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-friction-resting-stacking/visualization.html">L10: Friction & Resting →</a>
+</nav>
+
+<main>
+  <h1>Lesson 09 — Collision Response: Impulse</h1>
+  <p>Ba mô phỏng tương tác cho phản ứng va chạm: bắn bi-a bằng xung lực (impulse), slider hệ số đàn hồi <code>e</code>, và hộp nhiều bóng bảo toàn động lượng. Mọi vật bật ra đúng công thức impulse <code>j = -(1+e)(v_rel·n) / (1/m₁ + 1/m₂)</code>.</p>
+
+  <h2>1. Bi-a 2D — bắn bằng impulse</h2>
+  <p class="hint">Kéo từ quả bi <strong>xanh</strong> để ngắm hướng và lực (vector kéo càng dài, bắn càng mạnh), thả ra để bắn vào quả <strong>hồng</strong>. Va chạm xiên giải bằng impulse dọc pháp tuyến nối tâm. Vector trắng = pháp tuyến va chạm <code>n</code>.</p>
+  <div class="card">
+    <div class="legend">
+      <span><span class="swatch" style="background:#60a5fa"></span> Bi A (kéo để bắn)</span>
+      <span><span class="swatch" style="background:#fb7185"></span> Bi B</span>
+      <span><span class="swatch" style="background:#fde68a"></span> vận tốc</span>
+      <span><span class="swatch" style="background:#e5e7eb"></span> pháp tuyến n</span>
+    </div>
+    <canvas id="poolCanvas" width="640" height="380" viewBox="0 0 640 380"></canvas>
+    <div class="row">
+      <div class="sliderwrap">
+        <label for="poolE">Hệ số đàn hồi e:</label>
+        <input type="range" id="poolE" min="0" max="1" step="0.05" value="1">
+        <output id="poolEout">1.00</output>
+      </div>
+      <div class="sliderwrap">
+        <label for="poolMassB">Khối lượng B:</label>
+        <input type="range" id="poolMassB" min="0.5" max="4" step="0.5" value="1">
+        <output id="poolMassBout">1.0</output>
+      </div>
+      <button id="poolReset" class="ghost">↺ Đặt lại</button>
+    </div>
+    <div class="readout" id="poolReadout">Kéo quả bi xanh rồi thả để bắn.</div>
+  </div>
+
+  <h2>2. Restitution slider — bóng rơi nảy</h2>
+  <p class="hint">Bóng rơi xuống sàn (tường tĩnh, <code>1/m = 0</code>). Kéo slider <code>e</code> từ 0 → 1: <code>e=0</code> dính bẹp (không nảy), <code>e=1</code> nảy lại đúng độ cao cũ, <code>0&lt;e&lt;1</code> nảy thấp dần. Vận tốc nảy = <code>−e × vận tốc chạm</code>.</p>
+  <div class="card">
+    <div class="row">
+      <div class="sliderwrap">
+        <label for="restE">e =</label>
+        <input type="range" id="restE" min="0" max="1" step="0.05" value="0.7">
+        <output id="restEout">0.70</output>
+      </div>
+      <button id="restDrop">⤓ Thả lại</button>
+    </div>
+    <canvas id="restCanvas" width="640" height="320" viewBox="0 0 640 320"></canvas>
+    <div class="readout" id="restReadout"></div>
+  </div>
+
+  <h2>3. Nhiều bóng — đàn hồi & bảo toàn động lượng</h2>
+  <p class="hint">Nhiều bóng (khối lượng = bán kính²) đụng nhau và đụng tường trong hộp. Va chạm bóng–bóng đàn hồi (<code>e=1</code>), tường <code>e</code> tùy chỉnh. Theo dõi <strong>tổng động lượng</strong> theo trục — với tường lý tưởng và <code>e=1</code> giữa các bóng, độ lớn động lượng gần như giữ nguyên (đổi do phản xạ tường).</p>
+  <div class="card">
+    <div class="row">
+      <div class="sliderwrap">
+        <label for="ballCount">Số bóng:</label>
+        <input type="range" id="ballCount" min="2" max="14" step="1" value="7">
+        <output id="ballCountOut">7</output>
+      </div>
+      <div class="sliderwrap">
+        <label for="wallE">e tường:</label>
+        <input type="range" id="wallE" min="0.5" max="1" step="0.05" value="1">
+        <output id="wallEout">1.00</output>
+      </div>
+      <button id="ballPause" class="ghost">⏸ Tạm dừng</button>
+      <button id="ballReset" class="ghost">↺ Tạo lại</button>
+    </div>
+    <canvas id="boxCanvas" width="640" height="360" viewBox="0 0 640 360"></canvas>
+    <div class="readout" id="boxReadout"></div>
+  </div>
+</main>
+
+<script>
+// ─── Tiện ích vector 2D ──────────────────────────────────────────────────────
+const V = {
+  sub: (a, b) => ({ x: a.x - b.x, y: a.y - b.y }),
+  add: (a, b) => ({ x: a.x + b.x, y: a.y + b.y }),
+  scale: (a, s) => ({ x: a.x * s, y: a.y * s }),
+  dot: (a, b) => a.x * b.x + a.y * b.y,
+  len: a => Math.hypot(a.x, a.y),
+  norm: a => { const l = Math.hypot(a.x, a.y) || 1; return { x: a.x / l, y: a.y / l }; },
+};
+
+// Lấy toạ độ con trỏ trong canvas, scale theo kích thước hiển thị (mobile co lại)
+function canvasPos(cv, evt) {
+  const r = cv.getBoundingClientRect();
+  const e = evt.touches ? evt.touches[0] : evt;
+  return {
+    x: (e.clientX - r.left) * (cv.width / r.width),
+    y: (e.clientY - r.top) * (cv.height / r.height),
+  };
+}
+
+// Vẽ mũi tên
+function arrow(ctx, from, to, color, w = 2) {
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = w;
+  ctx.beginPath(); ctx.moveTo(from.x, from.y); ctx.lineTo(to.x, to.y); ctx.stroke();
+  const ang = Math.atan2(to.y - from.y, to.x - from.x);
+  const h = 8;
+  ctx.beginPath();
+  ctx.moveTo(to.x, to.y);
+  ctx.lineTo(to.x - h * Math.cos(ang - 0.4), to.y - h * Math.sin(ang - 0.4));
+  ctx.lineTo(to.x - h * Math.cos(ang + 0.4), to.y - h * Math.sin(ang + 0.4));
+  ctx.closePath(); ctx.fill();
+}
+
+// ─── Module 1: Bi-a 2D bắn bằng impulse ──────────────────────────────────────
+(function () {
+  const cv = document.getElementById('poolCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const R = 26;
+  const eSlider = document.getElementById('poolE');
+  const eOut = document.getElementById('poolEout');
+  const mbSlider = document.getElementById('poolMassB');
+  const mbOut = document.getElementById('poolMassBout');
+  const readout = document.getElementById('poolReadout');
+
+  let A, B, dragging = false, aim = null, lastInfo = '';
+
+  function reset() {
+    A = { c: { x: 140, y: H / 2 }, v: { x: 0, y: 0 }, m: 1, r: R, col: '#60a5fa' };
+    B = { c: { x: 440, y: H / 2 - 40 }, v: { x: 0, y: 0 }, m: +mbSlider.value, r: R, col: '#fb7185' };
+    aim = null; lastInfo = 'Kéo quả bi xanh rồi thả để bắn.';
+  }
+  reset();
+
+  function resolve() {
+    const d = V.sub(B.c, A.c);
+    const dist = V.len(d);
+    if (dist > A.r + B.r || dist === 0) return false;
+    const n = V.norm(d);                       // pháp tuyến A→B
+    const vRel = V.sub(B.v, A.v);
+    const vn = V.dot(vRel, n);
+    if (vn > 0) return false;                   // đang tách → bỏ qua
+    const e = +eSlider.value;
+    const invA = 1 / A.m, invB = 1 / B.m;
+    const j = -(1 + e) * vn / (invA + invB);
+    A.v = V.sub(A.v, V.scale(n, j * invA));
+    B.v = V.add(B.v, V.scale(n, j * invB));
+    // positional correction (đẩy hết lún)
+    const pen = (A.r + B.r) - dist;
+    const corr = (Math.max(pen - 0.5, 0) / (invA + invB)) * 0.8;
+    A.c = V.sub(A.c, V.scale(n, corr * invA));
+    B.c = V.add(B.c, V.scale(n, corr * invB));
+    lastInfo =
+      `va chạm! n = (${n.x.toFixed(2)}, ${n.y.toFixed(2)})\n` +
+      `v_rel·n = ${vn.toFixed(2)}   →   j = ${j.toFixed(2)}\n` +
+      `A: vận tốc → (${A.v.x.toFixed(1)}, ${A.v.y.toFixed(1)})\n` +
+      `B: vận tốc → (${B.v.x.toFixed(1)}, ${B.v.y.toFixed(1)})  (mₐ=1, m_b=${B.m})`;
+    return true;
+  }
+
+  function step() {
+    for (const o of [A, B]) {
+      o.c = V.add(o.c, o.v);     // tích phân vị trí mỗi frame (dt = 1 frame)
+      o.v = V.scale(o.v, 0.992); // ma sát bàn nhẹ
+      // tường
+      if (o.c.x < o.r) { o.c.x = o.r; o.v.x = Math.abs(o.v.x); }
+      if (o.c.x > W - o.r) { o.c.x = W - o.r; o.v.x = -Math.abs(o.v.x); }
+      if (o.c.y < o.r) { o.c.y = o.r; o.v.y = Math.abs(o.v.y); }
+      if (o.c.y > H - o.r) { o.c.y = H - o.r; o.v.y = -Math.abs(o.v.y); }
+    }
+    resolve();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#1f2230'; ctx.fillRect(0, 0, W, H);
+    // đường nối tâm + pháp tuyến khi gần
+    const d = V.sub(B.c, A.c), dist = V.len(d);
+    if (dist < A.r + B.r + 80) {
+      const n = V.norm(d);
+      ctx.setLineDash([5, 5]); ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+      ctx.lineWidth = 1.5; ctx.beginPath();
+      ctx.moveTo(A.c.x, A.c.y); ctx.lineTo(B.c.x, B.c.y); ctx.stroke();
+      ctx.setLineDash([]);
+      arrow(ctx, A.c, V.add(A.c, V.scale(n, 50)), '#e5e7eb', 2);
+    }
+    for (const o of [A, B]) {
+      ctx.beginPath(); ctx.arc(o.c.x, o.c.y, o.r, 0, Math.PI * 2);
+      ctx.fillStyle = o.col; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.stroke();
+      // vector vận tốc
+      const sp = V.len(o.v);
+      if (sp > 0.3) arrow(ctx, o.c, V.add(o.c, V.scale(o.v, 0.18)), '#fde68a', 2.5);
+    }
+    // đường ngắm khi kéo
+    if (dragging && aim) {
+      arrow(ctx, A.c, aim, '#93c5fd', 2);
+      ctx.fillStyle = 'rgba(147,197,253,0.7)'; ctx.font = '12px monospace';
+      const power = V.len(V.sub(A.c, aim));
+      ctx.fillText('lực ≈ ' + (power * 1.2).toFixed(0), aim.x + 6, aim.y - 6);
+    }
+    readout.textContent = lastInfo;
+  }
+
+  function loop() { step(); draw(); requestAnimationFrame(loop); }
+  loop();
+
+  function start(e) {
+    const p = canvasPos(cv, e);
+    if (V.len(V.sub(p, A.c)) < A.r + 14) { dragging = true; aim = p; e.preventDefault(); }
+  }
+  function move(e) { if (dragging) { aim = canvasPos(cv, e); e.preventDefault(); } }
+  function end() {
+    if (dragging && aim) {
+      const pull = V.sub(A.c, aim);          // kéo ngược → bắn theo hướng ngược kéo
+      A.v = V.scale(pull, 1.2);
+      lastInfo = `bắn A với vận tốc (${A.v.x.toFixed(1)}, ${A.v.y.toFixed(1)})`;
+    }
+    dragging = false; aim = null;
+  }
+  cv.addEventListener('mousedown', start); cv.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', end);
+  cv.addEventListener('touchstart', start, { passive: false });
+  cv.addEventListener('touchmove', move, { passive: false });
+  cv.addEventListener('touchend', end);
+
+  eSlider.oninput = () => eOut.textContent = (+eSlider.value).toFixed(2);
+  mbSlider.oninput = () => { mbOut.textContent = (+mbSlider.value).toFixed(1); B.m = +mbSlider.value; };
+  document.getElementById('poolReset').onclick = reset;
+})();
+
+// ─── Module 2: Restitution — bóng rơi nảy ────────────────────────────────────
+(function () {
+  const cv = document.getElementById('restCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const eSlider = document.getElementById('restE');
+  const eOut = document.getElementById('restEout');
+  const readout = document.getElementById('restReadout');
+  const floorY = H - 30, r = 22, g = 0.55;
+  const startY = 60;
+  let ball, peak, bounces;
+
+  function drop() {
+    ball = { y: startY, v: 0 };
+    peak = startY; bounces = 0;
+  }
+  drop();
+
+  function step() {
+    const e = +eSlider.value;
+    ball.v += g;
+    ball.y += ball.v;
+    if (ball.y > floorY - r) {                 // chạm sàn (tường tĩnh)
+      ball.y = floorY - r;
+      if (ball.v > 0.4) { ball.v = -e * ball.v; bounces++; }   // v' = -e·v
+      else ball.v = 0;
+    }
+    peak = Math.min(peak, ball.y);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#1f2230'; ctx.fillRect(0, 0, W, H);
+    // sàn
+    ctx.fillStyle = '#475569'; ctx.fillRect(0, floorY, W, H - floorY);
+    // độ cao thả (đường mốc)
+    ctx.setLineDash([4, 6]); ctx.strokeStyle = 'rgba(253,230,138,0.5)';
+    ctx.lineWidth = 1; ctx.beginPath();
+    ctx.moveTo(0, startY); ctx.lineTo(W, startY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(253,230,138,0.7)'; ctx.font = '12px monospace';
+    ctx.fillText('độ cao thả', 10, startY - 6);
+    // bóng
+    ctx.beginPath(); ctx.arc(W / 2, ball.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = '#fb7185'; ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.stroke();
+    // vận tốc
+    if (Math.abs(ball.v) > 0.3) arrow(ctx, { x: W / 2, y: ball.y }, { x: W / 2, y: ball.y + ball.v * 6 }, '#fde68a', 2.5);
+
+    const e = +eSlider.value;
+    const dropH = floorY - r - startY;
+    const peakH = floorY - r - peak;
+    const ratio = dropH > 0 ? (peakH / dropH) : 0;
+    readout.textContent =
+      `e = ${e.toFixed(2)}   |   số lần nảy: ${bounces}\n` +
+      `quy luật: v' = -e·v (mỗi lần nảy vận tốc ×${e.toFixed(2)})\n` +
+      `độ cao nảy cao nhất / độ cao thả ≈ ${ratio.toFixed(2)}  (lý thuyết e² = ${(e * e).toFixed(2)})`;
+  }
+
+  function loop() { step(); draw(); requestAnimationFrame(loop); }
+  loop();
+
+  eSlider.oninput = () => { eOut.textContent = (+eSlider.value).toFixed(2); };
+  document.getElementById('restDrop').onclick = drop;
+})();
+
+// ─── Module 3: Nhiều bóng — bảo toàn động lượng ───────────────────────────────
+(function () {
+  const cv = document.getElementById('boxCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const countSlider = document.getElementById('ballCount');
+  const countOut = document.getElementById('ballCountOut');
+  const wallSlider = document.getElementById('wallE');
+  const wallOut = document.getElementById('wallEout');
+  const readout = document.getElementById('boxReadout');
+  const cols = ['#fb7185', '#60a5fa', '#34d399', '#fbbf24', '#a78bfa', '#f472b6', '#22d3ee'];
+  let balls = [], paused = false;
+
+  function spawn() {
+    const n = +countSlider.value;
+    balls = [];
+    for (let i = 0; i < n; i++) {
+      const r = 12 + Math.random() * 14;
+      balls.push({
+        c: { x: r + Math.random() * (W - 2 * r), y: r + Math.random() * (H - 2 * r) },
+        v: { x: (Math.random() - 0.5) * 6, y: (Math.random() - 0.5) * 6 },
+        r, m: r * r / 100, col: cols[i % cols.length],
+      });
+    }
+  }
+  spawn();
+
+  function collide(a, b) {
+    const d = V.sub(b.c, a.c), dist = V.len(d);
+    if (dist > a.r + b.r || dist === 0) return;
+    const n = V.norm(d);
+    const vRel = V.sub(b.v, a.v);
+    const vn = V.dot(vRel, n);
+    if (vn > 0) return;
+    const invA = 1 / a.m, invB = 1 / b.m;
+    const j = -(1 + 1) * vn / (invA + invB);   // bóng-bóng đàn hồi e=1
+    a.v = V.sub(a.v, V.scale(n, j * invA));
+    b.v = V.add(b.v, V.scale(n, j * invB));
+    const pen = (a.r + b.r) - dist;
+    const corr = (Math.max(pen, 0) / (invA + invB)) * 0.8;
+    a.c = V.sub(a.c, V.scale(n, corr * invA));
+    b.c = V.add(b.c, V.scale(n, corr * invB));
+  }
+
+  function step() {
+    const we = +wallSlider.value;
+    for (const o of balls) o.c = V.add(o.c, o.v);
+    for (let i = 0; i < balls.length; i++)
+      for (let k = i + 1; k < balls.length; k++) collide(balls[i], balls[k]);
+    for (const o of balls) {                   // tường: 1/m_wall = 0 → chỉ bóng đổi vận tốc
+      if (o.c.x < o.r) { o.c.x = o.r; o.v.x = Math.abs(o.v.x) * we; }
+      if (o.c.x > W - o.r) { o.c.x = W - o.r; o.v.x = -Math.abs(o.v.x) * we; }
+      if (o.c.y < o.r) { o.c.y = o.r; o.v.y = Math.abs(o.v.y) * we; }
+      if (o.c.y > H - o.r) { o.c.y = H - o.r; o.v.y = -Math.abs(o.v.y) * we; }
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#1f2230'; ctx.fillRect(0, 0, W, H);
+    let px = 0, py = 0, ke = 0;
+    for (const o of balls) {
+      ctx.beginPath(); ctx.arc(o.c.x, o.c.y, o.r, 0, Math.PI * 2);
+      ctx.fillStyle = o.col; ctx.fill();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.stroke();
+      px += o.m * o.v.x; py += o.m * o.v.y;
+      ke += 0.5 * o.m * (o.v.x * o.v.x + o.v.y * o.v.y);
+    }
+    readout.textContent =
+      `tổng động lượng:  pₓ = ${px.toFixed(2)}   p_y = ${py.toFixed(2)}   |p| = ${Math.hypot(px, py).toFixed(2)}\n` +
+      `tổng động năng:   KE = ${ke.toFixed(1)}   (e tường = ${(+wallSlider.value).toFixed(2)}: <1 sẽ mất dần KE)`;
+  }
+
+  function loop() { if (!paused) step(); draw(); requestAnimationFrame(loop); }
+  loop();
+
+  countSlider.oninput = () => { countOut.textContent = countSlider.value; spawn(); };
+  wallSlider.oninput = () => { wallOut.textContent = (+wallSlider.value).toFixed(2); };
+  const pauseBtn = document.getElementById('ballPause');
+  pauseBtn.onclick = () => { paused = !paused; pauseBtn.textContent = paused ? '▶ Tiếp tục' : '⏸ Tạm dừng'; };
+  document.getElementById('ballReset').onclick = spawn;
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

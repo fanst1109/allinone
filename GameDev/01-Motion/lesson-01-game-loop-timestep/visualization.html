@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — Game Loop & Timestep Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #be123c; }
+  h2 {
+    color: #e11d48; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fecdd3;
+  }
+  .card {
+    background: white; border-radius: 8px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #4a5568; }
+  .hint { color: #718096; font-size: 13px; margin: 4px 0; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #fff1f2; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #be123c;
+  }
+
+  button {
+    background: #e11d48; color: white; border: none;
+    padding: 8px 14px; border-radius: 4px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #be123c; }
+  button.ghost { background: #fff1f2; color: #be123c; }
+  button.ghost:hover { background: #fecdd3; }
+
+  input[type=range] { accent-color: #e11d48; max-width: 100%; }
+  .seg { display: inline-flex; border: 1px solid #fecdd3; border-radius: 6px; overflow: hidden; }
+  .seg button {
+    background: #fff1f2; color: #be123c; border: none;
+    padding: 6px 14px; font-size: 13px; border-radius: 0;
+  }
+  .seg button.active { background: #e11d48; color: white; }
+
+  canvas {
+    width: 100%; max-width: 720px; height: auto;
+    background: #1f2937; border-radius: 8px; display: block;
+  }
+
+  /* readouts */
+  .readout { display: flex; gap: 18px; flex-wrap: wrap; margin: 12px 0; }
+  .stat {
+    background: #fff1f2; border-left: 4px solid #e11d48;
+    border-radius: 4px; padding: 8px 14px; min-width: 110px;
+  }
+  .stat .k { font-size: 12px; color: #9f1239; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-size: 22px; font-weight: 700; color: #be123c; font-family: "SF Mono", Monaco, Consolas, monospace; }
+  .stat .u { font-size: 12px; color: #718096; }
+
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; margin: 8px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+
+  /* step pips for accumulator */
+  .pips { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; min-height: 26px; }
+  .pip {
+    width: 22px; height: 22px; border-radius: 5px; background: #e11d48;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 12px; font-weight: 700;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  .pip.zero { background: #e2e8f0; color: #94a3b8; width: auto; padding: 0 8px; }
+
+  /* accumulator bar */
+  .accbar-wrap { background: #f1f5f9; border-radius: 6px; height: 26px; position: relative; overflow: hidden; margin: 6px 0; }
+  .accbar { height: 100%; background: linear-gradient(90deg,#fb7185,#e11d48); width: 0%; transition: width .05s linear; }
+  .accmark { position: absolute; top: 0; height: 100%; width: 2px; background: #1f2937; }
+
+  table.cmp { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 10px; }
+  table.cmp th, table.cmp td { border: 1px solid #fecdd3; padding: 6px 10px; text-align: left; }
+  table.cmp th { background: #fff1f2; color: #9f1239; }
+  .table-wrap { overflow-x: auto; }
+
+  @media (max-width: 480px) {
+    .stat { min-width: 90px; padding: 6px 10px; }
+    .stat .v { font-size: 18px; }
+    .pip { width: 18px; height: 18px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <span class="current">L01: Game Loop & Timestep</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-vectors-kinematics/visualization.html">L02: Vectors & Kinematics →</a>
+</nav>
+
+<main>
+  <h1>Lesson 01 — Game Loop &amp; Timestep</h1>
+  <p>Ba mô phỏng chạy thật bằng <code>requestAnimationFrame</code>: thấy tận mắt vì sao phải nhân Δt,
+  fixed vs variable timestep với accumulator, và đồng hồ FPS / frame-budget thực.</p>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <h2>1. Frame-rate độc lập — Δt vs cộng hằng số</h2>
+  <p class="hint">
+    Hai viên bi cùng đặt mục tiêu <strong>100 px/giây</strong>. Bi <strong>hồng</strong> cập nhật <code>x += v·Δt</code> (đúng);
+    bi <strong>xám</strong> cộng hằng số <code>x += k</code> mỗi frame (sai). Kéo slider giả lập FPS:
+    bi hồng luôn về đích cùng lúc ở mọi FPS; bi xám nhanh dần khi FPS cao.
+  </p>
+  <div class="card">
+    <div class="row">
+      <label>FPS giả lập:</label>
+      <div class="seg" id="fpsSeg">
+        <button data-fps="15">15</button>
+        <button data-fps="30">30</button>
+        <button data-fps="60" class="active">60</button>
+        <button data-fps="120">120</button>
+      </div>
+      <button id="m1Reset" class="ghost">↺ Reset</button>
+    </div>
+    <div class="legend">
+      <span><i class="dot" style="background:#fb7185"></i> Δt: <code>x += 100·Δt</code> (đúng)</span>
+      <span><i class="dot" style="background:#94a3b8"></i> hằng số: <code>x += 1.67</code>/frame (sai)</span>
+      <span style="color:#fbbf24">▏ vạch đích = 100 px/giây × số giây</span>
+    </div>
+    <canvas id="m1canvas" width="720" height="200"></canvas>
+    <div class="readout">
+      <div class="stat"><div class="k">Δt mô phỏng</div><div class="v" id="m1dt">0.0167</div><div class="u">giây/frame</div></div>
+      <div class="stat"><div class="k">Bi Δt (hồng)</div><div class="v" id="m1px">0</div><div class="u">px · ≈ 100·t</div></div>
+      <div class="stat"><div class="k">Bi hằng số (xám)</div><div class="v" id="m1const">0</div><div class="u">px</div></div>
+      <div class="stat"><div class="k">Thời gian mô phỏng</div><div class="v" id="m1t">0.0</div><div class="u">giây</div></div>
+    </div>
+    <p class="hint" id="m1msg"></p>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <h2>2. Fixed vs Variable timestep — accumulator</h2>
+  <p class="hint">
+    FPS thật <strong>dao động</strong> (mô phỏng lag ngẫu nhiên). Mỗi frame dồn Δt thật vào
+    <em>accumulator</em>, rồi tiêu thành các bước cố định <code>FIXED = 1/60 s</code>.
+    Số ô hồng = số bước vật lý chạy trong frame đó: lag → chạy nhiều bước đuổi kịp; frame ngắn → 0 bước.
+  </p>
+  <div class="card">
+    <div class="row">
+      <label>Biên độ dao động FPS:</label>
+      <input type="range" id="jitter" min="0" max="100" value="55" style="width:200px">
+      <span class="mono" id="jitterVal" style="color:#be123c;font-weight:700"></span>
+      <button id="m2Reset" class="ghost">↺ Reset</button>
+    </div>
+    <div class="row" style="gap:8px;margin-top:0">
+      <label style="min-width:auto">Bước fixed frame này:</label>
+      <div class="pips" id="m2pips"></div>
+    </div>
+    <div>
+      <div class="hint" style="margin-bottom:2px">Accumulator (0 → FIXED, vạch đen = ngưỡng FIXED)</div>
+      <div class="accbar-wrap"><div class="accbar" id="m2acc"></div><div class="accmark" id="m2mark"></div></div>
+    </div>
+    <canvas id="m2canvas" width="720" height="140"></canvas>
+    <div class="readout">
+      <div class="stat"><div class="k">Δt thật frame</div><div class="v" id="m2dt">0.000</div><div class="u">giây</div></div>
+      <div class="stat"><div class="k">Bước/frame</div><div class="v" id="m2steps">0</div><div class="u">lần update(FIXED)</div></div>
+      <div class="stat"><div class="k">Tổng bước</div><div class="v" id="m2total">0</div><div class="u">× FIXED</div></div>
+      <div class="stat"><div class="k">Accumulator dư</div><div class="v" id="m2rem">0.000</div><div class="u">giây &lt; FIXED</div></div>
+    </div>
+    <p class="hint">
+      Bi <span style="color:#fb7185;font-weight:700">hồng</span> dùng <strong>fixed timestep</strong> (nội suy theo accumulator → mượt &amp; tất định).
+      Tổng số bước luôn bám sát tổng thời gian thật ÷ FIXED — vật lý không phụ thuộc nhịp render thất thường.
+    </p>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <h2>3. FPS &amp; Frame budget meter</h2>
+  <p class="hint">
+    Đồng hồ FPS thật của trình duyệt bạn (đo từ Δt thật của <code>requestAnimationFrame</code>).
+    Bấm "Tải nặng giả lập" để cố tình đốt thời gian mỗi frame → xem frame budget bị ăn mòn và FPS tụt.
+  </p>
+  <div class="card">
+    <div class="row">
+      <label>Mục tiêu:</label>
+      <div class="seg" id="targetSeg">
+        <button data-t="30">30 fps</button>
+        <button data-t="60" class="active">60 fps</button>
+        <button data-t="120">120 fps</button>
+      </div>
+      <label style="margin-left:12px">Tải giả lập:</label>
+      <input type="range" id="load" min="0" max="30" value="0" style="width:160px">
+      <span class="mono" id="loadVal" style="color:#be123c;font-weight:700">0 ms</span>
+    </div>
+    <canvas id="m3canvas" width="720" height="150"></canvas>
+    <div class="readout">
+      <div class="stat"><div class="k">FPS thật</div><div class="v" id="m3fps">–</div><div class="u">1 / Δt</div></div>
+      <div class="stat"><div class="k">Δt thật</div><div class="v" id="m3dt">–</div><div class="u">ms/frame</div></div>
+      <div class="stat"><div class="k">Frame budget</div><div class="v" id="m3budget">16.67</div><div class="u">ms (mục tiêu)</div></div>
+      <div class="stat"><div class="k">Còn dư / vượt</div><div class="v" id="m3slack">–</div><div class="u">ms</div></div>
+    </div>
+    <p class="hint" id="m3msg"></p>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <h2>4. Bảng so sánh nhanh</h2>
+  <div class="card">
+    <div class="table-wrap">
+      <table class="cmp">
+        <tr><th></th><th>Variable timestep</th><th>Fixed timestep</th></tr>
+        <tr><td>Δt mỗi update</td><td>thay đổi (Δt thật)</td><td>cố định <code>FIXED</code></td></tr>
+        <tr><td>Code</td><td>đơn giản</td><td>cần accumulator</td></tr>
+        <tr><td>Tất định?</td><td>không</td><td><strong>có</strong></td></tr>
+        <tr><td>Ổn định vật lý cứng?</td><td>kém (dễ nổ với Δt to)</td><td><strong>tốt</strong></td></tr>
+        <tr><td>Rủi ro</td><td>xuyên tường khi Δt vọt</td><td>spiral of death (nếu không kẹp)</td></tr>
+        <tr><td>Hợp cho</td><td>prototype, chuyển động đơn giản</td><td>vật lý, netcode, replay</td></tr>
+      </table>
+    </div>
+    <p class="hint">Chi tiết spiral of death và cách kẹp Δt: xem README §4.3 (nút 📖 ở góc).</p>
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// Module 1 — Frame-rate independence: Δt vs hằng số
+// ════════════════════════════════════════════════════════════
+(function () {
+  const cv = document.getElementById('m1canvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const V = 100;                 // px/giây mục tiêu (trong toạ độ "thế giới")
+  const WORLD = 600;             // bề rộng quãng đường thế giới (px), bi đi 100/s → 6 s tới đích
+  const margin = 50;
+  let fps = 60;
+  let simT = 0, xDt = 0, xConst = 0;
+
+  // bi xám: tuned đúng cho 60fps (x += V/60), sai ở fps khác
+  const CONST_STEP = V / 60;     // 1.667 px/frame — đúng ở 60fps, sai ở fps khác
+
+  function toScreen(worldX) { return margin + (worldX / WORLD) * (W - 2 * margin); }
+
+  function reset() { simT = 0; xDt = 0; xConst = 0; }
+
+  function step() {
+    const dt = 1 / fps;          // Δt mô phỏng cố định theo FPS đang chọn
+    simT += dt;
+    xDt    += V * dt;            // ĐÚNG: theo thời gian
+    xConst += CONST_STEP;        // SAI: hằng số mỗi frame
+    if (xDt >= WORLD || xConst >= WORLD) reset();
+  }
+
+  function drawBall(x, y, color) {
+    ctx.beginPath(); ctx.arc(toScreen(x), y, 11, 0, 7); ctx.fillStyle = color; ctx.fill();
+  }
+
+  function render() {
+    ctx.clearRect(0, 0, W, H);
+    // finish line: 100 px/s -> luôn ở WORLD khi cùng simT? vạch đích ở quãng đường = V*simT
+    const goal = Math.min(V * simT, WORLD);
+    ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 3; ctx.setLineDash([6, 6]);
+    ctx.beginPath(); ctx.moveTo(toScreen(goal), 20); ctx.lineTo(toScreen(goal), H - 20); ctx.stroke();
+    ctx.setLineDash([]);
+    // tracks
+    ctx.strokeStyle = '#374151'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(margin, 70); ctx.lineTo(W - margin, 70); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(margin, 140); ctx.lineTo(W - margin, 140); ctx.stroke();
+    drawBall(xDt, 70, '#fb7185');
+    drawBall(xConst, 140, '#94a3b8');
+    ctx.fillStyle = '#9ca3af'; ctx.font = '12px monospace';
+    ctx.fillText('Δt (đúng)', margin, 95);
+    ctx.fillText('hằng số (sai)', margin, 165);
+
+    document.getElementById('m1dt').textContent = (1 / fps).toFixed(4);
+    document.getElementById('m1px').textContent = Math.round(xDt);
+    document.getElementById('m1const').textContent = Math.round(xConst);
+    document.getElementById('m1t').textContent = simT.toFixed(1);
+
+    const ratio = xDt > 1 ? (xConst / xDt) : 1;
+    const msg = document.getElementById('m1msg');
+    if (fps === 60) msg.textContent = 'Ở đúng 60 fps, bi xám tình cờ khớp bi hồng (vì hằng số được tinh chỉnh cho 60 fps).';
+    else if (fps > 60) msg.textContent = `Ở ${fps} fps, bi xám chạy NHANH hơn ~${ratio.toFixed(2)}× — đúng bug "Turbo" của game DOS.`;
+    else msg.textContent = `Ở ${fps} fps, bi xám chạy CHẬM hơn (~${ratio.toFixed(2)}×). Bi hồng luôn bám vạch đích.`;
+  }
+
+  function loop() { step(); render(); requestAnimationFrame(loop); }
+
+  document.getElementById('fpsSeg').addEventListener('click', e => {
+    const b = e.target.closest('button[data-fps]'); if (!b) return;
+    fps = +b.dataset.fps; reset();
+    document.querySelectorAll('#fpsSeg button').forEach(x => x.classList.toggle('active', x === b));
+  });
+  document.getElementById('m1Reset').onclick = reset;
+  loop();
+})();
+
+// ════════════════════════════════════════════════════════════
+// Module 2 — Fixed vs Variable: accumulator
+// ════════════════════════════════════════════════════════════
+(function () {
+  const cv = document.getElementById('m2canvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const FIXED = 1 / 60;
+  let acc = 0, totalSteps = 0, lastWall = performance.now(), throttle = 0;
+  let jitter = 0.55;
+  // vật lý fixed: bi chạy ngang, đổi hướng ở mép
+  let physX = 40, physVX = 220, prevPhysX = 40;
+
+  function reset() { acc = 0; totalSteps = 0; physX = 40; physVX = 220; prevPhysX = 40; }
+
+  function fixedUpdate() {
+    prevPhysX = physX;
+    physX += physVX * FIXED;
+    if (physX > W - 40) { physX = W - 40; physVX = -Math.abs(physVX); }
+    if (physX < 40)     { physX = 40;     physVX = Math.abs(physVX); }
+  }
+
+  function frame(wallNow) {
+    // chỉ chạy logic ~ mỗi 70ms để mắt theo dõi được, nhưng vẫn realtime
+    let realDt = (wallNow - lastWall) / 1000;
+    lastWall = wallNow;
+    // mô phỏng Δt "thật" dao động quanh 1/30 với jitter
+    const base = 1 / 30;
+    const simDt = base * (1 + (Math.random() * 2 - 1) * jitter);
+    realDt = simDt;                       // dùng Δt mô phỏng cho minh hoạ
+    const clamped = Math.min(realDt, 0.25); // kẹp chống spiral of death
+
+    acc += clamped;
+    let steps = 0;
+    while (acc >= FIXED) { fixedUpdate(); acc -= FIXED; steps++; }
+    totalSteps += steps;
+
+    // pips
+    const pips = document.getElementById('m2pips');
+    if (steps === 0) pips.innerHTML = '<span class="pip zero">0 bước</span>';
+    else { let h = ''; for (let i = 0; i < Math.min(steps, 12); i++) h += '<div class="pip">' + (i + 1) + '</div>'; pips.innerHTML = h; }
+
+    // accumulator bar
+    document.getElementById('m2acc').style.width = Math.min(100, (acc / FIXED) * 100) + '%';
+    document.getElementById('m2mark').style.left = '100%';
+
+    document.getElementById('m2dt').textContent = clamped.toFixed(3);
+    document.getElementById('m2steps').textContent = steps;
+    document.getElementById('m2total').textContent = totalSteps;
+    document.getElementById('m2rem').textContent = acc.toFixed(3);
+
+    // render bi với interpolation
+    const alpha = acc / FIXED;
+    const drawX = prevPhysX + (physX - prevPhysX) * alpha;
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = '#374151'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(20, H / 2); ctx.lineTo(W - 20, H / 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(drawX, H / 2, 13, 0, 7); ctx.fillStyle = '#fb7185'; ctx.fill();
+    ctx.fillStyle = '#9ca3af'; ctx.font = '12px monospace';
+    ctx.fillText('fixed timestep + interpolation', 24, 24);
+
+    requestAnimationFrame(frame);
+  }
+
+  document.getElementById('jitter').addEventListener('input', e => {
+    jitter = e.target.value / 100;
+    document.getElementById('jitterVal').textContent = '±' + e.target.value + '%';
+  });
+  document.getElementById('jitterVal').textContent = '±55%';
+  document.getElementById('m2Reset').onclick = reset;
+  document.getElementById('m2mark').style.left = '100%';
+  requestAnimationFrame(frame);
+})();
+
+// ════════════════════════════════════════════════════════════
+// Module 3 — FPS & frame budget meter (đo thật)
+// ════════════════════════════════════════════════════════════
+(function () {
+  const cv = document.getElementById('m3canvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  let target = 60, loadMs = 0;
+  let last = performance.now();
+  const history = [];                 // Δt ms gần đây
+  const MAXH = 120;
+
+  function busyWait(ms) {
+    if (ms <= 0) return;
+    const end = performance.now() + ms;
+    while (performance.now() < end) { /* đốt thời gian giả lập tải nặng */ }
+  }
+
+  function frame(now) {
+    const dtMs = now - last; last = now;
+    busyWait(loadMs);                 // giả lập update/render tốn thời gian
+    history.push(dtMs); if (history.length > MAXH) history.shift();
+
+    const budget = 1000 / target;
+    const slack = budget - dtMs;
+    const fps = 1000 / dtMs;
+
+    document.getElementById('m3fps').textContent = isFinite(fps) ? Math.round(fps) : '–';
+    document.getElementById('m3dt').textContent = dtMs.toFixed(1);
+    document.getElementById('m3budget').textContent = budget.toFixed(2);
+    const slackEl = document.getElementById('m3slack');
+    slackEl.textContent = (slack >= 0 ? '+' : '') + slack.toFixed(1);
+    slackEl.style.color = slack >= 0 ? '#16a34a' : '#dc2626';
+
+    const msg = document.getElementById('m3msg');
+    if (slack >= 0) msg.textContent = `Frame xong trong budget (${dtMs.toFixed(1)} ≤ ${budget.toFixed(2)} ms) → giữ được ${target} fps.`;
+    else msg.textContent = `Vượt budget ${(-slack).toFixed(1)} ms → tụt frame! Không kịp nhịp quét ${target} Hz → fps thực ~${Math.round(fps)}.`;
+
+    // vẽ biểu đồ Δt theo thời gian + đường budget
+    ctx.clearRect(0, 0, W, H);
+    const maxMs = Math.max(budget * 2.2, 40);
+    const y = ms => H - 10 - (ms / maxMs) * (H - 30);
+    // budget line
+    ctx.strokeStyle = '#fbbf24'; ctx.setLineDash([5, 5]); ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(0, y(budget)); ctx.lineTo(W, y(budget)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#fbbf24'; ctx.font = '11px monospace';
+    ctx.fillText('budget ' + budget.toFixed(1) + ' ms', 6, y(budget) - 5);
+    // bars
+    const bw = W / MAXH;
+    for (let i = 0; i < history.length; i++) {
+      const ms = history[i];
+      const over = ms > budget;
+      ctx.fillStyle = over ? '#dc2626' : '#fb7185';
+      const bh = (Math.min(ms, maxMs) / maxMs) * (H - 30);
+      ctx.fillRect(i * bw, H - 10 - bh, bw - 1, bh);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  document.getElementById('targetSeg').addEventListener('click', e => {
+    const b = e.target.closest('button[data-t]'); if (!b) return;
+    target = +b.dataset.t;
+    document.querySelectorAll('#targetSeg button').forEach(x => x.classList.toggle('active', x === b));
+  });
+  document.getElementById('load').addEventListener('input', e => {
+    loadMs = +e.target.value;
+    document.getElementById('loadVal').textContent = loadMs + ' ms';
+  });
+  requestAnimationFrame(frame);
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

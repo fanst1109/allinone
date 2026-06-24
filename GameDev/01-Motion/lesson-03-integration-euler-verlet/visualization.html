@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — Integration: Euler & Verlet</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #e11d48;
+    --accent-soft: #fff1f3;
+    --accent-hover: #be123c;
+  }
+  h1 { color: #be123c; }
+  h2 {
+    color: #e11d48; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fecdd3;
+  }
+  p.lead { color: #4a5568; max-width: 760px; }
+  .card {
+    background: white; border-radius: 10px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { color: #718096; font-size: 13px; margin: 6px 0; }
+  code {
+    background: #fff1f3; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #be123c;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; color: #3f3f46; }
+  button {
+    background: #e11d48; color: white; border: none;
+    padding: 9px 16px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #be123c; }
+  button.ghost { background: #fff1f3; color: #be123c; border: 1px solid #fecdd3; }
+  button.ghost:hover { background: #ffe4e6; }
+
+  input[type=range] { accent-color: #e11d48; width: 240px; max-width: 100%; }
+  .readout {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-weight: 700; color: #be123c; min-width: 64px; display: inline-block;
+  }
+
+  /* Canvas wrappers */
+  canvas {
+    background: #1f2937; border-radius: 10px; display: block;
+    width: 100%; height: auto;
+  }
+
+  /* Legend chips */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin: 10px 0; font-size: 14px; }
+  .legend .item { display: flex; align-items: center; gap: 6px; }
+  .legend .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+  .dot.expl { background: #ef4444; }
+  .dot.semi { background: #22c55e; }
+  .dot.verl { background: #38bdf8; }
+  .dot.exact { background: #fbbf24; border: 2px solid #fff; box-sizing: border-box; }
+
+  /* Comparison table */
+  .tbl-wrap { overflow-x: auto; }
+  table.cmp {
+    border-collapse: collapse; margin: 10px 0; font-size: 14px; min-width: 560px;
+  }
+  table.cmp th, table.cmp td {
+    border: 1px solid #fecdd3; padding: 8px 12px; text-align: center;
+  }
+  table.cmp th { background: #fff1f3; color: #9f1239; font-weight: 700; }
+  table.cmp td.method { text-align: left; font-weight: 600; }
+  table.cmp .bad { color: #dc2626; font-weight: 700; }
+  table.cmp .ok { color: #16a34a; font-weight: 700; }
+
+  .blowup {
+    color: #fff; background: #dc2626; padding: 3px 10px; border-radius: 5px;
+    font-weight: 700; font-size: 13px; display: inline-block;
+  }
+  .stable {
+    color: #166534; background: #dcfce7; padding: 3px 10px; border-radius: 5px;
+    font-weight: 700; font-size: 13px; display: inline-block;
+  }
+
+  @media (max-width: 480px) {
+    input[type=range] { width: 100%; }
+    .legend { gap: 10px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-vectors-kinematics/visualization.html">← L02: Vectors &amp; Kinematics</a>
+  <span class="sep">·</span>
+  <span class="current">L03: Integration (Euler/Verlet)</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-forces-gravity-drag-friction/visualization.html">L04: Forces →</a>
+</nav>
+
+<main>
+  <h1>Lesson 03 — Integration: Euler &amp; Verlet</h1>
+  <p class="lead">
+    Ba bộ tích phân số chạy <strong>cùng lúc trên cùng một bài toán</strong>. Xem explicit Euler
+    xoắn phình ra, còn semi-implicit và Verlet giữ quỹ đạo ổn định. Kéo slider Δt để tự tay
+    làm simulation "nổ", và theo dõi năng lượng từng phương pháp theo thời gian.
+  </p>
+
+  <div class="legend">
+    <div class="item"><span class="dot expl"></span> Explicit Euler</div>
+    <div class="item"><span class="dot semi"></span> Semi-implicit Euler</div>
+    <div class="item"><span class="dot verl"></span> Position Verlet</div>
+    <div class="item"><span class="dot exact"></span> Quỹ đạo / vị trí chính xác</div>
+  </div>
+
+  <!-- ───────────────── MODULE 1 ───────────────── -->
+  <h2>1. Ba phương pháp quay quanh tâm (orbit)</h2>
+  <p class="hint">
+    Một "vệ tinh" chịu lực hướng tâm <code>a = −ω²·r</code> (như lò xo 2D / hấp dẫn tuyến tính hóa).
+    Quỹ đạo đúng phải là vòng tròn vàng. Explicit Euler (đỏ) <strong>bơm năng lượng</strong> nên
+    xoắn ốc phình ra; semi-implicit (xanh lá) và Verlet (xanh dương) bám sát vòng tròn.
+  </p>
+  <div class="card">
+    <div class="row">
+      <button id="orbitPlay">⏸ Tạm dừng</button>
+      <button id="orbitReset" class="ghost">↺ Reset</button>
+      <label>Δt: <span class="readout" id="orbitDtVal">0.06</span></label>
+      <input type="range" id="orbitDt" min="0.01" max="0.30" step="0.005" value="0.06">
+      <span class="hint">Δt nhỏ → cả 3 gần nhau; tăng lên → đỏ phình nhanh.</span>
+    </div>
+    <canvas id="orbitCanvas" width="640" height="360"></canvas>
+    <p class="hint" id="orbitStatus">Đang chạy… để ý vòng đỏ ngày càng to.</p>
+  </div>
+
+  <!-- ───────────────── MODULE 2 ───────────────── -->
+  <h2>2. Slider Δt — tự gây "nổ"</h2>
+  <p class="hint">
+    Lò xo 1 chiều <code>a = −ω²·x</code> (ω = 4). Ngưỡng ổn định của semi-implicit là
+    <code>ω·Δt &lt; 2</code> → <code>Δt &lt; 0.5</code>. Kéo Δt vượt 0.5 và xem semi-implicit
+    cũng nổ; explicit nổ sớm hơn. Đồ thị là vị trí <code>x</code> theo thời gian.
+  </p>
+  <div class="card">
+    <div class="row">
+      <label>Δt: <span class="readout" id="springDtVal">0.20</span></label>
+      <input type="range" id="springDt" min="0.02" max="0.70" step="0.01" value="0.20">
+      <label>ω·Δt = <span class="readout" id="springWdt">0.80</span></label>
+      <span id="springVerdict" class="stable">ổn định</span>
+    </div>
+    <canvas id="springCanvas" width="640" height="300"></canvas>
+    <p class="hint">
+      Đường nét đứt vàng = nghiệm đúng <code>cos(ωt)</code>. Khi một phương pháp vọt ra khỏi
+      khung là nó đã "nổ" (số tiến tới vô cực).
+    </p>
+  </div>
+
+  <!-- ───────────────── MODULE 3 ───────────────── -->
+  <h2>3. Năng lượng theo thời gian + bảng so sánh</h2>
+  <p class="hint">
+    Cùng lò xo (ω = 4) chạy với Δt = <span class="readout" id="energyDtVal">0.12</span>. Hệ không ma sát
+    → năng lượng <code>E = ½(v² + ω²x²)</code> <strong>đáng lẽ phải là đường ngang</strong>. Explicit
+    leo dốc (phình), semi-implicit &amp; Verlet dao động quanh mức đúng (chặn).
+  </p>
+  <div class="card">
+    <div class="row">
+      <button id="energyPlay">⏸ Tạm dừng</button>
+      <button id="energyReset" class="ghost">↺ Reset</button>
+      <label>Δt: <input type="range" id="energyDt" min="0.04" max="0.30" step="0.005" value="0.12"></label>
+    </div>
+    <canvas id="energyCanvas" width="640" height="280"></canvas>
+    <div class="tbl-wrap">
+      <table class="cmp">
+        <thead>
+          <tr><th>Phương pháp</th><th>Bậc chính xác</th><th>Năng lượng</th><th>Ổn định dài hạn</th><th>Chi phí/bước</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="method"><span class="dot expl"></span> Explicit Euler</td>
+            <td>1</td><td class="bad">phình ↑</td><td class="bad">kém (xoắn ra)</td><td>thấp</td>
+          </tr>
+          <tr>
+            <td class="method"><span class="dot semi"></span> Semi-implicit Euler</td>
+            <td>1</td><td class="ok">chặn</td><td class="ok">tốt</td><td>thấp</td>
+          </tr>
+          <tr>
+            <td class="method"><span class="dot verl"></span> Position Verlet</td>
+            <td>2</td><td class="ok">chặn</td><td class="ok">tốt</td><td>thấp</td>
+          </tr>
+          <tr>
+            <td class="method">RK4 (tham khảo)</td>
+            <td>4</td><td>rò chậm</td><td>tốt nhưng đắt</td><td class="bad">cao (×4)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="hint" id="energyLive">E hiện tại — đỏ: … · xanh lá: … · xanh dương: …</p>
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════
+//  Tiện ích chung
+// ════════════════════════════════════════════════════════════════════
+const COL = { expl: '#ef4444', semi: '#22c55e', verl: '#38bdf8', exact: '#fbbf24', grid: '#374151' };
+
+// ════════════════════════════════════════════════════════════════════
+//  MODULE 1 — Orbit: 3 integrator + vòng tròn đúng
+//  Lực hướng tâm a = -ω²·(x,y).  Bắt đầu trên trục x, vận tốc = ω·R theo y
+//  → orbit tròn bán kính R đúng nghiệm.
+// ════════════════════════════════════════════════════════════════════
+const orbit = (() => {
+  const cv = document.getElementById('orbitCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height, cx = W / 2, cy = H / 2;
+  const omega = 1.2, R = 100, scale = 1;        // px = unit
+  let dt = 0.06, running = true;
+  // mỗi state: {x,y,vx,vy} hoặc Verlet thêm px,py (old)
+  let expl, semi, verl, trailE, trailS, trailV;
+
+  function reset() {
+    const v0 = omega * R;                         // tốc độ cho orbit tròn
+    expl = { x: R, y: 0, vx: 0, vy: v0 };
+    semi = { x: R, y: 0, vx: 0, vy: v0 };
+    // Verlet khởi động: p_-1 = p0 - v0*dt + ½a0*dt²; a0 = -ω²p0
+    verl = {
+      x: R, y: 0,
+      ox: R - 0 * dt + 0.5 * (-omega * omega * R) * dt * dt,
+      oy: 0 - v0 * dt + 0.5 * (-omega * omega * 0) * dt * dt
+    };
+    trailE = []; trailS = []; trailV = [];
+  }
+
+  function stepExplicit(s) {
+    const ax = -omega * omega * s.x, ay = -omega * omega * s.y;
+    s.x += s.vx * dt; s.y += s.vy * dt;           // p dùng v CŨ
+    s.vx += ax * dt; s.vy += ay * dt;
+  }
+  function stepSemi(s) {
+    const ax = -omega * omega * s.x, ay = -omega * omega * s.y;
+    s.vx += ax * dt; s.vy += ay * dt;             // v TRƯỚC
+    s.x += s.vx * dt; s.y += s.vy * dt;           // p dùng v MỚI
+  }
+  function stepVerlet(s) {
+    const ax = -omega * omega * s.x, ay = -omega * omega * s.y;
+    const nx = 2 * s.x - s.ox + ax * dt * dt;
+    const ny = 2 * s.y - s.oy + ay * dt * dt;
+    s.ox = s.x; s.oy = s.y; s.x = nx; s.y = ny;
+  }
+
+  function pushTrail(t, s) { t.push([s.x, s.y]); if (t.length > 220) t.shift(); }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // vòng tròn đúng (vàng nét đứt)
+    ctx.strokeStyle = COL.exact; ctx.setLineDash([5, 5]); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(cx, cy, R * scale, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+    // tâm
+    ctx.fillStyle = COL.exact;
+    ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2); ctx.fill();
+
+    drawTrail(trailE, COL.expl);
+    drawTrail(trailS, COL.semi);
+    drawTrail(trailV, COL.verl);
+    drawDot(expl, COL.expl); drawDot(semi, COL.semi); drawDot(verl, COL.verl);
+  }
+  function drawTrail(t, col) {
+    if (t.length < 2) return;
+    ctx.strokeStyle = col; ctx.globalAlpha = 0.45; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let i = 0; i < t.length; i++) {
+      const px = cx + t[i][0] * scale, py = cy + t[i][1] * scale;
+      i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+    }
+    ctx.stroke(); ctx.globalAlpha = 1;
+  }
+  function drawDot(s, col) {
+    const px = cx + s.x * scale, py = cy + s.y * scale;
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill();
+  }
+
+  function frame() {
+    if (running) {
+      stepExplicit(expl); stepSemi(semi); stepVerlet(verl);
+      pushTrail(trailE, expl); pushTrail(trailS, semi); pushTrail(trailV, verl);
+      // bán kính explicit cho biết mức phình
+      const rE = Math.hypot(expl.x, expl.y);
+      document.getElementById('orbitStatus').textContent =
+        `Bán kính đúng = ${R} · bán kính explicit (đỏ) hiện tại ≈ ${rE.toFixed(0)} ` +
+        (rE > R * 1.4 ? '→ đang phình rõ rệt!' : '→ bắt đầu lệch.');
+      // reset mềm nếu explicit bay quá xa
+      if (rE > 1000) reset();
+    }
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  document.getElementById('orbitDt').addEventListener('input', e => {
+    dt = +e.target.value;
+    document.getElementById('orbitDtVal').textContent = dt.toFixed(3);
+    reset();
+  });
+  document.getElementById('orbitPlay').onclick = function () {
+    running = !running; this.textContent = running ? '⏸ Tạm dừng' : '▶ Chạy';
+  };
+  document.getElementById('orbitReset').onclick = reset;
+
+  reset(); frame();
+  return {};
+})();
+
+// ════════════════════════════════════════════════════════════════════
+//  MODULE 2 — Spring 1D: x theo thời gian, slider Δt gây nổ
+//  a = -ω²x, ω = 4. Nghiệm đúng x = cos(ωt).
+// ════════════════════════════════════════════════════════════════════
+const spring = (() => {
+  const cv = document.getElementById('springCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height, mid = H / 2;
+  const omega = 4, T = 6;                          // vẽ 6 giây
+  let dt = 0.20;
+
+  function simulate() {
+    // trả về mảng điểm cho mỗi phương pháp: x theo t
+    const steps = Math.max(2, Math.floor(T / dt));
+    const tArr = [];
+    let ex = { x: 1, v: 0 }, se = { x: 1, v: 0 };
+    let vOld = 1 - 0 * dt + 0.5 * (-omega * omega * 1) * dt * dt; // verlet p_-1
+    let vCur = 1;
+    const E = [], S = [], V = [], EX = [];
+    for (let i = 0; i <= steps; i++) {
+      const t = i * dt;
+      tArr.push(t);
+      E.push(ex.x); S.push(se.x); V.push(vCur); EX.push(Math.cos(omega * t));
+      // advance
+      const axE = -omega * omega * ex.x;
+      ex.x += ex.v * dt; ex.v += axE * dt;          // explicit
+      const axS = -omega * omega * se.x;
+      se.v += axS * dt; se.x += se.v * dt;          // semi-implicit
+      const axV = -omega * omega * vCur;
+      const vn = 2 * vCur - vOld + axV * dt * dt;    // verlet
+      vOld = vCur; vCur = vn;
+    }
+    return { tArr, E, S, V, EX, steps };
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // lưới + trục
+    ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, mid); ctx.lineTo(W, mid); ctx.stroke();
+
+    const data = simulate();
+    const yScale = (H / 2) / 2.2;                   // biên độ ~1 nằm gọn; clamp ngoài là "nổ"
+    const xOf = t => (t / T) * W;
+    const yOf = x => mid - x * yScale;
+
+    plot(data.tArr, data.EX, COL.exact, true);
+    plot(data.tArr, data.E, COL.expl, false);
+    plot(data.tArr, data.S, COL.semi, false);
+    plot(data.tArr, data.V, COL.verl, false);
+
+    function plot(tA, xA, col, dashed) {
+      ctx.strokeStyle = col; ctx.lineWidth = 2;
+      ctx.setLineDash(dashed ? [6, 5] : []);
+      ctx.beginPath();
+      let started = false;
+      for (let i = 0; i < tA.length; i++) {
+        let y = yOf(xA[i]);
+        // clamp để thấy "nổ" chạm mép (không vẽ ra ngoài vô tận)
+        const clamped = Math.max(-20, Math.min(H + 20, y));
+        const px = xOf(tA[i]);
+        if (!started) { ctx.moveTo(px, clamped); started = true; }
+        else ctx.lineTo(px, clamped);
+      }
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+  }
+
+  function update() {
+    document.getElementById('springDtVal').textContent = dt.toFixed(2);
+    const wdt = omega * dt;
+    document.getElementById('springWdt').textContent = wdt.toFixed(2);
+    const verdict = document.getElementById('springVerdict');
+    if (wdt >= 2) { verdict.className = 'blowup'; verdict.textContent = 'NỔ (ω·Δt ≥ 2)'; }
+    else if (wdt >= 1.4) { verdict.className = 'blowup'; verdict.textContent = 'gần ngưỡng — explicit nổ'; }
+    else { verdict.className = 'stable'; verdict.textContent = 'ổn định'; }
+    draw();
+  }
+
+  document.getElementById('springDt').addEventListener('input', e => {
+    dt = +e.target.value; update();
+  });
+  update();
+  return {};
+})();
+
+// ════════════════════════════════════════════════════════════════════
+//  MODULE 3 — Energy theo thời gian (cuộn realtime)
+//  E = ½(v² + ω²x²) — đúng phải là hằng. ω = 4.
+// ════════════════════════════════════════════════════════════════════
+const energy = (() => {
+  const cv = document.getElementById('energyCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const omega = 4;
+  let dt = 0.12, running = true;
+  let ex, se, verl, hist, E0;
+
+  function reset() {
+    ex = { x: 1, v: 0 };
+    se = { x: 1, v: 0 };
+    verl = { x: 1, ox: 1 - 0 * dt + 0.5 * (-omega * omega * 1) * dt * dt, prev: 1 };
+    E0 = 0.5 * (0 + omega * omega * 1);             // năng lượng đúng = ½ω²
+    hist = { E: [], S: [], V: [] };
+  }
+  function energyOf(x, v) { return 0.5 * (v * v + omega * omega * x * x); }
+
+  function step() {
+    // explicit
+    const axE = -omega * omega * ex.x;
+    const vEbefore = ex.v;
+    ex.x += ex.v * dt; ex.v += axE * dt;
+    hist.E.push(energyOf(ex.x, ex.v));
+    // semi-implicit
+    const axS = -omega * omega * se.x;
+    se.v += axS * dt; se.x += se.v * dt;
+    hist.S.push(energyOf(se.x, se.v));
+    // verlet (v ước lượng từ (x - ox)/dt sau khi update)
+    const axV = -omega * omega * verl.x;
+    const nx = 2 * verl.x - verl.ox + axV * dt * dt;
+    const vV = (nx - verl.ox) / (2 * dt);
+    verl.ox = verl.x; verl.x = nx;
+    hist.V.push(energyOf(verl.x, vV));
+    const cap = 320;
+    for (const k of ['E', 'S', 'V']) if (hist[k].length > cap) hist[k].shift();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const yMax = E0 * 3;                            // trục y: 0 .. 3·E0
+    const yOf = e => H - (Math.min(e, yMax) / yMax) * (H - 10) - 5;
+    // đường E đúng (vàng)
+    ctx.strokeStyle = COL.exact; ctx.setLineDash([6, 5]); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(0, yOf(E0)); ctx.lineTo(W, yOf(E0)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#9ca3af'; ctx.font = '12px monospace';
+    ctx.fillText('E đúng = ' + E0.toFixed(1), 8, yOf(E0) - 6);
+
+    plot(hist.E, COL.expl); plot(hist.S, COL.semi); plot(hist.V, COL.verl);
+    function plot(arr, col) {
+      if (arr.length < 2) return;
+      ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
+      const step = W / 320;
+      for (let i = 0; i < arr.length; i++) {
+        const px = i * step, py = yOf(arr[i]);
+        i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+      }
+      ctx.stroke();
+    }
+  }
+
+  function frame() {
+    if (running) step();
+    draw();
+    const last = a => a.length ? a[a.length - 1].toFixed(1) : '…';
+    document.getElementById('energyLive').textContent =
+      `E hiện tại — đỏ: ${last(hist.E)} · xanh lá: ${last(hist.S)} · xanh dương: ${last(hist.V)} (đúng = ${E0.toFixed(1)})`;
+    requestAnimationFrame(frame);
+  }
+
+  document.getElementById('energyDt').addEventListener('input', e => {
+    dt = +e.target.value;
+    document.getElementById('energyDtVal').textContent = dt.toFixed(2);
+    reset();
+  });
+  document.getElementById('energyPlay').onclick = function () {
+    running = !running; this.textContent = running ? '⏸ Tạm dừng' : '▶ Chạy';
+  };
+  document.getElementById('energyReset').onclick = reset;
+
+  document.getElementById('energyDtVal').textContent = dt.toFixed(2);
+  reset(); frame();
+  return {};
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

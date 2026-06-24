@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07 — SAT: Separating Axis Theorem (va chạm đa giác lồi)</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #be123c; }
+  h2 {
+    color: #e11d48; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fecdd3;
+  }
+  p.lead { color: #4b5563; }
+  .card {
+    background: white; border-radius: 10px; padding: 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+    border: 1px solid #fee2e2;
+  }
+  .hint { color: #6b7280; font-size: 13px; margin: 4px 0 10px; }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  label { font-weight: 600; color: #374151; font-size: 14px; }
+  code {
+    background: #fff1f2; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #be123c;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+
+  button {
+    background: #e11d48; color: white; border: none;
+    padding: 8px 14px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #be123c; }
+  button.ghost { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+  button.ghost:hover { background: #ffe4e6; }
+  button.ghost.active { background: #e11d48; color: white; border-color: #e11d48; }
+
+  input[type=range] { accent-color: #e11d48; max-width: 100%; }
+
+  canvas {
+    background: #fff5f6; border: 1px solid #fecdd3; border-radius: 8px;
+    display: block; touch-action: none;
+  }
+
+  .verdict {
+    display: inline-block; padding: 6px 14px; border-radius: 6px;
+    font-size: 14px; font-weight: 700; margin-top: 6px;
+  }
+  .verdict.hit { background: #fecdd3; color: #881337; }
+  .verdict.miss { background: #d1fae5; color: #065f46; }
+
+  .stat {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; background: #fff5f6; border: 1px solid #fecdd3;
+    border-radius: 6px; padding: 10px 12px; margin-top: 10px;
+    white-space: pre-wrap; line-height: 1.55; color: #4b5563;
+  }
+  .stat b { color: #be123c; }
+
+  /* Bảng trục/chiếu */
+  .axtable-wrap { overflow-x: auto; }
+  table.ax {
+    border-collapse: collapse; margin: 10px 0; font-size: 13px;
+    font-family: "SF Mono", Monaco, Consolas, monospace; min-width: 540px;
+  }
+  table.ax th, table.ax td {
+    border: 1px solid #fecdd3; padding: 6px 10px; text-align: center;
+  }
+  table.ax th { background: #fff1f2; color: #be123c; font-weight: 700; }
+  table.ax tr.sep td { background: #fee2e2; font-weight: 700; color: #881337; }
+  table.ax tr.mtv td { background: #ffe4e6; font-weight: 700; color: #9f1239; }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: #4b5563; margin-top: 6px; }
+  .legend span::before {
+    content: ''; display: inline-block; width: 12px; height: 12px;
+    border-radius: 3px; margin-right: 5px; vertical-align: -1px;
+  }
+  .legend .la::before { background: #2563eb; }
+  .legend .lb::before { background: #e11d48; }
+  .legend .lsep::before { background: #16a34a; }
+  .legend .lmtv::before { background: #f59e0b; }
+
+  .two-col { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+  .two-col > .pane { flex: 1 1 320px; min-width: 0; }
+
+  @media (max-width: 480px) {
+    .row { gap: 8px; }
+    button { padding: 7px 11px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-aabb-circle/visualization.html">← L06: AABB & Circle</a>
+  <span class="sep">·</span>
+  <span class="current">L07: SAT (Polygons)</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-broadphase-quadtree/visualization.html">L08: Broad-phase & Quadtree →</a>
+</nav>
+<main>
+  <h1>Lesson 07 — SAT: Separating Axis Theorem</h1>
+  <p class="lead">Va chạm đa giác lồi tổng quát. Kéo và xoay hai đa giác, xem các trục pháp tuyến và hình chiếu, trục tách được tô màu, và vector tách tối thiểu (MTV). Đơn vị toạ độ hiển thị theo lưới canvas.</p>
+
+  <h2>1. SAT Explorer — chiếu lên trục, tìm trục tách, tính MTV</h2>
+  <p class="hint">Kéo thân đa giác để di chuyển; dùng thanh trượt để xoay. Mỗi trục pháp tuyến của hai hình được chiếu thành một thanh <code>[min, max]</code> bên phải; trục có khe hở (trục tách) tô <b style="color:#16a34a">xanh lá</b>. Nếu chạm, mũi tên <b style="color:#f59e0b">cam</b> là MTV.</p>
+  <div class="card">
+    <div class="row">
+      <label>Xoay A: <input type="range" id="rotA" min="0" max="360" value="0"> <span class="mono" id="rotAv">0°</span></label>
+      <label>Xoay B: <input type="range" id="rotB" min="0" max="360" value="35"> <span class="mono" id="rotBv">35°</span></label>
+      <button class="ghost" id="presetMiss">Ví dụ KHÔNG chạm</button>
+      <button class="ghost" id="presetHit">Ví dụ CHẠM</button>
+    </div>
+    <div class="two-col">
+      <div class="pane">
+        <canvas id="cvShapes" width="440" height="360" viewBox="0 0 440 360"></canvas>
+        <div class="legend">
+          <span class="la">Đa giác A</span>
+          <span class="lb">Đa giác B</span>
+          <span class="lsep">Trục tách</span>
+          <span class="lmtv">MTV</span>
+        </div>
+      </div>
+      <div class="pane">
+        <canvas id="cvProj" width="440" height="360" viewBox="0 0 440 360"></canvas>
+        <div class="hint">Mỗi hàng = một trục. Thanh xanh = chiếu A, thanh đỏ = chiếu B. Có khe hở → trục tách.</div>
+      </div>
+    </div>
+    <div id="verdict1"></div>
+    <div class="axtable-wrap"><table class="ax" id="axTable"></table></div>
+  </div>
+
+  <h2>2. Xoay → AABB báo sai vs SAT đúng</h2>
+  <p class="hint">Cùng hai đa giác, hai bộ kiểm tra song song. AABB (hộp bao thẳng trục, nét đứt) báo "chạm" thừa khi vật xoay; SAT báo đúng. Xoay hình B để thấy AABB sai còn SAT đúng.</p>
+  <div class="card">
+    <div class="row">
+      <label>Xoay B: <input type="range" id="rotB2" min="0" max="360" value="45"> <span class="mono" id="rotB2v">45°</span></label>
+      <label>Khoảng cách: <input type="range" id="gap2" min="0" max="160" value="86"> <span class="mono" id="gap2v">86</span></label>
+    </div>
+    <canvas id="cvAABB" width="640" height="320" viewBox="0 0 640 320"></canvas>
+    <div class="row" style="margin-top:10px;">
+      <div>AABB nói: <span id="aabbVerdict" class="verdict"></span></div>
+      <div>SAT nói: <span id="satVerdict" class="verdict"></span></div>
+    </div>
+    <div class="stat" id="aabbExplain"></div>
+  </div>
+
+  <h2>3. Đa giác bay va chạm — SAT phát hiện + MTV đẩy ra</h2>
+  <p class="hint">Các đa giác lồi bay quanh hộp, dội tường. Mỗi cặp dùng SAT kiểm tra; khi chạm, dùng MTV đẩy rời và đảo vận tốc theo pháp tuyến va chạm. Đếm số lần SAT chạy mỗi frame để thấy chi phí O(cặp²) (lý do cần broad-phase ở L08).</p>
+  <div class="card">
+    <div class="row">
+      <button id="playBtn">⏸ Tạm dừng</button>
+      <button class="ghost" id="resetSim">Khởi tạo lại</button>
+      <label>Số đa giác: <input type="range" id="numShapes" min="3" max="9" value="5"> <span class="mono" id="numShapesv">5</span></label>
+    </div>
+    <canvas id="cvSim" width="640" height="380" viewBox="0 0 640 380"></canvas>
+    <div class="stat" id="simStat"></div>
+  </div>
+</main>
+
+<script>
+// ============================================================================
+//  Tiện ích vector & hình học SAT
+// ============================================================================
+const V = {
+  add: (a, b) => ({ x: a.x + b.x, y: a.y + b.y }),
+  sub: (a, b) => ({ x: a.x - b.x, y: a.y - b.y }),
+  scale: (a, s) => ({ x: a.x * s, y: a.y * s }),
+  dot: (a, b) => a.x * b.x + a.y * b.y,
+  len: a => Math.hypot(a.x, a.y),
+  norm: a => { const l = Math.hypot(a.x, a.y) || 1; return { x: a.x / l, y: a.y / l }; },
+};
+
+// Tạo đa giác đều/chữ nhật quanh tâm, xoay theo góc (radian)
+function makePoly(cx, cy, verts, angle) {
+  const c = Math.cos(angle), s = Math.sin(angle);
+  return verts.map(v => ({
+    x: cx + v.x * c - v.y * s,
+    y: cy + v.x * s + v.y * c,
+  }));
+}
+function rect(hw, hh) { return [{x:-hw,y:-hh},{x:hw,y:-hh},{x:hw,y:hh},{x:-hw,y:hh}]; }
+function regular(n, r) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2 - Math.PI / 2;
+    out.push({ x: r * Math.cos(a), y: r * Math.sin(a) });
+  }
+  return out;
+}
+
+// Pháp tuyến (đơn vị) của mỗi cạnh — gộp, loại trùng hướng
+function polyAxes(poly) {
+  const axes = [];
+  for (let i = 0; i < poly.length; i++) {
+    const p1 = poly[i], p2 = poly[(i + 1) % poly.length];
+    const edge = V.sub(p2, p1);
+    let n = V.norm({ x: -edge.y, y: edge.x });
+    // chuẩn hoá dấu (lấy hướng dương) để loại trùng ngược
+    if (n.x < -1e-9 || (Math.abs(n.x) < 1e-9 && n.y < 0)) n = V.scale(n, -1);
+    if (!axes.some(a => Math.abs(a.x - n.x) < 1e-6 && Math.abs(a.y - n.y) < 1e-6))
+      axes.push(n);
+  }
+  return axes;
+}
+
+function project(poly, axis) {
+  let min = Infinity, max = -Infinity;
+  for (const p of poly) {
+    const d = V.dot(p, axis);
+    if (d < min) min = d;
+    if (d > max) max = d;
+  }
+  return { min, max };
+}
+
+function centroid(poly) {
+  let x = 0, y = 0;
+  for (const p of poly) { x += p.x; y += p.y; }
+  return { x: x / poly.length, y: y / poly.length };
+}
+
+// SAT đầy đủ: trả {hit, mtv, axisInfo[]}
+function sat(a, b) {
+  const axes = [...polyAxes(a), ...polyAxes(b)];
+  let hit = true;
+  let minOverlap = Infinity, mtvAxis = null;
+  const info = [];
+  for (const axis of axes) {
+    const pa = project(a, axis), pb = project(b, axis);
+    const overlapping = pa.max >= pb.min && pb.max >= pa.min;
+    const overlap = Math.min(pa.max, pb.max) - Math.max(pa.min, pb.min);
+    info.push({ axis, pa, pb, overlapping, overlap });
+    if (!overlapping) hit = false;
+    if (overlapping && overlap < minOverlap) { minOverlap = overlap; mtvAxis = axis; }
+  }
+  let mtv = null;
+  if (hit && mtvAxis) {
+    const d = V.sub(centroid(b), centroid(a));
+    let dir = mtvAxis;
+    if (V.dot(d, dir) < 0) dir = V.scale(dir, -1);
+    mtv = V.scale(dir, minOverlap);
+  }
+  return { hit, mtv, minOverlap: hit ? minOverlap : null, info, axes };
+}
+
+function aabbOf(poly) {
+  let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
+  for (const p of poly) {
+    minx = Math.min(minx, p.x); maxx = Math.max(maxx, p.x);
+    miny = Math.min(miny, p.y); maxy = Math.max(maxy, p.y);
+  }
+  return { minx, miny, maxx, maxy };
+}
+function aabbHit(A, B) {
+  return A.minx <= B.maxx && A.maxx >= B.minx && A.miny <= B.maxy && A.maxy >= B.miny;
+}
+
+// ============================================================================
+//  Vẽ chung
+// ============================================================================
+function drawPoly(ctx, poly, fill, stroke) {
+  ctx.beginPath();
+  poly.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
+  ctx.closePath();
+  if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+  ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke();
+}
+function arrow(ctx, from, to, color, w = 2.5) {
+  const ang = Math.atan2(to.y - from.y, to.x - from.x);
+  const h = 9;
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = w;
+  ctx.beginPath(); ctx.moveTo(from.x, from.y); ctx.lineTo(to.x, to.y); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(to.x, to.y);
+  ctx.lineTo(to.x - h * Math.cos(ang - 0.4), to.y - h * Math.sin(ang - 0.4));
+  ctx.lineTo(to.x - h * Math.cos(ang + 0.4), to.y - h * Math.sin(ang + 0.4));
+  ctx.closePath(); ctx.fill();
+}
+
+// ============================================================================
+//  MODULE 1 — SAT Explorer
+// ============================================================================
+const cv1 = document.getElementById('cvShapes');
+const ctx1 = cv1.getContext('2d');
+const cvP = document.getElementById('cvProj');
+const ctxP = cvP.getContext('2d');
+
+let polyA = { center: { x: 150, y: 180 }, angle: 0, base: rect(55, 35), color: '#2563eb' };
+let polyB = { center: { x: 285, y: 175 }, angle: 35 * Math.PI / 180, base: regular(5, 50), color: '#e11d48' };
+
+function worldPoly(p) { return makePoly(p.center.x, p.center.y, p.base, p.angle); }
+
+function renderModule1() {
+  const A = worldPoly(polyA), B = worldPoly(polyB);
+  const res = sat(A, B);
+
+  // Canvas hình
+  ctx1.clearRect(0, 0, cv1.width, cv1.height);
+  drawPoly(ctx1, A, 'rgba(37,99,235,0.16)', polyA.color);
+  drawPoly(ctx1, B, 'rgba(225,29,72,0.16)', polyB.color);
+  // nhãn
+  const cA = centroid(A), cB = centroid(B);
+  ctx1.fillStyle = polyA.color; ctx1.font = 'bold 15px sans-serif';
+  ctx1.fillText('A', cA.x - 5, cA.y + 5);
+  ctx1.fillStyle = polyB.color; ctx1.fillText('B', cB.x - 5, cB.y + 5);
+
+  // MTV
+  if (res.hit && res.mtv) {
+    arrow(ctx1, cB, V.add(cB, V.scale(res.mtv, 1)), '#f59e0b', 3);
+  }
+
+  // Canvas chiếu — mỗi trục một hàng
+  ctxP.clearRect(0, 0, cvP.width, cvP.height);
+  const rows = res.info.length;
+  const rowH = Math.min(40, (cvP.height - 20) / rows);
+  const x0 = 90, x1 = cvP.width - 20;
+  // scale: tìm dải min/max toàn cục để fit
+  res.info.forEach((it, i) => {
+    const y = 16 + i * rowH + rowH / 2;
+    const lo = Math.min(it.pa.min, it.pb.min), hi = Math.max(it.pa.max, it.pb.max);
+    const span = (hi - lo) || 1;
+    const map = v => x0 + (v - lo) / span * (x1 - x0);
+    // nhãn trục
+    ctxP.fillStyle = it.overlapping ? '#9ca3af' : '#16a34a';
+    ctxP.font = '11px monospace';
+    ctxP.fillText(`(${it.axis.x.toFixed(2)},${it.axis.y.toFixed(2)})`, 4, y + 3);
+    // đường trục
+    ctxP.strokeStyle = '#e5e7eb'; ctxP.lineWidth = 1;
+    ctxP.beginPath(); ctxP.moveTo(x0, y); ctxP.lineTo(x1, y); ctxP.stroke();
+    // thanh A
+    ctxP.fillStyle = it.overlapping ? 'rgba(37,99,235,0.85)' : '#2563eb';
+    ctxP.fillRect(map(it.pa.min), y - 9, map(it.pa.max) - map(it.pa.min), 7);
+    // thanh B
+    ctxP.fillStyle = it.overlapping ? 'rgba(225,29,72,0.85)' : '#e11d48';
+    ctxP.fillRect(map(it.pb.min), y + 2, map(it.pb.max) - map(it.pb.min), 7);
+    // tô khe hở
+    if (!it.overlapping) {
+      const gLo = Math.min(it.pa.max, it.pb.max), gHi = Math.max(it.pa.min, it.pb.min);
+      ctxP.fillStyle = 'rgba(22,163,74,0.25)';
+      ctxP.fillRect(map(gLo), y - 9, map(gHi) - map(gLo), 18);
+      ctxP.strokeStyle = '#16a34a'; ctxP.lineWidth = 1.5;
+      ctxP.strokeRect(map(gLo), y - 9, map(gHi) - map(gLo), 18);
+    }
+  });
+
+  // Verdict
+  const v = document.getElementById('verdict1');
+  if (res.hit) {
+    v.innerHTML = `<span class="verdict hit">CHẠM</span> &nbsp; MTV = (${res.mtv.x.toFixed(1)}, ${res.mtv.y.toFixed(1)}), độ lún nhỏ nhất = ${res.minOverlap.toFixed(2)}`;
+  } else {
+    v.innerHTML = `<span class="verdict miss">KHÔNG CHẠM</span> &nbsp; tìm thấy ít nhất một trục tách (khe hở).`;
+  }
+
+  // Bảng
+  let html = '<tr><th>Trục (đơn vị)</th><th>chiếu A [min,max]</th><th>chiếu B [min,max]</th><th>Chồng?</th><th>overlap</th></tr>';
+  let minIdx = -1, minOv = Infinity;
+  res.info.forEach((it, i) => { if (it.overlapping && it.overlap < minOv) { minOv = it.overlap; minIdx = i; } });
+  res.info.forEach((it, i) => {
+    const cls = !it.overlapping ? 'sep' : (res.hit && i === minIdx ? 'mtv' : '');
+    html += `<tr class="${cls}">
+      <td>(${it.axis.x.toFixed(2)}, ${it.axis.y.toFixed(2)})</td>
+      <td>[${it.pa.min.toFixed(1)}, ${it.pa.max.toFixed(1)}]</td>
+      <td>[${it.pb.min.toFixed(1)}, ${it.pb.max.toFixed(1)}]</td>
+      <td>${it.overlapping ? '✓' : '✗ TÁCH'}</td>
+      <td>${it.overlapping ? it.overlap.toFixed(2) : `gap ${(-it.overlap).toFixed(2)}`}</td>
+    </tr>`;
+  });
+  document.getElementById('axTable').innerHTML = html;
+}
+
+// Kéo & xoay
+let dragging = null, dragOff = { x: 0, y: 0 };
+function cvPos(cv, e) {
+  const r = cv.getBoundingClientRect();
+  const t = e.touches ? e.touches[0] : e;
+  return { x: (t.clientX - r.left) * (cv.width / r.width), y: (t.clientY - r.top) * (cv.height / r.height) };
+}
+function pointInPoly(pt, poly) {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const xi = poly[i].x, yi = poly[i].y, xj = poly[j].x, yj = poly[j].y;
+    if (((yi > pt.y) !== (yj > pt.y)) && (pt.x < (xj - xi) * (pt.y - yi) / (yj - yi) + xi)) inside = !inside;
+  }
+  return inside;
+}
+function startDrag(e) {
+  const p = cvPos(cv1, e);
+  if (pointInPoly(p, worldPoly(polyB))) { dragging = polyB; }
+  else if (pointInPoly(p, worldPoly(polyA))) { dragging = polyA; }
+  if (dragging) { dragOff = V.sub(p, dragging.center); e.preventDefault(); }
+}
+function moveDrag(e) {
+  if (!dragging) return;
+  const p = cvPos(cv1, e);
+  dragging.center = V.sub(p, dragOff);
+  renderModule1();
+  e.preventDefault();
+}
+function endDrag() { dragging = null; }
+cv1.addEventListener('mousedown', startDrag);
+window.addEventListener('mousemove', moveDrag);
+window.addEventListener('mouseup', endDrag);
+cv1.addEventListener('touchstart', startDrag, { passive: false });
+window.addEventListener('touchmove', moveDrag, { passive: false });
+window.addEventListener('touchend', endDrag);
+
+document.getElementById('rotA').oninput = e => {
+  polyA.angle = e.target.value * Math.PI / 180;
+  document.getElementById('rotAv').textContent = e.target.value + '°';
+  renderModule1();
+};
+document.getElementById('rotB').oninput = e => {
+  polyB.angle = e.target.value * Math.PI / 180;
+  document.getElementById('rotBv').textContent = e.target.value + '°';
+  renderModule1();
+};
+document.getElementById('presetMiss').onclick = () => {
+  polyA.center = { x: 130, y: 180 }; polyA.angle = 0;
+  polyB.center = { x: 330, y: 175 }; polyB.angle = 35 * Math.PI / 180;
+  document.getElementById('rotA').value = 0; document.getElementById('rotAv').textContent = '0°';
+  document.getElementById('rotB').value = 35; document.getElementById('rotBv').textContent = '35°';
+  renderModule1();
+};
+document.getElementById('presetHit').onclick = () => {
+  polyA.center = { x: 165, y: 180 }; polyA.angle = 0;
+  polyB.center = { x: 250, y: 175 }; polyB.angle = 35 * Math.PI / 180;
+  document.getElementById('rotA').value = 0; document.getElementById('rotAv').textContent = '0°';
+  document.getElementById('rotB').value = 35; document.getElementById('rotBv').textContent = '35°';
+  renderModule1();
+};
+
+// ============================================================================
+//  MODULE 2 — AABB sai vs SAT đúng
+// ============================================================================
+const cvA = document.getElementById('cvAABB');
+const ctxA = cvA.getContext('2d');
+
+function renderModule2() {
+  const angB = +document.getElementById('rotB2').value * Math.PI / 180;
+  const gap = +document.getElementById('gap2').value;
+  document.getElementById('rotB2v').textContent = document.getElementById('rotB2').value + '°';
+  document.getElementById('gap2v').textContent = gap;
+
+  const cx = cvA.width / 2, cy = cvA.height / 2;
+  const A = makePoly(cx - gap / 2, cy, rect(48, 30), 0);
+  const B = makePoly(cx + gap / 2, cy, rect(48, 30), angB);
+
+  ctxA.clearRect(0, 0, cvA.width, cvA.height);
+
+  // AABB boxes (nét đứt)
+  const bA = aabbOf(A), bB = aabbOf(B);
+  ctxA.setLineDash([5, 4]); ctxA.lineWidth = 1.5;
+  ctxA.strokeStyle = '#93c5fd';
+  ctxA.strokeRect(bA.minx, bA.miny, bA.maxx - bA.minx, bA.maxy - bA.miny);
+  ctxA.strokeStyle = '#fda4af';
+  ctxA.strokeRect(bB.minx, bB.miny, bB.maxx - bB.minx, bB.maxy - bB.miny);
+  ctxA.setLineDash([]);
+
+  drawPoly(ctxA, A, 'rgba(37,99,235,0.18)', '#2563eb');
+  drawPoly(ctxA, B, 'rgba(225,29,72,0.18)', '#e11d48');
+
+  const aHit = aabbHit(bA, bB);
+  const res = sat(A, B);
+
+  const av = document.getElementById('aabbVerdict');
+  av.textContent = aHit ? 'CHẠM' : 'KHÔNG CHẠM';
+  av.className = 'verdict ' + (aHit ? 'hit' : 'miss');
+  const sv = document.getElementById('satVerdict');
+  sv.textContent = res.hit ? 'CHẠM' : 'KHÔNG CHẠM';
+  sv.className = 'verdict ' + (res.hit ? 'hit' : 'miss');
+
+  let msg = '';
+  if (aHit && !res.hit) {
+    msg = 'AABB báo CHẠM nhưng SAT báo KHÔNG.\n→ Đây là FALSE POSITIVE của AABB: hộp bao của hình xoay chồng nhau, nhưng hình THẬT có khe hở. SAT chiếu lên các pháp tuyến cạnh và tìm được trục tách → kết luận đúng.';
+  } else if (aHit && res.hit) {
+    msg = 'Cả AABB và SAT đều báo CHẠM — lần này hai hình chạm thật, AABB không sai.';
+  } else {
+    msg = 'AABB và SAT đều báo KHÔNG CHẠM. Khi hộp bao đã rời nhau thì hình thật chắc chắn rời (AABB không bao giờ báo SÓT).';
+  }
+  document.getElementById('aabbExplain').textContent = msg;
+}
+document.getElementById('rotB2').oninput = renderModule2;
+document.getElementById('gap2').oninput = renderModule2;
+
+// ============================================================================
+//  MODULE 3 — Đa giác bay va chạm dùng SAT + MTV
+// ============================================================================
+const cvS = document.getElementById('cvSim');
+const ctxS = cvS.getContext('2d');
+let shapes = [], playing = true, satCallsThisFrame = 0;
+
+function initSim(n) {
+  shapes = [];
+  for (let i = 0; i < n; i++) {
+    const sides = 3 + (i % 4); // tam giác..lục giác
+    const r = 22 + (i % 3) * 6;
+    shapes.push({
+      center: { x: 60 + Math.random() * (cvS.width - 120), y: 60 + Math.random() * (cvS.height - 120) },
+      vel: { x: (Math.random() - 0.5) * 2.6, y: (Math.random() - 0.5) * 2.6 },
+      angle: Math.random() * Math.PI,
+      spin: (Math.random() - 0.5) * 0.04,
+      base: regular(sides, r),
+      r,
+    });
+  }
+}
+function simWorld(s) { return makePoly(s.center.x, s.center.y, s.base, s.angle); }
+
+function stepSim() {
+  // di chuyển + dội tường
+  for (const s of shapes) {
+    s.center.x += s.vel.x; s.center.y += s.vel.y; s.angle += s.spin;
+    if (s.center.x < s.r) { s.center.x = s.r; s.vel.x *= -1; }
+    if (s.center.x > cvS.width - s.r) { s.center.x = cvS.width - s.r; s.vel.x *= -1; }
+    if (s.center.y < s.r) { s.center.y = s.r; s.vel.y *= -1; }
+    if (s.center.y > cvS.height - s.r) { s.center.y = cvS.height - s.r; s.vel.y *= -1; }
+  }
+  // va chạm cặp đôi bằng SAT (broad-phase thô bằng khoảng cách tâm để demo chi phí)
+  satCallsThisFrame = 0;
+  const hits = new Set();
+  for (let i = 0; i < shapes.length; i++) {
+    for (let j = i + 1; j < shapes.length; j++) {
+      const a = shapes[i], b = shapes[j];
+      // lọc thô bằng bán kính (giống broad-phase nguyên thuỷ)
+      if (V.len(V.sub(a.center, b.center)) > a.r + b.r + 4) continue;
+      satCallsThisFrame++;
+      const res = sat(simWorld(a), simWorld(b));
+      if (res.hit && res.mtv) {
+        hits.add(i); hits.add(j);
+        // đẩy rời bằng MTV (chia đôi)
+        a.center = V.sub(a.center, V.scale(res.mtv, 0.5));
+        b.center = V.add(b.center, V.scale(res.mtv, 0.5));
+        // đảo vận tốc theo pháp tuyến va chạm (elastic đơn giản)
+        const n = V.norm(res.mtv);
+        const rel = V.sub(b.vel, a.vel);
+        const sep = V.dot(rel, n);
+        if (sep < 0) {
+          const imp = V.scale(n, sep);
+          a.vel = V.add(a.vel, imp);
+          b.vel = V.sub(b.vel, imp);
+        }
+      }
+    }
+  }
+  return hits;
+}
+
+function renderSim() {
+  ctxS.clearRect(0, 0, cvS.width, cvS.height);
+  let hits = new Set();
+  if (playing) hits = stepSim();
+  shapes.forEach((s, i) => {
+    const w = simWorld(s);
+    const on = hits.has(i);
+    drawPoly(ctxS, w, on ? 'rgba(225,29,72,0.30)' : 'rgba(37,99,235,0.14)', on ? '#e11d48' : '#2563eb');
+  });
+  const pairsTotal = shapes.length * (shapes.length - 1) / 2;
+  document.getElementById('simStat').innerHTML =
+    `Số đa giác: <b>${shapes.length}</b>  ·  Số cặp tối đa (O(N²)): <b>${pairsTotal}</b>  ·  ` +
+    `Số lần chạy SAT frame này (sau lọc bán kính): <b>${satCallsThisFrame}</b>\n` +
+    `→ Lọc thô bằng bán kính bỏ qua các cặp ở xa. Với N lớn, ngay cả ${pairsTotal} cặp cũng nhiều — L08 (Quadtree) lọc tốt hơn nhiều.`;
+  requestAnimationFrame(renderSim);
+}
+
+document.getElementById('playBtn').onclick = e => {
+  playing = !playing;
+  e.target.textContent = playing ? '⏸ Tạm dừng' : '▶ Chạy';
+};
+document.getElementById('resetSim').onclick = () => initSim(+document.getElementById('numShapes').value);
+document.getElementById('numShapes').oninput = e => {
+  document.getElementById('numShapesv').textContent = e.target.value;
+  initSim(+e.target.value);
+};
+
+// ============================================================================
+//  Init
+// ============================================================================
+renderModule1();
+renderModule2();
+initSim(5);
+renderSim();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

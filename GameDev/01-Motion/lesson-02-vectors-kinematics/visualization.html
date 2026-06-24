@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — Vectors & Kinematics Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #be123c; }
+  h2 {
+    color: #e11d48; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fecdd3;
+  }
+  p.lead { color: #4a5568; }
+  .card {
+    background: white; border-radius: 10px; padding: 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+    border: 1px solid #fecdd3;
+  }
+  .hint { color: #718096; font-size: 13px; margin: 6px 0; }
+  code {
+    background: #fff1f2; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #be123c;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; font-size: 14px; color: #4a5568; }
+  button {
+    background: #e11d48; color: white; border: none;
+    padding: 9px 16px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #be123c; }
+  button.ghost { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+  button.ghost:hover { background: #ffe4e6; }
+
+  input[type=range] { accent-color: #e11d48; width: 100%; max-width: 240px; }
+  .slider-box { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .slider-box .val { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px; color: #be123c; font-weight: 700; }
+
+  canvas { background: #fff5f6; border: 1px solid #fecdd3; border-radius: 8px; display: block; touch-action: none; }
+  svg { display: block; max-width: 100%; }
+
+  /* Readout panel */
+  .readout {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px; margin-top: 12px;
+  }
+  .stat {
+    background: #fff1f2; border-radius: 8px; padding: 10px 12px;
+    border-left: 4px solid #e11d48;
+  }
+  .stat .k { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #9f1239; font-weight: 700; }
+  .stat .v { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 17px; color: #1f2328; font-weight: 700; }
+
+  /* Toggle switch */
+  .toggle {
+    display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+    user-select: none; font-weight: 600; font-size: 14px;
+  }
+  .toggle .track {
+    width: 46px; height: 26px; background: #e2e8f0; border-radius: 999px;
+    position: relative; transition: background 0.18s;
+  }
+  .toggle .track::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 20px; height: 20px; background: white; border-radius: 50%;
+    transition: transform 0.18s; box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  }
+  .toggle.on .track { background: #e11d48; }
+  .toggle.on .track::after { transform: translateX(20px); }
+
+  .pill {
+    display: inline-block; padding: 3px 10px; border-radius: 999px;
+    font-size: 12px; font-weight: 700;
+  }
+  .pill.good { background: #dcfce7; color: #166534; }
+  .pill.bad { background: #ffe4e6; color: #9f1239; }
+
+  .keypad { display: inline-grid; grid-template-columns: repeat(3, 44px); gap: 6px; }
+  .keypad button { padding: 10px 0; font-size: 16px; }
+  .keypad .spacer { visibility: hidden; }
+
+  @media (max-width: 480px) {
+    .keypad { grid-template-columns: repeat(3, 38px); }
+    .keypad button { padding: 8px 0; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-game-loop-timestep/visualization.html">← L01: Game Loop & Timestep</a>
+  <span class="sep">·</span>
+  <span class="current">L02: Vectors & Kinematics</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-integration-euler-verlet/visualization.html">L03: Integration (Euler/Verlet) →</a>
+</nav>
+<main>
+  <h1>Lesson 02 — Vectors & Kinematics</h1>
+  <p class="lead">Ba mô phỏng tương tác: bắn projectile (quỹ đạo parabol), vector playground (cộng + chuẩn hoá), và demo bug "đi chéo nhanh gấp √2". Lưu ý hệ canvas: <strong>y hướng xuống</strong>, lên = y âm.</p>
+
+  <!-- ───────────── MODULE 1: PROJECTILE ───────────── -->
+  <h2>1. Projectile Launcher — ném xiên</h2>
+  <p class="hint">Chỉnh góc bắn + tốc độ đầu + trọng lực, bấm <strong>Bắn</strong> để xem quỹ đạo parabol. Có thể <strong>kéo trực tiếp mũi tên vận tốc đầu</strong> trên canvas. Tầm xa & độ cao max cập nhật realtime.</p>
+  <div class="card">
+    <div class="row">
+      <div class="slider-box">
+        <label>Góc bắn θ: <span class="val" id="pAngVal">35°</span></label>
+        <input type="range" id="pAng" min="5" max="85" value="35">
+      </div>
+      <div class="slider-box">
+        <label>Tốc độ đầu s: <span class="val" id="pSpdVal">260</span></label>
+        <input type="range" id="pSpd" min="80" max="420" value="260">
+      </div>
+      <div class="slider-box">
+        <label>Trọng lực g: <span class="val" id="pGVal">400</span></label>
+        <input type="range" id="pG" min="100" max="900" value="400">
+      </div>
+    </div>
+    <div class="row">
+      <button id="pFire">▶ Bắn</button>
+      <button class="ghost" id="pReset">↺ Reset</button>
+      <label class="toggle on" id="pTrail"><span class="track"></span> Vẽ vết quỹ đạo</label>
+    </div>
+    <canvas id="pCanvas" width="720" height="360"></canvas>
+    <div class="readout">
+      <div class="stat"><div class="k">v₀ (vx, vy)</div><div class="v" id="pV0">—</div></div>
+      <div class="stat"><div class="k">Tầm xa R</div><div class="v" id="pRange">—</div></div>
+      <div class="stat"><div class="k">Độ cao max H</div><div class="v" id="pHmax">—</div></div>
+      <div class="stat"><div class="k">Thời gian bay T</div><div class="v" id="pTime">—</div></div>
+    </div>
+    <p class="hint">Công thức: <code>R = s²·sin(2θ)/g</code> (xa nhất ở 45°), <code>H = s²·sin²θ/(2g)</code>, <code>T = 2·s·sinθ/g</code>. Đường nét đứt = quỹ đạo lý thuyết; chấm = vị trí mô phỏng từng frame.</p>
+  </div>
+
+  <!-- ───────────── MODULE 2: VECTOR PLAYGROUND ───────────── -->
+  <h2>2. Vector Playground — cộng & chuẩn hoá</h2>
+  <p class="hint">Kéo đầu hai vector <strong style="color:#e11d48">a</strong> (đỏ) và <strong style="color:#2563eb">b</strong> (xanh). Tổng <strong style="color:#16a34a">a+b</strong> (xanh lá) vẽ theo quy tắc nối đuôi. Bật chuẩn hoá để thấy vector đơn vị (độ dài 1) của <strong>a</strong>.</p>
+  <div class="card">
+    <div class="row">
+      <label class="toggle" id="vNorm"><span class="track"></span> Hiện vector chuẩn hoá â (độ dài 1)</label>
+    </div>
+    <svg id="vSvg" width="720" height="360" viewBox="0 0 720 360"></svg>
+    <div class="readout">
+      <div class="stat"><div class="k">a = (x, y)</div><div class="v" id="vA">—</div></div>
+      <div class="stat"><div class="k">b = (x, y)</div><div class="v" id="vB">—</div></div>
+      <div class="stat"><div class="k">a + b</div><div class="v" id="vSum">—</div></div>
+      <div class="stat"><div class="k">|a|</div><div class="v" id="vLenA">—</div></div>
+      <div class="stat"><div class="k">â = a / |a|</div><div class="v" id="vHat">—</div></div>
+    </div>
+    <p class="hint">Mỗi ô lưới = 40px. Vector hiển thị theo đơn vị lưới (chia 40) để dễ đọc. <code>â</code> luôn có độ dài đúng 1.</p>
+  </div>
+
+  <!-- ───────────── MODULE 3: DIAGONAL SPEED BUG ───────────── -->
+  <h2>3. Diagonal Speed Bug — đi chéo nhanh gấp √2</h2>
+  <p class="hint">Di chuyển hai chấm bằng phím <strong>WASD</strong> / mũi tên hoặc nút bên dưới. Chấm <span style="color:#dc2626;font-weight:700">đỏ = KHÔNG chuẩn hoá</span>, chấm <span style="color:#16a34a;font-weight:700">xanh = CÓ chuẩn hoá</span>. Giữ phím chéo (vd Right+Up) → chấm đỏ chạy nhanh hơn rõ rệt.</p>
+  <div class="card">
+    <div class="row">
+      <label class="toggle on" id="dNorm"><span class="track"></span> Chuẩn hoá chấm xanh</label>
+      <button class="ghost" id="dReset">↺ Reset vị trí</button>
+      <span class="hint" id="dFocusHint">Bấm vào khung rồi dùng WASD / phím mũi tên.</span>
+    </div>
+    <canvas id="dCanvas" width="720" height="340" tabindex="0"></canvas>
+    <div class="row" style="margin-top:12px;">
+      <div class="keypad">
+        <span class="spacer"></span>
+        <button data-dir="up">↑</button>
+        <span class="spacer"></span>
+        <button data-dir="left">←</button>
+        <button data-dir="down">↓</button>
+        <button data-dir="right">→</button>
+      </div>
+      <span class="hint">Giữ chuột trên nút để di chuyển liên tục. Thử bấm <strong>↑ và →</strong> cùng lúc (giữ một nút + một phím).</span>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Hướng input dir</div><div class="v" id="dDir">(0, 0)</div></div>
+      <div class="stat"><div class="k">Tốc độ chấm đỏ (thô)</div><div class="v" id="dSpdRed">0</div></div>
+      <div class="stat"><div class="k">Tốc độ chấm xanh</div><div class="v" id="dSpdGreen">0</div></div>
+      <div class="stat"><div class="k">Chênh lệch</div><div class="v" id="dRatio">—</div></div>
+    </div>
+    <p class="hint">Khi đi chéo mà KHÔNG chuẩn hoá: tốc độ = speed·√2 ≈ <strong>141%</strong> tốc độ đi thẳng. Bật chuẩn hoá → cả hai bằng nhau.</p>
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════
+// MODULE 1 — Projectile Launcher
+// ════════════════════════════════════════════════════════════════════════
+(function () {
+  const cv = document.getElementById('pCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const groundY = H - 30;     // mặt đất (canvas y)
+  const originX = 60, originY = groundY;  // điểm bắn
+
+  const angEl = document.getElementById('pAng');
+  const spdEl = document.getElementById('pSpd');
+  const gEl = document.getElementById('pG');
+  const trailToggle = document.getElementById('pTrail');
+
+  let trailOn = true;
+  let anim = null;
+  let dragging = false;
+
+  function params() {
+    return {
+      ang: +angEl.value,
+      spd: +spdEl.value,
+      g: +gEl.value,
+    };
+  }
+
+  function v0vec(p) {
+    const rad = p.ang * Math.PI / 180;
+    // canvas: lên = y âm → vy = -s·sin
+    return { vx: p.spd * Math.cos(rad), vy: -p.spd * Math.sin(rad) };
+  }
+
+  function stats(p) {
+    const rad = p.ang * Math.PI / 180;
+    const T = 2 * p.spd * Math.sin(rad) / p.g;
+    const R = p.spd * p.spd * Math.sin(2 * rad) / p.g;
+    const Hm = p.spd * p.spd * Math.sin(rad) * Math.sin(rad) / (2 * p.g);
+    return { T, R, Hm };
+  }
+
+  function drawStatic() {
+    const p = params();
+    const v0 = v0vec(p);
+    const s = stats(p);
+    ctx.clearRect(0, 0, W, H);
+
+    // ground
+    ctx.strokeStyle = '#fda4af';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(0, groundY); ctx.lineTo(W, groundY); ctx.stroke();
+
+    // theoretical parabola (dashed)
+    ctx.strokeStyle = '#fb7185';
+    ctx.setLineDash([5, 5]);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    let first = true;
+    for (let t = 0; t <= s.T; t += s.T / 120) {
+      const x = originX + v0.vx * t;
+      const y = originY + (v0.vy * t + 0.5 * p.g * t * t);
+      if (first) { ctx.moveTo(x, y); first = false; } else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // velocity arrow (draggable)
+    drawArrow(originX, originY, originX + v0.vx * 0.35, originY + v0.vy * 0.35, '#e11d48', 3);
+    // drag handle
+    ctx.fillStyle = '#be123c';
+    ctx.beginPath();
+    ctx.arc(originX + v0.vx * 0.35, originY + v0.vy * 0.35, 7, 0, Math.PI * 2);
+    ctx.fill();
+
+    // launch point
+    ctx.fillStyle = '#9f1239';
+    ctx.beginPath(); ctx.arc(originX, originY, 5, 0, Math.PI * 2); ctx.fill();
+
+    // labels
+    document.getElementById('pAngVal').textContent = p.ang + '°';
+    document.getElementById('pSpdVal').textContent = p.spd;
+    document.getElementById('pGVal').textContent = p.g;
+    document.getElementById('pV0').textContent = `(${v0.vx.toFixed(0)}, ${v0.vy.toFixed(0)})`;
+    document.getElementById('pRange').textContent = s.R.toFixed(1) + ' px';
+    document.getElementById('pHmax').textContent = s.Hm.toFixed(1) + ' px';
+    document.getElementById('pTime').textContent = s.T.toFixed(2) + ' s';
+  }
+
+  function drawArrow(x1, y1, x2, y2, color, lw) {
+    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = lw;
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    const a = Math.atan2(y2 - y1, x2 - x1);
+    const len = 11;
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - len * Math.cos(a - 0.4), y2 - len * Math.sin(a - 0.4));
+    ctx.lineTo(x2 - len * Math.cos(a + 0.4), y2 - len * Math.sin(a + 0.4));
+    ctx.closePath(); ctx.fill();
+  }
+
+  function fire() {
+    if (anim) cancelAnimationFrame(anim);
+    const p = params();
+    const v0 = v0vec(p);
+    let t = 0;
+    const dt = 1 / 60;
+    const trail = [];
+    const s = stats(p);
+    function step() {
+      // semi-implicit Euler trên vận tốc/vị trí
+      const x = originX + v0.vx * t;
+      const y = originY + (v0.vy * t + 0.5 * p.g * t * t);
+      drawStatic();
+      // trail
+      trail.push({ x, y });
+      if (trailOn) {
+        ctx.fillStyle = '#e11d48';
+        for (const pt of trail) {
+          ctx.beginPath(); ctx.arc(pt.x, pt.y, 2, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+      // projectile
+      ctx.fillStyle = '#be123c';
+      ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+
+      t += dt;
+      if (y < groundY + 4 && t <= s.T + 0.05) {
+        anim = requestAnimationFrame(step);
+      } else {
+        anim = null;
+      }
+    }
+    step();
+  }
+
+  // Drag the velocity arrow
+  function canvasPos(e) {
+    const r = cv.getBoundingClientRect();
+    const sx = cv.width / r.width, sy = cv.height / r.height;
+    const cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    const cy = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+    return { x: cx * sx, y: cy * sy };
+  }
+  function startDrag(e) {
+    const pos = canvasPos(e);
+    const v0 = v0vec(params());
+    const hx = originX + v0.vx * 0.35, hy = originY + v0.vy * 0.35;
+    if (Math.hypot(pos.x - hx, pos.y - hy) < 22) { dragging = true; e.preventDefault(); }
+  }
+  function moveDrag(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    const pos = canvasPos(e);
+    const dx = (pos.x - originX) / 0.35;
+    const dy = (pos.y - originY) / 0.35;
+    // chỉ chấp nhận khi bắn lên (vy âm)
+    const spd = Math.min(420, Math.max(80, Math.hypot(dx, dy)));
+    let ang = Math.atan2(-dy, dx) * 180 / Math.PI;  // lật y vì lên = âm
+    ang = Math.min(85, Math.max(5, ang));
+    angEl.value = Math.round(ang);
+    spdEl.value = Math.round(spd);
+    drawStatic();
+  }
+  function endDrag() { dragging = false; }
+
+  cv.addEventListener('mousedown', startDrag);
+  cv.addEventListener('mousemove', moveDrag);
+  window.addEventListener('mouseup', endDrag);
+  cv.addEventListener('touchstart', startDrag, { passive: false });
+  cv.addEventListener('touchmove', moveDrag, { passive: false });
+  window.addEventListener('touchend', endDrag);
+
+  [angEl, spdEl, gEl].forEach(el => el.addEventListener('input', drawStatic));
+  document.getElementById('pFire').onclick = fire;
+  document.getElementById('pReset').onclick = () => {
+    if (anim) cancelAnimationFrame(anim); anim = null;
+    angEl.value = 35; spdEl.value = 260; gEl.value = 400; drawStatic();
+  };
+  trailToggle.onclick = () => { trailOn = !trailOn; trailToggle.classList.toggle('on', trailOn); };
+
+  drawStatic();
+})();
+
+// ════════════════════════════════════════════════════════════════════════
+// MODULE 2 — Vector Playground (cộng + chuẩn hoá)
+// ════════════════════════════════════════════════════════════════════════
+(function () {
+  const svg = document.getElementById('vSvg');
+  const NS = 'http://www.w3.org/2000/svg';
+  const W = 720, H = 360, GRID = 40;
+  const ox = W / 2, oy = H / 2;  // gốc toạ độ ở giữa
+
+  const normToggle = document.getElementById('vNorm');
+  let showNorm = false;
+
+  // toạ độ canvas (px) của đầu hai vector
+  let aTip = { x: ox + 4 * GRID, y: oy - 2 * GRID };  // a = (4, 2) đơn vị lưới
+  let bTip = { x: ox - 2 * GRID, y: oy - 3 * GRID };  // b = (-2, 3)
+  let drag = null;
+
+  function el(tag, attrs) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  function arrow(x1, y1, x2, y2, color, w, dash) {
+    const g = el('g', {});
+    const line = el('line', { x1, y1, x2, y2, stroke: color, 'stroke-width': w });
+    if (dash) line.setAttribute('stroke-dasharray', '6 5');
+    g.appendChild(line);
+    const a = Math.atan2(y2 - y1, x2 - x1), len = 13;
+    const poly = el('polygon', {
+      points: `${x2},${y2} ${x2 - len * Math.cos(a - 0.4)},${y2 - len * Math.sin(a - 0.4)} ${x2 - len * Math.cos(a + 0.4)},${y2 - len * Math.sin(a + 0.4)}`,
+      fill: color
+    });
+    g.appendChild(poly);
+    return g;
+  }
+
+  function handle(x, y, color, key) {
+    const c = el('circle', { cx: x, cy: y, r: 9, fill: color, stroke: '#fff', 'stroke-width': 2, cursor: 'grab' });
+    c.dataset.key = key;
+    c.addEventListener('mousedown', e => { drag = key; e.preventDefault(); });
+    c.addEventListener('touchstart', e => { drag = key; e.preventDefault(); }, { passive: false });
+    return c;
+  }
+
+  // vector theo đơn vị lưới (toán học, y lên dương)
+  function gridVec(tip) {
+    return { x: (tip.x - ox) / GRID, y: -(tip.y - oy) / GRID };
+  }
+
+  function render() {
+    svg.innerHTML = '';
+    // grid
+    for (let x = 0; x <= W; x += GRID) svg.appendChild(el('line', { x1: x, y1: 0, x2: x, y2: H, stroke: '#fde2e6', 'stroke-width': 1 }));
+    for (let y = 0; y <= H; y += GRID) svg.appendChild(el('line', { x1: 0, y1: y, x2: W, y2: y, stroke: '#fde2e6', 'stroke-width': 1 }));
+    // axes
+    svg.appendChild(el('line', { x1: 0, y1: oy, x2: W, y2: oy, stroke: '#fda4af', 'stroke-width': 2 }));
+    svg.appendChild(el('line', { x1: ox, y1: 0, x2: ox, y2: H, stroke: '#fda4af', 'stroke-width': 2 }));
+
+    const a = gridVec(aTip), b = gridVec(bTip);
+    const sumTip = { x: aTip.x + (bTip.x - ox), y: aTip.y + (bTip.y - oy) };
+    const sum = { x: a.x + b.x, y: a.y + b.y };
+
+    // a+b (parallelogram tail-to-head): from a's tip, add b
+    svg.appendChild(arrow(aTip.x, aTip.y, sumTip.x, sumTip.y, '#93c5fd', 2, true)); // b dịch tới đầu a
+    svg.appendChild(arrow(ox, oy, sumTip.x, sumTip.y, '#16a34a', 3.5));            // tổng
+    // a, b
+    svg.appendChild(arrow(ox, oy, aTip.x, aTip.y, '#e11d48', 3.5));
+    svg.appendChild(arrow(ox, oy, bTip.x, bTip.y, '#2563eb', 3.5));
+
+    // normalized â (length 1 grid unit) — dùng độ dài theo đơn vị lưới
+    const lenA = Math.hypot(a.x, a.y);
+    if (showNorm && lenA > 1e-6) {
+      const hx = a.x / lenA, hy = a.y / lenA;       // unit vector (grid units)
+      svg.appendChild(arrow(ox, oy, ox + hx * GRID, oy - hy * GRID, '#f59e0b', 4));
+    }
+
+    // handles
+    svg.appendChild(handle(aTip.x, aTip.y, '#e11d48', 'a'));
+    svg.appendChild(handle(bTip.x, bTip.y, '#2563eb', 'b'));
+
+    // readouts
+    document.getElementById('vA').textContent = `(${a.x.toFixed(1)}, ${a.y.toFixed(1)})`;
+    document.getElementById('vB').textContent = `(${b.x.toFixed(1)}, ${b.y.toFixed(1)})`;
+    document.getElementById('vSum').textContent = `(${sum.x.toFixed(1)}, ${sum.y.toFixed(1)})`;
+    document.getElementById('vLenA').textContent = lenA.toFixed(3);
+    const hat = lenA > 1e-6 ? `(${(a.x / lenA).toFixed(3)}, ${(a.y / lenA).toFixed(3)})` : '—';
+    document.getElementById('vHat').textContent = hat;
+  }
+
+  function svgPos(e) {
+    const r = svg.getBoundingClientRect();
+    const sx = W / r.width, sy = H / r.height;
+    const cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    const cy = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+    return { x: cx * sx, y: cy * sy };
+  }
+  function onMove(e) {
+    if (!drag) return;
+    e.preventDefault();
+    const p = svgPos(e);
+    // snap nhẹ về nửa ô lưới
+    const snap = v => Math.round(v / (GRID / 2)) * (GRID / 2);
+    const tip = { x: Math.max(0, Math.min(W, snap(p.x))), y: Math.max(0, Math.min(H, snap(p.y))) };
+    if (drag === 'a') aTip = tip; else bTip = tip;
+    render();
+  }
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchmove', onMove, { passive: false });
+  window.addEventListener('mouseup', () => drag = null);
+  window.addEventListener('touchend', () => drag = null);
+
+  normToggle.onclick = () => { showNorm = !showNorm; normToggle.classList.toggle('on', showNorm); render(); };
+
+  render();
+})();
+
+// ════════════════════════════════════════════════════════════════════════
+// MODULE 3 — Diagonal Speed Bug
+// ════════════════════════════════════════════════════════════════════════
+(function () {
+  const cv = document.getElementById('dCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const SPEED = 200;
+  const R = 12;
+
+  const normToggle = document.getElementById('dNorm');
+  let normalizeGreen = true;
+
+  const red = { x: W * 0.5, y: H * 0.5 };
+  const green = { x: W * 0.5, y: H * 0.5 };
+  const keys = { up: false, down: false, left: false, right: false };
+  let lastT = performance.now();
+
+  function dirVec() {
+    let dx = 0, dy = 0;
+    if (keys.left) dx -= 1;
+    if (keys.right) dx += 1;
+    if (keys.up) dy -= 1;
+    if (keys.down) dy += 1;
+    return { x: dx, y: dy };
+  }
+
+  function clampPos(p) {
+    p.x = Math.max(R, Math.min(W - R, p.x));
+    p.y = Math.max(R, Math.min(H - R, p.y));
+  }
+
+  function loop(now) {
+    const dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    const dir = dirVec();
+    const len = Math.hypot(dir.x, dir.y);
+
+    // RED: dùng dir thô (không chuẩn hoá) → đi chéo nhanh gấp √2
+    const redV = { x: dir.x * SPEED, y: dir.y * SPEED };
+    red.x += redV.x * dt; red.y += redV.y * dt; clampPos(red);
+
+    // GREEN: chuẩn hoá (nếu bật)
+    let gx = dir.x, gy = dir.y;
+    if (normalizeGreen && len > 1e-6) { gx = dir.x / len; gy = dir.y / len; }
+    const greenV = { x: gx * SPEED, y: gy * SPEED };
+    green.x += greenV.x * dt; green.y += greenV.y * dt; clampPos(green);
+
+    // draw
+    ctx.clearRect(0, 0, W, H);
+    // grid
+    ctx.strokeStyle = '#fde2e6'; ctx.lineWidth = 1;
+    for (let x = 0; x <= W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+    for (let y = 0; y <= H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+    // red dot + label
+    ctx.fillStyle = '#dc2626';
+    ctx.beginPath(); ctx.arc(red.x, red.y, R, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#7f1d1d'; ctx.font = '11px monospace'; ctx.textAlign = 'center';
+    ctx.fillText('thô', red.x, red.y - R - 5);
+    // green dot + label
+    ctx.fillStyle = '#16a34a';
+    ctx.beginPath(); ctx.arc(green.x, green.y, R, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#14532d';
+    ctx.fillText('norm', green.x, green.y - R - 5);
+
+    // readouts
+    const redSpd = Math.hypot(redV.x, redV.y);
+    const greenSpd = Math.hypot(greenV.x, greenV.y);
+    document.getElementById('dDir').textContent = `(${dir.x}, ${dir.y})`;
+    document.getElementById('dSpdRed').textContent = redSpd.toFixed(0) + ' px/s';
+    document.getElementById('dSpdGreen').textContent = greenSpd.toFixed(0) + ' px/s';
+    const ratioEl = document.getElementById('dRatio');
+    if (redSpd > 1 && greenSpd > 1) {
+      const r = (redSpd / greenSpd);
+      ratioEl.innerHTML = r > 1.05
+        ? `<span class="pill bad">đỏ nhanh ${(r * 100 - 100).toFixed(0)}%</span>`
+        : `<span class="pill good">bằng nhau</span>`;
+    } else {
+      ratioEl.textContent = '—';
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  // keyboard
+  const keyMap = {
+    'arrowup': 'up', 'w': 'up', 'arrowdown': 'down', 's': 'down',
+    'arrowleft': 'left', 'a': 'left', 'arrowright': 'right', 'd': 'right'
+  };
+  function setKey(e, val) {
+    const k = keyMap[e.key.toLowerCase()];
+    if (k) { keys[k] = val; e.preventDefault(); }
+  }
+  cv.addEventListener('keydown', e => setKey(e, true));
+  cv.addEventListener('keyup', e => setKey(e, false));
+  cv.addEventListener('focus', () => { document.getElementById('dFocusHint').textContent = 'Đang nhận phím — dùng WASD / mũi tên.'; });
+  cv.addEventListener('blur', () => { document.getElementById('dFocusHint').textContent = 'Bấm vào khung rồi dùng WASD / phím mũi tên.'; });
+
+  // on-screen buttons (hold to move)
+  document.querySelectorAll('.keypad button[data-dir]').forEach(btn => {
+    const dir = btn.dataset.dir;
+    const press = e => { keys[dir] = true; e.preventDefault(); };
+    const release = () => { keys[dir] = false; };
+    btn.addEventListener('mousedown', press);
+    btn.addEventListener('touchstart', press, { passive: false });
+    btn.addEventListener('mouseup', release);
+    btn.addEventListener('mouseleave', release);
+    btn.addEventListener('touchend', release);
+  });
+
+  document.getElementById('dReset').onclick = () => {
+    red.x = green.x = W * 0.5; red.y = green.y = H * 0.5;
+  };
+  normToggle.onclick = () => { normalizeGreen = !normalizeGreen; normToggle.classList.toggle('on', normalizeGreen); };
+
+  requestAnimationFrame(loop);
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

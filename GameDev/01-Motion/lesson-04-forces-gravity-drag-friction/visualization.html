@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — Forces: Gravity, Drag, Friction</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #be123c; }
+  h2 {
+    color: #e11d48; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fecdd3;
+  }
+  .card {
+    background: white; border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  p.lead { color: #4a5568; }
+  .hint { color: #6b7280; font-size: 13px; margin: 6px 0; }
+
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  label { font-weight: 600; }
+  .ctl { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1 1 200px; }
+  .ctl .lab { font-size: 13px; font-weight: 600; color: #4a5568; display: flex; justify-content: space-between; gap: 8px; }
+  .ctl .lab .v { font-family: monospace; color: #be123c; font-weight: 700; }
+  input[type="range"] { width: 100%; accent-color: #e11d48; }
+
+  button {
+    background: #e11d48; color: white; border: none;
+    padding: 8px 14px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #be123c; }
+  button.sec { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+  button.sec:hover { background: #ffe4e6; }
+
+  .toggles { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #fff1f2; border: 1px solid #fecdd3; border-radius: 20px;
+    padding: 5px 12px; font-size: 13px; font-weight: 600; cursor: pointer;
+    color: #9f1239; user-select: none;
+  }
+  .toggle input { accent-color: #e11d48; cursor: pointer; }
+  .toggle.on { background: #ffe4e6; border-color: #fb7185; }
+
+  canvas {
+    display: block; width: 100%; background: #1f2937;
+    border-radius: 10px; margin: 10px 0; touch-action: none;
+  }
+  canvas.light { background: #f8fafc; border: 1px solid #fecdd3; }
+
+  .readout {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;
+  }
+  .pill {
+    background: #fff1f2; color: #9f1239; border-radius: 6px;
+    padding: 6px 12px; font-family: monospace; font-size: 13px;
+  }
+  .pill strong { color: #be123c; }
+
+  .note {
+    background: #fff1f2; border-left: 4px solid #fb7185;
+    padding: 12px 16px; border-radius: 0 6px 6px 0; margin: 14px 0;
+    font-size: 14px; color: #7f1d1d;
+  }
+  .note b { color: #be123c; }
+
+  table.ref {
+    border-collapse: collapse; width: 100%; font-size: 13px; margin: 10px 0;
+  }
+  table.ref th, table.ref td {
+    border: 1px solid #fecdd3; padding: 6px 10px; text-align: left;
+  }
+  table.ref th { background: #fff1f2; color: #9f1239; }
+  .scroll-x { overflow-x: auto; }
+
+  .split { display: flex; gap: 16px; flex-wrap: wrap; }
+  .split > .col { flex: 1 1 280px; min-width: 0; }
+
+  @media (max-width: 480px) {
+    .ctl { flex: 1 1 100%; }
+    .pill { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-integration-euler-verlet/visualization.html">← L03: Integration (Euler/Verlet)</a>
+  <span class="sep">·</span>
+  <span class="current">L04: Forces (Gravity/Drag/Friction)</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-springs-oscillation/visualization.html">L05: Springs & Oscillation →</a>
+</nav>
+
+<main>
+  <h1>Lesson 04 — Forces: Gravity, Drag, Friction</h1>
+  <p class="lead">Lực sinh gia tốc (<code>a = F/m</code>), gia tốc đổi vận tốc, vận tốc đổi vị trí. Ba module mô phỏng realtime: chơi với các lực, so lông vũ vs bi sắt, và quan sát ma sát.</p>
+
+  <!-- ============ MODULE 1: FORCE PLAYGROUND ============ -->
+  <h2>1. Force Playground — bật/tắt từng lực</h2>
+  <p class="hint">Vật rơi từ trên. Bật/tắt từng lực, kéo slider khối lượng và hệ số drag <code>k</code>, thêm gió. Đường ngang nét đứt = vận tốc tới hạn dự đoán (drag tuyến tính). Biểu đồ phải dưới vẽ tốc độ theo thời gian.</p>
+  <div class="card">
+    <div class="toggles" id="pgToggles">
+      <label class="toggle on"><input type="checkbox" id="tGravity" checked> Trọng lực (m·g)</label>
+      <label class="toggle"><input type="checkbox" id="tDragLin"> Drag tuyến tính (−k·v)</label>
+      <label class="toggle"><input type="checkbox" id="tDragQuad"> Drag bậc hai (−k·|v|·v)</label>
+      <label class="toggle"><input type="checkbox" id="tWind"> Gió (lực ngang)</label>
+    </div>
+    <div class="row">
+      <div class="ctl">
+        <span class="lab">Khối lượng m <span class="v" id="pgMassV">2.0 kg</span></span>
+        <input type="range" id="pgMass" min="0.2" max="8" step="0.1" value="2">
+      </div>
+      <div class="ctl">
+        <span class="lab">Hệ số drag k <span class="v" id="pgKV">0.40</span></span>
+        <input type="range" id="pgK" min="0" max="2" step="0.02" value="0.4">
+      </div>
+      <div class="ctl">
+        <span class="lab">Gió (N, +phải) <span class="v" id="pgWindV">0</span></span>
+        <input type="range" id="pgWind" min="-20" max="20" step="1" value="0">
+      </div>
+    </div>
+    <div class="row">
+      <button id="pgReset" class="sec">↺ Thả lại</button>
+      <button id="pgPause">⏸ Tạm dừng</button>
+    </div>
+    <canvas id="pgCanvas" width="640" height="320"></canvas>
+    <canvas id="pgChart" class="light" width="640" height="160"></canvas>
+    <div class="readout" id="pgReadout"></div>
+    <div class="note" id="pgNote"></div>
+  </div>
+
+  <!-- ============ MODULE 2: FEATHER vs IRON ============ -->
+  <h2>2. Lông vũ vs Bi sắt — chân không vs không khí</h2>
+  <p class="hint">Hai vật thả cùng lúc, cùng độ cao. Gạt công tắc để bật/tắt không khí (drag). Quan sát: trong chân không chúng chạm đáy <b>cùng lúc</b>; trong không khí lông vũ rơi chậm hơn nhiều vì drag lớn so với khối lượng.</p>
+  <div class="card">
+    <div class="toggles">
+      <label class="toggle" id="airToggleWrap"><input type="checkbox" id="fiAir"> Có không khí (drag bật)</label>
+    </div>
+    <div class="row">
+      <button id="fiDrop" class="sec">↺ Thả lại</button>
+    </div>
+    <canvas id="fiCanvas" width="640" height="340"></canvas>
+    <div class="readout" id="fiReadout"></div>
+    <div class="note">
+      <b>Bi sắt:</b> m = 5 kg, k = 0.1 → v<sub>t</sub> = mg/k = 490 m/s (gần như rơi tự do).
+      <b>Lông vũ:</b> m = 0.01 kg, k = 0.5 → v<sub>t</sub> = 0.196 m/s (rơi rất chậm).
+      Tắt không khí → cả hai chỉ chịu trọng lực → cùng gia tốc g → rơi y hệt.
+    </div>
+  </div>
+
+  <!-- ============ MODULE 3: FRICTION LAB ============ -->
+  <h2>3. Friction Lab — vector lực realtime</h2>
+  <p class="hint">Hộp được "búng" sang phải rồi trượt trên mặt. Kéo slider μ (hệ số ma sát động) để thấy nó dừng nhanh/chậm. Mũi tên vẽ realtime: <span style="color:#10b981">■ vận tốc</span>, <span style="color:#f59e0b">■ ma sát</span>, <span style="color:#3b82f6">■ trọng lực</span>, <span style="color:#a855f7">■ pháp tuyến N</span>.</p>
+  <div class="card">
+    <div class="row">
+      <div class="ctl">
+        <span class="lab">Hệ số ma sát μ <span class="v" id="frMuV">0.30</span></span>
+        <input type="range" id="frMu" min="0" max="1" step="0.01" value="0.3">
+      </div>
+      <div class="ctl">
+        <span class="lab">Vận tốc búng (m/s) <span class="v" id="frV0V">6.0</span></span>
+        <input type="range" id="frV0" min="1" max="12" step="0.5" value="6">
+      </div>
+    </div>
+    <div class="row">
+      <button id="frKick" class="sec">→ Búng hộp</button>
+    </div>
+    <canvas id="frCanvas" class="light" width="640" height="260"></canvas>
+    <div class="readout" id="frReadout"></div>
+    <div class="note">
+      Ma sát: <code>F_f = μ·N = μ·m·g</code>, luôn ngược hướng vận tốc. Khi tốc độ còn nhỏ hơn lượng giảm/frame, ta <b>kẹp v = 0</b> — nếu không hộp sẽ <i>đảo chiều</i> rồi rung quanh 0.
+    </div>
+  </div>
+
+  <h2>4. Bảng tham chiếu hệ số ma sát μ (động)</h2>
+  <div class="card scroll-x">
+    <table class="ref">
+      <tr><th>Bề mặt</th><th>μ (xấp xỉ)</th><th>Cảm giác</th></tr>
+      <tr><td>Băng trên băng</td><td>0.02 – 0.05</td><td>trượt rất lâu mới dừng</td></tr>
+      <tr><td>Thép trên thép (có dầu)</td><td>0.05 – 0.1</td><td>trơn</td></tr>
+      <tr><td>Gỗ trên gỗ</td><td>0.2 – 0.4</td><td>vừa phải</td></tr>
+      <tr><td>Cao su trên bê tông khô</td><td>0.6 – 1.0</td><td>rất bám, dừng nhanh</td></tr>
+    </table>
+    <p class="hint">Trong game, μ là "núm chỉnh độ trơn" của bề mặt — chính tham số bạn kéo ở module 3.</p>
+  </div>
+</main>
+
+<script>
+"use strict";
+// ============================================================
+// Tiện ích chung
+// ============================================================
+const G = 9.8;            // gia tốc trọng trường (m/s²)
+const DT = 1 / 60;        // bước thời gian cố định
+function $(id) { return document.getElementById(id); }
+function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+
+// ============================================================
+// MODULE 1 — FORCE PLAYGROUND
+// ============================================================
+(function () {
+  const cv = $("pgCanvas"), ctx = cv.getContext("2d");
+  const chart = $("pgChart"), cctx = chart.getContext("2d");
+  const W = cv.width, H = cv.height;
+  const PPM = 14;          // pixel mỗi mét (để map tốc độ vào màn)
+
+  let body, paused = false, hist = [], t = 0;
+
+  function readControls() {
+    return {
+      gravity: $("tGravity").checked,
+      dragLin: $("tDragLin").checked,
+      dragQuad: $("tDragQuad").checked,
+      wind: $("tWind").checked,
+      mass: parseFloat($("pgMass").value),
+      k: parseFloat($("pgK").value),
+      windF: parseFloat($("pgWind").value),
+    };
+  }
+
+  function reset() {
+    body = { x: W / 2, y: 30, vx: 0, vy: 0 };
+    hist = []; t = 0;
+  }
+  reset();
+
+  // Vận tốc tới hạn dự đoán (chỉ ý nghĩa khi drag tuyến tính + gravity, không gió đứng)
+  function terminalV(c) {
+    if (!c.gravity || c.k <= 0) return null;
+    if (c.dragLin) return c.mass * G / c.k;            // v_t = mg/k
+    if (c.dragQuad) return Math.sqrt(c.mass * G / c.k); // v_t = sqrt(mg/k)
+    return null;
+  }
+
+  function step() {
+    const c = readControls();
+    // --- gom lực (accumulator), chia khối lượng → gia tốc ---
+    let fx = 0, fy = 0;
+    if (c.gravity) fy += c.mass * G;                   // trọng lực (canvas: +y = xuống)
+    if (c.wind) fx += c.windF;                          // gió ngang
+    const vx = body.vx, vy = body.vy;
+    const speed = Math.hypot(vx, vy);
+    if (c.dragLin && c.k > 0) {                         // -k·v
+      fx += -c.k * vx; fy += -c.k * vy;
+    }
+    if (c.dragQuad && c.k > 0 && speed > 1e-6) {        // -k·|v|·v
+      fx += -c.k * speed * vx; fy += -c.k * speed * vy;
+    }
+    const ax = fx / c.mass, ay = fy / c.mass;
+    // --- tích phân semi-implicit Euler ---
+    body.vx += ax * DT; body.vy += ay * DT;
+    body.x += body.vx * DT * PPM;
+    body.y += body.vy * DT * PPM;
+    t += DT;
+
+    // chạm đáy → nảy nhẹ giảm chấn để vẫn quan sát được
+    if (body.y > H - 16) { body.y = H - 16; body.vy *= -0.4; }
+    if (body.y < 16) { body.y = 16; body.vy *= -0.4; }
+    if (body.x < 16) { body.x = 16; body.vx *= -0.5; }
+    if (body.x > W - 16) { body.x = W - 16; body.vx *= -0.5; }
+
+    hist.push(Math.hypot(body.vx, body.vy));
+    if (hist.length > W) hist.shift();
+    return { c, speed: Math.hypot(body.vx, body.vy), ax, ay };
+  }
+
+  function drawScene(st) {
+    ctx.clearRect(0, 0, W, H);
+    // lưới mờ
+    ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1;
+    for (let gy = 0; gy < H; gy += 40) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
+    // đường vận tốc tới hạn (chiều cao tương ứng tốc độ — chỉ minh họa định tính bằng nhãn)
+    const vt = terminalV(st.c);
+    // vật
+    ctx.fillStyle = "#fb7185";
+    ctx.beginPath(); ctx.arc(body.x, body.y, 12, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
+    // vector vận tốc
+    const vs = 6;
+    ctx.strokeStyle = "#10b981"; ctx.lineWidth = 3;
+    arrow(ctx, body.x, body.y, body.x + body.vx * vs, body.y + body.vy * vs);
+    // nhãn
+    ctx.fillStyle = "#e5e7eb"; ctx.font = "13px monospace";
+    ctx.fillText("tốc độ |v| = " + st.speed.toFixed(2) + " m/s", 12, 22);
+    if (vt != null) ctx.fillText("v_t (dự đoán) = " + vt.toFixed(2) + " m/s", 12, 42);
+  }
+
+  function drawChart() {
+    const w = chart.width, h = chart.height;
+    cctx.clearRect(0, 0, w, h);
+    if (hist.length < 2) return;
+    const maxV = Math.max(1, ...hist) * 1.1;
+    // đường tới hạn
+    const c = readControls(), vt = terminalV(c);
+    if (vt != null && vt < maxV) {
+      const yv = h - (vt / maxV) * h;
+      cctx.strokeStyle = "#fb7185"; cctx.setLineDash([6, 4]); cctx.lineWidth = 1.5;
+      cctx.beginPath(); cctx.moveTo(0, yv); cctx.lineTo(w, yv); cctx.stroke();
+      cctx.setLineDash([]);
+      cctx.fillStyle = "#be123c"; cctx.font = "11px monospace";
+      cctx.fillText("v_t = " + vt.toFixed(2), 6, Math.max(12, yv - 4));
+    }
+    // đường tốc độ
+    cctx.strokeStyle = "#e11d48"; cctx.lineWidth = 2; cctx.beginPath();
+    for (let i = 0; i < hist.length; i++) {
+      const x = (i / w) * w, y = h - (hist[i] / maxV) * h;
+      i === 0 ? cctx.moveTo(x, y) : cctx.lineTo(x, y);
+    }
+    cctx.stroke();
+    cctx.fillStyle = "#64748b"; cctx.font = "11px monospace";
+    cctx.fillText("|v| theo thời gian →", 6, 14);
+  }
+
+  function readout(st) {
+    $("pgReadout").innerHTML =
+      pill("a", "(" + st.ax.toFixed(2) + ", " + st.ay.toFixed(2) + ") m/s²") +
+      pill("v", "(" + body.vx.toFixed(2) + ", " + body.vy.toFixed(2) + ")") +
+      pill("|v|", st.speed.toFixed(2) + " m/s");
+    const vt = terminalV(st.c);
+    let msg;
+    if (vt == null) {
+      if (!st.c.gravity) msg = "Chưa bật trọng lực — vật trôi theo lực còn lại.";
+      else if (st.c.k === 0 || (!st.c.dragLin && !st.c.dragQuad))
+        msg = "Chỉ trọng lực, không drag → vật tăng tốc mãi (không có v_t), tới khi chạm đáy.";
+      else msg = "Đang mô phỏng…";
+    } else {
+      msg = "Drag cân bằng trọng lực ở <b>v_t = " + vt.toFixed(2) +
+            " m/s</b>: |v| tăng dần rồi <i>bão hòa</i> ở giá trị này (đường nét đứt).";
+    }
+    $("pgNote").innerHTML = msg;
+  }
+
+  function loop() {
+    if (!paused) { const st = step(); drawScene(st); drawChart(); readout(st); }
+    requestAnimationFrame(loop);
+  }
+
+  // sync nhãn slider + class toggle
+  function syncLabels() {
+    $("pgMassV").textContent = parseFloat($("pgMass").value).toFixed(1) + " kg";
+    $("pgKV").textContent = parseFloat($("pgK").value).toFixed(2);
+    $("pgWindV").textContent = $("pgWind").value;
+  }
+  ["pgMass", "pgK", "pgWind"].forEach(id => $(id).addEventListener("input", syncLabels));
+  ["tGravity", "tDragLin", "tDragQuad", "tWind"].forEach(id =>
+    $(id).addEventListener("change", e => e.target.closest(".toggle").classList.toggle("on", e.target.checked)));
+  $("pgReset").addEventListener("click", reset);
+  $("pgPause").addEventListener("click", e => {
+    paused = !paused; e.target.textContent = paused ? "▶ Tiếp tục" : "⏸ Tạm dừng";
+  });
+  syncLabels(); loop();
+})();
+
+// ============================================================
+// MODULE 2 — FEATHER vs IRON
+// ============================================================
+(function () {
+  const cv = $("fiCanvas"), ctx = cv.getContext("2d");
+  const W = cv.width, H = cv.height;
+  const GROUND = H - 24, TOP = 30, PPM = 6;
+  // hai vật: bi sắt (m=5,k=0.1) và lông vũ (m=0.01,k=0.5)
+  const IRON = { name: "Bi sắt", m: 5, k: 0.1, x: W * 0.32, color: "#94a3b8" };
+  const FEAT = { name: "Lông vũ", m: 0.01, k: 0.5, x: W * 0.68, color: "#fbbf24" };
+  let s1, s2, done;
+
+  function reset() {
+    s1 = { y: TOP, v: 0, landed: false };
+    s2 = { y: TOP, v: 0, landed: false };
+    done = false;
+  }
+  reset();
+
+  function stepBody(b, s, air) {
+    if (s.landed) return;
+    let f = b.m * G;                       // trọng lực
+    if (air) f += -b.k * s.v;              // drag tuyến tính (luôn cản)
+    const a = f / b.m;
+    s.v += a * DT;
+    s.y += s.v * DT * PPM;
+    if (s.y >= GROUND) { s.y = GROUND; s.landed = true; }
+  }
+
+  function drawObj(b, s) {
+    ctx.fillStyle = b.color;
+    ctx.beginPath(); ctx.arc(b.x, s.y, 11, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "#1f2937"; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = "#e5e7eb"; ctx.font = "12px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText(b.name, b.x, TOP - 12);
+    ctx.font = "11px monospace";
+    ctx.fillText("v=" + s.v.toFixed(2), b.x, s.y + 26);
+    ctx.textAlign = "left";
+  }
+
+  function loop() {
+    const air = $("fiAir").checked;
+    if (!done) {
+      stepBody(IRON, s1, air);
+      stepBody(FEAT, s2, air);
+      if (s1.landed && s2.landed) done = true;
+    }
+    ctx.clearRect(0, 0, W, H);
+    // mặt đất
+    ctx.fillStyle = "#374151"; ctx.fillRect(0, GROUND + 11, W, H - GROUND);
+    ctx.strokeStyle = "rgba(255,255,255,0.08)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, GROUND + 11); ctx.lineTo(W, GROUND + 11); ctx.stroke();
+    // nhãn chế độ
+    ctx.fillStyle = air ? "#fb7185" : "#34d399"; ctx.font = "14px sans-serif";
+    ctx.fillText(air ? "🌬 CÓ KHÔNG KHÍ — drag bật" : "🌑 CHÂN KHÔNG — chỉ trọng lực", 12, 22);
+    drawObj(IRON, s1); drawObj(FEAT, s2);
+    $("fiReadout").innerHTML =
+      pill("Bi sắt v", s1.v.toFixed(2) + (s1.landed ? " (chạm)" : "")) +
+      pill("Lông vũ v", s2.v.toFixed(2) + (s2.landed ? " (chạm)" : "")) +
+      pill("Chế độ", air ? "không khí" : "chân không");
+    requestAnimationFrame(loop);
+  }
+
+  $("fiDrop").addEventListener("click", reset);
+  $("fiAir").addEventListener("change", e => {
+    e.target.closest(".toggle").classList.toggle("on", e.target.checked);
+    reset();
+  });
+  loop();
+})();
+
+// ============================================================
+// MODULE 3 — FRICTION LAB
+// ============================================================
+(function () {
+  const cv = $("frCanvas"), ctx = cv.getContext("2d");
+  const W = cv.width, H = cv.height;
+  const GROUND = H - 40, PPM = 26, MASS = 2;
+  let box;
+
+  function reset() {
+    box = { x: 60, v: 0 };
+  }
+  reset();
+
+  function kick() {
+    box.x = 60;
+    box.v = parseFloat($("frV0").value);
+  }
+
+  function step() {
+    const mu = parseFloat($("frMu").value);
+    const N = MASS * G;                    // mặt ngang: N = mg
+    const Ff = mu * N;                      // độ lớn lực ma sát
+    const aF = Ff / MASS;                   // gia tốc giảm tốc
+    if (Math.abs(box.v) > 1e-6) {
+      const dv = aF * DT;
+      if (Math.abs(box.v) <= dv) box.v = 0;          // KẸP về 0 — không cho đảo chiều
+      else box.v -= Math.sign(box.v) * dv;
+    }
+    box.x += box.v * DT * PPM;
+    if (box.x > W - 40) { box.x = W - 40; box.v = 0; }
+    if (box.x < 30) { box.x = 30; box.v = 0; }
+    return { mu, N, Ff, aF };
+  }
+
+  function arrowLbl(x, y, dx, dy, color, label) {
+    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 3;
+    arrow(ctx, x, y, x + dx, y + dy);
+    ctx.font = "11px monospace";
+    ctx.fillText(label, x + dx + 4 * Math.sign(dx || 1), y + dy + (dy < 0 ? -4 : 14));
+  }
+
+  function loop() {
+    const st = step();
+    ctx.clearRect(0, 0, W, H);
+    // mặt sàn
+    ctx.fillStyle = "#fecdd3"; ctx.fillRect(0, GROUND + 18, W, H - GROUND);
+    ctx.strokeStyle = "#fb7185"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(0, GROUND + 18); ctx.lineTo(W, GROUND + 18); ctx.stroke();
+    // hộp
+    const bx = box.x, by = GROUND;
+    ctx.fillStyle = "#e11d48"; ctx.fillRect(bx - 18, by - 18, 36, 36);
+    ctx.strokeStyle = "#9f1239"; ctx.lineWidth = 2; ctx.strokeRect(bx - 18, by - 18, 36, 36);
+    // tâm để vẽ vector
+    const cx = bx, cy = by;
+    // vận tốc (xanh lá) — chỉ vẽ nếu đang chạy
+    if (Math.abs(box.v) > 1e-3) arrowLbl(cx, cy - 26, box.v * 12, 0, "#10b981", "v=" + box.v.toFixed(2));
+    // ma sát (cam) — ngược v
+    if (Math.abs(box.v) > 1e-3) arrowLbl(cx, cy, -Math.sign(box.v) * Math.min(80, st.Ff * 6), 0, "#f59e0b", "F_f=" + st.Ff.toFixed(1));
+    // trọng lực (xanh dương) — xuống
+    arrowLbl(cx + 28, cy, 0, Math.min(70, st.N * 2.0), "#3b82f6", "mg");
+    // pháp tuyến (tím) — lên
+    arrowLbl(cx - 28, cy, 0, -Math.min(70, st.N * 2.0), "#a855f7", "N");
+    // trạng thái dừng
+    if (Math.abs(box.v) < 1e-3) {
+      ctx.fillStyle = "#9f1239"; ctx.font = "13px sans-serif";
+      ctx.fillText("⏹ Đã dừng (v kẹp về 0)", 12, 22);
+    }
+    $("frReadout").innerHTML =
+      pill("μ", st.mu.toFixed(2)) +
+      pill("N=mg", st.N.toFixed(1) + " N") +
+      pill("F_f=μN", st.Ff.toFixed(2) + " N") +
+      pill("a giảm tốc", st.aF.toFixed(2) + " m/s²") +
+      pill("v", box.v.toFixed(2) + " m/s");
+    requestAnimationFrame(loop);
+  }
+
+  function syncLabels() {
+    $("frMuV").textContent = parseFloat($("frMu").value).toFixed(2);
+    $("frV0V").textContent = parseFloat($("frV0").value).toFixed(1);
+  }
+  ["frMu", "frV0"].forEach(id => $(id).addEventListener("input", syncLabels));
+  $("frKick").addEventListener("click", kick);
+  syncLabels(); kick(); loop();
+})();
+
+// ============================================================
+// Helpers dùng chung (sau các module để hoisting hàm hoạt động)
+// ============================================================
+function arrow(ctx, x1, y1, x2, y2) {
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  const ang = Math.atan2(y2 - y1, x2 - x1), len = Math.hypot(x2 - x1, y2 - y1);
+  if (len < 4) return;
+  const hl = 7;
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - hl * Math.cos(ang - 0.4), y2 - hl * Math.sin(ang - 0.4));
+  ctx.lineTo(x2 - hl * Math.cos(ang + 0.4), y2 - hl * Math.sin(ang + 0.4));
+  ctx.closePath(); ctx.fill();
+}
+function pill(label, val) {
+  return '<span class="pill">' + label + ' = <strong>' + val + '</strong></span>';
+}
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — Springs &amp; Oscillation Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #be123c; }
+  h2 {
+    color: #e11d48; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fecdd3;
+  }
+  p.lead { color: #475569; }
+  .card {
+    background: white; border-radius: 10px; padding: 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+    border: 1px solid #fce7eb;
+  }
+  .hint { color: #64748b; font-size: 13px; margin: 6px 0; }
+  code {
+    background: #fff1f2; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #be123c;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+
+  /* Controls */
+  .controls { display: flex; flex-wrap: wrap; gap: 18px; margin: 10px 0; }
+  .ctrl { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1 1 160px; }
+  .ctrl label { font-weight: 600; font-size: 13px; color: #475569; }
+  .ctrl .val { font-family: "SF Mono", Monaco, Consolas, monospace; color: #e11d48; font-weight: 700; }
+  input[type=range] { width: 100%; accent-color: #e11d48; }
+
+  button {
+    background: #e11d48; color: white; border: none;
+    padding: 8px 14px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #be123c; }
+  button.ghost { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+  button.ghost:hover { background: #fecdd3; }
+
+  canvas {
+    background: #fff5f6; border: 1px solid #fecdd3; border-radius: 8px;
+    display: block; max-width: 100%; height: auto;
+    touch-action: none;
+  }
+
+  .readout {
+    font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 13px;
+    background: #fff1f2; border-radius: 6px; padding: 8px 12px; margin-top: 10px;
+    color: #475569; line-height: 1.7;
+  }
+  .readout b { color: #be123c; }
+
+  .mode-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 12px;
+    font-size: 12px; font-weight: 700; margin-left: 6px;
+  }
+  .mode-under { background: #fef3c7; color: #92400e; }
+  .mode-crit { background: #dcfce7; color: #166534; }
+  .mode-over { background: #dbeafe; color: #1e40af; }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin: 8px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 16px; height: 4px; border-radius: 2px; display: inline-block; }
+
+  @media (max-width: 480px) {
+    .ctrl { flex: 1 1 100%; }
+    .controls { gap: 12px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-04-forces-gravity-drag-friction/visualization.html">← L04: Forces</a>
+  <span class="sep">·</span>
+  <span class="current">L05: Springs &amp; Oscillation</span>
+  <span class="sep">·</span>
+  <a href="../../02-Collision/lesson-01-aabb-circle/visualization.html">L06: AABB &amp; Circle →</a>
+</nav>
+
+<main>
+  <h1>Lesson 05 — Springs &amp; Oscillation</h1>
+  <p class="lead">
+    Ba mô phỏng tương tác thời gian thực: (1) khối gắn lò xo — kéo-thả rồi xem dao động theo
+    <code>k</code>, <code>c</code>, <code>m</code>; (2) camera đuổi đích bằng lò xo; (3) đồ thị vị trí
+    theo thời gian cho 3 chế độ damping cạnh nhau.
+  </p>
+
+  <h2>1. Khối lò xo — kéo, thả, dao động</h2>
+  <p class="hint">
+    Kéo khối hồng rồi thả ra. Lò xo kéo nó về vị trí nghỉ (đường đứt). Chỉnh độ cứng
+    <code>k</code>, damping <code>c</code>, khối lượng <code>m</code> để thấy 3 chế độ. Badge cho biết
+    đang under / critical / over-damped (so với <code>c_crit = 2√(km)</code>).
+  </p>
+  <div class="card">
+    <canvas id="blockCanvas" width="640" height="220" viewBox="0 0 640 220"></canvas>
+    <div class="controls" style="margin-top:12px">
+      <div class="ctrl">
+        <label>Độ cứng k = <span class="val" id="kVal">100</span> N/m</label>
+        <input type="range" id="kSlider" min="10" max="600" step="5" value="100">
+      </div>
+      <div class="ctrl">
+        <label>Damping c = <span class="val" id="cVal">4</span> N·s/m</label>
+        <input type="range" id="cSlider" min="0" max="80" step="1" value="4">
+      </div>
+      <div class="ctrl">
+        <label>Khối lượng m = <span class="val" id="mVal">1.0</span> kg</label>
+        <input type="range" id="mSlider" min="0.2" max="6" step="0.1" value="1">
+      </div>
+    </div>
+    <div class="controls">
+      <button id="pullBtn">Kéo lệch &amp; thả</button>
+      <button class="ghost" id="critBtn">Đặt c = c_crit (mượt không nảy)</button>
+    </div>
+    <div class="readout" id="blockOut"></div>
+  </div>
+
+  <h2>2. Camera follow — lò xo đuổi đích</h2>
+  <p class="hint">
+    Di chuyển chuột (hoặc chạm + kéo) trong khung để đặt đích (chấm xanh = nhân vật). Camera (khung
+    hồng) đuổi theo bằng lò xo. <code>k</code> thấp → đuổi mềm, trễ nhiều; <code>k</code> cao + damping
+    chuẩn → bám sát mượt. Bật under-damped để thấy camera vọt qua rồi nảy lại.
+  </p>
+  <div class="card">
+    <canvas id="camCanvas" width="640" height="260" viewBox="0 0 640 260"></canvas>
+    <div class="controls" style="margin-top:12px">
+      <div class="ctrl">
+        <label>Độ cứng k = <span class="val" id="camKVal">120</span></label>
+        <input type="range" id="camKSlider" min="10" max="400" step="5" value="120">
+      </div>
+      <div class="ctrl">
+        <label>Damping c = <span class="val" id="camCVal">22</span></label>
+        <input type="range" id="camCSlider" min="0" max="80" step="1" value="22">
+      </div>
+    </div>
+    <div class="controls">
+      <button class="ghost" id="camCritBtn">Đặt c = c_crit (camera mượt)</button>
+      <button class="ghost" id="camBounceBtn">Đặt under-damped (nảy)</button>
+    </div>
+    <div class="readout" id="camOut"></div>
+  </div>
+
+  <h2>3. Đồ thị vị trí — ba chế độ damping cạnh nhau</h2>
+  <p class="hint">
+    Cùng buông từ độ lệch x = 1 với cùng lò xo <code>k</code> và khối lượng <code>m</code>, ba đường
+    ứng với 3 mức damping. Under-damped nảy qua lại rồi tắt; critical về thẳng đích nhanh nhất không
+    nảy; over-damped bò về chậm. Trục ngang = thời gian, trục dọc = vị trí (đường giữa = đích x = 0).
+  </p>
+  <div class="card">
+    <canvas id="graphCanvas" width="640" height="280" viewBox="0 0 640 280"></canvas>
+    <div class="controls" style="margin-top:12px">
+      <div class="ctrl">
+        <label>Độ cứng k = <span class="val" id="gKVal">100</span> N/m</label>
+        <input type="range" id="gKSlider" min="20" max="400" step="5" value="100">
+      </div>
+      <div class="ctrl">
+        <label>Khối lượng m = <span class="val" id="gMVal">1.0</span> kg</label>
+        <input type="range" id="gMSlider" min="0.2" max="4" step="0.1" value="1">
+      </div>
+      <div class="ctrl">
+        <label>ζ under-damped = <span class="val" id="gZVal">0.20</span></label>
+        <input type="range" id="gZSlider" min="0.05" max="0.9" step="0.05" value="0.2">
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#f59e0b"></i> Under-damped (ζ&lt;1)</span>
+      <span><i class="swatch" style="background:#16a34a"></i> Critically damped (ζ=1)</span>
+      <span><i class="swatch" style="background:#2563eb"></i> Over-damped (ζ&gt;1)</span>
+    </div>
+    <div class="readout" id="graphOut"></div>
+  </div>
+</main>
+
+<script>
+// ────────────────────────────────────────────────────────────────────────────
+// Tiện ích chung: bước mô phỏng semi-implicit Euler cho lò xo 1 chiều.
+//   x = pos - target (độ lệch); a = (-k·x - c·v)/m; v += a·dt; pos += v·dt
+// ────────────────────────────────────────────────────────────────────────────
+function springStep(pos, vel, target, k, c, m, dt) {
+  const disp = pos - target;
+  const accel = (-k * disp - c * vel) / m;
+  const nv = vel + accel * dt;
+  const np = pos + nv * dt;
+  return [np, nv];
+}
+function cCrit(k, m) { return 2 * Math.sqrt(k * m); }
+function classify(c, k, m) {
+  const cc = cCrit(k, m);
+  const z = cc === 0 ? 0 : c / cc;
+  if (z < 0.98) return { mode: 'under', label: 'Under-damped (nảy)', cls: 'mode-under', z };
+  if (z <= 1.02) return { mode: 'crit', label: 'Critically damped', cls: 'mode-crit', z };
+  return { mode: 'over', label: 'Over-damped (chậm)', cls: 'mode-over', z };
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Module 1 — Khối lò xo: kéo-thả, dao động realtime
+// ────────────────────────────────────────────────────────────────────────────
+(function blockModule() {
+  const cv = document.getElementById('blockCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const anchorX = 70, restX = 430, midY = H / 2; // anchor (tường) → vị trí nghỉ
+  const pxPerM = 160; // 1 m = 160 px (để x≈1m hiển thị vừa khung)
+
+  let k = 100, c = 4, m = 1;
+  let pos = restX, vel = 0;       // pos tính theo px
+  let dragging = false;
+
+  const kS = document.getElementById('kSlider'), cS = document.getElementById('cSlider'), mS = document.getElementById('mSlider');
+  const out = document.getElementById('blockOut');
+
+  function syncLabels() {
+    document.getElementById('kVal').textContent = k;
+    document.getElementById('cVal').textContent = c;
+    document.getElementById('mVal').textContent = m.toFixed(1);
+  }
+  kS.oninput = () => { k = +kS.value; syncLabels(); };
+  cS.oninput = () => { c = +cS.value; syncLabels(); };
+  mS.oninput = () => { m = +mS.value; syncLabels(); };
+
+  document.getElementById('pullBtn').onclick = () => { pos = restX + 1.0 * pxPerM; vel = 0; };
+  document.getElementById('critBtn').onclick = () => {
+    c = Math.min(80, Math.round(cCrit(k, m)));
+    cS.value = c; syncLabels();
+  };
+
+  // Kéo-thả
+  function canvasX(ev) {
+    const r = cv.getBoundingClientRect();
+    const cx = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left;
+    return cx * (W / r.width); // quy đổi do canvas bị scale CSS
+  }
+  function blockRect() { return { x: pos - 26, y: midY - 26, w: 52, h: 52 }; }
+  function startDrag(ev) {
+    const mx = canvasX(ev);
+    if (Math.abs(mx - pos) < 60) { dragging = true; ev.preventDefault(); }
+  }
+  function moveDrag(ev) {
+    if (!dragging) return;
+    let mx = canvasX(ev);
+    mx = Math.max(restX - 0.9 * pxPerM, Math.min(restX + 1.05 * pxPerM, mx));
+    pos = mx; vel = 0; ev.preventDefault();
+  }
+  function endDrag() { dragging = false; }
+  cv.addEventListener('mousedown', startDrag);
+  cv.addEventListener('mousemove', moveDrag);
+  window.addEventListener('mouseup', endDrag);
+  cv.addEventListener('touchstart', startDrag, { passive: false });
+  cv.addEventListener('touchmove', moveDrag, { passive: false });
+  window.addEventListener('touchend', endDrag);
+
+  function drawSpring(x0, y0, x1, y1, coils) {
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    const segs = coils * 2;
+    const dx = (x1 - x0) / segs;
+    for (let i = 1; i < segs; i++) {
+      const yy = y0 + (i % 2 === 0 ? -16 : 16);
+      ctx.lineTo(x0 + dx * i, yy);
+    }
+    ctx.lineTo(x1, y1);
+    ctx.strokeStyle = '#fb7185'; ctx.lineWidth = 3; ctx.stroke();
+  }
+
+  let lastT = performance.now();
+  function frame(now) {
+    let dt = (now - lastT) / 1000; lastT = now;
+    if (dt > 0.05) dt = 0.05;                 // chống nhảy lớn khi tab ẩn
+    const subs = 4, sdt = dt / subs;          // substep cho ổn định khi k lớn
+    if (!dragging) {
+      for (let i = 0; i < subs; i++) {
+        const targetPx = restX;
+        // pos/vel ở px; lò xo dùng độ lệch theo m → quy đổi
+        const dispM = (pos - targetPx) / pxPerM;
+        const accelM = (-k * dispM - c * (vel / pxPerM)) / m; // m/s²
+        vel += accelM * pxPerM * sdt;
+        pos += vel * sdt;
+      }
+    }
+
+    ctx.clearRect(0, 0, W, H);
+    // tường (anchor)
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(anchorX - 14, midY - 60, 14, 120);
+    // đường nghỉ
+    ctx.setLineDash([6, 6]); ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(restX, 30); ctx.lineTo(restX, H - 20); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#94a3b8'; ctx.font = '12px monospace';
+    ctx.fillText('nghỉ (x=0)', restX - 30, H - 6);
+    // lò xo
+    drawSpring(anchorX, midY, pos - 26, midY, 8);
+    // khối
+    const r = blockRect();
+    ctx.fillStyle = dragging ? '#be123c' : '#e11d48';
+    ctx.fillRect(r.x, r.y, r.w, r.h);
+    ctx.fillStyle = 'white'; ctx.font = 'bold 13px monospace';
+    ctx.fillText(m.toFixed(1) + 'kg', r.x + 4, midY + 4);
+
+    const dispM = (pos - restX) / pxPerM;
+    const velM = vel / pxPerM;
+    const info = classify(c, k, m);
+    const omega = Math.sqrt(k / m);
+    out.innerHTML =
+      `x = <b>${dispM.toFixed(3)}</b> m &nbsp; v = <b>${velM.toFixed(3)}</b> m/s &nbsp; ` +
+      `F = -k·x - c·v = <b>${(-k * dispM - c * velM).toFixed(1)}</b> N<br>` +
+      `c_crit = 2√(km) = <b>${cCrit(k, m).toFixed(1)}</b> &nbsp; ζ = c/c_crit = <b>${info.z.toFixed(2)}</b> ` +
+      `<span class="mode-badge ${info.cls}">${info.label}</span><br>` +
+      `ω = √(k/m) = <b>${omega.toFixed(2)}</b> rad/s &nbsp; T = 2π/ω = <b>${(2 * Math.PI / omega).toFixed(3)}</b> s` +
+      (dragging ? ' &nbsp; <i>(đang kéo — thả ra để dao động)</i>' : '');
+    requestAnimationFrame(frame);
+  }
+  syncLabels();
+  pos = restX + 0.7 * pxPerM; // bắt đầu lệch sẵn cho thấy dao động
+  requestAnimationFrame(frame);
+})();
+
+// ────────────────────────────────────────────────────────────────────────────
+// Module 2 — Camera follow: lò xo đuổi đích (chuột/chạm)
+// ────────────────────────────────────────────────────────────────────────────
+(function cameraModule() {
+  const cv = document.getElementById('camCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+
+  let k = 120, c = 22, m = 1;
+  let camX = W / 2, camY = H / 2, vx = 0, vy = 0;
+  let tx = W / 2 + 160, ty = H / 2 - 40;
+  let autoT = 0, manual = false;
+
+  const kS = document.getElementById('camKSlider'), cS = document.getElementById('camCSlider');
+  const out = document.getElementById('camOut');
+  function sync() { document.getElementById('camKVal').textContent = k; document.getElementById('camCVal').textContent = c; }
+  kS.oninput = () => { k = +kS.value; sync(); };
+  cS.oninput = () => { c = +cS.value; sync(); };
+  document.getElementById('camCritBtn').onclick = () => { c = Math.min(80, Math.round(cCrit(k, m))); cS.value = c; sync(); };
+  document.getElementById('camBounceBtn').onclick = () => { c = Math.max(0, Math.round(cCrit(k, m) * 0.25)); cS.value = c; sync(); };
+
+  function setTarget(ev) {
+    const r = cv.getBoundingClientRect();
+    const sx = W / r.width, sy = H / r.height;
+    const px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left;
+    const py = (ev.touches ? ev.touches[0].clientY : ev.clientY) - r.top;
+    tx = Math.max(30, Math.min(W - 30, px * sx));
+    ty = Math.max(30, Math.min(H - 30, py * sy));
+    manual = true; ev.preventDefault();
+  }
+  cv.addEventListener('mousemove', setTarget);
+  cv.addEventListener('touchstart', setTarget, { passive: false });
+  cv.addEventListener('touchmove', setTarget, { passive: false });
+
+  let lastT = performance.now();
+  function frame(now) {
+    let dt = (now - lastT) / 1000; lastT = now;
+    if (dt > 0.05) dt = 0.05;
+    // Nếu chưa tương tác → đích tự đi vòng cho sống động
+    if (!manual) {
+      autoT += dt;
+      tx = W / 2 + Math.cos(autoT * 0.9) * 200;
+      ty = H / 2 + Math.sin(autoT * 1.5) * 70;
+    }
+    const subs = 4, sdt = dt / subs;
+    for (let i = 0; i < subs; i++) {
+      [camX, vx] = springStep(camX, vx, tx, k, c, m, sdt);
+      [camY, vy] = springStep(camY, vy, ty, k, c, m, sdt);
+    }
+
+    ctx.clearRect(0, 0, W, H);
+    // lưới mờ để thấy chuyển động
+    ctx.strokeStyle = '#fde8ec'; ctx.lineWidth = 1;
+    for (let gx = 0; gx < W; gx += 40) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
+    for (let gy = 0; gy < H; gy += 40) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
+    // nối camera → đích
+    ctx.strokeStyle = '#fda4af'; ctx.setLineDash([4, 4]); ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(camX, camY); ctx.lineTo(tx, ty); ctx.stroke(); ctx.setLineDash([]);
+    // khung camera
+    ctx.strokeStyle = '#e11d48'; ctx.lineWidth = 3;
+    ctx.strokeRect(camX - 55, camY - 38, 110, 76);
+    ctx.fillStyle = '#e11d48'; ctx.font = '11px monospace'; ctx.fillText('camera', camX - 24, camY - 44);
+    // nhân vật (đích)
+    ctx.fillStyle = '#2563eb'; ctx.beginPath(); ctx.arc(tx, ty, 11, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = '#1e40af'; ctx.fillText('nhân vật', tx - 26, ty - 16);
+
+    const info = classify(c, k, m);
+    const dist = Math.hypot(camX - tx, camY - ty);
+    out.innerHTML =
+      `khoảng cách camera→đích = <b>${dist.toFixed(0)}</b> px &nbsp; ` +
+      `c_crit = <b>${cCrit(k, m).toFixed(1)}</b> &nbsp; ζ = <b>${info.z.toFixed(2)}</b> ` +
+      `<span class="mode-badge ${info.cls}">${info.label}</span><br>` +
+      (manual ? '<i>Đang theo chuột/ngón tay.</i>' : '<i>Đích tự di chuyển — rê chuột/chạm để tự điều khiển.</i>');
+    requestAnimationFrame(frame);
+  }
+  sync();
+  requestAnimationFrame(frame);
+})();
+
+// ────────────────────────────────────────────────────────────────────────────
+// Module 3 — Đồ thị vị trí theo thời gian, 3 chế độ damping
+// ────────────────────────────────────────────────────────────────────────────
+(function graphModule() {
+  const cv = document.getElementById('graphCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const padL = 44, padR = 14, padT = 16, padB = 28;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+
+  let k = 100, m = 1, zUnder = 0.2;
+  const kS = document.getElementById('gKSlider'), mS = document.getElementById('gMSlider'), zS = document.getElementById('gZSlider');
+  const out = document.getElementById('graphOut');
+  function sync() {
+    document.getElementById('gKVal').textContent = k;
+    document.getElementById('gMVal').textContent = m.toFixed(1);
+    document.getElementById('gZVal').textContent = zUnder.toFixed(2);
+    redraw();
+  }
+  kS.oninput = () => { k = +kS.value; sync(); };
+  mS.oninput = () => { m = +mS.value; sync(); };
+  zS.oninput = () => { zUnder = +zS.value; sync(); };
+
+  // Mô phỏng một chế độ: trả mảng x(t) lấy mẫu trên [0, Tmax]
+  function simulate(c) {
+    const Tmax = 3.0, dt = 0.0008;
+    const pts = [];
+    let pos = 1.0, vel = 0;
+    const sample = Math.max(1, Math.round((Tmax / dt) / 600));
+    for (let i = 0, t = 0; t <= Tmax; i++, t += dt) {
+      [pos, vel] = springStep(pos, vel, 0, k, c, m, dt);
+      if (i % sample === 0) pts.push([t, pos]);
+    }
+    return pts;
+  }
+
+  function redraw() {
+    const cc = cCrit(k, m);
+    const series = [
+      { c: cc * zUnder, color: '#f59e0b' }, // under
+      { c: cc,          color: '#16a34a' }, // critical
+      { c: cc * 2.5,    color: '#2563eb' }, // over
+    ].map(s => ({ ...s, pts: simulate(s.c) }));
+
+    const Tmax = 3.0;
+    // trục y: cho biên độ [-1.1, 1.1]
+    const yMin = -1.1, yMax = 1.1;
+    const X = t => padL + (t / Tmax) * plotW;
+    const Y = v => padT + (1 - (v - yMin) / (yMax - yMin)) * plotH;
+
+    ctx.clearRect(0, 0, W, H);
+    // nền lưới
+    ctx.strokeStyle = '#fde8ec'; ctx.lineWidth = 1; ctx.fillStyle = '#94a3b8'; ctx.font = '11px monospace';
+    for (let gv = -1; gv <= 1; gv += 0.5) {
+      const yy = Y(gv);
+      ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(W - padR, yy); ctx.stroke();
+      ctx.fillText(gv.toFixed(1), 8, yy + 4);
+    }
+    for (let t = 0; t <= 3; t += 0.5) {
+      const xx = X(t);
+      ctx.strokeStyle = '#fde8ec'; ctx.beginPath(); ctx.moveTo(xx, padT); ctx.lineTo(xx, H - padB); ctx.stroke();
+      ctx.fillStyle = '#94a3b8'; ctx.fillText(t.toFixed(1) + 's', xx - 8, H - 10);
+    }
+    // đường đích x=0
+    ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 5]);
+    ctx.beginPath(); ctx.moveTo(padL, Y(0)); ctx.lineTo(W - padR, Y(0)); ctx.stroke(); ctx.setLineDash([]);
+
+    // các đường
+    for (const s of series) {
+      ctx.strokeStyle = s.color; ctx.lineWidth = 2.2; ctx.beginPath();
+      s.pts.forEach((p, i) => { const xx = X(p[0]), yy = Y(Math.max(yMin, Math.min(yMax, p[1]))); i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); });
+      ctx.stroke();
+    }
+
+    const omega = Math.sqrt(k / m);
+    out.innerHTML =
+      `c_crit = 2√(km) = <b>${cc.toFixed(1)}</b> &nbsp; ω = √(k/m) = <b>${omega.toFixed(2)}</b> rad/s &nbsp; ` +
+      `T = <b>${(2 * Math.PI / omega).toFixed(3)}</b> s<br>` +
+      `Under c = <b>${(cc * zUnder).toFixed(1)}</b> (ζ=${zUnder.toFixed(2)}) · ` +
+      `Critical c = <b>${cc.toFixed(1)}</b> (ζ=1) · Over c = <b>${(cc * 2.5).toFixed(1)}</b> (ζ=2.5)`;
+  }
+  sync();
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

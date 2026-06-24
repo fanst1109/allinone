@@ -39,6 +39,7 @@
 | Electronics | Điện tử thực hành — 3 tầng × 8 bài: linh kiện thụ động (Ohm, RC, RL, lọc) → bán dẫn (diode, BJT, MOSFET, op-amp) → số & vi điều khiển | [Electronics/](./Electronics/) |
 | English | Lộ trình học tiếng Anh — phát âm, từ vựng, ngữ pháp, kỹ năng | [English/](./English/) |
 | Finance | Tài chính & Đầu tư — 3 tầng × 8 bài: tài chính cá nhân (lãi kép, nợ, ngân sách) → đầu tư & thị trường → tài chính định lượng & phái sinh | [Finance/](./Finance/) |
+| GameDev | Game & mô phỏng vật lý — 3 tier × 15 bài: game loop/vector/tích phân/lực/lò xo → va chạm (AABB/SAT/quadtree/impulse) → particle/cloth/flocking/ECS/A* | [GameDev/](./GameDev/) |
 | Math | Toán cổ điển — 7 tầng × 8 bài, số học → calculus → toán năm 1 đại học → mô hình hóa | [Math/](./Math/) |
 | Music | Lý thuyết âm nhạc — 3 tầng × 8 bài: cao độ/nốt/gam/nhịp → hòa âm (hợp âm, tiến trình) → âm sắc, hình thức, jazz & sáng tác | [Music/](./Music/) |
 | Networking | Mạng máy tính — 3 tầng × 8 bài: mô hình phân tầng & IP/TCP → DNS/HTTP/TLS → an ninh/cloud/chẩn đoán | [Networking/](./Networking/) |

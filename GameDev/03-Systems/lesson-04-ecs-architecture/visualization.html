@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 14 — ECS & Game Architecture Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #be123c; }
+  h2 {
+    color: #e11d48; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fecdd3;
+  }
+  h3 { color: #be123c; margin-top: 20px; }
+  .card {
+    background: #fff; border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { color: #6b7280; font-size: 14px; margin: 4px 0 12px; }
+  code, .mono { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  code {
+    background: #fff1f2; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #be123c;
+  }
+  button {
+    background: #e11d48; color: #fff; border: none;
+    padding: 8px 14px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #be123c; }
+  button.ghost { background: #ffe4e6; color: #be123c; }
+  button.ghost:hover { background: #fecdd3; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+
+  /* ── Module A: ECS composer ── */
+  .comp-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px; margin: 12px 0;
+  }
+  .comp-chip {
+    border: 2px solid #cbd5e0; border-radius: 8px; padding: 10px 12px;
+    cursor: pointer; user-select: none; background: #f8fafc; transition: all .12s;
+  }
+  .comp-chip:hover { border-color: #fb7185; }
+  .comp-chip.on { background: #ffe4e6; border-color: #e11d48; }
+  .comp-chip .cn { font-weight: 700; color: #be123c; font-size: 15px; }
+  .comp-chip .cd { font-size: 12px; color: #6b7280; margin-top: 2px; }
+  .comp-chip .ck { font-size: 11px; color: #9ca3af; font-style: italic; }
+  .sys-list { list-style: none; padding: 0; margin: 8px 0; }
+  .sys-list li {
+    padding: 8px 12px; border-radius: 6px; margin: 6px 0; font-size: 14px;
+    display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  }
+  .sys-list li.active { background: #dcfce7; color: #166534; }
+  .sys-list li.inactive { background: #f1f5f9; color: #94a3b8; }
+  .sys-list .q { font-family: "SF Mono", Monaco, monospace; font-size: 12px; }
+  .verdict {
+    margin-top: 10px; padding: 10px 14px; border-radius: 8px;
+    background: #fff7ed; border-left: 4px solid #e11d48; font-size: 14px;
+  }
+  .verdict b { color: #be123c; }
+
+  /* mini-sim canvas already covered by global canvas rule */
+  #ecsSim { border: 1px solid #fecdd3; border-radius: 8px; background: #1f2937; display: block; }
+
+  /* ── Module B: state machine ── */
+  .fsm-state {
+    fill: #f8fafc; stroke: #cbd5e0; stroke-width: 2;
+    transition: fill .15s, stroke .15s;
+  }
+  .fsm-state.active { fill: #e11d48; stroke: #be123c; }
+  .fsm-label { font: 700 15px sans-serif; fill: #334155; pointer-events: none; }
+  .fsm-label.active { fill: #fff; }
+  .fsm-edge { stroke: #94a3b8; stroke-width: 1.6; fill: none; marker-end: url(#arrow); }
+  .fsm-edge.fired { stroke: #e11d48; stroke-width: 3.2; }
+  .fsm-etext { font: 11px sans-serif; fill: #64748b; }
+  .ev-btns button { margin: 3px 5px 3px 0; }
+  .char-box {
+    width: 100%; max-width: 220px; height: 130px; border-radius: 10px;
+    background: #0f172a; display: flex; align-items: center; justify-content: center;
+    font-size: 56px; position: relative; overflow: hidden;
+  }
+  .char { transition: transform .25s; }
+  .seqlog {
+    font-family: "SF Mono", Monaco, monospace; font-size: 13px;
+    background: #f8fafc; border-radius: 8px; padding: 10px 12px; margin-top: 10px;
+    max-height: 150px; overflow-y: auto; white-space: pre-wrap; color: #334155;
+  }
+
+  /* ── Module C: camera ── */
+  #camCanvas { border: 1px solid #cbd5e0; border-radius: 8px; background: #0f172a; display: block; }
+  .readout {
+    font-family: "SF Mono", Monaco, monospace; font-size: 13px;
+    background: #f8fafc; border-radius: 8px; padding: 10px 12px; margin-top: 8px; color: #334155;
+  }
+  .readout b { color: #be123c; }
+  input[type=range] { accent-color: #e11d48; width: 100%; max-width: 320px; }
+  .kbd {
+    display: inline-block; border: 1px solid #cbd5e0; border-bottom-width: 2px;
+    border-radius: 5px; padding: 1px 8px; font-family: monospace; background: #f8fafc; font-size: 13px;
+  }
+
+  /* tables */
+  .tbl-wrap { overflow-x: auto; }
+  table.t { border-collapse: collapse; width: 100%; font-size: 13px; }
+  table.t th, table.t td { border: 1px solid #e2e8f0; padding: 6px 9px; text-align: center; }
+  table.t th { background: #fff1f2; color: #be123c; }
+  table.t td.yes { background: #dcfce7; color: #166534; font-weight: 700; }
+  table.t td.no { background: #f1f5f9; color: #94a3b8; }
+
+  @media (max-width: 480px) {
+    .comp-grid { grid-template-columns: 1fr 1fr; }
+    .char-box { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-flocking-steering/visualization.html">← L13: Flocking & Steering</a>
+  <span class="sep">·</span>
+  <span class="current">L14: ECS & Architecture</span>
+  <span class="sep">·</span>
+  <a href="../lesson-05-tilemap-pathfinding/visualization.html">L15: Tilemap & Pathfinding →</a>
+</nav>
+<main>
+  <h1>Lesson 14 — ECS &amp; Game Architecture</h1>
+  <p class="hint">Ba bộ công cụ tương tác: ráp component cho entity và xem system nào áp dụng (+ mini-sim), sơ đồ state machine bấm input để chuyển trạng thái, và camera bám nhân vật trên thế giới lớn.</p>
+
+  <!-- ───────────────────────── MODULE A ───────────────────────── -->
+  <h2>1. ECS Composer — entity là tổ hợp component</h2>
+  <p class="hint">Tích/bỏ component bên dưới. Một entity <b>không phải class</b> — nó "là gì" hoàn toàn do tập component quyết định. Bên phải hiện system nào sẽ chạy trên entity này (system chỉ xử lý entity khớp đủ <i>query</i> của nó).</p>
+  <div class="card">
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:18px;" id="ecsLayout">
+      <div>
+        <h3 style="margin-top:0">Component của entity</h3>
+        <div class="comp-grid" id="compGrid"></div>
+        <div class="verdict" id="ecsVerdict"></div>
+      </div>
+      <div>
+        <h3 style="margin-top:0">System áp dụng</h3>
+        <ul class="sys-list" id="sysList"></ul>
+      </div>
+    </div>
+    <h3>Mini-sim: spawn nhiều entity, chạy MovementSystem</h3>
+    <p class="hint">Spawn entity ngẫu nhiên. Chỉ entity có cả <code>Position + Velocity</code> mới bị MovementSystem cho di chuyển; thiếu <code>Sprite</code> thì RenderSystem vẽ mờ (vô hình). Đường viền = có Health.</p>
+    <div class="row">
+      <button id="spawnBtn">+ Spawn 5 entity</button>
+      <button class="ghost" id="clearSim">Xóa hết (destroy)</button>
+      <span class="hint mono" id="simStat"></span>
+    </div>
+    <canvas id="ecsSim" width="640" height="240"></canvas>
+  </div>
+
+  <!-- ───────────────────────── MODULE B ───────────────────────── -->
+  <h2>2. State Machine — hành vi nhân vật</h2>
+  <p class="hint">Tại mỗi lúc nhân vật ở <b>đúng một</b> trạng thái. Bấm một event → tra bảng chuyển δ(state, event) → cạnh được kích hoạt sáng đỏ, trạng thái mới highlight, nhân vật đổi hành vi. Event không hợp lệ ở trạng thái hiện tại sẽ bị "nuốt".</p>
+  <div class="card">
+    <div style="display:grid; grid-template-columns: 1.3fr 1fr; gap:18px;" id="fsmLayout">
+      <div>
+        <svg id="fsmSvg" width="420" height="300" viewBox="0 0 420 300" role="img" aria-label="Sơ đồ state machine">
+          <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L8,3 L0,6 Z" fill="#94a3b8"></path>
+            </marker>
+          </defs>
+          <g id="fsmEdges"></g>
+          <g id="fsmNodes"></g>
+        </svg>
+      </div>
+      <div>
+        <div class="char-box"><span class="char" id="charGlyph">🧍</span></div>
+        <p class="hint" style="text-align:center; margin-top:6px">Trạng thái: <b id="curState" style="color:#be123c">Idle</b></p>
+        <div class="ev-btns">
+          <button data-ev="press_move">▶ press_move</button>
+          <button data-ev="release_move">⏹ release_move</button>
+          <button data-ev="press_jump">⤴ press_jump</button>
+          <button data-ev="land">⬇ land</button>
+          <button data-ev="press_attack">⚔ press_attack</button>
+          <button data-ev="anim_done">✔ anim_done</button>
+        </div>
+        <button class="ghost" id="fsmReset" style="margin-top:8px">↺ Reset về Idle</button>
+      </div>
+    </div>
+    <div class="seqlog" id="fsmLog">Idle (khởi đầu)</div>
+  </div>
+
+  <!-- ───────────────────────── MODULE C ───────────────────────── -->
+  <h2>3. Camera Follow — world ↔ screen</h2>
+  <p class="hint">Thế giới (1600×1200) lớn hơn màn hình nhiều. Camera là "khung ngắm" (viewport) trượt theo nhân vật. Dùng <span class="kbd">A</span>/<span class="kbd">D</span> hoặc nút để di chuyển nhân vật; camera bám mượt bằng nội suy (lò xo — liên hệ L05). Khung trắng = viewport thật sự render lên màn.</p>
+  <div class="card">
+    <canvas id="camCanvas" width="640" height="300"></canvas>
+    <div class="row">
+      <button id="moveL">◀ Trái (A)</button>
+      <button id="moveR">Phải (D) ▶</button>
+      <label style="font-weight:600">Độ bám k = <span id="kVal" class="mono">0.10</span></label>
+      <input type="range" id="kSlider" min="0.02" max="1" step="0.02" value="0.10">
+    </div>
+    <div class="readout" id="camReadout"></div>
+    <p class="hint">k nhỏ → camera trễ &amp; mượt (như lò xo mềm); k = 1 → dính cứng vào nhân vật (dễ giật). Object ngoài viewport (x_screen &lt; 0 hoặc ≥ rộng) bị <b>cull</b> — không vẽ.</p>
+  </div>
+</main>
+
+<script>
+// ════════════════════ MODULE A: ECS COMPOSER ════════════════════
+const COMPONENTS = [
+  { key: 'Position', desc: 'ở đâu (x,y)', data: '{X,Y}' },
+  { key: 'Velocity', desc: 'vận tốc (vx,vy)', data: '{VX,VY}' },
+  { key: 'Sprite',   desc: 'vẽ bằng ảnh nào', data: '{Image}' },
+  { key: 'Health',   desc: 'máu còn lại', data: '{HP,Max}' },
+  { key: 'AI',       desc: 'biết nghĩ/đuổi', data: '{Target}' },
+];
+// query = mảng component bắt buộc
+const SYSTEMS = [
+  { name: 'MovementSystem', q: ['Position','Velocity'],        does: 'pos += vel·dt → entity di chuyển' },
+  { name: 'RenderSystem',   q: ['Position','Sprite'],          does: 'vẽ sprite tại vị trí → hiện ra' },
+  { name: 'AISystem',       q: ['Position','Velocity','AI'],   does: 'tính hướng đuổi → entity biết nghĩ' },
+  { name: 'DamageSystem',   q: ['Health'],                     does: 'trừ máu, chết khi HP≤0' },
+];
+const active = new Set(['Position','Velocity','Sprite','Health']); // mặc định = "Player-ish"
+
+const compGrid = document.getElementById('compGrid');
+const sysList = document.getElementById('sysList');
+const ecsVerdict = document.getElementById('ecsVerdict');
+
+function renderComp() {
+  compGrid.innerHTML = '';
+  COMPONENTS.forEach(c => {
+    const on = active.has(c.key);
+    const el = document.createElement('div');
+    el.className = 'comp-chip' + (on ? ' on' : '');
+    el.innerHTML = `<div class="cn">${on ? '☑' : '☐'} ${c.key}</div>
+                    <div class="cd">${c.desc}</div><div class="ck">${c.data}</div>`;
+    el.onclick = () => { on ? active.delete(c.key) : active.add(c.key); renderComp(); renderSys(); };
+    compGrid.appendChild(el);
+  });
+}
+function renderSys() {
+  sysList.innerHTML = '';
+  const has = k => active.has(k);
+  const runningNames = [];
+  SYSTEMS.forEach(s => {
+    const ok = s.q.every(has);
+    if (ok) runningNames.push(s.name);
+    const li = document.createElement('li');
+    li.className = ok ? 'active' : 'inactive';
+    li.innerHTML = `<span>${ok ? '▶' : '·'} <b>${s.name}</b><br><span style="font-size:12px">${ok ? s.does : 'thiếu component → bỏ qua'}</span></span>
+                    <span class="q">${s.q.join(' + ')}</span>`;
+    sysList.appendChild(li);
+  });
+  // verdict mô tả entity "là gì"
+  const traits = [];
+  if (active.has('Position') && active.has('Sprite')) traits.push('hiện ra');
+  else traits.push('vô hình');
+  if (active.has('Velocity')) traits.push('di chuyển'); else traits.push('đứng yên');
+  if (active.has('AI')) traits.push('biết nghĩ');
+  if (active.has('Health')) traits.push('có máu');
+  let label = 'một vật trang trí';
+  if (active.has('AI')) label = 'một quái có AI';
+  else if (active.has('Velocity') && active.has('Health')) label = 'một nhân vật điều khiển được';
+  else if (active.has('Velocity')) label = 'một viên đạn / vật bay';
+  else if (active.has('Sprite')) label = 'một vật tĩnh (tường/cây)';
+  ecsVerdict.innerHTML = `Entity này <b>${label}</b> — ${traits.join(', ')}. ` +
+    `${runningNames.length} system chạy: <b>${runningNames.join(', ') || 'không system nào'}</b>.`;
+}
+renderComp(); renderSys();
+
+// mini-sim
+const sim = document.getElementById('ecsSim'), sctx = sim.getContext('2d');
+let ents = [];
+const W = sim.width, H = sim.height;
+function spawn5() {
+  for (let i = 0; i < 5; i++) {
+    const r = Math.random();
+    // tổ hợp ngẫu nhiên: vài loại entity khác nhau
+    const e = { x: Math.random()*W, y: 40 + Math.random()*(H-80),
+      vx: 0, vy: 0, Position:true, Velocity:false, Sprite:true, Health:false };
+    if (r < 0.55) { e.Velocity = true; e.vx = (Math.random()*2-1)*70; e.vy = (Math.random()*2-1)*40; } // di chuyển
+    if (r > 0.4 && r < 0.75) e.Health = true;      // có viền
+    if (r > 0.85) e.Sprite = false;                // vô hình (chỉ Position+Velocity)
+    if (!e.Sprite) { e.Velocity = true; e.vx = (Math.random()*2-1)*70; }
+    ents.push(e);
+  }
+}
+spawn5(); spawn5();
+let last = performance.now();
+function simLoop(now) {
+  const dt = Math.min(0.05, (now - last)/1000); last = now;
+  // MovementSystem: chỉ entity Position+Velocity
+  ents.forEach(e => {
+    if (e.Position && e.Velocity) {
+      e.x += e.vx*dt; e.y += e.vy*dt;
+      if (e.x < 8 || e.x > W-8) e.vx *= -1;
+      if (e.y < 8 || e.y > H-8) e.vy *= -1;
+      e.x = Math.max(8, Math.min(W-8, e.x)); e.y = Math.max(8, Math.min(H-8, e.y));
+    }
+  });
+  // RenderSystem
+  sctx.clearRect(0,0,W,H); sctx.fillStyle = '#1f2937'; sctx.fillRect(0,0,W,H);
+  let drawn = 0, moved = 0;
+  ents.forEach(e => {
+    if (e.Velocity) moved++;
+    sctx.beginPath(); sctx.arc(e.x, e.y, 9, 0, Math.PI*2);
+    if (e.Position && e.Sprite) { sctx.fillStyle = '#fb7185'; drawn++; }
+    else { sctx.fillStyle = 'rgba(148,163,184,0.25)'; } // vô hình → mờ
+    sctx.fill();
+    if (e.Health) { sctx.strokeStyle = '#34d399'; sctx.lineWidth = 2.5; sctx.stroke(); }
+  });
+  document.getElementById('simStat').textContent =
+    `${ents.length} entity · ${moved} di chuyển (Movement) · ${drawn} vẽ ra (Render)`;
+  requestAnimationFrame(simLoop);
+}
+requestAnimationFrame(simLoop);
+document.getElementById('spawnBtn').onclick = spawn5;
+document.getElementById('clearSim').onclick = () => { ents = []; };
+
+// ════════════════════ MODULE B: STATE MACHINE ════════════════════
+const STATES = {
+  Idle:   { x: 90,  y: 70,  glyph: '🧍' },
+  Run:    { x: 330, y: 70,  glyph: '🏃' },
+  Jump:   { x: 90,  y: 220, glyph: '🤸' },
+  Attack: { x: 330, y: 220, glyph: '🗡️' },
+};
+// δ(state,event) → state | null (nuốt)
+const DELTA = {
+  Idle:   { press_move:'Run', release_move:'Idle', press_jump:'Jump', press_attack:'Attack' },
+  Run:    { press_move:'Run', release_move:'Idle', press_jump:'Jump', press_attack:'Attack' },
+  Jump:   { land:'Idle', press_attack:'Attack' },
+  Attack: { anim_done:'Idle' },
+};
+let cur = 'Idle';
+const fsmNodes = document.getElementById('fsmNodes');
+const fsmEdges = document.getElementById('fsmEdges');
+
+function buildFSM() {
+  // edges: vẽ cung giữa các state có chuyển (gộp nhiều event vào 1 cung hiển thị)
+  const pairs = {};
+  Object.entries(DELTA).forEach(([from, m]) => {
+    Object.entries(m).forEach(([ev, to]) => {
+      if (from === to) return; // self-loop bỏ cho gọn sơ đồ
+      const id = from + '>' + to;
+      (pairs[id] = pairs[id] || { from, to, evs: [] }).evs.push(ev);
+    });
+  });
+  fsmEdges.innerHTML = '';
+  Object.values(pairs).forEach(p => {
+    const a = STATES[p.from], b = STATES[p.to];
+    const mx = (a.x+b.x)/2, my = (a.y+b.y)/2;
+    // điểm cong nhẹ
+    const dx = b.x-a.x, dy = b.y-a.y, len = Math.hypot(dx,dy);
+    const ox = -dy/len*16, oy = dx/len*16;
+    const sx = a.x + dx/len*30, sy = a.y + dy/len*30;
+    const ex = b.x - dx/len*32, ey = b.y - dy/len*32;
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', `M${sx},${sy} Q${mx+ox},${my+oy} ${ex},${ey}`);
+    path.setAttribute('class','fsm-edge');
+    path.dataset.id = p.from + '|' + p.to;
+    fsmEdges.appendChild(path);
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', mx+ox); t.setAttribute('y', my+oy-3);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('class','fsm-etext');
+    t.textContent = p.evs.join(' / ').replace(/press_/g,'').replace(/_/g,' ');
+    fsmEdges.appendChild(t);
+  });
+  // nodes
+  fsmNodes.innerHTML = '';
+  Object.entries(STATES).forEach(([name, s]) => {
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx', s.x); c.setAttribute('cy', s.y); c.setAttribute('r', 30);
+    c.setAttribute('class','fsm-state'); c.dataset.state = name;
+    fsmNodes.appendChild(c);
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', s.x); t.setAttribute('y', s.y+5);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('class','fsm-label'); t.dataset.state = name;
+    t.textContent = name;
+    fsmNodes.appendChild(t);
+  });
+}
+buildFSM();
+
+function highlightState() {
+  fsmNodes.querySelectorAll('.fsm-state').forEach(c =>
+    c.classList.toggle('active', c.dataset.state === cur));
+  fsmNodes.querySelectorAll('.fsm-label').forEach(t =>
+    t.classList.toggle('active', t.dataset.state === cur));
+  document.getElementById('curState').textContent = cur;
+  document.getElementById('charGlyph').textContent = STATES[cur].glyph;
+}
+highlightState();
+
+const fsmLog = document.getElementById('fsmLog');
+function fireEvent(ev) {
+  const next = (DELTA[cur] && DELTA[cur][ev]) || null;
+  // clear fired edges
+  fsmEdges.querySelectorAll('.fsm-edge').forEach(p => p.classList.remove('fired'));
+  if (next && next !== cur) {
+    const edge = fsmEdges.querySelector(`.fsm-edge[data-id="${cur}|${next}"]`);
+    if (edge) edge.classList.add('fired');
+    fsmLog.textContent += `\n${cur} —(${ev})→ ${next}`;
+    cur = next;
+    // nhân vật "đổi hành vi": rung nhẹ
+    const g = document.getElementById('charGlyph');
+    g.style.transform = 'scale(1.3)'; setTimeout(()=>g.style.transform='scale(1)', 200);
+  } else if (next === cur) {
+    fsmLog.textContent += `\n${cur} —(${ev})→ ${cur} (giữ nguyên)`;
+  } else {
+    fsmLog.textContent += `\n${cur} —(${ev})→ ✗ nuốt (không hợp lệ ở ${cur})`;
+  }
+  highlightState();
+  fsmLog.scrollTop = fsmLog.scrollHeight;
+}
+document.querySelectorAll('.ev-btns button').forEach(b =>
+  b.onclick = () => fireEvent(b.dataset.ev));
+document.getElementById('fsmReset').onclick = () => {
+  cur = 'Idle'; fsmLog.textContent = 'Idle (khởi đầu)';
+  fsmEdges.querySelectorAll('.fsm-edge').forEach(p => p.classList.remove('fired'));
+  highlightState();
+};
+
+// ════════════════════ MODULE C: CAMERA FOLLOW ════════════════════
+const cc = document.getElementById('camCanvas'), cx = cc.getContext('2d');
+const VW = cc.width, VH = cc.height;          // viewport = canvas size (640×300)
+const WORLD_W = 1600, WORLD_H = 1200;
+let player = { x: 800, y: 600 };
+let cam = { x: player.x - VW/2, y: player.y - VH/2 };
+let k = 0.10;
+// vài object cố định trong thế giới để minh hoạ cull
+const objs = [
+  { x: 300, y: 300, c:'#fbbf24', n:'A' }, { x: 1300, y: 400, c:'#34d399', n:'B' },
+  { x: 800, y: 900, c:'#60a5fa', n:'C' }, { x: 1100, y: 700, c:'#a78bfa', n:'D' },
+  { x: 500, y: 800, c:'#f472b6', n:'E' },
+];
+const keys = {};
+window.addEventListener('keydown', e => { if (e.key==='a'||e.key==='A') keys.l=true; if (e.key==='d'||e.key==='D') keys.r=true; });
+window.addEventListener('keyup',   e => { if (e.key==='a'||e.key==='A') keys.l=false; if (e.key==='d'||e.key==='D') keys.r=false; });
+document.getElementById('moveL').onmousedown = ()=>keys.l=true;
+document.getElementById('moveL').onmouseup   = ()=>keys.l=false;
+document.getElementById('moveR').onmousedown = ()=>keys.r=true;
+document.getElementById('moveR').onmouseup   = ()=>keys.r=false;
+['moveL','moveR'].forEach(id=>{ const b=document.getElementById(id); b.ontouchstart=e=>{e.preventDefault(); keys[id==='moveL'?'l':'r']=true;}; b.ontouchend=()=>{keys.l=keys.r=false;}; });
+document.getElementById('kSlider').oninput = e => { k = +e.target.value; document.getElementById('kVal').textContent = k.toFixed(2); };
+
+function camLoop() {
+  if (keys.l) player.x -= 6;
+  if (keys.r) player.x += 6;
+  player.x = Math.max(20, Math.min(WORLD_W-20, player.x));
+  // follow mượt: nội suy (lò xo) — liên hệ L05
+  const tx = player.x - VW/2, ty = player.y - VH/2;
+  cam.x += (tx - cam.x) * k;
+  cam.y += (ty - cam.y) * k;
+  // clamp camera trong world
+  cam.x = Math.max(0, Math.min(WORLD_W-VW, cam.x));
+  cam.y = Math.max(0, Math.min(WORLD_H-VH, cam.y));
+
+  cx.clearRect(0,0,VW,VH); cx.fillStyle='#0f172a'; cx.fillRect(0,0,VW,VH);
+  // lưới world (để thấy camera trượt)
+  cx.strokeStyle='rgba(148,163,184,0.18)'; cx.lineWidth=1;
+  for (let gx=0; gx<=WORLD_W; gx+=100){ const sx=gx-cam.x; if(sx>=0&&sx<=VW){cx.beginPath();cx.moveTo(sx,0);cx.lineTo(sx,VH);cx.stroke();} }
+  for (let gy=0; gy<=WORLD_H; gy+=100){ const sy=gy-cam.y; if(sy>=0&&sy<=VH){cx.beginPath();cx.moveTo(0,sy);cx.lineTo(VW,sy);cx.stroke();} }
+  // objects: world→screen, cull nếu ngoài viewport
+  let visible=0;
+  objs.forEach(o => {
+    const sx = o.x - cam.x, sy = o.y - cam.y;
+    const inView = sx>=-12 && sx<=VW+12 && sy>=-12 && sy<=VH+12;
+    if (inView) {
+      visible++;
+      cx.fillStyle=o.c; cx.beginPath(); cx.arc(sx,sy,11,0,Math.PI*2); cx.fill();
+      cx.fillStyle='#0f172a'; cx.font='bold 12px sans-serif'; cx.textAlign='center'; cx.textBaseline='middle';
+      cx.fillText(o.n, sx, sy);
+    }
+  });
+  // player (luôn quanh giữa)
+  const psx = player.x - cam.x, psy = player.y - cam.y;
+  cx.fillStyle='#fb7185'; cx.beginPath(); cx.arc(psx,psy,13,0,Math.PI*2); cx.fill();
+  cx.fillStyle='#fff'; cx.font='13px sans-serif'; cx.fillText('🙂', psx, psy);
+  // viewport border note (toàn canvas chính là viewport)
+  cx.strokeStyle='#fff'; cx.lineWidth=2; cx.strokeRect(1,1,VW-2,VH-2);
+
+  document.getElementById('camReadout').innerHTML =
+    `player.world = <b>(${player.x.toFixed(0)}, ${player.y.toFixed(0)})</b> · ` +
+    `cam = <b>(${cam.x.toFixed(0)}, ${cam.y.toFixed(0)})</b> · ` +
+    `player.screen = (x_w − cam_x, y_w − cam_y) = <b>(${psx.toFixed(0)}, ${psy.toFixed(0)})</b> · ` +
+    `${visible}/${objs.length} object trong viewport (còn lại bị cull)`;
+  requestAnimationFrame(camLoop);
+}
+camLoop();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

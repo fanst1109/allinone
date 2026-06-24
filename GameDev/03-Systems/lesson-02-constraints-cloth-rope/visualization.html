@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 12 — Constraints: Cloth & Rope Visualization</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  h1 { color: #be123c; }
+  h2 {
+    color: #e11d48; margin-top: 36px;
+    padding-bottom: 8px; border-bottom: 2px solid #fecdd3;
+  }
+  p.lead { color: #4a5568; max-width: 760px; }
+  .card {
+    background: #fff; border-radius: 10px; padding: 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin: 16px 0;
+  }
+  .hint { color: #718096; font-size: 13px; margin: 6px 0; }
+  code {
+    background: #fff1f2; padding: 1px 6px; border-radius: 3px;
+    font-size: 13px; color: #be123c;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+
+  .controls {
+    display: flex; gap: 16px; flex-wrap: wrap; align-items: center;
+    margin: 10px 0 14px;
+  }
+  .ctrl { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .ctrl label { font-weight: 600; font-size: 13px; color: #4a5568; }
+  .ctrl .val { font-weight: 700; color: #e11d48; }
+  input[type="range"] { width: 100%; max-width: 220px; accent-color: #e11d48; }
+
+  button {
+    background: #e11d48; color: #fff; border: none;
+    padding: 8px 14px; border-radius: 6px; font-size: 14px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  button:hover { background: #be123c; }
+  button.ghost { background: #ffe4e6; color: #be123c; }
+  button.ghost:hover { background: #fecdd3; }
+  button.ghost.active { background: #be123c; color: #fff; }
+
+  .sim-wrap { width: 100%; overflow-x: auto; }
+  canvas {
+    background: #fff7f8; border: 1px solid #fecdd3; border-radius: 8px;
+    display: block; touch-action: none; cursor: crosshair;
+  }
+  .readout {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px; color: #831843; background: #fff1f2;
+    border-left: 3px solid #e11d48; padding: 8px 12px; border-radius: 4px;
+    margin-top: 10px;
+  }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: #4a5568; margin-top: 8px; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+
+  /* Bảng walk-through */
+  table.wt {
+    border-collapse: collapse; margin: 12px 0; font-size: 13px;
+    font-family: "SF Mono", Monaco, Consolas, monospace; min-width: 480px;
+  }
+  table.wt th, table.wt td { border: 1px solid #fecdd3; padding: 5px 12px; text-align: center; }
+  table.wt th { background: #fff1f2; color: #9f1239; font-weight: 700; }
+
+  @media (max-width: 480px) {
+    .controls { gap: 10px; }
+    input[type="range"] { max-width: 160px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-particle-systems/visualization.html">← L11: Particle Systems</a>
+  <span class="sep">·</span>
+  <span class="current">L12: Constraints (Cloth/Rope)</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-flocking-steering/visualization.html">L13: Flocking & Steering →</a>
+</nav>
+<main>
+  <h1>Lesson 12 — Constraints: Cloth &amp; Rope</h1>
+  <p class="lead">
+    Điểm khối lượng chạy <strong>Verlet</strong>, rồi bị <strong>ép</strong> về đúng khoảng cách nghỉ
+    (distance constraint), lặp lại nhiều lần mỗi frame (relaxation). Ba mô phỏng thời gian thực:
+    vải kéo/xé bằng chuột, dây đung đưa, và demo iteration thấy độ cứng.
+  </p>
+
+  <h2>1. Vải (cloth) — kéo &amp; xé bằng chuột</h2>
+  <div class="card">
+    <p class="hint">
+      Lưới điểm ghim ở <strong>mép trên</strong>. <strong>Kéo chuột</strong> (hoặc chạm) để nắm và di chuyển điểm gần nhất.
+      Bật <em>chế độ cắt</em> rồi rê chuột để <strong>xé</strong> vải. Giảm <em>iteration</em> để thấy vải
+      co giãn nhão; tăng gió để thấy phấp phới.
+    </p>
+    <div class="controls">
+      <div class="ctrl">
+        <label>Iteration / frame: <span class="val" id="clothIterVal">8</span></label>
+        <input type="range" id="clothIter" min="1" max="20" value="8">
+      </div>
+      <div class="ctrl">
+        <label>Gió (wind): <span class="val" id="clothWindVal">0</span></label>
+        <input type="range" id="clothWind" min="0" max="120" value="0">
+      </div>
+      <div class="ctrl">
+        <label>Lưới: <span class="val" id="clothSizeVal">14×10</span></label>
+        <input type="range" id="clothSize" min="8" max="20" value="14">
+      </div>
+      <div class="ctrl" style="align-self:flex-end;">
+        <button id="clothCut" class="ghost">✂ Chế độ cắt: TẮT</button>
+      </div>
+      <div class="ctrl" style="align-self:flex-end;">
+        <button id="clothReset" class="ghost">↺ Reset</button>
+      </div>
+    </div>
+    <div class="sim-wrap">
+      <canvas id="clothCanvas" width="640" height="380"></canvas>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#be123c"></span> điểm ghim (pinned)</span>
+      <span><span class="swatch" style="background:#fb7185"></span> điểm tự do</span>
+      <span><span class="swatch" style="background:#fda4af"></span> ràng buộc</span>
+    </div>
+    <div class="readout" id="clothReadout">Điểm: — · Ràng buộc: — · Iteration: 8</div>
+  </div>
+
+  <h2>2. Dây / chuỗi (rope) — đung đưa theo chuột &amp; trọng lực</h2>
+  <div class="card">
+    <p class="hint">
+      Chuỗi điểm nối tiếp, ghim đầu trên cùng. <strong>Kéo chuột</strong> để giật đầu dưới; thả ra dây
+      đung đưa theo trọng lực. Bật <em>ghim đầu</em> để thấy hiệu ứng "quên pin → rơi hết".
+    </p>
+    <div class="controls">
+      <div class="ctrl">
+        <label>Số đốt: <span class="val" id="ropeSegVal">16</span></label>
+        <input type="range" id="ropeSeg" min="4" max="40" value="16">
+      </div>
+      <div class="ctrl">
+        <label>Iteration / frame: <span class="val" id="ropeIterVal">12</span></label>
+        <input type="range" id="ropeIter" min="1" max="20" value="12">
+      </div>
+      <div class="ctrl" style="align-self:flex-end;">
+        <button id="ropePin" class="ghost active">📌 Ghim đầu: BẬT</button>
+      </div>
+      <div class="ctrl" style="align-self:flex-end;">
+        <button id="ropeReset" class="ghost">↺ Reset</button>
+      </div>
+    </div>
+    <div class="sim-wrap">
+      <canvas id="ropeCanvas" width="640" height="380"></canvas>
+    </div>
+    <div class="readout" id="ropeReadout">Đốt: 16 · Ghim đầu: BẬT</div>
+  </div>
+
+  <h2>3. Iteration demo — cùng một dây, đổi độ cứng</h2>
+  <div class="card">
+    <p class="hint">
+      Ba dây <strong>giống hệt nhau</strong>, chỉ khác số iteration. Cùng kéo căng (đầu dưới gắn vào điểm
+      kéo ngang). Dây ít iteration <strong>giãn nhão như cao su</strong>; nhiều iteration thì
+      <strong>cứng</strong>, giữ gần đúng độ dài nghỉ. Kéo slider để thấy dây giữa biến đổi.
+    </p>
+    <div class="controls">
+      <div class="ctrl">
+        <label>Iteration (dây giữa): <span class="val" id="demoIterVal">1</span></label>
+        <input type="range" id="demoIter" min="1" max="20" value="1">
+      </div>
+      <div class="ctrl">
+        <label>Độ kéo căng: <span class="val" id="demoPullVal">160</span></label>
+        <input type="range" id="demoPull" min="0" max="240" value="160">
+      </div>
+    </div>
+    <div class="sim-wrap">
+      <canvas id="demoCanvas" width="640" height="320"></canvas>
+    </div>
+    <div class="readout" id="demoReadout">
+      Càng nhiều iteration → dây càng gần độ dài nghỉ (ít giãn).
+    </div>
+  </div>
+
+  <h2>4. Walk-through: hội tụ của chuỗi 3 điểm</h2>
+  <div class="card">
+    <p class="hint">Bảng số từ §3.3 README — ép chuỗi A–B–C (rest length 10, A ghim), <code>|AB|</code> hội tụ về 10:</p>
+    <div class="sim-wrap">
+      <table class="wt">
+        <thead><tr><th>Iteration</th><th>|AB| sau lượt</th><th>Sai số so với L=10</th></tr></thead>
+        <tbody id="convBody"></tbody>
+      </table>
+    </div>
+    <p class="hint">Mỗi iteration đưa <code>|AB|</code> gần 10 hơn — đây là lý do iteration nhiều = dây cứng.</p>
+  </div>
+</main>
+
+<script>
+// ───────────────────────────────────────────────────────────────────────────
+// Helpers Verlet + distance constraint dùng chung cho cả 3 module.
+// Điểm: {x, y, px, py, pinned}. Ràng buộc: {a, b, len, maxLen?}.
+// ───────────────────────────────────────────────────────────────────────────
+function makePoint(x, y, pinned) { return { x, y, px: x, py: y, pinned: !!pinned }; }
+
+function integrate(p, ax, ay, dt, damp) {
+  if (p.pinned) return;
+  const vx = (p.x - p.px) * damp;
+  const vy = (p.y - p.py) * damp;
+  p.px = p.x; p.py = p.y;
+  p.x += vx + ax * dt * dt;
+  p.y += vy + ay * dt * dt;
+}
+
+// Ép 1 distance constraint (chia đôi nếu cả 2 tự do; dồn toàn bộ nếu 1 điểm pinned).
+// Trả về dist hiện tại trước khi ép (dùng cho tearing).
+function satisfy(c) {
+  const a = c.a, b = c.b;
+  let dx = b.x - a.x, dy = b.y - a.y;
+  let dist = Math.hypot(dx, dy) || 1e-6;
+  const diff = (dist - c.len) / dist;
+  if (a.pinned && b.pinned) return dist;
+  if (a.pinned) {
+    b.x -= dx * diff; b.y -= dy * diff;
+  } else if (b.pinned) {
+    a.x += dx * diff; a.y += dy * diff;
+  } else {
+    a.x += 0.5 * dx * diff; a.y += 0.5 * dy * diff;
+    b.x -= 0.5 * dx * diff; b.y -= 0.5 * dy * diff;
+  }
+  return dist;
+}
+
+function nearestPoint(pts, mx, my, maxR) {
+  let best = null, bd = maxR * maxR;
+  for (const p of pts) {
+    const d = (p.x - mx) ** 2 + (p.y - my) ** 2;
+    if (d < bd) { bd = d; best = p; }
+  }
+  return best;
+}
+
+// Toạ độ chuột/chạm trong canvas (đã scale theo CSS).
+function canvasPos(canvas, ev) {
+  const r = canvas.getBoundingClientRect();
+  const t = ev.touches ? ev.touches[0] : ev;
+  const sx = canvas.width / r.width, sy = canvas.height / r.height;
+  return { x: (t.clientX - r.left) * sx, y: (t.clientY - r.top) * sy };
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// MODULE 1 — Cloth
+// ───────────────────────────────────────────────────────────────────────────
+(function cloth() {
+  const canvas = document.getElementById('clothCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const GRAV = 980, DT = 1 / 60, DAMP = 0.99;
+  const TEAR = 4; // ngưỡng xé = TEAR × rest length
+
+  let cols, rows, spacing, points, constraints, iter, wind;
+  let dragPoint = null, cutMode = false, mouse = { x: 0, y: 0, down: false };
+
+  function build() {
+    cols = +document.getElementById('clothSize').value;
+    rows = Math.round(cols * 0.7);
+    spacing = Math.min((W - 120) / (cols - 1), (H - 120) / (rows - 1), 34);
+    const ox = (W - (cols - 1) * spacing) / 2;
+    const oy = 36;
+    points = [];
+    for (let j = 0; j < rows; j++)
+      for (let i = 0; i < cols; i++)
+        points.push(makePoint(ox + i * spacing, oy + j * spacing, j === 0));
+    const idx = (i, j) => j * cols + i;
+    constraints = [];
+    for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+      if (i < cols - 1) constraints.push({ a: points[idx(i, j)], b: points[idx(i + 1, j)], len: spacing, alive: true });
+      if (j < rows - 1) constraints.push({ a: points[idx(i, j)], b: points[idx(i, j + 1)], len: spacing, alive: true });
+      // shear chéo — chống xé/biến hình thoi
+      if (i < cols - 1 && j < rows - 1) {
+        constraints.push({ a: points[idx(i, j)], b: points[idx(i + 1, j + 1)], len: spacing * Math.SQRT2, alive: true, shear: true });
+        constraints.push({ a: points[idx(i + 1, j)], b: points[idx(i, j + 1)], len: spacing * Math.SQRT2, alive: true, shear: true });
+      }
+    }
+    document.getElementById('clothSizeVal').textContent = cols + '×' + rows;
+  }
+
+  function step() {
+    iter = +document.getElementById('clothIter').value;
+    wind = +document.getElementById('clothWind').value;
+    const windFx = wind * Math.sin(performance.now() / 320) + wind * 0.4;
+    for (const p of points) integrate(p, windFx, GRAV, DT, DAMP);
+    if (dragPoint && mouse.down && !cutMode) { dragPoint.x = mouse.x; dragPoint.y = mouse.y; }
+    for (let k = 0; k < iter; k++)
+      for (const c of constraints) {
+        if (!c.alive) continue;
+        const d = satisfy(c);
+        if (d > c.len * TEAR) c.alive = false; // tearing
+      }
+    // cắt thủ công bằng chuột
+    if (cutMode && mouse.down) {
+      for (const c of constraints) {
+        if (!c.alive) continue;
+        const mx = (c.a.x + c.b.x) / 2, my = (c.a.y + c.b.y) / 2;
+        if ((mx - mouse.x) ** 2 + (my - mouse.y) ** 2 < 110) c.alive = false;
+      }
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.lineWidth = 1.4;
+    for (const c of constraints) {
+      if (!c.alive) continue;
+      ctx.strokeStyle = c.shear ? 'rgba(253,164,175,0.45)' : '#fda4af';
+      ctx.beginPath(); ctx.moveTo(c.a.x, c.a.y); ctx.lineTo(c.b.x, c.b.y); ctx.stroke();
+    }
+    for (const p of points) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.pinned ? 4 : 2.4, 0, 7);
+      ctx.fillStyle = p.pinned ? '#be123c' : '#fb7185';
+      ctx.fill();
+    }
+    const live = constraints.reduce((s, c) => s + (c.alive ? 1 : 0), 0);
+    document.getElementById('clothReadout').textContent =
+      `Điểm: ${points.length} · Ràng buộc còn sống: ${live}/${constraints.length} · Iteration: ${iter} · Gió: ${wind}`;
+  }
+
+  canvas.addEventListener('mousedown', onDown);
+  canvas.addEventListener('touchstart', onDown, { passive: false });
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchmove', onMove, { passive: false });
+  window.addEventListener('mouseup', onUp);
+  window.addEventListener('touchend', onUp);
+
+  function onDown(e) {
+    e.preventDefault();
+    const m = canvasPos(canvas, e); mouse.x = m.x; mouse.y = m.y; mouse.down = true;
+    if (!cutMode) dragPoint = nearestPoint(points.filter(p => !p.pinned), m.x, m.y, 40);
+  }
+  function onMove(e) {
+    if (!mouse.down) return;
+    const m = canvasPos(canvas, e); mouse.x = m.x; mouse.y = m.y;
+    if (e.cancelable) e.preventDefault();
+  }
+  function onUp() { mouse.down = false; dragPoint = null; }
+
+  document.getElementById('clothIter').addEventListener('input', e =>
+    document.getElementById('clothIterVal').textContent = e.target.value);
+  document.getElementById('clothWind').addEventListener('input', e =>
+    document.getElementById('clothWindVal').textContent = e.target.value);
+  document.getElementById('clothSize').addEventListener('input', build);
+  document.getElementById('clothReset').onclick = build;
+  document.getElementById('clothCut').onclick = function () {
+    cutMode = !cutMode;
+    this.textContent = '✂ Chế độ cắt: ' + (cutMode ? 'BẬT' : 'TẮT');
+    this.classList.toggle('active', cutMode);
+    canvas.style.cursor = cutMode ? 'cell' : 'crosshair';
+  };
+
+  build();
+  (function loop() { step(); draw(); requestAnimationFrame(loop); })();
+})();
+
+// ───────────────────────────────────────────────────────────────────────────
+// MODULE 2 — Rope / chain
+// ───────────────────────────────────────────────────────────────────────────
+(function rope() {
+  const canvas = document.getElementById('ropeCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const GRAV = 980, DT = 1 / 60, DAMP = 0.99;
+
+  let pts, cons, seg, iter, pinHead = true;
+  let dragPoint = null, mouse = { x: 0, y: 0, down: false };
+
+  function build() {
+    seg = +document.getElementById('ropeSeg').value;
+    const len = Math.min((H - 80) / seg, 18);
+    pts = []; cons = [];
+    const x0 = W / 2, y0 = 30;
+    for (let i = 0; i <= seg; i++) pts.push(makePoint(x0, y0 + i * len, false));
+    pts[0].pinned = pinHead;
+    for (let i = 0; i < seg; i++) cons.push({ a: pts[i], b: pts[i + 1], len });
+    document.getElementById('ropeSegVal').textContent = seg;
+  }
+
+  function step() {
+    iter = +document.getElementById('ropeIter').value;
+    pts[0].pinned = pinHead;
+    for (const p of pts) integrate(p, 0, GRAV, DT, DAMP);
+    if (dragPoint && mouse.down) { dragPoint.x = mouse.x; dragPoint.y = mouse.y; }
+    for (let k = 0; k < iter; k++) for (const c of cons) satisfy(c);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = '#fb7185'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.stroke();
+    for (let i = 0; i < pts.length; i++) {
+      ctx.beginPath();
+      ctx.arc(pts[i].x, pts[i].y, i === 0 ? 6 : 3.5, 0, 7);
+      ctx.fillStyle = (i === 0 && pinHead) ? '#be123c' : '#e11d48';
+      ctx.fill();
+    }
+    document.getElementById('ropeReadout').textContent =
+      `Đốt: ${seg} · Iteration: ${iter} · Ghim đầu: ${pinHead ? 'BẬT' : 'TẮT (dây rơi hết)'}`;
+  }
+
+  canvas.addEventListener('mousedown', onDown);
+  canvas.addEventListener('touchstart', onDown, { passive: false });
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchmove', onMove, { passive: false });
+  window.addEventListener('mouseup', onUp);
+  window.addEventListener('touchend', onUp);
+
+  function onDown(e) {
+    e.preventDefault();
+    const m = canvasPos(canvas, e); mouse.x = m.x; mouse.y = m.y; mouse.down = true;
+    dragPoint = nearestPoint(pts.filter(p => !p.pinned), m.x, m.y, 50);
+  }
+  function onMove(e) {
+    if (!mouse.down) return;
+    const m = canvasPos(canvas, e); mouse.x = m.x; mouse.y = m.y;
+    if (e.cancelable) e.preventDefault();
+  }
+  function onUp() { mouse.down = false; dragPoint = null; }
+
+  document.getElementById('ropeSeg').addEventListener('input', build);
+  document.getElementById('ropeIter').addEventListener('input', e =>
+    document.getElementById('ropeIterVal').textContent = e.target.value);
+  document.getElementById('ropeReset').onclick = build;
+  document.getElementById('ropePin').onclick = function () {
+    pinHead = !pinHead;
+    this.textContent = '📌 Ghim đầu: ' + (pinHead ? 'BẬT' : 'TẮT');
+    this.classList.toggle('active', pinHead);
+  };
+
+  build();
+  (function loop() { step(); draw(); requestAnimationFrame(loop); })();
+})();
+
+// ───────────────────────────────────────────────────────────────────────────
+// MODULE 3 — Iteration demo: 3 dây giống nhau, khác iteration
+// ───────────────────────────────────────────────────────────────────────────
+(function demo() {
+  const canvas = document.getElementById('demoCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const GRAV = 600, DT = 1 / 60, DAMP = 0.99;
+  const SEG = 14, REST = 14;
+
+  // 3 dây: iteration 1, slider, 20. Mỗi dây ghim đầu trái, đầu phải kéo ngang.
+  const lanes = [
+    { iter: () => 1, y: 70, color: '#fda4af', label: 'iter = 1 (nhão)' },
+    { iter: () => +document.getElementById('demoIter').value, y: 160, color: '#f43f5e', label: 'iter = ? (slider)' },
+    { iter: () => 20, y: 250, color: '#9f1239', label: 'iter = 20 (cứng)' },
+  ];
+
+  function build(lane) {
+    lane.pts = []; lane.cons = [];
+    const x0 = 60;
+    for (let i = 0; i <= SEG; i++) lane.pts.push(makePoint(x0 + i * REST, lane.y, i === 0));
+    lane.pts[SEG].pinned = true; // đầu phải cũng pin → kéo ngang
+    for (let i = 0; i < SEG; i++) lane.cons.push({ a: lane.pts[i], b: lane.pts[i + 1], len: REST });
+  }
+  lanes.forEach(build);
+
+  function step() {
+    const pull = +document.getElementById('demoPull').value;
+    const naturalSpan = SEG * REST;             // độ dài nghỉ tổng
+    const targetSpan = naturalSpan + pull;      // kéo căng thêm
+    for (const lane of lanes) {
+      const right = lane.pts[SEG];
+      right.x = 60 + targetSpan; right.px = right.x; // pin đầu phải tại vị trí kéo
+      right.y = lane.y; right.py = lane.y;
+      lane.pts[0].x = 60; lane.pts[0].px = 60; lane.pts[0].y = lane.y; lane.pts[0].py = lane.y;
+      for (const p of lane.pts) integrate(p, 0, GRAV, DT, DAMP);
+      const n = lane.iter();
+      for (let k = 0; k < n; k++) for (const c of lane.cons) satisfy(c);
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.font = '12px monospace';
+    for (const lane of lanes) {
+      ctx.strokeStyle = lane.color; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(lane.pts[0].x, lane.pts[0].y);
+      for (let i = 1; i <= SEG; i++) ctx.lineTo(lane.pts[i].x, lane.pts[i].y);
+      ctx.stroke();
+      for (let i = 0; i <= SEG; i++) {
+        ctx.beginPath();
+        ctx.arc(lane.pts[i].x, lane.pts[i].y, lane.pts[i].pinned ? 4 : 2.2, 0, 7);
+        ctx.fillStyle = lane.pts[i].pinned ? '#be123c' : lane.color; ctx.fill();
+      }
+      // đo độ giãn trung bình mỗi đoạn
+      let total = 0;
+      for (const c of lane.cons) total += Math.hypot(c.b.x - c.a.x, c.b.y - c.a.y);
+      const avg = total / SEG;
+      const stretch = ((avg / REST - 1) * 100).toFixed(0);
+      ctx.fillStyle = '#831843';
+      ctx.fillText(lane.label.replace('?', lanes[1].iter()) + ` — giãn ~${stretch}%`, 60, lane.y - 14);
+    }
+    const it = lanes[1].iter();
+    document.getElementById('demoReadout').textContent =
+      `Dây giữa iteration = ${it}. Dây giãn ít hơn khi iteration cao — đó là "độ cứng". ` +
+      `Đầu trái + đầu phải đều ghim; đầu phải bị kéo ngang theo slider.`;
+  }
+
+  document.getElementById('demoIter').addEventListener('input', e =>
+    document.getElementById('demoIterVal').textContent = e.target.value);
+  document.getElementById('demoPull').addEventListener('input', e =>
+    document.getElementById('demoPullVal').textContent = e.target.value);
+
+  (function loop() { step(); draw(); requestAnimationFrame(loop); })();
+})();
+
+// ───────────────────────────────────────────────────────────────────────────
+// MODULE 4 — Bảng hội tụ chuỗi A-B-C (tĩnh, đúng số §3.3)
+// Mô phỏng đúng quy trình: A pinned tại 0, B,C khởi tạo 20,40; ép tuần tự.
+// ───────────────────────────────────────────────────────────────────────────
+(function conv() {
+  const L = 10;
+  let A = 0, B = 20, C = 40; // toạ độ 1D
+  const rows = [];
+  for (let it = 1; it <= 8; it++) {
+    // ép (A,B): A pinned → B gánh toàn bộ
+    let dist = Math.abs(B - A), diff = (dist - L) / dist;
+    B -= (B - A) * diff;
+    // ép (B,C): cả 2 tự do → chia đôi
+    dist = Math.abs(C - B); diff = (dist - L) / dist;
+    const dBC = (C - B) * 0.5 * diff;
+    B += dBC; C -= dBC;
+    const ab = Math.abs(B - A);
+    rows.push({ it, ab: ab.toFixed(2), err: (ab - L).toFixed(2) });
+  }
+  const body = document.getElementById('convBody');
+  body.innerHTML = rows.map(r =>
+    `<tr><td>${r.it}</td><td>${r.ab}</td><td>${r.err}</td></tr>`).join('');
+})();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

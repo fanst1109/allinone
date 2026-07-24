@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L11: Ngân sách tiền mặt — Accounting</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f4faf9;
+    --accent: #0f766e;
+    --accent-soft: #ccfbf1;
+    --accent-hover: #115e5a;
+  }
+  main { max-width: 1000px; }
+
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Giả định chung */
+  .assumptions { display: flex; flex-wrap: wrap; gap: 14px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; font-weight: 700; color: #475569; }
+  .field .hint { font-size: 11px; font-weight: 500; color: #94a3b8; }
+  input[type="number"] {
+    width: 100%; max-width: 130px; box-sizing: border-box;
+    border: 1px solid #cbd5e1; border-radius: 7px; padding: 7px 9px;
+    font-size: 14px; font-weight: 600; color: #1e293b;
+  }
+  input[type="number"]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  input[type="range"] { width: 160px; max-width: 100%; accent-color: var(--accent); }
+  .pctline { font-size: 13px; color: #475569; }
+  .pctline strong { color: var(--accent); }
+
+  /* Bảng */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 4px; min-width: 560px; }
+  th, td { border: 1px solid #e3e1dc; padding: 6px 8px; text-align: right; }
+  th:first-child, td:first-child { text-align: left; white-space: nowrap; }
+  th { background: #f1f5f9; font-size: 12px; font-weight: 700; }
+  tbody td input[type="number"] { max-width: 82px; padding: 5px 7px; font-size: 13px; text-align: right; }
+  td.calc { font-weight: 700; color: #0f766e; background: #f0fdfa; }
+  td.begin { color: #475569; }
+  td.neg { color: #b91c1c; background: #fee2e2; }
+  tfoot td { font-weight: 800; background: #f8fafc; }
+
+  /* Cảnh báo */
+  .alert { margin-top: 12px; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+  .alert.warn { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+  .alert.ok { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+
+  .formula { font-size: 12px; color: #64748b; margin-top: 10px; background: #f8fafc; border-radius: 7px; padding: 8px 12px; }
+  .formula code { background: #eef2f7; padding: 1px 5px; border-radius: 4px; color: #0f766e; font-weight: 700; }
+
+  /* SVG chart */
+  .chart-wrap { margin-top: 14px; }
+  svg { display: block; width: 100%; height: auto; }
+
+  /* Variance */
+  .badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 800; }
+  .badge.fav { background: #dcfce7; color: #15803d; }
+  .badge.unf { background: #fee2e2; color: #b91c1c; }
+  .badge.neu { background: #e2e8f0; color: #475569; }
+  td.diff-pos { color: #15803d; font-weight: 700; }
+  td.diff-neg { color: #b91c1c; font-weight: 700; }
+
+  .toolbar { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .toolbar button { border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .btn-reset { background: #e2e8f0; color: #334155; }
+  .btn-reset:hover { background: #cbd5e1; }
+
+  @media (max-width: 480px) {
+    input[type="range"] { width: 100%; }
+    .assumptions { gap: 10px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Accounting</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 3</a>
+  <span class="sep">·</span>
+  <a href="../lesson-10-cost-cvp/visualization.html">← L10</a>
+  <span class="sep">·</span>
+  <span class="current">L11: Ngân sách</span>
+  <span class="sep">·</span>
+  <a href="../lesson-12-valuation-basics/visualization.html">L12: Định giá →</a>
+</nav>
+<main>
+  <h1>Ngân sách tiền mặt — mô phỏng sống</h1>
+  <div class="lead">Nhập doanh thu dự kiến, độ trễ thu tiền và chi phí từng tháng. Xem <strong>số dư cuối kỳ = đầu kỳ + thu − chi</strong>, tô <span style="color:#b91c1c;font-weight:700">đỏ</span> khi âm tiền (cần vay). Đơn vị: triệu đồng.</div>
+
+  <div class="module">
+    <h2>1. Giả định chung</h2>
+    <div class="sub">Số dư tiền lúc bắt đầu, doanh thu kỳ trước (để tính phần thu trễ của tháng 1) và tỷ lệ thu ngay.</div>
+    <div class="assumptions">
+      <div class="field">
+        <label>Số dư tiền đầu kỳ (đầu T1)</label>
+        <input type="number" id="beginCash" value="20">
+      </div>
+      <div class="field">
+        <label>Doanh thu tháng trước (T0)</label>
+        <input type="number" id="prevSales" value="50">
+        <span class="hint">40% của nó chảy sang T1</span>
+      </div>
+      <div class="field">
+        <label>% thu ngay trong tháng</label>
+        <input type="range" id="pctNow" min="0" max="100" step="5" value="60">
+        <span class="pctline">Thu ngay <strong id="pctNowTxt">60</strong>% · thu tháng sau <strong id="pctNext">40</strong>%</span>
+      </div>
+    </div>
+    <div class="formula">Thu tiền tháng <code>t</code> = %thu_ngay × DT<sub>t</sub> + %thu_sau × DT<sub>t−1</sub></div>
+  </div>
+
+  <div class="module">
+    <h2>2. Ngân sách tiền mặt theo tháng</h2>
+    <div class="sub">Sửa ô doanh thu / chi tiền dự kiến → mọi thứ cập nhật ngay. Số dư âm được tô đỏ.</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Tháng</th>
+            <th>Doanh thu dự kiến</th>
+            <th>Chi tiền dự kiến</th>
+            <th>Thu tiền</th>
+            <th>Số dư đầu kỳ</th>
+            <th>Số dư cuối kỳ</th>
+          </tr>
+        </thead>
+        <tbody id="cash-body"></tbody>
+        <tfoot>
+          <tr>
+            <td>Tổng</td>
+            <td id="ft-sales">0</td>
+            <td id="ft-out">0</td>
+            <td id="ft-coll">0</td>
+            <td>—</td>
+            <td id="ft-end">—</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div class="formula">Số dư cuối kỳ = <code>Số dư đầu kỳ + Thu tiền − Chi tiền</code> · Số dư đầu kỳ tháng sau = số dư cuối kỳ tháng này</div>
+    <div id="alert" class="alert ok"></div>
+
+    <div class="chart-wrap">
+      <svg id="chart" width="480" height="200" viewBox="0 0 480 200" role="img" aria-label="Biểu đồ số dư cuối kỳ từng tháng"></svg>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>3. Phân tích chênh lệch (Variance)</h2>
+    <div class="sub">Ngân sách lấy từ tổng ở bảng trên. Nhập số <strong>Thực tế</strong> → chênh lệch = Thực tế − Ngân sách, gắn nhãn thuận lợi / bất lợi đúng chiều.</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Chỉ tiêu</th>
+            <th>Ngân sách</th>
+            <th>Thực tế</th>
+            <th>Chênh lệch</th>
+            <th>Đánh giá</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Doanh thu</td>
+            <td id="vr-rev-b">0</td>
+            <td><input type="number" id="act-rev" value="440"></td>
+            <td id="vr-rev-d">0</td>
+            <td id="vr-rev-j"></td>
+          </tr>
+          <tr>
+            <td>Chi phí tiền mặt</td>
+            <td id="vr-out-b">0</td>
+            <td><input type="number" id="act-out" value="397"></td>
+            <td id="vr-out-d">0</td>
+            <td id="vr-out-j"></td>
+          </tr>
+          <tr>
+            <td>Lợi nhuận (DT − Chi)</td>
+            <td id="vr-pf-b">0</td>
+            <td id="vr-pf-a">0</td>
+            <td id="vr-pf-d">0</td>
+            <td id="vr-pf-j"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="formula">Doanh thu / lợi nhuận: cao hơn kế hoạch = <strong>thuận lợi</strong>. Chi phí: thấp hơn kế hoạch = <strong>thuận lợi</strong> (dấu số học và nhãn không luôn cùng chiều).</div>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn-reset" id="reset">↺ Đặt lại số mặc định</button>
+  </div>
+</main>
+
+<script>
+// ===== Cấu hình tháng (giá trị mặc định) =====
+var MONTHS = [
+  { name: "Tháng 1", sales: 100, out: 70 },
+  { name: "Tháng 2", sales: 80,  out: 90 },
+  { name: "Tháng 3", sales: 90,  out: 130 },
+  { name: "Tháng 4", sales: 140, out: 100 }
+];
+
+function fmt(n) {
+  var r = Math.round(n * 10) / 10;
+  return r.toLocaleString('vi-VN');
+}
+function num(id) {
+  var el = document.getElementById(id);
+  if (!el) return 0;
+  var v = parseFloat(el.value);
+  return isNaN(v) ? 0 : v;
+}
+
+// ===== Dựng dòng bảng cash budget =====
+function buildTable() {
+  var tb = document.getElementById('cash-body');
+  tb.innerHTML = MONTHS.map(function (m, i) {
+    return '<tr>' +
+      '<td>' + m.name + '</td>' +
+      '<td><input type="number" id="sales-' + i + '" value="' + m.sales + '"></td>' +
+      '<td><input type="number" id="out-' + i + '" value="' + m.out + '"></td>' +
+      '<td class="calc" id="coll-' + i + '">0</td>' +
+      '<td class="begin" id="begin-' + i + '">0</td>' +
+      '<td class="calc" id="end-' + i + '">0</td>' +
+    '</tr>';
+  }).join('');
+}
+
+// ===== Tính & render =====
+function render() {
+  var pctNow = num('pctNow');
+  if (pctNow < 0) pctNow = 0; if (pctNow > 100) pctNow = 100;
+  var pctNext = 100 - pctNow;
+  document.getElementById('pctNowTxt').textContent = fmt(pctNow);
+  document.getElementById('pctNext').textContent = fmt(pctNext);
+
+  var begin = num('beginCash');
+  var prev = num('prevSales');
+
+  var n = MONTHS.length;
+  var sales = [], out = [], coll = [], endings = [];
+  var i;
+  for (i = 0; i < n; i++) { sales[i] = num('sales-' + i); out[i] = num('out-' + i); }
+
+  var sumSales = 0, sumOut = 0, sumColl = 0;
+  var running = begin;
+  for (i = 0; i < n; i++) {
+    var prevSalesVal = (i === 0) ? prev : sales[i - 1];
+    coll[i] = pctNow / 100 * sales[i] + pctNext / 100 * prevSalesVal;
+    var beginI = running;
+    var endI = beginI + coll[i] - out[i];
+    endings[i] = endI;
+    running = endI;
+
+    document.getElementById('coll-' + i).textContent = fmt(coll[i]);
+    document.getElementById('begin-' + i).textContent = fmt(beginI);
+    var endCell = document.getElementById('end-' + i);
+    endCell.textContent = fmt(endI);
+    endCell.className = 'calc' + (endI < -1e-9 ? ' neg' : '');
+
+    sumSales += sales[i]; sumOut += out[i]; sumColl += coll[i];
+  }
+
+  document.getElementById('ft-sales').textContent = fmt(sumSales);
+  document.getElementById('ft-out').textContent = fmt(sumOut);
+  document.getElementById('ft-coll').textContent = fmt(sumColl);
+  document.getElementById('ft-end').textContent = fmt(endings[n - 1]);
+
+  // Cảnh báo số dư âm
+  var minEnd = Math.min.apply(null, endings);
+  var minIdx = endings.indexOf(minEnd);
+  var alertEl = document.getElementById('alert');
+  if (minEnd < -1e-9) {
+    var need = Math.ceil(Math.abs(minEnd));
+    alertEl.className = 'alert warn';
+    alertEl.innerHTML = '⚠ Âm tiền! Điểm thấp nhất là <strong>' + fmt(minEnd) + '</strong> ở ' + MONTHS[minIdx].name +
+      ' → cần thu xếp vay / hoãn chi ít nhất <strong>' + fmt(need) + '</strong> triệu để số dư không âm.';
+  } else {
+    alertEl.className = 'alert ok';
+    alertEl.innerHTML = '✓ Không tháng nào âm tiền. Số dư thấp nhất: <strong>' + fmt(minEnd) + '</strong> (' + MONTHS[minIdx].name + ').';
+  }
+
+  drawChart(endings);
+  renderVariance(sumSales, sumOut);
+}
+
+// ===== SVG cột số dư cuối kỳ =====
+function drawChart(endings) {
+  var W = 480, H = 200, top = 16, botLabel = 34, plotH = H - top - botLabel;
+  var n = endings.length;
+  var maxPos = 0, maxNeg = 0, i;
+  for (i = 0; i < n; i++) {
+    if (endings[i] > maxPos) maxPos = endings[i];
+    if (-endings[i] > maxNeg) maxNeg = -endings[i];
+  }
+  var total = maxPos + maxNeg;
+  if (total <= 0) total = 1;
+  var zeroY = top + plotH * (maxPos / total);
+
+  var band = W / n;
+  var bw = band * 0.5;
+  var s = '';
+  // đường 0
+  s += '<line x1="0" y1="' + zeroY + '" x2="' + W + '" y2="' + zeroY + '" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>';
+  s += '<text x="4" y="' + (zeroY - 4) + '" font-size="10" fill="#94a3b8">0</text>';
+  for (i = 0; i < n; i++) {
+    var v = endings[i];
+    var h = plotH * (Math.abs(v) / total);
+    var x = band * i + (band - bw) / 2;
+    var y = v >= 0 ? zeroY - h : zeroY;
+    var color = v < -1e-9 ? '#dc2626' : '#0f766e';
+    s += '<rect x="' + x + '" y="' + y + '" width="' + bw + '" height="' + Math.max(h, 0) + '" rx="3" fill="' + color + '"/>';
+    var vy = v >= 0 ? y - 5 : y + h + 13;
+    s += '<text x="' + (x + bw / 2) + '" y="' + vy + '" font-size="11" font-weight="700" text-anchor="middle" fill="' + color + '">' + fmt(v) + '</text>';
+    s += '<text x="' + (x + bw / 2) + '" y="' + (H - 8) + '" font-size="11" text-anchor="middle" fill="#475569">' + MONTHS[i].name.replace('Tháng ', 'T') + '</text>';
+  }
+  document.getElementById('chart').innerHTML = s;
+}
+
+// ===== Bảng variance =====
+function setDiff(idPrefix, budget, actual, isCost) {
+  var diff = actual - budget;
+  var dCell = document.getElementById(idPrefix + '-d');
+  dCell.textContent = (diff > 0 ? '+' : '') + fmt(diff);
+  dCell.className = diff > 1e-9 ? 'diff-pos' : (diff < -1e-9 ? 'diff-neg' : '');
+  // dấu tô theo số học; nhãn theo bản chất
+  var jCell = document.getElementById(idPrefix + '-j');
+  var favorable;
+  if (Math.abs(diff) < 1e-9) { jCell.innerHTML = '<span class="badge neu">Không lệch</span>'; return; }
+  favorable = isCost ? (diff < 0) : (diff > 0);
+  jCell.innerHTML = favorable
+    ? '<span class="badge fav">Thuận lợi</span>'
+    : '<span class="badge unf">Bất lợi</span>';
+}
+
+function renderVariance(budgetRev, budgetOut) {
+  var actRev = num('act-rev'), actOut = num('act-out');
+  document.getElementById('vr-rev-b').textContent = fmt(budgetRev);
+  document.getElementById('vr-out-b').textContent = fmt(budgetOut);
+
+  var budgetPf = budgetRev - budgetOut;
+  var actPf = actRev - actOut;
+  document.getElementById('vr-pf-b').textContent = fmt(budgetPf);
+  document.getElementById('vr-pf-a').textContent = fmt(actPf);
+
+  setDiff('vr-rev', budgetRev, actRev, false);
+  setDiff('vr-out', budgetOut, actOut, true);
+  setDiff('vr-pf', budgetPf, actPf, false);
+}
+
+// ===== Khởi tạo & sự kiện =====
+buildTable();
+
+function bindInputs() {
+  var inputs = document.querySelectorAll('input');
+  inputs.forEach(function (el) { el.addEventListener('input', render); });
+}
+bindInputs();
+
+document.getElementById('reset').onclick = function () {
+  document.getElementById('beginCash').value = 20;
+  document.getElementById('prevSales').value = 50;
+  document.getElementById('pctNow').value = 60;
+  var i;
+  for (i = 0; i < MONTHS.length; i++) {
+    document.getElementById('sales-' + i).value = MONTHS[i].sales;
+    document.getElementById('out-' + i).value = MONTHS[i].out;
+  }
+  document.getElementById('act-rev').value = 440;
+  document.getElementById('act-out').value = 397;
+  render();
+};
+
+render();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

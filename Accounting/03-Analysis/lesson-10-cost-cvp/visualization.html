@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L10: Chi phí & CVP — Accounting</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f4faf9;
+    --accent: #0f766e;
+    --accent-soft: #ccfbf1;
+    --accent-hover: #115e5a;
+    --rev: #0f766e;   /* doanh thu */
+    --cost: #b45309;  /* tổng chi phí */
+    --now: #4338ca;   /* sản lượng hiện tại */
+    --profit: #15803d;
+    --loss: #b91c1c;
+  }
+  main { max-width: 980px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Đồ thị */
+  .chart-wrap { width: 100%; }
+  svg.cvp { width: 100%; height: auto; display: block; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; font-weight: 600; color: #475569; margin-top: 6px; }
+  .legend .item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .sw { width: 22px; height: 4px; border-radius: 2px; }
+  .legend .sw.rev { background: var(--rev); }
+  .legend .sw.cost { background: var(--cost); }
+  .legend .sw.now { background: var(--now); height: 0; border-top: 3px dashed var(--now); }
+  .legend .dot { width: 12px; height: 12px; border-radius: 3px; }
+  .legend .dot.p { background: rgba(21,128,61,.22); border:1px solid #15803d; }
+  .legend .dot.l { background: rgba(185,28,28,.16); border:1px solid #b91c1c; }
+
+  /* Sliders */
+  .ctrl { margin: 12px 0; }
+  .ctrl label { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 4px; }
+  .ctrl label .val { font-size: 15px; font-weight: 800; color: var(--accent); }
+  .ctrl input[type=range] { width: 100%; accent-color: var(--accent); }
+  .toolbar { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .toolbar button { border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .btn-reset { background: #e2e8f0; color: #334155; }
+  .btn-reset:hover { background: #cbd5e1; }
+
+  /* Readout cards */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .stat { background: #f8fafc; border: 1px solid #e3e1dc; border-radius: 10px; padding: 10px 12px; }
+  .stat .k { font-size: 11.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .3px; }
+  .stat .v { font-size: 20px; font-weight: 800; color: #0f172a; margin-top: 2px; line-height: 1.15; }
+  .stat .u { font-size: 11px; font-weight: 600; color: #94a3b8; }
+  .stat.hl { background: var(--accent-soft); border-color: #99f6e4; }
+  .stat .v.profit { color: var(--profit); }
+  .stat .v.loss { color: var(--loss); }
+  .formula { margin-top: 12px; font-size: 14px; color: #334155; background: #f1f5f9; border-radius: 8px; padding: 8px 12px; line-height: 1.6; }
+  .formula b { color: var(--accent); }
+  .warn { margin-top: 10px; font-size: 13px; font-weight: 700; color: var(--loss); background: #fee2e2; border-radius: 8px; padding: 8px 12px; display: none; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Accounting</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 3</a>
+  <span class="sep">·</span>
+  <a href="../lesson-09-financial-ratios/visualization.html">← L9</a>
+  <span class="sep">·</span>
+  <span class="current">L10: Chi phí & CVP</span>
+  <span class="sep">·</span>
+  <a href="../lesson-11-budgeting/visualization.html">L11: Ngân sách →</a>
+</nav>
+<main>
+  <h1>Phân tích CVP — điểm hòa vốn sống</h1>
+  <div class="lead">Kéo slider <strong>giá bán · biến phí · định phí · sản lượng</strong>, xem đường doanh thu cắt đường tổng chi phí ở đâu — đó là <strong>điểm hòa vốn</strong>. Đơn vị tiền: nghìn đồng.</div>
+
+  <div class="module">
+    <h2>Đồ thị CVP</h2>
+    <div class="sub">Đường xanh = doanh thu (p·Q), đường cam = tổng chi phí (F + v·Q). Vùng đỏ = lỗ, vùng xanh = lãi. Vạch tím = sản lượng hiện tại.</div>
+    <div class="chart-wrap">
+      <svg class="cvp" width="640" height="400" viewBox="0 0 640 400" id="chart" role="img" aria-label="Đồ thị CVP"></svg>
+    </div>
+    <div class="legend">
+      <span class="item"><span class="sw rev"></span>Doanh thu = p·Q</span>
+      <span class="item"><span class="sw cost"></span>Tổng chi phí = F + v·Q</span>
+      <span class="item"><span class="sw now"></span>Sản lượng hiện tại</span>
+      <span class="item"><span class="dot p"></span>Vùng lãi</span>
+      <span class="item"><span class="dot l"></span>Vùng lỗ</span>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Điều chỉnh tham số</h2>
+    <div class="sub">Số mặc định lấy từ ví dụ quán trà sữa trong README (p=40, v=24, F=32.000, Q=2.500).</div>
+    <div class="ctrl">
+      <label>Giá bán / sản phẩm (p) <span class="val" id="lbl-p">40</span></label>
+      <input type="range" id="s-p" min="0" max="120" step="1" value="40">
+    </div>
+    <div class="ctrl">
+      <label>Biến phí / sản phẩm (v) <span class="val" id="lbl-v">24</span></label>
+      <input type="range" id="s-v" min="0" max="120" step="1" value="24">
+    </div>
+    <div class="ctrl">
+      <label>Định phí / kỳ (F) <span class="val" id="lbl-f">32.000</span></label>
+      <input type="range" id="s-f" min="0" max="120000" step="1000" value="32000">
+    </div>
+    <div class="ctrl">
+      <label>Sản lượng hiện tại (Q) <span class="val" id="lbl-q">2.500</span></label>
+      <input type="range" id="s-q" min="0" max="6000" step="50" value="2500">
+    </div>
+    <div class="toolbar">
+      <button class="btn-reset" id="reset">↺ Về mặc định</button>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Kết quả phân tích</h2>
+    <div class="sub">Tất cả suy ra từ π = CM·Q − F. Cập nhật tức thì khi kéo slider.</div>
+    <div class="stat-grid">
+      <div class="stat"><div class="k">CM đơn vị (p − v)</div><div class="v" id="o-cm">16</div><div class="u">nghìn / sản phẩm</div></div>
+      <div class="stat"><div class="k">Tỷ lệ CM (CM ÷ p)</div><div class="v" id="o-cmr">40%</div></div>
+      <div class="stat hl"><div class="k">Sản lượng hòa vốn Q*</div><div class="v" id="o-beq">2.000</div><div class="u">sản phẩm</div></div>
+      <div class="stat hl"><div class="k">Doanh thu hòa vốn</div><div class="v" id="o-berev">80.000</div><div class="u">nghìn đồng</div></div>
+      <div class="stat"><div class="k">Lợi nhuận tại Q hiện tại</div><div class="v" id="o-profit">8.000</div><div class="u">nghìn đồng</div></div>
+      <div class="stat"><div class="k">Biên an toàn</div><div class="v" id="o-mos">20%</div><div class="u" id="o-mos-u">500 sp · 20.000 nghìn</div></div>
+    </div>
+    <div class="formula" id="formula"></div>
+    <div class="warn" id="warn">CM ≤ 0: mỗi sản phẩm không đóng góp gì để gánh định phí → <b>không bao giờ hòa vốn</b>, bán càng nhiều lỗ càng nặng.</div>
+  </div>
+</main>
+
+<script>
+// ===== Tham số & mặc định =====
+var DEF = { p: 40, v: 24, f: 32000, q: 2500 };
+var st = Object.assign({}, DEF);
+
+var el = {
+  p: document.getElementById('s-p'), v: document.getElementById('s-v'),
+  f: document.getElementById('s-f'), q: document.getElementById('s-q'),
+  lp: document.getElementById('lbl-p'), lv: document.getElementById('lbl-v'),
+  lf: document.getElementById('lbl-f'), lq: document.getElementById('lbl-q')
+};
+
+function fmt(n) { return Math.round(n).toLocaleString('vi-VN'); }
+function fmt1(n) { return (Math.round(n * 10) / 10).toLocaleString('vi-VN'); }
+
+// ===== Đồ thị CVP =====
+var NS = 'http://www.w3.org/2000/svg';
+// Vùng vẽ trong viewBox 640x400
+var ML = 58, MR = 18, MT = 24, MB = 48;
+var W = 640, H = 400;
+var pL = ML, pR = W - MR, pW = pR - pL;      // 58 -> 622
+var pT = MT, pB = H - MB, pH = pB - pT;       // 24 -> 352
+
+function drawChart(d) {
+  var p = d.p, v = d.v, F = d.f, Q = d.q;
+  var cm = p - v;
+  var beQ = cm > 0 ? F / cm : Infinity;
+
+  // Trục X: đảm bảo cả Q hiện tại và điểm hòa vốn đều nằm trong khung
+  var ref = (isFinite(beQ) && beQ > 0) ? beQ : 0;
+  var Qmax = Math.max(Q, ref) * 1.3;
+  if (!(Qmax > 0)) Qmax = 100;
+
+  // Trục Y: giá trị cao nhất trên đồ thị + headroom
+  var Ymax = Math.max(p * Qmax, F + v * Qmax, 1) * 1.05;
+
+  function X(q) { return pL + (q / Qmax) * pW; }
+  function Y(val) { return pB - (val / Ymax) * pH; }
+
+  var svg = document.getElementById('chart');
+  var parts = [];
+
+  // --- lưới ngang + nhãn trục Y (0, giữa, max) ---
+  [0, 0.5, 1].forEach(function (t) {
+    var yv = Ymax * t, y = Y(yv);
+    parts.push('<line x1="' + pL + '" y1="' + y + '" x2="' + pR + '" y2="' + y + '" stroke="#e2e8f0" stroke-width="1"/>');
+    parts.push('<text x="' + (pL - 6) + '" y="' + (y + 4) + '" text-anchor="end" font-size="11" fill="#64748b">' + fmt(yv) + '</text>');
+  });
+
+  // --- vùng lãi / lỗ ---
+  if (cm > 0 && beQ < Qmax) {
+    // Tam giác lỗ (Q: 0 -> beQ): giữa doanh thu(0)=0 và chi phí(0)=F, chụm tại hòa vốn
+    parts.push('<polygon points="' + X(0) + ',' + Y(0) + ' ' + X(0) + ',' + Y(F) + ' ' + X(beQ) + ',' + Y(p * beQ) + '" fill="rgba(185,28,28,.14)"/>');
+    // Tam giác lãi (Q: beQ -> Qmax)
+    parts.push('<polygon points="' + X(beQ) + ',' + Y(p * beQ) + ' ' + X(Qmax) + ',' + Y(F + v * Qmax) + ' ' + X(Qmax) + ',' + Y(p * Qmax) + '" fill="rgba(21,128,61,.20)"/>');
+  } else {
+    // Không hòa vốn: toàn vùng giữa 2 đường là lỗ
+    parts.push('<polygon points="' + X(0) + ',' + Y(0) + ' ' + X(0) + ',' + Y(F) + ' ' + X(Qmax) + ',' + Y(F + v * Qmax) + ' ' + X(Qmax) + ',' + Y(p * Qmax) + '" fill="rgba(185,28,28,.12)"/>');
+  }
+
+  // --- đường tổng chi phí: (0,F) -> (Qmax, F+vQmax) ---
+  parts.push('<line x1="' + X(0) + '" y1="' + Y(F) + '" x2="' + X(Qmax) + '" y2="' + Y(F + v * Qmax) + '" stroke="#b45309" stroke-width="2.5"/>');
+  // --- đường doanh thu: (0,0) -> (Qmax, pQmax) ---
+  parts.push('<line x1="' + X(0) + '" y1="' + Y(0) + '" x2="' + X(Qmax) + '" y2="' + Y(p * Qmax) + '" stroke="#0f766e" stroke-width="2.5"/>');
+
+  // --- điểm hòa vốn ---
+  if (cm > 0 && beQ <= Qmax) {
+    var bx = X(beQ), by = Y(p * beQ);
+    parts.push('<line x1="' + bx + '" y1="' + by + '" x2="' + bx + '" y2="' + pB + '" stroke="#334155" stroke-width="1" stroke-dasharray="3 3"/>');
+    parts.push('<circle cx="' + bx + '" cy="' + by + '" r="5.5" fill="#fff" stroke="#334155" stroke-width="2.5"/>');
+    var lblAbove = by > pT + 40;
+    parts.push('<text x="' + bx + '" y="' + (lblAbove ? by - 12 : by + 20) + '" text-anchor="middle" font-size="12" font-weight="700" fill="#334155">Hòa vốn</text>');
+    parts.push('<text x="' + bx + '" y="' + (lblAbove ? by - 12 + 14 : by + 20 + 14) + '" text-anchor="middle" font-size="11" fill="#334155">Q*=' + fmt(Math.ceil(beQ)) + '</text>');
+  }
+
+  // --- vạch sản lượng hiện tại ---
+  var qx = X(Q);
+  parts.push('<line x1="' + qx + '" y1="' + pT + '" x2="' + qx + '" y2="' + pB + '" stroke="#4338ca" stroke-width="2" stroke-dasharray="5 4"/>');
+  var rNow = p * Q, cNow = F + v * Q;
+  parts.push('<circle cx="' + qx + '" cy="' + Y(rNow) + '" r="4.5" fill="#0f766e"/>');
+  parts.push('<circle cx="' + qx + '" cy="' + Y(cNow) + '" r="4.5" fill="#b45309"/>');
+  parts.push('<text x="' + qx + '" y="' + (pB + 16) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#4338ca">Q=' + fmt(Q) + '</text>');
+
+  // --- trục ---
+  parts.push('<line x1="' + pL + '" y1="' + pB + '" x2="' + pR + '" y2="' + pB + '" stroke="#94a3b8" stroke-width="1.5"/>');
+  parts.push('<line x1="' + pL + '" y1="' + pT + '" x2="' + pL + '" y2="' + pB + '" stroke="#94a3b8" stroke-width="1.5"/>');
+  // nhãn trục X: 0, giữa, max
+  [0, 0.5, 1].forEach(function (t) {
+    var qv = Qmax * t, x = X(qv);
+    parts.push('<text x="' + x + '" y="' + (pB + 32) + '" text-anchor="middle" font-size="11" fill="#64748b">' + fmt(qv) + '</text>');
+  });
+  parts.push('<text x="' + ((pL + pR) / 2) + '" y="' + (H - 4) + '" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">Sản lượng (sản phẩm)</text>');
+  parts.push('<text x="14" y="' + ((pT + pB) / 2) + '" text-anchor="middle" font-size="12" font-weight="700" fill="#475569" transform="rotate(-90 14 ' + ((pT + pB) / 2) + ')">Tiền (nghìn đồng)</text>');
+
+  svg.innerHTML = parts.join('');
+}
+
+// ===== Readout =====
+function render() {
+  var p = st.p, v = st.v, F = st.f, Q = st.q;
+  var cm = p - v;
+  var cmr = p > 0 ? cm / p : 0;
+  var beQ = cm > 0 ? F / cm : Infinity;
+  var beRev = cm > 0 ? F / cmr : Infinity;   // = p * beQ
+  var profit = cm * Q - F;
+
+  // Nhãn slider
+  el.lp.textContent = fmt(p); el.lv.textContent = fmt(v);
+  el.lf.textContent = fmt(F); el.lq.textContent = fmt(Q);
+
+  document.getElementById('o-cm').textContent = fmt(cm);
+  document.getElementById('o-cmr').textContent = p > 0 ? fmt1(cmr * 100) + '%' : '—';
+
+  var beqEl = document.getElementById('o-beq');
+  var berEl = document.getElementById('o-berev');
+  if (cm > 0) {
+    beqEl.textContent = fmt(Math.ceil(beQ));
+    berEl.textContent = fmt(beRev);
+  } else {
+    beqEl.textContent = '∞';
+    berEl.textContent = '∞';
+  }
+
+  var pf = document.getElementById('o-profit');
+  pf.textContent = (profit > 0 ? '+' : '') + fmt(profit);
+  pf.className = 'v ' + (profit > 1e-6 ? 'profit' : (profit < -1e-6 ? 'loss' : ''));
+
+  // Biên an toàn
+  var mosEl = document.getElementById('o-mos');
+  var mosU = document.getElementById('o-mos-u');
+  if (cm > 0 && Q > 0) {
+    var mosUnits = Q - beQ;
+    var mosPct = mosUnits / Q;
+    var mosRev = mosUnits * p;
+    mosEl.textContent = fmt1(mosPct * 100) + '%';
+    mosEl.className = 'v ' + (mosUnits >= 0 ? 'profit' : 'loss');
+    mosU.textContent = fmt(Math.round(mosUnits)) + ' sp · ' + fmt(mosRev) + ' nghìn';
+  } else {
+    mosEl.textContent = '—'; mosEl.className = 'v';
+    mosU.textContent = 'chưa hòa vốn';
+  }
+
+  // Công thức có số thật
+  document.getElementById('formula').innerHTML =
+    'π = CM×Q − F = <b>' + fmt(cm) + '</b>×' + fmt(Q) + ' − ' + fmt(F) +
+    ' = ' + fmt(cm * Q) + ' − ' + fmt(F) + ' = <b>' + (profit > 0 ? '+' : '') + fmt(profit) + '</b> nghìn' +
+    (cm > 0 ? '<br>Kiểm chứng tại hòa vốn: doanh thu ' + fmt(p * Math.ceil(beQ)) + ' ≈ tổng chi phí ' + fmt(F + v * Math.ceil(beQ)) + ' ⇒ π ≈ 0' : '');
+
+  document.getElementById('warn').style.display = cm <= 0 ? 'block' : 'none';
+
+  drawChart(st);
+}
+
+// ===== Wiring =====
+function bind(input, key) {
+  input.addEventListener('input', function () { st[key] = parseFloat(input.value); render(); });
+}
+bind(el.p, 'p'); bind(el.v, 'v'); bind(el.f, 'f'); bind(el.q, 'q');
+
+document.getElementById('reset').onclick = function () {
+  st = Object.assign({}, DEF);
+  el.p.value = DEF.p; el.v.value = DEF.v; el.f.value = DEF.f; el.q.value = DEF.q;
+  render();
+};
+
+render();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L8: Mô hình 3 báo cáo liên kết — Accounting</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f4faf9;
+    --accent: #0f766e;
+    --accent-soft: #ccfbf1;
+    --accent-hover: #115e5a;
+    /* Màu mã hoá cho từng mắt xích (link) */
+    --c-ni: #6d28d9;     /* net income */
+    --c-dep: #b45309;    /* khấu hao */
+    --c-cash: #0f766e;   /* tiền */
+    --c-ar: #2563eb;     /* phải thu */
+    --c-div: #be185d;    /* cổ tức */
+    --c-capex: #0891b2;  /* capex */
+  }
+  main { max-width: 1180px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 18px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* ===== Driver sliders ===== */
+  .drivers { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px 22px; }
+  .drv label { display: block; font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 4px; }
+  .drv .row { display: flex; align-items: center; gap: 8px; }
+  .drv input[type=range] { flex: 1; min-width: 0; accent-color: var(--accent); }
+  .drv .val { width: 62px; text-align: right; font-weight: 800; font-size: 14px; color: var(--accent); flex-shrink: 0; }
+  .drv .hint { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+  .toolbar { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .toolbar button { border: 0; border-radius: 8px; padding: 9px 18px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .btn-reset { background: #e2e8f0; color: #334155; }
+  .btn-reset:hover { background: #cbd5e1; }
+
+  /* ===== Balance banner ===== */
+  .balance {
+    display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;
+    font-size: 18px; font-weight: 800; padding: 14px; border-radius: 10px; text-align: center;
+  }
+  .balance.ok { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+  .balance.bad { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+  .balance .eqn { font-variant-numeric: tabular-nums; }
+  .balance .mark { font-size: 26px; }
+
+  /* ===== 3 statements ===== */
+  .stmts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .stmt { border: 1px solid #e3e1dc; border-radius: 10px; overflow: hidden; background: #fff; }
+  .stmt h3 { margin: 0; padding: 10px 12px; font-size: 14px; background: #f1f5f9; border-bottom: 1px solid #e3e1dc; }
+  .stmt h3 small { display: block; font-weight: 500; font-size: 11px; color: #64748b; }
+  .stmt table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  .stmt td { padding: 5px 12px; border-bottom: 1px solid #f1f5f9; }
+  .stmt td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .stmt tr.sub td { font-weight: 700; background: #fafafa; }
+  .stmt tr.tot td { font-weight: 800; background: #f0fdfa; border-top: 2px solid var(--accent); }
+  .stmt tr.head td { padding-top: 9px; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .4px; }
+  .stmt td.neg { color: #b91c1c; }
+  /* dấu chấm màu mắt xích */
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+  .d-ni { background: var(--c-ni); } .d-dep { background: var(--c-dep); }
+  .d-cash { background: var(--c-cash); } .d-ar { background: var(--c-ar); }
+  .d-div { background: var(--c-div); } .d-capex { background: var(--c-capex); }
+  tr.lk-ni td.num { color: var(--c-ni); font-weight: 700; }
+  tr.lk-dep td.num { color: var(--c-dep); font-weight: 700; }
+  tr.lk-cash td.num { color: var(--c-cash); font-weight: 700; }
+  tr.lk-ar td.num { color: var(--c-ar); font-weight: 700; }
+  tr.lk-div td.num { color: var(--c-div); font-weight: 700; }
+  tr.lk-capex td.num { color: var(--c-capex); font-weight: 700; }
+
+  /* ===== Linkage legend + SVG ===== */
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-bottom: 12px; font-size: 12px; }
+  .legend span { display: inline-flex; align-items: center; }
+  .diagram { width: 100%; height: auto; display: block; }
+  .lk-list { font-size: 13px; line-height: 1.55; }
+  .lk-list li { margin-bottom: 7px; }
+  .lk-list b { font-variant-numeric: tabular-nums; }
+  .flow-svg text { font-family: inherit; }
+
+  @media (max-width: 820px) {
+    .stmts { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Accounting</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-cash-flow/visualization.html">← L7</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Mô hình 3 báo cáo</span>
+  <span class="sep">·</span>
+  <a href="../../03-Analysis/lesson-09-financial-ratios/visualization.html">L9: Tỷ số →</a>
+</nav>
+<main>
+  <h1>Mô hình 3 báo cáo liên kết — kéo driver, xem cả IS · BS · CF dựng lại</h1>
+  <div class="lead">Kéo bất kỳ giả định nào bên dưới. Cả <strong>ba báo cáo</strong> tính lại tức thì, các <strong>mắt xích</strong> được tô cùng màu, và dấu <strong>✓ Bảng cân đối cân</strong> luôn xanh — vì khoản Tiền được lấy từ Báo cáo lưu chuyển tiền, nên $A = L+E$ đúng bằng đại số. Đơn vị: triệu đồng.</div>
+
+  <div class="module">
+    <h2>1. Các driver (giả định đầu vào)</h2>
+    <div class="sub">Bảng cân đối đầu kỳ cố định: Tiền 150 · Phải thu 200 · Tồn kho 150 · PP&amp;E 600 · Phải trả 120 · Nợ vay 300 · Vốn góp 400 · LN giữ lại 280.</div>
+    <div class="drivers" id="drivers"></div>
+    <div class="toolbar">
+      <button class="btn-reset" id="reset">↺ Reset về mặc định</button>
+    </div>
+  </div>
+
+  <div class="module">
+    <div class="balance ok" id="balance">
+      <span class="mark">✓</span>
+      <span>Bảng cân đối cân:</span>
+      <span class="eqn" id="balance-eqn">A 1.150 = L 420 + E 730</span>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>2. Ba báo cáo dựng đồng thời</h2>
+    <div class="legend">
+      <span><span class="dot d-ni"></span>Net income</span>
+      <span><span class="dot d-dep"></span>Khấu hao</span>
+      <span><span class="dot d-cash"></span>Tiền</span>
+      <span><span class="dot d-ar"></span>Phải thu</span>
+      <span><span class="dot d-capex"></span>Capex</span>
+      <span><span class="dot d-div"></span>Cổ tức</span>
+    </div>
+    <div class="stmts">
+      <div class="stmt">
+        <h3>Kết quả kinh doanh (IS)<small>Lãi/lỗ trong kỳ</small></h3>
+        <table><tbody id="is-body"></tbody></table>
+      </div>
+      <div class="stmt">
+        <h3>Lưu chuyển tiền tệ (CF)<small>Tiền thật vào/ra</small></h3>
+        <table><tbody id="cf-body"></tbody></table>
+      </div>
+      <div class="stmt">
+        <h3>Cân đối kế toán (BS) — cuối kỳ<small>Ảnh chụp số dư</small></h3>
+        <table><tbody id="bs-body"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>3. Sơ đồ mắt xích (cập nhật theo driver)</h2>
+    <div class="sub">Ba báo cáo nối nhau qua các dòng cùng màu ở bảng trên. Số trên mũi tên là giá trị hiện tại.</div>
+    <svg class="flow-svg diagram" viewBox="0 0 640 300" role="img" aria-label="Sơ đồ liên kết ba báo cáo">
+      <defs>
+        <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L7,3 L0,6 Z" fill="#64748b"/>
+        </marker>
+      </defs>
+      <!-- Boxes -->
+      <rect x="18" y="24" width="180" height="86" rx="10" fill="#faf5ff" stroke="#6d28d9" stroke-width="1.5"/>
+      <text x="108" y="50" text-anchor="middle" font-size="13" font-weight="700" fill="#6d28d9">Kết quả KD (IS)</text>
+      <text x="108" y="72" text-anchor="middle" font-size="12" fill="#475569">Net income</text>
+      <text x="108" y="94" text-anchor="middle" font-size="18" font-weight="800" fill="#6d28d9" id="fl-ni">90</text>
+
+      <rect x="442" y="24" width="180" height="86" rx="10" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.5"/>
+      <text x="532" y="50" text-anchor="middle" font-size="13" font-weight="700" fill="#0f766e">Lưu chuyển tiền (CF)</text>
+      <text x="532" y="72" text-anchor="middle" font-size="12" fill="#475569">Tiền cuối kỳ</text>
+      <text x="532" y="94" text-anchor="middle" font-size="18" font-weight="800" fill="#0f766e" id="fl-cash">120</text>
+
+      <rect x="200" y="196" width="240" height="86" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+      <text x="320" y="222" text-anchor="middle" font-size="13" font-weight="700" fill="#1e293b">Cân đối kế toán (BS)</text>
+      <text x="320" y="244" text-anchor="middle" font-size="12" fill="#475569">Tài sản = Nợ + Vốn chủ</text>
+      <text x="320" y="266" text-anchor="middle" font-size="15" font-weight="800" fill="#15803d" id="fl-bs">1.150 = 420 + 730</text>
+
+      <!-- IS -> CF (net income là dòng đầu CFO) -->
+      <line x1="198" y1="60" x2="440" y2="60" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <text x="320" y="52" text-anchor="middle" font-size="11" fill="#6d28d9">NI → đầu CFO</text>
+
+      <!-- IS -> BS (net income -> LN giữ lại) -->
+      <line x1="120" y1="110" x2="240" y2="196" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <text x="150" y="165" text-anchor="middle" font-size="11" fill="#6d28d9">NI → LN giữ lại</text>
+
+      <!-- CF -> BS (tiền cuối = khoản Tiền) -->
+      <line x1="520" y1="110" x2="400" y2="196" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <text x="500" y="165" text-anchor="middle" font-size="11" fill="#0f766e">Tiền cuối → Tiền BS</text>
+    </svg>
+
+    <ul class="lk-list" id="lk-list"></ul>
+  </div>
+</main>
+
+<script>
+// ================== Bảng cân đối ĐẦU KỲ (hằng số) ==================
+var OPEN = {
+  cash: 150, ar: 200, inv: 150, ppe: 600,   // tài sản
+  ap: 120, debt: 300,                        // nợ
+  common: 400, re: 280                       // vốn chủ
+};
+var INT_RATE = 0.10; // lãi vay tính trên nợ đầu kỳ
+
+// ================== Driver mặc định ==================
+var DEFAULTS = {
+  rev: 1000, gm: 40, opex: 20, dep: 50, capex: 80,
+  tax: 25, dso: 90, debtChg: 0, div: 40
+};
+var D = Object.assign({}, DEFAULTS);
+
+// Định nghĩa slider: key, nhãn, min, max, bước, hậu tố
+var SLIDERS = [
+  { k: 'rev',     lab: 'Doanh thu',                min: 0,    max: 2000, step: 50, suf: '' },
+  { k: 'gm',      lab: 'Biên lợi nhuận gộp',       min: 0,    max: 80,   step: 1,  suf: '%' },
+  { k: 'opex',    lab: 'Chi phí hoạt động (%DT)',  min: 0,    max: 50,   step: 1,  suf: '%' },
+  { k: 'dep',     lab: 'Khấu hao',                 min: 0,    max: 200,  step: 5,  suf: '' },
+  { k: 'capex',   lab: 'Capex (mua tài sản)',      min: 0,    max: 300,  step: 5,  suf: '' },
+  { k: 'tax',     lab: 'Thuế suất',                min: 0,    max: 50,   step: 1,  suf: '%' },
+  { k: 'dso',     lab: 'Kỳ thu tiền (DSO, ngày)',  min: 0,    max: 180,  step: 5,  suf: 'n' },
+  { k: 'debtChg', lab: 'Vay ròng (± trong kỳ)',    min: -300, max: 300,  step: 10, suf: '' },
+  { k: 'div',     lab: 'Cổ tức',                   min: 0,    max: 200,  step: 5,  suf: '' }
+];
+
+function fmt(n) {
+  return (Math.round(n * 10) / 10).toLocaleString('vi-VN', { maximumFractionDigits: 1 });
+}
+// số âm hiển thị dạng (x) cho báo cáo, dùng dấu trừ chuẩn kế toán
+function neg(n) { return '−' + fmt(Math.abs(n)); }
+
+// ================== Tính toán mô hình ==================
+function compute() {
+  var rev = D.rev;
+  var cogs = rev * (1 - D.gm / 100);
+  var gross = rev - cogs;
+  var opex = rev * (D.opex / 100);
+  var dep = D.dep;
+  var ebit = gross - opex - dep;
+  var interest = INT_RATE * OPEN.debt;        // lãi trên nợ đầu kỳ
+  var ebt = ebit - interest;
+  var tax = ebt > 0 ? ebt * (D.tax / 100) : 0; // lỗ thì không đóng thuế
+  var ni = ebt - tax;
+
+  // Vốn lưu động: chỉ phải thu biến động (tồn kho & phải trả giữ nguyên)
+  var arEnd = rev * (D.dso / 360);
+  var dAR = arEnd - OPEN.ar;
+  var dInv = 0, dAP = 0;
+
+  // Cash flow
+  var cfo = ni + dep - dAR - dInv + dAP;
+  var cfi = -D.capex;
+  var cff = D.debtChg - D.div;
+  var netCash = cfo + cfi + cff;
+  var cashEnd = OPEN.cash + netCash;
+
+  // Balance sheet cuối kỳ
+  var ppeEnd = OPEN.ppe + D.capex - dep;
+  var debtEnd = OPEN.debt + D.debtChg;
+  var reEnd = OPEN.re + ni - D.div;
+  var assets = cashEnd + arEnd + OPEN.inv + ppeEnd;
+  var liab = OPEN.ap + debtEnd;
+  var equity = OPEN.common + reEnd;
+
+  return {
+    rev: rev, cogs: cogs, gross: gross, opex: opex, dep: dep, ebit: ebit,
+    interest: interest, ebt: ebt, tax: tax, ni: ni,
+    arEnd: arEnd, dAR: dAR, cfo: cfo, cfi: cfi, cff: cff, netCash: netCash,
+    cashEnd: cashEnd, ppeEnd: ppeEnd, debtEnd: debtEnd, reEnd: reEnd,
+    assets: assets, liab: liab, equity: equity
+  };
+}
+
+// ================== Render báo cáo ==================
+function row(label, value, opts) {
+  opts = opts || {};
+  var cls = opts.cls ? ' class="' + opts.cls + '"' : '';
+  var dot = opts.dot ? '<span class="dot ' + opts.dot + '"></span>' : '';
+  var numCls = 'num' + (opts.negColor && value < 0 ? ' neg' : '');
+  var disp = opts.raw !== undefined ? opts.raw : (opts.signed ? (value < 0 ? neg(value) : '+' + fmt(value)) : fmt(value));
+  return '<tr' + cls + '><td>' + dot + label + '</td><td class="' + numCls + '">' + disp + '</td></tr>';
+}
+
+function render() {
+  var m = compute();
+
+  // ---- Income Statement ----
+  var is = '';
+  is += row('Doanh thu', m.rev);
+  is += row('Giá vốn (COGS)', -m.cogs, { raw: neg(m.cogs), negColor: true });
+  is += row('Lợi nhuận gộp', m.gross, { cls: 'sub' });
+  is += row('Chi phí hoạt động', -m.opex, { raw: neg(m.opex) });
+  is += row('Khấu hao', -m.dep, { raw: neg(m.dep), cls: 'lk-dep', dot: 'd-dep' });
+  is += row('EBIT', m.ebit, { cls: 'sub' });
+  is += row('Lãi vay (10%×nợ đầu)', -m.interest, { raw: neg(m.interest) });
+  is += row('LN trước thuế (EBT)', m.ebt, { cls: 'sub' });
+  is += row('Thuế', -m.tax, { raw: neg(m.tax) });
+  is += row('Lợi nhuận ròng', m.ni, { cls: 'tot lk-ni', dot: 'd-ni' });
+  document.getElementById('is-body').innerHTML = is;
+
+  // ---- Cash Flow ----
+  var cf = '';
+  cf += '<tr class="head"><td colspan="2">Hoạt động (CFO)</td></tr>';
+  cf += row('Net income', m.ni, { cls: 'lk-ni', dot: 'd-ni' });
+  cf += row('+ Khấu hao', m.dep, { raw: '+' + fmt(m.dep), cls: 'lk-dep', dot: 'd-dep' });
+  cf += row('− Tăng phải thu', -m.dAR, { raw: (m.dAR >= 0 ? neg(m.dAR) : '+' + fmt(-m.dAR)), cls: 'lk-ar', dot: 'd-ar' });
+  cf += row('CFO', m.cfo, { cls: 'sub' });
+  cf += '<tr class="head"><td colspan="2">Đầu tư (CFI)</td></tr>';
+  cf += row('− Capex', -D.capex, { raw: neg(D.capex), cls: 'lk-capex', dot: 'd-capex' });
+  cf += row('CFI', m.cfi, { cls: 'sub' });
+  cf += '<tr class="head"><td colspan="2">Tài trợ (CFF)</td></tr>';
+  cf += row('Vay ròng', D.debtChg, { raw: (D.debtChg < 0 ? neg(D.debtChg) : '+' + fmt(D.debtChg)) });
+  cf += row('− Cổ tức', -D.div, { raw: neg(D.div), cls: 'lk-div', dot: 'd-div' });
+  cf += row('CFF', m.cff, { cls: 'sub' });
+  cf += row('Thay đổi tiền ròng', m.netCash, { raw: (m.netCash < 0 ? neg(m.netCash) : '+' + fmt(m.netCash)), cls: 'sub' });
+  cf += row('Tiền đầu kỳ', OPEN.cash);
+  cf += row('Tiền cuối kỳ', m.cashEnd, { cls: 'tot lk-cash', dot: 'd-cash' });
+  document.getElementById('cf-body').innerHTML = cf;
+
+  // ---- Balance Sheet ----
+  var bs = '';
+  bs += '<tr class="head"><td colspan="2">Tài sản</td></tr>';
+  bs += row('Tiền', m.cashEnd, { cls: 'lk-cash', dot: 'd-cash' });
+  bs += row('Phải thu', m.arEnd, { cls: 'lk-ar', dot: 'd-ar' });
+  bs += row('Hàng tồn kho', OPEN.inv);
+  bs += row('PP&E ròng', m.ppeEnd, { cls: 'lk-dep', dot: 'd-dep' });
+  bs += row('Tổng tài sản', m.assets, { cls: 'tot' });
+  bs += '<tr class="head"><td colspan="2">Nợ + Vốn chủ</td></tr>';
+  bs += row('Phải trả người bán', OPEN.ap);
+  bs += row('Nợ vay', m.debtEnd);
+  bs += row('Vốn góp', OPEN.common);
+  bs += row('LN giữ lại', m.reEnd, { cls: 'lk-ni', dot: 'd-ni' });
+  bs += row('Tổng nguồn vốn', m.liab + m.equity, { cls: 'tot' });
+  document.getElementById('bs-body').innerHTML = bs;
+
+  // ---- Balance banner ----
+  var diff = m.assets - (m.liab + m.equity);
+  var balanced = Math.abs(diff) < 0.01;
+  var el = document.getElementById('balance');
+  el.className = 'balance ' + (balanced ? 'ok' : 'bad');
+  el.querySelector('.mark').textContent = balanced ? '✓' : '✗';
+  el.querySelector('span:nth-child(2)').textContent = balanced ? 'Bảng cân đối cân:' : 'LỆCH:';
+  document.getElementById('balance-eqn').textContent =
+    'A ' + fmt(m.assets) + ' = L ' + fmt(m.liab) + ' + E ' + fmt(m.equity);
+
+  // ---- Sơ đồ ----
+  document.getElementById('fl-ni').textContent = fmt(m.ni);
+  document.getElementById('fl-cash').textContent = fmt(m.cashEnd);
+  document.getElementById('fl-bs').textContent = fmt(m.assets) + ' = ' + fmt(m.liab) + ' + ' + fmt(m.equity);
+
+  // ---- Danh sách mắt xích ----
+  document.getElementById('lk-list').innerHTML =
+    '<li><span class="dot d-ni"></span><b>Net income = ' + fmt(m.ni) + '</b> vừa cộng vào LN giữ lại trên BS (' +
+      fmt(OPEN.re) + ' + ' + fmt(m.ni) + ' − ' + fmt(D.div) + ' = <b>' + fmt(m.reEnd) + '</b>), vừa là dòng đầu CFO.</li>' +
+    '<li><span class="dot d-dep"></span><b>Khấu hao = ' + fmt(m.dep) + '</b>: −' + fmt(m.dep) + ' ở IS (chi phí), +' + fmt(m.dep) +
+      ' cộng lại ở CFO, và làm PP&E ròng = ' + fmt(OPEN.ppe) + ' + ' + fmt(D.capex) + ' − ' + fmt(m.dep) + ' = <b>' + fmt(m.ppeEnd) + '</b>.</li>' +
+    '<li><span class="dot d-ar"></span><b>Δ Phải thu = ' + (m.dAR >= 0 ? '+' : '−') + fmt(Math.abs(m.dAR)) + '</b> (DSO ' + fmt(D.dso) +
+      ' ngày → phải thu ' + fmt(m.arEnd) + '); ' + (m.dAR >= 0 ? 'trừ' : 'cộng') + ' ' + fmt(Math.abs(m.dAR)) + ' ở CFO.</li>' +
+    '<li><span class="dot d-cash"></span><b>Tiền cuối kỳ CF = ' + fmt(m.cashEnd) + '</b> = khoản Tiền trên BS (khớp tuyệt đối).</li>' +
+    '<li><span class="dot d-capex"></span>Capex ' + fmt(D.capex) + ' làm CFI = −' + fmt(D.capex) + ' và tăng PP&E; ' +
+      '<span class="dot d-div"></span>Cổ tức ' + fmt(D.div) + ' làm CFF giảm và LN giữ lại giảm.</li>';
+}
+
+// ================== Dựng UI ==================
+function suffixVal(s) {
+  var v = D[s.k];
+  if (s.suf === '%') return fmt(v) + '%';
+  if (s.suf === 'n') return fmt(v) + ' ngày';
+  return fmt(v);
+}
+
+function buildSliders() {
+  var box = document.getElementById('drivers');
+  box.innerHTML = '';
+  SLIDERS.forEach(function (s) {
+    var wrap = document.createElement('div');
+    wrap.className = 'drv';
+    wrap.innerHTML =
+      '<label>' + s.lab + '</label>' +
+      '<div class="row">' +
+        '<input type="range" min="' + s.min + '" max="' + s.max + '" step="' + s.step + '" value="' + D[s.k] + '" id="s-' + s.k + '">' +
+        '<span class="val" id="v-' + s.k + '">' + suffixVal(s) + '</span>' +
+      '</div>';
+    box.appendChild(wrap);
+    var input = wrap.querySelector('input');
+    input.addEventListener('input', function () {
+      D[s.k] = parseFloat(this.value);
+      document.getElementById('v-' + s.k).textContent = suffixVal(s);
+      render();
+    });
+  });
+}
+
+document.getElementById('reset').addEventListener('click', function () {
+  D = Object.assign({}, DEFAULTS);
+  SLIDERS.forEach(function (s) {
+    document.getElementById('s-' + s.k).value = D[s.k];
+    document.getElementById('v-' + s.k).textContent = suffixVal(s);
+  });
+  render();
+});
+
+buildSliders();
+render();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

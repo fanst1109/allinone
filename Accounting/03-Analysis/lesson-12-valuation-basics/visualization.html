@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L12: Định giá cơ bản — Accounting</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f4faf9;
+    --accent: #0f766e;
+    --accent-soft: #ccfbf1;
+    --accent-hover: #115e5a;
+    --fcf: #0f766e;
+    --tv: #b45309;
+    --equity: #4338ca;
+  }
+  main { max-width: 980px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Bảng nhập giả định */
+  .inputs { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px 16px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; font-weight: 700; color: #475569; }
+  .field .hint { font-size: 11px; font-weight: 500; color: #94a3b8; }
+  .field input[type=number] {
+    width: 100%; max-width: 100%; box-sizing: border-box;
+    padding: 7px 9px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;
+  }
+  .field input[type=range] { width: 100%; accent-color: var(--accent); }
+  .field .rval { font-size: 13px; font-weight: 700; color: var(--accent); }
+  .toolbar { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .toolbar button { border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .btn-reset { background: #e2e8f0; color: #334155; }
+  .btn-reset:hover { background: #cbd5e1; }
+
+  /* Readout boxes */
+  .readouts { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .ro { border-radius: 10px; padding: 10px 14px; background: #f8fafc; border: 1px solid #e3e1dc; }
+  .ro small { display: block; font-size: 11px; font-weight: 700; letter-spacing: .3px; color: #64748b; text-transform: uppercase; }
+  .ro .num { font-size: 22px; font-weight: 800; margin-top: 2px; }
+  .ro.ev { background: #eef2ff; border-color: #c7d2fe; }
+  .ro.ev .num { color: var(--equity); }
+  .ro.equity { background: #ecfeff; border-color: #a5f3fc; }
+  .ro.equity .num { color: #0e7490; }
+
+  /* Thanh cấu thành EV */
+  .comp { margin-top: 16px; }
+  .comp .cap { font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; }
+  .comp-track { height: 38px; background: #f1f5f9; border-radius: 8px; overflow: hidden; display: flex; }
+  .comp-seg { height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; transition: width .35s ease; }
+  .comp-seg.fcf { background: var(--fcf); }
+  .comp-seg.tv { background: var(--tv); }
+  .eqline { text-align: center; font-size: 14px; font-weight: 700; margin-top: 10px; padding: 7px; border-radius: 8px; background: #ecfdf5; color: #15803d; }
+  .warn { text-align: center; font-size: 13px; font-weight: 700; margin-top: 10px; padding: 8px; border-radius: 8px; background: #fef2f2; color: #b91c1c; }
+
+  /* Bảng dòng tiền */
+  .tbl-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 4px; }
+  th, td { border: 1px solid #e3e1dc; padding: 6px 9px; text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  th { background: #f1f5f9; font-size: 12px; }
+  tr.sum td { font-weight: 800; background: #f0fdfa; }
+  tr.tvrow td { background: #fff7ed; }
+  tr.evrow td { font-weight: 800; background: #eef2ff; }
+
+  /* Chú giải */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: #475569; margin-bottom: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+  /* SVG sensitivity */
+  .chart-wrap { overflow-x: auto; }
+  svg { max-width: 100%; height: auto; display: block; }
+  .senote { font-size: 13px; color: #475569; margin-top: 8px; }
+  .senote b { color: var(--accent); }
+
+  /* So sánh bội số */
+  .cmp-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  @media (min-width: 720px) { .cmp-grid { grid-template-columns: 1fr 1fr; } }
+  .cmp-card { border: 1px solid #e3e1dc; border-radius: 10px; padding: 12px 14px; background: #fafafa; }
+  .cmp-card h3 { margin: 0 0 8px; font-size: 15px; }
+  .cmp-out { font-size: 13px; line-height: 1.9; color: #334155; }
+  .cmp-out b { color: var(--equity); }
+  .verdict { margin-top: 12px; padding: 10px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+  .verdict.near { background: #ecfdf5; color: #15803d; }
+  .verdict.far  { background: #fef3c7; color: #92400e; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Accounting</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 3</a>
+  <span class="sep">·</span>
+  <a href="../lesson-11-budgeting/visualization.html">← L11</a>
+  <span class="sep">·</span>
+  <span class="current">L12: Định giá cơ bản</span>
+</nav>
+<main>
+  <h1>Định giá cơ bản — DCF & bội số (mô phỏng sống)</h1>
+  <div class="lead">Kéo thử FCF, tăng trưởng, WACC (<em>r</em>) và tăng trưởng terminal (<em>g</em>). Xem <strong>Enterprise Value = Σ PV(FCF) + PV(terminal value)</strong> và <strong>Equity value = EV − nợ ròng</strong> cập nhật tức thời. Đơn vị: tỷ đồng.</div>
+
+  <div class="module">
+    <h2>1. Nhập giả định</h2>
+    <div class="sub">Điều kiện bắt buộc để terminal value hợp lệ: WACC (r) &gt; tăng trưởng terminal (g).</div>
+    <div class="inputs">
+      <div class="field">
+        <label for="i-fcf0">FCF năm gần nhất (FCF₀)</label>
+        <input type="number" id="i-fcf0" value="100" step="5">
+        <span class="hint">Dòng tiền tự do điểm xuất phát</span>
+      </div>
+      <div class="field">
+        <label for="i-ggd">Tăng trưởng giai đoạn g₍gđ₎ (%)</label>
+        <input type="number" id="i-ggd" value="8" step="0.5">
+        <span class="hint">Tốc độ FCF tăng trong kỳ dự báo</span>
+      </div>
+      <div class="field">
+        <label for="i-n">Số năm dự báo (N)</label>
+        <input type="number" id="i-n" value="5" min="1" max="10" step="1">
+        <span class="hint">Thường 5–10 năm</span>
+      </div>
+      <div class="field">
+        <label for="i-r">WACC — tỷ suất chiết khấu r: <span class="rval" id="r-val">12%</span></label>
+        <input type="range" id="i-r" min="4" max="25" step="0.5" value="12">
+        <span class="hint">Kéo để thấy độ nhạy: r ↑ → giá trị ↓</span>
+      </div>
+      <div class="field">
+        <label for="i-g">Tăng trưởng terminal g (%)</label>
+        <input type="number" id="i-g" value="3" step="0.5">
+        <span class="hint">Tăng đều mãi mãi (2–4%)</span>
+      </div>
+      <div class="field">
+        <label for="i-debt">Nợ ròng (nợ vay − tiền)</label>
+        <input type="number" id="i-debt" value="150" step="10">
+        <span class="hint">Có thể âm nếu tiền &gt; nợ</span>
+      </div>
+    </div>
+    <div class="toolbar">
+      <button class="btn-reset" id="reset">↺ Đặt lại giả định mẫu</button>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>2. Kết quả DCF</h2>
+    <div class="sub">Enterprise Value là tổng của hai phần: hiện giá dòng tiền dự báo và hiện giá terminal value.</div>
+    <div class="readouts">
+      <div class="ro"><small>Σ PV(FCF)</small><div class="num" id="ro-pvfcf" style="color:var(--fcf)">—</div></div>
+      <div class="ro"><small>PV(Terminal)</small><div class="num" id="ro-pvtv" style="color:var(--tv)">—</div></div>
+      <div class="ro ev"><small>Enterprise Value</small><div class="num" id="ro-ev">—</div></div>
+      <div class="ro"><small>− Nợ ròng</small><div class="num" id="ro-debt" style="color:#64748b">—</div></div>
+      <div class="ro equity"><small>Equity value</small><div class="num" id="ro-equity">—</div></div>
+    </div>
+
+    <div class="comp">
+      <div class="cap">Cấu thành Enterprise Value:</div>
+      <div class="comp-track">
+        <div class="comp-seg fcf" id="seg-fcf" style="width:0"></div>
+        <div class="comp-seg tv" id="seg-tv" style="width:0"></div>
+      </div>
+      <div class="eqline" id="eqline">—</div>
+      <div class="warn" id="warn" style="display:none">⚠ Cần r &gt; g để terminal value hợp lệ. Hiện r ≤ g → công thức Gordon vô nghĩa.</div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>3. Bảng dòng tiền & hiện giá (PV)</h2>
+    <div class="sub">Mỗi năm: FCF dự báo × hệ số chiết khấu 1/(1+r)ⁿ = PV. Cộng lại + PV(terminal) = EV.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Năm</th><th>FCF</th><th>Hệ số CK</th><th>PV</th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>4. Độ nhạy theo WACC (r)</h2>
+    <div class="sub">Đường EV thay đổi khi r chạy từ thấp đến cao. Chấm tròn = giá trị r bạn đang chọn.</div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--equity)"></span> Enterprise Value theo r</span>
+      <span><span class="dot" style="background:#ef4444"></span> r hiện tại</span>
+    </div>
+    <div class="chart-wrap">
+      <svg id="chart" width="520" height="260" viewBox="0 0 520 260" role="img" aria-label="Biểu đồ độ nhạy EV theo WACC"></svg>
+    </div>
+    <div class="senote" id="senote">—</div>
+  </div>
+
+  <div class="module">
+    <h2>5. So sánh nhanh với định giá tương đối (bội số)</h2>
+    <div class="sub">Đặt cạnh DCF để đối chiếu. Nếu hai cách ra gần nhau → tự tin hơn về giá trị.</div>
+    <div class="cmp-grid">
+      <div class="cmp-card">
+        <h3>P/E → Equity value</h3>
+        <div class="field">
+          <label for="m-ni">Lợi nhuận ròng (net income)</label>
+          <input type="number" id="m-ni" value="90" step="5">
+        </div>
+        <div class="field" style="margin-top:8px">
+          <label for="m-pe">P/E ngành</label>
+          <input type="number" id="m-pe" value="14" step="0.5">
+        </div>
+        <div class="cmp-out" id="pe-out" style="margin-top:8px">—</div>
+      </div>
+      <div class="cmp-card">
+        <h3>EV/EBITDA → EV</h3>
+        <div class="field">
+          <label for="m-ebitda">EBITDA</label>
+          <input type="number" id="m-ebitda" value="200" step="10">
+        </div>
+        <div class="field" style="margin-top:8px">
+          <label for="m-mult">EV/EBITDA ngành</label>
+          <input type="number" id="m-mult" value="7" step="0.5">
+        </div>
+        <div class="cmp-out" id="ev-out" style="margin-top:8px">—</div>
+      </div>
+    </div>
+    <div class="verdict" id="verdict">—</div>
+  </div>
+</main>
+
+<script>
+// ===== Trạng thái =====
+var DEFAULTS = { fcf0: 100, ggd: 8, N: 5, r: 12, g: 3, debt: 150 };
+var MDEF = { ni: 90, pe: 14, ebitda: 200, mult: 7 };
+
+function num(id) { return parseFloat(document.getElementById(id).value); }
+
+function readInputs() {
+  return {
+    fcf0: num('i-fcf0'),
+    ggd:  num('i-ggd') / 100,
+    N:    Math.max(1, Math.min(10, Math.round(num('i-n')))),
+    r:    num('i-r') / 100,
+    g:    num('i-g') / 100,
+    debt: num('i-debt')
+  };
+}
+
+// Tính DCF; cho phép override r (dùng cho biểu đồ độ nhạy)
+function computeDCF(D, rOverride) {
+  var r = (rOverride === undefined) ? D.r : rOverride;
+  var rows = [], sumPV = 0, fcf = D.fcf0;
+  for (var t = 1; t <= D.N; t++) {
+    fcf = fcf * (1 + D.ggd);
+    var df = 1 / Math.pow(1 + r, t);
+    var pv = fcf * df;
+    sumPV += pv;
+    rows.push({ t: t, fcf: fcf, df: df, pv: pv });
+  }
+  var fcfN = rows[rows.length - 1].fcf;
+  var dfN = 1 / Math.pow(1 + r, D.N);
+  var valid = r > D.g;
+  var tv = valid ? fcfN * (1 + D.g) / (r - D.g) : NaN;
+  var pvTV = valid ? tv * dfN : NaN;
+  var ev = valid ? sumPV + pvTV : NaN;
+  var equity = valid ? ev - D.debt : NaN;
+  return { rows: rows, sumPV: sumPV, tv: tv, pvTV: pvTV, dfN: dfN, ev: ev, equity: equity, valid: valid };
+}
+
+function fmt(n) {
+  if (!isFinite(n)) return '—';
+  return (Math.round(n * 100) / 100).toLocaleString('vi-VN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmt0(n) { return isFinite(n) ? Math.round(n).toLocaleString('vi-VN') : '—'; }
+function fmt4(n) { return (Math.round(n * 10000) / 10000).toLocaleString('vi-VN', { minimumFractionDigits: 4, maximumFractionDigits: 4 }); }
+
+// ===== Render chính =====
+function render() {
+  var D = readInputs();
+  document.getElementById('r-val').textContent = (D.r * 100) + '%';
+  var R = computeDCF(D);
+
+  // Readouts
+  document.getElementById('ro-pvfcf').textContent = fmt(R.sumPV);
+  document.getElementById('ro-pvtv').textContent  = fmt(R.pvTV);
+  document.getElementById('ro-ev').textContent     = fmt(R.ev);
+  document.getElementById('ro-debt').textContent   = fmt(D.debt);
+  document.getElementById('ro-equity').textContent = fmt(R.equity);
+
+  // Thanh cấu thành
+  var warn = document.getElementById('warn');
+  var eqline = document.getElementById('eqline');
+  if (R.valid && R.ev > 0) {
+    var wF = R.sumPV / R.ev * 100, wT = R.pvTV / R.ev * 100;
+    document.getElementById('seg-fcf').style.width = wF + '%';
+    document.getElementById('seg-tv').style.width  = wT + '%';
+    document.getElementById('seg-fcf').textContent = 'PV(FCF) ' + Math.round(wF) + '%';
+    document.getElementById('seg-tv').textContent  = 'PV(TV) ' + Math.round(wT) + '%';
+    eqline.style.display = '';
+    eqline.textContent = 'EV = Σ PV(FCF) ' + fmt(R.sumPV) + ' + PV(TV) ' + fmt(R.pvTV) + ' = ' + fmt(R.ev)
+                       + '  →  Equity = ' + fmt(R.ev) + ' − ' + fmt(D.debt) + ' = ' + fmt(R.equity);
+    warn.style.display = 'none';
+  } else {
+    document.getElementById('seg-fcf').style.width = '0';
+    document.getElementById('seg-tv').style.width = '0';
+    eqline.style.display = 'none';
+    warn.style.display = '';
+  }
+
+  // Bảng
+  var tb = document.getElementById('tbody');
+  var html = R.rows.map(function(row) {
+    return '<tr><td>' + row.t + '</td><td>' + fmt(row.fcf) + '</td><td>' + fmt4(row.df) + '</td><td>' + fmt(row.pv) + '</td></tr>';
+  }).join('');
+  html += '<tr class="sum"><td>Σ PV(FCF)</td><td></td><td></td><td>' + fmt(R.sumPV) + '</td></tr>';
+  if (R.valid) {
+    html += '<tr class="tvrow"><td>Terminal value (cuối năm ' + D.N + ')</td><td>' + fmt(R.tv) + '</td><td>' + fmt4(R.dfN) + '</td><td>' + fmt(R.pvTV) + '</td></tr>';
+    html += '<tr class="evrow"><td>Enterprise Value</td><td></td><td></td><td>' + fmt(R.ev) + '</td></tr>';
+  } else {
+    html += '<tr class="tvrow"><td colspan="4">Terminal value không hợp lệ (cần r &gt; g)</td></tr>';
+  }
+  tb.innerHTML = html;
+
+  drawChart(D, R);
+  renderCompare(R);
+}
+
+// ===== Biểu đồ độ nhạy EV vs r =====
+function drawChart(D, R) {
+  var W = 520, H = 260, padL = 62, padR = 16, padT = 16, padB = 40;
+  var x0 = padL, x1 = W - padR, y0 = H - padB, y1 = padT;
+  // r range: từ max(g+0.5%, 4%) đến 25%
+  var rMin = Math.max(D.g + 0.005, 0.04), rMax = 0.25;
+  if (rMin >= rMax) rMin = rMax - 0.05;
+  var pts = [], evMax = 0, evMin = Infinity;
+  var STEPS = 60;
+  for (var i = 0; i <= STEPS; i++) {
+    var rr = rMin + (rMax - rMin) * i / STEPS;
+    var ev = computeDCF(D, rr).ev;
+    if (isFinite(ev)) { pts.push({ r: rr, ev: ev }); if (ev > evMax) evMax = ev; if (ev < evMin) evMin = ev; }
+  }
+  if (evMin === Infinity) { evMin = 0; }
+  evMin = Math.min(evMin, 0); // gồm 0 để trục có gốc
+  var span = (evMax - evMin) || 1;
+
+  function sx(r) { return x0 + (r - rMin) / (rMax - rMin) * (x1 - x0); }
+  function sy(ev) { return y0 - (ev - evMin) / span * (y0 - y1); }
+
+  var s = '';
+  // Trục
+  s += '<line x1="' + x0 + '" y1="' + y0 + '" x2="' + x1 + '" y2="' + y0 + '" stroke="#cbd5e1" stroke-width="1"/>';
+  s += '<line x1="' + x0 + '" y1="' + y0 + '" x2="' + x0 + '" y2="' + y1 + '" stroke="#cbd5e1" stroke-width="1"/>';
+  // Nhãn trục x (r%)
+  for (var k = 0; k <= 4; k++) {
+    var rt = rMin + (rMax - rMin) * k / 4;
+    var xt = sx(rt);
+    s += '<line x1="' + xt + '" y1="' + y0 + '" x2="' + xt + '" y2="' + (y0 + 4) + '" stroke="#cbd5e1"/>';
+    s += '<text x="' + xt + '" y="' + (y0 + 18) + '" font-size="11" fill="#64748b" text-anchor="middle">' + Math.round(rt * 100) + '%</text>';
+  }
+  s += '<text x="' + ((x0 + x1) / 2) + '" y="' + (H - 6) + '" font-size="12" fill="#475569" text-anchor="middle" font-weight="700">WACC (r)</text>';
+  // Nhãn trục y (EV)
+  for (var j = 0; j <= 4; j++) {
+    var ev = evMin + span * j / 4;
+    var yt = sy(ev);
+    s += '<line x1="' + (x0 - 4) + '" y1="' + yt + '" x2="' + x0 + '" y2="' + yt + '" stroke="#cbd5e1"/>';
+    s += '<text x="' + (x0 - 8) + '" y="' + (yt + 4) + '" font-size="10" fill="#64748b" text-anchor="end">' + fmt0(ev) + '</text>';
+  }
+  s += '<text x="14" y="' + ((y0 + y1) / 2) + '" font-size="12" fill="#475569" text-anchor="middle" font-weight="700" transform="rotate(-90 14 ' + ((y0 + y1) / 2) + ')">EV</text>';
+  // Đường cong
+  if (pts.length) {
+    var d = pts.map(function(p, idx) { return (idx ? 'L' : 'M') + sx(p.r).toFixed(1) + ' ' + sy(p.ev).toFixed(1); }).join(' ');
+    s += '<path d="' + d + '" fill="none" stroke="#4338ca" stroke-width="2.5"/>';
+  }
+  // Chấm r hiện tại
+  if (R.valid && D.r >= rMin && D.r <= rMax) {
+    var cx = sx(D.r), cy = sy(R.ev);
+    s += '<line x1="' + cx + '" y1="' + y0 + '" x2="' + cx + '" y2="' + cy + '" stroke="#ef4444" stroke-width="1" stroke-dasharray="3 3"/>';
+    s += '<circle cx="' + cx + '" cy="' + cy + '" r="5.5" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>';
+    s += '<text x="' + Math.min(cx + 8, x1 - 40) + '" y="' + Math.max(cy - 8, y1 + 12) + '" font-size="11" fill="#ef4444" font-weight="700">EV ' + fmt0(R.ev) + '</text>';
+  }
+  document.getElementById('chart').innerHTML = s;
+
+  // Ghi chú số: so EV ở r hiện tại vs r+2%
+  var note = document.getElementById('senote');
+  if (R.valid) {
+    var evUp = computeDCF(D, D.r + 0.02).ev;
+    if (isFinite(evUp)) {
+      var drop = R.ev - evUp, pct = drop / R.ev * 100;
+      note.innerHTML = 'Ở r = <b>' + (D.r * 100) + '%</b>, EV = <b>' + fmt0(R.ev) + '</b>. '
+        + 'Tăng r thêm 2 điểm % (→ ' + ((D.r + 0.02) * 100) + '%) làm EV giảm còn ' + fmt0(evUp)
+        + ' — mất ' + fmt0(drop) + ' (≈ ' + Math.round(pct) + '%). Chi phí vốn cao hơn ⇒ định giá thấp hơn.';
+    }
+  } else {
+    note.textContent = 'Terminal value không hợp lệ ở r hiện tại (cần r > g).';
+  }
+}
+
+// ===== So sánh bội số =====
+function renderCompare(R) {
+  var ni = num('m-ni'), pe = num('m-pe'), ebitda = num('m-ebitda'), mult = num('m-mult');
+  var debt = num('i-debt');
+  var eqPE = ni * pe;                 // Equity theo P/E
+  var evMult = ebitda * mult;         // EV theo EV/EBITDA
+  var eqMult = evMult - debt;         // Equity từ bội số EV
+
+  document.getElementById('pe-out').innerHTML =
+    'Equity value (P/E) = LN ròng × P/E = ' + fmt0(ni) + ' × ' + pe + ' = <b>' + fmt0(eqPE) + '</b><br>'
+    + '<span style="color:#64748b">DCF cho Equity value = ' + fmt0(R.equity) + '</span>';
+
+  document.getElementById('ev-out').innerHTML =
+    'EV (EV/EBITDA) = EBITDA × bội số = ' + fmt0(ebitda) + ' × ' + mult + ' = <b>' + fmt0(evMult) + '</b><br>'
+    + 'Equity = EV − nợ ròng = ' + fmt0(evMult) + ' − ' + fmt0(debt) + ' = <b>' + fmt0(eqMult) + '</b><br>'
+    + '<span style="color:#64748b">DCF cho EV = ' + fmt0(R.ev) + '</span>';
+
+  var v = document.getElementById('verdict');
+  if (R.valid) {
+    // Độ lệch tương đối giữa DCF EV và EV theo bội số
+    var diff = Math.abs(R.ev - evMult) / R.ev * 100;
+    if (diff <= 10) {
+      v.className = 'verdict near';
+      v.textContent = '✓ DCF (' + fmt0(R.ev) + ') và bội số EV/EBITDA (' + fmt0(evMult) + ') lệch ≈ ' + Math.round(diff) + '% — hai phương pháp đồng thuận, tự tin hơn về giá trị.';
+    } else {
+      v.className = 'verdict far';
+      v.textContent = '⚠ DCF (' + fmt0(R.ev) + ') và bội số EV/EBITDA (' + fmt0(evMult) + ') lệch ≈ ' + Math.round(diff) + '% — cần rà lại giả định (r, g, bội số ngành) xem bên nào hợp lý hơn.';
+    }
+  } else {
+    v.className = 'verdict far';
+    v.textContent = 'DCF chưa hợp lệ (cần r > g) để so sánh với bội số.';
+  }
+}
+
+// ===== Gắn sự kiện =====
+['i-fcf0','i-ggd','i-n','i-r','i-g','i-debt','m-ni','m-pe','m-ebitda','m-mult'].forEach(function(id) {
+  var el = document.getElementById(id);
+  el.addEventListener('input', render);
+  el.addEventListener('change', render);
+});
+
+document.getElementById('reset').onclick = function() {
+  document.getElementById('i-fcf0').value = DEFAULTS.fcf0;
+  document.getElementById('i-ggd').value  = DEFAULTS.ggd;
+  document.getElementById('i-n').value    = DEFAULTS.N;
+  document.getElementById('i-r').value    = DEFAULTS.r;
+  document.getElementById('i-g').value    = DEFAULTS.g;
+  document.getElementById('i-debt').value = DEFAULTS.debt;
+  document.getElementById('m-ni').value     = MDEF.ni;
+  document.getElementById('m-pe').value     = MDEF.pe;
+  document.getElementById('m-ebitda').value = MDEF.ebitda;
+  document.getElementById('m-mult').value   = MDEF.mult;
+  render();
+};
+
+render();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

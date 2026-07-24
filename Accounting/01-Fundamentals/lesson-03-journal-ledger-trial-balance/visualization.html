@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L3: Nhật ký → Sổ cái → Bảng cân đối thử — Accounting</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f4faf9;
+    --accent: #0f766e;
+    --accent-soft: #ccfbf1;
+    --accent-hover: #115e5a;
+    --debit: #0f766e;
+    --credit: #b45309;
+  }
+  main { max-width: 1000px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Sơ đồ chu trình (SVG) */
+  .flow { text-align: center; }
+  .flow svg { max-width: 100%; height: auto; }
+
+  /* Nút giao dịch preset */
+  .tx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+  .tx-grid button {
+    text-align: left; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px;
+    padding: 9px 12px; cursor: pointer; font-size: 13px; font-weight: 600; color: #1e293b;
+    transition: all .12s;
+  }
+  .tx-grid button:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
+  .tx-grid button:disabled { opacity: .45; cursor: default; }
+  .tx-grid button .fx { display: block; font-size: 11px; font-weight: 500; color: #64748b; margin-top: 2px; }
+  .tx-grid button .dt { color: var(--accent); font-weight: 700; }
+  .toolbar { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .toolbar button { border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .btn-apply { background: var(--accent); color: #fff; }
+  .btn-apply:hover { background: var(--accent-hover); }
+  .btn-reset { background: #e2e8f0; color: #334155; }
+  .btn-reset:hover { background: #cbd5e1; }
+
+  /* Bảng chung */
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 4px; }
+  th, td { border: 1px solid #e3e1dc; padding: 6px 9px; text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  th { background: #f1f5f9; font-size: 12px; }
+  .empty { color: #94a3b8; font-style: italic; font-size: 13px; padding: 8px 0; text-align: left !important; }
+  tr.clickable { cursor: pointer; }
+  tr.clickable:hover { background: #f8fafc; }
+  tr.hl { background: #fef9c3 !important; }
+  td.deb { color: var(--debit); font-weight: 700; }
+  td.cre { color: var(--credit); font-weight: 700; }
+
+  /* Sổ cái — lưới T-account */
+  .ledger-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .tacc { border: 1px solid #e3e1dc; border-radius: 10px; overflow: hidden; }
+  .tacc .name { background: #f1f5f9; font-weight: 700; font-size: 13px; padding: 6px 10px; text-align: center; }
+  .tacc .cols { display: flex; }
+  .tacc .col { flex: 1; min-width: 0; }
+  .tacc .col.left { border-right: 2px solid #334155; }
+  .tacc .col .hd { font-size: 11px; font-weight: 700; text-align: center; padding: 3px; color: #64748b; }
+  .tacc .col.left .hd { color: var(--debit); }
+  .tacc .col.right .hd { color: var(--credit); }
+  .tacc .post { font-size: 12px; text-align: center; padding: 2px 4px; }
+  .tacc .post.hl { background: #fef9c3; border-radius: 4px; font-weight: 700; }
+  .tacc .bal { font-size: 12px; text-align: center; padding: 6px 4px; border-top: 1px solid #e3e1dc; font-weight: 700; }
+  .tacc .bal.deb { color: var(--debit); }
+  .tacc .bal.cre { color: var(--credit); }
+
+  /* Trial balance tổng */
+  tr.total td { font-weight: 800; background: #f8fafc; border-top: 2px solid #334155; }
+  .tb-check { text-align: center; font-size: 15px; font-weight: 700; margin-top: 10px; padding: 8px; border-radius: 8px; }
+  .tb-check.ok { background: #dcfce7; color: #15803d; }
+  .tb-check.bad { background: #fee2e2; color: #b91c1c; }
+
+  .trace-note { font-size: 13px; color: #475569; background: #ecfeff; border: 1px solid #a5f3fc; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; }
+  .trace-note b { color: var(--accent); }
+
+  @media (max-width: 480px) {
+    .ledger-grid { grid-template-columns: 1fr; }
+    .tx-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Accounting</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 1</a>
+  <span class="sep">·</span>
+  <a href="../lesson-02-double-entry/visualization.html">← L2</a>
+  <span class="sep">·</span>
+  <span class="current">L3: Nhật ký → Sổ cái</span>
+  <span class="sep">·</span>
+  <a href="../lesson-04-accrual-adjusting/visualization.html">L4: Dồn tích →</a>
+</nav>
+<main>
+  <h1>Chu trình ghi sổ — mô phỏng sống</h1>
+  <div class="lead">Bấm từng giao dịch: nó xuất hiện ở <strong>Nhật ký</strong>, tự động chuyển sổ sang <strong>Sổ cái</strong> (T-account), và cập nhật <strong>Bảng cân đối thử</strong>. Bấm một dòng Nhật ký để <strong>lần vết</strong> con số qua cả ba trạm. Đơn vị: triệu đồng.</div>
+
+  <div class="module flow">
+    <h2>Dòng chảy một con số</h2>
+    <div class="sub">Cùng một số tiền đi qua bốn trạm, chỉ khác cách xếp chỗ.</div>
+    <svg width="900" height="120" viewBox="0 0 900 120" role="img" aria-label="Chứng từ tới Nhật ký tới Sổ cái tới Bảng cân đối thử">
+      <defs>
+        <marker id="ar" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L7,3 L0,6 Z" fill="#94a3b8"/>
+        </marker>
+      </defs>
+      <g font-family="inherit" font-size="14" font-weight="700" text-anchor="middle">
+        <rect x="10"  y="40" width="170" height="44" rx="9" fill="#f1f5f9" stroke="#cbd5e1"/>
+        <text x="95"  y="67">Chứng từ</text>
+        <line x1="182" y1="62" x2="215" y2="62" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>
+        <rect x="220" y="40" width="170" height="44" rx="9" fill="#ccfbf1" stroke="#0f766e"/>
+        <text x="305" y="67" fill="#0f766e">Nhật ký</text>
+        <line x1="392" y1="62" x2="425" y2="62" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>
+        <rect x="430" y="40" width="170" height="44" rx="9" fill="#ccfbf1" stroke="#0f766e"/>
+        <text x="515" y="67" fill="#0f766e">Sổ cái</text>
+        <line x1="602" y1="62" x2="635" y2="62" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar)"/>
+        <rect x="640" y="40" width="250" height="44" rx="9" fill="#ccfbf1" stroke="#0f766e"/>
+        <text x="765" y="67" fill="#0f766e">Bảng cân đối thử</text>
+        <text x="95"  y="30" font-size="11" font-weight="600" fill="#64748b">bằng chứng</text>
+        <text x="305" y="30" font-size="11" font-weight="600" fill="#64748b">theo thời gian</text>
+        <text x="515" y="30" font-size="11" font-weight="600" fill="#64748b">theo tài khoản</text>
+        <text x="765" y="30" font-size="11" font-weight="600" fill="#64748b">kiểm tra cân</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="module">
+    <h2>1. Chọn giao dịch</h2>
+    <div class="sub">Công ty tư vấn "Minh An", tháng 1. Bấm để ghi vào Nhật ký (mỗi giao dịch một lần).</div>
+    <div class="tx-grid" id="tx-grid"></div>
+    <div class="toolbar">
+      <button class="btn-apply" id="apply-all">⏩ Ghi tất cả</button>
+      <button class="btn-reset" id="reset">↺ Làm lại từ đầu</button>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>2. Nhật ký (theo thời gian)</h2>
+    <div class="sub">Mỗi bút toán: Nợ = Có. Bấm một dòng để lần vết nó qua Sổ cái và Bảng cân đối thử.</div>
+    <div class="trace-note" id="trace-note" style="display:none"></div>
+    <table>
+      <thead>
+        <tr><th>Ngày</th><th>Nợ (Debit)</th><th>Có (Credit)</th><th>Số tiền</th></tr>
+      </thead>
+      <tbody id="journal"><tr><td colspan="4" class="empty">Chưa có bút toán. Bấm một giao dịch ở trên.</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="module">
+    <h2>3. Sổ cái (theo tài khoản)</h2>
+    <div class="sub">Mỗi con số được chép y nguyên sang đúng bên của T-account. Dòng cuối là số dư.</div>
+    <div class="ledger-grid" id="ledger"><div class="empty">Chưa có phát sinh nào.</div></div>
+  </div>
+
+  <div class="module">
+    <h2>4. Bảng cân đối thử (kiểm tra cân)</h2>
+    <div class="sub">Số dư mọi tài khoản, chia hai cột. Tổng Nợ phải bằng tổng Có.</div>
+    <table>
+      <thead>
+        <tr><th>Tài khoản</th><th>Dư Nợ</th><th>Dư Có</th></tr>
+      </thead>
+      <tbody id="trial"><tr><td colspan="3" class="empty">Chưa có số dư.</td></tr></tbody>
+    </table>
+    <div class="tb-check ok" id="tb-check">✓ Cân: 0 = 0</div>
+  </div>
+</main>
+
+<script>
+// ===== Dữ liệu =====
+// Mỗi tài khoản có "bên bình thường" (normal side): debit hoặc credit.
+var ACCT_SIDE = {
+  "Tiền mặt": "debit",
+  "Thiết bị": "debit",
+  "Chi phí lương": "debit",
+  "Vay ngân hàng": "credit",
+  "Vốn góp": "credit",
+  "Doanh thu": "credit"
+};
+// Thứ tự hiển thị (Nợ trước, Có sau) cho ledger & trial balance.
+var ACCT_ORDER = ["Tiền mặt", "Thiết bị", "Chi phí lương", "Vay ngân hàng", "Vốn góp", "Doanh thu"];
+
+// 6 giao dịch preset (mỗi giao dịch: 1 chân Nợ + 1 chân Có).
+var TX = [
+  { date: "05/01", debit: "Tiền mặt",       credit: "Vốn góp",       amount: 200, desc: "Chủ góp vốn bằng tiền mặt" },
+  { date: "08/01", debit: "Tiền mặt",       credit: "Vay ngân hàng", amount: 100, desc: "Vay ngân hàng nhập quỹ" },
+  { date: "12/01", debit: "Thiết bị",       credit: "Tiền mặt",      amount: 120, desc: "Mua thiết bị trả bằng tiền" },
+  { date: "18/01", debit: "Tiền mặt",       credit: "Doanh thu",     amount: 80,  desc: "Cung cấp dịch vụ thu tiền ngay" },
+  { date: "25/01", debit: "Chi phí lương",  credit: "Tiền mặt",      amount: 30,  desc: "Trả lương nhân viên" },
+  { date: "28/01", debit: "Vay ngân hàng",  credit: "Tiền mặt",      amount: 40,  desc: "Trả bớt nợ gốc ngân hàng" }
+];
+
+// ===== Trạng thái =====
+var posted = [];      // các index đã ghi, theo thứ tự bấm
+var selected = null;  // index đang lần vết (highlight)
+
+function fmt(n) { return (Math.round(n * 100) / 100).toLocaleString('vi-VN'); }
+
+// Tính T-account từ danh sách đã post.
+function buildLedger() {
+  var L = {};
+  ACCT_ORDER.forEach(function(a){ L[a] = { debits: [], credits: [], dTot: 0, cTot: 0 }; });
+  posted.forEach(function(i){
+    var t = TX[i];
+    L[t.debit].debits.push({ amount: t.amount, tx: i });
+    L[t.debit].dTot += t.amount;
+    L[t.credit].credits.push({ amount: t.amount, tx: i });
+    L[t.credit].cTot += t.amount;
+  });
+  return L;
+}
+
+// Số dư của tài khoản: đặt ở bên bình thường nếu số dương theo chiều đó.
+function balanceOf(acc, L) {
+  var side = ACCT_SIDE[acc];
+  var net = side === "debit" ? (L[acc].dTot - L[acc].cTot) : (L[acc].cTot - L[acc].dTot);
+  return { side: side, value: net }; // value có thể âm nếu bất thường
+}
+
+// ===== Render =====
+function renderButtons() {
+  var grid = document.getElementById('tx-grid');
+  grid.innerHTML = '';
+  TX.forEach(function(t, i){
+    var b = document.createElement('button');
+    var done = posted.indexOf(i) !== -1;
+    b.disabled = done;
+    b.innerHTML = '<span class="dt">' + t.date + '</span> — ' + t.desc +
+      '<span class="fx">Nợ ' + t.debit + ' ' + fmt(t.amount) + ' · Có ' + t.credit + ' ' + fmt(t.amount) +
+      (done ? ' ✓ đã ghi' : '') + '</span>';
+    b.onclick = function(){ applyTx(i); };
+    grid.appendChild(b);
+  });
+}
+
+function renderJournal() {
+  var tb = document.getElementById('journal');
+  if (!posted.length) {
+    tb.innerHTML = '<tr><td colspan="4" class="empty">Chưa có bút toán. Bấm một giao dịch ở trên.</td></tr>';
+    return;
+  }
+  tb.innerHTML = posted.map(function(i){
+    var t = TX[i];
+    var hl = (selected === i) ? ' hl' : '';
+    return '<tr class="clickable' + hl + '" data-tx="' + i + '">' +
+      '<td>' + t.date + '</td>' +
+      '<td class="deb">' + t.debit + '</td>' +
+      '<td class="cre">' + t.credit + '</td>' +
+      '<td>' + fmt(t.amount) + '</td></tr>';
+  }).join('');
+  Array.prototype.forEach.call(tb.querySelectorAll('tr.clickable'), function(row){
+    row.onclick = function(){
+      var i = parseInt(row.getAttribute('data-tx'), 10);
+      selected = (selected === i) ? null : i;
+      renderAll();
+    };
+  });
+}
+
+function renderLedger() {
+  var wrap = document.getElementById('ledger');
+  if (!posted.length) { wrap.innerHTML = '<div class="empty">Chưa có phát sinh nào.</div>'; return; }
+  var L = buildLedger();
+  wrap.innerHTML = ACCT_ORDER.filter(function(a){
+    return L[a].debits.length || L[a].credits.length;
+  }).map(function(a){
+    var acc = L[a];
+    var rows = Math.max(acc.debits.length, acc.credits.length);
+    acc._left = ''; acc._right = '';
+    for (var r = 0; r < rows; r++) {
+      var d = acc.debits[r], c = acc.credits[r];
+      var dHl = d && d.tx === selected ? ' hl' : '';
+      var cHl = c && c.tx === selected ? ' hl' : '';
+      acc._left += '<div class="post' + dHl + '">' + (d ? fmt(d.amount) : '&nbsp;') + '</div>';
+      acc._right += '<div class="post' + cHl + '">' + (c ? fmt(c.amount) : '&nbsp;') + '</div>';
+    }
+    var bal = balanceOf(a, L);
+    var balTxt = bal.value === 0 ? 'Dư 0'
+      : (bal.side === 'debit' ? 'Dư Nợ ' : 'Dư Có ') + fmt(Math.abs(bal.value));
+    var balCls = bal.value === 0 ? '' : (bal.side === 'debit' ? 'deb' : 'cre');
+    return '<div class="tacc">' +
+      '<div class="name">' + a + '</div>' +
+      '<div class="cols">' +
+        '<div class="col left"><div class="hd">Nợ</div>' + (acc._left || '') + '</div>' +
+        '<div class="col right"><div class="hd">Có</div>' + (acc._right || '') + '</div>' +
+      '</div>' +
+      '<div class="bal ' + balCls + '">' + balTxt + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderTrial() {
+  var tb = document.getElementById('trial');
+  var chk = document.getElementById('tb-check');
+  if (!posted.length) {
+    tb.innerHTML = '<tr><td colspan="3" class="empty">Chưa có số dư.</td></tr>';
+    chk.className = 'tb-check ok'; chk.textContent = '✓ Cân: 0 = 0';
+    return;
+  }
+  var L = buildLedger();
+  var totD = 0, totC = 0;
+  var rows = ACCT_ORDER.map(function(a){
+    if (!L[a].debits.length && !L[a].credits.length) return '';
+    var bal = balanceOf(a, L);
+    if (bal.value === 0) return ''; // dư 0 không lên bảng
+    var d = '', c = '';
+    if (bal.side === 'debit') { d = fmt(bal.value); totD += bal.value; }
+    else { c = fmt(bal.value); totC += bal.value; }
+    // highlight nếu tài khoản này bị giao dịch đang chọn chạm tới
+    var hl = '';
+    if (selected !== null) {
+      var t = TX[selected];
+      if (t.debit === a || t.credit === a) hl = ' hl';
+    }
+    return '<tr class="' + hl.trim() + '"><td>' + a + '</td><td>' + d + '</td><td>' + c + '</td></tr>';
+  }).join('');
+  rows += '<tr class="total"><td>TỔNG</td><td>' + fmt(totD) + '</td><td>' + fmt(totC) + '</td></tr>';
+  tb.innerHTML = rows;
+
+  var balanced = Math.abs(totD - totC) < 1e-9;
+  chk.className = 'tb-check ' + (balanced ? 'ok' : 'bad');
+  chk.textContent = (balanced ? '✓ Cân: Tổng Nợ = Tổng Có = ' + fmt(totD)
+    : '✗ LỆCH: Tổng Nợ ' + fmt(totD) + ' ≠ Tổng Có ' + fmt(totC));
+}
+
+function renderTrace() {
+  var note = document.getElementById('trace-note');
+  if (selected === null) { note.style.display = 'none'; return; }
+  var t = TX[selected];
+  note.style.display = 'block';
+  note.innerHTML = 'Đang lần vết giao dịch <b>' + t.date + '</b> (' + fmt(t.amount) + '): ' +
+    'Nhật ký dòng <b>Nợ ' + t.debit + ' / Có ' + t.credit + '</b> → ' +
+    'chép <b>' + fmt(t.amount) + '</b> vào bên Nợ của <b>' + t.debit + '</b> và bên Có của <b>' + t.credit + '</b> ' +
+    'trong Sổ cái → đóng góp vào số dư hai tài khoản này ở Bảng cân đối thử. ' +
+    '(Bấm lại dòng để bỏ chọn.)';
+}
+
+function renderAll() {
+  renderButtons();
+  renderJournal();
+  renderLedger();
+  renderTrial();
+  renderTrace();
+}
+
+function applyTx(i) {
+  if (posted.indexOf(i) === -1) posted.push(i);
+  selected = i; // tự lần vết giao dịch vừa ghi
+  renderAll();
+}
+
+document.getElementById('apply-all').onclick = function(){
+  TX.forEach(function(_, i){ if (posted.indexOf(i) === -1) posted.push(i); });
+  selected = null;
+  renderAll();
+};
+
+document.getElementById('reset').onclick = function(){
+  posted = []; selected = null;
+  renderAll();
+};
+
+renderAll();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

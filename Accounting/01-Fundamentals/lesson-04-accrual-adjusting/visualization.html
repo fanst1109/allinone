@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L4: Dồn tích & điều chỉnh — Accounting</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f4faf9;
+    --accent: #0f766e;
+    --accent-soft: #ccfbf1;
+    --accent-hover: #115e5a;
+    --cash: #64748b;
+    --accrual: #0f766e;
+    --cashbasis: #b45309;
+  }
+  main { max-width: 900px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Toggle cơ sở */
+  .basis-toggle { display: inline-flex; border: 1px solid #cbd5e1; border-radius: 10px; overflow: hidden; }
+  .basis-toggle button {
+    border: 0; background: #fff; padding: 9px 18px; font-size: 14px; font-weight: 700;
+    color: #475569; cursor: pointer; transition: all .12s;
+  }
+  .basis-toggle button.active { background: var(--accent); color: #fff; }
+  .basis-toggle button:not(.active):hover { background: var(--accent-soft); }
+  .basis-hint { font-size: 12.5px; color: #64748b; margin-top: 8px; line-height: 1.5; }
+
+  /* Readout boxes */
+  .readouts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 4px 0 14px; }
+  .ro { border-radius: 10px; padding: 10px 12px; text-align: center; background: #f8fafc; border: 1px solid #e2e8f0; }
+  .ro small { display: block; font-size: 11px; font-weight: 700; letter-spacing: .3px; color: #64748b; margin-bottom: 3px; }
+  .ro .num { font-size: 24px; font-weight: 800; line-height: 1.1; }
+  .ro.cash .num { color: var(--cash); }
+  .ro.accrual .num { color: var(--accrual); }
+  .ro.cashbasis .num { color: var(--cashbasis); }
+  .ro.gap .num { color: #7c3aed; }
+  .ro.dim { opacity: .5; }
+
+  /* Chart */
+  .chart-wrap { overflow-x: auto; }
+  svg.chart { width: 100%; height: auto; display: block; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; margin-top: 8px; color: #475569; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 22px; height: 0; border-top-width: 3px; border-top-style: solid; display: inline-block; }
+  .legend i.dash { border-top-style: dashed; }
+
+  /* Controls */
+  .toolbar { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .toolbar button { border: 0; border-radius: 8px; padding: 9px 15px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .btn-step { background: var(--accent-soft); color: var(--accent-hover); }
+  .btn-step:hover { background: #a7f3e4; }
+  .btn-step:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-play { background: var(--accent); color: #fff; }
+  .btn-play:hover { background: var(--accent-hover); }
+  .btn-reset { background: #e2e8f0; color: #334155; }
+  .btn-reset:hover { background: #cbd5e1; }
+  .progress { font-size: 12.5px; color: #64748b; margin-left: auto; font-weight: 600; }
+
+  .note { margin-top: 12px; padding: 10px 14px; border-radius: 8px; background: #fef9c3; border: 1px solid #fde68a;
+    font-size: 13.5px; color: #713f12; line-height: 1.5; }
+
+  /* Bảng sự kiện */
+  .tbl-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { border: 1px solid #e3e1dc; padding: 6px 9px; text-align: right; }
+  th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+  th { background: #f1f5f9; font-size: 12px; }
+  tr.pending { color: #94a3b8; }
+  tr.cur td { background: var(--accent-soft); font-weight: 700; }
+  td .kd { font-size: 11px; color: #64748b; display: block; font-weight: 400; }
+  .pos { color: #15803d; }
+  .neg { color: #b91c1c; }
+  .mo { display: inline-block; min-width: 26px; font-weight: 700; color: var(--accent); }
+
+  /* Thẻ 5 loại điều chỉnh */
+  .adj-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+  .adj-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 11px 13px; background: #f8fafc; }
+  .adj-card b { font-size: 13.5px; display: block; margin-bottom: 3px; }
+  .adj-card .tag { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 5px; margin-bottom: 6px; }
+  .adj-card p { margin: 0; font-size: 12.5px; color: #475569; line-height: 1.5; }
+  .t-rev { background: #ccfbf1; color: #0f766e; }
+  .t-exp { background: #fee2e2; color: #b91c1c; }
+
+  @media (max-width: 480px) {
+    .readouts { grid-template-columns: repeat(2, 1fr); }
+    .ro .num { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Accounting</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 1</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-journal-ledger-trial-balance/visualization.html">← L3</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Dồn tích & điều chỉnh</span>
+  <span class="sep">·</span>
+  <a href="../../02-Statements/lesson-05-balance-sheet/visualization.html">L5: Bảng CĐKT →</a>
+</nav>
+<main>
+  <h1>Dồn tích vs Tiền mặt — lãi và tiền lệch pha</h1>
+  <div class="lead">Chạy cùng một chuỗi sự kiện qua 3 tháng. Đổi cơ sở <strong>Cash ⇄ Accrual</strong> và xem <strong>lợi nhuận tích lũy</strong> tách khỏi <strong>tiền mặt tích lũy</strong>. Đơn vị: triệu đồng.</div>
+
+  <div class="module">
+    <h2>Cơ sở ghi sổ</h2>
+    <div class="sub">Cùng dữ liệu, hai cách "chấm công" cho tiền → hai con số lợi nhuận.</div>
+    <div class="basis-toggle" id="basis-toggle">
+      <button data-basis="cash">Cash (tiền mặt)</button>
+      <button data-basis="accrual" class="active">Accrual (dồn tích)</button>
+    </div>
+    <div class="basis-hint" id="basis-hint"></div>
+  </div>
+
+  <div class="module">
+    <h2>Bảng điều khiển</h2>
+    <div class="sub">Tiến từng sự kiện để thấy đường lợi nhuận và đường tiền mặt tách nhau.</div>
+    <div class="readouts">
+      <div class="ro" id="ro-period"><small>KỲ HIỆN TẠI</small><span class="num" id="v-period">Đầu kỳ</span></div>
+      <div class="ro cash"><small>TIỀN MẶT</small><span class="num" id="v-cash">100</span></div>
+      <div class="ro accrual" id="ro-accrual"><small>LN ACCRUAL</small><span class="num" id="v-accp">0</span></div>
+      <div class="ro cashbasis" id="ro-cashp"><small>LN CASH</small><span class="num" id="v-cashp">0</span></div>
+    </div>
+    <div class="readouts" style="grid-template-columns: 1fr;">
+      <div class="ro gap"><small>CHÊNH LỆCH LỢI NHUẬN (ACCRUAL − CASH)</small><span class="num" id="v-gap">0</span></div>
+    </div>
+
+    <div class="chart-wrap">
+      <svg class="chart" viewBox="0 0 680 340" id="chart" role="img" aria-label="Biểu đồ lợi nhuận và tiền mặt tích lũy"></svg>
+    </div>
+    <div class="legend">
+      <span><i style="border-top-color: var(--cash)"></i> Tiền mặt</span>
+      <span><i style="border-top-color: var(--accrual)"></i> LN Accrual</span>
+      <span><i style="border-top-color: var(--cashbasis)"></i> LN Cash</span>
+      <span style="color:#94a3b8">(nét đậm = cơ sở đang chọn)</span>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn-step" id="prev">◀ Lùi</button>
+      <button class="btn-step" id="next">Tiến ▶</button>
+      <button class="btn-play" id="play">▶ Chạy hết</button>
+      <button class="btn-reset" id="reset">↺ Reset</button>
+      <span class="progress" id="progress">0 / 14 sự kiện</span>
+    </div>
+    <div class="note" id="note">Đầu kỳ: tiền mặt 100, chưa có giao dịch. Bấm <strong>Tiến ▶</strong> để chạy sự kiện đầu tiên.</div>
+  </div>
+
+  <div class="module">
+    <h2>Nhật ký sự kiện</h2>
+    <div class="sub">Mỗi sự kiện ghi khác nhau theo hai cơ sở. Dòng tô đậm là sự kiện vừa áp dụng.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Kỳ</th><th>Sự kiện</th><th>ΔTiền</th><th>ΔLN Accrual</th><th>ΔLN Cash</th></tr>
+        </thead>
+        <tbody id="log"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>5 loại bút toán điều chỉnh cuối kỳ</h2>
+    <div class="sub">Mọi bút toán điều chỉnh đều <strong>không đụng tiền mặt</strong> — tiền đã (hoặc sẽ) chuyển ở kỳ khác.</div>
+    <div class="adj-grid">
+      <div class="adj-card"><span class="tag t-rev">DOANH THU</span><b>1. Dồn tích chưa thu</b><p>Đã giao dịch vụ, chưa thu tiền, chưa ghi. Ghi thêm: doanh thu ↑ + phải thu ↑. VD: bán chịu 60.</p></div>
+      <div class="adj-card"><span class="tag t-exp">CHI PHÍ</span><b>2. Dồn tích chưa trả</b><p>Đã dùng nguồn lực, chưa trả tiền, chưa ghi. Ghi thêm: chi phí ↑ + nợ phải trả ↑. VD: lương 10 trả tháng sau.</p></div>
+      <div class="adj-card"><span class="tag t-rev">DOANH THU</span><b>3. Nhận trước</b><p>Thu tiền trước, chưa giao. Đang là nợ (unearned); phần đã giao mới chuyển thành doanh thu. VD: nhận 30 giao tháng sau.</p></div>
+      <div class="adj-card"><span class="tag t-exp">CHI PHÍ</span><b>4. Trả trước</b><p>Trả tiền trước, dùng dần. Đang là tài sản; phần đã dùng mới thành chi phí. VD: bảo hiểm 24/12 tháng = 2/kỳ.</p></div>
+      <div class="adj-card"><span class="tag t-exp">CHI PHÍ</span><b>5. Khấu hao</b><p>Tài sản dài hạn phân bổ nguyên giá qua nhiều kỳ. VD: thiết bị 36, khấu hao 36 tháng = 1/kỳ.</p></div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ===== Dữ liệu: khớp 100% với walk-through mục 3 của README =====
+var OPENING_CASH = 100;
+// cash = Δ tiền mặt; accP = Δ lợi nhuận theo dồn tích; cashP = Δ lợi nhuận theo tiền mặt.
+var EV = [
+  { m:'T1', label:'Bán chịu dịch vụ 60', kind:'Doanh thu dồn tích (khách trả T3)', cash:0,   accP:60,  cashP:0 },
+  { m:'T1', label:'Trả trước bảo hiểm 24', kind:'Chi phí trả trước · 12 tháng → 2/kỳ', cash:-24, accP:0,   cashP:-24 },
+  { m:'T1', label:'Mua thiết bị 36', kind:'Khấu hao 36 tháng → 1/kỳ', cash:-36, accP:0,   cashP:-36 },
+  { m:'T1', label:'Điều chỉnh cuối T1', kind:'Bảo hiểm dùng 2 + khấu hao 1', cash:0, accP:-3, cashP:0 },
+  { m:'T1', label:'Điều chỉnh: lương T1 = 10', kind:'Chi phí dồn tích (trả T2)', cash:0, accP:-10, cashP:0,
+    note:'Cuối T1: Accrual báo <b>lãi +47</b> nhưng tiền mặt chỉ còn <b>40</b> (chi 60 tiền cho bảo hiểm + thiết bị). Đây là "<b>có lãi mà tiền cạn</b>". Cash basis thì đang lỗ −60 vì tính hết tiền chi thành chi phí.' },
+  { m:'T2', label:'Trả lương T1 còn nợ 10', kind:'Xoá nợ lương kỳ trước', cash:-10, accP:0, cashP:-10 },
+  { m:'T2', label:'Nhận trước tiền khách 30', kind:'Doanh thu nhận trước (giao T3)', cash:30, accP:0, cashP:30 },
+  { m:'T2', label:'Điều chỉnh cuối T2', kind:'Bảo hiểm 2 + khấu hao 1', cash:0, accP:-3, cashP:0 },
+  { m:'T2', label:'Điều chỉnh: lương T2 = 10', kind:'Chi phí dồn tích (trả T3)', cash:0, accP:-10, cashP:0 },
+  { m:'T3', label:'Thu nợ khách của T1 (60)', kind:'Tiền về; doanh thu đã ghi từ T1', cash:60, accP:0, cashP:60,
+    note:'Thu nợ 60 làm tiền mặt nhảy lên <b>120</b>, nhưng LN Accrual từ khoản này = <b>0</b> (đã ghi lãi từ T1). Đây là "<b>tiền vào mà không phải lãi mới</b>".' },
+  { m:'T3', label:'Giao dịch vụ đã nhận trước 30', kind:'Unearned → doanh thu (earned)', cash:0, accP:30, cashP:0 },
+  { m:'T3', label:'Trả lương T2 còn nợ 10', kind:'Xoá nợ lương kỳ trước', cash:-10, accP:0, cashP:-10 },
+  { m:'T3', label:'Điều chỉnh cuối T3', kind:'Bảo hiểm 2 + khấu hao 1', cash:0, accP:-3, cashP:0 },
+  { m:'T3', label:'Điều chỉnh: lương T3 = 10', kind:'Chi phí dồn tích (trả T4)', cash:0, accP:-10, cashP:0,
+    note:'Cuối T3: <b>LN Accrual = 51</b> vs <b>LN Cash = 10</b> → lệch <b>41</b>. Do bảo hiểm (18) + khấu hao (33) phân bổ dần trên accrual, trừ lương trả chậm (−10). Lãi thật là 51; con số 10 của cash basis chỉ trùng với mức tăng tiền ròng.' }
+];
+
+// Tích lũy: điểm 0 = đầu kỳ, điểm k = sau sự kiện k.
+var cumCash = [OPENING_CASH], cumAcc = [0], cumCashP = [0];
+for (var i = 0; i < EV.length; i++) {
+  cumCash.push(cumCash[i] + EV[i].cash);
+  cumAcc.push(cumAcc[i] + EV[i].accP);
+  cumCashP.push(cumCashP[i] + EV[i].cashP);
+}
+
+// Thang Y cố định để trục không nhảy khi step.
+var Y_MIN = -80, Y_MAX = 130;
+var PADL = 46, PADR = 16, PADT = 18, PADB = 34;
+var VW = 680, VH = 340;
+var plotW = VW - PADL - PADR, plotH = VH - PADT - PADB;
+var N = EV.length; // 14
+
+var basis = 'accrual';
+var cursor = 0; // số sự kiện đã áp dụng
+var timer = null;
+
+function xAt(i) { return PADL + (i / N) * plotW; }
+function yAt(v) { return PADT + (Y_MAX - v) / (Y_MAX - Y_MIN) * plotH; }
+function fmt(n) { return (Math.round(n * 100) / 100).toLocaleString('vi-VN'); }
+function sign(n) { if (n === 0) return '0'; return (n > 0 ? '+' : '') + fmt(n); }
+
+function polyline(arr, upto, color, width, dashed) {
+  var pts = [];
+  for (var i = 0; i <= upto; i++) pts.push(xAt(i).toFixed(1) + ',' + yAt(arr[i]).toFixed(1));
+  var dash = dashed ? ' stroke-dasharray="5 4"' : '';
+  return '<polyline points="' + pts.join(' ') + '" fill="none" stroke="' + color +
+         '" stroke-width="' + width + '" stroke-linejoin="round" stroke-linecap="round"' + dash + '/>';
+}
+function dots(arr, upto, color) {
+  var s = '';
+  for (var i = 0; i <= upto; i++) s += '<circle cx="' + xAt(i).toFixed(1) + '" cy="' + yAt(arr[i]).toFixed(1) + '" r="3.2" fill="' + color + '"/>';
+  return s;
+}
+
+function drawChart() {
+  var g = '';
+  // gridlines + nhãn Y
+  var ticks = [-80, -40, 0, 40, 80, 120];
+  ticks.forEach(function(t){
+    var y = yAt(t).toFixed(1);
+    var zero = (t === 0);
+    g += '<line x1="' + PADL + '" y1="' + y + '" x2="' + (VW - PADR) + '" y2="' + y +
+         '" stroke="' + (zero ? '#94a3b8' : '#eef2f5') + '" stroke-width="' + (zero ? 1.4 : 1) + '"' +
+         (zero ? ' stroke-dasharray="4 3"' : '') + '/>';
+    g += '<text x="' + (PADL - 6) + '" y="' + (parseFloat(y) + 4) + '" text-anchor="end" font-size="11" fill="#94a3b8">' + t + '</text>';
+  });
+  // nhãn X theo mốc kỳ (điểm cuối mỗi tháng: 5=T1, 9=T2, 14=T3)
+  var xl = [{i:0,t:'Đầu kỳ'},{i:5,t:'Cuối T1'},{i:9,t:'Cuối T2'},{i:14,t:'Cuối T3'}];
+  xl.forEach(function(o){
+    g += '<text x="' + xAt(o.i).toFixed(1) + '" y="' + (VH - 12) + '" text-anchor="middle" font-size="11" fill="#64748b">' + o.t + '</text>';
+    g += '<line x1="' + xAt(o.i).toFixed(1) + '" y1="' + PADT + '" x2="' + xAt(o.i).toFixed(1) + '" y2="' + (VH - PADB) + '" stroke="#eef2f5" stroke-width="1"/>';
+  });
+
+  if (cursor >= 1) {
+    var accSel = (basis === 'accrual');
+    // đường không được chọn (mờ, đứt) vẽ trước
+    g += polyline(cumAcc,  cursor, 'var(--accrual)',   accSel ? 3.4 : 1.4, !accSel);
+    g += polyline(cumCashP, cursor, 'var(--cashbasis)', accSel ? 1.4 : 3.4, accSel);
+    // tiền mặt luôn nét vừa
+    g += polyline(cumCash, cursor, 'var(--cash)', 2.6, false);
+    // chấm trên đường tiền + đường lợi nhuận đang chọn
+    g += dots(cumCash, cursor, 'var(--cash)');
+    g += dots(accSel ? cumAcc : cumCashP, cursor, accSel ? 'var(--accrual)' : 'var(--cashbasis)');
+  }
+  document.getElementById('chart').innerHTML = g;
+}
+
+function render() {
+  // readouts
+  var period = cursor === 0 ? 'Đầu kỳ' : EV[cursor - 1].m;
+  document.getElementById('v-period').textContent = period;
+  document.getElementById('v-cash').textContent = fmt(cumCash[cursor]);
+  document.getElementById('v-accp').textContent = fmt(cumAcc[cursor]);
+  document.getElementById('v-cashp').textContent = fmt(cumCashP[cursor]);
+  document.getElementById('v-gap').textContent = sign(cumAcc[cursor] - cumCashP[cursor]);
+
+  // nhấn cơ sở đang chọn
+  document.getElementById('ro-accrual').classList.toggle('dim', basis !== 'accrual');
+  document.getElementById('ro-cashp').classList.toggle('dim', basis !== 'cash');
+
+  // basis hint
+  document.getElementById('basis-hint').innerHTML = basis === 'accrual'
+    ? 'Đang xem <b>dồn tích</b>: doanh thu ghi khi <b>giao hàng/hoàn thành</b>, chi phí ghi khi <b>phát sinh</b> — bất kể tiền đã chuyển hay chưa. Đây là chuẩn kế toán thật.'
+    : 'Đang xem <b>tiền mặt</b> (toy version): doanh thu ghi khi <b>thu tiền</b>, chi phí ghi khi <b>chi tiền</b>. Đơn giản nhưng bóp méo kỳ — chỉ dùng minh họa độ lệch.';
+
+  // toggle buttons
+  document.querySelectorAll('#basis-toggle button').forEach(function(b){
+    b.classList.toggle('active', b.dataset.basis === basis);
+  });
+
+  drawChart();
+
+  // progress + nút
+  document.getElementById('progress').textContent = cursor + ' / ' + N + ' sự kiện';
+  document.getElementById('prev').disabled = (cursor === 0);
+  document.getElementById('next').disabled = (cursor === N);
+
+  // note
+  var note = document.getElementById('note');
+  if (cursor === 0) {
+    note.innerHTML = 'Đầu kỳ: tiền mặt 100, chưa có giao dịch. Bấm <strong>Tiến ▶</strong> để chạy sự kiện đầu tiên.';
+  } else {
+    var ev = EV[cursor - 1];
+    note.innerHTML = ev.note ? ev.note
+      : '<b>' + ev.m + ' · ' + ev.label + '.</b> Tiền mặt: ' + fmt(cumCash[cursor]) +
+        ' · LN Accrual: ' + fmt(cumAcc[cursor]) + ' · LN Cash: ' + fmt(cumCashP[cursor]) + '.';
+  }
+
+  // bảng
+  var tb = document.getElementById('log');
+  tb.innerHTML = EV.map(function(ev, idx){
+    var cls = idx < cursor ? (idx === cursor - 1 ? 'cur' : '') : 'pending';
+    function cell(v){ if (v === 0) return '<td>0</td>'; return '<td class="' + (v>0?'pos':'neg') + '">' + sign(v) + '</td>'; }
+    return '<tr class="' + cls + '"><td><span class="mo">' + ev.m + '</span></td>' +
+           '<td>' + ev.label + '<span class="kd">' + ev.kind + '</span></td>' +
+           cell(ev.cash) + cell(ev.accP) + cell(ev.cashP) + '</tr>';
+  }).join('');
+}
+
+function stopPlay() {
+  if (timer) { clearInterval(timer); timer = null; document.getElementById('play').textContent = '▶ Chạy hết'; }
+}
+
+document.getElementById('next').onclick = function(){ if (cursor < N) { cursor++; render(); } };
+document.getElementById('prev').onclick = function(){ stopPlay(); if (cursor > 0) { cursor--; render(); } };
+document.getElementById('reset').onclick = function(){ stopPlay(); cursor = 0; render(); };
+document.getElementById('play').onclick = function(){
+  if (timer) { stopPlay(); return; }
+  if (cursor >= N) cursor = 0;
+  this.textContent = '⏸ Dừng';
+  var self = this;
+  timer = setInterval(function(){
+    if (cursor >= N) { stopPlay(); return; }
+    cursor++; render();
+  }, 750);
+};
+document.querySelectorAll('#basis-toggle button').forEach(function(b){
+  b.onclick = function(){ basis = b.dataset.basis; render(); };
+});
+
+render();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

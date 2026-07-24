@@ -24,6 +24,7 @@
 
 | Lĩnh vực | Mô tả | Liên kết |
 | --- | --- | --- |
+| Accounting | Kế toán — 3 tầng × 12 bài: nền tảng (phương trình kế toán, bút toán kép, ghi sổ, dồn tích) → báo cáo tài chính (BĐKT, KQKD, lưu chuyển tiền, mô hình 3 báo cáo) → phân tích & quản trị (tỷ số, CVP, ngân sách, định giá DCF) | [Accounting/](./Accounting/) |
 | AI-ML | Học máy & AI ứng dụng — 8 bài: pipeline ML, regression, neural net, embeddings, RAG, CLIP | [AI-ML/](./AI-ML/) |
 | Algorithms | Kỹ thuật & paradigm giải thuật — 8 tier × ~52 lesson (sort, search, greedy, DP, graph, string) | [Algorithms/](./Algorithms/) |
 | Astronomy | Thiên văn học — 3 tầng × 8 bài: bầu trời & Hệ Mặt Trời → sao & thiên hà → vũ trụ học (Big Bang, vật chất tối) | [Astronomy/](./Astronomy/) |

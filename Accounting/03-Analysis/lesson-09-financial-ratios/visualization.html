@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L9: Tỷ số tài chính — Accounting</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f4faf9;
+    --accent: #0f766e;
+    --accent-soft: #ccfbf1;
+    --accent-hover: #115e5a;
+    --profit: #0f766e;
+    --liq: #0369a1;
+    --lev: #b45309;
+    --eff: #7c3aed;
+  }
+  main { max-width: 1000px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Bảng nhập liệu */
+  .inputs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px 12px; }
+  .field { display: flex; flex-direction: column; gap: 3px; }
+  .field label { font-size: 12px; font-weight: 600; color: #475569; }
+  .field input {
+    width: 100%; box-sizing: border-box; padding: 7px 9px; font-size: 14px;
+    border: 1px solid #cbd5e1; border-radius: 7px; text-align: right; font-variant-numeric: tabular-nums;
+  }
+  .field input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .toolbar { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .toolbar button { border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .btn-reset { background: #e2e8f0; color: #334155; }
+  .btn-reset:hover { background: #cbd5e1; }
+  .eqnote { font-size: 12px; color: #64748b; }
+  .eqnote strong { color: #0f766e; }
+
+  /* Thẻ tỷ số */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+  .rcard { border: 1px solid #e3e1dc; border-left-width: 4px; border-radius: 10px; padding: 12px 14px; background: #fff; }
+  .rcard .name { font-size: 13px; font-weight: 700; color: #1e293b; }
+  .rcard .formula { font-size: 11px; color: #94a3b8; margin: 2px 0 6px; font-variant-numeric: tabular-nums; }
+  .rcard .value { font-size: 26px; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .rcard .interp { font-size: 12px; margin-top: 5px; font-weight: 600; }
+  .rcard .interp.good { color: #15803d; }
+  .rcard .interp.warn { color: #b45309; }
+  .rcard .interp.bad  { color: #b91c1c; }
+  .rcard .interp.neutral { color: #64748b; }
+  .g-profit { border-left-color: var(--profit); }
+  .g-liq    { border-left-color: var(--liq); }
+  .g-lev    { border-left-color: var(--lev); }
+  .g-eff    { border-left-color: var(--eff); }
+  .g-profit .value { color: var(--profit); }
+  .g-liq .value    { color: var(--liq); }
+  .g-lev .value    { color: var(--lev); }
+  .g-eff .value    { color: var(--eff); }
+
+  /* DuPont */
+  .dupont { display: flex; align-items: stretch; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+  .fac {
+    flex: 1 1 150px; min-width: 0; border-radius: 10px; padding: 12px 10px; text-align: center;
+    background: #f8fafc; border: 1px solid #e3e1dc;
+  }
+  .fac .fname { font-size: 12px; font-weight: 700; color: #475569; }
+  .fac .fform { font-size: 11px; color: #94a3b8; margin: 3px 0; font-variant-numeric: tabular-nums; }
+  .fac .fval { font-size: 24px; font-weight: 800; color: #334155; font-variant-numeric: tabular-nums; }
+  .fac.f1 { border-top: 3px solid var(--profit); }
+  .fac.f2 { border-top: 3px solid var(--eff); }
+  .fac.f3 { border-top: 3px solid var(--lev); }
+  .fac.result { background: var(--accent-soft); border: 1px solid var(--accent); }
+  .fac.result .fval { color: var(--accent); }
+  .op {
+    display: flex; align-items: center; justify-content: center; font-size: 26px;
+    font-weight: 800; color: #94a3b8; flex: 0 0 22px;
+  }
+  .verify {
+    margin-top: 14px; padding: 10px 12px; border-radius: 8px; font-size: 14px; font-weight: 700;
+    text-align: center; font-variant-numeric: tabular-nums;
+  }
+  .verify.ok { background: #dcfce7; color: #15803d; }
+  .verify.bad { background: #fee2e2; color: #b91c1c; }
+  .verify small { display: block; font-weight: 500; font-size: 12px; color: #475569; margin-top: 3px; }
+
+  @media (max-width: 480px) {
+    .op { flex-basis: 100%; height: 6px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Accounting</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 3</a>
+  <span class="sep">·</span>
+  <a href="../../02-Statements/lesson-08-three-statement-model/visualization.html">← L8</a>
+  <span class="sep">·</span>
+  <span class="current">L9: Tỷ số tài chính</span>
+  <span class="sep">·</span>
+  <a href="../lesson-10-cost-cvp/visualization.html">L10: Chi phí & CVP →</a>
+</nav>
+<main>
+  <h1>Tỷ số tài chính — bảng điều khiển sống</h1>
+  <div class="lead">Nhập vài dòng báo cáo tài chính, xem toàn bộ tỷ số và <strong>phân rã DuPont của ROE</strong> cập nhật ngay. Đơn vị: tỷ đồng.</div>
+
+  <div class="module">
+    <h2>Nhập số liệu báo cáo</h2>
+    <div class="sub">Mặc định là công ty mẫu trong README. Sửa bất kỳ ô nào để xem tỷ số đổi theo thời gian thực.</div>
+    <div class="inputs" id="inputs"></div>
+    <div class="toolbar">
+      <button class="btn-reset" id="reset">↺ Về số mẫu</button>
+      <span class="eqnote">Phương trình kế toán: Tổng TS = Nợ + Vốn chủ → <strong id="eqcheck">800 = 400 + 400 ✓</strong></span>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Nhóm 1 — Sinh lời (Profitability)</h2>
+    <div class="sub">Mỗi đồng vốn / tài sản / doanh thu đẻ ra bao nhiêu lãi.</div>
+    <div class="cards" id="g-profit"></div>
+  </div>
+
+  <div class="module">
+    <h2>Nhóm 2 — Thanh khoản (Liquidity)</h2>
+    <div class="sub">Có đủ tài sản dễ hóa tiền để trả nợ ngắn hạn không?</div>
+    <div class="cards" id="g-liq"></div>
+  </div>
+
+  <div class="module">
+    <h2>Nhóm 3 — Đòn bẩy (Leverage)</h2>
+    <div class="sub">Vay nhiều cỡ nào, và có kiếm đủ trả lãi không?</div>
+    <div class="cards" id="g-lev"></div>
+  </div>
+
+  <div class="module">
+    <h2>Nhóm 4 — Hiệu quả hoạt động (Efficiency)</h2>
+    <div class="sub">Tồn kho quay bao nhiêu vòng, khách mất bao nhiêu ngày trả tiền.</div>
+    <div class="cards" id="g-eff"></div>
+  </div>
+
+  <div class="module">
+    <h2>Phân rã DuPont — ROE = biên ròng × vòng quay tài sản × đòn bẩy</h2>
+    <div class="sub">Ba nhân tử nhân lại đúng bằng ROE. Đổi input → cả ba nhân tử và ROE cùng đổi.</div>
+    <div class="dupont">
+      <div class="fac f1"><div class="fname">Biên ròng</div><div class="fform">LN ròng ÷ Doanh thu</div><div class="fval" id="d-margin">—</div></div>
+      <div class="op">×</div>
+      <div class="fac f2"><div class="fname">Vòng quay tài sản</div><div class="fform">Doanh thu ÷ Tổng TS</div><div class="fval" id="d-turn">—</div></div>
+      <div class="op">×</div>
+      <div class="fac f3"><div class="fname">Đòn bẩy tài chính</div><div class="fform">Tổng TS ÷ Vốn chủ</div><div class="fval" id="d-lev">—</div></div>
+      <div class="op">=</div>
+      <div class="fac result"><div class="fname">ROE</div><div class="fform">LN ròng ÷ Vốn chủ</div><div class="fval" id="d-roe">—</div></div>
+    </div>
+    <div class="verify ok" id="verify">—</div>
+  </div>
+</main>
+
+<script>
+// ===== Định nghĩa các ô nhập =====
+var FIELDS = [
+  { key: 'revenue',   label: 'Doanh thu (S)',        def: 1000 },
+  { key: 'ni',        label: 'LN ròng (NI)',         def: 80 },
+  { key: 'ta',        label: 'Tổng tài sản (TA)',    def: 800 },
+  { key: 'eq',        label: 'Vốn chủ (E)',          def: 400 },
+  { key: 'debt',      label: 'Tổng nợ (D)',          def: 400 },
+  { key: 'ca',        label: 'TS ngắn hạn (CA)',     def: 300 },
+  { key: 'cl',        label: 'Nợ ngắn hạn (CL)',     def: 150 },
+  { key: 'inv',       label: 'Tồn kho (Inv)',        def: 120 },
+  { key: 'ar',        label: 'Phải thu (AR)',        def: 100 },
+  { key: 'ebit',      label: 'EBIT',                 def: 140 },
+  { key: 'interest',  label: 'Lãi vay (I)',          def: 20 }
+];
+
+var S = {};
+
+// ===== Helpers =====
+function div(a, b) { return (b === 0 || isNaN(b)) ? null : a / b; }
+function fmtPct(x)   { return x === null ? '—' : (x * 100).toFixed(1) + '%'; }
+function fmtRatio(x) { return x === null ? '—' : x.toFixed(2); }
+function fmtDays(x)  { return x === null ? '—' : x.toFixed(1) + ' ngày'; }
+function fmtTimes(x) { return x === null ? '—' : x.toFixed(2) + ' lần'; }
+function fmtVN(n)    { return (Math.round(n * 100) / 100).toLocaleString('vi-VN'); }
+
+// interp: trả {cls, text} theo ngưỡng
+function tag(cls, text) { return { cls: cls, text: text }; }
+
+// ===== Định nghĩa các tỷ số theo nhóm =====
+function buildRatios() {
+  var roe = div(S.ni, S.eq),
+      roa = div(S.ni, S.ta),
+      margin = div(S.ni, S.revenue),
+      current = div(S.ca, S.cl),
+      quick = div(S.ca - S.inv, S.cl),
+      de = div(S.debt, S.eq),
+      cover = div(S.ebit, S.interest),
+      invturn = div(S.revenue, S.inv),
+      dso = (div(S.ar, S.revenue) === null) ? null : div(S.ar, S.revenue) * 365;
+
+  return {
+    profit: [
+      { name: 'ROE', formula: 'NI ÷ E', val: fmtPct(roe),
+        interp: roe === null ? tag('neutral', '—') : (roe >= 0.15 ? tag('good', 'Cao — vượt lãi tiết kiệm') : roe >= 0.06 ? tag('warn', 'Trung bình') : roe >= 0 ? tag('bad', 'Thấp — thua gửi tiết kiệm') : tag('bad', 'Đang lỗ')) },
+      { name: 'ROA', formula: 'NI ÷ TA', val: fmtPct(roa),
+        interp: roa === null ? tag('neutral', '—') : (roa >= 0.08 ? tag('good', 'Tài sản sinh lời tốt') : roa >= 0 ? tag('warn', 'Khiêm tốn') : tag('bad', 'Âm')) },
+      { name: 'Biên ròng', formula: 'NI ÷ S', val: fmtPct(margin),
+        interp: margin === null ? tag('neutral', '—') : (margin >= 0.10 ? tag('good', 'Biên dày') : margin >= 0 ? tag('warn', 'Biên mỏng') : tag('bad', 'Lỗ trên mỗi đồng bán')) }
+    ],
+    liq: [
+      { name: 'Current ratio', formula: 'CA ÷ CL', val: fmtRatio(current),
+        interp: current === null ? tag('neutral', '—') : (current >= 1.5 ? tag('good', 'Thanh khoản khỏe') : current >= 1 ? tag('warn', 'Vừa đủ') : tag('bad', '< 1: rủi ro')) },
+      { name: 'Quick ratio', formula: '(CA − Inv) ÷ CL', val: fmtRatio(quick),
+        interp: quick === null ? tag('neutral', '—') : (quick >= 1 ? tag('good', 'Trả nổi dù chưa bán hàng') : quick >= 0.7 ? tag('warn', 'Hơi mỏng') : tag('bad', 'Phụ thuộc bán tồn kho')) }
+    ],
+    lev: [
+      { name: 'D/E', formula: 'D ÷ E', val: fmtRatio(de),
+        interp: de === null ? tag('neutral', '—') : (de <= 1 ? tag('good', 'Nợ ≤ vốn chủ') : de <= 2 ? tag('warn', 'Đòn bẩy khá cao') : tag('bad', 'Nợ nặng')) },
+      { name: 'Interest coverage', formula: 'EBIT ÷ I', val: fmtTimes(cover),
+        interp: cover === null ? tag('neutral', '—') : (cover >= 3 ? tag('good', 'Dư sức trả lãi') : cover >= 1 ? tag('warn', 'Sát ngưỡng') : tag('bad', '< 1: không đủ trả lãi')) }
+    ],
+    eff: [
+      { name: 'Vòng quay tồn kho', formula: 'S ÷ Inv', val: fmtTimes(invturn),
+        interp: invturn === null ? tag('neutral', '—') : (invturn >= 6 ? tag('good', 'Bán nhanh') : invturn >= 3 ? tag('warn', 'Trung bình') : tag('bad', 'Hàng nằm lâu')) },
+      { name: 'Kỳ thu tiền (DSO)', formula: 'AR ÷ S × 365', val: fmtDays(dso),
+        interp: dso === null ? tag('neutral', '—') : (dso <= 45 ? tag('good', 'Thu tiền nhanh') : dso <= 75 ? tag('warn', 'Thu hơi chậm') : tag('bad', 'Vốn kẹt ở phải thu')) }
+    ],
+    dupont: { margin: margin, turn: div(S.revenue, S.ta), lev: div(S.ta, S.eq), roe: roe }
+  };
+}
+
+function cardHTML(cls, r) {
+  return '<div class="rcard ' + cls + '">' +
+    '<div class="name">' + r.name + '</div>' +
+    '<div class="formula">' + r.formula + '</div>' +
+    '<div class="value">' + r.val + '</div>' +
+    '<div class="interp ' + r.interp.cls + '">' + r.interp.text + '</div>' +
+    '</div>';
+}
+
+function render() {
+  var R = buildRatios();
+  document.getElementById('g-profit').innerHTML = R.profit.map(function(r){ return cardHTML('g-profit', r); }).join('');
+  document.getElementById('g-liq').innerHTML    = R.liq.map(function(r){ return cardHTML('g-liq', r); }).join('');
+  document.getElementById('g-lev').innerHTML    = R.lev.map(function(r){ return cardHTML('g-lev', r); }).join('');
+  document.getElementById('g-eff').innerHTML    = R.eff.map(function(r){ return cardHTML('g-eff', r); }).join('');
+
+  // DuPont
+  var d = R.dupont;
+  document.getElementById('d-margin').textContent = d.margin === null ? '—' : d.margin.toFixed(3);
+  document.getElementById('d-turn').textContent   = fmtRatio(d.turn);
+  document.getElementById('d-lev').textContent    = fmtRatio(d.lev);
+  document.getElementById('d-roe').textContent    = fmtPct(d.roe);
+
+  var v = document.getElementById('verify');
+  if (d.margin === null || d.turn === null || d.lev === null || d.roe === null) {
+    v.className = 'verify bad';
+    v.innerHTML = 'Chưa đủ dữ liệu (có mẫu số = 0).';
+  } else {
+    var product = d.margin * d.turn * d.lev;   // = ROE về mặt đại số
+    var ok = Math.abs(product - d.roe) < 1e-9;
+    v.className = 'verify ' + (ok ? 'ok' : 'bad');
+    v.innerHTML = (ok ? '✓ ' : '✗ ') +
+      d.margin.toFixed(3) + ' × ' + d.turn.toFixed(2) + ' × ' + d.lev.toFixed(2) +
+      ' = ' + fmtPct(product) + ' = ROE' +
+      '<small>Các mẫu số trung gian (Doanh thu, Tổng TS) triệt tiêu → tích 3 nhân tử = NI ÷ E = ROE.</small>';
+  }
+
+  // Kiểm tra phương trình kế toán
+  var ec = document.getElementById('eqcheck');
+  var lhs = S.ta, rhs = S.debt + S.eq;
+  var bal = Math.abs(lhs - rhs) < 1e-9;
+  ec.textContent = fmtVN(lhs) + (bal ? ' = ' : ' ≠ ') + fmtVN(S.debt) + ' + ' + fmtVN(S.eq) + (bal ? ' ✓' : ' ✗ (TS ≠ Nợ + Vốn chủ)');
+  ec.style.color = bal ? '#0f766e' : '#b91c1c';
+}
+
+// ===== Dựng ô nhập =====
+var wrap = document.getElementById('inputs');
+FIELDS.forEach(function(f){
+  S[f.key] = f.def;
+  var div = document.createElement('div');
+  div.className = 'field';
+  div.innerHTML = '<label for="in-' + f.key + '">' + f.label + '</label>' +
+    '<input id="in-' + f.key + '" type="number" inputmode="decimal" value="' + f.def + '">';
+  wrap.appendChild(div);
+  div.querySelector('input').addEventListener('input', function(e){
+    var val = parseFloat(e.target.value);
+    S[f.key] = isNaN(val) ? 0 : val;
+    render();
+  });
+});
+
+document.getElementById('reset').onclick = function(){
+  FIELDS.forEach(function(f){
+    S[f.key] = f.def;
+    document.getElementById('in-' + f.key).value = f.def;
+  });
+  render();
+};
+
+render();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

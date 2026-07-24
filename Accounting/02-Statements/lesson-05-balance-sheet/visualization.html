@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L5: Bảng cân đối kế toán — Accounting</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f4faf9;
+    --accent: #0f766e;
+    --accent-soft: #ccfbf1;
+    --accent-hover: #115e5a;
+    --asset: #0f766e;
+    --liab: #b45309;
+    --equity: #4338ca;
+  }
+  main { max-width: 1000px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Bảng cân đối 2 phía */
+  .bs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .bs-side { border: 1px solid #eceae4; border-radius: 10px; overflow: hidden; }
+  .side-head { padding: 8px 12px; font-size: 13px; font-weight: 800; letter-spacing: .4px; color: #fff; }
+  .side-head.asset { background: var(--asset); }
+  .side-head.claim { background: linear-gradient(90deg, var(--liab) 0%, var(--liab) 55%, var(--equity) 55%, var(--equity) 100%); }
+  .grp-head {
+    padding: 7px 12px; font-size: 12px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .3px; background: #f1f5f9; color: #334155; border-top: 1px solid #eceae4;
+  }
+  .grp-head.eq { color: var(--equity); }
+  .grp-head.li { color: var(--liab); }
+  .bs-row {
+    display: flex; align-items: center; gap: 8px; padding: 5px 12px;
+    border-top: 1px solid #f1efe9; font-size: 13px;
+  }
+  .bs-row .name { flex: 1; color: #1e293b; }
+  .bs-row input {
+    width: 82px; text-align: right; padding: 4px 6px; font-size: 13px;
+    border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit;
+    -moz-appearance: textfield;
+  }
+  .bs-row input:focus { outline: none; border-color: var(--accent); background: var(--accent-soft); }
+  .subtot {
+    display: flex; justify-content: space-between; padding: 6px 12px;
+    font-size: 12.5px; font-weight: 700; color: #475569; background: #fafaf8;
+    border-top: 1px dashed #d9d5cc;
+  }
+  .grand {
+    display: flex; justify-content: space-between; padding: 10px 12px;
+    font-size: 15px; font-weight: 900; color: #fff; background: #334155;
+  }
+  .grand.asset { background: var(--asset); }
+  .grand.claim { background: #475569; }
+
+  /* Check + bars */
+  .check {
+    text-align: center; font-size: 15px; font-weight: 800; margin: 14px 0 4px;
+    padding: 9px; border-radius: 8px;
+  }
+  .check.ok { background: #dcfce7; color: #15803d; }
+  .check.bad { background: #fee2e2; color: #b91c1c; }
+  .bars { margin-top: 12px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+  .bar-label { width: 100px; font-size: 12px; font-weight: 700; color: #475569; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 32px; background: #f1f5f9; border-radius: 8px; overflow: hidden; display: flex; }
+  .seg { height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11.5px; font-weight: 700; transition: width .35s ease; white-space: nowrap; overflow: hidden; }
+  .seg.a { background: var(--asset); }
+  .seg.l { background: var(--liab); }
+  .seg.e { background: var(--equity); }
+
+  /* Metrics */
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .metric { border: 1px solid #eceae4; border-radius: 10px; padding: 12px 14px; }
+  .metric .k { font-size: 12px; color: #64748b; font-weight: 700; }
+  .metric .v { font-size: 24px; font-weight: 900; margin: 2px 0; }
+  .metric .note { font-size: 12px; color: #64748b; }
+  .metric .v.good { color: #15803d; }
+  .metric .v.warn { color: #b91c1c; }
+  .metric .v.neu { color: #334155; }
+
+  .toolbar { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .toolbar button { border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .btn-reset { background: #e2e8f0; color: #334155; }
+  .btn-reset:hover { background: #cbd5e1; }
+  .diff { font-size: 13px; color: #64748b; text-align: center; margin-top: 4px; }
+
+  @media (max-width: 640px) {
+    .bs-grid { grid-template-columns: 1fr; }
+    .metrics { grid-template-columns: 1fr; }
+    .side-head.claim { background: var(--liab); }
+    .bs-row input { width: 72px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Accounting</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../../01-Fundamentals/lesson-04-accrual-adjusting/visualization.html">← L4</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Bảng cân đối kế toán</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-income-statement/visualization.html">L6: KQKD →</a>
+</nav>
+<main>
+  <h1>Bảng cân đối kế toán — dựng & kiểm tra cân</h1>
+  <div class="lead">Sửa số dư từng khoản mục. App tự xếp vào nhóm <strong>ngắn hạn / dài hạn</strong>, dựng bảng cân đối 2 phía và kiểm tra <strong>Tài sản = Nợ + Vốn chủ</strong> theo thời gian thực. Đơn vị: triệu đồng.</div>
+
+  <div class="module">
+    <h2>Bảng cân đối tương tác</h2>
+    <div class="sub">Preset: Công ty Bình Minh tại ngày 31/12. Gõ số mới vào ô để thử.</div>
+    <div class="bs-grid">
+      <div class="bs-side">
+        <div class="side-head asset">TÀI SẢN</div>
+        <div class="grp-head">Tài sản ngắn hạn</div>
+        <div id="grp-ca"></div>
+        <div class="subtot"><span>Cộng tài sản ngắn hạn</span><span id="sub-ca">0</span></div>
+        <div class="grp-head">Tài sản dài hạn</div>
+        <div id="grp-nca"></div>
+        <div class="subtot"><span>Cộng tài sản dài hạn</span><span id="sub-nca">0</span></div>
+        <div class="grand asset"><span>TỔNG TÀI SẢN</span><span id="tot-a">0</span></div>
+      </div>
+      <div class="bs-side">
+        <div class="side-head claim">NỢ PHẢI TRẢ + VỐN CHỦ</div>
+        <div class="grp-head li">Nợ ngắn hạn</div>
+        <div id="grp-cl"></div>
+        <div class="subtot"><span>Cộng nợ ngắn hạn</span><span id="sub-cl">0</span></div>
+        <div class="grp-head li">Nợ dài hạn</div>
+        <div id="grp-ncl"></div>
+        <div class="subtot"><span>Cộng nợ dài hạn</span><span id="sub-ncl">0</span></div>
+        <div class="grp-head eq">Vốn chủ sở hữu</div>
+        <div id="grp-eq"></div>
+        <div class="subtot"><span>Cộng vốn chủ sở hữu</span><span id="sub-eq">0</span></div>
+        <div class="grand claim"><span>TỔNG NỢ + VỐN CHỦ</span><span id="tot-le">0</span></div>
+      </div>
+    </div>
+
+    <div class="check ok" id="check">✓ Cân</div>
+    <div class="diff" id="diff"></div>
+
+    <div class="bars">
+      <div class="bar-row">
+        <div class="bar-label">Tài sản</div>
+        <div class="bar-track"><div class="seg a" id="bar-a" style="width:0"></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Nợ + Vốn chủ</div>
+        <div class="bar-track">
+          <div class="seg l" id="bar-l" style="width:0"></div>
+          <div class="seg e" id="bar-e" style="width:0"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn-reset" id="reset">↺ Về số liệu gốc</button>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Chỉ số thanh khoản</h2>
+    <div class="sub">Đo sức khỏe ngắn hạn từ tài sản ngắn hạn vs nợ ngắn hạn.</div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="k">Vốn lưu động</div>
+        <div class="v neu" id="m-wc">0</div>
+        <div class="note">TS ngắn hạn − Nợ ngắn hạn</div>
+      </div>
+      <div class="metric">
+        <div class="k">Hệ số thanh toán hiện hành</div>
+        <div class="v neu" id="m-cr">0</div>
+        <div class="note">TS ngắn hạn ÷ Nợ ngắn hạn</div>
+      </div>
+      <div class="metric">
+        <div class="k">Đánh giá</div>
+        <div class="v neu" id="m-verdict" style="font-size:16px">—</div>
+        <div class="note" id="m-verdict-note">&nbsp;</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ===== Danh mục khoản mục =====
+// side: 'asset' | 'liab' | 'equity' ; term: 'current' | 'noncurrent' | null (vốn chủ)
+var PRESET = [
+  { id:'cash',   name:'Tiền mặt & tương đương', side:'asset', term:'current',    v:150 },
+  { id:'ar',     name:'Khoản phải thu',         side:'asset', term:'current',    v:90  },
+  { id:'inv',    name:'Hàng tồn kho',           side:'asset', term:'current',    v:110 },
+  { id:'prepaid',name:'Chi phí trả trước',      side:'asset', term:'current',    v:20  },
+  { id:'equip',  name:'Thiết bị, máy móc',      side:'asset', term:'noncurrent', v:300 },
+  { id:'build',  name:'Nhà xưởng',              side:'asset', term:'noncurrent', v:250 },
+  { id:'land',   name:'Đất',                    side:'asset', term:'noncurrent', v:180 },
+  { id:'truck',  name:'Xe tải',                 side:'asset', term:'noncurrent', v:70  },
+  { id:'ap',     name:'Phải trả người bán',     side:'liab',  term:'current',    v:80  },
+  { id:'stloan', name:'Vay ngắn hạn',           side:'liab',  term:'current',    v:100 },
+  { id:'wages',  name:'Lương phải trả',         side:'liab',  term:'current',    v:40  },
+  { id:'tax',    name:'Thuế phải nộp',          side:'liab',  term:'current',    v:30  },
+  { id:'ltloan', name:'Vay dài hạn ngân hàng',  side:'liab',  term:'noncurrent', v:400 },
+  { id:'bond',   name:'Trái phiếu phát hành',   side:'liab',  term:'noncurrent', v:100 },
+  { id:'capital',name:'Vốn góp',                side:'equity',term:null,         v:300 },
+  { id:'retain', name:'Lợi nhuận giữ lại',      side:'equity',term:null,         v:120 }
+];
+
+var items = [];  // bản làm việc (clone của PRESET)
+
+function fmt(n) { return (Math.round(n * 100) / 100).toLocaleString('vi-VN'); }
+
+function bucket(side, term) {
+  return items.filter(function(it){ return it.side === side && it.term === term; });
+}
+
+function sumOf(list) { return list.reduce(function(s, it){ return s + (isFinite(it.v) ? it.v : 0); }, 0); }
+
+function rowHTML(it) {
+  return '<div class="bs-row"><span class="name">' + it.name + '</span>' +
+    '<input type="number" step="1" data-id="' + it.id + '" value="' + it.v + '"></div>';
+}
+
+function buildLists() {
+  document.getElementById('grp-ca').innerHTML  = bucket('asset','current').map(rowHTML).join('');
+  document.getElementById('grp-nca').innerHTML = bucket('asset','noncurrent').map(rowHTML).join('');
+  document.getElementById('grp-cl').innerHTML  = bucket('liab','current').map(rowHTML).join('');
+  document.getElementById('grp-ncl').innerHTML = bucket('liab','noncurrent').map(rowHTML).join('');
+  document.getElementById('grp-eq').innerHTML  = bucket('equity',null).map(rowHTML).join('');
+
+  // gắn sự kiện
+  document.querySelectorAll('.bs-row input').forEach(function(inp){
+    inp.addEventListener('input', function(){
+      var it = items.find(function(x){ return x.id === inp.dataset.id; });
+      var val = parseFloat(inp.value);
+      it.v = isFinite(val) ? val : 0;
+      compute();
+    });
+  });
+}
+
+function compute() {
+  var ca  = sumOf(bucket('asset','current'));
+  var nca = sumOf(bucket('asset','noncurrent'));
+  var cl  = sumOf(bucket('liab','current'));
+  var ncl = sumOf(bucket('liab','noncurrent'));
+  var eq  = sumOf(bucket('equity',null));
+
+  var totA = ca + nca;
+  var totLE = cl + ncl + eq;
+
+  document.getElementById('sub-ca').textContent  = fmt(ca);
+  document.getElementById('sub-nca').textContent = fmt(nca);
+  document.getElementById('sub-cl').textContent  = fmt(cl);
+  document.getElementById('sub-ncl').textContent = fmt(ncl);
+  document.getElementById('sub-eq').textContent  = fmt(eq);
+  document.getElementById('tot-a').textContent   = fmt(totA);
+  document.getElementById('tot-le').textContent  = fmt(totLE);
+
+  // Kiểm tra cân
+  var diff = totA - totLE;
+  var balanced = Math.abs(diff) < 1e-9;
+  var chk = document.getElementById('check');
+  chk.className = 'check ' + (balanced ? 'ok' : 'bad');
+  chk.textContent = (balanced ? '✓ Cân: ' : '✗ LỆCH: ') + fmt(totA) + ' = ' + fmt(cl + ncl) + ' + ' + fmt(eq);
+  var dd = document.getElementById('diff');
+  if (balanced) {
+    dd.textContent = 'Tổng tài sản khớp tổng nợ + vốn chủ.';
+  } else {
+    dd.textContent = 'Chênh lệch ' + fmt(Math.abs(diff)) + (diff > 0 ? ' (tài sản thừa)' : ' (nguồn vốn thừa)') +
+      ' — trong sổ thật mỗi thay đổi tài sản phải kèm thay đổi nợ/vốn tương ứng.';
+  }
+
+  // Bars — scale theo max hai vế
+  var scale = Math.max(totA, totLE, 1);
+  document.getElementById('bar-a').style.width = (totA / scale * 100) + '%';
+  document.getElementById('bar-l').style.width = ((cl + ncl) / scale * 100) + '%';
+  document.getElementById('bar-e').style.width = (eq / scale * 100) + '%';
+  document.getElementById('bar-a').textContent = totA > 0 ? fmt(totA) : '';
+  document.getElementById('bar-l').textContent = (cl + ncl) > 0 ? 'Nợ ' + fmt(cl + ncl) : '';
+  document.getElementById('bar-e').textContent = eq !== 0 ? 'Vốn ' + fmt(eq) : '';
+
+  // Chỉ số thanh khoản
+  var wc = ca - cl;
+  var wcEl = document.getElementById('m-wc');
+  wcEl.textContent = (wc >= 0 ? '' : '−') + fmt(Math.abs(wc));
+  wcEl.className = 'v ' + (wc > 0 ? 'good' : wc < 0 ? 'warn' : 'neu');
+
+  var crEl = document.getElementById('m-cr');
+  var vEl = document.getElementById('m-verdict');
+  var noteEl = document.getElementById('m-verdict-note');
+  if (cl === 0) {
+    crEl.textContent = ca > 0 ? '∞' : '—';
+    crEl.className = 'v neu';
+    vEl.textContent = ca > 0 ? 'Không nợ ngắn' : '—';
+    vEl.className = 'v neu'; vEl.style.fontSize = '16px';
+    noteEl.textContent = ca > 0 ? 'Không có nợ ngắn hạn để so.' : ' ';
+  } else {
+    var cr = ca / cl;
+    crEl.textContent = fmt(cr);
+    crEl.className = 'v ' + (cr >= 1 ? 'good' : 'warn');
+    if (cr < 1)        { vEl.textContent = 'Rủi ro'; vEl.className = 'v warn'; noteEl.textContent = 'CR < 1: nợ ngắn hạn vượt tài sản ngắn hạn.'; }
+    else if (cr < 1.45){ vEl.textContent = 'Tạm ổn'; vEl.className = 'v neu';  noteEl.textContent = 'Có đệm nhưng mỏng (thường mong ≥ 1,5).'; }
+    else if (cr <= 3) { vEl.textContent = 'Lành mạnh'; vEl.className = 'v good'; noteEl.textContent = 'Đệm thanh khoản tốt.'; }
+    else              { vEl.textContent = 'Quá cao'; vEl.className = 'v neu';  noteEl.textContent = 'Có thể ôm quá nhiều tiền/tồn kho không sinh lời.'; }
+    vEl.style.fontSize = '16px';
+  }
+}
+
+function reset() {
+  items = PRESET.map(function(it){ return Object.assign({}, it); });
+  buildLists();
+  compute();
+}
+
+document.getElementById('reset').onclick = reset;
+reset();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

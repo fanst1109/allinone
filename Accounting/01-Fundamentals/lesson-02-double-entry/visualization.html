@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L2: Bút toán kép & Nợ/Có — Accounting</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #f4faf9;
+    --accent: #0f766e;
+    --accent-soft: #ccfbf1;
+    --accent-hover: #115e5a;
+    --debit: #0f766e;   /* Nợ */
+    --credit: #b45309;  /* Có */
+  }
+  main { max-width: 980px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Bộ chọn giao dịch */
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; font-weight: 700; color: #475569; }
+  .field select, .field input {
+    padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;
+    background: #fff; color: #1e293b; box-sizing: border-box;
+  }
+  .field.grow { flex: 1 1 260px; min-width: 0; }
+  .field.grow select { width: 100%; }
+  .field .amt { width: 110px; max-width: 40vw; text-align: right; }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btns button { border: 0; border-radius: 8px; padding: 9px 16px; font-weight: 700; font-size: 14px; cursor: pointer; }
+  .btn-post { background: var(--accent); color: #fff; }
+  .btn-post:hover { background: var(--accent-hover); }
+  .btn-reset { background: #e2e8f0; color: #334155; }
+  .btn-reset:hover { background: #cbd5e1; }
+
+  /* Bút toán vừa ghi */
+  .entry {
+    margin-top: 14px; border: 1px dashed #cbd5e1; border-radius: 10px; padding: 12px 14px;
+    background: #f8fafc;
+  }
+  .entry .line { font-size: 15px; line-height: 1.9; }
+  .entry .tag {
+    display: inline-block; min-width: 34px; text-align: center; font-weight: 800; font-size: 12px;
+    padding: 1px 7px; border-radius: 6px; margin-right: 8px; color: #fff;
+  }
+  .entry .tag.dr { background: var(--debit); }
+  .entry .tag.cr { background: var(--credit); }
+  .entry .indent { padding-left: 26px; }
+  .entry .num { font-weight: 800; }
+  .entry .chk { margin-top: 8px; font-weight: 700; font-size: 13px; }
+  .entry .chk.ok { color: #15803d; }
+  .entry .empty { color: #94a3b8; font-style: italic; font-size: 13px; }
+
+  /* T-accounts */
+  .t-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+  .taccount { border: 1px solid #e3e1dc; border-radius: 10px; overflow: hidden; }
+  .taccount .name { text-align: center; font-weight: 800; font-size: 13px; padding: 6px; background: #f1f5f9; border-bottom: 2px solid #334155; }
+  .taccount .name .typ { display: block; font-size: 10px; font-weight: 600; color: #64748b; letter-spacing: .3px; }
+  .taccount .cols { display: flex; min-height: 60px; }
+  .taccount .col { flex: 1; padding: 6px 8px; font-size: 13px; }
+  .taccount .col.dr { border-right: 1px solid #e3e1dc; }
+  .taccount .col .hd { font-size: 10px; font-weight: 700; text-align: center; margin-bottom: 4px; letter-spacing: .3px; }
+  .taccount .col.dr .hd { color: var(--debit); }
+  .taccount .col.cr .hd { color: var(--credit); }
+  .taccount .col .v { text-align: right; line-height: 1.55; }
+  .taccount .bal { text-align: center; font-size: 12px; font-weight: 700; padding: 5px; background: #f8fafc; border-top: 1px solid #e3e1dc; }
+  .taccount .bal.dr { color: var(--debit); }
+  .taccount .bal.cr { color: var(--credit); }
+  .empty-note { color: #94a3b8; font-style: italic; font-size: 13px; }
+
+  /* Trial balance */
+  table.tb { border-collapse: collapse; width: 100%; font-size: 13px; }
+  table.tb th, table.tb td { border: 1px solid #e3e1dc; padding: 6px 10px; text-align: right; }
+  table.tb th:first-child, table.tb td:first-child { text-align: left; }
+  table.tb th { background: #f1f5f9; font-size: 12px; }
+  table.tb tr.total td { font-weight: 800; background: #f8fafc; }
+  table.tb td.dr { color: var(--debit); }
+  table.tb td.cr { color: var(--credit); }
+  .tb-check { margin-top: 10px; text-align: center; font-weight: 800; font-size: 14px; padding: 7px; border-radius: 8px; }
+  .tb-check.ok { background: #dcfce7; color: #15803d; }
+  .tb-check.bad { background: #fee2e2; color: #b91c1c; }
+
+  /* Bảng quy tắc tương tác */
+  table.rules { border-collapse: collapse; width: 100%; font-size: 13px; }
+  table.rules th, table.rules td { border: 1px solid #e3e1dc; padding: 8px 10px; text-align: center; }
+  table.rules th { background: #f1f5f9; font-size: 12px; }
+  table.rules td:first-child { text-align: left; font-weight: 700; cursor: pointer; }
+  table.rules tr.rule-row { transition: background .12s; cursor: pointer; }
+  table.rules tr.rule-row:hover { background: var(--accent-soft); }
+  table.rules td.up { font-weight: 800; }
+  table.rules tr.rule-row.on td.up { background: #bbf7d0; color: #15803d; box-shadow: inset 0 0 0 2px #22c55e; }
+  .side-dr { color: var(--debit); font-weight: 700; }
+  .side-cr { color: var(--credit); font-weight: 700; }
+  .rules-hint { font-size: 12px; color: #64748b; margin-top: 8px; }
+
+  @media (max-width: 480px) {
+    .t-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .field.grow { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Accounting</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 1</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-accounting-equation/visualization.html">← L1</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Bút toán kép</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-journal-ledger-trial-balance/visualization.html">L3: Sổ sách →</a>
+</nav>
+<main>
+  <h1>Bút toán kép & Nợ/Có — công cụ định khoản</h1>
+  <div class="lead">Chọn một giao dịch, chỉnh số tiền, bấm <strong>Ghi sổ</strong>. Xem bút toán <span class="side-dr">Nợ</span>/<span class="side-cr">Có</span>, các <strong>T-account</strong> cập nhật, và <strong>bảng cân đối thử</strong> luôn giữ <strong>Tổng Nợ = Tổng Có</strong>. Đơn vị: triệu đồng.</div>
+
+  <div class="module">
+    <h2>1. Ghi một giao dịch</h2>
+    <div class="sub">Ghi sổ cho một quán cà phê mới mở. Số tiền chỉnh được trước khi ghi.</div>
+    <div class="controls">
+      <div class="field grow">
+        <label for="tx">Giao dịch</label>
+        <select id="tx"></select>
+      </div>
+      <div class="field">
+        <label for="amt">Số tiền</label>
+        <input class="amt" id="amt" type="number" min="0" step="1" value="100">
+      </div>
+      <div class="btns">
+        <button class="btn-post" id="post">＋ Ghi sổ</button>
+        <button class="btn-reset" id="reset">↺ Làm lại</button>
+      </div>
+    </div>
+    <div class="entry" id="entry">
+      <span class="empty">Chưa ghi giao dịch nào. Chọn một giao dịch rồi bấm "Ghi sổ".</span>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>2. Sổ cái — các T-account</h2>
+    <div class="sub">Mỗi tài khoản: <span class="side-dr">Nợ</span> bên trái, <span class="side-cr">Có</span> bên phải. Số dư nằm ở bên "nặng" hơn.</div>
+    <div class="t-grid" id="t-grid"></div>
+    <div class="empty-note" id="t-empty">Chưa có tài khoản nào phát sinh.</div>
+  </div>
+
+  <div class="module">
+    <h2>3. Bảng cân đối thử (Trial Balance)</h2>
+    <div class="sub">Xếp số dư mọi tài khoản thành hai cột. Bút toán kép đảm bảo hai cột luôn bằng nhau.</div>
+    <table class="tb">
+      <thead>
+        <tr><th>Tài khoản</th><th>Loại</th><th>Nợ</th><th>Có</th></tr>
+      </thead>
+      <tbody id="tb-body">
+        <tr><td colspan="4" class="empty-note">Chưa có số liệu.</td></tr>
+      </tbody>
+    </table>
+    <div class="tb-check ok" id="tb-check">✓ Tổng Nợ = Tổng Có = 0</div>
+  </div>
+
+  <div class="module">
+    <h2>4. Bảng quy tắc Nợ/Có — di chuột / chạm để xem</h2>
+    <div class="sub">Suy từ <strong>A + Chi phí + Cổ tức = Nợ phải trả + Vốn góp + Doanh thu</strong>: vế trái tăng bên Nợ, vế phải tăng bên Có.</div>
+    <table class="rules">
+      <thead>
+        <tr><th>Loại tài khoản</th><th>Tăng (↑)</th><th>Giảm (↓)</th><th>Số dư thường</th></tr>
+      </thead>
+      <tbody id="rules-body"></tbody>
+    </table>
+    <div class="rules-hint">Mẹo nhớ <strong>DEALER</strong>: <span class="side-dr">Nợ</span> tăng cho <strong>D</strong>ividends · <strong>E</strong>xpenses · <strong>A</strong>ssets — <span class="side-cr">Có</span> tăng cho <strong>L</strong>iabilities · <strong>E</strong>quity · <strong>R</strong>evenue.</div>
+  </div>
+</main>
+
+<script>
+// ===== Loại tài khoản: bên tăng (normal balance side) =====
+// dr = tăng bên Nợ (số dư thường Nợ); cr = tăng bên Có (số dư thường Có)
+var TYPE = {
+  asset:   { label: "Tài sản",      normal: "dr" },
+  expense: { label: "Chi phí",      normal: "dr" },
+  dividend:{ label: "Cổ tức",       normal: "dr" },
+  liab:    { label: "Nợ phải trả",  normal: "cr" },
+  equity:  { label: "Vốn chủ",      normal: "cr" },
+  revenue: { label: "Doanh thu",    normal: "cr" }
+};
+
+// Tài khoản: tên -> loại
+var ACC = {
+  "Tiền mặt": "asset",
+  "Thiết bị": "asset",
+  "Hàng tồn kho": "asset",
+  "Chi phí lương": "expense",
+  "Chi phí điện": "expense",
+  "Cổ tức": "dividend",
+  "Vay ngân hàng": "liab",
+  "Phải trả người bán": "liab",
+  "Vốn góp": "equity",
+  "Doanh thu": "revenue"
+};
+
+// Giao dịch preset: mỗi cái có 1 tài khoản ghi Nợ, 1 tài khoản ghi Có, số tiền mặc định.
+var TX = [
+  { t: "Chủ góp vốn bằng tiền",           dr: "Tiền mặt",      cr: "Vốn góp",             amt: 100 },
+  { t: "Vay ngân hàng bằng tiền",         dr: "Tiền mặt",      cr: "Vay ngân hàng",       amt: 50  },
+  { t: "Mua thiết bị trả tiền ngay",      dr: "Thiết bị",      cr: "Tiền mặt",            amt: 60  },
+  { t: "Bán hàng thu tiền ngay",          dr: "Tiền mặt",      cr: "Doanh thu",           amt: 40  },
+  { t: "Trả lương nhân viên (tiền)",      dr: "Chi phí lương", cr: "Tiền mặt",            amt: 20  },
+  { t: "Mua nguyên liệu chịu (nợ NB)",    dr: "Hàng tồn kho",  cr: "Phải trả người bán",  amt: 15  },
+  { t: "Trả bớt nợ vay",                  dr: "Vay ngân hàng", cr: "Tiền mặt",            amt: 30  },
+  { t: "Trả tiền điện",                   dr: "Chi phí điện",  cr: "Tiền mặt",            amt: 12  },
+  { t: "Chia cổ tức bằng tiền",           dr: "Cổ tức",        cr: "Tiền mặt",            amt: 10  }
+];
+
+// Trạng thái: mỗi tài khoản gom danh sách số ghi Nợ / ghi Có.
+var ledger = {}; // name -> { debits: [], credits: [] }
+
+function fmt(n) { return (Math.round(n * 100) / 100).toLocaleString('vi-VN'); }
+
+function ensure(name) {
+  if (!ledger[name]) ledger[name] = { debits: [], credits: [] };
+  return ledger[name];
+}
+
+function post(drName, crName, amt) {
+  ensure(drName).debits.push(amt);
+  ensure(crName).credits.push(amt);
+}
+
+function sum(arr) { var s = 0; for (var i = 0; i < arr.length; i++) s += arr[i]; return s; }
+
+// ===== Render bút toán vừa ghi =====
+function renderEntry(tx, amt) {
+  var el = document.getElementById('entry');
+  el.innerHTML =
+    '<div class="line"><span class="tag dr">Nợ</span> TK <strong>' + tx.dr + '</strong>' +
+      ' <span class="num" style="color:var(--debit)">' + fmt(amt) + '</span></div>' +
+    '<div class="line indent"><span class="tag cr">Có</span> TK <strong>' + tx.cr + '</strong>' +
+      ' <span class="num" style="color:var(--credit)">' + fmt(amt) + '</span></div>' +
+    '<div class="chk ok">✓ Tổng Nợ ' + fmt(amt) + ' = Tổng Có ' + fmt(amt) + '</div>';
+}
+
+// ===== Render các T-account =====
+function renderTaccounts() {
+  var grid = document.getElementById('t-grid');
+  var empty = document.getElementById('t-empty');
+  var names = Object.keys(ledger);
+  if (!names.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  grid.innerHTML = names.map(function(name) {
+    var a = ledger[name];
+    var td = sum(a.debits), tc = sum(a.credits);
+    var bal = td - tc;
+    var balSide = bal >= 0 ? 'dr' : 'cr';
+    var balTxt = bal === 0 ? 'Số dư 0'
+      : 'Số dư ' + (bal > 0 ? 'Nợ ' : 'Có ') + fmt(Math.abs(bal));
+    var drRows = a.debits.map(function(x){ return fmt(x); }).join('<br>') || '&nbsp;';
+    var crRows = a.credits.map(function(x){ return fmt(x); }).join('<br>') || '&nbsp;';
+    return '<div class="taccount">' +
+      '<div class="name">' + name + '<span class="typ">' + TYPE[ACC[name]].label + '</span></div>' +
+      '<div class="cols">' +
+        '<div class="col dr"><div class="hd">NỢ</div><div class="v">' + drRows + '</div></div>' +
+        '<div class="col cr"><div class="hd">CÓ</div><div class="v">' + crRows + '</div></div>' +
+      '</div>' +
+      '<div class="bal ' + balSide + '">' + balTxt + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ===== Render bảng cân đối thử =====
+function renderTrialBalance() {
+  var body = document.getElementById('tb-body');
+  var names = Object.keys(ledger);
+  var totDr = 0, totCr = 0;
+  if (!names.length) {
+    body.innerHTML = '<tr><td colspan="4" class="empty-note">Chưa có số liệu.</td></tr>';
+  } else {
+    body.innerHTML = names.map(function(name) {
+      var a = ledger[name];
+      var bal = sum(a.debits) - sum(a.credits);
+      var drCell = '', crCell = '';
+      if (bal > 0) { drCell = fmt(bal); totDr += bal; }
+      else if (bal < 0) { crCell = fmt(-bal); totCr += (-bal); }
+      return '<tr><td>' + name + '</td><td>' + TYPE[ACC[name]].label +
+        '</td><td class="dr">' + drCell + '</td><td class="cr">' + crCell + '</td></tr>';
+    }).join('') +
+    '<tr class="total"><td>TỔNG</td><td></td><td class="dr">' + fmt(totDr) +
+      '</td><td class="cr">' + fmt(totCr) + '</td></tr>';
+  }
+  var chk = document.getElementById('tb-check');
+  var balanced = Math.abs(totDr - totCr) < 1e-9;
+  chk.className = 'tb-check ' + (balanced ? 'ok' : 'bad');
+  chk.textContent = (balanced ? '✓ Tổng Nợ = Tổng Có = ' : '✗ LỆCH! ') +
+    (balanced ? fmt(totDr) : ('Nợ ' + fmt(totDr) + ' ≠ Có ' + fmt(totCr)));
+}
+
+function renderAll() {
+  renderTaccounts();
+  renderTrialBalance();
+}
+
+// ===== Bảng quy tắc tương tác =====
+function buildRules() {
+  var body = document.getElementById('rules-body');
+  var order = ["asset", "expense", "dividend", "liab", "equity", "revenue"];
+  body.innerHTML = order.map(function(key) {
+    var t = TYPE[key];
+    var incNo = t.normal === 'dr';   // tăng bên Nợ?
+    var upSide = incNo ? '<span class="side-dr">Nợ</span>' : '<span class="side-cr">Có</span>';
+    var dnSide = incNo ? '<span class="side-cr">Có</span>' : '<span class="side-dr">Nợ</span>';
+    var normal = incNo ? '<span class="side-dr">Nợ</span>' : '<span class="side-cr">Có</span>';
+    // Cột "Tăng" và "Giảm" cố định là Nợ|Giảm? -> ta để 2 cột: Tăng, Giảm.
+    return '<tr class="rule-row" data-type="' + key + '">' +
+      '<td>' + t.label + '</td>' +
+      '<td class="up">' + upSide + '</td>' +
+      '<td>' + dnSide + '</td>' +
+      '<td>' + normal + '</td></tr>';
+  }).join('');
+  var rows = body.querySelectorAll('.rule-row');
+  rows.forEach(function(r) {
+    r.addEventListener('mouseenter', function(){ r.classList.add('on'); });
+    r.addEventListener('mouseleave', function(){ r.classList.remove('on'); });
+    r.addEventListener('click', function(){ r.classList.toggle('on'); });
+  });
+}
+
+// ===== Dựng dropdown giao dịch =====
+var sel = document.getElementById('tx');
+var amtInput = document.getElementById('amt');
+TX.forEach(function(tx, i) {
+  var o = document.createElement('option');
+  o.value = i;
+  o.textContent = tx.t + '  (Nợ ' + tx.dr + ' / Có ' + tx.cr + ')';
+  sel.appendChild(o);
+});
+function syncAmt() { amtInput.value = TX[+sel.value].amt; }
+sel.addEventListener('change', syncAmt);
+syncAmt();
+
+document.getElementById('post').addEventListener('click', function() {
+  var tx = TX[+sel.value];
+  var amt = parseFloat(amtInput.value);
+  if (!(amt > 0)) { amtInput.focus(); return; }
+  post(tx.dr, tx.cr, amt);
+  renderEntry(tx, amt);
+  renderAll();
+});
+
+document.getElementById('reset').addEventListener('click', function() {
+  ledger = {};
+  document.getElementById('entry').innerHTML =
+    '<span class="empty">Chưa ghi giao dịch nào. Chọn một giao dịch rồi bấm "Ghi sổ".</span>';
+  renderAll();
+});
+
+buildRules();
+renderAll();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

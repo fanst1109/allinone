@@ -51,6 +51,7 @@
 | Programming | Học lập trình bằng Go từ tư duy đến production — 9 tier × 84 lesson | [Programming/](./Programming/) |
 | Psychology | Tâm lý học khoa học — 3 tầng × 15 bài: cognitive (Stroop, biases) → social/developmental → clinical & methods | [Psychology/](./Psychology/) |
 | SignalProcessing | Xử lý tín hiệu & Fourier — 3 tier × 16 bài: tín hiệu/lấy mẫu/tích chập → chuỗi & biến đổi Fourier, epicycle, DFT/FFT, spectrogram → lọc số, audio, ảnh 2D, điều chế, wavelet | [SignalProcessing/](./SignalProcessing/) |
+| Sociology | Xã hội học — 3 tầng × 12 bài: cá nhân & tương tác (chuẩn mực, Schelling, ngưỡng Granovetter, bản sắc nhóm) → mạng lưới & cấu trúc (mạng xã hội, centrality, small-world, lan truyền) → bất bình đẳng & thay đổi (phân tầng, Gini/Lorenz, hành động tập thể, khuếch tán đổi mới). Mỗi bài một mô phỏng tương tác | [Sociology/](./Sociology/) |
 | SoftwareEngineering | Kỹ thuật phần mềm — nghề làm phần mềm cùng nhóm, 3 tầng × 6 bài: quy trình & cộng tác (SDLC, Agile, git workflow) → thiết kế & chất lượng (clean code, SOLID, patterns, kiểm thử) → kiến trúc & vận hành (API, CI/CD, container, system design) | [SoftwareEngineering/](./SoftwareEngineering/) |
 | Statistics | Thống kê — 3 tầng × 18 bài: mô tả dữ liệu → suy luận (CLT, kiểm định, hồi quy linear/multiple/logistic) → Bayesian, nhân quả, time series | [Statistics/](./Statistics/) |
 | Vectors | Lộ trình toán cho AI & ML — 5 tầng từ đại số phổ thông tới xác suất & cross-entropy | [Vectors/](./Vectors/) |

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L9: Phân tầng & dịch chuyển — Sociology</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf4f6;
+    --accent: #be123c;
+    --accent-soft: #ffe4e6;
+    --accent-hover: #9f1239;
+    --c0: #ef4444; --c1: #f59e0b; --c2: #3b82f6;
+  }
+  main { max-width: 940px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module { background: #fff; border: 1px solid #e3e1dc; border-radius: 12px; padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+  table.mat { border-collapse: collapse; margin: 0 auto; }
+  table.mat th, table.mat td { border: 1px solid #e3e1dc; padding: 5px 6px; text-align: center; font-size: 13px; }
+  table.mat th { background: #f1f5f9; font-size: 12px; }
+  table.mat input { width: 52px; text-align: center; border: 1px solid #cbd5e1; border-radius: 5px; padding: 4px; font-size: 13px; }
+  .rowlab { background: #f8fafc; font-weight: 700; white-space: nowrap; }
+  .toolbar { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .toolbar button { border: 0; border-radius: 8px; padding: 8px 14px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .btn-run { background: var(--accent); color: #fff; }
+  .btn-run:hover { background: var(--accent-hover); }
+  .btn-ghost { background: #e2e8f0; color: #334155; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; margin: 10px 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .sw { width: 13px; height: 13px; border-radius: 3px; display: inline-block; }
+  .readout { font-size: 14px; line-height: 1.8; background: #fafafa; border-radius: 8px; padding: 10px 14px; margin-top: 12px; }
+  .readout b { color: var(--accent); }
+  svg { max-width: 100%; height: auto; display: block; }
+  .note { font-size: 12px; color: #64748b; margin-top: 6px; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Sociology</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 3</a>
+  <span class="sep">·</span>
+  <a href="../../02-Networks-Structure/lesson-08-diffusion-contagion/visualization.html">← L8</a>
+  <span class="sep">·</span>
+  <span class="current">L9: Phân tầng & dịch chuyển</span>
+  <span class="sep">·</span>
+  <a href="../lesson-10-inequality-gini-lorenz/visualization.html">L10: Bất bình đẳng →</a>
+</nav>
+<main>
+  <h1>Phân tầng & dịch chuyển xã hội — mô phỏng Markov</h1>
+  <div class="lead">Ma trận chuyển tiếp cho biết xác suất con ở giai tầng nào khi biết giai tầng của cha. Chạy qua nhiều thế hệ để xem xã hội "dính" hay "trộn đều". Đơn vị: xác suất %.</div>
+
+  <div class="module">
+    <h2>Ma trận chuyển tiếp</h2>
+    <div class="sub">Hàng = giai tầng cha; cột = giai tầng con. Mỗi hàng tự chuẩn hóa về tổng 100%.</div>
+    <table class="mat" id="mat"></table>
+    <div class="toolbar">
+      <span style="font-size:13px">Preset:</span>
+      <button class="btn-ghost" id="p-sticky">Xã hội dính</button>
+      <button class="btn-ghost" id="p-open">Xã hội mở</button>
+      <button class="btn-ghost" id="p-rigid">Gần như bất động</button>
+      <span style="width:12px"></span>
+      <label style="font-size:13px">Số thế hệ: <input type="number" id="gens" value="8" min="1" max="20" style="width:56px"></label>
+      <button class="btn-run" id="run">▶ Chạy</button>
+      <button class="btn-ghost" id="reset">↺ Mặc định</button>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Phân bố giai tầng qua các thế hệ</h2>
+    <div class="sub">Bắt đầu từ phân bố đều (mỗi tầng 1/3). Mỗi cột là một thế hệ.</div>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--c0)"></i>Thấp</span>
+      <span><i class="sw" style="background:var(--c1)"></i>Trung bình</span>
+      <span><i class="sw" style="background:var(--c2)"></i>Cao</span>
+    </div>
+    <svg id="chart" viewBox="0 0 640 320" width="640" height="320" role="img" aria-label="Phân bố giai tầng qua thế hệ"></svg>
+    <div class="readout" id="readout"></div>
+    <div class="note">Phân bố dừng (stationary) = phân bố không đổi khi nhân thêm ma trận: khi các cột gần như bằng nhau qua các thế hệ, xã hội đã đạt cân bằng.</div>
+  </div>
+</main>
+
+<script>
+var LAB = ["Thấp", "Trung bình", "Cao"];
+var COL = ["#ef4444", "#f59e0b", "#3b82f6"];
+// Ma trận mặc định (hàng cha → cột con), %.
+var DEFAULT = [
+  [60, 30, 10],
+  [25, 50, 25],
+  [10, 30, 60]
+];
+var PRESETS = {
+  sticky: [[60,30,10],[25,50,25],[10,30,60]],
+  open:   [[40,35,25],[33,34,33],[25,35,40]],
+  rigid:  [[85,13,2],[12,76,12],[2,13,85]]
+};
+var M = DEFAULT.map(function(r){ return r.slice(); });
+
+function buildMatrix() {
+  var t = document.getElementById('mat');
+  var html = '<tr><th></th><th>Con: Thấp</th><th>Con: TB</th><th>Con: Cao</th></tr>';
+  for (var i = 0; i < 3; i++) {
+    html += '<tr><td class="rowlab">Cha: ' + LAB[i] + '</td>';
+    for (var j = 0; j < 3; j++) {
+      html += '<td><input type="number" min="0" data-i="' + i + '" data-j="' + j + '" value="' + M[i][j] + '"></td>';
+    }
+    html += '</tr>';
+  }
+  t.innerHTML = html;
+  t.querySelectorAll('input').forEach(function(inp){
+    inp.addEventListener('input', function(){
+      M[+inp.dataset.i][+inp.dataset.j] = Math.max(0, +inp.value || 0);
+    });
+  });
+}
+
+function normalized() {
+  return M.map(function(row){
+    var s = row[0] + row[1] + row[2];
+    if (s === 0) return [1/3, 1/3, 1/3];
+    return row.map(function(x){ return x / s; });
+  });
+}
+
+function run() {
+  var P = normalized();
+  var gens = Math.max(1, Math.min(20, +document.getElementById('gens').value || 8));
+  var dist = [1/3, 1/3, 1/3];
+  var hist = [dist.slice()];
+  for (var g = 0; g < gens; g++) {
+    var nd = [0, 0, 0];
+    for (var j = 0; j < 3; j++)
+      for (var i = 0; i < 3; i++)
+        nd[j] += dist[i] * P[i][j];
+    dist = nd;
+    hist.push(dist.slice());
+  }
+  draw(hist);
+  var last = hist[hist.length - 1];
+  var diag = (P[0][0] + P[1][1] + P[2][2]) / 3;
+  document.getElementById('readout').innerHTML =
+    'Phân bố sau <b>' + gens + '</b> thế hệ: Thấp <b>' + pct(last[0]) + '</b> · TB <b>' + pct(last[1]) + '</b> · Cao <b>' + pct(last[2]) + '</b>.<br>' +
+    'Độ dính (đường chéo trung bình) = <b>' + pct(diag) + '</b> — càng cao xã hội càng ít dịch chuyển.';
+}
+
+function pct(x) { return (x * 100).toFixed(1) + '%'; }
+
+function draw(hist) {
+  var W = 640, H = 320, padL = 34, padB = 28, padT = 12, padR = 10;
+  var n = hist.length;
+  var bw = (W - padL - padR) / n * 0.72;
+  var gap = (W - padL - padR) / n;
+  var chartH = H - padB - padT;
+  var s = '';
+  // trục y grid
+  for (var k = 0; k <= 4; k++) {
+    var y = padT + chartH * k / 4;
+    s += '<line x1="' + padL + '" y1="' + y + '" x2="' + (W - padR) + '" y2="' + y + '" stroke="#eee"/>';
+    s += '<text x="' + (padL - 4) + '" y="' + (y + 4) + '" text-anchor="end" font-size="10" fill="#94a3b8">' + (100 - k * 25) + '</text>';
+  }
+  for (var g = 0; g < n; g++) {
+    var x = padL + gap * g + (gap - bw) / 2;
+    var acc = 0;
+    for (var c = 0; c < 3; c++) {
+      var h = hist[g][c] * chartH;
+      var y0 = padT + chartH - acc - h;
+      s += '<rect x="' + x.toFixed(1) + '" y="' + y0.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" fill="' + COL[c] + '"/>';
+      acc += h;
+    }
+    s += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="10" fill="#64748b">' + (g === 0 ? 'T0' : 'T' + g) + '</text>';
+  }
+  document.getElementById('chart').innerHTML = s;
+}
+
+function setPreset(key) {
+  M = PRESETS[key].map(function(r){ return r.slice(); });
+  buildMatrix(); run();
+}
+document.getElementById('p-sticky').onclick = function(){ setPreset('sticky'); };
+document.getElementById('p-open').onclick = function(){ setPreset('open'); };
+document.getElementById('p-rigid').onclick = function(){ setPreset('rigid'); };
+document.getElementById('run').onclick = run;
+document.getElementById('reset').onclick = function(){ M = DEFAULT.map(function(r){ return r.slice(); }); buildMatrix(); run(); };
+
+buildMatrix();
+run();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

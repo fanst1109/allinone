@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L11: Hành động tập thể — Sociology</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf4f6;
+    --accent: #be123c;
+    --accent-soft: #ffe4e6;
+    --accent-hover: #9f1239;
+  }
+  main { max-width: 940px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module { background: #fff; border: 1px solid #e3e1dc; border-radius: 12px; padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+  .ctrl { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  @media (min-width: 640px) { .ctrl { grid-template-columns: 1fr 1fr; } }
+  .ctrl label { font-size: 13px; font-weight: 600; color: #334155; display: block; }
+  .ctrl input[type=range] { width: 100%; accent-color: var(--accent); }
+  .ctrl .val { color: var(--accent); font-weight: 800; }
+  .verdict { text-align: center; font-size: 17px; font-weight: 800; padding: 10px; border-radius: 10px; margin-top: 12px; }
+  .verdict.win { background: #dcfce7; color: #15803d; }
+  .verdict.lose { background: #fee2e2; color: #b91c1c; }
+  .readout { font-size: 14px; line-height: 1.8; background: #fafafa; border-radius: 8px; padding: 10px 14px; margin-top: 12px; }
+  .readout b { color: var(--accent); }
+  svg { max-width: 100%; height: auto; display: block; }
+  .toolbar { margin-top: 12px; display: flex; gap: 8px; }
+  .toolbar button { border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 700; font-size: 13px; cursor: pointer; background: #e2e8f0; color: #334155; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Sociology</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 3</a>
+  <span class="sep">·</span>
+  <a href="../lesson-10-inequality-gini-lorenz/visualization.html">← L10</a>
+  <span class="sep">·</span>
+  <span class="current">L11: Hành động tập thể</span>
+  <span class="sep">·</span>
+  <a href="../lesson-12-social-change/visualization.html">L12: Thay đổi xã hội →</a>
+</nav>
+<main>
+  <h1>Hành động tập thể & khối lượng tới hạn</h1>
+  <div class="lead">Ai cũng muốn hưởng lợi ích chung nhưng ngại trả giá (free-rider). Phong trào chỉ tự duy trì nếu vượt <strong>khối lượng tới hạn</strong> (critical mass). Kéo tham số xem phong trào bùng nổ hay sụp.</div>
+
+  <div class="module">
+    <h2>Tham số</h2>
+    <div class="sub">Chi phí cao / lợi ích thấp → ngưỡng tham gia cao (khó). Người tiên phong (zealots) tham gia vô điều kiện để mồi.</div>
+    <div class="ctrl">
+      <div><label>Lợi ích chung B: <span class="val" id="vB">50</span></label><input type="range" id="B" min="1" max="100" value="50"></div>
+      <div><label>Chi phí tham gia C: <span class="val" id="vC">40</span></label><input type="range" id="C" min="1" max="100" value="40"></div>
+      <div><label>Người tiên phong (%): <span class="val" id="vS">5</span></label><input type="range" id="S" min="0" max="40" value="5"></div>
+      <div><label>Độ đa dạng ngưỡng: <span class="val" id="vSp">60</span></label><input type="range" id="Sp" min="0" max="100" value="60"></div>
+    </div>
+    <div class="toolbar"><button id="reset">↺ Mặc định</button></div>
+  </div>
+
+  <div class="module">
+    <h2>Cascade tham gia theo vòng</h2>
+    <div class="sub">Mỗi vòng: ai có ngưỡng ≤ tỉ lệ đang tham gia thì tham gia. Lặp tới điểm dừng (cân bằng).</div>
+    <svg id="chart" viewBox="0 0 640 300" width="640" height="300" role="img" aria-label="Tỉ lệ tham gia theo vòng"></svg>
+    <div class="verdict" id="verdict"></div>
+    <div class="readout" id="readout"></div>
+  </div>
+</main>
+
+<script>
+var N = 100;
+function sync(id, vid) { var e = document.getElementById(id); document.getElementById(vid).textContent = e.value; }
+
+function thresholds(meanTau, spread) {
+  // Ngưỡng cá nhân trải quanh trung bình τ; spread ∈ [0,1] mở rộng dải.
+  var arr = [];
+  for (var i = 0; i < N; i++) {
+    var t = meanTau + (spread) * ((i / (N - 1)) - 0.5);
+    arr.push(Math.max(0, Math.min(1, t)));
+  }
+  arr.sort(function(a, b){ return a - b; });
+  return arr;
+}
+
+function simulate() {
+  var B = +document.getElementById('B').value;
+  var C = +document.getElementById('C').value;
+  var seed = +document.getElementById('S').value / 100;
+  var spread = +document.getElementById('Sp').value / 100;
+  // Ngưỡng trung bình từ tỉ lệ chi phí / lợi ích.
+  var tau = C / (B + C);
+  var th = thresholds(tau, spread);
+  // Zealots: một phần dân số có ngưỡng 0 (luôn tham gia).
+  var nseed = Math.round(seed * N);
+  for (var i = 0; i < nseed; i++) th[i] = 0;
+
+  var p = nseed / N;
+  var hist = [p];
+  for (var r = 0; r < 40; r++) {
+    var cnt = 0;
+    for (var k = 0; k < N; k++) if (th[k] <= p + 1e-9) cnt++;
+    var np = cnt / N;
+    hist.push(np);
+    if (Math.abs(np - p) < 1e-9) break;
+    p = np;
+  }
+  return { hist: hist, tau: tau, seed: nseed, final: hist[hist.length - 1] };
+}
+
+function draw(hist) {
+  var W = 640, H = 300, padL = 40, padB = 30, padT = 12, padR = 12;
+  var cw = W - padL - padR, ch = H - padB - padT;
+  var n = hist.length;
+  var s = '';
+  for (var k = 0; k <= 4; k++) {
+    var y = padT + ch * k / 4;
+    s += '<line x1="' + padL + '" y1="' + y + '" x2="' + (W - padR) + '" y2="' + y + '" stroke="#eee"/>';
+    s += '<text x="' + (padL - 5) + '" y="' + (y + 4) + '" text-anchor="end" font-size="10" fill="#94a3b8">' + (100 - k * 25) + '%</text>';
+  }
+  var pts = hist.map(function(v, i){
+    var x = padL + (n <= 1 ? 0 : cw * i / (n - 1));
+    var y = padT + ch * (1 - v);
+    return x.toFixed(1) + ',' + y.toFixed(1);
+  }).join(' ');
+  s += '<polyline points="' + pts + '" fill="none" stroke="var(--accent)" stroke-width="2.5"/>';
+  hist.forEach(function(v, i){
+    var x = padL + (n <= 1 ? 0 : cw * i / (n - 1));
+    var y = padT + ch * (1 - v);
+    s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3" fill="var(--accent)"/>';
+  });
+  s += '<text x="' + (padL + cw / 2) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="11" fill="#64748b">Vòng →</text>';
+  document.getElementById('chart').innerHTML = s;
+}
+
+function update() {
+  sync('B', 'vB'); sync('C', 'vC'); sync('S', 'vS'); sync('Sp', 'vSp');
+  var r = simulate();
+  draw(r.hist);
+  var win = r.final >= 0.5;
+  var v = document.getElementById('verdict');
+  v.className = 'verdict ' + (win ? 'win' : 'lose');
+  v.textContent = win ? '✓ Phong trào BÙNG NỔ — ' + (r.final * 100).toFixed(0) + '% tham gia'
+                      : '✗ Phong trào SỤP — chỉ ' + (r.final * 100).toFixed(0) + '% tham gia (free-rider thắng)';
+  document.getElementById('readout').innerHTML =
+    'Ngưỡng tham gia trung bình τ = C/(B+C) = <b>' + (r.tau * 100).toFixed(0) + '%</b> · người tiên phong = <b>' + r.seed + '%</b>.<br>' +
+    'Cân bằng cuối = <b>' + (r.final * 100).toFixed(0) + '%</b>. ' +
+    (win ? 'Đủ tiên phong + ngưỡng thấp → mỗi người tham gia lại kéo thêm người khác vượt ngưỡng → tự duy trì.'
+         : 'Không đủ mồi để vượt khối lượng tới hạn → chuỗi tắt, ai cũng chờ người khác (free-rider).');
+}
+
+['B', 'C', 'S', 'Sp'].forEach(function(id){ document.getElementById(id).addEventListener('input', update); });
+document.getElementById('reset').onclick = function(){
+  document.getElementById('B').value = 50; document.getElementById('C').value = 40;
+  document.getElementById('S').value = 5; document.getElementById('Sp').value = 60; update();
+};
+update();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

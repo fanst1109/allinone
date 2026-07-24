@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L12: Thay đổi xã hội — Sociology</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf4f6;
+    --accent: #be123c;
+    --accent-soft: #ffe4e6;
+    --accent-hover: #9f1239;
+  }
+  main { max-width: 940px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module { background: #fff; border: 1px solid #e3e1dc; border-radius: 12px; padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+  .ctrl { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  @media (min-width: 640px) { .ctrl { grid-template-columns: 1fr 1fr; } }
+  .ctrl label { font-size: 13px; font-weight: 600; color: #334155; display: block; }
+  .ctrl input[type=range] { width: 100%; accent-color: var(--accent); }
+  .ctrl .val { color: var(--accent); font-weight: 800; }
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; margin: 10px 0 4px; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .sw { width: 13px; height: 13px; border-radius: 3px; display: inline-block; }
+  .readout { font-size: 14px; line-height: 1.8; background: #fafafa; border-radius: 8px; padding: 10px 14px; margin-top: 12px; }
+  .readout b { color: var(--accent); }
+  svg { max-width: 100%; height: auto; display: block; }
+  .toolbar { margin-top: 12px; display: flex; gap: 8px; }
+  .toolbar button { border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 700; font-size: 13px; cursor: pointer; background: #e2e8f0; color: #334155; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Sociology</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 3</a>
+  <span class="sep">·</span>
+  <a href="../lesson-11-collective-action-tipping/visualization.html">← L11</a>
+  <span class="sep">·</span>
+  <span class="current">L12: Thay đổi xã hội</span>
+</nav>
+<main>
+  <h1>Khuếch tán đổi mới — đường S &amp; 5 nhóm Rogers</h1>
+  <div class="lead">Một ý tưởng mới lan chậm → bùng → bão hòa (đường chữ S). Kéo hệ số đổi mới (p) và bắt chước (q) — mô hình Bass — xem tốc độ và hình dạng thay đổi. Capstone tổng kết Sociology.</div>
+
+  <div class="module">
+    <h2>Tham số mô hình Bass</h2>
+    <div class="sub">p = ảnh hưởng ngoài (quảng cáo, truyền thông) khởi động; q = áp lực xã hội (bắt chước người quanh) tạo pha bùng phát.</div>
+    <div class="ctrl">
+      <div><label>p — hệ số đổi mới: <span class="val" id="vp">0.03</span></label><input type="range" id="p" min="0" max="100" value="30"></div>
+      <div><label>q — hệ số bắt chước: <span class="val" id="vq">0.40</span></label><input type="range" id="q" min="0" max="90" value="40"></div>
+    </div>
+    <div class="toolbar"><button id="reset">↺ Mặc định</button></div>
+  </div>
+
+  <div class="module">
+    <h2>Đường cong chấp nhận</h2>
+    <div class="sub">Đường đậm = % tích lũy đã chấp nhận (S-curve). Cột nhạt = số người mới mỗi kỳ (hình chuông). Dải màu = 5 nhóm Rogers theo thời điểm chấp nhận.</div>
+    <div class="legend">
+      <span><i class="sw" style="background:#7c3aed"></i>Innovators 2.5%</span>
+      <span><i class="sw" style="background:#2563eb"></i>Early adopters 13.5%</span>
+      <span><i class="sw" style="background:#059669"></i>Early majority 34%</span>
+      <span><i class="sw" style="background:#d97706"></i>Late majority 34%</span>
+      <span><i class="sw" style="background:#94a3b8"></i>Laggards 16%</span>
+    </div>
+    <svg id="chart" viewBox="0 0 660 340" width="660" height="340" role="img" aria-label="Đường cong khuếch tán đổi mới"></svg>
+    <div class="readout" id="readout"></div>
+  </div>
+</main>
+
+<script>
+var T = 40;
+// Ranh giới tích lũy của 5 nhóm Rogers.
+var ROG = [
+  { name: "Innovators", top: 0.025, col: "#7c3aed" },
+  { name: "Early adopters", top: 0.16, col: "#2563eb" },
+  { name: "Early majority", top: 0.50, col: "#059669" },
+  { name: "Late majority", top: 0.84, col: "#d97706" },
+  { name: "Laggards", top: 1.00, col: "#94a3b8" }
+];
+
+function sim(p, q) {
+  var A = 0, cum = [0], inc = [0];
+  for (var t = 1; t <= T; t++) {
+    var d = (p + q * A) * (1 - A);
+    A = Math.min(1, A + d);
+    cum.push(A);
+    inc.push(d);
+  }
+  return { cum: cum, inc: inc };
+}
+
+function draw(p, q) {
+  var r = sim(p, q);
+  var W = 660, H = 340, padL = 42, padB = 34, padT = 12, padR = 12;
+  var cw = W - padL - padR, ch = H - padB - padT;
+  var s = '';
+  // dải nhóm Rogers (nền ngang theo % tích lũy)
+  var prev = 0;
+  ROG.forEach(function(g){
+    var y1 = padT + ch * (1 - g.top);
+    var y0 = padT + ch * (1 - prev);
+    s += '<rect x="' + padL + '" y="' + y1.toFixed(1) + '" width="' + cw + '" height="' + (y0 - y1).toFixed(1) + '" fill="' + g.col + '" opacity="0.10"/>';
+    s += '<text x="' + (W - padR - 4) + '" y="' + ((y0 + y1) / 2 + 3).toFixed(1) + '" text-anchor="end" font-size="9" fill="' + g.col + '">' + g.name + '</text>';
+    prev = g.top;
+  });
+  // trục
+  for (var k = 0; k <= 4; k++) {
+    var y = padT + ch * k / 4;
+    s += '<text x="' + (padL - 5) + '" y="' + (y + 4) + '" text-anchor="end" font-size="10" fill="#94a3b8">' + (100 - k * 25) + '%</text>';
+  }
+  // cột người mới mỗi kỳ (chuẩn hóa theo max)
+  var maxInc = Math.max.apply(null, r.inc) || 1;
+  var bw = cw / T * 0.7;
+  for (var t = 1; t <= T; t++) {
+    var x = padL + cw * (t - 0.5) / T - bw / 2;
+    var h = r.inc[t] / maxInc * ch * 0.9;
+    s += '<rect x="' + x.toFixed(1) + '" y="' + (padT + ch - h).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" fill="var(--accent)" opacity="0.18"/>';
+  }
+  // đường S tích lũy
+  var pts = r.cum.map(function(v, t){
+    return (padL + cw * t / T).toFixed(1) + ',' + (padT + ch * (1 - v)).toFixed(1);
+  }).join(' ');
+  s += '<polyline points="' + pts + '" fill="none" stroke="var(--accent)" stroke-width="2.6"/>';
+  s += '<text x="' + (padL + cw / 2) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="11" fill="#64748b">Thời gian (kỳ) →</text>';
+  document.getElementById('chart').innerHTML = s;
+  return r;
+}
+
+function update() {
+  var p = +document.getElementById('p').value / 1000;   // 0..0.1
+  var q = +document.getElementById('q').value / 100;    // 0..0.9
+  document.getElementById('vp').textContent = p.toFixed(3);
+  document.getElementById('vq').textContent = q.toFixed(2);
+  var r = draw(p, q);
+  // kỳ đỉnh (nhiều người mới nhất) + tổng cuối
+  var peak = 0, pv = -1;
+  for (var t = 1; t <= T; t++) if (r.inc[t] > pv) { pv = r.inc[t]; peak = t; }
+  var fin = r.cum[T];
+  var takeoff = (p > 0) && fin > 0.5;
+  document.getElementById('readout').innerHTML =
+    'Sau ' + T + ' kỳ: <b>' + (fin * 100).toFixed(1) + '%</b> đã chấp nhận. Số người mới đạt đỉnh ở <b>kỳ ' + peak + '</b> (quanh mốc 50% — điểm bùng phát của đường S).<br>' +
+    (p === 0
+      ? '⚠ p = 0: không có "mồi" khởi động → đường cong kẹt ở 0 (cần innovators/quảng cáo để bắt đầu).'
+      : (takeoff
+        ? 'q lớn → áp lực xã hội mạnh → pha tăng tốc rõ, đường S dốc.'
+        : 'q nhỏ → thiếu bắt chước → lan chủ yếu nhờ p, tăng đều rồi chậm, ít "bùng".'));
+}
+
+['p', 'q'].forEach(function(id){ document.getElementById(id).addEventListener('input', update); });
+document.getElementById('reset').onclick = function(){
+  document.getElementById('p').value = 30; document.getElementById('q').value = 40; update();
+};
+update();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

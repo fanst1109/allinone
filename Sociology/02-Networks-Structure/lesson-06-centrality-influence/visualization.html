@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L6: Trung tâm & ảnh hưởng — Sociology</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #be123c;
+    --accent-soft: #ffe4e6;
+    --accent-hover: #9f1239;
+  }
+  main { max-width: 1000px; }
+
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Nút chọn thước đo */
+  .metrics { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .metric-btn {
+    flex: 1 1 auto; min-width: 0; text-align: center;
+    border: 2px solid #cbd5e1; background: #fff; border-radius: 10px;
+    padding: 10px 14px; cursor: pointer; font-size: 14px; font-weight: 700; color: #334155;
+    transition: all .12s;
+  }
+  .metric-btn small { display: block; font-size: 11px; font-weight: 500; color: #64748b; margin-top: 2px; }
+  .metric-btn:hover { border-color: var(--accent); }
+  .metric-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .metric-btn.active small { color: #ffe4e6; }
+
+  .explain {
+    background: var(--accent-soft); border-left: 4px solid var(--accent);
+    border-radius: 8px; padding: 10px 14px; font-size: 13.5px; color: #7f1d1d; line-height: 1.5;
+  }
+  .explain b { color: #9f1239; }
+
+  /* SVG mạng */
+  .stage { text-align: center; }
+  svg.net { width: 100%; height: auto; display: block; max-width: 760px; margin: 0 auto; }
+  svg.net .edge { stroke: #cbd5e1; stroke-width: 2.5; }
+  svg.net .node-circ { cursor: pointer; stroke: #fff; stroke-width: 2.5; transition: r .3s ease, fill .3s ease; }
+  svg.net .node-circ.removed { fill: #f1f5f9 !important; stroke: #cbd5e1; stroke-dasharray: 4 3; }
+  svg.net .node-label { font-weight: 800; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+  svg.net .node-val { font-size: 12px; font-weight: 700; text-anchor: middle; fill: #475569; pointer-events: none; }
+  svg.net .node-tag { font-size: 11px; font-weight: 700; text-anchor: middle; fill: #9f1239; pointer-events: none; }
+
+  /* Banner thành phần liên thông */
+  .comp {
+    text-align: center; font-size: 15px; font-weight: 800; margin-top: 12px;
+    padding: 10px; border-radius: 10px;
+  }
+  .comp.ok { background: #dcfce7; color: #15803d; }
+  .comp.broken { background: #fee2e2; color: #b91c1c; }
+
+  .toolbar { margin-top: 12px; text-align: center; }
+  .toolbar button { border: 0; border-radius: 8px; padding: 9px 18px; font-weight: 700; font-size: 13px; cursor: pointer; background: #e2e8f0; color: #334155; }
+  .toolbar button:hover { background: #cbd5e1; }
+  .hint { font-size: 12.5px; color: #64748b; text-align: center; margin-top: 8px; }
+
+  /* Bảng xếp hạng */
+  .tbl-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; min-width: 460px; }
+  th, td { border: 1px solid #e3e1dc; padding: 7px 10px; text-align: center; }
+  th:first-child, td:first-child { text-align: left; }
+  th { background: #f8fafc; font-size: 12.5px; }
+  th.sel, td.sel { background: var(--accent-soft); font-weight: 800; color: #9f1239; }
+  tr.gone td { color: #94a3b8; text-decoration: line-through; }
+  .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; border: 1px solid #cbd5e1; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Sociology</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-social-networks/visualization.html">← L5</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Trung tâm & ảnh hưởng</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-small-world-weak-ties/visualization.html">L7: Thế giới nhỏ →</a>
+</nav>
+<main>
+  <h1>Trung tâm & ảnh hưởng — ai là người quan trọng?</h1>
+  <div class="lead">Cùng một mạng, ba cách đo "quan trọng". Đổi thước đo để xem <strong>kích thước &amp; màu node</strong> thay đổi, rồi <strong>bấm một node để gỡ khỏi mạng</strong> và xem mạng có vỡ không. Hai nhóm 4 người nối nhau qua đúng một người cầu nối <strong>M</strong>.</div>
+
+  <div class="module">
+    <h2>1. Chọn thước đo trung tâm</h2>
+    <div class="sub">Ba thước đo, ba bảng xếp hạng khác nhau. Node càng to &amp; đậm = điểm càng cao theo thước đo đang chọn.</div>
+    <div class="metrics" id="metrics">
+      <button class="metric-btn" data-m="deg">Degree<small>số quan hệ trực tiếp</small></button>
+      <button class="metric-btn" data-m="close">Closeness<small>gần mọi người</small></button>
+      <button class="metric-btn" data-m="betw">Betweenness<small>cầu nối / gác cổng</small></button>
+    </div>
+    <div class="explain" id="explain"></div>
+  </div>
+
+  <div class="module">
+    <h2>2. Mạng lưới — bấm node để gỡ / phục hồi</h2>
+    <div class="sub">Bấm một node đang hoạt động để <b>gỡ</b> nó ra; bấm node đã gỡ (mờ, viền đứt) để <b>phục hồi</b>. Số mảnh liên thông cập nhật ngay.</div>
+    <div class="stage">
+      <svg class="net" viewBox="0 0 760 400" width="760" height="400" role="img" aria-label="Mạng lưới 9 người, hai nhóm nối qua node cầu nối M">
+        <g id="edges"></g>
+        <g id="nodes"></g>
+      </svg>
+    </div>
+    <div class="comp ok" id="comp">Mạng liền một khối (1 mảnh)</div>
+    <div class="toolbar"><button id="reset">↺ Phục hồi toàn bộ mạng</button></div>
+    <div class="hint">Thử gỡ <b>M</b> (cầu nối) rồi gỡ <b>B</b> (ngoại vi) — quan sát khác biệt về số mảnh vỡ ra.</div>
+  </div>
+
+  <div class="module">
+    <h2>3. Bảng xếp hạng theo thước đo đang chọn</h2>
+    <div class="sub">Sắp giảm dần theo cột được tô hồng. Cả ba cột tính trên mạng <em>hiện tại</em> (sau khi gỡ node).</div>
+    <div class="tbl-wrap">
+      <table id="tbl">
+        <thead>
+          <tr>
+            <th>Người</th>
+            <th data-col="deg">Degree</th>
+            <th data-col="close">Closeness</th>
+            <th data-col="betw">Betweenness</th>
+            <th>Hạng</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="hint" style="margin-top:10px"><span class="swatch" style="background:#ffe4e6"></span>điểm thấp &nbsp;→&nbsp; <span class="swatch" style="background:#be123c"></span>điểm cao. Node đã gỡ hiển thị gạch ngang.</div>
+  </div>
+</main>
+
+<script>
+// ===== Mạng ví dụ: 9 người, 2 nhóm nối qua cầu nối M =====
+var NODES = [
+  { id: 'A', x: 200, y: 180 },   // hub nhóm 1
+  { id: 'B', x: 70,  y: 90  },
+  { id: 'C', x: 70,  y: 300 },
+  { id: 'D', x: 300, y: 300 },   // cửa ngõ nhóm 1
+  { id: 'M', x: 380, y: 200 },   // CẦU NỐI
+  { id: 'E', x: 460, y: 300 },   // cửa ngõ nhóm 2
+  { id: 'H', x: 560, y: 180 },   // hub nhóm 2
+  { id: 'F', x: 690, y: 90  },
+  { id: 'G', x: 690, y: 300 }
+];
+var EDGES = [
+  ['A','B'],['A','C'],['A','D'],['B','C'],   // nhóm 1
+  ['D','M'],['M','E'],                        // cầu nối
+  ['E','H'],['F','H'],['G','H'],['F','G']     // nhóm 2
+];
+var POS = {}; NODES.forEach(function(n){ POS[n.id] = n; });
+
+var removed = {};       // id -> true nếu đã gỡ
+var metric = 'betw';    // thước đo đang chọn
+
+var META = {
+  deg:   { name: 'Degree (bậc)',
+           txt: '<b>Degree</b> = số quan hệ trực tiếp. Đo <b>độ phổ biến</b>: bạn nói gì thì bao nhiêu người nghe ngay. Chú ý: hub <b>A</b> và <b>H</b> degree cao nhất (3), nhưng đó chỉ là ảnh hưởng cục bộ.' },
+  close: { name: 'Closeness (độ gần)',
+           txt: '<b>Closeness</b> = (số người tới được) chia tổng khoảng cách tới họ. Cao = <b>gần trung tâm, lan tin nhanh</b>. Cầu nối <b>M</b> có closeness cao nhất dù ít bạn — vì M ngồi giữa, xa nhất chỉ 3 bước.' },
+  betw:  { name: 'Betweenness (độ trung gian)',
+           txt: '<b>Betweenness</b> = tỉ lệ đường đi ngắn nhất của các cặp khác đi qua bạn. Cao = <b>cầu nối / gác cổng</b>. <b>M có degree chỉ 2 nhưng betweenness cao nhất</b>: mọi liên lạc giữa hai nhóm đều phải qua M.' }
+};
+
+// ---- Xây adjacency chỉ trên các node đang hoạt động ----
+function buildAdj() {
+  var adj = {};
+  NODES.forEach(function(n){ if(!removed[n.id]) adj[n.id] = []; });
+  EDGES.forEach(function(e){
+    if(!removed[e[0]] && !removed[e[1]]) { adj[e[0]].push(e[1]); adj[e[1]].push(e[0]); }
+  });
+  return adj;
+}
+function present() { return NODES.map(function(n){return n.id;}).filter(function(id){return !removed[id];}); }
+
+// ---- Ba độ đo ----
+function degreeC(pres, adj) {
+  var C = {}; pres.forEach(function(v){ C[v] = adj[v].length; }); return C;
+}
+function closenessC(pres, adj) {
+  var C = {};
+  pres.forEach(function(s){
+    var dist = {}; dist[s] = 0; var Q = [s], sum = 0, reach = 0;
+    while(Q.length){ var v = Q.shift();
+      adj[v].forEach(function(w){ if(!(w in dist)){ dist[w] = dist[v] + 1; sum += dist[w]; reach++; Q.push(w); } });
+    }
+    C[s] = reach > 0 ? reach / sum : 0;   // tính trong từng mảnh liên thông
+  });
+  return C;
+}
+function betweennessC(pres, adj) {   // thuật toán Brandes
+  var C = {}; pres.forEach(function(v){ C[v] = 0; });
+  pres.forEach(function(s){
+    var stack = [], pred = {}, sigma = {}, dist = {};
+    pres.forEach(function(v){ pred[v] = []; sigma[v] = 0; dist[v] = -1; });
+    sigma[s] = 1; dist[s] = 0; var Q = [s];
+    while(Q.length){
+      var v = Q.shift(); stack.push(v);
+      adj[v].forEach(function(w){
+        if(dist[w] < 0){ dist[w] = dist[v] + 1; Q.push(w); }
+        if(dist[w] === dist[v] + 1){ sigma[w] += sigma[v]; pred[w].push(v); }
+      });
+    }
+    var delta = {}; pres.forEach(function(v){ delta[v] = 0; });
+    while(stack.length){
+      var w = stack.pop();
+      pred[w].forEach(function(v){ delta[v] += (sigma[v] / sigma[w]) * (1 + delta[w]); });
+      if(w !== s) C[w] += delta[w];
+    }
+  });
+  pres.forEach(function(v){ C[v] /= 2; });   // vô hướng -> chia đôi
+  return C;
+}
+function componentCount(pres, adj) {
+  var seen = {}, count = 0;
+  pres.forEach(function(s){
+    if(seen[s]) return; count++; var Q = [s]; seen[s] = true;
+    while(Q.length){ var v = Q.shift(); adj[v].forEach(function(w){ if(!seen[w]){ seen[w] = true; Q.push(w); } }); }
+  });
+  return count;
+}
+
+// ---- Màu: lerp từ hồng nhạt -> đỏ rose ----
+function hx(h){ h = h.replace('#',''); return [parseInt(h.substr(0,2),16), parseInt(h.substr(2,2),16), parseInt(h.substr(4,2),16)]; }
+function mix(c1, c2, t){
+  var A = hx(c1), B = hx(c2), r = [];
+  for(var i=0;i<3;i++) r.push(Math.round(A[i] + (B[i]-A[i])*t));
+  return 'rgb(' + r.join(',') + ')';
+}
+function fmt(v, m){
+  if(m === 'deg') return String(Math.round(v));
+  if(m === 'close') return v.toFixed(3);
+  return (Math.round(v*10)/10).toString();   // betweenness 1 chữ số thập phân
+}
+
+function svgEl(tag, attrs){
+  var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for(var k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+
+// ---- Render ----
+function render(){
+  var pres = present();
+  var adj = buildAdj();
+  var deg = degreeC(pres, adj), close = closenessC(pres, adj), betw = betweennessC(pres, adj);
+  var vals = { deg: deg, close: close, betw: betw };
+  var sel = vals[metric];
+  var maxV = 0; pres.forEach(function(v){ if(sel[v] > maxV) maxV = sel[v]; });
+
+  // Cạnh
+  var gE = document.getElementById('edges'); gE.innerHTML = '';
+  EDGES.forEach(function(e){
+    if(removed[e[0]] || removed[e[1]]) return;
+    var p = POS[e[0]], q = POS[e[1]];
+    gE.appendChild(svgEl('line', { x1:p.x, y1:p.y, x2:q.x, y2:q.y, class:'edge' }));
+  });
+
+  // Node
+  var gN = document.getElementById('nodes'); gN.innerHTML = '';
+  NODES.forEach(function(n){
+    var gone = removed[n.id];
+    var val = gone ? 0 : sel[n.id];
+    var t = (!gone && maxV > 0) ? val / maxV : 0;
+    var r = gone ? 15 : (16 + t * 20);
+    var fill = gone ? '#f1f5f9' : mix('#ffe4e6', '#be123c', t);
+    var g = svgEl('g', {});
+
+    var c = svgEl('circle', { cx:n.x, cy:n.y, r:r, fill:fill, class:'node-circ' + (gone ? ' removed' : '') });
+    c.addEventListener('click', function(){ toggle(n.id); });
+    g.appendChild(c);
+
+    var lbl = svgEl('text', { x:n.x, y:n.y, class:'node-label', 'font-size': gone ? 14 : (13 + t*7) });
+    lbl.setAttribute('fill', (!gone && t > 0.55) ? '#fff' : '#7f1d1d');
+    lbl.textContent = n.id;
+    g.appendChild(lbl);
+
+    if(!gone){
+      var vt = svgEl('text', { x:n.x, y:n.y + r + 14, class:'node-val' });
+      vt.textContent = fmt(val, metric);
+      g.appendChild(vt);
+    }
+    if(n.id === 'M'){
+      var tag = svgEl('text', { x:n.x, y:n.y - r - 8, class:'node-tag' });
+      tag.textContent = 'cầu nối';
+      g.appendChild(tag);
+    }
+    gN.appendChild(g);
+  });
+
+  // Banner thành phần liên thông
+  var comps = componentCount(pres, adj);
+  var nRemoved = NODES.length - pres.length;
+  var banner = document.getElementById('comp');
+  if(comps <= 1){
+    banner.className = 'comp ok';
+    banner.textContent = '✓ Mạng liền một khối (1 mảnh)' + (nRemoved ? ' — đã gỡ ' + nRemoved + ' node' : '');
+  } else {
+    banner.className = 'comp broken';
+    banner.textContent = '✗ Mạng đã VỠ thành ' + comps + ' mảnh! (đã gỡ ' + nRemoved + ' node)';
+  }
+
+  // Giải thích thước đo
+  document.getElementById('explain').innerHTML = META[metric].txt;
+
+  // Bảng xếp hạng
+  var rows = pres.slice().sort(function(a,b){ return sel[b] - sel[a]; });
+  var rank = {}; rows.forEach(function(id, i){ rank[id] = i; });
+  var medals = ['🥇','🥈','🥉'];
+  var order = NODES.map(function(n){return n.id;}).slice().sort(function(a,b){
+    var ga = removed[a] ? 1 : 0, gb = removed[b] ? 1 : 0;
+    if(ga !== gb) return ga - gb;
+    return sel[b] - sel[a];   // node đã gỡ dồn xuống cuối
+  });
+  var tb = document.getElementById('tbody'); tb.innerHTML = '';
+  order.forEach(function(id){
+    var gone = removed[id];
+    var tr = document.createElement('tr'); if(gone) tr.className = 'gone';
+    function cell(col, v){
+      var td = document.createElement('td');
+      if(col === metric) td.className = 'sel';
+      td.textContent = gone ? '—' : fmt(v, col);
+      return td;
+    }
+    var tdName = document.createElement('td');
+    tdName.innerHTML = '<b>' + id + '</b>' + (id === 'M' ? ' <span style="color:#9f1239">(cầu nối)</span>' : (id==='A'||id==='H' ? ' <span style="color:#64748b">(hub)</span>' : ''));
+    tr.appendChild(tdName);
+    tr.appendChild(cell('deg', deg[id]));
+    tr.appendChild(cell('close', close[id]));
+    tr.appendChild(cell('betw', betw[id]));
+    var tdR = document.createElement('td');
+    tdR.textContent = gone ? '—' : (rank[id] < 3 ? medals[rank[id]] : (rank[id] + 1));
+    tr.appendChild(tdR);
+    tb.appendChild(tr);
+  });
+
+  // Header cột được chọn
+  document.querySelectorAll('#tbl th[data-col]').forEach(function(th){
+    th.classList.toggle('sel', th.getAttribute('data-col') === metric);
+  });
+}
+
+function toggle(id){ removed[id] = !removed[id]; render(); }
+
+// Nút chọn thước đo
+document.querySelectorAll('.metric-btn').forEach(function(b){
+  b.addEventListener('click', function(){
+    metric = b.getAttribute('data-m');
+    document.querySelectorAll('.metric-btn').forEach(function(x){ x.classList.toggle('active', x === b); });
+    render();
+  });
+});
+document.querySelector('.metric-btn[data-m="betw"]').classList.add('active');
+
+document.getElementById('reset').addEventListener('click', function(){ removed = {}; render(); });
+
+render();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

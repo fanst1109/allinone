@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L5: Mạng xã hội — Sociology</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #be123c;
+    --accent-soft: #ffe4e6;
+    --accent-hover: #9f1239;
+  }
+  main { max-width: 1040px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 12px;
+    padding: 16px 18px; margin-bottom: 18px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 18px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 12px; }
+
+  /* Thanh công cụ chế độ + preset */
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .row + .row { margin-top: 10px; }
+  .row .cap { font-size: 12px; font-weight: 700; color: #64748b; width: 100%; margin-bottom: -2px; }
+  .mode-btn, .preset-btn, .btn-reset {
+    border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 13px;
+    font-size: 13px; font-weight: 600; cursor: pointer; background: #fff; color: #1e293b;
+    transition: all .12s;
+  }
+  .mode-btn:hover, .preset-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .mode-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-reset { background: #fee2e2; color: #b91c1c; border-color: #fecaca; }
+  .btn-reset:hover { background: #fecaca; }
+
+  .hint {
+    margin-top: 10px; font-size: 13px; color: var(--accent-hover);
+    background: var(--accent-soft); border-radius: 8px; padding: 8px 12px; line-height: 1.5;
+  }
+
+  .workspace { display: flex; gap: 16px; flex-wrap: wrap; }
+  .canvas-col { flex: 1 1 380px; min-width: 0; }
+  .stats-col  { flex: 1 1 240px; min-width: 0; }
+
+  .canvas-box { border: 1px solid #e3e1dc; border-radius: 10px; overflow: hidden; background: #fbfcfe; }
+  svg#net { display: block; touch-action: none; cursor: crosshair; }
+
+  /* Trạng thái node/cạnh trong SVG */
+  .edge-line { stroke: #94a3b8; stroke-width: 3; }
+  .edge-line.on-path { stroke: #16a34a; stroke-width: 5; }
+  .node { cursor: pointer; }
+  .node circle.body { fill: #fff; stroke: var(--accent); stroke-width: 2.5; }
+  .node.sel   circle.body { fill: #fef3c7; stroke: #d97706; stroke-width: 3; }
+  .node.p-end circle.body { fill: #dcfce7; stroke: #16a34a; stroke-width: 3.5; }
+  .node.p-mid circle.body { fill: #d1fae5; stroke: #16a34a; stroke-width: 2.5; }
+  .node text.lbl { fill: var(--accent-hover); font-weight: 800; font-size: 15px; }
+  .node.p-end text.lbl, .node.p-mid text.lbl { fill: #166534; }
+  .badge circle { fill: var(--accent); }
+  .node.p-end .badge circle, .node.p-mid .badge circle { fill: #16a34a; }
+  .badge text { fill: #fff; font-weight: 700; font-size: 11px; }
+  #temp-line { stroke: #d97706; stroke-width: 3; stroke-dasharray: 6 4; pointer-events: none; }
+
+  /* Bảng chỉ số */
+  .stat { display: flex; justify-content: space-between; align-items: baseline;
+          padding: 8px 0; border-bottom: 1px dashed #e5e7eb; }
+  .stat:last-child { border-bottom: 0; }
+  .stat .k { font-size: 13px; color: #475569; }
+  .stat .v { font-size: 20px; font-weight: 800; color: var(--accent-hover); }
+  .formula { font-size: 12px; color: #64748b; margin-top: 4px; line-height: 1.5;
+             background: #f8fafc; border-radius: 6px; padding: 7px 10px; word-break: break-word; }
+  .path-out { margin-top: 10px; font-size: 13px; line-height: 1.5; padding: 8px 11px;
+              border-radius: 8px; background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+  .path-out.none { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+  .path-out.idle { background: #f8fafc; color: #64748b; border-color: #e5e7eb; }
+
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: #475569; margin-top: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .dot { width: 13px; height: 13px; border-radius: 50%; border: 2px solid; display: inline-block; }
+  .dot.n { background: #fff; border-color: var(--accent); }
+  .dot.s { background: #fef3c7; border-color: #d97706; }
+  .dot.p { background: #dcfce7; border-color: #16a34a; }
+
+  ol.howto { margin: 0; padding-left: 20px; font-size: 13.5px; line-height: 1.7; color: #334155; }
+  ol.howto b { color: var(--accent-hover); }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Sociology</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../../01-Individual-Interaction/lesson-04-social-identity-groups/visualization.html">← L4</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Mạng xã hội</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-centrality-influence/visualization.html">L6: Trung tâm →</a>
+</nav>
+<main>
+  <h1>Mạng xã hội — phòng thí nghiệm tương tác</h1>
+  <div class="lead">Tự dựng một mạng: thêm <strong>node</strong> (người), kéo nối <strong>cạnh</strong> (quan hệ), rồi xem <strong>bậc, mật độ, số thành phần liên thông</strong> và <strong>đường đi ngắn nhất</strong> được tính lại tức thì. Mạng ở đây là <strong>vô hướng</strong>.</div>
+
+  <div class="module">
+    <h2>Bảng điều khiển</h2>
+    <div class="sub">Chọn một chế độ, rồi thao tác trên sơ đồ bên dưới.</div>
+    <div class="row">
+      <span class="cap">CHẾ ĐỘ</span>
+      <button class="mode-btn" data-mode="add">➕ Thêm node</button>
+      <button class="mode-btn" data-mode="connect">🔗 Nối cạnh</button>
+      <button class="mode-btn" data-mode="delete">🗑 Xóa</button>
+      <button class="mode-btn" data-mode="path">📏 Đường đi</button>
+    </div>
+    <div class="row">
+      <span class="cap">MẠNG MẪU</span>
+      <button class="preset-btn" data-preset="seven">Mạng 7 người (bài học)</button>
+      <button class="preset-btn" data-preset="triangle">Tam giác K₃</button>
+      <button class="preset-btn" data-preset="star">Ngôi sao (6)</button>
+      <button class="preset-btn" data-preset="two">Hai nhóm tách rời</button>
+      <button class="preset-btn" data-preset="complete5">Đầy đủ K₅</button>
+      <button class="btn-reset" id="reset">↺ Xóa sạch</button>
+    </div>
+    <div class="hint" id="hint"></div>
+  </div>
+
+  <div class="workspace">
+    <div class="canvas-col">
+      <div class="module" style="margin-bottom:0;">
+        <h2>Sơ đồ mạng</h2>
+        <div class="sub">Con số nhỏ màu đỏ trên mỗi node là <strong>bậc</strong> của node đó.</div>
+        <div class="canvas-box">
+          <svg id="net" width="640" height="440" viewBox="0 0 640 440">
+            <rect id="bg" x="0" y="0" width="640" height="440" fill="#fbfcfe"></rect>
+            <g id="g-edges"></g>
+            <g id="g-nodes"></g>
+          </svg>
+        </div>
+        <div class="legend">
+          <span><i class="dot n"></i> node thường</span>
+          <span><i class="dot s"></i> đang chọn (nối cạnh)</span>
+          <span><i class="dot p"></i> trên đường đi ngắn nhất</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-col">
+      <div class="module" style="margin-bottom:0;">
+        <h2>Chỉ số realtime</h2>
+        <div class="sub">Cập nhật mỗi khi mạng đổi.</div>
+        <div class="stat"><span class="k">Số node (N)</span><span class="v" id="s-n">0</span></div>
+        <div class="stat"><span class="k">Số cạnh (E)</span><span class="v" id="s-e">0</span></div>
+        <div class="stat"><span class="k">Bậc trung bình ⟨k⟩</span><span class="v" id="s-k">0</span></div>
+        <div class="stat"><span class="k">Mật độ</span><span class="v" id="s-d">0</span></div>
+        <div class="stat"><span class="k">Thành phần liên thông</span><span class="v" id="s-c">0</span></div>
+        <div class="formula" id="f-k">⟨k⟩ = 2E / N</div>
+        <div class="formula" id="f-d">Mật độ = 2E / (N(N−1))</div>
+        <div class="path-out idle" id="path-out">Vào chế độ 📏 Đường đi, chọn 2 node để tô đường ngắn nhất.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Cách dùng nhanh</h2>
+    <ol class="howto">
+      <li><b>➕ Thêm node:</b> bấm vào vùng trống trên sơ đồ để đặt một người mới.</li>
+      <li><b>🔗 Nối cạnh:</b> <em>kéo</em> từ node này sang node kia để tạo quan hệ; hoặc <em>bấm</em> lần lượt hai node. Bấm lại cặp đã nối để gỡ cạnh.</li>
+      <li><b>🗑 Xóa:</b> bấm một node để xóa nó (và mọi cạnh của nó), hoặc bấm một cạnh để xóa riêng cạnh.</li>
+      <li><b>📏 Đường đi:</b> bấm 2 node — đường đi ngắn nhất (ít cạnh nhất) sẽ được tô xanh, kèm độ dài. Nếu 2 node khác thành phần thì khoảng cách = ∞.</li>
+      <li>Ở mọi chế độ (trừ Nối cạnh), có thể <b>kéo node</b> để sắp xếp lại cho dễ nhìn.</li>
+    </ol>
+  </div>
+</main>
+
+<script>
+// ===================== Trạng thái =====================
+var nodes = [];   // {id, x, y, label}
+var edges = [];   // {a, b}  (a < b theo id, không trùng, không self-loop)
+var mode = 'add';
+var selForConnect = null;   // id node đã chọn ở chế độ nối (bấm-bấm)
+var pathSel = [];           // tối đa 2 id cho chế độ đường đi
+var nextId = 0;
+var labelCount = 0;
+
+var svg = document.getElementById('net');
+var gEdges = document.getElementById('g-edges');
+var gNodes = document.getElementById('g-nodes');
+var SVGNS = 'http://www.w3.org/2000/svg';
+var R = 18;
+
+// ===================== Tiện ích mô hình =====================
+function nextLabel() {
+  var letter = String.fromCharCode(65 + (labelCount % 26));
+  var suffix = labelCount >= 26 ? String(Math.floor(labelCount / 26)) : '';
+  labelCount++;
+  return letter + suffix;
+}
+function addNode(x, y) {
+  nodes.push({ id: nextId++, x: x, y: y, label: nextLabel() });
+}
+function getNode(id) { for (var i = 0; i < nodes.length; i++) if (nodes[i].id === id) return nodes[i]; return null; }
+function edgeIndex(a, b) {
+  var lo = Math.min(a, b), hi = Math.max(a, b);
+  for (var i = 0; i < edges.length; i++) if (edges[i].a === lo && edges[i].b === hi) return i;
+  return -1;
+}
+function toggleEdge(a, b) {
+  if (a === b) return;
+  var idx = edgeIndex(a, b);
+  if (idx >= 0) edges.splice(idx, 1);
+  else edges.push({ a: Math.min(a, b), b: Math.max(a, b) });
+}
+function removeNode(id) {
+  nodes = nodes.filter(function (n) { return n.id !== id; });
+  edges = edges.filter(function (e) { return e.a !== id && e.b !== id; });
+  if (selForConnect === id) selForConnect = null;
+  pathSel = pathSel.filter(function (p) { return p !== id; });
+}
+function neighbors(id) {
+  var res = [];
+  for (var i = 0; i < edges.length; i++) {
+    if (edges[i].a === id) res.push(edges[i].b);
+    else if (edges[i].b === id) res.push(edges[i].a);
+  }
+  return res;
+}
+function degree(id) {
+  var d = 0;
+  for (var i = 0; i < edges.length; i++) if (edges[i].a === id || edges[i].b === id) d++;
+  return d;
+}
+function countComponents() {
+  if (!nodes.length) return 0;
+  var seen = {}, c = 0;
+  for (var i = 0; i < nodes.length; i++) {
+    var start = nodes[i].id;
+    if (seen[start]) continue;
+    c++; var q = [start]; seen[start] = true;
+    while (q.length) {
+      var cur = q.shift();
+      var nb = neighbors(cur);
+      for (var j = 0; j < nb.length; j++) if (!seen[nb[j]]) { seen[nb[j]] = true; q.push(nb[j]); }
+    }
+  }
+  return c;
+}
+function shortestPath(src, dst) {
+  if (src === dst) return [src];
+  var prev = {}, seen = {}, q = [src];
+  seen[src] = true;
+  while (q.length) {
+    var cur = q.shift();
+    var nb = neighbors(cur);
+    for (var j = 0; j < nb.length; j++) {
+      var w = nb[j];
+      if (!seen[w]) {
+        seen[w] = true; prev[w] = cur;
+        if (w === dst) {
+          var path = [dst], p = dst;
+          while (p !== src) { p = prev[p]; path.push(p); }
+          return path.reverse();
+        }
+        q.push(w);
+      }
+    }
+  }
+  return null; // không nối được
+}
+
+// ===================== Toạ độ & hit-test =====================
+function svgCoords(evt) {
+  var pt = svg.createSVGPoint();
+  pt.x = evt.clientX; pt.y = evt.clientY;
+  var loc = pt.matrixTransform(svg.getScreenCTM().inverse());
+  return { x: loc.x, y: loc.y };
+}
+function nodeAt(x, y) {
+  for (var i = nodes.length - 1; i >= 0; i--) {
+    var n = nodes[i];
+    var dx = n.x - x, dy = n.y - y;
+    if (dx * dx + dy * dy <= (R + 5) * (R + 5)) return n;
+  }
+  return null;
+}
+
+// ===================== Render =====================
+function fmt(n, d) { return (Math.round(n * Math.pow(10, d)) / Math.pow(10, d)).toLocaleString('vi-VN'); }
+
+function pathEdgeSet() {
+  // trả về object đánh dấu cạnh trên đường đi + set node trên đường
+  var res = { edges: {}, nodes: {} };
+  if (pathSel.length === 2) {
+    var path = shortestPath(pathSel[0], pathSel[1]);
+    if (path) {
+      for (var i = 0; i < path.length; i++) res.nodes[path[i]] = (i === 0 || i === path.length - 1) ? 'end' : 'mid';
+      for (var j = 0; j + 1 < path.length; j++) {
+        var lo = Math.min(path[j], path[j + 1]), hi = Math.max(path[j], path[j + 1]);
+        res.edges[lo + '-' + hi] = true;
+      }
+    } else {
+      res.nodes[pathSel[0]] = 'end'; res.nodes[pathSel[1]] = 'end';
+    }
+  } else if (pathSel.length === 1) {
+    res.nodes[pathSel[0]] = 'end';
+  }
+  return res;
+}
+
+function render() {
+  var hl = pathEdgeSet();
+
+  // --- cạnh ---
+  gEdges.textContent = '';
+  edges.forEach(function (e) {
+    var na = getNode(e.a), nb = getNode(e.b);
+    if (!na || !nb) return;
+    var line = document.createElementNS(SVGNS, 'line');
+    var onPath = hl.edges[e.a + '-' + e.b];
+    line.setAttribute('class', 'edge-line' + (onPath ? ' on-path' : ''));
+    line.setAttribute('x1', na.x); line.setAttribute('y1', na.y);
+    line.setAttribute('x2', nb.x); line.setAttribute('y2', nb.y);
+    line.dataset.a = e.a; line.dataset.b = e.b;
+    gEdges.appendChild(line);
+  });
+
+  // --- node ---
+  gNodes.textContent = '';
+  nodes.forEach(function (n) {
+    var g = document.createElementNS(SVGNS, 'g');
+    var cls = 'node';
+    if (selForConnect === n.id) cls += ' sel';
+    if (hl.nodes[n.id] === 'end') cls += ' p-end';
+    else if (hl.nodes[n.id] === 'mid') cls += ' p-mid';
+    g.setAttribute('class', cls);
+    g.dataset.id = n.id;
+
+    var c = document.createElementNS(SVGNS, 'circle');
+    c.setAttribute('class', 'body');
+    c.setAttribute('cx', n.x); c.setAttribute('cy', n.y); c.setAttribute('r', R);
+    g.appendChild(c);
+
+    var t = document.createElementNS(SVGNS, 'text');
+    t.setAttribute('class', 'lbl');
+    t.setAttribute('x', n.x); t.setAttribute('y', n.y);
+    t.setAttribute('text-anchor', 'middle'); t.setAttribute('dominant-baseline', 'central');
+    t.textContent = n.label;
+    g.appendChild(t);
+
+    // badge bậc
+    var bg = document.createElementNS(SVGNS, 'g');
+    bg.setAttribute('class', 'badge');
+    var bc = document.createElementNS(SVGNS, 'circle');
+    bc.setAttribute('cx', n.x + 15); bc.setAttribute('cy', n.y - 15); bc.setAttribute('r', 9);
+    bg.appendChild(bc);
+    var bt = document.createElementNS(SVGNS, 'text');
+    bt.setAttribute('x', n.x + 15); bt.setAttribute('y', n.y - 15);
+    bt.setAttribute('text-anchor', 'middle'); bt.setAttribute('dominant-baseline', 'central');
+    bt.textContent = degree(n.id);
+    bg.appendChild(bt);
+    g.appendChild(bg);
+
+    gNodes.appendChild(g);
+  });
+
+  renderStats(hl);
+}
+
+function renderStats(hl) {
+  var N = nodes.length, E = edges.length;
+  document.getElementById('s-n').textContent = N;
+  document.getElementById('s-e').textContent = E;
+
+  var avgK = N ? (2 * E / N) : 0;
+  var dens = N >= 2 ? (2 * E / (N * (N - 1))) : 0;
+  document.getElementById('s-k').textContent = fmt(avgK, 2);
+  document.getElementById('s-d').textContent = fmt(dens, 3);
+  document.getElementById('s-c').textContent = countComponents();
+
+  document.getElementById('f-k').innerHTML =
+    '⟨k⟩ = 2E / N = 2·' + E + ' / ' + N + ' = <b>' + fmt(avgK, 2) + '</b>';
+  if (N >= 2) {
+    document.getElementById('f-d').innerHTML =
+      'Mật độ = 2E / (N(N−1)) = 2·' + E + ' / (' + N + '·' + (N - 1) + ') = ' +
+      (2 * E) + '/' + (N * (N - 1)) + ' = <b>' + fmt(dens, 3) + '</b>';
+  } else {
+    document.getElementById('f-d').innerHTML = 'Mật độ = 2E / (N(N−1)) — cần N ≥ 2 node.';
+  }
+
+  // đường đi
+  var out = document.getElementById('path-out');
+  if (pathSel.length < 2) {
+    out.className = 'path-out idle';
+    out.innerHTML = pathSel.length === 1
+      ? 'Đã chọn <b>' + getNode(pathSel[0]).label + '</b>. Bấm node thứ hai để tìm đường ngắn nhất.'
+      : 'Vào chế độ 📏 Đường đi, chọn 2 node để tô đường ngắn nhất.';
+    return;
+  }
+  var a = getNode(pathSel[0]), b = getNode(pathSel[1]);
+  if (!a || !b) { pathSel = []; out.className = 'path-out idle'; out.textContent = ''; return; }
+  var path = shortestPath(pathSel[0], pathSel[1]);
+  if (path) {
+    var labels = path.map(function (id) { return getNode(id).label; });
+    out.className = 'path-out';
+    out.innerHTML = 'd(' + a.label + ', ' + b.label + ') = <b>' + (path.length - 1) + '</b>' +
+      ' cạnh<br>Đường: ' + labels.join(' – ');
+  } else {
+    out.className = 'path-out none';
+    out.innerHTML = 'd(' + a.label + ', ' + b.label + ') = <b>∞</b><br>Hai node khác thành phần liên thông — không có đường nối.';
+  }
+}
+
+// ===================== Tương tác chuột/cảm ứng =====================
+var drag = null;      // {id, moved, offX, offY, startX, startY}  (di chuyển node)
+var connect = null;   // {from}  (kéo tạo cạnh)
+var tempLine = null;
+var THRESH = 5;
+
+function handlePathClick(id) {
+  if (pathSel.length >= 2) { pathSel = [id]; return; }
+  if (pathSel.length === 1) {
+    if (pathSel[0] === id) pathSel = [];   // bấm lại để bỏ chọn
+    else pathSel.push(id);
+  } else pathSel = [id];
+}
+
+svg.addEventListener('pointerdown', function (evt) {
+  var p = svgCoords(evt);
+  var n = nodeAt(p.x, p.y);
+
+  // Xóa cạnh: bấm trúng đoạn thẳng ở chế độ Xóa
+  if (mode === 'delete' && !n && evt.target && evt.target.classList &&
+      evt.target.classList.contains('edge-line')) {
+    var a = parseInt(evt.target.dataset.a, 10), b = parseInt(evt.target.dataset.b, 10);
+    var idx = edgeIndex(a, b);
+    if (idx >= 0) { edges.splice(idx, 1); render(); }
+    return;
+  }
+
+  if (mode === 'connect') {
+    if (n) {
+      connect = { from: n.id };
+      tempLine = document.createElementNS(SVGNS, 'line');
+      tempLine.setAttribute('id', 'temp-line');
+      tempLine.setAttribute('x1', n.x); tempLine.setAttribute('y1', n.y);
+      tempLine.setAttribute('x2', p.x); tempLine.setAttribute('y2', p.y);
+      svg.insertBefore(tempLine, gNodes);
+      svg.setPointerCapture(evt.pointerId);
+    } else {
+      selForConnect = null; render();
+    }
+    return;
+  }
+
+  // Các chế độ còn lại: bấm node -> có thể kéo di chuyển hoặc click hành động
+  if (n) {
+    drag = { id: n.id, moved: false, offX: n.x - p.x, offY: n.y - p.y, startX: p.x, startY: p.y };
+    svg.setPointerCapture(evt.pointerId);
+    return;
+  }
+
+  // bấm vùng trống
+  if (mode === 'add') { addNode(p.x, p.y); render(); }
+  else if (mode === 'path') { /* bấm trống: giữ nguyên */ }
+});
+
+svg.addEventListener('pointermove', function (evt) {
+  var p = svgCoords(evt);
+  if (connect && tempLine) {
+    tempLine.setAttribute('x2', p.x); tempLine.setAttribute('y2', p.y);
+    return;
+  }
+  if (drag) {
+    var n = getNode(drag.id);
+    if (!n) { drag = null; return; }
+    var dx = p.x - drag.startX, dy = p.y - drag.startY;
+    if (dx * dx + dy * dy > THRESH * THRESH) drag.moved = true;
+    n.x = p.x + drag.offX; n.y = p.y + drag.offY;
+    render();
+  }
+});
+
+function endPointer(evt) {
+  var p = svgCoords(evt);
+
+  if (connect) {
+    var target = nodeAt(p.x, p.y);
+    if (target && target.id !== connect.from) {
+      toggleEdge(connect.from, target.id);   // kéo A -> B
+      selForConnect = null;
+    } else {
+      // thả trên chính node đó (một cú bấm) -> dùng logic bấm-bấm
+      var id = connect.from;
+      if (selForConnect === null) selForConnect = id;
+      else if (selForConnect === id) selForConnect = null;
+      else { toggleEdge(selForConnect, id); selForConnect = null; }
+    }
+    if (tempLine) { tempLine.remove(); tempLine = null; }
+    connect = null;
+    render();
+    return;
+  }
+
+  if (drag) {
+    if (!drag.moved) {   // là một cú bấm, không phải kéo
+      if (mode === 'delete') removeNode(drag.id);
+      else if (mode === 'path') handlePathClick(drag.id);
+    }
+    drag = null;
+    render();
+  }
+}
+svg.addEventListener('pointerup', endPointer);
+svg.addEventListener('pointercancel', function () {
+  if (tempLine) { tempLine.remove(); tempLine = null; }
+  connect = null; drag = null; render();
+});
+
+// ===================== Chế độ & preset =====================
+var HINTS = {
+  add: '➕ <b>Thêm node</b>: bấm vào vùng trống để đặt người mới. Kéo node để sắp xếp lại.',
+  connect: '🔗 <b>Nối cạnh</b>: kéo từ node này sang node kia (hoặc bấm lần lượt 2 node) để tạo quan hệ. Bấm lại cặp đã nối để gỡ.',
+  delete: '🗑 <b>Xóa</b>: bấm một node để xóa cả node lẫn cạnh của nó; bấm một cạnh để xóa riêng cạnh.',
+  path: '📏 <b>Đường đi</b>: bấm 2 node để tô đường đi ngắn nhất (xanh) và xem độ dài. Kéo node vẫn được.'
+};
+function setMode(m) {
+  mode = m;
+  selForConnect = null;
+  if (m !== 'path') pathSel = [];
+  document.querySelectorAll('.mode-btn').forEach(function (b) {
+    b.classList.toggle('active', b.dataset.mode === m);
+  });
+  svg.style.cursor = (m === 'add') ? 'crosshair' : 'pointer';
+  document.getElementById('hint').innerHTML = HINTS[m];
+  render();
+}
+document.querySelectorAll('.mode-btn').forEach(function (b) {
+  b.addEventListener('click', function () { setMode(b.dataset.mode); });
+});
+
+var PRESETS = {
+  seven: {
+    nodes: [[150,110],[285,80],[285,190],[415,135],[540,135],[175,360],[330,360]],
+    edges: [[0,1],[0,2],[1,2],[1,3],[2,3],[3,4],[5,6]]
+  },
+  triangle: {
+    nodes: [[250,140],[430,140],[340,300]],
+    edges: [[0,1],[1,2],[0,2]]
+  },
+  star: {
+    nodes: [[320,220],[320,80],[485,180],[425,370],[215,370],[155,180]],
+    edges: [[0,1],[0,2],[0,3],[0,4],[0,5]]
+  },
+  two: {
+    nodes: [[165,120],[300,120],[232,255],[400,215],[540,215],[470,350]],
+    edges: [[0,1],[1,2],[0,2],[3,4],[4,5],[3,5]]
+  },
+  complete5: {
+    nodes: [[320,65],[463,169],[408,336],[232,336],[177,169]],
+    edges: [[0,1],[0,2],[0,3],[0,4],[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]
+  }
+};
+function loadPreset(name) {
+  var d = PRESETS[name];
+  nodes = []; edges = []; nextId = 0; labelCount = 0;
+  selForConnect = null; pathSel = [];
+  var ids = [];
+  d.nodes.forEach(function (xy) { addNode(xy[0], xy[1]); ids.push(nextId - 1); });
+  d.edges.forEach(function (e) { edges.push({ a: Math.min(ids[e[0]], ids[e[1]]), b: Math.max(ids[e[0]], ids[e[1]]) }); });
+  render();
+}
+document.querySelectorAll('.preset-btn').forEach(function (b) {
+  b.addEventListener('click', function () { loadPreset(b.dataset.preset); });
+});
+document.getElementById('reset').addEventListener('click', function () {
+  nodes = []; edges = []; nextId = 0; labelCount = 0;
+  selForConnect = null; pathSel = [];
+  render();
+});
+
+// ===================== Khởi tạo =====================
+setMode('add');
+loadPreset('seven');
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

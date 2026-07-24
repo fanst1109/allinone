@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L7: Thế giới nhỏ & liên kết yếu — Sociology</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #be123c;
+    --accent-soft: #ffe4e6;
+    --accent-hover: #9f1239;
+    --lat: #cbd5e1;      /* cạnh mạng vòng (liên kết mạnh trong cụm) */
+    --bridge: #be123c;   /* cạnh tái nối (đường tắt / liên kết yếu) */
+    --lline: #2563eb;    /* đường L trên chart */
+    --cline: #059669;    /* đường C trên chart */
+  }
+  main { max-width: 1040px; }
+
+  .lead { color: #475569; font-size: 15px; margin-bottom: 22px; line-height: 1.6; }
+  .module {
+    background: #fff; border: 1px solid #e7e2e4; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; line-height: 1.5; }
+
+  /* Layout hai cột: mạng + điều khiển */
+  .grid2 { display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start; }
+  .ring-wrap { text-align: center; }
+  .ring-wrap svg { width: 100%; max-width: 460px; height: auto; }
+  .edge { stroke: var(--lat); stroke-width: 1.4; }
+  .edge.bridge { stroke: var(--bridge); stroke-width: 2.6; opacity: 0.95; }
+  svg.only-bridge .edge:not(.bridge) { stroke: #eef1f4; stroke-width: 1; }
+  .node { fill: #475569; stroke: #fff; stroke-width: 1.2; }
+
+  /* Điều khiển */
+  .ctrl-label { font-size: 13px; font-weight: 700; color: #334155; display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .ctrl-label .pval { color: var(--accent); font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--accent); margin: 2px 0 10px; }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .presets button {
+    border: 1px solid #cbd5e1; background: #fff; border-radius: 7px; padding: 5px 9px;
+    font-size: 12px; font-weight: 600; color: #334155; cursor: pointer;
+  }
+  .presets button:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .chk { font-size: 13px; color: #334155; display: flex; align-items: center; gap: 7px; margin-bottom: 12px; cursor: pointer; }
+  .chk input { accent-color: var(--accent); width: 15px; height: 15px; }
+  .toolbar button {
+    border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 700; font-size: 13px; cursor: pointer;
+    background: #e2e8f0; color: #334155;
+  }
+  .toolbar button:hover { background: #cbd5e1; }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 4px 0 12px; }
+  .stat { background: #f8fafc; border: 1px solid #e7e2e4; border-radius: 9px; padding: 9px 11px; }
+  .stat .k { font-size: 11px; color: #64748b; font-weight: 700; letter-spacing: .3px; }
+  .stat .v { font-size: 22px; font-weight: 800; color: #0f172a; font-variant-numeric: tabular-nums; line-height: 1.2; }
+  .stat .v small { font-size: 12px; font-weight: 600; color: #64748b; }
+  .stat.bridge .v { color: var(--accent); }
+  .verdict { font-size: 13.5px; line-height: 1.6; padding: 10px 12px; border-radius: 9px; background: var(--accent-soft); color: #7f1d1d; }
+  .verdict b { color: var(--accent-hover); }
+
+  /* Chart */
+  .chart-wrap svg { width: 100%; max-width: 620px; height: auto; display: block; margin: 0 auto; }
+  .legend { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; font-size: 13px; margin-top: 8px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: #334155; }
+  .legend i { width: 22px; height: 4px; border-radius: 2px; display: inline-block; }
+
+  .note { font-size: 12.5px; color: #64748b; line-height: 1.55; margin-top: 10px; }
+  .weak-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 6px; }
+  .weak-cols .box { border: 1px solid #e7e2e4; border-radius: 9px; padding: 12px 14px; font-size: 13.5px; line-height: 1.6; }
+  .weak-cols .box h3 { margin: 0 0 6px; font-size: 14px; }
+  .box.strong { background: #f8fafc; }
+  .box.weak { background: var(--accent-soft); }
+  .box.weak h3 { color: var(--accent-hover); }
+
+  @media (max-width: 720px) {
+    .grid2 { grid-template-columns: 1fr; }
+    .weak-cols { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Sociology</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-centrality-influence/visualization.html">← L6</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Thế giới nhỏ</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-diffusion-contagion/visualization.html">L8: Lan truyền →</a>
+</nav>
+<main>
+  <h1>Thế giới nhỏ &amp; sức mạnh của liên kết yếu</h1>
+  <div class="lead">
+    Kéo thanh <strong>xác suất tái nối p</strong>: mạng vòng đều dần mọc ra những <strong style="color:#be123c">đường tắt</strong> (liên kết yếu bắc cầu).
+    Chỉ cần <em>p nhỏ</em> là <strong>đường đi trung bình L rớt mạnh</strong> trong khi <strong>hệ số cụm C còn cao</strong> — đó là "thế giới nhỏ".
+  </div>
+
+  <div class="module">
+    <h2>1. Mạng vòng &amp; tái nối (rewiring)</h2>
+    <div class="sub">Mạng vòng N = 24, mỗi đỉnh nối k = 4 hàng xóm gần. Mỗi cạnh có xác suất p bị nối lại tới một đỉnh ngẫu nhiên → tạo đường tắt.</div>
+    <div class="grid2">
+      <div class="ring-wrap">
+        <svg id="ring" viewBox="0 0 460 460" aria-label="Mạng vòng Watts-Strogatz"></svg>
+      </div>
+      <div class="panel">
+        <div class="ctrl-label"><span>Xác suất tái nối p</span><span class="pval" id="pval">0.00</span></div>
+        <input type="range" id="pslider" min="0" max="1" step="0.005" value="0">
+        <div class="presets">
+          <button data-p="0">p = 0 · vòng đều</button>
+          <button data-p="0.05">p ≈ 0.05 · thế giới nhỏ</button>
+          <button data-p="1">p = 1 · ngẫu nhiên</button>
+        </div>
+        <label class="chk"><input type="checkbox" id="onlyBridge"> Chỉ tô cầu nối (liên kết yếu)</label>
+
+        <div class="stats">
+          <div class="stat"><div class="k">ĐƯỜNG ĐI TB · L</div><div class="v" id="s-L">–</div></div>
+          <div class="stat"><div class="k">HỆ SỐ CỤM · C</div><div class="v" id="s-C">–</div></div>
+          <div class="stat bridge"><div class="k">CẦU NỐI (đường tắt)</div><div class="v" id="s-B">0</div></div>
+          <div class="stat"><div class="k">SO VỚI p = 0</div><div class="v" id="s-norm">–</div></div>
+        </div>
+        <div class="verdict" id="verdict"></div>
+        <div class="toolbar" style="margin-top:12px;"><button id="reset">↺ Về p = 0</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>2. Đường đi ngắn lại, cụm vẫn cao — vùng thế giới nhỏ</h2>
+    <div class="sub">Chuẩn hóa theo giá trị tại p = 0: vẽ L(p)/L(0) và C(p)/C(0) theo p (trục p thang log). Vạch dọc = vị trí p hiện tại của bạn.</div>
+    <div class="chart-wrap">
+      <svg id="chart" viewBox="0 0 620 340" aria-label="Đồ thị L(p) và C(p) chuẩn hóa"></svg>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--lline)"></i> L(p)/L(0) — đường đi trung bình</span>
+      <span><i style="background:var(--cline)"></i> C(p)/C(0) — hệ số cụm</span>
+    </div>
+    <div class="note" id="chart-note">
+      Đường cong mô phỏng trên mạng lớn (N = 250, k = 6, trung bình nhiều lần) để hiệu ứng hiện rõ.
+      Chú ý vùng tô hồng: <strong>L đã rớt gần đáy trong khi C vẫn gần như nguyên</strong> — mạng xã hội loài người sống đúng ở đây.
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>3. Liên kết yếu = cầu nối</h2>
+    <div class="sub">Vì sao chính những mối quan hệ ta ít để tâm nhất mới giữ cho thế giới "nhỏ".</div>
+    <div class="weak-cols">
+      <div class="box strong">
+        <h3>Liên kết mạnh (bạn thân, gia đình)</h3>
+        Nằm gọn trong cụm của bạn. Do <strong>đóng tam giác</strong>, bạn thân của bạn thân dễ quen nhau → không thể là cầu nối.
+        Thông tin họ đưa phần lớn <strong>trùng lặp</strong> với thứ bạn đã biết.
+      </div>
+      <div class="box weak">
+        <h3>Liên kết yếu (quen sơ, đồng nghiệp cũ)</h3>
+        Vươn sang <strong>cụm khác</strong> → là <strong>cầu nối</strong> duy nhất giữa hai vùng. Mang <strong>thông tin mới</strong>
+        (việc làm, cơ hội). Chính là <strong>đường tắt</strong> kéo L xuống ở mô hình Watts-Strogatz.
+      </div>
+    </div>
+    <div class="note" id="bridge-note" style="margin-top:14px;"></div>
+  </div>
+</main>
+
+<script>
+// ==================== THAM SỐ MẠNG HIỂN THỊ ====================
+var N = 24, K = 4, DHALF = K / 2;
+var CX = 230, CY = 230, RAD = 180;
+
+// PRNG có seed (mulberry32) → tái nối ổn định khi kéo slider tới lui
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    var t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Toạ độ đỉnh trên vòng tròn
+var POS = [];
+for (var i = 0; i < N; i++) {
+  var th = -Math.PI / 2 + 2 * Math.PI * i / N;
+  POS.push({ x: CX + RAD * Math.cos(th), y: CY + RAD * Math.sin(th) });
+}
+
+// Metadata mỗi cạnh gốc: {i, j (đầu xa), u (ngưỡng), t (đích nếu tái nối)}
+var META = [];
+(function buildMeta() {
+  var rng = mulberry32(20240722);
+  for (var d = 1; d <= DHALF; d++) {
+    for (var i = 0; i < N; i++) {
+      var j = (i + d) % N;
+      var u = rng();
+      var t = Math.floor(rng() * N), guard = 0;
+      while ((t === i || t === j) && guard < 30) { t = Math.floor(rng() * N); guard++; }
+      META.push({ i: i, j: j, u: u, t: t });
+    }
+  }
+})();
+
+// Dựng đồ thị hiển thị theo p (từ META, ổn định)
+function displayGraph(p) {
+  var adj = []; for (var i = 0; i < N; i++) adj.push(new Set());
+  var drawn = [], bridges = 0;
+  for (var e = 0; e < META.length; e++) {
+    var m = META[e];
+    if (m.u < p) {
+      adj[m.i].add(m.t); adj[m.t].add(m.i);
+      drawn.push({ a: m.i, b: m.t, bridge: true }); bridges++;
+    } else {
+      adj[m.i].add(m.j); adj[m.j].add(m.i);
+      drawn.push({ a: m.i, b: m.j, bridge: false });
+    }
+  }
+  return { adj: adj, drawn: drawn, bridges: bridges };
+}
+
+// ==================== ĐO L VÀ C ====================
+function clustering(adj) {
+  var n = adj.length, sum = 0, cnt = 0;
+  for (var i = 0; i < n; i++) {
+    var nb = Array.from(adj[i]), deg = nb.length;
+    if (deg < 2) continue;
+    var e = 0;
+    for (var a = 0; a < deg; a++) for (var b = a + 1; b < deg; b++) if (adj[nb[a]].has(nb[b])) e++;
+    sum += (2 * e) / (deg * (deg - 1)); cnt++;
+  }
+  return cnt ? sum / cnt : 0;
+}
+function avgPath(adj) {
+  var n = adj.length, total = 0, pairs = 0;
+  var dist = new Int32Array(n);
+  for (var s = 0; s < n; s++) {
+    dist.fill(-1); dist[s] = 0;
+    var q = [s], head = 0;
+    while (head < q.length) {
+      var u = q[head++];
+      adj[u].forEach(function (v) { if (dist[v] < 0) { dist[v] = dist[u] + 1; q.push(v); } });
+    }
+    for (var t = 0; t < n; t++) if (t !== s && dist[t] > 0) { total += dist[t]; pairs++; }
+  }
+  return pairs ? total / pairs : 0;
+}
+
+// Baseline p=0 của mạng hiển thị
+var base = displayGraph(0);
+var L0 = avgPath(base.adj), C0 = clustering(base.adj);
+
+// ==================== VẼ MẠNG VÒNG ====================
+function renderRing(p) {
+  var g = displayGraph(p);
+  var svg = document.getElementById('ring');
+  var parts = [];
+  // cạnh trước
+  for (var e = 0; e < g.drawn.length; e++) {
+    var dd = g.drawn[e], A = POS[dd.a], B = POS[dd.b];
+    parts.push('<line class="edge' + (dd.bridge ? ' bridge' : '') + '" x1="' + A.x.toFixed(1) + '" y1="' + A.y.toFixed(1) +
+      '" x2="' + B.x.toFixed(1) + '" y2="' + B.y.toFixed(1) + '"></line>');
+  }
+  // đỉnh sau
+  for (var i = 0; i < N; i++) parts.push('<circle class="node" cx="' + POS[i].x.toFixed(1) + '" cy="' + POS[i].y.toFixed(1) + '" r="6"></circle>');
+  svg.innerHTML = parts.join('');
+  svg.classList.toggle('only-bridge', document.getElementById('onlyBridge').checked);
+
+  // đo
+  var L = avgPath(g.adj), C = clustering(g.adj);
+  document.getElementById('s-L').innerHTML = L.toFixed(2);
+  document.getElementById('s-C').innerHTML = C.toFixed(3);
+  document.getElementById('s-B').textContent = g.bridges;
+  var lp = L0 ? Math.round(L / L0 * 100) : 100, cp = C0 ? Math.round(C / C0 * 100) : 100;
+  document.getElementById('s-norm').innerHTML = 'L ' + lp + '% <small>·</small> C ' + cp + '%';
+
+  var v = document.getElementById('verdict');
+  if (g.bridges === 0) {
+    v.innerHTML = '<b>Mạng vòng đều (p = 0):</b> đường đi dài (L cao), cụm chặt (C cao). Muốn sang phía đối diện phải đi vòng vèo.';
+  } else if (cp >= 60 && lp <= 60) {
+    v.innerHTML = '<b>Vùng thế giới nhỏ!</b> Chỉ ' + g.bridges + ' cầu nối mà L còn ' + lp + '% trong khi C vẫn ' + cp + '% — đường ngắn lại nhưng cụm gần như nguyên.';
+  } else if (cp < 30) {
+    v.innerHTML = '<b>Gần mạng ngẫu nhiên:</b> tái nối quá nhiều → C sụp còn ' + cp + '%. Cụm cộng đồng tan rã.';
+  } else {
+    v.innerHTML = 'p đang tăng: L còn ' + lp + '%, C còn ' + cp + '%. Đường tắt kéo L xuống nhanh hơn C.';
+  }
+
+  document.getElementById('bridge-note').innerHTML =
+    'Hiện có <strong style="color:#be123c">' + g.bridges + ' cầu nối</strong> (cạnh hồng, đậm) — mỗi cái là một <strong>liên kết yếu</strong> ' +
+    'nối đỉnh ở xa nhau trên vòng. Đó chính là "đường tắt" kéo đường đi trung bình L xuống. ' +
+    'Bật ô "Chỉ tô cầu nối" để thấy rõ chúng bắc ngang qua mạng.';
+}
+
+// ==================== TIỀN TÍNH ĐƯỜNG CONG WS (mạng lớn) ====================
+var CURVE = [];
+(function precomputeCurve() {
+  var cN = 250, cK = 6, half = cK / 2, R = 8;
+  function wsAdj(p, rnd) {
+    var adj = []; for (var i = 0; i < cN; i++) adj.push(new Set());
+    for (var i2 = 0; i2 < cN; i2++) for (var d = 1; d <= half; d++) { var j = (i2 + d) % cN; adj[i2].add(j); adj[j].add(i2); }
+    for (var d2 = 1; d2 <= half; d2++) for (var i3 = 0; i3 < cN; i3++) {
+      var j2 = (i3 + d2) % cN;
+      if (rnd() < p && adj[i3].has(j2)) {
+        adj[i3].delete(j2); adj[j2].delete(i3);
+        var t = Math.floor(rnd() * cN), gu = 0;
+        while ((t === i3 || adj[i3].has(t)) && gu < 40) { t = Math.floor(rnd() * cN); gu++; }
+        if (t !== i3 && !adj[i3].has(t)) { adj[i3].add(t); adj[t].add(i3); }
+        else { adj[i3].add(j2); adj[j2].add(i3); }
+      }
+    }
+    return adj;
+  }
+  // baseline p=0
+  var b0 = wsAdj(0, function () { return 1; }); // không tái nối
+  var bL = avgPath(b0), bC = clustering(b0);
+  var samples = [0.001, 0.002, 0.004, 0.008, 0.015, 0.03, 0.05, 0.08, 0.12, 0.2, 0.3, 0.45, 0.65, 0.85, 1.0];
+  for (var si = 0; si < samples.length; si++) {
+    var p = samples[si], sumL = 0, sumC = 0;
+    for (var r = 0; r < R; r++) { var a = wsAdj(p, Math.random); sumL += avgPath(a); sumC += clustering(a); }
+    CURVE.push({ p: p, Ln: (sumL / R) / bL, Cn: (sumC / R) / bC });
+  }
+})();
+
+// ==================== VẼ CHART ====================
+var CH = { L: 60, R: 594, T: 24, B: 280, x0: -3, x1: 0 }; // log10(p) từ -3..0
+function xPix(p) { var lx = Math.log10(Math.max(p, 0.001)); return CH.L + (lx - CH.x0) / (CH.x1 - CH.x0) * (CH.R - CH.L); }
+function yPix(v) { return CH.B - v * (CH.B - CH.T); }
+
+function drawChart(curP) {
+  var svg = document.getElementById('chart'), s = [];
+  // nền vùng thế giới nhỏ: từ p mà Ln<0.5 tới p mà Cn<0.5
+  var pLo = 1, pHi = 1;
+  for (var i = 0; i < CURVE.length; i++) if (CURVE[i].Ln < 0.5) { pLo = CURVE[i].p; break; }
+  for (var i2 = 0; i2 < CURVE.length; i2++) if (CURVE[i2].Cn < 0.5) { pHi = CURVE[i2].p; break; }
+  if (pHi > pLo) {
+    var xa = xPix(pLo), xb = xPix(pHi);
+    s.push('<rect x="' + xa.toFixed(1) + '" y="' + CH.T + '" width="' + (xb - xa).toFixed(1) + '" height="' + (CH.B - CH.T) + '" fill="#ffe4e6" opacity="0.7"></rect>');
+    s.push('<text x="' + ((xa + xb) / 2).toFixed(1) + '" y="' + (CH.T + 16) + '" text-anchor="middle" font-size="12" font-weight="700" fill="#9f1239">Vùng thế giới nhỏ</text>');
+  }
+  // lưới + trục Y
+  var yt = [0, 0.25, 0.5, 0.75, 1];
+  for (var k = 0; k < yt.length; k++) {
+    var yy = yPix(yt[k]);
+    s.push('<line x1="' + CH.L + '" y1="' + yy.toFixed(1) + '" x2="' + CH.R + '" y2="' + yy.toFixed(1) + '" stroke="#eef1f4" stroke-width="1"></line>');
+    s.push('<text x="' + (CH.L - 8) + '" y="' + (yy + 4).toFixed(1) + '" text-anchor="end" font-size="11" fill="#94a3b8">' + yt[k].toFixed(2) + '</text>');
+  }
+  // trục X (log): p = 0.001, 0.01, 0.1, 1
+  var xt = [0.001, 0.01, 0.1, 1];
+  for (var m = 0; m < xt.length; m++) {
+    var xx = xPix(xt[m]);
+    s.push('<line x1="' + xx.toFixed(1) + '" y1="' + CH.T + '" x2="' + xx.toFixed(1) + '" y2="' + CH.B + '" stroke="#eef1f4" stroke-width="1"></line>');
+    s.push('<text x="' + xx.toFixed(1) + '" y="' + (CH.B + 18) + '" text-anchor="middle" font-size="11" fill="#94a3b8">' + xt[m] + '</text>');
+  }
+  s.push('<text x="' + ((CH.L + CH.R) / 2) + '" y="' + (CH.B + 36) + '" text-anchor="middle" font-size="12" font-weight="600" fill="#475569">Xác suất tái nối p (thang log)</text>');
+  // đường L và C (thêm điểm p=0 chuẩn hóa =1 ở mép trái)
+  function poly(key, color) {
+    var pts = ['' + CH.L + ',' + yPix(1).toFixed(1)];
+    for (var i = 0; i < CURVE.length; i++) pts.push(xPix(CURVE[i].p).toFixed(1) + ',' + yPix(CURVE[i][key]).toFixed(1));
+    s.push('<polyline points="' + pts.join(' ') + '" fill="none" stroke="' + color + '" stroke-width="2.6" stroke-linejoin="round"></polyline>');
+  }
+  poly('Cn', 'var(--cline)');
+  poly('Ln', 'var(--lline)');
+  // trục
+  s.push('<line x1="' + CH.L + '" y1="' + CH.T + '" x2="' + CH.L + '" y2="' + CH.B + '" stroke="#cbd5e1" stroke-width="1.5"></line>');
+  s.push('<line x1="' + CH.L + '" y1="' + CH.B + '" x2="' + CH.R + '" y2="' + CH.B + '" stroke="#cbd5e1" stroke-width="1.5"></line>');
+  // vạch dọc p hiện tại
+  var mx = xPix(curP);
+  s.push('<line x1="' + mx.toFixed(1) + '" y1="' + CH.T + '" x2="' + mx.toFixed(1) + '" y2="' + CH.B + '" stroke="#be123c" stroke-width="1.6" stroke-dasharray="5 4"></line>');
+  s.push('<text x="' + mx.toFixed(1) + '" y="' + (CH.T - 6 < 12 ? 12 : CH.T - 6) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#be123c">p = ' + curP.toFixed(3) + '</text>');
+  svg.innerHTML = s.join('');
+}
+
+// ==================== SỰ KIỆN ====================
+var slider = document.getElementById('pslider');
+function update() {
+  var p = parseFloat(slider.value);
+  document.getElementById('pval').textContent = p.toFixed(2);
+  renderRing(p);
+  drawChart(p);
+}
+slider.addEventListener('input', update);
+document.getElementById('onlyBridge').addEventListener('change', update);
+document.querySelectorAll('.presets button').forEach(function (btn) {
+  btn.addEventListener('click', function () { slider.value = btn.getAttribute('data-p'); update(); });
+});
+document.getElementById('reset').addEventListener('click', function () { slider.value = 0; document.getElementById('onlyBridge').checked = false; update(); });
+
+update();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

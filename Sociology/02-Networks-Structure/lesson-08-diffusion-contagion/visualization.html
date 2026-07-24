@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L8: Lan truyền & lây lan xã hội — Sociology</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fff1f2;
+    --accent: #be123c;
+    --accent-soft: #ffe4e6;
+    --accent-hover: #9f1239;
+    --seed: #881337;
+    --adopted: #be123c;
+    --susc: #e2e8f0;
+    --susc-stroke: #cbd5e1;
+    --bridge: #f59e0b;
+    --simple: #0ea5e9;
+    --complex: #be123c;
+  }
+  main { max-width: 940px; }
+
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #f1d4da; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* ---- Bảng điều khiển ---- */
+  .controls { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-start; }
+  .ctl { display: flex; flex-direction: column; gap: 6px; }
+  .ctl > span.label { font-size: 12px; font-weight: 700; color: #475569; letter-spacing: .3px; }
+  .seg-toggle { display: inline-flex; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; }
+  .seg-toggle button {
+    border: 0; background: #fff; padding: 8px 14px; font-size: 13px; font-weight: 700;
+    color: #475569; cursor: pointer; transition: all .12s;
+  }
+  .seg-toggle button + button { border-left: 1px solid #cbd5e1; }
+  .seg-toggle button.on { background: var(--accent); color: #fff; }
+  .krow { display: flex; align-items: center; gap: 10px; }
+  .krow input[type=range] { width: 150px; max-width: 100%; accent-color: var(--accent); }
+  .kbadge {
+    min-width: 34px; text-align: center; font-weight: 800; font-size: 15px;
+    background: var(--accent-soft); color: var(--accent-hover); border-radius: 6px; padding: 2px 8px;
+  }
+  .kbadge.dim { opacity: .45; }
+
+  .toolbar { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .toolbar button { border: 0; border-radius: 8px; padding: 9px 16px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .btn-step { background: var(--accent); color: #fff; }
+  .btn-step:hover { background: var(--accent-hover); }
+  .btn-run { background: #0891b2; color: #fff; }
+  .btn-run:hover { background: #0e7490; }
+  .btn-reset { background: #e2e8f0; color: #334155; }
+  .btn-reset:hover { background: #cbd5e1; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* ---- Mạng SVG ---- */
+  .net-wrap { text-align: center; }
+  svg#net { width: 100%; height: auto; touch-action: manipulation; }
+  #net .edge { stroke: #cbd5e1; stroke-width: 2; }
+  #net .edge.bridge { stroke: var(--bridge); stroke-width: 3.5; stroke-dasharray: 6 4; }
+  #net .node { cursor: pointer; stroke: #fff; stroke-width: 2; transition: fill .35s ease, r .2s ease; }
+  #net .node.susc { fill: var(--susc); stroke: var(--susc-stroke); }
+  #net .node.adopted { fill: var(--adopted); }
+  #net .node.seed { fill: var(--seed); }
+  #net .node.fresh { stroke: #fde047; stroke-width: 4; }
+  #net .nlabel { font-size: 13px; font-weight: 700; fill: #1e293b; pointer-events: none; }
+  #net .node.adopted + .nlabel, #net .node.seed + .nlabel { fill: #fff; }
+  #net .clabel { font-size: 12px; font-weight: 700; fill: #94a3b8; letter-spacing: 1px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: 10px; font-size: 12px; color: #475569; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+  .dot.seed { background: var(--seed); }
+  .dot.adopted { background: var(--adopted); }
+  .dot.susc { background: var(--susc); border: 1px solid var(--susc-stroke); }
+  .dot.bridge { width: 20px; height: 0; border-top: 3px dashed var(--bridge); border-radius: 0; }
+
+  /* ---- Trạng thái + chart ---- */
+  .status { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+  .stat { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; }
+  .stat .n { font-size: 22px; font-weight: 800; color: var(--accent-hover); }
+  .stat .k { font-size: 11px; color: #64748b; font-weight: 700; letter-spacing: .3px; }
+  .banner { border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+  .banner.run { background: #e0f2fe; color: #075985; }
+  .banner.stuck { background: #fee2e2; color: #b91c1c; }
+  .banner.full { background: #dcfce7; color: #15803d; }
+
+  svg#chart { width: 100%; height: auto; }
+  #chart .bar { fill: var(--accent); }
+  #chart .bar.seed0 { fill: var(--seed); }
+  #chart .barlab { font-size: 12px; font-weight: 700; fill: #334155; }
+  #chart .axlab { font-size: 11px; fill: #94a3b8; }
+
+  /* ---- Compare ---- */
+  .cmp-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .cmp-row { display: flex; align-items: center; gap: 10px; font-size: 14px; flex-wrap: wrap; }
+  .cmp-tag { font-weight: 800; padding: 3px 10px; border-radius: 6px; color: #fff; font-size: 12px; }
+  .cmp-tag.s { background: var(--simple); }
+  .cmp-tag.c { background: var(--complex); }
+  .cmp-seq { font-family: ui-monospace, Menlo, monospace; font-size: 13px; color: #334155; }
+  .cmp-cov { font-weight: 800; }
+  .cmp-cov.full { color: #15803d; }
+  .cmp-cov.part { color: #b91c1c; }
+  svg#cmpchart { width: 100%; height: auto; }
+  #cmpchart .gl { stroke: #e2e8f0; stroke-width: 1; }
+  #cmpchart .ln-s { fill: none; stroke: var(--simple); stroke-width: 3; }
+  #cmpchart .ln-c { fill: none; stroke: var(--complex); stroke-width: 3; stroke-dasharray: 5 4; }
+  #cmpchart .pt-s { fill: var(--simple); }
+  #cmpchart .pt-c { fill: var(--complex); }
+  #cmpchart .axlab { font-size: 11px; fill: #94a3b8; }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Sociology</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 2</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-small-world-weak-ties/visualization.html">← L7</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Lan truyền xã hội</span>
+  <span class="sep">·</span>
+  <a href="../../03-Inequality-Change/lesson-09-stratification-mobility/visualization.html">L9: Phân tầng →</a>
+</nav>
+<main>
+  <h1>Lan truyền &amp; lây lan xã hội trên mạng</h1>
+  <div class="lead">
+    Hai cụm dày nối nhau bằng <strong>cầu (liên kết yếu)</strong>. Chọn hạt mầm (seed), chọn kiểu lây lan,
+    kéo ngưỡng <em>k</em> — rồi bấm <strong>Step/Chạy</strong> để xem contagion lan hay <strong>kẹt</strong> theo từng vòng.
+    Điểm cốt lõi: <strong>complex contagion cần ≥ k hàng xóm đã theo mới lan</strong>, nên một cầu mỏng chặn được nó.
+  </div>
+
+  <div class="module">
+    <h2>Bảng điều khiển</h2>
+    <div class="sub">Bấm một node trong mạng để bật/tắt nó làm hạt mầm (seed). Cần ≥ 1 seed.</div>
+    <div class="controls">
+      <div class="ctl">
+        <span class="label">KIỂU LÂY LAN</span>
+        <div class="seg-toggle" id="mode-toggle">
+          <button data-mode="simple">Simple (k=1)</button>
+          <button data-mode="complex" class="on">Complex (k≥2)</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="label">NGƯỠNG k (chỉ cho Complex)</span>
+        <div class="krow">
+          <input type="range" id="k-slider" min="2" max="4" step="1" value="2">
+          <span class="kbadge" id="k-badge">2</span>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="label">CẦU NỐI HAI CỤM</span>
+        <div class="seg-toggle" id="bridge-toggle">
+          <button data-bridge="narrow" class="on">Hẹp (1 sợi)</button>
+          <button data-bridge="wide">Rộng (4 sợi)</button>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <button class="btn-step" id="step">▶ Step (1 vòng)</button>
+      <button class="btn-run" id="run">⏩ Chạy tới khi dừng</button>
+      <button class="btn-reset" id="reset">↺ Về vòng 0</button>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Mạng lưới — lan theo vòng</h2>
+    <div class="status">
+      <div class="stat"><div class="n" id="st-round">0</div><div class="k">VÒNG</div></div>
+      <div class="stat"><div class="n" id="st-count">2</div><div class="k">ĐÃ CHẤP NHẬN</div></div>
+      <div class="stat"><div class="n" id="st-cov">20%</div><div class="k">ĐỘ PHỦ (/10)</div></div>
+      <div class="stat"><div class="n" id="st-k">k=2</div><div class="k">NGƯỠNG HIỆU LỰC</div></div>
+    </div>
+    <div class="banner run" id="banner">Sẵn sàng. Bấm Step để lan một vòng.</div>
+    <div class="net-wrap">
+      <svg id="net" viewBox="0 0 680 380" role="img" aria-label="Mạng hai cụm nối bằng cầu"></svg>
+    </div>
+    <div class="legend">
+      <span><i class="dot seed"></i> Hạt mầm (seed)</span>
+      <span><i class="dot adopted"></i> Đã chấp nhận</span>
+      <span><i class="dot susc"></i> Chưa chấp nhận</span>
+      <span><i class="dot bridge"></i> Cầu (liên kết yếu)</span>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Số người chấp nhận tích luỹ theo vòng</h2>
+    <div class="sub">Mỗi cột là số adopter cộng dồn sau mỗi vòng của lần chạy hiện tại.</div>
+    <svg id="chart" viewBox="0 0 680 220" role="img" aria-label="Biểu đồ adopter tích luỹ"></svg>
+  </div>
+
+  <div class="module">
+    <h2>So sánh Simple vs Complex trên CÙNG mạng</h2>
+    <div class="sub">Cùng seed &amp; cùng cầu hiện tại, chạy cả hai kiểu tới khi dừng. Complex thường lan chậm hoặc kẹt hơn.</div>
+    <div class="toolbar" style="margin-top:0">
+      <button class="btn-step" id="cmp-run">⚖ So sánh ngay</button>
+    </div>
+    <div class="cmp-rows" id="cmp-rows" style="margin-top:14px"></div>
+    <svg id="cmpchart" viewBox="0 0 680 240" role="img" aria-label="So sánh đường lan Simple và Complex"></svg>
+    <div class="sub" id="cmp-note" style="margin-top:10px"></div>
+  </div>
+</main>
+
+<script>
+// ===================== MÔ HÌNH MẠNG =====================
+// 10 node: cụm A = {0,1,2,3,4} (K5), cụm B = {5,6,7,8,9} (K5).
+// Node 1,2 (bên A) và 5,6 (bên B) là các node giáp cầu.
+var POS = [
+  {x:150,y:85},  {x:250,y:158}, {x:212,y:275}, {x:88,y:275},  {x:50,y:158},   // cụm A
+  {x:430,y:158}, {x:468,y:275}, {x:592,y:275}, {x:630,y:158}, {x:530,y:85}    // cụm B
+];
+var CLUSTER_A = [0,1,2,3,4], CLUSTER_B = [5,6,7,8,9];
+
+// Sinh cạnh của một cụm đầy đủ (clique)
+function cliqueEdges(nodes) {
+  var e = [];
+  for (var i = 0; i < nodes.length; i++)
+    for (var j = i+1; j < nodes.length; j++)
+      e.push([nodes[i], nodes[j], false]); // false = không phải cầu
+  return e;
+}
+var BASE_EDGES = cliqueEdges(CLUSTER_A).concat(cliqueEdges(CLUSTER_B));
+// Cầu hẹp: 1 sợi (1-5). Cầu rộng: 4 sợi chụm vào node 5,6.
+var BRIDGE_NARROW = [[1,5,true]];
+var BRIDGE_WIDE   = [[1,5,true],[1,6,true],[2,5,true],[2,6,true]];
+
+// ===================== TRẠNG THÁI =====================
+var state = {
+  mode: 'complex',        // 'simple' | 'complex'
+  k: 2,                   // ngưỡng cho complex
+  bridge: 'narrow',       // 'narrow' | 'wide'
+  seeds: new Set([0, 3]), // hạt mầm mặc định: hai node cụm A
+  adopted: new Set(),
+  round: 0,
+  history: [],            // adopter tích luỹ theo vòng
+  fresh: new Set(),       // node vừa adopt vòng này (để highlight)
+  done: false
+};
+var runTimer = null;
+
+function edges() { return BASE_EDGES.concat(state.bridge === 'wide' ? BRIDGE_WIDE : BRIDGE_NARROW); }
+
+function adjacency() {
+  var adj = {};
+  for (var i = 0; i < 10; i++) adj[i] = [];
+  edges().forEach(function(e){ adj[e[0]].push(e[1]); adj[e[1]].push(e[0]); });
+  return adj;
+}
+function effectiveK() { return state.mode === 'simple' ? 1 : state.k; }
+
+// ===================== MÔ PHỎNG =====================
+// Đếm số hàng xóm đã adopt của node v (dựa trên tập 'adopted')
+function adoptedNeighbors(v, adj, adopted) {
+  var c = 0;
+  adj[v].forEach(function(u){ if (adopted.has(u)) c++; });
+  return c;
+}
+
+// Một vòng đồng thời: trả về mảng node mới chấp nhận
+function stepNodes(adj, adopted, k) {
+  var neu = [];
+  for (var v = 0; v < 10; v++) {
+    if (adopted.has(v)) continue;
+    if (adoptedNeighbors(v, adj, adopted) >= k) neu.push(v);
+  }
+  return neu;
+}
+
+// Hàm thuần: mô phỏng đầy đủ tới khi dừng → mảng adopter tích luỹ theo vòng
+function simulate(seeds, k, bridgeWide) {
+  var adj = {};
+  for (var i = 0; i < 10; i++) adj[i] = [];
+  BASE_EDGES.concat(bridgeWide ? BRIDGE_WIDE : BRIDGE_NARROW)
+    .forEach(function(e){ adj[e[0]].push(e[1]); adj[e[1]].push(e[0]); });
+  var adopted = new Set(seeds);
+  var hist = [adopted.size];
+  for (var guard = 0; guard < 30; guard++) {
+    var neu = stepNodes(adj, adopted, k);
+    if (neu.length === 0) break;
+    neu.forEach(function(v){ adopted.add(v); });
+    hist.push(adopted.size);
+  }
+  return hist;
+}
+
+// ===================== ĐIỀU KHIỂN MÔ PHỎNG =====================
+function resetSim() {
+  stopRun();
+  state.adopted = new Set(state.seeds);
+  state.round = 0;
+  state.fresh = new Set();
+  state.history = [state.adopted.size];
+  state.done = state.seeds.size === 0;
+  render();
+}
+
+function doStep() {
+  if (state.done || state.seeds.size === 0) return false;
+  var adj = adjacency();
+  var neu = stepNodes(adj, state.adopted, effectiveK());
+  if (neu.length === 0) { state.done = true; render(); return false; }
+  state.fresh = new Set(neu);
+  neu.forEach(function(v){ state.adopted.add(v); });
+  state.round++;
+  state.history.push(state.adopted.size);
+  render();
+  return true;
+}
+
+function doRun() {
+  stopRun();
+  runTimer = setInterval(function(){
+    var progressed = doStep();
+    if (!progressed) stopRun();
+  }, 750);
+}
+function stopRun() { if (runTimer) { clearInterval(runTimer); runTimer = null; } }
+
+// ===================== RENDER MẠNG =====================
+var svg = document.getElementById('net');
+var SVGNS = 'http://www.w3.org/2000/svg';
+
+function buildNet() {
+  svg.innerHTML = '';
+  // Nhãn cụm
+  [['CỤM A', 150, 355], ['CỤM B', 530, 355]].forEach(function(c){
+    var t = document.createElementNS(SVGNS, 'text');
+    t.setAttribute('class', 'clabel'); t.setAttribute('x', c[1]); t.setAttribute('y', c[2]);
+    t.setAttribute('text-anchor', 'middle'); t.textContent = c[0];
+    svg.appendChild(t);
+  });
+  // Cạnh
+  edges().forEach(function(e){
+    var l = document.createElementNS(SVGNS, 'line');
+    l.setAttribute('class', 'edge' + (e[2] ? ' bridge' : ''));
+    l.setAttribute('x1', POS[e[0]].x); l.setAttribute('y1', POS[e[0]].y);
+    l.setAttribute('x2', POS[e[1]].x); l.setAttribute('y2', POS[e[1]].y);
+    svg.appendChild(l);
+  });
+  // Node + nhãn
+  for (var i = 0; i < 10; i++) {
+    var c = document.createElementNS(SVGNS, 'circle');
+    c.setAttribute('class', 'node susc'); c.setAttribute('r', 20);
+    c.setAttribute('cx', POS[i].x); c.setAttribute('cy', POS[i].y);
+    c.setAttribute('data-id', i);
+    (function(id){ c.addEventListener('click', function(){ toggleSeed(id); }); })(i);
+    svg.appendChild(c);
+    var t = document.createElementNS(SVGNS, 'text');
+    t.setAttribute('class', 'nlabel'); t.setAttribute('x', POS[i].x); t.setAttribute('y', POS[i].y + 4);
+    t.setAttribute('text-anchor', 'middle'); t.textContent = i;
+    svg.appendChild(t);
+  }
+}
+
+function paintNet() {
+  var circles = svg.querySelectorAll('circle.node');
+  circles.forEach(function(c){
+    var id = +c.getAttribute('data-id');
+    var cls = 'node';
+    if (state.seeds.has(id)) cls += ' seed';
+    else if (state.adopted.has(id)) cls += ' adopted';
+    else cls += ' susc';
+    if (state.fresh.has(id)) cls += ' fresh';
+    c.setAttribute('class', cls);
+  });
+}
+
+function toggleSeed(id) {
+  if (state.seeds.has(id)) state.seeds.delete(id);
+  else state.seeds.add(id);
+  resetSim();
+}
+
+// ===================== RENDER CHART tích luỹ =====================
+function renderChart() {
+  var chart = document.getElementById('chart');
+  chart.innerHTML = '';
+  var W = 680, H = 220, padL = 34, padB = 30, padT = 16, padR = 10;
+  var h = state.history;
+  var n = h.length;
+  var maxV = 10;
+  var plotW = W - padL - padR, plotH = H - padB - padT;
+  // Trục ngang
+  var axis = document.createElementNS(SVGNS, 'line');
+  axis.setAttribute('x1', padL); axis.setAttribute('y1', H - padB);
+  axis.setAttribute('x2', W - padR); axis.setAttribute('y2', H - padB);
+  axis.setAttribute('stroke', '#cbd5e1'); chart.appendChild(axis);
+  // Nhãn trục y (0 và 10)
+  [[0, H - padB], [maxV, padT]].forEach(function(p){
+    var t = document.createElementNS(SVGNS, 'text');
+    t.setAttribute('class', 'axlab'); t.setAttribute('x', padL - 6); t.setAttribute('y', p[1] + 4);
+    t.setAttribute('text-anchor', 'end'); t.textContent = p[0];
+    chart.appendChild(t);
+  });
+  var slot = plotW / Math.max(n, 1);
+  var bw = Math.min(slot * 0.6, 56);
+  for (var i = 0; i < n; i++) {
+    var val = h[i];
+    var bh = val / maxV * plotH;
+    var x = padL + slot * i + (slot - bw) / 2;
+    var y = H - padB - bh;
+    var r = document.createElementNS(SVGNS, 'rect');
+    r.setAttribute('class', 'bar' + (i === 0 ? ' seed0' : ''));
+    r.setAttribute('x', x); r.setAttribute('y', y);
+    r.setAttribute('width', bw); r.setAttribute('height', Math.max(bh, 1));
+    r.setAttribute('rx', 3);
+    chart.appendChild(r);
+    // giá trị
+    var vt = document.createElementNS(SVGNS, 'text');
+    vt.setAttribute('class', 'barlab'); vt.setAttribute('x', x + bw / 2); vt.setAttribute('y', y - 5);
+    vt.setAttribute('text-anchor', 'middle'); vt.textContent = val;
+    chart.appendChild(vt);
+    // nhãn vòng
+    var rt = document.createElementNS(SVGNS, 'text');
+    rt.setAttribute('class', 'axlab'); rt.setAttribute('x', x + bw / 2); rt.setAttribute('y', H - padB + 16);
+    rt.setAttribute('text-anchor', 'middle'); rt.textContent = 'V' + i;
+    chart.appendChild(rt);
+  }
+}
+
+// ===================== RENDER trạng thái =====================
+function render() {
+  paintNet();
+  var count = state.adopted.size;
+  document.getElementById('st-round').textContent = state.round;
+  document.getElementById('st-count').textContent = count;
+  document.getElementById('st-cov').textContent = (count * 10) + '%';
+  document.getElementById('st-k').textContent = 'k=' + effectiveK();
+
+  var banner = document.getElementById('banner');
+  if (state.seeds.size === 0) {
+    banner.className = 'banner stuck';
+    banner.textContent = '⚠ Chưa chọn seed. Bấm một node để đặt hạt mầm.';
+  } else if (state.done && count >= 10) {
+    banner.className = 'banner full';
+    banner.textContent = '✓ Đã phủ 100% sau ' + state.round + ' vòng.';
+  } else if (state.done) {
+    banner.className = 'banner stuck';
+    banner.textContent = '■ KẸT ở ' + count + '/10 (' + (count*10) + '%) sau ' + state.round +
+      ' vòng — không node nào còn đủ ' + effectiveK() + ' hàng xóm đã theo để lan tiếp.';
+  } else {
+    banner.className = 'banner run';
+    banner.textContent = state.round === 0
+      ? 'Vòng 0: chỉ có seed. Bấm Step để lan.'
+      : 'Vòng ' + state.round + ': ' + count + '/10 đã chấp nhận. Bấm Step để lan tiếp.';
+  }
+
+  document.getElementById('step').disabled = state.done || state.seeds.size === 0;
+  document.getElementById('run').disabled = state.done || state.seeds.size === 0;
+  document.getElementById('k-badge').className = 'kbadge' + (state.mode === 'simple' ? ' dim' : '');
+  document.getElementById('k-slider').disabled = state.mode === 'simple';
+
+  renderChart();
+}
+
+// ===================== SO SÁNH =====================
+function renderCompare() {
+  var wide = state.bridge === 'wide';
+  var seeds = Array.from(state.seeds);
+  var kComplex = state.mode === 'simple' ? Math.max(state.k, 2) : state.k;
+  var hs = simulate(seeds, 1, wide);          // simple = k1
+  var hc = simulate(seeds, kComplex, wide);   // complex
+
+  var covS = hs[hs.length - 1] * 10, covC = hc[hc.length - 1] * 10;
+  var rows = document.getElementById('cmp-rows');
+  function row(tag, cls, hist, cov) {
+    var full = cov >= 100;
+    return '<div class="cmp-row">' +
+      '<span class="cmp-tag ' + cls + '">' + tag + '</span>' +
+      '<span class="cmp-seq">' + hist.join(' → ') + '</span>' +
+      '<span class="cmp-cov ' + (full ? 'full' : 'part') + '">phủ ' + cov + '%' +
+      (full ? '' : ' (kẹt)') + '</span></div>';
+  }
+  rows.innerHTML =
+    row('Simple k=1', 's', hs, covS) +
+    row('Complex k=' + kComplex, 'c', hc, covC);
+
+  drawCmpChart(hs, hc, kComplex);
+
+  var note = document.getElementById('cmp-note');
+  if (covS > covC) {
+    note.innerHTML = '➡ Cùng mạng, cùng seed: <strong>Simple phủ ' + covS + '%</strong> còn <strong>Complex (k=' +
+      kComplex + ') chỉ ' + covC + '%</strong>. ' +
+      (wide ? 'Cầu đang <strong>rộng</strong> — thử gạt về <em>hẹp</em> để thấy complex kẹt sâu hơn.'
+            : 'Cầu đang <strong>hẹp</strong>: một sợi chỉ cho node đầu cầu 1 hàng xóm đã theo (&lt; k) nên complex không vượt được. Gạt cầu sang <em>rộng</em> để cứu nó.');
+  } else if (covS === covC && covS >= 100) {
+    note.innerHTML = '➡ Cả hai đều phủ 100% (thường vì cầu đang <strong>rộng</strong> đủ củng cố cho complex, hoặc k=1). ' +
+      'Gạt cầu về <em>hẹp</em> để thấy complex bắt đầu kẹt.';
+  } else {
+    note.innerHTML = '➡ Hai kiểu cho kết quả gần nhau ở cấu hình này. Đổi seed / ngưỡng k / độ rộng cầu để thấy phân kỳ.';
+  }
+}
+
+function drawCmpChart(hs, hc, kc) {
+  var el = document.getElementById('cmpchart');
+  el.innerHTML = '';
+  var W = 680, H = 240, padL = 34, padB = 34, padT = 30, padR = 12;
+  var plotW = W - padL - padR, plotH = H - padB - padT;
+  var maxRounds = Math.max(hs.length, hc.length) - 1;
+  var xOf = function(i){ return padL + (maxRounds === 0 ? 0 : i / maxRounds * plotW); };
+  var yOf = function(v){ return H - padB - v / 10 * plotH; };
+
+  // lưới ngang tại 5 và 10
+  [0, 5, 10].forEach(function(v){
+    var g = document.createElementNS(SVGNS, 'line');
+    g.setAttribute('class', 'gl');
+    g.setAttribute('x1', padL); g.setAttribute('y1', yOf(v));
+    g.setAttribute('x2', W - padR); g.setAttribute('y2', yOf(v));
+    el.appendChild(g);
+    var t = document.createElementNS(SVGNS, 'text');
+    t.setAttribute('class', 'axlab'); t.setAttribute('x', padL - 6); t.setAttribute('y', yOf(v) + 4);
+    t.setAttribute('text-anchor', 'end'); t.textContent = v;
+    el.appendChild(t);
+  });
+  // nhãn vòng
+  for (var i = 0; i <= maxRounds; i++) {
+    var t = document.createElementNS(SVGNS, 'text');
+    t.setAttribute('class', 'axlab'); t.setAttribute('x', xOf(i)); t.setAttribute('y', H - padB + 16);
+    t.setAttribute('text-anchor', 'middle'); t.textContent = 'V' + i;
+    el.appendChild(t);
+  }
+  function poly(hist, cls) {
+    var pts = hist.map(function(v, i){ return xOf(i) + ',' + yOf(v); }).join(' ');
+    var p = document.createElementNS(SVGNS, 'polyline');
+    p.setAttribute('class', cls); p.setAttribute('points', pts);
+    el.appendChild(p);
+    hist.forEach(function(v, i){
+      var c = document.createElementNS(SVGNS, 'circle');
+      c.setAttribute('class', cls === 'ln-s' ? 'pt-s' : 'pt-c');
+      c.setAttribute('cx', xOf(i)); c.setAttribute('cy', yOf(v)); c.setAttribute('r', 4);
+      el.appendChild(c);
+    });
+  }
+  poly(hs, 'ln-s');
+  poly(hc, 'ln-c');
+  // chú thích
+  var lg = [['Simple k=1', 'ln-s', 'pt-s', padL + 4], ['Complex k=' + kc, 'ln-c', 'pt-c', padL + 150]];
+  lg.forEach(function(item){
+    var ln = document.createElementNS(SVGNS, 'line');
+    ln.setAttribute('class', item[1]);
+    ln.setAttribute('x1', item[3]); ln.setAttribute('y1', padT - 14);
+    ln.setAttribute('x2', item[3] + 22); ln.setAttribute('y2', padT - 14);
+    el.appendChild(ln);
+    var t = document.createElementNS(SVGNS, 'text');
+    t.setAttribute('class', 'axlab'); t.setAttribute('x', item[3] + 28); t.setAttribute('y', padT - 10);
+    t.textContent = item[0];
+    el.appendChild(t);
+  });
+}
+
+// ===================== GẮN SỰ KIỆN =====================
+document.getElementById('mode-toggle').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if (!b) return;
+  state.mode = b.getAttribute('data-mode');
+  this.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
+  resetSim();
+});
+document.getElementById('bridge-toggle').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if (!b) return;
+  state.bridge = b.getAttribute('data-bridge');
+  this.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
+  buildNet();     // đổi cấu trúc cạnh
+  resetSim();
+});
+document.getElementById('k-slider').addEventListener('input', function(){
+  state.k = +this.value;
+  document.getElementById('k-badge').textContent = this.value;
+  resetSim();
+});
+document.getElementById('step').addEventListener('click', doStep);
+document.getElementById('run').addEventListener('click', doRun);
+document.getElementById('reset').addEventListener('click', resetSim);
+document.getElementById('cmp-run').addEventListener('click', renderCompare);
+
+// ===================== KHỞI TẠO =====================
+buildNet();
+resetSim();
+renderCompare();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

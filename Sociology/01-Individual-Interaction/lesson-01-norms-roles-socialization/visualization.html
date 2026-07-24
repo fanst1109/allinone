@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L1: Chuẩn mực & vai trò — Sociology</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fff5f6;
+    --accent: #be123c;
+    --accent-soft: #ffe4e6;
+    --accent-hover: #9f1239;
+    --cA: #e11d48;   /* hành vi A — đỏ */
+    --cB: #2563eb;   /* hành vi B — xanh */
+    --ink: #1e293b;
+    --muted: #64748b;
+  }
+  main { max-width: 960px; }
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #f1d4d9; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: var(--muted); font-size: 13px; margin-bottom: 14px; }
+
+  /* ===== Sim lưới chuẩn mực ===== */
+  .sim-wrap { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  .sim-canvas-col { flex: 1 1 320px; min-width: 0; }
+  .sim-ctrl-col { flex: 1 1 260px; min-width: 0; }
+  #grid {
+    width: 100%; max-width: 420px; height: auto; display: block;
+    border: 1px solid #e2e8f0; border-radius: 10px; image-rendering: pixelated;
+    background: #f8fafc;
+  }
+  .legend { display: flex; gap: 16px; margin-top: 10px; font-size: 13px; flex-wrap: wrap; }
+  .legend .chip { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+  .swatch.a { background: var(--cA); }
+  .swatch.b { background: var(--cB); }
+  .swatch.z { background: #fff; border: 2px solid #111; }
+
+  .readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 14px; }
+  .stat { background: var(--accent-soft); border-radius: 9px; padding: 8px 10px; }
+  .stat .k { font-size: 11px; color: var(--accent-hover); font-weight: 700; letter-spacing: .3px; }
+  .stat .v { font-size: 22px; font-weight: 800; color: var(--ink); line-height: 1.15; }
+
+  .slider-row { margin: 12px 0; }
+  .slider-row label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 4px; }
+  .slider-row label .num { color: var(--accent); }
+  .slider-row input[type=range] { width: 100%; accent-color: var(--accent); }
+  .slider-row .hint { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .toolbar button { border: 0; border-radius: 8px; padding: 9px 16px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-ghost { background: #f1f5f9; color: #334155; }
+  .btn-ghost:hover { background: #e2e8f0; }
+
+  .verdict { margin-top: 12px; font-size: 13px; padding: 10px 12px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0; color: #334155; line-height: 1.5; }
+
+  /* ===== Sơ đồ tập vai ===== */
+  .roleset-wrap { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+  .rs-svg-col { flex: 1 1 300px; min-width: 0; }
+  .rs-panel-col { flex: 1 1 260px; min-width: 0; }
+  #roleset-svg { width: 100%; height: auto; display: block; }
+  #roleset-svg .node { cursor: pointer; }
+  #roleset-svg .node circle { transition: all .15s; }
+  #roleset-svg .node text { font-weight: 700; font-size: 13px; fill: #fff; pointer-events: none; }
+  #roleset-svg .hub circle { fill: var(--accent); }
+  #roleset-svg .hub text { fill: #fff; font-size: 14px; font-weight: 800; }
+  #roleset-svg .spoke { stroke: #cbd5e1; stroke-width: 2; }
+  #roleset-svg .spoke.on { stroke: var(--accent); stroke-width: 3.5; }
+
+  .rs-panel { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; }
+  .rs-panel h3 { margin: 0 0 2px; font-size: 17px; color: var(--ink); }
+  .rs-kind { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 20px; background: var(--accent-soft); color: var(--accent-hover); margin-bottom: 10px; }
+  .rs-panel h4 { margin: 12px 0 4px; font-size: 12px; letter-spacing: .4px; text-transform: uppercase; color: var(--muted); }
+  .rs-panel ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.6; color: #334155; }
+  .rs-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .rs-tags span { background: #fff; border: 1px solid #cbd5e1; border-radius: 20px; padding: 3px 11px; font-size: 12px; color: #334155; }
+  .rs-note { margin-top: 14px; font-size: 12.5px; color: var(--muted); line-height: 1.55; border-top: 1px dashed #cbd5e1; padding-top: 10px; }
+  .rs-note b { color: var(--accent-hover); }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Sociology</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 1</a>
+  <span class="sep">·</span>
+  <span class="current">L1: Chuẩn mực & vai trò</span>
+  <span class="sep">·</span>
+  <a href="../lesson-02-schelling-segregation/visualization.html">L2: Phân ly Schelling →</a>
+</nav>
+<main>
+  <h1>Chuẩn mực, vai trò & xã hội hóa — mô phỏng sống</h1>
+  <div class="lead">Không ai "ra lệnh" cho chuẩn mực. Bên dưới, mỗi ô là <strong>một người</strong> chọn một trong hai hành vi tương đương (đỏ/xanh) và mỗi vòng <strong>làm theo đa số 8 hàng xóm</strong>. Bấm <em>Chạy</em> để xem các <strong>mảng chuẩn mực</strong> tự kết tinh.</div>
+
+  <div class="module">
+    <h2>1. Chuẩn mực tự nổi lên trên lưới</h2>
+    <div class="sub">Quy tắc cục bộ lặp lại → trật tự toàn cục. Kéo hai slider để đổi mức nhiễu và số người "ngoan cố".</div>
+
+    <div class="sim-wrap">
+      <div class="sim-canvas-col">
+        <canvas id="grid" width="420" height="420"></canvas>
+        <div class="legend">
+          <span class="chip"><span class="swatch a"></span> Hành vi A (đỏ)</span>
+          <span class="chip"><span class="swatch b"></span> Hành vi B (xanh)</span>
+          <span class="chip"><span class="swatch z"></span> Ngoan cố (viền đen)</span>
+        </div>
+      </div>
+
+      <div class="sim-ctrl-col">
+        <div class="readouts">
+          <div class="stat"><div class="k">VÒNG</div><div class="v" id="r-round">0</div></div>
+          <div class="stat"><div class="k">ĐỒNG THUẬN</div><div class="v" id="r-conf">—</div></div>
+          <div class="stat"><div class="k">TỈ LỆ ĐỎ (A)</div><div class="v" id="r-pa">—</div></div>
+        </div>
+
+        <div class="slider-row">
+          <label>Nhiễu (người phá cách ngẫu nhiên) <span class="num" id="lbl-noise">5%</span></label>
+          <input type="range" id="s-noise" min="0" max="30" step="1" value="5">
+          <div class="hint">Mỗi vòng, tỉ lệ này chọn ngẫu nhiên thay vì theo đa số.</div>
+        </div>
+
+        <div class="slider-row">
+          <label>Độ ngoan cố (zealot — không bao giờ đổi) <span class="num" id="lbl-stub">0%</span></label>
+          <input type="range" id="s-stub" min="0" max="30" step="1" value="0">
+          <div class="hint">Người giữ khư khư lựa chọn ban đầu, ghim vùng quanh mình.</div>
+        </div>
+
+        <div class="slider-row">
+          <label>Kích thước lưới <span class="num" id="lbl-size">32 × 32</span></label>
+          <input type="range" id="s-size" min="16" max="48" step="8" value="32">
+          <div class="hint">Đổi kích thước sẽ khởi tạo lại lưới.</div>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn-primary" id="btn-run">▶ Chạy</button>
+          <button class="btn-ghost" id="btn-step">⏭ 1 vòng</button>
+          <button class="btn-ghost" id="btn-reset">↺ Khởi tạo lại</button>
+        </div>
+
+        <div class="verdict" id="verdict">Ban đầu mọi thứ ngẫu nhiên — đồng thuận còn thấp, các mảng chưa hình thành. Bấm <strong>Chạy</strong> và quan sát chỉ số đồng thuận leo lên khi các mảng đồng nhất hình thành.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>2. Tập vai: một người, nhiều vị trí</h2>
+    <div class="sub">Nút giữa là <strong>một con người</strong>. Năm nút quanh nó là <strong>tập địa vị (status set)</strong> — các vị trí xã hội người đó giữ cùng lúc. Bấm mỗi vị trí để xem <strong>vai trò</strong> và <strong>tập vai (role-set)</strong> của nó.</div>
+
+    <div class="roleset-wrap">
+      <div class="rs-svg-col">
+        <svg id="roleset-svg" viewBox="0 0 520 400" role="img" aria-label="Sơ đồ tập vai"></svg>
+      </div>
+      <div class="rs-panel-col">
+        <div class="rs-panel" id="rs-panel"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+/* =========================================================
+   MODULE 1 — Chuẩn mực nổi lên (majority-rule cellular automaton)
+   Mỗi ô là một tác nhân chọn 1 (A/đỏ) hoặc 0 (B/xanh).
+   Mỗi vòng: theo đa số 8 hàng xóm (Moore, biên cuộn tròn).
+   ========================================================= */
+var cv = document.getElementById('grid');
+var ctx = cv.getContext('2d');
+var N = 32;
+var grid, stubborn;
+var round = 0;
+var timer = null;
+var noise = 0.05;     // tỉ lệ chọn ngẫu nhiên mỗi vòng
+var stubFrac = 0.0;   // tỉ lệ ô ngoan cố
+
+var COL = { a: '#e11d48', b: '#2563eb' };
+
+function idx(r, c) { return r * N + c; }
+
+function initGrid() {
+  grid = new Uint8Array(N * N);
+  stubborn = new Uint8Array(N * N);
+  for (var i = 0; i < N * N; i++) {
+    grid[i] = Math.random() < 0.5 ? 1 : 0;
+    stubborn[i] = Math.random() < stubFrac ? 1 : 0;
+  }
+  round = 0;
+}
+
+// Đếm số hàng xóm A (=1) quanh ô (r,c), biên cuộn tròn (torus)
+function countNeighborsA(r, c) {
+  var s = 0;
+  for (var dr = -1; dr <= 1; dr++) {
+    for (var dc = -1; dc <= 1; dc++) {
+      if (dr === 0 && dc === 0) continue;
+      var rr = (r + dr + N) % N;
+      var cc = (c + dc + N) % N;
+      s += grid[idx(rr, cc)];
+    }
+  }
+  return s; // 0..8
+}
+
+// Đa số quanh ô: trả về 1 (A), 0 (B), hoặc -1 (hòa 4-4)
+function majorityAt(r, c) {
+  var a = countNeighborsA(r, c);
+  if (a > 4) return 1;
+  if (a < 4) return 0;
+  return -1;
+}
+
+function step() {
+  var next = new Uint8Array(N * N);
+  for (var r = 0; r < N; r++) {
+    for (var c = 0; c < N; c++) {
+      var i = idx(r, c);
+      if (stubborn[i]) { next[i] = grid[i]; continue; }      // ngoan cố: giữ nguyên
+      if (Math.random() < noise) { next[i] = Math.random() < 0.5 ? 1 : 0; continue; } // nhiễu
+      var m = majorityAt(r, c);
+      next[i] = (m === -1) ? grid[i] : m;                     // hòa → giữ nguyên
+    }
+  }
+  grid = next;
+  round++;
+}
+
+// Chỉ số đồng thuận: % ô đang khớp với đa số hàng xóm (hòa tính là khớp)
+function conformity() {
+  var ok = 0;
+  for (var r = 0; r < N; r++) {
+    for (var c = 0; c < N; c++) {
+      var m = majorityAt(r, c);
+      if (m === -1 || m === grid[idx(r, c)]) ok++;
+    }
+  }
+  return ok / (N * N);
+}
+
+function fracA() {
+  var a = 0;
+  for (var i = 0; i < N * N; i++) a += grid[i];
+  return a / (N * N);
+}
+
+function draw() {
+  var cell = cv.width / N;
+  for (var r = 0; r < N; r++) {
+    for (var c = 0; c < N; c++) {
+      var i = idx(r, c);
+      ctx.fillStyle = grid[i] ? COL.a : COL.b;
+      ctx.fillRect(c * cell, r * cell, cell, cell);
+      if (stubborn[i]) {
+        ctx.strokeStyle = '#111';
+        ctx.lineWidth = Math.max(1, cell * 0.16);
+        ctx.strokeRect(c * cell + ctx.lineWidth / 2, r * cell + ctx.lineWidth / 2,
+                       cell - ctx.lineWidth, cell - ctx.lineWidth);
+      }
+    }
+  }
+}
+
+function updateReadouts() {
+  var conf = conformity();
+  var pa = fracA();
+  document.getElementById('r-round').textContent = round;
+  document.getElementById('r-conf').textContent = Math.round(conf * 100) + '%';
+  document.getElementById('r-pa').textContent = Math.round(pa * 100) + '%';
+
+  var v = document.getElementById('verdict');
+  if (round === 0) {
+    v.innerHTML = 'Ban đầu ngẫu nhiên — đồng thuận còn thấp, chưa có mảng. Bấm <strong>Chạy</strong> để xem chỉ số này leo lên khi các mảng chuẩn mực kết tinh.';
+  } else if (conf >= 0.97) {
+    v.innerHTML = '<strong>Đã ổn định.</strong> Đồng thuận ≈ ' + Math.round(conf * 100) + '%: gần như mọi người khớp với hàng xóm — các <strong>mảng chuẩn mực</strong> đã kết tinh. Nếu thấy nhiều mảng đỏ/xanh cùng tồn tại → nhiều chuẩn mực địa phương (như phương ngữ theo vùng).';
+  } else if (conf >= 0.85) {
+    v.innerHTML = 'Đang hội tụ: biên các mảng trơn dần, đảo nhỏ bị "nuốt". Đồng thuận ' + Math.round(conf * 100) + '%.';
+  } else {
+    v.innerHTML = 'Nhiễu cao đang khuấy động biên các mảng — chuẩn mực khó bám trụ. Giảm slider <em>Nhiễu</em> để thấy hệ ổn định.';
+  }
+}
+
+function refresh() { draw(); updateReadouts(); }
+
+function stopRun() {
+  if (timer) { clearInterval(timer); timer = null; }
+  document.getElementById('btn-run').textContent = '▶ Chạy';
+}
+function toggleRun() {
+  if (timer) { stopRun(); return; }
+  document.getElementById('btn-run').textContent = '⏸ Dừng';
+  timer = setInterval(function () {
+    step(); refresh();
+    if (conformity() >= 0.999) stopRun(); // hội tụ tuyệt đối → tự dừng
+  }, 180);
+}
+
+document.getElementById('btn-run').onclick = toggleRun;
+document.getElementById('btn-step').onclick = function () { stopRun(); step(); refresh(); };
+document.getElementById('btn-reset').onclick = function () { stopRun(); initGrid(); refresh(); };
+
+document.getElementById('s-noise').oninput = function () {
+  noise = +this.value / 100;
+  document.getElementById('lbl-noise').textContent = this.value + '%';
+};
+document.getElementById('s-stub').oninput = function () {
+  stubFrac = +this.value / 100;
+  document.getElementById('lbl-stub').textContent = this.value + '%';
+  // đổi độ ngoan cố → gieo lại mặt nạ zealot, giữ nguyên màu hiện tại
+  for (var i = 0; i < N * N; i++) stubborn[i] = Math.random() < stubFrac ? 1 : 0;
+  draw();
+};
+document.getElementById('s-size').oninput = function () {
+  stopRun();
+  N = +this.value;
+  document.getElementById('lbl-size').textContent = N + ' × ' + N;
+  initGrid(); refresh();
+};
+
+initGrid(); refresh();
+
+/* =========================================================
+   MODULE 2 — Sơ đồ tập vai (status set + role-set)
+   ========================================================= */
+var STATUSES = [
+  { id: 'con', label: 'Con', kind: 'Địa vị gán (ascribed)',
+    role: ['Hiếu thảo, lễ phép', 'Phụ giúp việc nhà', 'Giữ liên lạc với gia đình'],
+    roleSet: ['với cha mẹ', 'với ông bà', 'với anh chị em'] },
+  { id: 'sv', label: 'Sinh viên', kind: 'Địa vị đạt được (achieved)',
+    role: ['Đi học đúng giờ', 'Nộp bài, thi trung thực', 'Tham gia thảo luận'],
+    roleSet: ['với giảng viên', 'với bạn cùng lớp', 'với cố vấn học tập', 'với thủ thư'] },
+  { id: 'nv', label: 'Nhân viên', kind: 'Địa vị đạt được (achieved)',
+    role: ['Đúng ca làm', 'Hoàn thành công việc', 'Tuân thủ nội quy'],
+    roleSet: ['với quản lý', 'với đồng nghiệp', 'với khách hàng'] },
+  { id: 'ban', label: 'Bạn thân', kind: 'Địa vị đạt được (achieved)',
+    role: ['Lắng nghe, chia sẻ', 'Giữ bí mật', 'Có mặt khi cần'],
+    roleSet: ['với người bạn đó', 'với nhóm bạn chung'] },
+  { id: 'cd', label: 'Công dân', kind: 'Gán + đạt được',
+    role: ['Tuân thủ pháp luật', 'Đóng thuế', 'Tham gia bầu cử'],
+    roleSet: ['với nhà nước', 'với cộng đồng dân cư'] }
+];
+
+var svg = document.getElementById('roleset-svg');
+var SVGNS = 'http://www.w3.org/2000/svg';
+var CX = 260, CY = 200, R = 138;
+var nodeEls = {};
+
+function mk(tag, attrs) {
+  var e = document.createElementNS(SVGNS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+function buildRoleset() {
+  // spokes trước (để nằm dưới node)
+  var spokes = {};
+  STATUSES.forEach(function (st, k) {
+    var ang = -Math.PI / 2 + k * (2 * Math.PI / STATUSES.length);
+    var x = CX + R * Math.cos(ang);
+    var y = CY + R * Math.sin(ang);
+    st._x = x; st._y = y;
+    var line = mk('line', { x1: CX, y1: CY, x2: x, y2: y, class: 'spoke' });
+    spokes[st.id] = line;
+    svg.appendChild(line);
+  });
+
+  // hub (một người)
+  var hub = mk('g', { class: 'hub' });
+  hub.appendChild(mk('circle', { cx: CX, cy: CY, r: 40 }));
+  var ht = mk('text', { x: CX, y: CY + 5, 'text-anchor': 'middle' });
+  ht.textContent = 'BẠN';
+  hub.appendChild(ht);
+  svg.appendChild(hub);
+
+  // nodes
+  STATUSES.forEach(function (st) {
+    var g = mk('g', { class: 'node', tabindex: '0', role: 'button',
+                      'aria-label': st.label });
+    var circ = mk('circle', { cx: st._x, cy: st._y, r: 40, fill: '#94a3b8' });
+    var t = mk('text', { x: st._x, y: st._y + 5, 'text-anchor': 'middle' });
+    t.textContent = st.label;
+    g.appendChild(circ);
+    g.appendChild(t);
+    g.addEventListener('click', function () { selectStatus(st.id); });
+    g.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectStatus(st.id); }
+    });
+    svg.appendChild(g);
+    nodeEls[st.id] = { circle: circ, spoke: spokes[st.id] };
+  });
+}
+
+function selectStatus(id) {
+  var st = STATUSES.find(function (s) { return s.id === id; });
+  // tô lại node + spoke
+  STATUSES.forEach(function (s) {
+    var on = s.id === id;
+    nodeEls[s.id].circle.setAttribute('fill', on ? 'var(--accent)' : '#94a3b8');
+    nodeEls[s.id].circle.setAttribute('r', on ? 44 : 40);
+    nodeEls[s.id].spoke.setAttribute('class', on ? 'spoke on' : 'spoke');
+  });
+
+  var roleLis = st.role.map(function (r) { return '<li>' + r + '</li>'; }).join('');
+  var tags = st.roleSet.map(function (r) { return '<span>' + r + '</span>'; }).join('');
+  document.getElementById('rs-panel').innerHTML =
+    '<h3>' + st.label + '</h3>' +
+    '<div class="rs-kind">' + st.kind + '</div>' +
+    '<h4>Vai trò (hành vi kỳ vọng)</h4><ul>' + roleLis + '</ul>' +
+    '<h4>Tập vai — role-set (' + st.roleSet.length + ' tuyến quan hệ)</h4>' +
+    '<div class="rs-tags">' + tags + '</div>' +
+    '<div class="rs-note">Cả <b>' + STATUSES.length + '</b> nút quanh "BẠN" là <b>tập địa vị</b> (nhiều vị trí của một người). ' +
+    'Riêng "' + st.label + '" lại có <b>' + st.roleSet.length + ' tuyến quan hệ</b> — đó là <b>tập vai (role-set)</b>. ' +
+    'Khi hai địa vị đòi hỏi cùng lúc (vd ca làm trùng giờ thi) → <b>xung đột vai</b>; ' +
+    'khi một địa vị có đòi hỏi mâu thuẫn bên trong → <b>căng thẳng vai</b>.</div>';
+}
+
+buildRoleset();
+selectStatus('sv'); // mặc định mở "Sinh viên"
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

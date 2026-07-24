@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L10: Bất bình đẳng — đường Lorenz & Gini — Sociology</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fff5f5;
+    --accent: #be123c;
+    --accent-soft: #ffe4e6;
+    --accent-hover: #9f1239;
+  }
+  main { max-width: 1000px; }
+
+  .lead { color: #475569; font-size: 15px; margin-bottom: 20px; }
+  .module {
+    background: #fff; border: 1px solid #f0d9dd; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; }
+  .module .sub { color: #64748b; font-size: 13px; margin-bottom: 14px; }
+
+  /* Layout 2 cột: đồ thị + điều khiển */
+  .stage { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-start; }
+  .plot-col { flex: 1 1 420px; min-width: 0; }
+  .ctrl-col { flex: 1 1 320px; min-width: 0; }
+
+  svg { display: block; width: 100%; height: auto; max-width: 460px; margin: 0 auto; }
+
+  /* Readout Gini */
+  .gini-box {
+    text-align: center; background: var(--accent-soft); border: 1px solid #f6c6ce;
+    border-radius: 12px; padding: 12px; margin-bottom: 14px;
+  }
+  .gini-box .num { font-size: 46px; font-weight: 800; color: var(--accent); line-height: 1; }
+  .gini-box .lab { font-size: 14px; font-weight: 700; margin-top: 4px; }
+  .gini-box .eq { font-size: 12px; color: #64748b; margin-top: 6px; }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 6px; }
+  .stat {
+    background: #fff; border: 1px solid #e3e1dc; border-radius: 8px; padding: 8px 10px;
+  }
+  .stat .k { font-size: 11px; color: #64748b; font-weight: 600; }
+  .stat .v { font-size: 19px; font-weight: 800; color: #1e293b; margin-top: 1px; }
+
+  /* Sliders */
+  .slider-row { display: flex; align-items: center; gap: 10px; margin: 7px 0; }
+  .slider-row .name { width: 118px; font-size: 12px; font-weight: 700; color: #334155; flex-shrink: 0; }
+  .slider-row input[type=range] { flex: 1; min-width: 0; accent-color: var(--accent); }
+  .slider-row .share { width: 52px; text-align: right; font-size: 12px; font-weight: 700; color: var(--accent); flex-shrink: 0; }
+
+  .note { font-size: 12px; color: #64748b; margin: 10px 0 2px; }
+
+  /* Buttons */
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .btns button {
+    border: 1px solid #cbd5e1; background: #fff; border-radius: 8px;
+    padding: 8px 13px; cursor: pointer; font-size: 13px; font-weight: 700; color: #1e293b;
+    transition: all .12s;
+  }
+  .btns button:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .btns button.preset { border-color: #f6c6ce; }
+  .btns button.reset { background: #e2e8f0; border-color: #cbd5e1; color: #334155; }
+  .btns button.reset:hover { background: #cbd5e1; }
+  .toggle { display: inline-flex; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; }
+  .toggle button { border: 0; border-radius: 0; }
+  .toggle button.on { background: var(--accent); color: #fff; }
+  .toggle button.on:hover { background: var(--accent-hover); }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; font-size: 12px; color: #475569; margin-top: 6px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+  .sw-a { background: rgba(190,18,60,.22); border: 1px solid var(--accent); }
+  .sw-lor { background: var(--accent); }
+  .sw-eq { background: repeating-linear-gradient(90deg,#334155 0 4px,transparent 4px 8px); }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Sociology</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 3</a>
+  <span class="sep">·</span>
+  <a href="../lesson-09-stratification-mobility/visualization.html">← L9</a>
+  <span class="sep">·</span>
+  <span class="current">L10: Bất bình đẳng (Gini)</span>
+  <span class="sep">·</span>
+  <a href="../lesson-11-collective-action-tipping/visualization.html">L11: Hành động tập thể →</a>
+</nav>
+<main>
+  <h1>Đường Lorenz &amp; hệ số Gini — phòng thí nghiệm bất bình đẳng</h1>
+  <div class="lead">Kéo thu nhập của từng nhóm dân cư (xếp từ <strong>nghèo → giàu</strong>). Đường Lorenz võng theo, vùng <strong>A</strong> phình ra, và <strong>Gini = 2×A</strong> cập nhật tức thời. Bấm preset để so sánh các xã hội.</div>
+
+  <div class="module">
+    <h2>Mô phỏng trực tiếp</h2>
+    <div class="sub">Đường chéo đứt nét = bình đẳng tuyệt đối. Càng võng, bất bình đẳng càng lớn.</div>
+    <div class="stage">
+      <div class="plot-col">
+        <svg id="plot" width="440" height="440" viewBox="0 0 440 440" role="img" aria-label="Đường Lorenz"></svg>
+        <div class="legend">
+          <span><i class="sw-eq"></i> Đường bình đẳng (45°)</span>
+          <span><i class="sw-lor"></i> Đường Lorenz</span>
+          <span><i class="sw-a"></i> Vùng A (bất bình đẳng)</span>
+        </div>
+      </div>
+      <div class="ctrl-col">
+        <div class="gini-box">
+          <div class="num" id="gini">—</div>
+          <div class="lab" id="gini-lab">—</div>
+          <div class="eq" id="gini-eq">Gini = 2·A = 1 − 2·B</div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat"><div class="k">Top 10% nắm</div><div class="v" id="s-top10">—</div></div>
+          <div class="stat"><div class="k">Bottom 40% nắm</div><div class="v" id="s-bot40">—</div></div>
+          <div class="stat"><div class="k">Tỉ số S80/S20</div><div class="v" id="s-ratio">—</div></div>
+          <div class="stat"><div class="k">Diện tích A</div><div class="v" id="s-areaA">—</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Thu nhập từng nhóm</h2>
+    <div class="sub">Mỗi thanh trượt = "miếng bánh" thu nhập của một nhóm. % bên phải là phần nhóm đó nắm.</div>
+    <div class="btns" style="margin-top:0;margin-bottom:12px;">
+      <div class="toggle" id="toggle-n">
+        <button data-n="5" class="on">5 nhóm (ngũ phân vị)</button>
+        <button data-n="10">10 nhóm (thập phân vị)</button>
+      </div>
+    </div>
+    <div id="sliders"></div>
+    <div class="note">Đường Lorenz tự sắp xếp các nhóm từ nghèo → giàu trước khi cộng dồn, nên đường luôn lồi dù bạn kéo lộn xộn.</div>
+    <div class="btns">
+      <button class="preset" data-preset="nordic">🇸🇪 Bắc Âu (bình đẳng)</button>
+      <button class="preset" data-preset="typical">🌍 Điển hình (thực tế)</button>
+      <button class="preset" data-preset="extreme">💥 Cực đoan</button>
+      <button class="reset" id="reset">↺ Về bình đẳng tuyệt đối (Gini 0)</button>
+    </div>
+  </div>
+</main>
+
+<script>
+// ===== Trạng thái =====
+var n = 5;
+var vals = [5, 10, 15, 22, 48];   // "miếng bánh" thu nhập mỗi nhóm (nghèo → giàu)
+
+var PRESETS = {
+  nordic:  { n: 5, vals: [10, 15, 20, 25, 30] },   // Gini 0.20
+  typical: { n: 5, vals: [5, 10, 15, 22, 48] },    // Gini 0.39
+  extreme: { n: 5, vals: [1, 2, 3, 4, 90] }         // Gini 0.72
+};
+var DEFAULT10 = [3, 4, 5, 6, 7, 9, 11, 13, 17, 25]; // gradient decile
+
+// ===== Toán =====
+// Trả về {Y, gini} — Y[0..n] là thu nhập tích lũy (đã sắp xếp nghèo→giàu).
+function computed() {
+  var total = vals.reduce(function(a, b){ return a + b; }, 0) || 1;
+  var sorted = vals.slice().sort(function(a, b){ return a - b; });
+  var Y = [0], c = 0;
+  for (var i = 0; i < sorted.length; i++) { c += sorted[i] / total; Y.push(c); }
+  Y[n] = 1; // chống sai số cộng dồn
+  var sum = 0;
+  for (var k = 1; k <= n; k++) sum += (Y[k] + Y[k - 1]);
+  var gini = 1 - sum / n;                  // = 1 − (1/n)·Σ(Y_i + Y_{i-1})
+  return { total: total, Y: Y, gini: gini };
+}
+
+// Nội suy tuyến tính đường Lorenz tại x∈[0,1]
+function lorenzAt(Y, x) {
+  var pos = x * n;
+  var i = Math.floor(pos);
+  if (i >= n) return Y[n];
+  var frac = pos - i;
+  return Y[i] + frac * (Y[i + 1] - Y[i]);
+}
+
+// ===== Vẽ SVG =====
+var L = 46, R = 16, T = 16, B = 46;   // lề
+var W = 440, H = 440;
+var PW = W - L - R, PH = H - T - B;
+function px(x) { return L + x * PW; }
+function py(y) { return T + PH * (1 - y); }
+
+function buildSVG(Y) {
+  var s = '';
+  // nền vùng vẽ
+  s += '<rect x="' + L + '" y="' + T + '" width="' + PW + '" height="' + PH + '" fill="#fff" stroke="#e5e7eb"/>';
+  // lưới + nhãn trục
+  var ticks = [0, 0.2, 0.4, 0.6, 0.8, 1];
+  for (var t = 0; t < ticks.length; t++) {
+    var g = ticks[t];
+    s += '<line x1="' + px(g) + '" y1="' + py(0) + '" x2="' + px(g) + '" y2="' + py(1) + '" stroke="#eef0f2"/>';
+    s += '<line x1="' + px(0) + '" y1="' + py(g) + '" x2="' + px(1) + '" y2="' + py(g) + '" stroke="#eef0f2"/>';
+    s += '<text x="' + px(g) + '" y="' + (py(0) + 14) + '" font-size="9" fill="#94a3b8" text-anchor="middle">' + (g * 100) + '</text>';
+    if (g > 0) s += '<text x="' + (px(0) - 6) + '" y="' + (py(g) + 3) + '" font-size="9" fill="#94a3b8" text-anchor="end">' + (g * 100) + '</text>';
+  }
+  // vùng A: giữa đường chéo và Lorenz
+  var pa = 'M ' + px(0) + ' ' + py(0) + ' L ' + px(1) + ' ' + py(1) + ' ';
+  for (var i = n - 1; i >= 0; i--) pa += 'L ' + px(i / n) + ' ' + py(Y[i]) + ' ';
+  pa += 'Z';
+  s += '<path d="' + pa + '" fill="rgba(190,18,60,.20)" stroke="none"/>';
+  // đường chéo bình đẳng (đứt nét)
+  s += '<line x1="' + px(0) + '" y1="' + py(0) + '" x2="' + px(1) + '" y2="' + py(1) + '" stroke="#334155" stroke-width="1.5" stroke-dasharray="5 4"/>';
+  // đường Lorenz
+  var pl = 'M ' + px(0) + ' ' + py(0);
+  for (var j = 1; j <= n; j++) pl += ' L ' + px(j / n) + ' ' + py(Y[j]);
+  s += '<path d="' + pl + '" fill="none" stroke="#be123c" stroke-width="2.5" stroke-linejoin="round"/>';
+  // điểm
+  for (var k = 1; k <= n; k++)
+    s += '<circle cx="' + px(k / n) + '" cy="' + py(Y[k]) + '" r="3" fill="#be123c"/>';
+  // tiêu đề trục
+  s += '<text x="' + px(0.5) + '" y="' + (H - 6) + '" font-size="11" fill="#475569" text-anchor="middle" font-weight="600">% dân số tích lũy (nghèo → giàu)</text>';
+  s += '<text x="14" y="' + py(0.5) + '" font-size="11" fill="#475569" text-anchor="middle" font-weight="600" transform="rotate(-90 14 ' + py(0.5) + ')">% thu nhập tích lũy</text>';
+  return s;
+}
+
+// ===== Nhãn định tính =====
+function giniLabel(g) {
+  if (g < 0.05) return ['Bình đẳng gần tuyệt đối', '#15803d'];
+  if (g < 0.30) return ['Thấp — khá bình đẳng', '#16a34a'];
+  if (g < 0.40) return ['Trung bình', '#ca8a04'];
+  if (g < 0.50) return ['Cao', '#ea580c'];
+  return ['Rất cao', '#b91c1c'];
+}
+
+function pct(x) { return (x * 100).toFixed(1) + '%'; }
+
+// ===== Render =====
+function render() {
+  var c = computed();
+  var g = c.gini;
+  document.getElementById('gini').textContent = g.toFixed(3);
+  var lab = giniLabel(g);
+  var le = document.getElementById('gini-lab');
+  le.textContent = lab[0];
+  le.style.color = lab[1];
+
+  var A = g / 2, Bv = (1 - g) / 2;
+  document.getElementById('gini-eq').textContent =
+    'A = ' + A.toFixed(3) + '  ·  B = ' + Bv.toFixed(3) + '  →  Gini = 2·A = 1 − 2·B';
+
+  var top10 = 1 - lorenzAt(c.Y, 0.9);
+  var bot40 = lorenzAt(c.Y, 0.4);
+  var topQ = 1 - lorenzAt(c.Y, 0.8);
+  var botQ = lorenzAt(c.Y, 0.2);
+  document.getElementById('s-top10').textContent = pct(top10);
+  document.getElementById('s-bot40').textContent = pct(bot40);
+  document.getElementById('s-ratio').textContent = botQ > 1e-6 ? (topQ / botQ).toFixed(1) + '×' : '∞';
+  document.getElementById('s-areaA').textContent = A.toFixed(3);
+
+  // cập nhật % mỗi slider
+  for (var i = 0; i < n; i++) {
+    var sh = document.getElementById('share-' + i);
+    if (sh) sh.textContent = pct(vals[i] / c.total);
+  }
+
+  document.getElementById('plot').innerHTML = buildSVG(c.Y);
+}
+
+// ===== Dựng sliders =====
+function buildSliders() {
+  var wrap = document.getElementById('sliders');
+  wrap.innerHTML = '';
+  for (var i = 0; i < n; i++) {
+    var row = document.createElement('div');
+    row.className = 'slider-row';
+    var label = (i === 0) ? 'Nhóm 1 (nghèo nhất)'
+              : (i === n - 1) ? 'Nhóm ' + n + ' (giàu nhất)'
+              : 'Nhóm ' + (i + 1);
+    row.innerHTML =
+      '<span class="name">' + label + '</span>' +
+      '<input type="range" min="0" max="100" step="1" value="' + vals[i] + '" data-i="' + i + '">' +
+      '<span class="share" id="share-' + i + '">—</span>';
+    wrap.appendChild(row);
+  }
+  wrap.querySelectorAll('input[type=range]').forEach(function(inp) {
+    inp.addEventListener('input', function() {
+      vals[parseInt(this.dataset.i, 10)] = parseInt(this.value, 10);
+      render();
+    });
+  });
+}
+
+function setDistribution(newN, newVals) {
+  n = newN;
+  vals = newVals.slice();
+  document.querySelectorAll('#toggle-n button').forEach(function(b) {
+    b.classList.toggle('on', parseInt(b.dataset.n, 10) === n);
+  });
+  buildSliders();
+  render();
+}
+
+// ===== Sự kiện =====
+document.querySelectorAll('#toggle-n button').forEach(function(b) {
+  b.addEventListener('click', function() {
+    var newN = parseInt(this.dataset.n, 10);
+    if (newN === n) return;
+    setDistribution(newN, newN === 5 ? PRESETS.typical.vals : DEFAULT10);
+  });
+});
+
+document.querySelectorAll('button.preset').forEach(function(b) {
+  b.addEventListener('click', function() {
+    var p = PRESETS[this.dataset.preset];
+    setDistribution(p.n, p.vals);
+  });
+});
+
+document.getElementById('reset').addEventListener('click', function() {
+  // Bình đẳng tuyệt đối: mọi nhóm bằng nhau → Gini = 0
+  var eq = [];
+  for (var i = 0; i < n; i++) eq.push(20);
+  setDistribution(n, eq);
+});
+
+// ===== Khởi tạo =====
+buildSliders();
+render();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

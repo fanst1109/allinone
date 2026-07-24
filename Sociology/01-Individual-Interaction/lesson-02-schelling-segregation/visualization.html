@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L2: Phân ly Schelling — Sociology</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #fdf2f4;
+    --accent: #be123c;
+    --accent-soft: #ffe4e6;
+    --accent-hover: #9f1239;
+    --grpA: #e11d48;   /* nhóm A — hồng đỏ */
+    --grpB: #0e7490;   /* nhóm B — xanh */
+  }
+  main { max-width: 980px; }
+  .lead { color: #6b3a44; font-size: 15px; margin-bottom: 22px; }
+
+  .module {
+    background: #fff; border: 1px solid #f1d6dc; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .module h2 { margin: 0 0 4px; font-size: 19px; color: #7f1d2e; }
+  .module .sub { color: #8a5b64; font-size: 13px; margin-bottom: 14px; }
+
+  /* Layout: grid + panel */
+  .lab { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-start; }
+  .lab .grid-wrap { flex: 1 1 420px; min-width: 0; text-align: center; }
+  .lab .side { flex: 1 1 300px; min-width: 0; }
+
+  canvas#grid {
+    width: 460px; height: 460px; background: #fff;
+    border: 1px solid #e7c9d0; border-radius: 8px; image-rendering: pixelated;
+  }
+
+  .legend { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 10px; font-size: 13px; color: #4a3238; }
+  .legend .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 5px; }
+  .legend .a { background: var(--grpA); }
+  .legend .b { background: var(--grpB); }
+  .legend .e { background: #fff; border: 1px solid #cbb; }
+
+  /* Sliders */
+  .ctrl { margin: 14px 0; }
+  .ctrl label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #5b2a35; margin-bottom: 4px; }
+  .ctrl label .val { color: var(--accent); font-variant-numeric: tabular-nums; }
+  .ctrl input[type=range] { width: 100%; accent-color: var(--accent); }
+  .ctrl .hint { font-size: 11.5px; color: #9a7078; margin-top: 2px; }
+
+  /* Buttons */
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .toolbar button { border: 0; border-radius: 8px; padding: 9px 16px; font-weight: 700; font-size: 13px; cursor: pointer; transition: background .12s, transform .05s; }
+  .toolbar button:active { transform: translateY(1px); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-ghost { background: var(--accent-soft); color: var(--accent-hover); }
+  .btn-ghost:hover { background: #ffd0d8; }
+
+  /* Readouts */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
+  .stat { background: #fff5f7; border: 1px solid #f3ccd4; border-radius: 10px; padding: 10px 8px; text-align: center; }
+  .stat .k { font-size: 11px; font-weight: 700; letter-spacing: .3px; color: #9a5563; text-transform: uppercase; }
+  .stat .v { font-size: 26px; font-weight: 800; color: #7f1d2e; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .stat .u { font-size: 12px; color: #a06b74; }
+
+  .status { margin-top: 10px; font-size: 13px; font-weight: 700; text-align: center; padding: 7px; border-radius: 8px; }
+  .status.run { background: #fef3c7; color: #92400e; }
+  .status.stable { background: #dcfce7; color: #15803d; }
+  .status.idle { background: #f1f5f9; color: #475569; }
+
+  canvas#chart { width: 100%; max-width: 460px; height: 120px; background: #fff; border: 1px solid #e7c9d0; border-radius: 8px; margin-top: 6px; }
+  .chart-cap { font-size: 11.5px; color: #9a7078; text-align: center; margin-top: 2px; }
+
+  .callout { background: #fff5f7; border-left: 4px solid var(--accent); border-radius: 6px; padding: 12px 16px; margin: 6px 0 0; font-size: 14px; color: #5b2a35; }
+  .callout b { color: var(--accent-hover); }
+
+  @media (max-width: 520px) {
+    canvas#grid { width: 100%; height: auto; }
+    .stats { grid-template-columns: repeat(3, 1fr); }
+    .stat .v { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Sociology</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Tầng 1</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-norms-roles-socialization/visualization.html">← L1</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Phân ly Schelling</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-threshold-collective-behavior/visualization.html">L3: Ngưỡng tập thể →</a>
+</nav>
+<main>
+  <h1>Mô hình phân ly Schelling — mô phỏng sống</h1>
+  <div class="lead">Mỗi ô là một tác nhân thuộc 1 trong 2 nhóm; ô trắng để trống. Ai có <strong>ít hơn</strong> ngưỡng khoan dung <strong>τ</strong> hàng xóm cùng nhóm sẽ chuyển tới ô trống ngẫu nhiên. Chỉnh τ và bấm <em>Chạy</em> — xem <strong>chỉ số phân ly</strong> tự leo dốc dù τ rất thấp.</div>
+
+  <div class="module">
+    <h2>Phòng thí nghiệm phân ly</h2>
+    <div class="sub">Lân cận Moore 8 ô. Chỉ số phân ly = tỉ lệ hàng xóm cùng nhóm trung bình toàn hệ.</div>
+    <div class="lab">
+      <div class="grid-wrap">
+        <canvas id="grid" width="460" height="460"></canvas>
+        <div class="legend">
+          <span><span class="sw a"></span>Nhóm A</span>
+          <span><span class="sw b"></span>Nhóm B</span>
+          <span><span class="sw e"></span>Ô trống</span>
+        </div>
+        <canvas id="chart" width="460" height="120"></canvas>
+        <div class="chart-cap">Chỉ số phân ly (hồng) &amp; % hài lòng (xanh) theo từng vòng · đường đứt = baseline 50%</div>
+      </div>
+
+      <div class="side">
+        <div class="ctrl">
+          <label>Ngưỡng khoan dung τ <span class="val" id="lbl-tau">33%</span></label>
+          <input type="range" id="tau" min="0" max="90" step="1" value="33">
+          <div class="hint">Tỉ lệ hàng xóm cùng nhóm tối thiểu để "hài lòng". Thấp = rất khoan dung.</div>
+        </div>
+        <div class="ctrl">
+          <label>Tỉ lệ nhóm A <span class="val" id="lbl-ratio">50%</span></label>
+          <input type="range" id="ratio" min="20" max="80" step="1" value="50">
+          <div class="hint">Phần dân số thuộc nhóm A (phần còn lại là nhóm B).</div>
+        </div>
+        <div class="ctrl">
+          <label>Mật độ ô trống <span class="val" id="lbl-empty">10%</span></label>
+          <input type="range" id="empty" min="2" max="40" step="1" value="10">
+          <div class="hint">Càng nhiều ô trống, tác nhân càng dễ tìm chỗ mới.</div>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn-primary" id="btn-run">▶ Chạy</button>
+          <button class="btn-ghost" id="btn-step">⏭ Bước</button>
+          <button class="btn-ghost" id="btn-reset">↺ Đặt lại</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><div class="k">Vòng</div><div class="v" id="s-round">0</div><div class="u">bước</div></div>
+          <div class="stat"><div class="k">Phân ly</div><div class="v" id="s-seg">–</div><div class="u">cùng nhóm TB</div></div>
+          <div class="stat"><div class="k">Hài lòng</div><div class="v" id="s-sat">–</div><div class="u">% tác nhân</div></div>
+        </div>
+        <div class="status idle" id="status">Bấm "Đặt lại" hoặc "Chạy" để bắt đầu.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Thử nghiệm gợi ý</h2>
+    <div class="sub">Kéo τ và quan sát chỉ số phân ly ở trạng thái ổn định.</div>
+    <div class="callout">
+      <b>Điều cần thấy.</b> Đặt <b>τ = 33%</b> (mỗi người chỉ cần 1/3 hàng xóm giống mình — rất khoan dung), bấm <b>Chạy</b>. Khi hệ ổn định, "% hài lòng" đạt ~100% nhưng <b>chỉ số phân ly leo lên ~70–80%</b>, cao hơn hẳn baseline 50%. Không ai đòi tách biệt, mà xã hội vẫn tự phân ly. Tăng τ lên 50% → phân ly còn mạnh hơn (~83%). Đẩy τ quá cao (75%+) → hệ khó ổn định, tác nhân chuyển mãi.
+    </div>
+  </div>
+</main>
+
+<script>
+// ================= Mô hình Schelling =================
+var N = 30;                 // lưới N x N
+var grid = new Int8Array(N * N);   // 0 = trống, 1 = nhóm A, 2 = nhóm B
+var round = 0;
+var running = false;
+var timer = null;
+var history = [];           // [{seg, sat}] theo từng vòng
+
+var cv = document.getElementById('grid');
+var ctx = cv.getContext('2d');
+var chart = document.getElementById('chart');
+var cctx = chart.getContext('2d');
+
+var COLOR = { 1: '#e11d48', 2: '#0e7490' };
+
+function idx(r, c) { return r * N + c; }
+
+// ---- Khởi tạo ngẫu nhiên ----
+function reset() {
+  stop();
+  var emptyFrac = +document.getElementById('empty').value / 100;
+  var ratioA = +document.getElementById('ratio').value / 100;
+  for (var i = 0; i < N * N; i++) {
+    if (Math.random() < emptyFrac) grid[i] = 0;
+    else grid[i] = (Math.random() < ratioA) ? 1 : 2;
+  }
+  round = 0;
+  history = [];
+  var m = metrics();
+  history.push(m);
+  draw();
+  updateStats(m, 'idle', 'Đã rải ngẫu nhiên. Bấm "Chạy" hoặc "Bước".');
+  drawChart();
+}
+
+// ---- Đếm hàng xóm cùng nhóm ----
+// trả về [same, total] với total = số hàng xóm CÓ NGƯỜI
+function neighborCount(r, c, g) {
+  var same = 0, total = 0;
+  for (var dr = -1; dr <= 1; dr++) {
+    for (var dc = -1; dc <= 1; dc++) {
+      if (dr === 0 && dc === 0) continue;
+      var nr = r + dr, nc = c + dc;
+      if (nr < 0 || nr >= N || nc < 0 || nc >= N) continue;
+      var v = grid[idx(nr, nc)];
+      if (v === 0) continue;
+      total++;
+      if (v === g) same++;
+    }
+  }
+  return [same, total];
+}
+
+// hài lòng nếu không có hàng xóm, hoặc tỉ lệ cùng nhóm >= tau
+function satisfied(r, c, g, tau) {
+  var nc = neighborCount(r, c, g);
+  if (nc[1] === 0) return true;
+  return (nc[0] / nc[1]) >= tau;
+}
+
+// ---- Một vòng: mọi tác nhân bất mãn chuyển tới ô trống ngẫu nhiên ----
+function step() {
+  var tau = +document.getElementById('tau').value / 100;
+  var unhappy = [];
+  var empties = [];
+  for (var r = 0; r < N; r++) {
+    for (var c = 0; c < N; c++) {
+      var i = idx(r, c);
+      var v = grid[i];
+      if (v === 0) { empties.push(i); continue; }
+      if (!satisfied(r, c, v, tau)) unhappy.push(i);
+    }
+  }
+
+  if (unhappy.length === 0) {
+    round++;
+    var mm = metrics();
+    history.push(mm);
+    draw(); drawChart();
+    updateStats(mm, 'stable', '✓ Ổn định: mọi tác nhân đã hài lòng ở vòng ' + round + '.');
+    stop();
+    return false;
+  }
+
+  // xáo trộn thứ tự tác nhân bất mãn
+  shuffle(unhappy);
+  for (var u = 0; u < unhappy.length; u++) {
+    if (empties.length === 0) break;
+    var from = unhappy[u];
+    var g = grid[from];
+    // chọn một ô trống ngẫu nhiên
+    var pick = Math.floor(Math.random() * empties.length);
+    var to = empties[pick];
+    grid[to] = g;
+    grid[from] = 0;
+    // ô cũ trở thành trống, ô đích không còn trống
+    empties[pick] = from;
+  }
+
+  round++;
+  var m = metrics();
+  history.push(m);
+  draw(); drawChart();
+  updateStats(m, running ? 'run' : 'idle',
+    running ? 'Đang chạy… vòng ' + round + ', còn ' + unhappy.length + ' tác nhân vừa chuyển.'
+            : 'Vòng ' + round + ': ' + unhappy.length + ' tác nhân đã chuyển. Bấm tiếp.');
+  return true;
+}
+
+// ---- Chỉ số: phân ly (seg) + % hài lòng (sat) ----
+function metrics() {
+  var tau = +document.getElementById('tau').value / 100;
+  var sumFrac = 0, withNb = 0, agents = 0, satCount = 0;
+  for (var r = 0; r < N; r++) {
+    for (var c = 0; c < N; c++) {
+      var g = grid[idx(r, c)];
+      if (g === 0) continue;
+      agents++;
+      var nc = neighborCount(r, c, g);
+      if (nc[1] > 0) {
+        sumFrac += nc[0] / nc[1];
+        withNb++;
+        if ((nc[0] / nc[1]) >= tau) satCount++;
+      } else {
+        satCount++; // không hàng xóm → hài lòng
+      }
+    }
+  }
+  return {
+    seg: withNb ? sumFrac / withNb : 0,
+    sat: agents ? satCount / agents : 0
+  };
+}
+
+// ---- Vẽ lưới ----
+function draw() {
+  var w = cv.width, cell = w / N;
+  ctx.clearRect(0, 0, w, w);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, w, w);
+  for (var r = 0; r < N; r++) {
+    for (var c = 0; c < N; c++) {
+      var g = grid[idx(r, c)];
+      if (g === 0) continue;
+      ctx.fillStyle = COLOR[g];
+      ctx.fillRect(c * cell + 0.5, r * cell + 0.5, cell - 1, cell - 1);
+    }
+  }
+}
+
+// ---- Vẽ biểu đồ lịch sử ----
+function drawChart() {
+  var w = chart.width, h = chart.height;
+  cctx.clearRect(0, 0, w, h);
+  cctx.fillStyle = '#ffffff';
+  cctx.fillRect(0, 0, w, h);
+  var pad = 6;
+  // baseline 50%
+  cctx.strokeStyle = '#cbd5e1';
+  cctx.setLineDash([4, 4]);
+  var y50 = h - pad - 0.5 * (h - 2 * pad);
+  cctx.beginPath(); cctx.moveTo(pad, y50); cctx.lineTo(w - pad, y50); cctx.stroke();
+  cctx.setLineDash([]);
+
+  if (history.length < 2) return;
+  var n = history.length;
+  function px(i) { return pad + i / (n - 1) * (w - 2 * pad); }
+  function py(v) { return h - pad - v * (h - 2 * pad); }
+
+  // seg (hồng)
+  drawLine(function (m) { return m.seg; }, '#e11d48', 2.4);
+  // sat (xanh)
+  drawLine(function (m) { return m.sat; }, '#0e7490', 1.6);
+
+  function drawLine(get, color, lw) {
+    cctx.strokeStyle = color; cctx.lineWidth = lw;
+    cctx.beginPath();
+    for (var i = 0; i < n; i++) {
+      var x = px(i), y = py(get(history[i]));
+      if (i === 0) cctx.moveTo(x, y); else cctx.lineTo(x, y);
+    }
+    cctx.stroke();
+  }
+}
+
+// ---- Điều khiển chạy ----
+function run() {
+  if (running) { stop(); return; }
+  running = true;
+  document.getElementById('btn-run').textContent = '⏸ Dừng';
+  timer = setInterval(function () {
+    var cont = step();
+    if (!cont) return;
+  }, 220);
+}
+function stop() {
+  running = false;
+  if (timer) { clearInterval(timer); timer = null; }
+  var b = document.getElementById('btn-run');
+  if (b) b.textContent = '▶ Chạy';
+}
+
+// ---- UI helpers ----
+function updateStats(m, cls, msg) {
+  document.getElementById('s-round').textContent = round;
+  document.getElementById('s-seg').textContent = Math.round(m.seg * 100) + '%';
+  document.getElementById('s-sat').textContent = Math.round(m.sat * 100) + '%';
+  var st = document.getElementById('status');
+  st.className = 'status ' + cls;
+  st.textContent = msg;
+}
+function shuffle(a) {
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+}
+
+// ---- Sự kiện ----
+document.getElementById('tau').addEventListener('input', function () {
+  document.getElementById('lbl-tau').textContent = this.value + '%';
+  // cập nhật lại chỉ số hài lòng theo tau mới (không di chuyển)
+  if (history.length) { var m = metrics(); history[history.length - 1] = m; updateStats(m, document.getElementById('status').className.split(' ')[1] || 'idle', document.getElementById('status').textContent); drawChart(); }
+});
+document.getElementById('ratio').addEventListener('input', function () {
+  document.getElementById('lbl-ratio').textContent = this.value + '%';
+});
+document.getElementById('empty').addEventListener('input', function () {
+  document.getElementById('lbl-empty').textContent = this.value + '%';
+});
+document.getElementById('btn-run').addEventListener('click', run);
+document.getElementById('btn-step').addEventListener('click', function () { stop(); step(); });
+document.getElementById('btn-reset').addEventListener('click', reset);
+
+reset();
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

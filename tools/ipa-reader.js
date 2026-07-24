@@ -303,11 +303,30 @@
     var u = new SpeechSynthesisUtterance(text);
     u.lang = variant === 'uk' ? 'en-GB' : 'en-US';
     u.rate = rate || 1.0;
-    var v = pickVoice(variant);
-    if (v) u.voice = v;
     u.onend = function () { if (onEnd) onEnd(); };
     u.onerror = function () { if (onEnd) onEnd(); };
-    window.speechSynthesis.speak(u);
+
+    // Phát: resume() trước speak() để gỡ trạng thái auto-suspend của Chrome
+    // (sau ~15s idle Chrome tự "pause" engine → speak() im lặng nếu không resume).
+    function fire() {
+      var v = pickVoice(variant);
+      if (v) u.voice = v;
+      try { window.speechSynthesis.resume(); } catch (e) {}
+      window.speechSynthesis.speak(u);
+    }
+
+    // Voices nạp bất đồng bộ (Chrome): nếu getVoices() còn rỗng, chờ
+    // 'voiceschanged' rồi mới phát — nếu không utterance có thể im vì
+    // không khớp giọng nào. Có timeout fallback phòng khi sự kiện không bắn.
+    if (!window.speechSynthesis.getVoices().length) {
+      var fired = false;
+      var go = function () { if (fired) return; fired = true; fire(); };
+      window.speechSynthesis.addEventListener('voiceschanged', go, { once: true });
+      window.speechSynthesis.getVoices();
+      setTimeout(go, 350);
+      return u;
+    }
+    fire();
     return u;
   }
 
@@ -584,10 +603,9 @@
 
     // Warm-up voices (một số browser cần kích hoạt)
     if (window.speechSynthesis && typeof window.speechSynthesis.getVoices === 'function') {
-      // Dọn hàng đợi còn sót từ trang trước → audio không "rớt" sang lesson mới.
-      window.speechSynthesis.cancel();
+      // Kích hoạt nạp voices sớm (Chrome nạp bất đồng bộ). KHÔNG cancel() lúc load
+      // — cancel() khi engine rảnh có thể làm Chrome kẹt, speak() sau đó im.
       window.speechSynthesis.getVoices();
-      window.speechSynthesis.onvoiceschanged = function () { /* trigger cache */ };
       // Bấm Next/Prev sang lesson khác → dừng mọi audio đang phát.
       window.addEventListener('pagehide', function () {
         window.speechSynthesis.cancel();

@@ -418,7 +418,7 @@
     btn.className = 'rm-btn';
     btn.id = 'rm-btn';
     btn.type = 'button';
-    btn.textContent = '📖 Đọc README';
+    btn.textContent = '📖 Học Lý Thuyết';
 
     var backdrop = document.createElement('div');
     backdrop.className = 'rm-backdrop';
@@ -433,7 +433,7 @@
     panel.innerHTML =
       '<div class="rm-drag-handle" id="rm-drag-handle" title="Kéo để thay đổi độ rộng"></div>' +
       '<div class="rm-header">' +
-        '<span class="rm-title">📖 README</span>' +
+        '<span class="rm-title">📖 Lý Thuyết</span>' +
         '<button class="rm-toc-toggle" id="rm-toc-toggle" type="button" title="Ẩn/hiện mục lục">📑 TOC</button>' +
         '<div class="rm-mode-toggle">' +
           '<button type="button" data-mode="modal" title="Panel trượt từ phải, có backdrop">Modal</button>' +

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 06: Kanji N5 thông dụng — Japanese</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #faf5ff;
+    --accent: #9333ea;
+    --accent-soft: #f3e8ff;
+    --accent-hover: #7e22ce;
+  }
+  main { max-width: 1080px; }
+
+  h1 { color: #6b21a8; }
+  h2 { color: #7e22ce; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  h3 { color: #9333ea; margin-top: 20px; }
+  .lead { font-size: 1.1rem; color: #4b5563; margin-bottom: 24px; line-height: 1.7; }
+
+  .module {
+    background: white;
+    border: 1px solid #e9d5ff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  /* ── SVG on/kun ── */
+  .onkun-svg { width: 100%; height: auto; max-width: 560px; display: block; margin: 12px auto; }
+
+  /* ── Progress bar ── */
+  .progress-wrap {
+    background: var(--accent-soft);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0 4px;
+  }
+  .progress-label { font-size: 13px; color: #6b21a8; font-weight: 700; margin-bottom: 6px; }
+  .progress-track { background: #e9d5ff; border-radius: 999px; height: 12px; overflow: hidden; }
+  .progress-fill { background: var(--accent); height: 100%; width: 0; transition: width .3s ease; border-radius: 999px; }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 16px; }
+  .tab-btn {
+    padding: 8px 14px;
+    border: 2px solid var(--accent-soft);
+    border-radius: 999px;
+    background: white;
+    color: #6b21a8;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .tab-btn:hover { border-color: var(--accent); }
+  .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* ── Kanji grid ── */
+  .kanji-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .kanji-cell {
+    border: 2px solid #e9d5ff;
+    border-radius: 12px;
+    background: white;
+    padding: 10px 4px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform .12s, box-shadow .12s, border-color .12s;
+  }
+  .kanji-cell:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(147,51,234,.14); border-color: var(--accent); }
+  .kanji-cell.active { border-color: var(--accent); background: var(--accent-soft); }
+  .kanji-cell.seen { border-color: #c4b5fd; }
+  .kanji-cell .kc-char {
+    font-size: 38px; font-weight: 700; line-height: 1;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "MS Gothic", sans-serif;
+    color: #1f2937;
+  }
+  .kanji-cell .kc-mean { font-size: 11px; color: #6b7280; margin-top: 4px; }
+  .kanji-cell .kc-seen-dot { font-size: 10px; color: var(--accent); height: 12px; }
+
+  /* ── Detail panel ── */
+  .detail-panel {
+    border: 2px dashed var(--accent);
+    border-radius: 12px;
+    background: #fdfaff;
+    padding: 18px;
+    margin: 14px 0;
+    display: none;
+  }
+  .detail-panel.show { display: block; }
+  .detail-head { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .detail-char {
+    font-size: 72px; font-weight: 700; line-height: 1;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    color: #6b21a8;
+    cursor: pointer;
+  }
+  .detail-char:hover { color: var(--accent-hover); }
+  .detail-readings { flex: 1 1 220px; }
+  .detail-readings .dr-row { margin: 4px 0; font-size: 15px; }
+  .detail-readings .dr-tag {
+    display: inline-block; min-width: 74px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    color: white; border-radius: 6px; padding: 2px 8px; margin-right: 8px;
+  }
+  .dr-tag.on { background: #7c3aed; }
+  .dr-tag.kun { background: #db2777; }
+  .dr-tag.mean { background: #059669; }
+  .detail-ex { margin-top: 12px; }
+  .detail-ex h4 { margin: 0 0 8px; color: #6b21a8; font-size: 14px; }
+  .ex-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+  .ex-item {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    background: white; border: 1px solid #e9d5ff; border-radius: 8px;
+    padding: 7px 12px; cursor: pointer; transition: background .12s;
+  }
+  .ex-item:hover { background: var(--accent-soft); }
+  .ex-item.playing { background: #fce7f3; }
+  .ex-word { font-size: 20px; font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif; font-weight: 700; color: #1f2937; }
+  .ex-romaji { font-size: 14px; color: #7c3aed; font-style: italic; }
+  .ex-mean { font-size: 13px; color: #6b7280; }
+  .ex-play { margin-left: auto; font-size: 12px; color: var(--accent); font-weight: 700; }
+  .detail-hint { font-size: 12px; color: #9ca3af; margin-top: 10px; }
+
+  /* ── Days of week ── */
+  .days-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .day-card {
+    border: 2px solid #e9d5ff; border-radius: 12px; background: white;
+    padding: 14px 8px; text-align: center; cursor: pointer; transition: all .12s;
+  }
+  .day-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(147,51,234,.12); }
+  .day-card.playing { background: var(--accent-soft); border-color: var(--accent); }
+  .day-word { font-size: 26px; font-weight: 700; font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif; color: #1f2937; }
+  .day-romaji { font-size: 13px; color: #7c3aed; font-style: italic; margin: 3px 0; }
+  .day-vi { font-size: 13px; color: #6b7280; }
+  .day-card .hint { font-size: 10px; color: #9ca3af; margin-top: 3px; }
+
+  /* ── Quiz ── */
+  .quiz-area {
+    background: #fdfaff;
+    border: 2px dashed var(--accent);
+    border-radius: 12px;
+    padding: 18px;
+    margin: 14px 0;
+  }
+  .quiz-mode-tag {
+    display: inline-block; font-size: 12px; font-weight: 700;
+    background: var(--accent-soft); color: #6b21a8;
+    border-radius: 999px; padding: 4px 12px; margin-bottom: 10px;
+  }
+  .quiz-prompt { text-align: center; margin: 8px 0 16px; }
+  .quiz-prompt .qp-big {
+    font-size: 60px; font-weight: 700; line-height: 1;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    color: #6b21a8;
+  }
+  .quiz-prompt .qp-text { font-size: 24px; font-weight: 700; color: #6b21a8; }
+  .quiz-prompt .qp-sub { display: block; font-size: 13px; color: #9ca3af; margin-top: 6px; }
+  .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+  .quiz-options button {
+    padding: 12px 10px;
+    border: 2px solid #d8b4fe;
+    border-radius: 10px;
+    background: white;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 15px;
+    transition: all .12s;
+    min-height: 48px;
+  }
+  .quiz-options button.opt-kanji {
+    font-size: 30px;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  }
+  .quiz-options button:hover:not(:disabled) { background: var(--accent-soft); }
+  .quiz-options button.correct { background: #d1fae5; border-color: #10b981; color: #065f46; }
+  .quiz-options button.wrong { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+  .quiz-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+  .quiz-score {
+    font-size: 14px; font-weight: 700; color: #6b21a8;
+    background: white; padding: 8px 14px; border-radius: 8px;
+  }
+  .quiz-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .quiz-actions button {
+    padding: 8px 16px; border-radius: 8px; border: 1px solid #cbd5e0;
+    background: white; cursor: pointer; font-weight: 600; font-size: 13px;
+  }
+  .quiz-actions button:hover { background: #f1f5f9; }
+  .quiz-actions .primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .quiz-actions .primary:hover { background: var(--accent-hover); }
+  .quiz-feedback { text-align: center; font-size: 14px; font-weight: 700; min-height: 20px; margin-top: 6px; }
+  .quiz-feedback.ok { color: #059669; }
+  .quiz-feedback.no { color: #dc2626; }
+
+  .play-big {
+    background: var(--accent); color: white;
+    border: none; border-radius: 999px;
+    padding: 10px 22px; font-weight: 700; font-size: 14px; cursor: pointer;
+    transition: background .12s;
+  }
+  .play-big:hover { background: var(--accent-hover); }
+
+  table.kdata { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  table.kdata th, table.kdata td { border: 1px solid #e9d5ff; padding: 8px 10px; text-align: left; }
+  table.kdata th { background: var(--accent-soft); color: #6b21a8; font-weight: 700; }
+
+  @media (max-width: 480px) {
+    .kanji-grid { grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); }
+    .kanji-cell .kc-char { font-size: 30px; }
+    .detail-char { font-size: 56px; }
+    .quiz-prompt .qp-big { font-size: 48px; }
+    .quiz-options { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Japanese</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh II</a>
+  <span class="sep">·</span>
+  <a href="../lesson-05-kanji-intro/visualization.html">← L5</a>
+  <span class="sep">·</span>
+  <span class="current">L6: Kanji N5</span>
+  <span class="sep">·</span>
+  <a href="../lesson-07-basic-vocabulary/visualization.html">L7: Từ vựng cơ bản →</a>
+</nav>
+
+<main>
+  <h1>Lesson 06: Kanji N5 thông dụng (常用漢字 N5)</h1>
+  <p class="lead">50 kanji N5 gom theo 5 nhóm chủ đề. Click vào mỗi kanji để xem cách đọc <strong>on'yomi / kun'yomi</strong>, nghĩa, và nghe audio (Web Speech tiếng Nhật). Cuối trang có <strong>quiz 2 chiều</strong> chấm điểm: kanji → nghĩa và nghĩa → kanji.</p>
+
+  <!-- ── Section 1: On/Kun ── -->
+  <section class="module">
+    <h2>1. On'yomi và Kun'yomi — hai cách đọc</h2>
+    <p>Mỗi kanji thường có ít nhất hai kiểu đọc. Hiểu điều này trước khi học từng chữ:</p>
+
+    <svg class="onkun-svg" width="560" height="240" viewBox="0 0 560 240" xmlns="http://www.w3.org/2000/svg">
+      <!-- kanji center -->
+      <rect x="230" y="80" width="100" height="100" rx="14" fill="#f3e8ff" stroke="#9333ea" stroke-width="2"></rect>
+      <text x="280" y="150" text-anchor="middle" font-size="60" font-weight="700" fill="#6b21a8" font-family="'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif">日</text>
+      <text x="280" y="205" text-anchor="middle" font-size="13" fill="#6b7280">= ngày / mặt trời</text>
+      <!-- ON branch -->
+      <line x1="230" y1="110" x2="120" y2="60" stroke="#7c3aed" stroke-width="2.5"></line>
+      <rect x="10" y="34" width="150" height="52" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"></rect>
+      <text x="85" y="55" text-anchor="middle" font-size="12" font-weight="700" fill="#6d28d9">ON'YOMI (音)</text>
+      <text x="85" y="76" text-anchor="middle" font-size="15" fill="#4c1d95">ニチ → 日本 nihon</text>
+      <!-- KUN branch -->
+      <line x1="230" y1="150" x2="120" y2="170" stroke="#db2777" stroke-width="2.5"></line>
+      <rect x="10" y="150" width="150" height="52" rx="10" fill="#fce7f3" stroke="#db2777" stroke-width="2"></rect>
+      <text x="85" y="171" text-anchor="middle" font-size="12" font-weight="700" fill="#be185d">KUN'YOMI (訓)</text>
+      <text x="85" y="192" text-anchor="middle" font-size="15" fill="#831843">ひ → 日 hi (ngày)</text>
+      <!-- hints right -->
+      <text x="345" y="108" font-size="12.5" fill="#6d28d9">◀ dùng trong TỪ GHÉP</text>
+      <text x="345" y="130" font-size="12.5" fill="#6d28d9">   (2+ kanji): 大学, 日本</text>
+      <text x="345" y="158" font-size="12.5" fill="#be185d">◀ khi ĐỨNG MỘT MÌNH</text>
+      <text x="345" y="180" font-size="12.5" fill="#be185d">   hoặc có okurigana: 大きい</text>
+    </svg>
+
+    <table class="kdata">
+      <thead><tr><th>Kiểu đọc</th><th>Nguồn gốc</th><th>Dùng khi</th><th>Ví dụ</th></tr></thead>
+      <tbody>
+        <tr><td><strong>On'yomi (音読み)</strong></td><td>mượn âm Hán</td><td>trong từ ghép 2+ kanji</td><td>日本 <em>nihon</em>, 大学 <em>daigaku</em></td></tr>
+        <tr><td><strong>Kun'yomi (訓読み)</strong></td><td>từ thuần Nhật</td><td>kanji đứng một mình / có okurigana</td><td>日 <em>hi</em>, 大きい <em>ookii</em></td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:13px;color:#6b7280;">Quy ước trong bài: on'yomi ghi bằng Katakana + romaji; kun'yomi ghi bằng Hiragana + romaji. Phần trong ngoặc của kun'yomi là <strong>okurigana</strong> (đuôi hiragana đi kèm).</p>
+  </section>
+
+  <!-- ── Section 2: Bảng kanji theo nhóm ── -->
+  <section class="module">
+    <h2>2. Bảng 50 Kanji N5 theo nhóm chủ đề</h2>
+    <p>Chọn nhóm, rồi click từng kanji để mở chi tiết + nghe audio. Ô đã xem sẽ được đánh dấu.</p>
+
+    <div class="progress-wrap">
+      <div class="progress-label" id="prog-label">Đã khám phá 0 / 50 kanji</div>
+      <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+    </div>
+
+    <div class="tabs" id="tabs"></div>
+    <div class="kanji-grid" id="kanji-grid"></div>
+
+    <div class="detail-panel" id="detail">
+      <div class="detail-head">
+        <div class="detail-char" id="d-char" title="Click để nghe">日</div>
+        <div class="detail-readings">
+          <div class="dr-row"><span class="dr-tag on">On</span><span id="d-on"></span></div>
+          <div class="dr-row"><span class="dr-tag kun">Kun</span><span id="d-kun"></span></div>
+          <div class="dr-row"><span class="dr-tag mean">Nghĩa</span><span id="d-mean"></span></div>
+        </div>
+      </div>
+      <div class="detail-ex">
+        <h4>Từ ghép ví dụ (click để nghe)</h4>
+        <ul class="ex-list" id="d-ex"></ul>
+      </div>
+      <div class="detail-hint">🔊 Click chữ kanji lớn hoặc từng từ ghép để phát âm. Tốc độ đọc đã giảm còn 0.85× cho dễ nghe.</div>
+    </div>
+  </section>
+
+  <!-- ── Section 3: Thứ trong tuần ── -->
+  <section class="module">
+    <h2>3. Ghép thứ trong tuần (曜日 yōbi)</h2>
+    <p>Cấu tạo: <strong>[kanji ngũ hành] + 曜日</strong>. Thứ tự Hai → Bảy = Nguyệt · Hỏa · Thủy · Mộc · Kim · Thổ, Chủ nhật = Nhật. Click để nghe.</p>
+    <div class="days-grid" id="days-grid"></div>
+    <p style="font-size:13px;color:#6b7280;">Mẹo: nhớ nghĩa gốc của kanji đầu (月 mặt trăng, 火 lửa, 水 nước, 木 cây, 金 vàng, 土 đất, 日 mặt trời) là suy ra được thứ.</p>
+  </section>
+
+  <!-- ── Section 4: Quiz ── -->
+  <section class="module">
+    <h2>4. Quiz 2 chiều — kiểm tra</h2>
+    <p>10 câu, xen kẽ 2 chiều: <strong>kanji → nghĩa</strong> và <strong>nghĩa → kanji</strong>. Chọn đáp án đúng.</p>
+
+    <div class="quiz-area" id="quiz">
+      <div style="text-align:center;"><span class="quiz-mode-tag" id="q-mode">Kanji → Nghĩa</span></div>
+      <div class="quiz-prompt" id="q-prompt"></div>
+      <div class="quiz-options" id="q-options"></div>
+      <div class="quiz-feedback" id="q-feedback">&nbsp;</div>
+      <div class="quiz-bar">
+        <div class="quiz-score" id="q-score">Câu 1 / 10 · Đúng 0</div>
+        <div class="quiz-actions">
+          <button id="q-next" class="primary">Câu tiếp →</button>
+          <button id="q-reset">↺ Làm lại</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Section 5: Tóm tắt ── -->
+  <section class="module">
+    <h2>5. Tóm tắt</h2>
+    <ul>
+      <li><strong>On'yomi</strong> (âm Hán) dùng trong từ ghép; <strong>kun'yomi</strong> (âm Nhật) dùng khi kanji đứng một mình / có okurigana.</li>
+      <li>50 kanji N5 chia 5 nhóm: Số (13) · Ngày &amp; thời gian (12) · Người &amp; gia đình (7) · Kích thước / vị trí (9) · Động từ cơ bản (9).</li>
+      <li>Thứ trong tuần = [kanji ngũ hành] + 曜日; nhớ nghĩa gốc kanji là suy ra được thứ.</li>
+      <li>Nhiều từ đọc bất quy tắc (今日 <em>kyō</em>, 上手 <em>jōzu</em>, 下手 <em>heta</em>) — học thuộc nguyên cụm.</li>
+      <li>Bài tiếp: <a href="../lesson-07-basic-vocabulary/visualization.html">L07 — Từ vựng cơ bản</a>, dùng chính các kanji này để ghép câu.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+// ============================================================
+// Web Speech API — tiếng Nhật (ja-JP)
+// ============================================================
+function jaSpeak(text, rate){ if(!window.speechSynthesis) return;
+  if(window.speechSynthesis.speaking||window.speechSynthesis.pending) window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text); u.lang='ja-JP'; u.rate=rate||0.85;
+  function fire(){ var vs=window.speechSynthesis.getVoices(); var v=vs.find(function(x){return x.lang==='ja-JP';})||vs.find(function(x){return x.lang&&x.lang.indexOf('ja')===0;}); if(v)u.voice=v; try{window.speechSynthesis.resume();}catch(e){} window.speechSynthesis.speak(u); }
+  if(!window.speechSynthesis.getVoices().length){ var d=false,go=function(){if(d)return;d=true;fire();}; window.speechSynthesis.addEventListener('voiceschanged',go,{once:true}); window.speechSynthesis.getVoices(); setTimeout(go,350);} else fire();
+}
+
+// ============================================================
+// Dữ liệu 50 kanji N5
+// ex: [từ ghép, romaji, nghĩa]
+// ============================================================
+var GROUPS = [
+  { id:'num', name:'Số (13)', kanji:[
+    {k:'一', on:'イチ (ichi)', kun:'ひと(つ) hito(tsu)', mean:'một', ex:[['一日','tsuitachi / ichinichi','mùng 1 / một ngày'],['一つ','hitotsu','một cái']]},
+    {k:'二', on:'ニ (ni)', kun:'ふた(つ) futa(tsu)', mean:'hai', ex:[['二人','futari','hai người'],['二つ','futatsu','hai cái']]},
+    {k:'三', on:'サン (san)', kun:'みっ(つ) mit(tsu)', mean:'ba', ex:[['三月','sangatsu','tháng 3'],['三つ','mittsu','ba cái']]},
+    {k:'四', on:'シ (shi)', kun:'よん / よっ(つ) yon / yot(tsu)', mean:'bốn', ex:[['四時','yoji','4 giờ'],['四つ','yottsu','bốn cái']]},
+    {k:'五', on:'ゴ (go)', kun:'いつ(つ) itsu(tsu)', mean:'năm (số 5)', ex:[['五人','gonin','năm người'],['五つ','itsutsu','năm cái']]},
+    {k:'六', on:'ロク (roku)', kun:'むっ(つ) mut(tsu)', mean:'sáu', ex:[['六月','rokugatsu','tháng 6'],['六つ','muttsu','sáu cái']]},
+    {k:'七', on:'シチ (shichi)', kun:'なな nana', mean:'bảy', ex:[['七月','shichigatsu','tháng 7'],['七つ','nanatsu','bảy cái']]},
+    {k:'八', on:'ハチ (hachi)', kun:'やっ(つ) yat(tsu)', mean:'tám', ex:[['八時','hachiji','8 giờ'],['八つ','yattsu','tám cái']]},
+    {k:'九', on:'キュウ / ク kyū / ku', kun:'ここの(つ) kokono(tsu)', mean:'chín', ex:[['九月','kugatsu','tháng 9'],['九人','kyūnin','chín người']]},
+    {k:'十', on:'ジュウ (jū)', kun:'とお too', mean:'mười', ex:[['十日','tōka','ngày 10'],['十人','jūnin','mười người']]},
+    {k:'百', on:'ヒャク (hyaku)', kun:'—', mean:'trăm (100)', ex:[['百円','hyakuen','100 yên'],['三百','sanbyaku','300']]},
+    {k:'千', on:'セン (sen)', kun:'ち chi', mean:'nghìn (1.000)', ex:[['千円','senen','1.000 yên'],['三千','sanzen','3.000']]},
+    {k:'万', on:'マン / バン man / ban', kun:'—', mean:'vạn (10.000)', ex:[['一万円','ichiman en','10.000 yên'],['十万','jūman','100.000']]}
+  ]},
+  { id:'time', name:'Ngày & thời gian (12)', kanji:[
+    {k:'日', on:'ニチ / ジツ nichi / jitsu', kun:'ひ / び hi / bi', mean:'ngày / mặt trời', ex:[['日本','nihon','Nhật Bản'],['今日','kyō','hôm nay'],['日曜日','nichiyōbi','Chủ nhật']]},
+    {k:'月', on:'ゲツ / ガツ getsu / gatsu', kun:'つき tsuki', mean:'tháng / mặt trăng', ex:[['月曜日','getsuyōbi','thứ Hai'],['一月','ichigatsu','tháng 1']]},
+    {k:'火', on:'カ (ka)', kun:'ひ hi', mean:'lửa', ex:[['火曜日','kayōbi','thứ Ba'],['火山','kazan','núi lửa']]},
+    {k:'水', on:'スイ (sui)', kun:'みず mizu', mean:'nước', ex:[['水曜日','suiyōbi','thứ Tư'],['水','mizu','nước']]},
+    {k:'木', on:'モク / ボク moku / boku', kun:'き ki', mean:'cây / gỗ', ex:[['木曜日','mokuyōbi','thứ Năm'],['木','ki','cây']]},
+    {k:'金', on:'キン / コン kin / kon', kun:'かね kane', mean:'vàng / tiền', ex:[['金曜日','kinyōbi','thứ Sáu'],['お金','okane','tiền']]},
+    {k:'土', on:'ド / ト do / to', kun:'つち tsuchi', mean:'đất', ex:[['土曜日','doyōbi','thứ Bảy'],['土','tsuchi','đất']]},
+    {k:'年', on:'ネン (nen)', kun:'とし toshi', mean:'năm (thời gian)', ex:[['今年','kotoshi','năm nay'],['一年','ichinen','một năm']]},
+    {k:'時', on:'ジ (ji)', kun:'とき toki', mean:'giờ / thời gian', ex:[['時間','jikan','thời gian'],['何時','nanji','mấy giờ']]},
+    {k:'分', on:'フン / ブン fun / bun', kun:'わ(ける) wa(keru)', mean:'phút / chia', ex:[['五分','gofun','5 phút'],['半分','hanbun','một nửa']]},
+    {k:'半', on:'ハン (han)', kun:'なか(ば) naka(ba)', mean:'nửa', ex:[['二時半','nijihan','2 giờ rưỡi'],['半分','hanbun','một nửa']]},
+    {k:'今', on:'コン / キン kon / kin', kun:'いま ima', mean:'bây giờ', ex:[['今','ima','bây giờ'],['今日','kyō','hôm nay']]}
+  ]},
+  { id:'people', name:'Người & gia đình (7)', kanji:[
+    {k:'人', on:'ジン / ニン jin / nin', kun:'ひと hito', mean:'người', ex:[['日本人','nihonjin','người Nhật'],['人','hito','người']]},
+    {k:'男', on:'ダン / ナン dan / nan', kun:'おとこ otoko', mean:'nam', ex:[['男の人','otoko no hito','đàn ông'],['男子','danshi','nam sinh']]},
+    {k:'女', on:'ジョ (jo)', kun:'おんな onna', mean:'nữ', ex:[['女の人','onna no hito','phụ nữ'],['女子','joshi','nữ sinh']]},
+    {k:'子', on:'シ (shi)', kun:'こ ko', mean:'con / trẻ', ex:[['子供','kodomo','trẻ con'],['女子','joshi','nữ sinh']]},
+    {k:'父', on:'フ (fu)', kun:'ちち chichi', mean:'bố', ex:[['父','chichi','bố tôi'],['お父さん','otōsan','bố (gọi)']]},
+    {k:'母', on:'ボ (bo)', kun:'はは haha', mean:'mẹ', ex:[['母','haha','mẹ tôi'],['お母さん','okāsan','mẹ (gọi)']]},
+    {k:'友', on:'ユウ (yū)', kun:'とも tomo', mean:'bạn', ex:[['友達','tomodachi','bạn bè'],['友人','yūjin','bạn (trang trọng)']]}
+  ]},
+  { id:'pos', name:'Kích thước / vị trí (9)', kanji:[
+    {k:'大', on:'ダイ / タイ dai / tai', kun:'おお(きい) ō(kii)', mean:'to / lớn', ex:[['大学','daigaku','đại học'],['大きい','ōkii','to']]},
+    {k:'小', on:'ショウ (shō)', kun:'ちい(さい) / こ chii(sai) / ko', mean:'nhỏ', ex:[['小さい','chiisai','nhỏ'],['小学校','shōgakkō','trường tiểu học']]},
+    {k:'上', on:'ジョウ (jō)', kun:'うえ / あ(がる) ue / a(garu)', mean:'trên', ex:[['上','ue','phía trên'],['上手','jōzu','giỏi']]},
+    {k:'下', on:'カ / ゲ ka / ge', kun:'した / さ(がる) shita / sa(garu)', mean:'dưới', ex:[['下','shita','phía dưới'],['下手','heta','kém']]},
+    {k:'中', on:'チュウ (chū)', kun:'なか naka', mean:'giữa / trong', ex:[['中','naka','bên trong'],['中国','chūgoku','Trung Quốc']]},
+    {k:'左', on:'サ (sa)', kun:'ひだり hidari', mean:'trái', ex:[['左','hidari','bên trái'],['左右','sayū','trái phải']]},
+    {k:'右', on:'ウ / ユウ u / yū', kun:'みぎ migi', mean:'phải', ex:[['右','migi','bên phải'],['右手','migite','tay phải']]},
+    {k:'前', on:'ゼン (zen)', kun:'まえ mae', mean:'trước', ex:[['前','mae','phía trước'],['名前','namae','tên']]},
+    {k:'後', on:'ゴ / コウ go / kō', kun:'うし(ろ) / あと ushi(ro) / ato', mean:'sau', ex:[['後ろ','ushiro','phía sau'],['午後','gogo','buổi chiều']]}
+  ]},
+  { id:'verb', name:'Động từ cơ bản (9)', kanji:[
+    {k:'行', on:'コウ / ギョウ kō / gyō', kun:'い(く) i(ku)', mean:'đi', ex:[['行く','iku','đi'],['銀行','ginkō','ngân hàng']]},
+    {k:'来', on:'ライ (rai)', kun:'く(る) ku(ru)', mean:'đến', ex:[['来る','kuru','đến'],['来年','rainen','năm sau']]},
+    {k:'見', on:'ケン (ken)', kun:'み(る) mi(ru)', mean:'nhìn / xem', ex:[['見る','miru','xem'],['見学','kengaku','tham quan']]},
+    {k:'食', on:'ショク (shoku)', kun:'た(べる) ta(beru)', mean:'ăn', ex:[['食べる','taberu','ăn'],['食堂','shokudō','nhà ăn']]},
+    {k:'飲', on:'イン (in)', kun:'の(む) no(mu)', mean:'uống', ex:[['飲む','nomu','uống'],['飲み物','nomimono','đồ uống']]},
+    {k:'聞', on:'ブン (bun)', kun:'き(く) ki(ku)', mean:'nghe / hỏi', ex:[['聞く','kiku','nghe / hỏi'],['新聞','shinbun','báo']]},
+    {k:'話', on:'ワ (wa)', kun:'はな(す) hana(su)', mean:'nói', ex:[['話す','hanasu','nói'],['電話','denwa','điện thoại']]},
+    {k:'読', on:'ドク (doku)', kun:'よ(む) yo(mu)', mean:'đọc', ex:[['読む','yomu','đọc'],['読書','dokusho','đọc sách']]},
+    {k:'書', on:'ショ (sho)', kun:'か(く) ka(ku)', mean:'viết', ex:[['書く','kaku','viết'],['図書館','toshokan','thư viện']]}
+  ]}
+];
+
+// Flatten
+var ALL = [];
+GROUPS.forEach(function(g){ g.kanji.forEach(function(x){ ALL.push(x); }); });
+var TOTAL = ALL.length;
+
+// ============================================================
+// Tabs + kanji grid + detail panel + progress
+// ============================================================
+var tabsEl = document.getElementById('tabs');
+var gridEl = document.getElementById('kanji-grid');
+var detailEl = document.getElementById('detail');
+var seen = {};
+var activeGroup = 0;
+
+GROUPS.forEach(function(g, i){
+  var b = document.createElement('button');
+  b.className = 'tab-btn' + (i===0 ? ' active' : '');
+  b.textContent = g.name;
+  b.addEventListener('click', function(){
+    activeGroup = i;
+    document.querySelectorAll('.tab-btn').forEach(function(x){ x.classList.remove('active'); });
+    b.classList.add('active');
+    renderGrid();
+  });
+  tabsEl.appendChild(b);
+});
+
+function renderGrid(){
+  gridEl.innerHTML = '';
+  GROUPS[activeGroup].kanji.forEach(function(x){
+    var cell = document.createElement('div');
+    cell.className = 'kanji-cell' + (seen[x.k] ? ' seen' : '');
+    cell.innerHTML = '<div class="kc-char">'+x.k+'</div>'+
+                     '<div class="kc-mean">'+x.mean+'</div>'+
+                     '<div class="kc-seen-dot">'+(seen[x.k] ? '✓ đã xem' : '')+'</div>';
+    cell.addEventListener('click', function(){
+      document.querySelectorAll('.kanji-cell').forEach(function(c){ c.classList.remove('active'); });
+      cell.classList.add('active');
+      showDetail(x);
+      markSeen(x.k);
+      cell.classList.add('seen');
+      cell.querySelector('.kc-seen-dot').textContent = '✓ đã xem';
+      jaSpeak(x.k);
+    });
+    gridEl.appendChild(cell);
+  });
+}
+
+function markSeen(k){
+  if(seen[k]) return;
+  seen[k] = true;
+  var n = Object.keys(seen).length;
+  document.getElementById('prog-label').textContent = 'Đã khám phá ' + n + ' / ' + TOTAL + ' kanji';
+  document.getElementById('prog-fill').style.width = (n/TOTAL*100) + '%';
+}
+
+function showDetail(x){
+  detailEl.classList.add('show');
+  var dChar = document.getElementById('d-char');
+  dChar.textContent = x.k;
+  dChar.onclick = function(){ jaSpeak(x.k); };
+  document.getElementById('d-on').textContent = x.on;
+  document.getElementById('d-kun').textContent = x.kun;
+  document.getElementById('d-mean').textContent = x.mean;
+  var ul = document.getElementById('d-ex');
+  ul.innerHTML = '';
+  x.ex.forEach(function(e){
+    var li = document.createElement('li');
+    li.className = 'ex-item';
+    li.innerHTML = '<span class="ex-word">'+e[0]+'</span>'+
+                   '<span class="ex-romaji">'+e[1]+'</span>'+
+                   '<span class="ex-mean">'+e[2]+'</span>'+
+                   '<span class="ex-play">🔊 nghe</span>';
+    li.addEventListener('click', function(){
+      document.querySelectorAll('.ex-item').forEach(function(o){ o.classList.remove('playing'); });
+      li.classList.add('playing');
+      jaSpeak(e[0]);
+    });
+    ul.appendChild(li);
+  });
+}
+
+renderGrid();
+
+// ============================================================
+// Thứ trong tuần
+// ============================================================
+var DAYS = [
+  ['月曜日','getsuyōbi','thứ Hai'],
+  ['火曜日','kayōbi','thứ Ba'],
+  ['水曜日','suiyōbi','thứ Tư'],
+  ['木曜日','mokuyōbi','thứ Năm'],
+  ['金曜日','kinyōbi','thứ Sáu'],
+  ['土曜日','doyōbi','thứ Bảy'],
+  ['日曜日','nichiyōbi','Chủ nhật']
+];
+var daysEl = document.getElementById('days-grid');
+DAYS.forEach(function(d){
+  var c = document.createElement('div');
+  c.className = 'day-card';
+  c.innerHTML = '<div class="day-word">'+d[0]+'</div>'+
+                '<div class="day-romaji">'+d[1]+'</div>'+
+                '<div class="day-vi">'+d[2]+'</div>'+
+                '<div class="hint">🔊 click</div>';
+  c.addEventListener('click', function(){
+    document.querySelectorAll('.day-card').forEach(function(o){ o.classList.remove('playing'); });
+    c.classList.add('playing');
+    jaSpeak(d[0]);
+  });
+  daysEl.appendChild(c);
+});
+
+// ============================================================
+// Quiz 2 chiều
+// ============================================================
+var QN = 10;
+var qIdx = 0, qCorrect = 0, qDone = false, qCur = null, qDir = 'k2m';
+
+function shuffle(a){ a = a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function sample(arr, n, exclude){ var pool = arr.filter(function(x){ return x !== exclude; }); return shuffle(pool).slice(0, n); }
+
+function newQuestion(){
+  qDone = false;
+  qCur = ALL[Math.floor(Math.random()*ALL.length)];
+  qDir = Math.random() < 0.5 ? 'k2m' : 'm2k';
+  var modeEl = document.getElementById('q-mode');
+  var promptEl = document.getElementById('q-prompt');
+  var optsEl = document.getElementById('q-options');
+  var fb = document.getElementById('q-feedback');
+  fb.textContent = ' '; fb.className = 'quiz-feedback';
+  optsEl.innerHTML = '';
+
+  if(qDir === 'k2m'){
+    // kanji -> nghĩa
+    modeEl.textContent = 'Kanji → Nghĩa';
+    promptEl.innerHTML = '<div class="qp-big">'+qCur.k+'</div><span class="qp-sub">Kanji này nghĩa là gì?</span>';
+    jaSpeak(qCur.k);
+    var wrong = sample(ALL, 3, qCur).map(function(x){ return x.mean; });
+    var opts = shuffle([qCur.mean].concat(wrong));
+    opts.forEach(function(m){
+      var b = document.createElement('button');
+      b.textContent = m;
+      b.addEventListener('click', function(){ answer(b, m === qCur.mean, opts, optsEl); });
+      optsEl.appendChild(b);
+    });
+  } else {
+    // nghĩa -> kanji
+    modeEl.textContent = 'Nghĩa → Kanji';
+    promptEl.innerHTML = '<div class="qp-text">"'+qCur.mean+'"</div><span class="qp-sub">Chọn kanji đúng</span>';
+    var wrongK = sample(ALL, 3, qCur).map(function(x){ return x.k; });
+    var optsK = shuffle([qCur.k].concat(wrongK));
+    optsK.forEach(function(kk){
+      var b = document.createElement('button');
+      b.className = 'opt-kanji';
+      b.textContent = kk;
+      b.addEventListener('click', function(){ answer(b, kk === qCur.k, optsK, optsEl, true); });
+      optsEl.appendChild(b);
+    });
+  }
+  document.getElementById('q-score').textContent = 'Câu ' + (qIdx+1) + ' / ' + QN + ' · Đúng ' + qCorrect;
+}
+
+function answer(btn, isRight, opts, optsEl, speakKanji){
+  if(qDone) return;
+  qDone = true;
+  var fb = document.getElementById('q-feedback');
+  var buttons = optsEl.querySelectorAll('button');
+  buttons.forEach(function(b){ b.disabled = true; });
+  if(isRight){
+    btn.classList.add('correct');
+    qCorrect++;
+    fb.textContent = '✓ Chính xác!';
+    fb.className = 'quiz-feedback ok';
+  } else {
+    btn.classList.add('wrong');
+    fb.textContent = '✗ Sai. Đáp án: ' + (qDir==='k2m' ? qCur.mean : qCur.k);
+    fb.className = 'quiz-feedback no';
+    // highlight đáp án đúng
+    buttons.forEach(function(b){
+      if((qDir==='k2m' && b.textContent===qCur.mean) || (qDir==='m2k' && b.textContent===qCur.k)) b.classList.add('correct');
+    });
+  }
+  if(speakKanji) jaSpeak(qCur.k);
+  document.getElementById('q-score').textContent = 'Câu ' + (qIdx+1) + ' / ' + QN + ' · Đúng ' + qCorrect;
+}
+
+document.getElementById('q-next').addEventListener('click', function(){
+  if(!qDone) return;
+  qIdx++;
+  if(qIdx >= QN){
+    var pct = qCorrect;
+    var msg = pct >= 8 ? '🎉 Xuất sắc!' : (pct >= 5 ? '👍 Khá, luyện thêm nhé.' : 'Cần ôn lại bảng kanji.');
+    document.getElementById('q-mode').textContent = 'Hoàn tất';
+    document.getElementById('q-prompt').innerHTML = '<div class="qp-text">Đúng '+qCorrect+' / '+QN+'</div><span class="qp-sub">'+msg+'</span>';
+    document.getElementById('q-options').innerHTML = '';
+    document.getElementById('q-feedback').textContent = ' ';
+    document.getElementById('q-feedback').className = 'quiz-feedback';
+    document.getElementById('q-score').textContent = 'Kết thúc · '+qCorrect+' / '+QN;
+    qDone = true;
+    return;
+  }
+  newQuestion();
+});
+
+document.getElementById('q-reset').addEventListener('click', function(){
+  qIdx = 0; qCorrect = 0;
+  newQuestion();
+});
+
+newQuestion();
+
+// Preload voices
+if(window.speechSynthesis){ window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = function(){ window.speechSynthesis.getVoices(); }; }
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

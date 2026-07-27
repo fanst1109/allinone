@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05: Kanji nhập môn — Japanese</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #faf5ff;
+    --accent: #9333ea;
+    --accent-soft: #f3e8ff;
+    --accent-hover: #7e22ce;
+  }
+  main { max-width: 1000px; }
+
+  h1 { color: #6b21a8; }
+  h2 { color: #7e22ce; margin-top: 34px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  h3 { color: #9333ea; margin-top: 20px; }
+
+  .lead { font-size: 1.05rem; color: #4b5563; margin-bottom: 20px; line-height: 1.7; }
+
+  .module {
+    background: white; border: 1px solid #e9d5ff; border-radius: 12px;
+    padding: 20px; margin-bottom: 20px;
+  }
+
+  /* Font CJK cho kanji */
+  .jp {
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "MS PGothic", sans-serif;
+  }
+
+  /* ---- Module 1: bảng 8 kanji ---- */
+  .kanji-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 10px; margin: 14px 0;
+  }
+  .kanji-cell {
+    border: 2px solid #e9d5ff; border-radius: 12px; background: white;
+    padding: 12px 6px; text-align: center; cursor: pointer;
+    transition: transform .12s, box-shadow .12s, border-color .12s;
+  }
+  .kanji-cell:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(147,51,234,.14); }
+  .kanji-cell.active { border-color: var(--accent); background: var(--accent-soft); }
+  .kanji-cell .ch {
+    font-size: 52px; line-height: 1; color: #6b21a8; font-weight: 700;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+  }
+  .kanji-cell .mn { font-size: 13px; color: #6b7280; margin-top: 6px; }
+
+  .detail {
+    margin-top: 16px; border: 1px solid #e9d5ff; border-radius: 12px;
+    background: #faf5ff; padding: 18px; display: flex; gap: 18px; flex-wrap: wrap;
+    align-items: center;
+  }
+  .detail .big {
+    font-size: 84px; line-height: 1; color: #6b21a8; font-weight: 700; min-width: 96px;
+    text-align: center;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+  }
+  .detail .info { flex: 1 1 260px; }
+  .detail .info .row { margin: 5px 0; font-size: 15px; }
+  .read-badge {
+    display: inline-block; font-weight: 700; padding: 2px 8px; border-radius: 6px;
+    font-size: 12px; margin-right: 8px; vertical-align: middle;
+  }
+  .badge-on  { background: #dbeafe; color: #1e3a8a; }
+  .badge-kun { background: #dcfce7; color: #166534; }
+  .btn {
+    display: inline-block; margin: 8px 8px 0 0; padding: 8px 14px; border-radius: 999px;
+    border: 2px solid var(--accent); background: white; color: var(--accent);
+    font-weight: 700; font-size: 13px; cursor: pointer;
+  }
+  .btn:hover { background: var(--accent); color: white; }
+
+  /* ---- Module 2: on vs kun ---- */
+  .vs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
+  .vs-card { border-radius: 12px; padding: 16px; border: 2px solid; }
+  .vs-on  { background: #eff6ff; border-color: #93c5fd; }
+  .vs-kun { background: #f0fdf4; border-color: #86efac; }
+  .vs-card h3 { margin-top: 0; }
+  .vs-on h3  { color: #1e40af; }
+  .vs-kun h3 { color: #15803d; }
+  .vs-card .ex { margin-top: 10px; font-size: 14px; }
+  .vs-card .ex .jp { font-size: 20px; font-weight: 700; }
+
+  /* ---- Module 3: ghép từ ---- */
+  .compound {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 12px;
+    padding: 16px; margin: 12px 0;
+  }
+  .cbox {
+    font-size: 40px; font-weight: 700; color: #6b21a8; background: white;
+    border: 2px solid #e9d5ff; border-radius: 10px; width: 64px; height: 64px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+  }
+  .cbox.small { font-size: 26px; width: 52px; height: 52px; }
+  .op { font-size: 28px; font-weight: 700; color: #9333ea; }
+  .cresult {
+    font-size: 40px; font-weight: 700; color: #7e22ce; background: var(--accent-soft);
+    border: 2px solid var(--accent); border-radius: 10px; padding: 6px 14px; min-height: 64px;
+    display: flex; align-items: center;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+  }
+  .cinfo { flex: 1 1 200px; font-size: 14px; color: #374151; }
+  .cinfo b { color: #6b21a8; }
+
+  .cmp-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .cmp-strip > div {
+    border: 1px solid #e9d5ff; border-radius: 8px; padding: 10px; font-size: 14px; background: white;
+  }
+  .cmp-strip .lab { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+
+  /* ---- Module 4: radical explorer ---- */
+  .rad-btns { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  .rad-btn {
+    border: 2px solid #e9d5ff; background: white; border-radius: 10px; padding: 8px 12px;
+    cursor: pointer; font-size: 14px; font-weight: 700; color: #6b21a8;
+  }
+  .rad-btn:hover { border-color: var(--accent); }
+  .rad-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .rad-btn .r { font-size: 22px; margin-right: 4px;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif; }
+  .rad-result { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .rad-char {
+    border: 1px solid #e9d5ff; border-radius: 10px; padding: 10px 12px; background: #faf5ff;
+    text-align: center; cursor: pointer; min-width: 90px;
+  }
+  .rad-char:hover { border-color: var(--accent); }
+  .rad-char .rc { font-size: 34px; color: #6b21a8; font-weight: 700;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif; }
+  .rad-char .rm { font-size: 12px; color: #6b7280; margin-top: 4px; }
+
+  .hint { font-size: 13px; color: #6b7280; }
+
+  @media (max-width: 480px) {
+    .kanji-cell .ch { font-size: 42px; }
+    .detail .big { font-size: 64px; min-width: 72px; }
+    .vs-grid { grid-template-columns: 1fr; }
+    .cmp-strip { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Japanese</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh II</a>
+  <span class="sep">·</span>
+  <a href="../../01-Pronunciation/lesson-04-mora-pitch-accent/visualization.html">← L4</a>
+  <span class="sep">·</span>
+  <span class="current">L5: Kanji nhập môn</span>
+  <span class="sep">·</span>
+  <a href="../lesson-06-kanji-n5/visualization.html">L6: Kanji N5 →</a>
+</nav>
+
+<main>
+  <h1>Lesson 05: Kanji nhập môn (漢字入門)</h1>
+  <p class="lead">Kanji là chữ <strong>biểu ý</strong> mượn từ chữ Hán. Mỗi chữ mang một nghĩa và thường có hai kiểu đọc: <strong>on'yomi</strong> (âm Hán-Nhật, dùng trong từ ghép) và <strong>kun'yomi</strong> (âm thuần Nhật, khi đứng một mình). Bấm vào chữ để nghe và xem chi tiết.</p>
+
+  <!-- Module 1 -->
+  <section class="module">
+    <h2>1. Tám kanji cơ bản — bấm để nghe &amp; xem</h2>
+    <p class="hint">Bấm một chữ: phát <strong>kun'yomi</strong> (cách đọc khi đứng một mình) và hiện on/kun + nghĩa + từ ví dụ.</p>
+    <div class="kanji-grid" id="kanjiGrid"></div>
+
+    <div class="detail" id="detail">
+      <div class="big jp" id="dBig">山</div>
+      <div class="info">
+        <div class="row" id="dMean"></div>
+        <div class="row"><span class="read-badge badge-on">on'yomi</span><span id="dOn"></span></div>
+        <div class="row"><span class="read-badge badge-kun">kun'yomi</span><span id="dKun"></span></div>
+        <div class="row" id="dEx"></div>
+        <button class="btn" id="dPlayKun">🔊 kun (đứng một mình)</button>
+        <button class="btn" id="dPlayEx">🔊 nghe từ ghép</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Module 2 -->
+  <section class="module">
+    <h2>2. on'yomi vs kun'yomi — khác nhau chỗ nào?</h2>
+    <p>Cùng một chữ 山 (núi) có hai cách đọc tuỳ vị trí. Bấm nút loa để nghe engine đọc khác nhau:</p>
+    <div class="vs-grid">
+      <div class="vs-card vs-kun">
+        <h3>kun'yomi — âm thuần Nhật</h3>
+        <p style="font-size:14px;">Âm người Nhật đã dùng sẵn cho nghĩa "núi", gắn vào chữ 山. Dùng khi chữ <strong>đứng một mình</strong>.</p>
+        <div class="ex">
+          <span class="jp">山</span> = <b>やま</b> <i>yama</i> — "núi"
+          <button class="btn" data-speak="山">🔊 やま</button>
+        </div>
+      </div>
+      <div class="vs-card vs-on">
+        <h3>on'yomi — âm Hán-Nhật</h3>
+        <p style="font-size:14px;">Âm phỏng theo tiếng Hán lúc du nhập. Dùng khi chữ nằm <strong>trong từ ghép</strong>.</p>
+        <div class="ex">
+          <span class="jp">富士山</span> = <b>ふじさん</b> <i>fuji-san</i> — "núi Phú Sĩ"
+          <button class="btn" data-speak="富士山">🔊 ふじさん</button>
+        </div>
+      </div>
+    </div>
+    <p class="hint">Quy luật kinh nghiệm: <strong>đứng một mình → kun</strong>, <strong>trong từ ghép → on</strong>. Có ngoại lệ, nhưng đúng phần lớn trường hợp.</p>
+  </section>
+
+  <!-- Module 3 -->
+  <section class="module">
+    <h2>3. Ghép kanji thành từ — nghe on'yomi trong từ ghép</h2>
+    <p>Khi hai kanji ghép lại, chúng thường chuyển sang <strong>on'yomi</strong>. Bấm 🔊 để nghe cả từ:</p>
+
+    <div class="compound">
+      <span class="cbox jp">日</span>
+      <span class="op">+</span>
+      <span class="cbox jp">本</span>
+      <span class="op">=</span>
+      <span class="cresult jp">日本</span>
+      <div class="cinfo">
+        <b>にほん</b> <i>ni-hon</i> — <b>Nhật Bản</b><br>
+        日 (mặt trời) + 本 (gốc) = "gốc mặt trời" → xứ mặt trời mọc.<br>
+        <span class="hint">日 → ni · 本 → hon (đều on'yomi)</span><br>
+        <button class="btn" data-speak="日本">🔊 nghe 日本</button>
+      </div>
+    </div>
+
+    <div class="compound">
+      <span class="cbox jp">火</span>
+      <span class="op">+</span>
+      <span class="cbox jp">山</span>
+      <span class="op">=</span>
+      <span class="cresult jp">火山</span>
+      <div class="cinfo">
+        <b>かざん</b> <i>ka-zan</i> — <b>núi lửa</b><br>
+        火 (lửa) + 山 (núi) = "núi lửa" (volcano).<br>
+        <span class="hint">火 → ka · 山 → zan (on'yomi, biến âm rendaku san→zan)</span><br>
+        <button class="btn" data-speak="火山">🔊 nghe 火山</button>
+      </div>
+    </div>
+
+    <h3>Đối chiếu: cùng chữ, kun khi đơn ↔ on khi ghép</h3>
+    <div class="cmp-strip">
+      <div>
+        <div class="lab" style="color:#15803d;">kun — đứng một mình</div>
+        <span class="jp" style="font-size:20px;font-weight:700;">山</span> <i>yama</i> (núi)
+        <button class="btn" data-speak="山">🔊</button>
+      </div>
+      <div>
+        <div class="lab" style="color:#1e40af;">on — trong từ ghép</div>
+        <span class="jp" style="font-size:20px;font-weight:700;">火山</span> <i>ka-zan</i> (núi lửa)
+        <button class="btn" data-speak="火山">🔊</button>
+      </div>
+      <div>
+        <div class="lab" style="color:#15803d;">kun — đứng một mình</div>
+        <span class="jp" style="font-size:20px;font-weight:700;">火</span> <i>hi</i> (lửa)
+        <button class="btn" data-speak="火">🔊</button>
+      </div>
+      <div>
+        <div class="lab" style="color:#1e40af;">on — trong từ ghép</div>
+        <span class="jp" style="font-size:20px;font-weight:700;">火曜日</span> <i>ka-yō-bi</i> (thứ Ba)
+        <button class="btn" data-speak="火曜日">🔊</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Module 4 -->
+  <section class="module">
+    <h2>4. Explorer bộ thủ (部首 bushu)</h2>
+    <p>Bộ thủ là thành phần dùng để tra từ điển và <strong>gợi ý nghĩa</strong>. Chọn một bộ thủ để xem các kanji chứa nó (bấm chữ để nghe):</p>
+    <div class="rad-btns" id="radBtns"></div>
+    <div class="rad-result" id="radResult"></div>
+    <p class="hint" id="radHint"></p>
+  </section>
+
+  <section class="module">
+    <h2>5. Tóm tắt</h2>
+    <ul>
+      <li><strong>Kanji</strong> là chữ biểu ý mượn từ chữ Hán — mỗi chữ mang nghĩa.</li>
+      <li><strong>on'yomi</strong> (âm Hán-Nhật): thường dùng trong <strong>từ ghép</strong>. Ví dụ 火山 <i>ka-zan</i>.</li>
+      <li><strong>kun'yomi</strong> (âm thuần Nhật): thường dùng khi chữ <strong>đứng một mình</strong>. Ví dụ 山 <i>yama</i>.</li>
+      <li><strong>Bộ thủ</strong> giúp tra từ điển và đoán nghĩa (氵 → nước, 木 → cây, 火 → lửa).</li>
+      <li>Thứ tự nét chung: trên→dưới, trái→phải, ngang trước sổ sau.</li>
+      <li>Bài tiếp: <a href="../lesson-06-kanji-n5/visualization.html">L6 — Kanji N5 →</a></li>
+    </ul>
+  </section>
+</main>
+
+<script>
+// ============================================================
+// Web Speech API — tiếng Nhật (ja-JP)
+// ============================================================
+function jaSpeak(text, rate){ if(!window.speechSynthesis) return;
+  if(window.speechSynthesis.speaking||window.speechSynthesis.pending) window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text); u.lang='ja-JP'; u.rate=rate||0.85;
+  function fire(){ var vs=window.speechSynthesis.getVoices(); var v=vs.find(function(x){return x.lang==='ja-JP';})||vs.find(function(x){return x.lang&&x.lang.indexOf('ja')===0;}); if(v)u.voice=v; try{window.speechSynthesis.resume();}catch(e){} window.speechSynthesis.speak(u); }
+  if(!window.speechSynthesis.getVoices().length){ var d=false,go=function(){if(d)return;d=true;fire();}; window.speechSynthesis.addEventListener('voiceschanged',go,{once:true}); window.speechSynthesis.getVoices(); setTimeout(go,350);} else fire();
+}
+
+// Nút bất kỳ có data-speak → phát chữ đó
+document.addEventListener('click', function(e){
+  var t = e.target.closest('[data-speak]');
+  if (t) jaSpeak(t.getAttribute('data-speak'));
+});
+
+// ============================================================
+// Module 1: bảng 8 kanji
+// ============================================================
+var KANJI = [
+  { k:'人', mean:'người',           on:'ジン / ニン (jin / nin)',   kun:'ひと (hito)',        ex:'三人 (san-nin, ba người) · 人口 (jin-kō, dân số)', exWord:'三人' },
+  { k:'日', mean:'ngày, mặt trời',  on:'ニチ / ジツ (nichi / jitsu)', kun:'ひ / か (hi / ka)',  ex:'日本 (ni-hon, Nhật Bản) · 毎日 (mai-nichi, mỗi ngày)', exWord:'毎日' },
+  { k:'月', mean:'tháng, mặt trăng', on:'ゲツ / ガツ (getsu / gatsu)', kun:'つき (tsuki)',       ex:'月曜日 (getsu-yō-bi, thứ Hai) · 一月 (ichi-gatsu, tháng 1)', exWord:'月曜日' },
+  { k:'山', mean:'núi',             on:'サン (san)',                kun:'やま (yama)',        ex:'富士山 (fuji-san, núi Phú Sĩ) · 火山 (ka-zan, núi lửa)', exWord:'火山' },
+  { k:'川', mean:'sông',            on:'セン (sen)',                kun:'かわ (kawa)',        ex:'河川 (ka-sen, sông ngòi) · 小川 (o-gawa, suối nhỏ)', exWord:'河川' },
+  { k:'木', mean:'cây, gỗ',         on:'モク / ボク (moku / boku)',  kun:'き (ki)',            ex:'木曜日 (moku-yō-bi, thứ Năm) · 木材 (moku-zai, gỗ)', exWord:'木曜日' },
+  { k:'火', mean:'lửa',             on:'カ (ka)',                   kun:'ひ (hi)',            ex:'火山 (ka-zan, núi lửa) · 花火 (hana-bi, pháo hoa)', exWord:'花火' },
+  { k:'水', mean:'nước',            on:'スイ (sui)',                kun:'みず (mizu)',        ex:'水曜日 (sui-yō-bi, thứ Tư) · 水道 (sui-dō, nước máy)', exWord:'水曜日' }
+];
+
+var grid = document.getElementById('kanjiGrid');
+var dBig = document.getElementById('dBig'),
+    dMean = document.getElementById('dMean'),
+    dOn = document.getElementById('dOn'),
+    dKun = document.getElementById('dKun'),
+    dEx = document.getElementById('dEx');
+var current = KANJI[3]; // mặc định 山
+
+function renderDetail(item){
+  current = item;
+  dBig.textContent = item.k;
+  dMean.innerHTML = '<strong>Nghĩa:</strong> ' + item.mean;
+  dOn.textContent = item.on;
+  dKun.textContent = item.kun;
+  dEx.innerHTML = '<strong>Từ ví dụ:</strong> ' + item.ex;
+  Array.prototype.forEach.call(grid.children, function(c){
+    c.classList.toggle('active', c.getAttribute('data-k') === item.k);
+  });
+}
+
+KANJI.forEach(function(item){
+  var cell = document.createElement('div');
+  cell.className = 'kanji-cell';
+  cell.setAttribute('data-k', item.k);
+  cell.innerHTML = '<div class="ch jp">' + item.k + '</div><div class="mn">' + item.mean + '</div>';
+  cell.addEventListener('click', function(){
+    renderDetail(item);
+    jaSpeak(item.k); // phát kun'yomi (chữ đứng một mình)
+  });
+  grid.appendChild(cell);
+});
+
+document.getElementById('dPlayKun').addEventListener('click', function(){ jaSpeak(current.k); });
+document.getElementById('dPlayEx').addEventListener('click', function(){ jaSpeak(current.exWord); });
+renderDetail(current);
+
+// ============================================================
+// Module 4: radical explorer
+// ============================================================
+var RADS = [
+  { r:'氵/水', name:'sanzui — nước', chars:[ {k:'海',m:'biển (umi)'}, {k:'河',m:'sông (kawa)'}, {k:'泳',m:'bơi (oyogu)'} ] },
+  { r:'木',    name:'kihen — cây',  chars:[ {k:'林',m:'rừng thưa (hayashi)'}, {k:'森',m:'rừng rậm (mori)'} ] },
+  { r:'火',    name:'hi — lửa',     chars:[ {k:'灯',m:'đèn (tō)'}, {k:'焼',m:'nướng/đốt (yaku)'} ] },
+  { r:'人/亻', name:'ninben — người', chars:[ {k:'休',m:'nghỉ (yasumu)'}, {k:'体',m:'cơ thể (karada)'} ] },
+  { r:'日',    name:'nichihen — mặt trời', chars:[ {k:'明',m:'sáng (akarui)'}, {k:'時',m:'thời gian (toki)'} ] }
+];
+
+var radBtns = document.getElementById('radBtns'),
+    radResult = document.getElementById('radResult'),
+    radHint = document.getElementById('radHint');
+
+function renderRad(rad){
+  Array.prototype.forEach.call(radBtns.children, function(b){
+    b.classList.toggle('active', b.getAttribute('data-r') === rad.r);
+  });
+  radResult.innerHTML = '';
+  rad.chars.forEach(function(c){
+    var el = document.createElement('div');
+    el.className = 'rad-char';
+    el.innerHTML = '<div class="rc jp">' + c.k + '</div><div class="rm">' + c.m + '</div>';
+    el.addEventListener('click', function(){ jaSpeak(c.k); });
+    radResult.appendChild(el);
+  });
+  radHint.textContent = 'Bộ thủ ' + rad.r + ' (' + rad.name + ') gợi ý các chữ trên đều liên quan tới lĩnh vực này. Bấm chữ để nghe.';
+}
+
+RADS.forEach(function(rad){
+  var b = document.createElement('button');
+  b.className = 'rad-btn';
+  b.setAttribute('data-r', rad.r);
+  b.innerHTML = '<span class="r jp">' + rad.r + '</span>' + rad.name;
+  b.addEventListener('click', function(){ renderRad(rad); });
+  radBtns.appendChild(b);
+});
+renderRad(RADS[0]);
+
+// Dọn hàng đợi audio khi rời trang
+if (window.speechSynthesis) {
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = function(){ window.speechSynthesis.getVoices(); };
+  window.addEventListener('pagehide', function(){ window.speechSynthesis.cancel(); });
+}
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

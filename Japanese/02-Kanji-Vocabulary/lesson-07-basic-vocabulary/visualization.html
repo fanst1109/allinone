@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 07: Từ vựng cơ bản — Japanese</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --accent: #9333ea;
+    --accent-soft: #f3e8ff;
+    --accent-hover: #7e22ce;
+  }
+  main { max-width: 900px; }
+
+  h1 { color: #6b21a8; }
+  h2 { color: #7e22ce; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  h3 { color: #9333ea; margin-top: 20px; }
+
+  .lead { font-size: 1.05rem; color: #4b5563; margin-bottom: 20px; line-height: 1.7; }
+
+  .module {
+    background: white; border: 1px solid #e9d5ff; border-radius: 12px;
+    padding: 20px; margin-bottom: 20px;
+  }
+
+  /* ---- Tabs chọn nhóm ---- */
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .tab {
+    padding: 8px 16px; border: 2px solid var(--accent-soft); border-radius: 999px;
+    background: white; cursor: pointer; font-weight: 700; font-size: 14px;
+    color: #6b21a8; transition: all .12s;
+  }
+  .tab:hover { border-color: var(--accent); }
+  .tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* ---- Flashcard lật thẻ ---- */
+  .flash-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .flashcard {
+    width: 100%; max-width: 420px; height: 240px;
+    perspective: 1200px; cursor: pointer;
+  }
+  .flash-inner {
+    position: relative; width: 100%; height: 100%;
+    transition: transform .5s; transform-style: preserve-3d;
+  }
+  .flashcard.flipped .flash-inner { transform: rotateY(180deg); }
+  .flash-face {
+    position: absolute; inset: 0;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    border-radius: 16px; border: 2px solid var(--accent-soft);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 16px; text-align: center; background: white;
+  }
+  .flash-front { }
+  .flash-back { transform: rotateY(180deg); background: var(--accent-soft); }
+  .flash-kana {
+    font-size: 46px; font-weight: 700; color: #1a202c; line-height: 1.15;
+    word-break: keep-all;
+  }
+  .flash-romaji { font-size: 20px; color: var(--accent); font-weight: 600; margin-top: 8px; }
+  .flash-vi { font-size: 26px; font-weight: 700; color: #6b21a8; }
+  .flash-flip-hint { font-size: 12px; color: #9ca3af; margin-top: 14px; }
+  .flash-badge {
+    position: absolute; top: 10px; right: 12px; font-size: 12px;
+    color: #16a34a; font-weight: 700;
+  }
+
+  .flash-controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; }
+  .btn {
+    padding: 9px 18px; border-radius: 999px; border: none;
+    background: var(--accent); color: white; font-weight: 700; font-size: 14px;
+    cursor: pointer; transition: background .12s;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .btn.ghost { background: white; color: #6b21a8; border: 2px solid var(--accent-soft); }
+  .btn.ghost:hover { background: var(--accent-soft); }
+  .btn.learn { background: white; color: #16a34a; border: 2px solid #bbf7d0; }
+  .btn.learn.on { background: #16a34a; color: white; border-color: #16a34a; }
+  .flash-pos { font-size: 14px; color: #6b7280; font-weight: 600; min-width: 60px; text-align: center; }
+
+  .progress {
+    text-align: center; background: var(--accent-soft); color: #6b21a8;
+    padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 14px;
+    display: inline-block;
+  }
+
+  /* ---- Bảng tra nhanh (grid card) ---- */
+  .vocab-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px; margin: 14px 0;
+  }
+  .vcard {
+    background: white; border: 2px solid var(--accent-soft); border-radius: 10px;
+    padding: 12px 10px; text-align: center; cursor: pointer; transition: all .12s;
+  }
+  .vcard:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(147,51,234,.12); }
+  .vcard.playing { background: #fef3c7; border-color: #f59e0b; }
+  .vcard .kana { font-size: 26px; font-weight: 700; color: #1a202c; line-height: 1.15; }
+  .vcard .romaji { font-size: 13px; font-weight: 600; color: var(--accent); margin: 3px 0; }
+  .vcard .vi { font-size: 12px; color: #6b7280; }
+  .vcard .spk { font-size: 11px; color: #9ca3af; margin-top: 3px; }
+
+  /* ---- Quiz ---- */
+  .quiz-area { background: #faf5ff; border: 2px dashed var(--accent); border-radius: 10px; padding: 18px; }
+  .quiz-prompt { text-align: center; margin-bottom: 14px; }
+  .quiz-play { font-size: 15px; }
+  .quiz-reveal { font-size: 22px; font-weight: 700; color: #6b21a8; margin-top: 10px; min-height: 28px; }
+  .quiz-reveal .rj { font-size: 15px; color: var(--accent); font-weight: 600; }
+  .quiz-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+  .quiz-opts button {
+    padding: 12px; border: 2px solid var(--accent-soft); border-radius: 10px;
+    background: white; cursor: pointer; font-size: 15px; font-weight: 600; color: #374151;
+    transition: all .12s;
+  }
+  .quiz-opts button:hover { border-color: var(--accent); }
+  .quiz-opts button.correct { background: #d1fae5; border-color: #10b981; color: #065f46; }
+  .quiz-opts button.wrong { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+  .quiz-foot { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; }
+
+  /* ---- Câu mẫu ---- */
+  .sentence {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+    background: white; border: 1px solid #e9d5ff; border-radius: 10px;
+    padding: 12px 14px; margin: 8px 0;
+  }
+  .sentence .jp { font-size: 20px; font-weight: 700; color: #1a202c; }
+  .sentence .rj { font-size: 14px; color: var(--accent); font-weight: 600; }
+  .sentence .vi { font-size: 14px; color: #6b7280; }
+  .sentence .spk-btn {
+    margin-left: auto; padding: 6px 14px; border-radius: 999px; border: none;
+    background: var(--accent); color: white; font-weight: 700; cursor: pointer; font-size: 13px;
+  }
+  .sentence .spk-btn:hover { background: var(--accent-hover); }
+
+  @media (max-width: 480px) {
+    .flash-kana { font-size: 36px; }
+    .flash-vi { font-size: 22px; }
+    .quiz-opts { grid-template-columns: 1fr; }
+    .sentence .spk-btn { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Japanese</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh II</a>
+  <span class="sep">·</span>
+  <a href="../lesson-06-kanji-n5/visualization.html">← L6</a>
+  <span class="sep">·</span>
+  <span class="current">L7: Từ vựng cơ bản</span>
+  <span class="sep">·</span>
+  <a href="../lesson-08-thematic-vocabulary/visualization.html">L8: Từ vựng chủ đề →</a>
+</nav>
+
+<main>
+  <h1>Lesson 07: Từ vựng cơ bản (基本語彙 kihon goi)</h1>
+  <p class="lead">Kho từ vựng nền để bắt đầu giao tiếp: chào hỏi, đại từ &amp; chỉ định, số đếm, gia đình. Lật thẻ để tự kiểm tra, bấm 🔊 để nghe phát âm (Web Speech API, giọng ja-JP), và luyện phần "nghe rồi chọn nghĩa" ở cuối.</p>
+
+  <!-- Module 1: Flashcard -->
+  <section class="module">
+    <h2>Module 1: Flashcard lật thẻ</h2>
+    <p>Chọn nhóm từ, rồi bấm vào thẻ để lật mặt <strong>kana + romaji</strong> ↔ <strong>nghĩa tiếng Việt</strong>. Bấm 🔊 để nghe. Đánh dấu "Đã thuộc" khi bạn nhớ được.</p>
+
+    <div class="tabs" id="tabs"></div>
+
+    <div class="flash-wrap">
+      <div class="flashcard" id="flashcard">
+        <div class="flash-inner">
+          <div class="flash-face flash-front">
+            <span class="flash-badge" id="flash-badge"></span>
+            <div class="flash-kana" id="flash-kana">—</div>
+            <div class="flash-romaji" id="flash-romaji"></div>
+            <div class="flash-flip-hint">bấm để lật →</div>
+          </div>
+          <div class="flash-face flash-back">
+            <span class="flash-badge" id="flash-badge2"></span>
+            <div class="flash-vi" id="flash-vi"></div>
+            <div class="flash-flip-hint">← bấm để lật lại</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flash-controls">
+        <button class="btn ghost" id="btn-prev">← Trước</button>
+        <span class="flash-pos" id="flash-pos">1 / 7</span>
+        <button class="btn ghost" id="btn-next">Sau →</button>
+        <button class="btn" id="btn-speak">🔊 Nghe</button>
+        <button class="btn learn" id="btn-learn">Đã thuộc</button>
+      </div>
+
+      <div class="progress" id="learn-progress">Đã thuộc: 0 / 0</div>
+    </div>
+  </section>
+
+  <!-- Module 2: Bảng tra nhanh -->
+  <section class="module">
+    <h2>Module 2: Bảng từ vựng — tra nhanh &amp; nghe</h2>
+    <p>Toàn bộ từ theo nhóm. Bấm vào mỗi thẻ để nghe phát âm.</p>
+    <div id="ref-area"></div>
+  </section>
+
+  <!-- Module 3: Câu mẫu -->
+  <section class="module">
+    <h2>Module 3: Mẫu câu これは〜です</h2>
+    <p>Mẫu câu nền tảng: <code>これ / それ / あれ</code> + <code>は</code> (đọc "wa") + danh từ + <code>です</code>. Bấm 🔊 để nghe cả câu.</p>
+    <div id="sentence-area"></div>
+  </section>
+
+  <!-- Module 4: Quiz -->
+  <section class="module">
+    <h2>Module 4: Luyện tập — nghe rồi chọn nghĩa</h2>
+    <p>Bấm ▶ để nghe một từ, rồi chọn nghĩa tiếng Việt đúng trong 4 phương án.</p>
+
+    <div class="quiz-area">
+      <div class="quiz-prompt">
+        <button class="btn quiz-play" id="quiz-play">▶ Nghe từ</button>
+        <div class="quiz-reveal" id="quiz-reveal"></div>
+      </div>
+      <div class="quiz-opts" id="quiz-opts"></div>
+      <div class="quiz-foot">
+        <span class="progress" id="quiz-score">Câu 1 · Đúng 0 / 0</span>
+        <button class="btn ghost" id="quiz-next">Câu tiếp →</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="module">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li><strong>Chào hỏi</strong>: こんにちは, おはようございます, ありがとうございます, すみません, さようなら, はじめまして.</li>
+      <li><strong>Chỉ định ba bậc こ/そ/あ</strong>: これ (phía tôi) · それ (phía bạn) · あれ (xa cả hai).</li>
+      <li><strong>Số đếm</strong> ghép đều theo thập phân: じゅういち = 11, にじゅう = 20, thêm ひゃく (100), せん (1000).</li>
+      <li><strong>Gia đình hai bộ từ</strong>: khiêm nhường cho nhà mình (ちち, はは) vs kính ngữ cho nhà người khác (おとうさん, おかあさん).</li>
+      <li>Mẫu câu <code>これは〜です</code> — nhớ は đọc là "wa", です đặt cuối câu.</li>
+      <li>Bài tiếp: <a href="../lesson-08-thematic-vocabulary/visualization.html">L8 — Từ vựng theo chủ đề</a>.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+// ============================================================
+// Web Speech API — helper ja-JP
+// ============================================================
+function jaSpeak(text, rate){ if(!window.speechSynthesis) return;
+  if(window.speechSynthesis.speaking||window.speechSynthesis.pending) window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text); u.lang='ja-JP'; u.rate=rate||0.85;
+  function fire(){ var vs=window.speechSynthesis.getVoices(); var v=vs.find(function(x){return x.lang==='ja-JP';})||vs.find(function(x){return x.lang&&x.lang.indexOf('ja')===0;}); if(v)u.voice=v; try{window.speechSynthesis.resume();}catch(e){} window.speechSynthesis.speak(u); }
+  if(!window.speechSynthesis.getVoices().length){ var d=false,go=function(){if(d)return;d=true;fire();}; window.speechSynthesis.addEventListener('voiceschanged',go,{once:true}); window.speechSynthesis.getVoices(); setTimeout(go,350);} else fire();
+}
+
+// ============================================================
+// Dữ liệu từ vựng (say = cách đọc dùng cho audio khi có nhiều biến thể)
+// ============================================================
+const GROUPS = [
+  { key:'greet', label:'Chào hỏi', items:[
+    { kana:'こんにちは', romaji:'konnichiwa', vi:'Xin chào (ban ngày)' },
+    { kana:'おはようございます', romaji:'ohayō gozaimasu', vi:'Chào buổi sáng' },
+    { kana:'こんばんは', romaji:'konbanwa', vi:'Chào buổi tối' },
+    { kana:'ありがとうございます', romaji:'arigatō gozaimasu', vi:'Cảm ơn (lịch sự)' },
+    { kana:'すみません', romaji:'sumimasen', vi:'Xin lỗi / Làm ơn' },
+    { kana:'さようなら', romaji:'sayōnara', vi:'Tạm biệt' },
+    { kana:'はじめまして', romaji:'hajimemashite', vi:'Rất hân hạnh' },
+  ]},
+  { key:'pron', label:'Đại từ & chỉ định', items:[
+    { kana:'わたし', romaji:'watashi', vi:'tôi' },
+    { kana:'あなた', romaji:'anata', vi:'bạn' },
+    { kana:'これ', romaji:'kore', vi:'cái này (gần người nói)' },
+    { kana:'それ', romaji:'sore', vi:'cái đó (gần người nghe)' },
+    { kana:'あれ', romaji:'are', vi:'cái kia (xa cả hai)' },
+    { kana:'だれ', romaji:'dare', vi:'ai (từ hỏi người)' },
+  ]},
+  { key:'num', label:'Số đếm', items:[
+    { kana:'いち', romaji:'ichi', vi:'1 (một)' },
+    { kana:'に', romaji:'ni', vi:'2 (hai)' },
+    { kana:'さん', romaji:'san', vi:'3 (ba)' },
+    { kana:'よん / し', romaji:'yon / shi', vi:'4 (bốn)', say:'よん' },
+    { kana:'ご', romaji:'go', vi:'5 (năm)' },
+    { kana:'ろく', romaji:'roku', vi:'6 (sáu)' },
+    { kana:'なな / しち', romaji:'nana / shichi', vi:'7 (bảy)', say:'なな' },
+    { kana:'はち', romaji:'hachi', vi:'8 (tám)' },
+    { kana:'きゅう / く', romaji:'kyū / ku', vi:'9 (chín)', say:'きゅう' },
+    { kana:'じゅう', romaji:'jū', vi:'10 (mười)' },
+    { kana:'ひゃく', romaji:'hyaku', vi:'100 (một trăm)' },
+    { kana:'せん', romaji:'sen', vi:'1000 (một nghìn)' },
+  ]},
+  { key:'fam', label:'Gia đình', items:[
+    { kana:'ちち', romaji:'chichi', vi:'bố (nhà mình — khiêm nhường)' },
+    { kana:'はは', romaji:'haha', vi:'mẹ (nhà mình — khiêm nhường)' },
+    { kana:'あに', romaji:'ani', vi:'anh trai (nhà mình)' },
+    { kana:'あね', romaji:'ane', vi:'chị gái (nhà mình)' },
+    { kana:'おとうと', romaji:'otōto', vi:'em trai' },
+    { kana:'いもうと', romaji:'imōto', vi:'em gái' },
+    { kana:'おとうさん', romaji:'otōsan', vi:'bố (nhà người khác — kính ngữ)' },
+    { kana:'おかあさん', romaji:'okāsan', vi:'mẹ (nhà người khác — kính ngữ)' },
+    { kana:'かぞく', romaji:'kazoku', vi:'gia đình' },
+  ]},
+];
+
+function sayOf(it){ return it.say || it.kana; }
+
+// ============================================================
+// Module 1: Flashcard
+// ============================================================
+let curGroup = 0, curIdx = 0;
+const learned = {}; // key: group|kana -> true
+
+function lkey(g, it){ return g + '|' + it.kana; }
+function curItems(){ return GROUPS[curGroup].items; }
+function curItem(){ return curItems()[curIdx]; }
+
+const elCard = document.getElementById('flashcard');
+const elKana = document.getElementById('flash-kana');
+const elRomaji = document.getElementById('flash-romaji');
+const elVi = document.getElementById('flash-vi');
+const elPos = document.getElementById('flash-pos');
+const elBadge = document.getElementById('flash-badge');
+const elBadge2 = document.getElementById('flash-badge2');
+const elLearnBtn = document.getElementById('btn-learn');
+const elLearnProg = document.getElementById('learn-progress');
+
+function renderTabs(){
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = '';
+  GROUPS.forEach((g, i) => {
+    const b = document.createElement('button');
+    b.className = 'tab' + (i === curGroup ? ' active' : '');
+    b.textContent = g.label;
+    b.addEventListener('click', () => { curGroup = i; curIdx = 0; renderTabs(); renderCard(); });
+    tabs.appendChild(b);
+  });
+}
+
+function renderCard(){
+  const it = curItem();
+  elCard.classList.remove('flipped');
+  elKana.textContent = it.kana;
+  elRomaji.textContent = it.romaji;
+  elVi.textContent = it.vi;
+  elPos.textContent = (curIdx + 1) + ' / ' + curItems().length;
+  const isL = !!learned[lkey(curGroup, it)];
+  elBadge.textContent = isL ? '✓ đã thuộc' : '';
+  elBadge2.textContent = isL ? '✓ đã thuộc' : '';
+  elLearnBtn.classList.toggle('on', isL);
+  elLearnBtn.textContent = isL ? '✓ Đã thuộc' : 'Đã thuộc';
+  updateProgress();
+}
+
+function updateProgress(){
+  const items = curItems();
+  let n = 0;
+  items.forEach(it => { if (learned[lkey(curGroup, it)]) n++; });
+  elLearnProg.textContent = 'Đã thuộc: ' + n + ' / ' + items.length + ' (nhóm "' + GROUPS[curGroup].label + '")';
+}
+
+elCard.addEventListener('click', () => elCard.classList.toggle('flipped'));
+document.getElementById('btn-prev').addEventListener('click', () => {
+  curIdx = (curIdx - 1 + curItems().length) % curItems().length; renderCard();
+});
+document.getElementById('btn-next').addEventListener('click', () => {
+  curIdx = (curIdx + 1) % curItems().length; renderCard();
+});
+document.getElementById('btn-speak').addEventListener('click', () => jaSpeak(sayOf(curItem())));
+elLearnBtn.addEventListener('click', () => {
+  const k = lkey(curGroup, curItem());
+  learned[k] = !learned[k];
+  renderCard();
+});
+
+// ============================================================
+// Module 2: Bảng tra nhanh
+// ============================================================
+function renderRef(){
+  const area = document.getElementById('ref-area');
+  area.innerHTML = '';
+  GROUPS.forEach(g => {
+    const h = document.createElement('h3');
+    h.textContent = g.label;
+    area.appendChild(h);
+    const grid = document.createElement('div');
+    grid.className = 'vocab-grid';
+    g.items.forEach(it => {
+      const c = document.createElement('div');
+      c.className = 'vcard';
+      c.innerHTML = '<div class="kana">' + it.kana + '</div>' +
+                    '<div class="romaji">' + it.romaji + '</div>' +
+                    '<div class="vi">' + it.vi + '</div>' +
+                    '<div class="spk">🔊 nghe</div>';
+      c.addEventListener('click', () => {
+        document.querySelectorAll('.vcard.playing').forEach(x => x.classList.remove('playing'));
+        c.classList.add('playing');
+        setTimeout(() => c.classList.remove('playing'), 900);
+        jaSpeak(sayOf(it));
+      });
+      grid.appendChild(c);
+    });
+    area.appendChild(grid);
+  });
+}
+
+// ============================================================
+// Module 3: Câu mẫu
+// ============================================================
+const SENTENCES = [
+  { jp:'これは ほん です。', rj:'Kore wa hon desu.', vi:'Đây là quyển sách.', say:'これはほんです' },
+  { jp:'それは ペン です。', rj:'Sore wa pen desu.', vi:'Đó là cái bút.', say:'それはペンです' },
+  { jp:'あれは くるま です。', rj:'Are wa kuruma desu.', vi:'Kia là chiếc xe.', say:'あれはくるまです' },
+  { jp:'わたしは がくせい です。', rj:'Watashi wa gakusei desu.', vi:'Tôi là học sinh.', say:'わたしはがくせいです' },
+  { jp:'はじめまして。わたしは たなか です。', rj:'Hajimemashite. Watashi wa Tanaka desu.', vi:'Rất hân hạnh. Tôi là Tanaka.', say:'はじめまして。わたしはたなかです' },
+  { jp:'これは わたしの ちち です。', rj:'Kore wa watashi no chichi desu.', vi:'Đây là bố tôi.', say:'これはわたしのちちです' },
+];
+
+function renderSentences(){
+  const area = document.getElementById('sentence-area');
+  area.innerHTML = '';
+  SENTENCES.forEach(s => {
+    const d = document.createElement('div');
+    d.className = 'sentence';
+    d.innerHTML = '<div><div class="jp">' + s.jp + '</div>' +
+                  '<div class="rj">' + s.rj + '</div>' +
+                  '<div class="vi">' + s.vi + '</div></div>';
+    const b = document.createElement('button');
+    b.className = 'spk-btn';
+    b.textContent = '🔊 Nghe câu';
+    b.addEventListener('click', () => jaSpeak(s.say, 0.8));
+    d.appendChild(b);
+    area.appendChild(d);
+  });
+}
+
+// ============================================================
+// Module 4: Quiz — nghe rồi chọn nghĩa
+// ============================================================
+const ALL = GROUPS.reduce((a, g) => a.concat(g.items), []);
+let quizItem = null, quizN = 0, quizCorrect = 0, quizDone = false;
+
+function shuffle(arr){ const a = arr.slice(); for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+function newQuiz(){
+  quizItem = ALL[Math.floor(Math.random() * ALL.length)];
+  quizDone = false;
+  const distractors = shuffle(ALL.filter(x => x.vi !== quizItem.vi)).slice(0, 3);
+  const opts = shuffle(distractors.concat([quizItem]));
+  const box = document.getElementById('quiz-opts');
+  box.innerHTML = '';
+  opts.forEach(o => {
+    const b = document.createElement('button');
+    b.textContent = o.vi;
+    b.addEventListener('click', () => answerQuiz(b, o));
+    box.appendChild(b);
+  });
+  document.getElementById('quiz-reveal').textContent = '';
+  document.getElementById('quiz-score').textContent = 'Câu ' + (quizN + 1) + ' · Đúng ' + quizCorrect + ' / ' + quizN;
+  setTimeout(() => jaSpeak(sayOf(quizItem)), 250);
+}
+
+function answerQuiz(btn, opt){
+  if (quizDone) return;
+  quizDone = true;
+  quizN++;
+  const correct = (opt.vi === quizItem.vi);
+  if (correct) { btn.classList.add('correct'); quizCorrect++; }
+  else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('#quiz-opts button').forEach(b => { if (b.textContent === quizItem.vi) b.classList.add('correct'); });
+  }
+  document.querySelectorAll('#quiz-opts button').forEach(b => b.disabled = true);
+  document.getElementById('quiz-reveal').innerHTML = quizItem.kana + ' <span class="rj">' + quizItem.romaji + '</span>';
+  document.getElementById('quiz-score').textContent = 'Câu ' + quizN + ' · Đúng ' + quizCorrect + ' / ' + quizN;
+}
+
+document.getElementById('quiz-play').addEventListener('click', () => { if (quizItem) jaSpeak(sayOf(quizItem)); });
+document.getElementById('quiz-next').addEventListener('click', newQuiz);
+
+// ============================================================
+// Init
+// ============================================================
+renderTabs();
+renderCard();
+renderRef();
+renderSentences();
+newQuiz();
+
+if (window.speechSynthesis) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

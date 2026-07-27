@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 08: Từ vựng theo chủ đề — Japanese</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #faf7fe;
+    --accent: #9333ea;
+    --accent-soft: #f3e8ff;
+    --accent-hover: #7e22ce;
+  }
+  main { max-width: 1000px; }
+
+  h1 { color: #6b21a8; }
+  h2 { color: #7e22ce; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  h3 { color: #9333ea; margin-top: 20px; }
+
+  .lead { font-size: 1.08rem; color: #4b5563; margin-bottom: 20px; line-height: 1.7; }
+  .audio-note {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #6b21a8;
+    margin-bottom: 24px;
+  }
+
+  .module {
+    background: white;
+    border: 1px solid #e9d5ff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  /* Toolbar — speed toggle */
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    margin-bottom: 8px;
+  }
+  .speed-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; color: #4b5563;
+    background: #f9fafb; border: 1px solid #e5e7eb;
+    padding: 5px 10px; border-radius: 999px; cursor: pointer;
+    user-select: none;
+  }
+  .speed-toggle input { accent-color: var(--accent); }
+
+  /* Vocab card grid */
+  .vocab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 14px 0;
+  }
+  .vocab-card {
+    border: 2px solid #e9d5ff;
+    border-radius: 12px;
+    padding: 14px 10px;
+    text-align: center;
+    background: white;
+    cursor: pointer;
+    transition: transform .12s, box-shadow .12s, border-color .12s;
+  }
+  .vocab-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(147,51,234,0.14); border-color: var(--accent); }
+  .vocab-card.playing { background: #fdf4ff; border-color: var(--accent); }
+  .vocab-jp {
+    font-size: 30px; font-weight: 700; line-height: 1.1;
+    font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", "Meiryo", "Noto Sans JP", sans-serif;
+    color: #1a202c;
+    margin-bottom: 4px;
+  }
+  .vocab-romaji { font-size: 15px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .vocab-meaning { font-size: 13px; color: #6b7280; }
+  .vocab-card .hint { font-size: 11px; color: #c4b5fd; margin-top: 4px; }
+  .vocab-card .grp-tag { font-size: 10px; color: #9ca3af; }
+
+  /* Example sentence table */
+  table.sent {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  table.sent th, table.sent td {
+    border: 1px solid #e5e7eb;
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: middle;
+  }
+  table.sent th { background: var(--accent-soft); color: #6b21a8; font-weight: 700; }
+  table.sent tr:hover { background: #faf5ff; }
+  table.sent .jp {
+    font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", "Meiryo", "Noto Sans JP", sans-serif;
+    font-size: 17px;
+  }
+  table.sent .romaji { color: #6b21a8; font-weight: 600; font-style: italic; }
+  table.sent .play-cell {
+    cursor: pointer; color: var(--accent); font-weight: 700; user-select: none;
+    text-align: center; white-space: nowrap;
+  }
+  table.sent .play-cell:hover { text-decoration: underline; }
+  table.sent .play-cell.playing { background: #fdf4ff; }
+
+  .grp-caption { font-size: 13px; color: #6b7280; margin: 4px 0 12px; }
+
+  /* Quiz */
+  .quiz-area {
+    background: #fdf4ff;
+    border: 2px dashed var(--accent);
+    border-radius: 10px;
+    padding: 18px;
+    margin: 14px 0;
+  }
+  .quiz-q { text-align: center; margin: 8px 0 14px; }
+  .quiz-jp {
+    font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", "Meiryo", "Noto Sans JP", sans-serif;
+    font-size: 46px; font-weight: 700; color: #1a202c; line-height: 1.1;
+  }
+  .quiz-romaji { font-size: 18px; color: var(--accent); font-weight: 700; margin-top: 4px; }
+  .quiz-prompt { font-size: 13px; color: #6b7280; margin-top: 6px; }
+  .quiz-options {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0;
+  }
+  .quiz-options button {
+    padding: 12px 10px;
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    background: white;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .quiz-options button:hover:not(:disabled) { background: var(--accent-soft); }
+  .quiz-options button.correct { background: #d1fae5; border-color: #10b981; color: #065f46; }
+  .quiz-options button.wrong { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+  .quiz-bar { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; }
+  .quiz-score {
+    background: white; padding: 7px 14px; border-radius: 8px; font-size: 14px;
+    display: inline-block; border: 1px solid #e9d5ff;
+  }
+  .btn {
+    background: var(--accent); color: white; border: none; border-radius: 999px;
+    padding: 9px 20px; font-weight: 700; font-size: 14px; cursor: pointer;
+    transition: background .12s;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .btn.ghost { background: white; color: var(--accent); border: 1px solid var(--accent); }
+  .btn.ghost:hover { background: var(--accent-soft); }
+
+  @media (max-width: 480px) {
+    .vocab-jp { font-size: 26px; }
+    .quiz-jp { font-size: 38px; }
+    .quiz-options { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Japanese</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh II</a>
+  <span class="sep">·</span>
+  <a href="../lesson-07-basic-vocabulary/visualization.html">← L7</a>
+  <span class="sep">·</span>
+  <span class="current">L8: Từ vựng chủ đề</span>
+  <span class="sep">·</span>
+  <a href="../../03-Grammar/lesson-09-particles/visualization.html">L9: Trợ từ →</a>
+</nav>
+
+<main>
+  <h1>Lesson 08: Từ vựng theo chủ đề (テーマ別の語彙)</h1>
+  <p class="lead">Gom từ vựng thành 4 nhóm dùng hằng ngày: <strong>thời gian</strong>, <strong>đồ vật &amp; đồ ăn</strong>, <strong>động từ</strong> (thể từ điển) và <strong>tính từ</strong>. Click vào bất kỳ từ hoặc câu nào để nghe phát âm.</p>
+  <div class="audio-note">
+    🔊 Audio dùng <strong>Web Speech API</strong> (giọng <code>ja-JP</code>). Trình duyệt cần có sẵn giọng tiếng Nhật. Bật ô <em>"Đọc chậm"</em> nếu muốn nghe rõ từng âm.
+  </div>
+
+  <div class="toolbar">
+    <label class="speed-toggle">
+      <input type="checkbox" id="slow-toggle"> 🐢 Đọc chậm
+    </label>
+  </div>
+
+  <!-- Nhóm 1: Thời gian -->
+  <section class="module">
+    <h2>Nhóm 1 — Thời gian (時間 jikan)</h2>
+
+    <h3>1.1 Ngày &amp; buổi</h3>
+    <div class="vocab-grid">
+      <div class="vocab-card" data-speak="今日"><div class="vocab-jp">今日</div><div class="vocab-romaji">kyō</div><div class="vocab-meaning">hôm nay</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="明日"><div class="vocab-jp">明日</div><div class="vocab-romaji">ashita</div><div class="vocab-meaning">ngày mai</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="昨日"><div class="vocab-jp">昨日</div><div class="vocab-romaji">kinō</div><div class="vocab-meaning">hôm qua</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="今"><div class="vocab-jp">今</div><div class="vocab-romaji">ima</div><div class="vocab-meaning">bây giờ</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="朝"><div class="vocab-jp">朝</div><div class="vocab-romaji">asa</div><div class="vocab-meaning">buổi sáng</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="昼"><div class="vocab-jp">昼</div><div class="vocab-romaji">hiru</div><div class="vocab-meaning">buổi trưa</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="夜"><div class="vocab-jp">夜</div><div class="vocab-romaji">yoru</div><div class="vocab-meaning">buổi tối, đêm</div><div class="hint">🔊 click</div></div>
+    </div>
+
+    <h3>1.2 Thứ trong tuần (曜日 yōbi)</h3>
+    <div class="vocab-grid">
+      <div class="vocab-card" data-speak="月曜日"><div class="vocab-jp">月曜日</div><div class="vocab-romaji">getsuyōbi</div><div class="vocab-meaning">thứ Hai</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="火曜日"><div class="vocab-jp">火曜日</div><div class="vocab-romaji">kayōbi</div><div class="vocab-meaning">thứ Ba</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="水曜日"><div class="vocab-jp">水曜日</div><div class="vocab-romaji">suiyōbi</div><div class="vocab-meaning">thứ Tư</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="木曜日"><div class="vocab-jp">木曜日</div><div class="vocab-romaji">mokuyōbi</div><div class="vocab-meaning">thứ Năm</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="金曜日"><div class="vocab-jp">金曜日</div><div class="vocab-romaji">kin'yōbi</div><div class="vocab-meaning">thứ Sáu</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="土曜日"><div class="vocab-jp">土曜日</div><div class="vocab-romaji">doyōbi</div><div class="vocab-meaning">thứ Bảy</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="日曜日"><div class="vocab-jp">日曜日</div><div class="vocab-romaji">nichiyōbi</div><div class="vocab-meaning">Chủ Nhật</div><div class="hint">🔊 click</div></div>
+    </div>
+
+    <h3>1.3 Giờ (〜時 ~ji) — chú ý chỗ bất quy tắc</h3>
+    <div class="vocab-grid">
+      <div class="vocab-card" data-speak="一時"><div class="vocab-jp">一時</div><div class="vocab-romaji">ichiji</div><div class="vocab-meaning">1 giờ</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="三時"><div class="vocab-jp">三時</div><div class="vocab-romaji">sanji</div><div class="vocab-meaning">3 giờ</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="四時"><div class="vocab-jp">四時</div><div class="vocab-romaji">yoji</div><div class="vocab-meaning">4 giờ · bất quy tắc</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="七時"><div class="vocab-jp">七時</div><div class="vocab-romaji">shichiji</div><div class="vocab-meaning">7 giờ</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="九時"><div class="vocab-jp">九時</div><div class="vocab-romaji">kuji</div><div class="vocab-meaning">9 giờ · bất quy tắc</div><div class="hint">🔊 click</div></div>
+    </div>
+
+    <h3>Câu ví dụ</h3>
+    <table class="sent">
+      <thead><tr><th>Câu Nhật</th><th>Romaji</th><th>Nghĩa</th><th>Nghe</th></tr></thead>
+      <tbody>
+        <tr><td class="jp">今日は水曜日です。</td><td class="romaji">Kyō wa suiyōbi desu.</td><td>Hôm nay là thứ Tư.</td><td class="play-cell" data-speak="今日は水曜日です">🔊</td></tr>
+        <tr><td class="jp">今、三時です。</td><td class="romaji">Ima, sanji desu.</td><td>Bây giờ là 3 giờ.</td><td class="play-cell" data-speak="今、三時です">🔊</td></tr>
+        <tr><td class="jp">朝、お茶を飲む。</td><td class="romaji">Asa, ocha o nomu.</td><td>Buổi sáng uống trà.</td><td class="play-cell" data-speak="朝、お茶を飲む">🔊</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Nhóm 2: Đồ vật & đồ ăn -->
+  <section class="module">
+    <h2>Nhóm 2 — Đồ vật quanh nhà &amp; đồ ăn (家の物と食べ物)</h2>
+    <div class="vocab-grid">
+      <div class="vocab-card" data-speak="水"><div class="vocab-jp">水</div><div class="vocab-romaji">mizu</div><div class="vocab-meaning">nước</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="お茶"><div class="vocab-jp">お茶</div><div class="vocab-romaji">ocha</div><div class="vocab-meaning">trà</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="ご飯"><div class="vocab-jp">ご飯</div><div class="vocab-romaji">gohan</div><div class="vocab-meaning">cơm; bữa ăn</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="パン"><div class="vocab-jp">パン</div><div class="vocab-romaji">pan</div><div class="vocab-meaning">bánh mì (Katakana)</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="車"><div class="vocab-jp">車</div><div class="vocab-romaji">kuruma</div><div class="vocab-meaning">xe hơi</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="本"><div class="vocab-jp">本</div><div class="vocab-romaji">hon</div><div class="vocab-meaning">sách</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="電話"><div class="vocab-jp">電話</div><div class="vocab-romaji">denwa</div><div class="vocab-meaning">điện thoại</div><div class="hint">🔊 click</div></div>
+    </div>
+
+    <h3>Câu ví dụ</h3>
+    <table class="sent">
+      <thead><tr><th>Câu Nhật</th><th>Romaji</th><th>Nghĩa</th><th>Nghe</th></tr></thead>
+      <tbody>
+        <tr><td class="jp">ご飯を食べる。</td><td class="romaji">Gohan o taberu.</td><td>Ăn cơm.</td><td class="play-cell" data-speak="ご飯を食べる">🔊</td></tr>
+        <tr><td class="jp">水を飲む。</td><td class="romaji">Mizu o nomu.</td><td>Uống nước.</td><td class="play-cell" data-speak="水を飲む">🔊</td></tr>
+        <tr><td class="jp">本を読む。</td><td class="romaji">Hon o yomu.</td><td>Đọc sách.</td><td class="play-cell" data-speak="本を読む">🔊</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Nhóm 3: Động từ -->
+  <section class="module">
+    <h2>Nhóm 3 — Động từ thường ngày (動詞, thể từ điển)</h2>
+    <p class="grp-caption">Thể từ điển = dạng gốc chưa chia. <strong>Nhóm 2</strong>: đuôi -eru/-iru · <strong>Nhóm 1</strong>: các đuôi -u khác · <strong>Bất quy tắc</strong>: 来る, する.</p>
+    <div class="vocab-grid">
+      <div class="vocab-card" data-speak="食べる"><div class="vocab-jp">食べる</div><div class="vocab-romaji">taberu</div><div class="vocab-meaning">ăn</div><div class="grp-tag">nhóm 2</div></div>
+      <div class="vocab-card" data-speak="飲む"><div class="vocab-jp">飲む</div><div class="vocab-romaji">nomu</div><div class="vocab-meaning">uống</div><div class="grp-tag">nhóm 1</div></div>
+      <div class="vocab-card" data-speak="行く"><div class="vocab-jp">行く</div><div class="vocab-romaji">iku</div><div class="vocab-meaning">đi</div><div class="grp-tag">nhóm 1</div></div>
+      <div class="vocab-card" data-speak="来る"><div class="vocab-jp">来る</div><div class="vocab-romaji">kuru</div><div class="vocab-meaning">đến</div><div class="grp-tag">bất quy tắc</div></div>
+      <div class="vocab-card" data-speak="見る"><div class="vocab-jp">見る</div><div class="vocab-romaji">miru</div><div class="vocab-meaning">xem, nhìn</div><div class="grp-tag">nhóm 2</div></div>
+      <div class="vocab-card" data-speak="聞く"><div class="vocab-jp">聞く</div><div class="vocab-romaji">kiku</div><div class="vocab-meaning">nghe; hỏi</div><div class="grp-tag">nhóm 1</div></div>
+      <div class="vocab-card" data-speak="読む"><div class="vocab-jp">読む</div><div class="vocab-romaji">yomu</div><div class="vocab-meaning">đọc</div><div class="grp-tag">nhóm 1</div></div>
+      <div class="vocab-card" data-speak="勉強する"><div class="vocab-jp">勉強する</div><div class="vocab-romaji">benkyō suru</div><div class="vocab-meaning">học (bài)</div><div class="grp-tag">bất quy tắc</div></div>
+    </div>
+
+    <h3>Câu ví dụ — mỗi động từ một câu</h3>
+    <table class="sent">
+      <thead><tr><th>Câu Nhật</th><th>Romaji</th><th>Nghĩa</th><th>Nghe</th></tr></thead>
+      <tbody>
+        <tr><td class="jp">パンを食べる。</td><td class="romaji">Pan o taberu.</td><td>Ăn bánh mì.</td><td class="play-cell" data-speak="パンを食べる">🔊</td></tr>
+        <tr><td class="jp">お茶を飲む。</td><td class="romaji">Ocha o nomu.</td><td>Uống trà.</td><td class="play-cell" data-speak="お茶を飲む">🔊</td></tr>
+        <tr><td class="jp">学校へ行く。</td><td class="romaji">Gakkō e iku.</td><td>Đi đến trường.</td><td class="play-cell" data-speak="学校へ行く">🔊</td></tr>
+        <tr><td class="jp">友達が来る。</td><td class="romaji">Tomodachi ga kuru.</td><td>Bạn đến.</td><td class="play-cell" data-speak="友達が来る">🔊</td></tr>
+        <tr><td class="jp">映画を見る。</td><td class="romaji">Eiga o miru.</td><td>Xem phim.</td><td class="play-cell" data-speak="映画を見る">🔊</td></tr>
+        <tr><td class="jp">音楽を聞く。</td><td class="romaji">Ongaku o kiku.</td><td>Nghe nhạc.</td><td class="play-cell" data-speak="音楽を聞く">🔊</td></tr>
+        <tr><td class="jp">本を読む。</td><td class="romaji">Hon o yomu.</td><td>Đọc sách.</td><td class="play-cell" data-speak="本を読む">🔊</td></tr>
+        <tr><td class="jp">日本語を勉強する。</td><td class="romaji">Nihongo o benkyō suru.</td><td>Học tiếng Nhật.</td><td class="play-cell" data-speak="日本語を勉強する">🔊</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Nhóm 4: Tính từ -->
+  <section class="module">
+    <h2>Nhóm 4 — Tính từ thường ngày (形容詞, đuôi -i)</h2>
+    <p class="grp-caption">Tính từ -i đứng trước danh từ (大きい車 = xe to) hoặc cuối câu (この車は大きい = xe này to).</p>
+    <div class="vocab-grid">
+      <div class="vocab-card" data-speak="大きい"><div class="vocab-jp">大きい</div><div class="vocab-romaji">ōkii</div><div class="vocab-meaning">to, lớn</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="小さい"><div class="vocab-jp">小さい</div><div class="vocab-romaji">chiisai</div><div class="vocab-meaning">nhỏ</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="新しい"><div class="vocab-jp">新しい</div><div class="vocab-romaji">atarashii</div><div class="vocab-meaning">mới</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="古い"><div class="vocab-jp">古い</div><div class="vocab-romaji">furui</div><div class="vocab-meaning">cũ</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="いい"><div class="vocab-jp">いい</div><div class="vocab-romaji">ii</div><div class="vocab-meaning">tốt, hay</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="おいしい"><div class="vocab-jp">おいしい</div><div class="vocab-romaji">oishii</div><div class="vocab-meaning">ngon</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="高い"><div class="vocab-jp">高い</div><div class="vocab-romaji">takai</div><div class="vocab-meaning">cao; đắt</div><div class="hint">🔊 click</div></div>
+      <div class="vocab-card" data-speak="安い"><div class="vocab-jp">安い</div><div class="vocab-romaji">yasui</div><div class="vocab-meaning">rẻ</div><div class="hint">🔊 click</div></div>
+    </div>
+
+    <h3>Câu ví dụ</h3>
+    <table class="sent">
+      <thead><tr><th>Câu Nhật</th><th>Romaji</th><th>Nghĩa</th><th>Nghe</th></tr></thead>
+      <tbody>
+        <tr><td class="jp">大きい車</td><td class="romaji">ōkii kuruma</td><td>xe to</td><td class="play-cell" data-speak="大きい車">🔊</td></tr>
+        <tr><td class="jp">新しい本</td><td class="romaji">atarashii hon</td><td>sách mới</td><td class="play-cell" data-speak="新しい本">🔊</td></tr>
+        <tr><td class="jp">この本は新しい。</td><td class="romaji">Kono hon wa atarashii.</td><td>Cuốn sách này mới.</td><td class="play-cell" data-speak="この本は新しい">🔊</td></tr>
+        <tr><td class="jp">ご飯はおいしい。</td><td class="romaji">Gohan wa oishii.</td><td>Cơm ngon.</td><td class="play-cell" data-speak="ご飯はおいしい">🔊</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Ghép câu tổng hợp -->
+  <section class="module">
+    <h2>Ghép câu — kết hợp 4 nhóm</h2>
+    <p class="grp-caption">Cấu trúc tối giản: <strong>[thời gian], [tính từ] [danh từ] を [động từ]</strong>.</p>
+    <table class="sent">
+      <thead><tr><th>Câu Nhật</th><th>Romaji</th><th>Nghĩa</th><th>Nghe</th></tr></thead>
+      <tbody>
+        <tr><td class="jp">今日、新しい本を読む。</td><td class="romaji">Kyō, atarashii hon o yomu.</td><td>Hôm nay đọc cuốn sách mới.</td><td class="play-cell" data-speak="今日、新しい本を読む">🔊</td></tr>
+        <tr><td class="jp">朝、おいしいご飯を食べる。</td><td class="romaji">Asa, oishii gohan o taberu.</td><td>Buổi sáng ăn cơm ngon.</td><td class="play-cell" data-speak="朝、おいしいご飯を食べる">🔊</td></tr>
+        <tr><td class="jp">明日、学校へ行く。</td><td class="romaji">Ashita, gakkō e iku.</td><td>Ngày mai đi đến trường.</td><td class="play-cell" data-speak="明日、学校へ行く">🔊</td></tr>
+        <tr><td class="jp">夜、音楽を聞く。</td><td class="romaji">Yoru, ongaku o kiku.</td><td>Buổi tối nghe nhạc.</td><td class="play-cell" data-speak="夜、音楽を聞く">🔊</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Quiz -->
+  <section class="module">
+    <h2>Luyện tập — Ghép từ ↔ nghĩa</h2>
+    <p class="grp-caption">Nghe / nhìn từ tiếng Nhật, chọn nghĩa tiếng Việt đúng. 10 câu, ngẫu nhiên từ cả 4 nhóm.</p>
+    <div class="quiz-area" id="quiz">
+      <div class="quiz-q">
+        <div class="quiz-jp" id="q-jp">今日</div>
+        <div class="quiz-romaji" id="q-romaji">kyō</div>
+        <div class="quiz-prompt">Từ này nghĩa là gì?</div>
+      </div>
+      <div style="text-align:center; margin-bottom:12px;">
+        <button class="btn ghost" id="q-play">🔊 Nghe lại</button>
+      </div>
+      <div class="quiz-options" id="q-options"></div>
+      <div class="quiz-bar">
+        <span class="quiz-score" id="q-score">Câu 1/10 · Đúng 0</span>
+        <button class="btn" id="q-next">Câu tiếp →</button>
+        <button class="btn ghost" id="q-reset">↺ Làm lại</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="module">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li><strong>4 nhóm chủ đề</strong>: thời gian · đồ vật &amp; đồ ăn · động từ · tính từ.</li>
+      <li><strong>Thể từ điển</strong> nhận biết 3 nhóm động từ qua đuôi: -eru/-iru → nhóm 2; -u khác → nhóm 1; 来る/する → bất quy tắc.</li>
+      <li><strong>Tính từ -i</strong> đứng trước danh từ hoặc cuối câu.</li>
+      <li>Nguyên âm dài ghi bằng dấu gạch ngang: <code>kyō, ōkii, benkyō, kinō</code>.</li>
+      <li>Bài tiếp: <a href="../../03-Grammar/lesson-09-particles/visualization.html">L09 — Trợ từ を/へ/は/が</a>.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+// ============================================================
+// Web Speech API — helper jaSpeak (ja-JP)
+// ============================================================
+function jaSpeak(text, rate){ if(!window.speechSynthesis) return;
+  if(window.speechSynthesis.speaking||window.speechSynthesis.pending) window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text); u.lang='ja-JP'; u.rate=rate||0.85;
+  function fire(){ var vs=window.speechSynthesis.getVoices(); var v=vs.find(function(x){return x.lang==='ja-JP';})||vs.find(function(x){return x.lang&&x.lang.indexOf('ja')===0;}); if(v)u.voice=v; try{window.speechSynthesis.resume();}catch(e){} window.speechSynthesis.speak(u); }
+  if(!window.speechSynthesis.getVoices().length){ var d=false,go=function(){if(d)return;d=true;fire();}; window.speechSynthesis.addEventListener('voiceschanged',go,{once:true}); window.speechSynthesis.getVoices(); setTimeout(go,350);} else fire();
+}
+
+// Tốc độ đọc — theo checkbox "Đọc chậm"
+function currentRate(){ return document.getElementById('slow-toggle') && document.getElementById('slow-toggle').checked ? 0.55 : 0.85; }
+
+// Highlight phần tử đang phát
+var playingEl = null;
+function markPlaying(el){
+  if(playingEl) playingEl.classList.remove('playing');
+  playingEl = el || null;
+  if(playingEl){ playingEl.classList.add('playing');
+    setTimeout(function(){ if(playingEl===el){ el.classList.remove('playing'); playingEl=null; } }, 1400);
+  }
+}
+
+// Bind click cho mọi [data-speak]
+document.addEventListener('click', function(e){
+  var t = e.target.closest('[data-speak]');
+  if(!t) return;
+  jaSpeak(t.getAttribute('data-speak'), currentRate());
+  markPlaying(t);
+});
+
+// ============================================================
+// Quiz — ghép từ ↔ nghĩa
+// ============================================================
+var BANK = [
+  { jp:'今日', romaji:'kyō', mean:'hôm nay' },
+  { jp:'明日', romaji:'ashita', mean:'ngày mai' },
+  { jp:'昨日', romaji:'kinō', mean:'hôm qua' },
+  { jp:'朝', romaji:'asa', mean:'buổi sáng' },
+  { jp:'夜', romaji:'yoru', mean:'buổi tối, đêm' },
+  { jp:'月曜日', romaji:'getsuyōbi', mean:'thứ Hai' },
+  { jp:'日曜日', romaji:'nichiyōbi', mean:'Chủ Nhật' },
+  { jp:'水', romaji:'mizu', mean:'nước' },
+  { jp:'お茶', romaji:'ocha', mean:'trà' },
+  { jp:'ご飯', romaji:'gohan', mean:'cơm; bữa ăn' },
+  { jp:'パン', romaji:'pan', mean:'bánh mì' },
+  { jp:'車', romaji:'kuruma', mean:'xe hơi' },
+  { jp:'本', romaji:'hon', mean:'sách' },
+  { jp:'電話', romaji:'denwa', mean:'điện thoại' },
+  { jp:'食べる', romaji:'taberu', mean:'ăn' },
+  { jp:'飲む', romaji:'nomu', mean:'uống' },
+  { jp:'行く', romaji:'iku', mean:'đi' },
+  { jp:'来る', romaji:'kuru', mean:'đến' },
+  { jp:'見る', romaji:'miru', mean:'xem, nhìn' },
+  { jp:'聞く', romaji:'kiku', mean:'nghe; hỏi' },
+  { jp:'読む', romaji:'yomu', mean:'đọc' },
+  { jp:'勉強する', romaji:'benkyō suru', mean:'học (bài)' },
+  { jp:'大きい', romaji:'ōkii', mean:'to, lớn' },
+  { jp:'小さい', romaji:'chiisai', mean:'nhỏ' },
+  { jp:'新しい', romaji:'atarashii', mean:'mới' },
+  { jp:'古い', romaji:'furui', mean:'cũ' },
+  { jp:'おいしい', romaji:'oishii', mean:'ngon' },
+  { jp:'高い', romaji:'takai', mean:'cao; đắt' }
+];
+
+var TOTAL = 10;
+var qIdx = 0, qCorrect = 0, qCur = null, qDone = false;
+
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+
+function pickQuestion(){
+  var q = BANK[Math.floor(Math.random()*BANK.length)];
+  // 3 nghĩa nhiễu khác nhau
+  var others = BANK.filter(function(x){ return x.mean !== q.mean; });
+  shuffle(others);
+  var opts = [q.mean, others[0].mean, others[1].mean, others[2].mean];
+  shuffle(opts);
+  return { q:q, opts:opts };
+}
+
+function renderQuiz(){
+  var picked = pickQuestion();
+  qCur = picked.q;
+  qDone = false;
+  document.getElementById('q-jp').textContent = qCur.jp;
+  document.getElementById('q-romaji').textContent = qCur.romaji;
+  var box = document.getElementById('q-options');
+  box.innerHTML = '';
+  picked.opts.forEach(function(m){
+    var b = document.createElement('button');
+    b.textContent = m;
+    b.setAttribute('data-mean', m);
+    b.addEventListener('click', function(){ answer(b, m); });
+    box.appendChild(b);
+  });
+  document.getElementById('q-score').textContent = 'Câu ' + (qIdx+1) + '/' + TOTAL + ' · Đúng ' + qCorrect;
+  // tự phát audio
+  setTimeout(function(){ jaSpeak(qCur.jp, currentRate()); }, 180);
+}
+
+function answer(btn, mean){
+  if(qDone) return;
+  qDone = true;
+  var buttons = document.querySelectorAll('#q-options button');
+  buttons.forEach(function(b){ b.disabled = true; });
+  if(mean === qCur.mean){
+    btn.classList.add('correct');
+    qCorrect++;
+  } else {
+    btn.classList.add('wrong');
+    buttons.forEach(function(b){ if(b.getAttribute('data-mean') === qCur.mean) b.classList.add('correct'); });
+  }
+  document.getElementById('q-score').textContent = 'Câu ' + (qIdx+1) + '/' + TOTAL + ' · Đúng ' + qCorrect;
+}
+
+document.getElementById('q-play').addEventListener('click', function(){ if(qCur) jaSpeak(qCur.jp, currentRate()); });
+
+document.getElementById('q-next').addEventListener('click', function(){
+  if(!qDone) return;
+  qIdx++;
+  if(qIdx >= TOTAL){
+    var msg = qCorrect >= 8 ? '🎉 Xuất sắc' : (qCorrect >= 5 ? '👍 Khá' : 'Luyện thêm nhé');
+    document.getElementById('q-jp').textContent = '✓';
+    document.getElementById('q-romaji').textContent = '';
+    document.getElementById('q-options').innerHTML = '';
+    document.getElementById('q-score').textContent = 'Hoàn tất! Đúng ' + qCorrect + '/' + TOTAL + '. ' + msg + '.';
+    return;
+  }
+  renderQuiz();
+});
+
+document.getElementById('q-reset').addEventListener('click', function(){
+  qIdx = 0; qCorrect = 0; renderQuiz();
+});
+
+renderQuiz();
+
+// Preload voices
+if(window.speechSynthesis){ window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = function(){ window.speechSynthesis.getVoices(); }; }
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

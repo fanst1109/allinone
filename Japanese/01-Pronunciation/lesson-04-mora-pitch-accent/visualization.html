@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04: Mora & pitch accent — Japanese</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #faf5ff;
+    --accent: #9333ea;
+    --accent-soft: #f3e8ff;
+    --accent-hover: #7e22ce;
+  }
+  main { max-width: 1000px; }
+
+  h1 { color: #6b21a8; }
+  h2 { color: #7e22ce; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  h3 { color: #9333ea; margin-top: 22px; }
+  .lead { font-size: 1.08rem; color: #4b5563; margin-bottom: 24px; line-height: 1.7; }
+
+  .module {
+    background: white;
+    border: 1px solid #e9d5ff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 22px;
+  }
+
+  /* ---- Chips (preset words / selectors) ---- */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .chip {
+    border: 2px solid var(--accent-soft);
+    background: white;
+    border-radius: 999px;
+    padding: 7px 14px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    color: #4b5563;
+    transition: all .12s;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+  }
+  .chip:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .chip .rom { font-size: 12px; color: inherit; opacity: .75; margin-left: 4px; font-family: sans-serif; }
+
+  .input-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0; }
+  .input-row input {
+    padding: 9px 12px;
+    border: 2px solid #e9d5ff;
+    border-radius: 8px;
+    font-size: 18px;
+    width: 100%;
+    max-width: 260px;
+    box-sizing: border-box;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+  }
+  .input-row input:focus { outline: none; border-color: var(--accent); }
+
+  button.btn {
+    background: var(--accent); color: white;
+    border: none; border-radius: 8px;
+    padding: 9px 18px;
+    font-weight: 700; font-size: 14px;
+    cursor: pointer; transition: all .12s;
+  }
+  button.btn:hover { background: var(--accent-hover); }
+  button.btn.ghost { background: white; color: var(--accent); border: 2px solid var(--accent); }
+  button.btn.ghost:hover { background: var(--accent-soft); }
+
+  /* ---- Mora counter output ---- */
+  .mora-out { text-align: center; margin: 18px 0 6px; }
+  .mora-boxes { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 14px 0; }
+  .mora-box {
+    min-width: 48px;
+    padding: 10px 8px;
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    background: var(--accent-soft);
+    text-align: center;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+  }
+  .mora-box .k { font-size: 26px; font-weight: 700; color: #6b21a8; line-height: 1.1; }
+  .mora-box .i { font-size: 11px; color: #9ca3af; font-family: sans-serif; }
+  .mora-box.special { background: #fef3c7; border-color: #f59e0b; }
+  .mora-box.special .k { color: #b45309; }
+  .mora-count {
+    font-size: 20px; font-weight: 700; color: #6b21a8;
+    margin-top: 6px;
+  }
+  .mora-count b { font-size: 30px; color: var(--accent); }
+  .legend { font-size: 12px; color: #6b7280; text-align: center; margin-top: 6px; }
+  .legend .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: middle; margin: 0 3px 0 10px; }
+
+  /* ---- Pitch SVG ---- */
+  .pitch-wrap { text-align: center; }
+  .pitch-svg { width: 100%; height: auto; max-width: 640px; display: block; margin: 12px auto; }
+  .pitch-title { text-align: center; font-size: 15px; margin: 8px 0 0; }
+  .pitch-title .type { font-weight: 700; color: var(--accent); }
+  .pitch-title .pat { font-family: monospace; background: var(--accent-soft); padding: 2px 8px; border-radius: 6px; color: #6b21a8; }
+
+  /* ---- 4 kiểu cards ---- */
+  .type-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin: 14px 0;
+  }
+  .type-card {
+    border: 2px solid #e9d5ff;
+    border-radius: 12px;
+    padding: 12px;
+    background: white;
+    text-align: center;
+  }
+  .type-card h4 { margin: 0 0 4px; color: #6b21a8; font-size: 15px; }
+  .type-card .sub { font-size: 12px; color: #6b7280; margin-bottom: 6px; }
+  .type-card svg { width: 100%; height: auto; max-width: 200px; }
+
+  /* ---- Minimal pair ---- */
+  .pair-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+    margin: 14px 0;
+  }
+  .pair-card {
+    border: 2px solid var(--accent-soft);
+    border-radius: 12px;
+    padding: 16px;
+    background: white;
+    text-align: center;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .pair-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(147,51,234,.14); }
+  .pair-card.playing { background: var(--accent-soft); border-color: var(--accent); }
+  .pair-kanji {
+    font-size: 46px; font-weight: 700; line-height: 1;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", serif;
+    color: #1a202c; margin-bottom: 4px;
+  }
+  .pair-kana { font-size: 20px; color: #6b21a8; font-weight: 700; font-family: "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif; }
+  .pair-mean { font-size: 14px; color: #6b7280; margin: 4px 0; }
+  .pair-pat { font-family: monospace; font-size: 13px; background: var(--accent-soft); padding: 2px 8px; border-radius: 6px; color: #6b21a8; display: inline-block; margin-top: 4px; }
+  .pair-card .hint { font-size: 11px; color: #9ca3af; margin-top: 6px; }
+  .pair-card svg { width: 100%; height: auto; max-width: 190px; margin-top: 6px; }
+
+  table.ex {
+    width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px;
+  }
+  table.ex th, table.ex td { border: 1px solid #e5e7eb; padding: 8px 10px; text-align: left; }
+  table.ex th { background: var(--accent-soft); color: #6b21a8; font-weight: 700; }
+  table.ex .jp { font-family: "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif; font-size: 16px; }
+
+  @media (max-width: 480px) {
+    .pair-kanji { font-size: 38px; }
+    .mora-box { min-width: 40px; }
+    .mora-box .k { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Japanese</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh I</a>
+  <span class="sep">·</span>
+  <a href="../lesson-03-dakuten-yoon-sokuon/visualization.html">← L3</a>
+  <span class="sep">·</span>
+  <span class="current">L4: Mora & pitch accent</span>
+  <span class="sep">·</span>
+  <a href="../../02-Kanji-Vocabulary/lesson-05-kanji-intro/visualization.html">L5: Kanji nhập môn →</a>
+</nav>
+
+<main>
+  <h1>Lesson 04: Nhịp mora &amp; pitch accent (モーラとアクセント)</h1>
+  <p class="lead">Tiếng Nhật đều nhịp theo <strong>mora</strong> — mỗi mora chiếm gần như cùng độ dài — và phân biệt nghĩa bằng <strong>cao độ (pitch accent, 高低)</strong> chứ không phải trọng âm nhấn. Gõ một từ để đếm mora, hoặc chọn từ để xem đường cao-thấp. Bấm nút để nghe (Web Speech API, giọng 日本語).</p>
+
+  <!-- ===== Module 1: Mora counter ===== -->
+  <section class="module">
+    <h2>1. Công cụ đếm mora</h2>
+    <p>Mỗi kana thường = 1 mora. Bốn ca đặc biệt: <code>ん</code> = 1 mora riêng, sokuon <code>っ</code> = 1 mora, trường âm (chữ <code>う/い/あ</code> kéo dài) thêm 1 mora, âm ghép <code>きょ/しゃ/ちゅ</code> = 1 mora (không phải 2). Chọn từ mẫu hoặc tự gõ kana:</p>
+
+    <div class="chips" id="mora-chips"></div>
+
+    <div class="input-row">
+      <input id="mora-input" type="text" placeholder="Gõ kana, vd: がっこう" autocomplete="off" spellcheck="false">
+      <button class="btn" id="mora-go">Đếm mora</button>
+      <button class="btn ghost" id="mora-play">🔊 Nghe</button>
+    </div>
+
+    <div class="mora-out">
+      <div class="mora-boxes" id="mora-boxes"></div>
+      <div class="mora-count" id="mora-count"></div>
+      <div class="legend">
+        <span class="sw" style="background:var(--accent-soft);border:2px solid var(--accent)"></span> mora thường
+        <span class="sw" style="background:#fef3c7;border:2px solid #f59e0b"></span> ca đặc biệt (ん · っ · trường âm)
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Module 2: Pitch accent ===== -->
+  <section class="module">
+    <h2>2. Pitch accent — đường cao-thấp (高低)</h2>
+    <p>Mỗi mora phát ở bậc <strong>cao (H)</strong> hoặc <strong>thấp (L)</strong>. Điều quan trọng nhất: cao độ <strong>tụt xuống ở đâu</strong>. Ô nét đứt cuối là trợ từ <code>が</code> đứng sau từ — nó để lộ kiểu thật của từ.</p>
+
+    <h3>Bốn kiểu accent</h3>
+    <div class="type-grid" id="type-grid"></div>
+
+    <h3>Chọn từ để xem đường cao-thấp</h3>
+    <div class="chips" id="pitch-chips"></div>
+    <div class="pitch-wrap">
+      <div id="pitch-svg-holder"></div>
+      <p class="pitch-title" id="pitch-title"></p>
+      <div style="margin-top:10px;">
+        <button class="btn" id="pitch-play">🔊 Nghe từ này</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Module 3: Minimal pairs ===== -->
+  <section class="module">
+    <h2>3. Cặp tối thiểu — nghe và phân biệt</h2>
+    <p>Cùng chuỗi kana, khác pitch = khác nghĩa. Bấm từng thẻ để nghe. Chú ý <code>橋</code> (cầu) và <code>端</code> (mép) chỉ khác nhau ở trợ từ.</p>
+
+    <h3>はし — đũa / cầu / mép</h3>
+    <div class="pair-grid" id="hashi-grid"></div>
+
+    <h3>あめ — mưa / kẹo</h3>
+    <div class="pair-grid" id="ame-grid"></div>
+  </section>
+
+  <!-- ===== Module 4: Bảng tổng ===== -->
+  <section class="module">
+    <h2>4. Bảng tổng hợp mora hay nhầm</h2>
+    <table class="ex">
+      <thead><tr><th>Từ</th><th>Romaji</th><th>Tách mora</th><th>Số mora</th><th>Ghi chú</th></tr></thead>
+      <tbody>
+        <tr><td class="jp">にほん</td><td>nihon</td><td class="jp">に・ほ・ん</td><td>3</td><td>ん = 1 mora riêng</td></tr>
+        <tr><td class="jp">がっこう</td><td>gakkō</td><td class="jp">が・っ・こ・う</td><td>4</td><td>っ và trường âm う đều đếm</td></tr>
+        <tr><td class="jp">とうきょう</td><td>Tōkyō</td><td class="jp">と・う・きょ・う</td><td>4</td><td>きょ = 1 mora (âm ghép)</td></tr>
+        <tr><td class="jp">きって</td><td>kitte</td><td class="jp">き・っ・て</td><td>3</td><td>sokuon っ = 1 nhịp ngắt</td></tr>
+        <tr><td class="jp">しんかんせん</td><td>shinkansen</td><td class="jp">し・ん・か・ん・せ・ん</td><td>6</td><td>ba chữ ん</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="module">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li><strong>Mora</strong> = đơn vị nhịp; mỗi kana thường 1 mora. <code>ん</code>, <code>っ</code>, trường âm đều là mora riêng; âm ghép <code>きょ</code> = 1 mora.</li>
+      <li>にほん = 3 mora · がっこう = 4 mora · とうきょう = 4 mora.</li>
+      <li><strong>Pitch accent</strong> dùng cao độ H/L phân biệt nghĩa — chú ý chỗ cao độ tụt.</li>
+      <li>4 kiểu: 平板 (không tụt), 頭高 (tụt sau mora 1), 中高 (tụt ở giữa), 尾高 (tụt ở trợ từ).</li>
+      <li>尾高 và 平板 chỉ phân biệt được khi thêm trợ từ (như が).</li>
+      <li>Bài tiếp: <a href="../../02-Kanji-Vocabulary/lesson-05-kanji-intro/visualization.html">L5 — Kanji nhập môn →</a></li>
+    </ul>
+  </section>
+</main>
+
+<script>
+// ============================================================
+// Web Speech API — helper ja-JP (theo convention lesson)
+// ============================================================
+function jaSpeak(text, rate){ if(!window.speechSynthesis) return;
+  if(window.speechSynthesis.speaking||window.speechSynthesis.pending) window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text); u.lang='ja-JP'; u.rate=rate||0.85;
+  function fire(){ var vs=window.speechSynthesis.getVoices(); var v=vs.find(function(x){return x.lang==='ja-JP';})||vs.find(function(x){return x.lang&&x.lang.indexOf('ja')===0;}); if(v)u.voice=v; try{window.speechSynthesis.resume();}catch(e){} window.speechSynthesis.speak(u); }
+  if(!window.speechSynthesis.getVoices().length){ var d=false,go=function(){if(d)return;d=true;fire();}; window.speechSynthesis.addEventListener('voiceschanged',go,{once:true}); window.speechSynthesis.getVoices(); setTimeout(go,350);} else fire();
+}
+
+// ============================================================
+// 1. MORA COUNTER
+// ============================================================
+// Kana nhỏ ghép với mora trước (yōon + nguyên âm nhỏ). LƯU Ý: っ KHÔNG
+// nằm trong danh sách này -> っ đứng riêng = 1 mora. ん cũng đứng riêng.
+var SMALL = 'ゃゅょャュョぁぃぅぇぉァィゥェォゎヮ';
+var SPECIAL = 'んンっッ'; // tô màu ca đặc biệt (ん, sokuon)
+var LONG_VOWEL = 'ー';    // dấu kéo dài katakana cũng là 1 mora
+
+function splitMora(kana){
+  var arr = Array.from(kana.trim());
+  var out = [];
+  for(var i=0;i<arr.length;i++){
+    var m = arr[i];
+    if(!m.trim()) continue; // bỏ khoảng trắng
+    // gộp kana nhỏ theo sau (ゃゅょ...) thành 1 mora
+    if(i+1<arr.length && SMALL.indexOf(arr[i+1])>=0){
+      m += arr[i+1];
+      i++;
+    }
+    out.push(m);
+  }
+  return out;
+}
+
+var moraPresets = [
+  { k:'にほん', rom:'nihon' },
+  { k:'がっこう', rom:'gakkō' },
+  { k:'とうきょう', rom:'Tōkyō' },
+  { k:'せんせい', rom:'sensei' },
+  { k:'きって', rom:'kitte' },
+  { k:'ちょっと', rom:'chotto' },
+  { k:'しんかんせん', rom:'shinkansen' },
+  { k:'ありがとう', rom:'arigatō' },
+  { k:'おかあさん', rom:'okāsan' }
+];
+
+function renderMora(kana){
+  var moras = splitMora(kana);
+  var box = document.getElementById('mora-boxes');
+  box.innerHTML = '';
+  moras.forEach(function(m, idx){
+    var special = SPECIAL.indexOf(m)>=0 || m===LONG_VOWEL;
+    var div = document.createElement('div');
+    div.className = 'mora-box' + (special ? ' special' : '');
+    div.innerHTML = '<div class="k">'+m+'</div><div class="i">'+(idx+1)+'</div>';
+    box.appendChild(div);
+  });
+  document.getElementById('mora-count').innerHTML = kana ? ('= <b>'+moras.length+'</b> mora') : '';
+}
+
+var moraChips = document.getElementById('mora-chips');
+moraPresets.forEach(function(p, i){
+  var c = document.createElement('button');
+  c.className = 'chip' + (i===1?' active':''); // がっこう active mặc định
+  c.innerHTML = p.k + '<span class="rom">'+p.rom+'</span>';
+  c.dataset.kana = p.k;
+  c.addEventListener('click', function(){
+    document.querySelectorAll('#mora-chips .chip').forEach(function(x){x.classList.remove('active');});
+    c.classList.add('active');
+    document.getElementById('mora-input').value = p.k;
+    renderMora(p.k);
+    jaSpeak(p.k, 0.8);
+  });
+  moraChips.appendChild(c);
+});
+
+document.getElementById('mora-go').addEventListener('click', function(){
+  var v = document.getElementById('mora-input').value;
+  document.querySelectorAll('#mora-chips .chip').forEach(function(x){x.classList.remove('active');});
+  renderMora(v);
+});
+document.getElementById('mora-input').addEventListener('keydown', function(e){
+  if(e.key==='Enter'){ document.getElementById('mora-go').click(); }
+});
+document.getElementById('mora-input').addEventListener('input', function(){
+  renderMora(this.value);
+});
+document.getElementById('mora-play').addEventListener('click', function(){
+  var v = document.getElementById('mora-input').value;
+  if(v) jaSpeak(v, 0.8);
+});
+
+// khởi tạo mặc định: がっこう (4 mora)
+document.getElementById('mora-input').value = 'がっこう';
+renderMora('がっこう');
+
+// ============================================================
+// 2. PITCH ACCENT — vẽ đường cao-thấp bằng SVG (viewBox)
+// ============================================================
+// pitch: mảng 'H'/'L' cho mỗi mora; part: 'H'/'L' cho trợ từ が theo sau.
+function pitchSVG(mora, pitch, part, opts){
+  opts = opts || {};
+  var W = opts.w || 640, H = opts.h || 280;
+  var highY = opts.highY || 76, lowY = opts.lowY || 168;
+  var small = !!opts.small;
+  var cols = mora.slice();
+  var pit = pitch.slice();
+  var showPart = part !== null && part !== undefined;
+  if(showPart){ cols = cols.concat(['が']); pit = pit.concat([part]); }
+  var n = cols.length;
+  var startX = opts.startX || (small ? 24 : 90);
+  var endX = W - (opts.padR || (small ? 24 : 40));
+  var step = n>1 ? (endX-startX)/(n-1) : 0;
+  function xi(i){ return n>1 ? startX + i*step : (startX+endX)/2; }
+  function yi(p){ return p==='H' ? highY : lowY; }
+
+  var s = '<svg class="pitch-svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">';
+  // guide lines
+  s += '<line x1="'+(startX-10)+'" y1="'+highY+'" x2="'+(endX+10)+'" y2="'+highY+'" stroke="#e9d5ff" stroke-width="1.5" stroke-dasharray="3 5"/>';
+  s += '<line x1="'+(startX-10)+'" y1="'+lowY+'" x2="'+(endX+10)+'" y2="'+lowY+'" stroke="#e9d5ff" stroke-width="1.5" stroke-dasharray="3 5"/>';
+  if(!small){
+    s += '<text x="'+(startX-16)+'" y="'+(highY+4)+'" text-anchor="end" font-size="13" fill="#9333ea" font-weight="700">高 H</text>';
+    s += '<text x="'+(startX-16)+'" y="'+(lowY+4)+'" text-anchor="end" font-size="13" fill="#9ca3af" font-weight="700">低 L</text>';
+  }
+  // connecting polyline
+  var pts = cols.map(function(_,i){ return xi(i)+','+yi(pit[i]); }).join(' ');
+  s += '<polyline points="'+pts+'" fill="none" stroke="#9333ea" stroke-width="'+(small?2.5:3.5)+'" stroke-linecap="round" stroke-linejoin="round"/>';
+  // dots + labels
+  cols.forEach(function(m,i){
+    var x = xi(i), y = yi(pit[i]);
+    var isPart = showPart && i===n-1;
+    var r = small ? 5 : 8;
+    if(isPart){
+      s += '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="white" stroke="#9ca3af" stroke-width="2.5" stroke-dasharray="'+(small?'2 2':'3 3')+'"/>';
+    } else {
+      s += '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="#9333ea"/>';
+    }
+    if(!small){
+      var labelY = H - 42;
+      s += '<text x="'+x+'" y="'+labelY+'" text-anchor="middle" font-size="24" font-weight="700" fill="'+(isPart?'#9ca3af':'#1a202c')+'">'+m+'</text>';
+      s += '<text x="'+x+'" y="'+(labelY+22)+'" text-anchor="middle" font-size="12" fill="'+(isPart?'#9ca3af':'#9333ea')+'" font-weight="700">'+pit[i]+'</text>';
+    } else {
+      s += '<text x="'+x+'" y="'+(H-8)+'" text-anchor="middle" font-size="15" font-weight="700" fill="'+(isPart?'#9ca3af':'#1a202c')+'">'+m+'</text>';
+    }
+  });
+  s += '</svg>';
+  return s;
+}
+
+// ---- 4 kiểu accent (mini) ----
+var types = [
+  { name:'平板 heiban', sub:'bằng phẳng · không tụt', mora:['さ','く','ら'], pitch:['L','H','H'], part:'H' },
+  { name:'頭高 atamadaka', sub:'đầu cao · tụt sau mora 1', mora:['ね','こ'], pitch:['H','L'], part:'L' },
+  { name:'中高 nakadaka', sub:'giữa cao · tụt ở giữa', mora:['た','ま','ご'], pitch:['L','H','L'], part:'L' },
+  { name:'尾高 odaka', sub:'đuôi cao · tụt ở trợ từ', mora:['お','と','うと'], pitch:['L','H','H'], part:'L' }
+];
+var typeGrid = document.getElementById('type-grid');
+types.forEach(function(t){
+  var card = document.createElement('div');
+  card.className = 'type-card';
+  card.innerHTML = '<h4>'+t.name+'</h4><div class="sub">'+t.sub+'</div>' +
+    pitchSVG(t.mora, t.pitch, t.part, {w:200,h:90,highY:24,lowY:58,small:true,startX:22,padR:22});
+  typeGrid.appendChild(card);
+});
+
+// ---- Chọn từ để xem đường cao-thấp ----
+var pitchWords = [
+  { kana:'さくら', kanji:'桜',   speak:'桜',   rom:'sakura', mean:'hoa anh đào', type:'平板 heiban',    mora:['さ','く','ら'], pitch:['L','H','H'], part:'H' },
+  { kana:'ねこ',   kanji:'猫',   speak:'猫',   rom:'neko',   mean:'mèo',         type:'頭高 atamadaka', mora:['ね','こ'],       pitch:['H','L'],     part:'L' },
+  { kana:'たまご', kanji:'卵',   speak:'卵',   rom:'tamago', mean:'trứng',       type:'中高 nakadaka',  mora:['た','ま','ご'], pitch:['L','H','L'], part:'L' },
+  { kana:'はし',   kanji:'箸',   speak:'お箸', rom:'hashi',  mean:'đũa',         type:'頭高 atamadaka', mora:['は','し'],       pitch:['H','L'],     part:'L' },
+  { kana:'はし',   kanji:'橋',   speak:'橋',   rom:'hashi',  mean:'cầu',         type:'尾高 odaka',     mora:['は','し'],       pitch:['L','H'],     part:'L' },
+  { kana:'あめ',   kanji:'雨',   speak:'雨',   rom:'ame',    mean:'mưa',         type:'頭高 atamadaka', mora:['あ','め'],       pitch:['H','L'],     part:'L' },
+  { kana:'あめ',   kanji:'飴',   speak:'飴',   rom:'ame',    mean:'kẹo',         type:'平板 heiban',    mora:['あ','め'],       pitch:['L','H'],     part:'H' }
+];
+var pitchIdx = 0;
+var pitchChips = document.getElementById('pitch-chips');
+pitchWords.forEach(function(w,i){
+  var c = document.createElement('button');
+  c.className = 'chip' + (i===0?' active':'');
+  c.innerHTML = w.kanji + ' <span class="rom">'+w.rom+' · '+w.mean+'</span>';
+  c.addEventListener('click', function(){
+    document.querySelectorAll('#pitch-chips .chip').forEach(function(x){x.classList.remove('active');});
+    c.classList.add('active');
+    pitchIdx = i;
+    renderPitch(w);
+    jaSpeak(w.speak, 0.8);
+  });
+  pitchChips.appendChild(c);
+});
+function renderPitch(w){
+  document.getElementById('pitch-svg-holder').innerHTML =
+    pitchSVG(w.mora, w.pitch, w.part, {w:560,h:250,highY:70,lowY:160});
+  document.getElementById('pitch-title').innerHTML =
+    '<span class="type">'+w.type+'</span> — '+w.kanji+' ('+w.rom+', '+w.mean+') · mẫu <span class="pat">'+w.pitch.join(' ')+' | が='+w.part+'</span>';
+}
+document.getElementById('pitch-play').addEventListener('click', function(){
+  jaSpeak(pitchWords[pitchIdx].speak, 0.8);
+});
+renderPitch(pitchWords[0]);
+
+// ============================================================
+// 3. MINIMAL PAIRS
+// ============================================================
+var hashiSet = [
+  { kanji:'箸', kana:'はし', speak:'お箸', mean:'đũa',      type:'頭高 atamadaka', pat:'H L (が L)', mora:['は','し'], pitch:['H','L'], part:'L' },
+  { kanji:'橋', kana:'はし', speak:'橋',   mean:'cầu',      type:'尾高 odaka',     pat:'L H (が L)', mora:['は','し'], pitch:['L','H'], part:'L' },
+  { kanji:'端', kana:'はし', speak:'端',   mean:'mép, rìa', type:'平板 heiban',    pat:'L H (が H)', mora:['は','し'], pitch:['L','H'], part:'H' }
+];
+var ameSet = [
+  { kanji:'雨', kana:'あめ', speak:'雨', mean:'mưa', type:'頭高 atamadaka', pat:'H L (が L)', mora:['あ','め'], pitch:['H','L'], part:'L' },
+  { kanji:'飴', kana:'あめ', speak:'飴', mean:'kẹo', type:'平板 heiban',    pat:'L H (が H)', mora:['あ','め'], pitch:['L','H'], part:'H' }
+];
+function buildPairs(setData, holderId){
+  var holder = document.getElementById(holderId);
+  setData.forEach(function(w){
+    var card = document.createElement('div');
+    card.className = 'pair-card';
+    card.innerHTML =
+      '<div class="pair-kanji">'+w.kanji+'</div>' +
+      '<div class="pair-kana">'+w.kana+'</div>' +
+      '<div class="pair-mean">'+w.mean+'</div>' +
+      '<div class="pair-pat">'+w.type+' · '+w.pat+'</div>' +
+      pitchSVG(w.mora, w.pitch, w.part, {w:190,h:80,highY:22,lowY:52,small:true,startX:24,padR:24}) +
+      '<div class="hint">🔊 bấm để nghe</div>';
+    card.addEventListener('click', function(){
+      document.querySelectorAll('.pair-card').forEach(function(x){x.classList.remove('playing');});
+      card.classList.add('playing');
+      jaSpeak(w.speak, 0.8);
+      setTimeout(function(){ card.classList.remove('playing'); }, 1400);
+    });
+    holder.appendChild(card);
+  });
+}
+buildPairs(hashiSet, 'hashi-grid');
+buildPairs(ameSet, 'ame-grid');
+
+// preload voices
+if(window.speechSynthesis){
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = function(){ window.speechSynthesis.getVoices(); };
+}
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

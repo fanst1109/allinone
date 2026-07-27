@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 10: Câu & thể lịch sự (です・ます) — Japanese</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #faf5ff;
+    --accent: #9333ea;
+    --accent-soft: #f3e8ff;
+    --accent-hover: #7e22ce;
+  }
+  main { max-width: 960px; }
+  h1 { color: #6b21a8; }
+  h2 { color: #7e22ce; margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  h3 { color: #9333ea; margin-top: 20px; }
+
+  .module {
+    background: white;
+    border: 1px solid #e9d5ff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .lead { font-size: 1.1rem; color: #4b5563; margin-bottom: 24px; line-height: 1.7; }
+
+  /* ===== Sentence builder ===== */
+  .builder-controls { display: flex; flex-wrap: wrap; gap: 18px; margin: 16px 0; }
+  .ctrl-group { flex: 1 1 200px; min-width: 0; }
+  .ctrl-group > label {
+    display: block; font-size: 13px; font-weight: 700; color: #6b21a8;
+    margin-bottom: 6px; text-transform: uppercase; letter-spacing: .4px;
+  }
+  .opt-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .opt-btn {
+    padding: 7px 12px; border: 2px solid #e9d5ff; border-radius: 8px;
+    background: white; cursor: pointer; font-size: 14px; font-weight: 600;
+    color: #374151; transition: all .12s;
+  }
+  .opt-btn:hover { border-color: var(--accent); }
+  .opt-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .opt-btn .ro { display: block; font-size: 11px; font-weight: 500; opacity: .8; }
+
+  .form-toggle { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 0; }
+  .form-btn {
+    padding: 8px 14px; border: 2px solid #d8b4fe; border-radius: 999px;
+    background: white; cursor: pointer; font-size: 13px; font-weight: 700;
+    color: #7e22ce; transition: all .12s;
+  }
+  .form-btn:hover { background: var(--accent-soft); }
+  .form-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  .sentence-out {
+    margin-top: 18px; padding: 22px 18px; border-radius: 12px;
+    background: linear-gradient(135deg, #f3e8ff, #faf5ff);
+    border: 2px dashed var(--accent); text-align: center;
+  }
+  .sentence-jp {
+    font-size: 34px; font-weight: 700; line-height: 1.35; color: #1a202c;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    margin-bottom: 8px; word-break: break-word;
+  }
+  .sentence-ro { font-size: 18px; color: #7e22ce; font-weight: 600; margin-bottom: 4px; }
+  .sentence-vi { font-size: 15px; color: #6b7280; }
+  .sentence-tag {
+    display: inline-block; margin-top: 10px; font-size: 12px; font-weight: 700;
+    padding: 3px 12px; border-radius: 999px; background: var(--accent-soft); color: #6b21a8;
+  }
+
+  /* ===== Conjugation tables ===== */
+  table.conj {
+    width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 15px;
+  }
+  table.conj th, table.conj td {
+    border: 1px solid #e9d5ff; padding: 10px 12px; text-align: left; vertical-align: middle;
+  }
+  table.conj th { background: var(--accent-soft); color: #6b21a8; font-weight: 700; font-size: 13px; }
+  table.conj tr:hover td { background: #faf5ff; }
+  table.conj .dang { font-weight: 700; color: #7e22ce; white-space: nowrap; }
+  table.conj .jp {
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    font-size: 22px; font-weight: 700; color: #1a202c;
+  }
+  table.conj .ro { color: #6b7280; font-style: italic; }
+  .play-cell {
+    cursor: pointer; user-select: none; color: var(--accent); font-weight: 700; white-space: nowrap;
+  }
+  .play-cell:hover { text-decoration: underline; }
+  .play-cell.playing { background: #ede9fe; border-radius: 6px; }
+
+  /* ===== Q&A flow ===== */
+  .qa-flow { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
+  .qa-step {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-radius: 10px; border: 1px solid #e9d5ff; background: white;
+    cursor: pointer; transition: all .12s;
+  }
+  .qa-step:hover { border-color: var(--accent); transform: translateX(3px); }
+  .qa-step.playing { background: #ede9fe; }
+  .qa-badge {
+    flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; color: white; background: var(--accent);
+  }
+  .qa-badge.q { background: #7e22ce; }
+  .qa-badge.yes { background: #16a34a; }
+  .qa-badge.no { background: #dc2626; }
+  .qa-body { min-width: 0; }
+  .qa-jp {
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    font-size: 20px; font-weight: 700; color: #1a202c;
+  }
+  .qa-ro { font-size: 13px; color: #7e22ce; font-style: italic; }
+  .qa-vi { font-size: 13px; color: #6b7280; }
+  .qa-play-hint { margin-left: auto; font-size: 12px; color: #9ca3af; white-space: nowrap; }
+
+  .note {
+    background: #f3e8ff; border-left: 4px solid var(--accent);
+    padding: 12px 16px; border-radius: 8px; margin: 14px 0; font-size: 14px; color: #4b5563;
+  }
+  .note strong { color: #6b21a8; }
+
+  @media (max-width: 480px) {
+    .sentence-jp { font-size: 26px; }
+    table.conj .jp { font-size: 18px; }
+    .qa-play-hint { display: none; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Japanese</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh III</a>
+  <span class="sep">·</span>
+  <a href="../lesson-09-particles/visualization.html">← L9</a>
+  <span class="sep">·</span>
+  <span class="current">L10: Câu & thể lịch sự</span>
+  <span class="sep">·</span>
+  <a href="../lesson-11-verbs-adjectives/visualization.html">L11: Động từ & tính từ →</a>
+</nav>
+
+<main>
+  <h1>Lesson 10: Câu cơ bản &amp; thể lịch sự (です・ます)</h1>
+  <p class="lead">Hai khuôn câu lịch sự nền tảng của tiếng Nhật: <strong>です (desu)</strong> cho danh từ/tính từ ("là"), và <strong>thể ます (masu)</strong> cho động từ. Dựng thử câu <code>XはYです</code> bên dưới, rồi nghe cách chia đủ 4 dạng của です và ます. Click bất kỳ chỗ nào có 🔊 để nghe.</p>
+
+  <!-- Module 1: Builder -->
+  <section class="module">
+    <h2>1. Trình dựng câu: XはYです</h2>
+    <p>Chọn <strong>chủ đề (X)</strong> và <strong>vị ngữ (Y)</strong>, rồi bật một trong 4 dạng của です. Câu đúng dạng sẽ hiện ra kèm romaji + nghĩa. Nghe được ngay.</p>
+
+    <div class="builder-controls">
+      <div class="ctrl-group">
+        <label>Chủ đề — X は</label>
+        <div class="opt-row" id="x-opts"></div>
+      </div>
+      <div class="ctrl-group">
+        <label>Vị ngữ — Y</label>
+        <div class="opt-row" id="y-opts"></div>
+      </div>
+    </div>
+
+    <div class="ctrl-group" style="margin-top:4px;">
+      <label>Dạng của です</label>
+      <div class="form-toggle" id="form-opts">
+        <button class="form-btn active" data-form="affirm">Khẳng định · です</button>
+        <button class="form-btn" data-form="negative">Phủ định · じゃありません</button>
+        <button class="form-btn" data-form="past">Quá khứ · でした</button>
+        <button class="form-btn" data-form="question">Nghi vấn · か</button>
+      </div>
+    </div>
+
+    <div class="sentence-out" id="sentence-out">
+      <div class="sentence-jp" id="s-jp">これは ほんです。</div>
+      <div class="sentence-ro" id="s-ro">Kore wa hon desu.</div>
+      <div class="sentence-vi" id="s-vi">Cái này là sách.</div>
+      <div class="sentence-tag" id="s-tag">🔊 Click để nghe lại</div>
+    </div>
+  </section>
+
+  <!-- Module 2: です conjugation -->
+  <section class="module">
+    <h2>2. Bảng chia です — 4 dạng</h2>
+    <p>Copula <strong>です</strong> dùng với danh từ/tính từ. Mẫu: <span style="font-family:'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;font-weight:700;">学生</span> (gakusei — học sinh). Click ô 🔊 để nghe.</p>
+    <table class="conj">
+      <thead>
+        <tr><th>Dạng</th><th>Câu mẫu</th><th>Romaji</th><th>Nghĩa</th><th>Nghe</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="dang">Khẳng định</td>
+          <td class="jp">学生です</td>
+          <td class="ro">gakusei desu</td>
+          <td>là học sinh</td>
+          <td class="play-cell" data-speak="学生です">🔊</td>
+        </tr>
+        <tr>
+          <td class="dang">Phủ định</td>
+          <td class="jp">学生じゃありません</td>
+          <td class="ro">gakusei ja arimasen</td>
+          <td>không phải là học sinh</td>
+          <td class="play-cell" data-speak="学生じゃありません">🔊</td>
+        </tr>
+        <tr>
+          <td class="dang">Quá khứ</td>
+          <td class="jp">学生でした</td>
+          <td class="ro">gakusei deshita</td>
+          <td>đã là học sinh</td>
+          <td class="play-cell" data-speak="学生でした">🔊</td>
+        </tr>
+        <tr>
+          <td class="dang">Nghi vấn</td>
+          <td class="jp">学生ですか</td>
+          <td class="ro">gakusei desu ka</td>
+          <td>có phải là học sinh không?</td>
+          <td class="play-cell" data-speak="学生ですか">🔊</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note"><strong>Ghi chú:</strong> phủ định trang trọng hơn là <span style="font-family:'Hiragino Kaku Gothic ProN',sans-serif;">ではありません</span> (<em>dewa arimasen</em>). Quá khứ phủ định = <span style="font-family:'Hiragino Kaku Gothic ProN',sans-serif;">じゃありませんでした</span> (<em>ja arimasen deshita</em>).</div>
+  </section>
+
+  <!-- Module 3: ます conjugation -->
+  <section class="module">
+    <h2>3. Bảng chia ます — 4 dạng</h2>
+    <p>Động từ ở thể lịch sự kết thúc bằng <strong>〜ます</strong>. Mẫu: <span style="font-family:'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;font-weight:700;">行きます</span> (ikimasu — đi). Chỉ thay phần đuôi, gốc 行き- giữ nguyên. Click 🔊 để nghe.</p>
+    <table class="conj">
+      <thead>
+        <tr><th>Dạng</th><th>Động từ</th><th>Romaji</th><th>Nghĩa</th><th>Nghe</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="dang">Khẳng định</td>
+          <td class="jp">行きます</td>
+          <td class="ro">ikimasu</td>
+          <td>đi / sẽ đi</td>
+          <td class="play-cell" data-speak="行きます">🔊</td>
+        </tr>
+        <tr>
+          <td class="dang">Phủ định</td>
+          <td class="jp">行きません</td>
+          <td class="ro">ikimasen</td>
+          <td>không đi</td>
+          <td class="play-cell" data-speak="行きません">🔊</td>
+        </tr>
+        <tr>
+          <td class="dang">Quá khứ (kh.định)</td>
+          <td class="jp">行きました</td>
+          <td class="ro">ikimashita</td>
+          <td>đã đi</td>
+          <td class="play-cell" data-speak="行きました">🔊</td>
+        </tr>
+        <tr>
+          <td class="dang">Quá khứ (ph.định)</td>
+          <td class="jp">行きませんでした</td>
+          <td class="ro">ikimasen deshita</td>
+          <td>đã không đi</td>
+          <td class="play-cell" data-speak="行きませんでした">🔊</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note"><strong>Nghi vấn động từ:</strong> y như です, chỉ thêm <span style="font-family:'Hiragino Kaku Gothic ProN',sans-serif;">か</span> vào cuối — <span style="font-family:'Hiragino Kaku Gothic ProN',sans-serif;">行きますか</span> (<em>ikimasu ka</em>, có đi không?). <span class="play-cell" data-speak="行きますか">🔊 nghe</span></div>
+  </section>
+
+  <!-- Module 4: question & answer -->
+  <section class="module">
+    <h2>4. Câu hỏi với か và trả lời はい / いいえ</h2>
+    <p>Thêm <strong>か</strong> vào cuối câu khẳng định → câu hỏi Yes/No. Trả lời bằng <strong>はい</strong> (hai — vâng) hoặc <strong>いいえ</strong> (iie — không). Click từng bước để nghe.</p>
+    <div class="qa-flow" id="qa-flow"></div>
+  </section>
+
+  <section class="module">
+    <h2>5. Tóm tắt</h2>
+    <ul>
+      <li><strong>です</strong> = copula "là" cho danh từ/tính từ-na. 4 dạng: <code>です</code> · <code>じゃありません</code> · <code>でした</code> · <code>+か</code>.</li>
+      <li><strong>Thể ます</strong> = thể lịch sự của động từ. 4 dạng: <code>ます</code> · <code>ません</code> · <code>ました</code> · <code>ませんでした</code>.</li>
+      <li>Câu hỏi Yes/No: chỉ thêm <strong>か</strong> vào cuối, không đảo trật tự từ. Trả lời はい / いいえ + dạng phủ định tương ứng.</li>
+      <li>Đừng lẫn: danh từ phủ định bằng <code>じゃありません</code>, động từ phủ định bằng <code>ません</code>.</li>
+      <li>Bài tiếp: <a href="../lesson-11-verbs-adjectives/visualization.html">L11 — Động từ &amp; tính từ</a> (chia từ thể từ điển sang ます, tính từ -i/-na).</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+// ===== Web Speech API — ja-JP helper =====
+function jaSpeak(text, rate){ if(!window.speechSynthesis) return;
+  if(window.speechSynthesis.speaking||window.speechSynthesis.pending) window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text); u.lang='ja-JP'; u.rate=rate||0.85;
+  function fire(){ var vs=window.speechSynthesis.getVoices(); var v=vs.find(function(x){return x.lang==='ja-JP';})||vs.find(function(x){return x.lang&&x.lang.indexOf('ja')===0;}); if(v)u.voice=v; try{window.speechSynthesis.resume();}catch(e){} window.speechSynthesis.speak(u); }
+  if(!window.speechSynthesis.getVoices().length){ var d=false,go=function(){if(d)return;d=true;fire();}; window.speechSynthesis.addEventListener('voiceschanged',go,{once:true}); window.speechSynthesis.getVoices(); setTimeout(go,350);} else fire();
+}
+
+// Bind click cho mọi element có data-speak (bảng chia, ghi chú, q&a)
+document.addEventListener('click', function(e){
+  var t = e.target.closest('[data-speak]');
+  if(!t) return;
+  jaSpeak(t.dataset.speak);
+  document.querySelectorAll('.playing').forEach(function(el){ el.classList.remove('playing'); });
+  t.classList.add('playing');
+  setTimeout(function(){ t.classList.remove('playing'); }, 1200);
+});
+
+// ===== Module 1: Sentence builder =====
+var X = [
+  { jp:'これ',        ro:'Kore',       vi:'Cái này' },
+  { jp:'わたし',      ro:'Watashi',    vi:'Tôi' },
+  { jp:'あれ',        ro:'Are',        vi:'Cái kia' },
+  { jp:'たなかさん',  ro:'Tanaka-san', vi:'Anh Tanaka' }
+];
+var Y = [
+  { jp:'ほん',        ro:'hon',       vi:'sách' },
+  { jp:'がくせい',    ro:'gakusei',   vi:'học sinh' },
+  { jp:'せんせい',    ro:'sensei',    vi:'giáo viên' },
+  { jp:'にほんじん',  ro:'nihonjin',  vi:'người Nhật' }
+];
+// 4 dạng của です
+var FORMS = {
+  affirm:   { suf:'です',           roSuf:'desu',           end:'。', tag:'Khẳng định — です',
+              vi:function(x,y){ return x.vi + ' là ' + y.vi + '.'; } },
+  negative: { suf:'じゃありません', roSuf:'ja arimasen',    end:'。', tag:'Phủ định — じゃありません',
+              vi:function(x,y){ return x.vi + ' không phải là ' + y.vi + '.'; } },
+  past:     { suf:'でした',         roSuf:'deshita',        end:'。', tag:'Quá khứ — でした',
+              vi:function(x,y){ return x.vi + ' (đã) là ' + y.vi + '.'; } },
+  question: { suf:'ですか',         roSuf:'desu ka',        end:'？', tag:'Nghi vấn — か',
+              vi:function(x,y){ return x.vi + ' có phải là ' + y.vi + ' không?'; } }
+};
+
+var state = { x:0, y:0, form:'affirm' };
+
+function buildOpts(containerId, arr, key){
+  var c = document.getElementById(containerId);
+  arr.forEach(function(item, i){
+    var b = document.createElement('button');
+    b.className = 'opt-btn' + (state[key]===i ? ' active' : '');
+    b.innerHTML = item.jp + '<span class="ro">' + item.ro.toLowerCase() + '</span>';
+    b.addEventListener('click', function(){
+      state[key] = i;
+      c.querySelectorAll('.opt-btn').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+      render(true);
+    });
+    c.appendChild(b);
+  });
+}
+
+document.querySelectorAll('#form-opts .form-btn').forEach(function(b){
+  b.addEventListener('click', function(){
+    state.form = b.dataset.form;
+    document.querySelectorAll('#form-opts .form-btn').forEach(function(x){ x.classList.remove('active'); });
+    b.classList.add('active');
+    render(true);
+  });
+});
+
+function render(speak){
+  var x = X[state.x], y = Y[state.y], f = FORMS[state.form];
+  var jp = x.jp + 'は' + y.jp + f.suf + f.end;
+  var ro = x.ro + ' wa ' + y.ro + ' ' + f.roSuf + (state.form==='question' ? '?' : '.');
+  document.getElementById('s-jp').textContent = jp;
+  document.getElementById('s-ro').textContent = ro;
+  document.getElementById('s-vi').textContent = f.vi(x, y);
+  document.getElementById('s-tag').textContent = '🔊 ' + f.tag + ' · click nghe lại';
+  if(speak) jaSpeak(x.jp + 'は' + y.jp + f.suf);
+}
+
+buildOpts('x-opts', X, 'x');
+buildOpts('y-opts', Y, 'y');
+document.getElementById('sentence-out').addEventListener('click', function(){
+  var x = X[state.x], y = Y[state.y], f = FORMS[state.form];
+  jaSpeak(x.jp + 'は' + y.jp + f.suf);
+});
+render(false);
+
+// ===== Module 4: Q&A flow =====
+var QA = [
+  { role:'stmt', badge:'1',  cls:'',   jp:'これは ほんです。',              ro:'Kore wa hon desu.',        vi:'Đây là quyển sách.' },
+  { role:'q',    badge:'?',  cls:'q',  jp:'これは ほんですか。',            ro:'Kore wa hon desu ka.',     vi:'Đây có phải là sách không?' },
+  { role:'yes',  badge:'✓',  cls:'yes',jp:'はい、ほんです。',               ro:'Hai, hon desu.',           vi:'Vâng, là sách.' },
+  { role:'no',   badge:'✗',  cls:'no', jp:'いいえ、ほんじゃありません。',   ro:'Iie, hon ja arimasen.',    vi:'Không, không phải là sách.' },
+  { role:'q',    badge:'?',  cls:'q',  jp:'にほんごを べんきょうしますか。',ro:'Nihongo o benkyou shimasu ka.', vi:'Bạn có học tiếng Nhật không?' },
+  { role:'yes',  badge:'✓',  cls:'yes',jp:'はい、べんきょうします。',       ro:'Hai, benkyou shimasu.',    vi:'Vâng, có học.' },
+  { role:'no',   badge:'✗',  cls:'no', jp:'いいえ、べんきょうしません。',   ro:'Iie, benkyou shimasen.',   vi:'Không, không học.' }
+];
+var flow = document.getElementById('qa-flow');
+QA.forEach(function(item){
+  var d = document.createElement('div');
+  d.className = 'qa-step';
+  d.setAttribute('data-speak', item.jp);
+  d.innerHTML =
+    '<span class="qa-badge ' + item.cls + '">' + item.badge + '</span>' +
+    '<span class="qa-body">' +
+      '<span class="qa-jp">' + item.jp + '</span><br>' +
+      '<span class="qa-ro">' + item.ro + '</span> — <span class="qa-vi">' + item.vi + '</span>' +
+    '</span>' +
+    '<span class="qa-play-hint">🔊 nghe</span>';
+  flow.appendChild(d);
+});
+
+// Preload voices
+if(window.speechSynthesis){ window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = function(){ window.speechSynthesis.getVoices(); }; }
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02: Katakana — Japanese</title>
+<link rel="stylesheet" href="../../../tools/viz-base.css">
+<style>
+  :root {
+    --bg: #faf5ff;
+    --accent: #9333ea;
+    --accent-soft: #f3e8ff;
+    --accent-hover: #7e22ce;
+  }
+  main { max-width: 1040px; }
+
+  h1 { color: #6b21a8; }
+  h2 { color: #7e22ce; margin-top: 34px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+  h3 { color: #9333ea; margin-top: 22px; }
+  .lead { font-size: 1.08rem; color: #4b5563; line-height: 1.7; margin-bottom: 22px; }
+
+  .module {
+    background: white;
+    border: 1px solid #e9d5ff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 22px;
+  }
+
+  /* ---- Toggle nút chế độ ---- */
+  .mode-bar { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 16px; }
+  .mode-bar button {
+    padding: 8px 16px;
+    border: 2px solid var(--accent);
+    border-radius: 999px;
+    background: white;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .mode-bar button:hover { background: var(--accent-soft); }
+  .mode-bar button.active { background: var(--accent); color: white; }
+
+  /* ---- Bảng Katakana ---- */
+  .kana-table { display: flex; flex-direction: column; gap: 8px; }
+  .kana-row { display: flex; gap: 8px; align-items: stretch; }
+  .row-label {
+    flex: 0 0 30px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; color: #a78bfa; font-size: 13px;
+    font-family: monospace;
+  }
+  .kana-cell {
+    flex: 1 1 0;
+    min-width: 0;
+    border: 1.5px solid #e9d5ff;
+    border-radius: 10px;
+    background: white;
+    padding: 8px 2px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform .1s, box-shadow .1s, background .1s;
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+  }
+  .kana-cell:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(147,51,234,.15); background: var(--accent-soft); }
+  .kana-cell.playing { background: #fef3c7; border-color: #f59e0b; }
+  .kana-cell.empty { visibility: hidden; cursor: default; }
+  .c-hira {
+    font-size: 15px; color: #c4b5fd; line-height: 1;
+    display: none;
+  }
+  .kana-table.compare .c-hira { display: block; }
+  .c-kata { font-size: 30px; font-weight: 700; color: #1f2937; line-height: 1.05; }
+  .c-romaji { font-size: 12px; color: #6b7280; font-family: monospace; }
+  .kana-cell.confuse .c-kata { color: var(--accent); }
+
+  .readout {
+    margin-top: 14px;
+    background: var(--accent-soft);
+    border-radius: 10px;
+    padding: 12px 16px;
+    min-height: 44px;
+    display: flex; align-items: center; gap: 14px;
+    font-size: 15px; color: #4b5563;
+  }
+  .readout .big { font-size: 34px; font-weight: 700; color: #6b21a8; }
+  .readout .rom { font-family: monospace; font-size: 20px; color: var(--accent); font-weight: 700; }
+
+  /* ---- SVG cặp dễ nhầm ---- */
+  .stroke-svg { width: 100%; height: auto; max-width: 660px; display: block; margin: 8px auto; }
+  .pair-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+  .pair-table th, .pair-table td { border: 1px solid #e9d5ff; padding: 8px 10px; text-align: left; }
+  .pair-table th { background: var(--accent-soft); color: #6b21a8; }
+  .pair-table .big-k { font-size: 26px; font-weight: 700; color: var(--accent); }
+  .rule-box {
+    background: #f5f3ff;
+    border-left: 4px solid var(--accent);
+    padding: 12px 16px; border-radius: 8px; margin: 14px 0;
+  }
+
+  /* ---- Flashcard từ mượn ---- */
+  .flash {
+    text-align: center;
+    background: white;
+    border: 2px dashed var(--accent);
+    border-radius: 14px;
+    padding: 22px 16px;
+    margin: 14px 0;
+  }
+  .flash-kata { font-size: 52px; font-weight: 700; color: #1f2937; line-height: 1.1; }
+  .flash-answer { margin-top: 10px; min-height: 66px; }
+  .flash-answer.hidden { visibility: hidden; }
+  .flash-rom { font-size: 24px; font-weight: 700; color: var(--accent); font-family: monospace; }
+  .flash-src { font-size: 14px; color: #9ca3af; margin-top: 2px; }
+  .flash-mean { font-size: 17px; color: #374151; margin-top: 4px; }
+  .flash-controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 14px; }
+  .flash-controls button, .btn {
+    padding: 8px 16px; border-radius: 999px; border: 2px solid var(--accent);
+    background: white; color: var(--accent); font-weight: 700; cursor: pointer; font-size: 14px;
+    transition: all .12s;
+  }
+  .flash-controls button:hover, .btn:hover { background: var(--accent-soft); }
+  .btn-solid { background: var(--accent); color: white; }
+  .btn-solid:hover { background: var(--accent-hover); }
+  .flash-count { font-size: 13px; color: #9ca3af; margin-top: 10px; }
+
+  /* ---- Quiz ---- */
+  .quiz-area { background: #faf5ff; border: 2px dashed #c084fc; border-radius: 12px; padding: 18px; }
+  .quiz-char { font-size: 90px; font-weight: 700; text-align: center; line-height: 1; color: #1f2937; }
+  .quiz-opts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-width: 340px; margin: 16px auto; }
+  .quiz-opts button {
+    padding: 12px; border: 2px solid var(--accent); border-radius: 10px; background: white;
+    font-weight: 700; font-size: 18px; font-family: monospace; cursor: pointer; color: #374151;
+    transition: all .12s;
+  }
+  .quiz-opts button:hover { background: var(--accent-soft); }
+  .quiz-opts button.correct { background: #d1fae5; border-color: #10b981; color: #065f46; }
+  .quiz-opts button.wrong { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+  .quiz-foot { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; }
+  .quiz-score { background: white; padding: 6px 14px; border-radius: 999px; font-size: 14px; font-weight: 600; color: #6b21a8; }
+
+  @media (max-width: 480px) {
+    .c-kata { font-size: 22px; }
+    .row-label { flex-basis: 20px; font-size: 11px; }
+    .kana-cell { padding: 6px 1px 4px; }
+    .flash-kata { font-size: 40px; }
+    .quiz-char { font-size: 70px; }
+  }
+</style>
+</head>
+<body>
+<nav class="viz-nav">
+  <a href="../../../index.html">🏠 Trang chính</a>
+  <span class="sep">·</span>
+  <a href="../../index.html">Japanese</a>
+  <span class="sep">·</span>
+  <a href="../index.html">Nhánh I</a>
+  <span class="sep">·</span>
+  <a href="../lesson-01-hiragana/visualization.html">← L1</a>
+  <span class="sep">·</span>
+  <span class="current">L2: Katakana</span>
+  <span class="sep">·</span>
+  <a href="../lesson-03-dakuten-yoon-sokuon/visualization.html">L3: Âm biến thể →</a>
+</nav>
+
+<main>
+  <h1>Lesson 02: Katakana (カタカナ)</h1>
+  <p class="lead">Katakana là hệ chữ biểu âm thứ hai, có <strong>đúng 46 âm giống Hiragana</strong> nhưng hình chữ góc cạnh khác hẳn. Dùng cho từ mượn, tên nước ngoài, tên khoa học, từ tượng thanh và để nhấn mạnh. Click vào bất kỳ chữ nào để nghe phát âm (Web Speech API, giọng ja-JP).</p>
+
+  <!-- Module 1: Bảng Katakana -->
+  <section class="module">
+    <h2>1. Bảng Katakana tương tác (46 âm)</h2>
+    <p>Click từng ô để nghe. Bật <strong>Đối chiếu Hiragana ↔ Katakana</strong> để thấy chữ Hiragana tương ứng (màu tím nhạt phía trên).</p>
+
+    <div class="mode-bar">
+      <button id="mode-kata" class="active">Chỉ Katakana</button>
+      <button id="mode-compare">Đối chiếu Hira ↔ Kata</button>
+    </div>
+
+    <div class="kana-table" id="kanaTable"></div>
+
+    <div class="readout" id="readout">
+      <span style="color:#9ca3af;">Click một chữ để nghe và xem romaji…</span>
+    </div>
+    <p style="font-size:13px;color:#9ca3af;margin-top:10px;">Bốn ô tô đậm màu tím (シ ツ ソ ン) là các chữ dễ nhầm — xem mục 2.</p>
+  </section>
+
+  <!-- Module 2: Cặp dễ nhầm -->
+  <section class="module">
+    <h2>2. Các cặp dễ nhầm: シ／ツ và ソ／ン</h2>
+    <p>Đây là chỗ sai nhiều nhất khi mới học. Bí quyết: nhìn <strong>hướng của nét dài</strong>. Nét dài đi <strong>LÊN</strong> → nhóm シ &amp; ン. Nét dài đi <strong>XUỐNG</strong> → nhóm ツ &amp; ソ.</p>
+
+    <svg class="stroke-svg" width="660" height="260" viewBox="0 0 660 260" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrUp" markerWidth="10" markerHeight="10" refX="5" refY="1" orient="auto">
+          <path d="M1,9 L5,1 L9,9" fill="none" stroke="#16a34a" stroke-width="2"/>
+        </marker>
+        <marker id="arrDown" markerWidth="10" markerHeight="10" refX="5" refY="9" orient="auto">
+          <path d="M1,1 L5,9 L9,1" fill="none" stroke="#ea580c" stroke-width="2"/>
+        </marker>
+      </defs>
+      <!-- 4 ô -->
+      <g font-family="sans-serif">
+        <!-- シ shi : lên -->
+        <rect x="12" y="20" width="150" height="200" rx="12" fill="#f0fdf4" stroke="#bbf7d0"/>
+        <text x="87" y="120" text-anchor="middle" font-size="86" font-weight="700" fill="#1f2937">シ</text>
+        <line x1="55" y1="180" x2="120" y2="120" stroke="#16a34a" stroke-width="3" marker-end="url(#arrUp)"/>
+        <text x="87" y="205" text-anchor="middle" font-size="16" font-weight="700" fill="#16a34a">shi · nét dài LÊN</text>
+        <text x="87" y="42" text-anchor="middle" font-size="12" fill="#6b7280">2 nét ngắn nằm ngang, bên trái</text>
+
+        <!-- ツ tsu : xuống -->
+        <rect x="174" y="20" width="150" height="200" rx="12" fill="#fff7ed" stroke="#fed7aa"/>
+        <text x="249" y="120" text-anchor="middle" font-size="86" font-weight="700" fill="#1f2937">ツ</text>
+        <line x1="285" y1="120" x2="220" y2="180" stroke="#ea580c" stroke-width="3" marker-end="url(#arrDown)"/>
+        <text x="249" y="205" text-anchor="middle" font-size="16" font-weight="700" fill="#ea580c">tsu · nét dài XUỐNG</text>
+        <text x="249" y="42" text-anchor="middle" font-size="12" fill="#6b7280">2 nét ngắn dựng đứng, ở trên</text>
+
+        <!-- ソ so : xuống -->
+        <rect x="336" y="20" width="150" height="200" rx="12" fill="#fff7ed" stroke="#fed7aa"/>
+        <text x="411" y="120" text-anchor="middle" font-size="86" font-weight="700" fill="#1f2937">ソ</text>
+        <line x1="447" y1="120" x2="382" y2="180" stroke="#ea580c" stroke-width="3" marker-end="url(#arrDown)"/>
+        <text x="411" y="205" text-anchor="middle" font-size="16" font-weight="700" fill="#ea580c">so · nét dài XUỐNG</text>
+        <text x="411" y="42" text-anchor="middle" font-size="12" fill="#6b7280">1 nét ngắn dốc đứng</text>
+
+        <!-- ン n : lên -->
+        <rect x="498" y="20" width="150" height="200" rx="12" fill="#f0fdf4" stroke="#bbf7d0"/>
+        <text x="573" y="120" text-anchor="middle" font-size="86" font-weight="700" fill="#1f2937">ン</text>
+        <line x1="541" y1="180" x2="606" y2="120" stroke="#16a34a" stroke-width="3" marker-end="url(#arrUp)"/>
+        <text x="573" y="205" text-anchor="middle" font-size="16" font-weight="700" fill="#16a34a">n · nét dài LÊN</text>
+        <text x="573" y="42" text-anchor="middle" font-size="12" fill="#6b7280">1 nét ngắn nằm thoải</text>
+      </g>
+    </svg>
+    <p style="text-align:center;font-size:13px;color:#9ca3af;">Mũi tên xanh = viết đi lên · mũi tên cam = viết đi xuống. Click các chữ dưới đây để nghe:</p>
+    <div style="text-align:center;margin:6px 0 4px;">
+      <button class="btn" data-speak="シ">シ shi</button>
+      <button class="btn" data-speak="ツ">ツ tsu</button>
+      <button class="btn" data-speak="ソ">ソ so</button>
+      <button class="btn" data-speak="ン">ン n</button>
+    </div>
+
+    <table class="pair-table">
+      <thead><tr><th>Cặp</th><th>Nét ngắn</th><th>Nét dài</th></tr></thead>
+      <tbody>
+        <tr><td><span class="big-k">シ</span> shi</td><td>2 nét, nằm ngang, bên trái</td><td>quét từ dưới <strong>lên</strong></td></tr>
+        <tr><td><span class="big-k">ツ</span> tsu</td><td>2 nét, dựng đứng, ở trên</td><td>quét từ trên <strong>xuống</strong></td></tr>
+        <tr><td><span class="big-k">ソ</span> so</td><td>1 nét, dốc đứng</td><td>quét từ trên <strong>xuống</strong></td></tr>
+        <tr><td><span class="big-k">ン</span> n</td><td>1 nét, nằm thoải</td><td>quét từ dưới <strong>lên</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="rule-box">
+      <strong>Quy tắc vàng:</strong> nhóm theo hướng nét dài — <strong>LÊN → シ, ン</strong>; <strong>XUỐNG → ツ, ソ</strong>. Trong mỗi nhóm, số nét ngắn phân biệt tiếp: シ/ツ có 2 nét ngắn, ソ/ン chỉ 1 nét ngắn.
+    </div>
+  </section>
+
+  <!-- Module 3: Đọc từ mượn -->
+  <section class="module">
+    <h2>3. Đọc từ mượn (gairaigo 外来語)</h2>
+    <p>Đọc chữ Katakana, đoán romaji + từ gốc tiếng Anh/nghĩa, rồi bấm <strong>Hiện đáp án</strong> để kiểm tra. Nhớ: thấy dấu <strong>ー</strong> là kéo dài nguyên âm liền trước.</p>
+
+    <div class="flash">
+      <div class="flash-kata" id="flashKata">コーヒー</div>
+      <button class="btn btn-solid" id="flashPlay" style="margin-top:10px;">🔊 Nghe</button>
+      <div class="flash-answer hidden" id="flashAnswer">
+        <div class="flash-rom" id="flashRom">kōhī</div>
+        <div class="flash-src" id="flashSrc">← coffee</div>
+        <div class="flash-mean" id="flashMean">cà phê</div>
+      </div>
+      <div class="flash-controls">
+        <button id="flashReveal">Hiện đáp án</button>
+        <button id="flashPrev">← Trước</button>
+        <button id="flashNext">Sau →</button>
+      </div>
+      <div class="flash-count" id="flashCount">Thẻ 1 / 12</div>
+    </div>
+  </section>
+
+  <!-- Module 4: Quiz -->
+  <section class="module">
+    <h2>4. Quiz — nhận diện chữ dễ nhầm</h2>
+    <p>Nhìn chữ (và nghe audio), chọn romaji đúng. 10 câu, tập trung vào シ ツ ソ ン và vài chữ hay lẫn khác.</p>
+
+    <div class="quiz-area">
+      <div class="quiz-char" id="quizChar">シ</div>
+      <div style="text-align:center;margin-top:8px;">
+        <button class="btn" id="quizReplay">🔊 Nghe lại</button>
+      </div>
+      <div class="quiz-opts" id="quizOpts"></div>
+      <div class="quiz-foot">
+        <span class="quiz-score" id="quizScore">Câu 1/10 · Đúng 0</span>
+        <button class="btn" id="quizNext" disabled>Câu tiếp →</button>
+        <button class="btn" id="quizReset">↺ Làm lại</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="module">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Katakana = 46 âm <strong>giống Hiragana</strong>, khác hình chữ; dùng cho từ mượn, tên nước ngoài, tên khoa học, tượng thanh, nhấn mạnh.</li>
+      <li>Cặp dễ nhầm: <strong>シ shi / ツ tsu</strong> và <strong>ソ so / ン n</strong> — phân biệt bằng hướng nét dài (lên: シ ン; xuống: ツ ソ).</li>
+      <li>Trường âm ghi bằng dấu <strong>ー</strong>, kéo dài nguyên âm trước thêm một nhịp.</li>
+      <li>Bài tiếp: <a href="../lesson-03-dakuten-yoon-sokuon/visualization.html">L03 — Âm biến thể (dakuten, yōon, sokuon)</a>.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+// ============================================================
+// Web Speech API — helper jaSpeak (giọng ja-JP)
+// ============================================================
+function jaSpeak(text, rate){ if(!window.speechSynthesis) return;
+  if(window.speechSynthesis.speaking||window.speechSynthesis.pending) window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text); u.lang='ja-JP'; u.rate=rate||0.85;
+  function fire(){ var vs=window.speechSynthesis.getVoices(); var v=vs.find(function(x){return x.lang==='ja-JP';})||vs.find(function(x){return x.lang&&x.lang.indexOf('ja')===0;}); if(v)u.voice=v; try{window.speechSynthesis.resume();}catch(e){} window.speechSynthesis.speak(u); }
+  if(!window.speechSynthesis.getVoices().length){ var d=false,go=function(){if(d)return;d=true;fire();}; window.speechSynthesis.addEventListener('voiceschanged',go,{once:true}); window.speechSynthesis.getVoices(); setTimeout(go,350);} else fire();
+}
+
+// Bind mọi element có data-speak
+document.addEventListener('click', function(e){
+  var t = e.target.closest('[data-speak]');
+  if (t) jaSpeak(t.dataset.speak);
+});
+
+// ============================================================
+// Module 1: Bảng Katakana
+// ============================================================
+var CONFUSE = ['シ','ツ','ソ','ン'];
+var ROWS = [
+  { label: '', cells: [['ア','あ','a'],['イ','い','i'],['ウ','う','u'],['エ','え','e'],['オ','お','o']] },
+  { label: 'K', cells: [['カ','か','ka'],['キ','き','ki'],['ク','く','ku'],['ケ','け','ke'],['コ','こ','ko']] },
+  { label: 'S', cells: [['サ','さ','sa'],['シ','し','shi'],['ス','す','su'],['セ','せ','se'],['ソ','そ','so']] },
+  { label: 'T', cells: [['タ','た','ta'],['チ','ち','chi'],['ツ','つ','tsu'],['テ','て','te'],['ト','と','to']] },
+  { label: 'N', cells: [['ナ','な','na'],['ニ','に','ni'],['ヌ','ぬ','nu'],['ネ','ね','ne'],['ノ','の','no']] },
+  { label: 'H', cells: [['ハ','は','ha'],['ヒ','ひ','hi'],['フ','ふ','fu'],['ヘ','へ','he'],['ホ','ほ','ho']] },
+  { label: 'M', cells: [['マ','ま','ma'],['ミ','み','mi'],['ム','む','mu'],['メ','め','me'],['モ','も','mo']] },
+  { label: 'Y', cells: [['ヤ','や','ya'],null,['ユ','ゆ','yu'],null,['ヨ','よ','yo']] },
+  { label: 'R', cells: [['ラ','ら','ra'],['リ','り','ri'],['ル','る','ru'],['レ','れ','re'],['ロ','ろ','ro']] },
+  { label: 'W', cells: [['ワ','わ','wa'],null,null,null,['ヲ','を','wo']] },
+  { label: '', cells: [['ン','ん','n'],null,null,null,null] }
+];
+
+var table = document.getElementById('kanaTable');
+var readout = document.getElementById('readout');
+ROWS.forEach(function(row){
+  var r = document.createElement('div');
+  r.className = 'kana-row';
+  var lab = document.createElement('div');
+  lab.className = 'row-label';
+  lab.textContent = row.label;
+  r.appendChild(lab);
+  row.cells.forEach(function(c){
+    var cell = document.createElement('div');
+    cell.className = 'kana-cell';
+    if (!c) { cell.className += ' empty'; r.appendChild(cell); return; }
+    if (CONFUSE.indexOf(c[0]) !== -1) cell.className += ' confuse';
+    cell.innerHTML = '<span class="c-hira">'+c[1]+'</span>'+
+                     '<span class="c-kata">'+c[0]+'</span>'+
+                     '<span class="c-romaji">'+c[2]+'</span>';
+    cell.addEventListener('click', function(){
+      document.querySelectorAll('.kana-cell.playing').forEach(function(x){x.classList.remove('playing');});
+      cell.classList.add('playing');
+      setTimeout(function(){ cell.classList.remove('playing'); }, 700);
+      jaSpeak(c[0]);
+      readout.innerHTML = '<span class="big">'+c[0]+'</span>' +
+        '<span>Hiragana: <strong style="font-size:22px;color:#a78bfa;">'+c[1]+'</strong></span>' +
+        '<span class="rom">'+c[2]+'</span>';
+    });
+    r.appendChild(cell);
+  });
+  table.appendChild(r);
+});
+
+document.getElementById('mode-kata').addEventListener('click', function(){
+  table.classList.remove('compare');
+  this.classList.add('active');
+  document.getElementById('mode-compare').classList.remove('active');
+});
+document.getElementById('mode-compare').addEventListener('click', function(){
+  table.classList.add('compare');
+  this.classList.add('active');
+  document.getElementById('mode-kata').classList.remove('active');
+});
+
+// ============================================================
+// Module 3: Flashcard từ mượn
+// ============================================================
+var LOAN = [
+  {k:'コーヒー', r:'kōhī', src:'coffee', mean:'cà phê'},
+  {k:'テレビ', r:'terebi', src:'television', mean:'TV, ti vi'},
+  {k:'パン', r:'pan', src:'pão (Bồ Đào Nha)', mean:'bánh mì'},
+  {k:'タクシー', r:'takushī', src:'taxi', mean:'tắc xi'},
+  {k:'ホテル', r:'hoteru', src:'hotel', mean:'khách sạn'},
+  {k:'カメラ', r:'kamera', src:'camera', mean:'máy ảnh'},
+  {k:'ビール', r:'bīru', src:'bier (Hà Lan)', mean:'bia'},
+  {k:'ノート', r:'nōto', src:'notebook', mean:'vở, sổ tay'},
+  {k:'バス', r:'basu', src:'bus', mean:'xe buýt'},
+  {k:'レストラン', r:'resutoran', src:'restaurant', mean:'nhà hàng'},
+  {k:'ジュース', r:'jūsu', src:'juice', mean:'nước ép'},
+  {k:'パソコン', r:'pasokon', src:'personal computer', mean:'máy tính'}
+];
+var fi = 0;
+var elKata = document.getElementById('flashKata'),
+    elAns = document.getElementById('flashAnswer'),
+    elRom = document.getElementById('flashRom'),
+    elSrc = document.getElementById('flashSrc'),
+    elMean = document.getElementById('flashMean'),
+    elCount = document.getElementById('flashCount');
+
+function renderFlash(){
+  var w = LOAN[fi];
+  elKata.textContent = w.k;
+  elRom.textContent = w.r;
+  elSrc.textContent = '← ' + w.src;
+  elMean.textContent = w.mean;
+  elAns.classList.add('hidden');
+  elCount.textContent = 'Thẻ ' + (fi+1) + ' / ' + LOAN.length;
+}
+document.getElementById('flashReveal').addEventListener('click', function(){ elAns.classList.remove('hidden'); });
+document.getElementById('flashPlay').addEventListener('click', function(){ jaSpeak(LOAN[fi].k); });
+document.getElementById('flashPrev').addEventListener('click', function(){ fi = (fi - 1 + LOAN.length) % LOAN.length; renderFlash(); });
+document.getElementById('flashNext').addEventListener('click', function(){ fi = (fi + 1) % LOAN.length; renderFlash(); });
+renderFlash();
+
+// ============================================================
+// Module 4: Quiz cặp dễ nhầm
+// ============================================================
+var QBANK = [
+  {c:'シ', r:'shi'}, {c:'ツ', r:'tsu'}, {c:'ソ', r:'so'}, {c:'ン', r:'n'},
+  {c:'ク', r:'ku'}, {c:'ワ', r:'wa'}, {c:'ノ', r:'no'}, {c:'ヌ', r:'nu'},
+  {c:'メ', r:'me'}, {c:'ア', r:'a'}, {c:'マ', r:'ma'}
+];
+var qIdx = 0, qCorrect = 0, qCur = null, qDone = false;
+var qCharEl = document.getElementById('quizChar'),
+    qOptsEl = document.getElementById('quizOpts'),
+    qScoreEl = document.getElementById('quizScore'),
+    qNextBtn = document.getElementById('quizNext');
+
+function shuffle(a){ for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;} return a; }
+
+function newQuestion(){
+  qCur = QBANK[Math.floor(Math.random()*QBANK.length)];
+  qCharEl.textContent = qCur.c;
+  // tạo 4 lựa chọn: 1 đúng + 3 nhiễu
+  var opts = [qCur.r];
+  var pool = QBANK.filter(function(x){ return x.r !== qCur.r; });
+  shuffle(pool);
+  for (var i=0;i<3 && i<pool.length;i++) opts.push(pool[i].r);
+  shuffle(opts);
+  qOptsEl.innerHTML = '';
+  opts.forEach(function(r){
+    var b = document.createElement('button');
+    b.textContent = r;
+    b.addEventListener('click', function(){
+      if (qDone) return;
+      qDone = true;
+      if (r === qCur.r) { b.classList.add('correct'); qCorrect++; }
+      else {
+        b.classList.add('wrong');
+        Array.prototype.forEach.call(qOptsEl.children, function(x){ if (x.textContent === qCur.r) x.classList.add('correct'); });
+      }
+      Array.prototype.forEach.call(qOptsEl.children, function(x){ x.disabled = true; });
+      qScoreEl.textContent = 'Câu ' + (qIdx+1) + '/10 · Đúng ' + qCorrect;
+      qNextBtn.disabled = false;
+    });
+    qOptsEl.appendChild(b);
+  });
+  qScoreEl.textContent = 'Câu ' + (qIdx+1) + '/10 · Đúng ' + qCorrect;
+  qDone = false;
+  qNextBtn.disabled = true;
+  setTimeout(function(){ jaSpeak(qCur.c); }, 200);
+}
+document.getElementById('quizReplay').addEventListener('click', function(){ if (qCur) jaSpeak(qCur.c); });
+qNextBtn.addEventListener('click', function(){
+  if (!qDone) return;
+  qIdx++;
+  if (qIdx >= 10) {
+    qCharEl.textContent = '✓';
+    qOptsEl.innerHTML = '';
+    var msg = qCorrect >= 8 ? '🎉 Xuất sắc!' : (qCorrect >= 5 ? '👍 Khá, luyện thêm nhé.' : 'Luyện lại các cặp dễ nhầm nhé.');
+    qScoreEl.textContent = 'Xong! Đúng ' + qCorrect + '/10. ' + msg;
+    qNextBtn.disabled = true;
+    return;
+  }
+  newQuestion();
+});
+document.getElementById('quizReset').addEventListener('click', function(){
+  qIdx = 0; qCorrect = 0; newQuestion();
+});
+newQuestion();
+
+// Preload voices
+if (window.speechSynthesis) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = function(){ window.speechSynthesis.getVoices(); };
+}
+</script>
+
+<script src="../../../tools/marked.min.js"></script>
+<script src="./README.data.js"></script>
+<script src="../../../tools/readme-modal.js"></script>
+<script src="../../../tools/viz-toc.js"></script>
+</body>
+</html>
